@@ -53,6 +53,7 @@
 #define KEY_CTRL_E 5 // add new effect
 #define KEY_CTRL_F 6 // go fullscreen
 #define KEY_CTRL_G 7
+#define KEY_CTRL_H_APPLE 8 // ctrl-h on apple/OSX
 #define KEY_CTRL_I 9 // OSD on/off
 #define KEY_CTRL_K 11 // delete until end of line
 #define KEY_CTRL_L 12 // refresh screen
@@ -844,6 +845,7 @@ void Console::parser_default(int key) {
     break;
 
   case KEY_CTRL_H:
+  case KEY_CTRL_H_APPLE:
     notice("Hotkeys available in FreeJ console:");
     act("arrow keys browse selection thru layers and effects");
     act("HOME de/activate layer, INS de/activates filter");
