@@ -125,8 +125,8 @@ static int blit_comp(char *cmd) {
 
   if(!blits[1]) { // exact match, then fill in command
     b = (Blit*) lay->blitter.blitlist.pick(blits[0]);
-    ::notice("%s :: %s",b->name,b->desc);
-    snprintf(cmd,511,"%s",b->name);
+    ::notice("%s :: %s",b->get_name(),b->desc);
+    snprintf(cmd,511,"%s",b->get_name());
     return 1;
   }
   
@@ -137,7 +137,7 @@ static int blit_comp(char *cmd) {
     if(!b) {
       func("error in completion: missing %i");
       continue; }
-    ::act("%s :: %s",b->name,b->desc);
+    ::act("%s :: %s",b->get_name(),b->desc);
   }
   return c;
 }
@@ -676,7 +676,7 @@ void Console::layerprint() {
   SLsmg_write_string("blit: ");
   SLsmg_set_color(LAYERS_COLOR+10);
   SLsmg_write_string((layer->blitter.current_blit)?
-		     layer->blitter.current_blit->name:
+		     layer->blitter.current_blit->get_name():
 		     (char*)" ");
   SLsmg_write_char(' ');
   SLsmg_printf("[%u]",(layer->blitter.current_blit)?

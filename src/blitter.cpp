@@ -151,7 +151,7 @@ Blitter::Blitter() {
   rotation = 0.0;
 
   /* the default blit that should always be present */
-  Blit *b = new Blit(); sprintf(b->name,"MEMCPY");
+  Blit *b = new Blit(); sprintf(b->get_name(),"MEMCPY");
   sprintf(b->desc,"vanilla glibc memcpy");
   b->type = LINEAR_BLIT;
   b->fun = memcpy_blit; blitlist.append(b);
@@ -171,120 +171,120 @@ Blitter::~Blitter() {
 
 bool Blitter::init(Layer *lay) {
   layer = lay;
-  func("blitter initialized for layer %s",lay->name);
+  func("blitter initialized for layer %s",lay->get_name());
 
   /* fill up linklist of blits */
   Blit *b;
 
 
-  b = new Blit(); sprintf(b->name,"AMEMCPY");
+  b = new Blit(); b->set_name("AMEMCPY");
   sprintf(b->desc,"cpu accelerated memcpy");
   b->type = LINEAR_BLIT;
   b->fun = accel_memcpy_blit; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"ADD");
+  b = new Blit(); b->set_name("ADD");
   sprintf(b->desc,"bytewise addition");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_add; blitlist.append(b);
   
-  b = new Blit(); sprintf(b->name,"SUB");
+  b = new Blit(); b->set_name("SUB");
   sprintf(b->desc,"bytewise subtraction");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_sub; blitlist.append(b);
   
-  b = new Blit(); sprintf(b->name,"MEAN");
+  b = new Blit(); b->set_name("MEAN");
   sprintf(b->desc,"bytewise mean");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_add; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"ABSDIFF");
+  b = new Blit(); b->set_name("ABSDIFF");
   sprintf(b->desc,"absolute difference");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_absdiff; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"MULT");
+  b = new Blit(); b->set_name("MULT");
   sprintf(b->desc,"multiplication");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_mult; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"MULTNOR");
+  b = new Blit(); b->set_name("MULTNOR");
   sprintf(b->desc,"normalized multiplication");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_multnor; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"DIV");
+  b = new Blit(); b->set_name("DIV");
   sprintf(b->desc,"division");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_div; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"MULTDIV2");
+  b = new Blit(); b->set_name("MULTDIV2");
   sprintf(b->desc,"multiplication and division by 2");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_multdiv2; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"MULTDIV4");
+  b = new Blit(); b->set_name("MULTDIV4");
   sprintf(b->desc,"multiplication and division by 4");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_multdiv4; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"AND");
+  b = new Blit(); b->set_name("AND");
   sprintf(b->desc,"bitwise and");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_and; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"OR");
+  b = new Blit(); b->set_name("OR");
   sprintf(b->desc,"bitwise or");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_or; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"NEG");
+  b = new Blit(); b->set_name("NEG");
   sprintf(b->desc,"bitwise negation");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_neg; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"ADDB");
+  b = new Blit(); b->set_name("ADDB");
   sprintf(b->desc,"add byte to bytes");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_addbyte; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"ADDBH");
+  b = new Blit(); b->set_name("ADDBH");
   sprintf(b->desc,"add byte to half");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_addbytetohalf; blitlist.append(b);
   
-  b = new Blit(); sprintf(b->name,"SUBB");
+  b = new Blit(); b->set_name("SUBB");
   sprintf(b->desc,"subtract byte to bytes");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_subbyte; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"SHL");
+  b = new Blit(); b->set_name("SHL");
   sprintf(b->desc,"shift left bits");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_shl; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"SHLB");
+  b = new Blit(); b->set_name("SHLB");
   sprintf(b->desc,"shift left byte");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_shlb; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"SHR");
+  b = new Blit(); b->set_name("SHR");
   sprintf(b->desc,"shift right bits");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_shr; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"MULB");
+  b = new Blit(); b->set_name("MULB");
   sprintf(b->desc,"multiply by byte");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_mulbyte; blitlist.append(b);
 
-  b = new Blit(); sprintf(b->name,"BIN");
+  b = new Blit(); b->set_name("BIN");
   sprintf(b->desc,"binarize using threshold");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_binarize; blitlist.append(b);
 
 
   // SDL blits
-  b = new Blit(); sprintf(b->name,"ALPHA");
+  b = new Blit(); b->set_name("ALPHA");
   sprintf(b->desc,"SDL alpha blit (hardware accelerated)");
   b->type = SDL_BLIT;
   b->fun = NULL; blitlist.append(b);
@@ -360,19 +360,19 @@ bool Blitter::set_blit(char *name) {
   b->sel(true);
   crop(NULL);
   act("blit %s selected for layer %s",
-      b->name,layer->name);
+      b->get_name(),layer->get_name());
   return true;
 }
 
 bool Blitter::set_value(int val) {
   Blit *b = (Blit*)blitlist.selected();
   if(!b) {
-    error("no blit selected on layer %s",layer->name);
+    error("no blit selected on layer %s",layer->get_name());
     return false;
   }
   b->value = val;
   act("layer %s blit %s set to %i",
-      layer->name,b->name,val);
+      layer->get_name(),b->get_name(),val);
   return true;
 }
 
@@ -471,7 +471,7 @@ void Blitter::crop(ViewPort *screen) {
     b->blit_pitch = b->blit_width * (layer->geo.bpp>>3);
     
     func("LINEAR CROP for blit %s x[%i] y[%i] w[%i] h[%i] xoff[%i] yoff[%i]",
-	 b->name, b->blit_x, b->blit_y, b->blit_width,
+	 b->get_name(), b->blit_x, b->blit_y, b->blit_width,
 	 b->blit_height, blit_xoff, blit_yoff);
     break;
 

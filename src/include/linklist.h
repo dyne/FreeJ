@@ -68,11 +68,14 @@ class Linklist {
 };
 
 class Entry {
+  friend class Linklist;
+
  public:
   Entry();
   ~Entry();
 
-  char name[256];
+  char *get_name();
+  void set_name(char *nn);
   
   Entry *next;
   Entry *prev;
@@ -86,6 +89,10 @@ class Entry {
   void sel(bool on);
   
   bool select;
+
+ private:
+  char name[256];
+
 };
 
 #endif

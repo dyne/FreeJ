@@ -42,7 +42,7 @@ bool JoyControl::init(Context *context) {
   func("JoyControl::init(%p)",context);
 
   int found = 0;
-  int c, cc;
+  int c;
   if(!context) return false;
 
   num = SDL_NumJoysticks();

@@ -246,12 +246,19 @@ Entry::Entry() {
   prev = NULL;
   list = NULL;
   select = false;
+  strncpy(name,"noname",255);
 }
 
 Entry::~Entry() {
   rem();
 }
 
+char *Entry::get_name() {
+  return name;
+}
+void Entry::set_name(char *nn) {
+  strncpy(name,nn,255);
+}
 
 bool Entry::up() {
   if(!prev || !list) return(false);

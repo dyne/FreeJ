@@ -126,12 +126,12 @@ void update_blit_menu() {
   Layer *lay = (Layer*)env->layers.selected();
   Entry *ptr = lay->blitter.blitlist.begin();
   while(ptr) {
-    item = gtk_menu_item_new_with_label(ptr->name);
+    item = gtk_menu_item_new_with_label(ptr->get_name());
     gtk_widget_show(item);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu_blit),item);
     g_signal_connect_swapped(G_OBJECT(item),"activate",
 			     G_CALLBACK(on_select_blit),
-			     (gpointer)ptr->name);
+			     (gpointer)ptr->get_name());
     ptr = ptr->next;
   }
   gtk_option_menu_set_menu(option_menu_blit,
@@ -332,7 +332,7 @@ void update_layer_list() {
 		       LAYER_NAME,lay->get_name(),
 		       LAYER_BLIT,
 		       (lay->blitter.current_blit)?
-		       lay->blitter.current_blit->name:" ",
+		       lay->blitter.current_blit->get_name():" ",
 		       LAYER_FILE,lay->get_filename(),
 		       LAYER_OBJ,lay,
 		       -1);

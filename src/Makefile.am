@@ -14,6 +14,7 @@ freej_SOURCES = \
 	context.cpp	\
 	layer.cpp	\
 	blitter.cpp	\
+	iterator.cpp	\
 	linklist.cpp	\
 	jsync.cpp	\
 	osd.cpp		\

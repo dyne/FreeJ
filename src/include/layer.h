@@ -83,9 +83,6 @@ class Layer: public Entry, public JSyncThread {
   virtual bool init(Context *scr) =0;
   virtual void close() =0;
 
-  char *get_name();
-  ///< Get Layer's descriptive name (3 letters)
-    
   char *get_filename() { return filename; };
   ///< Get Layer's filename
 
@@ -131,8 +128,6 @@ class Layer: public Entry, public JSyncThread {
 
   void set_filename(char *f);
   char filename[256];
-
-  void set_name(char *s);
 
   void *buffer; ///< feed buffer returned by layer implementation
 

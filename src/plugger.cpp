@@ -60,7 +60,7 @@ Filter *Plugger::pick(char *name) {
    and must be freed by the caller, in any case
    also when no hits are found! */
 char **Plugger::complete(char *str) {
-  int c,cc,len,found;
+  int c,len,found;
   char **res;
   char *tmp;
   len = strlen(str);

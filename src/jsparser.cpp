@@ -270,7 +270,6 @@ JS(add_layer) {
     return JS_TRUE;
 }
 JS(layer_set_blit) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    JSObject *jslayer=NULL;
     char *blit_type=NULL;
 
     blit_type=JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
@@ -282,38 +281,13 @@ JS(layer_set_blit) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
       error("JsParser :: Layer core data is null");
       return JS_FALSE;
     }
-    else {
-	char *blit=NULL;
-	/**
-	 * Check the blit is correct
-	 */
-	if (strncasecmp(blit_type,"memcpy",6)== 0
-		| strncasecmp(blit_type,"amemcpy",7)== 0
-		| strncasecmp(blit_type,"red",3)== 0
-		| strncasecmp(blit_type,"green",5)== 0
-		| strncasecmp(blit_type,"blue",3)== 0
-		| strncasecmp(blit_type,"add",3)== 0
-		| strncasecmp(blit_type,"sub",3)== 0
-		| strncasecmp(blit_type,"and",3)== 0
-		| strncasecmp(blit_type,"or",2)== 0
-		| strncasecmp(blit_type,"neg",3)== 0
-		| strncasecmp(blit_type,"absdiff",7)== 0
-		| strncasecmp(blit_type,"mult",4)== 0
-		| strncasecmp(blit_type,"multnor",7)== 0
-		| strncasecmp(blit_type,"div",3)== 0
-		| strncasecmp(blit_type,"multdiv2",8)== 0
-		| strncasecmp(blit_type,"multdiv4",8)== 0
-		| strncasecmp(blit_type,"mean",4)== 0) {
-	    lay->blitter.set_blit(blit_type);
-	}
+    /* just do it! error handling is inside the Blitter */
+    else lay->blitter.set_blit(blit_type);
     
-    }
-
     return JS_TRUE;
 }
+
 JS(layer_get_blit) { 
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    JSObject *jslayer=NULL;
     JSString *str=NULL;
     char *blit_type=NULL;
 
@@ -323,7 +297,7 @@ JS(layer_get_blit) {
       return JS_FALSE;
     }
     else {
-	blit_type=lay->blitter.current_blit->name;
+	blit_type=lay->blitter.current_blit->get_name();
 	str = JS_NewStringCopyZ(cx, blit_type); 
 	*rval = STRING_TO_JSVAL(str);
     }
@@ -332,7 +306,6 @@ JS(layer_get_blit) {
 JS(layer_get_name) { 
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-    JSObject *jslayer=NULL;
     JSString *str=NULL;
     char *layer_name=NULL;
 
@@ -350,7 +323,7 @@ JS(layer_get_name) {
 }
 JS(layer_get_filename) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    JSObject *jslayer=NULL;
+
     JSString *str=NULL;
     char *layer_filename=NULL;
 
@@ -369,7 +342,7 @@ JS(layer_get_filename) {
 
 JS(layer_set_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    JSObject *jslayer=NULL;
+
     int new_x_position;
     int new_y_position;
 
@@ -390,7 +363,6 @@ JS(layer_set_position) {
 }
 JS(layer_get_x_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    JSObject *jslayer=NULL;
 
     Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
     if(!lay) {
@@ -404,7 +376,6 @@ JS(layer_get_x_position) {
 }
 JS(layer_get_y_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    JSObject *jslayer=NULL;
 
     Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
     if(!lay) {
@@ -418,7 +389,7 @@ JS(layer_get_y_position) {
 }
 JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    JSObject *jslayer=NULL;
+
     int new_alpha;
 
     if(argc<1)
@@ -437,7 +408,6 @@ JS(layer_set_blit_value) {
 }
 JS(layer_get_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    JSObject *jslayer=NULL;
 
     Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
     if(!lay) {
@@ -452,17 +422,14 @@ JS(layer_get_blit_value) {
 JS(layer_activate) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     
-    JSObject *jslayer=NULL;
-
     Layer *lay;
     lay = (Layer *) JS_GetPrivate(cx, obj);
     if(!lay) {
       error("JsParser :: Layer core data is null");
       return JS_FALSE;
-    }
-    else {
+    } else
 	lay->hidden=false; /* XXX */
-    }
+
     return JS_TRUE;
 }
 JS(layer_deactivate) {

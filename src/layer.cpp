@@ -76,7 +76,7 @@ void Layer::run() {
   while(!quit) {
     if(bgcolor==0) {
       buffer = feed();
-      if(!buffer) error("feed error on layer %s",name);
+      if(!buffer) error("feed error on layer %s",get_name());
       wait_feed();
     } else if(bgcolor==1) { /* go to white */
       memset(bgmatte,0xff,geo.size);
@@ -118,11 +118,6 @@ bool Layer::cafudda() {
   return(true);
 }
 
-
-void Layer::set_name(char *s) {
-  snprintf(name,4,"%s",s);
-}
-char *Layer::get_name() { return name; }
 
 void Layer::set_filename(char *f) {
   char *p = f + strlen(f);

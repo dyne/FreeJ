@@ -229,7 +229,7 @@ void Osd::_selection() {
   sprintf(msg,"%s::%s [%s][%s]",
 	  lay->get_name(),
 	  (filt)?filt->getname():" ",
-	  (lay->blitter.current_blit)?lay->blitter.current_blit->name:" ",
+	  (lay->blitter.current_blit)?lay->blitter.current_blit->get_name():" ",
 	  (env->clear_all)?"0":" ");
   
   print(msg,selection_offset,1,1);
