@@ -24,6 +24,7 @@
 
 #include <layer.h>
 #define INBUF_SIZE 4096
+#define NO_MARK -1
 
 /*********************************/
 /* I want it hard, I want it raw */ 

@@ -76,13 +76,16 @@ bool VideoLayer::init(Context *scr) {
      */
     play_speed=(25/frame_rate) - 1; 
     play_speed -= play_speed<<1;
+    if(frame_rate==1)
+	play_speed=0;
+    notice("play_speed: %d",play_speed);
 
     /* init variables */
     paused=false;
     user_play_speed=0;
 
-    mark_in=0;
-    mark_out=0;
+    mark_in=NO_MARK;
+    mark_out=NO_MARK;
     return true;
 }
 
@@ -195,7 +198,7 @@ void *VideoLayer::feed() {
     /**
      * follow user video loop
      */
-    if(mark_in!=0 && mark_out!=0 && seekable) {
+    if(mark_in!=NO_MARK && mark_out!=NO_MARK && seekable) {
 	if (get_master_clock()>=mark_out) 
 	seek((int64_t)mark_in * AV_TIME_BASE/*D ART*/);
     }
@@ -373,20 +376,26 @@ bool VideoLayer::keypress(SDL_keysym *keysym) {
     return true;
 }
 bool VideoLayer::set_mark_in() {
-    if (mark_in == 0)
+    if (mark_in == NO_MARK) {
 	mark_in = get_master_clock();
-    else
-	mark_in = 0;
-    notice("mark_in: %f", mark_in);
+	notice("mark_in: %f", mark_in);
+    }
+    else {
+	mark_in = NO_MARK; 
+	notice("mark_in deleted");
+    }
     show_osd();
     return true;
 }
 bool VideoLayer::set_mark_out() {
-    if (mark_out == 0)
+    if (mark_out == NO_MARK) {
 	mark_out = get_master_clock();
-    else
-	mark_out = 0;
-    notice("mark_out: %f", mark_out);
+	notice("mark_out: %f", mark_out);
+    }
+    else {
+	mark_out = NO_MARK;
+	notice("mark_out deleted");
+    }
     show_osd();
     return true;
 }
@@ -438,19 +447,23 @@ bool VideoLayer::relative_seek(int increment) {
 	unlock_feed();
 	return false;
     }
-    unlock_feed();
     show_osd("seek to %f\%",current_time);
+    unlock_feed();
     return true;
 }
 /**
  * Warning! doesn't lock feed
  */
 int VideoLayer::seek(int64_t timestamp) {
+    /** mark-{in|out} in AV_TIME_BASE unit */
+    int64_t mark_in_av_time_base;
+    int64_t mark_out_av_time_base;
     /* 
      * handle bof by closing and reopening file when media it's not seekable
     */
     if(!seekable) {
 	if(timestamp==avformat_context->start_time) { // eof, trying to close and open file workaround votamazz
+	    /** close and reopen the stream*/
 	    close();
 	    open(video_filename);
 	    return 0;
@@ -460,6 +473,17 @@ int VideoLayer::seek(int64_t timestamp) {
 	    seekable=false;
 	    return -1;
 	}
+    }
+
+    mark_in_av_time_base = (int64_t) mark_in * AV_TIME_BASE;
+    mark_out_av_time_base = (int64_t) mark_out * AV_TIME_BASE;
+
+    /** mark-in and mark-out seek */
+    if ( mark_in != NO_MARK && mark_out != NO_MARK ) {
+	if ( timestamp < mark_in_av_time_base )
+	    timestamp=mark_in_av_time_base++;
+	else if ( timestamp > mark_out_av_time_base ) 
+	    timestamp=mark_out_av_time_base++;
     }
     return av_seek_frame(avformat_context, video_index,timestamp);
 }
