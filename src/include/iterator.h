@@ -29,7 +29,7 @@
 #define ITERATOR_ENVELOPE_LINEAR 1
 #define ITERATOR_ENVELOPE_SIN 2
 #define ITERATOR_ENVELOPE_RAND 3
-
+enum iterator_envelope_t { LINEAR, SIN, RAND };
 enum iterator_mode_t { ONCE, PULSE };
 
 class Iterator : public Entry {
@@ -45,8 +45,8 @@ class Iterator : public Entry {
   void set_aim(int32_t val);
   void set_value(int32_t *val);
   void set_mode(iterator_mode_t m);
+  void set_envelope(iterator_envelope_t e);
   
-  int envelope;
   bool direction;
   
  private:
@@ -57,6 +57,7 @@ class Iterator : public Entry {
   int32_t aim;
   int32_t step;
 
+  iterator_envelope_t envelope;
   iterator_mode_t mode;
 };
 

@@ -53,7 +53,7 @@ Iterator::Iterator(int32_t *val)
 
   // default mode and envelope
   mode = ONCE;
-  envelope = ITERATOR_ENVELOPE_LINEAR;
+  envelope = LINEAR;
 }
 
 Iterator::~Iterator() {
@@ -120,6 +120,9 @@ void Iterator::set_aim(int32_t val) {
 }
 void Iterator::set_value(int32_t *val) {
   value = val;
+}
+void Iterator::set_envelope(iterator_envelope_t e) {
+  envelope = e;
 }
 void Iterator::set_mode(iterator_mode_t m) {
   switch(m) {

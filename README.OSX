@@ -19,10 +19,17 @@ of needed software libraries:
 if you want to compile the gtk+2 graphical interface:
 # apt-get install gtk+2-dev
 # apt-get install libglade2
+# apt-get install glib2-dev
+# apt-get install pango1-dev
+# apt-get install atk1
+# apt-get install libxml2
+then you need to start freej from an X11 terminal.
 
 if you want to compile the Javascript interpreter, download the
-SpiderMonkey engine from http://mozilla.org/js compile it following
-the included instructions and then configure freej --with-javascript
+SpiderMonkey engine from http://mozilla.org/js/spidermonkey :
+js-1.5.tar.gz file in http://ftp.mozilla.org/pub/mozilla.org/js
+then compile it following the included instructions and then
+configure freej --with-javascript
 
 MacOSX binary packages are on the way to be offered to public.
 

@@ -195,8 +195,11 @@ JS(video_layer_pause);
 JS(avi_layer_forward);
 JS(avi_layer_rewind);
 JS(avi_layer_mark_in);
+JS(avi_layer_mark_in_now);
 JS(avi_layer_mark_out);
-JS(avi_layer_pos);
+JS(avi_layer_mark_out_now);
+JS(avi_layer_getpos);
+JS(avi_layer_setpos);
 JS(avi_layer_pause);
 #endif
 
@@ -283,8 +286,11 @@ JSFunctionSpec avi_layer_methods[] = {
   {     "forward",      avi_layer_forward,      1},
   {     "rewind",       avi_layer_rewind,       1},
   {     "mark_in",      avi_layer_mark_in,      1},
+  {     "mark_in_now",  avi_layer_mark_in_now,  1},
   {     "mark_out",     avi_layer_mark_out,     1},
-  {     "pos",          avi_layer_pos,          1},
+  {     "mark_out_now", avi_layer_mark_out_now, 1},
+  {     "setpos",       avi_layer_setpos,       1},
+  {     "getpos",       avi_layer_getpos,       1},  
   {     "pause",        avi_layer_pause,        1},
   {0}
 };

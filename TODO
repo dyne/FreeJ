@@ -1,6 +1,10 @@
 
 $Id$
 
+  *** cairo layers: poligons and svg
+
+  *** libvisual layer
+
   *** finalize JavaScript API
 
   *** finish the Iterator class 
@@ -9,12 +13,29 @@ $Id$
 
   *** LiViDO shared plugin library   
 
-  *** 8bit masks for blits
-
-  *** XScreensaver layer // must PORT screenhacks code :(
+  *** geometrical 8bit masks for blits
 
   *** Open Sound Control for remote interoperability
   
   *** enhance text layer (more scrollers, word positioning etc.)
+
+
+  *** XScreensaver layer // must PORT screenhacks code :(
+
+ HINT from salsaman:
+22:52 @<salsaman2> #ifdef HAVE_DOUBLE_BUFFER_EXTENSION
+22:52 @<salsaman2> #include "xdbe.h"
+22:54 @<salsaman2> static  XdbeBackBuffer backb;
+22:55 @<salsaman2>     if (backb)
+22:55 @<salsaman2>       {
+22:55 @<salsaman2>         XdbeSwapInfo info[1];
+22:55 @<salsaman2>         info[0].swap_window = window;
+22:55 @<salsaman2>         info[0].swap_action = XdbeUndefined;
+22:55 @<salsaman2>         XdbeSwapBuffers (dpy, info, 1);
+22:55 @<salsaman2>       }
+22:55 @<salsaman2> and thats it
+22:55 @<salsaman2> so just XdbeSwapBuffers would need overloading
+22:56 @<salsaman2> normally swaps display and backing buffers
+22:56 @<salsaman2> but a hacked version could swap back buffer1 and back buffer2
 
 

@@ -623,8 +623,8 @@ bool Blitter::fade_value(int step, int val) {
 
   /** here we could setup the speed of the value change
       (fade_in/out speed and such), hardcoded for now */
+  iter->set_mode(ONCE);
   iter->set_step(step);
-
   iter->set_aim(val);
   layer->iterators.add(iter);
 

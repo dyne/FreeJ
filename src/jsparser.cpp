@@ -45,6 +45,27 @@ static void sigint_handler(int sig) {
     stop_script=true;
 }
 
+
+static JSBool static_branch_callback(JSContext* Context, JSScript* Script) {
+    if(stop_script) {
+	stop_script=false;
+	return JS_FALSE;
+    }
+    return JS_TRUE;
+//    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
+//    return (js->branch_callback(Context,Script));
+}
+void JsParser::error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
+  error("JsParser :: javascript error in %s at line %d",Report->filename,Report->lineno+1);
+  if(Message)
+    error("JsParser :: %s",(char *)Message);
+}
+static void static_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
+    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
+    return js->error_reporter(Context,Message,Report);
+}
+
+
 JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
 	env=_env;
@@ -730,12 +751,95 @@ JS(v4l_layer_band) {
 ////////////////////////////////
 // Avi Layer methods
 JS_CONSTRUCTOR("AviLayer",avi_layer_constructor,AviLayer);
-JS(avi_layer_forward) { return JS_TRUE; }
-JS(avi_layer_rewind) { return JS_TRUE; }
-JS(avi_layer_mark_in) { return JS_TRUE; }
-JS(avi_layer_mark_out) { return JS_TRUE; }
-JS(avi_layer_pos) { return JS_TRUE; }
-JS(avi_layer_pause) { return JS_TRUE; }
+JS(avi_layer_forward) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  int num;
+
+  GET_LAYER(AviLayer);
+  
+  if(argc<1) num = 1; // no argument: forward one
+  else num = JSVAL_TO_INT(argv[0]);
+  
+  *rval = INT_TO_JSVAL(  lay->forward(num)  );
+
+  return JS_TRUE;
+}
+JS(avi_layer_rewind) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  int num;
+
+  GET_LAYER(AviLayer);
+  
+  if(argc<1) num = 1; // no argument: forward one
+  else num = JSVAL_TO_INT(argv[0]);
+  
+  *rval = INT_TO_JSVAL(  lay->rewind(num)  );
+  
+  return JS_TRUE;
+}
+JS(avi_layer_mark_in) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  if(argc<1) return JS_FALSE;
+
+  GET_LAYER(AviLayer);
+
+  *rval = INT_TO_JSVAL
+    ( lay->mark_in
+      ( JSVAL_TO_INT(argv[0]) 
+	)
+      );
+  return JS_TRUE;
+}
+JS(avi_layer_mark_in_now) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  GET_LAYER(AviLayer);
+  lay->mark_in_now();
+  return JS_TRUE;
+}
+JS(avi_layer_mark_out) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  if(argc<1) return JS_FALSE;
+
+  GET_LAYER(AviLayer);
+
+  *rval = INT_TO_JSVAL
+    ( lay->mark_out
+      ( JSVAL_TO_INT(argv[0]) 
+	)
+      );
+  return JS_TRUE;
+}
+JS(avi_layer_mark_out_now) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  GET_LAYER(AviLayer);
+  lay->mark_out_now();
+  return JS_TRUE;
+}  
+JS(avi_layer_getpos) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  GET_LAYER(AviLayer);
+  *rval = INT_TO_JSVAL(  lay->getpos()  );
+  return JS_TRUE;
+}
+JS(avi_layer_setpos) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  if(argc<1) return JS_FALSE;
+  GET_LAYER(AviLayer);
+  *rval = INT_TO_JSVAL
+    (  lay->setpos
+       ( JSVAL_TO_INT( argv[0] )
+	 )
+       );
+  return JS_TRUE;
+}
+JS(avi_layer_pause) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  GET_LAYER(AviLayer);
+  lay->pause();
+  return JS_TRUE;
+}
 #endif
 
 #ifdef WITH_FT2
@@ -894,32 +998,6 @@ JS(video_layer_pause) {
 // Png Layer methods
 JS_CONSTRUCTOR("PngLayer",png_layer_constructor,PngLayer);
 #endif
-static JSBool static_branch_callback(JSContext* Context, JSScript* Script) {
-    if(stop_script) {
-	stop_script=false;
-	return JS_FALSE;
-    }
-    return JS_TRUE;
-//    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
-//    return (js->branch_callback(Context,Script));
-}
-/*
-JSBool JsParser::branch_callback(JSContext* Context, JSScript* Script) {
-    if(stop_script) {
-	stop_script=false;
-	return JS_FALSE;
-    }
-    return JS_TRUE;
-}
-*/
-void JsParser::error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
-    error("JsParser :: javascript error in %s at line %d",Report->filename,Report->lineno+1);
-    if(Message)
-	error("JsParser :: %s",(char *)Message);
-}
-static void static_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
-    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
-    return js->error_reporter(Context,Message,Report);
-}
+
 
 #endif

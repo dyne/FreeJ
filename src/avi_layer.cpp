@@ -50,7 +50,7 @@ AviLayer::~AviLayer() {
 bool AviLayer::init(Context *scr) {
   func("AviLayer::init");
   avi_dirty = paused = false;
-  mark_in = mark_out = slow_frame = slow_frame_s = 0;
+  marker_in = marker_out = slow_frame = slow_frame_s = 0;
   play_speed = 1;
   _quality = 1;
 
@@ -207,18 +207,18 @@ void *AviLayer::feed() {
     _stream->Seek(curr);
     
   } else if (play_speed>0) { // we're going forward
-    if (mark_out) // if there is a mark out
-      if (mark_out < (uint32_t)curr) { // the mark out got passed:
-	if(mark_in) { // if there is a mark in
-	  curr = _stream->SeekToKeyFrame(mark_in); // loop to that
+    if (marker_out) // if there is a mark out
+      if (marker_out < (uint32_t)curr) { // the mark out got passed:
+	if(marker_in) { // if there is a mark in
+	  curr = _stream->SeekToKeyFrame(marker_in); // loop to that
 	}
       }
     
   } else if (play_speed<0) { // we're going backward
-    if (mark_in) // if there is a mark in
-      if (mark_in > (uint32_t)curr) { // the mark in passed:
-	if (mark_out) // if there is a mark out
-	  curr = _stream->SeekToKeyFrame(mark_out); // loop to that
+    if (marker_in) // if there is a mark in
+      if (marker_in > (uint32_t)curr) { // the mark in passed:
+	if (marker_out) // if there is a mark out
+	  curr = _stream->SeekToKeyFrame(marker_out); // loop to that
 	else // if there is no mark out
 	  curr = _stream->SeekToKeyFrame(0); // goes back to the beginning
       }
@@ -257,13 +257,13 @@ void AviLayer::close() {
 
 framepos_t AviLayer::forward(framepos_t step) {
   framepos_t res = 0;
-  lock_feed();
+  //  lock_feed();
   if(step==1) res = _stream->SeekToNextKeyFrame();
   else {
     framepos_t p = _stream->GetPos();
     res = _stream->SeekToKeyFrame(p+step);
   }
-  unlock_feed();
+  //  unlock_feed();
   show_osd("avi seek to %u\% (K%u)",
        (res*100)/_stream->GetLength(),res);
   avi_dirty = true;
@@ -272,24 +272,24 @@ framepos_t AviLayer::forward(framepos_t step) {
 
 framepos_t AviLayer::rewind(framepos_t step) {
   framepos_t res = 0;
-  lock_feed();
+  //  lock_feed();
   if(step==1) res = _stream->SeekToPrevKeyFrame();
   else {
     framepos_t p = _stream->GetPos();
     res = _stream->SeekToKeyFrame(p-step);
   }
-  unlock_feed();
+  //  unlock_feed();
   show_osd("avi seek to %u\% (K%u)",
        (res*100)/_stream->GetLength(),res);
   avi_dirty = true;
   return(res);
 }
 
-framepos_t AviLayer::pos(framepos_t p) {
+framepos_t AviLayer::setpos(framepos_t step) {
   framepos_t res = 0;
-  lock_feed();
-  res = _stream->SeekToKeyFrame(p);
-  unlock_feed();
+  //  lock_feed();
+  res = _stream->SeekToKeyFrame(step);
+  //  unlock_feed();
   notice("avi seek to %u\% (K%u)",
        (res*100)/_stream->GetLength(),res);
   show_osd();
@@ -311,6 +311,27 @@ void AviLayer::set_play_speed(int speed) {
 void AviLayer::set_slow_frame(int speed) {
 	slow_frame += speed;
 	show_osd("AviLayer::frame rate is now %i", slow_frame);
+}
+
+framepos_t AviLayer::getpos() {
+  return _stream->GetPos();
+}
+
+framepos_t AviLayer::mark_in(framepos_t pos) {
+  marker_in = pos;
+  return marker_in;
+}
+framepos_t AviLayer::mark_in_now() {
+  marker_in = _stream->GetPos();
+  return marker_in;
+}
+framepos_t AviLayer::mark_out(framepos_t pos) {
+  marker_out = pos;
+  return marker_out;
+}
+framepos_t AviLayer::mark_out_now() {
+  marker_out = _stream->GetPos();
+  return marker_out;
 }
 
 bool AviLayer::keypress(char key) {
@@ -351,31 +372,31 @@ at the next click, you mark another OUT point
     */
 
   case 'i':
-    if(mark_in) {
-      mark_in = 0;
-      mark_out = 0;
+    if(marker_in) {
+      marker_in = 0;
+      marker_out = 0;
     } else {
-      mark_in = _stream->GetPos();
-      mark_out = 0;
+      mark_in_now(); // mark_in = _stream->GetPos();
+      marker_out = 0;
     }
     act("AviLayer::mark IN[%u] - OUT[%u] (%s)",
-	mark_in, mark_out, (mark_in)?"ON":"OFF");
+	marker_in, marker_out, (marker_in)?"ON":"OFF");
     show_osd();
     break;
 
   case 'o':
-    if(mark_out) { // there is allready a markout
-      mark_out = 0;
+    if(marker_out) { // there is allready a markout
+      marker_out = 0;
     } else
-      mark_out = _stream->GetPos();
+      mark_out_now(); //      mark_out = _stream->GetPos();
     act("AviLayer::mark IN[%u] - OUT[%u] (%s)",
-	mark_in, mark_out, (mark_in&&mark_out)?"ON":"OFF");
+	marker_in, marker_out, (marker_in&&marker_out)?"ON":"OFF");
     show_osd();
     break;
     
   case 'l':
-    mark_in = 0;
-    mark_out = 0;
+    marker_in = 0;
+    marker_out = 0;
     act("AviLayer::marks removed IN[0] - OUT[0]");
     show_osd();
     break;

@@ -96,12 +96,17 @@ class AviLayer: public Layer {
   void *feed();
   void close();
 
+  framepos_t getpos();
+  framepos_t setpos(framepos_t step);
   framepos_t forward(framepos_t step);
   framepos_t rewind(framepos_t step);
-  framepos_t mark_in;
-  framepos_t mark_out;
+  framepos_t mark_in(framepos_t pos);
+  framepos_t mark_in_now();
+  framepos_t mark_out(framepos_t pos);
+  framepos_t mark_out_now();
+  framepos_t marker_in;
+  framepos_t marker_out;
   
-  framepos_t pos(framepos_t p);
   void pause();
   //  void speedup();
   //  void slowdown();
