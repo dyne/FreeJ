@@ -75,6 +75,9 @@ Context::Context(int wx, int hx, int bppx, Uint32 flagsx) {
 
   SDL_ShowCursor(0);
 
+  osd = NULL;
+  kbd = NULL;
+
   doubletab = NULL;
   doublebuf = NULL;
 
@@ -189,7 +192,7 @@ void Context::close() {
 
   Layer *lay = (Layer *)layers.begin();
 
-  osd->splash_screen();
+  if(osd) osd->splash_screen();
   flip();
   
   while(lay) {

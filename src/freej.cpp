@@ -34,6 +34,10 @@
 #include <jutils.h>
 #include <config.h>
 
+#ifdef WITH_GLADE2
+#include <gtk_ctrl.h>
+#endif
+
 #define MAX_CLI_CHARS 4096
 
 /* ================ command line options */
@@ -196,10 +200,6 @@ int main (int argc, char **argv) {
      try to open the default video device */
   lay = create_layer("/dev/video");
   if(lay) screen.add_layer(lay);
-  
-  /* this is the Plugin manager */
-  Plugger plugger;
-  plugger.refresh();
 
   /* this is the On Screen Display */
   Osd osd;
@@ -207,22 +207,30 @@ int main (int argc, char **argv) {
   osd.active();
   set_osd(osd.status_msg); /* let jutils know about the osd */
 
-  /* this is the keyboard listener */
-  KbdListener keyb;
-  assert( keyb.init(&screen, &plugger) );
-
-
-
   /* if the context has no layers quit here */
   if(screen.layers.len()<1) {
     error("no layers present, quitting");
     screen.close();
-    plugger.close();
     act("you should at least load a movie,");
     act("a png image or have a video card");
     act("to see something more (see freej -h)");
     exit(0);
   }
+
+  
+  /* this is the Plugin manager */
+  Plugger plugger;
+  plugger.refresh();
+
+
+  /* this is the keyboard listener */
+  KbdListener keyb;
+  assert( keyb.init(&screen, &plugger) );
+
+#ifdef WITH_GLADE2
+  gtk_ctrl_init(&screen,&argc,argv);
+#endif
+  
 
   /* launch layer threads */
   func("rock the house");
@@ -248,9 +256,11 @@ int main (int argc, char **argv) {
     }
 
     screen.flip();
-
-    screen.calc_fps();
     
+    screen.calc_fps();
+
+    gtk_ctrl_poll();
+
   }
 
   /* quitting */

@@ -81,6 +81,9 @@
 /* define if compiling freetype2 layer */
 #undef WITH_FT2
 
+/* define if compiling glade gtk+-2 GUI */
+#undef WITH_GLADE2
+
 /* define if compiling png layer */
 #undef WITH_PNG
 

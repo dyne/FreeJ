@@ -72,6 +72,8 @@ FFLAGS = @FFLAGS@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_CONFIG = @FT2_CONFIG@
 FT2_LIBS = @FT2_LIBS@
+GLADE2_CFLAGS = @GLADE2_CFLAGS@
+GLADE2_LIBS = @GLADE2_LIBS@
 HAVE_AVIFILE = @HAVE_AVIFILE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -92,6 +94,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 PNG_LIBS = @PNG_LIBS@
 RANLIB = @RANLIB@
 SDL_CFLAGS = @SDL_CFLAGS@
@@ -147,10 +150,6 @@ target_vendor = @target_vendor@
 INCLUDES = -I$(top_srcdir)/src/include
 plugindir = ${prefix}/lib/freej
 
-SUFFIXES = .asm
-
-NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
-
 plugin_LTLIBRARIES = squaretrans.la randtrans.la quadtrans.la
 
 squaretrans_la_SOURCES = transform.c squares.c
@@ -197,7 +196,7 @@ SOURCES = $(quadtrans_la_SOURCES) $(randtrans_la_SOURCES) $(squaretrans_la_SOURC
 all: all-am
 
 .SUFFIXES:
-.SUFFIXES: .asm .c .lo .o .obj
+.SUFFIXES: .c .lo .o .obj
 $(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
 	cd $(top_srcdir) && \
 	  $(AUTOMAKE) --gnu  filters/transform/Makefile
@@ -471,9 +470,6 @@ uninstall-am: uninstall-info-am uninstall-pluginLTLIBRARIES
 	tags uninstall uninstall-am uninstall-info-am \
 	uninstall-pluginLTLIBRARIES
 
-
-.asm.lo:
-	$(NASM) $<
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

@@ -72,7 +72,8 @@ Layer *create_layer(char *file) {
   
   /* check file type, add here new layer types */
   p = pp = file;
-  while(*p!='\0' && *p!='\n') p++; *p='\0';
+  p += strlen(file);
+//  while(*p!='\0' && *p!='\n') p++; *p='\0';
 
 
   /* ==== Video4Linux */

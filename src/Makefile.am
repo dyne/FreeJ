@@ -16,6 +16,7 @@ freej_SOURCES = \
 	linklist.cpp	\
 	jsync.cpp	\
 	keyboard.cpp	\
+	gtk_ctrl.cpp	\
 	osd.cpp		\
 	plugin.cpp	\
 	plugger.cpp	\
@@ -24,7 +25,7 @@ freej_SOURCES = \
 	cpu_accel.c	\
 	yuv2rgb.c yuv2rgb_mmx.c
 
-freej_LDADD = -ldl -lpthread -lm @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@
+freej_LDADD = -ldl -lpthread -lm @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@ @GLADE2_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej

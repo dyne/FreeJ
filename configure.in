@@ -145,7 +145,13 @@ if test x$HAVE_V4L = xyes; then
    have_video4linux=yes
 fi])
 
-
+dnl ==============================================================
+dnl CHECK if there is LIBGLADE2
+dnl ==============================================================
+PKG_CHECK_MODULES(GLADE2, libglade-2.0 >= 2.0.0 gthread-2.0 >= 2.0.0, [
+  AC_DEFINE(WITH_GLADE2,1,[define if compiling glade gtk+-2 GUI])
+  have_glade2=yes
+])
 
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
@@ -172,7 +178,7 @@ fi], [AC_MSG_RESULT(no)])
 
 fi
 
-CXXFLAGS="$CFLAGS $SDL_CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS"
+CXXFLAGS="$CFLAGS $SDL_CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS $GLADE2_CFLAGS"
 CFLAGS="$CFLAGS $SDL_FLAGS"
 #echo "LIBS are $LIBS"
 #AC_SUBST(LIBS)

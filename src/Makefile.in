@@ -72,6 +72,8 @@ FFLAGS = @FFLAGS@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_CONFIG = @FT2_CONFIG@
 FT2_LIBS = @FT2_LIBS@
+GLADE2_CFLAGS = @GLADE2_CFLAGS@
+GLADE2_LIBS = @GLADE2_LIBS@
 HAVE_AVIFILE = @HAVE_AVIFILE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
@@ -92,6 +94,7 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PKG_CONFIG = @PKG_CONFIG@
 PNG_LIBS = @PNG_LIBS@
 RANLIB = @RANLIB@
 SDL_CFLAGS = @SDL_CFLAGS@
@@ -162,6 +165,7 @@ freej_SOURCES = \
 	linklist.cpp	\
 	jsync.cpp	\
 	keyboard.cpp	\
+	gtk_ctrl.cpp	\
 	osd.cpp		\
 	plugin.cpp	\
 	plugger.cpp	\
@@ -171,7 +175,7 @@ freej_SOURCES = \
 	yuv2rgb.c yuv2rgb_mmx.c
 
 
-freej_LDADD = -ldl -lpthread -lm @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@
+freej_LDADD = -ldl -lpthread -lm @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@ @GLADE2_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 subdir = src
@@ -184,10 +188,10 @@ PROGRAMS = $(bin_PROGRAMS)
 am_freej_OBJECTS = freej.$(OBJEXT) context.$(OBJEXT) layer.$(OBJEXT) \
 	v4l_layer.$(OBJEXT) avi_layer.$(OBJEXT) png_layer.$(OBJEXT) \
 	txt_layer.$(OBJEXT) impl_layers.$(OBJEXT) linklist.$(OBJEXT) \
-	jsync.$(OBJEXT) keyboard.$(OBJEXT) osd.$(OBJEXT) \
-	plugin.$(OBJEXT) plugger.$(OBJEXT) jutils.$(OBJEXT) \
-	tvfreq.$(OBJEXT) cpu_accel.$(OBJEXT) yuv2rgb.$(OBJEXT) \
-	yuv2rgb_mmx.$(OBJEXT)
+	jsync.$(OBJEXT) keyboard.$(OBJEXT) gtk_ctrl.$(OBJEXT) \
+	osd.$(OBJEXT) plugin.$(OBJEXT) plugger.$(OBJEXT) \
+	jutils.$(OBJEXT) tvfreq.$(OBJEXT) cpu_accel.$(OBJEXT) \
+	yuv2rgb.$(OBJEXT) yuv2rgb_mmx.$(OBJEXT)
 freej_OBJECTS = $(am_freej_OBJECTS)
 freej_DEPENDENCIES =
 freej_LDFLAGS =
@@ -197,14 +201,14 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/avi_layer.Po ./$(DEPDIR)/context.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/cpu_accel.Po ./$(DEPDIR)/freej.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/impl_layers.Po ./$(DEPDIR)/jsync.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/jutils.Po ./$(DEPDIR)/keyboard.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/layer.Po ./$(DEPDIR)/linklist.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/osd.Po ./$(DEPDIR)/plugger.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/plugin.Po ./$(DEPDIR)/png_layer.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/tvfreq.Po ./$(DEPDIR)/txt_layer.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/v4l_layer.Po ./$(DEPDIR)/yuv2rgb.Po \
-@AMDEP_TRUE@	./$(DEPDIR)/yuv2rgb_mmx.Po
+@AMDEP_TRUE@	./$(DEPDIR)/gtk_ctrl.Po ./$(DEPDIR)/impl_layers.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/jsync.Po ./$(DEPDIR)/jutils.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/keyboard.Po ./$(DEPDIR)/layer.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/linklist.Po ./$(DEPDIR)/osd.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/plugger.Po ./$(DEPDIR)/plugin.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/png_layer.Po ./$(DEPDIR)/tvfreq.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/txt_layer.Po ./$(DEPDIR)/v4l_layer.Po \
+@AMDEP_TRUE@	./$(DEPDIR)/yuv2rgb.Po ./$(DEPDIR)/yuv2rgb_mmx.Po
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
@@ -283,6 +287,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/context.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu_accel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/freej.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gtk_ctrl.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/impl_layers.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jsync.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jutils.Po@am__quote@

@@ -179,14 +179,14 @@ bool V4lGrabber::init(Context *screen) {
   /* INIT from the LAYER CLASS */
   _init(screen,init_width,init_heigth);
 
-  palette = VIDEO_PALETTE_YUV422P;
+  palette = VIDEO_PALETTE_YUV422P;// good is YUV422P;
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */
   yuv2rgb = yuv2rgb_init(geo.bpp,0x1); /* arg2 is MODE_RGB */
   rgb_surface = jalloc(rgb_surface,geo.size);
 
   u = (geo.w*geo.h);
-  v = u+(u/2);
+  v = u+(u/2);//u+(u/2);
 
   /* mmap (POSIX.4) buffer for grabber device */
   buffer = (unsigned char *) mmap(0,grab_map.size,PROT_READ|PROT_WRITE,MAP_SHARED,dev,0);
