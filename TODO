@@ -1,17 +1,19 @@
 
 $Id$
 
+  *** XScreensaver layer
+
   *** complete Darwin/OSX portability
-  
+
+  *** LiViDO shared plugin library   
+
   *** FreeJ script language (using SLANG or python?)
-  
-  *** code on LiViDO for a video plugin shared library
-  
-  *** XScreensaver played as layers
   
   *** Open Sound Control for remote interoperability
   
-  *** MIDI control
+  *** MIDI controller
+
+  *** Joystick controller
 
   *** enhance text layer (scroll, word positioning etc.)
 

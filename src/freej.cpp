@@ -52,6 +52,7 @@ static const char *help =
 " .   -D   debug verbosity level - default 1\n"
 " .   -C   start without graphical interface\n"
 " .   -s   size of screen - default 400x300\n"
+" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
 " .  files:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
@@ -69,13 +70,14 @@ static const struct option long_options[] = {
 };
 */
 
-static const char *short_options = "-hvD:Cs:dn";
+static const char *short_options = "-hvD:Cs:m:n";
 
 int debug;
 char layer_files[MAX_CLI_CHARS];
 int cli_chars = 0;
 int width = 400;
 int height = 300;
+int magn = 0;
 //bool doublesize = false;
 bool startstate = true;
 #ifdef WITH_GLADE2
@@ -126,14 +128,17 @@ void cmdline(int argc, char **argv) {
       }
       break;
 
+    case 'm':
+      sscanf(optarg,"%u",&magn);
+      magn -= 1;
+      magn = (magn>3) ? 3 : (magn<1) ? 0 : magn;
+      act("CAZ %i",magn);
+      break;
+
     case 'n':
       startstate = false;
       break;
-      /*
-    case 'd':
-      doublesize = true;
-      break;
-      */
+
     case '?':
       warning("unrecognized option: %s",optarg);
       break;
@@ -188,6 +193,7 @@ int main (int argc, char **argv) {
   /* this is the output context (screen) */
   Context freej;
   assert( freej.init(width,height) );
+  
 
   /* create layers requested on commandline */
   {
@@ -244,7 +250,8 @@ int main (int argc, char **argv) {
   }
 #endif
 
-
+  /* apply screen magnification */
+  freej.magnify(magn);
 
 
   /* main loop */

@@ -57,7 +57,6 @@ class Layer: public Entry, public JSyncThread {
   /* alpha blending */
   void set_alpha(int opaq);
   uint8_t alpha;
-  uint32_t rmask,gmask,bmask,amask;
 
   void crop();
 

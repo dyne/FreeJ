@@ -35,13 +35,11 @@
 
 
 uint32_t *Osd::print(char *text, uint32_t *pos, int hsize, int vsize) {
-  int y,x,i,len,f,v,ch,cv;
-  uint32_t *ptr;
   uint32_t *diocrap = pos; //(uint32_t *)env->coords(xpos,ypos);
   unsigned char *buffer = (unsigned char *)env->screen->get_surface();
   v = env->screen->w*vsize;
   
-  len = strlen(text);
+  //  len = strlen(text);
   
   /* quest'algoritmo di rastering a grandezza variabile delle font
      e' una cosa di cui vado molto fiero, ogni volta che lo vedo il
@@ -54,21 +52,25 @@ uint32_t *Osd::print(char *text, uint32_t *pos, int hsize, int vsize) {
       return diocrap-newline; /* low bound */
     while(diocrap-(uint32_t *)buffer<env->screen->pitch) ptr = diocrap += v;
 
-    for (x=0; x<len; x++) {
+    //    for (x=0; x<len; x++) {
+    x=0;
+    while(text[x]!='\0') {
       f = fontdata[text[x] * CHAR_HEIGHT + y];
       for (i = CHAR_WIDTH-1; i >= 0; i--)
 	if (f & (CHAR_START << i))
 	  for(ch=0;ch<hsize;ch++) {
-	    for(cv=0;cv<v;cv+=env->screen->w) ptr[cv] = _color32;
+	    for(cv=0;cv<v;cv+=env->screen->w)
+	      ptr[cv] = _color32;
 	    ptr++; }
         else ptr+=hsize; 
+      x++;
     }
   }
   return(diocrap);
 }
 
 Osd::Osd() {
-  _active = false;
+  active = false;
   _calibrate = false;
   _credits = false;
   _fps = false;
@@ -85,14 +87,13 @@ void Osd::init(Context *screen) {
   this->env = screen;
   _set_color(white);
 
-
   /* setup coordinates for OSD information
      stored in offsets of video memory addresses
      to gain speed and limit computation during cycles */
-  fps_offset = (uint32_t*)env->coords(env->screen->w-50,1);
+  fps_offset = (uint32_t*)env->screen->coords(env->screen->w-50,1);
   selection_offset = (uint32_t*)env->screen->coords(80,1);
   status_offset = (uint32_t*)env->screen->coords(HBOUND,env->screen->h-12);
-  layer_offset = (uint32_t*)env->coords(env->screen->w-28,VBOUND+TOPLIST);
+  layer_offset = (uint32_t*)env->screen->coords(env->screen->w-28,VBOUND+TOPLIST);
   filter_offset = (uint32_t*)env->screen->coords(3,VBOUND+6);
   hicredits_offset = (uint32_t*)env->screen->coords((env->screen->w/2)-140,VBOUND+5);
   locredits_offset1 = (uint32_t*)env->screen->coords((env->screen->w/2)+10,env->screen->h-VBOUND-30);
@@ -108,26 +109,27 @@ void Osd::init(Context *screen) {
   if(!ipernaut) {
     char tmp[512];
     sprintf(tmp,"%s/freej/ipernav.png",DATADIR);
-    ipernaut = create_layer(tmp);
-  }
-  if(!ipernaut) ipernaut = create_layer("../doc/ipernav.png");
-  if(!ipernaut) ipernaut = create_layer("doc/ipernav.png");
-  if(!ipernaut) ipernaut = create_layer("ipernav.png");
-  if(ipernaut) {
-    if(ipernaut->init(env)) {
-      ipernaut->set_blit(9);
-      ipernaut->set_alpha(128);
-    } else {
-      delete ipernaut;
-      ipernaut = NULL;
+    ipernaut = create_layer(tmp);    
+    if(!ipernaut) ipernaut = create_layer("../doc/ipernav.png");
+    if(!ipernaut) ipernaut = create_layer("doc/ipernav.png");
+    if(!ipernaut) ipernaut = create_layer("ipernav.png");
+    if(ipernaut) {
+      if(ipernaut->init(env)) {
+	ipernaut->set_blit(9);
+	ipernaut->set_alpha(128);
+      } else {
+	delete ipernaut;
+	ipernaut = NULL;
+      }
     }
   }
+
   func("OSD initialized");
-    
+  
 }
 
 void Osd::print() {
-  if(!_active) return;
+  if(!active) return;
 
   /*  
   if(_calibrate) {
@@ -171,12 +173,6 @@ void Osd::print() {
 void Osd::_print_status() {
   _set_color(yellow);
   print(status_msg,status_offset,1,1);
-}
-
-bool Osd::active() {
-  //  if(_active) env->clear(); //scr(screen->get_surface(),screen->size);
-  _active = !_active;
-  return _active;
 }
 
 bool Osd::calibrate() {
@@ -402,8 +398,7 @@ void Osd::_set_color(colors col) {
 }
 
 void Osd::clean() {
-  if(!_active) return;
-  //func("Osd::clean()");
+  //  if(!active) return;
   int c,cc;
   int jump = (env->screen->w - HBOUND - HBOUND) / 2;
   uint64_t *top = topclean_offset;

@@ -27,6 +27,7 @@
 #include <jutils.h>
 #include <config.h>
 
+
 SdlScreen::SdlScreen()
   : ViewPort() {
   
@@ -36,6 +37,19 @@ SdlScreen::SdlScreen()
   dbl = false;
   sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL);
 
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+    amask = 0xff000000;
+#endif
+    
+    magnification = 0;
 }
 
 SdlScreen::~SdlScreen() {
@@ -44,6 +58,7 @@ SdlScreen::~SdlScreen() {
 
 bool SdlScreen::init(int width, int height) {
   /* initialize SDL */
+
   setenv("SDL_VIDEO_HWACCEL", "1", 1);  
 
   if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0 ) {
@@ -52,6 +67,7 @@ bool SdlScreen::init(int width, int height) {
   }
 
   setres(width,height);
+  surface = SDL_GetVideoSurface();
 
   w = width;
   h = height;
@@ -75,15 +91,34 @@ bool SdlScreen::init(int width, int height) {
 void *SdlScreen::coords(int x, int y) {
   return 
     ( x + (w*y) +
-      (uint32_t*)SDL_GetVideoSurface()->pixels );
+      (uint32_t*)surface->pixels );
 }
 
 void SdlScreen::show() {
+  if(magnification) {
+    lock();
+    switch(magnification) {
+    case 1:
+      scale2x
+	((uint32_t*)surface->pixels,
+	 (uint32_t*)SDL_GetVideoSurface()->pixels);
+      break;
+    case 2:
+      scale3x
+	((uint32_t*)surface->pixels,
+	 (uint32_t*)SDL_GetVideoSurface()->pixels);
+      break;
+    default:
+      error("%i:%s %s unsupported magnification algo",
+	    __LINE__,__FILE__,__FUNCTION__);
+    }
+    unlock();
+  }
   SDL_Flip(screen);
 }
 
 void *SdlScreen::get_surface() {
-  return SDL_GetVideoSurface()->pixels;
+  return surface->pixels;
 }
 
 void SdlScreen::clear() {
@@ -131,6 +166,49 @@ int SdlScreen::setres(int wx, int hx) {
     act("emulated surface geometry %ux%u %ubpp",
 	emuscr->w,emuscr->h,emuscr->format->BitsPerPixel);
   } 
+ 
 
   return res;
 }
+
+void SdlScreen::set_magnification(int algo) {
+
+  if(magnification == algo) return;
+
+
+  switch(algo) {
+
+  case 0:
+    notice("screen magnification off");
+    setres(w,h);
+    if(magnification) SDL_FreeSurface(surface);
+    surface = SDL_GetVideoSurface();
+    break;
+    
+  case 1:
+    notice("screen magnification scale2x");
+    setres(w*2,h*2);
+    break;
+
+  case 2:
+    notice("screen magnification scale3x");
+    setres(w*3,h*3);
+    break;
+
+  default:
+    error("magnification algorithm %i not supported",algo);
+    algo = magnification;
+    return;
+
+  }
+
+  if(!magnification && algo) {
+    func("create surface for magnification");
+    surface = SDL_CreateRGBSurface
+      (SDL_HWSURFACE,w,h,bpp,bmask,gmask,rmask,amask);
+  }
+
+  magnification = algo;
+  
+}
+    

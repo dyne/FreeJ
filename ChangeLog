@@ -1,7 +1,7 @@
-FreeJ 0.6 MONTEVIDEO - 14 Jan 2003
+FreeJ 0.6 MONTEVIDEO - 18 Jan 2003
   new GTK2 graphical interface
   asynchronous engine for multiple controllers
-  code profiled to minimize cpu load 
+  code profiling optimized well cpu load 
   new blits: alpha channel and faster RGB 
   preliminar Darwin/OSX support
   AviLayer mark in/out and new tweaks (mr_goil)
@@ -9,6 +9,7 @@ FreeJ 0.6 MONTEVIDEO - 14 Jan 2003
   better support for some movies and webcams
   various lubrifications and API cleanup 
   support to run on console framebuffer
+  font selection in TxtLayer and remapped keys
 
 FreeJ 0.5.1 PIKSEL - 26 Oct 2003
   new TxtLayer rendering engine

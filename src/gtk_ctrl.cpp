@@ -183,7 +183,7 @@ void on_blit_or(GtkWidget *widget, gpointer *data) {
   if(laysel) laysel->set_blit(8); }
 void on_osd(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-  env->osd.active(); }
+  env->osd.active = !env->osd.active; }
 void on_overwrite(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   env->clear_all = !env->clear_all; }
@@ -441,12 +441,12 @@ void *gtk_run(void *arg) {
   while(!quit) {
     update_layer_list();
     update_effect_list();
-    jsleep(0,200);
+    jsleep(0,500);
     gdk_threads_enter();
     while(gtk_events_pending())
       gtk_main_iteration();
     gdk_threads_leave();
-    jsleep(0,200);
+    jsleep(0,500);
   }
   return(NULL);
 }

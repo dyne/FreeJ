@@ -86,7 +86,7 @@ void KbdListener::run() {
       
     case SDLK_SPACE:
       if(keysym->mod & KMOD_CTRL)
-	env->screen->fullscreen();
+	env->magnify(1);
       else {
 	//show_osd("press CTRL+SPACE to switch fullscreen");
 	if(env->pause)
@@ -94,14 +94,22 @@ void KbdListener::run() {
 	else 
 	    env->pause = true;
       }
-
       break;
       
+    case SDLK_1:
+    case SDLK_2:
+    case SDLK_3:
+      if(keysym->mod & KMOD_CTRL) {
+	env->magnify(keysym->sym-SDLK_0-1);
+	continue;
+      }
+      break;
+
     case SDLK_TAB:
       if(keysym->mod & KMOD_CTRL)
 	env->osd.calibrate();
       else
-	env->osd.active();
+	env->osd.active = !env->osd.active;
       break;
 
     case SDLK_PRINT:
@@ -109,10 +117,9 @@ void KbdListener::run() {
       break;
     
     case SDLK_f:
-      if(keysym->mod & KMOD_CTRL) {
-	env->osd.fps();
-	break;
-      }
+      if(keysym->mod & KMOD_CTRL)
+	env->screen->fullscreen();
+      break;
 
     case SDLK_0:
       env->clear_all = !env->clear_all;

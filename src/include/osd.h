@@ -61,7 +61,7 @@ class Osd {
   uint32_t _color32;
 
   char title[64];
-  bool _active;
+
   bool _calibrate;
   bool _credits;
   bool _fps;
@@ -70,6 +70,11 @@ class Osd {
   Filter *osd_water;
   Filter *osd_vertigo;
 
+  /* used by the font renderer */
+  int y,x,i,len,f,v,ch,cv;
+  uint32_t *ptr;
+
+
  public:
   Osd();
   ~Osd();
@@ -77,7 +82,6 @@ class Osd {
   void init(Context *screen);
   void print();
   //  void statusmsg(char *format,...);
-  bool active();
   bool calibrate();
   bool credits(bool s);
   bool credits();
@@ -91,6 +95,7 @@ class Osd {
 
   uint32_t *print(char *text, uint32_t* pos, int hsize, int vsize);
 
+  bool active;
   char status_msg[50];
 
 };

@@ -66,6 +66,10 @@ class Context {
 
   void rocknroll(bool state);
 
+  void magnify(int algo);
+  int magnification;
+  bool changeres;
+
   bool quit;
   
   bool pause;

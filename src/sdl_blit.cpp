@@ -140,12 +140,8 @@ void SdlScreen::blit(Layer *layer) {
     
     blitter = SDL_CreateRGBSurfaceFrom
       (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
-       layer->geo.pitch, layer->bmask, layer->gmask, layer->rmask, 0x0);
-    /*    if(!blitter) {
-	  error("SDL_CreateRGBSurfaceFrom : %s",SDL_GetError());
-	  return;
-	  } */
-    SDL_BlitSurface(blitter,&layer->rect,SDL_GetVideoSurface(),NULL);
+       layer->geo.pitch, bmask, gmask, rmask, 0x0);
+    SDL_BlitSurface(blitter,&layer->rect,surface,NULL);
     SDL_FreeSurface(blitter);
     return;
     
@@ -187,13 +183,9 @@ void SdlScreen::blit(Layer *layer) {
   case 9:
     blitter = SDL_CreateRGBSurfaceFrom
       (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
-       layer->geo.pitch, layer->bmask, layer->gmask, layer->rmask, 0x0);
-    /*    if(!blitter) {
-	  error("SDL_CreateRGBSurfaceFrom : %s",SDL_GetError());
-	  return;
-	  } */
+       layer->geo.pitch, bmask, gmask, rmask, 0x0);
     SDL_SetAlpha(blitter,SDL_SRCALPHA,layer->alpha);
-    SDL_BlitSurface(blitter,&layer->rect,SDL_GetVideoSurface(),NULL);
+    SDL_BlitSurface(blitter,&layer->rect,surface,NULL);
     SDL_FreeSurface(blitter);
     break;
 

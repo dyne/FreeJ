@@ -31,6 +31,7 @@ class SdlScreen : public ViewPort {
   ~SdlScreen();
 
   bool init(int widt, int height);
+  void set_magnification(int algo);
   void blit(Layer *layer);
   void crop(Layer *layer);
   void show();
@@ -40,9 +41,7 @@ class SdlScreen : public ViewPort {
   void *get_surface();
 
   SDL_Surface *screen;
-  SDL_Surface *emuscr;
-  void *surface;
-
+  SDL_Surface *surface;
   void *coords(int x, int y);
 
   bool lock();
@@ -50,6 +49,7 @@ class SdlScreen : public ViewPort {
  
  private:
   int setres(int wx, int hx);
+  SDL_Surface *emuscr;
   
   bool dbl;
   uint32_t sdl_flags;
@@ -63,6 +63,7 @@ class SdlScreen : public ViewPort {
   int chan, c, cc;
   uint32_t *scr, *pscr, *off, *poff;
   uint8_t *alpha;
+  uint32_t rmask,gmask,bmask,amask;
 
   SDL_Surface *blitter;
 };

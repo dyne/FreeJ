@@ -23,8 +23,9 @@ freej_SOURCES = \
 	png_layer.cpp	\
 	txt_layer.cpp	\
 	impl_layers.cpp \
-	sdl_screen.cpp \
-	sdl_blit.cpp \
+	screen.cpp	\
+	sdl_screen.cpp 	\
+	sdl_blit.cpp 	\
 	kbd_ctrl.cpp	\
 	gtk_ctrl.cpp	\
 	joy_ctrl.cpp	\

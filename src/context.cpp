@@ -42,7 +42,8 @@ Context::Context() {
   gettimeofday( &lst_time, NULL);
   set_fps_interval(24);
   track_fps = false;
-
+  magnification = 0;
+  changeres = false;
   clear_all = false;
   quit = false;
   pause = false;
@@ -66,7 +67,7 @@ bool Context::init(int wx, int hx) {
   
   /* initialize the On Screen Display */
   osd.init(this);
-  osd.active();
+  osd.active = true;
   set_osd(osd.status_msg); /* let jutils know about the osd */
   
   return true;
@@ -79,8 +80,9 @@ void Context::cafudda() {
 
   while(!quit) {
 
+
     if(clear_all) screen->clear();
-    else osd.clean();
+    else if(osd.active) osd.clean();
 
 
     lay = (Layer *)layers.end();
@@ -102,7 +104,21 @@ void Context::cafudda() {
     screen->show();
   
     rocknroll(true);
-    
+
+    /* change resolution if needed */
+    if(changeres) {
+      screen->set_magnification(magnification);
+      osd.init(this);
+      /* crop all layers to new screen size */
+      Layer *lay = (Layer *)layers.begin();
+      while(lay) {
+	lay->lock();
+	screen->crop(lay);
+	lay->unlock();
+	lay = (Layer*)lay->next;
+      }
+      changeres = false;
+    }
     calc_fps();
   }
 
@@ -122,6 +138,12 @@ void Context::cafudda() {
 
   plugger.close();
 
+}
+
+void Context::magnify(int algo) {
+  if(magnification == algo) return;
+  magnification = algo;
+  changeres = true;
 }
 
 /* FPS */

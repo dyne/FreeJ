@@ -28,13 +28,14 @@
 
 class ViewPort {
  public:
-  ViewPort() {};
-  virtual ~ViewPort() {};
+  ViewPort();
+  virtual ~ViewPort();
  
   /* i keep all the following functions pure virtual to deny the
      runtime resolving of methods between parent and child, which
      otherwise burdens our performance */ 
   virtual bool init(int width, int height) =0;
+  virtual void set_magnification(int algo) =0;
   virtual void blit(Layer *layer) =0;
   virtual void crop(Layer *layer) =0;
   virtual void show() =0;
@@ -43,12 +44,18 @@ class ViewPort {
   virtual void fullscreen() =0;
   virtual bool lock() =0;
   virtual bool unlock() =0;
+  
+  void scale2x(uint32_t *osrc, uint32_t *odst);
+  void scale3x(uint32_t *osrc, uint32_t *odst);
   int w, h;
   int bpp;
   int size, pitch;
+  int magnification;
 
-
-  // deprecated 
+  /* returns pointer to pixel
+     use it only once and then move around from there
+     because calling this on every pixel you draw is
+     slowing down everything! */
   virtual void *coords(int x, int y) =0;
   
 };
