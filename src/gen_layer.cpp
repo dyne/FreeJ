@@ -209,7 +209,7 @@ void GenLayer::blob_init(int ray) {
   srand(time(NULL));
   if(blob_buf) free(blob_buf);
   
-  blob_buf = (uint32_t*) calloc(ray*2*ray*2,sizeof(uint32_t));
+  blob_buf = (uint32_t*) calloc(ray*2*ray*2*2,sizeof(uint32_t));
   //  memset(blob_buf,0,ray*2*ray*2*sizeof(uint32_t));
 
   for(th=1;th<=360;th++) {

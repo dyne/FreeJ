@@ -185,6 +185,7 @@ Layer *create_layer(char *file) {
 	      return(NULL);
 #endif
 	    } else {
+	      func("opening scroll layer on generic file type for %s",file_ptr);
 	      nlayer = new ScrollLayer();
 	      if(!nlayer->open(file_ptr)) {
 		error("create_layer : SCROLL open failed");

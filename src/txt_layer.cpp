@@ -440,8 +440,10 @@ bool TxtLayer::set_font(int c) {
 bool TxtLayer::keypress(char key) {
      int res = 1;
      switch(key) {
-       
-     case ' ': 
+
+       // ENTER
+     case (char)0x111:
+     case (char)13:
        next_word=true;
        clear_screen=true;
        break;

@@ -35,6 +35,7 @@ ScrollLayer::ScrollLayer()
 
   first = last = NULL;
   procbuf = NULL;
+  path[0] = NULL;
 
   set_name("SCR");
 }
@@ -146,6 +147,7 @@ bool ScrollLayer::open(char *file) {
 	  file, strerror(errno));
     return false;
   }
+  strncpy(path,file,512);
   set_filename(file);
   fclose(fd);
   return true;
@@ -154,7 +156,8 @@ bool ScrollLayer::open(char *file) {
 bool ScrollLayer::_open(char *file) {
   FILE *fd;
   char str[512]; // 4096 width resolution is bound here
-  fd = fopen(file,"r");
+  if(!path[0]) return false;
+  fd = fopen(path,"r");
   if(!fd) {
     error("ScrollLayer::open : error opening %s : %s",
 	  file, strerror(errno));

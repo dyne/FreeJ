@@ -284,8 +284,8 @@ Blitter::Blitter() {
 
   /* fill up linklist of blits */
 
-  // default blit is SDLCPY
-  b = new Blit(); b->set_name("SDLCPY");
+  // default blit is SDLCPY RGB
+  b = new Blit(); b->set_name("RGB");
   sprintf(b->desc,"RGB blit (SDL)");
   b->type = SDL_BLIT;
   b->sdl_fun = sdl_rgb; blitlist.append(b);

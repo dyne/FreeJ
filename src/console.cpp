@@ -46,6 +46,7 @@
 #define KEY_SPACE 32
 #define KEY_BACKSPACE 275
 #define KEY_BACKSPACE_APPLE 127 
+#define KEY_BACKSPACE_SOMETIMES 272
 #define KEY_LEFT 259
 #define KEY_RIGHT 260
 #define KEY_HOME 263
@@ -228,6 +229,7 @@ static int quit_proc(char *cmd) {
 
 static int open_layer(char *cmd) {
   int len;
+  func("open_layer(%s)",cmd);
   Layer *l = create_layer(cmd);
   if(l)
     if(!l->init(env)) {
@@ -593,6 +595,7 @@ void Console::cafudda() {
     SLtt_get_screen_size ();
     SLsmg_reinit_smg ();
     canvas();
+    env->console->refresh();
     screen_size_changed = false;
   }
 
@@ -627,6 +630,7 @@ void Console::refresh() {
     statusline();
   else
     GOTO_CURSOR;
+
 }    
 
 void Console::statusline() {
@@ -1004,6 +1008,7 @@ void Console::parser_default(int key) {
       layer->close();
       layer = NULL;
     }
+    env->console->refresh();
     break;
     
   case KEY_SPACE:
@@ -1282,19 +1287,19 @@ void Console::parser_jazz(int key) {
   switch(key) {
   case SL_KEY_UP:
     if(jazzstep<0xff) jazzstep++;
-    ::act("jazz mode step set to %i",jazzstep);
+    ::act("jazz mode velocity set to %i",jazzstep);
     break;
   case SL_KEY_DOWN:
     if(jazzstep>1) jazzstep--;
-    ::act("jazz mode step set to %i",jazzstep);
+    ::act("jazz mode velocity set to %i",jazzstep);
     break;
   case SL_KEY_RIGHT:
     if(jazzvalue<0xff) jazzvalue++;
-    ::act("jazz mode value set to %i",jazzvalue);
+    ::act("jazz mode maximal set to %i",jazzvalue);
     break;
   case SL_KEY_LEFT:
     if(jazzvalue>1) jazzvalue--;
-    ::act("jazz mode value set to %i",jazzvalue);
+    ::act("jazz mode maximal set to %i",jazzvalue);
     break;
 
   case SL_KEY_ENTER:
@@ -1409,6 +1414,7 @@ void Console::parser_commandline(int key) {
 
   case KEY_BACKSPACE:
   case KEY_BACKSPACE_APPLE:
+  case KEY_BACKSPACE_SOMETIMES:
     if(!cursor) return;
 
     for(c=cursor;c<MAX_CMDLINE;c++) {

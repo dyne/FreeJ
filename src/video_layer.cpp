@@ -40,7 +40,7 @@
 VideoLayer::VideoLayer()
     :Layer() {
 	grab_dv=false;
-	set_name("VIDEO");
+	set_name("VID");
 	frame_number=0;
 	av_buf=NULL;
 	//	avformat_context=NULL;

@@ -22,7 +22,7 @@
 
 XHacksLayer::XHacksLayer() 
   :Layer() {
-  setname("XSS");
+  set_name("XSS");
 }
 
 XHacksLayer::~XHacksLayer() {

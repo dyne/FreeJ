@@ -61,6 +61,7 @@ class ScrollLayer: public Layer {
   bool _open(char *file);
   void *procbuf;
   
+  char path[512];
 
   struct txtline *first;
   struct txtline *last;

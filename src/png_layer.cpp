@@ -155,6 +155,7 @@ bool PngLayer::init(Context *scr) {
 
   if (color_type == PNG_COLOR_TYPE_RGB ||
       color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+    // QUAAA TODO maybe this is the big endian problem?
     png_set_bgr(core);
   
   png_set_interlace_handling(core);

@@ -288,7 +288,7 @@ void KbdListener::run() {
 
       /* BLIT ALGOS */
     case SDLK_1: // RGB straight blit
-      layer->blitter.set_blit("SDLCPY");
+      layer->blitter.set_blit("RGB");
       break;
     case SDLK_2: // RED CHAN
       layer->blitter.set_blit("RED");
