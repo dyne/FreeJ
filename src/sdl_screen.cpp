@@ -118,15 +118,15 @@ void *SdlScreen::get_surface() {
 }
 
 void SdlScreen::clear() {
-  SDL_FillRect(screen,NULL,0x0);
+  SDL_FillRect(surface,NULL,0x0);
 }
 void SdlScreen::fullscreen() {
   SDL_WM_ToggleFullScreen(screen);
 }
 
 bool SdlScreen::lock() {
-  if (!SDL_MUSTLOCK(screen)) return true;
-  if (SDL_LockSurface(screen) < 0) {
+  if (!SDL_MUSTLOCK(surface)) return true;
+  if (SDL_LockSurface(surface) < 0) {
     error("%s", SDL_GetError());
     return false;
   }
@@ -134,8 +134,8 @@ bool SdlScreen::lock() {
 }
 
 bool SdlScreen::unlock() {
-  if (SDL_MUSTLOCK(screen)) {
-    SDL_UnlockSurface(screen);
+  if (SDL_MUSTLOCK(surface)) {
+    SDL_UnlockSurface(surface);
   }
   return true;
 }
