@@ -20,7 +20,15 @@ void *Plugin::operator[](const char *sym) {
   if(!_handle) return NULL;
   void *point;  
   point = dlsym(_handle, sym);
-  if(point==NULL)
+#ifdef HAVE_DARWIN
+/* darwin prepends an _ before plugin symbol names */
+  if(!point) {
+    char tmp[256];
+    snprintf(tmp,256,"_%s",sym);
+    point = dlsym(_handle, tmp);
+  }
+#endif
+  if(!point)
     warning("Plugin::%s[%s] %s",_name,sym,dlerror());
   return(point);
 }
@@ -31,7 +39,7 @@ bool Plugin::open(const char *path) {
   getch *getstr = NULL;
   getint *getver = NULL;
 
-  _handle = dlopen(path,RTLD_NOW);
+  _handle = dlopen(path,RTLD_LAZY);
   if(!_handle) {
     warning("can't open plugin: %s",dlerror());
     return(false);

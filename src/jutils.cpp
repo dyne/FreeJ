@@ -36,7 +36,6 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <time.h>
-#include <sched.h>
 #include <sys/time.h>
 #include <unistd.h>
 #include <string.h>
@@ -223,6 +222,8 @@ unsigned long long int dtime() {
 #endif
 }
 
+#ifdef linux
+#include <sched.h>
 /* sets the process to "policy" policy,  if max=1 then set at max priority,
    else use min priority */
 
@@ -242,6 +243,7 @@ bool set_rtpriority(bool max) {
   else
     return true;
 }
+#endif
 
 void jsleep(int sec, long nsec) {
   timespec timelap;
@@ -325,6 +327,7 @@ void *(* jmemcpy)(void *to, const void *from, size_t len) = memcpy;
  */
 void jmemset(void * s, unsigned long c ,size_t count)
 {
+#ifdef ARCH_X86
 int d0, d1;
 __asm__ __volatile__(
 	"rep ; stosl\n\t"
@@ -338,4 +341,7 @@ __asm__ __volatile__(
 	: "=&c" (d0), "=&D" (d1)
 	:"a" (c), "q" (count), "0" (count/4), "1" ((long) s)
 	:"memory");
+#else
+  memset(s,c,count);
+#endif
 }

@@ -80,8 +80,10 @@ static int getkey_handler() {
 static int js_proc(char *cmd) {
   int res;
   if(!cmd) return 0;
+#ifdef WITH_JAVASCRIPT
   res = env->js->parse(cmd);
   if(!res) ::error("invalid javascript command: %s",cmd);
+#endif
   return res;
 }
 

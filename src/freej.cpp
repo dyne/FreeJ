@@ -79,9 +79,7 @@ int width = 400;
 int height = 300;
 int magn = 0;
 bool fullscreen = false;
-#ifdef WITH_JAVASCRIPT
 char javascript[512]; // script filename
-#endif
 
 bool startstate = true;
 #ifdef WITH_GLADE2
