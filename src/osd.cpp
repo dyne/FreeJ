@@ -209,10 +209,10 @@ void Osd::_layerlist() {
 
       if(l->active) {
 	/* red color */ _color32 = 0xee0000;
-	pos = print(lname,pos-4,1,1) - 4;
+	pos = print(lname,pos-4,1,1) + 4;
       } else {
 	/* dark red color */ _color32 = 0x880000;	
-	pos = print(lname,pos-4,1,1) - 4;
+	pos = print(lname,pos-4,1,1) + 4;
       }
 
     } else {

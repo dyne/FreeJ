@@ -40,19 +40,18 @@ Linklist::~Linklist() {
 }
 
 /* adds one element at the end of the list */
-void Linklist::add(Entry *addr) {
+void Linklist::append(Entry *addr) {
   Entry *ptr = NULL;
   if(addr->list) addr->rem();
   lock();
 
-  if(first==NULL) { /* that's the first entry */
-    first = addr;
-    first->next = NULL;
-    first->prev = NULL;
-    last = first;
+  if(!last) { /* that's the first entry */
+    last = addr;
+    last->next = NULL;
+    last->prev = NULL;
+    first = last;
   } else { /* add the entry to the end */
-    ptr = first;
-    while(ptr->next!=NULL) ptr = ptr->next;
+    ptr = last;
     ptr->next = addr;
     addr->next = NULL;
     addr->prev = ptr;
@@ -64,33 +63,55 @@ void Linklist::add(Entry *addr) {
   unlock();
 }
 
-//void Linklist::prepend(Entry *addr) {
+void Linklist::prepend(Entry *addr) {
+  Entry *ptr = NULL;
+  if(addr->list) addr->rem();
+  lock();
+  
+  if(!first) { /* that's the first entry */
+    first = addr;
+    last->next = NULL;
+    last->prev = NULL;
+    last = first;
+  } else { /* add an entry to the beginning */
+    ptr = first;
+    ptr->prev = addr;
+    addr->next = ptr;
+    addr->prev = NULL;
+    first = addr;
+  }
+  addr->list = this;
+  length++;
+  unlock();
+}
   
 /* adds an element at the position specified
    if pos is out of bounds adds it at the beginning or the end
    the element occupying allready the position slides down 
    THIS FUNCTION IS NOT YET RELIABLE
 */
-void Linklist::add(Entry *addr, int pos) {
+void Linklist::insert(Entry *addr, int pos) {
   if(length<=pos) { /* adds it at the end */
-    add(addr);
+    append(addr);
+    return;
+  } else if(pos<=1) {
+    prepend(addr);
     return;
   }
+
+  Entry *ptr = pick(pos);
+
+  lock();
+  ptr->prev->next = addr;
+  addr->prev = ptr->prev;
   
-  if(pos<=1) { /* adds it at the beginning */
-    first->prev = addr;
-    addr->next = first;
-    first = addr;
-  } else {
-    Entry *occ = pick(pos);
-    occ->prev->next = addr;
-    addr->prev = occ->prev;
-    occ->prev = addr;
-    addr->next = occ;
-  }
+  ptr->prev = addr;
+  addr->next = ptr;
+  
   length++;
+  addr->list = this;
+  unlock();
 }
-  
 
 /* clears the list
    i don't delete filters here because they have to be deleted

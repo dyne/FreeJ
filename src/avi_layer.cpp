@@ -27,9 +27,7 @@
 #include <string.h>
 
 #include <avi_layer.h>
-//#include <avm_except.h>
 #include <avm_fourcc.h>
-//#include <avm_creators.h>
 #include <renderer.h>
 
 #include <ccvt.h>
@@ -63,12 +61,8 @@ bool AviLayer::init(Context *scr) {
   func("biBitCount %i biClrUsed %i biClrImportant %i",
        bh.biBitCount,bh.biClrUsed,bh.biClrImportant);
   if(bh.biBitCount!=32) {
-    error("Movie file decoding produces %ibit colorspace images.",bh.biBitCount);
-    error("FreeJ movie layer does'nt supports color depths different from 32bpp");
-    error("cannot find a suitable colorspace conversion routine for this avi file");
-    error("sorry, you can't use the selected movie. Encode it using XviD codec.");
-    //    close();
-    //    return false;
+    act("Movie file decoding produces %ibit colorspace images",bh.biBitCount);
+    act("assuming YUV420 planar colorspace format, using software conversion");
     yuvcc = true;
   }
 

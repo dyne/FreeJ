@@ -31,9 +31,11 @@ class Linklist {
   Entry *begin() { return(first); };
   Entry *end() { return(last); };
   int len() { return(length); };
-  void add(Entry *addr);
-  //  void prepend(Entry *addr);
-  void add(Entry *addr, int pos);
+  
+  void append(Entry *addr);
+  void add(Entry *addr) { append(addr); }; /* lazy backward compatibility */
+  void prepend(Entry *addr);
+  void insert(Entry *addr, int pos);
   
   void rem(int pos);
   void sel(int pos);
