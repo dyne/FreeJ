@@ -25,16 +25,18 @@
 #include <kbd_ctrl.h>
 #include <config.h>
 
+#define SDL_REPEAT_DELAY	200
+#define SDL_REPEAT_INTERVAL	10
+
 #define DELAY 50 //100
 
 #define LISTEN_EVENT_TYPES (SDL_KEYDOWN|SDL_MOUSEMOTION|SDL_MOUSEBUTTONDOWN)
-
-static bool alpha = false;
 
 KbdListener::KbdListener() {
   _filt = NULL;
   _lastsel = -1;
   plugin_bank = 0;
+  drag_value = false;
   active = false;
 }
 
@@ -75,28 +77,35 @@ void KbdListener::run() {
     }
       
     if(event.type == SDL_MOUSEBUTTONDOWN) {
-	if(event.button.button == SDL_BUTTON_LEFT) {
-	    layer->blitter.set_colorkey(event.button.x, event.button.y);
-	}
-	else if(event.button.button == SDL_BUTTON_RIGHT) {
-	    if(SDL_ShowCursor(-1)==0)
-		SDL_ShowCursor(1);
-	    else
-		SDL_ShowCursor(0);
-	}
-	return; 
-    }
-    /*
-    else if(event.type == SDL_MOUSEBUTTONUP) {
-	if(event.button.button == SDL_BUTTON_RIGHT) {
-	    SDL_ShowCursor(0);
-	}
-	return; 
-    }*/
+
+      if(event.button.button == SDL_BUTTON_LEFT) {
+
+	layer->blitter.set_colorkey(event.button.x, event.button.y);
+
+      } else if(event.button.button == SDL_BUTTON_RIGHT) {
 	
-    if(event.key.state != SDL_PRESSED) {
-	return;
-    }
+	if(SDL_ShowCursor(-1)==0) SDL_ShowCursor(1);
+	else SDL_ShowCursor(0);
+
+      }
+
+      return;
+      
+    } else if (drag_value) {
+      if(event.type == SDL_MOUSEMOTION
+	 && layer->blitter.current_blit->has_value) {
+
+	layer->blitter.set_value
+	  // make the value proportional to the screen height
+	  // fit it into a 0-255 bound
+	  // swap the direction (up higher, down lower)
+	  (0xff-((event.motion.y<<8)/env->screen->h));
+
+      return;
+      }
+    }      
+    
+    if(event.key.state != SDL_PRESSED) return;
     
     /* ENVIRONMENT CONTROLS */
     keysym = &event.key.keysym; /* just to type less */
@@ -277,61 +286,31 @@ void KbdListener::run() {
 
       /* BLIT ALGOS */
     case SDLK_1: // RGB straight blit
-      if(alpha)
-	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
-      else
-	layer->blitter.set_blit("AMEMCPY");
+      layer->blitter.set_blit("AMEMCPY");
       break;
     case SDLK_2: // RED CHAN
-      if(alpha)
-	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
-      else
-	layer->blitter.set_blit("RED");
+      layer->blitter.set_blit("RED");
       break;
     case SDLK_3: // GREEN CHAN
-      if(alpha)
-	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
-      else
-	layer->blitter.set_blit("GREEN");
+      layer->blitter.set_blit("GREEN");
       break;
     case SDLK_4: // BLUE CHAN
-      if(alpha)
-	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
-      else
-	layer->blitter.set_blit("BLUE");
-      break;
+      layer->blitter.set_blit("BLUE");
     case SDLK_5: // PACKED ADD BYTEWISE
-      if(alpha)
-	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
-      else
-	layer->blitter.set_blit("ADD");
+      layer->blitter.set_blit("ADD");
       break;
     case SDLK_6: // PACKED SUB BYTEWISE
-      if(alpha)
-	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
-      else
-	layer->blitter.set_blit("SUB");
+      layer->blitter.set_blit("SUB");
       break;
     case SDLK_7: // PACKED AND BYTEWISE
-      if(alpha)
-	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
-      else
-	layer->blitter.set_blit("AND");
+      layer->blitter.set_blit("AND");
       break;
     case SDLK_8: // PACKED OR BYTEWISE
-      if(alpha)
-	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
-      else
-	layer->blitter.set_blit("OR");
+      layer->blitter.set_blit("OR");
       break;
-    case SDLK_9:
-      if(alpha) {
-	layer->blitter.set_blit("MEMCPY");
-	alpha = false;
-      } else {
-	layer->blitter.set_blit("ALPHA");
-	alpha = true;
-      }
+    case SDLK_9: // ALPHA TRANSPARENT SDL BLIT
+      layer->blitter.set_blit("ALPHA");
+      break;
 
     case SDLK_BACKSPACE:
       if(keysym->mod & KMOD_SHIFT) /* go to white */
@@ -361,7 +340,15 @@ void KbdListener::run() {
 	layer->set_position(layer->geo.x+5,layer->geo.y);
 	break;
       }
-      
+
+    case SDLK_v:
+      if(keysym->mod & KMOD_CTRL) {
+	drag_value = !drag_value;
+	act("Mouse drag of blit value %s",
+	    (drag_value)?"on":"off");
+	break;
+      }
+
     default:
       /* layer implementation opcode
 	 TODO: here should pass opcodes instead of SDL keys */

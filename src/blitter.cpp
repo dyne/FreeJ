@@ -58,14 +58,10 @@ static uint8_t achan = 0;
 /* blit functions, prototype is:
    void (*blit_f)(void *src, void *dst, int bytes) */
 
-BLIT memcpy_blit(void *src, void *dst, int bytes, void *value) {
-  memcpy(dst,src,bytes);
-}
 
 
-BLIT accel_memcpy_blit(void *src, void *dst, int bytes, void *value) {
-  jmemcpy(dst,src,bytes);
-}
+
+// Linear transparent blits
 
 BLIT red_channel(void *src, void *dst, int bytes, void *value) {
   register int c;
@@ -139,29 +135,16 @@ BLIT schiffler_or(void *src, void *dst, int bytes, void *value) {
    all the following blits can be considered effects
    they completely overwrite the underlying image */
 
+/// Linear non-transparent blits
 
-// PAST blits
-BLIT past_add(void *src, void *past, void *dst, int bytes) {
-  SDL_imageFilterAdd((unsigned char*)src,
-		     (unsigned char*)past,
-		     (unsigned char*)dst,bytes);
+BLIT memcpy_blit(void *src, void *dst, int bytes, void *value) {
+  memcpy(dst,src,bytes);
 }
 
-BLIT past_addneg(void *src, void *past, void *dst, int bytes) {
-  SDL_imageFilterAdd((unsigned char*)src,
-		     (unsigned char*)past,
-		     (unsigned char*)dst,bytes);
-  SDL_imageFilterBitNegation((unsigned char*)dst,(unsigned char*)dst,bytes);
+BLIT accel_memcpy_blit(void *src, void *dst, int bytes, void *value) {
+  jmemcpy(dst,src,bytes);
 }
 
-BLIT past_absdiff(void *src, void *past, void *dst, int bytes) {
-  SDL_imageFilterAbsDiff((unsigned char*)src,
-			 (unsigned char*)past,
-			 (unsigned char*)dst,bytes);
-}
-
-
-// non transparent schiffler blits
 BLIT schiffler_neg(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBitNegation((unsigned char*)src,(unsigned char*)dst,bytes);
 }
@@ -199,9 +182,29 @@ BLIT schiffler_binarize(void *src, void *dst, int bytes, void *value) {
     ((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
 }
 
+/// Past-frame blits
+
+BLIT past_add(void *src, void *past, void *dst, int bytes) {
+  SDL_imageFilterAdd((unsigned char*)src,
+		     (unsigned char*)past,
+		     (unsigned char*)dst,bytes);
+}
+
+BLIT past_addneg(void *src, void *past, void *dst, int bytes) {
+  SDL_imageFilterAdd((unsigned char*)src,
+		     (unsigned char*)past,
+		     (unsigned char*)dst,bytes);
+  SDL_imageFilterBitNegation((unsigned char*)dst,(unsigned char*)dst,bytes);
+}
+
+BLIT past_absdiff(void *src, void *past, void *dst, int bytes) {
+  SDL_imageFilterAbsDiff((unsigned char*)src,
+			 (unsigned char*)past,
+			 (unsigned char*)dst,bytes);
+}
+
 ///////////////////////////////////////////////////////////////////
 // SDL BLITS
-//
 // TODO: more SDL blits playing with color masks
 
 // temporary surface used in SDL blits
@@ -271,20 +274,26 @@ BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
 
 Blit::Blit() :Entry() {
   sprintf(desc,"none");
+
   value = 0x0;
+  has_value = false;
+
   memset(kernel,0,256);
   fun = NULL;
   type = 0x0;
   past_frame = NULL;
+
 }
 
 Blit::~Blit() { }
 
 Blitter::Blitter() {
+  current_blit = NULL;
+
   Blit *b;
 
-  x_scale = 0.0;
-  y_scale = 0.0;
+  x_scale = 1.0;
+  y_scale = 1.0;
   rotation = 0.0;
 
   /* fill up linklist of blits */
@@ -378,42 +387,42 @@ Blitter::Blitter() {
 
   b = new Blit(); b->set_name("ADDB");
   sprintf(b->desc,"add byte to bytes");
-  b->type = LINEAR_BLIT;
+  b->type = LINEAR_BLIT; b->has_value = true;
   b->fun = schiffler_addbyte; blitlist.append(b);
 
   b = new Blit(); b->set_name("ADDBH");
   sprintf(b->desc,"add byte to half");
-  b->type = LINEAR_BLIT;
+  b->type = LINEAR_BLIT; b->has_value = true;
   b->fun = schiffler_addbytetohalf; blitlist.append(b);
   
   b = new Blit(); b->set_name("SUBB");
   sprintf(b->desc,"subtract byte to bytes");
-  b->type = LINEAR_BLIT;
+  b->type = LINEAR_BLIT; b->has_value = true;
   b->fun = schiffler_subbyte; blitlist.append(b);
 
   b = new Blit(); b->set_name("SHL");
   sprintf(b->desc,"shift left bits");
-  b->type = LINEAR_BLIT;
+  b->type = LINEAR_BLIT; b->has_value = true;
   b->fun = schiffler_shl; blitlist.append(b);
 
   b = new Blit(); b->set_name("SHLB");
   sprintf(b->desc,"shift left byte");
-  b->type = LINEAR_BLIT;
+  b->type = LINEAR_BLIT; b->has_value = true;
   b->fun = schiffler_shlb; blitlist.append(b);
 
   b = new Blit(); b->set_name("SHR");
   sprintf(b->desc,"shift right bits");
-  b->type = LINEAR_BLIT;
+  b->type = LINEAR_BLIT; b->has_value = true;
   b->fun = schiffler_shr; blitlist.append(b);
 
   b = new Blit(); b->set_name("MULB");
   sprintf(b->desc,"multiply by byte");
-  b->type = LINEAR_BLIT;
+  b->type = LINEAR_BLIT; b->has_value = true;
   b->fun = schiffler_mulbyte; blitlist.append(b);
 
   b = new Blit(); b->set_name("BIN");
   sprintf(b->desc,"binarize using threshold");
-  b->type = LINEAR_BLIT;
+  b->type = LINEAR_BLIT; b->has_value = true;
   b->fun = schiffler_binarize; blitlist.append(b);
 
   // SDL blits
@@ -424,7 +433,7 @@ Blitter::Blitter() {
 
   b = new Blit(); b->set_name("ALPHA");
   sprintf(b->desc,"alpha blit (SDL)");
-  b->type = SDL_BLIT;
+  b->type = SDL_BLIT; b->has_value = true;
   b->sdl_fun = sdl_alpha; blitlist.append(b);
 
   b = new Blit(); b->set_name("SRCALPHA");
@@ -434,7 +443,7 @@ Blitter::Blitter() {
   
   b = new Blit(); b->set_name("CHROMAKEY");
   sprintf(b->desc,"chromakey blit (SDL)");
-  b->type = SDL_BLIT;
+  b->type = SDL_BLIT; b->has_value = true;
   b->sdl_fun = sdl_chromakey; blitlist.append(b);
 
   // PAST blits
@@ -490,17 +499,17 @@ void Blitter::blit() {
 
     // setup crop variables
     current_blit->scr = current_blit->pscr = 
-      (uint32_t*)current_blit->blit_coords;
+      (uint32_t*)current_blit->crop_coords;
     current_blit->off = current_blit->poff =
-      (uint32_t*)layer->offset + current_blit->blit_offset;
+      (uint32_t*)layer->offset + current_blit->crop_offset;
     
     // iterates the blit on each horizontal line
-    for(c = current_blit->blit_height; c>0; c--) {
+    for(c = current_blit->crop_height; c>0; c--) {
       
       (*current_blit->fun)
 	((void*)current_blit->off,
 	 (void*)current_blit->scr,
-	 current_blit->blit_pitch,
+	 current_blit->crop_pitch,
 	 (void*)&current_blit->value);
       
       
@@ -525,25 +534,25 @@ void Blitter::blit() {
 
     // setup crop variables
     current_blit->scr = current_blit->pscr = 
-      (uint32_t*)current_blit->blit_coords;
+      (uint32_t*)current_blit->crop_coords;
     current_blit->off = current_blit->poff =
-      (uint32_t*)layer->offset + current_blit->blit_offset;
+      (uint32_t*)layer->offset + current_blit->crop_offset;
     current_blit->pastoff = current_blit->ppastoff =
       (uint32_t*)current_blit->past_frame;
 
     // iterates the blit on each horizontal line
-    for(c = current_blit->blit_height; c>0; c--) {
+    for(c = current_blit->crop_height; c>0; c--) {
       
       (*current_blit->past_fun)
 	((void*)current_blit->off,
 	 (void*)current_blit->pastoff,
 	 (void*)current_blit->scr,
-	 current_blit->blit_pitch);
+	 current_blit->crop_pitch);
 
       // copy the present to the past
       jmemcpy(current_blit->pastoff,
 	      current_blit->off,
-	      current_blit->blit_pitch);
+	      current_blit->crop_pitch);
       
       // strides down to the next line
       current_blit->off = current_blit->poff =
@@ -583,16 +592,23 @@ bool Blitter::set_blit(char *name) {
   return true;
 }
 
-bool Blitter::set_value(int val) {
+void Blitter::set_value(int val) {
+  current_blit->value = val;
+}
+
+bool Blitter::fade_value(int val) {
   Iterator *iter;
 
   /* setup an iterator to gradually change the value */
-  iter = new Iterator((int16_t*)&current_blit->value);
+  iter = new Iterator(&current_blit->value);
+
+  /** here we could setup the speed of the value change
+      (fade_in/out speed and such), hardcoded for now */
   iter->set_step(1);
+
   iter->set_aim(val);
   layer->iterators.add(iter);
 
-  //  b->value = val;
   act("layer %s blit %s set to %i",
       layer->get_name(),current_blit->get_name(),val);
   return true;
@@ -616,7 +632,6 @@ bool Blitter::set_colorkey(int colorkey_x,int colorkey_y) {
     b->value = (colorkey_r)|((uint32_t)colorkey_g<<8)|((uint32_t)colorkey_b<<16);
 
       
-    layer->has_colorkey=true;
 
     notice("Chromakey value: r%x g%x b%x #%x\n",
 	   colorkey_r,colorkey_g,colorkey_b,b->value);
@@ -639,14 +654,14 @@ bool Blitter::set_kernel(short *krn) {
                                                          screen->w
   0,0___________________________________________________ -> 
    '                 ^                                  '
-   | screen          |blit_y                            |
+   | screen          |crop_y                            |
    |                 |                                  |
    |       x,y_______V________________ w                |
    |        '                         '                 |
-   | blit_x | layer                   |                 |
+   | crop_x | layer                   |                 |
    |<------>|                         |                 |
    |        |                         |<-------------...|
-   |...---->|                         |  blit_pitch     |
+   |...---->|                         |  crop_pitch     |
    |        '-------------------------'                 |
    |       h                                            |
    |                                                    |
@@ -664,25 +679,31 @@ bool Blitter::set_kernel(short *krn) {
   x,y________|_________            |
    '         |         '           |
    |layer    |         |           |
-   |         |         | blit_pitch|
+   |         |         | crop_pitch|
    |         |         |<--------->|
    |         |         |           |
    '_________|_________'           |
    <-------->|                     |
-     blit_x  '---------------------'
+     crop_x  '---------------------'
 
-   the algorithm of the blit will look like:
+     so the algorithm of the crop will look like:
 
-   if(x < 0)
-     blit_x = -x;
-     blit_pitch = screen->w - (layer->w - blit_x);
-   else
-     blit_x = x;
-     blit_pitch = screen->w - layer->w
+     crop_pitch = (screen->w - layer->w)
+     if(x < 0)
+       crop_x = -x;
+       crop_width -= crop_x;
+       
+       crop_pitch -= crop_x;
+     else
+       crop_x = x;
 
+     if(y < 0)
+       crop_y = -y;
+     else
+       
      for(c=h;c>0;c--)
-      cpy( layer+blit_x , screen, w );
-      screen += blit_pitch;
+      cpy( layer+crop_x , screen, w );
+      screen += crop_pitch;
       layer += layer->w;
      
    
@@ -690,9 +711,6 @@ bool Blitter::set_kernel(short *krn) {
 */
 void Blitter::crop(ViewPort *screen) {
   Blit *b = current_blit;
-  /* needed in linear blit crop */
-  uint32_t blit_xoff=0;
-  uint32_t blit_yoff=0;
 
   if(!b) return;
   if(!screen)
@@ -705,30 +723,30 @@ void Blitter::crop(ViewPort *screen) {
     b->sdl_rect.w = screen->w;
     b->sdl_rect.h = screen->h;
 
-    /* crop for the linear blit */
+    /* crop for the linear and past blit */
   } else if(b->type == LINEAR_BLIT 
 	    || b->type == PAST_BLIT) {
-    
-    b->blit_x = layer->geo.x;
-    b->blit_y = layer->geo.y;
-    b->blit_width = layer->geo.w;
-    b->blit_height = layer->geo.h;
-    blit_xoff = 0;
-    blit_yoff = 0;
+
+    b->crop_xoff = 0;
+    b->crop_yoff = 0;    
+    b->crop_x = layer->geo.x;
+    b->crop_y = layer->geo.y;
+    b->crop_width = layer->geo.w;
+    b->crop_height = layer->geo.h;
     
     /* left bound 
        affects x-offset and width */
     if(layer->geo.x<0) {
-      blit_xoff = (-layer->geo.x);
-      b->blit_x = 0;
+      b->crop_xoff = (-layer->geo.x);
+      b->crop_x = 0;
       
-      if(blit_xoff>layer->geo.w) {
+      if(b->crop_xoff>layer->geo.w) {
 	func("layer out of screen to the left");
 	layer->hidden = true; /* out of the screen */
 	layer->geo.x = -(layer->geo.w+1); /* don't let it go far */      
       } else {
 	layer->hidden = false;
-	b->blit_width -= blit_xoff;
+	b->crop_width -= b->crop_xoff;
       }
     }
     
@@ -741,23 +759,23 @@ void Blitter::crop(ViewPort *screen) {
 	layer->geo.x = screen->w+1; /* don't let it go far */
       } else {
 	layer->hidden = false;
-	b->blit_width -= (layer->geo.w - (screen->w - layer->geo.x));
+	b->crop_width -= (layer->geo.w - (screen->w - layer->geo.x));
       }
     }
     
     /* upper bound
        affects y-offset and height */
     if(layer->geo.y<0) {
-      blit_yoff = (-layer->geo.y);
-      b->blit_y = 1;
+      b->crop_yoff = (-layer->geo.y);
+      b->crop_y = 1;
       
-      if(blit_yoff>layer->geo.h) {
+      if(b->crop_yoff>layer->geo.h) {
 	func("layer out of screen up");
 	layer->hidden = true; /* out of the screen */
 	layer->geo.y = -(layer->geo.h+1); /* don't let it go far */      
       } else {
 	layer->hidden = false;
-	b->blit_height -= blit_yoff;
+	b->crop_height -= b->crop_yoff;
       }
     }
     
@@ -770,19 +788,19 @@ void Blitter::crop(ViewPort *screen) {
 	layer->geo.y = screen->h+1; /* don't let it go far */
       } else {
 	layer->hidden = false;
-	b->blit_height -= (layer->geo.h - (screen->h - layer->geo.y));
+	b->crop_height -= (layer->geo.h - (screen->h - layer->geo.y));
       }
     }
     
-    b->blit_coords = (uint32_t*)screen->coords(b->blit_x,b->blit_y);
+    b->crop_coords = (uint32_t*)screen->coords(b->crop_x,b->crop_y);
     
-    b->blit_offset = (blit_xoff<<2) + (blit_yoff*layer->geo.pitch);
+    b->crop_offset = (b->crop_xoff*4) + (b->crop_yoff*layer->geo.pitch);
     
-    b->blit_pitch = b->blit_width * (layer->geo.bpp>>3);
+    b->crop_pitch = b->crop_width * (layer->geo.bpp>>3);
     
     func("LINEAR CROP for blit %s x[%i] y[%i] w[%i] h[%i] xoff[%i] yoff[%i]",
-	 b->get_name(), b->blit_x, b->blit_y, b->blit_width,
-	 b->blit_height, blit_xoff, blit_yoff);
+	 b->get_name(), b->crop_x, b->crop_y, b->crop_width,
+	 b->crop_height, b->crop_xoff, b->crop_yoff);
 
   }
 

@@ -30,7 +30,7 @@
    now this support have been dropped and iterators only work
    on 16bit signed integer numbers. */
 
-Iterator::Iterator(int16_t *val)
+Iterator::Iterator(int32_t *val)
   : Entry() {
 
   /* buffer is not malloc'ed!
@@ -88,7 +88,7 @@ int Iterator::cafudda() {
 	*value = aim;
     }
     
-  } else { // goal is reached
+  } else { // goal is reached, what to do?
     
     if(mode == ITERATOR_MODE_ONCE)
       /* stop once aim is reached */
@@ -99,18 +99,18 @@ int Iterator::cafudda() {
   return 1;
 }
 
-void Iterator::set_min(int16_t val) {
+void Iterator::set_min(int32_t val) {
   min = val;
 }
-void Iterator::set_max(int16_t val) {
+void Iterator::set_max(int32_t val) {
   max = val;
 }
-void Iterator::set_step(int16_t val) {
+void Iterator::set_step(int32_t val) {
   step = val;
 }
-void Iterator::set_aim(int16_t val) {
+void Iterator::set_aim(int32_t val) {
   aim = val;
 }
-void Iterator::set_value(int16_t *val) {
+void Iterator::set_value(int32_t *val) {
   value = val;
 }

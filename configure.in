@@ -286,6 +286,11 @@ if test x$have_lubrifications = xyes; then
       CFLAGS="$CFLAGS -O4 -fomit-frame-pointer -march=${host_cpu} -finline-functions -ffast-math"
     fi
   fi
+else
+  if test x$have_profiling = xno -a x$debug = xfalse; then
+    echo "enabling generic compiler optimizations"
+    CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -mcpu=pentium-mmx -ffast-math -finline-functions"
+  fi
 fi
 AC_SUBST(LUBRIFY_CFLAGS)
 

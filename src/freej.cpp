@@ -52,7 +52,7 @@
  */
 
 static const char *help = 
-" .  Usage: freej [options] [files and video devices]\n"
+" .  Usage: freej [options] [layers]\n"
 " .  options:\n"
 " .   -h   print this help\n"
 " .   -v   version information\n"

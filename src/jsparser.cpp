@@ -488,8 +488,8 @@ JS(layer_set_blit_value) {
 
     GET_LAYER(Layer);
 
-    int new_alpha=JSVAL_TO_INT(argv[0]);
-    lay->blitter.set_value(new_alpha);
+    int new_value=JSVAL_TO_INT(argv[0]);
+    lay->blitter.fade_value(new_value);
 
     return JS_TRUE;
 }

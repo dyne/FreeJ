@@ -62,6 +62,8 @@ class Console {
      in charge of processing the input collected */
   int readline(char *msg, cmd_process_t *proc, cmd_complete_t *comp);  
 
+  void refresh();
+
   bool active;
 
   Linklist history;
@@ -70,7 +72,7 @@ class Console {
   int x,y;
 
   void canvas();
-  
+
   void layerprint();
   void layerlist();
   Layer *layer;

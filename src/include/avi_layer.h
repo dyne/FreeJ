@@ -80,6 +80,7 @@ class AviLayer: public Layer {
  bool paused;
  bool avi_dirty;
  int play_speed;
+ int steps;
  void set_play_speed(int speed);
  int slow_frame,slow_frame_s;
  void set_slow_frame(int speed);

@@ -215,9 +215,11 @@ static int open_layer(char *cmd) {
       env->layers.add(l);
       len = env->layers.len();
       notice("layer succesfully created, now you have %i layers",len);
+      env->console->refresh();
       return env->layers.len();
     }
   error("layer creation aborted");
+  env->console->refresh();
   return 0;
 }
 
@@ -240,7 +242,7 @@ static int set_blit_value(char *cmd) {
      (supports multiple selection) */
   for(c=0 ; lay ; lay = (Layer*)lay->next) {
     if(!lay->select) continue;
-    lay->blitter.set_value(val);
+    lay->blitter.fade_value(val);
   }
 
   return 1;
@@ -379,6 +381,16 @@ void Console::getkey() {
 
     case SL_KEY_ENTER:
     case KEY_ENTER:
+      // a blank commandline aborts the input
+      if(command[0]==EOL) {
+	func("command aborted");
+	input = false;
+	cmd_process = NULL;
+	cmd_complete = NULL;
+	statusline();
+	return;
+      }
+      // otherwise process the input
       res = (*cmd_process)(command);
       if(res<0) return;
       input = false;
@@ -678,15 +690,7 @@ void Console::getkey() {
 #endif
 
     case KEY_CTRL_L:
-      SLsmg_cls();
-      canvas();
-      layerprint(); layerlist();
-      filterprint(); filterlist();  
-      update_scroll();
-      if(!input)
-	statusline();
-      else
-	GOTO_CURSOR;
+      refresh();
       break;
       
     default:
@@ -755,6 +759,18 @@ void Console::cafudda() {
   
   SLsig_unblock_signals ();
 }
+
+void Console::refresh() {
+  SLsmg_cls();
+  canvas();
+  layerprint(); layerlist();
+  filterprint(); filterlist();  
+  update_scroll();
+  if(!input)
+    statusline();
+  else
+    GOTO_CURSOR;
+}    
 
 void Console::statusline() {
   SLsmg_set_color(TITLE_COLOR+20);

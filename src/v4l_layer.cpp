@@ -389,12 +389,15 @@ void *V4lGrabber::feed() {
 	     geo.w, geo.h, geo.pitch, geo.w, geo.w);  
   */
   //  if(palette == VIDEO_PALETTE_YUV422P)
+#ifdef HAVE_MMX
   if(palette == VIDEO_PALETTE_YUV422P
      || palette == VIDEO_PALETTE_YUYV)
 
     ccvt_yuyv_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
 
-  else if(palette == VIDEO_PALETTE_YUV420P) 
+  else
+#endif
+  if(palette == VIDEO_PALETTE_YUV420P) 
 
     ccvt_420p_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
 

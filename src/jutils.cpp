@@ -202,6 +202,8 @@ static uint32_t randval;
 uint32_t fastrand()
 {
 	return (randval=randval*1103515245+12345);
+	//15:55  <salsaman2> mine uses two prime numbers and the cycling is much reduced
+	//15:55  <salsaman2>   return (randval=randval*1073741789+32749);
 }
 
 void fastsrand(uint32_t seed)

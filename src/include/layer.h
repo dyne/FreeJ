@@ -147,8 +147,6 @@ class Layer: public Entry, public JSyncThread {
   uint8_t colorkey_g;
   uint8_t colorkey_b;
 
-  bool has_colorkey;
-
 };
 
 /* function for type detection of implemented layers */

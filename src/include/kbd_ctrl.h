@@ -19,9 +19,6 @@
 #ifndef __KEYBOARD_H__
 #define __KEYBOARD_H__
 
-#define SDL_REPEAT_DELAY	10
-#define SDL_REPEAT_INTERVAL	10
-
 #include <SDL/SDL.h>
 
 class Context;
@@ -36,6 +33,7 @@ class KbdListener {
   Filter *_filt;
   int _sel, _lastsel;
   int plugin_bank;
+  bool drag_value;
 
   SDL_Event event;
   SDL_keysym *keysym;

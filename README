@@ -18,7 +18,8 @@ Everything can be controlled live, also remotely, or scripted using an
 object oriented API with javascript syntax.
 
 FreeJ's sourcecode is written in C, C++ and assembler, it can run on
-GNU/Linux and Darwin/OSX platforms, PC-x86 or Mac.
+GNU/Linux and Darwin/OSX platforms, PC-x86 or Mac, and is released free
+under the GNU General Public License.
 
 
 
@@ -26,10 +27,10 @@ GNU/Linux and Darwin/OSX platforms, PC-x86 or Mac.
 
 This software has started as an artist tool used in dance-theater
 performances by its author, being developed since 2001 also with
-contributions from programmers and artists. A study realized with FreeJ
-was featured by the Withney ArtPort (CODeDOC II/AEC03), while during
-2003/04 development has been supported by the Netherlands Institute of
-Media Art.
+contributions from other programmers and artists.
+A study realized with FreeJ was featured by the Withney ArtPort
+(CODeDOC II/AEC03), while during 2003/04 development has been
+supported by the Netherlands Institute of Media Art.
 
 By releasing FreeJ as free software, the intention is to foster
 creativity, artistic expression and research indypendently from
@@ -40,7 +41,7 @@ Set the VeeJay Free! was the first motto for this software.
 
 For the time being, FreeJ is employed in various video performances and
 installations, but also used for medical analisys visualizations.
-And its horizons of use are now growing with scriptability.
+And its horizons of use are now growing with scripting of operations.
 
 FreeJ is free software and its sourcecode is released under the GNU
 General Public License, it comes with absolutely no warranty, while you
@@ -60,7 +61,7 @@ support using it.
 ++ very efficient video engine with multithreaded layers
 ++ plugin effects chainable on each layer
 ++ user friendly graphical interface (Gtk+2)
-++ Emacs/Vi style console with hotkeys and completion (S-Lang)
+++ Emacs/Vi style console with hotkeys and completion
 ++ Midi and Joystick controllers
 ++ Object Oriented scriptable API (Javascript)
 ++ 100% GNU General Public License Free Software
@@ -119,18 +120,22 @@ if it's too hard for you, consider trying dyne:bolic
 *** http://dynebolic.org (just download, burn and boot it on a PC!)
 or if you have allready Debian GNU/Linux installed, you can try to
 # apt-get install freej
-from the unstable/testing branch.
-
+from the unstable/testing branch
+while TGZ binary packages are provided for lucky Slackware users.
 
 
 
 :: DEVELOPERS
 
- Denis "jaromil" Rojo - programmer: FreeJ author and mantainer
+ Denis "jaromil" Rojo       - programmer: FreeJ author and mantainer
+
  Silvano "kysucix" Galliani - programmer: TXT layer, script parser
- Anne-Marie Skriver - documentation: tutorial and case study 
+
+ documentation, testing and user case study is being contributed by
+ people in Montevideo Amsterdam: Anne-Marie Skriver, Marloes de Valk,
+ Barbara de Preter, Robert de Geuss, Asta Kat.
  
- refer to the AUTHORS file for a list of contributions
+ refer to the AUTHORS file for a full list of contributions
 
 You are very welcome to join, there is a lot of space for modules and a
 pretty clear (and almost freezed) API to be used.

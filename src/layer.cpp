@@ -39,7 +39,6 @@ Layer::Layer()
   set_name("???");
   filename[0] = 0;
   buffer = NULL;
-  has_colorkey=false;
 }
 
 Layer::~Layer() {
@@ -158,13 +157,13 @@ void Layer::set_position(int x, int y) {
   */
 
   if(x!=geo.x) {
-    iter = new Iterator((int16_t*)&geo.x);
+    iter = new Iterator((int32_t*)&geo.x);
     iter->set_aim(x);
     iterators.add(iter);
   }
 
   if(y!=geo.y) {
-    iter = new Iterator((int16_t*)&geo.y);
+    iter = new Iterator((int32_t*)&geo.y);
     iter->set_aim(y);
     iterators.add(iter);
   }

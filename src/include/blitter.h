@@ -46,7 +46,7 @@ class Blit: public Entry {
   ~Blit();
 
   char desc[512];    ///< long description
-  uint32_t value;    ///< parameter value
+  int32_t value;    ///< parameter value
   short kernel[256]; ///< convolution kernel
   
   blit_f *fun; ///< pointer to linear blit function
@@ -58,20 +58,26 @@ class Blit: public Entry {
 #define PAST_BLIT 3
   int type; ///< LINEAR|SDL|PAST type
 
+  bool has_value;
+
   char *get_name() { return name; };
 
 
  private:
-  // parameters for linear blit crop
-  int32_t blit_x;
-  int32_t blit_y;
-  uint32_t blit_width;
-  uint32_t blit_height;
-  uint32_t blit_pitch;
-  uint32_t blit_offset;
-  uint32_t *blit_coords;
+  // parameters for linear crop
+  int32_t crop_x;
+  int32_t crop_y;
+  uint32_t crop_width;
+  uint32_t crop_height;
+  uint32_t crop_pitch;
+  uint32_t crop_offset;
+  uint32_t crop_xoff;
+  uint32_t crop_yoff;
+  uint32_t *crop_coords;
 
-  // sdl blit crop rectangle
+
+
+  // sdl crop rectangle
   SDL_Rect sdl_rect;
 
   // past blit buffer
@@ -97,7 +103,8 @@ class Blitter {
   /* ==== BLITS */
   void blit();
   bool set_blit(char *name); ///< set the active blit
-  bool set_value(int val); ///< set the blit parameter
+  void set_value(int val); ///< set the blit value
+  bool fade_value(int val); ///< fade to a new blit value
   bool set_kernel(short *krn); /// set the convolution kernel
   bool Blitter::set_colorkey(int x,int y);
   Linklist blitlist; ///< list of available blits

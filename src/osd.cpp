@@ -116,7 +116,7 @@ void Osd::init(Context *screen) {
     if(ipernaut) {
       if(ipernaut->init(env)) {
 	ipernaut->blitter.set_blit("ALPHA");
-	ipernaut->blitter.set_value(128);
+	ipernaut->blitter.fade_value(128);
       } else {
 	delete ipernaut;
 	ipernaut = NULL;

@@ -12,7 +12,7 @@ if [ "`uname -s`" = "Darwin" ]; then
   LIBTOOLIZE=glibtoolize
 else
   LIBTOOL=libtool
-  LIBTOOLIZe=libtoolize
+  LIBTOOLIZE=libtoolize
 fi
 
 test -z "$srcdir" && srcdir=.

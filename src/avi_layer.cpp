@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2004 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -38,6 +38,7 @@ AviLayer::AviLayer()
   :Layer() {
   _avi = NULL;
   _stream = NULL;
+  steps = 1;
   set_name("AVI");
   yuvcc = false;
 }
@@ -49,8 +50,8 @@ AviLayer::~AviLayer() {
 bool AviLayer::init(Context *scr) {
   func("AviLayer::init");
   avi_dirty = paused = false;
-	mark_in = mark_out = slow_frame = slow_frame_s = 0;
-	play_speed = 1;
+  mark_in = mark_out = slow_frame = slow_frame_s = 0;
+  play_speed = 1;
   _quality = 1;
 
   
@@ -208,8 +209,9 @@ void *AviLayer::feed() {
   } else if (play_speed>0) { // we're going forward
     if (mark_out) // if there is a mark out
       if (mark_out < (uint32_t)curr) { // the mark out got passed:
-	if(mark_in) // if there is a mark in
+	if(mark_in) { // if there is a mark in
 	  curr = _stream->SeekToKeyFrame(mark_in); // loop to that
+	}
       }
     
   } else if (play_speed<0) { // we're going backward
@@ -313,32 +315,19 @@ void AviLayer::set_slow_frame(int speed) {
 
 bool AviLayer::keypress(char key) {
   bool res = true;
-  framepos_t off,steps = 1;
+  framepos_t off;
   switch(key) {
   case 'k':
-    off = forward(steps);
-    show_osd("AviLayer::forward %u steps to %u\% (K%u)",
-	     steps,(off*100)/_stream->GetLength(),off);
+    off = forward(1);
+    show_osd("AviLayer seek forward to %u\% (K%u)",
+	     (off*100)/_stream->GetLength(),off);
     break;
   case 'j':
-    off = rewind(steps);
-    show_osd("AviLayer::rewind %u steps to %u\% (K%u)",
-	     steps,(off*100)/_stream->GetLength(),off);
+    off = rewind(1);
+    show_osd("AviLayer rewind to %u\% (K%u)",
+	     (off*100)/_stream->GetLength(),off);
     break;
     
-  case 'h':
-    if(steps>1) steps--;
-    act("AviLayer::keyframe step +1: %u",steps);
-    break;
-  case 'l':
-    steps++;
-    act("AviLayer::keyframe step +1: %u",steps);
-    break;
-  case 'u':
-    steps = 1;
-    act("AviLayer::keyframe step to 1");
-    break;
-
     /*
 Hi Jaromil,
 I have been thinking about the looping problem, my feeling now is that
@@ -382,6 +371,12 @@ at the next click, you mark another OUT point
 	mark_in, mark_out, (mark_in&&mark_out)?"ON":"OFF");
     break;
     
+  case 'l':
+    mark_in = 0;
+    mark_out = 0;
+    act("AviLayer::marks removed IN[0] - OUT[0]");
+    break;
+    /*    
   case 'n': 
     set_play_speed(-1);
     break;
@@ -397,7 +392,7 @@ at the next click, you mark another OUT point
   case 'b': 
     set_slow_frame(+1);
     break;
-		
+    */	
   case 'p':
     pause();
     break;
