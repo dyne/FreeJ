@@ -25,10 +25,16 @@
 #include <layer.h>
 #define INBUF_SIZE 4096
 #define NO_MARK -1
+#define FIFO_SIZE 32
 
 /*********************************/
 /* I want it hard, I want it raw */ 
 /*********************************/
+struct frame_fifo_t {
+	AVPicture *picture[FIFO_SIZE];
+	int picture_type[FIFO_SIZE];
+	int length;
+} ;
 
 void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl);
 
@@ -66,6 +72,7 @@ class VideoLayer: public Layer {
 	/**
 	 * application variables
 	 */
+	struct frame_fifo_t frame_fifo;
 	bool deinterlaced;
 	bool paused;
 	bool seekable;
@@ -84,11 +91,16 @@ class VideoLayer: public Layer {
 	FILE *fp;
 
 	/** private methods */
+	int decode_packet( int *got_picture);
 	void free_av_stuff();
 	int seek(int64_t timestamp);
 	void set_speed(int speed);
 	double get_master_clock();
 	void deinterlace(AVPicture *picture);
+	int new_fifo();
+	void free_fifo();
+	int new_picture(AVPicture *p);
+	void free_picture(AVPicture *p);
 
     public:
 	VideoLayer();
@@ -101,6 +113,7 @@ class VideoLayer: public Layer {
 
 	bool forward();
 	bool backward();
+	bool backward_one_keyframe();
 	bool relative_seek(double increment);
 
 	bool keypress(char key);
