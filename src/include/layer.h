@@ -63,9 +63,6 @@ class Layer: public Entry, public JSyncThread {
 
   Context *screen;
 
-  int id_kbd;
-  int id_scr;
-
   ScreenGeometry geo;
 
   //bool feeded;

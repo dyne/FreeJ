@@ -109,9 +109,6 @@ bool Context::add_layer(Layer *newlayer) {
   
   layers.add(newlayer);
 
-  /* layer's id is 100+the position */
-  newlayer->id_scr = layers.len()+100;
-
   res = true;
   return(res);
 }   

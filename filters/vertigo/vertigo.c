@@ -2,6 +2,7 @@
  *
  * VertigoTV - Alpha blending with zoomed and rotated images.
  * Copyright (C) 2001 FUKUCHI Kentarou
+ * some small modifications done by jaromil
  *
  */
 
@@ -39,16 +40,18 @@ static void setParams()
   double dizz;
   
   dizz = sin(phase) * 10 + sin(phase*1.9+5) * 5;
-  
+  /*  
   if(geo->w > geo->h) {
-    if(dizz >= 0) {
-      if(dizz > x) dizz = x;
-      vx = (x*(x-dizz) + yc) / tfactor;
-    } else {
-      if(dizz < -x) dizz = -x;
-      vx = (x*(x+dizz) + yc) / tfactor;
-    }
-    vy = (dizz*y) / tfactor;
+  */
+  if(dizz >= 0) {
+    if(dizz > x) dizz = x;
+    vx = (x*(x-dizz) + yc) / tfactor;
+  } else {
+    if(dizz < -x) dizz = -x;
+    vx = (x*(x+dizz) + yc) / tfactor;
+  }
+  vy = (dizz*y) / tfactor;
+  /*
   } else {
     if(dizz >= 0) {
       if(dizz > y) dizz = y;
@@ -59,6 +62,7 @@ static void setParams()
     }
     vy = (dizz*x) / tfactor;
   }
+  */
   dx = vx * 65536;
   dy = vy * 65536;
   sx = (-vx * x + vy * y + x + cos(phase*5) * 2) * 65536;

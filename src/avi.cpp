@@ -27,18 +27,27 @@
 #include <avi.h>
 #include <avifile/except.h>
 #include <avifile/renderer.h>
+#include <avifile/fourcc.h>
+#include <avifile/creators.h>
+#include <avifile/renderer.h>
 #include <jutils.h>
 
 AviLayer::AviLayer() {
   _avi = NULL;
   _stream = NULL;
+  _rend = NULL;
 }
 
 AviLayer::~AviLayer() { 
 }
 
 bool AviLayer::init(Context *screen, int wdt, int hgt) {
+  _quality = 1;
+  _ci = (CodecInfo *)CodecInfo::match(fccDIV3);
+  if(_ci) Creators::SetCodecAttr(*_ci, (const char*)"Quality", (const char*)_quality);
+
   _init(screen,wdt,hgt);
+
   return true;
 }
 
@@ -80,8 +89,8 @@ bool AviLayer::open(char *file) {
   }
   ------------------------- */
 
-  //  _stream = _avi->GetStream(0, IAviReadStream::Video);
   _stream = _avi->GetStream(0, AviStream::Video);
+
   if(!_stream) {
     /* check if here we got to free something */
     error("AviLayer::open(%s) - video stream not detected",file);
@@ -97,12 +106,12 @@ bool AviLayer::open(char *file) {
       error("AviLayer::open(%s) - failed to initialize decoder object",file);
       return(false);
     }
-    _stream->GetDecoder()->SetDestFmt(24); // QUAAAAAA
+    _stream->GetDecoder()->SetDestFmt(8); // QUAAAAAA
 
     _stream->GetOutputFormat(&bh, sizeof(bh));
 
-    geo.w = labs(bh.biWidth);
-    geo.h = labs(bh.biHeight);
+    //    geo.w = labs(bh.biWidth);
+    //    geo.h = labs(bh.biHeight);
     geo.bpp = bh.biBitCount;
     geo.size = geo.w*geo.h*(geo.bpp/8);
     geo.pitch = geo.w*(geo.bpp/8);
@@ -111,8 +120,20 @@ bool AviLayer::open(char *file) {
     error("fatal error");//: %s",e.Print());
     return(false);
   }
+
+  fourcc_t fcc = fccYUV;
   /*
-  rgb_buffer = jalloc(rgb_buffer,geo.size);
+  IVideoDecoder::CAPS caps = _stream->GetDecoder()->GetCapabilities();
+  cout << "Decoder YUV capabilities: " << caps << endl;
+  if (caps & IVideoDecoder::CAP_YUY2) fcc = fccYUY2;
+  else if (caps & IVideoDecoder::CAP_YV12) fcc = fccYV12;
+  else if (caps & IVideoDecoder::CAP_UYVY) fcc = fccUYVY;
+  else error("AviLayer::open - IVideoDecoder - YUV unsupported by decoder");
+  */
+  /*
+  if (fcc)
+    if (_stream->GetDecoder()->SetDestFmt(BitmapInfo::BitCount(fcc), fcc))
+      error("AviLayer::open - CreateYUVRenderer - error setting YUV decoder output");
   */
   feed();
   

@@ -26,10 +26,14 @@ class AviLayer: public Layer {
  private:
   IAviReadFile *_avi;
   IAviReadStream *_stream;
+  VideoRenderer *_rend;
   CImage *_img;
-  
+  const CodecInfo *_ci;
+
   unsigned int _samples_read;
   unsigned int _bytes_read;
+  
+  int _quality;
 
  public:
   AviLayer();

@@ -128,6 +128,7 @@ static inline void mmx_yuv2rgb (uint8_t * py, uint8_t * pu, uint8_t * pv)
     punpcklbw_r2r (mm3, mm0);		// mm0 = B7 B6 B5 B4 B3 B2 B1 B0
     punpcklbw_r2r (mm4, mm1);		// mm1 = R7 R6 R5 R4 R3 R2 R1 R0
     punpcklbw_r2r (mm5, mm2);		// mm2 = G7 G6 G5 G4 G3 G2 G1 G0
+    emms();
 }
 
 static inline void mmx_unpack_16rgb (uint8_t * image, int cpu)
@@ -162,6 +163,7 @@ static inline void mmx_unpack_16rgb (uint8_t * image, int cpu)
     psllq_i2r (3, mm7);
     por_r2r (mm7, mm5);
     movntq (mm5, *(image+8));
+    emms();
 }
 
 static inline void mmx_unpack_32rgb (uint8_t * image, int cpu)
@@ -194,6 +196,7 @@ static inline void mmx_unpack_32rgb (uint8_t * image, int cpu)
     punpckhbw_r2r (mm2, mm4);
     punpckhwd_r2r (mm5, mm4);
     movntq (mm4, *(image+24));
+    emms();
 }
 
 static inline void yuv420_rgb16 (uint8_t * image,

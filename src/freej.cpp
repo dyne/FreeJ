@@ -117,6 +117,8 @@ void cmdline(int argc, char **argv) {
 /* ===================================== */
 
 int main (int argc, char **argv) {
+
+  bool res = false;
   
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
   act("(c)2001 Denis Roio <jaromil@dyne.org>");
@@ -131,62 +133,58 @@ int main (int argc, char **argv) {
   Context screen(W,H,D,0x0);
   if(screen.surf==NULL) exit(0);
 
-  /* this is the Video4Linux layer */
-  V4lGrabber grabber;
-  
-  /* this is the AVI/ASF Layer 
-  AviLayer *avi = NULL;
-  if(avifile!=NULL) {
-    notice("avifile library output follows ____________________________");
-    avi = new AviLayer();
-    avi->open(avifile);
-    act("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    } */
-  
-  /* this is the keyboard listener */
-  KbdListener keyb;
-  
-  /* this is the On Screen Display */
-  Osd osd;
-  
   /* this is the Plugin manager */
   Plugger plugger(screen.bpp);
+  plugger.refresh();
 
+  /* ================= Video4Linux layer */
+  V4lGrabber grabber;
   /* detect v4l grabber layer */
   if(!grabber.detect(v4ldevice)) {
-    act("sorry, exiting.");
-    screen.close();
-    exit(0);
+    act("no video 4 linux device detected");
+  } else {
+    /* init the v4l grabber */
+    assert( grabber.init(&screen,GW,GH) );
+    
+    /* center the v4l layer */
+    grabber.geo.x = (Uint16)(W-GW)/2;
+    grabber.geo.y = (Uint16)(H-GH)/2;
+    /* --------------------- */
   }
-  
-  /* init the v4l grabber */
-  assert( grabber.init(&screen,GW,GH) );
-  //  assert( avi->init(&screen,GW,GH) );
-  
-  /* center the v4l layer */
-  grabber.geo.x = (Uint16)(W-GW)/2;
-  grabber.geo.y = (Uint16)(H-GH)/2;
-  /* --------------------- */
-  /*
-  avi->geo.x = (Uint16)(W-GW)/2;
-  avi->geo.y = (Uint16)(H-GH)/2;
-  */
+
+  /* ================= Avi layer */
+  AviLayer avi;
+  if(avifile!=NULL) {
+    notice("avifile library output follows ____________________________");
+    res = avi.open(avifile);
+    act("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+  }
+  if(res) {
+    assert( avi.init(&screen,GW,GH) );
+    avi.geo.x = (Uint16)(W-GW)/2;
+    avi.geo.y = (Uint16)(H-GH)/2;
+  }
+
+  /* this is the keyboard listener */
+  KbdListener keyb;
   /* init the keyb listener */
   assert( keyb.init(&screen, &plugger) );
   
-  /* update the fps counter every 25 frames */
-  screen.set_fps_interval(24);
-
+  /* this is the On Screen Display */
+  Osd osd;
   /* create and initialize the osd */
   osd.init(&screen);
   osd.active();
   /* let jutils know about the osd */
   set_osd(osd.status_msg);
 
-  plugger.refresh();
-  grabber.start();
-  //grabber.active = false;
-  //avi->start();
+  /* update the fps counter every 25 frames */
+  screen.set_fps_interval(24);
+
+
+  //  grabber.start();
+  grabber.active = false;
+  avi.start();
   //  avi->active = false;
   keyb.start();
 
@@ -208,7 +206,8 @@ int main (int argc, char **argv) {
   osd.splash_screen();
   screen.flip();
   grabber.quit = true;
-  
+  avi.quit = true;
+
   /* we need to wait here to be sure the threads quitted:
      can't use join because threads are detached for better performance */
   SDL_Delay(3000);

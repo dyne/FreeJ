@@ -36,9 +36,6 @@ bool KbdListener::init(Context *context, Plugger *plug) {
 
   layer = (Layer *)context->layers.begin();
 
-  /* TODO ---- when more layers are added this must be fixed */
-  layer->id_kbd = context->layers.len()+1000;
-
   filter = NULL;
   filtersel = 0;
   _filt = NULL;
