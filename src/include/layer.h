@@ -32,7 +32,8 @@ class Layer: public Entry, public JSyncThread {
   int _w, _h, _pitch;
   long _size;
   char _name[5];
-  
+  char filename[256];
+
   int _blit_algo;
   void blit(void *offset);
   int blit_x, blit_y;
@@ -46,6 +47,8 @@ class Layer: public Entry, public JSyncThread {
 
   void run();
   void _init(Context *screen, int wdt, int hgt, int bpp=0);
+  void set_filename(char *f);
+  char *get_filename() { return filename; };
   virtual void close() { };
 
   /* these has to be defined into layer instances

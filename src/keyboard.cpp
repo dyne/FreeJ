@@ -177,6 +177,7 @@ bool KbdListener::_layer_op(SDL_keysym *keysym) {
       filter = (Filter *)layer->filters.begin();
       filtersel = (filter)?1:0;
       layersel--;
+      show_osd("%s <- %u",layer->get_filename(),layersel);
     }
     return true;
     
@@ -192,6 +193,7 @@ bool KbdListener::_layer_op(SDL_keysym *keysym) {
       filter = (Filter *)layer->filters.begin();
       filtersel = (filter)?1:0;
       layersel++;
+      show_osd("%s <- %u",layer->get_filename(),layersel);
     }
     return true;
 

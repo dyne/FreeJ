@@ -6,7 +6,10 @@ global mmx_osd_clean
 
 	extern asmdst
 	extern asmsrc1
-	
+	extern asmnum1
+	extern asmnum2
+	extern asmnum3
+		
 mmx_osd_clean:
 	;; EAX screen
 
@@ -29,8 +32,7 @@ mmx_osd_clean:
 	movq mm1,[edx]		; preparing our hero
 
 	;; upper stripe (18 vertical pixels)
-	;; ( 400width * 18 vbound) /2 64bit
-	mov ecx,(400*18)/2
+	mov ecx,[asmnum1]
 .UpLoop
 	movq [eax],mm1
 	add eax,8
@@ -38,7 +40,7 @@ mmx_osd_clean:
 	jnz .UpLoop
 
 	;; left and right stripes (20 pixels on both sides)
-	mov ecx,300-18-18
+	mov ecx,[asmnum3]
 
 .HorLoop
 	push ecx
@@ -50,9 +52,9 @@ mmx_osd_clean:
 	dec ecx
 	jnz .HorSXLoop
 
-	add eax,(400-20-20)*4
+	add eax,[asmnum2]
 
-	mov ecx,20/2
+	mov ecx,10
 .HorDXLoop
 	movq [eax],mm1
 	add eax,8
@@ -63,7 +65,7 @@ mmx_osd_clean:
 	dec ecx
 	jnz .HorLoop
 
-	mov ecx,(400*18)/2
+	mov ecx,[asmnum1]
 .BottomLoop
 	movq [eax],mm1
 	add eax,8

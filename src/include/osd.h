@@ -21,6 +21,9 @@
 
 #include <SDL.h>
 
+#define HBOUND 30
+#define VBOUND 18
+
 #define VBP 16 /* vertical bound proportion */
 #define HBP 13 /* horizontal bound proportion */
 #define TOPLIST 6 /* distance down from vbound where they start the vertical lists */

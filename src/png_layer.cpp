@@ -54,6 +54,8 @@ bool PngLayer::open(char *file) {
     fclose(fp); fp = NULL;
     return (false); }
 
+  set_filename(file);
+
   return(true);
 }
 

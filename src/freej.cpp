@@ -51,28 +51,33 @@ static const char *help =
 " .   -h --help     print this help\n"
 " .   -v --version  version information\n"
 " .   -D --debug    debug verbosity level - default 1\n"
+" .   -s --size     set display size - default 400x300\n"
 " .  files:\n"
-" .   you can specify any number of files or devices to be loaded\n"
+" .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n"
-" .   Video4Linux devices as of BTTV cards and webcams\n"
+" .  - Video4Linux devices as of BTTV cards and webcams\n"
+" .    you can specify the size  /dev/video0%160x120\n"
 #ifdef WITH_AVIFILE
-" .   AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
+" .  - AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
 #endif
-" .   PNG images (also with transparency)\n"
+" .  - PNG images (also with transparency)\n"
 "\n";
 
 static const struct option long_options[] = {
   {"help", no_argument, NULL, 'h'},
   {"version", no_argument, NULL, 'v'},
   {"debug", required_argument, NULL, 'D'},
+  {"size", required_argument, NULL, 's'},
   {0, 0, 0, 0}
 };
 
-static const char *short_options = "-hvD:";
+static const char *short_options = "-hvD:s:";
 
 int debug;
 char layer_files[MAX_CLI_CHARS];
 int cli_chars = 0;
+int width = 400;
+int height = 300;
 
 void cmdline(int argc, char **argv) {
   int res;
@@ -98,6 +103,17 @@ void cmdline(int argc, char **argv) {
       if(debug>3) {
 	warning("debug verbosity ranges from 1 to 3\n");
 	debug = 3;
+      }
+      break;
+    case 's':
+      sscanf(optarg,"%ux%u",&width,&height);
+      if(width<320) {
+	error("display width can't be smaller than 400 pixels");
+	width = 320;
+      }
+      if(height<240) {
+	error("display height can't be smaller than 300 pixels");
+	width = 240;
       }
       break;
 
@@ -132,15 +148,17 @@ int main (int argc, char **argv) {
 
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
   act("(c)2001-2002 Denis Rojo < jaromil @ dyne.org >");
+  act("----------------------------------------------");
   cmdline(argc,argv);
   set_debug(debug);
 
-  /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b) */
+  /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
   if(set_rtpriority(true))
     notice("running as root: high priority realtime scheduling allowed.");
+  */
 
   /* this is the output context (screen) */
-  Context screen(400,300,32,SDL_HWPALETTE|SDL_HWSURFACE|SDL_DOUBLEBUF);
+  Context screen(width,height,32,SDL_HWPALETTE|SDL_HWSURFACE|SDL_DOUBLEBUF);
   if(screen.surf==NULL) exit(0);
 
   /* create layers requested on commandline */
@@ -239,8 +257,8 @@ int main (int argc, char **argv) {
   while(!keyb.quit) {
     /* main loop */
 
-    if(screen.clear_all)
-      clearscr(screen.get_surface(),screen.size);
+    if(screen.clear_all) clearscr(screen.get_surface(),screen.size);
+    else mmxosd_clean(screen.get_surface(),0x0,screen.w,screen.h);
 
     lay = (Layer *)screen.layers.end();
 

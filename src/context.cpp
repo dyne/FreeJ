@@ -197,7 +197,6 @@ void Context::calc_fps() {
     }
   }
 
-#ifdef FPS_LIMIT
   if(elapsed<=min_interval) {
     usleep( min_interval - elapsed ); /* this is not POSIX, arg */
     lst_time.tv_usec += min_interval;
@@ -209,7 +208,7 @@ void Context::calc_fps() {
     lst_time.tv_usec = cur_time.tv_usec;
     lst_time.tv_sec = cur_time.tv_sec;
   }
-#endif
+
 }
 
 void Context::rocknroll() {

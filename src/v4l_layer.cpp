@@ -138,6 +138,7 @@ bool V4lGrabber::detect(char *devfile) {
   }
   num_frame = grab_map.frames;
   channels = grab_cap.channels;
+  set_filename(devfile);
   return(true);
 }
 
@@ -208,6 +209,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
   act("using input channel %s",grab_chan.name);
+
   return(true);
 }
 

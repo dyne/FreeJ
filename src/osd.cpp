@@ -70,8 +70,6 @@ Osd::~Osd() { }
 
 void Osd::init(Context *screen) {
   this->screen = screen;
-  _hbound = screen->w / HBP;
-  _vbound = screen->h / VBP;
   screen->osd = this;
   _set_color(white);
   func("OSD initialized");
@@ -80,26 +78,26 @@ void Osd::init(Context *screen) {
 void Osd::print() {
   if(!_active) return;
   
-  /* clean up for refresh */
-  mmxosd_clean(screen->get_surface(),0x0);
+  /* clean up for refresh
+     mmxosd_clean(screen->get_surface(),0x0,screen->w,screen->h); */
 
   if(_calibrate) {
     /* vert up left */
-    vline(screen->coords(_hbound,_vbound>>2),VBP<<1,screen->pitch,screen->bpp);
+    vline(screen->coords(HBOUND,VBOUND>>2),VBP<<1,screen->pitch,screen->bpp);
     /* vert up right */
-    vline(screen->coords(screen->w-_hbound,_vbound>>2),VBP<<1,screen->pitch,screen->bpp);
+    vline(screen->coords(screen->w-HBOUND,VBOUND>>2),VBP<<1,screen->pitch,screen->bpp);
     /* vert down left */
-    vline(screen->coords(_hbound,screen->h-(_vbound<<1)),VBP<<1,screen->pitch,screen->bpp);
+    vline(screen->coords(HBOUND,screen->h-(VBOUND<<1)),VBP<<1,screen->pitch,screen->bpp);
     /* vert down right */
-    vline(screen->coords(screen->w-_hbound,screen->h-(_vbound<<1)),VBP<<1,screen->pitch,screen->bpp);
+    vline(screen->coords(screen->w-HBOUND,screen->h-(VBOUND<<1)),VBP<<1,screen->pitch,screen->bpp);
     /* horiz up left */
-    hline(screen->coords(_hbound-HBP,_vbound),HBP<<1,screen->bpp);
+    hline(screen->coords(HBOUND-HBP,VBOUND),HBP<<1,screen->bpp);
     /* horiz up right */
-    hline(screen->coords(screen->w-_hbound-HBP,_vbound),HBP<<1,screen->bpp);
+    hline(screen->coords(screen->w-HBOUND-HBP,VBOUND),HBP<<1,screen->bpp);
     /* horiz down left */
-    hline(screen->coords(_hbound-HBP,screen->h-_vbound),HBP<<1,screen->bpp);
+    hline(screen->coords(HBOUND-HBP,screen->h-VBOUND),HBP<<1,screen->bpp);
     /* horiz down right */
-    hline(screen->coords(screen->w-_hbound-HBP,screen->h-_vbound),HBP<<1,screen->bpp);
+    hline(screen->coords(screen->w-HBOUND-HBP,screen->h-VBOUND),HBP<<1,screen->bpp);
   }
   
   _print_credits();
@@ -119,7 +117,7 @@ void Osd::print() {
 
 void Osd::_print_status() {
   _set_color(yellow);
-  _write(status_msg,_hbound,screen->h-_vbound+5,1,1);
+  _write(status_msg,HBOUND,screen->h-12,1,1);
 }
 
 bool Osd::active() {
@@ -165,7 +163,7 @@ void Osd::_selection() {
 }
 
 void Osd::_layerlist() {
-  unsigned int vpos = _vbound+TOPLIST;
+  unsigned int vpos = VBOUND+TOPLIST;
   
   _set_color(red);
 
@@ -188,7 +186,7 @@ void Osd::_layerlist() {
 }
 
 void Osd::_filterlist() {
-  unsigned int vpos = _vbound+TOPLIST;
+  unsigned int vpos = VBOUND+6;
 
   _set_color(red);
 
@@ -214,25 +212,25 @@ void Osd::_filterlist() {
 
 void Osd::splash_screen() {
   _set_color(white);
-  int vpos = _vbound+15;
-  _write(PACKAGE,_hbound+100,vpos,2,2);
-  _write(VERSION,_hbound+190,vpos,2,2);
+  int vpos = VBOUND+15;
+  _write(PACKAGE,HBOUND+100,vpos,2,2);
+  _write(VERSION,HBOUND+190,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  _write("HURRIA",_hbound+130,vpos,2,2);
+  _write("HURRIA",HBOUND+130,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  _write(":: set the veejay free ::",_hbound+75,vpos,1,2);
+  _write(":: set the veejay free ::",HBOUND+75,vpos,1,2);
   vpos += CHAR_HEIGHT+30;
-  _write("100% free software for",_hbound+80,vpos,1,2);
+  _write("100% free software for",HBOUND+80,vpos,1,2);
   vpos += CHAR_HEIGHT+8;
-  _write("realtime video processing",_hbound+70,vpos,1,2);
+  _write("realtime video processing",HBOUND+70,vpos,1,2);
   vpos += CHAR_HEIGHT+30;
-  _write("sourcecode available on",_hbound+80,vpos,1,1);
+  _write("sourcecode available on",HBOUND+80,vpos,1,1);
   vpos += CHAR_HEIGHT+3;
-  _write("http://freej.dyne.org",_hbound+85,vpos,1,2);
+  _write("http://freej.dyne.org",HBOUND+85,vpos,1,2);
   vpos += CHAR_HEIGHT+40;
-  _write("| software by jaromil",_hbound+90,vpos,1,1);
+  _write("| software by jaromil",HBOUND+90,vpos,1,1);
   vpos += CHAR_HEIGHT+2;
-  _write("| copyleft 2001, 2002",_hbound+90,vpos,1,1);
+  _write("| copyleft 2001, 2002",HBOUND+90,vpos,1,1);
 }
 
 bool Osd::credits() {

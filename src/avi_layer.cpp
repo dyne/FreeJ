@@ -25,7 +25,7 @@
 #include <avi_layer.h>
 #include <avifile/except.h>
 #include <avifile/renderer.h>
-#include <avifile/fourcc.h>
+#include <avifile/avm_fourcc.h>
 #include <avifile/creators.h>
 #include <avifile/renderer.h>
 
@@ -147,6 +147,8 @@ bool AviLayer::open(char *file) {
     e.Print();
     return(false);
   }
+
+  set_filename(file);
 
   return(true);
 }

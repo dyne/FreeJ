@@ -121,10 +121,13 @@ void hline(void *scr, unsigned int width, unsigned int bpp) {
   asm_hline32();
 }
 
-void mmxosd_clean(void *scr, double col) {
+void mmxosd_clean(void *scr, double col, unsigned int width, unsigned int height) {
   /* hardcoded for 400x300 32bpp */
   asmdst = scr;
   asmsrc1 = (unsigned char *)&col;
+  asmnum1 = (width*18)/2;
+  asmnum2 = (width-40)*4;
+  asmnum3 = (height-36);
   mmx_osd_clean();
 }
 
