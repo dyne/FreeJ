@@ -43,6 +43,10 @@
 #include <txt_layer.h>
 #endif
 
+#ifdef WITH_XHACKS
+#include <xhacks_layer.h>
+#endif
+
 const char *layers_description =
 #ifdef WITH_V4L
 " .  - Video4Linux devices as of BTTV cards and webcams\n"
@@ -56,6 +60,9 @@ const char *layers_description =
 #endif
 #ifdef WITH_FT2
 " .  - TXT files rendered with freetype2 library\n"
+#endif
+#ifdef WITH_XHACKS
+" .  - xscreensaver screen hack. ex. /usr/X11R6/lib/xscreensaver/cynosure\n"
 #endif
 "\n";
 
@@ -151,6 +158,16 @@ Layer *create_layer(char *file) {
 	  act("can't load %s",pp);
 	  return(NULL);
 #endif
+	} else { /* XHACKS_LAYER */
+#ifdef WITH_XHACKS
+		nlayer = new XHacksLayer();
+		if (!nlayer->open(pp)) {
+			error("create_layer : XHACK open failed");
+			delete nlayer; nlayer = NULL;
+		}
+#else
+	  error("no xhacks layer support");
+#endif	  
 	}
 
   if(!nlayer)
