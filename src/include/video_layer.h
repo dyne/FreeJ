@@ -25,6 +25,12 @@
 #include <layer.h>
 #define INBUF_SIZE 4096
 
+/*********************************/
+/* I want it hard, I want it raw */ 
+/*********************************/
+
+void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl);
+
 class VideoLayer: public Layer {
     private:
 	AVCodec *avcodec;

@@ -48,10 +48,11 @@ VideoLayer::VideoLayer()
 	play_speed=0;
 	play_speed_control=0;
 	seekable=true;
+	enc==NULL;
     }
 
 VideoLayer::~VideoLayer() {
-    notice("Closing AVI layer");
+    notice("Closing VID layer");
     free_av_stuff();
     close();
 }
@@ -91,7 +92,14 @@ bool VideoLayer::open(char *file) {
     AVInputFormat *av_input_format=NULL;
     AVFormatParameters avp, *av_format_par = NULL;
 
+    /** init ffmpeg libraries */
     av_register_all();
+
+
+
+    /** make ffmpeg silent */
+    av_log_set_level(AV_LOG_QUIET);
+
     //notice("VideoLayer :: Registered all codec and format");
 
 
@@ -321,8 +329,11 @@ void *VideoLayer::feed() {
 
 void VideoLayer::close() {
     av_free_packet(&pkt);
-    if(!enc) avcodec_close(enc);
-    if(!avformat_context) av_close_input_file(avformat_context);
+    if(enc != NULL) avcodec_close(enc);
+    if(avformat_context) { 
+	av_close_input_file(avformat_context);
+	avformat_context=NULL;
+    }
 }
 
 bool VideoLayer::free_av_stuff() {
@@ -464,5 +475,7 @@ double VideoLayer::get_master_clock() {
 	notice("avi pause : %s",(paused)?"on":"off");
 	show_osd();
     }
-
+void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl) {
+    printf("callback");
+}
 #endif
