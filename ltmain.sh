@@ -1075,7 +1075,7 @@ compiler."
       -l*)
 	if test "$arg" = "-lc"; then
 	  case "$host" in
-	  *-*-cygwin* | *-*-mingw* | *-*-os2* | *-*-beos* |*-*-freebsd* )
+	  *-*-cygwin* | *-*-mingw* | *-*-os2* | *-*-beos*)
 	    # These systems don't actually have c library (as such)
 	    continue
 	    ;;
@@ -1792,7 +1792,7 @@ compiler."
 
 	dependency_libs="$deplibs"
 	case "$host" in
-	*-*-cygwin* | *-*-mingw* | *-*-os2* | *-*-beos* | *-*-freebsd* )
+	*-*-cygwin* | *-*-mingw* | *-*-os2* | *-*-beos*)
 	  # these systems don't actually have a c library (as such)!
 	  ;;
         *-*-rhapsody*)

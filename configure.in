@@ -13,7 +13,7 @@ dnl Setup for automake
 dnl ==============================================================
 
 AM_SANITY_CHECK
-AM_INIT_AUTOMAKE(FreeJ, 0.2.2)
+AM_INIT_AUTOMAKE(FreeJ, 0.3)
 AM_CONFIG_HEADER(config.h)
 
 dnl ==============================================================
@@ -28,7 +28,12 @@ dnl Check for tools
 dnl ==============================================================
 AC_PROG_CC
 AC_PROG_CXX
-AC_PROG_RANLIB
+
+dnl Check for dlopen support
+AC_LIBTOOL_DLOPEN
+AC_DISABLE_STATIC
+
+AM_PROG_LIBTOOL
 
 dnl ==============================================================
 dnl Add the local include path and some flags
@@ -124,6 +129,11 @@ LIBS="$LIBS"
 AC_OUTPUT([
 Makefile
 src/Makefile
-src/filters/Makefile
-src/asm/Makefile
+filters/Makefile
+filters/null/Makefile
+filters/delaygrab/Makefile
+filters/absdiff/Makefile
+filters/rotozoom/Makefile
+filters/simura/Makefile
+filters/baltan/Makefile
 ])

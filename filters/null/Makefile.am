@@ -1,0 +1,6 @@
+INCLUDES = -I$(top_srcdir)/src/include
+libdir = ${prefix}/lib/freej
+
+lib_LTLIBRARIES = null.la
+null_la_SOURCES = null.c
+null_la_LDFLAGS = -module -avoid-version

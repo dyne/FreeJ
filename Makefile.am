@@ -1,3 +1,4 @@
-SUBDIRS = src
+docs_DATA = README COPYING USAGE AUTHORS NEWS
+docsdir = ${prefix}/doc/${PACKAGE}-${VERSION}
 
-EXTRA_DIST = README
+SUBDIRS = src filters
