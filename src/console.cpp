@@ -228,8 +228,24 @@ static int quit_proc(char *cmd) {
 }
 
 static int open_layer(char *cmd) {
+  struct stat filestatus;
   int len;
+
   func("open_layer(%s)",cmd);
+
+  // check that is a good file
+  if( stat(cmd,&filestatus) < 0 ) {
+    error("invalid file %s: %s",cmd,strerror(errno));
+    return 0;
+  } else { // is it a directory?
+    if( S_ISDIR( filestatus.st_mode ) ) {
+      error("can't open a directory as a layer",cmd);
+      return 0;
+    }
+  }
+
+  // ok the path in cmd should be good here
+
   Layer *l = create_layer(cmd);
   if(l)
     if(!l->init(env)) {
@@ -330,7 +346,7 @@ static int filebrowse_completion(char *cmd) {
       return 0;
     }
 
-  } else {
+  } else { // we have a file!
     
     if( S_ISREG( filestatus.st_mode ) )
       return 1; // is a regular file!
