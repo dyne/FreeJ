@@ -154,12 +154,12 @@ int Context::active_layer(int sel) {
 }
 
 void Context::cafudda() {
-
+  quit = false;
+  Layer *lay;
   rocknroll(true);
 
   while(!quit) {
-    Layer *lay;
-    
+
     if(clear_all) screen->clear();
     else osd.clean();
     
@@ -171,7 +171,7 @@ void Context::cafudda() {
     }
     layers.unlock();
     
-    osd.print();  
+    osd.print();
     
     screen->show();
   
@@ -180,7 +180,7 @@ void Context::cafudda() {
     calc_fps();
   }
 
-  Layer *lay = (Layer *)layers.begin();
+  lay = (Layer *)layers.begin();
   while(lay) {
     lay->lock();
     layers.rem(1);
