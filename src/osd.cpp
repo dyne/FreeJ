@@ -229,7 +229,7 @@ void Osd::splash_screen() {
   vpos += CHAR_HEIGHT+30;
   (this->*write)(PACKAGE,_hbound+110,vpos,2,2);
   (this->*write)(VERSION,_hbound+200,vpos,2,2);
-  //  (this->*write)("[ ETNA ]",_hbound+190,vpos,2,2);
+  (this->*write)("PRATERHIMMEL",_hbound+190,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
   (this->*write)(":: set the veejay free ::",_hbound+75,vpos,1,1);
   vpos += CHAR_HEIGHT+30;

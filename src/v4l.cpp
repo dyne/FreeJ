@@ -200,7 +200,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   //  feeded = true;
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
-  if(channels>1) act("using input channel %s",grab_chan.name);
+  act("using input channel %s",grab_chan.name);
   return(true);
 }
 

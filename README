@@ -27,35 +27,6 @@ Public License, it comes with  absolutely  no  warranty  and  you  are
 welcome to redistribute it under  certain  conditions  (refer  to  the
 license for details).
 
-:: INTERNALS
-
-FreeJ, as a free  modularized  GNU/Linux  framework,  permits  unified
-quality control over the rendering of  digital  video  processing  and
-makes it much easier to write effect algorithms keeping them
-compatible with as much devices as possible and making them relying on
-optimized code.
-
-FreeJ is being developed in c++ respecting POSIX compliance,  releases
-will be made available in a packaging permitting easy compilation with
-standard GNU free development tools.
-
-It features dinamicly loadable runtime plugins for DSP  video  effects
-and it's relatively easy to code new plugins and chain them  with  the
-others, multiplying the possibilities given by each new plugin.
-
-For rendering to screen is being linked shared the Simple Direct Media
-Layer [http://www.libsdl.org] library, allready employed by
-lokigames.org for his high performance in porting games like
-QuakeIII(tm) under GNU/Linux platform.
-
-As a realtime  architecture  FreeJ  aims  to  make  efficient  use  of
-multithreading optimizing the usage of  hardware  resources.   There's
-only one layer implemented yet  wich  makes  use  of  the  video4linux
-abstracted device for capturing live video input from the  many  linux
-supported hardware devices (which includes bttv, usb cams  and  more).
-Alltough possible, is not planned any porting to platforms other  than
-GNU/Linux at least in the earliest development phases.
-
 :: FEATURES
 
 ++ multilayered video engine
@@ -73,12 +44,21 @@ To run FreeJ is necessary to have:
 
 - a working x86 GNU/Linux workstation ;)
 - SDL libraries <http://www.libsdl.org>
-- NASM <ftp://ftp.kernel.org/pub/software/devel/nasm>
+- NASM <http://www.kernel.org/pub/software/devel/nasm>
 - XFree86, possibly 4.1  running  on  a  supported  accelerated  card.
 - a video4linux supported grabbing card
 
 For better fullscreen support try to add to your XF86Config  file  the
 modelines in doc/x11.modelines.
+
+:: INSTALL
+
+Make sure you have all the required software, then just do: 
+./configure
+make
+make install
+filter plugins will be installed into /usr/local/lib/freej (or another
+prefix if you changed the default one).
 
 :: SUPPORT
 
@@ -106,15 +86,6 @@ Updated informations and FreeJ releases are made available on
 [http://freej.dyne.org]. The bleeding edge sourcecode is also publicly
 available thru CVS on [http://savannah.gnu.org/projects/freej]  (there
 you will find instructions on how to get and browse online the  code).
-
-:: ROADMAP
-
-At the moment FreeJ is being released in a early stage of  development
-according with GPL software  tradictions,  seeking  collaborations  of
-developers interested in being involved and support from anybody else.
-Alltough the code is mature enough to be  appreciated  by  coders  and
-effects can allready be implemented with noticeable good  performance.
-BTW i'm allready using it for live performances.
 
 :: DISCUSSION
 

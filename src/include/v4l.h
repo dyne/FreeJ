@@ -44,7 +44,7 @@ class V4lGrabber: public Layer {
   struct video_capability grab_cap;
 
   struct video_mbuf grab_map;
-  struct video_mmap grab_buf[64];
+  struct video_mmap grab_buf[2];
   int cur_frame;
   int ok_frame;
   int num_frame;
