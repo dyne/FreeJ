@@ -179,7 +179,10 @@ bool Layer::cafudda() {
   /*  if(pitch==screen->pitch)
     mmxcopy(res,screen->get_surface(),size);
     else */
-  mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+  // mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+
+  blit(offset);
+
   /*  C function to blit on screen byte by byte
   {
     char *scr, *pscr;
@@ -201,4 +204,22 @@ bool Layer::cafudda() {
   signal_feed();
 
   return(true);
+}
+
+void Layer::blit(void *offset) {
+  mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+
+  /* SIMPLE C CODE
+    
+  char *scr, *pscr;
+  scr = pscr = (char *) screen->coords(geo.x,geo.y);
+  char *off, *poff;
+  off = poff = (char *)offset;
+  int c,cc;
+  for(c=geo.h;c>0;c--) {
+    off = poff = poff + geo.pitch;
+    scr = pscr = pscr + screen->pitch;
+    for(cc=geo.pitch;cc>0;cc--) *scr++ = *off++;
+  }
+  */
 }

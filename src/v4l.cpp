@@ -327,3 +327,7 @@ bool V4lGrabber::feed() {
   }
   return true;
 }
+
+void V4lGrabber::blit(void *offset) {
+  mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+}

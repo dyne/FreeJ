@@ -47,6 +47,7 @@ class Layer: public Entry, public JSyncThread {
      (pure virtual functions) */
   virtual bool feed() = 0; /* feeds in the image source */
   virtual void *get_buffer() = 0; /* returns a pointer to the image source */
+  virtual void blit(void *offset);
 
   bool add_filter(Filter *newfilt);
   bool del_filter(int sel);

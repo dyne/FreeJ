@@ -78,7 +78,11 @@ void KbdListener::run() {
 	    if(_context_op(&event.key.keysym)) break;
 	    if(layer->keypress(&event.key.keysym)) break;
 	  }
-	  if(filter!=NULL) filter->kbd_input(&event.key.keysym);
+	  if(filter!=NULL) {
+	    layer->lock();
+	    filter->kbd_input(&event.key.keysym);
+	    layer->unlock();
+	  }
 	  break;
 	}
 

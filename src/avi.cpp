@@ -25,6 +25,7 @@
 #include <avifile/creators.h>
 #include <avifile/renderer.h>
 #include <context.h>
+#include <lubrify.h>
 #include <jutils.h>
 
 AviLayer::AviLayer() 
@@ -32,6 +33,8 @@ AviLayer::AviLayer()
   _avi = NULL;
   _stream = NULL;
   _rend = NULL;
+  direction = true;
+  vflip = false;
 }
 
 AviLayer::~AviLayer() {
@@ -273,8 +276,36 @@ bool AviLayer::keypress(SDL_keysym *keysym) {
     
   case SDLK_KP0: pause();
     res = true; break;
-    
+
+  case SDLK_KP_DIVIDE:
+    vflip = !vflip;
+    break;
+
   default: break;
   }
   return res;
+}
+
+void AviLayer::blit(void *offset) {
+  if(vflip) {
+
+
+    Uint32 *scr, *pscr;
+    scr = pscr = (Uint32 *) screen->coords(geo.x,geo.y);
+    Uint32 *off, *poff;
+    off = poff = (Uint32 *)offset + (geo.size>>2) - (geo.pitch>>2);
+    int c,cc;
+    for(c=geo.h;c>0;c--) {
+      off = poff = poff - (geo.pitch>>2); 
+      scr = pscr = pscr + (screen->pitch>>2);
+      for(cc=geo.pitch>>2;cc>0;cc--)
+	*scr++ = *off++;
+    }
+
+    
+  } else {
+
+    mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+
+  }
 }

@@ -75,6 +75,8 @@ class AviLayer: public Layer {
   /* speed stuff */
   float fps;
   framepos_t skip;
+  bool direction;
+  bool vflip;
 
  public:
   AviLayer();
@@ -84,7 +86,7 @@ class AviLayer: public Layer {
   bool open(char *file);
   bool feed();
   void *get_buffer();
-
+  void blit(void *offset);
 
   void forward(framepos_t step=1);
   void rewind(framepos_t step=1);
