@@ -98,8 +98,6 @@ bool VideoLayer::open(char *file) {
     /** init ffmpeg libraries */
     av_register_all();
 
-
-
     /** make ffmpeg silent */
     av_log_set_level(AV_LOG_QUIET);
 
@@ -257,6 +255,13 @@ void *VideoLayer::feed() {
 		    packet_len=pkt.size; // packet size is zero if packet contains only one frame
 		    ptr=pkt.data; /* pointer to frame data */
 		}
+		/**
+		 * In avcodec_get_frame_defaults() avcodec does:
+		 *    memset(pic, 0, sizeof(AVFrame));
+		 *    pic->pts= AV_NOPTS_VALUE;
+		 */
+		avcodec_get_frame_defaults(&av_frame);
+
 		len1 = avcodec_decode_video(enc, &av_frame, &got_picture, ptr,packet_len);
 
 		pts1=packet_pts;
@@ -317,6 +322,11 @@ void *VideoLayer::feed() {
 		    got_it=true;
 		    int dst_pix_fmt = PIX_FMT_RGBA32;
 		    avformat_stream=avformat_context->streams[video_index];
+
+		    /** Deinterlace input if requested */
+		    if(deinterlaced)
+			deinterlace((AVPicture *)src);
+		    
 		    avpicture_fill( av_picture, av_buf, dst_pix_fmt, enc->width, enc->width );
 		    img_convert(av_picture, dst_pix_fmt, (AVPicture *)src, avformat_stream->codec.pix_fmt,
 			    enc->width,
@@ -369,6 +379,13 @@ bool VideoLayer::keypress(SDL_keysym *keysym) {
 
 	case SDLK_o: /* set mark out */
 	    set_mark_out(); 
+	    break;
+
+	case SDLK_u: /* Swith deinterlace */
+	    if(deinterlaced)
+		deinterlaced=false;
+	    else
+		deinterlaced=true;
 	    break;
 
 	case SDLK_n: 
@@ -522,8 +539,33 @@ double VideoLayer::get_master_clock() {
 	notice("avi pause : %s",(paused)?"on":"off");
 	show_osd();
     }
-void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl) {
-    printf("callback");
+void VideoLayer::deinterlace(AVPicture *picture) {
+    int size;
+    AVPicture *picture2;
+    AVPicture picture_tmp;
+    uint8_t *deinterlace_buffer = 0;
+
+
+    /* create temporary picture */
+    size = avpicture_get_size(enc->pix_fmt, enc->width, enc->height);
+    deinterlace_buffer = (uint8_t *)av_malloc(size);
+    if (!deinterlace_buffer)
+	return ;
+
+    picture2 = &picture_tmp;
+    avpicture_fill(picture2, deinterlace_buffer, enc->pix_fmt, enc->width, enc->height);
+
+    if(avpicture_deinterlace(picture2, picture, 
+		enc->pix_fmt, enc->width, enc->height) < 0) {
+	/* if error, do not deinterlace */
+	av_free(deinterlace_buffer);
+	deinterlace_buffer = NULL;
+	picture2 = picture;
+    }
+    if (picture != picture2)
+	*picture = *picture2;
+//    av_free(deinterlace_buffer);
+    return;
 }
 
 #endif

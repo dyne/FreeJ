@@ -64,6 +64,7 @@ class VideoLayer: public Layer {
 	/**
 	 * application variables
 	 */
+	bool deinterlaced;
 	bool paused;
 	bool seekable;
 	bool grab_dv;
@@ -88,6 +89,7 @@ class VideoLayer: public Layer {
 	int seek(int64_t timestamp);
 	bool set_speed(int speed);
 	double get_master_clock();
+	void deinterlace(AVPicture *picture);
     public:
 	VideoLayer();
 	~VideoLayer();
