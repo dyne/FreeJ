@@ -19,6 +19,7 @@
 #include <iostream>
 
 #include <context.h>
+#include <encoder.h>
 #include <jutils.h>
 #include <filter.h>
 #include <plugger.h>
@@ -184,6 +185,18 @@ void KbdListener::run() {
 	layer->blitter.set_zoom( layer->blitter.zoom_x - 0.01,
 					   layer->blitter.zoom_y - 0.01);
       break;
+
+    case SDLK_s:
+      if(keysym->mod & KMOD_CTRL) {
+            if (! env->save_to_file) {
+		notice("Starting encoding theora to %s",env->encoder->get_filename());
+	    }
+	    else {
+		notice("Stopping encoding theora to %s",env->encoder->get_filename());
+	    }
+	    env->save_to_file = !env->save_to_file;
+      }
+      
 
     default:
       _lastsel = -1;

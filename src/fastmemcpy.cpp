@@ -7,6 +7,7 @@
    Written by Denis Oliver Kropp <dok@directfb.org>,
               Andreas Hundt <andi@fischlustig.de> and
               Sven Neumann <sven@convergence.de>.
+	      Silvano Galliani aka kysucix <kysucix@dyne.org> sse2 version
 
    Fast memcpy code was taken from xine (see below).
 

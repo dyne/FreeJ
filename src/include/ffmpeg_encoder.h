@@ -1,10 +1,11 @@
 
-#ifndef __avcodec_h__
-#define __avcodec_h__
+#ifndef __ffmpeg_encoder_h__
+#define __ffmpeg_encoder_h__
 
 
 #include <config.h>
 #include <linklist.h>
+#include <encoder.h>
 
 #ifdef WITH_AVCODEC
 #include <ffmpeg/avcodec.h>
@@ -26,14 +27,14 @@
 class Context;
 
 
-class Encode: public Entry {
+class FFmpegEncoder: public Encoder {
 
  public:
   
-  Encode(Context *_env);
-  ~Encode();
+  FFmpegEncoder(char *output_filename);
+  ~FFmpegEncoder();
   
-  char *init(char *output_filename);
+  bool init(Context *_env);
   void set_encoding_parameter();
   bool write_frame();
   
@@ -47,14 +48,12 @@ class Encode: public Entry {
   
   uint8_t *video_outbuf, *tmp_picture;
   int frame_count, video_outbuf_size;
-  char *filename;
   
   void free_av_objects();
   void open();
   void convert_to_YUV420P();
   AVFrame *prepare_image(AVFrame *picture_ptr);
 
-  Context *env;
 };
 
 #endif

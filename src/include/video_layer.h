@@ -124,8 +124,6 @@ class VideoLayer: public Layer {
 	bool set_mark_in();
 	bool set_mark_out();
 	void pause();
-
-
 };
 
 #endif

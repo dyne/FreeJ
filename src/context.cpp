@@ -29,6 +29,8 @@
 #include <sdl_screen.h>
 #include <imagefilter.h>
 #include <jsparser.h>
+#include <encoder.h>
+#include <impl_encoders.h>
 
 #include <jutils.h>
 #include <fastmemcpy.h>
@@ -51,6 +53,7 @@ Context::Context() {
   start_running = true;
   quit = false;
   pause = false;
+  save_to_file = false;
   interactive = true;
 
   fps_speed=25;
@@ -74,9 +77,14 @@ bool Context::init(int wx, int hx) {
 #ifdef WITH_JAVASCRIPT
   js = new JsParser(this);
 #endif
+
+  // create object here to avoid performance issues at run time
+#ifdef WITH_AVCODEC
+  encoder = get_encoder("freej.ogg");
+#endif
   
   find_best_memcpy();
-  
+
   if( SDL_imageFilterMMXdetect() )
     act("using MMX accelerated blit");
 
@@ -110,6 +118,10 @@ void Context::close() {
 
 #ifdef WITH_JAVASCRIPT
   delete js;
+#endif
+
+#ifdef WITH_AVCODEC
+  delete encoder;
 #endif
 
 }
@@ -149,7 +161,8 @@ void Context::cafudda(double secs) {
       changeres = false;
     }
 
-    if(console && interactive) console->cafudda();
+//    if( !console && interactive) console->cafudda();
+    if( console && interactive) console->cafudda();
 
     /** start layers thread */
     rocknroll();
@@ -173,14 +186,24 @@ void Context::cafudda(double secs) {
       layers.unlock();
     }
 
-    /** print on screen display */
-    if(osd.active && interactive) osd.print();
-
-
     /** show result on screen */
     screen->show();
 
+#ifdef WITH_AVCODEC
+    // show results on file if requested encoder in a thread ?? not now. kysu.
+//	    if(! encoder->isStarted())
+//		    encoder->start();
+//	    encoder->has_finished_frame();
+//	    encoder->signal();
+    if(save_to_file) {
+	    encoder->init(this);
+	    encoder->write_frame();
+    }
+#endif
 
+
+    /** print on screen display */
+    if(osd.active && interactive) osd.print();
 
     /******* handle timing */
 

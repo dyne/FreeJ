@@ -31,8 +31,6 @@
 #include <jutils.h>
 
 #include <video_layer.h>
-#include "avcodec.h"
-#include "avformat.h"
 
 #define DEBUG 1
 
@@ -134,7 +132,7 @@ bool VideoLayer::open(char *file) {
     av_register_all();
 
     /** make ffmpeg silent */
-    av_log_set_level(AV_LOG_QUIET);
+//    av_log_set_level(AV_LOG_QUIET);
 
     func("VideoLayer :: Registered all codec and format");
 
@@ -321,7 +319,7 @@ void *VideoLayer::feed() {
 		    if(fifo_position == FIFO_SIZE)
 			fifo_position=0;
 
-		    memcpy(frame_fifo.picture[fifo_position]->data[0],rgba_picture->data[0],rgba_picture->linesize[0] * enc->height);
+		    jmemcpy(frame_fifo.picture[fifo_position]->data[0],rgba_picture->data[0],rgba_picture->linesize[0] * enc->height);
 //			    avpicture_get_size(PIX_FMT_RGBA32, enc->width, enc->height));
 		    fifo_position++;
 		}

@@ -7,6 +7,7 @@ AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
               @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
 	      @AVCODEC_CFLAGS@ @JS_CFLAGS@ \
+	      @XIPH_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
@@ -46,7 +47,10 @@ freej_SOURCES = \
 	xhacks_layer.cpp \
 	jsparser.cpp \
 	cpu_accel.cpp \
-	encode.cpp \
+	ffmpeg_encoder.cpp \
+	oggtheora_encoder.cpp \
+	encoder.cpp \
+	impl_encoders.cpp \
 	image_layer.cpp \
 	fastmemcpy.cpp
 
@@ -60,7 +64,8 @@ freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		@AVCODEC_LIBS@ \
 		@JS_LIBS@ \
 		@SDLIMAGE_LIBS@ \
-		@FLASH_LIBS@
+		@FLASH_LIBS@ \
+		@XIPH_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej

@@ -36,9 +36,10 @@ case $uname in
        AC_DEFINE(HAVE_SSE,1,[define if enabling SSE acceleration])
      fi
      if grep "^flags.* sse2" /proc/cpuinfo > /dev/null; then
-       have_sse2=yes
+       have_sse=yes
        AC_DEFINE(HAVE_SSE2,1,[define if enabling SSE2 acceleration])
      fi
+
      ;;
 
      Darwin)
@@ -113,6 +114,13 @@ AC_SUBST(SDL_CFLAGS)
 
 dnl AC_HEADER_DIRENT
 
+dnl ==============================================================
+dnl CHECK if there is libtheora and libogg
+dnl ==============================================================
+
+  PKG_CHECK_MODULES(XIPH, ogg >= 1.1 theora, [ dnl TODO check for vorbis
+    AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling ogg-theora encoding])
+    have_oggtheora=yes],have_oggtheora=no)
 
 dnl ==============================================================
 dnl ==============================================================
@@ -558,6 +566,14 @@ if test x$use_ffmpeg = xyes; then
 echo "= ffmpeg (libavcodec)"
 echo "  libs  : $AVCODEC_LIBS"
 echo "  cflags: $AVCODEC_CFLAGS"
+fi
+if test x$have_oggtheora = xyes; then
+echo "= ogg-theora (libtheora libogg)"
+echo "  libs  : $XIPH_LIBS"
+echo "  cflags: $XIPH_CFLAGS"
+else
+	echo "= ogg-theora (libtheora libogg) not found!"
+	echo "You'll not be able to save in ogg/theora. download theora here http://theora.org/download.html"
 fi
 if test x$use_sdl_image = xyes; then
 echo "= sdl_image"

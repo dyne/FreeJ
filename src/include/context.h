@@ -37,6 +37,7 @@
 
 class JsParser;
 class Console;
+class Encoder;
 
 class Context {
  private:
@@ -91,6 +92,8 @@ class Context {
   
   bool pause;
 
+  bool save_to_file;
+
   bool interactive;
 
   /* linked list of registered layers */
@@ -113,6 +116,9 @@ class Context {
 
   /* javascript parser object */
   JsParser *js;
+
+  /* encoding object */
+  Encoder *encoder;
 
   /* Set the interval (in frames) after
      the fps counter is updated */

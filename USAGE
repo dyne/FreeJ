@@ -48,6 +48,7 @@ S-LANG CONSOLE
  ctrl-g  = create a particle generator layer
 
  ctrl-c  = quit FreeJ (asks confirmation)
+ ctrl-s  = save to file
  ctrl-f  = go to Fullscreen
  ctrl-l  = cleanup and redraw the console
  ctrl-j  = enter Jazz mode to pulse layers with keys
@@ -152,6 +153,7 @@ SDL SCREEN (doesn't work in VJoE remote network control)
  TAB      = on/off OSD
  ^TAB     = on/off calibration guidelines
  PRINTSCR = display nice and lovely credits
+ ctrl-s  = save to file
 
  NUMPAD PLUS  = increase overall speed
  NUMPAD MINUS = decrease overall speed
