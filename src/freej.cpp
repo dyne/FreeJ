@@ -25,6 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <assert.h>
+#include <errno.h>
 
 #include <context.h>
 
@@ -52,6 +53,7 @@
 #include <jsparser.h>
 #endif
 
+//[of]cli options parser:commandline
 #define MAX_CLI_CHARS 4096
 
 /* ================ command line options
@@ -191,6 +193,8 @@ void cmdline(int argc, char **argv) {
 }
 
 /* ===================================== */
+//[cf]
+
 
 int main (int argc, char **argv) {
 
