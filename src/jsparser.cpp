@@ -150,7 +150,7 @@ void JsParser::init() {
 #endif
 
 #ifdef WITH_AVIFILE
-    REGISTER_CLASS("MovieLayer",
+   REGISTER_CLASS("MovieLayer",
 		   avi_layer_class,
 		   avi_layer_constructor,
 		   avi_layer_methods);
@@ -320,7 +320,6 @@ JS(rem_layer) {
 
 JS(add_layer) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
     Layer *lay;
     JSObject *jslayer;
     *rval=JSVAL_FALSE;
@@ -346,6 +345,8 @@ JS(add_layer) {
 JS(list_layers) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   JSObject *arr;
+  JSObject *objtmp;
+  
   Layer *lay;
   jsval val;
   int c = 0;
@@ -356,10 +357,16 @@ JS(list_layers) {
   }
 
   arr = JS_NewArrayObject(cx, 0, NULL); // create void array
-  
+  if(!arr) return JS_FALSE;
+
   lay = (Layer*)env->layers.begin();
   while(lay) {
-    val = OBJECT_TO_JSVAL(lay);
+    objtmp = JS_NewObject(cx, &layer_class, NULL, obj);
+
+    JS_SetPrivate(cx,objtmp,(void*) lay);
+
+    val = OBJECT_TO_JSVAL(objtmp);
+
     JS_SetElement(cx, arr, c, &val );
     
     c++;
@@ -369,6 +376,46 @@ JS(list_layers) {
   *rval = OBJECT_TO_JSVAL( arr );
   return JS_TRUE;
 }
+
+JS(layer_list_effects) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  JSObject *arr;
+  JSObject *objtmp;
+
+  Filter *filt;
+  jsval val;
+  int c = 0;
+
+  GET_LAYER(Layer);
+
+  // no effects
+  if(lay->filters.len() == 0) {
+    *rval = JSVAL_FALSE;
+    return JS_TRUE;
+  }
+
+  arr = JS_NewArrayObject(cx, 0, NULL); // create void array
+  if(!arr) return JS_FALSE;
+
+  filt = (Filter*)lay->filters.begin();
+  
+  while(filt) {
+
+    objtmp = JS_NewObject(cx, &effect_class, NULL, obj);
+    
+    JS_SetPrivate(cx, objtmp, (void*) filt);
+
+    val = OBJECT_TO_JSVAL(objtmp);
+
+    JS_SetElement(cx, arr, c, &val );
+    
+    c++;
+    filt = (Filter*)filt->next;
+  }
+
+  *rval = OBJECT_TO_JSVAL( arr );
+  return JS_TRUE;
+}  
 
 JS(fullscreen) {
   env->screen->fullscreen();
@@ -685,10 +732,7 @@ JS(layer_rem_effect) {
 	filter = (Filter *) JS_GetPrivate(cx, jsfilter);
 	if(!filter) JS_ERROR("Effect data is NULL");
 
-	GET_LAYER(Layer);
-
  	filter->rem();
-	lay->filters.sel(0);
 	filter->clean();
 	filter = NULL;
     }

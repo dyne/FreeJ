@@ -153,6 +153,7 @@ JS(layer_rem_effect);
 JS(layer_rotate);
 JS(layer_zoom);
 JS(layer_spin);
+JS(layer_list_effects);
 
 #define LAYER_METHODS \
     {"activate",	layer_activate,	        0}, \
@@ -170,7 +171,8 @@ JS(layer_spin);
     {"rem_effect",	layer_rem_effect,	1}, \
     {"rotate",          layer_rotate,           1}, \
     {"zoom",            layer_zoom,             2}, \
-    {"spin",            layer_spin,             2}
+    {"spin",            layer_spin,             2}, \
+    {"list_effects",    layer_list_effects,     0}
 
 ////////////////////////////////
 // Particle Layer methods
