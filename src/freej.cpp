@@ -34,7 +34,6 @@
 #include <config.h>
 
 /* controller interfaces */
-#include <kbd_ctrl.h>
 #ifdef WITH_GLADE2
 #include <gtk_ctrl.h>
 #endif
@@ -240,10 +239,11 @@ int main (int argc, char **argv) {
   freej.rocknroll(startstate);
   func("OK, rolling"); */
 
-  /* launches the keyboard controller thread*/
-  KbdListener keyb;
-  assert( keyb.init(&freej));
-
+  /* launches the keyboard controller thread
+     this is now INSIDE the Context */
+    //  KbdListener keyb;
+    //  assert( keyb.init(&freej));
+    
   /* launches the joystick controller thread
      if any joystick is connected */
   JoyControl joystick;

@@ -33,8 +33,7 @@ KbdListener::KbdListener() {
   _filt = NULL;
   _lastsel = -1;
   plugin_bank = 0;
-
-  quit = false;
+  console = false;
 }
 
 KbdListener::~KbdListener() {
@@ -48,28 +47,35 @@ bool KbdListener::init(Context *context) {
   /* saves the pointer to the environment */
   this->env = context;
   
-  start();
+  //  start();
 
   return(true);
 }
 
 void KbdListener::run() {
-  SDL_Event event;
-  SDL_keysym *keysym;
 
-  while(!quit) {
+  //  while(!quit) {
 
-    SDL_Delay(DELAY); 
+  //    SDL_Delay(DELAY); 
 
-    if(!SDL_PollEvent(&event)) continue;
+    if(!SDL_PollEvent(&event)) return;
 	
     if(event.type == SDL_QUIT) {
       func("SDL QUIT!");
 
-      env->quit = quit = true;
-      break; }
+      env->quit = true;
+      return; }
 	
-    if(event.type != SDL_KEYDOWN) continue;
+    if(event.type != SDL_KEYDOWN) return;
+
+    /* if the console live input is on,
+       then just pass the event over the
+       console interpreter */
+    if(console) {
+      env->console.read(&event);
+      return;
+    }
+
 
     
     /* ENVIRONMENT CONTROLS */
@@ -79,7 +85,7 @@ void KbdListener::run() {
     switch(keysym->sym) {
     case SDLK_ESCAPE:
       if(keysym->mod & KMOD_CTRL) {
-        env->quit = quit = true;
+        env->quit = true;
       } else
 	show_osd("press CTRL+ESC if you really want to quit");
       break;
@@ -93,7 +99,7 @@ void KbdListener::run() {
     case SDLK_3:
       if(keysym->mod & KMOD_CTRL) {
 	env->magnify(keysym->sym-SDLK_0-1);
-	continue;
+	return;
       }
       break;
 
@@ -116,7 +122,13 @@ void KbdListener::run() {
     case SDLK_0:
       env->clear_all = !env->clear_all;
       break;
-      
+
+    case SDLK_COLON:
+    case SDLK_SEMICOLON:
+      env->console.activate();
+      console = true;
+      break;
+
     default:
       _lastsel = -1;
       break;
@@ -126,7 +138,7 @@ void KbdListener::run() {
     layer = (Layer *)env->layers.selected();
     if(!layer)
       layer = (Layer*) env->layers.begin();
-    if(!layer) continue; /* there are no layers */
+    if(!layer) return; /* there are no layers */
     else {
       env->layers.sel(0);
       layer->sel(true); /* select the first */
@@ -302,7 +314,7 @@ void KbdListener::run() {
     filter = (Filter *)layer->filters.selected();
     if(!filter) {
       filter = (Filter*) layer->filters.begin();
-      if(!filter) continue; /* there are no filters */
+      if(!filter) return; /* there are no filters */
       else {
 	layer->filters.sel(0);
 	filter->sel(true); /* select the first */
@@ -365,6 +377,6 @@ void KbdListener::run() {
       break;
     }
 
-  }
+    //  }
 }
 

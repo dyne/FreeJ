@@ -16,6 +16,7 @@ freej_SOURCES = \
 	linklist.cpp	\
 	jsync.cpp	\
 	osd.cpp		\
+	console.cpp	\
 	plugin.cpp	\
 	plugger.cpp	\
 	jutils.cpp	\

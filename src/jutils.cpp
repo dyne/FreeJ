@@ -235,7 +235,6 @@ static fd_set readfds;
 static timeval rtctv = { 0,0 };
 static unsigned long rtctime;
 int rtc_open() {
-  int res;
   rtcfd = open("/dev/rtc",O_RDONLY);
   if(!rtcfd) {
     perror("/dev/rtc");

@@ -26,6 +26,8 @@
 #include <linklist.h>
 #include <layer.h>
 #include <osd.h>
+#include <kbd_ctrl.h>
+#include <console.h>
 #include <plugger.h>
 #include <screen.h>
 
@@ -88,6 +90,12 @@ class Context {
 
   /* On Screen Display */
   Osd osd;
+
+  /* Keyboard controller */
+  KbdListener kbd;
+
+  /* Console parser */
+  ConsoleParser console;
 
   /* Filter plugins plugger */
   Plugger plugger;

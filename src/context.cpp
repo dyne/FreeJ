@@ -69,6 +69,12 @@ bool Context::init(int wx, int hx) {
   osd.active = true;
   set_osd(osd.status_msg); /* let jutils know about the osd */
 
+  /* initialize the Keyboard Listener */
+  kbd.init(this);
+
+  /* initialize the Console Parser */
+  console.init(this);
+
   /* initialize the realtime clock and use it if present */
   rtc = false;
 #ifdef linux
@@ -115,6 +121,9 @@ void Context::cafudda(int secs) {
       { now = dtime(); }
   
   do {
+
+    /* fetch keyboard events */
+    kbd.run();
     
     rocknroll(true);
     

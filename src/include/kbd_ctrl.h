@@ -19,20 +19,23 @@
 #ifndef __KEYBOARD_H__
 #define __KEYBOARD_H__
 
-#include <jsync.h>
+#include <SDL/SDL.h>
 
 class Context;
 class Layer;
 class Filter;
 class Plugger;
 
-class KbdListener : public JSyncThread {
+class KbdListener {
  private:
   bool _layer_op(SDL_keysym *keysym);
   bool _context_op(SDL_keysym *keysym);
   Filter *_filt;
   int _sel, _lastsel;
   int plugin_bank;
+
+  SDL_Event event;
+  SDL_keysym *keysym;
 
  public:
   KbdListener();
@@ -46,7 +49,7 @@ class KbdListener : public JSyncThread {
   Filter *filter;
   Plugger *plugger;
 
-  bool quit;
+  bool console;
 };
 
 #endif

@@ -152,23 +152,17 @@ void Osd::print() {
   } */
 
   env->screen->lock();
-
-    Layer *lay = (Layer*)env->layers.selected();
-    if(lay) _filterlist();
-    _selection();
-    _layerlist();
-
+  
+  Layer *lay = (Layer*)env->layers.selected();
+  if(lay) _filterlist();
+  _selection();
+  _layerlist();
+  
   if(_credits) {
     _print_credits();
     _show_fps();
-  }// else {
-    //    Layer *lay = (Layer*)env->layers.selected();
-//     if(lay) _filterlist();
-//     _selection();
-    //    _layerlist();
-  //  }
-  //  if(screen->kbd) {
-
+  }
+  
   _print_status();
   
   env->screen->unlock();

@@ -97,7 +97,7 @@ class Osd {
 
   bool active;
   char status_msg[50];
-
+  char input_line[100];
 };
 
 #endif
