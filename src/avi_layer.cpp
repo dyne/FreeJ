@@ -210,8 +210,6 @@ void *AviLayer::feed() {
       if (mark_out < (uint32_t)curr) { // the mark out got passed:
 	if(mark_in) // if there is a mark in
 	  curr = _stream->SeekToKeyFrame(mark_in); // loop to that
-	else // if there is no mark in
-	  curr = _stream->SeekToKeyFrame(0); // goes back to the beginning
       }
     
   } else if (play_speed<0) { // we're going backward
@@ -355,6 +353,12 @@ In this case, people wont get confused.
 
 Cheers,
 Robert
+
+That's ok, i make an addition to this:
+if you re-click the OUT point, the OUT point gets deleted
+at the next click, you mark another OUT point
+(this way you can mark a new OUT position after the current one)
+-jrml
     */
 
   case 'i':
@@ -370,7 +374,7 @@ Robert
     break;
 
   case 'o':
-    if(mark_out) {
+    if(mark_out) { // there is allready a markout
       mark_out = 0;
     } else
       mark_out = _stream->GetPos();

@@ -200,6 +200,8 @@ int JsParser::parse(const char *command) {
 
 JS(cafudda) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+#ifdef CAFUDDA_DOUBLE
+  // comment out because there is a problem in compiling -jrml
   double sac, *seconds = &sac;
   jsdouble jseconds=argv[0];
   if(!JSVAL_IS_DOUBLE(argv[0])) {
@@ -213,7 +215,12 @@ JS(cafudda) {
   seconds=JSVAL_TO_DOUBLE(jseconds);
   func("cafudda for %f seconds",*seconds);
   env->cafudda(*seconds);
-
+#else
+  int val;
+  if(argc<1) val = 0;
+  else val = JSVAL_TO_INT(argv[0]);
+  env->cafudda(val);
+#endif
   return JS_TRUE;
 }
 

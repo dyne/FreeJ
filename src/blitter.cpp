@@ -147,28 +147,17 @@ BLIT past_add(void *src, void *past, void *dst, int bytes) {
 		     (unsigned char*)dst,bytes);
 }
 
-BLIT past_sub(void *src, void *past, void *dst, int bytes) {
-  SDL_imageFilterSub((unsigned char*)src,
+BLIT past_addneg(void *src, void *past, void *dst, int bytes) {
+  SDL_imageFilterAdd((unsigned char*)src,
 		     (unsigned char*)past,
 		     (unsigned char*)dst,bytes);
+  SDL_imageFilterBitNegation((unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
 BLIT past_absdiff(void *src, void *past, void *dst, int bytes) {
   SDL_imageFilterAbsDiff((unsigned char*)src,
 			 (unsigned char*)past,
 			 (unsigned char*)dst,bytes);
-}
-
-BLIT past_multdiv4(void *src, void *past, void *dst, int bytes) {
-  SDL_imageFilterMultDivby4((unsigned char*)src,
-			    (unsigned char*)past,
-			    (unsigned char*)dst,bytes);
-}
-
-BLIT past_or(void *src, void *past, void *dst, int bytes) {
-  SDL_imageFilterBitOr((unsigned char*)src,
-		       (unsigned char*)past,
-		       (unsigned char*)dst,bytes);
 }
 
 
@@ -454,25 +443,15 @@ Blitter::Blitter() {
   b->type = PAST_BLIT;
   b->past_fun = past_add; blitlist.append(b);
 
-  b = new Blit(); b->set_name("PAST_SUB");
-  sprintf(b->desc,"subtract from past frame");
+  b = new Blit(); b->set_name("PAST_ADDNEG");
+  sprintf(b->desc,"add to past frame and negate");
   b->type = PAST_BLIT;
-  b->past_fun = past_sub; blitlist.append(b);
+  b->past_fun = past_addneg; blitlist.append(b);
 
   b = new Blit(); b->set_name("PAST_ABSDIFF");
   sprintf(b->desc,"absolute difference on past frame");
   b->type = PAST_BLIT;
   b->past_fun = past_absdiff; blitlist.append(b);
-
-  b = new Blit(); b->set_name("PAST_MULTDIV4");
-  sprintf(b->desc,"multiply with past frame and divide by 4");
-  b->type = PAST_BLIT;
-  b->past_fun = past_multdiv4; blitlist.append(b);
-
-  b = new Blit(); b->set_name("PAST_OR");
-  sprintf(b->desc,"bitwise OR with past frame");
-  b->type = PAST_BLIT;
-  b->past_fun = past_or; blitlist.append(b);
 
 }
 
