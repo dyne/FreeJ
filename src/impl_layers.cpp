@@ -169,16 +169,16 @@ Layer *create_layer(char *file) {
 	  if(strncasecmp(file_ptr,"layer_gen",9)==0) {
 	    nlayer = new GenLayer();
 	  } else
-#ifdef WITH_FLASH
 	    if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
+#ifdef WITH_FLASH
 	      nlayer = new FlashLayer();
 	      if(!nlayer->open(file_ptr)) {
 		error("create_layer : SWF open failed");
 		delete nlayer; nlayer = NULL;
-	      }
+              }
 #else
 	      error("no flash layer support");
-	      act("can't load %s",pp);
+	      act("can't load %s",file_ptr);
 	      return(NULL);
 #endif
 	    } else {
