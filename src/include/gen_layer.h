@@ -14,52 +14,64 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  */
 
-#ifndef __xhl_h__
-#define __xhl_h__
+#ifndef __GEN_LAYER_H__
+#define __GEN_LAYER_H__
 
-//#include <renderer.h>
-#undef BIG_ENDIAN
+#include <SDL/SDL.h>
 #include <layer.h>
-#include <vroot.h>
 
-#define NIL (0)       // A name for the void pointer
+#define PRIMES 11
 
-class XHacksLayer: public Layer {
-
- public:
-  XHacksLayer();
-  ~XHacksLayer();
-  
-  //bool init(Context *screen=NULL);
-  bool init(Context *screen);
-  Context *screen;
-  bool open(char *file);
-  void *feed();
-  void close();
-  void pause(bool paused);
-  
-  bool keypress(SDL_keysym *keysym);
-  //extern char *progclass;
- // void xhacks_handle_events(int);
-
+class GenLayer: public Layer {
  private:
 
-  Display *dpy;
-  Window back_win;
-  //Pixmap back_win;
-  XImage *img;	
-  GC gc;
-  bool paused;
+  /* blossom vars */
+  double blossom_count;
+  double blossom_m;
+  double blossom_n;
+  double blossom_i;
+  double blossom_j;
+  double blossom_k;
+  double blossom_l;
+  float blossom_r;
+  float blossom_a;
 
-  int x_pid;
-  char *_name;
-  char *_author;
-  char *_info;
-  int _version;
-  //  int _bpp;
-  char *_path;
+  /* primes */
+  int prime[PRIMES];
+  void blossom_recal(bool r);
+  void blossom();
 
+  float pi2;
+  double wd, hd;
+
+  /* surface buffer */
+  uint32_t rmask,gmask,bmask,amask;
+  SDL_Surface *surf;
+  uint32_t *pixels;
+
+  /* pixel drawing */
+  void point(int x, int y);
+
+  /* blob drawing */
+  void blob_init();
+  void blob(int x, int y);
+  uint32_t *blob_buf;
+  int blob_size;
+
+ public:
+  GenLayer();
+  ~GenLayer();
+  
+  bool init(Context *screen);
+  bool open(char *file);
+  void *feed();
+  bool keypress(SDL_keysym *keysym);
+  void close();
 };
+
 #endif

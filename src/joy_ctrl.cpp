@@ -19,6 +19,7 @@
  *
  */
 
+#include <string.h>
 #include <context.h>
 #include <plugger.h>
 #include <jutils.h>
@@ -41,43 +42,47 @@ bool JoyControl::init(Context *context) {
   func("JoyControl::init(%p)",context);
 
   int found = 0;
-  int c;
+  int c, cc;
   if(!context) return false;
 
   num = SDL_NumJoysticks();
   func("num joysticks %i",num);
-
   for(c=0;c<num;c++) {
-    joy[c] = SDL_JoystickOpen(c);
-    if(joy[c]) {
+    joy[found] = SDL_JoystickOpen(c);
+    if(joy[found]) {
+      if(strstr(SDL_JoystickName(c),"Keyboard")) {
+	/* this is not a joystick! it happens on MacOSX
+	   to have "Apple Extended USB Keyboard" recognized as joystick */
+	SDL_JoystickClose(joy[found]);
+	continue;
+      }
       notice("Joystick: %s",SDL_JoystickName(c));
-      axes = SDL_JoystickNumAxes(joy[c]);
-      buttons = SDL_JoystickNumButtons(joy[c]);
-      balls = SDL_JoystickNumBalls(joy[c]);
-      hats = SDL_JoystickNumHats(joy[c]);
+      axes = SDL_JoystickNumAxes(joy[found]);
+      buttons = SDL_JoystickNumButtons(joy[found]);
+      balls = SDL_JoystickNumBalls(joy[found]);
+      hats = SDL_JoystickNumHats(joy[found]);
       act("%i axes, %i balls, %i hats, %i buttons",
 	  axes, balls, hats, buttons);
       found++;
     } else {
       error("error opening %s",SDL_JoystickName(c));
-      c--;
     }
   }
 
-  if(!found) {
+  num = found;
+
+  if(!num) {
     notice("no joystick found");
     return(false);
   }
   
-  num = found;
-
   this->env = context;
   start();
   return(true);
 }
 
 void JoyControl::run() {
-
+  int c;
   SDL_Event event;
 
   while(!quit) {
@@ -89,9 +94,10 @@ void JoyControl::run() {
     if(!(event.type & (SDL_JOYAXISMOTION|SDL_JOYBUTTONDOWN))) continue;
     debug();
   }
-  int c;
+
   for(c=0;c<num;c++)
     SDL_JoystickClose(joy[c]);
+
 }
 
 void JoyControl::debug() {

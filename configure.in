@@ -206,6 +206,14 @@ if test x$HAVE_V4L = xyes; then
 fi])
 
 dnl ==============================================================
+dnl STATICALLY define libAVCODEC (provisory, should CHECK)
+dnl ==============================================================
+AVCODEC_LIBS="-lavcodec"
+AVCODEC_CFLAGS=""
+AC_SUBST(AVCODEC_LIBS)
+AC_SUBST(AVCODEC_CFLAGS)
+
+dnl ==============================================================
 dnl CHECK if there is LIBGLADE2
 dnl ==============================================================
 PKG_CHECK_MODULES(GLADE2, libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0, [

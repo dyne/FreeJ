@@ -62,7 +62,8 @@ To run FreeJ is necessary to have:
 - SDL libraries http://www.libsdl.org
 
 Optionally, you want to have installed the following libraries in order
-to use various input plugins:
+to use various layers input plugins:
+- pkg-config http://www.freedesktop.org/software/pkgconfig/
 - PNG libraries http://www.libpng.org
 - FreeType2 libraries http://freetype.org
 - FFMpeg libraries http://ffmpeg.sf.net

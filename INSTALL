@@ -4,18 +4,13 @@ FreeJ 0.6 installation instructions
 *** x86 PC (for Darwin/OSX see README.OSX)
 
 
-== be sure to have all the required libraries and tools:
+[*] be sure to have all the required libraries and tools
 
-- NASM netwide assembler compiler
-  from http://sf.net/projects/nasm
+- A working GNU/Linux system with X or framebuffer video
 
-- SDL libraries
-  from http://www.libsdl.org
+- SDL libraries http://www.libsdl.org
 
-- FreeType2 libraries 
-  from http://www.freetype.org
-
-  (don't forget to use ldconfig after installing libraries)
+[*] check the optional libraries you need for certain features
 
 == to playback movies, install the video libraries in this order:
    FFMpeg library http://ffmpeg.sf.net
@@ -27,6 +22,11 @@ FreeJ 0.6 installation instructions
 
 == to play with PNG images you need PNG libs with Zlib support:
    PNG library (compile with _ZLIB_ support) http://libpng.org
+
+== to have some more assembler mmx optimized filters you need NASM:
+   NASM netwide assembler compiler http://sf.net/projects/nasm
+
+[*] then you are ready to compile!
 
 == download freej latest stable version from http://ftp.dyne.org/freej
    extract the source archive and compile it:
@@ -51,10 +51,10 @@ FreeJ 0.6 installation instructions
 
 You can do 'apt-get install freej' and you will have a precompiled FreeJ 
 thanks to Guido Trotter.
-Anyway, if you don't have Debian unstable you probably don't have it, or
-have an very OLD version. To squeeze the best out of your box, you want
-to compile this software yourself: the configure script will guess the
-best for you in terms of compiler optimization flags for your CPU.
+Anyway to squeeze the best out of your box you want to compile this
+software with machine specific optimizations.
+The source configure script guesses the best compiler optimization flags
+for your CPU.
 
 
 
@@ -63,8 +63,8 @@ help, there you will probably find somebody to help you.
 
 Please try to not mix your problems with FreeJ's bugs.
 
-If you find bugs, you are welcome to report them *in detail* into the
-bugtracking system on http://bugs.dyne.org
+If you find bugs, you are welcome to report them in the bugtracking
+system on http://bugs.dyne.org
 
 $Id$
 

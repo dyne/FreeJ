@@ -1,31 +1,28 @@
 #include <config.h>
 #ifdef WITH_XHACKS
 
-#include <xhacks_layer.h>
-#include <X11/Xlib.h> 
-#include <X11/Xutil.h>
 #include <assert.h>   
 #include <unistd.h>
 #include <string.h>
-#include <context.h>
-#include <jutils.h>
 #include <sys/types.h>
 #include <signal.h>
 
+#include <X11/Xlib.h> 
+#include <X11/Xutil.h>
+#include <vroot.h>
+
+
+#include <context.h>
+#include <jutils.h>
+#include <xhacks_layer.h>
+#include <config.h>
+
 #define NIL (0)       // A name for the void pointer
 
-  Display *dpy;
-  Window back_win;
-  //Pixmap back_win;
-  XImage *img;	
-  GC gc;
-  bool paused;
 
 XHacksLayer::XHacksLayer() 
   :Layer() {
-  //_avi = NULL;
-  //_stream = NULL;
-  setname("XHL");
+  setname("XSS");
 }
 
 XHacksLayer::~XHacksLayer() {
@@ -63,7 +60,11 @@ bool XHacksLayer::open(char *file) {
   func("XHacksLayer::open(%s)", file);
 
       dpy = XOpenDisplay(NIL);
-      assert(dpy);
+  if(!dpy) {
+    error("XHacksLayer can't open X display");
+    return false;
+  }
+   
 
       // Get some colors
 
@@ -84,7 +85,7 @@ attrib.backing_store = Always;
 XChangeWindowAttributes(dpy, back_win, CWBackingStore, &attrib);
 */
       
-XMapWindow(dpy, back_win); 
+  XMapWindow(dpy, back_win); 
       // Create a "Graphics Context"
       gc = XCreateGC(dpy, back_win, 0, NIL);
 

@@ -164,14 +164,14 @@ static void createDelaymap(int mode) {
   double d;
 
   curdelaymap=(Uint32 *)delaymap;
-  srand(time(NULL));
+  fastsrand(time(NULL));
 
   for (y=delaymapheight; y>0; y--) {
     for (x=delaymapwidth; x>0; x--) {
       switch (mode) {
       case 1:	
 	/* Random delay with square distribution */
-	d = (double)rand()/(double)RAND_MAX;
+	d = (double)fastrand()/(double)RAND_MAX;
 	*curdelaymap = (int)(d*d*16.0);
 	break;
       case 2:

@@ -18,7 +18,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   
 
 */
-
+#include "../config.h"
+#ifdef HAVE_MMX
 
 /* The ccvt_* functions always start with width and height, so these
    parameters are in 8(%ebp) and 12 (%ebp). The other parameters can be
@@ -1054,3 +1055,5 @@ ENTRY(ccvt_420i_yuyv)
 	pop %ebx
 	leave
 	ret
+
+#endif

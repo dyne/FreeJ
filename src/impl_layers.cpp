@@ -27,6 +27,9 @@
 #include <jutils.h>
 #include <config.h>
 
+/* software layers which don't need special loaders */
+#include <gen_layer.h>
+
 #ifdef WITH_V4L
 #include <v4l_layer.h>
 #endif
@@ -60,7 +63,7 @@ const char *layers_description =
 " .  - AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
 #endif
 #ifdef WITH_AVCODEC
-" .  - AVI, ASF,WMA,WMV,MPEG, local and remote (http://localhost/file.mpg) dv1394 devices as of dv camcoder \n"
+" .  - AVI,ASF,WMA,WMV,MPEG local and remote (http://localhost/file.mpg), dv1394 firewire devices\n"
 #endif
 #ifdef WITH_PNG
 " .  - PNG images (also with transparency)\n"
@@ -71,6 +74,7 @@ const char *layers_description =
 #ifdef WITH_XHACKS
 " .  - xscreensaver screen hack. ex. /usr/X11R6/lib/xscreensaver/cynosure\n"
 #endif
+" .  - particle generator ( add layer_gen on commandline)\n"
 "\n";
 
 
@@ -80,7 +84,9 @@ Layer *create_layer(char *file) {
   Layer *nlayer = NULL;
   
   /* check that file exists */
-  if(strncasecmp(file,"/dev/",5)!=0 && strncasecmp(file,"http://",7)!=0) {
+  if(strncasecmp(file,"/dev/",5)!=0 
+     && strncasecmp(file,"http://",7)!=0
+     && strncasecmp(file,"layer_",6)!=0) {
     tmp = fopen(file,"r");
     if(!tmp) {
       error("can't open %s to create a Layer: %s",
@@ -147,7 +153,6 @@ Layer *create_layer(char *file) {
       act("can't load %s",pp);
 #endif
     } else /* PNG LAYER */
-
       if(strncasecmp((p-4),".png",4)==0) {
 #ifdef WITH_PNG
 	nlayer = new PngLayer();
@@ -161,7 +166,6 @@ Layer *create_layer(char *file) {
 #endif
 	
       } else /* TXT LAYER */
-	
 	if(strncasecmp((p-4),".txt",4)==0) {
 #ifdef WITH_FT2
 	  nlayer = new TxtLayer();
@@ -174,18 +178,24 @@ Layer *create_layer(char *file) {
 	  act("can't load %s",pp);
 	  return(NULL);
 #endif
-	} else { /* XHACKS_LAYER */
+	} else
+	  if(strstr(pp,"xscreensaver")) { /* XHACKS_LAYER */
 #ifdef WITH_XHACKS
-		nlayer = new XHacksLayer();
-		if (!nlayer->open(pp)) {
-			error("create_layer : XHACK open failed");
-			delete nlayer; nlayer = NULL;
-		}
+	    nlayer = new XHacksLayer();
+	    if (!nlayer->open(pp)) {
+	      error("create_layer : XHACK open failed");
+	      delete nlayer; nlayer = NULL;
+	    }
 #else
-	  error("no xhacks layer support");
+	    error("no xhacks layer support");
+	    act("can't load %s",pp);
+	    return(NULL);
 #endif	  
-	}
-
+	} else
+	  if(strncasecmp(pp,"layer_gen",9)==0) {
+	    nlayer = new GenLayer();
+	  }
+  
   if(!nlayer)
     error("can't create a layer with %s",file);
   else

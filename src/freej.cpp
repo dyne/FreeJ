@@ -57,7 +57,7 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 " .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
-" .  files:\n"
+" .  layers available:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n";
 //" .   -d   double screen size\n"
@@ -225,10 +225,15 @@ int main (int argc, char **argv) {
     lay->init(&freej);
     freej.layers.add(lay);
   }
-  
+
+  /* try out new geometrical layer 
+  lay = new GenLayer();
+  lay->init(&freej);
+  freej.layers.add(lay); */
+
   /* (no layers && no GUI) then show credits */
-  //  if(freej.layers.len()<1)
-  //    freej.osd.credits();
+    if(freej.layers.len()<1)
+      freej.osd.credits();
 
   /* launch layer threads
   func("rock the house");

@@ -36,6 +36,7 @@ SdlScreen::SdlScreen()
   bpp = 32;
   dbl = false;
   sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL);
+  // add above | SDL_FULLSCREEN to go fullscreen from the start
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     rmask = 0xff000000;
@@ -95,23 +96,17 @@ void *SdlScreen::coords(int x, int y) {
 }
 
 void SdlScreen::show() {
-  if(magnification) {
+  if(magnification==1) {
     lock();
-    switch(magnification) {
-    case 1:
-      scale2x
+    scale2x
 	((uint32_t*)surface->pixels,
 	 (uint32_t*)SDL_GetVideoSurface()->pixels);
-      break;
-    case 2:
-      scale3x
+    unlock();
+  } else if(magnification==2) {
+    lock();
+    scale3x
 	((uint32_t*)surface->pixels,
 	 (uint32_t*)SDL_GetVideoSurface()->pixels);
-      break;
-    default:
-      error("%i:%s %s unsupported magnification algo",
-	    __LINE__,__FILE__,__FUNCTION__);
-    }
     unlock();
   }
   SDL_Flip(screen);
@@ -122,7 +117,7 @@ void *SdlScreen::get_surface() {
 }
 
 void SdlScreen::clear() {
-  memset(SDL_GetVideoSurface()->pixels,0x0,size);
+  SDL_FillRect(screen,NULL,0x0);
 }
 void SdlScreen::fullscreen() {
   SDL_WM_ToggleFullScreen(screen);
@@ -205,7 +200,8 @@ void SdlScreen::set_magnification(int algo) {
   if(!magnification && algo) {
     func("create surface for magnification");
     surface = SDL_CreateRGBSurface
-      (SDL_HWSURFACE,w,h,bpp,bmask,gmask,rmask,amask);
+      (sdl_flags,w,h,bpp,bmask,gmask,rmask,amask);
+      //      (SDL_HWSURFACE,w,h,bpp,bmask,gmask,rmask,amask);
   }
 
   magnification = algo;

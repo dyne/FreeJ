@@ -24,6 +24,7 @@ freej_SOURCES = \
 	avi_layer.cpp	\
 	png_layer.cpp	\
 	txt_layer.cpp	\
+	gen_layer.cpp	\
 	impl_layers.cpp \
 	screen.cpp	\
 	sdl_screen.cpp 	\

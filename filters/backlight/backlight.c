@@ -56,11 +56,10 @@ static int movelight=1;
 static int invert=0;
 
 int init(ScreenGeometry *sg) {
+  int i;
   geo = sg;
 
   procbuf = malloc(geo->size);
-
-  int i;
    
   for (i = 0; i < 512; i++) {
     float rad;
