@@ -98,6 +98,11 @@ class Blitter {
 
   Blit *current_blit; ///< currently selected blit
   
+ private:
+  int16_t old_x;
+  int16_t old_y;
+  uint16_t old_w;
+  uint16_t old_h;
 };
 
 #endif

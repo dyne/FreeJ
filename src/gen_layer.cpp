@@ -83,7 +83,7 @@ GenLayer::GenLayer()
   pi2 = 2.0*M_PI;
 
   set_name("GEO");
-
+  set_filename("/particle generator");
 }
 
 GenLayer::~GenLayer() {

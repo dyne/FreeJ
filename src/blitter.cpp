@@ -22,7 +22,10 @@
 #include <layer.h>
 #include <blitter.h>
 #include <context.h>
+#include <iterator.h>
 #include <imagefilter.h>
+
+#include <sdl_screen.h>
 
 #include <jutils.h>
 #include <config.h>
@@ -337,11 +340,23 @@ bool Blitter::init(Layer *lay) {
   // SET DEFAULT
   set_blit("memcpy");
 
+  crop( NULL );
+
   return true;
 }
 
 void Blitter::blit() {
   register int c;
+
+  /* compare old layer values
+     crop the layer if necessary */
+  if( layer->geo.x != old_x 
+      || layer->geo.y != old_y
+      || layer->geo.w != old_w
+      || layer->geo.h != old_h )
+    crop( NULL );
+
+
   if(!current_blit) return;
   switch(current_blit->type) {
 
@@ -378,7 +393,7 @@ void Blitter::blit() {
     
     SDL_BlitSurface(current_blit->sdl_surface,
 		    &current_blit->sdl_rect,
-		    SDL_GetVideoSurface(),NULL);
+		    ((SdlScreen*)layer->freej->screen)->surface,NULL);
 
     SDL_FreeSurface(current_blit->sdl_surface);
     break;
@@ -409,12 +424,19 @@ bool Blitter::set_blit(char *name) {
 }
 
 bool Blitter::set_value(int val) {
+  Iterator *iter;
   Blit *b = (Blit*)blitlist.selected();
   if(!b) {
     error("no blit selected on layer %s",layer->get_name());
     return false;
   }
-  b->value = val;
+
+  /* setup an iterator to gradually change the value */
+  iter = new Iterator((int32_t*)&b->value);
+  iter->set_aim(val);
+  layer->iterators.add(iter);
+
+  //  b->value = val;
   act("layer %s blit %s set to %i",
       layer->get_name(),b->get_name(),val);
   return true;
@@ -523,6 +545,12 @@ void Blitter::crop(ViewPort *screen) {
     notice("PLANAR_BLIT TO BE DONE ;)");
     break;
   }
+
+  /* store values for further crop checking */
+  old_x = layer->geo.x;
+  old_y = layer->geo.y;
+  old_w = layer->geo.w;
+  old_h = layer->geo.h;
 
 }
 
