@@ -114,3 +114,8 @@ JSFunctionSpec layer_methods[] = {
     {0} 
 };
 */
+
+JSFunctionSpec layer_methods[] = {
+    {"set_blit",	set_blit,	1},
+    {0} 
+};

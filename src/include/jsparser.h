@@ -29,7 +29,6 @@
 
 #include <context.h>
 #include <jsapi.h> // spidermonkey header
-#include <jsparser_data.h> // private data header
 #include <layer.h>
 
 class JsParser {
