@@ -50,6 +50,9 @@ class VideoLayer: public Layer {
 	uint8_t *av_buf;
 
 	bool grab_dv;
+	int play_speed;
+	int play_speed_control;
+	int frame_rate;
 
 	int size, lenght,video_index;
 	FILE *fp;

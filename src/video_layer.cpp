@@ -43,6 +43,9 @@ VideoLayer::VideoLayer()
 	av_buf=NULL;
 	//	avformat_context=NULL;
 	packet_len=0;
+	play_speed=0;
+	frame_rate=0;
+	play_speed_control=0;
     }
 
 VideoLayer::~VideoLayer() {
@@ -50,7 +53,7 @@ VideoLayer::~VideoLayer() {
 }
 
 /*
- * lick me!
+ * lickme.txt!
  */
 
 bool VideoLayer::init(Context *scr) {
@@ -59,10 +62,16 @@ bool VideoLayer::init(Context *scr) {
     _init(scr, enc->width, enc->height, 32);
     notice("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
 	    enc->width,enc->height,32,geo.size);
+    notice("VideoLayer :: frame_rate[%d]",frame_rate);
 
     int saiz = avpicture_get_size( PIX_FMT_RGBA32, enc->width, enc->height );
     av_buf = (uint8_t *)malloc( saiz );
     av_picture = (AVPicture *)malloc( sizeof( AVPicture ) );
+    /**
+     * feed() function is called 25 times for second so we must correct the speed
+     */
+    play_speed=(25/frame_rate) - 1; 
+    play_speed -= play_speed<<1;
     //    notice("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
     //	    geo.w,geo.h,geo.bpp,geo.size);
     return true;
@@ -128,7 +137,7 @@ bool VideoLayer::open(char *file) {
 	enc = &avformat_stream->codec;
 	if(enc == NULL)
 	    printf("enc nullo\n");
-	notice("VideoLayer::Codec type= %d\n",enc->codec_type);
+//	notice("VideoLayer::Codec type= %d\n",enc->codec_type);
 	if (enc->codec_type == CODEC_TYPE_VIDEO) {
 	    video_index=i;
 	    codec = avcodec_find_decoder(enc->codec_id);
@@ -141,9 +150,10 @@ bool VideoLayer::open(char *file) {
 		return false;
 	    }
 	    else {
-		notice("VideoLayer::Opening codec: %s",codec->name);
-		notice("VideoLayer::codec height: %d",enc->height);
-		notice("VideoLayer::codec width: %d",enc->width);
+		frame_rate=enc->frame_rate/enc->frame_rate_base;
+//		notice("VideoLayer::Opening codec: %s",codec->name);
+//		notice("VideoLayer::codec height: %d",enc->height);
+//		notice("VideoLayer::codec width: %d",enc->width);
 		break;
 	    }
 	}
@@ -155,127 +165,135 @@ bool VideoLayer::open(char *file) {
 }
 
     void *VideoLayer::feed() {
-	if(paused) 
-	    return av_picture->data[0];
 	int got_picture=0;
 	int len1=0 ;
 	int ret=0;
 	bool got_it=false;
 	double pts1=0;
-
-	/**
-	 * Read one packet from the media and put it in pkt
-	 */
-	while (!got_it) {
-	    if(packet_len<=0) {
-		while(1) {
-		    ret = av_read_frame(avformat_context, &pkt);
-		    if (pkt.pts != AV_NOPTS_VALUE) {
-			packet_pts = (double)pkt.pts / AV_TIME_BASE;
-		    }
-		    /**
-		     * check eof and loop
-		     */
-
-		    /* debug stuff
-		       printf("pkt.data= %d\t",pkt.data);
-		       printf("pkt.size= %d\t",pkt.size);
-		       printf("pkt.pts= %d\t",pkt.pts);
-		       printf("pkt.dts= %d\t",pkt.dts);
-		       printf("pkt.duration= %d\n",pkt.duration);
-		       printf("avformat_context->start_time= %d\n",avformat_context->start_time);
-		       printf("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
-		       printf("avformat_context->duration= %d\n",avformat_context->duration);
-		       */
-		    if(ret!= 0) {
-			ret=av_seek_frame(avformat_context, video_index,avformat_context->start_time);
-			if (ret < 0) {
-			    error("VideoLayer::could not loop file");
-			    return NULL;
-			}
-			continue;
-			error("VideoLayer::Error while reading packet");
-		    }
-		    else if(pkt.stream_index == video_index)
-			break;
-		}
-	    }
-	    frame_number++;
-
-	    /**
-	     * Decode the packet and put i(n)t in(t) av_frame
-	     */
-	    if(packet_len<=0) {
-		packet_len=pkt.size; // packet size
-		ptr=pkt.data;
-	    }
-	    len1 = avcodec_decode_video(enc, &av_frame, &got_picture, ptr,packet_len);
-
-	    pts1=packet_pts;
-	    if (avformat_stream->codec.has_b_frames && 
-		    av_frame.pict_type != FF_B_TYPE) {
-		/* use last pts */
-		packet_pts = video_last_P_pts;
-		/* get the pts for the next I or P frame if present */
-		video_last_P_pts = pts1;
-	    }
-	    if (packet_pts != 0) {
-		/* update video clock with pts, if present */
-		video_clock = packet_pts;
-	    } else {
-		packet_pts = video_clock;
-	    }
-	    video_current_pts=packet_pts;
-	    video_current_pts_time=av_gettime();
-	    /* update video clock for next frame */
-	    double frame_delay = (double)avformat_stream->codec.frame_rate_base / 
-		(double)avformat_stream->codec.frame_rate;
-	    /* for MPEG2, the frame can be repeated, so we update the
-	       clock accordingly */
-	    if (av_frame.repeat_pict) {
-		frame_delay += av_frame.repeat_pict * (frame_delay * 0.5);
-	    }
-	    video_clock += frame_delay;
-
-	    /* Debug pts code */
-	    /*
-	       {
-	       int ftype;
-	       if (av_frame.pict_type == FF_B_TYPE)
-	       ftype = 'B';
-	       else if (av_frame.pict_type == FF_I_TYPE)
-	       ftype = 'I';
-	       else
-	       ftype = 'P';
-	       printf("frame_type=%c clock=%0.3f pts=%0.3f\n", 
-	       ftype, get_master_clock(), pts1);
-	       }
-	       */
-	    AVFrame *src=&av_frame;
-	    if(len1<0) {
-		error("VideoLayer::Error while decoding frame");
-	    }
-	    else if (len1 == 0) {
-		packet_len=0;
-		return NULL;
-	    }
-
-	    /**
-	     * We've found a picture
-	     */
-	    ptr += len1;
-	    packet_len -= len1;
-	    if (got_picture!=0) {
-		got_it=true;
-		int dst_pix_fmt = PIX_FMT_RGBA32;
-		avformat_stream=avformat_context->streams[video_index];
-		avpicture_fill( av_picture, av_buf, PIX_FMT_RGBA32, enc->width, enc->width );
-		img_convert(av_picture, dst_pix_fmt, (AVPicture *)src, avformat_stream->codec.pix_fmt,
-			enc->width,
-			enc->height);
-	    }
+	if(paused || play_speed_control<0) {
+	    play_speed_control++;
+	    return av_picture->data[0];
 	}
-	av_free_packet(&pkt); /* sun's good. love's bad */
+	else {
+	    while(play_speed_control>=0) {
+		got_it=false;
+		play_speed_control--;
+		while (!got_it) {
+		    if(packet_len<=0) {
+			while(1) {
+			    /**
+			     * Read one packet from the media and put it in pkt
+			     */
+			    ret = av_read_frame(avformat_context, &pkt);
+			    if (pkt.pts != AV_NOPTS_VALUE) {
+				packet_pts = (double)pkt.pts / AV_TIME_BASE;
+			    }
+			    /* debug stuff
+			       printf("pkt.data= %d\t",pkt.data);
+			       printf("pkt.size= %d\t",pkt.size);
+			       printf("pkt.pts= %d\t",pkt.pts);
+			       printf("pkt.dts= %d\t",pkt.dts);
+			       printf("pkt.duration= %d\n",pkt.duration);
+			       printf("avformat_context->start_time= %d\n",avformat_context->start_time);
+			       printf("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
+			       printf("avformat_context->duration= %d\n",avformat_context->duration);
+			       */
+
+			    /**
+			     * check eof and loop
+			     */
+			    if(ret!= 0) {
+				ret=av_seek_frame(avformat_context, video_index,avformat_context->start_time);
+				if (ret < 0) {
+				    error("VideoLayer::could not loop file");
+				    return NULL;
+				}
+				continue;
+				error("VideoLayer::Error while reading packet");
+			    }
+			    else if(pkt.stream_index == video_index)
+				break; /* exit loop */
+			}
+		    }
+		    frame_number++;
+
+		    /**
+		     * Decode the packet and put i(n)t in(t) av_frame
+		     */
+		    if(packet_len<=0) {
+			packet_len=pkt.size; // packet size is zero if packet contains only one frame
+			ptr=pkt.data; /* pointer to frame data */
+		    }
+		    len1 = avcodec_decode_video(enc, &av_frame, &got_picture, ptr,packet_len);
+
+		    pts1=packet_pts;
+		    if (avformat_stream->codec.has_b_frames && 
+			    av_frame.pict_type != FF_B_TYPE) {
+			/* use last pts */
+			packet_pts = video_last_P_pts;
+			/* get the pts for the next I or P frame if present */
+			video_last_P_pts = pts1;
+		    }
+		    if (packet_pts != 0) {
+			/* update video clock with pts, if present */
+			video_clock = packet_pts;
+		    } else {
+			packet_pts = video_clock;
+		    }
+		    video_current_pts=packet_pts;
+		    video_current_pts_time=av_gettime();
+		    /* update video clock for next frame */
+		    double frame_delay = (double)avformat_stream->codec.frame_rate_base / 
+			(double)avformat_stream->codec.frame_rate;
+		    /* for MPEG2, the frame can be repeated, so we update the
+		       clock accordingly */
+		    if (av_frame.repeat_pict) {
+			frame_delay += av_frame.repeat_pict * (frame_delay * 0.5);
+		    }
+		    video_clock += frame_delay;
+
+		    /* Debug pts code */
+		    /*
+		       {
+		       int ftype;
+		       if (av_frame.pict_type == FF_B_TYPE)
+		       ftype = 'B';
+		       else if (av_frame.pict_type == FF_I_TYPE)
+		       ftype = 'I';
+		       else
+		       ftype = 'P';
+		       printf("frame_type=%c clock=%0.3f pts=%0.3f\n", 
+		       ftype, get_master_clock(), pts1);
+		       }
+		       */
+		    AVFrame *src=&av_frame;
+		    if(len1<0) {
+			error("VideoLayer::Error while decoding frame");
+		    }
+		    else if (len1 == 0) {
+			packet_len=0;
+			return NULL;
+		    }
+
+		    /**
+		     * We've found a picture
+		     */
+		    ptr += len1;
+		    packet_len -= len1;
+		    if (got_picture!=0) {
+			got_it=true;
+			int dst_pix_fmt = PIX_FMT_RGBA32;
+			avformat_stream=avformat_context->streams[video_index];
+			avpicture_fill( av_picture, av_buf, PIX_FMT_RGBA32, enc->width, enc->width );
+			img_convert(av_picture, dst_pix_fmt, (AVPicture *)src, avformat_stream->codec.pix_fmt,
+				enc->width,
+				enc->height);
+		    }
+		}
+		av_free_packet(&pkt); /* sun's good. love's bad */
+	    } /* end of play_speed while() */
+	} /* end of else branch */
+	play_speed_control=play_speed;
 	return av_picture->data[0];
     }
 
@@ -296,8 +314,18 @@ bool VideoLayer::keypress(SDL_keysym *keysym) {
 	case SDLK_LEFT:
 	    backward();
 	    break;
-	case SDLK_KP0: 
+	case SDLK_KP0: /* pause */
 	    pause();
+	    break;
+	case SDLK_f: /* 2x fast */
+	    printf("faster: %d\n",play_speed);
+	    play_speed++;
+	    play_speed_control=play_speed;
+	    break;
+	case SDLK_s: /* 2x slow */
+	    printf("slower: %d\n",play_speed);
+	    play_speed--;
+	    play_speed_control=play_speed;
 	    break;
 	default:
 	    break;
@@ -330,11 +358,11 @@ bool VideoLayer::seek(int increment) {
 	    current_time=current_time - (avformat_context->duration/AV_TIME_BASE);
 	}
     }
-    
-    printf("VideoLayer::seeking to: %f\n",current_time);
+
+//    printf("VideoLayer::seeking to: %f\n",current_time);
     ret=av_seek_frame(avformat_context, video_index,(int64_t)current_time*AV_TIME_BASE);
     if (ret < 0) {
-	error("VideoLayer::Error seeking file");
+	error("VideoLayer::Error seeking file: %d",ret);
 	return false;
     }
     unlock_feed();
