@@ -1,1 +1,1 @@
-SUBDIRS = delaygrab absdiff simura baltan vertigo transform blurzoom
+SUBDIRS = delaygrab absdiff simura baltan vertigo transform blurzoom zoom

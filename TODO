@@ -1,4 +1,12 @@
 
+  *** plugin chain system exposed as a shared lib (libfreej)
+  *** support for more webcams: grab YUV420
+  *** xscreensavers can be played as layers
+  *** new plugins
+  *** can use multiple instances of same plugin
+
+
+
 On Sat, Aug 24, 2002 at 10:45:41PM -0700, Jamie Zawinski wrote:
 
 > > my dream now is to implement into it a way to play screensavers as

@@ -39,7 +39,7 @@ AM_PROG_LIBTOOL
 dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
-CFLAGS="-g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -march=${host_cpu} -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
+CFLAGS="-g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -165,4 +165,5 @@ filters/baltan/Makefile
 filters/vertigo/Makefile
 filters/transform/Makefile
 filters/blurzoom/Makefile
+filters/zoom/Makefile
 ])

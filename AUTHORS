@@ -1,12 +1,15 @@
 *** MAIN AUTHOR ::
 
-Denis Roio aka jaromil <jaromil@dyne.org>
+jaromil a.k.a Denis Rojo <jaromil@dyne.org>
 	concept, coder and mantainer
 
 *** CONTRIBUTIONS ::
 
+Lluis Gomez I Bigorda <lgomez@pangea.org>
+	zoom filter
+
 Leonid Andreev <lenonid@math.harvard.edu>
-	great feedback and bugfixes
+	feedback and bugfixes
 
 Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
 	yuv2rgb c conversion code
@@ -28,7 +31,6 @@ Clifford Smith <nullset@dookie.net>
 Bomboclat ..................... <http://autistici.org/bomboclat>
 Lobo .......................... <http://clavius.dyne.org>
 Roberto Paci Dalo' ............ <http://giardini.sm>
-Alessandro D'Andrea ........... <http://neural-engine.net>
 Megabug ....................... <http://autistici.org/megabug>
 Freaknet Medialab Catania ..... <http://freaknet.org>
 Servus.at ..................... <http://www.servus.at>
@@ -38,3 +40,5 @@ LOA hacklab Milano ............ <http://ecn.org/loa>
 Erich Berger .................. <http://randomseed.org>
 Florian Cramer ................ <http://userpage.fu-berlin.de/~cantsin>
 Isabella Bordoni .............. <http://ib-arts.dyne.org>
+Sonar Festival ................ <http://sonar.es>
+

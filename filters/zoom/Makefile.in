@@ -1,4 +1,3 @@
-# Generated automatically from Makefile.in by configure.
 # Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
@@ -12,43 +11,44 @@
 # PARTICULAR PURPOSE.
 
 
-SHELL = /bin/sh
+SHELL = @SHELL@
 
-srcdir = .
-top_srcdir = ../..
-prefix = /usr/local
-exec_prefix = ${prefix}
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
 
-bindir = ${exec_prefix}/bin
-sbindir = ${exec_prefix}/sbin
-libexecdir = ${exec_prefix}/libexec
-datadir = ${prefix}/share
-sysconfdir = ${prefix}/etc
-sharedstatedir = ${prefix}/com
-localstatedir = ${prefix}/var
-infodir = ${prefix}/info
-mandir = ${prefix}/man
-includedir = ${prefix}/include
+bindir = @bindir@
+sbindir = @sbindir@
+libexecdir = @libexecdir@
+datadir = @datadir@
+sysconfdir = @sysconfdir@
+sharedstatedir = @sharedstatedir@
+localstatedir = @localstatedir@
+infodir = @infodir@
+mandir = @mandir@
+includedir = @includedir@
 oldincludedir = /usr/include
 
 DESTDIR =
 
-pkgdatadir = $(datadir)/FreeJ
-pkglibdir = $(libdir)/FreeJ
-pkgincludedir = $(includedir)/FreeJ
+pkgdatadir = $(datadir)/@PACKAGE@
+pkglibdir = $(libdir)/@PACKAGE@
+pkgincludedir = $(includedir)/@PACKAGE@
 
 top_builddir = ../..
 
-ACLOCAL = aclocal
-AUTOCONF = autoconf
-AUTOMAKE = automake
-AUTOHEADER = autoheader
+ACLOCAL = @ACLOCAL@
+AUTOCONF = @AUTOCONF@
+AUTOMAKE = @AUTOMAKE@
+AUTOHEADER = @AUTOHEADER@
 
-INSTALL = /bin/install -c
-INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
-INSTALL_DATA = ${INSTALL} -m 644
-INSTALL_SCRIPT = ${INSTALL_PROGRAM}
-transform = s,x,x,
+INSTALL = @INSTALL@
+INSTALL_PROGRAM = @INSTALL_PROGRAM@ $(AM_INSTALL_PROGRAM_FLAGS)
+INSTALL_DATA = @INSTALL_DATA@
+INSTALL_SCRIPT = @INSTALL_SCRIPT@
+transform = @program_transform_name@
 
 NORMAL_INSTALL = :
 PRE_INSTALL = :
@@ -56,55 +56,52 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-host_alias = i686-pc-linux-gnu
-host_triplet = i686-pc-linux-gnu
+host_alias = @host_alias@
+host_triplet = @host@
 AS = @AS@
-AVIFILE_CONFIG = /usr/local/bin/avifile-config
-AVIFILE_CXXFLAGS = -I/usr/local/include/avifile
-AVIFILE_LDFLAGS = -L/usr/local/lib -Wl,-rpath,/usr/local/lib -laviplay
-AVIFILE_LIBS = -L/usr/local/lib -Wl,-rpath,/usr/local/lib -laviplay  -lXv -lXxf86vm -ldivxdecore
-CC = gcc
-CXX = c++
+AVIFILE_CONFIG = @AVIFILE_CONFIG@
+AVIFILE_CXXFLAGS = @AVIFILE_CXXFLAGS@
+AVIFILE_LDFLAGS = @AVIFILE_LDFLAGS@
+AVIFILE_LIBS = @AVIFILE_LIBS@
+CC = @CC@
+CXX = @CXX@
 DLLTOOL = @DLLTOOL@
-ECHO = echo
-EXEEXT = 
-LIBS = 
-LIBTOOL = $(SHELL) $(top_builddir)/libtool
-LN_S = ln -s
-MAKEINFO = makeinfo
-NASMFLAGS = 
+ECHO = @ECHO@
+EXEEXT = @EXEEXT@
+LIBS = @LIBS@
+LIBTOOL = @LIBTOOL@
+LN_S = @LN_S@
+MAKEINFO = @MAKEINFO@
+NASM = @NASM@
+NASMFLAGS = @NASMFLAGS@
 OBJDUMP = @OBJDUMP@
-OBJEXT = o
-PACKAGE = FreeJ
-RANLIB = ranlib
-SDL_CFLAGS = -I/usr/include/SDL -D_REENTRANT
-SDL_CONFIG = /usr/bin/sdl-config
-SDL_LIBS = -L/usr/lib -Wl,-rpath,/usr/lib -lSDL -lpthread
-STRIP = strip
-VERSION = 0.4.1-cvs
+OBJEXT = @OBJEXT@
+PACKAGE = @PACKAGE@
+RANLIB = @RANLIB@
+SDL_CFLAGS = @SDL_CFLAGS@
+SDL_CONFIG = @SDL_CONFIG@
+SDL_LIBS = @SDL_LIBS@
+STRIP = @STRIP@
+VERSION = @VERSION@
 
 INCLUDES = -I$(top_srcdir)/src/include
 libdir = ${prefix}/lib/freej
 
-SUFFIXES = .asm
-
-NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
-
-lib_LTLIBRARIES = rotozoom.la
-rotozoom_la_SOURCES = rotozoom.c
-rotozoom_la_LDFLAGS = -module -avoid-version
+lib_LTLIBRARIES = zoom.la
+zoom_la_SOURCES = zoom.c
+zoom_la_LDFLAGS = -module -avoid-version
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
 CONFIG_CLEAN_FILES = 
 LTLIBRARIES =  $(lib_LTLIBRARIES)
 
 
-DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I../..
-CPPFLAGS = 
-LDFLAGS = 
-rotozoom_la_LIBADD = 
-rotozoom_la_OBJECTS =  rotozoom.lo
-CFLAGS = -g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
+DEFS = @DEFS@ -I. -I$(srcdir) -I../..
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
+zoom_la_LIBADD = 
+zoom_la_OBJECTS =  zoom.lo
+CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -116,15 +113,15 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/rotozoom.P
-SOURCES = $(rotozoom_la_SOURCES)
-OBJECTS = $(rotozoom_la_OBJECTS)
+DEP_FILES =  .deps/zoom.P
+SOURCES = $(zoom_la_SOURCES)
+OBJECTS = $(zoom_la_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .asm .c .lo .o .obj .s
+.SUFFIXES: .S .c .lo .o .obj .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu filters/rotozoom/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu filters/zoom/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
@@ -194,8 +191,8 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-rotozoom.la: $(rotozoom_la_OBJECTS) $(rotozoom_la_DEPENDENCIES)
-	$(LINK) -rpath $(libdir) $(rotozoom_la_LDFLAGS) $(rotozoom_la_OBJECTS) $(rotozoom_la_LIBADD) $(LIBS)
+zoom.la: $(zoom_la_OBJECTS) $(zoom_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(zoom_la_LDFLAGS) $(zoom_la_OBJECTS) $(zoom_la_LIBADD) $(LIBS)
 
 tags: TAGS
 
@@ -228,14 +225,14 @@ maintainer-clean-tags:
 
 distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
-subdir = filters/rotozoom
+subdir = filters/zoom
 
 distdir: $(DISTFILES)
 	here=`cd $(top_builddir) && pwd`; \
 	top_distdir=`cd $(top_distdir) && pwd`; \
 	distdir=`cd $(distdir) && pwd`; \
 	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu filters/rotozoom/Makefile
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu filters/zoom/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \
@@ -355,9 +352,6 @@ uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
-
-.asm.lo:
-	$(NASM) $<
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

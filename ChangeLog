@@ -1,13 +1,12 @@
-FreeJ 0.5 POPONJ - 23 Dec 2002
-  faster v4l grabbing
+FreeJ 0.4.1 HURRIA - 26 Feb 2003
+  smoother v4l grabbing
   layers can freely be moved around
   full support for all bitdepths
   double size screen option
-  can load and use until 144 plugins
+  can load and use up to 144 plugins
+  new filters: Zoom and Blurzoom
   code cleanups and removal of some pleonastic asm
-  *** xscreensavers can be played as layers
-  *** new plugins
-  *** can use multiple instances of same plugin
+  OSD fixes
 
 FreeJ 0.4 HURRIA - 17 Oct 2002
   Avifile linked to play DIVX/AVI files (AVI layer)

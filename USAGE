@@ -1,7 +1,5 @@
-FreeJ version 0.4 USAGE NOTES
+FreeJ version 0.4.1 USAGE NOTES
 ===============================
-
-This release supports only EVERY screen depth.
 
 The interface consists in a on screen display (OSD) reporting
 informations like FPS, the filters that are created in the order they

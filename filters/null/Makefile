@@ -101,7 +101,7 @@ CPPFLAGS =
 LDFLAGS = 
 null_la_LIBADD = 
 null_la_OBJECTS =  null.lo
-CFLAGS = -g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -march=i686 -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
+CFLAGS = -g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
