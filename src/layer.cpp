@@ -25,6 +25,8 @@ Layer::Layer() {
   paused = false;
   quit = false;
   active = false;
+  hidden = false;
+  blit_offset = 0;
   _blit_algo = 1;
   setname("???");
 }
@@ -52,6 +54,7 @@ void Layer::_init(Context *screen, int wdt, int hgt, int bpp=0) {
   geo.fps = screen->fps;
   geo.x = (Uint16)(screen->w - geo.w)/2;
   geo.y = (Uint16)(screen->h - geo.h)/2;
+  crop();
 
   _w = geo.w; _h = geo.h;
   _pitch = geo.pitch;
@@ -193,11 +196,44 @@ bool Layer::cafudda() {
   return(true);
 }
 
+void Layer::crop() {
+  Uint32 blit_xoff=0;
+  Uint32 blit_yoff=0;
+
+  blit_width = geo.w;
+
+  /* left bound 
+     affects x-offset and width */
+  if(geo.x<0) {
+    blit_xoff = (-geo.x);
+
+    if(blit_xoff>geo.w) {
+      hidden = true; /* out of the screen */
+      geo.x = -(geo.w+1); /* don't let it go far */      
+      return; }
+
+    blit_width -= blit_xoff;
+  }
+
+  /* right bound
+     affects width */
+  if(geo.x>screen->w) { /* out of screen */
+    hidden = true; 
+    geo.x = geo.w+1;
+    return; }
+  if((geo.x+geo.w)>screen->w)
+    blit_width -= (geo.x+geo.w)-screen->w;
+
+  blit_offset = blit_xoff<<2 + (blit_yoff*geo.pitch);
+}
 void Layer::blit(void *offset) {
+  if(hidden) return;
+
   switch(_blit_algo) {
 
   case 1: /* MMX ACCEL STRAIGHT BLIT */
-    mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+    mmxblit((Uint8*)offset+blit_offset,screen->coords(geo.x,geo.y),
+	    blit_width,geo.h,geo.pitch,screen->pitch); 
     return;
 
   case 2: /* VERTICAL FLIP */

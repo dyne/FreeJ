@@ -23,7 +23,7 @@
 
 extern "C" {
   void mmxcopy(void *src1, void *dst, unsigned int size);
-  void mmxblit(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
+  void mmxblit(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
   void mmxblit_add(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
   void mmxblit_sub(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
   void mmxblit_and(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch);

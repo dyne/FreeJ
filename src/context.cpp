@@ -70,6 +70,12 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
   /* context can be only one so we assign here a const id */
   id = 1;
 
+  /* discover about the system and windowmanager */
+  if(!SDL_GetWMInfo(&sys)) {
+    error("can't gather information about the display system");
+    close(); exit(1);
+  }
+
   /* be nice with the window manager */
   char temp[120];
   sprintf(temp,"%s %s",PACKAGE,VERSION);
@@ -77,7 +83,9 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
   
   /* ignore events :: only keys and wm_quit */
   for ( int i=SDL_NOEVENT; i<SDL_NUMEVENTS; ++i )
-    if( (i != SDL_KEYDOWN) && ( i != SDL_QUIT) )
+    if( !(i & (SDL_KEYDOWN|
+	       SDL_MOUSEMOTION|
+	       SDL_QUIT)) )
       SDL_EventState(i, SDL_IGNORE);
 
 

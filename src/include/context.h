@@ -20,6 +20,7 @@
 #define __context_h__
 
 #include <SDL.h>
+#include <SDL_syswm.h>
 #include <iostream.h>
 #include <stdlib.h>
 
@@ -62,7 +63,7 @@ class Context {
   void rocknroll();
 
   SDL_Surface *surf;
-  SDL_VideoInfo *Info;
+  SDL_SysWMinfo sys;
 
   int w, h;
   int size;

@@ -4,7 +4,7 @@
 #include <SDL/SDL.h>
 
 typedef struct {
-  Uint16 x, y;
+  Sint16 x, y;
   Uint16 w, h;
   Uint8 bpp;
   Uint16 pitch;

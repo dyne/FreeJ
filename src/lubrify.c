@@ -24,6 +24,7 @@ unsigned char *asmdst;
 unsigned int asmnum1;
 unsigned int asmnum2;
 unsigned int asmnum3;
+unsigned int asmnum4;
 
 /* assembly routines */
 extern void mmx_memcpy(void);
@@ -46,13 +47,14 @@ void mmxcopy(void *src1, void *dst, unsigned int size) {
   mmx_memcpy();
 }
 
-void mmxblit(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
+#include <stdio.h>
+void mmxblit(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
   asmsrc1 = src1;
   asmdst = dst;
   asmnum1 = height;
-  asmnum2 = pitch;
-  asmnum3 = scr_pitch;
-
+  asmnum2 = width;
+  asmnum3 = pitch;
+  asmnum4 = scr_pitch;
   mmx_blit();
 }
 

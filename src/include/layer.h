@@ -36,6 +36,8 @@ class Layer: public Entry, public JSyncThread {
   
   int _blit_algo;
   void blit(void *offset);
+  int blit_width;
+  int blit_offset;
 
  public:
 
@@ -54,6 +56,7 @@ class Layer: public Entry, public JSyncThread {
 
   void set_blit(int b);
   char *get_blit();
+  void crop();
 
   bool add_filter(Filter *newfilt);
   bool del_filter(int sel);
@@ -80,6 +83,7 @@ class Layer: public Entry, public JSyncThread {
   bool paused;
   bool active;
   bool quit;
+  bool hidden;
 };
 
 #endif

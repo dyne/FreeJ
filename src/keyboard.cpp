@@ -50,47 +50,46 @@ void KbdListener::run() {
   while(!quit) {
 
     if(SDL_PollEvent(&event)) {
-      
-      if(event.type && (SDL_MOUSEMOTION|SDL_MOUSEBUTTONDOWN) ) {
+      switch(event.type) {
+
+      case SDL_MOUSEMOTION:
 	if(event.motion.state && SDL_BUTTON_LEFT) {
-	  layer->geo.x = (event.motion.xrel>0) ? 
-	    (layer->geo.x + event.motion.xrel) :
-	    (layer->geo.x - event.motion.xrel);
-	  layer->geo.y = (event.motion.yrel>0) ?
-	    (layer->geo.y + event.motion.yrel) :
-	    (layer->geo.y - event.motion.yrel);
+	  layer->lock();
+	  layer->geo.x += event.motion.xrel;
+	  layer->geo.y += event.motion.yrel;
+	  layer->crop();
+	  layer->unlock();
 	}
-      }
+	break;
 
-      if(event.type && SDL_KEYDOWN) {
-
+      case SDL_KEYDOWN:
 	switch(event.key.keysym.sym) {
-
+	  
 	case SDLK_ESCAPE:
 	  quit = true;
 	  break;
-
+	  
 	case SDLK_SPACE:
 	  SDL_WM_ToggleFullScreen(screen->surf);
 	  break;
-
+	  
 	case SDLK_TAB:
 	  if(event.key.keysym.mod && KMOD_CTRL)
 	    screen->osd->calibrate();
 	  else
 	    screen->osd->active();
 	  break;
-
+	  
 	default:
-
+	  
 	  if(!(event.key.keysym.mod && KMOD_CAPS)) {
-
+	    
 	    if(_context_op(&event.key.keysym)) break;
-
+	    
 	    if(layer->keypress(&event.key.keysym)) break;
-
+	    
 	  }
-
+	  
 	  if(filter!=NULL) {
 	    layer->lock();
 	    filter->kbd_input(&event.key.keysym);
@@ -98,10 +97,16 @@ void KbdListener::run() {
 	  }
 	  break;
 	}
+	break;
 
-      } else if(event.type==SDL_QUIT) quit = true;
+      case SDL_QUIT:
+	quit = true;
+	break;
+	
+      default: break;
+      }
     }
-    SDL_Delay(DELAY);
+    SDL_Delay(DELAY); 
   }
 }
 
