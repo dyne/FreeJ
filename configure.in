@@ -18,7 +18,15 @@ case $uname in
      AC_MSG_RESULT(Linux)
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
      have_linux=yes
+     if test $host_cpu = powerpc; then
+       AC_DEFINE(HAVE_PPC,1,[define if compiling for Linux/PPC])
+     fi
+     if [ cat /proc/cpuinfo | grep mmx ]; then
+       AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
+     fi
+
      ;;
+
      Darwin)
      AC_MSG_RESULT(Darwin/OSX)
      AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
@@ -48,6 +56,7 @@ dnl Check for tools
 dnl ==============================================================
 AC_PROG_CC
 AC_PROG_CXX
+AM_PROG_AS
 
 dnl Check for dlopen support
 AC_LIBTOOL_DLOPEN
@@ -126,7 +135,7 @@ PKG_CHECK_MODULES(PNG, libpng12 >= 1.2.0, [
   AC_DEFINE(WITH_PNG,1,[define if compiling png layer])	
   have_png=yes
 ],[
-  AC_MSG_ERROR([libpng12 not found: $PNG_PKG_ERRORS])
+  have_png=no
 ])
 
 #PNG_LIBS=""
@@ -158,11 +167,11 @@ fi])
 dnl ==============================================================
 dnl CHECK if there is LIBGLADE2
 dnl ==============================================================
-PKG_CHECK_MODULES(GLADE2, libglade-2.0 >= 2.0.0 gthread-2.0 >= 2.0.0, [
+PKG_CHECK_MODULES(GLADE2, libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0, [
   AC_DEFINE(WITH_GLADE2,1,[define if compiling glade gtk+-2 GUI])
   have_glade2=yes
 ],[
-  AC_MSG_ERROR([libGlade-2 not found: $GLADE2_PKG_ERRORS])
+  have_flade2=no
 ])
 
 dnl ==============================================================
@@ -190,6 +199,11 @@ fi], [AC_MSG_RESULT(no)])
 
 fi
 
+
+## CCVT CONVERSION (HARDCODED FOR NOW)
+CCVT_CONV="ccvt_c2.c"
+AC_SUBST(CCVT_CONV)
+
 #CXXFLAGS="$CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS"
 #CFLAGS="$CFLAGS $SDL_FLAGS"
 #echo "LIBS are $LIBS"
@@ -198,6 +212,7 @@ fi
 
 AC_OUTPUT([
 Makefile
+ccvt/Makefile
 src/Makefile
 src/include/Makefile
 filters/Makefile

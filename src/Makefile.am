@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)/src/include
+INCLUDES = -I$(top_srcdir)/src/include -I$(top_srcdir)/ccvt
 AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ @FT2_CFLAGS@
 
 SUBDIRS = include
@@ -22,11 +22,11 @@ freej_SOURCES = \
 	plugin.cpp	\
 	plugger.cpp	\
 	jutils.cpp	\
-	tvfreq.c	\
-	cpu_accel.c	\
-	yuv2rgb.c yuv2rgb_mmx.c
+	tvfreq.c
 
-freej_LDADD = -ldl -lpthread -lm @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@ @GLADE2_LIBS@
+freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
+		 -ldl -lpthread -lm \
+		@SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@ @GLADE2_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej

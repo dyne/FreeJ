@@ -184,7 +184,7 @@ int main (int argc, char **argv) {
 
 
   /* this is the output context (screen) */
-  Context screen(width,height,32,SDL_HWPALETTE|SDL_HWSURFACE);
+  Context screen(width,height,32,SDL_HWSURFACE| SDL_ASYNCBLIT | SDL_DOUBLEBUF | SDL_HWACCEL);
   if(screen.surf==NULL) exit(0);
   screen.doublesize(doublesize);
 

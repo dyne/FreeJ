@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
+#include <ccvt.h>
 #include <v4l_layer.h>
 #include <tvfreq.h>
 #include <jutils.h>
@@ -179,14 +180,14 @@ bool V4lGrabber::init(Context *screen) {
   /* INIT from the LAYER CLASS */
   _init(screen,init_width,init_heigth);
 
-  palette = VIDEO_PALETTE_YUV422P; // good is YUV422P;
+  palette = VIDEO_PALETTE_YUV422; // good is YUV422P;
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */
-  yuv2rgb = yuv2rgb_init(geo.bpp,0x1); /* arg2 is MODE_RGB */
+  /*  yuv2rgb = yuv2rgb_init(geo.bpp,0x1); arg2 is MODE_RGB */
   rgb_surface = jalloc(rgb_surface,geo.size);
 
-  u = (geo.w*geo.h);
-  v = u+(u/2);//u+(u/2);
+  //  u = (geo.w*geo.h);
+  //  v = u+(u/2);//u+(u/2);
 
   /* mmap (POSIX.4) buffer for grabber device */
   buffer = (unsigned char *) mmap(0,grab_map.size,PROT_READ|PROT_WRITE,MAP_SHARED,dev,0);
@@ -333,11 +334,14 @@ void *V4lGrabber::feed() {
     error("error in ioctl VIDIOCMCAPTURE on buffer %p",&grab_buf[cur_frame]);
   }
 
+  /*
   (*yuv2rgb)((uint8_t *) rgb_surface,
 	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]],
 	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+u],
 	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+v],
 	     geo.w, geo.h, geo.pitch, geo.w, geo.w);  
+  */
+  ccvt_yuyv_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
 
   return rgb_surface;
 }

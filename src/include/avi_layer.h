@@ -87,6 +87,8 @@ class AviLayer: public Layer {
  void set_slow_frame(int speed);
  framepos_t mark_in,mark_out;
 
+ bool yuvcc;
+
  public:
   AviLayer();
   ~AviLayer();

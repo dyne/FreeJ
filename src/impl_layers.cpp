@@ -20,6 +20,9 @@
  */
 
 #include <stdio.h>
+#include <string.h>
+#include <errno.h>
+
 #include <layer.h>
 #include <jutils.h>
 #include <config.h>

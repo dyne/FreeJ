@@ -32,6 +32,7 @@
 //#include <avm_creators.h>
 #include <renderer.h>
 
+#include <ccvt.h>
 #include <context.h>
 #include <jutils.h>
 
@@ -40,6 +41,7 @@ AviLayer::AviLayer()
   _avi = NULL;
   _stream = NULL;
   setname("AVI");
+  yuvcc = false;
 }
 
 AviLayer::~AviLayer() {
@@ -58,16 +60,21 @@ bool AviLayer::init(Context *scr) {
   //  CodecInfo::Get(_ci, avm::CodecInfo::Video, avm::CodecInfo::Decode, fcc);
   //  Creators::SetCodecAttr
   //    (*_ci, (const char*)"Quality", (const char*)_quality);
+  func("biBitCount %i biClrUsed %i biClrImportant %i",
+       bh.biBitCount,bh.biClrUsed,bh.biClrImportant);
   if(bh.biBitCount!=32) {
     error("Movie file decoding produces %ibit colorspace images.",bh.biBitCount);
     error("FreeJ movie layer does'nt supports color depths different from 32bpp");
     error("cannot find a suitable colorspace conversion routine for this avi file");
     error("sorry, you can't use the selected movie. Encode it using XviD codec.");
-    close();
-    return false;
+    //    close();
+    //    return false;
+    yuvcc = true;
   }
 
   _init(scr,labs(bh.biWidth),labs(bh.biHeight),bh.biBitCount);
+
+  if(yuvcc) buffer = malloc(geo.size*2);
 
   /* fill up first frame */
   while(_stream->ReadFrame(true)<0)
@@ -149,7 +156,9 @@ bool AviLayer::open(char *file) {
       return(false);
     }
 
-     _stream->GetDecoder()->SetDestFmt(32);
+    //     _stream->GetDecoder()->SetDestFmt('YUY2');
+    //    _stream->GetDecoder()->SetDestFmt(12,'I420');
+    _stream->GetDecoder()->SetDestFmt(32);
     _stream->ReadFrame(false);
     bh = _stream->GetDecoder()->GetDestFmt();
      
@@ -222,9 +231,18 @@ void *AviLayer::feed() {
 
   _img = _stream->GetFrame(false);
 
-  buffer = _img->Data();
-
   avi_dirty=false;
+  
+  if(yuvcc) {
+    switch(bh.biBitCount) {
+      case 12:
+	ccvt_420p_rgb32(geo.w,geo.h,_img->Data(),buffer);
+	break;
+    default:
+      break;
+    }
+  } else buffer = _img->Data();
+
   return buffer;
 }
 
@@ -238,7 +256,7 @@ void AviLayer::close() {
   delete _avi;
   _avi = NULL;
   
-  if(buffer) jfree(buffer);
+  if(yuvcc) free(buffer);
 }
 
 

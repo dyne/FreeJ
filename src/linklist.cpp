@@ -24,6 +24,7 @@
 
 #include <iostream>
 
+#include <jutils.h>
 #include <linklist.h>
 #include <config.h>
 
@@ -60,6 +61,8 @@ void Linklist::add(Entry *addr) {
   length++;
 }
 
+//void Linklist::prepend(Entry *addr) {
+  
 /* adds an element at the position specified
    if pos is out of bounds adds it at the beginning or the end
    the element occupying allready the position slides down 
@@ -117,9 +120,11 @@ void Linklist::clear() {
 /* takes one element from the list
    === STARTING FROM 1 ===
    returns NULL if called with pos=0 or pos>length
-   returns Entry pointer otherwise */
+   returns Entry pointer otherwise 
+   this function is then overloading the operator[]
+*/
 Entry *Linklist::pick(int pos) {
-  if((length<pos)||(pos==0)) return(NULL);
+  if((length<pos)||(pos<1)) return(NULL);
   if(pos==1) return(first);
   if(pos==length) return(last);
 
@@ -130,40 +135,25 @@ Entry *Linklist::pick(int pos) {
   return(ptr);
 }
 
+/* this function is a wrapper around Entry::up()
+   better to use that if you have a pointer to your Entry */
 bool Linklist::moveup(int pos) {
-  if(pos<=1) return(false);
   Entry *p = pick(pos);
-  Entry *prev = p->prev, *next = p->next, *pp = prev->prev;
-
-  if(next!=NULL) next->prev = prev;
-  p->next = prev;
-  p->prev = pp;
-  prev->next = next;
-  prev->prev = p;
-  if(pp!=NULL) pp->next = p;
-
-  if(pos==2) first = p;
-  if(pos==length) last = prev;
-  return(true);
+  if(!p) return(false);
+  return( p->up() );
 }
-
 bool Linklist::movedown(int pos) {
-  if(pos>=length) return(false);
   Entry *p = pick(pos);
-  Entry *prev = p->prev, *next = p->next, *nn = next->next;
-
-  if(prev!=NULL) prev->next = next;
-  p->prev = next;
-  p->next = nn;
-  next->prev = prev;
-  next->next = p;
-  if(nn!=NULL) nn->prev = p;
-  
-  if(pos==length-1) last = p;
-  if(pos==1) first = next;
-  return(true);
+  if(!p) return(false);
+  return( p->down() );
 }
-
+bool Linklist::moveto(int num, int pos) {
+  Entry 
+    *p = pick(num);
+  if(!p) return(false);
+  return( p->move(pos) );
+}
+  
 /* selects ONLY ONE, deselects the others
    use Entry::sel() if you want to do multiple selects */
 void Linklist::sel(int pos) {
@@ -252,6 +242,37 @@ bool Entry::down() {
 
   if(!next)
     list->last = this;
+
+  return(true);
+}
+
+bool Entry::move(int pos) {
+  func("Entry::move(%i) - NEW LINKLIST MOVE");
+  if(!list) return(false);
+  Entry *tn, *tp;
+
+  Entry *swapping = list->pick(pos);
+  if(swapping == this) return(true);
+  if(!swapping) return(false);
+
+  tn = swapping->next;
+  tp = swapping->prev;
+
+  swapping->next = next;
+  swapping->prev = prev;
+  if(next) next->prev = swapping;
+  else list->last = swapping;
+  if(prev) prev->next = swapping;
+  else list->first = swapping;
+
+  next = tn;
+  prev = tp;
+  if(next) next->prev = this;
+  else list->last = this;
+  if(prev) prev->next = this;
+  else list->first = this;
+
+  func("LINKLIST MOVE RETURNS SUCCESS");
 
   return(true);
 }

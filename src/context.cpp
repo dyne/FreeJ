@@ -20,6 +20,7 @@
  */
 
 #include <inttypes.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <assert.h>
@@ -305,13 +306,13 @@ bool Context::flip() {
 }
 
 void Context::clear() {
-  /* 
- register uint32_t ecx; 
- register uint64_t ebx = 0x0000000000000000;
- register uint64_t *edx = (uint64_t*)surface;
- for(ecx=size>>4;ecx>0;ecx--) *edx-- = ebx;
+  /*
+    register uint32_t ecx; 
+    register uint64_t ebx = 0x0000000000000000;
+    register uint64_t *edx = (uint64_t*)surface;
+    for(ecx=size>>4;ecx>0;ecx--) *edx-- = ebx;
   */
- memset(surface,0x0,size);
+  memset(surface,0x0,size);
 }
 
 /* FPS */

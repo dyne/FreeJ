@@ -22,9 +22,6 @@
 /* this to avoid g++ complaining about videodev.h */
 typedef unsigned long int ulong;
 
-extern "C" {
-#include <yuv2rgb.h>
-}
 
 #include <linux/types.h>
 #include <linux/videodev.h>
@@ -61,9 +58,9 @@ class V4lGrabber: public Layer {
 
   /* yuv2rgb conversion routine pointer 
      this is returned by yuv2rgb_init */
-  yuv2rgb_fun *yuv2rgb;
+  //  yuv2rgb_fun *yuv2rgb;
   void *rgb_surface;
-  int u,v; /* uv offset */
+  //  int u,v;  uv offset */
 
  public:
   V4lGrabber();

@@ -70,7 +70,8 @@ class Osd {
   bool _fps;
 
   Layer *ipernaut;
-  Filter *sflescio;
+  Filter *osd_water;
+  Filter *osd_vertigo;
 
  public:
   Osd();

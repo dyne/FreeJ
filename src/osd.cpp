@@ -77,26 +77,11 @@ void Osd::init(Context *screen) {
   screen->osd = this;
   _set_color(white);
 
-  SDL_keysym keysym;
-
   /* add ipernaut logo layer */
   ipernaut = create_layer("../doc/ipernav.png");
   ipernaut->init(env);
   
-  /* add first effect on logo */
-  sflescio = env->plugger->pick("vertigo");
-  sflescio->init(&ipernaut->geo);
-  keysym.sym = SDLK_w;
-  sflescio->kbd_input(&keysym);
-  ipernaut->filters.add(sflescio);
 
-  /* second effect on logo */
-  sflescio = env->plugger->pick("water");
-  sflescio->init(&ipernaut->geo);
-  keysym.sym = SDLK_y; sflescio->kbd_input(&keysym);
-  keysym.sym = SDLK_w; sflescio->kbd_input(&keysym);
-  keysym.sym = SDLK_w; sflescio->kbd_input(&keysym);
-  ipernaut->filters.add(sflescio);
 
   /* setup coordinates for OSD information
      stored in offsets of video memory addresses
@@ -105,10 +90,10 @@ void Osd::init(Context *screen) {
   selection_offset = (uint32_t*)env->coords(80,1);
   status_offset = (uint32_t*)env->coords(HBOUND,env->h-12);
   layer_offset = (uint32_t*)env->coords(env->w-28,VBOUND+TOPLIST);
-  filter_offset = (uint32_t*)env->coords(5,VBOUND+6);
+  filter_offset = (uint32_t*)env->coords(3,VBOUND+6);
   hicredits_offset = (uint32_t*)env->coords((env->w/2)-100,VBOUND+5);
   locredits_offset = (uint32_t*)env->coords((env->w/2)-140,env->h-70);
-  hilogo_offset = (uint32_t*)env->coords(6,0);
+  hilogo_offset = (uint32_t*)env->coords(3,0);
   newline = env->pitch*(CHAR_HEIGHT);
   snprintf(title,64,"%s %s",PACKAGE,VERSION);
 
@@ -161,19 +146,19 @@ void Osd::_print_status() {
 }
 
 bool Osd::active() {
-  if(_active) env->clear(); //scr(screen->get_surface(),screen->size);
+  //  if(_active) env->clear(); //scr(screen->get_surface(),screen->size);
   _active = !_active;
   return _active;
 }
 
 bool Osd::calibrate() {
-  if(_calibrate) env->clear(); //scr(screen->get_surface(),screen->size);
+  //  if(_calibrate) env->clear(); //scr(screen->get_surface(),screen->size);
   _calibrate = !_calibrate;
   return _calibrate;
 }
 
 bool Osd::fps() {
-  if(_fps) env->clear(); //scr(screen->get_surface(),screen->size);
+  //  if(_fps) env->clear(); //scr(screen->get_surface(),screen->size);
   _fps = !_fps;
   env->track_fps = _fps;
   return _fps;
@@ -229,10 +214,10 @@ void Osd::_layerlist() {
 
       if(l->active) {
 	/* red color */ _color32 = 0xee0000;
-	pos = print(lname,pos+4,1,1) - 4;
+	pos = print(lname,pos-4,1,1) - 4;
       } else {
 	/* dark red color */ _color32 = 0x880000;	
-	pos = print(lname,pos+4,1,1) - 4;
+	pos = print(lname,pos-4,1,1) - 4;
       }
 
     } else {
@@ -246,8 +231,6 @@ void Osd::_layerlist() {
       }
 
     }
-    //    pos += newline;
-      //    vpos += CHAR_HEIGHT+1;
     l = (Layer *)l->next;
   }
 }
@@ -286,9 +269,6 @@ void Osd::_filterlist() {
       }
 
     }
-    
-    //    vpos += CHAR_HEIGHT+1;
-    //    pos += newline;
     f = (Filter *)f->next;
   }
 }
@@ -296,27 +276,11 @@ void Osd::_filterlist() {
 void Osd::splash_screen() {
   _set_color(white);
 
-  //  int vpos = VBOUND+5;
   uint32_t *pos = hicredits_offset;
   pos = print(title,pos,2,2);
-  //  pos += newline;
   pos = print("MONTEVIDEO",pos,2,2);
-  //  vpos += CHAR_HEIGHT+10;
-  //  pos += newline;
   pos = print(":: set the veejay free ",pos,1,2);
-  //  vpos += CHAR_HEIGHT+30;
-  
 
-  /*
-  _write("100% free software for",HBOUND+40,vpos,1,2);
-  vpos += CHAR_HEIGHT+8;
-  _write("realtime video processing",HBOUND+40,vpos,1,2);
-  vpos += CHAR_HEIGHT+30;
-  _write("sourcecode available on",HBOUND+40,vpos,1,1);
-  vpos += CHAR_HEIGHT+3;
-  _write("http://freej.dyne.org",HBOUND+40,vpos,1,2);
-  vpos += CHAR_HEIGHT+40;
-  */
   pos = locredits_offset;
   _set_color(red);
   pos = print("############# by rastasoft.org",pos,1,2);
@@ -327,13 +291,38 @@ void Osd::splash_screen() {
 }
 
 bool Osd::credits() {
-  if(_credits) env->clear(); //scr(env->get_surface(),env->size);
+  //  env->clear_once = true; //scr(env->get_surface(),env->size);
   _credits = !_credits;
-  if(_credits)
-    env->layers.add(ipernaut);
-  else
-    ipernaut->rem();
 
+  if(_credits) {
+    SDL_keysym keysym;
+
+    /* add first vertigo effect on logo */
+    osd_vertigo = env->plugger->pick("vertigo");
+    if(osd_vertigo) {
+      osd_vertigo->init(&ipernaut->geo);
+      ipernaut->filters.add(osd_vertigo);
+    }
+    /* add second water effect on logo */
+    osd_water = env->plugger->pick("water");
+    if(osd_water) {
+      osd_water->init(&ipernaut->geo);
+      keysym.sym = SDLK_y; osd_water->kbd_input(&keysym);
+      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
+      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
+      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
+      ipernaut->filters.add(osd_water);
+    }
+    env->layers.add(ipernaut);
+  } else {
+    osd_water->rem();
+    osd_water->inuse = false;
+    osd_water->initialized = false;
+    osd_vertigo->rem();
+    osd_vertigo->inuse = false;
+    osd_vertigo->initialized = false;
+    ipernaut->rem();
+  }
   return _credits;
 }
 
