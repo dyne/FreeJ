@@ -109,7 +109,8 @@ Text Layer:
 
 Movie Layer:
 - XVid libraries http://xvid.org
-- FFMpeg libraries http://ffmpeg.sf.net
+- FFMpeg libraries http://ffmpeg.sf.net (get latest from 
+http://sourceforge.net/project/showfiles.php?group_id=16082)
 - AviFile libraries http://avifile.sf.net
 
 PC x86 assembler effects:

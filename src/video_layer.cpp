@@ -74,11 +74,13 @@ bool VideoLayer::init(Context *scr) {
     /**
      * feed() function is called 25 times for second so we must correct the speed
      */
-    play_speed=(25/frame_rate) - 1; 
-    play_speed -= play_speed<<1;
-    if(frame_rate==1)
-	play_speed=0;
-//    notice("play_speed: %d",play_speed);
+    if(play_speed==25) {
+	play_speed=(25/frame_rate) - 1; 
+	play_speed -= play_speed<<1;
+	if(frame_rate==1)
+	    play_speed=0;
+    }
+    notice("play_speed: %d",play_speed);
 
     /* init variables */
     paused=false;
@@ -145,6 +147,10 @@ bool VideoLayer::open(char *file) {
 	error("VideoLayer :: could not find stream info");
 	return false;
     }
+
+    /* now we can begin to play (RTSP stream only) */
+    av_read_play(avformat_context);
+
     /**
      * Open codec if we find a video stream
      */
@@ -343,8 +349,11 @@ void *VideoLayer::feed() {
 void VideoLayer::close() {
     if(frame_number!=0)
 	av_free_packet(&pkt);
-    if(enc != NULL) 
-	avcodec_close(enc);
+    if(enc != NULL) {
+	if(enc->codec) {
+	    avcodec_close(enc);
+	}
+    }
     if(avformat_context) { 
 	av_close_input_file(avformat_context);
 	avformat_context=NULL;
