@@ -94,7 +94,7 @@ bool Context::init(int wx, int hx, int bppx, Uint32 flagsx) {
 
   bpp = bppx;
   flags = flagsx;
-  
+
   res = setres(wx,hx);
     
   /* save context geometry */
@@ -116,7 +116,7 @@ int Context::setres(int wx, int hx) {
   int res = SDL_VideoModeOK(wx, hx, bpp, flags);
 
   act("screen geometry w[%u] h[%u] bpp[%u]",wx,hx,res);
-  
+
   surf = SDL_SetVideoMode(wx, hx, bpp, flags);
   if( surf == NULL ) {
     error("can't set w[%u] h[%u] bpp[%u] video mode: %s\n",
@@ -132,10 +132,9 @@ int Context::setres(int wx, int hx) {
     surfemu = SDL_GetVideoSurface();
     act("emulated surface geometry w[%u] h[%u] bpp[%u]",
 	surfemu->w,surfemu->h,surfemu->format->BitsPerPixel);
-  }
-
-  
+  }  
   surface = (Uint8*)SDL_GetVideoSurface()->pixels;
+
   return res;
 }
 
@@ -261,8 +260,8 @@ bool Context::flip() {
       }
     }
 
-
   SDL_Flip(surf);
+
   return(true);
 }
 

@@ -13,13 +13,10 @@ Plugger::Plugger() {
 
   _searchpath = NULL;
 
-  home = getenv("HOME");
-  sprintf(temp,"%s/.freej/plugins",home);
+  sprintf(temp,"%s/.freej/plugins",getenv("HOME"));
   _addsearchdir(temp);
   _addsearchdir("/usr/local/lib/freej");
   _addsearchdir("/usr/lib/freej");
-  /* the following is added for DyneBolic */
-  _addsearchdir("/opt/FreeJ/plugins");
   for(int i=0;i<MAX_PLUGINS;i++) plugs[i] = NULL;
 }
 
@@ -54,14 +51,11 @@ int Plugger::refresh() {
       snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
       Filter *filt = new Filter;
       if(filt->open(temp)) {
-	//	if(filt->getbpp(_bpp)) {
+
 	act("plugged: %s filter v%u by %s",
 	    filt->getname(), filt->getversion(), filt->getauthor());
 	_add_plug(filt);
-	  //	} else {
-	  //	  act("can't plug %s: %u bpp unsupported",filt->getname(),_bpp);
-	  //	  delete(filt);
-	  //	}
+
       } else delete(filt);
       //      free(filelist[found]);
     }
