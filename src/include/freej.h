@@ -1,14 +1,14 @@
 #ifndef __FREEJ_H__
 #define __FREEJ_H__
 
-#include <SDL/SDL.h>
+#include <inttypes.h>
 
 typedef struct {
-  Sint16 x, y;
-  Uint16 w, h;
-  Uint8 bpp;
-  Uint16 pitch;
-  Uint32 size;
+  int16_t x, y;
+  uint16_t w, h;
+  uint8_t bpp;
+  uint16_t pitch;
+  uint32_t size;
   float fps;
 } ScreenGeometry;
 

@@ -42,7 +42,6 @@ static char *name = "Delaymap";
 static char *author = "Andreas Schiffler";
 static char *info = "map delayed frame blitting";
 static int version = 2;
-static int bpp = 6;
 
 static int x,y,i,xyoff,v;
 static Uint8 *imagequeue,*curqueue;

@@ -42,7 +42,6 @@ static char *name = "Rotozoom";
 static char *author = "jaromil";
 static char *info = "old school rotozoom effect";
 static int version = 1;
-static int bpp = 6;
 
 static void *procbuf;
 static ScreenGeometry *geo;

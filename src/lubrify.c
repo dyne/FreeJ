@@ -21,23 +21,14 @@
 /* Globals */
 
 unsigned char *asmsrc1;
-unsigned char *asmsrc2;
 unsigned char *asmdst;
 unsigned int asmnum1;
 unsigned int asmnum2;
-unsigned int asmnum3;
-unsigned int asmnum4;
 
 /* assembly routines */
 extern void mmx_memcpy(void);
-extern void mmx_blit(void);
-extern void mmx_blit_add(void);
-extern void mmx_blit_sub(void);
-extern void mmx_blit_and(void);
-extern void mmx_blit_or(void);
 extern void asm_vline32(void);
 extern void asm_hline32(void);
-extern void mmx_osd_clean(void);
 extern void asm_clearscr(void);
 
 void mmxcopy(void *src1, void *dst, unsigned int size) {
@@ -46,61 +37,6 @@ void mmxcopy(void *src1, void *dst, unsigned int size) {
   asmnum1 = size;
 
   mmx_memcpy();
-}
-
-#include <stdio.h>
-void mmxblit(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
-  asmsrc1 = src1;
-  asmdst = dst;
-  asmnum1 = height;
-  asmnum2 = width;
-  asmnum3 = pitch;
-  asmnum4 = scr_pitch;
-  mmx_blit();
-}
-
-void mmxblit_add(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
-  asmsrc1 = src1;
-  asmdst = dst;
-  asmnum1 = height;
-  asmnum2 = width;
-  asmnum3 = pitch;
-  asmnum4 = scr_pitch;
-
-  mmx_blit_add();
-}
-
-void mmxblit_sub(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
-  asmsrc1 = src1;
-  asmdst = dst;
-  asmnum1 = height;
-  asmnum2 = width;
-  asmnum3 = pitch;
-  asmnum4 = scr_pitch;
-
-  mmx_blit_sub();
-}
-
-void mmxblit_and(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
-  asmsrc1 = src1;
-  asmdst = dst;
-  asmnum1 = height;
-  asmnum2 = width;
-  asmnum3 = pitch;
-  asmnum4 = scr_pitch;
-
-  mmx_blit_and();
-}
-
-void mmxblit_or(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
-  asmsrc1 = src1;
-  asmdst = dst;
-  asmnum1 = height;
-  asmnum2 = width;
-  asmnum3 = pitch;
-  asmnum4 = scr_pitch;
-
-  mmx_blit_or();
 }
   
 /* void *scr is points on desired coordinate offset on screen
@@ -119,16 +55,6 @@ void hline(void *scr, unsigned int width, unsigned int bpp) {
   asmnum1 = width;
   
   asm_hline32();
-}
-
-void mmxosd_clean(void *scr, double col, unsigned int width, unsigned int height) {
-  /* hardcoded for 400x300 32bpp */
-  asmdst = scr;
-  asmsrc1 = (unsigned char *)&col;
-  asmnum1 = (width*18)/2;
-  asmnum2 = (width-40)*4;
-  asmnum3 = (height-36);
-  mmx_osd_clean();
 }
 
 void clearscr(void *scr, unsigned int size) {

@@ -6,7 +6,6 @@
 static char *name = "RandTrans";
 static char *author = "Clifford Smith";
 static char *info = "random positional translation";
-static int bpp = 4;
 static int version = 1;
 
 static ScreenGeometry *geo;

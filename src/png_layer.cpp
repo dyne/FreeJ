@@ -183,12 +183,8 @@ bool PngLayer::init(Context *scr) {
   return(true);
 }
 
-void *PngLayer::get_buffer() {
+void *PngLayer::feed() {
   return buf;
-}
-
-bool PngLayer::feed() {
-  return true;
 }
 
 void PngLayer::close() {

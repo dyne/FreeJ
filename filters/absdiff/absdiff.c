@@ -8,7 +8,6 @@ static char *name = "Absdiff";
 static char *author = "jaromil";
 static char *info = "Absolute difference between frames";
 static int version = 1;
-static int bpp = 4;
 
 static void *procbuf;
 static void *lastimage;

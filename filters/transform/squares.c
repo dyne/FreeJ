@@ -5,7 +5,6 @@
 static char *name = "SquareTrans";
 static char *author = "Clifford Smith";
 static char *info = "squared positional translation";
-static int bpp = 4;
 static int version = 1;
 
 void init_table(int *table, ScreenGeometry *geo) {

@@ -8,19 +8,17 @@ to install FreeJ with all its wonderful features follow those steps:
 
 - compile and install AviFile library from
    http://avifile.sourceforge.net/
-  take the LATEST VERSION: 0.7.16 and NOT ANYTHING BEFORE
+  take the LATEST VERSION: 0.7.16 or more, NOT LESS
   tip: use ./configure --with-x86opt
 
 - don't forget to use ldconfig after installing libraries
 
 - be sure to have NASM and SDL libraries installed
-  from http://sourceforge.net/projects/nasm/ and http://www.libsdl.org
+  from http://sf.net/projects/nasm/ and http://www.libsdl.org
 
-- download freej latest stable version (or from cvs if you dare):
+- download freej latest stable version: 
    http://freej.dyne.org
+  or from cvs if you dare:
    cvs -z9 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/freej co freej
   and then compile it as usually and install it with the usual
   ./configure; make; make install
-
-
-

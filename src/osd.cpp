@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include <context.h>
 #include <lubrify.h>
@@ -266,5 +267,22 @@ void Osd::_set_color(colors col) {
   case yellow:
     _color32 = 0xffef00;
     break;
+  }
+}
+
+void Osd::clean() {
+  int c,cc;
+  int jump = (screen->w - HBOUND - HBOUND) / 2;
+  uint64_t *top = (uint64_t*)screen->get_surface();
+  uint64_t *down = (uint64_t*)screen->coords(0,screen->h-VBOUND);
+  
+  for(c=(VBOUND*(screen->w>>1));c>0;c--) {
+    *top = 0x0; *down = 0x0;
+    top++; down++;
+  }
+  for(c = screen->h-VBOUND-VBOUND; c>0; c--) {
+    for(cc = HBOUND>>1; cc>0; cc--) { *top = 0x0; top++; }
+    top+=jump;
+    for(cc = HBOUND>>1; cc>0; cc--) { *top = 0x0; top++; }
   }
 }

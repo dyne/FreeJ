@@ -5400,7 +5400,7 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 
-CFLAGS="-g -Wall -Wno-deprecated -O3 -D_REENTRANT -fomit-frame-pointer -march=${host_cpu} -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
+CFLAGS="-g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -march=${host_cpu} -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
 
 echo $ac_n "checking for ANSI C header files""... $ac_c" 1>&6
 echo "configure:5407: checking for ANSI C header files" >&5

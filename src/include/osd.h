@@ -64,6 +64,7 @@ class Osd {
   bool calibrate();
   bool credits();
   bool fps();
+  void clean();
 
   Context *screen;
 

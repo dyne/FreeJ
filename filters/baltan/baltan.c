@@ -2,6 +2,7 @@
  *
  * BaltanTV - like StreakTV, but following for a long time
  * Copyright (C) 2001 FUKUCHI Kentarou
+ * ported to FreeJ by jaromil
  *
  */
 
@@ -22,7 +23,6 @@ static char *name = "Baltan";
 static char *author = "Fukuchi Kentarou";
 static char *info = "delayed alphachannel blit";
 static int version = 1;
-static int bpp = 4;
 
 static Uint32 *planebuf;
 static Uint32 *planetable[PLANES];

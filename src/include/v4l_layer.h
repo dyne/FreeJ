@@ -71,7 +71,7 @@ class V4lGrabber: public Layer {
   ~V4lGrabber();
   bool detect(char *devfile);
   bool init(Context *screen, int wdt, int hgt);
-  bool feed();
+  void *feed();
   void close();
 
   void set_chan(int ch);

@@ -52,6 +52,7 @@ static const char *help =
 " .   -v --version  version information\n"
 " .   -D --debug    debug verbosity level - default 1\n"
 " .   -s --size     set display size - default 400x300\n"
+" .   -2 --double   double screen size\n"
 " .  files:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n"
@@ -68,16 +69,18 @@ static const struct option long_options[] = {
   {"version", no_argument, NULL, 'v'},
   {"debug", required_argument, NULL, 'D'},
   {"size", required_argument, NULL, 's'},
+  {"double", no_argument, NULL, '2'},
   {0, 0, 0, 0}
 };
 
-static const char *short_options = "-hvD:s:";
+static const char *short_options = "-hvD:s:2";
 
 int debug;
 char layer_files[MAX_CLI_CHARS];
 int cli_chars = 0;
 int width = 400;
 int height = 300;
+bool doublesize = false;
 
 void cmdline(int argc, char **argv) {
   int res;
@@ -115,6 +118,10 @@ void cmdline(int argc, char **argv) {
 	error("display height can't be smaller than 300 pixels");
 	width = 240;
       }
+      break;
+
+    case '2':
+      doublesize = true;
       break;
 
     case 1:
@@ -158,8 +165,9 @@ int main (int argc, char **argv) {
   */
 
   /* this is the output context (screen) */
-  Context screen(width,height,32,SDL_HWPALETTE|SDL_HWSURFACE|SDL_DOUBLEBUF);
+  Context screen(width,height,32,SDL_HWPALETTE|SDL_HWSURFACE);
   if(screen.surf==NULL) exit(0);
+  screen.doublesize(doublesize);
 
   /* create layers requested on commandline */
   {
@@ -257,8 +265,9 @@ int main (int argc, char **argv) {
   while(!keyb.quit) {
     /* main loop */
 
-    if(screen.clear_all) clearscr(screen.get_surface(),screen.size);
-    else mmxosd_clean(screen.get_surface(),0x0,screen.w,screen.h);
+    if(screen.clear_all) 
+      clearscr(screen.get_surface(),screen.size);
+    else osd.clean(); //mmxosd_clean(screen.get_surface(),0x0,screen.w,screen.h);
 
     lay = (Layer *)screen.layers.end();
 
@@ -277,12 +286,10 @@ int main (int argc, char **argv) {
   plugger.close();
 
   act(" ");
-  notice("Please give fair credits!");
   act("You are encouraged to exhibit the output of this software publicly");
-  act("as long as this software is credited as the source of the images;");
-  act("FreeJ is FREE, but you can still give back LOVE! :)    // jaromil");
+  act("as long as this software and its author are fairly mentioned!");
   jsleep(2,0);
   act(" ");
-  act("clean exiting. be nice ;)");
+  act("bye.");
   exit(1);
 }

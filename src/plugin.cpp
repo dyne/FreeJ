@@ -21,7 +21,7 @@ void *Plugin::operator[](const char *sym) {
   void *point;  
   point = dlsym(_handle, sym);
   if(point==NULL)
-    warning("Plugin[%s] %s",sym,dlerror());
+    warning("Plugin::%s[%s] %s",_name,sym,dlerror());
   return(point);
 }
 
@@ -37,19 +37,6 @@ bool Plugin::open(const char *path) {
     return(false);
   }
 
-  func("Plugin opened: %s handle[%p]",path,_handle);
-  
-  __init = (t_init*)(*this)["init"];
-  __clean = (t_clean*)(*this)["clean"];
-  __process = (t_process*)(*this)["process"];
-  __kbd_input = (t_kbdin*)(*this)["kbd_input"];
-  if(!__kbd_input) __kbd_input = dummy_kbd_input;
-  if(!__init||!__clean||!__process) {
-    warning("invalid plugin %s",path);
-    dlclose(_handle);
-    return(false);
-  }
-    
   getstr = (getch*) (*this)["getname"];
   if(getstr) _name = (*getstr)();
 
@@ -63,11 +50,18 @@ bool Plugin::open(const char *path) {
   if(getver) _version = (*getver)();
   else _version = 0;
 
-  /*
-  getver = (getint*) (*this)["getbpp"];
-  if(getver) _bpp = (*getver)();
-  else _bpp = 0;
-  */
+  func("Opened plugin %s from %s with handle %p",_name,path,_handle);
+  
+  __init = (t_init*)(*this)["init"];
+  __clean = (t_clean*)(*this)["clean"];
+  __process = (t_process*)(*this)["process"];
+  __kbd_input = (t_kbdin*)(*this)["kbd_input"];
+  if(!__kbd_input) __kbd_input = dummy_kbd_input;
+  if(!__init||!__clean||!__process) {
+    warning("invalid plugin %s",path);
+    dlclose(_handle);
+    return(false);
+  }
 
   _path = strdup(path);    
   return(true);

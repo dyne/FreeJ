@@ -153,13 +153,8 @@ bool AviLayer::open(char *file) {
   return(true);
 }
   
-void *AviLayer::get_buffer() {
-  //  return _img->Data();
-  return buf;
-}
-
-bool AviLayer::feed() {
-  if(paused) return true;  
+void *AviLayer::feed() {
+  if(paused) return buf;  
   if(_stream->Eof()) _stream->Seek(1);
   _stream->ReadFrame(true);
   _img = _stream->GetFrame(false);
@@ -168,7 +163,7 @@ bool AviLayer::feed() {
   
   _img->Release();
 
-  return true;
+  return buf;
 }
 
 void AviLayer::close() {

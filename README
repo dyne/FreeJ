@@ -1,35 +1,35 @@
 
-            [[[ FreeJ 0.4  "HURRIA" ]]]
-              [http://freej.dyne.org]
+            [[[ FreeJ 0.5  "POPONJ" ]]]
+
+             [ http://freej.dyne.org ]
 
                :: set the vj free ::
  free unified framework for realtime video processing
 
 :: OVERVIEW
 
-FreeJ is a digital instrument for  video  livesets,  featuring realtime
-rendering of multilayered video and chained effect  filtering directly
-on the screen.  FreeJ threats every video source as a  layer, making
-then possible to dynamically apply on each a chain of  filters, loadable
-as effect plugins and easily customizable. Layers are planned for
-rendering of  analog  video  input,  digital  movie  files,  image
-bitmaps, sound scopes, texts and eventually more.
+FreeJ is a digital instrument for video livesets, featuring realtime
+rendering of multilayered video and chained effect filtering directly on
+the screen. FreeJ threats every video source as a layer, making then
+possible to dynamically apply on each a chain of filters, loadable as
+effect plugins and easily customizable. Layers are planned for rendering
+of analog video input, digital movie files, image bitmaps, sound scopes,
+texts and eventually more.
 
 FreeJ is being developed in the hope to provide the GNU community with a
-free, modular and highly customizable application to  perform  video
-livesets, based on a GPL'ed framework that lets anybody implement  his
-own filters concentrating simply on the dsp  algorithm  developed  and
+free, modular and highly customizable application to perform video
+livesets, based on a GPL'ed framework that lets anybody implement his
+own filters concentrating simply on the dsp algorithm developed and
 furthermore to combine them over any supported layer.
 
-FreeJ is Free Software and his sourcecode is released  under  the  Gnu
-Public License, it comes with  absolutely  no  warranty  and  you  are
-welcome to redistribute it under  certain  conditions  (refer  to  the
-license for details).
+FreeJ is Free Software and his sourcecode is released under the Gnu
+Public License, it comes with absolutely no warranty and you are welcome
+to redistribute it under certain conditions (refer to the license for
+details).
 
 You are encouraged to exhibit the output of this software publicly as
-long as this software is credited as the source of the images.
-I also encourage you to let me know what you make with it, what you
-dis/like about it, and how it can be improved.
+long as this software and its author are credited as the source of the
+images.
 
 
 
@@ -69,7 +69,14 @@ modelines in doc/x11.modelines.
 
 :: INSTALL
 
-Make sure you have all the required software, then just do: 
+did you read the INSTALL file? no?! what you are waiting for?
+
+come back here only once you read it!!
+
+
+:)
+
+ok, no that you have installed all the required libraries, just do: 
 
  ./configure
  make
@@ -78,8 +85,8 @@ Make sure you have all the required software, then just do:
 filter plugins will be installed into /usr/local/lib/freej (or another
 prefix if you changed the default one).
 
-For better fullscreen support you might want to add in your XF86Config
-file the modelines included into doc/x11.modelines.
+For fullscreen support you might want to add in your XF86Config file the
+modelines included into doc/x11.modelines.
 
 
 

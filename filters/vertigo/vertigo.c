@@ -2,7 +2,7 @@
  *
  * VertigoTV - Alpha blending with zoomed and rotated images.
  * Copyright (C) 2001 FUKUCHI Kentarou
- * some small modifications done by jaromil
+ * porting and some small modifications done by jaromil
  *
  */
 
@@ -18,7 +18,6 @@ static char *name = "Vertigo";
 static char *author = "Fukuchi Kentarou";
 static char *info = "alpha blending with zoomed and rotated images";
 static int version = 1;
-static int bpp = 4;
 
 static Uint32 *buffer;
 static Uint32 *current_buffer, *alt_buffer;
@@ -40,19 +39,20 @@ static void setParams()
   double dizz;
   
   dizz = sin(phase) * 10 + sin(phase*1.9+5) * 5;
-  /*  
+
   if(geo->w > geo->h) {
-  */
-  if(dizz >= 0) {
-    if(dizz > x) dizz = x;
-    vx = (x*(x-dizz) + yc) / tfactor;
+
+    if(dizz >= 0) {
+      if(dizz > x) dizz = x;
+      vx = (x*(x-dizz) + yc) / tfactor;
+    } else {
+      if(dizz < -x) dizz = -x;
+      vx = (x*(x+dizz) + yc) / tfactor;
+    }
+    vy = (dizz*y) / tfactor;
+
   } else {
-    if(dizz < -x) dizz = -x;
-    vx = (x*(x+dizz) + yc) / tfactor;
-  }
-  vy = (dizz*y) / tfactor;
-  /*
-  } else {
+
     if(dizz >= 0) {
       if(dizz > y) dizz = y;
       vx = (xc + y*(y-dizz)) / tfactor;
@@ -61,8 +61,9 @@ static void setParams()
       vx = (xc + y*(y+dizz)) / tfactor;
     }
     vy = (dizz*x) / tfactor;
+
   }
-  */
+
   dx = vx * 65536;
   dy = vy * 65536;
   sx = (-vx * x + vy * y + x + cos(phase*5) * 2) * 65536;

@@ -16,6 +16,7 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <inttypes.h>
 #include <unistd.h>
 #include <sys/time.h>
 #include <assert.h>
@@ -30,10 +31,11 @@
    SDL_DOUBLEBUF
    SDL_FULLSCREEN */
 
-Context::Context(int wx, int hx, int bppx, Uint32 flags) {
-  int res;
+Context::Context(int wx, int hx, int bppx, Uint32 flagsx) {
+
   surf = NULL;
-  func("Context::Context(%u %u %u %u)",wx,hx,bppx,flags);
+
+  notice("Context: Simple Direct Media Layer");
 
   /* initialize SDL */
   if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
@@ -41,32 +43,10 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
     exit(1);
   }
 
-  /* check and set available videomode */
-  res = SDL_VideoModeOK(wx, hx, bppx, flags);
-  notice("Context: Simple Direct Media Layer");
-  if(res!=bppx) {
-    error("your screen does'nt support %ubpp",bppx);
-    act("you need to switch to %u bpp resolution to run FreeJ");
-    exit(1);
-  }
-  act("screen geometry w[%u] h[%u] bpp[%u]",wx,hx,res);
-  surf = SDL_SetVideoMode(wx, hx, res, flags);
-  if( surf == NULL ) {
-    error("can't set w[%u] h[%u] bpp[%u] video mode: %s\n",
-	  wx, hx, res, SDL_GetError());
-    exit(1);
-  }
+  dbl = false;
 
-  /* save context geometry */
-  w = wx; h = hx;
-  bpp = surf->format->BitsPerPixel;
-  size = w*h*(bpp>>3);
-  pitch = w*(bpp>>3);
+  init(wx,hx,bppx,flagsx);
   
-  /* precalculate y lookup tables */
-  for(int c=0;c<h;c++)
-    prec_y[c] = (Uint8*)surf->pixels + (pitch*c);
-
   /* context can be only one so we assign here a const id */
   id = 1;
 
@@ -92,6 +72,10 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
 
   SDL_ShowCursor(0);
 
+  doubletab = NULL;
+  doublebuf = NULL;
+
+
   /* initialize fps counter */
   framecount=0;
   gettimeofday( &lst_time, NULL);
@@ -103,6 +87,100 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
   quit = false;
 
 }  
+
+bool Context::init(int wx, int hx, int bppx, Uint32 flagsx) {
+  int res;
+  func("Context::init(%u %u %u %u)",wx,hx,bppx,flagsx);
+
+  bpp = bppx;
+  flags = flagsx;
+  
+  res = setres(wx,hx);
+    
+  /* save context geometry */
+  w = wx; h = hx;
+  bpp = 32; //surf->format->BitsPerPixel;
+  size = w*h*(bpp>>3);
+  pitch = w*(bpp>>3);
+  flags = flagsx;
+  
+  /* precalculate y lookup tables */
+  for(int c=0;c<h;c++)
+    prec_y[c] = surface + (pitch*c);
+
+  return true;
+}
+
+int Context::setres(int wx, int hx) {
+  /* check and set available videomode */
+  int res = SDL_VideoModeOK(wx, hx, bpp, flags);
+
+  act("screen geometry w[%u] h[%u] bpp[%u]",wx,hx,res);
+  
+  surf = SDL_SetVideoMode(wx, hx, bpp, flags);
+  if( surf == NULL ) {
+    error("can't set w[%u] h[%u] bpp[%u] video mode: %s\n",
+	  wx, hx, bpp, SDL_GetError());
+    exit(1);
+  }
+
+  if(res!=bpp) {
+    SDL_Surface *surfemu;
+    warning("your screen does'nt support %ubpp",bpp);
+    act("doing video surface software conversion");
+    
+    surfemu = SDL_GetVideoSurface();
+    act("emulated surface geometry w[%u] h[%u] bpp[%u]",
+	surfemu->w,surfemu->h,surfemu->format->BitsPerPixel);
+  }
+
+  
+  surface = (Uint8*)SDL_GetVideoSurface()->pixels;
+  return res;
+}
+
+
+bool Context::doublesize(bool val) {
+
+  if(!val) {
+
+    if(!dbl) return true;
+    setres(w,h);
+
+    surface = (Uint8*)SDL_GetVideoSurface()->pixels;
+
+    dbl = false;
+
+  } else {
+
+    if(dbl) return true;
+    setres(w*2,h*2);
+
+    /* allocate video buffer to be doubled */
+    if(doublebuf) free(doublebuf);
+    doublebuf = (Uint8*)malloc(size);
+    surface = doublebuf;
+
+    /* precalculate tables for double-size transform */
+    uint64_t *srftmp = (uint64_t*)SDL_GetVideoSurface()->pixels;
+    if(doubletab) free(doubletab);
+    doubletab = (uint64_t**)malloc(h*2*sizeof(uint64_t*));
+    for(int cy=0;cy<h*2;cy++)
+      doubletab[cy] = (uint64_t*) &srftmp[cy*w];
+    
+
+    notice("screen magnified x2");
+    dbl = true;
+
+  }
+
+  for(int c=0; c<h; c++)
+    prec_y[c] = surface + (pitch*c);
+  
+
+
+  return true;
+}
 
 void Context::close() {
   func("Context::~Context()");
@@ -122,8 +200,11 @@ void Context::close() {
     delete lay;
     lay = (Layer *)layers.begin();
   }
-  
+
   SDL_Delay(1000);
+
+  if(doublebuf) free(doublebuf);
+  if(doubletab) free(doubletab);
 
   SDL_Quit();
 
@@ -167,13 +248,22 @@ Layer *Context::active_layer(int sel) {
 }
 
 bool Context::flip() {
+
   osd->print();
+
+  
+  if(dbl) /* double size of the screen */
+    for(cy=0; cy<h; cy++ ) {
+      dcy = cy<<1;
+      for(cx=0;cx<w; cx++) {
+	eax = *(uint64_t*)coords(cx,cy);
+	*(doubletab[dcy+1]+cx) = *(doubletab[dcy]+cx) = eax;
+      }
+    }
+
+
   SDL_Flip(surf);
   return(true);
-}
-
-void *Context::get_surface() {
-  return((void *)surf->pixels);
 }
 
 /* FPS */

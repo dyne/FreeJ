@@ -104,7 +104,7 @@ CPPFLAGS =
 LDFLAGS = 
 delaygrab_la_LIBADD = 
 delaygrab_la_OBJECTS =  delaygrab.lo mmx_memcpy.lo
-CFLAGS = -g -Wall -Wno-deprecated -O3 -D_REENTRANT -fomit-frame-pointer -march=i686 -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
+CFLAGS = -g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -march=i686 -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)

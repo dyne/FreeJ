@@ -6,7 +6,6 @@
 static char *name = "QuadTrans";
 static char *author = "jaromil";
 static char *info = "quaduplicated positional translation";
-static int bpp = 4;
 static int version = 1;
 
 void init_table(int *table, ScreenGeometry *geo) {

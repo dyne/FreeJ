@@ -90,7 +90,7 @@ SUFFIXES = .asm
 
 NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
 
-lib_LTLIBRARIES = squaretrans.la randtrans.la quadtrans.la
+lib_LTLIBRARIES = squaretrans.la randtrans.la quadtrans.la xperiment.la
 
 squaretrans_la_SOURCES = transform.c squares.c
 squaretrans_la_LDFLAGS = -module -avoid-version
@@ -100,6 +100,9 @@ randtrans_la_LDFLAGS = -module -avoid-version
 
 quadtrans_la_SOURCES = transform.c quad.c
 quadtrans_la_LDFLAGS = -module -avoid-version
+
+xperiment_la_SOURCES = transform.c xperiment.c
+xperiment_la_LDFLAGS = -module -avoid-version
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
 CONFIG_CLEAN_FILES = 
@@ -115,6 +118,8 @@ randtrans_la_LIBADD =
 randtrans_la_OBJECTS =  transform.lo rand.lo
 quadtrans_la_LIBADD = 
 quadtrans_la_OBJECTS =  transform.lo quad.lo
+xperiment_la_LIBADD = 
+xperiment_la_OBJECTS =  transform.lo xperiment.lo
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -127,9 +132,10 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/quad.P .deps/rand.P .deps/squares.P .deps/transform.P
-SOURCES = $(squaretrans_la_SOURCES) $(randtrans_la_SOURCES) $(quadtrans_la_SOURCES)
-OBJECTS = $(squaretrans_la_OBJECTS) $(randtrans_la_OBJECTS) $(quadtrans_la_OBJECTS)
+DEP_FILES =  .deps/quad.P .deps/rand.P .deps/squares.P .deps/transform.P \
+.deps/xperiment.P
+SOURCES = $(squaretrans_la_SOURCES) $(randtrans_la_SOURCES) $(quadtrans_la_SOURCES) $(xperiment_la_SOURCES)
+OBJECTS = $(squaretrans_la_OBJECTS) $(randtrans_la_OBJECTS) $(quadtrans_la_OBJECTS) $(xperiment_la_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
@@ -213,6 +219,9 @@ randtrans.la: $(randtrans_la_OBJECTS) $(randtrans_la_DEPENDENCIES)
 
 quadtrans.la: $(quadtrans_la_OBJECTS) $(quadtrans_la_DEPENDENCIES)
 	$(LINK) -rpath $(libdir) $(quadtrans_la_LDFLAGS) $(quadtrans_la_OBJECTS) $(quadtrans_la_LIBADD) $(LIBS)
+
+xperiment.la: $(xperiment_la_OBJECTS) $(xperiment_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(xperiment_la_LDFLAGS) $(xperiment_la_OBJECTS) $(xperiment_la_LIBADD) $(LIBS)
 
 tags: TAGS
 

@@ -47,16 +47,18 @@ void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
 
   crop();
 
-  _w = geo.w; _h = geo.h;
-  _pitch = geo.pitch;
-  _size = geo.size;
   screen->add_layer(this);
 }
 
 void Layer::run() {
+  void *res;
   active = true;
   while(!quit) {
-    feed();
+    
+    res = feed();
+    if(!res) error("feed error on layer %s",_name);
+    else buffer = res;
+
     wait_feed();
   }
 }
@@ -164,15 +166,11 @@ bool Layer::cafudda() {
   if((!active) || (hidden))
     return false;
 
-  void *offset = get_buffer();
+  offset = get_buffer();
   if(!offset) {
     signal_feed();
     return(false);
   }
-  /* restore original size info so that it
-     can be changed from the filters
-     geo.w = _w; geo.h = _h; geo.pitch = _pitch; geo.size = _size;
-  */
 
   lock();
 
@@ -186,8 +184,6 @@ bool Layer::cafudda() {
   //  lock_feed();
 
   blit(offset);
-
-  /* pitch is width in bytes */
 
   unlock();
   //  unlock_feed();
@@ -208,7 +204,8 @@ void Layer::crop() {
   blit_xoff = 0;
   blit_yoff = 0;
 
-  func("CROP layer x[%i] y[%i] w[%i] h[%i] on screen w[%i] h[%i]",geo.x,geo.y,geo.w,geo.h,screen->w,screen->h);
+  func("CROP layer x[%i] y[%i] w[%i] h[%i] on screen w[%i] h[%i]",
+       geo.x,geo.y,geo.w,geo.h,screen->w,screen->h);
 
   /* left bound 
      affects x-offset and width */
@@ -274,17 +271,26 @@ void Layer::crop() {
        blit_x, blit_y, blit_width, blit_height, blit_xoff, blit_yoff);
 }
 
-
 #define BLIT(op) \
     { \
-      Uint8 *alpha; \
-      Uint32 *scr, *pscr; \
-      scr = pscr = (Uint32 *) screen->coords(blit_x,blit_y); \
-      Uint32 *off, *poff; \
-      off = poff = (Uint32 *) ((Uint8*)offset+blit_offset); \
-      int c, cc; \
-      for(c=blit_height;c>1;c--) { \
-	for(cc=blit_width;cc>1;cc--) { \
+      scr = pscr = (uint32_t*) screen->coords(blit_x,blit_y); \
+      off = poff = (uint32_t*) ((uint8_t*)video+blit_offset); \
+      for(c=blit_height;c>0;c--) { \
+	for(cc=blit_width;cc>0;cc--) { \
+	  *scr op *off; \
+	  scr++; off++; \
+	} \
+	off = poff = poff + geo.w; \
+	scr = pscr = pscr + screen->w; \
+      } \
+    }
+
+#define BLIT_ALPHA(op) \
+    { \
+      scr = pscr = (uint32_t *) screen->coords(blit_x,blit_y); \
+      off = poff = (uint32_t *) ((uint8_t*)video+blit_offset); \
+      for(c=blit_height;c>0;c--) { \
+	for(cc=blit_width;cc>0;cc--) { \
 	  alpha = (Uint8 *) off; \
 	  if(*(alpha+4)) *scr op *off; \
 	  scr++; off++; \
@@ -294,7 +300,8 @@ void Layer::crop() {
       } \
     }
 
-void Layer::blit(void *offset) {
+
+void Layer::blit(void *video) {
   /* transparence aware blits:
      if alpha channel is 0x00 then pixel is not blitted
      works with 32bpp */
@@ -307,20 +314,17 @@ void Layer::blit(void *offset) {
     /* ALPHA CHANNEL AWARE BLIT */
     switch(_blit_algo) {
     case 1:
-      BLIT(=); return;
+      BLIT_ALPHA(=); return;
       return;
       
     case 2:
     case 3:
     case 4:
       {
-	Uint8 *alpha;
-	int chan = _blit_algo-2;
-	char *scr, *pscr;
+	chan = _blit_algo-2;
+	char *scr, *pscr, *off, *poff;
 	scr = pscr = (char *) screen->coords(blit_x,blit_y);
-	char *off, *poff;
-	off = poff = (char *) ((Uint8*)offset+blit_offset);
-	int c,cc;
+	off = poff = (char *) ((Uint8*)video+blit_offset);
 	for(c=blit_height;c>0;c--) {
 	  for(cc=blit_width;cc>0;cc--) {
 	    alpha = (Uint8 *) off;
@@ -333,13 +337,13 @@ void Layer::blit(void *offset) {
       }
       return;
       
-    case 5: BLIT(+=); return;
+    case 5: BLIT_ALPHA(+=); return;
       
-    case 6: BLIT(-=); return;
+    case 6: BLIT_ALPHA(-=); return;
       
-    case 7: BLIT(&=); return;
+    case 7: BLIT_ALPHA(&=); return;
       
-    case 8: BLIT(|=); return;
+    case 8: BLIT_ALPHA(|=); return;
       
     default: return;
     }
@@ -352,20 +356,17 @@ void Layer::blit(void *offset) {
     switch(_blit_algo) {
       
     case 1:
-      mmxblit((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
-	      blit_width,blit_height,geo.pitch,screen->pitch); 
+      BLIT(=);
       return;
       
     case 2:
     case 3:
     case 4:
     {
-      int chan = _blit_algo-2;
-      char *scr, *pscr;
+      chan = _blit_algo-2;
+      char *scr, *pscr, *off, *poff;
       scr = pscr = (char *) screen->coords(blit_x,blit_y);
-      char *off, *poff;
-      off = poff = (char *) ((Uint8*)offset+blit_offset);
-      int c,cc;
+      off = poff = (char *) ((Uint8*)video+blit_offset);
       for(c=blit_height;c>0;c--) {
 	for(cc=blit_width;cc>0;cc--) {
 	  *(scr+chan) = *(off+chan);
@@ -378,23 +379,19 @@ void Layer::blit(void *offset) {
     return;
     
     case 5:
-      mmxblit_add((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
-		  blit_width,blit_height,geo.pitch,screen->pitch);
+      BLIT(+=);
       return;
 
     case 6:
-      mmxblit_sub((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
-		  blit_width,blit_height,geo.pitch,screen->pitch);
+      BLIT(-=);
       return;
 
     case 7:
-      mmxblit_and((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
-		  blit_width,blit_height,geo.pitch,screen->pitch);
+      BLIT(&=);
       return;
 
     case 8:
-      mmxblit_or((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
-		  blit_width,blit_height,geo.pitch,screen->pitch);
+      BLIT(|=);
       return;
       
     default: return;
@@ -409,7 +406,7 @@ void Layer::blit(void *offset) {
   char *scr, *pscr;
   scr = pscr = (char *) screen->coords(geo.x,geo.y);
   char *off, *poff;
-  off = poff = (char *)offset;
+  off = poff = (char *)video;
   int c,cc;
   for(c=geo.h;c>0;c--) {
     off = poff = poff + geo.pitch;
@@ -425,7 +422,7 @@ char *Layer::getname() { return _name; }
 
 char *Layer::get_blit() {
   switch(_blit_algo) {
-  case 1: return "MMX";
+  case 1: return "RGB";
   case 2: return "BLU";
   case 3: return "GRE";
   case 4: return "RED";

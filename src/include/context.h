@@ -19,6 +19,7 @@
 #ifndef __context_h__
 #define __context_h__
 
+#include <inttypes.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
 #include <iostream>
@@ -45,21 +46,35 @@ class Context {
 
   void *prec_y[MAX_HEIGHT];
 
+  /* doublesize calculation */
+  uint64_t **doubletab;
+  Uint8 *doublebuf;
+  int dcy, cy, cx;
+  uint64_t eax;
+  /* --- */
+
  public:
 
   Context(int w, int h, int bppx, Uint32 flags);
   ~Context() { close(); };
 
+  bool init(int wx, int hx, int bppx, Uint32 flagsx);
+
+  int setres(int w, int h);
+  
   void close();
   bool flip();
-
-  /* this returns a pointer to the video memory */
-  void *get_surface();
 
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return( ((Uint8 *)prec_y[y] + 
 					(x<<(bpp>>4)) )); }
-  
+  /* this returns a pointer to the video memory */  
+  void *get_surface() { return coords(0,0); }
+
+  bool doublesize(bool val);
+  bool dbl;
+
+
   void rocknroll();
 
   SDL_Surface *surf;
@@ -70,6 +85,9 @@ class Context {
   int bpp;
   int pitch;
   int id;
+  Uint32 flags;
+
+  Uint8* surface;
 
   /* linked list of registered layers */
   Linklist layers;

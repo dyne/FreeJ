@@ -72,6 +72,9 @@ void KbdListener::run() {
 	  break;
 	  
 	case SDLK_SPACE:
+	  //	  if(event.key.keysym.mod & KMOD_CTRL)
+	  //	    screen->doublesize(!screen->dbl);
+	  //	  else
 	  SDL_WM_ToggleFullScreen(screen->surf);
 	  break;
 	  
@@ -251,6 +254,7 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     _filt = (*plugger)[_lastsel];
     if(_filt) show_osd("add %s filter?",_filt->getname());
     break;
+
   default:
     _lastsel = -1;
     break;

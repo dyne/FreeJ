@@ -8,7 +8,7 @@ NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
 .asm.lo:
 	$(NASM) $<
 
-lib_LTLIBRARIES = squaretrans.la randtrans.la quadtrans.la
+lib_LTLIBRARIES = squaretrans.la randtrans.la quadtrans.la xperiment.la
 
 squaretrans_la_SOURCES = transform.c squares.c
 squaretrans_la_LDFLAGS = -module -avoid-version
@@ -18,3 +18,7 @@ randtrans_la_LDFLAGS = -module -avoid-version
 
 quadtrans_la_SOURCES = transform.c quad.c
 quadtrans_la_LDFLAGS = -module -avoid-version
+
+xperiment_la_SOURCES = transform.c xperiment.c
+xperiment_la_LDFLAGS = -module -avoid-version
+

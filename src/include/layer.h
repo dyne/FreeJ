@@ -19,7 +19,7 @@
 #ifndef __LAYER_H__
 #define __LAYER_H__
 
-#include <assert.h>
+#include <inttypes.h>
 #include <SDL.h>
 
 #include <filter.h>
@@ -29,8 +29,6 @@ class Context;
 
 class Layer: public Entry, public JSyncThread {
  private:
-  int _w, _h, _pitch;
-  long _size;
   char _name[5];
   char filename[256];
 
@@ -39,6 +37,13 @@ class Layer: public Entry, public JSyncThread {
   int blit_x, blit_y;
   int blit_width, blit_height;
   int blit_offset;
+  /* small vars used in blits */
+  int chan, c, cc;
+  uint32_t *scr, *pscr, *off, *poff;
+  Uint8 *alpha;
+
+  void *buffer;
+  void *offset;
 
  public:
 
@@ -53,13 +58,14 @@ class Layer: public Entry, public JSyncThread {
 
   /* these has to be defined into layer instances
      (pure virtual functions) */
-  virtual bool feed() = 0; /* feeds in the image source */
-  virtual void *get_buffer() = 0; /* returns a pointer to the image source */
+  virtual void *feed() = 0; /* feeds in the image source */
+  void *get_buffer() { return buffer; }; /* returns a pointer to the image source */
 
   void set_blit(int b);
   char *get_blit();
-  void crop();
 
+  void crop();
+  
   bool add_filter(Filter *newfilt);
   bool del_filter(int sel);
   void clear_filters();

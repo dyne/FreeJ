@@ -87,7 +87,7 @@ class AviLayer: public Layer {
   
   bool init(Context *screen=NULL);
   bool open(char *file);
-  bool feed();
+  void *feed();
   void *get_buffer();
 
   void forward(framepos_t step=1);

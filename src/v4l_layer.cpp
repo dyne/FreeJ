@@ -173,7 +173,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   /* INIT from the LAYER CLASS */
   _init(screen,wdt,hgt);
 
-  palette = VIDEO_PALETTE_YUV422P;//YUV422P;
+  palette = VIDEO_PALETTE_YUV422P;
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */
   yuv2rgb = yuv2rgb_init(geo.bpp,0x1); /* arg2 is MODE_RGB */
@@ -208,7 +208,8 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
 
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
-  act("using input channel %s",grab_chan.name);
+  if(grab_cap.channels>1)
+    act("using input channel %s",grab_chan.name);
 
   return(true);
 }
@@ -314,7 +315,7 @@ void *V4lGrabber::get_buffer() {
   return(rgb_surface);
 }
 
-bool V4lGrabber::feed() {
+void *V4lGrabber::feed() {
 
   ok_frame = cur_frame;
   cur_frame = ((cur_frame+1)%num_frame);
@@ -329,13 +330,13 @@ bool V4lGrabber::feed() {
   if (-1 == ioctl(dev,VIDIOCSYNC,&grab_buf[cur_frame])) {
     func("V4lGrabber::feed");
     error("error in ioctl VIDIOCSYNC");
-    return false;
+    return NULL;
   }
 
   if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
     func("V4lGrabber::feed");
     error("error in ioctl VIDIOCMCAPTURE");
-    return false;
+    return NULL;
   }
-  return true;
+  return rgb_surface;
 }
