@@ -36,27 +36,27 @@
 
 class Iterator : public Entry {
  public:
-  Iterator(int32_t *val);
+  Iterator(int16_t *val);
   ~Iterator();
 
   int cafudda();
 
-  void set_min(int32_t val);  
-  void set_max(int32_t val);
-  void set_step(int32_t val);
-  void set_aim(int32_t val);
-  void set_value(int32_t *val);
+  void set_min(int16_t val);  
+  void set_max(int16_t val);
+  void set_step(int16_t val);
+  void set_aim(int16_t val);
+  void set_value(int16_t *val);
 
   int mode;
   int envelope;
   bool direction;
   
  private:
-  int32_t *value;
-  int32_t min;
-  int32_t max;
-  int32_t aim;
-  int32_t step;
+  int16_t *value;
+  int16_t min;
+  int16_t max;
+  int16_t aim;
+  int16_t step;
 
 };
 

@@ -25,7 +25,6 @@
 
 #include <layer.h>
 #include <context.h>
-#include <iterator.h>
 #include <jutils.h>
 #include <config.h>
 
@@ -91,40 +90,48 @@ void Layer::run() {
 }
 
 bool Layer::cafudda() {
-  Filter *filt;
-  Iterator *iter, *itertmp;
-  int res;
 
   if((!active) || (hidden))
     return false;
 
-  offset = (bgcolor) ? bgmatte : buffer;
+  //  offset = (bgcolor) ? bgmatte : buffer;
+  offset = buffer;
   if(!offset) {
     signal_feed();
     return(false);
   }
 
   /* process thru iterators */
-  iter = (Iterator*)iterators.begin();
-  while(iter) {
-    res = iter->cafudda(); // if cafudda returns -1...
-    itertmp = iter;
-    iter = (Iterator*)iter->next;
-    if(res<0) delete itertmp; // ...iteration ended
+  if(iterators.len()) {
+    iterators.lock();
+    iter = (Iterator*)iterators.begin();
+    while(iter) {
+      res = iter->cafudda(); // if cafudda returns -1...
+      itertmp = iter;
+      iter = (Iterator*) ((Entry*)iter)->next;
+      if(res<0) {
+	iterators.unlock();
+	delete itertmp; // ...iteration ended
+	iterators.lock();
+      }
+    }
+    iterators.unlock();
   }
 
 
-  filters.lock();
 
-  filt = (Filter *)filters.begin();
-  while(filt) {
-    if(filt->active) offset = filt->process(offset);
-    filt = (Filter *)filt->next;
+  if( filters.len() ) {
+    filters.lock();
+    filt = (Filter *)filters.begin();
+    while(filt) {
+      if(filt->active) offset = filt->process(offset);
+      filt = (Filter *)filt->next;
+    }
   }
   
   blitter.blit();
   
-  filters.unlock();
+  if( filters.len() ) filters.unlock();
 
   signal_feed();
 
@@ -145,14 +152,16 @@ void Layer::set_position(int x, int y) {
      blitter.crop( freej->screen );
      unlock();
   */
-  Iterator *iter;
-  
-  iter = new Iterator((int32_t*)&geo.x);
-  iter->set_aim(x);
-  iterators.add(iter);
 
-  iter = new Iterator((int32_t*)&geo.y);
-  iter->set_aim(y);
-  iterators.add(iter);
+  if(x!=geo.x) {
+    iter = new Iterator((int16_t*)&geo.x);
+    iter->set_aim(x);
+    iterators.add(iter);
+  }
 
+  if(y!=geo.y) {
+    iter = new Iterator((int16_t*)&geo.y);
+    iter->set_aim(y);
+    iterators.add(iter);
+  }
 }

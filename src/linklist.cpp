@@ -37,6 +37,7 @@ Linklist::Linklist() {
   first = NULL;
   last = NULL;
   pthread_mutex_init(&mutex,NULL);
+  unlock();
 }
 
 Linklist::~Linklist() {
@@ -245,17 +246,16 @@ Entry::Entry() {
   next = NULL;
   prev = NULL;
   list = NULL;
+  data = NULL;
   select = false;
   strncpy(name,"noname",255);
 }
 
 Entry::~Entry() {
   rem();
+  if(data) free(data);
 }
 
-char *Entry::get_name() {
-  return name;
-}
 void Entry::set_name(char *nn) {
   strncpy(name,nn,255);
 }

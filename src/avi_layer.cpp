@@ -228,14 +228,8 @@ void *AviLayer::feed() {
   avi_dirty=false;
   
   if(yuvcc) {
-    switch(bh.biBitCount) {
-      case 12:
-	ccvt_420p_rgb32(geo.w,geo.h,_img->Data(),buffer);
-	//	ccvt_yuyv_rgb32(geo.w,geo.h,_img->Data(),buffer);
-	break;
-    default:
-      break;
-    }
+    if(bh.biBitCount == 12)
+      ccvt_420p_rgb32(geo.w,geo.h,_img->Data(),buffer);
   } else buffer = _img->Data();
 
   return buffer;

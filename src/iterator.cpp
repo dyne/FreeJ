@@ -28,9 +28,9 @@
 /* here there was quite a lot of typecasting in order to
    support more iterators on different data types.
    now this support have been dropped and iterators only work
-   on 32bit signed integer numbers. */
+   on 16bit signed integer numbers. */
 
-Iterator::Iterator(int32_t *val)
+Iterator::Iterator(int16_t *val)
   : Entry() {
 
   /* buffer is not malloc'ed!
@@ -63,7 +63,7 @@ Iterator::~Iterator() {
 int Iterator::cafudda() {
   bool res;
   bool bound = false;
-  func("Iterator::cafudda processing %i -> %i", *value, aim);
+  //  func("Iterator::cafudda processing %i -> %i", *value, aim);
 
   // control if we are aiming to a different value:
   if(aim != *value) {
@@ -73,50 +73,44 @@ int Iterator::cafudda() {
     direction = (aim>*value)?true:false;
     
     
-    switch(envelope) {
-    case ITERATOR_ENVELOPE_LINEAR:
-      if(direction) { // we must increase
-	*value += step;
-	// control if we matched or passed over the aim
-	if(*value >= aim)
-	  *value = aim;
-      } else { // we decrease
-	*value -= step;
-	// control if we matched or falled below the aim
-	if(*value <= aim)
-	  *value = aim;
-      }
-      break;
-    default: break;
+    //    if( envelope == ITERATOR_ENVELOPE_LINEAR) {
+    // we still have only one kind of envelope
+
+    if(direction) { // we must increase
+      *value += step;
+      // control if we matched or passed over the aim
+      if(*value > aim)
+	*value = aim;
+    } else { // we decrease
+      *value -= step;
+      // control if we matched or falled below the aim
+      if(*value < aim)
+	*value = aim;
     }
     
   } else { // goal is reached
-
-    switch(mode) {
-    case ITERATOR_MODE_ONCE:
+    
+    if(mode == ITERATOR_MODE_ONCE)
       /* stop once aim is reached */
       return -1;
-      break;
-      
-    default: break;
-    }
+    
   }
-
+  
   return 1;
 }
 
-void Iterator::set_min(int32_t val) {
+void Iterator::set_min(int16_t val) {
   min = val;
 }
-void Iterator::set_max(int32_t val) {
+void Iterator::set_max(int16_t val) {
   max = val;
 }
-void Iterator::set_step(int32_t val) {
+void Iterator::set_step(int16_t val) {
   step = val;
 }
-void Iterator::set_aim(int32_t val) {
+void Iterator::set_aim(int16_t val) {
   aim = val;
 }
-void Iterator::set_value(int32_t *val) {
+void Iterator::set_value(int16_t *val) {
   value = val;
 }

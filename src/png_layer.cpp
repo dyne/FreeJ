@@ -184,30 +184,24 @@ bool PngLayer::init(Context *scr) {
   png_destroy_info_struct(core,&info);
   png_destroy_read_struct(&core,NULL,NULL);
   
-  /* apply alpha layer
-  for(unsigned int i=0;i<geo.size;i+=4) {
-  buffer[i] &= buffer[i+3];
-  buffer[i+1] &= buffer[i+3];
-  buffer[i+2] &= buffer[i+3];
-  } */
-
   notice("PngLayer :: w[%u] h[%u] bpp[%u] size[%u]",
 	 geo.w,geo.h,geo.bpp,geo.size);
+
   return(true);
 }
 
 void *PngLayer::feed() {
-    count++;
-    /** threads problems !! XXX TODO */
-    if(count==freej->fps_speed)
-	count=0;
-    if(blinking && count%2!=0) {
-	return black_image;
-    }
-    /** subliminal mode*/
-    if(subliminal!=0 && count>= subliminal)
-	return black_image;
-    
+  count++;
+  // threads problems !! XXX TODO 
+  if(count==freej->fps_speed)
+    count=0;
+  if(blinking && count%2!=0) {
+    return black_image;
+  }
+  // subliminal mode
+  if(subliminal!=0 && count>= subliminal)
+    return black_image;
+  
   return png_image;
 }
 
@@ -216,6 +210,7 @@ void PngLayer::close() {
   jfree(row_pointers);
   jfree(buffer);
 }
+
 bool PngLayer::keypress(SDL_keysym *keysym) {
     switch(keysym->sym) {
 	case SDLK_o:

@@ -32,14 +32,22 @@
 
 #ifdef ARCH_PPC
 static uint32_t rmask = 0xff000000;
+static uint8_t rchan = 0;
 static uint32_t gmask = 0x00ff0000;
+static uint8_t gchan = 1;
 static uint32_t bmask = 0x0000ff00;
+static uint8_t bchan = 2;
 static uint32_t amask = 0x000000ff;
+static uint8_t achan = 3;
 #else
 static uint32_t rmask = 0x00ff0000;
+static uint8_t rchan = 2;
 static uint32_t gmask = 0x0000ff00;
+static uint8_t gchan = 1;
 static uint32_t bmask = 0x000000ff;
+static uint8_t bchan = 0;
 static uint32_t amask = 0xff000000;
+static uint8_t achan = 0;
 #endif
 
 
@@ -50,33 +58,33 @@ static inline void memcpy_blit(void *src, void *dst, int bytes, void *value) {
   memcpy(dst,src,bytes);
 }
 
-/* there is something wrong in this */
-//static inline void accel_memcpy_blit(void *src, void *dst, int bytes, void *value) {
-//  jmemcpy(dst,src,bytes);
-//}
+
+static inline void accel_memcpy_blit(void *src, void *dst, int bytes, void *value) {
+  jmemcpy(dst,src,bytes);
+}
 
 static inline void red_channel(void *src, void *dst, int bytes, void *value) {
   register int c;
-  register uint32_t *s = (uint32_t*)src;
-  register uint32_t *d = (uint32_t*)dst;
-  for(c=bytes>>2;c>0;c--,s++,d++)
-    *d = ((*s)&rmask);
+  register uint8_t *s = (uint8_t*)src;
+  register uint8_t *d = (uint8_t*)dst;
+  for(c=bytes>>2;c>0;c--,s+=4,d+=4)
+    *(d+rchan) = *(s+rchan);
 }
 
 static inline void green_channel(void *src, void *dst, int bytes, void *value) {
   register int c;
-  register uint32_t *s = (uint32_t*)src;
-  register uint32_t *d = (uint32_t*)dst;
-  for(c=bytes>>2;c>0;c--,s++,d++)
-    *d = ((*s)&gmask);
+  register uint8_t *s = (uint8_t*)src;
+  register uint8_t *d = (uint8_t*)dst;
+  for(c=bytes>>2;c>0;c--,s+=4,d+=4)
+    *(d+gchan) = *(s+gchan);
 }
 
 static inline void blue_channel(void *src, void *dst, int bytes, void *value) {
   register int c;
-  register uint32_t *s = (uint32_t*)src;
-  register uint32_t *d = (uint32_t*)dst;
-  for(c=bytes>>2;c>0;c--,s++,d++)
-    *d = ((*s)&bmask);
+  register uint8_t *s = (uint8_t*)src;
+  register uint8_t *d = (uint8_t*)dst;
+  for(c=bytes>>2;c>0;c--,s+=4,d+=4)
+    *(d+bchan) = *(s+bchan);
 }
 
 static inline void schiffler_add(void *src, void *dst, int bytes, void *value) {
@@ -169,7 +177,7 @@ static inline void schiffler_binarize(void *src, void *dst, int bytes, void *val
 
 Blit::Blit() :Entry() {
   sprintf(desc,"none");
-  value = 0xff;
+  value = 0x0;
   memset(kernel,0,256);
   fun = NULL;
   type = 0x0;
@@ -209,11 +217,10 @@ bool Blitter::init(Layer *lay) {
   /* fill up linklist of blits */
   Blit *b;
 
-  // removed (buggy?)
-  //  b = new Blit(); b->set_name("AMEMCPY");
-  //  sprintf(b->desc,"cpu accelerated memcpy");
-  //  b->type = LINEAR_BLIT;
-  //  b->fun = accel_memcpy_blit; blitlist.append(b);
+  b = new Blit(); b->set_name("AMEMCPY");
+  sprintf(b->desc,"cpu accelerated memcpy");
+  b->type = LINEAR_BLIT;
+  b->fun = accel_memcpy_blit; blitlist.append(b);
 
   b = new Blit(); b->set_name("ADD");
   sprintf(b->desc,"bytewise addition");
@@ -338,7 +345,7 @@ bool Blitter::init(Layer *lay) {
   b->fun = NULL; blitlist.append(b);
 
   // SET DEFAULT
-  set_blit("memcpy");
+  set_blit("amemcpy");
 
   crop( NULL );
 
@@ -346,7 +353,7 @@ bool Blitter::init(Layer *lay) {
 }
 
 void Blitter::blit() {
-  register int c;
+  int c;
 
   /* compare old layer values
      crop the layer if necessary */
@@ -354,13 +361,11 @@ void Blitter::blit() {
       || layer->geo.y != old_y
       || layer->geo.w != old_w
       || layer->geo.h != old_h )
-    crop( NULL );
+      crop( NULL );
 
-
-  if(!current_blit) return;
-  switch(current_blit->type) {
-
-  case LINEAR_BLIT:
+  // executes LINEAR blits
+  if( current_blit->type == LINEAR_BLIT ) {
+    
     current_blit->scr = current_blit->pscr = 
       (uint32_t*)current_blit->blit_coords;
     current_blit->off = current_blit->poff =
@@ -380,8 +385,10 @@ void Blitter::blit() {
       current_blit->scr = current_blit->pscr = 
 	current_blit->pscr + layer->freej->screen->w;
     }
-    
-  case SDL_BLIT:
+
+    // executes SDL blit
+  } else if (current_blit->type ==  SDL_BLIT) {
+
     current_blit->sdl_surface = 
       SDL_CreateRGBSurfaceFrom
       (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
@@ -396,11 +403,8 @@ void Blitter::blit() {
 		    ((SdlScreen*)layer->freej->screen)->surface,NULL);
 
     SDL_FreeSurface(current_blit->sdl_surface);
-    break;
-
-  case PLANAR_BLIT:
-    break;
   }
+
 }
 
 
@@ -425,20 +429,15 @@ bool Blitter::set_blit(char *name) {
 
 bool Blitter::set_value(int val) {
   Iterator *iter;
-  Blit *b = (Blit*)blitlist.selected();
-  if(!b) {
-    error("no blit selected on layer %s",layer->get_name());
-    return false;
-  }
 
   /* setup an iterator to gradually change the value */
-  iter = new Iterator((int32_t*)&b->value);
+  iter = new Iterator((int16_t*)&current_blit->value);
   iter->set_aim(val);
   layer->iterators.add(iter);
 
   //  b->value = val;
   act("layer %s blit %s set to %i",
-      layer->get_name(),b->get_name(),val);
+      layer->get_name(),current_blit->get_name(),val);
   return true;
 }
 
@@ -448,24 +447,24 @@ bool Blitter::set_kernel(short *krn) {
 }
 
 void Blitter::crop(ViewPort *screen) {
-  if(!current_blit) return;
   Blit *b = current_blit;
-  if(!screen)
-    screen = layer->freej->screen;
-
   /* needed in linear blit crop */
   uint32_t blit_xoff=0;
   uint32_t blit_yoff=0;
 
-  switch(b->type) {
-  case SDL_BLIT: /* crop for the SDL blit */
+  if(!b) return;
+  if(!screen)
+    screen = layer->freej->screen;
+
+  /* crop for the SDL blit */
+  if(b->type == SDL_BLIT) {
     b->sdl_rect.x = -(layer->geo.x);
     b->sdl_rect.y = -(layer->geo.y);
     b->sdl_rect.w = screen->w;
     b->sdl_rect.h = screen->h;
-    break;
-    
-  case LINEAR_BLIT:
+
+    /* crop for the linear blit */
+  } else if(b->type == LINEAR_BLIT) {
     
     b->blit_x = layer->geo.x;
     b->blit_y = layer->geo.y;
@@ -541,11 +540,7 @@ void Blitter::crop(ViewPort *screen) {
     func("LINEAR CROP for blit %s x[%i] y[%i] w[%i] h[%i] xoff[%i] yoff[%i]",
 	 b->get_name(), b->blit_x, b->blit_y, b->blit_width,
 	 b->blit_height, blit_xoff, blit_yoff);
-    break;
 
-  case PLANAR_BLIT:
-    notice("PLANAR_BLIT TO BE DONE ;)");
-    break;
   }
 
   /* store values for further crop checking */

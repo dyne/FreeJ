@@ -273,7 +273,7 @@ AC_ARG_ENABLE(lubrify,
 if test x$have_lubrifications = xyes; then
   if test x$have_profiling = xyes -o x$debug = xtrue; then
     echo "cannot lubrify code if debug or profiling are enabled"
-    have_profiling=no
+    have_lubrifications=no
   else
     if test x$have_darwin = xyes; then
       # use optimization flags for darwin

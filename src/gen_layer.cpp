@@ -294,19 +294,11 @@ void GenLayer::blob(int x, int y) {
 }
 
 bool GenLayer::keypress(SDL_keysym *keysym) {
-  switch(keysym->sym) {
-
-  case SDLK_RIGHT:
+  if(keysym->sym == SDLK_RIGHT)
     blossom_recal(true);
-    break;
-
-  case SDLK_LEFT:
+  else if(keysym->sym == SDLK_LEFT)
     blossom_recal(false);
-    break;
-
-  default: return(false);
-  
-  }
+  else return(false);
 
   return(true);
 }

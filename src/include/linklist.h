@@ -74,7 +74,6 @@ class Entry {
   Entry();
   ~Entry();
 
-  char *get_name();
   void set_name(char *nn);
   
   Entry *next;
@@ -90,9 +89,9 @@ class Entry {
   
   bool select;
 
- private:
   char name[256];
 
+  void *data; ///< generic data pointer
 };
 
 #endif

@@ -172,31 +172,29 @@ void SdlScreen::set_magnification(int algo) {
   if(magnification == algo) return;
 
 
-  switch(algo) {
-
-  case 0:
+  if(algo==0) {
     notice("screen magnification off");
     setres(w,h);
     if(magnification) SDL_FreeSurface(surface);
     surface = SDL_GetVideoSurface();
-    break;
-    
-  case 1:
+
+  } else if(algo==1) {
+
     notice("screen magnification scale2x");
     setres(w*2,h*2);
-    break;
 
-  case 2:
+  } else if(algo==2) {
+
     notice("screen magnification scale3x");
     setres(w*3,h*3);
-    break;
 
-  default:
+  } else {
+
     error("magnification algorithm %i not supported",algo);
     algo = magnification;
-    return;
 
   }
+
 
   if(!magnification && algo) {
     func("create surface for magnification");

@@ -29,6 +29,7 @@
 
 #include <inttypes.h>
 #include <SDL.h>
+#include <iterator.h>
 #include <blitter.h>
 #include <filter.h>
 #include <jsync.h>
@@ -83,6 +84,7 @@ class Layer: public Entry, public JSyncThread {
   virtual bool init(Context *scr) =0;
   virtual void close() =0;
 
+  char *get_name() { return name; };
   char *get_filename() { return filename; };
   ///< Get Layer's filename
 
@@ -146,6 +148,12 @@ class Layer: public Entry, public JSyncThread {
   bool cafudda(); ///< cafudda is called by the Context
 
   void *bgmatte;
+
+  // working variables
+  int res;
+  Filter *filt;
+  Iterator *iter;
+  Iterator *itertmp;
 
 };
 

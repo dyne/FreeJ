@@ -226,10 +226,11 @@ void Osd::_selection() {
   if(!lay) return;
   
   Filter *filt = (Filter*) lay->filters.selected();
-  sprintf(msg,"%s::%s [%s][%s]",
+  sprintf(msg,"%s::%s %s[%i] [%s]",
 	  lay->get_name(),
 	  (filt)?filt->getname():" ",
-	  (lay->blitter.current_blit)?lay->blitter.current_blit->get_name():" ",
+	  lay->blitter.current_blit->get_name(),
+	  lay->blitter.current_blit->value,
 	  (env->clear_all)?"0":" ");
   
   print(msg,selection_offset,1,1);
@@ -413,26 +414,19 @@ void Osd::_print_credits() {
 }
 
 void Osd::_set_color(colors col) {
-  switch(col) {
-  case black:
+  if(col == black)
     _color32 = 0x00000000;
-    break;
-  case white:
+  else if(col == white)
     _color32 = 0x00fefefe;
-    break;
-  case green:
+  else if(col == green)
     _color32 = 0x0000ee00;
-    break;
-  case red:
+  else if(col == red)
     _color32 = 0x00ee0000;
-    break;
-  case blue:
+  else if(col == blue)
     _color32 = 0x000000fe;
-    break;
-  case yellow:
+  else if(col == yellow)
     _color32 = 0x00ffef00;
-    break;
-  }
+
 }
 
 void Osd::clean() {

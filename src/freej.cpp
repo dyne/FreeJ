@@ -61,7 +61,6 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 " .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
-" .   -f   start fullscreen\n"
 #ifdef WITH_JAVASCRIPT
 " .   -j   process javascript command file\n"
 #endif
@@ -70,7 +69,7 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long 
-static const char *short_options = "-hvD:Cs:m:nfj:";
+static const char *short_options = "-hvD:Cs:m:nj:";
 
 int debug;
 char layer_files[MAX_CLI_CHARS];
@@ -78,7 +77,6 @@ int cli_chars = 0;
 int width = 400;
 int height = 300;
 int magn = 0;
-bool fullscreen = false;
 char javascript[512]; // script filename
 
 bool startstate = true;
@@ -141,10 +139,6 @@ void cmdline(int argc, char **argv) {
       startstate = false;
       break;
 
-    case 'f':
-      fullscreen = true;
-      break;
-      
     case 'j':
       snprintf(javascript,512,"%s",optarg);
       {
@@ -195,7 +189,7 @@ int main (int argc, char **argv) {
   Layer *lay = NULL;
 
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
-  act("(c)2001-2003 Denis Rojo < jaromil @ dyne.org >");
+  act("(c)2001-2004 Denis Rojo < jaromil @ dyne.org >");
   act("----------------------------------------------");
   cmdline(argc,argv);
   set_debug(debug);

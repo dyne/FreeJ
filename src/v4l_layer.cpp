@@ -391,24 +391,22 @@ void *V4lGrabber::feed() {
 	     geo.w, geo.h, geo.pitch, geo.w, geo.w);  
   */
   //  if(palette == VIDEO_PALETTE_YUV422P)
-  switch(palette) {
-  case VIDEO_PALETTE_YUV422P:
-  case VIDEO_PALETTE_YUYV:
-    ccvt_yuyv_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
-    break;
-    
-  case VIDEO_PALETTE_YUV420P:
-    ccvt_420p_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
-    break;
+  if(palette == VIDEO_PALETTE_YUV422P
+     || palette == VIDEO_PALETTE_YUYV)
 
-  case VIDEO_PALETTE_RGB32:
+    ccvt_yuyv_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
+
+  else if(palette == VIDEO_PALETTE_YUV420P) 
+
+    ccvt_420p_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
+
+  else if(palette == VIDEO_PALETTE_RGB32) 
+
     memcpy(rgb_surface,&buffer[grab_map.offsets[ok_frame]],geo.size);
-    break;
-  default:
+
+  else
     error("video palette %i for layer %s %s not supported",
 	  palette, get_name(),get_filename());
-    break;
-  }
 
   return rgb_surface;
 }

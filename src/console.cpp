@@ -227,7 +227,7 @@ static int filebrowse_completion(char *cmd) {
 static int set_blit_value(char *cmd) {
   int val;
   int c;
-  if(!sscanf(cmd,"%d",&val)) {
+  if(!sscanf(cmd,"%u",&val)) {
     error("error parsing input: %s",cmd);
     return 0;
   }
@@ -383,6 +383,43 @@ void Console::getkey() {
       cmd_process = NULL;
       cmd_complete = NULL;
       statusline();
+      // save in commandline history
+      entr = new Entry();
+      entr->data = strdup(command);
+      history.append( entr );
+      if(history.len()>32) // histsize
+	delete history.begin();
+      entr = NULL;
+      return;
+
+    case SL_KEY_UP:
+      // pick from history
+      if(!entr) // select the latest
+	entr = history.end();
+      else
+	entr = entr->prev;
+      if(!entr) return; // no hist
+      strncpy(command,(char*)entr->data,512);
+      // type the command on the console
+      SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
+      SLsmg_write_string(command);
+      SLsmg_erase_eol();
+      cursor = strlen(command);
+      GOTO_CURSOR;
+      return;
+
+    case SL_KEY_DOWN:
+      // pick from history
+      if(!entr) return;
+      if(!entr->next) return;
+      entr = entr->next;
+      strncpy(command,(char*)entr->data,512);
+      // type the command on the console
+      SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
+      SLsmg_write_string(command);
+      SLsmg_erase_eol();
+      cursor = strlen(command);
+      GOTO_CURSOR;
       return;
 
     case KEY_CTRL_G:
@@ -406,19 +443,12 @@ void Console::getkey() {
       GOTO_CURSOR;
       return;
 
-      /*** FIXME */
-    case KEY_BACKSPACE:
-      ::func("BACKSPACE");
+
+    case KEY_BACKSPACE:      /*** FIXME */
       if(!cursor) return;
       cursor--;
-      //      for(c=cursor;command[c]!=EOL;c++)
-      //	command[c] = command[c+1];
-      //      GOTO_CURSOR;
-      //      SLsmg_write_string(&command[cursor]);
-      //      SLsmg_erase_eol();
-      //      GOTO_CURSOR;
       if(command[cursor+1]==EOL) {
-	func("cursor on end of line");
+	// func("cursor on end of line");
 	command[cursor] = EOL;
       } else {
 	for(c=cursor;command[c]!=EOL;c++)
@@ -494,10 +524,16 @@ void Console::getkey() {
 
     switch(key) {
     case SL_KEY_UP:
+      if(!layer) break;
       if(!filter) break;
       filter = (Filter*)filter->prev;
-
+      if(filter) {
+	// select only the current
+	layer->filters.sel(0);
+	filter->sel(true);
+      }
       break;
+
     case SL_KEY_DOWN:
       if(!filter) {
 	if(!layer) break;
@@ -506,40 +542,59 @@ void Console::getkey() {
       }
       if(!filter->next) break;
       filter = (Filter*)filter->next;
+      // select only the current
+      layer->filters.sel(0);
+      filter->sel(true);      
       break;
 
     case SL_KEY_LEFT:
-      if(!layer) {
+      if(!layer) 
 	layer = (Layer*)env->layers.begin();
-	break;
-      }
-      if(!layer->prev)
+      else if(!layer->prev)
 	layer = (Layer*)env->layers.end();
       else
 	layer = (Layer*)layer->prev;
+      // select only the current
+      env->layers.sel(0);
+      layer->sel(true);
       break;
+
     case SL_KEY_RIGHT:
-      if(!layer) {
+      if(!layer)
 	layer = (Layer*)env->layers.begin();
-	break;
-      }
-      if(!layer->next)
+      else if(!layer->next)
 	layer = (Layer*)env->layers.begin();
       else
 	layer = (Layer*)layer->next;
+      // select only the current
+      env->layers.sel(0);
+      layer->sel(true);
       break;
       
     case SL_KEY_PPAGE: break;
     case SL_KEY_NPAGE: break;
     case SL_KEY_END: break;
 
-    case SL_KEY_BACKSPACE:      
     case SL_KEY_DELETE:
       if(!filter) break;
       filter->rem();
       filter->clean();
       filter = NULL;
     break;
+
+    case KEY_CTRL_H:
+      notice("Hotkeys available in FreeJ console:");
+      act("arrow keys browse selection thru layers and effects");
+      act("ctrl+o  = Open new layer (will prompt for path to file)");
+      act("ctrl+e  = add a new Effect to the selected layer");
+      act("ctrl+b  = change the Blit for the selected layer");
+      act("ctrl+v  = change the blit Value for the selected layer");
+      act("ctrl+c  = quit FreeJ");
+      act("ctrl+f  = go to Fullscreen");
+#ifdef WITH_JAVASCRIPT
+      act("ctrl+j  = execute a Javascript command");
+#endif
+      break;
 
     case KEY_CTRL_E:
       if(!layer) {
@@ -630,7 +685,7 @@ void Console::cafudda() {
     update_scroll();
 
   if(!input) {
-    speedmeter();
+    //    speedmeter();
     statusline();
   } else
     GOTO_CURSOR;
@@ -708,12 +763,9 @@ void Console::layerprint() {
   SLsmg_write_char(' ');
   SLsmg_write_string("blit: ");
   SLsmg_set_color(LAYERS_COLOR+10);
-  SLsmg_write_string((layer->blitter.current_blit)?
-		     layer->blitter.current_blit->get_name():
-		     (char*)" ");
+  SLsmg_write_string(layer->blitter.current_blit->get_name());
   SLsmg_write_char(' ');
-  SLsmg_printf("[%u]",(layer->blitter.current_blit)?
-	       layer->blitter.current_blit->value:0);
+  SLsmg_printf("[%u]",layer->blitter.current_blit->value);
   SLsmg_write_char(' ');
   SLsmg_set_color(LAYERS_COLOR);
   SLsmg_write_string("geometry: ");

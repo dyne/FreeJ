@@ -49,6 +49,9 @@ class Blit: public Entry {
 #define PLANAR_BLIT 3
   int type; ///< LINEAR|PLANAR|SDL_BLIT type
 
+  char *get_name() { return name; };
+
+
  private:
   uint32_t blit_x;
   uint32_t blit_y;
@@ -81,7 +84,6 @@ class Blitter {
   bool set_value(int val); ///< set the blit parameter
   bool set_kernel(short *krn); /// set the convolution kernel
   Linklist blitlist; ///< list of available blits
-
 
   /* ==== geometrical transformations */
   double x_scale;    ///< zoom factor on x axis
