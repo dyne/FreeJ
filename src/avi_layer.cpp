@@ -27,7 +27,7 @@
 #include <string.h>
 
 #include <avi_layer.h>
-#include <avm_except.h>
+//#include <avm_except.h>
 #include <avm_fourcc.h>
 //#include <avm_creators.h>
 #include <renderer.h>
@@ -89,8 +89,9 @@ bool AviLayer::open(char *file) {
   try {
     _avi = CreateIAviReadFile(file);
   }
-  catch(FatalError &e) {
-    error("AviLayer::open(%s)",file); // - %s",file,e.Print());
+  //catch(FatalError &e) {
+  catch(void *p) {
+    error("AviLayer::open(%s)",file);
     return(false);
   }
 
@@ -153,9 +154,10 @@ bool AviLayer::open(char *file) {
     bh = _stream->GetDecoder()->GetDestFmt();
      
   }
-  catch(FatalError &e) {
+  //catch(FatalError &e) {
+  catch(void *p) {
     error("Avilib fatal error");
-    e.Print();
+   // e.Print();
     return(false);
   }
 

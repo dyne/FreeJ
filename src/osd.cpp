@@ -77,22 +77,41 @@ void Osd::init(Context *screen) {
   screen->osd = this;
   _set_color(white);
 
-  /*
+  SDL_keysym keysym;
+
+  /* add ipernaut logo layer */
   ipernaut = create_layer("../doc/ipernav.png");
+  ipernaut->init(env);
+  
+  /* add first effect on logo */
   sflescio = env->plugger->pick("vertigo");
-  if(sflescio) ipernaut->add_filter(sflescio);
-  if(ipernaut) env->add_layer(ipernaut);
-  */
+  sflescio->init(&ipernaut->geo);
+  keysym.sym = SDLK_w;
+  sflescio->kbd_input(&keysym);
+  ipernaut->filters.add(sflescio);
+
+  /* second effect on logo */
+  sflescio = env->plugger->pick("water");
+  sflescio->init(&ipernaut->geo);
+  keysym.sym = SDLK_y; sflescio->kbd_input(&keysym);
+  keysym.sym = SDLK_w; sflescio->kbd_input(&keysym);
+  keysym.sym = SDLK_w; sflescio->kbd_input(&keysym);
+  ipernaut->filters.add(sflescio);
+
+  /* setup coordinates for OSD information
+     stored in offsets of video memory addresses
+     to gain speed and limit computation during cycles */
   fps_offset = (uint32_t*)env->coords(env->w-50,1);
   selection_offset = (uint32_t*)env->coords(80,1);
   status_offset = (uint32_t*)env->coords(HBOUND,env->h-12);
   layer_offset = (uint32_t*)env->coords(env->w-28,VBOUND+TOPLIST);
   filter_offset = (uint32_t*)env->coords(5,VBOUND+6);
   hicredits_offset = (uint32_t*)env->coords((env->w/2)-100,VBOUND+5);
-  locredits_offset = (uint32_t*)env->coords((env->w/2)-100,env->h-70);
+  locredits_offset = (uint32_t*)env->coords((env->w/2)-140,env->h-70);
   hilogo_offset = (uint32_t*)env->coords(6,0);
   newline = env->pitch*(CHAR_HEIGHT);
-  snprintf(title,64,"%s v.%s",PACKAGE,VERSION);
+  snprintf(title,64,"%s %s",PACKAGE,VERSION);
+
   func("OSD initialized");
 
 }
@@ -197,7 +216,7 @@ void Osd::statusmsg(char *format, ...) {
 void Osd::_layerlist() {
   //  unsigned int vpos = VBOUND+TOPLIST;
   uint32_t *pos = layer_offset;
-  //  _set_color(red);
+  _set_color(red);
 
   Layer *l = (Layer *)env->layers.begin(),
     *laysel = (Layer*) env->layers.selected();
@@ -236,6 +255,7 @@ void Osd::_layerlist() {
 void Osd::_filterlist() {
   //  unsigned int vpos = VBOUND+6;
   uint32_t *pos = filter_offset;
+  _set_color(red);
 
   char fname[4];
   Layer *lay = (Layer*) env->layers.selected();
@@ -298,16 +318,22 @@ void Osd::splash_screen() {
   vpos += CHAR_HEIGHT+40;
   */
   pos = locredits_offset;
-  pos = print("| by rastasoft.org",pos,1,2);
-  //vpos += CHAR_HEIGHT+10;
-  pos = print("| copyleft 2001 - 2003",pos,1,2);
-  //  vpos += CHAR_HEIGHT+10;
-  pos = print("| jaromil @ dyne.org",pos,1,2);
+  _set_color(red);
+  pos = print("############# by rastasoft.org",pos,1,2);
+  _set_color(yellow);
+  pos = print("############# copyleft 2001 - 2003",pos,1,2);
+  _set_color(green);
+  pos = print("############# jaromil @ dyne.org",pos,1,2);
 }
 
 bool Osd::credits() {
   if(_credits) env->clear(); //scr(env->get_surface(),env->size);
   _credits = !_credits;
+  if(_credits)
+    env->layers.add(ipernaut);
+  else
+    ipernaut->rem();
+
   return _credits;
 }
 

@@ -147,7 +147,7 @@ void Layer::clear_filters() {
   lock();
   Filter *f = (Filter *)filters.begin();
 
-  while(f!=NULL) {
+  while(f) {
     c++;
     filters.rem(1);
     f->inuse = false;
@@ -155,8 +155,6 @@ void Layer::clear_filters() {
     f = (Filter *)filters.begin();
   }
   unlock();
-
-  show_osd("CLEARED %u filters",c);
 }
 
 bool Layer::moveup_filter(int sel) {
