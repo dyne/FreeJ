@@ -340,13 +340,13 @@ if test x$have_lubrifications = xyes; then
   else
     if test x$have_darwin = xyes; then
       # use optimization flags for darwin
-      CFLAGS="$CFLAGS -O4 -fomit-frame-pointer"
+      CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
       # adding these provoke 'illegal instruction' errors in some
       # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
     elif test x$have_ppc = xyes; then
-      CFLAGS="$CFLAGS -O4 -fomit-frame-pointer -ffast-math"
+      CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
     else
-      CFLAGS="$CFLAGS -O4 -fomit-frame-pointer -march=${host_cpu} -ffast-math"
+      CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -march=${host_cpu} -ffast-math"
     fi
   fi
 else
@@ -356,6 +356,18 @@ else
   fi
 fi
 AC_SUBST(LUBRIFY_CFLAGS)
+
+dnl ==============================================================
+dnl CHECK if there is SDL to be compiled STATIC
+dnl ==============================================================
+AC_MSG_CHECKING(for embedding static SDL libraries)
+AC_ARG_WITH(sdl-static,
+[  --with-sdl-static       embed SDL libraries as static library ],
+[ SDL_LIBS="`sdl-config --static-libs`"
+  AC_SUBST(SDL_LIBS)
+  AC_MSG_RESULT(yes) ],
+[ AC_MSG_RESULT(no) ])
+
 
 dnl ==============================================================
 dnl CHECK if there is AVCODEC to be compiled STATIC
