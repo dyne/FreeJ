@@ -20,9 +20,6 @@
 #include <context.h>
 #include <lubrify.h>
 
-/* milliseconds to wait between feeds */
-#define FEED_DELAY 5
-
 void Layer::_delete() {
   Filter *tmp, *filt = (Filter *)filters.begin();
 
@@ -42,7 +39,6 @@ void Layer::_init(Context *screen) {
   quit = false;
   this->screen = screen;
   screen->add_layer(this);
-  
 }
 
 void Layer::run() {
@@ -67,7 +63,7 @@ bool Layer::add_filter(Filter *newfilt) {
     return(false);
   }
 
-  /* here pointers are used to let filters change the size */
+  /* here pointers are used to let filters change the size of the layer*/
   newfilt->w = &w; newfilt->h = &h;
   newfilt->pitch = &pitch; newfilt->size = &size;
   /* --- not yet fully supported as a possibility for the filters */
@@ -89,6 +85,8 @@ bool Layer::add_filter(Filter *newfilt) {
   lock();
   filters.add(newfilt);
   unlock();
+  
+  screen->osd->status("NEW filter %s pos %u",newfilt->name,filters.len());
 
   return(true);
 }
@@ -107,61 +105,58 @@ bool Layer::del_filter(int sel) {
   filters.rem(sel);
   unlock();
 
+  screen->osd->status("DEL filter %s pos %u",filt->name,sel);
+
   delete(filt);
   return(true);
 }
 
 void Layer::clear_filters() {
+  int c = 0;
   func("Layer::clear_filters()");
 
   lock();
   Filter *f = (Filter *)filters.begin();
 
   while(f!=NULL) {
+    c++;
     filters.rem(1);
     f->_delete();
     f = (Filter *)filters.begin();
   }
   unlock();
+
+  screen->osd->status("CLEARED %u filters",c);
 }
 
 bool Layer::moveup_filter(int sel) {
-  /* wow! doesn't need locking (it seems) */
   bool res = filters.moveup(sel);
+  if(res)
+    screen->osd->status("MOVE UP filter %u -> %u",sel,sel-1);
   return(res);
 }
 
 bool Layer::movedown_filter(int sel) {
-  /* wow! doesn't need locking (it seems) */
   bool res = filters.movedown(sel);
+  if(res)
+    screen->osd->status("MOVE DOWN filter %u -> %u",sel,sel+1);
   return(res);
 }
 
 Filter *Layer::active_filter(int sel) {
-  /* wow! doesn't need locking (it seems) */
   Filter *filt = (Filter *)filters.pick(sel);
   filt->active = !filt->active;
+  screen->osd->status("%s filter %s pos %u",
+		      filt->active ? "ACTIVATED" : "DEACTIVATED",
+		      filt->name, sel);
   return(filt);
 }
 
 Filter *Layer::listen_filter(int sel) {
-  /* wow! doesn't need locking (it seems) */
   Filter *filt = (Filter *)filters.pick(sel);
   filt->listen = !filt->listen;
   return(filt);
 }
-
-/* ATM THIS IS DEPRECATED */
-void Layer::keypress(SDL_keysym *keysym) {
-  /* should we really let the locking being done
-     by the filters? */
-  Filter *filt = (Filter *)filters.begin();
-  while(filt!=NULL) {
-    if(filt->listen) filt->kbd_input(keysym);
-    filt = (Filter *)filt->next;
-  }
-}
-
 
 bool Layer::cafudda() {
   void *res = get_buffer();

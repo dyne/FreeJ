@@ -25,7 +25,7 @@
 #define HBP 13 /* horizontal bound proportion */
 #define TOPLIST 6 /* distance down from vbound where they start the vertical lists */
 
-typedef enum { black, white, green, red } colors;
+typedef enum { black, white, green, red, blue, yellow } colors;
 typedef void (write_routine)(char*, int, int, int, int);
 
 class Context;
@@ -38,6 +38,7 @@ class Osd {
   void _selection();
   void _filterlist();
   void _print_credits();
+  void _print_status();
 
   void _set_color(colors col);
   void _write16(char *text, int xpos, int ypos, int hsize, int vsize);
@@ -57,6 +58,7 @@ class Osd {
   void init(Context *screen);
   void print();
   void splash_screen();
+  void status(char *format, ...);
   bool active();
   bool calibrate();
   bool credits();

@@ -63,31 +63,31 @@ void Judenburg::_delete() {
 
 bool Judenburg::kbd_input(SDL_keysym *keysym) {
   bool res = true;
-  int step = (keysym->mod==KMOD_LSHIFT) ? 10 : 1;
+  int step = (keysym->mod==KMOD_SHIFT) ? 10 : 1;
 
   switch(keysym->sym) {
-  case SDLK_r:
+  case SDLK_w:
     r += step;
     break;
-  case SDLK_f:
+  case SDLK_q:
     r -= step;
     break;
-  case SDLK_t:
+  case SDLK_s:
     g += step;
     break;
-  case SDLK_g:
+  case SDLK_a:
     g -= step;
     break;    
-  case SDLK_y:
+  case SDLK_x:
     b += step;
     break;
-  case SDLK_h:
+  case SDLK_z:
     b -= step;
     break;
-  case SDLK_u:
+  case SDLK_r:
     a += step;
     break;
-  case SDLK_j:
+  case SDLK_e:
     a -= step;
     break;
   default:

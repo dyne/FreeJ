@@ -8,6 +8,7 @@ freej_SOURCES = \
 	context.cpp	\
 	layer.cpp	\
 	v4l.cpp		\
+	tvfreq.c	\
 	linklist.cpp	\
 	jutils.cpp	\
 	jsync.cpp	\

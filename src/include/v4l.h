@@ -37,6 +37,8 @@ class V4lGrabber: public Layer {
   int dev;
   int input;
   int norm;
+  int _band;
+  int _freq;
   Uint32 palette;
 
   struct video_capability grab_cap;
@@ -49,10 +51,12 @@ class V4lGrabber: public Layer {
 
   struct video_channel grab_chan;
   struct video_picture grab_pic;
+  struct video_tuner grab_tuner;
 
   bool grab24;
   bool have_tuner;
   int minw, minh, maxw, maxh;
+  int channels;
 
   void *get_buffer();
 
@@ -70,6 +74,11 @@ class V4lGrabber: public Layer {
   void feed();
   bool blit(unsigned char *dest);
   void _close();
+
+  void set_chan(int ch);
+  void set_band(int b);
+  void set_freq(int f);
+  bool keypress(SDL_keysym *keysym);
 
   unsigned char *buffer;
 };

@@ -79,7 +79,7 @@ NASM = nasm -f elf
 
 noinst_LIBRARIES = liblubrify.a
 
-liblubrify_a_SOURCES =  	lubrify.c		mmx_absdiff16.asm 	mmx_absdiff8.asm 	mmx_memcpy.asm		mmx_blit.asm		vline.asm		hline.asm		clearscr.asm		yuv2rgb.c		yuv2rgb_mmx.c		cpu_accel.c
+liblubrify_a_SOURCES =  	lubrify.c		mmx_absdiff16.asm 	mmx_absdiff8.asm 	mmx_memcpy.asm		mmx_blit.asm		vline16.asm		hline16.asm		vline32.asm		hline32.asm		clearscr.asm		yuv2rgb.c		yuv2rgb_mmx.c		cpu_accel.c
 
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
@@ -93,8 +93,8 @@ LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 liblubrify_a_LIBADD = 
 liblubrify_a_OBJECTS =  lubrify.o mmx_absdiff16.o mmx_absdiff8.o \
-mmx_memcpy.o mmx_blit.o vline.o hline.o clearscr.o yuv2rgb.o \
-yuv2rgb_mmx.o cpu_accel.o
+mmx_memcpy.o mmx_blit.o vline16.o hline16.o vline32.o hline32.o \
+clearscr.o yuv2rgb.o yuv2rgb_mmx.o cpu_accel.o
 AR = ar
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -107,10 +107,10 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/clearscr.P .deps/cpu_accel.P .deps/hline.P \
-.deps/lubrify.P .deps/mmx_absdiff16.P .deps/mmx_absdiff8.P \
-.deps/mmx_blit.P .deps/mmx_memcpy.P .deps/vline.P .deps/yuv2rgb.P \
-.deps/yuv2rgb_mmx.P
+DEP_FILES =  .deps/clearscr.P .deps/cpu_accel.P .deps/hline16.P \
+.deps/hline32.P .deps/lubrify.P .deps/mmx_absdiff16.P \
+.deps/mmx_absdiff8.P .deps/mmx_blit.P .deps/mmx_memcpy.P \
+.deps/vline16.P .deps/vline32.P .deps/yuv2rgb.P .deps/yuv2rgb_mmx.P
 SOURCES = $(liblubrify_a_SOURCES)
 OBJECTS = $(liblubrify_a_OBJECTS)
 

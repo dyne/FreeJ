@@ -15,8 +15,10 @@ liblubrify_a_SOURCES = \
 	mmx_absdiff8.asm \
 	mmx_memcpy.asm	\
 	mmx_blit.asm	\
-	vline.asm	\
-	hline.asm	\
+	vline16.asm	\
+	hline16.asm	\
+	vline32.asm	\
+	hline32.asm	\
 	clearscr.asm	\
 	yuv2rgb.c	\
 	yuv2rgb_mmx.c	\

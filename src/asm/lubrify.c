@@ -32,6 +32,8 @@ extern void mmx_memcpy(void);
 extern void mmx_blit(void);
 extern void asm_vline16(void);
 extern void asm_hline16(void);
+extern void asm_vline32(void);
+extern void asm_hline32(void);
 extern void asm_clearscr(void);
 
 void mmxcopy(void *src1, void *dst, unsigned int size) {
@@ -82,16 +84,30 @@ void vline(void *scr, unsigned int height, unsigned int pitch, unsigned int bpp)
   asmnum1 = height;
   asmnum2 = pitch;
 
-  if(bpp==16)
+  switch(bpp) {
+  case 16:
     asm_vline16();
+    break;
+  case 32:
+    asm_vline32();
+    break;
+  }
+
 }
 
 void hline(void *scr, unsigned int width, unsigned int bpp) {
   asmdst = scr;
   asmnum1 = width;
   
-  if(bpp==16)
+  switch(bpp) {
+  case 16:
     asm_hline16();
+    break;
+  case 32:
+    asm_hline32();
+    break;
+  }
+
 }
 
 void clearscr(void *scr, unsigned int size) {

@@ -188,16 +188,16 @@ void Delaygrab::set_blocksize(int bs) {
 bool Delaygrab::kbd_input(SDL_keysym *keysym) {
   bool res = true;
   switch(keysym->sym) {
-  case SDLK_SEMICOLON:
+  case SDLK_w:
     inc_mode();
     break;
-  case SDLK_l:
+  case SDLK_q:
     dec_mode();
     break;
-  case SDLK_p:
+  case SDLK_s:
     inc_blocksize();
     break;
-  case SDLK_o:
+  case SDLK_a:
     dec_blocksize();
     break;
   default:

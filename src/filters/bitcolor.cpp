@@ -14,8 +14,8 @@ Bitcolor::Bitcolor() {
 
   supported[0] = false; /* 8bit depth */
   supported[1] = true;  /* 16 bit depth */
-  supported[2] = true; /* 24 bit depth */
-  supported[3] = true;  /* 32 bit depth */  
+  supported[2] = false; /* 24 bit depth */
+  supported[3] = false; /* 32 bit depth */  
 
   strcpy(name,"Bitcolor");
   strcpy(author,"jaromil@dyne.org");
@@ -58,11 +58,11 @@ void Bitcolor::_delete() {
 bool Bitcolor::kbd_input(SDL_keysym *keysym) {
   bool res = false;
   switch(keysym->sym) {
-  case SDLK_p:
+  case SDLK_w:
     inc_bitmask();
     res = true;
     break;
-  case SDLK_o:
+  case SDLK_q:
     dec_bitmask();
     res = true;
     break;

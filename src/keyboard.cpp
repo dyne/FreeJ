@@ -71,8 +71,9 @@ void KbdListener::run() {
 	     break; */
 	default:
 	  if(_context_op(&event.key.keysym)) break;
+	  
+	  if(layer->keypress(&event.key.keysym)) break;
 
-	  /* layer->keypress(&event.key.keysym); */
 	  if(filter!=NULL) filter->kbd_input(&event.key.keysym);
 	  break;
 	}
@@ -83,7 +84,7 @@ void KbdListener::run() {
   }
 }
 
-/* manages keys relative to operations on the layer:
+/* manages keys for operations on the filter chain:
    add/delete/move a filter */
 
 bool KbdListener::_context_op(SDL_keysym *keysym) {
@@ -151,7 +152,7 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   case SDLK_INSERT:
     if(filter==NULL) return false;
     /* switch filter on/off */
-    filter->active = !filter->active;
+    layer->active_filter(filtersel);
     return true;
     break;
 
@@ -178,9 +179,15 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   }
 
   if(newfilt) {
-    newfilt = layer->add_filter(filt);
-    filter = filt;
-    filtersel = layer->filters.len();
+    if(layer->add_filter(filt)) {
+      /* the filter has been accepted on the layer chain */
+      filter = filt;
+      filtersel = layer->filters.len();
+    } else {
+      /* something went wrong... bpp not supported or so */
+      delete filt;
+      newfilt = false;
+    }
   }
   
   return newfilt;

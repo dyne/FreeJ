@@ -44,6 +44,8 @@ static const Uint32 blank[] =
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
     0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
 
+static char status_msg[50];
+
 void Osd::_write16(char *text, int xpos, int ypos, int hsize, int vsize) {
   int y,x,i,len,f,v,ch,cv;
   Uint16 *ptr;
@@ -148,6 +150,9 @@ void Osd::print() {
       bzero(p,_hbound<<(screen->bpp>>4));
       p = (unsigned char *) p+screen->pitch;
     }
+    
+    /* clear lower section */
+    bzero(screen->coords(_hbound,screen->h-_vbound),screen->pitch*_vbound);
   }
 
   if(_calibrate) {
@@ -172,10 +177,22 @@ void Osd::print() {
   _print_credits();
   _selection();
   _show_fps();
-
-  _set_color(red);
   _filterlist();
+  _print_status();
+}
 
+void Osd::status(char *format, ...) {
+  va_list arg;
+  va_start(arg, format);
+  vsnprintf(status_msg,50,format,arg);
+  va_end(arg);
+  status_msg[49] = '\0';
+  func(status_msg);
+}
+
+void Osd::_print_status() {
+  _set_color(yellow);
+  (this->*write)(status_msg,_hbound+30,screen->h-_vbound+5,1,1);
 }
 
 bool Osd::active() {
@@ -192,13 +209,15 @@ bool Osd::calibrate() {
 
 void Osd::_show_fps() {
   char fps[10];
-
+  _set_color(white);
   sprintf(fps,"%.1f",screen->fps);
   (this->*write)(fps,screen->w-36,1,1,1);
 }
 
 void Osd::_selection() {
   char msg[128];
+
+  _set_color(yellow);
 
   /* we have only one layer until now */
   if(screen->kbd->filter==NULL)
@@ -210,6 +229,9 @@ void Osd::_selection() {
 
 void Osd::_filterlist() {
   unsigned int vpos = _vbound+TOPLIST;
+
+  _set_color(red);
+
   Filter *f = (Filter *)screen->kbd->layer->filters.begin();
 
   while(f!=NULL) {
@@ -261,24 +283,7 @@ void Osd::_print_credits() {
   (this->*write)(PACKAGE,6,0,1,1);
   (this->*write)(VERSION,6,9,1,1);
   _set_color(white);
-  if(_credits) {
-    int vpos = _vbound+10;
-    (this->*write)("... yet another DYNE.ORG production !!",_hbound+50,vpos,1,1);
-    vpos += CHAR_HEIGHT+30;
-    (this->*write)(PACKAGE,_hbound+50,vpos,2,2);
-    (this->*write)(VERSION,_hbound+120,vpos,2,2);
-    (this->*write)("[ ETNA ]",_hbound+190,vpos,2,2);
-    vpos += CHAR_HEIGHT+10;
-    (this->*write)(":: set the veejay free ::",_hbound+100,vpos,1,1);
-    vpos += CHAR_HEIGHT;
-    (this->*write)("realtime video processing software",_hbound+70,vpos,1,1);
-    vpos += CHAR_HEIGHT+30;
-    (this->*write)("concept and coding by",_hbound+80,vpos,1,1);
-    vpos += CHAR_HEIGHT;
-    (this->*write)("jaromil",_hbound+160,vpos,2,2);
-    vpos += CHAR_HEIGHT+80;
-    (this->*write)("http://freej.dyne.org",_hbound+45,vpos,2,2);
-  }
+  if(_credits) splash_screen();
 }
 
 void Osd::_set_color(colors col) {
@@ -297,6 +302,12 @@ void Osd::_set_color(colors col) {
     case red:
       _color16 = 0xd0e0;
       break;
+    case blue:
+      _color16 = 0x007f;
+      break;
+    case yellow:
+      _color16 = 0xcea0;
+      break;
     }
     break;
   case 32:
@@ -312,6 +323,12 @@ void Osd::_set_color(colors col) {
       break;
     case red:
       _color32 = 0xee0000;
+      break;
+    case blue:
+      _color32 = 0x0000fe;
+      break;
+    case yellow:
+      _color32 = 0xffef00;
       break;
     }
     break;

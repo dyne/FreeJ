@@ -55,7 +55,7 @@ class Layer: public Entry, public JSyncThread {
   bool movedown_filter(int sel);
   Filter *active_filter(int sel);
   Filter *listen_filter(int sel);
-  void keypress(SDL_keysym *keysym);
+  virtual bool keypress(SDL_keysym *keysym) { return(false); };
 
   bool cafudda();
 

@@ -26,9 +26,7 @@
 #include <fcntl.h>
 
 #include <v4l.h>
-
-/* CHANGE THIS if you want to grab from another channel on your card
-   (i.e. svideo, TVin ... ) */
+#include <tvfreq.h>
 
 V4lGrabber::V4lGrabber() {
   dev = -1;
@@ -64,7 +62,7 @@ bool V4lGrabber::detect(char *devfile) {
     "VID_TYPE_TUNER            has a tuner of some form",
     "VID_TYPE_TELETEXT         has teletext capability",
     "VID_TYPE_OVERLAY          can overlay its image onto the frame buffer",
-    "VID_TYPE_CHROMAKEY        overlay is chromakeyed",
+    "VID_TYPE_CHROAKEY        overlay is chromakeyed",
     "VID_TYPE_CLIPPING         overlay clipping supported",
     "VID_TYPE_FRAMERAM         overlay overwrites frame buffer memory",
     "VID_TYPE_SCALES           supports image scaling",
@@ -105,8 +103,8 @@ bool V4lGrabber::detect(char *devfile) {
   }    
   
   if(grab_cap.type & VID_TYPE_TUNER)
-    /* the device does'nt has any tuner, so we avoid some ioctl
-       this should be a fix for Creative Webcam II. thanks to Ben Wilson */
+    /* if the device does'nt has any tuner, so we avoid some ioctl
+       this should be a fix for many webcams, thanks to Ben Wilson */
     have_tuner = 1;
   
   /* set the minwidth and minheight */
@@ -124,6 +122,7 @@ bool V4lGrabber::detect(char *devfile) {
       act("Offset of frame %i: %i",counter,grab_map.offsets[counter]);
   }
   num_frame = grab_map.frames;
+  channels = grab_cap.channels;
   return(true);
 }
 
@@ -132,25 +131,42 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt, int chan_input) {
   func("V4lGrabber::init()");
 
   /* set image source and TV norm */
+  if(chan_input>channels) chan_input = 0;
   grab_chan.channel = input = chan_input;
   
-  if(have_tuner) {
-    /* does this only if the device has a tuner */
+  if(have_tuner) { /* does this only if the device has a tuner */
+    _band = 5; /* default band is europe west */
+    _freq = 0;
+    /* resets CHAN */
     if (-1 == ioctl(dev,VIDIOCGCHAN,&grab_chan)) {
       error("error in ioctl VIDIOCGCHAN ");
       return(false);
     }
     
+    /* here sets STATIC PAL MODE
+    grab_chan.norm = VIDEO_MODE_PAL;
+    */
     if (-1 == ioctl(dev,VIDIOCSCHAN,&grab_chan)) {
       error("error in ioctl VIDIOCSCHAN ");
       return(false);
     }
+
+    /* get/set TUNER settings */
+    if (-1 == ioctl(dev,VIDIOCGTUNER,&grab_tuner)) {
+      error("error in ioctl VIDIOCGTUNER ");
+      return(false);
+    }
+
+    set_freq(_freq);
+
   }
-  
-  if (-1 == ioctl(dev, VIDIOCGPICT, &grab_pic)) {
-    error("error in ioctl VIDIOCGPICT ");
-    return(false);
-  }
+
+  /*  
+      if (-1 == ioctl(dev, VIDIOCGPICT, &grab_pic)) {
+      error("error in ioctl VIDIOCGPICT ");
+      return(false);
+      }
+  */
 
   /* TODO: check with minwidth maxwidth */
 
@@ -185,23 +201,110 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt, int chan_input) {
     error("cannot allocate v4lgrabber buffer ");
     return(false);
   }
-  
-  /* grab the first frames */
-  for(i=0;i<grab_map.frames;i++) {
-    if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[i])) {
-      error("error in ioctl VIDIOCMCAPTURE");
-      return(false);
-    }
-  }
 
+  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
+    func("V4lGrabber::feed");
+    error("error in ioctl VIDIOCMCAPTURE");
+  }
+  
   feeded = true;
 
   /* INIT from the LAYER CLASS */
   _init(screen);
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",w,h,bpp,size,size*num_frame);
-  
+  act("using input channel %s",grab_chan.name);
   return(true);
+}
+
+void V4lGrabber::set_chan(int ch) {
+
+  grab_chan.channel = input = ch;
+  //  lock_feed();
+  if (-1 == ioctl(dev,VIDIOCGCHAN,&grab_chan))
+    error("error in ioctl VIDIOCGCHAN ");
+
+  grab_chan.norm = VIDEO_MODE_PAL;
+
+  if (-1 == ioctl(dev,VIDIOCSCHAN,&grab_chan))
+    error("error in ioctl VIDIOCSCHAN ");
+  //  unlock_feed();
+  
+  screen->osd->status("V4L: input chan %u %s",ch,grab_chan.name);
+}
+
+void V4lGrabber::set_band(int b) {
+  _band = b;
+  chanlist = chanlists[b].list;
+  if(_freq>chanlists[b].count) _freq = chanlists[b].count;
+  screen->osd->status("V4L: frequency table %u %s [%u]",b,chanlists[b].name,chanlists[b].count);
+}
+
+void V4lGrabber::set_freq(int f) {
+  _freq = f;
+
+  unsigned long frequency = chanlist[f].freq*16/1000;
+  float ffreq = (float) frequency/16;
+
+  func("V4L: set frequency %u %.3f",frequency,ffreq);
+
+  //  lock_feed();
+  if (-1 == ioctl(dev,VIDIOCSFREQ,&frequency))
+    error("error in ioctl VIDIOCSFREQ ");
+  //  unlock_feed();
+  screen->osd->status("V4L: frequency %s %.3f Mhz (%s)",chanlist[f].name,ffreq,chanlists[_band].name);
+}
+  
+
+/* here are defined the keys for this layer */
+bool V4lGrabber::keypress(SDL_keysym *keysym) {
+  switch(keysym->sym) {
+
+  case SDLK_k:
+    if(input<channels) {
+      set_chan(input+1);
+      return(true);
+    } else return(false);
+
+  case SDLK_m:
+    if(input>0) {
+      set_chan(input-1);
+      return(true);
+    } else return(false);
+
+  case SDLK_j:
+    if(_band<bandcount) {
+      set_band(_band+1);
+      return(true);
+    } else return(false);
+
+  case SDLK_n:
+    if(_band>0) {
+      set_band(_band-1);
+      return(true);
+    } else return(false);
+
+  case SDLK_h:
+    if(_freq<chanlists[_band].count) {
+      set_freq(_freq+1);
+      return(true);
+    } else {
+      set_freq(0);
+      return(true);
+    }
+    
+  case SDLK_b:
+    if(_freq>0) {
+      set_freq(_freq-1);
+      return(true);
+    } else {
+      set_freq(chanlists[_band].count);
+      return(true);
+    }
+
+  default:
+    return(false);
+  }
 }
 
 void *V4lGrabber::get_buffer() {

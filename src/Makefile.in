@@ -76,7 +76,7 @@ INCLUDES = -I$(top_srcdir)/src/include
 
 bin_PROGRAMS = freej
 
-freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l.cpp			linklist.cpp		jutils.cpp		jsync.cpp		keyboard.cpp		osd.cpp
+freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l.cpp			tvfreq.c		linklist.cpp		jutils.cpp		jsync.cpp		keyboard.cpp		osd.cpp
 
 
 SUBDIRS =  	filters		asm
@@ -93,14 +93,18 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-freej_OBJECTS =  freej.o context.o layer.o v4l.o linklist.o jutils.o \
-jsync.o keyboard.o osd.o
+freej_OBJECTS =  freej.o context.o layer.o v4l.o tvfreq.o linklist.o \
+jutils.o jsync.o keyboard.o osd.o
 freej_DEPENDENCIES =  filters/libfilters.a asm/liblubrify.a
 freej_LDFLAGS = 
 CXXFLAGS = @CXXFLAGS@
 CXXCOMPILE = $(CXX) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
+CFLAGS = @CFLAGS@
+COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 DIST_COMMON =  Makefile.am Makefile.in
 
 
@@ -109,7 +113,8 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/context.P .deps/freej.P .deps/jsync.P .deps/jutils.P \
-.deps/keyboard.P .deps/layer.P .deps/linklist.P .deps/osd.P .deps/v4l.P
+.deps/keyboard.P .deps/layer.P .deps/linklist.P .deps/osd.P \
+.deps/tvfreq.P .deps/v4l.P
 SOURCES = $(freej_SOURCES)
 OBJECTS = $(freej_OBJECTS)
 
