@@ -20,6 +20,7 @@
 #define __avi_h__
 
 #include <avifile/avifile.h>
+#include <avifile/renderer.h>
 #include <layer.h>
 
 class AviLayer: public Layer {
