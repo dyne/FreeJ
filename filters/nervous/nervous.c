@@ -42,10 +42,6 @@ static int version = 1; /* version is just an int (sophisticated isn't it?) */
 /* save here screen geometry informations */
 static ScreenGeometry *geo;
 
-/* buffer where to copy the screen
-   a pointer to it is being given back by process() */
-static void *procbuf = NULL;
-
 #define PLANES 32
 
 static int32_t *buffer = NULL;
@@ -57,7 +53,6 @@ static int plane, stock, timer, stride, readplane;
 int init(ScreenGeometry *sg) {
   int c;
   geo = sg;
-  procbuf = malloc(geo->size);
 
   buffer = malloc(geo->size*PLANES);
   if(!buffer) {
@@ -77,7 +72,6 @@ int init(ScreenGeometry *sg) {
 }
 
 int clean() {
-  if(procbuf) free(procbuf);
   if(buffer) free(buffer);
   return 1;
 }

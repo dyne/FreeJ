@@ -22,7 +22,6 @@
 #include <avifile/avifile.h>
 #include <avifile/renderer.h>
 #undef BIG_ENDIAN
-#include <decore.h>
 #include <layer.h>
 
 class AviLayer: public Layer {
@@ -70,7 +69,7 @@ class AviLayer: public Layer {
   fourcc_t fcc;
   BITMAPINFOHEADER bh;
     //BitmapInfo bh;
-  DEC_PARAM dp;
+    //DEC_PARAM dp;
 
   unsigned int _samples_read;
   unsigned int _bytes_read;

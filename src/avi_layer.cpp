@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  */
 
 #include <config.h>
@@ -54,11 +57,11 @@ bool AviLayer::init(Context *scr) {
   //  CodecInfo::Get(_ci, avm::CodecInfo::Video, avm::CodecInfo::Decode, fcc);
   Creators::SetCodecAttr
     (*_ci, (const char*)"Quality", (const char*)_quality);
-
   if(bh.biBitCount!=32) {
-    error("AVI layer does'nt supports color depths different from 32bpp");
-    error("and cannot find a suitable colorspace conversion routine for this avi file");
-    error("sorry, you can't use the selected AVI");
+    error("Movie file decoding produces %ibit colorspace images.",bh.biBitCount);
+    error("FreeJ movie layer does'nt supports color depths different from 32bpp");
+    error("cannot find a suitable colorspace conversion routine for this avi file");
+    error("sorry, you can't use the selected movie. Encode it using XviD codec.");
     close();
     return false;
   }
@@ -137,8 +140,8 @@ bool AviLayer::open(char *file) {
      * YUV formats. You can check if your particular decoder is able to decode
      * into the particular YUV format by calling GetCapabilities(),
      * which returns bitwise OR of supported formats.
-     */
 
+    */
 
     if(_stream->StartStreaming()!=0) {
       /* check if here we got to free something */
@@ -146,7 +149,7 @@ bool AviLayer::open(char *file) {
       return(false);
     }
 
-    _stream->GetDecoder()->SetDestFmt(32);
+     _stream->GetDecoder()->SetDestFmt(32);
     _stream->ReadFrame(false);
     bh = _stream->GetDecoder()->GetDestFmt();
      

@@ -1,10 +1,13 @@
 
-          [[[  FreeJ 0.5.1 "ECOTECH"  ]]]
+          [[[  FreeJ 0.5.1 "PIKSEL"  ]]]
 
              [ http://freej.dyne.org ]
 
-               :: set the vj free ::
- free unified framework for realtime video processing
+
+        JAH BLESS YOU AND BIG UP ALL FRIENDS!
+      this is RASTASOFTWARE to SET THE VJ FREE!
+         by jaromil - http://rastasoft.org
+
 
 :: OVERVIEW
 
@@ -39,14 +42,16 @@ images.
 
 :: FEATURES
 
-++ multilayered video engine
-++ filters loaded as runtime DSO plugins
+++ reads from multiple sources:
+   video4linux, divx/avi movies, png images and txt files
+++ multithreaded layered video engine
 ++ layer filtering thru chainable dsp algorithms
+++ DSO plugin filters
 ++ MMX/SSE accelerated engine lubrification
 ++ efficient triple-buffered video grabbing layer
-++ modular c++ code structure
-++ multithreaded architecture (POSIX.1b compliant)
+++ modular c++ code structure (POSIX.1b compliant)
 ++ (ab)user friendly OnScreenDisplay interface
+++ 100% GNU Public License Free Software
 
 
 
@@ -74,7 +79,7 @@ modelines in doc/x11.modelines.
 
 :: INSTALL FROM SOURCE
 
-YOU MUST READ THE INSTALL FILE
+*** YOU MUST READ THE INSTALL FILE NOW
 
 once you have installed all the required libraries, just do: 
 
@@ -90,27 +95,17 @@ modelines included into doc/x11.modelines.
 
 :: INSTALL FROM DEBIAN PACKAGES
 
-you can do 'apt-get install freej' and you will have a version of freej
-which is not compiled against avifile libraries (you can't play .avi).
-
-if you want to have .avi files played on debian you have to compile
-freej from source.
-you can install avifile .deb packages from marillat.free.fr
-libavifile0-dev
-avifile-win32-plugin
-and then you must recompile freej (if you did a configure allready do a
-'make distclean' before the next compilation).
-
+you can do 'apt-get install freej' and you will have a precompiled freej
+which is NOT optimized for your computer.
 
 :: DISCUSSION
 
-Freej.org website is a dynamic web portal offering community facilities
-as discussion forums, user registration and polls.
+Come and visit the dyne.org crews on irc.freenote.net channel #dyne
 
 A mailinglist  for  further  discussion  about  FreeJ  is  running  as
 <freej@dyne.org>, subscription is opened and  anybody  interested  can
 send a mail to <freej-subscribe@dyne.org> to join. Online archive is
-on http://dyne.org/cgi-bin/ml.cgi?4 .
+on http://live.dyne.org/freej
 
 
 
@@ -127,7 +122,7 @@ will find instructions on how to get and browse online the code).
 
 :: DISCLAIMER
 
-FreeJ is (c) 2001, 2002, 2003 by Deni Rojo <jaromil@dyne.org>
+FreeJ is (c) 2001, 2002, 2003 by Denis Rojo <jaromil@dyne.org>
 refer to AUTHORS for a complete list of contributions.
 
 This source code is free software; you can redistribute it and/or

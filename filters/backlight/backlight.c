@@ -79,7 +79,7 @@ int clean() {
 void *process(void *buffo) {
 
   const int nFixedShift=8;
-  const int nFixedMult=(1<<nFixedShift);
+ // const int nFixedMult=(1<<nFixedShift);
   
   const int nWidth=geo->w;
   const int nHeight=geo->h;
@@ -101,14 +101,14 @@ void *process(void *buffo) {
   bzero(pOutput, geo->size);
   
   while(pCurrentSource != pSourceEnd) {
-    const int32_t* pSourceLineStart=pCurrentSource;
+   // const int32_t* pSourceLineStart=pCurrentSource;
     const int32_t* pSourceLineEnd=pCurrentSource+nWidth;
     int nLength,nDeltaX,nDeltaY,nEndX,nEndY,nXInc,nYInc;
     int nCurrentX,nCurrentY,nDestXInc,nDestYInc;
     nX=xOrigin;
     while (pCurrentSource!=pSourceLineEnd) {
       int32_t SourceColour=*pCurrentSource;
-      int32_t OutputColour=SourceColour;
+      //int32_t OutputColour=SourceColour;
       int nRed=RED(SourceColour);
       int nGreen= GREEN(SourceColour);
       int nBlue=BLUE(SourceColour);

@@ -10,21 +10,19 @@ LIST OF COMMANDS:
 % means SHIFT key pressed
 
  GENERIC COMMANDS:
- PRINTSCR = display nice and lovely credits
- SPACE    = switch fullscreen mode
+ ^SPACE    = switch fullscreen mode
  ESC      = quits (without confirm)
- TAB      = turn on/off OSD
- ^TAB     = turn on/off calibration guidelines
+ TAB      = on/off OSD
+ ^TAB     = on/off calibration guidelines
+ PRINTSCR = display nice and lovely credits
 
  LAYER COMMANDS:
 
- PGUP/
- PGDOWN   = select layers up and down thru the chain
+ PGUP/PGDOWN   = select layers up and down thru the chain
+ ^PGUP/^PGDOWN  = move layers up and down thru the chain
 
- ^PGUP/
- ^PGDOWN  = move layers up and down thru the chain
-
- HOME     = hide/show layer
+ HOME     = hide/show layer         BACKSP   = turn matte off
+ %BACKSP  = white matte             ^BACKSP  = black matte
 
  1 = select NORMAL BLIT             2 = select BLU BLIT
  3 = select GREEN BLIT              4 = select RED BLIT
@@ -34,6 +32,8 @@ LIST OF COMMANDS:
 
  %ARROWS  = move layers around thru the screen
  mouse-l  = drag layers around, slowly and smoothly
+ 
+ 
 
  FILTER COMMANDS:
 
@@ -73,23 +73,40 @@ SOME FILTER COMMANDS:
 (see the filter's sourcecode for details)
 
  DelayGrab filter
- q/w      = switch up/down delaymap
- a/s      = increase/decrease blocksize
+ q/w      = browse the 4 delay maps
+ a/s      = -/+ blocksize
 
- Vertigo filter (try it out after AbsDiff filter!)
- q/w      = phase increment/decrement
- a/s      = zoomrate increment/decrement
- z/x      = browse thru 3 modes (normal, artifarti, weird)
+ Vertigo filter
+ q/w      = -/+ phase
+ a/s      = -/+ zoom speed
+ z/x      = -/+ weirdness
 
  Simura filter
  caps-lock + all letters = change color filters
  keypad numbers = change mirror mode
 
  QuadTrans filter
- q/w      = multiply/divide frames of the screen
+ q/w      = -/+ frames of the screen
 
  SquareTrans filter
- q/w      = increase/decrease blocksize
+ q/w      = -/+ blocksize
+
+ Water filter
+ q/w      = -/+ water density
+ e        = big splash in the center
+ r        = randomly placed splash
+ t        = rain
+ y        = whirpool in the center
+ u        = surfer
+ d        = distort surface (USE WITH CAUTION)
+ f        = calm water
+
+ Cartoon filter
+ q/w      = -/+ blending
+ a/s      = -/+ border outline
+
+ Nervous filter
+ q        = switch between the 2 modes
 
 SDL TIP:
 

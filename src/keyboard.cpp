@@ -69,11 +69,17 @@ void KbdListener::run() {
 	switch(event.key.keysym.sym) {
 	  
 	case SDLK_ESCAPE:
-	  quit = true;
+	  if(event.key.keysym.mod & KMOD_CTRL)
+	    quit = true;
+	  else
+	    show_osd("press CTRL+ESC if you really want to quit");
 	  break;
 	  
 	case SDLK_SPACE:
-	  SDL_WM_ToggleFullScreen(screen->surf);
+	  if(event.key.keysym.mod & KMOD_CTRL)
+	    SDL_WM_ToggleFullScreen(screen->surf);
+	  else
+	    show_osd("press CTRL+SPACE to switch fullscreen");
 	  break;
 	  
 	case SDLK_TAB:

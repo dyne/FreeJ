@@ -1,10 +1,13 @@
-FreeJ 0.5.1 ECOTECH - 12 Jun 2003
+FreeJ 0.5.1 PIKSEL - 26 Oct 2003
   new TxtLayer rendering engine
+  divx4linux libraries not required anymore for movies
   fix to avifile looping and playing
   fix to plugin directories
   new ripple effect by Fukuchi Kentarou
   new water effect by jaromil
-  
+  new nervous effect by Edo Tannenbaum
+  revisited source build environment
+	
 FreeJ 0.5 ECOTECH - 27 May 2003
   new filters: Blur (Jaromil), Backlight (Pete Warden)
   upgrade to Transform filters

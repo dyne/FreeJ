@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  */
 
 #include <stdio.h>
@@ -23,7 +26,7 @@
 #include <context.h>
 #include <lubrify.h>
 #include <osd.h>
-#include <font_pearl_8x8.h>
+#include <font_acorn_8x8.h>
 #include <config.h>
 
 void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
@@ -31,6 +34,10 @@ void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
   Uint32 *ptr;
   Uint32 *diocrap = (Uint32 *)screen->coords(xpos,ypos);
   unsigned char *buffer = (unsigned char *)screen->get_surface();
+
+  /* there is only ONE multiplication in the whole On Screen Display code
+     and it here, in the rendering of the text. just once per letter.
+     we will survive. */
   v = screen->w*vsize;
   
   len = strlen(text);
@@ -46,7 +53,7 @@ void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
     while(diocrap-(Uint32 *)buffer<screen->pitch) ptr = diocrap += v;
 
     for (x=0; x<len; x++) {
-      f = fontdata[text[x] * CHAR_HEIGHT + y];
+      f = fontdata[(text[x] <<3) + y]; // the 3 is assuming CHAR_HEIGHT of fonts being 8
       for (i = CHAR_WIDTH-1; i >= 0; i--)
 	if (f & (CHAR_START << i))
 	  for(ch=0;ch<hsize;ch++) {
@@ -238,7 +245,7 @@ void Osd::splash_screen() {
   _write(PACKAGE,HBOUND+40,vpos,2,2);
   _write(VERSION,HBOUND+160,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  _write("ECOTECH",HBOUND+40,vpos,2,2);
+  _write("PIKSEL",HBOUND+40,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
   _write(":: set the veejay free ",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+30;

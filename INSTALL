@@ -1,4 +1,4 @@
-FreeJ 0.4 INSTALLATION INSTRUCTIONS
+FreeJ 0.5.1 INSTALLATION INSTRUCTIONS
 ===================================
 
 to install FreeJ with all its wonderful features follow those steps:
@@ -16,10 +16,11 @@ to install FreeJ with all its wonderful features follow those steps:
 
   (don't forget to use ldconfig after installing libraries)
 
-== optionally install AviFile library with divx4linux and win32 dlls
-   from http://avifile.sourceforge.net/
-   take the LATEST VERSION: 0.7.16 or more, NOT LESS
-   tip: use ./configure --with-x86opt
+== optionally install AviFile library http://avifile.sourceforge.net/
+   together with XviD from http://xvid.org and compile with
+   ./configure --with-x86opt --enable-xvid
+   to have the movie layer playing divx (see avifile dependencies to
+   have more formats supported)
 
 
 == download freej latest stable version: 
@@ -28,3 +29,4 @@ to install FreeJ with all its wonderful features follow those steps:
    cvs -z9 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/freej co freej
    and then compile it as usually and install it with the usual
    ./configure; make; make install
+

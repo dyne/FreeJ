@@ -52,7 +52,7 @@ class Osd {
   bool _calibrate;
   bool _credits;
   bool _fps;
-  
+
  public:
   Osd();
   ~Osd();

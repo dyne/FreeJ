@@ -39,7 +39,7 @@ AM_PROG_LIBTOOL
 dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
-CFLAGS="-g -Wall -O4 -pipe -D_REENTRANT -fomit-frame-pointer -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
+CFLAGS="-g -Wall -O4 -pipe -D_REENTRANT -fomit-frame-pointer -mcpu=${host_cpu} -finline-functions -ffast-math -funroll-loops"
 LIBS="-lpthread -lm -ldl -lpng"
 
 dnl Checks for header files.
@@ -62,9 +62,6 @@ AM_PATH_SDL($SDL_VERSION,
 	AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
            )
 AC_SUBST(SDL_LIBS)
-AC_CHECK_SIZEOF(short, 2)
-AC_CHECK_SIZEOF(int, 4)
-AC_CHECK_SIZEOF(long, 4)
 
 dnl AC_HEADER_DIRENT
 

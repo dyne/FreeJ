@@ -1,15 +1,24 @@
 *** MAIN AUTHOR ::
 
-Denis "jaromil" Rojo - http://korova.dyne.org
+Denis "jaromil" Rojo - http://rastasoft.org
 	concept, coder and mantainer
 
 *** CONTRIBUTIONS ::
 
-Silvano "kysucix" Galliani - http://kysucix.nexlab.it
-        text layer
+Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
+	yuv2rgb c conversion code
 
-Pete Warden
-	backlight filter
+Andreas Schiffler <aschiffler@home.com>
+	inspirations, experience and delaygrab filter
+
+Clifford Smith <nullset@dookie.net>
+	transform filter from EffecTV
+
+Edo Tannenbaum
+	nervous filter from EffecTV
+
+Fukuchi Kentarou <fukuchi@is.titech.ac.jp>
+	a couple of filters and code goodies from EffecTV
 
 Lluis Gomez I Bigorda <lgomez@pangea.org>
 	zoom filter
@@ -17,20 +26,14 @@ Lluis Gomez I Bigorda <lgomez@pangea.org>
 Leonid Andreev <lenonid@math.harvard.edu>
 	feedback and bugfixes
 
-Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
-	yuv2rgb c conversion code
-
 Olie Lho <ollie@sis.com.tw>
 	yuv2rgb asm mmx optimized code
 
-Andreas Schiffler <aschiffler@home.com>
-	original delaygrab filter code
+Pete Warden
+	backlight filter
 
-Fukuchi Kentarou <fukuchi@is.titech.ac.jp>
-	a couple of filters from EffecTV
-
-Clifford Smith <nullset@dookie.net>
-	transform filter from EffecTV
+Silvano "kysucix" Galliani - http://kysucix.nexlab.it
+        text layer
 
 *** THANKS TO ::
 
