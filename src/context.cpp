@@ -27,6 +27,7 @@
 #include <context.h>
 
 #include <sdl_screen.h>
+#include <imagefilter.h>
 #include <jsparser.h>
 
 #include <jutils.h>
@@ -70,6 +71,9 @@ bool Context::init(int wx, int hx) {
 #endif
   
   find_best_memcpy();
+  
+  if( SDL_imageFilterMMXdetect() )
+    act("using MMX accelerated blit");
 
   set_fps_interval(25);
   gettimeofday( &lst_time, NULL);
@@ -147,7 +151,7 @@ void Context::cafudda(unsigned int secs) {
       Layer *lay = (Layer *)layers.begin();
       while(lay) {
 	lay->lock();
-	screen->crop(lay);
+	lay->blitter.crop( screen );
 	lay->unlock();
 	lay = (Layer*)lay->next;
       }

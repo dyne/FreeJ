@@ -83,7 +83,7 @@ GenLayer::GenLayer()
 
   pi2 = 2.0*M_PI;
 
-  setname("GEO");
+  set_name("GEO");
 
 }
 

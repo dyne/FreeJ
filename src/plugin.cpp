@@ -58,7 +58,8 @@ bool Plugin::open(const char *path) {
   if(getver) _version = (*getver)();
   else _version = 0;
 
-  func("Opened plugin %s from %s with handle %p",_name,path,_handle);
+  func("Opened plugin %s from %s with handle %p",
+       _name,path,_handle);
   
   __init = (t_init*)(*this)["init"];
   __clean = (t_clean*)(*this)["clean"];

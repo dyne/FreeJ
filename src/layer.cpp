@@ -36,9 +36,9 @@ Layer::Layer()
   hidden = false;
   bgcolor = 0;
   bgmatte = NULL;
-  blit = 1;
+  blitter.set_blit("RGB");
   set_alpha(255);
-  setname("???");
+  set_name("???");
   buffer = NULL;
   surf = NULL; // sdl surface. if used this is !NULL
 }
@@ -60,8 +60,9 @@ void Layer::_init(Context *freej, int wdt, int hgt, int bpp) {
   geo.x = (freej->screen->w - geo.w)/2;
   geo.y = (freej->screen->h - geo.h)/2;
 
-  // crop();
-  freej->screen->crop(this);
+  /* initialize the blitter */
+  blitter.init(this);
+  blitter.crop( freej->screen );
 
   /* allocate memory for the matte background */
   bgmatte = jalloc(bgmatte,geo.size);
@@ -78,7 +79,7 @@ void Layer::run() {
   while(!quit) {
     if(bgcolor==0) {
       buffer = feed();
-      if(!buffer) error("feed error on layer %s",_name);
+      if(!buffer) error("feed error on layer %s",name);
       wait_feed();
     } else if(bgcolor==1) { /* go to white */
       memset(bgmatte,0xff,geo.size);
@@ -111,8 +112,7 @@ bool Layer::cafudda() {
     filt = (Filter *)filt->next;
   }
   
-  //blit(offset);
-  freej->screen->blit(this);
+  blitter.blit();
   
   filters.unlock();
 
@@ -122,24 +122,19 @@ bool Layer::cafudda() {
 }
 
 
-void Layer::setname(char *s) {
-  snprintf(_name,4,"%s",s);
+void Layer::set_name(char *s) {
+  snprintf(name,4,"%s",s);
 }
-char *Layer::get_name() { return _name; }
+char *Layer::get_name() { return name; }
 
 char *Layer::get_blit() {
-  switch(blit) {
-  case 1: return "RGB";
-  case 2: return "BLU";
-  case 3: return "GRE";
-  case 4: return "RED";
-  case 5: return "ADD";
-  case 6: return "SUB";
-  case 7: return "AND";
-  case 8: return "OR ";
-  case 9: return alphastr;
-  default: return "???";
+  Entry *b = blitter.blitlist.selected();
+  if(!b) {
+    error("no blit selected for layer %s",name);
+    error("this is dangerous, and should never happen!");
+    return "???";
   }
+  return b->name;
 }
 
 void Layer::set_alpha(int opaq) {
@@ -157,6 +152,6 @@ void Layer::set_position(int x, int y) {
   lock();
   geo.x = x;
   geo.y = y;
-  freej->screen->crop(this);
+  blitter.crop( freej->screen );
   unlock();
 }

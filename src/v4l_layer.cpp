@@ -47,7 +47,7 @@ V4lGrabber::V4lGrabber()
   have_tuner=false;
   init_width = 320;
   init_heigth = 240;
-  setname("V4L");
+  set_name("V4L");
 }
 
 V4lGrabber::~V4lGrabber() {

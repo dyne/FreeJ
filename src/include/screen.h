@@ -24,8 +24,6 @@
 
 #include <inttypes.h>
 
-#include <layer.h>
-
 class ViewPort {
  public:
   ViewPort();
@@ -36,8 +34,6 @@ class ViewPort {
      otherwise burdens our performance */ 
   virtual bool init(int width, int height) =0;
   virtual void set_magnification(int algo) =0;
-  virtual void blit(Layer *layer) =0;
-  virtual void crop(Layer *layer) =0;
   virtual void show() =0;
   virtual void clear() =0;
   virtual void *get_surface() =0; // returns direct pointer to video memory
@@ -57,7 +53,8 @@ class ViewPort {
      because calling this on every pixel you draw is
      slowing down everything! */
   virtual void *coords(int x, int y) =0;
-  
+
+  uint32_t rmask,gmask,bmask,amask;  
 };
 
 #endif

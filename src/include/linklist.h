@@ -44,6 +44,9 @@ class Linklist {
   bool movedown(int pos);
   bool moveto(int num, int pos);
   Entry *pick(int pos);  
+  Entry *search(char *name);
+  int *completion(char *needle);
+
   Entry *Linklist::selected();
 
   Entry *operator[](int pos) { return pick(pos); };
@@ -58,12 +61,15 @@ class Linklist {
 
  private:
   pthread_mutex_t mutex;
+  int compbuf[512]; // maximum completion listsize allowed
 };
 
 class Entry {
  public:
   Entry();
   ~Entry();
+
+  char name[256];
   
   Entry *next;
   Entry *prev;

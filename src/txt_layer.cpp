@@ -39,7 +39,7 @@
 TxtLayer::TxtLayer()
      :Layer() {
 	  buf = NULL;
-	  setname("TXT");
+	  set_name("TXT");
 	  change_word=true;
 	  clear_screen=false;
 	  onscreen=false;

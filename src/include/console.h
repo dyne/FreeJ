@@ -50,12 +50,12 @@ class Console {
   
   void layerprint();
   void layerlist();
-  Layer *layer, *tmplay;
+  Layer *layer;
   int layercol;
 
   void filterprint();
   void filterlist();
-  Filter *filter, *tmpfilt;
+  Filter *filter;
 
   void speedmeter();
 

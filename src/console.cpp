@@ -43,7 +43,9 @@
 #define KEY_TAB 9
 /* unix ctrl- commandline hotkeys */
 #define KEY_CTRL_A 1 // goto beginning of line
+#define KEY_CTRL_B 2
 #define KEY_CTRL_E 5 // goto end of line
+#define KEY_CTRL_F 6
 #define KEY_CTRL_K 11 // delete until end of line
 #define KEY_CTRL_D 4 // delete char
 #define KEY_CTRL_U 21 // delete until beginning of line
@@ -78,14 +80,62 @@ static int getkey_handler() {
 }
 
 static int js_proc(char *cmd) {
-  int res;
-  if(!cmd) return 0;
+  int res = 0;
+  if(!cmd) return res;
 #ifdef WITH_JAVASCRIPT
   res = env->js->parse(cmd);
   if(!res) ::error("invalid javascript command: %s",cmd);
 #endif
   return res;
 }
+
+
+// used to handle completed input from console
+static int blit_selection(char *cmd) {
+  if(!cmd) return 0;
+  if(!strlen(cmd)) return 0;
+
+  Layer *lay = (Layer*)env->layers.selected();
+  if(!lay) {
+    ::error("no layer currently selected");
+    return 0;
+  }
+  lay->set_blit(cmd); // now this takes a string!
+  return 1;
+}
+static int blit_comp(char *cmd) {
+  int c;
+  int *blits;
+  Blit *b;
+
+  if(!cmd) return 0;
+
+  Layer *lay = (Layer*)env->layers.selected();
+  if(!lay) {
+    ::error("no layer currently selected");
+    return 0;
+  }
+
+  blits = lay->blitter.blitlist.completion(cmd);
+  if(!blits) return 0;
+  if(!blits[0]) return 0;
+  func("porcodio %i",blits[0]);
+  for(c=0;blits[c];c++) {
+    b = (Blit*) lay->blitter.blitlist.pick(blits[c]);
+
+    if(!b) {
+      func("error in completion: missing %i");
+      continue;
+    }
+    ::act("%s :: %s",b->name,b->desc);
+  }
+
+  if(c==1) // exact match, then fill in command
+    snprintf(cmd,511,"%s",b->name);
+
+  return c;
+}
+
 
 static int filter_proc(char *cmd) {
   Filter *filt;
@@ -110,7 +160,6 @@ static int filter_proc(char *cmd) {
   filt->sel(true);
   return 1;
 }
-
 static int filter_comp(char *cmd) {
   int c;
   char **res;
@@ -139,6 +188,8 @@ Console::Console() {
   input = false;
   do_update_scroll=true;
   active = false;
+  layer = NULL;
+  filter = NULL;
 }
 
 Console::~Console() {
@@ -225,7 +276,7 @@ void Console::close() {
    saves the pointer to the command processing function
    to use it once the input is completed */
 int Console::readline(char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
-  ::act(msg);
+  ::notice(msg);
   update_scroll();
   SLsmg_gotorc(SLtt_Screen_Rows - 1,0);
   SLsmg_write_string(":");
@@ -237,6 +288,7 @@ int Console::readline(char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
   SLtt_set_cursor_visibility(1);
   cmd_process = proc;
   cmd_complete = comp;
+  return 1;
 }
 
 #define GOTO_CURSOR \
@@ -245,6 +297,7 @@ int Console::readline(char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
 void Console::getkey() {
   int res,c;
   int key = SLkp_getkey();
+  
   if(key) ::func("SLkd_getkey: %u",key);
   else return; /* return if key is zero */
 
@@ -361,13 +414,57 @@ void Console::getkey() {
   } else { /* ======== hotkey input */
 
     switch(key) {
-    case SL_KEY_IC:
-      readline("add new filter - with tab completion!",&filter_proc,&filter_comp);
+    case SL_KEY_UP:
+      if(filter)
+	filter = (Filter*)filter->prev;
+      break;
+    case SL_KEY_DOWN:
+      if(!filter) {
+	if(!layer) break;
+	filter = (Filter*)layer->filters.begin();
+	break;
+      }
+      if(!filter->next) break;
+      filter = (Filter*)filter->next;
       break;
 
+    case SL_KEY_LEFT:
+      if(!layer) {
+	layer = (Layer*)env->layers.end();
+	break;
+      }
+      if(!layer->prev) break;
+      layer = (Layer*)layer->prev;
+      break;
+    case SL_KEY_RIGHT:
+      if(!layer) {
+	layer = (Layer*)env->layers.begin();
+	break;
+      }
+      if(!layer->next) break;
+      layer = (Layer*)layer->next;
+      break;
+
+    case SL_KEY_PPAGE: break;
+    case SL_KEY_NPAGE: break;
+    case SL_KEY_END: break;
+
+    case SL_KEY_BACKSPACE:      
     case SL_KEY_DELETE:
-      ::act("delete filter: TODO");
+      if(!filter) break;
+      filter->rem();
+      filter->clean();
+      filter = NULL;
     break;
+
+    case KEY_CTRL_E:
+      readline("add new Effect - press TAB for completion",&filter_proc,&filter_comp);
+      break;
+      
+    case KEY_CTRL_B:
+      readline("select Blit mode - press TAB for completion",
+	       &blit_selection,&blit_comp);
+      break;
 
     case ':':
       if(!env->js) {
@@ -408,34 +505,22 @@ void Console::cafudda() {
     screen_size_changed = false;
   }
 
-  if(!input) { /* no interactive console input ongoing */
+  /* print info the selected layer */
+  layerprint(); // updates the *layer selected pointer
+  layerlist(); // print layer list   
     
-    /* print info the selected layer */
-    layerprint();
-    layerlist(); // print layer list
-    
-    
-    /*if a filter is selected, then
-      print info on a new filter, if a new one was selected */
-    if(layer) {
-      tmpfilt = (Filter *)layer->filters.selected();
-      if(tmpfilt!=filter) {
-	filter = tmpfilt;
-	filterprint();
-      }
-      filterlist(); // print filter list
-    }
-    
-    if(do_update_scroll)
-      update_scroll();
-    
-    
-    speedmeter();
-    statusline();
-  } // if !(input)
+  filterprint(); // updates the *filter selected pointer
+  filterlist(); // print filter list
+  
+  if(do_update_scroll)
+    update_scroll();
+  
+  speedmeter();
 
+  if(!input) statusline();
+  
   SLsmg_refresh();
- 
+  
   SLsig_unblock_signals ();
 }
 
@@ -490,16 +575,17 @@ void Console::canvas() {
   SLsmg_set_color(33);
   SLsmg_write_string("OFT");
 
+
+  //  SLsmg_gotorc(14,0);
+  //  SLsmg_draw_hline(72);
   SLsmg_set_color(PLAIN_COLOR);
-  SLsmg_gotorc(14,0);
-  SLsmg_draw_hline(72);
   SLsmg_gotorc(SLtt_Screen_Rows - 2,0);
   SLsmg_draw_hline(72);
 }
 
 void Console::layerprint() {
-  layer = (Layer*)env->layers.selected();
   if(!layer) return;
+
   SLsmg_gotorc(2,1);
   SLsmg_set_color(LAYERS_COLOR);
   SLsmg_write_string("Layer: ");
@@ -552,6 +638,8 @@ void Console::layerlist() {
 
 void Console::filterprint() {
   if(!layer) return;
+  if(!filter) return;
+
   SLsmg_gotorc(3,1);
   SLsmg_set_color(FILTERS_COLOR);
   SLsmg_write_string("Filter: ");
@@ -606,7 +694,7 @@ void Console::filterlist() {
 
 
 void Console::notice(char *msg) {
-  scroll(msg,PLAIN_COLOR);
+  scroll(msg,PLAIN_COLOR+10);
 }
 void Console::warning(char *msg) {
   scroll(msg,2);
@@ -619,6 +707,7 @@ void Console::error(char *msg) {
 }
 void Console::func(char *msg) {
   scroll(msg,5);
+  update_scroll();
 }
 
 void Console::free_lines (void)
@@ -700,15 +789,6 @@ void Console::update_scroll() {
   //  line = (File_Line_Type *) Line_Window.top_window_line;
   line = last_line;
   if (!line) return;
-
-  SLsmg_gotorc (nrows, col);
-  SLsmg_set_color(line->color+10);
-  SLsmg_write_string (line->data);
-  SLsmg_erase_eol ();
-
-  line = line->prev;
-
-  nrows--;
 
   for(; nrows>row; nrows--) {
     if (!line) break;

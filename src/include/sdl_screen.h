@@ -32,8 +32,7 @@ class SdlScreen : public ViewPort {
 
   bool init(int widt, int height);
   void set_magnification(int algo);
-  void blit(Layer *layer);
-  void crop(Layer *layer);
+
   void show();
   void clear();
 
@@ -54,18 +53,6 @@ class SdlScreen : public ViewPort {
   bool dbl;
   uint32_t sdl_flags;
 
-  /* blit stuff */
-  uint32_t blit_x, blit_y;
-  uint32_t blit_width, blit_height;
-  uint32_t blit_offset;
-  uint32_t *blit_coords;
-  /* small vars used in blits */
-  int chan, c, cc;
-  uint32_t *scr, *pscr, *off, *poff;
-  uint8_t *alpha;
-  uint32_t rmask,gmask,bmask,amask;
-
-  SDL_Surface *blitter;
 };
 
 #endif 

@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2004 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -30,6 +30,9 @@
 #include <jutils.h>
 #include <linklist.h>
 #include <config.h>
+
+// maximum number of members returned by the completion
+#define MAX_COMPLETION 512
 
 Linklist::Linklist() {
   length = 0;
@@ -147,6 +150,41 @@ Entry *Linklist::pick(int pos) {
   for(c=1;c<pos;c++) ptr = ptr->next;
 
   return(ptr);
+}
+
+/* search the linklist for the entry matching *name
+   returns the Entry* on success, NULL on failure */
+Entry *Linklist::search(char *name) {
+  Entry *ptr = first;
+  while(ptr) {
+    if( strcasecmp(ptr->name,name)==0 ) break;
+    ptr = ptr->next;
+  }
+  return(ptr);
+}    
+/* searches all the linklist for entries starting with *needle
+   returns a list of indexes where to reach the matches */
+int *Linklist::completion(char *needle) { 
+  int c;
+  int found;
+  int len = strlen(needle);
+
+  /* check it */
+  Entry *ptr = first;
+  if(!ptr) return NULL;
+
+  for( found=0, c=1 ; ptr ; c++ , ptr=ptr->next ) {
+    if(!len) { // 0 lenght needle: return the full list
+      compbuf[found] = c;
+      found++;
+    } else if( strncasecmp(needle,ptr->name,len)==0 ) {
+      compbuf[found] = c;
+      found++;
+    }
+  }
+  compbuf[found] = 0;
+  func("completion found %i hits",found);
+  return compbuf;
 }
 
 

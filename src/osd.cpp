@@ -115,7 +115,7 @@ void Osd::init(Context *screen) {
     if(!ipernaut) ipernaut = create_layer("ipernav.png");
     if(ipernaut) {
       if(ipernaut->init(env)) {
-	ipernaut->set_blit(9);
+	ipernaut->set_blit("ALPHA");
 	ipernaut->set_alpha(128);
       } else {
 	delete ipernaut;

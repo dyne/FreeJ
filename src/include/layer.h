@@ -29,11 +29,13 @@
 
 #include <inttypes.h>
 #include <SDL.h>
-
+#include <blitter.h>
 #include <filter.h>
 #include <jsync.h>
 
 class Context;
+
+
 
 /**
    This class describes methods and properties common to all Layers in
@@ -67,6 +69,7 @@ class Context;
    @brief Layer parent abstract class
 */
 class Layer: public Entry, public JSyncThread {
+  friend class Blitter;
   friend class Context;
   friend class JSyncThread;
 
@@ -90,10 +93,9 @@ class Layer: public Entry, public JSyncThread {
   ///< Set Layer's position on screen
 
   /* BLIT */
-  void set_blit(int b) { blit = b; }; ///< Set Layer's blit algorithm
-  uint8_t blit; ///< Layer's blit algorithm integer identifier
-  char *get_blit(); ///< Get a short string describing Layer's blit algorithm
-
+  void set_blit(char *name) { blitter.set_blit(name); }; ///< Set Layer's blit algorithm
+  char *get_blit(); ///< Get a short string describing current Layer's blit algorithm
+  char *get_blit_desc(); ///< Get a long description 
 
   /* ALPHA */
   void set_alpha(int opaq); ///< Set Layer's alpha opacity
@@ -115,7 +117,10 @@ class Layer: public Entry, public JSyncThread {
   bool hidden; ///< is hidden (read-only by the blit)
   int bgcolor; ///< matte background color
 
-  SDL_Rect rect; ///< SDL rectangle for blit crop
+
+  Blitter blitter; ///< blitter class
+
+  /** physical buffers */
   SDL_Surface *surf; ///< pointer to SDL surface, !NULL if used
   void *offset; ///< pointer to pixels when !sdl_surface
 
@@ -129,13 +134,13 @@ class Layer: public Entry, public JSyncThread {
   void set_filename(char *f);
   char filename[256];
 
-  void setname(char *s);
+  void set_name(char *s);
 
-  void *buffer;
+  void *buffer; ///< feed buffer returned by layer implementation
 
 
  private:
-  char _name[5];
+
   char alphastr[5];
 
   void run(); ///< Main Layer thread loop
@@ -149,10 +154,10 @@ class Layer: public Entry, public JSyncThread {
 };
 
 /* function for type detection of implemented layers */
-
+extern const char *layers_description;
 extern Layer *create_layer(char *file);
 ///< create the propriate Layer type from a file
 
-extern const char *layers_description;
+
 
 #endif

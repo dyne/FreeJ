@@ -287,78 +287,14 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkOptionMenu" id="optionmenu_layer_blit">
+		    <widget class="GtkOptionMenu" id="menu_blit">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">change layer blit</property>
 		      <property name="can_focus">True</property>
-		      <property name="history">0</property>
+		      <property name="history">-1</property>
 
 		      <child>
 			<widget class="GtkMenu" id="menu4">
-
-			  <child>
-			    <widget class="GtkMenuItem" id="blit_rgb">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">RGB</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="blit_red">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">RED</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="blit_green">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">GREEN</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="blit_blue">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">BLUE</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="blit_add">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">ADD</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="blit_sub">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">SUB</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="blit_and">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">AND</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
-
-			  <child>
-			    <widget class="GtkMenuItem" id="blit_or">
-			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">OR</property>
-			      <property name="use_underline">True</property>
-			    </widget>
-			  </child>
 			</widget>
 		      </child>
 		    </widget>

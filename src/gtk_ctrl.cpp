@@ -55,6 +55,7 @@ static GtkTreeStore *effect_store;
 static GtkTreeIter effect_iter;
 
 static GtkMenu *menu_effect;
+static GtkMenu *menu_blit;
 
 /* direct pointer to FreeJ environment */
 static Context *env;
@@ -91,6 +92,58 @@ void on_about(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   env->osd.credits();
 }
+
+/* =========== BLIT */
+
+
+void on_select_blit(char *name) {
+  gtk_menu_set_active(menu_blit,0);
+  Layer *lay = (Layer*) env->layers.selected();
+  if(!lay) {
+    error("no layer selected to change blit to %s",name); return; }
+  lay->blitter.set_blit(name);
+}
+void init_blit_menu() {
+  GtkOptionMenu *option_menu_blit;
+  GtkWidget *item;
+  
+  option_menu_blit = (GtkOptionMenu*) glade_xml_get_widget(gtk,"menu_blit");
+  if(!option_menu_blit) {
+    error("glade file corrupted: menu_blit symbol not found");
+    return;
+  }
+
+  menu_blit = (GtkMenu*)gtk_menu_new();
+  gtk_menu_set_title(menu_blit,"Blit mode");
+  item = gtk_menu_item_new_with_label("Blit mode");
+  gtk_menu_shell_append(GTK_MENU_SHELL(menu_blit),item);
+ 
+  gtk_option_menu_set_menu(option_menu_blit,(GtkWidget*)menu_blit);
+}
+
+void update_blit_menu() {
+  GtkOptionMenu *option_menu_blit;
+  GtkWidget *item;
+  
+  option_menu_blit = (GtkOptionMenu*) glade_xml_get_widget(gtk,"menu_blit");
+
+  /* TODO cleanup previous menu */
+  Layer *lay = (Layer*)env->layers.selected();
+  Entry *ptr = lay->blitter.blitlist.begin();
+  while(ptr) {
+    item = gtk_menu_item_new_with_label(ptr->name);
+    gtk_widget_show(item);
+    gtk_menu_shell_append(GTK_MENU_SHELL(menu_blit),item);
+    g_signal_connect_swapped(G_OBJECT(item),"activate",
+			     G_CALLBACK(on_select_blit),
+			     (gpointer)ptr->name);
+    ptr = ptr->next;
+  }
+  gtk_option_menu_set_menu(option_menu_blit,(GtkWidget*)menu_blit);
+}
+
+
+
 void do_add_layer(GtkWidget *widget, gpointer *data) {
   Layer *lay;
   char **sel = gtk_file_selection_get_selections(GTK_FILE_SELECTION(data));
@@ -151,45 +204,7 @@ void on_layer_down(GtkWidget *widget, gpointer *data) {
   Layer *laysel = (Layer*) env->layers.selected();
   if(laysel) laysel->down(); 
 }
-void on_blit_rgb(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-  Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(1); 
-}
-void on_blit_red(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-  Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(4); 
-}
-void on_blit_green(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-  Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(3); 
-}
-void on_blit_blue(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-  Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(2); 
-}
-void on_blit_add(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-  Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(5); 
-}
-void on_blit_sub(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-  Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(6); 
-}
-void on_blit_and(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-  Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(7); 
-}
-void on_blit_or(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-  Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(8); }
+
 void on_osd(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   env->osd.active = !env->osd.active; }
@@ -213,6 +228,7 @@ void on_layer_select(GtkTreeSelection *sel, gpointer data) {
 	   laysel->get_name(),laysel->get_filename(),laysel);
       env->layers.sel(0); /* deselect all */
       laysel->sel(true); /* select the one */
+      update_blit_menu();
     }
   }
 }
@@ -446,6 +462,7 @@ void init_effect_menu() {
   gtk_option_menu_set_menu(option_menu_effect,(GtkWidget*)menu_effect);
 }
 
+
 void *gtk_run(void *arg) {
   while(!quit) {
     update_layer_list();
@@ -511,14 +528,6 @@ bool gtk_ctrl_init(Context *nenv, int *argc, char **argv) {
   CONNECT("button_layer_down","clicked",on_layer_down);
   CONNECT("button_layer_delete","clicked",on_layer_delete);
   CONNECT("checkbutton_layer_active","clicked",on_layer_active);
-  CONNECT("blit_rgb","activate",on_blit_rgb);
-  CONNECT("blit_red","activate",on_blit_red);
-  CONNECT("blit_green","activate",on_blit_green);
-  CONNECT("blit_blue","activate",on_blit_blue);
-  CONNECT("blit_add","activate",on_blit_add);
-  CONNECT("blit_sub","activate",on_blit_sub);
-  CONNECT("blit_and","activate",on_blit_and);
-  CONNECT("blit_or","activate",on_blit_or);
 
   CONNECT("button_effect_up","clicked",on_effect_up);
   CONNECT("button_effect_down","clicked",on_effect_down);  
@@ -528,7 +537,7 @@ bool gtk_ctrl_init(Context *nenv, int *argc, char **argv) {
   init_layer_list();
   init_effect_list();
   init_effect_menu();
-
+  
   quit = false;
   if(pthread_attr_init (&_attr) == -1)
     error("error initializing POSIX thread attribute");

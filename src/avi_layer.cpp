@@ -38,7 +38,7 @@ AviLayer::AviLayer()
   :Layer() {
   _avi = NULL;
   _stream = NULL;
-  setname("AVI");
+  set_name("AVI");
   yuvcc = false;
 }
 

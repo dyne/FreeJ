@@ -233,6 +233,8 @@ void KbdListener::run() {
       layer->active = !layer->active;
       break;
 
+#if 0 /// @TODO to be rewritten the blit selection from keyboard
+
       /* BLIT ALGOS */
     case SDLK_1: // RGB straight blit
     case SDLK_2: // BLUE CHAN
@@ -257,6 +259,7 @@ void KbdListener::run() {
       layer->alpha_blit = !layer->alpha_blit;
       break;
       */
+
     case SDLK_BACKSPACE:
       if(keysym->mod & KMOD_SHIFT) /* go to white */
 	layer->bgcolor = 1;
@@ -265,7 +268,7 @@ void KbdListener::run() {
       else layer->bgcolor = 0; /* back to layer feed */
       break;
 
-      
+#endif      
     case SDLK_DELETE:
       if(keysym->mod & KMOD_CTRL) {
 	func("Keyboard CLEAR ALL FILTERS");
