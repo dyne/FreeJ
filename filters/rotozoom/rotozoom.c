@@ -85,14 +85,14 @@ void *process(void *buffo) {
   Uint8 *rotat = (Uint8 *)procbuf;
   Uint8 *buffer = (Uint8 *)buffo;
   
-  for ( j=0 ; j<(geo->w) ; j++ ) {
+  for ( j=0 ; j<(geo->h) ; j++ ) {
     x = (xprime + xi[theta]);
     xprime += h_sin[theta];
     
     y = (yprime + yi[theta]);
     yprime += h_cos[theta];
     
-    for ( i=0 ; i<(geo->h) ; i++ ) {
+    for ( i=0 ; i<(geo->w) ; i++ ) {
       x += h_cos[theta];
       y -= h_sin[theta];
       
@@ -130,8 +130,11 @@ static void init_tables() {
       radian = 2*i*M_PI/360;
       
       hh = 2+ cos(radian);
-      h_cos[i] = (int) ((geo->w) * (hh * cos(radian)));
-      h_sin[i] = (int) ((geo->h) * (hh * sin(radian)));
+      /*      h_cos[i] = (int) ((geo->w) * (hh * cos(radian)));
+	      h_sin[i] = (int) ((geo->h) * (hh * sin(radian))); */
+      h_cos[i] = 256 * (hh * cos(radian));
+      h_sin[i] = 256 * (hh * sin(radian)); 
+
       xi[i] = (int) -(geo->w>>1) * h_cos[i];
       yi[i] = (int) (geo->w>>1) * h_sin[i];
       xj[i] = (int) -(geo->h>>1) * h_sin[i];

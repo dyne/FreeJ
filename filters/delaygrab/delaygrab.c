@@ -156,7 +156,7 @@ int kbd_input(SDL_keysym *keysym) {
     set_blocksize(blocksize+1);
     break;
   case SDLK_a:
-    if(blocksize>1) set_blocksize(blocksize-1);
+    if(blocksize>2) set_blocksize(blocksize-1);
     break;
   default:
     res = 0;
@@ -233,7 +233,7 @@ static void set_blocksize(int bs) {
   delaymapheight = (geo->h)/blocksize;
   delaymapsize = delaymapheight*delaymapwidth;
 
-  if(delaymap) free(delaymap);
+  if(delaymap!=NULL) { free(delaymap); delaymap = NULL; }
   delaymap = malloc(delaymapsize*4);
 
   createDelaymap(current_mode);
