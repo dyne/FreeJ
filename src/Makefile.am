@@ -46,6 +46,7 @@ freej_SOURCES = \
 	xhacks_layer.cpp \
 	jsparser.cpp \
 	cpu_accel.cpp \
+	encode.cpp \
 	fastmemcpy.cpp
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
