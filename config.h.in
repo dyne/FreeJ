@@ -1,5 +1,8 @@
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
+/* define if compiling for Apple Darwin OSX */
+#undef HAVE_DARWIN
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
@@ -8,6 +11,9 @@
 
 /* Define to 1 if you have the `ioctl' function. */
 #undef HAVE_IOCTL
+
+/* define if compiling for Linux */
+#undef HAVE_LINUX
 
 /* Define to 1 if you have the `malloc' function. */
 #undef HAVE_MALLOC
@@ -71,6 +77,9 @@
 
 /* Define if using the dmalloc debugging malloc package */
 #undef WITH_DMALLOC
+
+/* define if compiling video4linux layer */
+#undef WITH_V4L
 
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

@@ -14,9 +14,6 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * "$Id$"
- *
  */
 
 #include <stdio.h>
@@ -24,9 +21,9 @@
 #include <inttypes.h>
 
 #include <context.h>
-#include <lubrify.h>
+//#include <lubrify.h>
 #include <osd.h>
-#include <font_acorn_8x8.h>
+#include <font_pearl_8x8.h>
 #include <config.h>
 
 void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
@@ -34,10 +31,6 @@ void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
   Uint32 *ptr;
   Uint32 *diocrap = (Uint32 *)screen->coords(xpos,ypos);
   unsigned char *buffer = (unsigned char *)screen->get_surface();
-
-  /* there is only ONE multiplication in the whole On Screen Display code
-     and it here, in the rendering of the text. just once per letter.
-     we will survive. */
   v = screen->w*vsize;
   
   len = strlen(text);
@@ -53,7 +46,7 @@ void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
     while(diocrap-(Uint32 *)buffer<screen->pitch) ptr = diocrap += v;
 
     for (x=0; x<len; x++) {
-      f = fontdata[(text[x] <<3) + y]; // the 3 is assuming CHAR_HEIGHT of fonts being 8
+      f = fontdata[text[x] * CHAR_HEIGHT + y];
       for (i = CHAR_WIDTH-1; i >= 0; i--)
 	if (f & (CHAR_START << i))
 	  for(ch=0;ch<hsize;ch++) {
@@ -85,25 +78,26 @@ void Osd::init(Context *screen) {
 
 void Osd::print() {
   if(!_active) return;
-  
+
+  /*  
   if(_calibrate) {
-    /* vert up left */
+    // vert up left
     vline(screen->coords(HBOUND,VBOUND>>2),VBP<<1,screen->pitch,screen->bpp);
-    /* vert up right */
+    // vert up right
     vline(screen->coords(screen->w-HBOUND,VBOUND>>2),VBP<<1,screen->pitch,screen->bpp);
-    /* vert down left */
+    // vert down left
     vline(screen->coords(HBOUND,screen->h-(VBOUND<<1)),VBP<<1,screen->pitch,screen->bpp);
-    /* vert down right */
+    // vert down right
     vline(screen->coords(screen->w-HBOUND,screen->h-(VBOUND<<1)),VBP<<1,screen->pitch,screen->bpp);
-    /* horiz up left */
+    // horiz up left
     hline(screen->coords(HBOUND-HBP,VBOUND),HBP<<1,screen->bpp);
-    /* horiz up right */
+    // horiz up right
     hline(screen->coords(screen->w-HBOUND-HBP,VBOUND),HBP<<1,screen->bpp);
-    /* horiz down left */
+    // horiz down left
     hline(screen->coords(HBOUND-HBP,screen->h-VBOUND),HBP<<1,screen->bpp);
-    /* horiz down right */
+    // horiz down right
     hline(screen->coords(screen->w-HBOUND-HBP,screen->h-VBOUND),HBP<<1,screen->bpp);
-  }
+  } */
   
   _print_credits();
 
@@ -126,19 +120,19 @@ void Osd::_print_status() {
 }
 
 bool Osd::active() {
-  if(_active) clearscr(screen->get_surface(),screen->size);
+  if(_active) screen->clear(); //scr(screen->get_surface(),screen->size);
   _active = !_active;
   return _active;
 }
 
 bool Osd::calibrate() {
-  if(_calibrate) clearscr(screen->get_surface(),screen->size);
+  if(_calibrate) screen->clear(); //scr(screen->get_surface(),screen->size);
   _calibrate = !_calibrate;
   return _calibrate;
 }
 
 bool Osd::fps() {
-  if(_fps) clearscr(screen->get_surface(),screen->size);
+  if(_fps) screen->clear(); //scr(screen->get_surface(),screen->size);
   _fps = !_fps;
   screen->track_fps = _fps;
   return _fps;
@@ -245,7 +239,7 @@ void Osd::splash_screen() {
   _write(PACKAGE,HBOUND+40,vpos,2,2);
   _write(VERSION,HBOUND+160,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  _write("PIKSEL",HBOUND+40,vpos,2,2);
+  _write("ECOTECH",HBOUND+40,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
   _write(":: set the veejay free ",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+30;
@@ -263,7 +257,7 @@ void Osd::splash_screen() {
 }
 
 bool Osd::credits() {
-  if(_credits) clearscr(screen->get_surface(),screen->size);
+  if(_credits) screen->clear(); //scr(screen->get_surface(),screen->size);
   _credits = !_credits;
   return _credits;
 }

@@ -462,7 +462,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL SDL_CONFIG SDL_CFLAGS SDL_LIBS AVIFILE_CONFIG AVIFILE_LDFLAGS AVIFILE_CXXFLAGS HAVE_AVIFILE AVIFILE_LIBS FT2_CONFIG FT2_CFLAGS FT2_LIBS LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os SET_MAKE INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE CXX CXXFLAGS ac_ct_CXX CXXDEPMODE EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL SDL_CONFIG SDL_CFLAGS SDL_LIBS AVIFILE_CONFIG AVIFILE_LDFLAGS AVIFILE_CXXFLAGS HAVE_AVIFILE AVIFILE_LIBS FT2_CONFIG FT2_CFLAGS FT2_LIBS LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1036,6 +1036,7 @@ Optional Features:
   --enable-avi            compile with Avi Layer linking avifile (auto)
   --disable-freetypetest  Do not try to compile and run
                           a test FreeType program
+  --enable-v4l            compile with Video4Linux Layer (autodetect)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1583,6 +1584,39 @@ test -n "$target_alias" &&
     NONENONEs,x,x, &&
   program_prefix=${target_alias}-
 
+uname=`uname`
+uversion=`uname -r | sed -e 's/-.*$//g;s/\.//g'`
+echo "$as_me:$LINENO: checking for which platform we are compiling" >&5
+echo $ECHO_N "checking for which platform we are compiling... $ECHO_C" >&6
+case $uname in
+     Linux)
+     echo "$as_me:$LINENO: result: Linux" >&5
+echo "${ECHO_T}Linux" >&6
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_LINUX 1
+_ACEOF
+
+     have_linux=yes
+     ;;
+     Darwin)
+     echo "$as_me:$LINENO: result: Darwin/OSX" >&5
+echo "${ECHO_T}Darwin/OSX" >&6
+
+cat >>confdefs.h <<\_ACEOF
+#define HAVE_DARWIN 1
+_ACEOF
+
+     have_darwin=yes
+     ;;
+     *)
+     echo "! Your system architecture is not supported by FreeJ"
+     echo "! if you are interested in porting FreeJ to your architecture"
+     echo "! you are very welcome to contact me <jaromil@dyne.org>"
+     exit 0
+     ;;
+esac
+
 echo "$as_me:$LINENO: checking whether ${MAKE-make} sets \$(MAKE)" >&5
 echo $ECHO_N "checking whether ${MAKE-make} sets \$(MAKE)... $ECHO_C" >&6
 set dummy ${MAKE-make}; ac_make=`echo "$2" | sed 'y,./+-,__p_,'`
@@ -1659,7 +1693,7 @@ Check your system clock" >&2;}
 fi
 echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-am__api_version="1.7"
+am__api_version="1.6"
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
 # incompatible versions:
@@ -1812,16 +1846,6 @@ echo "$as_me: error: source directory already configured; run \"make distclean\"
    { (exit 1); exit 1; }; }
 fi
 
-# test whether we have cygpath
-if test -z "$CYGPATH_W"; then
-  if (cygpath --version) >/dev/null 2>/dev/null; then
-    CYGPATH_W='cygpath -w'
-  else
-    CYGPATH_W=echo
-  fi
-fi
-
-
 # Define the identity of the package.
  PACKAGE=FreeJ
  VERSION=0.5.1
@@ -1950,12 +1974,13 @@ INSTALL_STRIP_PROGRAM="\${SHELL} \$(install_sh) -c -s"
 
 
 
+# Add the stamp file to the list of files AC keeps track of,
+# along with our hook.
           ac_config_headers="$ac_config_headers config.h"
 
 
 
-uname=`uname`
-uversion=`uname -r | sed -e 's/-.*$//g;s/\.//g'`
+
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -2856,7 +2881,7 @@ echo "include confinc" > confmf
 # In particular we don't look at `^make:' because GNU make might
 # be invoked under some other name (usually "gmake"), in which
 # case it prints its new name instead of `make'.
-if test "`$am_make -s -f confmf 2> /dev/null | grep -v 'ing directory'`" = "done"; then
+if test "`$am_make -s -f confmf 2> /dev/null | fgrep -v 'ing directory'`" = "done"; then
    am__include=include
    am__quote=
    _am_result=GNU
@@ -2947,7 +2972,7 @@ else
     if depmode=$depmode \
        source=conftest.c object=conftest.o \
        depfile=conftest.Po tmpdepfile=conftest.TPo \
-       $SHELL ./depcomp $depcc -c -o conftest.o conftest.c >/dev/null 2>&1 &&
+       $SHELL ./depcomp $depcc -c conftest.c -o conftest.o >/dev/null 2>&1 &&
        grep conftest.h conftest.Po > /dev/null 2>&1 &&
        ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
       am_cv_CC_dependencies_compiler_type=$depmode
@@ -2965,18 +2990,6 @@ fi
 echo "$as_me:$LINENO: result: $am_cv_CC_dependencies_compiler_type" >&5
 echo "${ECHO_T}$am_cv_CC_dependencies_compiler_type" >&6
 CCDEPMODE=depmode=$am_cv_CC_dependencies_compiler_type
-
-
-
-if
-  test "x$enable_dependency_tracking" != xno \
-  && test "$am_cv_CC_dependencies_compiler_type" = gcc3; then
-  am__fastdepCC_TRUE=
-  am__fastdepCC_FALSE='#'
-else
-  am__fastdepCC_TRUE='#'
-  am__fastdepCC_FALSE=
-fi
 
 
 ac_ext=cc
@@ -3348,7 +3361,7 @@ else
     if depmode=$depmode \
        source=conftest.c object=conftest.o \
        depfile=conftest.Po tmpdepfile=conftest.TPo \
-       $SHELL ./depcomp $depcc -c -o conftest.o conftest.c >/dev/null 2>&1 &&
+       $SHELL ./depcomp $depcc -c conftest.c -o conftest.o >/dev/null 2>&1 &&
        grep conftest.h conftest.Po > /dev/null 2>&1 &&
        ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
       am_cv_CXX_dependencies_compiler_type=$depmode
@@ -3366,18 +3379,6 @@ fi
 echo "$as_me:$LINENO: result: $am_cv_CXX_dependencies_compiler_type" >&5
 echo "${ECHO_T}$am_cv_CXX_dependencies_compiler_type" >&6
 CXXDEPMODE=depmode=$am_cv_CXX_dependencies_compiler_type
-
-
-
-if
-  test "x$enable_dependency_tracking" != xno \
-  && test "$am_cv_CXX_dependencies_compiler_type" = gcc3; then
-  am__fastdepCXX_TRUE=
-  am__fastdepCXX_FALSE='#'
-else
-  am__fastdepCXX_TRUE='#'
-  am__fastdepCXX_FALSE=
-fi
 
 
 
@@ -3956,7 +3957,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 3959 "configure"' > conftest.$ac_ext
+  echo '#line 3960 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5031,7 +5032,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:5034:" \
+echo "$as_me:5035:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6036,11 +6037,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6039: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6040: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6043: \$? = $ac_status" >&5
+   echo "$as_me:6044: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -6268,11 +6269,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6271: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6272: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6275: \$? = $ac_status" >&5
+   echo "$as_me:6276: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -6335,11 +6336,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6338: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6339: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:6342: \$? = $ac_status" >&5
+   echo "$as_me:6343: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -8347,7 +8348,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 8350 "configure"
+#line 8351 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -8445,7 +8446,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 8448 "configure"
+#line 8449 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10577,11 +10578,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10580: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10581: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:10584: \$? = $ac_status" >&5
+   echo "$as_me:10585: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -10644,11 +10645,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:10647: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:10648: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:10651: \$? = $ac_status" >&5
+   echo "$as_me:10652: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -11887,7 +11888,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 11890 "configure"
+#line 11891 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -11985,7 +11986,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 11988 "configure"
+#line 11989 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12807,11 +12808,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12810: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12811: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:12814: \$? = $ac_status" >&5
+   echo "$as_me:12815: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -12874,11 +12875,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:12877: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:12878: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:12881: \$? = $ac_status" >&5
+   echo "$as_me:12882: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14814,11 +14815,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14817: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14818: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14821: \$? = $ac_status" >&5
+   echo "$as_me:14822: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -15046,11 +15047,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15049: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15050: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:15053: \$? = $ac_status" >&5
+   echo "$as_me:15054: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings
@@ -15113,11 +15114,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:15116: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:15117: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:15120: \$? = $ac_status" >&5
+   echo "$as_me:15121: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17125,7 +17126,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 17128 "configure"
+#line 17129 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -17223,7 +17224,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 17226 "configure"
+#line 17227 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -18230,7 +18231,8 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 
-CFLAGS="-g -Wall -O4 -pipe -D_REENTRANT -fomit-frame-pointer -mcpu=${host_cpu} -finline-functions -ffast-math -funroll-loops"
+CFLAGS="-g -Wall -O4 -pipe -D_REENTRANT -fomit-frame-pointer \
+	   -mcpu=${host_cpu} -finline-functions -ffast-math -funroll-loops"
 LIBS="-lpthread -lm -ldl -lpng"
 
 echo "$as_me:$LINENO: checking for ANSI C header files" >&5
@@ -19270,6 +19272,166 @@ fi
 
 
 
+if test "${ac_cv_header_linux_videodev_h+set}" = set; then
+  echo "$as_me:$LINENO: checking for linux/videodev.h" >&5
+echo $ECHO_N "checking for linux/videodev.h... $ECHO_C" >&6
+if test "${ac_cv_header_linux_videodev_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+fi
+echo "$as_me:$LINENO: result: $ac_cv_header_linux_videodev_h" >&5
+echo "${ECHO_T}$ac_cv_header_linux_videodev_h" >&6
+else
+  # Is the header compilable?
+echo "$as_me:$LINENO: checking linux/videodev.h usability" >&5
+echo $ECHO_N "checking linux/videodev.h usability... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+$ac_includes_default
+#include <linux/videodev.h>
+_ACEOF
+rm -f conftest.$ac_objext
+if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
+  (eval $ac_compile) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+         { ac_try='test -s conftest.$ac_objext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_header_compiler=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_header_compiler=no
+fi
+rm -f conftest.$ac_objext conftest.$ac_ext
+echo "$as_me:$LINENO: result: $ac_header_compiler" >&5
+echo "${ECHO_T}$ac_header_compiler" >&6
+
+# Is the header present?
+echo "$as_me:$LINENO: checking linux/videodev.h presence" >&5
+echo $ECHO_N "checking linux/videodev.h presence... $ECHO_C" >&6
+cat >conftest.$ac_ext <<_ACEOF
+#line $LINENO "configure"
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <linux/videodev.h>
+_ACEOF
+if { (eval echo "$as_me:$LINENO: \"$ac_cpp conftest.$ac_ext\"") >&5
+  (eval $ac_cpp conftest.$ac_ext) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null; then
+  if test -s conftest.err; then
+    ac_cpp_err=$ac_c_preproc_warn_flag
+  else
+    ac_cpp_err=
+  fi
+else
+  ac_cpp_err=yes
+fi
+if test -z "$ac_cpp_err"; then
+  ac_header_preproc=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  ac_header_preproc=no
+fi
+rm -f conftest.err conftest.$ac_ext
+echo "$as_me:$LINENO: result: $ac_header_preproc" >&5
+echo "${ECHO_T}$ac_header_preproc" >&6
+
+# So?  What about this header?
+case $ac_header_compiler:$ac_header_preproc in
+  yes:no )
+    { echo "$as_me:$LINENO: WARNING: linux/videodev.h: accepted by the compiler, rejected by the preprocessor!" >&5
+echo "$as_me: WARNING: linux/videodev.h: accepted by the compiler, rejected by the preprocessor!" >&2;}
+    { echo "$as_me:$LINENO: WARNING: linux/videodev.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: linux/videodev.h: proceeding with the preprocessor's result" >&2;}
+    (
+      cat <<\_ASBOX
+## ------------------------------------ ##
+## Report this to bug-autoconf@gnu.org. ##
+## ------------------------------------ ##
+_ASBOX
+    ) |
+      sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
+  no:yes )
+    { echo "$as_me:$LINENO: WARNING: linux/videodev.h: present but cannot be compiled" >&5
+echo "$as_me: WARNING: linux/videodev.h: present but cannot be compiled" >&2;}
+    { echo "$as_me:$LINENO: WARNING: linux/videodev.h: check for missing prerequisite headers?" >&5
+echo "$as_me: WARNING: linux/videodev.h: check for missing prerequisite headers?" >&2;}
+    { echo "$as_me:$LINENO: WARNING: linux/videodev.h: proceeding with the preprocessor's result" >&5
+echo "$as_me: WARNING: linux/videodev.h: proceeding with the preprocessor's result" >&2;}
+    (
+      cat <<\_ASBOX
+## ------------------------------------ ##
+## Report this to bug-autoconf@gnu.org. ##
+## ------------------------------------ ##
+_ASBOX
+    ) |
+      sed "s/^/$as_me: WARNING:     /" >&2
+    ;;
+esac
+echo "$as_me:$LINENO: checking for linux/videodev.h" >&5
+echo $ECHO_N "checking for linux/videodev.h... $ECHO_C" >&6
+if test "${ac_cv_header_linux_videodev_h+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_cv_header_linux_videodev_h=$ac_header_preproc
+fi
+echo "$as_me:$LINENO: result: $ac_cv_header_linux_videodev_h" >&5
+echo "${ECHO_T}$ac_cv_header_linux_videodev_h" >&6
+
+fi
+
+
+if test "$ac_cv_header_linux_videodev_h" = "yes"; then
+HAVE_V4L=yes
+fi
+# Check whether --enable-v4l or --disable-v4l was given.
+if test "${enable_v4l+set}" = set; then
+  enableval="$enable_v4l"
+
+if test x$HAVE_V4L = xyes -a ! x$enableval = xno; then
+
+cat >>confdefs.h <<\_ACEOF
+#define WITH_V4L 1
+_ACEOF
+
+   have_video4linux=yes
+fi
+else
+
+if test x$HAVE_V4L = xyes; then
+
+cat >>confdefs.h <<\_ACEOF
+#define WITH_V4L 1
+_ACEOF
+
+   have_video4linux=yes
+fi
+fi;
+
+
+
 if test "${ac_cv_header_dmalloc_h+set}" = set; then
   echo "$as_me:$LINENO: checking for dmalloc.h" >&5
 echo $ECHO_N "checking for dmalloc.h... $ECHO_C" >&6
@@ -19434,7 +19596,7 @@ fi;
 fi
 
 CXXFLAGS="$CFLAGS $SDL_CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS"
-
+CFLAGS="$CFLAGS $SDL_FLAGS"
 #echo "LIBS are $LIBS"
 #AC_SUBST(LIBS)
 
@@ -19535,20 +19697,6 @@ if test -z "${AMDEP_TRUE}" && test -z "${AMDEP_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"AMDEP\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"AMDEP\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${am__fastdepCC_TRUE}" && test -z "${am__fastdepCC_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCC\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"am__fastdepCC\" was never defined.
-Usually this means the macro was only invoked conditionally." >&2;}
-   { (exit 1); exit 1; }; }
-fi
-if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCXX\" was never defined.
-Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"am__fastdepCXX\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -20117,7 +20265,6 @@ s,@SET_MAKE@,$SET_MAKE,;t t
 s,@INSTALL_PROGRAM@,$INSTALL_PROGRAM,;t t
 s,@INSTALL_SCRIPT@,$INSTALL_SCRIPT,;t t
 s,@INSTALL_DATA@,$INSTALL_DATA,;t t
-s,@CYGPATH_W@,$CYGPATH_W,;t t
 s,@PACKAGE@,$PACKAGE,;t t
 s,@VERSION@,$VERSION,;t t
 s,@ACLOCAL@,$ACLOCAL,;t t
@@ -20145,14 +20292,10 @@ s,@AMDEP_TRUE@,$AMDEP_TRUE,;t t
 s,@AMDEP_FALSE@,$AMDEP_FALSE,;t t
 s,@AMDEPBACKSLASH@,$AMDEPBACKSLASH,;t t
 s,@CCDEPMODE@,$CCDEPMODE,;t t
-s,@am__fastdepCC_TRUE@,$am__fastdepCC_TRUE,;t t
-s,@am__fastdepCC_FALSE@,$am__fastdepCC_FALSE,;t t
 s,@CXX@,$CXX,;t t
 s,@CXXFLAGS@,$CXXFLAGS,;t t
 s,@ac_ct_CXX@,$ac_ct_CXX,;t t
 s,@CXXDEPMODE@,$CXXDEPMODE,;t t
-s,@am__fastdepCXX_TRUE@,$am__fastdepCXX_TRUE,;t t
-s,@am__fastdepCXX_FALSE@,$am__fastdepCXX_FALSE,;t t
 s,@EGREP@,$EGREP,;t t
 s,@LN_S@,$LN_S,;t t
 s,@ECHO@,$ECHO,;t t
@@ -20604,19 +20747,12 @@ echo "$as_me: error: cannot create directory \"$ac_dir\"" >&2;}
     cat $tmp/config.h
     rm -f $tmp/config.h
   fi
-_am_stamp_count=`expr ${_am_stamp_count-0} + 1`
-echo "timestamp for $ac_file" >`(dirname $ac_file) 2>/dev/null ||
-$as_expr X$ac_file : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-         X$ac_file : 'X\(//\)[^/]' \| \
-         X$ac_file : 'X\(//\)$' \| \
-         X$ac_file : 'X\(/\)' \| \
-         .     : '\(.\)' 2>/dev/null ||
-echo X$ac_file |
-    sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{ s//\1/; q; }
-  	  /^X\(\/\/\)[^/].*/{ s//\1/; q; }
-  	  /^X\(\/\/\)$/{ s//\1/; q; }
-  	  /^X\(\/\).*/{ s//\1/; q; }
-  	  s/.*/./; q'`/stamp-h$_am_stamp_count
+  # Run the commands associated with the file.
+  case $ac_file in
+    config.h ) # update the timestamp
+echo 'timestamp for config.h' >"./stamp-h1"
+ ;;
+  esac
 done
 _ACEOF
 cat >>$CONFIG_STATUS <<\_ACEOF
@@ -20678,13 +20814,7 @@ echo "$as_me: executing $ac_dest commands" >&6;}
     depfiles ) test x"$AMDEP_TRUE" != x"" || for mf in $CONFIG_FILES; do
   # Strip MF so we end up with the name of the file.
   mf=`echo "$mf" | sed -e 's/:.*$//'`
-  # Check whether this is an Automake generated Makefile or not.
-  # We used to match only the files named `Makefile.in', but
-  # some people rename them; so instead we look at the file content.
-  # Grep'ing the first line is not enough: some people post-process
-  # each Makefile.in and add a new line on top of each file to say so.
-  # So let's grep whole file.
-  if grep '^#.*generated by automake' $mf > /dev/null 2>&1; then
+  if (sed 1q $mf | fgrep 'generated by automake') > /dev/null 2>&1; then
     dirpart=`(dirname "$mf") 2>/dev/null ||
 $as_expr X"$mf" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
          X"$mf" : 'X\(//\)[^/]' \| \
@@ -20803,7 +20933,7 @@ fi
 echo
 echo
 echo "== ready to compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
-echo " = SDL version $SDL_VERSION: $SDL_LIBS"
+echo " = SDL v${SDL_VERSION}: $SDL_LIBS"
 echo " = FreeType2: $FT2_LIBS"
 
 if test x$have_avilayer = xyes; then

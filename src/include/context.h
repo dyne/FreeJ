@@ -64,12 +64,13 @@ class Context {
   
   void close();
   bool flip();
+  void clear();
 
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return( ((Uint8 *)prec_y[y] + 
 					(x<<(bpp>>4)) )); }
   /* this returns a pointer to the video memory */  
-  void *get_surface() { return coords(0,0); }
+  void *get_surface() { return surface; }; //  { return coords(0,0); }
 
   bool doublesize(bool val);
   bool dbl;

@@ -25,14 +25,17 @@
 #include <inttypes.h>
 
 #include <yuv2rgb.h>
-#include <mm_accel.h>
-
 #include <config.h>
 
+#ifndef HAVE_DARWIN
+
+#include <mm_accel.h>
 #define ARCH_X86 1
 
 yuv2rgb_fun yuv2rgb_init_mmxext (int bpp, int mode);
 yuv2rgb_fun yuv2rgb_init_mmx (int bpp, int mode);
+static uint32_t vo_mm_accel;
+#endif
 
 uint32_t matrix_coefficients = 6;
 
@@ -48,7 +51,7 @@ const int32_t Inverse_Table_6_9[8][4] = {
 };
 
 static yuv2rgb_fun yuv2rgb;
-static uint32_t vo_mm_accel;
+
 
 static void yuv2rgb_c_init (int bpp, int mode);
 
@@ -77,12 +80,11 @@ static void yuv2rgb_c (void * dst, uint8_t * py,
 
 yuv2rgb_fun *yuv2rgb_init (int bpp, int mode) 
 {
-
+  yuv2rgb = NULL;
+#ifdef ARCH_X86
   /* detect cpu acceleration */
   vo_mm_accel = mm_accel();
 
-  yuv2rgb = NULL;
-#ifdef ARCH_X86
   if ((yuv2rgb == NULL) && (vo_mm_accel & MM_ACCEL_X86_MMXEXT)) {
     yuv2rgb = yuv2rgb_init_mmxext (bpp, mode);
     if (yuv2rgb != NULL)

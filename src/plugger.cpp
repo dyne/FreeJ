@@ -113,7 +113,7 @@ bool Plugger::_dircheck(const char *dir) {
   bool res = true;
   DIR *d = opendir(dir);
   if(!d) res = false;
-  closedir(d);
+  else closedir(d);
   return(res);
 }
 

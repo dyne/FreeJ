@@ -134,7 +134,7 @@ void *jalloc(void *point,size_t size) {
     error("cannot allocate %u bytes of memory",size);
     return(NULL);
   } else if(verbosity>=FUNC) {
-    fprintf(stderr,"[M] allocated memory at %p sized %u bytes\n",point,size);
+    fprintf(stderr,"[M] allocated memory at %p sized %u bytes\n",point,(unsigned int)size);
   }
   return(point);
 }
@@ -189,13 +189,12 @@ double dtime() {
 }
 
 /* sets the process to "policy" policy,  if max=1 then set at max priority,
-   else use min priority */
+   else use min priority
 
 bool set_rtpriority(bool max) {
   struct sched_param schp;
-  /*
-   * set the process to realtime privs
-   */
+  // set the process to realtime privs
+
   memset(&schp, 0, sizeof(schp));
   
   if(max) 
@@ -208,6 +207,7 @@ bool set_rtpriority(bool max) {
   else
     return true;
 }
+*/
 
 void jsleep(int sec, long nsec) {
   timespec timelap;

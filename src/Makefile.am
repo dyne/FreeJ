@@ -2,13 +2,6 @@ INCLUDES = -I$(top_srcdir)/src/include
 
 SUBDIRS = include
 
-SUFFIXES = .asm
-
-NASM = nasm -f elf
-
-.asm.o:
-	$(NASM) $<
-
 bin_PROGRAMS = freej
 
 freej_SOURCES = \
@@ -27,11 +20,14 @@ freej_SOURCES = \
 	plugger.cpp	\
 	jutils.cpp	\
 	tvfreq.c	\
-	lubrify.c	\
 	cpu_accel.c	\
-	yuv2rgb.c yuv2rgb_mmx.c	\
-	vline32.asm \
-	hline32.asm \
-	clearscr.asm
+	yuv2rgb.c yuv2rgb_mmx.c
 
 freej_LDADD = @LIBS@ @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@
+
+bundle_contents = @PACKAGE@.app/Contents
+@PACKAGE@_bundle: freej
+	mkdir -p $(bundle_contents)/MacOS
+	mkdir -p $(bundle_contents)/Resources
+	echo "APPL????" > $(bundle_contents)/PkgInfo
+	$(INSTALL_PROGRAM) $< $(bundle_contents)/MacOS/

@@ -23,13 +23,12 @@
 
 #include <stdlib.h>
 #include <string.h>
-
+#include <unistd.h>
 #include <assert.h>
-#include <getopt.h>
 
 #include <context.h>
 #include <keyboard.h>
-#include <v4l_layer.h>
+
 #include <png_layer.h>
 #include <txt_layer.h>
 
@@ -38,6 +37,10 @@
 #include <jutils.h>
 #include <lubrify.h>
 #include <config.h>
+
+#ifdef WITH_V4L
+#include <v4l_layer.h>
+#endif
 
 #ifdef WITH_AVIFILE
 #include <avi_layer.h>
@@ -50,17 +53,19 @@
 static const char *help = 
 " .  Usage: freej [options] [files and video devices]\n"
 " .  options:\n"
-" .   -h --help     print this help\n"
-" .   -v --version  version information\n"
-" .   -D --debug    debug verbosity level - default 1\n"
-" .   -s --size     set display size - default 400x300\n"
-" .   -2 --double   double screen size\n"
-" .   -0 --zero     start with deactivated layers\n"
+" .   -h   print this help\n"
+" .   -v   version information\n"
+" .   -D   debug verbosity level - default 1\n"
+" .   -s   set display size - default 400x300\n"
+" .   -2   double screen size\n"
+" .   -0   start with deactivated layers\n"
 " .  files:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n"
+#ifdef WITH_V4L
 " .  - Video4Linux devices as of BTTV cards and webcams\n"
 " .    you can specify the size  /dev/video0%160x120\n"
+#endif
 #ifdef WITH_AVIFILE
 " .  - AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
 #endif
@@ -68,6 +73,7 @@ static const char *help =
 " .  - TXT files rendered with freetype2 library\n"
 "\n";
 
+/*
 static const struct option long_options[] = {
   {"help", no_argument, NULL, 'h'},
   {"version", no_argument, NULL, 'v'},
@@ -77,6 +83,7 @@ static const struct option long_options[] = {
   {"zero", no_argument, NULL, '0'},
   {0, 0, 0, 0}
 };
+*/
 
 static const char *short_options = "-hvD:s:20";
 
@@ -89,7 +96,8 @@ bool doublesize = false;
 bool startstate = true;
 
 void cmdline(int argc, char **argv) {
-  int res;
+  int res, c;
+  int optlen;
 
   /* initializing defaults */
   char *p = layer_files;
@@ -97,7 +105,7 @@ void cmdline(int argc, char **argv) {
   debug = 1;
 
   do {
-    res = getopt_long (argc, argv, short_options, long_options, NULL);
+    res = getopt (argc, argv, short_options);
     switch(res) {
     case 'h':
       fprintf(stderr, "%s", help);
@@ -133,15 +141,13 @@ void cmdline(int argc, char **argv) {
     case '2':
       doublesize = true;
       break;
+      
+    case '?':
+      func("unrecognized option: %s",optarg);
+      break;
 
     case 1:
       {
-	int optlen = strlen(optarg);
-	if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
-	  sprintf(p,"%s#",optarg);
-	  cli_chars+=optlen+1;
-	  p+=optlen+1;
-	} else warning("too much files on commandline, list truncated");
       }
       break;
 	  
@@ -149,6 +155,18 @@ void cmdline(int argc, char **argv) {
       break;
     }
   } while (res > 0);
+  
+  func("extra args: optind=%i and argc=%i",optind,argc);
+  argc -= optind;
+  argv += optind;
+  for(c=0;c<argc;c++) {
+    optlen = strlen(argv[c]);
+    if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
+      sprintf(p,"%s#",argv[c]);
+      cli_chars+=optlen+1;
+      p+=optlen+1;
+    } else warning("too much files on commandline, list truncated");
+  }
 
 }
 
@@ -157,7 +175,9 @@ void cmdline(int argc, char **argv) {
 int main (int argc, char **argv) {
 
   Layer *lay = NULL;
+#ifdef WITH_V4L
   V4lGrabber *v4l = NULL;
+#endif
 #ifdef WITH_AVIFILE
   AviLayer *avi = NULL;
 #endif
@@ -201,9 +221,14 @@ int main (int argc, char **argv) {
 	    sscanf(p,"%ux%u",&w,&h);
 	    p = pp; }
 	}
+#ifdef WITH_V4L
 	v4l = new V4lGrabber();
 	if(v4l->detect(pp))
 	  v4l->init(&screen,w,h);
+#else
+	error("Video4Linux layer support not compiled");
+	act("can't load %s",pp);
+#endif
       }
       
       /* AVI LAYERS */
@@ -211,9 +236,7 @@ int main (int argc, char **argv) {
 	  | strncmp((p-4),".asf",4)==0
 	  | strncmp((p-4),".asx",4)==0
 	  | strncmp((p-4),".wma",4)==0
-	  | strncmp((p-4),".wmv",4)==0
-	  | strncmp((p-4),".mov",4)==0
-	  | strncmp((p-4),".mpg",4)==0 ) {
+	  | strncmp((p-4),".wmv",4)==0 ) {
 #ifdef WITH_AVIFILE 
 	avi = new AviLayer();
 	if(avi->open(pp))
@@ -242,6 +265,7 @@ int main (int argc, char **argv) {
     }
   }
 
+#ifdef WITH_V4L
   /* even if not specified on commandline
      try to open the default video device */
   if(!v4l) {
@@ -250,6 +274,7 @@ int main (int argc, char **argv) {
       v4l->init(&screen,320,240);
     else delete v4l;
   }
+#endif
 
   /* this is the Plugin manager */
   Plugger plugger;
@@ -289,9 +314,9 @@ int main (int argc, char **argv) {
     /* main loop */
 
     if(screen.clear_all) {
-      clearscr(screen.get_surface(),screen.size);
+      screen.clear(); /* clear all the screen */
     } else {
-      osd.clean();
+      osd.clean();    /* clear only the OSD */
     }
 
     lay = (Layer *)screen.layers.end();

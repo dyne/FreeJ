@@ -7,6 +7,31 @@ AC_INIT(src/freej.cpp)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
+dnl ==============================================================
+dnl Get the operating system and version number...
+dnl ==============================================================
+uname=`uname`
+uversion=`uname -r | sed -e 's/-.*$//g;s/[\.]//g'`
+AC_MSG_CHECKING(for which platform we are compiling)
+case $uname in
+     Linux)
+     AC_MSG_RESULT(Linux)
+     AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
+     have_linux=yes
+     ;;
+     Darwin)
+     AC_MSG_RESULT(Darwin/OSX)
+     AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
+     have_darwin=yes
+     ;;
+     *)
+     echo "[!] Your system architecture is not supported by FreeJ"
+     echo "[!] if you are interested in porting FreeJ to your architecture"
+     echo "[!] you are very welcome to contact me <jaromil@dyne.org>"
+     exit 0
+     ;;
+esac
+
 AC_PROG_MAKE_SET
 
 dnl ==============================================================
@@ -17,12 +42,6 @@ AM_SANITY_CHECK
 AM_INIT_AUTOMAKE(FreeJ, 0.5.1)
 AM_CONFIG_HEADER(config.h)
 
-dnl ==============================================================
-dnl Get the operating system and version number...
-dnl ==============================================================
-
-uname=`uname`
-uversion=`uname -r | sed -e 's/-.*$//g;s/[\.]//g'`
 
 dnl ==============================================================
 dnl Check for tools
@@ -39,7 +58,8 @@ AM_PROG_LIBTOOL
 dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
-CFLAGS="-g -Wall -O4 -pipe -D_REENTRANT -fomit-frame-pointer -mcpu=${host_cpu} -finline-functions -ffast-math -funroll-loops"
+CFLAGS="-g -Wall -O4 -pipe -D_REENTRANT -fomit-frame-pointer \
+	   -mcpu=${host_cpu} -finline-functions -ffast-math -funroll-loops"
 LIBS="-lpthread -lm -ldl -lpng"
 
 dnl Checks for header files.
@@ -95,6 +115,25 @@ dnl ==============================================================
 AC_CHECK_FT2(9.0.0)
 
 dnl ==============================================================
+dnl CHECK if there is VIDEO4LINUX
+dnl ==============================================================
+AC_CHECK_HEADER(linux/videodev.h)
+if test "$ac_cv_header_linux_videodev_h" = "yes"; then
+HAVE_V4L=yes
+fi
+AC_ARG_ENABLE(v4l,[  --enable-v4l            compile with Video4Linux Layer (autodetect)], [
+if test x$HAVE_V4L = xyes -a ! x$enableval = xno; then
+   AC_DEFINE(WITH_V4L,1,[define if compiling video4linux layer])
+   have_video4linux=yes
+fi], [
+if test x$HAVE_V4L = xyes; then
+   AC_DEFINE(WITH_V4L,1,[define if compiling video4linux layer])
+   have_video4linux=yes
+fi])
+
+
+
+dnl ==============================================================
 dnl link with memory debugging library dmalloc
 dnl ==============================================================
 AC_CHECK_HEADER(dmalloc.h)
@@ -120,7 +159,7 @@ fi], [AC_MSG_RESULT(no)])
 fi
 
 CXXFLAGS="$CFLAGS $SDL_CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS"
-
+CFLAGS="$CFLAGS $SDL_FLAGS"
 #echo "LIBS are $LIBS"
 #AC_SUBST(LIBS)
 
@@ -150,7 +189,7 @@ filters/nervous/Makefile
 echo
 echo
 echo "== ready to compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
-echo " = SDL version $SDL_VERSION: $SDL_LIBS"
+echo " = SDL v${SDL_VERSION}: $SDL_LIBS"
 echo " = FreeType2: $FT2_LIBS"
 
 if test x$have_avilayer = xyes; then

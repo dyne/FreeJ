@@ -24,6 +24,7 @@
 
 #include <config.h>
 
+#ifndef HAVE_DARWIN
 #define ARCH_X86 1
 
 /* use gcc attribs to align critical data structures */
@@ -326,3 +327,5 @@ yuv2rgb_fun yuv2rgb_init_mmx (int bpp, int mode)
 
     return NULL; /* Fallback to C */
 }
+
+#endif

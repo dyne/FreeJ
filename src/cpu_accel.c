@@ -20,10 +20,11 @@
  */
 
 #include <inttypes.h>
+#include <config.h>
+
+#ifndef HAVE_DARWIN
 
 #include <mm_accel.h>
-
-#include <config.h>
 
 static uint32_t x86_accel (void)
 {
@@ -113,3 +114,10 @@ uint32_t mm_accel (void)
 
     return accel;
 }
+#else // HAVE_DARWIN
+
+uint32_t mm_accel(void) {
+  return 0;
+}
+
+#endif

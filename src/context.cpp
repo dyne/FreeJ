@@ -50,12 +50,12 @@ Context::Context(int wx, int hx, int bppx, Uint32 flagsx) {
   /* context can be only one so we assign here a const id */
   id = 1;
 
-  /* discover about the system and windowmanager */
+  /* discover about the system and windowmanager
   if(!SDL_GetWMInfo(&sys)) {
     error("can't gather information about the display system");
     error("it might be dangerous to go on, like it could hang the machine");
     exit(1);
-  }
+    } */
 
   /* be nice with the window manager */
   char temp[120];
@@ -70,7 +70,7 @@ Context::Context(int wx, int hx, int bppx, Uint32 flagsx) {
       SDL_EventState(i, SDL_IGNORE);
 
 
-  SDL_ShowCursor(0);
+  //  SDL_ShowCursor(0);
 
   doubletab = NULL;
   doublebuf = NULL;
@@ -153,7 +153,7 @@ bool Context::doublesize(bool val) {
   } else {
 
     if(dbl) return true;
-    setres(w*2,h*2);
+    setres(w<<1,h<<1);
 
     /* allocate video buffer to be doubled */
     if(doublebuf) free(doublebuf);
@@ -263,6 +263,14 @@ bool Context::flip() {
   SDL_Flip(surf);
 
   return(true);
+}
+
+void Context::clear() {
+ register uint32_t ecx; 
+ register uint64_t ebx = 0x0000000000000000;
+ register uint64_t *edx = (uint64_t*)surface;
+ for(ecx=size>>3;ecx>0;ecx--)
+   *edx-- = ebx;
 }
 
 /* FPS */
