@@ -53,6 +53,8 @@ class VideoLayer: public Layer {
 	int play_speed;
 	int play_speed_control;
 	int frame_rate;
+	double mark_in;
+	double mark_out;
 
 	int size, lenght,video_index;
 	FILE *fp;
@@ -79,7 +81,13 @@ class VideoLayer: public Layer {
 	bool keypress(SDL_keysym *keysym);
 	bool dump_stream_info(AVFormatContext *s);
 	bool forward(int sec);
-	bool seek(int increment);
+	bool relative_seek(int increment);
+	int seek(int64_t timestamp);
+	bool more_speed();
+	bool less_speed();
+	bool set_speed(int speed);
+	bool set_mark_in();
+	bool set_mark_out();
 	double get_master_clock();
 	void pause();
 
