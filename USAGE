@@ -57,6 +57,8 @@ LAYER COMMANDS
 
  HOME     = hide/show layer         BACKSP   = turn matte off
  %BACKSP  = white matte             ^BACKSP  = black matte
+ ctrl-+ zoom in (minus and plus on the keypad)
+ ctrl-- zoom out
  
 VIDEO 4 LINUX LAYER COMMANDS:
  k/m      = switch up/down input channel

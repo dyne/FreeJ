@@ -163,13 +163,26 @@ void KbdListener::run() {
 
     case SDLK_GREATER:
       env->fps_speed++;
-//      printf("+ %d\n",env->fps_speed);
+      func("+ %d\n",env->fps_speed);
       env->set_fps_interval(env->fps_speed);
       break;
     case SDLK_LESS:
       env->fps_speed--;
-//      printf("- %d\n",env->fps_speed);
+      func("- %d\n",env->fps_speed);
       env->set_fps_interval(env->fps_speed);
+      break;
+
+    case SDLK_KP_PLUS:
+	if(keysym->mod & KMOD_CTRL) {
+	    layer->blitter.set_zoom( layer->blitter.zoom_x + 0.01,
+		    layer->blitter.zoom_y + 0.01);
+	}
+      break;
+
+    case SDLK_KP_MINUS:
+      if(keysym->mod & KMOD_CTRL)
+	layer->blitter.set_zoom( layer->blitter.zoom_x - 0.01,
+					   layer->blitter.zoom_y - 0.01);
       break;
 
     default:
