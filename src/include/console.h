@@ -69,6 +69,8 @@ class Console {
 
   Linklist history;
 
+  Layer *layer; ///< pointer to the currently selected layer
+
  private:
   int x,y;
 
@@ -76,7 +78,6 @@ class Console {
 
   void layerprint();
   void layerlist();
-  Layer *layer;
   int layercol;
 
   void filterprint();

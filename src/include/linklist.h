@@ -39,7 +39,7 @@ class Linklist {
   void add(Entry *addr) { append(addr); }; /* lazy backward compatibility */
   void prepend(Entry *addr);
   void insert(Entry *addr, int pos);
-  
+  void insert_after(Entry *addr, Entry *pos);  
   void rem(int pos);
   void sel(int pos);
   void clear();

@@ -149,6 +149,7 @@ void Context::cafudda(double secs) {
       changeres = false;
     }
 
+    if(console && interactive) console->cafudda();
 
     /** start layers thread */
     rocknroll();
@@ -176,7 +177,6 @@ void Context::cafudda(double secs) {
     /** print on screen display */
     if(osd.active && interactive) osd.print();
 
-    if(console && interactive) console->cafudda();
 
     /** show result on screen */
     screen->show();

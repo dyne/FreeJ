@@ -40,17 +40,21 @@ TxtLayer::TxtLayer()
   :Layer() {
   buf = NULL;
   set_name("TXT");
-  change_word=true;
+  next_word=false;
+  inject_word=false;
   clear_screen=false;
-  interactive_input=false;
   onscreen=false;
   blinking=false;
   offscreen_blink = onscreen_blink = SPEED;
   blink = 0;
+  fd = 0;
   text_dimension=50;
   glyph_current=NULL;
   num_fonts=0;
   sel_font=0;
+  
+  current_word = NULL;
+
   x=0;
   y=0;
 
@@ -67,18 +71,64 @@ TxtLayer::~TxtLayer() {
 }
 
 bool TxtLayer::open(char *file) {
-     func("TxtLayer::open(%s)",file);
+  Entry *tmpw;
 
-     fd = ::open(file,O_RDONLY|O_NONBLOCK);
-     if(fd<0) {
-	  error("TxtLayer::open(%s) - %s",
-		    file, strerror(errno));
-	  return (false);
-     }
+  func("TxtLayer::open(%s)",file);
+  
+  fd = ::fopen(file,"r");
+  if(fd<0) {
+    error("TxtLayer::open(%s) - %s",
+	  file, strerror(errno));
+    return (false);
+  }
 
-     set_filename(file);
+  // read it all in memory
+  fseek(fd,0,SEEK_END);
+  chunk_len = ftell(fd);
+  rewind(fd);
+  chunk = (char*)calloc(chunk_len,sizeof(char));
+  fread(chunk,chunk_len,1,fd);
+  fclose(fd);
 
-     return(true);
+  punt = chunk;
+  
+  // now fill up the linklist
+
+  while(punt-chunk<chunk_len) { // parse it all until the end
+
+    while(!isgraph(*punt)) // goes forward until it meets a word
+      if(punt-chunk>=chunk_len) // end of chunk reached
+	return true;
+      else punt++;
+
+    // word found, now reach its end
+    pword = punt;
+    while(   isgraph(*punt)
+	     && *punt != ' '
+	     && *punt != '\0'
+	     && *punt != '\n'
+	     && *punt != '\r'
+	     && *punt != '\t') {
+      if(punt-chunk >= chunk_len) // end of chunk reached
+	return true;
+      else punt++;
+    }
+
+    // there is a word to acquire!
+
+    // create the new entry
+    tmpw = new Entry();
+    strncpy(tmpw->name,pword,punt-pword);
+    // append it to the list
+    words.append(tmpw);
+    
+  }
+
+  free(chunk);
+  current_word = words.begin();
+  set_filename(file);
+  
+  return(true);
 }
 
 int dirent_ttf_selector(const struct dirent *dir) {
@@ -157,33 +207,22 @@ bool TxtLayer::init(Context *scr) {
      return(true);
 }
 
-bool TxtLayer::print(char *s) {
-  int len = strlen(s);
-  if(!len) return false;
-  if(len>512) len = 512;
-
-  strncpy(word,s,len);
-  word_len = len;
-  
-  interactive_input = true;
-  clear_screen = true;
-  change_word = false;
-  func("TxtLayer::print : %s",word);
-  return true;
-}
-
 void TxtLayer::render() {
   int ret;
   int origin_x=0;
   int origin_y=0;
   int previous=0;
   int string_width,string_height;
+  int len, n;
+
+  if(!current_word) return;
+  len = strlen(current_word->name);
 
   glyph_current=glyphs;
-  
+
   /*  Convert the character string into a series of glyph indices. */
-  for ( int n = 0; n < word_len; n++ ) {
-    glyph_current->glyph_index = FT_Get_Char_Index( face, word[n] );
+  for ( n = 0; n < len; n++ ) {
+    glyph_current->glyph_index = FT_Get_Char_Index( face, current_word->name[n] );
     if ( use_kerning && previous && glyph_current->glyph_index ) {
       FT_Vector kerning_vector;
       FT_Get_Kerning( face, previous, glyph_current->glyph_index, ft_kerning_unfitted, &kerning_vector );
@@ -216,7 +255,6 @@ void TxtLayer::render() {
   num_glyphs = glyph_current - glyphs;
   
   /* get bbox of original glyph sequence */
-  
   FT_BBox string_bbox;
   compute_string_bbox( &string_bbox, glyph_current->image);
   
@@ -283,7 +321,7 @@ void *TxtLayer::feed() {
      /* clear_screen switch serves to confirm that the screen
 	has been cleaned, serving the purpose to not waste
 	screen cleanups (the memset)
-	same for change_word which is the next word switch
+	same for next_word which is the next word switch
      */
 
 
@@ -293,21 +331,20 @@ void *TxtLayer::feed() {
        clear_screen = false; 
        onscreen = false;
 
-     } else if(interactive_input) {
+     } else if(next_word) {
 
-       render();
-       interactive_input=false;
-       onscreen=true;
+       if(!current_word)
+	 current_word = words.begin();
+       else
+	 current_word = current_word->next;
 
-     } else if(change_word) {
-      
-       word_len = word_ff(1);       
-       render();
-       change_word=false;
-       onscreen=true;
+       if(current_word) {
+	 render();
+	 next_word=false;
+	 onscreen=true;
+       }
 
-     }       
-
+     }
 
      if(blinking) {
        blink++;
@@ -318,7 +355,7 @@ void *TxtLayer::feed() {
 	 }
        } else {
 	 if(blink>offscreen_blink) {
-	   change_word = true;
+	   next_word = true;
 	   blink = 0;
 	 }
        }
@@ -334,70 +371,45 @@ void TxtLayer::close() {
   /* The library doesn't keeps a list of all allocated glyph objects */
   for(c=0;c<num_fonts;c++)
     free(fonts[c]);
+
+  // free all the words
+  Entry *tmp = words.begin();
+  while(tmp) {
+    func("deleting %s",tmp->name);
+    words.rem(1);
+    delete tmp;
+    tmp = words.begin();
+  }
+    
   FT_Done_Face(face);
   FT_Done_FreeType( library );
   jfree(buf);
-  ::close(fd);
 }
 
-int TxtLayer::read_next_chunk() {
-  chunk_len = ::read(fd,chunk,MAX_CHUNK);
-  /* if nothing more to read, seek to the beginning */
-  if(chunk_len == 0) {
-    lseek(fd,0,SEEK_SET);
-    chunk_len = ::read(fd,chunk,MAX_CHUNK);
-  }
-  chunk[chunk_len+1] = '\0';
-  pword = punt = chunk;
-  return chunk_len;
-}
+bool TxtLayer::print(char *s) {
+  Entry *tmpw;
+  int len = strlen(s);
 
-int TxtLayer::word_ff(int pos) {
-  int c;
-  word_len = 0;
-  for(c=pos ; c>0 ; c--) {
-    /* if end of chunk is reached then suck more */
-    if(punt-chunk >= chunk_len) {
-      func("punt - chunk = %i and chunk_len %i",punt-chunk,chunk_len);
-      read_next_chunk();
-    }
-    /* go forward until it meets a word */
-    while(!isgraph(*punt)) {
-      if((punt-chunk)==chunk_len) /* end of chunk reached */
-	read_next_chunk();
-      else
-	punt++;
-    }
+  if(!len) return false;
+  if(len>MAX_WORD) len = MAX_WORD;
 
-    pword = punt;
 
-    /* reaches the end of that word */
-    while(   isgraph(*punt)
-	     && *punt != ' '
-	     && *punt != '\0'
-	     && *punt != '\n'
-	     && *punt != '\r'
-	     && *punt != '\t') {
-      if((punt-chunk)==chunk_len && (punt-pword)) { /* end of chunk reached */
-	word_len += punt - pword;
-	if(word_len>=512) return 512;
-	strncpy(word,pword,word_len);
-	read_next_chunk();
-      }
-      punt++;
-    }
-    *punt = '\0';
-    if(!strlen(pword)) word_ff(1); // recursion
-    if(!word_len) // it was in the same chunk 
-      strncpy(word,pword,512);
-    else
-      strncpy(&word[word_len],pword,512-word_len);
-  }
-  word_len += punt - pword;
-  func("word_ff(%i) got \"%s\" string of %i chars",
-       pos, word, word_len);
-  
-  return(word_len);
+  tmpw = new Entry();
+  strncpy(tmpw->name,s,len);
+  tmpw->name[len] = '\0';
+    
+
+  if(!current_word) current_word = words.begin();
+
+  if(current_word) {
+
+    words.insert_after(tmpw,current_word);
+
+  } else words.add(tmpw);
+
+  clear_screen = true;
+  next_word = true;
+  return true;
 }
 
 bool TxtLayer::set_font(int c) {
@@ -428,8 +440,9 @@ bool TxtLayer::set_font(int c) {
 bool TxtLayer::keypress(char key) {
      int res = 1;
      switch(key) {
-     case 'l': 
-       change_word=true;
+       
+     case ' ': 
+       next_word=true;
        clear_screen=true;
        break;
        
@@ -460,13 +473,13 @@ bool TxtLayer::keypress(char key) {
        break;
        
      case 'p': /* wider */ 
-       text_dimension+=5;
+       text_dimension++;
        set_character_size(text_dimension);
        act("TxtLayer::font size %i",text_dimension);
        break;
 
      case 'o': /* smaller */
-       text_dimension-=5;
+       text_dimension--;
        set_character_size(text_dimension);
        act("TxtLayer::font size %i",text_dimension);
        break;

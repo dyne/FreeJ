@@ -62,8 +62,10 @@
 #define KEY_CTRL_H 272 // help the user
 #define KEY_CTRL_J 10 // javascript command
 #define KEY_CTRL_O 15 // open a file in a new layer
+#define KEY_CTRL_T 20 // new layer with text
 #define KEY_CTRL_V 22 // change blit value
 #define KEY_CTRL_X 24
+#define KEY_CTRL_Y 25
 
 #define KEY_PLUS 43
 #define KEY_MINUS 45
@@ -227,8 +229,52 @@ static int open_layer(char *cmd) {
       delete l;
     } else {
       env->layers.add(l);
+
+      // select the new layer
+      env->console->layer = l;
+      env->layers.sel(0);
+      l->sel(true);
+
       len = env->layers.len();
       notice("layer succesfully created, now you have %i layers",len);
+      env->console->refresh();
+      return len;
+    }
+  error("layer creation aborted");
+  env->console->refresh();
+  return 0;
+}
+
+#ifdef WITH_FT2
+#include <txt_layer.h>
+static int print_text_layer(char *cmd) {
+
+  if( strncmp( env->console->layer->get_name(),"TXT",3) ==0) {
+    ((TxtLayer*)env->console->layer)->print(cmd);
+    return env->layers.len();
+
+  } else {
+    error("console.cpp: print_text layer called on non-TXT layer");
+    return 0;
+  }
+}
+static int open_text_layer(char *cmd) {
+  TxtLayer *txt = new TxtLayer();
+  if(txt)
+    if(!txt->init(env)) {
+      error("can't initialize text layer");
+      delete txt;
+    } else {
+      txt->print(cmd);
+      env->layers.add(txt);
+
+      // select the new layer
+      env->console->layer = txt;
+      //      env->layers.sel(0);
+      //      l->sel(true);
+
+
+      notice("layer succesfully created with text: %s",cmd);
       env->console->refresh();
       return env->layers.len();
     }
@@ -236,6 +282,7 @@ static int open_layer(char *cmd) {
   env->console->refresh();
   return 0;
 }
+#endif
 
 static int filebrowse_completion(char *cmd) {
   func("filebrowser completion TODO");
@@ -623,7 +670,7 @@ void Console::filterlist() {
     layer->filters.unlock();
   }
   SLsmg_set_color(PLAIN_COLOR);
-  for(;pos<14;pos++) {
+  for(;pos<5;pos++) {
     SLsmg_gotorc(pos,0);
     SLsmg_erase_eol();
   }
@@ -711,7 +758,7 @@ void Console::scroll(char *msg, int color) {
 
 void Console::update_scroll() {
   unsigned int row, col, nrows;
-  row = 14; // first upper row
+  row = 5; // first upper row
   col = 1; // left bound
 
   Line_Window.nrows = nrows = SLtt_Screen_Rows - 3;
@@ -820,7 +867,7 @@ void Console::parser_default(int key) {
       layer->down();
     break;
 
-  case SL_KEY_END: break;
+    //  case SL_KEY_END: break;
 
   case SL_KEY_DELETE:
     if(filter) {
@@ -847,18 +894,22 @@ void Console::parser_default(int key) {
   case KEY_CTRL_H:
   case KEY_CTRL_H_APPLE:
     notice("Hotkeys available in FreeJ console:");
-    act("arrow keys browse selection thru layers and effects");
-    act("HOME de/activate layer, INS de/activates filter");
+    act("Arrow keys browse selection thru layers and effects");
+    act("Page UP/DOWN move filters and effects thru chains");
+    act("HOME de/activates layer, INS de/activates filters");
+    act("TAB switch on/off On Screen Display information");
     act("ctrl+o  = Open new layer (will prompt for path to file)");
-    act("ctrl+e  = add a new Effect to the selected layer");
-    act("ctrl+b  = change the Blit for the selected layer");
-    act("ctrl+v  = fade the Blit Value for the selected layer");
-    act("ctrl+m  = move the selected layer around the screen");
-    act("ctrl+j  = activate jazz mode to pulse layers");
-    act("ctrl+c  = quit FreeJ");
-    act("ctrl+f  = go to Fullscreen");
-    act("ctrl+l  = cleanup and redraw the console");
-    act("ctrl+i  = switch on/off On Screen Display information");
+    act("ctrl+t  = Add a new Text layer (will prompt for text)");
+    act("ctrl+y  = Insert a new word in selected Text layer");
+    act("ctrl+e  = Add a new Effect to the selected layer");
+    act("ctrl+b  = Change the Blit for the selected layer");
+    act("ctrl+v  = Fade the Blit Value for the selected layer");
+    act("ctrl+m  = Move the selected layer around the screen");
+    act("ctrl+j  = Activate jazz mode to pulse layers");
+    act("ctrl+l  = Cleanup and redraw the console");
+    act("ctrl+f  = Go to Fullscreen");
+    act("ctrl+c  = Quit FreeJ");
+
 #ifdef WITH_JAVASCRIPT
     act("ctrl+x  = execute a Javascript command");
 #endif
@@ -888,6 +939,7 @@ void Console::parser_default(int key) {
     readline("select Blit mode for the selected Layer - press TAB for completion:",
 	     &blit_selection,&blit_comp);
     break;
+
   case KEY_CTRL_V:
     if(!layer) {
       error("can't change Blit Value: no Layer is selected, select one using arrows.");
@@ -901,7 +953,19 @@ void Console::parser_default(int key) {
       readline("open a file in a new Layer:",
 	       &open_layer,&filebrowse_completion);
     break;
-      
+
+#ifdef WITH_FT2
+  case KEY_CTRL_T:
+    readline("create a new text Layer, type your words:",
+	     &open_text_layer,NULL);
+    break;
+  case KEY_CTRL_Y:
+    if(strncmp(layer->get_name(),"TXT",3)==0)
+      readline("print a new word in text Layer, type your words:",
+	       &print_text_layer,NULL);
+    break;
+#endif
+
   case KEY_CTRL_X:
 #ifndef WITH_JAVASCRIPT
     ::error("javascript is not compiled in this FreeJ binary");

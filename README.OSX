@@ -1,14 +1,31 @@
 FreeJ 0.7 notes for Darwin/OSX hackers
 
 FreeJ is NOW READY to be used on Darwin and OSX!
+BUT: without the movie layer (will be available soon!)
 
-to compile it from source follow these steps:
+to compile it from source follow these steps, which are also useful to
+setup your Apple OSX to be able to compile and use other GNU software.
 
-install the latest Fink from http://fink.sf.net
+- First check if you've got the following stuff covered:                   
 
-from your terminal as root (sudo bash) issue the following
-commands which will install free and opensource packages
-of needed software libraries:
+1. OSX version 10.3.x
+2. XCode Apple Developers tools including GNU C compiler
+   download from http://developer.apple.com (free registration)
+   then go to "download software" -- "developer tools" -- and
+   spend a long time downloading.
+4. know what a Terminal is and how to open one
+   (see Appendix.1 further down in this document)
+3. know how become root on your machine from a Terminal
+   (see Appendix.2 if you need help on this)
+5. have X11 installed
+
+- Then proceed with the install of install the latest Fink
+  free software packaging system available from http://fink.sf.net
+
+- Once you are done with all the installation steps of Fink, open your
+  Terminal and become root (sudo bash), then issue the following
+  commands which will install opensource packages of needed software
+  libraries:
 
 # apt-get install pkgconfig
 # apt-get install slang
@@ -16,27 +33,78 @@ of needed software libraries:
 # apt-get install libpng3
 # apt-get install freetype2-dev
 
-if you want to compile the gtk+2 graphical interface:
+
+- OPTIONAL and NOT recommended:
+  if you want to compile the gtk+2 graphical interface
 # apt-get install gtk+2-dev
 # apt-get install libglade2
 # apt-get install glib2-dev
 # apt-get install pango1-dev
 # apt-get install atk1
 # apt-get install libxml2
-then you need to start freej from an X11 terminal.
+then you need to configure FreeJ at compile time with--enable-glade2
+and start it from an X11 terminal. This is not recommended anymore as
+long the GTK2 graphical interface has been deprecated for lack of
+performance and usability.
 
-if you want to compile the Javascript interpreter, download the
-SpiderMonkey engine from http://mozilla.org/js/spidermonkey :
-js-1.5.tar.gz file in http://ftp.mozilla.org/pub/mozilla.org/js
-then compile it following the included instructions and then
-configure freej --with-javascript
+
+- OPTIONAL and WELL RECOMMENDED:
+  if you want to compile the Javascript interpreter download the
+  SpiderMonkey engine from http://mozilla.org/js/spidermonkey
+  it's js-1.5.tar.gz in http://ftp.mozilla.org/pub/mozilla.org/js
+  decompress it, enter the directory and type
+  $ make -f Makefile.ref
+  which will compile it into a static library;
+  then come back into the freej directory and configure using the flag:
+  --with-javascript=/full/path/to/js
+Compiling FreeJ with this feature will give you the possibility to
+script procedural video with text and images!
+
+
+To finally compile FreeJ enter its directory and issue the commands:
+# ./configure (optional flags here)
+# make
+# make install
+
+This will install effect plugins into the dire /usr/local/lib/freej 
+and the freej binary in /usr/local/bin (or any --prefix configured)
+
+from a Terminal (X11 Terminal in case of GTK2 interface) type:
+$ freej [enter]
+and you should see.
+
+
+================================== Appendix.1 : open the Terminal
+
+The terminal is an application that lets you controll your computer
+through commandline. You need it to perform UNIX operations such as
+startup GNU applications, login to remote computers using ssh, compiling
+software from source and more.
+You can find your terminal in /Applications/Utilities/
+
+
+================================== Appendix.2 : become Root
+
+If you log in on your machine, you're not automaticaly root, even if you
+have admin privileges. Become super user of your own machine by starting
+'Network Utility' (Aplications/Utilities). Click 'security' in the
+menubar and then 'enable root', choose a password (p rotect it with your
+life and NEVER forget it). Now you are super user and can log in as root
+in your Terminal by typing:
+#su
+password:XXXXXXXXXXX
+the '#' means your root, '$' means your user
+(BTW there is also the trick of using "sudo bash" from your first user)
+
+
+
 
 MacOSX binary packages are on the way to be offered to public.
 
 you are welcome to join development of course, FreeJ still needs to
 be slick enough on MacOSX and lacks of a Quicktime layer.
  
-if you want to collaborate, mail jaromil /@/ dyne.org
+if you want to collaborate, subscribe and mail our mailinglist.
 
 $Id$
 

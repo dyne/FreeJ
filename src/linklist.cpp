@@ -89,7 +89,30 @@ void Linklist::prepend(Entry *addr) {
   length++;
   unlock();
 }
+
+
+// inserts an element after the given one
+void Linklist::insert_after(Entry *addr, Entry *pos) {
   
+  // take it out from other lists
+  if(addr->list) addr->rem();
+
+  lock();
+  if(pos->next) {
+    pos->next->prev = addr;
+    addr->next = pos->next;
+  } else last = addr; // it's the last
+  
+  addr->prev = pos;
+  pos->next = addr;
+
+  length++;  
+  addr->list = this;
+
+  unlock();
+}
+
+
 /* adds an element at the position specified
    if pos is out of bounds adds it at the beginning or the end
    the element occupying allready the position slides down 

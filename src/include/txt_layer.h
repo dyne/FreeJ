@@ -30,6 +30,7 @@
 #include <SDL/SDL.h>
 #define MAX_GLYPHS 512
 #define MAX_CHUNK 512
+#define MAX_WORD 128
 #define SPEED 5
 #define MAX_FONTS 256
 
@@ -41,9 +42,16 @@ typedef struct TGlyph_
 
 } TGlyph, *PGlyph;
 
+typedef struct wordlist_t {
+  char word[MAX_WORD];
+  struct wordlist_t *next;
+  struct wordlist_t *prev;
+  int len;
+};
+
 class TxtLayer: public Layer {
  private:
-  int fd;
+  FILE *fd;
   
   /* handle to library     */
   FT_Library library;   
@@ -68,12 +76,14 @@ class TxtLayer: public Layer {
   PGlyph glyph_current; 
   FT_UInt glyphs_numbers;
 
-  char chunk[MAX_CHUNK+256]; // safe bound
-  char word[MAX_CHUNK+256];
+
+  // linked list of words
+  Linklist words;
+  Entry *current_word;
+
+  char *chunk;
   int chunk_len;
   char *pword, *punt;
-  int word_len;
-
   
   int text_dimension;
   
@@ -81,7 +91,6 @@ class TxtLayer: public Layer {
   void *buf;
   
 
-  int read_next_chunk();
   bool draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,uint8_t *dstp);
 
   //  int word_rw(int pos);
@@ -90,6 +99,7 @@ class TxtLayer: public Layer {
   char *fonts[MAX_FONTS];
   int num_fonts;
   int sel_font;
+
 
   void render();
 
@@ -106,6 +116,7 @@ public:
   bool print(char *s);
   int word_ff(int pos);
 
+
   bool set_character_size(int _text_dimension);
   bool set_font(int c);
 
@@ -116,9 +127,9 @@ public:
   bool keypress(char key);
   void compute_string_bbox( FT_BBox  *abbox,FT_Glyph image );
 
-  bool change_word;
+  bool next_word;
+  bool inject_word;
   bool clear_screen;
-  bool interactive_input;
   bool onscreen;
   bool blinking;
   bool use_kerning;
