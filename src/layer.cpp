@@ -38,6 +38,7 @@ Layer::Layer()
   bgmatte = NULL;
   set_name("???");
   buffer = NULL;
+  has_colorkey=false;
 }
 
 Layer::~Layer() {

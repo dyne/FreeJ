@@ -27,7 +27,7 @@
 
 #define DELAY 50 //100
 
-#define LISTEN_EVENT_TYPES (SDL_KEYDOWN|SDL_MOUSEMOTION)
+#define LISTEN_EVENT_TYPES (SDL_KEYDOWN|SDL_MOUSEMOTION|SDL_MOUSEBUTTONDOWN)
 
 static bool alpha = false;
 
@@ -68,9 +68,31 @@ void KbdListener::run() {
       func("SDL QUIT!");
 
       env->quit = true;
-      return; }
+      return; 
+    }
+      
+    if(event.type == SDL_MOUSEBUTTONDOWN) {
+	if(event.button.button == SDL_BUTTON_LEFT) {
+	    layer->blitter.set_colorkey(event.button.x, event.button.y);
+	}
+	else if(event.button.button == SDL_BUTTON_RIGHT) {
+	    if(SDL_ShowCursor(-1)==0)
+		SDL_ShowCursor(1);
+	    else
+		SDL_ShowCursor(0);
+	}
+	return; 
+    }
+    /*
+    else if(event.type == SDL_MOUSEBUTTONUP) {
+	if(event.button.button == SDL_BUTTON_RIGHT) {
+	    SDL_ShowCursor(0);
+	}
+	return; 
+    }*/
 	
-    if(event.type != SDL_KEYDOWN) return;
+    if(event.type != SDL_KEYDOWN) 
+	return;
 
     
     /* ENVIRONMENT CONTROLS */

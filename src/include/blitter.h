@@ -65,6 +65,7 @@ class Blit: public Entry {
   /* small vars used in blits? */
   int chan, c, cc;
   uint32_t *scr, *pscr, *off, *poff;
+
 };
 
 
@@ -83,6 +84,7 @@ class Blitter {
   bool set_blit(char *name); ///< set the active blit
   bool set_value(int val); ///< set the blit parameter
   bool set_kernel(short *krn); /// set the convolution kernel
+  bool Blitter::set_colorkey(int x,int y);
   Linklist blitlist; ///< list of available blits
 
   /* ==== geometrical transformations */

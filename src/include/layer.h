@@ -154,6 +154,12 @@ class Layer: public Entry, public JSyncThread {
   Filter *filt;
   Iterator *iter;
   Iterator *itertmp;
+  // colorkey point
+  uint8_t colorkey_r;
+  uint8_t colorkey_g;
+  uint8_t colorkey_b;
+
+  bool has_colorkey;
 
 };
 
