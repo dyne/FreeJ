@@ -1,0 +1,25 @@
+FreeJ 0.6 notes for Darwin/OSX hackers
+
+FreeJ is still not ready to be used on Darwin and OSX, alltough it
+compiles and runs it still lacks many functionalities that are only
+implemented for PC at the moment (like video input and movie playback),
+plus it's very slow - at least when running on a rootless XFree86.
+
+You are very welcome to try it and give feedback in case you can help
+with development, it is not yet ready for "mac users".
+
+First thing i'm concerned is performance: i guess a better integration
+with the Cocoa visualization system can be reached without having much
+to change in the actual code: SDL libraries have a Cocoa driver and one
+should simply try to configure that properly.
+
+Then it comes the video input and the playback of movies: also that
+shouldn't be a big problem writing two new layers which use the
+quicktime embedded API which i heard is pretty simple and performant.
+
+I didn't tried all that, alltough i plan to.
+If you do it before i do then you are welcome to share
+mail me jaromil /@/ dyne.org
+
+$Id$
+

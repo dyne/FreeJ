@@ -111,6 +111,7 @@ Layer *create_layer(char *file) {
 	| strncasecmp((p-4),".wma",4)==0
 	| strncasecmp((p-4),".wmv",4)==0
 	| strncasecmp((p-4),".mov",4)==0
+	| strncasecmp((p-5),".mpeg",5)==0
 	| strncasecmp((p-4),".mpg",4)==0 ) {
 #ifdef WITH_AVIFILE 
       nlayer = new AviLayer();
@@ -153,7 +154,8 @@ Layer *create_layer(char *file) {
 	}
 
   if(!nlayer)
-    error("File format not supported");
-  else func("create_layer succesful, returns %p",nlayer);
+    error("can't create a layer with %s",file);
+  else
+    func("create_layer succesful, returns %p",nlayer);
   return nlayer;
 }

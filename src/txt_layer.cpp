@@ -93,10 +93,11 @@ bool TxtLayer::init(Context *scr) {
 
      use_kerning=FT_HAS_KERNING(face);
 
-     if(scr) screen = scr;
-     _init(screen, screen->w, screen->h, screen->bpp);
+     if(scr) freej = scr;
+     _init(freej, freej->screen->w,
+	   freej->screen->h, freej->screen->bpp);
 
-     buf = jalloc(buf,screen->size);
+     buf = jalloc(buf,freej->screen->size);
 
      /* get the first word */
      chunk_len = 0;  

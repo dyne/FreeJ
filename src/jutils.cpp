@@ -189,7 +189,7 @@ double dtime() {
 }
 
 /* sets the process to "policy" policy,  if max=1 then set at max priority,
-   else use min priority
+   else use min priority */
 
 bool set_rtpriority(bool max) {
   struct sched_param schp;
@@ -207,7 +207,6 @@ bool set_rtpriority(bool max) {
   else
     return true;
 }
-*/
 
 void jsleep(int sec, long nsec) {
   timespec timelap;

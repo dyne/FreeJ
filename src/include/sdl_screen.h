@@ -31,28 +31,40 @@ class SdlScreen : public ViewPort {
   ~SdlScreen();
 
   bool init(int widt, int height);
+  void blit(Layer *layer);
+  void crop(Layer *layer);
   void show();
-  bool update(void *buf);
-  void *get_surface();
   void clear();
-  void fullscreen();
 
-  SDL_Surface *scr;
+  void fullscreen();
+  void *get_surface();
+
+  SDL_Surface *screen;
   SDL_Surface *emuscr;
   void *surface;
 
+  void *coords(int x, int y);
+
+  bool lock();
+  bool unlock();
+ 
  private:
   int setres(int wx, int hx);
-  bool sdl_lock();
-  bool sdl_unlock();
   
-  SDL_Surface *blit;
-  SDL_Rect rect;
-  uint32_t rmask, gmask, bmask, amask;
-
   bool dbl;
   uint32_t sdl_flags;
-  
+
+  /* blit stuff */
+  uint32_t blit_x, blit_y;
+  uint32_t blit_width, blit_height;
+  uint32_t blit_offset;
+  uint32_t *blit_coords;
+  /* small vars used in blits */
+  int chan, c, cc;
+  uint32_t *scr, *pscr, *off, *poff;
+  uint8_t *alpha;
+
+  SDL_Surface *blitter;
 };
 
 #endif 

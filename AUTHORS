@@ -1,42 +1,59 @@
+
 *** MAIN AUTHOR ::
 
 Denis "jaromil" Rojo - http://rastasoft.org
 	concept, coder and mantainer
 
+
+
 *** CONTRIBUTIONS ::
 
-Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
+Aaron Holtzman <aholtzma/@/ess.engr.uvic.ca>
 	yuv2rgb c conversion code
 
-Andreas Schiffler <aschiffler@home.com>
+Andreas Schiffler <aschiffler/@/home.com>
 	inspirations, experience and delaygrab filter
 
-Clifford Smith <nullset@dookie.net>
+Clifford Smith <nullset/@/dookie.net>
 	transform filter from EffecTV
 
-Edo Tannenbaum
+Christoph Rudorff <christoph.rudorff/@/telebel.de> 
+        avi layer enhancements
+
+Edo Tannenbaum <et/@/et-arts.com>
 	nervous filter from EffecTV
 
-Fukuchi Kentarou <fukuchi@is.titech.ac.jp>
+Fukuchi Kentarou <fukuchi/@/is.titech.ac.jp>
 	a couple of filters and code goodies from EffecTV
 
-Lluis Gomez I Bigorda <lgomez@pangea.org>
+Lluis Gomez I Bigorda <lgomez/@/pangea.org>
 	zoom filter
 
-Leonid Andreev <lenonid@math.harvard.edu>
+Leonid Andreev <lenonid/@/math.harvard.edu>
 	feedback and bugfixes
 
-Olie Lho <ollie@sis.com.tw>
+Olie Lho <ollie/@/sis.com.tw>
 	yuv2rgb asm mmx optimized code
 
 Pete Warden
 	backlight filter
 
 Silvano "kysucix" Galliani - http://kysucix.nexlab.it
-        text layer
+        truetype text layer
+
+
+
+
+*** SUPPORTED BY ::
+
+Montevideo/Time Based Arts .... <http://www.montevideo.nl>
+
+
+
 
 *** THANKS TO ::
 
+Bergen Elektronic Kunst inst... <http://www.bek.no>
 Bomboclat ..................... <http://autistici.org/bomboclat>
 Lobo .......................... <http://clavius.dyne.org>
 Roberto Paci Dalo' ............ <http://giardini.sm>
@@ -52,3 +69,6 @@ Isabella Bordoni .............. <http://ib-arts.dyne.org>
 Sonar Festival ................ <http://www.sonar.es>
 Ecoteca Pescara ............... <http://www.ecoteca.org>
 Ljudmila Medialab ............. <http://www.ljudmila.org>
+
+$Id$
+

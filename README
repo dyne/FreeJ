@@ -3,8 +3,8 @@
 
              [ http://freej.dyne.org ]
 
-         by jaromil - http://rastasoft.org
-
+       BIG UP ALL FRIENDS & SET THE VJ FREE
+                     by jaromil @ RASTASOFT 
 
 :: OVERVIEW
 
@@ -34,18 +34,21 @@ to redistribute it under certain conditions (refer to the license for
 details).
 
 
+:: FreeJ development is supported by
+   Montevideo/Time Based Arts - Nederlands Instituut voor Mediakunst
+
+
+
 :: FEATURES
 
 ++ reads from multiple sources:
    video4linux, divx/avi movies, png images and txt files
-++ multithreaded layered video engine
-++ layer filtering thru chainable dsp algorithms
-++ DSO plugin filters
-++ MMX/SSE accelerated engine lubrification
-++ efficient triple-buffered video grabbing layer
-++ modular c++ code structure (POSIX.1b compliant)
-++ (ab)user friendly OnScreenDisplay interface
-++ 100% GNU Public License Free Software
+++ very efficient video engine with multithreaded layers
+++ plugin effects chainable on each layer
+++ user friendly GTK2 graphical interface
+++ (ab)user friendly hotkeys and OnScreenDisplay
+++ 100% GNU General Public License Free Software
+++ modular C/C++ code and flexible API
 
 
 
@@ -54,47 +57,58 @@ details).
 
 To run FreeJ is necessary to have:
 
-- a working GNU/Linux workstation with a MMX capable CPU
-- SDL libraries <http://www.libsdl.org>
-- PNG libraries <http://www.libpng.org>
-- FreeType2 libraries
-- NASM <http://www.kernel.org/pub/software/devel/nasm>
+- a working GNU/Linux workstation
+  (experimental support for Darwin/OSX)
+- SDL libraries http://www.libsdl.org
+- NASM netwide assembler compiler http://nasm.sf.net
+
+Optionally, you want to have installed the following libraries in order
+to use various input plugins:
+- PNG libraries http://www.libpng.org
+- FreeType2 libraries http://freetype.org
+- FFMpeg libraries http://ffmpeg.sf.net
+- XVid libraries http://xvid.org
+- AviFile libraries http://avifile.sf.net
 - XFree86 4.2 or latest, better with an accelerated videocard
 
-Optionally, you might want to have:
-- a video4linux supported grabbing card for live video
-- avifile libraries for realtime AVI playback and mixing
+Also a video input device can provide you with additional phun, FreeJ
+currently supports the video4linux API.
 
 For better fullscreen support try to add to your XF86Config  file  the
-modelines in doc/x11.modelines.
+modelines in doc/x11.modelines
+
+To operate FreeJ you need to have a look in the USAGE file
 
 
 
 
-:: INSTALL FROM SOURCE
+:: HOW TO INSTALL IT
 
-*** YOU MUST READ THE INSTALL FILE NOW
+read the INSTALL file
+if it's too hard for you, consider trying dyne:bolic
+*** http://dynebolic.org (just download, burn and boot it on a PC!)
 
-once you have installed all the required libraries, just do: 
 
- ./configure
- make
- make install
 
-filter plugins will be installed into /usr/local/lib/freej (or another
-prefix if you changed the default one).
 
-For fullscreen support you might want to add in your XF86Config file the
-modelines included into doc/x11.modelines.
+:: DEVELOPERS
 
-:: INSTALL FROM DEBIAN PACKAGES
+ jaromil - FreeJ author and mantainer
+ kysucix - Truetype TXT Layer
+ & refer to the AUTHORS file for a list of contributions
 
-you can do 'apt-get install freej' and you will have a precompiled freej
-which is NOT optimized for your computer.
+You are very welcome to join, there is a lot of space for modules and a
+pretty clear (and near to be freezed) API to be used.
+In the near future there is going to be a procedural scripting language
+to operate FreeJ. Have a look in the TODO file for some visions.
+You can also follow development activity on http://lists.dyne.org/coding
+
+
+
 
 :: DISCUSSION
 
-Come and visit the dyne.org crews on irc.freenote.net channel #dyne
+Come and visit the irc.freenote.net channel #dyne
 
 A mailinglist  for  further  discussion  about  FreeJ  is  running  as
 <freej@dyne.org>, subscription is opened and  anybody  interested  can
@@ -106,10 +120,16 @@ on http://live.dyne.org/freej
 
 :: AVAILABILITY
 
-Updated informations and FreeJ releases are made available on
-http://freej.dyne.org . The bleeding edge sourcecode is also publicly
-available thru CVS on http://savannah.gnu.org/projects/freej (there you
-will find instructions on how to get and browse online the code).
+The source releases of FreeJ are made available on
+       *** http://freej.dyne.org ***
+
+FreeJ is also included in binary form, ready to be used, in the live
+bootable distribution i'm doing: just burn it and boot it!
+       *** http://dynebolic.org ***
+
+CVS (latest development version) is also publicly available on
+       *** cvs.dyne.org/viewcvs.cgi/?root=free ***
+
 
 
 
@@ -117,7 +137,6 @@ will find instructions on how to get and browse online the code).
 :: DISCLAIMER
 
 FreeJ is (c) 2001, 2002, 2003 by Denis Rojo <jaromil@dyne.org>
-refer to the AUTHORS file for a complete list of contributions.
 
 This source code is free software; you can redistribute it and/or
 modify it under the terms of the GNU Public License as published 
@@ -132,4 +151,6 @@ Please refer to the GNU Public License for more details.
 You should have received a copy of the GNU Public License along with
 this source code; if not, write to:
 Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+$Id$
 

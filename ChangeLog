@@ -1,3 +1,14 @@
+FreeJ 0.6 MONTEVIDEO - 30 Dec 2003
+  new GTK2 graphical interface
+  asynchronous engine for multiple controllers
+  video blit speed improved
+  preliminar Darwin/OSX support
+  AviLayer mark in/out and new tweaks (mr_goil)
+  new YUV/RGB colorspace conversion (nemosoft)
+    fixes support for some movies and webcams
+  various lubrifications and API cleanup 
+  runs also in console framebuffer without X
+
 FreeJ 0.5.1 PIKSEL - 26 Oct 2003
   new TxtLayer rendering engine
   divx4linux libraries not required anymore for movies
@@ -102,3 +113,6 @@ FreeJ 0.1 - 22 may 2001
   first release, still without a gui and planning to do much more
   presented at digital_is_not_analog01 in a performance with: 
   the mitocondri - GNU love foundation party
+
+$Id$
+

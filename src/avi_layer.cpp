@@ -66,7 +66,7 @@ bool AviLayer::init(Context *scr) {
     yuvcc = true;
   }
 
-  _init(scr,labs(bh.biWidth),labs(bh.biHeight),bh.biBitCount);
+  _init(scr,labs(bh.biWidth),labs(bh.biHeight),32); //bh.biBitCount);
 
   if(yuvcc) buffer = malloc(geo.size*2);
 
@@ -150,8 +150,8 @@ bool AviLayer::open(char *file) {
       return(false);
     }
 
-    //     _stream->GetDecoder()->SetDestFmt('YUY2');
-    //    _stream->GetDecoder()->SetDestFmt(12,'I420');
+    // _stream->GetDecoder()->SetDestFmt('YUY2');
+    // _stream->GetDecoder()->SetDestFmt(12,'I420');
     _stream->GetDecoder()->SetDestFmt(32);
     _stream->ReadFrame(false);
     bh = _stream->GetDecoder()->GetDestFmt();
@@ -231,6 +231,7 @@ void *AviLayer::feed() {
     switch(bh.biBitCount) {
       case 12:
 	ccvt_420p_rgb32(geo.w,geo.h,_img->Data(),buffer);
+	//	ccvt_yuyv_rgb32(geo.w,geo.h,_img->Data(),buffer);
 	break;
     default:
       break;
@@ -330,7 +331,6 @@ void AviLayer::set_slow_frame(int speed) {
 }
 
 bool AviLayer::keypress(SDL_keysym *keysym) {
-  func("AviLayer::keypress");
   bool res = false;
   framepos_t steps = 1;
   switch(keysym->sym) {

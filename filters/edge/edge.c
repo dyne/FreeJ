@@ -62,8 +62,10 @@ int init(ScreenGeometry *sg) {
 }
 
 int clean() {
-  free(procbuf);
-  free(map);
+  if(procbuf) {
+    free(procbuf); procbuf = NULL; }
+  if(map) {
+    free(map); map = NULL; }
   return 1;
 }
 

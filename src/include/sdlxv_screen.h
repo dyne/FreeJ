@@ -32,11 +32,16 @@ class SdlXvScreen : public ViewPort {
   ~SdlXvScreen();
 
   bool init(int width, int height);
+  void blit(Layer *layer);
+  void crop(Layer *layer);
   void show();
-  bool update(void *buf);
   void clear();
   void fullscreen() {};
+  void *get_surface();
   SDL_Surface *scr;
+
+  // deprecated
+  void *coords(int x, int y);
 
  private:
 
@@ -45,11 +50,11 @@ class SdlXvScreen : public ViewPort {
   bool yuv_lock();
   bool yuv_unlock();
 
-
-  SDL_Overlay *yuv_overlay;
+  SDL_Surface *blitter;
+  uint32_t rmask,gmask,bmask,amask;
   SDL_Rect rect;
-  int use_yuv_direct;
-  int use_yuv_hwaccel;
+  SDL_Overlay *yuv_overlay;
+
   
   void *anal;
 

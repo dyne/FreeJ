@@ -61,6 +61,9 @@ class Osd {
   uint32_t *status_offset;
   void _set_color(colors col);
 
+  uint64_t *topclean_offset;
+  uint64_t *downclean_offset;
+
   uint32_t _color32;
 
   char title[64];

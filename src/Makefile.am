@@ -21,7 +21,7 @@ freej_SOURCES = \
 	txt_layer.cpp	\
 	impl_layers.cpp \
 	sdl_screen.cpp \
-	sdlxv_screen.cpp \
+	sdl_blit.cpp \
 	keyboard.cpp	\
 	gtk_ctrl.cpp	\
 	tvfreq.c

@@ -239,10 +239,10 @@ void KbdListener::run() {
     case SDLK_8: // PACKED OR BYTEWISE
       layer->set_blit(keysym->sym - SDLK_0);
       break;
-    case SDLK_9:
+      /*    case SDLK_9:
       layer->alpha_blit = !layer->alpha_blit;
       break;
-
+      */
     case SDLK_BACKSPACE:
       if(keysym->mod & KMOD_SHIFT) /* go to white */
 	layer->bgcolor = 1;

@@ -158,8 +158,8 @@ bool PngLayer::init(Context *scr) {
   png_get_IHDR(core, info, &width, &height, &bit_depth, &color_type,
 	       &interlace_type, NULL, NULL);
  
-  if(scr) screen = scr;
-  _init(screen,	width, height, bit_depth*4);
+  if(scr) freej = scr;
+  _init(freej, width, height, bit_depth*4);
 
   buffer = (png_bytep)jalloc(buffer,geo.size);
 

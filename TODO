@@ -1,10 +1,15 @@
 
-  *** remove the assembler
-  *** YUV->RGB conversion for some avi files (see avi_layer.cpp L58)
-  *** remove getopt_long and just use the getopt short
-  *** SLANG for scriptability
-  *** plugin chain system exposed as a shared lib (libfreej)
-  *** support for more webcams: grab YUV420
-  *** xscreensavers played as layers
-  *** add new plugins
-  *** use multiple instances of same plugin
+$Id$
+
+  *** complete Darwin/OSX portability
+  
+  *** FreeJ script language (using SLANG or python?)
+  
+  *** code on LiViDO for a video plugin shared library
+  
+  *** XScreensaver played as layers
+  
+  *** Open Sound Control for remote interoperability
+  
+  *** MIDI control
+

@@ -48,7 +48,7 @@ static const char *help =
 " .   -h   print this help\n"
 " .   -v   version information\n"
 " .   -D   debug verbosity level - default 1\n"
-" .   -C   no graphical interface\n"
+" .   -C   start without graphical interface\n"
 " .   -s   size of screen - default 400x300\n"
 " .   -d   double screen size\n"
 " .   -n   start with deactivated layers\n"
@@ -177,15 +177,16 @@ int main (int argc, char **argv) {
   set_debug(debug);
 
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
-     this hangs on some kernels
+     this hangs on some kernels - anybody knows what's wrong with it?
+     set_rtpriority is inside jutils.cpp 
   if(set_rtpriority(true))
     notice("running as root: high priority realtime scheduling allowed.");
-  */
+   */
 
 
   /* this is the output context (screen) */
   Context freej;
-  freej.init(width,height);
+  assert( freej.init(width,height) );
 
   /* create layers requested on commandline */
   {
@@ -199,8 +200,10 @@ int main (int argc, char **argv) {
       if(cli_chars<=0) break; *p='\0';
 
       lay = create_layer(pp);
-
-      if(lay) freej.add_layer(lay);
+      if(lay) {
+	lay->init(&freej);
+	freej.layers.add(lay);
+      }
       pp = l;
     }
   }
@@ -208,7 +211,10 @@ int main (int argc, char **argv) {
   /* even if not specified on commandline
      try to open the default video device */
   lay = create_layer("/dev/video0");
-  if(lay) freej.add_layer(lay);
+  if(lay) {
+    lay->init(&freej);
+    freej.layers.add(lay);
+  }
   
   /* (no layers && no GUI) then show credits */
   if(freej.layers.len()<1)
@@ -224,6 +230,8 @@ int main (int argc, char **argv) {
   assert( keyb.init(&freej));
 
 #ifdef WITH_GLADE2
+  /* check if we have an X11 display running */
+  if(!getenv("DISPLAY")) gtkgui = false; 
   /* this launches gtk2 interface controller thread */
   if(gtkgui) {
     gtk_ctrl_init(&freej,&argc,argv);
@@ -245,7 +253,8 @@ int main (int argc, char **argv) {
   if(gtkgui) gtk_ctrl_quit();
 #endif
 
-  jsleep(1,0);
   notice("cu on http://freej.dyne.org");
+  jsleep(1,0);
+
   exit(1);
 }

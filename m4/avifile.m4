@@ -98,7 +98,8 @@ main ()
 #    CXXFLAGS="$XXCFLAGS $AVIFILE_CXXFLAGS" 
 #   commented and modified by jaromil 27 may 2003 pescara ecoteca mo'
 #   AVIFILE_LIBS="$AVIFILE_LDFLAGS $X_LIBS -lXv -lXxf86vm -ldivxdecore"
-    AVIFILE_LIBS="-laviplay -lXv -lXxf86vm"
+#   AVIFILE_LIBS="-laviplay -lXv -lXxf86vm"
+    AVIFILE_LIBS="-laviplay"
   fi
   AC_SUBST(HAVE_AVIFILE)
 ])

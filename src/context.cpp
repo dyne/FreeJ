@@ -31,7 +31,6 @@
 #include <jutils.h>
 #include <config.h>
 
-
 Context::Context() {
 
   notice("starting %s %s engine",PACKAGE,VERSION);
@@ -39,118 +38,37 @@ Context::Context() {
   screen = NULL;
 
   /* initialize fps counter */
-  framecount=0;
+  framecount=0; fps=0.0;
   gettimeofday( &lst_time, NULL);
-  fps=0.0;
   set_fps_interval(24);
   track_fps = false;
 
   clear_all = false;
   quit = false;
-}  
+}
 
 Context::~Context() {
-
+  notice("cu on http://freej.dyne.org");
 }
 
 bool Context::init(int wx, int hx) {
-
+  
   screen = new SdlScreen();
   if(!screen->init(wx,hx)) {
-    error("fatal error in FreeJ initalization");
+    error("Can't initialize the viewport");
+    error("This is a fatal error");
     return(false);
   }
-
-  /* save context geometry */
-  w = wx; h = hx;
-  bpp = 32;
-  size = w*h*(bpp>>3);
-  pitch = w*(bpp>>3);
-
-  /* allocate virtual RGBA video buffer */
-  uint8_t *vidbuf = (uint8_t*)screen->get_surface();
-  if(!vidbuf) {
-    error("screen->get_surface returns NULL!");
-    return(false);
-  }
-  /* precalculate y lookup tables */
-  for(int c=0;c<h;c++)
-    prec_y[c] = (uint8_t*)vidbuf + (pitch*c);
-
   
   /* refresh the list of available plugins */
   plugger.refresh();
-
+  
   /* initialize the On Screen Display */
   osd.init(this);
   osd.active();
   set_osd(osd.status_msg); /* let jutils know about the osd */
-
-
+  
   return true;
-}
-
-
-void *Context::coords(int x, int y) {
-  return( 
-	 (Uint8 *)prec_y[y] + 
-	 (x<<(bpp>>4)) 
-	 );
-}
-
-
-int Context::add_layer(Layer *newlayer) {
-  int res = -1;
-  
-  if(!newlayer) {
-    warning("Context::add_layer - invalid NULL layer");
-    return(res);
-  }
-  
-  if( newlayer->init(this) ) {
-    layers.add(newlayer);
-    res = layers.len();
-  }
-  return(res);
-}   
-
-int Context::del_layer(int sel) {
-  Layer *lay = (Layer *)layers.pick(sel);
-  if(!lay) return 0;
-  act("Context::del_layer : TODO");
-  return sel;
-}
-
-int Context::clear_layers() {
-  int ret = layers.len();
-  act("Context::clear_layers : TODO");
-  return ret;
-}
-
-int Context::moveup_layer(int sel) {
-  Layer *lay = (Layer *)layers.pick(sel);
-  if(!lay) return 0;
-  if( layers.moveup(sel) )
-    show_osd("MOVE UP layer %u -> %u",sel,sel-1);
-  return(sel-1);
-}
-
-int Context::movedown_layer(int sel) {
-  Layer *lay = (Layer *)layers.pick(sel);
-  if(!lay) return 0;
-  if ( layers.movedown(sel) )
-    show_osd("MOVE DOWN layer %u -> %u",sel,sel+1);
-  return(sel+1);
-}
-
-int Context::active_layer(int sel) {
-  Layer *lay = (Layer *)layers.pick(sel);
-  if(!lay) return 0;
-  lay->active = !lay->active;
-  show_osd("%s layer %s pos %u",
-	   lay->active ? "ACTIVATED" : "DEACTIVATED",
-	   lay->getname(), sel);
-  return lay->active;
 }
 
 void Context::cafudda() {
@@ -162,7 +80,7 @@ void Context::cafudda() {
 
     if(clear_all) screen->clear();
     else osd.clean();
-    
+
     layers.lock();
     lay = (Layer *)layers.end();
     while(lay) {
@@ -170,15 +88,18 @@ void Context::cafudda() {
       lay = (Layer *)lay->prev;
     }
     layers.unlock();
-    
+
     osd.print();
-    
+
+    func("SHOW"); 
     screen->show();
   
     rocknroll(true);
     
     calc_fps();
   }
+
+  delete screen;
 
   lay = (Layer *)layers.begin();
   while(lay) {
@@ -191,8 +112,7 @@ void Context::cafudda() {
     delete lay;
     lay = (Layer *)layers.begin();
   }
-  
-  if(screen) delete screen;
+
   plugger.close();
 
 }

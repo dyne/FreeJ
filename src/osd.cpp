@@ -22,6 +22,7 @@
 #include <inttypes.h>
 
 #include <context.h>
+#include <screen.h>
 #include <font_pearl_8x8.h>
 #include <config.h>
 
@@ -30,7 +31,7 @@ uint32_t *Osd::print(char *text, uint32_t *pos, int hsize, int vsize) {
   uint32_t *ptr;
   uint32_t *diocrap = pos; //(uint32_t *)env->coords(xpos,ypos);
   unsigned char *buffer = (unsigned char *)env->screen->get_surface();
-  v = env->w*vsize;
+  v = env->screen->w*vsize;
   
   len = strlen(text);
   
@@ -41,16 +42,16 @@ uint32_t *Osd::print(char *text, uint32_t *pos, int hsize, int vsize) {
     ptr = diocrap += v;
   
     /* control screen bounds */
-    if(diocrap-(uint32_t *)buffer>(env->size - env->pitch)) 
+    if(diocrap-(uint32_t *)buffer>(env->screen->size - env->screen->pitch)) 
       return diocrap-newline; /* low bound */
-    while(diocrap-(uint32_t *)buffer<env->pitch) ptr = diocrap += v;
+    while(diocrap-(uint32_t *)buffer<env->screen->pitch) ptr = diocrap += v;
 
     for (x=0; x<len; x++) {
       f = fontdata[text[x] * CHAR_HEIGHT + y];
       for (i = CHAR_WIDTH-1; i >= 0; i--)
 	if (f & (CHAR_START << i))
 	  for(ch=0;ch<hsize;ch++) {
-	    for(cv=0;cv<v;cv+=env->w) ptr[cv] = _color32;
+	    for(cv=0;cv<v;cv+=env->screen->w) ptr[cv] = _color32;
 	    ptr++; }
         else ptr+=hsize; 
     }
@@ -80,15 +81,18 @@ void Osd::init(Context *screen) {
   /* setup coordinates for OSD information
      stored in offsets of video memory addresses
      to gain speed and limit computation during cycles */
-  fps_offset = (uint32_t*)env->coords(env->w-50,1);
-  selection_offset = (uint32_t*)env->coords(80,1);
-  status_offset = (uint32_t*)env->coords(HBOUND,env->h-12);
-  layer_offset = (uint32_t*)env->coords(env->w-28,VBOUND+TOPLIST);
-  filter_offset = (uint32_t*)env->coords(3,VBOUND+6);
-  hicredits_offset = (uint32_t*)env->coords((env->w/2)-100,VBOUND+5);
-  locredits_offset = (uint32_t*)env->coords((env->w/2)-140,env->h-60);
-  hilogo_offset = (uint32_t*)env->coords(3,0);
-  newline = env->pitch*(CHAR_HEIGHT);
+  fps_offset = (uint32_t*)env->coords(env->screen->w-50,1);
+  selection_offset = (uint32_t*)env->screen->coords(80,1);
+  status_offset = (uint32_t*)env->screen->coords(HBOUND,env->screen->h-12);
+  layer_offset = (uint32_t*)env->coords(env->screen->w-28,VBOUND+TOPLIST);
+  filter_offset = (uint32_t*)env->screen->coords(3,VBOUND+6);
+  hicredits_offset = (uint32_t*)env->screen->coords((env->screen->w/2)-100,VBOUND+5);
+  locredits_offset = (uint32_t*)env->screen->coords((env->screen->w/2)-140,env->screen->h-60);
+  hilogo_offset = (uint32_t*)env->screen->coords(3,0);
+  topclean_offset = (uint64_t*)env->screen->coords(0,0);
+  downclean_offset = (uint64_t*) env->screen->coords(0,env->screen->h-VBOUND);
+
+  newline = env->screen->pitch*(CHAR_HEIGHT);
   snprintf(title,64,"%s %s",PACKAGE,VERSION);
 
   func("OSD initialized");
@@ -117,6 +121,8 @@ void Osd::print() {
     // horiz down right
     hline(screen->coords(screen->w-HBOUND-HBP,screen->h-VBOUND),HBP<<1,screen->bpp);
   } */
+
+  env->screen->lock();
   
   _print_credits();
 
@@ -132,6 +138,8 @@ void Osd::print() {
   }
 
   _print_status();
+
+  env->screen->unlock();
 }
 
 void Osd::_print_status() {
@@ -174,11 +182,10 @@ void Osd::_selection() {
   if(!lay) return;
   
   Filter *filt = (Filter*) lay->filters.selected();
-  sprintf(msg,"%s::%s [%s][%s][%s]",
+  sprintf(msg,"%s::%s [%s][%s]",
 	  lay->getname(),
 	  (filt)?filt->getname():" ",
 	  lay->get_blit(),
-	  (lay->alpha_blit)?"@":" ",
 	    (env->clear_all)?"0":" ");
   
   print(msg,selection_offset,1,1);
@@ -313,17 +320,20 @@ bool Osd::credits() {
 	ipernaut->filters.add(osd_vertigo);
       }
     }
-    /* add a second water effect on logo 
-       osd_water = env->plugger.pick("water");
-       if(osd_water) {
-       osd_water->init(&ipernaut->geo);
-       keysym.sym = SDLK_y; osd_water->kbd_input(&keysym);
-       keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
-       keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
-       keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
-       ipernaut->filters.add(osd_water);
-       } 
-    */
+
+#if 0
+    /* add a second water effect on logo */
+    osd_water = env->plugger.pick("water");
+    if(osd_water) {
+      osd_water->init(&ipernaut->geo);
+      keysym.sym = SDLK_y; osd_water->kbd_input(&keysym);
+      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
+      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
+      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
+      ipernaut->filters.add(osd_water);
+    } 
+#endif
+
     env->layers.add(ipernaut);
   } else {
     ipernaut->rem();
@@ -365,18 +375,21 @@ void Osd::_set_color(colors col) {
 }
 
 void Osd::clean() {
+  //func("Osd::clean()");
   int c,cc;
-  int jump = (env->w - HBOUND - HBOUND) / 2;
-  uint64_t *top = (uint64_t*)env->screen->get_surface();
-  uint64_t *down = (uint64_t*)env->coords(0,env->h-VBOUND);
-  
-  for(c=(VBOUND*(env->w>>1));c>0;c--) {
+  int jump = (env->screen->w - HBOUND - HBOUND) / 2;
+  uint64_t *top = topclean_offset;
+  uint64_t *down = downclean_offset;
+
+  env->screen->lock();
+  for(c=(VBOUND*(env->screen->w>>1));c>0;c--) {
     *top = 0x0; *down = 0x0;
     top++; down++;
   }
-  for(c = env->h-VBOUND-VBOUND; c>0; c--) {
+  for(c = env->screen->h-VBOUND-VBOUND; c>0; c--) {
     for(cc = HBOUND>>1; cc>0; cc--) { *top = 0x0; top++; }
     top+=jump;
     for(cc = HBOUND>>1; cc>0; cc--) { *top = 0x0; top++; }
   }
+  env->screen->unlock();
 }

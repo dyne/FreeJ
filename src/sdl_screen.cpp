@@ -30,26 +30,12 @@
 SdlScreen::SdlScreen()
   : ViewPort() {
   
-  scr = NULL;
+  screen = NULL;
   emuscr = NULL;
   bpp = 32;
   dbl = false;
-  sdl_flags = (SDL_HWSURFACE| SDL_ASYNCBLIT | SDL_DOUBLEBUF | SDL_HWACCEL);
-  setenv("SDL_VIDEO_YUV_DIRECT", "1", 1);
-  setenv("SDL_VIDEO_HWACCEL", "1", 1);
+  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL);
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-  rmask = 0xff000000;
-  gmask = 0x00ff0000;
-  bmask = 0x0000ff00;
-  amask = 0x000000ff;
-#else
-  rmask = 0x000000ff;
-  gmask = 0x0000ff00;
-  bmask = 0x00ff0000;
-  amask = 0x00000000;
-#endif
-  
 }
 
 SdlScreen::~SdlScreen() {
@@ -58,8 +44,11 @@ SdlScreen::~SdlScreen() {
 
 bool SdlScreen::init(int width, int height) {
   /* initialize SDL */
+  setenv("SDL_VIDEO_HWACCEL", "1", 1);  
+
   if( SDL_Init(SDL_INIT_VIDEO) < 0 ) {
     error("Can't initialize SDL: %s",SDL_GetError());
+    return(false);
   }
 
   setres(width,height);
@@ -70,8 +59,7 @@ bool SdlScreen::init(int width, int height) {
   size = w*h*(bpp>>3);
   pitch = w*(bpp>>3);
 
-  rect.x = 0; rect.y = 0;
-  rect.w = w; rect.h = h;
+  notice("SDL Viewport is %ix%i %ibpp",w,h,screen->format->BytesPerPixel<<3);
 
   /* be nice with the window manager */
   char temp[120];
@@ -81,70 +69,60 @@ bool SdlScreen::init(int width, int height) {
   /* hide mouse cursor */
   SDL_ShowCursor(SDL_DISABLE);
 
-  //  SDL_UpdateRect(scr,0,0,w,h);
-  surface = SDL_GetVideoSurface()->pixels;
-  
   return(true);
 }
 
+void *SdlScreen::coords(int x, int y) {
+  func("SdlScreen::coords(%i,%i)",x,y);
+  return 
+    ( x + (w*y) +
+      (uint32_t*)SDL_GetVideoSurface()->pixels );
+}
+
 void SdlScreen::show() {
-  SDL_Flip(scr);
+  SDL_Flip(screen);
 }
 
 void *SdlScreen::get_surface() {
-  return surface;
-}
-
-bool SdlScreen::update(void *buf) {
-
-  blit = SDL_CreateRGBSurfaceFrom
-    (buf, w, h, bpp, pitch, rmask, gmask, bmask, amask);
-  if(!blit) {
-    error("SdlScreen::update : %s",SDL_GetError());
-    return false;
-  }
-
-  SDL_BlitSurface(blit, NULL, SDL_GetVideoSurface(), NULL);
-
-  SDL_FreeSurface(blit);
-  return true;
+  return SDL_GetVideoSurface()->pixels;
 }
 
 void SdlScreen::clear() {
-  memset(surface,0x0,size);
+  memset(SDL_GetVideoSurface()->pixels,0x0,size);
 }
 void SdlScreen::fullscreen() {
-  SDL_WM_ToggleFullScreen(scr);
+  SDL_WM_ToggleFullScreen(screen);
 }
 
-bool SdlScreen::sdl_lock() {
-  if (!SDL_MUSTLOCK(scr)) return true;
-  if (SDL_LockSurface(scr) < 0) {
+bool SdlScreen::lock() {
+  if (!SDL_MUSTLOCK(screen)) return true;
+  if (SDL_LockSurface(screen) < 0) {
     error("%s", SDL_GetError());
     return false;
   }
   return(true);
 }
 
-bool SdlScreen::sdl_unlock() {
-  if (SDL_MUSTLOCK(scr)) {
-    SDL_UnlockSurface(scr);
+bool SdlScreen::unlock() {
+  if (SDL_MUSTLOCK(screen)) {
+    SDL_UnlockSurface(screen);
   }
   return true;
 }
 
 int SdlScreen::setres(int wx, int hx) {
   /* check and set available videomode */
-  int res = SDL_VideoModeOK(wx, hx, bpp, sdl_flags);
-
-  act("SDL viewport is %ux%u %ubpp",wx,hx,res);
-
-  scr = SDL_SetVideoMode(wx, hx, bpp, sdl_flags);
-  if( scr == NULL ) {
-    error("can't set video mode to %ux%u %ubpp: %s\n",
-	  wx, hx, bpp, SDL_GetError());
+  int res;
+  res = SDL_VideoModeOK(wx, hx, bpp, sdl_flags);
+  
+  
+  screen = SDL_SetVideoMode(wx, hx, bpp, sdl_flags);
+  //  screen = SDL_SetVideoMode(wx, hx, 0, sdl_flags);
+  if( screen == NULL ) {
+    error("can't set video mode: %s\n", SDL_GetError());
     return(false);
   }
+
 
   if(res!=bpp) {
     act("your screen does'nt support %ubpp",bpp);
@@ -153,6 +131,7 @@ int SdlScreen::setres(int wx, int hx) {
     emuscr = SDL_GetVideoSurface();
     act("emulated surface geometry %ux%u %ubpp",
 	emuscr->w,emuscr->h,emuscr->format->BitsPerPixel);
-  }  
+  } 
+
   return res;
 }

@@ -28,23 +28,6 @@
 class Context;
 
 class Layer: public Entry, public JSyncThread {
- private:
-  char _name[5];
-  char filename[256];
-
-  int _blit_algo;
-  void blit(void *offset);
-  int blit_x, blit_y;
-  int blit_width, blit_height;
-  int blit_offset;
-  /* small vars used in blits */
-  int chan, c, cc;
-  uint32_t *scr, *pscr, *off, *poff;
-  Uint8 *alpha;
-
-  
-  void *offset;
-  void *bgmatte;
 
  public:
 
@@ -52,7 +35,7 @@ class Layer: public Entry, public JSyncThread {
   ~Layer();
 
   void run();
-  void _init(Context *screen, int wdt, int hgt, int bpp=0);
+  void _init(Context *freej, int wdt, int hgt, int bpp=0);
   void set_filename(char *f);
   char *get_filename() { return filename; };
   void set_position(int x, int y);
@@ -65,11 +48,10 @@ class Layer: public Entry, public JSyncThread {
   /* these has to be defined into layer instances
      (pure virtual functions) */
   virtual void *feed() = 0; /* feeds in the image source */
-  void *get_buffer() { return buffer; }; /* returns a pointer to the image source */
 
   void set_blit(int b);
   char *get_blit();
-  bool alpha_blit;
+  int _blit_algo;
 
   void crop();
 
@@ -82,7 +64,7 @@ class Layer: public Entry, public JSyncThread {
 
   Linklist filters;
 
-  Context *screen;
+  Context *freej;
 
   ScreenGeometry geo;
 
@@ -92,8 +74,37 @@ class Layer: public Entry, public JSyncThread {
   bool hidden;
   int bgcolor;
 
+  void *offset; // <- pointere to where all goes after processing
+
+  SDL_Rect rect;
+
  protected:
   void *buffer;
+
+ private:
+  char _name[5];
+  char filename[256];
+
+
+
+  void blit(void *offset);
+  int blit_x, blit_y;
+  int blit_width, blit_height;
+  int blit_offset;
+  /* small vars used in blits */
+  int chan, c, cc;
+  uint32_t *scr, *pscr, *off, *poff;
+  Uint8 *alpha;
+  SDL_Surface *blitter;
+
+  uint32_t rmask,gmask,bmask,amask;
+  
+
+
+  void *bgmatte;
+
+
+
 };
 
 /* function for type detection of implemented layers */

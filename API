@@ -30,37 +30,22 @@ each Filter is a plugin loaded and served by the Plugger.
 the Blit Chain consists of blit operations to sum Layers to the
 Context.
 
-the public API for some of the named objects is:
 
-*Context
-  ->layers                          // Linklist of registered layers
-  ->clearall = bool
-  ->add_layer(char *file)
-  ->del_layer(int layer_num)
-  ->clear_layers()
-  ->moveup_layer(int layer_num)
-  ->movedown_layer(int layer_num)
-
-*Layer
-  ->filters                         // Linklist of registered filters
-  ->add_filter(Filter *filter)      // ask the Plugger for Filter*
-  ->del_filter(int filter_num)
-  ->clear_filters()
-  ->moveup_filter(int filter_num)
-  ->movedown_filter(int filter_num)
-  ->active_filter(int filter_num)
-  ->set_blit(int 1-8)               // char *get_blit()
-  ->alpha_blit = bool
-
-In the Layer, the above methods are provided by the Layer abstraction.
+see how i'm using the API to this engine in freej.cpp
 
 To create Layers providing a filename, use the external function:
-    Layer *create_layer(char *filename);
+  Layer *foolay = create_layer(char *filename);
+then you init your new layer
+  if(foolay) {
+    foolay->init(&freej); // <- you pass a pointer to freej env
+    freej.layers->add(foolay); // and then you add it to the chain
+  }
+
 
 === Implement a new Layer?
 
-If you are implementing a new Layer you don't need to write these
-methods, but just a few others, i.e:
+If you are implementing a new Layer you need to implement just a few
+methods, the most is inherited from a parent class:
 
 MyLayer inherits the class Layer and implements the following:
 
@@ -79,4 +64,7 @@ MyLayer inherits the class Layer and implements the following:
 If you are implementing a new Layer, you don't need to care about
 threading or synchronizing the execution: just be sure to correctly
 free all the buffers you malloc ;)
+also compile --with-dmalloc to use a good memory fencing library
+
+$Id$
 

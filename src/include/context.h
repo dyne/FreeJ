@@ -64,27 +64,31 @@ class Context {
   void cafudda();
 
   /* this returns the address of selected coords to video memory */
-  void *coords(int x, int y);
+  void *coords(int x, int y) { return screen->coords(x,y); };
 
   void rocknroll(bool state);
 
   bool quit;
 
+  /*
   int w, h;
   int size;
   int bpp;
   int pitch;
+  */
 
   void *vidbuf;
 
   /* linked list of registered layers */
   Linklist layers;
+  /*
   int add_layer(Layer *newlayer);
   int del_layer(int sel);
   int moveup_layer(int sel);
   int movedown_layer(int sel);
   int active_layer(int sel);
   int clear_layers();
+  */
 
   /* Video Screen */
   ViewPort *screen;

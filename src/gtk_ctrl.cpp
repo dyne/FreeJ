@@ -443,7 +443,7 @@ void *gtk_run(void *arg) {
     while(gtk_events_pending())
       gtk_main_iteration();
     gdk_threads_leave();
-    jsleep(0,100);
+    jsleep(0,500);
   }
   return(NULL);
 }
