@@ -109,18 +109,6 @@ static int getkey_handler() {
   return ch;
 }
 
-#ifdef WITH_JAVASCRIPT
-static int js_proc(char *cmd) {
-  int res = 0;
-  if(!cmd) return res;
-
-  res = env->js->parse(cmd);
-  if(!res) ::error("invalid javascript command: %s",cmd);
-  return res;
-}
-#endif
-
-
 // callbacks used by readline to handle input from console
 static int blit_selection(char *cmd) {
   if(!cmd) return 0;
@@ -227,6 +215,30 @@ static int quit_proc(char *cmd) {
   return 0;
 }
 
+#ifdef WITH_JAVASCRIPT
+static int exec_script(char *cmd) {
+  struct stat filestatus;
+
+  func("exec_script(%s)",cmd);
+
+  // check that is a good file
+  if( stat(cmd,&filestatus) < 0 ) {
+    error("invalid file %s: %s",cmd,strerror(errno));
+    return 0;
+  } else { // is it a directory?
+    if( S_ISDIR( filestatus.st_mode ) ) {
+      error("can't open a directory as a script",cmd);
+      return 0;
+    }
+  }
+
+  env->js->open(cmd);
+
+  env->console->refresh();
+  return 0;
+}
+#endif
+
 static int open_layer(char *cmd) {
   struct stat filestatus;
   int len;
@@ -308,7 +320,7 @@ static int open_text_layer(char *cmd) {
 }
 #endif
 
-static int filebrowse_completion_selector(const struct dirent *dir) {
+static int filebrowse_completion_selector(struct dirent *dir) {
   if(dir->d_name[0]=='.')
     if(dir->d_name[1]!='.')
       return(0); // skip hidden files
@@ -627,7 +639,7 @@ void Console::cafudda() {
 
   if(!commandline) {
     speedmeter();
-    statusline();
+    statusline(NULL);
   } else
     GOTO_CURSOR;
 
@@ -643,17 +655,23 @@ void Console::refresh() {
   filterprint(); filterlist();  
   update_scroll();
   if(!commandline)
-    statusline();
+    statusline(NULL);
   else
     GOTO_CURSOR;
 
 }    
 
-void Console::statusline() {
+void Console::statusline(char *msg) {
   SLsmg_set_color(TITLE_COLOR+20);
   SLsmg_gotorc(SLtt_Screen_Rows - 1,0);
-  SLsmg_write_string
-    (" use arrows to move selection, press ctrl-h for help with hotkeys      ");
+
+  if(msg) {
+    SLsmg_write_string(msg);
+    SLsmg_erase_eol();
+  } else
+    SLsmg_write_string
+      (" use arrows to move selection, press ctrl-h for help with hotkeys      ");
+
   SLsmg_set_color(PLAIN_COLOR);
 }
 
@@ -1179,7 +1197,7 @@ void Console::parser_default(int key) {
     ::error("javascript is not compiled in this FreeJ binary");
   break;
 #else
-  readline("input script command:",&js_proc,NULL);
+  readline("script file to execute:",&exec_script,&filebrowse_completion);
   break;
 #endif
 
@@ -1384,9 +1402,10 @@ void Console::parser_commandline(int key) {
       parser = DEFAULT;
       cmd_process = NULL;
       cmd_complete = NULL;
-      statusline();
+      statusline(NULL);
       return;
     }
+    statusline(command);
     // otherwise process the input
     res = (*cmd_process)(command);
     if(res<0) return;
@@ -1394,7 +1413,7 @@ void Console::parser_commandline(int key) {
     parser = DEFAULT;
     cmd_process = NULL;
     cmd_complete = NULL;
-    statusline();
+    statusline(NULL);
     // save in commandline history
     entr = new Entry();
     entr->data = strdup(command);
@@ -1438,7 +1457,7 @@ void Console::parser_commandline(int key) {
     parser = DEFAULT;
     cmd_process = NULL;
     cmd_complete = NULL;
-    statusline();
+    statusline(NULL);
     return;
 
   case KEY_TAB:

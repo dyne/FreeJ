@@ -194,9 +194,11 @@ void JsParser::init() {
 int JsParser::open(const char* script_file) {
   jsval ret_val;
   FILE *fd;
-  int c = 0;
   char *buf;
   int len;
+  int c;
+
+  char header[1024];
 
   fd = fopen(script_file,"r");
   if(!fd) {
@@ -209,19 +211,20 @@ int JsParser::open(const char* script_file) {
   fseek(fd,0,SEEK_END);
   len = ftell(fd);
   rewind(fd);
-  buf = (char*)malloc(len);
+
+
+  // exclude the first line if it calls the shell interpreter
+  fgets(header,1023,fd);
+  if(header[0]!='#')
+    rewind(fd);
+  else
+    len -= strlen(header);
+
+  buf = (char*)calloc(len+10,sizeof(char));
   func("JsParser allocated %u bytes",len);
-  fread(buf,len,1,fd);
+  fread(buf,len,sizeof(char),fd);
+
   fclose(fd);
-
-  // test if it's a script and eventually strip first line
-  if(strncmp(buf,"#!/usr/",7)==0) {
-      char *tmp=strchr(buf,'\n');
-      tmp++;
-      len-=(tmp-buf); // update lenght for spidermonkey
-      buf=tmp;
-  }
-
 
   JS_EvaluateScript (js_context, global_object,
 		     buf, len, script_file, c, &ret_val);
@@ -342,10 +345,37 @@ JS(add_layer) {
     return JS_TRUE;
 }
 
-JS(fullscreen) {
-    env->screen->fullscreen();
-    env->clear_all = !env->clear_all;
+JS(list_layers) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  JSObject *arr;
+  Layer *lay;
+  jsval val;
+  int c = 0;
+  
+  if( env->layers.len() == 0 ) {
+    *rval = JSVAL_FALSE;
     return JS_TRUE;
+  }
+
+  arr = JS_NewArrayObject(cx, 0, NULL); // create void array
+  
+  lay = (Layer*)env->layers.begin();
+  while(lay) {
+    val = OBJECT_TO_JSVAL(lay);
+    JS_SetElement(cx, arr, c, &val );
+    
+    c++;
+    lay = (Layer*)lay->next;
+  }
+
+  *rval = OBJECT_TO_JSVAL( arr );
+  return JS_TRUE;
+}
+
+JS(fullscreen) {
+  env->screen->fullscreen();
+  env->clear_all = !env->clear_all;
+  return JS_TRUE;
 }
 
 JS(set_size) {

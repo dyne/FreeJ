@@ -93,66 +93,6 @@ char javascript[512]; // script filename
 bool startstate = true;
 bool gtkgui = false;
 
-bool parse_header_for_script() {
-    char *tmp_buf=NULL;
-    FILE *fd=NULL;
-    bool script_found=false;
-    char *script=layer_files;
-
-    if(*script) {
-	{
-	    // strip final '#'
-	    char *tmp=strrchr(script,'#');
-	    int script_name_size=tmp-script;
-
-	    script=strdup(layer_files); //,script_name_size);
-	    script[script_name_size]='\0';
-	    if(!script)
-		return false;
-	}
-
-
-	// open script
-	fd=fopen(script,"r");
-	if(!fd) {
-	    error("Can't open script %s",script);
-	    return false;
-	}
-
-	// allocate buffer
-	tmp_buf=(char *)malloc(25);
-	if(!tmp_buf) {
-	    error("Cant allocate memory for script");
-	    return false;
-	}
-
-	// read first line and check for correct header
-	int res = fread(tmp_buf,1,25,fd);
-	if(res>0) {
-	    if(strncmp(tmp_buf,"#!/usr/bin/freej",16)==0 ||
-		    strncmp(tmp_buf,"#!/usr/local/bin/freej",22)==0 ) {
-		script_found=true;
-		snprintf(javascript,512,"%s",script);
-		notice("found script: %s", javascript);
-	    }
-	}
-	else {
-	    error("Can't read script");
-	    perror("fread");
-	}
-    }
-    else {
-	return false;
-    }
-    // free buffer
-    if(tmp_buf) {
-	free(tmp_buf);
-    }
-    // close script
-    fclose(fd);
-    return script_found;
-}
-
 void cmdline(int argc, char **argv) {
   int res, optlen;
 
@@ -203,7 +143,6 @@ void cmdline(int argc, char **argv) {
       sscanf(optarg,"%u",&magn);
       magn -= 1;
       magn = (magn>3) ? 3 : (magn<1) ? 0 : magn;
-      act("CAZ %i",magn);
       break;
 
     case 'n':
@@ -281,7 +220,7 @@ int main (int argc, char **argv) {
 
 #ifdef WITH_JAVASCRIPT
   /* execute javascript */
-  if(parse_header_for_script() || javascript[0] ) {
+  if( javascript[0] ) {
     freej.interactive = false;
     freej.js->open(javascript);
     if(freej.quit) {
@@ -318,8 +257,7 @@ int main (int argc, char **argv) {
       l = p+1;
       if(cli_chars<=0) break; *p='\0';
 
-      if(strcmp(pp,javascript)!=0) // don't open the script on command line
-	  lay = create_layer(pp);
+      lay = create_layer(pp);
 
       if(lay) {
 	lay->init(&freej);

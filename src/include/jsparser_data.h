@@ -115,6 +115,7 @@ JS(cafudda);
 JS(quit);
 JS(add_layer);
 JS(rem_layer);
+JS(list_layers);
 JS(fastrand);
 JS(fastsrand);
 JS(pause);
@@ -231,6 +232,7 @@ static	JSFunctionSpec global_functions[] = {
     {"quit",            quit,                   0},
     {"add_layer",	add_layer,		1},
     {"rem_layer",	rem_layer,		1},
+    {"list_layers",     list_layers,            0},
     {"fastrand",        fastrand,               0},
     {"fastsrand",       fastsrand,              1},
     {"pause",           pause,                  0},

@@ -87,7 +87,7 @@ class Console {
 
   void speedmeter();
 
-  void statusline();
+  void statusline(char *msg);
 
   void getkey();
 
