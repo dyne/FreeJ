@@ -119,10 +119,13 @@ void JsParser::init() {
 		   vscroll_layer_constructor,
 		   vscroll_layer_methods);
 
+#ifdef WITH_V4L
     REGISTER_CLASS("V4lLayer",
 		   v4l_layer_class,
 		   v4l_layer_constructor,
 		   v4l_layer_methods);
+#endif
+
 #ifdef WITH_AVCODEC
     REGISTER_CLASS("VideoLayer",
 		   video_layer_class,
@@ -681,6 +684,7 @@ JS(vscroll_layer_kerning) {
   return JS_TRUE;
 }
 
+#ifdef WITH_V4L
 ////////////////////////////////
 // Video4Linux Layer methods
 JS_CONSTRUCTOR("V4lLayer",v4l_layer_constructor,V4lGrabber);
@@ -720,6 +724,7 @@ JS(v4l_layer_band) {
 
   return JS_TRUE;
 }
+#endif
 
 #ifdef WITH_AVIFILE
 ////////////////////////////////

@@ -285,6 +285,8 @@ Console::~Console() {
 bool Console::init(Context *freej) {
   env = freej;
 
+  setenv("TERM","xterm-color",0); // set if not present (overwrite=0)
+
   SLtt_get_terminfo();
 
   SLkp_init(); // keyboard interface

@@ -32,14 +32,14 @@
 #include <config.h>
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-static uint32_t rmask = 0xff000000;
-static uint8_t rchan = 0;
-static uint32_t gmask = 0x00ff0000;
-static uint8_t gchan = 1;
-static uint32_t bmask = 0x0000ff00;
-static uint8_t bchan = 2;
-static uint32_t amask = 0x000000ff;
-static uint8_t achan = 3;
+static uint32_t rmask = 0x00ff0000;
+static uint8_t rchan = 1;
+static uint32_t gmask = 0x0000ff00;
+static uint8_t gchan = 2;
+static uint32_t bmask = 0x000000ff;
+static uint8_t bchan = 3;
+static uint32_t amask = 0xff000000;
+static uint8_t achan = 0;
 #else
 static uint32_t rmask = 0x000000ff;
 static uint8_t rchan = 2;

@@ -54,7 +54,9 @@ JS(layer_constructor);
 JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(filter_constructor);
+#ifdef WITH_V4L
 JS(v4l_layer_constructor);
+#endif
 #ifdef WITH_AVIFILE
 JS(avi_layer_constructor);
 #endif
@@ -82,7 +84,9 @@ DECLARE_CLASS("Layer",layer_class,layer_constructor);
 DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
 DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
 DECLARE_CLASS("Filter",filter_class,filter_constructor);
+#ifdef WITH_V4L
 DECLARE_CLASS("V4lLayer",v4l_layer_class,v4l_layer_constructor);
+#endif
 #ifdef WITH_AVCODEC
 DECLARE_CLASS("VideoLayer",video_layer_class,video_layer_constructor);
 #endif
@@ -168,11 +172,13 @@ JS(vscroll_layer_speed);
 JS(vscroll_layer_linespace);
 JS(vscroll_layer_kerning);
 
+#ifdef WITH_V4L
 ////////////////////////////////
 // Video4Linux Layer methods
 JS(v4l_layer_chan);
 JS(v4l_layer_band);
 JS(v4l_layer_freq);
+#endif
 
 #ifdef WITH_AVCODEC
 ////////////////////////////////
@@ -257,6 +263,7 @@ JSFunctionSpec vscroll_layer_methods[] = {
   {0}
 };
 
+#ifdef WITH_V4L
 JSFunctionSpec v4l_layer_methods[] = {
   LAYER_METHODS,
   ENTRY_METHODS,
@@ -266,6 +273,7 @@ JSFunctionSpec v4l_layer_methods[] = {
   {     "freq",         v4l_layer_freq,         1},
   {0}
 };
+#endif
 
 #ifdef WITH_AVIFILE
 JSFunctionSpec avi_layer_methods[] = {
