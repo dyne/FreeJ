@@ -278,6 +278,8 @@ int main (int argc, char **argv) {
   if(gtkgui) gtk_ctrl_quit();
 #endif
 
+  freej.close();
+
   notice("cu on http://freej.dyne.org");
   jsleep(1,0);
 
