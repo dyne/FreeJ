@@ -21,6 +21,7 @@ case $uname in
      have_linux=yes
      if test $host_cpu = powerpc; then
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
+       have_ppc=yes
      else
        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
      fi
@@ -313,15 +314,19 @@ if test x$have_lubrifications = xyes; then
   else
     if test x$have_darwin = xyes; then
       # use optimization flags for darwin
-      CFLAGS="$CFLAGS -O4 -fomit-frame-pointer -mpowerpc-gfxopt -faltivec"
+      CFLAGS="$CFLAGS -O4 -fomit-frame-pointer"
+      # adding these provoke 'illegal instruction' errors in some
+      # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
+    elif test x$have_ppc = xyes; then
+      CFLAGS="$CFLAGS -O4 -fomit-frame-pointer -ffast-math"
     else
-      CFLAGS="$CFLAGS -O4 -fomit-frame-pointer -march=${host_cpu} -finline-functions -ffast-math"
+      CFLAGS="$CFLAGS -O4 -fomit-frame-pointer -march=${host_cpu} -ffast-math"
     fi
   fi
 else
   if test x$have_profiling = xno -a x$debug = xfalse; then
     echo "enabling generic compiler optimizations"
-    CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -mcpu=pentium-mmx -ffast-math -finline-functions"
+    CFLAGS="$CFLAGS -O1 -fomit-frame-pointer -ffast-math"
   fi
 fi
 AC_SUBST(LUBRIFY_CFLAGS)
