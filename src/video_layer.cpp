@@ -50,6 +50,10 @@ VideoLayer::VideoLayer()
 	play_speed_control=0;
 	seekable=true;
 	enc=NULL;
+
+	av_picture = NULL;
+	deinterlace_buffer = NULL;
+
     }
 
 VideoLayer::~VideoLayer() {
@@ -125,7 +129,7 @@ bool VideoLayer::open(char *file) {
     int err=0;
     video_index=-1;
     func("VideoLayer::open(%s)",file);
-    video_filename=strdup(file);
+
     AVInputFormat *av_input_format=NULL;
     AVFormatParameters avp, *av_format_par = NULL;
 
@@ -251,14 +255,15 @@ void *VideoLayer::feed() {
 			if (pkt.pts != AV_NOPTS_VALUE) {
 			    packet_pts = (double)pkt.pts / AV_TIME_BASE;
 			}
-			notice("pkt.data= %d\t",pkt.data);
-			notice("pkt.size= %d\t",pkt.size);
-			notice("pkt.pts= %d\t",pkt.pts);
-			notice("pkt.dts= %d\t",pkt.dts);
-			notice("pkt.duration= %d\n",pkt.duration);
-			notice("avformat_context->start_time= %d\n",avformat_context->start_time);
-			notice("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
-			notice("avformat_context->duration= %d\n",avformat_context->duration);
+			func("pkt.data= %d\t",pkt.data);
+			func("pkt.size= %d\t",pkt.size);
+			func("pkt.pts= %d\t",pkt.pts);
+			func("pkt.dts= %d\t",pkt.dts);
+			func("pkt.duration= %d\n",pkt.duration);
+			func("avformat_context->start_time= %d\n",avformat_context->start_time);
+			func("avformat_context->duration= %0.3f\n",
+			     avformat_context->duration/AV_TIME_BASE);
+			func("avformat_context->duration= %d\n",avformat_context->duration);
 
 			/**
 			 * check eof and loop
@@ -398,9 +403,8 @@ void VideoLayer::close() {
 
 void VideoLayer::free_av_stuff() {
     free_fifo(); // free fifo NOW!
-    if(!av_picture) free_picture(av_picture);
-    if(!deinterlace_buffer) free(deinterlace_buffer);
-    if(!video_filename) free(video_filename);
+    if(av_picture) free_picture(av_picture);
+    if(deinterlace_buffer) free(deinterlace_buffer);
 }
 
 /*
@@ -568,7 +572,7 @@ int VideoLayer::seek(int64_t timestamp) {
 	    /** close and reopen the stream*/
 	    {
 		close();
-		open(video_filename);
+		open( get_filename() );
 	    }
 	    return 0;
 	}
@@ -603,7 +607,7 @@ int VideoLayer::seek(int64_t timestamp) {
 	    /** close and reopen the stream*/
 	    {
 	    close();
-	    open(video_filename);
+	    open( get_filename() );
 	    return 0;
 	    }
 	}

@@ -28,33 +28,34 @@
 #include <sdl_screen.h>
 
 Encode::Encode(Context *_env) { 
-    if(_env!=NULL)
-	env=_env;
-    notice("Encode::Encode::Encode object created");
+  env=_env;
+  func("Encode::Encode::Encode object created");
 }
 Encode::~Encode() {
-    avcodec_close(codec);
-    free_av_objects();
-
-    // finish writing the file
-    av_write_trailer(afc);
-    // free the streams
-    for(int i = 0; i < afc->nb_streams; i++) {
-        jfree(&afc->streams[i]);
-    }
-
-    if (!(aof->flags & AVFMT_NOFILE)) {
-        /* close the output file */
-        url_fclose(&afc->pb);
-    }
-    /* free the stream */
-    jfree(afc);
+  avcodec_close(codec);
+  free_av_objects();
+  
+  // finish writing the file
+  av_write_trailer(afc);
+  // free the streams
+  for(int i = 0; i < afc->nb_streams; i++) {
+    free(&afc->streams[i]);
+  }
+  
+  if (!(aof->flags & AVFMT_NOFILE)) {
+    /* close the output file */
+    url_fclose(&afc->pb);
+  }
+  /* free the stream */
+  free(afc);
 }
+
 void Encode::free_av_objects() {
-    jfree(picture);
-    jfree(tmp_picture);
-    jfree(video_outbuf);
+  free(picture);
+  free(tmp_picture);
+  free(video_outbuf);
 }
+
 char *Encode::init(char *output_filename) { 
     if(!output_filename)
     {
