@@ -389,8 +389,7 @@ bool VideoLayer::set_speed(int speed) {
     user_play_speed+=speed;
     play_speed+=speed;
     play_speed_control=play_speed;
-    notice("speed is %d",user_play_speed);
-    show_osd();
+    show_osd("speed is %d",user_play_speed);
 }
 bool VideoLayer::forward() {
     relative_seek(+10);
