@@ -125,15 +125,40 @@ void Context::cafudda(double secs) {
     /** fetch keyboard events */
     if(interactive) kbd.run();
 
+    /* change resolution if needed */
+    if(changeres) {
+      screen->lock();
+      if(magnification) {
+	screen->set_magnification(magnification);
+	magnification = 0;
+      }
+      if(resizing) {
+	screen->resize(resize_w, resize_h);
+	resizing = false;
+      }
+      osd.resize();
+      screen->unlock();
+      /* crop all layers to new screen size */
+      Layer *lay = (Layer *)layers.begin();
+      while(lay) {
+	lay->lock();
+	lay->blitter.crop( screen );
+	lay->unlock();
+	lay = (Layer*)lay->next;
+      }
+      changeres = false;
+    }
+
+
     /** start layers thread */
     rocknroll();
     
 
-    /** clear screen before each iteration */
+    // clear screen before each iteration 
     if(clear_all) 
 	screen->clear();
     else if(osd.active) 
-	osd.clean();
+    osd.clean();
     
     /** process each layer in the chain */
     
@@ -157,20 +182,6 @@ void Context::cafudda(double secs) {
     screen->show();
 
 
-    /* change resolution if needed */
-    if(changeres) {
-      screen->set_magnification(magnification);
-      osd.init(this);
-      /* crop all layers to new screen size */
-      Layer *lay = (Layer *)layers.begin();
-      while(lay) {
-	lay->lock();
-	lay->blitter.crop( screen );
-	lay->unlock();
-	lay = (Layer*)lay->next;
-      }
-      changeres = false;
-    }
 
     /******* handle timing */
     
@@ -182,6 +193,14 @@ void Context::cafudda(double secs) {
 
   } while(riciuca);
 
+}
+
+
+void Context::resize(int w, int h) {
+  resize_w = w;
+  resize_h = h;
+  resizing = true;
+  changeres = true;
 }
 
 void Context::magnify(int algo) {

@@ -34,6 +34,7 @@ class ViewPort {
      otherwise burdens our performance */ 
   virtual bool init(int width, int height) =0;
   virtual void set_magnification(int algo) =0;
+  virtual void resize(int resize_w, int resize_h) =0;
   virtual void show() =0;
   virtual void clear() =0;
   virtual void *get_surface() =0; // returns direct pointer to video memory

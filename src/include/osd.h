@@ -82,6 +82,7 @@ class Osd {
   ~Osd();
 
   void init(Context *screen);
+  void resize();
   void print();
   //  void statusmsg(char *format,...);
   bool calibrate();

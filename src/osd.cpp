@@ -86,24 +86,10 @@ Osd::~Osd() { }
 void Osd::init(Context *screen) {
   this->env = screen;
   _set_color(white);
-
-  /* setup coordinates for OSD information
-     stored in offsets of video memory addresses
-     to gain speed and limit computation during cycles */
-  fps_offset = (uint32_t*)env->screen->coords(env->screen->w-50,1);
-  selection_offset = (uint32_t*)env->screen->coords(80,1);
-  status_offset = (uint32_t*)env->screen->coords(HBOUND,env->screen->h-12);
-  layer_offset = (uint32_t*)env->screen->coords(env->screen->w-28,VBOUND+TOPLIST);
-  filter_offset = (uint32_t*)env->screen->coords(3,VBOUND+6);
-  hicredits_offset = (uint32_t*)env->screen->coords((env->screen->w/2)-140,VBOUND+5);
-  locredits_offset1 = (uint32_t*)env->screen->coords((env->screen->w/2)+10,env->screen->h-VBOUND-30);
-  locredits_offset2 = (uint32_t*)env->screen->coords((env->screen->w/2)-150,env->screen->h-VBOUND-33);
-  hilogo_offset = (uint32_t*)env->screen->coords(3,0);
-  topclean_offset = (uint64_t*)env->screen->coords(0,0);
-  downclean_offset = (uint64_t*) env->screen->coords(0,env->screen->h-VBOUND);
-
-  newline = env->screen->pitch*(CHAR_HEIGHT);
   snprintf(title,64,"%s v%s codename BIKO",PACKAGE,VERSION);
+
+  // setup sizes
+  resize();
 
   /* add ipernaut logo layer */
   if(!ipernaut) {
@@ -124,13 +110,36 @@ void Osd::init(Context *screen) {
     }
   }
 
-  osd_jump = (env->screen->w - HBOUND - HBOUND) / 2;
 
   active = true;
   set_osd(status_msg); /* let jutils know about the osd */
 
   func("OSD initialized");
   
+}
+
+void Osd::resize() {
+  if(!env) return;
+
+  /* setup coordinates for OSD information
+     stored in offsets of video memory addresses
+     to gain speed and limit computation during cycles */
+  fps_offset = (uint32_t*)env->screen->coords(env->screen->w-50,1);
+  selection_offset = (uint32_t*)env->screen->coords(80,1);
+  status_offset = (uint32_t*)env->screen->coords(HBOUND,env->screen->h-12);
+  layer_offset = (uint32_t*)env->screen->coords(env->screen->w-28,VBOUND+TOPLIST);
+  filter_offset = (uint32_t*)env->screen->coords(3,VBOUND+6);
+  hicredits_offset = (uint32_t*)env->screen->coords((env->screen->w/2)-140,VBOUND+5);
+  locredits_offset1 = (uint32_t*)env->screen->coords((env->screen->w/2)+10,env->screen->h-VBOUND-30);
+  locredits_offset2 = (uint32_t*)env->screen->coords((env->screen->w/2)-150,env->screen->h-VBOUND-33);
+  hilogo_offset = (uint32_t*)env->screen->coords(3,0);
+  topclean_offset = (uint64_t*)env->screen->coords(0,0);
+  downclean_offset = (uint64_t*) env->screen->coords(0,env->screen->h-VBOUND);
+
+  newline = env->screen->pitch*(CHAR_HEIGHT);
+  osd_jump = (env->screen->w - HBOUND - HBOUND) / 2;  
+  
+
 }
 
 /* this function is called by the core routine

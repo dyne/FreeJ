@@ -1,15 +1,16 @@
 FreeJ 0.7 BIKO - 11 Aug 2004
-  now scriptable in OO javascript syntax
+  support for Apple Darwin/OSX  
+  scriptable engine in OO procedural syntax
   new S-Lang console interface (also remote VJoE)
   new Particle Generator layer
   new Vertical Text Scroll layer
   new FFMpeg movie layer (experimental)
   new Midi controller (experimental)
   new Flash layer (experimental)
+  dinamicly resizable viewport
   blitter rewritten with improved detail
   initial support for value fading via oscillators
   new optimized memcpy routines, speed improvements 
-  support for Darwin/OSX  
   fixes to AviLayer and TxtLayer quality and behaviour
   new tutorial and improved documentation
 

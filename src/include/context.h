@@ -79,6 +79,12 @@ class Context {
 
   void magnify(int algo);
   int magnification;
+
+  void resize(int w, int h);
+  bool resizing;
+  int resize_w;
+  int resize_h;
+
   bool changeres;
 
   bool quit;

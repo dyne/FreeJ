@@ -32,6 +32,7 @@ class SdlScreen : public ViewPort {
 
   bool init(int widt, int height);
   void set_magnification(int algo);
+  void resize(int resize_w, int resize_h);
 
   void show();
   void clear();

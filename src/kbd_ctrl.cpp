@@ -75,6 +75,11 @@ void KbdListener::run() {
       env->quit = true;
       return; 
     }
+
+    if(event.type == SDL_VIDEORESIZE) {
+      env->resize(event.resize.w, event.resize.h);
+      return;
+    }
       
     if(event.type == SDL_MOUSEBUTTONDOWN) {
 

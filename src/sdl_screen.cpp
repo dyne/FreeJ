@@ -35,7 +35,7 @@ SdlScreen::SdlScreen()
   emuscr = NULL;
   bpp = 32;
   dbl = false;
-  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL);
+  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL | SDL_RESIZABLE);
   // add above | SDL_FULLSCREEN to go fullscreen from the start
 
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
@@ -87,6 +87,14 @@ bool SdlScreen::init(int width, int height) {
   SDL_ShowCursor(SDL_DISABLE);
 
   return(true);
+}
+
+void SdlScreen::resize(int resize_w, int resize_h) {
+  surface = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
+  w = resize_w;
+  h = resize_h;
+  size = resize_w * resize_h * (bpp>>3);
+  pitch = resize_w * (bpp>>3);
 }
 
 void *SdlScreen::coords(int x, int y) {
