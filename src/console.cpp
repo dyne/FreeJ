@@ -994,6 +994,7 @@ void Console::parser_default(int key) {
     //  case SL_KEY_END: break;
 
   case SL_KEY_DELETE:
+  case KEY_CTRL_D:
     if(filter) {
       filter->rem();
       filter->clean();
@@ -1005,6 +1006,11 @@ void Console::parser_default(int key) {
     }
     break;
     
+  case KEY_SPACE:
+    if(filter) filter->active = !filter->active;
+    if(layer) layer->active = !layer->active;
+    break;
+
   case SL_KEY_IC:
     if(!filter) break;
     filter->active = !filter->active;

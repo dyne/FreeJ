@@ -106,7 +106,7 @@ bool parse_header_for_script() {
 	    char *tmp=strrchr(script,'#');
 	    int script_name_size=tmp-script;
 
-	    script=strndup(layer_files,script_name_size);
+	    script=strdup(layer_files); //,script_name_size);
 	    if(!script)
 		return false;
 	}
