@@ -127,38 +127,24 @@ void SdlScreen::crop(Layer *layer) {
     }
 
 
-#define SDL_BLIT(b,g,r,a,opacity) \
-  blitter = SDL_CreateRGBSurfaceFrom \
-    (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp, \
-     layer->geo.pitch, b, g, r, a); \
-  if(!blitter) { \
-    error("SDL_CreateRGBSurfaceFrom : %s",SDL_GetError()); \
-    return; \
-  } \
-  SDL_SetAlpha(blitter,SDL_SRCALPHA,opacity); \
-  SDL_BlitSurface(blitter,&layer->rect,SDL_GetVideoSurface(),NULL); \
-  SDL_FreeSurface(blitter);
-
-
 void SdlScreen::blit(Layer *layer) {
-  /* transparence aware blits:
-     if alpha channel is 0x00 then pixel is not blitted
-     works with 32bpp */
+  /* works only with 32bpp
+     conversion is automatically done by SDL 
+     (Jah bless Sam Lantinga!) */
   
   if(layer->hidden) return;
 
-  /* SOLID COLOR BLIT (NO ALPHA TRANSPARENCE) */
   switch(layer->blit) {
     
-  case 1:
-    //BLIT(=);
+  case 1: // plain RGB blit, we use SDL for this
+    
     blitter = SDL_CreateRGBSurfaceFrom
       (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
        layer->geo.pitch, layer->bmask, layer->gmask, layer->rmask, 0x0);
-    if(!blitter) {
-      error("SDL_CreateRGBSurfaceFrom : %s",SDL_GetError());
-      return;
-    }
+    /*    if(!blitter) {
+	  error("SDL_CreateRGBSurfaceFrom : %s",SDL_GetError());
+	  return;
+	  } */
     SDL_BlitSurface(blitter,&layer->rect,SDL_GetVideoSurface(),NULL);
     SDL_FreeSurface(blitter);
     return;
@@ -202,10 +188,10 @@ void SdlScreen::blit(Layer *layer) {
     blitter = SDL_CreateRGBSurfaceFrom
       (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
        layer->geo.pitch, layer->bmask, layer->gmask, layer->rmask, 0x0);
-    if(!blitter) {
-      error("SDL_CreateRGBSurfaceFrom : %s",SDL_GetError());
-      return;
-    }
+    /*    if(!blitter) {
+	  error("SDL_CreateRGBSurfaceFrom : %s",SDL_GetError());
+	  return;
+	  } */
     SDL_SetAlpha(blitter,SDL_SRCALPHA,layer->alpha);
     SDL_BlitSurface(blitter,&layer->rect,SDL_GetVideoSurface(),NULL);
     SDL_FreeSurface(blitter);

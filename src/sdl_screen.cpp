@@ -73,7 +73,6 @@ bool SdlScreen::init(int width, int height) {
 }
 
 void *SdlScreen::coords(int x, int y) {
-  func("SdlScreen::coords(%i,%i)",x,y);
   return 
     ( x + (w*y) +
       (uint32_t*)SDL_GetVideoSurface()->pixels );

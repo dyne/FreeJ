@@ -22,6 +22,7 @@ case $uname in
        AC_DEFINE(HAVE_PPC,1,[define if compiling for Linux/PPC])
      fi
      if [ cat /proc/cpuinfo | grep mmx ]; then
+       have_mmx=yes
        AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
      fi
 
@@ -218,7 +219,7 @@ fi], [AC_MSG_RESULT(no)])
 fi
 
 
-## CCVT CONVERSION (HARDCODED FOR NOW)
+# select CCVT CONVERSION TYPE
 CCVT_CONV="ccvt_c2.c"
 AC_SUBST(CCVT_CONV)
 
@@ -252,29 +253,29 @@ filters/nervous/Makefile
 
 echo
 echo
-echo "== compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
-echo " = SDL v${SDL_VERSION}"
-echo " LIBS  : $SDL_LIBS"
-echo " CFLAGS: $SDL_CFLAGS"
+echo "Compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
+echo "= SDL v${SDL_VERSION}"
+echo "  LIBS  : $SDL_LIBS"
+echo "  CFLAGS: $SDL_CFLAGS"
 if test x$have_png = xyes; then
-echo " = Png1.2"
-echo " LIBS  : $PNG_LIBS"
-echo " CFLAGS: $PNG_CFLAGS"
+echo "= Png1.2"
+echo "  LIBS  : $PNG_LIBS"
+echo "  CFLAGS: $PNG_CFLAGS"
 fi
 if test x$have_freetype2 = xyes; then
-echo " = FreeType2"
-echo " LIBS  : $FT2_LIBS"
-echo " CFLAGS: $FT2_CFLAGS"
+echo "= FreeType2"
+echo "  LIBS  : $FT2_LIBS"
+echo "  CFLAGS: $FT2_CFLAGS"
 fi
 if test x$have_avilayer = xyes; then
-echo " = AviFile"
-echo " LIBS  : $AVIFILE_LIBS"
-echo " CFLAGS: $AVIFILE_CXXFLAGS"
+echo "= AviFile"
+echo "  LIBS  : $AVIFILE_LIBS"
+echo "  CFLAGS: $AVIFILE_CXXFLAGS"
 fi
-echo " = LUBRIFICATIONS : $LUBRIFY_CFLAGS"
-echo " = CFLAGS   : $CFLAGS"
-echo " = CXXFLAGS : $CXXFLAGS"
-echo " = INSTALL PREFIX is $prefix"
+echo "= LUBRIFICATIONS : $LUBRIFY_CFLAGS"
+echo "= CFLAGS   : $CFLAGS"
+echo "= CXXFLAGS : $CXXFLAGS"
+echo "= INSTALL PREFIX is $prefix"
 echo "============================== now type make, may the source be with you!"
 echo
 

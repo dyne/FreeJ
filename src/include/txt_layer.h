@@ -31,6 +31,8 @@
 #define MAX_GLYPHS 512
 #define MAX_CHUNK 512
 #define SPEED 5
+#define MAX_FONTS 256
+
 typedef struct TGlyph_
 {
      FT_UInt    glyph_index;    // glyph index
@@ -91,6 +93,11 @@ class TxtLayer: public Layer {
   bool draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,Uint8 *dst);
 
   //  int word_rw(int pos);
+
+  int scanfonts(char *path);
+  char *fonts[MAX_FONTS];
+  int num_fonts;
+  int sel_font;
 
 public:
   TxtLayer();

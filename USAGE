@@ -1,4 +1,4 @@
-FreeJ version 0.5.1 USAGE NOTES
+FreeJ version 0.6 USAGE NOTES
 ===============================
 
 The interface consists in a on screen display (OSD) reporting
@@ -10,13 +10,13 @@ LIST OF COMMANDS:
 % means SHIFT key pressed
 
  GENERIC COMMANDS:
- ^SPACE    = switch fullscreen mode
- SPACE    = pause screen
+ ^SPACE   = switch fullscreen mode
+ SPACE    = freeze the whole engine
  ESC      = quits (without confirm)
  TAB      = on/off OSD
  ^TAB     = on/off calibration guidelines
  PRINTSCR = display nice and lovely credits
- ^f = show fps
+
 
  LAYER COMMANDS:
 
@@ -30,7 +30,8 @@ LIST OF COMMANDS:
  3 = select GREEN BLIT              4 = select RED BLIT
  5 = select ADD BLIT                6 = select SUB BLIT
  7 = select AND BLIT                8 = select OR BLIT
- 9 = SWITCH ALPHA channel on/off    0 = SWITCH BLANK screen on/off
+ 9 = SWITCH ALPHA blend on/off      0 = SWITCH BLANK screen on/off
+ with ALPHA blend on, you can fade thru values using 1-9 keys
 
  %ARROWS  = move layers around thru the screen
  mouse-l  = drag layers around, slowly and smoothly
@@ -67,10 +68,10 @@ LIST OF COMMANDS:
             left ctrl = 50000 ; right ctrl = 10000 ;
 	    left shift = 5000 ; right shift = 1000 ;
  Key_Pad_0  PAUSE (still can seek !)
- I          set/clear mark_in
- O          set/clear mark_out
- k,l        -+ double frame / slow motion
- n,m        -+ play speed
+ %I       = set/clear mark_in
+ %O       = set/clear mark_out
+ k,l      = -/+ double frame / slow motion
+ n,m      = -/+ play speed
  if k,l,n,m are not working as you expect, you have two 
  possibilities: recode the movie with full frames 
  or regard the artifacts as art 8=)
@@ -78,6 +79,12 @@ LIST OF COMMANDS:
  TXT LAYER COMMANDS:
  l/r
  arrows   = go to previous/next word in text
+ o,p      = -/+ font size, hold ctrl for bigger increase
+ u,i      = cycle thru available fonts
+ b        = blink cycling thru words in file, loop at end
+ m,k      = -/+ time on screen while blinking
+ n,j      = -/+ time off screen while blinking
+
 
 SOME FILTER COMMANDS:
 (see the filter's sourcecode for details)

@@ -52,12 +52,11 @@ static const char *help =
 " .   -D   debug verbosity level - default 1\n"
 " .   -C   start without graphical interface\n"
 " .   -s   size of screen - default 400x300\n"
-" .   -d   double screen size\n"
 " .   -n   start with deactivated layers\n"
 " .  files:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n";
-
+//" .   -d   double screen size\n"
 /*
 static const struct option long_options[] = {
   {"help", no_argument, NULL, 'h'},
@@ -77,7 +76,7 @@ char layer_files[MAX_CLI_CHARS];
 int cli_chars = 0;
 int width = 400;
 int height = 300;
-bool doublesize = false;
+//bool doublesize = false;
 bool startstate = true;
 #ifdef WITH_GLADE2
 bool gtkgui = true;
@@ -130,11 +129,11 @@ void cmdline(int argc, char **argv) {
     case 'n':
       startstate = false;
       break;
-
+      /*
     case 'd':
       doublesize = true;
       break;
-      
+      */
     case '?':
       warning("unrecognized option: %s",optarg);
       break;

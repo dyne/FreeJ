@@ -19,6 +19,9 @@
  *
  */
 
+#include <config.h>
+#ifdef WITH_GLADE2
+
 #include <stdio.h>
 #include <SDL/SDL.h>
 #include <pthread.h>
@@ -29,7 +32,7 @@
 #include <gtk/gtk.h>
 #include <glade/glade.h>
 
-#include <config.h>
+
 
 /* widget -> callback connection define */
 #define CONNECT(w,s,c) \
@@ -523,3 +526,5 @@ bool gtk_ctrl_init(Context *nenv, int *argc, char **argv) {
   pthread_create(&_thread, &_attr, gtk_run, NULL);
   return true;
 }
+
+#endif

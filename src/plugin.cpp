@@ -68,7 +68,7 @@ bool Plugin::open(const char *path) {
 }
 
 void Plugin::_delete() {
-  if(__clean) clean();
+  //  if(__clean) clean();
   if(_handle) dlclose(_handle);
 
   if(_path) jfree(_path);

@@ -1,5 +1,7 @@
 /*  FreeJ text layer
- *  Silvano Galliani aka kysucix <silvano.galliani@milug.org>
+ *
+ *  (c) 2003 Silvano Galliani aka kysucix <silvano.galliani@milug.org>
+ *  with some contributions by Denis "jaromil" Rojo <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -27,6 +29,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <dirent.h>
 
 #include <txt_layer.h>
 #include <context.h>
@@ -45,6 +48,8 @@ TxtLayer::TxtLayer()
 	  blink = 0;
 	  text_dimension=64;
 	  glyph_current=NULL;
+	  num_fonts=0;
+	  sel_font=0;
 	  x=0;
 	  y=0;
      }
@@ -68,6 +73,30 @@ bool TxtLayer::open(char *file) {
      return(true);
 }
 
+int dirent_ttf_selector(const struct dirent *dir) {
+  if(strstr(dir->d_name,".ttf")) return(1);
+  if(strstr(dir->d_name,".TTF")) return(1);
+  return(0);
+}
+int TxtLayer::scanfonts(char *path) {
+  /* add to the list of available fonts */
+  struct dirent **filelist;
+  char temp[256];
+  int found;
+  int num_before = num_fonts;
+  found = scandir(path,&filelist,dirent_ttf_selector,alphasort);
+  if(found<0) {
+    error("TxtLayer::scanfonts : %s",strerror(errno)); return(false); }
+  while(found--) {
+    if(num_fonts>=MAX_FONTS) break;
+    snprintf(temp,255,"%s/%s",path,filelist[found]->d_name);
+    fonts[num_fonts] = strdup(temp);
+    num_fonts++;
+  }
+  func("scanfont found %i fonts in %s",num_fonts-num_before,path);
+  return(num_fonts - num_before);
+}
+
 bool TxtLayer::init(Context *scr) {
 
      if(text_dimension < 0) {
@@ -81,10 +110,13 @@ bool TxtLayer::init(Context *scr) {
 	  return(false);
      }
 
+     scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
+     scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
+
      /* Create face object */
-     if(FT_New_Face( library, "/usr/X11R6/lib/X11/fonts/truetype/comic.ttf", 0, &face ))  {
-	  error("TxtLayer::Couldn't load ttf font");
-	  return(false);
+     if(FT_New_Face( library, fonts[sel_font], 0, &face ))  {
+       error("Can't load font %s",fonts[sel_font]);
+       return(false);
      }
 
      /* Set Character size */
@@ -175,7 +207,7 @@ void *TxtLayer::feed() {
 	  /* set up position in 26.6 cartesian space */
 
 	  FT_Vector vector;
-	  vector.x = (x<<6)-(( origin_x / 2 ) & -64);
+	  vector.x = (x<<6)-(( origin_x /2) & -64);
 	  vector.y = (geo.h-y)<<6;
 
 
@@ -208,7 +240,10 @@ void *TxtLayer::feed() {
 		* is not in our target surface, we can avoid rendering it 
 		*/
 	       FT_Glyph_Get_CBox( image, ft_glyph_bbox_pixels, &bbox );
-	       if ( bbox.xMax <= 0 || bbox.xMin >= (geo.w*4)  || bbox.yMax <= 0 || bbox.yMin >= (geo.h*4) ) {
+	       if ( bbox.xMax <= 0
+		    || bbox.xMin >= (geo.w<<2)
+		    || bbox.yMax <= 0
+		    || bbox.yMin >= (geo.h<<2) ) {
 		    printf("TxtLayer::glyph 'out of the box!'\n");
 		    continue;
 	       }
@@ -249,13 +284,16 @@ void *TxtLayer::feed() {
 }
 
 void TxtLayer::close() {
-     func("TxtLayer::close()");
-
-     /* The library doesn't keeps a list of all allocated glyph objects */
-     FT_Done_Face(face);
-     FT_Done_FreeType( library );
-     jfree(buf);
-     ::close(fd);
+  int c;
+  func("TxtLayer::close()");
+  
+  /* The library doesn't keeps a list of all allocated glyph objects */
+  for(c=0;c<num_fonts;c++)
+    free(fonts[c]);
+  FT_Done_Face(face);
+  FT_Done_FreeType( library );
+  jfree(buf);
+  ::close(fd);
 }
 
 int TxtLayer::read_next_chunk() {
@@ -348,30 +386,43 @@ bool TxtLayer::keypress(SDL_keysym *keysym) {
      case SDLK_n:  offscreen_blink--;  break;
      case SDLK_k:  onscreen_blink++;  break;
      case SDLK_m:  onscreen_blink--;  break;
-
-	  case SDLK_w: /* wider */ 
+       
+	  case SDLK_p: /* wider */ 
 	    if(keysym->mod & KMOD_LCTRL)
-	      set_character_size(text_dimension+=10);
+	      set_character_size(text_dimension+=20);
 	    else
-	      set_character_size(text_dimension++);
+	      set_character_size(text_dimension+=5);
 	    break;
 
-	  case SDLK_q: /* smaller */
+	  case SDLK_o: /* smaller */
 	    if(keysym->mod & KMOD_LCTRL)
-	      set_character_size(text_dimension-=10);
+	      set_character_size(text_dimension-=20);
 	    else
-	      set_character_size(text_dimension--);
+	      set_character_size(text_dimension-=5);
 	    break;
+	    
+     case SDLK_i:
+       if(sel_font<num_fonts-1) sel_font++;
+       func("TxtLayer switch to font %s",fonts[sel_font]);
+       /* Create face object */
+       if(FT_New_Face( library, fonts[sel_font], 0, &face )) 
+	 error("Can't load font %s",fonts[sel_font]);
+       use_kerning=FT_HAS_KERNING(face);
+       set_character_size(text_dimension);
+       break;
+     case SDLK_u:
+       if(sel_font>0) sel_font--;
+       func("TxtLayer switch to font %s",fonts[sel_font]);
+       /* Create face object */
+       if(FT_New_Face( library, fonts[sel_font], 0, &face )) 
+	 error("Can't load font %s",fonts[sel_font]);
+       use_kerning=FT_HAS_KERNING(face);
+       set_character_size(text_dimension);
+       break;
 
-	  case SDLK_s: /* much wider */
-	    set_character_size(text_dimension-=30);
-	   break;
-          case SDLK_a: /* much smaller */
-            set_character_size(text_dimension+=30);
-	   break;
-	  default: 
-	       res = 0; 
-	       break;
+     default: 
+       res = 0; 
+       break;
      }
 
      return res;
@@ -418,14 +469,8 @@ bool TxtLayer::draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int 
      /* Second inner loop: draw a letter;
 	they come around but they never come close to */
      for(int z=0 ; z<(pixel_image.rows) ; z++) {
-
-	  for(int d = pixel_image.pitch; d>0 ; d--) {
-	       //	  *dst++ = *src;
+	  for(int d = pixel_image.pitch; d>0 ; d--)
 	       *dst++ = *src++;
-	       // dst[1] = *src;
-	       // dst[2] = *src;
-	       // dst[3] = (alpha_blit) ? 0x00 : 0xff;
-	  }
 	  dst += geo.pitch - pixel_image.pitch;
      }
      return(true);
