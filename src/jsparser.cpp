@@ -237,7 +237,7 @@ int JsParser::parse(const char *command) {
   }
 
   func("JsParser::parse : %s",command);
-    
+
   ok =
     JS_EvaluateScript(js_context, global_object,
 		      command, strlen(command), "console", 1, &res);
@@ -287,7 +287,7 @@ JS(quit) {
 }
 
 
-JS(rem_layer) { 
+JS(rem_layer) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     JSObject *jslayer;
@@ -315,7 +315,7 @@ JS(rem_layer) {
     return JS_TRUE;
 }
 
-JS(add_layer) { 
+JS(add_layer) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     Layer *lay;
@@ -331,7 +331,7 @@ JS(add_layer) {
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) {
       error("JsParser :: add_layer : Layer core data is null");
-      return JS_FALSE;
+      return JS_TRUE;
     }
 
     /** really add layer */
@@ -347,9 +347,9 @@ JS(add_layer) {
 
 JS(fastrand) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  
+
   *rval = INT_TO_JSVAL( fastrand() );
-  
+
   return JS_TRUE;
 }
 JS(fastsrand) {
@@ -365,23 +365,23 @@ JS(fastsrand) {
   return JS_TRUE;
 }
 
-   
-JS(layer_constructor) { 
+
+JS(layer_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   //    JSObject *this_obj;
-  
+
   Layer *layer;
-  
+
   if(argc < 1)
     return JS_TRUE;
   else
     layer=create_layer(JS_GetStringBytes(JS_ValueToString(cx,argv[0])));
-  if(layer==NULL)
-    return JS_FALSE;
-  
-  //    this_obj = JS_NewObject(cx, &layer_class, NULL, obj); 
+//  if(layer==NULL)
+//    return JS_FALSE;
+
+  //    this_obj = JS_NewObject(cx, &layer_class, NULL, obj);
   if (!JS_SetPrivate(cx, obj, (void *) layer)) {
-    error("JsParser::layer_constructor : couldn't set the private value"); 
+    error("JsParser::layer_constructor : couldn't set the private value");
     return JS_FALSE;
   }
   *rval = OBJECT_TO_JSVAL(obj);
@@ -390,12 +390,12 @@ JS(layer_constructor) {
   return JS_TRUE;
 }
 
-JS(filter_constructor) { 
+JS(filter_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  
+
   Filter *filter;
   char *filter_string;
-  
+
   filter_string=JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
   if(argc < 1)
     return JS_TRUE;
@@ -456,18 +456,18 @@ JS(layer_set_blit) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   GET_LAYER(Layer);
-  
+
   char *blit_type=JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
   if(!blit_type) {
     error("JsParser :: set_blit called with NULL argument");
     return JS_FALSE;
   }
   lay->blitter.set_blit(blit_type);
-    
+
   return JS_TRUE;
 }
 
-JS(layer_get_blit) { 
+JS(layer_get_blit) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     GET_LAYER(Layer);
@@ -580,7 +580,7 @@ JS(add_filter) {
 
     jsfilter = JSVAL_TO_OBJECT(argv[0]);
     if(!jsfilter) {
-      error("JsParser :: add_layer called with NULL argument");
+      error("JsParser :: add_filter called with NULL argument");
       return JS_FALSE;
     }
 
@@ -591,7 +591,7 @@ JS(add_filter) {
     lay = (Layer *) JS_GetPrivate(cx, obj);
     if(!lay || !filter) {
       error("JsParser :: Layer core data is null");
-      return JS_FALSE;
+      return JS_TRUE;
     }
     else {
 	if(!filter->init(&lay->geo)) {
@@ -646,11 +646,11 @@ JS(particle_layer_blossom) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   if(argc<1) return JS_FALSE;
-  
+
   GET_LAYER(GenLayer);
 
   int direction = JSVAL_TO_INT(argv[0]);
-  
+
   (direction>0)?
     lay->blossom_recal(true) :
     lay->blossom_recal(false);
@@ -674,14 +674,14 @@ JS(vscroll_layer_append) {
     return JS_FALSE;
   }
   lay->append(str);
-  
+
   return JS_TRUE;
 }
 JS(vscroll_layer_speed) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  
+
   if(argc<1) return JS_FALSE;
-  
+
   GET_LAYER(ScrollLayer);
 
   int s = JSVAL_TO_INT(argv[0]);
@@ -691,11 +691,11 @@ JS(vscroll_layer_speed) {
 }
 JS(vscroll_layer_linespace) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  
+
   if(argc<1) return JS_FALSE;
-  
+
   GET_LAYER(ScrollLayer);
-  
+
   int l = JSVAL_TO_INT(argv[0]);
   lay->line_space = l;
 
@@ -703,14 +703,14 @@ JS(vscroll_layer_linespace) {
 }
 JS(vscroll_layer_kerning) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  
+
   if(argc<1) return JS_FALSE;
-  
+
   GET_LAYER(ScrollLayer);
-  
+
   int k = JSVAL_TO_INT(argv[0]);
   lay->kerning = k;
-  
+
   return JS_TRUE;
 }
 
@@ -719,7 +719,7 @@ JS(vscroll_layer_kerning) {
 // Video4Linux Layer methods
 JS_CONSTRUCTOR("V4lLayer",v4l_layer_constructor,V4lGrabber);
 JS(v4l_layer_chan) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   if(argc<1) return JS_FALSE;
 
@@ -731,7 +731,7 @@ JS(v4l_layer_chan) {
   return JS_TRUE;
 }
 JS(v4l_layer_freq) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   if(argc<1) return JS_FALSE;
 
@@ -743,7 +743,7 @@ JS(v4l_layer_freq) {
   return JS_TRUE;
 }
 JS(v4l_layer_band) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   if(argc<1) return JS_FALSE;
 
@@ -765,10 +765,10 @@ JS(avi_layer_forward) {
   int num;
 
   GET_LAYER(AviLayer);
-  
+
   if(argc<1) num = 1; // no argument: forward one
   else num = JSVAL_TO_INT(argv[0]);
-  
+
   *rval = INT_TO_JSVAL(  lay->forward(num)  );
 
   return JS_TRUE;
@@ -778,12 +778,12 @@ JS(avi_layer_rewind) {
   int num;
 
   GET_LAYER(AviLayer);
-  
+
   if(argc<1) num = 1; // no argument: forward one
   else num = JSVAL_TO_INT(argv[0]);
-  
+
   *rval = INT_TO_JSVAL(  lay->rewind(num)  );
-  
+
   return JS_TRUE;
 }
 JS(avi_layer_mark_in) {
@@ -795,7 +795,7 @@ JS(avi_layer_mark_in) {
 
   *rval = INT_TO_JSVAL
     ( lay->mark_in
-      ( JSVAL_TO_INT(argv[0]) 
+      ( JSVAL_TO_INT(argv[0])
 	)
       );
   return JS_TRUE;
@@ -815,7 +815,7 @@ JS(avi_layer_mark_out) {
 
   *rval = INT_TO_JSVAL
     ( lay->mark_out
-      ( JSVAL_TO_INT(argv[0]) 
+      ( JSVAL_TO_INT(argv[0])
 	)
       );
   return JS_TRUE;
@@ -825,7 +825,7 @@ JS(avi_layer_mark_out_now) {
   GET_LAYER(AviLayer);
   lay->mark_out_now();
   return JS_TRUE;
-}  
+}
 JS(avi_layer_getpos) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   GET_LAYER(AviLayer);
@@ -884,7 +884,7 @@ JS(txt_layer_size) {
   return JS_TRUE;
 }
 JS(txt_layer_font) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   if(argc<1) return JS_FALSE;
 
@@ -897,7 +897,7 @@ JS(txt_layer_font) {
 }
 JS(txt_layer_next) { return JS_TRUE; }
 JS(txt_layer_blink) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   GET_LAYER(TxtLayer);
 
@@ -911,26 +911,26 @@ JS(txt_layer_blink) {
     lay->blinking = (bool)JSVAL_TO_INT(argv[0]);
     lay->clear_screen = true;
   }
-  
+
   return JS_TRUE;
 }
 JS(txt_layer_blink_on) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   if(argc<1) return JS_FALSE;
 
   GET_LAYER(TxtLayer);
-  
+
   int b = JSVAL_TO_INT(argv[0]);
   lay->onscreen_blink = b;
 
   return JS_TRUE;
 }
 JS(txt_layer_blink_off) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   if(argc<1) return JS_FALSE;
-  
+
   GET_LAYER(TxtLayer);
-  
+
   int b = JSVAL_TO_INT(argv[0]);
   lay->offscreen_blink = b;
 
@@ -945,14 +945,14 @@ JS_CONSTRUCTOR("VideoLayer",video_layer_constructor,VideoLayer);
 
 /*
 JS(video_layer_seek) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
   GET_LAYER(VideoLayer);
-  
+
   if(argc<1) {
       return JS_FALSE;
   }
-  else { 
+  else {
       double *seconds = JSVAL_TO_DOUBLE(argv[0]);
       lay->relative_seek(*seconds);
   }
@@ -994,8 +994,8 @@ JS(video_layer_mark_out) {
   return JS_TRUE;
 }
 JS(video_layer_pause) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
   GET_LAYER(VideoLayer);
 
   lay->pause();

@@ -85,7 +85,7 @@ void Layer::run() {
       memset(bgmatte,0xff,geo.size);
       jsleep(0,10);
     } else if(bgcolor==2) { /* go to black */
-      memset(bgmatte,0x0,geo.size);      
+      memset(bgmatte,0x0,geo.size);
       jsleep(0,10);
     }
   }

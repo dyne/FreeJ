@@ -18,6 +18,8 @@ $Id$
   *** Open Sound Control for remote interoperability
   
   *** enhance text layer (more scrollers, word positioning etc.)
+  
+  *** encoder class (save output to file)
 
   *** XScreensaver layer // must PORT screenhacks code :(
 

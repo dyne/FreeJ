@@ -112,14 +112,14 @@ void Context::close() {
   delete js;
 #endif
 
-}  
+}
 
 void Context::cafudda(double secs) {
   Layer *lay;
 
   if(secs) /* if secs =0 will go out after one cycle */
     now = dtime();
-  
+
   do {
 
     /** fetch keyboard events */
@@ -153,21 +153,21 @@ void Context::cafudda(double secs) {
 
     /** start layers thread */
     rocknroll();
-    
 
-    // clear screen before each iteration 
-    if(clear_all) 
+
+    // clear screen before each iteration
+    if(clear_all)
 	screen->clear();
-    else if(osd.active) 
+    else if(osd.active)
     osd.clean();
-    
+
     /** process each layer in the chain */
-    
+
     lay = (Layer *)layers.end();
     if(lay) {
       layers.lock();
       while(lay) {
-	if(!pause) 
+	if(!pause)
 	  lay->cafudda();
 	lay = (Layer *)lay->prev;
       }
@@ -184,11 +184,11 @@ void Context::cafudda(double secs) {
 
 
     /******* handle timing */
-    
+
     if(!secs) break; /* just one pass */
-    
+
     riciuca = (dtime()-now<secs) ? true : false;
-    
+
     calc_fps();
 
   } while(riciuca);
@@ -217,11 +217,14 @@ void Context::set_fps_interval(int interval) {
 }
 
 void Context::calc_fps() {
+    int ret=-1;
+    struct timespec tmp_rem,*rem;
+    rem=&tmp_rem;
   /* 1frame : elapsed = X frames : 1000000 */
   gettimeofday( &cur_time, NULL);
   elapsed = cur_time.tv_usec - lst_time.tv_usec;
   if(cur_time.tv_sec>lst_time.tv_sec) elapsed+=1000000;
-  
+
   if(track_fps) {
     framecount++;
     if(framecount==24) {
@@ -236,7 +239,9 @@ void Context::calc_fps() {
     // the following calculus is approximated to bitwise multiplication
     // this wont really hurt our precision, anyway we care more about speed
     slp_time.tv_nsec = (min_interval - elapsed)<<10;
-    nanosleep(&slp_time,NULL);
+
+    // handle signals (see man 2 nanosleep)
+    while(nanosleep(&slp_time,rem)==-1 && (errno==EINTR));
 
     lst_time.tv_usec += min_interval;
     if( lst_time.tv_usec > 999999) {

@@ -107,6 +107,7 @@ bool parse_header_for_script() {
 	    int script_name_size=tmp-script;
 
 	    script=strdup(layer_files); //,script_name_size);
+	    script[script_name_size]='\0';
 	    if(!script)
 		return false;
 	}
@@ -115,7 +116,7 @@ bool parse_header_for_script() {
 	// open script
 	fd=fopen(script,"r");
 	if(!fd) {
-	    error("Can't open script %d",script);
+	    error("Can't open script %s",script);
 	    return false;
 	}
 
@@ -141,8 +142,9 @@ bool parse_header_for_script() {
 	    perror("fread");
 	}
     }
-    else
+    else {
 	return false;
+    }
     // free buffer
     if(tmp_buf) {
 	free(tmp_buf);
@@ -258,7 +260,7 @@ int main (int argc, char **argv) {
 
   /* this is the output context (screen) */
   Context freej;
-  
+
   Layer *lay = NULL;
 
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
@@ -353,7 +355,7 @@ int main (int argc, char **argv) {
   if(! midi->init(&freej) ) delete midi;
 #endif
 
-  
+
 
 #ifdef WITH_GLADE2
   /* check if we have an X11 display running */

@@ -76,7 +76,7 @@ JS(constructor_func) { \
     filename = JS_GetStringBytes(JS_ValueToString(cx,argv[0])); \
     if(!layer->open(filename)) { \
       error("JS::%s : can't open file %s",constructor_name, filename); \
-      delete layer; return JS_FALSE; \
+      delete layer; return JS_TRUE; \
     } \
   } \
   if(!JS_SetPrivate(cx,obj,(void*)layer)) { \
