@@ -38,7 +38,7 @@ PngLayer::PngLayer()
   info = NULL;
   row_pointers = NULL;
   fp = NULL;
-  setname("IMG");
+  setname("PNG");
 }
 
 PngLayer::~PngLayer() {

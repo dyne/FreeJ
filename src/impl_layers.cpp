@@ -91,11 +91,13 @@ Layer *create_layer(char *file) {
     if(nlayer->open(pp)) {
       ((V4lGrabber*)nlayer)->init_width = w;
       ((V4lGrabber*)nlayer)->init_heigth = h;
-    } else return(NULL);
+    } else {
+      error("create_layer : V4L open failed");
+      delete nlayer; nlayer = NULL;
+    }
 #else
     error("Video4Linux layer support not compiled");
     act("can't load %s",pp);
-    return(NULL);
 #endif
 
   } else /* AVI LAYER */
@@ -108,22 +110,26 @@ Layer *create_layer(char *file) {
 	| strncasecmp((p-4),".mpg",4)==0 ) {
 #ifdef WITH_AVIFILE 
       nlayer = new AviLayer();
-      if(!nlayer->open(pp)) return(NULL);
+      if(!nlayer->open(pp)) {
+	error("create_layer : AVI open failed");
+	delete nlayer; nlayer = NULL;
+      }
 #else
       error("AVI layer support not compiled");
       act("can't load %s",pp);
-      return(NULL);
 #endif
     } else /* PNG LAYER */
 
       if(strncasecmp((p-4),".png",4)==0) {
 #ifdef WITH_PNG
 	nlayer = new PngLayer();
-	if(!nlayer->open(pp)) return(NULL);
+	if(!nlayer->open(pp)) {
+	  error("create_layer : PNG open failed");
+	  delete nlayer; nlayer = NULL;
+	}
 #else
 	error("PNG layer support not compiled");
 	act("can't load %s",pp);
-	return(NULL);
 #endif
 	
       } else /* TXT LAYER */
@@ -131,7 +137,10 @@ Layer *create_layer(char *file) {
 	if(strncasecmp((p-4),".txt",4)==0) {
 #ifdef WITH_FT2
 	  nlayer = new TxtLayer();
-	  if(!nlayer->open(pp)) return(NULL);
+	  if(!nlayer->open(pp)) {
+	    error("create_layer : TXT open failed");
+	    delete nlayer; nlayer = NULL;
+	  }
 #else
 	  error("TXT layer support not compiled");
 	  act("can't load %s",pp);
@@ -139,5 +148,7 @@ Layer *create_layer(char *file) {
 #endif
 	}
 
+  if(!nlayer)
+    error("File format not supported by any layer");
   return nlayer;
 }

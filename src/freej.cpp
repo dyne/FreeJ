@@ -259,6 +259,8 @@ int main (int argc, char **argv) {
     
     screen.calc_fps();
 
+    screen.rocknroll(true);
+
     gtk_ctrl_poll();
 
   }

@@ -179,7 +179,7 @@ bool V4lGrabber::init(Context *screen) {
   /* INIT from the LAYER CLASS */
   _init(screen,init_width,init_heigth);
 
-  palette = VIDEO_PALETTE_YUV422P;// good is YUV422P;
+  palette = VIDEO_PALETTE_YUV422P; // good is YUV422P;
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */
   yuv2rgb = yuv2rgb_init(geo.bpp,0x1); /* arg2 is MODE_RGB */

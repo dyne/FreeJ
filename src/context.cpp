@@ -281,10 +281,13 @@ bool Context::flip() {
 }
 
 void Context::clear() {
+  /*
  register uint32_t ecx; 
  register uint64_t ebx = 0x0000000000000000;
  register uint64_t *edx = (uint64_t*)surface;
  for(ecx=size>>4;ecx>0;ecx--) *edx-- = ebx;
+  */
+  memset(surface,0x0,size);
 }
 
 /* FPS */
@@ -325,10 +328,12 @@ void Context::calc_fps() {
 void Context::rocknroll(bool state) {
   Layer *l = (Layer *)layers.begin();
   while(l) {
-    l->start();
-    //    l->signal_feed();
-    while(!l->running) jsleep(0,500);
-    l->active = state;
+    if(!l->running) {
+      l->start();
+      //    l->signal_feed();
+      while(!l->running) jsleep(0,500);
+      l->active = state;
+    }
     l = (Layer *)l->next;
   }
 }
