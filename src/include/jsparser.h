@@ -1,3 +1,23 @@
+/*  FreeJ
+ *  (c) Copyright 2004 Silvano Galliani aka kysucix <silvano.galliani@poste.it>
+ *
+ * This source code is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Public License as published 
+ * by the Free Software Foundation; either version 2 of the License,
+ * or (at your option) any later version.
+ *
+ * This source code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Please refer to the GNU Public License for more details.
+ *
+ * You should have received a copy of the GNU Public License along with
+ * this source code; if not, write to:
+ * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ *
+ */
+
 #ifndef __JSPARSER_H__
 #define __JSPARSER_H__
 
@@ -7,25 +27,10 @@
  */
 #define STACK_CHUNK_SIZE    8192
 
-#include <jsapi.h>
+#include <jsapi.h> // spidermonkey header
+#include <jsparser_data.h> // private data header
 #include <layer.h>
 
-JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool kolos(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-
-static	JSFunctionSpec shell_functions[] = {
-    /*    name          native          nargs    */
-    {"add_layer",         add_layer,        1},
-    {"kolos",         kolos,        2},
-    {0}
-};
-/**
- * TODO!!! da inserire in un header separato tipo jsparser_data_structures.h
- *
- */
-static JSClass layer_class;
-static JSClass global_class;
 class JsParser {
     public:
 	JsParser(Context *_env);
@@ -38,7 +43,6 @@ class JsParser {
 	JSObject *global_object;
 	JSObject *layer_object;
 	void init();
-	void init_structs();
 
 	JSPropertySpec layer_properties[3];
 

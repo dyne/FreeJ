@@ -30,7 +30,7 @@
 #include <console.h>
 #include <plugger.h>
 #include <screen.h>
-#include <jsparser.h>
+#include <jsparser.h> // for javascript support
 
 /* maximum height & width supported by context */
 #define MAX_HEIGHT 1024

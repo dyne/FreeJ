@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Silvano Galliani aka kysucix <silvano.galliani@poste.it>
+ *  (c) Copyright 2004 Silvano Galliani aka kysucix <silvano.galliani@poste.it>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -40,51 +40,7 @@ JsParser::~JsParser() {
     JS_ShutDown();
     notice("JsParser::close()");
 }
-void JsParser::init_structs() {
-	layer_class.name="Layer";
-	layer_class.flags=JSCLASS_HAS_PRIVATE;
-	layer_class.addProperty=JS_PropertyStub;
-	layer_class.delProperty=JS_PropertyStub;
-	layer_class.getProperty=JS_PropertyStub;
-	layer_class.setProperty=JS_PropertyStub;
-	layer_class.enumerate=JS_EnumerateStub;
-	layer_class.resolve=JS_ResolveStub;
-	layer_class.convert=JS_ConvertStub;
-	layer_class.finalize=JS_FinalizeStub;
-	layer_class.getObjectOps=NULL;
-	layer_class.checkAccess=NULL;
-	layer_class.construct=layer_constructor;
 
-	global_class.name="global";
-	global_class.flags=JSCLASS_HAS_PRIVATE;
-	global_class.addProperty=JS_PropertyStub;
-	global_class.delProperty=JS_PropertyStub;
-	global_class.getProperty=JS_PropertyStub;
-	global_class.setProperty=JS_PropertyStub;
-	global_class.enumerate=JS_EnumerateStub;
-	global_class.resolve=JS_ResolveStub;
-	global_class.convert=JS_ConvertStub;
-	global_class.finalize=JS_FinalizeStub;
-/*
-	layer_properties = {
-    {"color",       MY_COLOR,       JSPROP_ENUMERATE},
-    {"height",      MY_HEIGHT,      JSPROP_ENUMERATE},
-    {"width",       MY_WIDTH,       JSPROP_ENUMERATE},
-    {"funny",       MY_FUNNY,       JSPROP_ENUMERATE},
-    {"array",       MY_ARRAY,       JSPROP_ENUMERATE},
-    {"rdonly",      MY_RDONLY,      JSPROP_READONLY},
-    {0}
-};
-*/
-/*
-	JSFunctionSpec shell_functions[] = {
-	        name          native          nargs    
-	    {"add_layer",         add_layer,        1},
-	    {"kolos",         kolos,        2},
-	    {0}
-	};
-*/
-}
 JSBool kolos(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
     JSString *str;
     char *h;
@@ -100,9 +56,6 @@ JSBool kolos(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 }
 
 void JsParser::init() {
-    /** fill in class structures */
-    init_structs();
-
     /* Create a new runtime environment. */
     js_runtime = JS_NewRuntime(8L * 1024L * 1024L);
     if (!js_runtime) {
@@ -187,6 +140,9 @@ JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 }
 int JsParser::open(const char* script_file) {
 }
+/**
+ * XXX TODO una cifra di work (translation: a LOOOOT of work ;)
+ */
 int JsParser::parse(){
 //    char *script="kolos(32,\"pippo\")";
     char *script="add_layer(new Layer(\"/home/kysucix/video/rotolascia.avi\"))";

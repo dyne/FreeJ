@@ -54,8 +54,10 @@ Context::~Context() {
 
 bool Context::init(int wx, int hx) {
 
+#ifdef WITH_JAVASCRIPT
     js = new JsParser(this);
-    js->open("refujees.js");
+    js->open("refujees.js"); /** still does nothing */
+#endif
   
   screen = new SdlScreen();
   if(!screen->init(wx,hx)) {
@@ -96,7 +98,6 @@ void Context::close() {
   Layer *lay;
   if(screen) delete screen;
 
-  delete js;
 
   lay = (Layer *)layers.begin();
   while(lay) {
@@ -111,6 +112,10 @@ void Context::close() {
   }
 
   plugger.close();
+
+#ifdef WITH_JAVASCRIPT
+  delete js;
+#endif
 
   if(rtc) rtc_close();
 }  
@@ -132,7 +137,9 @@ void Context::cafudda(int secs) {
     /* fetch keyboard events */
     kbd.run();
 
+#ifdef WITH_JAVASCRIPT
     js->parse();
+#endif
     
     rocknroll(true);
     
