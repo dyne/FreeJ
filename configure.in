@@ -147,6 +147,13 @@ PKG_CHECK_MODULES(PNG, libpng12 >= 1.2.0, [
 #fi
 
 dnl ==============================================================
+dnl CHECK if there is 
+dnl ==============================================================
+AC_ARG_ENABLE(xhacks, [  --enable-xhacks		enable xscreenhacks layer], [
+		    AC_DEFINE(WITH_XHACKS,1,[define if compiling xhacks layer])
+		    ])
+
+dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
 dnl ==============================================================
 AC_CHECK_HEADER(linux/videodev.h)
