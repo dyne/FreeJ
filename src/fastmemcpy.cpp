@@ -499,6 +499,115 @@ static void * sse_memcpy(void * to, const void * from, size_t len)
      return retval;
 }
 
+static void * sse2_memcpy(void * to, const void * from, size_t len)
+{
+     void *retval;
+     size_t i;
+     retval = to;
+
+     /* PREFETCH has effect even for MOVSB instruction ;) */
+     /* Is that useful ? kysucix */
+
+     __asm__ __volatile__ (
+                          "   prefetchnta (%0)\n"
+                          "   prefetchnta 64(%0)\n"
+                          "   prefetchnta 128(%0)\n"
+                          "   prefetchnta 192(%0)\n"
+                          "   prefetchnta 256(%0)\n"
+			  /*
+                          "   prefetchnta 320(%0)\n"
+                          "   prefetchnta 384(%0)\n"
+                          "   prefetchnta 448(%0)\n"
+                          "   prefetchnta 512(%0)\n"
+			  */
+                          : : "r" (from) );
+
+     if (len >= MIN_LEN) {
+          register unsigned long int delta;
+          /* Align destinition to MMREG_SIZE -boundary */
+          delta = ((unsigned long int)to)&(SSE_MMREG_SIZE-1);
+          if (delta) {
+               delta=SSE_MMREG_SIZE-delta;
+               len -= delta;
+               small_memcpy(to, from, delta);
+          }
+          i = len >> 7; /* len/128 */
+          len&=127;
+          if (((unsigned long)from) & 15)
+               /* if SRC is misaligned */
+               for (; i>0; i--) {
+                    __asm__ __volatile__ (
+                                         "prefetchnta 512(%0)\n"
+
+                                         "movdqu (%0), %%xmm0\n"
+                                         "movdqu 16(%0), %%xmm1\n"
+                                         "movdqu 32(%0), %%xmm2\n"
+                                         "movdqu 48(%0), %%xmm3\n"
+
+                                         "movntdq %%xmm0, (%1)\n"
+                                         "movntdq %%xmm1, 16(%1)\n"
+                                         "movntdq %%xmm2, 32(%1)\n"
+                                         "movntdq %%xmm3, 48(%1)\n"
+
+                                         "movdqu 64(%0), %%xmm4\n"
+                                         "movdqu 80(%0), %%xmm5\n"
+                                         "movdqu 96(%0), %%xmm6\n"
+                                         "movdqu 112(%0), %%xmm7\n"
+
+                                         "movntdq %%xmm4, 64(%1)\n"
+                                         "movntdq %%xmm5, 80(%1)\n"
+                                         "movntdq %%xmm6, 96(%1)\n"
+                                         "movntdq %%xmm7, 112(%1)\n"
+                                         :: "r" (from), "r" (to) : "memory");
+                    ((const unsigned char *)from)+=128;
+                    ((unsigned char *)to)+=128;
+               }
+          else
+               /*
+                  Only if SRC is aligned on 16-byte boundary.
+                  It allows to use movaps instead of movups, which required
+                  data to be aligned or a general-protection exception (#GP)
+                  is generated.
+               */
+               for (; i>0; i--) {
+                    __asm__ __volatile__ (
+                                         "prefetchnta 640(%0)\n"
+					 
+                                         "movdqa (%0), %%xmm0\n"
+                                         "movdqa 16(%0), %%xmm1\n"
+                                         "movdqa 32(%0), %%xmm2\n"
+                                         "movdqa 48(%0), %%xmm3\n"
+					 
+                                         "movntdq %%xmm0, (%1)\n"
+                                         "movntdq %%xmm1, 16(%1)\n"
+                                         "movntdq %%xmm2, 32(%1)\n"
+                                         "movntdq %%xmm3, 48(%1)\n"
+					 
+                                         "movdqa 64(%0), %%xmm4\n"
+                                         "movdqa 80(%0), %%xmm5\n"
+                                         "movdqa 96(%0), %%xmm6\n"
+                                         "movdqa 112(%0), %%xmm7\n"
+
+                                         "movntdq %%xmm4, 64(%1)\n"
+                                         "movntdq %%xmm5, 80(%1)\n"
+                                         "movntdq %%xmm6, 96(%1)\n"
+                                         "movntdq %%xmm7, 112(%1)\n"
+                                         :: "r" (from), "r" (to) : "memory");
+                    ((const unsigned char *)from)+=128;
+                    ((unsigned char *)to)+=128;
+               }
+          /* since movntq is weakly-ordered, a "sfence"
+           * is needed to become ordered again. */
+          __asm__ __volatile__ ("mfence":::"memory");
+          /* enables to use FPU */
+          __asm__ __volatile__ ("emms":::"memory");
+     }
+     /*
+      * Now do the tail of the block
+      */
+     if (len) __memcpy(to, from, len);
+     return retval;
+}
 #endif /* USE_SSE */
 #endif /* USE_MMX */
 
@@ -528,6 +637,9 @@ static struct {
 #ifdef HAVE_SSE
      { "MMXEXT optimized memcpy()", mmx2_memcpy, 0, MM_MMXEXT},
      { "SSE optimized memcpy()",    sse_memcpy, 0, MM_MMXEXT|MM_SSE},
+#ifdef HAVE_SSE2
+     { "SSE2 optimized memcpy()",    sse2_memcpy, 0, MM_MMXEXT|MM_SSE|MM_SSE2},
+#endif /* USE_SSE2  */
 #endif /* USE_SSE  */
 #endif /* USE_MMX  */
 #endif /* ARCH_X86 */
@@ -601,7 +713,7 @@ void find_best_memcpy()
      }
 
      if (best) {
-       act("Using memory-to-memory copy method : %s",
+       notice("Using memory-to-memory copy method : %s",
 	   memcpy_method[best].name);
 
        jmemcpy = memcpy_method[best].function;

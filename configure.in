@@ -35,6 +35,10 @@ case $uname in
        have_sse=yes
        AC_DEFINE(HAVE_SSE,1,[define if enabling SSE acceleration])
      fi
+     if grep "^flags.* sse2" /proc/cpuinfo > /dev/null; then
+       have_sse2=yes
+       AC_DEFINE(HAVE_SSE2,1,[define if enabling SSE2 acceleration])
+     fi
      ;;
 
      Darwin)
