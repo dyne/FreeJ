@@ -253,14 +253,9 @@ int main (int argc, char **argv) {
   }
 
   /* quitting */
-  osd.splash_screen();
-  screen.flip();
-
-  screen.quit_layers();
-  
-  /* this calls all _delete() methods to safely free all memory */
-  plugger.close();
   screen.close();
+  plugger.close();
+
 
   exit(1);
 }

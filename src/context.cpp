@@ -104,35 +104,29 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
 }  
 
 void Context::close() {
-  Layer *tmp, *lay = (Layer *)layers.begin();
   func("Context::~Context()");
+
+  Layer *lay = (Layer *)layers.begin();
+  func("Context::quit()");
+
+  osd->splash_screen();
+  flip();
   
   while(lay) {
-    tmp = (Layer *)lay->next;
-    
-    /*    lay->close();
-	  this is in every layer's destructor */
-    
+    lay->lock();
+    layers.rem(1);
+    lay->quit = true;
+    lay->signal_feed();
+    lay->unlock();
+    SDL_Delay(500);
     delete lay;
-    lay = tmp;
+    lay = (Layer *)layers.begin();
   }
+
+  SDL_Delay(1000);
 
   SDL_Quit();
   act("clean exiting. be nice ;)");
-}
-
-void Context::quit_layers() {
-  Layer *tmp, *lay = (Layer *)layers.begin();
-  func("Context::quit()");
-  
-  while(lay) {
-    tmp = (Layer *)lay->next;
-    lay->quit = true;
-    lay = tmp;
-  }
-  /* we need to wait here to be sure the threads quitted:
-     don't use join because threads are detached for better performance */
-  SDL_Delay(3000);  
 }
 
 bool Context::add_layer(Layer *newlayer) {
@@ -203,6 +197,7 @@ void Context::calc_fps() {
     }
   }
 
+#ifdef FPS_LIMIT
   if(elapsed<=min_interval) {
     usleep( min_interval - elapsed ); /* this is not POSIX, arg */
     lst_time.tv_usec += min_interval;
@@ -214,6 +209,7 @@ void Context::calc_fps() {
     lst_time.tv_usec = cur_time.tv_usec;
     lst_time.tv_sec = cur_time.tv_sec;
   }
+#endif
 }
 
 void Context::rocknroll() {

@@ -29,8 +29,8 @@ freej_SOURCES = \
 	lubrify.c	\
 	cpu_accel.c	\
 	yuv2rgb.c yuv2rgb_mmx.c	\
-	vline16.asm vline32.asm \
-	hline16.asm hline32.asm \
+	vline32.asm \
+	hline32.asm \
 	mmx_memcpy.asm 	\
 	mmx_blit.asm	\
 	mmx_blit_add.asm \

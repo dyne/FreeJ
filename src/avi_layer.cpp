@@ -106,10 +106,10 @@ bool AviLayer::open(char *file) {
   }
 
   notice("AVI Layer :: %s",file);
-  
+
   if(_avi->IsRedirector())
     act("supplied url is a network redirector");
- 
+
   try {
 
 

@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2002 Denis Rojo aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -66,10 +66,10 @@ bool V4lGrabber::detect(char *devfile) {
     "VID_TYPE_CAPTURE          can capture to memory",
     "VID_TYPE_TUNER            has a tuner of some form",
     "VID_TYPE_TELETEXT         has teletext capability",
-    "VID_TYPE_OVERLAY          can overlay its image onto the frame buffer",
+    "VID_TYPE_OVERLAY          can overlay its image to video",
     "VID_TYPE_CHROMAKEY        overlay is chromakeyed",
     "VID_TYPE_CLIPPING         overlay clipping supported",
-    "VID_TYPE_FRAMERAM         overlay overwrites frame buffer memory",
+    "VID_TYPE_FRAMERAM         overlay overwrites video memory",
     "VID_TYPE_SCALES           supports image scaling",
     "VID_TYPE_MONOCHROME       image capture is grey scale only",
     "VID_TYPE_SUBCAPTURE       capture can be of only part of the image"
@@ -168,7 +168,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   /* INIT from the LAYER CLASS */
   _init(screen,wdt,hgt);
 
-  palette = VIDEO_PALETTE_YUV422P;
+  palette = VIDEO_PALETTE_YUV422P;//YUV422P;
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */
   yuv2rgb = yuv2rgb_init(geo.bpp,0x1); /* arg2 is MODE_RGB */
@@ -250,6 +250,9 @@ void V4lGrabber::set_freq(int f) {
 
 /* here are defined the keys for this layer */
 bool V4lGrabber::keypress(SDL_keysym *keysym) {
+
+  if(keysym->mod) return false;
+
   switch(keysym->sym) {
 
   case SDLK_k:

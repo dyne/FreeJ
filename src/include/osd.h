@@ -42,11 +42,8 @@ class Osd {
   void _print_status();
 
   void _set_color(colors col);
-  void _write16(char *text, int xpos, int ypos, int hsize, int vsize);
-  void _write32(char *text, int xpos, int ypos, int hsize, int vsize);
-  Uint16 _color16;
+  void _write(char *text, int xpos, int ypos, int hsize, int vsize);
   Uint32 _color32;
-  write_routine Osd::*write;
 
   bool _active;
   bool _calibrate;

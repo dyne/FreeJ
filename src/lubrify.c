@@ -35,8 +35,6 @@ extern void mmx_blit_add(void);
 extern void mmx_blit_sub(void);
 extern void mmx_blit_and(void);
 extern void mmx_blit_or(void);
-extern void asm_vline16(void);
-extern void asm_hline16(void);
 extern void asm_vline32(void);
 extern void asm_hline32(void);
 extern void mmx_osd_clean(void);
@@ -109,30 +107,14 @@ void vline(void *scr, unsigned int height, unsigned int pitch, unsigned int bpp)
   asmnum1 = height;
   asmnum2 = pitch;
 
-  switch(bpp) {
-  case 16:
-    asm_vline16();
-    break;
-  case 32:
-    asm_vline32();
-    break;
-  }
-
+  asm_vline32();
 }
 
 void hline(void *scr, unsigned int width, unsigned int bpp) {
   asmdst = scr;
   asmnum1 = width;
   
-  switch(bpp) {
-  case 16:
-    asm_hline16();
-    break;
-  case 32:
-    asm_hline32();
-    break;
-  }
-
+  asm_hline32();
 }
 
 void mmxosd_clean(void *scr, double col) {

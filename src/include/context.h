@@ -51,7 +51,6 @@ class Context {
   ~Context() { close(); };
 
   void close();
-  void quit_layers();
   bool flip();
 
   /* this returns a pointer to the video memory */

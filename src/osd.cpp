@@ -25,38 +25,7 @@
 #include <font_pearl_8x8.h>
 #include <config.h>
 
-void Osd::_write16(char *text, int xpos, int ypos, int hsize, int vsize) {
-  int y,x,i,len,f,v,ch,cv;
-  Uint16 *ptr;
-  Uint16 *diocrap = (Uint16 *)screen->coords(xpos,ypos);
-  unsigned char *buffer = (unsigned char *)screen->get_surface();
-  v = screen->w*vsize;
-  
-  len = strlen(text);
-  
-  /* quest'algoritmo di rastering a grandezza variabile delle font
-     e' una cosa di cui vado molto fiero, ogni volta che lo vedo il
-     petto mi si gonfia e mi escono sonore scorregge. */
-  for (y=0; y<CHAR_HEIGHT; y++) {
-    ptr = diocrap += v;
-  
-    /* control screen bounds */
-    if(diocrap-(Uint16 *)buffer>(screen->size-screen->pitch)) return; /* low bound */
-    while(diocrap-(Uint16 *)buffer<screen->pitch) ptr = diocrap += v;
-
-    for (x=0; x<len; x++) {
-      f = fontdata[text[x] * CHAR_HEIGHT + y];
-      for (i = CHAR_WIDTH-1; i >= 0; i--)
-	if (f & (CHAR_START << i))
-	  for(ch=0;ch<hsize;ch++) {
-	    for(cv=0;cv<v;cv+=screen->w) ptr[cv] = _color16;
-	    ptr++; }
-        else ptr+=hsize; 
-    }
-  }
-}
-
-void Osd::_write32(char *text, int xpos, int ypos, int hsize, int vsize) {
+void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
   int y,x,i,len,f,v,ch,cv;
   Uint32 *ptr;
   Uint32 *diocrap = (Uint32 *)screen->coords(xpos,ypos);
@@ -104,14 +73,6 @@ void Osd::init(Context *screen) {
   _hbound = screen->w / HBP;
   _vbound = screen->h / VBP;
   screen->osd = this;
-  switch(screen->bpp) {
-  case 16:
-    write = &Osd::_write16;
-    break;
-  case 32:
-    write = &Osd::_write32;
-    break;
-  }
   _set_color(white);
   func("OSD initialized");
 }
@@ -151,7 +112,7 @@ void Osd::print() {
 
 void Osd::_print_status() {
   _set_color(yellow);
-  (this->*write)(status_msg,_hbound,screen->h-_vbound+5,1,1);
+  _write(status_msg,_hbound,screen->h-_vbound+5,1,1);
 }
 
 bool Osd::active() {
@@ -177,7 +138,7 @@ void Osd::_show_fps() {
   char fps[10];
   _set_color(white);
   sprintf(fps,"%.1f",screen->fps);
-  (this->*write)(fps,screen->w-50,1,1,1);
+  _write(fps,screen->w-50,1,1,1);
 }
 
 void Osd::_selection() {
@@ -193,7 +154,7 @@ void Osd::_selection() {
 	  (screen->kbd->layer->alpha_blit)?"@":" ",
 	  (screen->clear_all)?"0":" ");
 
-  (this->*write)(msg,80,1,1,1);
+  _write(msg,80,1,1,1);
 }
 
 void Osd::_layerlist() {
@@ -205,14 +166,14 @@ void Osd::_layerlist() {
   while(l!=NULL) {
     if( l == screen->kbd->layer) {
       if(l->active)
-	(this->*write)(">+",screen->w-17,vpos,1,1);
+	_write(">+",screen->w-17,vpos,1,1);
       else
-	(this->*write)(">-",screen->w-17,vpos,1,1);
+	_write(">-",screen->w-17,vpos,1,1);
     } else {
       if(l->active)
-	(this->*write)(" +",screen->w-17,vpos,1,1);
+	_write(" +",screen->w-17,vpos,1,1);
       else
-	(this->*write)(" -",screen->w-17,vpos,1,1);
+	_write(" -",screen->w-17,vpos,1,1);
     }
     vpos += CHAR_HEIGHT+1;
     l = (Layer *)l->next;
@@ -229,14 +190,14 @@ void Osd::_filterlist() {
   while(f!=NULL) {
     if(f == screen->kbd->filter) {
       if(f->active)
-	(this->*write)("*<",1,vpos,1,1);
+	_write("*<",1,vpos,1,1);
       else
-    	(this->*write)("+<",1,vpos,1,1);
+    	_write("+<",1,vpos,1,1);
     } else {
       if(f->active) 
-	(this->*write)("*",1,vpos,1,1);
+	_write("*",1,vpos,1,1);
       else
-	(this->*write)("+",1,vpos,1,1);
+	_write("+",1,vpos,1,1);
     }
     
     vpos += CHAR_HEIGHT+1;
@@ -247,24 +208,24 @@ void Osd::_filterlist() {
 void Osd::splash_screen() {
   _set_color(white);
   int vpos = _vbound+15;
-  (this->*write)("[ d y n e . o r g ] presents:",_hbound+60,vpos,1,1);
+  _write("[ d y n e . o r g ] presents:",_hbound+60,vpos,1,1);
   vpos += CHAR_HEIGHT+30;
-  (this->*write)(PACKAGE,_hbound+90,vpos,2,2);
-  (this->*write)(VERSION,_hbound+180,vpos,2,2);
+  _write(PACKAGE,_hbound+90,vpos,2,2);
+  _write(VERSION,_hbound+180,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  (this->*write)("PRATERHIMMEL",_hbound+80,vpos,2,2);
+  _write("PRATERHIMMEL",_hbound+80,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  (this->*write)(":: set the veejay free ::",_hbound+75,vpos,1,1);
+  _write(":: set the veejay free ::",_hbound+75,vpos,1,1);
   vpos += CHAR_HEIGHT+30;
-  (this->*write)("100% free software for",_hbound+80,vpos,1,2);
+  _write("100% free software for",_hbound+80,vpos,1,2);
   vpos += CHAR_HEIGHT+8;
-  (this->*write)("realtime video processing",_hbound+70,vpos,1,2);
+  _write("realtime video processing",_hbound+70,vpos,1,2);
   vpos += CHAR_HEIGHT+30;
-  (this->*write)("concept and coding by",_hbound+80,vpos,1,1);
+  _write("concept and coding by",_hbound+80,vpos,1,1);
   vpos += CHAR_HEIGHT+2;
-  (this->*write)("jaromil",_hbound+160,vpos,2,2);
+  _write("jaromil",_hbound+160,vpos,2,2);
   vpos += CHAR_HEIGHT+30;
-  (this->*write)("http://freej.dyne.org",_hbound+85,vpos,1,2);
+  _write("http://freej.dyne.org",_hbound+85,vpos,1,2);
 }
 
 bool Osd::credits() {
@@ -275,57 +236,31 @@ bool Osd::credits() {
 
 void Osd::_print_credits() {
   _set_color(green);
-  (this->*write)(PACKAGE,6,0,1,1);
-  (this->*write)(VERSION,6,9,1,1);
+  _write(PACKAGE,6,0,1,1);
+  _write(VERSION,6,9,1,1);
   _set_color(white);
   if(_credits) splash_screen();
 }
 
 void Osd::_set_color(colors col) {
-  switch(screen->bpp) {
-  case 16:
-    switch(col) {
-    case black:
-      _color16 = 0x0000;
-      break;
-    case white:
-      _color16 = 0xffff;
-      break;
-    case green:
-      _color16 = 0x0f0f;
-      break;
-    case red:
-      _color16 = 0xd0e0;
-      break;
-    case blue:
-      _color16 = 0x007f;
-      break;
-    case yellow:
-      _color16 = 0xcea0;
-      break;
-    }
+  switch(col) {
+  case black:
+    _color32 = 0x000000;
     break;
-  case 32:
-    switch(col) {
-    case black:
-      _color32 = 0x000000;
-      break;
-    case white:
-      _color32 = 0xfefefe;
-      break;
-    case green:
-      _color32 = 0x00ee00;
-      break;
-    case red:
-      _color32 = 0xee0000;
-      break;
-    case blue:
-      _color32 = 0x0000fe;
-      break;
-    case yellow:
-      _color32 = 0xffef00;
-      break;
-    }
+  case white:
+    _color32 = 0xfefefe;
+    break;
+  case green:
+    _color32 = 0x00ee00;
+    break;
+  case red:
+    _color32 = 0xee0000;
+    break;
+  case blue:
+    _color32 = 0x0000fe;
+    break;
+  case yellow:
+    _color32 = 0xffef00;
     break;
   }
 }
