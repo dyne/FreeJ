@@ -359,7 +359,7 @@ bool VideoLayer::free_av_stuff() {
     if(!deinterlace_buffer) free(deinterlace_buffer);
     if(!video_filename) free(video_filename);
 }
-bool VideoLayer::keypress(SDL_keysym *keysym) {
+bool VideoLayer::keypress(char key) {
     switch(key) {
 	case 'k':
 	    forward();
