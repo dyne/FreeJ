@@ -55,7 +55,7 @@ const char *layers_description =
 
 
 Layer *create_layer(char *file) {
-  char *p,*pp;
+  char *end_file_ptr,*file_ptr;
   FILE *tmp;
   Layer *nlayer = NULL;
   
@@ -71,24 +71,24 @@ Layer *create_layer(char *file) {
     } else fclose(tmp);
   }
   /* check file type, add here new layer types */
-  p = pp = file;
-  p += strlen(file);
-//  while(*p!='\0' && *p!='\n') p++; *p='\0';
+  end_file_ptr = file_ptr = file;
+  end_file_ptr += strlen(file);
+//  while(*end_file_ptr!='\0' && *end_file_ptr!='\n') end_file_ptr++; *end_file_ptr='\0';
 
 
   /* ==== Video4Linux */
-  if(strncasecmp(pp,"/dev/",5)==0 && strncasecmp((pp+5),"ieee1394/",9)!=0) {
+  if(strncasecmp(file_ptr,"/dev/",5)==0 && ! IS_FIREWIRE_DEVICE(file_ptr)) {
 #ifdef WITH_V4L
     unsigned int w=320, h=240;
-    while(p!=pp) {
-      if(*p!='%') p--;
+    while(end_file_ptr!=file_ptr) {
+      if(*end_file_ptr!='%') end_file_ptr--;
       else { /* size is specified */
-	*p='\0'; p++;
-	sscanf(p,"%ux%u",&w,&h);
-	p = pp; }
+	*end_file_ptr='\0'; end_file_ptr++;
+	sscanf(end_file_ptr,"%ux%u",&w,&h);
+	end_file_ptr = file_ptr; }
     }
     nlayer = new V4lGrabber();
-    if(nlayer->open(pp)) {
+    if(nlayer->open(file_ptr)) {
       ((V4lGrabber*)nlayer)->init_width = w;
       ((V4lGrabber*)nlayer)->init_heigth = h;
     } else {
@@ -97,89 +97,84 @@ Layer *create_layer(char *file) {
     }
 #else
     error("Video4Linux layer support not compiled");
-    act("can't load %s",pp);
+    act("can't load %s",file_ptr);
 #endif
 
   } else /* AVI LAYER */
-    if( strncasecmp((p-4),".avi",4)==0
-	| strncasecmp((p-4),".asf",4)==0
-	| strncasecmp((p-4),".asx",4)==0
-	| strncasecmp((p-4),".wma",4)==0
-	| strncasecmp((p-4),".wmv",4)==0
-	| strncasecmp((p-4),".mov",4)==0
-	| strncasecmp((p-5),".mpeg",5)==0
-	| strncasecmp((p-4),".mpg",4)==0 
-        | strncasecmp(pp,"/dev/ieee1394/",14)==0) {
+    if( IS_VIDEO_EXTENSION(end_file_ptr)
+	    | strncasecmp(end_file_ptr-4,".jpg",4)==0 
+//	    | strncasecmp(end_file_ptr-4,".gif",4)==0  // it does not handle loops :''(
+        | IS_FIREWIRE_DEVICE(file_ptr)) {
 #ifdef WITH_AVCODEC 
       nlayer = new VideoLayer();
-      if(!nlayer->open(pp)) {
+      if(!nlayer->open(file_ptr)) {
 	error("create_layer : VIDEO open failed");
 	delete nlayer; nlayer = NULL;
       }
 #elif WITH_AVIFILE 
-      if( strncasecmp(pp,"/dev/ieee1394/",14)==0) 
+      if( strncasecmp(file_ptr,"/dev/ieee1394/",14)==0) 
 	  nlayer=NULL;
       nlayer = new AviLayer();
-      if(!nlayer->open(pp)) {
+      if(!nlayer->open(file_ptr)) {
 	error("create_layer : AVI open failed");
 	delete nlayer; nlayer = NULL;
       }
 #else
       error("VIDEO and AVI layer support not compiled");
-      act("can't load %s",pp);
+      act("can't load %s",file_ptr);
 #endif
     } else /* PNG LAYER */
-      if(strncasecmp((p-4),".png",4)==0) {
+      if(strncasecmp((end_file_ptr-4),".png",4)==0) {
 #ifdef WITH_PNG
 	nlayer = new PngLayer();
-	if(!nlayer->open(pp)) {
+	if(!nlayer->open(file_ptr)) {
 	  error("create_layer : PNG open failed");
 	  delete nlayer; nlayer = NULL;
 	}
 #else
 	error("PNG layer support not compiled");
-	act("can't load %s",pp);
+	act("can't load %s",file_ptr);
 #endif
 	
       } else /* TXT LAYER */
-	if(strncasecmp((p-4),".txt",4)==0) {
+	if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
 #ifdef WITH_FT2
 	  nlayer = new TxtLayer();
-	  if(!nlayer->open(pp)) {
+	  if(!nlayer->open(file_ptr)) {
 	    error("create_layer : TXT open failed");
 	    delete nlayer; nlayer = NULL;
 	  }
 #else
 	  error("TXT layer support not compiled");
-	  act("can't load %s",pp);
+	  act("can't load %s",file_ptr);
 	  return(NULL);
 #endif
 	} else
-	  if(strstr(pp,"xscreensaver")) { /* XHACKS_LAYER */
+	  if(strstr(file_ptr,"xscreensaver")) { /* XHACKS_LAYER */
 #ifdef WITH_XHACKS
 	    nlayer = new XHacksLayer();
-	    if (!nlayer->open(pp)) {
+	    if (!nlayer->open(file_ptr)) {
 	      error("create_layer : XHACK open failed");
 	      delete nlayer; nlayer = NULL;
 	    }
 #else
 	    error("no xhacks layer support");
-	    act("can't load %s",pp);
+	    act("can't load %s",file_ptr);
 	    return(NULL);
 #endif	  
 	} else
-	  if(strncasecmp(pp,"layer_gen",9)==0) {
+	  if(strncasecmp(file_ptr,"layer_gen",9)==0) {
 	    nlayer = new GenLayer();
 	  } else
-	    if(strncasecmp(p-4,".swf",4)==0) {
+	    if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
 	      nlayer = new FlashLayer();
-	      if(!nlayer->open(pp)) {
+	      if(!nlayer->open(file_ptr)) {
 		error("create_layer : SWF open failed");
 		delete nlayer; nlayer = NULL;
 	      }
 	    } else {
 	      nlayer = new ScrollLayer();
-	      if(!nlayer->open(pp)) {
+	      if(!nlayer->open(file_ptr)) {
 		error("create_layer : SCROLL open failed");
 		delete nlayer; nlayer = NULL;
 	      }

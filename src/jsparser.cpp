@@ -43,7 +43,6 @@ JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
 	env=_env;
     init();
-    parse_count=0;
     notice("JavaScript parser initialized");
 }
 
@@ -57,6 +56,7 @@ JsParser::~JsParser() {
 
 void JsParser::init() {
   JSBool ret;
+  stop_script=false;
     /* Create a new runtime environment. */
     js_runtime = JS_NewRuntime(8L * 1024L * 1024L);
     if (!js_runtime) {
@@ -67,6 +67,9 @@ void JsParser::init() {
     /* Create a new context. */
     js_context = JS_NewContext(js_runtime, STACK_CHUNK_SIZE);
 
+    // Store a reference to ourselves in the context ...
+    JS_SetContextPrivate(js_context, this);
+
     /* if js_context does not have a value, end the program here */
     if (js_context == NULL) {
 	error("JsParser :: error creating context");
@@ -75,6 +78,13 @@ void JsParser::init() {
 
     /* Create the global object here */
     global_object = JS_NewObject(js_context, &global_class, NULL, NULL);
+
+    /* Set the branch callback */
+    JS_SetBranchCallback(js_context, static_branch_callback);
+
+    /* Set the error reporte */
+    JS_SetErrorReporter(js_context, static_error_reporter);
+
 
     /* Initialize the built-in JS objects and the global object */
     JS_InitStandardClasses(js_context, global_object);
@@ -198,30 +208,25 @@ int JsParser::parse(const char *command) {
   return 1;
 }
 
+void JsParser::stop() {
+    stop_script=true;
+}
+
 
 JS(cafudda) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-#ifdef CAFUDDA_DOUBLE
-  // comment out because there is a problem in compiling -jrml
-  double sac, *seconds = &sac;
-  jsdouble jseconds=argv[0];
-  if(!JSVAL_IS_DOUBLE(argv[0])) {
-      jsdouble jseconds2;
-      if(!JS_ValueToNumber( cx , argv[0],&jseconds)) {
-	  error("JsParser::cafudda:: argument isn't a double");
-	  return JS_FALSE;
-      }
-      jseconds=jseconds2;
+  double *seconds;
+  if(JSVAL_IS_DOUBLE(argv[0])) {
+      seconds=JSVAL_TO_DOUBLE(argv[0]);
   }
-  seconds=JSVAL_TO_DOUBLE(jseconds);
-  func("cafudda for %f seconds",*seconds);
+  else if(JSVAL_IS_INT(argv[0])) { // JSVAL_TO_DOUBLE segfault when there's an int as input
+      double tmp_double;
+      int int_seconds=JSVAL_TO_INT(argv[0]);
+      seconds=&tmp_double;
+      *seconds=(double )int_seconds;
+  }
+  func("JsParser :: cafudda for %f seconds",*seconds);
   env->cafudda(*seconds);
-#else
-  int val;
-  if(argc<1) val = 0;
-  else val = JSVAL_TO_INT(argv[0]);
-  env->cafudda(val);
-#endif
   return JS_TRUE;
 }
 
@@ -258,12 +263,13 @@ JS(rem_layer) {
       error("JsParser :: remove_layer : Layer core data is null");
       return JS_FALSE;
     }
-    /** remove layer in real life */
-    if(lay) {
+    // remove layer in real life
+//    if(env->layers.search(lay->get_filename())!=NULL) { // Check for layer entry in linklist
 	lay->rem();
+	lay->quit=true;
+	lay->signal_feed();
 	delete lay;
-	lay = NULL;
-    }
+//    }
     return JS_TRUE;
 }
 
@@ -567,7 +573,7 @@ JS(rem_filter) {
     if(JSVAL_IS_OBJECT(argv[0])) {
 	jsfilter = JSVAL_TO_OBJECT(argv[0]);
 	if(!jsfilter) {
-	    error("JsParser :: rem_layer called with NULL argument");
+	    error("JsParser :: rem_filter called with NULL argument");
 	    return JS_FALSE;
 	}
 
@@ -874,5 +880,25 @@ JS(video_layer_pause) {
 // Png Layer methods
 JS_CONSTRUCTOR("PngLayer",png_layer_constructor,PngLayer);
 #endif
+static JSBool static_branch_callback(JSContext* Context, JSScript* Script) {
+    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
+    return (js->branch_callback(Context,Script));
+}
+JSBool JsParser::branch_callback(JSContext* Context, JSScript* Script) {
+    if(stop_script) {
+	stop_script=false;
+	return JS_FALSE;
+    }
+    return JS_TRUE;
+}
+void JsParser::error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
+    error("JsParser :: javascript error in %s at line %d",Report->filename,Report->lineno+1);
+    if(Message)
+	error("JsParser :: %s",(char *)Message);
+}
+static void static_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
+    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
+    return js->error_reporter(Context,Message,Report);
+}
 
 #endif

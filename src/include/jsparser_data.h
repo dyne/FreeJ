@@ -47,6 +47,9 @@
 ////////////////////////////////
 
 // constructors
+static JSBool static_branch_callback(JSContext* Context, JSScript* Script);
+static void static_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
+
 JS(layer_constructor);
 JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);

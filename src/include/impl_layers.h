@@ -55,4 +55,17 @@
 #include <xhacks_layer.h>
 #endif
 
+#define IS_VIDEO_EXTENSION(end_file_ptr)                \
+    strncasecmp((end_file_ptr-4),".avi",4)==0        \
+	| strncasecmp((end_file_ptr-4),".asf",4)==0  \
+	| strncasecmp((end_file_ptr-4),".asx",4)==0  \
+	| strncasecmp((end_file_ptr-4),".wma",4)==0  \
+	| strncasecmp((end_file_ptr-4),".wmv",4)==0  \
+	| strncasecmp((end_file_ptr-4),".mov",4)==0  \
+	| strncasecmp((end_file_ptr-5),".mpeg",5)==0 \
+	| strncasecmp((end_file_ptr-4),".mpg",4)==0  \
+	| strncasecmp((end_file_ptr-4),".mpg",4)==0  
+#define IS_FIREWIRE_DEVICE(file_ptr) \
+    strncasecmp(file_ptr,"/dev/ieee1394/",14)==0
+
 #endif

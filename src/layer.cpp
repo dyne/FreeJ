@@ -72,6 +72,7 @@ void Layer::_init(Context *freej, int wdt, int hgt, int bpp) {
 void Layer::run() {
   while(!feed()) jsleep(0,50);
   func("ok, layer %s in rolling loop",get_name());
+  func("Layer :: run :: begin thread %d",pthread_self());
   running = true;
   wait_feed();
   while(!quit) {
@@ -87,7 +88,7 @@ void Layer::run() {
       jsleep(0,10);
     }
   }
-//  func("Layer::FINE THREAD %d",pthread_self());
+  func("Layer :: run :: end thread %d",pthread_self());
   running = false;
 }
 
