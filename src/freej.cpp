@@ -242,8 +242,11 @@ int main (int argc, char **argv) {
   }
 #endif
 
-  while(!freej.quit)
-    freej.cafudda();
+
+
+
+  /* main loop */
+  freej.cafudda();
   
 
 
@@ -254,11 +257,7 @@ int main (int argc, char **argv) {
   if(gtkgui) gtk_ctrl_quit();
 #endif
 
-  act(" ");
-  act("You are encouraged to exhibit the output of this software publicly");
-  act("as long as this software and its author are fairly mentioned! THANKS!");
-  jsleep(2,0);
-  act(" ");
-  act("bye.");
+  jsleep(1,0);
+  notice("cu on http://freej.dyne.org");
   exit(1);
 }

@@ -34,7 +34,8 @@ class SdlXvScreen : public ViewPort {
   bool init(int width, int height);
   void show();
   bool update(void *buf);
-
+  void clear();
+  void fullscreen() {};
   SDL_Surface *scr;
 
  private:

@@ -36,7 +36,6 @@ Context::Context() {
 
   notice("starting %s %s engine",PACKAGE,VERSION);
 
-  vidbuf = NULL;
   screen = NULL;
 
   /* initialize fps counter */
@@ -51,22 +50,7 @@ Context::Context() {
 }  
 
 Context::~Context() {
-  //  osd.splash_screen();
-  //  show();
 
-  Layer *lay = (Layer *)layers.begin();
-  while(lay) {
-    lay->lock();
-    layers.rem(1);
-    lay->quit = true;
-    lay->signal_feed();
-    lay->unlock();
-    SDL_Delay(500);
-    delete lay;
-    lay = (Layer *)layers.begin();
-  }
-
-  plugger.close();
 }
 
 bool Context::init(int wx, int hx) {
@@ -84,9 +68,9 @@ bool Context::init(int wx, int hx) {
   pitch = w*(bpp>>3);
 
   /* allocate virtual RGBA video buffer */
-  vidbuf = screen->get_surface();
+  uint8_t *vidbuf = (uint8_t*)screen->get_surface();
   if(!vidbuf) {
-    error("can't allocate virtual video buffer");
+    error("screen->get_surface returns NULL!");
     return(false);
   }
   /* precalculate y lookup tables */
@@ -105,11 +89,8 @@ bool Context::init(int wx, int hx) {
 
   return true;
 }
-/*
-void *Context::get_surface() {
-  return vidbuf;
-}
-*/
+
+
 void *Context::coords(int x, int y) {
   return( 
 	 (Uint8 *)prec_y[y] + 
@@ -173,36 +154,47 @@ int Context::active_layer(int sel) {
 }
 
 void Context::cafudda() {
-  Layer *lay;
-
-  if(clear_all) clear();
-  else osd.clean();
-  
-  lay = (Layer *)layers.end();
-  while(lay) {
-    lay->cafudda();
-    lay = (Layer *)lay->prev;
-  }
-
-  osd.print();  
-
-  //  screen->update(vidbuf);
-
-  screen->show();
 
   rocknroll(true);
 
-  calc_fps();
-}
+  while(!quit) {
+    Layer *lay;
+    
+    if(clear_all) screen->clear();
+    else osd.clean();
+    
+    layers.lock();
+    lay = (Layer *)layers.end();
+    while(lay) {
+      lay->cafudda();
+      lay = (Layer *)lay->prev;
+    }
+    layers.unlock();
+    
+    osd.print();  
+    
+    screen->show();
+  
+    rocknroll(true);
+    
+    calc_fps();
+  }
 
-void Context::clear() {
-  /*  
-  uint64_t ecx = size/16; 
-  uint64_t ebx = 0x0000000000000000;
-  uint64_t *edx = (uint64_t*)screen->get_surface();
-  for(;ecx>0;ecx--) *edx-- = ebx;
-  */
-  memset(vidbuf,0x0,size);
+  Layer *lay = (Layer *)layers.begin();
+  while(lay) {
+    lay->lock();
+    layers.rem(1);
+    lay->quit = true;
+    lay->signal_feed();
+    lay->unlock();
+    SDL_Delay(500);
+    delete lay;
+    lay = (Layer *)layers.begin();
+  }
+  
+  if(screen) delete screen;
+  plugger.close();
+
 }
 
 /* FPS */
@@ -241,6 +233,7 @@ void Context::calc_fps() {
 }
 
 void Context::rocknroll(bool state) {
+  layers.lock();
   Layer *l = (Layer *)layers.begin();
   while(l) {
     if(!l->running) {
@@ -251,4 +244,5 @@ void Context::rocknroll(bool state) {
     }
     l = (Layer *)l->next;
   }
+  layers.unlock();
 }

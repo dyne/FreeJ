@@ -65,6 +65,8 @@ Osd::Osd() {
   _fps = false;
   _layersel = 1;
   _filtersel = 0;
+  ipernaut = NULL;
+  osd_vertigo = NULL;
   env = NULL;
 }
 
@@ -73,11 +75,6 @@ Osd::~Osd() { }
 void Osd::init(Context *screen) {
   this->env = screen;
   _set_color(white);
-
-  /* add ipernaut logo layer */
-  ipernaut = create_layer("../doc/ipernav.png");
-  ipernaut->init(env);
-  
 
 
   /* setup coordinates for OSD information
@@ -200,6 +197,7 @@ void Osd::_layerlist() {
   uint32_t *pos = layer_offset;
   _set_color(red);
 
+  env->layers.lock();
   Layer *l = (Layer *)env->layers.begin(),
     *laysel = (Layer*) env->layers.selected();
 
@@ -230,6 +228,7 @@ void Osd::_layerlist() {
     }
     l = (Layer *)l->next;
   }
+  env->layers.unlock();
 }
 
 void Osd::_filterlist() {
@@ -240,6 +239,8 @@ void Osd::_filterlist() {
   char fname[4];
   Layer *lay = (Layer*) env->layers.selected();
   if(!lay) return;
+
+  lay->filters.lock();
   Filter *f = (Filter *)lay->filters.begin();
   Filter *filtsel = (Filter*)lay->filters.selected();
   while(f) {
@@ -268,6 +269,7 @@ void Osd::_filterlist() {
     }
     f = (Filter *)f->next;
   }
+  lay->filters.unlock();
 }
 
 void Osd::splash_screen() {
@@ -292,33 +294,39 @@ bool Osd::credits() {
   _credits = !_credits;
 
   if(_credits) {
-    SDL_keysym keysym;
 
+    /* add ipernaut logo layer */
+    if(!ipernaut) {
+    /* TODO check if file exists */
+      ipernaut = create_layer("../doc/ipernav.png");
+      ipernaut->init(env);
+    }
+    
     /* add first vertigo effect on logo */
-    osd_vertigo = env->plugger.pick("vertigo");
+    if(!osd_vertigo)
+      osd_vertigo = env->plugger.pick("vertigo");
     if(osd_vertigo) {
-      osd_vertigo->init(&ipernaut->geo);
-      ipernaut->filters.add(osd_vertigo);
+      if(!osd_vertigo->list) {
+	osd_vertigo->init(&ipernaut->geo);
+	ipernaut->filters.add(osd_vertigo);
+      }
     }
-    /* add second water effect on logo */
-    osd_water = env->plugger.pick("water");
-    if(osd_water) {
-      osd_water->init(&ipernaut->geo);
-      keysym.sym = SDLK_y; osd_water->kbd_input(&keysym);
-      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
-      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
-      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
-      ipernaut->filters.add(osd_water);
-    }
+    /* add a second water effect on logo 
+       osd_water = env->plugger.pick("water");
+       if(osd_water) {
+       osd_water->init(&ipernaut->geo);
+       keysym.sym = SDLK_y; osd_water->kbd_input(&keysym);
+       keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
+       keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
+       keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
+       ipernaut->filters.add(osd_water);
+       } 
+    */
     env->layers.add(ipernaut);
   } else {
-    osd_water->rem();
-    osd_water->inuse = false;
-    osd_water->initialized = false;
-    osd_vertigo->rem();
-    osd_vertigo->inuse = false;
-    osd_vertigo->initialized = false;
     ipernaut->rem();
+    osd_vertigo->rem();
+    osd_vertigo->clean();
   }
   return _credits;
 }

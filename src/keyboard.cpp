@@ -59,15 +59,14 @@ void KbdListener::run() {
 
   while(!quit) {
 
-    
-
     SDL_Delay(DELAY); 
 
     if(!SDL_PollEvent(&event)) continue;
 	
     if(event.type == SDL_QUIT) {
       func("SDL QUIT!");
-      quit = env->quit = true;
+
+      env->quit = quit = true;
       break; }
 	
     if(event.type != SDL_KEYDOWN) continue;
@@ -80,20 +79,17 @@ void KbdListener::run() {
     switch(keysym->sym) {
     case SDLK_ESCAPE:
       if(keysym->mod & KMOD_CTRL) {
-	quit = true;
-	env->quit = true;
+        env->quit = quit = true;
       } else
 	show_osd("press CTRL+ESC if you really want to quit");
       break;
       
     case SDLK_SPACE:
-      /*
       if(keysym->mod & KMOD_CTRL)
-	// QUAAA
-	SDL_WM_ToggleFullScreen(env->screen->scr);
+	env->screen->fullscreen();
       else
 	show_osd("press CTRL+SPACE to switch fullscreen");
-      */
+
       break;
       
     case SDLK_TAB:
@@ -339,11 +335,10 @@ void KbdListener::run() {
 	Filter *tmp = (!filter->prev) ?
 	  (Filter *)filter->next : (Filter *)filter->prev;
 	filter->rem();
-	filter->inuse = false;
-	filter->initialized = false;
-	filter = tmp;
 	layer->filters.sel(0);
-	if(filter) filter->sel(true);
+	if(tmp) tmp->sel(true);
+	filter->clean();
+	filter = tmp;
 	break;
       }
 

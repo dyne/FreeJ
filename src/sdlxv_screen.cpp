@@ -166,3 +166,8 @@ bool SdlXvScreen::update(void *buf) {
   //memcpy(scr->pixels,buf,size);
   return(true);
 }
+
+
+void SdlXvScreen::clear() {
+  /* TODO */
+}

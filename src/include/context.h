@@ -65,12 +65,10 @@ class Context {
 
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y);
-  /* this returns a pointer to the video memory */  
-  //  void *get_surface(); //  { return coords(0,0); }
-  /* clears the screen */
-  void clear();
 
   void rocknroll(bool state);
+
+  bool quit;
 
   int w, h;
   int size;
@@ -107,7 +105,7 @@ class Context {
   bool track_fps;
 
   bool clear_all;
-  bool quit;
+
 };
 
 #endif

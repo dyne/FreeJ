@@ -101,7 +101,7 @@ bool Layer::cafudda() {
     return(false);
   }
 
-  // lock();
+  filters.lock();
 
   Filter *filt = (Filter *)filters.begin();
 
@@ -112,7 +112,7 @@ bool Layer::cafudda() {
 
   blit(offset);
 
-  // unlock();
+  filters.unlock();
 
   signal_feed();
 

@@ -80,10 +80,9 @@ enum {
 
 void on_fullscreen(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-  /* QUAA
-  SDL_WM_ToggleFullScreen(env->screen->scr);
-  */
+  env->screen->fullscreen();
 }
+
 void on_about(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   env->osd.credits();
@@ -94,7 +93,7 @@ void do_add_layer(GtkWidget *widget, gpointer *data) {
   for(int c=0;sel[c];c++) {
     func("%s : creating %s",__FUNCTION__,sel[c]);
     lay = create_layer(sel[c]);
-    if(lay) env->add_layer(lay);
+    if(lay) env->layers.add(lay);
     env->layers.sel(0); /* deselect others */
     lay->sel(true);
   }
@@ -183,7 +182,7 @@ void on_overwrite(GtkWidget *widget, gpointer *data) {
   env->clear_all = !env->clear_all; }
 void on_quit(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-  quit = true; env->quit = true; }
+  env->quit = quit = true; }
 
 /* =================== LAYER LIST */
 void on_layer_select(GtkTreeSelection *sel, gpointer data) {
@@ -222,8 +221,9 @@ void on_effect_delete(GtkWidget *widget, gpointer *data) {
   Filter *filt = (Filter*)laysel->filters.selected();
   if(filt) {
     filt->rem();
-    filt->inuse = false;
-    filt->initialized = false;
+    laysel->filters.sel(0);
+    filt->clean();
+    filt = NULL;
   }
 }
 void on_effect_active(GtkWidget *widget, gpointer *data) {
@@ -295,9 +295,10 @@ void init_layer_list() {
 void update_layer_list() {
   /* fill up the list of layers allready loaded */
   gtk_tree_store_clear(layer_store);
+  env->layers.lock();
   Layer *lay = (Layer*)env->layers.begin();
   while(lay) {
-    lay->lock();
+    //    lay->lock();
     gtk_tree_store_append(layer_store,&iter,NULL);
     gtk_tree_store_set(layer_store,&iter,
 		       LAYER_ACTIVE,lay->active,
@@ -306,9 +307,10 @@ void update_layer_list() {
 		       LAYER_FILE,lay->get_filename(),
 		       LAYER_OBJ,lay,
 		       -1);
-    lay->unlock();
+    //    lay->unlock();
     lay = (Layer*)lay->next;
   }
+  env->layers.unlock();
 }
 
 
@@ -375,6 +377,7 @@ void update_effect_list() {
   gtk_tree_store_clear(effect_store);
   Layer *laysel = (Layer*) env->layers.selected();
   if(!laysel) return;
+  laysel->filters.lock();
   Filter *filt = (Filter*)laysel->filters.begin();
   while(filt) {
     gtk_tree_store_append(effect_store,&iter,NULL);
@@ -385,6 +388,7 @@ void update_effect_list() {
 		       -1);
     filt = (Filter*)filt->next;
   }
+  laysel->filters.unlock();
 }
 void on_add_effect(char *name) {
   gtk_menu_set_active(menu_effect,0);
@@ -442,7 +446,7 @@ void *gtk_run(void *arg) {
 }
 
 void gtk_ctrl_quit() {
-  quit = true;
+  env->quit = quit = true;
   jsleep(0,500);
   if(pthread_attr_destroy(&_attr) == -1)
     error("error destroying POSIX thread attribute");

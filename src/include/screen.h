@@ -29,10 +29,12 @@ class ViewPort {
   ViewPort() {};
   virtual ~ViewPort() {};
   
-  virtual bool init(int width, int height) { return false; }; 
-  virtual void show() { };
-  virtual bool update(void *buf) { return false; };
-  virtual void *get_surface() { return NULL; }; // returns direct pointer to video memory
+  virtual bool init(int width, int height) =0;
+  virtual void show() =0;
+  virtual bool update(void *buf) =0;
+  virtual void *get_surface() =0; // returns direct pointer to video memory
+  virtual void clear() =0;
+  virtual void fullscreen() =0;
   int w, h;
   int bpp;
   int size, pitch;

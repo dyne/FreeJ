@@ -34,6 +34,8 @@ class SdlScreen : public ViewPort {
   void show();
   bool update(void *buf);
   void *get_surface();
+  void clear();
+  void fullscreen();
 
   SDL_Surface *scr;
   SDL_Surface *emuscr;

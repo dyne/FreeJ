@@ -32,6 +32,7 @@ Linklist::Linklist() {
   length = 0;
   first = NULL;
   last = NULL;
+  pthread_mutex_init(&mutex,NULL);
 }
 
 Linklist::~Linklist() {
@@ -41,6 +42,8 @@ Linklist::~Linklist() {
 /* adds one element at the end of the list */
 void Linklist::add(Entry *addr) {
   Entry *ptr = NULL;
+  if(addr->list) addr->rem();
+  lock();
 
   if(first==NULL) { /* that's the first entry */
     first = addr;
@@ -57,8 +60,8 @@ void Linklist::add(Entry *addr) {
   }
   /* save the pointer to this list */
   addr->list = this;
-
   length++;
+  unlock();
 }
 
 //void Linklist::prepend(Entry *addr) {
@@ -88,34 +91,18 @@ void Linklist::add(Entry *addr, int pos) {
   length++;
 }
   
-/* removes one element from the list */
-void Linklist::rem(int pos) {
-  Entry *ptr = pick(pos);
-  if(ptr==NULL) return;
-  Entry *prev = ptr->prev, *next = ptr->next;
-
-  /* we are on it, now take it out WITHOUT deallocating */
-  if(prev!=NULL)
-    prev->next = next;
-  else first = next;
-
-  if(next!=NULL)
-    next->prev = prev;
-  else last = prev;
-
-  ptr->list = NULL;
-  length--;
-}
 
 /* clears the list
    i don't delete filters here because they have to be deleted
    from the procedure creating them. so this call simply discards
    the pointers stored into the linked list. OBJECTS ARE NOT FREED */
 void Linklist::clear() {
+  lock();
   sel(0);
   length = 0;
   first = NULL;
   last = NULL;
+  unlock();
 }
 
 /* takes one element from the list
@@ -136,6 +123,7 @@ Entry *Linklist::pick(int pos) {
   return(ptr);
 }
 
+
 /* this function is a wrapper around Entry::up()
    better to use that if you have a pointer to your Entry */
 bool Linklist::moveup(int pos) {
@@ -154,6 +142,12 @@ bool Linklist::moveto(int num, int pos) {
   if(!p) return(false);
   return( p->move(pos) );
 }
+/* removes one element from the list */
+void Linklist::rem(int pos) {
+  Entry *ptr = pick(pos);
+  if(ptr==NULL) return;
+  ptr->rem();
+}
   
 /* selects ONLY ONE, deselects the others
    use Entry::sel() if you want to do multiple selects */
@@ -170,7 +164,7 @@ void Linklist::sel(int pos) {
   }
 }
 
-/* selects the last one selected
+/* returns the last one selected
    this is supposed to be used with single selections */
 Entry *Linklist::selected() {  
   int c;
@@ -196,7 +190,8 @@ Entry::~Entry() {
 
 bool Entry::up() {
   if(!prev || !list) return(false);
-  
+  list->lock();
+
   Entry *tprev = prev,
     *tnext = next,
     *pp = prev->prev;
@@ -218,11 +213,13 @@ bool Entry::up() {
   if(!prev)
     list->first = this;
 
+  list->unlock();
   return(true);
 }
 
 bool Entry::down() {
   if(!next || !list) return(false);
+  list->lock();
 
   Entry *tprev = prev,
     *tnext = next,
@@ -244,12 +241,15 @@ bool Entry::down() {
   if(!next)
     list->last = this;
 
+  list->unlock();
   return(true);
 }
 
 bool Entry::move(int pos) {
   func("Entry::move(%i) - NEW LINKLIST MOVE");
   if(!list) return(false);
+  list->lock();
+
   Entry *tn, *tp;
 
   Entry *swapping = list->pick(pos);
@@ -273,6 +273,7 @@ bool Entry::move(int pos) {
   if(prev) prev->next = this;
   else list->first = this;
 
+  list->unlock();
   func("LINKLIST MOVE RETURNS SUCCESS");
 
   return(true);
@@ -280,7 +281,8 @@ bool Entry::move(int pos) {
 
 void Entry::rem() {
   if(!list) return;
-  
+  list->lock();
+
   if(prev)
     prev->next = next;
   else list->first = next;
@@ -290,6 +292,7 @@ void Entry::rem() {
   else list->last = prev;
 
   list->length--;
+  list->unlock();
   list = NULL;
 }
 

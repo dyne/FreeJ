@@ -110,6 +110,13 @@ bool SdlScreen::update(void *buf) {
   return true;
 }
 
+void SdlScreen::clear() {
+  memset(surface,0x0,size);
+}
+void SdlScreen::fullscreen() {
+  SDL_WM_ToggleFullScreen(scr);
+}
+
 bool SdlScreen::sdl_lock() {
   if (!SDL_MUSTLOCK(scr)) return true;
   if (SDL_LockSurface(scr) < 0) {

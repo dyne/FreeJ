@@ -41,8 +41,6 @@ static int version = 1;
 /* save here screen geometry informations */
 static ScreenGeometry *geo;
 
-/* screen buffer */
-static void *procbuf;
 
 
 #define CLIP_EDGES \
@@ -64,8 +62,8 @@ uint32_t *BkGdImagePre;
 uint32_t *BkGdImage;
 uint32_t *BkGdImagePost;
 
-void *buffer;
-uint32_t *bufptr;
+uint32_t *buffer;
+
 void *surface;
 
 /* water effect variables */
@@ -189,13 +187,11 @@ int init(ScreenGeometry *sg) {
   swirlangle = fastrand()%2048;
 
   /* buffer allocation tango */
-  procbuf = malloc(geo->size);
   Height[0] = (uint32_t*)malloc(geo->size);
   Height[1] = (uint32_t*)malloc(geo->size);
   memset(Height[0], 0, geo->size);
   memset(Height[1], 0, geo->size);
   buffer = malloc(geo->size);
-  bufptr = (uint32_t*)buffer;
   BkGdImagePre = malloc(geo->size);
   BkGdImage = malloc(geo->size);
   BkGdImagePost = malloc(geo->size);
@@ -204,13 +200,12 @@ int init(ScreenGeometry *sg) {
 }
 
 int clean() {
-  free(procbuf);
-  free(buffer);
   free(Height[0]);
   free(Height[1]);
   free(BkGdImagePre);
   free(BkGdImage);
   free(BkGdImagePost);
+  free(buffer);
   return(1);
 }
 
@@ -467,14 +462,14 @@ void DrawWater(int page) {
       dy = ptr[offset] - ptr[offset+geo->w];
       c = BkGdImage[offset + geo->w*(dy>>3) + (dx>>3)];
       
-      bufptr[offset] = c;
+      buffer[offset] = c;
 
       offset++;
       dx = ptr[offset] - ptr[offset+1];
       dy = ptr[offset] - ptr[offset+geo->w];
       c = BkGdImage[offset + geo->w*(dy>>3) + (dx>>3)];
 
-      bufptr[offset] = c;      
+      buffer[offset] = c;      
     }
   }
 }

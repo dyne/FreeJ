@@ -25,6 +25,16 @@
 
 /* 
  * $Log$
+ * Revision 1.2  2003/12/02 00:11:52  jaromil
+ * locking system (pthread's mutex based) in linklist which implements an
+ * atomical locking scheme that i never tried before. In fact FreeJ is
+ * very much based on linklists building trees out of Layers and Filters,
+ * by locking the operations on the linklist class we synchronize most of
+ * the operations we can do on them.
+ * There is also a fix to restore resolution when quitting from
+ * fullscreen, and of course a fullscreen() method in ViewPort.
+ * today was a full coding day.
+ *
  * Revision 1.1  2003/12/01 03:35:49  jaromil
  * yuv2rgb substituted with ccvt lib (included statically),
  * conversion from 12bit yuv colorspaces in avi layer (support more avi
@@ -54,7 +64,7 @@
 #include "ccvt_types.h"
 
 
-/* YUYV: two Y's and one U/V */
+/* YUYV: two Y's and one U/V 
 void ccvt_yuyv_rgb32(int width, int height, const void *src, void *dst)
 {
 
@@ -106,7 +116,7 @@ void ccvt_yuyv_bgr32(int width, int height, const void *src, void *dst)
    }
    
 }
-
+*/
 void ccvt_yuyv_420p(int width, int height, const void *src, void *dsty, void *dstu, void *dstv)
 {
    int n, l, j;

@@ -19,11 +19,11 @@
 #ifndef __linklist_h__
 #define __linklist_h__
 
+#include <pthread.h>
+
 class Entry;
 
 class Linklist {
- private:
-
  public:
   Linklist();
   virtual ~Linklist();
@@ -50,6 +50,12 @@ class Linklist {
   Entry *first;
   Entry *last;
   int length;
+
+  void lock() { pthread_mutex_lock(&mutex); };
+  void unlock() { pthread_mutex_unlock(&mutex); };
+
+ private:
+  pthread_mutex_t mutex;
 };
 
 class Entry {
