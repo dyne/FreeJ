@@ -148,7 +148,7 @@ SUBDIRS = \
 	baltan vertigo transform \
 	blurzoom edge ripple \
 	backlight rotozoom blur \
-	water cartoon
+	water cartoon nervous
 
 subdir = filters
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs

@@ -20522,7 +20522,7 @@ CXXFLAGS="$CFLAGS $SDL_CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS"
 #AC_SUBST(LIBS)
 
 
-                                                                                                                                                                                    ac_config_files="$ac_config_files Makefile src/Makefile src/include/Makefile filters/Makefile filters/delaygrab/Makefile filters/absdiff/Makefile filters/rotozoom/Makefile filters/simura/Makefile filters/baltan/Makefile filters/vertigo/Makefile filters/transform/Makefile filters/blurzoom/Makefile filters/edge/Makefile filters/backlight/Makefile filters/blur/Makefile filters/ripple/Makefile filters/water/Makefile filters/cartoon/Makefile"
+                                                                                                                                                                                              ac_config_files="$ac_config_files Makefile src/Makefile src/include/Makefile filters/Makefile filters/delaygrab/Makefile filters/absdiff/Makefile filters/rotozoom/Makefile filters/simura/Makefile filters/baltan/Makefile filters/vertigo/Makefile filters/transform/Makefile filters/blurzoom/Makefile filters/edge/Makefile filters/backlight/Makefile filters/blur/Makefile filters/ripple/Makefile filters/water/Makefile filters/cartoon/Makefile filters/nervous/Makefile"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
 # tests run on this system so they can be shared between configure
@@ -21096,6 +21096,7 @@ do
   "filters/ripple/Makefile" ) CONFIG_FILES="$CONFIG_FILES filters/ripple/Makefile" ;;
   "filters/water/Makefile" ) CONFIG_FILES="$CONFIG_FILES filters/water/Makefile" ;;
   "filters/cartoon/Makefile" ) CONFIG_FILES="$CONFIG_FILES filters/cartoon/Makefile" ;;
+  "filters/nervous/Makefile" ) CONFIG_FILES="$CONFIG_FILES filters/nervous/Makefile" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
   *) { { echo "$as_me:$LINENO: error: invalid argument: $ac_config_target" >&5

@@ -147,6 +147,7 @@ filters/blur/Makefile
 filters/ripple/Makefile
 filters/water/Makefile
 filters/cartoon/Makefile
+filters/nervous/Makefile
 ])
 
 echo
