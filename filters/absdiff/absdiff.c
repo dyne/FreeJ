@@ -8,6 +8,7 @@ static char *name = "Absdiff";
 static char *author = "jaromil";
 static char *info = "Absolute difference between frames";
 static int version = 1;
+static int bpp = 6;
 
 static void *procbuf;
 static void *lastimage;
@@ -22,7 +23,9 @@ static void absdiff32(void *src1, void *src2, void *dst);
 int init(ScreenGeometry *sg) {
   geo = sg;
   lastimage = malloc(geo->size);
+  if(!lastimage) return 0;
   procbuf = malloc(geo->size);
+  if(!procbuf) return 0;
 
   threshold_value = 0;
   return(1);
@@ -65,3 +68,5 @@ static void absdiff32(void *src1, void *src2, void *dst) {
   asmnum1 = geo->size;
   mmx_absdiff32();
 }
+
+int kbd_input(SDL_keysym *keysym) { return 0; }

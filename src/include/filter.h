@@ -29,12 +29,6 @@ class Filter: public Plugin, public Entry {
 
   //  virtual bool kbd_input(SDL_keysym *keysym) { return(false); };
 
-  /* bool array for supported screendepth
-     [0]       [1]       [2]       [3]
-     8bit      16bit     24bit     32bit */
-  bool supported[4];
-  bool bpp_ok(Uint8 bpp) { return(supported[((bpp>>3)-1)]); };
-  
   bool initialized;
   bool active;
   bool inuse;

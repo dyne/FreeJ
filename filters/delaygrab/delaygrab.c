@@ -2,8 +2,9 @@
   FreeJ effect Delaygrab
 
   delaygrab - blockwise, controllable image delay
-  Copyright (C) 1999/2000  A. Schiffler
-  further done modifications by <jaromil@dyne.org>
+
+  Copyright (C) 1999/2000  A. Schiffler <aschiffler@home.com>
+  further modifications by Denis Roio <jaromil@dyne.org>
   
   original sourcecode is from libbgrab 2.1f
   ported to FreeJ and successively modified by jaromil
@@ -21,13 +22,7 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  
-  To contact the author try these:
-  |  Andreas Schiffler                    aschiffler@home.com  |
-  |  Senior Systems Engineer    -    Deskplayer Inc., Buffalo  |
-  |  4707 Eastwood Cres., Niagara Falls, Ont  L2E 1B4, Canada  |  
-  |  +1-905-371-3652 (private)  -  +1-905-371-8834 (work/fax)  |
-  
+    
 */
 
 #include <stdio.h>
@@ -44,9 +39,10 @@
 #define MODES 4
 
 static char *name = "Delaymap";
-static char *author = "Andreas Schiffler, Jaromil";
-static char *info = "mapped delayed frame blitting";
+static char *author = "Andreas Schiffler";
+static char *info = "map delayed frame blitting";
 static int version = 2;
+static int bpp = 6;
 
 static int x,y,i,xyoff,v;
 static Uint8 *imagequeue,*curqueue;
@@ -114,6 +110,7 @@ void *process(void *buffo) {
 
    /* Copy image to queue */
   mmxcopy(buffo,curqueue,geo->size);
+  //  memcpy(curqueue,buffo,geo->size);
 
      /* Copy image blockwise to screenbuffer */
   curdelaymap= (Uint32 *)delaymap;
@@ -233,7 +230,7 @@ static void set_blocksize(int bs) {
   delaymapheight = (geo->h)/blocksize;
   delaymapsize = delaymapheight*delaymapwidth;
 
-  if(delaymap!=NULL) { free(delaymap); delaymap = NULL; }
+  if(delaymap) { free(delaymap); delaymap = NULL; }
   delaymap = malloc(delaymapsize*4);
 
   createDelaymap(current_mode);

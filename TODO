@@ -1,6 +1,5 @@
 things to be done to smooth Freej:
-** finish filter API and implement dlopen() load of plugins
-** preset saving
+** think and implement preset saving
 
 things that will implement the fun:
 ** some more layers (mpeg, images, scopes ...)

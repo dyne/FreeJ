@@ -2,9 +2,10 @@ dnl ==============================================================
 dnl Process this file with autoconf to produce a configure script.
 dnl ==============================================================
 
-AC_INIT(src/context.cpp)
+AC_INIT(src/freej.cpp)
 
 AC_CANONICAL_HOST
+AC_CANONICAL_TARGET
 
 AC_PROG_MAKE_SET
 
@@ -57,8 +58,8 @@ dnl ==============================================================
 SDL_VERSION=1.2.0
 AM_PATH_SDL($SDL_VERSION,
             :,
-	    AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
-)
+	AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
+           )
 AC_SUBST(SDL_LIBS)
 
 AC_CHECK_SIZEOF(short, 2)
@@ -129,6 +130,7 @@ LIBS="$LIBS"
 AC_OUTPUT([
 Makefile
 src/Makefile
+src/include/Makefile
 filters/Makefile
 filters/null/Makefile
 filters/delaygrab/Makefile
@@ -136,4 +138,6 @@ filters/absdiff/Makefile
 filters/rotozoom/Makefile
 filters/simura/Makefile
 filters/baltan/Makefile
+filters/vertigo/Makefile
+filters/transform/Makefile
 ])

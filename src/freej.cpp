@@ -135,7 +135,7 @@ int main (int argc, char **argv) {
   Osd osd;
 
   /* this is the Plugin manager */
-  Plugger plugger;
+  Plugger plugger(screen.bpp);
 
   /* detect v4l grabber layer */
   if(!grabber.detect(v4ldevice)) {
@@ -190,7 +190,7 @@ int main (int argc, char **argv) {
   /* we need to wait here to be sure the threads quitted:
      can't use join because threads are detached for better performance */
   SDL_Delay(3000);
-
+  
   /* this calls all _delete() methods to safely free all memory */
   plugger.close();
   screen.close();

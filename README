@@ -1,4 +1,4 @@
-            [[[ FreeJ 0.2.2  "ETNA" ]]]
+         [[[ FreeJ 0.3  "PRATERHIMMEL" ]]]
               [http://freej.dyne.org]
 
                   set the vj free
@@ -38,6 +38,11 @@ optimized code.
 FreeJ is being developed in c++ respecting POSIX compliance,  releases
 will be made available in a packaging permitting easy compilation with
 standard GNU free development tools.
+
+It features dinamicly loadable runtime plugins for DSP  video  effects
+and it's relatively easy to code new plugins and chain them  with  the
+others, multiplying the possibilities given by each new plugin.
+
 For rendering to screen is being linked shared the Simple Direct Media
 Layer [http://www.libsdl.org] library, allready employed by
 lokigames.org for his high performance in porting games like
@@ -54,8 +59,8 @@ GNU/Linux at least in the earliest development phases.
 :: FEATURES
 
 ++ multilayered video engine
+++ filters loaded as runtime DSO plugins
 ++ layer filtering thru chainable dsp algorithms
-++ easy customization of filters
 ++ MMX/SSE accelerated engine lubrification
 ++ efficient triple-buffered video grabbing layer
 ++ modular c++ code structure
@@ -109,10 +114,7 @@ according with GPL software  tradictions,  seeking  collaborations  of
 developers interested in being involved and support from anybody else.
 Alltough the code is mature enough to be  appreciated  by  coders  and
 effects can allready be implemented with noticeable good  performance.
-The 0.1 release is simply intended to be the beginning of a developing
-roadmap that can resolve in a fully featured 1.0 release in 1/2  years
-depending from received contributions, even less in the most
-optimistic case.
+BTW i'm allready using it for live performances.
 
 :: DISCUSSION
 
@@ -123,5 +125,5 @@ mailinglist interface is made available on
 [http://dyne.org/cgi-bin/ml.cgi?4] .
 
 --
-FreeJ is (c) 2001 Denis Roio <jaromil@dyne.org>
+FreeJ is (c) 2001, 2002 Denis Roio <jaromil@dyne.org>
 refer to AUTHORS for a complete list of contributions.

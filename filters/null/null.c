@@ -10,6 +10,7 @@ static char *name = "Null"; /* do not assign a *name longer than 8 chars! */
 static char *author = "jaromil"; 
 static char *info = "Null plugin";
 static int version = 1; /* version is just an int (sophisticated isn't it?) */
+static int bpp = 6;
 
 /* save here screen geometry informations */
 static ScreenGeometry *geo;

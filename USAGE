@@ -1,8 +1,8 @@
-FreeJ version 0.2.2 USAGE NOTES
+FreeJ version 0.3 USAGE NOTES
 ===============================
 
-This release supports both 16bit and 32bit screens, altough runs
-better in 16bit mode (even 2 filters will not work in 32bit depth).
+This release supports both 16bit and 32bit screens, altough there are
+more filters available when running at 32bit of depth.
 
 The interface consists in a on screen display (OSD) reporting
 informations like FPS, the filters that are created in the order they
@@ -13,10 +13,10 @@ LIST OF COMMANDS:
 
 GENERIC COMMANDS:
 
-1 - 5    = create a filter from the 5 implemented and add it on the
-           layer, at the end of the filter chain.
-UP/DOWN  = select filters up and down thru the chain
-^UP/DOWN = move filters up and down thru the chain
+F1 - F12 = select an available filter (enter to create it)
+           you can browse thru loaded plugins with this
+UP/DOWN  = select created filters up and down thru the chain
+^UP/DOWN = move created filters up and down thru the chain
 DELETE   = delete selected filter
 ^DELETE  = delete ALL filters
 INSERT   = activate/deactivate filter (without removing it from the
@@ -38,6 +38,15 @@ FILTER COMMANDS:
 DelayGrab filter
 q/w      = switch up/down delaymap
 a/s      = increase/decrease blocksize
+
+Vertigo filter (try it out after AbsDiff filter!)
+q/w      = phase increment/decrement
+a/s      = zoomrate increment/decrement
+z/x      = browse thru 3 modes (normal, artifarti, weird)
+
+Simura filter
+caps-lock + all digits = change color filters
+num-lock + keypad numbers = change mirror mode
 
 there will be other keys controlling the filters, the criteria will be
 to keep on using the left side on "qwerty" keyboards for them like the

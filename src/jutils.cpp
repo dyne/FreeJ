@@ -59,6 +59,15 @@ void show_osd() {
   osd_msg[50] = '\0';
 }
 
+void show_osd(char *format, ...) {
+  va_list arg;
+  va_start(arg, format);
+  
+  vsnprintf(osd_msg,49, format, arg);
+  osd_msg[50] = '\0';
+  va_end(arg);
+}
+
 void notice(char *format, ...) {
   va_list arg;
   va_start(arg, format);

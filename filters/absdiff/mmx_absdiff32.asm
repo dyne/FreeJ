@@ -24,14 +24,14 @@ mmx_absdiff32:
 	movq mm2,[eax]		; prende il src1
 	movq mm3,[edx]		; prende il src2
 	movq mm4,mm2		; salva il src1 in src1_temp
-	psubusw mm4,mm3		; src1_temp = src1_temp - src2
-	psubusw mm3,mm2		; src2 = src2 - src1
+	psubusb mm4,mm3		; src1_temp = src1_temp - src2
+	psubusb mm3,mm2		; src2 = src2 - src1
 	por mm3,mm4		; or sulle differenze
 	movq [edx],mm2		; salva src1 in src2 per il prossimo passaggio
 	add eax,8		; avanza SRC1
 	add edx,8		; avanza SRC2
 
-	pcmpgtw mm3,mm1		; applica threshold
+	pcmpgtb mm3,mm1		; applica threshold
 ; 	pcmpeqw mm3,mm5		; check zeroes
 	
 	movq [ebx],mm3		; salva in dest

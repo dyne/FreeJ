@@ -41,6 +41,8 @@ bool KbdListener::init(Context *context, Plugger *plug) {
 
   filter = NULL;
   filtersel = 0;
+  _filt = NULL;
+  _lastsel = -1;
 
   quit = false;
   return(true);
@@ -94,7 +96,6 @@ void KbdListener::run() {
 
 bool KbdListener::_context_op(SDL_keysym *keysym) {
   bool newfilt = false;
-  Filter *filt = NULL;
 
   switch(keysym->sym) {
   case SDLK_F1:
@@ -109,11 +110,23 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   case SDLK_F10:
   case SDLK_F11:
   case SDLK_F12:
-    filt = (*plugger)[keysym->sym - SDLK_F1];
-    if(filt!=NULL)
-      newfilt = true;
+    if(_lastsel==(keysym->sym - SDLK_F1)) break;
+    _lastsel = (keysym->sym - SDLK_F1);
+    _filt = (*plugger)[_lastsel];
+    if(_filt) show_osd("add %s filter?",_filt->getname());
     break;
-
+  default:
+    _lastsel = -1;
+    break;
+  }
+  
+  switch(keysym->sym) {
+  case SDLK_RETURN:
+    if(!_filt->inuse) {
+      if(_filt) newfilt = true;
+      _filt->inuse = true;
+    }
+    break;
   case SDLK_UP:
     if(filter==NULL) return false;
     if(filter->prev==NULL) return false;
@@ -177,9 +190,9 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
 
   if(newfilt) {
     func("keyboard says newfilt");
-    if(layer->add_filter(filt)) {
+    if(layer->add_filter(_filt)) {
       /* the filter has been accepted on the layer chain */
-      filter = filt;
+      filter = _filt;
       filtersel = layer->filters.len();
     } else {
       /* something went wrong... bpp not supported or so */

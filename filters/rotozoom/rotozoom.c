@@ -42,6 +42,7 @@ static char *name = "Rotozoom";
 static char *author = "jaromil";
 static char *info = "old school rotozoom effect";
 static int version = 1;
+static int bpp = 6;
 
 static void *procbuf;
 static ScreenGeometry *geo;
@@ -96,15 +97,23 @@ void *process(void *buffo) {
       x += h_cos[theta];
       y -= h_sin[theta];
       
-
+      
       switch(geo->bpp) {
       case 16:
+	/*	rotor = ((y&0xFF00) + ((x>>8)&0x00FF))<<1; */
 	rotor = ((y&0xFF00) + ((x>>8)&0x00FF))<<1;
 	*rotat++ = *(buffer+rotor);
 	*rotat++ = *(buffer+rotor+1);
 	break;
       case 32:
-	rotor = ((y&0xFF00) + ((x>>8)&0x00FF))<<2;
+	/*	
+	  rotor = ((y&0xFF00) + ((x>>8)&0x00FF))<<2;
+	  *rotat++ = *(buffer+rotor);
+	  *rotat++ = *(buffer+rotor+1);
+	  *rotat++ = *(buffer+rotor+2);
+	  *rotat++ = *(buffer+rotor+3);
+	  */
+	rotor = ((y&0xFF00) + ((x>>8)&0x00FF))*5;
 	*rotat++ = *(buffer+rotor);
 	*rotat++ = *(buffer+rotor+1);
 	*rotat++ = *(buffer+rotor+2);
@@ -116,25 +125,25 @@ void *process(void *buffo) {
   theta = (theta+1)%360;
   return(procbuf);
 }
-  
+
 static void init_tables() {
   int i;
   double hh;
   double radian;
-
+  
   theta = 180;
-
+  
   for ( i=0 ; i<360 ; i++ )
     {
       
       radian = 2*i*M_PI/360;
       
       hh = 2+ cos(radian);
-      /*      h_cos[i] = (int) ((geo->w) * (hh * cos(radian)));
-	      h_sin[i] = (int) ((geo->h) * (hh * sin(radian))); */
-      h_cos[i] = 256 * (hh * cos(radian));
-      h_sin[i] = 256 * (hh * sin(radian)); 
-
+      h_cos[i] = (int) ((geo->w) * (hh * cos(radian)));
+      h_sin[i] = (int) ((geo->h) * (hh * sin(radian))); 
+      /*      h_cos[i] = 256 * (hh * cos(radian));
+	      h_sin[i] = 256 * (hh * sin(radian)); */
+      
       xi[i] = (int) -(geo->w>>1) * h_cos[i];
       yi[i] = (int) (geo->w>>1) * h_sin[i];
       xj[i] = (int) -(geo->h>>1) * h_sin[i];

@@ -3483,6 +3483,7 @@ AC_ARG_ENABLE(sdltest, [  --disable-sdltest       Do not try to compile and run 
      fi
   fi
 
+  AC_REQUIRE([AC_CANONICAL_TARGET])
   AC_PATH_PROG(SDL_CONFIG, sdl-config, no)
   min_sdl_version=ifelse([$1], ,0.11.0,$1)
   AC_MSG_CHECKING(for SDL - version >= $min_sdl_version)
@@ -3513,7 +3514,7 @@ dnl
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SDL.h"
+#include <SDL.h>
 
 char*
 my_strdup (char *str)
@@ -3590,7 +3591,7 @@ int main (int argc, char *argv[])
           LIBS="$LIBS $SDL_LIBS"
           AC_TRY_LINK([
 #include <stdio.h>
-#include "SDL.h"
+#include <SDL.h>
 
 int main(int argc, char *argv[])
 { return 0; }

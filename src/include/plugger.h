@@ -28,7 +28,7 @@
 
 class Plugger {
  public:
-  Plugger();
+  Plugger(int bpp);
   ~Plugger();
   /* reads thru configured paths and updates plugin list */
   int refresh();
@@ -47,6 +47,7 @@ class Plugger {
     if(_searchpath) jfree(_searchpath); _searchpath = strdup(path); };
   char *_getsearchpath() { return(_searchpath); };
 
+  int _bpp;
   char *_searchpath;
   Filter *plugs[MAX_PLUGINS];
 };  

@@ -25,6 +25,7 @@ void set_debug(int lev);
 int get_debug();
 void set_osd(char *st);
 void show_osd();
+void show_osd(char *format, ...);
 void notice(char *format, ...);
 void func(char *format, ...);
 void error(char *format, ...);

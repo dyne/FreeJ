@@ -6,9 +6,11 @@
 #include <jutils.h>
 #include <plugger.h>
 
-Plugger::Plugger() {
+Plugger::Plugger(int bpp) {
   char *home;
   char temp[256];
+
+  _bpp = bpp;
 
   _searchpath = NULL;
 
@@ -51,9 +53,14 @@ int Plugger::refresh() {
       snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
       Filter *filt = new Filter;
       if(filt->open(temp)) {
-	act("plugged: %s filter v%u by %s",
-	    filt->getname(), filt->getversion(), filt->getauthor());
-	_add_plug(filt);
+	if(filt->getbpp(_bpp)) {
+	  act("plugged: %s filter v%u by %s",
+	      filt->getname(), filt->getversion(), filt->getauthor());
+	  _add_plug(filt);
+	} else {
+	  act("can't plug %s: %u bpp unsupported",filt->getname(),_bpp);
+	  delete(filt);
+	}
       } else delete(filt);
     }
   } while((dir = strtok(NULL,":")));
@@ -62,9 +69,16 @@ int Plugger::refresh() {
 }
 
 Filter *Plugger::operator[](const int num) {
+
   if(!plugs[num]) return(NULL);
+
+  /* if the plugin is allready in use we can't instantiate it
+     from the same DSO shared object */
   if(plugs[num]->inuse) return(NULL);
-  plugs[num]->inuse = true; return(plugs[num]);
+  /*
+    this is handled by the keyboard class
+    plugs[num]->inuse = true; */
+  return(plugs[num]);
 }
 
 int Plugger::_delete() {

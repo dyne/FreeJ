@@ -5,9 +5,10 @@
 #include <freej_plugin.h>
 
 static char *name = "Simura";
-static char *author = "Fukuchi Kentarou, jaromil";
+static char *author = "Fukuchi Kentarou";
 static char *info = "interactive multi mirror and colorizer";
 static int version = 1;
+static int bpp = 6;
 
 static Uint32 colortable[26] = {
 	0x000080, 0x0000e0, 0x0000ff,

@@ -1,6 +1,4 @@
 /*
- * EffecTV - Realtime Digital Video Effector
- * Copyright (C) 2001 FUKUCHI Kentarou
  *
  * BaltanTV - like StreakTV, but following for a long time
  * Copyright (C) 2001 FUKUCHI Kentarou
@@ -20,10 +18,11 @@
 #define STRIDE2 16 /* (STRIDE*2) */
 #define STRIDE3 24 /* (STRIDE*3) */
 
-static char *name = "BaltanTV";
-static char *author = "Fukuchi Kentarou, (porting by jaromil)";
-static char *info = "delayed transparent multiframe blit";
+static char *name = "Baltan";
+static char *author = "Fukuchi Kentarou";
+static char *info = "delayed alphachannel blit";
 static int version = 0;
+static int bpp = 4;
 
 static Uint32 *planebuf;
 static Uint32 *planetable[PLANES];
@@ -64,9 +63,9 @@ void *process(void *buffo) {
   Uint32 *dst = (Uint32*)procbuf;
 
   
-  for(i=0; i<pixels; i++) {
+  for(i=0; i<pixels; i++)
     planetable[plane][i] = (buf[i] & 0xfcfcfc)>>2;
-  }
+  
 
   cf = plane & (STRIDE-1);
   
@@ -83,3 +82,5 @@ void *process(void *buffo) {
   
   return procbuf;
 }
+
+int kbd_input(SDL_keysym *keysym) { return 0; }
