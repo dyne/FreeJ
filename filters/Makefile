@@ -38,10 +38,10 @@ pkglibdir = $(libdir)/FreeJ
 pkgincludedir = $(includedir)/FreeJ
 top_builddir = ..
 
-ACLOCAL = ${SHELL} /home/jaromil/porcodio/freej/missing --run aclocal-1.6
-AUTOCONF = ${SHELL} /home/jaromil/porcodio/freej/missing --run autoconf
-AUTOMAKE = ${SHELL} /home/jaromil/porcodio/freej/missing --run automake-1.6
-AUTOHEADER = ${SHELL} /home/jaromil/porcodio/freej/missing --run autoheader
+ACLOCAL = ${SHELL} /home/jaromil/freej/missing --run aclocal-1.6
+AUTOCONF = ${SHELL} /home/jaromil/freej/missing --run autoconf
+AUTOMAKE = ${SHELL} /home/jaromil/freej/missing --run automake-1.6
+AUTOHEADER = ${SHELL} /home/jaromil/freej/missing --run autoheader
 
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 INSTALL = /usr/bin/ginstall -c
@@ -65,7 +65,7 @@ host_triplet = i586-pc-linux-gnu
 EXEEXT = 
 OBJEXT = o
 PATH_SEPARATOR = :
-AMTAR = ${SHELL} /home/jaromil/porcodio/freej/missing --run tar
+AMTAR = ${SHELL} /home/jaromil/freej/missing --run tar
 AS = @AS@
 AVIFILE_CONFIG = /usr/local/bin/avifile-config
 AVIFILE_CXXFLAGS = -I/usr/local/include/avifile
@@ -92,7 +92,7 @@ STRIP = strip
 VERSION = 0.4
 am__include = include
 am__quote = 
-install_sh = /home/jaromil/porcodio/freej/install-sh
+install_sh = /home/jaromil/freej/install-sh
 SUBDIRS = delaygrab absdiff simura baltan vertigo transform
 subdir = filters
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
