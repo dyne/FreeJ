@@ -24,16 +24,21 @@
 #include <config.h>
 
 Layer::Layer() {
-  paused = false;
   quit = false;
   active = false;
   running = false;
   hidden = false;
   alpha_blit = false;
+  bgcolor = 0;
+  bgmatte = NULL;
   blit_offset = 0;
   _blit_algo = 1;
   setname("???");
   buffer = NULL;
+}
+
+Layer::~Layer() {
+  if(bgmatte) jfree(bgmatte);
 }
 
 void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
@@ -51,6 +56,9 @@ void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
   crop();
 
   screen->add_layer(this);
+
+  /* allocate memory for the matte background */
+  bgmatte = jalloc(bgmatte,geo.size);
   
   notice("initialized %s layer %ix%i %ibpp",getname(),geo.w,geo.h,geo.bpp);
 }
@@ -63,12 +71,18 @@ void Layer::run() {
   running = true;
   wait_feed();
   while(!quit) {
-    res = feed();
-    if(!res) error("feed error on layer %s",_name);
-    else buffer = res;
-    // func("feed is waiting");
-    wait_feed();
-    // func("feed starts again");
+    if(bgcolor==0) {
+      res = feed();
+      if(!res) error("feed error on layer %s",_name);
+      else buffer = res;
+      wait_feed();
+    } else if(bgcolor==1) { /* go to white */
+      memset(bgmatte,0xff,geo.size);
+      jsleep(0,10);
+    } else if(bgcolor==2) { /* go to black */
+      memset(bgmatte,0x0,geo.size);      
+      jsleep(0,10);
+    }
   }
   running = false;
 }
@@ -176,7 +190,7 @@ bool Layer::cafudda() {
   if((!active) || (hidden))
     return false;
 
-  offset = get_buffer();
+  offset = (bgcolor) ? bgmatte : get_buffer();
   if(!offset) {
     signal_feed();
     return(false);

@@ -33,19 +33,17 @@
 #include <time.h>
 
 /* setup some data to identify the plugin */
-static char *name = "Water"; /* do not assign a *name longer than 8 chars! */
+static char *name = "Water";
 static char *author = "jaromil"; 
 static char *info = "Water surface";
-static int version = 1; /* version is just an int (sophisticated isn't it?) */
+static int version = 1;
 
 /* save here screen geometry informations */
 static ScreenGeometry *geo;
 
-/* buffer where to copy the screen
-   a pointer to it is being given back by process() */
+/* screen buffer */
 static void *procbuf;
 
-//#define blend(a,b) ((((a) >> 1) & 0x7F7F7F7F) + (((b) >> 1) & 0x7F7F7F7F))
 
 #define CLIP_EDGES \
   if(x - radius < 1) left -= (x-radius-1); \
@@ -59,9 +57,9 @@ static void *procbuf;
 #define SLUDGE 3
 #define SUPER_SLUDGE 4
 
-/* The Height field...  Two pages, so that the filter will work correctly */
+/* 2 pages of Height field */
 uint32_t *Height[2];
-/* We've got three copies of the background, all next to each other */
+/* 3 copies of the background */
 uint32_t *BkGdImagePre;
 uint32_t *BkGdImage;
 uint32_t *BkGdImagePost;
@@ -84,10 +82,8 @@ int calc_optimization;
 
 /* density: water density (step 1)
    pheight: splash height (step 40)
-   radius: waterdrop radius (step 1)
-   light: light level (step 1) */
+   radius: waterdrop radius (step 1) */
 int density, pheight, radius;
-int light;
 int offset;  
 
 int rain;
@@ -97,6 +93,7 @@ int swirl;
 int physics;
 int horizline;
 int horizcount;
+int blend;
 
 void water_clear();
 void water_distort();
@@ -109,8 +106,7 @@ void water_swirl();
 void water_3swirls();
 void water_horizline();
 
-void DrawWaterNoLight(int page);
-void DrawWaterWithLight(int page, int LightModifier);
+void DrawWater(int page);
 void CalcWater(int npage, int density);
 void CalcWaterBigFilter(int npage, int density);
 
@@ -124,11 +120,24 @@ void SineBlob(int x, int y, int radius, int height, int page);
 
 
 /* precalculated sinusoidal tables */
-int FSinTab[2048];
-int FCosTab[2048];
-int FSin(int angle);
-int FCos(int angle);
-void FCreateSines();
+#include <math.h>
+#define FSINMAX 2047
+#define SINFIX 16
+#define FSINBITS 16
+#ifndef PI
+#define PI 3.14159265358979323846
+#endif
+int FSinTab[2048], FCosTab[2048];
+int FSin(int angle) { return FSinTab[angle&FSINMAX]; }
+int FCos(int angle) { return FCosTab[angle&FSINMAX]; }
+void FCreateSines() {
+  int i; double angle;  
+  for(i=0; i<2048; i++) {
+    angle = (float)i * (PI/1024.0);
+    FSinTab[i] = (int)(sin(angle) * (float)0x10000);
+    FCosTab[i] = (int)(cos(angle) * (float)0x10000);
+  }
+}
 
 /* cheap & fast randomizer (by Fukuchi Kentarou) */
 uint32_t randval;
@@ -158,13 +167,13 @@ int init(ScreenGeometry *sg) {
   density = 4;
   pheight = 600;
   radius = 30;
-  light = 0;
 
   rain = 0;
   raincount = 0;
   surfer = 0;
   swirl = 0;
   physics = 0;
+  blend = 0;
   horizline = 0;
   horizcount = 0;
 
@@ -172,12 +181,12 @@ int init(ScreenGeometry *sg) {
 
   FCreateSines();
 
-  water_surfacesize = geo->size; // ?sizeof(int)*geo->w*geo->h;
+  water_surfacesize = geo->size;
   calc_optimization = (geo->h-1)*geo->w;
   
-  xang = rand()%2048;
-  yang = rand()%2048;
-  swirlangle = rand()%2048;
+  xang = fastrand()%2048;
+  yang = fastrand()%2048;
+  swirlangle = fastrand()%2048;
 
   /* buffer allocation tango */
   procbuf = malloc(geo->size);
@@ -186,14 +195,10 @@ int init(ScreenGeometry *sg) {
   memset(Height[0], 0, geo->size);
   memset(Height[1], 0, geo->size);
   buffer = malloc(geo->size);
-  //  memcpy(buffer,tre_xpm,geo->w*geo->h);
-  bufptr = (uint32_t*)buffer; // fixed for 32 bit
+  bufptr = (uint32_t*)buffer;
   BkGdImagePre = malloc(geo->size);
   BkGdImage = malloc(geo->size);
   BkGdImagePost = malloc(geo->size);
-  /* memcpy(BkGdImagePre,  bufptr, geo->w*geo->h);
-     memcpy(BkGdImage,     bufptr, geo->w*geo->h);
-     memcpy(BkGdImagePost, bufptr, geo->w*geo->h); */
 
   return(1);
 }
@@ -210,10 +215,7 @@ int clean() {
 }
 
 void *process(void *buffo) {
-  //  memcpy(buffer,buffo,geo->size);
-  //  memcpy(BkGdImagePre,  buffo, geo->size);
   memcpy(BkGdImage,     buffo, geo->size);
-  //  memcpy(BkGdImagePost, buffo, geo->size);
 
   water_update();
   return buffer;
@@ -230,7 +232,7 @@ int kbd_input(SDL_keysym *keysym) {
     water_bigsplash(fastrand()%geo->w,fastrand()%geo->h);
     break;
   case SDLK_t: /* rain */
-    rain = (rain) ? 0 : 1;
+    rain = (rain)?0:1;
     break;
   case SDLK_d: /* distort surface */
     if(!rain) water_distort();
@@ -239,10 +241,15 @@ int kbd_input(SDL_keysym *keysym) {
     SmoothWater(Hpage);
     break;
   case SDLK_y: /* swirl */
-    swirl = (swirl) ? 0 : 1;
+    swirl = (swirl)?0:1;
     break;
   case SDLK_u: /* surfer */
-    surfer = (surfer) ? 0 : 1;
+    surfer = (surfer)?0:1;
+    break;
+  case SDLK_g: /* randomize swirl angles */
+    swirlangle = fastrand()%2048;
+    xang = fastrand()%2048;
+    yang = fastrand()%2048;
     break;
   case SDLK_h: /* horizontal line */
     horizline = 1;
@@ -277,7 +284,6 @@ void water_setphysics(int physics) {
   case WATER:
     mode |= 0x4000;
     density=4;
-    //    light=1;
     pheight=600;
     break;
   case JELLY:
@@ -302,7 +308,7 @@ void water_update() {
 
   if(rain) {
     raincount++;
-    if(raincount>5) {
+    if(raincount>3) {
       water_drop( (fastrand()%geo->w-40)+20 , (fastrand()%geo->h-40)+20 );
       raincount=0;
     }
@@ -311,13 +317,9 @@ void water_update() {
   if(swirl) water_swirl();
   if(surfer) water_surfer();
   if(horizline) water_horizline();
-  //  if(light)
-  //    DrawWaterWithLight(Hpage, light-1);
-  //  else
-  DrawWaterNoLight(Hpage);
+  DrawWater(Hpage);
 
-  //  CalcWater(Hpage^1, density);
-  CalcWaterBigFilter(Hpage^1, density);
+  CalcWater(Hpage^1, density);
   Hpage ^=1 ;
 }
 
@@ -326,8 +328,6 @@ void water_drop(int x, int y) {
     HeightBlob(x,y, radius>>2, pheight, Hpage);
   else
     WarpBlob(x, y, radius, pheight, Hpage);
-
-  //  Height[Hpage][y*geo->w + x] = rand()%(pheight<<2);
 }
 
 void water_bigsplash(int x, int y) {
@@ -433,10 +433,10 @@ void water_3swirls() {
     + ((
 	(FSin(swirlangle)) * (ANGLE)
 	) >> 16);
- 
- if(mode & 0x4000) HeightBlob(x,y, radius>>2, pheight, Hpage);
+  
+  if(mode & 0x4000) HeightBlob(x,y, radius>>2, pheight, Hpage);
   else WarpBlob(x, y, radius, pheight, Hpage);
-
+  
   x = (345)
     + ((
 	(FCos(swirlangle)) * (ANGLE)
@@ -454,13 +454,13 @@ void water_3swirls() {
 }
 
 /* internal physics routines */
-void DrawWaterNoLight(int page) {
+void DrawWater(int page) {
   int dx, dy;
   int x, y;
   int c;
   int offset=geo->w + 1;
   int *ptr = &Height[page][0];
-
+  
   for (y = calc_optimization; offset < y; offset += 2) {
     for (x = offset+geo->w-2; offset < x; offset++) {
       dx = ptr[offset] - ptr[offset+1];
@@ -479,31 +479,6 @@ void DrawWaterNoLight(int page) {
   }
 }
 
-void DrawWaterWithLight(int page, int LightModifier) {
-  int dx, dy;
-  int x, y;
-  int c;
-  int offset=geo->w + 1;
-  int *ptr = &Height[page][0];
-
-  for (y = calc_optimization; offset < y; offset += 2) {
-    for (x = offset+geo->w-2; offset < x; offset++) {
-      dx = ptr[offset] - ptr[offset+1];
-      dy = ptr[offset] - ptr[offset+geo->w];
-      c = BkGdImage[offset + geo->w*(dy>>3) + (dx>>3)] - (dx>>LightModifier);
-
-      bufptr[offset] = c;
-
-      offset++;
-      dx = ptr[offset] - ptr[offset+1];
-      dy = ptr[offset] - ptr[offset+geo->w];
-      c = BkGdImage[offset + geo->w*(dy>>3) + (dx>>3)] - (dx>>LightModifier);
-
-      bufptr[offset] = c;
-    }
-  }
-}
-
 void CalcWater(int npage, int density) {
   int newh;
   int count = geo->w + 1;
@@ -511,20 +486,18 @@ void CalcWater(int npage, int density) {
   int *oldptr = &Height[npage^1][0];
   int x, y;
 
-  /* Sorry, this function might not be as readable as I'd like, because
-     I optimized it somewhat.  (enough to make me feel satisfied with it) */
   for (y = calc_optimization; count < y; count += 2) {
     for (x = count+geo->w-2; count < x; count++) {
-      /* This does the eight-pixel method.  It looks much better. */
-      newh          = ((oldptr[count + geo->w]
-			+ oldptr[count - geo->w]
-			+ oldptr[count + 1]
-			+ oldptr[count - 1]
-			+ oldptr[count - geo->w - 1]
-			+ oldptr[count - geo->w + 1]
-			+ oldptr[count + geo->w - 1]
-			+ oldptr[count + geo->w + 1]
-			) >> 2 )
+      /* eight pixels */
+      newh = ((oldptr[count + geo->w]
+	       + oldptr[count - geo->w]
+	       + oldptr[count + 1]
+	       + oldptr[count - 1]
+	       + oldptr[count - geo->w - 1]
+	       + oldptr[count - geo->w + 1]
+	       + oldptr[count + geo->w - 1]
+	       + oldptr[count + geo->w + 1]
+	       ) >> 2 )
 	- newptr[count];
       newptr[count] =  newh - (newh >> density);
     }
@@ -538,11 +511,9 @@ void SmoothWater(int npage) {
   int *oldptr = &Height[npage^1][0];
   int x, y;
 
-  /* Sorry, this function might not be as readable as I'd like, because
-     I optimized it somewhat.  (enough to make me feel satisfied with it) */
   for(y=1; y<geo->h-1; y++) {
     for(x=1; x<geo->w-1; x++) {
-      /* This does the eight-pixel method.  It looks much better. */
+      /* eight pixel */
       newh          = ((oldptr[count + geo->w]
 			+ oldptr[count - geo->w]
 			+ oldptr[count + 1]
@@ -569,42 +540,39 @@ void CalcWaterBigFilter(int npage, int density) {
   int *oldptr = &Height[npage^1][0];
   int x, y;
   
-  /* Sorry, this function might not be as readable as I'd like, because
-     I optimized it somewhat.  (enough to make me feel satisfied with it) */
-  
   for(y=2; y<geo->h-2; y++) {
     for(x=2; x<geo->w-2; x++) {
-      /* This does the 25-pixel method.  It looks much okay. */
-      newh        = (
-		     (
-		      (
-		       (oldptr[count + geo->w]
-			+ oldptr[count - geo->w]
-			+ oldptr[count + 1]
-			+ oldptr[count - 1]
-			)<<1)
-		      + ((oldptr[count - geo->w - 1]
-			  + oldptr[count - geo->w + 1]
-			  + oldptr[count + geo->w - 1]
-			  + oldptr[count + geo->w + 1]))
-		      + ( (
-			   oldptr[count - (geo->w<<1)]
-			   + oldptr[count + (geo->w<<1)]
-			   + oldptr[count - 2]
-			   + oldptr[count + 2]
-			   ) >> 1 )
-		      + ( (
-			   oldptr[count - (geo->w<<1) - 1]
-			   + oldptr[count - (geo->w<<1) + 1]
-			   + oldptr[count + (geo->w<<1) - 1]
-			   + oldptr[count + (geo->w<<1) + 1]
-			   + oldptr[count - 2 - geo->w]
-			   + oldptr[count - 2 + geo->w]
-			   + oldptr[count + 2 - geo->w]
-			   + oldptr[count + 2 + geo->w]
-			   ) >> 2 )
-		      )
-		     >> 3)
+      /* 25 pixels */
+      newh = (
+	      (
+	       (
+		(oldptr[count + geo->w]
+		 + oldptr[count - geo->w]
+		 + oldptr[count + 1]
+		 + oldptr[count - 1]
+		 )<<1)
+	       + ((oldptr[count - geo->w - 1]
+		   + oldptr[count - geo->w + 1]
+		   + oldptr[count + geo->w - 1]
+		   + oldptr[count + geo->w + 1]))
+	       + ( (
+		    oldptr[count - (geo->w<<1)]
+		    + oldptr[count + (geo->w<<1)]
+		    + oldptr[count - 2]
+		    + oldptr[count + 2]
+		    ) >> 1 )
+	       + ( (
+		    oldptr[count - (geo->w<<1) - 1]
+		    + oldptr[count - (geo->w<<1) + 1]
+		    + oldptr[count + (geo->w<<1) - 1]
+		    + oldptr[count + (geo->w<<1) + 1]
+		    + oldptr[count - 2 - geo->w]
+		    + oldptr[count - 2 + geo->w]
+		    + oldptr[count + 2 - geo->w]
+		    + oldptr[count + 2 + geo->w]
+		    ) >> 2 )
+	       )
+	      >> 3)
 	- (newptr[count]);
       newptr[count] =  newh - (newh >> density);
       count++;
@@ -643,8 +611,8 @@ void HeightBox (int x, int y, int radius, int height, int page) {
   int cx, cy;
   int left, top, right, bottom;
 
-  if(x<0) x = 1+radius+ rand()%(geo->w-2*radius-1);
-  if(y<0) y = 1+radius+ rand()%(geo->h-2*radius-1);
+  if(x<0) x = 1+radius+ fastrand()%(geo->w-2*radius-1);
+  if(y<0) y = 1+radius+ fastrand()%(geo->h-2*radius-1);
   
   left=-radius; right = radius;
   top=-radius; bottom = radius;
@@ -691,8 +659,8 @@ void SineBlob(int x, int y, int radius, int height, int page) {
   int radsquare = radius * radius;
   float length = (1024.0/(float)radius)*(1024.0/(float)radius);
   
-  if(x<0) x = 1+radius+ rand()%(geo->w-2*radius-1);
-  if(y<0) y = 1+radius+ rand()%(geo->h-2*radius-1);
+  if(x<0) x = 1+radius+ fastrand()%(geo->w-2*radius-1);
+  if(y<0) y = 1+radius+ fastrand()%(geo->h-2*radius-1);
 
   radsquare = (radius*radius);
   left=-radius; right = radius;
@@ -712,21 +680,3 @@ void SineBlob(int x, int y, int radius, int height, int page) {
   }
 }
 
-#include <math.h>
-#define FSINMAX 2047
-#define SINFIX 16
-#define FSINBITS 16
-#ifndef PI
-#define PI 3.14159265358979323846
-#endif
-void FCreateSines() {
-  int i;
-  double angle;  
-  for(i=0; i<2048; i++) {
-    angle = (float)i * (PI/1024.0);
-    FSinTab[i] = (int)(sin(angle) * (float)0x10000);
-    FCosTab[i] = (int)(cos(angle) * (float)0x10000);
-  }
-}
-int FSin(int angle) { return FSinTab[angle&FSINMAX]; }
-int FCos(int angle) { return FCosTab[angle&FSINMAX]; }

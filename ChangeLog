@@ -2,6 +2,8 @@ FreeJ 0.5.1 ECOTECH - 12 Jun 2003
   new TxtLayer rendering engine
   fix to avifile looping and playing
   fix to plugin directories
+  new ripple effect by Fukuchi Kentarou
+  new water effect by jaromil
   
 FreeJ 0.5 ECOTECH - 27 May 2003
   new filters: Blur (Jaromil), Backlight (Pete Warden)

@@ -163,7 +163,7 @@ bool AviLayer::open(char *file) {
 }
   
 void *AviLayer::feed() {
-  if(paused) return buffer;  
+  //  if(paused) return buffer;  
     
   while(_stream->ReadFrame(true) <0)
     _stream->Seek(1);
@@ -232,8 +232,8 @@ void AviLayer::pos(framepos_t p) {
 }
   
 void AviLayer::pause() {
-  paused = !paused;
-  func("avi pause : %s",(paused)?"on":"off");
+  //  paused = !paused;
+  //  func("avi pause : %s",(paused)?"on":"off");
 }
 
 bool AviLayer::keypress(SDL_keysym *keysym) {

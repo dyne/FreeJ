@@ -221,7 +221,14 @@ bool KbdListener::_layer_op(SDL_keysym *keysym) {
   case SDLK_0:
     screen->clear_all = !screen->clear_all;
     return true;
-    
+
+  case SDLK_BACKSPACE:
+    if(keysym->mod & KMOD_SHIFT) /* go to white */
+      layer->bgcolor = 1;
+    else if(keysym->mod & KMOD_CTRL) /* go to black */
+      layer->bgcolor = 2;
+    else layer->bgcolor = 0; /* back to layer feed */
+    break;
   default: break;
   }
 

@@ -42,13 +42,14 @@ class Layer: public Entry, public JSyncThread {
   uint32_t *scr, *pscr, *off, *poff;
   Uint8 *alpha;
 
-
+  
   void *offset;
+  void *bgmatte;
 
  public:
 
   Layer();
-  ~Layer() { };
+  ~Layer();
 
   void run();
   void _init(Context *screen, int wdt, int hgt, int bpp=0);
@@ -90,11 +91,11 @@ class Layer: public Entry, public JSyncThread {
   ScreenGeometry geo;
 
   bool alpha_blit;
-  bool paused;
   bool active;
   bool quit;
   bool running;
   bool hidden;
+  int bgcolor;
 
  protected:
   void *buffer;
