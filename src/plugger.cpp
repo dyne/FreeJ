@@ -24,6 +24,15 @@ Plugger::~Plugger() {
   _delete();
 }
 
+Filter *Plugger::pick(char *name) {
+  for(int c=0;c<MAX_PLUGINS;c++)
+    if(plugs[c]) {
+      if( strcasecmp( plugs[c]->getname() , name ) ==0 )
+	return plugs[c];
+    } else break;
+  return(NULL);
+}
+
 int selector(const struct dirent *dir) {
   //  if(strstr(dir->d_name,".")) return(1);
   if(dir->d_name[0]=='.') return(0);

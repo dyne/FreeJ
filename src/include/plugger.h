@@ -30,6 +30,8 @@ class Plugger {
  public:
   Plugger();
   ~Plugger();
+  
+  Filter *pick(char *name);
   /* reads thru configured paths and updates plugin list */
   int refresh();
   void close() { _delete(); };

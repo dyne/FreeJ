@@ -146,6 +146,7 @@ filters/backlight/Makefile
 filters/blur/Makefile
 filters/ripple/Makefile
 filters/water/Makefile
+filters/cartoon/Makefile
 ])
 
 echo
