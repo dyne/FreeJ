@@ -51,6 +51,7 @@ static int readfile(char *filename, char **buffer, long *size) {
   length = ftell(in);
   rewind(in);
   buf = (char*)malloc(length);
+  act("readFile allocated %u bytes",length);
   fread(buf,length,1,in);
   fclose(in);
   
@@ -67,7 +68,7 @@ static void getSwf(char *url, int level, void *client_data) {
   func("FlashLayer : getSwf called on url %s level %i",url,level);
 	
   flashHandle = (FlashHandle) client_data;
-  act("LoadMovie: %s @ %d\n", url, level);
+
   if(readfile(url, &buffer, &size) > 0) {
     FlashParse(flashHandle, level, buffer, size);
   }
@@ -123,6 +124,7 @@ bool FlashLayer::init(Context *scr) {
   
   FlashSetGetSwfMethod(fh, getSwf, (void*)fh);
 
+
   return true;
 }
 
@@ -131,7 +133,8 @@ bool FlashLayer::open(char *file){
   long size;
   int status;
 
-  readfile(file,&buffer,&size);
+  if(!readfile(file,&buffer,&size))
+    return false;
   
   // Load level 0 movie
   do {
@@ -143,6 +146,7 @@ bool FlashLayer::open(char *file){
   FlashGetInfo(fh, &fi);
   
   FlashSettings(fh, PLAYER_LOOP);
+
   
   set_filename(file);
 

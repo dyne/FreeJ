@@ -23,10 +23,15 @@
 #define __BLITTER_H__
 
 #include <SDL.h>
+#include <freej.h>
 #include <linklist.h>
 #include <screen.h>
 
 typedef void (blit_f)(void *src, void *dst, int len, void *value);
+
+typedef void (blit_sdl_f)(void *src, SDL_Rect *src_rect,
+			  SDL_Surface *dst, SDL_Rect *dst_rect,
+			  ScreenGeometry *geo, void *value);
 
 class Layer;
 
@@ -42,17 +47,18 @@ class Blit: public Entry {
   uint32_t value;    ///< parameter value
   short kernel[256]; ///< convolution kernel
   
-  blit_f *fun; ///< pointer to blit function
+  blit_f *fun; ///< pointer to linear blit function
+  blit_sdl_f *sdl_fun; ///< pointer to sdl blit function
 
 #define LINEAR_BLIT 1
 #define SDL_BLIT 2
-#define PLANAR_BLIT 3
-  int type; ///< LINEAR|PLANAR|SDL_BLIT type
+  int type; ///< LINEAR|SDL_BLIT type
 
   char *get_name() { return name; };
 
 
  private:
+  // parameters for linear blit crop
   int32_t blit_x;
   int32_t blit_y;
   uint32_t blit_width;
@@ -60,9 +66,11 @@ class Blit: public Entry {
   uint32_t blit_pitch;
   uint32_t blit_offset;
   uint32_t *blit_coords;
+
+  // sdl blit crop rectangle
   SDL_Rect sdl_rect;
-  SDL_Surface *sdl_surface;
-  /* small vars used in blits? */
+
+  /* small vars used in blits */
   int chan, c, cc;
   uint32_t *scr, *pscr, *off, *poff;
 
@@ -107,6 +115,8 @@ class Blitter {
   int16_t old_y;
   uint16_t old_w;
   uint16_t old_h;
+
+  SDL_Surface *sdl_dest;
 };
 
 #endif

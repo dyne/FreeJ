@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001 - 2004 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -48,6 +48,7 @@ Context::Context() {
   magnification = 0;
   changeres = false;
   clear_all = false;
+  start_running = true;
   quit = false;
   pause = false;
 
@@ -125,7 +126,7 @@ void Context::cafudda(unsigned int secs) {
     if(kbd.active) kbd.run();
 
     /** start layers thread */
-    rocknroll(true);
+    rocknroll();
     
 
     /** clear screen before each iteration */
@@ -210,8 +211,10 @@ void Context::calc_fps() {
   }
 
   if(elapsed<=min_interval) {
-    /* usleep( min_interval - elapsed ); this is not POSIX, arg */
+
     slp_time.tv_sec = 0;
+    // the following calculus is approximated to bitwise multiplication
+    // this wont really hurt our precision, anyway we care more about speed
     slp_time.tv_nsec = (min_interval - elapsed)<<10;
     nanosleep(&slp_time,NULL);
 
@@ -227,7 +230,7 @@ void Context::calc_fps() {
 
 }
 
-void Context::rocknroll(bool state) {
+void Context::rocknroll() {
 
   Layer *l = (Layer *)layers.begin();
 
@@ -239,7 +242,7 @@ void Context::rocknroll(bool state) {
       l->start();
       //    l->signal_feed();
       while(!l->running) jsleep(0,500);
-      l->active = state;
+      l->active = start_running;
     }
     l = (Layer *)l->next;
   }

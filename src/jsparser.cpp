@@ -747,7 +747,6 @@ JS(txt_layer_blink) {
     } else lay->blinking=false;
   } else {
     // fetch argument and switch blinking
-    bool blink;
     lay->blinking = (bool)JSVAL_TO_INT(argv[0]);
     lay->clear_screen = true;
   }

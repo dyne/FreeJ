@@ -37,22 +37,28 @@
 
 
 TxtLayer::TxtLayer()
-     :Layer() {
-	  buf = NULL;
-	  set_name("TXT");
-	  change_word=true;
-	  clear_screen=false;
-	  onscreen=false;
-	  blinking=false;
-	  offscreen_blink = onscreen_blink = SPEED;
-	  blink = 0;
-	  text_dimension=50;
-	  glyph_current=NULL;
-	  num_fonts=0;
-	  sel_font=0;
-	  x=0;
-	  y=0;
-     }
+  :Layer() {
+  buf = NULL;
+  set_name("TXT");
+  change_word=true;
+  clear_screen=false;
+  interactive_input=false;
+  onscreen=false;
+  blinking=false;
+  offscreen_blink = onscreen_blink = SPEED;
+  blink = 0;
+  text_dimension=50;
+  glyph_current=NULL;
+  num_fonts=0;
+  sel_font=0;
+  x=0;
+  y=0;
+
+  int fontnum = 0;
+  fontnum += scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
+  fontnum += scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
+  act("TxtLayer fonts %i",fontnum);
+}
 
 TxtLayer::~TxtLayer() {
      close();
@@ -110,8 +116,6 @@ bool TxtLayer::init(Context *scr) {
 	  return(false);
      }
 
-     scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
-     scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
 
      /* Create face object */
      if(FT_New_Face( library, fonts[sel_font], 0, &face ))  {
@@ -149,19 +153,121 @@ bool TxtLayer::print(char *s) {
 
   strncpy(word,s,len);
   word_len = len;
-
-  clear_screen = false;
-  change_word = true;
+  
+  interactive_input = true;
+  clear_screen = true;
+  change_word = false;
   func("TxtLayer::print : %s",word);
   return true;
 }
+
+void TxtLayer::render() {
+  int ret;
+  int origin_x=0;
+  int origin_y=0;
+  int previous=0;
+  int string_width,string_height;
+
+  glyph_current=glyphs;
   
+  /*  Convert the character string into a series of glyph indices. */
+  for ( int n = 0; n < word_len; n++ ) {
+    glyph_current->glyph_index = FT_Get_Char_Index( face, word[n] );
+    if ( use_kerning && previous && glyph_current->glyph_index ) {
+      FT_Vector kerning_vector;
+      FT_Get_Kerning( face, previous, glyph_current->glyph_index, ft_kerning_unfitted, &kerning_vector );
+      /*  Place the pen to the cursor position. */
+      origin_x += kerning_vector.x;
+      origin_y = 0;
+    }
+    /* store current pen position */
+    glyph_current->baseline_position.x = origin_x;
+    glyph_current->baseline_position.y = origin_y;
+    
+    /* load the glyph image (in its native format); */
+    ret = FT_Load_Glyph( face, glyph_current->glyph_index, FT_LOAD_DEFAULT );
+    if (ret) continue; // ignore errors, jump to next glyph */
+    
+    /* extract glyph image and store it in our table */
+    ret = FT_Get_Glyph( face->glyph, &glyph_current->image );
+    if (ret) continue;
+    
+    /* increment pen position */
+    origin_x += face->glyph->advance.x <<2;
+    
+    /* record current glyph index in previous (4 kerning) */
+    previous = glyph_current->glyph_index;
+    
+    /* increment the current pointer*/
+    glyph_current++;
+  }
+  /* count number of glyphs loaded.. */
+  num_glyphs = glyph_current - glyphs;
+  
+  /* get bbox of original glyph sequence */
+  
+  FT_BBox string_bbox;
+  compute_string_bbox( &string_bbox, glyph_current->image);
+  
+  /* compute string dimensions in integer pixels */
+  string_width  = (string_bbox.xMax - string_bbox.xMin)<<6;
+  string_height = (string_bbox.yMax - string_bbox.yMin)<<6;
+  
+  /* set up position in 26.6 cartesian space */
+  
+  FT_Vector vector;
+  vector.x = (x<<6)-(( origin_x /2) & -64);
+  vector.y = (geo.h-y)<<6;
+  
+  
+  /* set up transform (a rotation here) */
+  //	  matrix.xx = (FT_Fixed)( cos(angle)*0x10000L);
+  //	  matrix.xy = (FT_Fixed)(-sin(angle)*0x10000L);
+  //	  matrix.yx = (FT_Fixed)( sin(angle)*0x10000L);
+  //	  matrix.yy = (FT_Fixed)( cos(angle)*0x10000L);
+  
+  for ( unsigned int m = 0; m < num_glyphs; m++ )
+    {
+      FT_Glyph  image;
+      FT_BBox   bbox;
+      FT_Vector translate_vector;
+      
+      translate_vector=glyphs[m].baseline_position;
+      translate_vector.x+=vector.x;
+      translate_vector.y+=vector.y;
+      
+      /* create a copy of the original glyph */
+      ret = FT_Glyph_Copy( glyphs[m].image, &image );
+      if (ret)  {
+	error("TxtLayer::FT_Glyph_Copy()");
+	continue;
+      }
+      /* transform copy (this will also translate it to the correct position */
+      FT_Glyph_Transform( image, 0, &translate_vector );
+      
+      /* check bounding box, if the transformed glyph image 
+       * is not in our target surface, we can avoid rendering it 
+       */
+      FT_Glyph_Get_CBox( image, ft_glyph_bbox_pixels, &bbox );
+      if ( bbox.xMax <= 0
+	   || bbox.xMin >= (geo.w<<2)
+	   || bbox.yMax <= 0
+	   || bbox.yMin >= (geo.h<<2) ) {
+	func("TxtLayer::glyph out of the box");
+	continue;
+      }
+      /* convert glyph image to bitmap (destroy the glyph) */
+      ret = FT_Glyph_To_Bitmap( &image, ft_render_mode_normal, 0, 1);
+      //	       ret = FT_Glyph_To_Bitmap( &image,FT_RENDER_MODE_LCD, 0, 1);
+      if (!ret) {
+	FT_BitmapGlyph  bit = (FT_BitmapGlyph)image;
+	draw_character( bit, bit->left,bit->top,(uint8_t *)buf);
+	FT_Done_Glyph( image );
+      }
+    }
+}
+
 void *TxtLayer::feed() {
-     int ret;
-     int origin_x=0;
-     int origin_y=0;
-     int previous=0;
-     int string_width,string_height;
      //     int angle=30;
 
      /* clear_screen switch serves to confirm that the screen
@@ -171,115 +277,27 @@ void *TxtLayer::feed() {
      */
 
 
-     /* One word  main loop, one word each iteration*/
-     if(!clear_screen &&change_word) {
-	  glyph_current=glyphs;
-	  word_len = word_ff(1);
+     if(clear_screen) {
 
-	  /*  Convert the character string into a series of glyph indices. */
-	  for ( int n = 0; n < word_len; n++ ) {
-	       glyph_current->glyph_index = FT_Get_Char_Index( face, word[n] );
-	       if ( use_kerning && previous && glyph_current->glyph_index ) {
-		    FT_Vector kerning_vector;
-		    FT_Get_Kerning( face, previous, glyph_current->glyph_index, ft_kerning_unfitted, &kerning_vector );
-		    /*  Place the pen to the cursor position. */
-		    origin_x += kerning_vector.x;
-		    origin_y = 0;
-	       }
-	       /* store current pen position */
-	       glyph_current->baseline_position.x = origin_x;
-	       glyph_current->baseline_position.y = origin_y;
-
-	       /* load the glyph image (in its native format); */
-	       ret = FT_Load_Glyph( face, glyph_current->glyph_index, FT_LOAD_DEFAULT );
-	       if (ret) continue; // ignore errors, jump to next glyph */
-
-	       /* extract glyph image and store it in our table */
-	       ret = FT_Get_Glyph( face->glyph, &glyph_current->image );
-	       if (ret) continue;
-
-	       /* increment pen position */
-	       origin_x += face->glyph->advance.x <<2;
-
-	       /* record current glyph index in previous (4 kerning) */
-	       previous = glyph_current->glyph_index;
-
-	       /* increment the current pointer*/
-	       glyph_current++;
-	  }
-	  /* count number of glyphs loaded.. */
-	  num_glyphs = glyph_current - glyphs;
-
-	  /* get bbox of original glyph sequence */
-
-	  FT_BBox string_bbox;
-	  compute_string_bbox( &string_bbox, glyph_current->image);
-
-	  /* compute string dimensions in integer pixels */
-	  string_width  = (string_bbox.xMax - string_bbox.xMin)<<6;
-	  string_height = (string_bbox.yMax - string_bbox.yMin)<<6;
-
-	  /* set up position in 26.6 cartesian space */
-
-	  FT_Vector vector;
-	  vector.x = (x<<6)-(( origin_x /2) & -64);
-	  vector.y = (geo.h-y)<<6;
-
-
-	  /* set up transform (a rotation here) */
-	  //	  matrix.xx = (FT_Fixed)( cos(angle)*0x10000L);
-	  //	  matrix.xy = (FT_Fixed)(-sin(angle)*0x10000L);
-	  //	  matrix.yx = (FT_Fixed)( sin(angle)*0x10000L);
-	  //	  matrix.yy = (FT_Fixed)( cos(angle)*0x10000L);
-
-	  for ( unsigned int m = 0; m < num_glyphs; m++ )
-	  {
-	       FT_Glyph  image;
-	       FT_BBox   bbox;
-	       FT_Vector translate_vector;
-
-	       translate_vector=glyphs[m].baseline_position;
-	       translate_vector.x+=vector.x;
-	       translate_vector.y+=vector.y;
-
-	       /* create a copy of the original glyph */
-	       ret = FT_Glyph_Copy( glyphs[m].image, &image );
-	       if (ret)  {
-		    error("TxtLayer::FT_Glyph_Copy()");
-		    continue;
-	       }
-	       /* transform copy (this will also translate it to the correct position */
-	       FT_Glyph_Transform( image, 0, &translate_vector );
-
-	       /* check bounding box, if the transformed glyph image 
-		* is not in our target surface, we can avoid rendering it 
-		*/
-	       FT_Glyph_Get_CBox( image, ft_glyph_bbox_pixels, &bbox );
-	       if ( bbox.xMax <= 0
-		    || bbox.xMin >= (geo.w<<2)
-		    || bbox.yMax <= 0
-		    || bbox.yMin >= (geo.h<<2) ) {
-		 func("TxtLayer::glyph out of the box");
-		    continue;
-	       }
-	       /* convert glyph image to bitmap (destroy the glyph) */
-	       ret = FT_Glyph_To_Bitmap( &image, ft_render_mode_normal, 0, 1);
-//	       ret = FT_Glyph_To_Bitmap( &image,FT_RENDER_MODE_LCD, 0, 1);
-	       if (!ret) {
-		    FT_BitmapGlyph  bit = (FT_BitmapGlyph)image;
-		    draw_character( bit, bit->left,bit->top,(uint8_t *)buf);
-		    FT_Done_Glyph( image );
-	       }
-	  }
-	  change_word=false;
-	  onscreen=true;
-     }
-     /* now guess */
-     else if(clear_screen) {
-       memset(buf,0,geo.size);
+       jmemset(buf,0,geo.size);
        clear_screen = false; 
        onscreen = false;
-     }
+
+     } else if(interactive_input) {
+
+       render();
+       interactive_input=false;
+       onscreen=true;
+
+     } else if(change_word) {
+      
+       word_len = word_ff(1);       
+       render();
+       change_word=false;
+       onscreen=true;
+
+     }       
+
 
      if(blinking) {
        blink++;

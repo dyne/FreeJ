@@ -50,19 +50,23 @@ static uint32_t amask = 0xff000000;
 static uint8_t achan = 0;
 #endif
 
+// blit functions prototype
+#define BLIT static inline void
+
+
 /* blit functions, prototype is:
    void (*blit_f)(void *src, void *dst, int bytes) */
 
-static inline void memcpy_blit(void *src, void *dst, int bytes, void *value) {
+BLIT memcpy_blit(void *src, void *dst, int bytes, void *value) {
   memcpy(dst,src,bytes);
 }
 
 
-static inline void accel_memcpy_blit(void *src, void *dst, int bytes, void *value) {
+BLIT accel_memcpy_blit(void *src, void *dst, int bytes, void *value) {
   jmemcpy(dst,src,bytes);
 }
 
-static inline void red_channel(void *src, void *dst, int bytes, void *value) {
+BLIT red_channel(void *src, void *dst, int bytes, void *value) {
   register int c;
   register uint8_t *s = (uint8_t*)src;
   register uint8_t *d = (uint8_t*)dst;
@@ -70,7 +74,7 @@ static inline void red_channel(void *src, void *dst, int bytes, void *value) {
     *(d+rchan) = *(s+rchan);
 }
 
-static inline void green_channel(void *src, void *dst, int bytes, void *value) {
+BLIT green_channel(void *src, void *dst, int bytes, void *value) {
   register int c;
   register uint8_t *s = (uint8_t*)src;
   register uint8_t *d = (uint8_t*)dst;
@@ -78,7 +82,7 @@ static inline void green_channel(void *src, void *dst, int bytes, void *value) {
     *(d+gchan) = *(s+gchan);
 }
 
-static inline void blue_channel(void *src, void *dst, int bytes, void *value) {
+BLIT blue_channel(void *src, void *dst, int bytes, void *value) {
   register int c;
   register uint8_t *s = (uint8_t*)src;
   register uint8_t *d = (uint8_t*)dst;
@@ -86,47 +90,47 @@ static inline void blue_channel(void *src, void *dst, int bytes, void *value) {
     *(d+bchan) = *(s+bchan);
 }
 
-static inline void schiffler_add(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_add(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterAdd((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_sub(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_sub(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterSub((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_mean(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_mean(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterMean((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_absdiff(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_absdiff(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterAbsDiff((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_mult(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_mult(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterMult((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_multnor(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_multnor(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterMultNor((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_div(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_div(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterDiv((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_multdiv2(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_multdiv2(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterMultDivby2((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_multdiv4(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_multdiv4(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterMultDivby2((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_and(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_and(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBitAnd((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_or(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_or(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBitOr((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
@@ -134,45 +138,112 @@ static inline void schiffler_or(void *src, void *dst, int bytes, void *value) {
    all the following blits can be considered effects
    they completely overwrite the underlying image */
 
-static inline void schiffler_neg(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_neg(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBitNegation((unsigned char*)src,(unsigned char*)dst,bytes);
 }
 
-static inline void schiffler_addbyte(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_addbyte(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterAddByte((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
 }
 
-static inline void schiffler_addbytetohalf(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_addbytetohalf(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterAddByteToHalf((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
 }
 
-static inline void schiffler_subbyte(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_subbyte(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterSubByte((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
 }
 
-static inline void schiffler_shl(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_shl(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterShiftLeft((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
 }
 
-static inline void schiffler_shlb(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_shlb(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterShiftLeftByte((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
 }
 
-static inline void schiffler_shr(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_shr(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterShiftRight((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
 }
 
-static inline void schiffler_mulbyte(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_mulbyte(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterMultByByte((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
 }
 
-static inline void schiffler_binarize(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_binarize(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBinarizeUsingThreshold
     ((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
 }
 
+///////////////////////////////////////////////////////////////////
+// SDL BLITS
+//
+// TODO: more SDL blits playing with color masks
 
+// temporary surface used in SDL blits
+static SDL_Surface *sdl_surf;
 
+BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
+	     SDL_Surface *dst, SDL_Rect *dst_rect,
+	     ScreenGeometry *geo, void *value) {
+  
+  sdl_surf = SDL_CreateRGBSurfaceFrom
+    (src, geo->w, geo->h, geo->bpp,
+     geo->pitch, bmask, gmask, rmask, 0x0);
+  
+  SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
+  
+  SDL_FreeSurface( sdl_surf );
+
+}
+
+BLIT sdl_alpha(void *src, SDL_Rect *src_rect,
+	       SDL_Surface *dst, SDL_Rect *dst_rect,
+	       ScreenGeometry *geo, void *value) {
+
+  sdl_surf = SDL_CreateRGBSurfaceFrom
+    (src, geo->w, geo->h, geo->bpp,
+     geo->pitch, bmask, gmask, rmask, 0x0);
+
+  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, *(unsigned int*)value );  
+
+  SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
+  
+  SDL_FreeSurface( sdl_surf );
+  
+}
+
+BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
+		  SDL_Surface *dst, SDL_Rect *dst_rect,
+		  ScreenGeometry *geo, void *value) {
+
+  sdl_surf = SDL_CreateRGBSurfaceFrom
+    (src, geo->w, geo->h, geo->bpp,
+     geo->pitch, bmask, gmask, rmask, amask);
+
+  //  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, *(unsigned int*)value );  
+
+  SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
+  
+  SDL_FreeSurface( sdl_surf );
+  
+}
+
+BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
+		   SDL_Surface *dst, SDL_Rect *dst_rect,
+		   ScreenGeometry *geo, void *value) {
+
+  sdl_surf = SDL_CreateRGBSurfaceFrom
+    (src, geo->w, geo->h, geo->bpp,
+     geo->pitch, bmask, gmask, rmask, 0x0);
+
+  SDL_SetColorKey( sdl_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, *(uint32_t*)value);
+
+  SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
+  
+  SDL_FreeSurface( sdl_surf );
+
+}
 
 Blit::Blit() :Entry() {
   sprintf(desc,"none");
@@ -185,35 +256,20 @@ Blit::Blit() :Entry() {
 Blit::~Blit() { }
 
 Blitter::Blitter() {
+  Blit *b;
+
   x_scale = 0.0;
   y_scale = 0.0;
   rotation = 0.0;
 
-  /* the default blit that should always be present */
-  Blit *b = new Blit(); sprintf(b->get_name(),"MEMCPY");
+  /* fill up linklist of blits */
+
+  // default blit is MEMCPY
+  b = new Blit(); sprintf(b->get_name(),"MEMCPY");
   sprintf(b->desc,"vanilla glibc memcpy");
   b->type = LINEAR_BLIT;
   b->fun = memcpy_blit; blitlist.append(b);
   current_blit = b; b->sel(true);
-
-}
-
-Blitter::~Blitter() {
-  Blit *tmp;
-  Blit *b = (Blit*)blitlist.begin();
-  while(b) {
-    tmp = (Blit*)b->next;
-    delete b;
-    b = tmp;
-  }
-}
-
-bool Blitter::init(Layer *lay) {
-  layer = lay;
-  func("blitter initialized for layer %s",lay->get_name());
-
-  /* fill up linklist of blits */
-  Blit *b;
 
   b = new Blit(); b->set_name("AMEMCPY");
   sprintf(b->desc,"cpu accelerated memcpy");
@@ -335,100 +391,95 @@ bool Blitter::init(Layer *lay) {
   b->type = LINEAR_BLIT;
   b->fun = schiffler_binarize; blitlist.append(b);
 
-
   // SDL blits
-  b = new Blit(); b->set_name("ALPHA");
-  sprintf(b->desc,"SDL alpha blit (hardware accelerated)");
+  b = new Blit(); b->set_name("SDLCPY");
+  sprintf(b->desc,"RGB blit (SDL)");
   b->type = SDL_BLIT;
-  b->fun = NULL; blitlist.append(b);
+  b->sdl_fun = sdl_rgb; blitlist.append(b);
 
-  // SET DEFAULT
-  set_blit("amemcpy");
+  b = new Blit(); b->set_name("ALPHA");
+  sprintf(b->desc,"alpha blit (SDL)");
+  b->type = SDL_BLIT;
+  b->sdl_fun = sdl_alpha; blitlist.append(b);
 
-  crop( NULL );
+  b = new Blit(); b->set_name("SRCALPHA");
+  sprintf(b->desc,"source alpha blit (SDL)");
+  b->type = SDL_BLIT;
+  b->sdl_fun = sdl_srcalpha; blitlist.append(b);
+  
+  b = new Blit(); b->set_name("CHROMAKEY");
+  sprintf(b->desc,"chromakey blit (SDL)");
+  b->type = SDL_BLIT;
+  b->sdl_fun = sdl_chromakey; blitlist.append(b);
+  
+}
+
+Blitter::~Blitter() {
+  Blit *tmp;
+  Blit *b = (Blit*)blitlist.begin();
+  while(b) {
+    tmp = (Blit*)b->next;
+    delete b;
+    b = tmp;
+  }
+}
+
+bool Blitter::init(Layer *lay) {
+  layer = lay;
+  func("blitter initialized for layer %s",lay->get_name());
+
+  crop( lay->freej->screen );
 
   return true;
 }
 
 void Blitter::blit() {
-    int c;
+  int c;
+  
+  /* compare old layer values
+     crop the layer if necessary */
+  if( layer->geo.x != old_x 
+      || layer->geo.y != old_y
+      || layer->geo.w != old_w
+      || layer->geo.h != old_h )
+    crop( NULL );
+  
+  // executes LINEAR blits
+  if( current_blit->type == LINEAR_BLIT ) {
 
-    /* compare old layer values
-       crop the layer if necessary */
-    if( layer->geo.x != old_x 
-	    || layer->geo.y != old_y
-	    || layer->geo.w != old_w
-	    || layer->geo.h != old_h )
-	crop( NULL );
-
-    // executes LINEAR blits
-    if( current_blit->type == LINEAR_BLIT ) {
-
-	current_blit->scr = current_blit->pscr = 
-	    (uint32_t*)current_blit->blit_coords;
-	current_blit->off = current_blit->poff =
-	    (uint32_t*)layer->offset + current_blit->blit_offset;
-
-	for(c = current_blit->blit_height; c>0; c--) {
-
-	    (*current_blit->fun)
-		((void*)current_blit->off,
-		 (void*)current_blit->scr,
-		 current_blit->blit_pitch,
-		 (void*)&current_blit->value);
-
-
-	    current_blit->off = current_blit->poff =
-	      //	      current_blit->poff + layer->geo.pitch;
-	      current_blit->poff + layer->geo.w;
-	    current_blit->scr = current_blit->pscr = 
-	      //		current_blit->pscr + layer->freej->screen->pitch;
-	      current_blit->pscr + layer->freej->screen->w;
-	}
-
-	// executes SDL blit
-    } else if (current_blit->type ==  SDL_BLIT) {
+    // setup crop variables
+    current_blit->scr = current_blit->pscr = 
+      (uint32_t*)current_blit->blit_coords;
+    current_blit->off = current_blit->poff =
+      (uint32_t*)layer->offset + current_blit->blit_offset;
+    
+    // iterates the blit on each horizontal line
+    for(c = current_blit->blit_height; c>0; c--) {
       
-      current_blit->sdl_surface = 
-	SDL_CreateRGBSurfaceFrom
-	(layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
-	 layer->geo.pitch, bmask, gmask, rmask, amask);
+      (*current_blit->fun)
+	((void*)current_blit->off,
+	 (void*)current_blit->scr,
+	 current_blit->blit_pitch,
+	 (void*)&current_blit->value);
       
-      if(current_blit->value <=0xff) { // is there transparency?
-	    if(layer->has_colorkey) {
-
-		/** is rle really faster? */
-//		SDL_SetColorKey(current_blit->sdl_surface, SDL_SRCCOLORKEY ,
-		SDL_SetColorKey(current_blit->sdl_surface, SDL_SRCCOLORKEY | SDL_RLEACCEL,
-			SDL_MapRGB(current_blit->sdl_surface->format,
-				   layer->colorkey_r,
-				   layer->colorkey_g,
-				   layer->colorkey_b));
-	    }
-
-	    if(current_blit->value < 255) {
-	      SDL_SetAlpha(current_blit->sdl_surface,
-			   SDL_SRCALPHA | SDL_RLEACCEL,
-			   current_blit->value);
-	    }
-	    else {
-		SDL_SetAlpha(current_blit->sdl_surface,SDL_RLEACCEL, 0);
-	    }
-
-	    SDL_Surface *colorkey_surface = SDL_DisplayFormat(current_blit->sdl_surface);
-	    SDL_BlitSurface(colorkey_surface,
-			    &current_blit->sdl_rect,
-			    ((SdlScreen*)layer->freej->screen)->surface,NULL);
-	    SDL_FreeSurface(colorkey_surface);
-	} else { // blit value > 0xff
-	  SDL_BlitSurface(current_blit->sdl_surface,
-			  &current_blit->sdl_rect,
-			  ((SdlScreen*)layer->freej->screen)->surface,NULL);
-	}
-
-	SDL_FreeSurface(current_blit->sdl_surface);
-
+      
+      // strides down to the next line
+      current_blit->off = current_blit->poff =
+	current_blit->poff + layer->geo.w;
+      current_blit->scr = current_blit->pscr = 
+	current_blit->pscr + layer->freej->screen->w;
     }
+    
+    // executes SDL blit
+  } else if (current_blit->type == SDL_BLIT) {
+    
+    (*current_blit->sdl_fun)
+      (layer->offset, &current_blit->sdl_rect,
+       ((SdlScreen*)layer->freej->screen)->surface, NULL,
+       &layer->geo, (void*)&current_blit->value);
+
+  }
+
 }
 
 
@@ -445,9 +496,9 @@ bool Blitter::set_blit(char *name) {
   current_blit = b;
   blitlist.sel(0);
   b->sel(true);
-  crop(NULL);
+  if(layer) crop(NULL);
   act("blit %s selected for layer %s",
-      b->get_name(),layer->get_name());
+      b->get_name(),(layer)?layer->get_name():" ");
   return true;
 }
 
@@ -456,7 +507,7 @@ bool Blitter::set_value(int val) {
 
   /* setup an iterator to gradually change the value */
   iter = new Iterator((int16_t*)&current_blit->value);
-  iter->set_step(2);
+  iter->set_step(1);
   iter->set_aim(val);
   layer->iterators.add(iter);
 
@@ -467,19 +518,27 @@ bool Blitter::set_value(int val) {
 }
 
 bool Blitter::set_colorkey(int colorkey_x,int colorkey_y) {
+
+    Blit *b = (Blit*)blitlist.search("CHROMAKEY");
+    if(!b) {
+      error("can't find chromakey blit");
+      return false;
+    }
+
     uint8_t *colorkey=(uint8_t *)layer->offset + (colorkey_x<<2) + (colorkey_y * layer->geo.pitch);
 	    
     uint8_t colorkey_r = *(colorkey + rchan);
     uint8_t colorkey_g = *(colorkey + gchan);
     uint8_t colorkey_b = *(colorkey + bchan);
 
-    layer->colorkey_r=colorkey_r;
-    layer->colorkey_g=colorkey_g;
-    layer->colorkey_b=colorkey_b;
 
+    b->value = (colorkey_r)|((uint32_t)colorkey_g<<8)|((uint32_t)colorkey_b<<16);
+
+      
     layer->has_colorkey=true;
 
-    notice("Now alpha Colorkey has value: %u %u %u\n",colorkey_r,colorkey_g,colorkey_b);
+    notice("Chromakey value: r%x g%x b%x #%x\n",
+	   colorkey_r,colorkey_g,colorkey_b,b->value);
     return true;
 }
 

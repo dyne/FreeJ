@@ -75,7 +75,7 @@ class Context {
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return screen->coords(x,y); };
 
-  void rocknroll(bool state);
+  void rocknroll();
 
   void magnify(int algo);
   int magnification;
@@ -115,7 +115,7 @@ class Context {
   int fps_speed;
 
   bool clear_all;
-
+  bool start_running;
 
 };
 

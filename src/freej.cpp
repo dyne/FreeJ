@@ -234,6 +234,8 @@ int main (int argc, char **argv) {
   /* initialize the On Screen Display */
   freej.osd.init( &freej );
 
+  freej.start_running = startstate;
+
   /* create layers requested on commandline */
   {
     char *l, *p, *pp = layer_files;

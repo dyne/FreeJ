@@ -91,6 +91,8 @@ class TxtLayer: public Layer {
   int num_fonts;
   int sel_font;
 
+  void render();
+
 public:
   TxtLayer();
   ~TxtLayer();
@@ -116,6 +118,7 @@ public:
 
   bool change_word;
   bool clear_screen;
+  bool interactive_input;
   bool onscreen;
   bool blinking;
   bool use_kerning;
