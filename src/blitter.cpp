@@ -131,14 +131,6 @@ BLIT schiffler_or(void *src, void *dst, int bytes, void *value) {
 
 /// Linear non-transparent blits
 
-BLIT memcpy_blit(void *src, void *dst, int bytes, void *value) {
-  memcpy(dst,src,bytes);
-}
-
-BLIT accel_memcpy_blit(void *src, void *dst, int bytes, void *value) {
-  jmemcpy(dst,src,bytes);
-}
-
 BLIT schiffler_neg(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBitNegation((unsigned char*)src,(unsigned char*)dst,bytes);
 }
@@ -292,17 +284,13 @@ Blitter::Blitter() {
 
   /* fill up linklist of blits */
 
-  // default blit is MEMCPY
-  b = new Blit(); sprintf(b->get_name(),"MEMCPY");
-  sprintf(b->desc,"vanilla glibc memcpy");
-  b->type = LINEAR_BLIT;
-  b->fun = memcpy_blit; blitlist.append(b);
+  // default blit is SDLCPY
+  b = new Blit(); b->set_name("SDLCPY");
+  sprintf(b->desc,"RGB blit (SDL)");
+  b->type = SDL_BLIT;
+  b->sdl_fun = sdl_rgb; blitlist.append(b);
   current_blit = b; b->sel(true);
 
-  b = new Blit(); b->set_name("AMEMCPY");
-  sprintf(b->desc,"cpu accelerated memcpy");
-  b->type = LINEAR_BLIT;
-  b->fun = accel_memcpy_blit; blitlist.append(b);
 
   b = new Blit(); b->set_name("ADD");
   sprintf(b->desc,"bytewise addition");
@@ -420,11 +408,6 @@ Blitter::Blitter() {
   b->fun = schiffler_binarize; blitlist.append(b);
 
   // SDL blits
-  b = new Blit(); b->set_name("SDLCPY");
-  sprintf(b->desc,"RGB blit (SDL)");
-  b->type = SDL_BLIT;
-  b->sdl_fun = sdl_rgb; blitlist.append(b);
-
   b = new Blit(); b->set_name("ALPHA");
   sprintf(b->desc,"alpha blit (SDL)");
   b->type = SDL_BLIT; b->has_value = true;

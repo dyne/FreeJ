@@ -58,8 +58,10 @@ SdlScreen::~SdlScreen() {
 }
 
 bool SdlScreen::init(int width, int height) {
+  char temp[120];
+ 
   /* initialize SDL */
-
+  
   setenv("SDL_VIDEO_HWACCEL", "1", 1);  
 
   if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0 ) {
@@ -75,11 +77,12 @@ bool SdlScreen::init(int width, int height) {
   bpp = 32;
   size = w*h*(bpp>>3);
   pitch = w*(bpp>>3);
+  SDL_VideoDriverName(temp,120);
 
-  notice("SDL Viewport is %ix%i %ibpp",w,h,screen->format->BytesPerPixel<<3);
+  notice("SDL Viewport is %s %ix%i %ibpp",
+	 temp,w,h,screen->format->BytesPerPixel<<3);
 
   /* be nice with the window manager */
-  char temp[120];
   sprintf(temp,"%s %s",PACKAGE,VERSION);
   SDL_WM_SetCaption (temp, temp);
 
