@@ -84,6 +84,7 @@ bool VideoLayer::init(Context *scr) {
     paused=false;
     user_play_speed=0;
     deinterlace_buffer=NULL;
+    deinterlaced=false;
 
     mark_in=NO_MARK;
     mark_out=NO_MARK;
@@ -546,12 +547,11 @@ void VideoLayer::deinterlace(AVPicture *picture) {
     int size;
     AVPicture *picture2;
     AVPicture picture_tmp;
-    deinterlace_buffer = 0;
-
 
     /* create temporary picture */
     size = avpicture_get_size(enc->pix_fmt, enc->width, enc->height);
-    deinterlace_buffer = (uint8_t *)av_malloc(size);
+    if(deinterlace_buffer==NULL)
+	deinterlace_buffer = (uint8_t *)av_malloc(size);
     if (!deinterlace_buffer)
 	return ;
 
