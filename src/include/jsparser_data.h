@@ -94,8 +94,8 @@ JS(layer_get_filename);
 //JS( layer_get_geometry);
 JS(layer_set_blit);
 JS(layer_get_blit);
-JS(layer_set_alpha);
-JS(layer_get_alpha);
+JS(layer_set_blit_value);
+JS(layer_get_blit_value);
 JS(layer_set_position);
 JS(layer_get_x_position);
 JS(layer_get_y_position);
@@ -115,11 +115,11 @@ JSFunctionSpec layer_methods[] = {
     //    {"get_geometry",	layer_get_geometry,	0},
     {"set_blit",	layer_set_blit,	1},
     {"get_blit",	layer_get_blit,	0},
-    {"set_alpha",	layer_set_alpha,	1},
-    {"get_alpha",	layer_get_alpha,	0},
+    {"set_blit_value",	layer_set_blit_value,	1},
+    {"get_blit_value",	layer_get_blit_value,	0},
     {"set_position",	layer_set_position,	2},
     {"get_x_position",	layer_get_x_position,	2},
-    {"get_y_position",	layer_get_x_position,	2},
+    {"get_y_position",	layer_get_y_position,	2},
     {"add_filter",	add_filter,	1},
     {"rem_filter",	rem_filter,	1},
 //    {"get_filter_at",	get_filter_at,	0},
@@ -127,7 +127,6 @@ JSFunctionSpec layer_methods[] = {
     /* move up and down in the layer depth
        the methods below are shared also with some other classes
        as they are inherited from the Entry (Linklist element)
-       we need to find a way to assign them generically to classes -jrml
        */
 
     {"move",            entry_move, 1},

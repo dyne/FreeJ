@@ -323,7 +323,7 @@ JS(layer_get_blit) {
       return JS_FALSE;
     }
     else {
-	blit_type=lay->get_blit();
+	blit_type=lay->blitter.current_blit->name;
 	str = JS_NewStringCopyZ(cx, blit_type); 
 	*rval = STRING_TO_JSVAL(str);
     }
@@ -416,7 +416,7 @@ JS(layer_get_y_position) {
     }
     return JS_TRUE;
 }
-JS(layer_set_alpha) {
+JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     JSObject *jslayer=NULL;
     int new_alpha;
@@ -431,11 +431,11 @@ JS(layer_set_alpha) {
       return JS_FALSE;
     }
     else {
-	lay->set_alpha(new_alpha);
+	lay->blitter.set_value(new_alpha);
     }
     return JS_TRUE;
 }
-JS(layer_get_alpha) {
+JS(layer_get_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     JSObject *jslayer=NULL;
 
@@ -445,7 +445,7 @@ JS(layer_get_alpha) {
       return JS_FALSE;
     }
     else {
-	*rval=INT_TO_JSVAL(lay->alpha);
+	*rval=INT_TO_JSVAL(lay->blitter.current_blit->value);
     }
     return JS_TRUE;
 }

@@ -290,7 +290,7 @@ bool Blitter::init(Layer *lay) {
   b->fun = NULL; blitlist.append(b);
 
   // SET DEFAULT
-  set_blit("alpha");
+  set_blit("memcpy");
 
   return true;
 }
