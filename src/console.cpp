@@ -1205,10 +1205,13 @@ void Console::parser_default(int key) {
     refresh();
     break;
 
-  case KEY_CTRL_I: // also TAB
+  case KEY_CTRL_A:
     ::notice("move layer with arrows, press enter when done");
-  ::act("use arrow keys to move or keypad numbers");
-  ::act("also nethack movement keys work, press space to center");
+  ::act("use arrow keys to move, or keypad numbers");
+  ::act("+ and - zoom, < and > rotate");
+  ::act("w and s spin zoom, a and d spin rotate");
+  ::act(", stop rotation . stop zoom and <space> to center");
+  ::act("press <enter> when you are done");
   parser = MOVELAYER;
   break;
 
