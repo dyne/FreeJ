@@ -1,3 +1,11 @@
+FreeJ 0.4 HURRIA - 17 Oct 2002
+  Avifile linked to play DIVX/AVI files (AVI layer)
+  libpng linked to blit PNG images with transparency (PNG layer)
+  support to open multiple video4linux devices
+  better commandline support
+  fixes in the plugin API
+  lots of debugging and testing
+
 FreeJ 0.3.1 PRATERHIMMEL - 28 Jan 2002
   relevant bugfix into yuv2rgb code (Fukuchi Kentarou)
   thread task balancing in v4l layer improving speed
