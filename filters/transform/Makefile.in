@@ -72,6 +72,7 @@ FFLAGS = @FFLAGS@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_CONFIG = @FT2_CONFIG@
 FT2_LIBS = @FT2_LIBS@
+HAVE_AVIFILE = @HAVE_AVIFILE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -83,9 +84,6 @@ LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
-
-NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
-NASMFLAGS = @NASMFLAGS@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
@@ -130,7 +128,7 @@ host_vendor = @host_vendor@
 includedir = @includedir@
 infodir = @infodir@
 install_sh = @install_sh@
-libdir = ${prefix}/lib/freej
+libdir = @libdir@
 libexecdir = @libexecdir@
 localstatedir = @localstatedir@
 mandir = @mandir@
@@ -146,24 +144,27 @@ target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
 INCLUDES = -I$(top_srcdir)/src/include
+plugindir = ${prefix}/lib/freej
 
 SUFFIXES = .asm
 
-lib_LTLIBRARIES = squaretrans.la randtrans.la quadtrans.la
+NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
+
+plugin_LTLIBRARIES = squaretrans.la randtrans.la quadtrans.la
 
 squaretrans_la_SOURCES = transform.c squares.c
-squaretrans_la_LDFLAGS = -module -avoid-version
+squaretrans_la_LDFLAGS = -module -avoid-version -shared
 
 randtrans_la_SOURCES = transform.c rand.c
-randtrans_la_LDFLAGS = -module -avoid-version
+randtrans_la_LDFLAGS = -module -avoid-version -shared
 
 quadtrans_la_SOURCES = transform.c quad.c
-quadtrans_la_LDFLAGS = -module -avoid-version
+quadtrans_la_LDFLAGS = -module -avoid-version -shared
 subdir = filters/transform
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-LTLIBRARIES = $(lib_LTLIBRARIES)
+LTLIBRARIES = $(plugin_LTLIBRARIES)
 
 quadtrans_la_LIBADD =
 am_quadtrans_la_OBJECTS = transform.lo quad.lo
@@ -201,40 +202,40 @@ $(srcdir)/Makefile.in:  Makefile.am  $(top_srcdir)/configure.in $(ACLOCAL_M4)
 	  $(AUTOMAKE) --gnu  filters/transform/Makefile
 Makefile:  $(srcdir)/Makefile.in  $(top_builddir)/config.status
 	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)
-libLTLIBRARIES_INSTALL = $(INSTALL)
-install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+pluginLTLIBRARIES_INSTALL = $(INSTALL)
+install-pluginLTLIBRARIES: $(plugin_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
-	$(mkinstalldirs) $(DESTDIR)$(libdir)
-	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	$(mkinstalldirs) $(DESTDIR)$(plugindir)
+	@list='$(plugin_LTLIBRARIES)'; for p in $$list; do \
 	  if test -f $$p; then \
 	    f="`echo $$p | sed -e 's|^.*/||'`"; \
-	    echo " $(LIBTOOL) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(libdir)/$$f"; \
-	    $(LIBTOOL) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(libdir)/$$f; \
+	    echo " $(LIBTOOL) --mode=install $(pluginLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(plugindir)/$$f"; \
+	    $(LIBTOOL) --mode=install $(pluginLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) $$p $(DESTDIR)$(plugindir)/$$f; \
 	  else :; fi; \
 	done
 
-uninstall-libLTLIBRARIES:
+uninstall-pluginLTLIBRARIES:
 	@$(NORMAL_UNINSTALL)
-	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	@list='$(plugin_LTLIBRARIES)'; for p in $$list; do \
 	    p="`echo $$p | sed -e 's|^.*/||'`"; \
-	  echo " $(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p"; \
-	  $(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(libdir)/$$p; \
+	  echo " $(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(plugindir)/$$p"; \
+	  $(LIBTOOL) --mode=uninstall rm -f $(DESTDIR)$(plugindir)/$$p; \
 	done
 
-clean-libLTLIBRARIES:
-	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
-	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+clean-pluginLTLIBRARIES:
+	-test -z "$(plugin_LTLIBRARIES)" || rm -f $(plugin_LTLIBRARIES)
+	@list='$(plugin_LTLIBRARIES)'; for p in $$list; do \
 	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
 	  test "$$dir" = "$$p" && dir=.; \
 	  echo "rm -f \"$${dir}/so_locations\""; \
 	  rm -f "$${dir}/so_locations"; \
 	done
 quadtrans.la: $(quadtrans_la_OBJECTS) $(quadtrans_la_DEPENDENCIES) 
-	$(LINK) -rpath $(libdir) $(quadtrans_la_LDFLAGS) $(quadtrans_la_OBJECTS) $(quadtrans_la_LIBADD) $(LIBS)
+	$(LINK) -rpath $(plugindir) $(quadtrans_la_LDFLAGS) $(quadtrans_la_OBJECTS) $(quadtrans_la_LIBADD) $(LIBS)
 randtrans.la: $(randtrans_la_OBJECTS) $(randtrans_la_DEPENDENCIES) 
-	$(LINK) -rpath $(libdir) $(randtrans_la_LDFLAGS) $(randtrans_la_OBJECTS) $(randtrans_la_LIBADD) $(LIBS)
+	$(LINK) -rpath $(plugindir) $(randtrans_la_LDFLAGS) $(randtrans_la_OBJECTS) $(randtrans_la_LIBADD) $(LIBS)
 squaretrans.la: $(squaretrans_la_OBJECTS) $(squaretrans_la_DEPENDENCIES) 
-	$(LINK) -rpath $(libdir) $(squaretrans_la_LDFLAGS) $(squaretrans_la_OBJECTS) $(squaretrans_la_LIBADD) $(LIBS)
+	$(LINK) -rpath $(plugindir) $(squaretrans_la_LDFLAGS) $(squaretrans_la_OBJECTS) $(squaretrans_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT) core *.core
@@ -383,7 +384,7 @@ check: check-am
 all-am: Makefile $(LTLIBRARIES)
 
 installdirs:
-	$(mkinstalldirs) $(DESTDIR)$(libdir)
+	$(mkinstalldirs) $(DESTDIR)$(plugindir)
 
 install: install-am
 install-exec: install-exec-am
@@ -411,7 +412,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libLTLIBRARIES clean-libtool \
+clean-am: clean-generic clean-libtool clean-pluginLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -427,9 +428,9 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-pluginLTLIBRARIES
 
-install-exec-am: install-libLTLIBRARIES
+install-exec-am:
 
 install-info: install-info-am
 
@@ -454,20 +455,20 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-info-am uninstall-libLTLIBRARIES
+uninstall-am: uninstall-info-am uninstall-pluginLTLIBRARIES
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libLTLIBRARIES clean-libtool ctags distclean \
+	clean-libtool clean-pluginLTLIBRARIES ctags distclean \
 	distclean-compile distclean-depend distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am info \
 	info-am install install-am install-data install-data-am \
 	install-exec install-exec-am install-info install-info-am \
-	install-libLTLIBRARIES install-man install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
+	install-man install-pluginLTLIBRARIES install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
 	maintainer-clean-generic mostlyclean mostlyclean-compile \
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-info-am \
-	uninstall-libLTLIBRARIES
+	uninstall-pluginLTLIBRARIES
 
 
 .asm.lo:

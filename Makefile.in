@@ -72,6 +72,7 @@ FFLAGS = @FFLAGS@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_CONFIG = @FT2_CONFIG@
 FT2_LIBS = @FT2_LIBS@
+HAVE_AVIFILE = @HAVE_AVIFILE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -83,8 +84,6 @@ LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
-NASM = @NASM@
-NASMFLAGS = @NASMFLAGS@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
@@ -164,8 +163,8 @@ RECURSIVE_TARGETS = info-recursive dvi-recursive pdf-recursive \
 	check-recursive installcheck-recursive
 DIST_COMMON = README AUTHORS COPYING ChangeLog INSTALL Makefile.am \
 	Makefile.in NEWS TODO aclocal.m4 config.guess config.h.in \
-	config.sub configure configure.in depcomp install-sh ltconfig \
-	ltmain.sh missing mkinstalldirs
+	config.sub configure configure.in depcomp install-sh ltmain.sh \
+	missing mkinstalldirs
 DIST_SUBDIRS = $(SUBDIRS)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-recursive

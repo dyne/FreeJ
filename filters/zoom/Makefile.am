@@ -1,7 +1,7 @@
 INCLUDES = -I$(top_srcdir)/src/include
-libdir = ${prefix}/lib/freej
+plugindir = ${prefix}/lib/freej
 
-lib_LTLIBRARIES = zoom.la
+plugin_LTLIBRARIES = zoom.la
 zoom_la_SOURCES = zoom.c
-zoom_la_LDFLAGS = -module -avoid-version
+zoom_la_LDFLAGS = -module -avoid-version -shared
 

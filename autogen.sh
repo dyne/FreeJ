@@ -50,12 +50,12 @@ echo "Generating configuration files for $package, please wait...."
 
 echo "  aclocal -I ."
 aclocal -I .
-#echo "  autoheader"
-#autoheader
+echo "  autoheader"
+autoheader
 echo "  libtoolize --automake"
-libtoolize --automake
+libtoolize --automake -c
 echo "  automake --add-missing"
-automake --add-missing 
+automake --add-missing -c 
 echo "  autoconf"
 autoconf
 

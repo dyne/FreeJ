@@ -18,7 +18,7 @@
 
 #include <config.h>
 
-#ifdef WITH_AVIFILE
+#ifdef WITH_AVIFILE 
 
 #include <iostream>
 #include <string.h>

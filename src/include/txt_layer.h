@@ -29,6 +29,7 @@
 #include <ctype.h>
 #include <SDL/SDL.h>
 #define MAX_GLYPHS 512
+#define MAX_CHUNK 512
 #define SPEED 5
 typedef struct TGlyph_
 {
@@ -65,22 +66,28 @@ class TxtLayer: public Layer {
   PGlyph glyph_current; 
   FT_UInt glyphs_numbers;
 
-  char line[512]; // safe bound
-  int line_len;
-  char *word, *punt;
+  char chunk[MAX_CHUNK+256]; // safe bound
+  char word[MAX_CHUNK+256];
+  int chunk_len;
+  char *pword, *punt;
   int word_len;
 
   bool change_word;
   bool clear_screen;
+  bool onscreen;
   bool blinking;
   bool use_kerning;
-  int blinking_speed;
+  int onscreen_blink;
+  int offscreen_blink;
+  int blink;
+  
   int text_dimension;
   
   /* image buffer */
   void *buf;
   
   int word_ff(int pos);
+  int read_next_chunk();
   bool draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,Uint8 *dst);
   bool set_character_size(int _text_dimension);
   //  int word_rw(int pos);

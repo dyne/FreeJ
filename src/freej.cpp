@@ -212,7 +212,7 @@ int main (int argc, char **argv) {
 	  | strncmp((p-4),".asx",4)==0
 	  | strncmp((p-4),".wma",4)==0
 	  | strncmp((p-4),".wmv",4)==0 ) {
-#ifdef WITH_AVIFILE
+#ifdef WITH_AVIFILE 
 	avi = new AviLayer();
 	if(avi->open(pp))
 	  avi->init(&screen);

@@ -1,13 +1,13 @@
 INCLUDES = -I$(top_srcdir)/src/include
-libdir = ${prefix}/lib/freej
+plugindir = ${prefix}/lib/freej
 
-SUFFIXES = .asm
+#SUFFIXES = .asm
 
-NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
+#NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
 
-.asm.lo:
-	$(NASM) $<
+#.asm.lo:
+#	$(NASM) $<
 
-lib_LTLIBRARIES = delaygrab.la
+plugin_LTLIBRARIES = delaygrab.la
 delaygrab_la_SOURCES = delaygrab.c
-delaygrab_la_LDFLAGS = -module -avoid-version
+delaygrab_la_LDFLAGS = -module -avoid-version -shared

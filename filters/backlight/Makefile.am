@@ -1,6 +1,6 @@
 INCLUDES = -I$(top_srcdir)/src/include
-libdir = ${prefix}/lib/freej
+plugindir = ${prefix}/lib/freej
 
-lib_LTLIBRARIES = backlight.la
+plugin_LTLIBRARIES = backlight.la
 backlight_la_SOURCES = backlight.c
-backlight_la_LDFLAGS = -module -avoid-version
+backlight_la_LDFLAGS = -module -avoid-version -shared

@@ -25,8 +25,10 @@ Plugger::~Plugger() {
 }
 
 int selector(const struct dirent *dir) {
-  if(strstr(dir->d_name,".so")) return(1);
-  return(0);
+  //  if(strstr(dir->d_name,".")) return(1);
+  if(dir->d_name[0]=='.') return(0);
+  if(strstr(dir->d_name,".la")) return(0);
+  return(1);
 }
 
 /* searches into the lt_searchpath for valid modules */

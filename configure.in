@@ -39,7 +39,7 @@ AM_PROG_LIBTOOL
 dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
-CFLAGS="-g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
+CFLAGS="-g -Wall -O4 -pipe -D_REENTRANT -fomit-frame-pointer -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
 LIBS="-lpthread -lm -ldl -lpng"
 
 dnl Checks for header files.
@@ -68,61 +68,29 @@ AC_CHECK_SIZEOF(long, 4)
 
 dnl AC_HEADER_DIRENT
 
-
-dnl ==============================================================
-dnl See if we can use x86 assembly blitters
-dnl ==============================================================
-CheckNASM()
-{
-    dnl Make sure we are running on an x86 platform
-    case $target in
-        i?86*)
-            ;;
-        *)
-        # Nope, bail early.
-            return
-            ;;
-    esac
-    dnl Check for NASM (for assembly blit routines)
-    AC_ARG_ENABLE(nasm,
-[  --enable-nasm           use nasm assembly blitters on x86 [default=yes]],
-    checking nasm              , enable_nasm=yes)
-    if test x$enable_nasm = xyes; then
-        AC_PATH_PROG(NASM, nasm)
-        if test x$NASM = x -o x$NASM = x'"$NASM"'; then
-            : # nasm isn't installed
-        else
-            case $ARCH in
-              win32)
-                  NASMFLAGS="-f win32"
-                  ;;
-              *)
-                  NASMFLAGS="-f elf"
-                  ;;
-            esac
-            AC_SUBST(NASMFLAGS)
-            CFLAGS="$CFLAGS -I\$(top_srcdir)/src/asm"
-        fi
-    fi
-}
-
 dnl =====================================================
-dnl CHECK if there is AVILIB
+dnl CHECK if is wanted and there is AVILIB
 dnl =====================================================
-AC_ARG_WITH(avifile,
-[  --with-avifile          compile with avifile MOVIE LAYER ],
-[   AC_MSG_RESULT(yes)
-    AVI_LIBS=""
-    AC_AVIFILE(0.7.18)
-    if test x$HAVE_AVIFILE = xyes; then
-       AC_DEFINE(WITH_AVIFILE,1,
-	[define if linking to avifile library for AVI layer playback])
-       have_avilayer=yes
-    else
-       have_avilayer=no
-    fi
-], [AC_MSG_RESULT(no)])
-AC_SUBST(AVIFILE_LIBS)
+AVI_LIBS=""
+AC_AVIFILE(0.7.18)
+if test -z $HAVE_AVIFILE; then
+echo "Error in avifile check, HAVE_AVIFILE is not declared"
+fi
+AC_ARG_ENABLE(avi,[  --enable-avi            compile with Avi Layer linking avifile (auto)], [
+# to this when --enable-avi is selected (check the value!)
+if test x$HAVE_AVIFILE = xyes -a ! x$enableval = xno; then
+  AC_DEFINE(WITH_AVIFILE,1,
+            [define if linking to avifile library for AVI layer playback])
+  have_avilayer=yes
+  AC_SUBST(AVIFILE_LIBS)
+fi], [ 
+# to this by default, when --enable-avi is not selected
+if test x$HAVE_AVIFILE = xyes; then
+  AC_DEFINE(WITH_AVIFILE,1,
+            [define if linking to avifile library for AVI layer playback])
+  have_avilayer=yes
+  AC_SUBST(AVIFILE_LIBS)
+fi])
 
 dnl ==============================================================
 dnl CHECK if there is FREETYPE2
@@ -176,6 +144,8 @@ filters/blurzoom/Makefile
 filters/edge/Makefile
 filters/backlight/Makefile
 filters/blur/Makefile
+filters/ripple/Makefile
+filters/water/Makefile
 ])
 
 echo

@@ -72,6 +72,7 @@ FFLAGS = @FFLAGS@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_CONFIG = @FT2_CONFIG@
 FT2_LIBS = @FT2_LIBS@
+HAVE_AVIFILE = @HAVE_AVIFILE@
 INSTALL_DATA = @INSTALL_DATA@
 INSTALL_PROGRAM = @INSTALL_PROGRAM@
 INSTALL_SCRIPT = @INSTALL_SCRIPT@
@@ -83,8 +84,6 @@ LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
-NASM = @NASM@
-NASMFLAGS = @NASMFLAGS@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
@@ -147,8 +146,9 @@ target_vendor = @target_vendor@
 SUBDIRS = \
 	delaygrab absdiff simura \
 	baltan vertigo transform \
-	blurzoom edge \
-	backlight rotozoom blur
+	blurzoom edge ripple \
+	backlight rotozoom blur \
+	water
 
 subdir = filters
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs

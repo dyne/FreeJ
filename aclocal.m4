@@ -6918,6 +6918,7 @@ main ()
 #   AVIFILE_LIBS="$AVIFILE_LDFLAGS $X_LIBS -lXv -lXxf86vm -ldivxdecore"
     AVIFILE_LIBS="-laviplay -lXv -lXxf86vm"
   fi
+  AC_SUBST(HAVE_AVIFILE)
 ])
 
 

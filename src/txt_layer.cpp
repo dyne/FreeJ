@@ -37,8 +37,10 @@ TxtLayer::TxtLayer()
 	  setname("TXT");
 	  change_word=true;
 	  clear_screen=false;
+	  onscreen=false;
 	  blinking=false;
-	  blinking_speed=SPEED;
+	  offscreen_blink = onscreen_blink = SPEED;
+	  blink = 0;
 	  text_dimension=0;
 	  glyph_current=NULL;
 	  x=0;
@@ -96,8 +98,8 @@ bool TxtLayer::init(Context *scr,int _text_dimension) {
      buf = jalloc(buf,screen->size);
 
      /* get the first word */
-     line_len = 0;  
-     punt = word = line;
+     chunk_len = 0;  
+     punt = pword = chunk;
 
      x=(geo.w/2)*(geo.bpp/8);
      y=geo.h/2;
@@ -110,7 +112,14 @@ void *TxtLayer::feed() {
      int origin_y=0;
      int previous=0;
      int string_width,string_height;
-     //int angle=30;
+     //     int angle=30;
+
+     /* clear_screen switch serves to confirm that the screen
+	has been cleaned, serving the purpose to not waste
+	screen cleanups (the memset)
+	same for change_word which is the next word switch
+     */
+
 
      /* One word  main loop, one word each iteration*/
      if(!clear_screen &&change_word) {
@@ -169,10 +178,10 @@ void *TxtLayer::feed() {
 
 
 	  /* set up transform (a rotation here) */
-	  //matrix.xx = (FT_Fixed)( cos(angle)*0x10000L);
-	  //matrix.xy = (FT_Fixed)(-sin(angle)*0x10000L);
-	  //matrix.yx = (FT_Fixed)( sin(angle)*0x10000L);
-	  //matrix.yy = (FT_Fixed)( cos(angle)*0x10000L);
+	  //	  matrix.xx = (FT_Fixed)( cos(angle)*0x10000L);
+	  //	  matrix.xy = (FT_Fixed)(-sin(angle)*0x10000L);
+	  //	  matrix.yx = (FT_Fixed)( sin(angle)*0x10000L);
+	  //	  matrix.yy = (FT_Fixed)( cos(angle)*0x10000L);
 
 	  for ( unsigned int m = 0; m < num_glyphs; m++ )
 	  {
@@ -209,27 +218,31 @@ void *TxtLayer::feed() {
 		    FT_Done_Glyph( image );
 	       }
 	  }
-	  if(blinking) {
-	       word_ff(1);
-	       clear_screen=true;
-	  }
-	  else 
-	       change_word=false;
+	  change_word=false;
+	  onscreen=true;
      }
      /* now guess */
      else if(clear_screen) {
-	  bzero( buf, geo.size);
-	  if(blinking) {
-	       blinking_speed--;
-	       if (blinking_speed==0) {
-		   clear_screen=false;
-		   change_word=true;
-		   blinking_speed=SPEED;
-	       }
-	  }
-	  else
-	       clear_screen=false;
+       memset(buf,0,geo.size);
+       clear_screen = false; 
+       onscreen = false;
      }
+
+     if(blinking) {
+       blink++;
+       if(onscreen) {
+	 if(blink>onscreen_blink) {
+	   clear_screen = true;
+	   blink = 0;
+	 }
+       } else {
+	 if(blink>offscreen_blink) {
+	   change_word = true;
+	   blink = 0;
+	 }
+       }
+     }
+	          
      return buf;
 }
 
@@ -243,56 +256,81 @@ void TxtLayer::close() {
      ::close(fd);
 }
 
+int TxtLayer::read_next_chunk() {
+  chunk_len = ::read(fd,chunk,MAX_CHUNK);
+  func("succhiato %i",chunk_len);
+  /* if nothing more to read, seek to the beginning */
+  if(chunk_len == 0) {
+    lseek(fd,0,SEEK_SET);
+    chunk_len = ::read(fd,chunk,MAX_CHUNK);
+  }
+  chunk[chunk_len+1] = '\0';
+  func("read new chunk:\n%s",chunk);
+  func("--");
+  pword = punt = chunk;
+  return chunk_len;
+}
+
 int TxtLayer::word_ff(int pos) {
-     int c;
-     for(c=pos ; c>0 ; c--) {
-	  /* if end of line is reached then suck more */
-	  if(punt-line >= line_len) {
-	       line_len = read(fd,line,512);
-	       func("succhiato %i",line_len);
-	       /* if nothing more to read, seek to the beginning */
-	       if(line_len <= 0) {
-		    lseek(fd,0,SEEK_SET);
-		    line_len = read(fd,line,512);
-	       }
-	       line[line_len] = '\0';
-	       func("read new line: %s",line);
-	       punt = line;
-	  }
-	  /* go forward until it meets a word */
-	  else {
-	       while(!isgraph(*punt)) 
-		    punt++;
-	  }
-	  word = punt;
-	  /* reaches the end of that word */
-	  while(    (punt-line) < line_len
-		    && isgraph(*punt) )
-	       /*	      && *punt != ' '
-			      && *punt != '\0'
-			      && *punt != '\n'
-			      && *punt != '\r'
-			      && *punt != '\t') */
-	       punt++;
-	  *punt = '\0';
-     }
-     func("word_ff(%i) got \"%s\" string of %i chars",
-	       pos, word, punt-word);
-     return(punt-word);
+  int c;
+  word_len = 0;
+  for(c=pos ; c>0 ; c--) {
+    /* if end of chunk is reached then suck more */
+    if(punt-chunk >= chunk_len) {
+      func("punt - chunk = %i and chunk_len %i",punt-chunk,chunk_len);
+      read_next_chunk();
+    }
+    /* go forward until it meets a word */
+    while(!isgraph(*punt)) {
+      if((punt-chunk)==chunk_len) /* end of chunk reached */
+	read_next_chunk();
+      else
+	punt++;
+    }
+
+    pword = punt;
+
+    /* reaches the end of that word */
+    while(   isgraph(*punt)
+	     && *punt != ' '
+	     && *punt != '\0'
+	     && *punt != '\n'
+	     && *punt != '\r'
+	     && *punt != '\t') {
+      if((punt-chunk)==chunk_len && (punt-pword)) { /* end of chunk reached */
+	word_len += punt - pword;
+	if(word_len>=512) return 512;
+	strncpy(word,pword,word_len);
+	read_next_chunk();
+      }
+      punt++;
+    }
+    *punt = '\0';
+    if(!strlen(pword)) word_ff(1); // recursion
+    if(!word_len) // it was in the same chunk 
+      strncpy(word,pword,512);
+    else
+      strncpy(&word[word_len],pword,512-word_len);
+  }
+  word_len += punt - pword;
+  func("word_ff(%i) got \"%s\" string of %i chars",
+       pos, word, word_len);
+  
+  return(word_len);
 }
 
 bool TxtLayer::keypress(SDL_keysym *keysym) {
      int res = 1;
      switch(keysym->sym) {
-	  case SDLK_RIGHT: 
+	  case SDLK_LEFT: 
 	       change_word=true;
 	       clear_screen=true;
 	       break;
 
-	  case SDLK_LEFT:
+	  case SDLK_RIGHT:
 	       change_word=true;
 	       clear_screen=true;
-	       word_ff(1);
+	       //	       word_ff(1);
 	       break;
 
 	  case SDLK_b: 
@@ -302,17 +340,26 @@ bool TxtLayer::keypress(SDL_keysym *keysym) {
 	       }
 	       else {
 		    blinking=false;
-		    blinking_speed=SPEED;
 	       }
 	       break;
+     case SDLK_j:  offscreen_blink++;  break;
+     case SDLK_n:  offscreen_blink--;  break;
+     case SDLK_k:  onscreen_blink++;  break;
+     case SDLK_m:  onscreen_blink--;  break;
 
-	  case SDLK_w: /* wider */ 
+	  case SDLK_p: /* wider */ 
+	    if(keysym->mod & KMOD_LCTRL)
+	      set_character_size(text_dimension+=10);
+	    else
 	      set_character_size(text_dimension++);
-	       break;
+	    break;
 
-	  case SDLK_s: /* smaller */
-	       set_character_size(text_dimension--);
-	       break;
+	  case SDLK_o: /* smaller */
+	    if(keysym->mod & KMOD_LCTRL)
+	      set_character_size(text_dimension-=10);
+	    else
+	      set_character_size(text_dimension--);
+	    break;
 
 	  default: 
 	       res = 0; 
@@ -322,12 +369,12 @@ bool TxtLayer::keypress(SDL_keysym *keysym) {
      return res;
 }
 void TxtLayer::compute_string_bbox( FT_BBox  *abbox,FT_Glyph image ) {
-     FT_BBox  bbox;
-
+  FT_BBox  bbox;
+  unsigned int t;
      bbox.xMin = bbox.yMin =  32000;
      bbox.xMax = bbox.yMax = -32000;
 
-     for ( int t = 0; t < num_glyphs; t++ ) {
+     for ( t = 0; t < num_glyphs; t++ ) {
 	  FT_BBox   glyph_bbox;
 
 	  FT_Glyph_Get_CBox( glyphs[t].image, ft_glyph_bbox_gridfit, &glyph_bbox );

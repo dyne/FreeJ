@@ -1,6 +1,6 @@
 INCLUDES = -I$(top_srcdir)/src/include
-libdir = ${prefix}/lib/freej
+plugindir = ${prefix}/lib/freej
 
-lib_LTLIBRARIES = blur.la
+plugin_LTLIBRARIES = blur.la
 blur_la_SOURCES = blur.c
-blur_la_LDFLAGS = -module -avoid-version
+blur_la_LDFLAGS = -module -avoid-version -shared 

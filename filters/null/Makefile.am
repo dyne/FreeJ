@@ -1,6 +1,6 @@
 INCLUDES = -I$(top_srcdir)/src/include
-libdir = ${prefix}/lib/freej
+plugindir = ${prefix}/lib/freej
 
-lib_LTLIBRARIES = null.la
+plugin_LTLIBRARIES = null.la
 null_la_SOURCES = null.c
-null_la_LDFLAGS = -module -avoid-version
+null_la_LDFLAGS = -module -avoid-version -shared
