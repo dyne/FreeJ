@@ -26,9 +26,6 @@
 #include <keyboard.h>
 #include <v4l.h>
 
-#ifdef WITH_AVIFILE
-#include <avi.h>
-#endif
 
 #include <png_layer.h>
 
@@ -37,6 +34,10 @@
 #include <jutils.h>
 #include <lubrify.h>
 #include <config.h>
+
+#ifdef WITH_AVIFILE
+#include <avi.h>
+#endif
 
 /* BE WARNED: hires mode is not supported, if you change here
    you get strange results. */

@@ -16,7 +16,7 @@ freej_SOURCES = \
 	context.cpp	\
 	layer.cpp	\
 	v4l_layer.cpp	\
-	@AVI_LAYER@	\
+	avi_layer.cpp	\
 	png_layer.cpp	\
 	linklist.cpp	\
 	jsync.cpp	\

@@ -103,7 +103,6 @@ void Osd::init(Context *screen) {
   this->screen = screen;
   _hbound = screen->w / HBP;
   _vbound = screen->h / VBP;
-  notice("vbound = %i    hbound = %i",_vbound, _hbound);
   screen->osd = this;
   switch(screen->bpp) {
   case 16:
