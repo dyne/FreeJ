@@ -1,3 +1,17 @@
+FreeJ 0.3 - 26 Jan 2002
+  dinamicly loadable DSO plugins implemented
+  fixed a plugin C API
+  old effects converted as C plugins
+  new Vertigo filter
+  new Transform filters
+  fixes in absdiff filter
+  major code cleanup
+
+FreeJ 0.2.3 - 25 Nov 2001
+  included new Simura filter
+  new OSD fonts
+  code cleanups
+
 FreeJ 0.2.2 - 1 Nov 2001
   fixes for webcams, DEXXA/Logitech and others supported
   TV tuner code gives you the trippiest TV you ever saw!

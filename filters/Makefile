@@ -81,7 +81,7 @@ SDL_LIBS = -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lSDL -lpthread
 STRIP = strip
 VERSION = 0.3
 
-SUBDIRS = null delaygrab absdiff rotozoom simura baltan
+SUBDIRS = delaygrab absdiff simura baltan vertigo transform
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
