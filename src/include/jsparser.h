@@ -32,10 +32,6 @@
 #include <jsparser_data.h> // private data header
 #include <layer.h>
 
-/**
- * TODO!!! da inserire in un header separato tipo jsparser_data_structures.h
- *
- */
 class JsParser {
     public:
 	JsParser(Context *_env);

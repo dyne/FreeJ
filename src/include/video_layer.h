@@ -19,14 +19,24 @@
 #ifndef __avcodec_h__
 #define __avcodec_h__
 
-#include "avcodec.h"
-#include "avformat.h"
+#include <ffmpeg/avcodec.h>
+#include <ffmpeg/avformat.h>
 
 #include <layer.h>
 #define INBUF_SIZE 4096
+#define NO_MARK -1
+
+/*********************************/
+/* I want it hard, I want it raw */ 
+/*********************************/
+
+void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl);
 
 class VideoLayer: public Layer {
     private:
+	/**
+	 * av(codec|format) aka ffmpeg related variables
+	 */
 	AVCodec *avcodec;
 	AVInputFormat *fmt;
 	AVFormatContext *avformat_context;
@@ -36,8 +46,7 @@ class VideoLayer: public Layer {
 	AVCodecContext *enc;
 	AVCodec *codec;
 	AVFrame av_frame;
-	int frame_number;
-	int picture_number;
+	uint8_t *av_buf;
 	int packet_len;
 	double packet_pts;
 	unsigned char *ptr;
@@ -45,15 +54,40 @@ class VideoLayer: public Layer {
 	double video_clock;
 	double video_current_pts;
 	double video_current_pts_time;
+
+	/**
+	 * Number of decoded frames. As for now together with picture_number it's broken when seeking TODO!
+	 */
+	int frame_number;
+	int picture_number;
+
+	/**
+	 * application variables
+	 */
 	bool paused;
-
-	uint8_t *av_buf;
-
+	bool seekable;
 	bool grab_dv;
+	double mark_in;
+	double mark_out;
+	/** dropping frames variables */
+	int user_play_speed; /** play speed to be visualized to the user */
+	int play_speed; /** real speed */
+	int play_speed_control;
+	int frame_rate;
 
-	int size, lenght,video_index;
+	char *video_filename;
+
+	
+
+
+	int video_index;
 	FILE *fp;
 
+	bool free_av_stuff();
+	bool relative_seek(int increment);
+	int seek(int64_t timestamp);
+	bool set_speed(int speed);
+	double get_master_clock();
     public:
 	VideoLayer();
 	~VideoLayer();
@@ -74,11 +108,12 @@ class VideoLayer: public Layer {
 	//  void slowdown();
 
 	bool keypress(SDL_keysym *keysym);
-	bool dump_stream_info(AVFormatContext *s);
-	bool forward(int sec);
-	bool seek(int increment);
-	double get_master_clock();
+	bool more_speed();
+	bool less_speed();
+	bool set_mark_in();
+	bool set_mark_out();
 	void pause();
+
 
 };
 
