@@ -122,10 +122,10 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   
   switch(keysym->sym) {
   case SDLK_RETURN:
-    if(!_filt->inuse) {
-      if(_filt) newfilt = true;
-      _filt->inuse = true;
-    }
+    if(!_filt) break;
+    if(_filt->inuse) break;
+    newfilt = true;
+    _filt->inuse = true;
     break;
   case SDLK_UP:
     if(filter==NULL) return false;
