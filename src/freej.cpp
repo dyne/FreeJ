@@ -30,9 +30,8 @@
 #include <context.h>
 #include <keyboard.h>
 #include <v4l_layer.h>
-
-
 #include <png_layer.h>
+#include <txt_layer.h>
 
 #include <osd.h>
 #include <plugger.h>
@@ -66,6 +65,7 @@ static const char *help =
 " .  - AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
 #endif
 " .  - PNG images (also with transparency)\n"
+" .  - TXT files rendered with freetype2 library\n"
 "\n";
 
 static const struct option long_options[] = {
@@ -162,6 +162,7 @@ int main (int argc, char **argv) {
   AviLayer *avi = NULL;
 #endif
   PngLayer *png = NULL;
+  TxtLayer *txt = NULL;
 
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
   act("(c)2001-2003 Denis Rojo < jaromil @ dyne.org >");
@@ -225,6 +226,13 @@ int main (int argc, char **argv) {
 	png = new PngLayer();
 	if(png->open(pp))
 	  png->init(&screen);
+      }
+
+      /* TXT LAYERS */
+      if(strncmp((p-4),".txt",4)==0) {
+	txt = new TxtLayer();
+	if(txt->open(pp))
+	  txt->init(&screen);
       }
 
       pp = l;

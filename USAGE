@@ -1,4 +1,4 @@
-FreeJ version 0.4.1 USAGE NOTES
+FreeJ version 0.5 USAGE NOTES
 ===============================
 
 The interface consists in a on screen display (OSD) reporting
@@ -70,6 +70,10 @@ LIST OF COMMANDS:
             left ctrl = 50000 ; right ctrl = 10000 ;
 	    left shift = 5000 ; right shift = 1000 ;
 
+ TXT LAYER COMMANDS:
+ l/r
+ arrows   = go to previous/next word in text
+
 SOME FILTER COMMANDS:
 (see the filter's sourcecode for details)
 
@@ -85,6 +89,12 @@ z/x      = browse thru 3 modes (normal, artifarti, weird)
 Simura filter
 caps-lock + all letters = change color filters
 keypad numbers = change mirror mode
+
+QuadTrans filter
+q/w      = multiply/divide frames of the screen
+
+SquareTrans filter
+q/w      = increase/decrease blocksize
 
 SDL TIP:
 

@@ -22,7 +22,8 @@ static Uint32 colortable[26] = {
 	0x800080, 0xe000e0, 0xff00ff,
 	0x808000, 0xe0e000, 0xffff00,
 	0x808080, 0xe0e0e0, 0xffffff,
-	0x76ca0a, 0x3cafaa, 0x60a848, 0x504858, 0x89ba43
+	0x76ca0a, 0x3cafaa, 0x60a848, 
+	0x504858, 0x89ba43
 };
 
 static int hheight, hwidth, stat, color, mirror;
@@ -92,7 +93,7 @@ void *process(void *buffo) {
 
 int kbd_input(SDL_keysym *keysym) {
   int res = 1;
-  if(keysym->mod==KMOD_CAPS)
+  if(keysym->mod & KMOD_CAPS)
     switch(keysym->sym) {
     case SDLK_a:
     case SDLK_b:

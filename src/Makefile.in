@@ -59,6 +59,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
+AR = @AR@
 AS = @AS@
 AVIFILE_CONFIG = @AVIFILE_CONFIG@
 AVIFILE_CXXFLAGS = @AVIFILE_CXXFLAGS@
@@ -66,10 +67,17 @@ AVIFILE_LDFLAGS = @AVIFILE_LDFLAGS@
 AVIFILE_LIBS = @AVIFILE_LIBS@
 CC = @CC@
 CXX = @CXX@
+CXXCPP = @CXXCPP@
 DLLTOOL = @DLLTOOL@
 ECHO = @ECHO@
+EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-LIBS = @LIBS@
+F77 = @F77@
+FT2_CFLAGS = @FT2_CFLAGS@
+FT2_CONFIG = @FT2_CONFIG@
+FT2_LIBS = @FT2_LIBS@
+GCJ = @GCJ@
+GCJFLAGS = @GCJFLAGS@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 MAKEINFO = @MAKEINFO@
@@ -78,6 +86,7 @@ OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
+RC = @RC@
 SDL_CFLAGS = @SDL_CFLAGS@
 SDL_CONFIG = @SDL_CONFIG@
 SDL_LIBS = @SDL_LIBS@
@@ -94,10 +103,10 @@ NASM = nasm -f elf
 
 bin_PROGRAMS = freej
 
-freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l_layer.cpp		avi_layer.cpp		png_layer.cpp		linklist.cpp		jsync.cpp		keyboard.cpp		osd.cpp			plugin.cpp		plugger.cpp		jutils.cpp		tvfreq.c		lubrify.c		cpu_accel.c		yuv2rgb.c yuv2rgb_mmx.c		vline32.asm 	hline32.asm 	clearscr.asm
+freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l_layer.cpp		avi_layer.cpp		png_layer.cpp		txt_layer.cpp		linklist.cpp		jsync.cpp		keyboard.cpp		osd.cpp			plugin.cpp		plugger.cpp		jutils.cpp		tvfreq.c		lubrify.c		cpu_accel.c		yuv2rgb.c yuv2rgb_mmx.c		vline32.asm 	hline32.asm 	clearscr.asm
 
 
-freej_LDADD = @LIBS@ -lpthread -lm -ldl -lpng @SDL_LIBS@ @AVIFILE_LIBS@
+freej_LDADD = @LIBS@ @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -108,12 +117,13 @@ PROGRAMS =  $(bin_PROGRAMS)
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
 freej_OBJECTS =  freej.$(OBJEXT) context.$(OBJEXT) layer.$(OBJEXT) \
 v4l_layer.$(OBJEXT) avi_layer.$(OBJEXT) png_layer.$(OBJEXT) \
-linklist.$(OBJEXT) jsync.$(OBJEXT) keyboard.$(OBJEXT) osd.$(OBJEXT) \
-plugin.$(OBJEXT) plugger.$(OBJEXT) jutils.$(OBJEXT) tvfreq.$(OBJEXT) \
-lubrify.$(OBJEXT) cpu_accel.$(OBJEXT) yuv2rgb.$(OBJEXT) \
-yuv2rgb_mmx.$(OBJEXT) vline32.o hline32.o clearscr.o
+txt_layer.$(OBJEXT) linklist.$(OBJEXT) jsync.$(OBJEXT) \
+keyboard.$(OBJEXT) osd.$(OBJEXT) plugin.$(OBJEXT) plugger.$(OBJEXT) \
+jutils.$(OBJEXT) tvfreq.$(OBJEXT) lubrify.$(OBJEXT) cpu_accel.$(OBJEXT) \
+yuv2rgb.$(OBJEXT) yuv2rgb_mmx.$(OBJEXT) vline32.o hline32.o clearscr.o
 freej_DEPENDENCIES = 
 freej_LDFLAGS = 
 CXXFLAGS = @CXXFLAGS@
@@ -137,8 +147,8 @@ DEP_FILES =  .deps/avi_layer.P .deps/clearscr.P .deps/context.P \
 .deps/cpu_accel.P .deps/freej.P .deps/hline32.P .deps/jsync.P \
 .deps/jutils.P .deps/keyboard.P .deps/layer.P .deps/linklist.P \
 .deps/lubrify.P .deps/osd.P .deps/plugger.P .deps/plugin.P \
-.deps/png_layer.P .deps/tvfreq.P .deps/v4l_layer.P .deps/vline32.P \
-.deps/yuv2rgb.P .deps/yuv2rgb_mmx.P
+.deps/png_layer.P .deps/tvfreq.P .deps/txt_layer.P .deps/v4l_layer.P \
+.deps/vline32.P .deps/yuv2rgb.P .deps/yuv2rgb_mmx.P
 SOURCES = $(freej_SOURCES)
 OBJECTS = $(freej_OBJECTS)
 

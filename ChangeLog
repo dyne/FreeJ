@@ -1,3 +1,13 @@
+FreeJ 0.5 ECOTECH - 27 May 2003
+  new filters: Blur (Jaromil), Backlight (Pete Warden)
+  upgrade to Transform filters
+  new TxtLayer preliminary implementation (Kysucix)
+  some more asm conversion to C (bench equal, C is reliable)
+  bugfix to v4l_linux for devices with chan_map.frames > 2
+  some quite important bugfixes hard to remember
+  new autoconf-2.57 and libtool-1.5
+  code cleanups
+
 FreeJ 0.4.1 HURRIA - 26 Feb 2003
   smoother v4l grabbing
   layers can freely be moved around

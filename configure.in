@@ -14,7 +14,7 @@ dnl Setup for automake
 dnl ==============================================================
 
 AM_SANITY_CHECK
-AM_INIT_AUTOMAKE(FreeJ, 0.4.2-cvs)
+AM_INIT_AUTOMAKE(FreeJ, 0.5)
 AM_CONFIG_HEADER(config.h)
 
 dnl ==============================================================
@@ -40,6 +40,7 @@ dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
 CFLAGS="-g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
+LIBS="-lpthread -lm -ldl -lpng"
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -61,7 +62,6 @@ AM_PATH_SDL($SDL_VERSION,
 	AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
            )
 AC_SUBST(SDL_LIBS)
-
 AC_CHECK_SIZEOF(short, 2)
 AC_CHECK_SIZEOF(int, 4)
 AC_CHECK_SIZEOF(long, 4)
@@ -121,6 +121,11 @@ fi
 AC_SUBST(AVIFILE_LIBS)
 
 dnl ==============================================================
+dnl CHECK if there is FREETYPE2
+dnl ==============================================================
+AC_CHECK_FT2(9.0.0)
+
+dnl ==============================================================
 dnl link with memory debugging library dmalloc
 dnl ==============================================================
 AC_CHECK_HEADER(dmalloc.h)
@@ -145,10 +150,10 @@ fi], [AC_MSG_RESULT(no)])
 
 fi
 
-CXXFLAGS="$CFLAGS $SDL_CFLAGS"
+CXXFLAGS="$CFLAGS $SDL_CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS"
 
-
-AC_SUBST(LIBS)
+#echo "LIBS are $LIBS"
+#AC_SUBST(LIBS)
 
 
 AC_OUTPUT([
@@ -156,7 +161,6 @@ Makefile
 src/Makefile
 src/include/Makefile
 filters/Makefile
-filters/null/Makefile
 filters/delaygrab/Makefile
 filters/absdiff/Makefile
 filters/rotozoom/Makefile
@@ -169,5 +173,19 @@ filters/zoom/Makefile
 filters/edge/Makefile
 filters/backlight/Makefile
 filters/blur/Makefile
-filters/null/Makefile
 ])
+
+echo
+echo
+echo "== ready to compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
+echo " = SDL version $SDL_VERSION: $SDL_LIBS"
+echo " = FreeType2: $FT2_LIBS"
+
+if test x$have_avilayer = xyes; then
+  echo " = AviFile and DivX4linux: $AVIFILE_LIBS"
+fi
+
+echo " = Misc libraries: $LIBS"
+
+echo "============================== now type make, may the source be with you!"
+echo

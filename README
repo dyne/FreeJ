@@ -1,5 +1,5 @@
 
-            [[[ FreeJ 0.4.1  "HURRIA" ]]]
+          [[[  FreeJ 0.5  "ECOTECH"  ]]]
 
              [ http://freej.dyne.org ]
 
@@ -54,6 +54,7 @@ To run FreeJ is necessary to have:
 - a working GNU/Linux workstation with a MMX capable CPU
 - SDL libraries <http://www.libsdl.org>
 - PNG libraries <http://www.libpng.org>
+- FreeType2 libraries
 - NASM <http://www.kernel.org/pub/software/devel/nasm>
 - XFree86 4.2 or latest, better with an accelerated videocard
 
@@ -67,7 +68,7 @@ modelines in doc/x11.modelines.
 
 
 
-:: INSTALL
+:: INSTALL FROM SOURCE
 
 YOU MUST READ THE INSTALL FILE
 
@@ -83,10 +84,24 @@ prefix if you changed the default one).
 For fullscreen support you might want to add in your XF86Config file the
 modelines included into doc/x11.modelines.
 
+:: INSTALL FROM DEBIAN PACKAGES
 
+you can do 'apt-get install freej' and you will have a version of freej
+which is not compiled against avifile libraries (you can't play .avi).
+
+if you want to have .avi files played on debian you have to compile
+freej from source.
+you can install avifile .deb packages from marillat.free.fr
+libavifile0-dev
+avifile-win32-plugin
+and then you must recompile freej (if you did a configure allready do a
+'make distclean' before the next compilation).
 
 
 :: DISCUSSION
+
+Freej.org website is a dynamic web portal offering community facilities
+as discussion forums, user registration and polls.
 
 A mailinglist  for  further  discussion  about  FreeJ  is  running  as
 <freej@dyne.org>, subscription is opened and  anybody  interested  can
@@ -108,7 +123,7 @@ will find instructions on how to get and browse online the code).
 
 :: DISCLAIMER
 
-FreeJ is (c) 2001, 2002 Denis Rojo <jaromil@dyne.org>
+FreeJ is (c) 2001, 2002, 2003 by Deni Rojo <jaromil@dyne.org>
 refer to AUTHORS for a complete list of contributions.
 
 This source code is free software; you can redistribute it and/or

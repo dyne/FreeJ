@@ -1,43 +1,61 @@
 #include <math.h>
 #include <string.h>
+#include <SDL/SDL.h>
 #include <freej.h>
 #include <freej_plugin.h>
 
 static char *name = "QuadTrans";
 static char *author = "jaromil";
-static char *info = "quaduplicated positional translation";
-static int version = 1;
+static char *info = "multiplied positional translation";
+static int version = 2;
 
-void init_table(int *table, ScreenGeometry *geo) {
+static ScreenGeometry *exgeo;
+static int *extable;
+static int size = 2;
+
+void quadinit() {
   int x, y, tx, ty;
   
-  for(y=0; y<geo->h; y++) {
+  for(y=0; y<exgeo->h; y++) {
 
-    /* ==== CORE translation table formula
-       Y AXIS - you can play with this ;) */
-    
-    ty = (y * 2) % (geo->h);
-
-    /* =================================== */
+    ty = (y * size) % (exgeo->h);
 
     if(ty<0) ty = 0;
-    if(ty>=geo->h) ty = geo->h - 1;
+    if(ty>=exgeo->h) ty = exgeo->h - 1;
 
-    for(x=0; x<geo->w; x++) {
+    for(x=0; x<exgeo->w; x++) {
       
-      /* ==== CORE translation table formula
-	 X AXIS - you can play with this ;) */
+      tx = (x * size) % (exgeo->w);
       
-      tx = (x * 2) % (geo->w);
-      
-      /* ================================== */
-
       if(tx<0) tx = 0;
-      if(tx>=geo->w) tx = geo->w - 1;
+      if(tx>=exgeo->w) tx = exgeo->w - 1;
 
-      table[x+y*geo->w] = ty*geo->w+tx;
+      extable[x+y*exgeo->w] = ty*exgeo->w+tx;
     }
   }
 }
 
+void init_table(int *table, ScreenGeometry *geo) {
+  extable = table;
+  exgeo = geo;
+  quadinit();
+}
+
 int livemap(int x, int y) { return 0; }
+
+int keypress(SDL_keysym *keysym) {
+  int res = 1;
+  switch(keysym->sym) {
+  case SDLK_w:
+    size = (size>9) ? 10 : size+1;
+    break;
+  case SDLK_q:
+    size = (size<3) ? 2 : size-1;
+    break;
+  default:
+    res = 0;
+    break;
+  }
+  if(res) quadinit();
+  return res;
+}

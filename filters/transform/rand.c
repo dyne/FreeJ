@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <SDL/SDL.h>
 #include <freej.h>
 #include <freej_plugin.h>
 
@@ -41,3 +42,5 @@ void init_table(int *table, ScreenGeometry *sg) {
   for(c=0;c<geo->w*geo->h;c++) table[c] = -2;
   fastsrand(rand());
 }
+
+int keypress(SDL_keysym *keysym) { return 0; }

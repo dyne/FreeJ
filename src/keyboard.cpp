@@ -248,18 +248,23 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   case SDLK_F11:
   case SDLK_F12:
     _sel = keysym->sym-SDLK_F1;    
+
     if(keysym->mod & KMOD_CTRL) { /* plugin bank shift */
+
       char tmp[] = "plugin bank [ ------------ ]";
       sprintf(&tmp[_sel+14],"%X",_sel); 
       tmp[_sel+15] = (_sel<11) ? '-' : ' ';
-      plugin_bank = _sel*10;
+      plugin_bank = _sel*12;
       show_osd(tmp);
+
     } else {
+
       if(_lastsel==_sel+plugin_bank) break;
       _lastsel = (_sel+plugin_bank);
       _filt = (*plugger)[_lastsel];
       if(_filt) show_osd("add %s filter?",_filt->getname());
       else show_osd("no filter on bank %X position %u",plugin_bank/10,_sel);
+
     }
     break;
 

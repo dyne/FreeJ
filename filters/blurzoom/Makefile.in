@@ -58,6 +58,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
+AR = @AR@
 AS = @AS@
 AVIFILE_CONFIG = @AVIFILE_CONFIG@
 AVIFILE_CXXFLAGS = @AVIFILE_CXXFLAGS@
@@ -65,10 +66,17 @@ AVIFILE_LDFLAGS = @AVIFILE_LDFLAGS@
 AVIFILE_LIBS = @AVIFILE_LIBS@
 CC = @CC@
 CXX = @CXX@
+CXXCPP = @CXXCPP@
 DLLTOOL = @DLLTOOL@
 ECHO = @ECHO@
+EGREP = @EGREP@
 EXEEXT = @EXEEXT@
-LIBS = @LIBS@
+F77 = @F77@
+FT2_CFLAGS = @FT2_CFLAGS@
+FT2_CONFIG = @FT2_CONFIG@
+FT2_LIBS = @FT2_LIBS@
+GCJ = @GCJ@
+GCJFLAGS = @GCJFLAGS@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 MAKEINFO = @MAKEINFO@
@@ -77,6 +85,7 @@ OBJDUMP = @OBJDUMP@
 OBJEXT = @OBJEXT@
 PACKAGE = @PACKAGE@
 RANLIB = @RANLIB@
+RC = @RC@
 SDL_CFLAGS = @SDL_CFLAGS@
 SDL_CONFIG = @SDL_CONFIG@
 SDL_LIBS = @SDL_LIBS@
@@ -86,12 +95,12 @@ VERSION = @VERSION@
 INCLUDES = -I$(top_srcdir)/src/include
 libdir = ${prefix}/lib/freej
 
-SUFFIXES = .asm
+SUFFIXES = .nas
 
-NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
+NASM = nasm -f elf
 
 lib_LTLIBRARIES = blurzoom.la
-blurzoom_la_SOURCES = blurzoom.c blurzoomcore.asm
+blurzoom_la_SOURCES = blurzoom.c blurzoomcore.nas
 blurzoom_la_LDFLAGS = -module -avoid-version
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
@@ -102,8 +111,9 @@ LTLIBRARIES =  $(lib_LTLIBRARIES)
 DEFS = @DEFS@ -I. -I$(srcdir) -I../..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
+LIBS = @LIBS@
 blurzoom_la_LIBADD = 
-blurzoom_la_OBJECTS =  blurzoom.lo blurzoomcore.lo
+blurzoom_la_OBJECTS =  blurzoom.lo blurzoomcore.o
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -122,7 +132,7 @@ OBJECTS = $(blurzoom_la_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .asm .c .lo .o .obj .s
+.SUFFIXES: .S .c .lo .nas .o .obj .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu filters/blurzoom/Makefile
 
@@ -355,8 +365,9 @@ uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
+# -o `echo $<|cut -d. -f1`.lo
 
-.asm.lo:
+.nas.o:
 	$(NASM) $<
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.

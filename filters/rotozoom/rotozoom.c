@@ -1,14 +1,3 @@
-/*
- * EffecTV - Realtime Digital Video Effector
- * Copyright (C) 2001 FUKUCHI Kentarou
- *
- * Rotozoom - Ported to effectv by Buddy Smith.
- * Original license below
- *
- * then ported to FreeJ by jaromil
- *
- */
-
 /* Copyright (C) 2002 W.P. van Paassen - peter@paassen.tmfweb.nl, Byron Ellacott - bje@apnic.net
 
    This program is free software; you can redistribute it and/or modify it under
@@ -29,6 +18,8 @@
    Uses an 8 bit indexed image
    note that the code has not been fully optimized */
 
+/* ported to freej by jaromil */
+
 #include <freej.h>
 #include <freej_plugin.h>
 
@@ -39,8 +30,8 @@
 #include <SDL/SDL.h>
 
 static char *name = "Rotozoom";
-static char *author = "Paassen, Ellacott";
-static char *info = "planar z-axis rotation";
+static char *author = "van Paassen, Ellacott";
+static char *info = "planar z-axis zoomed rotation";
 static int version = 1;
 
 static int *roto;

@@ -48,8 +48,11 @@ int init(ScreenGeometry *sg) {
   map_height = geo->h / 4;
   video_width_margin = geo->w - map_width * 4;
 
-  /* some precalculation to save cycles to the inner loop */
-  w2 = geo->w*2; w3 = geo->w*3; w4 = geo->w*4;
+  /* some precalculation to save cycles to the inner loop
+     (optimization by jaromil) */
+  w2 = geo->w*2;
+  w3 = geo->w*3; 
+  w4 = geo->w*4;
   mw2 = map_width*2;
 
   map = (int32_t *)malloc(map_width*map_height*sizeof(int32_t)*2);

@@ -29,6 +29,10 @@ extern void init_table(int *table, ScreenGeometry *sg);
    computes a traslation realtime */
 extern int livemap(int x, int y);
 
+/* function called when a key is pressed
+   computes changes for interactive commands */
+extern int keypress(SDL_keysym *keysym);
+
 static ScreenGeometry *geo;
 
 int init(ScreenGeometry *sg) {
@@ -71,4 +75,6 @@ void *process(void *buffo) {
   return(procbuf);
 }
 
-int kbd_input(SDL_keysym *keysym) { return 0; }
+int kbd_input(SDL_keysym *keysym) {
+  return keypress(keysym); 
+}

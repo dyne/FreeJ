@@ -51,6 +51,8 @@ void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
   crop();
 
   screen->add_layer(this);
+  
+  notice("initialized %s layer %ix%i %ibpp",getname(),geo.w,geo.h,geo.bpp);
 }
 
 void Layer::run() {
@@ -314,7 +316,6 @@ void Layer::blit(void *video) {
   if(hidden) return;
 
   if(alpha_blit) {
-    func("alpha blit");
 
     /* ALPHA CHANNEL AWARE BLIT */
     switch(_blit_algo) {

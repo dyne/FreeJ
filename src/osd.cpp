@@ -163,22 +163,33 @@ void Osd::_selection() {
 void Osd::_layerlist() {
   unsigned int vpos = VBOUND+TOPLIST;
 
-  _set_color(red);
+  //  _set_color(red);
 
   Layer *l = (Layer *)screen->layers.begin();
   while(l) {
+    char *lname = l->getname();
+
     
     if( l == screen->kbd->layer) {
-      if(l->active)
-	_write(">+",screen->w-17,vpos,1,1);
-      else
-	_write(">-",screen->w-17,vpos,1,1);
+
+      if(l->active) {
+	/* red color */ _color32 = 0xee0000;
+	_write(lname,screen->w-28,vpos,1,1);
+      } else {
+	/* dark red color */ _color32 = 0x880000;	
+	_write(lname,screen->w-28,vpos,1,1);
+      }
 
     } else {
-      if(l->active)
-	_write(" +",screen->w-17,vpos,1,1);
-      else
-	_write(" -",screen->w-17,vpos,1,1);
+
+      if(l->active) {
+	/* red color */ _color32 = 0xee0000;
+	_write(lname,screen->w-24,vpos,1,1);
+      } else {
+	/* dark red color */ _color32 = 0x880000;	
+	_write(lname,screen->w-24,vpos,1,1);
+      }
+
     }
     vpos += CHAR_HEIGHT+1;
     l = (Layer *)l->next;
@@ -187,22 +198,33 @@ void Osd::_layerlist() {
 
 void Osd::_filterlist() {
   unsigned int vpos = VBOUND+6;
-
-  _set_color(red);
+  char fname[4];
 
   Filter *f = (Filter *)screen->kbd->layer->filters.begin();
 
   while(f) {
+    strncpy(fname,f->getname(),3); fname[3] = '\0';
+
     if(f == screen->kbd->filter) {
-      if(f->active)
-	_write("*<",1,vpos,1,1);
-      else
-    	_write("+<",1,vpos,1,1);
+
+      if(f->active) {
+	/* red color */ _color32 = 0xee0000;
+	_write(fname,5,vpos,1,1);
+      } else {
+	/* dark red color */ _color32 = 0x880000;
+    	_write(fname,5,vpos,1,1);
+      }
+
     } else {
-      if(f->active) 
-	_write("*",1,vpos,1,1);
-      else
-	_write("+",1,vpos,1,1);
+
+      if(f->active) {
+	/* red color */ _color32 = 0xee0000;
+	_write(fname,1,vpos,1,1);
+      } else {
+	/* dark red color */ _color32 = 0x880000;
+	_write(fname,1,vpos,1,1);
+      }
+
     }
     
     vpos += CHAR_HEIGHT+1;
@@ -216,7 +238,7 @@ void Osd::splash_screen() {
   _write(PACKAGE,HBOUND+40,vpos,2,2);
   _write(VERSION,HBOUND+160,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  _write("POPONJ",HBOUND+40,vpos,2,2);
+  _write("ECOTECH",HBOUND+40,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
   _write(":: set the veejay free ",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+30;
@@ -230,7 +252,7 @@ void Osd::splash_screen() {
   vpos += CHAR_HEIGHT+40;
   _write("| software by jaromil",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+10;
-  _write("| copyleft 2001, 2002",HBOUND+40,vpos,1,2);
+  _write("| copyleft 2001 - 2003",HBOUND+40,vpos,1,2);
 }
 
 bool Osd::credits() {

@@ -18,6 +18,7 @@ freej_SOURCES = \
 	v4l_layer.cpp	\
 	avi_layer.cpp	\
 	png_layer.cpp	\
+	txt_layer.cpp	\
 	linklist.cpp	\
 	jsync.cpp	\
 	keyboard.cpp	\
@@ -33,4 +34,4 @@ freej_SOURCES = \
 	hline32.asm \
 	clearscr.asm
 
-freej_LDADD = @LIBS@ -lpthread -lm -ldl -lpng @SDL_LIBS@ @AVIFILE_LIBS@
+freej_LDADD = @LIBS@ @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@

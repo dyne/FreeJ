@@ -35,6 +35,7 @@ V4lGrabber::V4lGrabber()
   :Layer() {
   dev = -1;
   rgb_surface = NULL;
+  buffer = NULL;
   have_tuner=false;
   setname("V4L");
 }
@@ -78,7 +79,7 @@ bool V4lGrabber::detect(char *devfile) {
   func("V4lGrabber::detect()");
 
   if (-1 == (dev = ::open(devfile,O_RDWR|O_NONBLOCK))) {
-    error("error in opening video capture device: %s",strerror(errno));
+    error("capture device %s: %s",devfile,strerror(errno));
     return(false);
   } else {
     ::close(dev);
@@ -255,58 +256,52 @@ void V4lGrabber::set_freq(int f) {
 
 /* here are defined the keys for this layer */
 bool V4lGrabber::keypress(SDL_keysym *keysym) {
-
-  if(keysym->mod) return false;
+  int res = 1;
+  if(keysym->mod & KMOD_CAPS) return false;
 
   switch(keysym->sym) {
 
   case SDLK_k:
-    if(input<channels) {
+    if(input<channels)
       set_chan(input+1);
-      return(true);
-    } else return(false);
+    break;
 
   case SDLK_m:
-    if(input>0) {
+    if(input>0)
       set_chan(input-1);
-      return(true);
-    } else return(false);
+    break;
     
     if(have_tuner) {
     case SDLK_j:
-      if(_band<bandcount) {
+      if(_band<bandcount)
 	set_band(_band+1);
-	return(true);
-      } else return(false);
+      break;
       
     case SDLK_n:
-      if(_band>0) {
+      if(_band>0)
 	set_band(_band-1);
-	return(true);
-      } else return(false);
+      break;
       
     case SDLK_h:
-      if(_freq<chanlists[_band].count) {
+      if(_freq<chanlists[_band].count)
 	set_freq(_freq+1);
-	return(true);
-      } else {
+      else
 	set_freq(0);
-	return(true);
-      }
-      
+      break;
+
     case SDLK_b:
-      if(_freq>0) {
+      if(_freq>0)
 	set_freq(_freq-1);
-	return(true);
-      } else {
+      else
 	set_freq(chanlists[_band].count);
-	return(true);
-      }
-    }
+      break;
+      
+    } /* if (have_tuner) */
 
   default:
-    return(false);
+    res = 0;
   }
+  return res;
 }
 
 void *V4lGrabber::get_buffer() {
