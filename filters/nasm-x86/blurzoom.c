@@ -1,8 +1,6 @@
 
 #include <freej.h>
-#include <freej_plugin.h>
 
-#include <SDL/SDL.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -16,6 +14,10 @@ static char *name = "Blurzoom";
 static char *author = "Fukuchi Kentarou";
 static char *info = "motion-enlightment effect";
 static int version = 1;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 static ScreenGeometry *geo;
 

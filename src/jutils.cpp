@@ -197,20 +197,20 @@ bool jfree(void *point) {
  *
  */
 
-static Uint32 randval;
+static uint32_t randval;
 
-Uint32 fastrand()
+uint32_t fastrand()
 {
 	return (randval=randval*1103515245+12345);
 }
 
-void fastsrand(Uint32 seed)
+void fastsrand(uint32_t seed)
 {
 	randval = seed;
 }
 
 #undef ARCH_X86
-unsigned long long int dtime() {
+double dtime() {
 #ifdef ARCH_X86
   double x;
   __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));

@@ -10,12 +10,13 @@
  * 
  */
 
+#include <freej.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <SDL/SDL.h>
 
-#include <freej.h>
+
 
 static void *procbuf;
 static int *Table;
@@ -31,7 +32,7 @@ extern int livemap(int x, int y);
 
 /* function called when a key is pressed
    computes changes for interactive commands */
-extern int keypress(SDL_keysym *keysym);
+extern int keypress(char key);
 
 static ScreenGeometry *geo;
 
@@ -62,19 +63,19 @@ int clean() {
 void *process(void *buffo) {
   int x,y;
   int dest, value=0;
-  Uint32 *src = (Uint32*)buffo, *dst = (Uint32*)procbuf;
+  uint32_t *src = (uint32_t*)buffo, *dst = (uint32_t*)procbuf;
   
   for(y=0;y<geo->h;y++)
     for(x=0;x<geo->w;x++) {
       dest = Table[x+ypos[y]];
-      if(dest >= 0) value = *(Uint32*)(src+dest);
+      if(dest >= 0) value = *(uint32_t*)(src+dest);
       else if(dest == -1) value = 0;
       else if(dest == -2) dest = livemap(x,y);
-      *(Uint32*)(dst+x+ypos[y]) = value;
+      *(uint32_t*)(dst+x+ypos[y]) = value;
     }
   return(procbuf);
 }
 
-int kbd_input(SDL_keysym *keysym) {
-  return keypress(keysym); 
+int kbd_input(char key) {
+  return keypress(key); 
 }

@@ -21,13 +21,11 @@
  */
 
 #include <freej.h>
-#include <freej_plugin.h>
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include <SDL/SDL.h>
 
 #define RED(n)  ((n>>16) & 0x000000FF)
 #define GREEN(n) ((n>>8) & 0x000000FF)
@@ -39,6 +37,10 @@ static char *name = "Cartoon"; /* do not assign a *name longer than 8 chars! */
 static char *author = "Dries Pruimboom"; 
 static char *info = "Cartoon";
 static int version = 1; /* version is just an int (sophisticated isn't it?) */
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 /* save here screen geometry informations */
 static ScreenGeometry *geo;
@@ -109,16 +111,16 @@ void *process(void *buffo) {
 }
 
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
   int res = 1;
-  switch(keysym->sym) {
-  case SDLK_w: OPT_TripLevel +=100; break;
-  case SDLK_q: OPT_TripLevel -=100; break;
-  case SDLK_s: if(OPT_DiffSpace<0xff) OPT_DiffSpace++; break;
-  case SDLK_a: if(OPT_DiffSpace>1) OPT_DiffSpace--; break;
-  case SDLK_e: ColorAction = ColorWhite; PrePixelModify = ColorCopy; break;
-  case SDLK_r: ColorAction = ColorCopy; break;
-  case SDLK_t: ColorAction = FlattenColor; break;
+  switch(key) {
+  case 'w': OPT_TripLevel +=100; break;
+  case 'q': OPT_TripLevel -=100; break;
+  case 's': if(OPT_DiffSpace<0xff) OPT_DiffSpace++; break;
+  case 'a': if(OPT_DiffSpace>1) OPT_DiffSpace--; break;
+  case 'e': ColorAction = ColorWhite; PrePixelModify = ColorCopy; break;
+  case 'r': ColorAction = ColorCopy; break;
+  case 't': ColorAction = FlattenColor; break;
   default: res = 0; break;
   }
   return res;

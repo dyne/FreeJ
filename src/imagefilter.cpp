@@ -14,7 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "SDL_imageFilter.h"
+#include <imagefilter.h>
 
 /* ------ Static variables ----- */
 

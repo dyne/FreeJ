@@ -14,9 +14,7 @@
  */
 
 #include <freej.h>
-#include <freej_plugin.h>
 
-#include <SDL/SDL.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -26,6 +24,10 @@ static char *name = "Edge";
 static char *author = "Fukuchi Kentarou";
 static char *info = "edge detection";
 static int version = 1;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 static ScreenGeometry *geo;
 
@@ -150,6 +152,6 @@ void *process(void *buffo) {
   return procbuf;
 }
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
   return 0;
 }

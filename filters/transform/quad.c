@@ -1,13 +1,16 @@
+
 #include <math.h>
 #include <string.h>
-#include <SDL/SDL.h>
 #include <freej.h>
-#include <freej_plugin.h>
 
 static char *name = "QuadTrans";
 static char *author = "jaromil";
 static char *info = "multiplied positional translation";
 static int version = 2;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 static ScreenGeometry *exgeo;
 static int *extable;
@@ -43,13 +46,13 @@ void init_table(int *table, ScreenGeometry *geo) {
 
 int livemap(int x, int y) { return 0; }
 
-int keypress(SDL_keysym *keysym) {
+int keypress(char key) {
   int res = 1;
-  switch(keysym->sym) {
-  case SDLK_w:
+  switch(key) {
+  case 'w':
     size = (size>9) ? 10 : size+1;
     break;
-  case SDLK_q:
+  case 'q':
     size = (size<3) ? 2 : size-1;
     break;
   default:

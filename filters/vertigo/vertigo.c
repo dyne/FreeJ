@@ -9,18 +9,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <SDL/SDL.h>
 
 #include <freej.h>
-#include <freej_plugin.h>
 
 static char *name = "Vertigo";
 static char *author = "Fukuchi Kentarou";
 static char *info = "alpha blending with zoomed and rotated images";
 static int version = 1;
 
-static Uint32 *buffer;
-static Uint32 *current_buffer, *alt_buffer;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
+
+
+static uint32_t *buffer;
+static uint32_t *current_buffer, *alt_buffer;
 static int dx, dy;
 static int sx, sy;
 static int x,y,xc,yc;
@@ -103,8 +107,8 @@ int clean() {
 }
 
 void *process(void *buffo) {
-  Uint32 *src, *dest, *p;
-  Uint32 v;
+  uint32_t *src, *dest, *p;
+  uint32_t v;
   int x, y;
   int ox, oy;
   int i;
@@ -139,37 +143,37 @@ void *process(void *buffo) {
   return dest;
 }
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
   int res = 1;
-  switch(keysym->sym) {
-  case SDLK_BACKSPACE:
+  switch(key) {
+  case 'c':
     phase = 0.0;
     phase_increment = 0.02;
     zoomrate = 1.01;
     break;
-  case SDLK_w:
+  case 'w':
     phase_increment += 0.01;
     break;
-  case SDLK_q:
+  case 'q':
     if(phase_increment>0.01)
       phase_increment -= 0.01;
     break;
-  case SDLK_s:
+  case 's':
     if(zoomrate<1.2) {
       zoomrate += 0.01;
       tfactor = (xc+yc) * zoomrate;
     }
     break;
-  case SDLK_a:
+  case 'a':
     if(zoomrate>1.01) {
       zoomrate -= 0.01;
       tfactor = (xc+yc) * zoomrate;
     }
     break;
-  case SDLK_x:
+  case 'x':
     if(mode<5) mode++;
     break;
-  case SDLK_z:
+  case 'z':
     if(mode>3) mode--;
     break;
   default:

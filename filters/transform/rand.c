@@ -1,13 +1,16 @@
+
 #include <stdlib.h>
 #include <string.h>
-#include <SDL/SDL.h>
 #include <freej.h>
-#include <freej_plugin.h>
 
 static char *name = "RandTrans";
 static char *author = "Clifford Smith";
 static char *info = "random positional translation";
 static int version = 1;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 static ScreenGeometry *geo;
 
@@ -43,4 +46,4 @@ void init_table(int *table, ScreenGeometry *sg) {
   fastsrand(rand());
 }
 
-int keypress(SDL_keysym *keysym) { return 0; }
+int keypress(char key) { return 0; }

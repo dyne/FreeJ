@@ -41,6 +41,7 @@
 #define KEY_HOME 263
 #define KEY_DELETE 275
 #define KEY_TAB 9
+
 /* unix ctrl- commandline hotkeys */
 #define KEY_CTRL_A 1 // goto beginning of line
 #define KEY_CTRL_B 2 // change blit
@@ -48,6 +49,7 @@
 #define KEY_CTRL_F 6 // go fullscreen
 #define KEY_CTRL_G 7
 #define KEY_CTRL_K 11 // delete until end of line
+#define KEY_CTRL_L 12
 #define KEY_CTRL_D 4 // delete char
 #define KEY_CTRL_U 21 // delete until beginning of line
 #define KEY_CTRL_H 272 // help the user
@@ -196,8 +198,7 @@ static int quit_proc(char *cmd) {
   if(!cmd) return 0;
   if(cmd[0]=='y') {
     real_quit = true;
-    return 1;
-  }
+    return 1; }
   real_quit = false;
   return 0;
 }
@@ -581,16 +582,28 @@ void Console::getkey() {
       filter->clean();
       filter = NULL;
     break;
+    
+    case SL_KEY_IC:
+      if(!filter) break;
+      filter->active = !filter->active;
+      break;
+
+    case SL_KEY_HOME:
+      if(!layer) break;
+      layer->active = !layer->active;
+      break;
 
     case KEY_CTRL_H:
       notice("Hotkeys available in FreeJ console:");
       act("arrow keys browse selection thru layers and effects");
+      act("HOME de/activate layer, INS de/activates filter");
       act("ctrl+o  = Open new layer (will prompt for path to file)");
       act("ctrl+e  = add a new Effect to the selected layer");
       act("ctrl+b  = change the Blit for the selected layer");
       act("ctrl+v  = change the blit Value for the selected layer");
       act("ctrl+c  = quit FreeJ");
       act("ctrl+f  = go to Fullscreen");
+      act("ctrl+l  = cleanup and redraw the console");
 #ifdef WITH_JAVASCRIPT
       act("ctrl+j  = execute a Javascript command");
 #endif
@@ -603,7 +616,11 @@ void Console::getkey() {
       }
       readline("add new Effect - press TAB for completion:",&filter_proc,&filter_comp);
       break;
-      
+
+    case KEY_CTRL_F:
+      env->screen->fullscreen();
+      break;
+
     case KEY_CTRL_B:
       if(!layer) {
 	error("can't change Blit: no Layer is selected, select one using arrows.");
@@ -635,6 +652,23 @@ void Console::getkey() {
       break;
 #endif
 
+    case KEY_CTRL_L:
+      SLsmg_cls();
+      canvas();
+      layerprint(); layerlist();
+      filterprint(); filterlist();  
+      update_scroll();
+      if(!input)
+	statusline();
+      else
+	GOTO_CURSOR;
+      break;
+      
+    default:
+      if(!filter) break;
+      filter->kbd_input( key );
+      break;
+			 
       //    case KEY_CTRL_T:
       //      ::notice("Welcome to %s %s",PACKAGE,VERSION);
       //    :: act("layers supported:\n%s",layers_description);
@@ -648,7 +682,7 @@ void Console::cafudda() {
   getkey(); // get pending keyboard input
 
   if(keyboard_quit) {
-    readline("do you really want to quit? type y or n:",&quit_proc,NULL);
+    readline("do you really want to quit? type yes to confirm:",&quit_proc,NULL);
     keyboard_quit = false;
     return;
   }
@@ -685,7 +719,7 @@ void Console::cafudda() {
     update_scroll();
 
   if(!input) {
-    //    speedmeter();
+    speedmeter();
     statusline();
   } else
     GOTO_CURSOR;

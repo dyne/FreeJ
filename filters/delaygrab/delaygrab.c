@@ -25,15 +25,16 @@
     
 */
 
+#include <freej.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include <SDL/SDL.h>
+#include <inttypes.h>
 
-#include <freej.h>
-#include <freej_plugin.h>
+
 
 #define QUEUEDEPTH 71 /* was 76 */
 #define MODES 4
@@ -42,12 +43,16 @@ static char *name = "Delaymap";
 static char *author = "Andreas Schiffler";
 static char *info = "map delayed frame blitting";
 static int version = 2;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 static int x,y,i,xyoff,v;
-static Uint8 *imagequeue,*curqueue;
+static uint8_t *imagequeue,*curqueue;
 static int curqueuenum;
-static Uint32 *curdelaymap;
-static Uint8 *curpos,*curimage;
+static uint32_t *curdelaymap;
+static uint8_t *curpos,*curimage;
 static int curposnum;
 static void *delaymap;
 static void *procbuf;
@@ -69,14 +74,14 @@ static ScreenGeometry *geo;
 static void createDelaymap(int mode);
 static void set_blocksize(int bs);
 static int isqrt(unsigned int x);
-static Uint32 fastrand();
-void fastsrand(Uint32 seed);
+static uint32_t fastrand();
+void fastsrand(uint32_t seed);
 
 int init(ScreenGeometry *sg) {
   geo = sg;
 
   delaymap=NULL;
-  imagequeue = (Uint8 *) malloc(QUEUEDEPTH*(geo->size));
+  imagequeue = (uint8_t *) malloc(QUEUEDEPTH*(geo->size));
   procbuf = malloc(geo->size);
 
   /* starting mode */
@@ -114,7 +119,7 @@ void *process(void *buffo) {
   memcpy(curqueue,buffo,geo->size);
 
      /* Copy image blockwise to screenbuffer */
-  curdelaymap= (Uint32 *)delaymap;
+  curdelaymap= (uint32_t *)delaymap;
   for (y=0; y<delaymapheight; y++) {
     for (x=0; x<delaymapwidth; x++) {
 
@@ -126,7 +131,7 @@ void *process(void *buffo) {
       curpos += (geo->size*curposnum);
       curpos += xyoff;
       /* target */
-      curimage = (Uint8 *)procbuf;
+      curimage = (uint8_t *)procbuf;
       curimage += xyoff;
       /* copy block */
       for (i=0; i<blocksize; i++) {
@@ -141,19 +146,19 @@ void *process(void *buffo) {
   return(procbuf);
 }
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
   int res = 1;
-  switch(keysym->sym) {
-  case SDLK_w:
+  switch(key) {
+  case 'w':
     if(current_mode<MODES) createDelaymap(current_mode+1);
     break;
-  case SDLK_q:
+  case 'q':
     if(current_mode>1) createDelaymap(current_mode-1);
     break;
-  case SDLK_s:
+  case 's':
     set_blocksize(blocksize+1);
     break;
-  case SDLK_a:
+  case 'a':
     if(blocksize>2) set_blocksize(blocksize-1);
     break;
   default:
@@ -166,7 +171,7 @@ int kbd_input(SDL_keysym *keysym) {
 static void createDelaymap(int mode) {
   double d;
 
-  curdelaymap=(Uint32 *)delaymap;
+  curdelaymap=(uint32_t *)delaymap;
   fastsrand(time(NULL));
 
   for (y=delaymapheight; y>0; y--) {
@@ -255,14 +260,14 @@ static int isqrt(unsigned int x) {
  *
  */
 
-static Uint32 randval;
+static uint32_t randval;
 
-Uint32 fastrand()
+uint32_t fastrand()
 {
 	return (randval=randval*1103515245+12345);
 }
 
-void fastsrand(Uint32 seed)
+void fastsrand(uint32_t seed)
 {
 	randval = seed;
 }

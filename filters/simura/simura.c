@@ -4,17 +4,19 @@
  */
 
 #include <stdlib.h>
-#include <SDL/SDL.h>
 
 #include <freej.h>
-#include <freej_plugin.h>
 
 static char *name = "Simura";
 static char *author = "Fukuchi Kentarou";
 static char *info = "interactive multi mirror and colorizer";
 static int version = 1;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
-static Uint32 colortable[26] = {
+static uint32_t colortable[26] = {
 	0x000080, 0x0000e0, 0x0000ff,
 	0x008000, 0x00e000, 0x00ff00,
 	0x008080, 0x00e0e0, 0x00ffff,
@@ -31,15 +33,15 @@ static int hheight, hwidth, stat, color, mirror;
 static void *procbuf;
 static ScreenGeometry *geo;
 
-static void mirror_no(Uint32 *src, Uint32 *dest);
-static void mirror_u(Uint32 *src, Uint32 *dest);
-static void mirror_d(Uint32 *src, Uint32 *dest);
-static void mirror_l(Uint32 *src, Uint32 *dest);
-static void mirror_r(Uint32 *src, Uint32 *dest);
-static void mirror_ul(Uint32 *src, Uint32 *dest);
-static void mirror_ur(Uint32 *src, Uint32 *dest);
-static void mirror_dl(Uint32 *src, Uint32 *dest);
-static void mirror_dr(Uint32 *src, Uint32 *dest);
+static void mirror_no(uint32_t *src, uint32_t *dest);
+static void mirror_u(uint32_t *src, uint32_t *dest);
+static void mirror_d(uint32_t *src, uint32_t *dest);
+static void mirror_l(uint32_t *src, uint32_t *dest);
+static void mirror_r(uint32_t *src, uint32_t *dest);
+static void mirror_ul(uint32_t *src, uint32_t *dest);
+static void mirror_ur(uint32_t *src, uint32_t *dest);
+static void mirror_dl(uint32_t *src, uint32_t *dest);
+static void mirror_dr(uint32_t *src, uint32_t *dest);
 
 int init(ScreenGeometry *sg) {
   geo = sg;
@@ -60,100 +62,94 @@ int clean() {
 void *process(void *buffo) {
   switch(mirror) {
   case 1:
-    mirror_l((Uint32*)buffo, (Uint32*)procbuf);
+    mirror_l((uint32_t*)buffo, (uint32_t*)procbuf);
     break;
   case 2:
-    mirror_r((Uint32*)buffo, (Uint32*)procbuf);
+    mirror_r((uint32_t*)buffo, (uint32_t*)procbuf);
     break;
   case 3:
-    mirror_d((Uint32*)buffo, (Uint32*)procbuf);
+    mirror_d((uint32_t*)buffo, (uint32_t*)procbuf);
     break;
   case 4:
-    mirror_dl((Uint32*)buffo, (Uint32*)procbuf);
+    mirror_dl((uint32_t*)buffo, (uint32_t*)procbuf);
     break;
   case 5:
-    mirror_dr((Uint32*)buffo, (Uint32*)procbuf);
+    mirror_dr((uint32_t*)buffo, (uint32_t*)procbuf);
     break;
   case 6:
-    mirror_u((Uint32*)buffo, (Uint32*)procbuf);
+    mirror_u((uint32_t*)buffo, (uint32_t*)procbuf);
     break;
   case 7:
-    mirror_ul((Uint32*)buffo, (Uint32*)procbuf);
+    mirror_ul((uint32_t*)buffo, (uint32_t*)procbuf);
     break;
   case 8:
-    mirror_ur((Uint32*)buffo, (Uint32*)procbuf);
+    mirror_ur((uint32_t*)buffo, (uint32_t*)procbuf);
     break;
   case 0:
   default:
-    mirror_no((Uint32*)buffo, (Uint32*)procbuf);
+    mirror_no((uint32_t*)buffo, (uint32_t*)procbuf);
     break;
   }
   return(procbuf);
 }
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
   int res = 1;
-  if(keysym->mod & KMOD_CAPS)
-    switch(keysym->sym) {
-    case SDLK_a:
-    case SDLK_b:
-    case SDLK_c:
-    case SDLK_d:
-    case SDLK_e:
-    case SDLK_f:
-    case SDLK_g:
-    case SDLK_h:
-    case SDLK_i:
-    case SDLK_j:
-    case SDLK_k:
-    case SDLK_l:
-    case SDLK_m:
-    case SDLK_n:
-    case SDLK_o:
-    case SDLK_p:
-    case SDLK_q:
-    case SDLK_r:
-    case SDLK_s:
-    case SDLK_t:
-    case SDLK_u:
-    case SDLK_v:
-    case SDLK_w:
-    case SDLK_x:
-    case SDLK_y:
-    case SDLK_z:
-      color = colortable[keysym->sym - SDLK_a];
+  /*  if(keysym->mod & KMOD_CAPS)
+      colors are removed temporarly
+    switch(key) {
+    case 'a':
+    case 'b':
+    case 'c':
+    case 'd':
+    case 'e':
+    case 'f':
+    case 'g':
+    case 'h':
+    case 'i':
+    case 'j':
+    case 'k':
+    case 'l':
+    case 'm':
+    case 'n':
+    case 'o':
+    case 'p':
+    case 'q':
+    case 'r':
+    case 's':
+    case 't':
+    case 'u':
+    case 'v':
+    case 'w':
+    case 'x':
+    case 'y':
+      color = colortable[key - 'a'];
       break;
-    case SDLK_BACKSPACE:
+    case 'z':
       color = 0;
       break;
-    default:
-      res = 0;
-      break;
-    }
-  else
-    switch(keysym->sym) {
-    case SDLK_KP0:
-      mirror = 0;
-      break;
-    case SDLK_KP1:
-    case SDLK_KP2:
-    case SDLK_KP3:
-    case SDLK_KP4:
-    case SDLK_KP5:
-    case SDLK_KP6:
-    case SDLK_KP7:
-    case SDLK_KP8:
-    case SDLK_KP9:
-      mirror = keysym->sym - SDLK_KP1;
-      break;
-    default:
-      res = 0;
-    }
+  */
+  switch(key) {
+  case 'z':
+    mirror = 0;
+    break;
+  case 'x': mirror = 1; break;
+  case 'c': mirror = 2; break;
+  case 'a': mirror = 3; break;
+  case 's': mirror = 4; break;
+  case 'd': mirror = 5; break;
+  case 'q': mirror = 6; break;
+  case 'w': mirror = 7; break;
+  case 'e': mirror = 8; break;
+  default:
+    res = 0;
+    break;
+  }
   
   return(res);
 }
 
-static void mirror_no(Uint32 *src, Uint32 *dest) {
+static void mirror_no(uint32_t *src, uint32_t *dest) {
 	unsigned int i;
 
 	for(i=0; i<geo->size>>2; i++) {
@@ -161,7 +157,7 @@ static void mirror_no(Uint32 *src, Uint32 *dest) {
 	}
 }
 
-static void mirror_u(Uint32 *src, Uint32 *dest) {
+static void mirror_u(uint32_t *src, uint32_t *dest) {
 	int x, y;
 
 	for(y=0; y<hheight; y++) {
@@ -172,7 +168,7 @@ static void mirror_u(Uint32 *src, Uint32 *dest) {
 	}
 }
 
-static void mirror_d(Uint32 *src, Uint32 *dest) {
+static void mirror_d(uint32_t *src, uint32_t *dest) {
 	int x, y;
 
 	for(y=hheight; y<(geo->h); y++) {
@@ -183,7 +179,7 @@ static void mirror_d(Uint32 *src, Uint32 *dest) {
 	}
 }
 
-static void mirror_l(Uint32 *src, Uint32 *dest) {
+static void mirror_l(uint32_t *src, uint32_t *dest) {
 	int x, y;
 
 	for(y=0; y<(geo->h); y++) {
@@ -194,7 +190,7 @@ static void mirror_l(Uint32 *src, Uint32 *dest) {
 	}
 }
 
-static void mirror_r(Uint32 *src, Uint32 *dest) {
+static void mirror_r(uint32_t *src, uint32_t *dest) {
 	int x, y;
 
 	for(y=0; y<(geo->h); y++) {
@@ -205,7 +201,7 @@ static void mirror_r(Uint32 *src, Uint32 *dest) {
 	}
 }
 
-static void mirror_ul(Uint32 *src, Uint32 *dest) {
+static void mirror_ul(uint32_t *src, uint32_t *dest) {
 	int x, y;
 
 	for(y=0; y<hheight; y++) {
@@ -218,7 +214,7 @@ static void mirror_ul(Uint32 *src, Uint32 *dest) {
 	}
 }
 
-static void mirror_ur(Uint32 *src, Uint32 *dest) {
+static void mirror_ur(uint32_t *src, uint32_t *dest) {
 	int x, y;
 
 	for(y=0; y<hheight; y++) {
@@ -231,7 +227,7 @@ static void mirror_ur(Uint32 *src, Uint32 *dest) {
 	}
 }
 
-static void mirror_dl(Uint32 *src, Uint32 *dest) {
+static void mirror_dl(uint32_t *src, uint32_t *dest) {
 	int x, y;
 
 	for(y=hheight; y<(geo->h); y++) {
@@ -244,7 +240,7 @@ static void mirror_dl(Uint32 *src, Uint32 *dest) {
 	}
 }
 
-static void mirror_dr(Uint32 *src, Uint32 *dest) {
+static void mirror_dr(uint32_t *src, uint32_t *dest) {
 	int x, y;
 
 	for(y=hheight; y<(geo->h); y++) {

@@ -19,7 +19,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include <SDL.h>
+#include <inttypes.h>
 #include <console.h>
 
 extern char msg[255];
@@ -39,9 +39,9 @@ void act(char *format, ...);
 void warning(char *format, ...);
 void *jalloc(void *point,size_t size);
 bool jfree(void *point);
-Uint32 fastrand();
-void fastsrand(Uint32 seed);
-unsigned long long int dtime();
+uint32_t fastrand();
+void fastsrand(uint32_t seed);
+double dtime();
 bool set_rtpriority(bool max);
 void jsleep(int sec, long nsec);
 int rtc_open();

@@ -1,18 +1,20 @@
+
+
 #include <freej.h>
-#include <freej_plugin.h>
-
-
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
 
 /* setup some data to identify the plugin */
 static char *name = "Blur"; /* do not assign a *name longer than 8 chars! */
 static char *author = "jaromil"; 
 static char *info = "Soft pixel blending";
 static int version = 1; /* version is just an int (sophisticated isn't it?) */
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 /* save here screen geometry informations */
 static ScreenGeometry *geo;
@@ -47,6 +49,6 @@ void *process(void *buffo) {
 }
 
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
   return(0);
 }

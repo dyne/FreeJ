@@ -24,9 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include <freej.h>
-#include <freej_plugin.h>
 
-#include <SDL/SDL.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -43,6 +41,10 @@ static char *name = "BackLight";
 static char *author = "Pete Warden";
 static char *info = "still don't know";
 static int version = 1;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 static ScreenGeometry *geo;
 
@@ -215,20 +217,20 @@ void *process(void *buffo) {
 
 
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
   int res = 1;
 
-  switch(keysym->sym) {
-  case SDLK_q:
+  switch(key) {
+  case 'q':
     m_SpikeScale+=1.1;
     break;
-  case SDLK_w:
+  case 'w':
     m_SpikeScale-=1.1;
     break;
-  case SDLK_a:
+  case 'a':
     movelight=(movelight==0?1:0);
     break;
-  case SDLK_s:
+  case 's':
     invert=(invert==0?1:0);
   default:
     res = 0;

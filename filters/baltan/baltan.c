@@ -8,10 +8,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <SDL/SDL.h>
 
 #include <freej.h>
-#include <freej_plugin.h>
 
 #define PLANES 32
 
@@ -23,9 +21,13 @@ static char *name = "Baltan";
 static char *author = "Fukuchi Kentarou";
 static char *info = "delayed alphachannel blit";
 static int version = 1;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
-static Uint32 *planebuf;
-static Uint32 *planetable[PLANES];
+static uint32_t *planebuf;
+static uint32_t *planetable[PLANES];
 static void *procbuf;
 static int plane;
 static int pixels;
@@ -59,8 +61,8 @@ int clean() {
 void *process(void *buffo) {
   int i, cf;
 
-  Uint32 *buf = (Uint32*)buffo;
-  Uint32 *dst = (Uint32*)procbuf;
+  uint32_t *buf = (uint32_t*)buffo;
+  uint32_t *dst = (uint32_t*)procbuf;
 
   
   for(i=0; i<pixels; i++)
@@ -83,4 +85,4 @@ void *process(void *buffo) {
   return procbuf;
 }
 
-int kbd_input(SDL_keysym *keysym) { return 0; }
+int kbd_input(char key) { return 0; }

@@ -21,18 +21,20 @@
 /* ported to freej by jaromil */
 
 #include <freej.h>
-#include <freej_plugin.h>
 
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 #include <inttypes.h>
-#include <SDL/SDL.h>
 
 static char *name = "Rotozoom";
 static char *author = "van Paassen, Ellacott";
 static char *info = "planar z-axis zoomed rotation";
 static int version = 1;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 static int *roto;
 static int *roto2;
@@ -111,6 +113,6 @@ void *process(void *buffo) {
   return procbuf;
 }
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
   return 0;
 }

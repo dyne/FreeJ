@@ -24,12 +24,10 @@
  */
 
 #include <freej.h>
-#include <freej_plugin.h>
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <SDL/SDL.h>
 #include <time.h>
 
 /* setup some data to identify the plugin */
@@ -37,6 +35,10 @@ static char *name = "Water";
 static char *author = "jaromil"; 
 static char *info = "Water surface";
 static int version = 1;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 /* save here screen geometry informations */
 static ScreenGeometry *geo;
@@ -217,44 +219,44 @@ void *process(void *buffo) {
 }
 
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
   int res = 1;
-  switch(keysym->sym) {
-  case SDLK_e: /* bigsplash in center */
+  switch(key) {
+  case 'e': /* bigsplash in center */
     water_bigsplash(geo->w>>1,geo->y>>1);
     break;
-  case SDLK_r: /* random splash */
+  case 'r': /* random splash */
     water_bigsplash(fastrand()%geo->w,fastrand()%geo->h);
     break;
-  case SDLK_t: /* rain */
+  case 't': /* rain */
     rain = (rain)?0:1;
     break;
-  case SDLK_d: /* distort surface */
+  case 'd': /* distort surface */
     if(!rain) water_distort();
     break;
-  case SDLK_f: /* smooth surface */
+  case 'f': /* smooth surface */
     SmoothWater(Hpage);
     break;
-  case SDLK_y: /* swirl */
+  case 'y': /* swirl */
     swirl = (swirl)?0:1;
     break;
-  case SDLK_u: /* surfer */
+  case 'u': /* surfer */
     surfer = (surfer)?0:1;
     break;
-  case SDLK_g: /* randomize swirl angles */
+  case 'g': /* randomize swirl angles */
     swirlangle = fastrand()%2048;
     xang = fastrand()%2048;
     yang = fastrand()%2048;
     break;
-  case SDLK_h: /* horizontal line */
+  case 'h': /* horizontal line */
     horizline = 1;
     break;
     
-  case SDLK_q:
+  case 'q':
     if(physics>1) physics--;
     water_setphysics(physics);
     break;
-  case SDLK_w:
+  case 'w':
     if(physics<4) physics++;
     water_setphysics(physics);
 

@@ -144,7 +144,7 @@ void KbdListener::run() {
       layer->sel(true); /* select the first */
     }
 
-    /* mouse drag */
+    /* mouse drag 
     if(event.type & SDL_MOUSEMOTION)
       if(event.motion.state & SDL_BUTTON_LEFT)
 	layer->set_position
@@ -152,7 +152,8 @@ void KbdListener::run() {
 	    layer->geo.y + event.motion.yrel );
       else if(event.motion.state & SDL_BUTTON_RIGHT)
 	layer->set_position( event.motion.x, event.motion.y );
-    
+    i'm not sure why, but this doesn't works now */
+
     switch(keysym->sym) {
 
       /* filter selection */
@@ -409,7 +410,10 @@ void KbdListener::run() {
     default:
       /* passes opcode to layer implementation */
       layer->lock();
-      filter->kbd_input(&event.key.keysym);
+      //      if(event.key.keysym.mod & KMOD_SHIFT)
+      //	filter->kbd_input(event.key.keysym.sym+'A');
+      //      else
+      filter->kbd_input(event.key.keysym.sym);
       layer->unlock();
       break;
     }
