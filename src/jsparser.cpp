@@ -24,6 +24,7 @@
 
 #include <string.h>
 #include <context.h>
+#include <signal.h>
 #include <config.h>
 
 #ifdef WITH_JAVASCRIPT
@@ -38,6 +39,11 @@
    in order to have it accessed from callback functions
    which are not class methods */
 static Context *env;
+static bool stop_script;
+
+static void sigint_handler(int sig) {
+    stop_script=true;
+}
 
 JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
@@ -150,6 +156,9 @@ void JsParser::init() {
 		 &filter_class, filter_constructor,
 		 0, NULL, NULL, NULL, NULL);
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
+//
+   /** register SIGINT signal */
+   signal(SIGINT, sigint_handler);
 
    return;
 }
@@ -881,9 +890,15 @@ JS(video_layer_pause) {
 JS_CONSTRUCTOR("PngLayer",png_layer_constructor,PngLayer);
 #endif
 static JSBool static_branch_callback(JSContext* Context, JSScript* Script) {
-    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
-    return (js->branch_callback(Context,Script));
+    if(stop_script) {
+	stop_script=false;
+	return JS_FALSE;
+    }
+    return JS_TRUE;
+//    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
+//    return (js->branch_callback(Context,Script));
 }
+/*
 JSBool JsParser::branch_callback(JSContext* Context, JSScript* Script) {
     if(stop_script) {
 	stop_script=false;
@@ -891,6 +906,7 @@ JSBool JsParser::branch_callback(JSContext* Context, JSScript* Script) {
     }
     return JS_TRUE;
 }
+*/
 void JsParser::error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
     error("JsParser :: javascript error in %s at line %d",Report->filename,Report->lineno+1);
     if(Message)

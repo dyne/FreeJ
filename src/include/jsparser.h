@@ -117,7 +117,6 @@ class JsParser {
 	JSPropertySpec layer_properties[3];
 
 	int parse_count;
-	bool stop_script;
 	//	JSFunctionSpec shell_functions[3];
 	
 
