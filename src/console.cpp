@@ -75,8 +75,6 @@
 
 static Context *env;
 
-extern const char *layers_description;
-
 static bool screen_size_changed;
 static void sigwinch_handler (int sig) {
   screen_size_changed = true;
@@ -560,7 +558,9 @@ void Console::layerlist() {
       color+=20;
       layercol = SLsmg_get_column();
     }
-    if( l->active) color+=10;
+    
+    if(l->fade | l->active) color+=10;
+
     SLsmg_set_color (color);
     
     SLsmg_printf("%s",l->get_name());
@@ -896,8 +896,8 @@ void Console::parser_default(int key) {
     break;
 
   case KEY_CTRL_O:
-    readline("open a file in a new Layer:",
-	     &open_layer,&filebrowse_completion);
+      readline("open a file in a new Layer:",
+	       &open_layer,&filebrowse_completion);
     break;
       
   case KEY_CTRL_X:
@@ -1012,30 +1012,46 @@ void Console::parser_movelayer(int key) {
 void Console::parser_jazz(int key) {
   commandline = false;
   Layer *lay;
-  int num;
+  bool found = false;
   // table of valid keys
-  char *jazzkeys = "qwertyuiopasdfghjklzxcvbnm\0";
+  char *jazzkeys = "1234567890qwertyuiopasdfghjklzxcvbnm\0";
   char *p;
-
-  // search for the key
-  for(p = jazzkeys; *p != key; p++)
-    if(*p=='\0') break;
-
-  if(*p!='\0') { // found
-    num = p - jazzkeys +1;
-    ::func("pulse layer %i",num);
-    // find it
-    lay = (Layer*) env->layers.pick(num);
-    // check it
-    if(!lay) return;
-    if(!lay->active) return;
-    // pulse it
-    lay->blitter.pulse_value(jazzstep,jazzvalue);
-    env->layers.sel(0);
-    lay->sel(true);
+  
+  lay = (Layer*) env->layers.begin();
+  if(!lay) {
+    error("Can't enter Jazz mode: no layers are loaded");
+    parser = DEFAULT;
     return;
   }
+  // search for the corresponding layer
+  for(p = jazzkeys; *p != '\0'; p++) {
 
+    if(*p==key) { // stop searching if key is found
+      found = true;
+      break;
+    }
+
+    lay = (Layer*)lay->next; // it's the next layer as well as the next key!
+
+
+    if(!lay) { // stop searching if it's the last layer
+      found = false;
+      break;
+    }
+  } // quits if the key is found
+
+  if(found) { // means it's found
+    // check it
+    //    if(!lay) return;
+    // pulse it
+    lay->pulse_alpha(jazzstep,jazzvalue);
+    layer = lay;
+    //    env->layers.sel(0);
+    //    lay->sel(true);
+
+    return;
+  }
+  
   switch(key) {
   case SL_KEY_UP:
     if(jazzstep<0xff) jazzstep++;

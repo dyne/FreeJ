@@ -33,10 +33,14 @@
 #include <jutils.h>
 #include <config.h>
 
+#include <impl_layers.h>
 
 /* controller interfaces */
 #ifdef WITH_GLADE2
 #include <gtk_ctrl.h>
+#endif
+#ifdef WITH_GTK2
+#include <gtk/gtk.h>
 #endif
 #ifdef WITH_JOYSTICK
 #include <joy_ctrl.h>
@@ -60,7 +64,9 @@ static const char *help =
 " .   -h   print this help\n"
 " .   -v   version information\n"
 " .   -D   debug verbosity level - default 1\n"
-" .   -C   start without graphical interface\n"
+#ifdef WITH_GLADE2
+" .   -g   start with GTK graphical interface (deprecated)\n"
+#endif
 " .   -s   size of screen - default 400x300\n"
 " .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
@@ -72,7 +78,9 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:Cs:m:nj:";
+static const char *short_options = "-hvD:gs:m:nj:";
+
+
 
 int debug;
 char layer_files[MAX_CLI_CHARS];
@@ -83,11 +91,7 @@ int magn = 0;
 char javascript[512]; // script filename
 
 bool startstate = true;
-#ifdef WITH_GLADE2
-bool gtkgui = true;
-#else
 bool gtkgui = false;
-#endif
 
 
 bool parse_header_for_script() {
@@ -175,9 +179,13 @@ void cmdline(int argc, char **argv) {
 	debug = 3;
       }
       break;
-    case 'C':
-      gtkgui = false;
+
+#ifdef WITH_GLADE2
+    case 'g':
+      gtkgui = true;
       break;
+#endif
+
     case 's':
       sscanf(optarg,"%ux%u",&width,&height);
       if(width<320) {
@@ -248,6 +256,9 @@ void cmdline(int argc, char **argv) {
 
 int main (int argc, char **argv) {
 
+  /* this is the output context (screen) */
+  Context freej;
+  
   Layer *lay = NULL;
 
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
@@ -265,11 +276,9 @@ int main (int argc, char **argv) {
   */
 
 
-  /* this is the output context (screen) */
-  Context freej;
   assert( freej.init(width,height) );
 
-  /* refresh the list of available plugins */
+  // refresh the list of available plugins
   freej.plugger.refresh();
 
 #ifdef WITH_JAVASCRIPT
@@ -344,14 +353,16 @@ int main (int argc, char **argv) {
   if(! midi->init(&freej) ) delete midi;
 #endif
 
-
+  
 
 #ifdef WITH_GLADE2
   /* check if we have an X11 display running */
   if(!getenv("DISPLAY")) gtkgui = false;
-  /* this launches gtk2 interface controller thread
-     this interface is completely asynchronous to freej */
-  if(gtkgui) gtk_ctrl_init(&freej,&argc,argv);
+  if(gtkgui) {
+    /* this launches glade2 interface controller thread
+       this interface is completely asynchronous to freej */
+    gtk_ctrl_init(&freej,&argc,argv);
+  }
 #endif
 
 

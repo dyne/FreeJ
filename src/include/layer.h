@@ -94,6 +94,15 @@ class Layer: public Entry, public JSyncThread {
   void slide_position(int x, int y);
   ///< Slide the Layer to a position on screen
 
+  /**
+     If the Layer is in another blit mode then it is switched
+     to alpha with zero opacity and pulsed (fade in->out)
+     @param step fade value change for every frame (affects speed of fade, the higher the slower)
+     @param value ceiling of the pulse, fade until there and back
+  */
+  void pulse_alpha(int step, int value);
+  ///< Pulse the Layer in alpha blending (in->out) 
+
   Linklist filters;
   ///< Filter list of effects applied on the Layer
 
@@ -107,6 +116,7 @@ class Layer: public Entry, public JSyncThread {
   bool quit; ///< should it quit? (read-write)
   bool running; ///< is running? (read-only)
   bool hidden; ///< is hidden (read-only by the blit)
+  bool fade; ///< layer is deactivated at the end of current iterations (read-write internal)
   int bgcolor; ///< matte background color
 
   Blitter blitter; ///< blitter class
@@ -153,8 +163,10 @@ class Layer: public Entry, public JSyncThread {
 
 /* function for type detection of implemented layers */
 extern const char *layers_description;
+///< list of implemented layers to print in help
 extern Layer *create_layer(char *file);
 ///< create the propriate Layer type from a file
+
 
 
 

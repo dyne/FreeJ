@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2003 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2004 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -26,6 +26,10 @@
 #include <layer.h>
 #include <jutils.h>
 #include <config.h>
+
+#ifdef WITH_GTK2
+#include <gtk/gtk.h>
+#endif
 
 #include <impl_layers.h>
 
@@ -55,7 +59,6 @@ const char *layers_description =
 " .  - particle generator ( try: 'freej layer_gen' on commandline)\n"
 " .  - vertical text scroller (any other extension)\n"
 "\n";
-
 
 Layer *create_layer(char *file) {
   char *end_file_ptr,*file_ptr;
@@ -196,3 +199,4 @@ Layer *create_layer(char *file) {
     func("create_layer succesful, returns %p",nlayer);
   return nlayer;
 }
+

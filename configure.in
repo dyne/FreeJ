@@ -260,11 +260,11 @@ fi])
 dnl ==============================================================
 dnl CHECK if there is LIBGLADE2
 dnl ==============================================================
+AC_ARG_ENABLE(glade2,
+[  --enable-glade2         compile with Glade/Gtk2 interface (deprecated, default: no)], [
 PKG_CHECK_MODULES(GLADE2, libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0, [
   AC_DEFINE(WITH_GLADE2,1,[define if compiling glade gtk+-2 GUI])
-  have_glade2=yes
-],[
-  have_flade2=no
+  have_glade2=yes ],[ have_glade2=no ])
 ])
 
 dnl ==============================================================
@@ -439,6 +439,12 @@ echo "Compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
 echo "= SDL v${SDL_VERSION}"
 echo "  LIBS  : $SDL_LIBS"
 echo "  CFLAGS: $SDL_CFLAGS"
+if test x$have_glade2 = xyes; then
+echo "= libGlade2"
+echo "  this controller interface is not fully functional"
+echo "  LIBS  : $GLADE2_LIBS"
+echo "  CFLAGS: $GLADE2_CFLAGS"
+fi
 if test x$have_png = xyes; then
 echo "= Png1.2"
 echo "  LIBS  : $PNG_LIBS"

@@ -48,7 +48,7 @@ static uint8_t gchan = 1;
 static uint32_t bmask = 0x00ff0000;
 static uint8_t bchan = 0;
 static uint32_t amask = 0xff000000;
-static uint8_t achan = 0;
+static uint8_t achan = 3;
 #endif
 
 // blit functions prototype
@@ -566,7 +566,13 @@ void Blitter::blit() {
 
 
 bool Blitter::set_blit(char *name) {
-  Blit *b = (Blit*)blitlist.search(name);
+  bool zeroing = false;
+  if(name[0]=='0') /* if a 0 is in front of the name
+		      we switch to 0 the value of the layer
+		      before activating it */
+    zeroing = true;
+
+  Blit *b = (Blit*)blitlist.search(name+zeroing);
 
   if(!b) {
     error("blit %s not found",name);
@@ -574,16 +580,22 @@ bool Blitter::set_blit(char *name) {
   }
   
   // found the matching name!
-  current_blit = b;
-  blitlist.sel(0);
-  b->sel(true);
+
   if(b->type == PAST_BLIT) { // must fill previous frame
     if(b->past_frame) free(b->past_frame);
     b->past_frame = calloc(layer->geo.size,1);
   }
-  if(layer) crop(NULL);
-  act("blit %s selected for layer %s",
-      b->get_name(),(layer)?layer->get_name():" ");
+
+  if(zeroing) b->value = 0;
+
+  current_blit = b; // start using
+  crop(NULL);
+  blitlist.sel(0);
+  b->sel(true);
+
+
+  func("blit %s selected for layer %s",
+       b->get_name(),(layer)?layer->get_name():" ");
   return true;
 }
 
@@ -601,7 +613,7 @@ bool Blitter::pulse_value(int step, int val) {
 
   layer->iterators.add(iter);
   
-  act("layer %s blit %s pulse to %i by step %i",
+  func("layer %s blit %s pulse to %i by step %i",
       layer->get_name(),current_blit->get_name(),val,step);
 
   return true;
@@ -712,8 +724,10 @@ bool Blitter::set_kernel(short *krn) {
 void Blitter::crop(ViewPort *screen) {     
 
   Blit *b = current_blit;
-
   if(!b) return;
+  
+  if(!layer) return;
+
   if(!screen) // return;
     screen = layer->freej->screen;
 
@@ -795,12 +809,12 @@ void Blitter::crop(ViewPort *screen) {
     layer->hidden = false;
     
     b->lay_stride = b->lay_stride_dx + b->lay_stride_sx; // sum strides
-    // calculate upper left starting offset for layer
+    // precalculate upper left starting offset for layer
     b->lay_offset = (b->lay_stride_sx +
 		     ( b->lay_stride_up * layer->geo.w ));
     
     b->scr_stride = b->scr_stride_dx + b->scr_stride_sx; // sum strides
-    // calculate upper left starting offset for screen
+    // precalculate upper left starting offset for screen
     b->scr_offset = (b->scr_stride_sx +
 		     ( b->scr_stride_up * screen->w ));
   }

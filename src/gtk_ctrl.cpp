@@ -464,16 +464,16 @@ void init_effect_menu() {
 void *gtk_run(void *arg) {
   while(!quit) {
     update_layer_list();
-    jsleep(0,200);
+    jsleep(0,100);
     update_effect_list();
-    jsleep(0,200);
+    jsleep(0,100);
     gdk_threads_enter();
     while(gtk_events_pending()) {
       jsleep(0,50);
       gtk_main_iteration();
     }
     gdk_threads_leave();
-    jsleep(0,200);
+    jsleep(0,100);
   }
   return(NULL);
 }
@@ -504,14 +504,16 @@ bool gtk_ctrl_init(Context *nenv, int *argc, char **argv) {
   } else fclose(ftmp);
 
   env = nenv;
+
   gtk_init(argc, &argv);
+
   gtk = glade_xml_new(guipath,NULL,NULL);
+
+  g_thread_init(NULL);
   
   /* connect signal handlers 
      glade_xml_signal_autoconnect(gtk); */
 
-  /* signal to glib we're going to use threads */
-  g_thread_init(NULL);
 
   /* connect signals to callbacks */
   CONNECT("fullscreen","activate",on_fullscreen);

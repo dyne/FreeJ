@@ -3,7 +3,7 @@
 
 class Context;
 
-bool gtk_ctrl_init(Context *nenv, int *argc, char **argv);
+bool gtk_ctrl_init(Context *nenv,int *argc, char **argv);
 void gtk_ctrl_quit();
 
 #endif

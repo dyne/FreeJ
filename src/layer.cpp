@@ -34,6 +34,7 @@ Layer::Layer()
   active = false;
   running = false;
   hidden = false;
+  fade = false;
   bgcolor = 0;
   bgmatte = NULL;
   set_name("???");
@@ -94,8 +95,9 @@ void Layer::run() {
 
 bool Layer::cafudda() {
 
-  if((!active) || (hidden))
-    return false;
+  if(!active || hidden)
+    if(!fade)
+      return false;
 
   //  offset = (bgcolor) ? bgmatte : buffer;
   offset = buffer;
@@ -116,6 +118,11 @@ bool Layer::cafudda() {
 	iterators.unlock();
 	delete itertmp; // ...iteration ended
 	iterators.lock();
+	if(!iter)
+	  if(fade) { // no more iterations, fade out deactivates layer
+	    fade = false;
+	    active = false;
+	  }
       }
     }
     iterators.unlock();
@@ -171,4 +178,15 @@ void Layer::slide_position(int x, int y) {
     iterators.add(iter);
   }
 
+}
+
+void Layer::pulse_alpha(int step, int value) {
+  if(!fade) {
+    blitter.set_blit("0alpha"); /* by placing a '0' in front of the
+				   blit name we switch its value to
+				   zero before is being showed */
+    fade = true;
+  }
+
+  blitter.pulse_value(step,value);
 }
