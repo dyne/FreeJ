@@ -14,14 +14,14 @@ if(particles) {
     particles.set_blit("alpha");
     add_layer(particles);
     particles.blossom(0); particles.blossom(0);
-    particles.set_blit_value(80);
+    particles.set_blit_value(0.4);
 }
 
 if(scroll) {
     scroll.speed(1);
     scroll.set_blit("alpha");
     add_layer(scroll);
-    scroll.set_blit_value(150);
+    scroll.set_blit_value(0.7);
     scroll.append("hello world!");
     cafudda(1);
     scroll.append("this is a short freej script example");
@@ -48,6 +48,7 @@ if(text) {
     add_layer(text);
     text.set_blit("absdiff");
     text.size(40);
+    text.spin(1.05, 0.2);
     for( c=0; c<10; c++) {
        text.font(c+1);
        numba = rand(c*10); // generate random numbers <(c*10)
