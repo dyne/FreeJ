@@ -90,7 +90,7 @@ class TxtLayer: public Layer {
   
   int word_ff(int pos);
   int read_next_chunk();
-  bool draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,Uint8 *dst);
+  bool draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,uint8_t *dstp);
 
   //  int word_rw(int pos);
 

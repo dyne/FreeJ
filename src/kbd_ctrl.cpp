@@ -195,11 +195,13 @@ void KbdListener::run() {
 	layer->set_position(layer->geo.x,layer->geo.y-5);
 	break;
       }
+      break;
     case SDLK_DOWN:
       if(keysym->mod & KMOD_SHIFT) {
 	layer->set_position(layer->geo.x,layer->geo.y+5);
 	break;
       }
+      break;
 
     case SDLK_PAGEUP:
       if(!layer->prev) break;

@@ -1,6 +1,6 @@
 /*  FreeJ text layer
  *
- *  (c) 2003 Silvano Galliani aka kysucix <silvano.galliani@milug.org>
+ *  (c) 2003 Silvano Galliani aka kysucix <silvano.galliani@poste.it>
  *  with some contributions by Denis "jaromil" Rojo <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
@@ -46,7 +46,7 @@ TxtLayer::TxtLayer()
 	  blinking=false;
 	  offscreen_blink = onscreen_blink = SPEED;
 	  blink = 0;
-	  text_dimension=64;
+	  text_dimension=50;
 	  glyph_current=NULL;
 	  num_fonts=0;
 	  sel_font=0;
@@ -126,8 +126,7 @@ bool TxtLayer::init(Context *scr) {
      use_kerning=FT_HAS_KERNING(face);
 
      if(scr) freej = scr;
-     _init(freej, freej->screen->w,
-	   freej->screen->h, freej->screen->bpp);
+     _init(freej, geo.w, geo.h, geo.bpp);
 
      buf = jalloc(buf,freej->screen->size);
 
@@ -166,7 +165,6 @@ void *TxtLayer::feed() {
 	       if ( use_kerning && previous && glyph_current->glyph_index ) {
 		    FT_Vector kerning_vector;
 		    FT_Get_Kerning( face, previous, glyph_current->glyph_index, ft_kerning_unfitted, &kerning_vector );
-
 		    /*  Place the pen to the cursor position. */
 		    origin_x += kerning_vector.x;
 		    origin_y = 0;
@@ -184,7 +182,7 @@ void *TxtLayer::feed() {
 	       if (ret) continue;
 
 	       /* increment pen position */
-	       origin_x += face->glyph->advance.x;
+	       origin_x += face->glyph->advance.x <<2;
 
 	       /* record current glyph index in previous (4 kerning) */
 	       previous = glyph_current->glyph_index;
@@ -249,9 +247,10 @@ void *TxtLayer::feed() {
 	       }
 	       /* convert glyph image to bitmap (destroy the glyph) */
 	       ret = FT_Glyph_To_Bitmap( &image, ft_render_mode_normal, 0, 1);
+//	       ret = FT_Glyph_To_Bitmap( &image,FT_RENDER_MODE_LCD, 0, 1);
 	       if (!ret) {
 		    FT_BitmapGlyph  bit = (FT_BitmapGlyph)image;
-		    draw_character( bit, bit->left,bit->top,(Uint8 *)buf);
+		    draw_character( bit, bit->left,bit->top,(uint8_t *)buf);
 		    FT_Done_Glyph( image );
 	       }
 	  }
@@ -460,29 +459,35 @@ void TxtLayer::compute_string_bbox( FT_BBox  *abbox,FT_Glyph image ) {
 
      *abbox = bbox;
 }
-bool TxtLayer::draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,Uint8 *dst) {
+bool TxtLayer::draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,uint8_t *dstp) {
      FT_Bitmap pixel_image=bitmap->bitmap;
-     Uint8 *src = bitmap->bitmap.buffer ;
-     dst= (Uint8 *) buf;
+     uint8_t *src = bitmap->bitmap.buffer ;
+     uint8_t *dst= dstp;
      dst += bitmap->left + (geo.h - bitmap->top)*geo.pitch;
+     
 
      /* Second inner loop: draw a letter;
 	they come around but they never come close to */
      for(int z=0 ; z<(pixel_image.rows) ; z++) {
-	  for(int d = pixel_image.pitch; d>0 ; d--)
-	       *dst++ = *src++;
-	  dst += geo.pitch - pixel_image.pitch;
+	  for(int d = 0 ; d < pixel_image.width ; d++)  {
+	      /** Fill up rgba with the same colors */
+	       *dst++=*src;
+	       *dst++=*src;
+	       *dst++=*src;
+	       *dst++=*src;
+	       src++;
+	  }
+	  dst += (geo.pitch - pixel_image.pitch*4);
      }
      return(true);
 }
 bool TxtLayer::set_character_size(int _text_dimension) {
   text_dimension = _text_dimension;
-  int ret = FT_Set_Char_Size( face, 0, text_dimension*64, 72, 72);
+  int ret = FT_Set_Char_Size( face, 0, text_dimension*64, 0, 0);
   if(ret<0) {
     error("TxtLayer::Couldn't set character size");
     return(false);
   }
   return(true);
 }
-
 #endif

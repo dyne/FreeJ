@@ -36,13 +36,12 @@
 #include "avformat.h"
 
 
-
 VideoLayer::VideoLayer() 
     :Layer() {
 	setname("VIDEO");
 	frame_number=0;
 	av_buf=NULL;
-//	avformat_context=NULL;
+	//	avformat_context=NULL;
 	packet_len=0;
     }
 
@@ -51,14 +50,12 @@ VideoLayer::~VideoLayer() {
 }
 
 /*
- * Here we have to anal-ize the media and identify the codec and the format.
- * So we can better initialize livabcodec
+ * lick me!
  */
 
 bool VideoLayer::init(Context *scr) {
     func("VideoLayer::init");
     paused=false;
-    notice("VideoLayer :: Registered all codec and format");
     _init(scr, enc->width, enc->height, 32);
     notice("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
 	    enc->width,enc->height,32,geo.size);
@@ -66,8 +63,8 @@ bool VideoLayer::init(Context *scr) {
     int saiz = avpicture_get_size( PIX_FMT_RGBA32, enc->width, enc->height );
     av_buf = (uint8_t *)malloc( saiz );
     av_picture = (AVPicture *)malloc( sizeof( AVPicture ) );
-    notice("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
-	    geo.w,geo.h,geo.bpp,geo.size);
+    //    notice("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
+    //	    geo.w,geo.h,geo.bpp,geo.size);
     return true;
 }
 
@@ -77,12 +74,13 @@ bool VideoLayer::open(char *file) {
     AVFormatParameters avp, *av_format_par = NULL;
 
     av_register_all();
+    //notice("VideoLayer :: Registered all codec and format");
 
 
     if( strncasecmp(file,"/dev/ieee1394/",14)==0) {
 	notice("VideoLayer::found dv1394 device!\n");
 	grab_dv=true;
-        av_input_format = av_find_input_format("dv1394");
+	av_input_format = av_find_input_format("dv1394");
 	av_format_par = &avp;
 	memset(av_format_par, 0, sizeof(*av_format_par));
 
@@ -107,14 +105,14 @@ bool VideoLayer::open(char *file) {
      * I *want* it raw, I *want* it bad
      */
     if(grab_dv) {
-        err=av_open_input_file(&avformat_context, "", av_input_format, 0, av_format_par);
-	printf("Grabbing dv\n");
+	err=av_open_input_file(&avformat_context, "", av_input_format, 0, av_format_par);
+	printf("VideoLayer:: Grabbing dv\n");
     }
     else
 	err = av_open_input_file(&avformat_context, file, av_input_format, 0, av_format_par);
     if (err < 0) {
 	error("VideoLayer::open(%s) - can't open ", file);
-	printf("Error number: %d",err);
+	//	printf("Error number: %d",err);
 	return false;
     }
     err = av_find_stream_info(avformat_context);
@@ -130,7 +128,7 @@ bool VideoLayer::open(char *file) {
 	enc = &avformat_stream->codec;
 	if(enc == NULL)
 	    printf("enc nullo\n");
-	printf("Codec type= %d\n",enc->codec_type);
+	notice("VideoLayer::Codec type= %d\n",enc->codec_type);
 	if (enc->codec_type == CODEC_TYPE_VIDEO) {
 	    video_index=i;
 	    codec = avcodec_find_decoder(enc->codec_id);
@@ -166,7 +164,7 @@ bool VideoLayer::open(char *file) {
 	double pts1=0;
 
 	/**
-	 * Read one packet from the media ant put it in pkt
+	 * Read one packet from the media and put it in pkt
 	 */
 	while (!got_it) {
 	    if(packet_len<=0) {
@@ -178,16 +176,17 @@ bool VideoLayer::open(char *file) {
 		    /**
 		     * check eof and loop
 		     */
-		    /*
-		    printf("pkt.data= %d\t",pkt.data);
-		    printf("pkt.size= %d\t",pkt.size);
-		    printf("pkt.pts= %d\t",pkt.pts);
-		    printf("pkt.dts= %d\t",pkt.dts);
-		    printf("pkt.duration= %d\n",pkt.duration);
-		    printf("avformat_context->start_time= %d\n",avformat_context->start_time);
-		    printf("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
-		    printf("avformat_context->duration= %d\n",avformat_context->duration);
-		    */
+
+		    /* debug stuff
+		       printf("pkt.data= %d\t",pkt.data);
+		       printf("pkt.size= %d\t",pkt.size);
+		       printf("pkt.pts= %d\t",pkt.pts);
+		       printf("pkt.dts= %d\t",pkt.dts);
+		       printf("pkt.duration= %d\n",pkt.duration);
+		       printf("avformat_context->start_time= %d\n",avformat_context->start_time);
+		       printf("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
+		       printf("avformat_context->duration= %d\n",avformat_context->duration);
+		       */
 		    if(ret!= 0) {
 			ret=av_seek_frame(avformat_context, video_index,avformat_context->start_time);
 			if (ret < 0) {
@@ -210,7 +209,6 @@ bool VideoLayer::open(char *file) {
 		packet_len=pkt.size; // packet size
 		ptr=pkt.data;
 	    }
-	    av_free_packet(&pkt); /* sun's good. love's bad */
 	    len1 = avcodec_decode_video(enc, &av_frame, &got_picture, ptr,packet_len);
 
 	    pts1=packet_pts;
@@ -238,21 +236,21 @@ bool VideoLayer::open(char *file) {
 		frame_delay += av_frame.repeat_pict * (frame_delay * 0.5);
 	    }
 	    video_clock += frame_delay;
-	    
-		/* Debug pts code */
+
+	    /* Debug pts code */
 	    /*
-	    {
-		int ftype;
-		if (av_frame.pict_type == FF_B_TYPE)
-		    ftype = 'B';
-		else if (av_frame.pict_type == FF_I_TYPE)
-		    ftype = 'I';
-		else
-		    ftype = 'P';
-		printf("frame_type=%c clock=%0.3f pts=%0.3f\n", 
-			ftype, get_master_clock(), pts1);
-	    }
-	    */
+	       {
+	       int ftype;
+	       if (av_frame.pict_type == FF_B_TYPE)
+	       ftype = 'B';
+	       else if (av_frame.pict_type == FF_I_TYPE)
+	       ftype = 'I';
+	       else
+	       ftype = 'P';
+	       printf("frame_type=%c clock=%0.3f pts=%0.3f\n", 
+	       ftype, get_master_clock(), pts1);
+	       }
+	       */
 	    AVFrame *src=&av_frame;
 	    if(len1<0) {
 		error("VideoLayer::Error while decoding frame");
@@ -277,6 +275,7 @@ bool VideoLayer::open(char *file) {
 			enc->height);
 	    }
 	}
+	av_free_packet(&pkt); /* sun's good. love's bad */
 	return av_picture->data[0];
     }
 
@@ -317,14 +316,22 @@ bool VideoLayer::seek(int increment) {
     int ret=0;
     lock_feed();
     double current_time=get_master_clock();
-//    printf("master_clock(): %f\n",current_time);
+    //    printf("master_clock(): %f\n",current_time);
     current_time+=increment;
-    if (current_time<0) {
-//	unlock_feed();
-//	return true;
+    /**
+     * Check the seek time is correct! 
+     * It should not be before or after the beginning and the end of the movie
+     */
+    if (current_time<0)  // beginning
 	current_time=0;
+    /** Forward in video as a loop */
+    else  { // beginning
+	while(current_time>(avformat_context->duration/AV_TIME_BASE))  {
+	    current_time=current_time - (avformat_context->duration/AV_TIME_BASE);
+	}
     }
-//   printf("current_time: %f\n",current_time);
+    
+    printf("VideoLayer::seeking to: %f\n",current_time);
     ret=av_seek_frame(avformat_context, video_index,(int64_t)current_time*AV_TIME_BASE);
     if (ret < 0) {
 	error("VideoLayer::Error seeking file");
@@ -338,13 +345,13 @@ double VideoLayer::get_master_clock() {
     double delta = (av_gettime() - video_current_pts_time) / 1000000.0;
     return (video_current_pts+delta);
 }
-void VideoLayer::pause() {
-    if(paused)
-	paused=false;
-    else
-	paused=true;
-    notice("avi pause : %s",(paused)?"on":"off");
-    show_osd();
-}
+    void VideoLayer::pause() {
+	if(paused)
+	    paused=false;
+	else
+	    paused=true;
+	notice("avi pause : %s",(paused)?"on":"off");
+	show_osd();
+    }
 
 #endif
