@@ -40,4 +40,4 @@ freej_SOURCES = \
 	mmx_osd.asm \
 	clearscr.asm
 
-freej_LDADD = @SDL_LIBS@ @LIBS@ -lpthread -lm -ldl -lpng
+freej_LDADD = @LIBS@ -lpthread -lm -ldl -lpng @SDL_LIBS@ @AVIFILE_LIBS@

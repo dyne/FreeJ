@@ -22,6 +22,7 @@
 #include <context.h>
 #include <lubrify.h>
 #include <jutils.h>
+#include <config.h>
 
 #define PNG_BYTES_TO_CHECK 4
 

@@ -20,6 +20,7 @@
 #include <context.h>
 #include <lubrify.h>
 #include <jutils.h>
+#include <config.h>
 
 Layer::Layer() {
   paused = false;
@@ -272,7 +273,7 @@ void Layer::crop() {
   func("LAY BLIT x[%i] y[%i] w[%i] h[%i] xoff[%i] yoff[%i]",
        blit_x, blit_y, blit_width, blit_height, blit_xoff, blit_yoff);
 }
-
+#define MMX_BLIT
 #ifdef MMX_BLIT
 
 void Layer::blit(void *offset) {

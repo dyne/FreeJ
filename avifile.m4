@@ -96,7 +96,7 @@ main ()
   if test "x$HAVE_AVIFILE" = "xyes"; then
     dnl add X flags, because it looks like avifile needs libXv and libXxf86vm
     CXXFLAGS="$XXCFLAGS $AVIFILE_CXXFLAGS" 
-    LDFLAGS="$LDFLAGS $AVIFILE_LDFLAGS $X_LIBS -lXv -lXxf86vm"
+    AVIFILE_LIBS="$AVIFILE_LDFLAGS $X_LIBS -lXv -lXxf86vm -ldivxdecore"
   fi
 ])
 

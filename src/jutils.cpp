@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <jutils.h>
+#include <config.h>
 
 #define MAX_DEBUG 2
 

@@ -22,8 +22,8 @@
 #include <context.h>
 #include <lubrify.h>
 #include <osd.h>
-#include <config.h>
 #include <font_pearl_8x8.h>
+#include <config.h>
 
 void Osd::_write16(char *text, int xpos, int ypos, int hsize, int vsize) {
   int y,x,i,len,f,v,ch,cv;

@@ -2,6 +2,7 @@
 #include <dlfcn.h>
 
 #include <plugin.h>
+#include <config.h>
 
 typedef char* (getch)(void);
 typedef int (getint)(void);

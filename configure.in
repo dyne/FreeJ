@@ -109,16 +109,41 @@ CheckNASM()
 dnl =====================================================
 dnl CHECK if there is AVILIB
 dnl =====================================================
+AVI_LIBS=""
 AC_AVIFILE(0.6.0)
 if test x$HAVE_AVIFILE = xyes; then
   AC_DEFINE(WITH_AVIFILE,1,
 		[define if linking to avifile library for AVI layer playback])
   have_avilayer=yes
-  LIBS="$LIBS -ldivxdecore"
 else
   have_avilayer=no
 fi
+AC_SUBST(AVIFILE_LIBS)
 
+dnl ==============================================================
+dnl link with memory debugging library dmalloc
+dnl ==============================================================
+AC_CHECK_HEADER(dmalloc.h)
+if test "$ac_cv_header_dmalloc_h" = "yes"; then
+
+AC_MSG_CHECKING(if malloc debugging is wanted)
+AC_ARG_WITH(dmalloc,
+[  --with-dmalloc          use dmalloc, as in
+                          ftp://ftp.letters.com/src/dmalloc/dmalloc.tar.gz],
+[if test "$withval" = yes; then
+  AC_MSG_RESULT(yes)
+  AC_DEFINE(WITH_DMALLOC,1,
+            [Define if using the dmalloc debugging malloc package])
+  LIBS="$LIBS -ldmallocthcxx"
+  DMALLOCC="dmallocc.cpp"
+  have_dmalloc=yes
+else
+  AC_MSG_RESULT(no)
+  DMALLOCC=""
+  have_dmalloc=no
+fi], [AC_MSG_RESULT(no)])
+
+fi
 
 CXXFLAGS="$CFLAGS $SDL_CFLAGS"
 

@@ -23,6 +23,7 @@
 #include <keyboard.h>
 #include <filter.h>
 #include <plugger.h>
+#include <config.h>
 
 #define DELAY 100
 

@@ -5,6 +5,7 @@
 #include <dirent.h>
 #include <jutils.h>
 #include <plugger.h>
+#include <config.h>
 
 Plugger::Plugger(int bpp) {
   char *home;

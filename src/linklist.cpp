@@ -27,7 +27,8 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "linklist.h"
+#include <linklist.h>
+#include <config.h>
 
 Linklist::Linklist() {
   length = 0;

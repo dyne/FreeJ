@@ -18,6 +18,7 @@
 
 #include <jsync.h>
 #include <jutils.h>
+#include <config.h>
 
 typedef void* (kickoff)(void*);
 

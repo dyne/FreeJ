@@ -28,6 +28,7 @@
 #include <v4l_layer.h>
 #include <tvfreq.h>
 #include <jutils.h>
+#include <config.h>
 
 V4lGrabber::V4lGrabber() 
   :Layer() {
