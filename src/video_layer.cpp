@@ -50,10 +50,7 @@ VideoLayer::VideoLayer()
 	play_speed_control=0;
 	seekable=true;
 	enc=NULL;
-
-	av_picture = NULL;
-	deinterlace_buffer = NULL;
-
+	backward_control=false;
     }
 
 VideoLayer::~VideoLayer() {
@@ -74,12 +71,9 @@ bool VideoLayer::init(Context *scr) {
 	    enc->width,enc->height,32,geo.size);
     notice("VideoLayer :: frame_rate[%d]",frame_rate);
 
-//    av_picture = (AVPicture *)malloc(sizeof(AVPicture));
-//    memset(av_picture,0,sizeof(AVPicture));
-//    avpicture_alloc(av_picture,PIX_FMT_RGBA32,enc->width, enc->height);
+    rgba_picture = (AVPicture *)malloc(sizeof(AVPicture));
 
-    av_picture = (AVPicture *)malloc(sizeof(AVPicture));
-    ret = new_picture(av_picture);
+    ret = new_picture(rgba_picture);
     if( ret < 0) {
 	error("VideoLayer::error allocating picture");
 	return false;
@@ -93,8 +87,10 @@ bool VideoLayer::init(Context *scr) {
 	error("VideoLayer::error allocating fifo");
 	return false;
     }
+
     /**
      * feed() function is called 25 times for second so we must correct the speed
+     * TODO user should be able to select the clock speed
      */
     if(play_speed==25) {
 	play_speed=(25/frame_rate) - 1;
@@ -114,10 +110,10 @@ bool VideoLayer::init(Context *scr) {
     mark_out=NO_MARK;
     return true;
 }
+
 int VideoLayer::new_picture(AVPicture *picture) {
-    AVPicture *tmp = picture;
-    memset(tmp,0,sizeof(AVPicture));
-    return avpicture_alloc(tmp,PIX_FMT_RGBA32,enc->width, enc->height);
+    memset(picture,0,sizeof(AVPicture));
+    return avpicture_alloc(picture,PIX_FMT_RGBA32,enc->width, enc->height);
     
 }
 void VideoLayer::free_picture(AVPicture *picture) {
@@ -236,10 +232,13 @@ void *VideoLayer::feed() {
 	if (get_master_clock()>=mark_out)
 	seek((int64_t)mark_in * AV_TIME_BASE/*D ART*/);
     }
+    if(backward_control) {
+	backward_one_keyframe();
+    }
 
     if(paused || play_speed_control<0) {
 	play_speed_control++;
-	return av_picture->data[0];
+	return rgba_picture->data[0];
     }
     else {
 	while(play_speed_control>=0) {
@@ -261,8 +260,7 @@ void *VideoLayer::feed() {
 			func("pkt.dts= %d\t",pkt.dts);
 			func("pkt.duration= %d\n",pkt.duration);
 			func("avformat_context->start_time= %d\n",avformat_context->start_time);
-			func("avformat_context->duration= %0.3f\n",
-			     avformat_context->duration/AV_TIME_BASE);
+			func("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
 			func("avformat_context->duration= %d\n",avformat_context->duration);
 
 			/**
@@ -289,7 +287,7 @@ void *VideoLayer::feed() {
 		len1 = decode_packet(&got_picture);
 
 
-		AVFrame *src=&av_frame;
+		AVFrame *yuv_picture=&av_frame;
 		if(len1<0) {
 		    error("VideoLayer::Error while decoding frame");
 		}
@@ -305,28 +303,35 @@ void *VideoLayer::feed() {
 		packet_len -= len1;
 		if (got_picture!=0) {
 		    got_it=true;
-		    int dst_pix_fmt = PIX_FMT_RGBA32;
 		    avformat_stream=avformat_context->streams[video_index];
 
 		    /** Deinterlace input if requested */
 		    if(deinterlaced)
-			deinterlace((AVPicture *)src);
+			deinterlace((AVPicture *)yuv_picture);
 
 		    /**
 		     * yuv2rgb
 		     */
-//		    avpicture_fill( av_picture, av_buf, dst_pix_fmt, enc->width, enc->width );
-//		    memset(av_picture, 0, sizeof(AVPicture));
-		    img_convert(av_picture, dst_pix_fmt, (AVPicture *)src, avformat_stream->codec.pix_fmt,
+		    img_convert(rgba_picture, PIX_FMT_RGBA32, (AVPicture *)yuv_picture, avformat_stream->codec.pix_fmt,
 			    enc->width,
 			    enc->height);
+
+//		    memcpy(frame_fifo.picture[fifo_position % FIFO_SIZE]->data[0],rgba_picture->data[0],geo.size);
+		    /* TODO move */
+		    if(fifo_position == FIFO_SIZE)
+			fifo_position=0;
+
+		    memcpy(frame_fifo.picture[fifo_position]->data[0],rgba_picture->data[0],rgba_picture->linesize[0] * enc->height);
+//			    avpicture_get_size(PIX_FMT_RGBA32, enc->width, enc->height));
+		    fifo_position++;
 		}
 	    }
 	    av_free_packet(&pkt); /* sun's good. love's bad */
 	} /* end of play_speed while() */
     } /* end of else branch */
     play_speed_control=play_speed;
-    return av_picture->data[0];
+//    return rgba_picture->data[0];
+    return frame_fifo.picture[fifo_position-1]->data[0];
 }
 
 int VideoLayer::decode_packet(int *got_picture) {
@@ -381,7 +386,7 @@ int VideoLayer::decode_packet(int *got_picture) {
 	    ftype = 'I';
 	else
 	    ftype = 'P';
-	notice("frame_type=%c clock=%0.3f pts=%0.3f",
+	func("frame_type=%c clock=%0.3f pts=%0.3f",
 		ftype, get_master_clock(), pts1);
     }
     return lien;
@@ -403,14 +408,15 @@ void VideoLayer::close() {
 
 void VideoLayer::free_av_stuff() {
     free_fifo(); // free fifo NOW!
-    if(av_picture) free_picture(av_picture);
-    if(deinterlace_buffer) free(deinterlace_buffer);
+    if(!rgba_picture) free_picture(rgba_picture);
+    if(!deinterlace_buffer) free(deinterlace_buffer);
 }
 
 /*
  * allocate fifo
  */
 int VideoLayer::new_fifo() {
+    fifo_position=0;
     frame_fifo.length = 0;
     int ret;
     // loop throught fifo
@@ -447,7 +453,15 @@ bool VideoLayer::keypress(char key) {
 	    less_speed();
 	    break;
 	case 'b':
-	    backward_one_keyframe();
+	    if(backward_control) {
+		backward_control=false;
+		show_osd("backward off");
+	    }
+	    else {
+		backward_control=true;
+		show_osd("backward on");
+	    }
+//	    backward_one_keyframe();
 	    break;
 
 	case 'i': /* set mark in */
@@ -515,7 +529,7 @@ bool VideoLayer::backward() {
     return true;
 }
 bool VideoLayer::backward_one_keyframe() {
-    relative_seek(-0.1);
+    relative_seek(-1);
     return true;
 }
 bool VideoLayer::relative_seek(double increment) {
@@ -572,7 +586,7 @@ int VideoLayer::seek(int64_t timestamp) {
 	    /** close and reopen the stream*/
 	    {
 		close();
-		open( get_filename() );
+		open(get_filename());
 	    }
 	    return 0;
 	}
@@ -595,11 +609,13 @@ int VideoLayer::seek(int64_t timestamp) {
     /**
      * HERE sick
      */
+    ret = av_seek_frame(avformat_context, video_index,timestamp
 #if (LIBAVFORMAT_BUILD >= 4618) 
-    ret = av_seek_frame(avformat_context, video_index,timestamp,AVSEEK_FLAG_BACKWARD);
-#else
-    ret = av_seek_frame(avformat_context, video_index,timestamp);
+	    ,AVSEEK_FLAG_BACKWARD
 #endif
+	    );
+//#else
+//    ret = av_seek_frame(avformat_context, video_index,timestamp);
 
     if(ret<0) {
 	seekable=false;
@@ -607,12 +623,12 @@ int VideoLayer::seek(int64_t timestamp) {
 	    /** close and reopen the stream*/
 	    {
 	    close();
-	    open( get_filename() );
+	    open(get_filename());
 	    return 0;
 	    }
 	}
     }
-    else
+    else // seek with success
     /**
      * Flush buffers, should be called when seeking or when swicthing to a different stream.
      */
@@ -638,6 +654,8 @@ void VideoLayer::deinterlace(AVPicture *picture) {
 
     /* create temporary picture */
     size = avpicture_get_size(enc->pix_fmt, enc->width, enc->height);
+
+    /* allocate only first time */
     if(deinterlace_buffer==NULL)
 	deinterlace_buffer = (uint8_t *)av_malloc(size);
     if (!deinterlace_buffer)
@@ -649,8 +667,8 @@ void VideoLayer::deinterlace(AVPicture *picture) {
     if(avpicture_deinterlace(picture2, picture,
 		enc->pix_fmt, enc->width, enc->height) < 0) {
 	/* if error, do not deinterlace */
-	av_free(deinterlace_buffer);
-	deinterlace_buffer = NULL;
+//	av_free(deinterlace_buffer);
+//	deinterlace_buffer = NULL;
 	picture2 = picture;
     }
     if (picture != picture2)

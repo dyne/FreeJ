@@ -47,7 +47,7 @@ class VideoLayer: public Layer {
 	AVInputFormat *fmt;
 	AVFormatContext *avformat_context;
 	AVStream *avformat_stream;
-	AVPicture *av_picture;
+	AVPicture *rgba_picture;
 	AVPacket pkt;
 	AVCodecContext *enc;
 	AVCodec *codec;
@@ -73,7 +73,9 @@ class VideoLayer: public Layer {
 	 * application variables
 	 */
 	struct frame_fifo_t frame_fifo;
+	int fifo_position;
 	bool deinterlaced;
+	bool backward_control;
 	bool paused;
 	bool seekable;
 	bool grab_dv;
