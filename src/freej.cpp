@@ -44,9 +44,9 @@ static const char *help =
 " .   -h   print this help\n"
 " .   -v   version information\n"
 " .   -D   debug verbosity level - default 1\n"
-" .   -s   set display size - default 400x300\n"
-" .   -2   double screen size\n"
-" .   -0   start with deactivated layers\n"
+" .   -s   size of screen - default 400x300\n"
+" .   -d   double screen size\n"
+" .   -n   start with deactivated layers\n"
 " .  files:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n";
@@ -63,7 +63,7 @@ static const struct option long_options[] = {
 };
 */
 
-static const char *short_options = "-hvD:s:20";
+static const char *short_options = "-hvD:s:dn";
 
 int debug;
 char layer_files[MAX_CLI_CHARS];
@@ -112,16 +112,16 @@ void cmdline(int argc, char **argv) {
       }
       break;
 
-    case '0':
+    case 'n':
       startstate = false;
       break;
 
-    case '2':
+    case 'd':
       doublesize = true;
       break;
       
     case '?':
-      func("unrecognized option: %s",optarg);
+      warning("unrecognized option: %s",optarg);
       break;
 
     case 1:
@@ -134,11 +134,21 @@ void cmdline(int argc, char **argv) {
       break;
 
     default:
-      func("received commandline parser code %i with optarg %s",res,optarg);
+      act("received commandline parser code %i with optarg %s",res,optarg);
       break;
     }
-  } while (res > 0);
+  } while (res != -1);
 
+#ifdef HAVE_DARWIN
+  for(;optind<argc;optind++) {
+    optlen = strlen(argv[optind]);
+    if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
+      sprintf(p,"%s#",argv[optind]);
+	cli_chars+=optlen+1;
+	p+=optlen+1;
+      } else warning("too much files on commandline, list truncated");
+  }
+#endif
 }
 
 /* ===================================== */
