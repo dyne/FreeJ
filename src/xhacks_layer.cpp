@@ -181,60 +181,14 @@ void XHacksLayer::pause(bool set) {
   show_osd();
 }
 
-bool XHacksLayer::keypress(SDL_keysym *keysym) {
-  bool res = false;
-  switch(keysym->sym) {
-	case SDLK_KP0: pause(!paused);
-	    res = true; break;
-	default: break;
+bool XHacksLayer::keypress(char key) {
+  bool res = true;
+  switch(key) {
+	case 'p': pause(!paused);
+	  break;
+  default: res = false; break;
   }
   return res;
 }
-
-/*  framepos_t steps = 1;
-  switch(keysym->sym) {
-  case SDLK_RIGHT:
-    if(keysym->mod & KMOD_LCTRL) steps=5000;
-    if(keysym->mod & KMOD_RCTRL) steps=1000;
-    forward(steps);
-    res = true; break;
-
-  case SDLK_LEFT:
-    if(keysym->mod & KMOD_LCTRL) steps=5000;
-    if(keysym->mod & KMOD_RCTRL) steps=1000;
-    rewind(steps);
-    res = true; break;
-
-  case SDLK_i:
-    if(keysym->mod & KMOD_SHIFT)
-    set_mark_in(); break;
-
-  case SDLK_o:
-    if(keysym->mod & KMOD_SHIFT)
-    set_mark_out(); break;
-    
-	case SDLK_n: 
-		set_play_speed(-1);
-    res = true; break;
-
-	case SDLK_m: 
-		set_play_speed(+1);
-    res = true; break;
-
-	case SDLK_k: 
-		set_slow_frame(-1);
-    res = true; break;
-
-	case SDLK_l: 
-		set_slow_frame(+1);
-    res = true; break;
-		
-  case SDLK_KP0: pause();
-    res = true; break;
-
-  default: break;
-  }
-  return res;
-*/
 
 #endif

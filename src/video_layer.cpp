@@ -360,39 +360,38 @@ bool VideoLayer::free_av_stuff() {
     if(!video_filename) free(video_filename);
 }
 bool VideoLayer::keypress(SDL_keysym *keysym) {
-    switch(keysym->sym) {
-	case SDLK_RIGHT:
+    switch(key) {
+	case 'k':
 	    forward();
 	    break;
-	case SDLK_LEFT:
+	case 'j':
 	    backward();
 	    break;
-	case SDLK_KP0: /* pause */
+	case 'p': /* pause */
 	    pause();
 	    break;
-	case SDLK_k: /* increase playing speed */
+	case 'm': /* increase playing speed */
 	    more_speed();
 	    break;
-	case SDLK_m: /* decrease playing speed */
+	case 'n': /* decrease playing speed */
 	    less_speed();
 	    break;
-
-	case SDLK_i: /* set mark in */
+	    
+	case 'i': /* set mark in */
 	    set_mark_in(); 
 	    break;
 
-	case SDLK_o: /* set mark out */
+	case 'o': /* set mark out */
 	    set_mark_out(); 
 	    break;
 
-	case SDLK_u: /* Swith deinterlace */
+	case 'u': /* Swith deinterlace */
 	    if(deinterlaced)
 		deinterlaced=false;
 	    else
 		deinterlaced=true;
 	    break;
 
-	case SDLK_n: 
 	default:
 	    break;
     }

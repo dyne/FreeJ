@@ -215,23 +215,31 @@ void PngLayer::close() {
   jfree(buffer);
 }
 
-bool PngLayer::keypress(SDL_keysym *keysym) {
-    switch(keysym->sym) {
-	case SDLK_o:
-	    subliminal++;
-	    break;
-	case SDLK_p:
-	    subliminal=0;
-	    break;
-	case SDLK_b:
-	    if(blinking)
-		blinking=false;
-	    else 
-		blinking=true;
-	    break;
-    default: break;
-    }
-    return true;
+bool PngLayer::keypress(char key) {
+  bool res = true;
+
+  switch(key) {
+  case 'o':
+    subliminal++;
+    act("PngLayer::subliminal count %i",subliminal);
+    break;
+  case 'p':
+    subliminal=0;
+    act("PngLayer::subliminal reset");
+    break;
+  case 'b':
+    if(blinking)
+      blinking=false;
+    else 
+      blinking=true;
+    act("PngLayer::blinking %s",(blinking)?"ON":"OFF");
+    break;
+    
+  default:
+    res = false;
+    break;
+  }
+  return res;
 }
 
 #endif

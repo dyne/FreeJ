@@ -665,8 +665,10 @@ void Console::getkey() {
       break;
       
     default:
-      if(!filter) break;
-      filter->kbd_input( key );
+      if(filter)
+	filter->kbd_input( key );
+      else if(layer)
+	layer->keypress( key );
       break;
 			 
       //    case KEY_CTRL_T:
@@ -914,36 +916,35 @@ void Console::func(char *msg) {
   update_scroll();
 }
 
-void Console::free_lines (void)
+// delete all lines previous to this
+// making it become the first (upper last in console)
+void Console::free_lines (File_Line_Type *line)
 {
-   File_Line_Type *line, *next;
+   File_Line_Type *prev;
+   int c;
    
-   line = File_Lines;
-   while (line != NULL)
-     {
-	next = line->next;
-	if (line->data != NULL) free (line->data);
+   for(c=0 ; line ; c++) {
+	prev = line->prev;
+	if (line->data) free (line->data);
 	free (line);
-	line = next;
-     }
-   File_Lines = NULL;
+	line = prev;
+   }
+   Line_Window.num_lines -= c;
 }
 
 File_Line_Type *Console::create_line (char *buf)
 {
    File_Line_Type *line;
    
-   line = (File_Line_Type *) malloc (sizeof (File_Line_Type));
-   if (line == NULL) return NULL;
-   
-   memset ((char *) line, sizeof (File_Line_Type), 0);
+   line = (File_Line_Type *) calloc (1, sizeof (File_Line_Type));
+
+   if (!line) return NULL;
    
    line->data = SLmake_string (buf);   /* use a slang routine */
-   if (line->data == NULL)
-     {
-	free (line);
-	return NULL;
-     }
+   if (!line->data) {
+     free (line);
+     return NULL;
+   }
    
    return line;
 }
@@ -993,7 +994,7 @@ void Console::update_scroll() {
   //  line = (File_Line_Type *) Line_Window.top_window_line;
   line = last_line;
   if (!line) return;
-
+  
   for(; nrows>row; nrows--) {
     if (!line) break;
     SLsmg_gotorc (nrows, col);    
@@ -1001,7 +1002,10 @@ void Console::update_scroll() {
     SLsmg_write_string (line->data);
     SLsmg_erase_eol ();
     line = line->prev;
-  } 
+  }
+  // erase forgotten lines
+  //  if(line) free_lines(line);
+
   SLsmg_set_color(PLAIN_COLOR);
   do_update_scroll = false;
   GOTO_CURSOR;

@@ -66,7 +66,7 @@ class GenLayer: public Layer {
   bool init(Context *screen);
   bool open(char *file);
   void *feed();
-  bool keypress(SDL_keysym *keysym);
+  bool keypress(char key);
   void close();
 };
 

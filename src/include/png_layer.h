@@ -63,7 +63,7 @@ public:
 
   void close();
   
-  bool keypress(SDL_keysym *keysym);
+  bool keypress(char key);
 };
 
 #endif

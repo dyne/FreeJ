@@ -360,65 +360,72 @@ int TxtLayer::word_ff(int pos) {
   return(word_len);
 }
 
-bool TxtLayer::keypress(SDL_keysym *keysym) {
+bool TxtLayer::keypress(char key) {
      int res = 1;
-     switch(keysym->sym) {
-	  case SDLK_LEFT: 
-	       change_word=true;
-	       clear_screen=true;
-	       break;
-
-	  case SDLK_RIGHT:
-	       change_word=true;
-	       clear_screen=true;
-	       //	       word_ff(1);
-	       break;
-
-	  case SDLK_b: 
-	       if(!blinking) {
-		    blinking=true;
-		    clear_screen=true;
-	       }
-	       else {
-		    blinking=false;
-	       }
-	       break;
-     case SDLK_j:  offscreen_blink++;  break;
-     case SDLK_n:  offscreen_blink--;  break;
-     case SDLK_k:  onscreen_blink++;  break;
-     case SDLK_m:  onscreen_blink--;  break;
-       
-	  case SDLK_p: /* wider */ 
-	    if(keysym->mod & KMOD_LCTRL)
-	      set_character_size(text_dimension+=20);
-	    else
-	      set_character_size(text_dimension+=5);
-	    break;
-
-	  case SDLK_o: /* smaller */
-	    if(keysym->mod & KMOD_LCTRL)
-	      set_character_size(text_dimension-=20);
-	    else
-	      set_character_size(text_dimension-=5);
-	    break;
-	    
-     case SDLK_i:
-       if(sel_font<num_fonts-1) sel_font++;
-       func("TxtLayer switch to font %s",fonts[sel_font]);
-       /* Create face object */
-       if(FT_New_Face( library, fonts[sel_font], 0, &face )) 
-	 error("Can't load font %s",fonts[sel_font]);
-       use_kerning=FT_HAS_KERNING(face);
-       set_character_size(text_dimension);
+     switch(key) {
+     case 'l': 
+       change_word=true;
+       clear_screen=true;
        break;
-     case SDLK_u:
-       if(sel_font>0) sel_font--;
-       func("TxtLayer switch to font %s",fonts[sel_font]);
+       
+     case 'b': 
+       if(!blinking) {
+	 blinking=true;
+	 clear_screen=true;
+       } else blinking=false;
+       act("TxtLayer::blinking %s",
+	   (blinking)?"ON":"OFF");
+       break;
+       
+     case 'j':
+       offscreen_blink++;
+       act("TxtLayer::offscreen blink time %i",offscreen_blink);
+       break;
+     case 'n':
+       offscreen_blink--;
+       act("TxtLayer::offscreen blink time %i",offscreen_blink);
+       break;
+     case 'k':
+       onscreen_blink++;
+       act("TxtLayer::onscreen blink time %i",onscreen_blink);
+       break;
+     case 'm':
+       onscreen_blink--;
+       act("TxtLayer::onscreen blink time %i",onscreen_blink);
+       break;
+       
+     case 'p': /* wider */ 
+       text_dimension+=5;
+       set_character_size(text_dimension);
+       act("TxtLayer::font size %i",text_dimension);
+       break;
+
+     case 'o': /* smaller */
+       text_dimension-=5;
+       set_character_size(text_dimension);
+       act("TxtLayer::font size %i",text_dimension);
+       break;
+	    
+     case 'i':
+       if(sel_font<num_fonts-1) sel_font++;
        /* Create face object */
        if(FT_New_Face( library, fonts[sel_font], 0, &face )) 
 	 error("Can't load font %s",fonts[sel_font]);
        use_kerning=FT_HAS_KERNING(face);
        set_character_size(text_dimension);
+       act("TxtLayer::font face %s size %i",
+	   fonts[sel_font],text_dimension);
+       break;
+     case 'u':
+       if(sel_font>0) sel_font--;
+       /* Create face object */
+       if(FT_New_Face( library, fonts[sel_font], 0, &face )) 
+	 error("Can't load font %s",fonts[sel_font]);
+       use_kerning=FT_HAS_KERNING(face);
+       set_character_size(text_dimension);
+       act("TxtLayer::font face %s size %i",
+	   fonts[sel_font],text_dimension);
+       
        break;
 
      default: 

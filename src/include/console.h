@@ -98,7 +98,7 @@ class Console {
   cmd_complete_t *cmd_complete;
   
   /* The SLscroll routines will use this structure. */
-  void free_lines();
+  void free_lines(File_Line_Type *line);
   File_Line_Type *create_line(char *buf);
   File_Line_Type *File_Lines;  
   SLscroll_Window_Type Line_Window;

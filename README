@@ -1,41 +1,54 @@
 
-          [[[  FreeJ 0.6 "MONTEVIDEO"  ]]]
+                      [[[  FreeJ 0.7 ""  ]]]
+          
+                               by jaromil @ dyne.org
 
-             [ http://freej.dyne.org ]
-
-       BIG UP ALL FRIENDS & SET THE VJ FREE
-                     by jaromil @ RASTASOFT 
+     THIS IS RASTA SOFTWARE FOR THE FREEDOM OF VIDEO CREATION
 
 :: OVERVIEW
 
-FreeJ is a digital instrument for video livesets, featuring realtime
-rendering of multilayered video and chained effect filtering directly
-on the screen. FreeJ threats every video source as a layer, making
-then possible to dynamically apply on each a chain of filters,
-loadable as effect plugins and easily customizable. Layers are
-implemented to mix together live inputs (video4linux devices),
-DIVX/AVI files (with avifile library), PNG images and text files word
-by word. Other layers are being implemented.
+FreeJ is a realtime video manipulation engine and a digital instrument
+for livesets, featuring rendering of multilayered video and chained
+effect filtering directly on the screen.
+FreeJ threats every video source as a layer, making then possible to
+dynamically apply on each a chain of filters.
+Layers are implemented to mix together live video, movies, images and
+texts.
+Everything can be controlled live, also remotely, or scripted using an
+object oriented API with javascript syntax.
 
-FreeJ is a software written in C, C++ and a bit of assembler, it can
-run on GNU/Linux platform and it could be ported to other platforms:
-any help on that is appreciated.
-
-FreeJ is being developed in the hope to provide the free software
-community with a modular and highly customizable application for
-realtime video manipulation; a free and open framework that lets
-anybody implement hisown filters concentrating simply on the dsp
-algorithm developed and furthermore to combine them over any supported
-layer.
-
-FreeJ is Free Software and his sourcecode is released under the Gnu
-Public License, it comes with absolutely no warranty and you are welcome
-to redistribute it under certain conditions (refer to the license for
-details).
+FreeJ's sourcecode is written in C, C++ and assembler, it can run on
+GNU/Linux and Darwin/OSX platforms, PC-x86 or Mac.
 
 
-:: FreeJ development is supported by
-   Montevideo/Time Based Arts - Nederlands Instituut voor Mediakunst
+
+:: FREE AS IN VEEJAY
+
+This software has started as an artist tool used in dance-theater
+performances by its author, being developed since 2001 also with
+contributions from programmers and artists. A study realized with FreeJ
+was featured by the Withney ArtPort (CODeDOC II/AEC03), while during
+2003/04 development has been supported by the Netherlands Institute of
+Media Art.
+
+By releasing FreeJ as free software, the intention is to foster
+creativity, artistic expression and research indypendently from
+proprietary business products: to avoid that commercial companies own
+the performability and reproducibility of our creations.
+
+Set the VeeJay Free! was the first motto for this software.
+
+For the time being, FreeJ is employed in various video performances and
+installations, but also used for medical analisys visualizations.
+And its horizons of use are now growing with scriptability.
+
+FreeJ is free software and its sourcecode is released under the GNU
+General Public License, it comes with absolutely no warranty, while you
+are welcome to hire or team-up with the developers in order to have
+support using it. 
+
+
+
 
 
 
@@ -43,12 +56,25 @@ details).
 
 ++ reads from multiple sources:
    video4linux, divx/avi movies, png images and txt files
+++ can be controlled from remote: VJoE - VeeJay over Ethernet
 ++ very efficient video engine with multithreaded layers
 ++ plugin effects chainable on each layer
-++ user friendly GTK2 graphical interface
-++ (ab)user friendly hotkeys and OnScreenDisplay
+++ user friendly graphical interface (Gtk+2)
+++ Emacs/Vi style console with hotkeys and completion (S-Lang)
+++ Midi and Joystick controllers
+++ Object Oriented scriptable API (Javascript)
 ++ 100% GNU General Public License Free Software
-++ modular C/C++ code and flexible API
+
+
+
+
+:: GET STARTED
+
+To start rolling with FreeJ you can have a tour of the online tutorial
+(see http://freej.dyne.org documentation section), interact directly
+with the GTK+2 interface to get familiar with layers and effects and
+then go to the USAGE file which has a more complete reference table for
+hotkeys and advanced console use.
 
 
 
@@ -58,28 +84,31 @@ details).
 To run FreeJ is necessary to have:
 
 - a working GNU/Linux workstation
-  (experimental support for Darwin/OSX)
+  or Darwin/OSX -> see the documentation in README.OSX 
+
 - SDL libraries http://www.libsdl.org
 
-Optionally, you want to have installed the following libraries in order
-to use various layers input plugins:
-- pkg-config http://www.freedesktop.org/software/pkgconfig/
-- PNG libraries http://www.libpng.org
-- FreeType2 libraries http://freetype.org
-- FFMpeg libraries http://ffmpeg.sf.net
-- XVid libraries http://xvid.org
-- AviFile libraries http://avifile.sf.net
-- NASM netwide assembler compiler http://nasm.sf.net
-- XFree86 4.2 or latest, better with an accelerated videocard
+Optionally, you want to have installed the following libraries:
 
-Also a video input device can provide you with additional phun, FreeJ
-currently supports the video4linux API.
+Image Layer:
+- PNG libraries http://www.libpng.org
+
+Text Layer:
+- FreeType2 libraries http://freetype.org
+
+Movie Layer:
+- XVid libraries http://xvid.org
+- FFMpeg libraries http://ffmpeg.sf.net
+- AviFile libraries http://avifile.sf.net
+
+PC x86 assembler effects:
+- NASM netwide assembler compiler http://nasm.sf.net
+
+Live video Layer:
+- BTTV / WinTV and similar cards supported by a Video4Linux driver
 
 For better fullscreen support try to add to your XF86Config  file  the
 modelines in doc/x11.modelines
-
-To operate FreeJ you need to have a look in the USAGE file
-
 
 
 
@@ -88,21 +117,24 @@ To operate FreeJ you need to have a look in the USAGE file
 read the INSTALL file
 if it's too hard for you, consider trying dyne:bolic
 *** http://dynebolic.org (just download, burn and boot it on a PC!)
+or if you have allready Debian GNU/Linux installed, you can try to
+# apt-get install freej
+from the unstable/testing branch.
 
 
 
 
 :: DEVELOPERS
 
- jaromil - FreeJ author and mantainer
- kysucix - Truetype TXT Layer
- & refer to the AUTHORS file for a list of contributions
+ Denis "jaromil" Rojo - programmer: FreeJ author and mantainer
+ Silvano "kysucix" Galliani - programmer: TXT layer, script parser
+ Anne-Marie Skriver - documentation: tutorial and case study 
+ 
+ refer to the AUTHORS file for a list of contributions
 
 You are very welcome to join, there is a lot of space for modules and a
-pretty clear (and near to be freezed) API to be used.
-In the near future there is going to be a procedural scripting language
-to operate FreeJ. Have a look in the TODO file for some visions.
-You can also follow development activity on http://lists.dyne.org/coding
+pretty clear (and almost freezed) API to be used.
+You can follow development activity on http://lists.dyne.org/coding
 
 
 
@@ -125,8 +157,9 @@ The source releases of FreeJ are made available on
        *** http://freej.dyne.org ***
 
 FreeJ is also included in binary form, ready to be used, in the live
-bootable distribution i'm doing: just burn it and boot it!
+bootable distribution by RASTASOFT
        *** http://dynebolic.org ***
+just burn it and boot it!
 
 CVS (latest development version) is also publicly available on
        *** cvs.dyne.org/viewcvs.cgi/?root=free ***
@@ -137,7 +170,7 @@ CVS (latest development version) is also publicly available on
 
 :: DISCLAIMER
 
-FreeJ is (c) 2001, 2002, 2003, 2004 by Denis Rojo <jaromil@dyne.org>
+FreeJ is (c) 2001 - 2004 by Denis Rojo <jaromil@dyne.org>
 
 This source code is free software; you can redistribute it and/or
 modify it under the terms of the GNU Public License as published 

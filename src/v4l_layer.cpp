@@ -308,41 +308,39 @@ void V4lGrabber::set_freq(int f) {
   
 
 /* here are defined the keys for this layer */
-bool V4lGrabber::keypress(SDL_keysym *keysym) {
+bool V4lGrabber::keypress(char key) {
   int res = 1;
-  if(keysym->mod & KMOD_CAPS) return false;
 
-  switch(keysym->sym) {
-
-  case SDLK_k:
+  switch(key) {
+  case 'k':
     if(input<channels)
       set_chan(input+1);
     break;
-
-  case SDLK_m:
+    
+  case 'm':
     if(input>0)
       set_chan(input-1);
     break;
     
     if(have_tuner) {
-    case SDLK_j:
+    case 'j':
       if(_band<bandcount)
 	set_band(_band+1);
       break;
       
-    case SDLK_n:
+    case 'n':
       if(_band>0)
 	set_band(_band-1);
       break;
       
-    case SDLK_h:
+    case 'h':
       if(_freq<chanlists[_band].count)
 	set_freq(_freq+1);
       else
 	set_freq(0);
       break;
 
-    case SDLK_b:
+    case 'b':
       if(_freq>0)
 	set_freq(_freq-1);
       else
@@ -350,7 +348,7 @@ bool V4lGrabber::keypress(SDL_keysym *keysym) {
       break;
       
     } /* if (have_tuner) */
-
+    
   default:
     res = 0;
   }

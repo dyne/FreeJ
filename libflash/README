@@ -1,0 +1,175 @@
+INTRODUCTION
+------------
+
+Jun. 12th 2000
+
+This the Version 0.4.10 of the Flash Library for Linux.
+
+Flash Plugin is under GPL, see COPYING file.
+
+Provides:
+- Lib contains the FlashLib sources.
+- Plugin contains plugin sources.
+- Player contains the standalone player sources.
+- Kflash a Flash KDE screen saver.
+
+New features:
+- Bug fixes.
+- 24 and 32 modes supported.
+- Flash Library as screen saver (for xcreensaver and KDE).
+
+To get some information on this library check out the following link :
+http://www.swift-tools.com/Flash
+
+Authors:	Olivier Debon <odebon@club-internet.fr>
+		Fabrice Bellard <fabrice.bellard@netgem.com>
+
+FEATURES
+--------
+
+Limitations :
+  - The plugin and the player use XShm extensions, so remote display is not possible.
+  - No Flash 4 features (but no crash on Flash 4 files).
+
+Not functional :
+  - No Morphing.
+  - No vertical anti-aliasing.
+
+SOUND SUPPORT
+-------------
+
+Limitations :
+  - No streamed sound supported (interleaved data).
+  - No sound envelop. So no fading or balancing effect.
+
+But the main feature is here and sound can be enjoyed.
+
+I recommend OSS drivers, but it is not required at all
+(http://www.opensound.com)
+
+If you have troubles with sound put the -DNOSOUND option
+for compilation. Also do this for non-Linux Unix.
+
+THE PLAYER
+----------
+
+The standalone player can simply control movie by
+pressing Q to quit, P to pause, C to continue and
+R to replay.
+There is also the possibility to zoom in or out
+and scroll using Keypad +/- and cursor keys, but
+it is buggy on frozen images.
+
+THE SCREEN SAVERS
+-----------------
+
+The standalone player can be run though xscreensaver. Modify
+your .xscreensaver file to add swfplayer:
+programs: swfplayer -root /home/olivier/Flash/Test/test.swf
+(See xscreensaver doc for more details on Xscreensaver).
+
+For KDE, just install the kflash.kss file from the Kflash
+directory in /usr/bin (or where your KDE installation expects
+kss file to be).
+In your KDE start menu, select Settings->Desktop->Screensaver
+Choose 'Flash Movies' and click on SetUp button. You'll have
+to select a Flash file (take the test.swf file provided with
+this distribution). The fullscreen option will scale the movie
+to the entire screen (it can be very CPU intensive). The
+enable sound option will allow to play sounds, but as a screen
+saver mode this is not a good idea :)
+
+BUG REPORT
+----------
+
+If Netscape crashes when it started to play a Flash file, please
+report the complete url where you have found the file.
+Do not send the actual file !
+
+If you have rendering problem also report the url.
+
+If the plugin does not seem to show anything or does not do what it
+is supposed to do, please consider that the plugin does not support
+all Flash 2/4 features. Anyway it tries to play it but may fail then.
+
+COMPILATION
+-----------
+
+If you use Linux just type 'make'.
+
+Warning : the plugin compilation should not fail, but you may
+have problem with Netscape at startup. See INSTALLATION section
+for workarounds.
+
+For other Unices like FreeBSD or Solaris you may have to change
+some flags. See Plugin/Makefile for hints.
+
+INSTALLATION
+------------
+
+Once you have successfully compiled the plugin, put the file
+npflash.so (located in the Plugin directory) into your
+~/.netscape/plugins directory or into the system-wide
+/opt/netscape/plugins directory (depends on where you have installed
+Netscape).
+
+If Netscape already runs type 'javascript:navigator.plugins.refresh'
+in the Location field.
+
+	PROBLEMS
+	--------
+
+If you have problem to successfully install the plugin, please
+read the following hints. Otherwise, report the problem with full
+description of your configuration :
+- Distribution.
+- Compiler.
+- Libs (the output of ldconfig -p is useful).
+- The netscape version and the output of 'ldd netscape'.
+
+If some symbols like _rtti or _throw are unresolved, it seems
+that you have egcs. Just uncomment the proper line in the main
+Makefile.
+You may then still have some unresolved symbols like __sigsetjmp.
+This time, add -DC6R5 in the Plugin/Makefile at the PLUGIN_DEFINES
+line.
+
+	CHECKING
+	--------
+
+To verify that the plugin is installed properly, type "about:plugins"
+in Netscape's "Location:" or "Netsite:" field.  The plugin should show
+up there, something like
+
+___________________________________________________________________________
+
+				   Shockwave Flash
+
+	File name: /opt/netscape/plugins/npflash.so
+
+	Flash file player Version 0.4.10
+
+	Shockwave is a trademark of Macromedia®
+
+	Author: Olivier Debon
+
+ ---------------------------------------------------------------------------------
+|     Mime Type                  |     Description   |  Suffixes   |    Enabled   |
+|--------------------------------+-------------------+-------------+--------------|
+|   application/futuresplash     |     Flash Plugin  |    spl      |     Yes      |
+| application/x-shockwave-flash  |                   |    swf      |     Yes      |
+ ---------------------------------------------------------------------------------
+
+___________________________________________________________________________
+
+
+If it shows up, but the "Enabled" column says "No", you need to
+configure the Flash plugin as a helper application.  Go to
+Edit/Preferences/Navigator/Applications, and add it as follows:
+
+Description: Flash Plugin
+MIME Type: application/x-shockwave-flash
+Suffixes: swf
+Handled By: Plug In (select "Shockwave Flash")
+
+------

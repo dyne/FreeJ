@@ -37,6 +37,7 @@ Layer::Layer()
   bgcolor = 0;
   bgmatte = NULL;
   set_name("???");
+  filename[0] = 0;
   buffer = NULL;
   has_colorkey=false;
 }

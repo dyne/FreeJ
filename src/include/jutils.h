@@ -25,6 +25,7 @@
 extern char msg[255];
 
 extern void *(*jmemcpy)( void *to, const void *from, size_t len );
+void jmemset(void * s, unsigned long c ,size_t count);
 
 void set_debug(int lev);
 int get_debug();
@@ -51,4 +52,4 @@ void rtc_freq_wait();
 void rtc_close();
 #endif
 
-void jmemset(void * s, unsigned long c ,size_t count);
+

@@ -25,7 +25,6 @@ typedef unsigned long int ulong;
 
 #include <linux/types.h>
 #include <linux/videodev.h>
-#include <SDL_thread.h>
 #include <context.h>
 
 class V4lGrabber: public Layer {
@@ -35,7 +34,7 @@ class V4lGrabber: public Layer {
   int norm;
   int _band;
   int _freq;
-  Uint32 palette;
+  uint32_t palette;
 
   struct video_capability grab_cap;
 
@@ -74,7 +73,7 @@ class V4lGrabber: public Layer {
   void set_chan(int ch);
   void set_band(int b);
   void set_freq(int f);
-  bool keypress(SDL_keysym *keysym);
+  bool keypress(char key);
 
   unsigned char *buffer;
 };

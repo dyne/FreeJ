@@ -79,13 +79,10 @@ class AviLayer: public Layer {
   double lsttime, curtime;
  bool paused;
  bool avi_dirty;
- void set_mark_in();
- void set_mark_out();
  int play_speed;
  void set_play_speed(int speed);
  int slow_frame,slow_frame_s;
  void set_slow_frame(int speed);
- framepos_t mark_in,mark_out;
 
  bool yuvcc;
 
@@ -98,14 +95,17 @@ class AviLayer: public Layer {
   void *feed();
   void close();
 
-  void forward(framepos_t step=1);
-  void rewind(framepos_t step=1);
-  void pos(framepos_t p);
+  framepos_t forward(framepos_t step);
+  framepos_t rewind(framepos_t step);
+  framepos_t mark_in;
+  framepos_t mark_out;
+  
+  framepos_t pos(framepos_t p);
   void pause();
   //  void speedup();
   //  void slowdown();
 
-  bool keypress(SDL_keysym *keysym);
+  bool keypress(char key);
 };
 
 #endif

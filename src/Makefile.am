@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)/src/include -I$(top_srcdir)/ccvt
+INCLUDES = -I$(top_srcdir)/src/include -I$(top_srcdir)/ccvt -I$(top_srcdir)/libflash
 AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
               @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
@@ -28,6 +28,8 @@ freej_SOURCES = \
 	png_layer.cpp	\
 	txt_layer.cpp	\
 	gen_layer.cpp	\
+	flash_layer.cpp \
+	scroll_layer.cpp \
 	impl_layers.cpp \
 	screen.cpp	\
 	sdl_screen.cpp 	\
@@ -42,6 +44,7 @@ freej_SOURCES = \
 	fastmemcpy.cpp
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
+		$(top_srcdir)/libflash/libflash.a \
 		 -ldl -lpthread -lm -lslang \
 		@SDL_LIBS@ \
 		@AVIFILE_LIBS@ \

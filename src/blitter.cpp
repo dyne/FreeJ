@@ -379,46 +379,51 @@ void Blitter::blit() {
 
 
 	    current_blit->off = current_blit->poff =
-		current_blit->poff + layer->geo.w;
+	      //	      current_blit->poff + layer->geo.pitch;
+	      current_blit->poff + layer->geo.w;
 	    current_blit->scr = current_blit->pscr = 
-		current_blit->pscr + layer->freej->screen->w;
+	      //		current_blit->pscr + layer->freej->screen->pitch;
+	      current_blit->pscr + layer->freej->screen->w;
 	}
 
 	// executes SDL blit
     } else if (current_blit->type ==  SDL_BLIT) {
-
-	current_blit->sdl_surface = 
-	    SDL_CreateRGBSurfaceFrom
-	    (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
-	     layer->geo.pitch, bmask, gmask, rmask, amask);
-
-	if(current_blit->value <=0xff) { // is there transparency?
+      
+      current_blit->sdl_surface = 
+	SDL_CreateRGBSurfaceFrom
+	(layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
+	 layer->geo.pitch, bmask, gmask, rmask, amask);
+      
+      if(current_blit->value <=0xff) { // is there transparency?
 	    if(layer->has_colorkey) {
 
 		/** is rle really faster? */
 //		SDL_SetColorKey(current_blit->sdl_surface, SDL_SRCCOLORKEY ,
 		SDL_SetColorKey(current_blit->sdl_surface, SDL_SRCCOLORKEY | SDL_RLEACCEL,
-			SDL_MapRGB(current_blit->sdl_surface->format, layer->colorkey_r,layer->colorkey_g,layer->colorkey_b));
+			SDL_MapRGB(current_blit->sdl_surface->format,
+				   layer->colorkey_r,
+				   layer->colorkey_g,
+				   layer->colorkey_b));
 	    }
 
 	    if(current_blit->value < 255) {
-		SDL_SetAlpha(current_blit->sdl_surface,SDL_SRCALPHA | SDL_RLEACCEL,
-			current_blit->value);
+	      SDL_SetAlpha(current_blit->sdl_surface,
+			   SDL_SRCALPHA | SDL_RLEACCEL,
+			   current_blit->value);
 	    }
 	    else {
 		SDL_SetAlpha(current_blit->sdl_surface,SDL_RLEACCEL, 0);
 	    }
 
-	    SDL_Surface *colorkey_surface=SDL_DisplayFormat(current_blit->sdl_surface);
+	    SDL_Surface *colorkey_surface = SDL_DisplayFormat(current_blit->sdl_surface);
 	    SDL_BlitSurface(colorkey_surface,
-		    &current_blit->sdl_rect,
-		    ((SdlScreen*)layer->freej->screen)->surface,NULL);
+			    &current_blit->sdl_rect,
+			    ((SdlScreen*)layer->freej->screen)->surface,NULL);
 	    SDL_FreeSurface(colorkey_surface);
-	}
-	else {
-	    SDL_BlitSurface(current_blit->sdl_surface,
-		    &current_blit->sdl_rect,
-		    ((SdlScreen*)layer->freej->screen)->surface,NULL);
+	} else { // blit value > 0xff
+	  SDL_BlitSurface(current_blit->sdl_surface,
+			  &current_blit->sdl_rect,
+			  ((SdlScreen*)layer->freej->screen)->surface,NULL);
 	}
 
 	SDL_FreeSurface(current_blit->sdl_surface);
@@ -463,7 +468,6 @@ bool Blitter::set_value(int val) {
 
 bool Blitter::set_colorkey(int colorkey_x,int colorkey_y) {
     uint8_t *colorkey=(uint8_t *)layer->offset + (colorkey_x<<2) + (colorkey_y * layer->geo.pitch);
-
 	    
     uint8_t colorkey_r = *(colorkey + rchan);
     uint8_t colorkey_g = *(colorkey + gchan);
@@ -476,6 +480,7 @@ bool Blitter::set_colorkey(int colorkey_x,int colorkey_y) {
     layer->has_colorkey=true;
 
     notice("Now alpha Colorkey has value: %u %u %u\n",colorkey_r,colorkey_g,colorkey_b);
+    return true;
 }
 
 bool Blitter::set_kernel(short *krn) {

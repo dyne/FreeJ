@@ -53,8 +53,8 @@ class Blit: public Entry {
 
 
  private:
-  uint32_t blit_x;
-  uint32_t blit_y;
+  int32_t blit_x;
+  int32_t blit_y;
   uint32_t blit_width;
   uint32_t blit_height;
   uint32_t blit_pitch;

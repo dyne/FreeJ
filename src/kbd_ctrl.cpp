@@ -366,7 +366,7 @@ void KbdListener::run() {
       /* layer implementation opcode
 	 TODO: here should pass opcodes instead of SDL keys */
       layer->lock();
-      layer->keypress(keysym);
+      layer->keypress(keysym->sym);
       layer->unlock();
       break;
       

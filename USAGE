@@ -1,93 +1,100 @@
-FreeJ version 0.6 USAGE NOTES
+FreeJ version 0.7 USAGE NOTES
 ===============================
 
-The interface consists in a on screen display (OSD) reporting
-informations like FPS, the filters that are created in the order they
-are applied to the layer and some status messages.
+FreeJ offers you various interfaces to interact with.
+in fact, it's a completely asynchronous rendering engine which can even
+process javascripts.
 
-LIST OF COMMANDS:
+to have a tour of the capabilities, you can use the gtk-2 interface
+which is the user friendly clicky thing.
+
+FreeJ as a performance instrument can be lively used with the keyboard:
+in the web documentation there is a map of the hotkeys.
+Good manuality is fundamental. Manu Virtus.
+
+the console controller is shaped on hotkeys coming from the Emacs and Vi
+approach to a text editor. in fact FreeJ is using S-Lang to control the
+console, an excellent library developed as part of the Jed editor.
+
+the paragraph above recalls familiarity among unix hackers, but don't
+worry if you don't get it, you can still find FreeJ interesting.
+
+the text console gives you status information, listing all the layers
+and the filters under them, scrolling all status messages and of course
+letting you interact thru commands.
+
+press ctrl-h to have a list of them.
+
+now, before continuing here, if you are not familiar with terms like
+'blit' and the way the FreeJ multilayered engine works by opening
+different media files, i suggest you take a tour of the PDF tutorial
+available in the web documentation on http://freej.dyne.org
+here it will follow a very dense reference table of hotkeys and commands
+to interact with the console and with the rendering screen.
+
+in fact you can interact also from the SDL screen, projecting directly
+your screen and controlling variables from the On Screen Display, like
+it was until the version 0.6 of FreeJ.
+
+now there is also something new:
+
+you can interact with FreeJ thru the text console, which can be also a
+shell opened from the net, i mean a remote terminal which is connected
+thru the net, over distance.
+with FreeJ you can do VJoE: VeeJay over Ethernet,
+which means the following control commands can also be sent thru the net:
+
+
+LIST OF HOTKEYS, remember:
 ^ means CTRL key pressed
 % means SHIFT key pressed
 
- GENERIC COMMANDS:
- ^SPACE   = switch fullscreen mode
- SPACE    = freeze the whole engine
- ESC      = quits (without confirm)
- TAB      = on/off OSD
- ^TAB     = on/off calibration guidelines
- PRINTSCR = display nice and lovely credits
+S-LANG CONSOLE 
 
-Advanced commands: If the meaning of this is not immediately obvious to you
-it doesn't matter.
+ arrow keys browse selection thru layers and effects                                                                                 
 
- NUMPAD PLUS  = increase cafudda speed
- NUMPAD MINUS = decrease cafudda speed
+ HOME de/activate layer, INS de/activates filter                                                                                     
 
+ ^o  = Open new layer (will prompt for path to file)                                                                             
+ ^e  = add a new Effect to the selected layer (press TAB for list)
+ ^b  = change the Blit for the selected layer (press TAB for list)
+ ^v  = change the blit Value for the selected layer                                                                              
+ ^c  = quit FreeJ (asks confirmation)
+ ^f  = go to Fullscreen                                                                                                          
+ ^l  = cleanup and redraw the console                                                                                            
+ ^j  = execute a Javascript command (if javascript is compiled)
 
- LAYER COMMANDS:
-
- PGUP/PGDOWN   = select layers up and down thru the chain
- ^PGUP/^PGDOWN  = move layers up and down thru the chain
+LAYER COMMANDS
 
  HOME     = hide/show layer         BACKSP   = turn matte off
  %BACKSP  = white matte             ^BACKSP  = black matte
-
- 1 = select NORMAL BLIT             2 = select BLU BLIT
- 3 = select GREEN BLIT              4 = select RED BLIT
- 5 = select ADD BLIT                6 = select SUB BLIT
- 7 = select AND BLIT                8 = select OR BLIT
- 9 = SWITCH ALPHA blend on/off      0 = SWITCH BLANK screen on/off
- with ALPHA blend on, you can fade thru values using 1-9 keys
-
- %ARROWS  = move layers around thru the screen
- mouse-l  = drag layers around, slowly and smoothly
  
- 
-
- FILTER COMMANDS:
-
- F1 - F12 = select an available filter (enter to create it)
-            you can browse thru loaded plugins with this
-
- ^F1-^F12 = select the filter bank from which browse filters
-            filters are stored in 12 banks, containing 12 filters each
-
- UP/DOWN  = select created filters up and down thru the chain
- ^UP/DOWN = move created filters up and down thru the chain
-
- DELETE   = remove selected filter
- ^DELETE  = remove ALL filters
-
- INSERT   = activate/deactivate filter
- (filters may have their own keys to change specific parameters)
- 
- VIDEO 4 LINUX LAYER COMMANDS:
+VIDEO 4 LINUX LAYER COMMANDS:
  k/m      = switch up/down input channel
  j/n      = (if TV tuner is present) switch up/down frequency tables
  h/b      = (if TV tuner is present) cycle up/down frequencies
 
- VIDEO 4 LINUX LAYER COMMANDS:
+
+PNG LAYER COMMANDS:
  k        = switch blinking on/off
  o        = control subliminal image
  p        = stop subliminal
 
- AVI LAYER COMMANDS:
- l/r
- arrows   = move one keyframe back and forward on the avi
- ^l/r
- arrows   = move many keyframes back and forward on the avi:
-            left ctrl = 50000 ; right ctrl = 10000 ;
-	    left shift = 5000 ; right shift = 1000 ;
- Key_Pad_0  PAUSE (still can seek !)
- %I       = set/clear mark_in
- %O       = set/clear mark_out
- k,l      = -/+ double frame / slow motion
- n,m      = -/+ play speed
- if k,l,n,m are not working as you expect, you have two 
- possibilities: recode the movie with full frames 
- or regard the artifacts as art 8=)
 
- TXT LAYER COMMANDS:
+MOVIE LAYER COMMANDS (AVIFILE):
+ j/k   = skip one keyframe back and forward on the movie
+ h/l   = dec/increase keyframe step when skipping
+ u     = set keyframe step back to 1
+ p     = pause (still can seek)
+ i     = set/clear mark_in
+ o     = set/clear mark_out
+ with full indexed avi files you can use:
+ n/m    = -/+ double frame / slow motion
+ v/b    = -/+ play speed
+ caveat: without indexed avi it can crash.
+
+
+TXT LAYER COMMANDS:
  l/r
  arrows   = go to previous/next word in text
  o,p      = -/+ font size, hold ctrl for bigger increase
@@ -97,8 +104,7 @@ it doesn't matter.
  n,j      = -/+ time off screen while blinking
 
 
-SOME FILTER COMMANDS:
-(see the filter's sourcecode for details)
+FILTER COMMANDS:
 
  DelayGrab filter
  q/w      = browse the 4 delay maps
@@ -109,9 +115,12 @@ SOME FILTER COMMANDS:
  a/s      = -/+ zoom speed
  z/x      = -/+ weirdness
 
- Simura filter
- caps-lock + all letters = change color filters
- keypad numbers = change mirror mode
+ Simura filter:
+ the square of keys on the left:
+ |q|w|e|
+ |a|s|d|
+ |z|x|c|
+ switch thru various mirrors, being z normal state
 
  QuadTrans filter
  q/w      = -/+ frames of the screen
@@ -136,13 +145,69 @@ SOME FILTER COMMANDS:
  Nervous filter
  q        = switch between the 2 modes
 
+
+
+VeeJay over Ethernet TIP:
+
+if you connect thru ssh you need to
+$ export DISPLAY=localhost:0
+and be sure to have the right permission on the X server
+$ xhost +localhost
+
+
+
+
+
+SDL SCREEN (doesn't work in VJoE remote network control)
+
+ ^f   = switch fullscreen mode
+ SPACE    = freeze the whole engine
+ ESC      = quits (without confirm)
+ TAB      = on/off OSD
+ ^TAB     = on/off calibration guidelines
+ PRINTSCR = display nice and lovely credits
+
+ NUMPAD PLUS  = increase overall speed
+ NUMPAD MINUS = decrease overall speed
+
+ PGUP/PGDOWN   = select layers up and down thru the chain
+ ^PGUP/^PGDOWN  = move layers up and down thru the chain
+
+ 1 = select NORMAL BLIT             2 = select BLU BLIT
+ 3 = select GREEN BLIT              4 = select RED BLIT
+ 5 = select ADD BLIT                6 = select SUB BLIT
+ 7 = select AND BLIT                8 = select OR BLIT
+ 9 = SWITCH ALPHA blend on/off      0 = SWITCH BLANK screen on/off
+ with ALPHA blend on, you can fade thru values using 1-9 keys
+
+ %ARROWS  = move layers around thru the screen
+ mouse-l  = drag layers around, slowly and smoothly
+ 
+ F1 - F12 = select an available filter (enter to create it)
+            you can browse thru loaded plugins with this
+
+ ^F1-^F12 = select the filter bank from which browse filters
+            filters are stored in 12 banks, containing 12 filters each
+
+ UP/DOWN  = select created filters up and down thru the chain
+ ^UP/DOWN = move created filters up and down thru the chain
+
+ DELETE   = remove selected filter
+ ^DELETE  = remove ALL filters
+
+ INSERT   = activate/deactivate filter
+ (filters may have their own keys to change specific parameters)
+
+
 SDL TIP:
 
- if you set the environmental variable SDL_VIDEODRIVER to something like
- "aalib" then you can render freej screen in ascii art, and you can use
- other drivers as well, see the SDL documentation for details.
+ if you set the environmental variable SDL_VIDEODRIVER to have different
+ rendering backends:
+$ export SDL_VIDEODRIVER=aalib
 
 
- for more information ask the mailinglist <freej@dyne.org>
+ happy hacking
+
+ get in touch with the mailinglist <freej@dyne.org>
  subscribe with a mail to <freej-subscribe@dyne.org>
 

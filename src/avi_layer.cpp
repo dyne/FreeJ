@@ -251,7 +251,7 @@ void AviLayer::close() {
 
 /* now some actions */
 
-void AviLayer::forward(framepos_t step) {
+framepos_t AviLayer::forward(framepos_t step) {
   framepos_t res = 0;
   lock_feed();
   if(step==1) res = _stream->SeekToNextKeyFrame();
@@ -263,9 +263,10 @@ void AviLayer::forward(framepos_t step) {
   show_osd("avi seek to %u\% (K%u)",
        (res*100)/_stream->GetLength(),res);
   avi_dirty = true;
+  return(res);
 }
 
-void AviLayer::rewind(framepos_t step) {
+framepos_t AviLayer::rewind(framepos_t step) {
   framepos_t res = 0;
   lock_feed();
   if(step==1) res = _stream->SeekToPrevKeyFrame();
@@ -277,9 +278,10 @@ void AviLayer::rewind(framepos_t step) {
   show_osd("avi seek to %u\% (K%u)",
        (res*100)/_stream->GetLength(),res);
   avi_dirty = true;
+  return(res);
 }
 
-void AviLayer::pos(framepos_t p) {
+framepos_t AviLayer::pos(framepos_t p) {
   framepos_t res = 0;
   lock_feed();
   res = _stream->SeekToKeyFrame(p);
@@ -288,6 +290,7 @@ void AviLayer::pos(framepos_t p) {
        (res*100)/_stream->GetLength(),res);
   show_osd();
   avi_dirty = true;
+  return(res);
 }
   
 void AviLayer::pause() {
@@ -296,78 +299,85 @@ void AviLayer::pause() {
   show_osd();
 }
 
-void AviLayer::set_mark_in() {
-		if (mark_in == 0)
-			mark_in = _stream->GetPos();
-		else
-			mark_in = 0;
-		notice("mark_in: %u", mark_in);
-		show_osd();
-}
-
-void AviLayer::set_mark_out() {
-		if (mark_out == 0)
-			mark_out = _stream->GetPos();
-		else
-			mark_out = 0;
-		notice("mark_out: %u", mark_out);
-		show_osd();
-}
-
 void AviLayer::set_play_speed(int speed) {
 	play_speed += speed;
-	show_osd("ps: %i", play_speed);
+	show_osd("AviLayer::play speed is now %i", play_speed);
 }
 
 void AviLayer::set_slow_frame(int speed) {
 	slow_frame += speed;
-	show_osd("sf: %i", slow_frame);
+	show_osd("AviLayer::frame rate is now %i", slow_frame);
 }
 
-bool AviLayer::keypress(SDL_keysym *keysym) {
-  bool res = false;
-  framepos_t steps = 1;
-  switch(keysym->sym) {
-  case SDLK_RIGHT:
-    if(keysym->mod & KMOD_LCTRL) steps=2500;
-    if(keysym->mod & KMOD_RCTRL) steps=500;
-    forward(steps);
-    res = true; break;
-
-  case SDLK_LEFT:
-    if(keysym->mod & KMOD_LCTRL) steps=5000;
-    if(keysym->mod & KMOD_RCTRL) steps=1000;
-    rewind(steps);
-    res = true; break;
-
-  case SDLK_i:
-    if(keysym->mod & KMOD_SHIFT)
-    set_mark_in(); break;
-
-  case SDLK_o:
-    if(keysym->mod & KMOD_SHIFT)
-    set_mark_out(); break;
+bool AviLayer::keypress(char key) {
+  bool res = true;
+  framepos_t off,steps = 1;
+  switch(key) {
+  case 'k':
+    off = forward(steps);
+    show_osd("AviLayer::forward %u steps to %u\% (K%u)",
+	     steps,(off*100)/_stream->GetLength(),off);
+    break;
+  case 'j':
+    off = rewind(steps);
+    show_osd("AviLayer::rewind %u steps to %u\% (K%u)",
+	     steps,(off*100)/_stream->GetLength(),off);
+    break;
     
-	case SDLK_n: 
-		set_play_speed(-1);
-    res = true; break;
+  case 'h':
+    if(steps>1) steps--;
+    act("AviLayer::keyframe step +1: %u",steps);
+    break;
+  case 'l':
+    steps++;
+    act("AviLayer::keyframe step +1: %u",steps);
+    break;
+  case 'u':
+    steps = 1;
+    act("AviLayer::keyframe step to 1");
+    break;
 
-	case SDLK_m: 
-		set_play_speed(+1);
-    res = true; break;
+  case 'i':
+    if(mark_in)
+      mark_in = 0;
+    else
+      mark_in = _stream->GetPos();
+    act("AviLayer::mark IN[%u] - OUT[%u] (%s)",
+	mark_in, mark_out, (mark_in&&mark_out)?"ON":"OFF");
+    break;
 
-	case SDLK_k: 
-		set_slow_frame(-1);
-    res = true; break;
+  case 'o':
+    if(mark_out)
+      mark_out = 0;
+    else
+      mark_out = _stream->GetPos();
+    act("AviLayer::mark IN[%u] - OUT[%u] (%s)",
+	mark_in, mark_out, (mark_in&&mark_out)?"ON":"OFF");
+    break;
+    
+  case 'n': 
+    set_play_speed(-1);
+    break;
 
-	case SDLK_l: 
-		set_slow_frame(+1);
-    res = true; break;
+  case 'm': 
+    set_play_speed(+1);
+    break;
+
+  case 'v': 
+    set_slow_frame(-1);
+    break;
+
+  case 'b': 
+    set_slow_frame(+1);
+    break;
 		
-  case SDLK_KP0: pause();
-    res = true; break;
+  case 'p':
+    pause();
+    break;
 
-  default: break;
+  default:
+    res = false;
+    break;
   }
   return res;
 }

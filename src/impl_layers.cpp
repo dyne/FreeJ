@@ -29,6 +29,10 @@
 
 /* software layers which don't need special loaders */
 #include <gen_layer.h>
+#include <scroll_layer.h>
+
+// statically included flash layer
+#include <flash_layer.h>
 
 #ifdef WITH_V4L
 #include <v4l_layer.h>
@@ -75,6 +79,7 @@ const char *layers_description =
 " .  - xscreensaver screen hack. ex. /usr/X11R6/lib/xscreensaver/cynosure\n"
 #endif
 " .  - particle generator ( try: 'freej layer_gen' on commandline)\n"
+" .  - vertical text scroller (any other extension)\n"
 "\n";
 
 
@@ -194,8 +199,22 @@ Layer *create_layer(char *file) {
 	} else
 	  if(strncasecmp(pp,"layer_gen",9)==0) {
 	    nlayer = new GenLayer();
-	  }
-  
+	  } else
+	    if(strncasecmp(p-4,".swf",4)==0) {
+	      nlayer = new FlashLayer();
+	      if(!nlayer->open(pp)) {
+		error("create_layer : SWF open failed");
+		delete nlayer; nlayer = NULL;
+	      }
+	    } else {
+	      nlayer = new ScrollLayer();
+	      if(!nlayer->open(pp)) {
+		error("create_layer : SCROLL open failed");
+		delete nlayer; nlayer = NULL;
+	      }
+	      
+	    }
+
   if(!nlayer)
     error("can't create a layer with %s",file);
   else

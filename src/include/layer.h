@@ -28,7 +28,6 @@
 #define __LAYER_H__
 
 #include <inttypes.h>
-#include <SDL.h>
 #include <iterator.h>
 #include <blitter.h>
 #include <filter.h>
@@ -80,9 +79,10 @@ class Layer: public Entry, public JSyncThread {
   ~Layer(); ///< Layer destructor
   
   /* these must be defined in layer implementations */
-  virtual bool open(char *file) =0;
-  virtual bool init(Context *scr) =0;
-  virtual void close() =0;
+  virtual bool open(char *file) =0; ///< open the file (first called)
+  virtual bool init(Context *scr) =0; ///< initialize the layer (second called)
+  virtual void close() =0; ///< close the layer (ready to open a new one)
+  virtual bool keypress(char key) =0; ///< pass to the Layer a key pressed
 
   char *get_name() { return name; };
   char *get_filename() { return filename; };
@@ -91,18 +91,6 @@ class Layer: public Entry, public JSyncThread {
   void set_position(int x, int y);
   ///< Set Layer's position on screen
 
-  /* BLIT */
-  //  void set_blit(char *name) { blitter.set_blit(name); }; ///< Set Layer's blit algorithm
-  //  char *get_blit(); ///< Get a short string describing current Layer's blit algorithm
-  //  char *get_blit_desc(); ///< Get a long description 
-
-  /* ALPHA */
-  ///  void set_alpha(int opaq); ///< Set Layer's alpha opacity
-  //  uint8_t alpha; ///< Layer's alpha opacity value
-  //  uint8_t get_alpha() { return alpha; }; ///< Get Layer's alpha value
-
-  virtual bool keypress(SDL_keysym *keysym) =0;
-  ///< pass to the Layer a keypress
 
   Linklist filters;
   ///< Filter list of effects applied on the Layer

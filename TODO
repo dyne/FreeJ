@@ -1,20 +1,18 @@
 
 $Id$
 
-  *** XScreensaver layer
+  *** finalize JavaScript API
 
   *** complete Darwin/OSX portability
 
   *** LiViDO shared plugin library   
 
-  *** FreeJ script language (using SLANG or python?)
-  
+  *** 8bit masks for blits
+
+  *** XScreensaver layer // must PORT screenhacks code :(
+
   *** Open Sound Control for remote interoperability
   
-  *** MIDI controller
-
-  *** Joystick controller
-
   *** enhance text layer (scroll, word positioning etc.)
 
-  *** activate controllers at runtime (AnneMarie)
+

@@ -109,7 +109,7 @@ public:
   void *get_buffer();
   void close();
   bool set_character_size(int _text_dimension);
-  bool keypress(SDL_keysym *keysym);
+  bool keypress(char key);
   void compute_string_bbox( FT_BBox  *abbox,FT_Glyph image );
 };
 

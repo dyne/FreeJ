@@ -371,6 +371,7 @@ CXXFLAGS="$CFLAGS"
 AC_OUTPUT([
 Makefile
 ccvt/Makefile
+libflash/Makefile
 src/Makefile
 src/include/Makefile
 filters/Makefile

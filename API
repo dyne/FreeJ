@@ -10,15 +10,15 @@ how things are distributed and which functions are more useful to operate.
 
 
 right now there is a tree organization, here i try to represent it:
-                    
-Context____Layer___________Filter }
-       \___Layer_____ \____Filter }
-        \            \ \___Filter } Plugger
-         \_Layer      \____Filter }
-		       \___Filter }
-           ^^^^^        \__Filter }
-           Blit          .
-           Chain          .
+
+                               
+Screen---(Blit)______________Layer_____Effect 
+      \   vvvv                    \____Effect 
+       \-(Blit)____Layer__Effect   \___Effect
+        \ vvvv         \__Effect        ...
+         (Blit)__Layer  \_Effect
+		         \Effect
+                           ...
 
 the Context is holding the list of layers, cycling thru them during
 FreeJ's execution.
@@ -33,8 +33,10 @@ Context.
 
 see how i'm using the API to this engine in freej.cpp
 
-To create Layers providing a filename, use the external function:
-  Layer *foolay = create_layer(char *filename);
+To create Layers providing a filename using javascript:
+  Layer foolay = create_layer("path/to/file");
+  add_layer(foolay);
+
 then you init your new layer
   if(foolay) {
     foolay->init(&freej); // <- you pass a pointer to freej env

@@ -110,7 +110,7 @@ class VideoLayer: public Layer {
 	//  void speedup();
 	//  void slowdown();
 
-	bool keypress(SDL_keysym *keysym);
+	bool keypress(char key);
 	bool more_speed();
 	bool less_speed();
 	bool set_mark_in();
