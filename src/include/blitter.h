@@ -119,6 +119,7 @@ class Blitter {
 
   bool set_zoom(double x, double y);
   bool set_rotate(double angle);
+  bool set_spin(double rot, double z);
 
   Linklist blitlist; ///< list of available blits
 
@@ -137,6 +138,8 @@ class Blitter {
   double zoom_x;
   double zoom_y;
   double rotate;
+  double spin_rotation;
+  double spin_zoom;
   SDL_Surface *rotozoom; ///< pointer to blittable surface (rotated and zoomed if necessary)
   ScreenGeometry geo_rotozoom; ///< geometrical information about the rotozoomed Layer
   ScreenGeometry *geo;

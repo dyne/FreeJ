@@ -234,7 +234,7 @@ BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
      geo->pitch, bmask, gmask, rmask, amask);
-
+  
   //  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, *(unsigned int*)value );  
 
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
@@ -246,23 +246,21 @@ BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
 BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
 		   SDL_Surface *dst, SDL_Rect *dst_rect,
 		   ScreenGeometry *geo, void *value) {
-
+  
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
      geo->pitch, bmask, gmask, rmask, amask);
-
+  
   SDL_SetColorKey( sdl_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, *(uint32_t*)value);
-
-//  SDL_SetAlpha(sdl_surf, SDL_RLEACCEL, 0);
-
-  SDL_Surface *colorkey_surf=SDL_DisplayFormat(sdl_surf);
-
+  
+  //  SDL_SetAlpha(sdl_surf, SDL_RLEACCEL, 0);
+  
+  SDL_Surface *colorkey_surf = SDL_DisplayFormat(sdl_surf);
+  
   SDL_BlitSurface( colorkey_surf, src_rect, dst, dst_rect );
   
   SDL_FreeSurface( sdl_surf );
   SDL_FreeSurface( colorkey_surf );
-
-  sdl_surf = NULL;
 
 }
 
@@ -292,6 +290,7 @@ Blitter::Blitter() {
   zooming = false;
   rotating = false;
   rotozoom = NULL;
+  sdl_surf = NULL;
   antialias = false;
 
   old_x = 0;
@@ -482,7 +481,20 @@ void Blitter::blit() {
   register int16_t c;
   void *offset;
 
-  if(rotating || zooming) {
+  if(rotating | zooming) {
+    
+    rotate += spin_rotation;
+    rotate = // cycle rotation
+      (rotate>360)?(rotate-360):
+      (rotate<0)?(360+rotate):
+      rotate;
+      
+    spin_zoom = // cycle zoom
+      (zoom_x >= 2) ? -spin_zoom :
+      (zoom_x < 0.1) ? -spin_zoom :
+      spin_zoom;
+    zoom_y = zoom_x += spin_zoom;
+
     // if we have to rotate or scale,
     // create a sdl surface from current pixel buffer
     sdl_surf = SDL_CreateRGBSurfaceFrom
@@ -491,7 +503,7 @@ void Blitter::blit() {
        layer->geo.pitch, bmask, gmask, rmask, amask);
 
     if(rotating) {
-
+      
       rotozoom =
 	schiffler_rotozoom(sdl_surf, rotate, zoom_x, (int)antialias);
       
@@ -499,18 +511,16 @@ void Blitter::blit() {
       
       rotozoom =
 	schiffler_zoom(sdl_surf, zoom_x, zoom_y, (int)antialias);
-
+      
     }
-
-    offset = rotozoom->pixels;
-    SDL_FreeSurface( sdl_surf );
     
-  } else {
+    offset = rotozoom->pixels;
 
-    offset = layer->offset;
-    rotozoom = NULL;
-
-  }
+    // free the temporary surface (needed again in sdl blits)
+    SDL_FreeSurface(sdl_surf);
+    sdl_surf = NULL;
+    
+  } else offset = layer->offset;
 
 
 
@@ -588,8 +598,11 @@ void Blitter::blit() {
 
   }
 
-  if(rotozoom)
+  // free rotozooming temporary surface
+  if(rotozoom) {
     SDL_FreeSurface(rotozoom);
+    rotozoom = NULL;
+  }
 
 }
 
@@ -707,12 +720,14 @@ bool Blitter::set_kernel(short *krn) {
 bool Blitter::set_zoom(double x, double y) {
   if(!x && !y) {
     zooming = false;
-    x = y = 0;
+    zoom_x = zoom_y = 1.0;
+    spin_zoom = 0;
     act("%s layer %s zoom deactivated",
 	layer->get_name(), layer->get_filename());
   } else {
     zoom_x += x;
     zoom_y += y;
+    spin_zoom = 0; // block spin
     zooming = true;
     act("%s layer %s zoom set to x%.2f y%.2f",	layer->get_name(),
 	layer->get_filename(), zoom_x, zoom_y);
@@ -724,10 +739,12 @@ bool Blitter::set_rotate(double angle) {
   if(!angle) {
     rotating = false;
     angle = 0;
+    spin_rotation = 0;
     act("%s layer %s rotation deactivated",
 	layer->get_name(), layer->get_filename());
   } else {
     rotate += angle;
+    spin_rotation = 0; // blocks spin
     rotating = true;
     act("%s layer %s rotation set to %.2f", layer->get_name(),
 	layer->get_filename(), rotate);
@@ -736,6 +753,35 @@ bool Blitter::set_rotate(double angle) {
   return rotating;
 }
 
+// TODO: here should be used iterators instead
+bool Blitter::set_spin(double rot, double z) {
+
+  if(rot) {
+    spin_rotation += rot;
+    // rotation spin boundary
+    spin_rotation =
+      // scalar value 2 here is the maximum rotation speed
+      (spin_rotation > 5) ? 5 :
+      (spin_rotation < -5) ? -5 :
+      spin_rotation;
+    
+    rotating = true;
+  }// else spin_rotation = 0;
+
+  if(z) {
+    spin_zoom += z;
+    // zoom spin boundary
+    spin_zoom = 
+      // scalar value 1 here is the maximum zoom speed
+      (spin_zoom > 1) ? 1 :
+      (spin_zoom < -1) ? -1 :
+      spin_zoom;
+    
+    zooming = true;
+  }// else spin_zoom = 0;
+
+  return(rotating | zooming);
+}
 
 /* ok, let's draw the crop geometries and be nice commenting ;)
 
@@ -792,17 +838,15 @@ void Blitter::crop(ViewPort *screen) {
   // assign the right pointer to the *geo used in crop
   // we use the normal geometry if not roto|zoom
   // otherwise the layer::geo_rotozoom
-  if(zooming | rotating) {
+  if(rotozoom) {
 
-    if(!rotozoom) {
-      error("internal error in blit rotozoomer, SDL_Surface layer::rotozoom is NULL");
-      return;
-    }
     geo = &geo_rotozoom;
+    // shift up/left to center rotation
+    geo->x = layer->geo.x - (rotozoom->w - layer->geo.w)>>1;
+    geo->y = layer->geo.y - (rotozoom->h - layer->geo.h)>>1;
+    
     geo->w = rotozoom->w;
     geo->h = rotozoom->h;
-    geo->x = layer->geo.x;
-    geo->y = layer->geo.y;
     geo->bpp = 32;
     geo->pitch = 4*geo->w;
 
@@ -810,10 +854,10 @@ void Blitter::crop(ViewPort *screen) {
 
   /* compare old layer values
      crop the layer only if necessary */
-  if( geo->x == old_x
-      && geo->y == old_y
-      && geo->w == old_w
-      && geo->h == old_h )
+  if( (geo->x == old_x)
+      & (geo->y == old_y)
+      & (geo->w == old_w)
+      & (geo->h == old_h) )
     return;
 
 

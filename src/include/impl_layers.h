@@ -64,7 +64,7 @@
 	| strncasecmp((end_file_ptr-4),".mov",4)==0  \
 	| strncasecmp((end_file_ptr-5),".mpeg",5)==0 \
 	| strncasecmp((end_file_ptr-4),".mpg",4)==0  \
-	| strncasecmp((end_file_ptr-4),".mpg",4)==0  
+	| strncasecmp((end_file_ptr-4),".mp4",4)==0  
 #define IS_FIREWIRE_DEVICE(file_ptr) \
     strncasecmp(file_ptr,"/dev/ieee1394/",14)==0
 
