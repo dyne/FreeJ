@@ -29,6 +29,7 @@
 #include <ctype.h>
 #include <SDL/SDL.h>
 #define MAX_GLYPHS 512
+#define SPEED 5
 typedef struct TGlyph_
 {
      FT_UInt    glyph_index;    // glyph index
@@ -72,6 +73,8 @@ class TxtLayer: public Layer {
   bool change_word;
   bool clear_screen;
   bool blinking;
+  bool use_kerning;
+  int blinking_speed;
   int text_dimension;
   
   /* image buffer */

@@ -38,6 +38,7 @@ TxtLayer::TxtLayer()
 	  change_word=true;
 	  clear_screen=false;
 	  blinking=false;
+	  blinking_speed=SPEED;
 	  text_dimension=0;
 	  glyph_current=NULL;
 	  x=0;
@@ -87,6 +88,8 @@ bool TxtLayer::init(Context *scr,int _text_dimension) {
      if(!set_character_size(text_dimension))
 	  return(false);
 
+     use_kerning=FT_HAS_KERNING(face);
+
      if(scr) screen = scr;
      _init(screen, screen->w, screen->h, screen->bpp);
 
@@ -108,10 +111,9 @@ void *TxtLayer::feed() {
      int previous=0;
      int string_width,string_height;
      //int angle=30;
-     FT_Bool use_kerning=FT_HAS_KERNING(face);
 
      /* One word  main loop, one word each iteration*/
-     if(change_word && !clear_screen) {
+     if(!clear_screen &&change_word) {
 	  glyph_current=glyphs;
 	  word_len = word_ff(1);
 
@@ -217,7 +219,16 @@ void *TxtLayer::feed() {
      /* now guess */
      else if(clear_screen) {
 	  bzero( buf, geo.size);
-	  clear_screen=false;
+	  if(blinking) {
+	       blinking_speed--;
+	       if (blinking_speed==0) {
+		   clear_screen=false;
+		   change_word=true;
+		   blinking_speed=SPEED;
+	       }
+	  }
+	  else
+	       clear_screen=false;
      }
      return buf;
 }
@@ -286,28 +297,13 @@ bool TxtLayer::keypress(SDL_keysym *keysym) {
 
 	  case SDLK_b: 
 	       if(!blinking) {
-		    change_word=true;
 		    blinking=true;
-		    word_ff(1);
+		    clear_screen=true;
 	       }
-	       else
+	       else {
 		    blinking=false;
-	       break;
-
-	  case SDLK_l: /* move left */
-	       x-=(geo.bpp/8);
-	       break;
-
-	  case SDLK_r: /* move right */
-	       x+=(geo.bpp/8);
-	       break;
-
-	  case SDLK_d: /* move down */ 
-	       y+=(geo.bpp/8);
-	       break;
-
-	  case SDLK_u: /* move up */
-	       y-=(geo.bpp/8);
+		    blinking_speed=SPEED;
+	       }
 	       break;
 
 	  case SDLK_w: /* wider */ 
