@@ -123,11 +123,13 @@ void KbdListener::run() {
       env->clear_all = !env->clear_all;
       break;
 
+#ifdef WITH_JAVASCRIPT
     case SDLK_COLON:
     case SDLK_SEMICOLON:
       env->console.activate();
       console = true;
       break;
+#endif
 
     default:
       _lastsel = -1;

@@ -2,7 +2,7 @@ INCLUDES = -I$(top_srcdir)/src/include -I$(top_srcdir)/ccvt
 AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
               @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
-	      @AVCODEC_CFLAGS@ \
+	      @AVCODEC_CFLAGS@ @JS_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
@@ -38,7 +38,13 @@ freej_SOURCES = \
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		 -ldl -lpthread -lm \
-		@SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@ @GLADE2_LIBS@ @AVCODEC_LIBS@
+		@SDL_LIBS@ \
+		@AVIFILE_LIBS@ \
+		@FT2_LIBS@ \
+		@PNG_LIBS@ \
+		@GLADE2_LIBS@ \
+		@AVCODEC_LIBS@ \
+		@JS_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej

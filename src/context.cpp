@@ -31,6 +31,13 @@
 #include <jutils.h>
 #include <config.h>
 
+#ifdef WITH_JAVASCRIPT
+#define XP_UNIX 1
+#define JS_THREADSAFE 1
+#define JS_MULTITHREADED 1
+#include <jsapi.h>
+#endif
+
 Context::Context() {
 
   notice("starting %s %s engine",PACKAGE,VERSION);
@@ -72,9 +79,11 @@ bool Context::init(int wx, int hx) {
   /* initialize the Keyboard Listener */
   kbd.init(this);
 
+#ifdef WITH_JAVASCRIPT
   /* initialize the Console Parser */
   console.init(this);
-
+#endif
+  
   /* initialize the realtime clock and use it if present */
   rtc = false;
 #ifdef linux
@@ -132,10 +141,10 @@ void Context::cafudda(int secs) {
     
     
     lay = (Layer *)layers.end();
-    if(!lay) {
-      osd._print_credits();
-      osd._show_fps();
-    } else {
+    //    if(!lay) {
+    //      osd._print_credits();
+    //      osd._show_fps();
+    //    } else {
       layers.lock();
       while(lay) {
 	if(!pause) 
@@ -143,7 +152,7 @@ void Context::cafudda(int secs) {
 	lay = (Layer *)lay->prev;
       }
       layers.unlock();
-    }
+      //    }
     
     osd.print();
     

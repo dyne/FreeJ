@@ -129,8 +129,11 @@ void Osd::init(Context *screen) {
 }
 
 void Osd::print() {
-  if(!active) return;
+  if(env->kbd.console)
+    env->console.print();
 
+  if(!active) return;
+  
   /*  
   if(_calibrate) {
     // vert up left
