@@ -184,19 +184,15 @@ void Osd::_selection() {
 
   _set_color(yellow);
 
-  /* we have only one layer until now */
-  if(screen->kbd->filter==NULL)
-    sprintf(msg,"%u %s::(none) [%s]",
-	    screen->kbd->layersel,
-	    screen->kbd->layer->getname(),
-	    screen->kbd->layer->get_blit());
-  else
-    sprintf(msg,"%u %s::%s [%s]",
-	    screen->kbd->layersel,
-	    screen->kbd->layer->getname(),
-	    screen->kbd->filter->getname(),
-	    screen->kbd->layer->get_blit());
-  (this->*write)(msg,70,1,1,1);
+  sprintf(msg,"%u %s::%s [%s][%s][%s]",
+	  screen->kbd->layersel,
+	  screen->kbd->layer->getname(),
+	  (screen->kbd->filter)?screen->kbd->filter->getname():"(null)",
+	  screen->kbd->layer->get_blit(),
+	  (screen->kbd->layer->alpha_blit)?"@":" ",
+	  (screen->clear_all)?"0":" ");
+
+  (this->*write)(msg,80,1,1,1);
 }
 
 void Osd::_layerlist() {

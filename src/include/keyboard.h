@@ -29,6 +29,7 @@ class Plugger;
 
 class KbdListener : public JSyncThread {
  private:
+  bool _layer_op(SDL_keysym *keysym);
   bool _context_op(SDL_keysym *keysym);
   Filter *_filt;
   int _lastsel;

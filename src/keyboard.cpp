@@ -128,9 +128,14 @@ void KbdListener::run() {
 	default:
 
 	  if(!layer) break;
+
+	  /* generic layer operations */
+	  if(_layer_op(&event.key.keysym)) break;
 	  
+	  /* generic filter and context operations */
 	  if(_context_op(&event.key.keysym)) break;
 	  
+	  /* specific layer operations */
 	  if(layer->keypress(&event.key.keysym)) break;
 	  
 	  if(filter!=NULL) {
@@ -151,6 +156,73 @@ void KbdListener::run() {
     }
     SDL_Delay(DELAY); 
   }
+}
+
+bool KbdListener::_layer_op(SDL_keysym *keysym) {
+  /* LAYER OPERATIONS */
+
+  if(!layer) return false;
+  
+  switch(keysym->sym) {
+
+  case SDLK_PAGEUP:
+    if(!layer->prev) return false;
+    if(keysym->mod & KMOD_CTRL) {
+      /* move layer up in chain */
+      if(screen->moveup_layer(layersel))
+	layersel--;
+    } else {
+      /* select filter up */
+      layer = (Layer *)layer->prev;
+      filter = (Filter *)layer->filters.begin();
+      filtersel = (filter)?1:0;
+      layersel--;
+    }
+    return true;
+    
+  case SDLK_PAGEDOWN:
+    if(!layer->next) return false;
+    if(keysym->mod & KMOD_CTRL) {
+      /* move layer down in chain */
+      if(screen->movedown_layer(layersel))
+	layersel++;
+    } else {
+      /* select layer down */
+      layer = (Layer *)layer->next;
+      filter = (Filter *)layer->filters.begin();
+      filtersel = (filter)?1:0;
+      layersel++;
+    }
+    return true;
+
+  case SDLK_HOME:
+    screen->active_layer(layersel);
+    return true;
+
+    /* BLIT ALGOS */
+  case SDLK_1: // MMX straight blit
+  case SDLK_2: // BLUE CHAN
+  case SDLK_3: // GREEN CHAN
+  case SDLK_4: // RED CHAN
+  case SDLK_5: // PACKED ADD BYTEWISE
+  case SDLK_6: // PACKED SUB BYTEWISE
+  case SDLK_7: // PACKED AND BYTEWISE
+  case SDLK_8: // PACKED OR BYTEWISE
+    layer->set_blit(keysym->sym - SDLK_0);
+    return true;
+
+  case SDLK_9:
+    layer->alpha_blit = !layer->alpha_blit;
+    return true;
+    
+  case SDLK_0:
+    screen->clear_all = !screen->clear_all;
+    return true;
+    
+  default: break;
+  }
+
+  return false;
 }
 
 /* manages keys for operations on the filter chain:
@@ -182,64 +254,8 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     break;
   }
   
+
   switch(keysym->sym) {
-    /* LAYER OPERATIONS */
-  case SDLK_PAGEUP:
-    if(!layer) return false;
-    if(!layer->prev) return false;
-    if(keysym->mod & KMOD_CTRL) {
-      /* move layer up in chain */
-      if(screen->moveup_layer(layersel))
-	layersel--;
-    } else {
-      /* select filter up */
-      layer = (Layer *)layer->prev;
-      filter = (Filter *)layer->filters.begin();
-      filtersel = (filter)?1:0;
-      layersel--;
-    }
-    return true;
-    
-  case SDLK_PAGEDOWN:
-    if(!layer) return false;
-    if(!layer->next) return false;
-    if(keysym->mod & KMOD_CTRL) {
-      /* move layer down in chain */
-      if(screen->movedown_layer(layersel))
-	layersel++;
-    } else {
-      /* select layer down */
-      layer = (Layer *)layer->next;
-      filter = (Filter *)layer->filters.begin();
-      filtersel = (filter)?1:0;
-      layersel++;
-    }
-    return true;
-
-  case SDLK_HOME:
-    if(!layer) return false;
-    screen->active_layer(layersel);
-    return true;
-
-    /* BLIT ALGOS */
-  case SDLK_1: // MMX straight blit
-  case SDLK_2: // Vert FLIP
-  case SDLK_3: // BLUE CHAN
-  case SDLK_4: // GREEN CHAN
-  case SDLK_5: // RED CHAN
-  case SDLK_6: // PACKED ADD BYTEWISE
-  case SDLK_7: // PACKED SUB BYTEWISE
-  case SDLK_8: // PACKED AND BYTEWISE
-  case SDLK_9: // PACKED OR BYTEWISE
-    if(!layer) return false;
-    layer->set_blit(keysym->sym - SDLK_0);
-    return true;
-    
-  case SDLK_0:
-    screen->clear_all = !screen->clear_all;
-    return true;
-
-
     /* FILTER OPERATIONS */
   case SDLK_RETURN:
     if(!_filt) break;

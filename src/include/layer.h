@@ -79,6 +79,7 @@ class Layer: public Entry, public JSyncThread {
 
   ScreenGeometry geo;
 
+  bool alpha_blit;
   bool paused;
   bool active;
   bool quit;

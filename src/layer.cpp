@@ -27,6 +27,7 @@ Layer::Layer() {
   quit = false;
   active = false;
   hidden = false;
+  alpha_blit = false;
   blit_offset = 0;
   _blit_algo = 1;
   setname("???");
@@ -269,75 +270,6 @@ void Layer::crop() {
        blit_x, blit_y, blit_width, blit_height, blit_xoff, blit_yoff);
 }
 
-#ifdef MMX_BLIT
-
-void Layer::blit(void *offset) {
-  if(hidden) return;
-
-  switch(_blit_algo) {
-
-  case 1: /* MMX ACCEL STRAIGHT BLIT */
-    mmxblit((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
-	    blit_width,blit_height,geo.pitch,screen->pitch); 
-    return;
-
-  case 2: /* VERTICAL FLIP */
-    {
-      Uint32 *scr, *pscr;
-      scr = pscr = (Uint32 *) screen->coords(geo.x,geo.y);
-      Uint32 *off, *poff;
-      off = poff = (Uint32 *)offset + (geo.size>>2) - (geo.pitch>>2);
-      int c,cc;
-      for(c=geo.h-1;c>0;c--) {
-	off = poff = poff - (geo.pitch>>2); 
-	scr = pscr = pscr + (screen->pitch>>2);
-	for(cc=geo.pitch>>2;cc>0;cc--)
-	  *scr++ = *off++;
-      }
-    }
-    return;
-
-    /* SINGLE CHANNEL BLIT */
-  case 3: /* BLUE */
-  case 4: /* GREEN */
-  case 5: /* RED */
-    {
-      int chan = _blit_algo-3;
-      char *scr, *pscr;
-      scr = pscr = (char *) screen->coords(geo.x,geo.y);
-      char *off, *poff;
-      off = poff = (char *)offset;
-      int c,cc;
-      for(c=geo.h;c>0;c--) {
-	off = poff = poff + geo.pitch;
-	scr = pscr = pscr + screen->pitch;
-	for(cc=geo.pitch>>2;cc>0;cc--) {
-	  *(scr+chan) = *(off+chan);
-	  scr+=4; off+=4;
-	}
-      }
-    }
-    return;
-
-  case 6:
-    mmxblit_add(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
-    return;
-  case 7:
-    mmxblit_sub(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
-    return;
-  case 8:
-    mmxblit_and(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
-    return;
-  case 9:
-    mmxblit_or(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
-    return;
-
-  default:
-    return;
-  }
-}
-
-#else
 
 #define BLIT(op) \
     { \
@@ -364,28 +296,75 @@ void Layer::blit(void *offset) {
      works with 32bpp */
   
   if(hidden) return;
-  
-  switch(_blit_algo) {
+
+  if(alpha_blit) {
+
+
+    /* ALPHA CHANNEL AWARE BLIT */
+    switch(_blit_algo) {
+    case 1:
+      BLIT(=); return;
+      return;
+      
+    case 2:
+    case 3:
+    case 4:
+      {
+	Uint8 *alpha;
+	int chan = _blit_algo-2;
+	char *scr, *pscr;
+	scr = pscr = (char *) screen->coords(blit_x,blit_y);
+	char *off, *poff;
+	off = poff = (char *) ((Uint8*)offset+blit_offset);
+	int c,cc;
+	for(c=blit_height;c>0;c--) {
+	  for(cc=blit_width;cc>0;cc--) {
+	    alpha = (Uint8 *) off;
+	    if(*(alpha+3)) *(scr+chan) = *(off+chan);
+	    scr+=4; off+=4;
+	  }
+	  off = poff = poff + geo.pitch;
+	  scr = pscr = pscr + screen->pitch;
+	}
+      }
+      return;
+      
+    case 5: BLIT(+=); return;
+      
+    case 6: BLIT(-=); return;
+      
+    case 7: BLIT(&=); return;
+      
+    case 8: BLIT(|=); return;
+      
+    default: return;
+    }
+
     
-  case 1:
-  case 2:
-    BLIT(=); return;
-    
-  case 3:
-  case 4:
-  case 5:
+  } else {
+
+
+    /* SOLID COLOR BLIT (NO ALPHA TRANSPARENCE) */
+    switch(_blit_algo) {
+      
+    case 1:
+      mmxblit((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
+	      blit_width,blit_height,geo.pitch,screen->pitch); 
+      return;
+      
+    case 2:
+    case 3:
+    case 4:
     {
-      Uint8 *alpha;
-      int chan = _blit_algo-3;
+      int chan = _blit_algo-2;
       char *scr, *pscr;
       scr = pscr = (char *) screen->coords(blit_x,blit_y);
       char *off, *poff;
-      off = poff = (char *) ((Uint8*)offset+blit_offset); \
+      off = poff = (char *) ((Uint8*)offset+blit_offset);
       int c,cc;
       for(c=blit_height;c>0;c--) {
 	for(cc=blit_width;cc>0;cc--) {
-	  alpha = (Uint8 *) off;
-	  if(*(alpha+4)) *(scr+chan) = *(off+chan);
+	  *(scr+chan) = *(off+chan);
 	  scr+=4; off+=4;
 	}
 	off = poff = poff + geo.pitch;
@@ -393,22 +372,31 @@ void Layer::blit(void *offset) {
       }
     }
     return;
+    
+    case 5:
+      mmxblit_add(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+      return;
 
-  case 6: BLIT(+=); return;
+    case 6:
+      mmxblit_sub(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+      return;
 
-  case 7: BLIT(-=); return;
-	
-  case 8: BLIT(&=); return;
+    case 7:
+      mmxblit_and(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+      return;
 
-  case 9: BLIT(|=); return;
-
-  default: return;
+    case 8:
+      mmxblit_or(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+      return;
+      
+    default: return;
+    }
   }
 }
 
-#endif    
-    
-  /* SIMPLE C CODE
+
+/* SIMPLE C CODE
+   (where all this blit trip started)
     
   char *scr, *pscr;
   scr = pscr = (char *) screen->coords(geo.x,geo.y);
@@ -430,14 +418,13 @@ char *Layer::getname() { return _name; }
 char *Layer::get_blit() {
   switch(_blit_algo) {
   case 1: return "MMX";
-  case 2: return "VFL";
-  case 3: return "BLU";
-  case 4: return "GRE";
-  case 5: return "RED";
-  case 6: return "ADD";
-  case 7: return "SUB";
-  case 8: return "AND";
-  case 9: return "OR";
+  case 2: return "BLU";
+  case 3: return "GRE";
+  case 4: return "RED";
+  case 5: return "ADD";
+  case 6: return "SUB";
+  case 7: return "AND";
+  case 8: return "OR";
   default: return "???";
   }
 }
