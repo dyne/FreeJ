@@ -29,6 +29,7 @@ class AviLayer: public Layer {
  private:
   /* AviReadFile.h in avilib/lib */
   IAviReadFile *_avi;
+
   
   /* AviReadStream.h
      interesting methods:

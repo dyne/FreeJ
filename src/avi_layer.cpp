@@ -172,7 +172,7 @@ bool AviLayer::feed() {
 void AviLayer::close() {
   /* here close Aviclass
      TODO: CHECK CAREFULLY here */
-  func("AviLayer::close()");
+  notice("Closing AVI layer");
   if(_stream)
     //    if(_stream->IsStreaming())
     _stream->StopStreaming();

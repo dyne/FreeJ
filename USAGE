@@ -1,39 +1,67 @@
-FreeJ version 0.3 USAGE NOTES
+FreeJ version 0.4 USAGE NOTES
 ===============================
 
-This release supports both 16bit and 32bit screens, altough there are
-more filters available when running at 32bit of depth.
+This release supports only 32bit screen depth.
 
 The interface consists in a on screen display (OSD) reporting
 informations like FPS, the filters that are created in the order they
 are applied to the layer and some status messages.
 
 LIST OF COMMANDS:
-(^ means CTRL key pressed):
+^ means CTRL key pressed
+% means SHIFT key pressed
 
-GENERIC COMMANDS:
+ GENERIC COMMANDS:
+ PRINTSCR = display nice and lovely credits
+ SPACE    = switch fullscreen mode
+ ESC      = quits (without confirm)
+ TAB      = turn on/off OSD
+ ^TAB     = turn on/off calibration guidelines
 
-F1 - F12 = select an available filter (enter to create it)
-           you can browse thru loaded plugins with this
-UP/DOWN  = select created filters up and down thru the chain
-^UP/DOWN = move created filters up and down thru the chain
-DELETE   = delete selected filter
-^DELETE  = delete ALL filters
-INSERT   = activate/deactivate filter (without removing it from the
-           chain)
-PRINTSCR = display nice and lovely credits
-SPACE    = switch fullscreen mode
-ESC      = quits (without confirm)
-TAB      = turn on/off OSD
-^TAB     = turn on/off calibration guidelines (only 16bpp)
+ LAYER COMMANDS:
+ PGUP/
+ PGDOWN   = select layers up and down thru the chain
+ ^PGUP/
+ ^PGDOWN  = move layers up and down thru the chain
+ HOME     = hide/show layer
+ 1        = select NORMAL BLIT
+ 2        = select BLU BLIT
+ 3        = select GREEN BLIT
+ 4        = select RED BLIT
+ 5        = select ADD BLIT
+ 6        = select SUB BLIT
+ 7        = select AND BLIT
+ 8        = select OR BLIT
+ 9        = switch alpha channel on/off
+ 0        = switch blank screen on/off
+ %ARROWS  = move layers around thru the screen
+ mouse-l  = drag layers around, slowly and smoothly
 
-VIDEO 4 LINUX LAYER COMMANDS:
+ FILTER COMMANDS:
+ F1 - F12 = select an available filter (enter to create it)
+            you can browse thru loaded plugins with this
+ UP/DOWN  = select created filters up and down thru the chain
+ ^UP/DOWN = move created filters up and down thru the chain
+ DELETE   = remove selected filter
+ ^DELETE  = remove ALL filters
+ INSERT   = activate/deactivate filter
+ (filters may have their own keys to change specific parameters)
+ 
+ VIDEO 4 LINUX LAYER COMMANDS:
+ k/m      = switch up/down input channel
+ j/n      = (if TV tuner is present) switch up/down frequency tables
+ h/b      = (if TV tuner is present) cycle up/down frequencies
 
-k/m      = switch up/down input channel
-j/n      = (if TV tuner is present) switch up/down frequency tables
-h/b      = (if TV tuner is present) cycle up/down frequencies
+ AVI LAYER COMMANDS:
+ l/r
+ arrows   = move one keyframe back and forward on the avi
+ ^l/r
+ arrows   = move many keyframes back and forward on the avi:
+            left ctrl = 50000 ; right ctrl = 10000 ;
+	    left shift = 5000 ; right shift = 1000 ;
 
-FILTER COMMANDS:
+SOME FILTER COMMANDS:
+(see the filter's sourcecode for details)
 
 DelayGrab filter
 q/w      = switch up/down delaymap
@@ -45,12 +73,8 @@ a/s      = zoomrate increment/decrement
 z/x      = browse thru 3 modes (normal, artifarti, weird)
 
 Simura filter
-caps-lock + all digits = change color filters
-num-lock + keypad numbers = change mirror mode
-
-there will be other keys controlling the filters, the criteria will be
-to keep on using the left side on "qwerty" keyboards for them like the
-pairs q/w, a/s, z/x, e/r, d/f, c/v...
+caps-lock + all letters = change color filters
+keypad numbers = change mirror mode
 
 for more information ask the mailinglist <freej@dyne.org>
 subscribe with a mail to <freej-subscribe@dyne.org>

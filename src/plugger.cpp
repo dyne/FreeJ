@@ -7,11 +7,9 @@
 #include <plugger.h>
 #include <config.h>
 
-Plugger::Plugger(int bpp) {
+Plugger::Plugger() {
   char *home;
   char temp[256];
-
-  _bpp = bpp;
 
   _searchpath = NULL;
 

@@ -101,6 +101,7 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
 
   clear_all = false;
   quit = false;
+
 }  
 
 void Context::close() {
@@ -121,7 +122,7 @@ void Context::close() {
     delete lay;
     lay = (Layer *)layers.begin();
   }
-
+  
   SDL_Delay(1000);
 
   SDL_Quit();

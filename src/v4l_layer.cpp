@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <fcntl.h>
+#include <errno.h>
 
 #include <v4l_layer.h>
 #include <tvfreq.h>
@@ -44,7 +45,7 @@ V4lGrabber::~V4lGrabber() {
 }
 
 void V4lGrabber::close() {
-  notice("Closing video4linux grabber layer");
+  if(dev>0) notice("Closing video4linux grabber layer");
  
   if(buffer!=NULL) {
     act("unmapping address %p sized %u bytes",buffer,grab_map.size);
@@ -56,7 +57,7 @@ void V4lGrabber::close() {
     ::close(dev);
   }
   
-  jfree(rgb_surface);
+  if(rgb_surface) jfree(rgb_surface);
   
 }
 
@@ -77,9 +78,12 @@ bool V4lGrabber::detect(char *devfile) {
 
   func("V4lGrabber::detect()");
 
-  if (-1 == (dev = open(devfile,O_RDWR))) {
-    error("error in opening video capture device");
+  if (-1 == (dev = ::open(devfile,O_RDWR|O_NONBLOCK))) {
+    error("error in opening video capture device: %s",strerror(errno));
     return(false);
+  } else {
+    ::close(dev);
+    dev = ::open(devfile,O_RDWR);
   }
   
   res = ioctl(dev,VIDIOCGCAP,&grab_cap);

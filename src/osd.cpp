@@ -103,10 +103,17 @@ void Osd::print() {
   }
   
   _print_credits();
-  _selection();
+
   if(_fps) _show_fps();
-  _filterlist();
-  _layerlist();
+
+  if(screen->kbd) {
+    _layerlist();
+    if(screen->kbd->layer) {
+      _filterlist();
+      _selection();
+    }
+  }
+
   _print_status();
 }
 
@@ -142,7 +149,7 @@ void Osd::_show_fps() {
 }
 
 void Osd::_selection() {
-  char msg[128];
+  char msg[256];
 
   _set_color(yellow);
 
@@ -163,7 +170,7 @@ void Osd::_layerlist() {
   _set_color(red);
 
   Layer *l = (Layer *)screen->layers.begin();
-  while(l!=NULL) {
+  while(l) {
     if( l == screen->kbd->layer) {
       if(l->active)
 	_write(">+",screen->w-17,vpos,1,1);
@@ -187,7 +194,7 @@ void Osd::_filterlist() {
 
   Filter *f = (Filter *)screen->kbd->layer->filters.begin();
 
-  while(f!=NULL) {
+  while(f) {
     if(f == screen->kbd->filter) {
       if(f->active)
 	_write("*<",1,vpos,1,1);

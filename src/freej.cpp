@@ -41,48 +41,35 @@
 #include <avi_layer.h>
 #endif
 
-/* BE WARNED: hires mode is not supported, if you change here
-   you get strange results. */
-#define LORES 1
-
-#ifdef LORES
-#define W 400
-#define H 300
-#define D 32
-#define GW 320
-#define GH 240
-#else
-#define W 640
-#define H 480
-#define D 32
-#define GW 512
-#define GH 384
-#endif
-
 #define MAX_CLI_CHARS 4096
 
 /* ================ command line options */
 
 static const char *help = 
-" .  Usage: freej [options]\n"
+" .  Usage: freej [options] [files and video devices]\n"
 " .  options:\n"
-" .  -h --help     print this help\n"
-" .  -v --version  version information\n"
-" .  -d --device   video grabbing device - default /dev/video\n"
-" .  -D --debug    debug verbosity level - default 1\n"
+" .   -h --help     print this help\n"
+" .   -v --version  version information\n"
+" .   -D --debug    debug verbosity level - default 1\n"
+" .  files:\n"
+" .   you can specify any number of files or devices to be loaded\n"
+" .   this binary is compiled to support the following layer formats:\n"
+" .   Video4Linux devices as of BTTV cards and webcams\n"
+#ifdef WITH_AVIFILE
+" .   AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
+#endif
+" .   PNG images (also with transparency)\n"
 "\n";
 
 static const struct option long_options[] = {
   {"help", no_argument, NULL, 'h'},
   {"version", no_argument, NULL, 'v'},
-  {"device", required_argument, NULL, 'd'},
   {"debug", required_argument, NULL, 'D'},
   {0, 0, 0, 0}
 };
 
-static const char *short_options = "-hvd:D:";
+static const char *short_options = "-hvD:";
 
-char *v4ldevice;
 int debug;
 char layer_files[MAX_CLI_CHARS];
 int cli_chars = 0;
@@ -91,7 +78,6 @@ void cmdline(int argc, char **argv) {
   int res;
 
   /* initializing defaults */
-  v4ldevice = strdup("/dev/video");
   char *p = layer_files;
 
   debug = 1;
@@ -106,10 +92,6 @@ void cmdline(int argc, char **argv) {
     case 'v':
       cerr << endl;
       exit(0);
-      break;
-    case 'd':
-      free(v4ldevice);
-      v4ldevice = strdup(optarg);
       break;
     case 'D':
       debug = atoi(optarg);
@@ -142,6 +124,7 @@ void cmdline(int argc, char **argv) {
 int main (int argc, char **argv) {
 
   Layer *lay = NULL;
+  V4lGrabber *v4l = NULL;
 #ifdef WITH_AVIFILE
   AviLayer *avi = NULL;
 #endif
@@ -157,76 +140,96 @@ int main (int argc, char **argv) {
     notice("running as root: high priority realtime scheduling allowed.");
 
   /* this is the output context (screen) */
-  Context screen(W,H,D,SDL_HWPALETTE|SDL_HWSURFACE|SDL_DOUBLEBUF);
+  Context screen(400,300,32,SDL_HWPALETTE|SDL_HWSURFACE|SDL_DOUBLEBUF);
   if(screen.surf==NULL) exit(0);
 
   /* create layers requested on commandline */
   {
-    char *p, *pp = layer_files;
+    char *l, *p, *pp = layer_files;
     while(cli_chars>0) {
       p = pp;
-      while(*p!='#' && cli_chars>0) {
-	p++; cli_chars--; }
+
+      while(*p!='#' && cli_chars>0) { p++; cli_chars--; }
+      l = p+1;
       if(cli_chars<=0) break; *p='\0';
 
+      /* LIVE VIDEO LAYERS */
+      if( strncmp(pp,"/dev/",5)==0 ) {
+	unsigned int w=320, h=240;
+	while(p!=pp) {
+	  if(*p!='%') p--;
+	  else { /* size is specified */
+	    *p='\0'; p++;
+	    sscanf(p,"%ux%u",&w,&h);
+	    p = pp; }
+	}
+	v4l = new V4lGrabber();
+	if(v4l->detect(pp))
+	  v4l->init(&screen,w,h);
+      }
+      
       /* AVI LAYERS */
       if( strncmp((p-4),".avi",4)==0
 	  | strncmp((p-4),".asf",4)==0
+	  | strncmp((p-4),".asx",4)==0
 	  | strncmp((p-4),".wma",4)==0
-	  | strncmp((p-4),".wmv",4)==0 )
-	{
+	  | strncmp((p-4),".wmv",4)==0 ) {
 #ifdef WITH_AVIFILE
-	  avi = new AviLayer();
-	  if(avi->open(pp))
-	    assert( avi->init(&screen) );
+	avi = new AviLayer();
+	if(avi->open(pp))
+	  avi->init(&screen);
 #else
-	  error("AVI layer support not compiled");
-	  act("can't load %s",pp);
+	error("AVI layer support not compiled");
+	act("can't load %s",pp);
 #endif
-	}	
+      }	
 
       /* PNG LAYERS */
       if(strncmp((p-4),".png",4)==0) {
 	png = new PngLayer();
 	if(png->open(pp))
-	  assert( png->init(&screen) );
+	  png->init(&screen);
       }
 
-      pp = p+1;
+      pp = l;
     }
   }
 
-  /* ================= Video4Linux layer */
-  V4lGrabber *grabber = new V4lGrabber();
-  /* detect v4l grabber layer */
-  if(grabber->detect(v4ldevice))
-    assert( grabber->init(&screen,GW,GH) );
-  else
-    act("a video 4 linux device is not present: no live video");
+  /* even if not specified on commandline
+     try to open the default video device */
+  if(!v4l) {
+    v4l = new V4lGrabber();
+    if(v4l->detect("/dev/video"))
+      v4l->init(&screen,320,240);
+    else delete v4l;
+  }
+
+  /* this is the Plugin manager */
+  Plugger plugger;
+  plugger.refresh();
+
+  /* this is the On Screen Display */
+  Osd osd;
+  osd.init(&screen);
+  osd.active();
+  set_osd(osd.status_msg); /* let jutils know about the osd */
+
+  /* this is the keyboard listener */
+  KbdListener keyb;
+  assert( keyb.init(&screen, &plugger) );
+
+
 
   /* if the context has no layers quit here */
   if(screen.layers.len()<1) {
     error("no layers present, quitting");
     screen.close();
+    plugger.close();
+    act("you should at least load a movie,");
+    act("a png image or have a video card");
+    act("to see something more (see freej -h)");
     exit(0);
   }
-
-  /* this is the Plugin manager */
-  Plugger plugger(screen.bpp);
-  plugger.refresh();
-
-  
-  /* this is the On Screen Display */
-  Osd osd;
-  osd.init(&screen);
-  osd.active();
-  /* let jutils know about the osd */
-  set_osd(osd.status_msg);
-
-
-  /* this is the keyboard listener */
-  KbdListener keyb;
-  assert( keyb.init(&screen, &plugger) );
 
   /* launch layer threads */
   screen.rocknroll();
@@ -235,7 +238,6 @@ int main (int argc, char **argv) {
 
   while(!keyb.quit) {
     /* main loop */
-
 
     if(screen.clear_all)
       clearscr(screen.get_surface(),screen.size);
@@ -247,9 +249,9 @@ int main (int argc, char **argv) {
       lay = (Layer *)lay->prev;
     }
 
-    screen.calc_fps();
-
     screen.flip();
+
+    screen.calc_fps();
   }
 
   /* quitting */
