@@ -21,6 +21,8 @@
 
 #include <avifile/avifile.h>
 #include <avifile/renderer.h>
+#undef BIG_ENDIAN
+#include <decore.h>
 #include <layer.h>
 
 class AviLayer: public Layer {
@@ -60,10 +62,14 @@ class AviLayer: public Layer {
   IAviReadStream *_stream;
   /* -------------------- */
   
-  VideoRenderer *_rend;
+  //  VideoRenderer *_rend;
   CImage *_img;
   const CodecInfo *_ci;
+
+  fourcc_t fcc;
   BITMAPINFOHEADER bh;
+    //BitmapInfo bh;
+  DEC_PARAM dp;
 
   unsigned int _samples_read;
   unsigned int _bytes_read;
@@ -72,11 +78,7 @@ class AviLayer: public Layer {
 
   double lsttime, curtime;
 
-  /* speed stuff */
-  float fps;
-  framepos_t skip;
-  bool direction;
-  bool vflip;
+  void *buf;
 
  public:
   AviLayer();
@@ -99,5 +101,3 @@ class AviLayer: public Layer {
 };
 
 #endif
-
-  

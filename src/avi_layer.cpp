@@ -28,6 +28,7 @@
 #include <avifile/fourcc.h>
 #include <avifile/creators.h>
 #include <avifile/renderer.h>
+
 #include <context.h>
 #include <lubrify.h>
 #include <jutils.h>
@@ -36,9 +37,7 @@ AviLayer::AviLayer()
   :Layer() {
   _avi = NULL;
   _stream = NULL;
-  _rend = NULL;
-  direction = true;
-  vflip = false;
+  buf = NULL;
   setname("AVI");
 }
 
@@ -46,23 +45,30 @@ AviLayer::~AviLayer() {
   close();
 }
 
-bool AviLayer::init(Context *scr=NULL) {
+bool AviLayer::init(Context *scr) {
   func("AviLayer::init");
   _quality = 1;
-  _ci = (CodecInfo *)CodecInfo::match(fccDIV3);
-  if(_ci) Creators::SetCodecAttr(*_ci, (const char*)"Quality", (const char*)_quality);
-  
-  if(scr) screen = scr;
 
+  
+  _ci = (CodecInfo *)CodecInfo::match(fccDIV3);
+  //  CodecInfo::Get(_ci, avm::CodecInfo::Video, avm::CodecInfo::Decode, fcc);
+  Creators::SetCodecAttr
+    (*_ci, (const char*)"Quality", (const char*)_quality);
+  
+
+  if(scr) screen = scr;
   _init(screen,
-	labs(bh.biWidth),
+	bh.biWidth,
 	labs(bh.biHeight),
 	bh.biBitCount);
 
-  feed();  
+  buf = jalloc(buf,geo.size);
+
+  feed();
   notice("AviLayer :: w[%u] h[%u] bpp[%u] size[%u]",
 	 geo.w,geo.h,geo.bpp,geo.size);
 
+  
   return true;
 }
 
@@ -77,6 +83,15 @@ bool AviLayer::open(char *file) {
     error("AviLayer::open(%s)",file); // - %s",file,e.Print());
     return(false);
   }
+
+  _stream = _avi->GetStream(0, AviStream::Video);
+  if(!_stream) {
+    /* check if here we got to free something */
+    error("AviLayer::open(%s) - video stream not detected",file);
+    return(false);
+  }
+
+  _stream->SetDirection(true);
 
   if(!_avi->IsOpened()) {
     /* check if here we got to free something */
@@ -94,31 +109,9 @@ bool AviLayer::open(char *file) {
   
   if(_avi->IsRedirector())
     act("supplied url is a network redirector");
-  
-  /* setup auto quality
-  IvideoDecoder *vd = _stream->GetDecoder();
-  if(vd) {
-    IVideoDecoder::DecodingMode mode = IVideoDecoder::DIRECT;
-    if(_buffered) mode = IVideoDecoder::BUFFERED_QUALITY_AUTO;
-    vb->SetDecodingMode(mode);
-  }
-  ------------------------- */
-
-  _stream = _avi->GetStream(0, AviStream::Video);
-
-  if(!_stream) {
-    /* check if here we got to free something */
-    error("AviLayer::open(%s) - video stream not detected",file);
-    return(false);
-  }
-
+ 
   try {
 
-    if(_stream->StartStreaming()!=0) {
-      /* check if here we got to free something */
-      error("AviLayer::open(%s) - failed to initialize decoder object",file);
-      return(false);
-    }
 
     /*
      * SetDestFmt() sets desired bit depth and color space of output picture. 
@@ -130,17 +123,17 @@ bool AviLayer::open(char *file) {
      * into the particular YUV format by calling GetCapabilities(),
      * which returns bitwise OR of supported formats.
      */
-     _stream->GetDecoder()->SetDestFmt(32); // QUAAAAAA
-     
-     _stream->GetOutputFormat(&bh, sizeof(bh));
 
-     /*
-     geo.w = labs(bh.biWidth);
-     geo.h = labs(bh.biHeight);
-     geo.bpp = bh.biBitCount;
-     geo.size = geo.w*geo.h*(geo.bpp/8);
-     geo.pitch = geo.w*(geo.bpp/8);
-     */
+
+    if(_stream->StartStreaming()!=0) {
+      /* check if here we got to free something */
+      error("AviLayer::open(%s) - failed to initialize decoder object",file);
+      return(false);
+    }
+
+    _stream->GetDecoder()->SetDestFmt(32);
+    _stream->ReadFrame(false);
+    bh = _stream->GetDecoder()->GetDestFmt();
      
   }
   catch(FatalError &e) {
@@ -149,62 +142,44 @@ bool AviLayer::open(char *file) {
     return(false);
   }
 
-  /*
-    fourcc_t fcc = fccYUV;
-    
-    IVideoDecoder::CAPS caps = _stream->GetDecoder()->GetCapabilities();
-    cout << "Decoder YUV capabilities: " << caps << endl;
-    if (caps & IVideoDecoder::CAP_YUY2) fcc = fccYUY2;
-    else if (caps & IVideoDecoder::CAP_YV12) fcc = fccYV12;
-    else if (caps & IVideoDecoder::CAP_UYVY) fcc = fccUYVY;
-    else error("AviLayer::open - IVideoDecoder - YUV unsupported by decoder");
-  */
-  /*
-    if (fcc)
-    if (_stream->GetDecoder()->SetDestFmt(BitmapInfo::BitCount(fcc), fcc))
-    error("AviLayer::open - CreateYUVRenderer - error setting YUV decoder output");
-  */
   return(true);
 }
   
 void *AviLayer::get_buffer() {
-  return _img->Data();
+  //  return _img->Data();
+  return buf;
 }
 
 bool AviLayer::feed() {
-  //  func("AVILAYER FEED");
-  /* FIXME
-    curtime = dtime();
-    if(curtime-lsttime <= ((screen->fps/24)/100))
-    return false;
-    else lsttime = curtime;
-  */  
   if(paused) return true;  
-
-  if(skip>0)
-    for(int c=skip;c>0;c--)
-      _stream->SkipFrame();
-
+  if(_stream->Eof()) _stream->Seek(1);
   _stream->ReadFrame(true);
   _img = _stream->GetFrame(false);
+
+  mmxcopy(_img->Data(),buf,geo.size);
+  
+  _img->Release();
+
   return true;
-  //  func("AVILAYER FEED OK");
 }
 
 void AviLayer::close() {
   /* here close Aviclass
-     TODO!! FIXME!! THIS CRASHES!! */
+     TODO: CHECK CAREFULLY here */
   func("AviLayer::close()");
   if(_stream)
-    if(_stream->IsStreaming())
-      _stream->StopStreaming();
+    //    if(_stream->IsStreaming())
+    _stream->StopStreaming();
+  delete _avi;
   _avi = NULL;
+  
+  jfree(buf);
 }
 
 
 /* now some actions */
 
-void AviLayer::forward(framepos_t step=1) {
+void AviLayer::forward(framepos_t step) {
   framepos_t res = 0;
   lock_feed();
   if(step==1) res = _stream->SeekToNextKeyFrame();
@@ -217,7 +192,7 @@ void AviLayer::forward(framepos_t step=1) {
        (res*100)/_stream->GetLength(),res);
 }
 
-void AviLayer::rewind(framepos_t step=1) {
+void AviLayer::rewind(framepos_t step) {
   framepos_t res = 0;
   lock_feed();
   if(step==1) res = _stream->SeekToPrevKeyFrame();
@@ -246,22 +221,11 @@ void AviLayer::pause() {
   func("avi pause : %s",(paused)?"on":"off");
 }
 
-
-void AviLayer::speedup() {
-  if(fps>=24) skip--;
-  else fps++;
-}
-
-void AviLayer::slowdown() {
-  if(skip<=0) fps--;
-  else if(skip>0) skip++;
-}
-
 bool AviLayer::keypress(SDL_keysym *keysym) {
   bool res = false;
   framepos_t steps = 1;
   switch(keysym->sym) {
-  case SDLK_KP6:
+  case SDLK_RIGHT:
     if(keysym->mod==KMOD_LCTRL) steps+=50000;
     if(keysym->mod==KMOD_RCTRL) steps+=10000;
     if(keysym->mod==KMOD_LSHIFT) steps+=5000;
@@ -269,7 +233,7 @@ bool AviLayer::keypress(SDL_keysym *keysym) {
     forward(steps);
     res = true; break;
 
-  case SDLK_KP4:
+  case SDLK_LEFT:
     if(keysym->mod==KMOD_LCTRL) steps+=50000;
     if(keysym->mod==KMOD_RCTRL) steps+=5000;
     if(keysym->mod==KMOD_LSHIFT) steps+=1000;
@@ -279,10 +243,6 @@ bool AviLayer::keypress(SDL_keysym *keysym) {
     
   case SDLK_KP0: pause();
     res = true; break;
-
-  case SDLK_KP_DIVIDE:
-    vflip = !vflip;
-    break;
 
   default: break;
   }

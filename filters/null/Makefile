@@ -77,7 +77,7 @@ DEPDIR = .deps
 DLLTOOL = @DLLTOOL@
 ECHO = echo
 INSTALL_STRIP_PROGRAM = ${SHELL} $(install_sh) -c -s
-LIBS = 
+LIBS =  -ldivxdecore
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 NASM = 
@@ -122,7 +122,7 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-CFLAGS = -g -Wall -O3 -D_REENTRANT -fomit-frame-pointer -march=i586 -mcpu=i586 -finline-functions -ffast-math -malign-double -funroll-loops
+CFLAGS = -g -Wall -Wno-deprecated -O3 -D_REENTRANT -fomit-frame-pointer -march=i586 -mcpu=i586 -finline-functions -ffast-math -malign-double -funroll-loops
 DIST_SOURCES = $(null_la_SOURCES)
 DIST_COMMON = Makefile.am Makefile.in
 SOURCES = $(null_la_SOURCES)
@@ -195,7 +195,7 @@ distclean-depend:
 	depfile='$(DEPDIR)/$*.Plo' tmpdepfile='$(DEPDIR)/$*.TPlo' \
 	$(CCDEPMODE) $(depcomp) \
 	$(LTCOMPILE) -c -o $@ `test -f '$<' || echo '$(srcdir)/'`$<
-CCDEPMODE = depmode=gcc
+CCDEPMODE = depmode=gcc3
 
 mostlyclean-libtool:
 	-rm -f *.lo

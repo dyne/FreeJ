@@ -45,7 +45,7 @@ void Layer::_delete() {
   */
 }
 
-void Layer::_init(Context *screen, int wdt, int hgt, int bpp=0) {
+void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
   geo.w = (wdt == 0) ? screen->w : wdt;
   geo.h = (hgt == 0) ? screen->h : hgt;
   geo.bpp = (bpp) ? bpp : screen->bpp;
@@ -273,6 +273,8 @@ void Layer::crop() {
        blit_x, blit_y, blit_width, blit_height, blit_xoff, blit_yoff);
 }
 
+#ifdef MMX_BLIT
+
 void Layer::blit(void *offset) {
   if(hidden) return;
 
@@ -338,8 +340,77 @@ void Layer::blit(void *offset) {
     return;
   }
 }
+
+#else
+
+#define BLIT(op) \
+    { \
+      Uint8 *alpha; \
+      Uint32 *scr, *pscr; \
+      scr = pscr = (Uint32 *) screen->coords(blit_x,blit_y); \
+      Uint32 *off, *poff; \
+      off = poff = (Uint32 *) ((Uint8*)offset+blit_offset); \
+      int c, cc; \
+      for(c=blit_height;c>1;c--) { \
+	for(cc=blit_width;cc>1;cc--) { \
+	  alpha = (Uint8 *) off; \
+	  if(*(alpha+4)) *scr op *off; \
+	  scr++; off++; \
+	} \
+	off = poff = poff + geo.w; \
+	scr = pscr = pscr + screen->w; \
+      } \
+    }
+
+void Layer::blit(void *offset) {
+  /* transparence aware blits:
+     if alpha channel is 0x00 then pixel is not blitted
+     works with 32bpp */
+  
+  if(hidden) return;
+  
+  switch(_blit_algo) {
     
+  case 1:
+  case 2:
+    BLIT(=); return;
     
+  case 3:
+  case 4:
+  case 5:
+    {
+      Uint8 *alpha;
+      int chan = _blit_algo-3;
+      char *scr, *pscr;
+      scr = pscr = (char *) screen->coords(blit_x,blit_y);
+      char *off, *poff;
+      off = poff = (char *) ((Uint8*)offset+blit_offset); \
+      int c,cc;
+      for(c=blit_height;c>0;c--) {
+	for(cc=blit_width;cc>0;cc--) {
+	  alpha = (Uint8 *) off;
+	  if(*(alpha+4)) *(scr+chan) = *(off+chan);
+	  scr+=4; off+=4;
+	}
+	off = poff = poff + geo.pitch;
+	scr = pscr = pscr + screen->pitch;
+      }
+    }
+    return;
+
+  case 6: BLIT(+=); return;
+
+  case 7: BLIT(-=); return;
+	
+  case 8: BLIT(&=); return;
+
+  case 9: BLIT(|=); return;
+
+  default: return;
+  }
+}
+
+#endif    
     
   /* SIMPLE C CODE
     

@@ -16,9 +16,11 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <iostream.h>
+
 #include <stdlib.h>
 #include <string.h>
-#include <iostream.h>
+
 #include <assert.h>
 #include <getopt.h>
 
@@ -155,7 +157,7 @@ int main (int argc, char **argv) {
     notice("running as root: high priority realtime scheduling allowed.");
 
   /* this is the output context (screen) */
-  Context screen(W,H,D,0x0);//SDL_HWPALETTE|SDL_HWSURFACE|SDL_DOUBLEBUF);
+  Context screen(W,H,D,SDL_HWPALETTE|SDL_HWSURFACE|SDL_DOUBLEBUF);
   if(screen.surf==NULL) exit(0);
 
   /* create layers requested on commandline */
@@ -169,7 +171,10 @@ int main (int argc, char **argv) {
 
       /* AVI LAYERS */
       if( strncmp((p-4),".avi",4)==0
-	  | strncmp((p-4),".asf",4)==0 ) {
+	  | strncmp((p-4),".asf",4)==0
+	  | strncmp((p-4),".wma",4)==0
+	  | strncmp((p-4),".wmv",4)==0 )
+	{
 #ifdef WITH_AVIFILE
 	avi = new AviLayer();
 	if(avi->open(pp))

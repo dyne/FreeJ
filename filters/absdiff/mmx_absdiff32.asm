@@ -17,7 +17,7 @@ mmx_absdiff32:
 	mov ebx,[asmdst]	; dest
 	mov ecx,[asmnum1]	; len
 	pxor mm5,mm5		; azzera mm5
-	shr ecx,3		; len = len / 8 (loop decrementa di 1)
+	shr ecx,4		; len = len / 8 (loop decrementa di 1)
 	
 .DiffLoop
 

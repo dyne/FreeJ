@@ -7755,7 +7755,7 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 
 
-CFLAGS="-g -Wall -O3 -D_REENTRANT -fomit-frame-pointer -march=${host_cpu} -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
+CFLAGS="-g -Wall -Wno-deprecated -O3 -D_REENTRANT -fomit-frame-pointer -march=${host_cpu} -mcpu=${host_cpu} -finline-functions -ffast-math -malign-double -funroll-loops"
 
 echo "$as_me:$LINENO: checking for ANSI C header files" >&5
 echo $ECHO_N "checking for ANSI C header files... $ECHO_C" >&6
@@ -9769,6 +9769,7 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
   have_avilayer=yes
+  LIBS="$LIBS -ldivxdecore"
 else
   have_avilayer=no
 fi

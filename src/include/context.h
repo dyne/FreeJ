@@ -21,7 +21,7 @@
 
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 
 #include <linklist.h>

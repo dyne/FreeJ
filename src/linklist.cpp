@@ -22,7 +22,7 @@
    knows which inheriting class they are (delete is done in main)
 */
 
-#include <iostream.h>
+#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

@@ -56,7 +56,7 @@ bool PngLayer::open(char *file) {
   return(true);
 }
 
-bool PngLayer::init(Context *scr=NULL) {
+bool PngLayer::init(Context *scr) {
 
   png_uint_32 width, height;
   int bit_depth, color_type, interlace_type;
