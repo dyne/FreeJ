@@ -28,6 +28,10 @@ unsigned int asmnum3;
 /* assembly routines */
 extern void mmx_memcpy(void);
 extern void mmx_blit(void);
+extern void mmx_blit_add(void);
+extern void mmx_blit_sub(void);
+extern void mmx_blit_and(void);
+extern void mmx_blit_or(void);
 extern void asm_vline16(void);
 extern void asm_hline16(void);
 extern void asm_vline32(void);
