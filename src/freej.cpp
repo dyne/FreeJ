@@ -29,21 +29,10 @@
 #include <context.h>
 #include <keyboard.h>
 
-#include <png_layer.h>
-#include <txt_layer.h>
-
 #include <osd.h>
 #include <plugger.h>
 #include <jutils.h>
 #include <config.h>
-
-#ifdef WITH_V4L
-#include <v4l_layer.h>
-#endif
-
-#ifdef WITH_AVIFILE
-#include <avi_layer.h>
-#endif
 
 #define MAX_CLI_CHARS 4096
 
@@ -60,17 +49,7 @@ static const char *help =
 " .   -0   start with deactivated layers\n"
 " .  files:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
-" .   this binary is compiled to support the following layer formats:\n"
-#ifdef WITH_V4L
-" .  - Video4Linux devices as of BTTV cards and webcams\n"
-" .    you can specify the size  /dev/video0%160x120\n"
-#endif
-#ifdef WITH_AVIFILE
-" .  - AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
-#endif
-" .  - PNG images (also with transparency)\n"
-" .  - TXT files rendered with freetype2 library\n"
-"\n";
+" .   this binary is compiled to support the following layer formats:\n";
 
 /*
 static const struct option long_options[] = {
@@ -95,8 +74,7 @@ bool doublesize = false;
 bool startstate = true;
 
 void cmdline(int argc, char **argv) {
-  int res, c;
-  int optlen;
+  int res, optlen;
 
   /* initializing defaults */
   char *p = layer_files;
@@ -108,6 +86,7 @@ void cmdline(int argc, char **argv) {
     switch(res) {
     case 'h':
       fprintf(stderr, "%s", help);
+      fprintf(stderr, "%s", layers_description);
       exit(0);
       break;
     case 'v':
@@ -146,26 +125,19 @@ void cmdline(int argc, char **argv) {
       break;
 
     case 1:
-      {
-      }
+      optlen = strlen(optarg);
+      if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
+	sprintf(p,"%s#",optarg);
+	cli_chars+=optlen+1;
+	p+=optlen+1;
+      } else warning("too much files on commandline, list truncated");
       break;
-	  
+
     default:
+      func("received commandline parser code %i with optarg %s",res,optarg);
       break;
     }
   } while (res > 0);
-  
-  func("extra args: optind=%i and argc=%i",optind,argc);
-  argc -= optind;
-  argv += optind;
-  for(c=0;c<argc;c++) {
-    optlen = strlen(argv[c]);
-    if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
-      sprintf(p,"%s#",argv[c]);
-      cli_chars+=optlen+1;
-      p+=optlen+1;
-    } else warning("too much files on commandline, list truncated");
-  }
 
 }
 
@@ -174,14 +146,6 @@ void cmdline(int argc, char **argv) {
 int main (int argc, char **argv) {
 
   Layer *lay = NULL;
-#ifdef WITH_V4L
-  V4lGrabber *v4l = NULL;
-#endif
-#ifdef WITH_AVIFILE
-  AviLayer *avi = NULL;
-#endif
-  PngLayer *png = NULL;
-  TxtLayer *txt = NULL;
 
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
   act("(c)2001-2003 Denis Rojo < jaromil @ dyne.org >");
@@ -204,77 +168,25 @@ int main (int argc, char **argv) {
   {
     char *l, *p, *pp = layer_files;
     while(cli_chars>0) {
+
       p = pp;
 
       while(*p!='#' && cli_chars>0) { p++; cli_chars--; }
       l = p+1;
       if(cli_chars<=0) break; *p='\0';
 
-      /* LIVE VIDEO LAYERS */
-      if( strncmp(pp,"/dev/",5)==0 ) {
-	unsigned int w=320, h=240;
-	while(p!=pp) {
-	  if(*p!='%') p--;
-	  else { /* size is specified */
-	    *p='\0'; p++;
-	    sscanf(p,"%ux%u",&w,&h);
-	    p = pp; }
-	}
-#ifdef WITH_V4L
-	v4l = new V4lGrabber();
-	if(v4l->detect(pp))
-	  v4l->init(&screen,w,h);
-#else
-	error("Video4Linux layer support not compiled");
-	act("can't load %s",pp);
-#endif
-      }
-      
-      /* AVI LAYERS */
-      if( strncmp((p-4),".avi",4)==0
-	  | strncmp((p-4),".asf",4)==0
-	  | strncmp((p-4),".asx",4)==0
-	  | strncmp((p-4),".wma",4)==0
-	  | strncmp((p-4),".wmv",4)==0 ) {
-#ifdef WITH_AVIFILE 
-	avi = new AviLayer();
-	if(avi->open(pp))
-	  avi->init(&screen);
-#else
-	error("AVI layer support not compiled");
-	act("can't load %s",pp);
-#endif
-      }	
+      lay = create_layer(pp);
 
-      /* PNG LAYERS */
-      if(strncmp((p-4),".png",4)==0) {
-	png = new PngLayer();
-	if(png->open(pp))
-	  png->init(&screen);
-      }
-
-      /* TXT LAYERS */
-      if(strncmp((p-4),".txt",4)==0) {
-	txt = new TxtLayer();
-	if(txt->open(pp))
-	  txt->init(&screen);
-      }
-
+      if(lay) screen.add_layer(lay);
       pp = l;
     }
   }
 
-#ifdef WITH_V4L
   /* even if not specified on commandline
      try to open the default video device */
-  if(!v4l) {
-    v4l = new V4lGrabber();
-    if(v4l->detect("/dev/video"))
-      v4l->init(&screen,320,240);
-    else delete v4l;
-  }
-#endif
-
+  lay = create_layer("/dev/video");
+  if(lay) screen.add_layer(lay);
+  
   /* this is the Plugin manager */
   Plugger plugger;
   plugger.refresh();

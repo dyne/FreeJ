@@ -14,14 +14,21 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  */
+
+#include <config.h>
+
+#ifdef WITH_PNG
 
 #include <iostream>
 #include <errno.h>
 #include <png_layer.h>
 #include <context.h>
 #include <jutils.h>
-#include <config.h>
+
 
 #define PNG_BYTES_TO_CHECK 4
 
@@ -190,3 +197,5 @@ void PngLayer::close() {
   jfree(row_pointers);
   jfree(buffer);
 }
+
+#endif

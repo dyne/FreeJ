@@ -1,0 +1,82 @@
+
+=== FreeJ API
+
+In this document i try to summarize the internal organization of FreeJ API
+how things are distributed and which functions are more useful to operate.
+
+
+   | This document is quite short, but technical.
+   | If you just want to use FreeJ, you don't need to read it at all.
+
+
+right now there is a tree organization, here i try to represent it:
+                    
+Context____Layer___________Filter }
+       \___Layer_____ \____Filter }
+        \            \ \___Filter } Plugger
+         \_Layer      \____Filter }
+		       \___Filter }
+           ^^^^^        \__Filter }
+           Blit          .
+           Chain          .
+
+the Context is holding the list of layers, cycling thru them during
+FreeJ's execution.
+
+each Layer holds the list of active Filters.
+
+each Filter is a plugin loaded and served by the Plugger.
+
+the Blit Chain consists of blit operations to sum Layers to the
+Context.
+
+the public API for some of the named objects is:
+
+*Context
+  ->layers                          // Linklist of registered layers
+  ->clearall = bool
+  ->add_layer(char *file)
+  ->del_layer(int layer_num)
+  ->clear_layers()
+  ->moveup_layer(int layer_num)
+  ->movedown_layer(int layer_num)
+
+*Layer
+  ->filters                         // Linklist of registered filters
+  ->add_filter(Filter *filter)      // ask the Plugger for Filter*
+  ->del_filter(int filter_num)
+  ->clear_filters()
+  ->moveup_filter(int filter_num)
+  ->movedown_filter(int filter_num)
+  ->active_filter(int filter_num)
+  ->set_blit(int 1-8)               // char *get_blit()
+  ->alpha_blit = bool
+
+In the Layer, the above methods are provided by the Layer abstraction.
+
+To create Layers providing a filename, use the external function:
+    Layer *create_layer(char *filename);
+
+=== Implement a new Layer?
+
+If you are implementing a new Layer you don't need to write these
+methods, but just a few others, i.e:
+
+MyLayer inherits the class Layer and implements the following:
+
+ bool open(char *file) /* called to open MyLayer's source
+                          returns false if is not accessible */
+
+ bool init(Context *scr) /* if the open was succesful, call this
+                            and the Layer will enter the chain */
+
+ bool feed() /* this function is executed by the Context when
+                it needs to grab more data in the Layer */
+
+ bool close() /* you need to call this when you want to close
+                 the Layer, in case you *initialized* it */
+ 
+If you are implementing a new Layer, you don't need to care about
+threading or synchronizing the execution: just be sure to correctly
+free all the buffers you malloc ;)
+

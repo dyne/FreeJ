@@ -57,7 +57,10 @@ class Layer: public Entry, public JSyncThread {
   char *get_filename() { return filename; };
   void set_position(int x, int y);
 
-  virtual void close() { };
+  /* these must be defined in layer implementations */
+  virtual bool open(char *file) =0;
+  virtual bool init(Context *scr) =0;
+  virtual void close() =0;
 
   /* these has to be defined into layer instances
      (pure virtual functions) */
@@ -75,13 +78,13 @@ class Layer: public Entry, public JSyncThread {
   bool moveup_filter(int sel);
   bool movedown_filter(int sel);
   Filter *active_filter(int sel);
-  Filter *listen_filter(int sel);
+  bool alpha_blit;
+
   virtual bool keypress(SDL_keysym *keysym) { return(false); };
 
   void setname(char *s);
   char *getname();
-  
-				   
+  				   
   bool cafudda();
 
   Linklist filters;
@@ -90,7 +93,6 @@ class Layer: public Entry, public JSyncThread {
 
   ScreenGeometry geo;
 
-  bool alpha_blit;
   bool active;
   bool quit;
   bool running;
@@ -100,5 +102,9 @@ class Layer: public Entry, public JSyncThread {
  protected:
   void *buffer;
 };
+
+/* function for type detection of implemented layers */
+Layer *create_layer(char *file);
+extern const char *layers_description;
 
 #endif

@@ -68,8 +68,9 @@ class V4lGrabber: public Layer {
  public:
   V4lGrabber();
   ~V4lGrabber();
-  bool detect(char *devfile);
-  bool init(Context *screen, int wdt, int hgt);
+  bool open(char *devfile);
+  bool init(Context *screen);
+  int init_width, init_heigth;
   void *feed();
   void close();
 

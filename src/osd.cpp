@@ -238,7 +238,7 @@ void Osd::splash_screen() {
   _write(PACKAGE,HBOUND+40,vpos,2,2);
   _write(VERSION,HBOUND+160,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  _write("ECOTECH",HBOUND+40,vpos,2,2);
+  _write("PIKSEL",HBOUND+40,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
   _write(":: set the veejay free ",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+30;

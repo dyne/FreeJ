@@ -12,6 +12,7 @@ freej_SOURCES = \
 	avi_layer.cpp	\
 	png_layer.cpp	\
 	txt_layer.cpp	\
+	impl_layers.cpp \
 	linklist.cpp	\
 	jsync.cpp	\
 	keyboard.cpp	\
@@ -23,7 +24,7 @@ freej_SOURCES = \
 	cpu_accel.c	\
 	yuv2rgb.c yuv2rgb_mmx.c
 
-freej_LDADD = @LIBS@ @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@
+freej_LDADD = -ldl -lpthread -lm @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej

@@ -65,15 +65,17 @@ bool AviLayer::init(Context *scr) {
     return false;
   }
 
-  if(scr) screen = scr;
-  _init(screen,
-	bh.biWidth,
-	labs(bh.biHeight),
-	bh.biBitCount);
+  _init(scr, bh.biWidth, labs(bh.biHeight), bh.biBitCount);
 
-  buffer = jalloc(buffer,geo.size);
+  //  buffer = jalloc(buffer,geo.size);
 
-  feed();
+  while(_stream->ReadFrame(true) <0)
+    _stream->Seek(1);
+  
+  _img = _stream->GetFrame(false);
+  
+  //  feed();
+
   notice("AviLayer :: w[%u] h[%u] bpp[%u] size[%u]",
 	 geo.w,geo.h,geo.bpp,geo.size);
 
@@ -166,17 +168,17 @@ bool AviLayer::open(char *file) {
   
 void *AviLayer::feed() {
   //  if(paused) return buffer;  
-    
+  _img->Release();
+  
   while(_stream->ReadFrame(true) <0)
     _stream->Seek(1);
 
   _img = _stream->GetFrame(false);
 
-  memcpy(buffer,_img->Data(),geo.size);
-  //  mmxcopy(_img->Data(),buf,geo.size);
-  
-  _img->Release();
-
+  buffer = _img->Data();
+  //memcpy(buffer,_img->Data(),geo.size);
+  //  _img->Release();
+  //  return buffer;
   return buffer;
 }
 
@@ -190,7 +192,7 @@ void AviLayer::close() {
   delete _avi;
   _avi = NULL;
   
-  if(buffer) jfree(buffer);
+  //  if(buffer) jfree(buffer);
 }
 
 

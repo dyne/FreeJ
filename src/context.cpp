@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  */
 
 #include <inttypes.h>
@@ -70,7 +73,7 @@ Context::Context(int wx, int hx, int bppx, Uint32 flagsx) {
       SDL_EventState(i, SDL_IGNORE);
 
 
-  //  SDL_ShowCursor(0);
+  SDL_ShowCursor(0);
 
   doubletab = NULL;
   doublebuf = NULL;
@@ -209,32 +212,42 @@ void Context::close() {
 
 }
 
-bool Context::add_layer(Layer *newlayer) {
-  bool res = false;
+int Context::add_layer(Layer *newlayer) {
+  int res = -1;
   
   if(!newlayer) {
     warning("Context::add_layer - invalid NULL layer");
     return(res);
   }
   
-  layers.add(newlayer);
-
-  res = true;
+  if( newlayer->init(this) ) {
+    layers.add(newlayer);
+    res = layers.len();
+  }
   return(res);
 }   
 
-bool Context::moveup_layer(int sel) {
-  bool res = layers.moveup(sel);
-  if(res)
-    show_osd("MOVE UP layer %u -> %u",sel,sel-1);
-  return res;
+int Context::del_layer(int sel) {
+  act("Context::del_layer : TODO");
+  return sel;
 }
 
-bool Context::movedown_layer(int sel) {
-  bool res = layers.movedown(sel);
-  if(res)
+int Context::clear_layers() {
+  int ret = layers.len();
+  act("Context::clear_layers : TODO");
+  return ret;
+}
+
+int Context::moveup_layer(int sel) {
+  if( layers.moveup(sel) )
+    show_osd("MOVE UP layer %u -> %u",sel,sel-1);
+  return(sel-1);
+}
+
+int Context::movedown_layer(int sel) {
+  if ( layers.movedown(sel) )
     show_osd("MOVE DOWN layer %u -> %u",sel,sel+1);
-  return res;
+  return(sel+1);
 }
 
 Layer *Context::active_layer(int sel) {
@@ -250,7 +263,6 @@ bool Context::flip() {
 
   osd->print();
 
-  
   if(dbl) /* double size of the screen */
     for(cy=0; cy<h; cy++ ) {
       dcy = cy<<1;
@@ -269,8 +281,7 @@ void Context::clear() {
  register uint32_t ecx; 
  register uint64_t ebx = 0x0000000000000000;
  register uint64_t *edx = (uint64_t*)surface;
- for(ecx=size>>3;ecx>0;ecx--)
-   *edx-- = ebx;
+ for(ecx=size>>4;ecx>0;ecx--) *edx-- = ebx;
 }
 
 /* FPS */

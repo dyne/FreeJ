@@ -41,7 +41,8 @@ class Context {
   struct timeval lst_time;
   int fps_frame_interval;
   int framecount;
-  long elapsed, min_interval;
+  long elapsed;
+  long min_interval;
   /* --------------------- */
 
   void *prec_y[MAX_HEIGHT];
@@ -92,9 +93,11 @@ class Context {
 
   /* linked list of registered layers */
   Linklist layers;
-  bool add_layer(Layer *newlayer);
-  bool moveup_layer(int sel);
-  bool movedown_layer(int sel);
+  int add_layer(Layer *newlayer);
+  int del_layer(int sel);
+  int clear_layers();
+  int moveup_layer(int sel);
+  int movedown_layer(int sel);
   Layer *active_layer(int sel);
 
   /* On Screen Display */

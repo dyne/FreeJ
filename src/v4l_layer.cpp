@@ -41,6 +41,8 @@ V4lGrabber::V4lGrabber()
   rgb_surface = NULL;
   buffer = NULL;
   have_tuner=false;
+  init_width = 320;
+  init_heigth = 240;
   setname("V4L");
 }
 
@@ -65,7 +67,7 @@ void V4lGrabber::close() {
   
 }
 
-bool V4lGrabber::detect(char *devfile) {
+bool V4lGrabber::open(char *file) {
   int counter, res;
   char *capabilities[] = {
     "VID_TYPE_CAPTURE          can capture to memory",
@@ -82,12 +84,12 @@ bool V4lGrabber::detect(char *devfile) {
 
   func("V4lGrabber::detect()");
 
-  if (-1 == (dev = ::open(devfile,O_RDWR|O_NONBLOCK))) {
-    error("capture device %s: %s",devfile,strerror(errno));
+  if (-1 == (dev = ::open(file,O_RDWR|O_NONBLOCK))) {
+    error("capture device %s: %s",file,strerror(errno));
     return(false);
   } else {
     ::close(dev);
-    dev = ::open(devfile,O_RDWR);
+    dev = ::open(file,O_RDWR);
   }
   
   res = ioctl(dev,VIDIOCGCAP,&grab_cap);
@@ -98,7 +100,7 @@ bool V4lGrabber::detect(char *devfile) {
 
   if(get_debug()>0) {
     
-    notice("Device detected is %s",devfile);
+    notice("Device detected is %s",file);
     act("%s",grab_cap.name);
     act("%u channels detected",grab_cap.channels);
     act("max size w[%u] h[%u] - min size w[%u] h[%u]",grab_cap.maxwidth,grab_cap.maxheight,grab_cap.minwidth,grab_cap.minheight);
@@ -142,11 +144,11 @@ bool V4lGrabber::detect(char *devfile) {
   }
   num_frame = grab_map.frames;
   channels = grab_cap.channels;
-  set_filename(devfile);
+  set_filename(file);
   return(true);
 }
 
-bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
+bool V4lGrabber::init(Context *screen) {
   int i;
   func("V4lGrabber::init()");
 
@@ -175,7 +177,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   }
 
   /* INIT from the LAYER CLASS */
-  _init(screen,wdt,hgt);
+  _init(screen,init_width,init_heigth);
 
   palette = VIDEO_PALETTE_YUV422P;
   /* choose best yuv2rgb routine (detecting cpu)

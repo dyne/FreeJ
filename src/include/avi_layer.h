@@ -78,12 +78,13 @@ class AviLayer: public Layer {
 
   double lsttime, curtime;
 
+  bool firstrun;
 
  public:
   AviLayer();
   ~AviLayer();
   
-  bool init(Context *screen=NULL);
+  bool init(Context *screen);
   bool open(char *file);
   void *feed();
   void close();

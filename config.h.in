@@ -78,6 +78,12 @@
 /* Define if using the dmalloc debugging malloc package */
 #undef WITH_DMALLOC
 
+/* define if compiling freetype2 layer */
+#undef WITH_FT2
+
+/* define if compiling png layer */
+#undef WITH_PNG
+
 /* define if compiling video4linux layer */
 #undef WITH_V4L
 

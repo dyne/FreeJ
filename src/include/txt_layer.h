@@ -89,18 +89,19 @@ class TxtLayer: public Layer {
   int word_ff(int pos);
   int read_next_chunk();
   bool draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,Uint8 *dst);
-  bool set_character_size(int _text_dimension);
+
   //  int word_rw(int pos);
 
 public:
   TxtLayer();
   ~TxtLayer();
   
-  bool init(Context *screen=NULL,int _text_dimension=64);
+  bool init(Context *screen);
   bool open(char *file);
   void *feed();
   void *get_buffer();
   void close();
+  bool set_character_size(int _text_dimension);
   bool keypress(SDL_keysym *keysym);
   void compute_string_bbox( FT_BBox  *abbox,FT_Glyph image );
 };

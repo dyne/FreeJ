@@ -23,6 +23,7 @@
 #include <config.h>
 
 Layer::Layer() {
+  //  :Entry(), JSyncThread() {
   quit = false;
   active = false;
   running = false;
@@ -53,8 +54,6 @@ void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
   geo.y = (screen->h - geo.h)/2;
 
   crop();
-
-  screen->add_layer(this);
 
   /* allocate memory for the matte background */
   bgmatte = jalloc(bgmatte,geo.size);

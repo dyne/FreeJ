@@ -60,7 +60,7 @@ dnl Add the local include path and some flags
 dnl ==============================================================
 CFLAGS="-g -Wall -O4 -pipe -D_REENTRANT -fomit-frame-pointer \
 	   -mcpu=${host_cpu} -finline-functions -ffast-math -funroll-loops"
-LIBS="-lpthread -lm -ldl -lpng"
+#LIBS="-lpthread -lm -ldl"
 
 dnl Checks for header files.
 AC_HEADER_STDC
@@ -112,7 +112,21 @@ fi])
 dnl ==============================================================
 dnl CHECK if there is FREETYPE2
 dnl ==============================================================
-AC_CHECK_FT2(9.0.0)
+AC_CHECK_FT2(9.0.0,[
+	AC_DEFINE(WITH_FT2,1,[define if compiling freetype2 layer])
+	have_freetype2=yes ])
+
+dnl ==============================================================
+dnl CHECK if there are PNG libraries
+dnl ==============================================================
+PNG_LIBS=""
+AC_CHECK_HEADER(png.h)
+if test "$ac_cv_header_png_h" = "yes"; then
+have_pnglayer=yes
+PNG_LIBS="-lpng"
+AC_DEFINE(WITH_PNG,1,[define if compiling png layer])
+AC_SUBST(PNG_LIBS)
+fi
 
 dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
@@ -190,13 +204,20 @@ echo
 echo
 echo "== ready to compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
 echo " = SDL v${SDL_VERSION}: $SDL_LIBS"
-echo " = FreeType2: $FT2_LIBS"
 
-if test x$have_avilayer = xyes; then
-  echo " = AviFile and DivX4linux: $AVIFILE_LIBS"
+if test x$have_png = xyes; then
+  echo " = Png: -lpng"
 fi
 
-echo " = Misc libraries: $LIBS"
+if test x$have_freetype2 = xyes; then
+  echo " = FreeType2: $FT2_LIBS"
+fi
+
+if test x$have_avilayer = xyes; then
+  echo " = AviFile: $AVIFILE_LIBS"
+fi
+
+#echo " = Misc libraries: $LIBS"
 
 echo "============================== now type make, may the source be with you!"
 echo

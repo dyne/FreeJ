@@ -16,6 +16,10 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <config.h>
+
+#ifdef WITH_FT2
+
 #include <iostream>
 #include <string.h>
 #include <unistd.h>
@@ -27,7 +31,6 @@
 #include <txt_layer.h>
 #include <context.h>
 #include <jutils.h>
-#include <config.h>
 
 
 TxtLayer::TxtLayer()
@@ -40,7 +43,7 @@ TxtLayer::TxtLayer()
 	  blinking=false;
 	  offscreen_blink = onscreen_blink = SPEED;
 	  blink = 0;
-	  text_dimension=0;
+	  text_dimension=64;
 	  glyph_current=NULL;
 	  x=0;
 	  y=0;
@@ -65,13 +68,12 @@ bool TxtLayer::open(char *file) {
      return(true);
 }
 
-bool TxtLayer::init(Context *scr,int _text_dimension) {
+bool TxtLayer::init(Context *scr) {
 
-     if(_text_dimension < 0) {
+     if(text_dimension < 0) {
 	  error("TxtLayer::init() - Character size must be positive dude!");
 	  return(false);
      }
-     text_dimension=_text_dimension;
 
      /* Initialize the freetype library */
      if(FT_Init_FreeType( &library )) {
@@ -422,11 +424,13 @@ bool TxtLayer::draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int 
      return(true);
 }
 bool TxtLayer::set_character_size(int _text_dimension) {
-     int ret = FT_Set_Char_Size( face, 0, _text_dimension*64, 72, 72);
-     if(ret<0) {
-	  error("TxtLayer::Couldn't set character size");
-	  return(false);
-     }
-     return(true);
+  text_dimension = _text_dimension;
+  int ret = FT_Set_Char_Size( face, 0, text_dimension*64, 72, 72);
+  if(ret<0) {
+    error("TxtLayer::Couldn't set character size");
+    return(false);
+  }
+  return(true);
 }
 
+#endif
