@@ -78,9 +78,6 @@ void Osd::init(Context *screen) {
 void Osd::print() {
   if(!_active) return;
   
-  /* clean up for refresh
-     mmxosd_clean(screen->get_surface(),0x0,screen->w,screen->h); */
-
   if(_calibrate) {
     /* vert up left */
     vline(screen->coords(HBOUND,VBOUND>>2),VBP<<1,screen->pitch,screen->bpp);
@@ -164,16 +161,18 @@ void Osd::_selection() {
 
 void Osd::_layerlist() {
   unsigned int vpos = VBOUND+TOPLIST;
-  
+
   _set_color(red);
 
   Layer *l = (Layer *)screen->layers.begin();
   while(l) {
+    
     if( l == screen->kbd->layer) {
       if(l->active)
 	_write(">+",screen->w-17,vpos,1,1);
       else
 	_write(">-",screen->w-17,vpos,1,1);
+
     } else {
       if(l->active)
 	_write(" +",screen->w-17,vpos,1,1);
