@@ -176,14 +176,14 @@ int main (int argc, char **argv) {
 	  | strncmp((p-4),".wmv",4)==0 )
 	{
 #ifdef WITH_AVIFILE
-	avi = new AviLayer();
-	if(avi->open(pp))
-	  assert( avi->init(&screen) );
+	  avi = new AviLayer();
+	  if(avi->open(pp))
+	    assert( avi->init(&screen) );
 #else
-	error("AVI layer support not compiled");
-	act("can't load %s",pp);
+	  error("AVI layer support not compiled");
+	  act("can't load %s",pp);
 #endif
-      }	
+	}	
 
       /* PNG LAYERS */
       if(strncmp((p-4),".png",4)==0) {
