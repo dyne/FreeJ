@@ -40,6 +40,7 @@ Layer::Layer()
   set_alpha(255);
   setname("???");
   buffer = NULL;
+  surf = NULL; // sdl surface. if used this is !NULL
 }
 
 Layer::~Layer() {

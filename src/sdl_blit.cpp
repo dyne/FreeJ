@@ -41,8 +41,8 @@ void SdlScreen::crop(Layer *layer) {
   blit_xoff = 0;
   blit_yoff = 0;
 
-  func("CROP x[%i] y[%i] w[%i] h[%i] on screen w[%i] h[%i]",
-       layer->geo.x,layer->geo.y,layer->geo.w,layer->geo.h,w,h);
+  //  func("CROP x[%i] y[%i] w[%i] h[%i] on screen w[%i] h[%i]",
+  //       layer->geo.x,layer->geo.y,layer->geo.w,layer->geo.h,w,h);
 
   /* left bound 
      affects x-offset and width */
@@ -128,21 +128,21 @@ void SdlScreen::crop(Layer *layer) {
 
 
 void SdlScreen::blit(Layer *layer) {
-  /* works only with 32bpp
+  /* works in 32bpp, if screen is another dept
      conversion is automatically done by SDL 
-     (Jah bless Sam Lantinga!) */
+     (JAH bless Sam Lantinga!) */
   
   if(layer->hidden) return;
 
   switch(layer->blit) {
     
   case 1: // plain RGB blit, we use SDL for this
-    
     blitter = SDL_CreateRGBSurfaceFrom
       (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
        layer->geo.pitch, bmask, gmask, rmask, 0x0);
     SDL_BlitSurface(blitter,&layer->rect,surface,NULL);
     SDL_FreeSurface(blitter);
+    //    BLIT(=);
     return;
     
   case 2:
@@ -186,7 +186,7 @@ void SdlScreen::blit(Layer *layer) {
        layer->geo.pitch, bmask, gmask, rmask, 0x0);
     SDL_SetAlpha(blitter,SDL_SRCALPHA,layer->alpha);
     SDL_BlitSurface(blitter,&layer->rect,surface,NULL);
-    SDL_FreeSurface(blitter);
+    //    SDL_FreeSurface(blitter);
     break;
 
   default:

@@ -18,6 +18,9 @@
  *
  */
 
+#include <config.h>
+#ifdef WITH_JAVASCRIPT
+
 #include <jsparser.h>
 #include <jsparser_data.h> // private data header
 #include <context.h>
@@ -295,7 +298,7 @@ int JsParser::open(const char* script_file) {
   return ret_val;
 }
 /*
-=======
+
 /**
  * XXX TODO una cifra di work (translation: a LOOOOT of work ;)
 
@@ -312,3 +315,5 @@ int JsParser::parse(){
     JSBool ok = JS_EvaluateScript(js_context, global_object, script, strlen(script), "refugees.js", 1, &ret_val);
     }
 */
+
+#endif

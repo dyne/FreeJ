@@ -60,7 +60,6 @@ class Context {
 
   /* timing and other amenities */
   double now;
-  int rtc_now;
   bool riciuca;
 
 
@@ -116,7 +115,6 @@ class Context {
 
   bool clear_all;
 
-  bool rtc; ///< using the realtime clock on linux?
 };
 
 #endif

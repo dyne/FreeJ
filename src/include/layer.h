@@ -116,9 +116,8 @@ class Layer: public Entry, public JSyncThread {
   int bgcolor; ///< matte background color
 
   SDL_Rect rect; ///< SDL rectangle for blit crop
-
-  void *offset; ///< pointere to where all goes after processing
-
+  SDL_Surface *surf; ///< pointer to SDL surface, !NULL if used
+  void *offset; ///< pointer to pixels when !sdl_surface
 
  protected:
 
@@ -144,8 +143,6 @@ class Layer: public Entry, public JSyncThread {
   virtual void *feed() = 0; ///< feeds in the image source
 
   bool cafudda(); ///< cafudda is called by the Context
-
-
 
   void *bgmatte;
 

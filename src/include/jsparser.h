@@ -21,6 +21,9 @@
 #ifndef __JSPARSER_H__
 #define __JSPARSER_H__
 
+#include <config.h>
+#ifdef WITH_JAVASCRIPT
+
 /*
  * Tune this to avoid wasting space for shallow stacks, while saving on
  * malloc overhead/fragmentation for deep or highly-variable stacks.
@@ -49,4 +52,6 @@ class JsParser {
 	int parse_count;
 	//	JSFunctionSpec shell_functions[3];
 };
+#endif
+
 #endif

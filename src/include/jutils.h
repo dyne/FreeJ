@@ -24,6 +24,8 @@
 
 extern char msg[255];
 
+extern void *(*jmemcpy)( void *to, const void *from, size_t len );
+
 void set_debug(int lev);
 int get_debug();
 void set_osd(char *st);
@@ -39,7 +41,7 @@ void *jalloc(void *point,size_t size);
 bool jfree(void *point);
 Uint32 fastrand();
 void fastsrand(Uint32 seed);
-double dtime();
+unsigned long long int dtime();
 bool set_rtpriority(bool max);
 void jsleep(int sec, long nsec);
 int rtc_open();
@@ -48,3 +50,5 @@ void rtc_freq_set(unsigned long freq);
 void rtc_freq_wait();
 void rtc_close();
 #endif
+
+void jmemset(void * s, unsigned long c ,size_t count);

@@ -30,8 +30,8 @@
 #include <jsparser.h>
 
 #include <jutils.h>
+#include <fastmemcpy.h>
 #include <config.h>
-
 
 
 Context::Context() {
@@ -83,11 +83,7 @@ bool Context::init(int wx, int hx) {
   /* initialize the S-Lang text Console */
   console.init(this);
   
-  /* initialize the realtime clock and use it if present */
-  rtc = false;
-#ifdef linux
-  if(rtc_open()) rtc = true;
-#endif
+  find_best_memcpy();
 
   set_fps_interval(24);
   gettimeofday( &lst_time, NULL);
@@ -115,15 +111,12 @@ void Context::close() {
 
   if(screen) delete screen;
 
-  if(rtc) rtc_close();
-
   plugger.close();
 
 #ifdef WITH_JAVASCRIPT
   delete js;
 #endif
 
-  if(rtc) rtc_close();
 }  
 
 void Context::cafudda(int secs) {
@@ -131,12 +124,11 @@ void Context::cafudda(int secs) {
 
   if(secs) /* if secs =0 will go out after one cycle */
 
-    /* initialize timing */
-#ifdef linux
-    if(rtc) { rtc_now = secs; }
-    else
+#ifdef ARCH_X86
+    __asm__ volatile (".byte 0x0f, 0x31" : "=A" (now));
+#else
+  now = dtime();
 #endif
-      { now = dtime(); }
   
   do {
 
@@ -183,18 +175,7 @@ void Context::cafudda(int secs) {
     
     if(!secs) break; /* just one pass */
     
-#ifdef linux
-    if(rtc) {
-      if(!rtc_tick()) riciuca = false; // a second passed
-      else {
-	rtc_now--;
-	riciuca = (rtc_now>0) ? true : false;
-      }
-    } else
-#endif
-      {
-	riciuca = (dtime()-now<secs) ? true : false;
-      }    
+    riciuca = (dtime()-now<secs) ? true : false;
     
     calc_fps();
 	

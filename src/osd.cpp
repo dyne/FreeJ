@@ -124,6 +124,8 @@ void Osd::init(Context *screen) {
     }
   }
 
+  osd_jump = (env->screen->w - HBOUND - HBOUND) / 2;
+
   func("OSD initialized");
   
 }
@@ -433,7 +435,6 @@ void Osd::_set_color(colors col) {
 void Osd::clean() {
   //  if(!active) return;
   int c,cc;
-  int jump = (env->screen->w - HBOUND - HBOUND) / 2;
   uint64_t *top = topclean_offset;
   uint64_t *down = downclean_offset;
 
@@ -444,7 +445,7 @@ void Osd::clean() {
   }
   for(c = env->screen->h-VBOUND-VBOUND; c>0; c--) {
     for(cc = HBOUND>>1; cc>0; cc--) { *top = 0x0; top++; }
-    top+=jump;
+    top+=osd_jump;
     for(cc = HBOUND>>1; cc>0; cc--) { *top = 0x0; top++; }
   }
   env->screen->unlock();

@@ -74,6 +74,8 @@ class Osd {
   int y,x,i,len,f,v,ch,cv;
   uint32_t *ptr;
 
+  /* used to clear the osd */
+  uint32_t osd_jump;
 
  public:
   Osd();

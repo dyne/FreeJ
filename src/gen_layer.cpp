@@ -78,14 +78,19 @@ GenLayer::GenLayer()
 #endif
   
   surf = NULL;
+  pixels = NULL;
+  blob_buf = NULL;
 
   pi2 = 2.0*M_PI;
 
   setname("GEO");
+
 }
 
 GenLayer::~GenLayer() {
-  if(surf) SDL_FreeSurface(surf);
+  //  if(surf) SDL_FreeSurface(surf);
+  if(pixels) free(pixels);
+  if(blob_buf) free(blob_buf);
 }
 
 bool GenLayer::open(char *file) {
@@ -107,20 +112,19 @@ bool GenLayer::init(Context *scr) {
   /* internal initalization */
   _init(scr,scr->screen->w,scr->screen->h,32);
 
-  surf = SDL_CreateRGBSurface
-    (SDL_HWSURFACE|SDL_HWACCEL,geo.w,geo.h,32,bmask,gmask,rmask,amask);
-  if(!surf) {
-    error("can't create GenLayer surface: %s",SDL_GetError());
+  pixels = (uint32_t*)malloc(geo.size);
+
+    //  surf = SDL_CreateRGBSurface
+    //    (SDL_HWSURFACE|SDL_HWACCEL,geo.w,geo.h,32,bmask,gmask,rmask,amask);
+    //  if(!surf) {
+  if(!pixels) {
+    error("can't allocate GenLayer memory surface");
     return(false);
   }
-
-  pixels = (uint32_t*)surf->pixels;
-
+  
   blossom_recal(true);
 
   /* blob initialization */
-  blob_buf = NULL;
-
   blob_init(8);
 
   return(true);
@@ -139,21 +143,22 @@ void *GenLayer::feed() {
     blossom_a -= pi2;
 
 
-  SDL_FillRect(surf,NULL,0x0);
-
+  //  SDL_FillRect(surf,NULL,0x0);
+  jmemset(pixels,0,geo.size);
+  /*  
   if (SDL_MUSTLOCK(surf))
     if (SDL_LockSurface(surf) < 0) {
       error("%s", SDL_GetError());
       return NULL;
     }
-  
+  */
   blossom();
-  return(surf->pixels);
-
+  return(pixels);
+  /*
   if (SDL_MUSTLOCK(surf)) {
     SDL_UnlockSurface(surf);
   }
-
+  */
 }
 
 void GenLayer::blossom_recal(bool r) {
@@ -191,19 +196,11 @@ void GenLayer::blossom() {
     y = (int)(hd*(0.47+ (blossom_r*cos(blossom_j*zx+blossom_a)+
 			 (1.0-blossom_r)*cos(blossom_l*zy+blossom_a)) /2.2 ));
     
-    //point(x,y);
     blob(x,y);
     
   } 
 
 }
-
-void GenLayer::point(int x, int y) {
-
-  pixels[ (y*geo.w)+x ] += 0x99999999;
-  
-}
-
 
 void GenLayer::blob_init(int ray) {
   int i,j;
@@ -219,24 +216,28 @@ void GenLayer::blob_init(int ray) {
      double radians = (theta / 180.0) * PI;
      double dx = ( origin[0] + cos( radians ) * radius );
      double dy = ( origin[1] + sin( radians ) * radius );
+     
+     (there are always some basics you learn at school and then forget)
   */
   uint32_t dx,dy;
   double rad, th;
   int c;
   srand(time(NULL));
   if(blob_buf) free(blob_buf);
-  blob_buf = (uint32_t*) malloc(ray*2*ray*2*sizeof(uint32_t));
+  
+  blob_buf = (uint32_t*) calloc(ray*2*ray*2,sizeof(uint32_t));
+  //  memset(blob_buf,0,ray*2*ray*2*sizeof(uint32_t));
 
   for(th=1;th<=360;th++) {
     rad = (th / 180.0) * M_PI;
-    for(int c=ray;c>0;c--) {
+    for(c=ray;c>0;c--) {
       dx = ( (ray) + cos( rad ) * c );
       dy = ( (ray) + sin( rad ) * c );
       //      col = (int)(10.0*rand()/(RAND_MAX+1.0))/c;
       //      col += 0x99/c * 0.8;
       col = 0x99/c * 0.8;
-      blob_buf[ (dx+((ray*2)*dy)) ] = 
-      	SDL_MapRGB(surf->format,col,col,col);
+      blob_buf[ (dx+((ray*2)*dy)) ] =
+	col|(col<<8)|(col<<16)|(col<<24);
     }
   }
   
@@ -262,6 +263,7 @@ void GenLayer::blob_init(int ray) {
 #endif
 }
   
+
 void GenLayer::blob(int x, int y) {
   //  if(y>geo.h-blob_size) return;
   //  if(x>geo.w-blob_size) return;
@@ -286,14 +288,16 @@ void GenLayer::blob(int x, int y) {
 		   "movq 40(%1),%%mm5;"
 		   "movq 48(%1),%%mm6;"
 		   "movq 56(%1),%%mm7;"
-		   "paddusb (%0),%%mm0;" //addizione perfetta senza clipping
-		   "paddusb 8(%0),%%mm1;" //addizione perfetta senza clipping
-		   "paddusb 16(%0),%%mm2;" //addizione perfetta senza clipping
-		   "paddusb 24(%0),%%mm3;" //addizione perfetta senza clipping
-		   "paddusb 32(%0),%%mm4;" //addizione perfetta senza clipping
-		   "paddusb 40(%0),%%mm5;" //addizione perfetta senza clipping
-		   "paddusb 48(%0),%%mm6;" //addizione perfetta senza clipping
-		   "paddusb 56(%0),%%mm7;" //addizione perfetta senza clipping
+
+		   "paddusb (%0),%%mm0;" // packed add unsaturated on bytes
+		   "paddusb 8(%0),%%mm1;" // addizione clippata
+		   "paddusb 16(%0),%%mm2;"
+		   "paddusb 24(%0),%%mm3;"
+		   "paddusb 32(%0),%%mm4;"
+		   "paddusb 40(%0),%%mm5;"
+		   "paddusb 48(%0),%%mm6;"
+		   "paddusb 56(%0),%%mm7;"
+
 		   "movq %%mm0,(%0);"	  
 		   "movq %%mm1,8(%0);"	  
 		   "movq %%mm2,16(%0);"	  
@@ -302,7 +306,7 @@ void GenLayer::blob(int x, int y) {
 		   "movq %%mm5,40(%0);"	  
 		   "movq %%mm6,48(%0);"	 
 		   "movq %%mm7,56(%0);"
-		   //	  "paddsw %0, %%mm0;"// halo violetto
+		   //	  "paddsw %0, %%mm0;"// halo violetto?
 		   :
 		   :"r"(tmp_scr),"r"(tmp_blob)
 		   :"memory");
@@ -314,22 +318,7 @@ void GenLayer::blob(int x, int y) {
   asm("emms;");
 
 
-#if 0
-      asm("movq %1,%%mm0;"
-	  "paddusb %0,%%mm0;" //addizione perfetta senza clipping
-	  //	  "paddsw %0, %%mm0;"// halo violetto
-	  "movq %%mm0,%0;"
-      	  :
-      	  :"m"(*tmp_scr),"m"(*tmp_blob)
-	  :"mm0","ecx");
-      tmp_scr++;
-      tmp_blob++;
-    }
-    tmp_scr += stride;
-  }
-  asm("emms;");
-#endif
-#else
+#else // ! HAVE_MMX
   for(j=blob_size; j>0; j--) {
     for(i=blob_size>>1; i>0; i--) {
       *(tmp_scr++) += *(tmp_blob++);

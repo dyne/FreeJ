@@ -525,4 +525,5 @@ double VideoLayer::get_master_clock() {
 void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl) {
     printf("callback");
 }
+
 #endif

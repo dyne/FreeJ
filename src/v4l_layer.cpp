@@ -402,7 +402,7 @@ void *V4lGrabber::feed() {
     break;
 
   case VIDEO_PALETTE_RGB32:
-    memcpy(rgb_surface,&buffer[grab_map.offsets[ok_frame]],geo.size);
+    jmemcpy(rgb_surface,&buffer[grab_map.offsets[ok_frame]],geo.size);
     break;
   default:
     error("video palette %i for layer %s %s not supported",

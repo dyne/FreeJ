@@ -210,17 +210,16 @@ void fastsrand(Uint32 seed)
 	randval = seed;
 }
 
-double dtime() {
-  /* will this work one day?
-     unsigned long long int x;
-     act("asm gettime");
-     __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
-     return ((double)x);
-  */
+unsigned long long int dtime() {
+#ifdef ARCH_X86
+  unsigned long long int x;
+  __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
+  return x;
+#else
   struct timeval mytv;
   gettimeofday(&mytv,NULL);
   return((double)mytv.tv_sec+1.0e-6*(double)mytv.tv_usec);
-  //  this is slower: return time(NULL);
+#endif
 }
 
 /* sets the process to "policy" policy,  if max=1 then set at max priority,
@@ -309,8 +308,33 @@ void rtc_freq_wait() {
   }
 }
 void rtc_close() {
+  if(rtcfd<=0) return;
   ioctl(rtcfd, RTC_UIE_OFF, 0);
   //  ioctl(rtcfd,RTC_PIE_OFF,0);
   close(rtcfd);
 }
 #endif
+
+void *(* jmemcpy)(void *to, const void *from, size_t len) = memcpy;
+
+/*
+ * memset(x,0,y) is a reasonably common thing to do, so we want to fill
+ * things 32 bits at a time even when we don't know the size of the
+ * area at compile-time..
+ */
+void jmemset(void * s, unsigned long c ,size_t count)
+{
+int d0, d1;
+__asm__ __volatile__(
+	"rep ; stosl\n\t"
+	"testb $2,%b3\n\t"
+	"je 1f\n\t"
+	"stosw\n"
+	"1:\ttestb $1,%b3\n\t"
+	"je 2f\n\t"
+	"stosb\n"
+	"2:"
+	: "=&c" (d0), "=&D" (d1)
+	:"a" (c), "q" (count), "0" (count/4), "1" ((long) s)
+	:"memory");
+}

@@ -51,11 +51,7 @@ class GenLayer: public Layer {
 
   /* surface buffer */
   uint32_t rmask,gmask,bmask,amask;
-  SDL_Surface *surf;
   uint32_t *pixels;
-
-  /* pixel drawing */
-  void point(int x, int y);
 
   /* blob drawing */
   void blob_init(int ray);
