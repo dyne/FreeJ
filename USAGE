@@ -11,6 +11,7 @@ LIST OF COMMANDS:
 
  GENERIC COMMANDS:
  ^SPACE    = switch fullscreen mode
+ SPACE    = pause screen
  ESC      = quits (without confirm)
  TAB      = on/off OSD
  ^TAB     = on/off calibration guidelines

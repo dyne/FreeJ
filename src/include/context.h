@@ -69,6 +69,8 @@ class Context {
   void rocknroll(bool state);
 
   bool quit;
+  
+  bool pause;
 
   /*
   int w, h;

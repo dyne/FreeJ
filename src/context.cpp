@@ -45,6 +45,7 @@ Context::Context() {
 
   clear_all = false;
   quit = false;
+  pause = false;
 }
 
 Context::~Context() {
@@ -89,8 +90,9 @@ void Context::cafudda() {
     } else {
       layers.lock();
       while(lay) {
-	lay->cafudda();
-	lay = (Layer *)lay->prev;
+	  if(!pause) 
+	      lay->cafudda();
+	  lay = (Layer *)lay->prev;
       }
       layers.unlock();
     }

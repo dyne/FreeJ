@@ -87,8 +87,13 @@ void KbdListener::run() {
     case SDLK_SPACE:
       if(keysym->mod & KMOD_CTRL)
 	env->screen->fullscreen();
-      else
-	show_osd("press CTRL+SPACE to switch fullscreen");
+      else {
+	//show_osd("press CTRL+SPACE to switch fullscreen");
+	if(env->pause)
+	    env->pause = false;
+	else 
+	    env->pause = true;
+      }
 
       break;
       
