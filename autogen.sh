@@ -48,8 +48,8 @@ fi
 
 echo "Generating configuration files for $package, please wait...."
 
-echo "  aclocal -I ."
-aclocal -I .
+echo "  aclocal -I $srcdir/m4"
+aclocal -I $srcdir/m4
 echo "  autoheader"
 autoheader
 echo "  libtoolize --automake"

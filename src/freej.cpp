@@ -48,7 +48,7 @@ static const char *help =
 " .   -h   print this help\n"
 " .   -v   version information\n"
 " .   -D   debug verbosity level - default 1\n"
-" .   -C   no graphical interface"
+" .   -C   no graphical interface\n"
 " .   -s   size of screen - default 400x300\n"
 " .   -d   double screen size\n"
 " .   -n   start with deactivated layers\n"
@@ -217,13 +217,18 @@ int main (int argc, char **argv) {
   set_osd(osd.status_msg); /* let jutils know about the osd */
 
   /* (context has no layers && there is no GUI) then quit here */
-  if(screen.layers.len()<1 && !gtkgui) {
-    error("no layers present, quitting");
-    screen.close();
-    act("you should at least load a movie,");
-    act("a png image or have a video card");
-    act("to see something more (see freej -h)");
-    exit(0);
+
+  if(screen.layers.len()<1) {
+    if(gtkgui)
+      osd.splash_screen();
+    else{
+      error("no layers present, quitting");
+      screen.close();
+      act("you should at least load a movie,");
+      act("a png image or have a video card");
+      act("to see something more (see freej -h)");
+      exit(0);
+    }
   }
 
   
@@ -242,11 +247,12 @@ int main (int argc, char **argv) {
   /* this is the keyboard listener */
   KbdListener keyb;
   assert( keyb.init(&screen, &plugger) );
-  keyb.start();
 
 #ifdef WITH_GLADE2
   /* this launches gtk2 interface thread */
-  if(gtkgui) gtk_ctrl_init(&screen,&argc,argv);
+  if(gtkgui) {
+    gtk_ctrl_init(&screen,&argc,argv);
+  }
 #endif
 
   while(!screen.quit) {

@@ -368,14 +368,15 @@ void update_effect_list() {
 void on_add_effect(char *name) {
   gtk_menu_set_active(menu_effect,0);
   Layer *laysel = (Layer*) env->layers.selected();
+  Filter *filt;
   if(!laysel) {
     error("no layer selected for effect %s",name); return; }
   /* TODO plugin selection by name inside plugger
      i don't do this now, will develop LiViDO and come back later */
-  for(int c=0; env->plugger->plugs[c] ; c++) {
-    if(env->plugger->plugs[c]->inuse) continue;
-    if(strcasecmp(env->plugger->plugs[c]->getname(),name)==0)
-      laysel->add_filter(env->plugger->plugs[c]);
+  for(int c=0; (filt = (Filter*)env->plugger->plugs[c]) ; c++) {
+    if(filt->inuse) continue;
+    if(strcasecmp(filt->getname(),name)==0)
+      laysel->add_filter(filt);
   }
 }
 void init_effect_menu() {

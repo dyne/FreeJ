@@ -29,6 +29,14 @@ class Filter: public Plugin, public Entry {
 
   //  virtual bool kbd_input(SDL_keysym *keysym) { return(false); };
 
+  /* TODO
+
+  merge Plugin with this class
+
+  add method 'disconnect()' to remove from chains
+  implementing like Layer::del_filter (layer.cpp L130)
+  */
+
   bool initialized;
   bool active;
   bool inuse;

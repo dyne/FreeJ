@@ -15,6 +15,7 @@ LIST OF COMMANDS:
  TAB      = on/off OSD
  ^TAB     = on/off calibration guidelines
  PRINTSCR = display nice and lovely credits
+ ^f = show fps
 
  LAYER COMMANDS:
 
@@ -64,6 +65,14 @@ LIST OF COMMANDS:
  arrows   = move many keyframes back and forward on the avi:
             left ctrl = 50000 ; right ctrl = 10000 ;
 	    left shift = 5000 ; right shift = 1000 ;
+ Key_Pad_0  PAUSE (still can seek !)
+ I          set/clear mark_in
+ O          set/clear mark_out
+ k,l        -+ double frame / slow motion
+ n,m        -+ play speed
+ if k,l,n,m are not working as you expect, you have two 
+ possibilities: recode the movie with full frames 
+ or regard the artifacts as art 8=)
 
  TXT LAYER COMMANDS:
  l/r

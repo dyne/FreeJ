@@ -19,8 +19,8 @@
 #ifndef __avi_h__
 #define __avi_h__
 
-#include <avifile/avifile.h>
-#include <avifile/renderer.h>
+#include <avifile.h>
+#include <renderer.h>
 #undef BIG_ENDIAN
 #include <layer.h>
 
@@ -77,14 +77,21 @@ class AviLayer: public Layer {
   int _quality;
 
   double lsttime, curtime;
-
-  bool firstrun;
+ bool paused;
+ bool avi_dirty;
+ void set_mark_in();
+ void set_mark_out();
+ int play_speed;
+ void set_play_speed(int speed);
+ int slow_frame,slow_frame_s;
+ void set_slow_frame(int speed);
+ framepos_t mark_in,mark_out;
 
  public:
   AviLayer();
   ~AviLayer();
   
-  bool init(Context *screen);
+  bool init(Context *screen=NULL);
   bool open(char *file);
   void *feed();
   void close();

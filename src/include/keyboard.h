@@ -19,7 +19,6 @@
 #ifndef __KEYBOARD_H__
 #define __KEYBOARD_H__
 
-#include <SDL.h>
 #include <jsync.h>
 
 class Context;
@@ -36,22 +35,16 @@ class KbdListener : public JSyncThread {
   int plugin_bank;
 
  public:
-  KbdListener() {};
-  ~KbdListener() {};
+  KbdListener();
+  ~KbdListener();
   
   bool init(Context *context, Plugger *plug);
   void run();
   
-  SDL_Event event;
-  Context *screen;
-
+  Context *env;
   Layer *layer;
-  int layersel;
-
-  Plugger *plugger;
-
   Filter *filter;
-  int filtersel;
+  Plugger *plugger;
 
   bool quit;
 };

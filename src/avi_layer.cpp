@@ -27,11 +27,10 @@
 #include <string.h>
 
 #include <avi_layer.h>
-#include <avifile/except.h>
-#include <avifile/renderer.h>
-#include <avifile/avm_fourcc.h>
-#include <avifile/creators.h>
-#include <avifile/renderer.h>
+#include <avm_except.h>
+#include <avm_fourcc.h>
+#include <avm_creators.h>
+#include <renderer.h>
 
 #include <context.h>
 #include <jutils.h>
@@ -49,6 +48,9 @@ AviLayer::~AviLayer() {
 
 bool AviLayer::init(Context *scr) {
   func("AviLayer::init");
+  avi_dirty = paused = false;
+	mark_in = mark_out = slow_frame = slow_frame_s = 0;
+	play_speed = 1;
   _quality = 1;
 
   
@@ -65,20 +67,16 @@ bool AviLayer::init(Context *scr) {
     return false;
   }
 
-  _init(scr, bh.biWidth, labs(bh.biHeight), bh.biBitCount);
+  _init(scr,labs(bh.biWidth),labs(bh.biHeight),bh.biBitCount);
 
-  //  buffer = jalloc(buffer,geo.size);
-
-  while(_stream->ReadFrame(true) <0)
+  /* fill up first frame */
+  while(_stream->ReadFrame(true)<0)
     _stream->Seek(1);
-  
+
   _img = _stream->GetFrame(false);
-  
-  //  feed();
 
   notice("AviLayer :: w[%u] h[%u] bpp[%u] size[%u]",
 	 geo.w,geo.h,geo.bpp,geo.size);
-
   
   return true;
 }
@@ -167,18 +165,64 @@ bool AviLayer::open(char *file) {
 }
   
 void *AviLayer::feed() {
-  //  if(paused) return buffer;  
-  _img->Release();
+  if(paused) 
+    if(!avi_dirty) return buffer;  
   
+  int32_t curr, curpos, curlen;
+  curr = curpos = _stream->GetPos(); // uint_t
+  curlen = _stream->GetLength();
+
+  if(slow_frame>0) {
+    slow_frame_s--;
+    if (slow_frame_s>0) return buffer;
+    else slow_frame_s=slow_frame;
+  }
+  if(slow_frame<0) {
+    slow_frame_s++;
+    if (slow_frame_s<0) return buffer;
+    else {
+      // unlogic? use -slowframe with -play_speed 8-)
+      curr -= 2;
+      slow_frame_s=slow_frame;
+    }
+  }
+  
+  _img->Release();
+				
+  if (play_speed != 1)  
+    curr += play_speed - 1;
+	
+  if (curr < 0) 
+    curr += curlen;
+  if (curr >= curlen)
+    curr -= curlen;
+  
+  if ( curr != curpos ) {
+    _stream->Seek(curr);
+    
+  } else if (play_speed>0) {		// forward
+    if (mark_out != 0)
+      if (mark_out < (uint32_t)curr)
+	if (mark_in != 0)
+	  //				if (!paused)
+	  curr = _stream->SeekToKeyFrame(mark_in);
+
+  } else if (play_speed<0) {			// backward
+    if (mark_in != 0)
+      if (mark_in > (uint32_t)curr)
+	if (mark_out != 0)
+	  //				if (!paused)
+	  curr = _stream->SeekToKeyFrame(mark_out);
+ }
+
   while(_stream->ReadFrame(true) <0)
-    _stream->Seek(1);
+    _stream->Seek(curr);
 
   _img = _stream->GetFrame(false);
 
   buffer = _img->Data();
-  //memcpy(buffer,_img->Data(),geo.size);
-  //  _img->Release();
-  //  return buffer;
+
+  avi_dirty=false;
   return buffer;
 }
 
@@ -192,7 +236,7 @@ void AviLayer::close() {
   delete _avi;
   _avi = NULL;
   
-  //  if(buffer) jfree(buffer);
+  if(buffer) jfree(buffer);
 }
 
 
@@ -207,8 +251,9 @@ void AviLayer::forward(framepos_t step) {
     res = _stream->SeekToKeyFrame(p+step);
   }
   unlock_feed();
-  show_osd("avi seeked to %u\% (K%u)",
+  show_osd("avi seek to %u\% (K%u)",
        (res*100)/_stream->GetLength(),res);
+  avi_dirty = true;
 }
 
 void AviLayer::rewind(framepos_t step) {
@@ -220,9 +265,9 @@ void AviLayer::rewind(framepos_t step) {
     res = _stream->SeekToKeyFrame(p-step);
   }
   unlock_feed();
-  notice("avi seeked to %u\% (K%u)",
+  show_osd("avi seek to %u\% (K%u)",
        (res*100)/_stream->GetLength(),res);
-  show_osd();
+  avi_dirty = true;
 }
 
 void AviLayer::pos(framepos_t p) {
@@ -230,23 +275,54 @@ void AviLayer::pos(framepos_t p) {
   lock_feed();
   res = _stream->SeekToKeyFrame(p);
   unlock_feed();
-  notice("avi seeked to %u\% (K%u)",
+  notice("avi seek to %u\% (K%u)",
        (res*100)/_stream->GetLength(),res);
   show_osd();
+  avi_dirty = true;
 }
   
 void AviLayer::pause() {
-  //  paused = !paused;
-  //  func("avi pause : %s",(paused)?"on":"off");
+  paused = !paused;
+  notice("avi pause : %s",(paused)?"on":"off");
+  show_osd();
+}
+
+void AviLayer::set_mark_in() {
+		if (mark_in == 0)
+			mark_in = _stream->GetPos();
+		else
+			mark_in = 0;
+		notice("mark_in: %u", mark_in);
+		show_osd();
+}
+
+void AviLayer::set_mark_out() {
+		if (mark_out == 0)
+			mark_out = _stream->GetPos();
+		else
+			mark_out = 0;
+		notice("mark_out: %u", mark_out);
+		show_osd();
+}
+
+void AviLayer::set_play_speed(int speed) {
+	play_speed += speed;
+	show_osd("ps: %i", play_speed);
+}
+
+void AviLayer::set_slow_frame(int speed) {
+	slow_frame += speed;
+	show_osd("sf: %i", slow_frame);
 }
 
 bool AviLayer::keypress(SDL_keysym *keysym) {
+  func("AviLayer::keypress");
   bool res = false;
   framepos_t steps = 1;
   switch(keysym->sym) {
   case SDLK_RIGHT:
-    if(keysym->mod & KMOD_LCTRL) steps=5000;
-    if(keysym->mod & KMOD_RCTRL) steps=1000;
+    if(keysym->mod & KMOD_LCTRL) steps=2500;
+    if(keysym->mod & KMOD_RCTRL) steps=500;
     forward(steps);
     res = true; break;
 
@@ -255,7 +331,31 @@ bool AviLayer::keypress(SDL_keysym *keysym) {
     if(keysym->mod & KMOD_RCTRL) steps=1000;
     rewind(steps);
     res = true; break;
+
+  case SDLK_i:
+    if(keysym->mod & KMOD_SHIFT)
+    set_mark_in(); break;
+
+  case SDLK_o:
+    if(keysym->mod & KMOD_SHIFT)
+    set_mark_out(); break;
     
+	case SDLK_n: 
+		set_play_speed(-1);
+    res = true; break;
+
+	case SDLK_m: 
+		set_play_speed(+1);
+    res = true; break;
+
+	case SDLK_k: 
+		set_slow_frame(-1);
+    res = true; break;
+
+	case SDLK_l: 
+		set_slow_frame(+1);
+    res = true; break;
+		
   case SDLK_KP0: pause();
     res = true; break;
 

@@ -82,6 +82,7 @@ AM_PATH_SDL($SDL_VERSION,
 	AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
            )
 AC_SUBST(SDL_LIBS)
+AC_SUBST(SDL_CFLAGS)
 
 dnl AC_HEADER_DIRENT
 
@@ -100,6 +101,7 @@ if test x$HAVE_AVIFILE = xyes -a ! x$enableval = xno; then
             [define if linking to avifile library for AVI layer playback])
   have_avilayer=yes
   AC_SUBST(AVIFILE_LIBS)
+  AC_SUBST(AVIFILE_CXXFLAGS)
 fi], [ 
 # to this by default, when --enable-avi is not selected
 if test x$HAVE_AVIFILE = xyes; then
@@ -107,6 +109,7 @@ if test x$HAVE_AVIFILE = xyes; then
             [define if linking to avifile library for AVI layer playback])
   have_avilayer=yes
   AC_SUBST(AVIFILE_LIBS)
+  AC_SUBST(AVIFILE_CXXFLAGS)
 fi])
 
 dnl ==============================================================
@@ -119,14 +122,21 @@ AC_CHECK_FT2(9.0.0,[
 dnl ==============================================================
 dnl CHECK if there are PNG libraries
 dnl ==============================================================
-PNG_LIBS=""
-AC_CHECK_HEADER(png.h)
-if test "$ac_cv_header_png_h" = "yes"; then
-have_pnglayer=yes
-PNG_LIBS="-lpng"
-AC_DEFINE(WITH_PNG,1,[define if compiling png layer])
-AC_SUBST(PNG_LIBS)
-fi
+PKG_CHECK_MODULES(PNG, libpng12 >= 1.2.0, [
+  AC_DEFINE(WITH_PNG,1,[define if compiling png layer])	
+  have_png=yes
+],[
+  AC_MSG_ERROR([libpng12 not found: $PNG_PKG_ERRORS])
+])
+
+#PNG_LIBS=""
+#AC_CHECK_HEADER(png.h)
+#if test "$ac_cv_header_png_h" = "yes"; then
+#have_pnglayer=yes
+#PNG_LIBS="-lpng"
+
+#AC_SUBST(PNG_LIBS)
+#fi
 
 dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
@@ -151,6 +161,8 @@ dnl ==============================================================
 PKG_CHECK_MODULES(GLADE2, libglade-2.0 >= 2.0.0 gthread-2.0 >= 2.0.0, [
   AC_DEFINE(WITH_GLADE2,1,[define if compiling glade gtk+-2 GUI])
   have_glade2=yes
+],[
+  AC_MSG_ERROR([libGlade-2 not found: $GLADE2_PKG_ERRORS])
 ])
 
 dnl ==============================================================
@@ -178,8 +190,8 @@ fi], [AC_MSG_RESULT(no)])
 
 fi
 
-CXXFLAGS="$CFLAGS $SDL_CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS $GLADE2_CFLAGS"
-CFLAGS="$CFLAGS $SDL_FLAGS"
+#CXXFLAGS="$CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS"
+#CFLAGS="$CFLAGS $SDL_FLAGS"
 #echo "LIBS are $LIBS"
 #AC_SUBST(LIBS)
 
@@ -209,21 +221,30 @@ filters/nervous/Makefile
 echo
 echo
 echo "== ready to compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
-echo " = SDL v${SDL_VERSION}: $SDL_LIBS"
-
+echo " = SDL v${SDL_VERSION}"
+echo "   | LIBS  : $SDL_LIBS"
+echo "   | CFLAGS: $SDL_CFLAGS"
 if test x$have_png = xyes; then
-  echo " = Png: -lpng"
+echo " = Png1.2"
+echo "   | LIBS  : $PNG_LIBS"
+echo "   | CFLAGS: $PNG_CFLAGS"
 fi
-
 if test x$have_freetype2 = xyes; then
-  echo " = FreeType2: $FT2_LIBS"
+echo " = FreeType2"
+echo "   | LIBS  : $FT2_LIBS"
+echo "   | CFLAGS: $FT2_CFLAGS"
 fi
-
 if test x$have_avilayer = xyes; then
-  echo " = AviFile: $AVIFILE_LIBS"
+echo " = AviFile"
+echo "   | LIBS  : $AVIFILE_LIBS"
+echo "   | CFLAGS: $AVIFILE_CXXFLAGS"
 fi
-
-#echo " = Misc libraries: $LIBS"
-
+#if test -z $LIBS; then
+echo " = LIBS     : $LIBS"
+#fi
+#if test -z $CFLAGS -o -z $CXXFLAGS; then
+echo " = CFLAGS   : $CFLAGS"
+echo " = CXXFLAGS : $CXXFLAGS"
+#fi
 echo "============================== now type make, may the source be with you!"
 echo

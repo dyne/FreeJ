@@ -95,7 +95,7 @@ main ()
   fi
   if test "x$HAVE_AVIFILE" = "xyes"; then
     dnl add X flags, because it looks like avifile needs libXv and libXxf86vm
-    CXXFLAGS="$XXCFLAGS $AVIFILE_CXXFLAGS" 
+#    CXXFLAGS="$XXCFLAGS $AVIFILE_CXXFLAGS" 
 #   commented and modified by jaromil 27 may 2003 pescara ecoteca mo'
 #   AVIFILE_LIBS="$AVIFILE_LDFLAGS $X_LIBS -lXv -lXxf86vm -ldivxdecore"
     AVIFILE_LIBS="-laviplay -lXv -lXxf86vm"

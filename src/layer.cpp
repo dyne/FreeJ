@@ -92,7 +92,7 @@ bool Layer::add_filter(Filter *newfilt) {
     return(false);
   }
 
-  func("Layer::add_filter(%s)",newfilt->getname());
+  func("Layer::%s add_filter(%s)",getname(),newfilt->getname());
 
   /* bpp support of the filter is checked by plugger */
 
@@ -107,9 +107,11 @@ bool Layer::add_filter(Filter *newfilt) {
   }
 
   /* add the filter to the linklist */
-  lock();
+  //  lock();
+  newfilt->inuse = true;
   filters.add(newfilt);
-  unlock();
+
+  //  unlock();
 
   show_osd("NEW filter %s pos %u",newfilt->getname(),filters.len());
   
