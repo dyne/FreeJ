@@ -1,0 +1,101 @@
+.\" Process this file with
+.\" groff -man -Tascii foo.1
+.\"
+.TH FREEJ 1 "January 2004" UNIX "User Manuals"
+.SH NAME
+FreeJ - realtime video processing
+.SH SYNOPSIS
+.B freej [
+.I options
+.B ] [
+.I files and video devices
+.B ]
+
+.SH DESCRIPTION
+\fBFreeJ\fP is a digital instrument for video livesets, featuring
+realtime rendering of multilayered video and chained effect filtering
+directly on the screen. FreeJ threats every video source as a layer,
+making then possible to dynamically apply on each a chain of filters,
+loadable as effect plugins and easily customizable. Layers are
+implemented to mix together live inputs (video4linux devices),
+DIVX/AVI files (with avifile library), PNG images and text files word
+by word.
+
+\fBFreeJ\fP is being developed in the hope to provide the free
+software community with a modular and highly customizable application
+for realtime video manipulation; a free and open framework that lets
+anybody implement hisown filters concentrating simply on the dsp
+algorithm developed and furthermore to combine them over any supported
+layer.
+
+\fBFreeJ\fP is a software written in C, C++ and a bit of assembler, it
+can run on GNU/Linux platform and it could be ported to other
+platforms; his sourcecode is released under the Gnu Public License, it
+comes with absolutely no warranty, and you are welcome to redistribute
+it under certain conditions (refer to the license for details).
+
+\fBFreeJ\fP development is supported by the Nederlands Instituut voor
+Mediakunst - Montevideo/Time Based Arts.
+
+.SH OPTIONS
+.IP "-h"
+show commandline help
+.IP "-v"
+show version information
+.IP "-D [\fI num \fP]"
+set debug verbosity level to (1 to 3), default is 1
+.IP "-C"
+start without any graphical control interface
+.IP "-s [\fI WxH \fP]"
+set resolution to \fBW\fPidthx\fBH\fPeight, default is 400x300 
+.IP "-m [\fI 2,3 \fP]"
+magnify the resolution 2 or 3 times more using software scaling
+.IP "-n"
+start up with all layers deactivated
+
+.SH FILES AND DEVICES
+\fBFreeJ\fP supports an infinite number of layers, as much as your CPU
+can handle. They can be layers of different types, depending on how
+you (or your distribution) compiled this software: if any layer format
+is missing then you can still make it work recompiling \fBFreeJ\fP
+from the sources after installing all necessary libraries.
+
+\fBSupported layers\fP include:
+.IP "AVI (*.avi|*.asf|*.asf|*.wma|*.wmv|*.mov|*.mpeg)"
+depends from \fBavifile\fP library \fIhttp://avifile.sf.net\fR
+.IP "TXT (*.txt)"
+depends from \fBfreetype\fP library \fIhttp://freetype.org\fR
+.IP "V4L (/dev/video*|/dev/v4l/*)
+depends from \fBvideo4linux\fP devices
+.IP "PNG (*.png)"
+depends from \fBpng\fP library \fIhttp://libpng.org\fR
+
+
+.SH AUTHORS
+.nf
+Denis "jaromil" Rojo - author and mantainer <\fIhttp://rastasoft.org\fR>
+
+Silvano "kysucix" Galliani - truetype text layer
+
+A full list of developers and contributors can be found in the AUTHOR
+file distributed with the source package.
+
+This manual page was written and is mantained by jaromil.
+
+Write to the mailinglist <\fIfreej@dyne.org\fR> to contact developers.
+.fi
+
+.SH COPYING
+Permission is granted to copy, distribute and/or modify this manual
+under the terms of the GNU Free Documentation License, Version 1.1 or
+any later version published by the Free Software Foundation; with the
+Invariant Sections being NAME, SYNOPSIS, DESCRIPTION, AUTHORS,
+AVAILABILITY and with the Front-Cover Texts including "FreeJ -
+realtime video processing - manual pages". Permission is granted to
+make and distribute verbatim copies of this manual page provided the
+above copyright notice and this permission notice are preserved on all
+copies.
+
+.SH AVAILABILITY
+The most recent version of \fIFreeJ\fR can be attained from its
+homepage at \fIhttp://freej.dyne.org\fR.
