@@ -34,7 +34,6 @@
 #include <avifile/renderer.h>
 
 #include <context.h>
-#include <lubrify.h>
 #include <jutils.h>
 
 AviLayer::AviLayer() 

@@ -35,7 +35,6 @@
 #include <osd.h>
 #include <plugger.h>
 #include <jutils.h>
-#include <lubrify.h>
 #include <config.h>
 
 #ifdef WITH_V4L

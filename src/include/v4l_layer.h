@@ -30,7 +30,6 @@ extern "C" {
 #include <linux/videodev.h>
 #include <SDL_thread.h>
 #include <context.h>
-#include <lubrify.h>
 
 class V4lGrabber: public Layer {
  private:

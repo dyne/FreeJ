@@ -20,7 +20,6 @@
 #include <errno.h>
 #include <png_layer.h>
 #include <context.h>
-#include <lubrify.h>
 #include <jutils.h>
 #include <config.h>
 

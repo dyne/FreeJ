@@ -19,7 +19,6 @@
 #include <string.h>
 #include <layer.h>
 #include <context.h>
-#include <lubrify.h>
 #include <jutils.h>
 #include <config.h>
 
