@@ -161,12 +161,12 @@ void KbdListener::run() {
       env->clear_all = !env->clear_all;
       break;
 
-    case SDLK_KP_PLUS:
+    case SDLK_GREATER:
       env->fps_speed++;
 //      printf("+ %d\n",env->fps_speed);
       env->set_fps_interval(env->fps_speed);
       break;
-    case SDLK_KP_MINUS:
+    case SDLK_LESS:
       env->fps_speed--;
 //      printf("- %d\n",env->fps_speed);
       env->set_fps_interval(env->fps_speed);
@@ -251,35 +251,12 @@ void KbdListener::run() {
       break;
       
     case SDLK_UP:
-      if(keysym->mod & KMOD_SHIFT) {
+      if(keysym->mod & KMOD_SHIFT)
 	layer->set_position(layer->geo.x,layer->geo.y-1);
-	break;
-      }
-      if(keysym->mod & KMOD_CTRL) {
-	layer->up();
-	break;
-      }
-      /* select layer up */
-      layer = (Layer *)layer->prev;
-      env->layers.sel(0);
-      layer->sel(true);
-      show_osd("%s :: %s",layer->get_name(),layer->get_filename());
       break;
-
     case SDLK_DOWN:
-      if(keysym->mod & KMOD_SHIFT) {
+      if(keysym->mod & KMOD_SHIFT)
 	layer->set_position(layer->geo.x,layer->geo.y+1);
-	break;
-      }
-      if(keysym->mod & KMOD_CTRL) {
-	layer->down();
-	break;
-      }
-      /* select layer down */
-      layer = (Layer *)layer->next;
-      env->layers.sel(0);
-      layer->sel(true);
-      show_osd("%s :: %s",layer->get_name(),layer->get_filename());
       break;
 
     case SDLK_PAGEUP:
