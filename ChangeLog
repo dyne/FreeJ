@@ -2,7 +2,7 @@ FreeJ 0.5 POPONJ - 23 Dec 2002
   *** xscreensavers can be played as layers
   full support for 16bpp screens
   layers can move around
-  *** can use more than 12 plugins
+  can load and use until 144 plugins
   *** new plugins
   *** can use multiple instances of same plugin
   double size screen option

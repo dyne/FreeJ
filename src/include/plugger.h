@@ -24,7 +24,7 @@
 #include <linklist.h>
 #include <filter.h>
 
-#define MAX_PLUGINS 48
+#define MAX_PLUGINS 12*12
 
 class Plugger {
  public:

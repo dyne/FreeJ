@@ -76,5 +76,13 @@ Simura filter
 caps-lock + all letters = change color filters
 keypad numbers = change mirror mode
 
+SDL TIP:
+
+if you set the environmental variable SDL_VIDEODRIVER to something like
+"aalib" then you can render freej screen in ascii art, and you can use
+other drivers as well, see the SDL documentation for details (thanks go
+to Florian Cramer for this tip)
+
+
 for more information ask the mailinglist <freej@dyne.org>
 subscribe with a mail to <freej-subscribe@dyne.org>

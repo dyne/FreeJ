@@ -291,7 +291,7 @@ void Layer::crop() {
       off = poff = (uint32_t *) ((uint8_t*)video+blit_offset); \
       for(c=blit_height;c>0;c--) { \
 	for(cc=blit_width;cc>0;cc--) { \
-	  alpha = (Uint8 *) off; \
+	  alpha = (uint8_t *) off; \
 	  if(*(alpha+4)) *scr op *off; \
 	  scr++; off++; \
 	} \

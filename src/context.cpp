@@ -54,7 +54,7 @@ Context::Context(int wx, int hx, int bppx, Uint32 flagsx) {
   if(!SDL_GetWMInfo(&sys)) {
     error("can't gather information about the display system");
     error("your window manager is a bit autistical");
-    exit(1);
+    //    exit(1);
   }
 
   /* be nice with the window manager */

@@ -198,14 +198,10 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
 
   /* feed up the mmapped frames */
   cur_frame = ok_frame = 0;  
-  for(;cur_frame<num_frame;cur_frame++) {
-    if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
-      func("V4lGrabber::feed");
-      error("error in ioctl VIDIOCMCAPTURE");
-    }
+  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
+    func("V4lGrabber::feed");
+    error("error in ioctl VIDIOCMCAPTURE");
   }
-  cur_frame = 0;
-
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
   if(grab_cap.channels>1)
@@ -319,7 +315,20 @@ void *V4lGrabber::feed() {
 
   ok_frame = cur_frame;
   cur_frame = ((cur_frame+1)%num_frame);
+
   grab_buf[0].format = palette;
+
+  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
+    func("V4lGrabber::feed");
+    error("error in ioctl VIDIOCMCAPTURE");
+    return NULL;
+  }
+
+  if (-1 == ioctl(dev,VIDIOCSYNC,&grab_buf[ok_frame])) {
+    func("V4lGrabber::feed");
+    error("error in ioctl VIDIOCSYNC");
+    return NULL;
+  }
 
   (*yuv2rgb)((uint8_t *) rgb_surface,
 	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]],
@@ -327,16 +336,5 @@ void *V4lGrabber::feed() {
 	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+v],
 	     geo.w, geo.h, geo.pitch, geo.w, geo.w);  
 
-  if (-1 == ioctl(dev,VIDIOCSYNC,&grab_buf[cur_frame])) {
-    func("V4lGrabber::feed");
-    error("error in ioctl VIDIOCSYNC");
-    return NULL;
-  }
-
-  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
-    func("V4lGrabber::feed");
-    error("error in ioctl VIDIOCMCAPTURE");
-    return NULL;
-  }
   return rgb_surface;
 }
