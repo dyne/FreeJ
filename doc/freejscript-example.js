@@ -1,7 +1,9 @@
 // FreeJ - http://freej.dyne.org
 
-// simple script example executable with FreeJ
+// this is a simple script example, executable with FreeJ
 // doesn't needs any external data, it's all runtime rendered
+// feel free to experiment from this small script,
+// much more things can be done ;)
 
 particles = new ParticleLayer();
 text = new TxtLayer();

@@ -214,11 +214,12 @@ int main (int argc, char **argv) {
 #ifdef WITH_JAVASCRIPT
   /* execute javascript */
   if(javascript[0]) {
+    freej.interactive = false;
     freej.js->open(javascript);
     if(freej.quit) {
       freej.close();
       exit(1);
-    }
+    } else freej.interactive = true;
   }
 #endif
 

@@ -51,6 +51,7 @@ Context::Context() {
   start_running = true;
   quit = false;
   pause = false;
+  interactive = true;
 
   fps_speed=25;
 
@@ -88,7 +89,6 @@ bool Context::init(int wx, int hx) {
 void Context::close() {
   Layer *lay;
 
-
   if(console)
     console->close();
   
@@ -123,7 +123,7 @@ void Context::cafudda(double secs) {
   do {
 
     /** fetch keyboard events */
-    if(kbd.active) kbd.run();
+    if(interactive) kbd.run();
 
     /** start layers thread */
     rocknroll();
@@ -149,9 +149,9 @@ void Context::cafudda(double secs) {
     }
 
     /** print on screen display */
-    if(osd.active) osd.print();
+    if(osd.active && interactive) osd.print();
 
-    if(console) console->cafudda();
+    if(console && interactive) console->cafudda();
 
     /** show result on screen */
     screen->show();
@@ -235,20 +235,24 @@ void Context::rocknroll() {
 
     Layer *l = (Layer *)layers.begin();
 
-    if(!l) { osd.credits(true); return; }
+    if(!l) // there are no layers
+      if(interactive) { // engine running in interactive mode
+	osd.credits(true);
+	return;
+      }
 
     layers.lock();
     while(l) {
-	if(!l->running) {
-	    if(l->start()==0) {
-		//    l->signal_feed();
-		while(!l->running) jsleep(0,500);
-		l->active = start_running;
-	    }
-	    else 
-		func("Context::rocknroll errore nella creazione del thread");
+      if(!l->running) {
+	if(l->start()==0) {
+	  //    l->signal_feed();
+	  while(!l->running) jsleep(0,500);
+	  l->active = start_running;
 	}
-	l = (Layer *)l->next;
+	else 
+	  func("Context::rocknroll() : error creating thread");
+      }
+      l = (Layer *)l->next;
     }
     layers.unlock();
 }

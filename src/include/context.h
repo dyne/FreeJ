@@ -85,6 +85,8 @@ class Context {
   
   bool pause;
 
+  bool interactive;
+
   /* linked list of registered layers */
   Linklist layers;
 
