@@ -36,7 +36,6 @@ int buf_area;
 int buf_margin_right;
 int buf_margin_left;
 
-static int stat;
 static uint32_t palette[COLORS];
 static int mode = 0; /* 0=normal/1=strobe/2=strobe2/3=trigger */
 static int snapTime = 0;
@@ -85,7 +84,6 @@ int init(ScreenGeometry *sg) {
   diff = (unsigned char *)malloc((geo->w*geo->h)*sizeof(unsigned char));
   y_threshold = 40 * 7;
   
-  stat = 1;
   return 1;
 }
 

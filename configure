@@ -6399,6 +6399,9 @@ filters/vertigo/Makefile
 filters/transform/Makefile
 filters/blurzoom/Makefile
 filters/zoom/Makefile
+filters/edge/Makefile
+filters/backlight/Makefile
+filters/rotozoom/Makefile
  config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
@@ -6531,6 +6534,9 @@ filters/vertigo/Makefile
 filters/transform/Makefile
 filters/blurzoom/Makefile
 filters/zoom/Makefile
+filters/edge/Makefile
+filters/backlight/Makefile
+filters/rotozoom/Makefile
 "}
 EOF
 cat >> $CONFIG_STATUS <<\EOF

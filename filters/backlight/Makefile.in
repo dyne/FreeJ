@@ -87,9 +87,9 @@ VERSION = @VERSION@
 INCLUDES = -I$(top_srcdir)/src/include
 libdir = ${prefix}/lib/freej
 
-lib_LTLIBRARIES = rotozoom.la
-rotozoom_la_SOURCES = rotozoom.c
-rotozoom_la_LDFLAGS = -module -avoid-version
+lib_LTLIBRARIES = backlight.la
+backlight_la_SOURCES = backlight.c
+backlight_la_LDFLAGS = -module -avoid-version
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
 CONFIG_CLEAN_FILES = 
@@ -99,8 +99,8 @@ LTLIBRARIES =  $(lib_LTLIBRARIES)
 DEFS = @DEFS@ -I. -I$(srcdir) -I../..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
-rotozoom_la_LIBADD = 
-rotozoom_la_OBJECTS =  rotozoom.lo
+backlight_la_LIBADD = 
+backlight_la_OBJECTS =  backlight.lo
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -113,15 +113,15 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/rotozoom.P
-SOURCES = $(rotozoom_la_SOURCES)
-OBJECTS = $(rotozoom_la_OBJECTS)
+DEP_FILES =  .deps/backlight.P
+SOURCES = $(backlight_la_SOURCES)
+OBJECTS = $(backlight_la_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .lo .o .obj .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu filters/rotozoom/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu filters/backlight/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
@@ -191,8 +191,8 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-rotozoom.la: $(rotozoom_la_OBJECTS) $(rotozoom_la_DEPENDENCIES)
-	$(LINK) -rpath $(libdir) $(rotozoom_la_LDFLAGS) $(rotozoom_la_OBJECTS) $(rotozoom_la_LIBADD) $(LIBS)
+backlight.la: $(backlight_la_OBJECTS) $(backlight_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(backlight_la_LDFLAGS) $(backlight_la_OBJECTS) $(backlight_la_LIBADD) $(LIBS)
 
 tags: TAGS
 
@@ -225,14 +225,14 @@ maintainer-clean-tags:
 
 distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
-subdir = filters/rotozoom
+subdir = filters/backlight
 
 distdir: $(DISTFILES)
 	here=`cd $(top_builddir) && pwd`; \
 	top_distdir=`cd $(top_distdir) && pwd`; \
 	distdir=`cd $(distdir) && pwd`; \
 	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu filters/rotozoom/Makefile
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu filters/backlight/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \

@@ -8,7 +8,6 @@
 #include <config.h>
 
 Plugger::Plugger() {
-  char *home;
   char temp[256];
 
   _searchpath = NULL;
@@ -16,7 +15,6 @@ Plugger::Plugger() {
   sprintf(temp,"%s/.freej/plugins",getenv("HOME"));
   _addsearchdir(temp);
   _addsearchdir("/usr/local/lib/freej");
-  _addsearchdir("/usr/lib/freej");
   for(int i=0;i<MAX_PLUGINS;i++) plugs[i] = NULL;
 }
 
@@ -51,11 +49,9 @@ int Plugger::refresh() {
       snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
       Filter *filt = new Filter;
       if(filt->open(temp)) {
-
 	act("plugged: %s filter v%u by %s",
 	    filt->getname(), filt->getversion(), filt->getauthor());
 	_add_plug(filt);
-
       } else delete(filt);
       //      free(filelist[found]);
     }

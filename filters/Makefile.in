@@ -85,7 +85,8 @@ SDL_LIBS = @SDL_LIBS@
 STRIP = @STRIP@
 VERSION = @VERSION@
 
-SUBDIRS = delaygrab absdiff simura baltan vertigo transform blurzoom zoom
+SUBDIRS =  	delaygrab absdiff simura 	baltan vertigo transform 	blurzoom zoom edge 	backlight rotozoom
+
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 

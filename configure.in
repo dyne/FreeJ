@@ -166,4 +166,7 @@ filters/vertigo/Makefile
 filters/transform/Makefile
 filters/blurzoom/Makefile
 filters/zoom/Makefile
+filters/edge/Makefile
+filters/backlight/Makefile
+filters/rotozoom/Makefile
 ])

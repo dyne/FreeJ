@@ -39,7 +39,8 @@ int init(ScreenGeometry *sg) {
 }
 
 int clean() {
-  if(procbuf) free(procbuf);
+  free(procbuf);
+  free(ypos);
   return(1);
 }
 

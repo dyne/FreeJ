@@ -33,7 +33,7 @@ bool Plugin::open(const char *path) {
 
   _handle = dlopen(path,RTLD_NOW);
   if(!_handle) {
-    warning("can't open plugin %s: %s",path,dlerror());
+    warning("can't open plugin: %s",dlerror());
     return(false);
   }
 
