@@ -124,8 +124,8 @@ class Blitter {
   Linklist blitlist; ///< list of available blits
 
   /* ==== CROP */
-  /** @param view if NULL, default ViewPort is used */
-  void crop(ViewPort *view);
+  /** @param force crop even if nothing changed */
+  void crop(bool force);
   ///< crop to fit in the ViewPort
   
   Layer *layer; ///< the layer on which is applied the blitter
@@ -140,9 +140,6 @@ class Blitter {
   double rotate;
   double spin_rotation;
   double spin_zoom;
-  SDL_Surface *rotozoom; ///< pointer to blittable surface (rotated and zoomed if necessary)
-  ScreenGeometry geo_rotozoom; ///< geometrical information about the rotozoomed Layer
-  ScreenGeometry *geo;
   
  private:
   int16_t old_x;
@@ -153,7 +150,16 @@ class Blitter {
   // generic blit buffer pointers
   uint32_t *pscr, *play, *ppast;
 
+  ViewPort *screen;
+
   SDL_Surface *sdl_dest;
+
+  SDL_Surface *pre_rotozoom;
+  SDL_Surface *rotozoom; ///< pointer to blittable surface (rotated and zoomed if necessary)
+
+  ScreenGeometry geo_rotozoom; ///< geometrical information about the rotozoomed Layer
+  ScreenGeometry *geo;
+
 };
 
 #endif

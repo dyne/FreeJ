@@ -290,8 +290,11 @@ Blitter::Blitter() {
   zooming = false;
   rotating = false;
   rotozoom = NULL;
+  pre_rotozoom = NULL;
   sdl_surf = NULL;
   antialias = false;
+  screen = NULL;
+  layer = NULL;
 
   old_x = 0;
   old_y = 0;
@@ -469,10 +472,12 @@ Blitter::~Blitter() {
 }
 
 bool Blitter::init(Layer *lay) {
-  layer = lay;
-  func("blitter initialized for layer %s",lay->get_name());
 
-  crop( lay->freej->screen );
+  layer = lay;
+  screen = layer->freej->screen;
+  func("blitter initialized for layer %s",lay->get_name());
+  
+  crop( true );
 
   return true;
 }
@@ -497,7 +502,7 @@ void Blitter::blit() {
 
     // if we have to rotate or scale,
     // create a sdl surface from current pixel buffer
-    sdl_surf = SDL_CreateRGBSurfaceFrom
+    pre_rotozoom = SDL_CreateRGBSurfaceFrom
       (layer->offset,
        layer->geo.w, layer->geo.h, layer->geo.bpp,
        layer->geo.pitch, bmask, gmask, rmask, amask);
@@ -505,26 +510,24 @@ void Blitter::blit() {
     if(rotating) {
       
       rotozoom =
-	schiffler_rotozoom(sdl_surf, rotate, zoom_x, (int)antialias);
+	schiffler_rotozoom(pre_rotozoom, rotate, zoom_x, (int)antialias);
       
     } else if(zooming) {
       
       rotozoom =
-	schiffler_zoom(sdl_surf, zoom_x, zoom_y, (int)antialias);
+	schiffler_zoom(pre_rotozoom, zoom_x, zoom_y, (int)antialias);
       
     }
     
     offset = rotozoom->pixels;
 
     // free the temporary surface (needed again in sdl blits)
-    SDL_FreeSurface(sdl_surf);
-    sdl_surf = NULL;
     
   } else offset = layer->offset;
 
 
 
-  crop( NULL );
+  crop( false );
   
   // executes LINEAR blit
   if( current_blit->type == LINEAR_BLIT ) {
@@ -534,8 +537,7 @@ void Blitter::blit() {
       (uint32_t*)layer->freej->screen->coords(0,0)
       + current_blit->scr_offset;
     play =
-      (uint32_t*)offset
-      + current_blit->lay_offset;
+      (uint32_t*)offset + current_blit->lay_offset;
 
     // iterates the blit on each horizontal line
     for(c=current_blit->lay_height ; c>0 ; c--) {
@@ -600,6 +602,8 @@ void Blitter::blit() {
 
   // free rotozooming temporary surface
   if(rotozoom) {
+    SDL_FreeSurface(pre_rotozoom);
+    pre_rotozoom = NULL;
     SDL_FreeSurface(rotozoom);
     rotozoom = NULL;
   }
@@ -632,7 +636,7 @@ bool Blitter::set_blit(char *name) {
   if(zeroing) b->value = 0;
 
   current_blit = b; // start using
-  crop(NULL);
+  crop(true);
   blitlist.sel(0);
   b->sel(true);
 
@@ -690,11 +694,12 @@ bool Blitter::fade_value(int step, int val) {
 
 bool Blitter::set_colorkey(int colorkey_x,int colorkey_y) {
 
-    Blit *b = (Blit*)blitlist.search("CHROMAKEY");
-    if(!b) {
-      error("can't find chromakey blit");
+  Blit *b = (Blit*)blitlist.search("CHROMAKEY");
+  if(!b) {
+    error("can't find chromakey blit");
       return false;
-    }
+  }
+
 
     uint8_t *colorkey=(uint8_t *)layer->offset + (colorkey_x<<2) + (colorkey_y * layer->geo.pitch);
 	    
@@ -829,11 +834,11 @@ bool Blitter::set_spin(double rot, double z) {
 */
      
 
-void Blitter::crop(ViewPort *screen) {     
+void Blitter::crop(bool force) {     
 
   Blit *b;
 
-  if(!layer) return;
+  if(!layer || !screen) return;
 
   // assign the right pointer to the *geo used in crop
   // we use the normal geometry if not roto|zoom
@@ -854,13 +859,12 @@ void Blitter::crop(ViewPort *screen) {
 
   /* compare old layer values
      crop the layer only if necessary */
-  if( (geo->x == old_x)
-      & (geo->y == old_y)
-      & (geo->w == old_w)
-      & (geo->h == old_h) )
-    return;
-
-
+  if(!force)
+    if( (geo->x == old_x)
+	&& (geo->y == old_y)
+	&& (geo->w == old_w)
+	&& (geo->h == old_h) )
+      return;
 
   if(!current_blit) return;
   b = current_blit;
