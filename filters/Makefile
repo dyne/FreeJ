@@ -85,7 +85,7 @@ SDL_LIBS = -L/usr/lib -Wl,-rpath,/usr/lib -lSDL -lpthread
 STRIP = strip
 VERSION = 0.4.1-cvs
 
-SUBDIRS = delaygrab absdiff simura baltan vertigo transform
+SUBDIRS = delaygrab absdiff simura baltan vertigo transform blurzoom
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
