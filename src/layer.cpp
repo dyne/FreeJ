@@ -127,7 +127,7 @@ bool Layer::del_filter(int sel) {
   };
 
   lock();
-  filters.rem(sel);
+  filt->rem();
   filt->inuse = false;
   filt->initialized = false;
   unlock();

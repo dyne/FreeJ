@@ -164,10 +164,38 @@ bool Linklist::movedown(int pos) {
   return(true);
 }
 
+/* selects ONLY ONE, deselects the others
+   use Entry::sel() if you want to do multiple selects */
+void Linklist::sel(int pos) {
+  int c;
+  Entry *ptr = last;
+
+  if(pos>length) return;
+
+  for(c=length;c>0;c--) {
+    if(c==pos) ptr->sel(true);
+    else ptr->sel(false);
+    ptr = ptr->prev;
+  }
+}
+
+/* selects the last one selected
+   this is supposed to be used with single selections */
+Entry *Linklist::selected() {  
+  int c;
+  Entry *ptr = last;
+  for(c=length;c>0;c--) {
+    if(ptr->select) return ptr;
+    ptr = ptr->prev;
+  }
+  return NULL;
+}
+
 Entry::Entry() {
   next = NULL;
   prev = NULL;
   list = NULL;
+  select = false;
 }
 
 Entry::~Entry() {
@@ -241,4 +269,8 @@ void Entry::rem() {
 
   list->length--;
   list = NULL;
+}
+
+void Entry::sel(bool on) {
+  select = on;
 }

@@ -38,8 +38,8 @@
 #define WARN 1 /* ... blkbblbl */
 
 static int verbosity;
-char msg[255];
-char *osd_msg = NULL;
+static char msg[255];
+static char *osd_msg;
 
 void set_debug(int lev) {
   lev = lev<0 ? 0 : lev;

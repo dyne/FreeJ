@@ -564,7 +564,7 @@
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkButton" id="button18">
+		    <widget class="GtkButton" id="button_effect_up">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">move effect up</property>
 		      <property name="can_focus">True</property>
@@ -590,7 +590,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkButton" id="button19">
+		    <widget class="GtkButton" id="button_effect_down">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">move effect down</property>
 		      <property name="can_focus">True</property>
@@ -635,7 +635,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkCheckButton" id="checkbutton2">
+		    <widget class="GtkCheckButton" id="checkbutton_effect_active">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">switch effect on/off</property>
 		      <property name="can_focus">True</property>
@@ -664,7 +664,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkButton" id="button23">
+		    <widget class="GtkButton" id="button_effect_hotkeys">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">show help on effect hotkeys</property>
 		      <property name="can_focus">True</property>
@@ -690,7 +690,7 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkButton" id="button24">
+		    <widget class="GtkButton" id="button_effect_delete">
 		      <property name="visible">True</property>
 		      <property name="tooltip" translatable="yes">destroy effect</property>
 		      <property name="can_focus">True</property>

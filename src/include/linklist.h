@@ -34,10 +34,12 @@ class Linklist {
   void add(Entry *addr);
   void add(Entry *addr, int pos);
   void rem(int pos);
+  void sel(int pos);
   void clear();
   bool moveup(int pos);
   bool movedown(int pos);
   Entry *pick(int pos);  
+  Entry *Linklist::selected();
 
   Entry *operator[](int pos) { return pick(pos); };
 
@@ -60,6 +62,9 @@ class Entry {
   bool up();
   bool down();
   void rem();
+  void sel(bool on);
+  
+  bool select;
 };
 
 #endif

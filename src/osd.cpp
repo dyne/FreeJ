@@ -17,6 +17,7 @@
  */
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 #include <inttypes.h>
 
@@ -27,8 +28,8 @@
 
 void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
   int y,x,i,len,f,v,ch,cv;
-  Uint32 *ptr;
-  Uint32 *diocrap = (Uint32 *)screen->coords(xpos,ypos);
+  uint32_t *ptr;
+  uint32_t *diocrap = (uint32_t *)screen->coords(xpos,ypos);
   unsigned char *buffer = (unsigned char *)screen->get_surface();
   v = screen->w*vsize;
   
@@ -41,8 +42,8 @@ void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
     ptr = diocrap += v;
   
     /* control screen bounds */
-    if(diocrap-(Uint32 *)buffer>(screen->size-screen->pitch)) return; /* low bound */
-    while(diocrap-(Uint32 *)buffer<screen->pitch) ptr = diocrap += v;
+    if(diocrap-(uint32_t *)buffer>(screen->size-screen->pitch)) return; /* low bound */
+    while(diocrap-(uint32_t *)buffer<screen->pitch) ptr = diocrap += v;
 
     for (x=0; x<len; x++) {
       f = fontdata[text[x] * CHAR_HEIGHT + y];
@@ -102,12 +103,13 @@ void Osd::print() {
 
   if(_fps) _show_fps();
 
-  if(screen->kbd) {
-    _layerlist();
-    if(screen->kbd->layer) {
-      _filterlist();
-      _selection();
-    }
+  //  if(screen->kbd) {
+  _layerlist();
+
+  Layer *lay = (Layer*)screen->layers.selected();
+  if(lay) {
+    _filterlist();
+    _selection();
   }
 
   _print_status();
@@ -149,15 +151,26 @@ void Osd::_selection() {
 
   _set_color(yellow);
 
-  sprintf(msg,"%u %s::%s [%s][%s][%s]",
-	  screen->kbd->layersel,
-	  screen->kbd->layer->getname(),
-	  (screen->kbd->filter)?screen->kbd->filter->getname():"(null)",
-	  screen->kbd->layer->get_blit(),
-	  (screen->kbd->layer->alpha_blit)?"@":" ",
-	  (screen->clear_all)?"0":" ");
-
+  Layer *lay = (Layer*) screen->layers.selected();
+  if(!lay) return;
+  
+  Filter *filt = (Filter*) lay->filters.selected();
+  sprintf(msg,"%s::%s [%s][%s][%s]",
+	  lay->getname(),
+	  (filt)?filt->getname():" ",
+	  lay->get_blit(),
+	  (lay->alpha_blit)?"@":" ",
+	    (screen->clear_all)?"0":" ");
+  
   _write(msg,80,1,1,1);
+  
+}
+
+void Osd::statusmsg(char *format, ...) {
+  va_list arg;
+  va_start(arg,format);
+  vsnprintf(status_msg,49,format,arg);
+  va_end(arg);
 }
 
 void Osd::_layerlist() {
@@ -165,12 +178,14 @@ void Osd::_layerlist() {
 
   //  _set_color(red);
 
-  Layer *l = (Layer *)screen->layers.begin();
+  Layer *l = (Layer *)screen->layers.begin(),
+    *laysel = (Layer*) screen->layers.selected();
+
   while(l) {
     char *lname = l->getname();
 
     
-    if( l == screen->kbd->layer) {
+    if( l == laysel) {
 
       if(l->active) {
 	/* red color */ _color32 = 0xee0000;
@@ -199,13 +214,14 @@ void Osd::_layerlist() {
 void Osd::_filterlist() {
   unsigned int vpos = VBOUND+6;
   char fname[4];
-
-  Filter *f = (Filter *)screen->kbd->layer->filters.begin();
-
+  Layer *lay = (Layer*) screen->layers.selected();
+  if(!lay) return;
+  Filter *f = (Filter *)lay->filters.begin();
+  Filter *filtsel = (Filter*)lay->filters.selected();
   while(f) {
     strncpy(fname,f->getname(),3); fname[3] = '\0';
-
-    if(f == screen->kbd->filter) {
+    
+    if(f == filtsel) {
 
       if(f->active) {
 	/* red color */ _color32 = 0xee0000;

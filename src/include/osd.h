@@ -19,7 +19,7 @@
 #ifndef __OSD_H__ 
 #define __OSD_H__
 
-#include <SDL.h>
+#include <inttypes.h>
 
 #define HBOUND 30
 #define VBOUND 18
@@ -46,7 +46,7 @@ class Osd {
 
   void _set_color(colors col);
   void _write(char *text, int xpos, int ypos, int hsize, int vsize);
-  Uint32 _color32;
+  uint32_t _color32;
 
   bool _active;
   bool _calibrate;
@@ -60,6 +60,7 @@ class Osd {
   void init(Context *screen);
   void print();
   void splash_screen();
+  void statusmsg(char *format,...);
   bool active();
   bool calibrate();
   bool credits();
