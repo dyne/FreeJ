@@ -1,5 +1,5 @@
 
-        [[[ FreeJ 0.3.2  "PRATERHIMMEL" ]]]
+            [[[ FreeJ 0.4  "HURRIA" ]]]
               [http://freej.dyne.org]
 
                :: set the vj free ::
@@ -7,16 +7,16 @@
 
 :: OVERVIEW
 
-FreeJ aims to be a digital instrument for  video  livesets,  featuring
-realtime rendering of multilayered video and chained effect  filtering
-directly on the screen.  FreeJ threats every video source as a  layer,
-making then possible to dynamically apply on each a chain of  filters,
-loadable as effect plugins and easily customizable. Layers are planned
-for rendering of  analog  video  input,  digital  movie  files,  image
+FreeJ is a digital instrument for  video  livesets,  featuring realtime
+rendering of multilayered video and chained effect  filtering directly
+on the screen.  FreeJ threats every video source as a  layer, making
+then possible to dynamically apply on each a chain of  filters, loadable
+as effect plugins and easily customizable. Layers are planned for
+rendering of  analog  video  input,  digital  movie  files,  image
 bitmaps, sound scopes, texts and eventually more.
 
-FreeJ is being developed in the hope to provide the GNU community with
-a free, modular and highly customizable application to  perform  video
+FreeJ is being developed in the hope to provide the GNU community with a
+free, modular and highly customizable application to  perform  video
 livesets, based on a GPL'ed framework that lets anybody implement  his
 own filters concentrating simply on the dsp  algorithm  developed  and
 furthermore to combine them over any supported layer.
@@ -43,9 +43,13 @@ To run FreeJ is necessary to have:
 
 - a working GNU/Linux workstation with a MMX capable CPU
 - SDL libraries <http://www.libsdl.org>
+- PNG libraries <http://www.libpng.org>
 - NASM <http://www.kernel.org/pub/software/devel/nasm>
 - XFree86 4.2 or latest, better with an accelerated videocard
-- a video4linux supported grabbing card
+
+Optionally, you might want to have:
+- a video4linux supported grabbing card for live video
+- avifile libraries for realtime AVI playback and mixing
 
 For better fullscreen support try to add to your XF86Config  file  the
 modelines in doc/x11.modelines.
@@ -68,18 +72,32 @@ file the modelines included into doc/x11.modelines.
 
 A mailinglist  for  further  discussion  about  FreeJ  is  running  as
 <freej@dyne.org>, subscription is opened and  anybody  interested  can
-send a mail to <freej-subscribe@dyne.org> to join. Online archive and
-mailinglist interface is made available on
-[http://dyne.org/cgi-bin/ml.cgi?4] .
+send a mail to <freej-subscribe@dyne.org> to join. Online archive is
+on http://dyne.org/cgi-bin/ml.cgi?4 .
 
 :: AVAILABILITY
 
 Updated informations and FreeJ releases are made available on
-[http://freej.dyne.org]. The bleeding edge sourcecode is also publicly
-available thru CVS on [http://savannah.gnu.org/projects/freej]  (there
-you will find instructions on how to get and browse online the  code).
+http://freej.dyne.org . The bleeding edge sourcecode is also publicly
+available thru CVS on http://savannah.gnu.org/projects/freej (there you
+will find instructions on how to get and browse online the code).
 
+:: DISCLAIMER
 
---
-FreeJ is (c) 2001, 2002 Denis Roio <jaromil@dyne.org>
+FreeJ is (c) 2001, 2002 Denis Rojo <jaromil@dyne.org>
 refer to AUTHORS for a complete list of contributions.
+
+This source code is free software; you can redistribute it and/or
+modify it under the terms of the GNU Public License as published 
+by the Free Software Foundation; either version 2 of the License,
+or (at your option) any later version.
+
+This source code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Please refer to the GNU Public License for more details.
+
+You should have received a copy of the GNU Public License along with
+this source code; if not, write to:
+Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+

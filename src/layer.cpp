@@ -182,11 +182,6 @@ bool Layer::cafudda() {
 
   lock_feed();
 
-  /*  if(pitch==screen->pitch)
-    mmxcopy(res,screen->get_surface(),size);
-    else */
-  // mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
-
   blit(offset);
 
   /* pitch is width in bytes */
@@ -255,7 +250,7 @@ void Layer::blit(void *offset) {
   case 9:
     mmxblit_or(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
     return;
-    
+
   default:
     return;
   }

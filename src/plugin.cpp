@@ -62,10 +62,12 @@ bool Plugin::open(const char *path) {
   if(getver) _version = (*getver)();
   else _version = 0;
 
+  /*
   getver = (getint*) (*this)["getbpp"];
   if(getver) _bpp = (*getver)();
   else _bpp = 0;
-  
+  */
+
   _path = strdup(path);    
   return(true);
 }

@@ -57,14 +57,15 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_alias = @host_alias@
-host_triplet = i686-pc-linux-gnu
+host_triplet = i586-pc-linux-gnu
 AS = @AS@
+AVIFILE_LAYER = 
 CC = gcc
 CXX = g++
 DLLTOOL = @DLLTOOL@
 ECHO = echo
-EFENCE_LIBS = 
 EXEEXT = 
+LIBS = 
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 MAKEINFO = makeinfo
@@ -98,10 +99,9 @@ LTLIBRARIES =  $(lib_LTLIBRARIES)
 DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I../..
 CPPFLAGS = 
 LDFLAGS = 
-LIBS = 
 rotozoom_la_LIBADD = 
 rotozoom_la_OBJECTS =  rotozoom.lo
-CFLAGS = -g -Wall -O3 -fomit-frame-pointer -march=i686 -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
+CFLAGS = -g -Wall -O3 -D_REENTRANT -fomit-frame-pointer -march=i586 -mcpu=i586 -finline-functions -ffast-math -malign-double -funroll-loops
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)

@@ -15,9 +15,9 @@ freej_SOURCES = \
 	freej.cpp	\
 	context.cpp	\
 	layer.cpp	\
-	v4l.cpp		\
-	tvfreq.c	\
-	avi.cpp		\
+	v4l_layer.cpp	\
+	@AVI_LAYER@	\
+	png_layer.cpp	\
 	linklist.cpp	\
 	jsync.cpp	\
 	keyboard.cpp	\
@@ -25,6 +25,7 @@ freej_SOURCES = \
 	plugin.cpp	\
 	plugger.cpp	\
 	jutils.cpp	\
+	tvfreq.c	\
 	lubrify.c	\
 	cpu_accel.c	\
 	yuv2rgb.c yuv2rgb_mmx.c	\
@@ -38,4 +39,4 @@ freej_SOURCES = \
 	mmx_blit_or.asm \
 	clearscr.asm
 
-freej_LDADD = @SDL_LIBS@ -lpthread -lm -ldl -laviplay
+freej_LDADD = @SDL_LIBS@ @LIBS@ -lpthread -lm -ldl -lpng

@@ -45,7 +45,7 @@ class Layer: public Entry, public JSyncThread {
   void run();
   void _init(Context *screen, int wdt, int hgt, int bpp=0);
   void _delete();
-  virtual void _close() { };
+  virtual void close() { };
 
   /* these has to be defined into layer instances
      (pure virtual functions) */

@@ -60,12 +60,13 @@ POST_UNINSTALL = :
 host_alias = @host_alias@
 host_triplet = @host@
 AS = @AS@
+AVIFILE_LAYER = @AVIFILE_LAYER@
 CC = @CC@
 CXX = @CXX@
 DLLTOOL = @DLLTOOL@
 ECHO = @ECHO@
-EFENCE_LIBS = @EFENCE_LIBS@
 EXEEXT = @EXEEXT@
+LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 MAKEINFO = @MAKEINFO@
@@ -90,10 +91,10 @@ NASM = nasm -f elf
 
 bin_PROGRAMS = freej
 
-freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l.cpp			tvfreq.c		avi.cpp			linklist.cpp		jsync.cpp		keyboard.cpp		osd.cpp			plugin.cpp		plugger.cpp		jutils.cpp		lubrify.c		cpu_accel.c		yuv2rgb.c yuv2rgb_mmx.c		vline16.asm vline32.asm 	hline16.asm hline32.asm 	mmx_memcpy.asm 		mmx_blit.asm		mmx_blit_add.asm 	mmx_blit_sub.asm 	mmx_blit_and.asm 	mmx_blit_or.asm 	clearscr.asm
+freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l_layer.cpp		@AVI_LAYER@		png_layer.cpp		linklist.cpp		jsync.cpp		keyboard.cpp		osd.cpp			plugin.cpp		plugger.cpp		jutils.cpp		tvfreq.c		lubrify.c		cpu_accel.c		yuv2rgb.c yuv2rgb_mmx.c		vline16.asm vline32.asm 	hline16.asm hline32.asm 	mmx_memcpy.asm 		mmx_blit.asm		mmx_blit_add.asm 	mmx_blit_sub.asm 	mmx_blit_and.asm 	mmx_blit_or.asm 	clearscr.asm
 
 
-freej_LDADD = @SDL_LIBS@ -lpthread -lm -ldl -laviplay
+freej_LDADD = @SDL_LIBS@ @LIBS@ -lpthread -lm -ldl -lpng
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -104,11 +105,10 @@ PROGRAMS =  $(bin_PROGRAMS)
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
-LIBS = @LIBS@
 freej_OBJECTS =  freej.$(OBJEXT) context.$(OBJEXT) layer.$(OBJEXT) \
-v4l.$(OBJEXT) tvfreq.$(OBJEXT) avi.$(OBJEXT) linklist.$(OBJEXT) \
+v4l_layer.$(OBJEXT) png_layer.$(OBJEXT) linklist.$(OBJEXT) \
 jsync.$(OBJEXT) keyboard.$(OBJEXT) osd.$(OBJEXT) plugin.$(OBJEXT) \
-plugger.$(OBJEXT) jutils.$(OBJEXT) lubrify.$(OBJEXT) \
+plugger.$(OBJEXT) jutils.$(OBJEXT) tvfreq.$(OBJEXT) lubrify.$(OBJEXT) \
 cpu_accel.$(OBJEXT) yuv2rgb.$(OBJEXT) yuv2rgb_mmx.$(OBJEXT) vline16.o \
 vline32.o hline16.o hline32.o mmx_memcpy.o mmx_blit.o mmx_blit_add.o \
 mmx_blit_sub.o mmx_blit_and.o mmx_blit_or.o clearscr.o
@@ -131,14 +131,14 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/avi.P .deps/clearscr.P .deps/context.P \
-.deps/cpu_accel.P .deps/freej.P .deps/hline16.P .deps/hline32.P \
-.deps/jsync.P .deps/jutils.P .deps/keyboard.P .deps/layer.P \
-.deps/linklist.P .deps/lubrify.P .deps/mmx_blit.P .deps/mmx_blit_add.P \
+DEP_FILES =  .deps/clearscr.P .deps/context.P .deps/cpu_accel.P \
+.deps/freej.P .deps/hline16.P .deps/hline32.P .deps/jsync.P \
+.deps/jutils.P .deps/keyboard.P .deps/layer.P .deps/linklist.P \
+.deps/lubrify.P .deps/mmx_blit.P .deps/mmx_blit_add.P \
 .deps/mmx_blit_and.P .deps/mmx_blit_or.P .deps/mmx_blit_sub.P \
 .deps/mmx_memcpy.P .deps/osd.P .deps/plugger.P .deps/plugin.P \
-.deps/tvfreq.P .deps/v4l.P .deps/vline16.P .deps/vline32.P \
-.deps/yuv2rgb.P .deps/yuv2rgb_mmx.P
+.deps/png_layer.P .deps/tvfreq.P .deps/v4l_layer.P .deps/vline16.P \
+.deps/vline32.P .deps/yuv2rgb.P .deps/yuv2rgb_mmx.P
 SOURCES = $(freej_SOURCES)
 OBJECTS = $(freej_OBJECTS)
 

@@ -39,15 +39,15 @@ V4lGrabber::V4lGrabber()
 }
 
 V4lGrabber::~V4lGrabber() {
-  _close();
+  close();
 }
 
-void V4lGrabber::_close() {
+void V4lGrabber::close() {
   notice("Closing video4linux grabber layer");
 
   if(dev>0) {
     act("closing video4linux device %u",dev);
-    close(dev);
+    ::close(dev);
   }
   
   if(buffer!=NULL) {
@@ -65,7 +65,7 @@ bool V4lGrabber::detect(char *devfile) {
     "VID_TYPE_TUNER            has a tuner of some form",
     "VID_TYPE_TELETEXT         has teletext capability",
     "VID_TYPE_OVERLAY          can overlay its image onto the frame buffer",
-    "VID_TYPE_CHROAKEY        overlay is chromakeyed",
+    "VID_TYPE_CHROMAKEY        overlay is chromakeyed",
     "VID_TYPE_CLIPPING         overlay clipping supported",
     "VID_TYPE_FRAMERAM         overlay overwrites frame buffer memory",
     "VID_TYPE_SCALES           supports image scaling",

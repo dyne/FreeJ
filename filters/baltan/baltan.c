@@ -21,7 +21,7 @@
 static char *name = "Baltan";
 static char *author = "Fukuchi Kentarou";
 static char *info = "delayed alphachannel blit";
-static int version = 0;
+static int version = 1;
 static int bpp = 4;
 
 static Uint32 *planebuf;

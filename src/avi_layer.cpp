@@ -39,6 +39,7 @@ AviLayer::AviLayer()
 }
 
 AviLayer::~AviLayer() {
+  close();
 }
 
 bool AviLayer::init(Context *scr=NULL) {
@@ -53,10 +54,6 @@ bool AviLayer::init(Context *scr=NULL) {
 	labs(bh.biWidth),
 	labs(bh.biHeight),
 	bh.biBitCount);
-
-  lsttime = dtime();
-  skip = 0;
-  fps = 24.0;
 
   feed();  
   notice("AviLayer :: w[%u] h[%u] bpp[%u] size[%u]",
@@ -191,7 +188,8 @@ bool AviLayer::feed() {
 }
 
 void AviLayer::close() {
-  /* here close Aviclass */
+  /* here close Aviclass
+     TODO!! FIXME!! THIS CRASHES!! */
   func("AviLayer::close()");
   if(_stream)
     if(_stream->IsStreaming())

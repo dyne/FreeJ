@@ -24,10 +24,10 @@
 #include <filter.h>
 #include <plugger.h>
 
-#define DELAY 300
+#define DELAY 100
 
 bool KbdListener::init(Context *context, Plugger *plug) {
-  /* saves the pointer to the scren */
+  /* saves the pointer to the screen */
   this->screen = context;
   context->kbd = this;
   
@@ -50,35 +50,47 @@ void KbdListener::run() {
   while(!quit) {
 
     if(SDL_PollEvent(&event)) {
-      if(event.type==SDL_KEYDOWN) {
+      
+      if(event.type && (SDL_MOUSEMOTION|SDL_MOUSEBUTTONDOWN) ) {
+	if(event.motion.state && SDL_BUTTON_LEFT) {
+	  layer->geo.x = (event.motion.xrel>0) ? 
+	    (layer->geo.x + event.motion.xrel) :
+	    (layer->geo.x - event.motion.xrel);
+	  layer->geo.y = (event.motion.yrel>0) ?
+	    (layer->geo.y + event.motion.yrel) :
+	    (layer->geo.y - event.motion.yrel);
+	}
+      }
+
+      if(event.type && SDL_KEYDOWN) {
 
 	switch(event.key.keysym.sym) {
+
 	case SDLK_ESCAPE:
 	  quit = true;
 	  break;
+
 	case SDLK_SPACE:
 	  SDL_WM_ToggleFullScreen(screen->surf);
 	  break;
+
 	case SDLK_TAB:
-	  if(event.key.keysym.mod == KMOD_LCTRL)
+	  if(event.key.keysym.mod && KMOD_CTRL)
 	    screen->osd->calibrate();
 	  else
 	    screen->osd->active();
 	  break;
-	  /* commented out until layer is just one
-	     case SDLK_PAGEUP:
-	     if(layer->next!=NULL)
-	     layer = (Layer *) layer->next;
-	     break;
-	     case SDLK_PAGEDOWN:
-	     if(layer->prev!=NULL)
-	     layer = (Layer *) layer->prev;
-	     break; */
+
 	default:
-	  if(event.key.keysym.mod!=KMOD_CAPS) {
+
+	  if(!(event.key.keysym.mod && KMOD_CAPS)) {
+
 	    if(_context_op(&event.key.keysym)) break;
+
 	    if(layer->keypress(&event.key.keysym)) break;
+
 	  }
+
 	  if(filter!=NULL) {
 	    layer->lock();
 	    filter->kbd_input(&event.key.keysym);
@@ -127,7 +139,7 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   case SDLK_PAGEUP:
     if(layer==NULL) return false;
     if(layer->prev==NULL) return false;
-    if(keysym->mod == KMOD_RCTRL) {
+    if(keysym->mod && KMOD_CTRL) {
       /* move layer up in chain */
       if(screen->moveup_layer(layersel))
 	layersel--;
@@ -143,7 +155,7 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   case SDLK_PAGEDOWN:
     if(layer==NULL) return false;
     if(layer->next==NULL) return false;
-    if(keysym->mod == KMOD_RCTRL) {
+    if(keysym->mod && KMOD_CTRL) {
       /* move layer down in chain */
       if(screen->movedown_layer(layersel))
 	layersel++;
@@ -192,7 +204,7 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     if(filter==NULL) return false;
     if(filter->prev==NULL) return false;
 
-    if(keysym->mod == KMOD_RCTRL) {
+    if(keysym->mod && KMOD_CTRL) {
     /* move filter up in chain */
       if(layer->moveup_filter(filtersel))
 	filtersel--;
@@ -208,7 +220,7 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     if(filter==NULL) return false;
     if(filter->next==NULL) return false;
 
-    if(keysym->mod == KMOD_RCTRL) {
+    if(keysym->mod && KMOD_CTRL) {
       /* move filter down in chain */
       if(layer->movedown_filter(filtersel))
 	filtersel++;
@@ -233,14 +245,15 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
 
   case SDLK_DELETE:
     if(filter==NULL) return false;
-    if(keysym->mod==KMOD_RCTRL) {
+    if(keysym->mod && KMOD_CTRL) {
       /* clear ALL FILTERS */
       layer->clear_filters();
       filter = NULL;
       filtersel = layer->filters.len();
     } else {
       /* clear SELECTED FILTER */
-      Filter *tmp = (filter->prev==NULL) ? (Filter *)filter->next : (Filter *)filter->prev;
+      Filter *tmp = (filter->prev==NULL) ?
+	(Filter *)filter->next : (Filter *)filter->prev;
       layer->del_filter(filtersel);
       filter = tmp;
       filtersel = (filter==NULL) ? 0 : (filtersel>1) ? filtersel-1 : 1;
@@ -252,7 +265,6 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   }
 
   if(newfilt) {
-    func("keyboard says newfilt");
     if(layer->add_filter(_filt)) {
       /* the filter has been accepted on the layer chain */
       filter = _filt;

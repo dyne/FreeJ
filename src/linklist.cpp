@@ -65,7 +65,7 @@ void Linklist::add(Entry *addr) {
    THIS FUNCTION IS NOT YET RELIABLE
 */
 void Linklist::add(Entry *addr, int pos) {
-  if(length<pos) { /* adds it at the end */
+  if(length<=pos) { /* adds it at the end */
     add(addr);
     return;
   }

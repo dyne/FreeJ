@@ -35,10 +35,11 @@
 class Context {
  private:
   /* fps calculation stuff */
-  double cur_time;
-  double lst_time;
+  struct timeval cur_time;
+  struct timeval lst_time;
   int fps_frame_interval;
-
+  int framecount;
+  long elapsed, min_interval;
   /* --------------------- */
 
   void *prec_y[MAX_HEIGHT];
@@ -83,12 +84,11 @@ class Context {
   KbdListener *kbd;
 
   /* ---- fps ---- */
-  bool calc_fps();
+  void calc_fps();
   /* Set the interval (in frames) after which the fps counter is updated */
   void set_fps_interval(int interval);
   void print_fps();
   float fps;
-  int framecount;
 
   bool clear_all;
   bool quit;

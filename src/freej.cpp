@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2002 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -25,7 +25,13 @@
 #include <context.h>
 #include <keyboard.h>
 #include <v4l.h>
+
+#ifdef WITH_AVIFILE
 #include <avi.h>
+#endif
+
+#include <png_layer.h>
+
 #include <osd.h>
 #include <plugger.h>
 #include <jutils.h>
@@ -75,7 +81,7 @@ static const char *short_options = "-hvd:D:";
 
 char *v4ldevice;
 int debug;
-char avi_files[MAX_CLI_CHARS];
+char layer_files[MAX_CLI_CHARS];
 int cli_chars = 0;
 
 void cmdline(int argc, char **argv) {
@@ -83,7 +89,7 @@ void cmdline(int argc, char **argv) {
 
   /* initializing defaults */
   v4ldevice = strdup("/dev/video");
-  char *avip = avi_files;
+  char *p = layer_files;
 
   debug = 1;
 
@@ -114,9 +120,9 @@ void cmdline(int argc, char **argv) {
       {
 	int optlen = strlen(optarg);
 	if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
-	  sprintf(avip,"%s#",optarg);
+	  sprintf(p,"%s#",optarg);
 	  cli_chars+=optlen+1;
-	  avip+=optlen+1;
+	  p+=optlen+1;
 	} else warning("too much files on commandline, list truncated");
       }
       break;
@@ -132,8 +138,14 @@ void cmdline(int argc, char **argv) {
 
 int main (int argc, char **argv) {
 
+  Layer *lay = NULL;
+#ifdef WITH_AVIFILE
+  AviLayer *avi = NULL;
+#endif
+  PngLayer *png = NULL;
+
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
-  act("(c)2001 Denis Roio <jaromil@dyne.org>");
+  act("(c)2001-2002 Denis Rojo < jaromil @ dyne.org >");
   cmdline(argc,argv);
   set_debug(debug);
 
@@ -142,29 +154,40 @@ int main (int argc, char **argv) {
     notice("running as root: high priority realtime scheduling allowed.");
 
   /* this is the output context (screen) */
-  Context screen(W,H,D,0x0);
+  Context screen(W,H,D,0x0);//SDL_HWPALETTE|SDL_HWSURFACE|SDL_DOUBLEBUF);
   if(screen.surf==NULL) exit(0);
 
-  /* this is the Plugin manager */
-  Plugger plugger(screen.bpp);
-  plugger.refresh();
-  
-
-  /* ================= Avi layers */
-  AviLayer *avi = NULL;
-  if(cli_chars>0) {
-    char *p, *pp = avi_files;
+  /* create layers requested on commandline */
+  {
+    char *p, *pp = layer_files;
     while(cli_chars>0) {
-      p = pp; while(*p!='#' && cli_chars>0) { p++; cli_chars--; }
+      p = pp;
+      while(*p!='#' && cli_chars>0) {
+	p++; cli_chars--; }
       if(cli_chars<=0) break; *p='\0';
-      avi = new AviLayer();
-      if(avi->open(pp))
-	assert( avi->init(&screen) );
+
+      /* AVI LAYERS */
+      if(strncmp((p-4),".avi",4)==0) {
+#ifdef WITH_AVIFILE
+	avi = new AviLayer();
+	if(avi->open(pp))
+	  assert( avi->init(&screen) );
+#else
+	error("AVI layer support not compiled");
+	act("can't load %s",pp);
+#endif
+      }	
+
+      /* PNG LAYERS */
+      if(strncmp((p-4),".png",4)==0) {
+	png = new PngLayer();
+	if(png->open(pp))
+	  assert( png->init(&screen) );
+      }
+
       pp = p+1;
     }
   }
-
-
 
   /* ================= Video4Linux layer */
   V4lGrabber grabber;
@@ -172,7 +195,18 @@ int main (int argc, char **argv) {
   if(grabber.detect(v4ldevice))
     assert( grabber.init(&screen,GW,GH) );
   else
-    act("no video 4 linux device detected");
+    act("a video 4 linux device is not present");
+
+  /* if the context has no layers quit here */
+  if(screen.layers.len()<1) {
+    error("no layers present, quitting");
+    screen.close();
+    exit(0);
+  }
+
+  /* this is the Plugin manager */
+  Plugger plugger(screen.bpp);
+  plugger.refresh();
 
   /* this is the On Screen Display */
   Osd osd;
@@ -186,22 +220,13 @@ int main (int argc, char **argv) {
   KbdListener keyb;
   assert( keyb.init(&screen, &plugger) );
 
-
-  /* update the fps counter every 25 frames */
-  screen.set_fps_interval(24);
-
-  /*
-  if(avi) avi->start();
-  else grabber.start();
-  */
   screen.rocknroll();
 
   keyb.start();
 
-  Layer *lay;
   while(!keyb.quit) {
     /* main loop */
-    screen.calc_fps();
+
 
     if(screen.clear_all)
       clearscr(screen.get_surface(),screen.size);
@@ -213,6 +238,9 @@ int main (int argc, char **argv) {
       lay = (Layer *)lay->prev;
     }
 
+    screen.calc_fps();
+    //screen.limit_fps();
+
     screen.flip();
   }
 
@@ -220,8 +248,9 @@ int main (int argc, char **argv) {
   osd.splash_screen();
   screen.flip();
   grabber.quit = true;
+#ifdef WITH_AVIFILE
   if(avi) avi->quit = true;
-
+#endif
   /* we need to wait here to be sure the threads quitted:
      can't use join because threads are detached for better performance */
   SDL_Delay(3000);
@@ -229,7 +258,11 @@ int main (int argc, char **argv) {
   /* this calls all _delete() methods to safely free all memory */
   plugger.close();
   screen.close();
-  if(avi) delete avi;
 
+  /*
+#ifdef WITH_AVIFILE
+  if(avi) delete avi;
+#endif
+  */
   exit(1);
 }

@@ -51,5 +51,8 @@
 /* Version number of package */
 #undef VERSION
 
+/* define if linking to avifile library for AVI layer playback */
+#undef WITH_AVIFILE
+
 /* Define to empty if `const' does not conform to ANSI C. */
 #undef const

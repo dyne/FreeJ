@@ -92,13 +92,11 @@ void func(char *format, ...) {
 }
 
 void error(char *format, ...) {
-  char tmp[512];
   va_list arg;
   va_start(arg, format);
   
   vsnprintf(msg, 254, format, arg);
-  snprintf(tmp,512,"[!] %s: ",msg);
-  perror(tmp);
+  cerr << "[!] " << msg << endl;
   va_end(arg);
 }
 

@@ -51,7 +51,7 @@ class Plugin {
   char *getauthor() { return _author; };
   char *getinfo() { return _info; };
   int getversion() { return _version; };
-  int getbpp(int bpp) { return ((bpp/8)<=_bpp); };
+  //  int getbpp(int bpp) { return ((bpp/8)<=_bpp); };
 
 private:
   void _delete();
@@ -68,7 +68,7 @@ private:
   char *_author;
   char *_info;
   int _version;
-  int _bpp;
+  //  int _bpp;
   char *_path;
 };
 

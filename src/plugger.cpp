@@ -55,14 +55,14 @@ int Plugger::refresh() {
       snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
       Filter *filt = new Filter;
       if(filt->open(temp)) {
-	if(filt->getbpp(_bpp)) {
-	  act("plugged: %s filter v%u by %s",
-	      filt->getname(), filt->getversion(), filt->getauthor());
-	  _add_plug(filt);
-	} else {
-	  act("can't plug %s: %u bpp unsupported",filt->getname(),_bpp);
-	  delete(filt);
-	}
+	//	if(filt->getbpp(_bpp)) {
+	act("plugged: %s filter v%u by %s",
+	    filt->getname(), filt->getversion(), filt->getauthor());
+	_add_plug(filt);
+	  //	} else {
+	  //	  act("can't plug %s: %u bpp unsupported",filt->getname(),_bpp);
+	  //	  delete(filt);
+	  //	}
       } else delete(filt);
     }
   } while((dir = strtok(NULL,":")));

@@ -5,13 +5,13 @@ static char *name;
 static char *author;
 static char *info;
 static int version;
-static int bpp;
+//static int bpp;
 
 char *getname() { return name; };
 char *getauthor() { return author; };
 char *getinfo() { return info; };
 int getversion() { return version; };
-int getbpp() { return bpp; };
+//int getbpp() { return bpp; };
 
 /* INTERNAL =================================================
    this counts how many times a plugin is instantiated

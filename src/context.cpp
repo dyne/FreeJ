@@ -26,6 +26,7 @@
 /* flags can be:
    SDL_ANYFORMAT
    SDL_HWPALETTE
+   SDL_HWSURFACE | SDL_SWSURFACE
    SDL_DOUBLEBUF
    SDL_FULLSCREEN */
 
@@ -43,8 +44,11 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
   /* check and set available videomode */
   assert( res = SDL_VideoModeOK(wx, hx, bppx, flags) );
   notice("Context: Simple Direct Media Layer");
-  if(res!=bppx)
-    warning("your screen does'nt support %ubpp, using %ubpp instead",bppx,res);
+  if(res!=bppx) {
+    error("your screen does'nt support %ubpp",bppx);
+    act("you need to switch to %u bits per pixes resolution to run FreeJ");
+    exit(1);
+  }
   act("screen geometry w[%u] h[%u] bpp[%u]",wx,hx,res);
   surf = SDL_SetVideoMode(wx, hx, res, flags);
   if( surf == NULL ) {
@@ -76,10 +80,14 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
     if( (i != SDL_KEYDOWN) && ( i != SDL_QUIT) )
       SDL_EventState(i, SDL_IGNORE);
 
+
   SDL_ShowCursor(0);
 
   /* initialize fps counter */
-  fps_frame_interval = -1;
+  framecount=0;
+  gettimeofday( &lst_time, NULL);
+  fps=0.0;
+  set_fps_interval(24);
 
   clear_all = false;
   quit = false;
@@ -91,8 +99,14 @@ void Context::close() {
   
   while(lay!=NULL) {
     tmp = (Layer *)lay->next;
-    lay->_close();
-    lay->_delete();
+
+    /*    lay->close();
+	  this is in every layer's destructor */
+
+    /*    lay->_delete();
+	  this was deleting filters, now that's done in the plugger */
+
+    delete lay;
     lay = tmp;
   }
   
@@ -150,37 +164,33 @@ void *Context::get_surface() {
 /* FPS */
 
 void Context::set_fps_interval(int interval) {
-  fps_frame_interval = interval;
-  framecount = -1;
+  fps_frame_interval = interval*1000000;
+  min_interval = (long)1000000/interval;
 }
 
-bool Context::calc_fps() {
-  
-  /* Check interval */
-  if (fps_frame_interval<1) {
-    fps=0.0;
-    return(true);
-  }
-  
-  if ( (framecount<0) || (framecount>fps_frame_interval)) {
-    /* Initialize counter */
-    framecount=0;
-    lst_time=dtime();
-    fps=0.0;
-    return(true);
-  }
+void Context::calc_fps() {
+  /* 1frame : elapsed = X frames : 1000000 */
+  gettimeofday( &cur_time, NULL);
+  elapsed = cur_time.tv_usec - lst_time.tv_usec;
+  if(cur_time.tv_sec>lst_time.tv_sec) elapsed+=1000000;
 
   framecount++;
-  
-  if (framecount==fps_frame_interval) {
-    cur_time=dtime();
-    fps=(double)framecount/(cur_time-lst_time);
-    lst_time=cur_time;
+  if(framecount==24) {
+    fps=(double)1000000/elapsed;
     framecount=0;
-    return(false);
   }
-  
-  return(true);
+
+  if(elapsed<=min_interval) {
+    usleep( min_interval - elapsed ); /* this is not POSIX, arg */
+    lst_time.tv_usec += min_interval;
+    if( lst_time.tv_usec > 999999) {
+      lst_time.tv_usec -= 1000000;
+      lst_time.tv_sec++;
+    }
+  } else {
+    lst_time.tv_usec = cur_time.tv_usec;
+    lst_time.tv_sec = cur_time.tv_sec;
+  }
 }
 
 void Context::rocknroll() {
