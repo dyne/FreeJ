@@ -53,6 +53,35 @@ Filter *Plugger::pick(char *name) {
   return(NULL);
 }
 
+/* lookup a string implementing completion:
+   returns a list of chars, all possible completions
+   return a NULL terminated char* array
+   the return buffer is allocated in this function
+   and must be freed by the caller, in any case
+   also when no hits are found! */
+char **Plugger::complete(char *str) {
+  int c,cc,len,found;
+  char **res;
+  char *tmp;
+  len = strlen(str);
+  found = 0;
+  res = (char**)calloc(MAX_PLUGINS,sizeof(char*));
+  /* first browse all filters and collect
+     all those with the name starting with the
+     first letter of our lookup string */
+  for(c=0;c<MAX_PLUGINS;c++) {
+    if(!plugs[c]) break;
+    tmp = plugs[c]->getname();
+    if(strncasecmp(str,tmp,len)==0) {
+      res[found] = tmp; found++;
+      continue;
+    }
+  }
+  res[found] = NULL;
+
+  return res;
+}
+
 int selector(const struct dirent *dir) {
   //  if(strstr(dir->d_name,".")) return(1);
   if(dir->d_name[0]=='.') return(0);

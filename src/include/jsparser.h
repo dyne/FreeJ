@@ -39,7 +39,7 @@ class JsParser {
 	JsParser(Context *_env);
 	~JsParser();
 	int open(const char* script_file);
-	//	int parse();
+	int parse(const char *command);
     private:
 	JSRuntime *js_runtime;
 	JSContext *js_context;
@@ -51,6 +51,7 @@ class JsParser {
 
 	int parse_count;
 	//	JSFunctionSpec shell_functions[3];
+
 };
 #endif
 

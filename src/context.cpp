@@ -85,7 +85,7 @@ bool Context::init(int wx, int hx) {
   
   find_best_memcpy();
 
-  set_fps_interval(24);
+  set_fps_interval(25);
   gettimeofday( &lst_time, NULL);
 
   return true;

@@ -27,12 +27,14 @@
 
 #include <string.h>
 
-
+/* we declare the Context pointer static here
+   in order to have it accessed from callback functions
+   which are not class methods */
 static Context *env;
 
-JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool add_filter(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool add_filter(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
@@ -232,7 +234,7 @@ JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 JSBool set_blit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
     func("JsParser :: set_blit()");
     JSObject *jslayer=NULL;
-    JSString *jsblit_type=NULL;
+    //    JSString *jsblit_type=NULL;
     char *blit_type=NULL;
 
     blit_type=JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
@@ -286,7 +288,7 @@ int JsParser::open(const char* script_file) {
     func("%03i : %s",c,line);
     
     JSBool ok = JS_EvaluateScript (js_context, global_object,
-				   line, strlen(line), script_file, 2, &ret_val);
+				   line, strlen(line), script_file, c, &ret_val);
 
     if(ok!=JS_TRUE) {
       error("JsParser::open : %s : error evaluating script:",script_file);
@@ -297,23 +299,28 @@ int JsParser::open(const char* script_file) {
 
   return ret_val;
 }
-/*
 
-/**
- * XXX TODO una cifra di work (translation: a LOOOOT of work ;)
+int JsParser::parse(const char *command) {
+  jsval res;
+  JSBool ok;
 
-int JsParser::parse(){
-//    char *script="kolos(32,\"pippo\")";
-    char *script="add_layer(new Layer(\"/home/kysucix/video/rotolascia.avi\"))";
-    //    char *script="var pippo=new Layer(\"/home/kysucix/video/Flower.png\"); add_layer(pippo)";
-    if(parse_count>0)
+  if(!command) { /* true paranoia */
+    warning("NULL command passed to javascript parser");
     return 0;
-    parse_count++;
-    func("JsParser::parse()");
-    jsval ret_val;
+  }
+
+  func("JsParser::parse : %s",command);
     
-    JSBool ok = JS_EvaluateScript(js_context, global_object, script, strlen(script), "refugees.js", 1, &ret_val);
-    }
-*/
+  ok =
+    JS_EvaluateScript(js_context, global_object,
+		      command, strlen(command), "console", 1, &res);
+  if(!ok) {
+    char err[512];
+    JS_ReportError(js_context, "%s", err);
+    error("%s",err);
+    return 0;
+  }
+  return 1;
+}
 
 #endif

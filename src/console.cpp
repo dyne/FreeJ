@@ -22,6 +22,7 @@
 #include <signal.h>
 #include <slang.h>
 #include <context.h>
+#include <jsparser.h>
 #include <jutils.h>
 #include <config.h>
 
@@ -30,6 +31,24 @@
 #define LAYERS_COLOR 3
 #define FILTERS_COLOR 7
 #define SCROLL_COLOR 5
+
+#define EOL '\0'
+
+#define KEY_ENTER 13
+#define KEY_BACKSPACE 275
+#define KEY_LEFT 259
+#define KEY_RIGHT 260
+#define KEY_HOME 263
+#define KEY_DELETE 275
+#define KEY_TAB 9
+/* unix ctrl- commandline hotkeys */
+#define KEY_CTRL_A 1 // goto beginning of line
+#define KEY_CTRL_E 5 // goto end of line
+#define KEY_CTRL_K 11 // delete until end of line
+#define KEY_CTRL_D 4 // delete char
+#define KEY_CTRL_U 21 // delete until beginning of line
+
+static Context *env;
 
 static bool screen_size_changed;
 static void sigwinch_handler (int sig) {
@@ -46,15 +65,72 @@ static void sigint_handler (int sig) {
 
 /* non blocking getkey */
 static int getkey_handler() {
+  unsigned int ch = 0;
   if(SLang_input_pending(0))
-    return SLang_getkey();
-  else return 0;
+    //    return SLang_getkey();
+    ch = SLang_getkey();
+  //  if(ch) func("SLang_getkey in getkey_handler detected char %u",ch);
+  return ch;
+}
+
+static int js_proc(char *cmd) {
+  int res;
+  if(!cmd) return 0;
+  res = env->js->parse(cmd);
+  if(!res) ::error("invalid javascript directive: %s",cmd);
+  return res;
+}
+
+static int filter_proc(char *cmd) {
+  Filter *filt;
+  if(!cmd) return 0;
+  filt = env->plugger.pick(cmd);
+  if(!filt) {
+    ::error("filter not found: %s",cmd);  
+    return 0;
+  }
+  Layer *lay = (Layer*)env->layers.selected();
+  if(!lay) {
+    ::error("no layer selected for effect %s",filt->getname());
+    return 0;
+  }
+  if(!filt->init(&lay->geo)) {
+    ::error("Filter %s can't initialize",filt->getname());
+    return 0;
+  }
+  lay->filters.add(filt);
+  // select automatically the new filter
+  lay->filters.sel(0);
+  filt->sel(true);
+  return 1;
+}
+
+static int filter_comp(char *cmd) {
+  int c;
+  char **res;
+  Filter *filt;
+  if(!cmd) return 0;
+  res = env->plugger.complete(cmd);
+  if(!res) return 0;
+  if(!res[0]) return 0;
+  for(c=0;res[c];c++) {
+    filt = env->plugger.pick(res[c]);
+    if(!filt) continue;
+    ::act("%s :: %s",filt->getname(),filt->getinfo());
+  }
+
+  if(c==1) // exact match, then fill in command
+    snprintf(cmd,511,"%s",res[0]);
+
+  free(res);
+  return c;
 }
 
 Console::Console() {
   env=NULL;
   last_line=NULL;
   num_lines=0;
+  input = false;
   do_update_scroll=true;
 }
 
@@ -124,6 +200,8 @@ bool Console::init(Context *freej) {
 
   SLkp_set_getkey_function(getkey_handler);
 
+  SLtt_set_cursor_visibility(0);
+
   env->track_fps = true; // we wanna know!
 
   return true;
@@ -135,19 +213,170 @@ void Console::close() {
   SLang_reset_tty();
 }
 
+/* setup the flags and environment to read a new input
+   saves the pointer to the command processing function
+   to use it once the input is completed */
+int Console::readline(char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
+  ::act(msg);
+  update_scroll();
+  SLsmg_gotorc(SLtt_Screen_Rows - 1,0);
+  SLsmg_write_string(":");
+  SLsmg_erase_eol();
+  
+  cursor = 0;
+  memset(command,EOL,512);
+  input = true;
+  SLtt_set_cursor_visibility(1);
+  cmd_process = proc;
+  cmd_complete = comp;
+}
+
+#define GOTO_CURSOR \
+      SLsmg_gotorc(SLtt_Screen_Rows - 1,cursor+1)
 
 void Console::getkey() {
+  int res,c;
   int key = SLkp_getkey();
   if(key) ::func("SLkd_getkey: %u",key);
-  switch(key) {
-  case ':':
-    ::notice("console input requested");
-  break;
-  case 272:
-    ::notice("help triggered");
-  break;
+  else return; /* return if key is zero */
+
+  if(input) {
+    /* =============== console command input */
+    if(cursor>512) {
+      error("command too long, can't type more.");
+      return;
+    }
+    //::func("input key: %i",key);
+    SLsmg_set_color(PLAIN_COLOR);
+
+    switch(key) {
+      
+    case SL_KEY_ENTER:
+    case KEY_ENTER:
+      (*cmd_process)(command);
+      input = false;
+      cmd_process = NULL;
+      cmd_complete = NULL;
+      statusline();
+      return;
+
+    case KEY_TAB:
+      if(!cmd_complete) return;
+      res = (*cmd_complete)(command);
+      if(!res) return;
+      else if(res==1) { // exact match!
+	SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
+	SLsmg_write_string(command);
+	SLsmg_erase_eol();
+	cursor = strlen(command);
+      }
+      update_scroll();
+      GOTO_CURSOR;
+      return;
+
+      /*** FIXME */
+    case KEY_BACKSPACE:
+      ::func("BACKSPACE");
+      if(!cursor) return;
+      cursor--;
+      for(c=cursor;command[c]!=EOL;c++)
+	command[c] = command[c+1];
+      if(c==cursor) {
+	cursor--; command[cursor] = EOL;
+	GOTO_CURSOR;
+      } else {
+	SLsmg_write_string(&command[cursor]);
+      }
+      SLsmg_erase_eol();
+      GOTO_CURSOR;
+      return;
+
+    case KEY_CTRL_D:
+      for(c=cursor;command[c]!=EOL;c++)
+	command[c] = command[c+1];
+      GOTO_CURSOR;
+      SLsmg_write_string(&command[cursor]);
+      SLsmg_erase_eol();
+      GOTO_CURSOR;
+      return;
+
+    case SL_KEY_LEFT:
+      if(cursor) cursor--;
+      GOTO_CURSOR;
+      return;
+    case SL_KEY_RIGHT:
+      if(command[cursor]) cursor++;
+      GOTO_CURSOR;
+      return;
+      
+    case KEY_CTRL_A:
+    case KEY_HOME:
+      cursor=0;
+      GOTO_CURSOR;
+      return;
+    case KEY_CTRL_E:
+      while(command[cursor]!=EOL) cursor++;
+      GOTO_CURSOR;
+      return;
+    case KEY_CTRL_K:
+      for(c=cursor;command[c]!=EOL;c++)
+	command[c] = EOL;
+      GOTO_CURSOR;
+      SLsmg_erase_eol();
+      return;
+    case KEY_CTRL_U:
+      for(c=0;command[cursor+c]!=EOL;c++)
+	command[c] = command[cursor+c];
+      for(;command[c]!=EOL;c++)
+	command[c] = EOL;
+      cursor=0;
+      GOTO_CURSOR;
+      SLsmg_write_string(&command[cursor]);
+      SLsmg_erase_eol();
+      GOTO_CURSOR;
+      return;
+
+    }
+    /* add char at cursor position
+       insert mode
+       FIX ME! */
+    for(c=cursor;command[c+1]!=EOL;c++)
+      command[c+1] = command[c];
+    command[cursor] = key;
+    
+    GOTO_CURSOR;
+    SLsmg_write_string(&command[cursor]);
+    SLsmg_erase_eol();
+    cursor++;
+    GOTO_CURSOR;
+
+  } else { /* ======== hotkey input */
+
+    switch(key) {
+    case SL_KEY_IC:
+      readline("add new filter:",&filter_proc,&filter_comp);
+      break;
+
+    case SL_KEY_DELETE:
+      ::act("delete filter: TODO");
+    break;
+
+    case ':':
+      if(!env->js) {
+	::error("commandline not available : javascript is not compiled in this FreeJ binary");
+	return;
+      }
+      /* cleans up the status and sets input = true
+	 if(input==true) then keys are treated as string input */
+      readline("input javascript directive:",&js_proc,NULL);
+      break;
+
+    case 272:
+      ::notice("help triggered");
+    
+    break;
+    }
   }
-  
 }
 
 void Console::cafudda() {
@@ -171,28 +400,31 @@ void Console::cafudda() {
     screen_size_changed = false;
   }
 
-  /* print info the selected layer */
-  layerprint();
-  layerlist(); // print layer list
-
-
-  /*if a filter is selected, then
-    print info on a new filter, if a new one was selected */
-  if(layer) {
-    tmpfilt = (Filter *)layer->filters.selected();
-    if(tmpfilt!=filter) {
-      filter = tmpfilt;
-      filterprint();
+  if(!input) { /* no interactive console input ongoing */
+    
+    /* print info the selected layer */
+    layerprint();
+    layerlist(); // print layer list
+    
+    
+    /*if a filter is selected, then
+      print info on a new filter, if a new one was selected */
+    if(layer) {
+      tmpfilt = (Filter *)layer->filters.selected();
+      if(tmpfilt!=filter) {
+	filter = tmpfilt;
+	filterprint();
+      }
+      filterlist(); // print filter list
     }
-    filterlist(); // print filter list
-  }
-
-  if(do_update_scroll)
-    update_scroll();
-  
-  speedmeter();
-
-  statusline();
+    
+    if(do_update_scroll)
+      update_scroll();
+    
+    
+    speedmeter();
+    statusline();
+  } // if !(input)
 
   SLsmg_refresh();
  
@@ -202,7 +434,7 @@ void Console::cafudda() {
 void Console::statusline() {
   SLsmg_set_color(TITLE_COLOR+20);
   SLsmg_gotorc(SLtt_Screen_Rows - 1,0);
-  SLsmg_write_string(" press ctrl-h for help | : for commandline input | running on ");
+  SLsmg_write_string("ctrl-h help | : command input | running on ");
   SLsmg_write_string(SLcurrent_time_string());
   SLsmg_set_color(PLAIN_COLOR);
 }

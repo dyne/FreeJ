@@ -52,6 +52,8 @@ class Plugger {
   */
   Filter *pick(char *name);
 
+  char **complete(char *str);
+
   /**
      Tell the Plugger to read again thru configured paths and updates
      the plugin table.

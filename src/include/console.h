@@ -12,6 +12,10 @@ typedef struct _File_Line_Type {
   int color; // line color
 } File_Line_Type;
 
+/* callback functions for console input modes */
+typedef int (cmd_process_t)(char *cmd);
+typedef int (cmd_complete_t)(char *cmd);
+
 class Context;
 class Layer;
 class Filter;
@@ -33,9 +37,9 @@ class Console {
   void func(char *msg);
 
   
-  Context *env;
-  
-
+  /* takes a pointer to the function which will be
+     in charge of processing the input collected */
+  int readline(char *msg, cmd_process_t *proc, cmd_complete_t *comp);  
 
  private:
   int x,y;
@@ -61,6 +65,13 @@ class Console {
   void update_scroll();
   bool do_update_scroll;
 
+  /* input console command */
+  bool input;
+  int cursor;
+  char command[512];
+  cmd_process_t *cmd_process;
+  cmd_complete_t *cmd_complete;
+  
   /* The SLscroll routines will use this structure. */
   void free_lines();
   File_Line_Type *create_line(char *buf);
