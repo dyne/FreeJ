@@ -71,7 +71,9 @@ DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
 DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
 DECLARE_CLASS("Filter",filter_class,filter_constructor);
 DECLARE_CLASS("V4lLayer",v4l_layer_class,v4l_layer_constructor);
+#ifdef WITH_AVIFILE
 DECLARE_CLASS("AviLayer",avi_layer_class,avi_layer_constructor);
+#endif
 DECLARE_CLASS("TxtLayer",txt_layer_class,txt_layer_constructor);
 DECLARE_CLASS("PngLayer",png_layer_class,png_layer_constructor);
 
@@ -152,6 +154,7 @@ JS(v4l_layer_chan);
 JS(v4l_layer_band);
 JS(v4l_layer_freq);
 
+#ifdef WITH_AVIFILE
 ////////////////////////////////
 // Avi Layer methods
 JS(avi_layer_forward);
@@ -160,6 +163,7 @@ JS(avi_layer_mark_in);
 JS(avi_layer_mark_out);
 JS(avi_layer_pos);
 JS(avi_layer_pause);
+#endif
 
 ////////////////////////////////
 // Txt Layer methods
@@ -231,6 +235,7 @@ JSFunctionSpec v4l_layer_methods[] = {
   {0}
 };
 
+#ifdef WITH_AVIFILE
 JSFunctionSpec avi_layer_methods[] = {
   LAYER_METHODS,
   ENTRY_METHODS,
@@ -243,6 +248,7 @@ JSFunctionSpec avi_layer_methods[] = {
   {     "pause",        avi_layer_pause,        1},
   {0}
 };
+#endif
 
 JSFunctionSpec txt_layer_methods[] = {
   LAYER_METHODS,

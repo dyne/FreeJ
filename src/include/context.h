@@ -70,7 +70,7 @@ class Context {
 
   bool init(int wx, int hx);
   void close();
-  void cafudda(unsigned int secs);
+  void cafudda(double secs);
 
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return screen->coords(x,y); };

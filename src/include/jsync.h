@@ -39,7 +39,7 @@ class JSyncThread {
   JSyncThread();
   virtual ~JSyncThread();
 
-  void start();
+  int start();
   virtual void run() {};
 
   void lock() { pthread_mutex_lock(&_mutex); };
