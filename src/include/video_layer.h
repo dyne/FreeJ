@@ -84,10 +84,9 @@ class VideoLayer: public Layer {
 	FILE *fp;
 
 	/** private methods */
-	bool free_av_stuff();
-	bool relative_seek(int increment);
+	void free_av_stuff();
 	int seek(int64_t timestamp);
-	bool set_speed(int speed);
+	void set_speed(int speed);
 	double get_master_clock();
 	void deinterlace(AVPicture *picture);
 
@@ -102,17 +101,11 @@ class VideoLayer: public Layer {
 
 	bool forward();
 	bool backward();
-	/*
-	   void rewind(framepos_t step=1);
-	   void pos(framepos_t p);
-	   void pause();
-	   */
-	//  void speedup();
-	//  void slowdown();
+	bool relative_seek(double increment);
 
 	bool keypress(char key);
-	bool more_speed();
-	bool less_speed();
+	void more_speed();
+	void less_speed();
 	bool set_mark_in();
 	bool set_mark_out();
 	void pause();

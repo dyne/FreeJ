@@ -1,7 +1,7 @@
 /*  FreeJ
  *
  *  Copyright (C) 2004
- *  Silvano Galliani aka kysucix <silvano.galliani@poste.it>
+ *  Silvano Galliani aka kysucix <kysucix@dyne.org>
  *  Denis Rojo aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
@@ -55,22 +55,6 @@ JsParser::~JsParser() {
     notice("JsParser::close()");
 }
 
-/*
-JSBool kolos(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
-    JSString *str;
-    char *h;
-    printf("kolos() has %d arguments.\n", argc);
-    printf("Argument number %u is %d\n", 1,JSVAL_TO_INT(argv[0]));
-    printf("Argument number %u is %s\n", 2,JS_GetStringBytes(JS_ValueToString(cx,argv[1])));
-    printf("\n");
-    h=strdup("Stringa di ritorno");
-    str = JS_NewStringCopyZ(cx, h); 
-    *rval = STRING_TO_JSVAL(str);
-
-    return JS_TRUE;
-}
-*/
-
 void JsParser::init() {
   JSBool ret;
     /* Create a new runtime environment. */
@@ -123,6 +107,12 @@ void JsParser::init() {
 		   v4l_layer_class,
 		   v4l_layer_constructor,
 		   v4l_layer_methods);
+#ifdef WITH_AVCODEC
+    REGISTER_CLASS("VideoLayer",
+		   video_layer_class,
+		   video_layer_constructor,
+		   video_layer_methods);
+#endif
 
 #ifdef WITH_AVIFILE
     REGISTER_CLASS("AviLayer",
@@ -131,15 +121,19 @@ void JsParser::init() {
 		   avi_layer_methods);
 #endif
 
+#ifdef WITH_FT2
     REGISTER_CLASS("TxtLayer",
 		   txt_layer_class,
 		   txt_layer_constructor,
 		   txt_layer_methods);
+#endif
 
+#ifdef WITH_PNG
     REGISTER_CLASS("PngLayer",
 		   png_layer_class,
 		   png_layer_constructor,
 		   png_layer_methods);
+#endif
 
    /** Initialize Filter class. TODO */
    JS_InitClass(js_context, global_object, NULL,
@@ -205,10 +199,27 @@ int JsParser::parse(const char *command) {
 
 
 JS(cafudda) {
-  double *seconds = JSVAL_TO_DOUBLE(argv[0]);
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  double sac, *seconds = &sac;
+  jsdouble jseconds=argv[0];
+  if(!JSVAL_IS_DOUBLE(argv[0])) {
+      jsdouble jseconds2;
+      if(!JS_ValueToNumber( cx , argv[0],&jseconds)) {
+	  error("JsParser::cafudda:: argument isn't a double");
+	  return JS_FALSE;
+      }
+      jseconds=jseconds2;
+  }
+  seconds=JSVAL_TO_DOUBLE(jseconds);
   func("cafudda for %f seconds",*seconds);
   env->cafudda(*seconds);
+
+  return JS_TRUE;
+}
+
+JS(pause) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  env->pause = !env->pause;
 
   return JS_TRUE;
 }
@@ -697,6 +708,7 @@ JS(avi_layer_pos) { return JS_TRUE; }
 JS(avi_layer_pause) { return JS_TRUE; }
 #endif
 
+#ifdef WITH_FT2
 ////////////////////////////////
 // Txt Layer methods
 JS_CONSTRUCTOR("TxtLayer",txt_layer_constructor,TxtLayer);
@@ -781,9 +793,76 @@ JS(txt_layer_blink_off) {
 
   return JS_TRUE;
 }
+#endif
 
+#ifdef WITH_AVCODEC
+////////////////////////////////
+// Video Layer methods
+JS_CONSTRUCTOR("VideoLayer",video_layer_constructor,VideoLayer);
+
+/*
+JS(video_layer_seek) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  
+  GET_LAYER(VideoLayer);
+  
+  if(argc<1) {
+      return JS_FALSE;
+  }
+  else { 
+      double *seconds = JSVAL_TO_DOUBLE(argv[0]);
+      lay->relative_seek(*seconds);
+  }
+  return JS_TRUE;
+}
+*/
+
+JS(video_layer_forward) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  
+  GET_LAYER(VideoLayer);
+  
+  lay->forward();
+
+  return JS_TRUE;
+}
+JS(video_layer_rewind) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  
+  GET_LAYER(VideoLayer);
+
+  lay->backward();
+  return JS_TRUE;
+}
+JS(video_layer_mark_in) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  
+  GET_LAYER(VideoLayer);
+
+  lay->set_mark_in();
+  return JS_TRUE;
+}
+JS(video_layer_mark_out) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  
+  GET_LAYER(VideoLayer);
+
+  lay->set_mark_out();
+  return JS_TRUE;
+}
+JS(video_layer_pause) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  
+  GET_LAYER(VideoLayer);
+
+  lay->pause();
+  return JS_TRUE;
+}
+#endif
+#ifdef WITH_PNG
 ////////////////////////////////
 // Png Layer methods
 JS_CONSTRUCTOR("PngLayer",png_layer_constructor,PngLayer);
+#endif
 
 #endif

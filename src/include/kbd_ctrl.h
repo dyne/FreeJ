@@ -19,8 +19,8 @@
 #ifndef __KEYBOARD_H__
 #define __KEYBOARD_H__
 
-#define SDL_REPEAT_DELAY	195
-#define SDL_REPEAT_INTERVAL	30
+#define SDL_REPEAT_DELAY	10
+#define SDL_REPEAT_INTERVAL	10
 
 #include <SDL/SDL.h>
 

@@ -1,7 +1,7 @@
 /*  FreeJ
  *
  *  Copyright (C) 2004
- *  Silvano Galliani aka kysucix <silvano.galliani@poste.it>
+ *  Silvano Galliani aka kysucix <kysucix@dyne.org>
  *  Denis Rojo aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or

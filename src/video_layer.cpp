@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Silvano Galliani aka kysucix <silvano.galliani@poste.it>
+ *  (c) Copyright 2001 Silvano Galliani aka kysucix <kysucix@dyne.org>
  *
  *  Code "inspired" from ffplay ;)
  *
@@ -356,7 +356,7 @@ void VideoLayer::close() {
     }
 }
 
-bool VideoLayer::free_av_stuff() {
+void VideoLayer::free_av_stuff() {
     if(!av_picture) free(av_picture);
     if(!av_buf) free(av_buf);
     if(!deinterlace_buffer) free(deinterlace_buffer);
@@ -424,13 +424,13 @@ bool VideoLayer::set_mark_out() {
     show_osd();
     return true;
 }
-bool VideoLayer::more_speed() {
-    return set_speed(1);
+void VideoLayer::more_speed() {
+    set_speed(1);
 }
-bool VideoLayer::less_speed() {
-    return set_speed(-1);
+void VideoLayer::less_speed() {
+    set_speed(-1);
 }
-bool VideoLayer::set_speed(int speed) {
+void VideoLayer::set_speed(int speed) {
     user_play_speed+=speed;
     play_speed+=speed;
     play_speed_control=play_speed;
@@ -444,7 +444,7 @@ bool VideoLayer::backward() {
     relative_seek(-10);
     return true;
 }
-bool VideoLayer::relative_seek(int increment) {
+bool VideoLayer::relative_seek(double increment) {
     int ret=0;
     lock_feed();
     double current_time=get_master_clock();
@@ -537,6 +537,7 @@ int VideoLayer::seek(int64_t timestamp) {
 	    }
 	}
     }
+    return 0;
 }
 double VideoLayer::get_master_clock() {
     double delta = (av_gettime() - video_current_pts_time) / 1000000.0;

@@ -230,13 +230,13 @@ void KbdListener::run() {
       
     case SDLK_UP:
       if(keysym->mod & KMOD_SHIFT) {
-	layer->set_position(layer->geo.x,layer->geo.y-5);
+	layer->set_position(layer->geo.x,layer->geo.y-10);
 	break;
       }
       break;
     case SDLK_DOWN:
       if(keysym->mod & KMOD_SHIFT) {
-	layer->set_position(layer->geo.x,layer->geo.y+5);
+	layer->set_position(layer->geo.x,layer->geo.y+10);
 	break;
       }
       break;

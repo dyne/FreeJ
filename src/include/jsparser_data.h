@@ -1,7 +1,7 @@
 /*  FreeJ
  *
  *  Copyright (C) 2004
- *  Silvano Galliani aka kysucix <silvano.galliani@poste.it>
+ *  Silvano Galliani aka kysucix <kysucix@dyne.org>
  *  Denis Rojo aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
@@ -52,7 +52,10 @@ JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(filter_constructor);
 JS(v4l_layer_constructor);
+#ifdef WITH_AVCODEC
 JS(avi_layer_constructor);
+#endif
+JS(video_layer_constructor);
 #ifdef WITH_FT2
 JS(txt_layer_constructor);
 #endif
@@ -75,6 +78,9 @@ DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
 DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
 DECLARE_CLASS("Filter",filter_class,filter_constructor);
 DECLARE_CLASS("V4lLayer",v4l_layer_class,v4l_layer_constructor);
+#ifdef WITH_AVCODEC
+DECLARE_CLASS("VideoLayer",video_layer_class,video_layer_constructor);
+#endif
 #ifdef WITH_AVIFILE
 DECLARE_CLASS("AviLayer",avi_layer_class,avi_layer_constructor);
 #endif
@@ -101,6 +107,7 @@ JS(add_layer);
 JS(rem_layer);
 JS(fastrand);
 JS(fastsrand);
+JS(pause);
 
 ////////////////////////////////
 // Linklist Entry methods
@@ -162,6 +169,15 @@ JS(v4l_layer_chan);
 JS(v4l_layer_band);
 JS(v4l_layer_freq);
 
+#ifdef WITH_AVCODEC
+////////////////////////////////
+// Video Layer methods
+JS(video_layer_forward);
+JS(video_layer_rewind);
+JS(video_layer_mark_in);
+JS(video_layer_mark_out);
+JS(video_layer_pause);
+#endif
 #ifdef WITH_AVIFILE
 ////////////////////////////////
 // Avi Layer methods
@@ -207,6 +223,7 @@ static	JSFunctionSpec global_functions[] = {
     {"rem_layer",	rem_layer,		1},
     {"fastrand",        fastrand,               0},
     {"fastsrand",       fastsrand,              1},
+    {"pause",           pause,                0},
     {0}
 };
 
@@ -280,6 +297,20 @@ JSFunctionSpec txt_layer_methods[] = {
 JSFunctionSpec png_layer_methods[] = {
   LAYER_METHODS,
   ENTRY_METHODS,
+  {0}
+};
+#endif
+
+#ifdef WITH_AVCODEC
+JSFunctionSpec video_layer_methods[] = {
+  LAYER_METHODS,
+  ENTRY_METHODS,
+  {	"ff",		video_layer_forward, 		0},
+  {	"rew",		video_layer_rewind, 		0},
+//  {	"seek",		video_layer_seek, 		0},
+  {	"mark-in",	video_layer_mark_in, 		0},
+  {	"mark-out",	video_layer_mark_out, 		0},
+  {	"pause",	video_layer_pause, 		0}, 
   {0}
 };
 #endif
