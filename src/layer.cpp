@@ -75,22 +75,23 @@ void Layer::run() {
   func("ok, layer %s in rolling loop",get_name());
   func("Layer :: run :: begin thread %d",pthread_self());
   running = true;
+  /*
   wait_feed();
   while(!quit) {
     if(bgcolor==0) {
       buffer = feed();
       if(!buffer) error("feed error on layer %s",get_name());
       wait_feed();
-    } else if(bgcolor==1) { /* go to white */
+    } else if(bgcolor==1) {
       memset(bgmatte,0xff,geo.size);
       jsleep(0,10);
-    } else if(bgcolor==2) { /* go to black */
+    } else if(bgcolor==2) {
       memset(bgmatte,0x0,geo.size);
       jsleep(0,10);
     }
   }
+*/
   func("Layer :: run :: end thread %d",pthread_self());
-  running = false;
 }
 
 bool Layer::cafudda() {
@@ -100,11 +101,14 @@ bool Layer::cafudda() {
       return false;
 
   //  offset = (bgcolor) ? bgmatte : buffer;
-  offset = buffer;
+//  offset = buffer;
+  offset = feed();
+  /*
   if(!offset) {
     signal_feed();
     return(false);
   }
+  */
 
   /* process thru iterators */
   if(iterators.len()) {
