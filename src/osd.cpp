@@ -360,9 +360,11 @@ bool Osd::credits(bool s) {
 
   }  else {
     env->track_fps = false;
-    ipernaut->rem();
-    osd_vertigo->rem();
-    osd_vertigo->clean();
+    if(ipernaut) ipernaut->rem();
+    if(osd_vertigo) {
+      osd_vertigo->rem();
+      osd_vertigo->clean();
+    }
   }
   return _credits;
 }

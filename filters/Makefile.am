@@ -1,6 +1,6 @@
 SUBDIRS = \
-	delaygrab absdiff simura \
+	delaygrab simura \
 	baltan vertigo transform \
-	blurzoom edge ripple \
+	edge ripple \
 	backlight rotozoom blur \
 	water cartoon nervous

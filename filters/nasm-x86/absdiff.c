@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <inttypes.h>
 #include <SDL/SDL.h>
 #include <freej.h>
 #include <freej_plugin.h>
@@ -9,8 +10,8 @@ static char *author = "jaromil";
 static char *info = "Absolute difference between frames";
 static int version = 1;
 
-static void *procbuf;
-static void *lastimage;
+static void *procbuf = NULL;
+static void *lastimage = NULL;
 
 static int threshold_value;
 
@@ -22,8 +23,19 @@ unsigned char *absdiff_asmsrc2;
 unsigned char *absdiff_asmdst;
 unsigned int absdiff_asmnum1;
 
+uint8_t *new,*old;
+int8_t d1,d2;
+uint32_t c;
+
+int clean() {
+  if(lastimage) free(lastimage);
+  if(lastimage) free(procbuf);
+  return(1);
+}
 
 int init(ScreenGeometry *sg) {
+  clean();
+
   geo = sg;
   lastimage = malloc(geo->size);
   if(!lastimage) return 0;
@@ -34,11 +46,6 @@ int init(ScreenGeometry *sg) {
   return(1);
 }
 
-int clean() {
-  free(lastimage);
-  free(procbuf);
-  return(1);
-}
 
 void *process(void *buffo) {
   absdiff_asmsrc1 = buffo;
@@ -46,8 +53,8 @@ void *process(void *buffo) {
   absdiff_asmdst = procbuf;
   absdiff_asmnum1 = geo->size;
   mmx_absdiff32();
-  
-  return(procbuf);
+
+  return procbuf;
 }
 
 
