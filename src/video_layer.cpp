@@ -32,6 +32,10 @@
 #include <jutils.h>
 
 #include <video_layer.h>
+#include "avcodec.h"
+#include "avformat.h"
+
+
 
 VideoLayer::VideoLayer() 
     :Layer() {
@@ -174,15 +178,23 @@ bool VideoLayer::open(char *file) {
 		    /**
 		     * check eof and loop
 		     */
-		    if(pkt.data == NULL || pkt.size == 0) {
+		    /*
+		    printf("pkt.data= %d\t",pkt.data);
+		    printf("pkt.size= %d\t",pkt.size);
+		    printf("pkt.pts= %d\t",pkt.pts);
+		    printf("pkt.dts= %d\t",pkt.dts);
+		    printf("pkt.duration= %d\n",pkt.duration);
+		    printf("avformat_context->start_time= %d\n",avformat_context->start_time);
+		    printf("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
+		    printf("avformat_context->duration= %d\n",avformat_context->duration);
+		    */
+		    if(ret!= 0) {
 			ret=av_seek_frame(avformat_context, video_index,avformat_context->start_time);
 			if (ret < 0) {
 			    error("VideoLayer::could not loop file");
 			    return NULL;
 			}
 			continue;
-		    }
-		    if(ret!= 0) {
 			error("VideoLayer::Error while reading packet");
 		    }
 		    else if(pkt.stream_index == video_index)
@@ -198,6 +210,7 @@ bool VideoLayer::open(char *file) {
 		packet_len=pkt.size; // packet size
 		ptr=pkt.data;
 	    }
+	    av_free_packet(&pkt); /* sun's good. love's bad */
 	    len1 = avcodec_decode_video(enc, &av_frame, &got_picture, ptr,packet_len);
 
 	    pts1=packet_pts;
@@ -226,7 +239,8 @@ bool VideoLayer::open(char *file) {
 	    }
 	    video_clock += frame_delay;
 	    
-	    /* Debug pts code
+		/* Debug pts code */
+	    /*
 	    {
 		int ftype;
 		if (av_frame.pict_type == FF_B_TYPE)
@@ -236,7 +250,7 @@ bool VideoLayer::open(char *file) {
 		else
 		    ftype = 'P';
 		printf("frame_type=%c clock=%0.3f pts=%0.3f\n", 
-			ftype, packet_pts, pts1);
+			ftype, get_master_clock(), pts1);
 	    }
 	    */
 	    AVFrame *src=&av_frame;
@@ -306,8 +320,9 @@ bool VideoLayer::seek(int increment) {
 //    printf("master_clock(): %f\n",current_time);
     current_time+=increment;
     if (current_time<0) {
-	unlock_feed();
-	return true;
+//	unlock_feed();
+//	return true;
+	current_time=0;
     }
 //   printf("current_time: %f\n",current_time);
     ret=av_seek_frame(avformat_context, video_index,(int64_t)current_time*AV_TIME_BASE);
