@@ -153,16 +153,20 @@ void Osd::print() {
 
   env->screen->lock();
 
+    Layer *lay = (Layer*)env->layers.selected();
+    if(lay) _filterlist();
+    _selection();
+    _layerlist();
 
   if(_credits) {
     _print_credits();
     _show_fps();
-  } else {
-    Layer *lay = (Layer*)env->layers.selected();
-    if(lay) _filterlist();
-    _selection();
-    _layerlist();  
-  }
+  }// else {
+    //    Layer *lay = (Layer*)env->layers.selected();
+//     if(lay) _filterlist();
+//     _selection();
+    //    _layerlist();
+  //  }
   //  if(screen->kbd) {
 
   _print_status();
@@ -226,6 +230,10 @@ void Osd::statusmsg(char *format, ...) {
 void Osd::_layerlist() {
   //  unsigned int vpos = VBOUND+TOPLIST;
   uint32_t *pos = layer_offset;
+
+  /* controls to turn off credits */
+  bool credits_on = false;
+
   _set_color(red);
 
   env->layers.lock();
@@ -233,6 +241,18 @@ void Osd::_layerlist() {
     *laysel = (Layer*) env->layers.selected();
 
   while(l) {
+
+    /* turn off credits if there are other layers */
+    if(l==ipernaut) {
+      credits_on = true;
+    } else if(credits_on) {
+      env->layers.unlock();
+      credits(false);
+      env->layers.lock();
+      l = (Layer *)l->next;
+      continue;
+    }
+      
     char *lname = l->getname();
 
     
@@ -321,7 +341,6 @@ bool Osd::credits() { return credits(!_credits); }
 bool Osd::credits(bool s) {
 
   //  env->clear_once = true; //scr(env->get_surface(),env->size);
-  if(_credits == s) return s;
   _credits = s;
 
   if(_credits) {
