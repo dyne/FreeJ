@@ -3,7 +3,8 @@ FreeJ 0.4 HURRIA - 17 Oct 2002
   libpng linked to blit PNG images with transparency (PNG layer)
   support to open multiple video4linux devices
   better commandline support
-  fixes in the plugin API
+  fixes to the plugin API
+  compiles with gcc3 and latest autoconf/automake/libtool
   lots of debugging and testing
 
 FreeJ 0.3.1 PRATERHIMMEL - 28 Jan 2002
