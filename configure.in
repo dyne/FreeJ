@@ -13,7 +13,7 @@ dnl Setup for automake
 dnl ==============================================================
 
 AM_SANITY_CHECK
-AM_INIT_AUTOMAKE(FreeJ, 0.2.1)
+AM_INIT_AUTOMAKE(FreeJ, 0.2.2)
 AM_CONFIG_HEADER(config.h)
 
 dnl ==============================================================
