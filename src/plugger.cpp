@@ -65,9 +65,11 @@ int Plugger::refresh() {
 	  //	  delete(filt);
 	  //	}
       } else delete(filt);
+      //      free(filelist[found]);
     }
+    //    free(filelist);
   } while((dir = strtok(NULL,":")));
-  free(filelist);
+
   return 0;
 }
 

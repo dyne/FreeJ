@@ -113,6 +113,7 @@ void Osd::init(Context *screen) {
     break;
   }
   _set_color(white);
+  func("OSD initialized");
 }
 
 void Osd::print() {

@@ -4,20 +4,33 @@ SEGMENT CODE USE32 ALIGN=16
 
 global mmx_absdiff32
 
-extern asmsrc1
-extern asmsrc2
-extern asmdst
-extern asmnum1
+extern absdiff_asmsrc1
+extern absdiff_asmsrc2
+extern absdiff_asmdst
+extern absdiff_asmnum1
 			
 mmx_absdiff32:
+	;; save registers
 
+	push ebp
+	mov ebp,esp
+	sub esp,0x40
+	
+	push ebx
+	push ecx
+	push edx
+	push esi
+	push edi
+	push ebp
+	
+	;; place data
 	movq mm1,[Threshold]	; threshold
-	mov eax,[asmsrc1]	; surf 1
-	mov edx,[asmsrc2]	; surf 2
-	mov ebx,[asmdst]	; dest
-	mov ecx,[asmnum1]	; len
+	mov eax,[absdiff_asmsrc1]	; surf 1
+	mov edx,[absdiff_asmsrc2]	; surf 2
+	mov ebx,[absdiff_asmdst]	; dest
+	mov ecx,[absdiff_asmnum1]	; len
 	pxor mm5,mm5		; azzera mm5
-	shr ecx,4		; len = len / 8 (loop decrementa di 1)
+	shr ecx,3		; len = len / 8 (loop decrementa di 1)
 	
 .DiffLoop
 
@@ -41,6 +54,16 @@ mmx_absdiff32:
 
 .EndLoop
 	emms
+
+	;; restore registers
+	pop ebp
+	pop edi
+	pop esi
+	pop edx
+	pop ecx
+	pop ebx
+
+	leave
 	ret
 
 SEGMENT CONST USE32 ALIGN=16

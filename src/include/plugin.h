@@ -35,13 +35,13 @@ class Plugin {
   bool open(const char *path);
   void *operator[](const char *);
 
-  void init(ScreenGeometry *sg) { 
+  int init(ScreenGeometry *sg) { 
     func("plugin %s::init",getname());
-    (*__init)(sg); };
+    return (*__init)(sg); };
 
-  void clean() {
+  int clean() {
     func("plugin %s::clean", getname());
-    (*__clean)(); };
+    return (*__clean)(); };
 
   void *process(void *buffo) { return (*__process)(buffo); };
 

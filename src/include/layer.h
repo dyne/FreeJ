@@ -33,9 +33,8 @@ class Layer: public Entry, public JSyncThread {
   long _size;
   char _name[5];
   
- protected:
   int _blit_algo;
-  virtual void blit(void *offset);
+  void blit(void *offset);
   int blit_x, blit_y;
   int blit_width, blit_height;
   int blit_offset;

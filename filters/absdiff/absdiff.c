@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <SDL/SDL.h>
 #include <freej.h>
 #include <freej_plugin.h>
 
@@ -8,7 +8,7 @@ static char *name = "Absdiff";
 static char *author = "jaromil";
 static char *info = "Absolute difference between frames";
 static int version = 1;
-static int bpp = 6;
+static int bpp = 4;
 
 static void *procbuf;
 static void *lastimage;
@@ -17,8 +17,12 @@ static int threshold_value;
 
 static ScreenGeometry *geo;
 
-static void absdiff16(void *src1, void *src2, void *dst);
-static void absdiff32(void *src1, void *src2, void *dst);
+extern void mmx_absdiff32(void); 
+unsigned char *absdiff_asmsrc1;
+unsigned char *absdiff_asmsrc2;
+unsigned char *absdiff_asmdst;
+unsigned int absdiff_asmnum1;
+
 
 int init(ScreenGeometry *sg) {
   geo = sg;
@@ -38,35 +42,14 @@ int clean() {
 }
 
 void *process(void *buffo) {
-
-  switch(geo->bpp) {
-  case 16: absdiff16(buffo,lastimage,procbuf); break;
-  case 32: absdiff32(buffo,lastimage,procbuf); break;
-  }
+  absdiff_asmsrc1 = buffo;
+  absdiff_asmsrc2 = lastimage;
+  absdiff_asmdst = procbuf;
+  absdiff_asmnum1 = geo->size;
+  mmx_absdiff32();
   
   return(procbuf);
 }
 
-extern void mmx_absdiff16(void);
-extern void mmx_absdiff32(void); 
-unsigned char *asmsrc1;
-unsigned char *asmsrc2;
-unsigned char *asmdst;
-unsigned int asmnum1;
-static void absdiff16(void *src1, void *src2, void *dst) {
-  asmsrc1 = src1;
-  asmsrc2 = src2;
-  asmdst = dst;
-  asmnum1 = geo->size;
-  mmx_absdiff16();
-}
-
-static void absdiff32(void *src1, void *src2, void *dst) {
-  asmsrc1 = src1;
-  asmsrc2 = src2;
-  asmdst = dst;
-  asmnum1 = geo->size;
-  mmx_absdiff32();
-}
 
 int kbd_input(SDL_keysym *keysym) { return 0; }

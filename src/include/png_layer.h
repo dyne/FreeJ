@@ -42,8 +42,6 @@ private:
 
   FILE *fp;
 
-  void blit(void *offset);
-
 public:
   PngLayer();
   ~PngLayer();

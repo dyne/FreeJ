@@ -215,6 +215,7 @@ int main (int argc, char **argv) {
   Plugger plugger(screen.bpp);
   plugger.refresh();
 
+  
   /* this is the On Screen Display */
   Osd osd;
   osd.init(&screen);

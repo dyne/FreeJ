@@ -100,7 +100,7 @@ INCLUDES = -I$(top_srcdir)/src/include
 SUFFIXES = .asm
 
 lib_LTLIBRARIES = absdiff.la
-absdiff_la_SOURCES = absdiff.c mmx_absdiff16.asm mmx_absdiff32.asm
+absdiff_la_SOURCES = absdiff.c mmx_absdiff32.asm
 absdiff_la_LDFLAGS = -module -avoid-version
 subdir = filters/absdiff
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -109,7 +109,7 @@ CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
 absdiff_la_LIBADD =
-am_absdiff_la_OBJECTS = absdiff.lo mmx_absdiff16.lo mmx_absdiff32.lo
+am_absdiff_la_OBJECTS = absdiff.lo mmx_absdiff32.lo
 absdiff_la_OBJECTS = $(am_absdiff_la_OBJECTS)
 
 DEFS = @DEFS@

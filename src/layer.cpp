@@ -74,7 +74,11 @@ bool Layer::add_filter(Filter *newfilt) {
 
   /* let the filter initialize */
   if(!newfilt->initialized) {
-    newfilt->init(&geo);
+    if(!newfilt->init(&geo)) {
+      error("cannot initialize plugin %s",newfilt->getname());
+      return false;
+    }
+    func("initialization OK");
     newfilt->initialized = true;
   }
 

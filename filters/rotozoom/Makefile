@@ -78,7 +78,7 @@ DEPDIR = .deps
 DLLTOOL = @DLLTOOL@
 ECHO = echo
 INSTALL_STRIP_PROGRAM = ${SHELL} $(install_sh) -c -s
-LIBS = 
+LIBS =  -ldmallocthcxx
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 
