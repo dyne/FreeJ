@@ -74,7 +74,7 @@ const char *layers_description =
 #ifdef WITH_XHACKS
 " .  - xscreensaver screen hack. ex. /usr/X11R6/lib/xscreensaver/cynosure\n"
 #endif
-" .  - particle generator ( add layer_gen on commandline)\n"
+" .  - particle generator ( try: 'freej layer_gen' on commandline)\n"
 "\n";
 
 

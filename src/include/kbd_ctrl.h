@@ -37,6 +37,7 @@ class KbdListener {
   SDL_Event event;
   SDL_keysym *keysym;
 
+
  public:
   KbdListener();
   ~KbdListener();
@@ -49,7 +50,7 @@ class KbdListener {
   Filter *filter;
   Plugger *plugger;
 
-  bool console;
+  bool active;
 };
 
 #endif

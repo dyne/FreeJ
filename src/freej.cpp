@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2003 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2004 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -41,10 +41,15 @@
 #ifdef WITH_MIDI
 #include <midi_ctrl.h>
 #endif
+#ifdef WITH_JAVASCRIPT
+#include <jsparser.h>
+#endif
 
 #define MAX_CLI_CHARS 4096
 
-/* ================ command line options */
+/* ================ command line options
+   (scroll down about 100 lines for the real stuff)
+ */
 
 static const char *help = 
 " .  Usage: freej [options] [files and video devices]\n"
@@ -56,23 +61,16 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 " .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
+" .   -f   start fullscreen\n"
+#ifdef WITH_JAVASCRIPT
+" .   -j   process javascript command file\n"
+#endif
 " .  layers available:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n";
-//" .   -d   double screen size\n"
-/*
-static const struct option long_options[] = {
-  {"help", no_argument, NULL, 'h'},
-  {"version", no_argument, NULL, 'v'},
-  {"debug", required_argument, NULL, 'D'},
-  {"size", required_argument, NULL, 's'},
-  {"double", no_argument, NULL, '2'},
-  {"zero", no_argument, NULL, '0'},
-  {0, 0, 0, 0}
-};
-*/
 
-static const char *short_options = "-hvD:Cs:m:n";
+// we use only getopt, no _long 
+static const char *short_options = "-hvD:Cs:m:nfj:";
 
 int debug;
 char layer_files[MAX_CLI_CHARS];
@@ -80,7 +78,11 @@ int cli_chars = 0;
 int width = 400;
 int height = 300;
 int magn = 0;
-//bool doublesize = false;
+bool fullscreen = false;
+#ifdef WITH_JAVASCRIPT
+char javascript[512]; // script filename
+#endif
+
 bool startstate = true;
 #ifdef WITH_GLADE2
 bool gtkgui = true;
@@ -93,7 +95,7 @@ void cmdline(int argc, char **argv) {
 
   /* initializing defaults */
   char *p = layer_files;
-
+  javascript[0] = 0;
   debug = 1;
 
   do {
@@ -141,6 +143,22 @@ void cmdline(int argc, char **argv) {
       startstate = false;
       break;
 
+    case 'f':
+      fullscreen = true;
+      break;
+      
+    case 'j':
+      snprintf(javascript,512,"%s",optarg);
+      {
+	FILE *fd;
+	fd = fopen(javascript,"r");
+	if(!fd)
+	  error("can't open %s: %s",javascript,strerror(errno));
+	else
+	  fclose(fd);
+      }
+      break;
+
     case '?':
       warning("unrecognized option: %s",optarg);
       break;
@@ -185,17 +203,43 @@ int main (int argc, char **argv) {
   set_debug(debug);
 
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
-     this hangs on some kernels - anybody knows what's wrong with it?
+     this hangs on some linux kernels - darwin doesn't even bothers with it
+     anybody knows what's wrong when you turn it on? ouch! it hurts :|
      set_rtpriority is inside jutils.cpp 
-  if(set_rtpriority(true))
-    notice("running as root: high priority realtime scheduling allowed.");
-   */
+     if(set_rtpriority(true))
+     notice("running as root: high priority realtime scheduling allowed.");
+  */
 
 
   /* this is the output context (screen) */
   Context freej;
   assert( freej.init(width,height) );
 
+  /* refresh the list of available plugins */
+  freej.plugger.refresh();
+
+
+#ifdef WITH_JAVASCRIPT
+  /* execute javascript */
+  if(javascript[0]) {
+    freej.js->open(javascript);
+    if(freej.quit) {
+      freej.close();
+      exit(1);
+    }
+  }
+#endif
+
+    
+  
+  /* initialize the S-Lang text Console */
+  freej.console.init( &freej );
+  
+  /* initialize the Keyboard Listener */
+  freej.kbd.init( &freej );
+
+  /* initialize the On Screen Display */
+  freej.osd.init( &freej );
 
   /* create layers requested on commandline */
   {
@@ -218,59 +262,61 @@ int main (int argc, char **argv) {
   }
 
   /* even if not specified on commandline
-     try to open the default video device */
-  lay = create_layer("/dev/video0");
-  if(lay) {
-    lay->init(&freej);
-    freej.layers.add(lay);
-  }
+     try to open the default video device
 
-  /* try out new geometrical layer 
-  lay = new GenLayer();
-  lay->init(&freej);
-  freej.layers.add(lay); */
+     ok, we don't do it anymore now //0.7-cvs
 
-  /* (no layers && no GUI) then show credits */
-    if(freej.layers.len()<1)
-      freej.osd.credits();
+     lay = create_layer("/dev/video0");
+     if(lay) {
+     lay->init(&freej);
+     freej.layers.add(lay);
+     } */
 
-  /* launch layer threads
-  func("rock the house");
-  freej.rocknroll(startstate);
-  func("OK, rolling"); */
-
-  /* launches the keyboard controller thread
-     this is now INSIDE the Context */
-    //  KbdListener keyb;
-    //  assert( keyb.init(&freej));
-    
   /* launches the joystick controller thread
      if any joystick is connected */
-  JoyControl joystick;
-  joystick.init(&freej);
+  JoyControl *joystick = new JoyControl();
+  if(! joystick->init(&freej) ) delete joystick;
 
 
 #ifdef WITH_MIDI
-  MidiControl midi;
-  midi.init(&freej);
+  MidiControl *midi = new MidiControl();
+  if(! midi->init(&freej) ) delete midi;
 #endif
+
+
 
 #ifdef WITH_GLADE2
   /* check if we have an X11 display running */
   if(!getenv("DISPLAY")) gtkgui = false;
-  /* this launches gtk2 interface controller thread */
-  if(gtkgui) {
-    gtkgui = gtk_ctrl_init(&freej,&argc,argv);
-  }
+  /* this launches gtk2 interface controller thread
+     this interface is completely asynchronous to freej */
+  if(gtkgui) gtk_ctrl_init(&freej,&argc,argv);
 #endif
+
+
+
 
   /* apply screen magnification */
   freej.magnify(magn);
 
 
-  /* main loop */
+
+  /* MAIN loop */
   while( !freej.quit )
+    /* CAFUDDARE in sicilian means to do the bread
+       or the pasta for the pizza. it's an intense
+       action for your arms, processing materia */
     freej.cafudda(1);
+
+  /* also layers have the cafudda() function
+     which is called by the Context class (freej instance here)
+     so it's a tree of cafudda calls originating from here
+     all synched to the environment, yea, feels good */
+     
+
+
+
+
   
   /* quit */
 

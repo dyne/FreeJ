@@ -126,6 +126,9 @@ void Osd::init(Context *screen) {
 
   osd_jump = (env->screen->w - HBOUND - HBOUND) / 2;
 
+  active = true;
+  set_osd(status_msg); /* let jutils know about the osd */
+
   func("OSD initialized");
   
 }

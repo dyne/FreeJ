@@ -20,13 +20,20 @@ case $uname in
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
      have_linux=yes
      if test $host_cpu = powerpc; then
-       AC_DEFINE(HAVE_PPC,1,[define if compiling for Linux/PPC])
+       AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
+     else
+       AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
      fi
-     if [ cat /proc/cpuinfo | grep mmx ]; then
+
+     CPUFLAGS=`cat /proc/cpuinfo | grep flags`
+     if grep "^flags.* mmx" /proc/cpuinfo > /dev/null; then
        have_mmx=yes
        AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
      fi
-
+     if grep "^flags.* sse" /proc/cpuinfo > /dev/null; then
+       have_sse=yes
+       AC_DEFINE(HAVE_SSE,1,[define if enabling SSE acceleration])
+     fi
      ;;
 
      Darwin)

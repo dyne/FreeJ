@@ -20,34 +20,24 @@
  *
  */
 
+
 #include <jsapi.h>
 
-/** shell functions */
-JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool remove_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool move_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool move_layer_up(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool move_layer_down(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+/* =================================================
+   JAVASCRIPT DECLARATIONS
+   classes, methods, properties - everything is declared here
+   that's the best place to start documenting, in order to experiment
+   with javascript and freej.
+*/
 
-/** layer constructor */
-JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
-/** layer methods */
 
-JSBool activate(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool deactivate(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool get_num(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool get_name(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool get_filename(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool get_geometry(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool set_blit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool get_blit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool set_alpha(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool get_alpha(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool set_position(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
-/** filter constructor */
-//JSBool filter_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+
+//                  GLOBAL
+
+
 
 static JSClass global_class = {
     "Freej", JSCLASS_NEW_RESOLVE,
@@ -56,6 +46,33 @@ static JSClass global_class = {
     JS_EnumerateStub, JS_ResolveStub,
     JS_ConvertStub,   JS_FinalizeStub
 };
+
+/** global environment functions */
+JSBool cafudda(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool quit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool rem_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+static	JSFunctionSpec global_functions[] = {
+    /*    name          native			nargs    */
+    {"cafudda",         cafudda,                1},
+    {"quit",            quit,                   0},
+    {"add_layer",	add_layer,		1},
+    {"remove_layer",	rem_layer,		1},
+    {0}
+};
+
+
+//                  Linklist Entry inherited methods
+JSBool entry_up(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool entry_down(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool entry_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+//                  Layer
+
+
+JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
 static JSClass layer_class = {
     "Layer", JSCLASS_HAS_PRIVATE,
     JS_PropertyStub,  JS_PropertyStub,
@@ -65,6 +82,52 @@ static JSClass layer_class = {
     NULL,   NULL,
     layer_constructor
 };
+/** layer methods */
+//JSBool layer_set_active(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool layer_get_active(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool layer_get_name(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool layer_get_filename(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool layer_get_geometry(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool layer_set_blit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool layer_get_blit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool layer_set_alpha(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool layer_get_alpha(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JSBool layer_set_position(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSFunctionSpec layer_methods[] = {
+  //    name		native		nargs    
+  //    {"set_active",	layer_set_active,	1},
+  //    {"get_active",      layer_get_active,       0},
+
+  //    {"get_name",	layer_get_name,	0},
+  //    {"get_filename",	layer_get_filename,	0},
+  //    {"get_geometry",	layer_get_geometry,	0},
+
+    {"set_blit",	layer_set_blit,	1},
+    //    {"get_blit",	layer_get_blit,	0},
+
+    //    {"set_alpha",	layer_set_alpha,	1},
+    //    {"get_alpha",	layer_get_alpha,	0},
+
+    //    {"set_position",	layer_set_position,	2},
+    
+    /* move up and down in the layer depth
+       the methods below are shared also with some other classes
+       as they are inherited from the Entry (Linklist element)
+       we need to find a way to assign them generically to classes -jrml
+    */
+    
+    {"move",            entry_move, 1},
+    {"up",              entry_up, 0},
+    {"down",            entry_down, 0},
+    
+    {0} 
+};
+
+
+
+
+//               FILTER (TODO)
+
 /*
 static JSClass filter_class = {
     "Filter", JSCLASS_HAS_PRIVATE,
@@ -76,14 +139,6 @@ static JSClass filter_class = {
     filter_constructor
 };
 */
-static	JSFunctionSpec shell_functions[] = {
-    /*    name          native			nargs    */
-    {"add_layer",	add_layer,		1},
-    {"remove_layer",	remove_layer,		1},
-    {"move_layer_up",	move_layer_up,		1},
-    {"move_layer_down",	move_layer_down,	1},
-    {0}
-};
 /* class property example. Declare them with JS_DefineProperties
 	layer_properties = {
     {"color",       MY_COLOR,       JSPROP_ENUMERATE},
@@ -95,27 +150,7 @@ static	JSFunctionSpec shell_functions[] = {
     {0}
 };
 */
-/* 
-JSFunctionSpec layer_methods[] = {
-    name		native		nargs    
-    {"activate",	activate,	1},
-    {"deactivate",	deactivate,	1},
-    {"get_num",		get_num,	0},
-    {"get_name",	get_name,	0},
-    {"get_filename",	get_filename,	0},
-    {"get_geometry",	get_geometry,	0},
 
-    {"set_blit",	set_blit,	1},
-    {"get_blit",	get_blit,	0},
 
-    {"set_alpha",	set_alpha,	1},
-    {"get_alpha",	get_alpha,	0},
-    {"set_position",	set_position,	1},
-    {0} 
-};
-*/
-
-JSFunctionSpec layer_methods[] = {
-    {"set_blit",	set_blit,	1},
-    {0} 
-};
+/** filter constructor */
+//JSBool filter_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);

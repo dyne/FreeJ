@@ -210,9 +210,10 @@ void fastsrand(Uint32 seed)
 	randval = seed;
 }
 
+#undef ARCH_X86
 unsigned long long int dtime() {
 #ifdef ARCH_X86
-  unsigned long long int x;
+  double x;
   __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
   return x;
 #else

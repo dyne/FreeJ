@@ -23,8 +23,19 @@ FreeJ 0.6 installation instructions
 == to play with PNG images you need PNG libs with Zlib support:
    PNG library (compile with _ZLIB_ support) http://libpng.org
 
+== to use the javascript interpreter and execute scripted operations
+   download SpiderMonkey http://www.mozilla.org/js/spidermonkey
+   compile it (refer to the documentation inside it)
+   then come back to the freej directory and do:
+   ./configure --with-javascript=/path/to/js
+   (PLEASE NOTE THIS IS STILL EXPERIMENTAL WORK :)
+
 == to have some more assembler mmx optimized filters you need NASM:
    NASM netwide assembler compiler http://sf.net/projects/nasm
+   then go in the filters/nasm-x86 and type make!
+   copy by hand the *.so filters in a ~/.freej/ directory in your home
+
+
 
 [*] then you are ready to compile!
 

@@ -47,8 +47,12 @@
 #define KEY_CTRL_K 11 // delete until end of line
 #define KEY_CTRL_D 4 // delete char
 #define KEY_CTRL_U 21 // delete until beginning of line
+#define KEY_CTRL_H 272 // help the user
+#define KEY_CTRL_V 22 // shout it loud!
 
 static Context *env;
+
+extern const char *layers_description;
 
 static bool screen_size_changed;
 static void sigwinch_handler (int sig) {
@@ -77,7 +81,7 @@ static int js_proc(char *cmd) {
   int res;
   if(!cmd) return 0;
   res = env->js->parse(cmd);
-  if(!res) ::error("invalid javascript directive: %s",cmd);
+  if(!res) ::error("invalid javascript command: %s",cmd);
   return res;
 }
 
@@ -132,6 +136,7 @@ Console::Console() {
   num_lines=0;
   input = false;
   do_update_scroll=true;
+  active = false;
 }
 
 Console::~Console() {
@@ -204,6 +209,7 @@ bool Console::init(Context *freej) {
 
   env->track_fps = true; // we wanna know!
 
+  active = true;
   return true;
 }
 
@@ -354,7 +360,7 @@ void Console::getkey() {
 
     switch(key) {
     case SL_KEY_IC:
-      readline("add new filter:",&filter_proc,&filter_comp);
+      readline("add new filter - with tab completion!",&filter_proc,&filter_comp);
       break;
 
     case SL_KEY_DELETE:
@@ -363,17 +369,17 @@ void Console::getkey() {
 
     case ':':
       if(!env->js) {
-	::error("commandline not available : javascript is not compiled in this FreeJ binary");
+	::error("javascript is not compiled in this FreeJ binary");
 	return;
       }
       /* cleans up the status and sets input = true
 	 if(input==true) then keys are treated as string input */
-      readline("input javascript directive:",&js_proc,NULL);
+      readline("input javascript command:",&js_proc,NULL);
       break;
 
-    case 272:
-      ::notice("help triggered");
-    
+    case KEY_CTRL_V:
+      ::notice("Welcome to %s %s",PACKAGE,VERSION);
+    :: act("layers supported:\n%s",layers_description);
     break;
     }
   }

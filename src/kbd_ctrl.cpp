@@ -33,6 +33,7 @@ KbdListener::KbdListener() {
   _filt = NULL;
   _lastsel = -1;
   plugin_bank = 0;
+  active = false;
 }
 
 KbdListener::~KbdListener() {
@@ -47,6 +48,8 @@ bool KbdListener::init(Context *context) {
   this->env = context;
   
   //  start();
+
+  active = true;
 
   return(true);
 }

@@ -42,7 +42,7 @@ Context::Context() {
 
   /* initialize fps counter */
   framecount=0; fps=0.0;
-  track_fps = false;
+  track_fps = true;
   magnification = 0;
   changeres = false;
   clear_all = false;
@@ -64,24 +64,10 @@ bool Context::init(int wx, int hx) {
     return(false);
   }
   
-  /* refresh the list of available plugins */
-  plugger.refresh();
-  
-  /* initialize the On Screen Display */
-  osd.init(this);
-  osd.active = true;
-  set_osd(osd.status_msg); /* let jutils know about the osd */
-
-  /* initialize the Keyboard Listener */
-  kbd.init(this);
 
 #ifdef WITH_JAVASCRIPT
   js = new JsParser(this);
-  js->open("test.js");
 #endif
-  
-  /* initialize the S-Lang text Console */
-  console.init(this);
   
   find_best_memcpy();
 
@@ -119,24 +105,20 @@ void Context::close() {
 
 }  
 
-void Context::cafudda(int secs) {
+void Context::cafudda(unsigned int secs) {
   Layer *lay;
 
   if(secs) /* if secs =0 will go out after one cycle */
-
-#ifdef ARCH_X86
-    __asm__ volatile (".byte 0x0f, 0x31" : "=A" (now));
-#else
-  now = dtime();
-#endif
+    now = dtime();
   
   do {
 
     /* fetch keyboard events */
-    kbd.run();
+    if(kbd.active) kbd.run();
 
     rocknroll(true);
     
+
     if(clear_all) screen->clear();
     else if(osd.active) osd.clean();
     
@@ -149,13 +131,14 @@ void Context::cafudda(int secs) {
       lay = (Layer *)lay->prev;
     }
     layers.unlock();
-    
-    osd.print();
 
-    console.cafudda();
+    if(osd.active) osd.print();
+
+    if(console.active) console.cafudda();
 
     screen->show();
-    
+
+
     /* change resolution if needed */
     if(changeres) {
       screen->set_magnification(magnification);
@@ -178,8 +161,9 @@ void Context::cafudda(int secs) {
     riciuca = (dtime()-now<secs) ? true : false;
     
     calc_fps();
-	
+
   } while(riciuca);
+
 }
 
 void Context::magnify(int algo) {

@@ -41,6 +41,8 @@ class Console {
      in charge of processing the input collected */
   int readline(char *msg, cmd_process_t *proc, cmd_complete_t *comp);  
 
+  bool active;
+
  private:
   int x,y;
 
@@ -79,7 +81,7 @@ class Console {
   SLscroll_Window_Type Line_Window;
   File_Line_Type *line, *last_line;
   unsigned int num_lines;
-  
+
 };
 
 #endif
