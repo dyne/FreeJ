@@ -37,6 +37,8 @@ PngLayer::PngLayer()
   core = NULL;
   info = NULL;
   row_pointers = NULL;
+  black_image=NULL;
+  png_image=NULL;
   fp = NULL;
   subliminal=0;
   blinking=false;
@@ -72,9 +74,6 @@ bool PngLayer::init(Context *scr) {
   png_uint_32 width, height;
   int bit_depth, color_type, interlace_type;
 
-  /** init image pointers */
-  black_image=NULL;
-  png_image=NULL;
 
   if(!fp) {
     error("no png file opened, layer skipped");
@@ -211,9 +210,12 @@ void *PngLayer::feed() {
 
 void PngLayer::close() {
   func("PngLayer::close()");
-  jfree(row_pointers);
-  jfree(png_image);
-  jfree(black_image);
+  if(row_pointers)
+      jfree(row_pointers);
+  if(png_image)
+      jfree(png_image);
+  if(black_image)
+      jfree(black_image);
 //  jfree(buffer);
 }
 
