@@ -6,6 +6,15 @@ package="FreeJ"
 
 olddir=`pwd`
 srcdir=`dirname $0`
+
+if [ "`uname -s`" = "Darwin" ]; then
+  LIBTOOL=glibtool
+  LIBTOOLIZE=glibtoolize
+else
+  LIBTOOL=libtool
+  LIBTOOLIZe=libtoolize
+fi
+
 test -z "$srcdir" && srcdir=.
 
 cd "$srcdir"
@@ -28,7 +37,7 @@ DIE=0
         DIE=1
 }
 
-(libtool --version) < /dev/null > /dev/null 2>&1 || {
+($LIBTOOL --version) < /dev/null > /dev/null 2>&1 || {
 	echo
 	echo "You must have libtool installed to compile $package."
 	echo "Download the appropriate package for your system,
@@ -52,8 +61,8 @@ echo "  aclocal -I $srcdir/m4"
 aclocal -I $srcdir/m4
 echo "  autoheader"
 autoheader
-echo "  libtoolize --automake -c"
-libtoolize --automake -c
+echo "  $LIBTOOLIZE --automake -c"
+$LIBTOOLIZE --automake -c
 echo "  automake --add-missing -c"
 automake --add-missing -c 
 echo "  autoconf"

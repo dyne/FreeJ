@@ -77,6 +77,10 @@ dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
 CFLAGS="-pipe -D_REENTRANT"
+if test x$have_darwin = xyes; then
+  # add the fink default path to find headers
+  CFLAGS="$CFLAGS -I/sw/include"
+fi
 
 #LIBS="-lpthread -lm -ldl"
 

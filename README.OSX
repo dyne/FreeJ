@@ -2,14 +2,34 @@ FreeJ 0.7 notes for Darwin/OSX hackers
 
 FreeJ is NOW READY to be used on Darwin and OSX!
 
-it compiles without problems, just install fink.sf.net and then the
--dev packages of libsdl and libglade-2.0.
-also movie playback should work compiling ffmpeg from CVS sources. 
+to compile it from source follow these steps:
+
+install the latest Fink from http://fink.sf.net
+
+from your terminal as root (sudo bash) issue the following
+commands which will install free and opensource packages
+of needed software libraries:
+
+# apt-get install pkgconfig
+# apt-get install slang
+# apt-get install sdl
+# apt-get install libpng3
+# apt-get install freetype2-dev
+
+if you want to compile the gtk+2 graphical interface:
+# apt-get install gtk+2-dev
+# apt-get install libglade2
+
+if you want to compile the Javascript interpreter, download the
+SpiderMonkey engine from http://mozilla.org/js compile it following
+the included instructions and then configure freej --with-javascript
 
 MacOSX binary packages are on the way to be offered to public.
 
-If you do it before i do then you are welcome to share
-mail me jaromil /@/ dyne.org
+you are welcome to join development of course, FreeJ still needs to
+be slick enough on MacOSX and lacks of a Quicktime layer.
+ 
+if you want to collaborate, mail jaromil /@/ dyne.org
 
 $Id$
 
