@@ -46,8 +46,11 @@ class VideoLayer: public Layer {
 	double video_current_pts;
 	double video_current_pts_time;
 	bool paused;
+	bool seekable;
 
 	uint8_t *av_buf;
+
+	char *video_filename;
 
 	bool grab_dv;
 	int play_speed;
@@ -59,6 +62,11 @@ class VideoLayer: public Layer {
 	int size, lenght,video_index;
 	FILE *fp;
 
+	bool free_av_stuff();
+	bool relative_seek(int increment);
+	int seek(int64_t timestamp);
+	bool set_speed(int speed);
+	double get_master_clock();
     public:
 	VideoLayer();
 	~VideoLayer();
@@ -79,17 +87,12 @@ class VideoLayer: public Layer {
 	//  void slowdown();
 
 	bool keypress(SDL_keysym *keysym);
-	bool dump_stream_info(AVFormatContext *s);
-	bool forward(int sec);
-	bool relative_seek(int increment);
-	int seek(int64_t timestamp);
 	bool more_speed();
 	bool less_speed();
-	bool set_speed(int speed);
 	bool set_mark_in();
 	bool set_mark_out();
-	double get_master_clock();
 	void pause();
+
 
 };
 

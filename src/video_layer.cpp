@@ -48,9 +48,12 @@ VideoLayer::VideoLayer()
 	play_speed_control=0;
 	mark_in=0;
 	mark_out=0;
+	seekable=true;
     }
 
 VideoLayer::~VideoLayer() {
+    notice("Closing AVI layer");
+    free_av_stuff();
     close();
 }
 
@@ -60,7 +63,6 @@ VideoLayer::~VideoLayer() {
 
 bool VideoLayer::init(Context *scr) {
     func("VideoLayer::init");
-    paused=false;
     _init(scr, enc->width, enc->height, 32);
     notice("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
 	    enc->width,enc->height,32,geo.size);
@@ -74,13 +76,15 @@ bool VideoLayer::init(Context *scr) {
      */
     play_speed=(25/frame_rate) - 1; 
     play_speed -= play_speed<<1;
-    //    notice("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
-    //	    geo.w,geo.h,geo.bpp,geo.size);
+
+    /* init variables */
+    paused=false;
     return true;
 }
 
 bool VideoLayer::open(char *file) {
     func("VideoLayer::open(%s)",file);
+    video_filename=strdup(file);
     AVInputFormat *av_input_format=NULL;
     AVFormatParameters avp, *av_format_par = NULL;
 
@@ -122,7 +126,7 @@ bool VideoLayer::open(char *file) {
     else
 	err = av_open_input_file(&avformat_context, file, av_input_format, 0, av_format_par);
     if (err < 0) {
-	error("VideoLayer::open(%s) - can't open ", file);
+	error("VideoLayer:: open(%s) - can't open ", file);
 	//	printf("Error number: %d",err);
 	return false;
     }
@@ -139,7 +143,7 @@ bool VideoLayer::open(char *file) {
 	enc = &avformat_stream->codec;
 	if(enc == NULL)
 	    printf("enc nullo\n");
-	//	notice("VideoLayer::Codec type= %d\n",enc->codec_type);
+	//	notice("VideoLayer:: Codec type= %d\n",enc->codec_type);
 	if (enc->codec_type == CODEC_TYPE_VIDEO) {
 	    video_index=i;
 	    codec = avcodec_find_decoder(enc->codec_id);
@@ -153,9 +157,13 @@ bool VideoLayer::open(char *file) {
 	    }
 	    else {
 		frame_rate=enc->frame_rate/enc->frame_rate_base;
-		//		notice("VideoLayer::Opening codec: %s",codec->name);
-		//		notice("VideoLayer::codec height: %d",enc->height);
-		//		notice("VideoLayer::codec width: %d",enc->width);
+		notice("VideoLayer :: Using codec: %s",codec->name);
+		if(strncasecmp(codec->name,"dvvideo",7)==0) {
+		    seekable=false;
+		    notice("VideoLayer :: video codec not seekable");
+		}
+		//notice("VideoLayer :: codec height: %d",enc->height);
+		//notice("VideoLayer :: codec width: %d",enc->width);
 		break;
 	    }
 	}
@@ -175,9 +183,9 @@ void *VideoLayer::feed() {
     /**
      * follow user video loop
      */
-    if(mark_in!=0 && mark_out!=0) {
+    if(mark_in!=0 && mark_out!=0 && seekable) {
 	if (get_master_clock()>=mark_out) 
-	seek(mark_in * AV_TIME_BASE/*D ART*/);
+	seek((int64_t)mark_in * AV_TIME_BASE/*D ART*/);
     }
 
     if(paused || play_speed_control<0) {
@@ -308,14 +316,15 @@ void *VideoLayer::feed() {
 }
 
 void VideoLayer::close() {
-    notice("Closing AVI layer");
     av_free_packet(&pkt);
     if(!enc) avcodec_close(enc);
-    if(!av_picture) free(av_picture);
-    if(!av_buf) free(av_buf);
     if(!avformat_context) av_close_input_file(avformat_context);
 }
 
+bool VideoLayer::free_av_stuff() {
+    if(!av_picture) free(av_picture);
+    if(!av_buf) free(av_buf);
+}
 bool VideoLayer::keypress(SDL_keysym *keysym) {
     switch(keysym->sym) {
 	case SDLK_RIGHT:
@@ -410,7 +419,8 @@ bool VideoLayer::relative_seek(int increment) {
     //    printf("VideoLayer::seeking to: %f\n",current_time);
     ret=seek((int64_t)current_time*AV_TIME_BASE);
     if (ret < 0) {
-	error("VideoLayer::Error seeking file: %d",ret);
+	error("VideoLayer :: Error seeking file: %d",ret);
+	unlock_feed();
 	return false;
     }
     unlock_feed();
@@ -421,6 +431,18 @@ bool VideoLayer::relative_seek(int increment) {
  * Warning! doesn't lock feed
  */
 int VideoLayer::seek(int64_t timestamp) {
+    /* 
+     * handle bof by closing and reopening file when media it's not seekable
+    */
+    if(timestamp==avformat_context->start_time) { // eof, trying to close and open file workaround votamazz
+	close();
+	open(video_filename);
+	return 0;
+    }
+    if(!seekable) {
+	error("VideoLayer :: video codec %s not seekable!",codec->name);
+	return -1;
+    }
     return av_seek_frame(avformat_context, video_index,timestamp);
 }
 double VideoLayer::get_master_clock() {

@@ -319,6 +319,7 @@ src/Makefile
 src/include/Makefile
 filters/Makefile
 filters/delaygrab/Makefile
+filters/deinterlace/Makefile
 filters/rotozoom/Makefile
 filters/simura/Makefile
 filters/baltan/Makefile
