@@ -165,22 +165,50 @@ if test ! x$use_ffmpeg = xyes; then
 fi
 
 dnl ==============================================================
+dnl ENABLE LIBFLASH
+dnl ==============================================================
+AC_ARG_ENABLE(flash,
+[  --enable-flash          compile with Flash layer (broken, default: no)],
+[ if test x$enableval = xno; then
+    have_flash=no
+  else
+    have_flash=yes;
+  fi ],[ have_flash=no ])
+if test x$have_flash = xyes; then
+   AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
+   FLASH_LIBS=libflash/libflash.a
+   AC_SUBST(FLASH_LIBS)
+   echo "Using flash layer"
+fi
+
 dnl ==============================================================
 dnl CHECK if there is MIDI
 dnl ==============================================================
 AC_ARG_ENABLE(midi,
-[  --enable-midi           compile with Midi layer (no)],
-[ if test ! x$enableval = xyes; then
+[  --enable-midi           compile with Midi controller (experimental, default: no)],
+[ if test x$enableval = xno; then
     have_midi=no
   else
     have_midi=yes;
   fi ],[ have_midi=no ])
 if test x$have_midi = xyes; then
-   AC_DEFINE(WITH_MIDI,1,[define if compiling midi layer])
-   echo "Using midi control"
-   dnl I don't know which libs are used
-dnl    AC_SUBST(MIDI_LIBS,"-lavcodec -lavformat") 
-dnl    AC_SUBST(MIDI_CFLAGS,"-I/usr/include/ffmpeg")
+   AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
+   echo "Compiling midi controller"
+fi
+
+dnl ==============================================================
+dnl CHECK if there is joystick
+dnl ==============================================================
+AC_ARG_ENABLE(joystick,
+[  --enable-joystick       compile with Joystick controller (experimental, default: no)],
+[ if test x$enableval = xno; then
+    have_joystick=no
+  else
+    have_joystick=yes;
+  fi ],[ have_joystick=no ])
+if test x$have_joystick = xyes; then
+   AC_DEFINE(WITH_JOYSTICK,1,[define if compiling joystick controller])
+   echo "Compiling joystick controller"
 fi
 
 dnl ==============================================================
@@ -202,7 +230,7 @@ PKG_CHECK_MODULES(PNG, libpng12 >= 1.2.0, [
 dnl ==============================================================
 dnl CHECK if there is 
 dnl ==============================================================
-AC_ARG_ENABLE(xhacks, [  --enable-xhacks         enable xscreenhacks layer (no)], [
+AC_ARG_ENABLE(xhacks, [  --enable-xhacks         compile with xscreenhacks layer (broken, default: no)], [
 		    AC_DEFINE(WITH_XHACKS,1,[define if compiling xhacks layer])
 		    ])
 
@@ -237,7 +265,7 @@ dnl ==============================================================
 dnl compile with full warnings and debugging symbols
 dnl ==============================================================
 AC_ARG_ENABLE(debug,
-	[  --enable-debug          compile with debug symbols (-Wall -g -ggdb) [yes]],
+	[  --enable-debug          compile with debug symbols (no)],
 	[case "${enableval}" in
 		yes) debug=true ;;
 		no) debug=false ;;
@@ -420,6 +448,18 @@ if test x$use_ffmpeg = xyes; then
 echo "= FFMpeg (libavcodec)"
 echo "  LIBS  : $AVCODEC_LIBS"
 echo "  CFLAGS: $AVCODEC_CFLAGS"
+fi
+if test x$have_flash = xyes; then
+echo "= Flash"
+echo "  LIBS  : $FLASH_LIBS (static)"
+fi
+if test x$have_midi = xyes; then
+echo "= Midi controller included"
+echo "  this is experimental, edit midi_ctrl.cpp to assign behaviour"
+fi
+if test x$have_joystick = xyes; then
+echo "= Joystick controller"
+echo "  this is experimental, edit joy_ctrl.cpp to assign behaviour"
 fi
 if test x$have_javascript = xyes; then
 echo "= JavaScript (SpiderMonkey)"

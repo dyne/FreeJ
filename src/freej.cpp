@@ -37,7 +37,9 @@
 #ifdef WITH_GLADE2
 #include <gtk_ctrl.h>
 #endif
+#ifdef WITH_JOYSTICK
 #include <joy_ctrl.h>
+#endif
 #ifdef WITH_MIDI
 #include <midi_ctrl.h>
 #endif
@@ -268,11 +270,12 @@ int main (int argc, char **argv) {
      freej.layers.add(lay);
      } */
 
+#ifdef WITH_JOYSTICK
   /* launches the joystick controller thread
      if any joystick is connected */
   JoyControl *joystick = new JoyControl();
   if(! joystick->init(&freej) ) delete joystick;
-
+#endif
 
 #ifdef WITH_MIDI
   MidiControl *midi = new MidiControl();

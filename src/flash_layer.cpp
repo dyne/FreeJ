@@ -22,6 +22,8 @@
 //
 // "$Id$"
 
+#include <config.h>
+#ifdef WITH_FLASH
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,7 +33,7 @@
 #include <flash_layer.h>
 #include <context.h>
 #include <jutils.h>
-#include <config.h>
+
 
 // callbacks
 static void showUrl(char *url, char *target, void *client_data) {
@@ -209,3 +211,4 @@ bool FlashLayer::keypress(char key) {
   return false;
 }
   
+#endif

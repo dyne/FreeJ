@@ -1,15 +1,23 @@
 
-FREEJ SCRIPTING
+FREEJ SCRIPT INTRODUCTION
+
+$Id$
 
 FreeJ is an asynchronous video rendering engine, it can be scripted
 using javascript syntax in an object oriented way, to control its
 operations thru a procedural list of commands and actions.
 
-This document aims to be a small and effective introduction to this
-powerful functionality. It will not cover Javascript syntax, but simply
-describe the objects that are made available to script FreeJ.
-Knowledge of Javascript syntax is suggested but not strictly necessary
-to make the first steps in the wonderful world of procedural video.
+This way we can start talking about "procedural video" as an evolution
+of the current non/linear paradigm widely spread in video production.
+
+Far from starting with such an high theoretical approach, this document
+aims to be a small and effective introduction to the first free software
+implementation of such a powerful functionality.
+It will not cover the programming syntax, but simply describe the
+objects that are made available to script FreeJ.
+Knowledge of generic object oriented programming syntax is suggested but
+not strictly necessary to make the first steps in the wonderful world of
+procedural video.
 
 Now let's get started!
 
@@ -54,10 +62,6 @@ Layer.set_position(int x, int y) // coords of the upper left corner
      .set_blit("name") // must be an existing layer
      .set_blit_val(int val) // usually a value between 0 and 255
 
-
-
-
-
 new V4lLayer("filename")
 new TxtLayer("filename") (*)
 new AviLayer("filename")
@@ -76,5 +80,5 @@ and it can return NULL in case of failure.
 In case the object returned is not NULL, it can be initialized using
 the init() call.
 
-
+...to be continued...
 

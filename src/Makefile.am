@@ -48,7 +48,6 @@ freej_SOURCES = \
 	fastmemcpy.cpp
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
-		$(top_srcdir)/libflash/libflash.a \
 		 -ldl -lpthread -lm -lslang \
 		@SDL_LIBS@ \
 		@AVIFILE_LIBS@ \
@@ -56,7 +55,8 @@ freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		@PNG_LIBS@ \
 		@GLADE2_LIBS@ \
 		@AVCODEC_LIBS@ \
-		@JS_LIBS@
+		@JS_LIBS@ \
+		$(top_srcdir)/@FLASH_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej
