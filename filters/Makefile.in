@@ -147,7 +147,7 @@ target_vendor = @target_vendor@
 SUBDIRS = \
 	delaygrab absdiff simura \
 	baltan vertigo transform \
-	blurzoom zoom edge \
+	blurzoom edge \
 	backlight rotozoom blur
 
 subdir = filters

@@ -1,5 +1,5 @@
 SUBDIRS = \
 	delaygrab absdiff simura \
 	baltan vertigo transform \
-	blurzoom zoom edge \
+	blurzoom edge \
 	backlight rotozoom blur

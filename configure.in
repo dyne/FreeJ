@@ -14,7 +14,7 @@ dnl Setup for automake
 dnl ==============================================================
 
 AM_SANITY_CHECK
-AM_INIT_AUTOMAKE(FreeJ, 0.5)
+AM_INIT_AUTOMAKE(FreeJ, 0.5.1)
 AM_CONFIG_HEADER(config.h)
 
 dnl ==============================================================
@@ -109,15 +109,19 @@ CheckNASM()
 dnl =====================================================
 dnl CHECK if there is AVILIB
 dnl =====================================================
-AVI_LIBS=""
-AC_AVIFILE(0.7.18)
-if test x$HAVE_AVIFILE = xyes; then
-  AC_DEFINE(WITH_AVIFILE,1,
-		[define if linking to avifile library for AVI layer playback])
-  have_avilayer=yes
-else
-  have_avilayer=no
-fi
+AC_ARG_WITH(avifile,
+[  --with-avifile          compile with avifile MOVIE LAYER ],
+[   AC_MSG_RESULT(yes)
+    AVI_LIBS=""
+    AC_AVIFILE(0.7.18)
+    if test x$HAVE_AVIFILE = xyes; then
+       AC_DEFINE(WITH_AVIFILE,1,
+	[define if linking to avifile library for AVI layer playback])
+       have_avilayer=yes
+    else
+       have_avilayer=no
+    fi
+], [AC_MSG_RESULT(no)])
 AC_SUBST(AVIFILE_LIBS)
 
 dnl ==============================================================
@@ -169,7 +173,6 @@ filters/baltan/Makefile
 filters/vertigo/Makefile
 filters/transform/Makefile
 filters/blurzoom/Makefile
-filters/zoom/Makefile
 filters/edge/Makefile
 filters/backlight/Makefile
 filters/blur/Makefile
