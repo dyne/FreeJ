@@ -19,6 +19,11 @@
  *
  */
 
+/**
+   @file layer.h
+   @brief FreeJ generic Layer interface
+*/
+
 #ifndef __LAYER_H__
 #define __LAYER_H__
 
@@ -30,93 +35,127 @@
 
 class Context;
 
+/**
+   This class describes methods and properties common to all Layers in
+   FreeJ: it is the main interface for functionalities like blit
+   changes, filter management and position changes.
+
+   The public methods hereby described are matching the javascript API
+   which is made available by the internal parser.
+
+   Methods implemented to create and destroy a layer:
+   - Layer::open
+   - Layer::init
+   - Layer::close
+   
+   Miscellaneus operations made available for the layer:
+   - Layer::set_position
+   - Layer::set_blit
+   - Layer::get_blit
+   - Layer::set_alpha
+   - Layer::get_name
+
+   LinkList of filters used on the layer:
+   - Layer::filters
+
+   Pointer to the initialized Context where the layer is used:
+   - Layer::freej
+
+   Geometrical informations about the layer:
+   - Layer::geo
+   
+   @brief Layer parent abstract class
+*/
 class Layer: public Entry, public JSyncThread {
+  friend class Context;
+  friend class JSyncThread;
 
  public:
 
-  Layer();
-  ~Layer();
-
-  void run();
-  void _init(Context *freej, int wdt, int hgt, int bpp=0);
-  void set_filename(char *f);
-  char *get_filename() { return filename; };
-  void set_position(int x, int y);
-
+  Layer(); ///< Layer constructor
+  ~Layer(); ///< Layer destructor
+  
   /* these must be defined in layer implementations */
   virtual bool open(char *file) =0;
   virtual bool init(Context *scr) =0;
   virtual void close() =0;
 
-  /* these has to be defined into layer instances
-     (pure virtual functions) */
-  virtual void *feed() = 0; /* feeds in the image source */
+  char *get_name();
+  ///< Get Layer's descriptive name (3 letters)
+    
+  char *get_filename() { return filename; };
+  ///< Get Layer's filename
 
-  /* blit algo */
-  void set_blit(int b) { blit = b; };
-  char *get_blit();
-  uint8_t blit;
+  void set_position(int x, int y);
+  ///< Set Layer's position on screen
 
-  /* alpha blending */
-  void set_alpha(int opaq);
-  uint8_t alpha;
+  /* BLIT */
+  void set_blit(int b) { blit = b; }; ///< Set Layer's blit algorithm
+  uint8_t blit; ///< Layer's blit algorithm integer identifier
+  char *get_blit(); ///< Get a short string describing Layer's blit algorithm
 
-  void crop();
 
-  virtual bool keypress(SDL_keysym *keysym) { return(false); };
+  /* ALPHA */
+  void set_alpha(int opaq); ///< Set Layer's alpha opacity
+  uint8_t alpha; ///< Layer's alpha opacity value
+  uint8_t get_alpha() { return alpha; }; ///< Get Layer's alpha value
 
-  void setname(char *s);
-  char *getname();
-  				   
-  bool cafudda();
+  virtual bool keypress(SDL_keysym *keysym) =0;
+  ///< pass to the Layer a keypress
 
   Linklist filters;
+  ///< Filter list of effects applied on the Layer
+
+  ScreenGeometry geo;
+  ///< Geometrical information about the Layer
+
+  bool active; ///< is active? (read-only)
+  bool quit; ///< should it quit? (read-write)
+  bool running; ///< is running? (read-only)
+  bool hidden; ///< is hidden (read-only by the blit)
+  int bgcolor; ///< matte background color
+
+  SDL_Rect rect; ///< SDL rectangle for blit crop
+
+  void *offset; ///< pointere to where all goes after processing
+
+
+ protected:
+
+  void _init(Context *freej, int wdt, int hgt, int bpp=0);
+  ///< Layer abstract initialization
 
   Context *freej;
 
-  ScreenGeometry geo;
+  void set_filename(char *f);
+  char filename[256];
 
-  bool active;
-  bool quit;
-  bool running;
-  bool hidden;
-  int bgcolor;
+  void setname(char *s);
 
-  void *offset; // <- pointere to where all goes after processing
-
-  SDL_Rect rect;
-
- protected:
   void *buffer;
+
 
  private:
   char _name[5];
-  char filename[256];
   char alphastr[5];
 
+  void run(); ///< Main Layer thread loop
 
-  /*  void blit(void *offset);
-  int blit_x, blit_y;
-  int blit_width, blit_height;
-  int blit_offset;
-  */
+  virtual void *feed() = 0; ///< feeds in the image source
 
-  /* small vars used in blits
-  int chan, c, cc;
-  uint32_t *scr, *pscr, *off, *poff;
-  Uint8 *alpha;
-  SDL_Surface *blitter;
-  */
-  
+  bool cafudda(); ///< cafudda is called by the Context
+
+
 
   void *bgmatte;
-
-
 
 };
 
 /* function for type detection of implemented layers */
-Layer *create_layer(char *file);
+
+extern Layer *create_layer(char *file);
+///< create the propriate Layer type from a file
+
 extern const char *layers_description;
 
 #endif

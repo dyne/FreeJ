@@ -32,9 +32,6 @@ class Filter: public Plugin, public Entry {
   /* TODO
 
   merge Plugin with this class
-
-  add method 'disconnect()' to remove from chains
-  implementing like Layer::del_filter (layer.cpp L130)
   */
 
   bool initialized;

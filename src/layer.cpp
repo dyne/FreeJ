@@ -66,12 +66,12 @@ void Layer::_init(Context *freej, int wdt, int hgt, int bpp) {
   bgmatte = jalloc(bgmatte,geo.size);
   
   notice("initialized %s layer %ix%i %ibpp",
-	 getname(),geo.w,geo.h,geo.bpp);
+	 get_name(),geo.w,geo.h,geo.bpp);
 }
 
 void Layer::run() {
   while(!feed()) jsleep(0,50);
-  func("ok, layer %s in rolling loop",getname());
+  func("ok, layer %s in rolling loop",get_name());
   running = true;
   wait_feed();
   while(!quit) {
@@ -124,7 +124,7 @@ bool Layer::cafudda() {
 void Layer::setname(char *s) {
   snprintf(_name,4,"%s",s);
 }
-char *Layer::getname() { return _name; }
+char *Layer::get_name() { return _name; }
 
 char *Layer::get_blit() {
   switch(blit) {

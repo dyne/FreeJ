@@ -201,7 +201,7 @@ void on_layer_select(GtkTreeSelection *sel, gpointer data) {
     gtk_tree_model_get(model,&layer_iter,LAYER_OBJ,&laysel,-1);
     if(laysel) {
       func("selected %s Layer %s (%p)",
-	   laysel->getname(),laysel->get_filename(),laysel);
+	   laysel->get_name(),laysel->get_filename(),laysel);
       env->layers.sel(0); /* deselect all */
       laysel->sel(true); /* select the one */
     }
@@ -308,7 +308,7 @@ void update_layer_list() {
     gtk_tree_store_append(layer_store,&iter,NULL);
     gtk_tree_store_set(layer_store,&iter,
 		       LAYER_ACTIVE,lay->active,
-		       LAYER_NAME,lay->getname(),
+		       LAYER_NAME,lay->get_name(),
 		       LAYER_BLIT,lay->get_blit(),
 		       LAYER_FILE,lay->get_filename(),
 		       LAYER_OBJ,lay,
@@ -336,7 +336,7 @@ void on_effect_select(GtkTreeSelection *sel, gpointer data) {
       Layer *laysel = (Layer*) env->layers.selected();
       if(!laysel) return;
       func("selected effect %s on layer %s",
-	   effsel->getname(), laysel->getname());
+	   effsel->getname(), laysel->get_name());
       laysel->filters.sel(0); /* deselect all */
       effsel->sel(true); /* select the one */
     }
@@ -440,13 +440,16 @@ void init_effect_menu() {
 void *gtk_run(void *arg) {
   while(!quit) {
     update_layer_list();
+    jsleep(0,200);
     update_effect_list();
-    jsleep(0,500);
+    jsleep(0,200);
     gdk_threads_enter();
-    while(gtk_events_pending())
+    while(gtk_events_pending()) {
+      jsleep(0,50);
       gtk_main_iteration();
+    }
     gdk_threads_leave();
-    jsleep(0,500);
+    jsleep(0,200);
   }
   return(NULL);
 }

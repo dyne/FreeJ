@@ -406,7 +406,7 @@ void *V4lGrabber::feed() {
     break;
   default:
     error("video palette %i for layer %s %s not supported",
-	  palette, getname(),get_filename());
+	  palette, get_name(),get_filename());
     break;
   }
 

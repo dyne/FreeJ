@@ -286,7 +286,7 @@ AC_ARG_WITH(javascript,
                           http://www.mozilla.org/js/spidermonkey],
 [if test -r "$withval"; then
 
-  JS_OBJDIR="`find $withval -name '*OBJ'|grep -v editline | grep -v fdlibm`"
+  JS_OBJDIR="`find $withval -name '*OBJ'| grep -v editline | grep -v fdlibm`"
   JS_LIB="$JS_OBJDIR/libjs.a"
   if test "`echo $withval|grep src`"; then
     JS_SRCDIR="$withval"

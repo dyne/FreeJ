@@ -16,6 +16,10 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/* @file plugger.h
+   @brief Plugin Filter dispatcher header
+*/
+
 #ifndef __plugger_h__
 #define __plugger_h__
 
@@ -26,19 +30,58 @@
 
 #define MAX_PLUGINS 12*12
 
+/**
+   This class implements the object storing all available filter
+   instances and dispatching them for FreeJ operations.
+   
+   It reads thru paths ($(prefix)/lib/freej and ~/.freej) looking for
+   valid plugins and creates instances of them which are ready to be
+   returned upon request to the host application of FreeJ controllers.
+*/
 class Plugger {
  public:
-  Plugger();
-  ~Plugger();
-  
+  Plugger(); ///< Plugger onstructor
+  ~Plugger(); ///< Plugger destructor
+
+  /**
+     Query the plugger to find a plugin filter of a certain name
+
+     @param name filter name
+     
+     @return the pointer to the Filter class instance found, or NULL
+  */
   Filter *pick(char *name);
-  /* reads thru configured paths and updates plugin list */
+
+  /**
+     Tell the Plugger to read again thru configured paths and updates
+     the plugin table.
+     
+     @return number of valid Filter plugins found
+  */
   int refresh();
+  
+  /**
+     Close the plugger and deinitialize all Filter instances, usually
+     this doesn't needs to be called directly: FreeJ does it at quit.
+  */
   void close() { _delete(); };
-  /* returns a pointer to the full path string of num plugin */
+  
+  /**
+     Return a pointer to the Filter instance of a plugin, given its
+     number in the Plugger table.
+     
+     @param num Filter plugin position number in the Plugger
+
+     @return the pointer to the Filter class instance found, or NULL
+  */
   Filter *operator[](const int num);
+  
+
   Filter *plugs[MAX_PLUGINS];
+
+
  private:
+
   /* clears up the whole plugs list */
   int _delete();
   bool _add_plug(Filter *f);

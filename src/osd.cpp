@@ -172,8 +172,24 @@ void Osd::print() {
 }
 
 void Osd::_print_status() {
-  _set_color(yellow);
-  print(status_msg,status_offset,1,1);
+  unsigned char c;
+  int wstride = env->screen->w-CHAR_WIDTH;
+  //  _set_color(yellow);
+  //  print(status_msg,status_offset,1,1);
+  ptr = status_offset;
+
+  for (x=0; status_msg[x]!='\0'; x++) {
+    for (y=0; y<CHAR_HEIGHT; y++) {
+      c = fontdata[status_msg[x] * CHAR_HEIGHT + y];
+      for (i = CHAR_WIDTH; i > 0; i--) {
+	if (c & (CHAR_START << i))
+	  *ptr = 0x00ffef00;
+	ptr++;
+      }
+      ptr += wstride;
+    }
+    ptr = status_offset + ((x+1)*CHAR_WIDTH);
+  }
 }
 
 bool Osd::calibrate() {
@@ -206,7 +222,7 @@ void Osd::_selection() {
   
   Filter *filt = (Filter*) lay->filters.selected();
   sprintf(msg,"%s::%s [%s][%s]",
-	  lay->getname(),
+	  lay->get_name(),
 	  (filt)?filt->getname():" ",
 	  lay->get_blit(),
 	    (env->clear_all)?"0":" ");
@@ -250,7 +266,7 @@ void Osd::_layerlist() {
       continue;
     }
       
-    char *lname = l->getname();
+    char *lname = l->get_name();
 
     
     if( l == laysel) {

@@ -227,7 +227,7 @@ void KbdListener::run() {
 	layer = (Layer *)layer->prev;
 	env->layers.sel(0);
 	layer->sel(true);
-	show_osd("%s :: %s",layer->getname(),layer->get_filename());
+	show_osd("%s :: %s",layer->get_name(),layer->get_filename());
       }
       break;
       
@@ -240,7 +240,7 @@ void KbdListener::run() {
 	layer = (Layer *)layer->next;
 	env->layers.sel(0);
 	layer->sel(true);
-	show_osd("%s :: %s",layer->getname(),layer->get_filename());
+	show_osd("%s :: %s",layer->get_name(),layer->get_filename());
       }
       break;
       

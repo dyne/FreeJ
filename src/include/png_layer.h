@@ -20,6 +20,8 @@
 #define __png_h__
 
 #include <stdio.h>
+#include <SDL/SDL.h>
+
 #include <png.h>
 #include <layer.h>
 
@@ -51,6 +53,8 @@ public:
   void *feed();
 
   void close();
+  
+  bool keypress(SDL_keysym *keysym) { return false; };
 };
 
 #endif
