@@ -49,9 +49,12 @@ class Layer: public Entry, public JSyncThread {
      (pure virtual functions) */
   virtual void *feed() = 0; /* feeds in the image source */
 
-  void set_blit(int b);
+  /* blit algo */
+  void set_blit(int b) { blit = b; };
   char *get_blit();
   uint8_t blit;
+
+  /* alpha blending */
   void set_alpha(int opaq);
   uint8_t alpha;
   uint32_t rmask,gmask,bmask,amask;
@@ -103,7 +106,6 @@ class Layer: public Entry, public JSyncThread {
   SDL_Surface *blitter;
   */
   
-
 
   void *bgmatte;
 

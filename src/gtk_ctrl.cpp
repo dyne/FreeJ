@@ -19,6 +19,7 @@
  *
  */
 
+#include <stdio.h>
 #include <SDL/SDL.h>
 #include <pthread.h>
 #include <context.h>
@@ -148,35 +149,35 @@ void on_layer_down(GtkWidget *widget, gpointer *data) {
 void on_blit_rgb(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->blit = 1; }
+  if(laysel) laysel->set_blit(1); }
 void on_blit_red(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->blit = 4; }
+  if(laysel) laysel->set_blit(4); }
 void on_blit_green(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->blit = 3; }
+  if(laysel) laysel->set_blit(3); }
 void on_blit_blue(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->blit = 2; }
+  if(laysel) laysel->set_blit(2); }
 void on_blit_add(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->blit = 5; }
+  if(laysel) laysel->set_blit(5); }
 void on_blit_sub(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->blit = 6; }
+  if(laysel) laysel->set_blit(6); }
 void on_blit_and(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->blit = 7; }
+  if(laysel) laysel->set_blit(7); }
 void on_blit_or(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->blit = 8; }
+  if(laysel) laysel->set_blit(8); }
 void on_osd(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   env->osd.active(); }
@@ -301,7 +302,6 @@ void update_layer_list() {
   env->layers.lock();
   Layer *lay = (Layer*)env->layers.begin();
   while(lay) {
-    //    lay->lock();
     gtk_tree_store_append(layer_store,&iter,NULL);
     gtk_tree_store_set(layer_store,&iter,
 		       LAYER_ACTIVE,lay->active,
@@ -310,7 +310,6 @@ void update_layer_list() {
 		       LAYER_FILE,lay->get_filename(),
 		       LAYER_OBJ,lay,
 		       -1);
-    //    lay->unlock();
     lay = (Layer*)lay->next;
   }
   env->layers.unlock();
@@ -439,11 +438,12 @@ void *gtk_run(void *arg) {
   while(!quit) {
     update_layer_list();
     update_effect_list();
+    jsleep(0,200);
     gdk_threads_enter();
     while(gtk_events_pending())
       gtk_main_iteration();
     gdk_threads_leave();
-    jsleep(0,500);
+    jsleep(0,200);
   }
   return(NULL);
 }
@@ -456,9 +456,26 @@ void gtk_ctrl_quit() {
 }
 
 bool gtk_ctrl_init(Context *nenv, int *argc, char **argv) {
+  FILE *ftmp;
+  char guipath[512];
+  sprintf(guipath,"../freej-gtk2.glade");
+  ftmp = fopen(guipath,"r");
+  if(!ftmp) {
+    sprintf(guipath,"freej-gtk2.glade");
+    ftmp = fopen(guipath,"r");
+  }
+  if(!ftmp) {
+    sprintf(guipath,"%s/freej/freej-gtk2.glade",DATADIR);
+    ftmp = fopen(guipath,"r");
+  }
+  if(!ftmp) {
+    error("GTK2 interface scheme not found (maybe you should 'make install' freej?)");
+    return(false);
+  } else fclose(ftmp);
+
   env = nenv;
   gtk_init(argc, &argv);
-  gtk = glade_xml_new("../freej-gtk2.glade",NULL,NULL);
+  gtk = glade_xml_new(guipath,NULL,NULL);
   
   /* connect signal handlers 
      glade_xml_signal_autoconnect(gtk); */

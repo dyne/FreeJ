@@ -27,32 +27,30 @@
 #include <layer.h>
 #include <osd.h>
 #include <plugger.h>
-#include <keyboard.h>
 #include <screen.h>
 
 /* maximum height & width supported by context */
-#define MAX_HEIGHT 800
-#define MAX_WIDTH 600
+#define MAX_HEIGHT 1024
+#define MAX_WIDTH 768
 
 class Context {
  private:
-  /* fps calculation stuff */
+  /* ---- fps ---- */
   struct timeval cur_time;
   struct timeval lst_time;
   int fps_frame_interval;
   int framecount;
   long elapsed;
   long min_interval;
-  /* --------------------- */
-
-  void *prec_y[MAX_HEIGHT];
+  void calc_fps();
+  /* ------------- */
 
   /* doublesize calculation */
   uint64_t **doubletab;
   Uint8 *doublebuf;
   int dcy, cy, cx;
   uint64_t eax;
-  /* --- */
+  /* ---------------------- */
 
  public:
 
@@ -72,25 +70,8 @@ class Context {
   
   bool pause;
 
-  /*
-  int w, h;
-  int size;
-  int bpp;
-  int pitch;
-  */
-
-  void *vidbuf;
-
   /* linked list of registered layers */
   Linklist layers;
-  /*
-  int add_layer(Layer *newlayer);
-  int del_layer(int sel);
-  int moveup_layer(int sel);
-  int movedown_layer(int sel);
-  int active_layer(int sel);
-  int clear_layers();
-  */
 
   /* Video Screen */
   ViewPort *screen;
@@ -101,17 +82,14 @@ class Context {
   /* Filter plugins plugger */
   Plugger plugger;
 
-
-  /* ---- fps ---- */
-  void calc_fps();
-  /* Set the interval (in frames) after which the fps counter is updated */
+  /* Set the interval (in frames) after
+     the fps counter is updated */
   void set_fps_interval(int interval);
-  void print_fps();
   float fps;
   bool track_fps;
 
-  bool clear_all;
 
+  bool clear_all;
 };
 
 #endif

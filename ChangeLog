@@ -1,13 +1,14 @@
-FreeJ 0.6 MONTEVIDEO - 30 Dec 2003
+FreeJ 0.6 MONTEVIDEO - 14 Jan 2003
   new GTK2 graphical interface
   asynchronous engine for multiple controllers
-  video blit speed improved
+  code profiled to minimize cpu load 
+  new blits: alpha channel and faster RGB 
   preliminar Darwin/OSX support
   AviLayer mark in/out and new tweaks (mr_goil)
   new YUV/RGB colorspace conversion (nemosoft)
-    fixes support for some movies and webcams
+  better support for some movies and webcams
   various lubrifications and API cleanup 
-  runs also in console framebuffer without X
+  support to run on console framebuffer
 
 FreeJ 0.5.1 PIKSEL - 26 Oct 2003
   new TxtLayer rendering engine

@@ -20,9 +20,9 @@
 
 #include <context.h>
 #include <jutils.h>
-#include <keyboard.h>
 #include <filter.h>
 #include <plugger.h>
+#include <kbd_ctrl.h>
 #include <config.h>
 
 #define DELAY 50 //100
@@ -245,13 +245,13 @@ void KbdListener::run() {
       if(layer->blit == 9) /* handle alpha transparence */
 	layer->set_alpha( ( 255 * (keysym->sym - SDLK_0) ) / 8 );
       else
-	layer->blit = (keysym->sym - SDLK_0);
+	layer->set_blit(keysym->sym - SDLK_0);
       break;
     case SDLK_9: // ALPHA TRANSPARENCE
       if(layer->blit == 9) /* switch back to opaque mode */
-	layer->blit = 1;
+	layer->set_blit(1);
       else
-	layer->blit = 9;
+	layer->set_blit(9);
       break;
       /*    case SDLK_9:
       layer->alpha_blit = !layer->alpha_blit;

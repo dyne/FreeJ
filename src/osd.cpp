@@ -26,6 +26,14 @@
 #include <font_pearl_8x8.h>
 #include <config.h>
 
+#define HBOUND 32
+#define VBOUND 18
+
+#define VBP 16 /* vertical bound proportion */
+#define HBP 13 /* horizontal bound proportion */
+#define TOPLIST 6 /* distance down from vbound where they start the vertical lists */
+
+
 uint32_t *Osd::print(char *text, uint32_t *pos, int hsize, int vsize) {
   int y,x,i,len,f,v,ch,cv;
   uint32_t *ptr;
@@ -86,26 +94,36 @@ void Osd::init(Context *screen) {
   status_offset = (uint32_t*)env->screen->coords(HBOUND,env->screen->h-12);
   layer_offset = (uint32_t*)env->coords(env->screen->w-28,VBOUND+TOPLIST);
   filter_offset = (uint32_t*)env->screen->coords(3,VBOUND+6);
-  hicredits_offset = (uint32_t*)env->screen->coords((env->screen->w/2)-100,VBOUND+5);
-  locredits_offset = (uint32_t*)env->screen->coords((env->screen->w/2)-140,env->screen->h-60);
+  hicredits_offset = (uint32_t*)env->screen->coords((env->screen->w/2)-140,VBOUND+5);
+  locredits_offset1 = (uint32_t*)env->screen->coords((env->screen->w/2)+10,env->screen->h-VBOUND-30);
+  locredits_offset2 = (uint32_t*)env->screen->coords((env->screen->w/2)-150,env->screen->h-VBOUND-33);
   hilogo_offset = (uint32_t*)env->screen->coords(3,0);
   topclean_offset = (uint64_t*)env->screen->coords(0,0);
   downclean_offset = (uint64_t*) env->screen->coords(0,env->screen->h-VBOUND);
 
   newline = env->screen->pitch*(CHAR_HEIGHT);
-  snprintf(title,64,"%s %s",PACKAGE,VERSION);
+  snprintf(title,64,"%s v%s codename MONTEVIDEO",PACKAGE,VERSION);
 
   /* add ipernaut logo layer */
-  ipernaut = create_layer("../doc/ipernav.png");
-  if(!ipernaut) ipernaut = create_layer("/usr/local/share/freej/ipernav.png");
-  if(!ipernaut) ipernaut = create_layer("/usr/share/freej/ipernav.png");
-  if(ipernaut) {
-    ipernaut->init(env);
-    //    ipernaut->active = false;
+  if(!ipernaut) {
+    char tmp[512];
+    sprintf(tmp,"%s/freej/ipernav.png",DATADIR);
+    ipernaut = create_layer(tmp);
   }
-
+  if(!ipernaut) ipernaut = create_layer("../doc/ipernav.png");
+  if(!ipernaut) ipernaut = create_layer("doc/ipernav.png");
+  if(!ipernaut) ipernaut = create_layer("ipernav.png");
+  if(ipernaut) {
+    if(ipernaut->init(env)) {
+      ipernaut->set_blit(9);
+      ipernaut->set_alpha(128);
+    } else {
+      delete ipernaut;
+      ipernaut = NULL;
+    }
+  }
   func("OSD initialized");
-
+    
 }
 
 void Osd::print() {
@@ -145,7 +163,6 @@ void Osd::print() {
   }
   //  if(screen->kbd) {
 
-  
   _print_status();
   
   env->screen->unlock();
@@ -291,20 +308,30 @@ void Osd::_filterlist() {
 }
 
 void Osd::draw_credits() {
-  _set_color(yellow);
-  print("codename MONTEVIDEO",selection_offset,1,1);
-  print("GNU GPL (c) 2001-2003 jaromil @ dyne.org",status_offset,1,1);
+  uint32_t *pos;
+  _set_color(white);
+  pos = hicredits_offset;
+  pos = print(title,pos,1,2);
+  pos = print("free realtime video processing",pos,1,1);
+  pos = locredits_offset1;
+  pos = print("GNU GPL (c)2001-04",pos,1,1);
+  pos = print("jaromil @ dyne.org",pos,1,1);
+  pos = locredits_offset2;
+  print("freej.org",pos,2,2);
+
 }
 
-bool Osd::credits() {
+bool Osd::credits() { return credits(!_credits); }
+bool Osd::credits(bool s) {
 
   //  env->clear_once = true; //scr(env->get_surface(),env->size);
-  _credits = !_credits;
+  if(_credits == s) return s;
+  _credits = s;
 
   if(_credits) {
     env->track_fps = true;
     if(ipernaut) {
-      env->layers.prepend(ipernaut);
+
       /* add first vertigo effect on logo */
       if(!osd_vertigo)
 	osd_vertigo = env->plugger.pick("vertigo");
@@ -313,7 +340,7 @@ bool Osd::credits() {
 	  osd_vertigo->init(&ipernaut->geo);
 	  ipernaut->filters.prepend(osd_vertigo);
 	}
-      env->layers.add(ipernaut);
+      env->layers.prepend(ipernaut);
     }
 
 #if 0
@@ -341,10 +368,12 @@ bool Osd::credits() {
 }
 
 void Osd::_print_credits() {
-  _set_color(green);
-  uint32_t *pos = print(PACKAGE,hilogo_offset,1,1);
-  print(VERSION,pos,1,1);
   if(_credits) draw_credits();
+  else {
+    _set_color(green);
+    uint32_t *pos = print(PACKAGE,hilogo_offset,1,1);
+    print(VERSION,pos,1,1);
+  }
 }
 
 void Osd::_set_color(colors col) {
@@ -371,6 +400,7 @@ void Osd::_set_color(colors col) {
 }
 
 void Osd::clean() {
+  if(!_active) return;
   //func("Osd::clean()");
   int c,cc;
   int jump = (env->screen->w - HBOUND - HBOUND) / 2;

@@ -22,12 +22,6 @@
 #include <context.h>
 #include <inttypes.h>
 
-#define HBOUND 30
-#define VBOUND 18
-
-#define VBP 16 /* vertical bound proportion */
-#define HBP 13 /* horizontal bound proportion */
-#define TOPLIST 6 /* distance down from vbound where they start the vertical lists */
 
 typedef enum { black, white, green, red, blue, yellow } colors;
 typedef void (write_routine)(char*, int, int, int, int);
@@ -53,7 +47,8 @@ class Osd {
 
   void draw_credits();
   uint32_t *hicredits_offset;
-  uint32_t *locredits_offset;
+  uint32_t *locredits_offset1;
+  uint32_t *locredits_offset2;
   uint32_t *hilogo_offset;
 
   void _print_status();
@@ -84,6 +79,7 @@ class Osd {
   //  void statusmsg(char *format,...);
   bool active();
   bool calibrate();
+  bool credits(bool s);
   bool credits();
   bool fps();
   void clean();

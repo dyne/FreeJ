@@ -1,5 +1,8 @@
 INCLUDES = -I$(top_srcdir)/src/include -I$(top_srcdir)/ccvt
-AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ @FT2_CFLAGS@
+AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
+              @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ \
+	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
+              -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
 
@@ -22,8 +25,9 @@ freej_SOURCES = \
 	impl_layers.cpp \
 	sdl_screen.cpp \
 	sdl_blit.cpp \
-	keyboard.cpp	\
+	kbd_ctrl.cpp	\
 	gtk_ctrl.cpp	\
+	joy_ctrl.cpp	\
 	tvfreq.c
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \

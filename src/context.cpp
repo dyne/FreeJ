@@ -160,8 +160,12 @@ void Context::calc_fps() {
 }
 
 void Context::rocknroll(bool state) {
-  layers.lock();
+
   Layer *l = (Layer *)layers.begin();
+
+  if(!l) { osd.credits(true); return; }
+
+  layers.lock();
   while(l) {
     if(!l->running) {
       l->start();

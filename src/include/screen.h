@@ -33,7 +33,7 @@ class ViewPort {
  
   /* i keep all the following functions pure virtual to deny the
      runtime resolving of methods between parent and child, which
-     would burden our performance */ 
+     otherwise burdens our performance */ 
   virtual bool init(int width, int height) =0;
   virtual void blit(Layer *layer) =0;
   virtual void crop(Layer *layer) =0;

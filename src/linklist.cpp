@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  -------------------------------------------------------------------------
    linked list container class
 
@@ -98,6 +101,8 @@ void Linklist::insert(Entry *addr, int pos) {
     prepend(addr);
     return;
   }
+
+  if(addr->list) addr->rem();
 
   Entry *ptr = pick(pos);
 

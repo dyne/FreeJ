@@ -27,16 +27,18 @@
 #include <assert.h>
 
 #include <context.h>
-#include <keyboard.h>
 
 #include <osd.h>
 #include <plugger.h>
 #include <jutils.h>
 #include <config.h>
 
+/* controller interfaces */
+#include <kbd_ctrl.h>
 #ifdef WITH_GLADE2
 #include <gtk_ctrl.h>
 #endif
+#include <joy_ctrl.h>
 
 #define MAX_CLI_CHARS 4096
 
@@ -229,12 +231,17 @@ int main (int argc, char **argv) {
   KbdListener keyb;
   assert( keyb.init(&freej));
 
+  /* launches the joystick controller thread
+     if any joystick is connected */
+  JoyControl joystick;
+  joystick.init(&freej);
+
 #ifdef WITH_GLADE2
   /* check if we have an X11 display running */
-  if(!getenv("DISPLAY")) gtkgui = false; 
+  if(!getenv("DISPLAY")) gtkgui = false;
   /* this launches gtk2 interface controller thread */
   if(gtkgui) {
-    gtk_ctrl_init(&freej,&argc,argv);
+    gtkgui = gtk_ctrl_init(&freej,&argc,argv);
   }
 #endif
 
