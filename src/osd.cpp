@@ -86,7 +86,7 @@ void Osd::init(Context *screen) {
   layer_offset = (uint32_t*)env->coords(env->w-28,VBOUND+TOPLIST);
   filter_offset = (uint32_t*)env->coords(3,VBOUND+6);
   hicredits_offset = (uint32_t*)env->coords((env->w/2)-100,VBOUND+5);
-  locredits_offset = (uint32_t*)env->coords((env->w/2)-140,env->h-70);
+  locredits_offset = (uint32_t*)env->coords((env->w/2)-140,env->h-60);
   hilogo_offset = (uint32_t*)env->coords(3,0);
   newline = env->pitch*(CHAR_HEIGHT);
   snprintf(title,64,"%s %s",PACKAGE,VERSION);
@@ -279,14 +279,16 @@ void Osd::splash_screen() {
   pos = print(title,pos,2,2);
   pos = print("MONTEVIDEO",pos,2,2);
   pos = print(":: set the veejay free ",pos,1,2);
-
+  
   pos = locredits_offset;
-  _set_color(red);
-  pos = print("############# by rastasoft.org",pos,1,2);
+  pos = print("GNU GPL free software | rastasoft.org",pos,1,2);
+  pos = print("copyleft 2001-2003 jaromil @ dyne.org",pos,1,2);
+
+  /*
   _set_color(yellow);
   pos = print("############# copyleft 2001 - 2003",pos,1,2);
   _set_color(green);
-  pos = print("############# jaromil @ dyne.org",pos,1,2);
+*/
 }
 
 bool Osd::credits() {

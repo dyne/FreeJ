@@ -126,17 +126,14 @@ dnl CHECK if there is FREETYPE2
 dnl ==============================================================
 AC_CHECK_FT2(9.0.0,[
 	AC_DEFINE(WITH_FT2,1,[define if compiling freetype2 layer])
-	have_freetype2=yes ])
+	have_freetype2=yes],have_freetype2=no)
 
 dnl ==============================================================
 dnl CHECK if there are PNG libraries
 dnl ==============================================================
 PKG_CHECK_MODULES(PNG, libpng12 >= 1.2.0, [
   AC_DEFINE(WITH_PNG,1,[define if compiling png layer])	
-  have_png=yes
-],[
-  have_png=no
-])
+  have_png=yes],have_png=no)
 
 #PNG_LIBS=""
 #AC_CHECK_HEADER(png.h)

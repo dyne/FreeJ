@@ -206,25 +206,13 @@ int main (int argc, char **argv) {
   }
 
   /* even if not specified on commandline
-     try to open the default video device 
+     try to open the default video device */
   lay = create_layer("/dev/video0");
-  if(lay) freej.add_layer(lay); */
-
-  /* (no layers && no GUI) then quit here */
-  if(freej.layers.len()<1) {
-    if(gtkgui)
-      freej.osd.splash_screen();
-    else{
-      error("no layers present, quitting");
-      act("you should at least load a movie,");
-      act("a png image or have a video card");
-      act("to see something more (see freej -h)");
-      exit(0);
-    }
-  }
-
+  if(lay) freej.add_layer(lay);
   
-  
+  /* (no layers && no GUI) then show credits */
+  if(freej.layers.len()<1)
+    freej.osd.credits();
 
   /* launch layer threads
   func("rock the house");

@@ -52,9 +52,9 @@ echo "  aclocal -I $srcdir/m4"
 aclocal -I $srcdir/m4
 echo "  autoheader"
 autoheader
-echo "  libtoolize --automake"
+echo "  libtoolize --automake -c"
 libtoolize --automake -c
-echo "  automake --add-missing"
+echo "  automake --add-missing -c"
 automake --add-missing -c 
 echo "  autoconf"
 autoconf

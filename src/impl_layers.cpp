@@ -66,13 +66,14 @@ Layer *create_layer(char *file) {
   Layer *nlayer = NULL;
   
   /* check that file exists */
-  tmp = fopen(file,"r");
-  if(!tmp) {
-    error("can't open %s to create a Layer: %s",
-	  file,strerror(errno));
-    return NULL; 
-  } else fclose(tmp);
-  
+  if(strncasecmp(file,"/dev/",5)!=0) {
+    tmp = fopen(file,"r");
+    if(!tmp) {
+      error("can't open %s to create a Layer: %s",
+	    file,strerror(errno));
+      return NULL; 
+    } else fclose(tmp);
+  }
   /* check file type, add here new layer types */
   p = pp = file;
   p += strlen(file);
