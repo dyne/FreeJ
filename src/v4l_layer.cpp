@@ -180,33 +180,30 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
 
   u = (geo.w*geo.h);
   v = u+(u/2);
-  
-  for(i=0; i<grab_map.frames; i++) {
-    grab_buf[i].format = palette;
-    grab_buf[i].frame  = i;
-    grab_buf[i].height = geo.h;
-    grab_buf[i].width = geo.w;
-  }
-  
+
   /* mmap (POSIX.4) buffer for grabber device */
   buffer = (unsigned char *) mmap(0,grab_map.size,PROT_READ|PROT_WRITE,MAP_SHARED,dev,0);
   if(MAP_FAILED == buffer) {
     error("cannot allocate v4lgrabber buffer ");
     return(false);
   }
-
-  /* feed up the mmapped frames */
-  cur_frame = ok_frame = 0;  
-  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) {
-    func("V4lGrabber::init");
-    error("error in ioctl VIDIOCMCAPTURE");
-  }
-  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) {
-    func("V4lGrabber::init");
-    error("error in ioctl VIDIOCMCAPTURE");
-    return NULL;
+  
+  for(i=0; i<grab_map.frames; i++) {
+    /* initialize frames geometry */
+    grab_buf[i].format = palette;
+    grab_buf[i].frame  = i;
+    grab_buf[i].height = geo.h;
+    grab_buf[i].width = geo.w;
   }
 
+  /* feed up the mmapped frame */  
+  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) {
+    func("V4lGrabber::init");
+    error("error in ioctl VIDIOCMCAPTURE on buffer %p",&grab_buf[i]);
+  }
+
+
+  cur_frame = ok_frame = 0;
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
   if(grab_cap.channels>1)
@@ -319,20 +316,20 @@ void *V4lGrabber::get_buffer() {
 void *V4lGrabber::feed() {
 
   ok_frame = cur_frame;
-  cur_frame = ((cur_frame+1)%num_frame);
+  
+  cur_frame = (cur_frame>=num_frame) ? 0 : cur_frame++;
+  // cur_frame = ((cur_frame+1)%num_frame); 10x luka@ljudmila
 
-  grab_buf[0].format = palette;
-
+  grab_buf[ok_frame].format = palette;
   if (-1 == ioctl(dev,VIDIOCSYNC,&grab_buf[ok_frame])) {
     func("V4lGrabber::feed");
-    error("error in ioctl VIDIOCSYNC");
-    return NULL;
+    error("error in ioctl VIDIOCSYNC on buffer %p",&grab_buf[ok_frame]);
   }
 
+  grab_buf[cur_frame].format = palette;
   if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
     func("V4lGrabber::feed");
-    error("error in ioctl VIDIOCMCAPTURE");
-    return NULL;
+    error("error in ioctl VIDIOCMCAPTURE on buffer %p",&grab_buf[cur_frame]);
   }
 
   (*yuv2rgb)((uint8_t *) rgb_surface,
