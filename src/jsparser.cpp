@@ -29,6 +29,7 @@ JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
 	env=_env;
     init();
+    parse_count=0;
     notice("JsParser::JsParser created");
 }
 
@@ -41,7 +42,7 @@ JsParser::~JsParser() {
 }
 void JsParser::init_structs() {
 	layer_class.name="Layer";
-	layer_class.flags=JSCLASS_NEW_RESOLVE;
+	layer_class.flags=JSCLASS_HAS_PRIVATE;
 	layer_class.addProperty=JS_PropertyStub;
 	layer_class.delProperty=JS_PropertyStub;
 	layer_class.getProperty=JS_PropertyStub;
@@ -50,12 +51,12 @@ void JsParser::init_structs() {
 	layer_class.resolve=JS_ResolveStub;
 	layer_class.convert=JS_ConvertStub;
 	layer_class.finalize=JS_FinalizeStub;
-//	layer_class.getObjectOps=NULL;
-//	layer_class.checkAccess=NULL;
-//	layer_class.construct=layer_constructor;
+	layer_class.getObjectOps=NULL;
+	layer_class.checkAccess=NULL;
+	layer_class.construct=layer_constructor;
 
 	global_class.name="global";
-	global_class.flags=JSCLASS_NEW_RESOLVE;
+	global_class.flags=JSCLASS_HAS_PRIVATE;
 	global_class.addProperty=JS_PropertyStub;
 	global_class.delProperty=JS_PropertyStub;
 	global_class.getProperty=JS_PropertyStub;
@@ -64,13 +65,25 @@ void JsParser::init_structs() {
 	global_class.resolve=JS_ResolveStub;
 	global_class.convert=JS_ConvertStub;
 	global_class.finalize=JS_FinalizeStub;
-
+/*
+	layer_properties = {
+    {"color",       MY_COLOR,       JSPROP_ENUMERATE},
+    {"height",      MY_HEIGHT,      JSPROP_ENUMERATE},
+    {"width",       MY_WIDTH,       JSPROP_ENUMERATE},
+    {"funny",       MY_FUNNY,       JSPROP_ENUMERATE},
+    {"array",       MY_ARRAY,       JSPROP_ENUMERATE},
+    {"rdonly",      MY_RDONLY,      JSPROP_READONLY},
+    {0}
+};
+*/
+/*
 	JSFunctionSpec shell_functions[] = {
-	    /*    name          native          nargs    */
+	        name          native          nargs    
 	    {"add_layer",         add_layer,        1},
 	    {"kolos",         kolos,        2},
 	    {0}
 	};
+*/
 }
 JSBool kolos(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
     JSString *str;
@@ -113,43 +126,59 @@ void JsParser::init() {
     JS_InitStandardClasses(js_context, global_object);
 
     /* Now initialize our class. */
-//    JS_InitClass(js_context, global_object, NULL, &layer_class, layer_constructor, 0, NULL, NULL, NULL, NULL);
+    JS_InitClass(js_context, global_object, NULL, &layer_class, layer_constructor, 0, NULL, NULL, NULL, NULL);
 
-    JSObject *layer=JS_DefineObject(js_context,global_object,"Layer",&layer_class,NULL,0);
-    if(layer==NULL) {
-	error("JsParser :: error creating object");
-	return ;
-    }
+//    JS_DefineProperties(js_context, layer_object, layer_properties);
 
     /* Declare shell functions */
     if (!JS_DefineFunctions(js_context, global_object, shell_functions)) {
 	error("JsParser :: error defining shell functions");
 	return ;
     }
-
     return ;
 }
 
 JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
+    JSObject *this_obj;
     func("JsParser::layer_constructor()");
     Layer *layer;
+
     if(argc < 1)
 	return JS_TRUE;
     else
 	layer=create_layer(JS_GetStringBytes(JS_ValueToString(cx,argv[0])));
-
     if(layer==NULL)
 	return JS_FALSE;
-    JS_SetPrivate(cx,obj,layer);
+
+//    this_obj = JS_NewObject(cx, &layer_class, NULL, obj); 
+    if (!JS_SetPrivate(cx, obj, (void *) layer)) {
+	 printf("COULDN't SET THE PRIVATE VALUE\n"); 
+	 return JS_FALSE;
+    }
+    *rval = OBJECT_TO_JSVAL(obj);
+ //   func("this_obj JSObject : %p",this_obj);
+    func("obj JSObject : %p",obj);
     return JS_TRUE;
 }
 JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
-    func("JsParser::add_layer()");
-    JSObject *layer=JSVAL_TO_OBJECT(argv[1]);
-    Layer *lay;
     func("JsParser :: add_layer()");
-    lay = (Layer *) JS_GetPrivate(cx, layer);
-    if(!lay) return JS_TRUE;
+    JSObject *layer;
+
+    if(!JSVAL_IS_OBJECT(argv[0])) {
+	layer=JSVAL_TO_OBJECT(argv[0]);
+	printf("Il primo argomento non e' un oggetto %p\n",layer);
+	return JS_FALSE;
+    }
+    layer=JSVAL_TO_OBJECT(argv[0]);
+    func("layer JSObject : %p",layer);
+    if(layer==NULL)
+	return JS_FALSE;
+    Layer *lay;
+    lay = (Layer *) JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+    if(!lay) {
+	printf("Layer is null\n");
+	return JS_FALSE;
+    }
     if(lay->init(env)) {
 	if(lay) env->layers.add(lay);
 	env->layers.sel(0); /* deselect others */
@@ -159,9 +188,13 @@ JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 int JsParser::open(const char* script_file) {
 }
 int JsParser::parse(){
+//    char *script="kolos(32,\"pippo\")";
+    char *script="add_layer(new Layer(\"/home/kysucix/video/rotolascia.avi\"))";
+//    char *script="var pippo=new Layer(\"/home/kysucix/video/Flower.png\"); add_layer(pippo)";
+    if(parse_count>0)
+	return 0;
+    parse_count++;
     func("JsParser::parse()");
-//    char *script="add_layer(new Layer(\"/home/ksycuxi/video/Flower.png\"))";
-    char *script="kolos(32,\"pippo\")";
     jsval ret_val;
 
     JSBool ok = JS_EvaluateScript(js_context, global_object, script, strlen(script), "refugees.js", 1, &ret_val);

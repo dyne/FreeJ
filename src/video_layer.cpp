@@ -78,7 +78,7 @@ bool VideoLayer::init(Context *scr) {
     play_speed -= play_speed<<1;
     if(frame_rate==1)
 	play_speed=0;
-    notice("play_speed: %d",play_speed);
+//    notice("play_speed: %d",play_speed);
 
     /* init variables */
     paused=false;

@@ -14,6 +14,18 @@ JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 JSBool kolos(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
+static	JSFunctionSpec shell_functions[] = {
+    /*    name          native          nargs    */
+    {"add_layer",         add_layer,        1},
+    {"kolos",         kolos,        2},
+    {0}
+};
+/**
+ * TODO!!! da inserire in un header separato tipo jsparser_data_structures.h
+ *
+ */
+static JSClass layer_class;
+static JSClass global_class;
 class JsParser {
     public:
 	JsParser(Context *_env);
@@ -24,13 +36,13 @@ class JsParser {
 	JSRuntime *js_runtime;
 	JSContext *js_context;
 	JSObject *global_object;
+	JSObject *layer_object;
 	void init();
 	void init_structs();
 
+	JSPropertySpec layer_properties[3];
 
-	JSClass layer_class;
-	JSClass global_class;
-
-	JSFunctionSpec shell_functions[3];
+	int parse_count;
+//	JSFunctionSpec shell_functions[3];
 };
 #endif
