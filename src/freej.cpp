@@ -48,6 +48,7 @@ static const char *help =
 " .   -h   print this help\n"
 " .   -v   version information\n"
 " .   -D   debug verbosity level - default 1\n"
+" .   -C   no graphical interface"
 " .   -s   size of screen - default 400x300\n"
 " .   -d   double screen size\n"
 " .   -n   start with deactivated layers\n"
@@ -67,7 +68,7 @@ static const struct option long_options[] = {
 };
 */
 
-static const char *short_options = "-hvD:s:dn";
+static const char *short_options = "-hvD:Cs:dn";
 
 int debug;
 char layer_files[MAX_CLI_CHARS];
@@ -76,6 +77,11 @@ int width = 400;
 int height = 300;
 bool doublesize = false;
 bool startstate = true;
+#ifdef WITH_GLADE2
+bool gtkgui = true;
+#else
+bool gtkgui = false;
+#endif
 
 void cmdline(int argc, char **argv) {
   int res, optlen;
@@ -103,6 +109,9 @@ void cmdline(int argc, char **argv) {
 	warning("debug verbosity ranges from 1 to 3\n");
 	debug = 3;
       }
+      break;
+    case 'C':
+      gtkgui = false;
       break;
     case 's':
       sscanf(optarg,"%ux%u",&width,&height);
@@ -138,7 +147,7 @@ void cmdline(int argc, char **argv) {
       break;
 
     default:
-      act("received commandline parser code %i with optarg %s",res,optarg);
+      // act("received commandline parser code %i with optarg %s",res,optarg);
       break;
     }
   } while (res != -1);
@@ -207,8 +216,8 @@ int main (int argc, char **argv) {
   osd.active();
   set_osd(osd.status_msg); /* let jutils know about the osd */
 
-  /* if the context has no layers quit here */
-  if(screen.layers.len()<1) {
+  /* (context has no layers && there is no GUI) then quit here */
+  if(screen.layers.len()<1 && !gtkgui) {
     error("no layers present, quitting");
     screen.close();
     act("you should at least load a movie,");
@@ -221,15 +230,8 @@ int main (int argc, char **argv) {
   /* this is the Plugin manager */
   Plugger plugger;
   plugger.refresh();
+  screen.plugger = &plugger;  /* dirty! */
 
-
-  /* this is the keyboard listener */
-  KbdListener keyb;
-  assert( keyb.init(&screen, &plugger) );
-
-#ifdef WITH_GLADE2
-  gtk_ctrl_init(&screen,&argc,argv);
-#endif
   
 
   /* launch layer threads */
@@ -237,9 +239,17 @@ int main (int argc, char **argv) {
   screen.rocknroll(startstate);
   func("OK, rolling");
 
+  /* this is the keyboard listener */
+  KbdListener keyb;
+  assert( keyb.init(&screen, &plugger) );
   keyb.start();
 
-  while(!keyb.quit) {
+#ifdef WITH_GLADE2
+  /* this launches gtk2 interface thread */
+  if(gtkgui) gtk_ctrl_init(&screen,&argc,argv);
+#endif
+
+  while(!screen.quit) {
     /* main loop */
 
     if(screen.clear_all) {
@@ -257,17 +267,19 @@ int main (int argc, char **argv) {
 
     screen.flip();
     
-    screen.calc_fps();
-
     screen.rocknroll(true);
 
-    gtk_ctrl_poll();
+    screen.calc_fps();
 
   }
 
   /* quitting */
   screen.close();
   plugger.close();
+
+#ifdef WITH_GLADE2
+  if(gtkgui) gtk_ctrl_quit();
+#endif
 
   act(" ");
   act("You are encouraged to exhibit the output of this software publicly");

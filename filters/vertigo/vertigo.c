@@ -154,7 +154,7 @@ int kbd_input(SDL_keysym *keysym) {
       phase_increment -= 0.01;
     break;
   case SDLK_s:
-    if(zoomrate<1.1) {
+    if(zoomrate<1.2) {
       zoomrate += 0.01;
       tfactor = (xc+yc) * zoomrate;
     }

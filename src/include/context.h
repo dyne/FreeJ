@@ -103,6 +103,8 @@ class Context {
   /* On Screen Display */
   Osd *osd;
 
+  Plugger *plugger;
+
   /* Keyboard Listener */
   KbdListener *kbd;
 

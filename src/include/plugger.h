@@ -37,6 +37,7 @@ class Plugger {
   void close() { _delete(); };
   /* returns a pointer to the full path string of num plugin */
   Filter *operator[](const int num);
+  Filter *plugs[MAX_PLUGINS];
  private:
   /* clears up the whole plugs list */
   int _delete();
@@ -50,7 +51,7 @@ class Plugger {
   char *_getsearchpath() { return(_searchpath); };
 
   char *_searchpath;
-  Filter *plugs[MAX_PLUGINS];
+
 };  
 
 #endif

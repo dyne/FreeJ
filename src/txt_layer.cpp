@@ -103,7 +103,7 @@ bool TxtLayer::init(Context *scr) {
      punt = pword = chunk;
 
      x=(geo.w/2)*(geo.bpp/8);
-     y=geo.h/2;
+     y=(geo.h/2)+50;
      return(true);
 }
 
@@ -348,20 +348,26 @@ bool TxtLayer::keypress(SDL_keysym *keysym) {
      case SDLK_k:  onscreen_blink++;  break;
      case SDLK_m:  onscreen_blink--;  break;
 
-	  case SDLK_p: /* wider */ 
+	  case SDLK_w: /* wider */ 
 	    if(keysym->mod & KMOD_LCTRL)
 	      set_character_size(text_dimension+=10);
 	    else
 	      set_character_size(text_dimension++);
 	    break;
 
-	  case SDLK_o: /* smaller */
+	  case SDLK_q: /* smaller */
 	    if(keysym->mod & KMOD_LCTRL)
 	      set_character_size(text_dimension-=10);
 	    else
 	      set_character_size(text_dimension--);
 	    break;
 
+	  case SDLK_s: /* much wider */
+	    set_character_size(text_dimension-=30);
+	   break;
+          case SDLK_a: /* much smaller */
+            set_character_size(text_dimension+=30);
+	   break;
 	  default: 
 	       res = 0; 
 	       break;

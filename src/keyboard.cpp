@@ -69,8 +69,10 @@ void KbdListener::run() {
 	switch(event.key.keysym.sym) {
 	  
 	case SDLK_ESCAPE:
-	  if(event.key.keysym.mod & KMOD_CTRL)
+	  if(event.key.keysym.mod & KMOD_CTRL) {
 	    quit = true;
+	    screen->quit = true;
+	  }
 	  else
 	    show_osd("press CTRL+ESC if you really want to quit");
 	  break;
@@ -156,6 +158,7 @@ void KbdListener::run() {
 
       case SDL_QUIT:
 	quit = true;
+	screen->quit = true;
 	break;
 	
       default: break;
