@@ -1,7 +1,6 @@
 /*  FreeJ
  *  (c) Copyright 2001 Silvano Galliani aka kysucix <kysucix@dyne.org>
  *
- *  Code "inspired" from ffplay ;)
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -23,7 +22,7 @@
 
 #include <config.h>
 
-#ifdef WITH_AVCODEC 
+#ifdef WITH_AVCODEC
 
 #include <iostream>
 #include <string.h>
@@ -35,8 +34,10 @@
 #include "avcodec.h"
 #include "avformat.h"
 
+#define DEBUG 1
 
-VideoLayer::VideoLayer() 
+
+VideoLayer::VideoLayer()
     :Layer() {
 	grab_dv=false;
 	set_name("VIDEO");
@@ -75,7 +76,7 @@ bool VideoLayer::init(Context *scr) {
      * feed() function is called 25 times for second so we must correct the speed
      */
     if(play_speed==25) {
-	play_speed=(25/frame_rate) - 1; 
+	play_speed=(25/frame_rate) - 1;
 	play_speed -= play_speed<<1;
 	if(frame_rate==1)
 	    play_speed=0;
@@ -119,14 +120,13 @@ bool VideoLayer::open(char *file) {
 	memset(av_format_par, 0, sizeof(*av_format_par));
 
 	/** shit XXX */
-	av_format_par->width=160;
-	av_format_par->height=128;
+	av_format_par->width=720;
+	av_format_par->height=576;
 	av_format_par->frame_rate=25;
 	av_format_par->frame_rate_base=1;
-
 	av_format_par->device=file;
-	av_format_par->standard="PAL";
-	av_format_par->channel=0;
+	av_format_par->standard="pal";
+//	av_format_par->channel=0;
 	file="";
     }
 
@@ -203,7 +203,7 @@ void *VideoLayer::feed() {
      * follow user video loop
      */
     if(mark_in!=NO_MARK && mark_out!=NO_MARK && seekable) {
-	if (get_master_clock()>=mark_out) 
+	if (get_master_clock()>=mark_out)
 	seek((int64_t)mark_in * AV_TIME_BASE/*D ART*/);
     }
 
@@ -271,7 +271,7 @@ void *VideoLayer::feed() {
 		len1 = avcodec_decode_video(enc, &av_frame, &got_picture, ptr,packet_len);
 
 		pts1=packet_pts;
-		if (avformat_stream->codec.has_b_frames && 
+		if (avformat_stream->codec.has_b_frames &&
 			av_frame.pict_type != FF_B_TYPE) {
 		    /* use last pts */
 		    packet_pts = video_last_P_pts;
@@ -287,7 +287,7 @@ void *VideoLayer::feed() {
 		video_current_pts=packet_pts;
 		video_current_pts_time=av_gettime();
 		/* update video clock for next frame */
-		double frame_delay = (double)avformat_stream->codec.frame_rate_base / 
+		double frame_delay = (double)avformat_stream->codec.frame_rate_base /
 		    (double)avformat_stream->codec.frame_rate;
 		/* for MPEG2, the frame can be repeated, so we update the
 		   clock accordingly */
@@ -306,7 +306,7 @@ void *VideoLayer::feed() {
 		   ftype = 'I';
 		   else
 		   ftype = 'P';
-		   printf("frame_type=%c clock=%0.3f pts=%0.3f\n", 
+		   printf("frame_type=%c clock=%0.3f pts=%0.3f\n",
 		   ftype, get_master_clock(), pts1);
 		   }
 		   */
@@ -332,7 +332,7 @@ void *VideoLayer::feed() {
 		    /** Deinterlace input if requested */
 		    if(deinterlaced)
 			deinterlace((AVPicture *)src);
-		    
+
 		    avpicture_fill( av_picture, av_buf, dst_pix_fmt, enc->width, enc->width );
 		    img_convert(av_picture, dst_pix_fmt, (AVPicture *)src, avformat_stream->codec.pix_fmt,
 			    enc->width,
@@ -354,7 +354,7 @@ void VideoLayer::close() {
 	    avcodec_close(enc);
 	}
     }
-    if(avformat_context) { 
+    if(avformat_context) {
 	av_close_input_file(avformat_context);
 	avformat_context=NULL;
     }
@@ -383,13 +383,13 @@ bool VideoLayer::keypress(char key) {
 	case 'n': /* decrease playing speed */
 	    less_speed();
 	    break;
-	    
+
 	case 'i': /* set mark in */
-	    set_mark_in(); 
+	    set_mark_in();
 	    break;
 
 	case 'o': /* set mark out */
-	    set_mark_out(); 
+	    set_mark_out();
 	    break;
 
 	case 'u': /* Swith deinterlace */
@@ -410,7 +410,7 @@ bool VideoLayer::set_mark_in() {
 	notice("mark_in: %f", mark_in);
     }
     else {
-	mark_in = NO_MARK; 
+	mark_in = NO_MARK;
 	notice("mark_in deleted");
     }
     show_osd();
@@ -455,13 +455,13 @@ bool VideoLayer::relative_seek(double increment) {
     //    printf("master_clock(): %f\n",current_time);
     current_time+=increment;
     /**
-     * Check the seek time is correct! 
+     * Check the seek time is correct!
      * It should not be before or after the beginning and the end of the movie
      */
     if (current_time<0)  // beginning
 	current_time=0;
-    /** 
-     * Forward in video as a loop 
+    /**
+     * Forward in video as a loop
      */
     else  { // beginning
 	while(current_time>(avformat_context->duration/AV_TIME_BASE))  {
@@ -486,13 +486,13 @@ bool VideoLayer::relative_seek(double increment) {
  */
 int VideoLayer::seek(int64_t timestamp) {
     /* return value */
-    int ret=0; 
+    int ret=0;
     bool seeking_at_beginning_of_stream=false;
     /** mark-{in|out} in AV_TIME_BASE unit */
     int64_t mark_in_av_time_base;
     int64_t mark_out_av_time_base;
 
-    if(timestamp==avformat_context->start_time)  
+    if(timestamp==avformat_context->start_time)
 	seeking_at_beginning_of_stream=true;
     /**
      * handle bof by closing and reopening file when media it's not seekable
@@ -519,7 +519,7 @@ int VideoLayer::seek(int64_t timestamp) {
     if ( mark_in != NO_MARK && mark_out != NO_MARK ) {
 	if ( timestamp < mark_in_av_time_base )
 	    timestamp=mark_in_av_time_base++;
-	else if ( timestamp > mark_out_av_time_base ) 
+	else if ( timestamp > mark_out_av_time_base )
 	    timestamp=mark_out_av_time_base++;
     }
     /**
@@ -553,7 +553,7 @@ double VideoLayer::get_master_clock() {
 	    paused=false;
 	else
 	    paused=true;
-	notice("avi pause : %s",(paused)?"on":"off");
+	notice("pause : %s",(paused)?"on":"off");
 	show_osd();
     }
 void VideoLayer::deinterlace(AVPicture *picture) {
@@ -571,7 +571,7 @@ void VideoLayer::deinterlace(AVPicture *picture) {
     picture2 = &picture_tmp;
     avpicture_fill(picture2, deinterlace_buffer, enc->pix_fmt, enc->width, enc->height);
 
-    if(avpicture_deinterlace(picture2, picture, 
+    if(avpicture_deinterlace(picture2, picture,
 		enc->pix_fmt, enc->width, enc->height) < 0) {
 	/* if error, do not deinterlace */
 	av_free(deinterlace_buffer);

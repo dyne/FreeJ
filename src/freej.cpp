@@ -33,6 +33,7 @@
 #include <jutils.h>
 #include <config.h>
 
+
 /* controller interfaces */
 #ifdef WITH_GLADE2
 #include <gtk_ctrl.h>
@@ -53,7 +54,7 @@
    (scroll down about 100 lines for the real stuff)
  */
 
-static const char *help = 
+static const char *help =
 " .  Usage: freej [options] [layers]\n"
 " .  options:\n"
 " .   -h   print this help\n"
@@ -70,7 +71,7 @@ static const char *help =
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n";
 
-// we use only getopt, no _long 
+// we use only getopt, no _long
 static const char *short_options = "-hvD:Cs:m:nj:";
 
 int debug;
@@ -87,6 +88,65 @@ bool gtkgui = true;
 #else
 bool gtkgui = false;
 #endif
+
+
+bool parse_header_for_script() {
+    char *tmp_buf=NULL;
+    FILE *fd=NULL;
+    bool script_found=false;
+    char *script=layer_files;
+
+    if(*script) {
+	{
+	    // strip final '#'
+	    char *tmp=strrchr(script,'#');
+	    int script_name_size=tmp-script;
+
+	    script=strndup(layer_files,script_name_size);
+	    if(!script)
+		return false;
+	}
+
+
+	// open script
+	fd=fopen(script,"r");
+	if(!fd) {
+	    error("Can't open script %d",script);
+	    return false;
+	}
+
+	// allocate buffer
+	tmp_buf=(char *)malloc(25);
+	if(!tmp_buf) {
+	    error("Cant allocate memory for script");
+	    return false;
+	}
+
+	// read first line and check for correct header
+	int res = fread(tmp_buf,1,25,fd);
+	if(res>0) {
+	    if(strncmp(tmp_buf,"#!/usr/bin/freej",16)==0 ||
+		    strncmp(tmp_buf,"#!/usr/local/bin/freej",22)==0 ) {
+		script_found=true;
+		snprintf(javascript,512,"%s",script);
+		notice("found script: %s", javascript);
+	    }
+	}
+	else {
+	    error("Can't read script");
+	    perror("fread");
+	}
+    }
+    else
+	return false;
+    // free buffer
+    if(tmp_buf) {
+	free(tmp_buf);
+    }
+    // close script
+    fclose(fd);
+    return script_found;
+}
 
 void cmdline(int argc, char **argv) {
   int res, optlen;
@@ -199,7 +259,7 @@ int main (int argc, char **argv) {
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
      this hangs on some linux kernels - darwin doesn't even bothers with it
      anybody knows what's wrong when you turn it on? ouch! it hurts :|
-     set_rtpriority is inside jutils.cpp 
+     set_rtpriority is inside jutils.cpp
      if(set_rtpriority(true))
      notice("running as root: high priority realtime scheduling allowed.");
   */
@@ -212,10 +272,9 @@ int main (int argc, char **argv) {
   /* refresh the list of available plugins */
   freej.plugger.refresh();
 
-
 #ifdef WITH_JAVASCRIPT
   /* execute javascript */
-  if(javascript[0]) {
+  if(parse_header_for_script() || javascript[0] ) {
     freej.interactive = false;
     freej.js->open(javascript);
     if(freej.quit) {
@@ -225,14 +284,14 @@ int main (int argc, char **argv) {
   }
 #endif
 
-    
-  
+
+
   /* initialize the S-Lang text Console */
   if( getenv("TERM") ) {
     freej.console = new Console();
     freej.console->init( &freej );
   }
-  
+
   /* initialize the Keyboard Listener */
   freej.kbd.init( &freej );
 
@@ -252,7 +311,8 @@ int main (int argc, char **argv) {
       l = p+1;
       if(cli_chars<=0) break; *p='\0';
 
-      lay = create_layer(pp);
+      if(strcmp(pp,javascript)!=0) // don't open the script on command line
+	  lay = create_layer(pp);
       if(lay) {
 	lay->init(&freej);
 	freej.layers.add(lay);
@@ -313,12 +373,12 @@ int main (int argc, char **argv) {
      which is called by the Context class (freej instance here)
      so it's a tree of cafudda calls originating from here
      all synched to the environment, yea, feels good */
-     
 
 
 
 
-  
+
+
   /* quit */
 
 #ifdef WITH_GLADE2

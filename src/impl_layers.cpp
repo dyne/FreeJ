@@ -61,16 +61,16 @@ Layer *create_layer(char *file) {
   char *end_file_ptr,*file_ptr;
   FILE *tmp;
   Layer *nlayer = NULL;
-  
+
   /* check that file exists */
-  if(strncasecmp(file,"/dev/",5)!=0 
+  if(strncasecmp(file,"/dev/",5)!=0
      && strncasecmp(file,"http://",7)!=0
      && strncasecmp(file,"layer_",6)!=0) {
     tmp = fopen(file,"r");
     if(!tmp) {
       error("can't open %s to create a Layer: %s",
 	    file,strerror(errno));
-      return NULL; 
+      return NULL;
     } else fclose(tmp);
   }
   /* check file type, add here new layer types */
@@ -105,17 +105,17 @@ Layer *create_layer(char *file) {
 
   } else /* AVI LAYER */
     if( IS_VIDEO_EXTENSION(end_file_ptr)
-	    | strncasecmp(end_file_ptr-4,".jpg",4)==0 
+	    | strncasecmp(end_file_ptr-4,".jpg",4)==0
 //	    | strncasecmp(end_file_ptr-4,".gif",4)==0  // it does not handle loops :''(
         | IS_FIREWIRE_DEVICE(file_ptr)) {
-#ifdef WITH_AVCODEC 
+#ifdef WITH_AVCODEC
       nlayer = new VideoLayer();
       if(!nlayer->open(file_ptr)) {
 	error("create_layer : VIDEO open failed");
 	delete nlayer; nlayer = NULL;
       }
-#elif WITH_AVIFILE 
-      if( strncasecmp(file_ptr,"/dev/ieee1394/",14)==0) 
+#elif WITH_AVIFILE
+      if( strncasecmp(file_ptr,"/dev/ieee1394/",14)==0)
 	  nlayer=NULL;
       nlayer = new AviLayer();
       if(!nlayer->open(file_ptr)) {
@@ -138,7 +138,7 @@ Layer *create_layer(char *file) {
 	error("PNG layer support not compiled");
 	act("can't load %s",file_ptr);
 #endif
-	
+
       } else /* TXT LAYER */
 	if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
 #ifdef WITH_FT2
@@ -164,7 +164,7 @@ Layer *create_layer(char *file) {
 	    error("no xhacks layer support");
 	    act("can't load %s",file_ptr);
 	    return(NULL);
-#endif	  
+#endif
 	} else
 	  if(strncasecmp(file_ptr,"layer_gen",9)==0) {
 	    nlayer = new GenLayer();
@@ -187,7 +187,7 @@ Layer *create_layer(char *file) {
 		error("create_layer : SCROLL open failed");
 		delete nlayer; nlayer = NULL;
 	      }
-	      
+
 	    }
 
   if(!nlayer)

@@ -91,7 +91,7 @@ void Context::close() {
 
   if(console)
     console->close();
-  
+
   lay = (Layer *)layers.begin();
   while(lay) {
     lay->lock();
@@ -99,7 +99,7 @@ void Context::close() {
     lay->quit = true;
     lay->signal_feed();
     lay->unlock();
-    SDL_Delay(500);
+//    SDL_Delay(500);
     delete lay;
     lay = (Layer *)layers.begin();
   }

@@ -212,6 +212,15 @@ int JsParser::open(const char* script_file) {
   fread(buf,len,1,fd);
   fclose(fd);
 
+  // test if it's a script and eventually strip first line
+  if(strncmp(buf,"#!/usr/",7)==0) {
+      char *tmp=strchr(buf,'\n');
+      tmp++;
+      len-=(tmp-buf); // update lenght for spidermonkey
+      buf=tmp;
+  }
+
+
   JSBool ok = JS_EvaluateScript (js_context, global_object,
 				 buf, len, script_file, c, &ret_val);
 
@@ -952,33 +961,33 @@ JS(video_layer_seek) {
 */
 
 JS(video_layer_forward) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
   GET_LAYER(VideoLayer);
-  
+
   lay->forward();
 
   return JS_TRUE;
 }
 JS(video_layer_rewind) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
   GET_LAYER(VideoLayer);
 
   lay->backward();
   return JS_TRUE;
 }
 JS(video_layer_mark_in) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
   GET_LAYER(VideoLayer);
 
   lay->set_mark_in();
   return JS_TRUE;
 }
 JS(video_layer_mark_out) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
   GET_LAYER(VideoLayer);
 
   lay->set_mark_out();
