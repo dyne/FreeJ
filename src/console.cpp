@@ -19,6 +19,10 @@
  *
  */
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include <signal.h>
 #include <slang.h>
 #include <context.h>
@@ -286,7 +290,7 @@ static int open_text_layer(char *cmd) {
 #endif
 
 #include <dirent.h>
-static char *path = NULL;
+
 static int filebrowse_completion_selector(const struct dirent *dir) {
   if(dir->d_name[0]=='.')
     if(dir->d_name[1]!='.')
@@ -296,55 +300,106 @@ static int filebrowse_completion_selector(const struct dirent *dir) {
 static int filebrowse_completion(char *cmd) {
   Linklist files;
   Entry *e;
+
+  struct stat filestatus;
   struct dirent **filelist;
+  char path[MAX_CMDLINE];
+  char needle[MAX_CMDLINE];
+  bool incomplete = false;
   int *comps;
   int found;
   int c;
 
-  if(!path) {
-    path = (char*)calloc(MAX_CMDLINE,sizeof(char));
-    strncpy(path,getenv("PWD"),MAX_CMDLINE);
-  }
+  if(cmd[0]!='/') // path is relative: prefix our location
+    snprintf(path,MAX_CMDLINE,"%s/%s",getenv("PWD"),cmd);
+  else // path is absolute
+    strncpy(path,cmd,MAX_CMDLINE);
+  
+  if( stat(path,&filestatus) < 0 ) { // no file there?
+    
+    // parse backwards to the first '/' and zero it,
+    // store the word of the right part in needle
+    for( c = strlen(path); path[c]!='/' && c>0; c-- );
+    strncpy(needle,&path[c+1],MAX_CMDLINE);
+    path[c+1] = '\0';
+    incomplete = true;
 
-  found = scandir(path,&filelist,
-		  filebrowse_completion_selector,alphasort);
+    if( stat(path,&filestatus) < 0) { // yet no valid file?
+      error("error on file completion path %s: %s",path,strerror(errno));
+      return 0;
+    }
+
+  } else {
+    
+    if( S_ISREG( filestatus.st_mode ) )
+      return 1; // is a regular file!
+    
+    // is it a directory? then append the trailing slash
+    if( S_ISDIR( filestatus.st_mode ) ) {
+      c = strlen(path);
+      if(path[c-1]!='/') {
+	path[c] = '/'; path[c+1] = '\0';
+      }
+    }
+
+    strncpy(cmd,path,MAX_CMDLINE);
+
+  }
+  
+  // at this point in path there should be something valid
+  found = scandir
+    (path,&filelist,
+     filebrowse_completion_selector,alphasort);
 
   if(found<0) {
     error("filebrowse_completion: scandir: %s",strerror(errno));
     return 0;
   }
-
+    
   for(c=found-1;c>0;c--) { // insert each entry found in a linklist
     e = new Entry();
     e->set_name(filelist[c]->d_name);
     files.append(e);
   }
 
-  comps = files.completion(cmd);
-  if(comps[0]) { // something found
+  c = 0; // counter for entries found
 
-    if(!comps[1]) { // exact match
-      e = files.pick(comps[0]);
-      DIR *d = opendir( e->name );
-      if(d) { // is a directory
-	closedir(d);
-	snprintf(path,MAX_CMDLINE,"%s/%s",path,e->name);
-      }
-      strncpy(cmd,e->name,MAX_CMDLINE);
+  if(incomplete) {
 
-      c = 1;
-
-    } else { // multiple matches
-      
-      for(c=0;comps[c];c++) {
-	e = files.pick(comps[c]);
-	::act("%s",e->name);
-      }
-      
-    }
+    // list all files in directory *path starting with *needle
     
-  } else c = 0;
+    comps = files.completion(needle);
+    if(comps[0]) { // something found
+      
+      if(!comps[1]) { // exact match
 
+	e = files.pick(comps[0]);
+	snprintf(cmd,MAX_CMDLINE,"%s%s",path,e->name);
+	  
+	c = 1;
+	
+      } else { // multiple matches
+
+	notice("list of %s* files in %s:",needle,path);	
+	for(c=0;comps[c];c++) {
+	  e = files.pick(comps[c]);
+	  ::act("%s",e->name);
+	}
+	
+      }
+      
+    } else c = 0;
+    
+  } else {
+
+    // list all entries
+    notice("list of all files in %s:",path);
+    e = files.begin();
+    for(c=0, e=files.begin();
+	e; e=e->next, c++)
+      ::act("%s",e->name);
+
+  }
   // free entries allocated in memory
   e = files.begin();
   while(e) {
@@ -352,7 +407,7 @@ static int filebrowse_completion(char *cmd) {
     delete e;
     e = files.begin();
   }
-
+  
   return(c);
 }
 
@@ -1301,9 +1356,14 @@ void Console::parser_commandline(int key) {
       SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
       SLsmg_write_string(command);
       SLsmg_erase_eol();
-      cursor = strlen(command);
+      //      cursor = strlen(command);
     }
     update_scroll();
+    // type the command on the console
+    SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
+    SLsmg_write_string(command);
+    SLsmg_erase_eol();
+    cursor = strlen(command);
     GOTO_CURSOR;
     return;
 
