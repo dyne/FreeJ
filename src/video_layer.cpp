@@ -48,7 +48,7 @@ VideoLayer::VideoLayer()
 	play_speed=0;
 	play_speed_control=0;
 	seekable=true;
-	enc==NULL;
+	enc=NULL;
     }
 
 VideoLayer::~VideoLayer() {
@@ -92,18 +92,21 @@ bool VideoLayer::init(Context *scr) {
 }
 
 bool VideoLayer::open(char *file) {
+    int err=0;
+    video_index=-1;
     func("VideoLayer::open(%s)",file);
     video_filename=strdup(file);
     AVInputFormat *av_input_format=NULL;
     AVFormatParameters avp, *av_format_par = NULL;
 
     /** init ffmpeg libraries */
+    /* register all codecs, demux and protocols */
     av_register_all();
 
     /** make ffmpeg silent */
     av_log_set_level(AV_LOG_QUIET);
 
-    //notice("VideoLayer :: Registered all codec and format");
+    func("VideoLayer :: Registered all codec and format");
 
 
     if( strncasecmp(file,"/dev/ieee1394/",14)==0) {
@@ -124,29 +127,22 @@ bool VideoLayer::open(char *file) {
 	av_format_par->channel=0;
 	file="";
     }
-    /* register all codecs, demux and protocols */
 
     /**
      * Open media with libavformat
      */
-    int err=0;
-    /**
-     * I *want* it raw, I *want* it bad
-     */
-    if(grab_dv) {
-	err=av_open_input_file(&avformat_context, "", av_input_format, 0, av_format_par);
-	notice("VideoLayer :: Grabbing dv\n");
-    }
-    else
-	err = av_open_input_file(&avformat_context, file, av_input_format, 0, av_format_par);
+    err = av_open_input_file(&avformat_context, file, av_input_format, 0, av_format_par);
     if (err < 0) {
-	error("VideoLayer :: open(%s) - can't open ", file);
-	//	printf("Error number: %d",err);
+	error("VideoLayer :: open(%s) - can't open. Error %d", file,err);
 	return false;
     }
+
+    /**
+     * Find info with libavformat
+     */
     err = av_find_stream_info(avformat_context);
     if (err < 0) {
-	error("VideoLayer :: could not find codec parameters");
+	error("VideoLayer :: could not find stream info");
 	return false;
     }
     /**
@@ -157,7 +153,10 @@ bool VideoLayer::open(char *file) {
 	enc = &avformat_stream->codec;
 	if(enc == NULL)
 	    printf("enc nullo\n");
-	//	notice("VideoLayer:: Codec type= %d\n",enc->codec_type);
+	//notice("VideoLayer:: Codec type= %d\n",enc->codec_type);
+	/**
+	 * Here we look for a video stream
+	 */
 	if (enc->codec_type == CODEC_TYPE_VIDEO) {
 	    video_index=i;
 	    codec = avcodec_find_decoder(enc->codec_id);
@@ -183,10 +182,14 @@ bool VideoLayer::open(char *file) {
 	    }
 	}
     }
+    if(video_index<0) {
+	error("VideoLayer :: Could not open codec");
+	return false;
+    }
     avformat_stream=avformat_context->streams[video_index];
     enc = &avformat_stream->codec;
     set_filename(file);
-    return(true);
+    return true;
 }
 
 void *VideoLayer::feed() {
@@ -518,6 +521,11 @@ int VideoLayer::seek(int64_t timestamp) {
      * HERE sick
      */
     ret = av_seek_frame(avformat_context, video_index,timestamp);
+    /**
+     * Flush buffers, should be called when seeking or when swicthing to a different stream.
+     */
+    avcodec_flush_buffers(enc);
+
     if(ret<0) {
 	seekable=false;
 	if(seeking_at_beginning_of_stream) {
