@@ -276,6 +276,13 @@ int main (int argc, char **argv) {
   screen.close();
   plugger.close();
 
+  act(" ");
+  notice("Please give fair credits!");
+  act("You are encouraged to exhibit the output of this software publicly");
+  act("as long as this software is credited as the source of the images;");
+  act("FreeJ is FREE, but you can still give back LOVE! :)    // jaromil");
+  jsleep(2,0);
+  act(" ");
   act("clean exiting. be nice ;)");
   exit(1);
 }

@@ -183,14 +183,14 @@ bool Layer::cafudda() {
     filt = (Filter *)filt->next;
   }
 
-  lock_feed();
+  //  lock_feed();
 
   blit(offset);
 
   /* pitch is width in bytes */
 
   unlock();
-  unlock_feed();
+  //  unlock_feed();
 
   signal_feed();
 

@@ -42,11 +42,11 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
   }
 
   /* check and set available videomode */
-  assert( res = SDL_VideoModeOK(wx, hx, bppx, flags) );
+  res = SDL_VideoModeOK(wx, hx, bppx, flags);
   notice("Context: Simple Direct Media Layer");
   if(res!=bppx) {
     error("your screen does'nt support %ubpp",bppx);
-    act("you need to switch to %u bits per pixes resolution to run FreeJ");
+    act("you need to switch to %u bpp resolution to run FreeJ");
     exit(1);
   }
   act("screen geometry w[%u] h[%u] bpp[%u]",wx,hx,res);

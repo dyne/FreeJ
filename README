@@ -26,6 +26,13 @@ Public License, it comes with  absolutely  no  warranty  and  you  are
 welcome to redistribute it under  certain  conditions  (refer  to  the
 license for details).
 
+You are encouraged to exhibit the output of this software publicly as
+long as this software is credited as the source of the images.
+I also encourage you to let me know what you make with it, what you
+dis/like about it, and how it can be improved.
+
+
+
 :: FEATURES
 
 ++ multilayered video engine
@@ -36,6 +43,9 @@ license for details).
 ++ modular c++ code structure
 ++ multithreaded architecture (POSIX.1b compliant)
 ++ (ab)user friendly OnScreenDisplay interface
+
+
+
 
 :: REQUIREMENTS
 
@@ -54,6 +64,9 @@ Optionally, you might want to have:
 For better fullscreen support try to add to your XF86Config  file  the
 modelines in doc/x11.modelines.
 
+
+
+
 :: INSTALL
 
 Make sure you have all the required software, then just do: 
@@ -68,6 +81,9 @@ prefix if you changed the default one).
 For better fullscreen support you might want to add in your XF86Config
 file the modelines included into doc/x11.modelines.
 
+
+
+
 :: DISCUSSION
 
 A mailinglist  for  further  discussion  about  FreeJ  is  running  as
@@ -75,12 +91,18 @@ A mailinglist  for  further  discussion  about  FreeJ  is  running  as
 send a mail to <freej-subscribe@dyne.org> to join. Online archive is
 on http://dyne.org/cgi-bin/ml.cgi?4 .
 
+
+
+
 :: AVAILABILITY
 
 Updated informations and FreeJ releases are made available on
 http://freej.dyne.org . The bleeding edge sourcecode is also publicly
 available thru CVS on http://savannah.gnu.org/projects/freej (there you
 will find instructions on how to get and browse online the code).
+
+
+
 
 :: DISCLAIMER
 

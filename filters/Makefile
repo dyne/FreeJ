@@ -83,7 +83,7 @@ SDL_CFLAGS = -I/usr/include/SDL -D_REENTRANT
 SDL_CONFIG = /usr/bin/sdl-config
 SDL_LIBS = -L/usr/lib -Wl,-rpath,/usr/lib -lSDL -lpthread
 STRIP = strip
-VERSION = 0.4
+VERSION = 0.4.1-cvs
 
 SUBDIRS = delaygrab absdiff simura baltan vertigo transform
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
