@@ -19,7 +19,7 @@
  *
  */
 
-#include <iostream.h>
+#include <iostream>
 
 #include <stdlib.h>
 #include <string.h>
@@ -56,6 +56,7 @@ static const char *help =
 " .   -D --debug    debug verbosity level - default 1\n"
 " .   -s --size     set display size - default 400x300\n"
 " .   -2 --double   double screen size\n"
+" .   -0 --zero     start with deactivated layers\n"
 " .  files:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n"
@@ -73,10 +74,11 @@ static const struct option long_options[] = {
   {"debug", required_argument, NULL, 'D'},
   {"size", required_argument, NULL, 's'},
   {"double", no_argument, NULL, '2'},
+  {"zero", no_argument, NULL, '0'},
   {0, 0, 0, 0}
 };
 
-static const char *short_options = "-hvD:s:2";
+static const char *short_options = "-hvD:s:20";
 
 int debug;
 char layer_files[MAX_CLI_CHARS];
@@ -84,6 +86,7 @@ int cli_chars = 0;
 int width = 400;
 int height = 300;
 bool doublesize = false;
+bool startstate = true;
 
 void cmdline(int argc, char **argv) {
   int res;
@@ -101,7 +104,7 @@ void cmdline(int argc, char **argv) {
       exit(0);
       break;
     case 'v':
-      cerr << endl;
+      fprintf(stderr,"\n");
       exit(0);
       break;
     case 'D':
@@ -121,6 +124,10 @@ void cmdline(int argc, char **argv) {
 	error("display height can't be smaller than 300 pixels");
 	width = 240;
       }
+      break;
+
+    case '0':
+      startstate = false;
       break;
 
     case '2':
@@ -162,10 +169,10 @@ int main (int argc, char **argv) {
   cmdline(argc,argv);
   set_debug(debug);
 
-  /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
+  /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b) */
   if(set_rtpriority(true))
     notice("running as root: high priority realtime scheduling allowed.");
-  */
+
 
   /* this is the output context (screen) */
   Context screen(width,height,32,SDL_HWPALETTE|SDL_HWSURFACE);
@@ -261,16 +268,20 @@ int main (int argc, char **argv) {
   }
 
   /* launch layer threads */
-  screen.rocknroll();
+  func("rock the house");
+  screen.rocknroll(startstate);
+  func("OK, rolling");
 
   keyb.start();
 
   while(!keyb.quit) {
     /* main loop */
 
-    if(screen.clear_all) 
+    if(screen.clear_all) {
       clearscr(screen.get_surface(),screen.size);
-    else osd.clean();
+    } else {
+      osd.clean();
+    }
 
     lay = (Layer *)screen.layers.end();
 
@@ -282,6 +293,7 @@ int main (int argc, char **argv) {
     screen.flip();
 
     screen.calc_fps();
+    
   }
 
   /* quitting */
@@ -290,7 +302,7 @@ int main (int argc, char **argv) {
 
   act(" ");
   act("You are encouraged to exhibit the output of this software publicly");
-  act("as long as this software and its author are fairly mentioned!");
+  act("as long as this software and its author are fairly mentioned! THANKS!");
   jsleep(2,0);
   act(" ");
   act("bye.");

@@ -81,7 +81,7 @@ SDL_CFLAGS = -I/usr/include/SDL -D_REENTRANT
 SDL_CONFIG = /usr/bin/sdl-config
 SDL_LIBS = -L/usr/lib -Wl,-rpath,/usr/lib -lSDL -lpthread
 STRIP = strip
-VERSION = 0.4.1-cvs
+VERSION = 0.4.2-cvs
 
 INCLUDES = -I$(top_srcdir)/src/include
 libdir = ${prefix}/lib/freej
@@ -91,7 +91,7 @@ SUFFIXES = .asm
 NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
 
 lib_LTLIBRARIES = delaygrab.la
-delaygrab_la_SOURCES = delaygrab.c mmx_memcpy.asm
+delaygrab_la_SOURCES = delaygrab.c
 delaygrab_la_LDFLAGS = -module -avoid-version
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
@@ -103,8 +103,8 @@ DEFS = -DHAVE_CONFIG_H -I. -I$(srcdir) -I../..
 CPPFLAGS = 
 LDFLAGS = 
 delaygrab_la_LIBADD = 
-delaygrab_la_OBJECTS =  delaygrab.lo mmx_memcpy.lo
-CFLAGS = -g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -march=i686 -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
+delaygrab_la_OBJECTS =  delaygrab.lo
+CFLAGS = -g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -116,7 +116,7 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/delaygrab.P .deps/mmx_memcpy.P
+DEP_FILES =  .deps/delaygrab.P
 SOURCES = $(delaygrab_la_SOURCES)
 OBJECTS = $(delaygrab_la_OBJECTS)
 

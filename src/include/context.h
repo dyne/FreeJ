@@ -75,7 +75,7 @@ class Context {
   bool dbl;
 
 
-  void rocknroll();
+  void rocknroll(bool state);
 
   SDL_Surface *surf;
   SDL_SysWMinfo sys;

@@ -82,7 +82,7 @@ SDL_CFLAGS = -I/usr/include/SDL -D_REENTRANT
 SDL_CONFIG = /usr/bin/sdl-config
 SDL_LIBS = -L/usr/lib -Wl,-rpath,/usr/lib -lSDL -lpthread
 STRIP = strip
-VERSION = 0.4.1-cvs
+VERSION = 0.4.2-cvs
 
 INCLUDES = -I$(top_srcdir)/src/include
 libdir = ${prefix}/lib/freej

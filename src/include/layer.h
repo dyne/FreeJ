@@ -42,7 +42,7 @@ class Layer: public Entry, public JSyncThread {
   uint32_t *scr, *pscr, *off, *poff;
   Uint8 *alpha;
 
-  void *buffer;
+
   void *offset;
 
  public:
@@ -91,7 +91,11 @@ class Layer: public Entry, public JSyncThread {
   bool paused;
   bool active;
   bool quit;
+  bool running;
   bool hidden;
+
+ protected:
+  void *buffer;
 };
 
 #endif

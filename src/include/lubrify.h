@@ -22,15 +22,8 @@
 #include <stdint.h>
 
 extern "C" {
-  void mmxcopy(void *src1, void *dst, unsigned int size);
-  void mmxblit(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
-  void mmxblit_add(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
-  void mmxblit_sub(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
-  void mmxblit_and(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
-  void mmxblit_or(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
   void vline(void *scr, unsigned int height, unsigned int pitch, unsigned int bpp);
   void hline(void *scr, unsigned int width, unsigned int bpp);
-  void mmxosd_clean(void *scr, double col, unsigned int width, unsigned int height);
   void clearscr(void *scr, unsigned int size);
 }
 

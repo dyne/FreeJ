@@ -300,10 +300,13 @@ void Context::calc_fps() {
 
 }
 
-void Context::rocknroll() {
+void Context::rocknroll(bool state) {
   Layer *l = (Layer *)layers.begin();
   while(l) {
     l->start();
+    //    l->signal_feed();
+    while(!l->running) jsleep(0,500);
+    l->active = state;
     l = (Layer *)l->next;
   }
 }

@@ -1,7 +1,4 @@
 /*
- * EffecTV - Realtime Digital Video Effector
- * Copyright (C) 2001 FUKUCHI Kentarou
- *
  * EdgeTV - detects edge and display it in good old computer way. 
  * Copyright (C) 2001 FUKUCHI Kentarou
  *
@@ -38,6 +35,8 @@ static int32_t *map;
 static int map_width;
 static int map_height;
 
+static int w2,w3,w4,mw2;
+
 static int video_width_margin;
 
 int init(ScreenGeometry *sg) {
@@ -48,6 +47,10 @@ int init(ScreenGeometry *sg) {
   map_width = geo->w / 4;
   map_height = geo->h / 4;
   video_width_margin = geo->w - map_width * 4;
+
+  /* some precalculation to save cycles to the inner loop */
+  w2 = geo->w*2; w3 = geo->w*3; w4 = geo->w*4;
+  mw2 = map_width*2;
 
   map = (int32_t *)malloc(map_width*map_height*sizeof(int32_t)*2);
   if(!map) return 0;
@@ -70,8 +73,8 @@ void *process(void *buffo) {
   src = (int32_t*)buffo;
   dest = (int32_t*)procbuf;
 
-  src += geo->w*4+4;
-  dest += geo->w*4+4;
+  src += w4+4;
+  dest += w4+4;
   for(y=1; y<map_height-1; y++) {
     for(x=1; x<map_width-1; x++) {
       p = *src;
@@ -93,7 +96,7 @@ void *process(void *buffo) {
       v2 = (r<<17)|(g<<9)|b;
       
       /* difference between the current pixel and upper neighbor. */
-      q = *(src - geo->w*4);
+      q = *(src - w4);
       r = ((p&0xff0000) - (q&0xff0000))>>16;
       g = ((p&0xff00) - (q&0xff00))>>8;
       b = (p&0xff) - (q&0xff);
@@ -108,10 +111,10 @@ void *process(void *buffo) {
       if(b>255) b = 255;
       v3 = (r<<17)|(g<<9)|b;
       
-      v0 = map[(y-1)*map_width*2+x*2];
-      v1 = map[y*map_width*2+(x-1)*2+1];
-      map[y*map_width*2+x*2] = v2;
-      map[y*map_width*2+x*2+1] = v3;
+      v0 = map[(y-1)*mw2+(x<<1)];
+      v1 = map[y*mw2+((x-1)<<1)+1];
+      map[y*mw2+(x<<1)] = v2;
+      map[y*mw2+(x<<1)+1] = v3;
       r = v0 + v1;
       g = r & 0x01010100;
       dest[0] = r | (g - (g>>8));
@@ -128,16 +131,16 @@ void *process(void *buffo) {
       dest[geo->w+1] = r | (g - (g>>8));
       dest[geo->w+2] = v3;
       dest[geo->w+3] = v3;
-      dest[geo->w*2] = v2;
-      dest[geo->w*2+1] = v2;
-      dest[geo->w*3] = v2;
-      dest[geo->w*3+1] = v2;
+      dest[w2] = v2;
+      dest[w2+1] = v2;
+      dest[w3] = v2;
+      dest[w3+1] = v2;
       
       src += 4;
       dest += 4;
     }
-    src += geo->w*3+8+video_width_margin;
-    dest += geo->w*3+8+video_width_margin;
+    src += w3+8+video_width_margin;
+    dest += w3+8+video_width_margin;
   }
   return procbuf;
 }

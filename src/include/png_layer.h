@@ -49,7 +49,7 @@ public:
   bool init(Context *screen=NULL);
   bool open(char *file);
   void *feed();
-  void *get_buffer();
+
   void close();
 };
 

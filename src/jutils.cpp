@@ -20,7 +20,7 @@
  */
 
 #include <stdio.h>
-#include <iostream.h>
+#include <iostream>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <time.h>
@@ -75,7 +75,7 @@ void notice(char *format, ...) {
   va_start(arg, format);
 
   vsnprintf(msg, 254, format, arg);
-  cerr << "[*] " << msg << endl;
+  fprintf(stderr,"[*] %s\n",msg);
 
   va_end(arg);
 }
@@ -86,8 +86,8 @@ void func(char *format, ...) {
     va_start(arg, format);
     
     vsnprintf(msg, 254, format, arg);
-    cerr << "[F] " << msg << endl;
-    
+    fprintf(stderr,"[F] %s\n",msg);
+
     va_end(arg);
   }
 }
@@ -97,7 +97,8 @@ void error(char *format, ...) {
   va_start(arg, format);
   
   vsnprintf(msg, 254, format, arg);
-  cerr << "[!] " << msg << endl;
+  fprintf(stderr,"[!] %s\n",msg);
+
   va_end(arg);
 }
 
@@ -106,7 +107,7 @@ void act(char *format, ...) {
   va_start(arg, format);
   
   vsnprintf(msg, 254, format, arg);
-  cerr << " .  " << msg << endl;
+  fprintf(stderr," .  %s\n",msg);
   
   va_end(arg);
 }
@@ -117,7 +118,7 @@ void warning(char *format, ...) {
     va_start(arg, format);
     
     vsnprintf(msg, 254, format, arg);
-    cerr << "[W] " << msg << endl;
+    fprintf(stderr,"[W] %s\n",msg);
   
     va_end(arg);
   }

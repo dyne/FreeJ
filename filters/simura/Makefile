@@ -81,7 +81,7 @@ SDL_CFLAGS = -I/usr/include/SDL -D_REENTRANT
 SDL_CONFIG = /usr/bin/sdl-config
 SDL_LIBS = -L/usr/lib -Wl,-rpath,/usr/lib -lSDL -lpthread
 STRIP = strip
-VERSION = 0.4.1-cvs
+VERSION = 0.4.2-cvs
 
 INCLUDES = -I$(top_srcdir)/src/include
 libdir = ${prefix}/lib/freej
@@ -104,7 +104,7 @@ CPPFLAGS =
 LDFLAGS = 
 simura_la_LIBADD = 
 simura_la_OBJECTS =  simura.lo
-CFLAGS = -g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -march=i686 -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
+CFLAGS = -g -Wall -O4 -D_REENTRANT -fomit-frame-pointer -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)

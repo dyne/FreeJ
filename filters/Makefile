@@ -83,9 +83,10 @@ SDL_CFLAGS = -I/usr/include/SDL -D_REENTRANT
 SDL_CONFIG = /usr/bin/sdl-config
 SDL_LIBS = -L/usr/lib -Wl,-rpath,/usr/lib -lSDL -lpthread
 STRIP = strip
-VERSION = 0.4.1-cvs
+VERSION = 0.4.2-cvs
 
-SUBDIRS = delaygrab absdiff simura baltan vertigo transform blurzoom
+SUBDIRS =  	delaygrab absdiff simura 	baltan vertigo transform 	blurzoom zoom edge 	backlight rotozoom blur 	null
+
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 

@@ -25,8 +25,9 @@
    along with this program; see the file COPYING.  If not, write to the Free
    Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
-/* 07-14-02 Major speed optimizations done by WP (it's really fast now :-)). Uses an 8 bit indexed image*/
-/* note that the code has not been fully optimized */
+/* 07-14-02 Major speed optimizations done by WP (it's really fast now :-)).
+   Uses an 8 bit indexed image
+   note that the code has not been fully optimized */
 
 #include <freej.h>
 #include <freej_plugin.h>
@@ -73,8 +74,8 @@ void draw_tile(int stepx, int stepy, int zoom,int32_t *texture,int32_t *image)
     for (i = 0; i < geo->w; i++) {
       a = x >> 12 &255;
       b = y >> 12 &255;
-      a=a*geo->w/255;
-      b=b*geo->h/255;
+      a=a*geo->w>>8; // /255
+      b=b*geo->h>>8; // /255
       *image++ = texture[b*geo->w + a];
       x += xd; y += yd;
     }

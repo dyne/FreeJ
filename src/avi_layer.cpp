@@ -21,6 +21,7 @@
 #ifdef WITH_AVIFILE
 
 #include <iostream>
+#include <string.h>
 
 #include <avi_layer.h>
 #include <avifile/except.h>
@@ -37,7 +38,6 @@ AviLayer::AviLayer()
   :Layer() {
   _avi = NULL;
   _stream = NULL;
-  buf = NULL;
   setname("AVI");
 }
 
@@ -54,7 +54,14 @@ bool AviLayer::init(Context *scr) {
   //  CodecInfo::Get(_ci, avm::CodecInfo::Video, avm::CodecInfo::Decode, fcc);
   Creators::SetCodecAttr
     (*_ci, (const char*)"Quality", (const char*)_quality);
-  
+
+  if(bh.biBitCount!=32) {
+    error("AVI layer does'nt supports color depths different from 32bpp");
+    error("and cannot find a suitable colorspace conversion routine for this avi file");
+    error("sorry, you can't use the selected AVI");
+    close();
+    return false;
+  }
 
   if(scr) screen = scr;
   _init(screen,
@@ -62,7 +69,7 @@ bool AviLayer::init(Context *scr) {
 	labs(bh.biHeight),
 	bh.biBitCount);
 
-  buf = jalloc(buf,geo.size);
+  buffer = jalloc(buffer,geo.size);
 
   feed();
   notice("AviLayer :: w[%u] h[%u] bpp[%u] size[%u]",
@@ -154,16 +161,17 @@ bool AviLayer::open(char *file) {
 }
   
 void *AviLayer::feed() {
-  if(paused) return buf;  
+  if(paused) return buffer;  
   if(_stream->Eof()) _stream->Seek(1);
   _stream->ReadFrame(true);
   _img = _stream->GetFrame(false);
 
-  mmxcopy(_img->Data(),buf,geo.size);
+  memcpy(buffer,_img->Data(),geo.size);
+  //  mmxcopy(_img->Data(),buf,geo.size);
   
   _img->Release();
 
-  return buf;
+  return buffer;
 }
 
 void AviLayer::close() {
@@ -176,7 +184,7 @@ void AviLayer::close() {
   delete _avi;
   _avi = NULL;
   
-  jfree(buf);
+  if(buffer) jfree(buffer);
 }
 
 

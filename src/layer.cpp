@@ -27,11 +27,13 @@ Layer::Layer() {
   paused = false;
   quit = false;
   active = false;
+  running = false;
   hidden = false;
   alpha_blit = false;
   blit_offset = 0;
   _blit_algo = 1;
   setname("???");
+  buffer = NULL;
 }
 
 void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
@@ -53,15 +55,20 @@ void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
 
 void Layer::run() {
   void *res;
-  active = true;
+
+  while(!feed()) jsleep(0,50);
+  func("ok, layer %s in rolling loop",getname());
+  running = true;
+  wait_feed();
   while(!quit) {
-    
     res = feed();
     if(!res) error("feed error on layer %s",_name);
     else buffer = res;
-
+    // func("feed is waiting");
     wait_feed();
+    // func("feed starts again");
   }
+  running = false;
 }
 
 bool Layer::add_filter(Filter *newfilt) {
@@ -173,21 +180,18 @@ bool Layer::cafudda() {
     return(false);
   }
 
-  lock();
+  //  lock();
 
   Filter *filt = (Filter *)filters.begin();
-  
-  while(filt!=NULL) {
+
+  while(filt) {
     if(filt->active) offset = filt->process(offset);
     filt = (Filter *)filt->next;
   }
 
-  //  lock_feed();
-
   blit(offset);
 
-  unlock();
-  //  unlock_feed();
+  //  unlock();
 
   signal_feed();
 
@@ -310,7 +314,7 @@ void Layer::blit(void *video) {
   if(hidden) return;
 
   if(alpha_blit) {
-
+    func("alpha blit");
 
     /* ALPHA CHANNEL AWARE BLIT */
     switch(_blit_algo) {
@@ -351,7 +355,6 @@ void Layer::blit(void *video) {
 
     
   } else {
-
 
     /* SOLID COLOR BLIT (NO ALPHA TRANSPARENCE) */
     switch(_blit_algo) {

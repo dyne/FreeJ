@@ -72,6 +72,7 @@ LIBS =
 LIBTOOL = $(SHELL) $(top_builddir)/libtool
 LN_S = ln -s
 MAKEINFO = makeinfo
+NASM = 
 NASMFLAGS = 
 OBJDUMP = @OBJDUMP@
 OBJEXT = o
@@ -81,14 +82,10 @@ SDL_CFLAGS = -I/usr/include/SDL -D_REENTRANT
 SDL_CONFIG = /usr/bin/sdl-config
 SDL_LIBS = -L/usr/lib -Wl,-rpath,/usr/lib -lSDL -lpthread
 STRIP = strip
-VERSION = 0.4.1-cvs
+VERSION = 0.4.2-cvs
 
 INCLUDES = -I$(top_srcdir)/src/include
 libdir = ${prefix}/lib/freej
-
-SUFFIXES = .asm
-
-NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
 
 lib_LTLIBRARIES = rotozoom.la
 rotozoom_la_SOURCES = rotozoom.c
@@ -122,7 +119,7 @@ OBJECTS = $(rotozoom_la_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
-.SUFFIXES: .S .asm .c .lo .o .obj .s
+.SUFFIXES: .S .c .lo .o .obj .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
 	cd $(top_srcdir) && $(AUTOMAKE) --gnu filters/rotozoom/Makefile
 
@@ -355,9 +352,6 @@ uninstall-am uninstall all-redirect all-am all installdirs \
 mostlyclean-generic distclean-generic clean-generic \
 maintainer-clean-generic clean mostlyclean distclean maintainer-clean
 
-
-.asm.lo:
-	$(NASM) $<
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

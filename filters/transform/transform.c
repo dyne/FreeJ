@@ -57,15 +57,15 @@ int clean() {
 
 void *process(void *buffo) {
   int x,y;
+  int dest, value=0;
   Uint32 *src = (Uint32*)buffo, *dst = (Uint32*)procbuf;
   
   for(y=0;y<geo->h;y++)
     for(x=0;x<geo->w;x++) {
-      int dest, value;
       dest = Table[x+ypos[y]];
-      if(dest == -2) dest = livemap(x,y);
-      if(dest == -1) value = 0;
-      else value = *(Uint32*)(src+dest);
+      if(dest >= 0) value = *(Uint32*)(src+dest);
+      else if(dest == -1) value = 0;
+      else if(dest == -2) dest = livemap(x,y);
       *(Uint32*)(dst+x+ypos[y]) = value;
     }
   return(procbuf);

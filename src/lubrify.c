@@ -26,18 +26,9 @@ unsigned int asmnum1;
 unsigned int asmnum2;
 
 /* assembly routines */
-extern void mmx_memcpy(void);
 extern void asm_vline32(void);
 extern void asm_hline32(void);
 extern void asm_clearscr(void);
-
-void mmxcopy(void *src1, void *dst, unsigned int size) {
-  asmsrc1 = src1;
-  asmdst = dst;
-  asmnum1 = size;
-
-  mmx_memcpy();
-}
   
 /* void *scr is points on desired coordinate offset on screen
    ( use Context::coords(x,y) if blitting directly on context )

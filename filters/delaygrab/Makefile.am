@@ -9,5 +9,5 @@ NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
 	$(NASM) $<
 
 lib_LTLIBRARIES = delaygrab.la
-delaygrab_la_SOURCES = delaygrab.c mmx_memcpy.asm
+delaygrab_la_SOURCES = delaygrab.c
 delaygrab_la_LDFLAGS = -module -avoid-version

@@ -34,7 +34,6 @@
 V4lGrabber::V4lGrabber() 
   :Layer() {
   dev = -1;
-  buffer = NULL;
   rgb_surface = NULL;
   have_tuner=false;
   setname("V4L");
@@ -198,10 +197,16 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
 
   /* feed up the mmapped frames */
   cur_frame = ok_frame = 0;  
-  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
-    func("V4lGrabber::feed");
+  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) {
+    func("V4lGrabber::init");
     error("error in ioctl VIDIOCMCAPTURE");
   }
+  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) {
+    func("V4lGrabber::init");
+    error("error in ioctl VIDIOCMCAPTURE");
+    return NULL;
+  }
+
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
   if(grab_cap.channels>1)
@@ -242,10 +247,10 @@ void V4lGrabber::set_freq(int f) {
 
   func("V4L: set frequency %u %.3f",frequency,ffreq);
 
-  lock_feed();
+  //  lock_feed();
   if (-1 == ioctl(dev,VIDIOCSFREQ,&frequency))
     error("error in ioctl VIDIOCSFREQ ");
-  unlock_feed();
+  //  unlock_feed();
   act("V4L: frequency %s %.3f Mhz (%s)",chanlist[f].name,ffreq,chanlists[_band].name);
   show_osd();
 }

@@ -79,7 +79,6 @@ class AviLayer: public Layer {
 
   double lsttime, curtime;
 
-  void *buf;
 
  public:
   AviLayer();
@@ -88,15 +87,14 @@ class AviLayer: public Layer {
   bool init(Context *screen=NULL);
   bool open(char *file);
   void *feed();
-  void *get_buffer();
+  void close();
 
   void forward(framepos_t step=1);
   void rewind(framepos_t step=1);
   void pos(framepos_t p);
   void pause();
-  void speedup();
-  void slowdown();
-  void close();
+  //  void speedup();
+  //  void slowdown();
 
   bool keypress(SDL_keysym *keysym);
 };

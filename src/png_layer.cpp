@@ -30,7 +30,6 @@ PngLayer::PngLayer()
   :Layer() {
   core = NULL;
   info = NULL;
-  buf = NULL;
   row_pointers = NULL;
   fp = NULL;
   setname("IMG");
@@ -156,12 +155,12 @@ bool PngLayer::init(Context *scr) {
   if(scr) screen = scr;
   _init(screen,	width, height, bit_depth*4);
 
-  buf = (png_bytep)jalloc(buf,geo.size);
+  buffer = (png_bytep)jalloc(buffer,geo.size);
 
   /* allocate image memory */
   row_pointers = (png_bytep*)jalloc(row_pointers,geo.h*sizeof(png_bytep));
   for(int i=0;i<geo.h;i++)
-    row_pointers[i] = (png_bytep) buf + i*geo.pitch;
+    row_pointers[i] = (png_bytep) buffer + i*geo.pitch;
 
   png_read_image(core,row_pointers);
 
@@ -173,9 +172,9 @@ bool PngLayer::init(Context *scr) {
   
   /* apply alpha layer
   for(unsigned int i=0;i<geo.size;i+=4) {
-  buf[i] &= buf[i+3];
-  buf[i+1] &= buf[i+3];
-  buf[i+2] &= buf[i+3];
+  buffer[i] &= buffer[i+3];
+  buffer[i+1] &= buffer[i+3];
+  buffer[i+2] &= buffer[i+3];
   } */
 
   notice("PngLayer :: w[%u] h[%u] bpp[%u] size[%u]",
@@ -184,11 +183,11 @@ bool PngLayer::init(Context *scr) {
 }
 
 void *PngLayer::feed() {
-  return buf;
+  return buffer;
 }
 
 void PngLayer::close() {
   func("PngLayer::close()");
   jfree(row_pointers);
-  jfree(buf);
+  jfree(buffer);
 }

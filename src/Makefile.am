@@ -31,7 +31,6 @@ freej_SOURCES = \
 	yuv2rgb.c yuv2rgb_mmx.c	\
 	vline32.asm \
 	hline32.asm \
-	mmx_memcpy.asm 	\
 	clearscr.asm
 
 freej_LDADD = @LIBS@ -lpthread -lm -ldl -lpng @SDL_LIBS@ @AVIFILE_LIBS@

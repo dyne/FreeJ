@@ -68,7 +68,7 @@ static ScreenGeometry *geo;
 
 static void createDelaymap(int mode);
 static void set_blocksize(int bs);
-static void mmxcopy(void *src1, void *dst, unsigned int size);
+static int isqrt(unsigned int x);
 
 int init(ScreenGeometry *sg) {
   geo = sg;
@@ -108,8 +108,7 @@ void *process(void *buffo) {
   }
 
    /* Copy image to queue */
-  mmxcopy(buffo,curqueue,geo->size);
-  //  memcpy(curqueue,buffo,geo->size);
+  memcpy(curqueue,buffo,geo->size);
 
      /* Copy image blockwise to screenbuffer */
   curdelaymap= (Uint32 *)delaymap;
@@ -199,10 +198,10 @@ static void createDelaymap(int mode) {
 	break;
       case 4:
 	/* Rings of increasing delay outward from center */
-	v = (int)sqrt((double)((x-(delaymapwidth/2))*
-			       (x-(delaymapwidth/2))+
-			       (y-(delaymapheight/2))*
-			       (y-(delaymapheight/2))));
+	v = (int)isqrt((unsigned int)((x-(delaymapwidth/2))*
+				      (x-(delaymapwidth/2))+
+				      (y-(delaymapheight/2))*
+				      (y-(delaymapheight/2))));
 	*curdelaymap=v/2;
 	break;
       } // switch
@@ -235,13 +234,18 @@ static void set_blocksize(int bs) {
   createDelaymap(current_mode);
 }
 
-extern void mmx_memcpy(void);
-unsigned char *asmsrc1, *asmdst;
-unsigned int asmnum1;
-static void mmxcopy(void *src1, void *dst, unsigned int size) {
-  asmsrc1 = src1;
-  asmdst = dst;
-  asmnum1 = size;
-
-  mmx_memcpy();
+static int isqrt(unsigned int x) {
+  unsigned int m, y, b;
+  m = 0x40000000;
+  y = 0;
+  while(m != 0) {
+    b = y | m;
+    y = y>>1;
+    if(x>=b) {
+      x=x-b;
+      y=y|m;
+    }
+    m=m>>2;
+  }
+  return y;
 }
