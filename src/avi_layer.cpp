@@ -205,19 +205,23 @@ void *AviLayer::feed() {
   if ( curr != curpos ) {
     _stream->Seek(curr);
     
-  } else if (play_speed>0) {		// forward
-    if (mark_out != 0)
-      if (mark_out < (uint32_t)curr)
-	if (mark_in != 0)
-	  //				if (!paused)
-	  curr = _stream->SeekToKeyFrame(mark_in);
-
-  } else if (play_speed<0) {			// backward
-    if (mark_in != 0)
-      if (mark_in > (uint32_t)curr)
-	if (mark_out != 0)
-	  //				if (!paused)
-	  curr = _stream->SeekToKeyFrame(mark_out);
+  } else if (play_speed>0) { // we're going forward
+    if (mark_out) // if there is a mark out
+      if (mark_out < (uint32_t)curr) { // the mark out got passed:
+	if(mark_in) // if there is a mark in
+	  curr = _stream->SeekToKeyFrame(mark_in); // loop to that
+	else // if there is no mark in
+	  curr = _stream->SeekToKeyFrame(0); // goes back to the beginning
+      }
+    
+  } else if (play_speed<0) { // we're going backward
+    if (mark_in) // if there is a mark in
+      if (mark_in > (uint32_t)curr) { // the mark in passed:
+	if (mark_out) // if there is a mark out
+	  curr = _stream->SeekToKeyFrame(mark_out); // loop to that
+	else // if there is no mark out
+	  curr = _stream->SeekToKeyFrame(0); // goes back to the beginning
+      }
  }
 
   while(_stream->ReadFrame(true) <0)
@@ -337,19 +341,38 @@ bool AviLayer::keypress(char key) {
     act("AviLayer::keyframe step to 1");
     break;
 
+    /*
+Hi Jaromil,
+I have been thinking about the looping problem, my feeling now is that
+it does not comply with a natural usage. My advise is:
+
+If you you click the IN-point, the OUT-point is cleared by default
+If you then click the OUT-point, the clip starts looping
+
+If you re-click the OUT point, the clip loops between the previous
+IN-point and the new OUT-point                                                                                                       
+In this case, people wont get confused.
+
+Cheers,
+Robert
+    */
+
   case 'i':
-    if(mark_in)
+    if(mark_in) {
       mark_in = 0;
-    else
+      mark_out = 0;
+    } else {
       mark_in = _stream->GetPos();
+      mark_out = 0;
+    }
     act("AviLayer::mark IN[%u] - OUT[%u] (%s)",
-	mark_in, mark_out, (mark_in&&mark_out)?"ON":"OFF");
+	mark_in, mark_out, (mark_in)?"ON":"OFF");
     break;
 
   case 'o':
-    if(mark_out)
+    if(mark_out) {
       mark_out = 0;
-    else
+    } else
       mark_out = _stream->GetPos();
     act("AviLayer::mark IN[%u] - OUT[%u] (%s)",
 	mark_in, mark_out, (mark_in&&mark_out)?"ON":"OFF");

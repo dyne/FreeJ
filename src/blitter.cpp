@@ -19,6 +19,7 @@
  *
  */
 
+
 #include <layer.h>
 #include <blitter.h>
 #include <context.h>
@@ -138,6 +139,40 @@ BLIT schiffler_or(void *src, void *dst, int bytes, void *value) {
    all the following blits can be considered effects
    they completely overwrite the underlying image */
 
+
+// PAST blits
+BLIT past_add(void *src, void *past, void *dst, int bytes) {
+  SDL_imageFilterAdd((unsigned char*)src,
+		     (unsigned char*)past,
+		     (unsigned char*)dst,bytes);
+}
+
+BLIT past_sub(void *src, void *past, void *dst, int bytes) {
+  SDL_imageFilterSub((unsigned char*)src,
+		     (unsigned char*)past,
+		     (unsigned char*)dst,bytes);
+}
+
+BLIT past_absdiff(void *src, void *past, void *dst, int bytes) {
+  SDL_imageFilterAbsDiff((unsigned char*)src,
+			 (unsigned char*)past,
+			 (unsigned char*)dst,bytes);
+}
+
+BLIT past_multdiv4(void *src, void *past, void *dst, int bytes) {
+  SDL_imageFilterMultDivby4((unsigned char*)src,
+			    (unsigned char*)past,
+			    (unsigned char*)dst,bytes);
+}
+
+BLIT past_or(void *src, void *past, void *dst, int bytes) {
+  SDL_imageFilterBitOr((unsigned char*)src,
+		       (unsigned char*)past,
+		       (unsigned char*)dst,bytes);
+}
+
+
+// non transparent schiffler blits
 BLIT schiffler_neg(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBitNegation((unsigned char*)src,(unsigned char*)dst,bytes);
 }
@@ -251,6 +286,7 @@ Blit::Blit() :Entry() {
   memset(kernel,0,256);
   fun = NULL;
   type = 0x0;
+  past_frame = NULL;
 }
 
 Blit::~Blit() { }
@@ -411,7 +447,33 @@ Blitter::Blitter() {
   sprintf(b->desc,"chromakey blit (SDL)");
   b->type = SDL_BLIT;
   b->sdl_fun = sdl_chromakey; blitlist.append(b);
-  
+
+  // PAST blits
+  b = new Blit(); b->set_name("PAST_ADD");
+  sprintf(b->desc,"add to past frame");
+  b->type = PAST_BLIT;
+  b->past_fun = past_add; blitlist.append(b);
+
+  b = new Blit(); b->set_name("PAST_SUB");
+  sprintf(b->desc,"subtract from past frame");
+  b->type = PAST_BLIT;
+  b->past_fun = past_sub; blitlist.append(b);
+
+  b = new Blit(); b->set_name("PAST_ABSDIFF");
+  sprintf(b->desc,"absolute difference on past frame");
+  b->type = PAST_BLIT;
+  b->past_fun = past_absdiff; blitlist.append(b);
+
+  b = new Blit(); b->set_name("PAST_MULTDIV4");
+  sprintf(b->desc,"multiply with past frame and divide by 4");
+  b->type = PAST_BLIT;
+  b->past_fun = past_multdiv4; blitlist.append(b);
+
+  b = new Blit(); b->set_name("PAST_OR");
+  sprintf(b->desc,"bitwise OR with past frame");
+  b->type = PAST_BLIT;
+  b->past_fun = past_or; blitlist.append(b);
+
 }
 
 Blitter::~Blitter() {
@@ -478,6 +540,42 @@ void Blitter::blit() {
        ((SdlScreen*)layer->freej->screen)->surface, NULL,
        &layer->geo, (void*)&current_blit->value);
 
+  } else if (current_blit->type == PAST_BLIT) {
+    // this is a linear blit which operates
+    // line by line on the previous frame
+
+    // setup crop variables
+    current_blit->scr = current_blit->pscr = 
+      (uint32_t*)current_blit->blit_coords;
+    current_blit->off = current_blit->poff =
+      (uint32_t*)layer->offset + current_blit->blit_offset;
+    current_blit->pastoff = current_blit->ppastoff =
+      (uint32_t*)current_blit->past_frame;
+
+    // iterates the blit on each horizontal line
+    for(c = current_blit->blit_height; c>0; c--) {
+      
+      (*current_blit->past_fun)
+	((void*)current_blit->off,
+	 (void*)current_blit->pastoff,
+	 (void*)current_blit->scr,
+	 current_blit->blit_pitch);
+
+      // copy the present to the past
+      jmemcpy(current_blit->pastoff,
+	      current_blit->off,
+	      current_blit->blit_pitch);
+      
+      // strides down to the next line
+      current_blit->off = current_blit->poff =
+	current_blit->poff + layer->geo.w;
+      current_blit->scr = current_blit->pscr = 
+	current_blit->pscr + layer->freej->screen->w;
+      current_blit->pastoff = current_blit->ppastoff =
+	current_blit->ppastoff + layer->geo.w;
+
+    }
+
   }
 
 }
@@ -496,6 +594,10 @@ bool Blitter::set_blit(char *name) {
   current_blit = b;
   blitlist.sel(0);
   b->sel(true);
+  if(b->type == PAST_BLIT) { // must fill previous frame
+    if(b->past_frame) free(b->past_frame);
+    b->past_frame = calloc(layer->geo.size,1);
+  }
   if(layer) crop(NULL);
   act("blit %s selected for layer %s",
       b->get_name(),(layer)?layer->get_name():" ");
@@ -625,7 +727,8 @@ void Blitter::crop(ViewPort *screen) {
     b->sdl_rect.h = screen->h;
 
     /* crop for the linear blit */
-  } else if(b->type == LINEAR_BLIT) {
+  } else if(b->type == LINEAR_BLIT 
+	    || b->type == PAST_BLIT) {
     
     b->blit_x = layer->geo.x;
     b->blit_y = layer->geo.y;

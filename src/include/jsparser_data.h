@@ -28,7 +28,7 @@
 
 #include <jsapi.h>
 #include <jsparser.h>
-
+#include <config.h>
 
 
 /* =================================================
@@ -52,10 +52,12 @@ JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(filter_constructor);
 JS(v4l_layer_constructor);
-#ifdef WITH_AVCODEC
+#ifdef WITH_AVIFILE
 JS(avi_layer_constructor);
 #endif
+#ifdef WITH_AVCODEC
 JS(video_layer_constructor);
+#endif
 #ifdef WITH_FT2
 JS(txt_layer_constructor);
 #endif

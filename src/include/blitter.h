@@ -33,6 +33,8 @@ typedef void (blit_sdl_f)(void *src, SDL_Rect *src_rect,
 			  SDL_Surface *dst, SDL_Rect *dst_rect,
 			  ScreenGeometry *geo, void *value);
 
+typedef void (blit_past_f)(void *src, void *past, void *dst, int len);
+
 class Layer;
 
 
@@ -49,10 +51,12 @@ class Blit: public Entry {
   
   blit_f *fun; ///< pointer to linear blit function
   blit_sdl_f *sdl_fun; ///< pointer to sdl blit function
+  blit_past_f *past_fun; ///< pointer to past blit function
 
 #define LINEAR_BLIT 1
 #define SDL_BLIT 2
-  int type; ///< LINEAR|SDL_BLIT type
+#define PAST_BLIT 3
+  int type; ///< LINEAR|SDL|PAST type
 
   char *get_name() { return name; };
 
@@ -70,9 +74,12 @@ class Blit: public Entry {
   // sdl blit crop rectangle
   SDL_Rect sdl_rect;
 
+  // past blit buffer
+  void *past_frame;
+
   /* small vars used in blits */
   int chan, c, cc;
-  uint32_t *scr, *pscr, *off, *poff;
+  uint32_t *scr, *pscr, *off, *poff, *pastoff, *ppastoff;
 
 };
 
