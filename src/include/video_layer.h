@@ -53,6 +53,8 @@ class VideoLayer: public Layer {
 	char *video_filename;
 
 	bool grab_dv;
+	/** play speed to be visualized to the user */
+	int user_play_speed;
 	int play_speed;
 	int play_speed_control;
 	int frame_rate;

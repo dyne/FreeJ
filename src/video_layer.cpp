@@ -38,16 +38,15 @@
 
 VideoLayer::VideoLayer() 
     :Layer() {
+	grab_dv=false;
 	setname("VIDEO");
 	frame_number=0;
 	av_buf=NULL;
 	//	avformat_context=NULL;
 	packet_len=0;
-	play_speed=0;
 	frame_rate=0;
+	play_speed=0;
 	play_speed_control=0;
-	mark_in=0;
-	mark_out=0;
 	seekable=true;
     }
 
@@ -79,6 +78,10 @@ bool VideoLayer::init(Context *scr) {
 
     /* init variables */
     paused=false;
+    user_play_speed=0;
+
+    mark_in=0;
+    mark_out=0;
     return true;
 }
 
@@ -99,7 +102,7 @@ bool VideoLayer::open(char *file) {
 	av_format_par = &avp;
 	memset(av_format_par, 0, sizeof(*av_format_par));
 
-	/** XXX */
+	/** shit XXX */
 	av_format_par->width=160;
 	av_format_par->height=128;
 	av_format_par->frame_rate=25;
@@ -121,18 +124,18 @@ bool VideoLayer::open(char *file) {
      */
     if(grab_dv) {
 	err=av_open_input_file(&avformat_context, "", av_input_format, 0, av_format_par);
-	printf("VideoLayer:: Grabbing dv\n");
+	notice("VideoLayer :: Grabbing dv\n");
     }
     else
 	err = av_open_input_file(&avformat_context, file, av_input_format, 0, av_format_par);
     if (err < 0) {
-	error("VideoLayer:: open(%s) - can't open ", file);
+	error("VideoLayer :: open(%s) - can't open ", file);
 	//	printf("Error number: %d",err);
 	return false;
     }
     err = av_find_stream_info(avformat_context);
     if (err < 0) {
-	error("VideoLayer::could not find codec parameters");
+	error("VideoLayer :: could not find codec parameters");
 	return false;
     }
     /**
@@ -148,17 +151,18 @@ bool VideoLayer::open(char *file) {
 	    video_index=i;
 	    codec = avcodec_find_decoder(enc->codec_id);
 	    if(codec==NULL) {
-		error("VideoLayer::Could not find a suitable codec");
+		error("VideoLayer :: Could not find a suitable codec");
 		return false;
 	    }
 	    if(avcodec_open(enc, codec)<0) {
-		error("VideoLayer::Could not open codec");
+		error("VideoLayer :: Could not open codec");
 		return false;
 	    }
 	    else {
 		frame_rate=enc->frame_rate/enc->frame_rate_base;
 		notice("VideoLayer :: Using codec: %s",codec->name);
-		if(strncasecmp(codec->name,"dvvideo",7)==0) {
+		if(strncasecmp(codec->name,"dvvideo",7)==0 || 
+			strncasecmp(codec->name,"h263",4)==0) {
 		    seekable=false;
 		    notice("VideoLayer :: video codec not seekable");
 		}
@@ -302,7 +306,7 @@ void *VideoLayer::feed() {
 		    got_it=true;
 		    int dst_pix_fmt = PIX_FMT_RGBA32;
 		    avformat_stream=avformat_context->streams[video_index];
-		    avpicture_fill( av_picture, av_buf, PIX_FMT_RGBA32, enc->width, enc->width );
+		    avpicture_fill( av_picture, av_buf, dst_pix_fmt, enc->width, enc->width );
 		    img_convert(av_picture, dst_pix_fmt, (AVPicture *)src, avformat_stream->codec.pix_fmt,
 			    enc->width,
 			    enc->height);
@@ -336,12 +340,10 @@ bool VideoLayer::keypress(SDL_keysym *keysym) {
 	case SDLK_KP0: /* pause */
 	    pause();
 	    break;
-	case SDLK_f: /* faster */
-	    //	    printf("faster: %d\n",play_speed);
+	case SDLK_k: /* increase playing speed */
 	    more_speed();
 	    break;
-	case SDLK_s: /* slower */
-	    //	    printf("slower: %d\n",play_speed);
+	case SDLK_m: /* decrease playing speed */
 	    less_speed();
 	    break;
 
@@ -384,8 +386,11 @@ bool VideoLayer::less_speed() {
     return set_speed(-1);
 }
 bool VideoLayer::set_speed(int speed) {
+    user_play_speed+=speed;
     play_speed+=speed;
     play_speed_control=play_speed;
+    notice("speed is %d",user_play_speed);
+    show_osd();
 }
 bool VideoLayer::forward() {
     relative_seek(+10);
@@ -434,14 +439,17 @@ int VideoLayer::seek(int64_t timestamp) {
     /* 
      * handle bof by closing and reopening file when media it's not seekable
     */
-    if(timestamp==avformat_context->start_time) { // eof, trying to close and open file workaround votamazz
-	close();
-	open(video_filename);
-	return 0;
-    }
     if(!seekable) {
-	error("VideoLayer :: video codec %s not seekable!",codec->name);
-	return -1;
+	if(timestamp==avformat_context->start_time) { // eof, trying to close and open file workaround votamazz
+	    close();
+	    open(video_filename);
+	    return 0;
+	}
+	else {
+	    error("VideoLayer :: video codec %s not seekable!",codec->name);
+	    seekable=false;
+	    return -1;
+	}
     }
     return av_seek_frame(avformat_context, video_index,timestamp);
 }
