@@ -124,9 +124,12 @@ void KbdListener::run() {
 	show_osd("press CTRL+ESC if you really want to quit");
       break;
       
-    case SDLK_SPACE:
-      env->pause = !env->pause;
-      break;
+      // removed the global pause because of key confusion
+      // with the space in the console, not de/activating layers
+      // jrml 19 oct04 thanks to Robert
+      //    case SDLK_SPACE:
+      //      env->pause = !env->pause;
+      //      break;
 
       /* BROKEN ATM TODO QUAA      
     case SDLK_1:
@@ -225,6 +228,10 @@ void KbdListener::run() {
       }
       break;
 
+    case SDLK_SPACE:
+      layer->active = !layer->active;
+      break;
+
     case SDLK_RETURN:
       /* add a new filter to the selected layer */
       if(!_filt) break;
@@ -244,12 +251,35 @@ void KbdListener::run() {
       break;
       
     case SDLK_UP:
-      if(keysym->mod & KMOD_SHIFT)
+      if(keysym->mod & KMOD_SHIFT) {
 	layer->set_position(layer->geo.x,layer->geo.y-1);
+	break;
+      }
+      if(keysym->mod & KMOD_CTRL) {
+	layer->up();
+	break;
+      }
+      /* select layer up */
+      layer = (Layer *)layer->prev;
+      env->layers.sel(0);
+      layer->sel(true);
+      show_osd("%s :: %s",layer->get_name(),layer->get_filename());
       break;
+
     case SDLK_DOWN:
-      if(keysym->mod & KMOD_SHIFT)
+      if(keysym->mod & KMOD_SHIFT) {
 	layer->set_position(layer->geo.x,layer->geo.y+1);
+	break;
+      }
+      if(keysym->mod & KMOD_CTRL) {
+	layer->down();
+	break;
+      }
+      /* select layer down */
+      layer = (Layer *)layer->next;
+      env->layers.sel(0);
+      layer->sel(true);
+      show_osd("%s :: %s",layer->get_name(),layer->get_filename());
       break;
 
     case SDLK_PAGEUP:
@@ -399,7 +429,14 @@ void KbdListener::run() {
 	filter->sel(true);
       }
       break;
-      
+
+    case SDLK_PLUS:
+      filter->up();
+      break;
+    case SDLK_MINUS:
+      filter->down();
+      break;
+
     case SDLK_INSERT:
     /* switch filter on/off */
       filter->active = !filter->active;

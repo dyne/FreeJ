@@ -375,17 +375,24 @@ bool Entry::move(int pos) {
 }
 
 void Entry::rem() {
+  bool lastone = false;
   if(!list) return;
   list->lock();
 
-  if(prev)
-    prev->next = next;
-  else list->first = next;
-  
-  if(next)
-    next->prev = prev;
-  else list->last = prev;
+  if(next) { // if there is a next
+    next->prev = prev; // link it to the previous
+    next->select = select; // inherit selection
+    next_gets_selected = true;
+  } else {
+    list->last = prev; // else just make it the last
+    lastone = true;
+  }
 
+  if(prev) { // if there is a previous
+    prev->next = next; // link it to the next
+    if(lastone) prev->select = select;
+  } else list->first = next; // else just make it a first
+  
   list->length--;
   list->unlock();
   list = NULL;
