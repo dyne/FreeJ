@@ -109,13 +109,10 @@ void *TxtLayer::feed() {
      int string_width,string_height;
      //int angle=30;
      FT_Bool use_kerning=FT_HAS_KERNING(face);
-     FT_BBox string_bbox;
-     FT_Vector vector;
 
      /* One word  main loop, one word each iteration*/
      if(change_word && !clear_screen) {
 	  glyph_current=glyphs;
-	  //printf("WORD: %s\n",word);
 	  word_len = word_ff(1);
 
 	  /*  Convert the character string into a series of glyph indices. */
@@ -154,15 +151,17 @@ void *TxtLayer::feed() {
 	  num_glyphs = glyph_current - glyphs;
 
 	  /* get bbox of original glyph sequence */
+
+	  FT_BBox string_bbox;
 	  compute_string_bbox( &string_bbox, glyph_current->image);
 
 	  /* compute string dimensions in integer pixels */
 	  string_width  = (string_bbox.xMax - string_bbox.xMin)<<6;
 	  string_height = (string_bbox.yMax - string_bbox.yMin)<<6;
-	  printf("string_width: %d\n string_height: %d",string_width,string_height);
 
 	  /* set up position in 26.6 cartesian space */
 
+	  FT_Vector vector;
 	  vector.x = (x<<6)-(( origin_x / 2 ) & -64);
 	  vector.y = (geo.h-y)<<6;
 
@@ -311,13 +310,13 @@ bool TxtLayer::keypress(SDL_keysym *keysym) {
 	       y-=(geo.bpp/8);
 	       break;
 
-	  //case SDLK_w: /* wider */ FIXME cod1o
-	//      set_character_size(text_dimension++);
-	    //   break;
+	  case SDLK_w: /* wider */ 
+	      set_character_size(text_dimension++);
+	       break;
 
-	  //case SDLK_s: /* smaller */
-	    //   set_character_size(text_dimension--);
-	      // break;
+	  case SDLK_s: /* smaller */
+	       set_character_size(text_dimension--);
+	       break;
 
 	  default: 
 	       res = 0; 
@@ -365,7 +364,6 @@ bool TxtLayer::draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int 
      dst= (Uint8 *) buf;
      dst += bitmap->left + (geo.h - bitmap->top)*geo.pitch;
 
-     //printf("top_side_bearing: %d\tleft_side_bearing: %d \n",top_side_bearing,left_side_bearing);
      /* Second inner loop: draw a letter;
 	they come around but they never come close to */
      for(int z=0 ; z<(pixel_image.rows) ; z++) {
@@ -382,7 +380,7 @@ bool TxtLayer::draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int 
      return(true);
 }
 bool TxtLayer::set_character_size(int _text_dimension) {
-     int ret = FT_Set_Char_Size( face, 0, _text_dimension*64, geo.w, geo.h );
+     int ret = FT_Set_Char_Size( face, 0, _text_dimension*64, 72, 72);
      if(ret<0) {
 	  error("TxtLayer::Couldn't set character size");
 	  return(false);
