@@ -467,6 +467,8 @@ void Blitter::crop(ViewPort *screen) {
     
   case LINEAR_BLIT:
     
+    b->blit_x = layer->geo.x;
+    b->blit_y = layer->geo.y;
     b->blit_width = layer->geo.w;
     b->blit_height = layer->geo.h;
     blit_xoff = 0;
