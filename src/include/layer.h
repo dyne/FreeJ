@@ -124,6 +124,7 @@ class Layer: public Entry, public JSyncThread {
   /** physical buffers */
   void *offset; ///< pointer to pixel plane
 
+
  protected:
 
   void _init(Context *freej, int wdt, int hgt, int bpp=0);

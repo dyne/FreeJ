@@ -38,6 +38,7 @@ freej_SOURCES = \
 	screen.cpp	\
 	sdl_screen.cpp 	\
 	imagefilter.cpp \
+	rotozoomer.cpp  \
 	kbd_ctrl.cpp	\
 	gtk_ctrl.cpp	\
 	joy_ctrl.cpp	\

@@ -1217,18 +1217,29 @@ void Console::parser_movelayer(int key) {
   commandline = false; // print statusline
 
   switch(key) {
+
+    // zoom
   case KEY_PLUS:
-    if(movestep<0xff) {
-      movestep++;
-      ::act("movement step increased to %i",movestep);
-    }
+    layer->blitter.set_zoom(0.01,0.01);
     break;
   case KEY_MINUS:
-    if(movestep>1) {
-      movestep--;
-      ::act("movement step decreased to %i",movestep);
-    }
+    layer->blitter.set_zoom(-0.01,-0.01);
     break;
+  case '.':
+    layer->blitter.set_zoom(0,0);
+    break;
+
+    // rotation
+  case '>':
+    layer->blitter.set_rotate(0.5);
+    break;
+  case '<':
+    layer->blitter.set_rotate(-0.5);
+    break;
+  case ',':
+    layer->blitter.set_rotate(0);
+    break;
+
   case '8':
   case 'k':
   case SL_KEY_UP:

@@ -52,6 +52,7 @@ Context::Context() {
   quit = false;
   pause = false;
   interactive = true;
+  singlethread = false;
 
   fps_speed=25;
 
@@ -157,12 +158,11 @@ void Context::cafudda(double secs) {
 
     // clear screen before each iteration
     if(clear_all)
-	screen->clear();
+      screen->clear();
     else if(osd.active)
-    osd.clean();
+      osd.clean();
 
     /** process each layer in the chain */
-
     lay = (Layer *)layers.end();
     if(lay) {
       layers.lock();
@@ -217,9 +217,9 @@ void Context::set_fps_interval(int interval) {
 }
 
 void Context::calc_fps() {
-    int ret=-1;
-    struct timespec tmp_rem,*rem;
-    rem=&tmp_rem;
+  int ret=-1;
+  struct timespec tmp_rem,*rem;
+  rem=&tmp_rem;
   /* 1frame : elapsed = X frames : 1000000 */
   gettimeofday( &cur_time, NULL);
   elapsed = cur_time.tv_usec - lst_time.tv_usec;
@@ -257,19 +257,31 @@ void Context::calc_fps() {
 
 void Context::rocknroll() {
 
-    Layer *l = (Layer *)layers.begin();
+  Layer *l = (Layer *)layers.begin();
 
-    if(!l) // there are no layers
-      if(interactive) { // engine running in interactive mode
-	osd.credits(true);
-	return;
+  if(!l) // there are no layers
+    if(interactive) { // engine running in interactive mode
+      osd.credits(true);
+      return;
+    }
+
+  if(singlethread)
+
+    while(l) {
+      if(!l->running) {
+	l->running = true;
+	l->active = start_running;
+	l = (Layer*)l->next;
       }
+    }
+
+  else {
 
     layers.lock();
     while(l) {
       if(!l->running) {
 	if(l->start()==0) {
-	  //    l->signal_feed();
+	  //    l->signal_feed(); QUAAA
 	  while(!l->running) jsleep(0,500);
 	  l->active = start_running;
 	}
@@ -279,4 +291,6 @@ void Context::rocknroll() {
       l = (Layer *)l->next;
     }
     layers.unlock();
+
+  }
 }

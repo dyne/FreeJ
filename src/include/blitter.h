@@ -63,6 +63,7 @@ class Blit: public Entry {
   char *get_name() { return name; };
 
 
+
  private:
   // parameters for linear crop
   
@@ -115,14 +116,12 @@ class Blitter {
   bool pulse_value(int step, int val); ///< pulse it to a value and come back
   bool set_kernel(short *krn); /// set the convolution kernel
   bool Blitter::set_colorkey(int x,int y);
+
+  bool set_zoom(double x, double y);
+  bool set_rotate(double angle);
+
   Linklist blitlist; ///< list of available blits
 
-  /* ==== geometrical transformations */
-  double x_scale;    ///< zoom factor on x axis
-  double y_scale;    ///< zoom factor on y axis
-  double rotation;   ///< rotation factor
-  
-  
   /* ==== CROP */
   /** @param view if NULL, default ViewPort is used */
   void crop(ViewPort *view);
@@ -131,6 +130,16 @@ class Blitter {
   Layer *layer; ///< the layer on which is applied the blitter
 
   Blit *current_blit; ///< currently selected blit
+
+  bool antialias;
+  bool zooming;
+  bool rotating;
+  double zoom_x;
+  double zoom_y;
+  double rotate;
+  SDL_Surface *rotozoom; ///< pointer to blittable surface (rotated and zoomed if necessary)
+  ScreenGeometry geo_rotozoom; ///< geometrical information about the rotozoomed Layer
+  ScreenGeometry *geo;
   
  private:
   int16_t old_x;

@@ -71,6 +71,32 @@ void Layer::_init(Context *freej, int wdt, int hgt, int bpp) {
 }
 
 void Layer::run() {
+  /* <<<<<<< layer.cpp
+
+  if(freej->singlethread) {
+    error("engine running on single thread mode but Layer::run has been fired!");
+    return;
+  }
+    
+  while(!feed()) jsleep(0,50);
+  func("ok, layer %s in rolling loop",get_name());
+  func("Layer :: run :: begin thread %d",pthread_self());
+  running = true;
+
+  wait_feed();
+  while(!quit) {
+    if(bgcolor==0) {
+      buffer = feed();
+      if(!buffer) error("feed error on layer %s",get_name());
+      wait_feed();
+    } else if(bgcolor==1) {
+      memset(bgmatte,0xff,geo.size);
+      jsleep(0,10);
+    } else if(bgcolor==2) {
+      memset(bgmatte,0x0,geo.size);
+      jsleep(0,10);
+      
+      ======= */
     while(!feed()) jsleep(0,50);
     func("ok, layer %s in rolling loop",get_name());
     func("Layer :: run :: begin thread %d",pthread_self());
@@ -81,8 +107,10 @@ void Layer::run() {
 	if(!buffer) error("feed error on layer %s",get_name());
 	wait_feed();
     }
+    
     func("Layer :: run :: end thread %d",pthread_self());
     running = false;
+
 }
 
 bool Layer::cafudda() {
@@ -91,6 +119,17 @@ bool Layer::cafudda() {
     if(!fade)
       return false;
 
+  /* <<<<<<< layer.cpp
+  //  offset = (bgcolor) ? bgmatte : buffer;
+  if(freej->singlethread)
+    offset = feed();
+  else {
+    offset = buffer;
+    if(!offset) {
+      signal_feed();
+      return(false);
+    }
+    ======= */
 //  offset = (bgcolor) ? bgmatte : buffer;
   offset = buffer;
   if(!offset) {
@@ -135,7 +174,7 @@ bool Layer::cafudda() {
   
   if( filters.len() ) filters.unlock();
 
-  signal_feed();
+  if(!freej->singlethread) signal_feed();
 
   return(true);
 }

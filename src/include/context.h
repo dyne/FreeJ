@@ -93,6 +93,8 @@ class Context {
 
   bool interactive;
 
+  bool singlethread;
+
   /* linked list of registered layers */
   Linklist layers;
 

@@ -25,6 +25,7 @@
 #include <context.h>
 #include <iterator.h>
 #include <imagefilter.h>
+#include <rotozoomer.h>
 
 #include <sdl_screen.h>
 
@@ -261,6 +262,8 @@ BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
   SDL_FreeSurface( sdl_surf );
   SDL_FreeSurface( colorkey_surf );
 
+  sdl_surf = NULL;
+
 }
 
 Blit::Blit() :Entry() {
@@ -283,9 +286,19 @@ Blitter::Blitter() {
 
   Blit *b;
 
-  x_scale = 1.0;
-  y_scale = 1.0;
-  rotation = 0.0;
+  zoom_x = 1.0;
+  zoom_y = 1.0;
+  rotate = 0.0;
+  zooming = false;
+  rotating = false;
+  rotozoom = NULL;
+  antialias = false;
+
+  old_x = 0;
+  old_y = 0;
+  old_w = 0;
+  old_h = 0;
+
 
   /* fill up linklist of blits */
 
@@ -467,14 +480,41 @@ bool Blitter::init(Layer *lay) {
 
 void Blitter::blit() {
   register int16_t c;
+  void *offset;
 
-  /* compare old layer values
-     crop the layer if necessary */
-  if( layer->geo.x != old_x 
-      || layer->geo.y != old_y
-      || layer->geo.w != old_w
-      || layer->geo.h != old_h )
-    crop( NULL );
+  if(rotating || zooming) {
+    // if we have to rotate or scale,
+    // create a sdl surface from current pixel buffer
+    sdl_surf = SDL_CreateRGBSurfaceFrom
+      (layer->offset,
+       layer->geo.w, layer->geo.h, layer->geo.bpp,
+       layer->geo.pitch, bmask, gmask, rmask, amask);
+
+    if(rotating) {
+
+      rotozoom =
+	schiffler_rotozoom(sdl_surf, rotate, zoom_x, (int)antialias);
+      
+    } else if(zooming) {
+      
+      rotozoom =
+	schiffler_zoom(sdl_surf, zoom_x, zoom_y, (int)antialias);
+
+    }
+
+    offset = rotozoom->pixels;
+    SDL_FreeSurface( sdl_surf );
+    
+  } else {
+
+    offset = layer->offset;
+    rotozoom = NULL;
+
+  }
+
+
+
+  crop( NULL );
   
   // executes LINEAR blit
   if( current_blit->type == LINEAR_BLIT ) {
@@ -484,7 +524,7 @@ void Blitter::blit() {
       (uint32_t*)layer->freej->screen->coords(0,0)
       + current_blit->scr_offset;
     play =
-      (uint32_t*)layer->offset
+      (uint32_t*)offset
       + current_blit->lay_offset;
 
     // iterates the blit on each horizontal line
@@ -507,9 +547,9 @@ void Blitter::blit() {
   } else if (current_blit->type == SDL_BLIT) {
     
     (*current_blit->sdl_fun)
-      (layer->offset, &current_blit->sdl_rect,
-       ((SdlScreen*)layer->freej->screen)->surface, NULL,
-       &layer->geo, (void*)&current_blit->value);
+      (offset, &current_blit->sdl_rect,
+       ((SdlScreen*)layer->freej->screen)->surface,
+       NULL, geo, (void*)&current_blit->value);
 
   } else if (current_blit->type == PAST_BLIT) {
     // this is a linear blit which operates
@@ -520,7 +560,7 @@ void Blitter::blit() {
       (uint32_t*)layer->freej->screen->coords(0,0)
       + current_blit->scr_offset;
     play =
-      (uint32_t*)layer->offset
+      (uint32_t*)offset
       + current_blit->lay_offset;
     ppast =
       (uint32_t*)current_blit->past_frame
@@ -534,7 +574,7 @@ void Blitter::blit() {
 	 current_blit->lay_bytepitch);
       
       // copy the present to the past
-      jmemcpy(ppast, play, layer->geo.pitch);
+      jmemcpy(ppast, play, geo->pitch);
       
       // strides down to the next line
       pscr += current_blit->scr_stride
@@ -548,6 +588,8 @@ void Blitter::blit() {
 
   }
 
+  if(rotozoom)
+    SDL_FreeSurface(rotozoom);
 
 }
 
@@ -662,6 +704,38 @@ bool Blitter::set_kernel(short *krn) {
   return false;
 }
 
+bool Blitter::set_zoom(double x, double y) {
+  if(!x && !y) {
+    zooming = false;
+    x = y = 0;
+    act("%s layer %s zoom deactivated",
+	layer->get_name(), layer->get_filename());
+  } else {
+    zoom_x += x;
+    zoom_y += y;
+    zooming = true;
+    act("%s layer %s zoom set to x%.2f y%.2f",	layer->get_name(),
+	layer->get_filename(), zoom_x, zoom_y);
+  }
+  return zooming;
+}
+
+bool Blitter::set_rotate(double angle) {
+  if(!angle) {
+    rotating = false;
+    angle = 0;
+    act("%s layer %s rotation deactivated",
+	layer->get_name(), layer->get_filename());
+  } else {
+    rotate += angle;
+    rotating = true;
+    act("%s layer %s rotation set to %.2f", layer->get_name(),
+	layer->get_filename(), rotate);
+
+  }
+  return rotating;
+}
+
 
 /* ok, let's draw the crop geometries and be nice commenting ;)
 
@@ -711,18 +785,53 @@ bool Blitter::set_kernel(short *krn) {
 
 void Blitter::crop(ViewPort *screen) {     
 
-  Blit *b = current_blit;
-  if(!b) return;
-  
+  Blit *b;
+
   if(!layer) return;
+
+  // assign the right pointer to the *geo used in crop
+  // we use the normal geometry if not roto|zoom
+  // otherwise the layer::geo_rotozoom
+  if(zooming | rotating) {
+
+    if(!rotozoom) {
+      error("internal error in blit rotozoomer, SDL_Surface layer::rotozoom is NULL");
+      return;
+    }
+    geo = &geo_rotozoom;
+    geo->w = rotozoom->w;
+    geo->h = rotozoom->h;
+    geo->x = layer->geo.x;
+    geo->y = layer->geo.y;
+    geo->bpp = 32;
+    geo->pitch = 4*geo->w;
+
+  } else geo = &layer->geo;
+
+  /* compare old layer values
+     crop the layer only if necessary */
+  if( geo->x == old_x
+      && geo->y == old_y
+      && geo->w == old_w
+      && geo->h == old_h )
+    return;
+
+
+
+  if(!current_blit) return;
+  b = current_blit;
+
+  func("crop on x%i y%i w%i h%i for blit %s",
+       geo->x, geo->y, geo->w, geo->h, b->get_name());
+  
 
   if(!screen) // return;
     screen = layer->freej->screen;
 
   // crop for the SDL blit
   if(b->type == SDL_BLIT) {
-    b->sdl_rect.x = -(layer->geo.x);
-    b->sdl_rect.y = -(layer->geo.y);
+    b->sdl_rect.x = -(geo->x);
+    b->sdl_rect.y = -(geo->y);
     b->sdl_rect.w = screen->w;
     b->sdl_rect.h = screen->h;
 
@@ -730,8 +839,8 @@ void Blitter::crop(ViewPort *screen) {
   } else if(b->type == LINEAR_BLIT 
 	    || b->type == PAST_BLIT) {
 
-    b->lay_pitch = layer->geo.w; // how many pixels to copy each row
-    b->lay_height = layer->geo.h; // how many rows we should copy
+    b->lay_pitch = geo->w; // how many pixels to copy each row
+    b->lay_height = geo->h; // how many rows we should copy
     
     b->scr_stride_up = 0; // rows to jump before starting to blit on screen
     b->scr_stride_sx = 0; // screen pixels stride on the left of each row
@@ -742,56 +851,56 @@ void Blitter::crop(ViewPort *screen) {
     b->lay_stride_dx = 0; // how many pixels stride on the right of each row
     
     // BOTTOM
-    if( layer->geo.y+layer->geo.h > screen->h ) {
-      if(layer->geo.y > screen->h) { // out of screen
-	layer->geo.y = screen->h+1; // don't go far
+    if( geo->y+geo->h > screen->h ) {
+      if(geo->y > screen->h) { // out of screen
+	geo->y = screen->h+1; // don't go far
 	layer->hidden = true;
 	return;
       } else { // partially out
-	b->lay_height -= (layer->geo.y + layer->geo.h) - screen->h;
+	b->lay_height -= (geo->y + geo->h) - screen->h;
       }
     }
     
     // LEFT
-    if( layer->geo.x < 0 ) {
-      if( layer->geo.x + layer->geo.w < 0 ) { // out of screen
-	layer->geo.x = -( layer->geo.w + 1 ); // don't go far
+    if( geo->x < 0 ) {
+      if( geo->x + geo->w < 0 ) { // out of screen
+	geo->x = -( geo->w + 1 ); // don't go far
 	layer->hidden = true;
 	return;
       } else { // partially out
-	b->lay_stride_sx += -layer->geo.x;
-	b->lay_pitch -= -layer->geo.x;
+	b->lay_stride_sx += -geo->x;
+	b->lay_pitch -= -geo->x;
       } 
     } else { // inside
-      b->scr_stride_sx += layer->geo.x;
+      b->scr_stride_sx += geo->x;
     }
     
     // UP
-    if(layer->geo.y < 0) {
-      if( layer->geo.y + layer->geo.h < 0) { // out of screen
-	layer->geo.y = -( layer->geo.h + 1 ); // don't go far
+    if(geo->y < 0) {
+      if( geo->y + geo->h < 0) { // out of screen
+	geo->y = -( geo->h + 1 ); // don't go far
 	layer->hidden = true;
 	return;
       } else { // partially out
-	b->lay_stride_up += -layer->geo.y;
-	b->lay_height -= -layer->geo.y;
+	b->lay_stride_up += -geo->y;
+	b->lay_height -= -geo->y;
       }
     } else { // inside
-      b->scr_stride_up += layer->geo.y;
+      b->scr_stride_up += geo->y;
     }
     
     // RIGHT
-    if( layer->geo.x + layer->geo.w > screen->w ) {
-      if( layer->geo.x > screen->w ) { // out of screen
-	layer->geo.x = screen->w + 1; // don't go far
+    if( geo->x + geo->w > screen->w ) {
+      if( geo->x > screen->w ) { // out of screen
+	geo->x = screen->w + 1; // don't go far
 	layer->hidden = true;
 	return;
       } else { // partially out
-	b->lay_pitch -= ( layer->geo.x + layer->geo.w ) - screen->w;
-	b->lay_stride_dx += ( layer->geo.x + layer->geo.w ) - screen->w;
+	b->lay_pitch -= ( geo->x + geo->w ) - screen->w;
+	b->lay_stride_dx += ( geo->x + geo->w ) - screen->w;
       } 
     } else { // inside
-      b->scr_stride_dx += screen->w - (layer->geo.x + layer->geo.w );
+      b->scr_stride_dx += screen->w - (geo->x + geo->w );
     }
     
     layer->hidden = false;
@@ -799,7 +908,7 @@ void Blitter::crop(ViewPort *screen) {
     b->lay_stride = b->lay_stride_dx + b->lay_stride_sx; // sum strides
     // precalculate upper left starting offset for layer
     b->lay_offset = (b->lay_stride_sx +
-		     ( b->lay_stride_up * layer->geo.w ));
+		     ( b->lay_stride_up * geo->w ));
     
     b->scr_stride = b->scr_stride_dx + b->scr_stride_sx; // sum strides
     // precalculate upper left starting offset for screen
@@ -808,13 +917,13 @@ void Blitter::crop(ViewPort *screen) {
   }
   
   // calculate bytes per row
-  b->lay_bytepitch = b->lay_pitch * (layer->geo.bpp>>3);
+  b->lay_bytepitch = b->lay_pitch * (geo->bpp>>3);
 
   /* store values for further crop checking */
-  old_x = layer->geo.x;
-  old_y = layer->geo.y;
-  old_w = layer->geo.w;
-  old_h = layer->geo.h;
+  old_x = geo->x;
+  old_y = geo->y;
+  old_w = geo->w;
+  old_h = geo->h;
   
 }  
 

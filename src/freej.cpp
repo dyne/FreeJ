@@ -72,13 +72,14 @@ static const char *help =
 " .   -n   start with deactivated layers\n"
 #ifdef WITH_JAVASCRIPT
 " .   -j   process javascript command file\n"
+" .   -t   no multithreading, run on a single thread\n"
 #endif
 " .  layers available:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:";
+static const char *short_options = "-hvD:gs:nj:t";
 
 
 
@@ -92,7 +93,7 @@ char javascript[512]; // script filename
 
 bool startstate = true;
 bool gtkgui = false;
-
+bool singlethread = false;
 
 bool parse_header_for_script() {
     char *tmp_buf=NULL;
@@ -222,7 +223,10 @@ void cmdline(int argc, char **argv) {
 	  fclose(fd);
       }
       break;
-
+    case 't':
+      singlethread = true;
+      break;
+      
     case '?':
       warning("unrecognized option: %s",optarg);
       break;
@@ -277,6 +281,7 @@ int main (int argc, char **argv) {
      notice("running as root: high priority realtime scheduling allowed.");
   */
 
+  freej.singlethread = singlethread;
 
   assert( freej.init(width,height) );
 
