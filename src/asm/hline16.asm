@@ -35,7 +35,6 @@ asm_hline16:
 	loop .MainLoop		; loop (dec ecx until 0)
 
 .TheEnd
-	;; emms ?
 	;; restore registers
 	pop ebp
 	pop edi

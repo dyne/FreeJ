@@ -2,13 +2,13 @@
 
 SEGMENT CODE USE32 ALIGN=16
 
-global asm_vline16
+global asm_vline32
 
 	extern asmdst
 	extern asmnum1
 	extern asmnum2
 
-asm_vline16:
+asm_vline32:
 	;; EAX dest screen (offset on desired coords)
 	;; ECX height
 	;; EBX pitch (screen width in bytes)
@@ -34,11 +34,11 @@ asm_vline16:
 
 .MainLoop
 	mov [eax],edx		; blit white pixel
+	mov [eax+2],edx
 	add eax,ebx		; goes down one line
 	loop .MainLoop		; loop (dec ecx until 0)
 
 .TheEnd
-	;; emms ?
 	;; restore registers
 	pop ebp
 	pop edi
