@@ -1,0 +1,445 @@
+
+
+FreeJ Tutorial
+
+Written by Anne-Marie Skriver, Montevideo 2004
+
+Edited by Marloes de Valk
+
+
+
+Contents
+
+1.   introduction
+starting FreeJ
+the interface
+using the keyboard
+the text console
+working with layers
+RGB
+special layer commands
+working with effects
+converting video formats
+screenshots and screenmovies
+under construction
+overview
+
+
+
+
+1. Introduction
+
+FreeJ is a digital instrument for video livesets, featuring realtime
+rendering of multilayered video and chained effects directly visible on the
+screen. FreeJ deals with every video source as a layer, making then
+possible to dynamically apply on each a chain of effects, loadable as
+effect plug-ins, and easily customizable. Layers are implemented to mix
+together live inputs (video4linux devices), DIVX/AVI files (with avifile
+library), PNG images and TEXT files word by word. Other layers are being
+implemented. This tutorial will show you how to work with FreeJ. There is
+more than just text, on the FreeJ website www.freej.org you can download
+tutorial movies, in which you are shown step by step how to work with
+FreeJ. HAVE FUN !
+
+
+
+2. Starting FreeJ
+First download FreeJ from www.freej.org and go to the documentation /
+install file to get  information about how to install FreeJ on your
+machine. It is different depending on what type of machine you have, and
+what system you are running on it. FreeJ runs on Linux and OSX. PC users
+can run FreeJ using the dyne:bolic CD (dyne:bolic is a GNU/Linux
+distribution simply running from a CD, without the need to install anything
+www.dyne.org ).
+
+Start up Free. You can download the tutorial movies or use your own movies.
+The movies have to be in AVI format, or if you use live input: video4linux.
+
+
+3. The Interface
+
+[pic]                    [pic]
+
+FreeJ consists of a output window, an editing window and a text console.
+You can manipulate the video by using the keyboard, but you can also
+manipulate the video in the editing window or the text console. In this
+first part we'll focus on the editing window.
+
+In the menu bar there are four different options: File, OSD, Screen and
+Help. In 'File' you can add a layer to the list of layers: it can be a
+movie in AVI format, a video4linux live input or a text layer.
+
+In 'OSD' you get On Screen Display information about the layer. Turn the
+OSD on and click 'help - information' to scroll  between layers. In the
+output window, the on-screen display (OSD) reports information like frames
+per second (fps), the effects that are applied, the order in which they are
+applied, and some status messages.
+
+In 'Screen' you can turn full screen on (press CTRL F to turn it off
+again).
+
+Before you start  your own setup add the layer that is going to be the
+first layer of your setup. Load a movie file into the first layer by
+clicking  File - add layer. Then select the credits layer with the mouse
+and remove it by clicking information. Now you have your own setup.
+
+Now it is time to manipulate the video. The editing window has two columns.
+One column for  the video layers and one column for the effects that you
+can apply to  each layer. You select a layer by clicking it. If you have
+more than one video layer you can select a layer and move it back and forth
+ with the arrow buttons.
+
+In the layers column you can apply blends to a layer. In the effects column
+you can add effects to a layer. If you have more than one effect applied to
+a layer you can select the effect and bring it to the front and back with
+the arrow buttons.
+
+You can turn effects and blends on and off by clicking on the wheels button
+and you can delete layers and effects by clicking on  the red button with a
+cross.
+
+4. Using the Keyboard
+In this chapter we'll discuss some general key commands. To use the
+keyboard click in the output window to make the keyboard active. The video
+you loaded into the layer is playing. Pres SPACE to start and stop the
+playback of the video. CTRL F or in some cases CTRL SPACE is a switch  that
+activates and deactivates full screen. You can see information about the
+layer (OSD) by pressing TAB. The coloured text tells what kind of layer it
+is and which effects are applied to it. If you press CTRL TAB you can turn
+the calibration guidelines on or off. (See keyboard map for main keys and
+chapter 12 for an overview of all key commands).
+
+                                    [pic]
+
+5. The text console
+The text console gives you status information, listing all the layers and
+the filters under them, scrolling all status messages and of course letting
+you interact through commands.  It can also be a shell opened from the net,
+i mean a remote terminal which is connected through the net, over distance.
+With FreeJ you can do VJoE: VeeJay over Ethernet, which means the control
+commands listed under S-LANG console in chapter 13, can also be sent
+through the net.
+6. Working with Layers.
+The layers are representing the different media types that FreeJ handles.
+There are three different layers: the AVI layer, the Video4Linux layer, and
+the Text layer. When the layers are imported they are listed in the editing
+window. The top layer is  also the top layer in the output window.
+
+Use the mouse to load a layer. Select the layers by pressing PAGE UP and
+PAGE DOWN. When a layer is  selected you can edit it in real-time.
+
+Now press HOME to hide and show the selected layer. Switch the order of
+layers. Choose a layer and hold CTRL down while moving it up and down in
+the list of layers with PAGE UP and  PAGE DOWN.
+
+Before applying effects to a layer you can already manipulate the layer
+itself. Load a picture file and a movie  file into the list of layers and
+move the picture to the top.  If you want to see a  movie behind your
+graphics, export your file as a 'png' with transparent background.
+
+You can move the layers around on the screen so that only a part of the
+layer is covering the screen. Select a layer, hold down SHIFT and press the
+arrow keys. Now you are moving the X and Y position of the layer. You can
+also click and drag in the output window with the left mouse button and
+move the layers carefully.
+
+Sometimes you can have a setup where you need to activate the layers and
+after a while deactivate them again. You use HOME  to activate and
+deactivate a layer. Try selecting a layer with  PAGE  UP / PAGE DOWN and
+press HOME a couple of times. Look at  the editing window. A checked box
+appears next to the layer if it is active. Loading and deleting layers can
+only be done with the mouse.
+
+In tutorial movie 2 you can see the things described on this page and the
+next page.  Follow the information text in the output window to see what is
+going on. There is a 'png' file on top of two AVI files.
+
+7. RGB
+With keys  0 - 9 you can manipulate the colour channels of each layer. The
+9 modes are: 0 Blank screen  ON/OFF, 1 NORMAL, 2 BLUE, 3 GREEN, 4 RED, 5
+ADD, 6 SUB, 7 AND,  8 OR, 9 ALPHA BLEND ON/OFF. First some RGB theory: Any
+screen (television screen, computer  screen) consist of four channels: The
+red, the green, the blue and  the alpha channel. If you have a full amount
+of red, green and blue the screen is white. The screen turns  black when
+there is no amount of red,  green and blue at all. This way of mixing
+colours is called additive synthesis. If you adjust the alpha channel of a
+layer you are adjusting how visible the layer is.
+
+When the layer is in normal mode you see all the channels at the same time.
+Press 1 to see the layer in normal mode. Look at the show screen. In the
+top area you see a yellow text that tells you in which mode the layer is.
+The text in normal mode says RGB. Press 2 to see only the blue channel,
+press 3 and four to see the green and the red channel.
+
+You can also manipulate the layers with bitwise operations on pixels: ADD,
+SUB, AND, and OR. Load two video layers into FreeJ. Press the keys 5, 6, 7,
+8 to check out how the four modes are  working.
+
+With key 9 you can manipulate the alpha channel. Normally the alpha channel
+is turned off and the layer is fully visible. If you want  to make the
+layer less visible press 9 to switch the alpha blend on. Now keys 1 to 8
+work as a scale to determine the visibility of the layer. Press TAB to show
+the number indicating how visible the layer is (in the output window). When
+you have found  a nice alpha blend press 9 again to enable the other layer
+options.
+
+8. Special Layer Commands
+Each media layer has its own commands connected to it. In the AVI layer it
+is possible to do some simple video editing  with the keyboard. To use this
+function in FreeJ you have to encode  the movie with full frames, which
+means that a movie with 25 fps should have a keyframe every 25 frames.
+
+You can jump from frame to frame while the movie is playing. Press j and k
+to go forward and backward in the movie. You can also jump over a  bigger
+amount of frames by pressing: h and l
+
+You can choose to loop a certain part of the movie. While an AVI  movie
+layer is playing you can set in- and out-points (markers) to define the
+part of the movie you want to play. Push TAB to see the status text. Press
+'I' to set the in-point of the clip. The movie continues to play. Press 'O'
+to set an out-point. Now the movie is looping inside the in- and out-points
+(See tutorial movie 3).
+
+9. Working with Effects
+You can apply one or more effects to every single media layer. You work
+with effects by using the function keys. To activate the function keys and
+to make sure they only work inside FreeJ, make the output window full
+screen. Press TAB to see the status text. Then push the  buttons F1-F12.
+The status text asks if you want to apply a certain effect. Press ENTER to
+apply the effect and a new effect appears in the list.
+
+In FreeJ there is room for 121 effects. These effects are stored in
+effectbanks. Each function key is linked to an effectbank that contains 12
+different effects. Hold down CTRL and press one of  the function keys to
+access an effectbank. The status text  changes to plugin bank. Still
+holding down CTRL you can scroll  through the effects in the effectbank
+with the F1-F12 keys. When you have picked an effect press ENTER to
+activate the effect. Some of  the effect banks are empty. You can download
+your own effects and store them there.
+
+Changing the order of effects changes results. Use the arrow keys up and
+down to choose the layer with the effects you just applied. To move the
+effect, hold down CTRL and move it with the arrow keys. Press INSERT to
+activate and deactivate an effect  (See tutorial movie 4 and 5).
+
+To manipulate effects, use the paired buttons: a-s   q-w   z-x. The letters
+adjust the parameters of the selected effect. See chapter 13. Overview for
+a list of key commands.
+
+10. Converting video formats
+FreeJ is only working with two video formats: AVI and video4linux.  If you
+don't have videos compressed in AVI format there is an easy way to convert
+files (available in dyne:bolic), with the program 'mencoder'. In this
+program it is possible to convert from MPEG-4 to AVI without any loss of
+quality. Open a terminal and type this line:
+
+#mencoder/yourmovie.mov -nosound -ovc copy -o yourmovie.avi
+
+There are other compression options: To get more information about sound
+type:
+
+#mencoder -oac help
+
+To get more information about video type:
+
+#mencoder -ovc help
+
+11.Screenshots and Screen movies
+If you want to document your work in FreeJ you can either make a screenshot
+or a screen movie. To record a screen movie, use 'xvidcap' (available in
+dyne:bolics video folder, video - record).
+
+Start up xvidcap, go to 'file' and choose 'options' to specify the name,
+format, fps, etc. Click the 'target icon' in the menu bar. Specify how big
+your recording area should be. If you want to be more precise, open a
+terminal and type:
+
+#xvidcap --cap_geometry 400x300
+
+The size of the recording screen will then be fixed to 400x300 (you can of
+course type in other sizes). To start recording, click the red button, to
+stop recording the stop button. To save the results, go to 'file - options'
+and click 'save'. The video will be stored in your home directory.
+
+Screenshots can be made with 'xsg grab' desktop screenshot (also available
+on dyne:bolic). When you start 'xsg grab' a  circle shows up on the screen
+in stead of the mouse pointer. Click in the window that you want to take a
+screen shot from. The picture is taken and saved in your home directory as
+a 'png' file.
+
+Within FreeJ, use CTR+SPACE for full screen display, CTR+2 makes the output
+window double size, CTR+1 turns it  back to normal size.
+
+12. under construction
+Live Video Input from a TV card or a USB webcam. Log onto the FreeJ web-
+page later to download a new version of the FreeJ tutorial.
+
+Live Streaming Open mash program that streams portions of your desktop. Log
+onto the FreeJ web-page later to download a new version of the FreeJ
+tutorial.
+
+Generative Layers Generative layers are candy for programmers who like to
+program their own visuals in c++. You can very soon download the source
+code for a generative layer in FreeJ and write your own algorithms. Also
+check out the newest generative layers that soon will be downloadable on
+the FreeJ website.
+
+13. Overview           ^ means CTRL key pressed   % means SHIFT key pressed
+
+
+GENERAL COMMANDS
+
+^F          =    on/off full screen mode
+SPACE       =    freeze the whole engine
+ESC              =     quit
+TAB              =     on/off OSD
+^TAB        =    on/off calibration guidelines
+PRINTSCR    =    display nice and lovely credits
+NUMPAD PLUS      =     increase overall speed
+NUMPAD MINUS     =     decrease overall speed
+
+
+LAYER COMMANDS
+
+PGUP/PGDOWN      =     select layers up and down through the chain
+^PGUP/^PGDOWN    =     move layers up and down through the chain
+HOME             =     hide/show layer
+BACKSP           =     turn matte off
+%BACKSP          =     white matte
+^BACKSP          =     black matte
+
+1 = select NORMAL BLIT            2 = select BLU BLIT        3 = select
+GREEN BLIT
+4 = select RED BLIT         5 = select ADD BLIT                    6 =
+select SUB BLIT
+7 = select AND BLIT                    8 = select OR BLIT          9 =
+SWITCH ALPHA blend on/off
+0 = SWITCH BLANK screen on/ off with ALPHA blend on (use 1-9 keys to scale
+ALPHA blend)
+
+%ARROWS          =     move layers around through the screen
+left  mouse-button     =    drag layers around, slowly and carefully
+
+
+EFFECT COMMANDS
+
+F1 - F12    =    select an available effect (press ENTER to apply it)
+           you can browse through loaded plug-ins with this
+^F1-^F12    =    select the effect bank in which you want to browse
+
+           effects are stored in 12 banks, containing 12 effects each
+UP/DOWN     =    select created effects up and down the chain
+^UP/DOWN    =    move created effects up and down the chain
+DELETE      =    remove selected effect
+^DELETE     =    remove ALL effects
+INSERT      =    activate/deactivate effect
+
+
+PNG LAYER COMMANDS
+
+ k        =      switch blinking on/off
+ o        =      control subliminal image
+ p        =      stop subliminal
+
+
+
+
+VIDEO4LINUX LAYER COMMANDS
+
+k/m              =     switch up/down input channel
+j/n              =     (if TV tuner is present) switch up/down frequency
+tables
+h/b              =     (if TV tuner is present) cycle up/down frequencies
+
+MOVIE LAYER COMMANDS (AVIFILE)
+ j/k        =    skip one keyframe back and forward on the movie
+ h/l        =    dec/increase keyframe step when skipping
+ u          =    set keyframe step back to 1
+ p          =    pause (still can seek)
+ i          =    set/clear mark_in
+ o          =    set/clear mark_out
+with full indexed avi files you can use (without indexed avi it can crash):
+ n/m        =    -/+ double frame / slow motion
+ v/b        =    -/+ play speed
+
+
+TXT LAYER COMMANDS
+
+l/r  arrows      =     go to previous/next word in text
+o,p              =     -/+ font size, hold CTRL for bigger jumps
+u,i              =      cycle through available fonts
+b                =     blink cycling through words in file, loop at end
+m,k              =     -/+ time on screen while blinking
+n,j              =     -/+ time off screen while blinking
+
+
+SOME EFFECT COMMANDS  (see the effect's source code for details)
+
+DelayGrab:       q/w        =     browse the 4 delay maps
+           a/s         =    -/+ block-size
+Vertigo:               q/w        =    -/+ phase (shakes it faster or
+slower)
+           a/s         =    -/+ zoom speed
+           z/x         =    -/+ weirdness
+ QuadTrans:      q/w        =     -/+ frames of the screen
+SquareTrans:           q/w        =    -/+ block-size
+Water:                 q/w        =    -/+ water density Press these once
+and check:
+           e           =    big splash in the centre
+                 r           =    randomly placed splash
+                 t           =    rain
+                 y           =    whirlpool in the centre
+                 u           =    surfer
+                 d           =    distort surface (USE WITH CAUTION)
+                 f           =    calm water
+Cartoon:         q/w        =     -/+ blending
+           a/s         =    -/+ border outline
+Nervous:         q          =     switch between the 2 modes
+Simura: the square of keys on the left:
+                            |q|w|e|
+                      |a|s|d|
+                            |z|x|c|
+                            switch through various mirrors, being z normal
+state
+
+
+S-LANG CONSOLE  (arrow keys browse selection through layers and effects)
+
+
+
+HOME  =     de/activate layer,
+INS   =     de/activates filter
+
+^o    =     Open new layer (will prompt for path to file)
+
+^e    =     add a new Effect to the selected layer (press TAB for list)
+^b    =     change the Blit for the selected layer (press TAB for list)
+^v    =     change the blit Value for the selected layer
+
+^c    =     quit FreeJ (asks confirmation)
+^f    =     go to Fullscreen
+
+^l    =     cleanup and redraw the console
+
+^j    =     execute a Javascript command (if javascript is compiled)
+
+SDL TIP:  if you set the environmental variable SDL_VIDEODRIVER to
+something like "aalib" then you can render the output window in ascii art.
+You can use other drivers as well, see the SDL  documentation for details.
+
+
+
+
+
+
+
+
+
+for more information check the dyne:bolic site www.dyne.org or the FreeJ
+site www.freej.org
+If you have questions about FreeJ, you can send a message to the
+mailinglist freej@dyne.org
+subscribe with a mail to freej-subscribe@dyne.org
+
+
+

@@ -65,15 +65,21 @@ class Blit: public Entry {
 
  private:
   // parameters for linear crop
-  int32_t crop_x;
-  int32_t crop_y;
-  uint32_t crop_width;
-  uint32_t crop_height;
-  uint32_t crop_pitch;
-  uint32_t crop_offset;
-  uint32_t crop_xoff;
-  uint32_t crop_yoff;
-  uint32_t *crop_coords;
+  
+  int32_t scr_stride_dx;
+  int32_t scr_stride_sx;
+  int32_t scr_stride_up;
+  int32_t scr_stride;
+  uint32_t scr_offset;
+
+  int32_t lay_pitch;
+  int32_t lay_stride;
+  int32_t lay_stride_sx;
+  int32_t lay_stride_dx;
+  int32_t lay_stride_up;
+  int32_t lay_height;
+  uint32_t lay_offset;
+
 
 
 
@@ -129,6 +135,9 @@ class Blitter {
   int16_t old_y;
   uint16_t old_w;
   uint16_t old_h;
+
+  // generic blit buffer pointers
+  uint32_t *pscr, *play, *ppast;
 
   SDL_Surface *sdl_dest;
 };

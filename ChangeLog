@@ -5,6 +5,7 @@ FreeJ 0.7 DYNAMITDUO - 11 Aug 2004
   new Vertical Text Scroll layer
   new FFMpeg movie layer (experimental)
   new Midi controller (experimental)
+  new Flash layer (experimental)
   blitter rewritten with improved detail
   initial support for value fading via oscillators
   new optimized memcpy routines, speed improvements 

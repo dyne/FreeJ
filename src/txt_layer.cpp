@@ -145,7 +145,6 @@ bool TxtLayer::init(Context *scr) {
      return(true);
 }
 
-// QUAAA TODO this still doesn't works
 bool TxtLayer::print(char *s) {
   int len = strlen(s);
   if(!len) return false;
@@ -268,7 +267,6 @@ void TxtLayer::render() {
 }
 
 void *TxtLayer::feed() {
-     //     int angle=30;
 
      /* clear_screen switch serves to confirm that the screen
 	has been cleaned, serving the purpose to not waste
@@ -332,15 +330,12 @@ void TxtLayer::close() {
 
 int TxtLayer::read_next_chunk() {
   chunk_len = ::read(fd,chunk,MAX_CHUNK);
-  func("succhiato %i",chunk_len);
   /* if nothing more to read, seek to the beginning */
   if(chunk_len == 0) {
     lseek(fd,0,SEEK_SET);
     chunk_len = ::read(fd,chunk,MAX_CHUNK);
   }
   chunk[chunk_len+1] = '\0';
-  func("read new chunk:\n%s",chunk);
-  func("--");
   pword = punt = chunk;
   return chunk_len;
 }
@@ -401,7 +396,7 @@ bool TxtLayer::set_font(int c) {
     (c<1) sel_font = 1;
   else
     sel_font = c;
-    
+  
   /* Create face object */
   if(FT_New_Face( library, fonts[sel_font], 0, &face )) {
     error("Can't load font %s",fonts[sel_font]);
@@ -413,7 +408,8 @@ bool TxtLayer::set_font(int c) {
     return false;
   }
     
-  act("TxtLayer::font face %s size %i",fonts[sel_font],text_dimension);
+  act("TxtLayer::font %i/%i face %s size %i",
+      sel_font,num_fonts,fonts[sel_font],text_dimension);
   return true;
 }
 
@@ -464,11 +460,11 @@ bool TxtLayer::keypress(char key) {
        break;
 	    
      case 'i':
-       set_font(sel_font++);
+       set_font( ++sel_font );
        break;
 
      case 'u':
-       set_font(sel_font--);
+       set_font( --sel_font );
        break;
 
      default: 

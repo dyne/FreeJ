@@ -149,13 +149,13 @@ void Layer::set_filename(char *f) {
 }
 
 void Layer::set_position(int x, int y) {
-  /* lock();
-     geo.x = x;
-     geo.y = y;
-     blitter.crop( freej->screen );
-     unlock();
-  */
+  lock();
+  geo.x = x;
+  geo.y = y;
+  blitter.crop( freej->screen );
+  unlock();
 
+  /*
   if(x!=geo.x) {
     iter = new Iterator((int32_t*)&geo.x);
     iter->set_aim(x);
@@ -167,4 +167,5 @@ void Layer::set_position(int x, int y) {
     iter->set_aim(y);
     iterators.add(iter);
   }
+  */
 }

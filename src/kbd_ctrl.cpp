@@ -237,18 +237,14 @@ void KbdListener::run() {
       filter->sel(true);
       break;
       
-    // case SDLK_UP:
-//       if(keysym->mod & KMOD_SHIFT) {
-// 	layer->set_position(layer->geo.x,layer->geo.y-10);
-// 	break;
-//       }
-//       break;
-//     case SDLK_DOWN:
-//       if(keysym->mod & KMOD_SHIFT) {
-// 	layer->set_position(layer->geo.x,layer->geo.y+10);
-// 	break;
-//       }
-//       break;
+    case SDLK_UP:
+      if(keysym->mod & KMOD_SHIFT)
+	layer->set_position(layer->geo.x,layer->geo.y-1);
+      break;
+    case SDLK_DOWN:
+      if(keysym->mod & KMOD_SHIFT)
+	layer->set_position(layer->geo.x,layer->geo.y+1);
+      break;
 
     case SDLK_PAGEUP:
       if(!layer->prev) break;
@@ -296,6 +292,7 @@ void KbdListener::run() {
       break;
     case SDLK_4: // BLUE CHAN
       layer->blitter.set_blit("BLUE");
+      break;
     case SDLK_5: // PACKED ADD BYTEWISE
       layer->blitter.set_blit("ADD");
       break;
@@ -330,22 +327,20 @@ void KbdListener::run() {
 	break;
       }
 
-//     case SDLK_LEFT:
-//       if(keysym->mod & KMOD_SHIFT) {
-// 	layer->set_position(layer->geo.x-5,layer->geo.y);
-// 	break;
-//       }
-//     case SDLK_RIGHT:
-//       if(keysym->mod & KMOD_SHIFT) {
-// 	layer->set_position(layer->geo.x+5,layer->geo.y);
-// 	break;
-//       }
+    case SDLK_LEFT:
+      if(keysym->mod & KMOD_SHIFT)
+	layer->set_position(layer->geo.x-1,layer->geo.y);
+      break;
+    case SDLK_RIGHT:
+      if(keysym->mod & KMOD_SHIFT)
+	layer->set_position(layer->geo.x+1,layer->geo.y);
+      break;
 
     case SDLK_v:
       if(keysym->mod & KMOD_CTRL) {
 	drag_value = !drag_value;
-	show_osd("Mouse drag fades blit value: %s",
-		 (drag_value)?"on":"off");
+	show_osd("Mouse fade %s",
+		 (drag_value)?"ON":"OFF");
 	break;
       }
 

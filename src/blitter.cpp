@@ -55,12 +55,6 @@ static uint8_t achan = 0;
 #define BLIT static inline void
 
 
-/* blit functions, prototype is:
-   void (*blit_f)(void *src, void *dst, int bytes) */
-
-
-
-
 // Linear transparent blits
 
 BLIT red_channel(void *src, void *dst, int bytes, void *value) {
@@ -484,8 +478,8 @@ bool Blitter::init(Layer *lay) {
 }
 
 void Blitter::blit() {
-  int c;
-  
+  register int16_t c;
+
   /* compare old layer values
      crop the layer if necessary */
   if( layer->geo.x != old_x 
@@ -494,30 +488,31 @@ void Blitter::blit() {
       || layer->geo.h != old_h )
     crop( NULL );
   
-  // executes LINEAR blits
+  // executes LINEAR blit
   if( current_blit->type == LINEAR_BLIT ) {
 
     // setup crop variables
-    current_blit->scr = current_blit->pscr = 
-      (uint32_t*)current_blit->crop_coords;
-    current_blit->off = current_blit->poff =
-      (uint32_t*)layer->offset + current_blit->crop_offset;
-    
+    pscr =
+      (uint32_t*)layer->freej->screen->coords(0,0)
+      + current_blit->scr_offset;
+    play =
+      (uint32_t*)layer->offset
+      + current_blit->lay_offset;
+
     // iterates the blit on each horizontal line
-    for(c = current_blit->crop_height; c>0; c--) {
-      
+    for(c=current_blit->lay_height ; c>0 ; c--) {
+
       (*current_blit->fun)
-	((void*)current_blit->off,
-	 (void*)current_blit->scr,
-	 current_blit->crop_pitch,
+	((void*)play, (void*)pscr,
+	 current_blit->lay_pitch * layer->geo.bpp>>3,
 	 (void*)&current_blit->value);
-      
-      
+
       // strides down to the next line
-      current_blit->off = current_blit->poff =
-	current_blit->poff + layer->geo.w;
-      current_blit->scr = current_blit->pscr = 
-	current_blit->pscr + layer->freej->screen->w;
+      pscr += current_blit->scr_stride
+	+ current_blit->lay_pitch;
+      play += current_blit->lay_stride
+	+ current_blit->lay_pitch;
+
     }
     
     // executes SDL blit
@@ -533,38 +528,38 @@ void Blitter::blit() {
     // line by line on the previous frame
 
     // setup crop variables
-    current_blit->scr = current_blit->pscr = 
-      (uint32_t*)current_blit->crop_coords;
-    current_blit->off = current_blit->poff =
-      (uint32_t*)layer->offset + current_blit->crop_offset;
-    current_blit->pastoff = current_blit->ppastoff =
-      (uint32_t*)current_blit->past_frame;
+    pscr =
+      (uint32_t*)layer->freej->screen->coords(0,0)
+      + current_blit->scr_offset;
+    play =
+      (uint32_t*)layer->offset
+      + current_blit->lay_offset;
+    ppast =
+      (uint32_t*)current_blit->past_frame
+      + current_blit->lay_offset;
 
     // iterates the blit on each horizontal line
-    for(c = current_blit->crop_height; c>0; c--) {
+    for(c = current_blit->lay_height; c>0; c--) {
       
       (*current_blit->past_fun)
-	((void*)current_blit->off,
-	 (void*)current_blit->pastoff,
-	 (void*)current_blit->scr,
-	 current_blit->crop_pitch);
-
+	((void*)play, (void*)ppast, (void*)pscr,
+	 current_blit->lay_pitch * layer->geo.bpp>>3);
+      
       // copy the present to the past
-      jmemcpy(current_blit->pastoff,
-	      current_blit->off,
-	      current_blit->crop_pitch);
+      jmemcpy(ppast, play, current_blit->lay_pitch * layer->geo.bpp>>3);
       
       // strides down to the next line
-      current_blit->off = current_blit->poff =
-	current_blit->poff + layer->geo.w;
-      current_blit->scr = current_blit->pscr = 
-	current_blit->pscr + layer->freej->screen->w;
-      current_blit->pastoff = current_blit->ppastoff =
-	current_blit->ppastoff + layer->geo.w;
+      pscr += current_blit->scr_stride
+	+ current_blit->lay_pitch;
+      play += current_blit->lay_stride
+	+ current_blit->lay_pitch;
+      ppast += current_blit->lay_stride
+	+ current_blit->lay_pitch;
 
     }
 
   }
+
 
 }
 
@@ -646,7 +641,7 @@ bool Blitter::set_kernel(short *krn) {
 
 /* ok, let's draw the crop geometries and be nice commenting ;)
 
-   that's tricky stuff, here i try to do it with tiling
+   that's tricky stuff
 
    here the generic case of a layer on the screen, with variable names:
    
@@ -654,14 +649,14 @@ bool Blitter::set_kernel(short *krn) {
                                                          screen->w
   0,0___________________________________________________ -> 
    '                 ^                                  '
-   | screen          |crop_y                            |
+   | screen          |scr_stride_up                     |
    |                 |                                  |
    |       x,y_______V________________ w                |
-   |        '                         '                 |
-   | crop_x | layer                   |                 |
+   | scr_sx '                         '                 |
+   | stride | layer                   |                 |
    |<------>|                         |                 |
    |        |                         |<-------------...|
-   |...---->|                         |  crop_pitch     |
+   |...---->|                         | scr_stride_dx   |
    |        '-------------------------'                 |
    |       h                                            |
    |                                                    |
@@ -675,40 +670,127 @@ bool Blitter::set_kernel(short *krn) {
    for instance, if the layer goes out of the left bound (x<0):
 
             0,0____________________
-             '                     '
-  x,y________|_________            |
-   '         |         '           |
-   |layer    |         |           |
-   |         |         | crop_pitch|
+ (offset)    '                     '
+  x,y________|_________            |  offset is the point of start
+   '         |         '           |  scr_stride is added to screen every line
+   |layer    |         |           |  lay_stride is added to layer every line
+   |         |         | scr_stride|
    |         |         |<--------->|
    |         |         |           |
    '_________|_________'           |
    <-------->|                     |
-     crop_x  '---------------------'
+   lay_stride'---------------------'
 
      so the algorithm of the crop will look like:
-
-     crop_pitch = (screen->w - layer->w)
-     if(x < 0)
-       crop_x = -x;
-       crop_width -= crop_x;
-       
-       crop_pitch -= crop_x;
-     else
-       crop_x = x;
-
-     if(y < 0)
-       crop_y = -y;
-     else
-       
-     for(c=h;c>0;c--)
-      cpy( layer+crop_x , screen, w );
-      screen += crop_pitch;
-      layer += layer->w;
-     
-   
-
 */
+     
+
+void Blitter::crop(ViewPort *screen) {     
+
+  Blit *b = current_blit;
+
+  if(!b) return;
+  if(!screen) // return;
+    screen = layer->freej->screen;
+
+  // crop for the SDL blit
+  if(b->type == SDL_BLIT) {
+    b->sdl_rect.x = -(layer->geo.x);
+    b->sdl_rect.y = -(layer->geo.y);
+    b->sdl_rect.w = screen->w;
+    b->sdl_rect.h = screen->h;
+
+    // crop for the linear and past blit
+  } else if(b->type == LINEAR_BLIT 
+	    || b->type == PAST_BLIT) {
+
+    b->lay_pitch = layer->geo.w; // how many pixels to copy each row
+    b->lay_height = layer->geo.h; // how many rows we should copy
+    
+    b->scr_stride_up = 0; // rows to jump before starting to blit on screen
+    b->scr_stride_sx = 0; // screen pixels stride on the left of each row
+    b->scr_stride_dx = 0; // screen pixels stride on the right of each row
+    
+    b->lay_stride_up = 0; // rows to jump before starting to blit layer
+    b->lay_stride_sx = 0; // how many pixels stride on the left of each row
+    b->lay_stride_dx = 0; // how many pixels stride on the right of each row
+    
+    // BOTTOM
+    if( layer->geo.y+layer->geo.h > screen->h ) {
+      if(layer->geo.y > screen->h) { // out of screen
+	layer->geo.y = screen->h+1; // don't go far
+	layer->hidden = true;
+	return;
+      } else { // partially out
+	b->lay_height -= (layer->geo.y + layer->geo.h) - screen->h;
+      }
+    }
+    
+    // LEFT
+    if( layer->geo.x < 0 ) {
+      if( layer->geo.x + layer->geo.w < 0 ) { // out of screen
+	layer->geo.x = -( layer->geo.w + 1 ); // don't go far
+	layer->hidden = true;
+	return;
+      } else { // partially out
+	b->lay_stride_sx += -layer->geo.x;
+	b->lay_pitch -= -layer->geo.x;
+      } 
+    } else { // inside
+      b->scr_stride_sx += layer->geo.x;
+    }
+    
+    // UP
+    if(layer->geo.y < 0) {
+      if( layer->geo.y + layer->geo.h < 0) { // out of screen
+	layer->geo.y = -( layer->geo.h + 1 ); // don't go far
+	layer->hidden = true;
+	return;
+      } else { // partially out
+	b->lay_stride_up += -layer->geo.y;
+	b->lay_height -= -layer->geo.y;
+      }
+    } else { // inside
+      b->scr_stride_up += layer->geo.y;
+    }
+    
+    // RIGHT
+    if( layer->geo.x + layer->geo.w > screen->w ) {
+      if( layer->geo.x > screen->w ) { // out of screen
+	layer->geo.x = screen->w + 1; // don't go far
+	layer->hidden = true;
+	return;
+      } else { // partially out
+	b->lay_pitch -= ( layer->geo.x + layer->geo.w ) - screen->w;
+	b->lay_stride_dx += ( layer->geo.x + layer->geo.w ) - screen->w;
+      } 
+    } else { // inside
+      b->scr_stride_dx += screen->w - (layer->geo.x + layer->geo.w );
+    }
+    
+    layer->hidden = false;
+    
+    b->lay_stride = b->lay_stride_dx + b->lay_stride_sx; // sum strides
+    // calculate upper left starting offset for layer
+    b->lay_offset = (b->lay_stride_sx +
+		     ( b->lay_stride_up * layer->geo.w ));
+    
+    b->scr_stride = b->scr_stride_dx + b->scr_stride_sx; // sum strides
+    // calculate upper left starting offset for screen
+    b->scr_offset = (b->scr_stride_sx +
+		     ( b->scr_stride_up * screen->w ));
+  }
+
+  /* store values for further crop checking */
+  old_x = layer->geo.x;
+  old_y = layer->geo.y;
+  old_w = layer->geo.w;
+  old_h = layer->geo.h;
+  
+}  
+
+#if 0
+
 void Blitter::crop(ViewPort *screen) {
   Blit *b = current_blit;
 
@@ -716,14 +798,14 @@ void Blitter::crop(ViewPort *screen) {
   if(!screen)
     screen = layer->freej->screen;
 
-  /* crop for the SDL blit */
+  // crop for the SDL blit
   if(b->type == SDL_BLIT) {
     b->sdl_rect.x = -(layer->geo.x);
     b->sdl_rect.y = -(layer->geo.y);
     b->sdl_rect.w = screen->w;
     b->sdl_rect.h = screen->h;
 
-    /* crop for the linear and past blit */
+    // crop for the linear and past blit
   } else if(b->type == LINEAR_BLIT 
 	    || b->type == PAST_BLIT) {
 
@@ -734,8 +816,7 @@ void Blitter::crop(ViewPort *screen) {
     b->crop_width = layer->geo.w;
     b->crop_height = layer->geo.h;
     
-    /* left bound 
-       affects x-offset and width */
+    // left bound affects x-offset and width
     if(layer->geo.x<0) {
       b->crop_xoff = (-layer->geo.x);
       b->crop_x = 0;
@@ -788,7 +869,8 @@ void Blitter::crop(ViewPort *screen) {
 	layer->geo.y = screen->h+1; /* don't let it go far */
       } else {
 	layer->hidden = false;
-	b->crop_height -= (layer->geo.h - (screen->h - layer->geo.y));
+	//	b->crop_height -= (layer->geo.h - (screen->h - layer->geo.y));
+	b->crop_height -= (screen->h - (layer->geo.h + layer->geo.y));
       }
     }
     
@@ -812,4 +894,4 @@ void Blitter::crop(ViewPort *screen) {
 
 }
 
-
+#endif

@@ -1,0 +1,80 @@
+
+FREEJ SCRIPTING
+
+FreeJ is an asynchronous video rendering engine, it can be scripted
+using javascript syntax in an object oriented way, to control its
+operations thru a procedural list of commands and actions.
+
+This document aims to be a small and effective introduction to this
+powerful functionality. It will not cover Javascript syntax, but simply
+describe the objects that are made available to script FreeJ.
+Knowledge of Javascript syntax is suggested but not strictly necessary
+to make the first steps in the wonderful world of procedural video.
+
+Now let's get started!
+
+FreeJ scripting is completely object oriented, meaning that almost every
+operation is provided by objects that can be created: there are no global
+functions, but commands that are strictly related to a certain object.
+
+Layers and Effects are the object classes we can deal with. Once they
+exist, they will provide methods to control their operations.
+
+ EXAMPLE:
+
+my_text_layer = new TxtLayer();      // create an new TxtLayer object (1)
+
+add_layer(my_text_layer);            // make the new layer shown (2)
+
+my_text_layer.print("hello world!"); // print a message on the layer (3) 
+
+In this example (1) we first create a new instance of the TxtLayer() class,
+which provides the Truetype rendering text layer; (2) then we add it to
+the list of layers processed by the engine; (3) at last we use the print()
+specific method to print something on the screen.
+
+
+Generic and Specific methods:
+
+Every layer class inherits methods from the Layer superclass, providing
+generic methods common to all of them.
+Generic methods are available to change attributes like: position,
+blit method, order in the layer list.
+
+Specific methods are found only on their layer, they can control special
+operations that a specific layer provides, like: printing a word on the
+text layer, appending a line to the scroll layer, skipping to a keyframe
+in a movie layer, etc.
+
+Here we go with a reference of all the methods made available by FreeJ:
+
+ GENERIC METHODS common to all layers
+ 
+Layer.set_position(int x, int y) // coords of the upper left corner
+     .set_blit("name") // must be an existing layer
+     .set_blit_val(int val) // usually a value between 0 and 255
+
+
+
+
+
+new V4lLayer("filename")
+new TxtLayer("filename") (*)
+new AviLayer("filename")
+new MpegLayer("filename")
+new PngLayer("filename")
+new VScrollLayer("filename") (*)
+new ParticleLayer() // doesn't need a file
+
+(*) = the filename can be also omitted, the layer is then used with
+      its own methods to feed the data to be processed.
+      i.e. TxtLayer.print("string") or VScrollLayer.append("phrase")
+
+
+the constructor initialization consists of an open() on the file
+and it can return NULL in case of failure.
+In case the object returned is not NULL, it can be initialized using
+the init() call.
+
+
+
