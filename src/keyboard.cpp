@@ -73,9 +73,6 @@ void KbdListener::run() {
 	  break;
 	  
 	case SDLK_SPACE:
-	  //	  if(event.key.keysym.mod & KMOD_CTRL)
-	  //	    screen->doublesize(!screen->dbl);
-	  //	  else
 	  SDL_WM_ToggleFullScreen(screen->surf);
 	  break;
 	  
@@ -206,7 +203,7 @@ bool KbdListener::_layer_op(SDL_keysym *keysym) {
     return true;
 
     /* BLIT ALGOS */
-  case SDLK_1: // MMX straight blit
+  case SDLK_1: // RGB straight blit
   case SDLK_2: // BLUE CHAN
   case SDLK_3: // GREEN CHAN
   case SDLK_4: // RED CHAN

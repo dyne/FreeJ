@@ -1,5 +1,5 @@
 ;; code by jaromil
-;; if this is used on sizes which are not multiply of 8bytes
+;; if this is used on sizes which are not multiply of 64bytes
 ;; bad things happen, i tell you my friend
 
 SEGMENT CODE USE32 ALIGN=16
@@ -17,38 +17,38 @@ asm_clearscr:
 
 	push ebp
 	mov ebp,esp
-	sub esp,0x40
+	pushad
 	
-	push ebx
-	push ecx
-	push edx
-	push esi
-	push edi
-	push ebp
-
 	;; place data
-	mov eax,[asmdst]
+	mov edi,[asmdst]
 	mov ecx,[asmnum1]
-	shr ecx,3		; size=size/3 (loop decrementa di 1)
-	pxor mm1,mm1
 
-.MainLoop
-	movq [eax],mm1
-	add eax,8
-	loop .MainLoop		; loop finche' ecx == 0
+	mov eax,ecx
+	shr ecx,6
+	mov ebx,ecx
+	shl ebx,6
+	sub eax,ebx
+	
+	pxor mm0,mm0
 
-.TheEnd
+.Loop
+	movq [edi],mm0
+	movq [edi+8],mm0
+	movq [edi+16],mm0
+	movq [edi+24],mm0
+	movq [edi+32],mm0
+	movq [edi+40],mm0
+	movq [edi+48],mm0
+	movq [edi+56],mm0
+	add edi,64
+
+	loop .Loop		; loop finche' ecx == 0
+	mov ecx,eax
+	rep movsb
+
 	emms
-
-	;; restore registers
+	popad
 	pop ebp
-	pop edi
-	pop esi
-	pop edx
-	pop ecx
-	pop ebx
-
-	leave
 	ret
 	
 SEGMENT DATA

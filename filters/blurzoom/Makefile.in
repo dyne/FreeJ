@@ -90,16 +90,9 @@ SUFFIXES = .asm
 
 NASM = nasm -f elf -o `echo $<|cut -d. -f1`.lo
 
-lib_LTLIBRARIES = squaretrans.la randtrans.la quadtrans.la
-
-squaretrans_la_SOURCES = transform.c squares.c
-squaretrans_la_LDFLAGS = -module -avoid-version
-
-randtrans_la_SOURCES = transform.c rand.c
-randtrans_la_LDFLAGS = -module -avoid-version
-
-quadtrans_la_SOURCES = transform.c quad.c
-quadtrans_la_LDFLAGS = -module -avoid-version
+lib_LTLIBRARIES = blurzoom.la
+blurzoom_la_SOURCES = blurzoom.c blurzoomcore.asm
+blurzoom_la_LDFLAGS = -module -avoid-version
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../../config.h
 CONFIG_CLEAN_FILES = 
@@ -109,12 +102,8 @@ LTLIBRARIES =  $(lib_LTLIBRARIES)
 DEFS = @DEFS@ -I. -I$(srcdir) -I../..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
-squaretrans_la_LIBADD = 
-squaretrans_la_OBJECTS =  transform.lo squares.lo
-randtrans_la_LIBADD = 
-randtrans_la_OBJECTS =  transform.lo rand.lo
-quadtrans_la_LIBADD = 
-quadtrans_la_OBJECTS =  transform.lo quad.lo
+blurzoom_la_LIBADD = 
+blurzoom_la_OBJECTS =  blurzoom.lo blurzoomcore.lo
 CFLAGS = @CFLAGS@
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -127,15 +116,15 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/quad.P .deps/rand.P .deps/squares.P .deps/transform.P
-SOURCES = $(squaretrans_la_SOURCES) $(randtrans_la_SOURCES) $(quadtrans_la_SOURCES)
-OBJECTS = $(squaretrans_la_OBJECTS) $(randtrans_la_OBJECTS) $(quadtrans_la_OBJECTS)
+DEP_FILES =  .deps/blurzoom.P .deps/blurzoomcore.P
+SOURCES = $(blurzoom_la_SOURCES)
+OBJECTS = $(blurzoom_la_OBJECTS)
 
 all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .asm .c .lo .o .obj .s
 $(srcdir)/Makefile.in: Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu filters/transform/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu filters/blurzoom/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
@@ -205,14 +194,8 @@ distclean-libtool:
 
 maintainer-clean-libtool:
 
-squaretrans.la: $(squaretrans_la_OBJECTS) $(squaretrans_la_DEPENDENCIES)
-	$(LINK) -rpath $(libdir) $(squaretrans_la_LDFLAGS) $(squaretrans_la_OBJECTS) $(squaretrans_la_LIBADD) $(LIBS)
-
-randtrans.la: $(randtrans_la_OBJECTS) $(randtrans_la_DEPENDENCIES)
-	$(LINK) -rpath $(libdir) $(randtrans_la_LDFLAGS) $(randtrans_la_OBJECTS) $(randtrans_la_LIBADD) $(LIBS)
-
-quadtrans.la: $(quadtrans_la_OBJECTS) $(quadtrans_la_DEPENDENCIES)
-	$(LINK) -rpath $(libdir) $(quadtrans_la_LDFLAGS) $(quadtrans_la_OBJECTS) $(quadtrans_la_LIBADD) $(LIBS)
+blurzoom.la: $(blurzoom_la_OBJECTS) $(blurzoom_la_DEPENDENCIES)
+	$(LINK) -rpath $(libdir) $(blurzoom_la_LDFLAGS) $(blurzoom_la_OBJECTS) $(blurzoom_la_LIBADD) $(LIBS)
 
 tags: TAGS
 
@@ -245,14 +228,14 @@ maintainer-clean-tags:
 
 distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
-subdir = filters/transform
+subdir = filters/blurzoom
 
 distdir: $(DISTFILES)
 	here=`cd $(top_builddir) && pwd`; \
 	top_distdir=`cd $(top_distdir) && pwd`; \
 	distdir=`cd $(distdir) && pwd`; \
 	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu filters/transform/Makefile
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu filters/blurzoom/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \

@@ -1,7 +1,7 @@
 FreeJ version 0.4 USAGE NOTES
 ===============================
 
-This release supports only 32bit screen depth.
+This release supports only EVERY screen depth.
 
 The interface consists in a on screen display (OSD) reporting
 informations like FPS, the filters that are created in the order they
@@ -19,11 +19,15 @@ LIST OF COMMANDS:
  ^TAB     = turn on/off calibration guidelines
 
  LAYER COMMANDS:
+
  PGUP/
  PGDOWN   = select layers up and down thru the chain
+
  ^PGUP/
  ^PGDOWN  = move layers up and down thru the chain
+
  HOME     = hide/show layer
+
  1        = select NORMAL BLIT
  2        = select BLU BLIT
  3        = select GREEN BLIT
@@ -34,16 +38,24 @@ LIST OF COMMANDS:
  8        = select OR BLIT
  9        = switch alpha channel on/off
  0        = switch blank screen on/off
+
  %ARROWS  = move layers around thru the screen
  mouse-l  = drag layers around, slowly and smoothly
 
  FILTER COMMANDS:
+
  F1 - F12 = select an available filter (enter to create it)
             you can browse thru loaded plugins with this
+
+ ^F1-^F12 = select the filter bank from which browse filters
+            filters are stored in 12 banks, containing 12 filters each
+
  UP/DOWN  = select created filters up and down thru the chain
  ^UP/DOWN = move created filters up and down thru the chain
+
  DELETE   = remove selected filter
  ^DELETE  = remove ALL filters
+
  INSERT   = activate/deactivate filter
  (filters may have their own keys to change specific parameters)
  
@@ -80,8 +92,7 @@ SDL TIP:
 
 if you set the environmental variable SDL_VIDEODRIVER to something like
 "aalib" then you can render freej screen in ascii art, and you can use
-other drivers as well, see the SDL documentation for details (thanks go
-to Florian Cramer for this tip)
+other drivers as well, see the SDL documentation for details.
 
 
 for more information ask the mailinglist <freej@dyne.org>

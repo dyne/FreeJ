@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2002 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2003 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -14,6 +14,9 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  */
 
 #include <iostream.h>
@@ -154,7 +157,7 @@ int main (int argc, char **argv) {
   PngLayer *png = NULL;
 
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
-  act("(c)2001-2002 Denis Rojo < jaromil @ dyne.org >");
+  act("(c)2001-2003 Denis Rojo < jaromil @ dyne.org >");
   act("----------------------------------------------");
   cmdline(argc,argv);
   set_debug(debug);
@@ -267,7 +270,7 @@ int main (int argc, char **argv) {
 
     if(screen.clear_all) 
       clearscr(screen.get_surface(),screen.size);
-    else osd.clean(); //mmxosd_clean(screen.get_surface(),0x0,screen.w,screen.h);
+    else osd.clean();
 
     lay = (Layer *)screen.layers.end();
 

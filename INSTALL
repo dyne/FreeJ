@@ -3,7 +3,7 @@ FreeJ 0.4 INSTALLATION INSTRUCTIONS
 
 to install FreeJ with all its wonderful features follow those steps:
 
-- install divx4linux codec you find here:
+- optionally install divx4linux codec you find here:
   http://avifile.sourceforge.net/divx4linux-20020418.tgz
 
 - compile and install AviFile library from

@@ -1,12 +1,13 @@
 FreeJ 0.5 POPONJ - 23 Dec 2002
-  *** xscreensavers can be played as layers
-  full support for 16bpp screens
-  layers can move around
+  faster v4l grabbing
+  layers can freely be moved around
+  full support for all bitdepths
+  double size screen option
   can load and use until 144 plugins
+  code cleanups and removal of some pleonastic asm
+  *** xscreensavers can be played as layers
   *** new plugins
   *** can use multiple instances of same plugin
-  double size screen option
-  better performance and stability
 
 FreeJ 0.4 HURRIA - 17 Oct 2002
   Avifile linked to play DIVX/AVI files (AVI layer)

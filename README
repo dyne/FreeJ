@@ -69,14 +69,9 @@ modelines in doc/x11.modelines.
 
 :: INSTALL
 
-did you read the INSTALL file? no?! what you are waiting for?
+YOU MUST READ THE INSTALL FILE
 
-come back here only once you read it!!
-
-
-:)
-
-ok, no that you have installed all the required libraries, just do: 
+once you have installed all the required libraries, just do: 
 
  ./configure
  make

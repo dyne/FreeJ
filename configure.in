@@ -164,4 +164,5 @@ filters/simura/Makefile
 filters/baltan/Makefile
 filters/vertigo/Makefile
 filters/transform/Makefile
+filters/blurzoom/Makefile
 ])

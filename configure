@@ -6397,6 +6397,7 @@ filters/simura/Makefile
 filters/baltan/Makefile
 filters/vertigo/Makefile
 filters/transform/Makefile
+filters/blurzoom/Makefile
  config.h" | sed "s/:[^ ]*//g"` conftest*; exit 1' 1 2 15
 EOF
 cat >> $CONFIG_STATUS <<EOF
@@ -6527,6 +6528,7 @@ filters/simura/Makefile
 filters/baltan/Makefile
 filters/vertigo/Makefile
 filters/transform/Makefile
+filters/blurzoom/Makefile
 "}
 EOF
 cat >> $CONFIG_STATUS <<\EOF

@@ -318,15 +318,15 @@ void *V4lGrabber::feed() {
 
   grab_buf[0].format = palette;
 
-  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
-    func("V4lGrabber::feed");
-    error("error in ioctl VIDIOCMCAPTURE");
-    return NULL;
-  }
-
   if (-1 == ioctl(dev,VIDIOCSYNC,&grab_buf[ok_frame])) {
     func("V4lGrabber::feed");
     error("error in ioctl VIDIOCSYNC");
+    return NULL;
+  }
+
+  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
+    func("V4lGrabber::feed");
+    error("error in ioctl VIDIOCMCAPTURE");
     return NULL;
   }
 

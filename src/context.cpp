@@ -53,8 +53,8 @@ Context::Context(int wx, int hx, int bppx, Uint32 flagsx) {
   /* discover about the system and windowmanager */
   if(!SDL_GetWMInfo(&sys)) {
     error("can't gather information about the display system");
-    error("your window manager is a bit autistical");
-    //    exit(1);
+    error("it might be dangerous to go on, like it could hang the machine");
+    exit(1);
   }
 
   /* be nice with the window manager */
@@ -99,7 +99,7 @@ bool Context::init(int wx, int hx, int bppx, Uint32 flagsx) {
     
   /* save context geometry */
   w = wx; h = hx;
-  bpp = 32; //surf->format->BitsPerPixel;
+  bpp = 32;
   size = w*h*(bpp>>3);
   pitch = w*(bpp>>3);
   flags = flagsx;
@@ -169,7 +169,7 @@ bool Context::doublesize(bool val) {
       doubletab[cy] = (uint64_t*) &srftmp[cy*w];
     
 
-    notice("screen magnified x2");
+    notice("screen magnified X2");
     dbl = true;
 
   }

@@ -213,24 +213,24 @@ void Osd::_filterlist() {
 void Osd::splash_screen() {
   _set_color(white);
   int vpos = VBOUND+15;
-  _write(PACKAGE,HBOUND+100,vpos,2,2);
-  _write(VERSION,HBOUND+190,vpos,2,2);
+  _write(PACKAGE,HBOUND+40,vpos,2,2);
+  _write(VERSION,HBOUND+160,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  _write("HURRIA",HBOUND+130,vpos,2,2);
+  _write("POPONJ",HBOUND+40,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  _write(":: set the veejay free ::",HBOUND+75,vpos,1,2);
+  _write(":: set the veejay free ",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+30;
-  _write("100% free software for",HBOUND+80,vpos,1,2);
+  _write("100% free software for",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+8;
-  _write("realtime video processing",HBOUND+70,vpos,1,2);
+  _write("realtime video processing",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+30;
-  _write("sourcecode available on",HBOUND+80,vpos,1,1);
+  _write("sourcecode available on",HBOUND+40,vpos,1,1);
   vpos += CHAR_HEIGHT+3;
-  _write("http://freej.dyne.org",HBOUND+85,vpos,1,2);
+  _write("http://freej.dyne.org",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+40;
-  _write("| software by jaromil",HBOUND+90,vpos,1,1);
-  vpos += CHAR_HEIGHT+2;
-  _write("| copyleft 2001, 2002",HBOUND+90,vpos,1,1);
+  _write("| software by jaromil",HBOUND+40,vpos,1,2);
+  vpos += CHAR_HEIGHT+10;
+  _write("| copyleft 2001, 2002",HBOUND+40,vpos,1,2);
 }
 
 bool Osd::credits() {
