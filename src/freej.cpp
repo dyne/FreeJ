@@ -53,7 +53,7 @@
 /* ================ command line options */
 
 static const char *help = 
-" .  Usage: freej [options] [file]\n"
+" .  Usage: freej [options]\n"
 " .  options:\n"
 " .  -h --help     print this help\n"
 " .  -v --version  version information\n"

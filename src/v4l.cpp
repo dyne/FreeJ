@@ -113,7 +113,7 @@ bool V4lGrabber::detect(char *devfile) {
   minh = grab_cap.minheight;
   maxw = grab_cap.maxwidth;
   maxh = grab_cap.maxheight;
-  if( (minw>256) || (minh>256) || (maxw<410) || (maxh<410) ) {
+  if( (minw>320) || (minh>240) || (maxw<320) || (maxh<240) ) {
     error("your device does'nt supports grabbing to right size");
     return(false);
   }
@@ -141,7 +141,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   _init(screen,wdt,hgt);
 
   /* set image source and TV norm */
-  grab_chan.channel = input = channels>1 ? 1 : 0;
+  grab_chan.channel = input = (channels>1) ? 1 : 0;
   
   if(have_tuner) { /* does this only if the device has a tuner */
     _band = 5; /* default band is europe west */
@@ -200,7 +200,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   //  feeded = true;
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
-  act("using input channel %s",grab_chan.name);
+  if(channels>1) act("using input channel %s",grab_chan.name);
   return(true);
 }
 
