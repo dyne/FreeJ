@@ -48,6 +48,7 @@
 #define KEY_CTRL_E 5 // add new effect
 #define KEY_CTRL_F 6 // go fullscreen
 #define KEY_CTRL_G 7
+#define KEY_CTRL_I 9 // OSD on/off
 #define KEY_CTRL_K 11 // delete until end of line
 #define KEY_CTRL_L 12
 #define KEY_CTRL_D 4 // delete char
@@ -572,15 +573,34 @@ void Console::getkey() {
       layer->sel(true);
       break;
       
-    case SL_KEY_PPAGE: break;
-    case SL_KEY_NPAGE: break;
+    case SL_KEY_PPAGE:
+      // move layer/filter selected up in chain
+      if(filter)
+	filter->up();
+      else if(layer)
+	layer->up();
+      break;
+      
+    case SL_KEY_NPAGE:
+      // move layer/filter selected up in chain
+      if(filter)
+	filter->down();
+      else if(layer)
+	layer->down();
+      break;
+
     case SL_KEY_END: break;
 
     case SL_KEY_DELETE:
-      if(!filter) break;
-      filter->rem();
-      filter->clean();
-      filter = NULL;
+      if(filter) {
+	filter->rem();
+	filter->clean();
+	filter = NULL;
+      } else if(layer) {
+	layer->rem();
+	layer->close();
+	layer = NULL;
+      }
     break;
     
     case SL_KEY_IC:
@@ -604,9 +624,14 @@ void Console::getkey() {
       act("ctrl+c  = quit FreeJ");
       act("ctrl+f  = go to Fullscreen");
       act("ctrl+l  = cleanup and redraw the console");
+      act("ctrl+i  = switch on/off On Screen Display information");
 #ifdef WITH_JAVASCRIPT
       act("ctrl+j  = execute a Javascript command");
 #endif
+      break;
+
+    case KEY_CTRL_I:
+      env->osd.active = !env->osd.active;
       break;
 
     case KEY_CTRL_E:

@@ -1,4 +1,8 @@
-INCLUDES = -I$(top_srcdir)/src/include -I$(top_srcdir)/ccvt -I$(top_srcdir)/libflash
+INCLUDES = -I$(top_srcdir)/src/include \
+           -I$(top_srcdir)/ccvt \
+           -I$(top_srcdir)/libflash \
+           -I/usr/include/slang
+
 AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
               @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
