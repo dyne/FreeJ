@@ -117,6 +117,8 @@ JS(rem_layer);
 JS(fastrand);
 JS(fastsrand);
 JS(pause);
+JS(fullscreen);
+JS(set_size);
 
 ////////////////////////////////
 // Linklist Entry methods
@@ -238,6 +240,8 @@ static	JSFunctionSpec global_functions[] = {
     {"fastrand",        fastrand,               0},
     {"fastsrand",       fastsrand,              1},
     {"pause",           pause,                0},
+    {"fullscreen",      fullscreen,                0},
+    {"set_size",        set_size,                2},
     {0}
 };
 

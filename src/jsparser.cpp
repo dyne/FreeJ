@@ -343,6 +343,17 @@ JS(add_layer) {
 
     return JS_TRUE;
 }
+JS(fullscreen) {
+    env->screen->fullscreen();
+    env->clear_all = !env->clear_all;
+    return JS_TRUE;
+}
+JS(set_size) {
+    int w = JSVAL_TO_INT(argv[0]);
+    int h = JSVAL_TO_INT(argv[1]);
+    env->screen->resize(w, h);
+    return JS_TRUE;
+}
 
 JS(fastrand) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);

@@ -248,13 +248,18 @@ BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
-     geo->pitch, bmask, gmask, rmask, 0x0);
+     geo->pitch, bmask, gmask, rmask, amask);
 
   SDL_SetColorKey( sdl_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, *(uint32_t*)value);
 
-  SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
+//  SDL_SetAlpha(sdl_surf, SDL_RLEACCEL, 0);
+
+  SDL_Surface *colorkey_surf=SDL_DisplayFormat(sdl_surf);
+
+  SDL_BlitSurface( colorkey_surf, src_rect, dst, dst_rect );
   
   SDL_FreeSurface( sdl_surf );
+  SDL_FreeSurface( colorkey_surf );
 
 }
 

@@ -382,7 +382,7 @@ void Entry::rem() {
   if(next) { // if there is a next
     next->prev = prev; // link it to the previous
     next->select = select; // inherit selection
-    next_gets_selected = true;
+//    next_gets_selected = true;
   } else {
     list->last = prev; // else just make it the last
     lastone = true;
