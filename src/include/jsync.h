@@ -24,10 +24,6 @@
 class JSyncThread {
  private:
   
-  void _thread_init();
-  void _thread_destroy();
-  bool _thread_initialized;
-
   pthread_t _thread;
   pthread_attr_t _attr;
 
@@ -40,8 +36,8 @@ class JSyncThread {
   
  public:
   
-  JSyncThread() { _thread_initialized = false; };
-  virtual ~JSyncThread() { _thread_destroy(); };
+  JSyncThread();
+  virtual ~JSyncThread();
 
   void start();
   virtual void run() {};

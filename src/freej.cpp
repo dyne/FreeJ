@@ -182,6 +182,7 @@ int main (int argc, char **argv) {
     notice("running as root: high priority realtime scheduling allowed.");
   */
 
+
   /* this is the output context (screen) */
   Context screen(width,height,32,SDL_HWPALETTE|SDL_HWSURFACE);
   if(screen.surf==NULL) exit(0);

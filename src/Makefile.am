@@ -1,4 +1,5 @@
 INCLUDES = -I$(top_srcdir)/src/include
+AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ @FT2_CFLAGS@
 
 SUBDIRS = include
 
@@ -26,7 +27,6 @@ freej_SOURCES = \
 	yuv2rgb.c yuv2rgb_mmx.c
 
 freej_LDADD = -ldl -lpthread -lm @SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@ @GLADE2_LIBS@
-freej_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ @FT2_CFLAGS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej
