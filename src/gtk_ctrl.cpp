@@ -144,39 +144,48 @@ void on_layer_delete(GtkWidget *widget, gpointer *data) {
 void on_layer_up(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->up(); }
+  if(laysel) laysel->up(); 
+}
 void on_layer_down(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->down(); }
+  if(laysel) laysel->down(); 
+}
 void on_blit_rgb(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(1); }
+  if(laysel) laysel->set_blit(1); 
+}
 void on_blit_red(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(4); }
+  if(laysel) laysel->set_blit(4); 
+}
 void on_blit_green(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(3); }
+  if(laysel) laysel->set_blit(3); 
+}
 void on_blit_blue(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(2); }
+  if(laysel) laysel->set_blit(2); 
+}
 void on_blit_add(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(5); }
+  if(laysel) laysel->set_blit(5); 
+}
 void on_blit_sub(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(6); }
+  if(laysel) laysel->set_blit(6); 
+}
 void on_blit_and(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();
-  if(laysel) laysel->set_blit(7); }
+  if(laysel) laysel->set_blit(7); 
+}
 void on_blit_or(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   Layer *laysel = (Layer*) env->layers.selected();

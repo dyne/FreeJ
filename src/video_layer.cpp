@@ -331,7 +331,8 @@ void *VideoLayer::feed() {
 }
 
 void VideoLayer::close() {
-    av_free_packet(&pkt);
+    if(frame_number!=0)
+	av_free_packet(&pkt);
     if(enc != NULL) avcodec_close(enc);
     if(avformat_context) { 
 	av_close_input_file(avformat_context);

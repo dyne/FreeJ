@@ -46,6 +46,7 @@ JsParser::~JsParser() {
     notice("JsParser::close()");
 }
 
+/*
 JSBool kolos(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
     JSString *str;
     char *h;
@@ -59,6 +60,7 @@ JSBool kolos(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
     return JS_TRUE;
 }
+*/
 
 void JsParser::init() {
     /* Create a new runtime environment. */
@@ -83,11 +85,26 @@ void JsParser::init() {
     /* Initialize the built-in JS objects and the global object */
     JS_InitStandardClasses(js_context, global_object);
 
-    /* Now initialize our class. */
-    JS_InitClass(js_context, global_object, NULL,
+    /** Initialize Layer class. */
+    layer_object = JS_InitClass(js_context, global_object, NULL,
 		 &layer_class, layer_constructor,
 		 0, NULL, NULL, NULL, NULL);
 
+    /** Initialize Layer methods. TODO*/
+    /*
+    JSBool ret = JS_DefineFunctions(js_context, layer_object, layer_methods);
+    if(ret != JS_TRUE) {
+	error("JsParser:: init() can't initialize layer methods");
+    }
+    */
+
+
+    /** Initialize Filter class. TODO */
+    /*
+    JS_InitClass(js_context, global_object, NULL,
+		 &filter_class, filter_constructor,
+		 0, NULL, NULL, NULL, NULL);
+		 */
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 
     /* Declare shell functions */
@@ -112,12 +129,77 @@ JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 
 //    this_obj = JS_NewObject(cx, &layer_class, NULL, obj); 
     if (!JS_SetPrivate(cx, obj, (void *) layer)) {
-	 error("JsParser::layer_constructor : COULDN't SET THE PRIVATE VALUE"); 
+	 error("JsParser::layer_constructor : couldn't set the private value"); 
 	 return JS_FALSE;
     }
     *rval = OBJECT_TO_JSVAL(obj);
  //   func("this_obj JSObject : %p",this_obj);
-    func("obj JSObject : %p",obj);
+//    func("obj JSObject : %p",obj);
+    return JS_TRUE;
+}
+JSBool move_layer_down(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
+    func("JsParser :: move_layer_down()");
+    JSObject *jslayer;
+
+    jslayer = JSVAL_TO_OBJECT(argv[0]);
+    if(!jslayer) {
+      error("JsParser :: move_layer_down called with NULL argument");
+      return JS_FALSE;
+    }
+
+    Layer *lay;
+    lay = (Layer *) JS_GetPrivate(cx, jslayer);
+    if(!lay) {
+      error("JsParser :: move_layer_down : Layer core data is null");
+      return JS_FALSE;
+    }
+    else 
+	lay->down();
+    return JS_TRUE;
+}
+JSBool move_layer_up(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
+    func("JsParser :: move_layer_up()");
+    JSObject *jslayer;
+
+    jslayer = JSVAL_TO_OBJECT(argv[0]);
+    if(!jslayer) {
+      error("JsParser :: move_layer_up called with NULL argument");
+      return JS_FALSE;
+    }
+
+    Layer *lay;
+    lay = (Layer *) JS_GetPrivate(cx, jslayer);
+    if(!lay) {
+      error("JsParser :: move_layer_up : Layer core data is null");
+      return JS_FALSE;
+    }
+    else 
+	lay->up();
+    return JS_TRUE;
+}
+JSBool remove_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
+    func("JsParser :: remove_layer()");
+    JSObject *jslayer;
+
+    jslayer = JSVAL_TO_OBJECT(argv[0]);
+    if(!jslayer) {
+      error("JsParser :: remove_layer called with NULL argument");
+      return JS_FALSE;
+    }
+
+    func("JsParser :: layer JSObject : %p",jslayer);
+    Layer *lay;
+    lay = (Layer *) JS_GetPrivate(cx, jslayer);
+    if(!lay) {
+      error("JsParser :: remove_layer : Layer core data is null");
+      return JS_FALSE;
+    }
+    /** remove layer in real life */
+    if(lay) {
+	lay->rem();
+	delete lay;
+	lay = NULL;
+    }
     return JS_TRUE;
 }
 JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
@@ -126,22 +208,19 @@ JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 
     jslayer = JSVAL_TO_OBJECT(argv[0]);
     if(!jslayer) {
-      error("add_layer called with NULL argument");
+      error("JsParser :: add_layer called with NULL argument");
       return JS_FALSE;
     }
-    //    if(JSVAL_IS_OBJECT(jslayer)) {
-    //	error("JsParser:add_layer : Il primo argomento non e' un oggetto %p",jslayer);
-    //	return JS_FALSE;
-    //    }
 
-    func("layer JSObject : %p",jslayer);
+    func("JsParser :: layer JSObject : %p",jslayer);
     Layer *lay;
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) {
-      error("JsParser::add_layer : Layer core data is null");
+      error("JsParser :: add_layer : Layer core data is null");
       return JS_FALSE;
     }
 
+    /** really add layer */
     if(lay->init(env)) {
       env->layers.add(lay);
       env->layers.sel(0); /* deselect others */
@@ -172,7 +251,7 @@ int JsParser::open(const char* script_file) {
 				   line, strlen(line), script_file, 2, &ret_val);
 
     if(ok!=JS_TRUE) {
-      error("JsParser::open : %s : error evaluating script:");
+      error("JsParser::open : %s : error evaluating script:",script_file);
       error("%03i : %s",c,line);
     }
 

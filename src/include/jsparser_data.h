@@ -22,9 +22,32 @@
 
 #include <jsapi.h>
 
-JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+/** shell functions */
 JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool kolos(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool remove_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool move_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool move_layer_up(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool move_layer_down(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+/** layer constructor */
+JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+/** layer methods */
+
+JSBool activate(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool deactivate(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool get_num(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool get_name(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool get_filename(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool get_geometry(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool set_blit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool get_blit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool set_alpha(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool get_alpha(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool set_position(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+
+/** filter constructor */
+//JSBool filter_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 static JSClass global_class = {
     "Freej", JSCLASS_NEW_RESOLVE,
@@ -42,10 +65,23 @@ static JSClass layer_class = {
     NULL,   NULL,
     layer_constructor
 };
+/*
+static JSClass filter_class = {
+    "Filter", JSCLASS_HAS_PRIVATE,
+    JS_PropertyStub,  JS_PropertyStub,
+    JS_PropertyStub,  JS_PropertyStub,
+    JS_EnumerateStub, JS_ResolveStub,
+    JS_ConvertStub,   JS_FinalizeStub,
+    NULL,   NULL,
+    filter_constructor
+};
+*/
 static	JSFunctionSpec shell_functions[] = {
-    /*    name          native          nargs    */
-    {"add_layer",         add_layer,        1},
-    {"kolos",         kolos,        2},
+    /*    name          native			nargs    */
+    {"add_layer",	add_layer,		1},
+    {"remove_layer",	remove_layer,		1},
+    {"move_layer_up",	move_layer_up,		1},
+    {"move_layer_down",	move_layer_down,	1},
     {0}
 };
 /* class property example. Declare them with JS_DefineProperties
@@ -59,11 +95,22 @@ static	JSFunctionSpec shell_functions[] = {
     {0}
 };
 */
-/* methods example. Declare them with JS_DefineFunctions
-	JSFunctionSpec shell_functions[] = {
-	        name          native          nargs    
-	    {"add_layer",         add_layer,        1},
-	    {"kolos",         kolos,        2},
-	    {0}
-	};
+/* 
+JSFunctionSpec layer_methods[] = {
+    name		native		nargs    
+    {"activate",	activate,	1},
+    {"deactivate",	deactivate,	1},
+    {"get_num",		get_num,	0},
+    {"get_name",	get_name,	0},
+    {"get_filename",	get_filename,	0},
+    {"get_geometry",	get_geometry,	0},
+
+    {"set_blit",	set_blit,	1},
+    {"get_blit",	get_blit,	0},
+
+    {"set_alpha",	set_alpha,	1},
+    {"get_alpha",	get_alpha,	0},
+    {"set_position",	set_position,	1},
+    {0} 
+};
 */
