@@ -6,5 +6,5 @@
   *** plugin chain system exposed as a shared lib (libfreej)
   *** support for more webcams: grab YUV420
   *** xscreensavers played as layers
-  *** new plugins
+  *** add new plugins
   *** use multiple instances of same plugin
