@@ -976,7 +976,13 @@ void Console::parser_default(int key) {
       layer = (Layer*)env->layers.end();
     else
       layer = (Layer*)layer->prev;
-    // select only the current
+
+    // deselect any filter
+    if(env->layers.selected() != layer) {
+      filter = NULL;
+      layer->filters.sel(0);
+    }
+    // select only the current layer
     env->layers.sel(0);
     layer->sel(true);
     break;
@@ -988,6 +994,11 @@ void Console::parser_default(int key) {
       layer = (Layer*)env->layers.begin();
     else
       layer = (Layer*)layer->next;
+    // deselect any filter
+    if(env->layers.selected() != layer) {
+      filter = NULL;
+      layer->filters.sel(0);
+    }
     // select only the current
     env->layers.sel(0);
     layer->sel(true);
@@ -1029,7 +1040,7 @@ void Console::parser_default(int key) {
     
   case KEY_SPACE:
     if(filter) filter->active = !filter->active;
-    if(layer) layer->active = !layer->active;
+    else if(layer) layer->active = !layer->active;
     break;
 
   case SL_KEY_IC:
@@ -1137,14 +1148,15 @@ void Console::parser_default(int key) {
 	env->console->layer = tmp;
 	env->layers.sel(0);
 	tmp->sel(true);
-	
+
+	env->console->refresh();	
 	notice("particle generator succesfully created");
 	act("press 'p' or 'o' to change its random seed");
-	
+
 	break;
       }
-    error("layer creation aborded");
-    env->console->refresh();
+    error("layer creation aborted");
+
     break;
     
   case KEY_CTRL_X:
