@@ -120,8 +120,8 @@ bool GenLayer::init(Context *scr) {
 
   /* blob initialization */
   blob_buf = NULL;
-  blob_size = 20;
-  blob_init();
+
+  blob_init(8);
 
   return(true);
 }
@@ -205,11 +205,42 @@ void GenLayer::point(int x, int y) {
 }
 
 
-void GenLayer::blob_init() {
+void GenLayer::blob_init(int ray) {
   int i,j;
   int val;
   uint8_t col;
 
+  blob_size = ray*2;
+
+  /* @TODO
+     there should be a gradient sphere here
+     Niels helps me with this: calculating a circle
+     while(theta <= 360) {
+     double radians = (theta / 180.0) * PI;
+     double dx = ( origin[0] + cos( radians ) * radius );
+     double dy = ( origin[1] + sin( radians ) * radius );
+  */
+  uint32_t dx,dy;
+  double rad, th;
+  int c;
+  srand(time(NULL));
+  if(blob_buf) free(blob_buf);
+  blob_buf = (uint32_t*) malloc(ray*2*ray*2*sizeof(uint32_t));
+
+  for(th=1;th<=360;th++) {
+    rad = (th / 180.0) * M_PI;
+    for(int c=ray;c>0;c--) {
+      dx = ( (ray) + cos( rad ) * c );
+      dy = ( (ray) + sin( rad ) * c );
+      //      col = (int)(10.0*rand()/(RAND_MAX+1.0))/c;
+      //      col += 0x99/c * 0.8;
+      col = 0x99/c * 0.8;
+      blob_buf[ (dx+((ray*2)*dy)) ] = 
+      	SDL_MapRGB(surf->format,col,col,col);
+    }
+  }
+  
+#if 0
   /* init sphere */
   if(blob_buf) free(blob_buf);
   blob_buf = (uint32_t*) malloc(8*blob_size*blob_size);
@@ -228,6 +259,7 @@ void GenLayer::blob_init() {
       blob_buf[i+j*blob_size] = 
 	SDL_MapRGB(surf->format,col,col,col);
     }
+#endif
 }
   
 void GenLayer::blob(int x, int y) {
@@ -244,11 +276,49 @@ void GenLayer::blob(int x, int y) {
   /* using mmx packed unsaturated addition on bytes
      for cleaner and shiny result */
   for(j=blob_size; j>0; j--) {
-    for(i=blob_size>>1; i>0; i--) {
+    for(i=blob_size>>4; i>0; i--) {
+      
+      asm volatile("movq (%1),%%mm0;"
+		   "movq 8(%1),%%mm1;"
+		   "movq 16(%1),%%mm2;"
+		   "movq 24(%1),%%mm3;"
+		   "movq 32(%1),%%mm4;"
+		   "movq 40(%1),%%mm5;"
+		   "movq 48(%1),%%mm6;"
+		   "movq 56(%1),%%mm7;"
+		   "paddusb (%0),%%mm0;" //addizione perfetta senza clipping
+		   "paddusb 8(%0),%%mm1;" //addizione perfetta senza clipping
+		   "paddusb 16(%0),%%mm2;" //addizione perfetta senza clipping
+		   "paddusb 24(%0),%%mm3;" //addizione perfetta senza clipping
+		   "paddusb 32(%0),%%mm4;" //addizione perfetta senza clipping
+		   "paddusb 40(%0),%%mm5;" //addizione perfetta senza clipping
+		   "paddusb 48(%0),%%mm6;" //addizione perfetta senza clipping
+		   "paddusb 56(%0),%%mm7;" //addizione perfetta senza clipping
+		   "movq %%mm0,(%0);"	  
+		   "movq %%mm1,8(%0);"	  
+		   "movq %%mm2,16(%0);"	  
+		   "movq %%mm3,24(%0);"	  
+		   "movq %%mm4,32(%0);"	  
+		   "movq %%mm5,40(%0);"	  
+		   "movq %%mm6,48(%0);"	 
+		   "movq %%mm7,56(%0);"
+		   //	  "paddsw %0, %%mm0;"// halo violetto
+		   :
+		   :"r"(tmp_scr),"r"(tmp_blob)
+		   :"memory");
+      tmp_scr+=8;
+      tmp_blob+=8;
+    }
+    tmp_scr += stride;
+  }
+  asm("emms;");
+
+
+#if 0
       asm("movq %1,%%mm0;"
 	  "paddusb %0,%%mm0;" //addizione perfetta senza clipping
 	  //	  "paddsw %0, %%mm0;"// halo violetto
-      	  "movq %%mm0,%0;"
+	  "movq %%mm0,%0;"
       	  :
       	  :"m"(*tmp_scr),"m"(*tmp_blob)
 	  :"mm0","ecx");
@@ -258,6 +328,7 @@ void GenLayer::blob(int x, int y) {
     tmp_scr += stride;
   }
   asm("emms;");
+#endif
 #else
   for(j=blob_size; j>0; j--) {
     for(i=blob_size>>1; i>0; i--) {

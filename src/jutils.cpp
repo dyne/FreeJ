@@ -40,6 +40,10 @@
 #include <sys/time.h>
 #include <unistd.h>
 #include <string.h>
+
+/* freej specific: */
+#include <console.h>
+
 #include <jutils.h>
 #include <config.h>
 
@@ -49,9 +53,13 @@
 		  ci sono le funzioni chiamate */
 #define WARN 1 /* ... blkbblbl */
 
+char msg[255];
+
 static int verbosity;
-static char msg[255];
+
 static char *osd_msg;
+
+static Console *console = NULL;
 
 void set_debug(int lev) {
   lev = lev<0 ? 0 : lev;
@@ -71,6 +79,8 @@ void set_osd(char *st) {
 void show_osd() {
   strncpy(osd_msg,msg,49);
   osd_msg[50] = '\0';
+  if(console)
+    console->notice(osd_msg);
 }
 
 void show_osd(char *format, ...) {
@@ -80,6 +90,13 @@ void show_osd(char *format, ...) {
   vsnprintf(osd_msg,49, format, arg);
   osd_msg[50] = '\0';
   va_end(arg);
+
+  if(console)
+    console->notice(osd_msg);
+}
+
+void set_console(Console *c) {
+  console = c;
 }
 
 void notice(char *format, ...) {
@@ -87,8 +104,9 @@ void notice(char *format, ...) {
   va_start(arg, format);
 
   vsnprintf(msg, 254, format, arg);
-  fprintf(stderr,"[*] %s\n",msg);
-
+  if(console) console->notice(msg);
+  else fprintf(stderr,"[*] %s\n",msg);
+  
   va_end(arg);
 }
 
@@ -98,7 +116,8 @@ void func(char *format, ...) {
     va_start(arg, format);
     
     vsnprintf(msg, 254, format, arg);
-    fprintf(stderr,"[F] %s\n",msg);
+    if(console) console->func(msg);
+    else fprintf(stderr,"[F] %s\n",msg);
 
     va_end(arg);
   }
@@ -109,7 +128,8 @@ void error(char *format, ...) {
   va_start(arg, format);
   
   vsnprintf(msg, 254, format, arg);
-  fprintf(stderr,"[!] %s\n",msg);
+  if(console) console->error(msg);
+  else fprintf(stderr,"[!] %s\n",msg);
 
   va_end(arg);
 }
@@ -119,7 +139,8 @@ void act(char *format, ...) {
   va_start(arg, format);
   
   vsnprintf(msg, 254, format, arg);
-  fprintf(stderr," .  %s\n",msg);
+  if(console) console->act(msg);
+  else fprintf(stderr," .  %s\n",msg);
   
   va_end(arg);
 }
@@ -130,7 +151,8 @@ void warning(char *format, ...) {
     va_start(arg, format);
     
     vsnprintf(msg, 254, format, arg);
-    fprintf(stderr,"[W] %s\n",msg);
+    if(console) console->warning(msg);
+    else fprintf(stderr,"[W] %s\n",msg);
   
     va_end(arg);
   }
@@ -198,6 +220,7 @@ double dtime() {
   struct timeval mytv;
   gettimeofday(&mytv,NULL);
   return((double)mytv.tv_sec+1.0e-6*(double)mytv.tv_usec);
+  //  this is slower: return time(NULL);
 }
 
 /* sets the process to "policy" policy,  if max=1 then set at max priority,
@@ -228,6 +251,8 @@ void jsleep(int sec, long nsec) {
 }
 
 
+/* small RTC interface by jaromil
+   all comes from the Linux Kernel Documentation */
 #ifdef linux
 /* better to use /dev/rtc */
 static int rtcfd = -1;

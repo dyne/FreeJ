@@ -99,7 +99,7 @@ void do_add_layer(GtkWidget *widget, gpointer *data) {
     lay = create_layer(sel[c]);
     if(!lay) return;
     if(lay->init(env)) {
-      if(lay) env->layers.add(lay);
+      env->layers.add(lay);
       env->layers.sel(0); /* deselect others */
       lay->sel(true);
     } else delete lay;

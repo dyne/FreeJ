@@ -126,7 +126,9 @@ bool TxtLayer::init(Context *scr) {
      use_kerning=FT_HAS_KERNING(face);
 
      if(scr) freej = scr;
-     _init(freej, geo.w, geo.h, geo.bpp);
+     // initialize to the size of the screen
+     _init(freej, 0, 0, 0);
+     
 
      buf = jalloc(buf,freej->screen->size);
 
@@ -242,7 +244,7 @@ void *TxtLayer::feed() {
 		    || bbox.xMin >= (geo.w<<2)
 		    || bbox.yMax <= 0
 		    || bbox.yMin >= (geo.h<<2) ) {
-		    printf("TxtLayer::glyph 'out of the box!'\n");
+		 func("TxtLayer::glyph out of the box");
 		    continue;
 	       }
 	       /* convert glyph image to bitmap (destroy the glyph) */
@@ -459,25 +461,40 @@ void TxtLayer::compute_string_bbox( FT_BBox  *abbox,FT_Glyph image ) {
 
      *abbox = bbox;
 }
-bool TxtLayer::draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,uint8_t *dstp) {
+bool TxtLayer::draw_character(FT_BitmapGlyph bitmap,
+			      int left_side_bearing, int top_side_bearing,
+			      uint8_t *dstp) {
+  int z,d;
      FT_Bitmap pixel_image=bitmap->bitmap;
-     uint8_t *src = bitmap->bitmap.buffer ;
+     ////// ci ho provato a farlo a 32 bit ma ancora non mi e' uscito -jrml
+     //     uint8_t *tsrc = (uint8_t*) bitmap->bitmap.buffer ;
+     //     uint32_t *src;
+     //     uint32_t *dst = (uint32_t*)dstp;
+     //     dst += bitmap->left + (geo.h - bitmap->top)*geo.w;
+     //////
+     uint8_t *src = (uint8_t*) bitmap->bitmap.buffer;
      uint8_t *dst= dstp;
      dst += bitmap->left + (geo.h - bitmap->top)*geo.pitch;
      
 
+     
+
      /* Second inner loop: draw a letter;
 	they come around but they never come close to */
-     for(int z=0 ; z<(pixel_image.rows) ; z++) {
-	  for(int d = 0 ; d < pixel_image.width ; d++)  {
-	      /** Fill up rgba with the same colors */
-	       *dst++=*src;
-	       *dst++=*src;
-	       *dst++=*src;
-	       *dst++=*src;
-	       src++;
+     for(z = pixel_image.rows ; z>0 ; z--) {
+	  for(d = pixel_image.width ; d>0 ; d--)  {
+	    //	    src = (uint32_t*)tsrc;
+	    /** Fill up rgba with the same colors */
+	    *dst++=*src;
+	    *dst++=*src;
+	    *dst++=*src;
+	    *dst++=*src;
+	    src++;
+	    //	    *dst = ((*src<<3)|(*src<<2)|(*src<<1)|*src);
+	    //	    dst++; tsrc++;
 	  }
 	  dst += (geo.pitch - pixel_image.pitch*4);
+	  //	  dst += (geo.w - pixel_image.width);
      }
      return(true);
 }

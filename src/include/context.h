@@ -27,14 +27,16 @@
 #include <layer.h>
 #include <osd.h>
 #include <kbd_ctrl.h>
-#include <console.h>
+//#include <console.h>
 #include <plugger.h>
 #include <screen.h>
-#include <jsparser.h> // for javascript support
 
 /* maximum height & width supported by context */
 #define MAX_HEIGHT 1024
 #define MAX_WIDTH 768
+
+class JsParser;
+class Console;
 
 class Context {
  private:
@@ -61,8 +63,6 @@ class Context {
   int rtc_now;
   bool riciuca;
 
-  /* javascript parser object */
-  JsParser *js;
 
  public:
 
@@ -99,10 +99,13 @@ class Context {
   KbdListener kbd;
 
   /* Console parser */
-  ConsoleParser console;
+  Console console;
 
   /* Filter plugins plugger */
   Plugger plugger;
+
+  /* javascript parser object */
+  JsParser *js;
 
   /* Set the interval (in frames) after
      the fps counter is updated */

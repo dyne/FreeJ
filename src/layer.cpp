@@ -135,7 +135,7 @@ char *Layer::get_blit() {
   case 5: return "ADD";
   case 6: return "SUB";
   case 7: return "AND";
-  case 8: return "OR";
+  case 8: return "OR ";
   case 9: return alphastr;
   default: return "???";
   }
@@ -143,7 +143,7 @@ char *Layer::get_blit() {
 
 void Layer::set_alpha(int opaq) {
   alpha = (opaq>255) ? 255 : (opaq<0) ? 0 : opaq;
-  snprintf(alphastr,4,"%i",alpha);
+  snprintf(alphastr,4,"%03u",alpha);
 }
 
 void Layer::set_filename(char *f) {

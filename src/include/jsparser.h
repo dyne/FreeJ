@@ -27,16 +27,21 @@
  */
 #define STACK_CHUNK_SIZE    8192
 
+#include <context.h>
 #include <jsapi.h> // spidermonkey header
 #include <jsparser_data.h> // private data header
 #include <layer.h>
 
+/**
+ * TODO!!! da inserire in un header separato tipo jsparser_data_structures.h
+ *
+ */
 class JsParser {
     public:
 	JsParser(Context *_env);
 	~JsParser();
 	int open(const char* script_file);
-	int parse();
+	//	int parse();
     private:
 	JSRuntime *js_runtime;
 	JSContext *js_context;
@@ -47,6 +52,6 @@ class JsParser {
 	JSPropertySpec layer_properties[3];
 
 	int parse_count;
-//	JSFunctionSpec shell_functions[3];
+	//	JSFunctionSpec shell_functions[3];
 };
 #endif

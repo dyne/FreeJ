@@ -20,12 +20,16 @@
 #define __UTILS_H__
 
 #include <SDL.h>
+#include <console.h>
+
+extern char msg[255];
 
 void set_debug(int lev);
 int get_debug();
 void set_osd(char *st);
 void show_osd();
 void show_osd(char *format, ...);
+void set_console(Console *c);
 void notice(char *format, ...);
 void func(char *format, ...);
 void error(char *format, ...);

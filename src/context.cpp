@@ -27,9 +27,12 @@
 #include <context.h>
 
 #include <sdl_screen.h>
+#include <jsparser.h>
 
 #include <jutils.h>
 #include <config.h>
+
+
 
 Context::Context() {
 
@@ -54,11 +57,6 @@ Context::~Context() {
 
 bool Context::init(int wx, int hx) {
 
-#ifdef WITH_JAVASCRIPT
-    js = new JsParser(this);
-    js->open("refujees.js"); /** still does nothing */
-#endif
-  
   screen = new SdlScreen();
   if(!screen->init(wx,hx)) {
     error("Can't initialize the viewport");
@@ -78,9 +76,12 @@ bool Context::init(int wx, int hx) {
   kbd.init(this);
 
 #ifdef WITH_JAVASCRIPT
-  /* initialize the Console Parser */
-  console.init(this);
+  js = new JsParser(this);
+  js->open("test.js");
 #endif
+  
+  /* initialize the S-Lang text Console */
+  console.init(this);
   
   /* initialize the realtime clock and use it if present */
   rtc = false;
@@ -96,9 +97,10 @@ bool Context::init(int wx, int hx) {
 
 void Context::close() {
   Layer *lay;
-  if(screen) delete screen;
 
 
+  console.close();
+  
   lay = (Layer *)layers.begin();
   while(lay) {
     lay->lock();
@@ -110,6 +112,10 @@ void Context::close() {
     delete lay;
     lay = (Layer *)layers.begin();
   }
+
+  if(screen) delete screen;
+
+  if(rtc) rtc_close();
 
   plugger.close();
 
@@ -137,10 +143,6 @@ void Context::cafudda(int secs) {
     /* fetch keyboard events */
     kbd.run();
 
-#ifdef WITH_JAVASCRIPT
-    js->parse();
-#endif
-    
     rocknroll(true);
     
     if(clear_all) screen->clear();
@@ -148,21 +150,18 @@ void Context::cafudda(int secs) {
     
     
     lay = (Layer *)layers.end();
-    //    if(!lay) {
-    //      osd._print_credits();
-    //      osd._show_fps();
-    //    } else {
-      layers.lock();
-      while(lay) {
-	if(!pause) 
-	  lay->cafudda();
-	lay = (Layer *)lay->prev;
-      }
-      layers.unlock();
-      //    }
+    layers.lock();
+    while(lay) {
+      if(!pause) 
+	lay->cafudda();
+      lay = (Layer *)lay->prev;
+    }
+    layers.unlock();
     
     osd.print();
-    
+
+    console.cafudda();
+
     screen->show();
     
     /* change resolution if needed */

@@ -33,7 +33,6 @@ KbdListener::KbdListener() {
   _filt = NULL;
   _lastsel = -1;
   plugin_bank = 0;
-  console = false;
 }
 
 KbdListener::~KbdListener() {
@@ -67,15 +66,6 @@ void KbdListener::run() {
       return; }
 	
     if(event.type != SDL_KEYDOWN) return;
-
-    /* if the console live input is on,
-       then just pass the event over the
-       console interpreter */
-    if(console) {
-      env->console.read(&event);
-      return;
-    }
-
 
     
     /* ENVIRONMENT CONTROLS */
@@ -122,14 +112,6 @@ void KbdListener::run() {
     case SDLK_0:
       env->clear_all = !env->clear_all;
       break;
-
-#ifdef WITH_JAVASCRIPT
-    case SDLK_COLON:
-    case SDLK_SEMICOLON:
-      env->console.activate();
-      console = true;
-      break;
-#endif
 
     default:
       _lastsel = -1;

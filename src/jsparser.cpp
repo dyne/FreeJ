@@ -23,7 +23,12 @@
 
 #include <string.h>
 
+
 static Context *env;
+
+JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JSBool add_filter(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
 
 JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
@@ -79,7 +84,9 @@ void JsParser::init() {
     JS_InitStandardClasses(js_context, global_object);
 
     /* Now initialize our class. */
-    JS_InitClass(js_context, global_object, NULL, &layer_class, layer_constructor, 0, NULL, NULL, NULL, NULL);
+    JS_InitClass(js_context, global_object, NULL,
+		 &layer_class, layer_constructor,
+		 0, NULL, NULL, NULL, NULL);
 
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 
@@ -105,7 +112,7 @@ JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 
 //    this_obj = JS_NewObject(cx, &layer_class, NULL, obj); 
     if (!JS_SetPrivate(cx, obj, (void *) layer)) {
-	 printf("COULDN't SET THE PRIVATE VALUE\n"); 
+	 error("JsParser::layer_constructor : COULDN't SET THE PRIVATE VALUE"); 
 	 return JS_FALSE;
     }
     *rval = OBJECT_TO_JSVAL(obj);
@@ -115,43 +122,79 @@ JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, 
 }
 JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
     func("JsParser :: add_layer()");
-    JSObject *layer;
+    JSObject *jslayer;
 
-    if(!JSVAL_IS_OBJECT(argv[0])) {
-	layer=JSVAL_TO_OBJECT(argv[0]);
-	printf("Il primo argomento non e' un oggetto %p\n",layer);
-	return JS_FALSE;
+    jslayer = JSVAL_TO_OBJECT(argv[0]);
+    if(!jslayer) {
+      error("add_layer called with NULL argument");
+      return JS_FALSE;
     }
-    layer=JSVAL_TO_OBJECT(argv[0]);
-    func("layer JSObject : %p",layer);
-    if(layer==NULL)
-	return JS_FALSE;
+    //    if(JSVAL_IS_OBJECT(jslayer)) {
+    //	error("JsParser:add_layer : Il primo argomento non e' un oggetto %p",jslayer);
+    //	return JS_FALSE;
+    //    }
+
+    func("layer JSObject : %p",jslayer);
     Layer *lay;
-    lay = (Layer *) JS_GetPrivate(cx, JSVAL_TO_OBJECT(argv[0]));
+    lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) {
-	printf("Layer is null\n");
-	return JS_FALSE;
+      error("JsParser::add_layer : Layer core data is null");
+      return JS_FALSE;
     }
+
     if(lay->init(env)) {
-	if(lay) env->layers.add(lay);
-	env->layers.sel(0); /* deselect others */
-	lay->sel(true);
+      env->layers.add(lay);
+      env->layers.sel(0); /* deselect others */
+      lay->sel(true);
     } else delete lay;
+
+    return JS_TRUE;
 }
+
+/* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
+  jsval ret_val;
+  FILE *fd;
+  int c = 0;
+  char line[512]; /* is it enough? */
+  
+  fd = fopen(script_file,"r");
+  if(!fd) {
+    error("JsParser::open : %s : %s",script_file,strerror(errno));
+    return 0;
+  }
+  func("JsParser reading from file %s",script_file);
+  while(fgets(line,512,fd)) {
+    c++;
+    func("%03i : %s",c,line);
+    
+    JSBool ok = JS_EvaluateScript (js_context, global_object,
+				   line, strlen(line), script_file, 2, &ret_val);
+
+    if(ok!=JS_TRUE) {
+      error("JsParser::open : %s : error evaluating script:");
+      error("%03i : %s",c,line);
+    }
+
+  }
+
+  return ret_val;
 }
+/*
+=======
 /**
  * XXX TODO una cifra di work (translation: a LOOOOT of work ;)
- */
+
 int JsParser::parse(){
 //    char *script="kolos(32,\"pippo\")";
     char *script="add_layer(new Layer(\"/home/kysucix/video/rotolascia.avi\"))";
-//    char *script="var pippo=new Layer(\"/home/kysucix/video/Flower.png\"); add_layer(pippo)";
+    //    char *script="var pippo=new Layer(\"/home/kysucix/video/Flower.png\"); add_layer(pippo)";
     if(parse_count>0)
-	return 0;
+    return 0;
     parse_count++;
     func("JsParser::parse()");
     jsval ret_val;
-
+    
     JSBool ok = JS_EvaluateScript(js_context, global_object, script, strlen(script), "refugees.js", 1, &ret_val);
-}
+    }
+*/

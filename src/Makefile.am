@@ -38,7 +38,7 @@ freej_SOURCES = \
 	jsparser.cpp 
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
-		 -ldl -lpthread -lm \
+		 -ldl -lpthread -lm -lslang \
 		@SDL_LIBS@ \
 		@AVIFILE_LIBS@ \
 		@FT2_LIBS@ \

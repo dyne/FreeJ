@@ -58,7 +58,7 @@ class GenLayer: public Layer {
   void point(int x, int y);
 
   /* blob drawing */
-  void blob_init();
+  void blob_init(int ray);
   void blob(int x, int y);
   uint32_t *blob_buf;
   int blob_size;

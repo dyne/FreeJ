@@ -128,9 +128,9 @@ void Osd::init(Context *screen) {
   
 }
 
+/* this function is called by the core routine
+   at every cycle */
 void Osd::print() {
-  if(env->kbd.console)
-    env->console.print();
 
   if(!active) return;
   
@@ -241,6 +241,7 @@ void Osd::statusmsg(char *format, ...) {
 }
 */
 void Osd::_layerlist() {
+  char *lname;
   //  unsigned int vpos = VBOUND+TOPLIST;
   uint32_t *pos = layer_offset;
 
@@ -266,7 +267,7 @@ void Osd::_layerlist() {
       continue;
     }
       
-    char *lname = l->get_name();
+    lname = l->get_name();
 
     
     if( l == laysel) {
