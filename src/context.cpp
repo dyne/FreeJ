@@ -115,7 +115,7 @@ void Context::close() {
     lay->lock();
     layers.rem(1);
     lay->quit = true;
-    lay->signal_feed(); lay->lock_feed(); lay->unlock_feed();
+    lay->signal_feed();
     lay->unlock();
     SDL_Delay(500);
     delete lay;
