@@ -97,7 +97,8 @@ int init(ScreenGeometry *sg) {
 }
 
 int clean() {
-  free(buffer);
+  if(buffer) {
+    free(buffer); buffer = NULL; }
   return 1;
 }
 

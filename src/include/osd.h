@@ -40,7 +40,6 @@ class Osd {
   int _layersel, _filtersel;
   uint32_t newline;
 
-  void _show_fps();
   uint32_t *fps_offset;
 
   void _selection();
@@ -52,7 +51,7 @@ class Osd {
   void _layerlist();
   uint32_t *layer_offset;
 
-  void _print_credits();
+  void draw_credits();
   uint32_t *hicredits_offset;
   uint32_t *locredits_offset;
   uint32_t *hilogo_offset;
@@ -82,13 +81,15 @@ class Osd {
 
   void init(Context *screen);
   void print();
-  void splash_screen();
-  void statusmsg(char *format,...);
+  //  void statusmsg(char *format,...);
   bool active();
   bool calibrate();
   bool credits();
   bool fps();
   void clean();
+
+  void _print_credits();
+  void _show_fps();
 
   Context *env;
 

@@ -237,7 +237,16 @@ void KbdListener::run() {
     case SDLK_6: // PACKED SUB BYTEWISE
     case SDLK_7: // PACKED AND BYTEWISE
     case SDLK_8: // PACKED OR BYTEWISE
-      layer->set_blit(keysym->sym - SDLK_0);
+      if(layer->blit == 9) /* handle alpha transparence */
+	layer->set_alpha( ( 255 * (keysym->sym - SDLK_0) ) / 8 );
+      else
+	layer->blit = (keysym->sym - SDLK_0);
+      break;
+    case SDLK_9: // ALPHA TRANSPARENCE
+      if(layer->blit == 9) /* switch back to opaque mode */
+	layer->blit = 1;
+      else
+	layer->blit = 9;
       break;
       /*    case SDLK_9:
       layer->alpha_blit = !layer->alpha_blit;

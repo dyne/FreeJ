@@ -51,7 +51,10 @@ class Layer: public Entry, public JSyncThread {
 
   void set_blit(int b);
   char *get_blit();
-  int _blit_algo;
+  uint8_t blit;
+  void set_alpha(int opaq);
+  uint8_t alpha;
+  uint32_t rmask,gmask,bmask,amask;
 
   void crop();
 
@@ -84,20 +87,21 @@ class Layer: public Entry, public JSyncThread {
  private:
   char _name[5];
   char filename[256];
+  char alphastr[5];
 
 
-
-  void blit(void *offset);
+  /*  void blit(void *offset);
   int blit_x, blit_y;
   int blit_width, blit_height;
   int blit_offset;
-  /* small vars used in blits */
+  */
+
+  /* small vars used in blits
   int chan, c, cc;
   uint32_t *scr, *pscr, *off, *poff;
   Uint8 *alpha;
   SDL_Surface *blitter;
-
-  uint32_t rmask,gmask,bmask,amask;
+  */
   
 
 

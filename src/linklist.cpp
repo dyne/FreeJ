@@ -70,8 +70,8 @@ void Linklist::prepend(Entry *addr) {
   
   if(!first) { /* that's the first entry */
     first = addr;
-    last->next = NULL;
-    last->prev = NULL;
+    first->next = NULL;
+    first->prev = NULL;
     last = first;
   } else { /* add an entry to the beginning */
     ptr = first;

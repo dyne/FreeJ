@@ -36,9 +36,21 @@ Layer::Layer()
   hidden = false;
   bgcolor = 0;
   bgmatte = NULL;
-  _blit_algo = 1;
+  blit = 1;
+  set_alpha(255);
   setname("???");
   buffer = NULL;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    rmask = 0xff000000;
+    gmask = 0x00ff0000;
+    bmask = 0x0000ff00;
+    amask = 0x000000ff;
+#else
+    rmask = 0x000000ff;
+    gmask = 0x0000ff00;
+    bmask = 0x00ff0000;
+    amask = 0xff000000;
+#endif
 }
 
 Layer::~Layer() {
@@ -89,10 +101,6 @@ void Layer::run() {
   running = false;
 }
 
-void Layer::set_blit(int b) {
-  _blit_algo = b;
-}
-
 bool Layer::cafudda() {
 
   if((!active) || (hidden))
@@ -130,7 +138,7 @@ void Layer::setname(char *s) {
 char *Layer::getname() { return _name; }
 
 char *Layer::get_blit() {
-  switch(_blit_algo) {
+  switch(blit) {
   case 1: return "RGB";
   case 2: return "BLU";
   case 3: return "GRE";
@@ -139,8 +147,14 @@ char *Layer::get_blit() {
   case 6: return "SUB";
   case 7: return "AND";
   case 8: return "OR";
+  case 9: return alphastr;
   default: return "???";
   }
+}
+
+void Layer::set_alpha(int opaq) {
+  alpha = (opaq>255) ? 255 : (opaq<0) ? 0 : opaq;
+  snprintf(alphastr,4,"%i",alpha);
 }
 
 void Layer::set_filename(char *f) {

@@ -148,20 +148,26 @@ void SdlScreen::blit(Layer *layer) {
   if(layer->hidden) return;
 
   /* SOLID COLOR BLIT (NO ALPHA TRANSPARENCE) */
-  switch(layer->_blit_algo) {
+  switch(layer->blit) {
     
   case 1:
     //BLIT(=);
-    lock();
-    SDL_BLIT(0x00ff0000,0x0000ff00,0x000000ff,0x0,SDL_ALPHA_OPAQUE);
-    unlock(); 
+    blitter = SDL_CreateRGBSurfaceFrom
+      (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
+       layer->geo.pitch, layer->bmask, layer->gmask, layer->rmask, 0x0);
+    if(!blitter) {
+      error("SDL_CreateRGBSurfaceFrom : %s",SDL_GetError());
+      return;
+    }
+    SDL_BlitSurface(blitter,&layer->rect,SDL_GetVideoSurface(),NULL);
+    SDL_FreeSurface(blitter);
     return;
     
   case 2:
   case 3:
   case 4:
     {
-      chan = layer->_blit_algo-2;
+      chan = layer->blit-2;
       char *scr, *pscr, *off, *poff;
       scr = pscr = (char *) blit_coords;
       off = poff = (char *) ((Uint8*)layer->offset+blit_offset);
@@ -191,7 +197,20 @@ void SdlScreen::blit(Layer *layer) {
   case 8:
     BLIT(|=);
     return;
-    
+
+  case 9:
+    blitter = SDL_CreateRGBSurfaceFrom
+      (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
+       layer->geo.pitch, layer->bmask, layer->gmask, layer->rmask, 0x0);
+    if(!blitter) {
+      error("SDL_CreateRGBSurfaceFrom : %s",SDL_GetError());
+      return;
+    }
+    SDL_SetAlpha(blitter,SDL_SRCALPHA,layer->alpha);
+    SDL_BlitSurface(blitter,&layer->rect,SDL_GetVideoSurface(),NULL);
+    SDL_FreeSurface(blitter);
+    break;
+
   default:
     error("invalid algo blit");
     return;

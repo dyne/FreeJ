@@ -217,8 +217,8 @@ int main (int argc, char **argv) {
   }
   
   /* (no layers && no GUI) then show credits */
-  if(freej.layers.len()<1)
-    freej.osd.credits();
+  //  if(freej.layers.len()<1)
+  //    freej.osd.credits();
 
   /* launch layer threads
   func("rock the house");

@@ -81,17 +81,22 @@ void Context::cafudda() {
     if(clear_all) screen->clear();
     else osd.clean();
 
-    layers.lock();
+
     lay = (Layer *)layers.end();
-    while(lay) {
-      lay->cafudda();
-      lay = (Layer *)lay->prev;
+    if(!lay) {
+      osd._print_credits();
+      osd._show_fps();
+    } else {
+      layers.lock();
+      while(lay) {
+	lay->cafudda();
+	lay = (Layer *)lay->prev;
+      }
+      layers.unlock();
     }
-    layers.unlock();
 
     osd.print();
 
-    func("SHOW"); 
     screen->show();
   
     rocknroll(true);

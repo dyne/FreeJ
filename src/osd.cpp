@@ -95,6 +95,15 @@ void Osd::init(Context *screen) {
   newline = env->screen->pitch*(CHAR_HEIGHT);
   snprintf(title,64,"%s %s",PACKAGE,VERSION);
 
+  /* add ipernaut logo layer */
+  ipernaut = create_layer("../doc/ipernav.png");
+  if(!ipernaut) ipernaut = create_layer("/usr/local/share/freej/ipernav.png");
+  if(!ipernaut) ipernaut = create_layer("/usr/share/freej/ipernav.png");
+  if(ipernaut) {
+    ipernaut->init(env);
+    //    ipernaut->active = false;
+  }
+
   func("OSD initialized");
 
 }
@@ -123,22 +132,22 @@ void Osd::print() {
   } */
 
   env->screen->lock();
-  
-  _print_credits();
 
-  if(_fps) _show_fps();
 
-  //  if(screen->kbd) {
-  _layerlist();
-
-  Layer *lay = (Layer*)env->layers.selected();
-  if(lay) {
-    _filterlist();
+  if(_credits) {
+    _print_credits();
+    _show_fps();
+  } else {
+    Layer *lay = (Layer*)env->layers.selected();
+    if(lay) _filterlist();
     _selection();
+    _layerlist();  
   }
+  //  if(screen->kbd) {
 
+  
   _print_status();
-
+  
   env->screen->unlock();
 }
 
@@ -191,14 +200,16 @@ void Osd::_selection() {
   print(msg,selection_offset,1,1);
   
 }
-
+/*
 void Osd::statusmsg(char *format, ...) {
+  if(_credits) credits();
   va_list arg;
   va_start(arg,format);
   vsnprintf(status_msg,49,format,arg);
+  status_msg[50] = '\0';
   va_end(arg);
 }
-
+*/
 void Osd::_layerlist() {
   //  unsigned int vpos = VBOUND+TOPLIST;
   uint32_t *pos = layer_offset;
@@ -279,46 +290,30 @@ void Osd::_filterlist() {
   lay->filters.unlock();
 }
 
-void Osd::splash_screen() {
-  _set_color(white);
-
-  uint32_t *pos = hicredits_offset;
-  pos = print(title,pos,2,2);
-  pos = print("MONTEVIDEO",pos,2,2);
-  pos = print(":: set the veejay free ",pos,1,2);
-  
-  pos = locredits_offset;
-  pos = print("GNU GPL free software | rastasoft.org",pos,1,2);
-  pos = print("copyleft 2001-2003 jaromil @ dyne.org",pos,1,2);
-
-  /*
+void Osd::draw_credits() {
   _set_color(yellow);
-  pos = print("############# copyleft 2001 - 2003",pos,1,2);
-  _set_color(green);
-*/
+  print("codename MONTEVIDEO",selection_offset,1,1);
+  print("GNU GPL (c) 2001-2003 jaromil @ dyne.org",status_offset,1,1);
 }
 
 bool Osd::credits() {
+
   //  env->clear_once = true; //scr(env->get_surface(),env->size);
   _credits = !_credits;
 
   if(_credits) {
-
-    /* add ipernaut logo layer */
-    if(!ipernaut) {
-    /* TODO check if file exists */
-      ipernaut = create_layer("../doc/ipernav.png");
-      ipernaut->init(env);
-    }
-    
-    /* add first vertigo effect on logo */
-    if(!osd_vertigo)
-      osd_vertigo = env->plugger.pick("vertigo");
-    if(osd_vertigo) {
-      if(!osd_vertigo->list) {
-	osd_vertigo->init(&ipernaut->geo);
-	ipernaut->filters.add(osd_vertigo);
-      }
+    env->track_fps = true;
+    if(ipernaut) {
+      env->layers.prepend(ipernaut);
+      /* add first vertigo effect on logo */
+      if(!osd_vertigo)
+	osd_vertigo = env->plugger.pick("vertigo");
+      if(osd_vertigo)
+	if(!osd_vertigo->list) {
+	  osd_vertigo->init(&ipernaut->geo);
+	  ipernaut->filters.prepend(osd_vertigo);
+	}
+      env->layers.add(ipernaut);
     }
 
 #if 0
@@ -333,9 +328,11 @@ bool Osd::credits() {
       ipernaut->filters.add(osd_water);
     } 
 #endif
+      
+    draw_credits();
 
-    env->layers.add(ipernaut);
-  } else {
+  }  else {
+    env->track_fps = false;
     ipernaut->rem();
     osd_vertigo->rem();
     osd_vertigo->clean();
@@ -347,8 +344,7 @@ void Osd::_print_credits() {
   _set_color(green);
   uint32_t *pos = print(PACKAGE,hilogo_offset,1,1);
   print(VERSION,pos,1,1);
-  _set_color(white);
-  if(_credits) splash_screen();
+  if(_credits) draw_credits();
 }
 
 void Osd::_set_color(colors col) {
