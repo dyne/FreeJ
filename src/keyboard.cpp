@@ -22,13 +22,18 @@
 #include <jutils.h>
 #include <keyboard.h>
 #include <filter.h>
-#include <filters/filter-list.h>
+#include <plugger.h>
 
 #define DELAY 300
 
-bool KbdListener::init(Context *context) {
+bool KbdListener::init(Context *context, Plugger *plug) {
+  /* saves the pointer to the scren */
   this->screen = context;
   context->kbd = this;
+  
+  /* saves the pointer to the plugger */
+  this->plugger = plug;
+
   layer = (Layer *)context->layers.begin();
 
   /* TODO ---- when more layers are added this must be fixed */
@@ -70,10 +75,10 @@ void KbdListener::run() {
 	     layer = (Layer *) layer->prev;
 	     break; */
 	default:
-	  if(_context_op(&event.key.keysym)) break;
-	  
-	  if(layer->keypress(&event.key.keysym)) break;
-
+	  if(event.key.keysym.mod!=KMOD_CAPS) {
+	    if(_context_op(&event.key.keysym)) break;
+	    if(layer->keypress(&event.key.keysym)) break;
+	  }
 	  if(filter!=NULL) filter->kbd_input(&event.key.keysym);
 	  break;
 	}
@@ -92,31 +97,21 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   Filter *filt = NULL;
 
   switch(keysym->sym) {
-
-  /* control numbers for adding filters */
-  case SDLK_1:
-    filt = new Bitcolor;
-    newfilt = true;
-    break;
-  case SDLK_2:
-    filt = new Strobe;
-    newfilt = true;
-    break;
-  case SDLK_3:
-    filt = new Delaygrab;
-    newfilt = true;
-    break;
-  case SDLK_4:
-    filt = new Absdiff;
-    newfilt = true;
-    break;
-  case SDLK_5:
-    filt = new Rotozoom;
-    newfilt = true;
-    break;
-  case SDLK_6:
-    filt = new Judenburg;
-    newfilt = true;
+  case SDLK_F1:
+  case SDLK_F2:
+  case SDLK_F3:
+  case SDLK_F4:
+  case SDLK_F5:
+  case SDLK_F6:
+  case SDLK_F7:
+  case SDLK_F8:
+  case SDLK_F9:
+  case SDLK_F10:
+  case SDLK_F11:
+  case SDLK_F12:
+    filt = (*plugger)[keysym->sym - SDLK_F1];
+    if(filt!=NULL)
+      newfilt = true;
     break;
 
   case SDLK_UP:
@@ -163,10 +158,12 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   case SDLK_DELETE:
     if(filter==NULL) return false;
     if(keysym->mod==KMOD_RCTRL) {
+      /* clear ALL FILTERS */
       layer->clear_filters();
       filter = NULL;
       filtersel = layer->filters.len();
     } else {
+      /* clear SELECTED FILTER */
       Filter *tmp = (filter->prev==NULL) ? (Filter *)filter->next : (Filter *)filter->prev;
       layer->del_filter(filtersel);
       filter = tmp;
@@ -179,13 +176,14 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   }
 
   if(newfilt) {
+    func("keyboard says newfilt");
     if(layer->add_filter(filt)) {
       /* the filter has been accepted on the layer chain */
       filter = filt;
       filtersel = layer->filters.len();
     } else {
       /* something went wrong... bpp not supported or so */
-      delete filt;
+      // delete filt;
       newfilt = false;
     }
   }

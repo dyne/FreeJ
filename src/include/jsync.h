@@ -45,7 +45,6 @@ class JSyncThread {
 
   static void* kickoff(void *arg) { ((JSyncThread *) arg)->run(); return NULL; };
 
-
 };
 
 #endif

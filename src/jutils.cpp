@@ -36,6 +36,8 @@
 #define WARN 1 /* ... blkbblbl */
 
 static int verbosity;
+char msg[255];
+char *osd_msg = NULL;
 
 void set_debug(int lev) {
   lev = lev<0 ? 0 : lev;
@@ -47,12 +49,21 @@ int get_debug() {
   return(verbosity);
 }
 
+void set_osd(char *st) {
+  osd_msg = st;
+  osd_msg[0] = '\0';
+}
+
+void show_osd() {
+  strncpy(osd_msg,msg,49);
+  osd_msg[50] = '\0';
+}
+
 void notice(char *format, ...) {
-  char msg[255];
   va_list arg;
   va_start(arg, format);
 
-  vsprintf(msg, format, arg);
+  vsnprintf(msg, 254, format, arg);
   cerr << "[*] " << msg << endl;
 
   va_end(arg);
@@ -60,11 +71,10 @@ void notice(char *format, ...) {
 
 void func(char *format, ...) {
   if(verbosity>=FUNC) {
-    char msg[255];
     va_list arg;
     va_start(arg, format);
     
-    vsprintf(msg, format, arg);
+    vsnprintf(msg, 254, format, arg);
     cerr << "[F] " << msg << endl;
     
     va_end(arg);
@@ -72,23 +82,21 @@ void func(char *format, ...) {
 }
 
 void error(char *format, ...) {
-    char msg[255];
-    va_list arg;
-    va_start(arg, format);
-    
-    vsprintf(msg, format, arg);
-    cerr << "[!] " << msg << endl;
-    perror(msg);    
-
-    va_end(arg);
-}
-
-void act(char *format, ...) {
-  char msg[255];
+  char tmp[512];
   va_list arg;
   va_start(arg, format);
   
-  vsprintf(msg, format, arg);
+  vsnprintf(msg, 254, format, arg);
+  snprintf(tmp,512,"[!] %s: ",msg);
+  perror(tmp);
+  va_end(arg);
+}
+
+void act(char *format, ...) {
+  va_list arg;
+  va_start(arg, format);
+  
+  vsnprintf(msg, 254, format, arg);
   cerr << " .  " << msg << endl;
   
   va_end(arg);
@@ -96,11 +104,10 @@ void act(char *format, ...) {
 
 void warning(char *format, ...) {
   if(verbosity>=WARN) {
-    char msg[255];
     va_list arg;
     va_start(arg, format);
     
-    vsprintf(msg, format, arg);
+    vsnprintf(msg, 254, format, arg);
     cerr << "[W] " << msg << endl;
   
     va_end(arg);

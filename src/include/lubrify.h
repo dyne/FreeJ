@@ -26,6 +26,7 @@ extern "C" {
   void mmxblit(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
   void mmxdiff8(void *src1, void *src2, void *dst, unsigned int size);
   void mmxdiff16(void *src1, void *src2, void *dst, unsigned int size);
+  void mmxdiff32(void *src1, void *src2, void *dst, unsigned int size);
   void vline(void *scr, unsigned int height, unsigned int pitch, unsigned int bpp);
   void hline(void *scr, unsigned int width, unsigned int bpp);
   void clearscr(void *scr, unsigned int size);

@@ -27,6 +27,7 @@
 
 #include <v4l.h>
 #include <tvfreq.h>
+#include <jutils.h>
 
 V4lGrabber::V4lGrabber() {
   dev = -1;
@@ -94,7 +95,7 @@ bool V4lGrabber::detect(char *devfile) {
       if (grab_cap.type & (1 << counter)) act("%s",capabilities[counter]);
 
     if (-1 == ioctl(dev, VIDIOCGPICT, &grab_pic)) {
-      perror("ioctl VIDIOCGPICT ");
+      error("ioctl VIDIOCGPICT ");
       exit(1);
     }
     
@@ -112,8 +113,8 @@ bool V4lGrabber::detect(char *devfile) {
   minh = grab_cap.minheight;
   maxw = grab_cap.maxwidth;
   maxh = grab_cap.maxheight;
-  if( (minw>256) || (minh>256) || (maxw<256) || (maxh<256) ) {
-    error("your device does'nt supports 256x256 grabbing");
+  if( (minw>256) || (minh>256) || (maxw<410) || (maxh<410) ) {
+    error("your device does'nt supports grabbing to right size");
     return(false);
   }
 
@@ -136,6 +137,9 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   int i;
   func("V4lGrabber::init()");
 
+  /* INIT from the LAYER CLASS */
+  _init(screen,wdt,hgt);
+
   /* set image source and TV norm */
   grab_chan.channel = input = channels>1 ? 1 : 0;
   
@@ -148,9 +152,6 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
       return(false);
     }
     
-    /* here sets STATIC PAL MODE
-    grab_chan.norm = VIDEO_MODE_PAL;
-    */
     if (-1 == ioctl(dev,VIDIOCSCHAN,&grab_chan)) {
       error("error in ioctl VIDIOCSCHAN ");
       return(false);
@@ -163,29 +164,20 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
     }
   }
 
-  /* TODO: check with minwidth maxwidth */
-
-  w = (wdt == 0) ? screen->w : wdt;
-  h = (hgt == 0) ? screen->h : hgt;
-  bpp = screen->bpp;
-  size = w*h*(bpp>>3);
-  pitch = w*(bpp>>3);
-  fps = &screen->fps;
-
   palette = VIDEO_PALETTE_YUV422P;
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */
-  yuv2rgb = yuv2rgb_init(bpp,0x1); /* arg2 is MODE_RGB */
-  rgb_surface = jalloc(rgb_surface,size);
+  yuv2rgb = yuv2rgb_init(geo.bpp,0x1); /* arg2 is MODE_RGB */
+  rgb_surface = jalloc(rgb_surface,geo.size);
 
-  u = (w*h);
+  u = (geo.w*geo.h);
   v = u+(u/2);
   
   for(i=0; i<grab_map.frames; i++) {
     grab_buf[i].format = palette;
     grab_buf[i].frame  = i;
-    grab_buf[i].height = h;
-    grab_buf[i].width = w;
+    grab_buf[i].height = geo.h;
+    grab_buf[i].width = geo.w;
   }
   
   /* mmap (POSIX.4) buffer for grabber device */
@@ -207,10 +199,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
 
   feeded = true;
 
-  /* INIT from the LAYER CLASS */
-  _init(screen);
-
-  notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",w,h,bpp,size,size*num_frame);
+  notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
   act("using input channel %s",grab_chan.name);
   return(true);
 }
@@ -227,14 +216,16 @@ void V4lGrabber::set_chan(int ch) {
   if (-1 == ioctl(dev,VIDIOCSCHAN,&grab_chan))
     error("error in ioctl VIDIOCSCHAN ");
   
-  screen->osd->status("V4L: input chan %u %s",ch,grab_chan.name);
+  act("V4L: input chan %u %s",ch,grab_chan.name);
+  show_osd();
 }
 
 void V4lGrabber::set_band(int b) {
   _band = b;
   chanlist = chanlists[b].list;
   if(_freq>chanlists[b].count) _freq = chanlists[b].count;
-  screen->osd->status("V4L: frequency table %u %s [%u]",b,chanlists[b].name,chanlists[b].count);
+  act("V4L: frequency table %u %s [%u]",b,chanlists[b].name,chanlists[b].count);
+  show_osd();
 }
 
 void V4lGrabber::set_freq(int f) {
@@ -249,7 +240,8 @@ void V4lGrabber::set_freq(int f) {
   if (-1 == ioctl(dev,VIDIOCSFREQ,&frequency))
     error("error in ioctl VIDIOCSFREQ ");
   unlock_feed();
-  screen->osd->status("V4L: frequency %s %.3f Mhz (%s)",chanlist[f].name,ffreq,chanlists[_band].name);
+  act("V4L: frequency %s %.3f Mhz (%s)",chanlist[f].name,ffreq,chanlists[_band].name);
+  show_osd();
 }
   
 
@@ -307,12 +299,11 @@ bool V4lGrabber::keypress(SDL_keysym *keysym) {
 }
 
 void *V4lGrabber::get_buffer() {
-  /*  return(&buffer[grab_map.offsets[ok_frame]]); */
   (*yuv2rgb)((uint8_t *) rgb_surface,
 	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]],
 	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+u],
 	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+v],
-	     w, h, pitch, w, w);
+	     geo.w, geo.h, geo.pitch, geo.w, geo.w);
   return(rgb_surface);
 }
 

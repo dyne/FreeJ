@@ -50,7 +50,7 @@ class Osd {
   bool _active;
   bool _calibrate;
   bool _credits;
-
+  
  public:
   Osd();
   ~Osd();
@@ -58,12 +58,13 @@ class Osd {
   void init(Context *screen);
   void print();
   void splash_screen();
-  void status(char *format, ...);
   bool active();
   bool calibrate();
   bool credits();
   
   Context *screen;
+
+  char status_msg[50];  
 
 };
 

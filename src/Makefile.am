@@ -1,5 +1,11 @@
-
 INCLUDES = -I$(top_srcdir)/src/include
+
+SUFFIXES = .asm
+
+NASM = nasm -f elf
+
+.asm.o:
+	$(NASM) $<
 
 bin_PROGRAMS = freej
 
@@ -10,13 +16,19 @@ freej_SOURCES = \
 	v4l.cpp		\
 	tvfreq.c	\
 	linklist.cpp	\
-	jutils.cpp	\
 	jsync.cpp	\
 	keyboard.cpp	\
-	osd.cpp
+	osd.cpp		\
+	plugin.cpp	\
+	plugger.cpp	\
+	jutils.cpp	\
+	lubrify.c	\
+	cpu_accel.c	\
+	yuv2rgb.c yuv2rgb_mmx.c	\
+	vline16.asm vline32.asm \
+	hline16.asm hline32.asm \
+	mmx_memcpy.asm 	\
+	mmx_blit.asm	\
+	clearscr.asm
 
-SUBDIRS = \
-	filters	\
-	asm
-
-freej_LDADD = @SDL_LIBS@ @EFENCE_LIBS@ -lpthread -lm filters/libfilters.a asm/liblubrify.a
+freej_LDADD = @SDL_LIBS@ -lpthread -lm -ldl

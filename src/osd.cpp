@@ -23,28 +23,7 @@
 #include <lubrify.h>
 #include <osd.h>
 #include <config.h>
-
-#include <font_6x11.h>
-
-static const Uint32 blank[] = 
-  { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
-
-static char status_msg[50];
+#include <font_pearl_8x8.h>
 
 void Osd::_write16(char *text, int xpos, int ypos, int hsize, int vsize) {
   int y,x,i,len,f,v,ch,cv;
@@ -181,18 +160,9 @@ void Osd::print() {
   _print_status();
 }
 
-void Osd::status(char *format, ...) {
-  va_list arg;
-  va_start(arg, format);
-  vsnprintf(status_msg,50,format,arg);
-  va_end(arg);
-  status_msg[49] = '\0';
-  func(status_msg);
-}
-
 void Osd::_print_status() {
   _set_color(yellow);
-  (this->*write)(status_msg,_hbound+30,screen->h-_vbound+5,1,1);
+  (this->*write)(status_msg,_hbound,screen->h-_vbound+5,1,1);
 }
 
 bool Osd::active() {
@@ -223,8 +193,8 @@ void Osd::_selection() {
   if(screen->kbd->filter==NULL)
     sprintf(msg,"V4l::(none) [%u]",_filtersel);
   else
-    sprintf(msg,"V4l::%s [%u]",screen->kbd->filter->name,screen->kbd->filtersel);
-  (this->*write)(msg,60,1,2,1);
+    sprintf(msg,"V4l::%s [%u]",screen->kbd->filter->getname(),screen->kbd->filtersel);
+  (this->*write)(msg,70,1,1,1);
 }
 
 void Osd::_filterlist() {
@@ -237,12 +207,12 @@ void Osd::_filterlist() {
   while(f!=NULL) {
     if(f == screen->kbd->filter) {
       if(f->active)
-	(this->*write)("*<",1,vpos,2,1);
+	(this->*write)("*<",1,vpos,1,1);
       else
-    	(this->*write)("+<",1,vpos,2,1);
+    	(this->*write)("+<",1,vpos,1,1);
     } else {
       if(f->active) 
-	(this->*write)("*",1,vpos,2,1);
+	(this->*write)("*",1,vpos,1,1);
       else
 	(this->*write)("+",1,vpos,1,1);
     }
@@ -254,22 +224,24 @@ void Osd::_filterlist() {
 
 void Osd::splash_screen() {
   _set_color(white);
-  int vpos = _vbound+10;
-  (this->*write)("... yet another DYNE.ORG production !!",_hbound+50,vpos,1,1);
+  int vpos = _vbound+15;
+  (this->*write)("[ d y n e . o r g ] presents:",_hbound+60,vpos,1,1);
   vpos += CHAR_HEIGHT+30;
-  (this->*write)(PACKAGE,_hbound+50,vpos,2,2);
-  (this->*write)(VERSION,_hbound+120,vpos,2,2);
-  (this->*write)("[ ETNA ]",_hbound+190,vpos,2,2);
+  (this->*write)(PACKAGE,_hbound+110,vpos,2,2);
+  (this->*write)(VERSION,_hbound+200,vpos,2,2);
+  //  (this->*write)("[ ETNA ]",_hbound+190,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
-  (this->*write)(":: set the veejay free ::",_hbound+100,vpos,1,1);
-  vpos += CHAR_HEIGHT;
-  (this->*write)("realtime video processing software",_hbound+70,vpos,1,1);
+  (this->*write)(":: set the veejay free ::",_hbound+75,vpos,1,1);
+  vpos += CHAR_HEIGHT+30;
+  (this->*write)("100% free software for",_hbound+80,vpos,1,1);
+  vpos += CHAR_HEIGHT+2;
+  (this->*write)("realtime video processing",_hbound+70,vpos,1,1);
   vpos += CHAR_HEIGHT+30;
   (this->*write)("concept and coding by",_hbound+80,vpos,1,1);
-  vpos += CHAR_HEIGHT;
+  vpos += CHAR_HEIGHT+2;
   (this->*write)("jaromil",_hbound+160,vpos,2,2);
-  vpos += CHAR_HEIGHT+80;
-  (this->*write)("http://freej.dyne.org",_hbound+45,vpos,2,2);
+  vpos += CHAR_HEIGHT+50;
+  (this->*write)("http://freej.dyne.org",_hbound+85,vpos,1,2);
 }
 
 bool Osd::credits() {

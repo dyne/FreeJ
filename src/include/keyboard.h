@@ -25,6 +25,7 @@
 class Context;
 class Layer;
 class Filter;
+class Plugger;
 
 class KbdListener : public JSyncThread {
  private:
@@ -34,12 +35,13 @@ class KbdListener : public JSyncThread {
   KbdListener() {};
   ~KbdListener() {};
   
-  bool init(Context *context);
+  bool init(Context *context, Plugger *plug);
   void run();
   
   SDL_Event event;
   Context *screen;
   Layer *layer;
+  Plugger *plugger;
 
   Filter *filter;
   int filtersel;

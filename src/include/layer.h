@@ -39,7 +39,7 @@ class Layer: public Entry, public JSyncThread {
   virtual ~Layer() { _delete(); };
 
   void run();
-  void _init(Context *screen);
+  void _init(Context *screen, int wdt, int hgt);
   void _delete();
   virtual void _close() { };
 
@@ -65,10 +65,8 @@ class Layer: public Entry, public JSyncThread {
 
   int id_kbd;
   int id_scr;
-  Uint16 w, h, x, y, pitch;
-  Uint8 bpp;
-  Uint32 size;
-  float *fps;
+
+  ScreenGeometry geo;
 
   bool feeded;
 

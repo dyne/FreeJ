@@ -40,8 +40,9 @@ class Linklist {
   void clear();
   bool moveup(int pos);
   bool movedown(int pos);
-  Entry *pick(int pos);
-  
+  Entry *pick(int pos);  
+
+  Entry *operator[](int pos) { return pick(pos); };
 };
 
 class Entry {

@@ -16,7 +16,7 @@ void JSyncThread::_thread_init() {
   if(pthread_cond_init (&_cond_feed, NULL) == -1)
     error("error initializing POSIX thread feed condtition"); 
 
-  /* sets the thread as detched
+  /* sets the thread as detached
      see: man pthread_attr_init(3) */
   pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_DETACHED);
 

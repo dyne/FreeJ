@@ -162,7 +162,3 @@ bool Context::calc_fps() {
 
   return(true);
 }
-
-void Context::print_fps() {
-  fprintf(stderr," -  Layer:: fps [%f]\n",fps);
-}

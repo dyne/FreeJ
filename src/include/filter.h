@@ -19,27 +19,15 @@
 #ifndef __filter_h__
 #define __filter_h__
 
-#include <string.h>
-#include <math.h>
-#include <assert.h>
-
-#include <SDL.h>
 #include <linklist.h>
-#include <jutils.h>
+#include <plugin.h>
 
-class Filter: public Entry {
+class Filter: public Plugin, public Entry {
  public:
-  Filter() { initialized=false; active=true; listen=true; };
+  Filter() { initialized=false; active=true; inuse=false; };
   virtual ~Filter() { };
-  virtual void *process(void *buffo)=0;
-  virtual bool init() =0;
-  virtual void _delete() =0;
-  virtual bool kbd_input(SDL_keysym *keysym) { return(false); };
 
-  /* data about the filter */
-  char name[128];
-  char author[256];
-  int version;
+  //  virtual bool kbd_input(SDL_keysym *keysym) { return(false); };
 
   /* bool array for supported screendepth
      [0]       [1]       [2]       [3]
@@ -47,14 +35,9 @@ class Filter: public Entry {
   bool supported[4];
   bool bpp_ok(Uint8 bpp) { return(supported[((bpp>>3)-1)]); };
   
-  Uint16 *w,*h,*x,*y,*pitch;
-  Uint8 bpp;
-  Uint32 *size;
-  float *fps;
   bool initialized;
   bool active;
-  bool listen;
+  bool inuse;
 };
 
 #endif
-  

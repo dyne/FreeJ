@@ -19,23 +19,33 @@
 #include <layer.h>
 #include <context.h>
 #include <lubrify.h>
+#include <jutils.h>
 
 void Layer::_delete() {
-  Filter *tmp, *filt = (Filter *)filters.begin();
-
-  func("Layer::_delete()");
-  
-  while(filt!=NULL) {
-    tmp = (Filter *)filt->next;
-    filt->_delete();
-    filt = tmp;
-  }
+  /* Filters are now cleaned into the Plugger::_delete() (plugger.cpp) 
+     func("Layer::_delete()");
+     
+     Filter *tmp, *filt = (Filter *)filters.begin();
+     
+     while(filt!=NULL) {
+     tmp = (Filter *)filt->next;
+     filt->clean();
+     filt = tmp;
+     }
+  */
 }
 
-void Layer::_init(Context *screen) {
-  _w = w; _h = h;
-  _pitch = pitch;
-  _size = size;
+void Layer::_init(Context *screen, int wdt, int hgt) {
+  geo.w = (wdt == 0) ? screen->w : wdt;
+  geo.h = (hgt == 0) ? screen->h : hgt;
+  geo.bpp = screen->bpp;
+  geo.size = geo.w*geo.h*(geo.bpp>>3);
+  geo.pitch = geo.w*(geo.bpp>>3);
+  geo.fps = screen->fps;
+
+  _w = geo.w; _h = geo.h;
+  _pitch = geo.pitch;
+  _size = geo.size;
   quit = false;
   this->screen = screen;
   screen->add_layer(this);
@@ -44,49 +54,41 @@ void Layer::_init(Context *screen) {
 void Layer::run() {
   while(!quit) {
     feed();
-    //    signal_feed();
     wait_feed();
   }
 }
 
 bool Layer::add_filter(Filter *newfilt) {
 
+  /* PARANOIA */
   if(newfilt==NULL) {
     warning("Layer::add_filter called with an invalid NULL filter");
     return(false);
   }
 
-  func("Layer::add_filter(%s)",newfilt->name);
+  func("Layer::add_filter(%s)",newfilt->getname());
 
+  /* check supported bpp
   if(!newfilt->bpp_ok(bpp)) {
-    warning("%s filter does'nt support %ubpp",newfilt->name,bpp);
+    warning("%s filter does'nt support %u bpp",newfilt->getname(),bpp);
+    show_osd();
     return(false);
   }
-
-  /* here pointers are used to let filters change the size of the layer*/
-  newfilt->w = &w; newfilt->h = &h;
-  newfilt->pitch = &pitch; newfilt->size = &size;
-  /* --- not yet fully supported as a possibility for the filters */
-  /* --- needs work */
-
-  newfilt->bpp = bpp;
-  newfilt->fps = fps; /* this is a pointer from the screen */
-
-  notice("%s filter registered :: w[%u] h[%u] bpp[%u] size[%u]",newfilt->name,w,h,bpp,size);
+  */
 
   /* let the filter initialize */
-  if(!newfilt->initialized)
-    if(!newfilt->init()) {
-      error("Layer::add_filter can't initialize filter");
-      return(false);
-    }
+  if(!newfilt->initialized) {
+    newfilt->init(&geo);
+    newfilt->initialized = true;
+  }
 
   /* add the filter to the linklist */
   lock();
   filters.add(newfilt);
   unlock();
-  
-  screen->osd->status("NEW filter %s pos %u",newfilt->name,filters.len());
+
+  act("NEW filter %s pos %u",newfilt->getname(),filters.len());
+  show_osd();
 
   return(true);
 }
@@ -94,7 +96,7 @@ bool Layer::add_filter(Filter *newfilt) {
 bool Layer::del_filter(int sel) {
   func("Layer::del_filter(%u)",sel);
 
-  Filter *filt = (Filter *) filters.pick(sel);
+  Filter *filt = (Filter *) filters[sel];
   /* PARANOIA */
   if(filt==NULL) {
     warning("Layer::del_filter - filters.pick(%u) returned a NULL Filter",sel);
@@ -105,9 +107,10 @@ bool Layer::del_filter(int sel) {
   filters.rem(sel);
   unlock();
 
-  screen->osd->status("DEL filter %s pos %u",filt->name,sel);
+  filt->inuse = false;
+  act("DEL filter %s pos %u",filt->getname(),sel);
+  show_osd();
 
-  delete(filt);
   return(true);
 }
 
@@ -121,48 +124,49 @@ void Layer::clear_filters() {
   while(f!=NULL) {
     c++;
     filters.rem(1);
-    f->_delete();
+    f->inuse = false;
     f = (Filter *)filters.begin();
   }
   unlock();
 
-  screen->osd->status("CLEARED %u filters",c);
+  act("CLEARED %u filters",c);
+  show_osd();
 }
 
 bool Layer::moveup_filter(int sel) {
   bool res = filters.moveup(sel);
-  if(res)
-    screen->osd->status("MOVE UP filter %u -> %u",sel,sel-1);
+  if(res) {
+    act("MOVE UP filter %u -> %u",sel,sel-1);
+    show_osd();
+  }
   return(res);
 }
 
 bool Layer::movedown_filter(int sel) {
   bool res = filters.movedown(sel);
-  if(res)
-    screen->osd->status("MOVE DOWN filter %u -> %u",sel,sel+1);
+  if(res) {
+    act("MOVE DOWN filter %u -> %u",sel,sel+1);
+    show_osd();
+  }
   return(res);
 }
 
 Filter *Layer::active_filter(int sel) {
   Filter *filt = (Filter *)filters.pick(sel);
   filt->active = !filt->active;
-  screen->osd->status("%s filter %s pos %u",
-		      filt->active ? "ACTIVATED" : "DEACTIVATED",
-		      filt->name, sel);
-  return(filt);
-}
-
-Filter *Layer::listen_filter(int sel) {
-  Filter *filt = (Filter *)filters.pick(sel);
-  filt->listen = !filt->listen;
+  act("%s filter %s pos %u",
+      filt->active ? "ACTIVATED" : "DEACTIVATED",
+      filt->getname(), sel);
+  show_osd();
   return(filt);
 }
 
 bool Layer::cafudda() {
   void *res = get_buffer();
+
   /* restore original size info so that it
      can be changed from the filters */
-  w = _w; h = _h; pitch = _pitch; size = _size;
+  geo.w = _w; geo.h = _h; geo.pitch = _pitch; geo.size = _size;
 
   lock();
 
@@ -175,10 +179,11 @@ bool Layer::cafudda() {
 
   lock_feed();
 
-  if(pitch==screen->pitch)
+  /*  if(pitch==screen->pitch)
     mmxcopy(res,screen->get_surface(),size);
-  else
-    mmxblit(res,screen->coords(x,y),h,pitch,screen->pitch); 
+    else */
+  mmxblit(res,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+
   /* pitch is width in bytes */
 
   unlock();
