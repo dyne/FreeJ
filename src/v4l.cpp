@@ -157,8 +157,6 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt, int chan_input) {
       return(false);
     }
 
-    set_freq(_freq);
-
   }
 
   /*  
@@ -193,8 +191,6 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt, int chan_input) {
     grab_buf[i].width = w;
   }
   
-  cur_frame = ok_frame = 0;
-  
   /* mmap (POSIX.4) buffer for grabber device */
   buffer = (unsigned char *) mmap(0,grab_map.size,PROT_READ|PROT_WRITE,MAP_SHARED,dev,0);
   if(MAP_FAILED == buffer) {
@@ -202,11 +198,15 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt, int chan_input) {
     return(false);
   }
 
-  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
-    func("V4lGrabber::feed");
-    error("error in ioctl VIDIOCMCAPTURE");
+  cur_frame = ok_frame = 0;  
+  for(;cur_frame<num_frame;cur_frame++) {
+    if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
+      func("V4lGrabber::feed");
+      error("error in ioctl VIDIOCMCAPTURE");
+    }
   }
-  
+  cur_frame = 0;
+
   feeded = true;
 
   /* INIT from the LAYER CLASS */
@@ -220,7 +220,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt, int chan_input) {
 void V4lGrabber::set_chan(int ch) {
 
   grab_chan.channel = input = ch;
-  //  lock_feed();
+
   if (-1 == ioctl(dev,VIDIOCGCHAN,&grab_chan))
     error("error in ioctl VIDIOCGCHAN ");
 
@@ -228,7 +228,6 @@ void V4lGrabber::set_chan(int ch) {
 
   if (-1 == ioctl(dev,VIDIOCSCHAN,&grab_chan))
     error("error in ioctl VIDIOCSCHAN ");
-  //  unlock_feed();
   
   screen->osd->status("V4L: input chan %u %s",ch,grab_chan.name);
 }
@@ -248,10 +247,10 @@ void V4lGrabber::set_freq(int f) {
 
   func("V4L: set frequency %u %.3f",frequency,ffreq);
 
-  //  lock_feed();
+  lock_feed();
   if (-1 == ioctl(dev,VIDIOCSFREQ,&frequency))
     error("error in ioctl VIDIOCSFREQ ");
-  //  unlock_feed();
+  unlock_feed();
   screen->osd->status("V4L: frequency %s %.3f Mhz (%s)",chanlist[f].name,ffreq,chanlists[_band].name);
 }
   
@@ -271,35 +270,37 @@ bool V4lGrabber::keypress(SDL_keysym *keysym) {
       set_chan(input-1);
       return(true);
     } else return(false);
-
-  case SDLK_j:
-    if(_band<bandcount) {
-      set_band(_band+1);
-      return(true);
-    } else return(false);
-
-  case SDLK_n:
-    if(_band>0) {
-      set_band(_band-1);
-      return(true);
-    } else return(false);
-
-  case SDLK_h:
-    if(_freq<chanlists[_band].count) {
-      set_freq(_freq+1);
-      return(true);
-    } else {
-      set_freq(0);
-      return(true);
-    }
     
-  case SDLK_b:
-    if(_freq>0) {
-      set_freq(_freq-1);
-      return(true);
-    } else {
-      set_freq(chanlists[_band].count);
-      return(true);
+    if(have_tuner) {
+    case SDLK_j:
+      if(_band<bandcount) {
+	set_band(_band+1);
+	return(true);
+      } else return(false);
+      
+    case SDLK_n:
+      if(_band>0) {
+	set_band(_band-1);
+	return(true);
+      } else return(false);
+      
+    case SDLK_h:
+      if(_freq<chanlists[_band].count) {
+	set_freq(_freq+1);
+	return(true);
+      } else {
+	set_freq(0);
+	return(true);
+      }
+      
+    case SDLK_b:
+      if(_freq>0) {
+	set_freq(_freq-1);
+	return(true);
+      } else {
+	set_freq(chanlists[_band].count);
+	return(true);
+      }
     }
 
   default:
