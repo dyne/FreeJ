@@ -2,6 +2,7 @@ INCLUDES = -I$(top_srcdir)/src/include -I$(top_srcdir)/ccvt
 AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
               @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
+	      @AVCODEC_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
@@ -19,6 +20,7 @@ freej_SOURCES = \
 	plugger.cpp	\
 	jutils.cpp	\
 	v4l_layer.cpp	\
+	video_layer.cpp	\
 	avi_layer.cpp	\
 	png_layer.cpp	\
 	txt_layer.cpp	\
@@ -30,11 +32,11 @@ freej_SOURCES = \
 	gtk_ctrl.cpp	\
 	joy_ctrl.cpp	\
 	tvfreq.c	\
-	xhacks_layer.cpp	
+	xhacks_layer.cpp 
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		 -ldl -lpthread -lm \
-		@SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@ @GLADE2_LIBS@
+		@SDL_LIBS@ @AVIFILE_LIBS@ @FT2_LIBS@ @PNG_LIBS@ @GLADE2_LIBS@ @AVCODEC_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej

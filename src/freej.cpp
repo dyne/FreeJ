@@ -39,7 +39,9 @@
 #include <gtk_ctrl.h>
 #endif
 #include <joy_ctrl.h>
+#ifdef WITH_MIDI
 #include <midi_ctrl.h>
+#endif
 
 #define MAX_CLI_CHARS 4096
 
@@ -194,7 +196,7 @@ int main (int argc, char **argv) {
   /* this is the output context (screen) */
   Context freej;
   assert( freej.init(width,height) );
-  
+
 
   /* create layers requested on commandline */
   {
@@ -242,8 +244,11 @@ int main (int argc, char **argv) {
   JoyControl joystick;
   joystick.init(&freej);
 
+
+#ifdef WITH_MIDI
   MidiControl midi;
   midi.init(&freej);
+#endif
 
 #ifdef WITH_GLADE2
   /* check if we have an X11 display running */

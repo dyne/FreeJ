@@ -35,6 +35,10 @@
 #include <avi_layer.h>
 #endif
 
+#ifdef WITH_AVCODEC
+#include <video_layer.h>
+#endif
+
 #ifdef WITH_PNG
 #include <png_layer.h>
 #endif
@@ -55,6 +59,9 @@ const char *layers_description =
 #ifdef WITH_AVIFILE
 " .  - AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
 #endif
+#ifdef WITH_AVCODEC
+" .  - AVI, ASF,WMA,WMV,MPEG, local and remote (http://localhost/file.mpg) dv1394 devices as of dv camcoder \n"
+#endif
 #ifdef WITH_PNG
 " .  - PNG images (also with transparency)\n"
 #endif
@@ -73,7 +80,7 @@ Layer *create_layer(char *file) {
   Layer *nlayer = NULL;
   
   /* check that file exists */
-  if(strncasecmp(file,"/dev/",5)!=0) {
+  if(strncasecmp(file,"/dev/",5)!=0 && strncasecmp(file,"http://",7)!=0) {
     tmp = fopen(file,"r");
     if(!tmp) {
       error("can't open %s to create a Layer: %s",
@@ -88,7 +95,7 @@ Layer *create_layer(char *file) {
 
 
   /* ==== Video4Linux */
-  if(strncasecmp(pp,"/dev/",5)==0) {
+  if(strncasecmp(pp,"/dev/",5)==0 && strncasecmp((pp+5),"ieee1394/",9)!=0) {
 #ifdef WITH_V4L
     unsigned int w=320, h=240;
     while(p!=pp) {
@@ -119,15 +126,24 @@ Layer *create_layer(char *file) {
 	| strncasecmp((p-4),".wmv",4)==0
 	| strncasecmp((p-4),".mov",4)==0
 	| strncasecmp((p-5),".mpeg",5)==0
-	| strncasecmp((p-4),".mpg",4)==0 ) {
-#ifdef WITH_AVIFILE 
+	| strncasecmp((p-4),".mpg",4)==0 
+        | strncasecmp(pp,"/dev/ieee1394/",14)==0) {
+#ifdef WITH_AVCODEC 
+      nlayer = new VideoLayer();
+      if(!nlayer->open(pp)) {
+	error("create_layer : VIDEO open failed");
+	delete nlayer; nlayer = NULL;
+      }
+#elif WITH_AVIFILE 
+      if( strncasecmp(pp,"/dev/ieee1394/",14)==0) 
+	  nlayer=NULL;
       nlayer = new AviLayer();
       if(!nlayer->open(pp)) {
 	error("create_layer : AVI open failed");
 	delete nlayer; nlayer = NULL;
       }
 #else
-      error("AVI layer support not compiled");
+      error("VIDEO and AVI layer support not compiled");
       act("can't load %s",pp);
 #endif
     } else /* PNG LAYER */
