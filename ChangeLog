@@ -1,0 +1,37 @@
+FreeJ 0.2.1 "ETNA" - 20 Sep 2001
+  total rewrite of the multithreading system, NOW stable
+  detached threads and priority scheduling
+  commandline options and help
+  new asm filter coding example (src/filter/*judenburg*)
+  various bugfixes
+
+FreeJ 0.2 "ETNA" - 8 Aug 2001
+  major fixes in multithreading system, most of the crashes are fixed
+  new on screen display (OSD) instead of GUI
+  keyboard driven command interface
+  yuv2rgb optimized conversion (from libmpeg2)
+  various bugfixes 
+
+FreeJ 0.1.3 - 9 july 2001
+/* released much later (30 july) opens the way to the 0.2 ETNA release */
+  fltk GUI (evil, deprecated, will be substituted)
+  nearly fully implemented layering
+  many bugfixes in linklist
+  many improvements on filter management
+  much other improvements i don't remember now
+ 
+FreeJ 0.1.2 - 11 june 2001
+  support for 32bpp screen context
+  filters api changes
+  enhanced delaygrab filter
+  bugfix for cards without a tuner
+
+FreeJ 0.1.1 - 6 june 2001
+  new absolute difference effect
+  memory allocation and debugging mechanism
+  code cleanup 
+
+FreeJ 0.1 - 22 may 2001
+  first release, still without a gui and planning to do much more
+  presented at digital_is_not_analog01 in a performance with: 
+  the mitocondri - GNU love foundation party

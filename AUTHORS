@@ -1,0 +1,24 @@
+*** MAIN AUTHOR ::
+
+Denis Roio aka jaromil <jaromil@dyne.org>
+	concept, coder and mantainer
+
+*** CONTRIBUTIONS ::
+
+Aaron Holtzman <aholtzma@ess.engr.uvic.ca>
+	yuv2rgb c conversion code
+
+Olie Lho <ollie@sis.com.tw>
+	yuv2rgb asm mmx optimized code
+
+Andreas Schiffler <aschiffler@home.com>
+	original delaygrab filter code
+
+*** THANKS TO ::
+
+Freaknet Medialab Catania .....	<http://freaknet.org>
+Servus.at .....................	<http://www.servus.at>
+City of Judenburg .............	<http://www.judenburg.at>
+LiquidMusic ...................	<http://residence.aec.at/liquidmusic>
+LOA hacklab Milano ............ <http://ecn.org/loa>
+Erich Berger .................. <time to have a homepage? ;)>

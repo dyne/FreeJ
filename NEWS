@@ -1,0 +1,20 @@
+Milano, 20 september 2001
+Freej 0.2.1 "ETNA" release
+
+Better performance and overall stability due to a total rewrite of the multithreaded
+mechanism, user friendly commandline options added, new small asm filter coding
+example, some other bugfixes and code cleanup.
+
+This release represents a very good step towards stability and maximum performance
+for FreeJ, i substituted the synchronous object mechanism with a simplier mutex
+driven locking mechanism, using pthreads library directly: it revelaled to be a
+major improvement, so much that i decided to leave the FreeJ code for a while and
+implement this same way to handle multithreading also into MuSE http://muse.dyne.org
+so this release now comes after one month lying into the CVS, extensively tested in
+two video performances i did in the meantime. I took back that code three days ago
+and started smoothing it as i stepped into the LOA hacklab here in Milano, where i
+spent last wildcoding days with some real friends :) so here it is the 0.2.1
+enjoy!
+
+--
+jaromil

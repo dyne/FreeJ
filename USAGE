@@ -1,0 +1,34 @@
+FreeJ version 0.2 USAGE NOTES
+=============================
+
+This release supports both 16bit and 32bit screens, altough runs better in 
+16bit mode (even one filter will not work in 32bit depth).
+
+The interface consists in a on screen display (OSD) reporting informations 
+like FPS, the filters that are created, which active and which not, in the 
+order they are applied to the Video4Liunux layer.
+
+the commands are (^ means CTRL key pressed):
+
+1 - 5    = create a filter from the 5 implemented and add it on the layer, at 
+           the end of the filter chain.
+UP/DOWN  = select filters up and down thru the chain
+^UP/DOWN = move filters up and down thru the chain
+DELETE   = delete selected filter
+^DELETE  = delete ALL filters
+INSERT   = activate/deactivate filter (without removing it from the chain)
+PRINTSCR = display nice and lovely credits
+SPACE    = switch fullscreen mode
+ESC      = quits (without confirm)
+TAB      = turn on/off OSD
+^TAB     = turn on/off calibration guidelines (only 16bpp)
+
+other than this, every filter can listen for keys. right now only Delaygrab 
+filter does it so, when selecting it on the filter chain, you can change MODE 
+and BLOCKSIZE up and down by pressing o/p and l/; .
+
+commands will eventually change in future.
+
+if you are interested in helping, join the development or do one of 
+the many things left to do subscribe to the freej mailinglist: freej@dyne.org
+(subscribe with a mail to freej-subscribe@dyne.org)

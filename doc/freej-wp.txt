@@ -1,0 +1,210 @@
+				-----------------
+                       FreeJ 0.2 "ETNA" - http://freej.dyne.org
+				-----------------
+                                jaromil@dyne.org
+				-----------------
+				   11 Aug 2001
+
+
+
+{OVERVIEW}
+
+  FreeJ aims to be a digital instrument for video livesets, featuring
+realtime rendering of multilayered video and chained effect filtering
+directly on the screen. FreeJ threats every video source as a layer, making
+then possible to dynamically apply on each a chain of filters, loadable as
+effect plugins and easily customizable. Layers are planned for rendering of
+analog video input, digital movie files, image bitmaps, sound scopes, texts
+and eventually more.
+
+  FreeJ is being developed in the hope to provide the GNU community with a
+free, modular and highly customizable application to perform video
+livesets, based on a GPL'ed framework that lets anybody implement his own
+filters concentrating simply on the dsp algorithm developed and furthermore
+to combine them over any supported layer.
+
+  FreeJ is Free Software and his sourcecode is released under the Gnu
+Public License.
+
+{BACKGROUND}
+
+  As a precedent to FreeJ some of us surely know the GPL'ed software that
+Andreas Schiffler wrote in '99 called
+{{{ftp://esc2.zkm.de/pub/libbgrab/README}libbgrab}}, implementing some
+effects and following the analog idea of giving an easy to use and
+optimized API for programmers willing to use video4linux devices. His code
+does'nt go further in implementing a multilayered engine, alltough all his
+brilliant effects can be easily integrated into FreeJ (without problems
+according to GPL license) and can be even combined multiplying the
+achievable results.
+
+  More recently, on the 16 april 2001, another brilliant programmer known
+as Fukuchi Kentarou released a GPL'ed free software called
+{{{http://freshmeat.net/redir/effectv/12883/url_homepage/}EffecTV}},
+implementing many new realtime video effects which showed good performance
+and quality over a live video signal captured from video4linux devices.
+Even those effects can be easily implemented and combined in FreeJ, making
+it possible to apply them on any video layer supported.
+
+  Exactly the same day FreeJ has been employed for the first time in a
+theatre piece performed in the Palazzo della Civilta' Italiana (EUR) in
+Rome, in collaboration with the company Giardini Pensili and the actress
+Anna Bonaiuto: {{http://giardini.sm/projects/metamorfosi}}. In that context
+has been used an effect ported from libbgrab plus other effects coded from
+scratch live on the set.
+
+  At the time this document is being written FreeJ has been employed in
+several events including performances in Bologna during the festival
+{{{http://www.d-i-n-a.org}digital_is_not_analog01}}, during the
+{{{http://www.hackmeeting.org}hackmeeting[0x7d1]}} in Catania and during
+the {{{http://residence.aec.at/liquidmusic}LiquidMusic-Checkpoint}}
+festival in Judenburg, while more upcoming performance are being scheduled.
+
+{INTERNALS}
+
+  FreeJ, as a free modularized GNU/Linux based framework, permits unified
+quality control over the rendering of digital video processing and makes it
+much easier to write effect algorithms keeping them compatible with as much
+devices as possible and making them relying on optimized code.
+
+  FreeJ is being developed in c++ respecting POSIX.1b compliance, releases
+will be made available in a packaging permitting easy compilation with
+standard GNU free development tools. For rendering to screen is being
+linked shared the {{{http://www.libsdl.org}Simple Direct Media Layer}}
+library, allready employed by {{{http://www.lokigames.com}lokigames.com}}
+for his high performance in porting games under GNU/Linux platform. As a
+realtime architecture FreeJ aims to make efficient use of multithreading
+optimizing the usage of hardware resources. There's only one layer
+implemented yet wich makes use of the video4linux abstracted device for
+capturing live video input from the many linux supported hardware devices
+(which includes bttv, usb cams and more). Alltough possible, is not planned
+any porting to platforms other than GNU/Linux at least in the earliest
+development phases.
+
+* {REQUIREMENTS}
+
+  * a working GNU/Linux workstation :)
+
+  * {{{http://www.libsdl.org}Simple Directmedia Layer}} library
+
+  * a {{{http://roadrunner.swansea.linux.org.uk/v4l.shtml}video4linux}}
+supported capture card
+
+  * {{{ftp://ftp.kernel.org/pub/software/devel/nasm}NASM}} netwide 
+assembler compiler
+
+  * an x86 CPU supporting MMX instructions, even better SSI (PentiumIII or 
+more)
+
+  * {{{http://www.xfree86.org}XFree86}}, possibly 4.1 running on 
+a accelerated supported card
+
+{FEATURES}
+
+  * multilayered video engine
+
+  * layer filtering thru chainable dsp algorithms
+
+  * easy customization of filters
+
+  * MMX/SSI accelerated engine lubrification
+
+  * efficient triple-buffered video grabbing layer
+
+  * modular c++ code structure
+
+  * multithreaded architecture (POSIX.1b compliant)
+
+  * (ab)user friendly OnScreenDisplay interface
+
+  * 100% GNU public licensed Free Software
+
+* {ROADMAP}
+
+  At the moment FreeJ is being released since it's early stages of development
+according with GPL software tradictions, seeking collaborations of developers
+interested in being involved and support from anybody else.  The actual 0.2
+release (codename ETNA) represents a big step forward in development, packing
+together a stable and usable application which allready offers users a
+documented interface, revealing to be useful in a performance context.
+
+  Further development is planned in the direction of integrating more layers:
+soundscopes, static images, text and harddisk recorded videos, plus
+implementing fade and chroma-key between them; as well development of more
+chainable effects (about 20 algorithms) and documentation about how to develop
+them. A main goal on which the project will be focusing it is to raise a
+community of developers implementing filter effects, contributing in this way
+to further spread realtime digital signal processing research in the video
+field.
+
+  Also user documentation will be extensively produced in the hope that
+such an application will be useful in enhancing creativity of video
+artists, specially those independent artists that, coming from a low-budget
+situation, cannot afford expensive hardware/software proprietary solutions,
+or even better those which make the Free Software the only resource for their 
+productions.
+
+  This release is simply intended to be the second step in a roadmap that
+can resolve in a fully featured 1.0 release in 2 years from now, 
+or even less, depending from received contributions for development.
+
+{AVAILABILITY}
+
+  Updated informations and FreeJ releases are made available on
+{{http://freej.dyne.org}}. The bleeding edge sourcecode is also publicly
+available thru CVS: instructions how to get anonymous CVS access and
+possibility to browse the code online are given on {{http://cvs.dyne.org}}.
+The latest sourcecode package is submitted to the metalab.unc.edu ftp
+archive: latest FreeJ release can be found into the /pub/linux/apps/video
+directory on any sunsite mirror worldwide. Also an archive containing all
+past releases is made available on {{http://autistici.org/dyne/freej}}.
+
+{SUPPORT}
+
+  As allready mentioned, support is crucial for succesfully achieve the
+implementation of planned features. The code will be hosted and developed
+using the CVS server on {{http://cvs.dyne.org}}, opened to anybody's
+contribution. Any organization or individual can also give significant
+support contributing funds for involved developers, bandwidth for project
+hosting, hardware for development, timespace where to present FreeJ thru
+public lectures and/or performances and more generally credits and
+citations. Every single contribution will be reported on the project's
+documentation and the software itself will state it thru noticeable
+credits. Besides that dyne.org staff is available to run formation courses
+about usage, customization and reuse/abuse of the software in particular
+circumstances. Even adhoc setup and/or warranty that FreeJ fits to
+anybody's particular purpose can be requested: feel free to contact
+<<freej-team@dyne.org>> for any further information.
+
+{DISCUSSION}
+
+ A mailinglist for further discussion about FreeJ is running as
+<<freej@dyne.org>>, subscription is opened and anybody interested can send
+a mail to <<freej-subscribe@dyne.org>> to join. Online archive and
+mailinglist interface is made available on
+{{http://dyne.org/cgi-bin/ml.cgi?4}}.
+
+{COPYING}
+
+  FreeJ is (c) 2001 Denis Roio aka jaromil .. {{http://korova.dyne.org}}\
+other code included is copyrighted by respective authors, for further
+informations refer to the sourcecode itself and to the AUTHORS file
+included in every package.
+
++-------------------------------------------------------------------------
+  FreeJ is Free Software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free
+Software Foundation; either version 2 of the License, or (at your option)
+any later version
++-------------------------------------------------------------------------
+
++-------------------------------------------------------------------------
+  Permission is granted to copy, distribute and/or modify this
+documentation under the terms of the GNU Free Documentation License,
+Version 1.1 or any later version published by the Free Software
+Foundation;  with the Invariant Sections being TITLE, AUTHOR, OVERVIEW,
+BACKGROUND, AVAILABILITY, SUPPORT, DISCUSSION and with the Front-Cover
+Texts including "FreeJ - http://freej.dyne.org". Permission is granted to
+make and distribute verbatim copies of this manual page provided the above
+copyright notice and this permission notice are preserved on all copies.
++-------------------------------------------------------------------------
