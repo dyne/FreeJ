@@ -22,6 +22,8 @@
 
 
 #include <jsapi.h>
+#define JS(fun) \
+JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 /* =================================================
    JAVASCRIPT DECLARATIONS
@@ -48,10 +50,10 @@ static JSClass global_class = {
 };
 
 /** global environment functions */
-JSBool cafudda(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool quit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool rem_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JS(cafudda);
+JS(quit);
+JS(add_layer);
+JS(rem_layer);
 
 static	JSFunctionSpec global_functions[] = {
     /*    name          native			nargs    */
@@ -64,14 +66,14 @@ static	JSFunctionSpec global_functions[] = {
 
 
 //                  Linklist Entry inherited methods
-JSBool entry_up(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool entry_down(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool entry_move(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JS(entry_up);
+JS(entry_down);
+JS(entry_move);
 
 //                  Layer
 
 
-JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+JS(layer_constructor);
 
 static JSClass layer_class = {
     "Layer", JSCLASS_HAS_PRIVATE,
@@ -83,20 +85,24 @@ static JSClass layer_class = {
     layer_constructor
 };
 /** layer methods */
-//JSBool layer_set_active(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-//JSBool layer_get_active(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_activate(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_deactivate(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_get_name(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_get_filename(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-//JSBool layer_get_geometry(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_set_blit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_get_blit(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_set_alpha(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_get_alpha(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_set_position(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_get_x_position(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-JSBool layer_get_y_position(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
+//JS(layer_set_active);
+//JS(layer_get_active);
+JS(layer_activate);
+JS(layer_deactivate);
+JS(layer_get_name);
+JS(layer_get_filename);
+//JS( layer_get_geometry);
+JS(layer_set_blit);
+JS(layer_get_blit);
+JS(layer_set_alpha);
+JS(layer_get_alpha);
+JS(layer_set_position);
+JS(layer_get_x_position);
+JS(layer_get_y_position);
+JS(add_filter);
+JS(rem_filter);
+JS(get_filter_at);
+
 
 JSFunctionSpec layer_methods[] = {
     //    name		native		nargs    
@@ -114,6 +120,9 @@ JSFunctionSpec layer_methods[] = {
     {"set_position",	layer_set_position,	2},
     {"get_x_position",	layer_get_x_position,	2},
     {"get_y_position",	layer_get_x_position,	2},
+    {"add_filter",	add_filter,	1},
+    {"rem_filter",	rem_filter,	1},
+//    {"get_filter_at",	get_filter_at,	0},
 
     /* move up and down in the layer depth
        the methods below are shared also with some other classes
@@ -132,8 +141,8 @@ JSFunctionSpec layer_methods[] = {
 
 
 //               FILTER (TODO)
+JS(filter_constructor);
 
-/*
    static JSClass filter_class = {
    "Filter", JSCLASS_HAS_PRIVATE,
    JS_PropertyStub,  JS_PropertyStub,
@@ -143,7 +152,7 @@ JSFunctionSpec layer_methods[] = {
    NULL,   NULL,
    filter_constructor
    };
-   */
+
 /* class property example. Declare them with JS_DefineProperties
    layer_properties = {
    {"color",       MY_COLOR,       JSPROP_ENUMERATE},

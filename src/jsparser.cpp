@@ -32,10 +32,6 @@
    which are not class methods */
 static Context *env;
 
-//JSBool layer_constructor(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-//JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-//JSBool add_filter(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval);
-
 JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
 	env=_env;
@@ -109,18 +105,14 @@ void JsParser::init() {
     }
 
     /** Initialize Filter class. TODO */
-    /*
     JS_InitClass(js_context, global_object, NULL,
 		 &filter_class, filter_constructor,
 		 0, NULL, NULL, NULL, NULL);
-		 */
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 
     return ;
 }
 
-#define JS(fun) \
-JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
 
 JS(cafudda) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -135,7 +127,8 @@ JS(quit) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
  return JS_TRUE;
 }
    
-JS(layer_constructor) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+JS(layer_constructor) { 
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     //    JSObject *this_obj;
     func("JsParser::layer_constructor()");
     Layer *layer;
@@ -158,6 +151,29 @@ JS(layer_constructor) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     return JS_TRUE;
 }
 
+JS(filter_constructor) { 
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    func("JsParser::filter_constructor()");
+    Filter *filter;
+    char *filter_string;
+
+    filter_string=JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
+    if(argc < 1)
+	return JS_TRUE;
+    else
+	filter=env->plugger.pick(filter_string);
+    if(filter==NULL) {
+	 error("JsParser::filter_constructor : filter not found :%s",filter_string); 
+	return JS_FALSE;
+    }
+
+    if (!JS_SetPrivate(cx, obj, (void *) filter)) {
+	 error("JsParser::filter_constructor : couldn't set the private value"); 
+	 return JS_FALSE;
+    }
+    *rval = OBJECT_TO_JSVAL(obj);
+    return JS_TRUE;
+}
 
 
 
@@ -450,8 +466,7 @@ JS(layer_activate) {
     return JS_TRUE;
 }
 JS(layer_deactivate) {
-    func("JsParser :: layer_deactivate()");
-    JSObject *jslayer=NULL;
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     Layer *lay;
     lay = (Layer *) JS_GetPrivate(cx, obj);
@@ -461,6 +476,70 @@ JS(layer_deactivate) {
     }
     else {
 	lay->hidden=true; /* XXX */
+    }
+    return JS_TRUE;
+}
+JS(add_filter) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jsfilter=NULL;
+    Filter *filter;
+    Layer *lay;
+
+    jsfilter = JSVAL_TO_OBJECT(argv[0]);
+    if(!jsfilter) {
+      error("JsParser :: add_layer called with NULL argument");
+      return JS_FALSE;
+    }
+
+    /**
+     * Extract filter and layer pointers from js objects
+     */
+    filter = (Filter *) JS_GetPrivate(cx, jsfilter);
+    lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay || !filter) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	if(!filter->init(&lay->geo)) {
+	    error("Filter %s can't initialize",filter->getname());
+	    return 0;
+	}
+	lay->filters.add(filter);
+    }
+    return JS_TRUE;
+}
+JS(rem_filter) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jsfilter=NULL;
+    Filter *filter;
+    Layer *lay;
+
+    /**
+     * TODO overloading with filter position
+     */
+    if(JSVAL_IS_OBJECT(argv[0])) {
+	jsfilter = JSVAL_TO_OBJECT(argv[0]);
+	if(!jsfilter) {
+	    error("JsParser :: rem_layer called with NULL argument");
+	    return JS_FALSE;
+	}
+
+	/**
+	 * Extract filter pointers from js objects
+	 */
+	filter = (Filter *) JS_GetPrivate(cx, jsfilter);
+	lay = (Layer *) JS_GetPrivate(cx, obj);
+	if(!lay || !filter) {
+	    error("JsParser :: Layer core data is null");
+	    return JS_FALSE;
+	}
+	else {
+	    filter->rem();
+	    lay->filters.sel(0);
+	    filter->clean();
+	    filter = NULL;
+	}
     }
     return JS_TRUE;
 }
