@@ -4,6 +4,7 @@
 
 
 #include <config.h>
+#include <linklist.h>
 
 #ifdef WITH_AVCODEC
 #include <ffmpeg/avcodec.h>

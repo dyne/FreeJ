@@ -47,6 +47,7 @@ freej_SOURCES = \
 	jsparser.cpp \
 	cpu_accel.cpp \
 	encode.cpp \
+	image_layer.cpp \
 	fastmemcpy.cpp
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
@@ -58,6 +59,7 @@ freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		@GLADE2_LIBS@ \
 		@AVCODEC_LIBS@ \
 		@JS_LIBS@ \
+		@SDLIMAGE_LIBS@ \
 		@FLASH_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents

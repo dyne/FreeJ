@@ -31,7 +31,7 @@ under the GNU General Public License.
 :: FEATURES
 
 ++ reads and renders layers from multiple sources:
-   webcams, TV, divx/avi movies, png images and txt files
+   webcams, TV, divx/avi movies, images and txt files
 ++ can be controlled from remote: VJoE - VeeJay over Ethernet
 ++ can be scripted in procedural object oriented language
 ++ high precision looping of movie clips
@@ -106,6 +106,7 @@ Optionally, you want to have installed the following libraries:
 
 Image Layer:
 - PNG libraries http://www.libpng.org
+- SDL image library http://www.libsdl.org/projects/SDL_image/
 
 Text Layer:
 - FreeType2 libraries http://freetype.org

@@ -47,6 +47,10 @@
 #include <png_layer.h>
 #endif
 
+#ifdef WITH_SDL_IMAGE
+#include <image_layer.h>
+#endif
+
 #ifdef WITH_FT2
 #include <txt_layer.h>
 #endif
@@ -56,16 +60,28 @@
 #endif
 
 #define IS_VIDEO_EXTENSION(end_file_ptr)                \
-    strncasecmp((end_file_ptr-4),".avi",4)==0        \
-	| strncasecmp((end_file_ptr-4),".asf",4)==0  \
-	| strncasecmp((end_file_ptr-4),".asx",4)==0  \
-	| strncasecmp((end_file_ptr-4),".wma",4)==0  \
-	| strncasecmp((end_file_ptr-4),".wmv",4)==0  \
-	| strncasecmp((end_file_ptr-4),".mov",4)==0  \
-	| strncasecmp((end_file_ptr-5),".mpeg",5)==0 \
-	| strncasecmp((end_file_ptr-4),".mpg",4)==0  \
+    strncasecmp((end_file_ptr-4),".avi",4)==0        	\
+	| strncasecmp((end_file_ptr-4),".asf",4)==0  	\
+	| strncasecmp((end_file_ptr-4),".asx",4)==0  	\
+	| strncasecmp((end_file_ptr-4),".wma",4)==0  	\
+	| strncasecmp((end_file_ptr-4),".wmv",4)==0  	\
+	| strncasecmp((end_file_ptr-4),".mov",4)==0  	\
+	| strncasecmp((end_file_ptr-5),".mpeg",5)==0 	\
+	| strncasecmp((end_file_ptr-4),".mpg",4)==0  	\
 	| strncasecmp((end_file_ptr-4),".mp4",4)==0  
+
 #define IS_FIREWIRE_DEVICE(file_ptr) \
     strncasecmp(file_ptr,"/dev/ieee1394/",14)==0
+
+#define IS_IMAGE_EXTENSION(end_file_ptr) 		\
+	 strncasecmp((end_file_ptr-4),".bmp",4)==0      \
+        | strncasecmp((end_file_ptr-4),".pnm",4)==0  	\
+        | strncasecmp((end_file_ptr-4),".xpm",4)==0  	\
+        | strncasecmp((end_file_ptr-4),".xcf",4)==0  	\
+        | strncasecmp((end_file_ptr-4),".pcx",4)==0  	\
+        | strncasecmp((end_file_ptr-4),".gif",4)==0  	\
+        | strncasecmp((end_file_ptr-4),".jpg",4)==0  	\
+        | strncasecmp((end_file_ptr-4),".tif",4)==0  	\
+        | strncasecmp((end_file_ptr-4),".lbm",4)==0
 
 #endif
