@@ -141,28 +141,28 @@ void JsParser::init() {
 		   vscroll_layer_methods);
 
 #ifdef WITH_V4L
-    REGISTER_CLASS("V4lLayer",
+    REGISTER_CLASS("CamLayer",
 		   v4l_layer_class,
 		   v4l_layer_constructor,
 		   v4l_layer_methods);
 #endif
 
 #ifdef WITH_AVCODEC
-    REGISTER_CLASS("VideoLayer",
+    REGISTER_CLASS("MovieLayer",
 		   video_layer_class,
 		   video_layer_constructor,
 		   video_layer_methods);
 #endif
 
 #ifdef WITH_AVIFILE
-    REGISTER_CLASS("AviLayer",
+    REGISTER_CLASS("MovieLayer",
 		   avi_layer_class,
 		   avi_layer_constructor,
 		   avi_layer_methods);
 #endif
 
 #ifdef WITH_FT2
-    REGISTER_CLASS("TxtLayer",
+    REGISTER_CLASS("TextLayer",
 		   txt_layer_class,
 		   txt_layer_constructor,
 		   txt_layer_methods);
@@ -175,10 +175,13 @@ void JsParser::init() {
 		   png_layer_methods);
 #endif
 
-   /** Initialize Filter class. TODO */
-   JS_InitClass(js_context, global_object, NULL,
-		 &filter_class, filter_constructor,
-		 0, NULL, NULL, NULL, NULL);
+
+
+    REGISTER_CLASS("Effect",
+                   effect_class,
+                   effect_constructor,
+                   effect_methods);
+
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 //
    /** register SIGINT signal */
@@ -192,8 +195,7 @@ int JsParser::open(const char* script_file) {
   jsval ret_val;
   FILE *fd;
   int c = 0;
-  char *buf; /* is it enough? */
-  char *p;
+  char *buf;
   int len;
 
   fd = fopen(script_file,"r");
@@ -221,8 +223,8 @@ int JsParser::open(const char* script_file) {
   }
 
 
-  JSBool ok = JS_EvaluateScript (js_context, global_object,
-				 buf, len, script_file, c, &ret_val);
+  JS_EvaluateScript (js_context, global_object,
+		     buf, len, script_file, c, &ret_val);
 
   return ret_val;
 }
@@ -257,18 +259,26 @@ void JsParser::stop() {
 
 JS(cafudda) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  double tmp_double;
   double *seconds;
+  int int_seconds;
+
   if(JSVAL_IS_DOUBLE(argv[0])) {
-      seconds=JSVAL_TO_DOUBLE(argv[0]);
+    
+    // JSVAL_TO_DOUBLE segfault when there's an int as input
+    seconds=JSVAL_TO_DOUBLE(argv[0]);
+    
+  } else if(JSVAL_IS_INT(argv[0])) {
+
+    int_seconds=JSVAL_TO_INT(argv[0]);
+    seconds=&tmp_double;
+    *seconds=(double )int_seconds;
+
   }
-  else if(JSVAL_IS_INT(argv[0])) { // JSVAL_TO_DOUBLE segfault when there's an int as input
-      double tmp_double;
-      int int_seconds=JSVAL_TO_INT(argv[0]);
-      seconds=&tmp_double;
-      *seconds=(double )int_seconds;
-  }
-  func("JsParser :: cafudda for %f seconds",*seconds);
+  
+  func("JsParser :: run for %f seconds",*seconds);
   env->cafudda(*seconds);
+
   return JS_TRUE;
 }
 
@@ -291,20 +301,14 @@ JS(rem_layer) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     JSObject *jslayer;
+    Layer *lay;
 
     jslayer = JSVAL_TO_OBJECT(argv[0]);
-    if(!jslayer) {
-      error("JsParser :: remove_layer called with NULL argument");
-      return JS_FALSE;
-    }
+    if(!jslayer) JS_ERROR("missing argument");
 
-    func("JsParser :: layer JSObject : %p",jslayer);
-    Layer *lay;
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
-    if(!lay) {
-      error("JsParser :: remove_layer : Layer core data is null");
-      return JS_FALSE;
-    }
+    if(!lay) JS_ERROR("Layer core data is NULL");
+
     lay->rem();
     lay->quit=true;
     lay->signal_feed();
@@ -321,33 +325,29 @@ JS(add_layer) {
     JSObject *jslayer;
     *rval=JSVAL_FALSE;
 
-    if(JSVAL_IS_NULL(argv[0])) {
-      error("JsParser :: add_layer called with NULL argument");
-      return JS_FALSE;
-    }
+    if(JSVAL_IS_NULL(argv[0])) JS_ERROR("missing argument");
     jslayer = JSVAL_TO_OBJECT(argv[0]);
 
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
-    if(!lay) {
-      error("JsParser :: add_layer : Layer core data is null");
-      return JS_TRUE;
-    }
+    if(!lay) JS_ERROR("Layer core data is NULL");
 
     /** really add layer */
     if(lay->init(env)) {
       env->layers.add(lay);
+      *rval=JSVAL_TRUE;
       //      env->layers.sel(0); // deselect others
       //      lay->sel(true);
-    } else delete lay;
-    *rval=JSVAL_TRUE;
+    } else error("%s: problem occurred initializing Layer",__FUNCTION__);
 
     return JS_TRUE;
 }
+
 JS(fullscreen) {
     env->screen->fullscreen();
     env->clear_all = !env->clear_all;
     return JS_TRUE;
 }
+
 JS(set_size) {
     int w = JSVAL_TO_INT(argv[0]);
     int h = JSVAL_TO_INT(argv[1]);
@@ -382,44 +382,44 @@ JS(layer_constructor) {
 
   Layer *layer;
 
-  if(argc < 1)
+  if(argc < 1) JS_ERROR("missing argument");
+
+  // recognize the extension and open the file given in argument
+  layer = create_layer( JS_GetStringBytes( JS_ValueToString( cx,argv[0]) ) );
+  if(!layer) {
+    error("%s: can't create Layer from %s",__FUNCTION__,argv[0]);
+    *rval = JSVAL_FALSE;
     return JS_TRUE;
-  else
-    layer=create_layer(JS_GetStringBytes(JS_ValueToString(cx,argv[0])));
-//  if(layer==NULL)
-//    return JS_FALSE;
+  }
 
   //    this_obj = JS_NewObject(cx, &layer_class, NULL, obj);
-  if (!JS_SetPrivate(cx, obj, (void *) layer)) {
-    error("JsParser::layer_constructor : couldn't set the private value");
-    return JS_FALSE;
-  }
+  if (!JS_SetPrivate(cx, obj, (void *) layer))
+    JS_ERROR("internal error setting private value");
+
   *rval = OBJECT_TO_JSVAL(obj);
-  //   func("this_obj JSObject : %p",this_obj);
-  //    func("obj JSObject : %p",obj);
   return JS_TRUE;
 }
 
-JS(filter_constructor) {
+JS(effect_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   Filter *filter;
   char *filter_string;
 
-  filter_string=JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
-  if(argc < 1)
-    return JS_TRUE;
-  else
-    filter=env->plugger.pick(filter_string);
+  filter_string = JS_GetStringBytes( JS_ValueToString(cx,argv[0]) );
+  if(argc < 1) JS_ERROR("missing argument");
+
+  filter=env->plugger.pick(filter_string);
+
   if(filter==NULL) {
-    error("JsParser::filter_constructor : filter not found :%s",filter_string); 
-    return JS_FALSE;
+    error("JsParser::effect_constructor : filter not found :%s",filter_string); 
+    *rval = JSVAL_FALSE;
+    return JS_TRUE;
   }
   
-  if (!JS_SetPrivate(cx, obj, (void *) filter)) {
-    error("JsParser::filter_constructor : couldn't set the private value"); 
-    return JS_FALSE;
-  }
+  if (!JS_SetPrivate(cx, obj, (void *) filter))
+    JS_ERROR("internal error setting private value");
+
   *rval = OBJECT_TO_JSVAL(obj);
   return JS_TRUE;
 }
@@ -468,10 +468,8 @@ JS(layer_set_blit) {
   GET_LAYER(Layer);
 
   char *blit_type=JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
-  if(!blit_type) {
-    error("JsParser :: set_blit called with NULL argument");
-    return JS_FALSE;
-  }
+  if(!blit_type) JS_ERROR("missing argument");
+
   lay->blitter.set_blit(blit_type);
 
   return JS_TRUE;
@@ -514,7 +512,7 @@ JS(layer_get_filename) {
 JS(layer_set_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-    if(argc<2) return JS_FALSE;
+    if(argc<2) JS_ERROR("missing argument");
     
     GET_LAYER(Layer);
 
@@ -545,7 +543,7 @@ JS(layer_get_y_position) {
 JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-    if(argc<1) return JS_FALSE;
+    if(argc<1) JS_ERROR("missing argument");
 
     GET_LAYER(Layer);
 
@@ -568,7 +566,7 @@ JS(layer_activate) {
 
     GET_LAYER(Layer);
 
-    lay->hidden = false;
+    lay->active = true;
 
     return JS_TRUE;
 }
@@ -577,73 +575,59 @@ JS(layer_deactivate) {
 
     GET_LAYER(Layer);
 
-    lay->hidden = true;
+    lay->active = false;
 
     return JS_TRUE;
 }
-JS(add_filter) {
+JS(layer_add_effect) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     JSObject *jsfilter=NULL;
     Filter *filter;
-    Layer *lay;
 
     jsfilter = JSVAL_TO_OBJECT(argv[0]);
-    if(!jsfilter) {
-      error("JsParser :: add_filter called with NULL argument");
-      return JS_FALSE;
-    }
+    if(!jsfilter) JS_ERROR("missing argument");
 
     /**
      * Extract filter and layer pointers from js objects
      */
     filter = (Filter *) JS_GetPrivate(cx, jsfilter);
-    lay = (Layer *) JS_GetPrivate(cx, obj);
-    if(!lay || !filter) {
-      error("JsParser :: Layer core data is null");
+    if(!filter) JS_ERROR("Effect is NULL");
+
+    GET_LAYER(Layer);
+
+    if(!filter->init(&lay->geo)) {
+      error("Effect %s can't initialize for Layer %s",
+        filter->getname(), lay->get_name());
       return JS_TRUE;
     }
-    else {
-	if(!filter->init(&lay->geo)) {
-	    error("Filter %s can't initialize",filter->getname());
-	    return 0;
-	}
-	lay->filters.add(filter);
-    }
-    return JS_TRUE;
+
+   lay->filters.add(filter);
+   return JS_TRUE;
 }
-JS(rem_filter) {
+
+JS(layer_rem_effect) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     JSObject *jsfilter=NULL;
     Filter *filter;
-    Layer *lay;
 
-    /**
-     * TODO overloading with filter position
-     */
+    if(argc<1) JS_ERROR("missing argument");
+
+    /** TODO overload with filter name and position */
     if(JSVAL_IS_OBJECT(argv[0])) {
 	jsfilter = JSVAL_TO_OBJECT(argv[0]);
-	if(!jsfilter) {
-	    error("JsParser :: rem_filter called with NULL argument");
-	    return JS_FALSE;
-	}
+	if(!jsfilter) JS_ERROR("missing argument");
 
-	/**
-	 * Extract filter pointers from js objects
-	 */
 	filter = (Filter *) JS_GetPrivate(cx, jsfilter);
-	lay = (Layer *) JS_GetPrivate(cx, obj);
-	if(!lay || !filter) {
-	    error("JsParser :: Layer core data is null");
-	    return JS_FALSE;
-	}
-	else {
-	    filter->rem();
-	    lay->filters.sel(0);
-	    filter->clean();
-	    filter = NULL;
-	}
+	if(!filter) JS_ERROR("Effect data is NULL");
+
+	GET_LAYER(Layer);
+
+ 	filter->rem();
+	lay->filters.sel(0);
+	filter->clean();
+	filter = NULL;
     }
     return JS_TRUE;
 }

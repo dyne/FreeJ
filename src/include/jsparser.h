@@ -97,6 +97,13 @@ if(!lay) { \
   return JS_FALSE; \
 }
 
+
+
+#define JS_ERROR(str) { error("%u:%s:%s : %s", \
+        __LINE__,__FILE__,__FUNCTION__,str); return JS_FALSE; }
+
+
+
 class JsParser {
     public:
 	JsParser(Context *_env);

@@ -72,7 +72,6 @@ static const char *help =
 " .   -n   start with deactivated layers\n"
 #ifdef WITH_JAVASCRIPT
 " .   -j   process javascript command file\n"
-" .   -t   no multithreading, run on a single thread\n"
 #endif
 " .  layers available:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
@@ -93,7 +92,6 @@ char javascript[512]; // script filename
 
 bool startstate = true;
 bool gtkgui = false;
-bool singlethread = false;
 
 bool parse_header_for_script() {
     char *tmp_buf=NULL;
@@ -213,18 +211,13 @@ void cmdline(int argc, char **argv) {
       break;
 
     case 'j':
-      snprintf(javascript,512,"%s",optarg);
-      {
-	FILE *fd;
-	fd = fopen(javascript,"r");
-	if(!fd)
-	  error("can't open %s: %s",javascript,strerror(errno));
-	else
-	  fclose(fd);
+      FILE *fd;
+      fd = fopen(optarg,"r");
+      if(!fd) error("can't open %s: %s",javascript,strerror(errno));
+      else {
+	snprintf(javascript,512,"%s",optarg);
+	fclose(fd);
       }
-      break;
-    case 't':
-      singlethread = true;
       break;
       
     case '?':
@@ -281,8 +274,6 @@ int main (int argc, char **argv) {
      notice("running as root: high priority realtime scheduling allowed.");
   */
 
-  freej.singlethread = singlethread;
-
   assert( freej.init(width,height) );
 
   // refresh the list of available plugins
@@ -329,24 +320,15 @@ int main (int argc, char **argv) {
 
       if(strcmp(pp,javascript)!=0) // don't open the script on command line
 	  lay = create_layer(pp);
+
       if(lay) {
 	lay->init(&freej);
 	freej.layers.add(lay);
       }
+
       pp = l;
     }
   }
-
-  /* even if not specified on commandline
-     try to open the default video device
-
-     ok, we don't do it anymore now //0.7-cvs
-
-     lay = create_layer("/dev/video0");
-     if(lay) {
-     lay->init(&freej);
-     freej.layers.add(lay);
-     } */
 
 #ifdef WITH_JOYSTICK
   /* launches the joystick controller thread
@@ -373,8 +355,6 @@ int main (int argc, char **argv) {
 #endif
 
 
-
-
   /* apply screen magnification */
   //  freej.magnify(magn);
   // deactivated for now
@@ -386,7 +366,7 @@ int main (int argc, char **argv) {
     /* CAFUDDARE in sicilian means to do the bread
        or the pasta for the pizza. it's an intense
        action for your arms, processing materia */
-    freej.cafudda(1);
+    freej.cafudda(1.0);
 
   /* also layers have the cafudda() function
      which is called by the Context class (freej instance here)

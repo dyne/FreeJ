@@ -36,11 +36,11 @@ class Plugin {
   void *operator[](const char *);
 
   int init(ScreenGeometry *sg) { 
-    func("plugin %s::init",getname());
+//    func("plugin %s::init",getname());
     return (*__init)(sg); };
 
   int clean() {
-    func("plugin %s::clean", getname());
+//    func("plugin %s::clean", getname());
     return (*__clean)(); };
 
   void *process(void *buffo) { return (*__process)(buffo); };

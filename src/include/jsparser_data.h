@@ -50,6 +50,7 @@
 static JSBool static_branch_callback(JSContext* Context, JSScript* Script);
 static void static_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
 
+JS(effect_constructor);
 JS(layer_constructor);
 JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
@@ -80,24 +81,24 @@ static JSClass global_class = {
 };
 
 // class declarations
+DECLARE_CLASS("Effect",effect_class,effect_constructor);
 DECLARE_CLASS("Layer",layer_class,layer_constructor);
 DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
 DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
-DECLARE_CLASS("Filter",filter_class,filter_constructor);
 #ifdef WITH_V4L
-DECLARE_CLASS("V4lLayer",v4l_layer_class,v4l_layer_constructor);
+DECLARE_CLASS("CamLayer",v4l_layer_class,v4l_layer_constructor);
 #endif
 #ifdef WITH_AVCODEC
-DECLARE_CLASS("VideoLayer",video_layer_class,video_layer_constructor);
+DECLARE_CLASS("MovieLayer",video_layer_class,video_layer_constructor);
 #endif
 #ifdef WITH_AVIFILE
-DECLARE_CLASS("AviLayer",avi_layer_class,avi_layer_constructor);
+DECLARE_CLASS("MovieLayer",avi_layer_class,avi_layer_constructor);
 #endif
 #ifdef WITH_FT2
-DECLARE_CLASS("TxtLayer",txt_layer_class,txt_layer_constructor);
+DECLARE_CLASS("TextLayer",txt_layer_class,txt_layer_constructor);
 #endif
 #ifdef WITH_PNG
-DECLARE_CLASS("PngLayer",png_layer_class,png_layer_constructor);
+DECLARE_CLASS("ImageLayer",png_layer_class,png_layer_constructor);
 #endif
 
 ////////////////////////////////
@@ -145,9 +146,8 @@ JS(layer_get_blit_value);
 JS(layer_set_position);
 JS(layer_get_x_position);
 JS(layer_get_y_position);
-JS(add_filter);
-JS(rem_filter);
-JS(get_filter_at);
+JS(layer_add_effect);
+JS(layer_rem_effect);
 #define LAYER_METHODS \
     {"activate",	layer_activate,	        0}, \
     {"deactivate",	layer_deactivate,	0}, \
@@ -160,8 +160,8 @@ JS(get_filter_at);
     {"set_position",	layer_set_position,	2}, \
     {"get_x_position",	layer_get_x_position,	1}, \
     {"get_y_position",	layer_get_y_position,	1}, \
-    {"add_filter",	add_filter,	        1}, \
-    {"rem_filter",	rem_filter,	        1}
+    {"add_effect",      layer_add_effect,	1}, \
+    {"rem_effect",	layer_rem_effect,	1}
 
 ////////////////////////////////
 // Particle Layer methods
@@ -218,13 +218,6 @@ JS(txt_layer_blink_off);
 #endif
 
 
-
-////////////////////////////////
-// Fiter methods
-//
-// TODO
-
-
 ////////////////////////////////
 ////////////////////////////////
 // API FUNCTION ASSIGNEMENTS
@@ -234,34 +227,41 @@ JS(txt_layer_blink_off);
 static	JSFunctionSpec global_functions[] = {
     /*    name          native			nargs    */
     {"cafudda",         cafudda,                1},
+    {"run",             cafudda,                1},
     {"quit",            quit,                   0},
     {"add_layer",	add_layer,		1},
     {"rem_layer",	rem_layer,		1},
     {"fastrand",        fastrand,               0},
     {"fastsrand",       fastsrand,              1},
-    {"pause",           pause,                0},
-    {"fullscreen",      fullscreen,                0},
-    {"set_size",        set_size,                2},
+    {"pause",           pause,                  0},
+    {"fullscreen",      fullscreen,             0},
+    {"set_size",        set_size,               2},
     {0}
 };
 
 JSFunctionSpec layer_methods[] = {
-  LAYER_METHODS ,
-  ENTRY_METHODS ,
+  LAYER_METHODS  ,
+  ENTRY_METHODS  ,
+  {0}
+};
+
+// TODO effect methods to control effect parameters
+JSFunctionSpec effect_methods[] = {
+  ENTRY_METHODS  ,
   {0}
 };
 
 JSFunctionSpec particle_layer_methods[] = {
-  LAYER_METHODS,
-  ENTRY_METHODS,
+  LAYER_METHODS  ,
+  ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "blossom",      particle_layer_blossom, 1},
   {0}
 };
 
 JSFunctionSpec vscroll_layer_methods[] = {
-  LAYER_METHODS,
-  ENTRY_METHODS,
+  LAYER_METHODS  ,
+  ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "append",       vscroll_layer_append,   1},
   {     "kerning",      vscroll_layer_append,   1},
@@ -272,8 +272,8 @@ JSFunctionSpec vscroll_layer_methods[] = {
 
 #ifdef WITH_V4L
 JSFunctionSpec v4l_layer_methods[] = {
-  LAYER_METHODS,
-  ENTRY_METHODS,
+  LAYER_METHODS  ,
+  ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "chan",         v4l_layer_chan,         1},
   {     "band",         v4l_layer_band,         1},
@@ -284,8 +284,8 @@ JSFunctionSpec v4l_layer_methods[] = {
 
 #ifdef WITH_AVIFILE
 JSFunctionSpec avi_layer_methods[] = {
-  LAYER_METHODS,
-  ENTRY_METHODS,
+  LAYER_METHODS  ,
+  ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "forward",      avi_layer_forward,      1},
   {     "rewind",       avi_layer_rewind,       1},
@@ -302,8 +302,8 @@ JSFunctionSpec avi_layer_methods[] = {
 
 #ifdef WITH_FT2
 JSFunctionSpec txt_layer_methods[] = {
-  LAYER_METHODS,
-  ENTRY_METHODS,
+  LAYER_METHODS  ,
+  ENTRY_METHODS  ,
   //     name           native                  nargs
   {      "print",       txt_layer_print,        1},
   {      "font",        txt_layer_font,         1},
@@ -318,16 +318,16 @@ JSFunctionSpec txt_layer_methods[] = {
 
 #ifdef WITH_PNG
 JSFunctionSpec png_layer_methods[] = {
-  LAYER_METHODS,
-  ENTRY_METHODS,
+  LAYER_METHODS  ,
+  ENTRY_METHODS  ,
   {0}
 };
 #endif
 
 #ifdef WITH_AVCODEC
 JSFunctionSpec video_layer_methods[] = {
-  LAYER_METHODS,
-  ENTRY_METHODS,
+  LAYER_METHODS  ,
+  ENTRY_METHODS  ,
   {	"ff",		video_layer_forward, 		0},
   {	"rew",		video_layer_rewind, 		0},
 //  {	"seek",		video_layer_seek, 		0},
@@ -349,23 +349,4 @@ JSFunctionSpec video_layer_methods[] = {
    {0}
    };
    */
-/* 
-   JSFunctionSpec layer_methods[] = {
-   name		native		nargs    
-   {"activate",	activate,	0},
-   {"deactivate",	deactivate,	0},
-   {"get_num",		get_num,	0},
-   {"get_name",	get_name,	0},
-   {"get_filename",	get_filename,	0},
-   {"get_geometry",	get_geometry,	0},
 
-   {"set_blit",	set_blit,	1},
-   {"get_blit",	get_blit,	0},
-
-   {"set_alpha",	set_alpha,	1},
-   {"get_alpha",	get_alpha,	0},
-   {"set_position",	set_position,	1},
-   {"get_position",	get_position,	0},
-   {0} 
-   };
-   */

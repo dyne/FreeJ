@@ -290,6 +290,8 @@ Blitter::Blitter() {
   zooming = false;
   rotating = false;
   rotozoom = NULL;
+  spin_zoom = 0;
+  spin_rotation = 0;
   pre_rotozoom = NULL;
   sdl_surf = NULL;
   antialias = false;

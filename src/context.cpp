@@ -52,7 +52,6 @@ Context::Context() {
   quit = false;
   pause = false;
   interactive = true;
-  singlethread = false;
 
   fps_speed=25;
 
@@ -217,7 +216,6 @@ void Context::set_fps_interval(int interval) {
 }
 
 void Context::calc_fps() {
-  int ret=-1;
   struct timespec tmp_rem,*rem;
   rem=&tmp_rem;
   /* 1frame : elapsed = X frames : 1000000 */
@@ -228,6 +226,7 @@ void Context::calc_fps() {
   if(track_fps) {
     framecount++;
     if(framecount==24) {
+      // this is the only division
       fps=(double)1000000/elapsed;
       framecount=0;
     }
@@ -265,32 +264,19 @@ void Context::rocknroll() {
       return;
     }
 
-  if(singlethread)
-
-    while(l) {
-      if(!l->running) {
-	l->running = true;
+  layers.lock();
+  while(l) {
+    if(!l->running) {
+      if(l->start()==0) {
+	//    l->signal_feed(); QUAAA
+	while(!l->running) jsleep(0,500);
 	l->active = start_running;
-	l = (Layer*)l->next;
       }
+      else 
+	func("Context::rocknroll() : error creating thread");
     }
-
-  else {
-
-    layers.lock();
-    while(l) {
-      if(!l->running) {
-	if(l->start()==0) {
-	  //    l->signal_feed(); QUAAA
-	  while(!l->running) jsleep(0,500);
-	  l->active = start_running;
-	}
-	else 
-	  func("Context::rocknroll() : error creating thread");
-      }
-      l = (Layer *)l->next;
-    }
-    layers.unlock();
-
+    l = (Layer *)l->next;
   }
+  layers.unlock();
+  
 }

@@ -19,8 +19,8 @@
 #ifndef __avcodec_h__
 #define __avcodec_h__
 
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
+#include <avcodec.h>
+#include <avformat.h>
 
 #include <layer.h>
 #define INBUF_SIZE 4096
