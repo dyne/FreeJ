@@ -186,8 +186,6 @@ void Context::cafudda(double secs) {
       layers.unlock();
     }
 
-    /** show result on screen */
-    screen->show();
 
 #ifdef WITH_AVCODEC
     // show results on file if requested encoder in a thread ?? not now. kysu.
@@ -204,6 +202,9 @@ void Context::cafudda(double secs) {
 
     /** print on screen display */
     if(osd.active && interactive) osd.print();
+
+    /** show result on screen */
+    screen->show();
 
     /******* handle timing */
 
