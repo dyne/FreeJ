@@ -1,20 +1,52 @@
-Milano, 20 september 2001
-Freej 0.2.1 "ETNA" release
+Vienna, 1 november 2001
+FreeJ 0.2.2 "ETNA" release
 
-Better performance and overall stability due to a total rewrite of the multithreaded
-mechanism, user friendly commandline options added, new small asm filter coding
-example, some other bugfixes and code cleanup.
+This new release includes a bugfix for quickcams: done one  month  ago
+when Asbesto and Isabella came to me with a  small  logitech  usb  cam
+asking how to use it into a performance next week: well here we go  ;)
+having the hardware has been pretty easy  to  work  out  the  support.
 
-This release represents a very good step towards stability and maximum performance
-for FreeJ, i substituted the synchronous object mechanism with a simplier mutex
-driven locking mechanism, using pthreads library directly: it revelaled to be a
-major improvement, so much that i decided to leave the FreeJ code for a while and
-implement this same way to handle multithreading also into MuSE http://muse.dyne.org
-so this release now comes after one month lying into the CVS, extensively tested in
-two video performances i did in the meantime. I took back that code three days ago
-and started smoothing it as i stepped into the LOA hacklab here in Milano, where i
-spent last wildcoding days with some real friends :) so here it is the 0.2.1
-enjoy!
+Other than this, i'm working on a new liveset soon to  be  represented
+the first time in Bari (Italy):  http://tubocatodico.dyne.org  -  into
+this i plan to use UHF waves from italian television (which especially
+in the south is FILLED of weird tv broadcast you would never  believe)
+as  "FreeJ  videos",  to  represent  the  interferences  done  on  the
+television waves by the performers... well that's just one part of it!
+so here we go with TV tuner  support  on  FreeJ,  with  the  extensive
+frequency tables i took from Xawtv  and  originally  coded  by  Nathan
+Laredo you can stick an antenna into your bttv and have the  WEIRDO-TV
+ready to be showed to your friends.
+
+and now a FRIENDLY TIP:
+After you discover that WEIRDO-TV is very amazing you can try to  take
+FreeJ code, make a simple non-interactive application out  of  it  and
+present it to the "software art" contest on  the  next  year  festival
+Transmediale.03 in Berlin! you will for sure see it mentioned as Art,
+while right now they say FreeJ is  just  a  tool...   well  after  all
+somebody gotta do it, right? so go there and win, it's free software!
+
+Well, trying to not mention that free software programming to me right
+now means hard life, have a look on http://dynebolic.dyne.org: it's  a
+live bootable CD GNU/Linux based  with  a  good  hardware  recognition
+mechanism, this let's you have FreeJ, MuSE  and  HasciiCam  (and  even
+Mozilla) working on a PC in a blink of an eye!  no need to install  or
+delete something on you harddisk, no need to configure anything.   I'm
+trying to make my day with  it  so  there's  no  downloadable  ISO:  i
+can just send packages of 50 CDs or more so that you can  redestribute
+it as you want (yes, that's GPL!).
+
+Ups!  i'm just forgetting to write about  other  new  things  in  this
+release: a nifty status line (does yellow fits to it?) that tells  you
+what you are doing and a bugfix which was resulting in  a  crash  when
+adding a 16bpp-only filter on  a  32bpp  screen  (Absdiff  filter  for
+instance). Plus the same old code cleanups.
+
+Thanks for this release go to Mag-One for listening  to  my  "sclero":
+now i promise i'll never be so depressed and never be submitting again
+to Art contests (did i really wrote that now?) and i'll be a good  guy
+and soon have a job and cut my hair.
+
+cheers.
 
 --
 jaromil

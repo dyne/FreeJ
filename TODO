@@ -1,14 +1,10 @@
 things to be done to smooth Freej:
-** fix filter API
+** finish filter API and implement dlopen() load of plugins
 ** preset saving
-** better OSD implementation (faster)
-** OSD help short keylist (also show keys from filters)
 
 things that will implement the fun:
-** dlopen() loading of plugins (use scandir() to scan plugin dir)
 ** some more layers (mpeg, images, scopes ...)
 ** new filters
 
 documentation to be done:
 ** howto code a plugin
-** generic usage instructions

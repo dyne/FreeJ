@@ -1,2 +1,6 @@
+*** somethimes ioctl VIDIOCSYNC complains about in/out errors while
+    cycling thru TV frequencies - just ignore it
+
 please report bugs to: freej@dyne.org
 thanks for your collaboration!
+

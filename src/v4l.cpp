@@ -107,10 +107,16 @@ bool V4lGrabber::detect(char *devfile) {
        this should be a fix for many webcams, thanks to Ben Wilson */
     have_tuner = 1;
   
-  /* set the minwidth and minheight */
+  /* set and check the minwidth and minheight */
   minw = grab_cap.minwidth;
   minh = grab_cap.minheight;
-  
+  maxw = grab_cap.maxwidth;
+  maxh = grab_cap.maxheight;
+  if( (minw>256) || (minh>256) || (maxw<256) || (maxh<256) ) {
+    error("your device does'nt supports 256x256 grabbing");
+    return(false);
+  }
+
   if (ioctl (dev, VIDIOCGMBUF, &grab_map) == -1) {
     error("error in ioctl VIDIOCGMBUF");
     return(false);
@@ -126,13 +132,12 @@ bool V4lGrabber::detect(char *devfile) {
   return(true);
 }
 
-bool V4lGrabber::init(Context *screen,int wdt, int hgt, int chan_input) {
+bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   int i;
   func("V4lGrabber::init()");
 
   /* set image source and TV norm */
-  if(chan_input>channels) chan_input = 0;
-  grab_chan.channel = input = chan_input;
+  grab_chan.channel = input = channels>1 ? 1 : 0;
   
   if(have_tuner) { /* does this only if the device has a tuner */
     _band = 5; /* default band is europe west */
@@ -156,15 +161,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt, int chan_input) {
       error("error in ioctl VIDIOCGTUNER ");
       return(false);
     }
-
   }
-
-  /*  
-      if (-1 == ioctl(dev, VIDIOCGPICT, &grab_pic)) {
-      error("error in ioctl VIDIOCGPICT ");
-      return(false);
-      }
-  */
 
   /* TODO: check with minwidth maxwidth */
 
@@ -198,6 +195,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt, int chan_input) {
     return(false);
   }
 
+  /* feed up the mmapped frames */
   cur_frame = ok_frame = 0;  
   for(;cur_frame<num_frame;cur_frame++) {
     if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {

@@ -1,3 +1,10 @@
+FreeJ 0.2.2 - 1 Nov 2001
+  fixes for webcams, DEXXA/Logitech and others supported
+  TV tuner code gives you the trippiest TV you ever saw!
+  OSD fixes and status messages implemented
+  fixed crash with filters not supporting actual bit depth
+  engine code cleanups
+
 FreeJ 0.2.1 "ETNA" - 20 Sep 2001
   total rewrite of the multithreading system, NOW stable
   detached threads and priority scheduling

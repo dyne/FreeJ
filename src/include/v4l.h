@@ -70,7 +70,7 @@ class V4lGrabber: public Layer {
   V4lGrabber();
   ~V4lGrabber();
   bool detect(char *devfile);
-  bool init(Context *screen, int wdt, int hgt, int chan_input);
+  bool init(Context *screen, int wdt, int hgt);
   void feed();
   bool blit(unsigned char *dest);
   void _close();

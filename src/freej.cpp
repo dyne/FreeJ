@@ -57,7 +57,6 @@ static const char *help =
 " .  -h --help     print this help\n"
 " .  -v --version  version information\n"
 " .  -d --device   video grabbing device - default /dev/video\n"
-" .  -i --input    input channel         - default 1\n"
 " .  -D --debug    debug verbosity level - default 1\n"
 "\n";
 
@@ -65,15 +64,13 @@ static const struct option long_options[] = {
   {"help", no_argument, NULL, 'h'},
   {"version", no_argument, NULL, 'v'},
   {"device", required_argument, NULL, 'd'},
-  {"input", required_argument, NULL, 'i'},
   {"debug", required_argument, NULL, 'D'},
   {0, 0, 0, 0}
 };
 
-static const char *short_options = "hvd:i:D:";
+static const char *short_options = "hvd:D:";
 
 char *v4ldevice;
-int v4linput;
 int debug;
 
 void cmdline(int argc, char *argv[]) {
@@ -81,7 +78,6 @@ void cmdline(int argc, char *argv[]) {
 
   /* initializing defaults */
   v4ldevice = strdup("/dev/video");
-  v4linput = 1;
   debug = 1;
 
   do {
@@ -98,13 +94,6 @@ void cmdline(int argc, char *argv[]) {
     case 'd':
       free(v4ldevice);
       v4ldevice = strdup(optarg);
-      break;
-    case 'i':
-      v4linput = atoi(optarg);
-      if(v4linput>3) {
-	fprintf(stderr, "[!] invalid input selected\n");
-	exit(1);
-      }
       break;
     case 'D':
       debug = atoi(optarg);
@@ -150,10 +139,14 @@ int main (int argc, char **argv) {
   Osd osd;
 
   /* detect v4l grabber layer */
-  assert( grabber.detect(v4ldevice) );
+  if(!grabber.detect(v4ldevice)) {
+    act("sorry, exiting.");
+    screen.close();
+    exit(0);
+  }
   
   /* init the v4l grabber */
-  assert( grabber.init(&screen,GW,GH,v4linput) );
+  assert( grabber.init(&screen,GW,GH) );
 
   /* center the v4l layer */
   grabber.x = (Uint16)(W-GW)>>1;
