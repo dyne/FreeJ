@@ -91,6 +91,7 @@ Osd::Osd() {
   _active = false;
   _calibrate = false;
   _credits = false;
+  _fps = false;
   _layersel = 1;
   _filtersel = 0;
   screen = NULL;
@@ -164,7 +165,7 @@ void Osd::print() {
   
   _print_credits();
   _selection();
-  _show_fps();
+  if(_fps) _show_fps();
   _filterlist();
   _layerlist();
   _print_status();
@@ -179,13 +180,20 @@ bool Osd::active() {
   if(_active) clearscr(screen->get_surface(),screen->size);
   _active = !_active;
   return _active;
-};
+}
 
 bool Osd::calibrate() {
   if(_calibrate) clearscr(screen->get_surface(),screen->size);
   _calibrate = !_calibrate;
   return _calibrate;
-};
+}
+
+bool Osd::fps() {
+  if(_fps) clearscr(screen->get_surface(),screen->size);
+  _fps = !_fps;
+  screen->track_fps = _fps;
+  return _fps;
+}
 
 void Osd::_show_fps() {
   char fps[10];

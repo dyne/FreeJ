@@ -1,4 +1,45 @@
 
+On Sat, Aug 24, 2002 at 10:45:41PM -0700, Jamie Zawinski wrote:
+
+> > my dream now is to implement into it a way to play screensavers as
+> > "layers", possibly loading them runtime after scanning a directory
+> > where
+> > they are available, at a fixed resolution of 400x300 32bpp.
+> 
+> That should be easy -- all of the hacks shipped with xscreensaver take 
+> a -window-id option, causing them to draw on the provided window.  So
+> you'd just create an (unmapped) 400x300 Window object, and pass the ID
+> of that to the screensaver.  Then you'd pull the bits off the window
+> as
+> fast as you could manage, and composite them into your video frame. 
+> Does that work?
+
+not bad as an idea, would be a lovely simple solution! i tried it and
+the problem is i can't syncronize the frames refreshing: the screensaver
+then keeps on running on the unmapped window and i never know when it's
+the right time to take the frames between refreshes.
+
+i see the same problem would be there even calling the screenhack()
+routine which is present in almost all of the hacks (bouboule for
+instance does'nt have one, strange!).
+
+in fact there is no standardization on the init_ and draw_ function
+names, if there would be one i'd be able to control those functions
+whatever the screensaver is. what is standard is the fact they take
+always Display* and Window* pointers (sometimes the draw_ routine
+something more).
+
+whenever i will find the time to do that, i think i will include
+xscreensaver sourcecode into FreeJ and slightly change the hacks code to
+make all the functions called just init() and draw(), then it should be
+ok to dinamically load them as plugins and use your unmapped window
+trick to get the frames!
+
+maybe you are interested in integrating such a dlopen() - DSO mechanism
+into xscreensaver? being practical, i doubt it would be really useful
+anyway... but its stylish to have plugins :))))
+
+
 ** fix a stable api for DSO video filters!
 
 things that implement the fun:

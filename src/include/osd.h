@@ -51,6 +51,7 @@ class Osd {
   bool _active;
   bool _calibrate;
   bool _credits;
+  bool _fps;
   
  public:
   Osd();
@@ -62,7 +63,8 @@ class Osd {
   bool active();
   bool calibrate();
   bool credits();
-  
+  bool fps();
+
   Context *screen;
 
   char status_msg[50];

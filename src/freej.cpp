@@ -234,12 +234,11 @@ int main (int argc, char **argv) {
     lay = (Layer *)screen.layers.end();
 
     while(lay != NULL) {
-      if(lay->active) lay->cafudda();
+      lay->cafudda();
       lay = (Layer *)lay->prev;
     }
 
     screen.calc_fps();
-    //screen.limit_fps();
 
     screen.flip();
   }

@@ -53,7 +53,8 @@ void KbdListener::run() {
       switch(event.type) {
 
       case SDL_MOUSEMOTION:
-	if(event.motion.state && SDL_BUTTON_LEFT) {
+	if(!layer) break;
+	if(event.motion.state & SDL_BUTTON_LEFT) {
 	  layer->lock();
 	  layer->geo.x += event.motion.xrel;
 	  layer->geo.y += event.motion.yrel;
@@ -74,21 +75,62 @@ void KbdListener::run() {
 	  break;
 	  
 	case SDLK_TAB:
-	  if(event.key.keysym.mod && KMOD_CTRL)
+	  if(event.key.keysym.mod & KMOD_CTRL)
 	    screen->osd->calibrate();
 	  else
 	    screen->osd->active();
 	  break;
-	  
-	default:
-	  
-	  if(!(event.key.keysym.mod && KMOD_CAPS)) {
-	    
-	    if(_context_op(&event.key.keysym)) break;
-	    
-	    if(layer->keypress(&event.key.keysym)) break;
-	    
+
+	case SDLK_f:
+	  if(event.key.keysym.mod & KMOD_CTRL) {
+	    screen->osd->fps();
+	    break;
 	  }
+
+	case SDLK_UP:
+	  if(!layer) break;
+	  if(event.key.keysym.mod & KMOD_SHIFT) {
+	    layer->lock();
+	    layer->geo.y -= 5;
+	    layer->crop();
+	    layer->unlock();
+	    break;
+	  }
+	case SDLK_DOWN:
+	  if(!layer) break;
+	  if(event.key.keysym.mod & KMOD_SHIFT) {
+	    layer->lock();
+	    layer->geo.y += 5;
+	    layer->crop();
+	    layer->unlock();
+	    break;
+	  }
+	case SDLK_LEFT:
+	  if(!layer) break;
+	  if(event.key.keysym.mod & KMOD_SHIFT) {
+	    layer->lock();
+	    layer->geo.x -= 5;
+	    layer->crop();
+	    layer->unlock();
+	    break;
+	  }
+	case SDLK_RIGHT:
+	  if(!layer) break;
+	  if(event.key.keysym.mod & KMOD_SHIFT) {
+	    layer->lock();
+	    layer->geo.x += 5;
+	    layer->crop();
+	    layer->unlock();
+	    break;
+	  }
+
+	default:
+
+	  if(!layer) break;
+	  
+	  if(_context_op(&event.key.keysym)) break;
+	  
+	  if(layer->keypress(&event.key.keysym)) break;
 	  
 	  if(filter!=NULL) {
 	    layer->lock();
@@ -142,9 +184,9 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   switch(keysym->sym) {
     /* LAYER OPERATIONS */
   case SDLK_PAGEUP:
-    if(layer==NULL) return false;
-    if(layer->prev==NULL) return false;
-    if(keysym->mod && KMOD_CTRL) {
+    if(!layer) return false;
+    if(!layer->prev) return false;
+    if(keysym->mod & KMOD_CTRL) {
       /* move layer up in chain */
       if(screen->moveup_layer(layersel))
 	layersel--;
@@ -158,9 +200,9 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     return true;
     
   case SDLK_PAGEDOWN:
-    if(layer==NULL) return false;
-    if(layer->next==NULL) return false;
-    if(keysym->mod && KMOD_CTRL) {
+    if(!layer) return false;
+    if(!layer->next) return false;
+    if(keysym->mod & KMOD_CTRL) {
       /* move layer down in chain */
       if(screen->movedown_layer(layersel))
 	layersel++;
@@ -174,7 +216,7 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     return true;
 
   case SDLK_HOME:
-    if(layer==NULL) return false;
+    if(!layer) return false;
     screen->active_layer(layersel);
     return true;
 
@@ -188,7 +230,7 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   case SDLK_7: // PACKED SUB BYTEWISE
   case SDLK_8: // PACKED AND BYTEWISE
   case SDLK_9: // PACKED OR BYTEWISE
-    if(layer==NULL) return false;
+    if(!layer) return false;
     layer->set_blit(keysym->sym - SDLK_0);
     return true;
     
@@ -206,10 +248,10 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     break;
 
   case SDLK_UP:
-    if(filter==NULL) return false;
-    if(filter->prev==NULL) return false;
+    if(!filter) return false;
+    if(!filter->prev) return false;
 
-    if(keysym->mod && KMOD_CTRL) {
+    if(keysym->mod & KMOD_CTRL) {
     /* move filter up in chain */
       if(layer->moveup_filter(filtersel))
 	filtersel--;
@@ -222,10 +264,10 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     break;
 
   case SDLK_DOWN:
-    if(filter==NULL) return false;
-    if(filter->next==NULL) return false;
+    if(!filter) return false;
+    if(!filter->next) return false;
 
-    if(keysym->mod && KMOD_CTRL) {
+    if(keysym->mod & KMOD_CTRL) {
       /* move filter down in chain */
       if(layer->movedown_filter(filtersel))
 	filtersel++;
@@ -238,7 +280,7 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     break;
 
   case SDLK_INSERT:
-    if(filter==NULL) return false;
+    if(!filter) return false;
     /* switch filter on/off */
     layer->active_filter(filtersel);
     return true;
@@ -249,19 +291,19 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     break;
 
   case SDLK_DELETE:
-    if(filter==NULL) return false;
-    if(keysym->mod && KMOD_CTRL) {
+    if(!filter) return false;
+    if(keysym->mod & KMOD_CTRL) {
       /* clear ALL FILTERS */
       layer->clear_filters();
       filter = NULL;
       filtersel = layer->filters.len();
     } else {
       /* clear SELECTED FILTER */
-      Filter *tmp = (filter->prev==NULL) ?
+      Filter *tmp = (!filter->prev) ?
 	(Filter *)filter->next : (Filter *)filter->prev;
       layer->del_filter(filtersel);
       filter = tmp;
-      filtersel = (filter==NULL) ? 0 : (filtersel>1) ? filtersel-1 : 1;
+      filtersel = (!filter) ? 0 : (filtersel>1) ? filtersel-1 : 1;
     }
     return true;
     break;

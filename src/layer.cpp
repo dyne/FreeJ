@@ -52,8 +52,9 @@ void Layer::_init(Context *screen, int wdt, int hgt, int bpp=0) {
   geo.size = geo.w*geo.h*(geo.bpp>>3);
   geo.pitch = geo.w*(geo.bpp>>3);
   geo.fps = screen->fps;
-  geo.x = (Uint16)(screen->w - geo.w)/2;
-  geo.y = (Uint16)(screen->h - geo.h)/2;
+  geo.x = (screen->w - geo.w)/2;
+  geo.y = (screen->h - geo.h)/2;
+
   crop();
 
   _w = geo.w; _h = geo.h;
@@ -164,6 +165,9 @@ void Layer::set_blit(int b) {
 }
 
 bool Layer::cafudda() {
+  if((!active) || (hidden)) 
+    return false;
+
   void *offset = get_buffer();
   if(!offset) {
     signal_feed();
@@ -200,40 +204,81 @@ void Layer::crop() {
   Uint32 blit_xoff=0;
   Uint32 blit_yoff=0;
 
+  blit_x = geo.x;
+  blit_y = geo.y;
   blit_width = geo.w;
+  blit_height = geo.h;
+  blit_xoff = 0;
+  blit_yoff = 0;
 
   /* left bound 
      affects x-offset and width */
   if(geo.x<0) {
     blit_xoff = (-geo.x);
+    blit_x = 1;
 
     if(blit_xoff>geo.w) {
       hidden = true; /* out of the screen */
       geo.x = -(geo.w+1); /* don't let it go far */      
-      return; }
-
-    blit_width -= blit_xoff;
+    } else {
+      hidden = false;
+      blit_width -= blit_xoff;
+    }
   }
 
   /* right bound
      affects width */
-  if(geo.x>screen->w) { /* out of screen */
-    hidden = true; 
-    geo.x = geo.w+1;
-    return; }
-  if((geo.x+geo.w)>screen->w)
-    blit_width -= (geo.x+geo.w)-screen->w;
+  if((geo.x+geo.w)>screen->w) {
+    if(geo.x>screen->w) { /* out of screen */
+      hidden = true; 
+      geo.x = screen->w+1; /* don't let it go far */
+    } else {
+      hidden = false;
+      blit_width -= (geo.w - (screen->w - geo.x));
+    }
+  }
 
-  blit_offset = blit_xoff<<2 + (blit_yoff*geo.pitch);
+  /* upper bound
+     affects y-offset and height */
+  if(geo.y<0) {
+    blit_yoff = (-geo.y);
+    blit_y = 1;
+
+    if(blit_yoff>geo.h) {
+      hidden = true; /* out of the screen */
+      geo.y = -(geo.h+1); /* don't let it go far */      
+    } else {
+      hidden = false;
+      blit_height -= blit_yoff;
+    }
+  }
+
+  /* lower bound
+     affects height */
+  if((geo.y+geo.h)>screen->h) {
+    if(geo.y>screen->h) { /* out of screen */
+      hidden = true; 
+      geo.y = screen->h+1; /* don't let it go far */
+    } else {
+      hidden = false;
+      blit_height -= (geo.h - (screen->h - geo.y));
+    }
+  }
+  
+
+  blit_offset = (blit_xoff<<2) + (blit_yoff*geo.pitch);
+  func("LAY BLIT x[%i] y[%i] w[%i] h[%i] xoff[%i] yoff[%i]",
+       blit_x, blit_y, blit_width, blit_height, blit_xoff, blit_yoff);
 }
+
 void Layer::blit(void *offset) {
   if(hidden) return;
 
   switch(_blit_algo) {
 
   case 1: /* MMX ACCEL STRAIGHT BLIT */
-    mmxblit((Uint8*)offset+blit_offset,screen->coords(geo.x,geo.y),
-	    blit_width,geo.h,geo.pitch,screen->pitch); 
+    mmxblit((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
+	    blit_width,blit_height,geo.pitch,screen->pitch); 
     return;
 
   case 2: /* VERTICAL FLIP */

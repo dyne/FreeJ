@@ -58,8 +58,6 @@ bool PngLayer::open(char *file) {
 
 bool PngLayer::init(Context *scr=NULL) {
 
-  png_color_16 bg;
-  png_color_16p image_bg;
   png_uint_32 width, height;
   int bit_depth, color_type, interlace_type;
 
@@ -93,6 +91,7 @@ bool PngLayer::init(Context *scr=NULL) {
   /* start peeking into the file */
 
   png_init_io(core,fp);
+
   png_set_sig_bytes(core,PNG_BYTES_TO_CHECK);  
 
   png_read_info(core,info);
@@ -116,53 +115,65 @@ bool PngLayer::init(Context *scr=NULL) {
     func("PNG set gray to 8bpp");
     png_set_gray_1_2_4_to_8(core);
   }
-  
-  if (png_get_valid(core, info, PNG_INFO_tRNS)) {
-    func("PNG set tRNS to alpha");
-    png_set_tRNS_to_alpha(core);
-  }
 
+  png_set_filler(core, 0xff, PNG_FILLER_AFTER);
+  
+  png_set_tRNS_to_alpha(core);
+  
   if (color_type == PNG_COLOR_TYPE_GRAY ||
       color_type == PNG_COLOR_TYPE_GRAY_ALPHA) {
     func("PNG set gray to rgb");
     png_set_gray_to_rgb(core);
   }
-  
+
+
+  /* we don't want background to keep transparence
+  png_color_16 bg;
+  png_color_16p image_bg;
   if (png_get_bKGD(core, info, &image_bg)) {
     func("PNG set background on file gamma");
-    png_set_background(core, image_bg,
-		       PNG_BACKGROUND_GAMMA_FILE, 1, 1.0);
+    png_set_background(core, image_bg, PNG_BACKGROUND_GAMMA_FILE, 1, 1.0);
   } else {
     func("PNG set background on screen gamma");
-    png_set_background(core, &bg,
-		       PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
-  }
+    png_set_background(core, &bg, PNG_BACKGROUND_GAMMA_SCREEN, 0, 1.0);
+  } */
 
-  png_set_filler(core, 0xff, PNG_FILLER_AFTER);
+
+  if (color_type == PNG_COLOR_TYPE_RGB ||
+      color_type == PNG_COLOR_TYPE_RGB_ALPHA)
+    png_set_bgr(core);
   
   png_set_interlace_handling(core);
   
   png_read_update_info(core,info);                 
-
+  
   png_get_IHDR(core, info, &width, &height, &bit_depth, &color_type,
 	       &interlace_type, NULL, NULL);
-
+ 
   if(scr) screen = scr;
   _init(screen,	width, height, bit_depth*4);
 
-  buf = jalloc(buf,geo.size);
+  buf = (png_bytep)jalloc(buf,geo.size);
 
   /* allocate image memory */
   row_pointers = (png_bytep*)jalloc(row_pointers,geo.h*sizeof(png_bytep));
   for(int i=0;i<geo.h;i++)
-    row_pointers[i] = (png_bytep) (unsigned char *)buf + i*geo.pitch;
+    row_pointers[i] = (png_bytep) buf + i*geo.pitch;
 
   png_read_image(core,row_pointers);
+
   png_read_end(core,NULL);
 
   fclose(fp); fp = NULL;
   png_destroy_info_struct(core,&info);
   png_destroy_read_struct(&core,NULL,NULL);
+  
+  /* apply alpha layer
+  for(unsigned int i=0;i<geo.size;i+=4) {
+  buf[i] &= buf[i+3];
+  buf[i+1] &= buf[i+3];
+  buf[i+2] &= buf[i+3];
+  } */
 
   notice("PngLayer :: w[%u] h[%u] bpp[%u] size[%u]",
 	 geo.w,geo.h,geo.bpp,geo.size);
@@ -181,4 +192,71 @@ void PngLayer::close() {
   func("PngLayer::close()");
   jfree(row_pointers);
   jfree(buf);
+}
+
+#define BLIT(op) \
+    { \
+      Uint8 *alpha; \
+      Uint32 *scr, *pscr; \
+      scr = pscr = (Uint32 *) screen->coords(blit_x,blit_y); \
+      Uint32 *off, *poff; \
+      off = poff = (Uint32 *) ((Uint8*)offset+blit_offset); \
+      int c, cc; \
+      for(c=blit_height;c>0;c--) { \
+	for(cc=blit_width;cc>0;cc--) { \
+	  alpha = (Uint8 *) off; \
+	  if(*(alpha+4)) *scr op *off; \
+	  scr++; off++; \
+	} \
+	off = poff = poff + geo.w; \
+	scr = pscr = pscr + screen->w; \
+      } \
+    }
+
+void PngLayer::blit(void *offset) {
+  /* transparence aware blits:
+     if alpha channel is 0x00 then pixel is not blitted
+     works with 32bpp */
+  
+  if(hidden) return;
+  
+  switch(_blit_algo) {
+    
+  case 1:
+  case 2:
+    BLIT(=); return;
+    
+  case 3:
+  case 4:
+  case 5:
+    {
+      Uint8 *alpha;
+      int chan = _blit_algo-3;
+      char *scr, *pscr;
+      scr = pscr = (char *) screen->coords(blit_x,blit_y);
+      char *off, *poff;
+      off = poff = (char *) ((Uint8*)offset+blit_offset); \
+      int c,cc;
+      for(c=blit_height;c>0;c--) {
+	for(cc=blit_width;cc>0;cc--) {
+	  alpha = (Uint8 *) off;
+	  if(*(alpha+4)) *(scr+chan) = *(off+chan);
+	  scr+=4; off+=4;
+	}
+	off = poff = poff + geo.pitch;
+	scr = pscr = pscr + screen->pitch;
+      }
+    }
+    return;
+
+  case 6: BLIT(+=); return;
+
+  case 7: BLIT(-=); return;
+	
+  case 8: BLIT(&=); return;
+
+  case 9: BLIT(|=); return;
+
+  default: return;
+  }
 }

@@ -96,6 +96,7 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
   gettimeofday( &lst_time, NULL);
   fps=0.0;
   set_fps_interval(24);
+  track_fps = false;
 
   clear_all = false;
   quit = false;
@@ -181,11 +182,13 @@ void Context::calc_fps() {
   gettimeofday( &cur_time, NULL);
   elapsed = cur_time.tv_usec - lst_time.tv_usec;
   if(cur_time.tv_sec>lst_time.tv_sec) elapsed+=1000000;
-
-  framecount++;
-  if(framecount==24) {
-    fps=(double)1000000/elapsed;
-    framecount=0;
+  
+  if(track_fps) {
+    framecount++;
+    if(framecount==24) {
+      fps=(double)1000000/elapsed;
+      framecount=0;
+    }
   }
 
   if(elapsed<=min_interval) {

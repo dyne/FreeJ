@@ -90,6 +90,7 @@ class Context {
   void set_fps_interval(int interval);
   void print_fps();
   float fps;
+  bool track_fps;
 
   bool clear_all;
   bool quit;

@@ -35,12 +35,14 @@ private:
   unsigned char sig[8];
 
   /* image buffer */
-  void *buf;
+  png_bytep buf;
   
   /* row pointers */
   png_bytep *row_pointers;
 
   FILE *fp;
+
+  void blit(void *offset);
 
 public:
   PngLayer();

@@ -97,8 +97,7 @@ void mmxblit_or(void *src1, void *dst, unsigned int height, unsigned int pitch, 
 
   mmx_blit_or();
 }
-
-
+  
 /* void *scr is points on desired coordinate offset on screen
    ( use Context::coords(x,y) if blitting directly on context )
    take care THEY DONT CLIP */
