@@ -43,14 +43,16 @@
 #define KEY_TAB 9
 /* unix ctrl- commandline hotkeys */
 #define KEY_CTRL_A 1 // goto beginning of line
-#define KEY_CTRL_B 2
-#define KEY_CTRL_E 5 // goto end of line
-#define KEY_CTRL_F 6
+#define KEY_CTRL_B 2 // change blit
+#define KEY_CTRL_E 5 // add new effect
+#define KEY_CTRL_F 6 // go fullscreen
 #define KEY_CTRL_K 11 // delete until end of line
 #define KEY_CTRL_D 4 // delete char
 #define KEY_CTRL_U 21 // delete until beginning of line
 #define KEY_CTRL_H 272 // help the user
-#define KEY_CTRL_V 22 // shout it loud!
+#define KEY_CTRL_J 10 // javascript command
+#define KEY_CTRL_O 15 // open a file in a new layer
+#define KEY_CTRL_V 22 // change blit value
 
 static Context *env;
 
@@ -79,18 +81,19 @@ static int getkey_handler() {
   return ch;
 }
 
+#ifdef WITH_JAVASCRIPT
 static int js_proc(char *cmd) {
   int res = 0;
   if(!cmd) return res;
-#ifdef WITH_JAVASCRIPT
+
   res = env->js->parse(cmd);
   if(!res) ::error("invalid javascript command: %s",cmd);
-#endif
   return res;
 }
+#endif
 
 
-// used to handle completed input from console
+// callbacks used by readline to handle input from console
 static int blit_selection(char *cmd) {
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
@@ -100,7 +103,7 @@ static int blit_selection(char *cmd) {
     ::error("no layer currently selected");
     return 0;
   }
-  lay->set_blit(cmd); // now this takes a string!
+  lay->blitter.set_blit(cmd); // now this takes a string!
   return 1;
 }
 static int blit_comp(char *cmd) {
@@ -117,22 +120,25 @@ static int blit_comp(char *cmd) {
   }
 
   blits = lay->blitter.blitlist.completion(cmd);
-  if(!blits) return 0;
-  if(!blits[0]) return 0;
-  func("porcodio %i",blits[0]);
+
+  if(!blits[0]) return 0; // none found
+
+  if(!blits[1]) { // exact match, then fill in command
+    b = (Blit*) lay->blitter.blitlist.pick(blits[0]);
+    ::notice("%s :: %s",b->name,b->desc);
+    snprintf(cmd,511,"%s",b->name);
+    return 1;
+  }
+  
+  notice("List available blits starting with \"%s\"",cmd);
   for(c=0;blits[c];c++) {
     b = (Blit*) lay->blitter.blitlist.pick(blits[c]);
 
     if(!b) {
       func("error in completion: missing %i");
-      continue;
-    }
+      continue; }
     ::act("%s :: %s",b->name,b->desc);
   }
-
-  if(c==1) // exact match, then fill in command
-    snprintf(cmd,511,"%s",b->name);
-
   return c;
 }
 
@@ -166,19 +172,63 @@ static int filter_comp(char *cmd) {
   Filter *filt;
   if(!cmd) return 0;
   res = env->plugger.complete(cmd);
-  if(!res) return 0;
-  if(!res[0]) return 0;
-  for(c=0;res[c];c++) {
+
+  if(!res[0]) return 0; // no hit 
+
+  if(!res[1]) { // exact match: fill in the command
     filt = env->plugger.pick(res[c]);
-    if(!filt) continue;
-    ::act("%s :: %s",filt->getname(),filt->getinfo());
+    ::notice("%s :: %s",filt->getname(),filt->getinfo());
+    snprintf(cmd,511,"%s",res[0]); c=1;
+  } else { // list all matches
+    for(c=0;res[c];c++) {
+      filt = env->plugger.pick(res[c]);
+      if(!filt) continue;
+      ::act("%s :: %s",filt->getname(),filt->getinfo());
+    }
+  }
+  return c;
+}
+
+static int open_layer(char *cmd) {
+  int len;
+  Layer *l = create_layer(cmd);
+  if(l)
+    if(!l->init(env)) {
+      error("can't initialize layer");
+      delete l;
+    } else {
+      env->layers.add(l);
+      len = env->layers.len();
+      notice("layer succesfully created, now you have %i layers",len);
+      return env->layers.len();
+    }
+  error("layer creation aborted");
+  return 0;
+}
+
+static int filebrowse_completion(char *cmd) {
+  func("filebrowser completion TODO");
+  return(0);
+}
+
+static int set_blit_value(char *cmd) {
+  int val;
+  int c;
+  if(!sscanf(cmd,"%d",&val)) {
+    error("error parsing input: %s",cmd);
+    return 0;
+  }
+  func("value parsed: %s in %d",cmd,val);
+  Layer *lay = (Layer*)env->layers.begin();
+  if(!lay) return 0;
+  /* set value in all blits selected
+     (supports multiple selection) */
+  for(c=0 ; lay ; lay = (Layer*)lay->next) {
+    if(!lay->select) continue;
+    lay->blitter.set_value(val);
   }
 
-  if(c==1) // exact match, then fill in command
-    snprintf(cmd,511,"%s",res[0]);
-
-  free(res);
-  return c;
+  return 1;
 }
 
 Console::Console() {
@@ -268,7 +318,7 @@ bool Console::init(Context *freej) {
 
 void Console::close() {
   set_console(NULL);
-  SLsmg_reset_smg();  
+  SLsmg_reset_smg();
   SLang_reset_tty();
 }
 
@@ -352,15 +402,10 @@ void Console::getkey() {
       GOTO_CURSOR;
       return;
 
-    case KEY_CTRL_D:
-      for(c=cursor;command[c]!=EOL;c++)
-	command[c] = command[c+1];
-      GOTO_CURSOR;
-      SLsmg_write_string(&command[cursor]);
-      SLsmg_erase_eol();
-      GOTO_CURSOR;
-      return;
-
+      /* the following ctrl combos are to imitate
+	 the UNIX commandline behaviour
+	 (c-e eol, c-d delete, c-k eol del etc.)
+	 TODO: command history */
     case SL_KEY_LEFT:
       if(cursor) cursor--;
       GOTO_CURSOR;
@@ -369,7 +414,14 @@ void Console::getkey() {
       if(command[cursor]) cursor++;
       GOTO_CURSOR;
       return;
-      
+    case KEY_CTRL_D:
+      for(c=cursor;command[c]!=EOL;c++)
+	command[c] = command[c+1];
+      GOTO_CURSOR;
+      SLsmg_write_string(&command[cursor]);
+      SLsmg_erase_eol();
+      GOTO_CURSOR;
+      return;
     case KEY_CTRL_A:
     case KEY_HOME:
       cursor=0;
@@ -415,8 +467,9 @@ void Console::getkey() {
 
     switch(key) {
     case SL_KEY_UP:
-      if(filter)
-	filter = (Filter*)filter->prev;
+      if(!filter) break;
+      filter = (Filter*)filter->prev;
+
       break;
     case SL_KEY_DOWN:
       if(!filter) {
@@ -430,21 +483,25 @@ void Console::getkey() {
 
     case SL_KEY_LEFT:
       if(!layer) {
-	layer = (Layer*)env->layers.end();
+	layer = (Layer*)env->layers.begin();
 	break;
       }
-      if(!layer->prev) break;
-      layer = (Layer*)layer->prev;
+      if(!layer->prev)
+	layer = (Layer*)env->layers.end();
+      else
+	layer = (Layer*)layer->prev;
       break;
     case SL_KEY_RIGHT:
       if(!layer) {
 	layer = (Layer*)env->layers.begin();
 	break;
       }
-      if(!layer->next) break;
-      layer = (Layer*)layer->next;
+      if(!layer->next)
+	layer = (Layer*)env->layers.begin();
+      else
+	layer = (Layer*)layer->next;
       break;
-
+      
     case SL_KEY_PPAGE: break;
     case SL_KEY_NPAGE: break;
     case SL_KEY_END: break;
@@ -458,28 +515,48 @@ void Console::getkey() {
     break;
 
     case KEY_CTRL_E:
-      readline("add new Effect - press TAB for completion",&filter_proc,&filter_comp);
+      if(!layer) {
+	error("can't add Effect: no Layer is selected, select one using arrows.");
+	break;
+      }
+      readline("add new Effect - press TAB for completion:",&filter_proc,&filter_comp);
       break;
       
     case KEY_CTRL_B:
-      readline("select Blit mode - press TAB for completion",
+      if(!layer) {
+	error("can't change Blit: no Layer is selected, select one using arrows.");
+	break;
+      }
+      readline("select Blit mode for the selected Layer - press TAB for completion:",
 	       &blit_selection,&blit_comp);
       break;
-
-    case ':':
-      if(!env->js) {
-	::error("javascript is not compiled in this FreeJ binary");
-	return;
+    case KEY_CTRL_V:
+      if(!layer) {
+	error("can't change Blit Value: no Layer is selected, select one using arrows.");
+	break;
       }
-      /* cleans up the status and sets input = true
-	 if(input==true) then keys are treated as string input */
-      readline("input javascript command:",&js_proc,NULL);
+      readline("set Blit value for the selected Layer:",
+	       &set_blit_value,NULL);
       break;
 
-    case KEY_CTRL_V:
-      ::notice("Welcome to %s %s",PACKAGE,VERSION);
-    :: act("layers supported:\n%s",layers_description);
-    break;
+    case KEY_CTRL_O:
+      readline("open a file in a new Layer:",
+	       &open_layer,&filebrowse_completion);
+      break;
+      
+    case KEY_CTRL_J:
+#ifndef WITH_JAVASCRIPT
+      ::error("javascript is not compiled in this FreeJ binary");
+      break;
+#else
+      readline("input javascript command:",&js_proc,NULL);
+      break;
+#endif
+
+      //    case KEY_CTRL_T:
+      //      ::notice("Welcome to %s %s",PACKAGE,VERSION);
+      //    :: act("layers supported:\n%s",layers_description);
+      //    break;
     }
   }
 }
@@ -514,10 +591,13 @@ void Console::cafudda() {
   
   if(do_update_scroll)
     update_scroll();
-  
-  speedmeter();
 
-  if(!input) statusline();
+
+
+  if(!input) {
+    speedmeter();
+    statusline();
+  }
   
   SLsmg_refresh();
   
@@ -527,8 +607,8 @@ void Console::cafudda() {
 void Console::statusline() {
   SLsmg_set_color(TITLE_COLOR+20);
   SLsmg_gotorc(SLtt_Screen_Rows - 1,0);
-  SLsmg_write_string("ctrl-h help | : command input | running on ");
-  SLsmg_write_string(SLcurrent_time_string());
+  SLsmg_write_string
+    (" use arrows to move selection, press ctrl-h for help with hotkeys      ");
   SLsmg_set_color(PLAIN_COLOR);
 }
 
@@ -595,10 +675,14 @@ void Console::layerprint() {
   SLsmg_write_char(' ');
   SLsmg_write_string("blit: ");
   SLsmg_set_color(LAYERS_COLOR+10);
-  SLsmg_write_string(layer->get_blit());
+  SLsmg_write_string((layer->blitter.current_blit)?
+		     layer->blitter.current_blit->name:
+		     (char*)" ");
+  SLsmg_write_char(' ');
+  SLsmg_printf("[%u]",(layer->blitter.current_blit)?
+	       layer->blitter.current_blit->value:0);
   SLsmg_write_char(' ');
   SLsmg_set_color(LAYERS_COLOR);
-  SLsmg_write_char(' ');
   SLsmg_write_string("geometry: ");
   SLsmg_set_color(LAYERS_COLOR+10);
   SLsmg_printf("x%i y%i w%u h%u",
@@ -620,7 +704,7 @@ void Console::layerlist() {
     SLsmg_write_string(" -> ");
 
     color=LAYERS_COLOR;
-    if( l == layer) {
+    if( l == layer && !filter) {
       color+=20;
       layercol = SLsmg_get_column();
     }
@@ -673,7 +757,7 @@ void Console::filterlist() {
       
       SLsmg_gotorc(pos,layercol);
       color=FILTERS_COLOR;
-      if( f == filter) color+=20;
+      if( f == filter ) color+=20;
       if( f->active) color+=10;
       SLsmg_set_color (color);
       

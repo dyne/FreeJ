@@ -3,5 +3,4 @@ SUBDIRS = \
 	baltan vertigo transform \
 	edge ripple \
 	backlight rotozoom blur \
-	water cartoon nervous \
-	deinterlace
+	water cartoon nervous

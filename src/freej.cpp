@@ -231,7 +231,8 @@ int main (int argc, char **argv) {
     
   
   /* initialize the S-Lang text Console */
-  freej.console.init( &freej );
+  freej.console = new Console();
+  freej.console->init( &freej );
   
   /* initialize the Keyboard Listener */
   freej.kbd.init( &freej );

@@ -93,14 +93,14 @@ class Layer: public Entry, public JSyncThread {
   ///< Set Layer's position on screen
 
   /* BLIT */
-  void set_blit(char *name) { blitter.set_blit(name); }; ///< Set Layer's blit algorithm
-  char *get_blit(); ///< Get a short string describing current Layer's blit algorithm
-  char *get_blit_desc(); ///< Get a long description 
+  //  void set_blit(char *name) { blitter.set_blit(name); }; ///< Set Layer's blit algorithm
+  //  char *get_blit(); ///< Get a short string describing current Layer's blit algorithm
+  //  char *get_blit_desc(); ///< Get a long description 
 
   /* ALPHA */
-  void set_alpha(int opaq); ///< Set Layer's alpha opacity
-  uint8_t alpha; ///< Layer's alpha opacity value
-  uint8_t get_alpha() { return alpha; }; ///< Get Layer's alpha value
+  ///  void set_alpha(int opaq); ///< Set Layer's alpha opacity
+  //  uint8_t alpha; ///< Layer's alpha opacity value
+  //  uint8_t get_alpha() { return alpha; }; ///< Get Layer's alpha value
 
   virtual bool keypress(SDL_keysym *keysym) =0;
   ///< pass to the Layer a keypress
@@ -117,12 +117,10 @@ class Layer: public Entry, public JSyncThread {
   bool hidden; ///< is hidden (read-only by the blit)
   int bgcolor; ///< matte background color
 
-
   Blitter blitter; ///< blitter class
 
   /** physical buffers */
-  SDL_Surface *surf; ///< pointer to SDL surface, !NULL if used
-  void *offset; ///< pointer to pixels when !sdl_surface
+  void *offset; ///< pointer to pixel plane
 
  protected:
 

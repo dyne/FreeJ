@@ -40,6 +40,7 @@ Context::Context() {
   notice("starting %s %s engine",PACKAGE,VERSION);
 
   screen = NULL;
+  console = NULL;
 
   /* initialize fps counter */
   framecount=0; fps=0.0;
@@ -49,7 +50,9 @@ Context::Context() {
   clear_all = false;
   quit = false;
   pause = false;
+
   fps_speed=25;
+
 }
 
 Context::~Context() {
@@ -66,7 +69,6 @@ bool Context::init(int wx, int hx) {
     return(false);
   }
   
-
 #ifdef WITH_JAVASCRIPT
   js = new JsParser(this);
 #endif
@@ -86,7 +88,8 @@ void Context::close() {
   Layer *lay;
 
 
-  console.close();
+  if(console)
+    console->close();
   
   lay = (Layer *)layers.begin();
   while(lay) {
@@ -146,8 +149,7 @@ void Context::cafudda(unsigned int secs) {
     /** print on screen display */
     if(osd.active) osd.print();
 
-    /** show slang user interface */
-    if(console.active) console.cafudda();
+    if(console) console->cafudda();
 
     /** show result on screen */
     screen->show();

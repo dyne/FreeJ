@@ -98,7 +98,7 @@ class Context {
   KbdListener kbd;
 
   /* Console parser */
-  Console console;
+  Console *console;
 
   /* Filter plugins plugger */
   Plugger plugger;

@@ -115,8 +115,8 @@ void Osd::init(Context *screen) {
     if(!ipernaut) ipernaut = create_layer("ipernav.png");
     if(ipernaut) {
       if(ipernaut->init(env)) {
-	ipernaut->set_blit("ALPHA");
-	ipernaut->set_alpha(128);
+	ipernaut->blitter.set_blit("ALPHA");
+	ipernaut->blitter.set_value(128);
       } else {
 	delete ipernaut;
 	ipernaut = NULL;
@@ -229,8 +229,8 @@ void Osd::_selection() {
   sprintf(msg,"%s::%s [%s][%s]",
 	  lay->get_name(),
 	  (filt)?filt->getname():" ",
-	  lay->get_blit(),
-	    (env->clear_all)?"0":" ");
+	  (lay->blitter.current_blit)?lay->blitter.current_blit->name:" ",
+	  (env->clear_all)?"0":" ");
   
   print(msg,selection_offset,1,1);
   

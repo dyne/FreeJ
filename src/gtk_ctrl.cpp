@@ -55,7 +55,7 @@ static GtkTreeStore *effect_store;
 static GtkTreeIter effect_iter;
 
 static GtkMenu *menu_effect;
-static GtkMenu *menu_blit;
+static GtkMenu *menu_blit = NULL;
 
 /* direct pointer to FreeJ environment */
 static Context *env;
@@ -97,13 +97,15 @@ void on_about(GtkWidget *widget, gpointer *data) {
 
 
 void on_select_blit(char *name) {
-  gtk_menu_set_active(menu_blit,0);
+  if(menu_blit)
+    gtk_menu_set_active(menu_blit,0);
   Layer *lay = (Layer*) env->layers.selected();
   if(!lay) {
     error("no layer selected to change blit to %s",name); return; }
   lay->blitter.set_blit(name);
 }
-void init_blit_menu() {
+
+void update_blit_menu() {
   GtkOptionMenu *option_menu_blit;
   GtkWidget *item;
   
@@ -113,21 +115,14 @@ void init_blit_menu() {
     return;
   }
 
+  /* cleanup previous menu */
+  if(menu_blit) delete menu_blit;
   menu_blit = (GtkMenu*)gtk_menu_new();
+
   gtk_menu_set_title(menu_blit,"Blit mode");
   item = gtk_menu_item_new_with_label("Blit mode");
   gtk_menu_shell_append(GTK_MENU_SHELL(menu_blit),item);
  
-  gtk_option_menu_set_menu(option_menu_blit,(GtkWidget*)menu_blit);
-}
-
-void update_blit_menu() {
-  GtkOptionMenu *option_menu_blit;
-  GtkWidget *item;
-  
-  option_menu_blit = (GtkOptionMenu*) glade_xml_get_widget(gtk,"menu_blit");
-
-  /* TODO cleanup previous menu */
   Layer *lay = (Layer*)env->layers.selected();
   Entry *ptr = lay->blitter.blitlist.begin();
   while(ptr) {
@@ -139,7 +134,8 @@ void update_blit_menu() {
 			     (gpointer)ptr->name);
     ptr = ptr->next;
   }
-  gtk_option_menu_set_menu(option_menu_blit,(GtkWidget*)menu_blit);
+  gtk_option_menu_set_menu(option_menu_blit,
+			   (GtkWidget*)menu_blit);
 }
 
 
@@ -334,7 +330,9 @@ void update_layer_list() {
     gtk_tree_store_set(layer_store,&iter,
 		       LAYER_ACTIVE,lay->active,
 		       LAYER_NAME,lay->get_name(),
-		       LAYER_BLIT,lay->get_blit(),
+		       LAYER_BLIT,
+		       (lay->blitter.current_blit)?
+		       lay->blitter.current_blit->name:" ",
 		       LAYER_FILE,lay->get_filename(),
 		       LAYER_OBJ,lay,
 		       -1);

@@ -77,7 +77,6 @@ GenLayer::GenLayer()
   amask = 0x00000000;
 #endif
   
-  surf = NULL;
   pixels = NULL;
   blob_buf = NULL;
 
@@ -88,7 +87,6 @@ GenLayer::GenLayer()
 }
 
 GenLayer::~GenLayer() {
-  //  if(surf) SDL_FreeSurface(surf);
   if(pixels) free(pixels);
   if(blob_buf) free(blob_buf);
 }
@@ -114,9 +112,6 @@ bool GenLayer::init(Context *scr) {
 
   pixels = (uint32_t*)malloc(geo.size);
 
-    //  surf = SDL_CreateRGBSurface
-    //    (SDL_HWSURFACE|SDL_HWACCEL,geo.w,geo.h,32,bmask,gmask,rmask,amask);
-    //  if(!surf) {
   if(!pixels) {
     error("can't allocate GenLayer memory surface");
     return(false);
@@ -143,22 +138,11 @@ void *GenLayer::feed() {
     blossom_a -= pi2;
 
 
-  //  SDL_FillRect(surf,NULL,0x0);
   jmemset(pixels,0,geo.size);
-  /*  
-  if (SDL_MUSTLOCK(surf))
-    if (SDL_LockSurface(surf) < 0) {
-      error("%s", SDL_GetError());
-      return NULL;
-    }
-  */
+
   blossom();
   return(pixels);
-  /*
-  if (SDL_MUSTLOCK(surf)) {
-    SDL_UnlockSurface(surf);
-  }
-  */
+
 }
 
 void GenLayer::blossom_recal(bool r) {
@@ -241,26 +225,6 @@ void GenLayer::blob_init(int ray) {
     }
   }
   
-#if 0
-  /* init sphere */
-  if(blob_buf) free(blob_buf);
-  blob_buf = (uint32_t*) malloc(8*blob_size*blob_size);
-  
-  for(j=0; j<blob_size; j++)
-    for(i=0; i<blob_size; i++) {
-      val = 
-	(i-blob_size/2)*(i-blob_size/2) +
-	(j-blob_size/2)*(j-blob_size/2);
-      if(val < LIM*LIM) {
-	val = val/(LIM*LIM);
-	val = 1-val;
-	val *= val;
-      } else val = 0;
-      col = (0xff/NB_BLOB)*val; // ((65535/NB_BLOB)*val);
-      blob_buf[i+j*blob_size] = 
-	SDL_MapRGB(surf->format,col,col,col);
-    }
-#endif
 }
   
 

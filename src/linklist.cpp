@@ -31,8 +31,6 @@
 #include <linklist.h>
 #include <config.h>
 
-// maximum number of members returned by the completion
-#define MAX_COMPLETION 512
 
 Linklist::Linklist() {
   length = 0;
@@ -169,9 +167,12 @@ int *Linklist::completion(char *needle) {
   int found;
   int len = strlen(needle);
 
+  /* cleanup */
+  memset(compbuf,0,MAX_COMPLETION);
+
   /* check it */
   Entry *ptr = first;
-  if(!ptr) return NULL;
+  if(!ptr) return compbuf;
 
   for( found=0, c=1 ; ptr ; c++ , ptr=ptr->next ) {
     if(!len) { // 0 lenght needle: return the full list
@@ -182,7 +183,7 @@ int *Linklist::completion(char *needle) {
       found++;
     }
   }
-  compbuf[found] = 0;
+
   func("completion found %i hits",found);
   return compbuf;
 }

@@ -21,6 +21,9 @@
 
 #include <pthread.h>
 
+// maximum number of members returned by the completion
+#define MAX_COMPLETION 512
+
 class Entry;
 
 class Linklist {
@@ -61,7 +64,7 @@ class Linklist {
 
  private:
   pthread_mutex_t mutex;
-  int compbuf[512]; // maximum completion listsize allowed
+  int compbuf[MAX_COMPLETION]; // maximum completion listsize allowed
 };
 
 class Entry {

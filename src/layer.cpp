@@ -36,11 +36,8 @@ Layer::Layer()
   hidden = false;
   bgcolor = 0;
   bgmatte = NULL;
-  blitter.set_blit("RGB");
-  set_alpha(255);
   set_name("???");
   buffer = NULL;
-  surf = NULL; // sdl surface. if used this is !NULL
 }
 
 Layer::~Layer() {
@@ -126,21 +123,6 @@ void Layer::set_name(char *s) {
   snprintf(name,4,"%s",s);
 }
 char *Layer::get_name() { return name; }
-
-char *Layer::get_blit() {
-  Entry *b = blitter.blitlist.selected();
-  if(!b) {
-    error("no blit selected for layer %s",name);
-    error("this is dangerous, and should never happen!");
-    return "???";
-  }
-  return b->name;
-}
-
-void Layer::set_alpha(int opaq) {
-  alpha = (opaq>255) ? 255 : (opaq<0) ? 0 : opaq;
-  snprintf(alphastr,4,"%03u",alpha);
-}
 
 void Layer::set_filename(char *f) {
   char *p = f + strlen(f);
