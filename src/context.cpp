@@ -107,7 +107,6 @@ void Context::close() {
   func("Context::~Context()");
 
   Layer *lay = (Layer *)layers.begin();
-  func("Context::quit()");
 
   osd->splash_screen();
   flip();
@@ -116,7 +115,7 @@ void Context::close() {
     lay->lock();
     layers.rem(1);
     lay->quit = true;
-    lay->signal_feed();
+    lay->signal_feed(); lay->lock_feed(); lay->unlock_feed();
     lay->unlock();
     SDL_Delay(500);
     delete lay;
@@ -126,7 +125,7 @@ void Context::close() {
   SDL_Delay(1000);
 
   SDL_Quit();
-  act("clean exiting. be nice ;)");
+
 }
 
 bool Context::add_layer(Layer *newlayer) {

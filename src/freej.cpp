@@ -197,10 +197,10 @@ int main (int argc, char **argv) {
   }
 
   /* ================= Video4Linux layer */
-  V4lGrabber grabber;
+  V4lGrabber *grabber = new V4lGrabber();
   /* detect v4l grabber layer */
-  if(grabber.detect(v4ldevice))
-    assert( grabber.init(&screen,GW,GH) );
+  if(grabber->detect(v4ldevice))
+    assert( grabber->init(&screen,GW,GH) );
   else
     act("a video 4 linux device is not present: no live video");
 
@@ -256,6 +256,6 @@ int main (int argc, char **argv) {
   screen.close();
   plugger.close();
 
-
+  act("clean exiting. be nice ;)");
   exit(1);
 }
