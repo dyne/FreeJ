@@ -4,10 +4,10 @@
   delaygrab - blockwise, controllable image delay
 
   Copyright (C) 1999/2000  A. Schiffler <aschiffler@home.com>
-  further modifications by Denis Roio <jaromil@dyne.org>
+  Copyright (C) 2001/2002  Denis Rojo <jaromil@dyne.org>
   
   original sourcecode is from libbgrab 2.1f
-  ported to FreeJ and successively modified by jaromil
+  ported to FreeJ and successively modified
   
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -168,8 +168,8 @@ static void createDelaymap(int mode) {
   curdelaymap=(Uint32 *)delaymap;
   srand(time(NULL));
 
-  for (y=0; y<delaymapheight; y++) {
-    for (x=0; x<delaymapwidth; x++) {
+  for (y=delaymapheight; y>0; y--) {
+    for (x=delaymapwidth; x>0; x--) {
       switch (mode) {
       case 1:	
 	/* Random delay with square distribution */

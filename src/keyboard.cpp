@@ -134,6 +134,8 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     } else {
       /* select filter up */
       layer = (Layer *)layer->prev;
+      filter = (Filter *)layer->filters.begin();
+      filtersel = (filter)?1:0;
       layersel--;
     }
     return true;
@@ -148,6 +150,8 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     } else {
       /* select layer down */
       layer = (Layer *)layer->next;
+      filter = (Filter *)layer->filters.begin();
+      filtersel = (filter)?1:0;
       layersel++;
     }
     return true;
@@ -183,36 +187,39 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
     newfilt = true;
     _filt->inuse = true;
     break;
+
   case SDLK_UP:
     if(filter==NULL) return false;
     if(filter->prev==NULL) return false;
 
     if(keysym->mod == KMOD_RCTRL) {
     /* move filter up in chain */
-      if(layer->movedown_filter(filtersel))
+      if(layer->moveup_filter(filtersel))
 	filtersel--;
     } else {
       /* select filter up */
-      filter = (Filter *)filter->next;
+      filter = (Filter *)filter->prev;
       filtersel--;
     }
     return true;
     break;
+
   case SDLK_DOWN:
     if(filter==NULL) return false;
     if(filter->next==NULL) return false;
 
     if(keysym->mod == KMOD_RCTRL) {
       /* move filter down in chain */
-      if(layer->moveup_filter(filtersel))
-	filtersel++;      
+      if(layer->movedown_filter(filtersel))
+	filtersel++;
     } else {
       /* select filter down */
-      filter = (Filter *)filter->prev;
+      filter = (Filter *)filter->next;
       filtersel++;
     }
     return true;
     break;
+
   case SDLK_INSERT:
     if(filter==NULL) return false;
     /* switch filter on/off */

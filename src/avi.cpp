@@ -211,9 +211,8 @@ void AviLayer::forward(framepos_t step=1) {
     res = _stream->SeekToKeyFrame(p+step);
   }
   unlock_feed();
-  notice("avi seeked to %u\% (K%u)",
+  show_osd("avi seeked to %u\% (K%u)",
        (res*100)/_stream->GetLength(),res);
-  show_osd();
 }
 
 void AviLayer::rewind(framepos_t step=1) {

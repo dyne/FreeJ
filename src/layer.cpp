@@ -212,7 +212,7 @@ void Layer::blit(void *offset) {
       Uint32 *off, *poff;
       off = poff = (Uint32 *)offset + (geo.size>>2) - (geo.pitch>>2);
       int c,cc;
-      for(c=geo.h;c>0;c--) {
+      for(c=geo.h-1;c>0;c--) {
 	off = poff = poff - (geo.pitch>>2); 
 	scr = pscr = pscr + (screen->pitch>>2);
 	for(cc=geo.pitch>>2;cc>0;cc--)

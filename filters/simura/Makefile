@@ -57,7 +57,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_alias = @host_alias@
-host_triplet = i586-pc-linux-gnu
+host_triplet = i686-pc-linux-gnu
 AS = @AS@
 CC = gcc
 CXX = g++
@@ -77,7 +77,7 @@ SDL_CFLAGS = -I/usr/local/include -I/usr/local/include/SDL -D_REENTRANT
 SDL_CONFIG = /usr/local/bin/sdl-config
 SDL_LIBS = -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lSDL -lpthread
 STRIP = strip
-VERSION = 0.3.2
+VERSION = 0.4
 
 INCLUDES = -I$(top_srcdir)/src/include
 libdir = ${prefix}/lib/freej
@@ -101,7 +101,7 @@ LDFLAGS =
 LIBS = 
 simura_la_LIBADD = 
 simura_la_OBJECTS =  simura.lo
-CFLAGS = -g -Wall -O3 -fomit-frame-pointer -march=i586 -mcpu=i586 -finline-functions -ffast-math -malign-double -funroll-loops
+CFLAGS = -g -Wall -O3 -fomit-frame-pointer -march=i686 -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
