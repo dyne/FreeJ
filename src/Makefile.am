@@ -34,7 +34,8 @@ freej_SOURCES = \
 	gtk_ctrl.cpp	\
 	joy_ctrl.cpp	\
 	tvfreq.c	\
-	xhacks_layer.cpp 
+	xhacks_layer.cpp \
+	jsparser.cpp 
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		 -ldl -lpthread -lm \

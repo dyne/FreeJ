@@ -30,6 +30,7 @@
 #include <console.h>
 #include <plugger.h>
 #include <screen.h>
+#include <jsparser.h>
 
 /* maximum height & width supported by context */
 #define MAX_HEIGHT 1024
@@ -59,6 +60,9 @@ class Context {
   double now;
   int rtc_now;
   bool riciuca;
+
+  /* javascript parser object */
+  JsParser *js;
 
  public:
 

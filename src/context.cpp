@@ -31,13 +31,6 @@
 #include <jutils.h>
 #include <config.h>
 
-#ifdef WITH_JAVASCRIPT
-#define XP_UNIX 1
-#define JS_THREADSAFE 1
-#define JS_MULTITHREADED 1
-#include <jsapi.h>
-#endif
-
 Context::Context() {
 
   notice("starting %s %s engine",PACKAGE,VERSION);
@@ -60,6 +53,9 @@ Context::~Context() {
 }
 
 bool Context::init(int wx, int hx) {
+
+    js = new JsParser(this);
+    js->open("refujees.js");
   
   screen = new SdlScreen();
   if(!screen->init(wx,hx)) {
@@ -100,6 +96,8 @@ void Context::close() {
   Layer *lay;
   if(screen) delete screen;
 
+  delete js;
+
   lay = (Layer *)layers.begin();
   while(lay) {
     lay->lock();
@@ -133,6 +131,8 @@ void Context::cafudda(int secs) {
 
     /* fetch keyboard events */
     kbd.run();
+
+    js->parse();
     
     rocknroll(true);
     
