@@ -80,11 +80,13 @@ enum {
 
 void on_fullscreen(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-  SDL_WM_ToggleFullScreen(env->surf);
+  /* QUAA
+  SDL_WM_ToggleFullScreen(env->screen->scr);
+  */
 }
 void on_about(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-  env->osd->credits();
+  env->osd.credits();
 }
 void do_add_layer(GtkWidget *widget, gpointer *data) {
   Layer *lay;
@@ -175,7 +177,7 @@ void on_blit_or(GtkWidget *widget, gpointer *data) {
   if(laysel) laysel->set_blit(8); }
 void on_osd(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-  env->osd->active(); }
+  env->osd.active(); }
 void on_overwrite(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
   env->clear_all = !env->clear_all; }
@@ -392,10 +394,18 @@ void on_add_effect(char *name) {
     error("no layer selected for effect %s",name); return; }
   /* TODO plugin selection by name inside plugger
      i don't do this now, will develop LiViDO and come back later */
-  for(int c=0; (filt = (Filter*)env->plugger->plugs[c]) ; c++) {
-    if(filt->inuse) continue;
-    if(strcasecmp(filt->getname(),name)==0)
-      laysel->add_filter(filt);
+  for(int c=0; (filt = (Filter*)env->plugger.plugs[c]) ; c++) {
+    if(filt->list) continue;
+    if(strcasecmp(filt->getname(),name)==0) {
+      if(!filt->init(&laysel->geo)) {
+	error("Filter %s can't initialize",filt->getname());
+	continue;
+      }
+      laysel->filters.add(filt);
+      /* filter is automatically selected */
+      laysel->filters.sel(0);
+      filt->sel(true);
+    }
   }
 }
 void init_effect_menu() {
@@ -407,13 +417,13 @@ void init_effect_menu() {
   gtk_menu_set_title(menu_effect,"Add effect");
   item = gtk_menu_item_new_with_label("Add effect");
   gtk_menu_shell_append(GTK_MENU_SHELL(menu_effect),item);
-  for(int c=0;env->plugger->plugs[c];c++) {
-    item = gtk_menu_item_new_with_label(env->plugger->plugs[c]->getname());
+  for(int c=0;env->plugger.plugs[c];c++) {
+    item = gtk_menu_item_new_with_label(env->plugger.plugs[c]->getname());
     gtk_widget_show(item);
     gtk_menu_shell_append(GTK_MENU_SHELL(menu_effect),item);
     g_signal_connect_swapped(G_OBJECT(item),"activate",
 			     G_CALLBACK(on_add_effect),
-			     (gpointer)env->plugger->plugs[c]->getname());
+			     (gpointer)env->plugger.plugs[c]->getname());
   }
   gtk_option_menu_set_menu(option_menu_effect,(GtkWidget*)menu_effect);
 }

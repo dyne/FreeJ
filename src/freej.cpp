@@ -184,9 +184,8 @@ int main (int argc, char **argv) {
 
 
   /* this is the output context (screen) */
-  Context screen(width,height,32,SDL_HWSURFACE| SDL_ASYNCBLIT | SDL_DOUBLEBUF | SDL_HWACCEL);
-  if(screen.surf==NULL) exit(0);
-  screen.doublesize(doublesize);
+  Context freej;
+  freej.init(width,height);
 
   /* create layers requested on commandline */
   {
@@ -201,38 +200,22 @@ int main (int argc, char **argv) {
 
       lay = create_layer(pp);
 
-      if(lay) screen.add_layer(lay);
+      if(lay) freej.add_layer(lay);
       pp = l;
     }
   }
 
   /* even if not specified on commandline
-     try to open the default video device */
-  lay = create_layer("/dev/video");
-  if(lay) screen.add_layer(lay);
+     try to open the default video device 
+  lay = create_layer("/dev/video0");
+  if(lay) freej.add_layer(lay); */
 
-  /* this is the Plugin manager */
-  Plugger plugger;
-  plugger.refresh();
-  screen.plugger = &plugger;  /* dirty! */
-
-
-  /* this is the On Screen Display */
-  Osd osd;
-  osd.init(&screen);
-  osd.active();
-  set_osd(osd.status_msg); /* let jutils know about the osd */
-
-  /* (context has no layers && there is no GUI) then quit here */
-
-
-
-  if(screen.layers.len()<1) {
+  /* (no layers && no GUI) then quit here */
+  if(freej.layers.len()<1) {
     if(gtkgui)
-      osd.splash_screen();
+      freej.osd.splash_screen();
     else{
       error("no layers present, quitting");
-      screen.close();
       act("you should at least load a movie,");
       act("a png image or have a video card");
       act("to see something more (see freej -h)");
@@ -243,49 +226,29 @@ int main (int argc, char **argv) {
   
   
 
-  /* launch layer threads */
+  /* launch layer threads
   func("rock the house");
-  screen.rocknroll(startstate);
-  func("OK, rolling");
+  freej.rocknroll(startstate);
+  func("OK, rolling"); */
 
   /* launches the keyboard controller thread*/
   KbdListener keyb;
-  assert( keyb.init(&screen, &plugger) );
+  assert( keyb.init(&freej));
 
 #ifdef WITH_GLADE2
   /* this launches gtk2 interface controller thread */
   if(gtkgui) {
-    gtk_ctrl_init(&screen,&argc,argv);
+    gtk_ctrl_init(&freej,&argc,argv);
   }
 #endif
 
-  while(!screen.quit) {
-    /* main loop */
+  while(!freej.quit)
+    freej.cafudda();
+  
 
-    if(screen.clear_all) {
-      screen.clear(); /* clear all the screen */
-    } else {
-      osd.clean();    /* clear only the OSD */
-    }
 
-    lay = (Layer *)screen.layers.end();
-
-    while(lay != NULL) {
-      lay->cafudda();
-      lay = (Layer *)lay->prev;
-    }
-
-    screen.flip();
-    
-    screen.rocknroll(true);
-
-    screen.calc_fps();
-
-  }
-
-  /* quitting */
-  screen.close();
-  plugger.close();
+  
+  /* quit */
 
 #ifdef WITH_GLADE2
   if(gtkgui) gtk_ctrl_quit();

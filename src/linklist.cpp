@@ -112,6 +112,7 @@ void Linklist::rem(int pos) {
    from the procedure creating them. so this call simply discards
    the pointers stored into the linked list. OBJECTS ARE NOT FREED */
 void Linklist::clear() {
+  sel(0);
   length = 0;
   first = NULL;
   last = NULL;

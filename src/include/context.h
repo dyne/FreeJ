@@ -20,15 +20,15 @@
 #define __context_h__
 
 #include <inttypes.h>
-#include <SDL.h>
-#include <SDL_syswm.h>
 #include <iostream>
 #include <stdlib.h>
 
 #include <linklist.h>
 #include <layer.h>
 #include <osd.h>
+#include <plugger.h>
 #include <keyboard.h>
+#include <screen.h>
 
 /* maximum height & width supported by context */
 #define MAX_HEIGHT 800
@@ -56,39 +56,28 @@ class Context {
 
  public:
 
-  Context(int w, int h, int bppx, Uint32 flags);
-  ~Context() { close(); };
+  Context();
+  ~Context();
 
-  bool init(int wx, int hx, int bppx, Uint32 flagsx);
-
-  int setres(int w, int h);
+  bool init(int wx, int hx);
   
-  void close();
-  bool flip();
-  void clear();
+  void cafudda();
 
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y);
   /* this returns a pointer to the video memory */  
-  void *get_surface() { return surface; }; //  { return coords(0,0); }
-
-  bool doublesize(bool val);
-  bool dbl;
-
+  //  void *get_surface(); //  { return coords(0,0); }
+  /* clears the screen */
+  void clear();
 
   void rocknroll(bool state);
-
-  SDL_Surface *surf;
-  SDL_SysWMinfo sys;
 
   int w, h;
   int size;
   int bpp;
   int pitch;
-  int id;
-  Uint32 flags;
 
-  Uint8* surface;
+  void *vidbuf;
 
   /* linked list of registered layers */
   Linklist layers;
@@ -99,11 +88,14 @@ class Context {
   int active_layer(int sel);
   int clear_layers();
 
+  /* Video Screen */
+  ViewPort *screen;
+
   /* On Screen Display */
-  Osd *osd;
+  Osd osd;
 
   /* Filter plugins plugger */
-  Plugger *plugger;
+  Plugger plugger;
 
 
   /* ---- fps ---- */

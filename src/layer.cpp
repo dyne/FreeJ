@@ -38,7 +38,7 @@ Layer::Layer()
 }
 
 Layer::~Layer() {
-  clear_filters();
+  filters.clear();
   if(bgmatte) jfree(bgmatte);
 }
 
@@ -84,100 +84,6 @@ void Layer::run() {
     }
   }
   running = false;
-}
-
-bool Layer::add_filter(Filter *newfilt) {
-  /* PARANOIA */
-  if(!newfilt) {
-    warning("Layer::add_filter called with an invalid NULL filter");
-    return(false);
-  }
-
-  func("Layer::%s add_filter(%s)",getname(),newfilt->getname());
-
-  /* bpp support of the filter is checked by plugger */
-
-  /* let the filter initialize */
-  if(!newfilt->initialized) {
-    if(!newfilt->init(&geo)) {
-      error("cannot initialize plugin %s",newfilt->getname());
-      return false;
-    }
-    func("initialization OK");
-    newfilt->initialized = true;
-  }
-
-  /* add the filter to the linklist */
-  //  lock();
-  newfilt->inuse = true;
-  filters.add(newfilt);
-
-  //  unlock();
-
-  show_osd("NEW filter %s pos %u",newfilt->getname(),filters.len());
-  
-  return(true);
-}
-
-bool Layer::del_filter(int sel) {
-  func("Layer::del_filter(%u)",sel);
-
-  Filter *filt = (Filter *) filters[sel];
-  /* PARANOIA */
-  if(!filt) {
-    warning("Layer::del_filter - filters.pick(%u) returned NULL",sel);
-    return(false);
-  };
-
-  lock();
-  filt->rem();
-  filt->inuse = false;
-  filt->initialized = false;
-  unlock();
-
-  show_osd("DEL filter %s pos %u",filt->getname(),sel);
-
-  return(true);
-}
-
-void Layer::clear_filters() {
-  int c = 0;
-  func("Layer::clear_filters()");
-
-  lock();
-  Filter *f = (Filter *)filters.begin();
-
-  while(f) {
-    c++;
-    filters.rem(1);
-    f->inuse = false;
-    f->initialized = false;
-    f = (Filter *)filters.begin();
-  }
-  unlock();
-}
-
-bool Layer::moveup_filter(int sel) {
-  bool res = filters.moveup(sel);
-  if(res)
-    show_osd("MOVE UP filter %u -> %u",sel,sel-1);
-  return(res);
-}
-
-bool Layer::movedown_filter(int sel) {
-  bool res = filters.movedown(sel);
-  if(res)
-    show_osd("MOVE DOWN filter %u -> %u",sel,sel+1);
-  return(res);
-}
-
-Filter *Layer::active_filter(int sel) {
-  Filter *filt = (Filter *)filters.pick(sel);
-  filt->active = !filt->active;
-  show_osd("%s filter %s pos %u",
-      filt->active ? "ACTIVATED" : "DEACTIVATED",
-      filt->getname(), sel);
-  return(filt);
 }
 
 void Layer::set_blit(int b) {

@@ -69,16 +69,9 @@ class Layer: public Entry, public JSyncThread {
 
   void set_blit(int b);
   char *get_blit();
+  bool alpha_blit;
 
   void crop();
-  
-  bool add_filter(Filter *newfilt);
-  bool del_filter(int sel);
-  void clear_filters();
-  bool moveup_filter(int sel);
-  bool movedown_filter(int sel);
-  Filter *active_filter(int sel);
-  bool alpha_blit;
 
   virtual bool keypress(SDL_keysym *keysym) { return(false); };
 

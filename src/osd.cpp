@@ -22,8 +22,6 @@
 #include <inttypes.h>
 
 #include <context.h>
-#include <plugger.h>
-#include <osd.h>
 #include <font_pearl_8x8.h>
 #include <config.h>
 
@@ -31,7 +29,7 @@ uint32_t *Osd::print(char *text, uint32_t *pos, int hsize, int vsize) {
   int y,x,i,len,f,v,ch,cv;
   uint32_t *ptr;
   uint32_t *diocrap = pos; //(uint32_t *)env->coords(xpos,ypos);
-  unsigned char *buffer = (unsigned char *)env->get_surface();
+  unsigned char *buffer = (unsigned char *)env->screen->get_surface();
   v = env->w*vsize;
   
   len = strlen(text);
@@ -74,7 +72,6 @@ Osd::~Osd() { }
 
 void Osd::init(Context *screen) {
   this->env = screen;
-  screen->osd = this;
   _set_color(white);
 
   /* add ipernaut logo layer */
@@ -298,13 +295,13 @@ bool Osd::credits() {
     SDL_keysym keysym;
 
     /* add first vertigo effect on logo */
-    osd_vertigo = env->plugger->pick("vertigo");
+    osd_vertigo = env->plugger.pick("vertigo");
     if(osd_vertigo) {
       osd_vertigo->init(&ipernaut->geo);
       ipernaut->filters.add(osd_vertigo);
     }
     /* add second water effect on logo */
-    osd_water = env->plugger->pick("water");
+    osd_water = env->plugger.pick("water");
     if(osd_water) {
       osd_water->init(&ipernaut->geo);
       keysym.sym = SDLK_y; osd_water->kbd_input(&keysym);
@@ -337,22 +334,22 @@ void Osd::_print_credits() {
 void Osd::_set_color(colors col) {
   switch(col) {
   case black:
-    _color32 = 0x88000000;
+    _color32 = 0x00000000;
     break;
   case white:
-    _color32 = 0x88fefefe;
+    _color32 = 0x00fefefe;
     break;
   case green:
-    _color32 = 0x8800ee00;
+    _color32 = 0x0000ee00;
     break;
   case red:
-    _color32 = 0x88ee0000;
+    _color32 = 0x00ee0000;
     break;
   case blue:
-    _color32 = 0x880000fe;
+    _color32 = 0x000000fe;
     break;
   case yellow:
-    _color32 = 0x88ffef00;
+    _color32 = 0x00ffef00;
     break;
   }
 }
@@ -360,7 +357,7 @@ void Osd::_set_color(colors col) {
 void Osd::clean() {
   int c,cc;
   int jump = (env->w - HBOUND - HBOUND) / 2;
-  uint64_t *top = (uint64_t*)env->get_surface();
+  uint64_t *top = (uint64_t*)env->screen->get_surface();
   uint64_t *down = (uint64_t*)env->coords(0,env->h-VBOUND);
   
   for(c=(VBOUND*(env->w>>1));c>0;c--) {

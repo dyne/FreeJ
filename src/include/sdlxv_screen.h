@@ -14,39 +14,45 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  */
 
-#ifndef __KEYBOARD_H__
-#define __KEYBOARD_H__
+#ifndef __SDLXV_SCREEN_H__
+#define __SDLXV_SCREEN_H__
 
-#include <jsync.h>
+#include <SDL.h>
+#include <screen.h>
 
-class Context;
-class Layer;
-class Filter;
-class Plugger;
-
-class KbdListener : public JSyncThread {
- private:
-  bool _layer_op(SDL_keysym *keysym);
-  bool _context_op(SDL_keysym *keysym);
-  Filter *_filt;
-  int _sel, _lastsel;
-  int plugin_bank;
-
+class SdlXvScreen : public ViewPort {
  public:
-  KbdListener();
-  ~KbdListener();
-  
-  bool init(Context *context);
-  void run();
-  
-  Context *env;
-  Layer *layer;
-  Filter *filter;
-  Plugger *plugger;
 
-  bool quit;
+  SdlXvScreen();
+  ~SdlXvScreen();
+
+  bool init(int width, int height);
+  void show();
+  bool update(void *buf);
+
+  SDL_Surface *scr;
+
+ private:
+
+  bool sdl_lock();
+  bool sdl_unlock();
+  bool yuv_lock();
+  bool yuv_unlock();
+
+
+  SDL_Overlay *yuv_overlay;
+  SDL_Rect rect;
+  int use_yuv_direct;
+  int use_yuv_hwaccel;
+  
+  void *anal;
+
 };
+
 
 #endif

@@ -9,19 +9,21 @@ freej_SOURCES = \
 	freej.cpp	\
 	context.cpp	\
 	layer.cpp	\
+	linklist.cpp	\
+	jsync.cpp	\
+	osd.cpp		\
+	plugin.cpp	\
+	plugger.cpp	\
+	jutils.cpp	\
 	v4l_layer.cpp	\
 	avi_layer.cpp	\
 	png_layer.cpp	\
 	txt_layer.cpp	\
 	impl_layers.cpp \
-	linklist.cpp	\
-	jsync.cpp	\
+	sdl_screen.cpp \
+	sdlxv_screen.cpp \
 	keyboard.cpp	\
 	gtk_ctrl.cpp	\
-	osd.cpp		\
-	plugin.cpp	\
-	plugger.cpp	\
-	jutils.cpp	\
 	tvfreq.c
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \

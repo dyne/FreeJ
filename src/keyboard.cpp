@@ -41,16 +41,13 @@ KbdListener::~KbdListener() {
 
 }
 
-bool KbdListener::init(Context *context, Plugger *plug) {
+bool KbdListener::init(Context *context) {
 
-  if(!context || !plug) return false;
+  if(!context) return false;
 
   /* saves the pointer to the environment */
   this->env = context;
   
-  /* saves the pointer to the plugger */
-  this->plugger = plug;
-
   start();
 
   return(true);
@@ -90,26 +87,29 @@ void KbdListener::run() {
       break;
       
     case SDLK_SPACE:
+      /*
       if(keysym->mod & KMOD_CTRL)
-	SDL_WM_ToggleFullScreen(env->surf);
+	// QUAAA
+	SDL_WM_ToggleFullScreen(env->screen->scr);
       else
 	show_osd("press CTRL+SPACE to switch fullscreen");
+      */
       break;
       
     case SDLK_TAB:
       if(keysym->mod & KMOD_CTRL)
-	env->osd->calibrate();
+	env->osd.calibrate();
       else
-	env->osd->active();
+	env->osd.active();
       break;
 
     case SDLK_PRINT:
-      env->osd->credits();
+      env->osd.credits();
       break;
     
     case SDLK_f:
       if(keysym->mod & KMOD_CTRL) {
-	env->osd->fps();
+	env->osd.fps();
 	break;
       }
 
@@ -166,7 +166,7 @@ void KbdListener::run() {
       } else {
 	if(_lastsel==_sel+plugin_bank) break;
 	_lastsel = (_sel+plugin_bank);
-	_filt = (*plugger)[_lastsel];
+	_filt = env->plugger[_lastsel];
 	if(_filt) show_osd("add %s filter?",_filt->getname());
 	else show_osd("no filter on bank %X position %u",plugin_bank/10,_sel);
       }
@@ -175,16 +175,19 @@ void KbdListener::run() {
     case SDLK_RETURN:
       /* add a new filter to the selected layer */
       if(!_filt) break;
-      if(_filt->inuse) {
+      if(_filt->list) {
 	show_osd("Filter %s is allready in use",_filt->getname());
 	break;
       }
-      if(layer->add_filter(_filt)) {
-	/* the filter has been accepted on the layer chain */
-	filter = _filt;
-	layer->filters.sel(0);
-	filter->sel(true);
+      if(!_filt->init(&layer->geo)) {
+	show_osd("filter %s doesn't initializes",_filt->getname());
+	break;
       }
+      layer->filters.add(_filt);
+      /* filter is automatically selected */
+      filter = _filt;
+      layer->filters.sel(0);
+      filter->sel(true);
       break;
       
     case SDLK_UP:
@@ -257,7 +260,7 @@ void KbdListener::run() {
       if(keysym->mod & KMOD_CTRL) {
 	func("Keyboard CLEAR ALL FILTERS");
 	/* clear ALL FILTERS */
-	layer->clear_filters();
+	layer->filters.clear();
 	filter = NULL;
 	break;
       }

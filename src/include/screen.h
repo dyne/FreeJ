@@ -14,39 +14,29 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  */
 
-#ifndef __KEYBOARD_H__
-#define __KEYBOARD_H__
+#ifndef __SCREEN_H__
+#define __SCREEN_H__
 
-#include <jsync.h>
+#include <inttypes.h>
 
-class Context;
-class Layer;
-class Filter;
-class Plugger;
-
-class KbdListener : public JSyncThread {
- private:
-  bool _layer_op(SDL_keysym *keysym);
-  bool _context_op(SDL_keysym *keysym);
-  Filter *_filt;
-  int _sel, _lastsel;
-  int plugin_bank;
-
+class ViewPort {
  public:
-  KbdListener();
-  ~KbdListener();
+  ViewPort() {};
+  virtual ~ViewPort() {};
   
-  bool init(Context *context);
-  void run();
+  virtual bool init(int width, int height) { return false; }; 
+  virtual void show() { };
+  virtual bool update(void *buf) { return false; };
+  virtual void *get_surface() { return NULL; }; // returns direct pointer to video memory
+  int w, h;
+  int bpp;
+  int size, pitch;
   
-  Context *env;
-  Layer *layer;
-  Filter *filter;
-  Plugger *plugger;
-
-  bool quit;
 };
 
 #endif

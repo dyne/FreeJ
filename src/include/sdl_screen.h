@@ -14,39 +14,43 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ * "$Id$"
+ *
  */
 
-#ifndef __KEYBOARD_H__
-#define __KEYBOARD_H__
+#ifndef __SDL_SCREEN_H__
+#define __SDL_SCREEN_H__
 
-#include <jsync.h>
+#include <SDL.h>
+#include <screen.h>
 
-class Context;
-class Layer;
-class Filter;
-class Plugger;
-
-class KbdListener : public JSyncThread {
- private:
-  bool _layer_op(SDL_keysym *keysym);
-  bool _context_op(SDL_keysym *keysym);
-  Filter *_filt;
-  int _sel, _lastsel;
-  int plugin_bank;
-
+class SdlScreen : public ViewPort {
  public:
-  KbdListener();
-  ~KbdListener();
-  
-  bool init(Context *context);
-  void run();
-  
-  Context *env;
-  Layer *layer;
-  Filter *filter;
-  Plugger *plugger;
+  SdlScreen();
+  ~SdlScreen();
 
-  bool quit;
+  bool init(int widt, int height);
+  void show();
+  bool update(void *buf);
+  void *get_surface();
+
+  SDL_Surface *scr;
+  SDL_Surface *emuscr;
+  void *surface;
+
+ private:
+  int setres(int wx, int hx);
+  bool sdl_lock();
+  bool sdl_unlock();
+  
+  SDL_Surface *blit;
+  SDL_Rect rect;
+  uint32_t rmask, gmask, bmask, amask;
+
+  bool dbl;
+  uint32_t sdl_flags;
+  
 };
 
-#endif
+#endif 

@@ -180,11 +180,10 @@ bool V4lGrabber::init(Context *screen) {
   /* INIT from the LAYER CLASS */
   _init(screen,init_width,init_heigth);
 
-  palette = VIDEO_PALETTE_YUV422; // good is YUV422P;
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */
   /*  yuv2rgb = yuv2rgb_init(geo.bpp,0x1); arg2 is MODE_RGB */
-  rgb_surface = jalloc(rgb_surface,geo.size);
+
 
   //  u = (geo.w*geo.h);
   //  v = u+(u/2);//u+(u/2);
@@ -195,7 +194,29 @@ bool V4lGrabber::init(Context *screen) {
     error("cannot allocate v4lgrabber buffer ");
     return(false);
   }
+
   
+  palette = VIDEO_PALETTE_YUV422P; // good is YUV422P;
+  grab_buf[0].format = palette;
+  grab_buf[0].frame  = 0;
+  grab_buf[0].height = geo.h;
+  grab_buf[0].width = geo.w;
+  /* feed up the mmapped frame */  
+  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) {
+    func("v4l::init : palette test on CMCAPTURE with YUV422P failed");
+    func("try to grab format YUV420P");
+    palette = VIDEO_PALETTE_YUV420P;
+    grab_buf[0].format = palette;
+    grab_buf[0].frame  = 0;
+    grab_buf[0].height = geo.h;
+    grab_buf[0].width = geo.w;
+    if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) {
+      error("no valid palette supported by V4L device?!");
+      munmap(buffer,grab_map.size);
+      return false;
+    }
+  }
+
   for(i=0; i<grab_map.frames; i++) {
     /* initialize frames geometry */
     grab_buf[i].format = palette;
@@ -204,12 +225,7 @@ bool V4lGrabber::init(Context *screen) {
     grab_buf[i].width = geo.w;
   }
 
-  /* feed up the mmapped frame */  
-  if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) {
-    func("V4lGrabber::init");
-    error("error in ioctl VIDIOCMCAPTURE on buffer %p",&grab_buf[0]);
-  }
-
+  rgb_surface = malloc(geo.size);
 
   cur_frame = ok_frame = 0;
 
@@ -325,13 +341,16 @@ void *V4lGrabber::feed() {
   grab_buf[ok_frame].format = palette;
   if (-1 == ioctl(dev,VIDIOCSYNC,&grab_buf[ok_frame])) {
     func("V4lGrabber::feed");
-    error("error in ioctl VIDIOCSYNC on buffer %p",&grab_buf[ok_frame]);
+    error("error in ioctl VIDIOCSYNC on buffer %i/%i (%p)",
+	  ok_frame,num_frame,&grab_buf[ok_frame]);
+    return(NULL);
   }
 
   grab_buf[cur_frame].format = palette;
   if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
     func("V4lGrabber::feed");
-    error("error in ioctl VIDIOCMCAPTURE on buffer %p",&grab_buf[cur_frame]);
+    error("error in ioctl VIDIOCMCAPTURE on buffer %i/%i (%p)",
+	  cur_frame,num_frame,&grab_buf[cur_frame]);
   }
 
   /*
@@ -341,7 +360,12 @@ void *V4lGrabber::feed() {
 	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+v],
 	     geo.w, geo.h, geo.pitch, geo.w, geo.w);  
   */
-  ccvt_yuyv_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
+  if(palette == VIDEO_PALETTE_YUV422P)
+    ccvt_yuyv_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
+  else if(palette == VIDEO_PALETTE_YUV420P)
+    ccvt_420p_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
+  else
+    error("colorspace conversion for palette %i not supported",palette);
 
   return rgb_surface;
 }
