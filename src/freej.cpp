@@ -39,6 +39,7 @@
 #include <gtk_ctrl.h>
 #endif
 #include <joy_ctrl.h>
+#include <midi_ctrl.h>
 
 #define MAX_CLI_CHARS 4096
 
@@ -240,6 +241,9 @@ int main (int argc, char **argv) {
      if any joystick is connected */
   JoyControl joystick;
   joystick.init(&freej);
+
+  MidiControl midi;
+  midi.init(&freej);
 
 #ifdef WITH_GLADE2
   /* check if we have an X11 display running */
