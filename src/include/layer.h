@@ -108,6 +108,9 @@ class Layer: public Entry, public JSyncThread {
   ScreenGeometry geo;
   ///< Geometrical information about the Layer
 
+  Linklist iterators;
+  ///< Iterator list of value modifiers
+
   bool active; ///< is active? (read-only)
   bool quit; ///< should it quit? (read-write)
   bool running; ///< is running? (read-only)

@@ -25,6 +25,7 @@
 
 #include <layer.h>
 #include <context.h>
+#include <iterator.h>
 #include <jutils.h>
 #include <config.h>
 
@@ -90,6 +91,9 @@ void Layer::run() {
 }
 
 bool Layer::cafudda() {
+  Filter *filt;
+  Iterator *iter, *itertmp;
+  int res;
 
   if((!active) || (hidden))
     return false;
@@ -100,10 +104,19 @@ bool Layer::cafudda() {
     return(false);
   }
 
+  /* process thru iterators */
+  iter = (Iterator*)iterators.begin();
+  while(iter) {
+    res = iter->cafudda(); // if cafudda returns -1...
+    itertmp = iter;
+    iter = (Iterator*)iter->next;
+    if(res<0) delete itertmp; // ...iteration ended
+  }
+
+
   filters.lock();
 
-  Filter *filt = (Filter *)filters.begin();
-
+  filt = (Filter *)filters.begin();
   while(filt) {
     if(filt->active) offset = filt->process(offset);
     filt = (Filter *)filt->next;

@@ -39,7 +39,7 @@ class Iterator : public Entry {
   Iterator(char *ntype, void *val);
   ~Iterator();
 
-  void cafudda();
+  int cafudda();
 
   void set_min(void *val);  
   void set_max(void *val);

@@ -27,6 +27,19 @@
 #include <jutils.h>
 #include <config.h>
 
+#ifdef ARCH_PPC
+static uint32_t rmask = 0xff000000;
+static uint32_t gmask = 0x00ff0000;
+static uint32_t bmask = 0x0000ff00;
+static uint32_t amask = 0x000000ff;
+#else
+static uint32_t rmask = 0x00ff0000;
+static uint32_t gmask = 0x0000ff00;
+static uint32_t bmask = 0x000000ff;
+static uint32_t amask = 0xff000000;
+#endif
+
+
 /* blit functions, prototype is:
    void (*blit_f)(void *src, void *dst, int bytes) */
 
@@ -34,8 +47,33 @@ static inline void memcpy_blit(void *src, void *dst, int bytes, void *value) {
   memcpy(dst,src,bytes);
 }
 
-static inline void accel_memcpy_blit(void *src, void *dst, int bytes, void *value) {
-  jmemcpy(dst,src,bytes);
+/* there is something wrong in this */
+//static inline void accel_memcpy_blit(void *src, void *dst, int bytes, void *value) {
+//  jmemcpy(dst,src,bytes);
+//}
+
+static inline void red_channel(void *src, void *dst, int bytes, void *value) {
+  register int c;
+  register uint32_t *s = (uint32_t*)src;
+  register uint32_t *d = (uint32_t*)dst;
+  for(c=bytes>>2;c>0;c--,s++,d++)
+    *d = ((*s)&rmask);
+}
+
+static inline void green_channel(void *src, void *dst, int bytes, void *value) {
+  register int c;
+  register uint32_t *s = (uint32_t*)src;
+  register uint32_t *d = (uint32_t*)dst;
+  for(c=bytes>>2;c>0;c--,s++,d++)
+    *d = ((*s)&gmask);
+}
+
+static inline void blue_channel(void *src, void *dst, int bytes, void *value) {
+  register int c;
+  register uint32_t *s = (uint32_t*)src;
+  register uint32_t *d = (uint32_t*)dst;
+  for(c=bytes>>2;c>0;c--,s++,d++)
+    *d = ((*s)&bmask);
 }
 
 static inline void schiffler_add(void *src, void *dst, int bytes, void *value) {
@@ -81,6 +119,10 @@ static inline void schiffler_and(void *src, void *dst, int bytes, void *value) {
 static inline void schiffler_or(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBitOr((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
+
+/* ====== end of transparent blits
+   all the following blits can be considered effects
+   they completely overwrite the underlying image */
 
 static inline void schiffler_neg(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBitNegation((unsigned char*)src,(unsigned char*)dst,bytes);
@@ -129,18 +171,6 @@ Blit::Blit() :Entry() {
   fun = NULL;
   type = 0x0;
 
-#ifdef ARCH_PPC
-  rmask = 0xff000000;
-  gmask = 0x00ff0000;
-  bmask = 0x0000ff00;
-  amask = 0x000000ff;
-#else
-  rmask = 0x000000ff;
-  gmask = 0x0000ff00;
-  bmask = 0x00ff0000;
-  amask = 0xff000000;
-#endif
-
 }
 
 Blit::~Blit() { }
@@ -176,11 +206,11 @@ bool Blitter::init(Layer *lay) {
   /* fill up linklist of blits */
   Blit *b;
 
-
-  b = new Blit(); b->set_name("AMEMCPY");
-  sprintf(b->desc,"cpu accelerated memcpy");
-  b->type = LINEAR_BLIT;
-  b->fun = accel_memcpy_blit; blitlist.append(b);
+  // removed (buggy?)
+  //  b = new Blit(); b->set_name("AMEMCPY");
+  //  sprintf(b->desc,"cpu accelerated memcpy");
+  //  b->type = LINEAR_BLIT;
+  //  b->fun = accel_memcpy_blit; blitlist.append(b);
 
   b = new Blit(); b->set_name("ADD");
   sprintf(b->desc,"bytewise addition");
@@ -236,6 +266,21 @@ bool Blitter::init(Layer *lay) {
   sprintf(b->desc,"bitwise or");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_or; blitlist.append(b);
+
+  b = new Blit(); b->set_name("RED");
+  sprintf(b->desc,"red channel only blit");
+  b->type = LINEAR_BLIT;
+  b->fun = red_channel; blitlist.append(b);
+
+  b = new Blit(); b->set_name("GREEN");
+  sprintf(b->desc,"green channel only blit");
+  b->type = LINEAR_BLIT;
+  b->fun = green_channel; blitlist.append(b);
+
+  b = new Blit(); b->set_name("BLUE");
+  sprintf(b->desc,"blue channel only blit");
+  b->type = LINEAR_BLIT;
+  b->fun = blue_channel; blitlist.append(b);
 
   b = new Blit(); b->set_name("NEG");
   sprintf(b->desc,"bitwise negation");
@@ -325,8 +370,7 @@ void Blitter::blit() {
     current_blit->sdl_surface = 
       SDL_CreateRGBSurfaceFrom
       (layer->offset, layer->geo.w, layer->geo.h, layer->geo.bpp,
-       layer->geo.pitch, current_blit->bmask, current_blit->gmask,
-       current_blit->rmask, 0x0);
+       layer->geo.pitch, bmask, gmask, rmask, 0x0);
 
     if(current_blit->value <0xff) // is there transparency?
       SDL_SetAlpha(current_blit->sdl_surface,SDL_SRCALPHA,

@@ -154,12 +154,12 @@ void *XHacksLayer::feed() {
 //XSync(dpy, true);
 //XFreePixmap(dpy, img);
 //img = XGetImage(dpy, back_win, 0, 0, geo.w, geo.h, 32, XYBitmap);
-img = XGetImage(dpy, back_win, 0, 0, geo.w, geo.h, ~0L, ZPixmap);
-//buffer=img->data;
-jmemcpy(buffer, img->data, geo.size);
-//buffer=*(&img->data);
-XDestroyImage(img);
-//XSync(dpy, true);
+  img = XGetImage(dpy, back_win, 0, 0, geo.w, geo.h, ~0L, ZPixmap);
+  //buffer=img->data;
+  memcpy(buffer, img->data, geo.size);
+  //buffer=*(&img->data);
+  XDestroyImage(img);
+  //XSync(dpy, true);
   return buffer;
 }
 

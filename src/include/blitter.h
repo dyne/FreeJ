@@ -62,7 +62,6 @@ class Blit: public Entry {
   /* small vars used in blits? */
   int chan, c, cc;
   uint32_t *scr, *pscr, *off, *poff;
-  uint32_t rmask,gmask,bmask,amask;
 };
 
 

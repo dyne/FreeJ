@@ -46,6 +46,7 @@
 #define KEY_CTRL_B 2 // change blit
 #define KEY_CTRL_E 5 // add new effect
 #define KEY_CTRL_F 6 // go fullscreen
+#define KEY_CTRL_G 7
 #define KEY_CTRL_K 11 // delete until end of line
 #define KEY_CTRL_D 4 // delete char
 #define KEY_CTRL_U 21 // delete until beginning of line
@@ -64,6 +65,7 @@ static void sigwinch_handler (int sig) {
   SLsignal (SIGWINCH, sigwinch_handler);
 }
 
+static bool real_quit;
 static bool keyboard_quit;
 static void sigint_handler (int sig) {
   SLsignal_intr (SIGINT, sigint_handler);
@@ -176,7 +178,8 @@ static int filter_comp(char *cmd) {
   if(!res[0]) return 0; // no hit 
 
   if(!res[1]) { // exact match: fill in the command
-    filt = env->plugger.pick(res[c]);
+    filt = env->plugger.pick(res[0]);
+    if(!filt) return 0; // doublecheck safety fix
     ::notice("%s :: %s",filt->getname(),filt->getinfo());
     snprintf(cmd,511,"%s",res[0]); c=1;
   } else { // list all matches
@@ -187,6 +190,16 @@ static int filter_comp(char *cmd) {
     }
   }
   return c;
+}
+// confirm quit
+static int quit_proc(char *cmd) {
+  if(!cmd) return 0;
+  if(cmd[0]=='y') {
+    real_quit = true;
+    return 1;
+  }
+  real_quit = false;
+  return 0;
 }
 
 static int open_layer(char *cmd) {
@@ -361,10 +374,18 @@ void Console::getkey() {
     SLsmg_set_color(PLAIN_COLOR);
 
     switch(key) {
-      
+
     case SL_KEY_ENTER:
     case KEY_ENTER:
-      (*cmd_process)(command);
+      res = (*cmd_process)(command);
+      if(res<0) return;
+      input = false;
+      cmd_process = NULL;
+      cmd_complete = NULL;
+      statusline();
+      return;
+
+    case KEY_CTRL_G:
       input = false;
       cmd_process = NULL;
       cmd_complete = NULL;
@@ -390,12 +411,19 @@ void Console::getkey() {
       ::func("BACKSPACE");
       if(!cursor) return;
       cursor--;
-      for(c=cursor;command[c]!=EOL;c++)
-	command[c] = command[c+1];
-      if(c==cursor) {
-	cursor--; command[cursor] = EOL;
-	GOTO_CURSOR;
+      //      for(c=cursor;command[c]!=EOL;c++)
+      //	command[c] = command[c+1];
+      //      GOTO_CURSOR;
+      //      SLsmg_write_string(&command[cursor]);
+      //      SLsmg_erase_eol();
+      //      GOTO_CURSOR;
+      if(command[cursor+1]==EOL) {
+	func("cursor on end of line");
+	command[cursor] = EOL;
       } else {
+	for(c=cursor;command[c]!=EOL;c++)
+	  command[c] = command[c+1];
+	command[c] = EOL;
 	SLsmg_write_string(&command[cursor]);
       }
       SLsmg_erase_eol();
@@ -451,8 +479,7 @@ void Console::getkey() {
 
     }
     /* add char at cursor position
-       insert mode
-       FIX ME! */
+       insert mode       FIX ME! */
     for(c=cursor;command[c+1]!=EOL;c++)
       command[c+1] = command[c];
     command[cursor] = key;
@@ -566,13 +593,23 @@ void Console::cafudda() {
   getkey(); // get pending keyboard input
 
   if(keyboard_quit) {
-    env->quit = true;
+    readline("do you really want to quit? type y or n:",&quit_proc,NULL);
+    keyboard_quit = false;
     return;
   }
 
+  if(real_quit) {
+    notice("QUIT requested from console! bye bye");
+    env->quit = true;
+    real_quit = false;
+  }   
+
+  if(!layer) // if no layer selected, pick the first
+    layer = (Layer*)env->layers.begin();
+  
   /* S-Lang says: 
-   * All well behaved applications should block signals that may affect
-   * the display while performing screen update. */
+   * All well behaved applications should block signals that
+   * may affect the display while performing screen update. */
   SLsig_block_signals ();
   
   if(screen_size_changed) {
@@ -592,13 +629,12 @@ void Console::cafudda() {
   if(do_update_scroll)
     update_scroll();
 
-
-
   if(!input) {
     speedmeter();
     statusline();
-  }
-  
+  } else
+    GOTO_CURSOR;
+
   SLsmg_refresh();
   
   SLsig_unblock_signals ();
@@ -628,7 +664,7 @@ void Console::speedmeter() {
   } else if(env->fps > 30) {
     SLsmg_set_color(3);
     SLsmg_write_string("smooth ");
-  } else if(env->fps > 50) {
+  } else if(env->fps > 40) {
     SLsmg_set_color(13);
     SLsmg_write_string("fast ");
   } else if(env->fps > 50) {
@@ -655,9 +691,6 @@ void Console::canvas() {
   SLsmg_set_color(33);
   SLsmg_write_string("OFT");
 
-
-  //  SLsmg_gotorc(14,0);
-  //  SLsmg_draw_hline(72);
   SLsmg_set_color(PLAIN_COLOR);
   SLsmg_gotorc(SLtt_Screen_Rows - 2,0);
   SLsmg_draw_hline(72);
@@ -698,7 +731,7 @@ void Console::layerlist() {
   /* take layer selected and first */
   Layer *l = (Layer *)env->layers.begin();
   
-  while(l) { /*draw the layer's list */
+  while(l) { /* draw the layer's list */
 
     SLsmg_set_color(LAYERS_COLOR);
     SLsmg_write_string(" -> ");
@@ -742,13 +775,14 @@ void Console::filterprint() {
 }
 
 void Console::filterlist() {
+  Filter *f;
   int color;
   int pos = 5;
   
-  if(layer && filter) {
+  if(layer) {
 
     layer->filters.lock();
-    Filter *f = (Filter *)layer->filters.begin();
+    f = (Filter *)layer->filters.begin();
     while(f) {
 
       SLsmg_set_color(PLAIN_COLOR);
@@ -883,6 +917,6 @@ void Console::update_scroll() {
     line = line->prev;
   } 
   SLsmg_set_color(PLAIN_COLOR);
-
   do_update_scroll = false;
+  GOTO_CURSOR;
 }

@@ -29,6 +29,8 @@
 
 #define LISTEN_EVENT_TYPES (SDL_KEYDOWN|SDL_MOUSEMOTION)
 
+static bool alpha = false;
+
 KbdListener::KbdListener() {
   _filt = NULL;
   _lastsel = -1;
@@ -245,32 +247,65 @@ void KbdListener::run() {
       break;
 
 
-#if 0 /// @TODO to be rewritten the blit selection from keyboard
+
 
       /* BLIT ALGOS */
     case SDLK_1: // RGB straight blit
-    case SDLK_2: // BLUE CHAN
+      if(alpha)
+	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
+      else
+	layer->blitter.set_blit("MEMCPY");
+      break;
+    case SDLK_2: // RED CHAN
+      if(alpha)
+	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
+      else
+	layer->blitter.set_blit("RED");
+      break;
     case SDLK_3: // GREEN CHAN
-    case SDLK_4: // RED CHAN
+      if(alpha)
+	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
+      else
+	layer->blitter.set_blit("GREEN");
+      break;
+    case SDLK_4: // BLUE CHAN
+      if(alpha)
+	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
+      else
+	layer->blitter.set_blit("BLUE");
+      break;
     case SDLK_5: // PACKED ADD BYTEWISE
+      if(alpha)
+	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
+      else
+	layer->blitter.set_blit("ADD");
+      break;
     case SDLK_6: // PACKED SUB BYTEWISE
+      if(alpha)
+	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
+      else
+	layer->blitter.set_blit("SUB");
+      break;
     case SDLK_7: // PACKED AND BYTEWISE
+      if(alpha)
+	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
+      else
+	layer->blitter.set_blit("AND");
+      break;
     case SDLK_8: // PACKED OR BYTEWISE
-      if(layer->blit == 9) /* handle alpha transparence */
-	layer->set_alpha( ( 255 * (keysym->sym - SDLK_0) ) / 8 );
+      if(alpha)
+	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
       else
-	layer->set_blit(keysym->sym - SDLK_0);
+	layer->blitter.set_blit("OR");
       break;
-    case SDLK_9: // ALPHA TRANSPARENCE
-      if(layer->blit == 9) /* switch back to opaque mode */
-	layer->set_blit(1);
-      else
-	layer->set_blit(9);
-      break;
-      /*    case SDLK_9:
-      layer->alpha_blit = !layer->alpha_blit;
-      break;
-      */
+    case SDLK_9:
+      if(alpha) {
+	layer->blitter.set_blit("MEMCPY");
+	alpha = false;
+      } else {
+	layer->blitter.set_blit("ALPHA");
+	alpha = true;
+      }
 
     case SDLK_BACKSPACE:
       if(keysym->mod & KMOD_SHIFT) /* go to white */
@@ -280,7 +315,7 @@ void KbdListener::run() {
       else layer->bgcolor = 0; /* back to layer feed */
       break;
 
-#endif      
+
     case SDLK_DELETE:
       if(keysym->mod & KMOD_CTRL) {
 	func("Keyboard CLEAR ALL FILTERS");

@@ -80,7 +80,7 @@ Iterator::~Iterator() {
   free(aim);
 }
 
-void Iterator::cafudda() {
+int Iterator::cafudda() {
   bool res;
   bool bound = false;
   func("Iterator::cafudda processing %s",get_name());
@@ -88,9 +88,11 @@ void Iterator::cafudda() {
   // control if we are aiming to a different value
   CMP(aim,==,buffer,res);
   // if the value is allready reached we have nothing to do
+
   
   CMP(aim,>,buffer,direction);
-  
+  // check which direction we wanna go
+
   switch(envelope) {
   case ITERATOR_ENVELOPE_LINEAR:
     if(direction) { // we must increase
@@ -118,11 +120,13 @@ void Iterator::cafudda() {
     switch(mode) {
     case ITERATOR_MODE_ONCE:
       /* stop once aim is reached */
+      return -1;
       break;
       
     default: break;
     }
   
+  return 1;
 }
 
 void Iterator::set_min(void *val) {

@@ -230,6 +230,7 @@ bool PngLayer::keypress(SDL_keysym *keysym) {
 	    else 
 		blinking=true;
 	    break;
+    default: break;
     }
     return true;
 }
