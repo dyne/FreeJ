@@ -16,6 +16,7 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <string.h>
 #include <layer.h>
 #include <context.h>
 #include <lubrify.h>
