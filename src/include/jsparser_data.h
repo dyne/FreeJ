@@ -53,8 +53,12 @@ JS(vscroll_layer_constructor);
 JS(filter_constructor);
 JS(v4l_layer_constructor);
 JS(avi_layer_constructor);
+#ifdef WITH_FT2
 JS(txt_layer_constructor);
+#endif
+#ifdef WITH_PNG
 JS(png_layer_constructor);
+#endif
 
 // global environment class
 static JSClass global_class = {
@@ -74,8 +78,12 @@ DECLARE_CLASS("V4lLayer",v4l_layer_class,v4l_layer_constructor);
 #ifdef WITH_AVIFILE
 DECLARE_CLASS("AviLayer",avi_layer_class,avi_layer_constructor);
 #endif
+#ifdef WITH_FT2
 DECLARE_CLASS("TxtLayer",txt_layer_class,txt_layer_constructor);
+#endif
+#ifdef WITH_PNG
 DECLARE_CLASS("PngLayer",png_layer_class,png_layer_constructor);
+#endif
 
 ////////////////////////////////
 ////////////////////////////////
@@ -165,6 +173,7 @@ JS(avi_layer_pos);
 JS(avi_layer_pause);
 #endif
 
+#ifdef WITH_FT2
 ////////////////////////////////
 // Txt Layer methods
 JS(txt_layer_font);
@@ -174,6 +183,7 @@ JS(txt_layer_next);
 JS(txt_layer_blink);
 JS(txt_layer_blink_on);
 JS(txt_layer_blink_off);
+#endif
 
 
 
@@ -250,6 +260,7 @@ JSFunctionSpec avi_layer_methods[] = {
 };
 #endif
 
+#ifdef WITH_FT2
 JSFunctionSpec txt_layer_methods[] = {
   LAYER_METHODS,
   ENTRY_METHODS,
@@ -263,12 +274,15 @@ JSFunctionSpec txt_layer_methods[] = {
   {      "blink_off",   txt_layer_blink_off,    1},
   {0}
 };
+#endif
 
+#ifdef WITH_PNG
 JSFunctionSpec png_layer_methods[] = {
   LAYER_METHODS,
   ENTRY_METHODS,
   {0}
 };
+#endif
 
 /* class property example. Declare them with JS_DefineProperties
    layer_properties = {
