@@ -197,7 +197,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   }
   cur_frame = 0;
 
-  feeded = true;
+  //  feeded = true;
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
   act("using input channel %s",grab_chan.name);
@@ -299,11 +299,6 @@ bool V4lGrabber::keypress(SDL_keysym *keysym) {
 }
 
 void *V4lGrabber::get_buffer() {
-  (*yuv2rgb)((uint8_t *) rgb_surface,
-	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]],
-	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+u],
-	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+v],
-	     geo.w, geo.h, geo.pitch, geo.w, geo.w);
   return(rgb_surface);
 }
 
@@ -311,6 +306,12 @@ void V4lGrabber::feed() {
   ok_frame = cur_frame;
   cur_frame = ((cur_frame+1)%num_frame);
   grab_buf[0].format = palette;
+
+  (*yuv2rgb)((uint8_t *) rgb_surface,
+	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]],
+	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+u],
+	     (uint8_t *) &buffer[grab_map.offsets[ok_frame]+v],
+	     geo.w, geo.h, geo.pitch, geo.w, geo.w);  
 
   if (-1 == ioctl(dev,VIDIOCSYNC,&grab_buf[cur_frame])) {
     func("V4lGrabber::feed");
@@ -321,4 +322,5 @@ void V4lGrabber::feed() {
     func("V4lGrabber::feed");
     error("error in ioctl VIDIOCMCAPTURE");
   }
+  
 }

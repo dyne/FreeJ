@@ -25,6 +25,7 @@
 #include <context.h>
 #include <keyboard.h>
 #include <v4l.h>
+#include <avi.h>
 #include <osd.h>
 #include <plugger.h>
 #include <jutils.h>
@@ -52,7 +53,7 @@
 /* ================ command line options */
 
 static const char *help = 
-" .  Usage: freej [options]\n"
+" .  Usage: freej [options] [file]\n"
 " .  options:\n"
 " .  -h --help     print this help\n"
 " .  -v --version  version information\n"
@@ -72,8 +73,9 @@ static const char *short_options = "hvd:D:";
 
 char *v4ldevice;
 int debug;
+char *avifile = NULL;
 
-void cmdline(int argc, char *argv[]) {
+void cmdline(int argc, char **argv) {
   int res;
 
   /* initializing defaults */
@@ -106,6 +108,10 @@ void cmdline(int argc, char *argv[]) {
       break;
     }
   } while (res > 0);
+
+  if (optind < argc)
+    avifile = strdup(argv[optind++]);
+
 }
 
 /* ===================================== */
@@ -125,15 +131,24 @@ int main (int argc, char **argv) {
   Context screen(W,H,D,0x0);
   if(screen.surf==NULL) exit(0);
 
-  /* this is a layer: actually only v4l is implemented */
+  /* this is the Video4Linux layer */
   V4lGrabber grabber;
+  
+  /* this is the AVI/ASF Layer 
+  AviLayer *avi = NULL;
+  if(avifile!=NULL) {
+    notice("avifile library output follows ____________________________");
+    avi = new AviLayer();
+    avi->open(avifile);
+    act("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    } */
   
   /* this is the keyboard listener */
   KbdListener keyb;
-
+  
   /* this is the On Screen Display */
   Osd osd;
-
+  
   /* this is the Plugin manager */
   Plugger plugger(screen.bpp);
 
@@ -146,12 +161,16 @@ int main (int argc, char **argv) {
   
   /* init the v4l grabber */
   assert( grabber.init(&screen,GW,GH) );
-
+  //  assert( avi->init(&screen,GW,GH) );
+  
   /* center the v4l layer */
   grabber.geo.x = (Uint16)(W-GW)/2;
   grabber.geo.y = (Uint16)(H-GH)/2;
   /* --------------------- */
-
+  /*
+  avi->geo.x = (Uint16)(W-GW)/2;
+  avi->geo.y = (Uint16)(H-GH)/2;
+  */
   /* init the keyb listener */
   assert( keyb.init(&screen, &plugger) );
   
@@ -161,11 +180,14 @@ int main (int argc, char **argv) {
   /* create and initialize the osd */
   osd.init(&screen);
   osd.active();
-  /* let justils know about the osd */
+  /* let jutils know about the osd */
   set_osd(osd.status_msg);
 
   plugger.refresh();
   grabber.start();
+  //grabber.active = false;
+  //avi->start();
+  //  avi->active = false;
   keyb.start();
 
   Layer *lay;
@@ -175,7 +197,7 @@ int main (int argc, char **argv) {
     lay = (Layer *)screen.layers.begin();
 
     while(lay != NULL) {
-      lay->cafudda();
+      if(lay->active) lay->cafudda();
       lay = (Layer *)lay->next;
     }
 
@@ -186,7 +208,7 @@ int main (int argc, char **argv) {
   osd.splash_screen();
   screen.flip();
   grabber.quit = true;
-
+  
   /* we need to wait here to be sure the threads quitted:
      can't use join because threads are detached for better performance */
   SDL_Delay(3000);

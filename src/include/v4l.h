@@ -17,7 +17,7 @@
  */
 
 #ifndef __v4l_h__
-#define __v4l_h_
+#define __v4l_h__
 
 /* this to avoid g++ complaining about videodev.h */
 typedef unsigned long int ulong;
@@ -72,7 +72,6 @@ class V4lGrabber: public Layer {
   bool detect(char *devfile);
   bool init(Context *screen, int wdt, int hgt);
   void feed();
-  bool blit(unsigned char *dest);
   void _close();
 
   void set_chan(int ch);

@@ -17,6 +17,7 @@ freej_SOURCES = \
 	layer.cpp	\
 	v4l.cpp		\
 	tvfreq.c	\
+	avi.cpp		\
 	linklist.cpp	\
 	jsync.cpp	\
 	keyboard.cpp	\
@@ -33,4 +34,4 @@ freej_SOURCES = \
 	mmx_blit.asm	\
 	clearscr.asm
 
-freej_LDADD = @SDL_LIBS@ -lpthread -lm -ldl
+freej_LDADD = @SDL_LIBS@ -lpthread -lm -ldl -laviplay

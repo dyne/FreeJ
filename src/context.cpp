@@ -101,10 +101,9 @@ void Context::close() {
 
 bool Context::add_layer(Layer *newlayer) {
   bool res = false;
-  func("Context::add_layer()");
   
-  if(newlayer==NULL) {
-    warning("invalid NULL layer");
+  if(!newlayer) {
+    warning("Context::add_layer - invalid NULL layer");
     return(res);
   }
   

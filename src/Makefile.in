@@ -90,10 +90,10 @@ NASM = nasm -f elf
 
 bin_PROGRAMS = freej
 
-freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l.cpp			tvfreq.c		linklist.cpp		jsync.cpp		keyboard.cpp		osd.cpp			plugin.cpp		plugger.cpp		jutils.cpp		lubrify.c		cpu_accel.c		yuv2rgb.c yuv2rgb_mmx.c		vline16.asm vline32.asm 	hline16.asm hline32.asm 	mmx_memcpy.asm 		mmx_blit.asm		clearscr.asm
+freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l.cpp			tvfreq.c		avi.cpp			linklist.cpp		jsync.cpp		keyboard.cpp		osd.cpp			plugin.cpp		plugger.cpp		jutils.cpp		lubrify.c		cpu_accel.c		yuv2rgb.c yuv2rgb_mmx.c		vline16.asm vline32.asm 	hline16.asm hline32.asm 	mmx_memcpy.asm 		mmx_blit.asm		clearscr.asm
 
 
-freej_LDADD = @SDL_LIBS@ -lpthread -lm -ldl
+freej_LDADD = @SDL_LIBS@ -lpthread -lm -ldl -laviplay
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
@@ -106,11 +106,11 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
 freej_OBJECTS =  freej.$(OBJEXT) context.$(OBJEXT) layer.$(OBJEXT) \
-v4l.$(OBJEXT) tvfreq.$(OBJEXT) linklist.$(OBJEXT) jsync.$(OBJEXT) \
-keyboard.$(OBJEXT) osd.$(OBJEXT) plugin.$(OBJEXT) plugger.$(OBJEXT) \
-jutils.$(OBJEXT) lubrify.$(OBJEXT) cpu_accel.$(OBJEXT) \
-yuv2rgb.$(OBJEXT) yuv2rgb_mmx.$(OBJEXT) vline16.o vline32.o hline16.o \
-hline32.o mmx_memcpy.o mmx_blit.o clearscr.o
+v4l.$(OBJEXT) tvfreq.$(OBJEXT) avi.$(OBJEXT) linklist.$(OBJEXT) \
+jsync.$(OBJEXT) keyboard.$(OBJEXT) osd.$(OBJEXT) plugin.$(OBJEXT) \
+plugger.$(OBJEXT) jutils.$(OBJEXT) lubrify.$(OBJEXT) \
+cpu_accel.$(OBJEXT) yuv2rgb.$(OBJEXT) yuv2rgb_mmx.$(OBJEXT) vline16.o \
+vline32.o hline16.o hline32.o mmx_memcpy.o mmx_blit.o clearscr.o
 freej_DEPENDENCIES = 
 freej_LDFLAGS = 
 CXXFLAGS = @CXXFLAGS@
@@ -130,11 +130,11 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/clearscr.P .deps/context.P .deps/cpu_accel.P \
-.deps/freej.P .deps/hline16.P .deps/hline32.P .deps/jsync.P \
-.deps/jutils.P .deps/keyboard.P .deps/layer.P .deps/linklist.P \
-.deps/lubrify.P .deps/mmx_blit.P .deps/mmx_memcpy.P .deps/osd.P \
-.deps/plugger.P .deps/plugin.P .deps/tvfreq.P .deps/v4l.P \
+DEP_FILES =  .deps/avi.P .deps/clearscr.P .deps/context.P \
+.deps/cpu_accel.P .deps/freej.P .deps/hline16.P .deps/hline32.P \
+.deps/jsync.P .deps/jutils.P .deps/keyboard.P .deps/layer.P \
+.deps/linklist.P .deps/lubrify.P .deps/mmx_blit.P .deps/mmx_memcpy.P \
+.deps/osd.P .deps/plugger.P .deps/plugin.P .deps/tvfreq.P .deps/v4l.P \
 .deps/vline16.P .deps/vline32.P .deps/yuv2rgb.P .deps/yuv2rgb_mmx.P
 SOURCES = $(freej_SOURCES)
 OBJECTS = $(freej_OBJECTS)

@@ -35,7 +35,7 @@ class Layer: public Entry, public JSyncThread {
 
  public:
 
-  Layer() { };
+  Layer() { active = true; };
   virtual ~Layer() { _delete(); };
 
   void run();
@@ -68,8 +68,8 @@ class Layer: public Entry, public JSyncThread {
 
   ScreenGeometry geo;
 
-  bool feeded;
-
+  //bool feeded;
+  bool active;
   bool quit;
 };
 
