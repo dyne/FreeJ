@@ -178,7 +178,8 @@ SDL SCREEN (doesn't work in VJoE remote network control)
  5 = select ADD BLIT                6 = select SUB BLIT
  7 = select AND BLIT                8 = select OR BLIT
  9 = SWITCH ALPHA blend on/off      0 = SWITCH BLANK screen on/off
- with ALPHA blend on, you can fade thru values using 1-9 keys
+ with ALPHA blend you can fade thru values pressing ctrl-v and
+ then moving the mouse up and down.
 
  %ARROWS  = move layers around thru the screen
  mouse-l  = drag layers around, slowly and smoothly

@@ -237,18 +237,18 @@ void KbdListener::run() {
       filter->sel(true);
       break;
       
-    case SDLK_UP:
-      if(keysym->mod & KMOD_SHIFT) {
-	layer->set_position(layer->geo.x,layer->geo.y-10);
-	break;
-      }
-      break;
-    case SDLK_DOWN:
-      if(keysym->mod & KMOD_SHIFT) {
-	layer->set_position(layer->geo.x,layer->geo.y+10);
-	break;
-      }
-      break;
+    // case SDLK_UP:
+//       if(keysym->mod & KMOD_SHIFT) {
+// 	layer->set_position(layer->geo.x,layer->geo.y-10);
+// 	break;
+//       }
+//       break;
+//     case SDLK_DOWN:
+//       if(keysym->mod & KMOD_SHIFT) {
+// 	layer->set_position(layer->geo.x,layer->geo.y+10);
+// 	break;
+//       }
+//       break;
 
     case SDLK_PAGEUP:
       if(!layer->prev) break;
@@ -330,22 +330,22 @@ void KbdListener::run() {
 	break;
       }
 
-    case SDLK_LEFT:
-      if(keysym->mod & KMOD_SHIFT) {
-	layer->set_position(layer->geo.x-5,layer->geo.y);
-	break;
-      }
-    case SDLK_RIGHT:
-      if(keysym->mod & KMOD_SHIFT) {
-	layer->set_position(layer->geo.x+5,layer->geo.y);
-	break;
-      }
+//     case SDLK_LEFT:
+//       if(keysym->mod & KMOD_SHIFT) {
+// 	layer->set_position(layer->geo.x-5,layer->geo.y);
+// 	break;
+//       }
+//     case SDLK_RIGHT:
+//       if(keysym->mod & KMOD_SHIFT) {
+// 	layer->set_position(layer->geo.x+5,layer->geo.y);
+// 	break;
+//       }
 
     case SDLK_v:
       if(keysym->mod & KMOD_CTRL) {
 	drag_value = !drag_value;
-	act("Mouse drag of blit value %s",
-	    (drag_value)?"on":"off");
+	show_osd("Mouse drag fades blit value: %s",
+		 (drag_value)?"on":"off");
 	break;
       }
 

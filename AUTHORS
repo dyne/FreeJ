@@ -1,10 +1,6 @@
 
-*** MAIN AUTHOR ::
-
 Denis "jaromil" Rojo - http://rastasoft.org
 	concept, coder and mantainer
-
-*** CONTRIBUTIONS ::
 
 Aaron Holtzman <aholtzma/@/ess.engr.uvic.ca>
 	yuv2rgb c conversion code
@@ -16,7 +12,7 @@ Clifford Smith <nullset/@/dookie.net>
 	transform filter from EffecTV
 
 Christoph Rudorff <christoph.rudorff/@/telebel.de> 
-	avi layer enhancements
+	avi layer enhancements, midi controller
 
 Dries Pruimboom <dries/@/irssystems.nl>
 	cartoon filter
@@ -40,15 +36,16 @@ Pete Warden
 	backlight filter
 
 Silvano "kysucix" Galliani - http://kysucix.nexlab.it
-	truetype text layer
+	truetype text layer, script parser and more 
 
-*** SUPPORTED BY ::
+*** DEVELOPMENT OF THIS RELEASE WAS SUPPORTED BY ::
 
 Nederlands Instituut voor Mediakunst - Montevideo/Time Based Arts
  .... <http://www.montevideo.nl>
 
 *** THANKS TO ::
 
+Federico and Tez .............. <http://submultimedia.tv>
 Bergen Elektronic Kunst ....... <http://www.bek.no>
 Bomboclat ..................... <http://autistici.org/bomboclat>
 City of Judenburg ............. <http://www.judenburg.at>

@@ -149,27 +149,28 @@ int JsParser::open(const char* script_file) {
   jsval ret_val;
   FILE *fd;
   int c = 0;
-  char line[512]; /* is it enough? */
-  
+  char *buf; /* is it enough? */
+  char *p;
+  int len;
+
   fd = fopen(script_file,"r");
   if(!fd) {
     error("JsParser::open : %s : %s",script_file,strerror(errno));
     return 0;
   }
+
+  // read all the file in once: line by line won't work well in blocks
   func("JsParser reading from file %s",script_file);
-  while(fgets(line,512,fd)) {
-    c++;
-    func("%03i : %s",c,line);
-    
-    JSBool ok = JS_EvaluateScript (js_context, global_object,
-				   line, strlen(line), script_file, c, &ret_val);
+  fseek(fd,0,SEEK_END);
+  len = ftell(fd);
+  rewind(fd);
+  buf = (char*)malloc(len);
+  func("JsParser allocated %u bytes",len);
+  fread(buf,len,1,fd);
+  fclose(fd);
 
-    if(ok!=JS_TRUE) {
-      error("JsParser::open : %s : error evaluating script:",script_file);
-      error("%03i : %s",c,line);
-    }
-
-  }
+  JSBool ok = JS_EvaluateScript (js_context, global_object,
+				 buf, len, script_file, c, &ret_val);
 
   return ret_val;
 }
@@ -305,10 +306,12 @@ JS(fastrand) {
 }
 JS(fastsrand) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  int seed;
+  if(argc<1)
+    seed = time(NULL);
+  else
+    seed = JSVAL_TO_INT(argv[0]);
 
-  if(argc<1) return JS_FALSE;
-
-  int seed = JSVAL_TO_INT(argv[0]);
   fastsrand(seed);
 
   return JS_TRUE;

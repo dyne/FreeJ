@@ -103,7 +103,7 @@ void Osd::init(Context *screen) {
   downclean_offset = (uint64_t*) env->screen->coords(0,env->screen->h-VBOUND);
 
   newline = env->screen->pitch*(CHAR_HEIGHT);
-  snprintf(title,64,"%s v%s codename MONTEVIDEO",PACKAGE,VERSION);
+  snprintf(title,64,"%s v%s codename DYNAMITDUO",PACKAGE,VERSION);
 
   /* add ipernaut logo layer */
   if(!ipernaut) {

@@ -327,7 +327,7 @@ bool AviLayer::keypress(char key) {
     show_osd("AviLayer rewind to %u\% (K%u)",
 	     (off*100)/_stream->GetLength(),off);
     break;
-    
+
     /*
 Hi Jaromil,
 I have been thinking about the looping problem, my feeling now is that
@@ -360,6 +360,7 @@ at the next click, you mark another OUT point
     }
     act("AviLayer::mark IN[%u] - OUT[%u] (%s)",
 	mark_in, mark_out, (mark_in)?"ON":"OFF");
+    show_osd();
     break;
 
   case 'o':
@@ -369,12 +370,14 @@ at the next click, you mark another OUT point
       mark_out = _stream->GetPos();
     act("AviLayer::mark IN[%u] - OUT[%u] (%s)",
 	mark_in, mark_out, (mark_in&&mark_out)?"ON":"OFF");
+    show_osd();
     break;
     
   case 'l':
     mark_in = 0;
     mark_out = 0;
     act("AviLayer::marks removed IN[0] - OUT[0]");
+    show_osd();
     break;
     /*    
   case 'n': 
