@@ -118,29 +118,38 @@ void Context::cafudda(unsigned int secs) {
   
   do {
 
-    /* fetch keyboard events */
+    /** fetch keyboard events */
     if(kbd.active) kbd.run();
 
+    /** start layers thread */
     rocknroll(true);
     
 
-    if(clear_all) screen->clear();
-    else if(osd.active) osd.clean();
+    /** clear screen before each iteration */
+    if(clear_all) 
+	screen->clear();
+    else if(osd.active) 
+	osd.clean();
     
-    
-    lay = (Layer *)layers.end();
-    layers.lock();
-    while(lay) {
-      if(!pause) 
-	lay->cafudda();
-      lay = (Layer *)lay->prev;
+    /** process each layer in the chain */
+    {
+	lay = (Layer *)layers.end();
+	layers.lock();
+	while(lay) {
+	    if(!pause) 
+		lay->cafudda();
+	    lay = (Layer *)lay->prev;
+	}
+	layers.unlock();
     }
-    layers.unlock();
 
+    /** print on screen display */
     if(osd.active) osd.print();
 
-//    if(console.active) console.cafudda();
+    /** show slang user interface */
+    if(console.active) console.cafudda();
 
+    /** show result on screen */
     screen->show();
 
 
