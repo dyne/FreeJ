@@ -74,6 +74,7 @@ bool AviLayer::init(Context *scr) {
 
 bool AviLayer::open(char *file) {
   func("AviLayer::open(%s)",file);
+
   if(_avi) close();
   
   try {
@@ -82,6 +83,11 @@ bool AviLayer::open(char *file) {
   catch(FatalError &e) {
     error("AviLayer::open(%s)",file); // - %s",file,e.Print());
     return(false);
+  }
+
+  if(!_avi) {
+    error("AviLayer::open(%s) - can't open file",file);
+    return (false);
   }
 
   _stream = _avi->GetStream(0, AviStream::Video);
