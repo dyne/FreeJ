@@ -56,7 +56,7 @@ freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		@GLADE2_LIBS@ \
 		@AVCODEC_LIBS@ \
 		@JS_LIBS@ \
-		$(top_srcdir)/@FLASH_LIBS@
+		@FLASH_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej

@@ -6,4 +6,4 @@ man_MANS = doc/freej.1
 dist_pkgdata_DATA = freej-gtk2.glade doc/ipernav.png
 pkgdatadir = ${prefix}/share/freej
 
-SUBDIRS = ccvt libflash src filters
+SUBDIRS = ccvt @FLASH_DIR@ src filters 

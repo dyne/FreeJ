@@ -176,10 +176,14 @@ AC_ARG_ENABLE(flash,
   fi ],[ have_flash=no ])
 if test x$have_flash = xyes; then
    AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
-   FLASH_LIBS=libflash/libflash.a
+   FLASH_LIBS=../libflash/libflash.a
+   FLASH_DIR=libflash
    AC_SUBST(FLASH_LIBS)
+   AC_SUBST(FLASH_DIR)
    echo "Using flash layer"
 fi
+
+
 
 dnl ==============================================================
 dnl CHECK if there is MIDI

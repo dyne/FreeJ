@@ -49,6 +49,9 @@ const char *layers_description =
 #ifdef WITH_XHACKS
 " .  - xscreensaver screen hack. ex. /usr/X11R6/lib/xscreensaver/cynosure\n"
 #endif
+#ifdef WITH_FLASH
+" .  - SWF flash v.3 layer for vectorial graphics animations\n"
+#endif
 " .  - particle generator ( try: 'freej layer_gen' on commandline)\n"
 " .  - vertical text scroller (any other extension)\n"
 "\n";
@@ -166,12 +169,18 @@ Layer *create_layer(char *file) {
 	  if(strncasecmp(file_ptr,"layer_gen",9)==0) {
 	    nlayer = new GenLayer();
 	  } else
+#ifdef WITH_FLASH
 	    if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
 	      nlayer = new FlashLayer();
 	      if(!nlayer->open(file_ptr)) {
 		error("create_layer : SWF open failed");
 		delete nlayer; nlayer = NULL;
 	      }
+#else
+	      error("no flash layer support");
+	      act("can't load %s",pp);
+	      return(NULL);
+#endif
 	    } else {
 	      nlayer = new ScrollLayer();
 	      if(!nlayer->open(file_ptr)) {
