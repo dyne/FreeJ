@@ -538,7 +538,7 @@ static void * sse2_memcpy(void * to, const void * from, size_t len)
                /* if SRC is misaligned */
                for (; i>0; i--) {
                     __asm__ __volatile__ (
-                                         "prefetchnta 512(%0)\n"
+                                         "prefetchnta 640(%0)\n"
 
                                          "movdqu (%0), %%xmm0\n"
                                          "movdqu 16(%0), %%xmm1\n"

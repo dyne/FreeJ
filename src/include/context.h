@@ -28,6 +28,7 @@
 #include <osd.h>
 #include <kbd_ctrl.h>
 //#include <console.h>
+#include <encoder.h>
 #include <plugger.h>
 #include <screen.h>
 
@@ -37,7 +38,7 @@
 
 class JsParser;
 class Console;
-class Encoder;
+class Encode;
 
 class Context {
  private:

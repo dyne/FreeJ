@@ -97,6 +97,10 @@ bool Context::init(int wx, int hx) {
 void Context::close() {
   Layer *lay;
 
+#ifdef WITH_AVCODEC
+  delete encoder;
+#endif
+
   if(console)
     console->close();
 
@@ -118,10 +122,6 @@ void Context::close() {
 
 #ifdef WITH_JAVASCRIPT
   delete js;
-#endif
-
-#ifdef WITH_AVCODEC
-  delete encoder;
 #endif
 
 }
@@ -186,6 +186,10 @@ void Context::cafudda(double secs) {
       layers.unlock();
     }
 
+    /** print on screen display */
+    if(osd.active && interactive) osd.print();
+
+
 
 #ifdef WITH_AVCODEC
     // show results on file if requested encoder in a thread ?? not now. kysu.
@@ -193,18 +197,22 @@ void Context::cafudda(double secs) {
 //		    encoder->start();
 //	    encoder->has_finished_frame();
 //	    encoder->signal();
+//
     if(save_to_file) {
-	    encoder->init(this);
-	    encoder->write_frame();
+	    SdlScreen *scrigno = (SdlScreen *) screen;
+	    if(! encoder->init(this, scrigno)) {
+		    error("Can't save to file. retry!");
+		    save_to_file=false;
+	    }
+	    else
+		    encoder->write_frame();
     }
 #endif
 
-
-    /** print on screen display */
-    if(osd.active && interactive) osd.print();
-
     /** show result on screen */
     screen->show();
+
+
 
     /******* handle timing */
 
@@ -296,8 +304,9 @@ void Context::rocknroll() {
 	while(!l->running) jsleep(0,500);
 	l->active = start_running;
       }
-      else 
+      else {
 	func("Context::rocknroll() : error creating thread");
+      }
     }
     l = (Layer *)l->next;
   }

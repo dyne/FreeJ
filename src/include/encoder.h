@@ -27,6 +27,7 @@
 #include <linklist.h>
 #include <jutils.h>
 #include <jsync.h>
+#include <screen.h>
 
 class Context;
 
@@ -44,22 +45,24 @@ class Context;
  * @brief Layer parent abstract class
 */
 
-class Encoder: public Entry,public JSyncThread{
+//class Encoder: public Entry,public JSyncThread{
+class Encoder: public Entry {
 
  public:
   
-  Encoder(char *output_filename);
-  virtual ~Encoder();
+  Encoder (char *output_filename);
+  virtual ~Encoder ();
   
-  virtual void set_encoding_parameter()=0;
-  virtual bool write_frame()=0;
-  virtual bool has_finished_frame()=0;
-  virtual bool isStarted()=0;
-  virtual bool init(Context *_env)=0;
+  virtual void set_encoding_parameter () = 0;
+  virtual bool write_frame ()            = 0;
+  virtual bool has_finished_frame ()     = 0;
+  virtual bool isStarted ()              = 0;
+  virtual bool init (Context *_env, ViewPort *viewport)      = 0;
   
-  bool set_output_name(char * output_filename);
-  bool set_sdl_surface(SDL_Surface *surface);
+  bool set_output_name (char * output_filename);
+  bool set_sdl_surface (SDL_Surface *surface);
   char *get_filename();
+
   
  protected:
   char *filename;

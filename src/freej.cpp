@@ -30,6 +30,7 @@
 #include <context.h>
 
 #include <osd.h>
+#include <encoder.h>
 #include <plugger.h>
 #include <jutils.h>
 #include <config.h>
@@ -72,15 +73,26 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
-#ifdef WITH_JAVASCRIPT
-" .   -j   process javascript command file\n"
+" .   -j <javascript.js>  process javascript command file\n"
+#ifndef WITH_JAVASCRIPT
+" ( disabled!, download spidermonkey \n"
+" .        http://ftp.mozilla.org/pub/mozilla.org/js/js-1.5-rc6a.tar.gz\n"
+" .        and compile freej with --with-javascript=<path_to_spidermonkey> )"
 #endif
+"\n"
+" .   -e <file.ogg>  set filename of encoded ogg-theora\n"
+" .                  (default freej.ogg, start and stop it with CTRL-s)"
+#ifndef WITH_OGGTHEORA
+" (disabled! make sure you have installed correctly ogg http://www.vorbis.com/download.psp\n"
+" .        and theora http://theora.org/download.html )"
+#endif
+"\n"
 " .  layers available:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:t";
+static const char *short_options = "-hvD:gs:nj:te:";
 
 
 
@@ -92,6 +104,8 @@ int height = 300;
 int magn = 0;
 char javascript[512]; // script filename
 
+char encoded_filename[512]; // filename to save to
+
 bool startstate = true;
 bool gtkgui = false;
 
@@ -101,6 +115,7 @@ void cmdline(int argc, char **argv) {
   /* initializing defaults */
   char *p = layer_files;
   javascript[0] = 0;
+  encoded_filename[0] = '\0';
   debug = 1;
 
   do {
@@ -151,7 +166,11 @@ void cmdline(int argc, char **argv) {
       startstate = false;
       break;
 
-    case 'j':
+     case 'e':
+	snprintf (encoded_filename, 512, "%s", optarg);
+      break;
+
+   case 'j':
       FILE *fd;
       fd = fopen(optarg,"r");
       if(!fd) error("can't open %s: %s",javascript,strerror(errno));
@@ -247,6 +266,10 @@ int main (int argc, char **argv) {
 
   /* initialize the On Screen Display */
   freej.osd.init( &freej );
+
+  /* initialize encoded filename */
+  if (encoded_filename[0] != '\0')
+	  freej.encoder->set_output_name( encoded_filename );
 
   freej.start_running = startstate;
 

@@ -26,6 +26,7 @@
 #include <config.h>
 #include <linklist.h>
 #include <encoder.h>
+#include <screen.h>
 
 #ifdef WITH_OGGTHEORA
 #include "theora/theora.h"
@@ -37,7 +38,6 @@
 
 class Context;
 
-
 class OggTheoraEncoder: public Encoder{
 
  public:
@@ -45,7 +45,7 @@ class OggTheoraEncoder: public Encoder{
   OggTheoraEncoder(char *output_filename);
   ~OggTheoraEncoder();
   
-  bool init(Context *_env);
+  bool init(Context *_env, ViewPort *_screen);
   void set_encoding_parameter();
   bool write_frame();
   bool isStarted();
@@ -68,11 +68,12 @@ class OggTheoraEncoder: public Encoder{
   bool flush_headers();
   bool flush_theora_header();
   bool flush_vorbis_header();
-  bool flush_theora();
+  bool flush_theora (int end_of_stream);
+  void close_ogg_streams();
 
   bool  init_yuv_frame();
   void  print_timing(int audio_or_video);
-  int encode_video( );
+  int encode_video( int end_of_stream);
 
   double rint(double x);
 
@@ -123,6 +124,8 @@ class OggTheoraEncoder: public Encoder{
 
   vorbis_dsp_state vd; /* central working state for the packet->PCM decoder */
   vorbis_block     vb; /* local working space for packet->PCM decode */
+
+  ViewPort         *screen;
 
 };
 

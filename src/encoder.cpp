@@ -28,6 +28,7 @@
 
 Encoder::Encoder(char *output_filename) {
 	started = false;
+	env = NULL;
 	set_output_name(output_filename);
 }
 Encoder::~Encoder() {
@@ -39,37 +40,42 @@ bool Encoder::_init(Context *_env) {
 	return true;
 }
 bool Encoder::set_output_name(char *output_filename) {
-	char *final_filename;
-	int file_name_count=1;
+	int filename_number=1;
 
 	if(!output_filename)
 	{
 		error("FFmpegEncoder:init::Invalid filename");
 	}
 
+	// save filename in the object
+	filename = strdup(output_filename);
+
 	/*
 	 * Test if file exists, and append a number.
 	 */
-	/*
-	if ((fopen(output_filename,"r"))!=NULL) {
+	char nuova[512];
+	FILE *fp;
+
+	while ( (fp = fopen(filename,"r"))!=NULL) {// file already exists!
+		// take point extension pointer ;)
 		char *point = strrchr(output_filename,'.');
-		int lenght = strlen (output_filename);
-		final_filename = (char *)malloc(lenght+2);
-		strncpy(final_filename,output_filename,point-output_filename);
-//		final_filename[++point]='-';
-//		final_filename[++point]='1';
-//		strncpy(final_filename[point],output_filename[point+2],lenght-(output_filename));
-		snprintf( final_filename[output_filename-point], 512, "-%d.%s\0",file_name_count,output_filename[point]);
 
-		notice ("FILENAME: %s", final_filename);
-		
+		int lenght_without_extension = (point - output_filename);
 
+		// copy the string before the  point
+		strncpy (nuova,output_filename, lenght_without_extension);
+
+		// insert -n
+		sprintf (nuova + lenght_without_extension, "-%d%s", filename_number,output_filename + lenght_without_extension);
+		jfree(filename);
+		filename = strdup(nuova);
+
+		fclose(fp);
+		// increment number inside filename
+		filename_number++;
 	}
-*/
 
-	// save filename in the object
-	filename = strdup(output_filename);
-	notice("Encoder:_init::filename %s saved",filename);
+	notice ("Encoder:_init::filename %s saved",filename);
 	return true;
 }
 
