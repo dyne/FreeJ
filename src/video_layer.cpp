@@ -171,11 +171,6 @@ bool VideoLayer::open(char *file) {
 	    else {
 		frame_rate=enc->frame_rate/enc->frame_rate_base;
 		notice("VideoLayer :: Using codec: %s",codec->name);
-		if(strncasecmp(codec->name,"dvvideo",7)==0 || 
-			strncasecmp(codec->name,"h263",4)==0) {
-		    seekable=false;
-		    notice("VideoLayer :: video codec not seekable");
-		}
 		//notice("VideoLayer :: codec height: %d",enc->height);
 		//notice("VideoLayer :: codec width: %d",enc->width);
 		break;
@@ -472,7 +467,8 @@ bool VideoLayer::relative_seek(double increment) {
 	error("VideoLayer :: Error seeking file: %d",ret);
 	return false;
     }
-    show_osd("seek to %.1f\%",current_time);
+    else
+	show_osd("seek to %.1f\%",current_time);
     unlock_feed();
     return true;
 }
@@ -521,10 +517,6 @@ int VideoLayer::seek(int64_t timestamp) {
      * HERE sick
      */
     ret = av_seek_frame(avformat_context, video_index,timestamp);
-    /**
-     * Flush buffers, should be called when seeking or when swicthing to a different stream.
-     */
-    avcodec_flush_buffers(enc);
 
     if(ret<0) {
 	seekable=false;
@@ -537,6 +529,10 @@ int VideoLayer::seek(int64_t timestamp) {
 	    }
 	}
     }
+    /**
+     * Flush buffers, should be called when seeking or when swicthing to a different stream.
+     */
+    avcodec_flush_buffers(enc);
     return 0;
 }
 double VideoLayer::get_master_clock() {
