@@ -20,6 +20,18 @@
  */
 
 #include <stdio.h>
+
+#ifdef linux
+/* we try to use the realtime linux clock on /dev/rtc */
+#include <linux/rtc.h>
+#include <sys/ioctl.h>
+#include <sys/time.h>
+#include <sys/select.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#endif
+
 #include <iostream>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -214,3 +226,66 @@ void jsleep(int sec, long nsec) {
   timelap.tv_nsec = nsec;
   nanosleep(&timelap,NULL);
 }
+
+
+#ifdef linux
+/* better to use /dev/rtc */
+static int rtcfd = -1;
+static fd_set readfds;
+static timeval rtctv = { 0,0 };
+static unsigned long rtctime;
+int rtc_open() {
+  int res;
+  rtcfd = open("/dev/rtc",O_RDONLY);
+  if(!rtcfd) {
+    perror("/dev/rtc");
+    return 0;
+  }
+  /* set the alarm event to 1 second
+     res = ioctl(rtcfd, RTC_UIE_ON, 0);
+     if(res<0) {
+     perror("rtc ioctl");
+     return 0;
+     } */
+  notice("realtime clock succesfully initialized");
+  return 1;
+}
+/* tick returns 0 if 1 second didn't passed since last tick,
+   positive number if 1 second passed */
+unsigned long rtc_tick() {
+  FD_ZERO(&readfds);
+  FD_SET(rtcfd,&readfds);
+  if ( ! select(rtcfd+1,&readfds,NULL,NULL,&rtctv) )
+    return 0; /* a second didn't passed yet */
+  read(rtcfd,&rtctime,sizeof(unsigned long));
+  return rtctime;
+}
+void rtc_freq_set(unsigned long freq) {
+  int res;
+
+  res = ioctl(rtcfd,RTC_IRQP_SET,freq);
+  if(res<0) { perror("rtc freq set"); }
+
+  res = ioctl(rtcfd,RTC_IRQP_READ,&freq);
+  if(res<0) { perror("rtc freq read"); }
+
+  act("realtime clock frequency set to %ld",freq);
+
+  res = ioctl(rtcfd,RTC_PIE_ON,0);
+  if(res<0) { perror("rtc freq on"); return; }
+
+}
+void rtc_freq_wait() {
+  int res;
+  res = read(rtcfd,&rtctime,sizeof(unsigned long));
+  if(res < 0) {
+    perror("read rtc frequency interrupt");
+    return;
+  }
+}
+void rtc_close() {
+  //ioctl(rtcfd, RTC_UIE_OFF, 0);
+  ioctl(rtcfd,RTC_PIE_OFF,0);
+  close(rtcfd);
+}
+#endif

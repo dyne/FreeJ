@@ -269,10 +269,8 @@ int main (int argc, char **argv) {
 
 
   /* main loop */
-  freej.cafudda();
-  
-
-
+  while( !freej.quit )
+    freej.cafudda(1);
   
   /* quit */
 

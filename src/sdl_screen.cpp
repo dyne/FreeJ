@@ -110,6 +110,7 @@ void SdlScreen::show() {
     unlock();
   }
   SDL_Flip(screen);
+
 }
 
 void *SdlScreen::get_surface() {

@@ -39,8 +39,6 @@ Context::Context() {
 
   /* initialize fps counter */
   framecount=0; fps=0.0;
-  gettimeofday( &lst_time, NULL);
-  set_fps_interval(24);
   track_fps = false;
   magnification = 0;
   changeres = false;
@@ -50,6 +48,7 @@ Context::Context() {
 }
 
 Context::~Context() {
+  close();
   notice("cu on http://freej.dyne.org");
 }
 
@@ -69,60 +68,22 @@ bool Context::init(int wx, int hx) {
   osd.init(this);
   osd.active = true;
   set_osd(osd.status_msg); /* let jutils know about the osd */
-  
+
+  /* initialize the realtime clock and use it if present */
+  rtc = false;
+#ifdef linux
+  if(rtc_open()) rtc = true;
+#endif
+
+  set_fps_interval(24);
+  gettimeofday( &lst_time, NULL);
+
   return true;
 }
 
-void Context::cafudda() {
-  quit = false;
+void Context::close() {
   Layer *lay;
-  rocknroll(true);
-
-  while(!quit) {
-
-
-    if(clear_all) screen->clear();
-    else if(osd.active) osd.clean();
-
-
-    lay = (Layer *)layers.end();
-    if(!lay) {
-      osd._print_credits();
-      osd._show_fps();
-    } else {
-      layers.lock();
-      while(lay) {
-	  if(!pause) 
-	      lay->cafudda();
-	  lay = (Layer *)lay->prev;
-      }
-      layers.unlock();
-    }
-
-    osd.print();
-
-    screen->show();
-  
-    rocknroll(true);
-
-    /* change resolution if needed */
-    if(changeres) {
-      screen->set_magnification(magnification);
-      osd.init(this);
-      /* crop all layers to new screen size */
-      Layer *lay = (Layer *)layers.begin();
-      while(lay) {
-	lay->lock();
-	screen->crop(lay);
-	lay->unlock();
-	lay = (Layer*)lay->next;
-      }
-      changeres = false;
-    }
-    calc_fps();
-  }
-
-  delete screen;
+  if(screen) delete screen;
 
   lay = (Layer *)layers.begin();
   while(lay) {
@@ -138,6 +99,82 @@ void Context::cafudda() {
 
   plugger.close();
 
+  if(rtc) rtc_close();
+}  
+
+void Context::cafudda(int secs) {
+  Layer *lay;
+
+  if(secs) /* if secs =0 will go out after one cycle */
+
+    /* initialize timing */
+#ifdef linux
+    if(rtc) { rtc_now = secs; }
+    else
+#endif
+      { now = dtime(); }
+  
+  do {
+    
+    rocknroll(true);
+    
+    if(clear_all) screen->clear();
+    else if(osd.active) osd.clean();
+    
+    
+    lay = (Layer *)layers.end();
+    if(!lay) {
+      osd._print_credits();
+      osd._show_fps();
+    } else {
+      layers.lock();
+      while(lay) {
+	if(!pause) 
+	  lay->cafudda();
+	lay = (Layer *)lay->prev;
+      }
+      layers.unlock();
+    }
+    
+    osd.print();
+    
+    screen->show();
+    
+    /* change resolution if needed */
+    if(changeres) {
+      screen->set_magnification(magnification);
+      osd.init(this);
+      /* crop all layers to new screen size */
+      Layer *lay = (Layer *)layers.begin();
+      while(lay) {
+	lay->lock();
+	screen->crop(lay);
+	lay->unlock();
+	lay = (Layer*)lay->next;
+      }
+      changeres = false;
+    }
+
+    /******* handle timing */
+    
+    if(!secs) break; /* just one pass */
+    
+#ifdef linux
+    if(rtc) {
+      if(!rtc_tick()) riciuca = false; // a second passed
+      else {
+	rtc_now--;
+	riciuca = (rtc_now>0) ? true : false;
+      }
+    } else
+#endif
+      {
+	riciuca = (dtime()-now<secs) ? true : false;
+      }    
+    
+    calc_fps();
+	
+  } while(riciuca);
 }
 
 void Context::magnify(int algo) {
@@ -168,7 +205,11 @@ void Context::calc_fps() {
   }
 
   if(elapsed<=min_interval) {
-    usleep( min_interval - elapsed ); /* this is not POSIX, arg */
+    /* usleep( min_interval - elapsed ); this is not POSIX, arg */
+    slp_time.tv_sec = 0;
+    slp_time.tv_nsec = (min_interval - elapsed)<<10;
+    nanosleep(&slp_time,NULL);
+
     lst_time.tv_usec += min_interval;
     if( lst_time.tv_usec > 999999) {
       lst_time.tv_usec -= 1000000;

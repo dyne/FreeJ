@@ -38,6 +38,7 @@ class Context {
   /* ---- fps ---- */
   struct timeval cur_time;
   struct timeval lst_time;
+  struct timespec slp_time;
   int fps_frame_interval;
   int framecount;
   long elapsed;
@@ -52,14 +53,19 @@ class Context {
   uint64_t eax;
   /* ---------------------- */
 
+  /* timing and other amenities */
+  double now;
+  int rtc_now;
+  bool riciuca;
+
  public:
 
   Context();
   ~Context();
 
   bool init(int wx, int hx);
-  
-  void cafudda();
+  void close();
+  void cafudda(int secs);
 
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return screen->coords(x,y); };
@@ -91,9 +97,11 @@ class Context {
   void set_fps_interval(int interval);
   float fps;
   bool track_fps;
-
+  
 
   bool clear_all;
+
+  bool rtc; ///< using the realtime clock on linux?
 };
 
 #endif

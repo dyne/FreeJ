@@ -38,4 +38,9 @@ void fastsrand(Uint32 seed);
 double dtime();
 bool set_rtpriority(bool max);
 void jsleep(int sec, long nsec);
+int rtc_open();
+unsigned long rtc_tick();
+void rtc_freq_set(unsigned long freq);
+void rtc_freq_wait();
+void rtc_close();
 #endif

@@ -32,10 +32,6 @@
 #include <jutils.h>
 
 #include <video_layer.h>
-#include "avcodec.h"
-#include "avformat.h"
-
-
 
 VideoLayer::VideoLayer() 
     :Layer() {
