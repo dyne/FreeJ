@@ -5,6 +5,9 @@ FreeJ is NOW READY to be used on Darwin and OSX!
 to compile it from source follow these steps, which are also useful to
 setup your Apple OSX to be able to compile and use other GNU software.
 
+if you have a binary version (already compiled) you can skip the steps
+below until it's noticed, so scroll down...
+
 - First check if you've got the following stuff covered:                   
 
 1. OSX version 10.3.x
@@ -69,8 +72,14 @@ To finally compile FreeJ enter its directory and issue the commands:
 This will install effect plugins into the dire /usr/local/lib/freej 
 and the freej binary in /usr/local/bin (or any --prefix configured)
 
+
+======= START FROM HERE IF YOU HAVE A BINARY VERSION
+
+
 from a Terminal (X11 Terminal in case of GTK2 interface) type:
-$ freej [enter]
+$ cd freej-directory (wherever you decompressed freej)
+$ screen (optional, to have colors on the console)
+$ ./freej [enter]
 and you should see.
 
 in case you want to have a colorful command console on your terminal,
