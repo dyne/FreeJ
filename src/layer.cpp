@@ -38,6 +38,7 @@ Layer::Layer()
 }
 
 Layer::~Layer() {
+  clear_filters();
   if(bgmatte) jfree(bgmatte);
 }
 

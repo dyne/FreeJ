@@ -22,16 +22,17 @@
 #include <inttypes.h>
 
 #include <context.h>
+#include <plugger.h>
 #include <osd.h>
 #include <font_pearl_8x8.h>
 #include <config.h>
 
-void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
+uint32_t *Osd::print(char *text, uint32_t *pos, int hsize, int vsize) {
   int y,x,i,len,f,v,ch,cv;
   uint32_t *ptr;
-  uint32_t *diocrap = (uint32_t *)screen->coords(xpos,ypos);
-  unsigned char *buffer = (unsigned char *)screen->get_surface();
-  v = screen->w*vsize;
+  uint32_t *diocrap = pos; //(uint32_t *)env->coords(xpos,ypos);
+  unsigned char *buffer = (unsigned char *)env->get_surface();
+  v = env->w*vsize;
   
   len = strlen(text);
   
@@ -42,19 +43,21 @@ void Osd::_write(char *text, int xpos, int ypos, int hsize, int vsize) {
     ptr = diocrap += v;
   
     /* control screen bounds */
-    if(diocrap-(uint32_t *)buffer>(screen->size-screen->pitch)) return; /* low bound */
-    while(diocrap-(uint32_t *)buffer<screen->pitch) ptr = diocrap += v;
+    if(diocrap-(uint32_t *)buffer>(env->size - env->pitch)) 
+      return diocrap-newline; /* low bound */
+    while(diocrap-(uint32_t *)buffer<env->pitch) ptr = diocrap += v;
 
     for (x=0; x<len; x++) {
       f = fontdata[text[x] * CHAR_HEIGHT + y];
       for (i = CHAR_WIDTH-1; i >= 0; i--)
 	if (f & (CHAR_START << i))
 	  for(ch=0;ch<hsize;ch++) {
-	    for(cv=0;cv<v;cv+=screen->w) ptr[cv] = _color32;
+	    for(cv=0;cv<v;cv+=env->w) ptr[cv] = _color32;
 	    ptr++; }
         else ptr+=hsize; 
     }
   }
+  return(diocrap);
 }
 
 Osd::Osd() {
@@ -64,16 +67,34 @@ Osd::Osd() {
   _fps = false;
   _layersel = 1;
   _filtersel = 0;
-  screen = NULL;
+  env = NULL;
 }
 
 Osd::~Osd() { }
 
 void Osd::init(Context *screen) {
-  this->screen = screen;
+  this->env = screen;
   screen->osd = this;
   _set_color(white);
+
+  /*
+  ipernaut = create_layer("../doc/ipernav.png");
+  sflescio = env->plugger->pick("vertigo");
+  if(sflescio) ipernaut->add_filter(sflescio);
+  if(ipernaut) env->add_layer(ipernaut);
+  */
+  fps_offset = (uint32_t*)env->coords(env->w-50,1);
+  selection_offset = (uint32_t*)env->coords(80,1);
+  status_offset = (uint32_t*)env->coords(HBOUND,env->h-12);
+  layer_offset = (uint32_t*)env->coords(env->w-28,VBOUND+TOPLIST);
+  filter_offset = (uint32_t*)env->coords(5,VBOUND+6);
+  hicredits_offset = (uint32_t*)env->coords((env->w/2)-100,VBOUND+5);
+  locredits_offset = (uint32_t*)env->coords((env->w/2)-100,env->h-70);
+  hilogo_offset = (uint32_t*)env->coords(6,0);
+  newline = env->pitch*(CHAR_HEIGHT);
+  snprintf(title,64,"%s v.%s",PACKAGE,VERSION);
   func("OSD initialized");
+
 }
 
 void Osd::print() {
@@ -106,7 +127,7 @@ void Osd::print() {
   //  if(screen->kbd) {
   _layerlist();
 
-  Layer *lay = (Layer*)screen->layers.selected();
+  Layer *lay = (Layer*)env->layers.selected();
   if(lay) {
     _filterlist();
     _selection();
@@ -117,33 +138,33 @@ void Osd::print() {
 
 void Osd::_print_status() {
   _set_color(yellow);
-  _write(status_msg,HBOUND,screen->h-12,1,1);
+  print(status_msg,status_offset,1,1);
 }
 
 bool Osd::active() {
-  if(_active) screen->clear(); //scr(screen->get_surface(),screen->size);
+  if(_active) env->clear(); //scr(screen->get_surface(),screen->size);
   _active = !_active;
   return _active;
 }
 
 bool Osd::calibrate() {
-  if(_calibrate) screen->clear(); //scr(screen->get_surface(),screen->size);
+  if(_calibrate) env->clear(); //scr(screen->get_surface(),screen->size);
   _calibrate = !_calibrate;
   return _calibrate;
 }
 
 bool Osd::fps() {
-  if(_fps) screen->clear(); //scr(screen->get_surface(),screen->size);
+  if(_fps) env->clear(); //scr(screen->get_surface(),screen->size);
   _fps = !_fps;
-  screen->track_fps = _fps;
+  env->track_fps = _fps;
   return _fps;
 }
 
 void Osd::_show_fps() {
   char fps[10];
   _set_color(white);
-  sprintf(fps,"%.1f",screen->fps);
-  _write(fps,screen->w-50,1,1,1);
+  sprintf(fps,"%.1f",env->fps);
+  print(fps,fps_offset,1,1);
 }
 
 void Osd::_selection() {
@@ -151,7 +172,7 @@ void Osd::_selection() {
 
   _set_color(yellow);
 
-  Layer *lay = (Layer*) screen->layers.selected();
+  Layer *lay = (Layer*) env->layers.selected();
   if(!lay) return;
   
   Filter *filt = (Filter*) lay->filters.selected();
@@ -160,9 +181,9 @@ void Osd::_selection() {
 	  (filt)?filt->getname():" ",
 	  lay->get_blit(),
 	  (lay->alpha_blit)?"@":" ",
-	    (screen->clear_all)?"0":" ");
+	    (env->clear_all)?"0":" ");
   
-  _write(msg,80,1,1,1);
+  print(msg,selection_offset,1,1);
   
 }
 
@@ -174,12 +195,12 @@ void Osd::statusmsg(char *format, ...) {
 }
 
 void Osd::_layerlist() {
-  unsigned int vpos = VBOUND+TOPLIST;
-
+  //  unsigned int vpos = VBOUND+TOPLIST;
+  uint32_t *pos = layer_offset;
   //  _set_color(red);
 
-  Layer *l = (Layer *)screen->layers.begin(),
-    *laysel = (Layer*) screen->layers.selected();
+  Layer *l = (Layer *)env->layers.begin(),
+    *laysel = (Layer*) env->layers.selected();
 
   while(l) {
     char *lname = l->getname();
@@ -189,32 +210,35 @@ void Osd::_layerlist() {
 
       if(l->active) {
 	/* red color */ _color32 = 0xee0000;
-	_write(lname,screen->w-28,vpos,1,1);
+	pos = print(lname,pos+4,1,1) - 4;
       } else {
 	/* dark red color */ _color32 = 0x880000;	
-	_write(lname,screen->w-28,vpos,1,1);
+	pos = print(lname,pos+4,1,1) - 4;
       }
 
     } else {
 
       if(l->active) {
 	/* red color */ _color32 = 0xee0000;
-	_write(lname,screen->w-24,vpos,1,1);
+	pos = print(lname,pos,1,1);
       } else {
 	/* dark red color */ _color32 = 0x880000;	
-	_write(lname,screen->w-24,vpos,1,1);
+	pos = print(lname,pos,1,1);
       }
 
     }
-    vpos += CHAR_HEIGHT+1;
+    //    pos += newline;
+      //    vpos += CHAR_HEIGHT+1;
     l = (Layer *)l->next;
   }
 }
 
 void Osd::_filterlist() {
-  unsigned int vpos = VBOUND+6;
+  //  unsigned int vpos = VBOUND+6;
+  uint32_t *pos = filter_offset;
+
   char fname[4];
-  Layer *lay = (Layer*) screen->layers.selected();
+  Layer *lay = (Layer*) env->layers.selected();
   if(!lay) return;
   Filter *f = (Filter *)lay->filters.begin();
   Filter *filtsel = (Filter*)lay->filters.selected();
@@ -225,39 +249,45 @@ void Osd::_filterlist() {
 
       if(f->active) {
 	/* red color */ _color32 = 0xee0000;
-	_write(fname,5,vpos,1,1);
+	pos = print(fname,pos+4,1,1) - 4;
       } else {
 	/* dark red color */ _color32 = 0x880000;
-    	_write(fname,5,vpos,1,1);
+    	pos = print(fname,pos+4,1,1) - 4;
       }
 
     } else {
 
       if(f->active) {
 	/* red color */ _color32 = 0xee0000;
-	_write(fname,1,vpos,1,1);
+	pos = print(fname,pos,1,1);
       } else {
 	/* dark red color */ _color32 = 0x880000;
-	_write(fname,1,vpos,1,1);
+	pos = print(fname,pos,1,1);
       }
 
     }
     
-    vpos += CHAR_HEIGHT+1;
+    //    vpos += CHAR_HEIGHT+1;
+    //    pos += newline;
     f = (Filter *)f->next;
   }
 }
 
 void Osd::splash_screen() {
   _set_color(white);
-  int vpos = VBOUND+15;
-  _write(PACKAGE,HBOUND+40,vpos,2,2);
-  _write(VERSION,HBOUND+160,vpos,2,2);
-  vpos += CHAR_HEIGHT+10;
-  _write("PIKSEL",HBOUND+40,vpos,2,2);
-  vpos += CHAR_HEIGHT+10;
-  _write(":: set the veejay free ",HBOUND+40,vpos,1,2);
-  vpos += CHAR_HEIGHT+30;
+
+  //  int vpos = VBOUND+5;
+  uint32_t *pos = hicredits_offset;
+  pos = print(title,pos,2,2);
+  //  pos += newline;
+  pos = print("MONTEVIDEO",pos,2,2);
+  //  vpos += CHAR_HEIGHT+10;
+  //  pos += newline;
+  pos = print(":: set the veejay free ",pos,1,2);
+  //  vpos += CHAR_HEIGHT+30;
+  
+
+  /*
   _write("100% free software for",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+8;
   _write("realtime video processing",HBOUND+40,vpos,1,2);
@@ -266,21 +296,25 @@ void Osd::splash_screen() {
   vpos += CHAR_HEIGHT+3;
   _write("http://freej.dyne.org",HBOUND+40,vpos,1,2);
   vpos += CHAR_HEIGHT+40;
-  _write("| software by jaromil",HBOUND+40,vpos,1,2);
-  vpos += CHAR_HEIGHT+10;
-  _write("| copyleft 2001 - 2003",HBOUND+40,vpos,1,2);
+  */
+  pos = locredits_offset;
+  pos = print("| by rastasoft.org",pos,1,2);
+  //vpos += CHAR_HEIGHT+10;
+  pos = print("| copyleft 2001 - 2003",pos,1,2);
+  //  vpos += CHAR_HEIGHT+10;
+  pos = print("| jaromil @ dyne.org",pos,1,2);
 }
 
 bool Osd::credits() {
-  if(_credits) screen->clear(); //scr(screen->get_surface(),screen->size);
+  if(_credits) env->clear(); //scr(env->get_surface(),env->size);
   _credits = !_credits;
   return _credits;
 }
 
 void Osd::_print_credits() {
   _set_color(green);
-  _write(PACKAGE,6,0,1,1);
-  _write(VERSION,6,9,1,1);
+  uint32_t *pos = print(PACKAGE,hilogo_offset,1,1);
+  print(VERSION,pos,1,1);
   _set_color(white);
   if(_credits) splash_screen();
 }
@@ -288,37 +322,37 @@ void Osd::_print_credits() {
 void Osd::_set_color(colors col) {
   switch(col) {
   case black:
-    _color32 = 0x000000;
+    _color32 = 0x88000000;
     break;
   case white:
-    _color32 = 0xfefefe;
+    _color32 = 0x88fefefe;
     break;
   case green:
-    _color32 = 0x00ee00;
+    _color32 = 0x8800ee00;
     break;
   case red:
-    _color32 = 0xee0000;
+    _color32 = 0x88ee0000;
     break;
   case blue:
-    _color32 = 0x0000fe;
+    _color32 = 0x880000fe;
     break;
   case yellow:
-    _color32 = 0xffef00;
+    _color32 = 0x88ffef00;
     break;
   }
 }
 
 void Osd::clean() {
   int c,cc;
-  int jump = (screen->w - HBOUND - HBOUND) / 2;
-  uint64_t *top = (uint64_t*)screen->get_surface();
-  uint64_t *down = (uint64_t*)screen->coords(0,screen->h-VBOUND);
+  int jump = (env->w - HBOUND - HBOUND) / 2;
+  uint64_t *top = (uint64_t*)env->get_surface();
+  uint64_t *down = (uint64_t*)env->coords(0,env->h-VBOUND);
   
-  for(c=(VBOUND*(screen->w>>1));c>0;c--) {
+  for(c=(VBOUND*(env->w>>1));c>0;c--) {
     *top = 0x0; *down = 0x0;
     top++; down++;
   }
-  for(c = screen->h-VBOUND-VBOUND; c>0; c--) {
+  for(c = env->h-VBOUND-VBOUND; c>0; c--) {
     for(cc = HBOUND>>1; cc>0; cc--) { *top = 0x0; top++; }
     top+=jump;
     for(cc = HBOUND>>1; cc>0; cc--) { *top = 0x0; top++; }

@@ -211,6 +211,12 @@ int main (int argc, char **argv) {
   lay = create_layer("/dev/video");
   if(lay) screen.add_layer(lay);
 
+  /* this is the Plugin manager */
+  Plugger plugger;
+  plugger.refresh();
+  screen.plugger = &plugger;  /* dirty! */
+
+
   /* this is the On Screen Display */
   Osd osd;
   osd.init(&screen);
@@ -218,6 +224,8 @@ int main (int argc, char **argv) {
   set_osd(osd.status_msg); /* let jutils know about the osd */
 
   /* (context has no layers && there is no GUI) then quit here */
+
+
 
   if(screen.layers.len()<1) {
     if(gtkgui)
@@ -233,11 +241,6 @@ int main (int argc, char **argv) {
   }
 
   
-  /* this is the Plugin manager */
-  Plugger plugger;
-  plugger.refresh();
-  screen.plugger = &plugger;  /* dirty! */
-
   
 
   /* launch layer threads */
@@ -245,12 +248,12 @@ int main (int argc, char **argv) {
   screen.rocknroll(startstate);
   func("OK, rolling");
 
-  /* this is the keyboard listener */
+  /* launches the keyboard controller thread*/
   KbdListener keyb;
   assert( keyb.init(&screen, &plugger) );
 
 #ifdef WITH_GLADE2
-  /* this launches gtk2 interface thread */
+  /* this launches gtk2 interface controller thread */
   if(gtkgui) {
     gtk_ctrl_init(&screen,&argc,argv);
   }

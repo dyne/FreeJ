@@ -29,7 +29,7 @@
 #include <avi_layer.h>
 #include <avm_except.h>
 #include <avm_fourcc.h>
-#include <avm_creators.h>
+//#include <avm_creators.h>
 #include <renderer.h>
 
 #include <context.h>
@@ -56,8 +56,8 @@ bool AviLayer::init(Context *scr) {
   
   _ci = (CodecInfo *)CodecInfo::match(fccDIV3);
   //  CodecInfo::Get(_ci, avm::CodecInfo::Video, avm::CodecInfo::Decode, fcc);
-  Creators::SetCodecAttr
-    (*_ci, (const char*)"Quality", (const char*)_quality);
+  //  Creators::SetCodecAttr
+  //    (*_ci, (const char*)"Quality", (const char*)_quality);
   if(bh.biBitCount!=32) {
     error("Movie file decoding produces %ibit colorspace images.",bh.biBitCount);
     error("FreeJ movie layer does'nt supports color depths different from 32bpp");

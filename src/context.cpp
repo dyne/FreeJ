@@ -76,7 +76,6 @@ Context::Context(int wx, int hx, int bppx, Uint32 flagsx) {
   SDL_ShowCursor(0);
 
   osd = NULL;
-  kbd = NULL;
 
   doubletab = NULL;
   doublebuf = NULL;
@@ -127,6 +126,14 @@ bool Context::init(int wx, int hx, int bppx, Uint32 flagsx) {
   return true;
 }
 
+void *Context::coords(int x, int y) {
+
+  return( 
+	 (Uint8 *)prec_y[y] + 
+	 (x<<(bpp>>4)) 
+	 );
+  //  return ( surface + (pitch*y) + (x<<(bpp>>4)) );
+}
 int Context::setres(int wx, int hx) {
   /* check and set available videomode */
   int res = SDL_VideoModeOK(wx, hx, bpp, flags);

@@ -68,8 +68,7 @@ class Context {
   void clear();
 
   /* this returns the address of selected coords to video memory */
-  void *coords(int x, int y) { return( ((Uint8 *)prec_y[y] + 
-					(x<<(bpp>>4)) )); }
+  void *coords(int x, int y);
   /* this returns a pointer to the video memory */  
   void *get_surface() { return surface; }; //  { return coords(0,0); }
 
@@ -103,10 +102,9 @@ class Context {
   /* On Screen Display */
   Osd *osd;
 
+  /* Filter plugins plugger */
   Plugger *plugger;
 
-  /* Keyboard Listener */
-  KbdListener *kbd;
 
   /* ---- fps ---- */
   void calc_fps();

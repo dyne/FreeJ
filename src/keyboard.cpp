@@ -47,7 +47,6 @@ bool KbdListener::init(Context *context, Plugger *plug) {
 
   /* saves the pointer to the environment */
   this->env = context;
-  context->kbd = this;
   
   /* saves the pointer to the plugger */
   this->plugger = plug;
@@ -63,14 +62,7 @@ void KbdListener::run() {
 
   while(!quit) {
 
-    if(!layer) {
-      layer = (Layer*) env->layers.begin();
-      if(!layer) continue; /* there are no layers */
-      else {
-	env->layers.sel(0);
-	layer->sel(true); /* select the first */
-      }
-    }
+    
 
     SDL_Delay(DELAY); 
 
@@ -121,6 +113,36 @@ void KbdListener::run() {
 	break;
       }
 
+    case SDLK_0:
+      env->clear_all = !env->clear_all;
+      break;
+      
+    default:
+      _lastsel = -1;
+      break;
+    }
+
+    /* LAYER CONTROLS */
+    layer = (Layer *)env->layers.selected();
+    if(!layer)
+      layer = (Layer*) env->layers.begin();
+    if(!layer) continue; /* there are no layers */
+    else {
+      env->layers.sel(0);
+      layer->sel(true); /* select the first */
+    }
+
+    /* mouse drag */
+    if(event.type & SDL_MOUSEMOTION)
+      if(event.motion.state & SDL_BUTTON_LEFT)
+	layer->set_position
+	  ( layer->geo.x + event.motion.xrel,
+	    layer->geo.y + event.motion.yrel );
+      else if(event.motion.state & SDL_BUTTON_RIGHT)
+	layer->set_position( event.motion.x, event.motion.y );
+    
+    switch(keysym->sym) {
+
       /* filter selection */
     case SDLK_F1:
     case SDLK_F2:
@@ -150,28 +172,20 @@ void KbdListener::run() {
       }
       break;
 
-    case SDLK_0:
-      env->clear_all = !env->clear_all;
+    case SDLK_RETURN:
+      /* add a new filter to the selected layer */
+      if(!_filt) break;
+      if(_filt->inuse) {
+	show_osd("Filter %s is allready in use",_filt->getname());
+	break;
+      }
+      if(layer->add_filter(_filt)) {
+	/* the filter has been accepted on the layer chain */
+	filter = _filt;
+	layer->filters.sel(0);
+	filter->sel(true);
+      }
       break;
-      
-    default:
-      _lastsel = -1;
-      break;
-    }
-
-    /* LAYER CONTROLS */
-    layer = (Layer *)env->layers.selected();
-    
-    /* mouse drag */
-    if(event.type & SDL_MOUSEMOTION)
-      if(event.motion.state & SDL_BUTTON_LEFT)
-	layer->set_position
-	  ( layer->geo.x + event.motion.xrel,
-	    layer->geo.y + event.motion.yrel );
-      else if(event.motion.state & SDL_BUTTON_RIGHT)
-	layer->set_position( event.motion.x, event.motion.y );
-    
-    switch(keysym->sym) {
       
     case SDLK_UP:
       if(keysym->mod & KMOD_SHIFT) {
@@ -238,20 +252,6 @@ void KbdListener::run() {
       else layer->bgcolor = 0; /* back to layer feed */
       break;
 
-    case SDLK_RETURN:
-      /* add a new filter to the selected layer */
-      if(!_filt) break;
-      if(_filt->inuse) {
-	show_osd("Filter %s is allready in use",_filt->getname());
-	break;
-      }
-      if(layer->add_filter(_filt)) {
-	/* the filter has been accepted on the layer chain */
-	filter = _filt;
-	layer->filters.sel(0);
-	filter->sel(true);
-      }
-      break;
       
     case SDLK_DELETE:
       if(keysym->mod & KMOD_CTRL) {

@@ -19,6 +19,7 @@
 #ifndef __OSD_H__ 
 #define __OSD_H__
 
+#include <context.h>
 #include <inttypes.h>
 
 #define HBOUND 30
@@ -31,27 +32,45 @@
 typedef enum { black, white, green, red, blue, yellow } colors;
 typedef void (write_routine)(char*, int, int, int, int);
 
-class Context;
+//class Context;
 
 class Osd {
  private:
   int _hbound, _vbound;
   int _layersel, _filtersel;
-  void _show_fps();
-  void _selection();
-  void _filterlist();
-  void _layerlist();
-  void _print_credits();
-  void _print_status();
+  uint32_t newline;
 
+  void _show_fps();
+  uint32_t *fps_offset;
+
+  void _selection();
+  uint32_t *selection_offset;
+
+  void _filterlist();
+  uint32_t *filter_offset;
+
+  void _layerlist();
+  uint32_t *layer_offset;
+
+  void _print_credits();
+  uint32_t *hicredits_offset;
+  uint32_t *locredits_offset;
+  uint32_t *hilogo_offset;
+
+  void _print_status();
+  uint32_t *status_offset;
   void _set_color(colors col);
-  void _write(char *text, int xpos, int ypos, int hsize, int vsize);
+
   uint32_t _color32;
 
+  char title[64];
   bool _active;
   bool _calibrate;
   bool _credits;
   bool _fps;
+
+  Layer *ipernaut;
+  Filter *sflescio;
 
  public:
   Osd();
@@ -67,7 +86,9 @@ class Osd {
   bool fps();
   void clean();
 
-  Context *screen;
+  Context *env;
+
+  uint32_t *print(char *text, uint32_t* pos, int hsize, int vsize);
 
   char status_msg[50];
 
