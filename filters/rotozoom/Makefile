@@ -57,7 +57,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_alias = @host_alias@
-host_triplet = i686-pc-linux-gnu
+host_triplet = i586-pc-linux-gnu
 AS = @AS@
 CC = gcc
 CXX = g++
@@ -101,7 +101,7 @@ LDFLAGS =
 LIBS = 
 rotozoom_la_LIBADD = 
 rotozoom_la_OBJECTS =  rotozoom.lo
-CFLAGS = -g -Wall -O3 -fomit-frame-pointer -march=i686 -mcpu=i686 -finline-functions -ffast-math -malign-double -funroll-loops
+CFLAGS = -g -Wall -O3 -fomit-frame-pointer -march=i586 -mcpu=i586 -finline-functions -ffast-math -malign-double -funroll-loops
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)

@@ -1,10 +1,9 @@
-         [[[ FreeJ 0.3  "PRATERHIMMEL" ]]]
+
+        [[[ FreeJ 0.3.2  "PRATERHIMMEL" ]]]
               [http://freej.dyne.org]
 
-                  set the vj free
+               :: set the vj free ::
  free unified framework for realtime video processing
-
-              (( coded by jaromil ))
 
 :: OVERVIEW
 
@@ -42,10 +41,10 @@ license for details).
 
 To run FreeJ is necessary to have:
 
-- a working x86 GNU/Linux workstation ;)
+- a working GNU/Linux workstation with a MMX capable CPU
 - SDL libraries <http://www.libsdl.org>
 - NASM <http://www.kernel.org/pub/software/devel/nasm>
-- XFree86, possibly 4.1  running  on  a  supported  accelerated  card.
+- XFree86 4.2 or latest, better with an accelerated videocard
 - a video4linux supported grabbing card
 
 For better fullscreen support try to add to your XF86Config  file  the
@@ -54,38 +53,16 @@ modelines in doc/x11.modelines.
 :: INSTALL
 
 Make sure you have all the required software, then just do: 
-./configure
-make
-make install
+
+ ./configure
+ make
+ make install
+
 filter plugins will be installed into /usr/local/lib/freej (or another
 prefix if you changed the default one).
 
-:: SUPPORT
-
-Have a look on our recent project DyneBolic: http://dynebolic.dyne.org
-we are shipping this CD  in  order  to  support  development  of  this
-software: by buying it you will help much, please  consider  making  a
-donation to us in this way!
-
-dyne.org staff is also available to run formation courses about usage,
-customization and reuse/abuse of the software in particular
-circumstances.  Even adhoc setup and/or warranty that  FreeJ  fits  to
-anybody's particular purpose can be requested: feel  free  to  contact
-<freej-team@dyne.org> for any further information.
-
-Any organization or individual can also give  significant  support  by
-donating funds for  involved  developers,  hardware  for  development,
-timespace where to present FreeJ thru public lectures and/or
-performances and more generally credits and citations.   Every  single
-contribution will be reported on the project's documentation  and  the
-software itself will state it thru noticeable credits.
-
-:: AVAILABILITY
-
-Updated informations and FreeJ releases are made available on
-[http://freej.dyne.org]. The bleeding edge sourcecode is also publicly
-available thru CVS on [http://savannah.gnu.org/projects/freej]  (there
-you will find instructions on how to get and browse online the  code).
+For better fullscreen support you might want to add in your XF86Config
+file the modelines included into doc/x11.modelines.
 
 :: DISCUSSION
 
@@ -94,6 +71,14 @@ A mailinglist  for  further  discussion  about  FreeJ  is  running  as
 send a mail to <freej-subscribe@dyne.org> to join. Online archive and
 mailinglist interface is made available on
 [http://dyne.org/cgi-bin/ml.cgi?4] .
+
+:: AVAILABILITY
+
+Updated informations and FreeJ releases are made available on
+[http://freej.dyne.org]. The bleeding edge sourcecode is also publicly
+available thru CVS on [http://savannah.gnu.org/projects/freej]  (there
+you will find instructions on how to get and browse online the  code).
+
 
 --
 FreeJ is (c) 2001, 2002 Denis Roio <jaromil@dyne.org>

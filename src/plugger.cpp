@@ -19,6 +19,8 @@ Plugger::Plugger(int bpp) {
   _addsearchdir(temp);
   _addsearchdir("/usr/local/lib/freej");
   _addsearchdir("/usr/lib/freej");
+  /* the following is added for DyneBolic */
+  _addsearchdir("/opt/FreeJ/plugins");
   for(int i=0;i<MAX_PLUGINS;i++) plugs[i] = NULL;
 }
 
@@ -75,9 +77,8 @@ Filter *Plugger::operator[](const int num) {
   /* if the plugin is allready in use we can't instantiate it
      from the same DSO shared object */
   if(plugs[num]->inuse) return(NULL);
-  /*
-    this is handled by the keyboard class
-    plugs[num]->inuse = true; */
+  /* this is handled by the keyboard class
+     plugs[num]->inuse = true; */
   return(plugs[num]);
 }
 

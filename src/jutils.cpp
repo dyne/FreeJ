@@ -23,6 +23,7 @@
 #include <iostream.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <time.h>
 #include <sched.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -206,4 +207,11 @@ bool set_rtpriority(bool max) {
     return false;
   else
     return true;
+}
+
+void jsleep(int sec, long nsec) {
+  timespec timelap;
+  timelap.tv_sec = sec;
+  timelap.tv_nsec = nsec;
+  nanosleep(&timelap,NULL);
 }

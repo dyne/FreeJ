@@ -35,13 +35,15 @@ void Layer::_delete() {
   */
 }
 
-void Layer::_init(Context *screen, int wdt, int hgt) {
+void Layer::_init(Context *screen, int wdt, int hgt, int bpp=0) {
   geo.w = (wdt == 0) ? screen->w : wdt;
   geo.h = (hgt == 0) ? screen->h : hgt;
-  geo.bpp = screen->bpp;
+  geo.bpp = (bpp) ? bpp : screen->bpp;
   geo.size = geo.w*geo.h*(geo.bpp>>3);
   geo.pitch = geo.w*(geo.bpp>>3);
   geo.fps = screen->fps;
+  geo.x = (Uint16)(screen->w - geo.w)/2;
+  geo.y = (Uint16)(screen->h - geo.h)/2;
 
   _w = geo.w; _h = geo.h;
   _pitch = geo.pitch;
@@ -52,6 +54,7 @@ void Layer::_init(Context *screen, int wdt, int hgt) {
 }
 
 void Layer::run() {
+  active = true;
   while(!quit) {
     feed();
     wait_feed();
@@ -59,7 +62,6 @@ void Layer::run() {
 }
 
 bool Layer::add_filter(Filter *newfilt) {
-
   /* PARANOIA */
   if(!newfilt) {
     warning("Layer::add_filter called with an invalid NULL filter");
@@ -148,8 +150,8 @@ Filter *Layer::active_filter(int sel) {
 }
 
 bool Layer::cafudda() {
-  void *res = get_buffer();
-  if(!res) {
+  void *offset = get_buffer();
+  if(!offset) {
     signal_feed();
     return(false);
   }
@@ -163,7 +165,7 @@ bool Layer::cafudda() {
   Filter *filt = (Filter *)filters.begin();
   
   while(filt!=NULL) {
-    if(filt->active) res = filt->process(res);
+    if(filt->active) offset = filt->process(offset);
     filt = (Filter *)filt->next;
   }
 
@@ -172,8 +174,21 @@ bool Layer::cafudda() {
   /*  if(pitch==screen->pitch)
     mmxcopy(res,screen->get_surface(),size);
     else */
-  mmxblit(res,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
- 
+  mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+  /*  C function to blit on screen byte by byte
+  {
+    char *scr, *pscr;
+    scr = pscr = (char *) screen->coords(geo.x,geo.y);
+    char *off, *poff;
+    off = poff = (char *)offset;
+    int c,cc;
+    for(c=geo.h;c>0;c--) {
+      off = poff = poff + geo.pitch;
+      scr = pscr = pscr + screen->pitch;
+      for(cc=geo.pitch;cc>0;cc--) *scr++ = *off++;
+    }
+  }
+  */
   /* pitch is width in bytes */
 
   unlock();

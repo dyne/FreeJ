@@ -1388,7 +1388,7 @@ test -z "$program_transform_name" && program_transform_name="s,x,x,"
 
 PACKAGE=FreeJ
 
-VERSION=0.3
+VERSION=0.3.2
 
 if test "`cd $srcdir && pwd`" != "`pwd`" && test -f $srcdir/config.status; then
   { { echo "$as_me:1394: error: source directory already configured; run \"make distclean\" there first" >&5

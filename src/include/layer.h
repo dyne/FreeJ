@@ -35,17 +35,17 @@ class Layer: public Entry, public JSyncThread {
 
  public:
 
-  Layer() { active = true; };
+  Layer() { active = false; };
   virtual ~Layer() { _delete(); };
 
   void run();
-  void _init(Context *screen, int wdt, int hgt);
+  void _init(Context *screen, int wdt, int hgt, int bpp=0);
   void _delete();
   virtual void _close() { };
 
   /* these has to be defined into layer instances
      (pure virtual functions) */
-  virtual void feed() = 0; /* feeds in the image source */
+  virtual bool feed() = 0; /* feeds in the image source */
   virtual void *get_buffer() = 0; /* returns a pointer to the image source */
 
   bool add_filter(Filter *newfilt);

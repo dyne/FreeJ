@@ -302,7 +302,7 @@ void *V4lGrabber::get_buffer() {
   return(rgb_surface);
 }
 
-void V4lGrabber::feed() {
+bool V4lGrabber::feed() {
   ok_frame = cur_frame;
   cur_frame = ((cur_frame+1)%num_frame);
   grab_buf[0].format = palette;
@@ -316,11 +316,13 @@ void V4lGrabber::feed() {
   if (-1 == ioctl(dev,VIDIOCSYNC,&grab_buf[cur_frame])) {
     func("V4lGrabber::feed");
     error("error in ioctl VIDIOCSYNC");
+    return false;
   }
 
   if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[cur_frame])) {
     func("V4lGrabber::feed");
     error("error in ioctl VIDIOCMCAPTURE");
+    return false;
   }
-  
+  return true;
 }

@@ -137,42 +137,29 @@ int main (int argc, char **argv) {
   Plugger plugger(screen.bpp);
   plugger.refresh();
 
+  /* ================= Avi layer */
+  AviLayer *avi = NULL;
+  if(avifile!=NULL) {
+    avi = new AviLayer();
+    notice("avifile library output follows ____________________________");
+    res = avi->open(avifile);
+    act("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+    if(res) assert( avi->init(&screen) );
+  }
+
+
   /* ================= Video4Linux layer */
   V4lGrabber grabber;
   /* detect v4l grabber layer */
-  if(!grabber.detect(v4ldevice)) {
-    act("no video 4 linux device detected");
-  } else {
-    /* init the v4l grabber */
-    assert( grabber.init(&screen,GW,GH) );
-    
-    /* center the v4l layer */
-    grabber.geo.x = (Uint16)(W-GW)/2;
-    grabber.geo.y = (Uint16)(H-GH)/2;
-    /* --------------------- */
-  }
-
-  /* ================= Avi layer */
-  AviLayer avi;
-  if(avifile!=NULL) {
-    notice("avifile library output follows ____________________________");
-    res = avi.open(avifile);
-    act("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-  }
-  if(res) {
-    assert( avi.init(&screen,GW,GH) );
-    avi.geo.x = (Uint16)(W-GW)/2;
-    avi.geo.y = (Uint16)(H-GH)/2;
-  }
+  if(!grabber.detect(v4ldevice)) act("no video 4 linux device detected");
+  else assert( grabber.init(&screen,GW,GH) );
 
   /* this is the keyboard listener */
   KbdListener keyb;
-  /* init the keyb listener */
   assert( keyb.init(&screen, &plugger) );
   
   /* this is the On Screen Display */
   Osd osd;
-  /* create and initialize the osd */
   osd.init(&screen);
   osd.active();
   /* let jutils know about the osd */
@@ -181,17 +168,17 @@ int main (int argc, char **argv) {
   /* update the fps counter every 25 frames */
   screen.set_fps_interval(24);
 
+  if(avi) avi->start();
+  else grabber.start();
 
-  //  grabber.start();
-  grabber.active = false;
-  avi.start();
-  //  avi->active = false;
+
   keyb.start();
 
   Layer *lay;
   while(!keyb.quit) {
     /* main loop */
     screen.calc_fps();
+
     lay = (Layer *)screen.layers.begin();
 
     while(lay != NULL) {
@@ -206,7 +193,7 @@ int main (int argc, char **argv) {
   osd.splash_screen();
   screen.flip();
   grabber.quit = true;
-  avi.quit = true;
+  if(avi) avi->quit = true;
 
   /* we need to wait here to be sure the threads quitted:
      can't use join because threads are detached for better performance */
@@ -215,6 +202,7 @@ int main (int argc, char **argv) {
   /* this calls all _delete() methods to safely free all memory */
   plugger.close();
   screen.close();
-  
+  if(avi) delete avi;
+
   exit(1);
 }

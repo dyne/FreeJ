@@ -58,7 +58,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_alias = @host_alias@
-host_triplet = i686-pc-linux-gnu
+host_triplet = i586-pc-linux-gnu
 AS = @AS@
 CC = gcc
 CXX = g++
@@ -79,7 +79,7 @@ SDL_CFLAGS = -I/usr/local/include -I/usr/local/include/SDL -D_REENTRANT
 SDL_CONFIG = /usr/local/bin/sdl-config
 SDL_LIBS = -L/usr/local/lib -Wl,-rpath,/usr/local/lib -lSDL -lpthread
 STRIP = strip
-VERSION = 0.3
+VERSION = 0.3.2
 
 SUBDIRS = delaygrab absdiff simura baltan vertigo transform
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs

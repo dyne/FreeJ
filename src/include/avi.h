@@ -29,19 +29,22 @@ class AviLayer: public Layer {
   VideoRenderer *_rend;
   CImage *_img;
   const CodecInfo *_ci;
+  BITMAPINFOHEADER bh;
 
   unsigned int _samples_read;
   unsigned int _bytes_read;
   
   int _quality;
 
+  double lsttime, curtime;
+
  public:
   AviLayer();
   ~AviLayer();
   
-  bool init(Context *screen, int wdt, int hgt);
+  bool init(Context *screen=NULL);
   bool open(char *file);
-  void feed();
+  bool feed();
   void *get_buffer();
   void close();
 

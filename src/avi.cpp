@@ -30,6 +30,7 @@
 #include <avifile/fourcc.h>
 #include <avifile/creators.h>
 #include <avifile/renderer.h>
+#include <context.h>
 #include <jutils.h>
 
 AviLayer::AviLayer() {
@@ -41,12 +42,23 @@ AviLayer::AviLayer() {
 AviLayer::~AviLayer() { 
 }
 
-bool AviLayer::init(Context *screen, int wdt, int hgt) {
+bool AviLayer::init(Context *scr=NULL) {
   _quality = 1;
   _ci = (CodecInfo *)CodecInfo::match(fccDIV3);
   if(_ci) Creators::SetCodecAttr(*_ci, (const char*)"Quality", (const char*)_quality);
+  
+  if(scr) screen = scr;
 
-  _init(screen,wdt,hgt);
+  _init(screen,
+	labs(bh.biWidth),
+	labs(bh.biHeight),
+	bh.biBitCount);
+
+  lsttime = dtime();
+
+  feed();  
+  notice("AviLayer :: w[%u] h[%u] bpp[%u] size[%u]",
+	 geo.w,geo.h,geo.bpp,geo.size);
 
   return true;
 }
@@ -97,8 +109,6 @@ bool AviLayer::open(char *file) {
     return(false);
   }
 
-  BITMAPINFOHEADER bh;
-
   try {
 
     if(_stream->StartStreaming()!=0) {
@@ -106,55 +116,74 @@ bool AviLayer::open(char *file) {
       error("AviLayer::open(%s) - failed to initialize decoder object",file);
       return(false);
     }
-    _stream->GetDecoder()->SetDestFmt(8); // QUAAAAAA
 
-    _stream->GetOutputFormat(&bh, sizeof(bh));
+    /*
+     * SetDestFmt() sets desired bit depth and color space of output picture. 
+     * Returns zero on success, -1 if format is unsupported and 
+     * +1 if there was no 'native' support for the depth and library
+     * is going to perform internal conversion of format. Most decoders 
+     * support depths 15, 16, 24 or 32. Many of them also allow to use
+     * YUV formats. You can check if your particular decoder is able to decode
+     * into the particular YUV format by calling GetCapabilities(),
+     * which returns bitwise OR of supported formats.
+     */
+     _stream->GetDecoder()->SetDestFmt(32); // QUAAAAAA
+     
+     _stream->GetOutputFormat(&bh, sizeof(bh));
 
-    //    geo.w = labs(bh.biWidth);
-    //    geo.h = labs(bh.biHeight);
-    geo.bpp = bh.biBitCount;
-    geo.size = geo.w*geo.h*(geo.bpp/8);
-    geo.pitch = geo.w*(geo.bpp/8);
+     /*
+     geo.w = labs(bh.biWidth);
+     geo.h = labs(bh.biHeight);
+     geo.bpp = bh.biBitCount;
+     geo.size = geo.w*geo.h*(geo.bpp/8);
+     geo.pitch = geo.w*(geo.bpp/8);
+     */
+     
   }
   catch(FatalError &e) {
-    error("fatal error");//: %s",e.Print());
+    error("Avilib fatal error");
+    e.Print();
     return(false);
   }
 
-  fourcc_t fcc = fccYUV;
   /*
-  IVideoDecoder::CAPS caps = _stream->GetDecoder()->GetCapabilities();
-  cout << "Decoder YUV capabilities: " << caps << endl;
-  if (caps & IVideoDecoder::CAP_YUY2) fcc = fccYUY2;
-  else if (caps & IVideoDecoder::CAP_YV12) fcc = fccYV12;
-  else if (caps & IVideoDecoder::CAP_UYVY) fcc = fccUYVY;
-  else error("AviLayer::open - IVideoDecoder - YUV unsupported by decoder");
+    fourcc_t fcc = fccYUV;
+    
+    IVideoDecoder::CAPS caps = _stream->GetDecoder()->GetCapabilities();
+    cout << "Decoder YUV capabilities: " << caps << endl;
+    if (caps & IVideoDecoder::CAP_YUY2) fcc = fccYUY2;
+    else if (caps & IVideoDecoder::CAP_YV12) fcc = fccYV12;
+    else if (caps & IVideoDecoder::CAP_UYVY) fcc = fccUYVY;
+    else error("AviLayer::open - IVideoDecoder - YUV unsupported by decoder");
   */
   /*
-  if (fcc)
+    if (fcc)
     if (_stream->GetDecoder()->SetDestFmt(BitmapInfo::BitCount(fcc), fcc))
-      error("AviLayer::open - CreateYUVRenderer - error setting YUV decoder output");
+    error("AviLayer::open - CreateYUVRenderer - error setting YUV decoder output");
   */
-  feed();
-  
-  notice("AviLayer :: w[%u] h[%u] bpp[%u] size[%u]",
-	 geo.w,geo.h,geo.bpp,geo.size);
   return(true);
 }
   
 void *AviLayer::get_buffer() {
-  func("AviLayer::get_buffer()");
+  //  func("AviLayer::get_buffer()");
   void *res;
   res = _img->Data();
-  func("AviLayer::get_buffer() returned %p",res);
+  //  func("AviLayer::get_buffer() returned %p",res);
   return res;
 }
 
-void AviLayer::feed() {
-  func("AVILAYER FEED");
+bool AviLayer::feed() {
+  //  func("AVILAYER FEED");
+
+  curtime = dtime();
+  if((curtime - lsttime) < (1/24)) {
+    SDL_Delay(100); return false; }
+  else lsttime = curtime;
+  
   _stream->ReadFrame(true);
   _img = _stream->GetFrame(false);
-  func("AVILAYER FEED OK");
+  return true;
+  //  func("AVILAYER FEED OK");
 }
 
 void AviLayer::close() {

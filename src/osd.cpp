@@ -227,20 +227,21 @@ void Osd::splash_screen() {
   int vpos = _vbound+15;
   (this->*write)("[ d y n e . o r g ] presents:",_hbound+60,vpos,1,1);
   vpos += CHAR_HEIGHT+30;
-  (this->*write)(PACKAGE,_hbound+110,vpos,2,2);
-  (this->*write)(VERSION,_hbound+200,vpos,2,2);
-  (this->*write)("PRATERHIMMEL",_hbound+190,vpos,2,2);
+  (this->*write)(PACKAGE,_hbound+90,vpos,2,2);
+  (this->*write)(VERSION,_hbound+180,vpos,2,2);
+  vpos += CHAR_HEIGHT+10;
+  (this->*write)("PRATERHIMMEL",_hbound+80,vpos,2,2);
   vpos += CHAR_HEIGHT+10;
   (this->*write)(":: set the veejay free ::",_hbound+75,vpos,1,1);
   vpos += CHAR_HEIGHT+30;
-  (this->*write)("100% free software for",_hbound+80,vpos,1,1);
-  vpos += CHAR_HEIGHT+2;
-  (this->*write)("realtime video processing",_hbound+70,vpos,1,1);
+  (this->*write)("100% free software for",_hbound+80,vpos,1,2);
+  vpos += CHAR_HEIGHT+8;
+  (this->*write)("realtime video processing",_hbound+70,vpos,1,2);
   vpos += CHAR_HEIGHT+30;
   (this->*write)("concept and coding by",_hbound+80,vpos,1,1);
   vpos += CHAR_HEIGHT+2;
   (this->*write)("jaromil",_hbound+160,vpos,2,2);
-  vpos += CHAR_HEIGHT+50;
+  vpos += CHAR_HEIGHT+30;
   (this->*write)("http://freej.dyne.org",_hbound+85,vpos,1,2);
 }
 

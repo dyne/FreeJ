@@ -148,13 +148,18 @@ bool Context::calc_fps() {
   }
 
   framecount++;
+  
   if (framecount==fps_frame_interval) {
     curtime=dtime();
-    fps=(double)framecount/(curtime-lst_time);
+    trascorso = curtime-lst_time;
+    fps=(double)framecount/trascorso;
     lst_time=curtime;
     framecount=0;
     return(false);
-  }  
+  }
+  
+  double prcd = (trascorso/fps) - ((trascorso*fps_frame_interval)/fps);
+  func("PRCD: %f",prcd);
 
   return(true);
 }

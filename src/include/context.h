@@ -38,7 +38,7 @@ class Context {
   double cur_time;
   double lst_time;
   int fps_frame_interval;
-  int framecount;
+
   /* --------------------- */
 
   void *prec_y[MAX_HEIGHT];
@@ -84,6 +84,8 @@ class Context {
   void set_fps_interval(int interval);
   void print_fps();
   float fps;
+  double trascorso;
+  int framecount;
 
   bool quit;
 };

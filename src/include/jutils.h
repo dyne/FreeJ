@@ -37,5 +37,5 @@ Uint32 fastrand();
 void fastsrand(Uint32 seed);
 double dtime();
 bool set_rtpriority(bool max);
-
+void jsleep(int sec, long nsec);
 #endif
