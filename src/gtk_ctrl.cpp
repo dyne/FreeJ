@@ -93,6 +93,7 @@ void do_add_layer(GtkWidget *widget, gpointer *data) {
   for(int c=0;sel[c];c++) {
     func("%s : creating %s",__FUNCTION__,sel[c]);
     lay = create_layer(sel[c]);
+    if(!lay) return;
     if(lay->init(env)) {
       if(lay) env->layers.add(lay);
       env->layers.sel(0); /* deselect others */

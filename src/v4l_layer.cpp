@@ -202,7 +202,7 @@ bool V4lGrabber::init(Context *screen) {
   grab_buf[0].height = geo.h; \
   grab_buf[0].width = geo.w; \
   if (-1 != ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) \
-    palette = pal; \
+    palette = grab_buf[0].format; \
   else func("palette %i not supported for grabbing",palette);
 
   palette = 0;

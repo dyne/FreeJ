@@ -3,9 +3,6 @@
 
              [ http://freej.dyne.org ]
 
-
-        JAH BLESS YOU AND BIG UP ALL FRIENDS!
-      this is RASTASOFTWARE to SET THE VJ FREE!
          by jaromil - http://rastasoft.org
 
 
@@ -25,19 +22,16 @@ run on GNU/Linux platform and it could be ported to other platforms:
 any help on that is appreciated.
 
 FreeJ is being developed in the hope to provide the free software
-community with a modular and highly customizable application to
-perform video livesets; a free and open framework that lets anybody
-implement hisown filters concentrating simply on the dsp algorithm
-developed and furthermore to combine them over any supported layer.
+community with a modular and highly customizable application for
+realtime video manipulation; a free and open framework that lets
+anybody implement hisown filters concentrating simply on the dsp
+algorithm developed and furthermore to combine them over any supported
+layer.
 
 FreeJ is Free Software and his sourcecode is released under the Gnu
 Public License, it comes with absolutely no warranty and you are welcome
 to redistribute it under certain conditions (refer to the license for
 details).
-
-You are encouraged to exhibit the output of this software publicly as
-long as this software and its author are credited as the source of the
-images.
 
 
 :: FEATURES
@@ -123,7 +117,7 @@ will find instructions on how to get and browse online the code).
 :: DISCLAIMER
 
 FreeJ is (c) 2001, 2002, 2003 by Denis Rojo <jaromil@dyne.org>
-refer to AUTHORS for a complete list of contributions.
+refer to the AUTHORS file for a complete list of contributions.
 
 This source code is free software; you can redistribute it and/or
 modify it under the terms of the GNU Public License as published 

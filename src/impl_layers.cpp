@@ -153,7 +153,7 @@ Layer *create_layer(char *file) {
 	}
 
   if(!nlayer)
-    error("File format not supported by any layer");
-  func("create_layer succesful, returns %p",nlayer);
+    error("File format not supported");
+  else func("create_layer succesful, returns %p",nlayer);
   return nlayer;
 }
