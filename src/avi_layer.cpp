@@ -22,7 +22,7 @@
 
 #include <iostream>
 
-#include <avi.h>
+#include <avi_layer.h>
 #include <avifile/except.h>
 #include <avifile/renderer.h>
 #include <avifile/fourcc.h>

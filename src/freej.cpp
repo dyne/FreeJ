@@ -24,7 +24,7 @@
 
 #include <context.h>
 #include <keyboard.h>
-#include <v4l.h>
+#include <v4l_layer.h>
 
 
 #include <png_layer.h>
@@ -36,7 +36,7 @@
 #include <config.h>
 
 #ifdef WITH_AVIFILE
-#include <avi.h>
+#include <avi_layer.h>
 #endif
 
 /* BE WARNED: hires mode is not supported, if you change here

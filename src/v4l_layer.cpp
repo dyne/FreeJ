@@ -25,7 +25,7 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 
-#include <v4l.h>
+#include <v4l_layer.h>
 #include <tvfreq.h>
 #include <jutils.h>
 
