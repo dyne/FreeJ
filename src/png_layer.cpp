@@ -72,6 +72,10 @@ bool PngLayer::init(Context *scr) {
   png_uint_32 width, height;
   int bit_depth, color_type, interlace_type;
 
+  /** init image pointers */
+  black_image=NULL;
+  png_image=NULL;
+
   if(!fp) {
     error("no png file opened, layer skipped");
     return false;
@@ -167,7 +171,7 @@ bool PngLayer::init(Context *scr) {
   png_image = (png_bytep)jalloc(png_image,geo.size);
 
   /** allocate memory for the black image */
-  black_image = malloc(geo.size);
+  black_image = jalloc(black_image,geo.size);
 
   black_image = memset(black_image,0,geo.size);
 

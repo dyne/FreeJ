@@ -19,6 +19,9 @@
 #ifndef __KEYBOARD_H__
 #define __KEYBOARD_H__
 
+#define SDL_REPEAT_DELAY	195
+#define SDL_REPEAT_INTERVAL	30
+
 #include <SDL/SDL.h>
 
 class Context;

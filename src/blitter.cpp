@@ -396,17 +396,17 @@ void Blitter::blit() {
 	    if(layer->has_colorkey) {
 
 		/** is rle really faster? */
-//		SDL_SetColorKey(current_blit->sdl_surface, SDL_SRCCOLORKEY | SDL_RLEACCEL,
-		SDL_SetColorKey(current_blit->sdl_surface, SDL_SRCCOLORKEY ,
+//		SDL_SetColorKey(current_blit->sdl_surface, SDL_SRCCOLORKEY ,
+		SDL_SetColorKey(current_blit->sdl_surface, SDL_SRCCOLORKEY | SDL_RLEACCEL,
 			SDL_MapRGB(current_blit->sdl_surface->format, layer->colorkey_r,layer->colorkey_g,layer->colorkey_b));
 	    }
 
 	    if(current_blit->value < 255) {
-		SDL_SetAlpha(current_blit->sdl_surface,SDL_SRCALPHA,
+		SDL_SetAlpha(current_blit->sdl_surface,SDL_SRCALPHA | SDL_RLEACCEL,
 			current_blit->value);
 	    }
 	    else {
-		SDL_SetAlpha(current_blit->sdl_surface,0, 0);
+		SDL_SetAlpha(current_blit->sdl_surface,SDL_RLEACCEL, 0);
 	    }
 
 	    SDL_Surface *colorkey_surface=SDL_DisplayFormat(current_blit->sdl_surface);
@@ -451,6 +451,7 @@ bool Blitter::set_value(int val) {
 
   /* setup an iterator to gradually change the value */
   iter = new Iterator((int16_t*)&current_blit->value);
+  iter->set_step(2);
   iter->set_aim(val);
   layer->iterators.add(iter);
 

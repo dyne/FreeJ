@@ -53,6 +53,9 @@ bool KbdListener::init(Context *context) {
 
   active = true;
 
+  /* enable key repeat */
+  SDL_EnableKeyRepeat(SDL_REPEAT_DELAY, SDL_REPEAT_INTERVAL);
+
   return(true);
 }
 
@@ -91,9 +94,9 @@ void KbdListener::run() {
 	return; 
     }*/
 	
-    if(event.type != SDL_KEYDOWN) 
+    if(event.key.state != SDL_PRESSED) {
 	return;
-
+    }
     
     /* ENVIRONMENT CONTROLS */
     keysym = &event.key.keysym; /* just to type less */
