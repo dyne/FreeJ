@@ -42,7 +42,10 @@ class KbdListener : public JSyncThread {
   
   SDL_Event event;
   Context *screen;
+
   Layer *layer;
+  int layersel;
+
   Plugger *plugger;
 
   Filter *filter;

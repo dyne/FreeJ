@@ -74,8 +74,6 @@ class V4lGrabber: public Layer {
   bool feed();
   void _close();
 
-  void blit(void *offset);
-
   void set_chan(int ch);
   void set_band(int b);
   void set_freq(int f);

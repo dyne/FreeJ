@@ -37,6 +37,7 @@ class Osd {
   void _show_fps();
   void _selection();
   void _filterlist();
+  void _layerlist();
   void _print_credits();
   void _print_status();
 
@@ -64,7 +65,7 @@ class Osd {
   
   Context *screen;
 
-  char status_msg[50];  
+  char status_msg[50];
 
 };
 

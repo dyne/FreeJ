@@ -80,7 +80,8 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
 
   /* initialize fps counter */
   fps_frame_interval = -1;
-  
+
+  clear_all = false;
   quit = false;
 }  
 
@@ -112,6 +113,29 @@ bool Context::add_layer(Layer *newlayer) {
   res = true;
   return(res);
 }   
+
+bool Context::moveup_layer(int sel) {
+  bool res = layers.moveup(sel);
+  if(res)
+    show_osd("MOVE UP layer %u -> %u",sel,sel-1);
+  return res;
+}
+
+bool Context::movedown_layer(int sel) {
+  bool res = layers.movedown(sel);
+  if(res)
+    show_osd("MOVE DOWN layer %u -> %u",sel,sel+1);
+  return res;
+}
+
+Layer *Context::active_layer(int sel) {
+  Layer *lay = (Layer *)layers.pick(sel);
+  lay->active = !lay->active;
+  show_osd("%s layer %s pos %u",
+	   lay->active ? "ACTIVATED" : "DEACTIVATED",
+	   lay->getname(), sel);
+  return lay;
+}
 
 bool Context::flip() {
   osd->print();
@@ -157,4 +181,12 @@ bool Context::calc_fps() {
   }
   
   return(true);
+}
+
+void Context::rocknroll() {
+  Layer *l = (Layer *)layers.begin();
+  while(l) {
+    l->start();
+    l = (Layer *)l->next;
+  }
 }

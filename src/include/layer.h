@@ -32,6 +32,10 @@ class Layer: public Entry, public JSyncThread {
  private:
   int _w, _h, _pitch;
   long _size;
+  char _name[5];
+  
+  int _blit_algo;
+  void blit(void *offset);
 
  public:
 
@@ -47,7 +51,9 @@ class Layer: public Entry, public JSyncThread {
      (pure virtual functions) */
   virtual bool feed() = 0; /* feeds in the image source */
   virtual void *get_buffer() = 0; /* returns a pointer to the image source */
-  virtual void blit(void *offset);
+
+  void set_blit(int b);
+  char *get_blit();
 
   bool add_filter(Filter *newfilt);
   bool del_filter(int sel);
@@ -58,6 +64,10 @@ class Layer: public Entry, public JSyncThread {
   Filter *listen_filter(int sel);
   virtual bool keypress(SDL_keysym *keysym) { return(false); };
 
+  void setname(char *s);
+  char *getname();
+  
+				   
   bool cafudda();
 
   Linklist filters;

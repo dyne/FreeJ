@@ -32,6 +32,10 @@ freej_SOURCES = \
 	hline16.asm hline32.asm \
 	mmx_memcpy.asm 	\
 	mmx_blit.asm	\
+	mmx_blit_add.asm \
+	mmx_blit_sub.asm \
+	mmx_blit_and.asm \
+	mmx_blit_or.asm \
 	clearscr.asm
 
 freej_LDADD = @SDL_LIBS@ -lpthread -lm -ldl -laviplay

@@ -35,6 +35,7 @@ bool KbdListener::init(Context *context, Plugger *plug) {
   this->plugger = plug;
 
   layer = (Layer *)context->layers.begin();
+  layersel = 1;
 
   filter = NULL;
   filtersel = 0;
@@ -122,6 +123,60 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
   }
   
   switch(keysym->sym) {
+    /* LAYER OPERATIONS */
+  case SDLK_PAGEUP:
+    if(layer==NULL) return false;
+    if(layer->prev==NULL) return false;
+    if(keysym->mod == KMOD_RCTRL) {
+      /* move layer up in chain */
+      if(screen->moveup_layer(layersel))
+	layersel--;
+    } else {
+      /* select filter up */
+      layer = (Layer *)layer->prev;
+      layersel--;
+    }
+    return true;
+    
+  case SDLK_PAGEDOWN:
+    if(layer==NULL) return false;
+    if(layer->next==NULL) return false;
+    if(keysym->mod == KMOD_RCTRL) {
+      /* move layer down in chain */
+      if(screen->movedown_layer(layersel))
+	layersel++;
+    } else {
+      /* select layer down */
+      layer = (Layer *)layer->next;
+      layersel++;
+    }
+    return true;
+
+  case SDLK_HOME:
+    if(layer==NULL) return false;
+    screen->active_layer(layersel);
+    return true;
+
+    /* BLIT ALGOS */
+  case SDLK_1: // MMX straight blit
+  case SDLK_2: // Vert FLIP
+  case SDLK_3: // BLUE CHAN
+  case SDLK_4: // GREEN CHAN
+  case SDLK_5: // RED CHAN
+  case SDLK_6: // PACKED ADD BYTEWISE
+  case SDLK_7: // PACKED SUB BYTEWISE
+  case SDLK_8: // PACKED AND BYTEWISE
+  case SDLK_9: // PACKED OR BYTEWISE
+    if(layer==NULL) return false;
+    layer->set_blit(keysym->sym - SDLK_0);
+    return true;
+    
+  case SDLK_0:
+    screen->clear_all = !screen->clear_all;
+    return true;
+
+
+    /* FILTER OPERATIONS */
   case SDLK_RETURN:
     if(!_filt) break;
     if(_filt->inuse) break;
@@ -134,11 +189,11 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
 
     if(keysym->mod == KMOD_RCTRL) {
     /* move filter up in chain */
-      if(layer->moveup_filter(filtersel))
+      if(layer->movedown_filter(filtersel))
 	filtersel--;
     } else {
       /* select filter up */
-      filter = (Filter *)filter->prev;
+      filter = (Filter *)filter->next;
       filtersel--;
     }
     return true;
@@ -149,11 +204,11 @@ bool KbdListener::_context_op(SDL_keysym *keysym) {
 
     if(keysym->mod == KMOD_RCTRL) {
       /* move filter down in chain */
-      if(layer->movedown_filter(filtersel))
+      if(layer->moveup_filter(filtersel))
 	filtersel++;      
     } else {
       /* select filter down */
-      filter = (Filter *)filter->next;
+      filter = (Filter *)filter->prev;
       filtersel++;
     }
     return true;

@@ -35,12 +35,14 @@ AviLayer::AviLayer()
   _rend = NULL;
   direction = true;
   vflip = false;
+  setname("AVI");
 }
 
 AviLayer::~AviLayer() {
 }
 
 bool AviLayer::init(Context *scr=NULL) {
+  func("AviLayer::init");
   _quality = 1;
   _ci = (CodecInfo *)CodecInfo::match(fccDIV3);
   if(_ci) Creators::SetCodecAttr(*_ci, (const char*)"Quality", (const char*)_quality);
@@ -284,28 +286,4 @@ bool AviLayer::keypress(SDL_keysym *keysym) {
   default: break;
   }
   return res;
-}
-
-void AviLayer::blit(void *offset) {
-  if(vflip) {
-
-
-    Uint32 *scr, *pscr;
-    scr = pscr = (Uint32 *) screen->coords(geo.x,geo.y);
-    Uint32 *off, *poff;
-    off = poff = (Uint32 *)offset + (geo.size>>2) - (geo.pitch>>2);
-    int c,cc;
-    for(c=geo.h;c>0;c--) {
-      off = poff = poff - (geo.pitch>>2); 
-      scr = pscr = pscr + (screen->pitch>>2);
-      for(cc=geo.pitch>>2;cc>0;cc--)
-	*scr++ = *off++;
-    }
-
-    
-  } else {
-
-    mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
-
-  }
 }

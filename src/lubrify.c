@@ -52,6 +52,47 @@ void mmxblit(void *src1, void *dst, unsigned int height, unsigned int pitch, uns
   mmx_blit();
 }
 
+void mmxblit_add(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
+  asmsrc1 = src1;
+  asmdst = dst;
+  asmnum1 = height;
+  asmnum2 = pitch;
+  asmnum3 = scr_pitch;
+
+  mmx_blit_add();
+}
+
+void mmxblit_sub(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
+  asmsrc1 = src1;
+  asmdst = dst;
+  asmnum1 = height;
+  asmnum2 = pitch;
+  asmnum3 = scr_pitch;
+
+  mmx_blit_sub();
+}
+
+void mmxblit_and(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
+  asmsrc1 = src1;
+  asmdst = dst;
+  asmnum1 = height;
+  asmnum2 = pitch;
+  asmnum3 = scr_pitch;
+
+  mmx_blit_and();
+}
+
+void mmxblit_or(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
+  asmsrc1 = src1;
+  asmdst = dst;
+  asmnum1 = height;
+  asmnum2 = pitch;
+  asmnum3 = scr_pitch;
+
+  mmx_blit_or();
+}
+
+
 /* void *scr is points on desired coordinate offset on screen
    ( use Context::coords(x,y) if blitting directly on context )
    take care THEY DONT CLIP */

@@ -35,6 +35,7 @@ V4lGrabber::V4lGrabber()
   buffer = NULL;
   rgb_surface = NULL;
   have_tuner=false;
+  setname("V4L");
 }
 
 V4lGrabber::~V4lGrabber() {
@@ -326,8 +327,4 @@ bool V4lGrabber::feed() {
     return false;
   }
   return true;
-}
-
-void V4lGrabber::blit(void *offset) {
-  mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
 }

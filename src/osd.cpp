@@ -118,18 +118,27 @@ void Osd::print() {
   if(!_active) return;
   
   /* clean up for refresh */
-  {
+  if(!screen->clear_all) {
+    unsigned char *p;
+    int c;
     /* clear upper section */
     bzero(screen->get_surface(),screen->pitch*_vbound);
     
     /* clear left section */
-    unsigned char *p;
+
     p = (unsigned char *)screen->coords(1,_vbound+TOPLIST);
-    for(int c=screen->h-(_vbound<<1);c>0;c--) {
-      bzero(p,_hbound<<(screen->bpp>>4));
+    for(c=screen->h-(_vbound<<1);c>0;c--) {
+      bzero(p,(_hbound<<(screen->bpp>>4))>>1);
       p = (unsigned char *) p+screen->pitch;
     }
     
+    /* clear right section */
+    p = (unsigned char *)screen->coords(screen->w-17,_vbound+TOPLIST);
+    for(c=screen->h-(_vbound<<1);c>0;c--) {
+      bzero(p,(_hbound<<(screen->bpp>>4))>>1);
+      p = (unsigned char *) p+screen->pitch;
+    }
+
     /* clear lower section */
     bzero(screen->coords(_hbound,screen->h-_vbound),screen->pitch*_vbound);
   }
@@ -157,6 +166,7 @@ void Osd::print() {
   _selection();
   _show_fps();
   _filterlist();
+  _layerlist();
   _print_status();
 }
 
@@ -181,7 +191,7 @@ void Osd::_show_fps() {
   char fps[10];
   _set_color(white);
   sprintf(fps,"%.1f",screen->fps);
-  (this->*write)(fps,screen->w-36,1,1,1);
+  (this->*write)(fps,screen->w-50,1,1,1);
 }
 
 void Osd::_selection() {
@@ -191,10 +201,40 @@ void Osd::_selection() {
 
   /* we have only one layer until now */
   if(screen->kbd->filter==NULL)
-    sprintf(msg,"V4l::(none) [%u]",_filtersel);
+    sprintf(msg,"%u %s::(none) [%s]",
+	    screen->kbd->layersel,
+	    screen->kbd->layer->getname(),
+	    screen->kbd->layer->get_blit());
   else
-    sprintf(msg,"V4l::%s [%u]",screen->kbd->filter->getname(),screen->kbd->filtersel);
+    sprintf(msg,"%u %s::%s [%s]",
+	    screen->kbd->layersel,
+	    screen->kbd->layer->getname(),
+	    screen->kbd->filter->getname(),
+	    screen->kbd->layer->get_blit());
   (this->*write)(msg,70,1,1,1);
+}
+
+void Osd::_layerlist() {
+  unsigned int vpos = _vbound+TOPLIST;
+  
+  _set_color(red);
+
+  Layer *l = (Layer *)screen->layers.begin();
+  while(l!=NULL) {
+    if( l == screen->kbd->layer) {
+      if(l->active)
+	(this->*write)(">+",screen->w-17,vpos,1,1);
+      else
+	(this->*write)(">-",screen->w-17,vpos,1,1);
+    } else {
+      if(l->active)
+	(this->*write)(" +",screen->w-17,vpos,1,1);
+      else
+	(this->*write)(" -",screen->w-17,vpos,1,1);
+    }
+    vpos += CHAR_HEIGHT+1;
+    l = (Layer *)l->next;
+  }
 }
 
 void Osd::_filterlist() {

@@ -25,6 +25,8 @@ Layer::Layer() {
   paused = false;
   quit = false;
   active = false;
+  _blit_algo = 1;
+  setname("???");
 }
 
 void Layer::_delete() {
@@ -154,6 +156,10 @@ Filter *Layer::active_filter(int sel) {
   return(filt);
 }
 
+void Layer::set_blit(int b) {
+  _blit_algo = b;
+}
+
 bool Layer::cafudda() {
   void *offset = get_buffer();
   if(!offset) {
@@ -183,20 +189,6 @@ bool Layer::cafudda() {
 
   blit(offset);
 
-  /*  C function to blit on screen byte by byte
-  {
-    char *scr, *pscr;
-    scr = pscr = (char *) screen->coords(geo.x,geo.y);
-    char *off, *poff;
-    off = poff = (char *)offset;
-    int c,cc;
-    for(c=geo.h;c>0;c--) {
-      off = poff = poff + geo.pitch;
-      scr = pscr = pscr + screen->pitch;
-      for(cc=geo.pitch;cc>0;cc--) *scr++ = *off++;
-    }
-  }
-  */
   /* pitch is width in bytes */
 
   unlock();
@@ -207,8 +199,70 @@ bool Layer::cafudda() {
 }
 
 void Layer::blit(void *offset) {
-  mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+  switch(_blit_algo) {
 
+  case 1: /* MMX ACCEL STRAIGHT BLIT */
+    mmxblit(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch); 
+    return;
+
+  case 2: /* VERTICAL FLIP */
+    {
+      Uint32 *scr, *pscr;
+      scr = pscr = (Uint32 *) screen->coords(geo.x,geo.y);
+      Uint32 *off, *poff;
+      off = poff = (Uint32 *)offset + (geo.size>>2) - (geo.pitch>>2);
+      int c,cc;
+      for(c=geo.h;c>0;c--) {
+	off = poff = poff - (geo.pitch>>2); 
+	scr = pscr = pscr + (screen->pitch>>2);
+	for(cc=geo.pitch>>2;cc>0;cc--)
+	  *scr++ = *off++;
+      }
+    }
+    return;
+
+    /* SINGLE CHANNEL BLIT */
+  case 3: /* BLUE */
+  case 4: /* GREEN */
+  case 5: /* RED */
+    {
+      int chan = _blit_algo-3;
+      char *scr, *pscr;
+      scr = pscr = (char *) screen->coords(geo.x,geo.y);
+      char *off, *poff;
+      off = poff = (char *)offset;
+      int c,cc;
+      for(c=geo.h;c>0;c--) {
+	off = poff = poff + geo.pitch;
+	scr = pscr = pscr + screen->pitch;
+	for(cc=geo.pitch>>2;cc>0;cc--) {
+	  *(scr+chan) = *(off+chan);
+	  scr+=4; off+=4;
+	}
+      }
+    }
+    return;
+
+  case 6:
+    mmxblit_add(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+    return;
+  case 7:
+    mmxblit_sub(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+    return;
+  case 8:
+    mmxblit_and(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+    return;
+  case 9:
+    mmxblit_or(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+    return;
+    
+  default:
+    return;
+  }
+}
+    
+    
+    
   /* SIMPLE C CODE
     
   char *scr, *pscr;
@@ -222,4 +276,23 @@ void Layer::blit(void *offset) {
     for(cc=geo.pitch;cc>0;cc--) *scr++ = *off++;
   }
   */
+
+void Layer::setname(char *s) {
+  snprintf(_name,4,"%s",s);
+}
+char *Layer::getname() { return _name; }
+
+char *Layer::get_blit() {
+  switch(_blit_algo) {
+  case 1: return "MMX";
+  case 2: return "VFL";
+  case 3: return "BLU";
+  case 4: return "GRE";
+  case 5: return "RED";
+  case 6: return "ADD";
+  case 7: return "SUB";
+  case 8: return "AND";
+  case 9: return "OR";
+  default: return "???";
+  }
 }

@@ -57,6 +57,8 @@ class Context {
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return( ((Uint8 *)prec_y[y] + 
 					(x<<(bpp>>4)) )); }
+  
+  void rocknroll();
 
   SDL_Surface *surf;
   SDL_VideoInfo *Info;
@@ -69,8 +71,10 @@ class Context {
 
   /* linked list of registered layers */
   Linklist layers;
-  /* this function is untested */
   bool add_layer(Layer *newlayer);
+  bool moveup_layer(int sel);
+  bool movedown_layer(int sel);
+  Layer *active_layer(int sel);
 
   /* On Screen Display */
   Osd *osd;
@@ -86,6 +90,7 @@ class Context {
   float fps;
   int framecount;
 
+  bool clear_all;
   bool quit;
 };
 

@@ -50,6 +50,8 @@
 #define GH 384
 #endif
 
+#define MAX_CLI_CHARS 4096
+
 /* ================ command line options */
 
 static const char *help = 
@@ -69,17 +71,20 @@ static const struct option long_options[] = {
   {0, 0, 0, 0}
 };
 
-static const char *short_options = "hvd:D:";
+static const char *short_options = "-hvd:D:";
 
 char *v4ldevice;
 int debug;
-char *avifile = NULL;
+char avi_files[MAX_CLI_CHARS];
+int cli_chars = 0;
 
 void cmdline(int argc, char **argv) {
   int res;
 
   /* initializing defaults */
   v4ldevice = strdup("/dev/video");
+  char *avip = avi_files;
+
   debug = 1;
 
   do {
@@ -104,13 +109,22 @@ void cmdline(int argc, char **argv) {
 	debug = 3;
       }
       break;
+
+    case 1:
+      {
+	int optlen = strlen(optarg);
+	if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
+	  sprintf(avip,"%s#",optarg);
+	  cli_chars+=optlen+1;
+	  avip+=optlen+1;
+	} else warning("too much files on commandline, list truncated");
+      }
+      break;
+	  
     default:
       break;
     }
   } while (res > 0);
-
-  if (optind < argc)
-    avifile = strdup(argv[optind++]);
 
 }
 
@@ -118,8 +132,6 @@ void cmdline(int argc, char **argv) {
 
 int main (int argc, char **argv) {
 
-  bool res = false;
-  
   notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
   act("(c)2001 Denis Roio <jaromil@dyne.org>");
   cmdline(argc,argv);
@@ -136,16 +148,22 @@ int main (int argc, char **argv) {
   /* this is the Plugin manager */
   Plugger plugger(screen.bpp);
   plugger.refresh();
+  
 
-  /* ================= Avi layer */
+  /* ================= Avi layers */
   AviLayer *avi = NULL;
-  if(avifile!=NULL) {
-    avi = new AviLayer();
-    notice("avifile library output follows ____________________________");
-    res = avi->open(avifile);
-    act("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-    if(res) assert( avi->init(&screen) );
+  if(cli_chars>0) {
+    char *p, *pp = avi_files;
+    while(cli_chars>0) {
+      p = pp; while(*p!='#' && cli_chars>0) { p++; cli_chars--; }
+      if(cli_chars<=0) break; *p='\0';
+      avi = new AviLayer();
+      if(avi->open(pp))
+	assert( avi->init(&screen) );
+      pp = p+1;
+    }
   }
+
 
 
   /* ================= Video4Linux layer */
@@ -156,10 +174,6 @@ int main (int argc, char **argv) {
   else
     act("no video 4 linux device detected");
 
-  /* this is the keyboard listener */
-  KbdListener keyb;
-  assert( keyb.init(&screen, &plugger) );
-  
   /* this is the On Screen Display */
   Osd osd;
   osd.init(&screen);
@@ -167,12 +181,20 @@ int main (int argc, char **argv) {
   /* let jutils know about the osd */
   set_osd(osd.status_msg);
 
+
+  /* this is the keyboard listener */
+  KbdListener keyb;
+  assert( keyb.init(&screen, &plugger) );
+
+
   /* update the fps counter every 25 frames */
   screen.set_fps_interval(24);
 
+  /*
   if(avi) avi->start();
   else grabber.start();
-
+  */
+  screen.rocknroll();
 
   keyb.start();
 
@@ -181,11 +203,14 @@ int main (int argc, char **argv) {
     /* main loop */
     screen.calc_fps();
 
-    lay = (Layer *)screen.layers.begin();
+    if(screen.clear_all)
+      clearscr(screen.get_surface(),screen.size);
+
+    lay = (Layer *)screen.layers.end();
 
     while(lay != NULL) {
       if(lay->active) lay->cafudda();
-      lay = (Layer *)lay->next;
+      lay = (Layer *)lay->prev;
     }
 
     screen.flip();
