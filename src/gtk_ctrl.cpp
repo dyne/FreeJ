@@ -21,7 +21,8 @@ static GtkWidget *wg;
 static GtkTreeIter iter;
 
 static GtkWidget *layer_list;
-static GtkListStore *layer_model;
+static GtkTreeStore *layer_store;
+static GtkTreeIter layer_iter;
 static GtkTreeSelection *layer_select;
 
 static GtkWidget *effect_list;
@@ -93,67 +94,83 @@ void on_add_layer(GtkWidget *widget, gpointer *data) {
 }
 
 
-void on_layer_up(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-}
-void on_layer_down(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-}
-void on_layer_top(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-}
-void on_layer_bottom(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
-}
 void on_layer_active(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-}
-void on_layer_duplicate(GtkWidget *widget, gpointer *data) {
-  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel)
+    laysel->active = 
+      gtk_toggle_button_get_active
+      ((GtkToggleButton*)widget);
 }
 void on_layer_delete(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) {
+    laysel->rem();
+    delete laysel;
+    laysel = NULL;
+  }
 }
 
-
+void on_layer_up(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->up(); }
+void on_layer_down(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->down(); }
+void on_blit_rgb(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->set_blit(1); }
+void on_blit_red(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->set_blit(2); }
+void on_blit_green(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->set_blit(3); }
+void on_blit_blue(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->set_blit(4); }
+void on_blit_add(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->set_blit(5); }
+void on_blit_sub(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->set_blit(6); }
+void on_blit_and(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->set_blit(7); }
+void on_blit_or(GtkWidget *widget, gpointer *data) {
+  func("%s(%p,%p)",__FUNCTION__,widget,data);
+  if(laysel) laysel->set_blit(8); }
 void on_osd(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-  //  bool res = gtk_toggle_button_get_active
-  //    ((GtkToggleButton*)widget);
-  env->osd->active();
-}
+  env->osd->active(); }
 void on_overwrite(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-  env->clear_all = !env->clear_all;
-}
+  env->clear_all = !env->clear_all; }
 void on_quit(GtkWidget *widget, gpointer *data) {
   func("%s(%p,%p)",__FUNCTION__,widget,data);
-  quit = true;
-  env->quit = true;
-}
+  quit = true; env->quit = true; }
 
 /* =================== LAYER LIST */
-gboolean layer_select_func(GtkTreeSelection *sel, GtkTreeModel *model,
-			    GtkTreePath *path, gboolean curpath, gpointer data) {
-  func("%s(%p,%p,%s,%i,%p)",__FUNCTION__,sel,model,path,curpath,data);
-
-  GtkTreeModel *tmod;
-  
-  gtk_tree_selection_get_selected(layer_select,&tmod,&iter);
-  gtk_tree_model_get(tmod,&iter,LAYER_OBJ,&laysel,-1);
-  if(laysel) {
-    func("selected Layer %s (%p)",laysel->getname(),laysel);
-    return(TRUE);
+void on_layer_select(GtkTreeSelection *sel, gpointer data) {
+  func("%s(%p,%p)",__FUNCTION__,sel,data);
+  GtkTreeModel *model;
+  if(gtk_tree_selection_get_selected(sel,&model,&layer_iter)) {
+    //    gtk_tree_selection_select_iter(sel,&layer_iter);
+    gtk_tree_model_get(model,&layer_iter,LAYER_OBJ,&laysel,-1);
+    if(laysel) {
+      func("selected %s Layer %s (%p)",
+	   laysel->getname(),laysel->get_filename(),laysel);
+      layer_select = sel;
+    }
   }
-  return(FALSE);
 }
-
+ 
 void init_layer_list() {
   
   GtkCellRenderer *rend;
   GtkTreeViewColumn *col;
 
-  layer_model =  gtk_list_store_new(LAYER_COLS,
+  layer_store =  gtk_tree_store_new(LAYER_COLS,
 				    G_TYPE_BOOLEAN,
 				    G_TYPE_STRING, /* name */
 				    G_TYPE_STRING, /* blit */
@@ -162,24 +179,35 @@ void init_layer_list() {
 
   layer_list = glade_xml_get_widget(gtk,"treeview_layer");
   /* register the model on the list view */
-  gtk_tree_view_set_model((GtkTreeView*)layer_list,GTK_TREE_MODEL(layer_model));
-  /* we are discarding the reference to the model now */
-  g_object_unref(G_OBJECT(layer_model));
+  gtk_tree_view_set_model((GtkTreeView*)layer_list,GTK_TREE_MODEL(layer_store));
+  /* we are discarding the reference to the model now 
+     g_object_unref(G_OBJECT(layer_store)); */
+
+  /* setup selection handler */
+  layer_select = gtk_tree_view_get_selection(GTK_TREE_VIEW(layer_list));
+  gtk_tree_selection_set_mode(layer_select, GTK_SELECTION_SINGLE);
+  g_signal_connect(G_OBJECT(layer_select), "changed",
+		   G_CALLBACK(on_layer_select), NULL);
   
   /* initialize tree view columns and renderers */
   rend = gtk_cell_renderer_toggle_new();
   col = gtk_tree_view_column_new_with_attributes
     ("ON",rend,"active",LAYER_ACTIVE,NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(layer_list),col);
+  /* and why this doesn't works? */
+  g_object_set(G_OBJECT(rend),"activatable",true);
+  g_signal_connect(G_OBJECT(rend),"toggled",
+		   G_CALLBACK(on_layer_active),NULL);
+
 
   rend = gtk_cell_renderer_text_new();
-  //  g_object_set(G_OBJECT(rend),"background","lightorange",NULL);
+  g_object_set(G_OBJECT(rend),"background","orange",NULL);
   col = gtk_tree_view_column_new_with_attributes
     ("Name",rend,"text",LAYER_NAME,NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(layer_list),col);
 
   rend = gtk_cell_renderer_text_new();
-  //  g_object_set(G_OBJECT(rend),"background","lightgray",NULL);
+  g_object_set(G_OBJECT(rend),"background","cyan",NULL);
   col = gtk_tree_view_column_new_with_attributes
     ("Blit",rend,"text",LAYER_BLIT,NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(layer_list),col);  
@@ -189,25 +217,22 @@ void init_layer_list() {
     ("File",rend,"text",LAYER_FILE,NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(layer_list),col);  
 
-  /* setup selection handler */
-  layer_select = gtk_tree_view_get_selection(GTK_TREE_VIEW(layer_list));
-  gtk_tree_selection_set_mode(layer_select, GTK_SELECTION_SINGLE);
-  gtk_tree_selection_set_select_function(layer_select,layer_select_func,
-					 NULL,NULL);
 }
 void update_layer_list() {
   /* fill up the list of layers allready loaded */
-  gtk_list_store_clear(layer_model);
+  gtk_tree_store_clear(layer_store);
   Layer *lay = (Layer*)env->layers.begin();
   while(lay) {
-    gtk_list_store_append(layer_model,&iter);
-    gtk_list_store_set(layer_model,&iter,
+    lay->lock();
+    gtk_tree_store_append(layer_store,&iter,NULL);
+    gtk_tree_store_set(layer_store,&iter,
 		       LAYER_ACTIVE,!lay->active,
 		       LAYER_NAME,lay->getname(),
 		       LAYER_BLIT,lay->get_blit(),
 		       LAYER_FILE,lay->get_filename(),
 		       LAYER_OBJ,lay,
 		       -1);
+    lay->unlock();
     lay = (Layer*)lay->next;
   }
 }
@@ -321,13 +346,18 @@ bool gtk_ctrl_init(Context *nenv, int *argc, char **argv) {
   CONNECT("overwrite","toggled",on_overwrite);
   CONNECT("quit","activate",on_quit);
   CONNECT("main_win","destroy",on_quit);
-  CONNECT("button_layer_up","activate",on_layer_up);
-  CONNECT("button_layer_down","activate",on_layer_down);
-  CONNECT("button_layer_top","activate",on_layer_top);
-  CONNECT("button_layer_bottom","activate",on_layer_bottom);
-  CONNECT("checkbutton_layer_active","toggled",on_layer_active);
-  CONNECT("button_layer_duplicate","activate",on_layer_duplicate);
-  CONNECT("button_layer_delete","activate",on_layer_delete);
+  CONNECT("button_layer_up","clicked",on_layer_up);
+  CONNECT("button_layer_down","clicked",on_layer_down);
+  CONNECT("button_layer_delete","clicked",on_layer_delete);
+  CONNECT("checkbutton_layer_active","clicked",on_layer_active);
+  CONNECT("blit_rgb","activate",on_blit_rgb);
+  CONNECT("blit_red","activate",on_blit_red);
+  CONNECT("blit_green","activate",on_blit_green);
+  CONNECT("blit_blue","activate",on_blit_blue);
+  CONNECT("blit_add","activate",on_blit_add);
+  CONNECT("blit_sub","activate",on_blit_sub);
+  CONNECT("blit_and","activate",on_blit_and);
+  CONNECT("blit_or","activate",on_blit_or);
 
   init_layer_list();
   init_effect_list();

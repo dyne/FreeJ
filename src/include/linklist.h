@@ -23,9 +23,6 @@ class Entry;
 
 class Linklist {
  private:
-  Entry *first;
-  Entry *last;
-  int length;
 
  public:
   Linklist();
@@ -43,16 +40,26 @@ class Linklist {
   Entry *pick(int pos);  
 
   Entry *operator[](int pos) { return pick(pos); };
+
+  /* don't touch these directly */
+  Entry *first;
+  Entry *last;
+  int length;
 };
 
-#include <jutils.h>
 class Entry {
  public:
-  Entry() { };
-  ~Entry() { };
+  Entry();
+  ~Entry();
   
   Entry *next;
   Entry *prev;
+
+  Linklist *list;
+
+  bool up();
+  bool down();
+  void rem();
 };
 
 #endif

@@ -95,10 +95,14 @@ class Context {
   Linklist layers;
   int add_layer(Layer *newlayer);
   int del_layer(int sel);
-  int clear_layers();
+  //int del_layer(Layer *lay);
   int moveup_layer(int sel);
+  //int moveup_layer(Layer *lay);
   int movedown_layer(int sel);
-  Layer *active_layer(int sel);
+  //int movedown_layer(Layer *lay);
+  int active_layer(int sel);
+  //int active_layer(Layer *lay);
+  int clear_layers();
 
   /* On Screen Display */
   Osd *osd;

@@ -231,6 +231,8 @@ int Context::add_layer(Layer *newlayer) {
 }   
 
 int Context::del_layer(int sel) {
+  Layer *lay = (Layer *)layers.pick(sel);
+  if(!lay) return 0;
   act("Context::del_layer : TODO");
   return sel;
 }
@@ -242,24 +244,29 @@ int Context::clear_layers() {
 }
 
 int Context::moveup_layer(int sel) {
+  Layer *lay = (Layer *)layers.pick(sel);
+  if(!lay) return 0;
   if( layers.moveup(sel) )
     show_osd("MOVE UP layer %u -> %u",sel,sel-1);
   return(sel-1);
 }
 
 int Context::movedown_layer(int sel) {
+  Layer *lay = (Layer *)layers.pick(sel);
+  if(!lay) return 0;
   if ( layers.movedown(sel) )
     show_osd("MOVE DOWN layer %u -> %u",sel,sel+1);
   return(sel+1);
 }
 
-Layer *Context::active_layer(int sel) {
+int Context::active_layer(int sel) {
   Layer *lay = (Layer *)layers.pick(sel);
+  if(!lay) return 0;
   lay->active = !lay->active;
   show_osd("%s layer %s pos %u",
 	   lay->active ? "ACTIVATED" : "DEACTIVATED",
 	   lay->getname(), sel);
-  return lay;
+  return lay->active;
 }
 
 bool Context::flip() {
@@ -281,13 +288,13 @@ bool Context::flip() {
 }
 
 void Context::clear() {
-  /*
+  /* 
  register uint32_t ecx; 
  register uint64_t ebx = 0x0000000000000000;
  register uint64_t *edx = (uint64_t*)surface;
  for(ecx=size>>4;ecx>0;ecx--) *edx-- = ebx;
   */
-  memset(surface,0x0,size);
+ memset(surface,0x0,size);
 }
 
 /* FPS */

@@ -23,9 +23,6 @@
 */
 
 #include <iostream>
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
 #include <linklist.h>
 #include <config.h>
@@ -42,7 +39,7 @@ Linklist::~Linklist() {
 
 /* adds one element at the end of the list */
 void Linklist::add(Entry *addr) {
-  Entry *ptr;
+  Entry *ptr = NULL;
 
   if(first==NULL) { /* that's the first entry */
     first = addr;
@@ -57,6 +54,9 @@ void Linklist::add(Entry *addr) {
     addr->prev = ptr;
     last = addr;
   }
+  /* save the pointer to this list */
+  addr->list = this;
+
   length++;
 }
 
@@ -100,6 +100,7 @@ void Linklist::rem(int pos) {
     next->prev = prev;
   else last = prev;
 
+  ptr->list = NULL;
   length--;
 }
 
@@ -115,7 +116,7 @@ void Linklist::clear() {
 
 /* takes one element from the list
    === STARTING FROM 1 ===
-   returns NULL if called with pos=0 or pos>lenght
+   returns NULL if called with pos=0 or pos>length
    returns Entry pointer otherwise */
 Entry *Linklist::pick(int pos) {
   if((length<pos)||(pos==0)) return(NULL);
@@ -161,4 +162,83 @@ bool Linklist::movedown(int pos) {
   if(pos==length-1) last = p;
   if(pos==1) first = next;
   return(true);
+}
+
+Entry::Entry() {
+  next = NULL;
+  prev = NULL;
+  list = NULL;
+}
+
+Entry::~Entry() {
+  rem();
+}
+
+
+bool Entry::up() {
+  if(!prev || !list) return(false);
+  
+  Entry *tprev = prev,
+    *tnext = next,
+    *pp = prev->prev;
+
+  if(!next)
+    list->last = prev;
+
+  if(tnext)
+    tnext->prev = tprev;
+
+  next = tprev;
+  prev = pp;
+  tprev->next = tnext;
+  tprev->prev = this;
+
+  if(pp)
+    pp->next = this;
+
+  if(!prev)
+    list->first = this;
+
+  return(true);
+}
+
+bool Entry::down() {
+  if(!next || !list) return(false);
+
+  Entry *tprev = prev,
+    *tnext = next,
+    *nn = next->next;
+
+  if(!prev)
+    list->first = next;
+
+  if(tprev)
+    tprev->next = tnext;
+
+  prev = tnext;
+  next = nn;
+  tnext->prev = tprev;
+  tnext->next = this;
+  if(nn)
+    nn->prev = this;
+
+  if(!next)
+    list->last = this;
+
+  return(true);
+}
+
+void Entry::rem() {
+  if(!list) return;
+  
+  if(prev)
+    prev->next = next;
+  else list->first = next;
+  
+  if(next)
+    next->prev = prev;
+  else list->last = prev;
+
+  list->length--;
+  list = NULL;
 }
