@@ -170,10 +170,11 @@ int main (int argc, char **argv) {
   cmdline(argc,argv);
   set_debug(debug);
 
-  /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b) */
+  /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
+     this hangs on some kernels
   if(set_rtpriority(true))
     notice("running as root: high priority realtime scheduling allowed.");
-
+  */
 
   /* this is the output context (screen) */
   Context screen(width,height,32,SDL_HWPALETTE|SDL_HWSURFACE);

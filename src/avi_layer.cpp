@@ -162,8 +162,10 @@ bool AviLayer::open(char *file) {
   
 void *AviLayer::feed() {
   if(paused) return buffer;  
-  if(_stream->Eof()) _stream->Seek(1);
-  _stream->ReadFrame(true);
+    
+  while(_stream->ReadFrame(true) <0)
+    _stream->Seek(1);
+
   _img = _stream->GetFrame(false);
 
   memcpy(buffer,_img->Data(),geo.size);
@@ -237,18 +239,14 @@ bool AviLayer::keypress(SDL_keysym *keysym) {
   framepos_t steps = 1;
   switch(keysym->sym) {
   case SDLK_RIGHT:
-    if(keysym->mod==KMOD_LCTRL) steps+=50000;
-    if(keysym->mod==KMOD_RCTRL) steps+=10000;
-    if(keysym->mod==KMOD_LSHIFT) steps+=5000;
-    if(keysym->mod==KMOD_RSHIFT) steps+=1000;
+    if(keysym->mod & KMOD_LCTRL) steps=5000;
+    if(keysym->mod & KMOD_RCTRL) steps=1000;
     forward(steps);
     res = true; break;
 
   case SDLK_LEFT:
-    if(keysym->mod==KMOD_LCTRL) steps+=50000;
-    if(keysym->mod==KMOD_RCTRL) steps+=5000;
-    if(keysym->mod==KMOD_LSHIFT) steps+=1000;
-    if(keysym->mod==KMOD_RSHIFT) steps+=200;
+    if(keysym->mod & KMOD_LCTRL) steps=5000;
+    if(keysym->mod & KMOD_RCTRL) steps=1000;
     rewind(steps);
     res = true; break;
     

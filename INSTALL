@@ -3,22 +3,28 @@ FreeJ 0.4 INSTALLATION INSTRUCTIONS
 
 to install FreeJ with all its wonderful features follow those steps:
 
-- optionally install divx4linux codec you find here:
-  http://avifile.sourceforge.net/divx4linux-20020418.tgz
+== be sure to have all the required libraries and tools:
 
-- compile and install AviFile library from
-   http://avifile.sourceforge.net/
-  take the LATEST VERSION: 0.7.16 or more, NOT LESS
-  tip: use ./configure --with-x86opt
+- NASM netwide assembler compiler
+  from http://sf.net/projects/nasm
 
-- don't forget to use ldconfig after installing libraries
+- SDL libraries
+  from http://www.libsdl.org
 
-- be sure to have NASM and SDL libraries installed
-  from http://sf.net/projects/nasm/ and http://www.libsdl.org
+- FreeType2 libraries 
+  from http://www.freetype.org
 
-- download freej latest stable version: 
-   http://freej.dyne.org
-  or from cvs if you dare:
+  (don't forget to use ldconfig after installing libraries)
+
+== optionally install AviFile library with divx4linux and win32 dlls
+   from http://avifile.sourceforge.net/
+   take the LATEST VERSION: 0.7.16 or more, NOT LESS
+   tip: use ./configure --with-x86opt
+
+
+== download freej latest stable version: 
+   from http://freej.dyne.org
+   or from cvs if you dare and want to do bugreport:
    cvs -z9 -d:pserver:anoncvs@subversions.gnu.org:/cvsroot/freej co freej
-  and then compile it as usually and install it with the usual
-  ./configure; make; make install
+   and then compile it as usually and install it with the usual
+   ./configure; make; make install

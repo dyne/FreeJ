@@ -14,6 +14,7 @@ Plugger::Plugger() {
 
   sprintf(temp,"%s/.freej/plugins",getenv("HOME"));
   _addsearchdir(temp);
+  _addsearchdir("/usr/lib/freej");
   _addsearchdir("/usr/local/lib/freej");
   for(int i=0;i<MAX_PLUGINS;i++) plugs[i] = NULL;
 }
@@ -55,6 +56,7 @@ int Plugger::refresh() {
       } else delete(filt);
       //      free(filelist[found]);
     }
+    break;
     //    free(filelist);
   } while((dir = strtok(NULL,":")));
 
