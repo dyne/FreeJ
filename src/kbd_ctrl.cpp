@@ -127,7 +127,8 @@ void KbdListener::run() {
     case SDLK_SPACE:
       env->pause = !env->pause;
       break;
-      
+
+      /* BROKEN ATM TODO QUAA      
     case SDLK_1:
     case SDLK_2:
     case SDLK_3:
@@ -136,7 +137,7 @@ void KbdListener::run() {
 	return;
       }
       break;
-
+      */
     case SDLK_TAB:
       if(keysym->mod & KMOD_CTRL)
 	env->osd.calibrate();

@@ -144,7 +144,7 @@ int TxtLayer::scanfonts(char *path) {
   int num_before = num_fonts;
   found = scandir(path,&filelist,dirent_ttf_selector,alphasort);
   if(found<0) {
-    error("no fonts found in %s : %s",path, strerror(errno)); return(false); }
+    func("no fonts found in %s : %s",path, strerror(errno)); return(false); }
   while(found--) {
     if(num_fonts>=MAX_FONTS) break;
     snprintf(temp,255,"%s/%s",path,filelist[found]->d_name);

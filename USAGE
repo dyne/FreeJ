@@ -23,27 +23,9 @@ the text console gives you status information, listing all the layers
 and the filters under them, scrolling all status messages and of course
 letting you interact thru commands.
 
-press ctrl-h to have a list of them.
+press ctrl-h to have a quick list of them.
 
-now, before continuing here, if you are not familiar with terms like
-'blit' and the way the FreeJ multilayered engine works by opening
-different media files, i suggest you take a tour of the PDF tutorial
-available in the web documentation on http://freej.dyne.org
-here it will follow a very dense reference table of hotkeys and commands
-to interact with the console and with the rendering screen.
-
-in fact you can interact also from the SDL screen, projecting directly
-your screen and controlling variables from the On Screen Display, like
-it was until the version 0.6 of FreeJ.
-
-now there is also something new:
-
-you can interact with FreeJ thru the text console, which can be also a
-shell opened from the net, i mean a remote terminal which is connected
-thru the net, over distance.
-with FreeJ you can do VJoE: VeeJay over Ethernet,
-which means the following control commands can also be sent thru the net:
-
+here is a longer list:
 
 LIST OF HOTKEYS, remember:
 ^ means CTRL key pressed
@@ -51,18 +33,25 @@ LIST OF HOTKEYS, remember:
 
 S-LANG CONSOLE 
 
- arrow keys browse selection thru layers and effects                                                                                 
+ arrow keys browse selection thru layers and effects
+ - and - move filters and effects up and down thru chains
+ HOME de/activate layer, INS de/activates filter
+ TAB to move the selected layer around the screen
+ ! = switch on/off OSD   @ = switch on/off screen cleanup
 
- HOME de/activate layer, INS de/activates filter                                                                                     
+ ctrl-o  = Open new layer (will prompt for path to file)
+ ctrl-e  = add a new Effect to the selected layer (press TAB for list)
+ ctrl-b  = change the Blit for the selected layer (press TAB for list)
+ ctrl-v  = change the blit Value for the selected layer
+ ctrl-t  = create a text layer (will prompt for text)
+ ctrl-y  = insert a new word in the selected text layer
+ ctrl-g  = create a particle generator layer
 
- ^o  = Open new layer (will prompt for path to file)                                                                             
- ^e  = add a new Effect to the selected layer (press TAB for list)
- ^b  = change the Blit for the selected layer (press TAB for list)
- ^v  = change the blit Value for the selected layer                                                                              
- ^c  = quit FreeJ (asks confirmation)
- ^f  = go to Fullscreen                                                                                                          
- ^l  = cleanup and redraw the console                                                                                            
- ^j  = execute a Javascript command (if javascript is compiled)
+ ctrl-c  = quit FreeJ (asks confirmation)
+ ctrl-f  = go to Fullscreen
+ ctrl-l  = cleanup and redraw the console
+ ctrl-j  = enter Jazz mode to pulse layers with keys
+ ctrk-x  = enter a script command
 
 LAYER COMMANDS
 
@@ -82,16 +71,11 @@ PNG LAYER COMMANDS:
 
 
 MOVIE LAYER COMMANDS (AVIFILE):
- j/k   = skip one keyframe back and forward on the movie
- h/l   = dec/increase keyframe step when skipping
- u     = set keyframe step back to 1
+ j/k   = rewind and fast forward
  p     = pause (still can seek)
- i     = set/clear mark_in
- o     = set/clear mark_out
- with full indexed avi files you can use:
- n/m    = -/+ double frame / slow motion
- v/b    = -/+ play speed
- caveat: without indexed avi it can crash.
+ i     = set/clear loop mark_in
+ o     = set/clear loop mark_out
+ l     = clear all loop markers
 
 
 TXT LAYER COMMANDS:

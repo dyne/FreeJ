@@ -1,11 +1,7 @@
 
-**** FIX per la 0.7:
- - console backspace
- - magnify
- - completion per open layer
-
-
 $Id$
+
+  *** LiViDO shared plugin library
 
   *** cairo layers: poligons and svg
 
@@ -18,8 +14,6 @@ $Id$
   *** complete the Iterator class
 
   *** Quicktime video layer for Darwin/OSX
-
-  *** LiViDO shared plugin library   
 
   *** Open Sound Control for remote interoperability
   

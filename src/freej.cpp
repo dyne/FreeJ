@@ -68,7 +68,7 @@ static const char *help =
 " .   -g   start with GTK graphical interface (deprecated)\n"
 #endif
 " .   -s   size of screen - default 400x300\n"
-" .   -m   software magnification: 2x,3x\n"
+//" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
 #ifdef WITH_JAVASCRIPT
 " .   -j   process javascript command file\n"
@@ -78,7 +78,7 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:m:nj:";
+static const char *short_options = "-hvD:gs:nj:";
 
 
 
@@ -369,7 +369,8 @@ int main (int argc, char **argv) {
 
 
   /* apply screen magnification */
-  freej.magnify(magn);
+  //  freej.magnify(magn);
+  // deactivated for now
 
 
 

@@ -1,4 +1,4 @@
-#!/usr/local/bin/freej 
+#!/usr/local/bin/freej
 // FreeJ - http://freej.dyne.org
 
 // this is a simple script example, executable with FreeJ

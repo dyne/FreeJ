@@ -3,9 +3,7 @@
 
                    [[[  FreeJ 0.7 "BIKO"  ]]]
 
-		pre-release 1 ; 6 september 2004	
-
-     THIS IS RASTA SOFTWARE FOR THE FREEDOM OF VIDEO CREATION
+          RASTA SOFTWARE FOR THE FREEDOM OF VIDEO CREATION
 
 :: OVERVIEW
 
@@ -32,17 +30,16 @@ under the GNU General Public License.
 
 :: FEATURES
 
-++ very efficient video engine with multithreaded layers
 ++ reads and renders layers from multiple sources:
-   video4linux, divx/avi movies, png images and txt files
+   webcams, TV, divx/avi movies, png images and txt files
 ++ can be controlled from remote: VJoE - VeeJay over Ethernet
 ++ can be scripted in procedural object oriented language
-++ plugin effects chainable on each layer
 ++ high precision looping of movie clips
+++ plugin effects are chainable on each layer
+++ very efficient video engine with multithreaded layers
 ++ Emacs/Vi style console with hotkeys and completion (S-Lang)
-++ user friendly graphical interface (Gtk+2)
 ++ can have multiple controllers at the same time (Midi,Joystick)
-++ 100% Free and opensource: GNU General Public License
+++ 100% Free and open source: GNU General Public License
 
 
 
@@ -66,8 +63,8 @@ JAH BLESS YOU FOR THE GOOD OF YOUR CREATIONS, THIS IS RASTA SOFTWARE!
 
 Recently Jaromil received support for FreeJ development: he was invited
 to publish its code in an installation for the Withney ArtPort CODeDOC
-(Ars Electronica 03), while during 2003/04 development has been
-supported by the Netherlands Institute of Media Art.
+(Ars Electronica 03), while during 2003/04 development is ongoin with
+the support of the Netherlands Institute of Media Art.
 
 Since the end of 2003, among other contributions, a brilliant coder
 joined the project: Kysucix, contributing to new core features.
@@ -149,9 +146,8 @@ while TGZ binary packages are provided for lucky Slackware users.
 
  Silvano "Kysucix" Galliani - programmer: TXT layer, script parser
 
- documentation, testing and user case study is being contributed by
- Montevideo Amsterdam: Anne-Marie Skriver, Marloes de Valk, Barbara de
- Preter, Robert de Geuss, Asta Kat.
+ documentation, testing and user case study by:
+ Anne-Marie Skriver and Marloes de Valk (Montevideo Time Based Arts)
  
  refer to the AUTHORS file for a full list of contributions
 

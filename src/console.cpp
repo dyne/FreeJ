@@ -22,6 +22,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <dirent.h>
 
 #include <signal.h>
 #include <slang.h>
@@ -30,7 +31,7 @@
 #include <jutils.h>
 #include <config.h>
 
-
+#include <gen_layer.h>
 
 #define PLAIN_COLOR 1
 #define TITLE_COLOR 1
@@ -275,8 +276,8 @@ static int open_text_layer(char *cmd) {
 
       // select the new layer
       env->console->layer = txt;
-      //      env->layers.sel(0);
-      //      l->sel(true);
+      env->layers.sel(0);
+      txt->sel(true);
 
 
       notice("layer succesfully created with text: %s",cmd);
@@ -288,8 +289,6 @@ static int open_text_layer(char *cmd) {
   return 0;
 }
 #endif
-
-#include <dirent.h>
 
 static int filebrowse_completion_selector(const struct dirent *dir) {
   if(dir->d_name[0]=='.')
@@ -921,7 +920,8 @@ void Console::update_scroll() {
 
 
 void Console::parser_default(int key) {
-  
+  Layer *tmp;
+
   commandline = false; // print statusline
   
   switch(key) {
@@ -974,6 +974,7 @@ void Console::parser_default(int key) {
     break;
       
   case SL_KEY_PPAGE:
+  case KEY_PLUS:
     // move layer/filter selected up in chain
     if(filter)
       filter->up();
@@ -982,6 +983,7 @@ void Console::parser_default(int key) {
     break;
       
   case SL_KEY_NPAGE:
+  case KEY_MINUS:
     // move layer/filter selected up in chain
     if(filter)
       filter->down();
@@ -1015,30 +1017,37 @@ void Console::parser_default(int key) {
 
   case KEY_CTRL_H:
   case KEY_CTRL_H_APPLE:
+  case '?':
     notice("Hotkeys available in FreeJ console:");
     act("Arrow keys browse selection thru layers and effects");
-    act("Page UP/DOWN move filters and effects thru chains");
+    act("+ and - move filters and effects thru chains");
     act("HOME de/activates layer, INS de/activates filters");
-    act("TAB switch on/off On Screen Display information");
+    act("TAB to move the selected layer around the screen");
+    act(" ! = Switch on/off On Screen Display information");
+    act(" @ = Switch on/off screen cleanup after every frame");
     act("ctrl+o  = Open new layer (will prompt for path to file)");
-    act("ctrl+t  = Add a new Text layer (will prompt for text)");
-    act("ctrl+y  = Insert a new word in selected Text layer");
     act("ctrl+e  = Add a new Effect to the selected layer");
     act("ctrl+b  = Change the Blit for the selected layer");
+    act("ctrl+t  = Add a new Text layer (will prompt for text)");
+    act("ctrl+y  = Insert a new word in selected Text layer");
     act("ctrl+v  = Fade the Blit Value for the selected layer");
-    act("ctrl+m  = Move the selected layer around the screen");
     act("ctrl+j  = Activate jazz mode to pulse layers");
     act("ctrl+l  = Cleanup and redraw the console");
     act("ctrl+f  = Go to Fullscreen");
     act("ctrl+c  = Quit FreeJ");
+    
 
 #ifdef WITH_JAVASCRIPT
     act("ctrl+x  = execute a Javascript command");
 #endif
     break;
 
-  case KEY_CTRL_I:
+  case '!':
     env->osd.active = !env->osd.active;
+    break;
+
+  case '@':
+    env->clear_all = !env->clear_all;
     break;
 
   case KEY_CTRL_E:
@@ -1088,6 +1097,29 @@ void Console::parser_default(int key) {
     break;
 #endif
 
+  case KEY_CTRL_G:
+    tmp = new GenLayer();
+    if(tmp)
+      if(!tmp->init(env)) {
+	error("can't initialize particle generator layer");
+	delete tmp;
+      } else {
+	env->layers.add(tmp);
+	
+	// select the new layer
+	env->console->layer = tmp;
+	env->layers.sel(0);
+	tmp->sel(true);
+	
+	notice("particle generator succesfully created");
+	act("press 'p' or 'o' to change its random seed");
+	
+	break;
+      }
+    error("layer creation aborded");
+    env->console->refresh();
+    break;
+    
   case KEY_CTRL_X:
 #ifndef WITH_JAVASCRIPT
     ::error("javascript is not compiled in this FreeJ binary");
@@ -1101,7 +1133,7 @@ void Console::parser_default(int key) {
     refresh();
     break;
 
-  case KEY_CTRL_M:
+  case KEY_CTRL_I: // also TAB
     ::notice("move layer with arrows, press enter when done");
   ::act("use arrow keys to move or keypad numbers");
   ::act("also nethack movement keys work, press space to center");
@@ -1190,6 +1222,7 @@ void Console::parser_movelayer(int key) {
 
   case SL_KEY_ENTER:
   case KEY_ENTER:
+  case KEY_CTRL_I:
     ::act("layer repositioned");
     parser = DEFAULT;
     break;

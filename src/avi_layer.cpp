@@ -264,8 +264,8 @@ framepos_t AviLayer::forward(framepos_t step) {
     res = _stream->SeekToKeyFrame(p+step);
   }
   //  unlock_feed();
-  show_osd("avi seek to %u\% (K%u)",
-       (res*100)/_stream->GetLength(),res);
+  //  show_osd("avi seek to %u\% (K%u)",
+  //       (res*100)/_stream->GetLength(),res);
   avi_dirty = true;
   return(res);
 }
@@ -279,8 +279,8 @@ framepos_t AviLayer::rewind(framepos_t step) {
     res = _stream->SeekToKeyFrame(p-step);
   }
   //  unlock_feed();
-  show_osd("avi seek to %u\% (K%u)",
-       (res*100)/_stream->GetLength(),res);
+  //  show_osd("avi seek to %u\% (K%u)",
+  //       (res*100)/_stream->GetLength(),res);
   avi_dirty = true;
   return(res);
 }
@@ -290,8 +290,8 @@ framepos_t AviLayer::setpos(framepos_t step) {
   //  lock_feed();
   res = _stream->SeekToKeyFrame(step);
   //  unlock_feed();
-  notice("avi seek to %u\% (K%u)",
-       (res*100)/_stream->GetLength(),res);
+  //  notice("avi seek to %u\% (K%u)",
+  //       (res*100)/_stream->GetLength(),res);
   show_osd();
   avi_dirty = true;
   return(res);
