@@ -47,6 +47,7 @@ class VideoLayer: public Layer {
 	AVCodec *codec;
 	AVFrame av_frame;
 	uint8_t *av_buf;
+	uint8_t *deinterlace_buffer;
 	int packet_len;
 	double packet_pts;
 	unsigned char *ptr;
@@ -56,7 +57,8 @@ class VideoLayer: public Layer {
 	double video_current_pts_time;
 
 	/**
-	 * Number of decoded frames. As for now together with picture_number it's broken when seeking TODO!
+	 * Number of decoded frames. As for now together with picture_number
+	 * it's broken when seeking TODO!
 	 */
 	int frame_number;
 	int picture_number;
@@ -78,18 +80,17 @@ class VideoLayer: public Layer {
 
 	char *video_filename;
 
-	
-
-
 	int video_index;
 	FILE *fp;
 
+	/** private methods */
 	bool free_av_stuff();
 	bool relative_seek(int increment);
 	int seek(int64_t timestamp);
 	bool set_speed(int speed);
 	double get_master_clock();
 	void deinterlace(AVPicture *picture);
+
     public:
 	VideoLayer();
 	~VideoLayer();

@@ -39,7 +39,7 @@
 VideoLayer::VideoLayer() 
     :Layer() {
 	grab_dv=false;
-	setname("VIDEO");
+	set_name("VIDEO");
 	frame_number=0;
 	av_buf=NULL;
 	//	avformat_context=NULL;
@@ -83,6 +83,7 @@ bool VideoLayer::init(Context *scr) {
     /* init variables */
     paused=false;
     user_play_speed=0;
+    deinterlace_buffer=NULL;
 
     mark_in=NO_MARK;
     mark_out=NO_MARK;
@@ -343,7 +344,8 @@ void *VideoLayer::feed() {
 void VideoLayer::close() {
     if(frame_number!=0)
 	av_free_packet(&pkt);
-    if(enc != NULL) avcodec_close(enc);
+    if(enc != NULL) 
+	avcodec_close(enc);
     if(avformat_context) { 
 	av_close_input_file(avformat_context);
 	avformat_context=NULL;
@@ -353,6 +355,7 @@ void VideoLayer::close() {
 bool VideoLayer::free_av_stuff() {
     if(!av_picture) free(av_picture);
     if(!av_buf) free(av_buf);
+    if(!deinterlace_buffer) free(deinterlace_buffer);
     if(!video_filename) free(video_filename);
 }
 bool VideoLayer::keypress(SDL_keysym *keysym) {
@@ -543,7 +546,7 @@ void VideoLayer::deinterlace(AVPicture *picture) {
     int size;
     AVPicture *picture2;
     AVPicture picture_tmp;
-    uint8_t *deinterlace_buffer = 0;
+    deinterlace_buffer = 0;
 
 
     /* create temporary picture */

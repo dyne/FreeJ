@@ -267,16 +267,30 @@ JS(layer_set_blit) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
       return JS_FALSE;
     }
     else {
-	int blit=1;
-	if (strncasecmp(blit_type,"rgb",3)== 0) blit=1;
-	else if (strncasecmp(blit_type,"red",3)== 0) blit=2;
-	else if (strncasecmp(blit_type,"green",5)== 0) blit=3;
-	else if (strncasecmp(blit_type,"blue",3)== 0) blit=4;
-	else if (strncasecmp(blit_type,"add",3)== 0) blit=5;
-	else if (strncasecmp(blit_type,"sub",3)== 0) blit=6;
-	else if (strncasecmp(blit_type,"and",3)== 0) blit=7;
-	else if (strncasecmp(blit_type,"or",2)== 0) blit=8;
-	lay->set_blit(blit);
+	char *blit=NULL;
+	/**
+	 * Check the blit is correct
+	 */
+	if (strncasecmp(blit_type,"memcpy",6)== 0
+		| strncasecmp(blit_type,"amemcpy",7)== 0
+		| strncasecmp(blit_type,"red",3)== 0
+		| strncasecmp(blit_type,"green",5)== 0
+		| strncasecmp(blit_type,"blue",3)== 0
+		| strncasecmp(blit_type,"add",3)== 0
+		| strncasecmp(blit_type,"sub",3)== 0
+		| strncasecmp(blit_type,"and",3)== 0
+		| strncasecmp(blit_type,"or",2)== 0
+		| strncasecmp(blit_type,"neg",3)== 0
+		| strncasecmp(blit_type,"absdiff",7)== 0
+		| strncasecmp(blit_type,"mult",4)== 0
+		| strncasecmp(blit_type,"multnor",7)== 0
+		| strncasecmp(blit_type,"div",3)== 0
+		| strncasecmp(blit_type,"multdiv2",8)== 0
+		| strncasecmp(blit_type,"multdiv4",8)== 0
+		| strncasecmp(blit_type,"mean",4)== 0) {
+	    lay->blitter.set_blit(blit_type);
+	}
+    
     }
 
     return JS_TRUE;
