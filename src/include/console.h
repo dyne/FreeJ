@@ -25,6 +25,7 @@
 #include <linklist.h>
 #include <slang.h>
 
+#define MAX_CMDLINE 256
 
 /* The SLscroll routines will use this structure. */
 typedef struct _File_Line_Type {
@@ -97,7 +98,7 @@ class Console {
   /* input console command */
   bool commandline;
   int cursor;
-  char command[512];
+  char command[MAX_CMDLINE];
   cmd_process_t *cmd_process;
   cmd_complete_t *cmd_complete;
 

@@ -40,6 +40,7 @@
 #define KEY_ENTER 13
 #define KEY_SPACE 32
 #define KEY_BACKSPACE 275
+#define KEY_BACKSPACE_APPLE 127 
 #define KEY_LEFT 259
 #define KEY_RIGHT 260
 #define KEY_HOME 263
@@ -147,7 +148,7 @@ static int blit_comp(char *cmd) {
   if(!blits[1]) { // exact match, then fill in command
     b = (Blit*) lay->blitter.blitlist.pick(blits[0]);
     ::notice("%s :: %s",b->get_name(),b->desc);
-    snprintf(cmd,511,"%s",b->get_name());
+    snprintf(cmd,MAX_CMDLINE,"%s",b->get_name());
     return 1;
   }
   
@@ -284,9 +285,75 @@ static int open_text_layer(char *cmd) {
 }
 #endif
 
+#include <dirent.h>
+static char *path = NULL;
+static int filebrowse_completion_selector(const struct dirent *dir) {
+  if(dir->d_name[0]=='.')
+    if(dir->d_name[1]!='.')
+      return(0); // skip hidden files
+  return(1);
+}
 static int filebrowse_completion(char *cmd) {
-  func("filebrowser completion TODO");
-  return(0);
+  Linklist files;
+  Entry *e;
+  struct dirent **filelist;
+  int *comps;
+  int found;
+  int c;
+
+  if(!path) {
+    path = (char*)calloc(MAX_CMDLINE,sizeof(char));
+    strncpy(path,getenv("PWD"),MAX_CMDLINE);
+  }
+
+  found = scandir(path,&filelist,
+		  filebrowse_completion_selector,alphasort);
+
+  if(found<0) {
+    error("filebrowse_completion: scandir: %s",strerror(errno));
+    return 0;
+  }
+
+  for(c=found-1;c>0;c--) { // insert each entry found in a linklist
+    e = new Entry();
+    e->set_name(filelist[c]->d_name);
+    files.append(e);
+  }
+
+  comps = files.completion(cmd);
+  if(comps[0]) { // something found
+
+    if(!comps[1]) { // exact match
+      e = files.pick(comps[0]);
+      DIR *d = opendir( e->name );
+      if(d) { // is a directory
+	closedir(d);
+	snprintf(path,MAX_CMDLINE,"%s/%s",path,e->name);
+      }
+      strncpy(cmd,e->name,MAX_CMDLINE);
+
+      c = 1;
+
+    } else { // multiple matches
+      
+      for(c=0;comps[c];c++) {
+	e = files.pick(comps[c]);
+	::act("%s",e->name);
+      }
+      
+    }
+    
+  } else c = 0;
+
+  // free entries allocated in memory
+  e = files.begin();
+  while(e) {
+    files.rem(1);
+    delete e;
+    e = files.begin();
+  }
+
+  return(c);
 }
 
 static int set_blit_value(char *cmd) {
@@ -417,7 +484,7 @@ int Console::readline(char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
   SLsmg_erase_eol();
   
   cursor = 0;
-  memset(command,EOL,512);
+  memset(command,EOL,MAX_CMDLINE);
 
   SLtt_set_cursor_visibility(1);
   cmd_process = proc;
@@ -1153,7 +1220,7 @@ void Console::parser_commandline(int key) {
   commandline = true; // don't print statusline
 
   /* =============== console command input */
-  if(cursor>512) {
+  if(cursor>MAX_CMDLINE) {
     error("command too long, can't type more.");
     return;
   }
@@ -1166,7 +1233,6 @@ void Console::parser_commandline(int key) {
   case KEY_ENTER:
     // a blank commandline aborts the input
     if(command[0]==EOL) {
-      func("command aborted");
       parser = DEFAULT;
       cmd_process = NULL;
       cmd_complete = NULL;
@@ -1197,7 +1263,7 @@ void Console::parser_commandline(int key) {
     else
       entr = entr->prev;
     if(!entr) return; // no hist
-    strncpy(command,(char*)entr->data,512);
+    strncpy(command,(char*)entr->data,MAX_CMDLINE);
     // type the command on the console
     SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
     SLsmg_write_string(command);
@@ -1211,7 +1277,7 @@ void Console::parser_commandline(int key) {
     if(!entr) return;
     if(!entr->next) return;
     entr = entr->next;
-    strncpy(command,(char*)entr->data,512);
+    strncpy(command,(char*)entr->data,MAX_CMDLINE);
     // type the command on the console
     SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
     SLsmg_write_string(command);
@@ -1242,25 +1308,30 @@ void Console::parser_commandline(int key) {
     return;
 
 
-  case KEY_BACKSPACE:      /*** FIXME */
+  case KEY_BACKSPACE:
+  case KEY_BACKSPACE_APPLE:
     if(!cursor) return;
-    cursor--;
-    if(command[cursor+1]==EOL) {
-      // func("cursor on end of line");
-      command[cursor] = EOL;
-    } else {
-      for(c=cursor;command[c]!=EOL;c++)
-	command[c] = command[c+1];
-      command[c] = EOL;
-      SLsmg_write_string(&command[cursor]);
+
+    for(c=cursor;c<MAX_CMDLINE;c++) {
+      command[c-1] = command[c];
+      if(command[c]==EOL) break;
     }
+
+    SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
+    SLsmg_write_string(command);
     SLsmg_erase_eol();
-    GOTO_CURSOR;
+    cursor--;
+    SLsmg_gotorc(SLtt_Screen_Rows - 1,cursor);
     return;
 
     /* the following ctrl combos are to imitate
-       the UNIX commandline behaviour
-       (c-e eol, c-d delete, c-k eol del etc.) */
+       the Emacs commandline behaviour
+       c-e goto end of line,
+       c-d delete,
+       c-k delete until end of line
+       c-u delete previous until beginning of line
+    */
+
   case SL_KEY_LEFT:
     if(cursor) cursor--;
     GOTO_CURSOR;
@@ -1269,6 +1340,7 @@ void Console::parser_commandline(int key) {
     if(command[cursor]) cursor++;
     GOTO_CURSOR;
     return;
+
   case KEY_CTRL_D:
     for(c=cursor;command[c]!=EOL;c++)
       command[c] = command[c+1];
@@ -1277,21 +1349,25 @@ void Console::parser_commandline(int key) {
     SLsmg_erase_eol();
     GOTO_CURSOR;
     return;
+
   case KEY_CTRL_A:
   case KEY_HOME:
     cursor=0;
     GOTO_CURSOR;
     return;
+
   case KEY_CTRL_E:
     while(command[cursor]!=EOL) cursor++;
     GOTO_CURSOR;
     return;
+
   case KEY_CTRL_K:
     for(c=cursor;command[c]!=EOL;c++)
       command[c] = EOL;
     GOTO_CURSOR;
     SLsmg_erase_eol();
     return;
+
   case KEY_CTRL_U:
     for(c=0;command[cursor+c]!=EOL;c++)
       command[c] = command[cursor+c];
@@ -1306,15 +1382,24 @@ void Console::parser_commandline(int key) {
     
   }
   /* add char at cursor position
-     insert mode       FIX ME! */
-  for(c=cursor;command[c+1]!=EOL;c++)
-    command[c+1] = command[c];
-  command[cursor] = key;
+     insert mode       FIX ME!
+     must save temporarly the chars to advance
+  */
+
+  for(c=cursor;command[c]!=EOL;c++); // go to the EOL
   
-  GOTO_CURSOR;
+  command[c+1] = EOL; // be sure we have a EOL
+
+  for(;c>cursor;c--)
+    command[c] = command[c-1]; // move backwards switching right
+
+  command[cursor] = key; // insert new char
+  
+  //  GOTO_CURSOR;
   SLsmg_write_string(&command[cursor]);
   SLsmg_erase_eol();
   cursor++;
   GOTO_CURSOR;
+
 }
   

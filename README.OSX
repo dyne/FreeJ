@@ -73,6 +73,10 @@ from a Terminal (X11 Terminal in case of GTK2 interface) type:
 $ freej [enter]
 and you should see.
 
+in case you want to have a colorful command console on your terminal,
+before starting freej you can type 'screen' (enter), this will start
+a console manager which fully supports ANSI colors (see 'man screen').
+
 
 ================================== Appendix.1 : open the Terminal
 

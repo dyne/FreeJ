@@ -1,24 +1,29 @@
 
+**** FIX per la 0.7:
+ - console backspace
+ - magnify
+ - completion per open layer
+
+
 $Id$
 
   *** cairo layers: poligons and svg
 
   *** libvisual layer
 
-  *** finalize JavaScript API
+  *** 8bit geometrical mask blits
 
-  *** finish the Iterator class 
+  *** filebrowser in SDL
+
+  *** complete the Iterator class
 
   *** Quicktime video layer for Darwin/OSX
 
   *** LiViDO shared plugin library   
 
-  *** geometrical 8bit masks for blits
-
   *** Open Sound Control for remote interoperability
   
   *** enhance text layer (more scrollers, word positioning etc.)
-
 
   *** XScreensaver layer // must PORT screenhacks code :(
 
