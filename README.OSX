@@ -1,7 +1,6 @@
-FreeJ 0.7 notes for Darwin/OSX hackers
+FreeJ 0.7.1 notes for Darwin/OSX hackers
 
 FreeJ is NOW READY to be used on Darwin and OSX!
-BUT: without the movie layer (will be available soon!)
 
 to compile it from source follow these steps, which are also useful to
 setup your Apple OSX to be able to compile and use other GNU software.
@@ -17,9 +16,8 @@ setup your Apple OSX to be able to compile and use other GNU software.
    (see Appendix.1 further down in this document)
 3. know how become root on your machine from a Terminal
    (see Appendix.2 if you need help on this)
-5. have X11 installed
 
-- Then proceed with the install of install the latest Fink
+- Then proceed with the install of the latest Fink
   free software packaging system available from http://fink.sf.net
 
 - Once you are done with all the installation steps of Fink, open your
@@ -60,6 +58,8 @@ performance and usability.
 Compiling FreeJ with this feature will give you the possibility to
 script procedural video with text and images!
 
+  if you want to compile movie playback support, you can compile
+  statically an appropriate version of libavcodec (ffmpeg).
 
 To finally compile FreeJ enter its directory and issue the commands:
 # ./configure (optional flags here)

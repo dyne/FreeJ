@@ -1240,15 +1240,17 @@ void Console::parser_movelayer(int key) {
   switch(key) {
 
     // zoom
-  case KEY_PLUS:  layer->blitter.set_zoom(0.01,0.01);   break;
-  case KEY_MINUS: layer->blitter.set_zoom(-0.01,-0.01); break;
+  case KEY_PLUS:  layer->blitter.set_zoom( layer->blitter.zoom_x + 0.01,
+					   layer->blitter.zoom_y + 0.01); break;
+  case KEY_MINUS: layer->blitter.set_zoom( layer->blitter.zoom_x - 0.01,
+					   layer->blitter.zoom_y - 0.01); break;
   case 'w':       layer->blitter.set_spin(0,-0.001);    break;
   case 's':       layer->blitter.set_spin(0,0.001);     break;
   case '.':       layer->blitter.set_zoom(0,0);         break;
 
     // rotation
-  case '<': layer->blitter.set_rotate(0.5);    break;
-  case '>': layer->blitter.set_rotate(-0.5);   break;
+  case '<': layer->blitter.set_rotate( layer->blitter.rotate + 0.5 ); break;
+  case '>': layer->blitter.set_rotate( layer->blitter.rotate - 0.5 ); break;
   case 'a': layer->blitter.set_spin(0.02,0);   break;
   case 'd': layer->blitter.set_spin(-0.02,0);  break;
   case ',': layer->blitter.set_rotate(0);      break;

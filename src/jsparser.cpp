@@ -26,6 +26,7 @@
 #include <context.h>
 #include <signal.h>
 #include <config.h>
+#include <jutils.h>
 
 #ifdef WITH_JAVASCRIPT
 
@@ -52,17 +53,11 @@ static JSBool static_branch_callback(JSContext* Context, JSScript* Script) {
 	return JS_FALSE;
     }
     return JS_TRUE;
-//    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
-//    return (js->branch_callback(Context,Script));
 }
-void JsParser::error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
-  error("JsParser :: javascript error in %s at line %d",Report->filename,Report->lineno+1);
-  if(Message)
-    error("JsParser :: %s",(char *)Message);
-}
-static void static_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
-    JsParser *js=(JsParser *)JS_GetContextPrivate(Context);
-    return js->error_reporter(Context,Message,Report);
+
+static void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
+  ::error("script error in %s:",Report->filename);
+  if(Message) ::error("%s",(char *)Message);
 }
 
 
@@ -109,8 +104,8 @@ void JsParser::init() {
     /* Set the branch callback */
     JS_SetBranchCallback(js_context, static_branch_callback);
 
-    /* Set the error reporte */
-    JS_SetErrorReporter(js_context, static_error_reporter);
+    /* Set the error reporter */
+    JS_SetErrorReporter(js_context, js_error_reporter);
 
 
     /* Initialize the built-in JS objects and the global object */
@@ -196,7 +191,7 @@ int JsParser::open(const char* script_file) {
   FILE *fd;
   char *buf;
   int len;
-  int c;
+  unsigned int c;
 
   char header[1024];
 
@@ -226,8 +221,10 @@ int JsParser::open(const char* script_file) {
 
   fclose(fd);
 
-  JS_EvaluateScript (js_context, global_object,
-		     buf, len, script_file, c, &ret_val);
+  if( JS_EvaluateScript (js_context, global_object,
+			 buf, len, script_file, c, &ret_val)
+      == JS_FALSE)
+    error("execution of script aborted");
 
   return ret_val;
 }
@@ -328,7 +325,8 @@ JS(add_layer) {
     JSObject *jslayer;
     *rval=JSVAL_FALSE;
 
-    if(JSVAL_IS_NULL(argv[0])) JS_ERROR("missing argument");
+    if(argc<1) JS_ERROR("missing argument");
+
     jslayer = JSVAL_TO_OBJECT(argv[0]);
 
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
@@ -385,22 +383,49 @@ JS(set_size) {
     return JS_TRUE;
 }
 
-JS(fastrand) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-  *rval = INT_TO_JSVAL( fastrand() );
+// debugging commodity
+JS(debug) {
+  char *msg;
+  
+  JS_ARG_STRING(msg,0);
+ 
+  ::act("%s", msg);
 
   return JS_TRUE;
 }
-JS(fastsrand) {
+
+
+JS(rand) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  int r;
+
+  r = rand();
+
+  if(argc<1) *rval = 1+(int)(r/(RAND_MAX+1.0));
+  else {
+    JS_ARG_NUMBER(max, 0);
+    func("randomizing with max %f",max);
+    r = 1+(int)(max*r/(RAND_MAX+1.0));
+    *rval = INT_TO_JSVAL(r);
+  }
+
+  return JS_TRUE;
+}
+JS(srand) {
+  // this is not fast and you'd better NOT use it often
+  // to achieve more randomization on higher numbers:
+  // u get unpredictably sloow
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   int seed;
   if(argc<1)
     seed = time(NULL);
-  else
-    seed = JSVAL_TO_INT(argv[0]);
-
-  fastsrand(seed);
+  else {
+    JS_ARG_NUMBER(r,0);
+    seed = (int)r;
+  }
+  
+  srand(seed);
 
   return JS_TRUE;
 }
@@ -409,15 +434,18 @@ JS(fastsrand) {
 JS(layer_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   //    JSObject *this_obj;
+  char *filename;
 
   Layer *layer;
 
   if(argc < 1) JS_ERROR("missing argument");
 
   // recognize the extension and open the file given in argument
-  layer = create_layer( JS_GetStringBytes( JS_ValueToString( cx,argv[0]) ) );
+  JS_ARG_STRING(filename,0);
+
+  layer = create_layer( filename );
   if(!layer) {
-    error("%s: can't create Layer from %s",__FUNCTION__,argv[0]);
+    error("%s: cannot create a Layer using %s",__FUNCTION__,filename);
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
@@ -434,15 +462,16 @@ JS(effect_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   Filter *filter;
-  char *filter_string;
+  char *effect_name;
 
-  filter_string = JS_GetStringBytes( JS_ValueToString(cx,argv[0]) );
   if(argc < 1) JS_ERROR("missing argument");
 
-  filter=env->plugger.pick(filter_string);
+  JS_ARG_STRING(effect_name,0);
+
+  filter = env->plugger.pick(effect_name);
 
   if(filter==NULL) {
-    error("JsParser::effect_constructor : filter not found :%s",filter_string); 
+    error("JsParser::effect_constructor : filter not found :%s",effect_name); 
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
@@ -495,12 +524,13 @@ JS(entry_move) {
 JS(layer_set_blit) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
+  char *blit_name;
+
   GET_LAYER(Layer);
 
-  char *blit_type=JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
-  if(!blit_type) JS_ERROR("missing argument");
+  JS_ARG_STRING(blit_name, 0);
 
-  lay->blitter.set_blit(blit_type);
+  lay->blitter.set_blit( blit_name );
 
   return JS_TRUE;
 }
@@ -574,11 +604,14 @@ JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     if(argc<1) JS_ERROR("missing argument");
+    JS_ARG_NUMBER(value,0);
 
     GET_LAYER(Layer);
-
-    int new_value=JSVAL_TO_INT(argv[0]);
-    lay->blitter.fade_value(1,new_value);
+    
+    value = 255.0*value;
+    //    255:1=y:x
+    //    lay->blitter.fade_value(1,new_value);
+    lay->blitter.set_value((int)value);
 
     return JS_TRUE;
 }
@@ -662,6 +695,48 @@ JS(layer_rem_effect) {
     return JS_TRUE;
 }
 
+/// rotozooming the layer
+JS(layer_rotate) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  if(argc<1) JS_ERROR("missing argument");
+  JS_ARG_NUMBER(degrees,0);
+
+  GET_LAYER(Layer);
+
+  lay->blitter.set_rotate(degrees);
+
+  return JS_TRUE;
+}
+JS(layer_zoom) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  if(argc<2) JS_ERROR("missing argument");
+  JS_ARG_NUMBER(xmagn,0);
+  JS_ARG_NUMBER(ymagn,1);
+  
+  GET_LAYER(Layer);
+
+  lay->blitter.set_zoom(xmagn,ymagn);
+
+  return JS_TRUE;
+}
+JS(layer_spin) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  if(argc<2) JS_ERROR("missing argument");
+  JS_ARG_NUMBER(rot,0);
+  JS_ARG_NUMBER(magn,1);
+
+  GET_LAYER(Layer);
+
+  lay->blitter.set_spin(rot, magn);
+
+  return JS_TRUE;
+}
+
+  
+  
 
 ////////////////////////////////
 // Particle Layer methods
@@ -902,8 +977,9 @@ JS(txt_layer_size) {
 
   GET_LAYER(TxtLayer);
 
-  int size = JSVAL_TO_INT(argv[0]);
-  lay->set_character_size(size);
+  JS_ARG_NUMBER(size,0);
+
+  lay->set_character_size((unsigned int)size);
 
   return JS_TRUE;
 }
@@ -914,12 +990,21 @@ JS(txt_layer_font) {
 
   GET_LAYER(TxtLayer);
 
-  int font = JSVAL_TO_INT(argv[0]);
-  lay->set_font(font);
+  JS_ARG_NUMBER(font,0);
+
+  lay->set_font((unsigned int)font);
 
   return JS_TRUE;
 }
-JS(txt_layer_next) { return JS_TRUE; }
+JS(txt_layer_advance) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  
+  GET_LAYER(TxtLayer);
+  
+  lay->advance();
+
+  return JS_TRUE;
+}
 JS(txt_layer_blink) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 

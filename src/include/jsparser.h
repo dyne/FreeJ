@@ -98,9 +98,40 @@ if(!lay) { \
 }
 
 
+//  error("%u:%s:%s : %s",__LINE__,__FILE__,__FUNCTION__,str);
 
-#define JS_ERROR(str) { error("%u:%s:%s : %s", \
-        __LINE__,__FILE__,__FUNCTION__,str); return JS_FALSE; }
+
+#define JS_ERROR(str) { \
+  JS_ReportError(cx,"%s: %s",__FUNCTION__,str); \
+  env->quit = true; \
+  return JS_FALSE; \
+}
+
+
+// cast a numerical value in a double variable
+#define JS_ARG_NUMBER(variable,argnum) \
+  double variable; \
+  if(JSVAL_IS_DOUBLE(argv[argnum])) { \
+    variable = *JSVAL_TO_DOUBLE(argv[argnum]); \
+  } else if(JSVAL_IS_INT(argv[argnum])) { \
+    variable = (double)JSVAL_TO_INT(argv[argnum]); \
+  } else if(JSVAL_IS_BOOLEAN(argv[argnum])) { \
+    variable = (double)JSVAL_TO_BOOLEAN(argv[argnum]); \
+  } else { \
+    JS_ReportError(cx,"%s: argument %u is not a number",__FUNCTION__,argnum); \
+    env->quit = true; \
+    return JS_FALSE; \
+  }
+
+#define JS_ARG_STRING(variable,argnum) \
+  if(JSVAL_IS_STRING(argv[argnum])) \
+    variable = JS_GetStringBytes \
+      ( JS_ValueToString(cx, argv[argnum]) ); \
+  else { \
+    JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__,argnum); \
+    env->quit = true; \
+    return JS_FALSE; \
+  }
 
 
 
@@ -111,8 +142,9 @@ class JsParser {
 	int open(const char* script_file);
 	int parse(const char *command);
 	void stop();
+
 	JSBool branch_callback(JSContext* Context, JSScript* Script);
-	void error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
+	//	void error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
 
     private:
 	JSRuntime *js_runtime;
@@ -121,9 +153,11 @@ class JsParser {
 	JSObject *layer_object;
 	void init();
 
-	JSPropertySpec layer_properties[3];
 
-	int parse_count;
+
+	//	JSPropertySpec layer_properties[3];
+
+	//	int parse_count;
 	//	JSFunctionSpec shell_functions[3];
 	
 

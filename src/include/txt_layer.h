@@ -112,6 +112,7 @@ public:
   void *feed();
   void *get_buffer();
   void close();
+  void advance();
 
   bool print(char *s);
   int word_ff(int pos);

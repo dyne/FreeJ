@@ -1,3 +1,11 @@
+FreeJ 0.7.1 BIKO - 26 Nov 2004
+  rotation, zoom and spin of Layers
+  new console Jazz mode
+  new Text Layer insert mode
+  several usability and stability fixes
+  OSX compatibility and build fixes
+  Procedural Video Scripting fixes
+  
 FreeJ 0.7 BIKO - 29 Sep 2004
   support for Apple Darwin/OSX  
   scriptable engine in OO procedural syntax

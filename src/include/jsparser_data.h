@@ -47,8 +47,8 @@
 ////////////////////////////////
 
 // constructors
-static JSBool static_branch_callback(JSContext* Context, JSScript* Script);
-static void static_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
+//static JSBool static_branch_callback(JSContext* Context, JSScript* Script);
+//static void static_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
 
 JS(effect_constructor);
 JS(layer_constructor);
@@ -116,8 +116,9 @@ JS(quit);
 JS(add_layer);
 JS(rem_layer);
 JS(list_layers);
-JS(fastrand);
-JS(fastsrand);
+JS(debug);
+JS(rand);
+JS(srand);
 JS(pause);
 JS(fullscreen);
 JS(set_size);
@@ -149,6 +150,10 @@ JS(layer_get_x_position);
 JS(layer_get_y_position);
 JS(layer_add_effect);
 JS(layer_rem_effect);
+JS(layer_rotate);
+JS(layer_zoom);
+JS(layer_spin);
+
 #define LAYER_METHODS \
     {"activate",	layer_activate,	        0}, \
     {"deactivate",	layer_deactivate,	0}, \
@@ -162,7 +167,10 @@ JS(layer_rem_effect);
     {"get_x_position",	layer_get_x_position,	1}, \
     {"get_y_position",	layer_get_y_position,	1}, \
     {"add_effect",      layer_add_effect,	1}, \
-    {"rem_effect",	layer_rem_effect,	1}
+    {"rem_effect",	layer_rem_effect,	1}, \
+    {"rotate",          layer_rotate,           1}, \
+    {"zoom",            layer_zoom,             2}, \
+    {"spin",            layer_spin,             2}
 
 ////////////////////////////////
 // Particle Layer methods
@@ -212,7 +220,7 @@ JS(avi_layer_pause);
 JS(txt_layer_font);
 JS(txt_layer_size);
 JS(txt_layer_print);
-JS(txt_layer_next);
+JS(txt_layer_advance);
 JS(txt_layer_blink);
 JS(txt_layer_blink_on);
 JS(txt_layer_blink_off);
@@ -233,8 +241,9 @@ static	JSFunctionSpec global_functions[] = {
     {"add_layer",	add_layer,		1},
     {"rem_layer",	rem_layer,		1},
     {"list_layers",     list_layers,            0},
-    {"fastrand",        fastrand,               0},
-    {"fastsrand",       fastsrand,              1},
+    {"debug",           debug,                  1},
+    {"rand",            rand,                   0},
+    {"srand",           srand,                  1},
     {"pause",           pause,                  0},
     {"fullscreen",      fullscreen,             0},
     {"set_size",        set_size,               2},
@@ -310,7 +319,7 @@ JSFunctionSpec txt_layer_methods[] = {
   {      "print",       txt_layer_print,        1},
   {      "font",        txt_layer_font,         1},
   {      "size",        txt_layer_size,         1},
-  {      "next",        txt_layer_next,         1},
+  {      "advance",     txt_layer_advance,      0},
   {      "blink",       txt_layer_blink,        1},
   {      "blink_on",    txt_layer_blink_on,     1},
   {      "blink_off",   txt_layer_blink_off,    1},

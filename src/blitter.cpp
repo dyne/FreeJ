@@ -476,7 +476,8 @@ Blitter::~Blitter() {
 bool Blitter::init(Layer *lay) {
 
   layer = lay;
-  screen = layer->freej->screen;
+  screen = lay->freej->screen;
+
   func("blitter initialized for layer %s",lay->get_name());
   
   crop( true );
@@ -650,6 +651,10 @@ bool Blitter::set_blit(char *name) {
 
 void Blitter::set_value(int val) {
   current_blit->value = val;
+  func("val: %i",val);
+  //  func("layer %s blit %s value %i",
+  //       layer->get_name(),current_blit->get_name(),val);
+  
 }
 
 bool Blitter::pulse_value(int step, int val) {
@@ -672,6 +677,10 @@ bool Blitter::fade_value(int step, int val) {
 
   // if the layer is hidden then we don't bother fading
   // just set the value right away
+  if(!layer) {
+    set_value(val);
+    return true;
+  }
   if(!layer->active) {
     set_value(val);
     return true;
@@ -732,8 +741,8 @@ bool Blitter::set_zoom(double x, double y) {
     act("%s layer %s zoom deactivated",
 	layer->get_name(), layer->get_filename());
   } else {
-    zoom_x += x;
-    zoom_y += y;
+    zoom_x = x;
+    zoom_y = y;
     spin_zoom = 0; // block spin
     zooming = true;
     act("%s layer %s zoom set to x%.2f y%.2f",	layer->get_name(),
@@ -745,12 +754,12 @@ bool Blitter::set_zoom(double x, double y) {
 bool Blitter::set_rotate(double angle) {
   if(!angle) {
     rotating = false;
-    angle = 0;
+    rotate = 0;
     spin_rotation = 0;
     act("%s layer %s rotation deactivated",
 	layer->get_name(), layer->get_filename());
   } else {
-    rotate += angle;
+    rotate = angle;
     spin_rotation = 0; // blocks spin
     rotating = true;
     act("%s layer %s rotation set to %.2f", layer->get_name(),

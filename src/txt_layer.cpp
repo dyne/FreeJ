@@ -437,6 +437,11 @@ bool TxtLayer::set_font(int c) {
   return true;
 }
 
+void TxtLayer::advance() {
+  next_word = true;
+  clear_screen = true;
+}
+
 bool TxtLayer::keypress(char key) {
      int res = 1;
      switch(key) {

@@ -1,4 +1,4 @@
-#!/usr/local/bin/freej
+#!/usr/local/bin/freej -j
 // FreeJ - http://freej.dyne.org
 
 // this is a simple script example, executable with FreeJ
@@ -7,7 +7,7 @@
 // much more things can be done ;)
 
 particles = new ParticleLayer();
-text = new TxtLayer();
+text = new TextLayer();
 scroll = new VScrollLayer();
 
 if(particles) {
@@ -30,12 +30,13 @@ if(scroll) {
     cafudda(2);
 }
 
-fastsrand();
+srand();
 
-for( c=0 ; c<10 ; c++ ) {
-  numba = fastrand();
-  msg = "random number " + c + ": " + numba;
-  scroll.append(msg);
+for( c=0 ; c<100 ; c+=10 ) {
+    numba = rand(c); // generate random numbers <c
+  msg = "random number " + (c/10) + ": " + numba;
+  msg += " (max: " + c + ")";
+  scroll.append(msg); // append to the vertical scroller text
   cafudda(2);
 }
 
@@ -49,9 +50,9 @@ if(text) {
     text.size(40);
     for( c=0; c<10; c++) {
        text.font(c+1);
-       numba = fastrand();
+       numba = rand(c*10); // generate random numbers <(c*10)
        msg = c + ": " + numba;
-       text.print(msg);
+       text.print(msg); // print it in truetype fonts on text layer
        cafudda(2);
     }
     particles.blossom(0);

@@ -17,7 +17,7 @@ It will not cover the programming syntax, but simply describe the
 objects that are made available to script FreeJ.
 Knowledge of generic object oriented programming syntax is suggested but
 not strictly necessary to make the first steps in the wonderful world of
-procedural video.
+Procedural Video Scripting.
 
 Now let's get started!
 
@@ -41,13 +41,22 @@ which provides the Truetype rendering text layer; (2) then we add it to
 the list of layers processed by the engine; (3) at last we use the print()
 specific method to print something on the screen.
 
+Now try your first script by writing the three lines above in a file and
+then execute the file with 'freej -j myfile'
+
+there you are?
+
+then consider in *NIX systems you can use the interpreter header
+#!/usr/local/bin/freej -j
+at the beginning of your script, then by making it executable you'll have
+a self executing freej script!
 
 Generic and Specific methods:
 
 Every layer class inherits methods from the Layer superclass, providing
 generic methods common to all of them.
-Generic methods are available to change attributes like: position,
-blit method, order in the layer list.
+Generic methods are available to change Layer attributes like: position,
+blit method, rotation, zoom, spin etc.
 
 Specific methods are found only on their layer, they can control special
 operations that a specific layer provides, like: printing a word on the
@@ -61,13 +70,18 @@ Here we go with a reference of all the methods made available by FreeJ:
 Layer.set_position(int x, int y) // coords of the upper left corner
      .set_blit("name") // must be an existing layer
      .set_blit_val(int val) // usually a value between 0 and 255
+     .rotate(double val) // usually between 0 and 360
+     .zoom(double x, double y) // floating point multiplier,
+                              // 1.0 means no zoom, 2.0 means double size
+     .spin(double rotation, double zoom) // the layer will start rotating
+                                         // and/or zooming (0 means stop)
 
-new V4lLayer("filename")
-new TxtLayer("filename") (*)
-new AviLayer("filename")
-new MpegLayer("filename")
-new PngLayer("filename")
-new VScrollLayer("filename") (*)
+ SPECIFIC LAYER TYPES:
+new CamLayer("/dev/video")
+new TextLayer("poetry.txt") (*)
+new MovieLayer("movie.avi")
+new ImageLayer("photo.png")
+new VScrollLayer("book.txt") (*)
 new ParticleLayer() // doesn't need a file
 
 (*) = the filename can be also omitted, the layer is then used with
@@ -82,3 +96,4 @@ the init() call.
 
 ...to be continued...
 
+see the script example in doc/freejscript-example.js
