@@ -46,7 +46,6 @@ struct FlashMovie {
 	CInputScript 	*main;
 	long		 msPerFrame;
 	GraphicDevice	*gd;
-	SoundMixer   	*sm;
 
 	void		(*getUrl)(char *,char *, void *);
 	void		*getUrlClientData;
@@ -59,8 +58,8 @@ struct FlashMovie {
 
 	FlashMovie();
 	~FlashMovie();
-	int		 processMovie(GraphicDevice *gd, SoundMixer *sm);
-	int		 handleEvent(GraphicDevice *gd, SoundMixer *sm, FlashEvent *event);
+	int		 processMovie(GraphicDevice *gd);
+	int		 handleEvent(GraphicDevice *gd, FlashEvent *event);
 	void 		 renderMovie();
 	void 		 renderFocus();
 };

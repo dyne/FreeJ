@@ -82,8 +82,6 @@ enum Action {
 		ActionGoToLabel		= 0x8c
 };
 
-class Sound;
-
 struct ActionRecord {
 	Action			 action;
 
@@ -100,8 +98,6 @@ struct ActionRecord {
 	// WaitForFrame
 	long			 skipCount;
 
-	// Sound
-	Sound			*sound;
 
 	struct ActionRecord	*next;
 	
@@ -109,7 +105,6 @@ struct ActionRecord {
 		frameLabel = 0;
 		url = 0;
 		target = 0;
-		sound = 0;
 	};
 
 	~ActionRecord() {
@@ -216,7 +211,6 @@ extern "C" {
 #include "bitmap.h"
 #include "shape.h"
 #include "displaylist.h"
-#include "sound.h"
 #include "button.h"
 #include "font.h"
 #include "text.h"

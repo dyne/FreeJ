@@ -44,13 +44,16 @@ ScrollLayer::~ScrollLayer() {
 }
 
 
-// QUAA TODO streol trova newline alla fine della linea
+
 int ScrollLayer::streol(char *line) {
+  // trova newline alla fine della linea
   int c;
   char *p = line;
   if(!p) return 0;
   for(c=0;c<512;c++) {
-    if(*p=='\n') break;
+    if(*p == '\n'
+       || *p == '\0')
+      break;
     else p++;
   }
   return c;
@@ -198,6 +201,7 @@ void ScrollLayer::append(char *txt) {
 
   if(!first) first = last;
   length++;
+
 }
 
 
@@ -207,16 +211,13 @@ bool ScrollLayer::keypress(char key) {
 
 
 void *ScrollLayer::feed() {
-  struct txtline *l, *tmp;
 
-  jmemset(procbuf,0,geo.size);
-  
-  if(!first) {
-    // deactivates if there is nothing to write
-    active = false;
-    func("no first!");
+  if(!first) // there is no line to process
     return procbuf;
-  }
+  else // update is needed: blank the layer
+    jmemset(procbuf,0,geo.size);
+
+  struct txtline *l, *tmp;
 
   l = first;
   
@@ -239,9 +240,10 @@ void *ScrollLayer::feed() {
 	if(first==l) first = tmp;
 	else l->prev->next = tmp;
 	if(last==l) last = tmp;
-      } else {
+      } else { // there are no more lines
 	if(l==first) first = NULL;
 	if(l==last) last = NULL;
+	jmemset(procbuf,0,geo.size);
       }
       if(l->buf) free(l->buf);
       if(l->txt) free(l->txt);

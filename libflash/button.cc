@@ -38,7 +38,6 @@ Button::Button(long id, int level) : Character(ButtonType, id)
 	conditionList = 0;
 	reset();
 	isMenu = 0;
-	sound[0] = sound[1] = sound[2] = sound[3] = 0;
 }
 
 // Destructor
@@ -93,24 +92,10 @@ Button::getActionRecords()
 	return actionRecords;
 }
 
-Sound **
-Button::getSounds()
-{
-	return sound;
-}
-
 Condition *
 Button::getConditionList()
 {
 	return conditionList;
-}
-
-void
-Button::setButtonSound(Sound *s, int state)
-{
-	if (state >=0 && state < 4) {
-		sound[state] = s;
-	}
 }
 
 void

@@ -48,6 +48,10 @@ class ScrollLayer: public Layer {
   void close();
 
   void append(char *txt);
+
+  int line_space;
+  int kerning;
+  int step;
   
 
  private:
@@ -57,9 +61,6 @@ class ScrollLayer: public Layer {
   bool _open(char *file);
   void *procbuf;
   
-  int line_space;
-  int kerning;
-  int step;
 
   struct txtline *first;
   struct txtline *last;

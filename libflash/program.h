@@ -132,7 +132,6 @@ struct Program {
 	long  		 nextFrame;
 	int		 movieWait;	// If true freeze movie until next loaded frame
 	MovieStatus 	 movieStatus;
-	Sound		*currentSound;
 	long		 settings;
         FlashMovie      *movie;
 	long		 render;	// True if needed to be rendered
@@ -146,11 +145,11 @@ struct Program {
 	void	 nextStepMovie();
 	void	 gotoFrame(GraphicDevice *gd, long f);
 
-	long	 processMovie(GraphicDevice *, SoundMixer *);
-	long	 nestedMovie(GraphicDevice *, SoundMixer *, Matrix *, Cxform *);
-	long	 runFrame(GraphicDevice *, SoundMixer *, long f, long action=1);
-	long	 handleEvent(GraphicDevice *, SoundMixer *, FlashEvent *);
-	long	 doAction(GraphicDevice *gd, ActionRecord *action, SoundMixer *);
+	long	 processMovie(GraphicDevice *);
+	long	 nestedMovie(GraphicDevice *, Matrix *, Cxform *);
+	long	 runFrame(GraphicDevice *, long f, long action=1);
+	long	 handleEvent(GraphicDevice *, FlashEvent *);
+	long	 doAction(GraphicDevice *gd, ActionRecord *action);
 	void	 setCurrentFrameLabel(char *label);
 	void	 advanceFrame();
 	void	 addControlInCurrentFrame(Control *ctrl);

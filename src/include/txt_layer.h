@@ -74,21 +74,13 @@ class TxtLayer: public Layer {
   char *pword, *punt;
   int word_len;
 
-  bool change_word;
-  bool clear_screen;
-  bool onscreen;
-  bool blinking;
-  bool use_kerning;
-  int onscreen_blink;
-  int offscreen_blink;
-  int blink;
   
   int text_dimension;
   
   /* image buffer */
   void *buf;
   
-  int word_ff(int pos);
+
   int read_next_chunk();
   bool draw_character(FT_BitmapGlyph bitmap, int left_side_bearing, int top_side_bearing,uint8_t *dstp);
 
@@ -108,9 +100,29 @@ public:
   void *feed();
   void *get_buffer();
   void close();
+
+  bool print(char *s);
+  int word_ff(int pos);
+
   bool set_character_size(int _text_dimension);
+  bool set_font(int c);
+
+  bool set_blink(int c);
+  bool set_blink_off(int c);
+  bool set_blink_on(int c);
+
   bool keypress(char key);
   void compute_string_bbox( FT_BBox  *abbox,FT_Glyph image );
+
+  bool change_word;
+  bool clear_screen;
+  bool onscreen;
+  bool blinking;
+  bool use_kerning;
+  int onscreen_blink;
+  int offscreen_blink;
+  int blink;
+
 };
 
 #endif

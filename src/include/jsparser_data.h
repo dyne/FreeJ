@@ -1,7 +1,8 @@
 /*  FreeJ
- *  (c) Copyright 2004 Silvano Galliani aka kysucix <silvano.galliani@poste.it>
  *
- *  This file contains private data used by spidermonkey parser in jsparser.cpp
+ *  Copyright (C) 2004
+ *  Silvano Galliani aka kysucix <silvano.galliani@poste.it>
+ *  Denis Rojo aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -17,81 +18,98 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ * This file contains private data used by spidermonkey parser in jsparser.cpp
+ *
+ * "$Id$"
  *
  */
 
 
+
 #include <jsapi.h>
-#define JS(fun) \
-JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+#include <jsparser.h>
+
+
 
 /* =================================================
    JAVASCRIPT DECLARATIONS
    classes, methods, properties - everything is declared here
    that's the best place to start documenting, in order to experiment
    with javascript and freej.
-   */
+*/
 
 
 
+////////////////////////////////
+////////////////////////////////
+// CLASS DECLARATIONS
+////////////////////////////////
+////////////////////////////////
 
+// constructors
+JS(layer_constructor);
+JS(particle_layer_constructor);
+JS(vscroll_layer_constructor);
+JS(filter_constructor);
+JS(v4l_layer_constructor);
+JS(avi_layer_constructor);
+JS(txt_layer_constructor);
+JS(png_layer_constructor);
 
-
-//                  GLOBAL
-
-
-
+// global environment class
 static JSClass global_class = {
-    "Freej", JSCLASS_NEW_RESOLVE,
-    JS_PropertyStub,  JS_PropertyStub,
-    JS_PropertyStub,  JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub,
-    JS_ConvertStub,   JS_FinalizeStub
+  "Freej", JSCLASS_NEW_RESOLVE,
+  JS_PropertyStub,  JS_PropertyStub,
+  JS_PropertyStub,  JS_PropertyStub,
+  JS_EnumerateStub, JS_ResolveStub,
+  JS_ConvertStub,   JS_FinalizeStub
 };
 
-/** global environment functions */
+// class declarations
+DECLARE_CLASS("Layer",layer_class,layer_constructor);
+DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
+DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
+DECLARE_CLASS("Filter",filter_class,filter_constructor);
+DECLARE_CLASS("V4lLayer",v4l_layer_class,v4l_layer_constructor);
+DECLARE_CLASS("AviLayer",avi_layer_class,avi_layer_constructor);
+DECLARE_CLASS("TxtLayer",txt_layer_class,txt_layer_constructor);
+DECLARE_CLASS("PngLayer",png_layer_class,png_layer_constructor);
+
+////////////////////////////////
+////////////////////////////////
+// METHOD DECLARATIONS
+////////////////////////////////
+////////////////////////////////
+
+
+////////////////////////////////
+// Environment methods
+
 JS(cafudda);
 JS(quit);
 JS(add_layer);
 JS(rem_layer);
+JS(fastrand);
+JS(fastsrand);
 
-static	JSFunctionSpec global_functions[] = {
-    /*    name          native			nargs    */
-    {"cafudda",         cafudda,                1},
-    {"quit",            quit,                   0},
-    {"add_layer",	add_layer,		1},
-    {"remove_layer",	rem_layer,		1},
-    {0}
-};
+////////////////////////////////
+// Linklist Entry methods
 
-
-//                  Linklist Entry inherited methods
 JS(entry_up);
 JS(entry_down);
 JS(entry_move);
+#define ENTRY_METHODS \
+    {"move",            entry_move,             1}, \
+    {"up",              entry_up,               0}, \
+    {"down",            entry_down,             0}
 
-//                  Layer
+////////////////////////////////
+// parent Layer methods
 
-
-JS(layer_constructor);
-
-static JSClass layer_class = {
-    "Layer", JSCLASS_HAS_PRIVATE,
-    JS_PropertyStub,  JS_PropertyStub,
-    JS_PropertyStub,  JS_PropertyStub,
-    JS_EnumerateStub, JS_ResolveStub,
-    JS_ConvertStub,   JS_FinalizeStub,
-    NULL,   NULL,
-    layer_constructor
-};
-/** layer methods */
-//JS(layer_set_active);
-//JS(layer_get_active);
 JS(layer_activate);
 JS(layer_deactivate);
 JS(layer_get_name);
 JS(layer_get_filename);
-//JS( layer_get_geometry);
 JS(layer_set_blit);
 JS(layer_get_blit);
 JS(layer_set_blit_value);
@@ -102,55 +120,149 @@ JS(layer_get_y_position);
 JS(add_filter);
 JS(rem_filter);
 JS(get_filter_at);
+#define LAYER_METHODS \
+    {"activate",	layer_activate,	        0}, \
+    {"deactivate",	layer_deactivate,	0}, \
+    {"get_name",	layer_get_name,	        0}, \
+    {"get_filename",	layer_get_filename,	0}, \
+    {"set_blit",	layer_set_blit,	        1}, \
+    {"get_blit",	layer_get_blit,	        0}, \
+    {"set_blit_value",	layer_set_blit_value,	1}, \
+    {"get_blit_value",	layer_get_blit_value,	0}, \
+    {"set_position",	layer_set_position,	2}, \
+    {"get_x_position",	layer_get_x_position,	1}, \
+    {"get_y_position",	layer_get_y_position,	1}, \
+    {"add_filter",	add_filter,	        1}, \
+    {"rem_filter",	rem_filter,	        1}
+
+////////////////////////////////
+// Particle Layer methods
+JS(particle_layer_blossom);
+
+////////////////////////////////
+// VScroll Layer methods
+JS(vscroll_layer_append);
+JS(vscroll_layer_speed);
+JS(vscroll_layer_linespace);
+JS(vscroll_layer_kerning);
+
+////////////////////////////////
+// Video4Linux Layer methods
+JS(v4l_layer_chan);
+JS(v4l_layer_band);
+JS(v4l_layer_freq);
+
+////////////////////////////////
+// Avi Layer methods
+JS(avi_layer_forward);
+JS(avi_layer_rewind);
+JS(avi_layer_mark_in);
+JS(avi_layer_mark_out);
+JS(avi_layer_pos);
+JS(avi_layer_pause);
+
+////////////////////////////////
+// Txt Layer methods
+JS(txt_layer_font);
+JS(txt_layer_size);
+JS(txt_layer_print);
+JS(txt_layer_next);
+JS(txt_layer_blink);
+JS(txt_layer_blink_on);
+JS(txt_layer_blink_off);
 
 
-JSFunctionSpec layer_methods[] = {
-    //    name		native		nargs    
-    //    {"set_active",	layer_set_active,	1},
-    //    {"get_active",      layer_get_active,       0},
-    {"activate",	layer_activate,	0},
-    {"deactivate",	layer_deactivate,	0},
-    {"get_name",	layer_get_name,	0},
-    {"get_filename",	layer_get_filename,	0},
-    //    {"get_geometry",	layer_get_geometry,	0},
-    {"set_blit",	layer_set_blit,	1},
-    {"get_blit",	layer_get_blit,	0},
-    {"set_blit_value",	layer_set_blit_value,	1},
-    {"get_blit_value",	layer_get_blit_value,	0},
-    {"set_position",	layer_set_position,	2},
-    {"get_x_position",	layer_get_x_position,	2},
-    {"get_y_position",	layer_get_y_position,	2},
-    {"add_filter",	add_filter,	1},
-    {"rem_filter",	rem_filter,	1},
-//    {"get_filter_at",	get_filter_at,	0},
 
-    /* move up and down in the layer depth
-       the methods below are shared also with some other classes
-       as they are inherited from the Entry (Linklist element)
-       */
+////////////////////////////////
+// Fiter methods
+//
+// TODO
 
-    {"move",            entry_move, 1},
-    {"up",              entry_up, 0},
-    {"down",            entry_down, 0},
 
-    {0} 
+////////////////////////////////
+////////////////////////////////
+// API FUNCTION ASSIGNEMENTS
+////////////////////////////////
+////////////////////////////////
+
+static	JSFunctionSpec global_functions[] = {
+    /*    name          native			nargs    */
+    {"cafudda",         cafudda,                1},
+    {"quit",            quit,                   0},
+    {"add_layer",	add_layer,		1},
+    {"rem_layer",	rem_layer,		1},
+    {"fastrand",        fastrand,               0},
+    {"fastsrand",       fastsrand,              1},
+    {0}
 };
 
+JSFunctionSpec layer_methods[] = {
+  LAYER_METHODS ,
+  ENTRY_METHODS ,
+  {0}
+};
 
+JSFunctionSpec particle_layer_methods[] = {
+  LAYER_METHODS,
+  ENTRY_METHODS,
+  //    name		native		        nargs
+  {     "blossom",      particle_layer_blossom, 1},
+  {0}
+};
 
+JSFunctionSpec vscroll_layer_methods[] = {
+  LAYER_METHODS,
+  ENTRY_METHODS,
+  //    name		native		        nargs
+  {     "append",       vscroll_layer_append,   1},
+  {     "kerning",      vscroll_layer_append,   1},
+  {     "linespace",    vscroll_layer_linespace,1},
+  {     "speed",        vscroll_layer_speed,    1}, 
+  {0}
+};
 
-//               FILTER (TODO)
-JS(filter_constructor);
+JSFunctionSpec v4l_layer_methods[] = {
+  LAYER_METHODS,
+  ENTRY_METHODS,
+  //    name		native		        nargs
+  {     "chan",         v4l_layer_chan,         1},
+  {     "band",         v4l_layer_band,         1},
+  {     "freq",         v4l_layer_freq,         1},
+  {0}
+};
 
-   static JSClass filter_class = {
-   "Filter", JSCLASS_HAS_PRIVATE,
-   JS_PropertyStub,  JS_PropertyStub,
-   JS_PropertyStub,  JS_PropertyStub,
-   JS_EnumerateStub, JS_ResolveStub,
-   JS_ConvertStub,   JS_FinalizeStub,
-   NULL,   NULL,
-   filter_constructor
-   };
+JSFunctionSpec avi_layer_methods[] = {
+  LAYER_METHODS,
+  ENTRY_METHODS,
+  //    name		native		        nargs
+  {     "forward",      avi_layer_forward,      1},
+  {     "rewind",       avi_layer_rewind,       1},
+  {     "mark_in",      avi_layer_mark_in,      1},
+  {     "mark_out",     avi_layer_mark_out,     1},
+  {     "pos",          avi_layer_pos,          1},
+  {     "pause",        avi_layer_pause,        1},
+  {0}
+};
+
+JSFunctionSpec txt_layer_methods[] = {
+  LAYER_METHODS,
+  ENTRY_METHODS,
+  //     name           native                  nargs
+  {      "print",       txt_layer_print,        1},
+  {      "font",        txt_layer_font,         1},
+  {      "size",        txt_layer_size,         1},
+  {      "next",        txt_layer_next,         1},
+  {      "blink",       txt_layer_blink,        1},
+  {      "blink_on",    txt_layer_blink_on,     1},
+  {      "blink_off",   txt_layer_blink_off,    1},
+  {0}
+};
+
+JSFunctionSpec png_layer_methods[] = {
+  LAYER_METHODS,
+  ENTRY_METHODS,
+  {0}
+};
 
 /* class property example. Declare them with JS_DefineProperties
    layer_properties = {

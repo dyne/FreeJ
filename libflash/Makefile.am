@@ -17,7 +17,6 @@ libflash_a_SOURCES = \
 	text.cc \
 	matrix.cc \
 	script.cc \
-	sound.cc \
 	sprite.cc \
 	movie.cc \
 	cxform.cc \

@@ -456,66 +456,6 @@ void CInputScript::ParseDoAction()
 }
 
 
-void CInputScript::ParseStartSound()
-{
-    Control *ctrl;
-
-    ctrl = new Control;
-    if (ctrl == NULL) {
-	outOfMemory = 1;
-    	return;
-    }
-    ctrl->character = getCharacter(GetWord());
-    ctrl->type = ctrlStartSound;
-
-    program->addControlInCurrentFrame(ctrl);
-
-    if (!m_dumpAll)
-	return;
-
-    U32 code = GetByte();
-
-    printf("code %-3u", code);
-
-    if ( code & soundHasInPoint )
-	printf(" inpoint %u ", GetDWord());
-    if ( code & soundHasOutPoint )
-	printf(" oupoint %u", GetDWord());
-    if ( code & soundHasLoops )
-	printf(" loops %u", GetWord());
-
-    printf("\n");
-    if ( code & soundHasEnvelope ) 
-    {
-	int points = GetByte();
-
-	for ( int i = 0; i < points; i++ ) 
-	{
-	    printf("\n");
-	    printf("mark44 %u", GetDWord());
-	    printf(" left chanel %u", GetWord());
-	    printf(" right chanel %u", GetWord());
-	    printf("\n");
-	}
-    }
-}
-
-
-void CInputScript::ParseStopSound()
-{
-    Control *ctrl;
-
-    ctrl = new Control;
-    if (ctrl == NULL) {
-	outOfMemory = 1;
-    	return;
-    }
-    ctrl->type = ctrlStopSound;
-
-    program->addControlInCurrentFrame(ctrl);
-}
-
-
 void CInputScript::ParseShapeData(int getAlpha, int getStyles)
 {
     int shapeRecord = 0;
@@ -1463,152 +1403,6 @@ void CInputScript::ParseDefineText(int hasAlpha)
 }
 
 
-void CInputScript::ParseDefineSound()
-{
-    Sound		*sound;
-    U32 tagid = (U32) GetWord();
-    long		 nbSamples;
-    long		 flags;
-    char		*buffer;
-
-    sound = new Sound(tagid);
-
-    flags = GetByte();
-    sound->setSoundFlags(flags);
-
-    nbSamples = GetDWord();
-    buffer = sound->setNbSamples(nbSamples);
-    if (buffer == NULL) {
-    	outOfMemory = 1;
-	delete sound;
-	return;
-    }
-
-    if (flags & soundIsADPCMCompressed) {
-	Adpcm		*adpcm;
-
-	adpcm = new Adpcm( &m_fileBuf[m_filePos] , flags & soundIsStereo );
-
-	adpcm->Decompress((short *)buffer, nbSamples);
-
-	delete adpcm;
-    } else {
-	memcpy(buffer, &m_fileBuf[m_filePos], m_tagLen-5);
-    }
-
-    addCharacter(sound);
-}
-
-
-void CInputScript::ParseDefineButtonSound()
-{
-    U32 tagid = (U32) GetWord();
-    Button	*button;
-
-    tagid = tagid;
-
-    printf("tagDefineButtonSound \ttagid %-5u\n", tagid);
-
-    button = (Button *)getCharacter(tagid);
-
-    if (button == 0) {
-	printf("	Couldn't find Button id %d\n", tagid);
-	return;
-    }
-
-    // step through for button states
-    for (int i = 0; i < 4; i++)
-    {
-	Sound	*sound;
-	U32 soundTag = GetWord();
-
-	sound = (Sound *)getCharacter(soundTag);
-
-	if (sound) {
-	    button->setButtonSound(sound,i);
-	} else if (soundTag) {
-	    printf("	Couldn't find Sound id %d\n", soundTag);
-	}
-
-	switch (i)
-	{
-	case 0:         
-	    printf("upState \ttagid %-5u\n", soundTag);
-	    break;
-	case 1:            
-	    printf("overState \ttagid %-5u\n", soundTag);
-	    break;
-	case 2:            
-	    printf("downState \ttagid %-5u\n", soundTag);
-	    break;
-	}
-
-	if (soundTag)
-	{
-	    U32 code = GetByte();
-	    printf("sound code %u", code);
-
-	    if ( code & soundHasInPoint )
-		printf(" inpoint %u", GetDWord());
-	    if ( code & soundHasOutPoint )
-		printf(" outpoint %u", GetDWord());
-	    if ( code & soundHasLoops )
-		printf(" loops %u", GetWord());
-
-	    printf("\n");
-	    if ( code & soundHasEnvelope ) 
-	    {
-		int points = GetByte();
-
-		for ( int p = 0; p < points; p++ ) 
-		{
-		    printf("\n");
-		    printf("mark44 %u", GetDWord());
-		    printf(" left chanel %u", GetWord());
-		    printf(" right chanel %u", GetWord());
-		    printf("\n");
-		}
-	    }
-	}
-	if (m_filePos == m_tagEnd) break;
-    }
-}
-
-void CInputScript::ParseSoundStreamHead()
-{
-    int mixFormat = GetByte();
-
-    // The stream settings
-    int format = GetByte();
-    int nSamples = GetWord();
-
-    mixFormat = mixFormat;
-    format = format;
-    nSamples = nSamples;
-
-    printf("tagSoundStreamHead \tmixFrmt %-3u frmt  %-3u nSamples %-5u\n", mixFormat, format, nSamples);
-}
-
-void CInputScript::ParseSoundStreamHead2()
-{
-    int mixFormat = GetByte();
-
-    // The stream settings
-    int format = GetByte();
-    int nSamples = GetWord();
-
-    mixFormat = mixFormat;
-    format = format;
-    nSamples = nSamples;
-
-    //printf("tagSoundStreamHead2 \tmixFormat %-3u format %-3u nSamples %-5u\n", mixFormat, format, nSamples);
-}
-
-void CInputScript::ParseSoundStreamBlock()
-{
-    printf("tagSoundStreamBlock\n");
-}
-
 void CInputScript::ParseDefineButtonCxform()
 {
     ButtonRecord *br;
@@ -1777,14 +1571,6 @@ CInputScript::ParseTags(int *status)
 	    ParseDoAction();
 	    break;
 
-	case stagStartSound:
-	    ParseStartSound();
-	    break;
-
-	case stagStopSound:
-	    ParseStopSound();
-	    break;
-
 	case stagDefineShape: 
 	    ParseDefineShape(1);
 	    break;
@@ -1847,26 +1633,6 @@ CInputScript::ParseTags(int *status)
 
 	case stagDefineText2:
 	    ParseDefineText(1);
-	    break;
-
-	case stagDefineSound:
-	    ParseDefineSound();
-	    break;
-
-	case stagDefineButtonSound:
-	    ParseDefineButtonSound();
-	    break;
-
-	case stagSoundStreamHead:
-	    ParseSoundStreamHead();
-	    break;
-
-	case stagSoundStreamHead2:
-	    ParseSoundStreamHead2();
-	    break;
-
-	case stagSoundStreamBlock:
-	    ParseSoundStreamBlock();
 	    break;
 
 	case stagDefineButtonCxform:

@@ -43,7 +43,6 @@ class GenLayer: public Layer {
 
   /* primes */
   int prime[PRIMES];
-  void blossom_recal(bool r);
   void blossom();
 
   float pi2;
@@ -68,6 +67,8 @@ class GenLayer: public Layer {
   void *feed();
   bool keypress(char key);
   void close();
+
+  void blossom_recal(bool r);
 };
 
 #endif

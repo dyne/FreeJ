@@ -24,7 +24,6 @@
 FlashMovie::FlashMovie() 
 {
 	gd = NULL;
-	sm = NULL;
 	getSwf = NULL;
 	getUrl = NULL;
 	cursorOnOff = NULL;
@@ -53,22 +52,18 @@ FlashMovie::~FlashMovie()
 	}
 
 	if (gd) delete gd;
-	if (sm) delete sm;
 }
 
 int
-FlashMovie::processMovie(GraphicDevice *gd, SoundMixer *sm)
+FlashMovie::processMovie(GraphicDevice *gd)
 {
 	CInputScript *script;
 	int wakeUp = 0;
 
-	if (sm && sm->playSounds()) {
-		wakeUp = 1;
-	}
 	for (script = this->main; script != NULL; script = script->next) {
 		if (script->program == NULL) continue;
 		if (script->program->nbFrames == 0) continue;
-		if (script->program->processMovie(gd,sm)) {
+		if (script->program->processMovie(gd)) {
 			wakeUp = 1;
 		}
 	}
@@ -77,16 +72,13 @@ FlashMovie::processMovie(GraphicDevice *gd, SoundMixer *sm)
 }
 
 int
-FlashMovie::handleEvent(GraphicDevice *gd, SoundMixer *sm, FlashEvent *event)
+FlashMovie::handleEvent(GraphicDevice *gd, FlashEvent *event)
 {
 	int wakeUp = 0;
 
-	if (sm && sm->playSounds()) {
-		wakeUp = 1;
-	}
 	if (this->main == 0) return 0;
 	if (this->main->program == 0) return 0;
-	if (this->main->program->handleEvent(gd, sm, event)) {
+	if (this->main->program->handleEvent(gd, event)) {
 		wakeUp = 1;
 	}
 	renderMovie();

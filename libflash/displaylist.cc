@@ -280,7 +280,7 @@ DisplayList::updateSprites()
 
 			sprite = (Sprite *)e->buttonCharacter;
 			refresh |= sprite->program->dl->updateSprites();
-			refresh |= sprite->program->nestedMovie(this->movie->gd,this->movie->sm, e->matrix, e->cxform);
+			refresh |= sprite->program->nestedMovie(this->movie->gd, e->matrix, e->cxform);
 			mat = (*e->matrix) * e->buttonMatrix;
 			transformBoundingBox(&this->bbox, &mat,
 					&(sprite->program->dl->bbox),
@@ -290,7 +290,7 @@ DisplayList::updateSprites()
         if (e->character->isSprite()) {
 		sprite = (Sprite *)e->character;
 		refresh |= sprite->program->dl->updateSprites();
-		refresh |= sprite->program->nestedMovie(this->movie->gd,this->movie->sm, e->matrix, e->cxform);
+		refresh |= sprite->program->nestedMovie(this->movie->gd, e->matrix, e->cxform);
 		transformBoundingBox(&this->bbox, e->matrix,
 				&(sprite->program->dl->bbox),
 				0);
@@ -500,13 +500,9 @@ static int button_action(void *opaque, Program *prg, DisplayListEntry *e)
             n = 2;
             break;
         }
-        
-        if (b->sound[n]) {
-            soundFx.sound = b->sound[n];
-            h->action = &soundFx;
-        } else {
-            h->action = &actionRefresh;
-        }
+
+        // QUAAA rallentare il sync a qualche tick?
+	h->action = &actionRefresh;
         
         e->oldState = e->renderState;
 

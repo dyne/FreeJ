@@ -108,12 +108,6 @@ struct CInputScript  : public Dict
 	void ParseDefineText(int hasAplha);    		//x 11: stagDefineText    33: stagDefineText2
 	void ParseDoAction();                          	// 12: stagDoAction	
 	void ParseDefineFontInfo();     		//x 13: stagDefineFontInfo
-	void ParseDefineSound();                       	// 14: stagDefineSound
-	void ParseStartSound();                        	// 15: stagStartSound
-	void ParseStopSound();                         	// 16: stagStopSound
-	void ParseDefineButtonSound();                 	// 17: stagDefineButtonSound
-	void ParseSoundStreamHead(); 	               	// 18: stagSoundStreamHead
-	void ParseSoundStreamBlock();                  	// 19: stagSoundStreamBlock
 	void ParseDefineBitsLossless(int level);       	// 20: stagDefineBitsLossless 36: stagDefineBitsLossless2
 	void ParseDefineBitsJPEG2();                   	// 21: stagDefineBitsJPEG2
 	void ParseDefineButtonCxform();	            	// 23: stagDefineButtonCxform

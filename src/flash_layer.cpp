@@ -18,7 +18,7 @@
 // 
 ///////////////////////////////////////////////////////////////
 //  Author : Olivier Debon  <odebon@club-internet.fr>
-//  Ported to FreeJ by jaromil
+//  Ported to FreeJ by Denis Rojo <jaromil@dyne.org>
 //
 // "$Id$"
 
@@ -44,8 +44,8 @@ static int readfile(char *filename, char **buffer, long *size) {
   
   in = fopen(filename,"r");
   if (in == 0) {
-    perror(filename);
-		return -1;
+    error("FlashLayer::readfile : error on %s",filename);
+    return -1;
   }
   fseek(in,0,SEEK_END);
   length = ftell(in);
@@ -96,6 +96,7 @@ FlashLayer::~FlashLayer() {
 }
 
 bool FlashLayer::init(Context *scr) {
+  func("FlashLayer::init");
   long res;
 
   _init(scr,scr->screen->w,scr->screen->h,32);
@@ -117,8 +118,6 @@ bool FlashLayer::init(Context *scr) {
     error("FlashGraphicInit error");
     return false;
   }
-
-  FlashSoundInit(fh,"/dev/dsp");
 
   FlashSetGetUrlMethod(fh, showUrl, 0);
   
@@ -144,7 +143,6 @@ bool FlashLayer::open(char *file){
   FlashGetInfo(fh, &fi);
   
   FlashSettings(fh, PLAYER_LOOP);
-
   
   set_filename(file);
 
@@ -154,16 +152,18 @@ bool FlashLayer::open(char *file){
 void *FlashLayer::feed() {
   struct timeval wd;
   long cmd, wakeUp;
-  //  cmd = FLASH_WAKEUP;
+  cmd = FLASH_WAKEUP;
   //  fe.type = FeRefresh;
+  
   wakeUp = FlashExec(fh, FLASH_WAKEUP, 0, &wd);
-  if(fd.flash_refresh) {
+  //  if(fd.flash_refresh) {
     jmemcpy(render,procbuf,fd.height*fd.bpl);
-    fd.flash_refresh = 0;
-  }
+    //    fd.flash_refresh = 0;
+    //  }
   //    memcpy(render,buffer,fd.width*fd.height*(fd.bpp>>3));
 
-  return render;
+    //  return render;
+    return procbuf;
 }
 
 void FlashLayer::close() {

@@ -280,7 +280,7 @@ void KbdListener::run() {
       if(alpha)
 	layer->blitter.set_value( 255 * (keysym->sym - SDLK_0) /8 );
       else
-	layer->blitter.set_blit("MEMCPY");
+	layer->blitter.set_blit("AMEMCPY");
       break;
     case SDLK_2: // RED CHAN
       if(alpha)

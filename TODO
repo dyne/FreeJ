@@ -3,7 +3,9 @@ $Id$
 
   *** finalize JavaScript API
 
-  *** complete Darwin/OSX portability
+  *** finish the Iterator class 
+
+  *** Quicktime video layer for Darwin/OSX
 
   *** LiViDO shared plugin library   
 
@@ -13,6 +15,6 @@ $Id$
 
   *** Open Sound Control for remote interoperability
   
-  *** enhance text layer (scroll, word positioning etc.)
+  *** enhance text layer (more scrollers, word positioning etc.)
 
 

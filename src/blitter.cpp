@@ -488,6 +488,66 @@ bool Blitter::set_kernel(short *krn) {
   return false;
 }
 
+
+/* ok, let's draw the crop geometries and be nice commenting ;)
+
+   that's tricky stuff, here i try to do it with tiling
+
+   here the generic case of a layer on the screen, with variable names:
+   
+
+                                                         screen->w
+  0,0___________________________________________________ -> 
+   '                 ^                                  '
+   | screen          |blit_y                            |
+   |                 |                                  |
+   |       x,y_______V________________ w                |
+   |        '                         '                 |
+   | blit_x | layer                   |                 |
+   |<------>|                         |                 |
+   |        |                         |<-------------...|
+   |...---->|                         |  blit_pitch     |
+   |        '-------------------------'                 |
+   |       h                                            |
+   |                                                    |
+   '----------------------------------------------------'
+   |
+   V screen->h
+
+   we have a couple of cases in which both x and y as well
+   w and h of the layer can be out of the bounds of the screen.
+
+   for instance, if the layer goes out of the left bound (x<0):
+
+            0,0____________________
+             '                     '
+  x,y________|_________            |
+   '         |         '           |
+   |layer    |         |           |
+   |         |         | blit_pitch|
+   |         |         |<--------->|
+   |         |         |           |
+   '_________|_________'           |
+   <-------->|                     |
+     blit_x  '---------------------'
+
+   the algorithm of the blit will look like:
+
+   if(x < 0)
+     blit_x = -x;
+     blit_pitch = screen->w - (layer->w - blit_x);
+   else
+     blit_x = x;
+     blit_pitch = screen->w - layer->w
+
+     for(c=h;c>0;c--)
+      cpy( layer+blit_x , screen, w );
+      screen += blit_pitch;
+      layer += layer->w;
+     
+   
+
+*/
 void Blitter::crop(ViewPort *screen) {
   Blit *b = current_blit;
   /* needed in linear blit crop */
@@ -519,7 +579,7 @@ void Blitter::crop(ViewPort *screen) {
        affects x-offset and width */
     if(layer->geo.x<0) {
       blit_xoff = (-layer->geo.x);
-      b->blit_x = 1;
+      b->blit_x = 0;
       
       if(blit_xoff>layer->geo.w) {
 	func("layer out of screen to the left");

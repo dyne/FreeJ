@@ -139,12 +139,12 @@ Program::gotoFrame(GraphicDevice *gd, long frame)
 	dl->clearList();
 
 	for(f=0; f <= frame; f++) {
-		runFrame(gd, 0, f, 0);
+		runFrame(gd, f, 0);
 	}
 }
 
 long
-Program::runFrame(GraphicDevice *gd, SoundMixer *sm, long f, long action)
+Program::runFrame(GraphicDevice *gd, long f, long action)
 {
 	Control		*ctrl;
 	Character	*character;
@@ -207,17 +207,7 @@ Program::runFrame(GraphicDevice *gd, SoundMixer *sm, long f, long action)
 		// Actions
 			case ctrlDoAction:
 				if (action) {
-					status = doAction(gd, ctrl->actionRecords, sm);
-				}
-				break;
-			case ctrlStartSound:
-				if (action && sm) {
-					sm->startSound( (Sound *)ctrl->character );
-				}
-				break;
-			case ctrlStopSound:
-				if (action && sm) {
-					sm->stopSounds();
+					status = doAction(gd, ctrl->actionRecords);
 				}
 				break;
 			case ctrlBackgroundColor:
@@ -240,7 +230,7 @@ Program::runFrame(GraphicDevice *gd, SoundMixer *sm, long f, long action)
 		if (nextFrame < nbFrames) {
 			gotoFrame(gd,nextFrame);
 			if (nextFrame != f)
-			if (movieStatus == MoviePaused) runFrame(gd,sm,nextFrame);
+			if (movieStatus == MoviePaused) runFrame(gd,nextFrame);
 			update = 1;
 		}
 	}
@@ -252,7 +242,7 @@ Program::runFrame(GraphicDevice *gd, SoundMixer *sm, long f, long action)
 }
 
 long
-Program::nestedMovie(GraphicDevice *gd, SoundMixer *sm, Matrix *mat, Cxform *cxform)
+Program::nestedMovie(GraphicDevice *gd, Matrix *mat, Cxform *cxform)
 {
 	if (movieStatus == MoviePlay) {
 		// Movie Beeing Played
@@ -260,7 +250,7 @@ Program::nestedMovie(GraphicDevice *gd, SoundMixer *sm, Matrix *mat, Cxform *cxf
 		if (currentFrame == 0) {
 			dl->clearList();
 		}
-		runFrame(gd, sm, currentFrame);
+		runFrame(gd, currentFrame);
 		if (nbFrames == 1) {
 			pauseMovie();
 		}
@@ -270,7 +260,7 @@ Program::nestedMovie(GraphicDevice *gd, SoundMixer *sm, Matrix *mat, Cxform *cxf
 }
 
 long
-Program::processMovie(GraphicDevice *gd, SoundMixer *sm)
+Program::processMovie(GraphicDevice *gd)
 {
 	int wakeUp = 0;
 
@@ -284,7 +274,7 @@ Program::processMovie(GraphicDevice *gd, SoundMixer *sm)
 		if (currentFrame == 0) {
 			dl->clearList();
 		}
-		wakeUp |= runFrame(gd, sm, currentFrame);
+		wakeUp |= runFrame(gd, currentFrame);
 		wakeUp |= dl->updateSprites();
 		if (nextFrame == nbFrames) {
 			if (nbFrames != totalFrames) {
@@ -491,7 +481,7 @@ static int button_nextfocus(void *opaque, Program *prg, DisplayListEntry *e)
 
 /* XXX: should not be here (one level upper) */
 long
-Program::handleEvent(GraphicDevice *gd, SoundMixer *sm, FlashEvent *fe)
+Program::handleEvent(GraphicDevice *gd, FlashEvent *fe)
 {
     ActionRecord	*action;
     Program		*prog;
@@ -600,7 +590,7 @@ Program::handleEvent(GraphicDevice *gd, SoundMixer *sm, FlashEvent *fe)
 			cur_focus->owner->updateBoundingBox(cur_focus);
 
 		        if (computeActions(movie, &prog, &action)) {
-			    status |= prog->doAction(gd, action, sm);
+			    status |= prog->doAction(gd, action);
 		        }
 			    
                         new_focus->renderState = stateOver;
@@ -640,7 +630,7 @@ Program::handleEvent(GraphicDevice *gd, SoundMixer *sm, FlashEvent *fe)
     }
 
     if (computeActions(movie, &prog, &action)) {
-        status |= prog->doAction(gd, action, sm);
+        status |= prog->doAction(gd, action);
     }
 
     if (status & REFRESH) {
@@ -650,7 +640,7 @@ Program::handleEvent(GraphicDevice *gd, SoundMixer *sm, FlashEvent *fe)
     if (status & GOTO) {
         if (nextFrame < nbFrames) {
 		gotoFrame(gd, nextFrame);
-		if (movieStatus == MoviePaused) runFrame(gd,sm,nextFrame);
+		if (movieStatus == MoviePaused) runFrame(gd,nextFrame);
 		refresh = 1;
 	}
     }
@@ -663,7 +653,7 @@ Program::handleEvent(GraphicDevice *gd, SoundMixer *sm, FlashEvent *fe)
 }
 
 long
-Program::doAction(GraphicDevice *gd, ActionRecord *action, SoundMixer *sm)
+Program::doAction(GraphicDevice *gd, ActionRecord *action)
 {
 	long status = NOTHING;
         long f;
@@ -680,9 +670,6 @@ Program::doAction(GraphicDevice *gd, ActionRecord *action, SoundMixer *sm)
 #if PRINT&2
 				printf("Prog %x : PlaySound\n", this);
 #endif
-                                if (sm) {
-                                    sm->startSound(action->sound);
-                                }
 				status |= WAKEUP;
 				break;
 			case ActionRefresh:
@@ -752,11 +739,6 @@ Program::doAction(GraphicDevice *gd, ActionRecord *action, SoundMixer *sm)
 				}
 				break;
 			case ActionToggleQuality:
-				break;
-			case ActionStopSounds:
-				if (sm) {
-					sm->stopSounds();
-				}
 				break;
 			case ActionWaitForFrame:
 				if (action->frameIndex >= nbFrames) {

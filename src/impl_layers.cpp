@@ -27,36 +27,7 @@
 #include <jutils.h>
 #include <config.h>
 
-/* software layers which don't need special loaders */
-#include <gen_layer.h>
-#include <scroll_layer.h>
-
-// statically included flash layer
-#include <flash_layer.h>
-
-#ifdef WITH_V4L
-#include <v4l_layer.h>
-#endif
-
-#ifdef WITH_AVIFILE
-#include <avi_layer.h>
-#endif
-
-#ifdef WITH_AVCODEC
-#include <video_layer.h>
-#endif
-
-#ifdef WITH_PNG
-#include <png_layer.h>
-#endif
-
-#ifdef WITH_FT2
-#include <txt_layer.h>
-#endif
-
-#ifdef WITH_XHACKS
-#include <xhacks_layer.h>
-#endif
+#include <impl_layers.h>
 
 const char *layers_description =
 #ifdef WITH_V4L

@@ -47,8 +47,6 @@ public:
 
 	long			 isMenu;
 
-	Sound			*sound[4];
-
 	Button(long id, int level = 1);
 	~Button();
 	void		 addActionRecord( ActionRecord *ar );
@@ -61,12 +59,10 @@ public:
 	void		 getRegion(GraphicDevice *gd, Matrix *matrix, 
                                    void *id, ScanLineFunc scan_line_func);
 	ButtonRecord	*getButtonRecords();
-	void		 setButtonSound(Sound *, int);
 	void		 setButtonMenu(int);
 
 	ActionRecord	*getActionRecords();
 	Condition	*getConditionList();
-	Sound	       **getSounds();
 
 	void		 getBoundingBox(Rect *bb, DisplayListEntry *);
 

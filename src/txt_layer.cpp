@@ -141,6 +141,21 @@ bool TxtLayer::init(Context *scr) {
      return(true);
 }
 
+// QUAAA TODO this still doesn't works
+bool TxtLayer::print(char *s) {
+  int len = strlen(s);
+  if(!len) return false;
+  if(len>512) len = 512;
+
+  strncpy(word,s,len);
+  word_len = len;
+
+  clear_screen = false;
+  change_word = true;
+  func("TxtLayer::print : %s",word);
+  return true;
+}
+  
 void *TxtLayer::feed() {
      int ret;
      int origin_x=0;
@@ -360,6 +375,30 @@ int TxtLayer::word_ff(int pos) {
   return(word_len);
 }
 
+bool TxtLayer::set_font(int c) {
+
+  if (c>=num_fonts) 
+    sel_font = num_fonts;
+  else if
+    (c<1) sel_font = 1;
+  else
+    sel_font = c;
+    
+  /* Create face object */
+  if(FT_New_Face( library, fonts[sel_font], 0, &face )) {
+    error("Can't load font %s",fonts[sel_font]);
+    return false;
+  }
+  use_kerning = FT_HAS_KERNING(face);
+  if(!set_character_size(text_dimension)) {
+    error("Can't set character size for font %s",fonts[sel_font]);
+    return false;
+  }
+    
+  act("TxtLayer::font face %s size %i",fonts[sel_font],text_dimension);
+  return true;
+}
+
 bool TxtLayer::keypress(char key) {
      int res = 1;
      switch(key) {
@@ -407,25 +446,11 @@ bool TxtLayer::keypress(char key) {
        break;
 	    
      case 'i':
-       if(sel_font<num_fonts-1) sel_font++;
-       /* Create face object */
-       if(FT_New_Face( library, fonts[sel_font], 0, &face )) 
-	 error("Can't load font %s",fonts[sel_font]);
-       use_kerning=FT_HAS_KERNING(face);
-       set_character_size(text_dimension);
-       act("TxtLayer::font face %s size %i",
-	   fonts[sel_font],text_dimension);
+       set_font(sel_font++);
        break;
+
      case 'u':
-       if(sel_font>0) sel_font--;
-       /* Create face object */
-       if(FT_New_Face( library, fonts[sel_font], 0, &face )) 
-	 error("Can't load font %s",fonts[sel_font]);
-       use_kerning=FT_HAS_KERNING(face);
-       set_character_size(text_dimension);
-       act("TxtLayer::font face %s size %i",
-	   fonts[sel_font],text_dimension);
-       
+       set_font(sel_font--);
        break;
 
      default: 
