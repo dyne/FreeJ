@@ -21,6 +21,12 @@
 #include <lubrify.h>
 #include <jutils.h>
 
+Layer::Layer() {
+  paused = false;
+  quit = false;
+  active = false;
+}
+
 void Layer::_delete() {
   /* Filters are now cleaned into the Plugger::_delete() (plugger.cpp) 
      func("Layer::_delete()");
@@ -48,7 +54,6 @@ void Layer::_init(Context *screen, int wdt, int hgt, int bpp=0) {
   _w = geo.w; _h = geo.h;
   _pitch = geo.pitch;
   _size = geo.size;
-  quit = false;
   this->screen = screen;
   screen->add_layer(this);
 }

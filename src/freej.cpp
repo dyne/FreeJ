@@ -151,8 +151,10 @@ int main (int argc, char **argv) {
   /* ================= Video4Linux layer */
   V4lGrabber grabber;
   /* detect v4l grabber layer */
-  if(!grabber.detect(v4ldevice)) act("no video 4 linux device detected");
-  else assert( grabber.init(&screen,GW,GH) );
+  if(grabber.detect(v4ldevice))
+    assert( grabber.init(&screen,GW,GH) );
+  else
+    act("no video 4 linux device detected");
 
   /* this is the keyboard listener */
   KbdListener keyb;

@@ -84,7 +84,6 @@ class Context {
   void set_fps_interval(int interval);
   void print_fps();
   float fps;
-  double trascorso;
   int framecount;
 
   bool quit;

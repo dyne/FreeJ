@@ -24,8 +24,41 @@
 
 class AviLayer: public Layer {
  private:
+  /* AviReadFile.h in avilib/lib */
   IAviReadFile *_avi;
+  
+  /* AviReadStream.h
+     interesting methods:
+     //Size of stream and one frame
+     virtual framepos_t GetLength() const;
+     virtual double GetLengthTime() const;
+     virtual int GetFrameFlags(int* flags) const;
+     virtual double GetFrameTime() const;
+     virtual framepos_t GetPos() const;
+     virtual StreamInfo* GetStreamInfo() const;
+     virtual double GetTime(framepos_t frame = ERR) const;
+     //Positioning in stream
+     virtual int Seek(framepos_t pos);
+     virtual int SeekTime(double pos);
+     virtual framepos_t SeekToKeyFrame(framepos_t pos);
+     virtual double SeekTimeToKeyFrame(double pos);
+     virtual int SkipFrame();
+     virtual int SkipTo(double pos);
+     //Reading decompressed data
+     virtual int SetDirection(bool d) { return -1; }
+     virtual int SetOutputFormat(void* bi, uint_t size);
+     virtual int ReadFrame(bool render = true);
+     virtual CImage* GetFrame(bool readframe = false);
+     virtual uint_t GetFrameSize() const;
+     int ReadFrames(void* buffer, uint_t bufsize, uint_t samples,uint_t& samples_read, uint_t& bytes_read);
+     int ReadDirect(void* buffer, uint_t bufsize, uint_t samples,uint_t& samples_read, uint_t& bytes_read, int* flags = 0);
+     virtual framepos_t GetNextKeyFrame(framepos_t frame = ERR) const;
+     virtual framepos_t GetPrevKeyFrame(framepos_t frame = ERR) const;
+     virtual framepos_t SeekToNextKeyFrame();
+     virtual framepos_t SeekToPrevKeyFrame(); */
   IAviReadStream *_stream;
+  /* -------------------- */
+  
   VideoRenderer *_rend;
   CImage *_img;
   const CodecInfo *_ci;
@@ -38,6 +71,10 @@ class AviLayer: public Layer {
 
   double lsttime, curtime;
 
+  /* speed stuff */
+  float fps;
+  framepos_t skip;
+
  public:
   AviLayer();
   ~AviLayer();
@@ -46,6 +83,14 @@ class AviLayer: public Layer {
   bool open(char *file);
   bool feed();
   void *get_buffer();
+
+
+  void forward(framepos_t step=1);
+  void rewind(framepos_t step=1);
+  void pos(framepos_t p);
+  void pause();
+  void speedup();
+  void slowdown();
   void close();
 
   bool keypress(SDL_keysym *keysym);

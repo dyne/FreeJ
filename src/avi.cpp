@@ -16,12 +16,6 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-    /*
-      if(strlen(file)>=4 &&
-      strncasecmp(file+sizeof(file)-4,".avi",4)==0 ||
-      strncasecmp(file+sizeof(file)-4,".asf",4)==0 ) */
-
-
 #include <iostream>
 
 #include <avi.h>
@@ -33,13 +27,14 @@
 #include <context.h>
 #include <jutils.h>
 
-AviLayer::AviLayer() {
+AviLayer::AviLayer() 
+  :Layer() {
   _avi = NULL;
   _stream = NULL;
   _rend = NULL;
 }
 
-AviLayer::~AviLayer() { 
+AviLayer::~AviLayer() {
 }
 
 bool AviLayer::init(Context *scr=NULL) {
@@ -55,6 +50,8 @@ bool AviLayer::init(Context *scr=NULL) {
 	bh.biBitCount);
 
   lsttime = dtime();
+  skip = 0;
+  fps = 24.0;
 
   feed();  
   notice("AviLayer :: w[%u] h[%u] bpp[%u] size[%u]",
@@ -165,21 +162,23 @@ bool AviLayer::open(char *file) {
 }
   
 void *AviLayer::get_buffer() {
-  //  func("AviLayer::get_buffer()");
-  void *res;
-  res = _img->Data();
-  //  func("AviLayer::get_buffer() returned %p",res);
-  return res;
+  return _img->Data();
 }
 
 bool AviLayer::feed() {
   //  func("AVILAYER FEED");
+  /* FIXME
+    curtime = dtime();
+    if(curtime-lsttime <= ((screen->fps/24)/100))
+    return false;
+    else lsttime = curtime;
+  */  
+  if(paused) return true;  
 
-  curtime = dtime();
-  if((curtime - lsttime) < (1/24)) {
-    SDL_Delay(100); return false; }
-  else lsttime = curtime;
-  
+  if(skip>0)
+    for(int c=skip;c>0;c--)
+      _stream->SkipFrame();
+
   _stream->ReadFrame(true);
   _img = _stream->GetFrame(false);
   return true;
@@ -188,12 +187,94 @@ bool AviLayer::feed() {
 
 void AviLayer::close() {
   /* here close Aviclass */
+  func("AviLayer::close()");
   if(_stream)
     if(_stream->IsStreaming())
       _stream->StopStreaming();
   _avi = NULL;
 }
 
+
+/* now some actions */
+
+void AviLayer::forward(framepos_t step=1) {
+  framepos_t res = 0;
+  lock_feed();
+  if(step==1) res = _stream->SeekToNextKeyFrame();
+  else {
+    framepos_t p = _stream->GetPos();
+    res = _stream->SeekToKeyFrame(p+step);
+  }
+  unlock_feed();
+  notice("avi seeked to %u\% (K%u)",
+       (res*100)/_stream->GetLength(),res);
+  show_osd();
+}
+
+void AviLayer::rewind(framepos_t step=1) {
+  framepos_t res = 0;
+  lock_feed();
+  if(step==1) res = _stream->SeekToPrevKeyFrame();
+  else {
+    framepos_t p = _stream->GetPos();
+    res = _stream->SeekToKeyFrame(p-step);
+  }
+  unlock_feed();
+  notice("avi seeked to %u\% (K%u)",
+       (res*100)/_stream->GetLength(),res);
+  show_osd();
+}
+
+void AviLayer::pos(framepos_t p) {
+  framepos_t res = 0;
+  lock_feed();
+  res = _stream->SeekToKeyFrame(p);
+  unlock_feed();
+  notice("avi seeked to %u\% (K%u)",
+       (res*100)/_stream->GetLength(),res);
+  show_osd();
+}
+  
+void AviLayer::pause() {
+  paused = !paused;
+  func("avi pause : %s",(paused)?"on":"off");
+}
+
+
+void AviLayer::speedup() {
+  if(fps>=24) skip--;
+  else fps++;
+}
+
+void AviLayer::slowdown() {
+  if(skip<=0) fps--;
+  else if(skip>0) skip++;
+}
+
 bool AviLayer::keypress(SDL_keysym *keysym) {
-  return false;
+  bool res = false;
+  framepos_t steps = 1;
+  switch(keysym->sym) {
+  case SDLK_KP6:
+    if(keysym->mod==KMOD_LCTRL) steps+=50000;
+    if(keysym->mod==KMOD_RCTRL) steps+=10000;
+    if(keysym->mod==KMOD_LSHIFT) steps+=5000;
+    if(keysym->mod==KMOD_RSHIFT) steps+=1000;
+    forward(steps);
+    res = true; break;
+
+  case SDLK_KP4:
+    if(keysym->mod==KMOD_LCTRL) steps+=50000;
+    if(keysym->mod==KMOD_RCTRL) steps+=5000;
+    if(keysym->mod==KMOD_LSHIFT) steps+=1000;
+    if(keysym->mod==KMOD_RSHIFT) steps+=200;
+    rewind(steps);
+    res = true; break;
+    
+  case SDLK_KP0: pause();
+    res = true; break;
+    
+  default: break;
+  }
+  return res;
 }

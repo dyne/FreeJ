@@ -131,7 +131,6 @@ void Context::set_fps_interval(int interval) {
 }
 
 bool Context::calc_fps() {
-  double curtime;
   
   /* Check interval */
   if (fps_frame_interval<1) {
@@ -150,16 +149,12 @@ bool Context::calc_fps() {
   framecount++;
   
   if (framecount==fps_frame_interval) {
-    curtime=dtime();
-    trascorso = curtime-lst_time;
-    fps=(double)framecount/trascorso;
-    lst_time=curtime;
+    cur_time=dtime();
+    fps=(double)framecount/(cur_time-lst_time);
+    lst_time=cur_time;
     framecount=0;
     return(false);
   }
   
-  double prcd = (trascorso/fps) - ((trascorso*fps_frame_interval)/fps);
-  func("PRCD: %f",prcd);
-
   return(true);
 }

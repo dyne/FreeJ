@@ -29,7 +29,8 @@
 #include <tvfreq.h>
 #include <jutils.h>
 
-V4lGrabber::V4lGrabber() {
+V4lGrabber::V4lGrabber() 
+  :Layer() {
   dev = -1;
   buffer = NULL;
   rgb_surface = NULL;
