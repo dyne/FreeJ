@@ -17,6 +17,12 @@ LIST OF COMMANDS:
  ^TAB     = on/off calibration guidelines
  PRINTSCR = display nice and lovely credits
 
+Advanced commands: If the meaning of this is not immediately obvious to you
+it doesn't matter.
+
+ NUMPAD PLUS  = increase cafudda speed
+ NUMPAD MINUS = decrease cafudda speed
+
 
  LAYER COMMANDS:
 
@@ -59,6 +65,11 @@ LIST OF COMMANDS:
  k/m      = switch up/down input channel
  j/n      = (if TV tuner is present) switch up/down frequency tables
  h/b      = (if TV tuner is present) cycle up/down frequencies
+
+ VIDEO 4 LINUX LAYER COMMANDS:
+ k        = switch blinking on/off
+ o        = control subliminal image
+ p        = stop subliminal
 
  AVI LAYER COMMANDS:
  l/r

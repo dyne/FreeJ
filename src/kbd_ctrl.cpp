@@ -116,6 +116,17 @@ void KbdListener::run() {
       env->clear_all = !env->clear_all;
       break;
 
+    case SDLK_KP_PLUS:
+      env->fps_speed++;
+//      printf("+ %d\n",env->fps_speed);
+      env->set_fps_interval(env->fps_speed);
+      break;
+    case SDLK_KP_MINUS:
+      env->fps_speed--;
+//      printf("- %d\n",env->fps_speed);
+      env->set_fps_interval(env->fps_speed);
+      break;
+
     default:
       _lastsel = -1;
       break;
@@ -232,6 +243,7 @@ void KbdListener::run() {
     case SDLK_HOME:
       layer->active = !layer->active;
       break;
+
 
 #if 0 /// @TODO to be rewritten the blit selection from keyboard
 

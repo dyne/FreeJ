@@ -112,8 +112,10 @@ class Context {
   float fps;
   bool track_fps;
   
+  int fps_speed;
 
   bool clear_all;
+
 
 };
 

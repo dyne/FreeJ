@@ -49,6 +49,7 @@ Context::Context() {
   clear_all = false;
   quit = false;
   pause = false;
+  fps_speed=25;
 }
 
 Context::~Context() {
@@ -75,7 +76,7 @@ bool Context::init(int wx, int hx) {
   if( SDL_imageFilterMMXdetect() )
     act("using MMX accelerated blit");
 
-  set_fps_interval(25);
+  set_fps_interval(fps_speed);
   gettimeofday( &lst_time, NULL);
 
   return true;
@@ -138,7 +139,7 @@ void Context::cafudda(unsigned int secs) {
 
     if(osd.active) osd.print();
 
-    if(console.active) console.cafudda();
+//    if(console.active) console.cafudda();
 
     screen->show();
 

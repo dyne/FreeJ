@@ -36,11 +36,20 @@ private:
   /* file signature to check for validation */
   unsigned char sig[8];
 
-  /* image buffer */
-  png_bytep buf;
-  
   /* row pointers */
   png_bytep *row_pointers;
+
+  /* black image */
+  void *black_image;
+
+  void *png_image;
+
+  /** how many times show image  when in subliminal mode */
+  int subliminal;
+
+  bool blinking;
+
+  int count;
 
   FILE *fp;
 
@@ -54,7 +63,7 @@ public:
 
   void close();
   
-  bool keypress(SDL_keysym *keysym) { return false; };
+  bool keypress(SDL_keysym *keysym);
 };
 
 #endif

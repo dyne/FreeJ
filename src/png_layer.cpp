@@ -38,6 +38,9 @@ PngLayer::PngLayer()
   info = NULL;
   row_pointers = NULL;
   fp = NULL;
+  subliminal=0;
+  blinking=false;
+  count=0;
   set_name("PNG");
 }
 
@@ -161,12 +164,17 @@ bool PngLayer::init(Context *scr) {
   if(scr) freej = scr;
   _init(freej, width, height, bit_depth*4);
 
-  buffer = (png_bytep)jalloc(buffer,geo.size);
+  png_image = (png_bytep)jalloc(png_image,geo.size);
+
+  /** allocate memory for the black image */
+  black_image = malloc(geo.size);
+
+  black_image = memset(black_image,0,geo.size);
 
   /* allocate image memory */
   row_pointers = (png_bytep*)jalloc(row_pointers,geo.h*sizeof(png_bytep));
-  for(int i=0;i<geo.h;i++)
-    row_pointers[i] = (png_bytep) buffer + i*geo.pitch;
+  for(int i=0;i<geo.h;i++) 
+    row_pointers[i] = (png_bytep) png_image + i*geo.pitch;
 
   png_read_image(core,row_pointers);
 
@@ -189,13 +197,41 @@ bool PngLayer::init(Context *scr) {
 }
 
 void *PngLayer::feed() {
-  return buffer;
+    count++;
+    /** threads problems !! XXX TODO */
+    if(count==freej->fps_speed)
+	count=0;
+    if(blinking && count%2!=0) {
+	return black_image;
+    }
+    /** subliminal mode*/
+    if(subliminal!=0 && count>= subliminal)
+	return black_image;
+    
+  return png_image;
 }
 
 void PngLayer::close() {
   func("PngLayer::close()");
   jfree(row_pointers);
   jfree(buffer);
+}
+bool PngLayer::keypress(SDL_keysym *keysym) {
+    switch(keysym->sym) {
+	case SDLK_o:
+	    subliminal++;
+	    break;
+	case SDLK_p:
+	    subliminal=0;
+	    break;
+	case SDLK_b:
+	    if(blinking)
+		blinking=false;
+	    else 
+		blinking=true;
+	    break;
+    }
+    return true;
 }
 
 #endif
