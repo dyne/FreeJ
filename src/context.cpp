@@ -73,7 +73,8 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
   /* discover about the system and windowmanager */
   if(!SDL_GetWMInfo(&sys)) {
     error("can't gather information about the display system");
-    close(); exit(1);
+    error("your window manager is a bit autistical");
+    exit(1);
   }
 
   /* be nice with the window manager */
@@ -104,23 +105,34 @@ Context::Context(int wx, int hx, int bppx, Uint32 flags) {
 
 void Context::close() {
   Layer *tmp, *lay = (Layer *)layers.begin();
-  func("Context::close()");
+  func("Context::~Context()");
   
-  while(lay!=NULL) {
+  while(lay) {
     tmp = (Layer *)lay->next;
-
+    
     /*    lay->close();
 	  this is in every layer's destructor */
-
-    /*    lay->_delete();
-	  this was deleting filters, now that's done in the plugger */
-
+    
     delete lay;
     lay = tmp;
   }
-  
+
   SDL_Quit();
   act("clean exiting. be nice ;)");
+}
+
+void Context::quit_layers() {
+  Layer *tmp, *lay = (Layer *)layers.begin();
+  func("Context::quit()");
+  
+  while(lay) {
+    tmp = (Layer *)lay->next;
+    lay->quit = true;
+    lay = tmp;
+  }
+  /* we need to wait here to be sure the threads quitted:
+     don't use join because threads are detached for better performance */
+  SDL_Delay(3000);  
 }
 
 bool Context::add_layer(Layer *newlayer) {

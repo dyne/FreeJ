@@ -45,18 +45,19 @@ V4lGrabber::~V4lGrabber() {
 
 void V4lGrabber::close() {
   notice("Closing video4linux grabber layer");
+ 
+  if(buffer!=NULL) {
+    act("unmapping address %p sized %u bytes",buffer,grab_map.size);
+    munmap(buffer,grab_map.size);
+  }
 
   if(dev>0) {
     act("closing video4linux device %u",dev);
     ::close(dev);
   }
   
-  if(buffer!=NULL) {
-    act("unmapping address %p sized %u bytes",buffer,grab_map.size);
-    munmap(buffer,grab_map.size);
-  }
-
   jfree(rgb_surface);
+  
 }
 
 bool V4lGrabber::detect(char *devfile) {
@@ -140,9 +141,6 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   int i;
   func("V4lGrabber::init()");
 
-  /* INIT from the LAYER CLASS */
-  _init(screen,wdt,hgt);
-
   /* set image source and TV norm */
   grab_chan.channel = input = (channels>1) ? 1 : 0;
   
@@ -166,6 +164,9 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
       return(false);
     }
   }
+
+  /* INIT from the LAYER CLASS */
+  _init(screen,wdt,hgt);
 
   palette = VIDEO_PALETTE_YUV422P;
   /* choose best yuv2rgb routine (detecting cpu)
@@ -200,7 +201,6 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   }
   cur_frame = 0;
 
-  //  feeded = true;
 
   notice("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
   act("using input channel %s",grab_chan.name);
@@ -306,6 +306,7 @@ void *V4lGrabber::get_buffer() {
 }
 
 bool V4lGrabber::feed() {
+
   ok_frame = cur_frame;
   cur_frame = ((cur_frame+1)%num_frame);
   grab_buf[0].format = palette;

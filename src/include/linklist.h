@@ -45,10 +45,11 @@ class Linklist {
   Entry *operator[](int pos) { return pick(pos); };
 };
 
+#include <jutils.h>
 class Entry {
  public:
   Entry() { };
-  virtual ~Entry() { };
+  ~Entry() { };
   
   Entry *next;
   Entry *prev;

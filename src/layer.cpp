@@ -32,21 +32,9 @@ Layer::Layer() {
   setname("???");
 }
 
-void Layer::_delete() {
-  /* Filters are now cleaned into the Plugger::_delete() (plugger.cpp) 
-     func("Layer::_delete()");
-     
-     Filter *tmp, *filt = (Filter *)filters.begin();
-     
-     while(filt!=NULL) {
-     tmp = (Filter *)filt->next;
-     filt->clean();
-     filt = tmp;
-     }
-  */
-}
-
 void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
+  this->screen = screen;
+
   geo.w = (wdt == 0) ? screen->w : wdt;
   geo.h = (hgt == 0) ? screen->h : hgt;
   geo.bpp = (bpp) ? bpp : screen->bpp;
@@ -61,7 +49,6 @@ void Layer::_init(Context *screen, int wdt, int hgt, int bpp) {
   _w = geo.w; _h = geo.h;
   _pitch = geo.pitch;
   _size = geo.size;
-  this->screen = screen;
   screen->add_layer(this);
 }
 
@@ -168,7 +155,8 @@ void Layer::set_blit(int b) {
 }
 
 bool Layer::cafudda() {
-  if((!active) || (hidden)) 
+
+  if((!active) || (hidden))
     return false;
 
   void *offset = get_buffer();
@@ -198,6 +186,7 @@ bool Layer::cafudda() {
 
   unlock();
   unlock_feed();
+
   signal_feed();
 
   return(true);
@@ -214,6 +203,8 @@ void Layer::crop() {
   blit_xoff = 0;
   blit_yoff = 0;
 
+  func("CROP layer x[%i] y[%i] w[%i] h[%i] on screen w[%i] h[%i]",geo.x,geo.y,geo.w,geo.h,screen->w,screen->h);
+
   /* left bound 
      affects x-offset and width */
   if(geo.x<0) {
@@ -221,6 +212,7 @@ void Layer::crop() {
     blit_x = 1;
 
     if(blit_xoff>geo.w) {
+      func("layer out of screen to the left");
       hidden = true; /* out of the screen */
       geo.x = -(geo.w+1); /* don't let it go far */      
     } else {
@@ -233,6 +225,7 @@ void Layer::crop() {
      affects width */
   if((geo.x+geo.w)>screen->w) {
     if(geo.x>screen->w) { /* out of screen */
+      func("layer out of screen to the right");
       hidden = true; 
       geo.x = screen->w+1; /* don't let it go far */
     } else {
@@ -248,6 +241,7 @@ void Layer::crop() {
     blit_y = 1;
 
     if(blit_yoff>geo.h) {
+      func("layer out of screen up");
       hidden = true; /* out of the screen */
       geo.y = -(geo.h+1); /* don't let it go far */      
     } else {
@@ -260,6 +254,7 @@ void Layer::crop() {
      affects height */
   if((geo.y+geo.h)>screen->h) {
     if(geo.y>screen->h) { /* out of screen */
+      func("layer out of screen down");
       hidden = true; 
       geo.y = screen->h+1; /* don't let it go far */
     } else {
@@ -273,7 +268,7 @@ void Layer::crop() {
   func("LAY BLIT x[%i] y[%i] w[%i] h[%i] xoff[%i] yoff[%i]",
        blit_x, blit_y, blit_width, blit_height, blit_xoff, blit_yoff);
 }
-#define MMX_BLIT
+
 #ifdef MMX_BLIT
 
 void Layer::blit(void *offset) {

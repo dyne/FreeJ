@@ -227,6 +227,7 @@ int main (int argc, char **argv) {
   KbdListener keyb;
   assert( keyb.init(&screen, &plugger) );
 
+  /* launch layer threads */
   screen.rocknroll();
 
   keyb.start();
@@ -253,22 +254,12 @@ int main (int argc, char **argv) {
   /* quitting */
   osd.splash_screen();
   screen.flip();
-  grabber.quit = true;
-#ifdef WITH_AVIFILE
-  if(avi) avi->quit = true;
-#endif
-  /* we need to wait here to be sure the threads quitted:
-     don't use join because threads are detached for better performance */
-  SDL_Delay(3000);
+
+  screen.quit_layers();
   
   /* this calls all _delete() methods to safely free all memory */
   plugger.close();
   screen.close();
 
-  /*
-#ifdef WITH_AVIFILE
-  if(avi) delete avi;
-#endif
-  */
   exit(1);
 }

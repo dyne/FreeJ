@@ -41,7 +41,7 @@ class JSyncThread {
  public:
   
   JSyncThread() { _thread_initialized = false; };
-  virtual ~JSyncThread() { if(_thread_initialized) _thread_destroy(); };
+  virtual ~JSyncThread() { _thread_destroy(); };
 
   void start();
   virtual void run() {};

@@ -43,14 +43,16 @@ void JSyncThread::_thread_init() {
 }
 
 void JSyncThread::_thread_destroy() {
+
   if(!_thread_initialized) return;
+
   if(pthread_mutex_destroy(&_mutex) == -1)
     error("error destroying POSIX thread mutex");
   if(pthread_cond_destroy(&_cond) == -1)
     error("error destroying POSIX thread condition");
   if(pthread_attr_destroy(&_attr) == -1)
     error("error destroying POSIX thread attribute");
-
+  
   if(pthread_mutex_destroy(&_mutex_feed) == -1)
     error("error destroying POSIX thread feed mutex");
   if(pthread_cond_destroy(&_cond_feed) == -1)

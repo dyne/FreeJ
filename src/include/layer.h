@@ -43,11 +43,10 @@ class Layer: public Entry, public JSyncThread {
  public:
 
   Layer();
-  virtual ~Layer() { _delete(); };
+  ~Layer() { };
 
   void run();
   void _init(Context *screen, int wdt, int hgt, int bpp=0);
-  void _delete();
   virtual void close() { };
 
   /* these has to be defined into layer instances
@@ -80,7 +79,6 @@ class Layer: public Entry, public JSyncThread {
 
   ScreenGeometry geo;
 
-  //bool feeded;
   bool paused;
   bool active;
   bool quit;
