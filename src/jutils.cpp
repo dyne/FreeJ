@@ -240,12 +240,12 @@ int rtc_open() {
     perror("/dev/rtc");
     return 0;
   }
-  /* set the alarm event to 1 second
-     res = ioctl(rtcfd, RTC_UIE_ON, 0);
-     if(res<0) {
-     perror("rtc ioctl");
-     return 0;
-     } */
+  /* set the alarm event to 1 second */
+  res = ioctl(rtcfd, RTC_UIE_ON, 0);
+  if(res<0) {
+    perror("rtc ioctl");
+    return 0;
+  }
   notice("realtime clock succesfully initialized");
   return 1;
 }
@@ -283,8 +283,8 @@ void rtc_freq_wait() {
   }
 }
 void rtc_close() {
-  //ioctl(rtcfd, RTC_UIE_OFF, 0);
-  ioctl(rtcfd,RTC_PIE_OFF,0);
+  ioctl(rtcfd, RTC_UIE_OFF, 0);
+  //  ioctl(rtcfd,RTC_PIE_OFF,0);
   close(rtcfd);
 }
 #endif
