@@ -88,6 +88,7 @@ void Layer::run() {
       jsleep(0,10);
     }
   }
+//  func("Layer::FINE THREAD %d",pthread_self());
   running = false;
 }
 

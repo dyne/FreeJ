@@ -212,7 +212,9 @@ void *PngLayer::feed() {
 void PngLayer::close() {
   func("PngLayer::close()");
   jfree(row_pointers);
-  jfree(buffer);
+  jfree(png_image);
+  jfree(black_image);
+//  jfree(buffer);
 }
 
 bool PngLayer::keypress(char key) {

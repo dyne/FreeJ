@@ -124,10 +124,12 @@ void JsParser::init() {
 		   v4l_layer_constructor,
 		   v4l_layer_methods);
 
+#ifdef WITH_AVIFILE
     REGISTER_CLASS("AviLayer",
 		   avi_layer_class,
 		   avi_layer_constructor,
 		   avi_layer_methods);
+#endif
 
     REGISTER_CLASS("TxtLayer",
 		   txt_layer_class,
@@ -203,11 +205,11 @@ int JsParser::parse(const char *command) {
 
 
 JS(cafudda) {
+  double *seconds = JSVAL_TO_DOUBLE(argv[0]);
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  func("cafudda for %f seconds",*seconds);
+  env->cafudda(*seconds);
 
-  int t = JSVAL_TO_INT(argv[0]);
-  func("cafudda for %d seconds",t);
-  env->cafudda(t);
   return JS_TRUE;
 }
 
@@ -249,15 +251,16 @@ JS(rem_layer) {
 JS(add_layer) { 
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
+    Layer *lay;
     JSObject *jslayer;
+    *rval=JSVAL_FALSE;
 
-    jslayer = JSVAL_TO_OBJECT(argv[0]);
-    if(!jslayer) {
+    if(JSVAL_IS_NULL(argv[0])) {
       error("JsParser :: add_layer called with NULL argument");
       return JS_FALSE;
     }
+    jslayer = JSVAL_TO_OBJECT(argv[0]);
 
-    Layer *lay;
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) {
       error("JsParser :: add_layer : Layer core data is null");
@@ -270,6 +273,7 @@ JS(add_layer) {
       //      env->layers.sel(0); // deselect others
       //      lay->sel(true);
     } else delete lay;
+    *rval=JSVAL_TRUE;
 
     return JS_TRUE;
 }
@@ -681,6 +685,7 @@ JS(v4l_layer_band) {
   return JS_TRUE;
 }
 
+#ifdef WITH_AVIFILE
 ////////////////////////////////
 // Avi Layer methods
 JS_CONSTRUCTOR("AviLayer",avi_layer_constructor,AviLayer);
@@ -690,6 +695,7 @@ JS(avi_layer_mark_in) { return JS_TRUE; }
 JS(avi_layer_mark_out) { return JS_TRUE; }
 JS(avi_layer_pos) { return JS_TRUE; }
 JS(avi_layer_pause) { return JS_TRUE; }
+#endif
 
 ////////////////////////////////
 // Txt Layer methods

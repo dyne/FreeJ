@@ -58,6 +58,6 @@ JSyncThread::~JSyncThread() {
 
 }
 
-void JSyncThread::start() {
-  pthread_create(&_thread, &_attr, &kickoff, this);
+int JSyncThread::start() {
+  return pthread_create(&_thread, &_attr, &kickoff, this);
 }

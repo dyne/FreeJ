@@ -114,7 +114,7 @@ void Context::close() {
 
 }  
 
-void Context::cafudda(unsigned int secs) {
+void Context::cafudda(double secs) {
   Layer *lay;
 
   if(secs) /* if secs =0 will go out after one cycle */
@@ -232,19 +232,22 @@ void Context::calc_fps() {
 
 void Context::rocknroll() {
 
-  Layer *l = (Layer *)layers.begin();
+    Layer *l = (Layer *)layers.begin();
 
-  if(!l) { osd.credits(true); return; }
+    if(!l) { osd.credits(true); return; }
 
-  layers.lock();
-  while(l) {
-    if(!l->running) {
-      l->start();
-      //    l->signal_feed();
-      while(!l->running) jsleep(0,500);
-      l->active = start_running;
+    layers.lock();
+    while(l) {
+	if(!l->running) {
+	    if(l->start()==0) {
+		//    l->signal_feed();
+		while(!l->running) jsleep(0,500);
+		l->active = start_running;
+	    }
+	    else 
+		func("Context::rocknroll errore nella creazione del thread");
+	}
+	l = (Layer *)l->next;
     }
-    l = (Layer *)l->next;
-  }
-  layers.unlock();
+    layers.unlock();
 }
