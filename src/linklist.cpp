@@ -87,8 +87,9 @@ void Linklist::add(Entry *addr, int pos) {
 /* removes one element from the list */
 void Linklist::rem(int pos) {
   Entry *ptr = pick(pos);
-  Entry *prev = ptr->prev, *next = ptr->next;
   if(ptr==NULL) return;
+  Entry *prev = ptr->prev, *next = ptr->next;
+
   /* we are on it, now take it out WITHOUT deallocating */
   if(prev!=NULL)
     prev->next = next;
