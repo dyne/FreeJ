@@ -305,13 +305,12 @@ JS(rem_layer) {
       error("JsParser :: remove_layer : Layer core data is null");
       return JS_FALSE;
     }
-    // remove layer in real life
-//    if(env->layers.search(lay->get_filename())!=NULL) { // Check for layer entry in linklist
-	lay->rem();
-	lay->quit=true;
-	lay->signal_feed();
-	delete lay;
-//    }
+    lay->rem();
+    lay->quit=true;
+    lay->signal_feed();
+    lay->join();
+
+    delete lay;
     return JS_TRUE;
 }
 

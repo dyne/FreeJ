@@ -64,34 +64,25 @@ void Layer::_init(Context *freej, int wdt, int hgt, int bpp) {
   blitter.crop( freej->screen );
 
   /* allocate memory for the matte background */
-  bgmatte = jalloc(bgmatte,geo.size);
+//  bgmatte = jalloc(bgmatte,geo.size);
   
   notice("initialized %s layer %ix%i %ibpp",
 	 get_name(),geo.w,geo.h,geo.bpp);
 }
 
 void Layer::run() {
-  while(!feed()) jsleep(0,50);
-  func("ok, layer %s in rolling loop",get_name());
-  func("Layer :: run :: begin thread %d",pthread_self());
-  running = true;
-  /*
-  wait_feed();
-  while(!quit) {
-    if(bgcolor==0) {
-      buffer = feed();
-      if(!buffer) error("feed error on layer %s",get_name());
-      wait_feed();
-    } else if(bgcolor==1) {
-      memset(bgmatte,0xff,geo.size);
-      jsleep(0,10);
-    } else if(bgcolor==2) {
-      memset(bgmatte,0x0,geo.size);
-      jsleep(0,10);
+    while(!feed()) jsleep(0,50);
+    func("ok, layer %s in rolling loop",get_name());
+    func("Layer :: run :: begin thread %d",pthread_self());
+    running = true;
+    wait_feed();
+    while(!quit) {
+	buffer = feed();
+	if(!buffer) error("feed error on layer %s",get_name());
+	wait_feed();
     }
-  }
-*/
-  func("Layer :: run :: end thread %d",pthread_self());
+    func("Layer :: run :: end thread %d",pthread_self());
+    running = false;
 }
 
 bool Layer::cafudda() {
@@ -100,15 +91,12 @@ bool Layer::cafudda() {
     if(!fade)
       return false;
 
-  //  offset = (bgcolor) ? bgmatte : buffer;
-//  offset = buffer;
-  offset = feed();
-  /*
+//  offset = (bgcolor) ? bgmatte : buffer;
+  offset = buffer;
   if(!offset) {
     signal_feed();
     return(false);
   }
-  */
 
   /* process thru iterators */
   if(iterators.len()) {

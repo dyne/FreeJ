@@ -525,7 +525,11 @@ int VideoLayer::seek(int64_t timestamp) {
     /**
      * HERE sick
      */
+#if (LIBAVFORMAT_BUILD >= 4618) 
+    ret = av_seek_frame(avformat_context, video_index,timestamp,AVSEEK_FLAG_BACKWARD);
+#else
     ret = av_seek_frame(avformat_context, video_index,timestamp);
+#endif
 
     if(ret<0) {
 	seekable=false;

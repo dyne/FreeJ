@@ -38,7 +38,8 @@ JSyncThread::JSyncThread() {
 
   /* sets the thread as detached
      see: man pthread_attr_init(3) */
-  pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_DETACHED);
+//  pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_DETACHED);
+  pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_JOINABLE);
 
 }
 

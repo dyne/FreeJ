@@ -109,7 +109,7 @@ Layer *create_layer(char *file) {
   } else /* AVI LAYER */
     if( IS_VIDEO_EXTENSION(end_file_ptr)
 	    | strncasecmp(end_file_ptr-4,".jpg",4)==0
-//	    | strncasecmp(end_file_ptr-4,".gif",4)==0  // it does not handle loops :''(
+	    | strncasecmp(end_file_ptr-4,".gif",4)==0  // it does not handle loops :''(
         | IS_FIREWIRE_DEVICE(file_ptr)) {
 #ifdef WITH_AVCODEC
       nlayer = new VideoLayer();

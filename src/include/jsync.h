@@ -55,6 +55,8 @@ class JSyncThread {
   void wait_feed() { pthread_cond_wait(&_cond_feed,&_mutex_feed); };
   void signal_feed() { pthread_cond_signal(&_cond_feed); };
 
+  int join() { return pthread_join(_thread,NULL); }
+
  protected:
 
   static void* kickoff(void *arg) { ((JSyncThread *) arg)->run(); return NULL; };
