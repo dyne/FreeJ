@@ -378,19 +378,23 @@ void Layer::blit(void *offset) {
     return;
     
     case 5:
-      mmxblit_add(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+      mmxblit_add((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
+		  blit_width,blit_height,geo.pitch,screen->pitch);
       return;
 
     case 6:
-      mmxblit_sub(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+      mmxblit_sub((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
+		  blit_width,blit_height,geo.pitch,screen->pitch);
       return;
 
     case 7:
-      mmxblit_and(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+      mmxblit_and((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
+		  blit_width,blit_height,geo.pitch,screen->pitch);
       return;
 
     case 8:
-      mmxblit_or(offset,screen->coords(geo.x,geo.y),geo.h,geo.pitch,screen->pitch);
+      mmxblit_or((Uint8*)offset+blit_offset,screen->coords(blit_x,blit_y),
+		  blit_width,blit_height,geo.pitch,screen->pitch);
       return;
       
     default: return;

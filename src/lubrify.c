@@ -59,42 +59,46 @@ void mmxblit(void *src1, void *dst, unsigned int width, unsigned int height, uns
   mmx_blit();
 }
 
-void mmxblit_add(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
+void mmxblit_add(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
   asmsrc1 = src1;
   asmdst = dst;
   asmnum1 = height;
-  asmnum2 = pitch;
-  asmnum3 = scr_pitch;
+  asmnum2 = width;
+  asmnum3 = pitch;
+  asmnum4 = scr_pitch;
 
   mmx_blit_add();
 }
 
-void mmxblit_sub(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
+void mmxblit_sub(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
   asmsrc1 = src1;
   asmdst = dst;
   asmnum1 = height;
-  asmnum2 = pitch;
-  asmnum3 = scr_pitch;
+  asmnum2 = width;
+  asmnum3 = pitch;
+  asmnum4 = scr_pitch;
 
   mmx_blit_sub();
 }
 
-void mmxblit_and(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
+void mmxblit_and(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
   asmsrc1 = src1;
   asmdst = dst;
   asmnum1 = height;
-  asmnum2 = pitch;
-  asmnum3 = scr_pitch;
+  asmnum2 = width;
+  asmnum3 = pitch;
+  asmnum4 = scr_pitch;
 
   mmx_blit_and();
 }
 
-void mmxblit_or(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
+void mmxblit_or(void *src1, void *dst, unsigned int width, unsigned int height, unsigned int pitch, unsigned int scr_pitch) {
   asmsrc1 = src1;
   asmdst = dst;
   asmnum1 = height;
-  asmnum2 = pitch;
-  asmnum3 = scr_pitch;
+  asmnum2 = width;
+  asmnum3 = pitch;
+  asmnum4 = scr_pitch;
 
   mmx_blit_or();
 }
