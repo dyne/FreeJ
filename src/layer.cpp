@@ -141,7 +141,8 @@ bool Layer::cafudda() {
 
 void Layer::set_filename(char *f) {
   char *p = f + strlen(f);
-  while(*p!='/' && (p > f)) p--;
+  while(*p!='/' && (p >= f)) 
+      p--;
   strncpy(filename,p+1,256);
 }
 

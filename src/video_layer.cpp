@@ -470,7 +470,7 @@ bool VideoLayer::relative_seek(int increment) {
 	error("VideoLayer :: Error seeking file: %d",ret);
 	return false;
     }
-    show_osd("seek to %f\%",current_time);
+    show_osd("seek to %.1f\%",current_time);
     unlock_feed();
     return true;
 }
