@@ -1,3 +1,8 @@
+FreeJ 0.5.1 ECOTECH - 12 Jun 2003
+  new TxtLayer rendering engine
+  fix to avifile looping and playing
+  fix to plugin directories
+  
 FreeJ 0.5 ECOTECH - 27 May 2003
   new filters: Blur (Jaromil), Backlight (Pete Warden)
   upgrade to Transform filters
@@ -42,12 +47,12 @@ FreeJ 0.3 PRATERHIMMEL - 26 Jan 2002
   fixes in absdiff filter
   major code cleanup
 
-FreeJ 0.2.3 - 25 Nov 2001
+FreeJ 0.2.3 "ETNA" - 25 Nov 2001
   included new Simura filter
   new OSD fonts
   code cleanups
 
-FreeJ 0.2.2 - 1 Nov 2001
+FreeJ 0.2.2 "ETNA" - 1 Nov 2001
   fixes for webcams, DEXXA/Logitech and others supported
   TV tuner code gives you the trippiest TV you ever saw!
   OSD fixes and status messages implemented

@@ -444,3 +444,11 @@ void Layer::set_filename(char *f) {
   while(*p!='/' && (p > f)) p--;
   strncpy(filename,p+1,256);
 }
+
+void Layer::set_position(int x, int y) {
+  lock();
+  geo.x = x;
+  geo.y = y;
+  crop();
+  unlock();
+}

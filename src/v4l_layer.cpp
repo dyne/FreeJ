@@ -200,7 +200,7 @@ bool V4lGrabber::init(Context *screen,int wdt, int hgt) {
   /* feed up the mmapped frame */  
   if (-1 == ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) {
     func("V4lGrabber::init");
-    error("error in ioctl VIDIOCMCAPTURE on buffer %p",&grab_buf[i]);
+    error("error in ioctl VIDIOCMCAPTURE on buffer %p",&grab_buf[0]);
   }
 
 

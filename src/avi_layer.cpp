@@ -104,7 +104,9 @@ bool AviLayer::open(char *file) {
     return(false);
   }
 
-  _stream->SetDirection(true);
+  /* this crashes on .37 avifile
+     verified with shezzan on 14 july 2003
+     _stream->SetDirection(true); */
 
   if(!_avi->IsOpened()) {
     /* check if here we got to free something */

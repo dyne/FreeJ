@@ -26,16 +26,11 @@ LIST OF COMMANDS:
 
  HOME     = hide/show layer
 
- 1        = select NORMAL BLIT
- 2        = select BLU BLIT
- 3        = select GREEN BLIT
- 4        = select RED BLIT
- 5        = select ADD BLIT
- 6        = select SUB BLIT
- 7        = select AND BLIT
- 8        = select OR BLIT
- 9        = switch alpha channel on/off
- 0        = switch blank screen on/off
+ 1 = select NORMAL BLIT             2 = select BLU BLIT
+ 3 = select GREEN BLIT              4 = select RED BLIT
+ 5 = select ADD BLIT                6 = select SUB BLIT
+ 7 = select AND BLIT                8 = select OR BLIT
+ 9 = SWITCH ALPHA channel on/off    0 = SWITCH BLANK screen on/off
 
  %ARROWS  = move layers around thru the screen
  mouse-l  = drag layers around, slowly and smoothly
@@ -77,31 +72,32 @@ LIST OF COMMANDS:
 SOME FILTER COMMANDS:
 (see the filter's sourcecode for details)
 
-DelayGrab filter
-q/w      = switch up/down delaymap
-a/s      = increase/decrease blocksize
+ DelayGrab filter
+ q/w      = switch up/down delaymap
+ a/s      = increase/decrease blocksize
 
-Vertigo filter (try it out after AbsDiff filter!)
-q/w      = phase increment/decrement
-a/s      = zoomrate increment/decrement
-z/x      = browse thru 3 modes (normal, artifarti, weird)
+ Vertigo filter (try it out after AbsDiff filter!)
+ q/w      = phase increment/decrement
+ a/s      = zoomrate increment/decrement
+ z/x      = browse thru 3 modes (normal, artifarti, weird)
 
-Simura filter
-caps-lock + all letters = change color filters
-keypad numbers = change mirror mode
+ Simura filter
+ caps-lock + all letters = change color filters
+ keypad numbers = change mirror mode
 
-QuadTrans filter
-q/w      = multiply/divide frames of the screen
+ QuadTrans filter
+ q/w      = multiply/divide frames of the screen
 
-SquareTrans filter
-q/w      = increase/decrease blocksize
+ SquareTrans filter
+ q/w      = increase/decrease blocksize
 
 SDL TIP:
 
-if you set the environmental variable SDL_VIDEODRIVER to something like
-"aalib" then you can render freej screen in ascii art, and you can use
-other drivers as well, see the SDL documentation for details.
+ if you set the environmental variable SDL_VIDEODRIVER to something like
+ "aalib" then you can render freej screen in ascii art, and you can use
+ other drivers as well, see the SDL documentation for details.
 
 
-for more information ask the mailinglist <freej@dyne.org>
-subscribe with a mail to <freej-subscribe@dyne.org>
+ for more information ask the mailinglist <freej@dyne.org>
+ subscribe with a mail to <freej-subscribe@dyne.org>
+

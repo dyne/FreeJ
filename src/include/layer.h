@@ -54,6 +54,8 @@ class Layer: public Entry, public JSyncThread {
   void _init(Context *screen, int wdt, int hgt, int bpp=0);
   void set_filename(char *f);
   char *get_filename() { return filename; };
+  void set_position(int x, int y);
+
   virtual void close() { };
 
   /* these has to be defined into layer instances

@@ -1,5 +1,5 @@
 
-          [[[  FreeJ 0.5  "ECOTECH"  ]]]
+          [[[  FreeJ 0.5.1 "ECOTECH"  ]]]
 
              [ http://freej.dyne.org ]
 
@@ -9,18 +9,23 @@
 :: OVERVIEW
 
 FreeJ is a digital instrument for video livesets, featuring realtime
-rendering of multilayered video and chained effect filtering directly on
-the screen. FreeJ threats every video source as a layer, making then
-possible to dynamically apply on each a chain of filters, loadable as
-effect plugins and easily customizable. Layers are planned for rendering
-of analog video input, digital movie files, image bitmaps, sound scopes,
-texts and eventually more.
+rendering of multilayered video and chained effect filtering directly
+on the screen. FreeJ threats every video source as a layer, making
+then possible to dynamically apply on each a chain of filters,
+loadable as effect plugins and easily customizable. Layers are
+implemented to mix together live inputs (video4linux devices),
+DIVX/AVI files (with avifile library), PNG images and text files word
+by word. Other layers are being implemented.
 
-FreeJ is being developed in the hope to provide the GNU community with a
-free, modular and highly customizable application to perform video
-livesets, based on a GPL'ed framework that lets anybody implement his
-own filters concentrating simply on the dsp algorithm developed and
-furthermore to combine them over any supported layer.
+FreeJ is a software written in C, C++ and a bit of assembler, it can
+run on GNU/Linux platform and it could be ported to other platforms:
+any help on that is appreciated.
+
+FreeJ is being developed in the hope to provide the free software
+community with a modular and highly customizable application to
+perform video livesets; a free and open framework that lets anybody
+implement hisown filters concentrating simply on the dsp algorithm
+developed and furthermore to combine them over any supported layer.
 
 FreeJ is Free Software and his sourcecode is released under the Gnu
 Public License, it comes with absolutely no warranty and you are welcome
@@ -30,7 +35,6 @@ details).
 You are encouraged to exhibit the output of this software publicly as
 long as this software and its author are credited as the source of the
 images.
-
 
 
 :: FEATURES
