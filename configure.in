@@ -217,12 +217,37 @@ if test x$have_joystick = xyes; then
 fi
 
 dnl ==============================================================
-dnl CHECK if there are PNG libraries
+dnl CHECK PNG libraries
 dnl ==============================================================
-PKG_CHECK_MODULES(PNG, libpng12 >= 1.2.0, [
-  AC_DEFINE(WITH_PNG,1,[define if compiling png layer])	
-  have_png=yes],have_png=no)
+AC_ARG_WITH(png-static,
+[  --with-png-static=PFX   embed the png library statically],
+[
+AC_MSG_CHECKING(to statically embed png image library)
+if test -r "$withval"; then
 
+  if test ! -r "$withval/lib/libpng.a"; then
+    echo "!! can't embed static png support: $withval/lib/libpng.a not found"
+  elif test ! -r "$withval/include/libpng"; then
+    echo "!! can't embed static png support: $withval/include/libpng not found"
+  else
+    AC_MSG_RESULT(yes)
+    AC_DEFINE(WITH_PNG,1,[define if compiling png layer])	
+    PNG_LIBS="$withval/lib/libpng.a -lz"
+    PNG_CFLAGS="-I$withval/include/libpng"
+    have_png=yes
+    AC_SUBST(PNG_LIBS)
+    AC_SUBST(PNG_CFLAGS)
+  fi
+ else
+   AC_MSG_RESULT(not found)
+   echo "!! you need to specify the prefix where to find libpng (i.e. --with-png-static=/usr)"
+ fi
+],[
+  PKG_CHECK_MODULES(PNG, libpng12 >= 1.2.0, [
+    AC_DEFINE(WITH_PNG,1,[define if compiling png layer])	
+    have_png=yes],have_png=no)
+])
+ 
 #PNG_LIBS=""
 #AC_CHECK_HEADER(png.h)
 #if test "$ac_cv_header_png_h" = "yes"; then
@@ -331,6 +356,39 @@ else
   fi
 fi
 AC_SUBST(LUBRIFY_CFLAGS)
+
+dnl ==============================================================
+dnl CHECK if there is AVCODEC to be compiled STATIC
+dnl ==============================================================
+AC_MSG_CHECKING(for embedding static ffmpeg libavcodec)
+AC_ARG_WITH(ffmpeg-static,
+[  --with-ffmpeg-static    embed ffmpeg libavcodec as static library],
+[if test -r "$withval"; then
+
+  AVCODEC_STATIC_DIR="`find $withval -name 'libavcodec'`"
+  AVCODEC_STATIC_LIB="$AVCODEC_STATIC_DIR/libavcodec.a"
+  AVFORMAT_STATIC_DIR="`find $withval -name 'libavformat'`"
+  AVFORMAT_STATIC_LIB="$AVFORMAT_STATIC_DIR/libavformat.a"
+  if test ! -r "$AVCODEC_STATIC_LIB"; then
+    AC_MSG_RESULT(no)
+    echo "!! $AVCODEC_STATIC_LIB not found: you must compile a static library of libavcodec"
+  elif test ! -r "$AVFORMAT_STATIC_LIB"; then
+    AC_MSG_RESULT(no)
+    echo "!! $AVFORMAT_STATIC_LIB not found: you must compile a static library of libavformat"
+  else
+    AC_MSG_RESULT(yes)
+    use_ffmpeg=yes;
+    AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])
+    AVCODEC_LIBS="$AVCODEC_STATIC_LIB $AVFORMAT_STATIC_LIB"
+    AVCODEC_CFLAGS="-I$AVCODEC_STATIC_DIR -I$AVFORMAT_STATIC_DIR"
+    AC_SUBST(AVCODEC_LIBS)
+    AC_SUBST(AVCODEC_CFLAGS)
+  fi
+
+ else
+   AC_MSG_RESULT(no)
+ fi
+],[AC_MSG_RESULT(no)])
 
 dnl ==============================================================
 dnl compile including the javascript interpreter
