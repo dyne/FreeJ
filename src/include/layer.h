@@ -91,6 +91,8 @@ class Layer: public Entry, public JSyncThread {
   void set_position(int x, int y);
   ///< Set Layer's position on screen
 
+  void slide_position(int x, int y);
+  ///< Slide the Layer to a position on screen
 
   Linklist filters;
   ///< Filter list of effects applied on the Layer

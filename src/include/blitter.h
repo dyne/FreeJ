@@ -73,6 +73,7 @@ class Blit: public Entry {
   uint32_t scr_offset;
 
   int32_t lay_pitch;
+  int32_t lay_bytepitch;
   int32_t lay_stride;
   int32_t lay_stride_sx;
   int32_t lay_stride_dx;
@@ -110,7 +111,8 @@ class Blitter {
   void blit();
   bool set_blit(char *name); ///< set the active blit
   void set_value(int val); ///< set the blit value
-  bool fade_value(int val); ///< fade to a new blit value
+  bool fade_value(int step, int val); ///< fade to a new blit value
+  bool pulse_value(int step, int val); ///< pulse it to a value and come back
   bool set_kernel(short *krn); /// set the convolution kernel
   bool Blitter::set_colorkey(int x,int y);
   Linklist blitlist; ///< list of available blits

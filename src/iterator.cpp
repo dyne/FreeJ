@@ -28,7 +28,7 @@
 /* here there was quite a lot of typecasting in order to
    support more iterators on different data types.
    now this support have been dropped and iterators only work
-   on 16bit signed integer numbers. */
+   on 32bit signed integer numbers. */
 
 Iterator::Iterator(int32_t *val)
   : Entry() {
@@ -52,7 +52,7 @@ Iterator::Iterator(int32_t *val)
   step = 1;
 
   // default mode and envelope
-  mode = ITERATOR_MODE_ONCE;
+  mode = ONCE;
   envelope = ITERATOR_ENVELOPE_LINEAR;
 }
 
@@ -61,8 +61,6 @@ Iterator::~Iterator() {
 }
 
 int Iterator::cafudda() {
-  bool res;
-  bool bound = false;
   //  func("Iterator::cafudda processing %i -> %i", *value, aim);
 
   // control if we are aiming to a different value:
@@ -89,10 +87,19 @@ int Iterator::cafudda() {
     }
     
   } else { // goal is reached, what to do?
-    
-    if(mode == ITERATOR_MODE_ONCE)
-      /* stop once aim is reached */
+
+    switch(mode) {
+
+    case ONCE: // stop once aim is reached
       return -1;
+      
+    case PULSE: // go back to the initial value and stop
+      if(aim!=saved_value) {
+	aim = saved_value;
+	break;
+      } else return -1;
+
+    }
     
   }
   
@@ -113,4 +120,20 @@ void Iterator::set_aim(int32_t val) {
 }
 void Iterator::set_value(int32_t *val) {
   value = val;
+}
+void Iterator::set_mode(iterator_mode_t m) {
+  switch(m) {
+
+  case ONCE: break;
+    
+  case PULSE:
+    saved_value = (int32_t)*value;
+    break;
+    
+  default:
+    error("invalid mode specified on iterator");
+    break;
+  }
+  
+  mode = m;
 }

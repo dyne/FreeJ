@@ -136,15 +136,16 @@ void Context::cafudda(double secs) {
 	osd.clean();
     
     /** process each layer in the chain */
-    {
-	lay = (Layer *)layers.end();
-	layers.lock();
-	while(lay) {
-	    if(!pause) 
-		lay->cafudda();
-	    lay = (Layer *)lay->prev;
-	}
-	layers.unlock();
+    
+    lay = (Layer *)layers.end();
+    if(lay) {
+      layers.lock();
+      while(lay) {
+	if(!pause) 
+	  lay->cafudda();
+	lay = (Layer *)lay->prev;
+      }
+      layers.unlock();
     }
 
     /** print on screen display */

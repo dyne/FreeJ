@@ -504,7 +504,7 @@ void Blitter::blit() {
 
       (*current_blit->fun)
 	((void*)play, (void*)pscr,
-	 current_blit->lay_pitch * layer->geo.bpp>>3,
+	 current_blit->lay_bytepitch,// * layer->geo.bpp>>3,
 	 (void*)&current_blit->value);
 
       // strides down to the next line
@@ -543,10 +543,10 @@ void Blitter::blit() {
       
       (*current_blit->past_fun)
 	((void*)play, (void*)ppast, (void*)pscr,
-	 current_blit->lay_pitch * layer->geo.bpp>>3);
+	 current_blit->lay_bytepitch);
       
       // copy the present to the past
-      jmemcpy(ppast, play, current_blit->lay_pitch * layer->geo.bpp>>3);
+      jmemcpy(ppast, play, layer->geo.pitch);
       
       // strides down to the next line
       pscr += current_blit->scr_stride
@@ -591,7 +591,31 @@ void Blitter::set_value(int val) {
   current_blit->value = val;
 }
 
-bool Blitter::fade_value(int val) {
+bool Blitter::pulse_value(int step, int val) {
+  Iterator *iter;
+  iter = new Iterator(&current_blit->value);
+
+  iter->set_mode(PULSE);
+  iter->set_step(step);
+  iter->set_aim(val);
+
+  layer->iterators.add(iter);
+  
+  act("layer %s blit %s pulse to %i by step %i",
+      layer->get_name(),current_blit->get_name(),val,step);
+
+  return true;
+}
+
+bool Blitter::fade_value(int step, int val) {
+
+  // if the layer is hidden then we don't bother fading
+  // just set the value right away
+  if(!layer->active) {
+    set_value(val);
+    return true;
+  }
+
   Iterator *iter;
 
   /* setup an iterator to gradually change the value */
@@ -599,13 +623,13 @@ bool Blitter::fade_value(int val) {
 
   /** here we could setup the speed of the value change
       (fade_in/out speed and such), hardcoded for now */
-  iter->set_step(1);
+  iter->set_step(step);
 
   iter->set_aim(val);
   layer->iterators.add(iter);
 
-  act("layer %s blit %s set to %i",
-      layer->get_name(),current_blit->get_name(),val);
+  act("layer %s blit %s fade to %i by step %i",
+      layer->get_name(),current_blit->get_name(),val,step);
   return true;
 }
 
@@ -780,6 +804,9 @@ void Blitter::crop(ViewPort *screen) {
     b->scr_offset = (b->scr_stride_sx +
 		     ( b->scr_stride_up * screen->w ));
   }
+  
+  // calculate bytes per row
+  b->lay_bytepitch = b->lay_pitch * (layer->geo.bpp>>3);
 
   /* store values for further crop checking */
   old_x = layer->geo.x;
@@ -789,109 +816,3 @@ void Blitter::crop(ViewPort *screen) {
   
 }  
 
-#if 0
-
-void Blitter::crop(ViewPort *screen) {
-  Blit *b = current_blit;
-
-  if(!b) return;
-  if(!screen)
-    screen = layer->freej->screen;
-
-  // crop for the SDL blit
-  if(b->type == SDL_BLIT) {
-    b->sdl_rect.x = -(layer->geo.x);
-    b->sdl_rect.y = -(layer->geo.y);
-    b->sdl_rect.w = screen->w;
-    b->sdl_rect.h = screen->h;
-
-    // crop for the linear and past blit
-  } else if(b->type == LINEAR_BLIT 
-	    || b->type == PAST_BLIT) {
-
-    b->crop_xoff = 0;
-    b->crop_yoff = 0;    
-    b->crop_x = layer->geo.x;
-    b->crop_y = layer->geo.y;
-    b->crop_width = layer->geo.w;
-    b->crop_height = layer->geo.h;
-    
-    // left bound affects x-offset and width
-    if(layer->geo.x<0) {
-      b->crop_xoff = (-layer->geo.x);
-      b->crop_x = 0;
-      
-      if(b->crop_xoff>layer->geo.w) {
-	func("layer out of screen to the left");
-	layer->hidden = true; /* out of the screen */
-	layer->geo.x = -(layer->geo.w+1); /* don't let it go far */      
-      } else {
-	layer->hidden = false;
-	b->crop_width -= b->crop_xoff;
-      }
-    }
-    
-    /* right bound
-       affects width */
-    if((layer->geo.x+layer->geo.w)>screen->w) {
-      if(layer->geo.x>screen->w) { /* out of screen */
-	func("layer out of screen to the right");
-	layer->hidden = true; 
-	layer->geo.x = screen->w+1; /* don't let it go far */
-      } else {
-	layer->hidden = false;
-	b->crop_width -= (layer->geo.w - (screen->w - layer->geo.x));
-      }
-    }
-    
-    /* upper bound
-       affects y-offset and height */
-    if(layer->geo.y<0) {
-      b->crop_yoff = (-layer->geo.y);
-      b->crop_y = 1;
-      
-      if(b->crop_yoff>layer->geo.h) {
-	func("layer out of screen up");
-	layer->hidden = true; /* out of the screen */
-	layer->geo.y = -(layer->geo.h+1); /* don't let it go far */      
-      } else {
-	layer->hidden = false;
-	b->crop_height -= b->crop_yoff;
-      }
-    }
-    
-    /* lower bound
-       affects height */
-    if((layer->geo.y+layer->geo.h) >screen->h) {
-      if(layer->geo.y >screen->h) { /* out of screen */
-	func("layer out of screen down");
-	layer->hidden = true; 
-	layer->geo.y = screen->h+1; /* don't let it go far */
-      } else {
-	layer->hidden = false;
-	//	b->crop_height -= (layer->geo.h - (screen->h - layer->geo.y));
-	b->crop_height -= (screen->h - (layer->geo.h + layer->geo.y));
-      }
-    }
-    
-    b->crop_coords = (uint32_t*)screen->coords(b->crop_x,b->crop_y);
-    
-    b->crop_offset = (b->crop_xoff*4) + (b->crop_yoff*layer->geo.pitch);
-    
-    b->crop_pitch = b->crop_width * (layer->geo.bpp>>3);
-    
-    func("LINEAR CROP for blit %s x[%i] y[%i] w[%i] h[%i] xoff[%i] yoff[%i]",
-	 b->get_name(), b->crop_x, b->crop_y, b->crop_width,
-	 b->crop_height, b->crop_xoff, b->crop_yoff);
-
-  }
-
-  /* store values for further crop checking */
-  old_x = layer->geo.x;
-  old_y = layer->geo.y;
-  old_w = layer->geo.w;
-  old_h = layer->geo.h;
-
-}
-
-#endif

@@ -116,7 +116,7 @@ void Osd::init(Context *screen) {
     if(ipernaut) {
       if(ipernaut->init(env)) {
 	ipernaut->blitter.set_blit("ALPHA");
-	ipernaut->blitter.fade_value(128);
+	ipernaut->blitter.fade_value(1,128);
       } else {
 	delete ipernaut;
 	ipernaut = NULL;
@@ -359,6 +359,7 @@ void Osd::draw_credits() {
 
 bool Osd::credits() { return credits(!_credits); }
 bool Osd::credits(bool s) {
+  if(!env) return false;
 
   //  env->clear_once = true; //scr(env->get_surface(),env->size);
   _credits = s;
@@ -378,19 +379,6 @@ bool Osd::credits(bool s) {
       env->layers.prepend(ipernaut);
     }
 
-#if 0
-    /* add a second water effect on logo */
-    osd_water = env->plugger.pick("water");
-    if(osd_water) {
-      osd_water->init(&ipernaut->geo);
-      keysym.sym = SDLK_y; osd_water->kbd_input(&keysym);
-      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
-      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
-      keysym.sym = SDLK_w; osd_water->kbd_input(&keysym);
-      ipernaut->filters.add(osd_water);
-    } 
-#endif
-      
     draw_credits();
 
   }  else {

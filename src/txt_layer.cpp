@@ -54,12 +54,12 @@ TxtLayer::TxtLayer()
   x=0;
   y=0;
 
-  int fontnum = 0;
-  fontnum += scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
-  fontnum += scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
-  fontnum += scanfonts("/usr/share/fonts/truetype");
-  fontnum += scanfonts("/usr/X11R6/lib/X11/fonts/TrueType");
-  act("TxtLayer fonts %i",fontnum);
+  scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
+  scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
+  scanfonts("/usr/X11R6/lib/X11/fonts/TrueType");
+  scanfonts("/usr/share/truetype");
+
+  act("TxtLayer fonts %i",num_fonts);
 }
 
 TxtLayer::~TxtLayer() {
@@ -106,6 +106,16 @@ int TxtLayer::scanfonts(char *path) {
 }
 
 bool TxtLayer::init(Context *scr) {
+
+  if(!num_fonts) {
+    error("no truetype fonts found on your system, dirs searched:");
+    error("/usr/X11R6/lib/X11/fonts/TTF");
+    error("/usr/X11R6/lib/X11/fonts/truetype");
+    error("/usr/X11R6/lib/X11/fonts/TrueType");
+    error("/usr/share/truetype");
+    error("you should install .ttf fonts in one of the directories above.");
+    return false;
+  }
 
      if(text_dimension < 0) {
 	  error("TxtLayer::init() - Character size must be positive dude!");

@@ -26,6 +26,8 @@
 #include <jutils.h>
 #include <config.h>
 
+
+
 #define PLAIN_COLOR 1
 #define TITLE_COLOR 1
 #define LAYERS_COLOR 3
@@ -34,7 +36,9 @@
 
 #define EOL '\0'
 
+
 #define KEY_ENTER 13
+#define KEY_SPACE 32
 #define KEY_BACKSPACE 275
 #define KEY_LEFT 259
 #define KEY_RIGHT 260
@@ -45,18 +49,29 @@
 /* unix ctrl- commandline hotkeys */
 #define KEY_CTRL_A 1 // goto beginning of line
 #define KEY_CTRL_B 2 // change blit
+#define KEY_CTRL_D 4 // delete char
 #define KEY_CTRL_E 5 // add new effect
 #define KEY_CTRL_F 6 // go fullscreen
 #define KEY_CTRL_G 7
 #define KEY_CTRL_I 9 // OSD on/off
 #define KEY_CTRL_K 11 // delete until end of line
-#define KEY_CTRL_L 12
-#define KEY_CTRL_D 4 // delete char
+#define KEY_CTRL_L 12 // refresh screen
+#define KEY_CTRL_M 13 // move layer
 #define KEY_CTRL_U 21 // delete until beginning of line
 #define KEY_CTRL_H 272 // help the user
 #define KEY_CTRL_J 10 // javascript command
 #define KEY_CTRL_O 15 // open a file in a new layer
 #define KEY_CTRL_V 22 // change blit value
+#define KEY_CTRL_X 24
+
+#define KEY_PLUS 43
+#define KEY_MINUS 45
+
+// just comfortable
+#define GOTO_CURSOR \
+      SLsmg_gotorc(SLtt_Screen_Rows - 1,cursor+1)
+
+
 
 static Context *env;
 
@@ -242,7 +257,7 @@ static int set_blit_value(char *cmd) {
      (supports multiple selection) */
   for(c=0 ; lay ; lay = (Layer*)lay->next) {
     if(!lay->select) continue;
-    lay->blitter.fade_value(val);
+    lay->blitter.fade_value(1,val);
   }
 
   return 1;
@@ -252,7 +267,11 @@ Console::Console() {
   env=NULL;
   last_line=NULL;
   num_lines=0;
-  input = false;
+  movestep=2;
+  jazzstep=10;
+  jazzvalue=0xff;
+  commandline = false;
+  parser = DEFAULT;
   do_update_scroll=true;
   active = false;
   layer = NULL;
@@ -351,361 +370,30 @@ int Console::readline(char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
   
   cursor = 0;
   memset(command,EOL,512);
-  input = true;
+
   SLtt_set_cursor_visibility(1);
   cmd_process = proc;
   cmd_complete = comp;
+  
+  commandline = true;
+  parser = COMMANDLINE;
+  
   return 1;
 }
 
-#define GOTO_CURSOR \
-      SLsmg_gotorc(SLtt_Screen_Rows - 1,cursor+1)
 
 void Console::getkey() {
-  int res,c;
   int key = SLkp_getkey();
   
   if(key) ::func("SLkd_getkey: %u",key);
   else return; /* return if key is zero */
 
-  if(input) {
-    /* =============== console command input */
-    if(cursor>512) {
-      error("command too long, can't type more.");
-      return;
-    }
-    //::func("input key: %i",key);
-    SLsmg_set_color(PLAIN_COLOR);
-
-    switch(key) {
-
-    case SL_KEY_ENTER:
-    case KEY_ENTER:
-      // a blank commandline aborts the input
-      if(command[0]==EOL) {
-	func("command aborted");
-	input = false;
-	cmd_process = NULL;
-	cmd_complete = NULL;
-	statusline();
-	return;
-      }
-      // otherwise process the input
-      res = (*cmd_process)(command);
-      if(res<0) return;
-      input = false;
-      cmd_process = NULL;
-      cmd_complete = NULL;
-      statusline();
-      // save in commandline history
-      entr = new Entry();
-      entr->data = strdup(command);
-      history.append( entr );
-      if(history.len()>32) // histsize
-	delete history.begin();
-      entr = NULL;
-      return;
-
-    case SL_KEY_UP:
-      // pick from history
-      if(!entr) // select the latest
-	entr = history.end();
-      else
-	entr = entr->prev;
-      if(!entr) return; // no hist
-      strncpy(command,(char*)entr->data,512);
-      // type the command on the console
-      SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
-      SLsmg_write_string(command);
-      SLsmg_erase_eol();
-      cursor = strlen(command);
-      GOTO_CURSOR;
-      return;
-
-    case SL_KEY_DOWN:
-      // pick from history
-      if(!entr) return;
-      if(!entr->next) return;
-      entr = entr->next;
-      strncpy(command,(char*)entr->data,512);
-      // type the command on the console
-      SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
-      SLsmg_write_string(command);
-      SLsmg_erase_eol();
-      cursor = strlen(command);
-      GOTO_CURSOR;
-      return;
-
-    case KEY_CTRL_G:
-      input = false;
-      cmd_process = NULL;
-      cmd_complete = NULL;
-      statusline();
-      return;
-
-    case KEY_TAB:
-      if(!cmd_complete) return;
-      res = (*cmd_complete)(command);
-      if(!res) return;
-      else if(res==1) { // exact match!
-	SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
-	SLsmg_write_string(command);
-	SLsmg_erase_eol();
-	cursor = strlen(command);
-      }
-      update_scroll();
-      GOTO_CURSOR;
-      return;
-
-
-    case KEY_BACKSPACE:      /*** FIXME */
-      if(!cursor) return;
-      cursor--;
-      if(command[cursor+1]==EOL) {
-	// func("cursor on end of line");
-	command[cursor] = EOL;
-      } else {
-	for(c=cursor;command[c]!=EOL;c++)
-	  command[c] = command[c+1];
-	command[c] = EOL;
-	SLsmg_write_string(&command[cursor]);
-      }
-      SLsmg_erase_eol();
-      GOTO_CURSOR;
-      return;
-
-      /* the following ctrl combos are to imitate
-	 the UNIX commandline behaviour
-	 (c-e eol, c-d delete, c-k eol del etc.)
-	 TODO: command history */
-    case SL_KEY_LEFT:
-      if(cursor) cursor--;
-      GOTO_CURSOR;
-      return;
-    case SL_KEY_RIGHT:
-      if(command[cursor]) cursor++;
-      GOTO_CURSOR;
-      return;
-    case KEY_CTRL_D:
-      for(c=cursor;command[c]!=EOL;c++)
-	command[c] = command[c+1];
-      GOTO_CURSOR;
-      SLsmg_write_string(&command[cursor]);
-      SLsmg_erase_eol();
-      GOTO_CURSOR;
-      return;
-    case KEY_CTRL_A:
-    case KEY_HOME:
-      cursor=0;
-      GOTO_CURSOR;
-      return;
-    case KEY_CTRL_E:
-      while(command[cursor]!=EOL) cursor++;
-      GOTO_CURSOR;
-      return;
-    case KEY_CTRL_K:
-      for(c=cursor;command[c]!=EOL;c++)
-	command[c] = EOL;
-      GOTO_CURSOR;
-      SLsmg_erase_eol();
-      return;
-    case KEY_CTRL_U:
-      for(c=0;command[cursor+c]!=EOL;c++)
-	command[c] = command[cursor+c];
-      for(;command[c]!=EOL;c++)
-	command[c] = EOL;
-      cursor=0;
-      GOTO_CURSOR;
-      SLsmg_write_string(&command[cursor]);
-      SLsmg_erase_eol();
-      GOTO_CURSOR;
-      return;
-
-    }
-    /* add char at cursor position
-       insert mode       FIX ME! */
-    for(c=cursor;command[c+1]!=EOL;c++)
-      command[c+1] = command[c];
-    command[cursor] = key;
+  //  if(input) {
+  if(parser == COMMANDLINE) parser_commandline(key);
+  else if(parser == MOVELAYER) parser_movelayer(key);
+  else if(parser == JAZZ) parser_jazz(key);
+  else parser_default(key);
     
-    GOTO_CURSOR;
-    SLsmg_write_string(&command[cursor]);
-    SLsmg_erase_eol();
-    cursor++;
-    GOTO_CURSOR;
-
-  } else { /* ======== hotkey input */
-
-    switch(key) {
-    case SL_KEY_UP:
-      if(!layer) break;
-      if(!filter) break;
-      filter = (Filter*)filter->prev;
-      if(filter) {
-	// select only the current
-	layer->filters.sel(0);
-	filter->sel(true);
-      }
-      break;
-
-    case SL_KEY_DOWN:
-      if(!filter) {
-	if(!layer) break;
-	filter = (Filter*)layer->filters.begin();
-	break;
-      }
-      if(!filter->next) break;
-      filter = (Filter*)filter->next;
-      // select only the current
-      layer->filters.sel(0);
-      filter->sel(true);      
-      break;
-
-    case SL_KEY_LEFT:
-      if(!layer) 
-	layer = (Layer*)env->layers.begin();
-      else if(!layer->prev)
-	layer = (Layer*)env->layers.end();
-      else
-	layer = (Layer*)layer->prev;
-      // select only the current
-      env->layers.sel(0);
-      layer->sel(true);
-      break;
-
-    case SL_KEY_RIGHT:
-      if(!layer)
-	layer = (Layer*)env->layers.begin();
-      else if(!layer->next)
-	layer = (Layer*)env->layers.begin();
-      else
-	layer = (Layer*)layer->next;
-      // select only the current
-      env->layers.sel(0);
-      layer->sel(true);
-      break;
-      
-    case SL_KEY_PPAGE:
-      // move layer/filter selected up in chain
-      if(filter)
-	filter->up();
-      else if(layer)
-	layer->up();
-      break;
-      
-    case SL_KEY_NPAGE:
-      // move layer/filter selected up in chain
-      if(filter)
-	filter->down();
-      else if(layer)
-	layer->down();
-      break;
-
-    case SL_KEY_END: break;
-
-    case SL_KEY_DELETE:
-      if(filter) {
-	filter->rem();
-	filter->clean();
-	filter = NULL;
-      } else if(layer) {
-	layer->rem();
-	layer->close();
-	layer = NULL;
-      }
-    break;
-    
-    case SL_KEY_IC:
-      if(!filter) break;
-      filter->active = !filter->active;
-      break;
-
-    case SL_KEY_HOME:
-      if(!layer) break;
-      layer->active = !layer->active;
-      break;
-
-    case KEY_CTRL_H:
-      notice("Hotkeys available in FreeJ console:");
-      act("arrow keys browse selection thru layers and effects");
-      act("HOME de/activate layer, INS de/activates filter");
-      act("ctrl+o  = Open new layer (will prompt for path to file)");
-      act("ctrl+e  = add a new Effect to the selected layer");
-      act("ctrl+b  = change the Blit for the selected layer");
-      act("ctrl+v  = change the blit Value for the selected layer");
-      act("ctrl+c  = quit FreeJ");
-      act("ctrl+f  = go to Fullscreen");
-      act("ctrl+l  = cleanup and redraw the console");
-      act("ctrl+i  = switch on/off On Screen Display information");
-#ifdef WITH_JAVASCRIPT
-      act("ctrl+j  = execute a Javascript command");
-#endif
-      break;
-
-    case KEY_CTRL_I:
-      env->osd.active = !env->osd.active;
-      break;
-
-    case KEY_CTRL_E:
-      if(!layer) {
-	error("can't add Effect: no Layer is selected, select one using arrows.");
-	break;
-      }
-      readline("add new Effect - press TAB for completion:",&filter_proc,&filter_comp);
-      break;
-
-    case KEY_CTRL_F:
-      env->screen->fullscreen();
-      break;
-
-    case KEY_CTRL_B:
-      if(!layer) {
-	error("can't change Blit: no Layer is selected, select one using arrows.");
-	break;
-      }
-      readline("select Blit mode for the selected Layer - press TAB for completion:",
-	       &blit_selection,&blit_comp);
-      break;
-    case KEY_CTRL_V:
-      if(!layer) {
-	error("can't change Blit Value: no Layer is selected, select one using arrows.");
-	break;
-      }
-      readline("set Blit value for the selected Layer:",
-	       &set_blit_value,NULL);
-      break;
-
-    case KEY_CTRL_O:
-      readline("open a file in a new Layer:",
-	       &open_layer,&filebrowse_completion);
-      break;
-      
-    case KEY_CTRL_J:
-#ifndef WITH_JAVASCRIPT
-      ::error("javascript is not compiled in this FreeJ binary");
-      break;
-#else
-      readline("input javascript command:",&js_proc,NULL);
-      break;
-#endif
-
-    case KEY_CTRL_L:
-      refresh();
-      break;
-      
-    default:
-      if(filter)
-	filter->kbd_input( key );
-      else if(layer)
-	layer->keypress( key );
-      break;
-			 
-      //    case KEY_CTRL_T:
-      //      ::notice("Welcome to %s %s",PACKAGE,VERSION);
-      //    :: act("layers supported:\n%s",layers_description);
-      //    break;
-    }
-  }
 }
 
 void Console::cafudda() {
@@ -749,7 +437,7 @@ void Console::cafudda() {
   if(do_update_scroll)
     update_scroll();
 
-  if(!input) {
+  if(!commandline) {
     speedmeter();
     statusline();
   } else
@@ -766,7 +454,7 @@ void Console::refresh() {
   layerprint(); layerlist();
   filterprint(); filterlist();  
   update_scroll();
-  if(!input)
+  if(!commandline)
     statusline();
   else
     GOTO_CURSOR;
@@ -1051,3 +739,498 @@ void Console::update_scroll() {
   do_update_scroll = false;
   GOTO_CURSOR;
 }
+
+
+
+
+////////////////////////////////////////////
+// KEY PARSERS
+////////////////////////////////////////////
+
+
+void Console::parser_default(int key) {
+  
+  commandline = false; // print statusline
+  
+  switch(key) {
+  case SL_KEY_UP:
+    if(!layer) break;
+    if(!filter) break;
+    filter = (Filter*)filter->prev;
+    if(filter) {
+      // select only the current
+      layer->filters.sel(0);
+      filter->sel(true);
+    }
+    break;
+
+  case SL_KEY_DOWN:
+    if(!filter) {
+      if(!layer) break;
+      filter = (Filter*)layer->filters.begin();
+      break;
+    }
+    if(!filter->next) break;
+    filter = (Filter*)filter->next;
+    // select only the current
+    layer->filters.sel(0);
+    filter->sel(true);      
+    break;
+
+  case SL_KEY_LEFT:
+    if(!layer) 
+      layer = (Layer*)env->layers.begin();
+    else if(!layer->prev)
+      layer = (Layer*)env->layers.end();
+    else
+      layer = (Layer*)layer->prev;
+    // select only the current
+    env->layers.sel(0);
+    layer->sel(true);
+    break;
+
+  case SL_KEY_RIGHT:
+    if(!layer)
+      layer = (Layer*)env->layers.begin();
+    else if(!layer->next)
+      layer = (Layer*)env->layers.begin();
+    else
+      layer = (Layer*)layer->next;
+    // select only the current
+    env->layers.sel(0);
+    layer->sel(true);
+    break;
+      
+  case SL_KEY_PPAGE:
+    // move layer/filter selected up in chain
+    if(filter)
+      filter->up();
+    else if(layer)
+      layer->up();
+    break;
+      
+  case SL_KEY_NPAGE:
+    // move layer/filter selected up in chain
+    if(filter)
+      filter->down();
+    else if(layer)
+      layer->down();
+    break;
+
+  case SL_KEY_END: break;
+
+  case SL_KEY_DELETE:
+    if(filter) {
+      filter->rem();
+      filter->clean();
+      filter = NULL;
+    } else if(layer) {
+      layer->rem();
+      layer->close();
+      layer = NULL;
+    }
+    break;
+    
+  case SL_KEY_IC:
+    if(!filter) break;
+    filter->active = !filter->active;
+    break;
+
+  case SL_KEY_HOME:
+    if(!layer) break;
+    layer->active = !layer->active;
+    break;
+
+  case KEY_CTRL_H:
+    notice("Hotkeys available in FreeJ console:");
+    act("arrow keys browse selection thru layers and effects");
+    act("HOME de/activate layer, INS de/activates filter");
+    act("ctrl+o  = Open new layer (will prompt for path to file)");
+    act("ctrl+e  = add a new Effect to the selected layer");
+    act("ctrl+b  = change the Blit for the selected layer");
+    act("ctrl+v  = fade the Blit Value for the selected layer");
+    act("ctrl+m  = move the selected layer around the screen");
+    act("ctrl+j  = activate jazz mode to pulse layers");
+    act("ctrl+c  = quit FreeJ");
+    act("ctrl+f  = go to Fullscreen");
+    act("ctrl+l  = cleanup and redraw the console");
+    act("ctrl+i  = switch on/off On Screen Display information");
+#ifdef WITH_JAVASCRIPT
+    act("ctrl+x  = execute a Javascript command");
+#endif
+    break;
+
+  case KEY_CTRL_I:
+    env->osd.active = !env->osd.active;
+    break;
+
+  case KEY_CTRL_E:
+    if(!layer) {
+      error("can't add Effect: no Layer is selected, select one using arrows.");
+      break;
+    }
+    readline("add new Effect - press TAB for completion:",&filter_proc,&filter_comp);
+    break;
+
+  case KEY_CTRL_F:
+    env->screen->fullscreen();
+    break;
+
+  case KEY_CTRL_B:
+    if(!layer) {
+      error("can't change Blit: no Layer is selected, select one using arrows.");
+      break;
+    }
+    readline("select Blit mode for the selected Layer - press TAB for completion:",
+	     &blit_selection,&blit_comp);
+    break;
+  case KEY_CTRL_V:
+    if(!layer) {
+      error("can't change Blit Value: no Layer is selected, select one using arrows.");
+      break;
+    }
+    readline("set Blit value for the selected Layer:",
+	     &set_blit_value,NULL);
+    break;
+
+  case KEY_CTRL_O:
+    readline("open a file in a new Layer:",
+	     &open_layer,&filebrowse_completion);
+    break;
+      
+  case KEY_CTRL_X:
+#ifndef WITH_JAVASCRIPT
+    ::error("javascript is not compiled in this FreeJ binary");
+  break;
+#else
+  readline("input script command:",&js_proc,NULL);
+  break;
+#endif
+
+  case KEY_CTRL_L:
+    refresh();
+    break;
+
+  case KEY_CTRL_M:
+    ::notice("move layer with arrows, press enter when done");
+  ::act("use arrow keys to move or keypad numbers");
+  ::act("also nethack movement keys work, press space to center");
+  parser = MOVELAYER;
+  break;
+
+  case KEY_CTRL_J:
+    ::notice("JAZZ mode activated, press keys to pulse layers");
+  parser = JAZZ;
+  break;
+
+  default:
+    if(filter)
+      filter->kbd_input( key );
+    else if(layer)
+      layer->keypress( key );
+    break;
+			 
+    //    case KEY_CTRL_T:
+    //      ::notice("Welcome to %s %s",PACKAGE,VERSION);
+    //    :: act("layers supported:\n%s",layers_description);
+    //    break;
+    }
+}
+
+void Console::parser_movelayer(int key) {
+  commandline = false; // print statusline
+
+  switch(key) {
+  case KEY_PLUS:
+    if(movestep<0xff) {
+      movestep++;
+      ::act("movement step increased to %i",movestep);
+    }
+    break;
+  case KEY_MINUS:
+    if(movestep>1) {
+      movestep--;
+      ::act("movement step decreased to %i",movestep);
+    }
+    break;
+  case '8':
+  case 'k':
+  case SL_KEY_UP:
+    layer->set_position(layer->geo.x,layer->geo.y-movestep);
+    break;
+  case '2':
+  case 'j':
+  case SL_KEY_DOWN:
+    layer->set_position(layer->geo.x,layer->geo.y+movestep);
+    break;
+  case '4':
+  case 'h':
+  case SL_KEY_LEFT:
+    layer->set_position(layer->geo.x-movestep,layer->geo.y);
+    break;
+  case '6':
+  case 'l':
+  case SL_KEY_RIGHT:
+    layer->set_position(layer->geo.x+movestep,layer->geo.y);
+    break;
+  case '7':
+  case 'y': // up+left
+    layer->set_position(layer->geo.x-movestep,layer->geo.y-movestep);
+    break;
+  case '9':
+  case 'u': // up+right
+    layer->set_position(layer->geo.x+movestep,layer->geo.y-movestep);
+    break;
+  case '1':
+  case 'b': // down+left
+    layer->set_position(layer->geo.x-movestep,layer->geo.y+movestep);
+    break;
+  case '3':
+  case 'n': // down+right
+    layer->set_position(layer->geo.x+movestep,layer->geo.y+movestep);
+    break;
+    
+  case '5':
+  case KEY_SPACE:
+    // place at the center
+    layer->set_position
+      ( (env->screen->w - layer->geo.w)/2,
+	(env->screen->h - layer->geo.h)/2 );
+    break;
+
+  case SL_KEY_ENTER:
+  case KEY_ENTER:
+    ::act("layer repositioned");
+    parser = DEFAULT;
+    break;
+  }
+  return;
+}
+
+void Console::parser_jazz(int key) {
+  commandline = false;
+  Layer *lay;
+  int num;
+  // table of valid keys
+  char *jazzkeys = "qwertyuiopasdfghjklzxcvbnm\0";
+  char *p;
+
+  // search for the key
+  for(p = jazzkeys; *p != key; p++)
+    if(*p=='\0') break;
+
+  if(*p!='\0') { // found
+    num = p - jazzkeys +1;
+    ::func("pulse layer %i",num);
+    // find it
+    lay = (Layer*) env->layers.pick(num);
+    // check it
+    if(!lay) return;
+    if(!lay->active) return;
+    // pulse it
+    lay->blitter.pulse_value(jazzstep,jazzvalue);
+    env->layers.sel(0);
+    lay->sel(true);
+    return;
+  }
+
+  switch(key) {
+  case SL_KEY_UP:
+    if(jazzstep<0xff) jazzstep++;
+    ::act("jazz mode step set to %i",jazzstep);
+    break;
+  case SL_KEY_DOWN:
+    if(jazzstep>1) jazzstep--;
+    ::act("jazz mode step set to %i",jazzstep);
+    break;
+  case SL_KEY_RIGHT:
+    if(jazzvalue<0xff) jazzvalue++;
+    ::act("jazz mode value set to %i",jazzvalue);
+    break;
+  case SL_KEY_LEFT:
+    if(jazzvalue>1) jazzvalue--;
+    ::act("jazz mode value set to %i",jazzvalue);
+    break;
+
+  case SL_KEY_ENTER:
+  case KEY_ENTER:
+    ::act("JAZZ mode exited");
+  parser = DEFAULT;
+  break;
+  }
+  
+}
+
+// read a command from commandline
+// handles completion and execution from function pointers previously setup
+void Console::parser_commandline(int key) {
+  int res, c;
+
+  commandline = true; // don't print statusline
+
+  /* =============== console command input */
+  if(cursor>512) {
+    error("command too long, can't type more.");
+    return;
+  }
+  //::func("input key: %i",key);
+  SLsmg_set_color(PLAIN_COLOR);
+  
+  switch(key) {
+    
+  case SL_KEY_ENTER:
+  case KEY_ENTER:
+    // a blank commandline aborts the input
+    if(command[0]==EOL) {
+      func("command aborted");
+      parser = DEFAULT;
+      cmd_process = NULL;
+      cmd_complete = NULL;
+      statusline();
+      return;
+    }
+    // otherwise process the input
+    res = (*cmd_process)(command);
+    if(res<0) return;
+    // reset the parser
+    parser = DEFAULT;
+    cmd_process = NULL;
+    cmd_complete = NULL;
+    statusline();
+    // save in commandline history
+    entr = new Entry();
+    entr->data = strdup(command);
+    history.append( entr );
+    if(history.len()>32) // histsize
+      delete history.begin();
+    entr = NULL;
+    return;
+
+  case SL_KEY_UP:
+    // pick from history
+    if(!entr) // select the latest
+      entr = history.end();
+    else
+      entr = entr->prev;
+    if(!entr) return; // no hist
+    strncpy(command,(char*)entr->data,512);
+    // type the command on the console
+    SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
+    SLsmg_write_string(command);
+    SLsmg_erase_eol();
+    cursor = strlen(command);
+    GOTO_CURSOR;
+    return;
+
+  case SL_KEY_DOWN:
+    // pick from history
+    if(!entr) return;
+    if(!entr->next) return;
+    entr = entr->next;
+    strncpy(command,(char*)entr->data,512);
+    // type the command on the console
+    SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
+    SLsmg_write_string(command);
+    SLsmg_erase_eol();
+    cursor = strlen(command);
+    GOTO_CURSOR;
+    return;
+
+  case KEY_CTRL_G:
+    parser = DEFAULT;
+    cmd_process = NULL;
+    cmd_complete = NULL;
+    statusline();
+    return;
+
+  case KEY_TAB:
+    if(!cmd_complete) return;
+    res = (*cmd_complete)(command);
+    if(!res) return;
+    else if(res==1) { // exact match!
+      SLsmg_gotorc(SLtt_Screen_Rows - 1,1);
+      SLsmg_write_string(command);
+      SLsmg_erase_eol();
+      cursor = strlen(command);
+    }
+    update_scroll();
+    GOTO_CURSOR;
+    return;
+
+
+  case KEY_BACKSPACE:      /*** FIXME */
+    if(!cursor) return;
+    cursor--;
+    if(command[cursor+1]==EOL) {
+      // func("cursor on end of line");
+      command[cursor] = EOL;
+    } else {
+      for(c=cursor;command[c]!=EOL;c++)
+	command[c] = command[c+1];
+      command[c] = EOL;
+      SLsmg_write_string(&command[cursor]);
+    }
+    SLsmg_erase_eol();
+    GOTO_CURSOR;
+    return;
+
+    /* the following ctrl combos are to imitate
+       the UNIX commandline behaviour
+       (c-e eol, c-d delete, c-k eol del etc.) */
+  case SL_KEY_LEFT:
+    if(cursor) cursor--;
+    GOTO_CURSOR;
+    return;
+  case SL_KEY_RIGHT:
+    if(command[cursor]) cursor++;
+    GOTO_CURSOR;
+    return;
+  case KEY_CTRL_D:
+    for(c=cursor;command[c]!=EOL;c++)
+      command[c] = command[c+1];
+    GOTO_CURSOR;
+    SLsmg_write_string(&command[cursor]);
+    SLsmg_erase_eol();
+    GOTO_CURSOR;
+    return;
+  case KEY_CTRL_A:
+  case KEY_HOME:
+    cursor=0;
+    GOTO_CURSOR;
+    return;
+  case KEY_CTRL_E:
+    while(command[cursor]!=EOL) cursor++;
+    GOTO_CURSOR;
+    return;
+  case KEY_CTRL_K:
+    for(c=cursor;command[c]!=EOL;c++)
+      command[c] = EOL;
+    GOTO_CURSOR;
+    SLsmg_erase_eol();
+    return;
+  case KEY_CTRL_U:
+    for(c=0;command[cursor+c]!=EOL;c++)
+      command[c] = command[cursor+c];
+    for(;command[c]!=EOL;c++)
+      command[c] = EOL;
+    cursor=0;
+    GOTO_CURSOR;
+    SLsmg_write_string(&command[cursor]);
+    SLsmg_erase_eol();
+    GOTO_CURSOR;
+    return;
+    
+  }
+  /* add char at cursor position
+     insert mode       FIX ME! */
+  for(c=cursor;command[c+1]!=EOL;c++)
+    command[c+1] = command[c];
+  command[cursor] = key;
+  
+  GOTO_CURSOR;
+  SLsmg_write_string(&command[cursor]);
+  SLsmg_erase_eol();
+  cursor++;
+  GOTO_CURSOR;
+}
+  

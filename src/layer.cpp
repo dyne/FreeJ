@@ -154,8 +154,10 @@ void Layer::set_position(int x, int y) {
   geo.y = y;
   blitter.crop( freej->screen );
   unlock();
+}
 
-  /*
+void Layer::slide_position(int x, int y) {
+
   if(x!=geo.x) {
     iter = new Iterator((int32_t*)&geo.x);
     iter->set_aim(x);
@@ -167,5 +169,5 @@ void Layer::set_position(int x, int y) {
     iter->set_aim(y);
     iterators.add(iter);
   }
-  */
+
 }

@@ -25,6 +25,7 @@
 #include <linklist.h>
 #include <slang.h>
 
+
 /* The SLscroll routines will use this structure. */
 typedef struct _File_Line_Type {
   struct _File_Line_Type *next;
@@ -41,6 +42,7 @@ class Context;
 class Layer;
 class Filter;
 
+
 class Console {
  public:
   
@@ -56,7 +58,6 @@ class Console {
   void warning(char *msg);
   void act(char *msg);
   void func(char *msg);
-
   
   /* takes a pointer to the function which will be
      in charge of processing the input collected */
@@ -93,12 +94,26 @@ class Console {
   bool do_update_scroll;
 
   /* input console command */
-  bool input;
+  bool commandline;
   int cursor;
   char command[512];
   cmd_process_t *cmd_process;
   cmd_complete_t *cmd_complete;
-  
+
+  enum parser_t { DEFAULT,
+		  COMMANDLINE,
+		  MOVELAYER,
+		  JAZZ } parser; // which parser to use for keys
+
+  void parser_default(int key);
+  void parser_commandline(int key);
+  void parser_movelayer(int key);
+  void parser_jazz(int key);
+
+  int movestep;
+  int jazzstep;
+  int jazzvalue;
+
   /* The SLscroll routines will use this structure. */
   void free_lines(File_Line_Type *line);
   File_Line_Type *create_line(char *buf);
@@ -109,5 +124,7 @@ class Console {
 
   Entry *entr;
 };
+
+
 
 #endif

@@ -26,13 +26,11 @@
 #include <inttypes.h>
 #include <linklist.h>
 
-#define ITERATOR_MODE_ONCE 1
-#define ITERATOR_MODE_LOOP 2
-#define ITERATOR_MODE_PINGPONG 3
-
 #define ITERATOR_ENVELOPE_LINEAR 1
 #define ITERATOR_ENVELOPE_SIN 2
 #define ITERATOR_ENVELOPE_RAND 3
+
+enum iterator_mode_t { ONCE, PULSE };
 
 class Iterator : public Entry {
  public:
@@ -46,18 +44,20 @@ class Iterator : public Entry {
   void set_step(int32_t val);
   void set_aim(int32_t val);
   void set_value(int32_t *val);
-
-  int mode;
+  void set_mode(iterator_mode_t m);
+  
   int envelope;
   bool direction;
   
  private:
   int32_t *value;
+  int32_t saved_value;
   int32_t min;
   int32_t max;
   int32_t aim;
   int32_t step;
 
+  iterator_mode_t mode;
 };
 
 
