@@ -186,6 +186,7 @@ JS(entry_up) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
    entry->up();
  return JS_TRUE;
 }
+
 JS(entry_move) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
  func("JsParser :: entry_move()");
  int pos;
@@ -200,13 +201,8 @@ JS(entry_move) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
  return JS_TRUE;
 }
 
-
-
-
-
-
-JSBool rem_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
-    func("JsParser :: remove_layer()");
+JS(rem_layer) { 
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     JSObject *jslayer;
 
     jslayer = JSVAL_TO_OBJECT(argv[0]);
@@ -230,8 +226,9 @@ JSBool rem_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
     }
     return JS_TRUE;
 }
-JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval) {
-    func("JsParser :: add_layer()");
+
+JS(add_layer) { 
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     JSObject *jslayer;
 
     jslayer = JSVAL_TO_OBJECT(argv[0]);
@@ -258,15 +255,13 @@ JSBool add_layer(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *r
 }
 JS(layer_set_blit) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     JSObject *jslayer=NULL;
-    //    JSString *jsblit_type=NULL;
     char *blit_type=NULL;
 
     blit_type=JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
     if(!blit_type) {
       error("JsParser :: set_blit called with NULL argument");
     }
-    Layer *lay;
-    lay = (Layer *) JS_GetPrivate(cx, obj);
+    Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
     if(!lay) {
       error("JsParser :: Layer core data is null");
       return JS_FALSE;
@@ -286,9 +281,175 @@ JS(layer_set_blit) { func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     return JS_TRUE;
 }
+JS(layer_get_blit) { 
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jslayer=NULL;
+    JSString *str=NULL;
+    char *blit_type=NULL;
 
+    Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	blit_type=lay->get_blit();
+	str = JS_NewStringCopyZ(cx, blit_type); 
+	*rval = STRING_TO_JSVAL(str);
+    }
+    return JS_TRUE;
+}
+JS(layer_get_name) { 
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
+    JSObject *jslayer=NULL;
+    JSString *str=NULL;
+    char *layer_name=NULL;
 
+    Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	layer_name=lay->get_name();
+	str = JS_NewStringCopyZ(cx, layer_name); 
+	*rval = STRING_TO_JSVAL(str);
+    }
+    return JS_TRUE;
+}
+JS(layer_get_filename) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jslayer=NULL;
+    JSString *str=NULL;
+    char *layer_filename=NULL;
+
+    Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	layer_filename=lay->get_filename();
+	str = JS_NewStringCopyZ(cx, layer_filename); 
+	*rval = STRING_TO_JSVAL(str);
+    }
+    return JS_TRUE;
+}
+
+JS(layer_set_position) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jslayer=NULL;
+    int new_x_position;
+    int new_y_position;
+
+    if(argc<2)
+	return JS_FALSE;
+    new_x_position=JSVAL_TO_INT(argv[0]);
+    new_y_position=JSVAL_TO_INT(argv[1]);
+
+    Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	lay->set_position(new_x_position,new_y_position);
+    }
+    return JS_TRUE;
+}
+JS(layer_get_x_position) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jslayer=NULL;
+
+    Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	*rval=INT_TO_JSVAL(lay->geo.x);
+    }
+    return JS_TRUE;
+}
+JS(layer_get_y_position) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jslayer=NULL;
+
+    Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	*rval=INT_TO_JSVAL(lay->geo.y);
+    }
+    return JS_TRUE;
+}
+JS(layer_set_alpha) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jslayer=NULL;
+    int new_alpha;
+
+    if(argc<1)
+	return JS_FALSE;
+    new_alpha=JSVAL_TO_INT(argv[0]);
+
+    Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	lay->set_alpha(new_alpha);
+    }
+    return JS_TRUE;
+}
+JS(layer_get_alpha) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jslayer=NULL;
+
+    Layer *lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	*rval=INT_TO_JSVAL(lay->alpha);
+    }
+    return JS_TRUE;
+}
+JS(layer_activate) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    
+    JSObject *jslayer=NULL;
+
+    Layer *lay;
+    lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	lay->hidden=false; /* XXX */
+    }
+    return JS_TRUE;
+}
+JS(layer_deactivate) {
+    func("JsParser :: layer_deactivate()");
+    JSObject *jslayer=NULL;
+
+    Layer *lay;
+    lay = (Layer *) JS_GetPrivate(cx, obj);
+    if(!lay) {
+      error("JsParser :: Layer core data is null");
+      return JS_FALSE;
+    }
+    else {
+	lay->hidden=true; /* XXX */
+    }
+    return JS_TRUE;
+}
 /* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
   jsval ret_val;
