@@ -30,6 +30,7 @@ extern "C" {
   void mmxblit_or(void *src1, void *dst, unsigned int height, unsigned int pitch, unsigned int scr_pitch);
   void vline(void *scr, unsigned int height, unsigned int pitch, unsigned int bpp);
   void hline(void *scr, unsigned int width, unsigned int bpp);
+  void mmxosd_clean(void *scr, double col);
   void clearscr(void *scr, unsigned int size);
 }
 

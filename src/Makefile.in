@@ -91,7 +91,7 @@ NASM = nasm -f elf
 
 bin_PROGRAMS = freej
 
-freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l_layer.cpp		@AVI_LAYER@		png_layer.cpp		linklist.cpp		jsync.cpp		keyboard.cpp		osd.cpp			plugin.cpp		plugger.cpp		jutils.cpp		tvfreq.c		lubrify.c		cpu_accel.c		yuv2rgb.c yuv2rgb_mmx.c		vline16.asm vline32.asm 	hline16.asm hline32.asm 	mmx_memcpy.asm 		mmx_blit.asm		mmx_blit_add.asm 	mmx_blit_sub.asm 	mmx_blit_and.asm 	mmx_blit_or.asm 	clearscr.asm
+freej_SOURCES =  	freej.cpp		context.cpp		layer.cpp		v4l_layer.cpp		@AVI_LAYER@		png_layer.cpp		linklist.cpp		jsync.cpp		keyboard.cpp		osd.cpp			plugin.cpp		plugger.cpp		jutils.cpp		tvfreq.c		lubrify.c		cpu_accel.c		yuv2rgb.c yuv2rgb_mmx.c		vline16.asm vline32.asm 	hline16.asm hline32.asm 	mmx_memcpy.asm 		mmx_blit.asm		mmx_blit_add.asm 	mmx_blit_sub.asm 	mmx_blit_and.asm 	mmx_blit_or.asm 	mmx_osd.asm 	clearscr.asm
 
 
 freej_LDADD = @SDL_LIBS@ @LIBS@ -lpthread -lm -ldl -lpng
@@ -111,7 +111,7 @@ jsync.$(OBJEXT) keyboard.$(OBJEXT) osd.$(OBJEXT) plugin.$(OBJEXT) \
 plugger.$(OBJEXT) jutils.$(OBJEXT) tvfreq.$(OBJEXT) lubrify.$(OBJEXT) \
 cpu_accel.$(OBJEXT) yuv2rgb.$(OBJEXT) yuv2rgb_mmx.$(OBJEXT) vline16.o \
 vline32.o hline16.o hline32.o mmx_memcpy.o mmx_blit.o mmx_blit_add.o \
-mmx_blit_sub.o mmx_blit_and.o mmx_blit_or.o clearscr.o
+mmx_blit_sub.o mmx_blit_and.o mmx_blit_or.o mmx_osd.o clearscr.o
 freej_DEPENDENCIES = 
 freej_LDFLAGS = 
 CXXFLAGS = @CXXFLAGS@
@@ -136,9 +136,9 @@ DEP_FILES =  .deps/clearscr.P .deps/context.P .deps/cpu_accel.P \
 .deps/jutils.P .deps/keyboard.P .deps/layer.P .deps/linklist.P \
 .deps/lubrify.P .deps/mmx_blit.P .deps/mmx_blit_add.P \
 .deps/mmx_blit_and.P .deps/mmx_blit_or.P .deps/mmx_blit_sub.P \
-.deps/mmx_memcpy.P .deps/osd.P .deps/plugger.P .deps/plugin.P \
-.deps/png_layer.P .deps/tvfreq.P .deps/v4l_layer.P .deps/vline16.P \
-.deps/vline32.P .deps/yuv2rgb.P .deps/yuv2rgb_mmx.P
+.deps/mmx_memcpy.P .deps/mmx_osd.P .deps/osd.P .deps/plugger.P \
+.deps/plugin.P .deps/png_layer.P .deps/tvfreq.P .deps/v4l_layer.P \
+.deps/vline16.P .deps/vline32.P .deps/yuv2rgb.P .deps/yuv2rgb_mmx.P
 SOURCES = $(freej_SOURCES)
 OBJECTS = $(freej_OBJECTS)
 

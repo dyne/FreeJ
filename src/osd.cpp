@@ -103,6 +103,7 @@ void Osd::init(Context *screen) {
   this->screen = screen;
   _hbound = screen->w / HBP;
   _vbound = screen->h / VBP;
+  notice("vbound = %i    hbound = %i",_vbound, _hbound);
   screen->osd = this;
   switch(screen->bpp) {
   case 16:
@@ -119,30 +120,7 @@ void Osd::print() {
   if(!_active) return;
   
   /* clean up for refresh */
-  if(!screen->clear_all) {
-    unsigned char *p;
-    int c;
-    /* clear upper section */
-    bzero(screen->get_surface(),screen->pitch*_vbound);
-    
-    /* clear left section */
-
-    p = (unsigned char *)screen->coords(1,_vbound+TOPLIST);
-    for(c=screen->h-(_vbound<<1);c>0;c--) {
-      bzero(p,(_hbound<<(screen->bpp>>4))>>1);
-      p = (unsigned char *) p+screen->pitch;
-    }
-    
-    /* clear right section */
-    p = (unsigned char *)screen->coords(screen->w-17,_vbound+TOPLIST);
-    for(c=screen->h-(_vbound<<1);c>0;c--) {
-      bzero(p,(_hbound<<(screen->bpp>>4))>>1);
-      p = (unsigned char *) p+screen->pitch;
-    }
-
-    /* clear lower section */
-    bzero(screen->coords(_hbound,screen->h-_vbound),screen->pitch*_vbound);
-  }
+  mmxosd_clean(screen->get_surface(),0x0);
 
   if(_calibrate) {
     /* vert up left */

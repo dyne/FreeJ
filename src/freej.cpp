@@ -167,7 +167,8 @@ int main (int argc, char **argv) {
       if(cli_chars<=0) break; *p='\0';
 
       /* AVI LAYERS */
-      if(strncmp((p-4),".avi",4)==0) {
+      if( strncmp((p-4),".avi",4)==0
+	  | strncmp((p-4),".asf",4)==0 ) {
 #ifdef WITH_AVIFILE
 	avi = new AviLayer();
 	if(avi->open(pp))
@@ -195,7 +196,7 @@ int main (int argc, char **argv) {
   if(grabber.detect(v4ldevice))
     assert( grabber.init(&screen,GW,GH) );
   else
-    act("a video 4 linux device is not present");
+    act("a video 4 linux device is not present: no live video");
 
   /* if the context has no layers quit here */
   if(screen.layers.len()<1) {
@@ -251,7 +252,7 @@ int main (int argc, char **argv) {
   if(avi) avi->quit = true;
 #endif
   /* we need to wait here to be sure the threads quitted:
-     can't use join because threads are detached for better performance */
+     don't use join because threads are detached for better performance */
   SDL_Delay(3000);
   
   /* this calls all _delete() methods to safely free all memory */

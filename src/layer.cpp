@@ -112,6 +112,7 @@ bool Layer::del_filter(int sel) {
   lock();
   filters.rem(sel);
   filt->inuse = false;
+  filt->initialized = false;
   unlock();
 
   show_osd("DEL filter %s pos %u",filt->getname(),sel);
@@ -130,6 +131,7 @@ void Layer::clear_filters() {
     c++;
     filters.rem(1);
     f->inuse = false;
+    f->initialized = false;
     f = (Filter *)filters.begin();
   }
   unlock();

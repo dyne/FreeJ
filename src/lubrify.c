@@ -37,6 +37,7 @@ extern void asm_vline16(void);
 extern void asm_hline16(void);
 extern void asm_vline32(void);
 extern void asm_hline32(void);
+extern void mmx_osd_clean(void);
 extern void asm_clearscr(void);
 
 void mmxcopy(void *src1, void *dst, unsigned int size) {
@@ -130,6 +131,13 @@ void hline(void *scr, unsigned int width, unsigned int bpp) {
     break;
   }
 
+}
+
+void mmxosd_clean(void *scr, double col) {
+  /* hardcoded for 400x300 32bpp */
+  asmdst = scr;
+  asmsrc1 = (unsigned char *)&col;
+  mmx_osd_clean();
 }
 
 void clearscr(void *scr, unsigned int size) {

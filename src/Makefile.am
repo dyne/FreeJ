@@ -37,6 +37,7 @@ freej_SOURCES = \
 	mmx_blit_sub.asm \
 	mmx_blit_and.asm \
 	mmx_blit_or.asm \
+	mmx_osd.asm \
 	clearscr.asm
 
 freej_LDADD = @SDL_LIBS@ @LIBS@ -lpthread -lm -ldl -lpng
