@@ -357,10 +357,10 @@ void Osd::draw_credits() {
   _set_color(white);
   pos = hicredits_offset;
   pos = print(title,pos,1,2);
-  pos = print("free realtime video processing",pos,1,1);
+  pos = print(":: set the veejay free",pos,1,1);
   pos = locredits_offset1;
-  pos = print("GNU GPL (c)2001-04",pos,1,1);
-  pos = print("jaromil @ dyne.org",pos,1,1);
+  pos = print("by jaromil & kysucix",pos,1,1);
+  pos = print("|| dyne.org software",pos,1,1);
   pos = locredits_offset2;
   print("freej.org",pos,2,2);
 

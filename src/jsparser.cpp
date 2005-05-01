@@ -23,6 +23,8 @@
  */
 
 #include <string.h>
+#include <dirent.h>
+
 #include <context.h>
 #include <signal.h>
 #include <config.h>
@@ -181,6 +183,11 @@ void JsParser::init() {
 //
    /** register SIGINT signal */
    signal(SIGINT, sigint_handler);
+
+   ///////////////////////////////
+   // setup the freej context
+   env->osd.active = false;
+
 
    return;
 }
@@ -418,25 +425,90 @@ JS(layer_list_effects) {
 }  
 
 JS(fullscreen) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   env->screen->fullscreen();
   env->clear_all = !env->clear_all;
   return JS_TRUE;
 }
 
-JS(set_size) {
-    int w = JSVAL_TO_INT(argv[0]);
-    int h = JSVAL_TO_INT(argv[1]);
-    env->screen->resize(w, h);
-    return JS_TRUE;
+JS(set_resolution) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  int w = JSVAL_TO_INT(argv[0]);
+  int h = JSVAL_TO_INT(argv[1]);
+  env->screen->resize(w, h);
+  return JS_TRUE;
 }
 
+static int dir_selector(const struct dirent *dir) {
+  if(dir->d_name[0]=='.') return(0); // remove hidden files
+  return(1);
+}
+JS(freej_scandir) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  JSObject *arr;
+  JSString *str;
+  jsval val;
+    
+  struct dirent **filelist;
+  int found;
+  int c = 0;
+  char *dir;
+  
+  JS_ARG_STRING(dir,0);
+  
+  found = scandir(dir,&filelist,dir_selector,alphasort);
+  if(found<0) {
+    error("scandir error: %s",strerror(errno));
+    return JS_TRUE; // fatal error
+  }
+
+  arr = JS_NewArrayObject(cx, 0, NULL); // create void array
+  if(!arr) return JS_FALSE;
+
+  // now fill up the array  
+  while(found--) {
+    
+    str = JS_NewStringCopyZ(cx, filelist[found]->d_name); 
+    val = STRING_TO_JSVAL(str);    
+    JS_SetElement(cx, arr, c, &val );
+    c++;
+  }
+
+  *rval = OBJECT_TO_JSVAL( arr );
+  return JS_TRUE;
+}
+
+JS(freej_echo) {
+  char *msg;
+  JS_ARG_STRING(msg,0);
+  fprintf(stderr,"%s\n",msg);
+  return JS_TRUE;
+}
+
+JS(freej_strstr) {
+  char *haystack;
+  char *needle;
+  char *res;
+  int intval;
+  JS_ARG_STRING(haystack,0);
+  JS_ARG_STRING(needle,1);
+  res = strstr(haystack, needle);
+  if(res == NULL)
+    intval = 0;
+  else intval = 1;
+  *rval = INT_TO_JSVAL(intval);
+  return JS_TRUE;
+}
+  
+
 // debugging commodity
+// run freej with -D3 to see this
 JS(debug) {
   char *msg;
   
   JS_ARG_STRING(msg,0);
  
-  ::act("%s", msg);
+  func("%s", msg);
 
   return JS_TRUE;
 }
@@ -656,7 +728,11 @@ JS(layer_set_blit_value) {
     GET_LAYER(Layer);
     
     value = 255.0*value;
-    //    255:1=y:x
+    if(value>255) {
+      warning("blit values should be float ranged between 0.0 and 1.0");
+      value = 255;
+    }
+
     //    lay->blitter.fade_value(1,new_value);
     lay->blitter.set_value((int)value);
 

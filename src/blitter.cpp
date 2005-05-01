@@ -498,7 +498,7 @@ void Blitter::blit() {
       rotate;
       
     spin_zoom = // cycle zoom
-      (zoom_x >= 2) ? -spin_zoom :
+      (zoom_x >= 1.7) ? -spin_zoom :
       (zoom_x < 0.1) ? -spin_zoom :
       spin_zoom;
     zoom_y = zoom_x += spin_zoom;
@@ -617,12 +617,14 @@ void Blitter::blit() {
 
 bool Blitter::set_blit(char *name) {
   bool zeroing = false;
-  if(name[0]=='0') /* if a 0 is in front of the name
-		      we switch to 0 the value of the layer
-		      before activating it */
+  if(name[0]=='0') { /* if a 0 is in front of the name
+			we switch to 0 the value of the layer
+			before activating it */
     zeroing = true;
+    name++;
+  }
 
-  Blit *b = (Blit*)blitlist.search(name+zeroing);
+  Blit *b = (Blit*)blitlist.search(name);
 
   if(!b) {
     error("blit %s not found",name);
@@ -651,10 +653,8 @@ bool Blitter::set_blit(char *name) {
 
 void Blitter::set_value(int val) {
   current_blit->value = val;
-  func("val: %i",val);
   //  func("layer %s blit %s value %i",
   //       layer->get_name(),current_blit->get_name(),val);
-  
 }
 
 bool Blitter::pulse_value(int step, int val) {
@@ -858,9 +858,9 @@ void Blitter::crop(bool force) {
 
     geo = &geo_rotozoom;
     // shift up/left to center rotation
-    geo->x = layer->geo.x - (rotozoom->w - layer->geo.w)>>1;
-    geo->y = layer->geo.y - (rotozoom->h - layer->geo.h)>>1;
-    
+    geo->x = layer->geo.x - (rotozoom->w - layer->geo.w)/2;
+    geo->y = layer->geo.y - (rotozoom->h - layer->geo.h)/2;
+
     geo->w = rotozoom->w;
     geo->h = rotozoom->h;
     geo->bpp = 32;
@@ -976,7 +976,7 @@ void Blitter::crop(bool force) {
   }
   
   // calculate bytes per row
-  b->lay_bytepitch = b->lay_pitch * (geo->bpp>>3);
+  b->lay_bytepitch = b->lay_pitch * (geo->bpp/8);
 
   /* store values for further crop checking */
   old_x = geo->x;

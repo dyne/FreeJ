@@ -67,7 +67,6 @@ class Osd {
   bool _fps;
 
   Layer *ipernaut;
-  Filter *osd_water;
   Filter *osd_vertigo;
 
   /* used by the font renderer */

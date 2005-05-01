@@ -30,7 +30,7 @@
 #define ITERATOR_ENVELOPE_SIN 2
 #define ITERATOR_ENVELOPE_RAND 3
 enum iterator_envelope_t { LINEAR, SIN, RAND };
-enum iterator_mode_t { ONCE, PULSE };
+enum iterator_mode_t { ONCE, LOOP, BOUNCE, PULSE };
 
 class Iterator : public Entry {
  public:

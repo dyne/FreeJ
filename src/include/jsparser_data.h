@@ -121,7 +121,10 @@ JS(rand);
 JS(srand);
 JS(pause);
 JS(fullscreen);
-JS(set_size);
+JS(set_resolution);
+JS(freej_scandir);
+JS(freej_echo);
+JS(freej_strstr);
 
 ////////////////////////////////
 // Linklist Entry methods
@@ -248,7 +251,10 @@ static	JSFunctionSpec global_functions[] = {
     {"srand",           srand,                  1},
     {"pause",           pause,                  0},
     {"fullscreen",      fullscreen,             0},
-    {"set_size",        set_size,               2},
+    {"set_resolution",  set_resolution,         2},
+    {"scandir",         freej_scandir,          1},
+    {"echo",            freej_echo,             1},
+    {"strstr",          freej_strstr,           2},
     {0}
 };
 

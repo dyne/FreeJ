@@ -92,7 +92,19 @@ int Iterator::cafudda() {
 
     case ONCE: // stop once aim is reached
       return -1;
-      
+
+    case LOOP:
+      if(aim==max) // increasing
+	*value = min;
+      else // decreasing (aim==min)
+	*value = max;
+      break;
+
+    case BOUNCE:
+      if(*value>=max) aim = min;
+      else aim = max; // if(*value<=min)
+      break;
+
     case PULSE: // go back to the initial value and stop
       if(aim!=saved_value) {
 	aim = saved_value;
@@ -128,7 +140,9 @@ void Iterator::set_mode(iterator_mode_t m) {
   switch(m) {
 
   case ONCE: break;
-    
+
+  case LOOP: break;
+
   case PULSE:
     saved_value = (int32_t)*value;
     break;

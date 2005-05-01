@@ -53,8 +53,8 @@ void Layer::_init(Context *freej, int wdt, int hgt, int bpp) {
   geo.w = (wdt == 0) ? freej->screen->w : wdt;
   geo.h = (hgt == 0) ? freej->screen->h : hgt;
   geo.bpp = (bpp) ? bpp : freej->screen->bpp;
-  geo.size = geo.w*geo.h*(geo.bpp>>3);
-  geo.pitch = geo.w*(geo.bpp>>3);
+  geo.size = geo.w*geo.h*(geo.bpp/8);
+  geo.pitch = geo.w*(geo.bpp/8);
   geo.fps = freej->fps;
   geo.x = (freej->screen->w - geo.w)/2;
   geo.y = (freej->screen->h - geo.h)/2;
@@ -189,7 +189,8 @@ void Layer::pulse_alpha(int step, int value) {
     blitter.set_blit("0alpha"); /* by placing a '0' in front of the
 				   blit name we switch its value to
 				   zero before is being showed */
-    fade = true;
+    fade = true; // after the iterator it should deactivate the layer
+    // fixme: doesn't works well with concurrent iterators
   }
 
   blitter.pulse_value(step,value);
