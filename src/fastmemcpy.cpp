@@ -230,8 +230,8 @@ static void * agp_memcpy(void *to, const void *from , size_t len) {
 		MOVNTQ" %%mm6, 48(%1)\n"
 		MOVNTQ" %%mm7, 56(%1)\n"
 		:: "r" (from), "r" (to) : "memory");
-		((const unsigned char *)from)+=64;
-		((unsigned char *)to)+=64;
+		from = ((const unsigned char *)from)+64;
+		to   = ((unsigned char *)to)+64;
 	}
 #ifdef HAVE_MMX2
                 /* since movntq is weakly-ordered, a "sfence"
@@ -317,8 +317,8 @@ static void * mmx_memcpy(void * to, const void * from, size_t len)
                                     "movq %%mm6, 48(%1)\n"
                                     "movq %%mm7, 56(%1)\n"
                                     :: "r" (from), "r" (to) : "memory");
-               ((const unsigned char *)from)+=64;
-               ((unsigned char *)to)+=64;
+	       from = ((const unsigned char *)from)+64;
+		to   = ((unsigned char *)to)+64;
           }
           __asm__ __volatile__ ("emms":::"memory");
      }
@@ -404,8 +404,8 @@ static void * mmx2_memcpy(void * to, const void * from, size_t len)
                                     "movntq %%mm6, 48(%1)\n"
                                     "movntq %%mm7, 56(%1)\n"
                                     :: "r" (from), "r" (to) : "memory");
-               ((const unsigned char *)from)+=64;
-               ((unsigned char *)to)+=64;
+	       from = ((const unsigned char *)from)+64;
+		to   = ((unsigned char *)to)+64;
           }
           /* since movntq is weakly-ordered, a "sfence"
           * is needed to become ordered again. */
@@ -450,21 +450,21 @@ static void * sse_memcpy(void * to, const void * from, size_t len)
           len&=63;
           if (((unsigned long)from) & 15)
                /* if SRC is misaligned */
-               for (; i>0; i--) {
-                    __asm__ __volatile__ (
-                                         "prefetchnta 320(%0)\n"
-                                         "movups (%0), %%xmm0\n"
-                                         "movups 16(%0), %%xmm1\n"
-                                         "movups 32(%0), %%xmm2\n"
-                                         "movups 48(%0), %%xmm3\n"
-                                         "movntps %%xmm0, (%1)\n"
-                                         "movntps %%xmm1, 16(%1)\n"
-                                         "movntps %%xmm2, 32(%1)\n"
-                                         "movntps %%xmm3, 48(%1)\n"
-                                         :: "r" (from), "r" (to) : "memory");
-                    ((const unsigned char *)from)+=64;
-                    ((unsigned char *)to)+=64;
-               }
+		  for (; i>0; i--) {
+			  __asm__ __volatile__ (
+					  "prefetchnta 320(%0)\n"
+					  "movups (%0), %%xmm0\n"
+					  "movups 16(%0), %%xmm1\n"
+					  "movups 32(%0), %%xmm2\n"
+					  "movups 48(%0), %%xmm3\n"
+					  "movntps %%xmm0, (%1)\n"
+					  "movntps %%xmm1, 16(%1)\n"
+					  "movntps %%xmm2, 32(%1)\n"
+					  "movntps %%xmm3, 48(%1)\n"
+					  :: "r" (from), "r" (to) : "memory");
+			  from = ((const unsigned char *)from)+64;
+			  to   = ((unsigned char *)to)+64;
+		  }
           else
                /*
                   Only if SRC is aligned on 16-byte boundary.
@@ -484,8 +484,8 @@ static void * sse_memcpy(void * to, const void * from, size_t len)
                                          "movntps %%xmm2, 32(%1)\n"
                                          "movntps %%xmm3, 48(%1)\n"
                                          :: "r" (from), "r" (to) : "memory");
-                    ((const unsigned char *)from)+=64;
-                    ((unsigned char *)to)+=64;
+			  from = ((const unsigned char *)from)+64;
+			  to   = ((unsigned char *)to)+64;
                }
           /* since movntq is weakly-ordered, a "sfence"
            * is needed to become ordered again. */
@@ -560,8 +560,8 @@ static void * sse2_memcpy(void * to, const void * from, size_t len)
                                          "movntdq %%xmm6, 96(%1)\n"
                                          "movntdq %%xmm7, 112(%1)\n"
                                          :: "r" (from), "r" (to) : "memory");
-                    ((const unsigned char *)from)+=128;
-                    ((unsigned char *)to)+=128;
+			  from = ((const unsigned char *)from)+128;
+			  to   = ((unsigned char *)to)+128;
                }
           else
                /*
@@ -574,28 +574,28 @@ static void * sse2_memcpy(void * to, const void * from, size_t len)
                     __asm__ __volatile__ (
                                          "prefetchnta 640(%0)\n"
 					 
-                                         "movdqa (%0), %%xmm0\n"
-                                         "movdqa 16(%0), %%xmm1\n"
-                                         "movdqa 32(%0), %%xmm2\n"
-                                         "movdqa 48(%0), %%xmm3\n"
+                                         "movapd (%0), %%xmm0\n"
+                                         "movapd 16(%0), %%xmm1\n"
+                                         "movapd 32(%0), %%xmm2\n"
+                                         "movapd 48(%0), %%xmm3\n"
 					 
                                          "movntdq %%xmm0, (%1)\n"
                                          "movntdq %%xmm1, 16(%1)\n"
                                          "movntdq %%xmm2, 32(%1)\n"
                                          "movntdq %%xmm3, 48(%1)\n"
 					 
-                                         "movdqa 64(%0), %%xmm4\n"
-                                         "movdqa 80(%0), %%xmm5\n"
-                                         "movdqa 96(%0), %%xmm6\n"
-                                         "movdqa 112(%0), %%xmm7\n"
+                                         "movapd 64(%0), %%xmm4\n"
+                                         "movapd 80(%0), %%xmm5\n"
+                                         "movapd 96(%0), %%xmm6\n"
+                                         "movapd 112(%0), %%xmm7\n"
 
                                          "movntdq %%xmm4, 64(%1)\n"
                                          "movntdq %%xmm5, 80(%1)\n"
                                          "movntdq %%xmm6, 96(%1)\n"
                                          "movntdq %%xmm7, 112(%1)\n"
                                          :: "r" (from), "r" (to) : "memory");
-                    ((const unsigned char *)from)+=128;
-                    ((unsigned char *)to)+=128;
+			  from = ((const unsigned char *)from)+128;
+			  to   = ((unsigned char *)to)+128;
                }
           /* since movntq is weakly-ordered, a "sfence"
            * is needed to become ordered again. */

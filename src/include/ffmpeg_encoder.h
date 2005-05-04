@@ -5,7 +5,7 @@
 
 #include <config.h>
 #include <linklist.h>
-#include <encoder.h>
+#include <video_encoder.h>
 
 #ifdef WITH_AVCODEC
 #include <ffmpeg/avcodec.h>
@@ -27,7 +27,7 @@
 class Context;
 
 
-class FFmpegEncoder: public Encoder {
+class FFmpegEncoder: public VideoEncoder {
 
  public:
   

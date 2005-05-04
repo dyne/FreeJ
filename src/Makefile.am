@@ -49,13 +49,16 @@ freej_SOURCES = \
 	cpu_accel.cpp \
 	ffmpeg_encoder.cpp \
 	oggtheora_encoder.cpp \
-	encoder.cpp \
-	impl_encoders.cpp \
+	video_encoder.cpp \
+	impl_video_encoders.cpp \
 	image_layer.cpp \
-	fastmemcpy.cpp
+	fastmemcpy.cpp \
+	shouter.cpp \
+	pipe.cpp
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		 -ldl -lpthread -lm -lslang \
+		 -lportaudio \
 		@SDL_LIBS@ \
 		@AVIFILE_LIBS@ \
 		@FT2_LIBS@ \

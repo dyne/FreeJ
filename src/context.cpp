@@ -29,13 +29,19 @@
 #include <sdl_screen.h>
 #include <imagefilter.h>
 #include <jsparser.h>
-#include <encoder.h>
-#include <impl_encoders.h>
+#include <video_encoder.h>
+#include <impl_video_encoders.h>
+#include <pipe.h>
+#include <shouter.h>
+#include <signal.h>
+#include <errno.h>
 
 #include <jutils.h>
 #include <fastmemcpy.h>
 #include <config.h>
 
+void fsigpipe (int Sig);
+int got_sigpipe;
 
 Context::Context() {
 
@@ -80,7 +86,15 @@ bool Context::init(int wx, int hx) {
 
   // create object here to avoid performance issues at run time
 #ifdef WITH_AVCODEC
-  encoder = get_encoder("freej.ogg");
+  video_encoder = get_encoder("freej.ogg");
+
+  got_sigpipe = false;
+  if (signal (SIGPIPE, fsigpipe) == SIG_ERR) {
+    error ("Couldn't install SIGPIPE handler"); 
+    exit (0);
+  }
+
+  shouter = new Shouter();
 #endif
   
   find_best_memcpy();
@@ -98,7 +112,7 @@ void Context::close() {
   Layer *lay;
 
 #ifdef WITH_AVCODEC
-  delete encoder;
+  delete video_encoder;
 #endif
 
   if(console)
@@ -186,28 +200,42 @@ void Context::cafudda(double secs) {
       layers.unlock();
     }
 
-    /** print on screen display */
-    if(osd.active && interactive) osd.print();
-
-
 
 #ifdef WITH_AVCODEC
     // show results on file if requested encoder in a thread ?? not now. kysu.
-//	    if(! encoder->isStarted())
-//		    encoder->start();
-//	    encoder->has_finished_frame();
-//	    encoder->signal();
+//	    if(! video_encoder->isStarted())
+//		    video_encoder->start();
+//	    video_encoder->has_finished_frame();
+//	    video_encoder->signal();
 //
     if(save_to_file) {
 	    SdlScreen *scrigno = (SdlScreen *) screen;
-	    if(! encoder->init(this, scrigno)) {
-		    error("Can't save to file. retry!");
-		    save_to_file=false;
+
+//	    for ( int i = 0; i < 10 ;i ++) {
+		    if (!shouter -> start())
+			    save_to_file = false;
+//			    break;
+//		    else if (i == 9)
+//			    save_to_file = false;
+//	    }
+
+	    if (save_to_file) {
+		    if(! (video_encoder->init(this, scrigno) )) {
+			    error ("Can't save to file. retry!");
+			    save_to_file = false;
+		    }
+		    else {
+			    if (!video_encoder -> is_audio_inited())
+				    video_encoder -> start_audio_stream();
+			    video_encoder -> write_frame();
+		    }
 	    }
-	    else
-		    encoder->write_frame();
     }
 #endif
+
+    /** print on screen display */
+    if(osd.active && interactive) osd.print();
+
 
     /** show result on screen */
     screen->show();
@@ -312,4 +340,9 @@ void Context::rocknroll() {
   }
   layers.unlock();
   
+}
+
+void fsigpipe (int Sig) {
+  warning("received signal SIGPIPE (%u) on process %u",Sig,getpid());
+  got_sigpipe = true;
 }

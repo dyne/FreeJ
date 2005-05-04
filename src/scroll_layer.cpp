@@ -23,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include <errno.h>
 
 #include <scroll_layer.h>
 #include <context.h>
@@ -35,7 +36,7 @@ ScrollLayer::ScrollLayer()
 
   first = last = NULL;
   procbuf = NULL;
-  path[0] = NULL;
+  path[0] = (char)NULL;
 
   set_name("SCR");
 }

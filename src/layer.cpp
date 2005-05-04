@@ -78,8 +78,9 @@ void Layer::run() {
   func("ok, layer %s in rolling loop",get_name());
   func("Layer :: run :: begin thread %d",pthread_self());
   
-  running = true;
   
+  lock_feed();
+  running = true;
   wait_feed();
   
   while(!quit) {

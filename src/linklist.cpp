@@ -37,7 +37,7 @@ Linklist::Linklist() {
   first = NULL;
   last = NULL;
   pthread_mutex_init(&mutex,NULL);
-  unlock();
+//  unlock();
 }
 
 Linklist::~Linklist() {

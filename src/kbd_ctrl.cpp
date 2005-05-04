@@ -19,7 +19,7 @@
 #include <iostream>
 
 #include <context.h>
-#include <encoder.h>
+#include <video_encoder.h>
 #include <jutils.h>
 #include <filter.h>
 #include <plugger.h>
@@ -188,13 +188,18 @@ void KbdListener::run() {
 
     case SDLK_s:
       if(keysym->mod & KMOD_CTRL) {
-            if (! env->save_to_file) {
-		notice("Starting encoding theora to %s",env->encoder->get_filename());
+            if (! env -> save_to_file) {
+		notice ("Saving to %s", env -> video_encoder -> get_filename());
 	    }
 	    else {
-		notice("Stopping encoding theora to %s",env->encoder->get_filename());
+		notice ("Stopping writing to %s", env -> video_encoder -> get_filename());
+		env -> video_encoder -> stop_audio_stream();
+
+//		notice ("Stopping streaming to %s:%u%s", env -> shouter -> host(), env -> shouter -> port(),
+//				env -> shouter -> mount());
+		env -> shouter -> stop();
 	    }
-	    env->save_to_file = !env->save_to_file;
+	    env -> save_to_file = ! env -> save_to_file;
       }
       
 

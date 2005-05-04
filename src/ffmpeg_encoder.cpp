@@ -28,7 +28,7 @@
 #include <sdl_screen.h>
 
 FFmpegEncoder::FFmpegEncoder(char *output_filename) 
-	:Encoder(output_filename) {
+	:VideoEncoder(output_filename) {
 	func("FFmpegEncoder::FFmpegEncoder::FFmpegEncoder object created");
 }
 FFmpegEncoder::~FFmpegEncoder() {
@@ -175,6 +175,7 @@ bool FFmpegEncoder::write_frame() {
 
 	codec=&video_stream->codec;
 
+	// TODO changed ffmpeg api :|
 	//    video_pts = (double)video_stream->pts.val * video_stream->time_base.num / video_stream->time_base.den;
 
 	picture_ptr = avcodec_alloc_frame();
@@ -213,6 +214,7 @@ bool FFmpegEncoder::write_frame() {
 	}
 	frame_count++;
 	env->screen->unlock();
+	return true;
 }
 AVFrame *FFmpegEncoder::prepare_image(AVFrame *picture_ptr) {
 	SdlScreen *sdl_screen;
@@ -275,8 +277,8 @@ void FFmpegEncoder::set_encoding_parameter() {
 	acc->height = env->screen->h;
 
 	/* frames per second */
-	acc->frame_rate = env->fps_speed;  
-	acc->frame_rate_base = 1;
+//	acc->frame_rate = env->fps_speed;  
+//	acc->frame_rate_base = 1;
 
 	acc->gop_size = 12; /* emit one intra frame every twelve frames at most */
 

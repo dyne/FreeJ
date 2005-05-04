@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Silvano Galliani aka kysucix <kysucix@dyne.org>
+ *  (c) Copyright 2005 Silvano Galliani aka kysucix <kysucix@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -19,23 +19,16 @@
  *
  */
 
+#ifndef __IMPL_VIDEO_ENCODERS_H__
+#define __IMPL_VIDEO_ENCODERS_H__
+
 #include <config.h>
-
-#include <encoder.h>
-#include <jutils.h>
-
-#include <impl_encoders.h>
-
-Encoder *get_encoder(char *output_filename) {
-	Encoder *e = NULL;
-	/*
-	if (strncasecmp( strrchr(filename,'.'), ".ogg",4)) {
-		return (new OggTheoraEncoder());
-		else
-			return (new FFmpegEncoder());
-	*/
-#ifdef WITH_AVCODEC // TODO let select ffmpeg encoder
-	e = new OggTheoraEncoder(output_filename);
+#include <video_encoder.h>
+#ifdef WITH_AVCODEC
+#include <ffmpeg_encoder.h>
 #endif
-	return e;
-}
+#include <oggtheora_encoder.h>
+
+
+VideoEncoder *get_encoder(char *output_filename);
+#endif

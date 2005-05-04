@@ -25,7 +25,7 @@
 
 #include <config.h>
 #include <linklist.h>
-#include <encoder.h>
+#include <video_encoder.h>
 #include <screen.h>
 
 #ifdef WITH_OGGTHEORA
@@ -36,9 +36,11 @@
 #include <ffmpeg/avcodec.h>
 #include <ffmpeg/avformat.h>
 
+#define AUDIO_BUFFER_SIZE 3528
+
 class Context;
 
-class OggTheoraEncoder: public Encoder{
+class OggTheoraEncoder: public VideoEncoder{
 
  public:
   
@@ -47,13 +49,13 @@ class OggTheoraEncoder: public Encoder{
   
   bool init(Context *_env, ViewPort *_screen);
   void set_encoding_parameter();
+  bool set_video_quality(int quality);
   bool write_frame();
   bool isStarted();
   
   
  private:
   
-  void open();
   void convert_to_YUV420P();
   void run(); ///< Main loop
   AVFrame *picture_rgb;
@@ -65,15 +67,19 @@ class OggTheoraEncoder: public Encoder{
   bool write_headers();
   bool write_theora_header();
   bool write_vorbis_header();
-  bool flush_headers();
+
   bool flush_theora_header();
   bool flush_vorbis_header();
-  bool flush_theora (int end_of_stream);
+
+  bool flush_ogg (int end_of_stream);
   void close_ogg_streams();
 
   bool  init_yuv_frame();
-  void  print_timing(int audio_or_video);
+  void  print_timing (double timebase);
   int encode_video( int end_of_stream);
+
+  // audio 
+  int encode_audio( int end_of_stream);
 
   double rint(double x);
 
@@ -82,6 +88,7 @@ class OggTheoraEncoder: public Encoder{
   bool use_audio;
   bool started;
   bool frame_finished;
+  int video_quality;
 
   /* video size */
   int video_x;
@@ -99,13 +106,13 @@ class OggTheoraEncoder: public Encoder{
   ogg_page videopage;
   ogg_page audiopage;
 
-  int videotime;
+  double videotime;
+  double audiotime;
 
   FILE *video_fp;
 
   unsigned char        *yuvframe[2]; /* yuv 420 */
   signed char        *line;
-  double timebase;
 
   // 2 separate logical bitstreams for theora and vorbis
   ogg_stream_state theora_ogg_stream; 
@@ -126,6 +133,7 @@ class OggTheoraEncoder: public Encoder{
   vorbis_block     vb; /* local working space for packet->PCM decode */
 
   ViewPort         *screen;
+  int16_t *audiobuffer;
 
 };
 

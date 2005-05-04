@@ -30,7 +30,7 @@
 #include <context.h>
 
 #include <osd.h>
-#include <encoder.h>
+#include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
 #include <config.h>
@@ -63,7 +63,7 @@
 
 static const char *help =
 " .  Usage: freej [options] [layers]\n"
-" .  options:\n"
+" .\n"
 " .   -h   print this help\n"
 " .   -v   version information\n"
 " .   -D   debug verbosity level - default 1\n"
@@ -73,26 +73,36 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
-" .   -j <javascript.js>  process javascript command file\n"
+" .   -j   <javascript.js>  process javascript command file\n"
 #ifndef WITH_JAVASCRIPT
-" ( disabled!, download spidermonkey \n"
+" .                      ( disabled!, download spidermonkey \n"
 " .        http://ftp.mozilla.org/pub/mozilla.org/js/js-1.5-rc6a.tar.gz\n"
 " .        and compile freej with --with-javascript=<path_to_spidermonkey> )"
 #endif
 "\n"
-" .   -e <file.ogg>  set filename of encoded ogg-theora\n"
-" .                  (default freej.ogg, start and stop it with CTRL-s)"
+" .   -e   <file.ogg>  set filename of encoded ogg-theora\n"
+" .                  (default freej.ogg, start and stop it with CTRL-s)\n"
+" .\n"
 #ifndef WITH_OGGTHEORA
 " (disabled! make sure you have installed correctly ogg http://www.vorbis.com/download.psp\n"
 " .        and theora http://theora.org/download.html )"
+" .\n"
 #endif
-"\n"
-" .  layers available:\n"
+" .   Streaming options:\n"
+" .   -i <server:port/mount.ogg> stream to server[:port] (default http://localhost:8000/freej.ogg)\n"
+" .   -p <password> mountpoint on server (default hackme)\n"
+" .   -t <name> name of the stream(default \"Streaming with freej\") \n"
+" .   -d    <description> description of the stream for icecast server(default \"Free the veejay in you\")\n"
+" .   -q    <theora_quality> quality of video encoding (range 0 - 63, default 16\n"
+" .                   0 low quality less bandwidth, 63 high quality more bandwidth)\n"
+//" .   -q    <vorbis_quality> quality of vorbis encoding (range 0 - 63, default 16, 0\n"
+" .\n"
+" .  Layers available:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:te:";
+static const char *short_options = "-hvD:gs:nj:e:i:p:t:d:q:";
 
 
 
@@ -104,7 +114,15 @@ int height = 300;
 int magn = 0;
 char javascript[512]; // script filename
 
-char encoded_filename[512]; // filename to save to
+static char encoded_filename[512]; // filename to save to
+
+/* icecast streaming options */
+static char screaming_url[512]; // s(c|t)reaming url ? :P
+static char screaming_pass[512]; // password
+static char screaming_name[512]; // name
+static char screaming_description[512]; // name
+
+static int theora_quality;
 
 bool startstate = true;
 bool gtkgui = false;
@@ -113,13 +131,22 @@ void cmdline(int argc, char **argv) {
   int res, optlen;
 
   /* initializing defaults */
-  char *p = layer_files;
-  javascript[0] = 0;
-  encoded_filename[0] = '\0';
-  debug = 1;
+  char *p                  = layer_files;
+  javascript[0]            = 0;
+
+  encoded_filename[0]      = '\0';
+  screaming_url[0]         = '\0';
+  screaming_pass[0]        = '\0';
+  screaming_name[0]        = '\0';
+  screaming_description[0] = '\0';
+
+  theora_quality           = -1;
+
+  debug                    = 1;
 
   do {
-    res = getopt (argc, argv, short_options);
+//    res = getopt_long (argc, argv, short_options); TODO getopt_long
+    res = getopt(argc, argv, short_options);
     switch(res) {
     case 'h':
       fprintf(stderr, "%s", help);
@@ -168,6 +195,27 @@ void cmdline(int argc, char **argv) {
 
      case 'e':
 	snprintf (encoded_filename, 512, "%s", optarg);
+      break;
+
+     case 'i':
+	snprintf (screaming_url, 512, "%s", optarg);
+      break;
+
+     case 'p':
+	snprintf (screaming_pass, 512, "%s", optarg);
+      break;
+
+     case 't':
+	snprintf (screaming_name, 512, "%s", optarg);
+      break;
+      
+     case 'd':
+	snprintf (screaming_description, 512, "%s", optarg);
+      break;
+
+     case 'q':
+      sscanf(optarg,"%u",&theora_quality);
+
       break;
 
    case 'j':
@@ -269,7 +317,48 @@ int main (int argc, char **argv) {
 
   /* initialize encoded filename */
   if (encoded_filename[0] != '\0')
-	  freej.encoder->set_output_name( encoded_filename );
+	  freej.video_encoder -> set_output_name (encoded_filename );
+
+
+  /*
+   * streaming options 
+   */
+  if (screaming_url[0] != '\0') {
+	  char *port = strrchr (screaming_url, ':');
+	  char *slash;
+	  char *mount;
+	  if (port) { 
+		  slash = strchr (port, '/');
+		  if(slash) {
+			  *slash = '\0';
+			  slash++;
+			  notice("MOUNT %s",slash);
+		  }
+
+		  notice("PORT %s", port+1);
+		  freej.shouter -> port (atoi(port+1));
+		  *port = '\0';
+	  } 
+	  mount = strrchr(screaming_url,'/') + 1;
+	  notice("URL %s", mount);
+	  freej.shouter -> host (mount);
+	  freej.shouter -> mount (slash );
+  }
+
+  if (screaming_name[0] != '\0')
+	  freej.shouter -> name (screaming_name );
+
+  if (screaming_description[0] != '\0')
+	  freej.shouter -> desc (screaming_description );
+
+  if (screaming_pass[0] != '\0')
+	  freej.shouter -> pass (screaming_pass );
+
+  if (theora_quality > 0)
+	  freej.video_encoder -> set_video_quality (theora_quality );
+
+  
+  freej.shouter -> apply_profile ( );
 
   freej.start_running = startstate;
 

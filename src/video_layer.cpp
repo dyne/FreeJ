@@ -49,6 +49,7 @@ VideoLayer::VideoLayer()
 	seekable=true;
 	enc=NULL;
 	backward_control=false;
+	video_clock = 0;
     }
 
 VideoLayer::~VideoLayer() {
@@ -132,7 +133,7 @@ bool VideoLayer::open(char *file) {
     av_register_all();
 
     /** make ffmpeg silent */
-//    av_log_set_level(AV_LOG_QUIET);
+    av_log_set_level(AV_LOG_QUIET);
 
     func("VideoLayer :: Registered all codec and format");
 

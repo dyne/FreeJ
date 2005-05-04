@@ -28,9 +28,11 @@
 #include <osd.h>
 #include <kbd_ctrl.h>
 //#include <console.h>
-#include <encoder.h>
+#include <video_encoder.h>
 #include <plugger.h>
 #include <screen.h>
+#include <pipe.h>
+#include <shouter.h>
 
 /* maximum height & width supported by context */
 #define MAX_HEIGHT 1024
@@ -38,7 +40,6 @@
 
 class JsParser;
 class Console;
-class Encode;
 
 class Context {
  private:
@@ -119,11 +120,14 @@ class Context {
   JsParser *js;
 
   /* encoding object */
-  Encoder *encoder;
+  VideoEncoder *video_encoder;
+
+  Shouter *shouter;
 
   /* Set the interval (in frames) after
      the fps counter is updated */
   void set_fps_interval(int interval);
+
   float fps;
   bool track_fps;
   

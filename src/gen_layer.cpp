@@ -187,8 +187,6 @@ void GenLayer::blossom() {
 }
 
 void GenLayer::blob_init(int ray) {
-  int i,j;
-  int val;
   uint8_t col;
 
   blob_size = ray*2;
