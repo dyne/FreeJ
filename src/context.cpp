@@ -342,7 +342,8 @@ void Context::rocknroll() {
   
 }
 
-void fsigpipe (int Sig) {
-  warning("received signal SIGPIPE (%u) on process %u",Sig,getpid());
-  got_sigpipe = true;
-}
+	void fsigpipe (int Sig) {
+		if(!got_sigpipe)
+			warning("Problems streaming video :-(");
+		got_sigpipe = true;
+	}

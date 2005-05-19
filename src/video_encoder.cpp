@@ -70,7 +70,8 @@ bool VideoEncoder::_init(Context *_env) {
 		return false;
 	env=_env;
 
-	init_audio();
+	if(!init_audio())
+		use_audio = false;
 
 	return true;
 }
@@ -244,6 +245,8 @@ bool VideoEncoder::is_audio_inited() {
 }
 
 bool VideoEncoder::start_audio_stream() {
+	if (!use_audio)
+		return true;
 	PaError err;
 
 	//test if the stream has already started 

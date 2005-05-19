@@ -35,7 +35,7 @@ Shouter::Shouter()
 		   func("Shouter::Shouter() using libshout version %i.%i.%i",vermaj,vermin,verpat);
 		   */
 
-		shout_init();
+//		shout_init();
 
 		ice = shout_new();
 
@@ -53,8 +53,7 @@ Shouter::Shouter()
 		port(8000);
 //		port(9000);
 		user("source");
-//		pass("n0d0n");
-		pass("sucala");
+		pass("hackme");
 		mount("freej.ogg");
 		login(SHOUT_PROTOCOL_HTTP); // defaults to icecast 2 login now
 		name("Streaming with FreeJ");

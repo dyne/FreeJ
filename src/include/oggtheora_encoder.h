@@ -85,7 +85,7 @@ class OggTheoraEncoder: public VideoEncoder{
 
   bool has_finished_frame();
 
-  bool use_audio;
+//  bool use_audio;
   bool started;
   bool frame_finished;
   int video_quality;

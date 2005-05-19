@@ -89,6 +89,7 @@ class VideoEncoder: public Entry {
 
   /* fifo to handle input audio */
   Pipe *coda;
+  bool use_audio;
 
 
   private:
