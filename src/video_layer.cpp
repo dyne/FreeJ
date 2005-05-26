@@ -138,20 +138,25 @@ bool VideoLayer::open(char *file) {
     func("VideoLayer :: Registered all codec and format");
 
 
-    if( strncasecmp(file,"/dev/ieee1394/",14)==0) {
-	notice("VideoLayer::found dv1394 device!\n");
-	grab_dv=true;
+    if( strncasecmp (file, "/dev/ieee1394/",14) == 0) {
+	notice ("VideoLayer::found dv1394 device!\n");
+	grab_dv = true;
 	av_input_format = av_find_input_format("dv1394");
 	av_format_par = &avp;
-	memset(av_format_par, 0, sizeof(*av_format_par));
+	memset (av_format_par, 0, sizeof (*av_format_par));
 
 	/** shit XXX */
-	av_format_par->width=720;
-	av_format_par->height=576;
-	av_format_par->frame_rate=25;
-	av_format_par->frame_rate_base=1;
-	av_format_par->device=file;
-	av_format_par->standard="pal";
+	av_format_par -> width             = 720;
+	av_format_par -> height            = 576;
+#if LIBAVCODEC_BUILD  >=     4754
+	av_format_par -> time_base.num   = 25;
+	av_format_par -> time_base.den   = 1;
+#else
+	av_format_par -> frame_rate=25;
+	av_format_par -> frame_rate_base = 1;
+#endif
+	av_format_par -> device          = file;
+	av_format_par -> standard        = "pal";
 //	av_format_par->channel=0;
 	file="";
     }
@@ -190,21 +195,31 @@ bool VideoLayer::open(char *file) {
 	 * Here we look for a video stream
 	 */
 	if (enc->codec_type == CODEC_TYPE_VIDEO) {
-	    video_index=i;
-	    codec = avcodec_find_decoder(enc->codec_id);
+	    video_index = i;
+	    codec = avcodec_find_decoder (enc -> codec_id);
 	    if(codec==NULL) {
 		error("VideoLayer :: Could not find a suitable codec");
 		return false;
 	    }
-	    if(avcodec_open(enc, codec)<0) {
+	    if (avcodec_open(enc, codec) < 0) {
 		error("VideoLayer :: Could not open codec");
 		return false;
 	    }
 	    else {
-		frame_rate=enc->frame_rate/enc->frame_rate_base;
-		notice("VideoLayer :: Using codec: %s",codec->name);
-		//notice("VideoLayer :: codec height: %d",enc->height);
-		//notice("VideoLayer :: codec width: %d",enc->width);
+#if LIBAVCODEC_BUILD  >=     4754
+		frame_rate = enc -> time_base.den / 
+			enc -> time_base.num;
+		AVRational rational = enc -> time_base;
+#else
+		frame_rate = enc->frame_rate / 
+			enc->frame_rate_base;
+#endif
+		notice ("VideoLayer :: Using codec: %s",    codec->name);
+//		notice ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
+//		notice ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);
+		notice ("VideoLayer :: frame_rate: %d",     frame_rate);
+		notice ("VideoLayer :: codec height: %d",   enc->height);
+		notice ("VideoLayer :: codec width: %d",    enc->width);
 		break;
 	    }
 	}
@@ -366,9 +381,16 @@ int VideoLayer::decode_packet(int *got_picture) {
     }
     video_current_pts=packet_pts;
     video_current_pts_time=av_gettime();
+    
     /* update video clock for next frame */
-    double frame_delay = (double)avformat_stream->codec.frame_rate_base /
+    double frame_delay ;
+#if LIBAVCODEC_BUILD  >=     4754
+    frame_delay = av_q2d (avformat_stream -> time_base);
+#else
+    frame_delay = (double)avformat_stream->codec.frame_rate_base /
 	(double)avformat_stream->codec.frame_rate;
+#endif
+
     /* for MPEG2, the frame can be repeated, so we update the
        clock accordingly */
     if (av_frame.repeat_pict) {

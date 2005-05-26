@@ -162,17 +162,42 @@ void KbdListener::run() {
       env->clear_all = !env->clear_all;
       break;
 
-    case SDLK_GREATER:
-      env->fps_speed++;
-      func("+ %d\n",env->fps_speed);
-      env->set_fps_interval(env->fps_speed);
-      break;
     case SDLK_LESS:
-      env->fps_speed--;
-      func("- %d\n",env->fps_speed);
-      env->set_fps_interval(env->fps_speed);
+      if(keysym->mod & KMOD_CTRL) { 
+	      if(keysym->mod & KMOD_SHIFT) { // CTRL + SHIFT + <
+		      layer->blitter.set_rotate( layer->blitter.rotate + 0.05);
+	      }
+	      else { // CTRL + < 
+		      layer->blitter.set_rotate( layer->blitter.rotate - 0.05);
+	      }
+      }
+      else if(keysym->mod & KMOD_SHIFT) { // SHIFT <
+	      env->fps_speed++;
+	      func("+ %d\n",env->fps_speed);
+	      env->set_fps_interval(env->fps_speed);
+      }
+      else { // <
+	      env->fps_speed--;
+	      func("- %d\n",env->fps_speed);
+	      env->set_fps_interval(env->fps_speed);
+      }
       break;
 
+    case SDLK_GREATER:
+      if(keysym->mod & KMOD_CTRL) {
+	      if(keysym->mod & KMOD_SHIFT) {
+		      layer->blitter.set_rotate( layer->blitter.rotate - 0.05);
+	      }
+	      else {
+		      layer->blitter.set_rotate( layer->blitter.rotate + 0.05);
+	      }
+      }
+      else {
+	      env->fps_speed++;
+	      func("+ %d\n",env->fps_speed);
+	      env->set_fps_interval(env->fps_speed);
+      }
+      break;
     case SDLK_KP_PLUS:
 	if(keysym->mod & KMOD_CTRL) {
 	    layer->blitter.set_zoom( layer->blitter.zoom_x + 0.01,
@@ -185,6 +210,16 @@ void KbdListener::run() {
 	layer->blitter.set_zoom( layer->blitter.zoom_x - 0.01,
 					   layer->blitter.zoom_y - 0.01);
       break;
+
+//    case SDLK_GREATER:
+//	if(keysym->mod & KMOD_CTRL) {
+//		if (keysym -> mod & KMOD_SHIFT)
+//		notice ("GREATER SHIFT");
+//
+//		notice ("GREATER");
+//	    layer->blitter.set_rotate( layer->blitter.rotate + 0.05);
+//	}
+  //    break;
 
     case SDLK_s:
       if(keysym->mod & KMOD_CTRL) {
@@ -227,6 +262,9 @@ void KbdListener::run() {
       else if(event.motion.state & SDL_BUTTON_RIGHT)
 	layer->set_position( event.motion.x, event.motion.y );
     i'm not sure why, but this doesn't works now */
+
+  if(keysym -> sym) 
+	  func("SLkd_getkey: %u",keysym -> sym);
 
     switch(keysym->sym) {
 

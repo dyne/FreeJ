@@ -241,12 +241,11 @@ void Context::cafudda(double secs) {
     screen->show();
 
 
-
     /******* handle timing */
 
     if(!secs) break; /* just one pass */
 
-    riciuca = (dtime()-now<secs) ? true : false;
+    riciuca = (dtime() - now < secs) ? true : false;
 
     calc_fps();
 
