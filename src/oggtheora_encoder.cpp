@@ -35,7 +35,7 @@ OggTheoraEncoder::OggTheoraEncoder(char *output_filename)
 	:VideoEncoder(output_filename) {
 		func("OggTheoraEncoder::OggTheoraEncoder::OggTheoraEncoder object created");
 
-		use_audio      = true;
+		use_audio      = false;
 
 		videoflag      = 0;
 		audioflag      = 0;
@@ -70,7 +70,7 @@ void OggTheoraEncoder::close_ogg_streams() {
 	theora_clear ( &td);
 }
 
-bool OggTheoraEncoder::init (Context *_env, ViewPort *_screen) {
+	bool OggTheoraEncoder::init (Context *_env, ViewPort *_screen) {
 		if(started)
 			return true;
 
@@ -79,7 +79,7 @@ bool OggTheoraEncoder::init (Context *_env, ViewPort *_screen) {
 
 		if (! _init(_env))
 			return false;
-		
+
 		screen = _screen;
 
 		init_ogg_streams();
@@ -119,7 +119,7 @@ bool OggTheoraEncoder::init (Context *_env, ViewPort *_screen) {
 		started = true;
 
 		return true;
-}
+	}
 void OggTheoraEncoder::set_encoding_parameter() { // boom. kysucix.
 }
 // OGG INIT
@@ -182,7 +182,7 @@ bool OggTheoraEncoder::theora_init() { // TODO freejrc &co
 	theora_information.aspect_numerator             = 0 ;
 	theora_information.aspect_denominator           = 0 ;
 	theora_information.colorspace                   = OC_CS_ITU_REC_470BG;
-//	theora_information.colorspace                   = OC_CS_UNSPECIFIED;
+	//	theora_information.colorspace                   = OC_CS_UNSPECIFIED;
 	theora_information.pixelformat                  = OC_PF_420;
 	theora_information.target_bitrate               = video_bit_rate;
 	theora_information.quality                      = compression_quality;
@@ -233,7 +233,7 @@ bool OggTheoraEncoder::vorbis_init() {
 
 	vorbis_comment_init (&vc);
 
-        vorbis_comment_add_tag (&vc, "ENCODER", PACKAGE );
+	vorbis_comment_add_tag (&vc, "ENCODER", PACKAGE );
 
 	vorbis_analysis_init (&vd, &vorbis_information);
 
@@ -244,14 +244,14 @@ bool OggTheoraEncoder::vorbis_init() {
 void OggTheoraEncoder::run() {
 	started=true;
 	while(true) {
-//		wait();
+		//		wait();
 
 		write_frame();
-//		signal_feed();
+		//		signal_feed();
 	}
 }
 bool OggTheoraEncoder::write_frame() {
-//	frame_finished = false;
+	//	frame_finished = false;
 
 	if (use_audio)
 		audioflag = encode_audio ( 0);
@@ -260,7 +260,7 @@ bool OggTheoraEncoder::write_frame() {
 
 	flush_ogg (0);
 
-//	frame_finished = true;
+	//	frame_finished = true;
 	return true;
 }
 void OggTheoraEncoder::print_timing(double timebase) {
@@ -285,13 +285,13 @@ void OggTheoraEncoder::print_timing(double timebase) {
 bool OggTheoraEncoder::write_headers() {
 	if (! (write_theora_header() && 
 				write_vorbis_header()) 
-			) {
+	   ) {
 		error ("OggTheoraEncoder::write_headers() can't write headers");
 		return false;
 	}
 	if(! (flush_theora_header() && 
 				flush_vorbis_header()) 
-			) {
+	  ) {
 		error ("OggTheoraEncoder::write_headers() can't flush headers");
 		return false;
 	}
@@ -344,7 +344,7 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 
 	float **vorbis_buffer; // internal buffer for libvorbis
 
-        if (end_of_stream)
+	if (end_of_stream)
 		vorbis_analysis_wrote (&vd, 0);
 	else {
 		// take audio from fifo queue
@@ -357,12 +357,12 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 		vorbis_buffer = vorbis_analysis_buffer (&vd, number_of_sample);
 		/* uninterleave samples */
 		for (int i=0; i < number_of_sample; i++){
-//			for(int j=0; j < audio_channels; j++){
-//				vorbis_buffer [j][i] = ( (audiobuffer [count+1] << 8) |
-//						(0x00ff & (int) audiobuffer [count]) )  / 32768.f;
-						
-				vorbis_buffer[0][i] = audiobuffer[count++] / 32768.f;
-//			}
+			//			for(int j=0; j < audio_channels; j++){
+			//				vorbis_buffer [j][i] = ( (audiobuffer [count+1] << 8) |
+			//						(0x00ff & (int) audiobuffer [count]) )  / 32768.f;
+
+			vorbis_buffer[0][i] = audiobuffer[count++] / 32768.f;
+			//			}
 		}
 		/* tell the library how much we actually submitted */
 		vorbis_analysis_wrote (&vd, number_of_sample);
@@ -425,13 +425,15 @@ bool OggTheoraEncoder::write_theora_header() {
 	}
 
 	// write header and body to file
-	
+
 	fwrite (opage.header, 1, opage.header_len, video_fp); /* TODO USE libshout */
 	fwrite (opage.body ,1, opage.body_len, video_fp);
 
 	// STOP BUFFER NOW! ... GOOOOOOOOO :)
-	env -> shouter -> send (opage.header, opage.header_len);
-	env -> shouter -> send (opage.body, opage.body_len);
+	if (stream) {
+		env -> shouter -> send (opage.header, opage.header_len);
+		env -> shouter -> send (opage.body, opage.body_len);
+	}
 
 	// create theora headers
 	theora_comment_init (&tc);
@@ -462,8 +464,10 @@ bool OggTheoraEncoder::write_vorbis_header() {
 		fwrite (opage.body, 1, opage.body_len, video_fp);
 
 		// STOP BUFFER NOW! ... GOOOOOOOOO :)
-		env -> shouter -> send (opage.header, opage.header_len);
-		env -> shouter -> send (opage.body, opage.body_len);
+		if (stream) {
+			env -> shouter -> send (opage.header, opage.header_len);
+			env -> shouter -> send (opage.body, opage.body_len);
+		}
 
 		// remaining vorbis header packets 
 		ogg_stream_packetin (&vorbis_ogg_stream, &header_comm);
@@ -483,8 +487,8 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 			func ("diff: %f", audiotime - videotime);
 
 		while ( end_of_stream ||
-				  ( (videotime <= audiotime || !use_audio) && 
-				    (videoflag == 1) ) ) {
+				( (videotime <= audiotime || !use_audio) && 
+				  (videoflag == 1) ) ) {
 			videoflag = 0;
 			while (ogg_stream_pageout (&theora_ogg_stream, &videopage) > 0) {
 				videotime = theora_granule_time (&td, ogg_page_granulepos (&videopage));
@@ -494,10 +498,12 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 				video_bytesout += fwrite (videopage.body, 1, videopage.body_len, video_fp);
 
 				// STOP BUFFER NOW! ... GOOOOOOOOO :)
-				env -> shouter -> send (videopage.header, videopage.header_len);
-				env -> shouter -> send (videopage.body, videopage.body_len);
+				if (stream) {
+					env -> shouter -> send (videopage.header, videopage.header_len);
+					env -> shouter -> send (videopage.body, videopage.body_len);
+				}
 
-//				print_timing (videotime);
+				//				print_timing (videotime);
 
 				videoflag = 1;
 				flushloop = 1;
@@ -520,11 +526,13 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 				audio_bytesout += fwrite (audiopage.body, 1,audiopage.body_len, video_fp);
 
 				// STOP BUFFER NOW! ... GOOOOOOOOO :)
-				env -> shouter -> send (audiopage.header, audiopage.header_len);
-				env -> shouter -> send (audiopage.body, audiopage.body_len);
+				if (stream) {
+					env -> shouter -> send (audiopage.header, audiopage.header_len);
+					env -> shouter -> send (audiopage.body, audiopage.body_len);
+				}
 
-//				print_timing (audiotime);
-//				akbps = rint (info->audio_bytesout * 8. / info->audiotime * .001);
+				//				print_timing (audiotime);
+				//				akbps = rint (info->audio_bytesout * 8. / info->audiotime * .001);
 
 				audioflag = 1;
 				flushloop = 1;
@@ -550,10 +558,12 @@ bool OggTheoraEncoder::flush_theora_header() {
 
 		fwrite (opage.header, 1, opage.header_len, video_fp);
 		fwrite (opage.body, 1, opage.body_len, video_fp);
-		
+
 		// STOP BUFFER NOW! ... GOOOOOOOOO :)
-		env -> shouter -> send (opage.header, opage.header_len);
-		env -> shouter -> send (opage.body, opage.body_len);
+		if (stream) {
+			env -> shouter -> send (opage.header, opage.header_len);
+			env -> shouter -> send (opage.body, opage.body_len);
+		}
 
 	}
 	return true;
@@ -562,19 +572,23 @@ bool OggTheoraEncoder::flush_vorbis_header() {
 	if (use_audio) {
 		while (1) {
 			int result = ogg_stream_flush (&vorbis_ogg_stream, &opage);
-			if (result<0){
+
+			if (result < 0){
 				/* can't get here */
 				error ("OggTheoraEncoder:flush_vorbis_header()Internal Ogg library error.");
 				return false;
 			}
-			if (result== 0)
+			if (result == 0)
 				break;
-			fwrite (opage.header,1,opage.header_len, video_fp);
-			fwrite (opage.body,1,opage.body_len, video_fp);
+
+			fwrite (opage.header, 1, opage.header_len, video_fp);
+			fwrite (opage.body, 1, opage.body_len, video_fp);
 
 			// STOP BUFFER NOW! ... GOOOOOOOOO :)
-			env -> shouter -> send (opage.header, opage.header_len);
-			env -> shouter -> send (opage.body, opage.body_len);
+			if (stream) {
+				env -> shouter -> send (opage.header, opage.header_len);
+				env -> shouter -> send (opage.body, opage.body_len);
+			}
 		}
 	}
 	return true;
@@ -597,9 +611,9 @@ bool OggTheoraEncoder::set_video_quality(int quality) {
 	video_quality = quality;
 	return true;
 }
-bool OggTheoraEncoder::has_finished_frame() {
-	if (!frame_finished)
-//		wait_feed();
-	return true;
-}
+	bool OggTheoraEncoder::has_finished_frame() {
+		if (!frame_finished)
+			//		wait_feed();
+			return true;
+	}
 #endif

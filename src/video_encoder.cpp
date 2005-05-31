@@ -44,6 +44,7 @@ int audio_callback(void *inputBuffer, void *outputBuffer,
 VideoEncoder::VideoEncoder(char *output_filename) {
 	coda            = NULL;
 	started         = false;
+	stream		= true;
 	env             = NULL;
 	audio_started   = false;
 	set_output_name (output_filename);
@@ -272,6 +273,8 @@ bool VideoEncoder::start_audio_stream() {
 	return true;
 }
 bool VideoEncoder::stop_audio_stream() {
+	if (! use_audio) return true;
+
 	PaError err;
 
 	func ("Stopping audio stream");
@@ -292,6 +295,19 @@ bool VideoEncoder::set_sdl_surface(SDL_Surface *surface) {
 	this->surface = surface;
 	return true;
 }
+
+void VideoEncoder::handle_audio(bool audio) {
+	use_audio = audio;
+}
+
+void VideoEncoder::stream_it(bool s) {
+	stream = s;
+}
+
+bool VideoEncoder::is_stream() {
+	return stream;
+}
+
 char *VideoEncoder::get_filename() {
 	return filename;
 }

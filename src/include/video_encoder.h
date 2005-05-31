@@ -69,6 +69,10 @@ class VideoEncoder: public Entry {
   bool set_output_name (char * output_filename);
   bool set_sdl_surface (SDL_Surface *surface);
   char *get_filename();
+
+  void stream_it(bool s);
+  void handle_audio(bool audio);
+  bool is_stream();
   bool stop_audio_stream();
   bool start_audio_stream();
 
@@ -90,7 +94,7 @@ class VideoEncoder: public Entry {
   /* fifo to handle input audio */
   Pipe *coda;
   bool use_audio;
-
+  bool stream;
 
   private:
 

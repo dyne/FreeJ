@@ -89,11 +89,12 @@ static const char *help =
 " .\n"
 #endif
 " .   Streaming options:\n"
-" .   -i <server:port/mount.ogg> stream to server[:port] (default http://localhost:8000/freej.ogg)\n"
-" .   -p <password> mountpoint on server (default hackme)\n"
-" .   -t <name> name of the stream(default \"Streaming with freej\") \n"
-" .   -d    <description> description of the stream for icecast server(default \"Free the veejay in you\")\n"
-" .   -q    <theora_quality> quality of video encoding (range 0 - 63, default 16\n"
+" .   -i   <server:port/mount.ogg> stream to server[:port] (default http://localhost:8000/freej.ogg)\n"
+" .   -p   <password> mountpoint on server (default hackme)\n"
+" .   -a   stream also audio from audio in (select it with aumix) (by default freej streams only video)\n"
+" .   -t   <name> name of the stream(default \"Streaming with freej\") \n"
+" .   -d   <description> description of the stream for icecast server(default \"Free the veejay in you\")\n"
+" .   -q   <theora_quality> quality of video encoding (range 0 - 63, default 16\n"
 " .                   0 low quality less bandwidth, 63 high quality more bandwidth)\n"
 //" .   -q    <vorbis_quality> quality of vorbis encoding (range 0 - 63, default 16, 0\n"
 " .\n"
@@ -102,7 +103,7 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:e:i:p:t:d:q:";
+static const char *short_options = "-hvD:gs:nj:e:i:p:t:d:q:a";
 
 
 
@@ -125,6 +126,7 @@ static char screaming_description[512]; // name
 static int theora_quality;
 
 bool startstate = true;
+bool stream_audio = false;
 bool gtkgui = false;
 
 void cmdline(int argc, char **argv) {
@@ -211,6 +213,10 @@ void cmdline(int argc, char **argv) {
       
      case 'd':
 	snprintf (screaming_description, 512, "%s", optarg);
+      break;
+
+     case 'a':
+	stream_audio = true;
       break;
 
      case 'q':
@@ -319,7 +325,6 @@ int main (int argc, char **argv) {
   if (encoded_filename[0] != '\0')
 	  freej.video_encoder -> set_output_name (encoded_filename );
 
-
   /*
    * streaming options 
    */
@@ -332,17 +337,18 @@ int main (int argc, char **argv) {
 		  if(slash) {
 			  *slash = '\0';
 			  slash++;
-			  notice("MOUNT %s",slash);
+			  func("Mount point is %s",slash);
 		  }
 
-		  notice("PORT %s", port+1);
+		  func("Port to stream is %s", port+1);
 		  freej.shouter -> port (atoi(port+1));
 		  *port = '\0';
 	  } 
 	  mount = strrchr(screaming_url,'/') + 1;
-	  notice("URL %s", mount);
+	  func("URL %s", mount);
 	  freej.shouter -> host (mount);
 	  freej.shouter -> mount (slash );
+	  freej.video_encoder -> handle_audio (stream_audio );
   }
 
   if (screaming_name[0] != '\0')

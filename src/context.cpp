@@ -212,8 +212,8 @@ void Context::cafudda(double secs) {
 	    SdlScreen *scrigno = (SdlScreen *) screen;
 
 //	    for ( int i = 0; i < 10 ;i ++) {
-		    if (!shouter -> start())
-			    save_to_file = false;
+		    if (video_encoder -> is_stream() && !shouter -> start())
+			    video_encoder -> stream_it (false);
 //			    break;
 //		    else if (i == 9)
 //			    save_to_file = false;

@@ -125,7 +125,7 @@ bool Shouter::stop() {
 		shout_sync(ice);
 		running = false;
 	}
-	notice("STOP");
+	func("STOP");
 	return true;
 }
 

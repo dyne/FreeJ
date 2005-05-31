@@ -50,10 +50,11 @@ VideoLayer::VideoLayer()
 	enc=NULL;
 	backward_control=false;
 	video_clock = 0;
+	rgba_picture = NULL;
     }
 
 VideoLayer::~VideoLayer() {
-    notice("Closing VID layer");
+    notice("Closing VIDEO layer %s", get_name());
     free_av_stuff();
     close();
 }
@@ -66,9 +67,9 @@ bool VideoLayer::init(Context *scr) {
     int ret = 0;
     func("VideoLayer::init");
     _init(scr, enc->width, enc->height, 32);
-    notice("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
+    func("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
 	    enc->width,enc->height,32,geo.size);
-    notice("VideoLayer :: frame_rate[%d]",frame_rate);
+    func("VideoLayer :: frame_rate[%d]",frame_rate);
 
     rgba_picture = (AVPicture *)malloc(sizeof(AVPicture));
 
@@ -91,13 +92,13 @@ bool VideoLayer::init(Context *scr) {
      * feed() function is called 25 times for second so we must correct the speed
      * TODO user should be able to select the clock speed
      */
-    if(play_speed==25) {
-	play_speed=(25/frame_rate) - 1;
-	play_speed -= play_speed<<1;
-	if(frame_rate==1)
-	    play_speed=0;
+    if (play_speed != 25) {
+	play_speed -= (25 / frame_rate);
+//	play_speed -= play_speed << 1;
+	if ( frame_rate ==1)
+	    play_speed = 0;
     }
-    notice("play_speed: %d",play_speed);
+    func ("VideoLayer :: play_speed: %d",play_speed);
 
     /* init variables */
     paused=false;
@@ -116,8 +117,10 @@ int VideoLayer::new_picture(AVPicture *picture) {
     
 }
 void VideoLayer::free_picture(AVPicture *picture) {
-    avpicture_free(picture);
-    free(picture);
+	if(picture != NULL) {
+		avpicture_free(picture);
+		free(picture);
+	}
 }
 
 bool VideoLayer::open(char *file) {
@@ -127,6 +130,8 @@ bool VideoLayer::open(char *file) {
 
     AVInputFormat *av_input_format=NULL;
     AVFormatParameters avp, *av_format_par = NULL;
+    av_format_par = &avp;
+    memset (av_format_par, 0, sizeof (*av_format_par));
 
     /** init ffmpeg libraries */
     /* register all codecs, demux and protocols */
@@ -137,13 +142,11 @@ bool VideoLayer::open(char *file) {
 
     func("VideoLayer :: Registered all codec and format");
 
-
+    /* handle firewire cam */
     if( strncasecmp (file, "/dev/ieee1394/",14) == 0) {
 	notice ("VideoLayer::found dv1394 device!\n");
 	grab_dv = true;
 	av_input_format = av_find_input_format("dv1394");
-	av_format_par = &avp;
-	memset (av_format_par, 0, sizeof (*av_format_par));
 
 	/** shit XXX */
 	av_format_par -> width             = 720;
@@ -161,6 +164,15 @@ bool VideoLayer::open(char *file) {
 	file="";
     }
 
+    /** 
+ * The callback is called in blocking functions to test regulary if
+ * asynchronous interruption is needed. -EINTR is returned in this
+ * case by the interrupted function. 'NULL' means no interrupt
+ * callback is given.  
+ */
+    url_set_interrupt_cb(NULL);
+
+
     /**
      * Open media with libavformat
      */
@@ -169,6 +181,7 @@ bool VideoLayer::open(char *file) {
 	error("VideoLayer :: open(%s) - can't open. Error %d", file,err);
 	return false;
     }
+    func("VideoLayer :: file opened with success");
 
     /**
      * Find info with libavformat
@@ -178,6 +191,7 @@ bool VideoLayer::open(char *file) {
 	error("VideoLayer :: could not find stream info");
 	return false;
     }
+    func("VideoLayer :: stream info found");
 
     /* now we can begin to play (RTSP stream only) */
     av_read_play(avformat_context);
@@ -191,6 +205,7 @@ bool VideoLayer::open(char *file) {
 	if(enc == NULL)
 	    printf("enc nullo\n");
 	//notice("VideoLayer:: Codec type= %d\n",enc->codec_type);
+	
 	/**
 	 * Here we look for a video stream
 	 */
@@ -214,23 +229,21 @@ bool VideoLayer::open(char *file) {
 		frame_rate = enc->frame_rate / 
 			enc->frame_rate_base;
 #endif
-		notice ("VideoLayer :: Using codec: %s",    codec->name);
-//		notice ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
-//		notice ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);
+		notice ("%s has codec: %s, height: %d width: %d", file, codec->name, enc->height, enc->width);
+		notice ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
+		notice ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);
 		notice ("VideoLayer :: frame_rate: %d",     frame_rate);
-		notice ("VideoLayer :: codec height: %d",   enc->height);
-		notice ("VideoLayer :: codec width: %d",    enc->width);
 		break;
 	    }
 	}
     }
-    if(video_index<0) {
+    if (video_index < 0) {
 	error("VideoLayer :: Could not open codec");
 	return false;
     }
-    avformat_stream=avformat_context->streams[video_index];
-    enc = &avformat_stream->codec;
-    set_filename(file);
+    avformat_stream = avformat_context -> streams [video_index];
+    enc = &avformat_stream -> codec;
+    set_filename (file);
     return true;
 }
 
@@ -265,17 +278,19 @@ void *VideoLayer::feed() {
 		     */
 		    while(1) {
 			ret = av_read_frame(avformat_context, &pkt);
-			if (pkt.pts != AV_NOPTS_VALUE) {
-			    packet_pts = (double)pkt.pts / AV_TIME_BASE;
+			if (pkt.dts != AV_NOPTS_VALUE) {
+			    packet_pts = (double)pkt.dts / AV_TIME_BASE;
 			}
-			func("pkt.data= %d\t",pkt.data);
-			func("pkt.size= %d\t",pkt.size);
-			func("pkt.pts= %d\t",pkt.pts);
-			func("pkt.dts= %d\t",pkt.dts);
-			func("pkt.duration= %d\n",pkt.duration);
-			func("avformat_context->start_time= %d\n",avformat_context->start_time);
-			func("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
-			func("avformat_context->duration= %d\n",avformat_context->duration);
+			/*
+			func ("pkt.data= %d\t",pkt.data);
+			func ("pkt.size= %d\t",pkt.size);
+			func ("pkt.pts= %d\t",pkt.pts);
+			func ("pkt.dts= %d\t",pkt.dts);
+			func ("pkt.duration= %d\n",pkt.duration);
+			func ("avformat_context->start_time= %d\n",avformat_context->start_time);
+			func ("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
+			func ("avformat_context->duration= %d\n",avformat_context->duration);
+			*/
 
 			/**
 			 * check eof and loop
@@ -353,26 +368,30 @@ int VideoLayer::decode_packet(int *got_picture) {
     /**
      * Decode the packet and put i(n)t in(t) av_frame
      */
-    if(packet_len<=0) {
-	packet_len=pkt.size; // packet size is zero if packet contains only one frame
-	ptr=pkt.data; /* pointer to frame data */
+    if (packet_len <= 0) {
+	packet_len = pkt.size; // packet size is zero if packet contains only one frame
+	ptr        = pkt.data; /* pointer to frame data */
     }
     /**
      * In avcodec_get_frame_defaults() avcodec does:
      *    memset(pic, 0, sizeof(AVFrame));
      *    pic->pts= AV_NOPTS_VALUE;
      */
-    avcodec_get_frame_defaults(&av_frame);
+
+    avcodec_get_frame_defaults (&av_frame);
+
     int lien = avcodec_decode_video(enc, &av_frame, got_picture, ptr,packet_len);
 
-    pts1=packet_pts;
+    pts1 = packet_pts;
+    /*
     if (avformat_stream->codec.has_b_frames &&
 	    av_frame.pict_type != FF_B_TYPE) {
-	/* use last pts */
+	// use last pts 
 	packet_pts = video_last_P_pts;
-	/* get the pts for the next I or P frame if present */
+	// get the pts for the next I or P frame if present 
 	video_last_P_pts = pts1;
     }
+    */
     if (packet_pts != 0) {
 	/* update video clock with pts, if present */
 	video_clock = packet_pts;
@@ -380,6 +399,7 @@ int VideoLayer::decode_packet(int *got_picture) {
 	packet_pts = video_clock;
     }
     video_current_pts=packet_pts;
+
     video_current_pts_time=av_gettime();
     
     /* update video clock for next frame */
@@ -445,6 +465,7 @@ int VideoLayer::new_fifo() {
 	frame_fifo.picture[s] = (AVPicture *)malloc(sizeof(AVPicture));
 	AVPicture *tmp_picture = frame_fifo.picture[s];
 	ret = new_picture(tmp_picture);
+	frame_fifo.length++;
 	if ( ret < 0)
 	    return -1;
     }
@@ -452,7 +473,7 @@ int VideoLayer::new_fifo() {
 }
 
 void VideoLayer::free_fifo() {
-    for ( int s = 0; s< FIFO_SIZE; s++) {
+    for ( int s = 0; s< frame_fifo.length; s++) {
 	free_picture(frame_fifo.picture[s]);
     }
 }
