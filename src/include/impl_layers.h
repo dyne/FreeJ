@@ -64,7 +64,6 @@
 	| strncasecmp((end_file_ptr-4),".asf",4)==0  	\
 	| strncasecmp((end_file_ptr-4),".asx",4)==0  	\
 	| strncasecmp((end_file_ptr-4),".wma",4)==0  	\
-	| strncasecmp((end_file_ptr-4),".wmv",4)==0  	\
 	| strncasecmp((end_file_ptr-4),".mov",4)==0  	\
 	| strncasecmp((end_file_ptr-5),".mpeg",5)==0 	\
 	| strncasecmp((end_file_ptr-4),".mpg",4)==0  	\
@@ -80,7 +79,6 @@
         | strncasecmp((end_file_ptr-4),".xpm",4)==0  	\
         | strncasecmp((end_file_ptr-4),".xcf",4)==0  	\
         | strncasecmp((end_file_ptr-4),".pcx",4)==0  	\
-        | strncasecmp((end_file_ptr-4),".gif",4)==0  	\
         | strncasecmp((end_file_ptr-4),".jpg",4)==0  	\
         | strncasecmp((end_file_ptr-4),".tif",4)==0  	\
         | strncasecmp((end_file_ptr-4),".lbm",4)==0

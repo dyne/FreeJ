@@ -74,8 +74,10 @@ void OggTheoraEncoder::close_ogg_streams() {
 		if(started)
 			return true;
 
-		/* open the file */
-		video_fp = fopen (get_filename(), "w");
+		if (atoi(filename) != 0)
+			video_fp = fdopen (atoi(filename), "w");
+		else 
+			video_fp = fopen (get_filename(), "w");
 
 		if (! _init(_env))
 			return false;
@@ -426,7 +428,7 @@ bool OggTheoraEncoder::write_theora_header() {
 
 	// write header and body to file
 
-	fwrite (opage.header, 1, opage.header_len, video_fp); /* TODO USE libshout */
+	fwrite (opage.header, 1, opage.header_len, video_fp);
 	fwrite (opage.body ,1, opage.body_len, video_fp);
 
 	// STOP BUFFER NOW! ... GOOOOOOOOO :)
@@ -437,7 +439,7 @@ bool OggTheoraEncoder::write_theora_header() {
 
 	// create theora headers
 	theora_comment_init (&tc);
-	theora_comment_add_tag (&tc, "ENCODER",PACKAGE ); /* XXX Fuck it doesn't work now */
+	theora_comment_add_tag (&tc, "ENCODER",PACKAGE );
 	theora_encode_comment (&tc, &opacket);
 	ogg_stream_packetin (&theora_ogg_stream, &opacket);
 	theora_encode_tables (&td, &opacket);

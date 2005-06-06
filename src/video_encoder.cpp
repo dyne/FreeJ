@@ -193,13 +193,17 @@ bool VideoEncoder::set_output_name(char *output_filename) {
 	// save filename in the object
 	filename = strdup(output_filename);
 
+	if (isdigit(atoi(filename)))
+		return true;
+
 	/*
 	 * Test if file exists, and append a number.
 	 */
 	char nuova[512];
 	FILE *fp;
-
-	while ( (fp = fopen(filename,"r"))!=NULL) {// file already exists!
+	
+	// file already exists!
+	while ( (fp = fopen(filename,"r")) != NULL) { 
 		// take point extension pointer ;P
 		char *point = strrchr(output_filename,'.');
 

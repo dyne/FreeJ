@@ -81,6 +81,7 @@ static const char *help =
 #endif
 "\n"
 " .   -e   <file.ogg>  set filename of encoded ogg-theora\n"
+" .		       if a number is given, the file descriptor selected is used\n"
 " .                  (default freej.ogg, start and stop it with CTRL-s)\n"
 " .\n"
 #ifndef WITH_OGGTHEORA

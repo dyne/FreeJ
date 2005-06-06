@@ -66,8 +66,8 @@ void Layer::_init(Context *freej, int wdt, int hgt, int bpp) {
   /* allocate memory for the matte background */
 //  bgmatte = jalloc(bgmatte,geo.size);
   
-  notice("initialized %s layer %ix%i %ibpp",
-	 get_name(),geo.w,geo.h,geo.bpp);
+  func("initialized %s layer %ix%i %ibpp",
+	 get_name(), geo.w, geo.h, geo.bpp);
 }
 
 void Layer::run() {
@@ -85,7 +85,11 @@ void Layer::run() {
   
   while(!quit) {
 
+lock();
+	  
     tmp_buf = feed();
+
+unlock();
 
     if(!tmp_buf) 
       func("feed returns NULL on layer %s",get_name());
@@ -152,7 +156,6 @@ bool Layer::cafudda() {
 
   return(true);
 }
-
 
 void Layer::set_filename(char *f) {
   char *p = f + strlen(f);

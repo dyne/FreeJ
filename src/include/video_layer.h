@@ -25,7 +25,7 @@
 #include <layer.h>
 #define INBUF_SIZE 4096
 #define NO_MARK -1
-#define FIFO_SIZE 32
+#define FIFO_SIZE 2
 
 /*********************************/
 /* I want it hard, I want it raw */ 
@@ -87,7 +87,7 @@ class VideoLayer: public Layer {
 	int play_speed_control;
 	int frame_rate;
 
-	char *video_filename;
+	char *full_filename;
 
 	int video_index;
 	FILE *fp;
