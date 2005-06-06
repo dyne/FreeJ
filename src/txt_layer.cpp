@@ -415,7 +415,7 @@ bool TxtLayer::print(char *s) {
 bool TxtLayer::set_font(int c) {
 
   if (c>=num_fonts) 
-    sel_font = num_fonts;
+    sel_font = 0;
   else if
     (c<1) sel_font = 1;
   else

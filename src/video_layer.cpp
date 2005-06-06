@@ -139,7 +139,7 @@ bool VideoLayer::open(char *file) {
 	av_register_all();
 
 	/** make ffmpeg silent */
-//	av_log_set_level(AV_LOG_QUIET);
+	av_log_set_level(AV_LOG_QUIET);
 
 	func("VideoLayer :: Registered all codec and format");
 
