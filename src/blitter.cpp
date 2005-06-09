@@ -82,10 +82,6 @@ BLIT blue_channel(void *src, void *dst, int bytes, void *value) {
     *(d+bchan) = *(s+bchan);
 }
 
-BLIT gl_memcpy(void *src, void *dst, int bytes, void *value) {
-  memcpy((unsigned char*)dst,(unsigned char*)src,bytes);
-}
-
 BLIT schiffler_add(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterAdd((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
@@ -314,7 +310,6 @@ Blitter::Blitter() {
   b = new Blit(); b->set_name("RGB");
   sprintf(b->desc,"RGB blit (SDL)");
   b->type = SDL_BLIT;
-//  b->sdl_fun = sdl_rgb; blitlist.append(b);
   b->sdl_fun = sdl_rgb; blitlist.append(b);
   current_blit = b; b->sel(true);
 
@@ -324,11 +319,6 @@ Blitter::Blitter() {
   b->type = LINEAR_BLIT;
   b->fun = schiffler_add; blitlist.append(b);
 
-  b = new Blit(); b->set_name("GL");
-  sprintf(b->desc,"opengl test");
-  b->type = LINEAR_BLIT;
-  b->fun = gl_memcpy; blitlist.append(b);
-  
   b = new Blit(); b->set_name("SUB");
   sprintf(b->desc,"bytewise subtraction");
   b->type = LINEAR_BLIT;
