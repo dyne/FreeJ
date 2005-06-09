@@ -71,7 +71,7 @@ class Context {
   Context();
   ~Context();
 
-  bool init(int wx, int hx);
+  bool init(int wx, int hx, bool opengl);
   void close();
   void cafudda(double secs);
 

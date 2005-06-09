@@ -38,6 +38,7 @@ freej_SOURCES = \
 	impl_layers.cpp \
 	screen.cpp	\
 	sdl_screen.cpp 	\
+	sdlgl_screen.cpp \
 	imagefilter.cpp \
 	rotozoomer.cpp  \
 	kbd_ctrl.cpp	\
@@ -59,6 +60,7 @@ freej_SOURCES = \
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		 -ldl -lpthread -lm -lslang \
 		 -lportaudio \
+		 -lGL -lGLU  \
 		@SDL_LIBS@ \
 		@AVIFILE_LIBS@ \
 		@FT2_LIBS@ \

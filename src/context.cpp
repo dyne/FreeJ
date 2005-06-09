@@ -27,6 +27,7 @@
 #include <context.h>
 
 #include <sdl_screen.h>
+#include <sdlgl_screen.h>
 #include <imagefilter.h>
 #include <jsparser.h>
 #include <video_encoder.h>
@@ -71,9 +72,12 @@ Context::~Context() {
   notice("cu on http://freej.dyne.org");
 }
 
-bool Context::init(int wx, int hx) {
+bool Context::init(int wx, int hx, bool opengl) {
 
-  screen = new SdlScreen();
+	if(opengl)
+		screen = new SdlGlScreen();
+	else
+		screen = new SdlScreen();
   if(!screen->init(wx,hx)) {
     error("Can't initialize the viewport");
     error("This is a fatal error");

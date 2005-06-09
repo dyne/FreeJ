@@ -96,3 +96,11 @@ void ViewPort::scale3x(uint32_t *osrc, uint32_t *odst) {
 
 }
 
+void ViewPort::set_zoom(float z) {
+	zoom = z;
+}
+float ViewPort::get_zoom() {
+	return zoom;
+}
+
+

@@ -41,6 +41,9 @@ class ViewPort {
   virtual void fullscreen() =0;
   virtual bool lock() =0;
   virtual bool unlock() =0;
+  void set_zoom(float z);
+  float get_zoom();
+
   
   void scale2x(uint32_t *osrc, uint32_t *odst);
   void scale3x(uint32_t *osrc, uint32_t *odst);
@@ -48,6 +51,7 @@ class ViewPort {
   int bpp;
   int size, pitch;
   int magnification;
+  float zoom;
 
   /* returns pointer to pixel
      use it only once and then move around from there

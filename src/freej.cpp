@@ -73,6 +73,7 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
+" .   -g   experimental opengl engine!(better to use power of 2 resolution as 256x256)\n"
 " .   -j   <javascript.js>  process javascript command file\n"
 #ifndef WITH_JAVASCRIPT
 " .                      ( disabled!, download spidermonkey \n"
@@ -104,7 +105,7 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:e:i:p:t:d:q:a";
+static const char *short_options = "-hvD:gs:nj:e:i:p:t:d:q:ag";
 
 
 
@@ -129,6 +130,7 @@ static int theora_quality;
 bool startstate = true;
 bool stream_audio = false;
 bool gtkgui = false;
+bool opengl = false;
 
 void cmdline(int argc, char **argv) {
   int res, optlen;
@@ -234,6 +236,11 @@ void cmdline(int argc, char **argv) {
 	fclose(fd);
       }
       break;
+
+   case 'g':
+      opengl=true;
+      break;
+
       
     case '?':
       warning("unrecognized option: %s",optarg);
@@ -291,7 +298,7 @@ int main (int argc, char **argv) {
      notice("running as root: high priority realtime scheduling allowed.");
   */
 
-  assert( freej.init(width,height) );
+  assert( freej.init(width,height, opengl) );
 
   // refresh the list of available plugins
   freej.plugger.refresh();

@@ -25,6 +25,7 @@
 #include <plugger.h>
 #include <kbd_ctrl.h>
 #include <config.h>
+#include <sdlgl_screen.h>
 
 #define SDL_REPEAT_DELAY	200
 #define SDL_REPEAT_INTERVAL	10
@@ -203,12 +204,19 @@ void KbdListener::run() {
 	    layer->blitter.set_zoom( layer->blitter.zoom_x + 0.01,
 		    layer->blitter.zoom_y + 0.01);
 	}
+	else {
+		env->screen->set_zoom(env->screen->get_zoom()+0.1);
+	}
       break;
 
     case SDLK_KP_MINUS:
-      if(keysym->mod & KMOD_CTRL)
+      if(keysym->mod & KMOD_CTRL) {
 	layer->blitter.set_zoom( layer->blitter.zoom_x - 0.01,
 					   layer->blitter.zoom_y - 0.01);
+      }
+      else {
+		env->screen->set_zoom(env->screen->get_zoom()-0.1);
+      }
       break;
 
 //    case SDLK_GREATER:
