@@ -65,7 +65,7 @@ bool SdlScreen::init(int width, int height) {
   
   setenv("SDL_VIDEO_HWACCEL", "1", 1);  
 
-  if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0 ) {
+  if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTTHREAD) < 0 ) {
     error("Can't initialize SDL: %s",SDL_GetError());
     return(false);
   }

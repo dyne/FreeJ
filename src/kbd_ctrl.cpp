@@ -28,7 +28,7 @@
 #include <sdlgl_screen.h>
 
 #define SDL_REPEAT_DELAY	200
-#define SDL_REPEAT_INTERVAL	10
+#define SDL_REPEAT_INTERVAL	20
 
 #define DELAY 50 //100
 
@@ -64,8 +64,9 @@ bool KbdListener::init(Context *context) {
 }
 
 void KbdListener::run() {
+	int count =0;
 
-  //  while(!quit) {
+  while (count < 10) {
 
   //    SDL_Delay(DELAY); 
 
@@ -173,14 +174,18 @@ void KbdListener::run() {
 	      }
       }
       else if(keysym->mod & KMOD_SHIFT) { // SHIFT <
-	      env->fps_speed++;
-	      func("+ %d\n",env->fps_speed);
-	      env->set_fps_interval(env->fps_speed);
+//	      env->fps_speed++;
+//	      func("+ %d\n",env->fps_speed);
+//	      env->set_fps_interval(env->fps_speed);
+	      env->screen->set_rotation (env->screen->get_rotation() + 0.2);
+	      notice("Rotating right screen");
       }
       else { // <
-	      env->fps_speed--;
-	      func("- %d\n",env->fps_speed);
-	      env->set_fps_interval(env->fps_speed);
+//	      env->fps_speed--;
+//	      func("- %d\n",env->fps_speed);
+//	      env->set_fps_interval(env->fps_speed);
+	      notice("Rotating left screen");
+	      env->screen->set_rotation(env->screen->get_rotation()-0.1);
       }
       break;
 
@@ -205,7 +210,7 @@ void KbdListener::run() {
 		    layer->blitter.zoom_y + 0.01);
 	}
 	else {
-		env->screen->set_zoom(env->screen->get_zoom()+0.1);
+		env->screen->set_zoom(env->screen->get_zoom()+0.02);
 	}
       break;
 
@@ -215,8 +220,43 @@ void KbdListener::run() {
 					   layer->blitter.zoom_y - 0.01);
       }
       else {
-		env->screen->set_zoom(env->screen->get_zoom()-0.1);
+		env->screen->set_zoom(env->screen->get_zoom()-0.02);
       }
+      break;
+      /* handle rotation */
+    case SDLK_KP9:
+      env->screen->set_y_rotation (env->screen->get_y_rotation() - 0.2);
+      break;
+    case SDLK_KP7:
+      env->screen->set_y_rotation (env->screen->get_y_rotation() + 0.2);
+      break;
+    case SDLK_KP1:
+      env->screen->set_x_rotation (env->screen->get_x_rotation() - 0.2);
+      break;
+    case SDLK_KP3:
+      env->screen->set_x_rotation (env->screen->get_x_rotation() + 0.2);
+      break;
+      /* handle translation */
+    case SDLK_KP6:
+      env->screen->set_x_translation (env->screen->get_x_translation() + 0.02);
+      break;
+    case SDLK_KP4:
+      env->screen->set_x_translation (env->screen->get_x_translation() - 0.02);
+      break;
+    case SDLK_KP8:
+      env->screen->set_y_translation (env->screen->get_y_translation() + 0.02);
+      break;
+    case SDLK_KP2:
+      env->screen->set_y_translation (env->screen->get_y_translation() - 0.02);
+      break;
+      /*  set default values*/
+    case SDLK_KP5:
+      env->screen->set_x_rotation (0);
+      env->screen->set_y_rotation (0);
+      env->screen->set_rotation (0);
+      env->screen->set_zoom (0.4);
+      env->screen->set_x_translation (0);
+      env->screen->set_y_translation (0);
       break;
 
 //    case SDLK_GREATER:
@@ -522,6 +562,7 @@ void KbdListener::run() {
       break;
     }
 
-    //  }
+    count++;
+      }
 }
 

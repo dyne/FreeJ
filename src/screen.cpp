@@ -24,6 +24,11 @@
 #include <scale3x.h>
 
 ViewPort::ViewPort() {
+	zoom          = 0.4;
+	x_translation = 0;
+	y_translation = 0;
+	x_rotation    = 0;
+	y_rotation    = 0;
 }
 
 ViewPort::~ViewPort() {
@@ -102,5 +107,33 @@ void ViewPort::set_zoom(float z) {
 float ViewPort::get_zoom() {
 	return zoom;
 }
-
-
+void ViewPort::set_rotation(float r) {
+	rotation = r;
+}
+float ViewPort::get_rotation() {
+	return rotation;
+}
+void ViewPort::set_x_rotation(float x) {
+	x_rotation = x;
+}
+float ViewPort::get_x_rotation() {
+	return x_rotation;
+}
+void ViewPort::set_y_rotation(float y) {
+	y_rotation = y;
+}
+float ViewPort::get_y_rotation() {
+	return y_rotation;
+}
+void ViewPort::set_y_translation(float y) {
+	y_translation = y;
+}
+float ViewPort::get_y_translation() {
+	return y_translation;
+}
+void ViewPort::set_x_translation(float x) {
+	x_translation = x;
+}
+float ViewPort::get_x_translation() {
+	return x_translation;
+}

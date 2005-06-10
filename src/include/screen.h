@@ -41,17 +41,31 @@ class ViewPort {
   virtual void fullscreen() =0;
   virtual bool lock() =0;
   virtual bool unlock() =0;
+
   void set_zoom(float z);
   float get_zoom();
 
+  void set_rotation(float r);
+  float get_rotation();
+
+  void set_x_rotation(float x);
+  float get_x_rotation();
   
+  void set_y_rotation(float y);
+  float get_y_rotation();
+
+  void set_x_translation(float x);
+  float get_x_translation();
+
+  void set_y_translation(float y);
+  float get_y_translation();
+
   void scale2x(uint32_t *osrc, uint32_t *odst);
   void scale3x(uint32_t *osrc, uint32_t *odst);
   int w, h;
   int bpp;
   int size, pitch;
   int magnification;
-  float zoom;
 
   /* returns pointer to pixel
      use it only once and then move around from there
@@ -60,6 +74,15 @@ class ViewPort {
   virtual void *coords(int x, int y) =0;
 
   uint32_t rmask,gmask,bmask,amask;  
+ protected:
+  float zoom;
+  float rotation;
+  float x_rotation;
+  float y_rotation;
+  float x_translation;
+  float y_translation;
+
+
 };
 
 #endif
