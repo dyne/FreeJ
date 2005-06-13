@@ -226,6 +226,8 @@ bool VideoLayer::open(char *file) {
 				frame_rate = enc -> time_base.den / 
 					enc -> time_base.num;
 				AVRational rational = enc -> time_base;
+				func ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
+				func ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);
 #else
 				frame_rate = enc->frame_rate / 
 					enc->frame_rate_base;
@@ -235,8 +237,8 @@ bool VideoLayer::open(char *file) {
 //				notice ("%s has codec: %s, height: %d width: %d", get_filename(), codec->name, enc->height, enc->width);
 				if(rgba_picture == NULL)
 					notice ("%s (codec: %s) has resolution %dx%d and framerate %d", get_filename(), codec->name, enc->height, enc->width, frame_rate);
-				func ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
-				func ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);
+//				func ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
+//				func ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);
 				break;
 			}
 		}
