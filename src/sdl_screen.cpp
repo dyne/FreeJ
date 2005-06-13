@@ -35,7 +35,7 @@ SdlScreen::SdlScreen()
   emuscr = NULL;
   bpp = 32;
   dbl = false;
-  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE | SDL_ANYFORMAT);
+  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE );
 	  //| SDL_DOUBLEBUF | SDL_HWACCEL | SDL_RESIZABLE);
   // add above | SDL_FULLSCREEN to go fullscreen from the start
 
@@ -65,7 +65,7 @@ bool SdlScreen::init(int width, int height) {
   
   setenv("SDL_VIDEO_HWACCEL", "1", 1);  
 
-  if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTTHREAD) < 0 ) {
+  if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ) < 0 ) {
     error("Can't initialize SDL: %s",SDL_GetError());
     return(false);
   }
