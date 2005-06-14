@@ -46,307 +46,344 @@ int got_sigpipe;
 
 Context::Context() {
 
-  notice("starting %s %s engine",PACKAGE,VERSION);
+	notice("starting %s %s engine",PACKAGE,VERSION);
 
-  screen = NULL;
-  console = NULL;
+	screen          = NULL;
+	console         = NULL;
 
-  /* initialize fps counter */
-  framecount=0; fps=0.0;
-  track_fps = true;
-  magnification = 0;
-  changeres = false;
-  clear_all = false;
-  start_running = true;
-  quit = false;
-  pause = false;
-  save_to_file = false;
-  interactive = true;
+	/* initialize fps counter */
+	framecount      = 0; 
+	fps             = 0.0;
+	track_fps       = true;
+	magnification   = 0;
+	changeres       = false;
+	clear_all       = false;
+	start_running   = true;
+	quit            = false;
+	pause           = false;
+	save_to_file    = false;
+	interactive     = true;
 
-  fps_speed=25;
+	fps_speed=25;
 
 }
 
 Context::~Context() {
-  close();
-  notice("cu on http://freej.dyne.org");
+	close ();
+	notice ("cu on http://freej.dyne.org");
 }
 
 bool Context::init(int wx, int hx, bool opengl) {
 
-	if(opengl)
+	/*
+	 * If selected use opengl as video output!
+	 */
+	if (opengl)
 		screen = new SdlGlScreen();
 	else
 		screen = new SdlScreen();
-  if(!screen->init(wx,hx)) {
-    error("Can't initialize the viewport");
-    error("This is a fatal error");
-    return(false);
-  }
-  
+
+	if (! screen->init (wx, hx)) {
+		error ("Can't initialize the viewport");
+		error ("This is a fatal error");
+		return (false);
+	}
+
 #ifdef WITH_JAVASCRIPT
-  js = new JsParser(this);
+	// create javascript object
+	js = new JsParser (this);
 #endif
 
-  // create object here to avoid performance issues at run time
+	// create object here to avoid performance issues at run time
 #ifdef WITH_AVCODEC
-  video_encoder = get_encoder("freej.ogg");
+	video_encoder = get_encoder ("freej.ogg");
 
-  got_sigpipe = false;
-  if (signal (SIGPIPE, fsigpipe) == SIG_ERR) {
-    error ("Couldn't install SIGPIPE handler"); 
-    exit (0);
-  }
+	// register SIGPIPE signal handler (stream error)
+	got_sigpipe = false;
+	if (signal (SIGPIPE, fsigpipe) == SIG_ERR) {
+		error ("Couldn't install SIGPIPE handler"); 
+		exit (0);
+	}
 
-  shouter = new Shouter();
+	// create shouter object to stream to an icecast server
+	shouter = new Shouter ();
 #endif
-  
-  find_best_memcpy();
 
-  if( SDL_imageFilterMMXdetect() )
-    act("using MMX accelerated blit");
+	// a fast benchmark to select the best memcpy to use
+	find_best_memcpy ();
 
-  set_fps_interval(fps_speed);
-  gettimeofday( &lst_time, NULL);
+	if( SDL_imageFilterMMXdetect () )
+		act ("using MMX accelerated blit");
 
-  return true;
+	set_fps_interval (fps_speed);
+	gettimeofday (&lst_time, NULL);
+
+	return true;
 }
 
 void Context::close() {
-  Layer *lay;
+	Layer *lay;
 
 #ifdef WITH_AVCODEC
-  delete video_encoder;
+	delete video_encoder;
 #endif
 
-  if(console)
-    console->close();
+	if (console)
+		console->close ();
 
-  lay = (Layer *)layers.begin();
-  while(lay) {
-    lay->lock();
-    layers.rem(1);
-    lay->quit = true;
-    lay->signal_feed();
-    lay->unlock();
-//    SDL_Delay(500);
-    delete lay;
-    lay = (Layer *)layers.begin();
-  }
+	lay = (Layer *)layers.begin ();
+	while (lay) {
+		lay-> lock ();
+		layers.rem (1);
+		lay-> quit = true;
+		lay-> signal_feed ();
+		lay-> unlock ();
+		delete lay;
+		lay = (Layer *)layers.begin ();
+	}
 
-  if(screen) delete screen;
+	if (screen) 
+		delete screen;
 
-  plugger.close();
+	plugger.close ();
 
 #ifdef WITH_JAVASCRIPT
-  delete js;
+	delete js;
 #endif
 
 }
 
+/*
+ * Main loop called fps_speed times a second
+ */
 void Context::cafudda(double secs) {
-  Layer *lay;
+	Layer *lay;
 
-  if(secs) /* if secs =0 will go out after one cycle */
-    now = dtime();
+	if(secs) /* if secs == 0 will go out after one cycle */
+		now = dtime();
 
-  do {
+	do {
+		/** Fetch keyboard events */
+		if (interactive) 
+			kbd.run ();
 
-    /** fetch keyboard events */
-    if(interactive) kbd.run();
+		/* 
+		 * Change resolution if needed 
+		 */
+		if (changeres) {
+			screen->lock ();
+			if (magnification) {
+				screen->set_magnification (magnification);
+				magnification = 0;
+			}
+			if(resizing) {
+				screen->resize (resize_w, resize_h);
+				resizing = false;
+			}
+			osd.resize ();
+			screen->unlock();
 
-    /* change resolution if needed */
-    if(changeres) {
-      screen->lock();
-      if(magnification) {
-	screen->set_magnification(magnification);
-	magnification = 0;
-      }
-      if(resizing) {
-	screen->resize(resize_w, resize_h);
-	resizing = false;
-      }
-      osd.resize();
-      screen->unlock();
-      /* crop all layers to new screen size */
-      Layer *lay = (Layer *)layers.begin();
-      while(lay) {
-	lay->lock();
-	lay->blitter.crop( screen );
-	lay->unlock();
-	lay = (Layer*)lay->next;
-      }
-      changeres = false;
-    }
+			/* crop all layers to new screen size */
+			Layer *lay = (Layer *) layers.begin ();
+			while (lay) {
+				lay -> lock ();
+				lay -> blitter.crop (screen);
+				lay -> unlock ();
+				lay = (Layer*) lay -> next;
+			}
+			changeres = false;
+		}
 
-//    if( !console && interactive) console->cafudda();
-    if( console && interactive) console->cafudda();
+		if (console && interactive) 
+			console->cafudda ();
 
-    /** start layers thread */
-    rocknroll();
+		/** start layers thread */
+		rocknroll ();
 
+		// clear screen before each iteration
+		if (clear_all)
+			screen->clear();
+		else if (osd.active)
+			osd.clean();
 
-    // clear screen before each iteration
-    if(clear_all)
-      screen->clear();
-    else if(osd.active)
-      osd.clean();
-
-    /** process each layer in the chain */
-    lay = (Layer *)layers.end();
-    if(lay) {
-      layers.lock();
-      while(lay) {
-	if(!pause)
-	  lay->cafudda();
-	lay = (Layer *)lay->prev;
-      }
-      layers.unlock();
-    }
+		/** process each layer in the chain */
+		lay = (Layer *)layers.end ();
+		if (lay) {
+			layers.lock ();
+			while (lay) {
+				if (!pause)
+					lay->cafudda ();
+				lay = (Layer *)lay->prev;
+			}
+			layers.unlock ();
+		}
 
 
 #ifdef WITH_AVCODEC
-    // show results on file if requested encoder in a thread ?? not now. kysu.
-//	    if(! video_encoder->isStarted())
-//		    video_encoder->start();
-//	    video_encoder->has_finished_frame();
-//	    video_encoder->signal();
-//
-    if(save_to_file) {
-	    SdlScreen *scrigno = (SdlScreen *) screen;
+		/*
+		 if (save_to_file)
+		 video_encoder -> write_frame();
 
-//	    for ( int i = 0; i < 10 ;i ++) {
-		    if (video_encoder -> is_stream() && !shouter -> start())
-			    video_encoder -> stream_it (false);
-//			    break;
-//		    else if (i == 9)
-//			    save_to_file = false;
-//	    }
+		 if (stream)
+		 video_encoder -> stream_it(true);
+		 
+		 
 
-	    if (save_to_file) {
-		    if(! (video_encoder->init(this, scrigno) )) {
-			    error ("Can't save to file. retry!");
-			    save_to_file = false;
-		    }
-		    else {
-			    if (!video_encoder -> is_audio_inited())
-				    video_encoder -> start_audio_stream();
-			    video_encoder -> write_frame();
-		    }
-	    }
-    }
+
+
+		 */
+		// show results on file if requested encoder in a thread ?? not now. kysu.
+		//	    if(! video_encoder->isStarted())
+		//		    video_encoder->start();
+		//	    video_encoder->has_finished_frame();
+		//	    video_encoder->signal();
+		//
+		if(save_to_file) {
+			SdlScreen *scrigno = (SdlScreen *) screen;
+
+			//	    for ( int i = 0; i < 10 ;i ++) {
+			if (video_encoder -> is_stream() && !shouter -> start())
+				video_encoder -> stream_it (false);
+			//			    break;
+			//		    else if (i == 9)
+			//			    save_to_file = false;
+			//	    }
+
+			if (save_to_file) {
+				if(! (video_encoder->init(this, scrigno) )) {
+					error ("Can't save to file. retry!");
+					save_to_file = false;
+				}
+				else {
+					if (!video_encoder -> is_audio_inited())
+						video_encoder -> start_audio_stream();
+					video_encoder -> write_frame();
+				}
+			}
+		}
 #endif
 
-    /** print on screen display */
-    if(osd.active && interactive) osd.print();
+		/* 
+		 * print on screen display 
+		 */
+		if (osd.active && interactive) 
+			osd.print ();
+
+		/** 
+		 * show result on screen 
+		 */
+		screen->show ();
 
 
-    /** show result on screen */
-    screen->show();
+		/* 
+		 * Handle timing 
+		 */
+		if(!secs) 
+			break; /* just one pass */
 
+		riciuca = (dtime() - now < secs) ? true : false;
 
-    /******* handle timing */
+		calc_fps();
 
-    if(!secs) break; /* just one pass */
-
-    riciuca = (dtime() - now < secs) ? true : false;
-
-    calc_fps();
-
-  } while(riciuca);
+	} while (riciuca);
 
 }
 
 
 void Context::resize(int w, int h) {
-  resize_w = w;
-  resize_h = h;
-  resizing = true;
-  changeres = true;
+	resize_w = w;
+	resize_h = h;
+	resizing = true;
+	changeres = true;
 }
 
 void Context::magnify(int algo) {
-  if(magnification == algo) return;
-  magnification = algo;
-  changeres = true;
+	if(magnification == algo) return;
+	magnification = algo;
+	changeres = true;
 }
 
 /* FPS */
 
 void Context::set_fps_interval(int interval) {
-  fps_frame_interval = interval*1000000;
-  min_interval = (long)1000000/interval;
+	fps_frame_interval = interval*1000000;
+	min_interval = (long)1000000/interval;
 }
 
 void Context::calc_fps() {
-  struct timespec tmp_rem,*rem;
-  rem=&tmp_rem;
-  /* 1frame : elapsed = X frames : 1000000 */
-  gettimeofday( &cur_time, NULL);
-  elapsed = cur_time.tv_usec - lst_time.tv_usec;
-  if(cur_time.tv_sec>lst_time.tv_sec) elapsed+=1000000;
+	struct timespec tmp_rem,*rem;
+	rem=&tmp_rem;
+	/* 1frame : elapsed = X frames : 1000000 */
+	gettimeofday( &cur_time, NULL);
+	elapsed = cur_time.tv_usec - lst_time.tv_usec;
+	if(cur_time.tv_sec>lst_time.tv_sec) elapsed+=1000000;
 
-  if(track_fps) {
-    framecount++;
-    if(framecount==24) {
-      // this is the only division
-      fps=(double)1000000/elapsed;
-      framecount=0;
-    }
-  }
+	if(track_fps) {
+		framecount++;
+		if(framecount==24) {
+			// this is the only division
+			fps=(double)1000000/elapsed;
+			framecount=0;
+		}
+	}
 
-  if(elapsed<=min_interval) {
+	if(elapsed<=min_interval) {
 
-    slp_time.tv_sec = 0;
-    // the following calculus is approximated to bitwise multiplication
-    // this wont really hurt our precision, anyway we care more about speed
-    slp_time.tv_nsec = (min_interval - elapsed)<<10;
+		slp_time.tv_sec = 0;
+		// the following calculus is approximated to bitwise multiplication
+		// this wont really hurt our precision, anyway we care more about speed
+		slp_time.tv_nsec = (min_interval - elapsed)<<10;
 
-    // handle signals (see man 2 nanosleep)
-    while(nanosleep(&slp_time,rem)==-1 && (errno==EINTR));
+		// handle signals (see man 2 nanosleep)
+		while(nanosleep(&slp_time,rem)==-1 && (errno==EINTR));
 
-    lst_time.tv_usec += min_interval;
-    if( lst_time.tv_usec > 999999) {
-      lst_time.tv_usec -= 1000000;
-      lst_time.tv_sec++;
-    }
-  } else {
-    lst_time.tv_usec = cur_time.tv_usec;
-    lst_time.tv_sec = cur_time.tv_sec;
-  }
-
+		lst_time.tv_usec += min_interval;
+		if( lst_time.tv_usec > 999999) {
+			lst_time.tv_usec -= 1000000;
+			lst_time.tv_sec++;
+		}
+	} else {
+		lst_time.tv_usec = cur_time.tv_usec;
+		lst_time.tv_sec = cur_time.tv_sec;
+	}
 }
 
 void Context::rocknroll() {
+	Layer *l = (Layer *)layers.begin();
 
-  Layer *l = (Layer *)layers.begin();
+	/*
+	 * Show credits when user doesn't specified layers
+	 */
+	if (!l) // there are no layers
+		if ( interactive) { // engine running in interactive mode
+			osd.credits ( true);
+			return;
+		}
 
-  if(!l) // there are no layers
-    if(interactive) { // engine running in interactive mode
-      osd.credits(true);
-      return;
-    }
+	/*
+	 * Iterate throught linked list of layers and start them
+	 */
+	layers.lock();
+	while (l) {
+		if (!l->running) {
+			if (l->start() == 0) {
+				while (!l->running) 
+					jsleep(0,500);
+				l->active = start_running;
+				notice("STARTED");
+			}
+			else { // problems starting thread
+				func ("Context::rocknroll() : error creating thread");
+			}
+		}
+		l = (Layer *)l->next;
+	}
+	layers.unlock();
 
-  layers.lock();
-  while(l) {
-    if(!l->running) {
-      if(l->start()==0) {
-	//    l->signal_feed(); QUAAA
-	while(!l->running) jsleep(0,500);
-	l->active = start_running;
-      }
-      else {
-	func("Context::rocknroll() : error creating thread");
-      }
-    }
-    l = (Layer *)l->next;
-  }
-  layers.unlock();
-  
 }
 
 	void fsigpipe (int Sig) {
-		if(!got_sigpipe)
-			warning("Problems streaming video :-(");
+		if (!got_sigpipe)
+			warning ("Problems streaming video :-(");
 		got_sigpipe = true;
 	}

@@ -24,7 +24,7 @@
 #include <scale3x.h>
 
 ViewPort::ViewPort() {
-	zoom          = 0.4;
+	zoom          = 0.42;
 	x_translation = 0;
 	y_translation = 0;
 	x_rotation    = 0;

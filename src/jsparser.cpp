@@ -29,6 +29,7 @@
 #include <signal.h>
 #include <config.h>
 #include <jutils.h>
+#include <errno.h>
 
 #ifdef WITH_JAVASCRIPT
 

@@ -206,6 +206,7 @@ BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
      geo->pitch, bmask, gmask, rmask, 0x0);
   
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
+  SDL_UpdateRects(sdl_surf, 1, dst_rect);
   
   SDL_FreeSurface( sdl_surf );
 

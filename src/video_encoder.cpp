@@ -71,6 +71,7 @@ bool VideoEncoder::_init(Context *_env) {
 		return false;
 	env=_env;
 
+
 	if(!init_audio())
 		use_audio = false;
 
@@ -110,6 +111,19 @@ bool VideoEncoder::init_audio() {
 		func("\t maxInputChannels: %d", tmp -> maxInputChannels);
 		func("\t maxOutputChannels: %d", tmp -> maxOutputChannels);
 		func("\t native sample rate: %f", tmp -> defaultSampleRate);
+	}
+
+	/*
+	 * use alsa as default audio output
+	 */
+	func ("I have found %d sound implementations: ", Pa_GetHostApiCount ());
+	for (int i = 0; i< Pa_GetHostApiCount() ; i++) {
+		const PaHostApiInfo *pai = Pa_GetHostApiInfo(i);
+		func ("Found hostApi %s", pai -> name);
+		if (pai -> type == paALSA ) { // look for alsa
+			captureParameters -> device = pai -> defaultInputDevice;
+			break;
+		}
 	}
 	
 	captureParameters -> sampleFormat = paInt16;
