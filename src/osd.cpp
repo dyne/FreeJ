@@ -35,38 +35,47 @@
 
 
 uint32_t *Osd::print(char *text, uint32_t *pos, int hsize, int vsize) {
-  uint32_t *diocrap = pos; //(uint32_t *)env->coords(xpos,ypos);
-  unsigned char *buffer = (unsigned char *)env->screen->get_surface();
-  v = env->screen->w*vsize;
-  
-  //  len = strlen(text);
-  
-  /* quest'algoritmo di rastering a grandezza variabile delle font
-     e' una cosa di cui vado molto fiero, ogni volta che lo vedo il
-     petto mi si gonfia e mi escono sonore scorregge. */
-  for (y=0; y<CHAR_HEIGHT; y++) {
-    ptr = diocrap += v;
-  
-    /* control screen bounds */
-    if(diocrap-(uint32_t *)buffer>(env->screen->size - env->screen->pitch)) 
-      return diocrap-newline; /* low bound */
-    while(diocrap-(uint32_t *)buffer<env->screen->pitch) ptr = diocrap += v;
+	uint32_t *diocrap = pos; //(uint32_t *)env->coords(xpos,ypos);
+	unsigned char *buffer = (unsigned char *) env->screen->get_surface ();
+	v = env->screen->w * vsize; // stride
 
-    //    for (x=0; x<len; x++) {
-    x=0;
-    while(text[x]!='\0') {
-      f = fontdata[text[x] * CHAR_HEIGHT + y];
-      for (i = CHAR_WIDTH-1; i >= 0; i--)
-	if (f & (CHAR_START << i))
-	  for(ch=0;ch<hsize;ch++) {
-	    for(cv=0;cv<v;cv+=env->screen->w)
-	      ptr[cv] = _color32;
-	    ptr++; }
-        else ptr+=hsize; 
-      x++;
-    }
-  }
-  return(diocrap);
+	//  len = strlen(text);
+
+	/* quest'algoritmo di rastering a grandezza variabile delle font
+	   e' una cosa di cui vado molto fiero, ogni volta che lo vedo il
+	   petto mi si gonfia e mi escono sonore scorregge. */
+	for (y=0; y<CHAR_HEIGHT; y++) {
+		ptr = diocrap += v;
+
+		/* control screen bounds */
+		if (diocrap-(uint32_t *)buffer > (env->screen->size - env->screen->pitch)) 
+			return diocrap-newline; /* low bound */
+		while (diocrap - (uint32_t *)buffer < env->screen->pitch) 
+			ptr = diocrap += v;
+
+		//    for (x=0; x<len; x++) 
+		x=0;
+		uint32_t *limit = env->screen->w * env->screen->h + (uint32_t *) env->screen->get_surface() ;
+		if ( ptr + env->screen->w * hsize < limit) {
+			while (text[x] != '\0' ) {
+				f = fontdata[text[x] * CHAR_HEIGHT + y];
+				for (i = (CHAR_WIDTH-1); i >= 0; i--) {
+					if (f & (CHAR_START << i)) {
+						for (ch=0;ch<hsize;ch++) {
+							for (cv=0;cv<v;cv+=env->screen->w)
+								ptr [cv] = _color32;
+							ptr++; 
+						}
+					}
+					else {
+						ptr += hsize;
+					}
+				}
+				x++;
+			}
+		}
+	}
+	return (diocrap);
 }
 
 Osd::Osd() {
@@ -269,7 +278,7 @@ void Osd::_layerlist() {
   Layer *l = (Layer *)env->layers.begin(),
     *laysel = (Layer*) env->layers.selected();
 
-  while(l) {
+  while (l) {
 
     /* turn off credits if there are other layers */
     if(l==ipernaut) {
@@ -299,10 +308,10 @@ void Osd::_layerlist() {
 
       if(l->active) {
 	/* red color */ _color32 = 0xee0000;
-	pos = print(lname,pos,1,1);
+	pos = print (lname,pos,1,1);
       } else {
 	/* dark red color */ _color32 = 0x880000;	
-	pos = print(lname,pos,1,1);
+	pos = print (lname,pos,1,1);
       }
 
     }

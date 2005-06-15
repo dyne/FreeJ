@@ -42,6 +42,8 @@ OggTheoraEncoder::OggTheoraEncoder(char *output_filename)
 		frame_finished = false;
 		started	       = false;
 		video_quality  = 16; // it's ok for streaming
+		video_bytesout = 0;
+		videotime      = 0;
 
 	}
 OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
@@ -155,8 +157,6 @@ bool OggTheoraEncoder::theora_init() { // TODO freejrc &co
 	int w                   = screen->w;
 	int h                   = screen->h;
 
-	video_bytesout          = 0;
-	videotime               = 0;
 
 	/* Set up Theora encoder */
 
