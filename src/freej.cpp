@@ -178,6 +178,7 @@ void cmdline(int argc, char **argv) {
 
     case 's':
       sscanf(optarg,"%ux%u",&width,&height);
+      /* what the fuck ???
       if(width<320) {
 	error("display width can't be smaller than 400 pixels");
 	width = 320;
@@ -186,6 +187,7 @@ void cmdline(int argc, char **argv) {
 	error("display height can't be smaller than 300 pixels");
 	width = 240;
       }
+      */
       break;
 
     case 'm':
