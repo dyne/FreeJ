@@ -212,8 +212,9 @@ bool OggTheoraEncoder::vorbis_init() {
 
 	float audio_quality  = 0.1;
 	int audio_channels   = 1; // TODO parameters
+//	int audio_hertz      = 22050;
 	int audio_hertz      = 44100;
-	int audio_bitrate    = 64000;
+	int audio_bitrate    = 32000;
 
 	// init bytes count variable
 	audio_bytesout       = 0;
@@ -304,11 +305,12 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
 	yuv_buffer          yuv;
 
 	/* take picture and convert it to yuv420 */
-	if(env==NULL)
-		notice("env null");
+	if (env==NULL)
+		notice ("OggTheoraEncoder:: env null");
 
 	screen->lock();
 
+	/* Convert picture from rgb to yuv420 */
 	picture_rgb -> data[0]     = (uint8_t *) screen-> get_surface ();
 	img_convert ((AVPicture *)picture_yuv, PIX_FMT_YUV420P, (AVPicture *)picture_rgb, 
 			PIX_FMT_RGBA32, video_x, video_y);
@@ -352,7 +354,9 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 		// take audio from fifo queue
 		int in = coda -> read (AUDIO_BUFFER_SIZE , audiobuffer);
 		if (in == -1)
-			func(" COSAAAAAAAAAAAAA ????????????");
+			func(" OggTheoraEncoder::coda returned -1! :|");
+		else if (in == 0)
+			func(" OggTheoraEncoder::coda returned 0! :|");
 
 		number_of_sample  = AUDIO_BUFFER_SIZE / audio_channels / 2;
 
@@ -366,6 +370,10 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 			vorbis_buffer[0][i] = audiobuffer[count++] / 32768.f;
 			//			}
 		}
+//		func ("OggTheoraEncoder:: %d audio sample to encode", number_of_sample);
+		if (number_of_sample == 0)
+		error ("OggTheoraEncoder:: 0 audio sample to encode!!");
+		
 		/* tell the library how much we actually submitted */
 		vorbis_analysis_wrote (&vd, number_of_sample);
 	}
@@ -486,13 +494,19 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 		flushloop =  0;
 
 		if(use_audio)
-			func ("diff: %f", audiotime - videotime);
+		{
+//			func ("diff: %f", audiotime - videotime);
+		}
 
 		while ( end_of_stream ||
 				( (videotime <= audiotime || !use_audio) && 
 				  (videoflag == 1) ) ) {
 			videoflag = 0;
 			while (ogg_stream_pageout (&theora_ogg_stream, &videopage) > 0) {
+//			    func ("OggTheoraEncoder:: flush_ogg() video page size is %ld",videopage-> body_len);
+			    if (videopage.body_len == 0)
+				error ("VIDEO PAGE EMPTY! HELP!");
+
 				videotime = theora_granule_time (&td, ogg_page_granulepos (&videopage));
 				/* flush a video page */
 
@@ -521,6 +535,8 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 
 			audioflag = 0;
 			while (ogg_stream_pageout (&vorbis_ogg_stream, &audiopage) > 0) {
+			    if (audiopage.body_len == 0)
+				error ("AUDIO PAGE EMPTY! HELP!");
 				/* flush an audio page */
 				audiotime = vorbis_granule_time (&vd,ogg_page_granulepos (&audiopage));
 

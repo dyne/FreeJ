@@ -54,7 +54,7 @@ VideoEncoder::VideoEncoder(char *output_filename) {
 	coda -> set_output_type("copy_byte");
 	// blocking input and output, default timeout is 200 ms
 	coda -> set_block(true,true);
-	coda -> set_block_timeout(100,100);
+	coda -> set_block_timeout(500,500);
 }
 
 VideoEncoder::~VideoEncoder() {
@@ -145,7 +145,7 @@ bool VideoEncoder::init_audio() {
 			  more zero samples have been inserted into the input buffer to compensate
 			  for an input underflow.
 			  */
-//			paInputUnderflow | 
+			paInputUnderflow | 
 
 			/** In a stream opened with paFramesPerBufferUnspecified, indicates that data
 			  prior to the first sample of the input buffer was discarded due to an
@@ -153,8 +153,8 @@ bool VideoEncoder::init_audio() {
 			  Otherwise indicates that data prior to one or more samples in the
 			  input buffer was discarded.
 			  */
-//			paInputOverflow,
-			paNoFlag,
+			paInputOverflow,
+//			paNoFlag,
 			audio_callback, 
 			coda );
 

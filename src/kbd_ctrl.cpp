@@ -369,11 +369,11 @@ void KbdListener::run() {
       
     case SDLK_UP:
       if(keysym->mod & KMOD_SHIFT)
-	layer->set_position(layer->geo.x,layer->geo.y-1);
+	layer->set_position(layer->geo.x,layer->geo.y-4);
       break;
     case SDLK_DOWN:
       if(keysym->mod & KMOD_SHIFT)
-	layer->set_position(layer->geo.x,layer->geo.y+1);
+	layer->set_position(layer->geo.x,layer->geo.y+4);
       break;
 
     case SDLK_PAGEUP:
@@ -459,11 +459,11 @@ void KbdListener::run() {
 
     case SDLK_LEFT:
       if(keysym->mod & KMOD_SHIFT)
-	layer->set_position(layer->geo.x-1,layer->geo.y);
+	layer->set_position(layer->geo.x-4,layer->geo.y);
       break;
     case SDLK_RIGHT:
       if(keysym->mod & KMOD_SHIFT)
-	layer->set_position(layer->geo.x+1,layer->geo.y);
+	layer->set_position(layer->geo.x+4,layer->geo.y);
       break;
 
     case SDLK_v:

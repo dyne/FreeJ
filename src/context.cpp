@@ -370,7 +370,6 @@ void Context::rocknroll() {
 				while (!l->running) 
 					jsleep(0,500);
 				l->active = start_running;
-				notice("STARTED");
 			}
 			else { // problems starting thread
 				func ("Context::rocknroll() : error creating thread");

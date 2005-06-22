@@ -58,9 +58,10 @@ freej_SOURCES = \
 	pipe.cpp
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
+	      $(top_srcdir)/lib/portaudio-v19/lib/libportaudio.a \
 		 -ldl -lpthread -lm -lslang \
-		 -lportaudio \
 		 -lGL -lGLU  \
+		@PORTAUDIO_LIB@ \
 		@SDL_LIBS@ \
 		@AVIFILE_LIBS@ \
 		@FT2_LIBS@ \
