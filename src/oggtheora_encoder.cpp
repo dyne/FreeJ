@@ -281,20 +281,21 @@ void OggTheoraEncoder::print_timing(double timebase) {
 
 	func ("\r      %d:%02d:%02d.%02d audio: %dkbps video: %dkbps                 ", // XXX broken
 			hours,minutes,seconds,hundredths,akbps,vkbps);
+
 	func ("video_bytesout: %ld",video_bytesout);
 	func ("audio_bytesout: %ld",video_bytesout);
 
 }
 bool OggTheoraEncoder::write_headers() {
 	if (! (write_theora_header() && 
-				write_vorbis_header()) 
-	   ) {
+				write_vorbis_header()) ) 
+	{
 		error ("OggTheoraEncoder::write_headers() can't write headers");
 		return false;
 	}
 	if(! (flush_theora_header() && 
-				flush_vorbis_header()) 
-	  ) {
+				flush_vorbis_header()) ) 
+	{
 		error ("OggTheoraEncoder::write_headers() can't flush headers");
 		return false;
 	}
@@ -321,15 +322,15 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
 	   for compression and pull out the packet */
 	yuv.y_width   = video_x;
 	yuv.y_height  = video_y;
-	yuv.y_stride  = picture_yuv->linesize[0];
+	yuv.y_stride  = picture_yuv->linesize [0];
 
 	yuv.uv_width  = video_x / 2;
 	yuv.uv_height = video_y / 2;
-	yuv.uv_stride = picture_yuv->linesize[1];
+	yuv.uv_stride = picture_yuv->linesize [1];
 
-	yuv.y = (uint8_t *) picture_yuv->data[0];
-	yuv.u = (uint8_t *) picture_yuv->data[1]; 
-	yuv.v = (uint8_t *) picture_yuv->data[2];
+	yuv.y = (uint8_t *) picture_yuv->data [0];
+	yuv.u = (uint8_t *) picture_yuv->data [1]; 
+	yuv.v = (uint8_t *) picture_yuv->data [2];
 
 	/* encode image */
 	theora_encode_YUVin (&td, &yuv);
@@ -353,6 +354,7 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 	else {
 		// take audio from fifo queue
 		int in = coda -> read (AUDIO_BUFFER_SIZE , audiobuffer);
+//		notice ("Bytes letti dalla coda: %d", in);
 		if (in == -1)
 			func(" OggTheoraEncoder::coda returned -1! :|");
 		else if (in == 0)
@@ -361,7 +363,11 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 		number_of_sample  = AUDIO_BUFFER_SIZE / audio_channels / 2;
 
 		vorbis_buffer = vorbis_analysis_buffer (&vd, number_of_sample);
-		/* uninterleave samples */
+
+		/* 
+		 * uninterleave samples ?
+		 * yes it it isn't mono
+		 */
 		for (int i=0; i < number_of_sample; i++){
 			//			for(int j=0; j < audio_channels; j++){
 			//				vorbis_buffer [j][i] = ( (audiobuffer [count+1] << 8) |

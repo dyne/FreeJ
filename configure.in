@@ -403,9 +403,10 @@ BUILDLIBS="$BUILDLIBS portaudio-v19/lib/libportaudio.a"
 dnl EXTRAOBJS="$EXTRAOBJS ../lib/portaudio-v19/lib/libportaudio.a"
 CXXFLAGS="-I\$(top_srcdir)/lib/portaudio-v19/pa_common $CXXFLAGS"
 
-AC_CONFIG_SUBDIRS([[lib/portaudio-v19]])
+echo "Configuring portaudio ..."
+AC_CONFIG_SUBDIRS([lib/portaudio-v19])
 
-dnl TODO: Use same library selections as PortAudio v19's configure script.
+dnl 
 case "${host_os}" in
     darwin* | rhapsody*)
 	 PORTAUDIO_LIB="-framework AudioUnit -framework AudioToolbox -framework CoreAudio"

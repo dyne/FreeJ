@@ -1,5 +1,6 @@
 INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/ccvt \
+           -I$(top_srcdir)/lib/portaudio-v19/pa_common \
            -I$(top_srcdir)/libflash \
            -I/usr/include/slang
 
