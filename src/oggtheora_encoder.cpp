@@ -353,14 +353,14 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 		vorbis_analysis_wrote (&vd, 0);
 	else {
 		// take audio from fifo queue
-		int in = coda -> read (AUDIO_BUFFER_SIZE , audiobuffer);
-//		notice ("Bytes letti dalla coda: %d", in);
-		if (in == -1)
+		int audio_bytes = coda -> read (AUDIO_BUFFER_SIZE , audiobuffer);
+
+		if (audio_bytes == -1)
 			func(" OggTheoraEncoder::coda returned -1! :|");
-		else if (in == 0)
+		else if (audio_bytes == 0)
 			func(" OggTheoraEncoder::coda returned 0! :|");
 
-		number_of_sample  = AUDIO_BUFFER_SIZE / audio_channels / 2;
+		number_of_sample  = audio_bytes / audio_channels / 2;
 
 		vorbis_buffer = vorbis_analysis_buffer (&vd, number_of_sample);
 
