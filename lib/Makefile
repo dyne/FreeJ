@@ -1,12 +1,17 @@
-all:  portaudio-v19/lib/libportaudio.a
+all:  portaudio-v19/lib/libportaudio.a js/src/Linux_All_DBG/libjs.a
 
 # PortAudio
 portaudio-v19/lib/libportaudio.a:
 	$(MAKE) -C portaudio-v19
 
+# PortAudio
+js/src/Linux_All_DBG/libjs.a:
+	$(MAKE) -C js/src/ -f Makefile.ref
+
 # Utility rules
 clean:
 	-$(MAKE) -C portaudio-v19 clean
+	-$(MAKE) -C js/src/ -f Makefile.ref
 
 distclean:
 	-$(MAKE) -C portaudio-v19 distclean

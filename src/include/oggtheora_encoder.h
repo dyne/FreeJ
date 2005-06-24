@@ -36,7 +36,7 @@
 #include <ffmpeg/avcodec.h>
 #include <ffmpeg/avformat.h>
 
-#define AUDIO_BUFFER_SIZE 3528
+#define AUDIO_BUFFER_SIZE 3528 // frame_rate / fps / bytes of sample format
 
 class Context;
 

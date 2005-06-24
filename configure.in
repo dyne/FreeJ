@@ -465,42 +465,12 @@ AC_ARG_WITH(ffmpeg-static,
 dnl ==============================================================
 dnl compile including the javascript interpreter
 dnl ==============================================================
-AC_MSG_CHECKING(for embedding JavaScript interpreter)
-JS_LIBS=""
-JS_CFLAGS=""
-AC_ARG_WITH(javascript,
-[  --with-javascript       embed the javascript interpreter as in
-                          http://www.mozilla.org/js/spidermonkey],
-[if test -r "$withval"; then
 
-  JS_OBJDIR="`find $withval -name '*OBJ'| grep -v editline | grep -v fdlibm`"
-  JS_LIB="$JS_OBJDIR/libjs.a"
-  if test "`echo $withval|grep src`"; then
-    JS_SRCDIR="$withval"
-  else
-    JS_SRCDIR="`find $withval -name 'src'|grep -v corba`"
-  fi
-  if test -z "$JS_OBJDIR"; then
-    AC_MSG_RESULT(no)
-    echo "!! compiled javascript object directory not found in $withval"
-  elif test ! -r "$JS_LIB"; then
-    AC_MSG_RESULT(no)
-    echo "!! libjs.a not found in $JS_OBJDIR"
-  elif test ! -r "$JS_SRCDIR/jsapi.h"; then
-    AC_MSG_RESULT(no)
-    echo "!! jsapi.h not found in $JS_SRCDIR"
-  else
-    JS_LIBS=$JS_LIB
-    JS_CFLAGS="-I$JS_SRCDIR -I$JS_OBJDIR -DXP_UNIX -DJS_THREADSAFE -DJS_MULTITHREADED"
-    AC_MSG_RESULT(yes)
-    AC_DEFINE(WITH_JAVASCRIPT,1,
-              [Define is using the javascript interpreter])
-    have_javascript=yes
-  fi
- else
-   AC_MSG_RESULT(no)
- fi
-],[AC_MSG_RESULT(no)])
+BUILDLIBS="$BUILDLIBS js/src/Linux_All_DBG/libjs.a"
+JS_CFLAGS="-I\$(top_srcdir)/lib/js/src -I\$(top_srcdir)/lib/js/src/Linux_All_DBG.OBJ -DXP_UNIX -DJS_THREADSAFE -DJS_MULTITHREADED"
+AC_DEFINE(WITH_JAVASCRIPT,1,
+	  [Define is using the javascript interpreter])
+JS_LIB="\$(top_srcdir)/lib/js/src/Linux_All_DBG/libjs.a"
 AC_SUBST(JS_LIBS)
 AC_SUBST(JS_CFLAGS)
 
