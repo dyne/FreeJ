@@ -6,7 +6,7 @@ includedir=${prefix}/include
 Name: libavcodec
 Description: FFmpeg codec library
 Version: 0.4.9-pre1-4756
-Requires:  ogg >= 1.1 vorbis theora
+Requires: 
 Conflicts:
-Libs: -L${libdir} -lavcodec -lm -ldts -lz -lpthread -ldl
+Libs: -L${libdir} -lavcodec -lm -lz -ldl
 Cflags: -I${includedir} -I${includedir}/ffmpeg

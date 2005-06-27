@@ -1,4 +1,4 @@
-all:  portaudio-v19/lib/libportaudio.a js/src/Linux_All_DBG/libjs.a
+all:  ffmpeg/libavcodec/libavcodec.a ffmpeg/libavformat/libavformat.a portaudio-v19/lib/libportaudio.a js/src/Linux_All_DBG/libjs.a
 
 # PortAudio
 portaudio-v19/lib/libportaudio.a:
@@ -8,12 +8,22 @@ portaudio-v19/lib/libportaudio.a:
 js/src/Linux_All_DBG/libjs.a:
 	$(MAKE) -C js/src/ -f Makefile.ref
 
+# FFmpeg libraries (avcodec && avformat)
+ffmpeg/libavcodec/libavcodec.a:
+	$(MAKE) -C ffmpeg/libavcodec/
+
+ffmpeg/libavformat/libavformat.a:
+	$(MAKE) -C ffmpeg/libavformat/
+
 # Utility rules
 clean:
 	-$(MAKE) -C portaudio-v19 clean
-	-$(MAKE) -C js/src/ -f Makefile.ref
+	-$(MAKE) -C js/src/ -f Makefile.ref clean
+	-$(MAKE) -C ffmpeg clean
 
 distclean:
 	-$(MAKE) -C portaudio-v19 distclean
+	-$(MAKE) -C js/src/ -f Makefile.ref distclean
+	-$(MAKE) -C ffmpeg distclean
 
 .PHONY: clean distclean

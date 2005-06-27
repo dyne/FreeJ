@@ -26,6 +26,7 @@
 #include <context.h>
 
 #include <video_encoder.h>
+#include <portaudio.h>
 
 #define USE_PORTAUDIO_V19 // TODO XXX
 

@@ -172,3 +172,5 @@ dom giu  5 14:28:36 CEST 2005
    ./configure  --enable-vorbis --enable-xvid --enable-shared --enable-gpl --enable-mp3lame --enable-vorbis --enable-libogg --enable-pthreads --enable-shared-pp --enable-pp --cpu=pentium4 --tune=pentium4 --enable-memalign-hack --enable-dts --enable-faad --enable-faadbin --enable-faac --enable-theora --help 
 dom giu  5 14:29:07 CEST 2005
    ./configure  --disable-strip --disable-opts --enable-vorbis --enable-xvid --enable-shared --enable-gpl --enable-mp3lame --enable-vorbis --enable-libogg --enable-pthreads --enable-shared-pp --enable-pp --cpu=pentium4 --tune=pentium4 --enable-memalign-hack --enable-dts --enable-faad --enable-faadbin --enable-faac --enable-theora 
+Mon Jun 27 18:03:57 CEST 2005
+   ./configure  --prefix=/usr/local --enable-sdl_image --cache-file=/dev/null --srcdir=. 
