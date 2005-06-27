@@ -15,15 +15,22 @@ ffmpeg/libavcodec/libavcodec.a:
 ffmpeg/libavformat/libavformat.a:
 	$(MAKE) -C ffmpeg/libavformat/
 
+# theora mmx
+theora-mmx/lib/.libs/libtheora.a:
+	$(MAKE) -C theora-mmx
+
+
 # Utility rules
 clean:
 	-$(MAKE) -C portaudio-v19 clean
 	-$(MAKE) -C js/src/ -f Makefile.ref clean
 	-$(MAKE) -C ffmpeg clean
+	$(MAKE) -C theora-mmx clean
 
 distclean:
 	-$(MAKE) -C portaudio-v19 distclean
 	-$(MAKE) -C js/src/ -f Makefile.ref distclean
 	-$(MAKE) -C ffmpeg distclean
+	$(MAKE) -C theora-mmx distclean
 
 .PHONY: clean distclean

@@ -118,7 +118,7 @@ dnl ==============================================================
 dnl CHECK if there is libtheora and libogg
 dnl ==============================================================
 
-  PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbisenc theora shout, [ dnl TODO check for vorbis
+  PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbisenc shout, [ dnl TODO check for vorbis
     AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling ogg-theora encoding])
     have_oggtheora=yes],have_oggtheora=no)
 
@@ -130,6 +130,9 @@ AC_CHECK_FT2(9.0.0,[
 	AC_DEFINE(WITH_FT2,1,[define if compiling freetype2 layer])
 	have_freetype2=yes],have_freetype2=no)
 
+dnl THEORA MMX STUFF
+BUILDLIBS="$BUILDLIBS theora-mmx/lib/.libs/libtheora.a"
+AC_CONFIG_SUBDIRS([lib/theora-mmx])
 
 dnl AVCODEC AVFORMAT STUFF
 AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])

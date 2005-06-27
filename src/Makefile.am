@@ -2,6 +2,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/ccvt \
            -I$(top_srcdir)/lib/portaudio-v19/pa_common \
            -I$(top_srcdir)/libflash \
+           -I$(top_srcdir)/lib/theora-mmx/include/theora \
            -I/usr/include/slang
 
 AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
@@ -63,6 +64,7 @@ freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/js/src/Linux_All_DBG.OBJ/libjs.a \
 	      $(top_srcdir)/lib/ffmpeg/libavformat/libavformat.a \
 	      $(top_srcdir)/lib/ffmpeg/libavcodec/libavcodec.a \
+	      $(top_srcdir)/lib/theora-mmx/lib/.libs/libtheora.a \
 		 -ldl -lpthread -lm -lslang \
 		 -lGL -lGLU  \
 		@PORTAUDIO_LIB@ \
