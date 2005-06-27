@@ -131,23 +131,14 @@ AC_CHECK_FT2(9.0.0,[
 	have_freetype2=yes],have_freetype2=no)
 
 
-dnl ==============================================================
-dnl CHECK if there is AVCODEC
-dnl ==============================================================
-AC_ARG_ENABLE(ffmpeg,
-[  --enable-ffmpeg         compile Movie layer using ffmpeg (need latest version(>=0.4.9-pre1)) (no)],
-[ if test ! x$enableval = xyes; then
-    use_ffmpeg=no
-  else
-    use_ffmpeg=yes;
-  fi ],[ use_ffmpeg=no ])
-if test x$use_ffmpeg = xyes; then
-   AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])
-   AVCODEC_LIBS="-lavcodec -lavformat"
-   AVCODEC_CFLAGS="-I/usr/include/ffmpeg -I/usr/local/include/ffmpeg";
-   AC_SUBST(AVCODEC_LIBS)
-   AC_SUBST(AVCODEC_CFLAGS)
-fi
+dnl AVCODEC AVFORMAT STUFF
+AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])
+AVCODEC_CFLAGS="-I\$(top_srcdir)/lib/ffmpeg/libavcodec -I\$(top_srcdir)/lib/ffmpeg/libavformat";
+
+dnl AC_SUBST(AVCODEC_LIBS)
+BUILDLIBS="$BUILDLIBS ffmpeg/libavcodec/libavcodec.a ffmpeg/libavformat/libavformat.a"
+AC_CONFIG_SUBDIRS([lib/ffmpeg])
+AC_SUBST(AVCODEC_CFLAGS)
 
 dnl ==============================================================
 dnl CHECK if there is SDL_IMAGE

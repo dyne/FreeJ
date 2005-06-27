@@ -1,0 +1,12 @@
+prefix=
+exec_prefix=
+libdir=${pcfiledir}/libavcodec/libpostproc
+includedir=${pcfiledir}/libavcodec/libpostproc
+
+Name: libpostproc
+Description: FFmpeg post processing library
+Version: 0.4.9-pre1
+Requires: 
+Conflicts:
+Libs: ${libdir}/libpostproc.a
+Cflags: -I${includedir}

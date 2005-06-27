@@ -1,0 +1,12 @@
+prefix=
+exec_prefix=
+libdir=${pcfiledir}/libavcodec
+includedir=${pcfiledir}/libavcodec
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 0.4.9-pre1-4756
+Requires:  ogg >= 1.1 vorbis theora
+Conflicts:
+Libs: ${libdir}/libavcodec.a -lm -ldts -lz -lpthread -ldl
+Cflags: -I${includedir}

@@ -60,7 +60,9 @@ freej_SOURCES = \
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/portaudio-v19/lib/libportaudio.a \
-	      $(top_srcdir)/lib/js/src/Linux_All_DBG.obj/libjs.a \
+	      $(top_srcdir)/lib/js/src/Linux_All_DBG.OBJ/libjs.a \
+	      $(top_srcdir)/lib/ffmpeg/libavformat/libavformat.a \
+	      $(top_srcdir)/lib/ffmpeg/libavcodec/libavcodec.a \
 		 -ldl -lpthread -lm -lslang \
 		 -lGL -lGLU  \
 		@PORTAUDIO_LIB@ \

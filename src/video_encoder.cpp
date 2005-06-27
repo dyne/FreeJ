@@ -52,7 +52,7 @@ VideoEncoder::VideoEncoder(char *output_filename) {
 	/* create pipe */
 	coda = new Pipe();
 	coda -> set_output_type("copy_byte");
-	// blocking input and output, default timeout is 200 ms
+	// blocking input and output
 	coda -> set_block(true,true);
 	coda -> set_block_timeout(500,500);
 }
@@ -205,9 +205,10 @@ bool VideoEncoder::set_output_name(char *output_filename) {
 	}
 
 	// save filename in the object
-	filename = strdup(output_filename);
+	filename = strdup (output_filename);
 
-	if (isdigit(atoi(filename)))
+	// if it's a number handle it as a file descriptor
+	if (isdigit (atoi (filename)))
 		return true;
 
 	/*
