@@ -78,9 +78,11 @@ bool Context::init(int wx, int hx, bool opengl) {
 	/*
 	 * If selected use opengl as video output!
 	 */
+#ifdef WITH_OPENGL
 	if (opengl)
 		screen = new SdlGlScreen();
 	else
+#endif
 		screen = new SdlScreen();
 
 	if (! screen->init (wx, hx)) {

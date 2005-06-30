@@ -73,7 +73,9 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
+#ifndef WITH_OPENGL
 " .   -g   experimental opengl engine!(better to use power of 2 resolution as 256x256)\n"
+#endif
 " .   -j   <javascript.js>  process javascript command file\n"
 #ifndef WITH_JAVASCRIPT
 " .                      ( disabled!, download spidermonkey \n"
@@ -239,9 +241,11 @@ void cmdline(int argc, char **argv) {
       }
       break;
 
+#ifndef WITH_OPENGL
    case 'g':
       opengl=true;
       break;
+#endif
 
       
     case '?':

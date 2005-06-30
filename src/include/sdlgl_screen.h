@@ -18,7 +18,7 @@
  * "$Id$"
  *
  */
-
+#ifdef WITH_OPENGL
 #ifndef __SDLGL_SCREEN_H__
 #define __SDLGL_SCREEN_H__
 
@@ -60,4 +60,5 @@ class SdlGlScreen : public ViewPort {
 
 };
 
+#endif 
 #endif 

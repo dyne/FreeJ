@@ -18,7 +18,7 @@
  * "$Id$"
  *
  */
-
+#ifdef WITH_OPENGL
 #include <stdlib.h>
 #include <string.h>
 #include <SDL_syswm.h>
@@ -513,3 +513,4 @@ void SdlGlScreen::set_magnification(int algo) {
   
 }
     
+#endif
