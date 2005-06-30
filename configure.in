@@ -148,7 +148,7 @@ AVCODEC_CFLAGS="-I\$(top_srcdir)/lib/ffmpeg/libavcodec -I\$(top_srcdir)/lib/ffmp
 
 dnl AC_SUBST(AVCODEC_LIBS)
 BUILDLIBS="$BUILDLIBS ffmpeg/libavcodec/libavcodec.a ffmpeg/libavformat/libavformat.a"
-STATIC_LIBS="$STATIC_LIBS \$(top_srcdir)/lib/ffmpeg/libavcodec/libavcodec.a \$(top_srcdir)/lib/ffmpeg/libavformat/libavformat.a"
+dnl STATIC_LIBS="$STATIC_LIBS \$(top_srcdir)/lib/ffmpeg/libavcodec/libavcodec.a \$(top_srcdir)/lib/ffmpeg/libavformat/libavformat.a"
 AC_CONFIG_SUBDIRS([lib/ffmpeg])
 AC_SUBST(AVCODEC_CFLAGS)
 
@@ -394,7 +394,7 @@ AC_SUBST(LUBRIFY_CFLAGS)
 	AC_ARG_WITH(opengl,
 			[  --with-opengl       experimental opengl rendering],
 			[
-			OPENGL_LIB="-lGL -GLU"
+			OPENGL_LIB="-lGL -lGLU"
 			AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
 
 			AC_MSG_RESULT(yes) ],

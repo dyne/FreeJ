@@ -61,19 +61,21 @@ freej_SOURCES = \
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
 		 -ldl -lpthread -lm -lslang \
+		 $(top_srcdir)/lib/ffmpeg/libavformat/libavformat.a \
+		 $(top_srcdir)/lib/ffmpeg/libavcodec/libavcodec.a \
 		 @STATIC_LIBS@ \
-                @OPENGL_LIB@ \
-		@PORTAUDIO_LIB@ \
-		@SDL_LIBS@ \
-		@AVIFILE_LIBS@ \
-		@FT2_LIBS@ \
-		@PNG_LIBS@ \
-		@GLADE2_LIBS@ \
-		@AVCODEC_LIBS@ \
-		@JS_LIBS@ \
-		@SDLIMAGE_LIBS@ \
-		@FLASH_LIBS@ \
-		@XIPH_LIBS@
+		 @OPENGL_LIB@ \
+		 @PORTAUDIO_LIB@ \
+		 @SDL_LIBS@ \
+		 @AVIFILE_LIBS@ \
+		 @FT2_LIBS@ \
+		 @PNG_LIBS@ \
+		 @GLADE2_LIBS@ \
+		 @AVCODEC_LIBS@ \
+		 @JS_LIBS@ \
+		 @SDLIMAGE_LIBS@ \
+		 @FLASH_LIBS@ \
+		 @XIPH_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej
