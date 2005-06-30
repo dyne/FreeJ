@@ -60,13 +60,9 @@ freej_SOURCES = \
 	pipe.cpp
 
 freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
-	      $(top_srcdir)/lib/portaudio-v19/lib/libportaudio.a \
-	      $(top_srcdir)/lib/js/src/Linux_All_DBG.OBJ/libjs.a \
-	      $(top_srcdir)/lib/ffmpeg/libavformat/libavformat.a \
-	      $(top_srcdir)/lib/ffmpeg/libavcodec/libavcodec.a \
-	      $(top_srcdir)/lib/theora-mmx/lib/.libs/libtheora.a \
 		 -ldl -lpthread -lm -lslang \
-		 -lGL -lGLU  \
+		 @STATIC_LIBS@ \
+                @OPENGL_LIB@ \
 		@PORTAUDIO_LIB@ \
 		@SDL_LIBS@ \
 		@AVIFILE_LIBS@ \
