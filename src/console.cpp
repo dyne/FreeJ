@@ -97,7 +97,10 @@ static bool keyboard_quit;
 static void sigint_handler (int sig) {
   SLsignal_intr (SIGINT, sigint_handler);
   keyboard_quit = true;
-  if (SLang_Ignore_User_Abort == 0) SLang_Error = USER_BREAK;
+#if SLANG_VERSION < 20000
+  if (SLang_Ignore_User_Abort == 0) 
+	  SLang_Error = USER_BREAK;
+#endif
 }
 
 /* non blocking getkey */

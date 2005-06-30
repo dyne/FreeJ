@@ -27,6 +27,14 @@
 
 #define MAX_CMDLINE 256
 
+/* TODO port to slang 2
+#if SLANG_VERSION >= 20000
+#define SLANG_ERROR()  SLang_get_error()
+#else
+#define SLANG_ERROR()  SLang_Error
+#endif
+*/
+
 /* The SLscroll routines will use this structure. */
 typedef struct _File_Line_Type {
   struct _File_Line_Type *next;
