@@ -395,7 +395,6 @@ AC_SUBST(LUBRIFY_CFLAGS)
 			[  --with-opengl       experimental opengl rendering],
 			[
 			OPENGL_LIB="-lGL -GLU"
-			AC_DEFINE(SDL_LIBS)
 			AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
 
 			AC_MSG_RESULT(yes) ],
