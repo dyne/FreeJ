@@ -185,7 +185,9 @@ bool OggTheoraEncoder::theora_init() { // TODO freejrc &co
 	theora_information.aspect_denominator           = 0 ;
 	theora_information.colorspace                   = OC_CS_ITU_REC_470BG;
 	//	theora_information.colorspace                   = OC_CS_UNSPECIFIED;
+#ifndef HAVE_64BIT
 	theora_information.pixelformat                  = OC_PF_420;
+#endif
 	theora_information.target_bitrate               = video_bit_rate;
 	theora_information.quality                      = compression_quality;
 

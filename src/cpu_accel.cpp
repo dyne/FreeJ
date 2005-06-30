@@ -62,6 +62,7 @@ static __u32 arch_accel (void)
      int AMD;
      __u32 caps = 0;
 
+#ifndef HAVE_64BIT // XXX HACK!
 #define cpuid(op,eax,ebx,ecx,edx)  \
      asm ("pushl %%ebx\n\t"        \
           "cpuid\n\t"              \
@@ -102,6 +103,7 @@ static __u32 arch_accel (void)
      if (! (edx & 0x00800000))   /* no MMX */
           return 0;
 
+#endif /* HAVE_64BIT */
 #ifdef HAVE_MMX
      caps = MM_ACCEL_X86_MMX;
 #ifdef HAVE_SSE
@@ -111,6 +113,7 @@ static __u32 arch_accel (void)
      if (edx & 0x04000000)       /* SSE2 */
           caps |= MM_ACCEL_X86_SSE2;
 
+#ifndef HAVE_64BIT // XXX HACK!
      cpuid (0x80000000, eax, ebx, ecx, edx);
      if (eax < 0x80000001)       /* no extended capabilities */
           return caps;
@@ -124,6 +127,7 @@ static __u32 arch_accel (void)
           caps |= MM_ACCEL_X86_MMXEXT;
 #endif /* USE_SSE */
 #endif /* USE_MMX */
+#endif /* HAVE_64BIT */
 
      return caps;
 }
