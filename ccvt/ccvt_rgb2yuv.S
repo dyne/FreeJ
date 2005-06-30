@@ -19,7 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 #include "../config.h"
-#ifdef HAVE_MMX
+#if defined HAVE_MMX && !defined HAVE_64BIT
 
 /* The ccvt_* functions always start with width and height, so these
    parameters are in 8(%ebp) and 12 (%ebp). The other parameters can be

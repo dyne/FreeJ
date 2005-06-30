@@ -20,7 +20,7 @@
 */
 
 #include "../config.h"
-#ifdef HAVE_MMX
+#if defined HAVE_MMX && !defined HAVE_64BIT
 
 /* The ccvt_* functions always have 4 paramaters:
    width    8(%ebp)

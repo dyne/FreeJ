@@ -6,7 +6,7 @@
 
 #include "../config.h"
 
-#ifndef HAVE_MMX
+#if !defined (HAVE_MMX) || defined (HAVE_64BIT)
 
 #include "ccvt.h"
 #include "ccvt_types.h"
