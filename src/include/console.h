@@ -39,6 +39,8 @@ typedef struct _File_Line_Type {
 typedef int (cmd_process_t)(char *cmd);
 typedef int (cmd_complete_t)(char *cmd);
 
+extern volatile int SLang_Error; // hack for fucking debian!
+
 class Context;
 class Layer;
 class Filter;
