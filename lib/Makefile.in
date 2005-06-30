@@ -19,6 +19,8 @@ ffmpeg/libavformat/libavformat.a:
 theora-mmx/lib/.libs/libtheora.a:
 	$(MAKE) -C theora-mmx
 
+install:
+
 
 # Utility rules
 clean:
@@ -33,4 +35,4 @@ distclean:
 	-$(MAKE) -C ffmpeg distclean
 	$(MAKE) -C theora-mmx distclean
 
-.PHONY: clean distclean
+.PHONY: clean distclean install
