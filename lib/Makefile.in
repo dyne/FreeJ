@@ -5,7 +5,7 @@ portaudio-v19/lib/libportaudio.a:
 	$(MAKE) -C portaudio-v19
 
 # PortAudio
-js/src/Linux_All_DBG/libjs.a:
+js/src/Linux_All_DBG.OBJ/libjs.a:
 	$(MAKE) -C js/src/ -f Makefile.ref
 
 # FFmpeg libraries (avcodec && avformat)
