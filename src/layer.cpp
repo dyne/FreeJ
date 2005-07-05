@@ -73,7 +73,8 @@ void Layer::_init(Context *freej, int wdt, int hgt, int bpp) {
 void Layer::run() {
   void *tmp_buf;
 
-  while(!feed()) jsleep(0,50);
+  while(!feed()) 
+      jsleep (0,50);
   
   func("ok, layer %s in rolling loop",get_name());
   func("Layer :: run :: begin thread %d",pthread_self());

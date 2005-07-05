@@ -241,8 +241,6 @@ void Context::cafudda(double secs) {
 		//	    video_encoder->signal();
 		//
 		if(save_to_file) {
-			SdlScreen *scrigno = (SdlScreen *) screen;
-
 			//	    for ( int i = 0; i < 10 ;i ++) {
 			if (video_encoder -> is_stream() && !shouter -> start())
 				video_encoder -> stream_it (false);
@@ -252,7 +250,7 @@ void Context::cafudda(double secs) {
 			//	    }
 
 			if (save_to_file) {
-				if(! (video_encoder->init(this, scrigno) )) {
+				if(! (video_encoder->init(this, screen) )) {
 					error ("Can't save to file. retry!");
 					save_to_file = false;
 				}
@@ -285,7 +283,7 @@ void Context::cafudda(double secs) {
 
 		riciuca = (dtime() - now < secs) ? true : false;
 
-		calc_fps();
+		calc_fps ();
 
 	} while (riciuca);
 
@@ -314,30 +312,27 @@ void Context::set_fps_interval(int interval) {
 
 void Context::calc_fps() {
 	struct timespec tmp_rem,*rem;
-	rem=&tmp_rem;
+	rem = &tmp_rem;
 	/* 1frame : elapsed = X frames : 1000000 */
-	gettimeofday( &cur_time, NULL);
+	gettimeofday (&cur_time, NULL);
 	elapsed = cur_time.tv_usec - lst_time.tv_usec;
-	if(cur_time.tv_sec>lst_time.tv_sec) elapsed+=1000000;
+	if (cur_time.tv_sec > lst_time.tv_sec)  // ?? should be always true? kysu
+	    elapsed += 1000000;
 
-	if(track_fps) {
+	if (track_fps) {
 		framecount++;
-		if(framecount==24) {
+		if (framecount==24) {
 			// this is the only division
-			fps=(double)1000000/elapsed;
-			framecount=0;
+			fps = (double)1000000 / elapsed;
+			framecount = 0;
 		}
 	}
 
-	if(elapsed<=min_interval) {
+	if (elapsed <= min_interval) { // If time elapsed if < 1/frame_for_second wait
 
-		slp_time.tv_sec = 0;
 		// the following calculus is approximated to bitwise multiplication
 		// this wont really hurt our precision, anyway we care more about speed
-		slp_time.tv_nsec = (min_interval - elapsed)<<10;
-
-		// handle signals (see man 2 nanosleep)
-		while(nanosleep(&slp_time,rem)==-1 && (errno==EINTR));
+		jsleep (0, (min_interval - elapsed) << 10);
 
 		lst_time.tv_usec += min_interval;
 		if( lst_time.tv_usec > 999999) {
@@ -383,8 +378,8 @@ void Context::rocknroll() {
 
 }
 
-	void fsigpipe (int Sig) {
-		if (!got_sigpipe)
-			warning ("Problems streaming video :-(");
-		got_sigpipe = true;
-	}
+    void fsigpipe (int Sig) {
+	if (!got_sigpipe)
+	    warning ("Problems streaming video :-(");
+	got_sigpipe = true;
+    }

@@ -357,12 +357,13 @@ dnl ==============================================================
 dnl CHECK to use processor specific optimizations to compile
 dnl ==============================================================
 AC_ARG_ENABLE(lubrify,
-[  --enable-lubrify        compile using processor lubrifications (yes)],
-[ if test ! x$enableval = xyes; then
-    have_lubrifications=no
-  else
-    have_lubrifications=yes;
-  fi ],[ have_lubrifications=yes ])
+	       [  --enable-lubrify        compile using processor lubrifications (yes)],
+	       [ 
+		if test ! x$enableval = xyes; then
+		    have_lubrifications=no
+		else
+		    have_lubrifications=yes;
+		fi ],[ have_lubrifications=yes ])
 
 if test x$have_lubrifications = xyes; then
   if test x$have_profiling = xyes -o x$debug = xtrue; then
@@ -391,14 +392,20 @@ else
 fi
 AC_SUBST(LUBRIFY_CFLAGS)
 
-	AC_ARG_WITH(opengl,
-			[  --with-opengl       experimental opengl rendering],
-			[
-			OPENGL_LIB="-lGL -lGLU"
-			AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
+AC_ARG_ENABLE(opengl,
+	       [  --enable-opengl         experimental opengl rendering (no)],
+	       [ 
+		if test ! x$enableval = xyes; then
+		    use_opengl=yes 
+		    OPENGL_LIB="-lGL -lGLU"
+		    AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
+		    else
+			use_opengl=no
+		    fi
 
-			AC_MSG_RESULT(yes) ],
-			[ AC_MSG_RESULT(no) ])
+		    ],
+		    [ use_opengl=no ]
+		    )
 
 AC_SUBST(OPENGL_LIB)
 dnl
@@ -602,6 +609,10 @@ fi
 if test x$use_sdl_image = xyes; then
 echo "= sdl_image"
 echo "  libs  : $SDLIMAGE_LIBS"
+fi
+if test x$use_opengl = xyes; then
+echo "= opengl"
+echo "  libs  : $OPENGL_LIB"
 fi
 if test x$have_flash = xyes; then
 echo "= Flash"

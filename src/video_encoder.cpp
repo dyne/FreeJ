@@ -252,7 +252,8 @@ int audio_callback(void *inputBuffer, void *outputBuffer,
 			   PaTimestamp outTime, void *userData)
 #endif
 {
-//	func("audio_callback: input time %f", timeInfo ->inputBufferAdcTime);
+	func("audio_callback: input time %f", timeInfo -> inputBufferAdcTime);
+	func("audio_callback: input time %f", timeInfo -> currentTime);
 
 	Pipe *p = (Pipe *) userData;
 

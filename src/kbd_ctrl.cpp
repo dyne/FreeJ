@@ -282,6 +282,7 @@ void KbdListener::run() {
 //				env -> shouter -> mount());
 		env -> shouter -> stop();
 	    }
+
 	    env -> save_to_file = ! env -> save_to_file;
       }
       
