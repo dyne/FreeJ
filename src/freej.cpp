@@ -73,7 +73,7 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
-#ifndef WITH_OPENGL
+#ifdef WITH_OPENGL
 " .   -g   experimental opengl engine!(better to use power of 2 resolution as 256x256)\n"
 #endif
 " .   -j   <javascript.js>  process javascript command file\n"
