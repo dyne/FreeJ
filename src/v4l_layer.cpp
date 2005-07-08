@@ -389,7 +389,7 @@ void *V4lGrabber::feed() {
 	     geo.w, geo.h, geo.pitch, geo.w, geo.w);  
   */
   //  if(palette == VIDEO_PALETTE_YUV422P)
-#ifdef HAVE_MMX
+#if defined HAVE_MMX && !defined HAVE_64BIT
   if(palette == VIDEO_PALETTE_YUV422P
      || palette == VIDEO_PALETTE_YUYV)
 
