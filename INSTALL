@@ -1,4 +1,4 @@
-FreeJ 0.7 installation instructions
+FreeJ installation instructions
 ===================================
 
 *** x86 PC (for Darwin/OSX see README.OSX)
@@ -13,7 +13,6 @@ FreeJ 0.7 installation instructions
 [*] check the optional libraries you need for certain features
 
 == to playback movies, install the video libraries in this order:
-   FFMpeg library http://ffmpeg.sf.net
    Xvid library http://xvid.org
    AviFile library http://avifile.sourceforge.net
 
@@ -26,13 +25,6 @@ FreeJ 0.7 installation instructions
 == to play with images you need SDL_Image lib:
    SDL image library http://www.libsdl.org/projects/SDL_image/
 
-== to use the javascript interpreter and execute scripted operations
-   download SpiderMonkey http://www.mozilla.org/js/spidermonkey
-   compile it (refer to the documentation inside it)
-   then come back to the freej directory and do:
-   ./configure --with-javascript=/path/to/js
-   (PLEASE NOTE THIS IS STILL EXPERIMENTAL WORK :)
-
 == to have some more assembler mmx optimized filters you need NASM:
    NASM netwide assembler compiler http://sf.net/projects/nasm
    then go in the filters/nasm-x86 and type make!
@@ -44,8 +36,8 @@ FreeJ 0.7 installation instructions
 
 == download freej latest stable version from http://ftp.dyne.org/freej
    extract the source archive and compile it:
-   $ tar xvfz freej-0.6.tar.gz
-   $ cd freej-0.6
+   $ tar xvfz freej.tar.gz
+   $ cd freej
     (if you are reading this file from the sourcecode, start from here)
    $ ./configure
    $ make

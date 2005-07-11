@@ -1,7 +1,7 @@
 
  -=:[ dyne.org autoprod ]:=--- -  -- -   proudly presents:
 
-                   [[[  FreeJ 0.7.1 "BIKO"  ]]]
+                   [[[  FreeJ 0.8-rc1 "FADAIAT"  ]]]
 
           RASTA SOFTWARE FOR THE FREEDOM OF VIDEO CREATION
 
@@ -40,6 +40,7 @@ under the GNU General Public License.
 ++ Emacs/Vi style console with hotkeys and completion (S-Lang)
 ++ can have multiple controllers at the same time (Midi,Joystick)
 ++ 100% Free and open source: GNU General Public License
+++ Video streaming to icecast server. Read http://lab.dyne.org/FreejStreaming for more info
 
 
 
@@ -113,8 +114,6 @@ Text Layer:
 
 Movie Layer:
 - XVid libraries http://xvid.org
-- FFMpeg libraries http://ffmpeg.sf.net (get latest from 
-http://sourceforge.net/project/showfiles.php?group_id=16082)
 - AviFile libraries http://avifile.sf.net
 
 PC x86 assembler effects:
@@ -181,8 +180,10 @@ bootable distribution
        *** http://dynebolic.org *** RASTASOFT REDEMPTION SOFTWARE
 just burn it and boot it!
 
-CVS (latest development version) is also publicly available on
-       *** cvs.dyne.org/viewcvs.cgi/?root=free ***
+SVN (latest development version) is also publicly available on
+http://code.dyne.org/viewcvs.cgi/?root=rastasoft .
+Get it:
+svn co svn://code.dyne.org/rastasoft/freej/freej
 
 
 
