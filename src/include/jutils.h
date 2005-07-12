@@ -20,6 +20,7 @@
 #define __UTILS_H__
 
 #include <inttypes.h>
+#include <errno.h>
 #include <console.h>
 
 extern char msg[255];
