@@ -130,7 +130,7 @@ CLEANFILES = $(built_docs)
 
 dist_docdir = $(distdir)/libtheora
 subdir = doc
-mkinstalldirs = $(SHELL) $(top_srcdir)/../../mkinstalldirs
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES = Doxyfile
 DIST_SOURCES =

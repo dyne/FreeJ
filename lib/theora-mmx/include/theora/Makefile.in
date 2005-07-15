@@ -118,7 +118,7 @@ theoraincludedir = $(includedir)/theora
 
 theorainclude_HEADERS = theora.h
 subdir = include/theora
-mkinstalldirs = $(SHELL) $(top_srcdir)/../../mkinstalldirs
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 DIST_SOURCES =

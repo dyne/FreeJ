@@ -117,8 +117,8 @@ INCLUDES = -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libtheora.la
 
-@THEORA_SUPPORT_ENCODE_TRUE@encoder_sources = dct_encode.c encode.c encoder_toplevel.c
-@THEORA_SUPPORT_ENCODE_FALSE@encoder_sources = encoder_disabled.c
+@THEORA_DISABLE_ENCODE_TRUE@encoder_sources = encoder_disabled.c
+@THEORA_DISABLE_ENCODE_FALSE@encoder_sources = dct_encode.c encode.c encoder_toplevel.c
 
 libtheora_la_SOURCES = \
 	blockmap.c \
@@ -165,17 +165,17 @@ libtheora_la_CFLAGS = $(OGG_CFLAGS)
 libtheora_la_LDFLAGS = -version-info @V_LIB_CURRENT@:@V_LIB_REVISION@:@V_LIB_AGE@
 libtheora_la_LIBS = $(OGG_LIBS)
 subdir = lib
-mkinstalldirs = $(SHELL) $(top_srcdir)/../../mkinstalldirs
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 LTLIBRARIES = $(lib_LTLIBRARIES)
 
 libtheora_la_LIBADD =
-@THEORA_SUPPORT_ENCODE_TRUE@am__objects_1 = libtheora_la-dct_encode.lo \
-@THEORA_SUPPORT_ENCODE_TRUE@	libtheora_la-encode.lo \
-@THEORA_SUPPORT_ENCODE_TRUE@	libtheora_la-encoder_toplevel.lo
-@THEORA_SUPPORT_ENCODE_FALSE@am__objects_1 = \
-@THEORA_SUPPORT_ENCODE_FALSE@	libtheora_la-encoder_disabled.lo
+@THEORA_DISABLE_ENCODE_TRUE@am__objects_1 = \
+@THEORA_DISABLE_ENCODE_TRUE@	libtheora_la-encoder_disabled.lo
+@THEORA_DISABLE_ENCODE_FALSE@am__objects_1 = libtheora_la-dct_encode.lo \
+@THEORA_DISABLE_ENCODE_FALSE@	libtheora_la-encode.lo \
+@THEORA_DISABLE_ENCODE_FALSE@	libtheora_la-encoder_toplevel.lo
 am_libtheora_la_OBJECTS = libtheora_la-blockmap.lo \
 	libtheora_la-comment.lo libtheora_la-dct.lo \
 	libtheora_la-dct_decode.lo libtheora_la-decode.lo \
@@ -195,7 +195,7 @@ DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-depcomp = $(SHELL) $(top_srcdir)/../../depcomp
+depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/libtheora_la-blockmap.Plo \
 @AMDEP_TRUE@	./$(DEPDIR)/libtheora_la-comment.Plo \
@@ -298,10 +298,10 @@ libtheora_la-dsp_mmx.lo: i386/dsp_mmx.c
 libtheora_la-dsp_mmxext.lo: i386/dsp_mmxext.c
 libtheora_la-recon_mmx.lo: i386/recon_mmx.c
 libtheora_la-fdct_mmx.lo: i386/fdct_mmx.c
+libtheora_la-encoder_disabled.lo: encoder_disabled.c
 libtheora_la-dct_encode.lo: dct_encode.c
 libtheora_la-encode.lo: encode.c
 libtheora_la-encoder_toplevel.lo: encoder_toplevel.c
-libtheora_la-encoder_disabled.lo: encoder_disabled.c
 libtheora.la: $(libtheora_la_OBJECTS) $(libtheora_la_DEPENDENCIES) 
 	$(LINK) -rpath $(libdir) $(libtheora_la_LDFLAGS) $(libtheora_la_OBJECTS) $(libtheora_la_LIBADD) $(LIBS)
 
@@ -774,6 +774,24 @@ libtheora_la-fdct_mmx.lo: i386/fdct_mmx.c
 @AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtheora_la_CFLAGS) $(CFLAGS) -c -o libtheora_la-fdct_mmx.lo `test -f 'i386/fdct_mmx.c' || echo '$(srcdir)/'`i386/fdct_mmx.c
 
+libtheora_la-encoder_disabled.o: encoder_disabled.c
+@AMDEP_TRUE@	source='encoder_disabled.c' object='libtheora_la-encoder_disabled.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/libtheora_la-encoder_disabled.Po' tmpdepfile='$(DEPDIR)/libtheora_la-encoder_disabled.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtheora_la_CFLAGS) $(CFLAGS) -c -o libtheora_la-encoder_disabled.o `test -f 'encoder_disabled.c' || echo '$(srcdir)/'`encoder_disabled.c
+
+libtheora_la-encoder_disabled.obj: encoder_disabled.c
+@AMDEP_TRUE@	source='encoder_disabled.c' object='libtheora_la-encoder_disabled.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/libtheora_la-encoder_disabled.Po' tmpdepfile='$(DEPDIR)/libtheora_la-encoder_disabled.TPo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtheora_la_CFLAGS) $(CFLAGS) -c -o libtheora_la-encoder_disabled.obj `cygpath -w encoder_disabled.c`
+
+libtheora_la-encoder_disabled.lo: encoder_disabled.c
+@AMDEP_TRUE@	source='encoder_disabled.c' object='libtheora_la-encoder_disabled.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@	depfile='$(DEPDIR)/libtheora_la-encoder_disabled.Plo' tmpdepfile='$(DEPDIR)/libtheora_la-encoder_disabled.TPlo' @AMDEPBACKSLASH@
+@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtheora_la_CFLAGS) $(CFLAGS) -c -o libtheora_la-encoder_disabled.lo `test -f 'encoder_disabled.c' || echo '$(srcdir)/'`encoder_disabled.c
+
 libtheora_la-dct_encode.o: dct_encode.c
 @AMDEP_TRUE@	source='dct_encode.c' object='libtheora_la-dct_encode.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@	depfile='$(DEPDIR)/libtheora_la-dct_encode.Po' tmpdepfile='$(DEPDIR)/libtheora_la-dct_encode.TPo' @AMDEPBACKSLASH@
@@ -827,24 +845,6 @@ libtheora_la-encoder_toplevel.lo: encoder_toplevel.c
 @AMDEP_TRUE@	depfile='$(DEPDIR)/libtheora_la-encoder_toplevel.Plo' tmpdepfile='$(DEPDIR)/libtheora_la-encoder_toplevel.TPlo' @AMDEPBACKSLASH@
 @AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtheora_la_CFLAGS) $(CFLAGS) -c -o libtheora_la-encoder_toplevel.lo `test -f 'encoder_toplevel.c' || echo '$(srcdir)/'`encoder_toplevel.c
-
-libtheora_la-encoder_disabled.o: encoder_disabled.c
-@AMDEP_TRUE@	source='encoder_disabled.c' object='libtheora_la-encoder_disabled.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/libtheora_la-encoder_disabled.Po' tmpdepfile='$(DEPDIR)/libtheora_la-encoder_disabled.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtheora_la_CFLAGS) $(CFLAGS) -c -o libtheora_la-encoder_disabled.o `test -f 'encoder_disabled.c' || echo '$(srcdir)/'`encoder_disabled.c
-
-libtheora_la-encoder_disabled.obj: encoder_disabled.c
-@AMDEP_TRUE@	source='encoder_disabled.c' object='libtheora_la-encoder_disabled.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/libtheora_la-encoder_disabled.Po' tmpdepfile='$(DEPDIR)/libtheora_la-encoder_disabled.TPo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtheora_la_CFLAGS) $(CFLAGS) -c -o libtheora_la-encoder_disabled.obj `cygpath -w encoder_disabled.c`
-
-libtheora_la-encoder_disabled.lo: encoder_disabled.c
-@AMDEP_TRUE@	source='encoder_disabled.c' object='libtheora_la-encoder_disabled.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@	depfile='$(DEPDIR)/libtheora_la-encoder_disabled.Plo' tmpdepfile='$(DEPDIR)/libtheora_la-encoder_disabled.TPlo' @AMDEPBACKSLASH@
-@AMDEP_TRUE@	$(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-	$(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libtheora_la_CFLAGS) $(CFLAGS) -c -o libtheora_la-encoder_disabled.lo `test -f 'encoder_disabled.c' || echo '$(srcdir)/'`encoder_disabled.c
 CCDEPMODE = @CCDEPMODE@
 
 mostlyclean-libtool:

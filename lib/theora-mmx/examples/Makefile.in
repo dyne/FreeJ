@@ -135,7 +135,7 @@ EXTRA_encoder_example_SOURCES = getopt.c getopt1.c getopt.h
 encoder_example_LDADD = $(GETOPT_OBJS) $(LDADD) $(VORBIS_LIBS) $(VORBISENC_LIBS)
 encoder_example_DEPENDENCIES = $(GETOPT_OBJS)
 subdir = examples
-mkinstalldirs = $(SHELL) $(top_srcdir)/../../mkinstalldirs
+mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 EXTRA_PROGRAMS = player_example$(EXEEXT) encoder_example$(EXEEXT)
@@ -159,7 +159,7 @@ DEFAULT_INCLUDES =  -I. -I$(srcdir) -I$(top_builddir)
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 LIBS = @LIBS@
-depcomp = $(SHELL) $(top_srcdir)/../../depcomp
+depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
 @AMDEP_TRUE@DEP_FILES = ./$(DEPDIR)/dump_video.Po \
 @AMDEP_TRUE@	./$(DEPDIR)/encoder_example.Po \

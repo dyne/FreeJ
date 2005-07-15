@@ -463,7 +463,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT V_LIB_CURRENT V_LIB_REVISION V_LIB_AGE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE CPP EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CXX CXXFLAGS ac_ct_CXX CXXDEPMODE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL HAVE_DOXYGEN HAVE_DOXYGEN_TRUE HAVE_DOXYGEN_FALSE HAVE_PYTHON HAVE_PYTHON_TRUE HAVE_PYTHON_FALSE THEORA_SUPPORT_FLOAT_TRUE THEORA_SUPPORT_FLOAT_FALSE THEORA_SUPPORT_ENCODE_TRUE THEORA_SUPPORT_ENCODE_FALSE GETOPT_OBJS HAVE_PKG_CONFIG PKG_CONFIG OGG_CFLAGS OGG_LIBS VORBIS_CFLAGS VORBIS_LIBS VORBISENC_LIBS VORBISFILE_LIBS SDL_CONFIG SDL_CFLAGS SDL_LIBS BUILDABLE_EXAMPLES DEBUG PROFILE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS build build_cpu build_vendor build_os host host_cpu host_vendor host_os target target_cpu target_vendor target_os INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT V_LIB_CURRENT V_LIB_REVISION V_LIB_AGE CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE CPP EGREP LN_S ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CXX CXXFLAGS ac_ct_CXX CXXDEPMODE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL HAVE_DOXYGEN HAVE_DOXYGEN_TRUE HAVE_DOXYGEN_FALSE HAVE_PYTHON HAVE_PYTHON_TRUE HAVE_PYTHON_FALSE HAVE_PKG_CONFIG PKG_CONFIG ac_pt_PKG_CONFIG OGG_CFLAGS OGG_LIBS VORBIS_CFLAGS VORBIS_LIBS VORBISENC_LIBS VORBISFILE_LIBS SDL_CONFIG SDL_CFLAGS SDL_LIBS THEORA_DISABLE_FLOAT_TRUE THEORA_DISABLE_FLOAT_FALSE THEORA_DISABLE_ENCODE_TRUE THEORA_DISABLE_ENCODE_FALSE GETOPT_OBJS BUILDABLE_EXAMPLES DEBUG PROFILE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -944,6 +944,26 @@ ac_env_FFLAGS_set=${FFLAGS+set}
 ac_env_FFLAGS_value=$FFLAGS
 ac_cv_env_FFLAGS_set=${FFLAGS+set}
 ac_cv_env_FFLAGS_value=$FFLAGS
+ac_env_PKG_CONFIG_set=${PKG_CONFIG+set}
+ac_env_PKG_CONFIG_value=$PKG_CONFIG
+ac_cv_env_PKG_CONFIG_set=${PKG_CONFIG+set}
+ac_cv_env_PKG_CONFIG_value=$PKG_CONFIG
+ac_env_OGG_CFLAGS_set=${OGG_CFLAGS+set}
+ac_env_OGG_CFLAGS_value=$OGG_CFLAGS
+ac_cv_env_OGG_CFLAGS_set=${OGG_CFLAGS+set}
+ac_cv_env_OGG_CFLAGS_value=$OGG_CFLAGS
+ac_env_OGG_LIBS_set=${OGG_LIBS+set}
+ac_env_OGG_LIBS_value=$OGG_LIBS
+ac_cv_env_OGG_LIBS_set=${OGG_LIBS+set}
+ac_cv_env_OGG_LIBS_value=$OGG_LIBS
+ac_env_VORBIS_CFLAGS_set=${VORBIS_CFLAGS+set}
+ac_env_VORBIS_CFLAGS_value=$VORBIS_CFLAGS
+ac_cv_env_VORBIS_CFLAGS_set=${VORBIS_CFLAGS+set}
+ac_cv_env_VORBIS_CFLAGS_value=$VORBIS_CFLAGS
+ac_env_VORBIS_LIBS_set=${VORBIS_LIBS+set}
+ac_env_VORBIS_LIBS_value=$VORBIS_LIBS
+ac_cv_env_VORBIS_LIBS_set=${VORBIS_LIBS+set}
+ac_cv_env_VORBIS_LIBS_value=$VORBIS_LIBS
 
 #
 # Report the --help message.
@@ -1037,11 +1057,11 @@ Optional Features:
   --enable-fast-install[=PKGS]
                           optimize for fast installation [default=yes]
   --disable-libtool-lock  avoid locking (might break parallel builds)
-  --disable-float         disable use of floating point code
-  --disable-encode        disable encoding support
   --disable-oggtest       Do not try to compile and run a test Ogg program
   --disable-vorbistest       Do not try to compile and run a test Vorbis program
   --disable-sdltest       Do not try to compile and run a test SDL program
+  --disable-float         disable use of floating point code
+  --disable-encode        disable encoding support
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1073,6 +1093,12 @@ Some influential environment variables:
   CXXCPP      C++ preprocessor
   F77         Fortran 77 compiler command
   FFLAGS      Fortran 77 compiler flags
+  PKG_CONFIG  path to pkg-config utility
+  OGG_CFLAGS  C compiler flags for OGG, overriding pkg-config
+  OGG_LIBS    linker flags for OGG, overriding pkg-config
+  VORBIS_CFLAGS
+              C compiler flags for VORBIS, overriding pkg-config
+  VORBIS_LIBS linker flags for VORBIS, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -3891,7 +3917,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 3894 "configure"' > conftest.$ac_ext
+  echo '#line 3920 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -5214,7 +5240,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:5217:" \
+echo "$as_me:5243:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -6194,7 +6220,7 @@ echo "${ECHO_T}no" >&6
   echo
   exit 1
 fi
-gentoo_lt_version="1.5.16"
+gentoo_lt_version="1.5.18"
 gentoo_ltmain_version=`grep '^[:space:]*VERSION=' $ltmain | sed -e 's|^[:space:]*VERSION=||'`
 if test "$gentoo_lt_version" != "$gentoo_ltmain_version"; then
   echo "$as_me:$LINENO: result: no" >&5
@@ -6353,11 +6379,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6356: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6382: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6360: \$? = $ac_status" >&5
+   echo "$as_me:6386: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6615,11 +6641,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6618: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6644: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:6622: \$? = $ac_status" >&5
+   echo "$as_me:6648: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -6677,11 +6703,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:6680: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:6706: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:6684: \$? = $ac_status" >&5
+   echo "$as_me:6710: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -6892,11 +6918,12 @@ EOF
 	tmp_addflag=
 	case $cc_basename,$host_cpu in
 	pgcc*)				# Portland Group C compiler
-	  whole_archive_flag_spec=
+	  whole_archive_flag_spec='${wl}--whole-archive,`for conv in $convenience\"\"; do test  -n \"$conv\" && new_convenience=\"$new_convenience,$conv\"; done; $echo \"$new_convenience\"` ${wl}--no-whole-archive'
+	  tmp_addflag=' $pic_flag'
 	  ;;
 	pgf77* | pgf90* )			# Portland Group f77 and f90 compilers
-	  whole_archive_flag_spec=
-	  tmp_addflag=' -fpic -Mnomain' ;;
+	  whole_archive_flag_spec='${wl}--whole-archive,`for conv in $convenience\"\"; do test  -n \"$conv\" && new_convenience=\"$new_convenience,$conv\"; done; $echo \"$new_convenience\"` ${wl}--no-whole-archive'
+	  tmp_addflag=' $pic_flag -Mnomain' ;;
 	ecc*,ia64* | icc*,ia64*)		# Intel C compiler on ia64
 	  tmp_addflag=' -i_dynamic' ;;
 	efc*,ia64* | ifort*,ia64*)	# Intel Fortran compiler on ia64
@@ -8084,7 +8111,7 @@ linux*)
 
   # Append ld.so.conf contents to the search path
   if test -f /etc/ld.so.conf; then
-    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,\t]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
     sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
   fi
 
@@ -8107,7 +8134,7 @@ linux*)
   libsuff=
   case "$host_cpu" in
   x86_64*)
-    echo '#line 8110 "configure"' > conftest.$ac_ext
+    echo '#line 8137 "configure"' > conftest.$ac_ext
     if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -8178,7 +8205,11 @@ nto-qnx*)
 openbsd*)
   version_type=sunos
   need_lib_prefix=no
-  need_version=no
+  # Some older versions of OpenBSD (3.3 at least) *do* need versioned libs.
+  case $host_os in
+    openbsd3.3 | openbsd3.3.*) need_version=yes ;;
+    *)                         need_version=no  ;;
+  esac
   library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${shared_ext}$versuffix'
   finish_cmds='PATH="\$PATH:/sbin" ldconfig -m $libdir'
   shlibpath_var=LD_LIBRARY_PATH
@@ -8967,7 +8998,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 8970 "configure"
+#line 9001 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -9065,7 +9096,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 9068 "configure"
+#line 9099 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10563,12 +10594,12 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
 	;;
       pgCC*)
         # Portland Group C++ compiler
-	archive_cmds_CXX='$CC -shared $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags ${wl}-soname ${wl}$soname -o $lib'
-  	archive_expsym_cmds_CXX='$CC -shared $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags ${wl}-soname ${wl}$soname ${wl}-retain-symbols-file ${wl}$export_symbols -o $lib'
+	archive_cmds_CXX='$CC -shared $pic_flag $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags ${wl}-soname ${wl}$soname -o $lib'
+  	archive_expsym_cmds_CXX='$CC -shared $pic_flag $predep_objects $libobjs $deplibs $postdep_objects $compiler_flags ${wl}-soname ${wl}$soname ${wl}-retain-symbols-file ${wl}$export_symbols -o $lib'
 
 	hardcode_libdir_flag_spec_CXX='${wl}--rpath ${wl}$libdir'
 	export_dynamic_flag_spec_CXX='${wl}--export-dynamic'
-	whole_archive_flag_spec_CXX=''
+	whole_archive_flag_spec_CXX='${wl}--whole-archive,`for conv in $convenience\"\"; do test  -n \"$conv\" && new_convenience=\"$new_convenience,$conv\"; done; $echo \"$new_convenience\"` ${wl}--no-whole-archive'
         ;;
       cxx*)
 	# Compaq C++
@@ -11313,11 +11344,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11316: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11347: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:11320: \$? = $ac_status" >&5
+   echo "$as_me:11351: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -11375,11 +11406,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:11378: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:11409: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:11382: \$? = $ac_status" >&5
+   echo "$as_me:11413: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -11912,7 +11943,7 @@ linux*)
 
   # Append ld.so.conf contents to the search path
   if test -f /etc/ld.so.conf; then
-    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,\t]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
     sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
   fi
 
@@ -11935,7 +11966,7 @@ linux*)
   libsuff=
   case "$host_cpu" in
   x86_64*)
-    echo '#line 11938 "configure"' > conftest.$ac_ext
+    echo '#line 11969 "configure"' > conftest.$ac_ext
     if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -12006,7 +12037,11 @@ nto-qnx*)
 openbsd*)
   version_type=sunos
   need_lib_prefix=no
-  need_version=no
+  # Some older versions of OpenBSD (3.3 at least) *do* need versioned libs.
+  case $host_os in
+    openbsd3.3 | openbsd3.3.*) need_version=yes ;;
+    *)                         need_version=no  ;;
+  esac
   library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${shared_ext}$versuffix'
   finish_cmds='PATH="\$PATH:/sbin" ldconfig -m $libdir'
   shlibpath_var=LD_LIBRARY_PATH
@@ -12795,7 +12830,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12798 "configure"
+#line 12833 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12893,7 +12928,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 12896 "configure"
+#line 12931 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13778,11 +13813,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13781: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13816: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13785: \$? = $ac_status" >&5
+   echo "$as_me:13820: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13840,11 +13875,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13843: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13878: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13847: \$? = $ac_status" >&5
+   echo "$as_me:13882: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14055,11 +14090,12 @@ EOF
 	tmp_addflag=
 	case $cc_basename,$host_cpu in
 	pgcc*)				# Portland Group C compiler
-	  whole_archive_flag_spec_F77=
+	  whole_archive_flag_spec_F77='${wl}--whole-archive,`for conv in $convenience\"\"; do test  -n \"$conv\" && new_convenience=\"$new_convenience,$conv\"; done; $echo \"$new_convenience\"` ${wl}--no-whole-archive'
+	  tmp_addflag=' $pic_flag'
 	  ;;
 	pgf77* | pgf90* )			# Portland Group f77 and f90 compilers
-	  whole_archive_flag_spec_F77=
-	  tmp_addflag=' -fpic -Mnomain' ;;
+	  whole_archive_flag_spec_F77='${wl}--whole-archive,`for conv in $convenience\"\"; do test  -n \"$conv\" && new_convenience=\"$new_convenience,$conv\"; done; $echo \"$new_convenience\"` ${wl}--no-whole-archive'
+	  tmp_addflag=' $pic_flag -Mnomain' ;;
 	ecc*,ia64* | icc*,ia64*)		# Intel C compiler on ia64
 	  tmp_addflag=' -i_dynamic' ;;
 	efc*,ia64* | ifort*,ia64*)	# Intel Fortran compiler on ia64
@@ -15227,7 +15263,7 @@ linux*)
 
   # Append ld.so.conf contents to the search path
   if test -f /etc/ld.so.conf; then
-    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,\t]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
     sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
   fi
 
@@ -15250,7 +15286,7 @@ linux*)
   libsuff=
   case "$host_cpu" in
   x86_64*)
-    echo '#line 15253 "configure"' > conftest.$ac_ext
+    echo '#line 15289 "configure"' > conftest.$ac_ext
     if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -15321,7 +15357,11 @@ nto-qnx*)
 openbsd*)
   version_type=sunos
   need_lib_prefix=no
-  need_version=no
+  # Some older versions of OpenBSD (3.3 at least) *do* need versioned libs.
+  case $host_os in
+    openbsd3.3 | openbsd3.3.*) need_version=yes ;;
+    *)                         need_version=no  ;;
+  esac
   library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${shared_ext}$versuffix'
   finish_cmds='PATH="\$PATH:/sbin" ldconfig -m $libdir'
   shlibpath_var=LD_LIBRARY_PATH
@@ -16012,11 +16052,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16015: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16055: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16019: \$? = $ac_status" >&5
+   echo "$as_me:16059: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16274,11 +16314,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16277: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16317: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:16281: \$? = $ac_status" >&5
+   echo "$as_me:16321: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -16336,11 +16376,11 @@ else
    -e 's:.*FLAGS}? :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:16339: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:16379: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:16343: \$? = $ac_status" >&5
+   echo "$as_me:16383: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -16551,11 +16591,12 @@ EOF
 	tmp_addflag=
 	case $cc_basename,$host_cpu in
 	pgcc*)				# Portland Group C compiler
-	  whole_archive_flag_spec_GCJ=
+	  whole_archive_flag_spec_GCJ='${wl}--whole-archive,`for conv in $convenience\"\"; do test  -n \"$conv\" && new_convenience=\"$new_convenience,$conv\"; done; $echo \"$new_convenience\"` ${wl}--no-whole-archive'
+	  tmp_addflag=' $pic_flag'
 	  ;;
 	pgf77* | pgf90* )			# Portland Group f77 and f90 compilers
-	  whole_archive_flag_spec_GCJ=
-	  tmp_addflag=' -fpic -Mnomain' ;;
+	  whole_archive_flag_spec_GCJ='${wl}--whole-archive,`for conv in $convenience\"\"; do test  -n \"$conv\" && new_convenience=\"$new_convenience,$conv\"; done; $echo \"$new_convenience\"` ${wl}--no-whole-archive'
+	  tmp_addflag=' $pic_flag -Mnomain' ;;
 	ecc*,ia64* | icc*,ia64*)		# Intel C compiler on ia64
 	  tmp_addflag=' -i_dynamic' ;;
 	efc*,ia64* | ifort*,ia64*)	# Intel Fortran compiler on ia64
@@ -17743,7 +17784,7 @@ linux*)
 
   # Append ld.so.conf contents to the search path
   if test -f /etc/ld.so.conf; then
-    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,\t]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
+    lt_ld_extra=`awk '/^include / { system(sprintf("cd /etc; cat %s", \$2)); skip = 1; } { if (!skip) print \$0; skip = 0; }' < /etc/ld.so.conf | $SED -e 's/#.*//;s/[:,	]/ /g;s/=[^=]*$//;s/=[^= ]* / /g;/^$/d' | tr '\n' ' '`
     sys_lib_dlsearch_path_spec="/lib /usr/lib $lt_ld_extra"
   fi
 
@@ -17766,7 +17807,7 @@ linux*)
   libsuff=
   case "$host_cpu" in
   x86_64*)
-    echo '#line 17769 "configure"' > conftest.$ac_ext
+    echo '#line 17810 "configure"' > conftest.$ac_ext
     if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -17837,7 +17878,11 @@ nto-qnx*)
 openbsd*)
   version_type=sunos
   need_lib_prefix=no
-  need_version=no
+  # Some older versions of OpenBSD (3.3 at least) *do* need versioned libs.
+  case $host_os in
+    openbsd3.3 | openbsd3.3.*) need_version=yes ;;
+    *)                         need_version=no  ;;
+  esac
   library_names_spec='${libname}${release}${shared_ext}$versuffix ${libname}${shared_ext}$versuffix'
   finish_cmds='PATH="\$PATH:/sbin" ldconfig -m $libdir'
   shlibpath_var=LD_LIBRARY_PATH
@@ -18626,7 +18671,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18629 "configure"
+#line 18674 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -18724,7 +18769,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 18727 "configure"
+#line 18772 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -19897,179 +19942,6 @@ CFLAGS="$CFLAGS $cflags_save"
 LDFLAGS="$LDFLAGS $ldflags_save"
 
 
-
-ac_enable_float=yes
-# Check whether --enable-float or --disable-float was given.
-if test "${enable_float+set}" = set; then
-  enableval="$enable_float"
-   ac_enable_float=no
-else
-   ac_enable_float=yes
-fi;
-
-if test "x${ac_enable_float}" = xyes ; then
-
-cat >>confdefs.h <<\_ACEOF
-#define THEORA_SUPPORT_FLOAT 1
-_ACEOF
-
-else
-
-cat >>confdefs.h <<\_ACEOF
-#define THEORA_SUPPORT_FLOAT 0
-_ACEOF
-
-fi
-
-
-if test "x${ac_enable_float}" = "xyes"; then
-  THEORA_SUPPORT_FLOAT_TRUE=
-  THEORA_SUPPORT_FLOAT_FALSE='#'
-else
-  THEORA_SUPPORT_FLOAT_TRUE='#'
-  THEORA_SUPPORT_FLOAT_FALSE=
-fi
-
-
-
-ac_enable_encode=yes
-# Check whether --enable-encode or --disable-encode was given.
-if test "${enable_encode+set}" = set; then
-  enableval="$enable_encode"
-   ac_enable_encode=no
-else
-   ac_enable_encode=yes
-fi;
-
-if test "x${ac_enable_encode}" = xyes ; then
-    BUILDABLE_EXAMPLES="$BUILDABLE_EXAMPLES encoder_example"
-
-cat >>confdefs.h <<\_ACEOF
-#define THEORA_SUPPORT_ENCODE 1
-_ACEOF
-
-else
-
-cat >>confdefs.h <<\_ACEOF
-#define THEORA_SUPPORT_ENCODE 0
-_ACEOF
-
-fi
-
-
-if test "x${ac_enable_encode}" = "xyes"; then
-  THEORA_SUPPORT_ENCODE_TRUE=
-  THEORA_SUPPORT_ENCODE_FALSE='#'
-else
-  THEORA_SUPPORT_ENCODE_TRUE='#'
-  THEORA_SUPPORT_ENCODE_FALSE=
-fi
-
-
-
-
-
-
-
-echo "$as_me:$LINENO: checking for getopt_long" >&5
-echo $ECHO_N "checking for getopt_long... $ECHO_C" >&6
-if test "${ac_cv_func_getopt_long+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  cat >conftest.$ac_ext <<_ACEOF
-/* confdefs.h.  */
-_ACEOF
-cat confdefs.h >>conftest.$ac_ext
-cat >>conftest.$ac_ext <<_ACEOF
-/* end confdefs.h.  */
-/* Define getopt_long to an innocuous variant, in case <limits.h> declares getopt_long.
-   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
-#define getopt_long innocuous_getopt_long
-
-/* System header to define __stub macros and hopefully few prototypes,
-    which can conflict with char getopt_long (); below.
-    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
-    <limits.h> exists even on freestanding compilers.  */
-
-#ifdef __STDC__
-# include <limits.h>
-#else
-# include <assert.h>
-#endif
-
-#undef getopt_long
-
-/* Override any gcc2 internal prototype to avoid an error.  */
-#ifdef __cplusplus
-extern "C"
-{
-#endif
-/* We use char because int might match the return type of a gcc2
-   builtin and then its argument prototype would still apply.  */
-char getopt_long ();
-/* The GNU C library defines this for functions which it implements
-    to always fail with ENOSYS.  Some functions are actually named
-    something starting with __ and the normal name is an alias.  */
-#if defined (__stub_getopt_long) || defined (__stub___getopt_long)
-choke me
-#else
-char (*f) () = getopt_long;
-#endif
-#ifdef __cplusplus
-}
-#endif
-
-int
-main ()
-{
-return f != getopt_long;
-  ;
-  return 0;
-}
-_ACEOF
-rm -f conftest.$ac_objext conftest$ac_exeext
-if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
-  (eval $ac_link) 2>conftest.er1
-  ac_status=$?
-  grep -v '^ *+' conftest.er1 >conftest.err
-  rm -f conftest.er1
-  cat conftest.err >&5
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); } &&
-	 { ac_try='test -z "$ac_c_werror_flag"
-			 || test ! -s conftest.err'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; } &&
-	 { ac_try='test -s conftest$ac_exeext'
-  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
-  (eval $ac_try) 2>&5
-  ac_status=$?
-  echo "$as_me:$LINENO: \$? = $ac_status" >&5
-  (exit $ac_status); }; }; then
-  ac_cv_func_getopt_long=yes
-else
-  echo "$as_me: failed program was:" >&5
-sed 's/^/| /' conftest.$ac_ext >&5
-
-ac_cv_func_getopt_long=no
-fi
-rm -f conftest.err conftest.$ac_objext \
-      conftest$ac_exeext conftest.$ac_ext
-fi
-echo "$as_me:$LINENO: result: $ac_cv_func_getopt_long" >&5
-echo "${ECHO_T}$ac_cv_func_getopt_long" >&6
-if test $ac_cv_func_getopt_long = yes; then
-  GETOPT_OBJS=''
-else
-  GETOPT_OBJS='getopt.$(OBJEXT) getopt1.$(OBJEXT)'
-fi
-
-
-
-
 HAVE_OGG=no
 
 
@@ -20111,11 +19983,11 @@ fi
 if test "x$HAVE_PKG_CONFIG" = "xyes"
 then
 
-  succeeded=no
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
+set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
 echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
 if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
@@ -20140,7 +20012,6 @@ do
 done
 done
 
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
   ;;
 esac
 fi
@@ -20154,58 +20025,130 @@ else
 echo "${ECHO_T}no" >&6
 fi
 
+fi
+if test -z "$ac_cv_path_PKG_CONFIG"; then
+  ac_pt_PKG_CONFIG=$PKG_CONFIG
+  # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
+if test "${ac_cv_path_ac_pt_PKG_CONFIG+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $ac_pt_PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
+    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
   fi
+done
+done
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        echo "$as_me:$LINENO: checking for ogg >= 1.1" >&5
-echo $ECHO_N "checking for ogg >= 1.1... $ECHO_C" >&6
+  ;;
+esac
+fi
+ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
 
-        if $PKG_CONFIG --exists "ogg >= 1.1" ; then
-            echo "$as_me:$LINENO: result: yes" >&5
+if test -n "$ac_pt_PKG_CONFIG"; then
+  echo "$as_me:$LINENO: result: $ac_pt_PKG_CONFIG" >&5
+echo "${ECHO_T}$ac_pt_PKG_CONFIG" >&6
+else
+  echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+fi
+
+  PKG_CONFIG=$ac_pt_PKG_CONFIG
+else
+  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
+fi
+
+fi
+if test -n "$PKG_CONFIG"; then
+	_pkg_min_version=0.9.0
+	echo "$as_me:$LINENO: checking pkg-config is at least version $_pkg_min_version" >&5
+echo $ECHO_N "checking pkg-config is at least version $_pkg_min_version... $ECHO_C" >&6
+	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
+		echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6
-            succeeded=yes
+	else
+		echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6
+		PKG_CONFIG=""
+	fi
 
-            echo "$as_me:$LINENO: checking OGG_CFLAGS" >&5
-echo $ECHO_N "checking OGG_CFLAGS... $ECHO_C" >&6
-            OGG_CFLAGS=`$PKG_CONFIG --cflags "ogg >= 1.1"`
-            echo "$as_me:$LINENO: result: $OGG_CFLAGS" >&5
-echo "${ECHO_T}$OGG_CFLAGS" >&6
+fi
 
-            echo "$as_me:$LINENO: checking OGG_LIBS" >&5
-echo $ECHO_N "checking OGG_LIBS... $ECHO_C" >&6
-            OGG_LIBS=`$PKG_CONFIG --libs "ogg >= 1.1"`
-            echo "$as_me:$LINENO: result: $OGG_LIBS" >&5
-echo "${ECHO_T}$OGG_LIBS" >&6
-        else
-            OGG_CFLAGS=""
-            OGG_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            OGG_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "ogg >= 1.1"`
+pkg_failed=no
+echo "$as_me:$LINENO: checking for OGG_CFLAGS" >&5
+echo $ECHO_N "checking for OGG_CFLAGS... $ECHO_C" >&6
+if test "${pkg_cv_OGG_CFLAGS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "x$ac_cv_env_OGG_CFLAGS_set" = "xset"; then
+	pkg_cv_OGG_CFLAGS=$ac_cv_env_OGG_CFLAGS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"ogg >= 1.1\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "ogg >= 1.1" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_OGG_CFLAGS=`$PKG_CONFIG --cflags "ogg >= 1.1" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
+else
+	pkg_failed=untried
+fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_OGG_CFLAGS" >&5
+echo "${ECHO_T}$pkg_cv_OGG_CFLAGS" >&6
+echo "$as_me:$LINENO: checking for OGG_LIBS" >&5
+echo $ECHO_N "checking for OGG_LIBS... $ECHO_C" >&6
+if test "${pkg_cv_OGG_LIBS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "x$ac_cv_env_OGG_LIBS_set" = "xset"; then
+	pkg_cv_OGG_LIBS=$ac_cv_env_OGG_LIBS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"ogg >= 1.1\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "ogg >= 1.1" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_OGG_LIBS=`$PKG_CONFIG --libs "ogg >= 1.1" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
+else
+	pkg_failed=untried
+fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_OGG_LIBS" >&5
+echo "${ECHO_T}$pkg_cv_OGG_LIBS" >&6
 
-        fi
+if test $pkg_failed = yes; then
+	OGG_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "ogg >= 1.1"`
+	# Put the nasty error message in config.log where it belongs
+	echo "$OGG_PKG_ERRORS" 1>&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     HAVE_OGG=yes
-  else
-     HAVE_OGG=no
-  fi
-
+	HAVE_OGG=no
+elif test $pkg_failed = untried; then
+	HAVE_OGG=no
+else
+	OGG_CFLAGS=$pkg_cv_OGG_CFLAGS
+	OGG_LIBS=$pkg_cv_OGG_LIBS
+	HAVE_OGG=yes
+fi
 fi
 if test "x$HAVE_OGG" = "xno"
 then
@@ -20520,107 +20463,74 @@ fi
   LIBS=$libs_save
 fi
 
+
 HAVE_VORBIS=no
 
 
 if test "x$HAVE_PKG_CONFIG" = "xyes"
 then
 
-  succeeded=no
-
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
+pkg_failed=no
+echo "$as_me:$LINENO: checking for VORBIS_CFLAGS" >&5
+echo $ECHO_N "checking for VORBIS_CFLAGS... $ECHO_C" >&6
+if test "${pkg_cv_VORBIS_CFLAGS+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if $as_executable_p "$as_dir/$ac_word$ac_exec_ext"; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
-
-if test -n "$PKG_CONFIG"; then
-  echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6
+  if test "x$ac_cv_env_VORBIS_CFLAGS_set" = "xset"; then
+	pkg_cv_VORBIS_CFLAGS=$ac_cv_env_VORBIS_CFLAGS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"vorbis >= 1.0.1\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "vorbis >= 1.0.1" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_VORBIS_CFLAGS=`$PKG_CONFIG --cflags "vorbis >= 1.0.1" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
 else
-  echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6
+	pkg_failed=untried
 fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_VORBIS_CFLAGS" >&5
+echo "${ECHO_T}$pkg_cv_VORBIS_CFLAGS" >&6
+echo "$as_me:$LINENO: checking for VORBIS_LIBS" >&5
+echo $ECHO_N "checking for VORBIS_LIBS... $ECHO_C" >&6
+if test "${pkg_cv_VORBIS_LIBS+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test "x$ac_cv_env_VORBIS_LIBS_set" = "xset"; then
+	pkg_cv_VORBIS_LIBS=$ac_cv_env_VORBIS_LIBS_value
+elif test -n "$PKG_CONFIG"; then
+	if { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists \"vorbis >= 1.0.1\" >/dev/null 2>&1") >&5
+  ($PKG_CONFIG --exists "vorbis >= 1.0.1" >/dev/null 2>&1) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+		pkg_cv_VORBIS_LIBS=`$PKG_CONFIG --libs "vorbis >= 1.0.1" 2>/dev/null`
+	else
+		pkg_failed=yes
+	fi
+else
+	pkg_failed=untried
+fi
+fi
+echo "$as_me:$LINENO: result: $pkg_cv_VORBIS_LIBS" >&5
+echo "${ECHO_T}$pkg_cv_VORBIS_LIBS" >&6
 
-  fi
+if test $pkg_failed = yes; then
+	VORBIS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "vorbis >= 1.0.1"`
+	# Put the nasty error message in config.log where it belongs
+	echo "$VORBIS_PKG_ERRORS" 1>&5
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        echo "$as_me:$LINENO: checking for vorbis >= 1.0.1" >&5
-echo $ECHO_N "checking for vorbis >= 1.0.1... $ECHO_C" >&6
-
-        if $PKG_CONFIG --exists "vorbis >= 1.0.1" ; then
-            echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6
-            succeeded=yes
-
-            echo "$as_me:$LINENO: checking VORBIS_CFLAGS" >&5
-echo $ECHO_N "checking VORBIS_CFLAGS... $ECHO_C" >&6
-            VORBIS_CFLAGS=`$PKG_CONFIG --cflags "vorbis >= 1.0.1"`
-            echo "$as_me:$LINENO: result: $VORBIS_CFLAGS" >&5
-echo "${ECHO_T}$VORBIS_CFLAGS" >&6
-
-            echo "$as_me:$LINENO: checking VORBIS_LIBS" >&5
-echo $ECHO_N "checking VORBIS_LIBS... $ECHO_C" >&6
-            VORBIS_LIBS=`$PKG_CONFIG --libs "vorbis >= 1.0.1"`
-            echo "$as_me:$LINENO: result: $VORBIS_LIBS" >&5
-echo "${ECHO_T}$VORBIS_LIBS" >&6
-        else
-            VORBIS_CFLAGS=""
-            VORBIS_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            VORBIS_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "vorbis >= 1.0.1"`
-
-        fi
-
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     HAVE_VORBIS=yes
-  else
-     HAVE_VORBIS=no
-  fi
-
+	HAVE_VORBIS=no
+elif test $pkg_failed = untried; then
+	HAVE_VORBIS=no
+else
+	VORBIS_CFLAGS=$pkg_cv_VORBIS_CFLAGS
+	VORBIS_LIBS=$pkg_cv_VORBIS_LIBS
+	HAVE_VORBIS=yes
+fi
         VORBISENC_LIBS="-lvorbisenc"
 
 fi
@@ -20840,6 +20750,7 @@ rm -f conftest.err conftest.$ac_objext \
 
 fi
 
+HAVE_SDL=no
 
 
 # Check whether --with-sdl-prefix or --without-sdl-prefix was given.
@@ -21137,6 +21048,8 @@ echo "$as_me: WARNING: *** Unable to find SDL -- Not compiling example players *
   rm -f conf.sdltest
 
 
+HAVE_OSS=no
+
 
 
 
@@ -21297,7 +21210,174 @@ if test x$HAVE_OSS != xyes; then
 echo "$as_me: WARNING: OSS audio support not found -- not compiling player_example" >&2;}
 fi
 
-if test x$HAVE_SDL = xyes -a x$HAVE_OSS = xyes; then
+
+
+ac_enable_float=yes
+# Check whether --enable-float or --disable-float was given.
+if test "${enable_float+set}" = set; then
+  enableval="$enable_float"
+   ac_enable_float=$enableval
+else
+   ac_enable_float=yes
+fi;
+
+if test "x${ac_enable_float}" != xyes ; then
+
+cat >>confdefs.h <<\_ACEOF
+#define THEORA_DISABLE_FLOAT
+_ACEOF
+
+fi
+
+
+if test "x${ac_enable_float}" != xyes; then
+  THEORA_DISABLE_FLOAT_TRUE=
+  THEORA_DISABLE_FLOAT_FALSE='#'
+else
+  THEORA_DISABLE_FLOAT_TRUE='#'
+  THEORA_DISABLE_FLOAT_FALSE=
+fi
+
+
+
+ac_enable_encode=yes
+# Check whether --enable-encode or --disable-encode was given.
+if test "${enable_encode+set}" = set; then
+  enableval="$enable_encode"
+   ac_enable_encode=$enableval
+else
+   ac_enable_encode=yes
+fi;
+
+if test "x${ac_enable_encode}" != xyes ; then
+
+cat >>confdefs.h <<\_ACEOF
+#define THEORA_DISABLE_ENCODE
+_ACEOF
+
+else
+    if test x$HAVE_VORBIS = xyes; then
+      BUILDABLE_EXAMPLES="$BUILDABLE_EXAMPLES encoder_example"
+    else
+      { echo "$as_me:$LINENO: Vorbis missing, cannot build example encoder" >&5
+echo "$as_me: Vorbis missing, cannot build example encoder" >&6;}
+    fi
+fi
+
+
+if test "x${ac_enable_encode}" != xyes; then
+  THEORA_DISABLE_ENCODE_TRUE=
+  THEORA_DISABLE_ENCODE_FALSE='#'
+else
+  THEORA_DISABLE_ENCODE_TRUE='#'
+  THEORA_DISABLE_ENCODE_FALSE=
+fi
+
+
+
+
+
+
+
+echo "$as_me:$LINENO: checking for getopt_long" >&5
+echo $ECHO_N "checking for getopt_long... $ECHO_C" >&6
+if test "${ac_cv_func_getopt_long+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+/* Define getopt_long to an innocuous variant, in case <limits.h> declares getopt_long.
+   For example, HP-UX 11i <limits.h> declares gettimeofday.  */
+#define getopt_long innocuous_getopt_long
+
+/* System header to define __stub macros and hopefully few prototypes,
+    which can conflict with char getopt_long (); below.
+    Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
+    <limits.h> exists even on freestanding compilers.  */
+
+#ifdef __STDC__
+# include <limits.h>
+#else
+# include <assert.h>
+#endif
+
+#undef getopt_long
+
+/* Override any gcc2 internal prototype to avoid an error.  */
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+/* We use char because int might match the return type of a gcc2
+   builtin and then its argument prototype would still apply.  */
+char getopt_long ();
+/* The GNU C library defines this for functions which it implements
+    to always fail with ENOSYS.  Some functions are actually named
+    something starting with __ and the normal name is an alias.  */
+#if defined (__stub_getopt_long) || defined (__stub___getopt_long)
+choke me
+#else
+char (*f) () = getopt_long;
+#endif
+#ifdef __cplusplus
+}
+#endif
+
+int
+main ()
+{
+return f != getopt_long;
+  ;
+  return 0;
+}
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (eval echo "$as_me:$LINENO: \"$ac_link\"") >&5
+  (eval $ac_link) 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } &&
+	 { ac_try='test -z "$ac_c_werror_flag"
+			 || test ! -s conftest.err'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; } &&
+	 { ac_try='test -s conftest$ac_exeext'
+  { (eval echo "$as_me:$LINENO: \"$ac_try\"") >&5
+  (eval $ac_try) 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; }; then
+  ac_cv_func_getopt_long=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+ac_cv_func_getopt_long=no
+fi
+rm -f conftest.err conftest.$ac_objext \
+      conftest$ac_exeext conftest.$ac_ext
+fi
+echo "$as_me:$LINENO: result: $ac_cv_func_getopt_long" >&5
+echo "${ECHO_T}$ac_cv_func_getopt_long" >&6
+if test $ac_cv_func_getopt_long = yes; then
+  GETOPT_OBJS=''
+else
+  GETOPT_OBJS='getopt.$(OBJEXT) getopt1.$(OBJEXT)'
+fi
+
+
+
+if test x$HAVE_SDL = xyes -a x$HAVE_OSS = xyes -a x$HAVE_VORBIS = xyes; then
   BUILDABLE_EXAMPLES="$BUILDABLE_EXAMPLES player_example"
 fi
 
@@ -21426,17 +21506,17 @@ echo "$as_me: error: conditional \"HAVE_PYTHON\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${THEORA_SUPPORT_FLOAT_TRUE}" && test -z "${THEORA_SUPPORT_FLOAT_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"THEORA_SUPPORT_FLOAT\" was never defined.
+if test -z "${THEORA_DISABLE_FLOAT_TRUE}" && test -z "${THEORA_DISABLE_FLOAT_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"THEORA_DISABLE_FLOAT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"THEORA_SUPPORT_FLOAT\" was never defined.
+echo "$as_me: error: conditional \"THEORA_DISABLE_FLOAT\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
-if test -z "${THEORA_SUPPORT_ENCODE_TRUE}" && test -z "${THEORA_SUPPORT_ENCODE_FALSE}"; then
-  { { echo "$as_me:$LINENO: error: conditional \"THEORA_SUPPORT_ENCODE\" was never defined.
+if test -z "${THEORA_DISABLE_ENCODE_TRUE}" && test -z "${THEORA_DISABLE_ENCODE_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"THEORA_DISABLE_ENCODE\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
-echo "$as_me: error: conditional \"THEORA_SUPPORT_ENCODE\" was never defined.
+echo "$as_me: error: conditional \"THEORA_DISABLE_ENCODE\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -22054,13 +22134,9 @@ s,@HAVE_DOXYGEN_FALSE@,$HAVE_DOXYGEN_FALSE,;t t
 s,@HAVE_PYTHON@,$HAVE_PYTHON,;t t
 s,@HAVE_PYTHON_TRUE@,$HAVE_PYTHON_TRUE,;t t
 s,@HAVE_PYTHON_FALSE@,$HAVE_PYTHON_FALSE,;t t
-s,@THEORA_SUPPORT_FLOAT_TRUE@,$THEORA_SUPPORT_FLOAT_TRUE,;t t
-s,@THEORA_SUPPORT_FLOAT_FALSE@,$THEORA_SUPPORT_FLOAT_FALSE,;t t
-s,@THEORA_SUPPORT_ENCODE_TRUE@,$THEORA_SUPPORT_ENCODE_TRUE,;t t
-s,@THEORA_SUPPORT_ENCODE_FALSE@,$THEORA_SUPPORT_ENCODE_FALSE,;t t
-s,@GETOPT_OBJS@,$GETOPT_OBJS,;t t
 s,@HAVE_PKG_CONFIG@,$HAVE_PKG_CONFIG,;t t
 s,@PKG_CONFIG@,$PKG_CONFIG,;t t
+s,@ac_pt_PKG_CONFIG@,$ac_pt_PKG_CONFIG,;t t
 s,@OGG_CFLAGS@,$OGG_CFLAGS,;t t
 s,@OGG_LIBS@,$OGG_LIBS,;t t
 s,@VORBIS_CFLAGS@,$VORBIS_CFLAGS,;t t
@@ -22070,6 +22146,11 @@ s,@VORBISFILE_LIBS@,$VORBISFILE_LIBS,;t t
 s,@SDL_CONFIG@,$SDL_CONFIG,;t t
 s,@SDL_CFLAGS@,$SDL_CFLAGS,;t t
 s,@SDL_LIBS@,$SDL_LIBS,;t t
+s,@THEORA_DISABLE_FLOAT_TRUE@,$THEORA_DISABLE_FLOAT_TRUE,;t t
+s,@THEORA_DISABLE_FLOAT_FALSE@,$THEORA_DISABLE_FLOAT_FALSE,;t t
+s,@THEORA_DISABLE_ENCODE_TRUE@,$THEORA_DISABLE_ENCODE_TRUE,;t t
+s,@THEORA_DISABLE_ENCODE_FALSE@,$THEORA_DISABLE_ENCODE_FALSE,;t t
+s,@GETOPT_OBJS@,$GETOPT_OBJS,;t t
 s,@BUILDABLE_EXAMPLES@,$BUILDABLE_EXAMPLES,;t t
 s,@DEBUG@,$DEBUG,;t t
 s,@PROFILE@,$PROFILE,;t t
