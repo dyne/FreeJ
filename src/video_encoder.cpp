@@ -192,7 +192,7 @@ bool VideoEncoder::init_audio() {
 	else
 		audio_started = false;
 
-//	notice ("Audio OK");
+	notice ("Audio OK");
 	return true;
 
 }
