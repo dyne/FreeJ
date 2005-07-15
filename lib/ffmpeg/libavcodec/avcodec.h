@@ -16,8 +16,9 @@ extern "C" {
 #include <sys/types.h> /* size_t */
 
 #define FFMPEG_VERSION_INT     0x000409
-#define FFMPEG_VERSION         "0.4.9-pre1"
-#define LIBAVCODEC_BUILD       4756
+#define FFMPEG_VERSION         "CVS"
+#define LIBAVCODEC_BUILD       4758
+
 
 #define LIBAVCODEC_VERSION_INT FFMPEG_VERSION_INT
 #define LIBAVCODEC_VERSION     FFMPEG_VERSION
@@ -136,6 +137,7 @@ enum CodecID {
     CODEC_ID_ADPCM_G726,
     CODEC_ID_ADPCM_CT,
     CODEC_ID_ADPCM_SWF,
+    CODEC_ID_ADPCM_YAMAHA,
 
     /* AMR */
     CODEC_ID_AMR_NB= 0x12000,
@@ -282,6 +284,16 @@ enum AVRounding {
     AV_ROUND_DOWN     = 2, ///< round toward -infinity
     AV_ROUND_UP       = 3, ///< round toward +infinity
     AV_ROUND_NEAR_INF = 5, ///< round to nearest and halfway cases away from zero
+};
+
+enum AVDiscard{
+//we leave some space between them for extensions (drop some keyframes for intra only or drop just some bidir frames)
+    AVDISCARD_NONE   =-16, ///< discard nothing
+    AVDISCARD_DEFAULT=  0, ///< discard useless packets like 0 size packets in avi
+    AVDISCARD_NONREF =  8, ///< discard all non reference
+    AVDISCARD_BIDIR  = 16, ///< discard all bidirectional frames
+    AVDISCARD_NONKEY = 32, ///< discard all frames except keyframes
+    AVDISCARD_ALL    = 48, ///< discard all
 };
 
 typedef struct RcOverride{
@@ -858,6 +870,7 @@ typedef struct AVCodecContext {
 
     /**
      * hurry up amount.
+     * deprecated in favor of skip_idct and skip_frame
      * - encoding: unused
      * - decoding: set by user. 1-> skip b frames, 2-> skip idct/dequant too, 5-> skip everything except header
      */
@@ -1193,7 +1206,7 @@ typedef struct AVCodecContext {
 #define FF_IDCT_SIMPLEARM    10
 #define FF_IDCT_H264         11
 #define FF_IDCT_VP3          12
-#define FP_IDCT_IPP          13
+#define FF_IDCT_IPP          13
 
     /**
      * slice count.
@@ -1236,6 +1249,9 @@ typedef struct AVCodecContext {
 #define FF_MM_SSE2	0x0010 /* PIV SSE2 functions */
 #define FF_MM_3DNOWEXT	0x0020 /* AMD 3DNowExt */
 #endif /* HAVE_MMX */
+#ifdef HAVE_IWMMXT
+#define FF_MM_IWMMXT	0x0100 /* XScale IWMMXT */
+#endif /* HAVE_IWMMXT */
 
     /**
      * bits per sample/pixel from the demuxer (needed for huffyuv).
@@ -1804,6 +1820,27 @@ typedef struct AVCodecContext {
      * - decoding: unused
      */
     int me_penalty_compensation;
+
+    /**
+     * 
+     * - encoding: unused
+     * - decoding: set by user.
+     */
+    enum AVDiscard skip_loop_filter;
+
+    /**
+     * 
+     * - encoding: unused
+     * - decoding: set by user.
+     */
+    enum AVDiscard skip_idct;
+
+    /**
+     * 
+     * - encoding: unused
+     * - decoding: set by user.
+     */
+    enum AVDiscard skip_frame;
 } AVCodecContext;
 
 
@@ -2083,6 +2120,7 @@ PCM_CODEC(CODEC_ID_ADPCM_EA, adpcm_ea);
 PCM_CODEC(CODEC_ID_ADPCM_G726, adpcm_g726);
 PCM_CODEC(CODEC_ID_ADPCM_CT, adpcm_ct);
 PCM_CODEC(CODEC_ID_ADPCM_SWF, adpcm_swf);
+PCM_CODEC(CODEC_ID_ADPCM_YAMAHA, adpcm_yamaha);
 
 #undef PCM_CODEC
 

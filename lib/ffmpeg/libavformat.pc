@@ -5,8 +5,8 @@ includedir=${prefix}/include
 
 Name: libavformat
 Description: FFmpeg container format library
-Version: 0.4.9-pre1-4628
-Requires:  libavcodec = 0.4.9-pre1-4756
+Version: 0.4.9-pre1-4626
+Requires:  ogg >= 1.1 vorbis theora libavcodec = 0.4.9-pre1-4756
 Conflicts:
-Libs: -L${libdir} -lavformat -lm -lz -ldl
+Libs: -L${libdir} -lavformat -lm -ldts -lz -lpthread -ldl
 Cflags: -I${includedir} -I${includedir}/ffmpeg
