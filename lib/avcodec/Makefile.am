@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/lib/avcodec
+INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/lib/avcodec -I$(top_srcdir)/lib/theora-mmx
 
 AM_CFLAGS= -DHAVE_AV_CONFIG_H -I.. -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE
 

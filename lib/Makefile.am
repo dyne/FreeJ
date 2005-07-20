@@ -1,1 +1,1 @@
-SUBDIRS = ccvt theora-mmx avformat avcodec
+SUBDIRS = ccvt theora-mmx avformat avcodec shout
