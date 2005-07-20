@@ -1,9 +1,0 @@
-/asm.h/1.8/Mon Jun 27 10:40:48 2005//D2005.06.28.15.54.44
-/dsputil_alpha.c/1.22/Tue Dec 30 16:07:56 2003//D2005.06.28.15.54.44
-/dsputil_alpha_asm.S/1.5/Sat Jul 10 23:22:47 2004//D2005.06.28.15.54.44
-/motion_est_alpha.c/1.3/Tue Dec 30 16:07:56 2003//D2005.06.28.15.54.44
-/motion_est_mvi_asm.S/1.2/Sat Jul 10 23:22:47 2004//D2005.06.28.15.54.44
-/mpegvideo_alpha.c/1.11/Mon Dec 15 09:21:28 2003//D2005.06.28.15.54.44
-/regdef.h/1.1/Mon Jul  1 04:26:07 2002//D2005.06.28.15.54.44
-/simple_idct_alpha.c/1.4/Mon Jun 27 10:40:48 2005//D2005.06.28.15.54.44
-D
