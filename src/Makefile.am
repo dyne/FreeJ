@@ -1,15 +1,16 @@
 INCLUDES = -I$(top_srcdir)/src/include \
-           -I$(top_srcdir)/ccvt \
-           -I$(top_srcdir)/lib/portaudio-v19/pa_common \
-           -I$(top_srcdir)/libflash \
-           -I$(top_srcdir)/lib/theora-mmx/include/theora \
+           -I$(top_srcdir)/lib/ccvt \
+           -I$(top_srcdir)/lib/theora-mmx \
+           -I$(top_srcdir)/lib/avformat \
+           -I$(top_srcdir)/lib/avcodec \
            -I/usr/include/slang
 
+#           -I$(top_srcdir)/lib/portaudio-v19/pa_common
+
 AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
-              @SDL_CFLAGS@ @AVIFILE_CXXFLAGS@ \
+              @SDL_CFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
-	      @AVCODEC_CFLAGS@ @JS_CFLAGS@ \
-	      @XIPH_CFLAGS@ \
+	      @JS_CFLAGS@  @XIPH_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
@@ -59,23 +60,24 @@ freej_SOURCES = \
 	shouter.cpp \
 	pipe.cpp
 
-freej_LDADD = $(top_srcdir)/ccvt/libccvt.a \
-		 -ldl -lpthread -lm -lslang \
-		 $(top_srcdir)/lib/ffmpeg/libavformat/libavformat.a \
-		 $(top_srcdir)/lib/ffmpeg/libavcodec/libavcodec.a \
+freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
+              $(top_srcdir)/lib/theora-mmx/libtheora.a \
+		 @XIPH_LIBS@ \
+              $(top_srcdir)/lib/avformat/libavformat.a \
+              $(top_srcdir)/lib/avcodec/libavcodec.a \
+              -ldl -lpthread -lm -lslang \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
-		 @PORTAUDIO_LIB@ \
 		 @SDL_LIBS@ \
-		 @AVIFILE_LIBS@ \
 		 @FT2_LIBS@ \
 		 @PNG_LIBS@ \
 		 @GLADE2_LIBS@ \
-		 @AVCODEC_LIBS@ \
 		 @JS_LIBS@ \
-		 @SDLIMAGE_LIBS@ \
-		 @FLASH_LIBS@ \
-		 @XIPH_LIBS@
+		 @SDLIMAGE_LIBS@
+
+#		 @PORTAUDIO_LIB@
+#		 @AVIFILE_LIBS@
+#		 @AVCODEC_LIBS@
 
 bundle_contents = @PACKAGE@.app/Contents
 @PACKAGE@_bundle: freej

@@ -101,6 +101,21 @@ dnl Checks for library functions.
 dnl ==============================================================
 AC_CHECK_FUNCS(select malloc mmap ioctl)
 
+
+dnl ==============================================================
+dnl Check if we are going for a STATIC BUILD
+dnl ==============================================================
+AC_ARG_ENABLE(static-build,
+[  --enable-static-build      statically include all libraries) (default: no)],
+[ if test ! x$enableval = xyes; then
+    static_build=no
+  else
+    static_build=yes
+  fi ],[ static_build=no ])
+
+
+
+
 dnl ==============================================================
 dnl Check for SDL
 dnl ==============================================================
@@ -114,45 +129,40 @@ AC_SUBST(SDL_CFLAGS)
 
 dnl AC_HEADER_DIRENT
 
-dnl THEORA MMX STUFF
-if test x$host_cpu = xx86_64; then
-	PKG_CHECK_MODULES(XIPH, ogg >= 1.1 theora vorbisenc shout, [ dnl TODO check for vorbis
-			AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling ogg-theora encoding])
-			have_oggtheora=yes],have_oggtheora=no)
+dnl ==============================================================
+dnl Check OGG/THEORA MMX STUFF
+dnl ==============================================================
+PKG_CHECK_MODULES(XIPH, ogg >= 1.1, have_oggtheora=yes, have_oggtheora=no)
+if test x$have_oggtheora = xyes ; then
+   AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
+   AC_DEFINE(THEORA_SUPPORT_ENCODE,1,[define if compiling Theora encoder])
+   AC_DEFINE(THEORA_SUPPORT_FLOAT,1,[define if compiling Theora float codec])
+   STATIC_LIBS_SUBDIRS="$STATIC_LIBS_SUBDIRS theora-mmx"
+   STATIC_LIBS_INCLUDE="$STATIC_LIBS_INCLUDE -I\$(top_srcdir)/lib/theora-mmx"
+   if test x$static_build = xyes ; then
+      XIPH_LIBS="`pkg-config --variable=prefix ogg`/lib/libogg.a"
+   fi
+fi
 
-	else
-	BUILDLIBS="$BUILDLIBS theora-mmx/lib/.libs/libtheora.a"
-	STATIC_LIBS="$STATIC_LIBS \$(top_srcdir)/lib/theora-mmx/lib/.libs/libtheora.a"
-	AC_CONFIG_SUBDIRS([lib/theora-mmx])
-
-	dnl ==============================================================
-	dnl CHECK if there is libtheora and libogg
-	dnl ==============================================================
-
-	PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbisenc shout, [ dnl TODO check for vorbis
-			AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling ogg-theora encoding])
-			have_oggtheora=yes],have_oggtheora=no)
-	fi
 
 dnl ==============================================================
-dnl ==============================================================
-dnl CHECK if there is FREETYPE2
+dnl Check if there is FREETYPE2
 dnl ==============================================================
 AC_CHECK_FT2(9.0.0,[
 	AC_DEFINE(WITH_FT2,1,[define if compiling freetype2 layer])
 	have_freetype2=yes],have_freetype2=no)
 
-dnl AVCODEC AVFORMAT STUFF
-AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])
-AVCODEC_CFLAGS="-I\$(top_srcdir)/lib/ffmpeg/libavcodec -I\$(top_srcdir)/lib/ffmpeg/libavformat";
-
-dnl AC_SUBST(AVCODEC_LIBS)
-BUILDLIBS="$BUILDLIBS ffmpeg/libavcodec/libavcodec.a ffmpeg/libavformat/libavformat.a"
-dnl STATIC_LIBS="$STATIC_LIBS \$(top_srcdir)/lib/ffmpeg/libavcodec/libavcodec.a \$(top_srcdir)/lib/ffmpeg/libavformat/libavformat.a"
-AC_CONFIG_SUBDIRS([lib/ffmpeg])
-AC_SUBST(AVCODEC_CFLAGS)
-
 dnl ==============================================================
+dnl AVCODEC AVFORMAT STUFF
+dnl ==============================================================
+dnl put a disable flag
+AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])
+
+
+
+
+
+
 dnl CHECK if there is SDL_IMAGE
 dnl ==============================================================
 AC_ARG_ENABLE(sdl_image,
@@ -168,52 +178,57 @@ if test x$use_sdl_image = xyes; then
    AC_SUBST(SDLIMAGE_LIBS)
 fi
 
+
+
 dnl =====================================================
 dnl CHECK if is wanted and there is AVILIB
 dnl =====================================================
-AVI_LIBS=""
-if test ! x$use_ffmpeg = xyes; then
-   AC_AVIFILE(0.7.18)    
-   if test -z $HAVE_AVIFILE; then
-      echo "Error in avifile check, HAVE_AVIFILE is not declared"
-   fi
-   AC_ARG_ENABLE(avi,[  --enable-avi            compile Movie layer using AviFile (auto)],
-   # to this when --enable-avi is selected (check the value!)
-     [if test x$HAVE_AVIFILE = xyes -a ! x$enableval = xno; then
-	AC_DEFINE(WITH_AVIFILE,1,
-            [define if linking to avifile library for AVI layer playback])
-	have_avilayer=yes
-	AC_SUBST(AVIFILE_LIBS)
-	AC_SUBST(AVIFILE_CXXFLAGS)
-     fi],
-     # to this by default, when --enable-avi is not selected
-     [if test x$HAVE_AVIFILE = xyes; then
-	AC_DEFINE(WITH_AVIFILE,1,
-            [define if linking to avifile library for AVI layer playback])
-        have_avilayer=yes
-        AC_SUBST(AVIFILE_LIBS)
-        AC_SUBST(AVIFILE_CXXFLAGS)
-     fi])
-fi
+dnl AVI_LIBS=""
+dnl if test ! x$use_ffmpeg = xyes; then
+dnl    AC_AVIFILE(0.7.18)    
+dnl    if test -z $HAVE_AVIFILE; then
+dnl       echo "Error in avifile check, HAVE_AVIFILE is not declared"
+dnl    fi
+dnl    AC_ARG_ENABLE(avi,[  --enable-avi            compile Movie layer using AviFile (auto)],
+dnl    # to this when --enable-avi is selected (check the value!)
+dnl      [if test x$HAVE_AVIFILE = xyes -a ! x$enableval = xno; then
+dnl 	AC_DEFINE(WITH_AVIFILE,1,
+dnl             [define if linking to avifile library for AVI layer playback])
+dnl 	have_avilayer=yes
+dnl 	AC_SUBST(AVIFILE_LIBS)
+dnl 	AC_SUBST(AVIFILE_CXXFLAGS)
+dnl      fi],
+dnl      # to this by default, when --enable-avi is not selected
+dnl      [if test x$HAVE_AVIFILE = xyes; then
+dnl 	AC_DEFINE(WITH_AVIFILE,1,
+dnl             [define if linking to avifile library for AVI layer playback])
+dnl         have_avilayer=yes
+dnl         AC_SUBST(AVIFILE_LIBS)
+dnl         AC_SUBST(AVIFILE_CXXFLAGS)
+dnl      fi])
+dnl fi
 
-dnl ==============================================================
-dnl ENABLE LIBFLASH
-dnl ==============================================================
-AC_ARG_ENABLE(flash,
-[  --enable-flash          compile with Flash layer (broken, default: no)],
-[ if test x$enableval = xno; then
-    have_flash=no
-  else
-    have_flash=yes;
-  fi ],[ have_flash=no ])
-if test x$have_flash = xyes; then
-   AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
-FLASH_LIBS="\$(top_srcdir)/lib/flash/libflash.a"
-   FLASH_DIR="\$(top_srcdir)/lib/flash"
-   AC_SUBST(FLASH_LIBS)
-   AC_SUBST(FLASH_DIR)
-   echo "Using flash layer"
-fi
+dnl dnl ==============================================================
+dnl dnl ENABLE LIBFLASH
+dnl dnl ==============================================================
+dnl AC_ARG_ENABLE(flash,
+dnl [  --enable-flash          compile with Flash layer (broken, default: no)],
+dnl [ if test x$enableval = xno; then
+dnl     have_flash=no
+dnl   else
+dnl     have_flash=yes;
+dnl   fi ],[ have_flash=no ])
+dnl if test x$have_flash = xyes; then
+dnl    AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
+dnl    FLASH_LIBS=../libflash/libflash.a
+dnl    FLASH_DIR=libflash
+dnl    AC_SUBST(FLASH_LIBS)
+dnl    AC_SUBST(FLASH_DIR)
+dnl    echo "Using flash layer"
+dnl fi
+
+
+
 
 
 
@@ -222,30 +237,24 @@ dnl CHECK if there is MIDI
 dnl ==============================================================
 AC_ARG_ENABLE(midi,
 [  --enable-midi           compile with Midi controller (experimental, default: no)],
-[ if test x$enableval = xno; then
-    have_midi=no
-  else
-    have_midi=yes;
-  fi ],[ have_midi=no ])
+[ if test x$enableval = xno; then have_midi=no; else have_midi=yes; fi ], have_midi=no)
 if test x$have_midi = xyes; then
    AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
    echo "Compiling midi controller"
 fi
+
 
 dnl ==============================================================
 dnl CHECK if there is joystick
 dnl ==============================================================
 AC_ARG_ENABLE(joystick,
 [  --enable-joystick       compile with Joystick controller (experimental, default: no)],
-[ if test x$enableval = xno; then
-    have_joystick=no
-  else
-    have_joystick=yes;
-  fi ],[ have_joystick=no ])
+[ if test x$enableval = xno; then have_joystick=no; else have_joystick=yes; fi ], have_joystick=no)
 if test x$have_joystick = xyes; then
    AC_DEFINE(WITH_JOYSTICK,1,[define if compiling joystick controller])
    echo "Compiling joystick controller"
 fi
+
 
 dnl ==============================================================
 dnl CHECK PNG libraries
@@ -279,22 +288,13 @@ if test -r "$withval"; then
     have_png=yes],have_png=no)
 ])
  
-#PNG_LIBS=""
-#AC_CHECK_HEADER(png.h)
-#if test "$ac_cv_header_png_h" = "yes"; then
-#have_pnglayer=yes
-#PNG_LIBS="-lpng"
-
-#AC_SUBST(PNG_LIBS)
-#fi
 
 dnl ==============================================================
 dnl CHECK if there is 
 dnl ==============================================================
-AC_ARG_ENABLE(xhacks, [  --enable-xhacks         compile with xscreenhacks layer (broken, default: no)], [
-		    AC_DEFINE(WITH_XHACKS,1,[define if compiling xhacks layer])
-		    have_xhacks=yes
-		    ])
+dnl AC_ARG_ENABLE(xhacks, [  --enable-xhacks         compile with xscreenhacks layer (broken, default: no)], [ AC_DEFINE(WITH_XHACKS,1,[define if compiling xhacks layer])
+dnl    have_xhacks=yes
+dnl  ])
 
 dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
@@ -387,11 +387,17 @@ if test x$have_lubrifications = xyes; then
 else
   if test x$have_profiling = xno -a x$debug = xfalse; then
     echo "enabling generic compiler optimizations"
-    CFLAGS="$CFLAGS -O1 -fomit-frame-pointer -ffast-math"
+    CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mmmx"
   fi
 fi
 AC_SUBST(LUBRIFY_CFLAGS)
 
+
+
+
+dnl ==============================================================
+dnl CHECK TO USE OPENGL VIDEO OUTPUT
+dnl ==============================================================
 AC_ARG_ENABLE(opengl,
 	       [  --enable-opengl         experimental opengl rendering (no)],
 	       [ 
@@ -406,101 +412,141 @@ AC_ARG_ENABLE(opengl,
 		    ],
 		    [ use_opengl=no ]
 		    )
-
 AC_SUBST(OPENGL_LIB)
-dnl
+
+
+
 dnl ==============================================================
 dnl CHECK if there is SDL to be compiled STATIC
 dnl ==============================================================
-AC_MSG_CHECKING(for embedding static SDL libraries)
-AC_ARG_WITH(sdl-static,
-[  --with-sdl-static       embed SDL libraries as static library ],
-[ SDL_LIBS="`sdl-config --static-libs`"
-  AC_SUBST(SDL_LIBS)
-  AC_MSG_RESULT(yes) ],
-[ AC_MSG_RESULT(no) ])
+dnl AC_MSG_CHECKING(for embedding static SDL libraries)
+dnl AC_ARG_WITH(sdl-static,
+dnl [  --with-sdl-static       embed SDL libraries as static library ],
+dnl [ SDL_LIBS="`sdl-config --static-libs`"
+dnl   AC_SUBST(SDL_LIBS)
+dnl   AC_MSG_RESULT(yes) ],
+dnl [ AC_MSG_RESULT(no) ])
 
+dnl ==============================================================
 dnl PortAudio v19
+dnl ==============================================================
+dnl BUILDLIBS="$BUILDLIBS portaudio-v19/lib/libportaudio.a"
+dnl STATIC_LIBS="$STATIC_LIBS \$(top_srcdir)/lib/portaudio-v19/lib/libportaudio.a"
+dnl dnl EXTRAOBJS="$EXTRAOBJS ../lib/portaudio-v19/lib/libportaudio.a"
+dnl CXXFLAGS="-I\$(top_srcdir)/lib/portaudio-v19/pa_common $CXXFLAGS"
 
-BUILDLIBS="$BUILDLIBS portaudio-v19/lib/libportaudio.a"
-STATIC_LIBS="$STATIC_LIBS \$(top_srcdir)/lib/portaudio-v19/lib/libportaudio.a"
-dnl EXTRAOBJS="$EXTRAOBJS ../lib/portaudio-v19/lib/libportaudio.a"
-CXXFLAGS="-I\$(top_srcdir)/lib/portaudio-v19/pa_common $CXXFLAGS"
+dnl echo "Configuring portaudio ..."
+dnl dnl AC_CONFIG_SUBDIRS([lib/portaudio-v19])
 
-echo "Configuring portaudio ..."
-AC_CONFIG_SUBDIRS([lib/portaudio-v19])
-
-dnl 
-case "${host_os}" in
-    darwin* | rhapsody*)
-	 PORTAUDIO_LIB="-framework AudioUnit -framework AudioToolbox -framework CoreAudio"
-	 ;;
-	 cygwin*)
-	 ;;
-	 *)
-	 dnl Unix
-	 AC_CHECK_LIB(asound, snd_pcm_open, have_alsa=yes, have_alsa=no)
-	 if [[ $have_alsa = "yes" ]] ; then
-	     PORTAUDIO_LIB="-lasound"
-	 fi
-	 PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
-	 if [[ $have_jack = "yes" ]] ; then
-	     PORTAUDIO_LIB="$PORTAUDIO_LIB $JACK_LIBS"
-	 fi
-	 ;;
- esac
- AC_SUBST(PORTAUDIO_LIB)
+dnl dnl 
+dnl case "${host_os}" in
+dnl     darwin* | rhapsody*)
+dnl 	 PORTAUDIO_LIB="-framework AudioUnit -framework AudioToolbox -framework CoreAudio"
+dnl 	 ;;
+dnl 	 cygwin*)
+dnl 	 ;;
+dnl 	 *)
+dnl 	 dnl Unix
+dnl 	 AC_CHECK_LIB(asound, snd_pcm_open, have_alsa=yes, have_alsa=no)
+dnl 	 if [[ $have_alsa = "yes" ]] ; then
+dnl 	     PORTAUDIO_LIB="-lasound"
+dnl 	 fi
+dnl 	 PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
+dnl 	 if [[ $have_jack = "yes" ]] ; then
+dnl 	     PORTAUDIO_LIB="$PORTAUDIO_LIB $JACK_LIBS"
+dnl 	 fi
+dnl 	 ;;
+dnl  esac
+dnl  AC_SUBST(PORTAUDIO_LIB)
 
 
 
 dnl ==============================================================
 dnl CHECK if there is AVCODEC to be compiled STATIC
 dnl ==============================================================
-AC_MSG_CHECKING(for embedding static ffmpeg libavcodec)
-AC_ARG_WITH(ffmpeg-static,
-[  --with-ffmpeg-static    embed ffmpeg libavcodec as static library],
-[if test -r "$withval"; then
+dnl AC_MSG_CHECKING(for embedding static ffmpeg libavcodec)
+dnl AC_ARG_WITH(ffmpeg-static,
+dnl [  --with-ffmpeg-static    embed ffmpeg libavcodec as static library],
+dnl [if test -r "$withval"; then
 
-  AVCODEC_STATIC_DIR="`find $withval -name 'libavcodec'`"
-  AVCODEC_STATIC_LIB="$AVCODEC_STATIC_DIR/libavcodec.a"
-  AVFORMAT_STATIC_DIR="`find $withval -name 'libavformat'`"
-  AVFORMAT_STATIC_LIB="$AVFORMAT_STATIC_DIR/libavformat.a"
-  if test ! -r "$AVCODEC_STATIC_LIB"; then
-    AC_MSG_RESULT(no)
-    echo "!! $AVCODEC_STATIC_LIB not found: you must compile a static library of libavcodec"
-  elif test ! -r "$AVFORMAT_STATIC_LIB"; then
-    AC_MSG_RESULT(no)
-    echo "!! $AVFORMAT_STATIC_LIB not found: you must compile a static library of libavformat"
-  else
-    AC_MSG_RESULT(yes)
-    use_ffmpeg=yes;
-    AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])
-    AVCODEC_LIBS="$AVCODEC_STATIC_LIB $AVFORMAT_STATIC_LIB"
-    AVCODEC_CFLAGS="-I$AVCODEC_STATIC_DIR -I$AVFORMAT_STATIC_DIR"
-    AC_SUBST(AVCODEC_LIBS)
-    AC_SUBST(AVCODEC_CFLAGS)
-  fi
+dnl   AVCODEC_STATIC_DIR="`find $withval -name 'libavcodec'`"
+dnl   AVCODEC_STATIC_LIB="$AVCODEC_STATIC_DIR/libavcodec.a"
+dnl   AVFORMAT_STATIC_DIR="`find $withval -name 'libavformat'`"
+dnl   AVFORMAT_STATIC_LIB="$AVFORMAT_STATIC_DIR/libavformat.a"
+dnl   if test ! -r "$AVCODEC_STATIC_LIB"; then
+dnl     AC_MSG_RESULT(no)
+dnl     echo "!! $AVCODEC_STATIC_LIB not found: you must compile a static library of libavcodec"
+dnl   elif test ! -r "$AVFORMAT_STATIC_LIB"; then
+dnl     AC_MSG_RESULT(no)
+dnl     echo "!! $AVFORMAT_STATIC_LIB not found: you must compile a static library of libavformat"
+dnl   else
+dnl     AC_MSG_RESULT(yes)
+dnl     use_ffmpeg=yes;
+dnl     AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])
+dnl     AVCODEC_LIBS="$AVCODEC_STATIC_LIB $AVFORMAT_STATIC_LIB"
+dnl     AVCODEC_CFLAGS="-I$AVCODEC_STATIC_DIR -I$AVFORMAT_STATIC_DIR"
+dnl     AC_SUBST(AVCODEC_LIBS)
+dnl     AC_SUBST(AVCODEC_CFLAGS)
+dnl   fi
 
- else
-   AC_MSG_RESULT(no)
- fi
-],[AC_MSG_RESULT(no)])
+dnl  else
+dnl    AC_MSG_RESULT(no)
+dnl  fi
+dnl ],[AC_MSG_RESULT(no)])
+
+
+
 
 dnl ==============================================================
 dnl compile including the javascript interpreter
 dnl ==============================================================
+AC_MSG_CHECKING(for embedding JavaScript interpreter)
+JS_LIBS=""
+JS_CFLAGS=""
+AC_ARG_WITH(javascript,
+[  --with-javascript       embed the javascript interpreter as in
+                          http://www.mozilla.org/js/spidermonkey],
+[if test -r "$withval"; then
 
-BUILDLIBS="$BUILDLIBS js/src/Linux_All_DBG.OBJ/libjs.a"
-STATIC_LIBS="$STATIC_LIBS \$(top_srcdir)/lib/js/src/Linux_All_DBG.OBJ/libjs.a"
-JS_CFLAGS="-I\$(top_srcdir)/lib/js/src -I\$(top_srcdir)/lib/js/src/Linux_All_DBG.OBJ -DXP_UNIX -DJS_THREADSAFE -DJS_MULTITHREADED"
-AC_DEFINE(WITH_JAVASCRIPT,1,
-	  [Define is using the javascript interpreter])
-JS_LIB="\$(top_srcdir)/lib/js/src/Linux_All_DBG/libjs.a"
+  JS_OBJDIR="`find $withval -name '*OBJ'| grep -v editline | grep -v fdlibm`"
+  JS_LIB="$JS_OBJDIR/libjs.a"
+  if test "`echo $withval|grep src`"; then
+    JS_SRCDIR="$withval"
+  else
+    JS_SRCDIR="`find $withval -name 'src'|grep -v corba`"
+  fi
+  if test -z "$JS_OBJDIR"; then
+    AC_MSG_RESULT(no)
+    echo "!! compiled javascript object directory not found in $withval"
+  elif test ! -r "$JS_LIB"; then
+    AC_MSG_RESULT(no)
+    echo "!! libjs.a not found in $JS_OBJDIR"
+  elif test ! -r "$JS_SRCDIR/jsapi.h"; then
+    AC_MSG_RESULT(no)
+    echo "!! jsapi.h not found in $JS_SRCDIR"
+  else
+    JS_LIBS=$JS_LIB
+    JS_CFLAGS="-I$JS_SRCDIR -I$JS_OBJDIR -DXP_UNIX -DJS_THREADSAFE -DJS_MULTITHREADED"
+    AC_MSG_RESULT(yes)
+    AC_DEFINE(WITH_JAVASCRIPT,1,
+              [Define is using the javascript interpreter])
+    have_javascript=yes
+  fi
+ else
+   AC_MSG_RESULT(no)
+ fi
+],[AC_MSG_RESULT(no)])
 AC_SUBST(JS_LIBS)
 AC_SUBST(JS_CFLAGS)
 
+
+
+
+
+
 AC_SUBST(BUILDLIBS)
 AC_SUBST(STATIC_LIBS)
+
 
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
@@ -541,11 +587,13 @@ CXXFLAGS="$CFLAGS"
 
 AC_OUTPUT([
 Makefile
-lib/Makefile
-ccvt/Makefile
-libflash/Makefile
 src/Makefile
 src/include/Makefile
+lib/Makefile
+lib/ccvt/Makefile
+lib/theora-mmx/Makefile
+lib/avformat/Makefile
+lib/avcodec/Makefile
 filters/Makefile
 filters/delaygrab/Makefile
 filters/rotozoom/Makefile
