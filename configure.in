@@ -594,6 +594,7 @@ lib/ccvt/Makefile
 lib/theora-mmx/Makefile
 lib/avformat/Makefile
 lib/avcodec/Makefile
+lib/shout/Makefile
 filters/Makefile
 filters/delaygrab/Makefile
 filters/rotozoom/Makefile
@@ -647,12 +648,15 @@ echo "  libs  : $AVCODEC_LIBS"
 echo "  cflags: $AVCODEC_CFLAGS"
 fi
 if test x$have_oggtheora = xyes; then
-echo "= ogg-theora (libtheora libogg)"
+echo "= ogg-theora (libogg libtheora)"
 echo "  libs  : $XIPH_LIBS"
 echo "  cflags: $XIPH_CFLAGS"
 else
-	echo "= ogg-theora (libtheora libogg) not found!"
-	echo "You'll not be able to save in ogg/theora. download theora here http://theora.org/download.html"
+	echo "= Ogg not found! libogg development is missing"
+	echo "  You'll not be able to save in ogg/theora"
+        echo "  this is preventing you from saving movies"
+	echo "  in case you are packing a binary package please take care"
+	echo "  because of this many users will miss important functionality"
 fi
 if test x$use_sdl_image = xyes; then
 echo "= sdl_image"
