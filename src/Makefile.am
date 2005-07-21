@@ -3,6 +3,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/theora-mmx \
            -I$(top_srcdir)/lib/avformat \
            -I$(top_srcdir)/lib/avcodec \
+           -I$(top_srcdir)/lib/shout \
            -I/usr/include/slang
 
 #           -I$(top_srcdir)/lib/portaudio-v19/pa_common
@@ -10,7 +11,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
 AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
               @SDL_CFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
-	      @JS_CFLAGS@  @XIPH_CFLAGS@ \
+	      @JS_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
@@ -65,6 +66,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @XIPH_LIBS@ \
               $(top_srcdir)/lib/avformat/libavformat.a \
               $(top_srcdir)/lib/avcodec/libavcodec.a \
+              $(top_srcdir)/lib/shout/libshout.a \
               -ldl -lpthread -lm -lslang \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
