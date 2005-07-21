@@ -21,9 +21,11 @@ case $uname in
      have_linux=yes
      if test $host_cpu = powerpc; then
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
+       AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
        have_ppc=yes
      else
        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
+       AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
      fi
 
      CPUFLAGS=`cat /proc/cpuinfo | grep flags`
@@ -596,6 +598,7 @@ lib/theora-mmx/Makefile
 lib/avformat/Makefile
 lib/avcodec/Makefile
 lib/shout/Makefile
+lib/portaudio/Makefile
 filters/Makefile
 filters/delaygrab/Makefile
 filters/rotozoom/Makefile

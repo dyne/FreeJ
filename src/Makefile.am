@@ -4,6 +4,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/avformat \
            -I$(top_srcdir)/lib/avcodec \
            -I$(top_srcdir)/lib/shout \
+           -I$(top_srcdir)/lib/portaudio \
            -I/usr/include/slang
 
 #           -I$(top_srcdir)/lib/portaudio-v19/pa_common
@@ -67,6 +68,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/avformat/libavformat.a \
               $(top_srcdir)/lib/avcodec/libavcodec.a \
               $(top_srcdir)/lib/shout/libshout.a \
+              $(top_srcdir)/lib/portaudio/libportaudio.a \
               -ldl -lpthread -lm -lslang \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
