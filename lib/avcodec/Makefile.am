@@ -73,8 +73,8 @@ libavcodec_a_SOURCES = \
         xl.c \
         pthread.c \
         a52dec.c \
-        liba52/bit_allocate.c liba52/bitstream.c liba52/downmix.c \
-        liba52/imdct.c  liba52/parse.c liba52/crc.c liba52/resample.c \
+        liba52/bit_allocate.c liba52/bitstream_a52.c liba52/downmix.c \
+        liba52/imdct.c  liba52/parse.c liba52/crc.c liba52/resample_a52.c \
         libpostproc/postprocess.c \
         oggtheora.c \
         i386/fdct_mmx.c i386/cputest.c \

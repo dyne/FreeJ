@@ -134,7 +134,8 @@ dnl AC_HEADER_DIRENT
 dnl ==============================================================
 dnl Check OGG/THEORA MMX STUFF
 dnl ==============================================================
-PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis, have_oggtheora=yes, have_oggtheora=no)
+PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
+                  have_oggtheora=yes, have_oggtheora=no)
 if test x$have_oggtheora = xyes ; then
    AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
    AC_DEFINE(THEORA_SUPPORT_ENCODE,1,[define if compiling Theora encoder])
@@ -144,6 +145,7 @@ if test x$have_oggtheora = xyes ; then
    if test x$static_build = xyes ; then
       XIPH_LIBS="`pkg-config --variable=prefix ogg`/lib/libogg.a"
       XIPS_LIBS="$XIPH_LIBS `pkg-config --variable=prefix vorbis`/lib/libvorbis.a"
+      XIPS_LIBS="$XIPH_LIBS `pkg-config --variable=prefix vorbis`/lib/libvorbisenc.a"
    fi
 fi
 
