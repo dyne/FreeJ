@@ -2,7 +2,7 @@
    and R. Fisher). Converted to C and improved by Fabrice Bellard */
 
 #include <stdlib.h>
-#include "../dsputil.h"
+#include <dsputil.h>
 
 #ifdef ARCH_X86_64
 #  define REG_b "rbx"
