@@ -168,21 +168,6 @@ AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg liba
 
 
 
-dnl CHECK if there is SDL_IMAGE
-dnl ==============================================================
-AC_ARG_ENABLE(sdl_image,
-[  --enable-sdl_image         compile Image layer using sdlImage ) (no)],
-[ if test ! x$enableval = xyes; then
-    use_sdl_image=no
-  else
-    use_sdl_image=yes;
-  fi ],[ use_sdl_image=no ])
-if test x$use_sdl_image = xyes; then
-   AC_DEFINE(WITH_SDL_IMAGE,1,[define if compiling Image layer linking to sdlImage])
-   SDLIMAGE_LIBS="-lSDL_image"
-   AC_SUBST(SDLIMAGE_LIBS)
-fi
-
 
 
 dnl =====================================================
@@ -259,40 +244,6 @@ if test x$have_joystick = xyes; then
    AC_DEFINE(WITH_JOYSTICK,1,[define if compiling joystick controller])
    echo "Compiling joystick controller"
 fi
-
-
-dnl ==============================================================
-dnl CHECK PNG libraries
-dnl ==============================================================
-AC_ARG_WITH(png-static,
-[  --with-png-static=PFX   embed the png library statically],
-[
-AC_MSG_CHECKING(to statically embed png image library)
-if test -r "$withval"; then
-
-  if test ! -r "$withval/lib/libpng.a"; then
-    echo "!! can't embed static png support: $withval/lib/libpng.a not found"
-  elif test ! -r "$withval/include/libpng"; then
-    echo "!! can't embed static png support: $withval/include/libpng not found"
-  else
-    AC_MSG_RESULT(yes)
-    AC_DEFINE(WITH_PNG,1,[define if compiling png layer])	
-    PNG_LIBS="$withval/lib/libpng.a -lz"
-    PNG_CFLAGS="-I$withval/include/libpng"
-    have_png=yes
-    AC_SUBST(PNG_LIBS)
-    AC_SUBST(PNG_CFLAGS)
-  fi
- else
-   AC_MSG_RESULT(not found)
-   echo "!! you need to specify the prefix where to find libpng (i.e. --with-png-static=/usr)"
- fi
-],[
-  PKG_CHECK_MODULES(PNG, libpng12 >= 1.2.0, [
-    AC_DEFINE(WITH_PNG,1,[define if compiling png layer])	
-    have_png=yes],have_png=no)
-])
- 
 
 dnl ==============================================================
 dnl CHECK if there is 
@@ -601,6 +552,7 @@ lib/avformat/Makefile
 lib/avcodec/Makefile
 lib/shout/Makefile
 lib/portaudio/Makefile
+lib/sdl_image/Makefile
 filters/Makefile
 filters/delaygrab/Makefile
 filters/rotozoom/Makefile

@@ -5,11 +5,12 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/avcodec \
            -I$(top_srcdir)/lib/shout \
            -I$(top_srcdir)/lib/portaudio \
+           -I$(top_srcdir)/lib/sdl_image \
            -I/usr/include/slang
 
 #           -I$(top_srcdir)/lib/portaudio-v19/pa_common
 
-AM_CXXFLAGS = @PNG_CFLAGS@ @GLADE2_CFLAGS@ \
+AM_CXXFLAGS = @GLADE2_CFLAGS@ \
               @SDL_CFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
 	      @JS_CFLAGS@ \
@@ -35,7 +36,6 @@ freej_SOURCES = \
 	v4l_layer.cpp	\
 	video_layer.cpp	\
 	avi_layer.cpp	\
-	png_layer.cpp	\
 	txt_layer.cpp	\
 	gen_layer.cpp	\
 	flash_layer.cpp \
@@ -69,15 +69,14 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/avcodec/libavcodec.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/portaudio/libportaudio.a \
-              -ldl -lpthread -lm -lslang \
+              $(top_srcdir)/lib/sdl_image/libsdl_image.a \
+              -ldl -lpthread -lm -lslang -lpng -ljpeg \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \
 		 @FT2_LIBS@ \
-		 @PNG_LIBS@ \
 		 @GLADE2_LIBS@ \
-		 @JS_LIBS@ \
-		 @SDLIMAGE_LIBS@
+		 @JS_LIBS@ 
 
 #		 @PORTAUDIO_LIB@
 #		 @AVIFILE_LIBS@

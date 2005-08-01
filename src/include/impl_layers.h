@@ -45,13 +45,7 @@
 #include <video_layer.h>
 #endif
 
-#ifdef WITH_PNG
-#include <png_layer.h>
-#endif
-
-#ifdef WITH_SDL_IMAGE
 #include <image_layer.h>
-#endif
 
 #ifdef WITH_FT2
 #include <txt_layer.h>
@@ -78,6 +72,7 @@
 #define IS_IMAGE_EXTENSION(end_file_ptr) 		\
 	 strncasecmp((end_file_ptr-4),".bmp",4)==0      \
         | strncasecmp((end_file_ptr-4),".pnm",4)==0  	\
+        | strncasecmp((end_file_ptr-4),".png",4)==0  	\
         | strncasecmp((end_file_ptr-4),".xpm",4)==0  	\
         | strncasecmp((end_file_ptr-4),".xcf",4)==0  	\
         | strncasecmp((end_file_ptr-4),".pcx",4)==0  	\

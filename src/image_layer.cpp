@@ -21,11 +21,9 @@
 
 #include <config.h>
 
-#ifdef WITH_SDL_IMAGE
-
-#include "image_layer.h"
-#include "SDL.h"
-#include "SDL_image.h"
+#include <image_layer.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <context.h>
 #include <jutils.h>
 
@@ -116,4 +114,3 @@ void ImageLayer::close() {
     func("ImageLayer::close()");
     SDL_FreeSurface(image);
 }
-#endif

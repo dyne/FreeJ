@@ -133,30 +133,12 @@ Layer *create_layer(char *file) {
     } else /* IMAGE LAYER */
 	if( IS_IMAGE_EXTENSION(end_file_ptr)) {
 //		strncasecmp((end_file_ptr-4),".png",4)==0) {
-#ifdef WITH_SDL_IMAGE
 	      nlayer = new ImageLayer();
 	      if(!nlayer->open(file_ptr)) {
 		  error("create_layer : IMG open failed");
 		  delete nlayer; nlayer = NULL;
 	      }
-#else
-	error("IMG layer support not compiled");
-	act("can't load %s",file_ptr);
-#endif
 	  }
-	  else /* PNG LAYER */
-      if(strncasecmp((end_file_ptr-4),".png",4)==0) {
-#ifdef WITH_PNG
-	nlayer = new PngLayer();
-	if(!nlayer->open(file_ptr)) {
-	  error("create_layer : PNG open failed");
-	  delete nlayer; nlayer = NULL;
-	}
-#else
-	error("PNG layer support not compiled");
-	act("can't load %s",file_ptr);
-#endif
-      } 
 	  else /* TXT LAYER */
 	      if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
 #ifdef WITH_FT2
