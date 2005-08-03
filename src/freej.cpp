@@ -131,7 +131,7 @@ static char screaming_description[512]; // name
 static int theora_quality;
 
 bool startstate = true;
-bool stream_audio = false;
+bool stream_audio = true;
 bool gtkgui = false;
 bool opengl = false;
 bool noconsole = false;
@@ -229,7 +229,7 @@ void cmdline(int argc, char **argv) {
       break;
 
      case 'a':
-	stream_audio = true;
+	stream_audio = false;
       break;
 
      case 'q':
@@ -356,7 +356,8 @@ int main (int argc, char **argv) {
 	  char *port = strrchr (screaming_url, ':');
 	  char *slash;
 	  char *mount;
-	  if (port) { 
+
+	  if (port) {
 		  slash = strchr (port, '/');
 		  if(slash) {
 			  *slash = '\0';

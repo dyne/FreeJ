@@ -250,14 +250,16 @@ void Context::cafudda(double secs) {
 			//	    }
 
 			if (save_to_file) {
-				if(! (video_encoder->init(this, screen) )) {
+				if (!(video_encoder->init (this, screen) )) {
 					error ("Can't save to file. retry!");
 					save_to_file = false;
 				}
 				else {
-					if (!video_encoder -> is_audio_inited())
-						video_encoder -> start_audio_stream();
-					video_encoder -> write_frame();
+					if (!video_encoder -> is_audio_inited ()) {
+					    notice ("Starting audio system");
+					    video_encoder -> start_audio_stream ();
+					}
+					video_encoder -> write_frame ();
 				}
 			}
 		}

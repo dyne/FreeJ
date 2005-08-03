@@ -73,8 +73,10 @@ bool VideoEncoder::_init(Context *_env) {
 	env=_env;
 
 
-	if(!init_audio())
-		use_audio = false;
+	if(!init_audio()) {
+	    error("Error initing audio");
+	    use_audio = false;
+	}
 
 	return true;
 }
@@ -99,8 +101,11 @@ bool VideoEncoder::init_audio() {
 
 	captureDeviceInfo = Pa_GetDeviceInfo (captureParameters -> device );
 
-	if( captureDeviceInfo == NULL )
+	if( captureDeviceInfo == NULL ) {
+	    error("captureDeviceInfo nullo");
 		return false;
+	}
+
 
 	const PaDeviceInfo *tmp;
 	for( int i = 0; i < Pa_GetDeviceCount(); i++) {
@@ -122,11 +127,12 @@ bool VideoEncoder::init_audio() {
 		const PaHostApiInfo *pai = Pa_GetHostApiInfo(i);
 		func ("Found hostApi %s", pai -> name);
 		if (pai -> type == paALSA ) { // look for alsa
+		    func ("Ok I'm using alsa");
 			captureParameters -> device = pai -> defaultInputDevice;
 			break;
 		}
 	}
-	
+
 	captureParameters -> sampleFormat = paInt16;
 
 	captureParameters -> hostApiSpecificStreamInfo = NULL;
@@ -134,6 +140,7 @@ bool VideoEncoder::init_audio() {
 	captureParameters -> channelCount = 1; // captureDeviceInfo -> maxInputChannels;
 
 	captureParameters -> suggestedLatency = captureDeviceInfo -> defaultLowInputLatency;
+
 	err = Pa_OpenStream( &pa_audioStream,
 			captureParameters, 
 			NULL,
@@ -192,7 +199,7 @@ bool VideoEncoder::init_audio() {
 	else
 		audio_started = false;
 
-	notice ("Audio OK");
+	func ("Audio Inited correctly");
 	return true;
 
 }
@@ -263,12 +270,23 @@ int audio_callback(void *inputBuffer, void *outputBuffer,
 	return 0; // ARGH! annoying portaudio!
 }
 bool VideoEncoder::is_audio_inited() {
-	return audio_started;
+    /*
+    notice("IS AUDIO INITED?");
+    if(audio_started)
+	notice("  YES!");
+    else
+	notice("  NO!");
+	*/
+    return audio_started;
 }
 
 bool VideoEncoder::start_audio_stream() {
+    /*
+    if(!use_audio)
+    notice("NON USO L'AUDIO!!!!");
 	if (!use_audio)
 		return true;
+		*/
 	PaError err;
 
 	//test if the stream has already started 
@@ -288,13 +306,16 @@ bool VideoEncoder::start_audio_stream() {
 	err = Pa_StartStream (pa_audioStream );
 	if( err != paNoError ) {
 		error ("Could not start audio stream : %s",Pa_GetErrorText (err ));
+		use_audio = false;
+		audio_started = true;
 		Pa_Terminate();
 		return false;
 	}
 	return true;
 }
 bool VideoEncoder::stop_audio_stream() {
-	if (! use_audio) return true;
+	if (! use_audio) 
+	    return true;
 
 	PaError err;
 

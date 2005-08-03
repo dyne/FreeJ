@@ -35,7 +35,7 @@ OggTheoraEncoder::OggTheoraEncoder(char *output_filename)
 	:VideoEncoder(output_filename) {
 		func("OggTheoraEncoder::OggTheoraEncoder::OggTheoraEncoder object created");
 
-		use_audio      = false;
+//		use_audio      = true;
 
 		videoflag      = 0;
 		audioflag      = 0;
