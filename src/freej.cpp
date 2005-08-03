@@ -96,7 +96,7 @@ static const char *help =
 " .   Streaming options:\n"
 " .   -i   <server:port/mount.ogg> stream to server[:port] (default http://localhost:8000/freej.ogg)\n"
 " .   -p   <password> mountpoint on server (default hackme)\n"
-" .   -a   stream also audio from audio in (select it with aumix) (by default freej streams only video)\n"
+" .   -a   don't stream or save audio from audio in (select it with aumix)\n"
 " .   -t   <name> name of the stream(default \"Streaming with freej\") \n"
 " .   -d   <description> description of the stream for icecast server(default \"Free the veejay in you\")\n"
 " .   -q   <theora_quality> quality of video encoding (range 0 - 63, default 16\n"
