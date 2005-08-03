@@ -67,7 +67,7 @@ AM_SANITY_CHECK
 AM_INIT_AUTOMAKE(FreeJ, 0.7.2-rc2)
 AM_CONFIG_HEADER(config.h)
 
-
+q
 dnl ==============================================================
 dnl Check for tools
 dnl ==============================================================
@@ -257,7 +257,7 @@ dnl CHECK if there is VIDEO4LINUX
 dnl ==============================================================
 AC_CHECK_HEADER(linux/videodev.h)
 if test "$ac_cv_header_linux_videodev_h" = "yes"; then
-HAVE_V4L=yes
+   HAVE_V4L=yes
 fi
 AC_ARG_ENABLE(v4l,[  --enable-v4l            compile with Video4Linux Layer (autodetect)], [
 if test x$HAVE_V4L = xyes -a ! x$enableval = xno; then
@@ -386,34 +386,27 @@ dnl [ AC_MSG_RESULT(no) ])
 dnl ==============================================================
 dnl PortAudio v19
 dnl ==============================================================
-dnl BUILDLIBS="$BUILDLIBS portaudio-v19/lib/libportaudio.a"
-dnl STATIC_LIBS="$STATIC_LIBS \$(top_srcdir)/lib/portaudio-v19/lib/libportaudio.a"
-dnl dnl EXTRAOBJS="$EXTRAOBJS ../lib/portaudio-v19/lib/libportaudio.a"
-dnl CXXFLAGS="-I\$(top_srcdir)/lib/portaudio-v19/pa_common $CXXFLAGS"
+if test x$have_darwin = xyes ; then
+   PORTAUDIO_LIBS="-framework AudioUnit -framework AudioToolbox -framework CoreAudio"
+   dnl TODO for darwin/OSX
+fi
 
-dnl echo "Configuring portaudio ..."
-dnl dnl AC_CONFIG_SUBDIRS([lib/portaudio-v19])
+if test x$have_linux = xyes ; then
 
-dnl dnl 
-dnl case "${host_os}" in
-dnl     darwin* | rhapsody*)
-dnl 	 PORTAUDIO_LIB="-framework AudioUnit -framework AudioToolbox -framework CoreAudio"
-dnl 	 ;;
-dnl 	 cygwin*)
-dnl 	 ;;
-dnl 	 *)
-dnl 	 dnl Unix
-dnl 	 AC_CHECK_LIB(asound, snd_pcm_open, have_alsa=yes, have_alsa=no)
-dnl 	 if [[ $have_alsa = "yes" ]] ; then
-dnl 	     PORTAUDIO_LIB="-lasound"
-dnl 	 fi
-dnl 	 PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
-dnl 	 if [[ $have_jack = "yes" ]] ; then
-dnl 	     PORTAUDIO_LIB="$PORTAUDIO_LIB $JACK_LIBS"
-dnl 	 fi
-dnl 	 ;;
-dnl  esac
-dnl  AC_SUBST(PORTAUDIO_LIB)
+   AC_CHECK_LIB(asound, snd_pcm_open, have_alsa=yes, have_alsa=no)
+   if [[ $have_alsa = "yes" ]] ; then
+      PORTAUDIO_LIBS="-lasound"
+      AC_DEFINE(PA_USE_ALSA,1,[define if portaudio uses Alsa])
+   fi
+
+   PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
+   if [[ $have_jack = "yes" ]] ; then
+      PORTAUDIO_LIBS="$PORTAUDIO_LIBS $JACK_LIBS"
+      AC_DEFINE(PA_USE_JACK,1,[define if portaudio uses Jack])
+   fi
+
+fi
+AC_SUBST(PORTAUDIO_LIBS)
 
 
 
@@ -653,12 +646,12 @@ echo "= Including support for the GNU Profiler (see man gprof)"
 fi
 dnl portaudio-v19
 if test x$have_jack = xyes; then
-echo "= Including support for JACK sound server in portaudio (http://jackit.sourceforge.net/)"
+echo "= Including support for JACK sound input"
 fi
 if test x$have_alsa = xyes; then
-echo "= Including support for alsa implementation in portaudio (http://www.portaudio.com)"
+echo "= Including support for Alsa sound devices"
 fi
-echo "  PORTAUDIO_LIB  : $PORTAUDIO_LIB"
+echo "  PORTAUDIO LIBS  : $PORTAUDIO_LIBS"
 
 echo "= COMPILER FLAGS : $CFLAGS"
 echo "= INSTALL PREFIX : $prefix"

@@ -89,9 +89,10 @@ static const char *help =
 " .\n"
 #ifndef WITH_OGGTHEORA
 " (disabled! make sure you have installed correctly ogg http://www.vorbis.com/download.psp\n"
-" .        and theora http://theora.org/download.html )"
+" .        and theora http://theora.org/download.html )\n"
 " .\n"
 #endif
+" .   -c   no interactive text console\n"
 " .   Streaming options:\n"
 " .   -i   <server:port/mount.ogg> stream to server[:port] (default http://localhost:8000/freej.ogg)\n"
 " .   -p   <password> mountpoint on server (default hackme)\n"
@@ -107,7 +108,7 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:e:i:p:t:d:q:ag";
+static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:q:ag";
 
 
 
@@ -133,6 +134,7 @@ bool startstate = true;
 bool stream_audio = false;
 bool gtkgui = false;
 bool opengl = false;
+bool noconsole = false;
 
 void cmdline(int argc, char **argv) {
   int res, optlen;
@@ -208,6 +210,10 @@ void cmdline(int argc, char **argv) {
 
      case 'i':
 	snprintf (screaming_url, 512, "%s", optarg);
+      break;
+
+    case 'c':
+      noconsole = true;
       break;
 
      case 'p':
@@ -324,9 +330,11 @@ int main (int argc, char **argv) {
 
 
   /* initialize the S-Lang text Console */
-  if( getenv("TERM") ) {
-    freej.console = new Console();
-    freej.console->init( &freej );
+  if(!noconsole) {
+    if( getenv("TERM") ) {
+      freej.console = new Console();
+      freej.console->init( &freej );
+    }
   }
 
   /* initialize the Keyboard Listener */
@@ -336,8 +344,10 @@ int main (int argc, char **argv) {
   freej.osd.init( &freej );
 
   /* initialize encoded filename */
-  if (encoded_filename[0] != '\0')
+  if (encoded_filename[0] != '\0') {
+	  freej.video_encoder -> handle_audio (stream_audio );
 	  freej.video_encoder -> set_output_name (encoded_filename );
+  }
 
   /*
    * streaming options 

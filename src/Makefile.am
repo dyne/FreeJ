@@ -69,6 +69,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/avcodec/libavcodec.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/portaudio/libportaudio.a \
+		 @PORTAUDIO_LIBS@ \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg \
 		 @STATIC_LIBS@ \
