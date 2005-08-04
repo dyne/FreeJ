@@ -94,7 +94,7 @@ bool Shouter::start() {
 		shout_sync(ice);
 	}
 	*/
-	func("Contacting %s server %s on port %u",srv,host(),port());
+	func ("Trying to stream to %s server %s on port %u",srv,host(),port());
 
 	res = shout_open(ice);
 	func("Shouter::start() shout_open returns %i",res);
@@ -105,10 +105,11 @@ bool Shouter::start() {
 		running = true;
 	} 
 	else {
-		error("shout_open: %s",shout_get_error(ice));
-//		shout_close(ice);
-//		shout_sync(ice);
-		running = false;
+	    notice("Can't s(c|t)ream on %s :'(",streamurl);
+	    func ("shout_open: %s",shout_get_error(ice));
+	    //		shout_close(ice);
+	    //		shout_sync(ice);
+	    running = false;
 	}
 
 	return(running);
