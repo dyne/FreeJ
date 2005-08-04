@@ -52,7 +52,10 @@ S-LANG CONSOLE
  ctrl-f  = go to Fullscreen
  ctrl-l  = cleanup and redraw the console
  ctrl-j  = enter Jazz mode to pulse layers with keys
- ctrk-x  = enter a script command
+ ctrl-x  = enter a script command
+ ctrl-w  = start streaming to the online server
+           and encoding to a local file in Ogg/Theora
+           (server and filename are configured at commandline)
 
 LAYER COMMANDS
 

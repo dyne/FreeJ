@@ -1,4 +1,9 @@
 
+ !!! reorganization of audio input
+ !!! better interaction for encoded file and stream settings
+ !!! code cleanup and enhancement of s-lang console
+ !!! javascript API for encoding and streaming
+
   *** LiViDO shared plugin library
 
   *** cairo layers: poligons and svg

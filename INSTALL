@@ -10,20 +10,12 @@ FreeJ installation instructions
 
 - SDL libraries http://www.libsdl.org
 
-[*] check the optional libraries you need for certain features
+- PNG library (compile with _ZLIB_ support) http://libpng.org
 
-== to playback movies, install the video libraries in this order:
-   Xvid library http://xvid.org
-   AviFile library http://avifile.sourceforge.net
+[*] check the optional libraries you need for certain features
 
 == to play with truetype rendered text install:
    Freetype2 http://freetype.org
-
-== to play with PNG images you need PNG libs with Zlib support:
-   PNG library (compile with _ZLIB_ support) http://libpng.org
-
-== to play with images you need SDL_Image lib:
-   SDL image library http://www.libsdl.org/projects/SDL_image/
 
 == to have some more assembler mmx optimized filters you need NASM:
    NASM netwide assembler compiler http://sf.net/projects/nasm
@@ -56,9 +48,8 @@ FreeJ installation instructions
 :: INSTALL FROM DEBIAN PACKAGES
 
 You can do 'apt-get install freej' and you will have a precompiled FreeJ 
-thanks to Guido Trotter.
 Anyway to squeeze the best out of your box you want to compile this
-software with machine specific optimizations.
+software with machine specific optimizations!
 The source configure script guesses the best compiler optimization flags
 for your CPU.
 

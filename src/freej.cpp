@@ -80,7 +80,7 @@ static const char *help =
 " .   -j   <javascript.js>  process javascript command file\n"
 " .   -e   <file.ogg>  set filename of local encoded ogg-theora file\n"
 " .		       if a number is given, the file descriptor selected is used\n"
-" .                    (default freej.ogg, start and stop it with CTRL-s)\n"
+" .                    (default freej.ogg, start and stop it with CTRL-w)\n"
 " .\n"
 " .   Streaming options:\n"
 " .   -i   <server:port/mount.ogg> stream to server (default http://localhost:8000/freej.ogg)\n"
@@ -88,9 +88,9 @@ static const char *help =
 " .   -a   don't stream or save audio from audio in (select it with aumix)\n"
 " .   -t   <name> name of the stream (\"Streaming with freej\") \n"
 " .   -d   <description> description of the stream (\"Free the veejay in you\")\n"
-" .   -q   <theora_quality> quality of video encoding (range 0 - 63, default 16\n"
+" .   -T   <theora_quality> quality of video encoding (range 0 - 63, default 16\n"
 " .                   0 low quality less bandwidth, 63 high quality more bandwidth)\n"
-" .   -b   <vorbis_quality> quality of audio encoding (range 0 - 10, default 1\n"
+" .   -V   <vorbis_quality> quality of audio encoding (range 0 - 10, default 1\n"
 " .                   1 lowest quality, smallest file)\n"
 //" .   -q    <vorbis_quality> quality of vorbis encoding (range 0 - 63, default 16, 0\n"
 " .\n"
@@ -99,7 +99,7 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:q:b:ag";
+static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:ag";
 
 
 
@@ -225,11 +225,11 @@ void cmdline(int argc, char **argv) {
 	stream_audio = false;
       break;
 
-     case 'q':
+     case 'T':
       sscanf (optarg, "%u", &theora_quality);
       break;
 
-     case 'b':
+     case 'V':
       sscanf (optarg, "%u", &vorbis_quality);
       break;
 

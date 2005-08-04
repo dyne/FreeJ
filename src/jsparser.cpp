@@ -440,6 +440,20 @@ JS(set_resolution) {
   return JS_TRUE;
 }
 
+
+JS(stream_start) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  notice ("Streaming to %s:%u",env->shouter->host(), env->shouter->port());
+  act ("Saving to %s", env -> video_encoder -> get_filename());
+  env->save_to_file = true;
+}
+JS(stream_stop) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  ::notice ("Stopped stream to %s:%u", env->shouter->host(), env->shouter->port());
+  ::act ("Video saved in file %s",env -> video_encoder -> get_filename());
+  env->save_to_file = false;
+}
+
 static int dir_selector(const struct dirent *dir) {
   if(dir->d_name[0]=='.') return(0); // remove hidden files
   return(1);

@@ -70,8 +70,10 @@
 #define KEY_CTRL_H 272 // help the user
 #define KEY_CTRL_J 10 // javascript command
 #define KEY_CTRL_O 15 // open a file in a new layer
+#define KEY_CTRL_S 19 // start streaming (overrides scroll lock)
 #define KEY_CTRL_T 20 // new layer with text
 #define KEY_CTRL_V 22 // change blit value
+#define KEY_CTRL_W 23 // start stream and save to file
 #define KEY_CTRL_X 24
 #define KEY_CTRL_Y 25
 
@@ -1111,11 +1113,9 @@ void Console::parser_default(int key) {
     act("ctrl+l  = Cleanup and redraw the console");
     act("ctrl+f  = Go to Fullscreen");
     act("ctrl+c  = Quit FreeJ");
-    
-
-#ifdef WITH_JAVASCRIPT
     act("ctrl+x  = execute a Javascript command");
-#endif
+    ::act("ctrl+w  = start streaming to: %s",env->shouter->host());
+    ::act("          and save to file: %s",env->video_encoder->get_filename());
     break;
 
   case '!':
@@ -1125,6 +1125,7 @@ void Console::parser_default(int key) {
   case '@':
     env->clear_all = !env->clear_all;
     break;
+
 
   case KEY_CTRL_E:
     if(!layer) {
@@ -1205,6 +1206,20 @@ void Console::parser_default(int key) {
   readline("script file to execute:",&exec_script,&filebrowse_completion);
   break;
 #endif
+
+
+  case KEY_CTRL_W:
+    if (! env -> save_to_file) {
+      ::notice ("Streaming to %s:%u",env->shouter->host(), env->shouter->port());
+      ::act ("Saving to %s", env -> video_encoder -> get_filename());
+    } else {
+      ::notice ("Stopped stream to %s:%u", env->shouter->host(), env->shouter->port());
+      ::act ("Video saved in file %s",env -> video_encoder -> get_filename());
+      env -> video_encoder -> stop_audio_stream();
+      env -> shouter -> stop();
+    }
+    env -> save_to_file = ! env -> save_to_file;
+    break;
 
   case KEY_CTRL_L:
     refresh();

@@ -1,8 +1,4 @@
 
-$Id$
-
-I'm now getting support, encouragement and ideas from Montevideo to
-further development of FreeJ, hurray. you'll see some more in future!
 
 The first Piksel meeting http://piksel.no was happening recently hosted
 in Bergen (Norway) by the BEK - there i met other developers of free
@@ -10,7 +6,12 @@ software for realtime video processing. That was indeed very inspiring
 and i'm looking forward to share some more code and components between
 our applications.
 
-meanwhile, see how i'm using this stuff:
+FreeJ workshops were held in several locations in Netherlands,
+co-produced by the Nederlands Instituut voor Mediakunst:
+BigM (festival tent), VisualSensations (VJ workshops)
+and Grafisch Lyceum Amsterdam
+
+other goodies in which FreeJ is being used:
 
 ** TRE - http://korova.dyne.org/TRE
 

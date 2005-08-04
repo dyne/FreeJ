@@ -1,7 +1,7 @@
 
  -=:[ dyne.org autoprod ]:=--- -  -- -   proudly presents:
 
-                   [[[  FreeJ 0.8-rc1 "FADAIAT"  ]]]
+                   [[[  FreeJ 0.8 "ISCREAM"  ]]]
 
           RASTA SOFTWARE FOR THE FREEDOM OF VIDEO CREATION
 
@@ -32,15 +32,16 @@ under the GNU General Public License.
 
 ++ reads and renders layers from multiple sources:
    webcams, TV, divx/avi movies, images and txt files
+++ can encode in Ogg/Theora video, recording on local file
+   and streaming live to an online Icecast server
 ++ can be controlled from remote: VJoE - VeeJay over Ethernet
 ++ can be scripted in procedural object oriented language
 ++ high precision looping of movie clips
 ++ plugin effects are chainable on each layer
 ++ very efficient video engine with multithreaded layers
 ++ Emacs/Vi style console with hotkeys and completion (S-Lang)
-++ can have multiple controllers at the same time (Midi,Joystick)
+++ multiple controllers at the same time (Midi,Joystick)
 ++ 100% Free and open source: GNU General Public License
-++ Video streaming to icecast server. Read http://lab.dyne.org/FreejStreaming for more info
 
 
 
@@ -72,7 +73,8 @@ joined the project: Kysucix, contributing to new core features.
 
 For the time being, FreeJ is employed in various video performances and
 installations, but also used for medical analisys visualizations.
-And its horizons of use are now growing with scripting of operations.
+And its horizons of use are now growing with scripting of operations,
+encoding to Ogg/Theora, live online streaming and more.
 
 Both active developers are keen to accept projects and propositions in
 order to sustain the development activity on this free software, please
@@ -86,9 +88,9 @@ contact us on http://dyne.org if you think we can collaborate.
 :: GET STARTED
 
 To start rolling with FreeJ you can have a tour of the online tutorial
-(see http://freej.dyne.org documentation section), interact directly
-with the GTK+2 interface to get familiar with layers and effects and
-then go to the USAGE file which has a more complete reference table for
+(see http://freej.dyne.org documentation section),
+
+go to the USAGE file which has a complete reference table for
 hotkeys and advanced console use.
 
 
@@ -102,19 +104,15 @@ To run FreeJ is necessary to have:
   or Darwin/OSX -> see the documentation in README.OSX 
 
 - SDL libraries http://www.libsdl.org
+- PNG libraries http://www.libpng.org
+- S-LANG libraries http://www.s-lang.org
 
 Optionally, you want to have installed the following libraries:
 
-Image Layer:
-- PNG libraries http://www.libpng.org
 - SDL image library http://www.libsdl.org/projects/SDL_image/
 
 Text Layer:
 - FreeType2 libraries http://freetype.org
-
-Movie Layer:
-- XVid libraries http://xvid.org
-- AviFile libraries http://avifile.sf.net
 
 PC x86 assembler effects:
 - NASM netwide assembler compiler http://nasm.sf.net
@@ -142,9 +140,9 @@ while TGZ binary packages are provided for lucky Slackware users.
 
 :: DEVELOPERS
 
- Denis "Jaromil" Rojo       - programmer: FreeJ author and mantainer
+ Denis "Jaromil" Rojo       - FreeJ author and mantainer
 
- Silvano "Kysucix" Galliani - programmer: TXT layer, script parser
+ Silvano "Kysucix" Galliani - TXT layer, encoder, streaming
 
  documentation, testing and user case study by:
  Anne-Marie Skriver and Marloes de Valk (Montevideo Time Based Arts)
@@ -153,7 +151,7 @@ while TGZ binary packages are provided for lucky Slackware users.
 
 You are very welcome to join, there is a lot of space for modules and a
 pretty clear (and almost freezed) API to be used.
-You can follow development activity, just visit http://dyne.org
+You can follow development activity, just visit http://devel.dyne.org
 
 
 
@@ -183,7 +181,7 @@ just burn it and boot it!
 SVN (latest development version) is also publicly available on
 http://code.dyne.org/viewcvs.cgi/?root=rastasoft .
 Get it:
-svn co svn://code.dyne.org/rastasoft/freej/freej
+svn co svn://code.dyne.org/rastasoft/freej
 
 
 
@@ -191,7 +189,9 @@ svn co svn://code.dyne.org/rastasoft/freej/freej
 
 :: DISCLAIMER
 
-FreeJ is (c) 2001 - 2004 by Denis Rojo <jaromil@dyne.org>
+FreeJ is (c) 2001 - 2004 by Denis "Jaromil" Rojo
+         (c) 2004 - 2005 by Denis "Jaromil" Rojo,
+                            Silvano "Kysucix" Galliani
 
 This source code is free software; you can redistribute it and/or
 modify it under the terms of the GNU Public License as published 

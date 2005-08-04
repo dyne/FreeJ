@@ -269,7 +269,7 @@ void KbdListener::run() {
 //	}
   //    break;
 
-    case SDLK_s:
+    case SDLK_w:
       if(keysym->mod & KMOD_CTRL) {
             if (! env -> save_to_file) {
 		notice ("Saving to %s", env -> video_encoder -> get_filename());

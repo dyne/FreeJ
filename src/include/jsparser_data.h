@@ -122,6 +122,8 @@ JS(srand);
 JS(pause);
 JS(fullscreen);
 JS(set_resolution);
+JS(stream_start);
+JS(stream_stop);
 JS(freej_scandir);
 JS(freej_echo);
 JS(freej_strstr);
@@ -255,6 +257,8 @@ static	JSFunctionSpec global_functions[] = {
     {"scandir",         freej_scandir,          1},
     {"echo",            freej_echo,             1},
     {"strstr",          freej_strstr,           2},
+    {"stream_start",    stream_start,           0},
+    {"stream_stop",     stream_stop,            0},
     {0}
 };
 
