@@ -588,8 +588,9 @@ int Console::readline(char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
 void Console::getkey() {
   int key = SLkp_getkey();
   
-  if(key) ::func("SLkd_getkey: %u",key);
-  else return; /* return if key is zero */
+//  if(key) ::func("SLkd_getkey: %u",key);
+//  else return; /* return if key is zero */
+  if(!key) return;
 
   //  if(input) {
   if(parser == COMMANDLINE) parser_commandline(key);

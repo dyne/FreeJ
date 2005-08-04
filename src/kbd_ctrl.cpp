@@ -312,8 +312,8 @@ void KbdListener::run() {
 	layer->set_position( event.motion.x, event.motion.y );
     i'm not sure why, but this doesn't works now */
 
-  if(keysym -> sym) 
-	  func("SLkd_getkey: %u",keysym -> sym);
+//  if(keysym -> sym) 
+//	  func("SLkd_getkey: %u",keysym -> sym);
 
     switch(keysym->sym) {
 

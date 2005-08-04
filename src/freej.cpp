@@ -78,27 +78,16 @@ static const char *help =
 " .   -g   experimental opengl engine!(better to use power of 2 resolution as 256x256)\n"
 #endif
 " .   -j   <javascript.js>  process javascript command file\n"
-#ifndef WITH_JAVASCRIPT
-" .                      ( disabled!, download spidermonkey \n"
-" .        http://ftp.mozilla.org/pub/mozilla.org/js/js-1.5-rc6a.tar.gz\n"
-" .        and compile freej with --with-javascript=<path_to_spidermonkey> )"
-#endif
-"\n"
 " .   -e   <file.ogg>  set filename of local encoded ogg-theora file\n"
 " .		       if a number is given, the file descriptor selected is used\n"
 " .                    (default freej.ogg, start and stop it with CTRL-s)\n"
 " .\n"
-#ifndef WITH_OGGTHEORA
-" (disabled! make sure you have installed correctly ogg http://www.vorbis.com/download.psp\n"
-" .        and theora http://theora.org/download.html )\n"
-" .\n"
-#endif
 " .   Streaming options:\n"
-" .   -i   <server:port/mount.ogg> stream to server[:port] (default http://localhost:8000/freej.ogg)\n"
+" .   -i   <server:port/mount.ogg> stream to server (default http://localhost:8000/freej.ogg)\n"
 " .   -p   <password> mountpoint on server (default hackme)\n"
 " .   -a   don't stream or save audio from audio in (select it with aumix)\n"
-" .   -t   <name> name of the stream(default \"Streaming with freej\") \n"
-" .   -d   <description> description of the stream for icecast server(default \"Free the veejay in you\")\n"
+" .   -t   <name> name of the stream (\"Streaming with freej\") \n"
+" .   -d   <description> description of the stream (\"Free the veejay in you\")\n"
 " .   -q   <theora_quality> quality of video encoding (range 0 - 63, default 16\n"
 " .                   0 low quality less bandwidth, 63 high quality more bandwidth)\n"
 //" .   -q    <vorbis_quality> quality of vorbis encoding (range 0 - 63, default 16, 0\n"

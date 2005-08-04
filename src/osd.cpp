@@ -95,7 +95,7 @@ Osd::~Osd() { }
 void Osd::init(Context *screen) {
   this->env = screen;
   _set_color(white);
-  snprintf(title,64,"%s v%s codename FADAIAT",PACKAGE,VERSION);
+  snprintf(title,64,"%s v%s codename ISCREAM",PACKAGE,VERSION);
 
   // setup sizes
   resize();
