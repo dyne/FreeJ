@@ -90,6 +90,8 @@ static const char *help =
 " .   -d   <description> description of the stream (\"Free the veejay in you\")\n"
 " .   -q   <theora_quality> quality of video encoding (range 0 - 63, default 16\n"
 " .                   0 low quality less bandwidth, 63 high quality more bandwidth)\n"
+" .   -b   <vorbis_quality> quality of audio encoding (range 0 - 10, default 1\n"
+" .                   1 lowest quality, smallest file)\n"
 //" .   -q    <vorbis_quality> quality of vorbis encoding (range 0 - 63, default 16, 0\n"
 " .\n"
 " .  Layers available:\n"
@@ -97,7 +99,7 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:q:ag";
+static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:q:b:ag";
 
 
 
@@ -118,6 +120,7 @@ static char screaming_name[512]; // name
 static char screaming_description[512]; // name
 
 static int theora_quality;
+static int vorbis_quality;
 
 bool startstate = true;
 bool stream_audio = true;
@@ -139,6 +142,7 @@ void cmdline(int argc, char **argv) {
   screaming_description[0] = '\0';
 
   theora_quality           = -1;
+  vorbis_quality           = -1;
 
   debug                    = 1;
 
@@ -222,8 +226,11 @@ void cmdline(int argc, char **argv) {
       break;
 
      case 'q':
-      sscanf(optarg,"%u",&theora_quality);
+      sscanf (optarg, "%u", &theora_quality);
+      break;
 
+     case 'b':
+      sscanf (optarg, "%u", &vorbis_quality);
       break;
 
    case 'j':
@@ -378,6 +385,8 @@ int main (int argc, char **argv) {
   if (theora_quality > 0)
 	  freej.video_encoder -> set_video_quality (theora_quality );
 
+  if (vorbis_quality > 0)
+	  freej.video_encoder -> set_audio_quality (vorbis_quality );
   
   freej.shouter -> apply_profile ( );
 

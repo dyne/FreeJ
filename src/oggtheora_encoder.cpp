@@ -42,6 +42,7 @@ OggTheoraEncoder::OggTheoraEncoder(char *output_filename)
 		frame_finished = false;
 		started	       = false;
 		video_quality  = 16; // it's ok for streaming
+		vorbis_quality  = 0.1; // it's ok for streaming
 		video_bytesout = 0;
 		videotime      = 0;
 
@@ -218,7 +219,6 @@ bool OggTheoraEncoder::theora_init() { // TODO freejrc &co
 bool OggTheoraEncoder::vorbis_init() {
 	int ret              = 0;
 
-	float audio_quality  = 0.1;
 	int audio_channels   = 1; // TODO parameters
 //	int audio_hertz      = 22050;
 	int audio_hertz      = 44100;
@@ -230,9 +230,9 @@ bool OggTheoraEncoder::vorbis_init() {
 
 	vorbis_info_init (&vorbis_information);
 
-	if (audio_quality > -99)
+	if (vorbis_quality > -99)
 		ret = vorbis_encode_init_vbr (&vorbis_information, audio_channels, 
-				audio_hertz, audio_quality);
+				audio_hertz, vorbis_quality);
 	else
 		ret = vorbis_encode_init (&vorbis_information, audio_channels, 
 				audio_hertz, -1, audio_bitrate, -1);
@@ -450,8 +450,10 @@ bool OggTheoraEncoder::write_theora_header() {
 
 	// write header and body to file
 
-	fwrite (opage.header, 1, opage.header_len, video_fp);
-	fwrite (opage.body ,1, opage.body_len, video_fp);
+	if (write_to_disk) {
+	    fwrite (opage.header, 1, opage.header_len, video_fp);
+	    fwrite (opage.body ,1, opage.body_len, video_fp);
+	}
 
 	// STOP BUFFER NOW! ... GOOOOOOOOO :)
 	if (stream) {
@@ -484,8 +486,10 @@ bool OggTheoraEncoder::write_vorbis_header() {
 			return false;
 		}
 
-		fwrite (opage.header, 1, opage.header_len, video_fp);
-		fwrite (opage.body, 1, opage.body_len, video_fp);
+		if (write_to_disk) {
+		    fwrite (opage.header, 1, opage.header_len, video_fp);
+		    fwrite (opage.body, 1, opage.body_len, video_fp);
+		}
 
 		// STOP BUFFER NOW! ... GOOOOOOOOO :)
 		if (stream) {
@@ -524,8 +528,10 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 				videotime = theora_granule_time (&td, ogg_page_granulepos (&videopage));
 				/* flush a video page */
 
-				video_bytesout += fwrite (videopage.header, 1, videopage.header_len, video_fp);
-				video_bytesout += fwrite (videopage.body, 1, videopage.body_len, video_fp);
+				if (write_to_disk) {
+				    video_bytesout += fwrite (videopage.header, 1, videopage.header_len, video_fp);
+				    video_bytesout += fwrite (videopage.body, 1, videopage.body_len, video_fp);
+				}
 
 				// STOP BUFFER NOW! ... GOOOOOOOOO :)
 				if (stream) {
@@ -554,8 +560,10 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 				/* flush an audio page */
 				audiotime = vorbis_granule_time (&vd,ogg_page_granulepos (&audiopage));
 
-				audio_bytesout += fwrite (audiopage.header, 1,audiopage.header_len, video_fp);
-				audio_bytesout += fwrite (audiopage.body, 1,audiopage.body_len, video_fp);
+				if (write_to_disk) {
+				    audio_bytesout += fwrite (audiopage.header, 1,audiopage.header_len, video_fp);
+				    audio_bytesout += fwrite (audiopage.body, 1,audiopage.body_len, video_fp);
+				}
 
 				// STOP BUFFER NOW! ... GOOOOOOOOO :)
 				if (stream) {
@@ -588,8 +596,10 @@ bool OggTheoraEncoder::flush_theora_header() {
 		if (result == 0)
 			break;
 
-		fwrite (opage.header, 1, opage.header_len, video_fp);
-		fwrite (opage.body, 1, opage.body_len, video_fp);
+		if (write_to_disk) {
+		    fwrite (opage.header, 1, opage.header_len, video_fp);
+		    fwrite (opage.body, 1, opage.body_len, video_fp);
+		}
 
 		// STOP BUFFER NOW! ... GOOOOOOOOO :)
 		if (stream) {
@@ -613,8 +623,10 @@ bool OggTheoraEncoder::flush_vorbis_header() {
 			if (result == 0)
 				break;
 
-			fwrite (opage.header, 1, opage.header_len, video_fp);
-			fwrite (opage.body, 1, opage.body_len, video_fp);
+			if (write_to_disk) {
+			    fwrite (opage.header, 1, opage.header_len, video_fp);
+			    fwrite (opage.body, 1, opage.body_len, video_fp);
+			}
 
 			// STOP BUFFER NOW! ... GOOOOOOOOO :)
 			if (stream) {
@@ -641,6 +653,14 @@ bool OggTheoraEncoder::set_video_quality(int quality) {
 		return false;
 	}
 	video_quality = quality;
+	return true;
+}
+bool OggTheoraEncoder::set_audio_quality (double quality) {
+	if (quality > 10 || quality < 0) {
+		error("Error setting video quality! (range 0-10) (use 0 for lowest quality, smallest file)");
+		return false;
+	}
+	vorbis_quality = quality / 10;
 	return true;
 }
 	bool OggTheoraEncoder::has_finished_frame() {

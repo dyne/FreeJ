@@ -60,7 +60,8 @@ class VideoEncoder: public Entry {
   virtual ~VideoEncoder ();
   
   virtual void set_encoding_parameter ()                     = 0;
-  virtual bool set_video_quality(int quality)                = 0;
+  virtual bool set_video_quality (int quality)               = 0;
+  virtual bool set_audio_quality (double quality)               = 0;
   virtual bool write_frame ()                                = 0;
   virtual bool has_finished_frame ()                         = 0;
   virtual bool isStarted ()                                  = 0;
@@ -94,6 +95,7 @@ class VideoEncoder: public Entry {
   /* fifo to handle input audio */
   Pipe *coda;
   bool use_audio;
+  bool write_to_disk;
   bool stream;
   double sample_rate;
 

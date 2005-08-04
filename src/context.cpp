@@ -250,7 +250,7 @@ void Context::cafudda(double secs) {
 			//	    }
 
 			if (save_to_file) {
-				if (!(video_encoder->init (this, screen) )) {
+				if (! (video_encoder->init (this, screen) )) {
 					error ("Can't save to file. retry!");
 					save_to_file = false;
 				}

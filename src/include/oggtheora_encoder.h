@@ -50,6 +50,7 @@ class OggTheoraEncoder: public VideoEncoder{
   bool init(Context *_env, ViewPort *_screen);
   void set_encoding_parameter();
   bool set_video_quality(int quality);
+  bool set_audio_quality(double quality);
   bool write_frame();
   bool isStarted();
   
@@ -91,6 +92,7 @@ class OggTheoraEncoder: public VideoEncoder{
   bool started;
   bool frame_finished;
   int video_quality;
+  double vorbis_quality;
 
   /* video size */
   int video_x;

@@ -49,6 +49,7 @@ VideoEncoder::VideoEncoder(char *output_filename) {
 	env             = NULL;
 	audio_started   = false;
 	sample_rate	= 44100;
+	write_to_disk   = true;
 	set_output_name (output_filename);
 
 	/* create pipe */
