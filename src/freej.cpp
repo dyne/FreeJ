@@ -343,9 +343,10 @@ int main (int argc, char **argv) {
   /* initialize the On Screen Display */
   freej.osd.init( &freej );
 
+  freej.video_encoder -> handle_audio (stream_audio );
+
   /* initialize encoded filename */
   if (encoded_filename[0] != '\0') {
-	  freej.video_encoder -> handle_audio (stream_audio );
 	  freej.video_encoder -> set_output_name (encoded_filename );
   }
 
