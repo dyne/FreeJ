@@ -237,8 +237,7 @@ bool OggTheoraEncoder::vorbis_init() {
 		ret = vorbis_encode_init (&vorbis_information, audio_channels, 
 				audio_hertz, -1, audio_bitrate, -1);
 	if (ret) {
-		error("OggTheoraEncoder::vorbis_init() Vorbis encoder could not set up a mode according to\n"
-				"the requested quality or bitrate.\n\n");
+		error("OggTheoraEncoder::vorbis_init() Vorbis encoder could not set up a mode according to the requested quality or bitrate.\n\n");
 		return false;
 	}
 
@@ -656,16 +655,16 @@ bool OggTheoraEncoder::set_video_quality(int quality) {
 	return true;
 }
 bool OggTheoraEncoder::set_audio_quality (double quality) {
-	if (quality > 10 || quality < 0) {
-		error("Error setting video quality! (range 0-10) (use 0 for lowest quality, smallest file)");
+	if (quality > 10 || quality < -1) {
+		error("Error setting video quality! (range from -1 to 10) (use -1 for lowest quality, smallest file)");
 		return false;
 	}
 	vorbis_quality = quality / 10;
 	return true;
 }
-	bool OggTheoraEncoder::has_finished_frame() {
-		if (!frame_finished)
-			//		wait_feed();
-			return true;
-	}
+bool OggTheoraEncoder::has_finished_frame() {
+	if (!frame_finished)
+		//		wait_feed();
+		return true;
+}
 #endif

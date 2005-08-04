@@ -105,7 +105,8 @@ bool Shouter::start() {
 		running = true;
 	} 
 	else {
-	    notice("Can't s(c|t)ream on %s :'(",streamurl);
+	    notice ("Can't stream on %s :( probably the server is down or the parameters are wrong", streamurl);
+	    notice ("Check http://lab.dyne.org/FreejStreaming for more info");
 	    func ("shout_open: %s",shout_get_error(ice));
 	    //		shout_close(ice);
 	    //		shout_sync(ice);
