@@ -95,6 +95,7 @@ class VideoEncoder: public Entry {
   Pipe *coda;
   bool use_audio;
   bool stream;
+  double sample_rate;
 
   private:
 

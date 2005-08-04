@@ -36,7 +36,7 @@
 #include <avcodec.h>
 #include <avformat.h>
 
-#define AUDIO_BUFFER_SIZE 3528 // frame_rate / fps / bytes of sample format
+//#define AUDIO_BUFFER_SIZE 3528 // sample_rate * channel / fps / bytes of sample format
 
 class Context;
 
@@ -60,6 +60,8 @@ class OggTheoraEncoder: public VideoEncoder{
   void run(); ///< Main loop
   AVFrame *picture_rgb;
   AVFrame *picture_yuv;
+
+  int audio_buffer_size;
 
   bool init_ogg_streams();
   bool theora_init();

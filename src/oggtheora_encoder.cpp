@@ -83,6 +83,12 @@ void OggTheoraEncoder::close_ogg_streams() {
 
 		if (! _init(_env))
 			return false;
+		/*
+		 * XXX
+		 */
+		audio_buffer_size = sample_rate / 25 * 2;
+//		func("sample_rate :%f",sample_rate);
+//		notice("audio_buffer_size :%d",audio_buffer_size);
 
 		screen = _screen;
 
@@ -96,7 +102,7 @@ void OggTheoraEncoder::close_ogg_streams() {
 		if (use_audio) {
 			if(vorbis_init ()) {
 				audiobuffer = NULL;
-				audiobuffer = (int16_t *) jalloc (audiobuffer, AUDIO_BUFFER_SIZE);
+				audiobuffer = (int16_t *) jalloc (audiobuffer, audio_buffer_size);
 			}
 			else
 				use_audio = false;
@@ -355,7 +361,7 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 		vorbis_analysis_wrote (&vd, 0);
 	else {
 		// take audio from fifo queue
-		int audio_bytes = coda -> read (AUDIO_BUFFER_SIZE , audiobuffer);
+		int audio_bytes = coda -> read (audio_buffer_size , audiobuffer);
 
 		if (audio_bytes == -1)
 			func(" OggTheoraEncoder::coda returned -1! :|");

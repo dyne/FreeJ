@@ -48,6 +48,7 @@ VideoEncoder::VideoEncoder(char *output_filename) {
 	stream		= true;
 	env             = NULL;
 	audio_started   = false;
+	sample_rate	= 44100;
 	set_output_name (output_filename);
 
 	/* create pipe */
@@ -99,12 +100,6 @@ bool VideoEncoder::init_audio() {
 
 	captureParameters -> device = Pa_GetDefaultInputDevice ();
 
-	captureDeviceInfo = Pa_GetDeviceInfo (captureParameters -> device );
-
-	if( captureDeviceInfo == NULL ) {
-	    error("captureDeviceInfo nullo");
-		return false;
-	}
 
 
 	const PaDeviceInfo *tmp;
@@ -128,8 +123,17 @@ bool VideoEncoder::init_audio() {
 		func ("Found hostApi %s", pai -> name);
 		if (pai -> type == paALSA ) { // look for alsa
 		    func ("Ok I'm using alsa");
-			captureParameters -> device = pai -> defaultInputDevice;
-			break;
+		    captureParameters -> device = pai -> defaultInputDevice;
+		    //			func("\t native sample rate: %f", tmp -> defaultSampleRate);
+		    captureDeviceInfo = Pa_GetDeviceInfo (captureParameters -> device );
+
+		    if( captureDeviceInfo == NULL ) {
+			error("captureDeviceInfo nullo");
+			return false;
+		    }
+		    sample_rate = captureDeviceInfo -> defaultSampleRate;
+
+		    break;
 		}
 	}
 
@@ -144,7 +148,7 @@ bool VideoEncoder::init_audio() {
 	err = Pa_OpenStream( &pa_audioStream,
 			captureParameters, 
 			NULL,
-			44100, 
+			sample_rate, 
 			paFramesPerBufferUnspecified,
 
 			/** In a stream opened with paFramesPerBufferUnspecified, indicates that
