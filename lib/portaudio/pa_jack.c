@@ -35,6 +35,10 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <config.h>
+
+#ifdef PA_USE_JACK
+
 #include <string.h>
 #include <regex.h>
 #include <stdlib.h>
@@ -1716,3 +1720,5 @@ static double GetStreamCpuLoad( PaStream* s )
     PaJackStream *stream = (PaJackStream*)s;
     return PaUtil_GetCpuLoad( &stream->cpuLoadMeasurer );
 }
+
+#endif

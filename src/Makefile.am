@@ -6,6 +6,8 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/shout \
            -I$(top_srcdir)/lib/portaudio \
            -I$(top_srcdir)/lib/sdl_image \
+	   -I$(top_srcdir)/lib/javascript \
+	   -I$(top_srcdir)/lib/javascript/obj \
            -I/usr/include/slang
 
 #           -I$(top_srcdir)/lib/portaudio-v19/pa_common
@@ -13,7 +15,6 @@ INCLUDES = -I$(top_srcdir)/src/include \
 AM_CXXFLAGS = @GLADE2_CFLAGS@ \
               @SDL_CFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
-	      @JS_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
@@ -71,13 +72,13 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/portaudio/libportaudio.a \
 		 @PORTAUDIO_LIBS@ \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
+	      $(top_srcdir)/lib/javascript/obj/libjs.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \
 		 @FT2_LIBS@ \
-		 @GLADE2_LIBS@ \
-		 @JS_LIBS@ 
+		 @GLADE2_LIBS@
 
 #		 @PORTAUDIO_LIB@
 #		 @AVIFILE_LIBS@

@@ -73,6 +73,7 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
+" .   -c   no interactive text console\n"
 #ifdef WITH_OPENGL
 " .   -g   experimental opengl engine!(better to use power of 2 resolution as 256x256)\n"
 #endif
@@ -83,16 +84,15 @@ static const char *help =
 " .        and compile freej with --with-javascript=<path_to_spidermonkey> )"
 #endif
 "\n"
-" .   -e   <file.ogg>  set filename of encoded ogg-theora\n"
+" .   -e   <file.ogg>  set filename of local encoded ogg-theora file\n"
 " .		       if a number is given, the file descriptor selected is used\n"
-" .                  (default freej.ogg, start and stop it with CTRL-s)\n"
+" .                    (default freej.ogg, start and stop it with CTRL-s)\n"
 " .\n"
 #ifndef WITH_OGGTHEORA
 " (disabled! make sure you have installed correctly ogg http://www.vorbis.com/download.psp\n"
 " .        and theora http://theora.org/download.html )\n"
 " .\n"
 #endif
-" .   -c   no interactive text console\n"
 " .   Streaming options:\n"
 " .   -i   <server:port/mount.ogg> stream to server[:port] (default http://localhost:8000/freej.ogg)\n"
 " .   -p   <password> mountpoint on server (default hackme)\n"
@@ -296,8 +296,8 @@ int main (int argc, char **argv) {
 
   Layer *lay = NULL;
 
-  notice("%s version %s [ http://freej.dyne.org ]",PACKAGE,VERSION);
-  act("(c)2001-2004 Denis Rojo < jaromil @ dyne.org >");
+  notice("%s version %s   RASTA SOFTWARE",PACKAGE,VERSION);
+  act("(c)2001-2005 Jaromil & Kysucix @ dyne.org");
   act("----------------------------------------------");
   cmdline(argc,argv);
   set_debug(debug);

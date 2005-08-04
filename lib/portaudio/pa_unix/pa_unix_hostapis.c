@@ -30,6 +30,8 @@
  */
 
 
+#include <config.h>
+
 #include "pa_hostapi.h"
 
 PaError PaJack_Initialize( PaUtilHostApiRepresentation **hostApi, PaHostApiIndex index );

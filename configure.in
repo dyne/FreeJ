@@ -67,7 +67,7 @@ AM_SANITY_CHECK
 AM_INIT_AUTOMAKE(FreeJ, 0.7.2-rc2)
 AM_CONFIG_HEADER(config.h)
 
-q
+
 dnl ==============================================================
 dnl Check for tools
 dnl ==============================================================
@@ -449,44 +449,52 @@ dnl ],[AC_MSG_RESULT(no)])
 dnl ==============================================================
 dnl compile including the javascript interpreter
 dnl ==============================================================
-AC_MSG_CHECKING(for embedding JavaScript interpreter)
-JS_LIBS=""
-JS_CFLAGS=""
-AC_ARG_WITH(javascript,
-[  --with-javascript       embed the javascript interpreter as in
-                          http://www.mozilla.org/js/spidermonkey],
-[if test -r "$withval"; then
+AC_DEFINE(WITH_JAVASCRIPT,1,[Define is using the javascript interpreter])
+if test x$have_linux = xyes ; then
+AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
+fi
+if test x$have_darwin = xyes ; then
+AC_DEFINE(XP_MAC,1,[Define use of MAC types in javascript])
+fi
 
-  JS_OBJDIR="`find $withval -name '*OBJ'| grep -v editline | grep -v fdlibm`"
-  JS_LIB="$JS_OBJDIR/libjs.a"
-  if test "`echo $withval|grep src`"; then
-    JS_SRCDIR="$withval"
-  else
-    JS_SRCDIR="`find $withval -name 'src'|grep -v corba`"
-  fi
-  if test -z "$JS_OBJDIR"; then
-    AC_MSG_RESULT(no)
-    echo "!! compiled javascript object directory not found in $withval"
-  elif test ! -r "$JS_LIB"; then
-    AC_MSG_RESULT(no)
-    echo "!! libjs.a not found in $JS_OBJDIR"
-  elif test ! -r "$JS_SRCDIR/jsapi.h"; then
-    AC_MSG_RESULT(no)
-    echo "!! jsapi.h not found in $JS_SRCDIR"
-  else
-    JS_LIBS=$JS_LIB
-    JS_CFLAGS="-I$JS_SRCDIR -I$JS_OBJDIR -DXP_UNIX -DJS_THREADSAFE -DJS_MULTITHREADED"
-    AC_MSG_RESULT(yes)
-    AC_DEFINE(WITH_JAVASCRIPT,1,
-              [Define is using the javascript interpreter])
-    have_javascript=yes
-  fi
- else
-   AC_MSG_RESULT(no)
- fi
-],[AC_MSG_RESULT(no)])
-AC_SUBST(JS_LIBS)
-AC_SUBST(JS_CFLAGS)
+dnl AC_MSG_CHECKING(for embedding JavaScript interpreter)
+dnl JS_LIBS=""
+dnl JS_CFLAGS=""
+dnl AC_ARG_WITH(javascript,
+dnl [  --with-javascript       embed the javascript interpreter as in
+dnl                           http://www.mozilla.org/js/spidermonkey],
+dnl [if test -r "$withval"; then
+
+dnl   JS_OBJDIR="`find $withval -name '*OBJ'| grep -v editline | grep -v fdlibm`"
+dnl   JS_LIB="$JS_OBJDIR/libjs.a"
+dnl   if test "`echo $withval|grep src`"; then
+dnl     JS_SRCDIR="$withval"
+dnl   else
+dnl     JS_SRCDIR="`find $withval -name 'src'|grep -v corba`"
+dnl   fi
+dnl   if test -z "$JS_OBJDIR"; then
+dnl     AC_MSG_RESULT(no)
+dnl     echo "!! compiled javascript object directory not found in $withval"
+dnl   elif test ! -r "$JS_LIB"; then
+dnl     AC_MSG_RESULT(no)
+dnl     echo "!! libjs.a not found in $JS_OBJDIR"
+dnl   elif test ! -r "$JS_SRCDIR/jsapi.h"; then
+dnl     AC_MSG_RESULT(no)
+dnl     echo "!! jsapi.h not found in $JS_SRCDIR"
+dnl   else
+dnl     JS_LIBS=$JS_LIB
+dnl     JS_CFLAGS="-I$JS_SRCDIR -I$JS_OBJDIR -DXP_UNIX -DJS_THREADSAFE -DJS_MULTITHREADED"
+dnl     AC_MSG_RESULT(yes)
+dnl     AC_DEFINE(WITH_JAVASCRIPT,1,
+dnl               [Define is using the javascript interpreter])
+dnl     have_javascript=yes
+dnl   fi
+dnl  else
+dnl    AC_MSG_RESULT(no)
+dnl  fi
+dnl ],[AC_MSG_RESULT(no)])
+dnl AC_SUBST(JS_LIBS)
+dnl AC_SUBST(JS_CFLAGS)
 
 
 
