@@ -35,7 +35,7 @@ SdlScreen::SdlScreen()
   emuscr = NULL;
   bpp = 32;
   dbl = false;
-  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_RESIZABLE );
+  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF);
 	  //| SDL_DOUBLEBUF | SDL_HWACCEL | SDL_RESIZABLE);
   // add above | SDL_FULLSCREEN to go fullscreen from the start
 

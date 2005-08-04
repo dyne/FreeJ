@@ -1,7 +1,8 @@
-FreeJ 0.8 ISCREAM - 4 Aug 2005
+FreeJ 0.8 ISCREAM - 5 Aug 2005
   encoding to Ogg/Theora video file
   live streaming to Icecast2
-  initial sound support
+  initial support for audio
+  improvements to script functionality
   some libraries are now statically included
 
 FreeJ 0.7.1 BIKO - 26 Nov 2004

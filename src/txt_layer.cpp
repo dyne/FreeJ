@@ -118,6 +118,7 @@ bool TxtLayer::open(char *file) {
 
     // create the new entry
     tmpw = new Entry();
+    memset(tmpw->name,0,254);
     strncpy(tmpw->name,pword,punt-pword);
     // append it to the list
     words.append(tmpw);

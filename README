@@ -7,20 +7,19 @@
 
 :: OVERVIEW
 
-FreeJ is a realtime video manipulation engine and a digital instrument
-for veejays, featuring rendering of multilayered video and chained
-effect filtering directly on the screen.
+FreeJ is a vision mixer: a digital instrument for realtime video
+manipulation used in the fields of dance teather, veejaying, medical
+visualisation and TV.
 
-At the same time, FreeJ is a scriptable video engine that can interpret
-scripts written in a intuitive and object oriented syntax (javascript).
+It runs a video engine in which multiple layers can be filtered thru
+effect chains and then mixed together with images, movies, live
+cameras, particle generators, text scrollers and more.  All the
+resulting video mix can be shown on multiple and remote screens,
+encoded into a movie and streamed live to the internet.
 
-FreeJ can layer various video sources, making then possible to
-dynamically apply on each a chain of filters, masking operations etc.
-
-Layers are implemented to mix together live video, movies, images,
-texts, particle generators, vertical text scrollers and even more.
-Everything can be controlled live and remotely with very low latency on
-commands (VeeJay over Ethernet).
+FreeJ can be controlled locally or remotely, also from multiple places
+at the same time, using its slick console interface; can be automated
+via javascript and operated via MIDI and Joystick.
 
 FreeJ's sourcecode is written in C, C++ and assembler, it can run on
 GNU/Linux and Darwin/OSX platforms, PC-x86 or Mac, and is released free
@@ -127,7 +126,10 @@ modelines in doc/x11.modelines
 
 :: HOW TO INSTALL IT
 
-read the INSTALL file
+download a binary for your operating system from http://freej.org
+
+OR read the INSTALL file and compile from source
+
 if it's too hard for you, consider trying dyne:bolic
 *** http://dynebolic.org (just download, burn and boot it on a PC!)
 
@@ -135,6 +137,10 @@ Debian GNU/Linux users you can
 # apt-get install freej
 from the unstable/testing branch
 while TGZ binary packages are provided for lucky Slackware users.
+
+
+
+
 
 
 
@@ -207,5 +213,5 @@ You should have received a copy of the GNU Public License along with
 this source code; if not, write to:
 Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-$Id$
+
 
