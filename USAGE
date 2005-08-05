@@ -1,4 +1,4 @@
-FreeJ version 0.7 USAGE NOTES
+FreeJ version 0.8 USAGE NOTES
 ===============================
 
 FreeJ offers you various interfaces to interact with.
@@ -39,20 +39,20 @@ S-LANG CONSOLE
  TAB to move the selected layer around the screen
  ! = switch on/off OSD   @ = switch on/off screen cleanup
 
+ ctrl-c  = quit FreeJ (asks confirmation)
+ ctrl-f  = go to Fullscreen
+ ctrl-l  = cleanup and redraw the console
+ ctrk-x  = execute a script
+
+ ctrl-a  = move, rotate, zoom and spin the selected layer
  ctrl-o  = Open new layer (will prompt for path to file)
  ctrl-e  = add a new Effect to the selected layer (press TAB for list)
  ctrl-b  = change the Blit for the selected layer (press TAB for list)
  ctrl-v  = change the blit Value for the selected layer
+ ctrl-j  = enter Jazz mode to pulse layers with keys
  ctrl-t  = create a text layer (will prompt for text)
  ctrl-y  = insert a new word in the selected text layer
  ctrl-g  = create a particle generator layer
-
- ctrl-c  = quit FreeJ (asks confirmation)
- ctrl-s  = save to file
- ctrl-f  = go to Fullscreen
- ctrl-l  = cleanup and redraw the console
- ctrl-j  = enter Jazz mode to pulse layers with keys
- ctrl-x  = enter a script command
  ctrl-w  = start streaming to the online server
            and encoding to a local file in Ogg/Theora
            (server and filename are configured at commandline)
