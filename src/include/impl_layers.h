@@ -29,9 +29,7 @@
 #include <scroll_layer.h>
 
 // statically included flash layer
-#ifdef WITH_FLASH
 #include <flash_layer.h>
-#endif
 
 #ifdef WITH_V4L
 #include <v4l_layer.h>

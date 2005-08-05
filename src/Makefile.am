@@ -8,12 +8,12 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/sdl_image \
 	   -I$(top_srcdir)/lib/javascript \
 	   -I$(top_srcdir)/lib/javascript/obj \
+	   -I$(top_srcdir)/lib/flash \
            -I/usr/include/slang
 
 #           -I$(top_srcdir)/lib/portaudio-v19/pa_common
 
-AM_CXXFLAGS = @GLADE2_CFLAGS@ \
-              @SDL_CFLAGS@ \
+AM_CXXFLAGS = @SDL_CFLAGS@ \
 	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
@@ -24,44 +24,46 @@ bin_PROGRAMS = freej
 freej_SOURCES = \
 	freej.cpp	\
 	context.cpp	\
-	layer.cpp	\
 	blitter.cpp	\
 	iterator.cpp	\
 	linklist.cpp	\
 	jsync.cpp	\
 	osd.cpp		\
 	console.cpp	\
+	imagefilter.cpp \
+	rotozoomer.cpp  \
+	cpu_accel.cpp	\
 	plugin.cpp	\
 	plugger.cpp	\
+	jsparser.cpp	\
 	jutils.cpp	\
-	v4l_layer.cpp	\
+	fastmemcpy.cpp  \
+	shouter.cpp 	\
+	pipe.cpp	\
+\
+	layer.cpp	\
+	v4l_layer.cpp tvfreq.c	\
 	video_layer.cpp	\
+	image_layer.cpp \
 	avi_layer.cpp	\
 	txt_layer.cpp	\
 	gen_layer.cpp	\
 	flash_layer.cpp \
 	scroll_layer.cpp \
+	xhacks_layer.cpp \
 	impl_layers.cpp \
+\
 	screen.cpp	\
 	sdl_screen.cpp 	\
 	sdlgl_screen.cpp \
-	imagefilter.cpp \
-	rotozoomer.cpp  \
+\
 	kbd_ctrl.cpp	\
-	gtk_ctrl.cpp	\
 	joy_ctrl.cpp	\
-	tvfreq.c	\
-	xhacks_layer.cpp \
-	jsparser.cpp \
-	cpu_accel.cpp \
+\
+	video_encoder.cpp \
 	ffmpeg_encoder.cpp \
 	oggtheora_encoder.cpp \
-	video_encoder.cpp \
-	impl_video_encoders.cpp \
-	image_layer.cpp \
-	fastmemcpy.cpp \
-	shouter.cpp \
-	pipe.cpp
+	impl_video_encoders.cpp
 
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/theora-mmx/libtheora.a \
@@ -73,20 +75,10 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @PORTAUDIO_LIBS@ \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
 	      $(top_srcdir)/lib/javascript/obj/libjs.a \
+	      $(top_srcdir)/lib/flash/libflash.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \
-		 @FT2_LIBS@ \
-		 @GLADE2_LIBS@
+		 @FT2_LIBS@
 
-#		 @PORTAUDIO_LIB@
-#		 @AVIFILE_LIBS@
-#		 @AVCODEC_LIBS@
-
-bundle_contents = @PACKAGE@.app/Contents
-@PACKAGE@_bundle: freej
-	mkdir -p $(bundle_contents)/MacOS
-	mkdir -p $(bundle_contents)/Resources
-	echo "APPL????" > $(bundle_contents)/PkgInfo
-	$(INSTALL_PROGRAM) $< $(bundle_contents)/MacOS/

@@ -23,7 +23,6 @@
 // "$Id$"
 
 #include <config.h>
-#ifdef WITH_FLASH
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -210,5 +209,3 @@ bool FlashLayer::keypress(char key) {
 //    return FlashExec(fh,flag,&fe,wakeDate);
   return false;
 }
-  
-#endif

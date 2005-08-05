@@ -560,6 +560,7 @@ lib/avcodec/Makefile
 lib/shout/Makefile
 lib/portaudio/Makefile
 lib/sdl_image/Makefile
+lib/flash/Makefile
 filters/Makefile
 filters/delaygrab/Makefile
 filters/rotozoom/Makefile

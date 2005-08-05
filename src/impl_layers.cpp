@@ -53,9 +53,7 @@ const char *layers_description =
 #ifdef WITH_XHACKS
 " .  - xscreensaver screen hack. ex. /usr/X11R6/lib/xscreensaver/cynosure\n"
 #endif
-#ifdef WITH_FLASH
 " .  - SWF flash v.3 layer for vectorial graphics animations\n"
-#endif
 " .  - particle generator ( try: 'freej layer_gen' on commandline)\n"
 " .  - vertical text scroller (any other extension)\n"
 "\n";
@@ -165,31 +163,23 @@ Layer *create_layer(char *file) {
 	    act("can't load %s",file_ptr);
 	    return(NULL);
 #endif
-	} else
-	  if(strncasecmp(file_ptr,"layer_gen",9)==0) {
+	  } else if(strncasecmp(file_ptr,"layer_gen",9)==0) {
 	    nlayer = new GenLayer();
-	  } else
-	    if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
-#ifdef WITH_FLASH
-	      nlayer = new FlashLayer();
-	      if(!nlayer->open(file_ptr)) {
-		error("create_layer : SWF open failed");
-		delete nlayer; nlayer = NULL;
-              }
-#else
-	      error("no flash layer support");
-	      act("can't load %s",file_ptr);
-	      return(NULL);
-#endif
-	    } else {
-	      func("opening scroll layer on generic file type for %s",file_ptr);
-	      nlayer = new ScrollLayer();
-	      if(!nlayer->open(file_ptr)) {
-		error("create_layer : SCROLL open failed");
-		delete nlayer; nlayer = NULL;
-	      }
-
+	  } else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
+	    nlayer = new FlashLayer();
+	    if(!nlayer->open(file_ptr)) {
+	      error("create_layer : SWF open failed");
+	      delete nlayer; nlayer = NULL;
 	    }
+	  } else {
+	    func("opening scroll layer on generic file type for %s",file_ptr);
+	    nlayer = new ScrollLayer();
+	    if(!nlayer->open(file_ptr)) {
+	      error("create_layer : SCROLL open failed");
+	      delete nlayer; nlayer = NULL;
+	    }
+	    
+	  }
 
   if(!nlayer)
     error("can't create a layer with %s",file);
