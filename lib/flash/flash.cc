@@ -120,8 +120,6 @@ FlashSoundInit(FlashHandle flashHandle, char *device)
 	FlashMovie *fh;
 
 	fh = (FlashMovie *)flashHandle;
-
-	fh->sm = new SoundMixer(device);
 }
 
 void
@@ -206,11 +204,11 @@ FlashExec(FlashHandle flashHandle, long flag,
 		}
                 
 		// Play frame
-                wakeUp = fh->processMovie(fh->gd, fh->sm);
+                wakeUp = fh->processMovie(fh->gd);
 	}
 
         if (checkFlashTimer(&fh->scheduledTime)) {
-            if (fh->handleEvent(fh->gd, fh->sm, &fh->scheduledEvent)) {
+            if (fh->handleEvent(fh->gd, &fh->scheduledEvent)) {
                 wakeUp = 1;
             }
             
@@ -218,7 +216,7 @@ FlashExec(FlashHandle flashHandle, long flag,
         }
 
 	if (flag & FLASH_EVENT) {
-            wakeUp = fh->handleEvent(fh->gd, fh->sm, fe);
+            wakeUp = fh->handleEvent(fh->gd, fe);
             if (wakeUp) {
                 /* Wake up at once, except for mouse move (40 ms after) */
 		

@@ -214,16 +214,11 @@ extern "C" {
 #include "zlib.h"
 };
 
-extern "C" {
-#include "mad.h"
-};
-
 #include "graphic.h"
 #include "character.h"
 #include "bitmap.h"
 #include "shape.h"
 #include "displaylist.h"
-#include "sound.h"
 #include "button.h"
 #include "font.h"
 #include "text.h"

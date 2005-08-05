@@ -335,9 +335,14 @@ if test x$have_lubrifications = xyes; then
       CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
     elif test x$host_cpu = xx86_64; then
       CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math"
-    AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
-      else
+      AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
+    else # any other x86 platform optimizations
       CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -march=${host_cpu} -ffast-math"
+      if test x$have_sse = xyes ; then
+	CFLAGS="$CFLAGS -msse -mfpmath=sse"
+      elif test x$have_mmx = xyes ; then
+	CFLAGS="$CFLAGS -mmmx"
+      fi
     fi
   fi
 else
