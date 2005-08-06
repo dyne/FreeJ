@@ -1,41 +1,33 @@
 .\" Process this file with
 .\" groff -man -Tascii foo.1
 .\"
-.TH FREEJ 1 "January 2004" UNIX "User Manuals"
+.TH FREEJ 1 "August 2005" UNIX "User Manuals"
 .SH NAME
-FreeJ - realtime video processing
+FreeJ - vision mixer
 .SH SYNOPSIS
 .B freej [
 .I options
 .B ] [
-.I files and video devices
+.I streaming options
+.B ] [
+.I layer files and video devices
 .B ]
 
 .SH DESCRIPTION
-\fBFreeJ\fP is a digital instrument for video livesets, featuring
-realtime rendering of multilayered video and chained effect filtering
-directly on the screen. FreeJ threats every video source as a layer,
-making then possible to dynamically apply on each a chain of filters,
-loadable as effect plugins and easily customizable. Layers are
-implemented to mix together live inputs (video4linux devices),
-DIVX/AVI files (with avifile library), PNG images and text files word
-by word.
+\fBFreeJ\fP is a vision mixer: an instrument for realtime video
+manipulation used in the fields of dance teather, veejaying, medical
+visualisation and TV.
 
-\fBFreeJ\fP is being developed in the hope to provide the free
-software community with a modular and highly customizable application
-for realtime video manipulation; a free and open framework that lets
-anybody implement hisown filters concentrating simply on the dsp
-algorithm developed and furthermore to combine them over any supported
-layer.
+With FreeJ multiple layers can be filtered thru effect chains and then
+mixed together. The supported layer inputs are images, movies, live
+cameras, particle generators, text scrollers and more.
+All the resulting video mix can be shown on multiple and remote
+screens, encoded into a movie and streamed live to the internet.
 
-\fBFreeJ\fP is a software written in C, C++ and a bit of assembler, it
-can run on GNU/Linux platform and it could be ported to other
-platforms; his sourcecode is released under the Gnu Public License, it
-comes with absolutely no warranty, and you are welcome to redistribute
-it under certain conditions (refer to the license for details).
+FreeJ can be controlled locally or remotely, also from multiple places
+at the same time, using its slick console interface; can be automated
+via javascript and operated via MIDI and Joystick.
 
-\fBFreeJ\fP development is supported by the Nederlands Instituut voor
-Mediakunst - Montevideo/Time Based Arts.
 
 .SH OPTIONS
 .IP "-h"
@@ -44,60 +36,90 @@ show commandline help
 show version information
 .IP "-D [\fI num \fP]"
 set debug verbosity level to (1 to 3), default is 1
-.IP "-C"
-start without any graphical control interface
 .IP "-s [\fI WxH \fP]"
 set resolution to \fBW\fPidthx\fBH\fPeight, default is 400x300 
-.IP "-m [\fI 2,3 \fP]"
-magnify the resolution 2 or 3 times more using software scaling
 .IP "-n"
-start up with all layers deactivated
+start with all layers deactivated
+.IP "-c"
+start without any interactive text console interface
+.IP "-j [\fI javascript.js \fP]"
+run the \fBjavascript.js\fP script file
+.IP "-e [\fI file.ogg \fP]"
+set the filename of the local encoded ogg-theora movie (default is: freej.ogg),
+files already existing are not overwritten, instead filename-2.ogg is used;
+if a number is given, the corresponding file descriptor is used.
+To start/stop the recording and streaming use ctrl-w while running.
+
+.SH STREAMING OPTIONS
+.IP "-i [\fI server:port/mountpoint.ogg \fP]"
+stream to the host \fBserver\fP on \fBport\fP with \fBmountpoint.ogg\fP
+so the streaming url for players will be (assuming port is 8000)
+\fBhttp://server:8000/mountpoint.ogg\fP
+.IP "-p [\fI password \fP]"
+\fBpassword\fP for the mountpoint on the streaming server
+.IP "-a"
+don't use any audio in the stream, by default it is recorded from the
+input device that is set in the mixer
+.IP "-t [\fI name \fP]"
+name of the stream, by default is "Streaming with FreeJ"
+.IP "-d [\fI description \fP]"
+description of the stream, by default is "Free the veejay in you"
+.IP "-T [\fI quality of video encoding \fP]"
+set the quality for the theora video encoding, range \fBfrom 0 to 63\fP,
+by default is 16.
+0 means less quality, less bandwidth occupation and a smaller file, 63 more.
+.IP "-V [\fI quality of audio encoding \fP]"
+set the quality for the vorbis audio encoding, range \fBfrom -1 to 10\fP,
+by default is 1. -1 means less quality, less bandwidth occupation and a smaller file,
+10 more.
 
 .SH FILES AND DEVICES
-\fBFreeJ\fP supports an infinite number of layers, as much as your CPU
-can handle. They can be layers of different types, depending on how
-you (or your distribution) compiled this software: if any layer format
-is missing then you can still make it work recompiling \fBFreeJ\fP
-from the sources after installing all necessary libraries.
+\fBFreeJ\fP can run with an infinite number of layers, as much as your
+CPU can handle. Layer types are recognized from file extensions.
 
-\fBSupported layers\fP include:
-.IP "AVI (*.avi|*.asf|*.asf|*.wma|*.wmv|*.mov|*.mpeg)"
-depends from \fBavifile\fP library \fIhttp://avifile.sf.net\fR
-.IP "TXT (*.txt)"
+\fBSupported layers types\fP include:
+.IP "\fImovies\fP (*.avi|*.asf|*.asf|*.wma|*.wmv|*.mov|*.mpeg)"
+.IP "\fItext\fP (*.txt)"
 depends from \fBfreetype\fP library \fIhttp://freetype.org\fR
-.IP "Video4Linux (/dev/video*|/dev/v4l/*)
-depends from \fBvideo4linux\fP devices
-.IP "PNG (*.png)"
-depends from \fBpng\fP library \fIhttp://libpng.org\fR
-.IP "Particle Generator (\fBlayer_gen\fP)
-.IP "Vertical text Scroller (any extension)
-
+.IP "\fIcameras\fP thru the Video4Linux device (/dev/v4l/*)"
+.IP "\fIimages\fP (*.png|*.jpg and more)"
+.IP "\fIflash animations\fP (*.swf)"
+only the vectorial animation is supported (flash v.3),
+no scripting nor streaming, but that's in FreeJ anyway ;)
+.IP "\fIparticle generator\fP"
+can be crated from commandline as \fBlayer_gen\fP (or ctrl-g while running)
+to create a layer that doesn't needs any input, just draws nice particles
+.IP "\fIany file type\fP"
+if not recognized will be threated as a text scrolling layer showing
+its contents scrolling them vertically on the screen
 
 .SH AUTHORS
 .nf
-Denis "jaromil" Rojo - author and mantainer <\fIhttp://rastasoft.org\fR>
+Denis "Jaromil" Rojo - author and mantainer <\fIhttp://rastasoft.org\fR>
 
-Silvano "kysucix" Galliani - truetype text layer
+Silvano "Kysucix" Galliani - truetype text layer
 
 A full list of developers and contributors can be found in the AUTHOR
 file distributed with the source package.
 
-This manual page was written and is mantained by jaromil.
+\fBFreeJ\fP development is supported by the Nederlands Instituut voor
+Mediakunst - Montevideo/Time Based Arts.
 
-Write to the mailinglist <\fIfreej@dyne.org\fR> to contact developers.
+This manual page was written and is mantained by Jaromil.
+
+Write to the mailinglist on <\fIhttp://lists.dyne.org/freej\fR> to
+contact developers.
 .fi
 
 .SH COPYING
 Permission is granted to copy, distribute and/or modify this manual
 under the terms of the GNU Free Documentation License, Version 1.1 or
-any later version published by the Free Software Foundation; with the
-Invariant Sections being NAME, SYNOPSIS, DESCRIPTION, AUTHORS,
-AVAILABILITY and with the Front-Cover Texts including "FreeJ -
-realtime video processing - manual pages". Permission is granted to
-make and distribute verbatim copies of this manual page provided the
-above copyright notice and this permission notice are preserved on all
-copies.
+any later version published by the Free Software Foundation; with no
+Invariant Sections. Permission is granted to make and distribute
+verbatim copies of this manual page provided the above copyright
+notice and this permission notice are preserved on all copies.
 
 .SH AVAILABILITY
 The most recent version of \fIFreeJ\fR can be attained from its
-homepage at \fIhttp://freej.dyne.org\fR.
+homepage at \fIhttp://freej.dyne.org\fR and from the \fIftp.dyne.org\fR
+software repository.
