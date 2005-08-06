@@ -92,16 +92,18 @@ to create a layer that doesn't needs any input, just draws nice particles
 .IP "\fIany file type\fP"
 if not recognized will be threated as a text scrolling layer showing
 its contents scrolling them vertically on the screen
-.SH EXAMPLES
-\fBStreaming a video with resolution 240x192 on server dyne.org at port 8000 mountpoint freej.ogg
-with password hackme using the webcam, a video an image a text , and a flash
-animation\fP
 
- freej -s 240x192 -T 7 -V 3 -i http://dyne.org:8000/freej.ogg -p hackme /dev/video0 stallman.avi mask.png subtitle.txt
+.SH EXAMPLES
+Streaming a video with resolution 240x192 on server dyne.org at port
+8000 mountpoint freej.ogg with password hackme using the webcam, a
+video an image a text , and a flash animation:
+
+\fBfreej -s 240x192 -T 7 -V 3 -i http://dyne.org:8000/freej.ogg -p hackme /dev/video0 stallman.avi mask.png subtitle.txt\fP
 
 .SH AUTHORS
 .nf
-Denis "Jaromil" Rojo - author and mantainer <\fIhttp://rastasoft.org\fR>
+Denis "Jaromil" Rojo - author and mantainer
+<\fIhttp://rastasoft.org\fR>
 
 Silvano "Kysucix" Galliani - truetype text layer
 
