@@ -1,0 +1,67 @@
+# -*-shell-script-*-
+
+[Meta]
+RootName: @dyne.org/freej:$SOFTWAREVERSION
+DisplayName: FreeJ
+ShortName: freej
+Maintainer: Denis "Jaromil" Rojo <jaromil@dyne.org>
+Packager: Denis "Jaromil" Rojo <jaromil@dyne.org>
+Summary: FreeJ is a realtime vision mixer and streamer
+URL: http://freej.dyne.org/
+License: GNU General Public License, Version 2
+SoftwareVersion: 0.8
+PackageVersion: 1
+AutopackageTarget: 1.0
+
+# Only uncomment InterfaceVersion if your package exposes interfaces to other software,
+# for instance if it includes DSOs or python/perl modules. See the developer guide for more info,
+# or ask on autopackage-dev if you don't understand interface versioning in autopackage.
+#
+# InterfaceVersion: 0.0
+
+[Description]
+FreeJ is a vision mixer: an instrument for realtime video manipulation used in the fields of dance teather,
+veejaying, medical visualisation and TV.
+
+With FreeJ multiple layers can be filtered thru effect chains and then mixed together.
+The supported layer inputs are images, movies, live cameras, particle generators, text scrollers and more.
+All the resulting video mix can be shown on multiple and remote screens, encoded into a movie and streamed
+live to the internet.
+
+FreeJ can be controlled locally or remotely, also from multiple places at the same time, using its slick
+console interface; can be automated via javascript and operated via MIDI and Joystick. 
+
+[BuildPrepare]
+prepareBuild
+
+[BuildUnprepare]
+unprepareBuild
+
+[Imports]
+#echo '*' | import
+import <<EOF
+$source_dir/src/freej
+$source_dir/doc/ipernav.png
+$source_dir/doc/freej.1
+EOF
+
+[Prepare]
+# Dependency checking
+#require @whatever.you/need 1.0
+require @libsdl.org/sdl 1.0
+require @xiph.org/libogg 0.5
+require @xiph.org/libvorbis 0.3
+require @libpng.org/libpng 3.0
+require @jig.org/libjpeg 62
+require @freetype.org/freetype 6.0
+
+[Install]
+# Put your installation script here
+installExe bin/*
+installLib lib/*
+installData share/freej
+installMan 1 man/man1/freej.1
+
+[Uninstall]
+# Usually just the following line is enough to uninstall everything
+uninstallFromLog
