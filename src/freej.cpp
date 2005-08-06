@@ -90,8 +90,8 @@ static const char *help =
 " .   -d   <description> description of the stream (\"Free the veejay in you\")\n"
 " .   -T   <theora_quality> quality of video encoding (range 0 - 63, default 16\n"
 " .                   0 low quality less bandwidth, 63 high quality more bandwidth)\n"
-" .   -V   <vorbis_quality> quality of audio encoding (range 0 - 10, default 1\n"
-" .                   1 lowest quality, smallest file)\n"
+" .   -V   <vorbis_quality> quality of audio encoding (range from -1 to 10, default 1\n"
+" .                   -1 lowest quality, smallest file)\n"
 //" .   -q    <vorbis_quality> quality of vorbis encoding (range 0 - 63, default 16, 0\n"
 " .\n"
 " .  Layers available:\n"
@@ -351,25 +351,37 @@ int main (int argc, char **argv) {
    */
   if (screaming_url[0] != '\0') {
 	  char *port = strrchr (screaming_url, ':');
-	  char *slash;
-	  char *mount;
+	  char *slash = NULL;
+	  char *mount = NULL;
+	  char *url   = NULL;
 
 	  if (port) {
 		  slash = strchr (port, '/');
-		  if(slash) {
+		  if (slash) {
 			  *slash = '\0';
 			  slash++;
-			  func("Mount point is %s",slash);
+			  freej.shouter -> mount (slash );
+			  func("Mount point is %s", slash);
 		  }
-
-		  func("Port to stream is %s", port+1);
-		  freej.shouter -> port (atoi(port+1));
+		  func("Port to stream is %s", port + 1);
+		  freej.shouter -> port (atoi (port + 1));
 		  *port = '\0';
 	  } 
-	  mount = strrchr(screaming_url,'/') + 1;
-	  func("URL %s", mount);
-	  freej.shouter -> host (mount);
-	  freej.shouter -> mount (slash );
+
+	  /*
+	   * test for http
+	   */
+	  url = strrchr (screaming_url, '/') ;
+	  if (url) { // http:// probably found
+	      url++;
+	  }
+	  else {
+	      url = screaming_url;
+	  }
+
+	  mount++;
+	  func ("SCREAMING URL IS %s", url);
+	  freej.shouter -> host (url);
 	  freej.video_encoder -> handle_audio (stream_audio );
   }
 

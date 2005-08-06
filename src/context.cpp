@@ -256,7 +256,6 @@ void Context::cafudda(double secs) {
 				}
 				else {
 					if (!video_encoder -> is_audio_inited ()) {
-					    notice ("Starting audio system");
 					    video_encoder -> start_audio_stream ();
 					}
 					video_encoder -> write_frame ();

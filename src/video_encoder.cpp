@@ -134,7 +134,7 @@ bool VideoEncoder::init_audio() {
 		    }
 		    sample_rate = captureDeviceInfo -> defaultSampleRate;
 
-		    break;
+//		    break;
 		}
 	}
 
@@ -264,8 +264,8 @@ int audio_callback(void *inputBuffer, void *outputBuffer,
 			   PaTimestamp outTime, void *userData)
 #endif
 {
-	func("audio_callback: input time %f", timeInfo -> inputBufferAdcTime);
-	func("audio_callback: input time %f", timeInfo -> currentTime);
+//	func("audio_callback: input time %f", timeInfo -> inputBufferAdcTime);
+//	func("audio_callback: input time %f", timeInfo -> currentTime);
 
 	Pipe *p = (Pipe *) userData;
 
@@ -309,13 +309,15 @@ bool VideoEncoder::start_audio_stream() {
 	func ("Starting audio stream");
 
 	err = Pa_StartStream (pa_audioStream );
-	if( err != paNoError ) {
+//	if ( err != paStreamIsNotStopped && err != paNoError ) {
+	if ( err != paNoError ) {
 		error ("Could not start audio stream : %s",Pa_GetErrorText (err ));
 		use_audio = false;
 		audio_started = true;
 		Pa_Terminate();
 		return false;
 	}
+	audio_started = true;
 	return true;
 }
 bool VideoEncoder::stop_audio_stream() {
@@ -326,10 +328,10 @@ bool VideoEncoder::stop_audio_stream() {
 
 	func ("Stopping audio stream");
 
-	err = Pa_StopStream( pa_audioStream );
+	err = Pa_StopStream (pa_audioStream );
 	if( err != paNoError ) {
-		error ("Could not stop audio stream : %s",Pa_GetErrorText( err ));
-		Pa_Terminate();
+		error ("Could not stop audio stream : %s",Pa_GetErrorText (err ));
+		Pa_Terminate ();
 		return false;
 	}
 	audio_started = false;
