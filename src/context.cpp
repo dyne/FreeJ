@@ -318,6 +318,7 @@ void Context::calc_fps() {
 	gettimeofday (&cur_time, NULL);
 	elapsed = cur_time.tv_usec - lst_time.tv_usec;
 	if (cur_time.tv_sec > lst_time.tv_sec)  // ?? should be always true? kysu
+	  // nope. see sys/time.h timersub macro -jrml
 	    elapsed += 1000000;
 
 	if (track_fps) {
@@ -333,6 +334,7 @@ void Context::calc_fps() {
 
 		// the following calculus is approximated to bitwise multiplication
 		// this wont really hurt our precision, anyway we care more about speed
+		// hey are we sure we don't care about precision? was there some problem? -jrml
 		jsleep (0, (min_interval - elapsed) << 10);
 
 		lst_time.tv_usec += min_interval;
