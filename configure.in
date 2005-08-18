@@ -338,11 +338,6 @@ if test x$have_lubrifications = xyes; then
       AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
     else # any other x86 platform optimizations
       CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -march=${host_cpu} -ffast-math"
-      if test x$have_sse = xyes ; then
-	CFLAGS="$CFLAGS -msse -mfpmath=sse"
-      elif test x$have_mmx = xyes ; then
-	CFLAGS="$CFLAGS -mmmx"
-      fi
     fi
   fi
 else
@@ -565,6 +560,7 @@ lib/avcodec/Makefile
 lib/shout/Makefile
 lib/portaudio/Makefile
 lib/sdl_image/Makefile
+lib/sdl_gfx/Makefile
 lib/flash/Makefile
 filters/Makefile
 filters/delaygrab/Makefile

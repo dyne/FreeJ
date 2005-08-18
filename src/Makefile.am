@@ -6,6 +6,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/shout \
            -I$(top_srcdir)/lib/portaudio \
            -I$(top_srcdir)/lib/sdl_image \
+           -I$(top_srcdir)/lib/sdl_gfx \
 	   -I$(top_srcdir)/lib/javascript \
 	   -I$(top_srcdir)/lib/javascript/obj \
 	   -I$(top_srcdir)/lib/flash \
@@ -30,8 +31,6 @@ freej_SOURCES = \
 	jsync.cpp	\
 	osd.cpp		\
 	console.cpp	\
-	imagefilter.cpp \
-	rotozoomer.cpp  \
 	cpu_accel.cpp	\
 	plugin.cpp	\
 	plugger.cpp	\
@@ -74,6 +73,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/portaudio/libportaudio.a \
 		 @PORTAUDIO_LIBS@ \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
+              $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
 	      $(top_srcdir)/lib/javascript/obj/libjs.a \
 	      $(top_srcdir)/lib/flash/libflash.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg \

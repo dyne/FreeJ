@@ -24,8 +24,8 @@
 #include <blitter.h>
 #include <context.h>
 #include <iterator.h>
-#include <imagefilter.h>
-#include <rotozoomer.h>
+#include <SDL_imageFilter.h>
+#include <SDL_rotozoom.h>
 
 #include <sdl_screen.h>
 
@@ -514,12 +514,12 @@ void Blitter::blit() {
     if(rotating) {
       
       rotozoom =
-	schiffler_rotozoom(pre_rotozoom, rotate, zoom_x, (int)antialias);
+	rotozoomSurface(pre_rotozoom, rotate, zoom_x, (int)antialias);
       
     } else if(zooming) {
       
       rotozoom =
-	schiffler_zoom(pre_rotozoom, zoom_x, zoom_y, (int)antialias);
+	zoomSurface(pre_rotozoom, zoom_x, zoom_y, (int)antialias);
       
     }
     

@@ -21,7 +21,7 @@ extern "C" {
 #define M_PI	3.141592654
 #endif
 
-#include <SDL/SDL.h>
+#include "SDL.h"
 
 /* ---- Defines */
 
@@ -65,13 +65,19 @@ extern "C" {
 
 */
 
-  DLLINTERFACE SDL_Surface *schiffler_rotozoom(SDL_Surface * src, double angle, double zoom, int smooth);
+    DLLINTERFACE SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int smooth);
 
-  
+    DLLINTERFACE SDL_Surface *rotozoomSurfaceXY
+    (SDL_Surface * src, double angle, double zoomx, double zoomy, int smooth);
+
 /* Returns the size of the target surface for a rotozoomSurface() call */
 
     DLLINTERFACE void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth,
 					  int *dstheight);
+
+    DLLINTERFACE void rotozoomSurfaceSizeXY
+    (int width, int height, double angle, double zoomx, double zoomy, 
+     int *dstwidth, int *dstheight);
 
 /* 
  
@@ -84,7 +90,7 @@ extern "C" {
 
 */
 
-    DLLINTERFACE SDL_Surface *schiffler_zoom(SDL_Surface * src, double zoomx, double zoomy, int smooth);
+    DLLINTERFACE SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smooth);
 
 /* Returns the size of the target surface for a zoomSurface() call */
 
@@ -93,7 +99,7 @@ extern "C" {
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
-};
+}
 #endif
 
 #endif				/* _SDL_rotozoom_h */

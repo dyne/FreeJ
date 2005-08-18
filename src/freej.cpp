@@ -383,7 +383,6 @@ int main (int argc, char **argv) {
 	  func ("SCREAMING URL IS %s", url);
 	  freej.shouter -> host (url);
 	  freej.video_encoder -> handle_audio (stream_audio );
-  }
 
   if (screaming_name[0] != '\0')
 	  freej.shouter -> name (screaming_name );
@@ -401,6 +400,8 @@ int main (int argc, char **argv) {
 	  freej.video_encoder -> set_audio_quality (vorbis_quality );
   
   freej.shouter -> apply_profile ( );
+
+  }
 
   freej.start_running = startstate;
 

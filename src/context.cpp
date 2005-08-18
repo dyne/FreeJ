@@ -28,7 +28,7 @@
 
 #include <sdl_screen.h>
 #include <sdlgl_screen.h>
-#include <imagefilter.h>
+#include <SDL_imageFilter.h>
 #include <jsparser.h>
 #include <video_encoder.h>
 #include <impl_video_encoders.h>

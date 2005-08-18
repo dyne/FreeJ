@@ -86,6 +86,9 @@ extern "C" {
 //  SDL_imageFilterAddByte: D = saturation255(S + C)
     DLLINTERFACE int SDL_imageFilterAddByte(unsigned char *Src1, unsigned char *Dest, int length, unsigned char C);
 
+//  SDL_imageFilterAddUint: D = saturation255(S + (uint)C)
+    DLLINTERFACE int SDL_imageFilterAddUint(unsigned char *Src1, unsigned char *Dest, int length, unsigned int C);
+
 //  SDL_imageFilterAddByteToHalf: D = saturation255(S/2 + C)
     DLLINTERFACE int SDL_imageFilterAddByteToHalf(unsigned char *Src1, unsigned char *Dest, int length,
 						  unsigned char C);
@@ -93,8 +96,14 @@ extern "C" {
 //  SDL_imageFilterSubByte: D = saturation0(S - C)
     DLLINTERFACE int SDL_imageFilterSubByte(unsigned char *Src1, unsigned char *Dest, int length, unsigned char C);
 
+//  SDL_imageFilterSubUint: D = saturation0(S - (uint)C)
+    DLLINTERFACE int SDL_imageFilterSubUint(unsigned char *Src1, unsigned char *Dest, int length, unsigned int C);
+
 //  SDL_imageFilterShiftRight: D = saturation0(S >> N)
     DLLINTERFACE int SDL_imageFilterShiftRight(unsigned char *Src1, unsigned char *Dest, int length, unsigned char N);
+
+//  SDL_imageFilterShiftRightUint: D = saturation0((uint)S >> N)
+    DLLINTERFACE int SDL_imageFilterShiftRightUint(unsigned char *Src1, unsigned char *Dest, int length, unsigned char N);
 
 //  SDL_imageFilterMultByByte: D = saturation255(S * C)
     DLLINTERFACE int SDL_imageFilterMultByByte(unsigned char *Src1, unsigned char *Dest, int length, unsigned char C);
@@ -105,6 +114,10 @@ extern "C" {
 
 //  SDL_imageFilterShiftLeftByte: D = (S << N)
     DLLINTERFACE int SDL_imageFilterShiftLeftByte(unsigned char *Src1, unsigned char *Dest, int length,
+						  unsigned char N);
+
+//  SDL_imageFilterShiftLeftUint: D = ((uint)S << N)
+    DLLINTERFACE int SDL_imageFilterShiftLeftUint(unsigned char *Src1, unsigned char *Dest, int length,
 						  unsigned char N);
 
 //  SDL_imageFilterShiftLeft: D = saturation255(S << N)

@@ -1,1 +1,1 @@
-SUBDIRS = ccvt theora-mmx avformat avcodec shout portaudio sdl_image javascript flash
+SUBDIRS = ccvt theora-mmx avformat avcodec shout portaudio sdl_image sdl_gfx javascript flash
