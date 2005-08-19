@@ -80,6 +80,7 @@ class GeoLayer: public Layer {
 
  private:
   SDL_Surface *surf;
+  int res;
 
 };
 
