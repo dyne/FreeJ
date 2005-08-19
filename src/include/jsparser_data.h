@@ -55,6 +55,7 @@ JS(layer_constructor);
 JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
+JS(image_layer_constructor);
 //JS(filter_constructor);
 #ifdef WITH_V4L
 JS(v4l_layer_constructor);
@@ -67,9 +68,6 @@ JS(video_layer_constructor);
 #endif
 #ifdef WITH_FT2
 JS(txt_layer_constructor);
-#endif
-#ifdef WITH_PNG
-JS(png_layer_constructor);
 #endif
 
 // global environment class
@@ -87,6 +85,7 @@ DECLARE_CLASS("Layer",layer_class,layer_constructor);
 DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
 DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
 DECLARE_CLASS("GeometryLayer",geometry_layer_class,geometry_layer_constructor);
+DECLARE_CLASS("ImageLayer",image_layer_class,image_layer_constructor);
 #ifdef WITH_V4L
 DECLARE_CLASS("CamLayer",v4l_layer_class,v4l_layer_constructor);
 #endif
@@ -99,9 +98,7 @@ DECLARE_CLASS("MovieLayer",avi_layer_class,avi_layer_constructor);
 #ifdef WITH_FT2
 DECLARE_CLASS("TextLayer",txt_layer_class,txt_layer_constructor);
 #endif
-#ifdef WITH_PNG
-DECLARE_CLASS("ImageLayer",png_layer_class,png_layer_constructor);
-#endif
+
 
 ////////////////////////////////
 ////////////////////////////////
@@ -184,6 +181,10 @@ JS(layer_list_effects);
 ////////////////////////////////
 // Particle Layer methods
 JS(particle_layer_blossom);
+
+////////////////////////////////
+// Image Layer methods
+JS(image_layer_open);
 
 ////////////////////////////////
 // Geometry Layer methods
@@ -396,13 +397,12 @@ JSFunctionSpec txt_layer_methods[] = {
 };
 #endif
 
-#ifdef WITH_PNG
-JSFunctionSpec png_layer_methods[] = {
+JSFunctionSpec image_layer_methods[] = {
   LAYER_METHODS  ,
   ENTRY_METHODS  ,
+  {     "open",         image_layer_open,               1},
   {0}
 };
-#endif
 
 #ifdef WITH_AVCODEC
 JSFunctionSpec video_layer_methods[] = {

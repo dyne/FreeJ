@@ -28,9 +28,8 @@
 #include <gen_layer.h>
 #include <geo_layer.h>
 #include <scroll_layer.h>
-
-// statically included flash layer
-#include <flash_layer.h>
+#include <image_layer.h> // statically included sdl_image
+#include <flash_layer.h> // statically included flash layer
 
 #ifdef WITH_V4L
 #include <v4l_layer.h>
@@ -43,8 +42,6 @@
 #ifdef WITH_AVCODEC
 #include <video_layer.h>
 #endif
-
-#include <image_layer.h>
 
 #ifdef WITH_FT2
 #include <txt_layer.h>

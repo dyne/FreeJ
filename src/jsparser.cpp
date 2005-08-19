@@ -143,6 +143,12 @@ void JsParser::init() {
 		   vscroll_layer_constructor,
 		   vscroll_layer_methods);
 
+    REGISTER_CLASS("ImageLayer",
+		   image_layer_class,
+		   image_layer_constructor,
+		   image_layer_methods);
+
+
 #ifdef WITH_V4L
     REGISTER_CLASS("CamLayer",
 		   v4l_layer_class,
@@ -170,16 +176,8 @@ void JsParser::init() {
 		   txt_layer_constructor,
 		   txt_layer_methods);
 #endif
-
-#ifdef WITH_PNG
-    REGISTER_CLASS("PngLayer",
-		   png_layer_class,
-		   png_layer_constructor,
-		   png_layer_methods);
-#endif
-
-
-
+    
+    
     REGISTER_CLASS("Effect",
                    effect_class,
                    effect_constructor,
@@ -1182,6 +1180,26 @@ JS(particle_layer_blossom) {
 }
 
 ////////////////////////////////
+// Image Layer methods
+JS_CONSTRUCTOR("ImageLayer",image_layer_constructor,ImageLayer);
+JS(image_layer_open) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  if(argc<1) return JS_FALSE;
+
+  GET_LAYER(ImageLayer);
+  
+  char *file = JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
+  if(!file) {
+    error("JsParser :: invalid string in ImageLayer::open");
+    return JS_FALSE;
+  }
+  lay->open(file);
+
+  return JS_TRUE;
+}
+
+////////////////////////////////
 // VScroll Layer methods
 JS_CONSTRUCTOR("VScrollLayer",vscroll_layer_constructor,ScrollLayer);
 JS(vscroll_layer_append) {
@@ -1535,11 +1553,8 @@ JS(video_layer_pause) {
   return JS_TRUE;
 }
 #endif
-#ifdef WITH_PNG
-////////////////////////////////
-// Png Layer methods
-JS_CONSTRUCTOR("PngLayer",png_layer_constructor,PngLayer);
-#endif
+
+
 
 
 #endif

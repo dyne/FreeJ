@@ -19,13 +19,13 @@
  *
  */
 
-#include <config.h>
 
-#include <image_layer.h>
-#include <SDL.h>
+
 #include <SDL_image.h>
 #include <context.h>
 #include <jutils.h>
+#include <image_layer.h>
+#include <config.h>
 
 ImageLayer::ImageLayer()
     :Layer() {
