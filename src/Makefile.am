@@ -25,6 +25,9 @@ bin_PROGRAMS = freej
 freej_SOURCES = \
 	freej.cpp	\
 	context.cpp	\
+	context_js.cpp  \
+	layer.cpp	\
+	layer_js.cpp    \
 	blitter.cpp	\
 	iterator.cpp	\
 	linklist.cpp	\
@@ -35,21 +38,28 @@ freej_SOURCES = \
 	plugin.cpp	\
 	plugger.cpp	\
 	jsparser.cpp	\
+	callbacks_js.cpp \
 	jutils.cpp	\
 	fastmemcpy.cpp  \
 	shouter.cpp 	\
 	pipe.cpp	\
 \
-	layer.cpp	\
 	v4l_layer.cpp tvfreq.c	\
+	v4l_layer_js.cpp \
 	video_layer.cpp	\
+	video_layer_js.cpp \
 	image_layer.cpp \
+	image_layer_js.cpp \
 	avi_layer.cpp	\
 	txt_layer.cpp	\
+	txt_layer_js.cpp \
 	gen_layer.cpp	\
+	gen_layer_js.cpp \
 	geo_layer.cpp	\
+	geo_layer_js.cpp \
 	flash_layer.cpp \
 	scroll_layer.cpp \
+	scroll_layer_js.cpp \
 	xhacks_layer.cpp \
 	impl_layers.cpp \
 \

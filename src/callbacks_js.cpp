@@ -18,53 +18,39 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * "$Id$"
+ * "$Id: jsparser.cpp 658 2005-08-19 11:59:42Z jaromil $"
  *
  */
 
-#ifndef __JSPARSER_H__
-#define __JSPARSER_H__
-
+#include <signal.h>
 #include <config.h>
-#ifdef WITH_JAVASCRIPT
-
-/*
- * Tune this to avoid wasting space for shallow stacks, while saving on
- * malloc overhead/fragmentation for deep or highly-variable stacks. */
-#define STACK_CHUNK_SIZE    8192
-
-#include <context.h>
-#include <layer.h>
+#include <jutils.h>
+#include <errno.h>
 #include <jsapi.h> // spidermonkey header
 
 
-class JsParser {
-    public:
-	JsParser(Context *_env);
-	~JsParser();
-	int open(const char* script_file);
-	int parse(const char *command);
-	void stop();
-
-	JSBool branch_callback(JSContext* Context, JSScript* Script);
-	//	void error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
-
-    private:
-	JSRuntime *js_runtime;
-	JSContext *js_context;
-	JSObject *global_object;
-	JSObject *layer_object;
-	void init();
 
 
+/* we declare the Context pointer static here
+   in order to have it accessed from callback functions
+   which are not class methods */
+Context *env;
+bool stop_script;
 
-	//	JSPropertySpec layer_properties[3];
+void js_sigint_handler(int sig) {
+    stop_script=true;
+}
 
-	//	int parse_count;
-	//	JSFunctionSpec shell_functions[3];
-	
 
-};
-#endif
+JSBool js_static_branch_callback(JSContext* Context, JSScript* Script) {
+    if(stop_script) {
+	stop_script=false;
+	return JS_FALSE;
+    }
+    return JS_TRUE;
+}
 
-#endif
+void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
+  ::error("script error in %s:",Report->filename);
+  if(Message) ::error("%s",(char *)Message);
+}
