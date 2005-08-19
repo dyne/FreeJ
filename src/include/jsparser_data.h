@@ -54,7 +54,8 @@ JS(effect_constructor);
 JS(layer_constructor);
 JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
-JS(filter_constructor);
+JS(geometry_layer_constructor);
+//JS(filter_constructor);
 #ifdef WITH_V4L
 JS(v4l_layer_constructor);
 #endif
@@ -85,6 +86,7 @@ DECLARE_CLASS("Effect",effect_class,effect_constructor);
 DECLARE_CLASS("Layer",layer_class,layer_constructor);
 DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
 DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
+DECLARE_CLASS("GeometryLayer",geometry_layer_class,geometry_layer_constructor);
 #ifdef WITH_V4L
 DECLARE_CLASS("CamLayer",v4l_layer_class,v4l_layer_constructor);
 #endif
@@ -184,6 +186,32 @@ JS(layer_list_effects);
 JS(particle_layer_blossom);
 
 ////////////////////////////////
+// Geometry Layer methods
+JS(geometry_layer_clear);
+JS(geometry_layer_pixel);
+JS(geometry_layer_hline);
+JS(geometry_layer_vline);
+JS(geometry_layer_rectangle);
+JS(geometry_layer_rectangle_fill);
+JS(geometry_layer_line);
+JS(geometry_layer_aaline);
+JS(geometry_layer_circle);
+JS(geometry_layer_aacircle);
+JS(geometry_layer_circle_fill);
+JS(geometry_layer_ellipse);
+JS(geometry_layer_aaellipse);
+JS(geometry_layer_ellipse_fill);
+JS(geometry_layer_pie);
+JS(geometry_layer_pie_fill);
+JS(geometry_layer_trigon);
+JS(geometry_layer_aatrigon);
+JS(geometry_layer_trigon_fill);
+//JS(geometry_layer_polygon);
+//JS(geometry_layer_aapolygon);
+//JS(geometry_layer_polygon_fill);
+//JS(geometry_layer_bezier);
+
+////////////////////////////////
 // VScroll Layer methods
 JS(vscroll_layer_append);
 JS(vscroll_layer_speed);
@@ -279,6 +307,35 @@ JSFunctionSpec particle_layer_methods[] = {
   ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "blossom",      particle_layer_blossom, 1},
+  {0}
+};
+
+JSFunctionSpec geometry_layer_methods[] = {
+  LAYER_METHODS  ,
+  ENTRY_METHODS  ,
+  {     "clear",        geometry_layer_clear,   1},
+  {     "pixel",        geometry_layer_pixel,   3},
+  {     "hline",        geometry_layer_hline,   4},
+  {     "vline",        geometry_layer_vline,   4},
+  {     "rectangle",         geometry_layer_rectangle, 5},
+  {     "rectangle_fill",    geometry_layer_rectangle_fill, 5},
+  {     "line", geometry_layer_line, 5},
+  { "aaline", geometry_layer_aaline, 5},
+  { "circle", geometry_layer_circle, 4},
+  { "aacircle", geometry_layer_aacircle, 4},
+  { "circle_fill", geometry_layer_circle_fill, 4},
+  { "ellipse", geometry_layer_ellipse, 5},
+  { "aaellipse", geometry_layer_aaellipse, 5},
+  { "ellipse_fill", geometry_layer_ellipse_fill, 5},  
+  { "pie", geometry_layer_pie, 6},
+  { "pie_fill", geometry_layer_pie_fill, 6},
+  { "trigon", geometry_layer_trigon, 7},
+  { "aatrigon", geometry_layer_aatrigon, 7},
+  { "trigon_fill", geometry_layer_trigon_fill, 7},
+  //  { "polygon", geometry_layer_polygon, 4},
+  //  { "aapolygon", geometry_layer_aapolygon, 4},
+  //  { "polygon_fill", geometry_layer_polygon_fill, 4},
+  //  { "bezier", geometry_layer_bezier, 5},
   {0}
 };
 

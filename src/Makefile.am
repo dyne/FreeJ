@@ -47,6 +47,7 @@ freej_SOURCES = \
 	avi_layer.cpp	\
 	txt_layer.cpp	\
 	gen_layer.cpp	\
+	geo_layer.cpp	\
 	flash_layer.cpp \
 	scroll_layer.cpp \
 	xhacks_layer.cpp \

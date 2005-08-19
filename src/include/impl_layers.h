@@ -26,6 +26,7 @@
 
 /* software layers which don't need special loaders */
 #include <gen_layer.h>
+#include <geo_layer.h>
 #include <scroll_layer.h>
 
 // statically included flash layer
