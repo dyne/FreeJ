@@ -97,11 +97,11 @@ FlashLayer::~FlashLayer() {
   close();
 }
 
-bool FlashLayer::init(Context *scr) {
+bool FlashLayer::init(int width, int height) {
   func("FlashLayer::init");
   long res;
 
-  _init(scr,scr->screen->w,scr->screen->h,32);
+  _init(width,height);
 
   if(render) free(render);
   render = calloc(geo.size,1);

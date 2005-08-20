@@ -20,18 +20,30 @@
  */
 
 #include <screen.h>
+#include <layer.h>
 #include <scale2x.h>
 #include <scale3x.h>
+#include <config.h>
 
 ViewPort::ViewPort() {
-	zoom          = 0.42;
-	x_translation = 0;
-	y_translation = 0;
-	x_rotation    = 0;
-	y_rotation    = 0;
 }
 
 ViewPort::~ViewPort() {
+}
+
+void ViewPort::add_layer(Layer *lay) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  if(lay->list) lay->rem();
+  //  lay->geo.fps = fps;
+  lay->screen = this;
+  lay->blitter.screen = this;
+  // center the position
+  lay->geo.x = (w - lay->geo.w)/2;
+  lay->geo.y = (h - lay->geo.h)/2;
+  lay->blitter.crop( true );
+  layers.add(lay);
+  layers.sel(0);
+  lay->sel(true);
 }
 
 void ViewPort::scale2x(uint32_t *osrc, uint32_t *odst) {
@@ -99,41 +111,4 @@ void ViewPort::scale3x(uint32_t *osrc, uint32_t *odst) {
   scale3x_32_def(dst,dst+tw,dst+tw+tw,
 		 src-w,src,src,w);
 
-}
-
-void ViewPort::set_zoom(float z) {
-	zoom = z;
-}
-float ViewPort::get_zoom() {
-	return zoom;
-}
-void ViewPort::set_rotation(float r) {
-	rotation = r;
-}
-float ViewPort::get_rotation() {
-	return rotation;
-}
-void ViewPort::set_x_rotation(float x) {
-	x_rotation = x;
-}
-float ViewPort::get_x_rotation() {
-	return x_rotation;
-}
-void ViewPort::set_y_rotation(float y) {
-	y_rotation = y;
-}
-float ViewPort::get_y_rotation() {
-	return y_rotation;
-}
-void ViewPort::set_y_translation(float y) {
-	y_translation = y;
-}
-float ViewPort::get_y_translation() {
-	return y_translation;
-}
-void ViewPort::set_x_translation(float x) {
-	x_translation = x;
-}
-float ViewPort::get_x_translation() {
-	return x_translation;
 }

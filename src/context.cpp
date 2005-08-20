@@ -133,15 +133,15 @@ void Context::close() {
 	if (console)
 		console->close ();
 
-	lay = (Layer *)layers.begin ();
+	lay = (Layer *)screen->layers.begin ();
 	while (lay) {
 		lay-> lock ();
-		layers.rem (1);
+		screen->layers.rem (1);
 		lay-> quit = true;
 		lay-> signal_feed ();
 		lay-> unlock ();
 		delete lay;
-		lay = (Layer *)layers.begin ();
+		lay = (Layer *)screen->layers.begin ();
 	}
 
 	if (screen) 
@@ -186,7 +186,7 @@ void Context::cafudda(double secs) {
 			screen->unlock();
 
 			/* crop all layers to new screen size */
-			Layer *lay = (Layer *) layers.begin ();
+			Layer *lay = (Layer *) screen->layers.begin ();
 			while (lay) {
 				lay -> lock ();
 				lay -> blitter.crop (screen);
@@ -209,15 +209,15 @@ void Context::cafudda(double secs) {
 			osd.clean();
 
 		/** process each layer in the chain */
-		lay = (Layer *)layers.end ();
+		lay = (Layer *)screen->layers.end ();
 		if (lay) {
-			layers.lock ();
+			screen->layers.lock ();
 			while (lay) {
 				if (!pause)
 					lay->cafudda ();
 				lay = (Layer *)lay->prev;
 			}
-			layers.unlock ();
+			screen->layers.unlock ();
 		}
 
 
@@ -349,7 +349,7 @@ void Context::calc_fps() {
 }
 
 void Context::rocknroll() {
-	Layer *l = (Layer *)layers.begin();
+  Layer *l = (Layer *)screen->layers.begin();
 
 	/*
 	 * Show credits when user doesn't specified layers
@@ -363,7 +363,7 @@ void Context::rocknroll() {
 	/*
 	 * Iterate throught linked list of layers and start them
 	 */
-	layers.lock();
+	screen->layers.lock();
 	while (l) {
 		if (!l->running) {
 			if (l->start() == 0) {
@@ -377,7 +377,7 @@ void Context::rocknroll() {
 		}
 		l = (Layer *)l->next;
 	}
-	layers.unlock();
+	screen->layers.unlock();
 
 }
 

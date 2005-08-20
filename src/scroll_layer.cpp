@@ -62,15 +62,15 @@ int ScrollLayer::streol(char *line) {
 }
 			  
 
-bool ScrollLayer::init(Context *scr) {
+bool ScrollLayer::init(int width, int height) {
 
-  _init(scr,scr->screen->w,scr->screen->h,32);
+  _init(width,height);
   
   if(procbuf) free(procbuf);
   procbuf = malloc(geo.size);
 
   border = 10;
-  wmax = (scr->screen->w/(CHAR_WIDTH+1))-1; // max strings in a line
+  wmax = (geo.w/(CHAR_WIDTH+1))-1; // max strings in a line
   step = 1;
   line_space = 2;
   kerning = 1;

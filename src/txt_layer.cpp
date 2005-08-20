@@ -156,7 +156,7 @@ int TxtLayer::scanfonts(char *path) {
   return(num_fonts - num_before);
 }
 
-bool TxtLayer::init(Context *scr) {
+bool TxtLayer::init(int width, int height) {
 
   if(!num_fonts) {
     error("no truetype fonts found on your system, dirs searched:");
@@ -192,12 +192,11 @@ bool TxtLayer::init(Context *scr) {
 
      use_kerning=FT_HAS_KERNING(face);
 
-     if(scr) freej = scr;
-     // initialize to the size of the screen
-     _init(freej, 0, 0, 0);
+     // TODO: initialize to which size?
+     _init(width, height);
      
 
-     buf = jalloc(buf,freej->screen->size);
+     buf = jalloc(buf,geo.size);
 
      /* get the first word */
      chunk_len = 0;  

@@ -152,7 +152,7 @@ bool V4lGrabber::open(char *file) {
   return(true);
 }
 
-bool V4lGrabber::init(Context *screen) {
+bool V4lGrabber::init(int width, int height) {
   int i;
   func("V4lGrabber::init()");
 
@@ -181,7 +181,7 @@ bool V4lGrabber::init(Context *screen) {
   }
 
   /* INIT from the LAYER CLASS */
-  _init(screen,init_width,init_heigth);
+  _init(init_width,init_heigth);
 
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */

@@ -98,8 +98,6 @@ class Context {
 
   bool interactive;
 
-  /* linked list of registered layers */
-  Linklist layers;
 
   /* Video Screen */
   ViewPort *screen;

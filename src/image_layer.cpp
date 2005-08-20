@@ -53,11 +53,11 @@ bool ImageLayer::open(char *file) {
     }
     return true;
 }
-bool ImageLayer::init(Context *scr) {
+bool ImageLayer::init(int width, int height) {
     func("ImageLayer::init");
-    _init(scr, image->w, image->h, image->format->BitsPerPixel);
-    notice("ImageLayer :: w[%u] h[%u] bpp[%u] size[%u]",
-	    image->w, image->h,32,geo.size);
+    _init(image->w, image->h);
+    notice("ImageLayer :: w[%u] h[%u] (%u bytes)",
+	    image->w, image->h, geo.size);
 
     /** allocate memory for the black image */
     black_image = jalloc(black_image,geo.size);
@@ -70,8 +70,8 @@ bool ImageLayer::init(Context *scr) {
 void *ImageLayer::feed() {
     count++;
     // threads problems !! XXX TODO 
-    if(count==freej->fps_speed)
-	count=0;
+    //    if(count==freej->fps_speed)
+    //	count=0;
     if(blinking && count%2!=0) {
 	return black_image;
     }

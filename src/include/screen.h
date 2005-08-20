@@ -23,12 +23,19 @@
 #define __SCREEN_H__
 
 #include <inttypes.h>
+#include <linklist.h>
+
+class Layer;
 
 class ViewPort {
+  friend class Layer;
  public:
   ViewPort();
   virtual ~ViewPort();
- 
+
+  /* linked list of registered layers */
+  Linklist layers;
+
   /* i keep all the following functions pure virtual to deny the
      runtime resolving of methods between parent and child, which
      otherwise burdens our performance */ 
@@ -42,23 +49,7 @@ class ViewPort {
   virtual bool lock() =0;
   virtual bool unlock() =0;
 
-  void set_zoom(float z);
-  float get_zoom();
-
-  void set_rotation(float r);
-  float get_rotation();
-
-  void set_x_rotation(float x);
-  float get_x_rotation();
-  
-  void set_y_rotation(float y);
-  float get_y_rotation();
-
-  void set_x_translation(float x);
-  float get_x_translation();
-
-  void set_y_translation(float y);
-  float get_y_translation();
+  void add_layer(Layer *lay);
 
   void scale2x(uint32_t *osrc, uint32_t *odst);
   void scale3x(uint32_t *osrc, uint32_t *odst);
@@ -74,14 +65,6 @@ class ViewPort {
   virtual void *coords(int x, int y) =0;
 
   uint32_t rmask,gmask,bmask,amask;  
- protected:
-  float zoom;
-  float rotation;
-  float x_rotation;
-  float y_rotation;
-  float x_translation;
-  float y_translation;
-
 
 };
 

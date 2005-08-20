@@ -64,12 +64,12 @@ VideoLayer::~VideoLayer() {
  * lickme.txt!
  */
 
-bool VideoLayer::init(Context *scr) {
+bool VideoLayer::init(int width, int height) {
 	int ret = 0;
 	func("VideoLayer::init");
-	_init(scr, enc->width, enc->height, 32);
-	func("VideoLayer :: w[%u] h[%u] bpp[%u] size[%u]",
-			enc->width,enc->height,32,geo.size);
+	_init(enc->width, enc->height);
+	func("VideoLayer :: w[%u] h[%u] size[%u]",
+			enc->width,enc->height,geo.size);
 	func("VideoLayer :: frame_rate[%d]",frame_rate);
 
 	rgba_picture = (AVPicture *)malloc(sizeof(AVPicture));

@@ -43,7 +43,8 @@ class ImageLayer: public Layer {
 	ImageLayer();
 	~ImageLayer();
 
-	bool init(Context *screen);
+	bool init(int width, int height);
+
 	bool open(char *file);
 	void *feed();
 

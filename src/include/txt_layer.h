@@ -107,7 +107,7 @@ public:
   TxtLayer();
   ~TxtLayer();
   
-  bool init(Context *screen);
+  bool init(int width, int height);
   bool open(char *file);
   void *feed();
   void *get_buffer();

@@ -61,18 +61,20 @@ JS(cafudda) {
   double *seconds;
   int int_seconds;
 
-  if(JSVAL_IS_DOUBLE(argv[0])) {
-    
-    // JSVAL_TO_DOUBLE segfault when there's an int as input
-    seconds=JSVAL_TO_DOUBLE(argv[0]);
-    
-  } else if(JSVAL_IS_INT(argv[0])) {
-
-    int_seconds=JSVAL_TO_INT(argv[0]);
-    seconds=&tmp_double;
-    *seconds=(double )int_seconds;
-
+  if(argc>0) {
+    if(JSVAL_IS_DOUBLE(argv[0])) {
+      
+      // JSVAL_TO_DOUBLE segfault when there's an int as input
+      seconds=JSVAL_TO_DOUBLE(argv[0]);
+      
+    } else if(JSVAL_IS_INT(argv[0])) {
+      
+      int_seconds=JSVAL_TO_INT(argv[0]);
+      seconds=&tmp_double;
+      *seconds=(double )int_seconds;      
+    }
   }
+
   
   func("JsParser :: run for %f seconds",*seconds);
   env->cafudda(*seconds);
@@ -130,13 +132,10 @@ JS(add_layer) {
     if(!lay) JS_ERROR("Layer core data is NULL");
 
     /** really add layer */
-    if(lay->init(env)) {
-      env->layers.add(lay);
-      *rval=JSVAL_TRUE;
-      //      env->layers.sel(0); // deselect others
-      //      lay->sel(true);
-    } else error("%s: problem occurred initializing Layer",__FUNCTION__);
-
+    env->screen->add_layer(lay);
+    *rval=JSVAL_TRUE;
+    //      env->layers.sel(0); // deselect others
+    //      lay->sel(true);
     return JS_TRUE;
 }
 

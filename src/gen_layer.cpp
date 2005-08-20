@@ -101,14 +101,14 @@ void GenLayer::close() {
   return;
 }
 
-bool GenLayer::init(Context *scr) {
+bool GenLayer::init(int width, int height) {
   
   /* allocate the buffer on which the layer will write */
 
   fastsrand( time(NULL) );
 
   /* internal initalization */
-  _init(scr,scr->screen->w,scr->screen->h,32);
+  _init(width,height);
 
   pixels = (uint32_t*)malloc(geo.size);
 

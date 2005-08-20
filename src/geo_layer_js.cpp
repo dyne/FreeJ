@@ -27,29 +27,59 @@
 DECLARE_CLASS("GeometryLayer",geometry_layer_class,geometry_layer_constructor);
 
 ////////////////////////////////
-// Geometry Layer meth
+// Geometry Layer methods
+
+////////////////////////////////
+// Geometry Layer methods
+JS(geometry_layer_clear);
+JS(geometry_layer_color);
+JS(geometry_layer_pixel);
+JS(geometry_layer_hline);
+JS(geometry_layer_vline);
+JS(geometry_layer_rectangle);
+JS(geometry_layer_rectangle_fill);
+JS(geometry_layer_line);
+JS(geometry_layer_aaline);
+JS(geometry_layer_circle);
+JS(geometry_layer_aacircle);
+JS(geometry_layer_circle_fill);
+JS(geometry_layer_ellipse);
+JS(geometry_layer_aaellipse);
+JS(geometry_layer_ellipse_fill);
+JS(geometry_layer_pie);
+JS(geometry_layer_pie_fill);
+JS(geometry_layer_trigon);
+JS(geometry_layer_aatrigon);
+JS(geometry_layer_trigon_fill);
+//JS(geometry_layer_polygon);
+//JS(geometry_layer_aapolygon);
+//JS(geometry_layer_polygon_fill);
+//JS(geometry_layer_bezier);
+
+
 JSFunctionSpec geometry_layer_methods[] = {
   LAYER_METHODS  ,
   ENTRY_METHODS  ,
   {     "clear",        geometry_layer_clear,   1},
-  {     "pixel",        geometry_layer_pixel,   3},
-  {     "hline",        geometry_layer_hline,   4},
-  {     "vline",        geometry_layer_vline,   4},
-  {     "rectangle",         geometry_layer_rectangle, 5},
-  {     "rectangle_fill",    geometry_layer_rectangle_fill, 5},
-  {     "line", geometry_layer_line, 5},
-  { "aaline", geometry_layer_aaline, 5},
-  { "circle", geometry_layer_circle, 4},
-  { "aacircle", geometry_layer_aacircle, 4},
-  { "circle_fill", geometry_layer_circle_fill, 4},
-  { "ellipse", geometry_layer_ellipse, 5},
-  { "aaellipse", geometry_layer_aaellipse, 5},
-  { "ellipse_fill", geometry_layer_ellipse_fill, 5},  
-  { "pie", geometry_layer_pie, 6},
-  { "pie_fill", geometry_layer_pie_fill, 6},
-  { "trigon", geometry_layer_trigon, 7},
-  { "aatrigon", geometry_layer_aatrigon, 7},
-  { "trigon_fill", geometry_layer_trigon_fill, 7},
+  {     "color",   geometry_layer_color,        4},
+  {     "pixel",        geometry_layer_pixel,   2},
+  {     "hline",        geometry_layer_hline,   3},
+  {     "vline",        geometry_layer_vline,   3},
+  {     "rectangle",         geometry_layer_rectangle, 4},
+  {     "rectangle_fill",    geometry_layer_rectangle_fill, 4},
+  {     "line", geometry_layer_line, 4},
+  { "aaline", geometry_layer_aaline, 4},
+  { "circle", geometry_layer_circle, 3},
+  { "aacircle", geometry_layer_aacircle, 3},
+  { "circle_fill", geometry_layer_circle_fill, 3},
+  { "ellipse", geometry_layer_ellipse, 4},
+  { "aaellipse", geometry_layer_aaellipse, 4},
+  { "ellipse_fill", geometry_layer_ellipse_fill, 4},
+  { "pie", geometry_layer_pie, 5},
+  { "pie_fill", geometry_layer_pie_fill, 5},
+  { "trigon", geometry_layer_trigon, 6},
+  { "aatrigon", geometry_layer_aatrigon, 6},
+  { "trigon_fill", geometry_layer_trigon_fill, 6},
   //  { "polygon", geometry_layer_polygon, 4},
   //  { "aapolygon", geometry_layer_aapolygon, 4},
   //  { "polygon_fill", geometry_layer_polygon_fill, 4},
@@ -57,208 +87,242 @@ JSFunctionSpec geometry_layer_methods[] = {
   {0}
 };
 
+
+
 JS_CONSTRUCTOR("GeometryLayer",geometry_layer_constructor,GeoLayer);  
+
 JS(geometry_layer_clear) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  int color = 0x0;
-  if(argc>0) color = JSVAL_TO_INT(argv[0]);
+
   GET_LAYER(GeoLayer);
-  lay->clear(color);
+  lay->clear();
+
   return JS_TRUE;
 }
+
+JS(geometry_layer_color) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+
+  JS_CHECK_ARGC(4);
+  
+  GET_LAYER(GeoLayer);
+
+  int r = JSVAL_TO_INT(argv[0]);
+  int g = JSVAL_TO_INT(argv[1]);
+  int b = JSVAL_TO_INT(argv[2]);
+  int a = JSVAL_TO_INT(argv[3]);
+
+  lay->color = (r<<24)|(g<<16)|(b<<8)|a;
+  
+  return JS_TRUE;
+}
+
 JS(geometry_layer_pixel) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  
-  if(argc<3) return JS_FALSE;
+
+  JS_CHECK_ARGC(2);
 
   GET_LAYER(GeoLayer);
   
   int x = JSVAL_TO_INT(argv[0]);
   int y = JSVAL_TO_INT(argv[1]);
-  int col = JSVAL_TO_INT(argv[2]);
 
-  lay->pixel(x,y,col);
+  lay->pixel(x, y);
 
   return JS_TRUE;
 }
 JS(geometry_layer_hline) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<4) return JS_FALSE;
+
+  JS_CHECK_ARGC(3);
+
   GET_LAYER(GeoLayer);
 
   int x1 = JSVAL_TO_INT(argv[0]);
   int x2 = JSVAL_TO_INT(argv[1]);
   int y = JSVAL_TO_INT(argv[2]);
-  int col = JSVAL_TO_INT(argv[3]);
   
-  lay->hline(x1, x2, y, col);
+  lay->hline(x1, x2, y);
 
   return JS_TRUE;
 }
 JS(geometry_layer_vline) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<4) return JS_FALSE;
+
+  JS_CHECK_ARGC(3);
+
   GET_LAYER(GeoLayer);
 
   int x = JSVAL_TO_INT(argv[0]);
   int y1 = JSVAL_TO_INT(argv[1]);
   int y2 = JSVAL_TO_INT(argv[2]);
-  int col = JSVAL_TO_INT(argv[3]);
 
-  lay->vline(x, y1, y2, col);
+  lay->vline(x, y1, y2);
 
   return JS_TRUE;
 }
 JS(geometry_layer_rectangle) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<5) return JS_FALSE;
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+
+  JS_CHECK_ARGC(4);
+
   GET_LAYER(GeoLayer);
 
   int x1 = JSVAL_TO_INT(argv[0]);
   int y1 = JSVAL_TO_INT(argv[1]);
   int x2 = JSVAL_TO_INT(argv[2]);
   int y2 = JSVAL_TO_INT(argv[3]);
-  int col = JSVAL_TO_INT(argv[4]);
 
-  lay->rectangle(x1, y1, x2, y2, col);
+  lay->rectangle(x1, y1, x2, y2);
 
   return JS_TRUE;
 }
 JS(geometry_layer_rectangle_fill) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<5) return JS_FALSE;
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+
+  JS_CHECK_ARGC(4);
+
   GET_LAYER(GeoLayer);
 
   int x1 = JSVAL_TO_INT(argv[0]);
   int y1 = JSVAL_TO_INT(argv[1]);
   int x2 = JSVAL_TO_INT(argv[2]);
   int y2 = JSVAL_TO_INT(argv[3]);
-  int col = JSVAL_TO_INT(argv[4]);
 
-  lay->rectangle_fill(x1, y1, x2, y2, col);
+  lay->rectangle_fill(x1, y1, x2, y2);
 
   return JS_TRUE;
 }
 JS(geometry_layer_line) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<5) return JS_FALSE;
+
+  JS_CHECK_ARGC(4);
+
   GET_LAYER(GeoLayer);
 
   int x1 = JSVAL_TO_INT(argv[0]);
   int y1 = JSVAL_TO_INT(argv[1]);
   int x2 = JSVAL_TO_INT(argv[2]);
   int y2 = JSVAL_TO_INT(argv[3]);
-  int col = JSVAL_TO_INT(argv[4]);
 
-  lay->line(x1, y1, x2, y2, col);
+  lay->line(x1, y1, x2, y2);
 
   return JS_TRUE;
 }
 JS(geometry_layer_aaline) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<5) return JS_FALSE;
+
+  JS_CHECK_ARGC(4);
+
   GET_LAYER(GeoLayer);
 
   int x1 = JSVAL_TO_INT(argv[0]);
   int y1 = JSVAL_TO_INT(argv[1]);
   int x2 = JSVAL_TO_INT(argv[2]);
   int y2 = JSVAL_TO_INT(argv[3]);
-  int col = JSVAL_TO_INT(argv[4]);
   
-  lay->aaline(x1, y1, x2, y2, col);
+  lay->aaline(x1, y1, x2, y2);
 
   return JS_TRUE;
 }
 JS(geometry_layer_circle) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<4) return JS_FALSE;
+
+  JS_CHECK_ARGC(3); 
+
   GET_LAYER(GeoLayer);
 
   int x = JSVAL_TO_INT(argv[0]);
   int y = JSVAL_TO_INT(argv[1]);
   int r = JSVAL_TO_INT(argv[2]);
-  int col = JSVAL_TO_INT(argv[3]);
 
-  lay->circle(x, y, r, col);
+  lay->circle(x, y, r);
 
   return JS_TRUE;
 }
 JS(geometry_layer_aacircle) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<4) return JS_FALSE;
+
+  JS_CHECK_ARGC(3);
+
   GET_LAYER(GeoLayer);
 
   int x = JSVAL_TO_INT(argv[0]);
   int y = JSVAL_TO_INT(argv[1]);
   int r = JSVAL_TO_INT(argv[2]);
-  int col = JSVAL_TO_INT(argv[3]);
 
-  lay->aacircle(x, y, r, col);
+  lay->aacircle(x, y, r);
 
   return JS_TRUE;
 }
 JS(geometry_layer_circle_fill) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<4) return JS_FALSE;
+
+  JS_CHECK_ARGC(3);
+
   GET_LAYER(GeoLayer);
 
   int x = JSVAL_TO_INT(argv[0]);
   int y = JSVAL_TO_INT(argv[1]);
   int r = JSVAL_TO_INT(argv[2]);
-  int col = JSVAL_TO_INT(argv[3]);
 
-  lay->circle_fill(x, y, r, col);
+  lay->circle_fill(x, y, r);
 
   return JS_TRUE;
 }
 JS(geometry_layer_ellipse) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<5) return JS_FALSE;
+
+  JS_CHECK_ARGC(4);
+
   GET_LAYER(GeoLayer);
 
   int x = JSVAL_TO_INT(argv[0]);
   int y = JSVAL_TO_INT(argv[1]);
   int rx = JSVAL_TO_INT(argv[2]);
   int ry = JSVAL_TO_INT(argv[3]);
-  int col = JSVAL_TO_INT(argv[4]);
 
-  lay->ellipse(x, y, rx, ry, col);
+  lay->ellipse(x, y, rx, ry);
 
   return JS_TRUE;
 }
 JS(geometry_layer_aaellipse) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<5) return JS_FALSE;
+
+  JS_CHECK_ARGC(4);
+
   GET_LAYER(GeoLayer);
 
   int x = JSVAL_TO_INT(argv[0]);
   int y = JSVAL_TO_INT(argv[1]);
   int rx = JSVAL_TO_INT(argv[2]);
   int ry = JSVAL_TO_INT(argv[3]);
-  int col = JSVAL_TO_INT(argv[4]);
 
-  lay->aaellipse(x, y, rx, ry, col);
+  lay->aaellipse(x, y, rx, ry);
 
   return JS_TRUE;
 }
 JS(geometry_layer_ellipse_fill) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<5) return JS_FALSE;
+
+  JS_CHECK_ARGC(4);
+
   GET_LAYER(GeoLayer);
 
   int x = JSVAL_TO_INT(argv[0]);
   int y = JSVAL_TO_INT(argv[1]);
   int rx = JSVAL_TO_INT(argv[2]);
   int ry = JSVAL_TO_INT(argv[3]);
-  int col = JSVAL_TO_INT(argv[4]);
 
-  lay->ellipse_fill(x, y, rx, ry, col);
+  lay->ellipse_fill(x, y, rx, ry);
 
   return JS_TRUE;
 }
 JS(geometry_layer_pie) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<6) return JS_FALSE;
+
+  JS_CHECK_ARGC(5);
+
   GET_LAYER(GeoLayer);
 
   int x = JSVAL_TO_INT(argv[0]);
@@ -266,15 +330,16 @@ JS(geometry_layer_pie) {
   int rad = JSVAL_TO_INT(argv[2]);
   int start = JSVAL_TO_INT(argv[3]);
   int end = JSVAL_TO_INT(argv[4]);
-  int col = JSVAL_TO_INT(argv[5]);
 
-  lay->pie(x, y, rad, start, end, col);
+  lay->pie(x, y, rad, start, end);
 
   return JS_TRUE;
 }
 JS(geometry_layer_pie_fill) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<4) return JS_FALSE;
+
+  JS_CHECK_ARGC(5);
+
   GET_LAYER(GeoLayer);
 
   int x = JSVAL_TO_INT(argv[0]);
@@ -282,15 +347,16 @@ JS(geometry_layer_pie_fill) {
   int rad = JSVAL_TO_INT(argv[2]);
   int start = JSVAL_TO_INT(argv[3]);
   int end = JSVAL_TO_INT(argv[4]);
-  int col = JSVAL_TO_INT(argv[5]);
 
-  lay->pie_fill(x, y, rad, start, end, col);
+  lay->pie_fill(x, y, rad, start, end);
 
   return JS_TRUE;
 }
 JS(geometry_layer_trigon) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<7) return JS_FALSE;
+
+  JS_CHECK_ARGC(6);
+
   GET_LAYER(GeoLayer);
 
   int x1 = JSVAL_TO_INT(argv[0]);
@@ -299,15 +365,16 @@ JS(geometry_layer_trigon) {
   int y2 = JSVAL_TO_INT(argv[3]);
   int x3 = JSVAL_TO_INT(argv[4]);
   int y3 = JSVAL_TO_INT(argv[5]);
-  int col = JSVAL_TO_INT(argv[6]);
 
-  lay->trigon(x1, y1, x2, y2, x3, y3, col);
+  lay->trigon(x1, y1, x2, y2, x3, y3);
 
   return JS_TRUE;
 }
 JS(geometry_layer_aatrigon) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<7) return JS_FALSE;
+
+  JS_CHECK_ARGC(6);
+
   GET_LAYER(GeoLayer);
 
   int x1 = JSVAL_TO_INT(argv[0]);
@@ -316,15 +383,16 @@ JS(geometry_layer_aatrigon) {
   int y2 = JSVAL_TO_INT(argv[3]);
   int x3 = JSVAL_TO_INT(argv[4]);
   int y3 = JSVAL_TO_INT(argv[5]);
-  int col = JSVAL_TO_INT(argv[6]);
 
-  lay->aatrigon(x1, y1, x2, y2, x3, y3, col);
+  lay->aatrigon(x1, y1, x2, y2, x3, y3);
 
   return JS_TRUE;
 }
 JS(geometry_layer_trigon_fill) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-  if(argc<7) return JS_FALSE;
+
+  JS_CHECK_ARGC(6);
+
   GET_LAYER(GeoLayer);
 
   int x1 = JSVAL_TO_INT(argv[0]);
@@ -333,9 +401,8 @@ JS(geometry_layer_trigon_fill) {
   int y2 = JSVAL_TO_INT(argv[3]);
   int x3 = JSVAL_TO_INT(argv[4]);
   int y3 = JSVAL_TO_INT(argv[5]);
-  int col = JSVAL_TO_INT(argv[6]);
 
-  lay->trigon_fill(x1, y1, x2, y2, x3, y3, col);
+  lay->trigon_fill(x1, y1, x2, y2, x3, y3);
 
   return JS_TRUE;
 }

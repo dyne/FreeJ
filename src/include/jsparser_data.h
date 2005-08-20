@@ -204,31 +204,6 @@ JS(particle_layer_blossom);
 // Image Layer methods
 JS(image_layer_open);
 
-////////////////////////////////
-// Geometry Layer methods
-JS(geometry_layer_clear);
-JS(geometry_layer_pixel);
-JS(geometry_layer_hline);
-JS(geometry_layer_vline);
-JS(geometry_layer_rectangle);
-JS(geometry_layer_rectangle_fill);
-JS(geometry_layer_line);
-JS(geometry_layer_aaline);
-JS(geometry_layer_circle);
-JS(geometry_layer_aacircle);
-JS(geometry_layer_circle_fill);
-JS(geometry_layer_ellipse);
-JS(geometry_layer_aaellipse);
-JS(geometry_layer_ellipse_fill);
-JS(geometry_layer_pie);
-JS(geometry_layer_pie_fill);
-JS(geometry_layer_trigon);
-JS(geometry_layer_aatrigon);
-JS(geometry_layer_trigon_fill);
-//JS(geometry_layer_polygon);
-//JS(geometry_layer_aapolygon);
-//JS(geometry_layer_polygon_fill);
-//JS(geometry_layer_bezier);
 
 ////////////////////////////////
 // VScroll Layer methods

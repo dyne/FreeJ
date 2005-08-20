@@ -108,7 +108,7 @@ class VideoLayer: public Layer {
 	VideoLayer();
 	~VideoLayer();
 
-	bool init(Context *screen=NULL);
+	bool init(int width, int height);
 	bool open(char *file);
 	void *feed();
 	void close();

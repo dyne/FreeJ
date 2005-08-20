@@ -477,7 +477,7 @@ Blitter::~Blitter() {
 bool Blitter::init(Layer *lay) {
 
   layer = lay;
-  screen = lay->freej->screen;
+  screen = lay->screen;
 
   func("blitter initialized for layer %s",lay->get_name());
   
@@ -538,7 +538,7 @@ void Blitter::blit() {
 
     // setup crop variables
     pscr =
-      (uint32_t*)layer->freej->screen->coords(0,0)
+      (uint32_t*)layer->screen->coords(0,0)
       + current_blit->scr_offset;
     play =
       (uint32_t*)offset + current_blit->lay_offset;
@@ -564,7 +564,7 @@ void Blitter::blit() {
     
     (*current_blit->sdl_fun)
       (offset, &current_blit->sdl_rect,
-       ((SdlScreen*)layer->freej->screen)->surface,
+       ((SdlScreen*)layer->screen)->surface,
        NULL, geo, (void*)&current_blit->value);
 
   } else if (current_blit->type == PAST_BLIT) {
@@ -573,7 +573,7 @@ void Blitter::blit() {
 
     // setup crop variables
     pscr =
-      (uint32_t*)layer->freej->screen->coords(0,0)
+      (uint32_t*)layer->screen->coords(0,0)
       + current_blit->scr_offset;
     play =
       (uint32_t*)offset
@@ -886,7 +886,7 @@ void Blitter::crop(bool force) {
   
 
   if(!screen) // return;
-    screen = layer->freej->screen;
+    screen = layer->screen;
 
   // crop for the SDL blit
   if(b->type == SDL_BLIT) {

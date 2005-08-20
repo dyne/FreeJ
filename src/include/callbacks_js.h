@@ -38,6 +38,38 @@
 #define JS(fun) \
 JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
+#define JS_CHECK_ARGC(num) \
+  if(argc<num) { \
+    error("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__); \
+    error("not enough arguments: minimum %u needed",num); \
+    return(JS_FALSE); \
+  }
+
+// cast a numerical value in a double variable
+#define JS_ARG_NUMBER(variable,argnum) \
+  double variable; \
+  if(JSVAL_IS_DOUBLE(argv[argnum])) { \
+    variable = *JSVAL_TO_DOUBLE(argv[argnum]); \
+  } else if(JSVAL_IS_INT(argv[argnum])) { \
+    variable = (double)JSVAL_TO_INT(argv[argnum]); \
+  } else if(JSVAL_IS_BOOLEAN(argv[argnum])) { \
+    variable = (double)JSVAL_TO_BOOLEAN(argv[argnum]); \
+  } else { \
+    JS_ReportError(cx,"%s: argument %u is not a number",__FUNCTION__,argnum); \
+    env->quit = true; \
+    return JS_FALSE; \
+  }
+
+#define JS_ARG_STRING(variable,argnum) \
+  if(JSVAL_IS_STRING(argv[argnum])) \
+    variable = JS_GetStringBytes \
+      ( JS_ValueToString(cx, argv[argnum]) ); \
+  else { \
+    JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__,argnum); \
+    env->quit = true; \
+    return JS_FALSE; \
+  }
+
 #define DECLARE_CLASS(class_name, class_struct, class_constructor) \
 JSClass class_struct = { \
   class_name, JSCLASS_HAS_PRIVATE, \
@@ -67,16 +99,27 @@ JS(constructor_func) { \
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__); \
   constructor_class *layer; \
   char *filename; \
+  int width, height; \
   layer = new constructor_class(); \
-  if(!layer) \
+  if(!layer) { \
+    error("JS::%s : cannot create constructor_class", constructor_name); \
     return JS_FALSE; \
-  if(argc > 0) {\
-    filename = JS_GetStringBytes(JS_ValueToString(cx,argv[0])); \
+  } \
+  if(argc>1) { \
+    width = JSVAL_TO_INT(argv[0]); \
+    height = JSVAL_TO_INT(argv[1]); \
+  } else { \
+    width = env->screen->w; \
+    height = env->screen->h; \
+  } \
+  if(argc > 2) {\
+    filename = JS_GetStringBytes(JS_ValueToString(cx,argv[2])); \
     if(!layer->open(filename)) { \
       error("JS::%s : can't open file %s",constructor_name, filename); \
       delete layer; return JS_TRUE; \
     } \
   } \
+  layer->init(width, height); \
   if(!JS_SetPrivate(cx,obj,(void*)layer)) { \
     error("JS::%s : can't set the private value"); \
     delete layer; return JS_FALSE; \
@@ -106,32 +149,8 @@ if(!lay) { \
 }
 
 
-// cast a numerical value in a double variable
-#define JS_ARG_NUMBER(variable,argnum) \
-  double variable; \
-  if(JSVAL_IS_DOUBLE(argv[argnum])) { \
-    variable = *JSVAL_TO_DOUBLE(argv[argnum]); \
-  } else if(JSVAL_IS_INT(argv[argnum])) { \
-    variable = (double)JSVAL_TO_INT(argv[argnum]); \
-  } else if(JSVAL_IS_BOOLEAN(argv[argnum])) { \
-    variable = (double)JSVAL_TO_BOOLEAN(argv[argnum]); \
-  } else { \
-    JS_ReportError(cx,"%s: argument %u is not a number",__FUNCTION__,argnum); \
-    env->quit = true; \
-    return JS_FALSE; \
-  }
 
-#define JS_ARG_STRING(variable,argnum) \
-  if(JSVAL_IS_STRING(argv[argnum])) \
-    variable = JS_GetStringBytes \
-      ( JS_ValueToString(cx, argv[argnum]) ); \
-  else { \
-    JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__,argnum); \
-    env->quit = true; \
-    return JS_FALSE; \
-  }
-
-
+ 
 extern Context *env;
 extern bool stop_script;
 

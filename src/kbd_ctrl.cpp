@@ -173,21 +173,6 @@ void KbdListener::run() {
 		      layer->blitter.set_rotate( layer->blitter.rotate - 0.05);
 	      }
       }
-      else if(keysym->mod & KMOD_SHIFT) { // SHIFT <
-//	      env->fps_speed++;
-//	      func("+ %d\n",env->fps_speed);
-//	      env->set_fps_interval(env->fps_speed);
-	      env->screen->set_rotation (env->screen->get_rotation() + 0.2);
-	      notice("Rotating right screen");
-      }
-      else { // <
-//	      env->fps_speed--;
-//	      func("- %d\n",env->fps_speed);
-//	      env->set_fps_interval(env->fps_speed);
-	      notice("Rotating left screen");
-	      env->screen->set_rotation(env->screen->get_rotation()-0.1);
-      }
-      break;
 
     case SDLK_GREATER:
       if(keysym->mod & KMOD_CTRL) {
@@ -209,9 +194,6 @@ void KbdListener::run() {
 	    layer->blitter.set_zoom( layer->blitter.zoom_x + 0.01,
 		    layer->blitter.zoom_y + 0.01);
 	}
-	else {
-		env->screen->set_zoom(env->screen->get_zoom()+0.02);
-	}
       break;
 
     case SDLK_KP_MINUS:
@@ -219,44 +201,6 @@ void KbdListener::run() {
 	layer->blitter.set_zoom( layer->blitter.zoom_x - 0.01,
 					   layer->blitter.zoom_y - 0.01);
       }
-      else {
-		env->screen->set_zoom(env->screen->get_zoom()-0.02);
-      }
-      break;
-      /* handle rotation */
-    case SDLK_KP9:
-      env->screen->set_y_rotation (env->screen->get_y_rotation() - 0.2);
-      break;
-    case SDLK_KP7:
-      env->screen->set_y_rotation (env->screen->get_y_rotation() + 0.2);
-      break;
-    case SDLK_KP1:
-      env->screen->set_x_rotation (env->screen->get_x_rotation() - 0.2);
-      break;
-    case SDLK_KP3:
-      env->screen->set_x_rotation (env->screen->get_x_rotation() + 0.2);
-      break;
-      /* handle translation */
-    case SDLK_KP6:
-      env->screen->set_x_translation (env->screen->get_x_translation() + 0.02);
-      break;
-    case SDLK_KP4:
-      env->screen->set_x_translation (env->screen->get_x_translation() - 0.02);
-      break;
-    case SDLK_KP8:
-      env->screen->set_y_translation (env->screen->get_y_translation() + 0.02);
-      break;
-    case SDLK_KP2:
-      env->screen->set_y_translation (env->screen->get_y_translation() - 0.02);
-      break;
-      /*  set default values*/
-    case SDLK_KP5:
-      env->screen->set_x_rotation (0);
-      env->screen->set_y_rotation (0);
-      env->screen->set_rotation (0);
-      env->screen->set_zoom (0.4);
-      env->screen->set_x_translation (0);
-      env->screen->set_y_translation (0);
       break;
 
 //    case SDLK_GREATER:
@@ -293,12 +237,12 @@ void KbdListener::run() {
     }
 
     /* LAYER CONTROLS */
-    layer = (Layer *)env->layers.selected();
+    layer = (Layer *)env->screen->layers.selected();
     if(!layer)
-      layer = (Layer*) env->layers.begin();
+      layer = (Layer*) env->screen->layers.begin();
     if(!layer) return; /* there are no layers */
     else {
-      env->layers.sel(0);
+      env->screen->layers.sel(0);
       layer->sel(true); /* select the first */
     }
 
@@ -385,7 +329,7 @@ void KbdListener::run() {
       } else {
 	/* select layer up */
 	layer = (Layer *)layer->prev;
-	env->layers.sel(0);
+	env->screen->layers.sel(0);
 	layer->sel(true);
 	show_osd("%s :: %s",layer->get_name(),layer->get_filename());
       }
@@ -398,7 +342,7 @@ void KbdListener::run() {
       } else {
 	/* select layer down */
 	layer = (Layer *)layer->next;
-	env->layers.sel(0);
+	env->screen->layers.sel(0);
 	layer->sel(true);
 	show_osd("%s :: %s",layer->get_name(),layer->get_filename());
       }

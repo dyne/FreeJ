@@ -47,7 +47,7 @@ static uint8_t achan = 3;
 
 GeoLayer::GeoLayer() {
   surf = NULL;
-  
+  color = 0xffffffff;
   set_name("GEO");
   set_filename("/geometrical layer");
 }
@@ -56,9 +56,9 @@ GeoLayer::~GeoLayer() {
   if(surf) SDL_FreeSurface(surf);
 }
 
-bool GeoLayer::init(Context *screen) {
+bool GeoLayer::init(int width, int height) {
   // internal initialization
-  _init(screen, screen->screen->w, screen->screen->h,32);
+  _init(width, height);
   
   surf = SDL_CreateRGBSurface(SDL_HWSURFACE,
 			      geo.w,geo.h,32,
@@ -97,77 +97,77 @@ void *GeoLayer::feed() {
   return(surf->pixels);
 }
 
-int GeoLayer::clear(uint32_t color) {
+int GeoLayer::clear() {
   res = SDL_FillRect(surf,NULL,color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::pixel(int16_t x, int16_t y, uint32_t color) {
+int GeoLayer::pixel(int16_t x, int16_t y) {
   res = pixelColor(surf, x, y, color);
   if(res<0) error("error in %s",__FUNCTION__);
 
 }
 
-int GeoLayer::hline(int16_t x1, int16_t x2, int16_t y, uint32_t color) {
+int GeoLayer::hline(int16_t x1, int16_t x2, int16_t y) {
   res = hlineColor(surf, x1, x2, y, color);
   if(res<0) error("error in %s",__FUNCTION__);
   
 }
 
-int GeoLayer::vline(int16_t x, int16_t y1, int16_t y2, uint32_t color) {
+int GeoLayer::vline(int16_t x, int16_t y1, int16_t y2) {
   res = vlineColor(surf, x, y1, y2, color);
   if(res<0) error("error in %s",__FUNCTION__);
 
 }
 
-int GeoLayer::rectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t color) {
+int GeoLayer::rectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
   res = rectangleColor(surf, x1, y1, x2, y2, color);
   if(res<0) error("error in %s",__FUNCTION__);
 
 }
 
-int GeoLayer::rectangle_fill(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t color) {
+int GeoLayer::rectangle_fill(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
   res = boxColor(surf, x1, y1, x2, y2, color);
   if(res<0) error("error in %s",__FUNCTION__);
 
 }
 
-int GeoLayer::line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t color) {
+int GeoLayer::line(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
   res = lineColor(surf, x1, y1, x2, y2, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::aaline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t color) {
+int GeoLayer::aaline(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
   res = aalineColor(surf, x1, y1, x2, y2, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::circle(int16_t x, int16_t y, int16_t r, uint32_t color) {
+int GeoLayer::circle(int16_t x, int16_t y, int16_t r) {
   res = circleColor(surf, x, y, r, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::aacircle(int16_t x, int16_t y, int16_t r, uint32_t color) {
+int GeoLayer::aacircle(int16_t x, int16_t y, int16_t r) {
   res = aacircleColor(surf, x, y, r, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::circle_fill(int16_t x, int16_t y, int16_t r, uint32_t color) {
+int GeoLayer::circle_fill(int16_t x, int16_t y, int16_t r) {
   res = filledCircleColor(surf, x, y, r, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::ellipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_t color) {
+int GeoLayer::ellipse(int16_t x, int16_t y, int16_t rx, int16_t ry) {
   res = ellipseColor(surf, x, y, rx, ry, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::aaellipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_t color) {
+int GeoLayer::aaellipse(int16_t x, int16_t y, int16_t rx, int16_t ry) {
   res = aaellipseColor(surf, x, y, rx, ry, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::ellipse_fill(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_t color) {
+int GeoLayer::ellipse_fill(int16_t x, int16_t y, int16_t rx, int16_t ry) {
   res = filledEllipseColor(surf, x, y, rx, ry, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
@@ -175,13 +175,13 @@ int GeoLayer::ellipse_fill(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_
 ////
 
 int GeoLayer::pie(uint16_t x, uint16_t y, uint16_t rad,
-		  uint16_t start, uint16_t end, uint32_t color) {
+		  uint16_t start, uint16_t end) {
   res = pieColor(surf, x, y, rad, start, end, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
 int GeoLayer::pie_fill(uint16_t x, uint16_t y, uint16_t rad,
-		       uint16_t start, uint16_t end, uint32_t color) {
+		       uint16_t start, uint16_t end) {
   res = filledPieColor(surf, x, y, rad, start, end, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
@@ -190,43 +190,43 @@ int GeoLayer::pie_fill(uint16_t x, uint16_t y, uint16_t rad,
 
 int GeoLayer::trigon(int16_t x1, int16_t y1,
 	   int16_t x2, int16_t y2,
-	   int16_t x3, int16_t y3, uint32_t color) {
+	   int16_t x3, int16_t y3) {
   res = trigonColor(surf, x1, y1, x2, y2, x3, y3, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
 int GeoLayer::aatrigon(int16_t x1, int16_t y1,
 	     int16_t x2, int16_t y2,
-	     int16_t x3, int16_t y3, uint32_t color) {
+	     int16_t x3, int16_t y3) {
   res = aatrigonColor(surf, x1, y1, x2, y2, x3, y3, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
 int GeoLayer::trigon_fill(int16_t x1, int16_t y1,
 		int16_t x2, int16_t y2,
-		int16_t x3, int16_t y3, uint32_t color) {
+		int16_t x3, int16_t y3) {
   res = filledTrigonColor(surf, x1, y1, x2, y2, x3, y3, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
 ////
 
-int GeoLayer::polygon(int16_t *vx, int16_t *vy, int num_vertex, uint32_t color) {
+int GeoLayer::polygon(int16_t *vx, int16_t *vy, int num_vertex) {
   res = polygonColor(surf, vx, vy, num_vertex, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::aapolygon(int16_t *vx, int16_t *vy, int num_vertex, uint32_t color) {
+int GeoLayer::aapolygon(int16_t *vx, int16_t *vy, int num_vertex) {
   res = aapolygonColor(surf, vx, vy, num_vertex, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::polygon_fill(int16_t *vx, int16_t *vy, int num_vertex, uint32_t color) {
+int GeoLayer::polygon_fill(int16_t *vx, int16_t *vy, int num_vertex) {
   res = filledPolygonColor(surf, vx, vy, num_vertex, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }
 
-int GeoLayer::bezier(int16_t *vx, int16_t *vy, int num_vertex, int steps, uint32_t color) {
+int GeoLayer::bezier(int16_t *vx, int16_t *vy, int num_vertex, int steps) {
   res = bezierColor(surf, vx, vy, num_vertex, steps, color);
   if(res<0) error("error in %s",__FUNCTION__);
 }

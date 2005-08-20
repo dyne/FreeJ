@@ -140,6 +140,8 @@ class Blitter {
   double rotate;
   double spin_rotation;
   double spin_zoom;
+
+  ViewPort *screen;
   
  private:
   int16_t old_x;
@@ -150,7 +152,7 @@ class Blitter {
   // generic blit buffer pointers
   uint32_t *pscr, *play, *ppast;
 
-  ViewPort *screen;
+
 
   SDL_Surface *sdl_dest;
 

@@ -419,8 +419,8 @@ int main (int argc, char **argv) {
       lay = create_layer(pp);
 
       if(lay) {
-	lay->init(&freej);
-	freej.layers.add(lay);
+	lay->init(freej.screen->w, freej.screen->h);
+	freej.screen->add_layer(lay);
       }
 
       pp = l;

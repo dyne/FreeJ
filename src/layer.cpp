@@ -40,6 +40,7 @@ Layer::Layer()
   set_name("???");
   filename[0] = 0;
   buffer = NULL;
+  screen = NULL;
 }
 
 Layer::~Layer() {
@@ -47,27 +48,28 @@ Layer::~Layer() {
   if(bgmatte) jfree(bgmatte);
 }
 
-void Layer::_init(Context *freej, int wdt, int hgt, int bpp) {
-  this->freej = freej;
+void Layer::_init(int wdt, int hgt) {
 
-  geo.w = (wdt == 0) ? freej->screen->w : wdt;
-  geo.h = (hgt == 0) ? freej->screen->h : hgt;
-  geo.bpp = (bpp) ? bpp : freej->screen->bpp;
+  geo.w = wdt;
+  geo.h = hgt;
+  geo.bpp = 32;
   geo.size = geo.w*geo.h*(geo.bpp/8);
   geo.pitch = geo.w*(geo.bpp/8);
-  geo.fps = freej->fps;
-  geo.x = (freej->screen->w - geo.w)/2;
-  geo.y = (freej->screen->h - geo.h)/2;
+
+  //  this->freej = freej;
+  //  geo.fps = freej->fps;
+  geo.x = 0;//(freej->screen->w - geo.w)/2;
+  geo.y = 0;//(freej->screen->h - geo.h)/2;
+  //  blitter.crop( freej->screen );
 
   /* initialize the blitter */
   blitter.init(this);
-  blitter.crop( freej->screen );
 
   /* allocate memory for the matte background */
 //  bgmatte = jalloc(bgmatte,geo.size);
   
-  func("initialized %s layer %ix%i %ibpp",
-	 get_name(), geo.w, geo.h, geo.bpp);
+  func("initialized %s layer %ix%i",
+	 get_name(), geo.w, geo.h);
 }
 
 void Layer::run() {
@@ -169,7 +171,7 @@ void Layer::set_position(int x, int y) {
   lock();
   geo.x = x;
   geo.y = y;
-  blitter.crop( freej->screen );
+  blitter.crop( screen );
   unlock();
 }
 

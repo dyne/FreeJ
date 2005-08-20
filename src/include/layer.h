@@ -31,6 +31,7 @@
 #include <iterator.h>
 #include <blitter.h>
 #include <filter.h>
+#include <screen.h>
 #include <jsync.h>
 
 class Context;
@@ -72,6 +73,7 @@ class Layer: public Entry, public JSyncThread {
   friend class Blitter;
   friend class Context;
   friend class JSyncThread;
+  friend class ViewPort;
 
  public:
 
@@ -80,7 +82,7 @@ class Layer: public Entry, public JSyncThread {
   
   /* these must be defined in layer implementations */
   virtual bool open(char *file) =0; ///< open the file (first called)
-  virtual bool init(Context *scr) =0; ///< initialize the layer (second called)
+  virtual bool init(int width, int height) =0; ///< initialize the layer (second called)
   virtual void close() =0; ///< close the layer (ready to open a new one)
   virtual bool keypress(char key) =0; ///< pass to the Layer a key pressed
 
@@ -127,10 +129,10 @@ class Layer: public Entry, public JSyncThread {
 
  protected:
 
-  void _init(Context *freej, int wdt, int hgt, int bpp=0);
+  void _init(int wdt, int hgt);
   ///< Layer abstract initialization
 
-  Context *freej;
+  ViewPort *screen;
 
   void set_filename(char *f);
   char filename[256];

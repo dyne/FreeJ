@@ -120,7 +120,7 @@ static int blit_selection(char *cmd) {
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
 
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -135,7 +135,7 @@ static int blit_comp(char *cmd) {
 
   if(!cmd) return 0;
 
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -173,7 +173,7 @@ static int filter_proc(char *cmd) {
     ::error("filter not found: %s",cmd);  
     return 0;
   }
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
   if(!lay) {
     ::error("no layer selected for effect %s",filt->getname());
     return 0;
@@ -266,18 +266,16 @@ static int open_layer(char *cmd) {
 
   Layer *l = create_layer(cmd);
   if(l)
-    if(!l->init(env)) {
+    if(!l->init(env->screen->w, env->screen->h)) {
       error("can't initialize layer");
       delete l;
     } else {
-      env->layers.add(l);
+      env->screen->add_layer(l);
 
       // select the new layer
       env->console->layer = l;
-      env->layers.sel(0);
-      l->sel(true);
 
-      len = env->layers.len();
+      len = env->screen->layers.len();
       notice("layer succesfully created, now you have %i layers",len);
       env->console->refresh();
       return len;
@@ -293,7 +291,7 @@ static int print_text_layer(char *cmd) {
 
   if( strncmp( env->console->layer->get_name(),"TXT",3) ==0) {
     ((TxtLayer*)env->console->layer)->print(cmd);
-    return env->layers.len();
+    return env->screen->layers.len();
 
   } else {
     error("console.cpp: print_text layer called on non-TXT layer");
@@ -303,22 +301,19 @@ static int print_text_layer(char *cmd) {
 static int open_text_layer(char *cmd) {
   TxtLayer *txt = new TxtLayer();
   if(txt)
-    if(!txt->init(env)) {
+    if(!txt->init(env->screen->w, env->screen->h)) {
       error("can't initialize text layer");
       delete txt;
     } else {
       txt->print(cmd);
-      env->layers.add(txt);
-
+      env->screen->add_layer(txt);
+      
       // select the new layer
       env->console->layer = txt;
-      env->layers.sel(0);
-      txt->sel(true);
-
 
       notice("layer succesfully created with text: %s",cmd);
       env->console->refresh();
-      return env->layers.len();
+      return env->screen->layers.len();
     }
   error("layer creation aborted");
   env->console->refresh();
@@ -454,7 +449,7 @@ static int set_blit_value(char *cmd) {
     return 0;
   }
   func("value parsed: %s in %d",cmd,val);
-  Layer *lay = (Layer*)env->layers.begin();
+  Layer *lay = (Layer*)env->screen->layers.begin();
   if(!lay) return 0;
   /* set value in all blits selected
      (supports multiple selection) */
@@ -619,7 +614,7 @@ void Console::cafudda() {
   }   
 
   if(!layer) // if no layer selected, pick the first
-    layer = (Layer*)env->layers.begin();
+    layer = (Layer*)env->screen->layers.begin();
   
   /* S-Lang says: 
    * All well behaved applications should block signals that
@@ -758,9 +753,9 @@ void Console::layerprint() {
 void Console::layerlist() {
   int color;
   SLsmg_gotorc(4,1);
-  env->layers.lock();
+  env->screen->layers.lock();
   /* take layer selected and first */
-  Layer *l = (Layer *)env->layers.begin();
+  Layer *l = (Layer *)env->screen->layers.begin();
   
   while(l) { /* draw the layer's list */
 
@@ -781,7 +776,7 @@ void Console::layerlist() {
 
     l = (Layer *)l->next;
   }
-  env->layers.unlock();
+  env->screen->layers.unlock();
   SLsmg_set_color(PLAIN_COLOR);
   SLsmg_erase_eol();
 }
@@ -996,36 +991,36 @@ void Console::parser_default(int key) {
 
   case SL_KEY_LEFT:
     if(!layer) 
-      layer = (Layer*)env->layers.begin();
+      layer = (Layer*)env->screen->layers.begin();
     else if(!layer->prev)
-      layer = (Layer*)env->layers.end();
+      layer = (Layer*)env->screen->layers.end();
     else
       layer = (Layer*)layer->prev;
 
     // deselect any filter
-    if(env->layers.selected() != layer) {
+    if(env->screen->layers.selected() != layer) {
       filter = NULL;
       layer->filters.sel(0);
     }
     // select only the current layer
-    env->layers.sel(0);
+    env->screen->layers.sel(0);
     layer->sel(true);
     break;
 
   case SL_KEY_RIGHT:
     if(!layer)
-      layer = (Layer*)env->layers.begin();
+      layer = (Layer*)env->screen->layers.begin();
     else if(!layer->next)
-      layer = (Layer*)env->layers.begin();
+      layer = (Layer*)env->screen->layers.begin();
     else
       layer = (Layer*)layer->next;
     // deselect any filter
-    if(env->layers.selected() != layer) {
+    if(env->screen->layers.selected() != layer) {
       filter = NULL;
       layer->filters.sel(0);
     }
     // select only the current
-    env->layers.sel(0);
+    env->screen->layers.sel(0);
     layer->sel(true);
     break;
 
@@ -1177,16 +1172,14 @@ void Console::parser_default(int key) {
   case KEY_CTRL_G:
     tmp = new GenLayer();
     if(tmp)
-      if(!tmp->init(env)) {
+      if(!tmp->init(env->screen->w, env->screen->h)) {
 	error("can't initialize particle generator layer");
 	delete tmp;
       } else {
-	env->layers.add(tmp);
+	env->screen->add_layer(tmp);
 	
 	// select the new layer
 	env->console->layer = tmp;
-	env->layers.sel(0);
-	tmp->sel(true);
 
 	env->console->refresh();	
 	notice("particle generator succesfully created");
@@ -1341,7 +1334,7 @@ void Console::parser_jazz(int key) {
   char *jazzkeys = "1234567890qwertyuiopasdfghjklzxcvbnm\0";
   char *p;
   
-  lay = (Layer*) env->layers.begin();
+  lay = (Layer*) env->screen->layers.begin();
   if(!lay) {
     error("Can't enter Jazz mode: no layers are loaded");
     parser = DEFAULT;
@@ -1370,7 +1363,7 @@ void Console::parser_jazz(int key) {
     // pulse it
     lay->pulse_alpha(jazzstep,jazzvalue);
     layer = lay;
-    //    env->layers.sel(0);
+    //    env->screen->layers.sel(0);
     //    lay->sel(true);
 
     return;
