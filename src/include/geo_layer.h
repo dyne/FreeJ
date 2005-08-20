@@ -42,8 +42,8 @@ class GeoLayer: public Layer {
   int hline(int16_t x1, int16_t x2, int16_t y);
   int vline(int16_t x, int16_t y1, int16_t y2);
 
-  int rectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
-  int rectangle_fill(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
+  int rectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col);
+  int rectangle_fill(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col);
 
   int line(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
   int aaline(int16_t x1, int16_t y1, int16_t x2, int16_t y2);

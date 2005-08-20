@@ -100,20 +100,46 @@ JS(geometry_layer_clear) {
   return JS_TRUE;
 }
 
+/// color handling, a macro and some overloading tricks
+#define OPTIONAL_COLOR_ARG(num) \
+  uint32_t color; \
+  if( argc>num ) \
+    color = (uint32_t) *(JSVAL_TO_DOUBLE(argv[num])); \
+  else \
+    color = lay->color;
+
 JS(geometry_layer_color) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
-  JS_CHECK_ARGC(4);
+  JS_CHECK_ARGC(1);
   
   GET_LAYER(GeoLayer);
 
-  int r = JSVAL_TO_INT(argv[0]);
-  int g = JSVAL_TO_INT(argv[1]);
-  int b = JSVAL_TO_INT(argv[2]);
-  int a = JSVAL_TO_INT(argv[3]);
+  // color accepts arguments in many ways
+  // R,G,B,A or R,G,B or the whole 32bit value
+  uint32_t r,g,b,a;
 
-  lay->color = (r<<24)|(g<<16)|(b<<8)|a;
-  
+  if(JSVAL_IS_DOUBLE(argv[0])) {
+
+    double *hex;
+    hex = JSVAL_TO_DOUBLE(argv[0]);
+    lay->color = (uint32_t)*hex;
+    
+  } else {
+    
+    r = JSVAL_TO_INT(argv[0]);
+    
+      g = JSVAL_TO_INT(argv[1]);
+      b = JSVAL_TO_INT(argv[2]);
+      
+      if(JSVAL_IS_NUMBER(argv[3]))
+	a = JSVAL_TO_INT(argv[3]);
+      else
+	a = 0xff;
+      
+    lay->color = a|(r<<8)|(g<<16)|(b<<24);
+  }
+
   return JS_TRUE;
 }
 
@@ -173,7 +199,9 @@ JS(geometry_layer_rectangle) {
   int x2 = JSVAL_TO_INT(argv[2]);
   int y2 = JSVAL_TO_INT(argv[3]);
 
-  lay->rectangle(x1, y1, x2, y2);
+  OPTIONAL_COLOR_ARG(4);
+  
+  lay->rectangle(x1, y1, x2, y2, color);
 
   return JS_TRUE;
 }
@@ -189,7 +217,9 @@ JS(geometry_layer_rectangle_fill) {
   int x2 = JSVAL_TO_INT(argv[2]);
   int y2 = JSVAL_TO_INT(argv[3]);
 
-  lay->rectangle_fill(x1, y1, x2, y2);
+  OPTIONAL_COLOR_ARG(4);
+
+  lay->rectangle_fill(x1, y1, x2, y2, color);
 
   return JS_TRUE;
 }

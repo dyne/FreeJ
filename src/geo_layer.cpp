@@ -120,14 +120,14 @@ int GeoLayer::vline(int16_t x, int16_t y1, int16_t y2) {
 
 }
 
-int GeoLayer::rectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
-  res = rectangleColor(surf, x1, y1, x2, y2, color);
+int GeoLayer::rectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col) {
+  res = rectangleColor(surf, x1, y1, x2, y2, col);
   if(res<0) error("error in %s",__FUNCTION__);
 
 }
 
-int GeoLayer::rectangle_fill(int16_t x1, int16_t y1, int16_t x2, int16_t y2) {
-  res = boxColor(surf, x1, y1, x2, y2, color);
+int GeoLayer::rectangle_fill(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col) {
+  res = boxColor(surf, x1, y1, x2, y2, col);
   if(res<0) error("error in %s",__FUNCTION__);
 
 }
