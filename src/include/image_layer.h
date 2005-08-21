@@ -27,8 +27,9 @@
 
 class ImageLayer: public Layer {
     private:
+
 	SDL_Surface *image;
-	SDL_Surface *display_image;
+	SDL_Surface *surf;
 
 	void *black_image;
 

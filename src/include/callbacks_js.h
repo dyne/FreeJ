@@ -95,37 +95,47 @@ JSClass class_struct = { \
     }
 
 #define JS_CONSTRUCTOR(constructor_name, constructor_func, constructor_class) \
-JS(constructor_func) { \
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__); \
-  constructor_class *layer; \
-  char *filename; \
-  int width, height; \
-  layer = new constructor_class(); \
-  if(!layer) { \
-    error("JS::%s : cannot create constructor_class", constructor_name); \
-    return JS_FALSE; \
-  } \
-  if(argc>1) { \
-    width = JSVAL_TO_INT(argv[0]); \
-    height = JSVAL_TO_INT(argv[1]); \
-  } else { \
-    width = env->screen->w; \
-    height = env->screen->h; \
-  } \
-  if(argc > 2) {\
-    filename = JS_GetStringBytes(JS_ValueToString(cx,argv[2])); \
-    if(!layer->open(filename)) { \
-      error("JS::%s : can't open file %s",constructor_name, filename); \
-      delete layer; return JS_TRUE; \
-    } \
-  } \
-  layer->init(width, height); \
-  if(!JS_SetPrivate(cx,obj,(void*)layer)) { \
-    error("JS::%s : can't set the private value"); \
-    delete layer; return JS_FALSE; \
-  } \
-  *rval = OBJECT_TO_JSVAL(obj); \
-  return JS_TRUE; \
+JS(constructor_func) {                                                        \
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);                            \
+  constructor_class *layer;                                                   \
+  char *filename;                                                             \
+  int width = 0;                                                              \
+  int height = 0;                                                             \
+  layer = new constructor_class();                                            \
+  if(!layer) {                                                                \
+    error("JS::%s : cannot create constructor_class", constructor_name);      \
+    return JS_FALSE;                                                          \
+  }                                                                           \
+  if(argc==0) {                                                               \
+    width = env->screen->w;                                                   \
+    height = env->screen->h;                                                  \
+  } else if(argc==1) {                                                        \
+    JS_ARG_STRING(filename,0);                                                \
+    if(!layer->open(filename)) {                                              \
+      error("JS::%s : can't open file %s",constructor_name, filename);        \
+      delete layer; return JS_TRUE; }                                         \
+  } else if(argc==2) {                                                        \
+    width = JSVAL_TO_INT(argv[0]);                                            \
+    height = JSVAL_TO_INT(argv[1]);                                           \
+  } else if(argc==3) {                                                        \
+    width = JSVAL_TO_INT(argv[0]);                                            \
+    height = JSVAL_TO_INT(argv[1]);                                           \
+    JS_ARG_STRING(filename,2);                                                \
+    if(!layer->open(filename)) {                                              \
+      error("JS::%s : can't open file %s",constructor_name, filename);        \
+      delete layer; return JS_TRUE; }                                         \
+  } else {                                                                    \
+    error("JS:%s : malformed arguments in constructor", constructor_name);    \
+    error("use (\"filename\") or (width, height, \"filename\") or ()");       \
+    delete layer; return JS_FALSE;                                            \
+  }                                                                           \
+  layer->init(width, height);                                                 \
+  if(!JS_SetPrivate(cx,obj,(void*)layer)) {                                   \
+    error("JS::%s : can't set the private value");                            \
+    delete layer; return JS_FALSE;                                            \
+  }                                                                           \
+  *rval = OBJECT_TO_JSVAL(obj);                                               \
+  return JS_TRUE;                                                             \
 }
 
 // Gets a pointer to the layer from the private object of javascript
