@@ -1,6 +1,5 @@
 INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/ccvt \
-           -I$(top_srcdir)/lib/theora-mmx \
            -I$(top_srcdir)/lib/avformat \
            -I$(top_srcdir)/lib/avcodec \
            -I$(top_srcdir)/lib/shout \
@@ -10,7 +9,8 @@ INCLUDES = -I$(top_srcdir)/src/include \
 	   -I$(top_srcdir)/lib/javascript \
 	   -I$(top_srcdir)/lib/javascript/obj \
 	   -I$(top_srcdir)/lib/flash \
-           -I/usr/include/slang
+           -I/usr/include/slang \
+	   @THEORA_MMX_INCLUDE@
 
 #           -I$(top_srcdir)/lib/portaudio-v19/pa_common
 
@@ -76,11 +76,10 @@ freej_SOURCES = \
 	impl_video_encoders.cpp
 
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
-              $(top_srcdir)/lib/theora-mmx/libtheora.a \
+		 @THEORA_LIBS@ \
 		 @XIPH_LIBS@ \
               $(top_srcdir)/lib/avformat/libavformat.a \
               $(top_srcdir)/lib/avcodec/libavcodec.a \
-              $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/portaudio/libportaudio.a \
 		 @PORTAUDIO_LIBS@ \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \

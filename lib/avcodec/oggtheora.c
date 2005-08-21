@@ -22,6 +22,10 @@
     DEALINGS IN THE SOFTWARE.
 **/
 
+#include <config.h>
+
+#ifdef CONFIG_LIBTHEORA
+
 #include <stdlib.h>
 #include <theora/theora.h>
 #include "avcodec.h"
@@ -131,3 +135,5 @@ AVCodec oggtheora_decoder = {
     0,
     NULL
 };
+
+#endif

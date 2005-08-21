@@ -19,10 +19,11 @@
  *
  */
 
+#include <config.h>
+#ifdef CONFIG_OGGTHEORA_ENCODER
+
 #include <shouter.h>
 #include <jutils.h>
-//#include <generic.h>
-#include <config.h>
 
 extern bool got_sigpipe;
 
@@ -227,3 +228,5 @@ int Shouter::send(unsigned char *buf, unsigned int enc) {
 
 	return(res);
 }
+
+#endif

@@ -4,6 +4,10 @@
  * @author Mark Hills <mark@pogo.org.uk>
  */
 
+#include <config.h>
+
+#ifdef CONFIG_LIBVORBIS
+
 #include <vorbis/vorbisenc.h>
 
 #include "avcodec.h"
@@ -343,3 +347,5 @@ AVCodec oggvorbis_decoder = {
     oggvorbis_decode_frame,
     .capabilities= CODEC_CAP_DELAY,
 } ;
+
+#endif

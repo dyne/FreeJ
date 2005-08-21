@@ -34,7 +34,7 @@ VideoEncoder *get_encoder(char *output_filename) {
 		else
 			return (new FFmpegEncoder());
 	*/
-#ifdef WITH_AVCODEC // TODO let select ffmpeg encoder
+#ifdef CONFIG_OGGTHEORA_ENCODER
 	e = new OggTheoraEncoder(output_filename);
 #endif
 	return e;

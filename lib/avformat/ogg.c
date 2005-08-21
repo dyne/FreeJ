@@ -7,6 +7,9 @@
  */
 
 #include <stdio.h>
+#include <config.h>
+
+#ifdef CONFIG_LIBOGG
 
 #include <ogg/ogg.h>
 
@@ -256,3 +259,5 @@ int libogg_init(void) {
 /*     av_register_input_format(&ogg_iformat); */
     return 0 ;
 }
+
+#endif

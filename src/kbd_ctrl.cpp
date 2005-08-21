@@ -212,7 +212,8 @@ void KbdListener::run() {
 //	    layer->blitter.set_rotate( layer->blitter.rotate + 0.05);
 //	}
   //    break;
-
+  //
+#ifdef CONFIG_OGGTHEORA_ENCODER
     case SDLK_w:
       if(keysym->mod & KMOD_CTRL) {
             if (! env -> save_to_file) {
@@ -229,7 +230,7 @@ void KbdListener::run() {
 
 	    env -> save_to_file = ! env -> save_to_file;
       }
-      
+#endif
 
     default:
       _lastsel = -1;

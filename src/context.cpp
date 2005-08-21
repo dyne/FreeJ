@@ -97,7 +97,7 @@ bool Context::init(int wx, int hx, bool opengl) {
 #endif
 
 	// create object here to avoid performance issues at run time
-#ifdef WITH_AVCODEC
+#ifdef CONFIG_OGGTHEORA_ENCODER
 	video_encoder = get_encoder ("freej.ogg");
 
 	// register SIGPIPE signal handler (stream error)
@@ -126,7 +126,7 @@ bool Context::init(int wx, int hx, bool opengl) {
 void Context::close() {
 	Layer *lay;
 
-#ifdef WITH_AVCODEC
+#ifdef CONFIG_OGGTHEORA_ENCODER
 	delete video_encoder;
 #endif
 
@@ -221,7 +221,7 @@ void Context::cafudda(double secs) {
 		}
 
 
-#ifdef WITH_AVCODEC
+#ifdef CONFIG_OGGTHEORA_ENCODER
 		/*
 		 if (save_to_file)
 		 video_encoder -> write_frame();

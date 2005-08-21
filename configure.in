@@ -134,20 +134,36 @@ dnl AC_HEADER_DIRENT
 dnl ==============================================================
 dnl Check OGG/THEORA MMX STUFF
 dnl ==============================================================
+THEORA_LIBS=""
+THEORA_MMX_DIR=""
+THEORA_MMX_INCLUDE=""
 PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
                   have_oggtheora=yes, have_oggtheora=no)
 if test x$have_oggtheora = xyes ; then
    AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
    AC_DEFINE(THEORA_SUPPORT_ENCODE,1,[define if compiling Theora encoder])
    AC_DEFINE(THEORA_SUPPORT_FLOAT,1,[define if compiling Theora float codec])
-   STATIC_LIBS_SUBDIRS="$STATIC_LIBS_SUBDIRS theora-mmx"
-   STATIC_LIBS_INCLUDE="$STATIC_LIBS_INCLUDE -I\$(top_srcdir)/lib/theora-mmx"
+   AC_DEFINE(CONFIG_LIBOGG,1,[define if compiling FFMpeg AvCoded with ogg])
+   AC_DEFINE(CONFIG_LIBVORBIS,1,[define if compiling FFMpeg AvCoded with vorbis])
+   AC_DEFINE(CONFIG_LIBTHEORA,1,[define if compiling FFMpeg AvCoded with theora])
+   AC_DEFINE(CONFIG_OGGVORBIS_ENCODER,1,[define if compiling FFMpeg with oggvorbis encoder])
+   AC_DEFINE(CONFIG_OGGVORBIS_DECODER,1,[define if compiling FFMpeg with oggvorbis decoder])
+   AC_DEFINE(CONFIG_OGGTHEORA_ENCODER,1,[define if compiling FFMpeg with oggtheora encoder])
+   AC_DEFINE(CONFIG_OGGTHEORA_DECODER,1,[define if compiling FFMpeg with oggtheora decoder])
+   THEORA_LIBS="\$(top_srcdir)/lib/theora-mmx/libtheora.a \$(top_srcdir)/lib/shout/libshout.a"
+   THEORA_MMX_DIR="theora-mmx shout"
+   THEORA_MMX_INCLUDE="-I\$(top_srcdir)/lib/theora-mmx"
    if test x$static_build = xyes ; then
       XIPH_LIBS="`pkg-config --variable=prefix ogg`/lib/libogg.a"
-      XIPS_LIBS="$XIPH_LIBS `pkg-config --variable=prefix vorbis`/lib/libvorbis.a"
-      XIPS_LIBS="$XIPH_LIBS `pkg-config --variable=prefix vorbis`/lib/libvorbisenc.a"
+      XIPH_LIBS="$XIPH_LIBS `pkg-config --variable=prefix vorbis`/lib/libvorbis.a"
+      XIPH_LIBS="$XIPH_LIBS `pkg-config --variable=prefix vorbis`/lib/libvorbisenc.a"
    fi
 fi
+AC_SUBST(THEORA_LIBS)
+AC_SUBST(THEORA_MMX_DIR)
+AC_SUBST(THEORA_MMX_INCLUDE)
+AC_SUBST(XIPH_LIBS)
+
 
 
 dnl ==============================================================
@@ -457,10 +473,13 @@ dnl compile including the javascript interpreter
 dnl ==============================================================
 AC_DEFINE(WITH_JAVASCRIPT,1,[Define is using the javascript interpreter])
 if test x$have_linux = xyes ; then
-AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
+  AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
 fi
 if test x$have_darwin = xyes ; then
-AC_DEFINE(XP_MAC,1,[Define use of MAC types in javascript])
+  AC_DEFINE(XP_MAC,1,[Define use of MAC types in javascript])
+fi
+if test x$debug = xyes ; then
+  JS_CFLAGS="$JS_CFLAGS -DJS_GCMETER"
 fi
 
 dnl AC_MSG_CHECKING(for embedding JavaScript interpreter)

@@ -1,3 +1,6 @@
+
+#include "../../config.h"
+
 // FreeJ avcodec configuration
 #define FFMPEG_CONFIGURATION " --prefix=/usr --enable-shared --enable-libogg --enable-vorbis --enable-mp3lame --enable-xvid --enable-theora --enable-a52 --enable-gpl --enable-faad --enable-faac --cpu=pentium-mmx "
 #define TUNECPU generic
@@ -18,9 +21,10 @@
 // #define CONFIG_IPV6 1
 #define CONFIG_ZLIB 1
 // #define CONFIG_MP3LAME 1
-#define CONFIG_LIBOGG 1
-#define CONFIG_LIBVORBIS 1
-#define CONFIG_LIBTHEORA 1
+// these are now defined by configure
+// #define CONFIG_LIBOGG 1
+// #define CONFIG_LIBVORBIS 1
+// #define CONFIG_LIBTHEORA 1
 // #define CONFIG_FAAD 1
 // #define CONFIG_FAAC 1
 // #define CONFIG_XVID 1
@@ -33,10 +37,10 @@
 // #define CONFIG_AC3_ENCODER 1
 // #define CONFIG_MP2_ENCODER 1
 // #define CONFIG_MP3LAME_ENCODER 1
-#define CONFIG_OGGVORBIS_ENCODER 1
-#define CONFIG_OGGVORBIS_DECODER 1
-#define CONFIG_OGGTHEORA_ENCODER 1
-#define CONFIG_OGGTHEORA_DECODER 1
+// #define CONFIG_OGGVORBIS_ENCODER 1
+// #define CONFIG_OGGVORBIS_DECODER 1
+// #define CONFIG_OGGTHEORA_ENCODER 1
+// #define CONFIG_OGGTHEORA_DECODER 1
 // #define CONFIG_FAAC_ENCODER 1
 // #define CONFIG_XVID_ENCODER 1
 #define CONFIG_MPEG1VIDEO_ENCODER 1

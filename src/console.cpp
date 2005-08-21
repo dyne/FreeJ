@@ -1109,8 +1109,10 @@ void Console::parser_default(int key) {
     act("ctrl+f  = Go to Fullscreen");
     act("ctrl+c  = Quit FreeJ");
     act("ctrl+x  = execute a Javascript command");
+#ifdef CONFIG_OGGTHEORA_ENCODER
     ::act("ctrl+w  = start streaming to: %s",env->shouter->host());
     ::act("          and save to file: %s",env->video_encoder->get_filename());
+#endif
     break;
 
   case '!':
@@ -1201,6 +1203,7 @@ void Console::parser_default(int key) {
 #endif
 
 
+#ifdef CONFIG_OGGTHEORA_ENCODER
   case KEY_CTRL_W:
     if (! env -> save_to_file) {
       ::notice ("Streaming to %s:%u",env->shouter->host(), env->shouter->port());
@@ -1213,6 +1216,7 @@ void Console::parser_default(int key) {
     }
     env -> save_to_file = ! env -> save_to_file;
     break;
+#endif
 
   case KEY_CTRL_L:
     refresh();

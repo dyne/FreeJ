@@ -346,6 +346,7 @@ int main (int argc, char **argv) {
 	  freej.video_encoder -> set_output_name (encoded_filename );
   }
 
+#ifdef CONFIG_OGGTHEORA_ENCODER
   /*
    * streaming options 
    */
@@ -402,6 +403,9 @@ int main (int argc, char **argv) {
   freej.shouter -> apply_profile ( );
 
   }
+
+#endif
+
 
   freej.start_running = startstate;
 
