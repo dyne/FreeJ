@@ -57,27 +57,30 @@ JSFunctionSpec global_functions[] = {
 
 JS(cafudda) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  double tmp_double;
-  double *seconds;
-  int int_seconds;
+  double *pdouble;
+  double seconds;
+  int isecs;
 
   if(argc>0) {
+
     if(JSVAL_IS_DOUBLE(argv[0])) {
       
       // JSVAL_TO_DOUBLE segfault when there's an int as input
-      seconds=JSVAL_TO_DOUBLE(argv[0]);
+      pdouble=JSVAL_TO_DOUBLE(argv[0]);
+      seconds = *pdouble;
       
     } else if(JSVAL_IS_INT(argv[0])) {
       
-      int_seconds=JSVAL_TO_INT(argv[0]);
-      seconds=&tmp_double;
-      *seconds=(double )int_seconds;      
+      isecs=JSVAL_TO_INT(argv[0]);
+      seconds=(double)isecs;
+
     }
-  }
+
+  } else seconds = 0;
 
   
-  func("JsParser :: run for %f seconds",*seconds);
-  env->cafudda(*seconds);
+  func("JsParser :: run for %f seconds",seconds);
+  env->cafudda(seconds);
 
   return JS_TRUE;
 }
@@ -161,12 +164,14 @@ JS(stream_start) {
   notice ("Streaming to %s:%u",env->shouter->host(), env->shouter->port());
   act ("Saving to %s", env -> video_encoder -> get_filename());
   env->save_to_file = true;
+  return JS_TRUE;
 }
 JS(stream_stop) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   ::notice ("Stopped stream to %s:%u", env->shouter->host(), env->shouter->port());
   ::act ("Video saved in file %s",env -> video_encoder -> get_filename());
   env->save_to_file = false;
+  return JS_TRUE;
 }
 
 static int dir_selector(const struct dirent *dir) {

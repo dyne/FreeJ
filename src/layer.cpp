@@ -41,6 +41,7 @@ Layer::Layer()
   filename[0] = 0;
   buffer = NULL;
   screen = NULL;
+  is_native_sdl_surface = false;
 }
 
 Layer::~Layer() {

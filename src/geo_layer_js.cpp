@@ -103,10 +103,14 @@ JS(geometry_layer_clear) {
 /// color handling, a macro and some overloading tricks
 #define OPTIONAL_COLOR_ARG(num) \
   uint32_t color; \
-  if( argc>num ) \
-    color = (uint32_t) *(JSVAL_TO_DOUBLE(argv[num])); \
-  else \
+  if( argc>=(num+1) ) { \
+    if(JSVAL_IS_DOUBLE(argv[num])) \
+      color = (uint32_t) *(JSVAL_TO_DOUBLE(argv[num])); \
+    else \
+      color = (uint32_t) (JSVAL_TO_INT(argv[num])); \
+  } else \
     color = lay->color;
+
 
 JS(geometry_layer_color) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
@@ -153,7 +157,9 @@ JS(geometry_layer_pixel) {
   int x = JSVAL_TO_INT(argv[0]);
   int y = JSVAL_TO_INT(argv[1]);
 
-  lay->pixel(x, y);
+  OPTIONAL_COLOR_ARG(2);
+
+  lay->pixel(x, y, color);
 
   return JS_TRUE;
 }
@@ -167,8 +173,10 @@ JS(geometry_layer_hline) {
   int x1 = JSVAL_TO_INT(argv[0]);
   int x2 = JSVAL_TO_INT(argv[1]);
   int y = JSVAL_TO_INT(argv[2]);
-  
-  lay->hline(x1, x2, y);
+
+  OPTIONAL_COLOR_ARG(3);
+
+  lay->hline(x1, x2, y, color);
 
   return JS_TRUE;
 }
@@ -183,7 +191,9 @@ JS(geometry_layer_vline) {
   int y1 = JSVAL_TO_INT(argv[1]);
   int y2 = JSVAL_TO_INT(argv[2]);
 
-  lay->vline(x, y1, y2);
+  OPTIONAL_COLOR_ARG(3);
+
+  lay->vline(x, y1, y2, color);
 
   return JS_TRUE;
 }
@@ -235,7 +245,9 @@ JS(geometry_layer_line) {
   int x2 = JSVAL_TO_INT(argv[2]);
   int y2 = JSVAL_TO_INT(argv[3]);
 
-  lay->line(x1, y1, x2, y2);
+  OPTIONAL_COLOR_ARG(4);
+
+  lay->line(x1, y1, x2, y2, color);
 
   return JS_TRUE;
 }
@@ -250,8 +262,10 @@ JS(geometry_layer_aaline) {
   int y1 = JSVAL_TO_INT(argv[1]);
   int x2 = JSVAL_TO_INT(argv[2]);
   int y2 = JSVAL_TO_INT(argv[3]);
+
+  OPTIONAL_COLOR_ARG(4);
   
-  lay->aaline(x1, y1, x2, y2);
+  lay->aaline(x1, y1, x2, y2, color);
 
   return JS_TRUE;
 }
@@ -266,7 +280,9 @@ JS(geometry_layer_circle) {
   int y = JSVAL_TO_INT(argv[1]);
   int r = JSVAL_TO_INT(argv[2]);
 
-  lay->circle(x, y, r);
+  OPTIONAL_COLOR_ARG(3);
+
+  lay->circle(x, y, r, color);
 
   return JS_TRUE;
 }
@@ -281,7 +297,9 @@ JS(geometry_layer_aacircle) {
   int y = JSVAL_TO_INT(argv[1]);
   int r = JSVAL_TO_INT(argv[2]);
 
-  lay->aacircle(x, y, r);
+  OPTIONAL_COLOR_ARG(3);
+
+  lay->aacircle(x, y, r, color);
 
   return JS_TRUE;
 }
@@ -296,7 +314,9 @@ JS(geometry_layer_circle_fill) {
   int y = JSVAL_TO_INT(argv[1]);
   int r = JSVAL_TO_INT(argv[2]);
 
-  lay->circle_fill(x, y, r);
+  OPTIONAL_COLOR_ARG(3);
+
+  lay->circle_fill(x, y, r, color);
 
   return JS_TRUE;
 }
@@ -312,7 +332,9 @@ JS(geometry_layer_ellipse) {
   int rx = JSVAL_TO_INT(argv[2]);
   int ry = JSVAL_TO_INT(argv[3]);
 
-  lay->ellipse(x, y, rx, ry);
+  OPTIONAL_COLOR_ARG(4);
+
+  lay->ellipse(x, y, rx, ry, color);
 
   return JS_TRUE;
 }
@@ -328,7 +350,9 @@ JS(geometry_layer_aaellipse) {
   int rx = JSVAL_TO_INT(argv[2]);
   int ry = JSVAL_TO_INT(argv[3]);
 
-  lay->aaellipse(x, y, rx, ry);
+  OPTIONAL_COLOR_ARG(4);
+
+  lay->aaellipse(x, y, rx, ry, color);
 
   return JS_TRUE;
 }
@@ -344,7 +368,9 @@ JS(geometry_layer_ellipse_fill) {
   int rx = JSVAL_TO_INT(argv[2]);
   int ry = JSVAL_TO_INT(argv[3]);
 
-  lay->ellipse_fill(x, y, rx, ry);
+  OPTIONAL_COLOR_ARG(4);
+
+  lay->ellipse_fill(x, y, rx, ry, color);
 
   return JS_TRUE;
 }
@@ -361,7 +387,9 @@ JS(geometry_layer_pie) {
   int start = JSVAL_TO_INT(argv[3]);
   int end = JSVAL_TO_INT(argv[4]);
 
-  lay->pie(x, y, rad, start, end);
+  OPTIONAL_COLOR_ARG(5);
+
+  lay->pie(x, y, rad, start, end, color);
 
   return JS_TRUE;
 }
@@ -378,7 +406,9 @@ JS(geometry_layer_pie_fill) {
   int start = JSVAL_TO_INT(argv[3]);
   int end = JSVAL_TO_INT(argv[4]);
 
-  lay->pie_fill(x, y, rad, start, end);
+  OPTIONAL_COLOR_ARG(5);
+
+  lay->pie_fill(x, y, rad, start, end, color);
 
   return JS_TRUE;
 }
@@ -396,7 +426,9 @@ JS(geometry_layer_trigon) {
   int x3 = JSVAL_TO_INT(argv[4]);
   int y3 = JSVAL_TO_INT(argv[5]);
 
-  lay->trigon(x1, y1, x2, y2, x3, y3);
+  OPTIONAL_COLOR_ARG(6);
+
+  lay->trigon(x1, y1, x2, y2, x3, y3, color);
 
   return JS_TRUE;
 }
@@ -414,7 +446,9 @@ JS(geometry_layer_aatrigon) {
   int x3 = JSVAL_TO_INT(argv[4]);
   int y3 = JSVAL_TO_INT(argv[5]);
 
-  lay->aatrigon(x1, y1, x2, y2, x3, y3);
+  OPTIONAL_COLOR_ARG(6);
+
+  lay->aatrigon(x1, y1, x2, y2, x3, y3, color);
 
   return JS_TRUE;
 }
@@ -432,7 +466,9 @@ JS(geometry_layer_trigon_fill) {
   int x3 = JSVAL_TO_INT(argv[4]);
   int y3 = JSVAL_TO_INT(argv[5]);
 
-  lay->trigon_fill(x1, y1, x2, y2, x3, y3);
+  OPTIONAL_COLOR_ARG(6);
+
+  lay->trigon_fill(x1, y1, x2, y2, x3, y3, color);
 
   return JS_TRUE;
 }

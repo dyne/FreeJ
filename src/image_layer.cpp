@@ -28,89 +28,90 @@
 #include <config.h>
 
 ImageLayer::ImageLayer()
-    :Layer() {
-	black_image=NULL;
-	subliminal=0;
-	blinking=false;
-	count=0;
-	set_name("IMG");
-    }
+  :Layer() {
+  black_image=NULL;
+  subliminal=0;
+  blinking=false;
+  count=0;
+  set_name("IMG");
+  is_native_sdl_surface = true;
+}
 
 ImageLayer::~ImageLayer() {
-    close();
+  close();
 }
 bool ImageLayer::open(char *file) {
-    image = IMG_Load(file);
-    if(!image) {
-	error("ImageLayer::open() problems loading %s: %s", file,IMG_GetError());
-	return false;
-    }
-    /**
-     * Convert to display pixel format if the images is not 32 bit per pixel
-     */
-    if(image->format->BitsPerPixel != 32) {
-	image = SDL_DisplayFormat(image);
-    }
-    return true;
+  image = IMG_Load(file);
+  if(!image) {
+    error("ImageLayer::open() problems loading %s: %s", file,IMG_GetError());
+    return false;
+  }
+  /**
+   * Convert to display pixel format if the images is not 32 bit per pixel
+   */
+  if(image->format->BitsPerPixel != 32) {
+    image = SDL_DisplayFormat(image);
+  }
+  return true;
 }
 bool ImageLayer::init(int width, int height) {
-    func("ImageLayer::init");
-    _init(image->w, image->h);
-    notice("ImageLayer :: w[%u] h[%u] (%u bytes)",
-	    image->w, image->h, geo.size);
-
-    /** allocate memory for the black image */
-    black_image = jalloc(black_image,geo.size);
-
-    // paint it black!
-    black_image = memset(black_image,0,geo.size);
-
-    return true;
+  func("ImageLayer::init");
+  _init(image->w, image->h);
+  notice("ImageLayer :: w[%u] h[%u] (%u bytes)",
+	 image->w, image->h, geo.size);
+  
+  /** allocate memory for the black image */
+  black_image = jalloc(black_image,geo.size);
+  
+  // paint it black!
+  black_image = memset(black_image,0,geo.size);
+  
+  return true;
 }
 void *ImageLayer::feed() {
-    count++;
-    // threads problems !! XXX TODO 
-    //    if(count==freej->fps_speed)
-    //	count=0;
-    if(blinking && count%2!=0) {
-	return black_image;
-    }
-    // subliminal mode
-    if(subliminal!=0 && count>= subliminal)
-	return black_image;
-
-    return image->pixels;
+  count++;
+  // threads problems !! XXX TODO 
+  //    if(count==freej->fps_speed)
+  //	count=0;
+  if(blinking && count%2!=0) {
+    return black_image;
+  }
+  // subliminal mode
+  if(subliminal!=0 && count>= subliminal)
+    return black_image;
+  
+  return image->pixels;
 }
 
 bool ImageLayer::keypress(char key) {
-    bool res = true;
-
-    switch(key) {
-	case 'o':
-	    subliminal++;
-	    act("ImageLayer::subliminal count %i",subliminal);
-	    break;
-	case 'p':
-	    subliminal=0;
-	    act("ImageLayer::subliminal reset");
-	    break;
-	case 'b':
-	    if(blinking)
-		blinking=false;
-	    else 
-		blinking=true;
-	    act("ImageLayer::blinking %s",(blinking)?"ON":"OFF");
-	    break;
-
-	default:
-	    res = false;
-	    break;
-    }
-    return res;
+  bool res = true;
+  
+  switch(key) {
+  case 'o':
+    subliminal++;
+    act("ImageLayer::subliminal count %i",subliminal);
+    break;
+  case 'p':
+    subliminal=0;
+    act("ImageLayer::subliminal reset");
+    break;
+  case 'b':
+    if(blinking)
+      blinking=false;
+    else 
+      blinking=true;
+    act("ImageLayer::blinking %s",(blinking)?"ON":"OFF");
+    break;
+    
+  default:
+    res = false;
+    break;
+  }
+  return res;
 }
 
 
 void ImageLayer::close() {
-    func("ImageLayer::close()");
-    SDL_FreeSurface(image);
+  func("ImageLayer::close()");
+  SDL_FreeSurface(image);
 }

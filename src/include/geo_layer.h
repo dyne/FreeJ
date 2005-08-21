@@ -38,42 +38,42 @@ class GeoLayer: public Layer {
   // drawing functions
   int clear();
   
-  int pixel(int16_t x, int16_t y);
-  int hline(int16_t x1, int16_t x2, int16_t y);
-  int vline(int16_t x, int16_t y1, int16_t y2);
+  int pixel(int16_t x, int16_t y, uint32_t col);
+  int hline(int16_t x1, int16_t x2, int16_t y, uint32_t col);
+  int vline(int16_t x, int16_t y1, int16_t y2, uint32_t col);
 
   int rectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col);
   int rectangle_fill(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col);
 
-  int line(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
-  int aaline(int16_t x1, int16_t y1, int16_t x2, int16_t y2);
+  int line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col);
+  int aaline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col);
 
-  int circle(int16_t x, int16_t y, int16_t r);
-  int aacircle(int16_t x, int16_t y, int16_t r);
-  int circle_fill(int16_t x, int16_t y, int16_t r);
+  int circle(int16_t x, int16_t y, int16_t r, uint32_t col);
+  int aacircle(int16_t x, int16_t y, int16_t r, uint32_t col);
+  int circle_fill(int16_t x, int16_t y, int16_t r, uint32_t col);
 
-  int ellipse(int16_t x, int16_t y, int16_t rx, int16_t ry);
-  int aaellipse(int16_t x, int16_t y, int16_t rx, int16_t ry);
-  int ellipse_fill(int16_t x, int16_t y, int16_t rx, int16_t ry);
+  int ellipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_t col);
+  int aaellipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_t col);
+  int ellipse_fill(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_t col);
 
-  int pie(uint16_t x, uint16_t y, uint16_t rad, uint16_t start, uint16_t end);
-  int pie_fill(uint16_t x, uint16_t y, uint16_t rad, uint16_t start, uint16_t end);
+  int pie(uint16_t x, uint16_t y, uint16_t rad, uint16_t start, uint16_t end, uint32_t col);
+  int pie_fill(uint16_t x, uint16_t y, uint16_t rad, uint16_t start, uint16_t end, uint32_t col);
   
   int trigon(int16_t x1, int16_t y1,
 	     int16_t x2, int16_t y2,
-	     int16_t x3, int16_t y3);
+	     int16_t x3, int16_t y3, uint32_t col);
   int aatrigon(int16_t x1, int16_t y1,
 	       int16_t x2, int16_t y2,
-	       int16_t x3, int16_t y3);
+	       int16_t x3, int16_t y3, uint32_t col);
   int trigon_fill(int16_t x1, int16_t y1,
 		  int16_t x2, int16_t y2,
-		  int16_t x3, int16_t y3);
+		  int16_t x3, int16_t y3, uint32_t col);
   
-  int polygon(int16_t *vx, int16_t *vy, int num_vertex);
-  int aapolygon(int16_t *vx, int16_t *vy, int num_vertex);
-  int polygon_fill(int16_t *vx, int16_t *vy, int num_vertex);
+  int polygon(int16_t *vx, int16_t *vy, int num_vertex, uint32_t col);
+  int aapolygon(int16_t *vx, int16_t *vy, int num_vertex, uint32_t col);
+  int polygon_fill(int16_t *vx, int16_t *vy, int num_vertex, uint32_t col);
 
-  int bezier(int16_t *vx, int16_t *vy, int num_vertex, int steps);
+  int bezier(int16_t *vx, int16_t *vy, int num_vertex, int steps, uint32_t col);
 
   //  int character(int16_t x, int16_t y, char c, uint32_t color);
   //  int string(int16_t x, int16_t y, const char *c, uint32_t color);

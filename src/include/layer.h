@@ -139,6 +139,7 @@ class Layer: public Entry, public JSyncThread {
 
   void *buffer; ///< feed buffer returned by layer implementation
 
+  bool is_native_sdl_surface;
 
  private:
 
