@@ -43,6 +43,7 @@ JSFunctionSpec global_functions[] = {
     {"debug",           debug,                  1},
     {"rand",            rand,                   0},
     {"srand",           srand,                  1},
+    {"class_is_defined",class_is_defined,       1},
     {"pause",           pause,                  0},
     {"fullscreen",      fullscreen,             0},
     {"set_resolution",  set_resolution,         2},
@@ -248,12 +249,14 @@ JS(debug) {
   return JS_TRUE;
 }
 
-
+static uint32_t randval;
 JS(rand) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  int r;
+  randval = randval * 1073741789 + 32749;
 
+  *rval = INT_TO_JSVAL(randval);
+  /*
   r = rand();
 
   if(argc<1) *rval = 1+(int)(r/(RAND_MAX+1.0));
@@ -263,9 +266,10 @@ JS(rand) {
     r = 1+(int)(max*r/(RAND_MAX+1.0));
     *rval = INT_TO_JSVAL(r);
   }
-
+  */
   return JS_TRUE;
 }
+
 JS(srand) {
   // this is not fast and you'd better NOT use it often
   // to achieve more randomization on higher numbers:
@@ -278,12 +282,33 @@ JS(srand) {
     JS_ARG_NUMBER(r,0);
     seed = (int)r;
   }
-  
-  srand(seed);
+  randval = seed;
 
   return JS_TRUE;
 }
 
+JS(class_is_defined) {
+ func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+ char *cl;
+ JSBool resolved;
+ JSObject *js_class;
+ jsval id;
+
+ JS_ARG_STRING(cl,0);
+ 
+ func("detecting class %s",cl);
+ id = STRING_TO_JSVAL(cl);
+ // JS_ResolveStandardClass(cx, obj, id, &resolved);
+ resolved = JS_CallFunctionName(cx, obj, "kbd.d",0,NULL,&id);
+
+ if(resolved)
+   func("class found");
+ else
+   func("class not found");
+
+
+}
 
 ////////////////////////////////
 // Linklist Entry Methods

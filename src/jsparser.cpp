@@ -56,6 +56,9 @@ JsParser::~JsParser() {
 void JsParser::init() {
   JSBool ret;
   stop_script=false;
+  
+  notice("Initializing %s", JS_GetImplementationVersion());
+
     /* Create a new runtime environment. */
     js_runtime = JS_NewRuntime(8L * 1024L * 1024L);
     if (!js_runtime) {
@@ -75,8 +78,13 @@ void JsParser::init() {
 	return ;
     }
 
+    /* Set a more strict error checking */
+    JS_SetOptions(js_context, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
+
     /* Create the global object here */
     global_object = JS_NewObject(js_context, &global_class, NULL, NULL);
+    //    JS_SetGlobalObject(js_context, global_object);
+    //    this is done in JS_InitStandardClasses.
 
     /* Set the branch callback */
     JS_SetBranchCallback(js_context, js_static_branch_callback);
@@ -84,7 +92,12 @@ void JsParser::init() {
     /* Set the error reporter */
     JS_SetErrorReporter(js_context, js_error_reporter);
 
-
+    /* Sets maximum (if stack grows upward) or minimum (downward) legal stack byte
+     * address in limitAddr for the thread or process stack used by cx.  To disable
+     * stack size checking, pass 0 for limitAddr.
+     * JS_SetThreadStackLimit(js_context, 0x0);
+     */
+   
     /* Initialize the built-in JS objects and the global object */
     JS_InitStandardClasses(js_context, global_object);
 
@@ -176,7 +189,6 @@ int JsParser::open(const char* script_file) {
   FILE *fd;
   char *buf;
   int len;
-  unsigned int c;
 
   char header[1024];
 
@@ -200,14 +212,14 @@ int JsParser::open(const char* script_file) {
   else
     len -= strlen(header);
 
-  buf = (char*)calloc(len+10,sizeof(char));
+  buf = (char*)calloc(len+128,sizeof(char));
   func("JsParser allocated %u bytes",len);
   fread(buf,len,sizeof(char),fd);
 
   fclose(fd);
 
   if( JS_EvaluateScript (js_context, global_object,
-			 buf, len, script_file, c, &ret_val)
+			 buf, len, script_file, lineno, &ret_val)
       == JS_FALSE)
     error("execution of script aborted");
 

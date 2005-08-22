@@ -30,10 +30,6 @@
 #include <context.h>
 #include <jsapi.h> // spidermonkey header
 
-/*
- * Tune this to avoid wasting space for shallow stacks, while saving on
- * malloc overhead/fragmentation for deep or highly-variable stacks. */
-#define STACK_CHUNK_SIZE    8192
 
 #define JS(fun) \
 JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)

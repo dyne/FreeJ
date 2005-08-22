@@ -51,6 +51,14 @@ JSBool js_static_branch_callback(JSContext* Context, JSScript* Script) {
 }
 
 void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
-  ::error("script error in %s:",Report->filename);
+  if(Report->filename)
+    ::error("script error in %s",Report->filename);
+  else
+    ::error("script error while parsing");
+
+  // this doesn't prints out the line reporting error :/
+  if(Report->lineno)
+    ::error("%u: %s",(uint32_t)Report->lineno, Report->linebuf);
+
   if(Message) ::error("%s",(char *)Message);
 }

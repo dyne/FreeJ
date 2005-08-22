@@ -179,8 +179,8 @@ bool jfree(void *point) {
     return(false);
   }
   
-  if(verbosity>=FUNC)
-    fprintf(stderr,"[M] freeing memory at address %p\n",point);
+  //  if(verbosity>=FUNC)
+  //    fprintf(stderr,"[M] freeing memory at address %p\n",point);
 
   free(point);
   point = NULL;

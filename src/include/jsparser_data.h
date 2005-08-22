@@ -136,6 +136,7 @@ JS(list_layers);
 JS(debug);
 JS(rand);
 JS(srand);
+JS(class_is_defined);
 JS(pause);
 JS(fullscreen);
 JS(set_resolution);

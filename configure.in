@@ -21,6 +21,8 @@ case $uname in
      have_linux=yes
      if test $host_cpu = powerpc; then
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
+       AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
+       AC_DEFINE(HAVE_ALTIVEC,1,[define if cpu supports Altivec instruction set])
        AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
        have_ppc=yes
      else
@@ -47,6 +49,7 @@ case $uname in
      Darwin)
      AC_MSG_RESULT(Darwin/OSX)
      AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
+     AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
      have_darwin=yes
      ;;
      *)
@@ -171,6 +174,7 @@ dnl Check if there is FREETYPE2
 dnl ==============================================================
 AC_CHECK_FT2(9.0.0,[
 	AC_DEFINE(WITH_FT2,1,[define if compiling freetype2 layer])
+	AC_DEFINE(HAVE_FREETYPE2,1,[define if linking to freetype2 library])
 	have_freetype2=yes],have_freetype2=no)
 
 dnl ==============================================================

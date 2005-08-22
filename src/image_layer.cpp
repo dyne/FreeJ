@@ -115,7 +115,7 @@ bool ImageLayer::init(int width, int height) {
   
   // paint it black!
   black_image = memset(black_image,0,geo.size);
-  
+
   return true;
 }
 void *ImageLayer::feed() {
