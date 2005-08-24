@@ -127,7 +127,7 @@ JS(constructor_func) {                                                        \
   }                                                                           \
   layer->init(width, height);                                                 \
   if(!JS_SetPrivate(cx,obj,(void*)layer)) {                                   \
-    error("JS::%s : can't set the private value");                            \
+    error("JS::%s : can't set the private value", constructor_name);          \
     delete layer; return JS_FALSE;                                            \
   }                                                                           \
   *rval = OBJECT_TO_JSVAL(obj);                                               \

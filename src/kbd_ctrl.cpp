@@ -48,7 +48,7 @@ KbdListener::~KbdListener() {
 
 bool KbdListener::init(Context *context) {
 
-  if(!context) return false;
+  //  if(!context) return false;
 
   /* saves the pointer to the environment */
   this->env = context;

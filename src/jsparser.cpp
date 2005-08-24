@@ -170,6 +170,11 @@ void JsParser::init() {
                    effect_constructor,
                    effect_methods);
 
+    REGISTER_CLASS("KeyboardController",
+		   kbd_ctrl_class,
+		   kbd_ctrl_constructor,
+		   kbd_ctrl_methods);
+
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 //
    /** register SIGINT signal */

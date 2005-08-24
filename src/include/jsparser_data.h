@@ -66,6 +66,8 @@ JS(video_layer_constructor);
 JS(txt_layer_constructor);
 #endif
 
+JS(kbd_ctrl_constructor);
+
 
 // class and methods are defined in the specific _js.cpp files
 
@@ -79,6 +81,11 @@ extern JSFunctionSpec effect_methods[];
 //DECLARE_CLASS("Layer",layer_class,layer_constructor);
 extern JSClass layer_class;
 extern JSFunctionSpec layer_methods[];
+
+
+extern JSClass kbd_ctrl_class;
+extern JSFunctionSpec kbd_ctrl_methods[];
+
 
 //DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
 extern JSClass particle_layer_class;
