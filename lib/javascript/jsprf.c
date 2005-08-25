@@ -54,6 +54,8 @@
 ** Note: on some platforms va_list is defined as an array,
 ** and requires array notation.
 */
+#define HAVE_VA_LIST_AS_ARRAY 1
+
 #ifdef HAVE_VA_COPY
 #define VARARGS_ASSIGN(foo, bar)        VA_COPY(foo,bar)
 #elif defined(HAVE_VA_LIST_AS_ARRAY)

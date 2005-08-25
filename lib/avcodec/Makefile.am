@@ -1,3 +1,5 @@
+SUBDIRS = @AVCODEC_SUBDIRS@
+
 INCLUDES = -I$(top_srcdir)/lib/theora-mmx
 
 AM_CFLAGS= -DHAVE_AV_CONFIG_H -I.. -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_GNU_SOURCE
@@ -77,12 +79,8 @@ libavcodec_a_SOURCES = \
         liba52/imdct.c  liba52/parse.c liba52/crc.c liba52/resample_a52.c \
         libpostproc/postprocess.c \
 	oggvorbis.c \
-        oggtheora.c \
-        i386/fdct_mmx.c i386/cputest.c \
-	i386/dsputil_mmx.c i386/mpegvideo_mmx.c \
-	i386/idct_mmx.c i386/motion_est_mmx.c \
-	i386/simple_idct_mmx.c i386/vp3dsp_mmx.c \
-	i386/vp3dsp_sse2.c
+        oggtheora.c
+
 # i386/fft_sse.c
 
 # ifeq ($(CONFIG_FAAD),yes) OBJS+= faad.o -lfaad

@@ -23,7 +23,8 @@
  * @file utils.c
  * utils.
  */
- 
+
+#include <config.h>
 #include "avcodec.h"
 #include "dsputil.h"
 #include "mpegvideo.h"
@@ -583,8 +584,9 @@ int avcodec_encode_video(AVCodecContext *avctx, uint8_t *buf, int buf_size,
     if((avctx->codec->capabilities & CODEC_CAP_DELAY) || pict){
         int ret = avctx->codec->encode(avctx, buf, buf_size, (void *)pict);
         avctx->frame_number++;
+#ifdef HAVE_MMX
         emms_c(); //needed to avoid an emms_c() call before every return;
-    
+#endif	
         return ret;
     }else
         return 0;

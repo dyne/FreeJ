@@ -22,7 +22,10 @@ case $uname in
      if test $host_cpu = powerpc; then
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
+       AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
        AC_DEFINE(HAVE_ALTIVEC,1,[define if cpu supports Altivec instruction set])
+       AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
+       AC_DEFINE(WORDS_BIGENDIAN,1,[define if compiling for Big Endian CPU])
        AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
        have_ppc=yes
      else
@@ -43,7 +46,6 @@ case $uname in
        have_sse=yes
        AC_DEFINE(HAVE_SSE2,1,[define if enabling SSE2 acceleration])
      fi
-
      ;;
 
      Darwin)
@@ -182,6 +184,21 @@ dnl AVCODEC AVFORMAT STUFF
 dnl ==============================================================
 dnl put a disable flag
 AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])
+AVCODEC_SUBDIRS=""
+AVCODEC_LIBS="\$(top_srcdir)/lib/avcodec/libavcodec.a"
+AVFORMAT_LIBS="\$(top_srcdir)/lib/avformat/libavformat.a"
+if test x$have_mmx = xyes ; then
+     AVCODEC_SUBDIRS="i386"
+     AVCODEC_LIBS="$AVCODEC_LIBS \$(top_srcdir)/lib/avcodec/i386/libavcodecmmx.a"
+fi
+if test x$have_ppc = xyes ; then
+     AVCODEC_SUBDIRS="ppc"
+     AVCODEC_LIBS="$AVCODEC_LIBS \$(top_srcdir)/lib/avcodec/ppc/libavcodecppc.a"
+fi
+
+AC_SUBST(AVFORMAT_LIBS)
+AC_SUBST(AVCODEC_SUBDIRS)
+AC_SUBST(AVCODEC_LIBS)
 
 
 
@@ -580,6 +597,8 @@ lib/ccvt/Makefile
 lib/theora-mmx/Makefile
 lib/avformat/Makefile
 lib/avcodec/Makefile
+lib/avcodec/i386/Makefile
+lib/avcodec/ppc/Makefile
 lib/shout/Makefile
 lib/portaudio/Makefile
 lib/sdl_image/Makefile

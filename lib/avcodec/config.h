@@ -186,8 +186,3 @@
 #define CONFIG_DVBSUB_ENCODER 1
 #define CONFIG_DVBSUB_DECODER 1
 
-// architecture
-
-#define HAVE_MMX 1
-#define __CPU__ 586
-

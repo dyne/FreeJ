@@ -126,7 +126,7 @@ endif
 # DEFINES    += -DDEBUG -DDEBUG_$(shell whoami)
 # OBJDIR_TAG = _DBG
 # endif
-OPTIMIZER  = -O2 -ffast-math -fomit-frame-pointer -mmmx -pipe
+OPTIMIZER  = -O2 -ffast-math -fomit-frame-pointer -pipe
 DEFINES    += -D_REENTRANT
 OBJDIR_TAG = _freej
 

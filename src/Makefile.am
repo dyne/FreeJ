@@ -79,8 +79,8 @@ freej_SOURCES = \
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @THEORA_LIBS@ \
 		 @XIPH_LIBS@ \
-              $(top_srcdir)/lib/avformat/libavformat.a \
-              $(top_srcdir)/lib/avcodec/libavcodec.a \
+		 @AVFORMAT_LIBS@ \
+		 @AVCODEC_LIBS@ \
               $(top_srcdir)/lib/portaudio/libportaudio.a \
 		 @PORTAUDIO_LIBS@ \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
