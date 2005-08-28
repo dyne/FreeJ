@@ -80,10 +80,10 @@ add_layer(geo);
 
 running = true;
 kbd = new KeyboardController();
-kbd.q = function() { running = false; }
-kbd.p = function() { drawer = draw_pixels; }
-kbd.t = function() { drawer = draw_triangles; }
-kbd.e = function() { drawer = draw_ellipses; }
+kbd.released_q = function() { running = false; }
+kbd.released_p = function() { drawer = draw_pixels; }
+kbd.released_t = function() { drawer = draw_triangles; }
+kbd.released_e = function() { drawer = draw_ellipses; }
 
 while(running) {
 

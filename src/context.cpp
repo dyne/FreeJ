@@ -166,8 +166,8 @@ void Context::cafudda(double secs) {
 
 	do {
 		/** Fetch keyboard events */
-		if (interactive) 
-			kbd.run ();
+	  //		if (interactive) 
+	  //			kbd.run ();
 
 		/* 
 		 * Change resolution if needed 

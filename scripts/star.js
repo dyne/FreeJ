@@ -2,7 +2,6 @@
 // this simply draws i kind of star
 // it also shows the usage of keyboard controller
 // press 'q' to quit while running
-// $Id: $
 
 x = 100;
 y = 100;
@@ -42,7 +41,7 @@ function drawStar(lay, s_mul, s2_mul) {
 
 running = true;
 kbd = new KeyboardController();
-kbd.q = function() { running = false; }
+kbd.pressed_esc = function() { running = false; }
 
 geo = new GeometryLayer();
 geo.color(255,255,255,255);

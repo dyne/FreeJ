@@ -9,15 +9,11 @@ noinst_LIBRARIES = libavcodecmmx.a
 
 libavcodecmmx_a_SOURCES = \
 cputest.c \
-dsputil_h264_template_mmx.c \
 dsputil_mmx.c \
 fdct_mmx.c \
-fft_sse.c \
-h264dsp_mmx.c \
 idct_mmx.c \
 motion_est_mmx.c \
 mpegvideo_mmx.c \
-mpegvideo_mmx_template.c \
 simple_idct_mmx.c \
 vp3dsp_mmx.c \
 vp3dsp_sse2.c

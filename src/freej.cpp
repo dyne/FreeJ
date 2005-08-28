@@ -334,7 +334,7 @@ int main (int argc, char **argv) {
   }
 
   /* initialize the Keyboard Listener */
-  freej.kbd.init( &freej );
+  //  freej.kbd.init( );
 
   /* initialize the On Screen Display */
   freej.osd.init( &freej );

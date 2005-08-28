@@ -21,35 +21,23 @@
 
 #include <SDL/SDL.h>
 
-class Context;
-class Layer;
-class Filter;
-class Plugger;
-
 class KbdListener {
- private:
-  bool _layer_op(SDL_keysym *keysym);
-  bool _context_op(SDL_keysym *keysym);
-  Filter *_filt;
-  int _sel, _lastsel;
-  int plugin_bank;
-  bool drag_value;
-
-  SDL_Event event;
-  SDL_keysym *keysym;
-
-
  public:
   KbdListener();
   ~KbdListener();
   
-  bool init(Context *context);
-  void run();
-  
-  Context *env;
-  Layer *layer;
-  Filter *filter;
-  Plugger *plugger;
+  bool init();
+  bool poll();
+
+  SDL_Event event;
+  SDL_keysym *keysym;
+
+  //  Context *env;
+
+  //  Layer *layer;
+  //  Filter *filter;
+
+  //  Plugger *plugger;
 
   bool active;
 };

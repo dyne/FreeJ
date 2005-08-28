@@ -196,7 +196,6 @@ BLIT past_absdiff(void *src, void *past, void *dst, int bytes) {
 
 // temporary surface used in SDL blits
 static SDL_Surface *sdl_surf;
-static bool is_native_sdl_surface = false;
 
 BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
 	     SDL_Surface *dst, SDL_Rect *dst_rect,
@@ -237,7 +236,7 @@ BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
     (src, geo->w, geo->h, geo->bpp,
      geo->pitch, bmask, gmask, rmask, amask);
   
-  //  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, *(unsigned int*)value );  
+  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, *(unsigned int*)value );  
 
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
   
@@ -479,7 +478,6 @@ bool Blitter::init(Layer *lay) {
 
   layer = lay;
   screen = lay->screen;
-  is_native_sdl_surface = lay->is_native_sdl_surface;
 
   func("blitter initialized for layer %s",lay->get_name());
   
