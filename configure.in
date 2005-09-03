@@ -603,6 +603,7 @@ lib/shout/Makefile
 lib/portaudio/Makefile
 lib/sdl_image/Makefile
 lib/sdl_gfx/Makefile
+lib/sdl_ttf/Makefile
 lib/flash/Makefile
 filters/Makefile
 filters/delaygrab/Makefile

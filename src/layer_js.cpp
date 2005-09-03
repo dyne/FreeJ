@@ -218,6 +218,24 @@ JS(layer_get_y_position) {
 
     return JS_TRUE;
 }
+JS(layer_get_width) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+    GET_LAYER(Layer);
+
+    *rval=INT_TO_JSVAL(lay->geo.w);
+
+    return JS_TRUE;
+}
+JS(layer_get_height) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+    GET_LAYER(Layer);
+
+    *rval=INT_TO_JSVAL(lay->geo.h);
+
+    return JS_TRUE;
+}
 JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 

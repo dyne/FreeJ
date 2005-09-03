@@ -6,6 +6,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/portaudio \
            -I$(top_srcdir)/lib/sdl_image \
            -I$(top_srcdir)/lib/sdl_gfx \
+	   -I$(top_srcdir)/lib/sdl_ttf \
 	   -I$(top_srcdir)/lib/javascript \
 	   -I$(top_srcdir)/lib/javascript/obj \
 	   -I$(top_srcdir)/lib/flash \
@@ -14,8 +15,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
 
 #           -I$(top_srcdir)/lib/portaudio-v19/pa_common
 
-AM_CXXFLAGS = @SDL_CFLAGS@ \
-	      @FT2_CFLAGS@ @LUBRIFY_CFLAGS@ \
+AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
@@ -53,6 +53,7 @@ freej_SOURCES = \
 	avi_layer.cpp	\
 	txt_layer.cpp	\
 	txt_layer_js.cpp \
+	text_layer.cpp \
 	gen_layer.cpp	\
 	gen_layer_js.cpp \
 	geo_layer.cpp	\
@@ -85,6 +86,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @PORTAUDIO_LIBS@ \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
               $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
+	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
 	      $(top_srcdir)/lib/javascript/obj/libjs.a \
 	      $(top_srcdir)/lib/flash/libflash.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg \

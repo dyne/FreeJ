@@ -143,7 +143,6 @@ JS(list_layers);
 JS(debug);
 JS(rand);
 JS(srand);
-JS(class_is_defined);
 JS(pause);
 JS(fullscreen);
 JS(set_resolution);
@@ -152,6 +151,7 @@ JS(stream_stop);
 JS(freej_scandir);
 JS(freej_echo);
 JS(freej_strstr);
+JS(file_to_strings);
 
 ////////////////////////////////
 // Linklist Entry methods
@@ -178,6 +178,8 @@ JS(layer_get_blit_value);
 JS(layer_set_position);
 JS(layer_get_x_position);
 JS(layer_get_y_position);
+JS(layer_get_width);
+JS(layer_get_height);
 JS(layer_add_effect);
 JS(layer_rem_effect);
 JS(layer_rotate);
@@ -195,8 +197,14 @@ JS(layer_list_effects);
     {"set_blit_value",	layer_set_blit_value,	1}, \
     {"get_blit_value",	layer_get_blit_value,	0}, \
     {"set_position",	layer_set_position,	2}, \
-    {"get_x_position",	layer_get_x_position,	1}, \
-    {"get_y_position",	layer_get_y_position,	1}, \
+    {"get_x_position",	layer_get_x_position,	0}, \
+    {"x",               layer_get_x_position,   0}, \
+    {"get_y_position",	layer_get_y_position,	0}, \
+    {"y",               layer_get_y_position,   0}, \
+    {"get_width",       layer_get_width,        0}, \
+    {"w",               layer_get_width,        0}, \
+    {"get_height",      layer_get_height,       0}, \
+    {"h",               layer_get_height,       0}, \
     {"add_effect",      layer_add_effect,	1}, \
     {"rem_effect",	layer_rem_effect,	1}, \
     {"rotate",          layer_rotate,           1}, \
@@ -241,9 +249,15 @@ JS(video_layer_pause);
 #ifdef WITH_FT2
 ////////////////////////////////
 // Txt Layer methods
+JS(txt_layer_open);
+JS(txt_layer_get_word);
+JS(txt_layer_wordcount);
 JS(txt_layer_font);
 JS(txt_layer_size);
 JS(txt_layer_print);
+JS(txt_layer_string_width);
+JS(txt_layer_string_height);
+JS(txt_layer_color);
 JS(txt_layer_advance);
 JS(txt_layer_blink);
 JS(txt_layer_blink_on);

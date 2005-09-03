@@ -92,7 +92,7 @@ while(running) {
   drawer(geo);
 
   kbd.poll();
-  run();
+  run(0.001);
 
 }
 

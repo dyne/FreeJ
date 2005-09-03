@@ -44,8 +44,6 @@ JS(kbd_ctrl_constructor) {
 
   KbdListener *kbd = new KbdListener();
 
-  SDL_EnableKeyRepeat(200, 20); // defaults
-
   if( ! JS_SetPrivate(cx, obj, (void*)kbd) ) {
     error("JS::%s : can't set the private value");
     delete kbd; return JS_FALSE;

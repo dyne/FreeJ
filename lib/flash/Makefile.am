@@ -1,6 +1,8 @@
 
 INCLUDES = -I$(top_srcdir)
 
+AM_CFLAGS = $(CFLAGS)
+
 AUTOMAKE_OPTIONS = foreign
 
 noinst_LIBRARIES = libflash.a

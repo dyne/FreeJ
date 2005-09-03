@@ -76,7 +76,7 @@ bool TxtLayer::open(char *file) {
   func("TxtLayer::open(%s)",file);
   
   fd = ::fopen(file,"r");
-  if(fd<0) {
+  if(!fd) {
     error("TxtLayer::open(%s) - %s",
 	  file, strerror(errno));
     return (false);
@@ -131,6 +131,18 @@ bool TxtLayer::open(char *file) {
   
   return(true);
 }
+
+char *TxtLayer::get_word(int num) {
+  Entry *ent;
+  ent = words.pick(num+1);
+  if(!ent) return NULL;
+  return ent->name;
+}
+
+int TxtLayer::wordcount() {
+  return words.len();
+}
+
 
 int dirent_ttf_selector(const struct dirent *dir) {
   if(strstr(dir->d_name,".ttf")) return(1);
@@ -203,7 +215,7 @@ bool TxtLayer::init(int width, int height) {
      punt = pword = chunk;
 
      x=(geo.w/2)*(geo.bpp/8);
-     y=(geo.h/2)+50;
+     y=(geo.h/2);
      return(true);
 }
 
@@ -212,7 +224,6 @@ void TxtLayer::render() {
   int origin_x=0;
   int origin_y=0;
   int previous=0;
-  int string_width,string_height;
   int len, n;
 
   if(!current_word) return;
@@ -261,7 +272,7 @@ void TxtLayer::render() {
   /* compute string dimensions in integer pixels */
   string_width  = (string_bbox.xMax - string_bbox.xMin)<<6;
   string_height = (string_bbox.yMax - string_bbox.yMin)<<6;
-  
+
   /* set up position in 26.6 cartesian space */
   
   FT_Vector vector;
@@ -375,7 +386,6 @@ void TxtLayer::close() {
   // free all the words
   Entry *tmp = words.begin();
   while(tmp) {
-    func("deleting %s",tmp->name);
     words.rem(1);
     delete tmp;
     tmp = words.begin();
@@ -388,17 +398,18 @@ void TxtLayer::close() {
 
 bool TxtLayer::print(char *s) {
   Entry *tmpw;
-  int len = strlen(s);
+  //  int len = strlen(s);
 
-  if(!len) return false;
-  if(len>MAX_WORD) len = MAX_WORD;
+  //  if(!len) return false;
+  //  if(len>MAX_WORD) len = MAX_WORD;
 
 
   tmpw = new Entry();
-  strncpy(tmpw->name,s,len);
-  tmpw->name[len] = '\0';
-    
+  tmpw->set_name(s);
 
+  words.append(tmpw);
+
+  /*
   if(!current_word) current_word = words.begin();
 
   if(current_word) {
@@ -406,9 +417,12 @@ bool TxtLayer::print(char *s) {
     words.insert_after(tmpw,current_word);
 
   } else words.add(tmpw);
+  */
 
   clear_screen = true;
   next_word = true;
+  //  render();
+
   return true;
 }
 
@@ -543,38 +557,41 @@ bool TxtLayer::draw_character(FT_BitmapGlyph bitmap,
 			      int left_side_bearing, int top_side_bearing,
 			      uint8_t *dstp) {
   int z,d;
-     FT_Bitmap pixel_image=bitmap->bitmap;
-     ////// ci ho provato a farlo a 32 bit ma ancora non mi e' uscito -jrml
-     //     uint8_t *tsrc = (uint8_t*) bitmap->bitmap.buffer ;
-     //     uint32_t *src;
-     //     uint32_t *dst = (uint32_t*)dstp;
-     //     dst += bitmap->left + (geo.h - bitmap->top)*geo.w;
-     //////
-     uint8_t *src = (uint8_t*) bitmap->bitmap.buffer;
-     uint8_t *dst= dstp;
-     dst += bitmap->left + (geo.h - bitmap->top)*geo.pitch;
-     
-
-     
-
-     /* Second inner loop: draw a letter;
-	they come around but they never come close to */
-     for(z = pixel_image.rows ; z>0 ; z--) {
-	  for(d = pixel_image.width ; d>0 ; d--)  {
-	    //	    src = (uint32_t*)tsrc;
-	    /** Fill up rgba with the same colors */
-	    *dst++=*src;
-	    *dst++=*src;
-	    *dst++=*src;
-	    *dst++=*src;
-	    src++;
-	    //	    *dst = ((*src<<3)|(*src<<2)|(*src<<1)|*src);
-	    //	    dst++; tsrc++;
-	  }
-	  dst += (geo.pitch - pixel_image.pitch*4);
-	  //	  dst += (geo.w - pixel_image.width);
-     }
-     return(true);
+  FT_Bitmap pixel_image=bitmap->bitmap;
+  ////// ci ho provato a farlo a 32 bit ma ancora non mi e' uscito -jrml
+  //     uint8_t *tsrc = (uint8_t*) bitmap->bitmap.buffer ;
+  //     uint32_t *src;
+  //     uint32_t *dst = (uint32_t*)dstp;
+  //     dst += bitmap->left + (geo.h - bitmap->top)*geo.w;
+  //////
+  uint8_t *src = (uint8_t*) bitmap->bitmap.buffer;
+  uint8_t *dst= dstp;
+  dst += bitmap->left + (geo.h - bitmap->top)*geo.pitch;
+  
+  
+  
+  
+  /* Second inner loop: draw a letter;
+     they come around but they never come close to */
+  for(z = pixel_image.rows ; z>0 ; z--) {
+    for(d = pixel_image.width ; d>0 ; d--)  {
+  //  for(z = 0; z< pixel_image.rows ; z++) {
+  //    for(d = 0; d< pixel_image.width ; d++)  {
+      
+      //	    src = (uint32_t*)tsrc;
+      /** Fill up rgba with the same colors */
+      *dst++ = *src;
+      *dst++ = *src;
+      *dst++ = *src;
+      *dst++ = *src;
+      src++;
+      //	    *dst = ((*src<<3)|(*src<<2)|(*src<<1)|*src);
+      //	    dst++; tsrc++;
+    }
+    dst += (geo.pitch - pixel_image.pitch*4);
+    //	  dst += (geo.w - pixel_image.width);
+  }
+  return(true);
 }
 bool TxtLayer::set_character_size(int _text_dimension) {
   text_dimension = _text_dimension;

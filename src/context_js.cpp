@@ -43,7 +43,6 @@ JSFunctionSpec global_functions[] = {
     {"debug",           debug,                  1},
     {"rand",            rand,                   0},
     {"srand",           srand,                  1},
-    {"class_is_defined",class_is_defined,       1},
     {"pause",           pause,                  0},
     {"fullscreen",      fullscreen,             0},
     {"set_resolution",  set_resolution,         2},
@@ -52,6 +51,7 @@ JSFunctionSpec global_functions[] = {
     {"strstr",          freej_strstr,           2},
     {"stream_start",    stream_start,           0},
     {"stream_stop",     stream_stop,            0},
+    {"file_to_strings", file_to_strings,        1},
     {0}
 };
 
@@ -237,6 +237,85 @@ JS(freej_strstr) {
 }
   
 
+JS(file_to_strings) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  
+  JS_CHECK_ARGC(1);
+
+  JSObject *arr;
+  JSString *str;
+  jsval val;
+
+  FILE *fd;
+
+  char *buf;
+  char *punt;
+  char *pword;
+  int len;
+  int c;
+
+  char *file;
+  JS_ARG_STRING(file,0);
+
+  // try to open the file and read it in memory
+  fd = ::fopen(file,"r");
+  if(fd<0) {
+    error("file_to_strings failed for %s: %s",file, strerror(errno) );
+    *rval = JSVAL_NULL;
+    return JS_TRUE;
+  }
+
+  // read it all in *buf
+  fseek(fd,0,SEEK_END);
+  len = ftell(fd);
+  rewind(fd);
+  buf = (char*)calloc(len,sizeof(char));
+  fread(buf,len,1,fd);
+  fclose(fd);
+  // file is now read in memory
+
+  arr = JS_NewArrayObject(cx, 0, NULL);
+  if(!arr) return JS_FALSE;
+
+  punt = buf;
+  c = 0;
+  // now fill up the array
+
+  while(punt - buf < len) { // parse it until the end
+    while(!isgraph(*punt)) // goes forward until it meets a word
+      if(punt-buf >= len) // end of chunk reached
+	break;
+      else punt++;
+    
+    // word found, now reach its end
+    pword = punt;
+    while(   isgraph(*punt)
+	     && *punt != ' '
+	     && *punt != '\0'
+	     && *punt != '\n'
+	     && *punt != '\r'
+	     && *punt != '\t') {
+      if(punt-buf >= len) // end of chunk reached
+	break;
+      else punt++;
+    }
+    // there is a word to acquire!
+    // create the new entry
+    //    *punt = '\0';
+    //    fprintf(stderr,"%s ",pword);
+
+    str = JS_NewStringCopyN(cx, pword, punt-pword);
+    val = STRING_TO_JSVAL(str);
+    JS_SetElement(cx, arr, c, &val);
+    c++;
+  }
+
+  free(buf);
+
+  *rval = OBJECT_TO_JSVAL( arr );
+  return JS_TRUE;
+}
+
 // debugging commodity
 // run freej with -D3 to see this
 JS(debug) {
@@ -287,28 +366,6 @@ JS(srand) {
   return JS_TRUE;
 }
 
-JS(class_is_defined) {
- func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
- char *cl;
- JSBool resolved;
- JSObject *js_class;
- jsval id;
-
- JS_ARG_STRING(cl,0);
- 
- func("detecting class %s",cl);
- id = STRING_TO_JSVAL(cl);
- // JS_ResolveStandardClass(cx, obj, id, &resolved);
- resolved = JS_CallFunctionName(cx, obj, "kbd.d",0,NULL,&id);
-
- if(resolved)
-   func("class found");
- else
-   func("class not found");
-
-
-}
 
 ////////////////////////////////
 // Linklist Entry Methods

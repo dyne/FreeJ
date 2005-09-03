@@ -30,9 +30,9 @@
 #include <SDL/SDL.h>
 #define MAX_GLYPHS 512
 #define MAX_CHUNK 512
-#define MAX_WORD 128
+#define MAX_WORD 256
 #define SPEED 5
-#define MAX_FONTS 256
+#define MAX_FONTS 512
 
 typedef struct TGlyph_
 {
@@ -108,7 +108,12 @@ public:
   ~TxtLayer();
   
   bool init(int width, int height);
+
+  // operations on file 
   bool open(char *file);
+  char *get_word(int num);
+  int  wordcount();
+
   void *feed();
   void *get_buffer();
   void close();
@@ -127,6 +132,7 @@ public:
 
   bool keypress(char key);
   void compute_string_bbox( FT_BBox  *abbox,FT_Glyph image );
+  int string_width, string_height;
 
   bool next_word;
   bool inject_word;
@@ -137,6 +143,8 @@ public:
   int onscreen_blink;
   int offscreen_blink;
   int blink;
+
+  uint32_t color;
 
 };
 

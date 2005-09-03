@@ -66,6 +66,11 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     return JS_FALSE; \
   }
 
+// set the return value as a string
+#define JS_RETURN_STRING(cb_msg) \
+  JSString *cb_str = JS_NewStringCopyZ(cx, cb_msg); \
+  *rval = STRING_TO_JSVAL(cb_str)
+
 #define DECLARE_CLASS(class_name, class_struct, class_constructor) \
 JSClass class_struct = { \
   class_name, JSCLASS_HAS_PRIVATE, \
