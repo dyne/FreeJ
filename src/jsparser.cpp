@@ -135,6 +135,10 @@ void JsParser::init() {
 		   image_layer_constructor,
 		   image_layer_methods);
 
+    REGISTER_CLASS("FlashLayer",
+		   flash_layer_class,
+		   flash_layer_constructor,
+		   flash_layer_methods);
 
 #ifdef WITH_V4L
     REGISTER_CLASS("CamLayer",

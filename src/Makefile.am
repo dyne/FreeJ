@@ -59,6 +59,7 @@ freej_SOURCES = \
 	geo_layer.cpp	\
 	geo_layer_js.cpp \
 	flash_layer.cpp \
+	flash_layer_js.cpp \
 	scroll_layer.cpp \
 	scroll_layer_js.cpp \
 	xhacks_layer.cpp \

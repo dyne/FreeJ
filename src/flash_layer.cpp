@@ -88,8 +88,6 @@ FlashLayer::FlashLayer()
     return;
   }
 
-
-
   set_name("SWF");
 }
 
@@ -147,7 +145,6 @@ bool FlashLayer::open(char *file){
   FlashGetInfo(fh, &fi);
   
   FlashSettings(fh, PLAYER_LOOP);
-
   
   set_filename(file);
 
@@ -162,13 +159,13 @@ void *FlashLayer::feed() {
   
   wakeUp = FlashExec(fh, FLASH_WAKEUP, 0, &wd);
   //  if(fd.flash_refresh) {
-    jmemcpy(render,procbuf,fd.height*fd.bpl);
-    //    fd.flash_refresh = 0;
-    //  }
+  jmemcpy(render,procbuf,fd.height*fd.bpl);
+  //    fd.flash_refresh = 0;
+  //  }
   //    memcpy(render,buffer,fd.width*fd.height*(fd.bpp>>3));
-
-    //  return render;
-    return procbuf;
+  
+  //  return render;
+  return procbuf;
 }
 
 void FlashLayer::close() {

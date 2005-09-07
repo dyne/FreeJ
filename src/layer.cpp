@@ -89,11 +89,11 @@ void Layer::run() {
   
   while(!quit) {
 
-lock();
-	  
+    lock();
+    
     tmp_buf = feed();
-
-unlock();
+    
+    unlock();
 
     if(!tmp_buf) 
       func("feed returns NULL on layer %s",get_name());

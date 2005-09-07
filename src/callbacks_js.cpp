@@ -57,7 +57,7 @@ void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *R
     ::error("script error while parsing");
 
   // this doesn't prints out the line reporting error :/
-  if(Report->lineno)
+  if(Report->linebuf)
     ::error("%u: %s",(uint32_t)Report->lineno, Report->linebuf);
 
   if(Message) ::error("%s",(char *)Message);

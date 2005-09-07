@@ -55,6 +55,7 @@ JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
 JS(image_layer_constructor);
+JS(flash_layer_constructor);
 
 #ifdef WITH_V4L
 JS(v4l_layer_constructor);
@@ -102,6 +103,9 @@ extern JSFunctionSpec vscroll_layer_methods[];
 //DECLARE_CLASS("ImageLayer",image_layer_class,image_layer_constructor);
 extern JSClass image_layer_class;
 extern JSFunctionSpec image_layer_methods[];
+
+extern JSClass flash_layer_class;
+extern JSFunctionSpec flash_layer_methods[];
 
 #ifdef WITH_V4L
 //DECLARE_CLASS("CamLayer",v4l_layer_class,v4l_layer_constructor);
@@ -220,6 +224,8 @@ JS(particle_layer_blossom);
 // Image Layer methods
 JS(image_layer_open);
 
+////////////////////////////////
+JS(flash_layer_open);
 
 ////////////////////////////////
 // VScroll Layer methods
