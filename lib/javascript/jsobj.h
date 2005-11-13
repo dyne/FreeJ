@@ -103,7 +103,7 @@ struct JSObjectMap {
 #define OBJ_SET_REQUIRED_SLOT(cx,obj,slot,v)                                  \
     ((obj)->map->ops->setRequiredSlot                                         \
      ? (obj)->map->ops->setRequiredSlot(cx, obj, slot, v)                     \
-     : (void)0)
+     : JS_TRUE)
 
 /*
  * In the original JS engine design, obj->slots pointed to a vector of length
@@ -364,6 +364,17 @@ js_LookupProperty(JSContext *cx, JSObject *obj, jsid id, JSObject **objp,
 		  JSProperty **propp);
 #endif
 
+/*
+ * Specialized subroutine that allows caller to preset JSRESOLVE_* flags.
+ */
+extern JSBool
+js_LookupPropertyWithFlags(JSContext *cx, JSObject *obj, jsid id, uintN flags,
+                           JSObject **objp, JSProperty **propp
+#if defined JS_THREADSAFE && defined DEBUG
+                           , const char *file, uintN line
+#endif
+                           );
+
 extern JS_FRIEND_API(JSBool)
 js_FindProperty(JSContext *cx, jsid id, JSObject **objp, JSObject **pobjp,
 		JSProperty **propp);
@@ -456,7 +467,7 @@ js_Clear(JSContext *cx, JSObject *obj);
 extern jsval
 js_GetRequiredSlot(JSContext *cx, JSObject *obj, uint32 slot);
 
-extern void
+extern JSBool
 js_SetRequiredSlot(JSContext *cx, JSObject *obj, uint32 slot, jsval v);
 
 JS_END_EXTERN_C

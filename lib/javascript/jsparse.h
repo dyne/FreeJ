@@ -83,11 +83,14 @@ JS_BEGIN_EXTERN_C
  *                            TOK_DEFAULT node
  * TOK_CASE,    binary      pn_left: case expr or null if TOK_DEFAULT
  * TOK_DEFAULT              pn_right: TOK_LC node for this case's statements
+ *                          pn_val: constant value if lookup or table switch
  * TOK_WHILE    binary      pn_left: cond, pn_right: body
  * TOK_DO       binary      pn_left: body, pn_right: cond
  * TOK_FOR      binary      pn_left: either
  *                            for/in loop: a binary TOK_IN node with
  *                              pn_left:  TOK_VAR or TOK_NAME to left of 'in'
+ *                                if TOK_VAR, its pn_extra may have PNX_POPVAR
+ *                                and PNX_FORINVAR bits set
  *                              pn_right: object expr to right of 'in'
  *                            for(;;) loop: a ternary TOK_RESERVED node with
  *                              pn_kid1:  init expr before first ';'
@@ -162,7 +165,7 @@ JS_BEGIN_EXTERN_C
  * TOK_RB       list        pn_head: list of pn_count array element exprs
  *                          [,,] holes are represented by TOK_COMMA nodes
  *                          #n=[...] produces TOK_DEFSHARP at head of list
- *                          pn_extra: true if extra comma at end
+ *                          pn_extra: PN_ENDCOMMA if extra comma at end
  * TOK_RC       list        pn_head: list of pn_count TOK_COLON nodes where
  *                          each has pn_left: property id, pn_right: value
  *                          #n={...} produces TOK_DEFSHARP at head of list
@@ -173,7 +176,8 @@ JS_BEGIN_EXTERN_C
  * TOK_USESHARP nullary     pn_num: jsint value of n in #n#
  * TOK_RP       unary       pn_kid: parenthesized expression
  * TOK_NAME,    name        pn_atom: name, string, or object atom
- * TOK_STRING,              pn_op: JSOP_NAME, JSOP_STRING, or JSOP_OBJECT
+ * TOK_STRING,              pn_op: JSOP_NAME, JSOP_STRING, or JSOP_OBJECT, or
+ *                                 JSOP_REGEXP
  * TOK_OBJECT               If JSOP_NAME, pn_op may be JSOP_*ARG or JSOP_*VAR
  *                          with pn_slot >= 0 and pn_attrs telling const-ness
  * TOK_NUMBER   dval        pn_dval: double value of numeric literal
@@ -256,8 +260,12 @@ struct JSParseNode {
 #define pn_dval         pn_u.dval
 
 /* PN_LIST pn_extra flags. */
-#define PNX_STRCAT      0x1             /* TOK_PLUS list has string term */
-#define PNX_CANTFOLD    0x2             /* TOK_PLUS list has unfoldable term */
+#define PNX_STRCAT      0x01            /* TOK_PLUS list has string term */
+#define PNX_CANTFOLD    0x02            /* TOK_PLUS list has unfoldable term */
+#define PNX_POPVAR      0x04            /* TOK_VAR last result needs popping */
+#define PNX_FORINVAR    0x08            /* TOK_VAR is left kid of TOK_IN node,
+                                           which is left kid of TOK_FOR */
+#define PNX_ENDCOMMA    0x10            /* array literal has comma at end */
 
 /*
  * Move pn2 into pn, preserving pn->pn_pos and pn->pn_offset and handing off

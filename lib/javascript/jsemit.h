@@ -93,8 +93,11 @@ struct JSStmtInfo {
      (stmt)->continues = (stmt)->catchJump = (stmt)->gosub = (-1))
 
 struct JSTreeContext {              /* tree context for semantic checks */
-    uint32          flags;          /* statement state flags, see below */
+    uint16          flags;          /* statement state flags, see below */
+    uint16          numGlobalVars;  /* max. no. of global variables/regexps */
     uint32          tryCount;       /* total count of try statements parsed */
+    uint32          globalUses;     /* optimizable global var uses in total */
+    uint32          loopyGlobalUses;/* optimizable global var uses in loops */
     JSStmtInfo      *topStmt;       /* top of statement info stack */
     JSAtomList      decls;          /* function, const, and var declarations */
     JSParseNode     *nodeList;      /* list of recyclable parse-node structs */
@@ -111,8 +114,10 @@ struct JSTreeContext {              /* tree context for semantic checks */
 #define TCF_FUN_FLAGS          0xE0 /* flags to propagate from FunctionBody */
 
 #define TREE_CONTEXT_INIT(tc)                                                 \
-    ((tc)->flags = 0, (tc)->tryCount = 0, (tc)->topStmt = NULL,               \
-     ATOM_LIST_INIT(&(tc)->decls), (tc)->nodeList = NULL)
+    ((tc)->flags = (tc)->numGlobalVars = 0,                                   \
+     (tc)->tryCount = (tc)->globalUses = (tc)->loopyGlobalUses = 0,           \
+     (tc)->topStmt = NULL, ATOM_LIST_INIT(&(tc)->decls),                      \
+     (tc)->nodeList = NULL)
 
 #define TREE_CONTEXT_FINISH(tc)                                               \
     ((void)0)
@@ -205,6 +210,8 @@ struct JSCodeGenerator {
     uintN           numSpanDeps;    /* number of span dependencies */
     uintN           numJumpTargets; /* number of jump targets */
     uintN           emitLevel;      /* js_EmitTree recursion level */
+    JSAtomList      constList;      /* compile time constants */
+    JSCodeGenerator *parent;        /* Enclosing function or global context */
 };
 
 #define CG_BASE(cg)             ((cg)->current->base)
@@ -320,6 +327,26 @@ js_PopStatement(JSTreeContext *tc);
  */
 extern JSBool
 js_PopStatementCG(JSContext *cx, JSCodeGenerator *cg);
+
+/*
+ * Define and lookup a primitive jsval associated with the const named by atom.
+ * js_DefineCompileTimeConstant analyzes the constant-folded initializer at pn
+ * and saves the const's value in cg->constList, if it can be used at compile
+ * time.  It returns true unless an error occurred.
+ *
+ * If the initializer's value could not be saved, js_LookupCompileTimeConstant
+ * calls will return the undefined value.  js_LookupCompileTimeConstant tries
+ * to find a const value memorized for atom, returning true with *vp set to a
+ * value other than undefined if the constant was found, true with *vp set to
+ * JSVAL_VOID if not found, and false on error.
+ */
+extern JSBool
+js_DefineCompileTimeConstant(JSContext *cx, JSCodeGenerator *cg, JSAtom *atom,
+                             JSParseNode *pn);
+
+extern JSBool
+js_LookupCompileTimeConstant(JSContext *cx, JSCodeGenerator *cg, JSAtom *atom,
+                             jsval *vp);
 
 /*
  * Emit code into cg for the tree rooted at pn.

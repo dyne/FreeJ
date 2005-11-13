@@ -575,6 +575,7 @@ Exception(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
             ok = JS_FALSE;
             goto out;
         }
+        argv[0] = STRING_TO_JSVAL(message);
     } else {
         message = cx->runtime->emptyString;
     }
@@ -586,6 +587,7 @@ Exception(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
             ok = JS_FALSE;
             goto out;
         }
+        argv[1] = STRING_TO_JSVAL(filename);
     } else {
         filename = cx->runtime->emptyString;
     }
@@ -623,26 +625,26 @@ exn_toString(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
 
     if (!OBJ_GET_PROPERTY(cx, obj, (jsid)cx->runtime->atomState.nameAtom, &v))
         return JS_FALSE;
-    name = js_ValueToString(cx, v);
-    if (!name)
-        return JS_FALSE;
+    name = JSVAL_IS_STRING(v) ? JSVAL_TO_STRING(v) : cx->runtime->emptyString;
 
-    if (!JS_GetProperty(cx, obj, js_message_str, &v) ||
-        !(message = js_ValueToString(cx, v))) {
+    if (!JS_GetProperty(cx, obj, js_message_str, &v))
         return JS_FALSE;
-    }
+    message = JSVAL_IS_STRING(v) ? JSVAL_TO_STRING(v)
+                                 : cx->runtime->emptyString;
 
     if (JSSTRING_LENGTH(message) != 0) {
         name_length = JSSTRING_LENGTH(name);
         message_length = JSSTRING_LENGTH(message);
-        length = name_length + message_length + 2;
+        length = (name_length ? name_length + 2 : 0) + message_length;
         cp = chars = (jschar*) JS_malloc(cx, (length + 1) * sizeof(jschar));
         if (!chars)
             return JS_FALSE;
 
-        js_strncpy(cp, JSSTRING_CHARS(name), name_length);
-        cp += name_length;
-        *cp++ = ':'; *cp++ = ' ';
+        if (name_length) {
+            js_strncpy(cp, JSSTRING_CHARS(name), name_length);
+            cp += name_length;
+            *cp++ = ':'; *cp++ = ' ';
+        }
         js_strncpy(cp, JSSTRING_CHARS(message), message_length);
         cp += message_length;
         *cp = 0;
@@ -1033,21 +1035,21 @@ js_ReportUncaughtException(JSContext *cx)
     const char *bytes;
 
     if (!JS_IsExceptionPending(cx))
-        return JS_FALSE;
+        return JS_TRUE;
 
     if (!JS_GetPendingException(cx, &exn))
         return JS_FALSE;
 
     /*
      * Because js_ValueToString below could error and an exception object
-     * could become unrooted, we root it here.
+     * could become unrooted, we must root exnObject.
      */
-    if (JSVAL_IS_OBJECT(exn) && exn != JSVAL_NULL) {
+    if (JSVAL_IS_PRIMITIVE(exn)) {
+        exnObject = NULL;
+    } else {
         exnObject = JSVAL_TO_OBJECT(exn);
         if (!js_AddRoot(cx, &exnObject, "exn.report.root"))
             return JS_FALSE;
-    } else {
-        exnObject = NULL;
     }
 
 #if JS_HAS_ERROR_EXCEPTIONS
@@ -1075,6 +1077,7 @@ js_ReportUncaughtException(JSContext *cx)
 
     if (exnObject != NULL)
         js_RemoveRoot(cx->runtime, &exnObject);
+    JS_ClearPendingException(cx);
     return JS_TRUE;
 }
 

@@ -159,6 +159,7 @@ include $(DEPTH)/config/$(OS_CONFIG).mk
 OBJDIR          = obj
 VPATH           = $(OBJDIR)
 
+
 # Automatic make dependencies file
 DEPENDENCIES    = $(OBJDIR)/.md
 

@@ -209,6 +209,17 @@ struct JSRuntime {
     JSScopeProperty     *propertyFreeList;
     JSArenaPool         propertyArenaPool;
 
+    /* Script filename table. */
+    struct JSHashTable  *scriptFilenameTable;
+#ifdef JS_THREADSAFE
+    PRLock              *scriptFilenameTableLock;
+#endif
+
+    /* Number localization, used by jsnum.c */
+    const char          *thousandsSeparator;
+    const char          *decimalSeparator;
+    const char          *numGrouping;
+
 #ifdef DEBUG
     /* Function invocation metering. */
     jsrefcount          inlineCalls;
@@ -296,6 +307,26 @@ typedef struct JSResolvingEntry {
 
 #define JSRESFLAG_LOOKUP        0x1     /* resolving id from lookup */
 #define JSRESFLAG_WATCH         0x2     /* resolving id from watch */
+
+typedef struct JSLocalRootChunk JSLocalRootChunk;
+
+#define JSLRS_CHUNK_SHIFT       6
+#define JSLRS_CHUNK_SIZE        JS_BIT(JSLRS_CHUNK_SHIFT)
+#define JSLRS_CHUNK_MASK        JS_BITMASK(JSLRS_CHUNK_SHIFT)
+
+struct JSLocalRootChunk {
+    jsval               roots[JSLRS_CHUNK_SIZE];
+    JSLocalRootChunk    *down;
+};
+
+typedef struct JSLocalRootStack {
+    uint16              scopeMark;
+    uint16              rootCount;
+    JSLocalRootChunk    *topChunk;
+    JSLocalRootChunk    firstChunk;
+} JSLocalRootStack;
+
+#define JSLRS_NULL_MARK ((uint16) -1)
 
 struct JSContext {
     JSCList             links;
@@ -406,11 +437,19 @@ struct JSContext {
 
     /* Optional hook to find principals for an object being accessed on cx. */
     JSObjectPrincipalsFinder findObjectPrincipals;
+
+    /* Optional stack of scoped local GC roots. */
+    JSLocalRootStack    *localRootStack;
 };
 
-/* Slightly more readable macros, also to hide bitset implementation detail. */
-#define JS_HAS_STRICT_OPTION(cx)    ((cx)->options & JSOPTION_STRICT)
-#define JS_HAS_WERROR_OPTION(cx)    ((cx)->options & JSOPTION_WERROR)
+/*
+ * Slightly more readable macros, also to hide bitset implementation detail.
+ * XXX beware non-boolean truth values, which belie the bitset hiding claim!
+ */
+#define JS_HAS_STRICT_OPTION(cx)        ((cx)->options & JSOPTION_STRICT)
+#define JS_HAS_WERROR_OPTION(cx)        ((cx)->options & JSOPTION_WERROR)
+#define JS_HAS_COMPILE_N_GO_OPTION(cx)  ((cx)->options & JSOPTION_COMPILE_N_GO)
+#define JS_HAS_ATLINE_OPTION(cx)        ((cx)->options & JSOPTION_ATLINE)
 
 extern JSContext *
 js_NewContext(JSRuntime *rt, size_t stackChunkSize);
@@ -431,6 +470,35 @@ js_ValidContextPointer(JSRuntime *rt, JSContext *cx);
  */
 extern JSContext *
 js_ContextIterator(JSRuntime *rt, JSBool unlocked, JSContext **iterp);
+
+/*
+ * JSClass.resolve and watchpoint recursion damping machinery.
+ */
+extern JSBool
+js_StartResolving(JSContext *cx, JSResolvingKey *key, uint32 flag,
+                  JSResolvingEntry **entryp);
+
+extern void
+js_StopResolving(JSContext *cx, JSResolvingKey *key, uint32 flag,
+                 JSResolvingEntry *entry, uint32 generation);
+
+/*
+ * Local root set management.
+ */
+extern JSBool
+js_EnterLocalRootScope(JSContext *cx);
+
+extern void
+js_LeaveLocalRootScope(JSContext *cx);
+
+extern void
+js_ForgetLocalRoot(JSContext *cx, jsval v);
+
+extern int
+js_PushLocalRoot(JSContext *cx, JSLocalRootStack *lrs, jsval v);
+
+extern void
+js_MarkLocalRoots(JSContext *cx, JSLocalRootStack *lrs);
 
 /*
  * Report an exception, which is currently realized as a printf-style format

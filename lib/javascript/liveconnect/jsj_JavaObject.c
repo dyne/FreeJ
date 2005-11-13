@@ -654,6 +654,10 @@ JavaObject_getPropertyById(JSContext *cx, JSObject *obj, jsid id, jsval *vp)
     java_obj = java_wrapper->java_obj;
     field_val = method_val = JSVAL_VOID;
 
+    if (jaApplet && (*jEnv)->IsInstanceOf(jEnv, java_obj, jaApplet)) {
+        jsj_JSIsCallingApplet = JS_TRUE;
+    }
+
     /* If a field member, get the value of the field */
     if (member_descriptor->field) {
         success = jsj_GetJavaFieldValue(cx, jEnv, member_descriptor->field, java_obj, &field_val);
@@ -777,6 +781,11 @@ JavaObject_setPropertyById(JSContext *cx, JSObject *obj, jsid id, jsval *vp)
     }
 
     java_obj = java_wrapper->java_obj;
+
+    if (jaApplet && (*jEnv)->IsInstanceOf(jEnv, java_obj, jaApplet)) {
+        jsj_JSIsCallingApplet = JS_TRUE;
+    }
+
     result = jsj_SetJavaFieldValue(cx, jEnv, member_descriptor->field, java_obj, *vp);
     jsj_ExitJava(jsj_env);
     return result;
@@ -1015,7 +1024,7 @@ jsj_wrapper_getRequiredSlot(JSContext *cx, JSObject *obj, uint32 slot)
     return obj->slots[slot];
 }
 
-void JS_DLL_CALLBACK
+JSBool JS_DLL_CALLBACK
 jsj_wrapper_setRequiredSlot(JSContext *cx, JSObject *obj, uint32 slot, jsval v)
 {
     JS_ASSERT(slot < JSJ_SLOT_COUNT);
@@ -1023,6 +1032,7 @@ jsj_wrapper_setRequiredSlot(JSContext *cx, JSObject *obj, uint32 slot, jsval v)
     JS_ASSERT(obj->map->nslots == JSJ_SLOT_COUNT);
     JS_ASSERT(obj->map->freeslot == JSJ_SLOT_COUNT);
     obj->slots[slot] = v;
+    return JS_TRUE;
 }
 
 JSObjectOps JavaObject_ops = {

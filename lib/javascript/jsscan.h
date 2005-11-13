@@ -171,6 +171,8 @@ struct JSTokenStream {
     JSSourceHandler     listener;       /* callback for source; eg debugger */
     void                *listenerData;  /* listener 'this' data */
     void                *listenerTSData;/* listener data for this TokenStream */
+    jschar              *saveEOL;       /* save next end of line in userbuf, to
+                                           optimize for very long lines */
 };
 
 #define CURRENT_TOKEN(ts)       ((ts)->tokens[(ts)->cursor])
@@ -180,10 +182,11 @@ struct JSTokenStream {
 #define TSF_ERROR       0x01            /* fatal error while compiling */
 #define TSF_EOF         0x02            /* hit end of file */
 #define TSF_NEWLINES    0x04            /* tokenize newlines */
-#define TSF_REGEXP      0x08            /* looking for a regular expression */
+#define TSF_OPERAND     0x08            /* looking for operand, not operator */
 #define TSF_NLFLAG      0x20            /* last linebuf ended with \n */
 #define TSF_CRFLAG      0x40            /* linebuf would have ended with \r */
-#define TSF_DIRTYLINE   0x80            /* stuff other than whitespace since start of line */
+#define TSF_DIRTYLINE   0x80            /* non-whitespace since start of line */
+#define TSF_OWNFILENAME 0x100           /* ts->filename is malloc'd */
 
 /* Unicode separators that are treated as line terminators, in addition to \n, \r */
 #define LINE_SEPARATOR  0x2028

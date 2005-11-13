@@ -1375,9 +1375,9 @@ static JSBool
 invoke_java_method(JSContext *cx, JSJavaThreadState *jsj_env,
                    jobject java_class_or_instance,
                    JavaClassDescriptor *class_descriptor,
-           JavaMethodSpec *method,
+                   JavaMethodSpec *method,
                    JSBool is_static_method,
-           jsval *argv, jsval *vp)
+                   jsval *argv, jsval *vp)
 {
     jvalue java_value;
     jvalue *jargv;
@@ -1693,6 +1693,13 @@ jsj_JavaConstructorWrapper(JSContext *cx, JSObject *obj,
     JS_ASSERT(class_descriptor);
     if (!class_descriptor)
         return JS_FALSE;
+
+    /* XXX, workaround for bug 200016, all classes in sun.plugin package should not 
+       be accessible in liveconnect.
+       Ideally, this checking should be done in JPI side, but it's not going to happen 
+       until Sun JRE 1.5.1 */
+    if (strstr(class_descriptor->name, "sun.plugin.") == class_descriptor->name)
+        return JS_FALSE;
   
     /* Get the Java per-thread environment pointer for this JSContext */
     jsj_env = jsj_EnterJava(cx, &jEnv);
@@ -1795,6 +1802,10 @@ jsj_JavaInstanceMethodWrapper(JSContext *cx, JSObject *obj,
     jsj_env = jsj_EnterJava(cx, &jEnv);
     if (!jEnv)
         return JS_FALSE;
+
+    if (jaApplet && (*jEnv)->IsInstanceOf(jEnv, java_obj, jaApplet)) {
+        jsj_JSIsCallingApplet = JS_TRUE;
+    }
 
     /* Try to find an instance method with the given name first */
     member_descriptor = jsj_LookupJavaMemberDescriptorById(cx, jEnv, class_descriptor, id);

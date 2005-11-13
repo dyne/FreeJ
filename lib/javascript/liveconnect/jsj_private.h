@@ -301,6 +301,7 @@ extern jclass jlClass;                         /* java.lang.Class */
 extern jclass jlBoolean;                       /* java.lang.Boolean */
 extern jclass jlDouble;                        /* java.lang.Double */
 extern jclass jlString;                        /* java.lang.String */
+extern jclass jaApplet;                        /* java.applet.Applet */
 extern jclass njJSObject;                      /* netscape.javascript.JSObject */
 extern jclass njJSException;                   /* netscape.javascript.JSException */
 extern jclass njJSUtil;                        /* netscape.javascript.JSUtil */
@@ -351,6 +352,12 @@ extern jfieldID njJSException_source;          /* netscape.javascript.JSExceptio
 extern jfieldID njJSException_filename;        /* netscape.javascript.JSException.filename */
 extern jfieldID njJSException_wrappedExceptionType;        /* netscape.javascript.JSException.wrappedExceptionType */
 extern jfieldID njJSException_wrappedException;        /* netscape.javascript.JSException.wrappedException */
+
+/* 
+ * XXX, bug 146458, 
+ * whether we are doing a liveconnect call from javascript to java applet 
+ */
+extern JSBool jsj_JSIsCallingApplet;
 
 /**************** Java <==> JS conversions and Java types *******************/
 extern JSBool
@@ -651,7 +658,7 @@ jsj_wrapper_destroyObjectMap(JSContext *cx, JSObjectMap *map);
 extern jsval JS_DLL_CALLBACK
 jsj_wrapper_getRequiredSlot(JSContext *cx, JSObject *obj, uint32 slot);
 
-extern void JS_DLL_CALLBACK
+extern JSBool JS_DLL_CALLBACK
 jsj_wrapper_setRequiredSlot(JSContext *cx, JSObject *obj, uint32 slot, jsval v);
 
 #ifdef DEBUG

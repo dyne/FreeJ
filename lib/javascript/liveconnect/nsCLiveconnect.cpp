@@ -81,46 +81,6 @@ PR_END_EXTERN_C
 #include "nsISecurityContext.h"
 #include "prmem.h"
 
-static nsresult
-CreatePrincipal(nsISupports* aSecuritySupports,
-                nsIScriptSecurityManager* aSecMan,
-                nsIPrincipal ** aOutPrincipal)
-{
-    nsresult rv;
-    nsCOMPtr<nsISecurityContext> securityContext(
-        do_QueryInterface(aSecuritySupports, &rv));
-    if (NS_FAILED(rv)) return rv;
-
-    char originBuf1[512];
-    char* origin = originBuf1;
-    size_t originSize = sizeof(originBuf1);
-    rv = securityContext->GetOrigin(origin, originSize);
-    while (NS_FAILED(rv) && originSize < 65536U)
-    {  // Try allocating a larger buffer on the heap
-        if (origin != originBuf1)
-        PR_Free(origin);
-        originSize *= 2;
-        origin = (char*)PR_Malloc(originSize);
-        if (!origin)
-            return NS_ERROR_OUT_OF_MEMORY;
-        rv = securityContext->GetOrigin(origin, originSize);
-    }
-    if (NS_FAILED(rv))
-    {
-        if (origin != originBuf1)
-            PR_Free(origin);
-        return rv;
-    }
-
-    nsCOMPtr<nsIURI> originURI;
-    rv = NS_NewURI(getter_AddRefs(originURI), origin);
-    if (origin != originBuf1)
-        PR_Free(origin);
-    if (NS_FAILED(rv)) return rv;
-
-    return aSecMan->GetCodebasePrincipal(originURI, aOutPrincipal);
-}
-
 /***************************************************************************/
 // A class to put on the stack to manage JS contexts when we are entering JS.
 // This pushes and pops the given context
@@ -176,10 +136,7 @@ AutoPushJSContext::AutoPushJSContext(nsISupports* aSecuritySupports,
         return;
 
     nsCOMPtr<nsIPrincipal> principal;
-    if (aSecuritySupports)
-        mPushResult = CreatePrincipal(aSecuritySupports, secMan, getter_AddRefs(principal));
-    else
-        mPushResult = secMan->GetPrincipalFromContext(cx, getter_AddRefs(principal));
+    mPushResult = secMan->GetPrincipalFromContext(cx, getter_AddRefs(principal));
 
     if (NS_FAILED(mPushResult))
     {
@@ -187,7 +144,7 @@ AutoPushJSContext::AutoPushJSContext(nsISupports* aSecuritySupports,
         return;
     }
 
-    // See if Javascript is enabled for the current window
+    // See if JavaScript is enabled for the current window
     PRBool jsEnabled = PR_FALSE;
     mPushResult = secMan->CanExecuteScripts(cx, principal, &jsEnabled);
     if (!jsEnabled)
@@ -286,7 +243,7 @@ nsCLiveconnect::AggregatedQueryInterface(const nsIID& aIID, void** aInstancePtr)
  *                     wrapped up as java wrapper netscape.javascript.JSObject.
  */
 NS_METHOD	
-nsCLiveconnect::GetMember(JNIEnv *jEnv, jsobject obj, const jchar *name, jsize length, void* principalsArray[], 
+nsCLiveconnect::GetMember(JNIEnv *jEnv, lcjsobject obj, const jchar *name, jsize length, void* principalsArray[], 
                      int numPrincipals, nsISupports *securitySupports, jobject *pjobj)
 {
     if(jEnv == NULL || obj == 0)
@@ -344,7 +301,7 @@ done:
  *                     the member. 
  */
 NS_METHOD	
-nsCLiveconnect::GetSlot(JNIEnv *jEnv, jsobject obj, jint slot, void* principalsArray[], 
+nsCLiveconnect::GetSlot(JNIEnv *jEnv, lcjsobject obj, jint slot, void* principalsArray[], 
                      int numPrincipals, nsISupports *securitySupports,  jobject *pjobj)
 {
     if(jEnv == NULL || obj == 0)
@@ -397,7 +354,7 @@ done:
  *                     then a internal mapping is consulted to convert to a NJSObject.
  */
 NS_METHOD	
-nsCLiveconnect::SetMember(JNIEnv *jEnv, jsobject obj, const jchar *name, jsize length, jobject java_obj, void* principalsArray[], 
+nsCLiveconnect::SetMember(JNIEnv *jEnv, lcjsobject obj, const jchar *name, jsize length, jobject java_obj, void* principalsArray[], 
                      int numPrincipals, nsISupports *securitySupports)
 {
     if(jEnv == NULL || obj == 0)
@@ -447,7 +404,7 @@ done:
  *                     then a internal mapping is consulted to convert to a NJSObject.
  */
 NS_METHOD	
-nsCLiveconnect::SetSlot(JNIEnv *jEnv, jsobject obj, jint slot, jobject java_obj,  void* principalsArray[], 
+nsCLiveconnect::SetSlot(JNIEnv *jEnv, lcjsobject obj, jint slot, jobject java_obj,  void* principalsArray[], 
                      int numPrincipals, nsISupports *securitySupports)
 {
     if(jEnv == NULL || obj == 0)
@@ -488,7 +445,7 @@ done:
  * @param name       - Name of a member.
  */
 NS_METHOD	
-nsCLiveconnect::RemoveMember(JNIEnv *jEnv, jsobject obj, const jchar *name, jsize length,  void* principalsArray[], 
+nsCLiveconnect::RemoveMember(JNIEnv *jEnv, lcjsobject obj, const jchar *name, jsize length,  void* principalsArray[], 
                              int numPrincipals, nsISupports *securitySupports)
 {
     if(jEnv == NULL || obj == 0)
@@ -534,7 +491,7 @@ done:
  * @param pjobj      - return value.
  */
 NS_METHOD	
-nsCLiveconnect::Call(JNIEnv *jEnv, jsobject obj, const jchar *name, jsize length, jobjectArray java_args, void* principalsArray[], 
+nsCLiveconnect::Call(JNIEnv *jEnv, lcjsobject obj, const jchar *name, jsize length, jobjectArray java_args, void* principalsArray[], 
                      int numPrincipals, nsISupports *securitySupports, jobject *pjobj)
 {
     if(jEnv == NULL || obj == 0)
@@ -572,11 +529,12 @@ nsCLiveconnect::Call(JNIEnv *jEnv, jsobject obj, const jchar *name, jsize length
     }
 
     /* Allocate space for JS arguments */
-    if (java_args) {
-        argc = jEnv->GetArrayLength(java_args);
+    argc = java_args ? jEnv->GetArrayLength(java_args) : 0;
+    if (argc) {
         argv = (jsval*)JS_malloc(cx, argc * sizeof(jsval));
+        if (!argv)
+            goto done;
     } else {
-        argc = 0;
         argv = 0;
     }
 
@@ -615,7 +573,7 @@ done:
 }
 
 NS_METHOD	
-nsCLiveconnect::Eval(JNIEnv *jEnv, jsobject obj, const jchar *script, jsize length, void* principalsArray[], 
+nsCLiveconnect::Eval(JNIEnv *jEnv, lcjsobject obj, const jchar *script, jsize length, void* principalsArray[], 
                      int numPrincipals, nsISupports *securitySupports, jobject *pjobj)
 {
     if(jEnv == NULL || obj == 0)
@@ -690,7 +648,7 @@ done:
  */
 NS_METHOD	
 nsCLiveconnect::GetWindow(JNIEnv *jEnv, void *pJavaObject,  void* principalsArray[], 
-                     int numPrincipals, nsISupports *securitySupports, jsobject *pobj)
+                     int numPrincipals, nsISupports *securitySupports, lcjsobject *pobj)
 {
     if(jEnv == NULL || JSJ_callbacks == NULL)
     {
@@ -737,7 +695,7 @@ nsCLiveconnect::GetWindow(JNIEnv *jEnv, void *pJavaObject,  void* principalsArra
       handle->js_obj = js_obj;
       handle->rt = JS_GetRuntime(cx);
     }
-    *pobj = (jsobject)NS_PTR_TO_INT32(handle);
+    *pobj = (lcjsobject)handle;
     /* FIXME:  what if the window is explicitly disposed of, how do we
        notify Java? */
 #endif
@@ -755,7 +713,7 @@ done:
  * @param obj        - A Native JS Object.
  */
 NS_METHOD	
-nsCLiveconnect::FinalizeJSObject(JNIEnv *jEnv, jsobject obj)
+nsCLiveconnect::FinalizeJSObject(JNIEnv *jEnv, lcjsobject obj)
 {
     if(jEnv == NULL || obj == 0)
     {
@@ -773,7 +731,7 @@ nsCLiveconnect::FinalizeJSObject(JNIEnv *jEnv, jsobject obj)
 
 
 NS_METHOD	
-nsCLiveconnect::ToString(JNIEnv *jEnv, jsobject obj, jstring *pjstring)
+nsCLiveconnect::ToString(JNIEnv *jEnv, lcjsobject obj, jstring *pjstring)
 {
     if(jEnv == NULL || obj == 0)
     {

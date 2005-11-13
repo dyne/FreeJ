@@ -177,15 +177,8 @@ endif
 	+$(LOOP_OVER_DIRS)
 
 clean:
-	rm -rf $(OBJS); rm -rf $(OBJDIR)
-	@cd fdlibm; $(MAKE) -f Makefile.ref clean; rm -rf $(OBJDIR)
-
-distclean:
-	rm -rf $(OBJS); rm -rf $(OBJDIR)
-	@cd fdlibm; $(MAKE) -f Makefile.ref clean; rm -rf $(OBJDIR)
-
-install:
-	@cd .
+	rm -rf $(OBJS)
+	@cd fdlibm; $(MAKE) -f Makefile.ref clean
 
 clobber:
 	rm -rf $(OBJS) $(TARGETS) $(DEPENDENCIES)

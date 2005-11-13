@@ -54,8 +54,6 @@
 ** Note: on some platforms va_list is defined as an array,
 ** and requires array notation.
 */
-#define HAVE_VA_LIST_AS_ARRAY 1
-
 #ifdef HAVE_VA_COPY
 #define VARARGS_ASSIGN(foo, bar)        VA_COPY(foo,bar)
 #elif defined(HAVE_VA_LIST_AS_ARRAY)
@@ -398,7 +396,7 @@ static int cvt_s(SprintfState *ss, const char *s, int width, int prec,
 }
 
 /*
-** BiuldArgArray stands for Numbered Argument list Sprintf
+** BuildArgArray stands for Numbered Argument list Sprintf
 ** for example,
 **      fmp = "%4$i, %2$d, %3s, %1d";
 ** the number must start from 1, and no gap among them
@@ -407,9 +405,9 @@ static int cvt_s(SprintfState *ss, const char *s, int width, int prec,
 static struct NumArgState* BuildArgArray( const char *fmt, va_list ap, int* rv, struct NumArgState* nasArray )
 {
     int number = 0, cn = 0, i;
-    const char* p;
-    char  c;
-    struct NumArgState* nas;
+    const char *p;
+    char c;
+    struct NumArgState *nas;
 
 
     /*
@@ -480,7 +478,7 @@ static struct NumArgState* BuildArgArray( const char *fmt, va_list ap, int* rv, 
         if( c == '%' )  continue;
 
         cn = 0;
-        while( c && c != '$' ){     /* should imporve error check later */
+        while( c && c != '$' ){     /* should improve error check later */
             cn = cn*10 + c - '0';
             c = *p++;
         }
@@ -608,7 +606,7 @@ static struct NumArgState* BuildArgArray( const char *fmt, va_list ap, int* rv, 
 
     if( *rv < 0 ){
         if( nas != nasArray )
-            JS_DELETE( nas );
+            free( nas );
         return NULL;
     }
 
@@ -643,7 +641,7 @@ static struct NumArgState* BuildArgArray( const char *fmt, va_list ap, int* rv, 
 
         default:
             if( nas != nasArray )
-                JS_DELETE( nas );
+                free( nas );
             *rv = -1;
             return NULL;
         }
@@ -676,10 +674,10 @@ static int dosprintf(SprintfState *ss, const char *fmt, va_list ap)
     static char *HEX = "0123456789ABCDEF";
     char *hexp;
     int rv, i;
-    struct NumArgState* nas = NULL;
-    struct NumArgState  nasArray[ NAS_DEFAULT_NUM ];
-    char  pattern[20];
-    const char* dolPt = NULL;  /* in "%4$.2f", dolPt will poiont to . */
+    struct NumArgState *nas = NULL;
+    struct NumArgState nasArray[ NAS_DEFAULT_NUM ];
+    char pattern[20];
+    const char *dolPt = NULL;  /* in "%4$.2f", dolPt will poiont to . */
 
 
     /*
@@ -729,7 +727,7 @@ static int dosprintf(SprintfState *ss, const char *fmt, va_list ap)
 
             if( nas[i-1].type == TYPE_UNKNOWN ){
                 if( nas && ( nas != nasArray ) )
-                    JS_DELETE( nas );
+                    free( nas );
                 return -1;
             }
 
@@ -989,7 +987,7 @@ static int dosprintf(SprintfState *ss, const char *fmt, va_list ap)
     rv = (*ss->stuff)(ss, "\0", 1);
 
     if( nas && ( nas != nasArray ) ){
-        JS_DELETE( nas );
+        free( nas );
     }
 
     return rv;
@@ -1091,7 +1089,7 @@ JS_PUBLIC_API(char *) JS_smprintf(const char *fmt, ...)
 */
 JS_PUBLIC_API(void) JS_smprintf_free(char *mem)
 {
-        JS_DELETE(mem);
+        free(mem);
 }
 
 JS_PUBLIC_API(char *) JS_vsmprintf(const char *fmt, va_list ap)
@@ -1106,7 +1104,7 @@ JS_PUBLIC_API(char *) JS_vsmprintf(const char *fmt, va_list ap)
     rv = dosprintf(&ss, fmt, ap);
     if (rv < 0) {
         if (ss.base) {
-            JS_DELETE(ss.base);
+            free(ss.base);
         }
         return 0;
     }
@@ -1168,8 +1166,8 @@ JS_PUBLIC_API(JSUint32) JS_vsnprintf(char *out, JSUint32 outlen,const char *fmt,
     (void) dosprintf(&ss, fmt, ap);
 
     /* If we added chars, and we didn't append a null, do it now. */
-    if( (ss.cur != ss.base) && (*(ss.cur - 1) != '\0') )
-        *(--ss.cur) = '\0';
+    if( (ss.cur != ss.base) && (ss.cur[-1] != '\0') )
+        ss.cur[-1] = '\0';
 
     n = ss.cur - ss.base;
     return n ? n - 1 : n;
@@ -1205,7 +1203,7 @@ JS_PUBLIC_API(char *) JS_vsprintf_append(char *last, const char *fmt, va_list ap
     rv = dosprintf(&ss, fmt, ap);
     if (rv < 0) {
         if (ss.base) {
-            JS_DELETE(ss.base);
+            free(ss.base);
         }
         return 0;
     }
