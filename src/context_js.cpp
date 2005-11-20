@@ -299,11 +299,9 @@ JS(file_to_strings) {
 	break;
       else punt++;
     }
+
     // there is a word to acquire!
     // create the new entry
-    //    *punt = '\0';
-    //    fprintf(stderr,"%s ",pword);
-
     str = JS_NewStringCopyN(cx, pword, punt-pword);
     val = STRING_TO_JSVAL(str);
     JS_SetElement(cx, arr, c, &val);

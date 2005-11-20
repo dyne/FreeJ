@@ -200,6 +200,29 @@ JS(layer_set_position) {
 
     return JS_TRUE;
 }
+
+
+JS(layer_slide_position) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  
+  JS_CHECK_ARGC(2);
+  
+  GET_LAYER(Layer);
+  
+  int speed = 1;
+  int x,y;
+
+  x = JSVAL_TO_INT(argv[0]);
+  y = JSVAL_TO_INT(argv[1]);
+  
+  if(argc == 3)
+    speed = JSVAL_TO_INT(argv[2]);
+  
+  lay->slide_position(x, y, speed);
+
+  return JS_TRUE;
+}
+
 JS(layer_get_x_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 

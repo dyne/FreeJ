@@ -29,57 +29,29 @@ DECLARE_CLASS("GeometryLayer",geometry_layer_class,geometry_layer_constructor);
 ////////////////////////////////
 // Geometry Layer methods
 
-////////////////////////////////
-// Geometry Layer methods
-JS(geometry_layer_clear);
-JS(geometry_layer_color);
-JS(geometry_layer_pixel);
-JS(geometry_layer_hline);
-JS(geometry_layer_vline);
-JS(geometry_layer_rectangle);
-JS(geometry_layer_rectangle_fill);
-JS(geometry_layer_line);
-JS(geometry_layer_aaline);
-JS(geometry_layer_circle);
-JS(geometry_layer_aacircle);
-JS(geometry_layer_circle_fill);
-JS(geometry_layer_ellipse);
-JS(geometry_layer_aaellipse);
-JS(geometry_layer_ellipse_fill);
-JS(geometry_layer_pie);
-JS(geometry_layer_pie_fill);
-JS(geometry_layer_trigon);
-JS(geometry_layer_aatrigon);
-JS(geometry_layer_trigon_fill);
-//JS(geometry_layer_polygon);
-//JS(geometry_layer_aapolygon);
-//JS(geometry_layer_polygon_fill);
-//JS(geometry_layer_bezier);
-
-
 JSFunctionSpec geometry_layer_methods[] = {
   LAYER_METHODS  ,
   ENTRY_METHODS  ,
-  {     "clear",        geometry_layer_clear,   1},
-  {     "color",   geometry_layer_color,        4},
-  {     "pixel",        geometry_layer_pixel,   2},
-  {     "hline",        geometry_layer_hline,   3},
-  {     "vline",        geometry_layer_vline,   3},
-  {     "rectangle",         geometry_layer_rectangle, 4},
-  {     "rectangle_fill",    geometry_layer_rectangle_fill, 4},
-  {     "line", geometry_layer_line, 4},
-  { "aaline", geometry_layer_aaline, 4},
-  { "circle", geometry_layer_circle, 3},
-  { "aacircle", geometry_layer_aacircle, 3},
-  { "circle_fill", geometry_layer_circle_fill, 3},
-  { "ellipse", geometry_layer_ellipse, 4},
-  { "aaellipse", geometry_layer_aaellipse, 4},
-  { "ellipse_fill", geometry_layer_ellipse_fill, 4},
-  { "pie", geometry_layer_pie, 5},
-  { "pie_fill", geometry_layer_pie_fill, 5},
-  { "trigon", geometry_layer_trigon, 6},
-  { "aatrigon", geometry_layer_aatrigon, 6},
-  { "trigon_fill", geometry_layer_trigon_fill, 6},
+  { "clear",          geometry_layer_clear,          1 },
+  { "color",          geometry_layer_color,          4 },
+  { "pixel",          geometry_layer_pixel,          2 },
+  { "hline",          geometry_layer_hline,          3 },
+  { "vline",          geometry_layer_vline,          3 },
+  { "rectangle",      geometry_layer_rectangle,      4 },
+  { "rectangle_fill", geometry_layer_rectangle_fill, 4 },
+  { "line",           geometry_layer_line,           4 },
+  { "aaline",         geometry_layer_aaline,         4 },
+  { "circle",         geometry_layer_circle,         3 },
+  { "aacircle",       geometry_layer_aacircle,       3 },
+  { "circle_fill",    geometry_layer_circle_fill,    3 },
+  { "ellipse",        geometry_layer_ellipse,        4 },
+  { "aaellipse",      geometry_layer_aaellipse,      4 },
+  { "ellipse_fill",   geometry_layer_ellipse_fill,   4 },
+  { "pie",            geometry_layer_pie,            5 },
+  { "pie_fill",       geometry_layer_pie_fill,       5 },
+  { "trigon",         geometry_layer_trigon,         6 },
+  { "aatrigon",       geometry_layer_aatrigon,       6 },
+  { "trigon_fill",    geometry_layer_trigon_fill,    6 },
   //  { "polygon", geometry_layer_polygon, 4},
   //  { "aapolygon", geometry_layer_aapolygon, 4},
   //  { "polygon_fill", geometry_layer_polygon_fill, 4},
@@ -88,17 +60,7 @@ JSFunctionSpec geometry_layer_methods[] = {
 };
 
 
-
 JS_CONSTRUCTOR("GeometryLayer",geometry_layer_constructor,GeoLayer);  
-
-JS(geometry_layer_clear) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
-
-  GET_LAYER(GeoLayer);
-  lay->clear();
-
-  return JS_TRUE;
-}
 
 /// color handling, a macro and some overloading tricks
 #define OPTIONAL_COLOR_ARG(num) \
@@ -110,6 +72,19 @@ JS(geometry_layer_clear) {
       color = (uint32_t) (JSVAL_TO_INT(argv[num])); \
   } else \
     color = lay->color;
+
+
+
+
+JS(geometry_layer_clear) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+
+  GET_LAYER(GeoLayer);
+  lay->clear();
+
+  return JS_TRUE;
+}
+
 
 
 JS(geometry_layer_color) {

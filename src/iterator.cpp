@@ -143,6 +143,8 @@ void Iterator::set_mode(iterator_mode_t m) {
 
   case LOOP: break;
 
+  case BOUNCE: break;
+
   case PULSE:
     saved_value = (int32_t)*value;
     break;

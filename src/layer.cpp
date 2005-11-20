@@ -176,17 +176,19 @@ void Layer::set_position(int x, int y) {
   unlock();
 }
 
-void Layer::slide_position(int x, int y) {
+void Layer::slide_position(int x, int y, int speed) {
 
   if(x!=geo.x) {
     iter = new Iterator((int32_t*)&geo.x);
     iter->set_aim(x);
+    iter->set_step(speed);
     iterators.add(iter);
   }
 
   if(y!=geo.y) {
     iter = new Iterator((int32_t*)&geo.y);
     iter->set_aim(y);
+    iter->set_step(speed);
     iterators.add(iter);
   }
 

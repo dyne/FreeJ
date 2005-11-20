@@ -1,6 +1,6 @@
 /*  FreeJ
  *
- *  Copyright (C) 2004
+ *  Copyright (C) 2004-2005
  *  Silvano Galliani aka kysucix <kysucix@dyne.org>
  *  Denis Rojo aka jaromil <jaromil@dyne.org>
  *
@@ -69,59 +69,59 @@ JS(txt_layer_constructor);
 
 JS(kbd_ctrl_constructor);
 
-
-// class and methods are defined in the specific _js.cpp files
+//////////////////////////////////////////////////////////////
+// classes
 
 extern JSClass global_class;
 extern JSFunctionSpec global_functions[];
 
-//DECLARE_CLASS("Effect",effect_class,effect_constructor);
+// Effect
 extern JSClass effect_class;
 extern JSFunctionSpec effect_methods[];
 
-//DECLARE_CLASS("Layer",layer_class,layer_constructor);
+// Layer
 extern JSClass layer_class;
 extern JSFunctionSpec layer_methods[];
 
-
+// KeyboardController
 extern JSClass kbd_ctrl_class;
 extern JSFunctionSpec kbd_ctrl_methods[];
 
 
-//DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
+// ParticleLayer
 extern JSClass particle_layer_class;
 extern JSFunctionSpec particle_layer_methods[];
 
-//DECLARE_CLASS("GeometryLayer",geometry_layer_class,geometry_layer_constructor);
+// GeometryLayer
 extern JSClass geometry_layer_class;
 extern JSFunctionSpec geometry_layer_methods[];
 
-//DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
+// VScrollLayer
 extern JSClass vscroll_layer_class;
 extern JSFunctionSpec vscroll_layer_methods[];
 
-//DECLARE_CLASS("ImageLayer",image_layer_class,image_layer_constructor);
+// ImageLayer
 extern JSClass image_layer_class;
 extern JSFunctionSpec image_layer_methods[];
 
+// FlashLayer
 extern JSClass flash_layer_class;
 extern JSFunctionSpec flash_layer_methods[];
 
+// CamLayer
 #ifdef WITH_V4L
-//DECLARE_CLASS("CamLayer",v4l_layer_class,v4l_layer_constructor);
 extern JSClass v4l_layer_class;
 extern JSFunctionSpec v4l_layer_methods[];
 #endif
 
+// TextLayer
 #ifdef WITH_FT2
-//DECLARE_CLASS("TextLayer",txt_layer_class,txt_layer_constructor);
 extern JSClass txt_layer_class;
 extern JSFunctionSpec txt_layer_methods[];
 #endif
 
-
+// MovieLayer
 #ifdef WITH_AVCODEC
-//DECLARE_CLASS("MovieLayer",video_layer_class,video_layer_constructor);
 extern JSClass video_layer_class;
 extern JSFunctionSpec video_layer_methods[];
 #endif
@@ -137,7 +137,7 @@ extern JSFunctionSpec video_layer_methods[];
 
 
 ////////////////////////////////
-// Environment methods
+// Global Environment methods
 
 JS(cafudda);
 JS(quit);
@@ -180,6 +180,7 @@ JS(layer_get_blit);
 JS(layer_set_blit_value);
 JS(layer_get_blit_value);
 JS(layer_set_position);
+JS(layer_slide_position);
 JS(layer_get_x_position);
 JS(layer_get_y_position);
 JS(layer_get_width);
@@ -201,6 +202,7 @@ JS(layer_list_effects);
     {"set_blit_value",	layer_set_blit_value,	1}, \
     {"get_blit_value",	layer_get_blit_value,	0}, \
     {"set_position",	layer_set_position,	2}, \
+    {"slide_position",  layer_slide_position,   2}, \
     {"get_x_position",	layer_get_x_position,	0}, \
     {"x",               layer_get_x_position,   0}, \
     {"get_y_position",	layer_get_y_position,	0}, \
@@ -225,7 +227,36 @@ JS(particle_layer_blossom);
 JS(image_layer_open);
 
 ////////////////////////////////
+// Flash Layer methods
 JS(flash_layer_open);
+
+////////////////////////////////
+// Geometry Layer methods
+JS(geometry_layer_clear);
+JS(geometry_layer_color);
+JS(geometry_layer_pixel);
+JS(geometry_layer_hline);
+JS(geometry_layer_vline);
+JS(geometry_layer_rectangle);
+JS(geometry_layer_rectangle_fill);
+JS(geometry_layer_line);
+JS(geometry_layer_aaline);
+JS(geometry_layer_circle);
+JS(geometry_layer_aacircle);
+JS(geometry_layer_circle_fill);
+JS(geometry_layer_ellipse);
+JS(geometry_layer_aaellipse);
+JS(geometry_layer_ellipse_fill);
+JS(geometry_layer_pie);
+JS(geometry_layer_pie_fill);
+JS(geometry_layer_trigon);
+JS(geometry_layer_aatrigon);
+JS(geometry_layer_trigon_fill);
+//JS(geometry_layer_polygon);
+//JS(geometry_layer_aapolygon);
+//JS(geometry_layer_polygon_fill);
+//JS(geometry_layer_bezier);
+
 
 ////////////////////////////////
 // VScroll Layer methods
@@ -269,13 +300,6 @@ JS(txt_layer_blink);
 JS(txt_layer_blink_on);
 JS(txt_layer_blink_off);
 #endif
-
-
-////////////////////////////////
-////////////////////////////////
-// API FUNCTION ASSIGNEMENTS
-////////////////////////////////
-////////////////////////////////
 
 
 

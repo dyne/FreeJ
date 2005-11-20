@@ -93,7 +93,7 @@ class Layer: public Entry, public JSyncThread {
   void set_position(int x, int y);
   ///< Set Layer's position on screen
 
-  void slide_position(int x, int y);
+  void slide_position(int x, int y, int speed);
   ///< Slide the Layer to a position on screen
 
   /**
