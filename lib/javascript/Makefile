@@ -294,6 +294,8 @@ include rules.mk
 MOZ_DEPTH = ../..
 include jsconfig.mk
 
+install:
+
 nsinstall-target:
 	cd ../../config; $(MAKE) OBJDIR=$(OBJDIR) OBJDIR_NAME=$(OBJDIR)
 ifdef USE_MSVC
