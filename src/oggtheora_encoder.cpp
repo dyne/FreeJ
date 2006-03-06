@@ -221,7 +221,7 @@ bool OggTheoraEncoder::vorbis_init() {
 
 	int audio_channels   = 1; // TODO parameters
 //	int audio_hertz      = 22050;
-	int audio_hertz      = 44100;
+	int audio_hertz      = sample_rate;
 	int audio_bitrate    = 32000;
 
 	// init bytes count variable
