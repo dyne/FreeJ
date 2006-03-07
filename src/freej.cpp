@@ -74,6 +74,7 @@ static const char *help =
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
 " .   -c   no interactive text console\n"
+" .   -f   <frame_per_second>  select fps for freej (useful for low bandwidth streaming, may not work with videolayer)\n"
 #ifdef WITH_OPENGL
 " .   -g   experimental opengl engine!(better to use power of 2 resolution as 256x256)\n"
 #endif
@@ -99,7 +100,7 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:ag";
+static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:agf:";
 
 
 
@@ -121,6 +122,8 @@ static char screaming_description[512]; // name
 
 static int theora_quality;
 static int vorbis_quality;
+
+static unsigned int fps = 25;
 
 bool startstate = true;
 bool stream_audio = true;
@@ -227,6 +230,10 @@ void cmdline(int argc, char **argv) {
 
      case 'T':
       sscanf (optarg, "%u", &theora_quality);
+      break;
+
+     case 'f':
+      sscanf (optarg, "%u", &fps);
       break;
 
      case 'V':
@@ -406,6 +413,8 @@ int main (int argc, char **argv) {
 
 #endif
 
+  // Set fps
+  freej. set_fps_interval (fps );
 
   freej.start_running = startstate;
 

@@ -87,7 +87,7 @@ void OggTheoraEncoder::close_ogg_streams() {
 		/*
 		 * XXX
 		 */
-		audio_buffer_size = sample_rate / 25 * 2;
+		audio_buffer_size = sample_rate / env->fps_speed * 2;
 //		func("sample_rate :%f",sample_rate);
 //		notice("audio_buffer_size :%d",audio_buffer_size);
 
@@ -157,7 +157,7 @@ bool OggTheoraEncoder::init_ogg_streams() {
 	return true;
 }
 bool OggTheoraEncoder::theora_init() { // TODO freejrc &co
-	int fps                 = 25;
+	int fps                 = env -> fps_speed;
 	int video_bit_rate      = 0; // 0 autotune
 	int compression_quality = video_quality; // 16 it's ok for streaming
 	int sharpness           = 1;
