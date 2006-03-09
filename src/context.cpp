@@ -307,6 +307,7 @@ void Context::magnify(int algo) {
 /* FPS */
 
 void Context::set_fps_interval(int interval) {
+	fps_speed = interval;
 	fps_frame_interval = interval*1000000;
 	min_interval = (long)1000000/interval;
 }
