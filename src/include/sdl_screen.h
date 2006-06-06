@@ -50,6 +50,7 @@ class SdlScreen : public ViewPort {
  private:
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
+  SDL_Event event;
   
   bool dbl;
   uint32_t sdl_flags;

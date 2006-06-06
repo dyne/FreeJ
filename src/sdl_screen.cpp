@@ -121,6 +121,15 @@ void SdlScreen::show() {
 	 (uint32_t*)SDL_GetVideoSurface()->pixels);
     unlock();
   }
+
+  // temporary check in absence of the final keyboard controller
+  // to not get stuck in full screen
+  if( SDL_PollEvent(&event) )
+    if(event.key.state == SDL_PRESSED)
+      if(event.key.keysym.sym == SDLK_ESCAPE)
+	fullscreen();
+    
+
   lock();
   SDL_Flip(surface);
   unlock();
