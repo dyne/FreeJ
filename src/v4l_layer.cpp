@@ -181,7 +181,7 @@ bool V4lGrabber::init(int width, int height) {
   }
 
   /* INIT from the LAYER CLASS */
-  _init(init_width,init_heigth);
+  _init(width,height);
 
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */

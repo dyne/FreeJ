@@ -45,7 +45,8 @@ static uint8_t achan = 3;
 #endif
 
 
-GeoLayer::GeoLayer() {
+GeoLayer::GeoLayer()
+  :Layer() {
   surf = NULL;
   color = 0xffffffff;
   set_name("GEO");

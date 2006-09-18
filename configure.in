@@ -19,6 +19,7 @@ case $uname in
      AC_MSG_RESULT(Linux)
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
      have_linux=yes
+     AM_CONDITIONAL(ARCH_PPC, test x$hostcpu = xpowerpc) 
      if test $host_cpu = powerpc; then
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
@@ -78,6 +79,8 @@ dnl Check for tools
 dnl ==============================================================
 AC_PROG_CC
 AC_PROG_CXX
+AC_PROG_LEX
+AC_PROG_YACC
 
 dnl Check for dlopen support
 AC_LIBTOOL_DLOPEN
@@ -374,7 +377,7 @@ if test x$have_lubrifications = xyes; then
       CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math"
       AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
     else # any other x86 platform optimizations
-      CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -march=${host_cpu} -ffast-math"
+      CFLAGS="$CFLAGS -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -march=${host_cpu} -ffast-math"
     fi
   fi
 else
@@ -605,6 +608,7 @@ lib/sdl_image/Makefile
 lib/sdl_gfx/Makefile
 lib/sdl_ttf/Makefile
 lib/flash/Makefile
+lib/goom/Makefile
 filters/Makefile
 filters/delaygrab/Makefile
 filters/rotozoom/Makefile

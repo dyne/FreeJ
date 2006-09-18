@@ -165,6 +165,8 @@ Layer *create_layer(char *file) {
 #endif
 	  } else if(strncasecmp(file_ptr,"layer_gen",9)==0) {
 	    nlayer = new GenLayer();
+          } else if(strncasecmp(file_ptr,"layer_goom",10)==0) {
+            nlayer = new GoomLayer(); 
 	  } else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
 	    nlayer = new FlashLayer();
 	    if(!nlayer->open(file_ptr)) {

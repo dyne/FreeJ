@@ -30,6 +30,7 @@
 #include <scroll_layer.h>
 #include <image_layer.h> // statically included sdl_image
 #include <flash_layer.h> // statically included flash layer
+#include <goom_layer.h>
 
 #ifdef WITH_V4L
 #include <v4l_layer.h>
