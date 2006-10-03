@@ -456,7 +456,7 @@ void TxtLayer::advance() {
   clear_screen = true;
 }
 
-bool TxtLayer::keypress(char key) {
+bool TxtLayer::keypress(int key) {
      int res = 1;
      switch(key) {
 

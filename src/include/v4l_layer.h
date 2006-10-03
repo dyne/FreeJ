@@ -73,7 +73,7 @@ class V4lGrabber: public Layer {
   void set_chan(int ch);
   void set_band(int b);
   void set_freq(int f);
-  bool keypress(char key);
+  bool keypress(int key);
 
   unsigned char *buffer;
 };

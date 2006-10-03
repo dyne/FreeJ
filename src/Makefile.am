@@ -11,6 +11,8 @@ INCLUDES = -I$(top_srcdir)/src/include \
 	   -I$(top_srcdir)/lib/javascript/obj \
 	   -I$(top_srcdir)/lib/flash \
 	   -I$(top_srcdir)/lib/goom \
+           -I$(top_srcdir)/lib/tbt \
+           -I$(top_srcdir)/lib/slw \
            -I/usr/include/slang \
 	   @THEORA_MMX_INCLUDE@
 
@@ -65,6 +67,7 @@ freej_SOURCES = \
 	scroll_layer_js.cpp \
 	xhacks_layer.cpp \
         goom_layer.cpp \
+	tbt_layer.cpp \
 	impl_layers.cpp \
 \
 	screen.cpp	\
@@ -93,6 +96,8 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/javascript/obj/libjs.a \
 	      $(top_srcdir)/lib/flash/libflash.a \
 	      $(top_srcdir)/lib/goom/libgoom2.a \
+              $(top_srcdir)/lib/tbt/libtbt.a \
+              $(top_srcdir)/lib/slw/libslw.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \

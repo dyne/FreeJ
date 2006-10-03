@@ -334,7 +334,7 @@ framepos_t AviLayer::mark_out_now() {
   return marker_out;
 }
 
-bool AviLayer::keypress(char key) {
+bool AviLayer::keypress(int key) {
   bool res = true;
   framepos_t off;
   switch(key) {

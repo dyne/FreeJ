@@ -46,8 +46,6 @@ int got_sigpipe;
 
 Context::Context() {
 
-	notice("starting %s %s engine",PACKAGE,VERSION);
-
 	screen          = NULL;
 	console         = NULL;
 
@@ -382,8 +380,8 @@ void Context::rocknroll() {
 
 }
 
-    void fsigpipe (int Sig) {
-	if (!got_sigpipe)
-	    warning ("Problems streaming video :-(");
-	got_sigpipe = true;
-    }
+void fsigpipe (int Sig) {
+  if (!got_sigpipe)
+    warning ("SIGPIPE - Problems streaming video :-(");
+  got_sigpipe = true;
+}

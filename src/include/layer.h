@@ -84,7 +84,7 @@ class Layer: public Entry, public JSyncThread {
   virtual bool open(char *file) =0; ///< open the file (first called)
   virtual bool init(int width, int height) =0; ///< initialize the layer (second called)
   virtual void close() =0; ///< close the layer (ready to open a new one)
-  virtual bool keypress(char key) =0; ///< pass to the Layer a key pressed
+  virtual bool keypress(int key) =0; ///< pass to the Layer a key pressed
 
   char *get_name() { return name; };
   char *get_filename() { return filename; };

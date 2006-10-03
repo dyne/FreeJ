@@ -1,4 +1,5 @@
-/*  FreeJ
+/*  C++ Linked list class, threadsafe (boolean is atom)
+ *
  *  (c) Copyright 2001-2004 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
@@ -25,18 +26,21 @@
    knows which inheriting class they are (delete is done in main)
 */
 
-#include <iostream>
+#include <stdlib.h>
+#include <string.h>
 
 #include <jutils.h>
 #include <linklist.h>
-#include <config.h>
 
 
 Linklist::Linklist() {
   length = 0;
   first = NULL;
   last = NULL;
+#ifdef THREADSAFE
   pthread_mutex_init(&mutex,NULL);
+#endif
+  
 //  unlock();
 }
 
@@ -48,7 +52,9 @@ Linklist::~Linklist() {
 void Linklist::append(Entry *addr) {
   Entry *ptr = NULL;
   if(addr->list) addr->rem();
+#ifdef THREADSAFE
   lock();
+#endif
 
   if(!last) { /* that's the first entry */
     last = addr;
@@ -65,13 +71,17 @@ void Linklist::append(Entry *addr) {
   /* save the pointer to this list */
   addr->list = this;
   length++;
+#ifdef THREADSAFE
   unlock();
+#endif
 }
 
 void Linklist::prepend(Entry *addr) {
   Entry *ptr = NULL;
   if(addr->list) addr->rem();
+#ifdef THREADSAFE
   lock();
+#endif
   
   if(!first) { /* that's the first entry */
     first = addr;
@@ -87,7 +97,9 @@ void Linklist::prepend(Entry *addr) {
   }
   addr->list = this;
   length++;
+#ifdef THREADSAFE
   unlock();
+#endif
 }
 
 
@@ -97,7 +109,9 @@ void Linklist::insert_after(Entry *addr, Entry *pos) {
   // take it out from other lists
   if(addr->list) addr->rem();
 
+#ifdef THREADSAFE
   lock();
+#endif
   if(pos->next) {
     pos->next->prev = addr;
     addr->next = pos->next;
@@ -109,7 +123,9 @@ void Linklist::insert_after(Entry *addr, Entry *pos) {
   length++;  
   addr->list = this;
 
+#ifdef THREADSAFE
   unlock();
+#endif
 }
 
 
@@ -131,7 +147,9 @@ void Linklist::insert(Entry *addr, int pos) {
 
   Entry *ptr = pick(pos);
 
+#ifdef THREADSAFE
   lock();
+#endif
   ptr->prev->next = addr;
   addr->prev = ptr->prev;
   
@@ -140,7 +158,9 @@ void Linklist::insert(Entry *addr, int pos) {
   
   length++;
   addr->list = this;
+#ifdef THREADSAFE
   unlock();
+#endif
 }
 
 /* clears the list
@@ -148,12 +168,16 @@ void Linklist::insert(Entry *addr, int pos) {
    from the procedure creating them. so this call simply discards
    the pointers stored into the linked list. OBJECTS ARE NOT FREED */
 void Linklist::clear() {
+#ifdef THREADSAFE
   lock();
+#endif
   sel(0);
   length = 0;
   first = NULL;
   last = NULL;
+#ifdef THREADSAFE
   unlock();
+#endif
 }
 
 /* takes one element from the list
@@ -163,7 +187,15 @@ void Linklist::clear() {
    this function is then overloading the operator[]
 */
 Entry *Linklist::pick(int pos) {
-  if((length<pos)||(pos<1)) return(NULL);
+  if(pos<1) {
+	  warning("linklist access at element 0 while first element is 1");
+	  return(NULL);
+  }
+  if(length<pos) {
+	  warning("linklist access out of boundary");
+	  return(NULL);
+  }
+  // shortcuts
   if(pos==1) return(first);
   if(pos==length) return(last);
 
@@ -285,7 +317,9 @@ void Entry::set_name(char *nn) {
 
 bool Entry::up() {
   if(!prev || !list) return(false);
+#ifdef THREADSAFE
   list->lock();
+#endif
 
   Entry *tprev = prev,
     *tnext = next,
@@ -308,13 +342,17 @@ bool Entry::up() {
   if(!prev)
     list->first = this;
 
+#ifdef THREADSAFE
   list->unlock();
+#endif
   return(true);
 }
 
 bool Entry::down() {
   if(!next || !list) return(false);
+#ifdef THREADSAFE
   list->lock();
+#endif
 
   Entry *tprev = prev,
     *tnext = next,
@@ -336,14 +374,18 @@ bool Entry::down() {
   if(!next)
     list->last = this;
 
+#ifdef THREADSAFE
   list->unlock();
+#endif
   return(true);
 }
 
 bool Entry::move(int pos) {
-  func("Entry::move(%i) - NEW LINKLIST MOVE");
+  func("Entry::move(%i) - NEW LINKLIST MOVE, TRYING IT...");
   if(!list) return(false);
+#ifdef THREADSAFE
   list->lock();
+#endif
 
   Entry *tn, *tp;
 
@@ -368,7 +410,9 @@ bool Entry::move(int pos) {
   if(prev) prev->next = this;
   else list->first = this;
 
+#ifdef THREADSAFE
   list->unlock();
+#endif
   func("LINKLIST MOVE RETURNS SUCCESS");
 
   return(true);
@@ -377,7 +421,9 @@ bool Entry::move(int pos) {
 void Entry::rem() {
   bool lastone = false;
   if(!list) return;
+#ifdef THREADSAFE
   list->lock();
+#endif
 
   if(next) { // if there is a next
     next->prev = prev; // link it to the previous
@@ -393,7 +439,10 @@ void Entry::rem() {
   } else list->first = next; // else just make it a first
   
   list->length--;
+#ifdef THREADSAFE
   list->unlock();
+#endif
+
   list = NULL;
 }
 

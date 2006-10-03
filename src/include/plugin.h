@@ -27,7 +27,7 @@ class Plugin {
   typedef int (t_init)(ScreenGeometry*);
   typedef int (t_clean)(void);
   typedef void* (t_process)(void*);
-  typedef int (t_kbdin)(char);
+  typedef int (t_kbdin)(int);
  public:
   Plugin();
   ~Plugin();
@@ -45,7 +45,7 @@ class Plugin {
 
   void *process(void *buffo) { return (*__process)(buffo); };
 
-  int kbd_input(char key) { return (*__kbd_input)(key); };
+  int kbd_input(int key) { return (*__kbd_input)(key); };
 
   char *getname() { return _name; };
   char *getauthor() { return _author; };

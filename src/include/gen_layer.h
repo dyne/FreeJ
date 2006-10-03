@@ -49,7 +49,7 @@ class GenLayer: public Layer {
   double wd, hd;
 
   /* surface buffer */
-  uint32_t rmask,gmask,bmask,amask;
+  //  uint32_t rmask,gmask,bmask,amask;
   uint32_t *pixels;
 
   /* blob drawing */
@@ -65,7 +65,7 @@ class GenLayer: public Layer {
   bool init(int width, int height);
   bool open(char *file);
   void *feed();
-  bool keypress(char key);
+  bool keypress(int key);
   void close();
 
   void blossom_recal(bool r);

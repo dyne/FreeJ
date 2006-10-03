@@ -19,7 +19,7 @@ blurzoom.so: blurzoom.o blurzoomcore.o
 absdiff.so: absdiff.o mmx_absdiff32.o
 
 %.o: %.c
-	$(CC) -Wall -O2 -ffast-math -c -o $@ $<
+	$(CC) -Wall -I../../src/include -O2 -ffast-math -c -o $@ $<
 %.o: %.nas
 	$(NASM) -f elf $<
 %.so:

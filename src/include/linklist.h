@@ -1,5 +1,6 @@
-/*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+/*  C++ Linked list class, threadsafe (boolean is atom)
+ *
+ *  (c) Copyright 2001-2006 Denis Rojo <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -19,7 +20,14 @@
 #ifndef __linklist_h__
 #define __linklist_h__
 
+
+// uncomment to have mutex locked operations
+// can be slow on OSX and adds dependency to pthreads
+#define THREADSAFE 1
+
+#ifdef THREADSAFE
 #include <pthread.h>
+#endif
 
 // maximum number of members returned by the completion
 #define MAX_COMPLETION 512
@@ -59,12 +67,19 @@ class Linklist {
   Entry *last;
   int length;
 
+#ifdef THREADSAFE
   void lock() { pthread_mutex_lock(&mutex); };
   void unlock() { pthread_mutex_unlock(&mutex); };
+#endif
 
  private:
+
+#ifdef THREADSAFE
   pthread_mutex_t mutex;
+#endif
+  
   int compbuf[MAX_COMPLETION]; // maximum completion listsize allowed
+
 };
 
 class Entry {

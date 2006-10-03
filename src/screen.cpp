@@ -44,6 +44,7 @@ void ViewPort::add_layer(Layer *lay) {
   layers.add(lay);
   layers.sel(0);
   lay->sel(true);
+  func("layer %s succesfully added",lay->name);
 }
 
 void ViewPort::scale2x(uint32_t *osrc, uint32_t *odst) {

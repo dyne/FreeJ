@@ -209,7 +209,7 @@ void ScrollLayer::append(char *txt) {
 }
 
 
-bool ScrollLayer::keypress(char key) {
+bool ScrollLayer::keypress(int key) {
   return false;
 }
 

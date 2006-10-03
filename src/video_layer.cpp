@@ -481,7 +481,7 @@ void VideoLayer::free_fifo() {
 		free_picture(frame_fifo.picture[s]);
 	}
 }
-bool VideoLayer::keypress(char key) {
+bool VideoLayer::keypress(int key) {
 	switch(key) {
 		case 'k':
 			forward();

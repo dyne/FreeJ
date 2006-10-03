@@ -22,29 +22,6 @@
 #include <geo_layer.h>
 #include <config.h>
 
-
-// should make this shared soon or later
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-static uint32_t rmask = 0x00ff0000;
-static uint8_t rchan = 1;
-static uint32_t gmask = 0x0000ff00;
-static uint8_t gchan = 2;
-static uint32_t bmask = 0x000000ff;
-static uint8_t bchan = 3;
-static uint32_t amask = 0xff000000;
-static uint8_t achan = 0;
-#else
-static uint32_t rmask = 0x000000ff;
-static uint8_t rchan = 2;
-static uint32_t gmask = 0x0000ff00;
-static uint8_t gchan = 1;
-static uint32_t bmask = 0x00ff0000;
-static uint8_t bchan = 0;
-static uint32_t amask = 0xff000000;
-static uint8_t achan = 3;
-#endif
-
-
 GeoLayer::GeoLayer()
   :Layer() {
   surf = NULL;
@@ -64,7 +41,7 @@ bool GeoLayer::init(int width, int height) {
   
   surf = SDL_CreateRGBSurface(SDL_HWSURFACE,
 			      geo.w,geo.h,32,
-			      rmask,gmask,bmask,amask);
+			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
   if(!surf) {
     error("can't allocate GeoLayer memory surface");
     return(false);
@@ -85,7 +62,7 @@ void GeoLayer::close() {
 }
 
 
-bool GeoLayer::keypress(char key) {
+bool GeoLayer::keypress(int key) {
   /* neither this */
   return(true);
 }

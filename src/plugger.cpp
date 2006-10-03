@@ -36,6 +36,7 @@ Plugger::Plugger() {
   _addsearchdir(temp);
   _addsearchdir("/usr/lib/freej");
   _addsearchdir("/usr/local/lib/freej");
+  _addsearchdir("/opt/video/lib/freej");
   for(int i=0;i<MAX_PLUGINS;i++) plugs[i] = NULL;
 }
 

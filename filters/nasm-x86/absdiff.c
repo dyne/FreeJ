@@ -3,12 +3,15 @@
 #include <inttypes.h>
 #include <SDL/SDL.h>
 #include <freej.h>
-#include <freej_plugin.h>
 
 static char *name = "Absdiff";
 static char *author = "jaromil";
 static char *info = "Absolute difference between frames";
 static int version = 1;
+char *getname() { return name; };
+char *getauthor() { return author; };
+char *getinfo() { return info; };
+int getversion() { return version; };
 
 static void *procbuf = NULL;
 static void *lastimage = NULL;

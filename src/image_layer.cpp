@@ -27,27 +27,6 @@
 #include <image_layer.h>
 #include <config.h>
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-static uint32_t rmask = 0x00ff0000;
-static uint8_t rchan = 1;
-static uint32_t gmask = 0x0000ff00;
-static uint8_t gchan = 2;
-static uint32_t bmask = 0x000000ff;
-static uint8_t bchan = 3;
-static uint32_t amask = 0xff000000;
-static uint8_t achan = 0;
-#else
-static uint32_t rmask = 0x000000ff;
-static uint8_t rchan = 2;
-static uint32_t gmask = 0x0000ff00;
-static uint8_t gchan = 1;
-static uint32_t bmask = 0x00ff0000;
-static uint8_t bchan = 0;
-static uint32_t amask = 0xff000000;
-static uint8_t achan = 3;
-#endif
-
-
 ImageLayer::ImageLayer()
   :Layer() {
 
@@ -104,7 +83,7 @@ bool ImageLayer::init(int width, int height) {
 
   surf = SDL_CreateRGBSurface(SDL_HWSURFACE|SDL_SRCALPHA,
 			      geo.w, geo.h, 32,
-			      rmask, gmask, bmask, amask);
+			      red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   SDL_FillRect(surf, NULL, 0x0);
 
   if(image)
@@ -133,7 +112,7 @@ void *ImageLayer::feed() {
   return surf->pixels;
 }
 
-bool ImageLayer::keypress(char key) {
+bool ImageLayer::keypress(int key) {
   bool res = true;
   
   switch(key) {

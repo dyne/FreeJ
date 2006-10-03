@@ -220,7 +220,7 @@ void PngLayer::close() {
 //  jfree(buffer);
 }
 
-bool PngLayer::keypress(char key) {
+bool PngLayer::keypress(int key) {
   bool res = true;
 
   switch(key) {

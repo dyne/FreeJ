@@ -54,18 +54,6 @@ SdlGlScreen::SdlGlScreen()
   dbl = false;
   sdl_flags = (SDL_OPENGLBLIT | SDL_RESIZABLE | SDL_HWPALETTE | SDL_HWSURFACE );
   // add above | SDL_FULLSCREEN to go fullscreen from the start
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    rmask = 0xff000000;
-    gmask = 0x00ff0000;
-    bmask = 0x0000ff00;
-    amask = 0x000000ff;
-#else
-    rmask = 0x000000ff;
-    gmask = 0x0000ff00;
-    bmask = 0x00ff0000;
-    amask = 0xff000000;
-#endif
     
     magnification = 0;
 }
@@ -505,8 +493,8 @@ void SdlGlScreen::set_magnification(int algo) {
   if(!magnification && algo) {
     func("create surface for magnification");
     surface = SDL_CreateRGBSurface
-      (sdl_flags,w,h,bpp,bmask,gmask,rmask,amask);
-      //      (SDL_HWSURFACE,w,h,bpp,bmask,gmask,rmask,amask);
+      (sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
+      //      (SDL_HWSURFACE,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
   }
 
   magnification = algo;

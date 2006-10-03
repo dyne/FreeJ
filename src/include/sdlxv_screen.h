@@ -51,7 +51,7 @@ class SdlXvScreen : public ViewPort {
   bool yuv_unlock();
 
   SDL_Surface *blitter;
-  uint32_t rmask,gmask,bmask,amask;
+  //  uint32_t rmask,gmask,bmask,amask;
   SDL_Rect rect;
   SDL_Overlay *yuv_overlay;
 

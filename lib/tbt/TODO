@@ -1,0 +1,31 @@
+
+as of 6 february 2006:
+
+- cursor positioning with mouse
+
+- word wrap
+
+- grab from a console or run a shell inside
+
+- scrolling
+
+- colors
+
+- fancy edit modes, justify functions
+
+- integrate with mail clients (let's start with mutt)
+
+- playback control (rewind, fast forward etc.)
+
+- daemon mode, timed pipe input/output from sockets
+
+- protocol compression
+
+
+
+this project just started, u'r welcome to help!
+
+send remarks and patches to http://dyne.org/hackers_contact.php
+
+or get in touch with coders via irc.freenode.net channel #dyne
+

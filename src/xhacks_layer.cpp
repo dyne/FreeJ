@@ -181,7 +181,7 @@ void XHacksLayer::pause(bool set) {
   show_osd();
 }
 
-bool XHacksLayer::keypress(char key) {
+bool XHacksLayer::keypress(int key) {
   bool res = true;
   switch(key) {
 	case 'p': pause(!paused);

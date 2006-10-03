@@ -308,7 +308,7 @@ void V4lGrabber::set_freq(int f) {
   
 
 /* here are defined the keys for this layer */
-bool V4lGrabber::keypress(char key) {
+bool V4lGrabber::keypress(int key) {
   int res = 1;
 
   switch(key) {

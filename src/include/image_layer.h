@@ -51,7 +51,7 @@ class ImageLayer: public Layer {
 
 	void close();
 
-	bool keypress(char key);
+	bool keypress(int key);
 };
 
 #endif

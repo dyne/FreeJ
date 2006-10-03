@@ -19,8 +19,8 @@
  *
  */
 
-#ifndef __IMAGE_LAYER_H__
-#define __IMAGE_LAYER_H__
+#ifndef __TEXT_LAYER_H__
+#define __TEXT_LAYER_H__
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -43,7 +43,7 @@ class TTFLayer: public Layer {
 
   void print(char *str);
 
-  bool keypress(char key);
+  bool keypress(int key);
 
   SDL_Color bgcolor;
   SDL_Color fgcolor;

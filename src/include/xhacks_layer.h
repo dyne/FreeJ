@@ -40,7 +40,7 @@ class XHacksLayer: public Layer {
   void close();
   void pause(bool paused);
   
-  bool keypress(char key);
+  bool keypress(int key);
   //extern char *progclass;
  // void xhacks_handle_events(int);
 

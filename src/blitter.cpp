@@ -32,26 +32,6 @@
 #include <jutils.h>
 #include <config.h>
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-static uint32_t rmask = 0x00ff0000;
-static uint8_t rchan = 1;
-static uint32_t gmask = 0x0000ff00;
-static uint8_t gchan = 2;
-static uint32_t bmask = 0x000000ff;
-static uint8_t bchan = 3;
-static uint32_t amask = 0xff000000;
-static uint8_t achan = 0;
-#else
-static uint32_t rmask = 0x000000ff;
-static uint8_t rchan = 2;
-static uint32_t gmask = 0x0000ff00;
-static uint8_t gchan = 1;
-static uint32_t bmask = 0x00ff0000;
-static uint8_t bchan = 0;
-static uint32_t amask = 0xff000000;
-static uint8_t achan = 3;
-#endif
-
 // blit functions prototype
 #define BLIT static inline void
 
@@ -81,6 +61,44 @@ BLIT blue_channel(void *src, void *dst, int bytes, void *value) {
   for(c=bytes>>2;c>0;c--,s+=4,d+=4)
     *(d+bchan) = *(s+bchan);
 }
+
+BLIT red_mask(void *src, void *dst, int bytes, void *value) {
+  register int c;
+  register uint32_t *s = (uint32_t*)src;
+  register uint32_t *d = (uint32_t*)dst;
+
+  for(c=bytes>>2;c>0;c--,s++,d++)
+    *s &= red_bitmask;
+
+  SDL_imageFilterBinarizeUsingThreshold
+    ((unsigned char*)src, (unsigned char*) dst, bytes, *(unsigned char*)value);
+}
+
+BLIT green_mask(void *src, void *dst, int bytes, void *value) {
+  register int c;
+  register uint32_t *s = (uint32_t*)src;
+  register uint32_t *d = (uint32_t*)dst;
+
+  for(c=bytes>>2;c>0;c--,s++,d++)
+    *s &= green_bitmask;
+
+  SDL_imageFilterBinarizeUsingThreshold
+    ((unsigned char*)src, (unsigned char*) dst, bytes, *(unsigned char*)value);
+}
+
+BLIT blue_mask(void *src, void *dst, int bytes, void *value) {
+  register int c;
+  register uint32_t *s = (uint32_t*)src;
+  register uint32_t *d = (uint32_t*)dst;
+
+  for(c=bytes>>2;c>0;c--,s++,d++)
+    *s &= blue_bitmask;
+
+  SDL_imageFilterBinarizeUsingThreshold
+    ((unsigned char*)src, (unsigned char*) src, bytes, *(unsigned char*)value);
+  SDL_imageFilterAdd((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
+}
+
 
 BLIT schiffler_add(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterAdd((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
@@ -203,7 +221,7 @@ BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
   
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
-     geo->pitch, bmask, gmask, rmask, 0x0);
+     geo->pitch, red_bitmask, green_bitmask, blue_bitmask, 0x0);
   
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
   SDL_UpdateRects(sdl_surf, 1, dst_rect);
@@ -218,7 +236,7 @@ BLIT sdl_alpha(void *src, SDL_Rect *src_rect,
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
-     geo->pitch, bmask, gmask, rmask, 0x0);
+     geo->pitch, red_bitmask, green_bitmask, blue_bitmask, 0x0);
 
   SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, *(unsigned int*)value );  
 
@@ -234,7 +252,7 @@ BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
-     geo->pitch, bmask, gmask, rmask, amask);
+     geo->pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   
   SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, *(unsigned int*)value );  
 
@@ -250,7 +268,7 @@ BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
   
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
-     geo->pitch, bmask, gmask, rmask, amask);
+     geo->pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   
   SDL_SetColorKey( sdl_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, *(uint32_t*)value);
   
@@ -374,6 +392,21 @@ Blitter::Blitter() {
   sprintf(b->desc,"red channel only blit");
   b->type = LINEAR_BLIT;
   b->fun = red_channel; blitlist.append(b);
+
+  b = new Blit(); b->set_name("REDMASK");
+  sprintf(b->desc,"red channel threshold mask");
+  b->type = LINEAR_BLIT; b->value = 200; // default
+  b->fun = red_mask; blitlist.append(b);
+
+  b = new Blit(); b->set_name("GREENMASK");
+  sprintf(b->desc,"green channel threshold mask");
+  b->type = LINEAR_BLIT; b->value = 200; // default
+  b->fun = green_mask; blitlist.append(b);
+
+  b = new Blit(); b->set_name("BLUEMASK");
+  sprintf(b->desc,"blue channel threshold mask");
+  b->type = LINEAR_BLIT; b->value = 200; // default
+  b->fun = blue_mask; blitlist.append(b);
 
   b = new Blit(); b->set_name("GREEN");
   sprintf(b->desc,"green channel only blit");
@@ -509,7 +542,7 @@ void Blitter::blit() {
     pre_rotozoom = SDL_CreateRGBSurfaceFrom
       (layer->offset,
        layer->geo.w, layer->geo.h, layer->geo.bpp,
-       layer->geo.pitch, bmask, gmask, rmask, amask);
+       layer->geo.pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
 
     if(rotating) {
       

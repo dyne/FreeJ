@@ -111,7 +111,7 @@ class AviLayer: public Layer {
   //  void speedup();
   //  void slowdown();
 
-  bool keypress(char key);
+  bool keypress(int key);
 };
 
 #endif

@@ -33,7 +33,7 @@ void *Plugin::operator[](const char *sym) {
   return(point);
 }
 
-static inline int dummy_kbd_input(char key) { return(0); }
+static inline int dummy_kbd_input(int key) { return(0); }
 
 bool Plugin::open(const char *path) {
   getch *getstr = NULL;

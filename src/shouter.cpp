@@ -136,7 +136,7 @@ bool Shouter::apply_profile() {
 	char temp[256];
 	//  func("Shouter::apply_profile() on shouter id %i",id);
 
-	bool was_running = running, res = true;
+	bool res = true;
 //	if(was_running) stop();
 
 	if(shout_set_host(ice,host()))

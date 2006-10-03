@@ -151,6 +151,16 @@ Layer *create_layer(char *file) {
 	  return(NULL);
 #endif
 	} else
+
+	  if(strncasecmp((end_file_ptr-4),".tbt",4)==0) {
+	    // Time Based Text file recording
+	    nlayer = new TBTLayer();
+	    if(!nlayer->open(file_ptr)) {
+	      error("create_layer : TBT open failed");
+	      delete nlayer; nlayer = NULL;
+	    }
+	  } else
+
 	  if(strstr(file_ptr,"xscreensaver")) { /* XHACKS_LAYER */
 #ifdef WITH_XHACKS
 	    nlayer = new XHacksLayer();
@@ -164,16 +174,27 @@ Layer *create_layer(char *file) {
 	    return(NULL);
 #endif
 	  } else if(strncasecmp(file_ptr,"layer_gen",9)==0) {
+
 	    nlayer = new GenLayer();
+
           } else if(strncasecmp(file_ptr,"layer_goom",10)==0) {
-            nlayer = new GoomLayer(); 
+
+            nlayer = new GoomLayer();
+
+	  } else if(strncasecmp(file_ptr,"layer_tbt",9) ==0) {
+
+	    nlayer = new TBTLayer();
+
 	  } else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
+
 	    nlayer = new FlashLayer();
 	    if(!nlayer->open(file_ptr)) {
 	      error("create_layer : SWF open failed");
 	      delete nlayer; nlayer = NULL;
 	    }
+
 	  } else {
+
 	    func("opening scroll layer on generic file type for %s",file_ptr);
 	    nlayer = new ScrollLayer();
 	    if(!nlayer->open(file_ptr)) {

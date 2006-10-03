@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2005 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2005-2006 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -111,7 +111,7 @@ void TTFLayer::close() {
   TTF_Quit();
 }
 
-bool TTFLayer::keypress(char key) { return false; };
+bool TTFLayer::keypress(int key) { return false; };
 
 void TTFLayer::print(char *str) {
   SDL_Surface *tmp;
@@ -122,12 +122,13 @@ void TTFLayer::print(char *str) {
 
   if(surf) SDL_FreeSurface(surf);
   
-  surf = TTF_RenderText_Shaded(font, str, fgcolor, bgcolor);
-  tmp = SDL_DisplayFormat(surf);
-  if(tmp) {
-    SDL_FreeSurface(surf);
-    surf = tmp;
-  }
+  surf = TTF_RenderText_Blended(font, str, fgcolor);
+  //  surf = TTF_RenderText_Shaded(font, str, fgcolor, bgcolor);
+  //  tmp = SDL_DisplayFormat(surf);
+  //  if(tmp) {
+  //    SDL_FreeSurface(surf);
+  //    surf = tmp;
+  //  }
 
   //  SDL_SetColorKey(surf, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0)
   //    error("TTFLayer::print : couldn't set text colorkey: %s", SDL_GetError());

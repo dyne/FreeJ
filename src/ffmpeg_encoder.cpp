@@ -171,7 +171,7 @@ bool FFmpegEncoder::write_frame() {
 	AVFrame *picture_ptr;
 	int ret=0;
 	int packet_size;
-	double video_pts;
+	//	double video_pts;
 
 	codec=&video_stream->codec;
 

@@ -159,7 +159,11 @@ int clean() {
   return 1;
 }
 
-int kbd_input(SDL_keysym *keysym) {
+int kbd_input(char key) {
+  return 0;
+}
+
+  /*
   int res = 1;
   switch(keysym->sym) {
   case SDLK_KP1:
@@ -196,7 +200,8 @@ int kbd_input(SDL_keysym *keysym) {
   }
 
   return res;
-}
+  */
+
 
 
 /* this table assumes that video_width is times of 32 */

@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2005 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2006 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -74,9 +74,9 @@ static const char *help =
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
 " .   -c   no interactive text console\n"
-" .   -f   <frame_per_second>  select fps for freej (useful for low bandwidth streaming, may not work with videolayer)\n"
+" .   -f   <frame_per_second>  select global fps for freej\n"
 #ifdef WITH_OPENGL
-" .   -g   experimental opengl engine!(better to use power of 2 resolution as 256x256)\n"
+" .   -g   experimental opengl engine! (better pow(2) res as 256x256)\n"
 #endif
 " .   -j   <javascript.js>  process javascript command file\n"
 " .   -e   <file.ogg>  set filename of local encoded ogg-theora file\n"
@@ -299,8 +299,8 @@ int main (int argc, char **argv) {
 
   Layer *lay = NULL;
 
-  notice("%s version %s   RASTA SOFTWARE",PACKAGE,VERSION);
-  act("(c)2001-2005 Jaromil & Kysucix @ dyne.org");
+  notice("%s version %s   free the veejay",PACKAGE,VERSION);
+  act("(c)2001-2006 Jaromil & Kysucix @ dyne.org");
   act("----------------------------------------------");
   cmdline(argc,argv);
   set_debug(debug);

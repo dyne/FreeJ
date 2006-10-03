@@ -130,7 +130,7 @@ public:
   bool set_blink_off(int c);
   bool set_blink_on(int c);
 
-  bool keypress(char key);
+  bool keypress(int key);
   void compute_string_bbox( FT_BBox  *abbox,FT_Glyph image );
   int string_width, string_height;
 
