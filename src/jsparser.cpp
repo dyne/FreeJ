@@ -1,6 +1,6 @@
 /*  FreeJ
  *
- *  Copyright (C) 2004
+ *  Copyright (C) 2004-2006
  *  Silvano Galliani aka kysucix <kysucix@dyne.org>
  *  Denis Rojo aka jaromil <jaromil@dyne.org>
  *
@@ -175,9 +175,9 @@ void JsParser::init() {
                    effect_methods);
 
     REGISTER_CLASS("KeyboardController",
-		   kbd_ctrl_class,
-		   kbd_ctrl_constructor,
-		   kbd_ctrl_methods);
+		   js_kbd_ctrl_class,
+		   js_kbd_ctrl_constructor,
+		   js_kbd_ctrl_methods);
 
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 //

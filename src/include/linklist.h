@@ -58,7 +58,7 @@ class Linklist {
   Entry *search(char *name);
   int *completion(char *needle);
 
-  Entry *Linklist::selected();
+  Entry *selected();
 
   Entry *operator[](int pos) { return pick(pos); };
 

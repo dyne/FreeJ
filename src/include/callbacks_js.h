@@ -1,6 +1,6 @@
-/*  FreeJ
+/*  FreeJ javascript application protocol interface
  *
- *  Copyright (C) 2004
+ *  Copyright (C) 2004-2006
  *  Silvano Galliani aka kysucix <kysucix@dyne.org>
  *  Denis Rojo aka jaromil <jaromil@dyne.org>
  *

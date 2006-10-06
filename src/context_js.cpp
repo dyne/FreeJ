@@ -52,6 +52,7 @@ JSFunctionSpec global_functions[] = {
     {"stream_start",    stream_start,           0},
     {"stream_stop",     stream_stop,            0},
     {"file_to_strings", file_to_strings,        1},
+    {"register_controller", register_controller, 1},
     {0}
 };
 
@@ -140,6 +141,26 @@ JS(add_layer) {
     *rval=JSVAL_TRUE;
     //      env->layers.sel(0); // deselect others
     //      lay->sel(true);
+    return JS_TRUE;
+}
+
+
+JS(register_controller) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    Controller *ctrl;
+    JSObject *jsctrl;
+    *rval=JSVAL_FALSE;
+
+    if(argc<1) JS_ERROR("missing argument");
+    jsctrl = JSVAL_TO_OBJECT(argv[0]);
+
+    ctrl = (Controller *)JS_GetPrivate(cx, jsctrl);
+    if(!ctrl) JS_ERROR("Controller core data is NULL");
+
+    /// really add controller
+    env->register_controller( ctrl );
+    *rval = JSVAL_TRUE;
+
     return JS_TRUE;
 }
 

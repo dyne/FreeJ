@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2006 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -16,30 +16,29 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __KEYBOARD_H__
-#define __KEYBOARD_H__
+#ifndef __KBD_CTRL_H__
+#define __KBD_CTRL_H__
+
+#include <controller.h>
 
 #include <SDL/SDL.h>
 
-class KbdListener {
- public:
-  KbdListener();
-  ~KbdListener();
-  
-  bool init();
-  bool poll();
+class KbdCtrl: public Controller {
 
+ public:
+  KbdCtrl();
+  ~KbdCtrl();
+
+  bool init(JSContext *env, JSObject *obj);
+  int  poll(Context *env);
+
+ private:  
   SDL_Event event;
   SDL_keysym *keysym;
+  
+  JSContext *jsenv;
+  JSObject  *jsobj;
 
-  //  Context *env;
-
-  //  Layer *layer;
-  //  Filter *filter;
-
-  //  Plugger *plugger;
-
-  bool active;
 };
 
 #endif

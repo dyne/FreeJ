@@ -67,7 +67,7 @@ JS(video_layer_constructor);
 JS(txt_layer_constructor);
 #endif
 
-JS(kbd_ctrl_constructor);
+JS(js_kbd_ctrl_constructor);
 
 //////////////////////////////////////////////////////////////
 // classes
@@ -84,9 +84,8 @@ extern JSClass layer_class;
 extern JSFunctionSpec layer_methods[];
 
 // KeyboardController
-extern JSClass kbd_ctrl_class;
-extern JSFunctionSpec kbd_ctrl_methods[];
-
+extern JSClass js_kbd_ctrl_class;
+extern JSFunctionSpec js_kbd_ctrl_methods[];
 
 // ParticleLayer
 extern JSClass particle_layer_class;
@@ -156,6 +155,7 @@ JS(freej_scandir);
 JS(freej_echo);
 JS(freej_strstr);
 JS(file_to_strings);
+JS(register_controller);
 
 ////////////////////////////////
 // Linklist Entry methods

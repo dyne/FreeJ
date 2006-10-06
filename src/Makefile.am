@@ -75,7 +75,6 @@ freej_SOURCES = \
 	sdlgl_screen.cpp \
 \
 	kbd_ctrl.cpp	\
-	kbd_ctrl_js.cpp \
 	joy_ctrl.cpp	\
 \
 	video_encoder.cpp \

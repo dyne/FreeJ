@@ -24,6 +24,9 @@
 
 #include <config.h>
 
+// controllers
+#include <kbd_ctrl.h>
+
 /* software layers which don't need special loaders */
 #include <gen_layer.h>
 #include <geo_layer.h>

@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2006 Denis Rojo aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -23,16 +23,17 @@
 #include <iostream>
 #include <stdlib.h>
 
+#include <pipe.h>
 #include <linklist.h>
 #include <layer.h>
 #include <osd.h>
-#include <kbd_ctrl.h>
-//#include <console.h>
+#include <controller.h>
 #include <video_encoder.h>
 #include <plugger.h>
 #include <screen.h>
-#include <pipe.h>
 #include <shouter.h>
+
+#include <config.h>
 
 /* maximum height & width supported by context */
 #define MAX_HEIGHT 1024
@@ -75,6 +76,8 @@ class Context {
   void close();
   void cafudda(double secs);
 
+  bool register_controller(Controller *ctrl);
+
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return screen->coords(x,y); };
 
@@ -99,28 +102,22 @@ class Context {
   bool interactive;
 
 
-  /* Video Screen */
-  ViewPort *screen;
 
-  /* On Screen Display */
-  Osd osd;
+  ViewPort *screen; ///< Video Screen
 
-  /* Keyboard controller */
-  KbdListener kbd;
+  Osd osd; ///< On Screen Display
 
-  /* Console parser */
-  Console *console;
+  Linklist controllers; ///< Interactive Controllers
 
-  /* Filter plugins plugger */
-  Plugger plugger;
+  Console *console; ///< Console parser (will become a controller)
 
-  /* javascript parser object */
-  JsParser *js;
+  Plugger plugger; ///< filter plugins host
 
-  /* encoding object */
-  VideoEncoder *video_encoder;
+  JsParser *js; ///< javascript parser object
 
-  Shouter *shouter;
+  VideoEncoder *video_encoder; ///< encoding object
+
+  Shouter *shouter; ///< icecast streamer
 
   /* Set the interval (in frames) after
      the fps counter is updated */
