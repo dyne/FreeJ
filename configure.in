@@ -627,7 +627,6 @@ filters/ripple/Makefile
 filters/water/Makefile
 filters/cartoon/Makefile
 filters/nervous/Makefile
-filters/chromask/Makefile
 ])
 
 echo
