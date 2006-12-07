@@ -1,0 +1,120 @@
+/* JSDoc style sheet */
+
+/* Define colors, fonts and other style attributes here to override the defaults */
+
+/* Page background color 
+   body { background-color: #FFEEDD } */
+body {
+/*    background-color: #ffeedd; */
+    background: #ffeedd url(http://dyne.org/pics/dyneheadbg.png) repeat-x;
+    color: #000000;
+    font-color: #000000;
+/*    font-family: Fixed;
+      font-size: 12pt; */
+/*    font: 14px arial, helvetica; */
+    font-size: 14px;
+    font-family: Arial, Helvetica;
+}
+
+h1,h2,h3,h4,h5 {
+    font-family: Helvetica, Arial sans-serif;
+    background-color: #EECC99;
+    padding:3pt;
+    margin:2pt;
+    margin-bottom:8pt;
+    border-style:dotted;
+    border-width:thin;
+    width:95%;
+}
+h1 {
+    font-size: 18pt;
+}
+h2 {
+    font-size: 16pt;
+    padding-left:6pt;
+}
+h3 {
+    font-size: 12pt;
+    padding-left:9pt;
+}
+h4 {
+    font-size: 10pt;
+    padding-left:12pt;
+}
+h5 {
+    font-size: 8pt;
+    padding-left:15pt;
+}
+
+a:link {
+    font-weight: bold;
+    color: #AA6600;
+    text-decoration: none;
+    border:0;
+}
+a:visited {
+    font-weight: bold;
+    color: #884400;
+    text-decoration: none;
+    border:0;
+}
+a:hover {
+    text-decoration: underline;
+}
+
+a.nonexistent {
+    background-color: #ffeedd;
+    color: #AA88AA;
+    text-decoration: none;
+}
+a.nonexistent:visited {
+    background-color: #Ffeeff;
+    color: #AA88AA;
+    text-decoration: none;
+}
+a.external {
+    font-weight: bold;
+    color: #AA6600;
+    border:0;
+}
+dl,ul,ol {
+    margin-top: 1pt;
+}
+tt,pre {
+    font-family: Fixed, Lucida Console,Courier New,Courier,monotype;
+    font-size: 12pt;
+}
+
+
+/* Table colors */
+.TableHeadingColor     { background: #CCCCFF } /* Dark mauve */
+.TableSubHeadingColor  { background: #EEEEFF } /* Light mauve */
+.TableRowColor         { background: #FFFFFF } /* White */
+
+/* Font used in left-hand frame lists */
+.FrameTitleFont   { font-size: 10pt; font-family: Helvetica, Arial, san-serif }
+.FrameHeadingFont { font-size: 10pt; font-family: Helvetica, Arial, san-serif }
+.FrameItemFont    { font-size: 10pt; font-family: Helvetica, Arial, san-serif }
+
+/* Example of smaller, sans-serif font in frames */
+/* .FrameItemFont  { font-size: 10pt; font-family: Helvetica, Arial, sans-serif } */
+
+/* Navigation bar fonts and colors */
+.NavBarCell1    { background-color:#EEEEFF;}/* Light mauve */
+.NavBarCell1Rev { background-color:#00008B;}/* Dark Blue */
+.NavBarFont1    { font-family: Arial, Helvetica, sans-serif; color:#000000;}
+.NavBarFont1Rev { font-family: Arial, Helvetica, sans-serif; color:#FFFFFF;}
+
+.NavBarCell2    { font-family: Arial, Helvetica, sans-serif; background-color:#FFFFFF;}
+.NavBarCell3    { font-family: Arial, Helvetica, sans-serif; background-color:#FFFFFF;}
+
+.jsdoc_ctime    { font-family: Arial, Helvetica, sans-serif; font-size: 9pt;
+                    text-align: right }
+
+/* Sourcecode view */
+.sourceview { background: #FFFFFF }
+.attrib { color: #DD7777 }
+.comment { color: #55AA55 }
+.reserved { color: #FF5555 }
+.literal { color: #5555FF }
+
