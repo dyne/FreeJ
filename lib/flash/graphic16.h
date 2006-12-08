@@ -24,7 +24,7 @@
 
 class GraphicDevice16: public GraphicDevice {
 private:
-	long GraphicDevice16::allocColor(Color color);
+	long allocColor(Color color);
 
 public:
 	GraphicDevice16(FlashDisplay *fd);

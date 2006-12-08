@@ -115,7 +115,7 @@ class Blitter {
   bool fade_value(int step, int val); ///< fade to a new blit value
   bool pulse_value(int step, int val); ///< pulse it to a value and come back
   bool set_kernel(short *krn); /// set the convolution kernel
-  bool Blitter::set_colorkey(int x,int y);
+  bool set_colorkey(int x,int y);
 
   bool set_zoom(double x, double y);
   bool set_rotate(double angle);
