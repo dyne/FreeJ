@@ -36,7 +36,7 @@ class TBTLayer;
 
 class TBTConsole: public TextConsole {
 
- public:
+  public:
   TBTConsole();
   ~TBTConsole();
   

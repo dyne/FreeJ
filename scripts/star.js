@@ -42,6 +42,7 @@ function drawStar(lay, s_mul, s2_mul) {
 running = true;
 kbd = new KeyboardController();
 kbd.pressed_esc = function() { running = false; }
+register_controller( kbd );
 
 geo = new GeometryLayer();
 geo.color(255,255,255,255);
@@ -67,7 +68,6 @@ while(running) {
     }
 
     run(0.01);
-    kbd.poll();
 }
 
 quit();

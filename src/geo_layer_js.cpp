@@ -32,7 +32,7 @@ DECLARE_CLASS("GeometryLayer",geometry_layer_class,geometry_layer_constructor);
 JSFunctionSpec geometry_layer_methods[] = {
   LAYER_METHODS  ,
   ENTRY_METHODS  ,
-  { "clear",          geometry_layer_clear,          1 },
+  { "clear",          geometry_layer_clear,          0 },
   { "color",          geometry_layer_color,          4 },
   { "pixel",          geometry_layer_pixel,          2 },
   { "hline",          geometry_layer_hline,          3 },

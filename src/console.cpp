@@ -1093,15 +1093,15 @@ void Console::parser_default(int key) {
   case '?':
     notice("Hotkeys available in FreeJ console:");
     act("Arrow keys browse selection thru layers and effects");
+    act("SPACE to de/activate layers and filters selected");
     act("+ and - move filters and effects thru chains");
-    act("HOME de/activates layer, INS de/activates filters");
-    act("TAB to move the selected layer around the screen");
     act(" ! = Switch on/off On Screen Display information");
     act(" @ = Switch on/off screen cleanup after every frame");
     act("ctrl+o  = Open new layer (will prompt for path to file)");
     act("ctrl+e  = Add a new Effect to the selected layer");
     act("ctrl+b  = Change the Blit for the selected layer");
     act("ctrl+t  = Add a new Text layer (will prompt for text)");
+    act("ctrl+a  = Move Rotate and Zoom the selected layer"); 
     act("ctrl+y  = Insert a new word in selected Text layer");
     act("ctrl+v  = Fade the Blit Value for the selected layer");
     act("ctrl+j  = Activate jazz mode to pulse layers");

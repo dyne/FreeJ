@@ -5,8 +5,7 @@
 /* Page background color 
    body { background-color: #FFEEDD } */
 body {
-/*    background-color: #ffeedd; */
-    background: #ffeedd url(http://dyne.org/pics/dyneheadbg.png) repeat-x;
+    background-color: #ffeedd;
     color: #000000;
     font-color: #000000;
 /*    font-family: Fixed;
