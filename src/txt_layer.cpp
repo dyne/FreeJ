@@ -35,6 +35,7 @@
 #include <context.h>
 #include <jutils.h>
 
+#include <jsparser_data.h>
 
 TxtLayer::TxtLayer()
   :Layer() {
@@ -64,6 +65,8 @@ TxtLayer::TxtLayer()
   scanfonts("/usr/share/truetype");
 
   func("TxtLayer fonts %i",num_fonts);
+
+  jsclass = &txt_layer_class;
 }
 
 TxtLayer::~TxtLayer() {
@@ -338,7 +341,7 @@ void *TxtLayer::feed() {
 
      if(clear_screen) {
 
-       jmemset(buf,0,geo.size);
+       memset(buf,0,geo.size);
        clear_screen = false; 
        onscreen = false;
 

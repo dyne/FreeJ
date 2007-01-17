@@ -38,6 +38,7 @@
 #include <tvfreq.h>
 #include <jutils.h>
 
+#include <jsparser_data.h>
 
 V4lGrabber::V4lGrabber() 
   :Layer() {
@@ -48,6 +49,7 @@ V4lGrabber::V4lGrabber()
   init_width = 320;
   init_heigth = 240;
   set_name("V4L");
+  jsclass = &v4l_layer_class;
 }
 
 V4lGrabber::~V4lGrabber() {

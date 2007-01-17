@@ -32,6 +32,9 @@
 
 #include <video_layer.h>
 
+#include <jsparser_data.h>
+
+
 #define DEBUG 1
 
 
@@ -52,6 +55,7 @@ VideoLayer::VideoLayer()
 		video_clock = 0;
 		rgba_picture = NULL;
 		frame_fifo.length = 0;
+		jsclass = &video_layer_class;
 	}
 
 VideoLayer::~VideoLayer() {
@@ -433,8 +437,8 @@ int VideoLayer::decode_packet(int *got_picture) {
 			ftype = 'I';
 		else
 			ftype = 'P';
-		func("frame_type=%c clock=%0.3f pts=%0.3f",
-				ftype, get_master_clock(), pts1);
+		//		func("frame_type=%c clock=%0.3f pts=%0.3f",
+		//				ftype, get_master_clock(), pts1);
 	}
 	return lien;
 }

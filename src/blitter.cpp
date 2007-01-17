@@ -393,6 +393,16 @@ Blitter::Blitter() {
   b->type = LINEAR_BLIT;
   b->fun = red_channel; blitlist.append(b);
 
+  b = new Blit(); b->set_name("GREEN");
+  sprintf(b->desc,"green channel only blit");
+  b->type = LINEAR_BLIT;
+  b->fun = green_channel; blitlist.append(b);
+
+  b = new Blit(); b->set_name("BLUE");
+  sprintf(b->desc,"blue channel only blit");
+  b->type = LINEAR_BLIT;
+  b->fun = blue_channel; blitlist.append(b);
+
   b = new Blit(); b->set_name("REDMASK");
   sprintf(b->desc,"red channel threshold mask");
   b->type = LINEAR_BLIT; b->value = 200; // default
@@ -407,16 +417,6 @@ Blitter::Blitter() {
   sprintf(b->desc,"blue channel threshold mask");
   b->type = LINEAR_BLIT; b->value = 200; // default
   b->fun = blue_mask; blitlist.append(b);
-
-  b = new Blit(); b->set_name("GREEN");
-  sprintf(b->desc,"green channel only blit");
-  b->type = LINEAR_BLIT;
-  b->fun = green_channel; blitlist.append(b);
-
-  b = new Blit(); b->set_name("BLUE");
-  sprintf(b->desc,"blue channel only blit");
-  b->type = LINEAR_BLIT;
-  b->fun = blue_channel; blitlist.append(b);
 
   b = new Blit(); b->set_name("NEG");
   sprintf(b->desc,"bitwise negation");

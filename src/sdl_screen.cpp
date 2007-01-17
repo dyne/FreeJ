@@ -39,7 +39,9 @@ SdlScreen::SdlScreen()
 	  //| SDL_DOUBLEBUF | SDL_HWACCEL | SDL_RESIZABLE);
   // add above | SDL_FULLSCREEN to go fullscreen from the start
 
-    magnification = 0;
+  magnification = 0;
+  switch_fullscreen = false;
+
 }
 
 SdlScreen::~SdlScreen() {
@@ -96,6 +98,7 @@ void *SdlScreen::coords(int x, int y) {
 }
 
 void SdlScreen::show() {
+
   if(magnification==1) {
     lock();
     scale2x
@@ -110,13 +113,10 @@ void SdlScreen::show() {
     unlock();
   }
 
-  // temporary check in absence of the final keyboard controller
-  // to not get stuck in full screen
-  if( SDL_PollEvent(&event) )
-    if(event.key.state == SDL_PRESSED)
-      if(event.key.keysym.sym == SDLK_ESCAPE)
-	fullscreen();
-    
+  if(switch_fullscreen) { 
+    SDL_WM_ToggleFullScreen(screen);
+    switch_fullscreen = false;
+  }
 
   lock();
   SDL_Flip(surface);
@@ -132,7 +132,7 @@ void SdlScreen::clear() {
   SDL_FillRect(surface,NULL,0x0);
 }
 void SdlScreen::fullscreen() {
-  SDL_WM_ToggleFullScreen(screen);
+  switch_fullscreen = true;
 }
 
 bool SdlScreen::lock() {

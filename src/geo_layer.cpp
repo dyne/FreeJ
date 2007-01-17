@@ -22,6 +22,8 @@
 #include <geo_layer.h>
 #include <config.h>
 
+#include <jsparser_data.h>
+
 GeoLayer::GeoLayer()
   :Layer() {
   surf = NULL;
@@ -29,6 +31,7 @@ GeoLayer::GeoLayer()
   set_name("GEO");
   set_filename("/geometrical layer");
   is_native_sdl_surface = true;
+  jsclass = &geometry_layer_class;
 }
 
 GeoLayer::~GeoLayer() {

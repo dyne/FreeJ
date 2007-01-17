@@ -33,13 +33,13 @@
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
 
 #define red_bitmask   (uint32_t)0x00ff0000
-#define rchan         1
+#define rchan         2
 #define green_bitmask (uint32_t)0x0000ff00
-#define gchan         2
+#define gchan         1
 #define blue_bitmask  (uint32_t)0x000000ff
-#define bchan         3
+#define bchan         0
 #define alpha_bitmask (uint32_t)0xff000000
-#define achan         0
+#define achan         3
 
 #else
 

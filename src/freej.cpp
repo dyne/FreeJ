@@ -37,22 +37,9 @@
 
 #include <impl_layers.h>
 
-/* controller interfaces */
-#ifdef WITH_GLADE2
-#include <gtk_ctrl.h>
-#endif
-#ifdef WITH_GTK2
-#include <gtk/gtk.h>
-#endif
-#ifdef WITH_JOYSTICK
-#include <joy_ctrl.h>
-#endif
-#ifdef WITH_MIDI
-#include <midi_ctrl.h>
-#endif
-#ifdef WITH_JAVASCRIPT
+// javascript
 #include <jsparser.h>
-#endif
+
 
 //[of]cli options parser:commandline
 #define MAX_CLI_CHARS 4096
@@ -67,9 +54,6 @@ static const char *help =
 " .   -h   print this help\n"
 " .   -v   version information\n"
 " .   -D   debug verbosity level - default 1\n"
-#ifdef WITH_GLADE2
-" .   -g   start with GTK graphical interface (deprecated)\n"
-#endif
 " .   -s   size of screen - default 400x300\n"
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
@@ -104,7 +88,7 @@ static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:agf:";
 
 
 
-int debug;
+int debug_level;
 char layer_files[MAX_CLI_CHARS];
 int cli_chars = 0;
 int width = 400;
@@ -147,7 +131,7 @@ void cmdline(int argc, char **argv) {
   theora_quality           = -1;
   vorbis_quality           = -1;
 
-  debug                    = 1;
+  debug_level                    = 1;
 
   do {
 //    res = getopt_long (argc, argv, short_options); TODO getopt_long
@@ -163,18 +147,12 @@ void cmdline(int argc, char **argv) {
       exit(0);
       break;
     case 'D':
-      debug = atoi(optarg);
-      if(debug>3) {
+      debug_level = atoi(optarg);
+      if(debug_level>3) {
 	warning("debug verbosity ranges from 1 to 3\n");
-	debug = 3;
+	debug_level = 3;
       }
       break;
-
-#ifdef WITH_GLADE2
-    case 'g':
-      gtkgui = true;
-      break;
-#endif
 
     case 's':
       sscanf(optarg,"%ux%u",&width,&height);
@@ -303,7 +281,7 @@ int main (int argc, char **argv) {
   act("(c)2001-2006 Jaromil & Kysucix @ dyne.org");
   act("----------------------------------------------");
   cmdline(argc,argv);
-  set_debug(debug);
+  set_debug(debug_level);
 
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
      this hangs on some linux kernels - darwin doesn't even bothers with it
@@ -318,7 +296,6 @@ int main (int argc, char **argv) {
   // refresh the list of available plugins
   freej.plugger.refresh();
 
-#ifdef WITH_JAVASCRIPT
   /* execute javascript */
   if( javascript[0] ) {
     freej.interactive = false;
@@ -328,7 +305,6 @@ int main (int argc, char **argv) {
       exit(1);
     } else freej.interactive = true;
   }
-#endif
 
 
 
@@ -440,29 +416,6 @@ int main (int argc, char **argv) {
     }
   }
 
-#ifdef WITH_JOYSTICK
-  /* launches the joystick controller thread
-     if any joystick is connected */
-  JoyControl *joystick = new JoyControl();
-  if(! joystick->init(&freej) ) delete joystick;
-#endif
-
-#ifdef WITH_MIDI
-  MidiControl *midi = new MidiControl();
-  if(! midi->init(&freej) ) delete midi;
-#endif
-
-
-
-#ifdef WITH_GLADE2
-  /* check if we have an X11 display running */
-  if(!getenv("DISPLAY")) gtkgui = false;
-  if(gtkgui) {
-    /* this launches glade2 interface controller thread
-       this interface is completely asynchronous to freej */
-    gtk_ctrl_init(&freej,&argc,argv);
-  }
-#endif
 
 
   /* apply screen magnification */
@@ -489,10 +442,6 @@ int main (int argc, char **argv) {
 
 
   /* quit */
-
-#ifdef WITH_GLADE2
-  if(gtkgui) gtk_ctrl_quit();
-#endif
 
   freej.close();
 

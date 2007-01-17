@@ -89,10 +89,8 @@ bool Context::init(int wx, int hx, bool opengl) {
     return (false);
   }
   
-#ifdef WITH_JAVASCRIPT
   // create javascript object
   js = new JsParser (this);
-#endif
   
   // create object here to avoid performance issues at run time
 #ifdef CONFIG_OGGTHEORA_ENCODER
@@ -147,9 +145,7 @@ void Context::close() {
   
   plugger.close ();
   
-#ifdef WITH_JAVASCRIPT
   delete js;
-#endif
   
 }
 
@@ -164,10 +160,6 @@ void Context::cafudda(double secs) {
     now = dtime();
   
   do {
-    /** Fetch keyboard events */
-    //		if (interactive) 
-    //			kbd.run ();
-    
     /* 
      * Change resolution if needed 
      */
@@ -208,6 +200,7 @@ void Context::cafudda(double secs) {
       osd.clean();
 
     ///// poll each controller in the chain
+          
     ctrl = (Controller *)controllers.begin();
     if(ctrl) {
       controllers.lock();
@@ -218,6 +211,8 @@ void Context::cafudda(double secs) {
       }
       controllers.unlock();
     }
+    
+  
     /////////////// finish polling controllers
 
 

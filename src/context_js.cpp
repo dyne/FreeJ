@@ -40,6 +40,7 @@ JSFunctionSpec global_functions[] = {
     {"add_layer",	add_layer,		1},
     {"rem_layer",	rem_layer,		1},
     {"list_layers",     list_layers,            0},
+    {"selected_layer",  selected_layer,         0},
     {"debug",           debug,                  1},
     {"rand",            rand,                   0},
     {"srand",           srand,                  1},
@@ -392,18 +393,20 @@ JS(srand) {
 JS(entry_down) {
  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
- GET_LAYER(Entry);
+ GET_LAYER(Layer);
 
- lay->down();
+ if(! lay->down() )
+   warning("cannot move %s down", lay->name);
  
  return JS_TRUE;
 }
 JS(entry_up) {
  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
- GET_LAYER(Entry);
+ GET_LAYER(Layer);
 
- lay->up();
+ if(! lay->up() )
+   warning("cannot move %s up", lay->name);
 
  return JS_TRUE;
 }
@@ -411,13 +414,83 @@ JS(entry_up) {
 JS(entry_move) {
  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
- GET_LAYER(Entry);
+ GET_LAYER(Layer);
 
  int pos = JSVAL_TO_INT(argv[0]);
- lay->move(pos);
+ if( ! lay->move(pos) )
+   warning("cannot move %s to position %u", lay->name, pos);
 
  return JS_TRUE;
 }
+
+JS(entry_next) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  
+  Layer *res;
+  JSObject *objtmp;
+
+  GET_LAYER(Layer);
+
+  res = (Layer*)lay->next;
+  if(!res) // if last entry the cycle to the first
+    res = (Layer*) lay->list->begin();
+
+  objtmp = JS_NewObject(cx, res->jsclass, NULL, obj);
+  JS_SetPrivate(cx, objtmp, (void*) res);
+
+  *rval = OBJECT_TO_JSVAL(objtmp);
+
+  return JS_TRUE;
+}
+
+JS(entry_prev) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  Layer *res;
+  JSObject *objtmp;
+
+  GET_LAYER(Layer);
+  
+  res = (Layer*)lay->prev;
+  if(!res) // if first entry the cycle to the end
+    res = (Layer*) lay->list->end();
+  
+  objtmp = JS_NewObject(cx, res->jsclass, NULL, obj);
+  JS_SetPrivate(cx, objtmp, (void*) res);
+  
+  *rval = OBJECT_TO_JSVAL(objtmp);
+  
+  return JS_TRUE;
+}
+
+JS(entry_select) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  Entry *tmp;
+
+  GET_LAYER(Layer);
+
+  // select only one
+  lay->sel(true);
+
+  // deselects all others in the list
+  tmp = lay->prev;
+  while(tmp) {
+    tmp->sel(false);
+    tmp = tmp->prev;
+  }
+  tmp = lay->next;
+  while(tmp) {
+    tmp->sel(false);
+    tmp = tmp->next;
+  }
+  
+  return JS_TRUE;
+}
+
+
+
+
 
 ////////////////////////////////
 // Effect methods

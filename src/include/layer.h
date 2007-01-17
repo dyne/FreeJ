@@ -34,9 +34,10 @@
 #include <screen.h>
 #include <jsync.h>
 
+
 class Context;
 
-
+class JSClass;
 
 /**
    This class describes methods and properties common to all Layers in
@@ -126,6 +127,7 @@ class Layer: public Entry, public JSyncThread {
   /** physical buffers */
   void *offset; ///< pointer to pixel plane
 
+  JSClass *jsclass; ///< pointer to the javascript class
 
  protected:
 

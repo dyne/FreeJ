@@ -1,6 +1,6 @@
 /*  FreeJ
  *
- *  Copyright (C) 2004-2005
+ *  Copyright (C) 2004-2007
  *  Silvano Galliani aka kysucix <kysucix@dyne.org>
  *  Denis Rojo aka jaromil <jaromil@dyne.org>
  *
@@ -143,6 +143,7 @@ JS(quit);
 JS(add_layer);
 JS(rem_layer);
 JS(list_layers);
+JS(selected_layer);
 JS(debug);
 JS(rand);
 JS(srand);
@@ -163,10 +164,16 @@ JS(register_controller);
 JS(entry_up);
 JS(entry_down);
 JS(entry_move);
+JS(entry_next);
+JS(entry_prev);
+JS(entry_select);
 #define ENTRY_METHODS \
     {"move",            entry_move,             1}, \
     {"up",              entry_up,               0}, \
-    {"down",            entry_down,             0}
+    {"down",            entry_down,             0}, \
+    {"next",            entry_next,             0}, \
+    {"prev",            entry_prev,             0}, \
+    {"select",          entry_select,           0}
 
 ////////////////////////////////
 // parent Layer methods
@@ -303,8 +310,6 @@ JS(txt_layer_blink_off);
 
 
 
-
-
 /* avifile now removed
 
 #ifdef WITH_AVIFILE
@@ -321,44 +326,7 @@ JS(avi_layer_setpos);
 JS(avi_layer_pause);
 #endif
 
-
-#ifdef WITH_AVIFILE
-JS(avi_layer_constructor);
-#endif
-
-#ifdef WITH_AVIFILE
-DECLARE_CLASS("MovieLayer",avi_layer_class,avi_layer_constructor);
-#endif
-
-#ifdef WITH_AVIFILE
-JSFunctionSpec avi_layer_methods[] = {
-  LAYER_METHODS  ,
-  ENTRY_METHODS  ,
-  //    name		native		        nargs
-  {     "forward",      avi_layer_forward,      1},
-  {     "rewind",       avi_layer_rewind,       1},
-  {     "mark_in",      avi_layer_mark_in,      1},
-  {     "mark_in_now",  avi_layer_mark_in_now,  1},
-  {     "mark_out",     avi_layer_mark_out,     1},
-  {     "mark_out_now", avi_layer_mark_out_now, 1},
-  {     "setpos",       avi_layer_setpos,       1},
-  {     "getpos",       avi_layer_getpos,       1},  
-  {     "pause",        avi_layer_pause,        1},
-  {0}
-};
-#endif
 */
 
-/* class property example. Declare them with JS_DefineProperties
-   layer_properties = {
-   {"color",       MY_COLOR,       JSPROP_ENUMERATE},
-   {"height",      MY_HEIGHT,      JSPROP_ENUMERATE},
-   {"width",       MY_WIDTH,       JSPROP_ENUMERATE},
-   {"funny",       MY_FUNNY,       JSPROP_ENUMERATE},
-   {"array",       MY_ARRAY,       JSPROP_ENUMERATE},
-   {"rdonly",      MY_RDONLY,      JSPROP_READONLY},
-   {0}
-   };
-   */
 
 #endif

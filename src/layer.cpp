@@ -28,6 +28,8 @@
 #include <jutils.h>
 #include <config.h>
 
+#include <jsparser_data.h>
+
 Layer::Layer()
   :Entry(), JSyncThread() {
   quit = false;
@@ -42,6 +44,7 @@ Layer::Layer()
   buffer = NULL;
   screen = NULL;
   is_native_sdl_surface = false;
+  jsclass = &layer_class;
 }
 
 Layer::~Layer() {

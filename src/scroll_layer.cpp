@@ -31,6 +31,8 @@
 #include <font_acorn_8x8.h>
 #include <config.h>
 
+#include <jsparser_data.h>
+
 ScrollLayer::ScrollLayer()
   :Layer() {
 
@@ -39,6 +41,7 @@ ScrollLayer::ScrollLayer()
   path[0] = (char)NULL;
 
   set_name("SCR");
+  jsclass = &vscroll_layer_class;
 }
 
 ScrollLayer::~ScrollLayer() {
@@ -219,7 +222,7 @@ void *ScrollLayer::feed() {
   if(!first) // there is no line to process
     return procbuf;
   else // update is needed: blank the layer
-    jmemset(procbuf,0,geo.size);
+    memset(procbuf,0,geo.size);
 
   struct txtline *l, *tmp;
 
@@ -247,7 +250,7 @@ void *ScrollLayer::feed() {
       } else { // there are no more lines
 	if(l==first) first = NULL;
 	if(l==last) last = NULL;
-	jmemset(procbuf,0,geo.size);
+	memset(procbuf,0,geo.size);
       }
       if(l->buf) free(l->buf);
       if(l->txt) free(l->txt);

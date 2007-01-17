@@ -33,6 +33,8 @@
 #include <context.h>
 #include <jutils.h>
 
+#include <jsparser_data.h>
+
 
 // callbacks
 static void showUrl(char *url, char *target, void *client_data) {
@@ -89,6 +91,8 @@ FlashLayer::FlashLayer()
   }
 
   set_name("SWF");
+  
+  jsclass = &flash_layer_class;
 }
 
 FlashLayer::~FlashLayer() {

@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2006 Denis Rojo aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2007 Denis Rojo aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -27,8 +27,6 @@
 
 #define SDL_REPEAT_DELAY	200
 #define SDL_REPEAT_INTERVAL	20
-
-#define DELAY 50 //100
 
 /////// Javascript KeyboardController
 JS(js_kbd_ctrl_constructor);
@@ -69,19 +67,24 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
 
 
 int KbdCtrl::poll(Context *env) {
-  func("KbdCtrl::poll");
-  bool res;
   char tmp[8];
   char funcname[512];
 
   jsval ret;
 
-  res = SDL_PollEvent(&event);
-  // if we have no events we just go on
-  if(!res) return 0;
 
-  keysym = &event.key.keysym;
-
+  if( ! SDL_PollEvent(&event) ) return 0;
+  
+  // emergency exit from fullscreen (ctrl-f)
+  if(event.key.state == SDL_PRESSED)
+    if(event.key.keysym.mod & KMOD_CTRL)
+      if(event.key.keysym.sym == SDLK_f) {
+	env->screen->fullscreen();
+        return 1;
+      }
+  
+  keysym = & event.key.keysym;
+  
   if(event.key.state == SDL_PRESSED)
     strcpy(funcname,"pressed_");
   else if(event.key.state == SDL_RELEASED)
@@ -92,9 +95,6 @@ int KbdCtrl::poll(Context *env) {
   // check key modifiers
   if(keysym->mod & KMOD_CTRL)
     strcat(funcname,"ctrl_");
-
-  if(keysym->mod & KMOD_SHIFT)
-    strcat(funcname,"shift_");
 
   if(keysym->mod & KMOD_ALT)
     strcat(funcname,"alt_");
@@ -113,6 +113,11 @@ int KbdCtrl::poll(Context *env) {
   
   if( keysym->sym >= SDLK_a
       && keysym->sym <= SDLK_z) {
+    
+    // shift modifier only for letters
+    if(keysym->mod & KMOD_SHIFT)
+      strcat(funcname,"shift_");
+    
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
     strcat(funcname,tmp);

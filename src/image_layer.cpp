@@ -27,6 +27,8 @@
 #include <image_layer.h>
 #include <config.h>
 
+#include <jsparser_data.h>
+
 ImageLayer::ImageLayer()
   :Layer() {
 
@@ -39,6 +41,7 @@ ImageLayer::ImageLayer()
   count = 0;
   set_name("IMG");
   is_native_sdl_surface = true;
+  jsclass = &image_layer_class;
 }
 
 ImageLayer::~ImageLayer() {

@@ -42,6 +42,8 @@ class SdlScreen : public ViewPort {
 
   SDL_Surface *screen;
   SDL_Surface *surface;
+  SDL_Event event;
+
   void *coords(int x, int y);
 
   bool lock();
@@ -50,8 +52,8 @@ class SdlScreen : public ViewPort {
  private:
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
-  SDL_Event event;
-  
+
+  bool switch_fullscreen;  
   bool dbl;
   uint32_t sdl_flags;
 

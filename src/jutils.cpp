@@ -213,17 +213,10 @@ void fastsrand(uint32_t seed)
 	randval = seed;
 }
 
-#undef ARCH_X86
 double dtime() {
-#ifdef ARCH_X86
-  double x;
-  __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
-  return x;
-#else
   struct timeval mytv;
   gettimeofday(&mytv,NULL);
   return((double)mytv.tv_sec+1.0e-6*(double)mytv.tv_usec);
-#endif
 }
 
 #ifdef linux
@@ -248,6 +241,7 @@ bool set_rtpriority(bool max) {
     return true;
 }
 #endif
+
 /* handle signals.
  * From the manpage:
  * nanosleep  delays  the execution of the program for at least
@@ -335,28 +329,3 @@ void rtc_close() {
 
 void *(* jmemcpy)(void *to, const void *from, size_t len) = memcpy;
 
-/*
- * memset(x,0,y) is a reasonably common thing to do, so we want to fill
- * things 32 bits at a time even when we don't know the size of the
- * area at compile-time..
- */
-void jmemset(void * s, unsigned long c ,size_t count)
-{
-#ifdef ARCH_X86
-int d0, d1;
-__asm__ __volatile__(
-	"rep ; stosl\n\t"
-	"testb $2,%b3\n\t"
-	"je 1f\n\t"
-	"stosw\n"
-	"1:\ttestb $1,%b3\n\t"
-	"je 2f\n\t"
-	"stosb\n"
-	"2:"
-	: "=&c" (d0), "=&D" (d1)
-	:"a" (c), "q" (count), "0" (count/4), "1" ((long) s)
-	:"memory");
-#else
-  memset(s,c,count);
-#endif
-}

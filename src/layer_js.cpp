@@ -79,7 +79,7 @@ JS(list_layers) {
 
   lay = (Layer*)env->screen->layers.begin();
   while(lay) {
-    objtmp = JS_NewObject(cx, &layer_class, NULL, obj);
+    objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
 
     JS_SetPrivate(cx,objtmp,(void*) lay);
 
@@ -95,7 +95,40 @@ JS(list_layers) {
   return JS_TRUE;
 }
 
+JS(selected_layer) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
+  Layer *lay;
+  JSObject *objtmp;
+
+  if( env->screen->layers.len() == 0 ) {
+    error("can't return selected layer: no layers are present");
+    *rval = JSVAL_FALSE;
+    return JS_TRUE;
+  }
+  
+  lay = (Layer*)env->screen->layers.begin();
+
+  while(lay) {
+    if(lay->select) break;
+    else lay = (Layer*) lay->next;
+  }
+
+  if(!lay) {
+    warning("there is no selected layer");
+    *rval = JSVAL_FALSE;
+    return JS_TRUE;
+  }
+
+  objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
+
+  JS_SetPrivate(cx, objtmp, (void*) lay);
+
+  *rval = OBJECT_TO_JSVAL( objtmp );
+
+  return JS_TRUE;
+}
+  
 JS(layer_list_effects) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   JSObject *arr;

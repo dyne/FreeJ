@@ -221,7 +221,6 @@ static int quit_proc(char *cmd) {
   return 0;
 }
 
-#ifdef WITH_JAVASCRIPT
 static int exec_script(char *cmd) {
   struct stat filestatus;
 
@@ -243,7 +242,6 @@ static int exec_script(char *cmd) {
   env->console->refresh();
   return 0;
 }
-#endif
 
 static int open_layer(char *cmd) {
   struct stat filestatus;
@@ -1194,13 +1192,8 @@ void Console::parser_default(int key) {
     break;
     
   case KEY_CTRL_X:
-#ifndef WITH_JAVASCRIPT
-    ::error("javascript is not compiled in this FreeJ binary");
-  break;
-#else
   readline("script file to execute:",&exec_script,&filebrowse_completion);
   break;
-#endif
 
 
 #ifdef CONFIG_OGGTHEORA_ENCODER

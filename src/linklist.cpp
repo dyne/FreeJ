@@ -316,7 +316,9 @@ void Entry::set_name(char *nn) {
 }
 
 bool Entry::up() {
-  if(!prev || !list) return(false);
+  if(!list) return(false);
+  if(!prev) return(false);
+
 #ifdef THREADSAFE
   list->lock();
 #endif
@@ -349,7 +351,9 @@ bool Entry::up() {
 }
 
 bool Entry::down() {
-  if(!next || !list) return(false);
+  if(!list) return(false);
+  if(!next) return(false);
+
 #ifdef THREADSAFE
   list->lock();
 #endif

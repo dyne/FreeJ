@@ -32,6 +32,8 @@
 #include <context.h>
 #include <config.h>
 
+#include <jsparser_data.h>
+
 /* defines for blob size and roundness */
 #define LIM 8 // 25
 #define NB_BLOB 16 // 25
@@ -71,6 +73,8 @@ GenLayer::GenLayer()
 
   set_name("PRT");
   set_filename("/particle generator");
+
+  jsclass = &particle_layer_class;
 }
 
 GenLayer::~GenLayer() {
@@ -125,7 +129,7 @@ void *GenLayer::feed() {
     blossom_a -= pi2;
 
 
-  jmemset(pixels,0,geo.size);
+  memset(pixels,0,geo.size);
 
   blossom();
   return(pixels);

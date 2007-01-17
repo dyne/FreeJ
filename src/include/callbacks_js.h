@@ -150,7 +150,6 @@ if(!lay) { \
 }
 
 
-//  error("%u:%s:%s : %s",__LINE__,__FILE__,__FUNCTION__,str);
 
 
 #define JS_ERROR(str) { \
