@@ -39,8 +39,8 @@
 #define MAX_HEIGHT 1024
 #define MAX_WIDTH 768
 
-class JsParser;
 class Console;
+class JsParser;
 
 class Context {
  private:
@@ -80,6 +80,8 @@ class Context {
 
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return screen->coords(x,y); };
+
+  int open_script(char *filename);
 
   void rocknroll();
 

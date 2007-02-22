@@ -25,6 +25,7 @@
 #ifndef __JSPARSER_H__
 #define __JSPARSER_H__
 
+#include <context.h>
 #include <config.h>
 #ifdef WITH_JAVASCRIPT
 
@@ -33,8 +34,8 @@
  * malloc overhead/fragmentation for deep or highly-variable stacks. */
 #define STACK_CHUNK_SIZE    8192*8// 8192
 
-#include <context.h>
-#include <layer.h>
+//#include <context.h>
+//#include <layer.h>
 #include <jsapi.h> // spidermonkey header
 
 

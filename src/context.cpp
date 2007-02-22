@@ -313,6 +313,10 @@ bool Context::register_controller(Controller *ctrl) {
   act("registered %s controller", ctrl->name);
   return true;
 }
+
+int Context::open_script(char *filename) {
+	return js->open(filename);
+}
 	  
 void Context::resize(int w, int h) {
   resize_w = w;

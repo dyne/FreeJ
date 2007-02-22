@@ -299,7 +299,7 @@ int main (int argc, char **argv) {
   /* execute javascript */
   if( javascript[0] ) {
     freej.interactive = false;
-    freej.js->open(javascript);
+    freej.open_script(javascript);
     if(freej.quit) {
       freej.close();
       exit(1);

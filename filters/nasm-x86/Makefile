@@ -9,7 +9,7 @@ CC = gcc
 NASM = nasm
 LINKER = ld
 INSTALL = install -c
-PREFIX = /usr/local
+PREFIX = /usr
 
 
 all: blurzoom.so absdiff.so
