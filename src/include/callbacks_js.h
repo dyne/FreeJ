@@ -159,6 +159,15 @@ if(!lay) { \
 }
 
 
+// check if a function of name exists for the current js class
+#define CHECKSYM(key,name) \
+  if(keysym->sym == key) { \
+    strcat(funcname,name); \
+    func("keyboard controller calling method %s()",funcname); \
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret); \
+    return 1; \
+  }
+
 
  
 extern Context *env;

@@ -57,13 +57,6 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
-#define CHECKSYM(key,name) \
-  if(keysym->sym == key) { \
-    strcat(funcname,name); \
-    func("keyboard controller calling method %s()",funcname); \
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret); \
-    return 1; \
-  }
 
 
 int KbdCtrl::poll(Context *env) {
@@ -73,21 +66,21 @@ int KbdCtrl::poll(Context *env) {
   jsval ret;
 
 
-  if( ! SDL_PollEvent(&event) ) return 0;
+  //  if( ! SDL_PollEvent(&event) ) return 0;
   
   // emergency exit from fullscreen (ctrl-f)
-  if(event.key.state == SDL_PRESSED)
-    if(event.key.keysym.mod & KMOD_CTRL)
-      if(event.key.keysym.sym == SDLK_f) {
+  if(env->event.key.state == SDL_PRESSED)
+    if(env->event.key.keysym.mod & KMOD_CTRL)
+      if(env->event.key.keysym.sym == SDLK_f) {
 	env->screen->fullscreen();
         return 1;
       }
   
-  keysym = & event.key.keysym;
+  keysym = & env->event.key.keysym;
   
-  if(event.key.state == SDL_PRESSED)
+  if(env->event.key.state == SDL_PRESSED)
     strcpy(funcname,"pressed_");
-  else if(event.key.state == SDL_RELEASED)
+  else if(env->event.key.state == SDL_RELEASED)
     strcpy(funcname,"released_");
   else // no key state change
     return 0;

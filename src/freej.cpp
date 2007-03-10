@@ -88,13 +88,13 @@ static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:agf:";
 
 
 
-int debug_level;
-char layer_files[MAX_CLI_CHARS];
-int cli_chars = 0;
-int width = 400;
-int height = 300;
-int magn = 0;
-char javascript[512]; // script filename
+int   debug_level;
+char  layer_files[MAX_CLI_CHARS];
+int   cli_chars = 0;
+int   width = 400;
+int   height = 300;
+int   magn = 0;
+char  javascript[512]; // script filename
 
 static char encoded_filename[512]; // filename to save to
 
@@ -295,6 +295,13 @@ int main (int argc, char **argv) {
 
   // refresh the list of available plugins
   freej.plugger.refresh();
+
+  // load default keyboard settings
+  {
+     char tmp[512];
+     sprintf(tmp,"%s/freej/keyb.js",DATADIR);
+     freej.open_script(tmp);
+  }
 
   /* execute javascript */
   if( javascript[0] ) {

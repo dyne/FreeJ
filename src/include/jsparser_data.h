@@ -67,7 +67,11 @@ JS(video_layer_constructor);
 JS(txt_layer_constructor);
 #endif
 
+
+// controller constructors
 JS(js_kbd_ctrl_constructor);
+JS(js_joy_ctrl_constructor);
+
 
 //////////////////////////////////////////////////////////////
 // classes
@@ -86,6 +90,10 @@ extern JSFunctionSpec layer_methods[];
 // KeyboardController
 extern JSClass js_kbd_ctrl_class;
 extern JSFunctionSpec js_kbd_ctrl_methods[];
+
+// JoystickController
+extern JSClass js_joy_ctrl_class;
+extern JSFunctionSpec js_joy_ctrl_methods[];
 
 // ParticleLayer
 extern JSClass particle_layer_class;

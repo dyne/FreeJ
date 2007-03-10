@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2004 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2007 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -20,30 +20,48 @@
  */
 
 #include <string.h>
-#include <context.h>
-#include <plugger.h>
-#include <jutils.h>
+
 #include <joy_ctrl.h>
 
 #include <config.h>
 
-#define DELAY 50
+#include <context.h>
+#include <jutils.h>
 
-JoyControl::JoyControl() {
-  quit = false;
-  env = NULL;
-  num = 0;
+
+#include <callbacks_js.h> // javascript
+
+/////// Javascript JoystickController
+JS(js_joy_ctrl_constructor);
+
+DECLARE_CLASS("JoystickController",js_joy_ctrl_class, js_joy_ctrl_constructor);
+
+JSFunctionSpec js_joy_ctrl_methods[] = { {0} }; // all dynamic methods
+
+
+
+JoyCtrl::JoyCtrl()
+  :Controller() {
+    
+    set_name("Joystick");
+    
+    num = 0;
 }
 
-JoyControl::~JoyControl() {
+JoyCtrl::~JoyCtrl() {
+  int c;
+
+  for(c=0;c<num;c++)
+    SDL_JoystickClose(joy[c]);
+
 }
 
-bool JoyControl::init(Context *context) {
-  func("JoyControl::init(%p)",context);
-
+bool JoyCtrl::init(JSContext *env, JSObject *obj) {
+  //bool JoyCtrl::init(Context *context) {
+  func("JoyCtrl::init()");
+ 
   int found = 0;
   int c;
-  if(!context) return false;
 
   num = SDL_NumJoysticks();
   func("num joysticks %i",num);
@@ -68,46 +86,61 @@ bool JoyControl::init(Context *context) {
       error("error opening %s",SDL_JoystickName(c));
     }
   }
-
+  
   num = found;
-
+  
   if(!num) {
     notice("no joystick found");
     return(false);
   }
   
-  this->env = context;
-  start();
+  jsenv = env;
+  jsobj = obj;
+  
+  initialized = true;
+
   return(true);
 }
 
-void JoyControl::run() {
+int JoyCtrl::poll(Context *env) {
   int c;
-  SDL_Event event;
 
-  while(!quit) {
+  if(! (env->event.type & (SDL_JOYAXISMOTION|SDL_JOYBUTTONDOWN))) return 0;
 
-    SDL_Delay(DELAY);
-    
-    /* trap joystick events */
-    if(!SDL_PollEvent(&event)) continue;
-    if(!(event.type & (SDL_JOYAXISMOTION|SDL_JOYBUTTONDOWN))) continue;
-    debug();
+  {
+    int j,c;
+    for(j=0;j<num;j++) {
+      func("action on %s",SDL_JoystickName(j));
+      /* print out axes */
+      for(c=0;c<axes;c++)
+	func("axis %i position %i",c,SDL_JoystickGetAxis(joy[j],c));
+      for(c=0;c<buttons;c++)
+	func("button %i position %i",c,SDL_JoystickGetButton(joy[j],c));
+    }
   }
 
-  for(c=0;c<num;c++)
-    SDL_JoystickClose(joy[c]);
-
+  return(1);
+    
 }
 
-void JoyControl::debug() {
-  int j,c;
-  for(j=0;j<num;j++) {
-    func("action on %s",SDL_JoystickName(j));
-    /* print out axes */
-    for(c=0;c<axes;c++)
-      func("axis %i position %i",c,SDL_JoystickGetAxis(joy[j],c));
-    for(c=0;c<buttons;c++)
-      func("button %i position %i",c,SDL_JoystickGetButton(joy[j],c));
+JS(js_joy_ctrl_constructor) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  JoyCtrl *joy = new JoyCtrl();
+
+
+  // assign instance into javascript object
+  if( ! JS_SetPrivate(cx, obj, (void*)joy) ) {
+    error("failed assigning keyboard controller to javascript");
+    delete joy; return JS_FALSE;
   }
+
+  // initialize with javascript context
+  if(! joy->init(cx, obj) ) {
+    error("failed initializing keyboard controller");
+    delete joy; return JS_FALSE;
+  }
+
+  *rval = OBJECT_TO_JSVAL(obj);
+  return JS_TRUE;
 }

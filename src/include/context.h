@@ -23,6 +23,11 @@
 #include <iostream>
 #include <stdlib.h>
 
+
+// this header makes freej dependent from SDL
+// it is here because of  SDL_PollEvent done in Context
+#include <SDL/SDL.h>
+
 #include <pipe.h>
 #include <linklist.h>
 #include <layer.h>
@@ -110,6 +115,7 @@ class Context {
   Osd osd; ///< On Screen Display
 
   Linklist controllers; ///< Interactive Controllers
+  SDL_Event event;
 
   Console *console; ///< Console parser (will become a controller)
 

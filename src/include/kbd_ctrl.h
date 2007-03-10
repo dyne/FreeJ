@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2006 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2007 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -33,7 +33,6 @@ class KbdCtrl: public Controller {
   int  poll(Context *env);
 
  private:  
-  SDL_Event event;
   SDL_keysym *keysym;
   
   JSContext *jsenv;

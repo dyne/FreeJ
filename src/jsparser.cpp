@@ -174,10 +174,18 @@ void JsParser::init() {
                    effect_constructor,
                    effect_methods);
 
+    // controller classes
+
     REGISTER_CLASS("KeyboardController",
 		   js_kbd_ctrl_class,
 		   js_kbd_ctrl_constructor,
 		   js_kbd_ctrl_methods);
+
+    REGISTER_CLASS("JoystickController",
+		   js_joy_ctrl_class,
+		   js_joy_ctrl_constructor,
+		   js_joy_ctrl_methods);
+    
 
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 //

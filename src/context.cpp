@@ -199,17 +199,26 @@ void Context::cafudda(double secs) {
     else if (osd.active)
       osd.clean();
 
-    ///// poll each controller in the chain
-          
-    ctrl = (Controller *)controllers.begin();
-    if(ctrl) {
-      controllers.lock();
-      while(ctrl) {
-	if(ctrl->active)
-	  ctrl->poll(this);
-	ctrl = (Controller*)ctrl->next;
+    ///// if we have an event poll each controller in the chain
+    if( SDL_PollEvent(&event) ) {
+
+      // force quit when SDL does
+      if (event.type == SDL_QUIT) {
+	quit = true;
+	break;
       }
-      controllers.unlock();
+				   
+      ctrl = (Controller *)controllers.begin();
+      if(ctrl) {
+	controllers.lock();
+	while(ctrl) {
+	  if(ctrl->active)
+	    ctrl->poll(this);
+	  ctrl = (Controller*)ctrl->next;
+	}
+	controllers.unlock();
+      }
+
     }
     
   
