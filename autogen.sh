@@ -69,4 +69,3 @@ echo "  autoconf"
 autoconf
 
 cd $olddir
-$srcdir/configure "$@" && echo

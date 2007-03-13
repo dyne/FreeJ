@@ -24,13 +24,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <dirent.h>
 #include <assert.h>
 #include <errno.h>
 
 #include <context.h>
 
 #include <osd.h>
-#include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
 #include <config.h>
@@ -86,6 +86,8 @@ static const char *help =
 // we use only getopt, no _long
 static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:agf:";
 
+/* this is the global FreeJ context */
+Context freej;
 
 
 int   debug_level;
@@ -269,11 +271,44 @@ void cmdline(int argc, char **argv) {
 /* ===================================== */
 //[cf]
 
+/* ===================================== */
+
+// scandir selection for .js or .freej
+int script_selector(const struct dirent *dir) {
+  if(strstr(dir->d_name,".freej")) return(1);
+  if(strstr(dir->d_name,".js"))    return(1);
+  return(0);
+}
+
+
+// load all default scripts in $DATADIR/freej and ~/.freej
+int scripts(char *path) {
+  char *dir;
+  struct dirent **filelist;
+  int found;
+
+  dir = strtok(path,":");
+  do {
+    found = scandir(dir,&filelist,script_selector,alphasort);
+    if(found<0) {
+      error("loading default scripts: scandir error: %s", strerror(errno));
+      return(-1);
+    }
+    /* .so files found, check if they are plugins */
+    while(found--) {
+      char temp[256];
+      snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
+      // if it exist is a default one: source it
+      freej.open_script(temp);
+    }
+  } while(( dir = strtok(NULL,":") ));
+
+  return 1;
+}
+//[js]
 
 int main (int argc, char **argv) {
 
-  /* this is the output context (screen) */
-  Context freej;
 
   Layer *lay = NULL;
 
@@ -315,26 +350,11 @@ int main (int argc, char **argv) {
 
 
 
-  /* initialize the S-Lang text Console */
-  if(!noconsole) {
-    if( getenv("TERM") ) {
-      freej.console = new Console();
-      freej.console->init( &freej );
-    }
-  }
-
   /* initialize the Keyboard Listener */
   //  freej.kbd.init( );
 
   /* initialize the On Screen Display */
   freej.osd.init( &freej );
-
-  freej.video_encoder -> handle_audio (stream_audio );
-
-  /* initialize encoded filename */
-  if (encoded_filename[0] != '\0') {
-	  freej.video_encoder -> set_output_name (encoded_filename );
-  }
 
 #ifdef CONFIG_OGGTHEORA_ENCODER
   /*

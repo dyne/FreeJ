@@ -14,6 +14,7 @@ wordspacing = 5;
 running = true;
 kbd = new KeyboardController();
 kbd.released_esc = function() { running = false; }
+register_controller( kbd );
 
 // read a text file into an array
 words = file_to_strings("../README");
@@ -26,7 +27,7 @@ idx = 0;
 background = new GeometryLayer();
 background.color(0x00000000);
 background.set_blit("alpha");
-background.set_blit_value(0.2);
+background.set_blit_value(0.9);
 background.rectangle(0, 0, background.w(), background.h() );
 add_layer( background );
 
@@ -112,7 +113,6 @@ while(running) {
 
     
     run(0.5);
-    kbd.poll();
     
     // if the words are finished, start over
     if(idx > words.length) idx = 0;

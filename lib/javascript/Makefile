@@ -46,6 +46,8 @@
 #       .h, all .msg, etc.)  Re-make clean if in doubt.
 #
 
+LD=arm-linux-ld
+RANLIB=arm-linux-ranlib
 
 DEPTH = .
 
@@ -320,7 +322,7 @@ $(OBJDIR)/jsautocfg.h: $(OBJDIR)/jscpucfg
 	$(OBJDIR)/jscpucfg > $@
 
 $(OBJDIR)/jscpucfg: $(OBJDIR)/jscpucfg.o
-	$(CC) -o $@ $(OBJDIR)/jscpucfg.o
+	gcc -o $@ $(OBJDIR)/jscpucfg.o
 
 # Look in OBJDIR to find jsautocfg.h
 INCLUDES   += -I$(OBJDIR)

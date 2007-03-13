@@ -33,7 +33,6 @@
 #include <layer.h>
 #include <osd.h>
 #include <controller.h>
-#include <video_encoder.h>
 #include <plugger.h>
 #include <screen.h>
 #include <shouter.h>
@@ -122,8 +121,6 @@ class Context {
   Plugger plugger; ///< filter plugins host
 
   JsParser *js; ///< javascript parser object
-
-  VideoEncoder *video_encoder; ///< encoding object
 
   Shouter *shouter; ///< icecast streamer
 

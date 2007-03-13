@@ -41,7 +41,7 @@
 #include <string.h>
 
 /* freej specific: */
-#include <console.h>
+//#include <console.h>
 
 #include <jutils.h>
 #include <config.h>
@@ -58,7 +58,6 @@ static int verbosity;
 
 static char *osd_msg;
 
-static Console *console = NULL;
 
 void set_debug(int lev) {
   lev = lev<0 ? 0 : lev;
@@ -78,8 +77,6 @@ void set_osd(char *st) {
 void show_osd() {
   strncpy(osd_msg,msg,49);
   osd_msg[50] = '\0';
-  if(console)
-    console->notice(osd_msg);
 }
 
 void show_osd(char *format, ...) {
@@ -90,21 +87,15 @@ void show_osd(char *format, ...) {
   osd_msg[50] = '\0';
   va_end(arg);
 
-  if(console)
-    console->notice(osd_msg);
 }
 
-void set_console(Console *c) {
-  console = c;
-}
 
 void notice(char *format, ...) {
   va_list arg;
   va_start(arg, format);
 
   vsnprintf(msg, 254, format, arg);
-  if(console) console->notice(msg);
-  else fprintf(stderr,"[*] %s\n",msg);
+  fprintf(stderr,"[*] %s\n",msg);
   
   va_end(arg);
 }
@@ -115,8 +106,7 @@ void func(char *format, ...) {
     va_start(arg, format);
     
     vsnprintf(msg, 254, format, arg);
-    if(console) console->func(msg);
-    else fprintf(stderr,"[F] %s\n",msg);
+    fprintf(stderr,"[F] %s\n",msg);
 
     va_end(arg);
   }
@@ -127,8 +117,7 @@ void error(char *format, ...) {
   va_start(arg, format);
   
   vsnprintf(msg, 254, format, arg);
-  if(console) console->error(msg);
-  else fprintf(stderr,"[!] %s\n",msg);
+  fprintf(stderr,"[!] %s\n",msg);
 
   va_end(arg);
 }
@@ -138,8 +127,7 @@ void act(char *format, ...) {
   va_start(arg, format);
   
   vsnprintf(msg, 254, format, arg);
-  if(console) console->act(msg);
-  else fprintf(stderr," .  %s\n",msg);
+  fprintf(stderr," .  %s\n",msg);
   
   va_end(arg);
 }
@@ -150,8 +138,7 @@ void warning(char *format, ...) {
     va_start(arg, format);
     
     vsnprintf(msg, 254, format, arg);
-    if(console) console->warning(msg);
-    else fprintf(stderr,"[W] %s\n",msg);
+    fprintf(stderr,"[W] %s\n",msg);
   
     va_end(arg);
   }

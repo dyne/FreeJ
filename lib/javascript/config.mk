@@ -47,19 +47,8 @@ endif
 OS_ARCH         := $(subst /,_,$(shell uname -s | sed /\ /s//_/))
 
 # Attempt to differentiate between SunOS 5.4 and x86 5.4
-OS_CPUARCH      := $(shell uname -m)
-ifeq ($(OS_CPUARCH),i86pc)
-OS_RELEASE      := $(shell uname -r)_$(OS_CPUARCH)
-else
-ifeq ($(OS_ARCH),AIX)
-OS_RELEASE      := $(shell uname -v).$(shell uname -r)
-else
-OS_RELEASE      := $(shell uname -r)
-endif
-endif
-ifeq ($(OS_ARCH),IRIX64)
-OS_ARCH         := IRIX
-endif
+OS_CPUARCH	:= arm
+OS_RELEASE      := gp2x
 
 # Handle output from win32 unames other than Netscape's version
 ifeq (,$(filter-out Windows_95 Windows_98 CYGWIN_95-4.0 CYGWIN_98-4.10, $(OS_ARCH)))
@@ -88,7 +77,7 @@ endif
 # Virtually all Linux versions are identical.
 # Any distinctions are handled in linux.h
 ifeq ($(OS_ARCH),Linux)
-OS_CONFIG      := Linux_All
+OS_CONFIG      := Linux_Gp2x
 else
 ifeq ($(OS_ARCH),dgux)
 OS_CONFIG      := dgux

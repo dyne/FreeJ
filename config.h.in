@@ -12,27 +12,6 @@
 /* define if compiling for Apple Darwin OSX */
 #undef CONFIG_DARWIN
 
-/* define if compiling FFMpeg AvCoded with ogg */
-#undef CONFIG_LIBOGG
-
-/* define if compiling FFMpeg AvCoded with theora */
-#undef CONFIG_LIBTHEORA
-
-/* define if compiling FFMpeg AvCoded with vorbis */
-#undef CONFIG_LIBVORBIS
-
-/* define if compiling FFMpeg with oggtheora decoder */
-#undef CONFIG_OGGTHEORA_DECODER
-
-/* define if compiling FFMpeg with oggtheora encoder */
-#undef CONFIG_OGGTHEORA_ENCODER
-
-/* define if compiling FFMpeg with oggvorbis decoder */
-#undef CONFIG_OGGVORBIS_DECODER
-
-/* define if compiling FFMpeg with oggvorbis encoder */
-#undef CONFIG_OGGVORBIS_ENCODER
-
 /* define if host has 64 bit */
 #undef HAVE_64BIT
 
@@ -47,9 +26,6 @@
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
-
-/* define if linking to freetype2 library */
-#undef HAVE_FREETYPE2
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
@@ -69,17 +45,8 @@
 /* Define to 1 if you have the `mmap' function. */
 #undef HAVE_MMAP
 
-/* define if enabling MMX acceleration */
-#undef HAVE_MMX
-
 /* Define to 1 if you have the `select' function. */
 #undef HAVE_SELECT
-
-/* define if enabling SSE acceleration */
-#undef HAVE_SSE
-
-/* define if enabling SSE2 acceleration */
-#undef HAVE_SSE2
 
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
@@ -126,56 +93,23 @@
 /* define little endian arch for portaudio */
 #undef PA_LITTLE_ENDIAN
 
-/* define if portaudio uses Alsa */
-#undef PA_USE_ALSA
-
-/* define if portaudio uses Jack */
-#undef PA_USE_JACK
-
 /* define if compiling for PPC */
 #undef POWERPC_MODE_32BITS
-
-/* define little endian arch for SDL */
-#undef SDL_BYTEORDER
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
-/* define if compiling Theora encoder */
-#undef THEORA_SUPPORT_ENCODE
-
-/* define if compiling Theora float codec */
-#undef THEORA_SUPPORT_FLOAT
-
 /* Version number of package */
 #undef VERSION
-
-/* define if compiling movie layer linking to ffmpeg libavcodec */
-#undef WITH_AVCODEC
 
 /* Define if using the dmalloc debugging malloc package */
 #undef WITH_DMALLOC
 
-/* define if compiling freetype2 layer */
-#undef WITH_FT2
-
-/* define if compiling glade gtk+-2 GUI */
-#undef WITH_GLADE2
-
 /* Define is using the javascript interpreter */
 #undef WITH_JAVASCRIPT
 
-/* define if compiling joystick controller */
-#undef WITH_JOYSTICK
-
 /* define if compiling midi controller */
 #undef WITH_MIDI
-
-/* define if compiling with Ogg/Theora encoding */
-#undef WITH_OGGTHEORA
-
-/* define if using experimental opengl rendering */
-#undef WITH_OPENGL
 
 /* define if compiling video4linux layer */
 #undef WITH_V4L

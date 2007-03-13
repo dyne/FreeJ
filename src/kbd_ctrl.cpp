@@ -66,24 +66,16 @@ int KbdCtrl::poll(Context *env) {
   jsval ret;
 
 
-  //  if( ! SDL_PollEvent(&event) ) return 0;
-  
-  // emergency exit from fullscreen (ctrl-f)
-  if(env->event.key.state == SDL_PRESSED)
-    if(env->event.key.keysym.mod & KMOD_CTRL)
-      if(env->event.key.keysym.sym == SDLK_f) {
-	env->screen->fullscreen();
-        return 1;
-      }
-  
-  keysym = & env->event.key.keysym;
-  
+
   if(env->event.key.state == SDL_PRESSED)
     strcpy(funcname,"pressed_");
   else if(env->event.key.state == SDL_RELEASED)
     strcpy(funcname,"released_");
   else // no key state change
     return 0;
+  
+  keysym = & env->event.key.keysym;
+  
 
   // check key modifiers
   if(keysym->mod & KMOD_CTRL)

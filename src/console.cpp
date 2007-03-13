@@ -26,7 +26,7 @@
 #include <errno.h>
 
 #include <signal.h>
-#include <slang.h>
+#include <slang-2/slang.h>
 #include <context.h>
 #include <jsparser.h>
 #include <jutils.h>

@@ -1,5 +1,5 @@
 
-INCLUDES = -I$(top_srcdir)
+INCLUDES = -I$(top_srcdir) -I/opt/gp2x-crosscompile/include
 
 AM_CFLAGS = $(CFLAGS)
 

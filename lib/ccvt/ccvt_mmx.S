@@ -30,7 +30,7 @@
  */   
 
 #define __ASSEMBLY__
-#include <linux/linkage.h>
+#include "../../src/include/asm-linkage.h"
 
 #define Width   8(%ebp)
 #define Height 12(%ebp)

@@ -165,6 +165,8 @@ class Layer: public Entry, public JSyncThread {
   uint8_t colorkey_g;
   uint8_t colorkey_b;
 
+  Context *env; ///< private pointer to the environment filled at _init()
+
 };
 
 /* function for type detection of implemented layers */

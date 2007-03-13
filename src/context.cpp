@@ -30,15 +30,12 @@
 #include <sdlgl_screen.h>
 #include <SDL_imageFilter.h>
 #include <jsparser.h>
-#include <video_encoder.h>
-#include <impl_video_encoders.h>
 #include <pipe.h>
 #include <shouter.h>
 #include <signal.h>
 #include <errno.h>
 
 #include <jutils.h>
-#include <fastmemcpy.h>
 #include <config.h>
 
 void fsigpipe (int Sig);
@@ -107,9 +104,8 @@ bool Context::init(int wx, int hx, bool opengl) {
   shouter = new Shouter ();
 #endif
   
-  // a fast benchmark to select the best memcpy to use
-  find_best_memcpy ();
-  
+  jmemcpy = memcpy;
+
   if( SDL_imageFilterMMXdetect () )
     act ("using MMX accelerated blit");
   
@@ -125,9 +121,6 @@ void Context::close() {
 #ifdef CONFIG_OGGTHEORA_ENCODER
   delete video_encoder;
 #endif
-  
-  if (console)
-    console->close ();
   
   lay = (Layer *)screen->layers.begin ();
   while (lay) {
@@ -187,9 +180,6 @@ void Context::cafudda(double secs) {
       changeres = false;
     }
     
-    if (console && interactive) 
-      console->cafudda ();
-    
     /** start layers thread */
     rocknroll ();
     
@@ -201,12 +191,17 @@ void Context::cafudda(double secs) {
 
     ///// if we have an event poll each controller in the chain
     if( SDL_PollEvent(&event) ) {
-
+      
       // force quit when SDL does
       if (event.type == SDL_QUIT) {
 	quit = true;
 	break;
       }
+
+      // fullscreen switch (ctrl-f)
+      if(event.key.state == SDL_PRESSED)
+	if(event.key.keysym.mod & KMOD_CTRL)
+	  if(event.key.keysym.sym == SDLK_f) screen->fullscreen();
 				   
       ctrl = (Controller *)controllers.begin();
       if(ctrl) {

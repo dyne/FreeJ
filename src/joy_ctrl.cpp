@@ -64,6 +64,8 @@ bool JoyCtrl::init(JSContext *env, JSObject *obj) {
   int c;
 
   num = SDL_NumJoysticks();
+  if(num>4) num = 4; // we support maximum 4 joysticks
+
   func("num joysticks %i",num);
   for(c=0;c<num;c++) {
     joy[found] = SDL_JoystickOpen(c);
@@ -92,7 +94,8 @@ bool JoyCtrl::init(JSContext *env, JSObject *obj) {
   if(!num) {
     notice("no joystick found");
     return(false);
-  }
+  } else
+    SDL_JoystickEventState(SDL_ENABLE);
   
   jsenv = env;
   jsobj = obj;
@@ -104,8 +107,63 @@ bool JoyCtrl::init(JSContext *env, JSObject *obj) {
 
 int JoyCtrl::poll(Context *env) {
   int c;
+  char funcname[512];
+  jsval ret;
+  /*
+  if(! (env->event.type
+	& (SDL_JOYAXISMOTION
+	   |SDL_JOYBALLMOTION
+	   |SDL_JOYHATMOTION
+	   |SDL_JOYBUTTONDOWN
+	   |SDL_JOYBUTTONUP   )))
+    return 0;
+  */
+  switch(env->event.type) {
+    
+  case SDL_JOYAXISMOTION:
 
-  if(! (env->event.type & (SDL_JOYAXISMOTION|SDL_JOYBUTTONDOWN))) return 0;
+    snprintf(funcname,512,"axis_%u(%i)", env->event.jaxis.axis);
+
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+
+    break;
+
+  case SDL_JOYBALLMOTION:
+
+
+    snprintf(funcname,512,"ball_%u", env->event.jball.ball);
+
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    
+    break;
+
+  case SDL_JOYHATMOTION:
+
+    snprintf(funcname,512,"hat_%u", env->event.jhat.hat);
+
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    
+    break;
+
+  case SDL_JOYBUTTONDOWN:
+
+    snprintf(funcname,512,"button_%u_down", env->event.jbutton.button);
+
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    
+    break;
+
+  case SDL_JOYBUTTONUP:
+
+    snprintf(funcname,512,"button_%u_up", env->event.jbutton.button);
+
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+
+    break;
+
+  default: return 0;
+    
+  }
 
   {
     int j,c;
@@ -116,9 +174,13 @@ int JoyCtrl::poll(Context *env) {
 	func("axis %i position %i",c,SDL_JoystickGetAxis(joy[j],c));
       for(c=0;c<buttons;c++)
 	func("button %i position %i",c,SDL_JoystickGetButton(joy[j],c));
+      
+
     }
   }
 
+  func("joystick controller called method %s()",funcname);
+    
   return(1);
     
 }

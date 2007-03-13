@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */   
 
 #define __ASSEMBLY__
-#include <linux/linkage.h>
+#include "../../src/include/asm-linkage.h"
 
 #define Width   8(%ebp)
 #define Height 12(%ebp)

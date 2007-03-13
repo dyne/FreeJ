@@ -28,27 +28,13 @@ case $uname in
        AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
        AC_DEFINE(WORDS_BIGENDIAN,1,[define if compiling for Big Endian CPU])
        AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
-       AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
        have_ppc=yes
      else
        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
        AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
-       AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
      fi
 
-     CPUFLAGS=`cat /proc/cpuinfo | grep flags`
-     if grep "^flags.* mmx" /proc/cpuinfo > /dev/null; then
-       have_mmx=yes
-       AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
-     fi
-     if grep "^flags.* sse" /proc/cpuinfo > /dev/null; then
-       have_sse=yes
-       AC_DEFINE(HAVE_SSE,1,[define if enabling SSE acceleration])
-     fi
-     if grep "^flags.* sse2" /proc/cpuinfo > /dev/null; then
-       have_sse=yes
-       AC_DEFINE(HAVE_SSE2,1,[define if enabling SSE2 acceleration])
-     fi
+     CPUFLAGS=""
      ;;
 
      Darwin)
@@ -141,69 +127,7 @@ AC_SUBST(SDL_CFLAGS)
 
 dnl AC_HEADER_DIRENT
 
-dnl ==============================================================
-dnl Check OGG/THEORA MMX STUFF
-dnl ==============================================================
-THEORA_LIBS=""
-THEORA_MMX_DIR=""
-THEORA_MMX_INCLUDE=""
-PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
-                  have_oggtheora=yes, have_oggtheora=no)
-if test x$have_oggtheora = xyes ; then
-   AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
-   AC_DEFINE(THEORA_SUPPORT_ENCODE,1,[define if compiling Theora encoder])
-   AC_DEFINE(THEORA_SUPPORT_FLOAT,1,[define if compiling Theora float codec])
-   AC_DEFINE(CONFIG_LIBOGG,1,[define if compiling FFMpeg AvCoded with ogg])
-   AC_DEFINE(CONFIG_LIBVORBIS,1,[define if compiling FFMpeg AvCoded with vorbis])
-   AC_DEFINE(CONFIG_LIBTHEORA,1,[define if compiling FFMpeg AvCoded with theora])
-   AC_DEFINE(CONFIG_OGGVORBIS_ENCODER,1,[define if compiling FFMpeg with oggvorbis encoder])
-   AC_DEFINE(CONFIG_OGGVORBIS_DECODER,1,[define if compiling FFMpeg with oggvorbis decoder])
-   AC_DEFINE(CONFIG_OGGTHEORA_ENCODER,1,[define if compiling FFMpeg with oggtheora encoder])
-   AC_DEFINE(CONFIG_OGGTHEORA_DECODER,1,[define if compiling FFMpeg with oggtheora decoder])
-   THEORA_LIBS="\$(top_srcdir)/lib/theora-mmx/libtheora.a \$(top_srcdir)/lib/shout/libshout.a"
-   THEORA_MMX_DIR="theora-mmx shout"
-   THEORA_MMX_INCLUDE="-I\$(top_srcdir)/lib/theora-mmx"
-   if test x$static_build = xyes ; then
-      XIPH_LIBS="`pkg-config --variable=prefix ogg`/lib/libogg.a"
-      XIPH_LIBS="$XIPH_LIBS `pkg-config --variable=prefix vorbis`/lib/libvorbis.a"
-      XIPH_LIBS="$XIPH_LIBS `pkg-config --variable=prefix vorbis`/lib/libvorbisenc.a"
-   fi
-fi
-AC_SUBST(THEORA_LIBS)
-AC_SUBST(THEORA_MMX_DIR)
-AC_SUBST(THEORA_MMX_INCLUDE)
-AC_SUBST(XIPH_LIBS)
 
-
-
-dnl ==============================================================
-dnl Check if there is FREETYPE2
-dnl ==============================================================
-AC_CHECK_FT2(9.0.0,[
-	AC_DEFINE(WITH_FT2,1,[define if compiling freetype2 layer])
-	AC_DEFINE(HAVE_FREETYPE2,1,[define if linking to freetype2 library])
-	have_freetype2=yes],have_freetype2=no)
-
-dnl ==============================================================
-dnl AVCODEC AVFORMAT STUFF
-dnl ==============================================================
-dnl put a disable flag
-AC_DEFINE(WITH_AVCODEC,1,[define if compiling movie layer linking to ffmpeg libavcodec])
-AVCODEC_SUBDIRS=""
-AVCODEC_LIBS="\$(top_srcdir)/lib/avcodec/libavcodec.a"
-AVFORMAT_LIBS="\$(top_srcdir)/lib/avformat/libavformat.a"
-if test x$have_mmx = xyes ; then
-     AVCODEC_SUBDIRS="i386"
-     AVCODEC_LIBS="$AVCODEC_LIBS \$(top_srcdir)/lib/avcodec/i386/libavcodecmmx.a"
-fi
-if test x$have_ppc = xyes ; then
-     AVCODEC_SUBDIRS="ppc"
-     AVCODEC_LIBS="$AVCODEC_LIBS \$(top_srcdir)/lib/avcodec/ppc/libavcodecppc.a"
-fi
-
-AC_SUBST(AVFORMAT_LIBS)
-AC_SUBST(AVCODEC_SUBDIRS)
-AC_SUBST(AVCODEC_LIBS)
 
 
 
@@ -275,26 +199,17 @@ if test x$have_midi = xyes; then
    echo "Compiling midi controller"
 fi
 
-
 dnl ==============================================================
 dnl CHECK if there is joystick
 dnl ==============================================================
-AC_ARG_ENABLE(joystick,
-[  --enable-joystick       compile with Joystick controller (experimental, default: no)],
-[ if test x$enableval = xno; then have_joystick=no; else have_joystick=yes; fi ], have_joystick=no)
-if test x$have_joystick = xyes; then
-   AC_DEFINE(WITH_JOYSTICK,1,[define if compiling joystick controller])
-   echo "Compiling joystick controller"
-fi
+dnl AC_ARG_ENABLE(joystick,
+dnl [  --enable-joystick       compile with Joystick controller (experimental, default: no)],
+dnl [ if test x$enableval = xno; then have_joystick=no; else have_joystick=yes; fi ], have_joystick=no)
+dnl if test x$have_joystick = xyes; then
+dnl    AC_DEFINE(WITH_JOYSTICK,1,[define if compiling joystick controller])
+dnl    echo "Compiling joystick controller"
+dnl fi
 
-dnl ==============================================================
-dnl CHECK if there is 
-dnl ==============================================================
-dnl AC_ARG_ENABLE(xhacks, [  --enable-xhacks         compile with xscreenhacks layer (broken, default: no)], [ AC_DEFINE(WITH_XHACKS,1,[define if compiling xhacks layer])
-dnl    have_xhacks=yes
-dnl  ])
-
-dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
 dnl ==============================================================
 AC_CHECK_HEADER(linux/videodev.h)
@@ -310,16 +225,6 @@ if test x$HAVE_V4L = xyes; then
    AC_DEFINE(WITH_V4L,1,[define if compiling video4linux layer])
    have_video4linux=yes
 fi])
-
-dnl ==============================================================
-dnl CHECK if there is LIBGLADE2
-dnl ==============================================================
-AC_ARG_ENABLE(glade2,
-[  --enable-glade2         compile with Glade/Gtk2 interface (deprecated, default: no)], [
-PKG_CHECK_MODULES(GLADE2, libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0, [
-  AC_DEFINE(WITH_GLADE2,1,[define if compiling glade gtk+-2 GUI])
-  have_glade2=yes ],[ have_glade2=no ])
-])
 
 dnl ==============================================================
 dnl compile with full warnings and debugging symbols
@@ -385,32 +290,13 @@ if test x$have_lubrifications = xyes; then
 else
   if test x$have_profiling = xno -a x$debug = xfalse; then
     echo "enabling generic compiler optimizations"
-    CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mmmx"
+    CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -funroll-loops"
   fi
 fi
 AC_SUBST(LUBRIFY_CFLAGS)
 
 
 
-
-dnl ==============================================================
-dnl CHECK TO USE OPENGL VIDEO OUTPUT
-dnl ==============================================================
-AC_ARG_ENABLE(opengl,
-	       [  --enable-opengl         experimental opengl rendering (no)],
-	       [ 
-		if test ! x$enableval = xyes; then
-		    use_opengl=yes 
-		    OPENGL_LIB="-lGL -lGLU"
-		    AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
-		    else
-			use_opengl=no
-		    fi
-
-		    ],
-		    [ use_opengl=no ]
-		    )
-AC_SUBST(OPENGL_LIB)
 
 
 
@@ -425,36 +311,6 @@ dnl   AC_SUBST(SDL_LIBS)
 dnl   AC_MSG_RESULT(yes) ],
 dnl [ AC_MSG_RESULT(no) ])
 
-dnl ==============================================================
-dnl PortAudio v19
-dnl ==============================================================
-if test x$have_darwin = xyes ; then
-   PORTAUDIO_LIBS="-framework AudioUnit -framework AudioToolbox -framework CoreAudio"
-   dnl TODO for darwin/OSX
-fi
-
-if test x$have_linux = xyes ; then
-
-   AC_CHECK_LIB(asound, snd_pcm_open, have_alsa=yes, have_alsa=no)
-   if [[ $have_alsa = "yes" ]] ; then
-      PORTAUDIO_LIBS="-lasound"
-      AC_DEFINE(PA_USE_ALSA,1,[define if portaudio uses Alsa])
-   fi
-
-   AC_ARG_ENABLE(jack, [  --enable-jack          compile with Jack audio driver (autodetected)],
-		       [ if test x$enableval = xno; then check_jack=no; else check_jack=yes; fi ],
-		       [check_jack=yes])
-   if test x$check_jack = xyes; then
-      PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
-      if test x$have_jack = xyes ; then
-	 PORTAUDIO_LIBS="$PORTAUDIO_LIBS $JACK_LIBS"
-	 AC_DEFINE(PA_USE_JACK,1,[define if portaudio uses Jack])
-      fi
-   fi
-
-fi dnl have_linux
-
-AC_SUBST(PORTAUDIO_LIBS)
 
 
 
@@ -599,20 +455,9 @@ src/Makefile
 src/include/Makefile
 lib/Makefile
 lib/ccvt/Makefile
-lib/theora-mmx/Makefile
-lib/avformat/Makefile
-lib/avcodec/Makefile
-lib/avcodec/i386/Makefile
-lib/avcodec/ppc/Makefile
 lib/shout/Makefile
-lib/portaudio/Makefile
-lib/sdl_image/Makefile
-lib/sdl_gfx/Makefile
-lib/sdl_ttf/Makefile
 lib/flash/Makefile
 lib/goom/Makefile
-lib/slw/Makefile
-lib/tbt/Makefile
 filters/Makefile
 filters/delaygrab/Makefile
 filters/rotozoom/Makefile
@@ -669,12 +514,6 @@ if test x$have_oggtheora = xyes; then
 echo "= ogg-theora (libogg libtheora)"
 echo "  libs  : $XIPH_LIBS"
 echo "  cflags: $XIPH_CFLAGS"
-else
-	echo "= Ogg not found! libogg development is missing"
-	echo "  You'll not be able to save in ogg/theora"
-        echo "  this is preventing you from saving movies"
-	echo "  in case you are packing a binary package please take care"
-	echo "  because of this many users will miss important functionality"
 fi
 if test x$use_sdl_image = xyes; then
 echo "= sdl_image"
