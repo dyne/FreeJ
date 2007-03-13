@@ -34,7 +34,7 @@
 /* we declare the Context pointer static here
    in order to have it accessed from callback functions
    which are not class methods */
-//Context *env;
+Context *env;
 bool stop_script;
 
 void js_sigint_handler(int sig) {

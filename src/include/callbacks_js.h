@@ -52,7 +52,7 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     variable = (double)JSVAL_TO_BOOLEAN(argv[argnum]); \
   } else { \
     JS_ReportError(cx,"%s: argument %u is not a number",__FUNCTION__,argnum); \
-    freej.quit = true; \
+    env->quit = true; \
     return JS_FALSE; \
   }
 
@@ -62,7 +62,7 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
       ( JS_ValueToString(cx, argv[argnum]) ); \
   else { \
     JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__,argnum); \
-    freej.quit = true; \
+    env->quit = true; \
     return JS_FALSE; \
   }
 
@@ -108,8 +108,8 @@ JS(constructor_func) {                                                        \
     return JS_FALSE;                                                          \
   }                                                                           \
   if(argc==0) {                                                               \
-    width = freej.screen->w;                                                   \
-    height = freej.screen->h;                                                  \
+    width = env->screen->w;                                                   \
+    height = env->screen->h;                                                  \
   } else if(argc==1) {                                                        \
     JS_ARG_STRING(filename,0);                                                \
     if(!layer->open(filename)) {                                              \
@@ -154,7 +154,7 @@ if(!lay) { \
 
 #define JS_ERROR(str) { \
   JS_ReportError(cx,"%s: %s",__FUNCTION__,str); \
-  freej.quit = true; \
+  env->quit = true; \
   return JS_FALSE; \
 }
 
@@ -170,7 +170,7 @@ if(!lay) { \
 
 
  
-extern Context freej;
+extern Context *env;
 extern bool stop_script;
 
 void js_sigint_handler(int sig);

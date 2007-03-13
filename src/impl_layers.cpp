@@ -152,6 +152,15 @@ Layer *create_layer(char *file) {
 #endif
 	} else
 
+	  if(strncasecmp((end_file_ptr-4),".tbt",4)==0) {
+	    // Time Based Text file recording
+	    nlayer = new TBTLayer();
+	    if(!nlayer->open(file_ptr)) {
+	      error("create_layer : TBT open failed");
+	      delete nlayer; nlayer = NULL;
+	    }
+	  } else
+
 	  if(strstr(file_ptr,"xscreensaver")) { /* XHACKS_LAYER */
 #ifdef WITH_XHACKS
 	    nlayer = new XHacksLayer();
@@ -171,6 +180,10 @@ Layer *create_layer(char *file) {
           } else if(strncasecmp(file_ptr,"layer_goom",10)==0) {
 
             nlayer = new GoomLayer();
+
+	  } else if(strncasecmp(file_ptr,"layer_tbt",9) ==0) {
+
+	    nlayer = new TBTLayer();
 
 	  } else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
 

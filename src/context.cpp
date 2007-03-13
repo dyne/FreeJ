@@ -30,12 +30,15 @@
 #include <sdlgl_screen.h>
 #include <SDL_imageFilter.h>
 #include <jsparser.h>
+#include <video_encoder.h>
+#include <impl_video_encoders.h>
 #include <pipe.h>
 #include <shouter.h>
 #include <signal.h>
 #include <errno.h>
 
 #include <jutils.h>
+#include <fastmemcpy.h>
 #include <config.h>
 
 void fsigpipe (int Sig);
@@ -104,8 +107,9 @@ bool Context::init(int wx, int hx, bool opengl) {
   shouter = new Shouter ();
 #endif
   
-  jmemcpy = memcpy;
-
+  // a fast benchmark to select the best memcpy to use
+  find_best_memcpy ();
+  
   if( SDL_imageFilterMMXdetect () )
     act ("using MMX accelerated blit");
   
@@ -121,6 +125,9 @@ void Context::close() {
 #ifdef CONFIG_OGGTHEORA_ENCODER
   delete video_encoder;
 #endif
+  
+  if (console)
+    console->close ();
   
   lay = (Layer *)screen->layers.begin ();
   while (lay) {
@@ -179,6 +186,9 @@ void Context::cafudda(double secs) {
       }
       changeres = false;
     }
+    
+    if (console && interactive) 
+      console->cafudda ();
     
     /** start layers thread */
     rocknroll ();

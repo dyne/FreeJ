@@ -19,9 +19,9 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include <stdio.h>
 #include <inttypes.h>
 #include <errno.h>
+#include <console.h>
 
 extern char msg[255];
 
@@ -32,6 +32,7 @@ int get_debug();
 void set_osd(char *st);
 void show_osd();
 void show_osd(char *format, ...);
+void set_console(Console *c);
 void notice(char *format, ...);
 void func(char *format, ...);
 void error(char *format, ...);

@@ -31,6 +31,7 @@
 #include <context.h>
 
 #include <osd.h>
+#include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
 #include <config.h>
@@ -350,11 +351,26 @@ int main (int argc, char **argv) {
 
 
 
+  /* initialize the S-Lang text Console */
+  if(!noconsole) {
+    if( getenv("TERM") ) {
+      freej.console = new Console();
+      freej.console->init( &freej );
+    }
+  }
+
   /* initialize the Keyboard Listener */
   //  freej.kbd.init( );
 
   /* initialize the On Screen Display */
   freej.osd.init( &freej );
+
+  freej.video_encoder -> handle_audio (stream_audio );
+
+  /* initialize encoded filename */
+  if (encoded_filename[0] != '\0') {
+	  freej.video_encoder -> set_output_name (encoded_filename );
+  }
 
 #ifdef CONFIG_OGGTHEORA_ENCODER
   /*

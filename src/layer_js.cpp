@@ -69,7 +69,7 @@ JS(list_layers) {
   jsval val;
   int c = 0;
   
-  if( freej.screen->layers.len() == 0 ) {
+  if( env->screen->layers.len() == 0 ) {
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
@@ -77,7 +77,7 @@ JS(list_layers) {
   arr = JS_NewArrayObject(cx, 0, NULL); // create void array
   if(!arr) return JS_FALSE;
 
-  lay = (Layer*)freej.screen->layers.begin();
+  lay = (Layer*)env->screen->layers.begin();
   while(lay) {
     objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
 
@@ -101,13 +101,13 @@ JS(selected_layer) {
   Layer *lay;
   JSObject *objtmp;
 
-  if( freej.screen->layers.len() == 0 ) {
+  if( env->screen->layers.len() == 0 ) {
     error("can't return selected layer: no layers are present");
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
   
-  lay = (Layer*)freej.screen->layers.begin();
+  lay = (Layer*)env->screen->layers.begin();
 
   while(lay) {
     if(lay->select) break;

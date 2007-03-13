@@ -39,6 +39,8 @@
 
 
 JsParser::JsParser(Context *_env) {
+    if(_env!=NULL)
+	env=_env;
     init();
     notice("JavaScript parser initialized");
 }
@@ -192,7 +194,7 @@ void JsParser::init() {
 
    ///////////////////////////////
    // setup the freej context
-   freej.osd.active = false;
+   env->osd.active = false;
 
 
    return;

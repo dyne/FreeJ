@@ -185,7 +185,7 @@ clobber:
 	@cd fdlibm; $(MAKE) -f Makefile.ref clobber
 
 depend:
-	arm-linux-gcc -MM $(CFLAGS) $(LIB_CFILES)
+	gcc -MM $(CFLAGS) $(LIB_CFILES)
 
 tar:
 	tar cvf $(TARNAME) $(TARFILES)

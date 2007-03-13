@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <SDL_syswm.h>
 
 #include <sdl_screen.h>
 #include <jutils.h>

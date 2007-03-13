@@ -57,7 +57,6 @@ JSFunctionSpec global_functions[] = {
     {0}
 };
 
-extern Context freej;
 
 JS(cafudda) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -84,14 +83,14 @@ JS(cafudda) {
 
   
   func("JsParser :: run for %f seconds",seconds);
-  freej.cafudda(seconds);
+  env->cafudda(seconds);
 
   return JS_TRUE;
 }
 
 JS(pause) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  freej.pause = !freej.pause;
+  env->pause = !env->pause;
 
   return JS_TRUE;
 }
@@ -99,7 +98,7 @@ JS(pause) {
 JS(quit) {
  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
- freej.quit = true;
+ env->quit = true;
  return JS_TRUE;
 }
 
@@ -139,9 +138,9 @@ JS(add_layer) {
     if(!lay) JS_ERROR("Layer core data is NULL");
 
     /** really add layer */
-    freej.screen->add_layer(lay);
+    env->screen->add_layer(lay);
     *rval=JSVAL_TRUE;
-    //      freej.layers.sel(0); // deselect others
+    //      env->layers.sel(0); // deselect others
     //      lay->sel(true);
     return JS_TRUE;
 }
@@ -160,7 +159,7 @@ JS(register_controller) {
     if(!ctrl) JS_ERROR("Controller core data is NULL");
 
     /// really add controller
-    freej.register_controller( ctrl );
+    env->register_controller( ctrl );
     *rval = JSVAL_TRUE;
 
     return JS_TRUE;
@@ -169,8 +168,8 @@ JS(register_controller) {
 
 JS(fullscreen) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  freej.screen->fullscreen();
-  freej.clear_all = !freej.clear_all;
+  env->screen->fullscreen();
+  env->clear_all = !env->clear_all;
   return JS_TRUE;
 }
 
@@ -178,21 +177,23 @@ JS(set_resolution) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   int w = JSVAL_TO_INT(argv[0]);
   int h = JSVAL_TO_INT(argv[1]);
-  freej.screen->resize(w, h);
+  env->screen->resize(w, h);
   return JS_TRUE;
 }
 
 
 JS(stream_start) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  notice ("Streaming to %s:%u",freej.shouter->host(), freej.shouter->port());
-  freej.save_to_file = true;
+  notice ("Streaming to %s:%u",env->shouter->host(), env->shouter->port());
+  act ("Saving to %s", env -> video_encoder -> get_filename());
+  env->save_to_file = true;
   return JS_TRUE;
 }
 JS(stream_stop) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  ::notice ("Stopped stream to %s:%u", freej.shouter->host(), freej.shouter->port());
-  freej.save_to_file = false;
+  ::notice ("Stopped stream to %s:%u", env->shouter->host(), env->shouter->port());
+  ::act ("Video saved in file %s",env -> video_encoder -> get_filename());
+  env->save_to_file = false;
   return JS_TRUE;
 }
 
@@ -509,7 +510,7 @@ JS(effect_constructor) {
 
   JS_ARG_STRING(effect_name,0);
 
-  filter = freej.plugger.pick(effect_name);
+  filter = env->plugger.pick(effect_name);
 
   if(filter==NULL) {
     error("JsParser::effect_constructor : filter not found :%s",effect_name); 
