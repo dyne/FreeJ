@@ -5,9 +5,84 @@
     nor is it intended to fulfill any specific purpose apart from generating documentation
 
 	@author  Denis Jaromil Rojo
-        @version 0.8.1
+        @version 0.9
 */
 
+///////////////////////
+/// GLOBAL FUNCTIONS
+
+/** Run the engine for the indicated amount of time
+    @param {double} time seconds or a fraction of seconds
+*/
+function run(time) { };
+
+/** Quit the running script and close all open layers */
+function quit() { };
+
+
+/** Print a string to standard output console
+    @param {string} string text to be printed to console
+*/
+function echo(string) { };
+
+/** Process instructions from another javascript file
+    @param {string} filename full path to a FreeJ script
+*/
+function include(filename) { };
+
+/** Execute an external program on the running system
+    @param {string} program executable to be called (current PATH is searched)
+    @param {string} arguments one or more arguments for the program can follow
+*/
+function exec(program, arguments) { };
+
+/** Add a layer to the engine and start processing it
+    @param {Layer} layer instance of the layer to be added
+*/
+function add_layer(layer) { };
+
+/** Remove a layer from the engine and stop processing it
+    @param {Layer} layer instance to be removed
+*/
+function rem_layer(layer) { };
+
+/** List all layers currently registered and processed by the running engine
+    @return array of Layer instances
+    @type Array
+ */
+function list_layers() { };
+
+/** Check if a "needle" string is contained inside an "haystack" string
+    @param {string} haystack longer string in which we want to search for the needle
+    @param {string} needle shorter string we are searching for
+    @return 1 if needle is found, 0 otherwise
+    @type int
+*/
+function strstr(haystack, needle) { };
+
+/** List all files inside a directory
+    @param {string} dir directory location to explore for files present in it
+    @return array of filenames (strings) found
+    @type string
+*/
+function scandir(dir) { };
+
+/** Parse a textfile loading in memory all words contained in it
+    @param {string} file text to be loaded in memory
+    @return array of words found in the file
+    @type Array
+*/
+function file_to_strings(file) { };
+
+/** Register a controller for the running engine
+    @param {Controller} controller instance of the controller to be registered
+*/
+function register_controller(controller) { };
+
+
+
+///////////////////////////
+/// LAYER VIRTUAL PARENT
 
 /**
         This class is pure virtual and this constructor is never used

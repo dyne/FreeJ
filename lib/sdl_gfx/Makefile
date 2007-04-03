@@ -98,7 +98,7 @@ CPPFLAGS =
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -pipe -D_REENTRANT -Wall -g -ggdb -pg
+CXXFLAGS = -pipe -D_REENTRANT -Wall -g -ggdb
 CYGPATH_W = echo
 DEBUG_FALSE = #
 DEBUG_TRUE = 
@@ -156,7 +156,7 @@ STRIP = strip
 THEORA_LIBS = $(top_srcdir)/lib/theora-mmx/libtheora.a $(top_srcdir)/lib/shout/libshout.a
 THEORA_MMX_DIR = theora-mmx shout
 THEORA_MMX_INCLUDE = -I$(top_srcdir)/lib/theora-mmx
-VERSION = 0.8.1
+VERSION = 0.9
 XIPH_CFLAGS =  
 XIPH_LIBS = -logg -lvorbis -lm -lvorbisenc  
 YACC = bison -y

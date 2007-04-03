@@ -32,16 +32,19 @@ class GoomLayer: public Layer {
   GoomLayer();
   ~GoomLayer();
 
-  bool init(int widt, int height);
+  bool init(Context *freej);
   bool open(char *file);
   void *feed();
   bool keypress(int key);
   void close();
   
  private:
+
+  short int audio[2][512];
+  uint16_t audiotmp[2048+100];
   SDL_Surface *surf;
   PluginInfo *goom;
-
+  
 };
 
 #endif

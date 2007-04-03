@@ -24,13 +24,14 @@ idx = 0;
 
 
 // make a black background
+/*
 background = new GeometryLayer();
 background.color(0x00000000);
 background.set_blit("alpha");
-background.set_blit_value(0.9);
+background.set_blit_value(0.2);
 background.rectangle(0, 0, background.w(), background.h() );
 add_layer( background );
-
+*/
 
 // setup the array of rendered words
 // each one is a TextLayer object
@@ -57,10 +58,10 @@ function render_word(wrd) {
     lay = new TextLayer();
 
     lay.size( 50 ); // set the size
-
-    lay.print( wrd ); // print the string in the layer
     
     add_layer( lay ); // add it to the screen
+
+    lay.print( wrd ); // print the string in the layer
 
     lay.set_position( W, 200 ); // start from the right of the screen
 

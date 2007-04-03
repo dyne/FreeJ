@@ -34,28 +34,28 @@ enum iterator_mode_t { ONCE, LOOP, BOUNCE, PULSE };
 
 class Iterator : public Entry {
  public:
-  Iterator(int32_t *val);
+  Iterator(float *val);
   ~Iterator();
 
   int cafudda();
 
-  void set_min(int32_t val);  
-  void set_max(int32_t val);
-  void set_step(int32_t val);
-  void set_aim(int32_t val);
-  void set_value(int32_t *val);
+  void set_min(float val);  
+  void set_max(float val);
+  void set_step(float val);
+  void set_aim(float val);
+  void set_value(float *val);
   void set_mode(iterator_mode_t m);
   void set_envelope(iterator_envelope_t e);
   
   bool direction;
   
  private:
-  int32_t *value;
-  int32_t saved_value;
-  int32_t min;
-  int32_t max;
-  int32_t aim;
-  int32_t step;
+  float *value;
+  float saved_value;
+  float min;
+  float max;
+  float aim;
+  float step;
 
   iterator_envelope_t envelope;
   iterator_mode_t mode;

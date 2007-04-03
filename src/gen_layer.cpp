@@ -92,8 +92,11 @@ void GenLayer::close() {
   return;
 }
 
-bool GenLayer::init(int width, int height) {
-  
+bool GenLayer::init(Context *freej) {
+
+  int width  = freej->screen->w;
+  int height = freej->screen->h;
+ 
   /* allocate the buffer on which the layer will write */
 
   fastsrand( time(NULL) );

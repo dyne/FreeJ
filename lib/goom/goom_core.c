@@ -35,8 +35,6 @@
 static void choose_a_goom_line (PluginInfo *goomInfo, float *param1, float *param2, int *couleur,
                                 int *mode, float *amplitude, int far);
 
-static void update_message (PluginInfo *goomInfo, char *message);
-
 static void init_buffers(PluginInfo *goomInfo, int buffsize)
 {
     goomInfo->pixel = (guint32 *) malloc (buffsize * sizeof (guint32) + 128);
@@ -101,7 +99,7 @@ PluginInfo *goom_init (guint32 resx, guint32 resy)
                                          GML_HLINE, 0, GML_BLACK,
                                          GML_CIRCLE, 0.2f * (float) goomInfo->screen.height, GML_RED);
     
-    gfont_load ();
+    //    gfont_load ();
  
     /* goom_set_main_script(goomInfo, goomInfo->main_script_str); */
     
@@ -602,44 +600,6 @@ guint32 *goom_update (PluginInfo *goomInfo, gint16 data[2][512],
         goomInfo->tentacles_fx.apply(&goomInfo->tentacles_fx, goomInfo->p1, goomInfo->p2, goomInfo);
         goomInfo->star_fx.apply (&goomInfo->star_fx,goomInfo->p2,goomInfo->p1,goomInfo);
         
-        /*
-         * Affichage de texte
-         */
-        {
-            /*char title[1024];*/
-            char text[64];
-            
-            /*
-             * Le message
-             */
-            update_message (goomInfo, message);
-            
-            if (fps > 0) {
-                sprintf (text, "%2.0f fps", fps);
-                goom_draw_text (goomInfo->p1,goomInfo->screen.width,goomInfo->screen.height,
-                                10, 24, text, 1, 0);
-            }
-            
-            /*
-             * Le titre
-             */
-            if (songTitle != NULL) {
-                strncpy (goomInfo->update.titleText, songTitle, 1023);
-                goomInfo->update.titleText[1023]=0;
-                goomInfo->update.timeOfTitleDisplay = 200;
-            }
-            
-            if (goomInfo->update.timeOfTitleDisplay) {
-                goom_draw_text (goomInfo->p1,goomInfo->screen.width,goomInfo->screen.height,
-                                goomInfo->screen.width / 2, goomInfo->screen.height / 2 + 7, goomInfo->update.titleText,
-                                ((float) (190 - goomInfo->update.timeOfTitleDisplay) / 10.0f), 1);
-                goomInfo->update.timeOfTitleDisplay--;
-                if (goomInfo->update.timeOfTitleDisplay < 4)
-                    goom_draw_text (goomInfo->p2,goomInfo->screen.width,goomInfo->screen.height,
-                                    goomInfo->screen.width / 2, goomInfo->screen.height / 2 + 7, goomInfo->update.titleText,
-                                    ((float) (190 - goomInfo->update.timeOfTitleDisplay) / 10.0f), 1);
-            }
-        }
         
         /*
          * Gestion du Scope
@@ -824,63 +784,4 @@ choose_a_goom_line (PluginInfo *goomInfo, float *param1, float *param2, int *cou
 #define ECART_VARIATION 1.5
 #define POS_VARIATION 3.0
 #define SCROLLING_SPEED 80
-
-/*
- * Met a jour l'affichage du message defilant
- */
-void update_message (PluginInfo *goomInfo, char *message) {
-    
-    int fin = 0;
-    
-    if (message) {
-        int i=1,j=0;
-        sprintf (goomInfo->update_message.message, message);
-        for (j=0;goomInfo->update_message.message[j];j++)
-            if (goomInfo->update_message.message[j]=='\n')
-                i++;
-        goomInfo->update_message.numberOfLinesInMessage = i;
-        goomInfo->update_message.affiche = goomInfo->screen.height + goomInfo->update_message.numberOfLinesInMessage * 25 + 105;
-        goomInfo->update_message.longueur = strlen(goomInfo->update_message.message);
-    }
-    if (goomInfo->update_message.affiche) {
-        int i = 0;
-        char *msg = malloc(goomInfo->update_message.longueur + 1);
-        char *ptr = msg;
-        int pos;
-        float ecart;
-        message = msg;
-        sprintf (msg, goomInfo->update_message.message);
-        
-        while (!fin) {
-            while (1) {
-                if (*ptr == 0) {
-                    fin = 1;
-                    break;
-                }
-                if (*ptr == '\n') {
-                    *ptr = 0;
-                    break;
-                }
-                ++ptr;
-            }
-            pos = goomInfo->update_message.affiche - (goomInfo->update_message.numberOfLinesInMessage - i)*25;
-            pos += POS_VARIATION * (cos((double)pos / 20.0));
-            pos -= SCROLLING_SPEED;
-            ecart = (ECART_VARIATION * sin((double)pos / 20.0));
-            if ((fin) && (2 * pos < (int)goomInfo->screen.height))
-                pos = (int)goomInfo->screen.height / 2;
-            pos += 7;
-            
-            goom_draw_text(goomInfo->p1,goomInfo->screen.width,goomInfo->screen.height,
-                           goomInfo->screen.width/2, pos,
-                           message,
-                           ecart,
-                           1);
-            message = ++ptr;
-            i++;
-        }
-        goomInfo->update_message.affiche --;
-        free (msg);
-    }
-}
 

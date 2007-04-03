@@ -23,19 +23,22 @@
 #include <config.h>
 
 #ifdef WITH_OGGTHEORA
-#include <oggtheora_encoder.h>
+
 #include <string.h>
-#include <context.h>
-#include <sdl_screen.h>
 #include <stdlib.h>
 
-#include <portaudio.h>
+#include <context.h>
+#include <sdl_screen.h>
+#include <audio_input.h>
+
+#include <oggtheora_encoder.h>
+
 
 OggTheoraEncoder::OggTheoraEncoder(char *output_filename) 
 	:VideoEncoder(output_filename) {
 		func("OggTheoraEncoder::OggTheoraEncoder::OggTheoraEncoder object created");
 
-//		use_audio      = true;
+		use_audio      = true; // default was true
 
 		videoflag      = 0;
 		audioflag      = 0;
@@ -73,87 +76,79 @@ void OggTheoraEncoder::close_ogg_streams() {
 	theora_clear ( &td);
 }
 
-	bool OggTheoraEncoder::init (Context *_env, ViewPort *_screen) {
-		if(started)
-			return true;
+bool OggTheoraEncoder::init (Context *_env, ViewPort *_screen) {
+  if(started)
+    return true;
+  
+  if (atoi(filename) != 0)
+    video_fp = fdopen (atoi(filename), "w");
+  else 
+    video_fp = fopen (get_filename(), "w");
+  
+  if (! _init(_env))
+    return false;
+  
+  screen = _screen;
+  
+  init_ogg_streams();
+  
+  theora_init();
+  
+  if (! init_yuv_frame())
+    return false;
+  
+  
+  if (use_audio) {
+    if(! vorbis_init () )
+      use_audio = false;
+  }
+  
+  // write theora and vorbis header and flush them
+  write_headers ();
+  
+  // init picture_rgb
+  {
+    picture_rgb = avcodec_alloc_frame ();
+    picture_rgb -> data[0]     = NULL;
+    picture_rgb -> data[1]     = NULL;
+    picture_rgb -> data[2]     = NULL;
+    picture_rgb -> linesize[0] = video_x * 4;
+  }
+  
+  picture_yuv = avcodec_alloc_frame ();
+  
+  int size = avpicture_get_size (PIX_FMT_YUV420P, video_x, video_y);
+  uint8_t *video_outbuf = (uint8_t *) av_malloc (size);
+  avpicture_fill ((AVPicture *)picture_yuv, video_outbuf, PIX_FMT_YUV420P, video_x, video_y);
+  
+  started = true;
+  
+  return true;
+}
 
-		if (atoi(filename) != 0)
-			video_fp = fdopen (atoi(filename), "w");
-		else 
-			video_fp = fopen (get_filename(), "w");
 
-		if (! _init(_env))
-			return false;
-		/*
-		 * XXX
-		 */
-		audio_buffer_size = sample_rate / env->fps_speed * 2;
-//		func("sample_rate :%f",sample_rate);
-//		notice("audio_buffer_size :%d",audio_buffer_size);
-
-		screen = _screen;
-
-		init_ogg_streams();
-
-		theora_init();
-
-		if (! init_yuv_frame())
-			return false;
-
-		if (use_audio) {
-			if(vorbis_init ()) {
-				audiobuffer = NULL;
-				audiobuffer = (int16_t *) jalloc (audiobuffer, audio_buffer_size);
-			}
-			else
-				use_audio = false;
-		}
-
-		// write theora and vorbis header and flush them
-		write_headers ();
-
-		// init picture_rgb
-		{
-			picture_rgb = avcodec_alloc_frame ();
-			picture_rgb -> data[0]     = NULL;
-			picture_rgb -> data[1]     = NULL;
-			picture_rgb -> data[2]     = NULL;
-			picture_rgb -> linesize[0] = video_x * 4;
-		}
-
-		picture_yuv = avcodec_alloc_frame ();
-
-		int size = avpicture_get_size (PIX_FMT_YUV420P, video_x, video_y);
-		uint8_t *video_outbuf = (uint8_t *) av_malloc (size);
-		avpicture_fill ((AVPicture *)picture_yuv, video_outbuf, PIX_FMT_YUV420P, video_x, video_y);
-
-		started = true;
-
-		return true;
-	}
 void OggTheoraEncoder::set_encoding_parameter() { // boom. kysucix.
 }
 // OGG INIT
 bool OggTheoraEncoder::init_ogg_streams() {
-	int video_serial, audio_serial;
-
-	srand(time(NULL));
-
-	// rando-mice
-	video_serial = rand();
-	if (use_audio)
-		audio_serial = rand();
-
-	// the serial number of audio and video streams must be different
-	if (video_serial == audio_serial) 
-		audio_serial++;
-
-	// Initialize logical bitstream buffers
-	ogg_stream_init (&theora_ogg_stream, video_serial);
-
-	if (use_audio)
-		ogg_stream_init (&vorbis_ogg_stream, audio_serial);
-
+  int video_serial, audio_serial;
+  
+  srand(time(NULL));
+  
+  // rando-mice
+  video_serial = rand();
+  if (use_audio)
+    audio_serial = rand();
+  
+  // the serial number of audio and video streams must be different
+  if (video_serial == audio_serial) audio_serial++;
+  
+  // Initialize logical bitstream buffers
+  ogg_stream_init (&theora_ogg_stream, video_serial);
+  
+  if (use_audio)
+    ogg_stream_init (&vorbis_ogg_stream, audio_serial);
+  
 	return true;
 }
 bool OggTheoraEncoder::theora_init() { // TODO freejrc &co
@@ -219,9 +214,9 @@ bool OggTheoraEncoder::theora_init() { // TODO freejrc &co
 bool OggTheoraEncoder::vorbis_init() {
 	int ret              = 0;
 
-	int audio_channels   = 1; // TODO parameters
+	int audio_channels   = env->audio->channels; // TODO parameters
 //	int audio_hertz      = 22050;
-	int audio_hertz      = sample_rate;
+	int audio_hertz      = env->audio->sample_rate; // sample_rate;
 	int audio_bitrate    = 32000;
 
 	// init bytes count variable
@@ -350,88 +345,86 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
 	return videoflag;
 }
 int OggTheoraEncoder::encode_audio( int end_of_stream) {
-	int number_of_sample = 0;
-	int count            = 0;
-	int audio_channels   = 1; // maybe TODO
+  register int c;
+  float **vorbis_buffer; // internal buffer for libvorbis
+  
+  if (end_of_stream)
+    vorbis_analysis_wrote (&vd, 0);
+  else {
+    // take audio
+    
+    vorbis_buffer = vorbis_analysis_buffer (&vd, env->audio->framesperbuffer);
+    
+    /* 
+     * uninterleave samples ?
+     * yes it it isn't mono
+     */
+    if(env->audio->channels == 2) {
+      
+      for (c=0 ; c < env->audio->framesperbuffer; c++) {
+	vorbis_buffer[0][c] = (float)(env->audio->input[c*2] / 32768.f);
+	vorbis_buffer[1][c] = (float)(env->audio->input[(c*2)+1] / 32768.f);
+      }
 
-	float **vorbis_buffer; // internal buffer for libvorbis
+    } else {
 
-	if (end_of_stream)
-		vorbis_analysis_wrote (&vd, 0);
-	else {
-		// take audio from fifo queue
-		int audio_bytes = coda -> read (audio_buffer_size , audiobuffer);
+      for (c=0 ; c < env->audio->framesperbuffer; c++)
+	vorbis_buffer[0][c] = (float)(env->audio->input[c] / 32768.f);
+      
 
-		if (audio_bytes == -1)
-			func(" OggTheoraEncoder::coda returned -1! :|");
-		else if (audio_bytes == 0)
-			func(" OggTheoraEncoder::coda returned 0! :|");
+    }
+      
 
-		number_of_sample  = audio_bytes / audio_channels / 2;
+    //		func ("OggTheoraEncoder:: %d audio sample to encode", number_of_sample);
+    //	  if (number_of_sample == 0)
+    //	    error ("OggTheoraEncoder:: 0 audio sample to encode!!");
+    
+    /* tell the library how much we actually submitted */
+    vorbis_analysis_wrote (&vd, env->audio->framesperbuffer);
+  }
 
-		vorbis_buffer = vorbis_analysis_buffer (&vd, number_of_sample);
-
-		/* 
-		 * uninterleave samples ?
-		 * yes it it isn't mono
-		 */
-		for (int i=0; i < number_of_sample; i++){
-			//			for(int j=0; j < audio_channels; j++){
-			//				vorbis_buffer [j][i] = ( (audiobuffer [count+1] << 8) |
-			//						(0x00ff & (int) audiobuffer [count]) )  / 32768.f;
-
-			vorbis_buffer[0][i] = audiobuffer[count++] / 32768.f;
-			//			}
-		}
-//		func ("OggTheoraEncoder:: %d audio sample to encode", number_of_sample);
-		if (number_of_sample == 0)
-		error ("OggTheoraEncoder:: 0 audio sample to encode!!");
-		
-		/* tell the library how much we actually submitted */
-		vorbis_analysis_wrote (&vd, number_of_sample);
-	}
-
-	/* 
-	 * vorbis does some data preanalysis, then divvies up blocks
-	 * for more involved (potentially parallel) processing.  
-	 * Get a single block for encoding now.
-	 */
-	while (vorbis_analysis_blockout (&vd, &vb) == 1 ){
-
-		// analysis, assume we want to use bitrate management 
-		vorbis_analysis (&vb, NULL);
-		vorbis_bitrate_addblock (&vb);
-
-		// weld packets into the bitstream 
-		while (vorbis_bitrate_flushpacket (&vd, &opacket)) {
-			ogg_stream_packetin (&vorbis_ogg_stream, &opacket);
-		}
-	}
-	audioflag = 1; // lalalala
-	return audioflag;
+  /* 
+   * vorbis does some data preanalysis, then divvies up blocks
+   * for more involved (potentially parallel) processing.  
+   * Get a single block for encoding now.
+   */
+  while (vorbis_analysis_blockout (&vd, &vb) == 1 ){
+    
+    // analysis, assume we want to use bitrate management 
+    vorbis_analysis (&vb, NULL);
+    vorbis_bitrate_addblock (&vb);
+    
+    // weld packets into the bitstream 
+    while (vorbis_bitrate_flushpacket (&vd, &opacket)) {
+      ogg_stream_packetin (&vorbis_ogg_stream, &opacket);
+    }
+  }
+  audioflag = 1; // lalalala
+  return audioflag;
 }
+
 bool OggTheoraEncoder::init_yuv_frame() {
-	func ("OggTheoraEncoder::initing yuv frame");
-
-	yuvframe[0]    = NULL;
-	yuvframe[1]    = NULL;
-
-	/* initialize the double frame buffer */
-	yuvframe[0] = (uint8_t *)jalloc ( yuvframe[0], video_x * video_y * 3/2);
-	yuvframe[1] = (uint8_t *)jalloc ( yuvframe[1], video_x * video_y * 3/2);
-
-	if (yuvframe[0] == NULL || yuvframe[1] ==NULL ) {
-		error("OggTheoraEncoder::init_yuv_frame() can't get memory :(");
-		return false;	
-	}
-
-	/* clear initial frame as it may be larger than actual video data */
-	/* fill Y plane with 0x10 and UV planes with 0X80, for black data */
-	memset (yuvframe[0], 0x10, video_x * video_y);
-	memset (yuvframe[0] + video_x * video_y, 0x80, video_x * video_y / 2);
-	memset (yuvframe[1], 0x10,video_x*video_y);
-	memset (yuvframe[1] + video_x * video_y, 0x80, video_x * video_y / 2);
-	return true;
+  func ("OggTheoraEncoder::initing yuv frame");
+  
+  yuvframe[0]    = NULL;
+  yuvframe[1]    = NULL;
+  
+  /* initialize the double frame buffer */
+  yuvframe[0] = (uint8_t *)jalloc ( yuvframe[0], video_x * video_y * 3/2);
+  yuvframe[1] = (uint8_t *)jalloc ( yuvframe[1], video_x * video_y * 3/2);
+  
+  if (yuvframe[0] == NULL || yuvframe[1] ==NULL ) {
+    error("OggTheoraEncoder::init_yuv_frame() can't get memory :(");
+    return false;	
+  }
+  
+  /* clear initial frame as it may be larger than actual video data */
+  /* fill Y plane with 0x10 and UV planes with 0X80, for black data */
+  memset (yuvframe[0], 0x10, video_x * video_y);
+  memset (yuvframe[0] + video_x * video_y, 0x80, video_x * video_y / 2);
+  memset (yuvframe[1], 0x10,video_x*video_y);
+  memset (yuvframe[1] + video_x * video_y, 0x80, video_x * video_y / 2);
+  return true;
 }
 bool OggTheoraEncoder::write_theora_header() {
 	/* write the bitstream header packets with proper page interleave */
@@ -647,24 +640,24 @@ bool OggTheoraEncoder::isStarted() {
 	return started;
 }
 bool OggTheoraEncoder::set_video_quality(int quality) {
-	if (quality>63 || quality<0) {
-		error("Error setting video quality! (range 0-63)");
-		return false;
-	}
-	video_quality = quality;
-	return true;
+  if (quality>63 || quality<0) {
+    error("Error setting video quality! (range 0-63)");
+    return false;
+  }
+  video_quality = quality;
+  return true;
 }
 bool OggTheoraEncoder::set_audio_quality (double quality) {
-	if (quality > 10 || quality < -1) {
-		error("Error setting video quality! (range from -1 to 10) (use -1 for lowest quality, smallest file)");
-		return false;
-	}
-	vorbis_quality = quality / 10;
-	return true;
+  if (quality > 10 || quality < -1) {
+    error("Error setting video quality! (range from -1 to 10) (use -1 for lowest quality, smallest file)");
+    return false;
+  }
+  vorbis_quality = quality / 10;
+  return true;
 }
 bool OggTheoraEncoder::has_finished_frame() {
-	if (!frame_finished)
-		//		wait_feed();
-		return true;
+  //  if (!frame_finished) wait_feed();
+  if(frame_finished) return true;
+  return false; /// QUAAA was false;
 }
 #endif

@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2006 Denis Rojo aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2007 Denis Rojo aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -15,6 +15,14 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+
+
+/**
+   @file context.h FreeJ main engine context environment
+
+   @desc this is the main FreeJ engine, containing the main loop
+   cafudda() and referencing the tree of instantiated objects
+*/
 
 #ifndef __context_h__
 #define __context_h__
@@ -33,7 +41,6 @@
 #include <layer.h>
 #include <osd.h>
 #include <controller.h>
-#include <video_encoder.h>
 #include <plugger.h>
 #include <screen.h>
 #include <shouter.h>
@@ -46,6 +53,8 @@
 
 class Console;
 class JsParser;
+class AudioInput;
+class VideoEncoder;
 
 class Context {
  private:
@@ -71,6 +80,11 @@ class Context {
   double now;
   bool riciuca;
 
+  // parts of the cafudda process
+  void handle_resize();
+  void handle_encoder();
+  void handle_controllers();
+
 
  public:
 
@@ -83,10 +97,14 @@ class Context {
 
   bool register_controller(Controller *ctrl);
 
+  void add_layer(Layer *lay); ///< add a layer to the screen and engine
+
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return screen->coords(x,y); };
 
   int open_script(char *filename);
+
+  bool config_check(const char *filename);
 
   void rocknroll();
 
@@ -108,14 +126,16 @@ class Context {
 
   bool interactive;
 
-
-
   ViewPort *screen; ///< Video Screen
 
   Osd osd; ///< On Screen Display
 
   Linklist controllers; ///< Interactive Controllers
   SDL_Event event;
+
+  Linklist layers; ///< linked list of registered layers
+
+  AudioInput *audio; ///< audio device recording input (PortAudio)
 
   Console *console; ///< Console parser (will become a controller)
 
@@ -138,6 +158,13 @@ class Context {
 
   bool clear_all;
   bool start_running;
+
+#ifdef WITH_FT2
+#define MAX_FONTS 512
+  int scanfonts(char *path);
+  char* font_files[MAX_FONTS];
+  int num_fonts;
+#endif
 
 };
 

@@ -32,6 +32,7 @@
 
 #include <osd.h>
 #include <video_encoder.h>
+#include <audio_input.h>
 #include <plugger.h>
 #include <jutils.h>
 #include <config.h>
@@ -60,6 +61,7 @@ static const char *help =
 " .   -n   start with deactivated layers\n"
 " .   -c   no interactive text console\n"
 " .   -f   <frame_per_second>  select global fps for freej\n"
+" .   -F   start in fullscreen\n"
 #ifdef WITH_OPENGL
 " .   -g   experimental opengl engine! (better pow(2) res as 256x256)\n"
 #endif
@@ -85,13 +87,13 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:agf:";
+static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:agf:F";
 
 /* this is the global FreeJ context */
 Context freej;
 
 
-int   debug_level;
+int   debug_level = 3;
 char  layer_files[MAX_CLI_CHARS];
 int   cli_chars = 0;
 int   width = 400;
@@ -117,6 +119,7 @@ bool stream_audio = true;
 bool gtkgui = false;
 bool opengl = false;
 bool noconsole = false;
+bool fullscreen = false;
 
 void cmdline(int argc, char **argv) {
   int res, optlen;
@@ -134,7 +137,7 @@ void cmdline(int argc, char **argv) {
   theora_quality           = -1;
   vorbis_quality           = -1;
 
-  debug_level                    = 1;
+  debug_level              = 1;
 
   do {
 //    res = getopt_long (argc, argv, short_options); TODO getopt_long
@@ -159,6 +162,7 @@ void cmdline(int argc, char **argv) {
 
     case 's':
       sscanf(optarg,"%ux%u",&width,&height);
+      freej.screen->resize(width,height);
       /* what the fuck ???
       if(width<320) {
 	error("display width can't be smaller than 400 pixels");
@@ -215,6 +219,10 @@ void cmdline(int argc, char **argv) {
 
      case 'f':
       sscanf (optarg, "%u", &fps);
+      break;
+
+    case 'F':
+      freej.screen->fullscreen();
       break;
 
      case 'V':
@@ -314,8 +322,12 @@ int main (int argc, char **argv) {
   Layer *lay = NULL;
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);
-  act("(c)2001-2006 Jaromil & Kysucix @ dyne.org");
+  act("(c)2001-2007 Jaromil & Kysucix @ dyne.org");
   act("----------------------------------------------");
+
+  set_debug(3);
+  assert( freej.init(width,height, opengl) );
+
   cmdline(argc,argv);
   set_debug(debug_level);
 
@@ -327,24 +339,23 @@ int main (int argc, char **argv) {
      notice("running as root: high priority realtime scheduling allowed.");
   */
 
-  assert( freej.init(width,height, opengl) );
 
   // refresh the list of available plugins
   freej.plugger.refresh();
 
-  // load default keyboard settings
-  {
-     char tmp[512];
-     sprintf(tmp,"%s/freej/keyb.js",DATADIR);
-     freej.open_script(tmp);
-  }
+  // load default settings
+  freej.config_check("keyboard.js");
+  
 
   /* execute javascript */
   if( javascript[0] ) {
     freej.interactive = false;
     freej.open_script(javascript);
     if(freej.quit) {
-      freej.close();
+      //      freej.close();
+      // here calling close directly we double the destructor
+      // fixed omitting the explicit close() call
+      // but would be better to make the destructor reentrant
       exit(1);
     } else freej.interactive = true;
   }
@@ -365,10 +376,11 @@ int main (int argc, char **argv) {
   /* initialize the On Screen Display */
   freej.osd.init( &freej );
 
-  freej.video_encoder -> handle_audio (stream_audio );
+  //  freej.video_encoder -> handle_audio (stream_audio );
 
   /* initialize encoded filename */
   if (encoded_filename[0] != '\0') {
+          freej.audio->start();
 	  freej.video_encoder -> set_output_name (encoded_filename );
   }
 
@@ -409,7 +421,7 @@ int main (int argc, char **argv) {
 	  mount++;
 	  func ("SCREAMING URL IS %s", url);
 	  freej.shouter -> host (url);
-	  freej.video_encoder -> handle_audio (stream_audio );
+	  //	  freej.video_encoder -> handle_audio (stream_audio );
 
   if (screaming_name[0] != '\0')
 	  freej.shouter -> name (screaming_name );
@@ -448,13 +460,24 @@ int main (int argc, char **argv) {
       l = p+1;
       if(cli_chars<=0) break; *p='\0';
 
-      lay = create_layer(pp);
+      lay = create_layer(&freej, pp);
 
       if(lay) {
-	lay->init(freej.screen->w, freej.screen->h);
-	freej.screen->add_layer(lay);
-      }
+	
+	if(! lay->init(&freej) ) {
+	  error("can't initalize %s layer", lay->name);
+	  delete lay; lay = NULL;
+	}
 
+	if(lay) { 
+	  freej.add_layer(lay);
+	  
+	  if(! lay->open(pp) ) {
+	    error("can't open %s %s layer",pp,lay->name);
+	    delete lay; lay = NULL;
+	  }
+	}
+      }
       pp = l;
     }
   }
@@ -488,7 +511,6 @@ int main (int argc, char **argv) {
 
   freej.close();
 
-  notice("cu on http://freej.dyne.org");
   jsleep(1,0);
 
   exit(1);

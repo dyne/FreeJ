@@ -45,6 +45,8 @@ Layer::Layer()
   screen = NULL;
   is_native_sdl_surface = false;
   jsclass = &layer_class;
+  slide_x = 0;
+  slide_y = 0;
 }
 
 Layer::~Layer() {
@@ -180,16 +182,19 @@ void Layer::set_position(int x, int y) {
 }
 
 void Layer::slide_position(int x, int y, int speed) {
+  
+  slide_x = (float)geo.x;
+  slide_y = (float)geo.y;
 
   if(x!=geo.x) {
-    iter = new Iterator((int32_t*)&geo.x);
+    iter = new Iterator(&slide_x);
     iter->set_aim(x);
     iter->set_step(speed);
     iterators.add(iter);
   }
 
   if(y!=geo.y) {
-    iter = new Iterator((int32_t*)&geo.y);
+    iter = new Iterator(&slide_y);
     iter->set_aim(y);
     iter->set_step(speed);
     iterators.add(iter);

@@ -108,7 +108,7 @@ class VideoLayer: public Layer {
 	VideoLayer();
 	~VideoLayer();
 
-	bool init(int width, int height);
+	bool init(Context *freej);
 	bool open(char *file);
 	void *feed();
 	void close();

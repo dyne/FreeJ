@@ -1,6 +1,6 @@
 /*
   Copyright (c) 2001 Charles Samuels <charles@kde.org>
-  Copyright (c) 2002 - 2004 Denis Rojo <jaromil@dyne.org>
+  Copyright (c) 2002 - 2007 Denis Rojo <jaromil@dyne.org>
   
 this pipe class was first written by Charles Samuels
 and then heavily mutilated and optimized by Denis "jaromil" Rojo
@@ -57,7 +57,7 @@ Boston, MA 02111-1307, USA.
 // multiplying them by the samplesize we can obtain sizes in bytes
 
 static inline void copy_byte(void *dst, void *src, int samples) {
-  memcpy(dst,src,samples);
+  jmemcpy(dst,src,samples);
   }
 
 static inline void copy_int16_to_float(void *dst, void *src, int samples) {
@@ -87,10 +87,11 @@ static inline void mix_int16_to_int32(void *dst, void *src, int samples) {
 // // this is also a list for the available types
 
 static struct pipe_copy_list callbacks[] = {
-  { "copy_byte", copy_byte, 1, 1 },
-  { "copy_int16_to_float", copy_int16_to_float, sizeof(int16_t), sizeof(float) },
-  { "copy_float_to_int16", copy_float_to_int16, sizeof(float), sizeof(int16_t) },
-  { "mix_int16_to_int32", mix_int16_to_int32, sizeof(int16_t), sizeof(int32_t) },
+  //  name                    function             read src samplesize  write dst samplesize (in bytes)
+  { "copy_byte",              copy_byte,           1,                   1 },
+  { "copy_int16_to_float",    copy_int16_to_float, sizeof(int16_t),     sizeof(float) },
+  { "copy_float_to_int16",    copy_float_to_int16, sizeof(float),       sizeof(int16_t) },
+  { "mix_int16_to_int32",    mix_int16_to_int32,   sizeof(int16_t),     sizeof(int32_t) },
   { 0, 0 }
 };
 

@@ -130,7 +130,10 @@ JS(constructor_func) {                                                        \
     error("use (\"filename\") or (width, height, \"filename\") or ()");       \
     delete layer; return JS_FALSE;                                            \
   }                                                                           \
-  layer->init(width, height);                                                 \
+  if(!layer->init(env)) {                                                     \
+    error("JS::%s : failed initialization");                                  \
+    delete layer; return JS_FALSE;                                            \
+  }                                                                           \
   if(!JS_SetPrivate(cx,obj,(void*)layer)) {                                   \
     error("JS::%s : can't set the private value", constructor_name);          \
     delete layer; return JS_FALSE;                                            \

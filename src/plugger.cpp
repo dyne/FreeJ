@@ -138,7 +138,11 @@ Filter *Plugger::operator[](const int num) {
 
 int Plugger::_delete() {
   func("Plugger::_delete");
-  for(int c=0;c<MAX_PLUGINS;c++) if(plugs[c]) delete(plugs[c]);
+  for(int c=0;c<MAX_PLUGINS;c++)
+    if(plugs[c]) {
+      delete(plugs[c]);
+      plugs[c] = NULL;
+    }
   return 0;
 }
 

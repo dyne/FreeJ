@@ -26,13 +26,14 @@
 #include <errno.h>
 
 #include <signal.h>
-#include <slang-2/slang.h>
+#include <slang.h>
 #include <context.h>
 #include <jsparser.h>
 #include <jutils.h>
 #include <config.h>
 
 #include <gen_layer.h>
+#include <video_encoder.h>
 
 #define PLAIN_COLOR 1
 #define TITLE_COLOR 1
@@ -120,7 +121,7 @@ static int blit_selection(char *cmd) {
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
 
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -135,7 +136,7 @@ static int blit_comp(char *cmd) {
 
   if(!cmd) return 0;
 
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -173,7 +174,7 @@ static int filter_proc(char *cmd) {
     ::error("filter not found: %s",cmd);  
     return 0;
   }
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->layers.selected();
   if(!lay) {
     ::error("no layer selected for effect %s",filt->getname());
     return 0;
@@ -262,18 +263,18 @@ static int open_layer(char *cmd) {
 
   // ok the path in cmd should be good here
 
-  Layer *l = create_layer(cmd);
+  Layer *l = create_layer(env, cmd);
   if(l)
-    if(!l->init(env->screen->w, env->screen->h)) {
+    if(!l->init(env)) {
       error("can't initialize layer");
       delete l;
     } else {
-      env->screen->add_layer(l);
+      env->add_layer(l);
 
       // select the new layer
       env->console->layer = l;
 
-      len = env->screen->layers.len();
+      len = env->layers.len();
       notice("layer succesfully created, now you have %i layers",len);
       env->console->refresh();
       return len;
@@ -284,12 +285,12 @@ static int open_layer(char *cmd) {
 }
 
 #ifdef WITH_FT2
-#include <txt_layer.h>
+#include <text_layer.h>
 static int print_text_layer(char *cmd) {
 
   if( strncmp( env->console->layer->get_name(),"TXT",3) ==0) {
-    ((TxtLayer*)env->console->layer)->print(cmd);
-    return env->screen->layers.len();
+    ((TTFLayer*)env->console->layer)->print(cmd);
+    return env->layers.len();
 
   } else {
     error("console.cpp: print_text layer called on non-TXT layer");
@@ -297,21 +298,21 @@ static int print_text_layer(char *cmd) {
   }
 }
 static int open_text_layer(char *cmd) {
-  TxtLayer *txt = new TxtLayer();
+  TTFLayer *txt = new TTFLayer();
   if(txt)
-    if(!txt->init(env->screen->w, env->screen->h)) {
+    if(!txt->init(env)) {
       error("can't initialize text layer");
       delete txt;
     } else {
       txt->print(cmd);
-      env->screen->add_layer(txt);
+      env->add_layer(txt);
       
       // select the new layer
       env->console->layer = txt;
 
       notice("layer succesfully created with text: %s",cmd);
       env->console->refresh();
-      return env->screen->layers.len();
+      return env->layers.len();
     }
   error("layer creation aborted");
   env->console->refresh();
@@ -447,7 +448,7 @@ static int set_blit_value(char *cmd) {
     return 0;
   }
   func("value parsed: %s in %d",cmd,val);
-  Layer *lay = (Layer*)env->screen->layers.begin();
+  Layer *lay = (Layer*)env->layers.begin();
   if(!lay) return 0;
   /* set value in all blits selected
      (supports multiple selection) */
@@ -612,7 +613,7 @@ void Console::cafudda() {
   }   
 
   if(!layer) // if no layer selected, pick the first
-    layer = (Layer*)env->screen->layers.begin();
+    layer = (Layer*)env->layers.begin();
   
   /* S-Lang says: 
    * All well behaved applications should block signals that
@@ -676,9 +677,11 @@ void Console::statusline(char *msg) {
 }
 
 void Console::speedmeter() {
+  char tmp[256];
   SLsmg_gotorc(1,1);
+  sprintf(tmp,"Running at %.0f fps : ",env->fps);
   SLsmg_set_color(PLAIN_COLOR);
-  SLsmg_write_string("Running: ");
+  SLsmg_write_string(tmp);
   if(env->fps <10) {
     SLsmg_set_color(12);
     SLsmg_write_string("very slow ");
@@ -751,9 +754,9 @@ void Console::layerprint() {
 void Console::layerlist() {
   int color;
   SLsmg_gotorc(4,1);
-  env->screen->layers.lock();
+  env->layers.lock();
   /* take layer selected and first */
-  Layer *l = (Layer *)env->screen->layers.begin();
+  Layer *l = (Layer *)env->layers.begin();
   
   while(l) { /* draw the layer's list */
 
@@ -774,7 +777,7 @@ void Console::layerlist() {
 
     l = (Layer *)l->next;
   }
-  env->screen->layers.unlock();
+  env->layers.unlock();
   SLsmg_set_color(PLAIN_COLOR);
   SLsmg_erase_eol();
 }
@@ -989,36 +992,36 @@ void Console::parser_default(int key) {
 
   case SL_KEY_LEFT:
     if(!layer) 
-      layer = (Layer*)env->screen->layers.begin();
+      layer = (Layer*)env->layers.begin();
     else if(!layer->prev)
-      layer = (Layer*)env->screen->layers.end();
+      layer = (Layer*)env->layers.end();
     else
       layer = (Layer*)layer->prev;
 
     // deselect any filter
-    if(env->screen->layers.selected() != layer) {
+    if(env->layers.selected() != layer) {
       filter = NULL;
       layer->filters.sel(0);
     }
     // select only the current layer
-    env->screen->layers.sel(0);
+    env->layers.sel(0);
     layer->sel(true);
     break;
 
   case SL_KEY_RIGHT:
     if(!layer)
-      layer = (Layer*)env->screen->layers.begin();
+      layer = (Layer*)env->layers.begin();
     else if(!layer->next)
-      layer = (Layer*)env->screen->layers.begin();
+      layer = (Layer*)env->layers.begin();
     else
       layer = (Layer*)layer->next;
     // deselect any filter
-    if(env->screen->layers.selected() != layer) {
+    if(env->layers.selected() != layer) {
       filter = NULL;
       layer->filters.sel(0);
     }
     // select only the current
-    env->screen->layers.sel(0);
+    env->layers.sel(0);
     layer->sel(true);
     break;
 
@@ -1172,11 +1175,11 @@ void Console::parser_default(int key) {
   case KEY_CTRL_G:
     tmp = new GenLayer();
     if(tmp)
-      if(!tmp->init(env->screen->w, env->screen->h)) {
+      if(!tmp->init(env)) {
 	error("can't initialize particle generator layer");
 	delete tmp;
       } else {
-	env->screen->add_layer(tmp);
+	env->add_layer(tmp);
 	
 	// select the new layer
 	env->console->layer = tmp;
@@ -1204,7 +1207,7 @@ void Console::parser_default(int key) {
     } else {
       ::notice ("Stopped stream to %s:%u", env->shouter->host(), env->shouter->port());
       ::act ("Video saved in file %s",env -> video_encoder -> get_filename());
-      env -> video_encoder -> stop_audio_stream();
+      //      env -> video_encoder -> stop_audio_stream();
       env -> shouter -> stop();
     }
     env -> save_to_file = ! env -> save_to_file;
@@ -1331,7 +1334,7 @@ void Console::parser_jazz(int key) {
   char *jazzkeys = "1234567890qwertyuiopasdfghjklzxcvbnm\0";
   char *p;
   
-  lay = (Layer*) env->screen->layers.begin();
+  lay = (Layer*) env->layers.begin();
   if(!lay) {
     error("Can't enter Jazz mode: no layers are loaded");
     parser = DEFAULT;
@@ -1360,7 +1363,7 @@ void Console::parser_jazz(int key) {
     // pulse it
     lay->pulse_alpha(jazzstep,jazzvalue);
     layer = lay;
-    //    env->screen->layers.sel(0);
+    //    env->layers.sel(0);
     //    lay->sel(true);
 
     return;

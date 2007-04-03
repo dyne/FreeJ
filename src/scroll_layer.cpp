@@ -65,7 +65,9 @@ int ScrollLayer::streol(char *line) {
 }
 			  
 
-bool ScrollLayer::init(int width, int height) {
+bool ScrollLayer::init(Context *freej) {
+  int width  = freej->screen->w;
+  int height = freej->screen->h;
 
   _init(width,height);
   

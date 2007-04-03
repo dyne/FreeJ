@@ -135,9 +135,6 @@
 /* define if compiling for PPC */
 #undef POWERPC_MODE_32BITS
 
-/* define little endian arch for SDL */
-#undef SDL_BYTEORDER
-
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 

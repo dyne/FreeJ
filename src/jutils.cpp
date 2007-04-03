@@ -329,3 +329,12 @@ void rtc_close() {
 
 void *(* jmemcpy)(void *to, const void *from, size_t len) = memcpy;
 
+
+bool filecheck(char *file) {
+  bool res = true;
+  FILE *f = fopen(file,"r");
+  if(!f) res = false;
+  else fclose(f);
+  return(res);
+}
+

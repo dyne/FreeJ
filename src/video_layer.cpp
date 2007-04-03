@@ -68,52 +68,23 @@ VideoLayer::~VideoLayer() {
  * lickme.txt!
  */
 
-bool VideoLayer::init(int width, int height) {
-	int ret = 0;
-	func("VideoLayer::init");
-	_init(enc->width, enc->height);
-	func("VideoLayer :: w[%u] h[%u] size[%u]",
-			enc->width,enc->height,geo.size);
-	func("VideoLayer :: frame_rate[%d]",frame_rate);
-
-	rgba_picture = (AVPicture *)malloc(sizeof(AVPicture));
-
-	ret = new_picture(rgba_picture);
-	if( ret < 0) {
-		error("VideoLayer::error allocating picture");
-		return false;
-	}
-
-	/*
-	 * initialize frame fifo
-	 */
-	ret = new_fifo();
-	if( ret < 0) {
-		error("VideoLayer::error allocating fifo");
-		return false;
-	}
-
-	/**
-	 * feed() function is called 25 times for second so we must correct the speed
-	 * TODO user should be able to select the clock speed
-	 */
-	if (play_speed != 25) {
-		play_speed -= (25 / frame_rate);
-		//	play_speed -= play_speed << 1;
-		if ( frame_rate ==1)
-			play_speed = 0;
-	}
-	func ("VideoLayer :: play_speed: %d",play_speed);
-
-	/* init variables */
-	paused=false;
-	user_play_speed=0;
-	deinterlace_buffer=NULL;
-	deinterlaced=false;
-
-	mark_in=NO_MARK;
-	mark_out=NO_MARK;
-	return true;
+bool VideoLayer::init(Context *freej) {
+  int ret = 0;
+  func("VideoLayer::init");
+  
+  rgba_picture = (AVPicture *)malloc(sizeof(AVPicture));
+  
+  
+  
+  /* init variables */
+  paused=false;
+  user_play_speed=0;
+  deinterlace_buffer=NULL;
+  deinterlaced=false;
+  
+  mark_in=NO_MARK;
+  mark_out=NO_MARK;
+  return true;
 }
 
 int VideoLayer::new_picture(AVPicture *picture) {
@@ -254,10 +225,38 @@ bool VideoLayer::open(char *file) {
 	avformat_stream = avformat_context -> streams [video_index];
 	enc = &avformat_stream -> codec;
 	full_filename = strdup (file);
+
+	_init(enc->width, enc->height);
+	func("VideoLayer :: w[%u] h[%u] size[%u]",
+	     enc->width,enc->height,geo.size);
+	func("VideoLayer :: frame_rate[%d]",frame_rate);
+
+	// initialize picture
+	if( new_picture(rgba_picture) < 0) {
+	  error("VideoLayer::error allocating picture");
+	  return false;
+	}
+
+	// initialize frame fifo 
+	if(  new_fifo() < 0) {
+	  error("VideoLayer::error allocating fifo");
+	  return false;
+	}
+
+	// feed() function is called 25 times for second so we must correct the speed
+	// TODO user should be able to select the clock speed
+	if (play_speed != 25) {
+	  play_speed -= (25 / frame_rate);
+	  //	play_speed -= play_speed << 1;
+	  if ( frame_rate ==1)
+	    play_speed = 0;
+	}
+	func ("VideoLayer :: play_speed: %d",play_speed);
+
 	return true;
 }
 
-	void *VideoLayer::feed() {
+void *VideoLayer::feed() {
 		int got_picture=0;
 		int len1=0 ;
 		int ret=0;

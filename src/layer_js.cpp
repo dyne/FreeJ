@@ -44,7 +44,7 @@ JS(layer_constructor) {
   // recognize the extension and open the file given in argument
   JS_ARG_STRING(filename,0);
 
-  layer = create_layer( filename );
+  layer = create_layer( env, filename );
   if(!layer) {
     error("%s: cannot create a Layer using %s",__FUNCTION__,filename);
     *rval = JSVAL_FALSE;
@@ -69,7 +69,7 @@ JS(list_layers) {
   jsval val;
   int c = 0;
   
-  if( env->screen->layers.len() == 0 ) {
+  if( env->layers.len() == 0 ) {
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
@@ -77,7 +77,7 @@ JS(list_layers) {
   arr = JS_NewArrayObject(cx, 0, NULL); // create void array
   if(!arr) return JS_FALSE;
 
-  lay = (Layer*)env->screen->layers.begin();
+  lay = (Layer*)env->layers.begin();
   while(lay) {
     objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
 
@@ -101,13 +101,13 @@ JS(selected_layer) {
   Layer *lay;
   JSObject *objtmp;
 
-  if( env->screen->layers.len() == 0 ) {
+  if( env->layers.len() == 0 ) {
     error("can't return selected layer: no layers are present");
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
   
-  lay = (Layer*)env->screen->layers.begin();
+  lay = (Layer*)env->layers.begin();
 
   while(lay) {
     if(lay->select) break;
@@ -307,10 +307,30 @@ JS(layer_set_blit_value) {
     }
 
     //    lay->blitter.fade_value(1,new_value);
-    lay->blitter.set_value((int)value);
+    lay->blitter.set_value((float)value);
 
     return JS_TRUE;
 }
+JS(layer_fade_blit_value) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  
+  if(argc<2) JS_ERROR("missing argument");
+  JS_ARG_NUMBER(value,0);
+  JS_ARG_NUMBER(step,1);
+
+  GET_LAYER(Layer);
+
+  value = 255.0*value;
+  if(value>255) {
+    warning("blit values should be float ranged between 0.0 and 1.0");
+    value = 255;
+  }
+  
+  lay->blitter.fade_value((float)step, (float)value);
+
+  return JS_TRUE;
+}
+
 JS(layer_get_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 

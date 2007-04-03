@@ -40,10 +40,10 @@ JSFunctionSpec v4l_layer_methods[] = {
   {0}
 };
 
-JS_CONSTRUCTOR("V4lLayer",v4l_layer_constructor,V4lGrabber);
+JS_CONSTRUCTOR("V4lLayer", v4l_layer_constructor, V4lGrabber);
 JS(v4l_layer_chan) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
+  
   if(argc<1) return JS_FALSE;
 
   GET_LAYER(V4lGrabber);

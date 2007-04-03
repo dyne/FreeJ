@@ -50,7 +50,7 @@ JsParser::~JsParser() {
     JS_DestroyContext(js_context);
     JS_DestroyRuntime(js_runtime);
     JS_ShutDown();
-    notice("JsParser::close()");
+    func("JsParser::close()");
 }
 
 void JsParser::init() {

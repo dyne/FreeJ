@@ -154,8 +154,10 @@ bool V4lGrabber::open(char *file) {
   return(true);
 }
 
-bool V4lGrabber::init(int width, int height) {
+bool V4lGrabber::init(Context *env) {
   int i;
+  int width  = env->screen->w;
+  int height = env->screen->h; 
   func("V4lGrabber::init()");
 
   /* set image source and TV norm */

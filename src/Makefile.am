@@ -54,9 +54,8 @@ freej_SOURCES = \
 	image_layer.cpp \
 	image_layer_js.cpp \
 	avi_layer.cpp	\
-	txt_layer.cpp	\
-	txt_layer_js.cpp \
 	text_layer.cpp \
+	text_layer_js.cpp \
 	gen_layer.cpp	\
 	gen_layer_js.cpp \
 	geo_layer.cpp	\
@@ -76,6 +75,8 @@ freej_SOURCES = \
 \
 	kbd_ctrl.cpp	\
 	joy_ctrl.cpp	\
+\
+	audio_input.cpp \
 \
 	video_encoder.cpp \
 	ffmpeg_encoder.cpp \

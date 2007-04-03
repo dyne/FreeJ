@@ -31,22 +31,6 @@ ViewPort::ViewPort() {
 ViewPort::~ViewPort() {
 }
 
-void ViewPort::add_layer(Layer *lay) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  if(lay->list) lay->rem();
-  //  lay->geo.fps = fps;
-  lay->screen = this;
-  lay->blitter.screen = this;
-  // center the position
-  lay->geo.x = (w - lay->geo.w)/2;
-  lay->geo.y = (h - lay->geo.h)/2;
-  lay->blitter.crop( true );
-  layers.add(lay);
-  layers.sel(0);
-  lay->sel(true);
-  func("layer %s succesfully added",lay->name);
-}
-
 void ViewPort::scale2x(uint32_t *osrc, uint32_t *odst) {
 
       /* apply scale2x to screen */

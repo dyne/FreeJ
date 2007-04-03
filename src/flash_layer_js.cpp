@@ -49,8 +49,11 @@ JS(flash_layer_open) {
     error("JsParser :: invalid string in FlashLayer::open");
     return JS_FALSE;
   }
-  if( lay->open(file) )
-    lay->init( lay->geo.w, lay->geo.h );
+  
+  if(! lay->open(file) ) {
+    error("can't open %s in layer %s",file, lay->name);
+    return JS_FALSE;
+  }
 
   return JS_TRUE;
 }

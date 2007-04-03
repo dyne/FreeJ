@@ -104,12 +104,12 @@ void Osd::init(Context *screen) {
   if(!ipernaut) {
     char tmp[512];
     sprintf(tmp,"%s/freej/ipernav.png",DATADIR);
-    ipernaut = create_layer(tmp);    
-    if(!ipernaut) ipernaut = create_layer("../doc/ipernav.png");
-    if(!ipernaut) ipernaut = create_layer("doc/ipernav.png");
-    if(!ipernaut) ipernaut = create_layer("ipernav.png");
+    ipernaut = create_layer(env, tmp);    
+    if(!ipernaut) ipernaut = create_layer(env, "../doc/ipernav.png");
+    if(!ipernaut) ipernaut = create_layer(env, "doc/ipernav.png");
+    if(!ipernaut) ipernaut = create_layer(env, "ipernav.png");
     if(ipernaut) {
-      if(ipernaut->init(0,0)) {
+      if(ipernaut->init(env)) {
 	ipernaut->blitter.set_blit("ALPHA");
 	ipernaut->blitter.fade_value(1,128);
       } else {
@@ -120,7 +120,7 @@ void Osd::init(Context *screen) {
   }
 
 
-  active = true;
+  active = false; // deactivate by default
   set_osd(status_msg); /* let jutils know about the osd */
 
   func("OSD initialized");
@@ -179,7 +179,7 @@ void Osd::print() {
 
   env->screen->lock();
   
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->layers.selected();
   if(lay) _filterlist();
   _selection();
   _layerlist();
@@ -240,7 +240,7 @@ void Osd::_selection() {
 
   _set_color(yellow);
 
-  Layer *lay = (Layer*) env->screen->layers.selected();
+  Layer *lay = (Layer*) env->layers.selected();
   if(!lay) return;
   
   Filter *filt = (Filter*) lay->filters.selected();
@@ -274,9 +274,9 @@ void Osd::_layerlist() {
 
   _set_color(red);
 
-  env->screen->layers.lock();
-  Layer *l = (Layer *)env->screen->layers.begin(),
-    *laysel = (Layer*) env->screen->layers.selected();
+  env->layers.lock();
+  Layer *l = (Layer *)env->layers.begin(),
+    *laysel = (Layer*) env->layers.selected();
 
   while (l) {
 
@@ -284,9 +284,9 @@ void Osd::_layerlist() {
     if(l==ipernaut) {
       credits_on = true;
     } else if(credits_on) {
-      env->screen->layers.unlock();
+      env->layers.unlock();
       credits(false);
-      env->screen->layers.lock();
+      env->layers.lock();
       l = (Layer *)l->next;
       continue;
     }
@@ -317,7 +317,7 @@ void Osd::_layerlist() {
     }
     l = (Layer *)l->next;
   }
-  env->screen->layers.unlock();
+  env->layers.unlock();
 }
 
 void Osd::_filterlist() {
@@ -326,7 +326,7 @@ void Osd::_filterlist() {
   _set_color(red);
 
   char fname[4];
-  Layer *lay = (Layer*) env->screen->layers.selected();
+  Layer *lay = (Layer*) env->layers.selected();
   if(!lay) return;
 
   lay->filters.lock();
@@ -394,7 +394,7 @@ bool Osd::credits(bool s) {
 	  osd_vertigo->init(&ipernaut->geo);
 	  ipernaut->filters.prepend(osd_vertigo);
 	}
-      env->screen->add_layer(ipernaut);
+      env->add_layer(ipernaut);
     }
 
     draw_credits();

@@ -35,7 +35,7 @@ class FlashLayer : public Layer {
   FlashLayer();
   ~FlashLayer();
   
-  bool init(int width, int height);
+  bool init(Context *freej);
   bool open(char *file);
   void *feed();
   bool keypress(int key);

@@ -39,6 +39,13 @@ class Context;
 
 class JSClass;
 
+/* function for type detection of implemented layers */
+extern const char *layers_description;
+///< list of implemented layers to print in help
+extern Layer *create_layer(Context *env, char *file);
+///< create the propriate Layer type from a file
+
+
 /**
    This class describes methods and properties common to all Layers in
    FreeJ: it is the main interface for functionalities like blit
@@ -83,7 +90,7 @@ class Layer: public Entry, public JSyncThread {
   
   /* these must be defined in layer implementations */
   virtual bool open(char *file) =0; ///< open the file (first called)
-  virtual bool init(int width, int height) =0; ///< initialize the layer (second called)
+  virtual bool init(Context *freej) =0; ///< initialize the layer (second called)
   virtual void close() =0; ///< close the layer (ready to open a new one)
   virtual bool keypress(int key) =0; ///< pass to the Layer a key pressed
 
@@ -143,6 +150,8 @@ class Layer: public Entry, public JSyncThread {
 
   bool is_native_sdl_surface;
 
+  Context *env; ///< private pointer to the environment filled at _init()
+
  private:
 
   char alphastr[5];
@@ -165,15 +174,13 @@ class Layer: public Entry, public JSyncThread {
   uint8_t colorkey_g;
   uint8_t colorkey_b;
 
-  Context *env; ///< private pointer to the environment filled at _init()
+  // slide_position values
+  float slide_x;
+  float slide_y;
+
 
 };
 
-/* function for type detection of implemented layers */
-extern const char *layers_description;
-///< list of implemented layers to print in help
-extern Layer *create_layer(char *file);
-///< create the propriate Layer type from a file
 
 
 

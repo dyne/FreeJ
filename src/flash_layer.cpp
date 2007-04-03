@@ -99,9 +99,12 @@ FlashLayer::~FlashLayer() {
   close();
 }
 
-bool FlashLayer::init(int width, int height) {
+bool FlashLayer::init(Context *freej) {
   func("FlashLayer::init");
   long res;
+  int width  = freej->screen->w;
+  int height = freej->screen->h;
+
 
   _init(width,height);
 

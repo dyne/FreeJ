@@ -26,7 +26,6 @@
 #include <SDL_ttf.h>
 #include <layer.h>
 
-#define MAX_FONTS 512
 
 class TTFLayer: public Layer {
 
@@ -35,11 +34,13 @@ class TTFLayer: public Layer {
   ~TTFLayer();
 
   
-  bool init(int width, int height);
+  bool init(Context *freej);
   
   bool open(char *file);
   void *feed();
   void close();
+
+  void set_size(int nsize);
 
   void print(char *str);
 
@@ -49,16 +50,11 @@ class TTFLayer: public Layer {
   SDL_Color fgcolor;
   int size;
 
-  int scanfonts(char *path);
-
   TTF_Font *font;
 
  private:
   SDL_Surface *surf;
 
-
-  char* font_files[MAX_FONTS];
-  int num_fonts;
   int sel_font;
 
 };

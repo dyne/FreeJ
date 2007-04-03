@@ -23,13 +23,15 @@
 #include <inttypes.h>
 #include <SDL_gfxPrimitives.h>
 
+#include <layer.h>
+
 class GeoLayer: public Layer {
   
  public:
   GeoLayer();
   ~GeoLayer();
   
-  bool init(int width, int height);
+  bool init(Context *freej);
   bool open(char *file);
   void *feed();
   bool keypress(int key);

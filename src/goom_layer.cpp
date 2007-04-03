@@ -19,10 +19,12 @@
 
 #include <jutils.h>
 #include <context.h>
+#include <audio_input.h>
+
 #include <goom_layer.h>
+
 #include <config.h>
 
-static short int audio[2][512];
 
 GoomLayer::GoomLayer()
   :Layer() {
@@ -34,29 +36,30 @@ GoomLayer::~GoomLayer() {
   close();
 }
 
-bool GoomLayer::init(int width, int height) {
+bool GoomLayer::init(Context *freej) {
+
+  int width  = freej->screen->w;
+  int height = freej->screen->h;
+
   func("GoomLayer::init()");
 
   _init(width,height);
   
-  goom = ::goom_init(geo.w, geo.h);
+  goom = goom_init(geo.w, geo.h);
 
-  buffer = malloc(geo.size);
+  buffer = calloc(geo.size,1);
 
-//  audio = (short int**) malloc(sizeof(uint16_t*)*2);
-//  audio[0] = (short int*)malloc(512*sizeof(uint16_t));
-//  audio[1] = (short int*)malloc(512*sizeof(uint16_t));
-//  audio[0] = audio_l;
-//  audio[1] = audio_r;
   
   goom_set_screenbuffer(goom, buffer);
+
 
   return(true);
 }
 
 bool GoomLayer::open(char *file) {
+
   return true;
-};
+}
 
 void GoomLayer::close() {
   if(buffer)
@@ -65,7 +68,40 @@ void GoomLayer::close() {
 }
 
 void *GoomLayer::feed() {
+  int c;
+  int num, found, samples;
+
+  samples = 512;
+
+  num = samples * sizeof(int16_t) * env->audio->channels;
+  
+  
+  /*  num = env->audio->input->read(num,audiotmp);
+
+  if(num<=0) {
+  func("no audio for goom");
+  return buffer;
+  }
+
+  if(num!=samples*sizeof(int16_t)*env->audio->channels) {
+    warning("goom audio buffer underrun");
+    samples = num / sizeof(int16_t) / env->audio->channels;
+    } */
+  
+  if(env->audio->channels == 2) {
+    for( c = 0; c<samples ; c++ ) {
+      audio[0][c] = (short int) (env->audio->input[c*2]);
+      audio[1][c] = (short int) (env->audio->input[(c*2)+1]);
+    }
+  } else {
+    for( c = 0; c<samples ; c++ ) {
+      audio[0][c] = (short int) (env->audio->input[c]);
+      audio[1][c] = (short int) (env->audio->input[c]);
+    }
+  }
+  
   goom_update(goom, audio, 0, -1, NULL, NULL);
+
   return buffer;
 }
 

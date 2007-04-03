@@ -73,14 +73,17 @@ bool ImageLayer::open(char *file) {
   return true;
 }
 
-bool ImageLayer::init(int width, int height) {
+bool ImageLayer::init(Context *freej) {
   func("ImageLayer::init");
+  
+  int width  = freej->screen->w;
+  int height = freej->screen->h;
 
   if((!width || !height) && image)
     _init(image->w, image->h);
   else
     _init(width, height);
-
+  
   notice("ImageLayer :: w[%u] h[%u] (%u bytes)",
 	 geo.w, geo.h, geo.size);
 

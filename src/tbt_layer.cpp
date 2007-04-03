@@ -27,6 +27,7 @@
 
 #include <config.h>
 #include <tbt_layer.h>
+#include <context.h>
 #include <jutils.h>
 
 TBTConsole::TBTConsole()
@@ -154,7 +155,10 @@ TBTLayer::~TBTLayer() {
   close();
 }
 
-bool TBTLayer::init(int width, int height) {
+bool TBTLayer::init(Context *freej) {
+  int width  = freej->screen->w;
+  int height = freej->screen->h;
+
   func("TBTLayer::init(%i,%i)",width, height);
   _init(width, height);  
 

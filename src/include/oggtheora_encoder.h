@@ -36,7 +36,7 @@
 #include <avcodec.h>
 #include <avformat.h>
 
-//#define AUDIO_BUFFER_SIZE 3528 // sample_rate * channel / fps / bytes of sample format
+// #define AUDIO_BUFFER_SIZE 3528 // sample_rate * channel / fps / bytes of sample format
 
 class Context;
 
@@ -56,14 +56,12 @@ class OggTheoraEncoder: public VideoEncoder{
   
   
  private:
-  
+
   void convert_to_YUV420P();
   void run(); ///< Main loop
   AVFrame *picture_rgb;
   AVFrame *picture_yuv;
-
-  int audio_buffer_size;
-
+  
   bool init_ogg_streams();
   bool theora_init();
   bool vorbis_init();
@@ -88,7 +86,7 @@ class OggTheoraEncoder: public VideoEncoder{
 
   bool has_finished_frame();
 
-//  bool use_audio;
+  bool use_audio;
   bool started;
   bool frame_finished;
   int video_quality;
@@ -137,7 +135,6 @@ class OggTheoraEncoder: public VideoEncoder{
   vorbis_block     vb; /* local working space for packet->PCM decode */
 
   ViewPort         *screen;
-  int16_t *audiobuffer;
 
 };
 

@@ -44,7 +44,7 @@ class ImageLayer: public Layer {
 	ImageLayer();
 	~ImageLayer();
 
-	bool init(int width, int height);
+	bool init(Context *freej);
 
 	bool open(char *file);
 	void *feed();

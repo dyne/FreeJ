@@ -54,7 +54,7 @@ class TBTLayer: public Layer {
   TBTLayer();
   ~TBTLayer();
 
-  bool init(int width, int height);
+  bool init(Context *freej);
   
   bool open(char *file);
   void *feed();

@@ -35,7 +35,7 @@ SdlScreen::SdlScreen()
   emuscr = NULL;
   bpp = 32;
   dbl = false;
-  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF);
+  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL );
 	  //| SDL_DOUBLEBUF | SDL_HWACCEL | SDL_RESIZABLE);
   // add above | SDL_FULLSCREEN to go fullscreen from the start
 
@@ -84,6 +84,7 @@ bool SdlScreen::init(int width, int height) {
 }
 
 void SdlScreen::resize(int resize_w, int resize_h) {
+  act("resizing viewport to %u x %u",resize_w, resize_h);
   surface = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
   w = resize_w;
   h = resize_h;
@@ -154,6 +155,7 @@ bool SdlScreen::unlock() {
 int SdlScreen::setres(int wx, int hx) {
   /* check and set available videomode */
   int res;
+  act("setting resolution to %u x %u", wx, hx);
   res = SDL_VideoModeOK(wx, hx, bpp, sdl_flags);
   
   

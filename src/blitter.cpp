@@ -238,7 +238,7 @@ BLIT sdl_alpha(void *src, SDL_Rect *src_rect,
     (src, geo->w, geo->h, geo->bpp,
      geo->pitch, red_bitmask, green_bitmask, blue_bitmask, 0x0);
 
-  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, *(unsigned int*)value );  
+  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, (unsigned int) *(float*)value );  
 
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
   
@@ -286,7 +286,7 @@ BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
 Blit::Blit() :Entry() {
   sprintf(desc,"none");
 
-  value = 0x0;
+  value = 0.0;
   has_value = false;
 
   memset(kernel,0,256);
@@ -672,7 +672,7 @@ bool Blitter::set_blit(char *name) {
     b->past_frame = calloc(layer->geo.size,1);
   }
 
-  if(zeroing) b->value = 0;
+  if(zeroing) b->value = 0.0;
 
   current_blit = b; // start using
   crop(true);
@@ -685,13 +685,13 @@ bool Blitter::set_blit(char *name) {
   return true;
 }
 
-void Blitter::set_value(int val) {
+void Blitter::set_value(float val) {
   current_blit->value = val;
   //  func("layer %s blit %s value %i",
   //       layer->get_name(),current_blit->get_name(),val);
 }
 
-bool Blitter::pulse_value(int step, int val) {
+bool Blitter::pulse_value(float step, float val) {
   Iterator *iter;
   iter = new Iterator(&current_blit->value);
 
@@ -701,16 +701,17 @@ bool Blitter::pulse_value(int step, int val) {
 
   layer->iterators.add(iter);
   
-  func("layer %s blit %s pulse to %i by step %i",
+  func("layer %s blit %s pulse to %.2f by step %.2f",
       layer->get_name(),current_blit->get_name(),val,step);
 
   return true;
 }
 
-bool Blitter::fade_value(int step, int val) {
+bool Blitter::fade_value(float step, float val) {
 
   // if the layer is hidden then we don't bother fading
   // just set the value right away
+  /*
   if(!layer) {
     set_value(val);
     return true;
@@ -719,7 +720,7 @@ bool Blitter::fade_value(int step, int val) {
     set_value(val);
     return true;
   }
-
+  */
   Iterator *iter;
 
   /* setup an iterator to gradually change the value */
@@ -732,7 +733,7 @@ bool Blitter::fade_value(int step, int val) {
   iter->set_aim(val);
   layer->iterators.add(iter);
 
-  act("layer %s blit %s fade to %i by step %i",
+  act("layer %s blit %s fade to %.2f by step %.2f",
       layer->get_name(),current_blit->get_name(),val,step);
   return true;
 }

@@ -113,6 +113,7 @@ JS(txt_layer_font) {
   char *font;
   JS_ARG_STRING(font,0);
 
+  // try full path to .ttf file
   lay->font = TTF_OpenFont(font, lay->size);
   if (!font) {
     error("Couldn't load font %s: %s\n", font, SDL_GetError());

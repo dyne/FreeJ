@@ -20,8 +20,11 @@
  */
 
 #include <dirent.h>
+
 #include <callbacks_js.h>
 #include <jsparser_data.h>
+#include <jsparser.h>
+#include <video_encoder.h>
 
 // global environment class
 JSClass global_class = {
@@ -54,6 +57,8 @@ JSFunctionSpec global_functions[] = {
     {"stream_stop",     stream_stop,            0},
     {"file_to_strings", file_to_strings,        1},
     {"register_controller", register_controller, 1},
+    {"include",         include_javascript,     1},
+    {"exec",            system_exec,            1},
     {0}
 };
 
@@ -116,11 +121,11 @@ JS(rem_layer) {
     if(!lay) JS_ERROR("Layer core data is NULL");
 
     lay->rem();
-    lay->quit=true;
-    lay->signal_feed();
-    lay->join();
+    //    lay->quit=true;
+    //    lay->signal_feed();
+    //    lay->join();
 
-    delete lay;
+    //    delete lay;
     return JS_TRUE;
 }
 
@@ -138,7 +143,7 @@ JS(add_layer) {
     if(!lay) JS_ERROR("Layer core data is NULL");
 
     /** really add layer */
-    env->screen->add_layer(lay);
+    env->add_layer(lay);
     *rval=JSVAL_TRUE;
     //      env->layers.sel(0); // deselect others
     //      lay->sel(true);
@@ -169,7 +174,7 @@ JS(register_controller) {
 JS(fullscreen) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   env->screen->fullscreen();
-  env->clear_all = !env->clear_all;
+  //  env->clear_all = !env->clear_all;
   return JS_TRUE;
 }
 
@@ -225,8 +230,9 @@ JS(freej_scandir) {
 
   // now fill up the array  
   while(found--) {
-    
-    str = JS_NewStringCopyZ(cx, filelist[found]->d_name); 
+    char tmp[512];
+    snprintf(tmp,512,"%s/%s",dir, filelist[found]->d_name);
+    str = JS_NewStringCopyZ(cx, tmp); 
     val = STRING_TO_JSVAL(str);    
     JS_SetElement(cx, arr, c, &val );
     c++;
@@ -281,7 +287,7 @@ JS(file_to_strings) {
 
   // try to open the file and read it in memory
   fd = ::fopen(file,"r");
-  if(fd<0) {
+  if(!fd) {
     error("file_to_strings failed for %s: %s",file, strerror(errno) );
     *rval = JSVAL_NULL;
     return JS_TRUE;
@@ -488,9 +494,65 @@ JS(entry_select) {
   return JS_TRUE;
 }
 
+JS(include_javascript) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  
+  FILE *fd;
+  char *jscript;
 
+  JS_ARG_STRING(jscript,0);
+  
+  fd = ::fopen(jscript,"r");
+  if(!fd) {
+    error("include failed for %s: %s", jscript, strerror(errno) );
+    return JS_FALSE;
+  }
 
+  fclose(fd);
+  env->js->open(jscript);
 
+  return JS_TRUE;
+}
+
+JS(system_exec) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  unsigned int c;
+  char *prog;
+  char **args;
+
+  // get the executable program
+  JS_ARG_STRING(prog, 0);
+
+  // get the arguments in a NULL terminated array
+  args = (char**)calloc(argc +2, sizeof(char*));
+  
+  for (c=1; c<argc; c++) {
+
+    if( JSVAL_IS_STRING(argv[c]) )
+
+      args[c] = JS_GetStringBytes( JS_ValueToString(cx, argv[c]) );
+
+    else {
+
+      JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__, c);
+      env->quit = true;
+      return JS_FALSE;
+
+    }
+
+  }
+
+  /* execvp(3) functions provide an array of pointers to
+     null-terminated strings that represent the argument list
+     available to the new program.  The first argument, by convention,
+     should point to the file name associated with the file being
+     executed.  The array of pointers must be terminated by a NULL
+     pointer.  */
+  execvp( prog, args );
+  
+  return JS_TRUE;
+}
 
 ////////////////////////////////
 // Effect methods

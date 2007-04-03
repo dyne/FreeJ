@@ -165,7 +165,8 @@ JS(freej_echo);
 JS(freej_strstr);
 JS(file_to_strings);
 JS(register_controller);
-
+JS(include_javascript);
+JS(system_exec);
 ////////////////////////////////
 // Linklist Entry methods
 
@@ -190,10 +191,11 @@ JS(layer_activate);
 JS(layer_deactivate);
 JS(layer_get_name);
 JS(layer_get_filename);
-JS(layer_set_blit);
 JS(layer_get_blit);
-JS(layer_set_blit_value);
+JS(layer_set_blit);
 JS(layer_get_blit_value);
+JS(layer_set_blit_value);
+JS(layer_fade_blit_value);
 JS(layer_set_position);
 JS(layer_slide_position);
 JS(layer_get_x_position);
@@ -216,6 +218,7 @@ JS(layer_list_effects);
     {"get_blit",	layer_get_blit,	        0}, \
     {"set_blit_value",	layer_set_blit_value,	1}, \
     {"get_blit_value",	layer_get_blit_value,	0}, \
+    {"fade_blit_value", layer_fade_blit_value,  2}, \
     {"set_position",	layer_set_position,	2}, \
     {"slide_position",  layer_slide_position,   2}, \
     {"get_x_position",	layer_get_x_position,	0}, \
@@ -301,19 +304,19 @@ JS(video_layer_pause);
 #ifdef WITH_FT2
 ////////////////////////////////
 // Txt Layer methods
-JS(txt_layer_open);
-JS(txt_layer_get_word);
-JS(txt_layer_wordcount);
 JS(txt_layer_font);
 JS(txt_layer_size);
 JS(txt_layer_print);
-JS(txt_layer_string_width);
-JS(txt_layer_string_height);
 JS(txt_layer_color);
-JS(txt_layer_advance);
-JS(txt_layer_blink);
-JS(txt_layer_blink_on);
-JS(txt_layer_blink_off);
+//JS(txt_layer_open);
+//JS(txt_layer_get_word);
+//JS(txt_layer_wordcount);
+//JS(txt_layer_string_width);
+//JS(txt_layer_string_height);
+//JS(txt_layer_advance);
+//JS(txt_layer_blink);
+//JS(txt_layer_blink_on);
+//JS(txt_layer_blink_off);
 #endif
 
 

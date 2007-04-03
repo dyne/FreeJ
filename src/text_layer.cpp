@@ -28,47 +28,20 @@
 #include <dirent.h>
 
 #include <config.h>
+#include <context.h>
 #include <text_layer.h>
 #include <jutils.h>
 
 TTFLayer::TTFLayer()
   :Layer() {
 
+  // set defaults
+
   font = NULL;
-  num_fonts=0;
   sel_font=0;
 
-  TTF_Init();
+  size = 30;
 
-  // parse all font directories  
-  scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
-  scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
-  scanfonts("/usr/X11R6/lib/X11/fonts/TrueType");
-  scanfonts("/usr/share/truetype");
-
-  if(!num_fonts) {
-    error("no truetype fonts found on your system, dirs searched:");
-    error("/usr/X11R6/lib/X11/fonts/TTF");
-    error("/usr/X11R6/lib/X11/fonts/truetype");
-    error("/usr/X11R6/lib/X11/fonts/TrueType");
-    error("/usr/share/truetype");
-    error("you should install .ttf fonts in one of the directories above.");
-  } else {
-    func("TxtLayer fonts %i",num_fonts);
-
-  // choose first font and initialize ready for printing
-    size = 30;
-    
-    font = TTF_OpenFont(font_files[sel_font], size);
-    if (!font)
-      error("Couldn't load %d pt font from %s: %s\n",
-	    size, font_files[sel_font], SDL_GetError());
-    
-    TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-    // here can be also: TTF_STYLE_BOLD _ITALIC _UNDERLINE
-  }
-
-  // set defaults
   fgcolor.r = 0xff;
   fgcolor.g = 0xff;
   fgcolor.b = 0xff;
@@ -76,7 +49,6 @@ TTFLayer::TTFLayer()
   bgcolor.r = 0x00;
   bgcolor.g = 0x00;
   bgcolor.b = 0x00;
-
 
   set_name("TTF");
   surf = NULL;
@@ -97,18 +69,50 @@ bool TTFLayer::open(char *file) {
   return true;
 }
 
-bool TTFLayer::init(int width, int height) {
-  // this is skipped for its functionality
+bool TTFLayer::init(Context *freej) {
+  // width/height is skipped for its functionality
   // in fact the size is changing at every new print
   // so we'll call the Layer::_init(wdt,hgt) many times
 
+  if( ! TTF_WasInit() )
+    TTF_Init();
+  
   return true;
 }
 
 void TTFLayer::close() {
+  // free sdl font surface
   if(surf) SDL_FreeSurface(surf);
+
+  // close up sdl ttf
   if(font) TTF_CloseFont(font);
-  TTF_Quit();
+
+  if( TTF_WasInit() ) TTF_Quit();
+}
+
+void TTFLayer::set_size(int nsize) {
+  TTF_Font *tmp;
+
+  tmp = TTF_OpenFont(env->font_files[sel_font], nsize);
+
+  if(!tmp) {
+
+    error("Couldn't load %d pt font from %s: %s\n",
+	  size, env->font_files[sel_font], SDL_GetError());
+
+  } else {
+
+    lock();
+
+    size = nsize;
+    if(font) TTF_CloseFont(font);
+    font = tmp;
+    TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+
+    unlock();
+
+  }
+
 }
 
 bool TTFLayer::keypress(int key) { return false; };
@@ -116,22 +120,42 @@ bool TTFLayer::keypress(int key) { return false; };
 void TTFLayer::print(char *str) {
   SDL_Surface *tmp;
   int x, y;
+  
+  // choose first font and initialize ready for printing
+  
+  if(!env) {
+    error("TextLayer: can't print, environment is not yet assigned neither a font is selected");
+    error("call add_layer or choose a font for the layer");
+    return;
+  }
+
+  if(!font) {
+    warning("not font selected on layer %s, using default %s", name, env->font_files[sel_font]);
+    font = TTF_OpenFont(env->font_files[sel_font], size);
+    if (!font) {
+      error("Couldn't load %d pt font from %s: %s\n",
+	    size, env->font_files[sel_font], SDL_GetError());
+      return;
+    }
+    TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+    // here can be also: TTF_STYLE_BOLD _ITALIC _UNDERLINE
+  }
 
   // lock everything here
   lock();
 
   if(surf) SDL_FreeSurface(surf);
   
-  surf = TTF_RenderText_Blended(font, str, fgcolor);
-  //  surf = TTF_RenderText_Shaded(font, str, fgcolor, bgcolor);
-  //  tmp = SDL_DisplayFormat(surf);
-  //  if(tmp) {
-  //    SDL_FreeSurface(surf);
-  //    surf = tmp;
-  //  }
+  // surf = TTF_RenderText_Blended(font, str, fgcolor);
+  surf = TTF_RenderText_Shaded(font, str, fgcolor, bgcolor);
+  tmp = SDL_DisplayFormat(surf);
+  if(tmp) {
+    SDL_FreeSurface(surf);
+    surf = tmp;
+  }
 
-  //  SDL_SetColorKey(surf, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0)
-  //    error("TTFLayer::print : couldn't set text colorkey: %s", SDL_GetError());
+  //  SDL_SetColorKey(surf, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
+    //    error("TTFLayer::print : couldn't set text colorkey: %s", SDL_GetError());
 
   // save original positions
   x = geo.x;
@@ -154,21 +178,32 @@ int ttf_dir_selector(const struct dirent *dir) {
   if(strstr(dir->d_name,".TTF")) return(1);
   return(0);
 }
-int TTFLayer::scanfonts(char *path) {
+int Context::scanfonts(char *path) {
   /* add to the list of available fonts */
   struct dirent **filelist;
   char temp[256];
   int found;
   int num_before = num_fonts;
+
   found = scandir(path,&filelist,ttf_dir_selector,alphasort);
+
   if(found<0) {
-    func("no fonts found in %s : %s",path, strerror(errno)); return(false); }
+    func("no fonts found in %s : %s",path, strerror(errno));
+    return(false);
+  } else
+    act("%u fonts found in %s", found, path);
+
   while(found--) {
+
     if(num_fonts>=MAX_FONTS) break;
+
     snprintf(temp,255,"%s/%s",path,filelist[found]->d_name);
     font_files[num_fonts] = strdup(temp);
     num_fonts++;
+
   }
-  func("scanfont found %i fonts in %s",num_fonts-num_before,path);
+
+
+
   return(num_fonts - num_before);
 }

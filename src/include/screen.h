@@ -63,8 +63,6 @@ class ViewPort {
   ViewPort();
   virtual ~ViewPort();
 
-  /* linked list of registered layers */
-  Linklist layers;
 
   /* i keep all the following functions pure virtual to deny the
      runtime resolving of methods between parent and child, which
@@ -79,7 +77,7 @@ class ViewPort {
   virtual bool lock() =0;
   virtual bool unlock() =0;
 
-  void add_layer(Layer *lay);
+  //  void add_layer(Layer *lay);   /// now moved in the context.h API
 
   void scale2x(uint32_t *osrc, uint32_t *odst);
   void scale3x(uint32_t *osrc, uint32_t *odst);

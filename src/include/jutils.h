@@ -50,6 +50,9 @@ unsigned long rtc_tick();
 void rtc_freq_set(unsigned long freq);
 void rtc_freq_wait();
 void rtc_close();
+
+bool filecheck(char *file);
+
 #endif
 
 

@@ -28,11 +28,6 @@
 #include <jutils.h>
 #include <jsync.h>
 #include <screen.h>
-#include <pipe.h>
-
-#include <portaudio.h>
-
-#define USE_PORTAUDIO_V19
 
 class Context;
 
@@ -72,13 +67,7 @@ class VideoEncoder: public Entry {
   char *get_filename();
 
   void stream_it(bool s);
-  void handle_audio(bool audio);
   bool is_stream();
-  bool stop_audio_stream();
-  bool start_audio_stream();
-
-  bool is_audio_inited(); // really bad XXX
-
   
   // visible for the sub-classes
  protected:
@@ -93,22 +82,10 @@ class VideoEncoder: public Entry {
   bool _init(Context *_env);
 
   /* fifo to handle input audio */
-  Pipe *coda;
-  bool use_audio;
   bool write_to_disk;
   bool stream;
-  double sample_rate;
 
   private:
-
-  bool init_audio();
-  bool audio_started;
-
-#ifdef USE_PORTAUDIO_V19
-  PaStream *pa_audioStream;
-#else
-  PortAudioStream   *pa_audioStream;	
-#endif
 
 
 };

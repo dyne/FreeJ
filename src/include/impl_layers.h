@@ -49,7 +49,7 @@
 #endif
 
 #ifdef WITH_FT2
-#include <txt_layer.h>
+#include <text_layer.h>
 #endif
 
 #ifdef WITH_XHACKS
@@ -65,7 +65,11 @@
 	| strncasecmp((end_file_ptr-5),".mpeg",5)==0 	\
 	| strncasecmp((end_file_ptr-4),".mpg",4)==0  	\
 	| strncasecmp((end_file_ptr-4),".mp4",4)==0     \
-	| strncasecmp((end_file_ptr-4),".ogg",4)==0
+	| strncasecmp((end_file_ptr-4),".ogg",4)==0     \
+	| strncasecmp((end_file_ptr-4),".3gp",4)==0
+
+//	    | strncasecmp(end_file_ptr-4,".gif",4)==0  // it does not handle loops :''(
+//	    | strncasecmp(end_file_ptr-4,".jpg",4)==0
 
 #define IS_FIREWIRE_DEVICE(file_ptr) \
     strncasecmp(file_ptr,"/dev/ieee1394/",14)==0
@@ -78,6 +82,7 @@
         | strncasecmp((end_file_ptr-4),".xcf",4)==0  	\
         | strncasecmp((end_file_ptr-4),".pcx",4)==0  	\
         | strncasecmp((end_file_ptr-4),".jpg",4)==0  	\
+        | strncasecmp((end_file_ptr-5),".jpeg",5)==0  	\
         | strncasecmp((end_file_ptr-4),".tif",4)==0  	\
         | strncasecmp((end_file_ptr-4),".lbm",4)==0
 

@@ -41,7 +41,7 @@ class ScrollLayer: public Layer {
   ScrollLayer();  
   ~ScrollLayer();
 
-  bool init(int width, int height);
+  bool init(Context *freej);
   bool open(char *file);
   void *feed();
   bool keypress(int key);

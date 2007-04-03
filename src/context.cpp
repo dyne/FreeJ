@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 - 2006 Denis Rojo aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001 - 2007 Denis Rojo aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -31,6 +31,7 @@
 #include <SDL_imageFilter.h>
 #include <jsparser.h>
 #include <video_encoder.h>
+#include <audio_input.h>
 #include <impl_video_encoders.h>
 #include <pipe.h>
 #include <shouter.h>
@@ -48,7 +49,8 @@ Context::Context() {
 
   screen          = NULL;
   console         = NULL;
-  
+  audio           = NULL;
+
   /* initialize fps counter */
   framecount      = 0; 
   fps             = 0.0;
@@ -64,6 +66,7 @@ Context::Context() {
   
   fps_speed       = 25;
 
+
 }
 
 Context::~Context() {
@@ -72,7 +75,8 @@ Context::~Context() {
 }
 
 bool Context::init(int wx, int hx, bool opengl) {
-  
+
+  notice("initializing context environment", wx, hx);
   /*
    * If selected use opengl as video output!
    */
@@ -91,6 +95,34 @@ bool Context::init(int wx, int hx, bool opengl) {
   
   // create javascript object
   js = new JsParser (this);
+
+  /* create Audio Input
+     audio card is opened at audio->init()
+     audio->start() should be called by objects that use audio
+     to make sure is initialized. */
+  audio = new AudioInput();
+  audio->init();
+  audio->start();
+
+#ifdef WITH_FT2
+  num_fonts = 0;
+
+  // parse all font directories  
+  scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
+  scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
+  scanfonts("/usr/X11R6/lib/X11/fonts/TrueType");
+  scanfonts("/usr/share/truetype");
+  scanfonts("/usr/share/fonts");
+
+
+  if(!num_fonts) {
+    error("no truetype fonts found on your system");
+    error("you should install .ttf fonts in one of the directories above.");
+  } else
+    act("Found %i fonts installed",num_fonts);
+
+#endif
+
   
   // create object here to avoid performance issues at run time
 #ifdef CONFIG_OGGTHEORA_ENCODER
@@ -121,32 +153,53 @@ bool Context::init(int wx, int hx, bool opengl) {
 
 void Context::close() {
   Layer *lay;
+
+#ifdef WITH_FT2
+  // free font path array
+  int c;
+  for(c=0; c<num_fonts; c++)
+    free( font_files[c] );
+  num_fonts = 0;
+#endif
+  
   
 #ifdef CONFIG_OGGTHEORA_ENCODER
   delete video_encoder;
+  video_encoder = NULL;
 #endif
   
-  if (console)
+  if (console) {
     console->close ();
+    console = NULL;
+  }
   
-  lay = (Layer *)screen->layers.begin ();
+  lay = (Layer *)layers.begin ();
   while (lay) {
     lay-> lock ();
-    screen->layers.rem (1);
+    layers.rem (1);
     lay-> quit = true;
     lay-> signal_feed ();
     lay-> unlock ();
     delete lay;
-    lay = (Layer *)screen->layers.begin ();
+    lay = (Layer *)layers.begin ();
   }
   
-  if (screen) 
+  if (screen) {
     delete screen;
-  
-  plugger.close ();
-  
-  delete js;
-  
+    screen = NULL;
+  }
+
+  if(audio) {
+    delete audio;
+    audio = NULL;
+  }
+
+  plugger.close();
+
+  if(js) {
+    delete js;
+    js = NULL;
+  }
 }
 
 /*
@@ -154,160 +207,200 @@ void Context::close() {
  */
 void Context::cafudda(double secs) {
   Layer *lay;
-  Controller *ctrl;
   
   if(secs) /* if secs == 0 will go out after one cycle */
     now = dtime();
   
   do {
-    /* 
-     * Change resolution if needed 
-     */
+
+    // Change resolution if needed 
     if (changeres) {
-      screen->lock ();
-      if (magnification) {
-	screen->set_magnification (magnification);
-	magnification = 0;
-      }
-      if(resizing) {
-	screen->resize (resize_w, resize_h);
-	resizing = false;
-      }
-      osd.resize ();
-      screen->unlock();
-      
-      /* crop all layers to new screen size */
-      Layer *lay = (Layer *) screen->layers.begin ();
-      while (lay) {
-	lay -> lock ();
-	lay -> blitter.crop (screen);
-	lay -> unlock ();
-	lay = (Layer*) lay -> next;
-      }
+      handle_resize();
       changeres = false;
-    }
-    
+    } /////////////////////////////
+
+
+    ///////////////////////////////
+    // update the console
     if (console && interactive) 
       console->cafudda ();
-    
-    /** start layers thread */
+    ///////////////////////////////
+
+
+    ///////////////////////////////
+    // start layers threads
     rocknroll ();
+    ///////////////////////////////
+
+
+    ///////////////////////////////
+    // clear screen if needed
+    if (clear_all) screen->clear();
+    else if (osd.active) osd.clean();
+    ///////////////////////////////
+
+
+    ///////////////////////////////
+    //// process controllers
+    handle_controllers();
+    ///////////////////////////////
+
+
+    ///////////////////////////////
+    /// process audio input
+    audio->cafudda();
+    ///////////////////////////////
     
-    // clear screen before each iteration
-    if (clear_all)
-      screen->clear();
-    else if (osd.active)
-      osd.clean();
-
-    ///// if we have an event poll each controller in the chain
-    if( SDL_PollEvent(&event) ) {
-      
-      // force quit when SDL does
-      if (event.type == SDL_QUIT) {
-	quit = true;
-	break;
-      }
-
-      // fullscreen switch (ctrl-f)
-      if(event.key.state == SDL_PRESSED)
-	if(event.key.keysym.mod & KMOD_CTRL)
-	  if(event.key.keysym.sym == SDLK_f) screen->fullscreen();
-				   
-      ctrl = (Controller *)controllers.begin();
-      if(ctrl) {
-	controllers.lock();
-	while(ctrl) {
-	  if(ctrl->active)
-	    ctrl->poll(this);
-	  ctrl = (Controller*)ctrl->next;
-	}
-	controllers.unlock();
-      }
-
-    }
     
-  
-    /////////////// finish polling controllers
-
-
+    ///////////////////////////////
+    /// cafudda all active LAYERS
+    lay = (Layer *)layers.end ();
     ///// process each layer in the chain
-    lay = (Layer *)screen->layers.end ();
     if (lay) {
-      screen->layers.lock ();
+      layers.lock ();
       while (lay) {
 	if (!pause)
 	  lay->cafudda ();
 	lay = (Layer *)lay->prev;
       }
-      screen->layers.unlock ();
+      layers.unlock ();
     }
     /////////// finish processing layers
+    //////////////////////////////////////
     
-    
+
+    //////////////////////////////////////
+    // process encoder tasks
 #ifdef CONFIG_OGGTHEORA_ENCODER
-    /*
-      if (save_to_file)
-      video_encoder -> write_frame();
-      
-      if (stream)
-      video_encoder -> stream_it(true);
-    */
-    // show results on file if requested encoder in a thread ?? not now. kysu.
-    //	    if(! video_encoder->isStarted())
-    //		    video_encoder->start();
-    //	    video_encoder->has_finished_frame();
-    //	    video_encoder->signal();
-    //
-    if(save_to_file) {
-      //	    for ( int i = 0; i < 10 ;i ++) {
-      if (video_encoder -> is_stream() && !shouter -> start())
-	video_encoder -> stream_it (false);
-      //			    break;
-      //		    else if (i == 9)
-      //			    save_to_file = false;
-      //	    }
-      
-      if (save_to_file) {
-	if (! (video_encoder->init (this, screen) )) {
-	  error ("Can't save to file. retry!");
-	  save_to_file = false;
-	}
-	else {
-	  if (!video_encoder -> is_audio_inited ()) {
-	    video_encoder -> start_audio_stream ();
-	  }
-	  video_encoder -> write_frame ();
-	}
-      }
-    }
+    handle_encoder();
 #endif
+    //////////////////////////////////////
+
     
-    /* 
-     * print on screen display 
-     */
+    /////////////////////////////
+    /// print on screen display 
     if (osd.active && interactive) 
       osd.print ();
-    
-    /** 
-     * show result on screen 
-     */
+    /////////////////////////////
+
+
+
+    /////////////////////////////
+    // show result on screen 
     screen->show ();
+    /////////////////////////////
     
-    
-    /* 
-     * Handle timing 
-     */
-    if(!secs) 
-      break; /* just one pass */
-    
+
+    /////////////////////////////
+    // handle timing 
+    if(!secs) break; // just one pass
+
+    /////////////////////////////
+    // honour quit requests
+    if(quit) break; // quit was called
+
     riciuca = (dtime() - now < secs) ? true : false;
     
     calc_fps ();
-    
+    // synced with desired fps here
+    //////////////////////////////////
+
+
   } while (riciuca);
   
 }
 
+void Context::handle_resize() {
+  screen->lock ();
+  if (magnification) {
+    screen->set_magnification (magnification);
+    magnification = 0;
+  }
+  if(resizing) {
+    screen->resize (resize_w, resize_h);
+    resizing = false;
+  }
+  osd.resize ();
+  screen->unlock();
+  
+  /* crop all layers to new screen size */
+  Layer *lay = (Layer *) layers.begin ();
+  while (lay) {
+    lay -> lock ();
+    lay -> blitter.crop (screen);
+    lay -> unlock ();
+    lay = (Layer*) lay -> next;
+  } 
+}
+
+void Context::handle_controllers() {
+  Controller *ctrl;
+
+  if( SDL_PollEvent(&event) ) {
+    
+    ///// if we have an event poll each controller in the chain      
+    
+    // force quit when SDL does
+    if (event.type == SDL_QUIT) {
+      quit = true;
+      return;
+    }
+    
+    // fullscreen switch (ctrl-f)
+    if(event.key.state == SDL_PRESSED)
+      if(event.key.keysym.mod & KMOD_CTRL)
+	if(event.key.keysym.sym == SDLK_f) screen->fullscreen();
+    
+    ctrl = (Controller *)controllers.begin();
+    if(ctrl) {
+      controllers.lock();
+      while(ctrl) {
+	if(ctrl->active)
+	  ctrl->poll(this);
+	ctrl = (Controller*)ctrl->next;
+      }
+      controllers.unlock();
+    }
+  }
+}
+
+void Context::handle_encoder() {
+  /*
+    if (save_to_file)
+    video_encoder -> write_frame();
+    
+    if (stream)
+    video_encoder -> stream_it(true);
+  */
+  // show results on file if requested encoder in a thread ?? not now. kysu.
+  //	    if(! video_encoder->isStarted())
+  //		    video_encoder->start();
+  //	    video_encoder->has_finished_frame();
+  //	    video_encoder->signal();
+  //
+  if(save_to_file) {
+    //	    for ( int i = 0; i < 10 ;i ++) {
+    if (video_encoder -> is_stream() && !shouter -> start())
+      video_encoder -> stream_it (false);
+    //			    break;
+    //		    else if (i == 9)
+    //			    save_to_file = false;
+    //	    }
+    
+    if (save_to_file) {
+      if (! (video_encoder->init (this, screen) )) {
+	error ("Can't save to file. retry!");
+	save_to_file = false;
+      }
+      else {
+	//	  if (!video_encoder -> is_audio_inited ()) {
+	//	    video_encoder -> start_audio_stream ();
+	//	  }
+	video_encoder -> write_frame ();
+      }
+    }
+  }
+}
 
 bool Context::register_controller(Controller *ctrl) {
   if(!ctrl) {
@@ -328,8 +421,69 @@ bool Context::register_controller(Controller *ctrl) {
   return true;
 }
 
+void Context::add_layer(Layer *lay) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  if(lay->list) lay->rem();
+  //  lay->geo.fps = fps;
+
+  lay->env = this;
+  lay->screen = screen;
+  lay->blitter.screen = screen;
+
+  // center the position
+  lay->geo.x = (screen->w - lay->geo.w)/2;
+  lay->geo.y = (screen->h - lay->geo.h)/2;
+  lay->blitter.crop( true );
+  layers.add(lay);
+  layers.sel(0);
+  lay->sel(true);
+  func("layer %s succesfully added",lay->name);
+}
+
 int Context::open_script(char *filename) {
 	return js->open(filename);
+}
+
+bool Context::config_check(const char *filename) {
+  char tmp[512];
+  
+  snprintf(tmp, 512, "%s/.freej/%s", getenv("HOME"), filename);
+  if( filecheck(tmp) ) {
+    js->open(tmp);
+    return(true);
+  }
+
+  snprintf(tmp, 512, "/etc/freej/%s", filename);
+  if( filecheck(tmp) ) {
+    js->open(tmp);
+    return(true);
+  }
+
+  snprintf(tmp, 512, "%s/%s", DATADIR, filename);
+  if( filecheck(tmp) ) {
+    js->open(tmp);
+    return(true);
+  }
+
+  snprintf(tmp, 512, "/usr/lib/freej/%s", filename);
+  if( filecheck(tmp) ) {
+    js->open(tmp);
+    return(true);
+  }
+
+  snprintf(tmp, 512, "/usr/local/lib/freej/%s", filename);
+  if( filecheck(tmp) ) {
+    js->open(tmp);
+    return(true);
+  }
+
+  snprintf(tmp, 512, "/opt/video/lib/freej/%s", filename);
+  if( filecheck(tmp) ) {
+    js->open(tmp);
+    return(true);
+  }
+
+  return(false);
 }
 	  
 void Context::resize(int w, int h) {
@@ -391,7 +545,7 @@ void Context::calc_fps() {
 }
 
 void Context::rocknroll() {
-  Layer *l = (Layer *)screen->layers.begin();
+  Layer *l = (Layer *)layers.begin();
   
   /*
    * Show credits when user doesn't specified layers
@@ -405,7 +559,7 @@ void Context::rocknroll() {
   /*
    * Iterate throught linked list of layers and start them
    */
-  screen->layers.lock();
+  layers.lock();
   while (l) {
     if (!l->running) {
       if (l->start() == 0) {
@@ -419,7 +573,7 @@ void Context::rocknroll() {
     }
     l = (Layer *)l->next;
   }
-  screen->layers.unlock();
+  layers.unlock();
   
 }
 

@@ -1,0 +1,81 @@
+/*
+  Freej fading image slideshow script - (c)2007 by Jaromil
+  
+  usage:
+  configure image directory for scandir
+  press arrows left/right to browse through images
+*/
+
+
+set_resolution(1024,768);
+fullscreen();
+
+include("keyboard.js");
+
+images = scandir("img");
+
+c = 0;
+
+lay1 = new ImageLayer();
+lay2 = new ImageLayer();
+
+
+// fade in the first image
+lay1.open(images[c]);
+lay1.set_blit("ALPHA");
+lay1.set_blit_value(0.0);
+add_layer(lay1);
+lay1.fade_blit_value (1.0, 0.1);
+
+flip = 0;
+
+function crossfade(img) {
+
+    if(flip=0) {
+	slidein  = lay2;
+	slideout = lay1;
+	flip     = 1;
+    } else {
+	slidein  = lay1;
+	slideout = lay2;
+	flip     = 0;
+    }
+
+
+    slideout.spin(0, 0.1);
+
+    slidein.open(img);
+    
+    slidein.set_blit("0ALPHA");
+
+    add_layer(slidein);
+
+
+    slideout.fade_blit_value(0.0, 0.1);
+
+    slidein.fade_blit_value (1.0, 0.1);
+
+    rem_layer(slideout);
+
+}
+
+
+kbd.pressed_left  = function() {
+    if(c>0) c--;
+    crossfade(images[c]);
+}
+    
+kbd.pressed_right = function() {   
+    if(c<images.length) c++;
+    crossfade(images[c]);
+}
+
+kbd.pressed_space = kbd.pressed_right;
+kbd.pressed_q = quit();
+
+while(true)
+    run();
+
+quit();
+
+    

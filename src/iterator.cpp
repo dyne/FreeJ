@@ -30,7 +30,7 @@
    now this support have been dropped and iterators only work
    on 32bit signed integer numbers. */
 
-Iterator::Iterator(int32_t *val)
+Iterator::Iterator(float *val)
   : Entry() {
 
   /* buffer is not malloc'ed!
@@ -118,19 +118,19 @@ int Iterator::cafudda() {
   return 1;
 }
 
-void Iterator::set_min(int32_t val) {
+void Iterator::set_min(float val) {
   min = val;
 }
-void Iterator::set_max(int32_t val) {
+void Iterator::set_max(float val) {
   max = val;
 }
-void Iterator::set_step(int32_t val) {
+void Iterator::set_step(float val) {
   step = val;
 }
-void Iterator::set_aim(int32_t val) {
+void Iterator::set_aim(float val) {
   aim = val;
 }
-void Iterator::set_value(int32_t *val) {
+void Iterator::set_value(float *val) {
   value = val;
 }
 void Iterator::set_envelope(iterator_envelope_t e) {
@@ -146,7 +146,7 @@ void Iterator::set_mode(iterator_mode_t m) {
   case BOUNCE: break;
 
   case PULSE:
-    saved_value = (int32_t)*value;
+    saved_value = (float)*value;
     break;
     
   default:
