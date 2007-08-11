@@ -144,6 +144,8 @@ Pipe::Pipe(int size) {
   write_blocking = false;
   write_blocking_time = 2000;
 
+  debug = false;
+
   _thread_init();
   //unlock();
   
@@ -175,7 +177,8 @@ int Pipe::read(int length, void *data) {
   int worklen, origlen, truelen;
   int blk, len, buffered, buffered_bytes;
   int ttl = 0;
-  
+  int num;
+
   if(read_blocking) ttl = read_blocking_time;
 
   lock();
@@ -254,13 +257,19 @@ int Pipe::read(int length, void *data) {
   }
   
   unlock();
-  return ( (origlen-worklen)/read_copy_cb->src_samplesize );
+
+  num = (origlen-worklen)/read_copy_cb->src_samplesize;
+  if(debug) func("read from %s pipe %u samples (%u byte per sample)",
+		 read_copy_cb->name, num, read_copy_cb->src_samplesize);
+
+  return ( num );
 }
 
 int Pipe::write(int length, void *data) {
   int worklen, origlen, space_samples;
   int space_bytes, len, truelen, blk;
   int ttl = 0;
+  int num;
 
   if(write_blocking) ttl = write_blocking_time;
 
@@ -336,7 +345,13 @@ int Pipe::write(int length, void *data) {
   }
   _SPACE(space_bytes);
   unlock();
-  return ((origlen-worklen) / write_copy_cb->dst_samplesize);
+
+  num = (origlen-worklen) / write_copy_cb->dst_samplesize;
+  if(debug) func("write to %s pipe %u samples (%u byte per sample)",
+		 write_copy_cb->name, num, write_copy_cb->dst_samplesize);
+
+  return (num);
+
 }
 
 // |buffer******|end--------------|start**************|bufferEnd

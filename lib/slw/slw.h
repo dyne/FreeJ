@@ -22,7 +22,7 @@
 #ifndef __SLW_H__
 #define __SLW_H__
 
-#include <slang-2/slang.h>
+#include <slang.h>
 
 #include <linklist.h>
 

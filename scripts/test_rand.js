@@ -84,6 +84,7 @@ kbd.released_q = function() { running = false; }
 kbd.released_p = function() { drawer = draw_pixels; }
 kbd.released_t = function() { drawer = draw_triangles; }
 kbd.released_e = function() { drawer = draw_ellipses; }
+register_controller( kbd );
 
 while(running) {
 
@@ -91,7 +92,6 @@ while(running) {
 
   drawer(geo);
 
-  kbd.poll();
   run(0.001);
 
 }

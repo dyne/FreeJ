@@ -8,7 +8,7 @@
 
 
 set_resolution(1024,768);
-fullscreen();
+//fullscreen();
 
 include("keyboard.js");
 

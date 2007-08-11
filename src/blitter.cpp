@@ -565,6 +565,7 @@ void Blitter::blit() {
 
 
   crop( false );
+
   
   // executes LINEAR blit
   if( current_blit->type == LINEAR_BLIT ) {
@@ -699,7 +700,7 @@ bool Blitter::pulse_value(float step, float val) {
   iter->set_step(step);
   iter->set_aim(val);
 
-  layer->iterators.add(iter);
+  layer->iterators.append(iter);
   
   func("layer %s blit %s pulse to %.2f by step %.2f",
       layer->get_name(),current_blit->get_name(),val,step);
@@ -731,7 +732,7 @@ bool Blitter::fade_value(float step, float val) {
   iter->set_mode(ONCE);
   iter->set_step(step);
   iter->set_aim(val);
-  layer->iterators.add(iter);
+  layer->iterators.append(iter);
 
   act("layer %s blit %s fade to %.2f by step %.2f",
       layer->get_name(),current_blit->get_name(),val,step);
@@ -902,6 +903,15 @@ void Blitter::crop(bool force) {
     geo->pitch = 4*geo->w;
 
   } else geo = &layer->geo;
+
+  // QUAAA
+
+  if(layer->slide_x != geo->x) geo->x = (int16_t)layer->slide_x;
+  if(layer->slide_y != geo->y) geo->y = (int16_t)layer->slide_y;
+
+  //////////////////////
+
+
 
   /* compare old layer values
      crop the layer only if necessary */

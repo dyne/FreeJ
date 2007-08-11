@@ -1,5 +1,6 @@
-/*  FreeJ
- *  (c) Copyright 2001 Silvano Galliani aka kysucix <kysucix@dyne.org>
+/*  FreeJ - FFMpeg encoder
+ *
+ *  (c) Copyright 2005 Silvano Galliani aka kysucix <kysucix@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -21,147 +22,156 @@
 
 #include <config.h>
 
+// ffmpeg encoder is temporarly deactivated until we fix it
+#undef WITH_AVCODEC
+
 #ifdef WITH_AVCODEC
+
 #include <ffmpeg_encoder.h>
 #include <string.h>
 #include <context.h>
 #include <sdl_screen.h>
 
-FFmpegEncoder::FFmpegEncoder(char *output_filename) 
-	:VideoEncoder(output_filename) {
-	func("FFmpegEncoder::FFmpegEncoder::FFmpegEncoder object created");
+FFmpegEncoder::FFmpegEncoder() 
+  :VideoEncoder() {
+
+  func("FFmpegEncoder object created");
+
+  set_name("encoder/ffmpeg");
+
 }
 FFmpegEncoder::~FFmpegEncoder() {
 	func("FFmpegEncoder:::~FFmpegEncoder");
-	if(codec)
-		avcodec_close(codec);
+
+	if(codec) avcodec_close(codec);
+
 	free_av_objects();
 
 	// finish writing the file
 	av_write_trailer(afc);
+
 	// free the streams
 	for(int i = 0; i < afc->nb_streams; i++) {
-		jfree(&afc->streams[i]);
+	  jfree(&afc->streams[i]);
 	}
-
+	
 	if (!(aof->flags & AVFMT_NOFILE)) {
-		/* close the output file */
-		url_fclose(&afc->pb);
+	  /* close the output file */
+	  url_fclose(&afc->pb);
 	}
 	/* free the stream */
 	jfree(afc);
 }
 
 void FFmpegEncoder::free_av_objects() {
-	jfree(picture);
-	jfree(tmp_picture);
-	jfree(video_outbuf);
+  jfree(picture);
+  jfree(tmp_picture);
+  jfree(video_outbuf);
 }
 
 bool FFmpegEncoder::init(Context *_env) { 
-	if(started)
-		return true;
-	if(!_init(_env))
-		return false;
-	// initialize libavcodec, and register all codecs and formats
-	av_register_all();
+  if(running) return true;
+  if(!_init(_env)) return false;
+  // initialize libavcodec, and register all codecs and formats
+  av_register_all();
+  
+  aof = guess_format(NULL,filename,NULL);
+  if(!aof) {
+    error("Encoder::init::Can't find a correct format for %s. I will use avi",filename);
+    aof=guess_format("avi",NULL,NULL);
+  }
+  
+  // create format context
+  afc = av_alloc_format_context();
+  if(!afc) {
+    error("FFmpegEncoder::init::Error allocating AVFormatContext!");
+    return false;
+  }
+  afc->oformat=aof;
+  if(sizeof(filename)>MAX_FILE_LENGHT) {
+    error("FFmpegEncoder::init::Filename longer than %d!",MAX_FILE_LENGHT);
+    return false;
+  }
+  // copy filename inside the struct afc
+  snprintf(afc->filename, sizeof(afc->filename), "%s", filename);
+  
+  // create stream and set parameter
+  if (aof->video_codec != CODEC_ID_NONE) {
+    video_stream = av_new_stream(afc,0);
+    if(!video_stream) {
+      error("FFmpegEncoder::init::Error allocating AVFormatContext!");
+      return false;
+    }
+    set_encoding_parameter();
+  }
+  // set the output parameters in avcodec
+  if (av_set_parameters(afc, NULL) < 0) {
+    error("FFmpegEncoder::init::Invalid output format parameters\n");
+    exit(1);
+  }
+  // DEBUG stuff
+  dump_format(afc, 0, filename, 1);
+  
+  // find the video encoder
+  AVCodecContext *acc=&video_stream->codec;
+  AVCodec *codec = avcodec_find_encoder(acc->codec_id);
+  if(!codec) {
+    error("FFmpegEncoder:init::Couldn't find encoder");
+    return false;
+  }
+  
+  /* open the codec */
+  if (avcodec_open(acc, codec) < 0) {
+    error("FFmpegEncoder:init::Couldn't open codec");
+    return false;
+  }
+  video_outbuf = NULL;
+  if (!(afc->oformat->flags & AVFMT_RAWPICTURE)) {
+    /* allocate output buffer */
+    /* XXX: API change will be done */
+    video_outbuf_size = 200000;
+    video_outbuf = (uint8_t *)av_malloc(video_outbuf_size);
+    if(!video_outbuf)
+      return false;
+  }
+  
+  /* allocate the encoded raw picture */
+  picture = avcodec_alloc_frame();
+  //picture = (AVPicture *)malloc(sizeof(AVPicture));
+  
+  if (!picture) {
+    error("Could not allocate picture\n");
+    return false;
+  }
+  int size = avpicture_get_size(acc->pix_fmt, acc->width, acc->height);
+  uint8_t *video_outbuf_tmp=(uint8_t *)av_malloc(size);
+  if (!video_outbuf_tmp) {
+    av_free(picture);
+    return false;
+  }
+  avpicture_fill((AVPicture *)picture, video_outbuf_tmp, acc->pix_fmt, acc->width, acc->height);
+  
+  /* if the output format is not YUV420P, then a temporary YUV420P
+     picture is needed too. It is then converted to the required
+     output format */
+  tmp_picture = NULL;
+  if (acc->pix_fmt != PIX_FMT_YUV420P) {
+    AVFrame *picture_tmp = avcodec_alloc_frame();
+    if (!picture_tmp) {
+      fprintf(stderr, "Could not allocate temporary picture\n");
+      exit(1);
+    }
+    tmp_picture=(uint8_t *)av_malloc(size);
+    if (!tmp_picture) {
+      av_free(picture_tmp);
+      return false;
+    }
+    avpicture_fill((AVPicture *)picture_tmp, tmp_picture, PIX_FMT_YUV420P, acc->width, acc->height);
+  }
+  open();
 
-	aof = guess_format(NULL,filename,NULL);
-	if(!aof) {
-		error("Encoder::init::Can't find a correct format for %s. I will use avi",filename);
-		aof=guess_format("avi",NULL,NULL);
-	}
-
-	// create format context
-	afc = av_alloc_format_context();
-	if(!afc) {
-		error("FFmpegEncoder::init::Error allocating AVFormatContext!");
-		return false;
-	}
-	afc->oformat=aof;
-	if(sizeof(filename)>MAX_FILE_LENGHT) {
-		error("FFmpegEncoder::init::Filename longer than %d!",MAX_FILE_LENGHT);
-		return false;
-	}
-	// copy filename inside the struct afc
-	snprintf(afc->filename, sizeof(afc->filename), "%s", filename);
-
-	// create stream and set parameter
-	if (aof->video_codec != CODEC_ID_NONE) {
-		video_stream = av_new_stream(afc,0);
-		if(!video_stream) {
-			error("FFmpegEncoder::init::Error allocating AVFormatContext!");
-			return false;
-		}
-		set_encoding_parameter();
-	}
-	// set the output parameters in avcodec
-	if (av_set_parameters(afc, NULL) < 0) {
-		error("FFmpegEncoder::init::Invalid output format parameters\n");
-		exit(1);
-	}
-	// DEBUG stuff
-	dump_format(afc, 0, filename, 1);
-
-	// find the video encoder
-	AVCodecContext *acc=&video_stream->codec;
-	AVCodec *codec = avcodec_find_encoder(acc->codec_id);
-	if(!codec) {
-		error("FFmpegEncoder:init::Couldn't find encoder");
-		return false;
-	}
-
-	/* open the codec */
-	if (avcodec_open(acc, codec) < 0) {
-		error("FFmpegEncoder:init::Couldn't open codec");
-		return false;
-	}
-	video_outbuf = NULL;
-	if (!(afc->oformat->flags & AVFMT_RAWPICTURE)) {
-		/* allocate output buffer */
-		/* XXX: API change will be done */
-		video_outbuf_size = 200000;
-		video_outbuf = (uint8_t *)av_malloc(video_outbuf_size);
-		if(!video_outbuf)
-			return false;
-	}
-
-	/* allocate the encoded raw picture */
-	picture = avcodec_alloc_frame();
-	//picture = (AVPicture *)malloc(sizeof(AVPicture));
-
-	if (!picture) {
-		error("Could not allocate picture\n");
-		return false;
-	}
-	int size = avpicture_get_size(acc->pix_fmt, acc->width, acc->height);
-	uint8_t *video_outbuf_tmp=(uint8_t *)av_malloc(size);
-	if (!video_outbuf_tmp) {
-		av_free(picture);
-		return false;
-	}
-	avpicture_fill((AVPicture *)picture, video_outbuf_tmp, acc->pix_fmt, acc->width, acc->height);
-
-	/* if the output format is not YUV420P, then a temporary YUV420P
-	   picture is needed too. It is then converted to the required
-	   output format */
-	tmp_picture = NULL;
-	if (acc->pix_fmt != PIX_FMT_YUV420P) {
-		AVFrame *picture_tmp = avcodec_alloc_frame();
-		if (!picture_tmp) {
-			fprintf(stderr, "Could not allocate temporary picture\n");
-			exit(1);
-		}
-		tmp_picture=(uint8_t *)av_malloc(size);
-		if (!tmp_picture) {
-			av_free(picture_tmp);
-			return false;
-		}
-		avpicture_fill((AVPicture *)picture_tmp, tmp_picture, PIX_FMT_YUV420P, acc->width, acc->height);
-	}
-	open();
-	started = true;
-	return true;
+  initialized = true;
+  return true;
 }
 
 bool FFmpegEncoder::write_frame() {

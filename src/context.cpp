@@ -33,8 +33,6 @@
 #include <video_encoder.h>
 #include <audio_input.h>
 #include <impl_video_encoders.h>
-#include <pipe.h>
-#include <shouter.h>
 #include <signal.h>
 #include <errno.h>
 
@@ -70,21 +68,93 @@ Context::Context() {
 }
 
 Context::~Context() {
-  close ();
+
+  Layer *lay;
+  Controller *ctrl;
+  VideoEncoder *enc;
+
+
+#ifdef WITH_FT2
+  // free font path array
+  int c;
+  if(font_files) {
+    for(c=0; c<num_fonts; c++)
+      free( font_files[c] );
+    num_fonts = 0;
+    free(font_files);
+  }
+#endif
+  
+  
+  if (console) {
+    console->close ();
+    console = NULL;
+  }
+  
+  lay = (Layer *)layers.begin ();
+  while (lay) {
+    lay-> lock ();
+    layers.rem (1);
+    lay-> quit = true;
+    lay-> signal_feed ();
+    lay-> unlock ();
+    delete lay;
+    lay = (Layer *)layers.begin ();
+  }
+
+  enc = (VideoEncoder *)encoders.begin();
+  while(enc) {
+    enc->lock();
+    encoders.rem(1);
+    enc->quit = true;
+    enc->signal_feed();
+    enc->unlock();
+    delete enc;
+    enc = (VideoEncoder *)encoders.begin();
+  }
+
+  ctrl = (Controller *)controllers.begin();
+  while(ctrl) {
+    //    ctrl->lock();
+    controllers.rem(1);
+    //    ctrl->quit = true;
+    //    ctrl->signal_feed();
+    //    ctrl->unlock();
+    delete ctrl;
+    ctrl = (Controller *)controllers.begin();
+  }
+
+  if (screen) {
+    delete screen;
+    screen = NULL;
+  }
+
+  if(audio) {
+    delete audio;
+    audio = NULL;
+  }
+
+  //  plugger.close();
+
+  if(js) {
+    delete js;
+    js = NULL;
+  }
+
   notice ("cu on http://freej.dyne.org");
 }
 
 bool Context::init(int wx, int hx, bool opengl) {
 
   notice("initializing context environment", wx, hx);
-  /*
-   * If selected use opengl as video output!
-   */
+
+  // If selected use opengl as video output!
 #ifdef WITH_OPENGL
   if (opengl)
     screen = new SdlGlScreen();
   else
 #endif
+
     screen = new SdlScreen();
   
   if (! screen->init (wx, hx)) {
@@ -98,14 +168,17 @@ bool Context::init(int wx, int hx, bool opengl) {
 
   /* create Audio Input
      audio card is opened at audio->init()
-     audio->start() should be called by objects that use audio
-     to make sure is initialized. */
+  */
   audio = new AudioInput();
   audio->init();
-  audio->start();
+  /* audio->start() is called by rocknroll
+     if any objects being used needs audio input
+//   audio->start();
+  */
 
 #ifdef WITH_FT2
   num_fonts = 0;
+  font_files = NULL;
 
   // parse all font directories  
   scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
@@ -124,21 +197,6 @@ bool Context::init(int wx, int hx, bool opengl) {
 #endif
 
   
-  // create object here to avoid performance issues at run time
-#ifdef CONFIG_OGGTHEORA_ENCODER
-  video_encoder = get_encoder ("freej.ogg");
-  
-  // register SIGPIPE signal handler (stream error)
-  got_sigpipe = false;
-  if (signal (SIGPIPE, fsigpipe) == SIG_ERR) {
-    error ("Couldn't install SIGPIPE handler"); 
-    //   exit (0); lets not be so drastical...
-  }
-  
-  // create shouter object to stream to an icecast server
-  shouter = new Shouter ();
-#endif
-  
   // a fast benchmark to select the best memcpy to use
   find_best_memcpy ();
   
@@ -147,65 +205,23 @@ bool Context::init(int wx, int hx, bool opengl) {
   
   set_fps_interval (fps_speed);
   gettimeofday (&lst_time, NULL);
+
+  // register SIGPIPE signal handler (stream error)
+  got_sigpipe = false;
+  if (signal (SIGPIPE, fsigpipe) == SIG_ERR) {
+    error ("Couldn't install SIGPIPE handler"); 
+    //   exit (0); lets not be so drastical...
+  }
   
   return true;
 }
 
-void Context::close() {
-  Layer *lay;
-
-#ifdef WITH_FT2
-  // free font path array
-  int c;
-  for(c=0; c<num_fonts; c++)
-    free( font_files[c] );
-  num_fonts = 0;
-#endif
-  
-  
-#ifdef CONFIG_OGGTHEORA_ENCODER
-  delete video_encoder;
-  video_encoder = NULL;
-#endif
-  
-  if (console) {
-    console->close ();
-    console = NULL;
-  }
-  
-  lay = (Layer *)layers.begin ();
-  while (lay) {
-    lay-> lock ();
-    layers.rem (1);
-    lay-> quit = true;
-    lay-> signal_feed ();
-    lay-> unlock ();
-    delete lay;
-    lay = (Layer *)layers.begin ();
-  }
-  
-  if (screen) {
-    delete screen;
-    screen = NULL;
-  }
-
-  if(audio) {
-    delete audio;
-    audio = NULL;
-  }
-
-  plugger.close();
-
-  if(js) {
-    delete js;
-    js = NULL;
-  }
-}
 
 /*
  * Main loop called fps_speed times a second
  */
 void Context::cafudda(double secs) {
+  VideoEncoder *enc;
   Layer *lay;
   
   if(secs) /* if secs == 0 will go out after one cycle */
@@ -270,10 +286,19 @@ void Context::cafudda(double secs) {
     
 
     //////////////////////////////////////
-    // process encoder tasks
-#ifdef CONFIG_OGGTHEORA_ENCODER
-    handle_encoder();
-#endif
+    // cafudda all active ENCODERS
+    enc = (VideoEncoder*)encoders.end();
+    ///// process each encoder in the chain
+    if(enc) {
+      encoders.lock();
+      while(enc) {
+	if(!pause)
+	  enc->cafudda();
+	enc = (VideoEncoder*)enc->prev;
+      }
+      encoders.unlock();
+    }
+    /////////// finish processing encoders
     //////////////////////////////////////
 
     
@@ -334,73 +359,48 @@ void Context::handle_resize() {
 }
 
 void Context::handle_controllers() {
+  int res;
   Controller *ctrl;
 
-  if( SDL_PollEvent(&event) ) {
-    
-    ///// if we have an event poll each controller in the chain      
-    
-    // force quit when SDL does
-    if (event.type == SDL_QUIT) {
-      quit = true;
-      return;
-    }
-    
-    // fullscreen switch (ctrl-f)
+  event.type = SDL_NOEVENT;
+
+  SDL_PumpEvents();
+
+  // peep if there are quit or fullscreen events
+  res = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);
+
+  // force quit when SDL does
+  if (event.type == SDL_QUIT) {
+    quit = true;
+    return;
+  }
+  
+  // fullscreen switch (ctrl-f)
+  if(event.type == SDL_KEYDOWN)
     if(event.key.state == SDL_PRESSED)
       if(event.key.keysym.mod & KMOD_CTRL)
-	if(event.key.keysym.sym == SDLK_f) screen->fullscreen();
-    
-    ctrl = (Controller *)controllers.begin();
-    if(ctrl) {
-      controllers.lock();
-      while(ctrl) {
-	if(ctrl->active)
-	  ctrl->poll(this);
-	ctrl = (Controller*)ctrl->next;
-      }
-      controllers.unlock();
+	if(event.key.keysym.sym == SDLK_f) {
+	  screen->fullscreen();
+	  res = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);  
+	}
+  
+  ctrl = (Controller *)controllers.begin();
+  if(ctrl) {
+    controllers.lock();
+    while(ctrl) {
+      if(ctrl->active)
+	ctrl->peep(this);
+      ctrl = (Controller*)ctrl->next;
     }
+    controllers.unlock();
   }
+
+  // flushes all events that are leftover
+  while( SDL_PeepEvents(&event,1,SDL_GETEVENT, SDL_ALLEVENTS) > 0 ) continue;
+  memset(&event, 0x0, sizeof(SDL_Event));
+
 }
 
-void Context::handle_encoder() {
-  /*
-    if (save_to_file)
-    video_encoder -> write_frame();
-    
-    if (stream)
-    video_encoder -> stream_it(true);
-  */
-  // show results on file if requested encoder in a thread ?? not now. kysu.
-  //	    if(! video_encoder->isStarted())
-  //		    video_encoder->start();
-  //	    video_encoder->has_finished_frame();
-  //	    video_encoder->signal();
-  //
-  if(save_to_file) {
-    //	    for ( int i = 0; i < 10 ;i ++) {
-    if (video_encoder -> is_stream() && !shouter -> start())
-      video_encoder -> stream_it (false);
-    //			    break;
-    //		    else if (i == 9)
-    //			    save_to_file = false;
-    //	    }
-    
-    if (save_to_file) {
-      if (! (video_encoder->init (this, screen) )) {
-	error ("Can't save to file. retry!");
-	save_to_file = false;
-      }
-      else {
-	//	  if (!video_encoder -> is_audio_inited ()) {
-	//	    video_encoder -> start_audio_stream ();
-	//	  }
-	video_encoder -> write_frame ();
-      }
-    }
-  }
-}
 
 bool Context::register_controller(Controller *ctrl) {
   if(!ctrl) {
@@ -421,6 +421,8 @@ bool Context::register_controller(Controller *ctrl) {
   return true;
 }
 
+
+
 void Context::add_layer(Layer *lay) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   if(lay->list) lay->rem();
@@ -434,14 +436,26 @@ void Context::add_layer(Layer *lay) {
   lay->geo.x = (screen->w - lay->geo.w)/2;
   lay->geo.y = (screen->h - lay->geo.h)/2;
   lay->blitter.crop( true );
-  layers.add(lay);
+  layers.append(lay);
   layers.sel(0);
   lay->sel(true);
   func("layer %s succesfully added",lay->name);
 }
 
+void Context::add_encoder(VideoEncoder *enc) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__); 
+  if(enc->list) enc->rem();
+  
+  enc->env = this;
+
+  encoders.append(enc);
+  encoders.sel(0);
+  enc->sel(true);
+  func("encoder %s succesfully added", enc->name);
+}
+
 int Context::open_script(char *filename) {
-	return js->open(filename);
+  return js->open(filename);
 }
 
 bool Context::config_check(const char *filename) {
@@ -545,20 +559,22 @@ void Context::calc_fps() {
 }
 
 void Context::rocknroll() {
-  Layer *l = (Layer *)layers.begin();
+  VideoEncoder *e;
+  Layer *l;
+  bool need_audio = false;
+
+  ///////////////////////////////////////////
+  // Layers - start the threads to be started
+  l = (Layer *)layers.begin();
   
-  /*
-   * Show credits when user doesn't specified layers
-   */
+  // Show credits when no layers are present and interactive
   if (!l) // there are no layers
-    if ( interactive) { // engine running in interactive mode
+    if ( interactive ) { // engine running in interactive mode
       osd.credits ( true);
       return;
     }
   
-  /*
-   * Iterate throught linked list of layers and start them
-   */
+  // Iterate throught linked list of layers and start them
   layers.lock();
   while (l) {
     if (!l->running) {
@@ -571,10 +587,53 @@ void Context::rocknroll() {
 	func ("Context::rocknroll() : error creating thread");
       }
     }
+
+    need_audio |= (l->running && l->use_audio);
+    
     l = (Layer *)l->next;
   }
   layers.unlock();
-  
+  /////////////////////////////////////////////////////////////
+  ///////////////////////////////////// end of layers rocknroll
+
+
+
+  /////////////////////////////////////////////////////
+  // Video Encoders - start the encoders to be launched
+  e = (VideoEncoder*) encoders.begin();
+
+  encoders.lock();
+  while(e) {
+    if(!e->running) {
+      func("launching thread for %s",e->name);
+      if( e->start() == 0 ) {
+	act("waiting for %s thread to start...", e->name);
+	while(! e->running ) jsleep(0,500);
+	act("%s thread started", e->name);
+	e->active = start_running;
+      }
+      else { // problems starting thread
+	error("can't launch thread for %s", e->name);
+      }
+    }
+
+    need_audio |= (e->running && e->use_audio);
+
+    e = (VideoEncoder*)e->next;
+  }
+  encoders.unlock();
+  //////////////////////////////////////////////////////////////
+  //////////////////////////////////// end of encoders rocknroll
+
+  // start audio capture if needed by layer/encoders
+  if(need_audio) {
+    //    act("starting audio capture");
+    audio->start();
+  } else {
+    //    act("stopping audio capture");
+    audio->stop();
+  }
+
 }
 
 void fsigpipe (int Sig) {

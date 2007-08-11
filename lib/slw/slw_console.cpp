@@ -22,7 +22,7 @@
 #include <string.h>
 #include <signal.h>
 
-#include <slang-2/slang.h>
+#include <slang.h>
 
 #include <jutils.h>
 

@@ -26,16 +26,13 @@
 
 #include <impl_video_encoders.h>
 
-VideoEncoder *get_encoder(char *output_filename) {
-	VideoEncoder *e = NULL;
-	/*
-	if (strncasecmp( strrchr(filename,'.'), ".ogg",4)) {
-		return (new OggTheoraEncoder());
-		else
-			return (new FFmpegEncoder());
-	*/
+VideoEncoder *get_encoder(char *enctype) {
+  VideoEncoder *e = NULL;
+  
 #ifdef CONFIG_OGGTHEORA_ENCODER
-	e = new OggTheoraEncoder(output_filename);
+  if(strncasecmp(enctype,"theora",3) == 0)
+    e = new OggTheoraEncoder();
 #endif
-	return e;
+  
+  return e;
 }

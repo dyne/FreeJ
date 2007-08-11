@@ -57,7 +57,26 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
+int KbdCtrl::peep(Context *env) {
 
+  int res = 1;
+  int c = 0;
+
+  while(res > 0) {
+
+    res = SDL_PeepEvents(&env->event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK);
+
+    if(res<=0) break;
+
+    SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK);
+    poll(env);
+    
+    c++;
+    
+  }
+
+  return c;
+}
 
 int KbdCtrl::poll(Context *env) {
   char tmp[8];
@@ -65,7 +84,8 @@ int KbdCtrl::poll(Context *env) {
 
   jsval ret;
 
-
+  //  if(env->event.type != SDL_KEYDOWN) return 0;
+  //  if(env->event.type != SDL_KEYUP)   return 0;  
 
   if(env->event.key.state == SDL_PRESSED)
     strcpy(funcname,"pressed_");

@@ -1,5 +1,6 @@
 /*  FreeJ
- *  (c) Copyright 2001 Silvano Galliani aka kysucix <kysucix@dyne.org>
+ *  (c) Copyright 2005 Silvano Galliani <kysucix@dyne.org>
+ *                2007 Denis Rojo       <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -24,10 +25,16 @@
 
 #include <SDL.h>
 #include <config.h>
-#include <linklist.h>
-#include <jutils.h>
+
+#include <pipe.h>
 #include <jsync.h>
+#include <jutils.h>
+#include <shouter.h>
+#include <linklist.h>
+
 #include <screen.h>
+
+#include <jack/ringbuffer.h>
 
 class Context;
 
@@ -47,46 +54,64 @@ class Context;
 
 
 //class VideoEncoder: public Entry,public JSyncThread{
-class VideoEncoder: public Entry {
+class VideoEncoder: public Entry, public JSyncThread {
 
  public:
   
-  VideoEncoder (char *output_filename);
+  VideoEncoder ();
   virtual ~VideoEncoder ();
-  
-  virtual void set_encoding_parameter ()                     = 0;
-  virtual bool set_video_quality (int quality)               = 0;
-  virtual bool set_audio_quality (double quality)               = 0;
-  virtual bool write_frame ()                                = 0;
-  virtual bool has_finished_frame ()                         = 0;
-  virtual bool isStarted ()                                  = 0;
-  virtual bool init (Context *_env, ViewPort *viewport)      = 0;
-  
-  bool set_output_name (char * output_filename);
-  bool set_sdl_surface (SDL_Surface *surface);
-  char *get_filename();
 
-  void stream_it(bool s);
-  bool is_stream();
+  virtual bool init (Context *_env)                          = 0;  
+  virtual bool set_video_quality (int quality)               = 0;
+  virtual bool set_audio_quality (double quality)            = 0;
+  virtual bool encode_frame ()                               = 0;
+  virtual bool feed_video()                                  = 0;
+  virtual bool has_finished_frame ()                         = 0;
+
+  void run();
+  bool cafudda();
   
+  //  Pipe *encpipe; ///< FIFO pipe for encoded data
+  //  int fifopipe[2]; ///< FIFO pipe from libc
+  jack_ringbuffer_t *ringbuffer;
+  
+  bool set_filedump(char *filename); ///< start to dump to filename, call with NULL to stop
+  char filedump[512]; ////< filename to which encoder is writing dump
+
+  bool quit; ///< flag it up if encoder has to quit
+
+  bool active; ////< flag to de/activate the encoder
+
+  bool running; ///< true if thread is running
+  bool initialized; ///< true if encoder had been initialized
+  bool write_to_disk; ///< true if encoder should write to a file
+  bool write_to_stream; ///< true if encoder should write to a stream
+  
+  bool use_audio; ///< true if the encoded data should include also audio
+
+  // to be removed:
+  //  void stream_it(bool s) {   stream = s; }
+  //  bool is_stream() { return stream; }
+  //  bool set_sdl_surface (SDL_Surface *surface);
+  ///////  
+
+  Context *env;
+
+
   // visible for the sub-classes
  protected:
 
-  char *filename;
-  bool started;
+  Linklist shouters;
 
-  SDL_Surface *surface;
+  //  SDL_Surface *surface;
   
-  Context *env;
 
-  bool _init(Context *_env);
 
-  /* fifo to handle input audio */
-  bool write_to_disk;
-  bool stream;
+  //  bool _init(Context *_env);
 
-  private:
-
+ private:
+  FILE *filedump_fd;
+  char encbuf[8192];
 
 };
 

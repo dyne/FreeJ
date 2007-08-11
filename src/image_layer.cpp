@@ -51,6 +51,8 @@ ImageLayer::~ImageLayer() {
 bool ImageLayer::open(char *file) {
 
   if(image) SDL_FreeSurface(image);
+  if(surf) SDL_FreeSurface(surf);
+
 
   image = IMG_Load(file);
   if(!image) {
@@ -65,41 +67,51 @@ bool ImageLayer::open(char *file) {
     image = SDL_DisplayFormat(image);
   }
 
-  if(surf) {
-    SDL_FillRect(surf, NULL, 0x0);
-    SDL_BlitSurface(image,NULL,surf,NULL);
+  // allocate the hw accelerated surface
+  surf = SDL_CreateRGBSurface(SDL_HWSURFACE|SDL_SRCALPHA,
+			      image->w, image->h, 32,
+			      red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
+  if(!surf) {
+    error("ImageLayer::open() error creating SDL surface");
+    return false;
   }
+
+  SDL_FillRect(surf, NULL, 0x0);
+
+  _init(image->w, image->h);
+
+  
+  notice("ImageLayer opened %s :: w[%u] h[%u] (%u bytes)",
+	 file, geo.w, geo.h, geo.size);
+
+
+  /** allocate memory for the black image */
+  if(black_image) {
+    jfree(black_image);
+    black_image = NULL;
+  }
+
+  black_image = jalloc(black_image,geo.size);
+  // paint it black!
+  black_image = memset(black_image,0,geo.size);
+
+  SDL_FillRect(surf, NULL, 0x0);
+  SDL_BlitSurface(image,NULL,surf,NULL);
+
+  opened = true;
 
   return true;
 }
 
 bool ImageLayer::init(Context *freej) {
   func("ImageLayer::init");
+
+  opened = false; // by default we have nothing opened
+
+  // but we must init the blitter
+  blitter.init(this);
   
-  int width  = freej->screen->w;
-  int height = freej->screen->h;
-
-  if((!width || !height) && image)
-    _init(image->w, image->h);
-  else
-    _init(width, height);
-  
-  notice("ImageLayer :: w[%u] h[%u] (%u bytes)",
-	 geo.w, geo.h, geo.size);
-
-  surf = SDL_CreateRGBSurface(SDL_HWSURFACE|SDL_SRCALPHA,
-			      geo.w, geo.h, 32,
-			      red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
-  SDL_FillRect(surf, NULL, 0x0);
-
-  if(image)
-    SDL_BlitSurface(image,NULL,surf,NULL);
-
-  /** allocate memory for the black image */
-  black_image = jalloc(black_image,geo.size);
-  
-  // paint it black!
-  black_image = memset(black_image,0,geo.size);
+  env = freej;
 
   return true;
 }

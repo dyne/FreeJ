@@ -59,7 +59,7 @@ AudioInput::AudioInput() {
 
   input_pipe = new Pipe();
   input_pipe->set_output_type("copy_byte");
-  input_pipe->set_block(true,false); // true,false
+  input_pipe->set_block(true,true); // true,false
   input_pipe->set_block_timeout(500,500);
 
   /*  
@@ -217,7 +217,7 @@ bool AudioInput::init() {
     return false;
   }
 
-  act("initialization succesful");
+  act("audio initialization succesful");
   initialized = true;
 
   return true;
@@ -256,23 +256,30 @@ void AudioInput::stop() {
 
   if(!initialized) return;
 
-  act("stop recording from audio device");
+  if(started) {
+    act("stop recording from audio device");
+    
+    err = Pa_CloseStream (pa_audioStream);
+    if (err != paNoError)
+      error ("Error closing audio stream");
 
-  err = Pa_CloseStream (pa_audioStream);
-  if (err != paNoError)
-    error ("Error closing audio stream");
-
+    started = false;
+  }
 }
 
 int AudioInput::cafudda() {
-  int num = framesperbuffer*sizeof(int16_t)*channels;
+  int num;
   int res;
 
-  res = input_pipe->read(num, (void*)input);
-  
-  if(res != num) 
-    warning("Audio input cannot fill all frames per buffer: %i instead of %u",res, num);
+  if(started) {
 
+    num = framesperbuffer*sizeof(int16_t)*channels;
+
+    res = input_pipe->read(num, (void*)input);
+    
+    //    if(res != num) 
+    //      warning("Audio input cannot fill all frames per buffer: %i instead of %u",res, num);
+  }
   //  output_pipe->write(num, (void*)input);
 
   return(res);

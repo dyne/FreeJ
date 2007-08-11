@@ -73,6 +73,7 @@ freej_SOURCES = \
 	sdl_screen.cpp 	\
 	sdlgl_screen.cpp \
 \
+	controller.cpp  \
 	kbd_ctrl.cpp	\
 	joy_ctrl.cpp	\
 \
@@ -98,7 +99,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/goom/libgoom2.a \
               $(top_srcdir)/lib/tbt/libtbt.a \
               $(top_srcdir)/lib/slw/libslw.a \
-              -ldl -lpthread -lm -lslang-2 -lpng -ljpeg \
+              -ldl -lpthread -lm -lslang -lpng -ljpeg \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \

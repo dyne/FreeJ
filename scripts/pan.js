@@ -3,6 +3,8 @@
 // this one can tile a seamless image and pan a plane with it
 // $Id: $
 
+include("keyboard.js");
+
 w=400; h=300;
 
 tile_x=128;

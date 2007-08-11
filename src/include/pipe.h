@@ -119,9 +119,9 @@ public:
   ///< set the output conversion type for this Pipe
 
   void set_block(bool input, bool output);
-  ///< set the blocking policy on the read and write
+  ///< set the blocking policy on the write (input) and read (output)
   void set_block_timeout(int input, int output);
-  ///< set the timeout in milliseconds for the read and write block
+  ///< set the timeout in milliseconds for the write (input) and read (output)
 
   /**
      Reads out audio data from the pipe filling up the given buffer
@@ -216,6 +216,8 @@ public:
   void block(bool val);
 
   bool blocking;
+
+  bool debug; ///< print debug output if set to true
 
   /**
      @brief tell the amount of data contained in the Pipe

@@ -31,6 +31,7 @@ class JoyCtrl : Controller {
   ~JoyCtrl();
   
   bool init(JSContext *env, JSObject *obj);
+  int  peep(Context *env);
   int  poll(Context *env);
   
  private:

@@ -42,7 +42,13 @@ Plugger::Plugger() {
 
 Plugger::~Plugger() {
   func("Plugger::~Plugger()");
-  _delete();
+
+  for(int c=0;c<MAX_PLUGINS;c++)
+    if(plugs[c]) {
+      delete(plugs[c]);
+      plugs[c] = NULL;
+    }
+  
 }
 
 Filter *Plugger::pick(char *name) {
@@ -96,7 +102,7 @@ int Plugger::refresh() {
   struct dirent **filelist;
   int found;
   char *path = _getsearchpath();
-  _delete();
+  //  _delete();
 
   notice("loading available plugins");
   
@@ -136,15 +142,6 @@ Filter *Plugger::operator[](const int num) {
   return(plugs[num]);
 }
 
-int Plugger::_delete() {
-  func("Plugger::_delete");
-  for(int c=0;c<MAX_PLUGINS;c++)
-    if(plugs[c]) {
-      delete(plugs[c]);
-      plugs[c] = NULL;
-    }
-  return 0;
-}
 
 bool Plugger::_add_plug(Filter *f) {
   for(int c=0;c<MAX_PLUGINS;c++)

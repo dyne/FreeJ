@@ -63,7 +63,7 @@ function strstr(haystack, needle) { };
 /** List all files inside a directory
     @param {string} dir directory location to explore for files present in it
     @return array of filenames (strings) found
-    @type string
+    @type Array
 */
 function scandir(dir) { };
 

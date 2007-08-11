@@ -69,7 +69,6 @@ VideoLayer::~VideoLayer() {
  */
 
 bool VideoLayer::init(Context *freej) {
-  int ret = 0;
   func("VideoLayer::init");
   
   rgba_picture = (AVPicture *)malloc(sizeof(AVPicture));
@@ -288,7 +287,7 @@ void *VideoLayer::feed() {
 						while(1) {
 							ret = av_read_frame(avformat_context, &pkt);
 							if (pkt.dts != AV_NOPTS_VALUE) {
-								packet_pts = (double)pkt.dts / AV_TIME_BASE;
+							  packet_pts = (double)pkt.dts / AV_TIME_BASE;
 							}
 							/*
 							   func ("pkt.data= %d\t",pkt.data);

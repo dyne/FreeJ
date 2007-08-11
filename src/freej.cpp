@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2006 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2007 Denis Rojo <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -38,6 +38,7 @@
 #include <config.h>
 
 #include <impl_layers.h>
+#include <impl_video_encoders.h>
 
 // javascript
 #include <jsparser.h>
@@ -380,72 +381,76 @@ int main (int argc, char **argv) {
 
   /* initialize encoded filename */
   if (encoded_filename[0] != '\0') {
-          freej.audio->start();
-	  freej.video_encoder -> set_output_name (encoded_filename );
+    VideoEncoder *enc = get_encoder("theora");
+    enc->init(&freej);
+    enc->set_filedump(encoded_filename);
+    freej.add_encoder(enc);
   }
 
-#ifdef CONFIG_OGGTHEORA_ENCODER
+
   /*
-   * streaming options 
-   */
+
+#ifdef CONFIG_OGGTHEORA_ENCODER
+  // streaming options 
+
   if (screaming_url[0] != '\0') {
-	  char *port = strrchr (screaming_url, ':');
-	  char *slash = NULL;
-	  char *mount = NULL;
-	  char *url   = NULL;
+    char *port = strrchr (screaming_url, ':');
+    char *slash = NULL;
+    char *mount = NULL;
+    char *url   = NULL;
+    
+    if (port) {
+      slash = strchr (port, '/');
+      if (slash) {
+	*slash = '\0';
+	slash++;
+	freej.shouter -> mount (slash );
+	func("Mount point is %s", slash);
+      }
+      func("Port to stream is %s", port + 1);
+      freej.shouter -> port (atoi (port + 1));
+      *port = '\0';
+    } 
 
-	  if (port) {
-		  slash = strchr (port, '/');
-		  if (slash) {
-			  *slash = '\0';
-			  slash++;
-			  freej.shouter -> mount (slash );
-			  func("Mount point is %s", slash);
-		  }
-		  func("Port to stream is %s", port + 1);
-		  freej.shouter -> port (atoi (port + 1));
-		  *port = '\0';
-	  } 
+    // test for http
 
-	  /*
-	   * test for http
-	   */
-	  url = strrchr (screaming_url, '/') ;
-	  if (url) { // http:// probably found
-	      url++;
-	  }
-	  else {
-	      url = screaming_url;
-	  }
-
-	  mount++;
-	  func ("SCREAMING URL IS %s", url);
-	  freej.shouter -> host (url);
-	  //	  freej.video_encoder -> handle_audio (stream_audio );
-
-  if (screaming_name[0] != '\0')
-	  freej.shouter -> name (screaming_name );
-
-  if (screaming_description[0] != '\0')
-	  freej.shouter -> desc (screaming_description );
-
-  if (screaming_pass[0] != '\0')
-	  freej.shouter -> pass (screaming_pass );
-
-  if (theora_quality > 0)
-	  freej.video_encoder -> set_video_quality (theora_quality );
-
-  if (vorbis_quality > 0)
-	  freej.video_encoder -> set_audio_quality (vorbis_quality );
-  
-  freej.shouter -> apply_profile ( );
+    url = strrchr (screaming_url, '/') ;
+    if (url) { // http:// probably found
+      url++;
+    }
+    else {
+      url = screaming_url;
+    }
+    
+    mount++;
+    func ("SCREAMING URL IS %s", url);
+    freej.shouter -> host (url);
+    //	  freej.video_encoder -> handle_audio (stream_audio );
+    
+    if (screaming_name[0] != '\0')
+      freej.shouter -> name (screaming_name );
+    
+    if (screaming_description[0] != '\0')
+      freej.shouter -> desc (screaming_description );
+    
+    if (screaming_pass[0] != '\0')
+      freej.shouter -> pass (screaming_pass );
+    
+    if (theora_quality > 0)
+      freej.video_encoder -> set_video_quality (theora_quality );
+    
+    if (vorbis_quality > 0)
+      freej.video_encoder -> set_audio_quality (vorbis_quality );
+    
+    freej.shouter -> apply_profile ( );
 
   }
 
 #endif
+*/
 
   // Set fps
-  freej. set_fps_interval (fps );
+  freej.set_fps_interval ( fps );
 
   freej.start_running = startstate;
 
@@ -509,7 +514,7 @@ int main (int argc, char **argv) {
 
   /* quit */
 
-  freej.close();
+  //  freej.close();
 
   jsleep(1,0);
 

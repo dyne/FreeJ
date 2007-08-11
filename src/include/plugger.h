@@ -66,7 +66,7 @@ class Plugger {
      Close the plugger and deinitialize all Filter instances, usually
      this doesn't needs to be called directly: FreeJ does it at quit.
   */
-  void close() { _delete(); };
+  //  void close() { _delete(); };
   
   /**
      Return a pointer to the Filter instance of a plugin, given its
@@ -85,7 +85,7 @@ class Plugger {
  private:
 
   /* clears up the whole plugs list */
-  int _delete();
+  //  int _delete();
   bool _add_plug(Filter *f);
   /* checks if file/directory exist */
   bool _filecheck(const char *file);

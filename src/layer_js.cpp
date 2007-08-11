@@ -381,7 +381,7 @@ JS(layer_add_effect) {
       return JS_TRUE;
     }
 
-   lay->filters.add(filter);
+   lay->filters.append(filter);
    return JS_TRUE;
 }
 

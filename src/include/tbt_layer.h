@@ -30,8 +30,6 @@
 
 #include <layer.h>
 
-#define MAX_FONTS 512
-
 class TBTLayer;
 
 class TBTConsole: public TextConsole {
@@ -68,8 +66,6 @@ class TBTLayer: public Layer {
   SDL_Color fgcolor;
   int size;
   
-  int scanfonts(char *path);
-
   TTF_Font *font;
 
   SDL_Surface *surf;
@@ -81,8 +77,6 @@ class TBTLayer: public Layer {
   TBT *tbt;
   bool interactive;
   
-  char *font_files[MAX_FONTS];
-  int num_fonts;
   int sel_font;
 };
 

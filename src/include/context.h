@@ -82,7 +82,6 @@ class Context {
 
   // parts of the cafudda process
   void handle_resize();
-  void handle_encoder();
   void handle_controllers();
 
 
@@ -92,12 +91,14 @@ class Context {
   ~Context();
 
   bool init(int wx, int hx, bool opengl);
-  void close();
+  //  void close();
   void cafudda(double secs);
 
   bool register_controller(Controller *ctrl);
 
   void add_layer(Layer *lay); ///< add a layer to the screen and engine
+
+  void add_encoder(VideoEncoder *enc); ///< add an encoder to the engine
 
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return screen->coords(x,y); };
@@ -130,22 +131,27 @@ class Context {
 
   Osd osd; ///< On Screen Display
 
-  Linklist controllers; ///< Interactive Controllers
+
+
   SDL_Event event;
+
+  Console *console; ///< Console parser (will become a controller)
+
+  Linklist controllers; ///< linked list of registered interactive controllers
 
   Linklist layers; ///< linked list of registered layers
 
-  AudioInput *audio; ///< audio device recording input (PortAudio)
+  Linklist encoders; ///< linked list of registered encoders
 
-  Console *console; ///< Console parser (will become a controller)
+
+
+  AudioInput *audio; ///< audio device recording input (PortAudio)
 
   Plugger plugger; ///< filter plugins host
 
   JsParser *js; ///< javascript parser object
 
-  VideoEncoder *video_encoder; ///< encoding object
 
-  Shouter *shouter; ///< icecast streamer
 
   /* Set the interval (in frames) after
      the fps counter is updated */
@@ -160,9 +166,9 @@ class Context {
   bool start_running;
 
 #ifdef WITH_FT2
-#define MAX_FONTS 512
+#define MAX_FONTS 1024
   int scanfonts(char *path);
-  char* font_files[MAX_FONTS];
+  char** font_files;
   int num_fonts;
 #endif
 

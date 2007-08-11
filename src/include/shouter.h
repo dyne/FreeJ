@@ -61,7 +61,7 @@ else var=in; \
 } \
 float func() { return var; };
 
-class Shouter : public Entry, JSyncThread {
+class Shouter : public Entry {
  private:
   shout_t *ice;
 

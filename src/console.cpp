@@ -183,7 +183,7 @@ static int filter_proc(char *cmd) {
     ::error("Filter %s can't initialize",filt->getname());
     return 0;
   }
-  lay->filters.add(filt);
+  lay->filters.append(filt);
   // select automatically the new filter
   lay->filters.sel(0);
   filt->sel(true);
@@ -299,21 +299,23 @@ static int print_text_layer(char *cmd) {
 }
 static int open_text_layer(char *cmd) {
   TTFLayer *txt = new TTFLayer();
-  if(txt)
-    if(!txt->init(env)) {
-      error("can't initialize text layer");
-      delete txt;
-    } else {
-      txt->print(cmd);
-      env->add_layer(txt);
-      
-      // select the new layer
-      env->console->layer = txt;
+  if(!txt->init(env)) {
+    error("can't initialize text layer");
+    delete txt;
+    return 0;
+  }
 
-      notice("layer succesfully created with text: %s",cmd);
-      env->console->refresh();
-      return env->layers.len();
-    }
+  
+  txt->print(cmd);
+  env->add_layer(txt);
+  
+  // select the new layer
+  env->console->layer = txt;
+  
+  notice("layer succesfully created with text: %s",cmd);
+  env->console->refresh();
+  return env->layers.len();
+
   error("layer creation aborted");
   env->console->refresh();
   return 0;
@@ -740,7 +742,7 @@ void Console::layerprint() {
   SLsmg_set_color(LAYERS_COLOR+10);
   SLsmg_write_string(layer->blitter.current_blit->get_name());
   SLsmg_write_char(' ');
-  SLsmg_printf("[%u]",layer->blitter.current_blit->value);
+  SLsmg_printf("[%d]",layer->blitter.current_blit->value);
   SLsmg_write_char(' ');
   SLsmg_set_color(LAYERS_COLOR);
   SLsmg_write_string("geometry: ");
@@ -1111,8 +1113,8 @@ void Console::parser_default(int key) {
     act("ctrl+c  = Quit FreeJ");
     act("ctrl+x  = execute a Javascript command");
 #ifdef CONFIG_OGGTHEORA_ENCODER
-    ::act("ctrl+w  = start streaming to: %s",env->shouter->host());
-    ::act("          and save to file: %s",env->video_encoder->get_filename());
+    //    ::act("ctrl+w  = start streaming to: %s",env->shouter->host());
+    //    ::act("          and save to file: %s",env->video_encoder->get_filename());
 #endif
     break;
 
@@ -1201,6 +1203,12 @@ void Console::parser_default(int key) {
 
 #ifdef CONFIG_OGGTHEORA_ENCODER
   case KEY_CTRL_W:
+    VideoEncoder *enc;
+    enc = (VideoEncoder*)env->encoders.begin();
+    enc->write_to_disk = !enc->write_to_disk;
+    break;
+    
+    /*
     if (! env -> save_to_file) {
       ::notice ("Streaming to %s:%u",env->shouter->host(), env->shouter->port());
       ::act ("Saving to %s", env -> video_encoder -> get_filename());
@@ -1212,6 +1220,7 @@ void Console::parser_default(int key) {
     }
     env -> save_to_file = ! env -> save_to_file;
     break;
+  */
 #endif
 
   case KEY_CTRL_L:

@@ -216,8 +216,6 @@ Layer *create_layer(Context *env, char *file) {
 	delete nlayer; return NULL;
       }
 
-      // start the audio recording
-      env->audio->start();
       /*
 	    if(!nlayer->open(NULL)) {
 	      error("create_layer: Goom can't open audio device");

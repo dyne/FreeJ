@@ -1,5 +1,6 @@
 /*  FreeJ
- *  (c) Copyright 2001-2007 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2006-2007 Denis Roio aka jaromil <jaromil@dyne.org>
+ *   fixed at CCC camp 2007 by MrGoil
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -105,9 +106,28 @@ bool JoyCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
+int JoyCtrl::peep(Context *env) {
+
+  int res;
+  int c = 0;
+  
+  for( res = SDL_PeepEvents(&env->event, 1, SDL_PEEKEVENT, SDL_JOYEVENTMASK);
+       res > 0;
+       c++ ) {
+    
+    SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
+
+    poll(env);
+
+  }
+
+  return c;
+
+}
+
+
 int JoyCtrl::poll(Context *env) {
-  int c;
-  char funcname[512];
+
   jsval ret;
   /*
   if(! (env->event.type
@@ -118,58 +138,81 @@ int JoyCtrl::poll(Context *env) {
 	   |SDL_JOYBUTTONUP   )))
     return 0;
   */
+
+
   switch(env->event.type) {
     
   case SDL_JOYAXISMOTION:
-
-    snprintf(funcname,512,"axis_%u(%i)", env->event.jaxis.axis);
-
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
-
+    {
+      jsval js_data[] = { 
+	INT_TO_JSVAL(env->event.jaxis.which),
+	INT_TO_JSVAL(env->event.jaxis.axis),
+	INT_TO_JSVAL(env->event.jaxis.value) 
+      };
+      
+      JS_CallFunctionName(jsenv, jsobj, "axismotion", 3, js_data, &ret);
+    }
     break;
 
   case SDL_JOYBALLMOTION:
-
-
-    snprintf(funcname,512,"ball_%u", env->event.jball.ball);
-
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
-    
+    {
+      jsval js_data[] = { 
+	INT_TO_JSVAL(env->event.jball.which),
+	INT_TO_JSVAL(env->event.jball.ball),
+	INT_TO_JSVAL(env->event.jball.xrel),
+	INT_TO_JSVAL(env->event.jball.yrel)
+      };
+      
+      JS_CallFunctionName(jsenv, jsobj, "ballmotion", 4, js_data, &ret);
+    }
     break;
 
   case SDL_JOYHATMOTION:
-
-    snprintf(funcname,512,"hat_%u", env->event.jhat.hat);
-
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
-    
+    {
+      jsval js_data[] = { 
+	INT_TO_JSVAL(env->event.jhat.which),
+	INT_TO_JSVAL(env->event.jhat.hat),
+	INT_TO_JSVAL(env->event.jhat.value) 
+      };
+      
+      JS_CallFunctionName(jsenv, jsobj, "hatmotion", 3, js_data, &ret);
+    }
     break;
-
+    
   case SDL_JOYBUTTONDOWN:
-
-    snprintf(funcname,512,"button_%u_down", env->event.jbutton.button);
-
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    {
+      jsval js_data[] = { 
+	INT_TO_JSVAL(env->event.jbutton.which),
+	INT_TO_JSVAL(env->event.jbutton.button),
+	INT_TO_JSVAL(1) 
+      };
+      
+      JS_CallFunctionName(jsenv, jsobj, "button", 3, js_data, &ret);
+    }
+    break;
     
-    break;
-
   case SDL_JOYBUTTONUP:
-
-    snprintf(funcname,512,"button_%u_up", env->event.jbutton.button);
-
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
-
+    {
+      jsval js_data[] = { 
+	INT_TO_JSVAL(env->event.jbutton.which),
+	INT_TO_JSVAL(env->event.jbutton.button),
+	INT_TO_JSVAL(0) 
+      };
+      
+      JS_CallFunctionName(jsenv, jsobj, "button", 3, js_data, &ret);
+    }
     break;
-
+    
   default: return 0;
     
   }
 
+  /*
   {
     int j,c;
     for(j=0;j<num;j++) {
       func("action on %s",SDL_JoystickName(j));
-      /* print out axes */
+      // print out axes
       for(c=0;c<axes;c++)
 	func("axis %i position %i",c,SDL_JoystickGetAxis(joy[j],c));
       for(c=0;c<buttons;c++)
@@ -180,7 +223,8 @@ int JoyCtrl::poll(Context *env) {
   }
 
   func("joystick controller called method %s()",funcname);
-    
+  */
+
   return(1);
     
 }

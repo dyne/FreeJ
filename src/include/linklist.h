@@ -44,7 +44,6 @@ class Linklist {
   int len() { return(length); };
   
   void append(Entry *addr);
-  void add(Entry *addr) { append(addr); }; /* lazy backward compatibility */
   void prepend(Entry *addr);
   void insert(Entry *addr, int pos);
   void insert_after(Entry *addr, Entry *pos);  

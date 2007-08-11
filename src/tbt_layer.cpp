@@ -95,60 +95,43 @@ TBTLayer::TBTLayer()
 
   tbt = NULL;
   font = NULL;
-  num_fonts=0;
   sel_font=0;
   
   TTF_Init(); // SDL_ttf initialization
 
-  // parse all font directories  
-  scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
-  scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
-  scanfonts("/usr/X11R6/lib/X11/fonts/TrueType");
-  scanfonts("/usr/share/truetype");
 
-  if(!num_fonts) {
-
-    error("no truetype fonts found on your system, dirs searched:");
-    error("/usr/X11R6/lib/X11/fonts/TTF");
-    error("/usr/X11R6/lib/X11/fonts/truetype");
-    error("/usr/X11R6/lib/X11/fonts/TrueType");
-    error("/usr/share/truetype");
-    error("you should install .ttf fonts in one of the directories above.");
-
-  } else {
-
-    func("TxtLayer fonts %i",num_fonts);
-
-    // choose first font and initialize ready for printing
-    size = 30;
-    
-    font = TTF_OpenFont(font_files[sel_font], size);
-    if (!font)
-      error("Couldn't load %d pt font from %s: %s\n",
-	    size, font_files[sel_font], SDL_GetError());
-    
-    TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-    // here can be also: TTF_STYLE_BOLD _ITALIC _UNDERLINE
-
-  }
-
+  func("TBTLayer has %i fonts available",env->num_fonts);
+  
+  // choose first font and initialize ready for printing
+  size = 30;
+  
+  font = TTF_OpenFont(env->font_files[sel_font], size);
+  if (!font)
+    error("Couldn't load %d pt font from %s: %s\n",
+	  size, env->font_files[sel_font], SDL_GetError());
+  
+  TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+  // here can be also: TTF_STYLE_BOLD _ITALIC _UNDERLINE
+  
+  
+  
   // set defaults
   fgcolor.r = 0xff;
   fgcolor.g = 0xff;
   fgcolor.b = 0xff;
-
+  
   bgcolor.r = 0x00;
   bgcolor.g = 0x00;
   bgcolor.b = 0x00;
-
+  
   set_name("TBT");
   surf = NULL;
-
+  
   console.layer = this;
-
+  
   interactive = true;
   // we poll for keypresses until a .tbt file is loaded
-
+  
 }
 
 TBTLayer::~TBTLayer() {
@@ -218,26 +201,4 @@ bool TBTLayer::keypress(int key) {
   return false;
 }
 
-static int ttf_dir_selector(const struct dirent *dir) {
-  if(strstr(dir->d_name,".ttf")) return(1);
-  if(strstr(dir->d_name,".TTF")) return(1);
-  return(0);
-}
-int TBTLayer::scanfonts(char *path) {
-  /* add to the list of available fonts */
-  struct dirent **filelist;
-  char temp[256];
-  int found;
-  int num_before = num_fonts;
-  found = scandir(path,&filelist,ttf_dir_selector,alphasort);
-  if(found<0) {
-    func("no fonts found in %s : %s",path, strerror(errno)); return(false); }
-  while(found--) {
-    if(num_fonts>=MAX_FONTS) break;
-    snprintf(temp,255,"%s/%s",path,filelist[found]->d_name);
-    font_files[num_fonts] = strdup(temp);
-    num_fonts++;
-  }
-  func("scanfont found %i fonts in %s",num_fonts-num_before,path);
-  return(num_fonts - num_before);
-}
+

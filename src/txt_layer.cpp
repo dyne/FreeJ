@@ -20,6 +20,9 @@
 
 #include <config.h>
 
+// this layer deactivated by default
+#undef WITH_FT2
+
 #ifdef WITH_FT2
 
 #include <iostream>
@@ -419,7 +422,7 @@ bool TxtLayer::print(char *s) {
 
     words.insert_after(tmpw,current_word);
 
-  } else words.add(tmpw);
+  } else words.append(tmpw);
   */
 
   clear_screen = true;

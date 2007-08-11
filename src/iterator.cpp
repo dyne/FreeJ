@@ -66,7 +66,6 @@ int Iterator::cafudda() {
   // control if we are aiming to a different value:
   if(aim != *value) {
     
-    
     // check which direction we wanna go
     direction = (aim>*value)?true:false;
     
@@ -87,6 +86,8 @@ int Iterator::cafudda() {
     }
     
   } else { // goal is reached, what to do?
+
+    func("iterator reached aim");
 
     switch(mode) {
 
@@ -118,24 +119,13 @@ int Iterator::cafudda() {
   return 1;
 }
 
-void Iterator::set_min(float val) {
-  min = val;
-}
-void Iterator::set_max(float val) {
-  max = val;
-}
-void Iterator::set_step(float val) {
-  step = val;
-}
-void Iterator::set_aim(float val) {
-  aim = val;
-}
-void Iterator::set_value(float *val) {
-  value = val;
-}
-void Iterator::set_envelope(iterator_envelope_t e) {
-  envelope = e;
-}
+void Iterator::set_min(float val)    {  min = val;  }
+void Iterator::set_max(float val)    {  max = val;  }
+void Iterator::set_step(float val)   {  step = val; }
+void Iterator::set_aim(float val)    {  aim = val;  }
+void Iterator::set_value(float *val) {  value = val; }
+void Iterator::set_envelope(iterator_envelope_t e) {  envelope = e; }
+
 void Iterator::set_mode(iterator_mode_t m) {
   switch(m) {
 

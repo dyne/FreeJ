@@ -38,7 +38,7 @@ TTFLayer::TTFLayer()
   // set defaults
 
   font = NULL;
-  sel_font=0;
+  sel_font = 20;
 
   size = 30;
 
@@ -76,7 +76,9 @@ bool TTFLayer::init(Context *freej) {
 
   if( ! TTF_WasInit() )
     TTF_Init();
-  
+
+  env = freej;
+
   return true;
 }
 
@@ -130,7 +132,9 @@ void TTFLayer::print(char *str) {
   }
 
   if(!font) {
-    warning("not font selected on layer %s, using default %s", name, env->font_files[sel_font]);
+    warning("no font selected on layer %s, using default %s",
+	    this->name, env->font_files[sel_font]);
+
     font = TTF_OpenFont(env->font_files[sel_font], size);
     if (!font) {
       error("Couldn't load %d pt font from %s: %s\n",
@@ -169,11 +173,15 @@ void TTFLayer::print(char *str) {
 }
 
 void *TTFLayer::feed() {
+  if(!surf) {
+    warning("Text layer has no rendered surface");
+    return NULL;
+  }
   // just return the surface
   return surf->pixels;
 }
 
-int ttf_dir_selector(const struct dirent *dir) {
+static int ttf_dir_selector(const struct dirent *dir) {
   if(strstr(dir->d_name,".ttf")) return(1);
   if(strstr(dir->d_name,".TTF")) return(1);
   return(0);
@@ -181,8 +189,8 @@ int ttf_dir_selector(const struct dirent *dir) {
 int Context::scanfonts(char *path) {
   /* add to the list of available fonts */
   struct dirent **filelist;
-  char temp[256];
-  int found;
+  char temp[1024];
+  int found, c;
   int num_before = num_fonts;
 
   found = scandir(path,&filelist,ttf_dir_selector,alphasort);
@@ -193,17 +201,27 @@ int Context::scanfonts(char *path) {
   } else
     act("%u fonts found in %s", found, path);
 
-  while(found--) {
+  if(!font_files) { // first allocation
+    font_files = (char**) calloc(found, sizeof(char*));
+  } else {
+    font_files = (char**) realloc(font_files, (found + num_fonts)*sizeof(char*) );
+  }
 
-    if(num_fonts>=MAX_FONTS) break;
+  for(c=0; c<found; c++) {
 
-    snprintf(temp,255,"%s/%s",path,filelist[found]->d_name);
-    font_files[num_fonts] = strdup(temp);
+    if(c>=MAX_FONTS) break;
+    
+    snprintf(temp,1024,"%s/%s",path,filelist[c]->d_name);
+    font_files[num_fonts] = (char*)calloc(strlen(temp) + 5, sizeof(char));
+    strcpy(font_files[num_fonts], temp);
+
+    free(filelist[c]);
+	 
     num_fonts++;
 
   }
 
-
+  free(filelist);
 
   return(num_fonts - num_before);
 }

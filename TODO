@@ -4,7 +4,10 @@
  !!! code cleanup and enhancement of s-lang console
  !!! javascript API for encoding and streaming
 
-  *** LiViDO shared plugin library
+  *** More effects (from veejay, freior, effectv)
+    + LiViDO shared plugin library
+
+  *** fix TBT layer, colors on text, programming of keyboard
 
   *** cairo layers: poligons and svg
 

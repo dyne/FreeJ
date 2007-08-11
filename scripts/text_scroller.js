@@ -18,6 +18,10 @@ register_controller( kbd );
 
 // read a text file into an array
 words = file_to_strings("../README");
+
+// debug
+echo ( words.length + " words read" );
+
 idx = 0;
 // words.length property says how big it is
 // access words with words[0] words[1] and so on
@@ -83,9 +87,11 @@ idx++;
 
 while(running) {
 
+    left_x = scroll[0].x();
+    right_x = scroll[ scroll.length -1 ].x();
 
     // check if the leftmost is out of screen
-    if( scroll[0].x() + scroll[0].w()  <   0 ) {
+    if( left_x + scroll[0].w()  <   0 ) {
 	// pull it out from the array
 	txt = scroll.shift();
 	// remove it from the screen
@@ -96,15 +102,12 @@ while(running) {
 
 
     // check if the rightmost all entered the screen
-    if( scroll[ scroll.length-1 ].x()
-	+ scroll[ scroll.length-1 ].w()
-	<
-	W - wordspacing ) {
+    if( right_x + scroll[ scroll.length-1 ].w()  <  W - wordspacing ) {
 	// then we need a new one on the left
 	
 	// create a new TextLayer with the word
 	txt = render_word( words[idx] );
-	
+
 	// append it as last element of the scroll[] array
 	scroll.push( txt );
 	

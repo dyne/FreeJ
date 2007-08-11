@@ -127,6 +127,8 @@ class Layer: public Entry, public JSyncThread {
   bool running; ///< is running? (read-only)
   bool hidden; ///< is hidden (read-only by the blit)
   bool fade; ///< layer is deactivated at the end of current iterations (read-write internal)
+  bool use_audio; ///< layer makes use of audio input
+  bool opened; /// set by the layer (ex: image file has been opened)
   int bgcolor; ///< matte background color
 
   Blitter blitter; ///< blitter class

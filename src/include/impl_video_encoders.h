@@ -30,5 +30,5 @@
 #include <oggtheora_encoder.h>
 
 
-VideoEncoder *get_encoder(char *output_filename);
+VideoEncoder *get_encoder(char *enctype);
 #endif

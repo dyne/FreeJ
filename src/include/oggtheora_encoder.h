@@ -40,27 +40,30 @@
 
 class Context;
 
-class OggTheoraEncoder: public VideoEncoder{
+class OggTheoraEncoder: public VideoEncoder {
 
  public:
   
-  OggTheoraEncoder(char *output_filename);
+  OggTheoraEncoder();
   ~OggTheoraEncoder();
   
-  bool init(Context *_env, ViewPort *_screen);
-  void set_encoding_parameter();
+  bool init(Context *_env);
   bool set_video_quality(int quality);
   bool set_audio_quality(double quality);
-  bool write_frame();
-  bool isStarted();
-  
+  bool encode_frame();
+  bool feed_video();
   
  private:
 
+  int encode_video(int end_of_stream);
+  int encode_audio(int end_of_stream);
+
   void convert_to_YUV420P();
-  void run(); ///< Main loop
+
+  yuv_buffer yuv;
   AVFrame *picture_rgb;
   AVFrame *picture_yuv;
+
   
   bool init_ogg_streams();
   bool theora_init();
@@ -77,17 +80,11 @@ class OggTheoraEncoder: public VideoEncoder{
 
   bool  init_yuv_frame();
   void  print_timing (double timebase);
-  int encode_video( int end_of_stream);
-
-  // audio 
-  int encode_audio( int end_of_stream);
 
   double rint(double x);
 
   bool has_finished_frame();
 
-  bool use_audio;
-  bool started;
   bool frame_finished;
   int video_quality;
   double vorbis_quality;
@@ -111,18 +108,17 @@ class OggTheoraEncoder: public VideoEncoder{
   double videotime;
   double audiotime;
 
-  FILE *video_fp;
 
-  unsigned char        *yuvframe[2]; /* yuv 420 */
-  signed char        *line;
-
+  unsigned char *yuvframe[2]; /* yuv 420 */
+  signed char   *line;
+  
   // 2 separate logical bitstreams for theora and vorbis
   ogg_stream_state theora_ogg_stream; 
   ogg_stream_state vorbis_ogg_stream; 
   
   ogg_page         opage; /* one Ogg bitstream page.  Vorbis packets are inside */
   ogg_packet       opacket; /* one raw packet of data for decode */
-
+  
   theora_state     td;
   theora_info      theora_information;
   theora_comment   tc;

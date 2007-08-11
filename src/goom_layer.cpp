@@ -30,6 +30,7 @@ GoomLayer::GoomLayer()
   :Layer() {
   set_name("Goom");
   buffer = NULL;
+  use_audio = true;
 }
 
 GoomLayer::~GoomLayer() {

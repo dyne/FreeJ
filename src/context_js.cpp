@@ -53,8 +53,8 @@ JSFunctionSpec global_functions[] = {
     {"scandir",         freej_scandir,          1},
     {"echo",            freej_echo,             1},
     {"strstr",          freej_strstr,           2},
-    {"stream_start",    stream_start,           0},
-    {"stream_stop",     stream_stop,            0},
+    //    {"stream_start",    stream_start,           0},
+    //    {"stream_stop",     stream_stop,            0},
     {"file_to_strings", file_to_strings,        1},
     {"register_controller", register_controller, 1},
     {"include",         include_javascript,     1},
@@ -64,7 +64,7 @@ JSFunctionSpec global_functions[] = {
 
 
 JS(cafudda) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   double *pdouble;
   double seconds;
   int isecs;
@@ -87,7 +87,7 @@ JS(cafudda) {
   } else seconds = 0;
 
   
-  func("JsParser :: run for %f seconds",seconds);
+  //  func("JsParser :: run for %f seconds",seconds);
   env->cafudda(seconds);
 
   return JS_TRUE;
@@ -186,7 +186,7 @@ JS(set_resolution) {
   return JS_TRUE;
 }
 
-
+/*
 JS(stream_start) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   notice ("Streaming to %s:%u",env->shouter->host(), env->shouter->port());
@@ -201,6 +201,7 @@ JS(stream_stop) {
   env->save_to_file = false;
   return JS_TRUE;
 }
+*/
 
 static int dir_selector(const struct dirent *dir) {
   if(dir->d_name[0]=='.') return(0); // remove hidden files

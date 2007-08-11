@@ -33,10 +33,13 @@ class Controller: public Entry {
   friend class Context;
 
  public:
-  Controller()  { initialized = active = false; };
-  virtual ~Controller() { };
+  Controller();
+  virtual ~Controller();
 
-  char *get_name() { return name; };
+  char *get_name();
+
+  virtual int peep(Context *env) =0;
+  ///< virtual function to be implemented, peeps interesting events in the queue and calls poll
 
   virtual bool init(JSContext *env, JSObject *obj) =0;
   ///< virtual function to be implemented, receives the javascript environment

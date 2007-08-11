@@ -32,11 +32,14 @@
 
 Layer::Layer()
   :Entry(), JSyncThread() {
+  env = NULL;
   quit = false;
   active = false;
   running = false;
   hidden = false;
   fade = false;
+  use_audio = false;
+  opened = true;
   bgcolor = 0;
   bgmatte = NULL;
   set_name("???");
@@ -118,6 +121,8 @@ bool Layer::cafudda() {
     if(!fade)
       return false;
 
+  if(!opened) return false;
+
   offset = buffer;
   if(!offset) {
     signal_feed();
@@ -175,8 +180,8 @@ void Layer::set_filename(char *f) {
 
 void Layer::set_position(int x, int y) {
   lock();
-  geo.x = x;
-  geo.y = y;
+  slide_x = geo.x = x;
+  slide_y = geo.y = y;
   blitter.crop( screen );
   unlock();
 }
@@ -188,16 +193,16 @@ void Layer::slide_position(int x, int y, int speed) {
 
   if(x!=geo.x) {
     iter = new Iterator(&slide_x);
-    iter->set_aim(x);
-    iter->set_step(speed);
-    iterators.add(iter);
+    iter->set_aim((float)x);
+    iter->set_step((float)speed);
+    iterators.append(iter);
   }
 
   if(y!=geo.y) {
     iter = new Iterator(&slide_y);
-    iter->set_aim(y);
-    iter->set_step(speed);
-    iterators.add(iter);
+    iter->set_aim((float)y);
+    iter->set_step((float)speed);
+    iterators.append(iter);
   }
 
 }

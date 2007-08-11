@@ -31,7 +31,7 @@ class FFmpegEncoder: public VideoEncoder {
 
  public:
   
-  FFmpegEncoder(char *output_filename);
+  FFmpegEncoder();
   ~FFmpegEncoder();
   
   bool init(Context *_env);

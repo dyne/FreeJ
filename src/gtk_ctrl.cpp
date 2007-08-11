@@ -148,7 +148,7 @@ void do_add_layer(GtkWidget *widget, gpointer *data) {
     lay = create_layer(sel[c]);
     if(!lay) return;
     if(lay->init(env)) {
-      env->layers.add(lay);
+      env->layers.append(lay);
       env->layers.sel(0); /* deselect others */
       lay->sel(true);
     } else delete lay;
@@ -433,7 +433,7 @@ void on_add_effect(char *name) {
 	error("Filter %s can't initialize",filt->getname());
 	continue;
       }
-      laysel->filters.add(filt);
+      laysel->filters.append(filt);
       /* filter is automatically selected */
       laysel->filters.sel(0);
       filt->sel(true);
