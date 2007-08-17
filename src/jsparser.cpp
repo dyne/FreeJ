@@ -186,15 +186,23 @@ void JsParser::init() {
 		   js_joy_ctrl_constructor,
 		   js_joy_ctrl_methods);
 
+#ifdef WITH_OGGTHEORA
+    // encoder class
+    REGISTER_CLASS("VideoEncoder",
+		   js_vid_enc_class,
+		   js_vid_enc_constructor,
+		   js_vid_enc_methods);
+#endif
+
 #ifdef WITH_MIDI
-    REGISTER_CLASS("JoystickController",
+    REGISTER_CLASS("MidiController",
 		   js_midi_ctrl_class,
 		   js_midi_ctrl_constructor,
 		   js_midi_ctrl_methods);
 #endif
 
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
-//
+
    /** register SIGINT signal */
    signal(SIGINT, js_sigint_handler);
 
