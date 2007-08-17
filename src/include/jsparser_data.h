@@ -71,6 +71,9 @@ JS(txt_layer_constructor);
 // controller constructors
 JS(js_kbd_ctrl_constructor);
 JS(js_joy_ctrl_constructor);
+#ifdef WITH_MIDI
+JS(js_midi_ctrl_constructor);
+#endif
 
 
 //////////////////////////////////////////////////////////////
@@ -94,6 +97,12 @@ extern JSFunctionSpec js_kbd_ctrl_methods[];
 // JoystickController
 extern JSClass js_joy_ctrl_class;
 extern JSFunctionSpec js_joy_ctrl_methods[];
+
+// MidiController
+#ifdef WITH_MIDI
+extern JSClass js_midi_ctrl_class;
+extern JSFunctionSpec js_midi_ctrl_methods[];
+#endif
 
 // ParticleLayer
 extern JSClass particle_layer_class;

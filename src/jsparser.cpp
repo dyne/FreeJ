@@ -185,7 +185,13 @@ void JsParser::init() {
 		   js_joy_ctrl_class,
 		   js_joy_ctrl_constructor,
 		   js_joy_ctrl_methods);
-    
+
+#ifdef WITH_MIDI
+    REGISTER_CLASS("JoystickController",
+		   js_midi_ctrl_class,
+		   js_midi_ctrl_constructor,
+		   js_midi_ctrl_methods);
+#endif
 
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 //

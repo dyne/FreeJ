@@ -83,6 +83,14 @@ tt,pre {
     font-family: Fixed, Lucida Console,Courier New,Courier,monotype;
     font-size: 12pt;
 }
+.example {
+    font-family: Fixed, Lucida Console,Courier New,Courier,monotype;
+    font-size: 8pt;
+    white-space: pre;
+    background-color: #ffffee;
+    border: 1px solid grey;
+    padding: 2px;
+}
 
 
 /* Table colors */

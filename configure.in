@@ -268,7 +268,7 @@ dnl ==============================================================
 dnl CHECK if there is MIDI
 dnl ==============================================================
 AC_ARG_ENABLE(midi,
-[  --enable-midi           compile with Midi controller (experimental, default: no)],
+[  --enable-midi           compile with Alsa Midi controller (default: no)],
 [ if test x$enableval = xno; then have_midi=no; else have_midi=yes; fi ], have_midi=no)
 if test x$have_midi = xyes; then
    AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
@@ -683,7 +683,7 @@ echo "  this layer is experimental and broken"
 fi
 if test x$have_midi = xyes; then
 echo "= Midi controller included"
-echo "  this is experimental, edit midi_ctrl.cpp to assign behaviour"
+echo "  create a Javascript to assign behaviour"
 fi
 if test x$have_joystick = xyes; then
 echo "= Joystick controller"

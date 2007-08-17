@@ -63,7 +63,7 @@ function strstr(haystack, needle) { };
 /** List all files inside a directory
     @param {string} dir directory location to explore for files present in it
     @return array of filenames (strings) found
-    @type Array
+    @type string
 */
 function scandir(dir) { };
 
@@ -85,12 +85,12 @@ function register_controller(controller) { };
 /// LAYER VIRTUAL PARENT
 
 /**
-        This class is pure virtual and this constructor is never used
+    This class is pure virtual and this constructor is never used
 
-        @class This class should never be used directly, it is the
-	parent class for all Layer implementations and provides basic
-	layer methods that are inherited by all other layers.
-	@constructor
+    @class This class should never be used directly, it is the
+    parent class for all Layer implementations and provides basic
+    layer methods that are inherited by all other layers.
+    @constructor
 */
 function Layer() { };
 
@@ -516,5 +516,4 @@ FlashLayer.prototype		= new Layer();
 
 function CamLayer() { };
 CamLayer.prototype		= new Layer();
-
 
