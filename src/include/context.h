@@ -36,7 +36,6 @@
 // it is here because of  SDL_PollEvent done in Context
 #include <SDL/SDL.h>
 
-#include <pipe.h>
 #include <linklist.h>
 #include <layer.h>
 #include <osd.h>

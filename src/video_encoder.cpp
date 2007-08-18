@@ -47,22 +47,35 @@ VideoEncoder::VideoEncoder()
   filedump_fd = NULL;
 
   // initialize the encoded data pipe
-  //  encpipe = new Pipe();
-  //  encpipe->set_output_type("copy_byte");
-  //  encpipe->set_block(true,true);
-  //  encpipe->set_block_timeout(500,500);
-  //  encpipe->set_block(false,false);
-  //  encpipe->debug = true;
-
-  //  pipe(fifopipe);
-
-  ringbuffer = jack_ringbuffer_create(2048*8);
+  ringbuffer = ringbuffer_create(2048*8);
 
 }
 
 VideoEncoder::~VideoEncoder() {
-  //  delete encpipe;
-  jack_ringbuffer_free(ringbuffer);
+  // flush all the ringbuffer to file and stream
+  int encnum;
+
+  do {
+    
+    encnum = ringbuffer_read(ringbuffer, encbuf, 2048);
+
+    if(encnum <=0) break;
+
+    if(write_to_disk && filedump_fd) {
+      size_t nn;
+      nn = fwrite(encbuf, 1, encnum, filedump_fd);
+      func("flushed %u bytes into encoded file", nn);
+    }
+
+    //    if(write_to_stream) {
+      // QUAA TODO
+    //    }
+     
+  } while(encnum > 0); 
+
+  // now deallocate the ringbuffer
+  ringbuffer_free(ringbuffer);
+  
 }
 
 void VideoEncoder::run() {
@@ -92,7 +105,7 @@ void VideoEncoder::run() {
     /// proceed writing and streaming encoded data in encpipe
 
     if( write_to_disk | write_to_stream )
-      encnum = jack_ringbuffer_read(ringbuffer, encbuf, 2048);
+      encnum = ringbuffer_read(ringbuffer, encbuf, 2048);
       //      encnum = encpipe->read(2048, encbuf);
       //      encnum = read(fifopipe[0], encbuf, 2048);
 

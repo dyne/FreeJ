@@ -158,63 +158,69 @@ bool OggTheoraEncoder::init_ogg_streams() {
   
   return true;
 }
-bool OggTheoraEncoder::theora_init() { // TODO freejrc &co
-	int fps                 = env -> fps_speed;
-	int video_bit_rate      = 0; // 0 autotune
-	int compression_quality = video_quality; // 16 it's ok for streaming
-	int sharpness           = 1;
-	int w                   = screen->w;
-	int h                   = screen->h;
+bool OggTheoraEncoder::theora_init() {
+  int fps                 = env -> fps_speed;
+  int video_bit_rate      = 0; // 0 autotune
+  
+  // video quality comes as a value in between 1 and 101
+  // so we need to convert to theora values: range from 1 to 64
+  // euclides will help ;) ...  qvideo : 101 = x : 64
+  int theora_quality = (int) ( (video_quality * 63) / 100);
+  func("VideoEncoder: encoding theora to quality %u", theora_quality);
+
+  int sharpness           = 1;
+  int w                   = screen->w;
+  int h                   = screen->h;
 
 
-	/* Set up Theora encoder */
-
-	/* Theora has a divisible-by-sixteen restriction for the encoded video size */
-	/* scale the frame size up to the nearest /16 and calculate offsets */
-	video_x = ( (w + 15) >> 4) << 4;
-	video_y = ( (h + 15) >> 4) << 4;
-
-	/* We force the offset to be even.
-	   This ensures that the chroma samples align properly with the luma
-	   samples. */
-	frame_x_offset = ( (video_x - w ) / 2) &~ 1;
-	frame_y_offset = ( (video_y - h ) / 2) &~ 1;
-
-	theora_info_init (&theora_information);
-
-	theora_information.width                        = video_x;
-	theora_information.height                       = video_y;
-	theora_information.frame_width                  = w;
-	theora_information.frame_height                 = h;
-	theora_information.offset_x                     = frame_x_offset;
-	theora_information.offset_y                     = frame_y_offset;
-	theora_information.fps_numerator                = 1000000 * fps;
-	theora_information.fps_denominator              = 1000000;
-	theora_information.aspect_numerator             = 0 ;
-	theora_information.aspect_denominator           = 0 ;
-	theora_information.colorspace                   = OC_CS_ITU_REC_470BG;
-	//	theora_information.colorspace                   = OC_CS_UNSPECIFIED;
+  /* Set up Theora encoder */
+  
+  /* Theora has a divisible-by-sixteen restriction for the encoded video size */
+  /* scale the frame size up to the nearest /16 and calculate offsets */
+  video_x = ( (w + 15) >> 4) << 4;
+  video_y = ( (h + 15) >> 4) << 4;
+  
+  /* We force the offset to be even.
+     This ensures that the chroma samples align properly with the luma
+     samples. */
+  frame_x_offset = ( (video_x - w ) / 2) &~ 1;
+  frame_y_offset = ( (video_y - h ) / 2) &~ 1;
+  
+  theora_info_init (&theora_information);
+  
+  theora_information.width                        = video_x;
+  theora_information.height                       = video_y;
+  theora_information.frame_width                  = w;
+  theora_information.frame_height                 = h;
+  theora_information.offset_x                     = frame_x_offset;
+  theora_information.offset_y                     = frame_y_offset;
+  theora_information.fps_numerator                = 1000000 * fps;
+  theora_information.fps_denominator              = 1000000;
+  theora_information.aspect_numerator             = 0 ;
+  theora_information.aspect_denominator           = 0 ;
+  theora_information.colorspace                   = OC_CS_ITU_REC_470BG;
+  //	theora_information.colorspace                   = OC_CS_UNSPECIFIED;
 #ifndef HAVE_64BIT
-	theora_information.pixelformat                  = OC_PF_420;
+  theora_information.pixelformat                  = OC_PF_420;
 #endif
-	theora_information.target_bitrate               = video_bit_rate;
-	theora_information.quality                      = compression_quality;
-
-	theora_information.dropframes_p                 = 1;
-	theora_information.quick_p                      = 1;
-	theora_information.keyframe_auto_p              = 1;
-	theora_information.keyframe_frequency           = 64;
-	theora_information.keyframe_frequency_force     = 64;
-	theora_information.keyframe_data_target_bitrate = (unsigned int) (video_bit_rate * 1.5);
-	theora_information.keyframe_auto_threshold      = 80;
-	theora_information.keyframe_mindistance         = 8;
-	theora_information.noise_sensitivity            = 1;
-	theora_information.sharpness                    = sharpness;
-
-	theora_encode_init (&td, &theora_information);
-	theora_info_clear (&theora_information);
-
-	return true;
+  theora_information.target_bitrate               = video_bitrate;
+  theora_information.quality                      = theora_quality;
+  
+  theora_information.dropframes_p                 = 1;
+  theora_information.quick_p                      = 1;
+  theora_information.keyframe_auto_p              = 1;
+  theora_information.keyframe_frequency           = 64;
+  theora_information.keyframe_frequency_force     = 64;
+  theora_information.keyframe_data_target_bitrate = (unsigned int) (video_bit_rate * 1.5);
+  theora_information.keyframe_auto_threshold      = 80;
+  theora_information.keyframe_mindistance         = 8;
+  theora_information.noise_sensitivity            = 1;
+  theora_information.sharpness                    = sharpness;
+  
+  theora_encode_init (&td, &theora_information);
+  theora_info_clear (&theora_information);
+  
+  return true;
 }
 
 
@@ -463,12 +469,8 @@ bool OggTheoraEncoder::write_theora_header() {
   }
 
   // write header and body
-  //  encpipe->write(opage.header_len, (void*) opage.header);
-  //  encpipe->write(opage.body_len,   (void*) opage.body);
-  //  write(fifopipe[1], opage.header, opage.header_len);
-  //  write(fifopipe[1], opage.body, opage.body_len);
-  jack_ringbuffer_write(ringbuffer, (const char*)opage.header, opage.header_len);
-  jack_ringbuffer_write(ringbuffer, (const char*)opage.body, opage.body_len);
+  ringbuffer_write(ringbuffer, (const char*)opage.header, opage.header_len);
+  ringbuffer_write(ringbuffer, (const char*)opage.body, opage.body_len);
 
   // later will be written to file if(write_to_disk
   // and to stream if(stream)
@@ -500,12 +502,8 @@ bool OggTheoraEncoder::write_vorbis_header() {
       return false;
     }
     
-    //    encpipe->write(opage.header_len, (void*) opage.header);
-    //    encpipe->write(opage.body_len,   (void*) opage.body);
-    //    write(fifopipe[1], opage.header, opage.header_len);
-    //    write(fifopipe[1], opage.body, opage.body_len);
-    jack_ringbuffer_write(ringbuffer, (const char*) opage.header, opage.header_len);
-    jack_ringbuffer_write(ringbuffer, (const char*) opage.body, opage.body_len);
+    ringbuffer_write(ringbuffer, (const char*) opage.header, opage.header_len);
+    ringbuffer_write(ringbuffer, (const char*) opage.body, opage.body_len);
 
     
     // remaining vorbis header packets 
@@ -537,14 +535,9 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 	  warning("OggTheoraEncoder::flush_ogg : videopage body is empty");
 	
 	videotime = theora_granule_time (&td, ogg_page_granulepos (&videopage));
-	/* flush a video page */
-	
-	//	encpipe->write( videopage.header_len, (void*) videopage.header);
-	//	encpipe->write( videopage.body_len,   (void*) videopage.body);
-	//	write(fifopipe[1], videopage.header, videopage.header_len);
-	//	write(fifopipe[1], videopage.body, videopage.body_len);
-	jack_ringbuffer_write(ringbuffer,(const char*) videopage.header, videopage.header_len);
-	jack_ringbuffer_write(ringbuffer,(const char*) videopage.body, videopage.body_len);
+	// flush a video page
+	ringbuffer_write(ringbuffer,(const char*) videopage.header, videopage.header_len);
+	ringbuffer_write(ringbuffer,(const char*) videopage.body, videopage.body_len);
 
 	
 	// print_timing (videotime);
@@ -568,12 +561,9 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 	/* flush an audio page */
 	audiotime = vorbis_granule_time (&vd,ogg_page_granulepos (&audiopage));
 	
-	//	encpipe->write(audiopage.header_len, (void*) audiopage.header);
-	//	encpipe->write(audiopage.body_len,   (void*) audiopage.body);
-	//	write(fifopipe[1], audiopage.header, audiopage.header_len);
-	//	write(fifopipe[1], audiopage.body, audiopage.body_len);
-	jack_ringbuffer_write(ringbuffer, (const char*) audiopage.header, audiopage.header_len);
-	jack_ringbuffer_write(ringbuffer, (const char*) audiopage.body, audiopage.body_len);
+	// write it in the ringbuffer
+	ringbuffer_write(ringbuffer, (const char*) audiopage.header, audiopage.header_len);
+	ringbuffer_write(ringbuffer, (const char*) audiopage.body, audiopage.body_len);
 
 	// print_timing (audiotime);
 	// akbps = rint (info->audio_bytesout * 8. / info->audiotime * .001);
@@ -604,12 +594,9 @@ bool OggTheoraEncoder::flush_theora_header() {
     
     if (result == 0) break;
  
-    //    encpipe->write(opage.header_len, (void*) opage.header);
-    //    encpipe->write(opage.body_len,   (void*) opage.body);
-    //    write(fifopipe[1], opage.header, opage.header_len);
-    //    write(fifopipe[1], opage.body, opage.body_len);
-    jack_ringbuffer_write(ringbuffer, (const char*) opage.header, opage.header_len);
-    jack_ringbuffer_write(ringbuffer, (const char*) opage.body, opage.body_len);
+    // write it into the ringbuffer
+    ringbuffer_write(ringbuffer, (const char*) opage.header, opage.header_len);
+    ringbuffer_write(ringbuffer, (const char*) opage.body, opage.body_len);
   
   }
   return true;
@@ -631,12 +618,9 @@ bool OggTheoraEncoder::flush_vorbis_header() {
       
       if (result == 0) break;
       
-      //      encpipe->write(opage.header_len, (void*) opage.header);
-      //      encpipe->write(opage.body_len,   (void*) opage.body);
-      //      write(fifopipe[1], opage.header, opage.header_len);
-      //      write(fifopipe[1], opage.body, opage.body_len);
-      jack_ringbuffer_write(ringbuffer, (const char*) opage.header, opage.header_len);
-      jack_ringbuffer_write(ringbuffer, (const char*) opage.body, opage.body_len);
+      // write it into the ringbuffer
+      ringbuffer_write(ringbuffer, (const char*) opage.header, opage.header_len);
+      ringbuffer_write(ringbuffer, (const char*) opage.body, opage.body_len);
       
     }
   }

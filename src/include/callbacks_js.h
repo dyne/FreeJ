@@ -52,7 +52,7 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     variable = (double)JSVAL_TO_BOOLEAN(argv[argnum]); \
   } else { \
     JS_ReportError(cx,"%s: argument %u is not a number",__FUNCTION__,argnum); \
-    env->quit = true; \
+    error("%s: argument %u is not a number",__FUNCTION__,argnum); \
     return JS_FALSE; \
   }
 
@@ -62,7 +62,7 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
       ( JS_ValueToString(cx, argv[argnum]) ); \
   else { \
     JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__,argnum); \
-    env->quit = true; \
+    error("%s: argument %u is not a string",__FUNCTION__,argnum); \
     return JS_FALSE; \
   }
 
@@ -131,7 +131,7 @@ JS(constructor_func) {                                                        \
     delete layer; return JS_FALSE;                                            \
   }                                                                           \
   if(!layer->init(env)) {                                                     \
-    error("JS::%s : failed initialization");                                  \
+    error("JS::%s : failed initialization", constructor_name);                \
     delete layer; return JS_FALSE;                                            \
   }                                                                           \
   if(!JS_SetPrivate(cx,obj,(void*)layer)) {                                   \

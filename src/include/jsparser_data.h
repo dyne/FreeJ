@@ -75,6 +75,10 @@ JS(js_joy_ctrl_constructor);
 JS(js_midi_ctrl_constructor);
 #endif
 
+// encoder constructor
+#ifdef WITH_OGGTHEORA
+JS(js_vid_enc_constructor);
+#endif
 
 //////////////////////////////////////////////////////////////
 // classes
@@ -142,6 +146,11 @@ extern JSClass video_layer_class;
 extern JSFunctionSpec video_layer_methods[];
 #endif
 
+// VideoEncoder
+#ifdef WITH_OGGTHEORA
+extern JSClass js_vid_enc_class;
+extern JSFunctionSpec js_vid_enc_methods[];
+#endif
 
 
 
@@ -174,6 +183,7 @@ JS(freej_echo);
 JS(freej_strstr);
 JS(file_to_strings);
 JS(register_controller);
+JS(register_encoder);
 JS(include_javascript);
 JS(system_exec);
 ////////////////////////////////
@@ -328,7 +338,21 @@ JS(txt_layer_color);
 //JS(txt_layer_blink_off);
 #endif
 
+#ifdef WITH_OGGTHEORA
+// Video Encoder methods
+JS(vid_enc_set_quality);
+JS(vid_enc_set_bitrate);
+JS(vid_enc_start_filesave);
+JS(vid_enc_stop_filesave);
+#endif
 
+/* TODO: shouter class 
+JS(set_shout_host);
+JS(set_shout_port);
+JS(set_shout_pass);
+JS(set_shout_mountpoint);
+JS(set_shout_name);
+*/
 
 /* avifile now removed
 

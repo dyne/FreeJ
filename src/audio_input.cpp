@@ -43,7 +43,7 @@ int audio_callback(const void *inputBuffer, void *outputBuffer,
   a->frames = framesPerBuffer;
   a->bytesize = a->frames * sizeof(int16_t) * a->channels;
 
-  num = a->input_pipe  -> write (a->bytesize , (void*)inputBuffer);
+  num = ringbuffer_write(a->input_pipe, (const char*)inputBuffer, a->bytesize);
   if(num != a->bytesize)
     warning("audio input pipe full, written %i instead of %u bytes", num, a->bytesize);
 
@@ -57,10 +57,7 @@ AudioInput::AudioInput() {
 
   input = NULL;
 
-  input_pipe = new Pipe();
-  input_pipe->set_output_type("copy_byte");
-  input_pipe->set_block(true,true); // true,false
-  input_pipe->set_block_timeout(500,500);
+  input_pipe = ringbuffer_create(2048*8);
 
   /*  
   output_pipe = new Pipe();
@@ -92,7 +89,7 @@ AudioInput::~AudioInput() {
   free(input);
   //  free(output);
 
-  delete input_pipe;
+  ringbuffer_free(input_pipe);
   //  delete output_pipe;
 
 }
@@ -275,7 +272,7 @@ int AudioInput::cafudda() {
 
     num = framesperbuffer*sizeof(int16_t)*channels;
 
-    res = input_pipe->read(num, (void*)input);
+    res = ringbuffer_read(input_pipe, (char*) input, num);
     
     //    if(res != num) 
     //      warning("Audio input cannot fill all frames per buffer: %i instead of %u",res, num);

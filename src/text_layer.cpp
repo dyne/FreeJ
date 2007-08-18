@@ -132,7 +132,7 @@ void TTFLayer::print(char *str) {
   }
 
   if(!font) {
-    warning("no font selected on layer %s, using default %s",
+    func("no font selected on layer %s, using default %s",
 	    this->name, env->font_files[sel_font]);
 
     font = TTF_OpenFont(env->font_files[sel_font], size);

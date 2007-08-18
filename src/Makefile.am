@@ -45,7 +45,7 @@ freej_SOURCES = \
 	jutils.cpp	\
 	fastmemcpy.cpp  \
 	shouter.cpp 	\
-	pipe.cpp	\
+	ringbuffer.cpp  \
 \
 	v4l_layer.cpp tvfreq.c	\
 	v4l_layer_js.cpp \
@@ -81,6 +81,7 @@ freej_SOURCES = \
 	audio_input.cpp \
 \
 	video_encoder.cpp \
+	video_encoder_js.cpp \
 	ffmpeg_encoder.cpp \
 	oggtheora_encoder.cpp \
 	impl_video_encoders.cpp

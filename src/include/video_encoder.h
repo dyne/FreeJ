@@ -26,7 +26,6 @@
 #include <SDL.h>
 #include <config.h>
 
-#include <pipe.h>
 #include <jsync.h>
 #include <jutils.h>
 #include <shouter.h>
@@ -34,7 +33,7 @@
 
 #include <screen.h>
 
-#include <jack/ringbuffer.h>
+#include <ringbuffer.h>
 
 class Context;
 
@@ -71,12 +70,15 @@ class VideoEncoder: public Entry, public JSyncThread {
   void run();
   bool cafudda();
   
-  //  Pipe *encpipe; ///< FIFO pipe for encoded data
-  //  int fifopipe[2]; ///< FIFO pipe from libc
-  jack_ringbuffer_t *ringbuffer;
   
   bool set_filedump(char *filename); ///< start to dump to filename, call with NULL to stop
   char filedump[512]; ////< filename to which encoder is writing dump
+
+  int video_quality; ///< quality of video encoding: range 0-100
+  int video_bitrate; ///< video encoding bitrate (default is 0: VBR on the quality value)
+  int audio_quality; ///<  quality of audio encoding: range 0-100
+  int audio_bitrate; ///< audio encoding bitrate (default is 0: VBR on the quality value)
+
 
   bool quit; ///< flag it up if encoder has to quit
 
@@ -89,11 +91,15 @@ class VideoEncoder: public Entry, public JSyncThread {
   
   bool use_audio; ///< true if the encoded data should include also audio
 
+  ringbuffer_t *ringbuffer; ///< FIFO ringbuffer pipe from Jack
+
   // to be removed:
   //  void stream_it(bool s) {   stream = s; }
   //  bool is_stream() { return stream; }
   //  bool set_sdl_surface (SDL_Surface *surface);
   ///////  
+
+
 
   Context *env;
 

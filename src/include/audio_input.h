@@ -24,12 +24,10 @@
 #ifndef __AUDIO_INPUT_H__
 #define __AUDIO_INPUT_H__
 
-#include <pipe.h>
-
-
 #include <inttypes.h>
 
 #include <portaudio.h>
+#include <ringbuffer.h>
 
 #define SAMPLERATE 44100
 #define MAX_FRAMESPERBUFFER 1024*8
@@ -69,8 +67,8 @@ class AudioInput {
   bool started;
 
   // private, only used by callback and cafudda
-  Pipe *input_pipe;
-  Pipe *output_pipe;
+  ringbuffer_t *input_pipe;
+  ringbuffer_t *output_pipe;
 
  private:
 

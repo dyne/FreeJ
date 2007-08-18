@@ -57,6 +57,7 @@ JSFunctionSpec global_functions[] = {
     //    {"stream_stop",     stream_stop,            0},
     {"file_to_strings", file_to_strings,        1},
     {"register_controller", register_controller, 1},
+    {"register_encoder", register_encoder, 1},
     {"include",         include_javascript,     1},
     {"exec",            system_exec,            1},
     {0}
@@ -170,6 +171,24 @@ JS(register_controller) {
     return JS_TRUE;
 }
 
+JS(register_encoder) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    VideoEncoder *enc;
+    JSObject *jsenc;
+    *rval=JSVAL_FALSE;
+
+    if(argc<1) JS_ERROR("missing argument");
+    jsenc = JSVAL_TO_OBJECT(argv[0]);
+
+    enc = (VideoEncoder *)JS_GetPrivate(cx, jsenc);
+    if(!enc) JS_ERROR("VideoEncoder core data is NULL");
+
+    /// really add controller
+    env->add_encoder( enc );
+    *rval = JSVAL_TRUE;
+
+    return JS_TRUE;
+}
 
 JS(fullscreen) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
