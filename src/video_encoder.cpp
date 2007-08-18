@@ -47,7 +47,7 @@ VideoEncoder::VideoEncoder()
   filedump_fd = NULL;
 
   // initialize the encoded data pipe
-  ringbuffer = ringbuffer_create(2048*8);
+  ringbuffer = ringbuffer_create(2048*4096);
 
 }
 
@@ -72,6 +72,9 @@ VideoEncoder::~VideoEncoder() {
     //    }
      
   } while(encnum > 0); 
+
+  // close the filedump
+  fclose(filedump_fd);
 
   // now deallocate the ringbuffer
   ringbuffer_free(ringbuffer);
@@ -106,9 +109,6 @@ void VideoEncoder::run() {
 
     if( write_to_disk | write_to_stream )
       encnum = ringbuffer_read(ringbuffer, encbuf, 2048);
-      //      encnum = encpipe->read(2048, encbuf);
-      //      encnum = read(fifopipe[0], encbuf, 2048);
-
 
 
     if(encnum > 0) {

@@ -72,9 +72,9 @@ void *GoomLayer::feed() {
   int c;
   int num, found, samples;
 
-  samples = 512;
+  //  samples = env->audio->framesperbuffer * env->audio->channels;
 
-  num = samples * sizeof(int16_t) * env->audio->channels;
+  //  num = samples * sizeof(int16_t);
   
   
   /*  num = env->audio->input->read(num,audiotmp);
@@ -88,19 +88,22 @@ void *GoomLayer::feed() {
     warning("goom audio buffer underrun");
     samples = num / sizeof(int16_t) / env->audio->channels;
     } */
+
   
   if(env->audio->channels == 2) {
-    for( c = 0; c<samples ; c++ ) {
-      audio[0][c] = (short int) (env->audio->input[c*2]);
-      audio[1][c] = (short int) (env->audio->input[(c*2)+1]);
+    for( c = 0; c<512 ; c++ ) {
+      audio[0][c] = (int16_t) (env->audio->input[c*2]);
+      audio[1][c] = (int16_t) (env->audio->input[(c*2)+1]);
     }
   } else {
-    for( c = 0; c<samples ; c++ ) {
-      audio[0][c] = (short int) (env->audio->input[c]);
-      audio[1][c] = (short int) (env->audio->input[c]);
+    for( c = 0; c<512 ; c++ ) {
+      audio[0][c] = (int16_t) (env->audio->input[c]);
+      audio[1][c] = (int16_t) (env->audio->input[c]);
     }
   }
   
+  //  ringbuffer_peek(env->audio->input_pipe, (char*)audio, 1024);
+
   goom_update(goom, audio, 0, -1, NULL, NULL);
 
   return buffer;

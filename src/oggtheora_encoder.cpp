@@ -53,6 +53,8 @@ OggTheoraEncoder::OggTheoraEncoder()
   picture_rgb = NULL;
   picture_yuv = NULL;
 
+  use_audio = true;
+
   set_name("encoder/theora");
 
 }
@@ -390,14 +392,14 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
     if(env->audio->channels == 2) { // STEREO
       
       for (c=0 ; c < env->audio->framesperbuffer; c++) {
-	vorbis_buffer[0][c] = (float)(env->audio->input[c*2] / 32768.f);
-	vorbis_buffer[1][c] = (float)(env->audio->input[(c*2)+1] / 32768.f);
+	vorbis_buffer[0][c] = ((float)(env->audio->input[c*2])     / 32768.f);
+	vorbis_buffer[1][c] = ((float)(env->audio->input[(c*2)+1]) / 32768.f);
       }
 
     } else { // MONO
       
       for (c=0 ; c < env->audio->framesperbuffer; c++)
-	vorbis_buffer[0][c] = (float)(env->audio->input[c] / 32768.f);
+	vorbis_buffer[0][c] = ((float)(env->audio->input[c]) / 32768.f);
 
     }
       
