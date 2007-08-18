@@ -7,10 +7,15 @@ joy = new JoystickController();
 register_controller( joy );
 
 
-joy.axis = function(which, axis, value) { echo("joystick " + which +
-					       " axis "    + axis  +
-					       " value " + value); }
+joy.axismotion = function(which, axis, value) { 
+    echo("joystick " + which +
+         " axis "    + axis  +
+         " value "   + value);
+}
 
-run(10);
 
-quit();
+joy.button = function (which, button, state) {
+    echo("joystick " + which +
+         " button "  + button  +
+         " state "   + state);
+}

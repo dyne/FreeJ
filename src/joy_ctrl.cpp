@@ -107,32 +107,18 @@ bool JoyCtrl::init(JSContext *env, JSObject *obj) {
 }
 
 int JoyCtrl::peep(Context *env) {
-
   int res;
-  int c = 0;
 
   res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
   while (res>0) {
-    c++;
     poll(env);
     res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
   }
-  return c;
+  return 1;
 }
 
 int JoyCtrl::poll(Context *env) {
-
   jsval ret;
-  /*
-  if(! (env->event.type
-	& (SDL_JOYAXISMOTION
-	   |SDL_JOYBALLMOTION
-	   |SDL_JOYHATMOTION
-	   |SDL_JOYBUTTONDOWN
-	   |SDL_JOYBUTTONUP   )))
-    return 0;
-  */
-
 
   switch(env->event.type) {
     

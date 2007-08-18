@@ -58,24 +58,14 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
 }
 
 int KbdCtrl::peep(Context *env) {
+  int res;
 
-  int res = 1;
-  int c = 0;
-
-  while(res > 0) {
-
-    res = SDL_PeepEvents(&env->event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK);
-
-    if(res<=0) break;
-
-    SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK);
+  res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK);
+  while (res>0) {
     poll(env);
-    
-    c++;
-    
+    res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK);
   }
-
-  return c;
+  return 1;
 }
 
 int KbdCtrl::poll(Context *env) {

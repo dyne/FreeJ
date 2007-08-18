@@ -14,9 +14,9 @@
 
 /** 
     Virtual Controller 
-    @class This class is the parent class of all Controller and should not
     @constructor
-    be used directly.
+    @class This class is the parent class of all Controller and should 
+    not be used directly.
 */
 function Controller() { };
 
@@ -41,6 +41,7 @@ Controller.prototype.get_name = function get_name() { };
     }
     </div>
     You want to use a tool like aconnect/aconnectgui to wire the midi devices.
+    You may return true or false in the event handlers to indicate further processing or not. However, this is not implemented properly, yet.
 
     @author Mr Goil
     @constructor
@@ -68,7 +69,7 @@ MidiController.prototype.event_ctrl = function (ch, param, value) { }
     @type bool
     @param{int} ch channel
     @param{int} param parameter number
-    @param{int} value value -127 to 127
+    @param{int} value range -8192 to 8192, steps of 128
 */
 MidiController.prototype.event_pitch = function (ch, param, value) { }
 
@@ -143,8 +144,84 @@ KeyboardController.prototype = new Controller();
     kbd.pressed_ctrl_a  = function() { }
     kbd.pressed_ctrl_shift_alt_a = function() { }
     </div>
-    Mh, still need to lurk through the code for mode documentation ...
+    Mh, still need to lurk through the code for more documentation ...
 */
 KeyboardController.prototype.pressed_MOD_KEYSYM = function () { };
+
+
+//////////////////////////////
+// Joystick Controller
+
+/** The JoystickController constructor creates a joystick controller 
+    @class The Joystick Controller holds callbacks to javascript.
+    Assign functions to the callback to handle events:
+    <div class="example">Example:
+
+    jc = new JoystickController();
+    register_controller(jc);
+    jc.axismotion = function (which, axis, value) {
+        echo("joystick axis event: " + which + ", " + axis + ", " + value); 
+        // do something
+        return true;
+    }
+    </div>
+    You may return true or false in the event handlers to indicate further processing or not. However, this is not implemented properly, yet.
+
+    @constructor
+    @base Controller
+    @returns a new JoystickController
+*/
+function JoystickController() { };
+JoystickController.prototype = new Controller();
+
+/** Callback on moving a joystick axis
+
+    @return true if event is handled otherwise false
+    @type bool
+    @param{int} which Joystick device index
+    @param{int} axis Axis index
+    @param{int} value axis position range usually -32767 to 32767
+*/
+JoystickController.prototype.axismotion = function (which, axis, value);
+
+/** Callback on trackball motion event
+
+    @return true if event is handled otherwise false
+    @type bool
+    @param{int} which The joystick device index
+    @param{int} ball The joystick trackball index
+    @param{int} xrel The relative motion in the X direction
+    @param{int} yrel The relative motion in the Y direction
+
+*/
+JoystickController.prototype.ballmotion = function (which, ball, xrel, yrel);
+
+/** Callback on joystick hat position change
+
+    <div class="example">Positionvalues ('or'ed in the corners):
+
+     0x01
+0x08 0x00 0x02
+     0x04</div>
+
+    @return true if event is handled otherwise false
+    @type bool
+    @param{int} which The joystick device index
+    @param{int} hat The joystick hat index
+    @param{int} value The hat position value
+
+*/
+JoystickController.prototype.hatmotion = function (which, hat, value);
+
+/** Callback on button event
+
+    @return true if event is handled otherwise false
+    @type bool
+    @param{int} which The joystick device index
+    @param{int} button The joystick button index
+    @param{int} state 0=up 1=down
+
+*/
+JoystickController.prototype.button = function (which, button, state);
 
 
