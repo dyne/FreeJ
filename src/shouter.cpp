@@ -132,7 +132,6 @@ bool Shouter::stop() {
 }
 
 bool Shouter::apply_profile() {
-  char temp[256];
   //  func("Shouter::apply_profile() on shouter id %i",id);
   
   bool res = true;
@@ -190,10 +189,12 @@ bool Shouter::apply_profile() {
   
   //if( shout_set_bitrate(ice,_bps) )
   //  error("shout_set_bitrate: %s",shout_get_error(ice));
-  
+  { 
+  char temp[256];
   snprintf(temp,256,"%s ver. %s",PACKAGE,VERSION);
   if( shout_set_agent(ice,temp) )
     error("shout_set_agent: %s",shout_get_error(ice));
+  }
   
   snprintf(streamurl,MAX_VALUE_SIZE,
 	   "http://%s:%i%s",host(),port(),mount());

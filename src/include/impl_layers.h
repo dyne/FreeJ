@@ -66,6 +66,7 @@
 	| strncasecmp((end_file_ptr-4),".mpg",4)==0  	\
 	| strncasecmp((end_file_ptr-4),".mp4",4)==0     \
 	| strncasecmp((end_file_ptr-4),".ogg",4)==0     \
+	| strncasecmp((end_file_ptr-4),".ogm",4)==0     \
 	| strncasecmp((end_file_ptr-4),".3gp",4)==0
 
 //	    | strncasecmp(end_file_ptr-4,".gif",4)==0  // it does not handle loops :''(

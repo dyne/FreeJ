@@ -94,7 +94,7 @@ static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:agf:F";
 Context freej;
 
 
-int   debug_level = 3;
+int   debug_level = 0;
 char  layer_files[MAX_CLI_CHARS];
 int   cli_chars = 0;
 int   width = 400;
@@ -138,15 +138,15 @@ void cmdline(int argc, char **argv) {
   theora_quality           = -1;
   vorbis_quality           = -1;
 
-  debug_level              = 1;
+  debug_level              = 0;
 
   do {
 //    res = getopt_long (argc, argv, short_options); TODO getopt_long
     res = getopt(argc, argv, short_options);
     switch(res) {
     case 'h':
-      fprintf(stderr, "%s", help);
-      fprintf(stderr, "%s", layers_description);
+      fprintf(stdout, "%s", help);
+      fprintf(stdout, "%s", layers_description);
       exit(0);
       break;
     case 'v':
@@ -326,7 +326,6 @@ int main (int argc, char **argv) {
   act("(c)2001-2007 Jaromil & Kysucix @ dyne.org");
   act("----------------------------------------------");
 
-  set_debug(3);
   assert( freej.init(width,height, opengl) );
 
   cmdline(argc,argv);
@@ -388,66 +387,6 @@ int main (int argc, char **argv) {
   }
 
 
-  /*
-
-#ifdef CONFIG_OGGTHEORA_ENCODER
-  // streaming options 
-
-  if (screaming_url[0] != '\0') {
-    char *port = strrchr (screaming_url, ':');
-    char *slash = NULL;
-    char *mount = NULL;
-    char *url   = NULL;
-    
-    if (port) {
-      slash = strchr (port, '/');
-      if (slash) {
-	*slash = '\0';
-	slash++;
-	freej.shouter -> mount (slash );
-	func("Mount point is %s", slash);
-      }
-      func("Port to stream is %s", port + 1);
-      freej.shouter -> port (atoi (port + 1));
-      *port = '\0';
-    } 
-
-    // test for http
-
-    url = strrchr (screaming_url, '/') ;
-    if (url) { // http:// probably found
-      url++;
-    }
-    else {
-      url = screaming_url;
-    }
-    
-    mount++;
-    func ("SCREAMING URL IS %s", url);
-    freej.shouter -> host (url);
-    //	  freej.video_encoder -> handle_audio (stream_audio );
-    
-    if (screaming_name[0] != '\0')
-      freej.shouter -> name (screaming_name );
-    
-    if (screaming_description[0] != '\0')
-      freej.shouter -> desc (screaming_description );
-    
-    if (screaming_pass[0] != '\0')
-      freej.shouter -> pass (screaming_pass );
-    
-    if (theora_quality > 0)
-      freej.video_encoder -> set_video_quality (theora_quality );
-    
-    if (vorbis_quality > 0)
-      freej.video_encoder -> set_audio_quality (vorbis_quality );
-    
-    freej.shouter -> apply_profile ( );
-
-  }
-
-#endif
-*/
 
   // Set fps
   freej.set_fps_interval ( fps );

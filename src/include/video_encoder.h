@@ -28,12 +28,14 @@
 
 #include <jsync.h>
 #include <jutils.h>
-#include <shouter.h>
+
 #include <linklist.h>
 
 #include <screen.h>
 
 #include <ringbuffer.h>
+
+#include <shout/shout.h>
 
 class Context;
 
@@ -63,7 +65,7 @@ class VideoEncoder: public Entry, public JSyncThread {
   virtual bool init (Context *_env)                          = 0;  
   virtual bool set_video_quality (int quality)               = 0;
   virtual bool set_audio_quality (double quality)            = 0;
-  virtual bool encode_frame ()                               = 0;
+  virtual int encode_frame ()                             = 0;
   virtual bool feed_video()                                  = 0;
   virtual bool has_finished_frame ()                         = 0;
 
@@ -91,33 +93,19 @@ class VideoEncoder: public Entry, public JSyncThread {
   
   bool use_audio; ///< true if the encoded data should include also audio
 
+  bool streaming; ///< set true when streaming by js start_stream()
+
   ringbuffer_t *ringbuffer; ///< FIFO ringbuffer pipe from Jack
-
-  // to be removed:
-  //  void stream_it(bool s) {   stream = s; }
-  //  bool is_stream() { return stream; }
-  //  bool set_sdl_surface (SDL_Surface *surface);
-  ///////  
-
-
 
   Context *env;
 
-
-  // visible for the sub-classes
- protected:
-
-  Linklist shouters;
-
-  //  SDL_Surface *surface;
-  
+  shout_t *ice;
 
 
-  //  bool _init(Context *_env);
 
  private:
   FILE *filedump_fd;
-  char encbuf[8192];
+  char encbuf[1024*128];
 
 };
 

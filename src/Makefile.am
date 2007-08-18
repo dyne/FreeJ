@@ -44,7 +44,6 @@ freej_SOURCES = \
 	callbacks_js.cpp \
 	jutils.cpp	\
 	fastmemcpy.cpp  \
-	shouter.cpp 	\
 	ringbuffer.cpp  \
 \
 	v4l_layer.cpp tvfreq.c	\

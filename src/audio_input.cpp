@@ -45,7 +45,7 @@ int audio_callback(const void *inputBuffer, void *outputBuffer,
 
   num = ringbuffer_write(a->input_pipe, (const char*)inputBuffer, a->bytesize);
   if(num != a->bytesize)
-    warning("audio input pipe full, written %i instead of %u bytes", num, a->bytesize);
+    func("audio input pipe full, written %i instead of %u bytes", num, a->bytesize);
 
   //  a->output_pipe -> read  (a->bytesize , (void*)outputBuffer);
 

@@ -54,7 +54,7 @@
 
 char msg[255];
 
-static int verbosity;
+static int verbosity = 0;
 
 static char *osd_msg;
 

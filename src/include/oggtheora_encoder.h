@@ -50,8 +50,9 @@ class OggTheoraEncoder: public VideoEncoder {
   bool init(Context *_env);
   bool set_video_quality(int quality);
   bool set_audio_quality(double quality);
-  bool encode_frame();
+
   bool feed_video();
+  int encode_frame();
   
  private:
 
@@ -75,7 +76,7 @@ class OggTheoraEncoder: public VideoEncoder {
   bool flush_theora_header();
   bool flush_vorbis_header();
 
-  bool flush_ogg (int end_of_stream);
+  int flush_ogg (int end_of_stream);
   void close_ogg_streams();
 
   bool  init_yuv_frame();

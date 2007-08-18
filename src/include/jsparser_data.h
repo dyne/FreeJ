@@ -79,6 +79,7 @@ JS(js_trigger_ctrl_constructor);
 // encoder constructor
 #ifdef WITH_OGGTHEORA
 JS(js_vid_enc_constructor);
+JS(js_shouter_constructor);
 #endif
 
 //////////////////////////////////////////////////////////////
@@ -151,11 +152,15 @@ extern JSClass video_layer_class;
 extern JSFunctionSpec video_layer_methods[];
 #endif
 
-// VideoEncoder
 #ifdef WITH_OGGTHEORA
+// VideoEncoder
 extern JSClass js_vid_enc_class;
 extern JSFunctionSpec js_vid_enc_methods[];
+// Shouter to icecast
+extern JSClass js_shouter_class;
+extern JSFunctionSpec js_shouter_methods[];
 #endif
+
 
 
 
@@ -181,8 +186,6 @@ JS(srand);
 JS(pause);
 JS(fullscreen);
 JS(set_resolution);
-//JS(stream_start);
-//JS(stream_stop);
 JS(freej_scandir);
 JS(freej_echo);
 JS(freej_strstr);
@@ -349,6 +352,17 @@ JS(vid_enc_set_quality);
 JS(vid_enc_set_bitrate);
 JS(vid_enc_start_filesave);
 JS(vid_enc_stop_filesave);
+// Shouter methods
+JS(start_stream);
+JS(stop_stream);
+JS(stream_host);
+JS(stream_port);
+JS(stream_mount);
+JS(stream_title);
+JS(stream_username);
+JS(stream_password);
+JS(stream_homepage);
+JS(stream_description);
 #endif
 
 /* TODO: shouter class 

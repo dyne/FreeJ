@@ -262,20 +262,15 @@ bool OggTheoraEncoder::vorbis_init() {
   return true;
 }
 
-bool OggTheoraEncoder::encode_frame() {
+int OggTheoraEncoder::encode_frame() {
   // frame_finished = false;
-  
+
   if (use_audio)
     audioflag = encode_audio ( 0);
   
   videoflag = encode_video ( 0);
   
-  flush_ogg (0);
-
-  //  write_headers();
-  
-  // frame_finished = true;
-  return true;
+  return ( flush_ogg (0) );
 
 }
 /*
@@ -517,9 +512,10 @@ bool OggTheoraEncoder::write_vorbis_header() {
   return true;
 }
 
-bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
+int OggTheoraEncoder::flush_ogg (int end_of_stream) {
 
   int flushloop = 1; // ugly! :)
+  int num = 0;
   
   while(flushloop) {
     flushloop =  0;
@@ -538,8 +534,8 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 	
 	videotime = theora_granule_time (&td, ogg_page_granulepos (&videopage));
 	// flush a video page
-	ringbuffer_write(ringbuffer,(const char*) videopage.header, videopage.header_len);
-	ringbuffer_write(ringbuffer,(const char*) videopage.body, videopage.body_len);
+	num += ringbuffer_write(ringbuffer,(const char*) videopage.header, videopage.header_len);
+	num += ringbuffer_write(ringbuffer,(const char*) videopage.body, videopage.body_len);
 
 	
 	// print_timing (videotime);
@@ -564,8 +560,8 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
 	audiotime = vorbis_granule_time (&vd,ogg_page_granulepos (&audiopage));
 	
 	// write it in the ringbuffer
-	ringbuffer_write(ringbuffer, (const char*) audiopage.header, audiopage.header_len);
-	ringbuffer_write(ringbuffer, (const char*) audiopage.body, audiopage.body_len);
+	num += ringbuffer_write(ringbuffer, (const char*) audiopage.header, audiopage.header_len);
+	num += ringbuffer_write(ringbuffer, (const char*) audiopage.body, audiopage.body_len);
 
 	// print_timing (audiotime);
 	// akbps = rint (info->audio_bytesout * 8. / info->audiotime * .001);
@@ -576,7 +572,7 @@ bool OggTheoraEncoder::flush_ogg (int end_of_stream) {
       if (end_of_stream) break;
     }
   }
-  return true;
+  return num;
 }
 
 bool OggTheoraEncoder::flush_theora_header() {
