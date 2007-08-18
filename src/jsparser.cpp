@@ -186,6 +186,11 @@ void JsParser::init() {
 		   js_joy_ctrl_constructor,
 		   js_joy_ctrl_methods);
 
+    REGISTER_CLASS("TriggerController",
+           js_trigger_ctrl_class,
+           js_trigger_ctrl_constructor,
+           js_trigger_ctrl_methods);
+
 #ifdef WITH_OGGTHEORA
     // encoder class
     REGISTER_CLASS("VideoEncoder",

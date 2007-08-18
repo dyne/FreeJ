@@ -77,6 +77,7 @@ freej_SOURCES = \
 	kbd_ctrl.cpp	\
 	joy_ctrl.cpp	\
 	midi_ctrl.cpp   \
+	trigger_ctrl.cpp \
 \
 	audio_input.cpp \
 \

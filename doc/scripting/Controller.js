@@ -224,4 +224,22 @@ JoystickController.prototype.hatmotion = function (which, hat, value);
 */
 JoystickController.prototype.button = function (which, button, state);
 
+//////////////////////////////
+// Trigger Controller
 
+/** The TriggerController constructor creates a trigger controller 
+    @class The Trigger Controller holds callbacks to javascript. You can use the frame callback to process various stuff, instead using run(). 
+
+    @constructor
+    @base Controller
+    @returns a new TriggerController
+*/
+function TriggerController() { };
+TriggerController.prototype = new Controller();
+
+/** This will be called each frame. 
+    Don't waste too much time here!
+
+    @type void
+*/
+TriggerController.prototype.frame = function ();

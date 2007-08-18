@@ -74,6 +74,7 @@ JS(js_joy_ctrl_constructor);
 #ifdef WITH_MIDI
 JS(js_midi_ctrl_constructor);
 #endif
+JS(js_trigger_ctrl_constructor);
 
 // encoder constructor
 #ifdef WITH_OGGTHEORA
@@ -107,6 +108,10 @@ extern JSFunctionSpec js_joy_ctrl_methods[];
 extern JSClass js_midi_ctrl_class;
 extern JSFunctionSpec js_midi_ctrl_methods[];
 #endif
+
+// Trigger Controller
+extern JSClass js_trigger_ctrl_class;
+extern JSFunctionSpec js_trigger_ctrl_methods[];
 
 // ParticleLayer
 extern JSClass particle_layer_class;
