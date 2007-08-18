@@ -110,21 +110,15 @@ int JoyCtrl::peep(Context *env) {
 
   int res;
   int c = 0;
-  
-  for( res = SDL_PeepEvents(&env->event, 1, SDL_PEEKEVENT, SDL_JOYEVENTMASK);
-       res > 0;
-       c++ ) {
-    
-    SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
 
+  res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
+  while (res>0) {
+    c++;
     poll(env);
-
+    res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
   }
-
   return c;
-
 }
-
 
 int JoyCtrl::poll(Context *env) {
 
@@ -206,34 +200,13 @@ int JoyCtrl::poll(Context *env) {
   default: return 0;
     
   }
-
-  /*
-  {
-    int j,c;
-    for(j=0;j<num;j++) {
-      func("action on %s",SDL_JoystickName(j));
-      // print out axes
-      for(c=0;c<axes;c++)
-	func("axis %i position %i",c,SDL_JoystickGetAxis(joy[j],c));
-      for(c=0;c<buttons;c++)
-	func("button %i position %i",c,SDL_JoystickGetButton(joy[j],c));
-      
-
-    }
-  }
-
-  func("joystick controller called method %s()",funcname);
-  */
-
   return(1);
-    
 }
 
 JS(js_joy_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   JoyCtrl *joy = new JoyCtrl();
-
 
   // assign instance into javascript object
   if( ! JS_SetPrivate(cx, obj, (void*)joy) ) {
