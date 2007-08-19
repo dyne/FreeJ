@@ -235,7 +235,7 @@ guint32 *goom_update (PluginInfo *goomInfo, gint16 data[2][512],
         || (forceMode > 0)
         || (goomInfo->update.cyclesSinceLastChange > TIME_BTW_CHG)) {
         
-        /* changement eventuel de mode */
+        // changement eventuel de mode
         if (goom_irand(goomInfo->gRandom,16) == 0)
             switch (goom_irand(goomInfo->gRandom,34)) {
                 case 0:
@@ -308,13 +308,13 @@ guint32 *goom_update (PluginInfo *goomInfo, gint16 data[2][512],
                 case 33:
                     goomInfo->update.zoomFilterData.mode = SPEEDWAY_MODE;
                     break;
-                default:
+	    default: break;
                     goomInfo->update.zoomFilterData.mode = NORMAL_MODE;
                     goomInfo->update.zoomFilterData.waveEffect = 0;
                     goomInfo->update.zoomFilterData.hypercosEffect = 0;
             }
     }
-        
+
         /* tout ceci ne sera fait qu'en cas de non-blocage */
         if (goomInfo->update.lockvar == 0) {
             /* reperage de goom (acceleration forte de l'acceleration du volume) */
@@ -662,6 +662,7 @@ guint32 *goom_update (PluginInfo *goomInfo, gint16 data[2][512],
         /*
          * si on est dans un goom : afficher les lignes...
          */
+
         if ((goomInfo->update.lineMode != 0) || (goomInfo->sound.timeSinceLastGoom < 5)) {
             goomInfo->gmline2->power = goomInfo->gmline1->power;
             

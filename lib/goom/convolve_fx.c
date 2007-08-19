@@ -135,8 +135,8 @@ static void create_output_with_brightness(VisualFX *_this, Pixel *src, Pixel *de
     int i;
     for (i=0;i<16;++i)
       ifftab[i] = (double)iff * (1.0 + data->visibility * (15.0 - i) / 15.0);
-  }
-  else {
+
+  } else {
     int i;
     for (i=0;i<16;++i)
       ifftab[i] = (double)iff / (1.0 + data->visibility * (15.0 - i) / 15.0);
@@ -301,10 +301,10 @@ static void convolve_apply(VisualFX *_this, Pixel *src, Pixel *dest, PluginInfo 
     }
   }
 
-  if ((ff > 0.98f) && (ff < 1.02f))
-    memcpy(dest, src, info->screen.size * sizeof(Pixel));
-  else
-    create_output_with_brightness(_this,src,dest,info,iff);
+  //  if ((ff > 0.98f) && (ff < 1.02f))
+  memcpy(dest, src, info->screen.size * sizeof(Pixel));
+    //  else
+    //    create_output_with_brightness(_this,src,dest,info,iff);
 /*
 //   Benching suite...
    {
