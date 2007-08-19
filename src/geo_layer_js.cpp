@@ -21,6 +21,7 @@
 
 #include <callbacks_js.h>
 #include <jsparser_data.h>
+#include <jsnum.h>
 #include <config.h>
 #include <geo_layer.h>
 
@@ -96,7 +97,7 @@ JS(geometry_layer_color) {
 
   // color accepts arguments in many ways
   // R,G,B,A or R,G,B or the whole 32bit value
-  uint32_t r,g,b,a;
+  uint16_t r,g,b,a;
 
   if(JSVAL_IS_DOUBLE(argv[0])) {
 
@@ -105,20 +106,16 @@ JS(geometry_layer_color) {
     lay->color = (uint32_t)*hex;
     
   } else {
-    
-    r = JSVAL_TO_INT(argv[0]);
-    
-      g = JSVAL_TO_INT(argv[1]);
-      b = JSVAL_TO_INT(argv[2]);
-      
-      if(JSVAL_IS_NUMBER(argv[3]))
-	a = JSVAL_TO_INT(argv[3]);
+      js_ValueToUint16(cx, argv[0], &r);
+      js_ValueToUint16(cx, argv[1], &g);
+      js_ValueToUint16(cx, argv[2], &b);
+      if (argc == 4) 
+          js_ValueToUint16(cx, argv[3], &a);
       else
-	a = 0xff;
-      
-    lay->color = a|(r<<8)|(g<<16)|(b<<24);
+        a = 0xff;
+    
+      lay->color = a|(r<<8)|(g<<16)|(b<<24);
   }
-
   return JS_TRUE;
 }
 
@@ -129,8 +126,9 @@ JS(geometry_layer_pixel) {
 
   GET_LAYER(GeoLayer);
   
-  int x = JSVAL_TO_INT(argv[0]);
-  int y = JSVAL_TO_INT(argv[1]);
+  uint16_t x,y;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y);
 
   OPTIONAL_COLOR_ARG(2);
 
@@ -145,9 +143,10 @@ JS(geometry_layer_hline) {
 
   GET_LAYER(GeoLayer);
 
-  int x1 = JSVAL_TO_INT(argv[0]);
-  int x2 = JSVAL_TO_INT(argv[1]);
-  int y = JSVAL_TO_INT(argv[2]);
+  uint16_t x1,x2,y;
+  js_ValueToUint16(cx, argv[0], &x1);
+  js_ValueToUint16(cx, argv[1], &x2);
+  js_ValueToUint16(cx, argv[2], &y);
 
   OPTIONAL_COLOR_ARG(3);
 
@@ -162,9 +161,10 @@ JS(geometry_layer_vline) {
 
   GET_LAYER(GeoLayer);
 
-  int x = JSVAL_TO_INT(argv[0]);
-  int y1 = JSVAL_TO_INT(argv[1]);
-  int y2 = JSVAL_TO_INT(argv[2]);
+  uint16_t x,y1,y2;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y1);
+  js_ValueToUint16(cx, argv[2], &y2);
 
   OPTIONAL_COLOR_ARG(3);
 
@@ -172,6 +172,7 @@ JS(geometry_layer_vline) {
 
   return JS_TRUE;
 }
+
 JS(geometry_layer_rectangle) {
   //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
@@ -179,11 +180,14 @@ JS(geometry_layer_rectangle) {
 
   GET_LAYER(GeoLayer);
 
-  int x1 = JSVAL_TO_INT(argv[0]);
-  int y1 = JSVAL_TO_INT(argv[1]);
-  int x2 = JSVAL_TO_INT(argv[2]);
-  int y2 = JSVAL_TO_INT(argv[3]);
+  uint16_t x1,x2,y1,y2;
+  js_ValueToUint16(cx, argv[0], &x1);
+  js_ValueToUint16(cx, argv[1], &y1);
 
+  js_ValueToUint16(cx, argv[2], &x2);
+  js_ValueToUint16(cx, argv[3], &y2);
+
+//uint32_t col;
   OPTIONAL_COLOR_ARG(4);
   
   lay->rectangle(x1, y1, x2, y2, color);
@@ -197,11 +201,14 @@ JS(geometry_layer_rectangle_fill) {
 
   GET_LAYER(GeoLayer);
 
-  int x1 = JSVAL_TO_INT(argv[0]);
-  int y1 = JSVAL_TO_INT(argv[1]);
-  int x2 = JSVAL_TO_INT(argv[2]);
-  int y2 = JSVAL_TO_INT(argv[3]);
+  uint16_t x1,x2,y1,y2;
+  js_ValueToUint16(cx, argv[0], &x1);
+  js_ValueToUint16(cx, argv[1], &y1);
 
+  js_ValueToUint16(cx, argv[2], &x2);
+  js_ValueToUint16(cx, argv[3], &y2);
+
+//uint32_t col;
   OPTIONAL_COLOR_ARG(4);
 
   lay->rectangle_fill(x1, y1, x2, y2, color);
@@ -215,10 +222,12 @@ JS(geometry_layer_line) {
 
   GET_LAYER(GeoLayer);
 
-  int x1 = JSVAL_TO_INT(argv[0]);
-  int y1 = JSVAL_TO_INT(argv[1]);
-  int x2 = JSVAL_TO_INT(argv[2]);
-  int y2 = JSVAL_TO_INT(argv[3]);
+  uint16_t x1,x2,y1,y2;
+  js_ValueToUint16(cx, argv[0], &x1);
+  js_ValueToUint16(cx, argv[1], &y1);
+
+  js_ValueToUint16(cx, argv[2], &x2);
+  js_ValueToUint16(cx, argv[3], &y2);
 
   OPTIONAL_COLOR_ARG(4);
 
@@ -233,10 +242,12 @@ JS(geometry_layer_aaline) {
 
   GET_LAYER(GeoLayer);
 
-  int x1 = JSVAL_TO_INT(argv[0]);
-  int y1 = JSVAL_TO_INT(argv[1]);
-  int x2 = JSVAL_TO_INT(argv[2]);
-  int y2 = JSVAL_TO_INT(argv[3]);
+  uint16_t x1,x2,y1,y2;
+  js_ValueToUint16(cx, argv[0], &x1);
+  js_ValueToUint16(cx, argv[1], &y1);
+
+  js_ValueToUint16(cx, argv[2], &x2);
+  js_ValueToUint16(cx, argv[3], &y2);
 
   OPTIONAL_COLOR_ARG(4);
   
@@ -251,9 +262,10 @@ JS(geometry_layer_circle) {
 
   GET_LAYER(GeoLayer);
 
-  int x = JSVAL_TO_INT(argv[0]);
-  int y = JSVAL_TO_INT(argv[1]);
-  int r = JSVAL_TO_INT(argv[2]);
+  uint16_t x,y,r;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y);
+  js_ValueToUint16(cx, argv[2], &r);
 
   OPTIONAL_COLOR_ARG(3);
 
@@ -268,9 +280,10 @@ JS(geometry_layer_aacircle) {
 
   GET_LAYER(GeoLayer);
 
-  int x = JSVAL_TO_INT(argv[0]);
-  int y = JSVAL_TO_INT(argv[1]);
-  int r = JSVAL_TO_INT(argv[2]);
+  uint16_t x,y,r;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y);
+  js_ValueToUint16(cx, argv[2], &r);
 
   OPTIONAL_COLOR_ARG(3);
 
@@ -285,9 +298,10 @@ JS(geometry_layer_circle_fill) {
 
   GET_LAYER(GeoLayer);
 
-  int x = JSVAL_TO_INT(argv[0]);
-  int y = JSVAL_TO_INT(argv[1]);
-  int r = JSVAL_TO_INT(argv[2]);
+  uint16_t x,y,r;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y);
+  js_ValueToUint16(cx, argv[2], &r);
 
   OPTIONAL_COLOR_ARG(3);
 
@@ -302,10 +316,11 @@ JS(geometry_layer_ellipse) {
 
   GET_LAYER(GeoLayer);
 
-  int x = JSVAL_TO_INT(argv[0]);
-  int y = JSVAL_TO_INT(argv[1]);
-  int rx = JSVAL_TO_INT(argv[2]);
-  int ry = JSVAL_TO_INT(argv[3]);
+  uint16_t x,y,rx,ry;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y);
+  js_ValueToUint16(cx, argv[2], &rx);
+  js_ValueToUint16(cx, argv[2], &ry);
 
   OPTIONAL_COLOR_ARG(4);
 
@@ -320,10 +335,11 @@ JS(geometry_layer_aaellipse) {
 
   GET_LAYER(GeoLayer);
 
-  int x = JSVAL_TO_INT(argv[0]);
-  int y = JSVAL_TO_INT(argv[1]);
-  int rx = JSVAL_TO_INT(argv[2]);
-  int ry = JSVAL_TO_INT(argv[3]);
+  uint16_t x,y,rx,ry;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y);
+  js_ValueToUint16(cx, argv[2], &rx);
+  js_ValueToUint16(cx, argv[2], &ry);
 
   OPTIONAL_COLOR_ARG(4);
 
@@ -338,10 +354,11 @@ JS(geometry_layer_ellipse_fill) {
 
   GET_LAYER(GeoLayer);
 
-  int x = JSVAL_TO_INT(argv[0]);
-  int y = JSVAL_TO_INT(argv[1]);
-  int rx = JSVAL_TO_INT(argv[2]);
-  int ry = JSVAL_TO_INT(argv[3]);
+  uint16_t x,y,rx,ry;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y);
+  js_ValueToUint16(cx, argv[2], &rx);
+  js_ValueToUint16(cx, argv[2], &ry);
 
   OPTIONAL_COLOR_ARG(4);
 
@@ -356,11 +373,12 @@ JS(geometry_layer_pie) {
 
   GET_LAYER(GeoLayer);
 
-  int x = JSVAL_TO_INT(argv[0]);
-  int y = JSVAL_TO_INT(argv[1]);
-  int rad = JSVAL_TO_INT(argv[2]);
-  int start = JSVAL_TO_INT(argv[3]);
-  int end = JSVAL_TO_INT(argv[4]);
+  uint16_t x,y,rad,start,end;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y);
+  js_ValueToUint16(cx, argv[2], &rad);
+  js_ValueToUint16(cx, argv[3], &start);
+  js_ValueToUint16(cx, argv[4], &end);
 
   OPTIONAL_COLOR_ARG(5);
 
@@ -375,11 +393,12 @@ JS(geometry_layer_pie_fill) {
 
   GET_LAYER(GeoLayer);
 
-  int x = JSVAL_TO_INT(argv[0]);
-  int y = JSVAL_TO_INT(argv[1]);
-  int rad = JSVAL_TO_INT(argv[2]);
-  int start = JSVAL_TO_INT(argv[3]);
-  int end = JSVAL_TO_INT(argv[4]);
+  uint16_t x,y,rad,start,end;
+  js_ValueToUint16(cx, argv[0], &x);
+  js_ValueToUint16(cx, argv[1], &y);
+  js_ValueToUint16(cx, argv[2], &rad);
+  js_ValueToUint16(cx, argv[3], &start);
+  js_ValueToUint16(cx, argv[4], &end);
 
   OPTIONAL_COLOR_ARG(5);
 
@@ -394,12 +413,13 @@ JS(geometry_layer_trigon) {
 
   GET_LAYER(GeoLayer);
 
-  int x1 = JSVAL_TO_INT(argv[0]);
-  int y1 = JSVAL_TO_INT(argv[1]);
-  int x2 = JSVAL_TO_INT(argv[2]);
-  int y2 = JSVAL_TO_INT(argv[3]);
-  int x3 = JSVAL_TO_INT(argv[4]);
-  int y3 = JSVAL_TO_INT(argv[5]);
+  uint16_t x1,y1,x2,y2,x3,y3;
+  js_ValueToUint16(cx, argv[0], &x1);
+  js_ValueToUint16(cx, argv[1], &y1);
+  js_ValueToUint16(cx, argv[2], &x2);
+  js_ValueToUint16(cx, argv[3], &y2);
+  js_ValueToUint16(cx, argv[4], &x3);
+  js_ValueToUint16(cx, argv[5], &y3);
 
   OPTIONAL_COLOR_ARG(6);
 
@@ -414,12 +434,13 @@ JS(geometry_layer_aatrigon) {
 
   GET_LAYER(GeoLayer);
 
-  int x1 = JSVAL_TO_INT(argv[0]);
-  int y1 = JSVAL_TO_INT(argv[1]);
-  int x2 = JSVAL_TO_INT(argv[2]);
-  int y2 = JSVAL_TO_INT(argv[3]);
-  int x3 = JSVAL_TO_INT(argv[4]);
-  int y3 = JSVAL_TO_INT(argv[5]);
+  uint16_t x1,y1,x2,y2,x3,y3;
+  js_ValueToUint16(cx, argv[0], &x1);
+  js_ValueToUint16(cx, argv[1], &y1);
+  js_ValueToUint16(cx, argv[2], &x2);
+  js_ValueToUint16(cx, argv[3], &y2);
+  js_ValueToUint16(cx, argv[4], &x3);
+  js_ValueToUint16(cx, argv[5], &y3);
 
   OPTIONAL_COLOR_ARG(6);
 
@@ -434,12 +455,13 @@ JS(geometry_layer_trigon_fill) {
 
   GET_LAYER(GeoLayer);
 
-  int x1 = JSVAL_TO_INT(argv[0]);
-  int y1 = JSVAL_TO_INT(argv[1]);
-  int x2 = JSVAL_TO_INT(argv[2]);
-  int y2 = JSVAL_TO_INT(argv[3]);
-  int x3 = JSVAL_TO_INT(argv[4]);
-  int y3 = JSVAL_TO_INT(argv[5]);
+  uint16_t x1,y1,x2,y2,x3,y3;
+  js_ValueToUint16(cx, argv[0], &x1);
+  js_ValueToUint16(cx, argv[1], &y1);
+  js_ValueToUint16(cx, argv[2], &x2);
+  js_ValueToUint16(cx, argv[3], &y2);
+  js_ValueToUint16(cx, argv[4], &x3);
+  js_ValueToUint16(cx, argv[5], &y3);
 
   OPTIONAL_COLOR_ARG(6);
 
