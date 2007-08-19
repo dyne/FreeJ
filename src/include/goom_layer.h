@@ -37,13 +37,15 @@ class GoomLayer: public Layer {
   void *feed();
   bool keypress(int key);
   void close();
+
+  PluginInfo *goom;
   
  private:
 
   short int audio[2][512];
   uint16_t audiotmp[2048+100];
   SDL_Surface *surf;
-  PluginInfo *goom;
+
   
 };
 

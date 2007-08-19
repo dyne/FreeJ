@@ -65,6 +65,7 @@ freej_SOURCES = \
 	scroll_layer_js.cpp \
 	xhacks_layer.cpp \
         goom_layer.cpp \
+	goom_layer_js.cpp \
 	tbt_layer.cpp \
 	impl_layers.cpp \
 \

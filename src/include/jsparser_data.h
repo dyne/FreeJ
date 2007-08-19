@@ -56,6 +56,7 @@ JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
 JS(image_layer_constructor);
 JS(flash_layer_constructor);
+JS(goom_layer_constructor);
 
 #ifdef WITH_V4L
 JS(v4l_layer_constructor);
@@ -133,6 +134,10 @@ extern JSFunctionSpec image_layer_methods[];
 // FlashLayer
 extern JSClass flash_layer_class;
 extern JSFunctionSpec flash_layer_methods[];
+
+// GoomLayer
+extern JSClass goom_layer_class;
+extern JSFunctionSpec goom_layer_methods[];
 
 // CamLayer
 #ifdef WITH_V4L
@@ -309,6 +314,17 @@ JS(vscroll_layer_append);
 JS(vscroll_layer_speed);
 JS(vscroll_layer_linespace);
 JS(vscroll_layer_kerning);
+
+////////////////////////////////
+// Goom Layer methods
+JS(goom_layer_mode);
+JS(goom_layer_middle);
+JS(goom_layer_reverse);
+JS(goom_layer_speed);
+JS(goom_layer_plane);
+JS(goom_layer_wave);
+JS(goom_layer_hypercos);
+JS(goom_layer_noise);
 
 #ifdef WITH_V4L
 ////////////////////////////////

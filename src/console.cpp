@@ -56,12 +56,12 @@
 #define KEY_TAB 9
 
 /* unix ctrl- commandline hotkeys */
-#define KEY_CTRL_A 1 // goto beginning of line
+#define KEY_CTRL_A 1 // move/rotate/zoom the layer
 #define KEY_CTRL_B 2 // change blit
 #define KEY_CTRL_D 4 // delete char
 #define KEY_CTRL_E 5 // add new effect
 #define KEY_CTRL_F 6 // go fullscreen
-#define KEY_CTRL_G 7
+#define KEY_CTRL_G 7 // create a particle layer
 #define KEY_CTRL_H_APPLE 8 // ctrl-h on apple/OSX
 #define KEY_CTRL_I 9 // OSD on/off
 #define KEY_CTRL_K 11 // delete until end of line
@@ -69,13 +69,13 @@
 #define KEY_CTRL_M 13 // move layer
 #define KEY_CTRL_U 21 // delete until beginning of line
 #define KEY_CTRL_H 272 // help the user
-#define KEY_CTRL_J 10 // javascript command
+#define KEY_CTRL_J 10 // jazz mode
 #define KEY_CTRL_O 15 // open a file in a new layer
-#define KEY_CTRL_S 19 // start streaming (overrides scroll lock)
+#define KEY_CTRL_S 19 // load and execute a javascript
 #define KEY_CTRL_T 20 // new layer with text
 #define KEY_CTRL_V 22 // change blit value
 #define KEY_CTRL_W 23 // start stream and save to file
-#define KEY_CTRL_X 24
+#define KEY_CTRL_X 24 // execute a javascript command
 #define KEY_CTRL_Y 25
 
 #define KEY_PLUS 43
@@ -239,6 +239,18 @@ static int exec_script(char *cmd) {
   }
 
   env->js->open(cmd);
+
+  env->console->refresh();
+  return 0;
+}
+
+static int exec_script_command(char *cmd) {
+
+  act("> %s",cmd);
+
+  // check that is a good file
+  
+  env->js->parse(cmd);
 
   env->console->refresh();
   return 0;
@@ -1103,15 +1115,15 @@ void Console::parser_default(int key) {
     act("ctrl+o  = Open new layer (will prompt for path to file)");
     act("ctrl+e  = Add a new Effect to the selected layer");
     act("ctrl+b  = Change the Blit for the selected layer");
-    act("ctrl+t  = Add a new Text layer (will prompt for text)");
     act("ctrl+a  = Move Rotate and Zoom the selected layer"); 
+    act("ctrl+t  = Add a new Text layer (will prompt for text)");
     act("ctrl+y  = Insert a new word in selected Text layer");
     act("ctrl+v  = Fade the Blit Value for the selected layer");
-    act("ctrl+j  = Activate jazz mode to pulse layers");
     act("ctrl+l  = Cleanup and redraw the console");
     act("ctrl+f  = Go to Fullscreen");
     act("ctrl+c  = Quit FreeJ");
-    act("ctrl+x  = execute a Javascript command");
+    act("ctrl+x  = execute a script command");
+    act("ctrl+s  = load and execute a script file");
 #ifdef CONFIG_OGGTHEORA_ENCODER
     //    ::act("ctrl+w  = start streaming to: %s",env->shouter->host());
     //    ::act("          and save to file: %s",env->video_encoder->get_filename());
@@ -1197,9 +1209,12 @@ void Console::parser_default(int key) {
     break;
     
   case KEY_CTRL_X:
-  readline("script file to execute:",&exec_script,&filebrowse_completion);
-  break;
-
+    readline("execute javascript command:",&exec_script_command,NULL);
+    break;
+  
+  case KEY_CTRL_S:
+    readline("load and execute a javascript file:", &exec_script, &filebrowse_completion);
+    break;
 
 #ifdef CONFIG_OGGTHEORA_ENCODER
   case KEY_CTRL_W:

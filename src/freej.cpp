@@ -323,7 +323,7 @@ int main (int argc, char **argv) {
   Layer *lay = NULL;
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);
-  act("(c)2001-2007 Jaromil & Kysucix @ dyne.org");
+  act("2001-2007 RASTASOFT :: freej.dyne.org");
   act("----------------------------------------------");
 
   assert( freej.init(width,height, opengl) );
