@@ -42,6 +42,9 @@
  * powerpc build support,
  * fixes for compilation on debian
  *
+ * Revision 1.8  2007/08/29 21:20:00 Mr Goil
+ * Corrected that 'upside down' stuff
+ *
  * Revision 1.7  2003/01/02 04:10:19  nemosoft
  * Adding ''upside down" conversion to rgb/bgr routines
  *
@@ -163,9 +166,11 @@ void ccvt_ ## TIN ## _ ## TOUT (int width, int height, const void *const src, vo
    PIXTYPE_ ## TOUT *out = dst; \
    int l, c, stride = 0; \
    \
-   if (height < 0) { stride = width; height = -height; } \
-   out += ((height - 1) * width); \
-   stride *= 2; \
+   if (height < 0) { \
+       stride = 2 * width; \
+       height = -height; \
+       out += ((height - 1) * width); \
+   } \
    for (l = 0; l < height; l++) { \
       for (c = 0; c < width; c++) { \
          out->r = in->r; \
@@ -185,9 +190,11 @@ void ccvt_ ## TIN ## _ ## TOUT (int width, int height, const void *const src, vo
    PIXTYPE_ ## TOUT *out = dst; \
    int l, c, stride = 0; \
    \
-   if (height < 0) { stride = width; height = -height; } \
-   out += ((height - 1) * width); \
-   stride *= 2; \
+   if (height < 0) { \
+       stride = 2 * width; \
+       height = -height;  \
+       out += ((height - 1) * width); \
+   } \
    for (l = 0; l < height; l++) { \
       for (c = 0; c < width; c++) { \
          out->r = in->r; \
