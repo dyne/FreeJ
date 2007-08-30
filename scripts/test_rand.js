@@ -5,7 +5,7 @@
 
 width =  400;
 height = 300;
-drawer = draw_pixels;
+drawer = draw_triangles;
 
 function draw_pixels(geo) {
   var x, y;

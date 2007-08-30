@@ -199,7 +199,13 @@ enum
 #define true 1
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 extern int shape_size,shape_nb,shaperecord_size,shaperecord_nb,style_size,style_nb;
+#ifdef __cplusplus
+}
+#endif // __cplusplus
 
 typedef void (*ScanLineFunc)(void *id, long y, long start, long end);
 

@@ -28,6 +28,9 @@
 #define SDL_REPEAT_DELAY	200
 #define SDL_REPEAT_INTERVAL	20
 
+#define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
+
+
 /////// Javascript KeyboardController
 JS(js_kbd_ctrl_constructor);
 

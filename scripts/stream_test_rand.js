@@ -86,15 +86,17 @@ kbd.released_t = function() { drawer = draw_triangles; }
 kbd.released_e = function() { drawer = draw_ellipses; }
 register_controller( kbd );
 
-
 // create a video encoder object
-encoder = new VideoEncoder();
+//    values 1-100         video quality  video bitrate  audio quality  audio_bitrate
+encoder = new VideoEncoder(10,             64000,        5,             24000);
 
-encoder.stream_host("localhost");
+
+encoder.stream_host("giss.tv");
 encoder.stream_port(8000);
 encoder.stream_title("testing new freej");
-encoder.stream_password("hackme");
-encoder.stream_mountpoint("freej.ogg");
+encoder.stream_username("source");
+encoder.stream_password("2t645");
+encoder.stream_mountpoint("freej-test.ogg");
 
 register_encoder(encoder);
 encoder.start_stream();

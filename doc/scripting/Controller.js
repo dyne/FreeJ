@@ -136,15 +136,103 @@ MidiController.prototype.connect_from = connect_from;
 function KeyboardController() { };
 KeyboardController.prototype = new Controller();
 
-/** All keyboard events are exported as .pressed_MOD_KEYSYM
+/** All keyboard events are exported as .pressed_MOD_KEYSYM as in pressed_a pressed_b pressed_c or pressed_shift_a but also as .released_MOD_KEYSYM as in released_a ... see below for a full list of implemented MOD_KEYSYMs (see also the default keyboard.js in share/freej/scripts)
+<div class="example">
 
-    <div class="example">Examples:
+kbd = new KeyboardController();
+register_controller( kbd );
 
-    KeyboardController.pressed_num_1
-    kbd.pressed_ctrl_a  = function() { }
-    kbd.pressed_ctrl_shift_alt_a = function() { }
-    </div>
-    Mh, still need to lurk through the code for more documentation ...
+kbd.pressed_1 
+kbd.pressed_2 
+kbd.pressed_3 
+kbd.pressed_4 
+kbd.pressed_5 
+kbd.pressed_6 
+kbd.pressed_7 
+kbd.pressed_8 
+kbd.pressed_9 
+kbd.pressed_0 
+
+kbd.pressed_a 
+kbd.pressed_b 
+kbd.pressed_c 
+kbd.pressed_d 
+kbd.pressed_e 
+kbd.pressed_f 
+kbd.pressed_g 
+kbd.pressed_h 
+kbd.pressed_i 
+kbd.pressed_j 
+kbd.pressed_k 
+kbd.pressed_l 
+kbd.pressed_m 
+kbd.pressed_n 
+kbd.pressed_o 
+kbd.pressed_p 
+kbd.pressed_q 
+kbd.pressed_r 
+kbd.pressed_s 
+kbd.pressed_t 
+kbd.pressed_u 
+kbd.pressed_v 
+kbd.pressed_w 
+kbd.pressed_x 
+kbd.pressed_y 
+kbd.pressed_z 
+
+// more letter keys are available
+// in combination with control, shift or alt keys
+// define them as:
+kbd.pressed_ctrl_a  
+kbd.pressed_shift_b 
+kbd.pressed_alt_c   
+// .. and so on with other letters
+// you can also combine ctrl+shift+alt for example:
+kbd.pressed_ctrl_shift_alt_a 
+
+// symbol keys:
+kbd.pressed_up       
+kbd.pressed_down     
+kbd.pressed_insert   
+kbd.pressed_home     
+kbd.pressed_end      
+kbd.pressed_pageup   
+kbd.pressed_pagedown 
+
+kbd.pressed_backspace 
+kbd.pressed_tab       
+kbd.pressed_return    
+kbd.pressed_space     
+kbd.pressed_less      
+kbd.pressed_greater   
+kbd.pressed_equals    
+
+// numeric keypad keys:
+kbd.pressed_num_1 
+kbd.pressed_num_2 
+kbd.pressed_num_3 
+kbd.pressed_num_4 
+kbd.pressed_num_5 
+kbd.pressed_num_6 
+kbd.pressed_num_7 
+kbd.pressed_num_8 
+kbd.pressed_num_9 
+kbd.pressed_num_0 
+
+kbd.pressed_num_period   
+kbd.pressed_num_divide   
+kbd.pressed_num_multiply 
+kbd.pressed_num_minus    
+kbd.pressed_num_plus     
+kbd.pressed_num_enter    
+kbd.pressed_num_equals   
+
+// to quit we have default keys.
+// never forget to define the quit key! ;^)
+kbd.pressed_ctrl_q 
+kbd.pressed_ctrl_c 
+kbd.pressed_esc    
+</div>
 */
 KeyboardController.prototype.pressed_MOD_KEYSYM = function () { };
 

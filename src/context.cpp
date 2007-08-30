@@ -358,6 +358,8 @@ void Context::handle_resize() {
   } 
 }
 
+#define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
+
 void Context::handle_controllers() {
   int res;
   Controller *ctrl;

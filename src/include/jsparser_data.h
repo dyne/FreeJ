@@ -363,9 +363,6 @@ JS(txt_layer_color);
 #endif
 
 #ifdef WITH_OGGTHEORA
-// Video Encoder methods
-JS(vid_enc_set_quality);
-JS(vid_enc_set_bitrate);
 JS(vid_enc_start_filesave);
 JS(vid_enc_stop_filesave);
 // Shouter methods

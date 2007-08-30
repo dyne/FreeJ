@@ -193,7 +193,7 @@ bool AudioInput::init() {
 			   more zero samples have been inserted into the input buffer to compensate
 			   for an input underflow.
 		       */
-		       paInputUnderflow | 
+//		       paInputUnderflow | 
 		       
 		       /** In a stream opened with paFramesPerBufferUnspecified, indicates that data
 			   prior to the first sample of the input buffer was discarded due to an
@@ -201,8 +201,8 @@ bool AudioInput::init() {
 			   Otherwise indicates that data prior to one or more samples in the
 			   input buffer was discarded.
 		       */
-		       paInputOverflow,
-		       //		       paNoFlag,
+//		       paInputOverflow,
+		       paNoFlag,
 		       audio_callback, 
 		       this );
   

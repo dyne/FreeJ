@@ -7,11 +7,13 @@
   *** More effects (from veejay, freior, effectv)
     + LiViDO shared plugin library
 
-  *** fix TBT layer, colors on text, programming of keyboard
+  *** fix TBT layer, colors on text
 
   *** cairo layers: poligons and svg
 
-  *** libvisual layer
+  *** File object in javascript to read/write files in ascii/binary
+
+  vvv libvisual layer / unstable library. Goom layer is done
 
   *** build VeeJaying Artificial Intelligence scripts
 
@@ -23,10 +25,8 @@
 
   *** Open Sound Control for remote interoperability
   
-  *** enhance text layer (more scrollers, word positioning etc.)
+  vvv enhance text layer (more scrollers, word positioning etc.)
   
-  *** encoder class (save output to file)
-
   *** XScreensaver layer // must PORT screenhacks code :(
 
  HINT from salsaman:

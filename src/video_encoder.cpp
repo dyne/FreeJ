@@ -90,12 +90,13 @@ VideoEncoder::~VideoEncoder() {
   } while(encnum > 0); 
 
   // close the filedump
-  fclose(filedump_fd);
+  if(filedump_fd) fclose(filedump_fd);
 
   // now deallocate the ringbuffer
   ringbuffer_free(ringbuffer);
 
   shout_close(ice);
+  shout_sync(ice);
   shout_free(ice);
 }
 

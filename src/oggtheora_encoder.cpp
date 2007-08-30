@@ -46,7 +46,7 @@ OggTheoraEncoder::OggTheoraEncoder()
   frame_finished = false;
   
   video_quality  = 16;  // it's ok for streaming
-  vorbis_quality = 0.1; // it's ok for streaming
+  audio_quality =  10; // it's ok for streaming
   video_bytesout = 0;
   videotime      = 0;
 
@@ -232,7 +232,6 @@ bool OggTheoraEncoder::vorbis_init() {
   
   int audio_channels   = env->audio->channels; // mono or stereo
   int audio_hertz      = env->audio->sample_rate; // sample_rate;
-  int audio_bitrate    = 32000;
   
   // init bytes count variable
   audio_bytesout       = 0;
@@ -240,15 +239,26 @@ bool OggTheoraEncoder::vorbis_init() {
   
   vorbis_info_init (&vorbis_information);
   
-  if (vorbis_quality > -99)
+  if(audio_quality > 0) {
+
+    vorbis_quality = audio_quality / 100;
     ret = vorbis_encode_init_vbr (&vorbis_information, audio_channels, 
 				  audio_hertz, vorbis_quality);
-  else
+    if (ret) {
+      error("OggTheoraEncoder::vorbis_init() Vorbis audio encoder");
+      error("requested quality %u results invalid", audio_quality);
+      return false;
+    }
+    
+  } else {
+
     ret = vorbis_encode_init (&vorbis_information, audio_channels, 
 			      audio_hertz, -1, audio_bitrate, -1);
-  if (ret) {
-    error("OggTheoraEncoder::vorbis_init() Vorbis encoder could not set up a mode according to the requested quality or bitrate.\n\n");
-    return false;
+    if (ret) {
+      error("OggTheoraEncoder::vorbis_init() Vorbis audio encoder");
+      error("requested bitrate %u results invalid", audio_bitrate);
+      return false;
+    }
   }
   
   vorbis_comment_init (&vc);

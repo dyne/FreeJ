@@ -368,8 +368,8 @@ void Osd::draw_credits() {
   pos = print(title,pos,1,2);
   pos = print(":: set the veejay free",pos,1,1);
   pos = locredits_offset1;
-  pos = print("by jaromil & kysucix",pos,1,1);
-  pos = print("|| dyne.org software",pos,1,1);
+  pos = print("|| RASTASOFT",pos,1,1);
+  pos = print("|| by dyne.org hackers",pos,1,1);
   pos = locredits_offset2;
   print("freej.org",pos,2,2);
 
