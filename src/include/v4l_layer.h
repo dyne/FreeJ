@@ -50,7 +50,7 @@ class V4lGrabber: public Layer {
 
   bool grab24;
   bool have_tuner;
-  int minw, minh, maxw, maxh;
+  //int minw, minh, maxw, maxh;
   int channels;
 
   void *get_buffer();
@@ -66,7 +66,8 @@ class V4lGrabber: public Layer {
   ~V4lGrabber();
   bool open(char *devfile);
   bool init(Context *freej);
-  int init_width, init_heigth;
+  bool init(Context *freej, int width, int height);
+  int width, height;
   void *feed();
   void close();
 

@@ -61,7 +61,34 @@ JSFunctionSpec geometry_layer_methods[] = {
 };
 
 
-JS_CONSTRUCTOR("GeometryLayer",geometry_layer_constructor,GeoLayer);  
+// JS_CONSTRUCTOR("GeometryLayer",geometry_layer_constructor,GeoLayer);  
+JS(geometry_layer_constructor) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GeoLayer *gl = new GeoLayer();
+    // assign instance into javascript object
+    if( ! JS_SetPrivate(cx, obj, (void*)gl) ) {
+        error("failed creating geo layer to javascript");
+        delete gl; return JS_FALSE;
+    }
+    // initialize with javascript context
+    if (argc==0) {
+        if(! gl->init(env) ) {
+            error("failed initializing geo layer");
+            delete gl; return JS_FALSE;
+        }
+    } else if (argc==2) {
+        if(! gl->init(env, JSVAL_TO_INT(argv[0]), JSVAL_TO_INT(argv[1])) ) {
+            error("failed initializing geo layer");
+            delete gl; return JS_FALSE;
+        }
+    } else {
+        error("failed initializing geo layer: wrong numbers of args");
+        delete gl; return JS_FALSE;
+    }
+
+    *rval = OBJECT_TO_JSVAL(obj);
+    return JS_TRUE;
+}
 
 /// color handling, a macro and some overloading tricks
 #define OPTIONAL_COLOR_ARG(num) \

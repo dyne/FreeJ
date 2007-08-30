@@ -114,7 +114,7 @@ JS(constructor_func) {                                                        \
     JS_ARG_STRING(filename,0);                                                \
     if(!layer->open(filename)) {                                              \
       error("JS::%s : can't open file %s",constructor_name, filename);        \
-      delete layer; return JS_TRUE; }                                         \
+      delete layer; return JS_FALSE; }                                         \
   } else if(argc==2) {                                                        \
     width = JSVAL_TO_INT(argv[0]);                                            \
     height = JSVAL_TO_INT(argv[1]);                                           \
@@ -124,7 +124,7 @@ JS(constructor_func) {                                                        \
     JS_ARG_STRING(filename,2);                                                \
     if(!layer->open(filename)) {                                              \
       error("JS::%s : can't open file %s",constructor_name, filename);        \
-      delete layer; return JS_TRUE; }                                         \
+      delete layer; return JS_FALSE; }                                         \
   } else {                                                                    \
     error("JS:%s : malformed arguments in constructor", constructor_name);    \
     error("use (\"filename\") or (width, height, \"filename\") or ()");       \

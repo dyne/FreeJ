@@ -41,6 +41,9 @@ GeoLayer::~GeoLayer() {
 bool GeoLayer::init(Context *freej) {
   int width  = freej->screen->w;
   int height = freej->screen->h;
+  return init(freej, width, height);
+}
+bool GeoLayer::init(Context *freej, int width, int height) {
 
   // internal initialization
   _init(width, height);
@@ -144,7 +147,7 @@ int GeoLayer::aacircle(int16_t x, int16_t y, int16_t r, uint32_t col) {
 
 int GeoLayer::circle_fill(int16_t x, int16_t y, int16_t r, uint32_t col) {
   res = filledCircleColor(surf, x, y, r, col);
-  if(res<0) error("error in %s",__FUNCTION__);
+  if(res<0) error("error in %s (%i, %i, %i, %u)",__FUNCTION__,x,y,r,col);
   return(res);
 }
 
