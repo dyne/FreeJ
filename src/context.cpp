@@ -186,6 +186,7 @@ bool Context::init(int wx, int hx, bool opengl) {
   scanfonts("/usr/X11R6/lib/X11/fonts/TrueType");
   scanfonts("/usr/share/truetype");
   scanfonts("/usr/share/fonts");
+  scanfonts("/usr/share/fonts/truetype/freefont");
 
 
   if(!num_fonts) {

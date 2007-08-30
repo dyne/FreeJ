@@ -86,22 +86,24 @@ Layer *create_layer(Context *env, char *file) {
   /* ==== Video4Linux */
   if(strncasecmp(file_ptr,"/dev/",5)==0 && ! IS_FIREWIRE_DEVICE(file_ptr)) {
 #ifdef WITH_V4L
-    unsigned int w=320, h=240;
+    unsigned int w=env->screen->w, h=env->screen->h;
     while(end_file_ptr!=file_ptr) {
       if(*end_file_ptr!='%') end_file_ptr--;
       else { /* size is specified */
-	*end_file_ptr='\0'; end_file_ptr++;
-	sscanf(end_file_ptr,"%ux%u",&w,&h);
-	end_file_ptr = file_ptr; }
+        *end_file_ptr='\0'; end_file_ptr++;
+        sscanf(end_file_ptr,"%ux%u",&w,&h);
+        end_file_ptr = file_ptr; 
+      }
     }
     nlayer = new V4lGrabber();
-    if(!nlayer->init( env )) {
+    if(! ((V4lGrabber*)nlayer)->init( env, (int)w, (int)h) ) {
       error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
       delete nlayer; return NULL;
     }
     if(nlayer->open(file_ptr)) {
-      ((V4lGrabber*)nlayer)->init_width = w;
-      ((V4lGrabber*)nlayer)->init_heigth = h;
+        notice("v4l opened");
+    //  ((V4lGrabber*)nlayer)->init_width = w;
+    //  ((V4lGrabber*)nlayer)->init_heigth = h;
     } else {
       error("create_layer : V4L open failed");
       delete nlayer; nlayer = NULL;
@@ -141,7 +143,7 @@ Layer *create_layer(Context *env, char *file) {
 #endif
   } else /* IMAGE LAYER */
     if( IS_IMAGE_EXTENSION(end_file_ptr)) {
-//		strncasecmp((end_file_ptr-4),".png",4)==0) {
+//		strncasecmp((end_file_ptr-4),".png",4)==0) 
 	      nlayer = new ImageLayer();
 	      if(!nlayer->open(file_ptr)) {
 		  error("create_layer : IMG open failed");

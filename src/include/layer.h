@@ -184,7 +184,4 @@ class Layer: public Entry, public JSyncThread {
 };
 
 
-
-
-
 #endif

@@ -66,6 +66,7 @@ TxtLayer::TxtLayer()
   scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
   scanfonts("/usr/X11R6/lib/X11/fonts/TrueType");
   scanfonts("/usr/share/truetype");
+  scanfonts("/usr/share/fonts/truetype/freefont");
 
   func("TxtLayer fonts %i",num_fonts);
 

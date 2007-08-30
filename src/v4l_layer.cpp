@@ -46,8 +46,8 @@ V4lGrabber::V4lGrabber()
   rgb_surface = NULL;
   buffer = NULL;
   have_tuner=false;
-  init_width = 320;
-  init_heigth = 240;
+  width = 320;
+  height = 240;
   set_name("V4L");
   jsclass = &v4l_layer_class;
 }
@@ -88,10 +88,10 @@ bool V4lGrabber::open(char *file) {
     "VID_TYPE_SUBCAPTURE       capture can be of only part of the image"
   };
 
-  func("V4lGrabber::detect()");
+  func("%s %s detect()", __FILE__, __FUNCTION__);
 
   if (-1 == (dev = ::open(file,O_RDWR|O_NONBLOCK))) {
-    error("capture device %s: %s",file,strerror(errno));
+    error("open capture device %s: %s",file,strerror(errno));
     return(false);
   } else {
     ::close(dev);
@@ -113,14 +113,6 @@ bool V4lGrabber::open(char *file) {
     act("Video capabilities:");
     for (counter=0;counter<11;counter++)
       if (grab_cap.type & (1 << counter)) act("%s",capabilities[counter]);
-
-    if (-1 == ioctl(dev, VIDIOCGPICT, &grab_pic)) {
-      error("ioctl VIDIOCGPICT ");
-      exit(1);
-    }
-    
-    if (grab_pic.palette & VIDEO_PALETTE_GREY)
-      act("VIDEO_PALETTE_GREY        device is able to grab greyscale frames");
   }    
   
   if(grab_cap.type & VID_TYPE_TUNER)
@@ -129,17 +121,61 @@ bool V4lGrabber::open(char *file) {
     have_tuner = 1;
   
   /* set and check the minwidth and minheight */
-  minw = grab_cap.minwidth;
-  minh = grab_cap.minheight;
-  maxw = grab_cap.maxwidth;
-  maxh = grab_cap.maxheight;
-  if( (minw>320) || (minh>240) || (maxw<320) || (maxh<240) ) {
-    error("your device does'nt supports grabbing to right size");
+  if( (width<grab_cap.minwidth) || (width>grab_cap.maxwidth) || (height<grab_cap.minheight) || (height>grab_cap.maxheight) ) {
+    error("your device doesn't supports grabbing size %ix%i", width, height);
     return(false);
   }
 
-  if (ioctl (dev, VIDIOCGMBUF, &grab_map) == -1) {
-    error("error in ioctl VIDIOCGMBUF");
+if (-1 == ioctl(dev, VIDIOCGPICT, &grab_pic)) {
+  error("ioctl VIDIOCGPICT ");
+  exit(1);
+}
+#define TRY_VIDEO_PALETTE(pal) \
+  grab_pic.palette = pal; \
+  res=ioctl(dev,VIDIOCSPICT,&grab_pic); \
+  if ( res < 0 ) \
+    func("v4l: palette     %s(0x%08x) not supported for grabbing, res: %i got instead: %u", ""#pal, pal, res, grab_pic.palette); \
+  else { \
+    palette = grab_pic.palette; \
+    func("v4l: palette ok: %s(0x%08x) res: %i palette: %u bpp: %u", ""#pal, pal, res, palette, grab_pic.depth); \
+    }
+
+  palette = 0;
+  func("v4l: probing color formats");
+  TRY_VIDEO_PALETTE(VIDEO_PALETTE_RGB32)
+  if(palette == 0) {
+    TRY_VIDEO_PALETTE(VIDEO_PALETTE_RGB24) }
+  if(palette == 0) {
+    TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUV422P) }
+  if(palette == 0) {
+    TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUV420P) }
+  if(palette == 0) {
+    TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUYV) }
+  if(palette == 0) {
+    TRY_VIDEO_PALETTE(VIDEO_PALETTE_UYVY) }
+  if(palette == 0) {
+    error("device %s doesn't supports grabbing any desired palette", file);
+    return(false);
+  }
+  func("v4l: probing for size");
+  grab_buf[0].format = palette;
+  grab_buf[0].frame  = 0;
+  grab_buf[0].height = height;
+  grab_buf[0].width = width;
+  res=ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0]);
+  if ( res<0 ) {
+    error("v4l: size %ix%i not supported res: %i", width, height, res);
+    return false;
+  }
+  //res = ioctl(dev,VIDIOCSYNC,&grab_buf[0]);
+  //func("SYNC: %i", res);
+  //XX_TRY_VIDEO_PALETTE(palette);
+errno=0;
+  res = ioctl (dev, VIDIOCGMBUF, &grab_map);
+func("v4l: memory map of %i frames: %u bytes",grab_map.frames,grab_map.size);
+  if (res < 0) {
+    error("error in ioctl VIDIOCGMBUF: (%i)", res);
+    error("ERR %d %s dev: %i", errno, strerror(errno), dev);
     return(false);
   }
   /* print memory info */
@@ -151,14 +187,6 @@ bool V4lGrabber::open(char *file) {
   num_frame = grab_map.frames;
   channels = grab_cap.channels;
   set_filename(file);
-  return(true);
-}
-
-bool V4lGrabber::init(Context *env) {
-  int i;
-  int width  = env->screen->w;
-  int height = env->screen->h; 
-  func("V4lGrabber::init()");
 
   /* set image source and TV norm */
   grab_chan.channel = input = (channels>1) ? 1 : 0;
@@ -184,8 +212,6 @@ bool V4lGrabber::init(Context *env) {
     }
   }
 
-  /* INIT from the LAYER CLASS */
-  _init(width,height);
 
   /* choose best yuv2rgb routine (detecting cpu)
      supported: C, ASM-MMX, ASM-MMX+SSE */
@@ -194,38 +220,14 @@ bool V4lGrabber::init(Context *env) {
 
   //  u = (geo.w*geo.h);
   //  v = u+(u/2);//u+(u/2);
-
   /* mmap (POSIX.4) buffer for grabber device */
   buffer = (unsigned char *) mmap(0,grab_map.size,PROT_READ|PROT_WRITE,MAP_SHARED,dev,0);
   if(MAP_FAILED == buffer) {
-    error("cannot allocate v4lgrabber buffer ");
+    error("cannot allocate v4lgrabber buffer %d %s dev: %i", errno, strerror(errno), dev);
     return(false);
   }
 
 
-#define TRY_VIDEO_PALETTE(pal) \
-  grab_buf[0].format = pal; \
-  grab_buf[0].frame  = 0; \
-  grab_buf[0].height = geo.h; \
-  grab_buf[0].width = geo.w; \
-  if (-1 != ioctl(dev,VIDIOCMCAPTURE,&grab_buf[0])) \
-    palette = grab_buf[0].format; \
-  else func("palette %i not supported for grabbing",palette);
-
-  palette = 0;
-  TRY_VIDEO_PALETTE(VIDEO_PALETTE_RGB32)
-    if(palette == 0) {
-      TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUV422P) }
-  if(palette == 0) {
-    TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUV420P) }
-  if(palette == 0) {
-    TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUYV) }
-  if(palette == 0) {
-    error("device %s doesn't supports grabbing any valid palette");
-    munmap(buffer,grab_map.size);
-    return(false);
-  }
-  
   /*
   //  palette = VIDEO_PALETTE_RGB32; // good is YUV422P;
   grab_buf[0].format = palette;
@@ -250,12 +252,13 @@ bool V4lGrabber::init(Context *env) {
   */
 
   /* initialize frames geometry */						      
+  int i;
   for(i=0; i<grab_map.frames; i++) {
 
     grab_buf[i].format = palette;
     grab_buf[i].frame  = i;
-    grab_buf[i].height = geo.h;
-    grab_buf[i].width = geo.w;
+    grab_buf[i].height = height;
+    grab_buf[i].width = width;
   }
 
   rgb_surface = malloc(geo.size);
@@ -268,6 +271,18 @@ bool V4lGrabber::init(Context *env) {
     act("using input channel %s",grab_chan.name);
 
   return(true);
+}
+
+bool V4lGrabber::init(Context *env, int width, int height) {
+    func("%s %s", __FILE__, __FUNCTION__);
+    this->width = width;
+    this->height = height;
+    _init(width,height);
+}
+
+bool V4lGrabber::init(Context *env) {
+  func("%s %s", __FILE__, __FUNCTION__);
+  return init(env, env->screen->w, env->screen->h);
 }
 
 void V4lGrabber::set_chan(int ch) {
@@ -396,18 +411,18 @@ void *V4lGrabber::feed() {
 #if defined HAVE_MMX && !defined HAVE_64BIT
   if(palette == VIDEO_PALETTE_YUV422P
      || palette == VIDEO_PALETTE_YUYV)
-
     ccvt_yuyv_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
 
   else
 #endif
   if(palette == VIDEO_PALETTE_YUV420P) 
-
-    ccvt_420p_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
+    ccvt_420p_rgb32(width, height, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
 
   else if(palette == VIDEO_PALETTE_RGB32) 
-
     memcpy(rgb_surface,&buffer[grab_map.offsets[ok_frame]],geo.size);
+
+  else if(palette == VIDEO_PALETTE_RGB24) 
+    ccvt_rgb24_rgb32(width, height, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
 
   else
     error("video palette %i for layer %s %s not supported",

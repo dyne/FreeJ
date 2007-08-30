@@ -404,8 +404,10 @@ int main (int argc, char **argv) {
       l = p+1;
       if(cli_chars<=0) break; *p='\0';
 
-      lay = create_layer(&freej, pp);
-
+      lay = create_layer(&freej, pp); // hey, this already init and open the layer !!
+	  if(lay) 
+          freej.add_layer(lay);
+/*
       if(lay) {
 	
 	if(! lay->init(&freej) ) {
@@ -422,6 +424,7 @@ int main (int argc, char **argv) {
 	  }
 	}
       }
+    */
       pp = l;
     }
   }

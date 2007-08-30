@@ -263,6 +263,7 @@ static int open_layer(char *cmd) {
   func("open_layer(%s)",cmd);
 
   // check that is a good file
+  if (strncasecmp(cmd, "/dev/video",10)!=0)
   if( stat(cmd,&filestatus) < 0 ) {
     error("invalid file %s: %s",cmd,strerror(errno));
     return 0;
@@ -276,11 +277,13 @@ static int open_layer(char *cmd) {
   // ok the path in cmd should be good here
 
   Layer *l = create_layer(env, cmd);
-  if(l)
+  if(l) {
+  /*
     if(!l->init(env)) {
       error("can't initialize layer");
       delete l;
     } else {
+    */
       env->add_layer(l);
 
       // select the new layer
