@@ -59,13 +59,6 @@ AudioInput::AudioInput() {
 
   input_pipe = ringbuffer_create(1024*16);
 
-  /*  
-  output_pipe = new Pipe();
-  output_pipe->set_output_type("copy_byte");
-  output_pipe->set_block(false,true); // false,true
-  output_pipe->set_block_timeout(500,500);
-  */
-
   outputParameters = NULL;
   captureParameters = NULL;
   captureDeviceInfo = NULL;
@@ -266,20 +259,20 @@ void AudioInput::stop() {
 
 int AudioInput::cafudda() {
   int num;
-  int res;
+  //  int res;
 
   if(started) {
 
     num = framesperbuffer*sizeof(int16_t)*channels;
 
-    res = ringbuffer_read(input_pipe, (char*) input, num);
+    inputframes = ringbuffer_read(input_pipe, (char*) input, num);
     
     //    if(res != num) 
     //      warning("Audio input cannot fill all frames per buffer: %i instead of %u",res, num);
   }
   //  output_pipe->write(num, (void*)input);
 
-  return(res);
+  return(inputframes);
 }
 
 #define FPS 25

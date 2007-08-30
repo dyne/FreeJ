@@ -137,11 +137,12 @@ JS(start_stream) {
     return JS_FALSE;
   }
 
-  //  shout_sync(enc->ice);
-
+  shout_sync(enc->ice);
+  act("starting stream to server %s on port %u",shout_get_host(enc->ice),shout_get_port(enc->ice));
+  
   if( shout_open(enc->ice) == SHOUTERR_SUCCESS ) {
 
-    act("connected to streaming server on http://%s:%i%s",
+    notice("streaming on url: http://%s:%i%s",
 	shout_get_host(enc->ice), shout_get_port(enc->ice), shout_get_mount(enc->ice));
 
     enc->write_to_stream = true;

@@ -115,12 +115,9 @@ void VideoEncoder::run() {
   
   while(!quit) {
 
-    res = encode_frame();
 
     //    lock();
-
-    //    res = encode_frame();
-
+    res = encode_frame();
     //    unlock();
 
     //    if(!res)
@@ -175,14 +172,14 @@ bool VideoEncoder::cafudda() {
 
   //  lock();
 
-//  env->screen->lock();
+  //env->screen->lock();
 // we don't need screen lock
 //  since cafudda() is called synchronously in contect.cpp
   res = feed_video();
-//  env->screen->unlock();
+  //  env->screen->unlock();
 
 
-//  unlock();
+  //  unlock();
 
 
   signal_feed();

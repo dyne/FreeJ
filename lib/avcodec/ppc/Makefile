@@ -89,21 +89,21 @@ AVCODEC_SUBDIRS = i386
 AVFORMAT_LIBS = $(top_srcdir)/lib/avformat/libavformat.a
 AWK = gawk
 BUILDLIBS = 
-CC = apgcc
-CCAS = apgcc
+CC = gcc
+CCAS = gcc
 CCASFLAGS = -g -O2
 CCDEPMODE = depmode=gcc3
 CCVT_CONV = ccvt_c2.c
-CFLAGS = -pipe -D_REENTRANT -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -march=i686 -ffast-math
-CPP = apgcc -E
+CFLAGS = -pipe -D_REENTRANT -Wall -g -ggdb
+CPP = gcc -E
 CPPFLAGS = 
-CXX = apg++
-CXXCPP = apg++ -E
+CXX = g++
+CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -pipe -D_REENTRANT -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -march=i686 -ffast-math
+CXXFLAGS = -pipe -D_REENTRANT -Wall -g -ggdb
 CYGPATH_W = echo
-DEBUG_FALSE = 
-DEBUG_TRUE = #
+DEBUG_FALSE = #
+DEBUG_TRUE = 
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 ECHO = echo
@@ -163,8 +163,8 @@ XIPH_CFLAGS =
 XIPH_LIBS = -logg -lvorbis -lm -lvorbisenc  
 YACC = bison -y
 ac_ct_AR = ar
-ac_ct_CC = apgcc
-ac_ct_CXX = 
+ac_ct_CC = gcc
+ac_ct_CXX = g++
 ac_ct_F77 = 
 ac_ct_RANLIB = ranlib
 ac_ct_STRIP = strip

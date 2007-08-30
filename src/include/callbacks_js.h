@@ -130,7 +130,7 @@ JS(constructor_func) {                                                        \
     error("use (\"filename\") or (width, height, \"filename\") or ()");       \
     delete layer; return JS_FALSE;                                            \
   }                                                                           \
-  if(!layer->init(env)) {                                                     \
+  if(!layer->init(env, width, height)) {                                                     \
     error("JS::%s : failed initialization", constructor_name);                \
     delete layer; return JS_FALSE;                                            \
   }                                                                           \

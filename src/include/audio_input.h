@@ -62,6 +62,7 @@ class AudioInput {
 
   int sample_rate;  ///< sample rate for soundcard initialization
   int channels;        ///< mono/stereo setting for soundcard
+  int inputframes;
 
   bool initialized;
   bool started;

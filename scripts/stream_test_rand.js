@@ -91,11 +91,11 @@ register_controller( kbd );
 encoder = new VideoEncoder(10,             64000,        5,             24000);
 
 
-encoder.stream_host("giss.tv");
+encoder.stream_host("10.66.66.83");
 encoder.stream_port(8000);
 encoder.stream_title("testing new freej");
 encoder.stream_username("source");
-encoder.stream_password("2t645");
+encoder.stream_password("hackme");
 encoder.stream_mountpoint("freej-test.ogg");
 
 register_encoder(encoder);

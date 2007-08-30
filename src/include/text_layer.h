@@ -35,6 +35,8 @@ class TTFLayer: public Layer {
 
   
   bool init(Context *freej);
+  bool init(Context *freej, int w, int h) { init(freej); };
+
   
   bool open(char *file);
   void *feed();

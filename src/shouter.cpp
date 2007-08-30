@@ -96,7 +96,7 @@ bool Shouter::start() {
     shout_sync(ice);
     }
   */
-  func ("Trying to stream to %s server %s on port %u",srv,host(),port());
+  act("starting stream to %s server %s on port %u",srv,host(),port());
   
   res = shout_open(ice);
   func("Shouter::start() shout_open returns %i",res);
