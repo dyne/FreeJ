@@ -569,6 +569,7 @@ bool Console::init(Context *freej) {
 }
 
 void Console::close() {
+  SLtt_set_cursor_visibility(1);
   set_console(NULL);
   SLsmg_reset_smg();
   SLang_reset_tty();
