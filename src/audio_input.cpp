@@ -259,16 +259,16 @@ void AudioInput::stop() {
 
 int AudioInput::cafudda() {
   int num;
-  //  int res;
 
   if(started) {
 
     num = framesperbuffer*sizeof(int16_t)*channels;
 
+    // wait until we have enough bytes to read
+    while( ringbuffer_read_space(input_pipe) < num ) jsleep(0,10);
+
     inputframes = ringbuffer_read(input_pipe, (char*) input, num);
-    
-    //    if(res != num) 
-    //      warning("Audio input cannot fill all frames per buffer: %i instead of %u",res, num);
+
   }
   //  output_pipe->write(num, (void*)input);
 

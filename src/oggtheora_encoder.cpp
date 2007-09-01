@@ -29,6 +29,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 
 #include <context.h>
 #include <sdl_screen.h>
@@ -229,10 +230,12 @@ bool OggTheoraEncoder::theora_init() {
 bool OggTheoraEncoder::vorbis_init() {
   act("initializing audio encoder");
   int ret              = 0;
-  
+
   int audio_channels   = env->audio->channels; // mono or stereo
   int audio_hertz      = env->audio->sample_rate; // sample_rate;
   
+  time_t now;
+
   // init bytes count variable
   audio_bytesout       = 0;
   audiotime            = -1;
@@ -263,8 +266,12 @@ bool OggTheoraEncoder::vorbis_init() {
   
   vorbis_comment_init (&vc);
   
-  vorbis_comment_add_tag (&vc, "ENCODER", PACKAGE );
-  
+  vorbis_comment_add_tag (&vc, "encoder", PACKAGE );
+  vorbis_comment_add_tag (&vc, "encoder version", VERSION );
+  now = time(NULL);
+  vorbis_comment_add_tag (&vc, "date of encoding",
+			  asctime( localtime( &now ) ) );
+
   vorbis_analysis_init (&vd, &vorbis_information);
   
   vorbis_block_init (&vd, &vb);
@@ -390,7 +397,7 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
     // take audio
     
     vorbis_buffer = vorbis_analysis_buffer (&vd, env->audio->framesperbuffer);
-    
+
     // uninterleave samples ?
     // yes if it isn't mono
 

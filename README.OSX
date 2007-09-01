@@ -1,6 +1,13 @@
-FreeJ 0.7.1 notes for Darwin/OSX hackers
 
-FreeJ is NOW READY to be used on Darwin and OSX!
+Since FreeJ 0.9 there is an experimental branch in the subversion for
+OSX, if you are interested in hacking on it please join us on the
+mailinglist or on IRC (see the README)
+
+
+
+
+
+FreeJ 0.7.1 notes for Darwin/OSX hackers
 
 to compile it from source follow these steps, which are also useful to
 setup your Apple OSX to be able to compile and use other GNU software.

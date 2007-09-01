@@ -6,6 +6,8 @@
 
   *** More effects (from veejay, freior, effectv)
     + LiViDO shared plugin library
+ 
+  *** re-write the console interface using libviper and VWM
 
   *** fix TBT layer, colors on text
 

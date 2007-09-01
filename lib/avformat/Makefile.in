@@ -42,7 +42,9 @@ target_triplet = @target@
 subdir = lib/avformat
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.in
+am__aclocal_m4_deps = $(top_srcdir)/m4/as.m4 \
+	$(top_srcdir)/m4/freetype2.m4 $(top_srcdir)/m4/pkg.m4 \
+	$(top_srcdir)/m4/sdl.m4 $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -97,6 +99,8 @@ AMTAR = @AMTAR@
 AR = @AR@
 ARCH_PPC_FALSE = @ARCH_PPC_FALSE@
 ARCH_PPC_TRUE = @ARCH_PPC_TRUE@
+AS = @AS@
+ASFLAGS = @ASFLAGS@
 AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
@@ -184,7 +188,6 @@ ac_ct_CXX = @ac_ct_CXX@
 ac_ct_F77 = @ac_ct_F77@
 ac_ct_RANLIB = @ac_ct_RANLIB@
 ac_ct_STRIP = @ac_ct_STRIP@
-ac_pt_PKG_CONFIG = @ac_pt_PKG_CONFIG@
 am__fastdepCC_FALSE = @am__fastdepCC_FALSE@
 am__fastdepCC_TRUE = @am__fastdepCC_TRUE@
 am__fastdepCXX_FALSE = @am__fastdepCXX_FALSE@

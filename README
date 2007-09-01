@@ -1,7 +1,7 @@
 
  -=:[ dyne.org autoprod ]:=--- -  -- -   proudly presents:
 
-                   [[[  FreeJ 0.8 "ISCREAM"  ]]]
+              [[[  FreeJ 0.9 "KRAAKENGAATDOOR"  ]]]
 
           RASTA SOFTWARE FOR THE FREEDOM OF VIDEO CREATION
 
@@ -13,17 +13,18 @@ visualisation and TV.
 
 It runs a video engine in which multiple layers can be filtered thru
 effect chains and then mixed together with images, movies, live
-cameras, particle generators, text scrollers and more.  All the
-resulting video mix can be shown on multiple and remote screens,
+cameras, particle generators, text scrollers and scripted vector
+graphics. All the resulting video mix can be shown on a screen,
 encoded into a movie and streamed live to the internet.
 
 FreeJ can be controlled locally or remotely, also from multiple places
-at the same time, using its slick console interface; can be automated
-via javascript and operated via MIDI and Joystick.
+at the same time, using its ascii console interface; operations can be
+automated via javascript, also MIDI and Joystick controllers can be
+scripted.
 
-FreeJ's sourcecode is written in C, C++ and assembler, it can run on
-GNU/Linux and Darwin/OSX platforms, PC-x86 or Mac, and is released free
-under the GNU General Public License.
+FreeJ's sourcecode is written in portable C and C++, it can run on
+GNU/Linux and Darwin/OSX platforms, PC-x86 or Mac, and is released
+free under the GNU General Public License.
 
 
 
@@ -45,52 +46,42 @@ under the GNU General Public License.
 
 
 
-:: FREE AS IN VEEJAY
+:: HISTORY
 
-This software started being developed by Jaromil, as a digital
-instrument he used in dance-theater performances. Since 2001 ongoing
-development took inspiration from various artists and programmers:
-Roberto Paci Dalo', Francescopaolo Isidoro, Andreas Schiffler, Luigi
-Pagliarini, Kentaro Fukuchi, Isabella Bordoni, to name just a few.
+This software started being developed as a digital instrument Jaromil
+used in dance-theater performances. Since 2001 ongoing development
+took inspiration from various artists and programmers: Andreas
+Schiffler, Roberto Paci Dalo', Tom Demeyer, Francescopaolo Isidoro,
+Kentaro Fukuchi, Luigi Pagliarini, Isabella Bordoni, to name just a
+few.
 
 Set the VeeJay Free! was the first motto for this software.
 
-FreeJ is released as free software with the intention to foster
-creativity, artistic expression and research indypendently from
-proprietary business products: to avoid that commercial companies own
-the performability and reproducibility of our creations.
+In 2003 Kysucix joined development contributing the streaming feature
+and helping to include the javascript parser. He employed FreeJ in
+interactive installations while working with Studio Azzurro.
 
-JAH BLESS YOU FOR THE GOOD OF YOUR CREATIONS, THIS IS RASTA SOFTWARE!
+Since 2004 development has been supported by the Netherlands Media Art
+Insitute employing
 
-Recently Jaromil received support for FreeJ development: he was invited
-to publish its code in an installation for the Withney ArtPort CODeDOC
-(Ars Electronica 03), while during 2003/04 development is ongoin with
-the support of the Netherlands Institute of Media Art.
-
-Since the end of 2003, among other contributions, a brilliant coder
-joined the project: Kysucix, contributing to new core features.
+In 2005 Mr.Goil joined the project writing programmable controllers
+and debugging the scripting environment.
 
 For the time being, FreeJ is employed in various video performances and
 installations, but also used for medical analisys visualizations.
-And its horizons of use are now growing with scripting of operations,
-encoding to Ogg/Theora, live online streaming and more.
 
-Both active developers are keen to accept projects and propositions in
-order to sustain the development activity on this free software, please
-contact us on http://dyne.org if you think we can collaborate.
-
-
+Developers are keen to accept projects and propositions in order to
+sustain the development activity on this free software, please contact
+us on http://dyne.org if you think we can collaborate.
 
 
 
 
 :: GET STARTED
 
-To start rolling with FreeJ you can have a tour of the online tutorial
-(see http://freej.dyne.org documentation section),
+To start rolling with FreeJ you can have a look to the online
+documentation on it website http://freej.dyne.org
 
-go to the USAGE file which has a complete reference table for
-hotkeys and advanced console use.
 
 
 
@@ -105,39 +96,23 @@ To run FreeJ is necessary to have:
 - SDL libraries http://www.libsdl.org
 - PNG libraries http://www.libpng.org
 - S-LANG libraries http://www.s-lang.org
+- Ogg/Vorbis/Theora libraries http://www.xiph.org
 
-Optionally, you want to have installed the following libraries:
-
-- SDL image library http://www.libsdl.org/projects/SDL_image/
-
-Text Layer:
-- FreeType2 libraries http://freetype.org
-
-PC x86 assembler effects:
-- NASM netwide assembler compiler http://nasm.sf.net
-
-Live video Layer:
-- BTTV / WinTV and similar cards supported by a Video4Linux driver
-
-For better fullscreen support try to add to your XF86Config  file  the
-modelines in doc/x11.modelines
 
 
 
 :: HOW TO INSTALL IT
 
-download a binary for your operating system from http://freej.org
+download a binary for your operating system from http://freej.org or
+try dyne:bolic GNU/Linux http://dynebolic.org which includes it ready
+to use from a liveCD which is also easy to install.
 
-OR read the INSTALL file and compile from source
+Debian GNU/Linux users can 'apt-get install freej',
 
-if it's too hard for you, consider trying dyne:bolic
-*** http://dynebolic.org (just download, burn and boot it on a PC!)
+Gentoo GNU/Linux users can 'emerge freej'
 
-Debian GNU/Linux users you can
-# apt-get install freej
-from the unstable/testing branch
-while TGZ binary packages are provided for lucky Slackware users.
-
+But if the package of your distribution is out of date you should
+compile from source for the latest features.
 
 
 
@@ -146,13 +121,15 @@ while TGZ binary packages are provided for lucky Slackware users.
 
 :: DEVELOPERS
 
- Denis "Jaromil" Rojo       - FreeJ author and mantainer
+ Denis "Jaromil" Rojo        - FreeJ author and mantainer
 
- Silvano "Kysucix" Galliani - TXT layer, encoder, streaming
+ Silvano "Kysucix" Galliani  - TXT layer, encoder, streaming
+
+ Christoph "Mr.Goil" Rudorff - Scriptability, MIDI and Joystick 
 
  documentation, testing and user case study by:
- Anne-Marie Skriver and Marloes de Valk (Montevideo Time Based Arts)
- 
+ Anne-Marie Skriver, Marloes de Valk, Piotr Sobolewski
+
  refer to the AUTHORS file for a full list of contributions
 
 You are very welcome to join, there is a lot of space for modules and a
@@ -164,44 +141,37 @@ You can follow development activity, just visit http://devel.dyne.org
 
 :: DISCUSSION
 
-Come and visit the irc.freenode.net channel #dyne
+Come and visit the irc.dyne.org channel #dyne
 
-A mailinglist  for  further  discussion  about  FreeJ  is  running  as
-<freej@dyne.org>, subscription is opened and  anybody  interested  can
-send a mail to <freej-subscribe@dyne.org> to join. Online archive is
-on http://lists.dyne.org/freej
+A mailinglist for further discussion about FreeJ is running on
+http://lists.dyne.org - come and join us there :)
 
 
 
 
-:: AVAILABILITY
 
-The source releases of FreeJ are made available on
-       *** http://freej.dyne.org ***
+:: DEVELOPMENT
 
-FreeJ is also included in binary form, ready to be used, in the live
-bootable distribution
-       *** http://dynebolic.org *** RASTASOFT REDEMPTION SOFTWARE
-just burn it and boot it!
+The latest development version is publicly available on our subversion
+repository:
 
-SVN (latest development version) is also publicly available on
-http://code.dyne.org/viewcvs.cgi/?root=rastasoft .
-Get it:
-svn co svn://code.dyne.org/rastasoft/freej
+ # svn co svn://code.dyne.org/rastasoft/freej/trunk freej
 
-
-
+Please download and run this code if you want to submit a bugreport or
+a patch.
 
 
 :: DISCLAIMER
 
-FreeJ is (c) 2001 - 2004 by Denis "Jaromil" Rojo
-         (c) 2004 - 2005 by Denis "Jaromil" Rojo,
-                            Silvano "Kysucix" Galliani
+FreeJ is (c) 2001 - 2007 by Denis Roio
+         (c) 2004 - 2005 by Silvano Galliani
+	 (c) 2005 - 2007 by Christoph Rudorff
+
+Statically included libraries are copyright of the respective authors.
 
 This source code is free software; you can redistribute it and/or
 modify it under the terms of the GNU Public License as published 
-by the Free Software Foundation; either version 2 of the License,
+by the Free Software Foundation; either version 3 of the License,
 or (at your option) any later version.
 
 This source code is distributed in the hope that it will be useful,

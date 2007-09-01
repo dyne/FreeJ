@@ -42,7 +42,9 @@ target_triplet = i686-pc-linux-gnu
 subdir = lib/sdl_image
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/configure.in
+am__aclocal_m4_deps = $(top_srcdir)/m4/as.m4 \
+	$(top_srcdir)/m4/freetype2.m4 $(top_srcdir)/m4/pkg.m4 \
+	$(top_srcdir)/m4/sdl.m4 $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
@@ -81,6 +83,8 @@ AMTAR = ${SHELL} /root/devel/freej/trunk/missing --run tar
 AR = ar
 ARCH_PPC_FALSE = 
 ARCH_PPC_TRUE = #
+AS = as
+ASFLAGS = $(CFLAGS)
 AUTOCONF = ${SHELL} /root/devel/freej/trunk/missing --run autoconf
 AUTOHEADER = ${SHELL} /root/devel/freej/trunk/missing --run autoheader
 AUTOMAKE = ${SHELL} /root/devel/freej/trunk/missing --run automake-1.9
@@ -90,8 +94,8 @@ AVFORMAT_LIBS = $(top_srcdir)/lib/avformat/libavformat.a
 AWK = gawk
 BUILDLIBS = 
 CC = gcc
-CCAS = gcc
-CCASFLAGS = -g -O2
+CCAS = $(CC)
+CCASFLAGS = $(CFLAGS)
 CCDEPMODE = depmode=gcc3
 CCVT_CONV = ccvt_c2.c
 CFLAGS = -I/usr/include/SDL -D_GNU_SOURCE=1 -D_REENTRANT -DLOAD_BMP -DLOAD_GIF -DLOAD_JPG -DLOAD_LBM -DLOAD_PCX -DLOAD_PNG -DLOAD_PNM -DLOAD_TGA -DLOAD_XCF -DLOAD_XPM
@@ -100,10 +104,10 @@ CPPFLAGS =
 CXX = g++
 CXXCPP = g++ -E
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -pipe -D_REENTRANT -Wall -g -ggdb
+CXXFLAGS = -pipe -D_REENTRANT -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -march=i686 -ffast-math
 CYGPATH_W = echo
-DEBUG_FALSE = #
-DEBUG_TRUE = 
+DEBUG_FALSE = 
+DEBUG_TRUE = #
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
 ECHO = echo
@@ -168,7 +172,6 @@ ac_ct_CXX = g++
 ac_ct_F77 = 
 ac_ct_RANLIB = ranlib
 ac_ct_STRIP = strip
-ac_pt_PKG_CONFIG = /usr/bin/pkg-config
 am__fastdepCC_FALSE = #
 am__fastdepCC_TRUE = 
 am__fastdepCXX_FALSE = #

@@ -47,8 +47,8 @@ VideoLayer::VideoLayer()
 		//	avformat_context=NULL;
 		packet_len=0;
 		frame_rate=0;
-		play_speed=0;
-		play_speed_control=0;
+		play_speed=1;
+		play_speed_control=1;
 		seekable=true;
 		enc=NULL;
 		backward_control=false;
@@ -77,7 +77,7 @@ bool VideoLayer::init(Context *freej) {
   
   /* init variables */
   paused=false;
-  user_play_speed=0;
+  user_play_speed=1;
   deinterlace_buffer=NULL;
   deinterlaced=false;
   

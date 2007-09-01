@@ -12,11 +12,6 @@ FreeJ installation instructions
 
 - PNG library (compile with _ZLIB_ support) http://libpng.org
 
-[*] check the optional libraries you need for certain features
-
-== to play with truetype rendered text install:
-   Freetype2 http://freetype.org
-
 == to have some more assembler mmx optimized filters you need NASM:
    NASM netwide assembler compiler http://sf.net/projects/nasm
    then go in the filters/nasm-x86 and type make!

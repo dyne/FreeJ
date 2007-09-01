@@ -69,9 +69,9 @@
 #define KEY_CTRL_M 13 // move layer
 #define KEY_CTRL_U 21 // delete until beginning of line
 #define KEY_CTRL_H 272 // help the user
-#define KEY_CTRL_J 10 // jazz mode
+#define KEY_CTRL_J 10 // load and execute a javascript
 #define KEY_CTRL_O 15 // open a file in a new layer
-#define KEY_CTRL_S 19 // load and execute a javascript
+#define KEY_CTRL_S 19 // reserved
 #define KEY_CTRL_T 20 // new layer with text
 #define KEY_CTRL_V 22 // change blit value
 #define KEY_CTRL_W 23 // start stream and save to file
@@ -758,7 +758,7 @@ void Console::layerprint() {
   SLsmg_set_color(LAYERS_COLOR+10);
   SLsmg_write_string(layer->blitter.current_blit->get_name());
   SLsmg_write_char(' ');
-  SLsmg_printf("[%d]",layer->blitter.current_blit->value);
+  SLsmg_printf("[%.0f]",layer->blitter.current_blit->value);
   SLsmg_write_char(' ');
   SLsmg_set_color(LAYERS_COLOR);
   SLsmg_write_string("geometry: ");
@@ -1127,7 +1127,7 @@ void Console::parser_default(int key) {
     act("ctrl+f  = Go to Fullscreen");
     act("ctrl+c  = Quit FreeJ");
     act("ctrl+x  = execute a script command");
-    act("ctrl+s  = load and execute a script file");
+    act("ctrl+j  = load and execute a script file");
 #ifdef CONFIG_OGGTHEORA_ENCODER
     //    ::act("ctrl+w  = start streaming to: %s",env->shouter->host());
     //    ::act("          and save to file: %s",env->video_encoder->get_filename());
@@ -1216,7 +1216,7 @@ void Console::parser_default(int key) {
     readline("execute javascript command:",&exec_script_command,NULL);
     break;
   
-  case KEY_CTRL_S:
+  case KEY_CTRL_J:
     readline("load and execute a javascript file:", &exec_script, &filebrowse_completion);
     break;
 
@@ -1256,10 +1256,10 @@ void Console::parser_default(int key) {
   parser = MOVELAYER;
   break;
 
-  case KEY_CTRL_J:
-    ::notice("JAZZ mode activated, press keys to pulse layers");
-  parser = JAZZ;
-  break;
+  //  case KEY_CTRL_J:
+  //    ::notice("JAZZ mode activated, press keys to pulse layers");
+  //  parser = JAZZ;
+  //  break;
 
   default:
     if(filter)

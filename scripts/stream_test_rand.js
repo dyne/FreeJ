@@ -78,6 +78,12 @@ geo.set_blit("alpha");
 geo.set_blit_value(0.5);
 add_layer(geo);
 
+txt = new TextLayer();
+txt.print("FreeJ 0.9 test stream");
+txt.set_position(20,10);
+txt.set_blit("add");
+add_layer(txt);
+
 running = true;
 kbd = new KeyboardController();
 kbd.released_q = function() { running = false; }
@@ -88,15 +94,23 @@ register_controller( kbd );
 
 // create a video encoder object
 //    values 1-100         video quality  video bitrate  audio quality  audio_bitrate
-encoder = new VideoEncoder(10,             64000,        5,             24000);
+encoder = new VideoEncoder(10,             128000,        0,             32000);
 
 
+encoder.stream_host("giss.tv");
+encoder.stream_port(8000);
+encoder.stream_title("testing new freej");
+encoder.stream_username("source");
+encoder.stream_password("2t645");
+encoder.stream_mountpoint("freej-test.ogg");
+/*
 encoder.stream_host("10.66.66.83");
 encoder.stream_port(8000);
 encoder.stream_title("testing new freej");
 encoder.stream_username("source");
 encoder.stream_password("hackme");
 encoder.stream_mountpoint("freej-test.ogg");
+*/
 
 register_encoder(encoder);
 encoder.start_stream();

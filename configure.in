@@ -605,6 +605,7 @@ lib/flash/Makefile
 lib/goom/Makefile
 lib/slw/Makefile
 lib/tbt/Makefile
+lib/effectv/Makefile
 filters/Makefile
 filters/delaygrab/Makefile
 filters/rotozoom/Makefile

@@ -1,18 +1,14 @@
-
-From the beginning in 2001 until the 0.6 release in 2003,
-FreeJ has been conceptualized and created by
-
 Denis "jaromil" Rojo - http://rastasoft.org
  = FreeJ's author and current mantainer
-
-Since the 0.7 release, a new developer joined the core development
-implementing several enhancements:
 
 Silvano "kysucix" Galliani - http://kysucix.nexlab.it
  = FreeJ core developer: truetype, encoding, streaming & more
 
-other people using FreeJ or developing other free software video
-applications contributed with ideas and code:
+Christoph Rudorff <christoph.rudorff/@/telebel.de> 
+ = midi and joystick controller, scriptability
+
+More people using FreeJ or developing free software video applications
+contributed with ideas and code:
 
 Aaron Holtzman <aholtzma/@/ess.engr.uvic.ca>
 	yuv2rgb c conversion code
@@ -22,9 +18,6 @@ Andreas Schiffler <aschiffler/@/home.com>
 
 Clifford Smith <nullset/@/dookie.net>
 	transform filter from EffecTV
-
-Christoph Rudorff <christoph.rudorff/@/telebel.de> 
-	midi controller, xscreensaver port
 
 Dries Pruimboom <dries/@/irssystems.nl>
 	cartoon filter
@@ -56,9 +49,11 @@ Nederlands Instituut voor Mediakunst - Montevideo/Time Based Arts
 
 *** DOCUMENTATION AND TESTING
 
- user case study contributed by Montevideo Artlab:
- Anne-Marie Skriver, Marloes de Valk, Robert de Geuss
-
+ Anne-Marie Skriver
+ Marloes de Valk
+ Robert de Geuss
+ Piotr Sobolewski
+ Alejo Duque
 
 
 *** THANKS TO ::
@@ -81,6 +76,4 @@ Megabug ....................... <http://autistici.org/megabug>
 Roberto Paci Dalo' ............ <http://giardini.sm>
 Servus.at ..................... <http://www.servus.at>
 Sonar Festival ................ <http://www.sonar.es>
-
-$Id$
 
