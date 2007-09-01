@@ -50,29 +50,6 @@ files already existing are not overwritten, instead filename-2.ogg is used;
 if a number is given, the corresponding file descriptor is used.
 To start/stop the recording and streaming use ctrl-w while running.
 
-.SH STREAMING OPTIONS
-.IP "-i [\fI server:port/mountpoint.ogg \fP]"
-stream to the host \fBserver\fP on \fBport\fP with \fBmountpoint.ogg\fP
-so the streaming url for players will be (assuming port is 8000)
-\fBhttp://server:8000/mountpoint.ogg\fP
-.IP "-p [\fI password \fP]"
-\fBpassword\fP for the mountpoint on the streaming server
-.IP "-a"
-don't use any audio in the stream, by default it is recorded from the
-input device that is set in the mixer
-.IP "-t [\fI name \fP]"
-name of the stream, by default is "Streaming with FreeJ"
-.IP "-d [\fI description \fP]"
-description of the stream, by default is "Free the veejay in you"
-.IP "-T [\fI quality of video encoding \fP]"
-set the quality for the theora video encoding, range \fBfrom 0 to 63\fP,
-by default is 16.
-0 means less quality, less bandwidth occupation and a smaller file, 63 more.
-.IP "-V [\fI quality of audio encoding \fP]"
-set the quality for the vorbis audio encoding, range \fBfrom -1 to 10\fP,
-by default is 1. -1 means less quality, less bandwidth occupation and a smaller file,
-10 more.
-
 .SH FILES AND DEVICES
 \fBFreeJ\fP can run with an infinite number of layers, as much as your
 CPU can handle. Layer types are recognized from file extensions.

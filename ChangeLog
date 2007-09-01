@@ -1,3 +1,13 @@
+FreeJ 0.9 KRAAKENGAATDOOR - 1 Sep 2007
+  Scriptable controllers: keyboard, midi, joystick
+  Major code cleanup to encoding and streaming
+  Debugging and optimization of scripting API
+  Internal audio bus now available to layers
+  Updated scripting documentation and examples
+  New Goom audio scope layer
+  Misc optimizations and bugfixes
+  
+  
 FreeJ 0.8 ISCREAM - 5 Aug 2005
   encoding to Ogg/Theora video file
   live streaming to Icecast2
