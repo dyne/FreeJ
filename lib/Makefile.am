@@ -10,5 +10,4 @@ SUBDIRS = 	ccvt			\
 		flash			\
 		goom			\
 		tbt			\
-		slw			\
-		effectv
+		slw
