@@ -28,7 +28,29 @@
 #include <errno.h>
 #include <jsapi.h> // spidermonkey header
 
+// include exception messags
+#include <callbacks_js.h>
 
+JSErrorFormatString jsFreej_ErrorFormatString[JSFreejErr_Limit] = {
+#if JS_HAS_DFLT_MSG_STRINGS
+#define MSG_DEF(name, number, count, exception, format) \
+    { format, count } ,
+#else
+#define MSG_DEF(name, number, count, exception, format) \
+    { NULL, count } ,
+#endif
+#include "jsfreej.msg"
+#undef MSG_DEF
+};
+
+const JSErrorFormatString *
+JSFreej_GetErrorMessage(void *userRef, const char *locale, const uintN errorNumber)
+{
+    if ((errorNumber > 0) && (errorNumber < JSFreejErr_Limit))
+        return &jsFreej_ErrorFormatString[errorNumber];
+	else
+	    return NULL;
+}
 
 
 /* we declare the Context pointer static here
@@ -51,14 +73,17 @@ JSBool js_static_branch_callback(JSContext* Context, JSScript* Script) {
 }
 
 void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {
+::func("JS Error Reporter called");
   if(Report->filename)
-    ::error("script error in %s",Report->filename);
+    ::error("script error in %s:%i flag: %i",Report->filename, Report->lineno + 1, Report->flags);
   else
-    ::error("script error while parsing");
+    ::error("script error %i  flags: %i while parsing", Report->errorNumber, Report->flags);
 
   // this doesn't prints out the line reporting error :/
   if(Report->linebuf)
     ::error("%u: %s",(uint32_t)Report->lineno, Report->linebuf);
 
-  if(Message) ::error("%s",(char *)Message);
+  if(Message) ::error("JS Error Message: %s flag: %i",(char *)Message, Report->flags);
 }
+
+

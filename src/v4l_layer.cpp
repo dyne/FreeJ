@@ -53,10 +53,12 @@ V4lGrabber::V4lGrabber()
 }
 
 V4lGrabber::~V4lGrabber() {
+  func("%s %s", __FILE__, __FUNCTION__);
   close();
 }
 
 void V4lGrabber::close() {
+  func("%s %s", __FILE__, __FUNCTION__);
   if(dev>0) notice("Closing video4linux grabber layer");
  
   if(buffer!=NULL) {
@@ -151,8 +153,8 @@ if (-1 == ioctl(dev, VIDIOCGPICT, &grab_pic)) {
     TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUV420P) }
   if(palette == 0) {
     TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUYV) }
-  if(palette == 0) {
-    TRY_VIDEO_PALETTE(VIDEO_PALETTE_UYVY) }
+//if(palette == 0) {
+//  TRY_VIDEO_PALETTE(VIDEO_PALETTE_UYVY) }
   if(palette == 0) {
     error("device %s doesn't supports grabbing any desired palette", file);
     return(false);
@@ -278,6 +280,7 @@ bool V4lGrabber::init(Context *env, int width, int height) {
     this->width = width;
     this->height = height;
     _init(width,height);
+    return true;
 }
 
 bool V4lGrabber::init(Context *env) {

@@ -23,7 +23,7 @@
 #define __CONSOLE_H__
 
 #include <linklist.h>
-#include <slang-2/slang.h>
+#include <slang.h>
 
 #define MAX_CMDLINE 256
 
