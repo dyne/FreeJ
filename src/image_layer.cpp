@@ -45,6 +45,7 @@ ImageLayer::ImageLayer()
 }
 
 ImageLayer::~ImageLayer() {
+  func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
   close();
 }
 
@@ -76,7 +77,7 @@ bool ImageLayer::open(char *file) {
     return false;
   }
 
-  SDL_FillRect(surf, NULL, 0x0);
+  //SDL_FillRect(surf, NULL, 0x0);
 
   _init(image->w, image->h);
 
@@ -95,7 +96,11 @@ bool ImageLayer::open(char *file) {
   // paint it black!
   black_image = memset(black_image,0,geo.size);
 
-  SDL_FillRect(surf, NULL, 0x0);
+  // do not apply the mask,
+  // copy image+alpha to surf
+  SDL_SetAlpha( image, 0, 0 );
+
+  //SDL_FillRect(surf, NULL, alpha_bitmask);
   SDL_BlitSurface(image,NULL,surf,NULL);
 
   opened = true;

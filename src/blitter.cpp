@@ -68,10 +68,10 @@ BLIT red_mask(void *src, void *dst, int bytes, void *value) {
   register uint32_t *d = (uint32_t*)dst;
 
   for(c=bytes>>2;c>0;c--,s++,d++)
-    *s &= red_bitmask;
+    *d |= *s & red_bitmask;
 
   SDL_imageFilterBinarizeUsingThreshold
-    ((unsigned char*)src, (unsigned char*) dst, bytes, *(unsigned char*)value);
+    ((unsigned char*)dst,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 BLIT green_mask(void *src, void *dst, int bytes, void *value) {
@@ -80,10 +80,10 @@ BLIT green_mask(void *src, void *dst, int bytes, void *value) {
   register uint32_t *d = (uint32_t*)dst;
 
   for(c=bytes>>2;c>0;c--,s++,d++)
-    *s &= green_bitmask;
+    *d |= *s & green_bitmask;
 
   SDL_imageFilterBinarizeUsingThreshold
-    ((unsigned char*)src, (unsigned char*) dst, bytes, *(unsigned char*)value);
+    ((unsigned char*)dst,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 BLIT blue_mask(void *src, void *dst, int bytes, void *value) {
@@ -92,11 +92,9 @@ BLIT blue_mask(void *src, void *dst, int bytes, void *value) {
   register uint32_t *d = (uint32_t*)dst;
 
   for(c=bytes>>2;c>0;c--,s++,d++)
-    *s &= blue_bitmask;
-
+    *d |= *s & blue_bitmask;
   SDL_imageFilterBinarizeUsingThreshold
-    ((unsigned char*)src, (unsigned char*) src, bytes, *(unsigned char*)value);
-  SDL_imageFilterAdd((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
+    ((unsigned char*)dst,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 
@@ -155,36 +153,36 @@ BLIT schiffler_neg(void *src, void *dst, int bytes, void *value) {
 }
 
 BLIT schiffler_addbyte(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterAddByte((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
+  SDL_imageFilterAddByte((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 BLIT schiffler_addbytetohalf(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterAddByteToHalf((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
+  SDL_imageFilterAddByteToHalf((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 BLIT schiffler_subbyte(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterSubByte((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
+  SDL_imageFilterSubByte((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 BLIT schiffler_shl(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterShiftLeft((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
+  SDL_imageFilterShiftLeft((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 BLIT schiffler_shlb(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterShiftLeftByte((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
+  SDL_imageFilterShiftLeftByte((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 BLIT schiffler_shr(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterShiftRight((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
+  SDL_imageFilterShiftRight((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 BLIT schiffler_mulbyte(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterMultByByte((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
+  SDL_imageFilterMultByByte((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 BLIT schiffler_binarize(void *src, void *dst, int bytes, void *value) {
   SDL_imageFilterBinarizeUsingThreshold
-    ((unsigned char*)src,(unsigned char*)dst,bytes, *(unsigned char*)value);
+    ((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
 }
 
 /// Past-frame blits
@@ -224,7 +222,7 @@ BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
      geo->pitch, red_bitmask, green_bitmask, blue_bitmask, 0x0);
   
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
-  SDL_UpdateRects(sdl_surf, 1, dst_rect);
+  //SDL_UpdateRects(sdl_surf, 1, dst_rect);
   
   SDL_FreeSurface( sdl_surf );
 
@@ -254,7 +252,7 @@ BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
     (src, geo->w, geo->h, geo->bpp,
      geo->pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   
-  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, *(unsigned int*)value );  
+  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, (unsigned int) *(float*)value );  
 
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
   
