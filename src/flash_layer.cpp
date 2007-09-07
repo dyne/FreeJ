@@ -54,7 +54,7 @@ static int readfile(char *filename, char **buffer, long *size) {
   length = ftell(in);
   rewind(in);
   buf = (char*)malloc(length);
-  act("readFile allocated %u bytes",length);
+  func("readFile allocated %u Kbytes for %s",length/1024, filename);
   fread(buf,length,1,in);
   fclose(in);
   
@@ -81,7 +81,7 @@ static void getSwf(char *url, int level, void *client_data) {
 FlashLayer::FlashLayer() 
   : Layer() {
   filedesc = NULL;
-  render = NULL;
+  //  render = NULL;
   procbuf = NULL;
 
   fh = FlashNew();
@@ -101,15 +101,38 @@ FlashLayer::~FlashLayer() {
 
 bool FlashLayer::init(Context *freej) {
   func("FlashLayer::init");
+  env = freej;
   long res;
-  int width  = freej->screen->w;
-  int height = freej->screen->h;
+  return true;
+}
 
+bool FlashLayer::open(char *file){
+  char *buffer;
+  long size;
+  long res;
+
+  int status;
+
+  int width  = env->screen->w;
+  int height = env->screen->h;
+
+  if(!readfile(file,&buffer,&size))
+    return false;
+  
+  // Load level 0 movie
+  do {
+    status = FlashParse(fh, 0, buffer, size);
+  } while (status & FLASH_PARSE_NEED_DATA);
+  
+  free(buffer);
+  
+  FlashGetInfo(fh, &fi);
 
   _init(width,height);
 
-  if(render) free(render);
-  render = calloc(geo.size,1);
+  //  if(render) free(render);
+  //  render = calloc(geo.size,1);
+
   if(procbuf) free(procbuf);
   procbuf = calloc(geo.size,1);
   
@@ -129,27 +152,6 @@ bool FlashLayer::init(Context *freej) {
   FlashSetGetUrlMethod(fh, showUrl, 0);
   
   FlashSetGetSwfMethod(fh, getSwf, (void*)fh);
-
-
-  return true;
-}
-
-bool FlashLayer::open(char *file){
-  char *buffer;
-  long size;
-  int status;
-
-  if(!readfile(file,&buffer,&size))
-    return false;
-  
-  // Load level 0 movie
-  do {
-    status = FlashParse(fh, 0, buffer, size);
-  } while (status & FLASH_PARSE_NEED_DATA);
-  
-  free(buffer);
-  
-  FlashGetInfo(fh, &fi);
   
   FlashSettings(fh, PLAYER_LOOP);
   
@@ -166,19 +168,19 @@ void *FlashLayer::feed() {
   
   wakeUp = FlashExec(fh, FLASH_WAKEUP, 0, &wd);
   //  if(fd.flash_refresh) {
-  jmemcpy(render,procbuf,fd.height*fd.bpl);
+  //  jmemcpy(render,procbuf,fd.height*fd.bpl);
   //    fd.flash_refresh = 0;
   //  }
   //    memcpy(render,buffer,fd.width*fd.height*(fd.bpp>>3));
   
-  //  return render;
+  //    return render;
   return procbuf;
 }
 
 void FlashLayer::close() {
   FlashClose(fh);
   if(procbuf) free(procbuf);
-  if(render) free(render);
+  //  if(render) free(render);
 }
 
 bool FlashLayer::keypress(int key) {

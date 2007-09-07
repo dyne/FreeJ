@@ -33,7 +33,7 @@
 #include <config.h>
 
 #include <gen_layer.h>
-#include <video_encoder.h>
+
 
 #define PLAIN_COLOR 1
 #define TITLE_COLOR 1
@@ -69,13 +69,14 @@
 #define KEY_CTRL_M 13 // move layer
 #define KEY_CTRL_U 21 // delete until beginning of line
 #define KEY_CTRL_H 272 // help the user
-#define KEY_CTRL_J 10 // load and execute a javascript
+
 #define KEY_CTRL_O 15 // open a file in a new layer
 #define KEY_CTRL_S 19 // reserved
 #define KEY_CTRL_T 20 // new layer with text
 #define KEY_CTRL_V 22 // change blit value
-#define KEY_CTRL_W 23 // start stream and save to file
+#define KEY_CTRL_W 23
 #define KEY_CTRL_X 24 // execute a javascript command
+#define KEY_CTRL_J 10 // load and execute a javascript script file
 #define KEY_CTRL_Y 25
 
 #define KEY_PLUS 43
@@ -303,12 +304,12 @@ static int open_layer(char *cmd) {
 #include <text_layer.h>
 static int print_text_layer(char *cmd) {
 
-  if( strncmp( env->console->layer->get_name(),"TXT",3) ==0) {
+  if( strncmp( env->console->layer->get_name(),"TTF",3) ==0) {
     ((TTFLayer*)env->console->layer)->print(cmd);
     return env->layers.len();
 
   } else {
-    error("console.cpp: print_text layer called on non-TXT layer");
+    error("console.cpp: print_text layer called on non-TTF layer");
     return 0;
   }
 }
@@ -1128,10 +1129,6 @@ void Console::parser_default(int key) {
     act("ctrl+c  = Quit FreeJ");
     act("ctrl+x  = execute a script command");
     act("ctrl+j  = load and execute a script file");
-#ifdef CONFIG_OGGTHEORA_ENCODER
-    //    ::act("ctrl+w  = start streaming to: %s",env->shouter->host());
-    //    ::act("          and save to file: %s",env->video_encoder->get_filename());
-#endif
     break;
 
   case '!':
@@ -1184,7 +1181,7 @@ void Console::parser_default(int key) {
 	     &open_text_layer,NULL);
     break;
   case KEY_CTRL_Y:
-    if(strncmp(layer->get_name(),"TXT",3)==0)
+    if(strncmp(layer->get_name(),"TTF",3)==0)
       readline("print a new word in text Layer, type your words:",
 	       &print_text_layer,NULL);
     break;
@@ -1219,28 +1216,6 @@ void Console::parser_default(int key) {
   case KEY_CTRL_J:
     readline("load and execute a javascript file:", &exec_script, &filebrowse_completion);
     break;
-
-#ifdef CONFIG_OGGTHEORA_ENCODER
-  case KEY_CTRL_W:
-    VideoEncoder *enc;
-    enc = (VideoEncoder*)env->encoders.begin();
-    enc->write_to_disk = !enc->write_to_disk;
-    break;
-    
-    /*
-    if (! env -> save_to_file) {
-      ::notice ("Streaming to %s:%u",env->shouter->host(), env->shouter->port());
-      ::act ("Saving to %s", env -> video_encoder -> get_filename());
-    } else {
-      ::notice ("Stopped stream to %s:%u", env->shouter->host(), env->shouter->port());
-      ::act ("Video saved in file %s",env -> video_encoder -> get_filename());
-      //      env -> video_encoder -> stop_audio_stream();
-      env -> shouter -> stop();
-    }
-    env -> save_to_file = ! env -> save_to_file;
-    break;
-  */
-#endif
 
   case KEY_CTRL_L:
     refresh();

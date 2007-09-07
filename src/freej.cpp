@@ -66,17 +66,14 @@ static const char *help =
 #ifdef WITH_OPENGL
 " .   -g   experimental opengl engine! (better pow(2) res as 256x256)\n"
 #endif
-" .   -j   <javascript.js>  process javascript command file\n"
-" .   -e   <file.ogg>  set filename of local encoded ogg-theora file\n"
-" .		       if a number is given, the file descriptor selected is used\n"
-" .                    (default freej.ogg, start and stop it with CTRL-w)\n"
+" .   -j   <javascript.js>  execute a javascript file\n"
 " .\n"
 " .  Layers available:\n"
 " .   you can specify any number of files or devices to be loaded,\n"
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:e:i:cp:t:d:T:V:agf:F";
+static const char *short_options = "-hvD:gs:nj:cgf:F";
 
 /* this is the global FreeJ context */
 Context freej;
@@ -90,21 +87,9 @@ int   height = 300;
 int   magn = 0;
 char  javascript[512]; // script filename
 
-static char encoded_filename[512]; // filename to save to
-
-/* icecast streaming options */
-static char screaming_url[512]; // s(c|t)reaming url ? :P
-static char screaming_pass[512]; // password
-static char screaming_name[512]; // name
-static char screaming_description[512]; // name
-
-static int theora_quality;
-static int vorbis_quality;
-
 static unsigned int fps = 25;
 
 bool startstate = true;
-bool stream_audio = true;
 bool gtkgui = false;
 bool opengl = false;
 bool noconsole = false;
@@ -116,15 +101,6 @@ void cmdline(int argc, char **argv) {
   /* initializing defaults */
   char *p                  = layer_files;
   javascript[0]            = 0;
-
-  encoded_filename[0]      = '\0';
-  screaming_url[0]         = '\0';
-  screaming_pass[0]        = '\0';
-  screaming_name[0]        = '\0';
-  screaming_description[0] = '\0';
-
-  theora_quality           = -1;
-  vorbis_quality           = -1;
 
   debug_level              = 0;
 
@@ -151,7 +127,7 @@ void cmdline(int argc, char **argv) {
 
     case 's':
       sscanf(optarg,"%ux%u",&width,&height);
-      freej.screen->resize(width,height);
+//      freej.screen->resize(width,height);
       /* what the fuck ???
       if(width<320) {
 	error("display width can't be smaller than 400 pixels");
@@ -174,36 +150,8 @@ void cmdline(int argc, char **argv) {
       startstate = false;
       break;
 
-     case 'e':
-	snprintf (encoded_filename, 512, "%s", optarg);
-      break;
-
-     case 'i':
-	snprintf (screaming_url, 512, "%s", optarg);
-      break;
-
     case 'c':
       noconsole = true;
-      break;
-
-     case 'p':
-	snprintf (screaming_pass, 512, "%s", optarg);
-      break;
-
-     case 't':
-	snprintf (screaming_name, 512, "%s", optarg);
-      break;
-      
-     case 'd':
-	snprintf (screaming_description, 512, "%s", optarg);
-      break;
-
-     case 'a':
-	stream_audio = false;
-      break;
-
-     case 'T':
-      sscanf (optarg, "%u", &theora_quality);
       break;
 
      case 'f':
@@ -211,11 +159,8 @@ void cmdline(int argc, char **argv) {
       break;
 
     case 'F':
-      freej.screen->fullscreen();
-      break;
-
-     case 'V':
-      sscanf (optarg, "%u", &vorbis_quality);
+      fullscreen = true;
+//      freej.screen->fullscreen();
       break;
 
    case 'j':
@@ -266,8 +211,6 @@ void cmdline(int argc, char **argv) {
 #endif
 }
 
-/* ===================================== */
-//[cf]
 
 /* ===================================== */
 
@@ -307,16 +250,18 @@ int scripts(char *path) {
 
 int main (int argc, char **argv) {
 
-
   Layer *lay = NULL;
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);
   act("2001-2007 RASTASOFT :: freej.dyne.org");
   act("----------------------------------------------");
 
+  cmdline(argc,argv);
+
   assert( freej.init(width,height, opengl) );
 
-  cmdline(argc,argv);
+  if(fullscreen) freej.screen->fullscreen();
+
   set_debug(debug_level);
 
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
@@ -358,22 +303,8 @@ int main (int argc, char **argv) {
     }
   }
 
-  /* initialize the Keyboard Listener */
-  //  freej.kbd.init( );
-
   /* initialize the On Screen Display */
   freej.osd.init( &freej );
-
-  //  freej.video_encoder -> handle_audio (stream_audio );
-
-  /* initialize encoded filename */
-  if (encoded_filename[0] != '\0') {
-    VideoEncoder *enc = get_encoder("theora");
-    enc->init(&freej);
-    enc->set_filedump(encoded_filename);
-    freej.add_encoder(enc);
-  }
-
 
 
   // Set fps
@@ -392,27 +323,11 @@ int main (int argc, char **argv) {
       l = p+1;
       if(cli_chars<=0) break; *p='\0';
 
-      lay = create_layer(&freej, pp); // hey, this already init and open the layer !!
-	  if(lay) 
-          freej.add_layer(lay);
-/*
-      if(lay) {
-	
-	if(! lay->init(&freej) ) {
-	  error("can't initalize %s layer", lay->name);
-	  delete lay; lay = NULL;
-	}
+      func("creating layer for file %s",pp);
 
-	if(lay) { 
-	  freej.add_layer(lay);
-	  
-	  if(! lay->open(pp) ) {
-	    error("can't open %s %s layer",pp,lay->name);
-	    delete lay; lay = NULL;
-	  }
-	}
-      }
-    */
+      lay = create_layer(&freej, pp); // hey, this already init and open the layer !!
+      if(lay) freej.add_layer(lay);
+
       pp = l;
     }
   }

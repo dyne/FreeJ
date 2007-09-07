@@ -99,19 +99,6 @@ TBTLayer::TBTLayer()
   
   TTF_Init(); // SDL_ttf initialization
 
-
-  func("TBTLayer has %i fonts available",env->num_fonts);
-  
-  // choose first font and initialize ready for printing
-  size = 30;
-  
-  font = TTF_OpenFont(env->font_files[sel_font], size);
-  if (!font)
-    error("Couldn't load %d pt font from %s: %s\n",
-	  size, env->font_files[sel_font], SDL_GetError());
-  
-  TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-  // here can be also: TTF_STYLE_BOLD _ITALIC _UNDERLINE
   
   
   
@@ -139,6 +126,9 @@ TBTLayer::~TBTLayer() {
 }
 
 bool TBTLayer::init(Context *freej) {
+
+  env = freej;
+
   int width  = freej->screen->w;
   int height = freej->screen->h;
 
@@ -154,6 +144,20 @@ bool TBTLayer::init(Context *freej) {
   console.h = height;
   console.cur_x = 0;
   console.cur_y = 0;
+
+
+  func("TBTLayer has %i fonts available",env->num_fonts);
+  
+  // choose first font and initialize ready for printing
+  size = 30;
+  
+  font = TTF_OpenFont(env->font_files[sel_font], size);
+  if (!font)
+    error("Couldn't load %d pt font from %s: %s\n",
+	  size, env->font_files[sel_font], SDL_GetError());
+  
+  TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+  // here can be also: TTF_STYLE_BOLD _ITALIC _UNDERLINE
 
   return true;
 }
