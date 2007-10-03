@@ -102,6 +102,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/goom/libgoom2.a \
               $(top_srcdir)/lib/tbt/libtbt.a \
               $(top_srcdir)/lib/slw/libslw.a \
+              $(top_srcdir)/lib/shout/libshout.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \

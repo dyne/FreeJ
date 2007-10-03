@@ -6,6 +6,7 @@ SUBDIRS = 	ccvt			\
 		sdl_image		\
 		sdl_gfx			\
 		sdl_ttf			\
+		shout			\
 		javascript		\
 		flash			\
 		goom			\
