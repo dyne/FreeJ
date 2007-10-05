@@ -40,6 +40,9 @@ freej_SOURCES = \
 	cpu_accel.cpp	\
 	plugin.cpp	\
 	plugger.cpp	\
+	frei0r.cpp	\
+	filter.cpp	\
+	filter_js.cpp   \
 	jsparser.cpp	\
 	callbacks_js.cpp \
 	jutils.cpp	\

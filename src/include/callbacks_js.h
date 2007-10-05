@@ -141,18 +141,18 @@ JS(constructor_func) {                                                        \
                                                                               \
   layer = new constructor_class();                                            \
   if(!layer) {                                                                \
-    sprintf(excp_msg, "cannot create constructor_class", NULL);               \
+    sprintf(excp_msg, "cannot create constructor_class");               \
     goto error;                                                               \
   }                                                                           \
   if(argc==0) {                                                               \
     if(!layer->init(env)) {                                                   \
-      sprintf(excp_msg, "failed init(env)", NULL);                            \
+      sprintf(excp_msg, "failed init(env)");                            \
       goto error;                                                             \
     }                                                                         \
   } else if(argc==1) {                                                        \
     JS_ARG_STRING(filename,0);                                                \
     if(!layer->init(env)) {                                                   \
-      sprintf(excp_msg, "failed init(env)", NULL);                            \
+      sprintf(excp_msg, "failed init(env)");                            \
       goto error;                                                             \
     }                                                                         \
     if(!layer->open(filename)) {                                              \
@@ -179,7 +179,7 @@ JS(constructor_func) {                                                        \
       goto error;                                                             \
     }                                                                         \
   } else {                                                                    \
-    sprintf(excp_msg, "Wrong numbers of arguments\n use (\"filename\") or (width, height, \"filename\") or ()", NULL);       \
+    sprintf(excp_msg, "Wrong numbers of arguments\n use (\"filename\") or (width, height, \"filename\") or ()");       \
     goto error;                                                               \
   }                                                                           \
   if(!JS_SetPrivate(cx,obj,(void*)layer)) {                                   \

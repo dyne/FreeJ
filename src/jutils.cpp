@@ -30,6 +30,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <dirent.h>
 #endif
 
 #include <iostream>
@@ -338,3 +339,10 @@ bool filecheck(char *file) {
   return(res);
 }
 
+bool dircheck(char *dir) {
+  bool res = true;
+  DIR *d = opendir(dir);
+  if(!d) res = false;
+  else closedir(d);
+  return(res);
+}

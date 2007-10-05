@@ -132,7 +132,7 @@ static int blit_selection(char *cmd) {
 }
 static int blit_comp(char *cmd) {
   int c;
-  int *blits;
+  char **blits;
   Blit *b;
 
   if(!cmd) return 0;
@@ -148,7 +148,7 @@ static int blit_comp(char *cmd) {
   if(!blits[0]) return 0; // none found
 
   if(!blits[1]) { // exact match, then fill in command
-    b = (Blit*) lay->blitter.blitlist.pick(blits[0]);
+    b = (Blit*) lay->blitter.blitlist.search(blits[0]);
     ::notice("%s :: %s",b->get_name(),b->desc);
     snprintf(cmd,MAX_CMDLINE,"%s",b->get_name());
     return 1;
@@ -156,12 +156,8 @@ static int blit_comp(char *cmd) {
   
   notice("List available blits starting with \"%s\"",cmd);
   for(c=0;blits[c];c++) {
-    b = (Blit*) lay->blitter.blitlist.pick(blits[c]);
-
-    if(!b) {
-      func("error in completion: missing %i");
-      continue; }
-    ::act("%s :: %s",b->get_name(),b->desc);
+    // was name and desc, now only names listed (TODO?)
+    ::act(" %s",blits[c]);
   }
   return c;
 }
@@ -169,25 +165,29 @@ static int blit_comp(char *cmd) {
 
 static int filter_proc(char *cmd) {
   Filter *filt;
+
   if(!cmd) return 0;
-  filt = env->plugger.pick(cmd);
+
+  filt = (Filter*)env->filters.search(cmd);
   if(!filt) {
     ::error("filter not found: %s",cmd);  
     return 0;
   }
+
   Layer *lay = (Layer*)env->layers.selected();
   if(!lay) {
-    ::error("no layer selected for effect %s",filt->getname());
+    ::error("no layer selected for effect %s",filt->name);
     return 0;
   }
-  if(!filt->init(&lay->geo)) {
-    ::error("Filter %s can't initialize",filt->getname());
+  
+  if( ! filt->apply(lay) ) {
+    ::error("error applying filter %s on layer %s",filt->name, lay->name);
     return 0;
   }
-  lay->filters.append(filt);
+
   // select automatically the new filter
-  lay->filters.sel(0);
-  filt->sel(true);
+//  lay->filters.sel(0);
+//  ff->sel(true);
   return 1;
 }
 static int filter_comp(char *cmd) {
@@ -195,20 +195,21 @@ static int filter_comp(char *cmd) {
   char **res;
   Filter *filt;
   if(!cmd) return 0;
-  res = env->plugger.complete(cmd);
+  // QUAAA
+  res = env->filters.completion(cmd);
 
   if(!res[0]) return 0; // no hit 
 
   if(!res[1]) { // exact match: fill in the command
-    filt = env->plugger.pick(res[0]);
+    filt = (Filter*)env->filters.search(res[0]);
     if(!filt) return 0; // doublecheck safety fix
-    ::notice("%s :: %s",filt->getname(),filt->getinfo());
+    ::notice("%s :: %s",filt->name,filt->description());
     snprintf(cmd,511,"%s",res[0]); c=1;
   } else { // list all matches
     for(c=0;res[c];c++) {
-      filt = env->plugger.pick(res[c]);
+      filt = (Filter*)env->filters.search(res[c]);
       if(!filt) continue;
-      ::act("%s :: %s",filt->getname(),filt->getinfo());
+      ::act("%s :: %s",filt->name,filt->description());
     }
   }
   return c;
@@ -353,7 +354,7 @@ static int filebrowse_completion(char *cmd) {
   char path[MAX_CMDLINE];
   char needle[MAX_CMDLINE];
   bool incomplete = false;
-  int *comps;
+  char **comps;
   int found;
   int c;
 
@@ -420,7 +421,7 @@ static int filebrowse_completion(char *cmd) {
       
       if(!comps[1]) { // exact match
 
-	e = files.pick(comps[0]);
+	e = files.search(comps[0]);
 	snprintf(cmd,MAX_CMDLINE,"%s%s",path,e->name);
 	  
 	c = 1;
@@ -429,8 +430,7 @@ static int filebrowse_completion(char *cmd) {
 
 	notice("list of %s* files in %s:",needle,path);	
 	for(c=0;comps[c];c++) {
-	  e = files.pick(comps[c]);
-	  ::act("%s",e->name);
+	  ::act(" %s",comps[c]);
 	}
 	
       }
@@ -490,7 +490,7 @@ Console::Console() {
   do_update_scroll=true;
   active = false;
   layer = NULL;
-  filter = NULL;
+  paramsel = 0;
 }
 
 Console::~Console() {
@@ -772,10 +772,15 @@ void Console::layerprint() {
 
 void Console::layerlist() {
   int color;
+
+  if(!env->layers.len()) return; // no layers present
+
   SLsmg_gotorc(4,1);
-  env->layers.lock();
+  //  env->layers.lock();
   /* take layer selected and first */
+
   Layer *l = (Layer *)env->layers.begin();
+  FilterInstance *filter = (FilterInstance*)l->filters.selected();
   
   while(l) { /* draw the layer's list */
 
@@ -796,41 +801,66 @@ void Console::layerlist() {
 
     l = (Layer *)l->next;
   }
-  env->layers.unlock();
+  //  env->layers.unlock();
   SLsmg_set_color(PLAIN_COLOR);
   SLsmg_erase_eol();
 }
 
 void Console::filterprint() {
+
+  int c = 1;
+
   if(!layer) return;
-  if(!filter) return;
+
+  FilterInstance *filter = (FilterInstance*)layer->filters.selected();
 
   SLsmg_gotorc(3,1);
   SLsmg_set_color(FILTERS_COLOR);
   SLsmg_write_string("Filter: ");
   if(!filter) {
-    SLsmg_write_string("none");
+    SLsmg_write_string("none selected");
     SLsmg_set_color(PLAIN_COLOR);
     SLsmg_erase_eol();
     return;
   }
   SLsmg_set_color(FILTERS_COLOR+10);
-  SLsmg_write_string(filter->getname());
+  SLsmg_write_string(filter->name);
   SLsmg_erase_eol();
   SLsmg_forward(2);
-  SLsmg_write_string(filter->getinfo());
+  SLsmg_write_string(filter->proto->description());
   SLsmg_set_color(PLAIN_COLOR);
-}
+  if(paramsel > 0) {
+    SLsmg_gotorc(4,1);
+    SLsmg_set_color(FILTERS_COLOR);
+    SLsmg_write_string("Parameter: ");
+    map<string, int>::iterator it = filter->proto->parameters.begin();
+    do {
+      SLsmg_write_string((char*)it->first.c_str());
+      switch(filter->proto->get_parameter_type(it->second)) {
+      case PARAM_BOOL:     SLsmg_write_string("(bool) "); break;
+      case PARAM_DOUBLE:   SLsmg_write_string("(color) "); break;
+      case PARAM_STRING:   SLsmg_write_string("(string) "); break;
+      case PARAM_POSITION: SLsmg_write_string("(position) "); break;
+      default: SLsmg_write_string("(unknown) ");
+      }
+      SLsmg_write_string( filter->proto->get_parameter_description(it->second));
+      it++;
+    } while( it != filter->proto->parameters.end());
 
+  }
+}
+    
 void Console::filterlist() {
-  Filter *f;
+  FilterInstance *f;
+  FilterInstance *filter;
   int color;
   int pos = 5;
   
   if(layer) {
 
-    layer->filters.lock();
-    f = (Filter *)layer->filters.begin();
+    filter = (FilterInstance*)layer->filters.selected();
+    //    layer->filters.lock();
+    f = (FilterInstance *)layer->filters.begin();
     while(f) {
 
       SLsmg_set_color(PLAIN_COLOR);
@@ -843,12 +873,12 @@ void Console::filterlist() {
       if( f->active) color+=10;
       SLsmg_set_color (color);
       
-      SLsmg_printf("%s",f->getname());
+      SLsmg_printf("%s",f->name);
       
       pos++;
-      f = (Filter *)f->next;
+      f = (FilterInstance *)f->next;
     }
-    layer->filters.unlock();
+    //    layer->filters.unlock();
   }
   SLsmg_set_color(PLAIN_COLOR);
   for(;pos<5;pos++) {
@@ -981,67 +1011,90 @@ void Console::update_scroll() {
 
 void Console::parser_default(int key) {
   Layer *tmp;
+  FilterInstance *filter;
 
   commandline = false; // print statusline
   
   switch(key) {
   case SL_KEY_UP:
     if(!layer) break;
+    filter = (FilterInstance*)layer->filters.selected();
     if(!filter) break;
-    filter = (Filter*)filter->prev;
+    filter = (FilterInstance*)filter->prev;
+    layer->filters.sel(0); // deselect all filters
     if(filter) {
       // select only the current
-      layer->filters.sel(0);
       filter->sel(true);
+    } else {
+      // was already the topmost filter
     }
     break;
 
   case SL_KEY_DOWN:
+    if(!layer) break;
+    filter = (FilterInstance*)layer->filters.selected();
     if(!filter) {
-      if(!layer) break;
-      filter = (Filter*)layer->filters.begin();
-      break;
+      filter = (FilterInstance*)layer->filters.begin();
+      layer->filters.sel(0);
+    } else if(filter->next) {
+      filter = (FilterInstance*)filter->next;
+      layer->filters.sel(0);
     }
-    if(!filter->next) break;
-    filter = (Filter*)filter->next;
     // select only the current
-    layer->filters.sel(0);
-    filter->sel(true);      
+    if(filter) filter->sel(true);      
     break;
 
   case SL_KEY_LEFT:
-    if(!layer) 
-      layer = (Layer*)env->layers.begin();
-    else if(!layer->prev)
-      layer = (Layer*)env->layers.end();
-    else
-      layer = (Layer*)layer->prev;
+    if(!env->layers.len()) break; // there are no layers
 
-    // deselect any filter
-    if(env->layers.selected() != layer) {
-      filter = NULL;
-      layer->filters.sel(0);
+    // get the one selected, or the first
+    layer = (Layer*)env->layers.selected();
+    if(!layer) layer = (Layer*)env->layers.begin();
+    
+    filter = (FilterInstance*)layer->filters.selected();
+    if(!filter) { // no filter selected, move across layers
+
+      // move to the previous or the other end
+      if(!layer->prev)
+	layer = (Layer*)env->layers.end();
+      else
+	layer = (Layer*)layer->prev;
+      
+      // select only this layer
+      env->layers.sel(0);
+      layer->sel(true);
+
+    } else { // a filter is selected: move across filter parameters
+
+      // TODO
+
     }
-    // select only the current layer
-    env->layers.sel(0);
-    layer->sel(true);
+
     break;
 
   case SL_KEY_RIGHT:
-    if(!layer)
-      layer = (Layer*)env->layers.begin();
-    else if(!layer->next)
-      layer = (Layer*)env->layers.begin();
-    else
-      layer = (Layer*)layer->next;
-    // deselect any filter
-    if(env->layers.selected() != layer) {
-      filter = NULL;
-      layer->filters.sel(0);
+    if(!env->layers.len()) break; // there are no layers
+
+    // get the one selected, or the first
+    layer = (Layer*)env->layers.selected();
+    if(!layer) layer = (Layer*)env->layers.begin();
+
+    if(!filter) { // no filter selected, move across layers
+
+      // move to the next layer or the other end
+      if(!layer->next)
+	layer = (Layer*)env->layers.begin();
+      else layer = (Layer*)layer->next;
+      
+      // select only the current
+      env->layers.sel(0);
+      layer->sel(true);
+
+    } else { // move across filter parameters
+
+      // TODO
+
     }
-    // select only the current
-    env->layers.sel(0);
-    layer->sel(true);
     break;
 
   case '<':
@@ -1081,9 +1134,11 @@ void Console::parser_default(int key) {
 
   case SL_KEY_DELETE:
   case KEY_CTRL_D:
+    if(layer) filter = (FilterInstance*) layer->filters.selected();
     if(filter) {
       filter->rem();
-      filter->clean();
+      //      filter->clean();
+      delete filter;
       filter = NULL;
     } else if(layer) {
       layer->rem();
@@ -1094,21 +1149,12 @@ void Console::parser_default(int key) {
     break;
     
   case KEY_SPACE:
+    if(layer) filter = (FilterInstance*) layer->filters.selected();
     if(filter) filter->active = !filter->active;
     else if(layer) layer->active = !layer->active;
     break;
 
-  case SL_KEY_IC:
-    if(!filter) break;
-    filter->active = !filter->active;
-    break;
-
-  case SL_KEY_HOME:
-    if(!layer) break;
-    layer->active = !layer->active;
-    break;
-
-  case KEY_CTRL_H:
+ case KEY_CTRL_H:
   case KEY_CTRL_H_APPLE:
   case '?':
     notice("Hotkeys available in FreeJ console:");
@@ -1237,9 +1283,10 @@ void Console::parser_default(int key) {
   //  break;
 
   default:
-    if(filter)
-      filter->kbd_input( key );
-    else if(layer)
+    //    if(filter)
+    //      filter->kbd_input( key );
+    //    else
+    if(layer)
       layer->keypress( key );
     break;
 			 

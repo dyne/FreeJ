@@ -107,12 +107,7 @@ JS(selected_layer) {
     return JS_TRUE;
   }
   
-  lay = (Layer*)env->layers.begin();
-
-  while(lay) {
-    if(lay->select) break;
-    else lay = (Layer*) lay->next;
-  }
+  lay = (Layer*)env->layers.selected();
 
   if(!lay) {
     warning("there is no selected layer");
@@ -129,12 +124,13 @@ JS(selected_layer) {
   return JS_TRUE;
 }
   
-JS(layer_list_effects) {
+JS(layer_list_filters) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   JSObject *arr;
   JSObject *objtmp;
 
-  Filter *filt;
+  FilterDuo *duo;
+
   jsval val;
   int c = 0;
 
@@ -149,20 +145,25 @@ JS(layer_list_effects) {
   arr = JS_NewArrayObject(cx, 0, NULL); // create void array
   if(!arr) return JS_FALSE;
 
-  filt = (Filter*)lay->filters.begin();
-  
-  while(filt) {
+  duo = new FilterDuo();
 
-    objtmp = JS_NewObject(cx, &effect_class, NULL, obj);
+  duo->instance = (FilterInstance*)lay->filters.begin();
+
+  while(duo->instance) {
+
+    duo->proto = duo->instance->proto;
+  
+    objtmp = JS_NewObject(cx, &filter_class, NULL, obj);
     
-    JS_SetPrivate(cx, objtmp, (void*) filt);
+    JS_SetPrivate(cx, objtmp, (void*) duo);
 
     val = OBJECT_TO_JSVAL(objtmp);
 
     JS_SetElement(cx, arr, c, &val );
     
     c++;
-    filt = (Filter*)filt->next;
+
+    duo->instance = (FilterInstance*)duo->instance->next;
   }
 
   *rval = OBJECT_TO_JSVAL( arr );
@@ -358,38 +359,38 @@ JS(layer_deactivate) {
 
     return JS_TRUE;
 }
-JS(layer_add_effect) {
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+JS(layer_add_filter) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  
+  JSObject *jsfilter=NULL;
+  FilterDuo *duo;
 
-    JSObject *jsfilter=NULL;
-    Filter *filter;
+  jsfilter = JSVAL_TO_OBJECT(argv[0]);
+  if(!jsfilter) JS_ERROR("missing argument");
+  
+  /**
+   * Extract filter and layer pointers from js objects
+   */
+  duo = (FilterDuo *) JS_GetPrivate(cx, jsfilter);
+  if(!duo) JS_ERROR("Effect is NULL");
+  
+  if(duo->instance) {
+    error("filter %s is already in use", duo->proto->name);
+    return JS_TRUE;
+  }
 
-    jsfilter = JSVAL_TO_OBJECT(argv[0]);
-    if(!jsfilter) JS_ERROR("missing argument");
-
-    /**
-     * Extract filter and layer pointers from js objects
-     */
-    filter = (Filter *) JS_GetPrivate(cx, jsfilter);
-    if(!filter) JS_ERROR("Effect is NULL");
-
-    GET_LAYER(Layer);
-
-    if(!filter->init(&lay->geo)) {
-      error("Effect %s can't initialize for Layer %s",
-        filter->getname(), lay->get_name());
-      return JS_TRUE;
-    }
-
-   lay->filters.append(filter);
-   return JS_TRUE;
+  GET_LAYER(Layer);
+  
+  duo->instance = duo->proto->apply(lay);
+  
+  return JS_TRUE;
 }
 
-JS(layer_rem_effect) {
+JS(layer_rem_filter) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     JSObject *jsfilter=NULL;
-    Filter *filter;
+    FilterDuo *duo;
 
     if(argc<1) JS_ERROR("missing argument");
 
@@ -398,12 +399,12 @@ JS(layer_rem_effect) {
 	jsfilter = JSVAL_TO_OBJECT(argv[0]);
 	if(!jsfilter) JS_ERROR("missing argument");
 
-	filter = (Filter *) JS_GetPrivate(cx, jsfilter);
-	if(!filter) JS_ERROR("Effect data is NULL");
+	duo = (FilterDuo *) JS_GetPrivate(cx, jsfilter);
+	if(!duo) JS_ERROR("Effect data is NULL");
 
- 	filter->rem();
-	filter->clean();
-	filter = NULL;
+	duo->instance->rem();
+	delete duo->instance;
+	duo->instance = NULL;
     }
     return JS_TRUE;
 }

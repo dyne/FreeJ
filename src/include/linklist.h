@@ -55,7 +55,7 @@ class Linklist {
   bool moveto(int num, int pos);
   Entry *pick(int pos);  
   Entry *search(char *name);
-  int *completion(char *needle);
+  char **completion(char *needle);
 
   Entry *selected();
 
@@ -77,7 +77,7 @@ class Linklist {
   pthread_mutex_t mutex;
 #endif
   
-  int compbuf[MAX_COMPLETION]; // maximum completion listsize allowed
+  char *compbuf[MAX_COMPLETION]; // maximum completion listsize allowed
 
 };
 

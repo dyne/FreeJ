@@ -24,11 +24,14 @@
 #include <SDL.h>
 
 #include <layer.h>
+#include <filter.h>
+
 #include <context.h>
 #include <jutils.h>
 #include <config.h>
 
 #include <jsparser_data.h>
+
 
 Layer::Layer()
   :Entry(), JSyncThread() {
@@ -53,7 +56,12 @@ Layer::Layer()
 }
 
 Layer::~Layer() {
-  filters.clear();
+  FilterInstance *f = (FilterInstance*)filters.begin();
+  while(f) {
+    f->rem();
+    delete f;
+    f = (FilterInstance*)filters.begin();
+  }
   if(bgmatte) jfree(bgmatte);
 }
 
@@ -117,6 +125,8 @@ void Layer::run() {
 
 bool Layer::cafudda() {
 
+  FilterInstance *filt;
+
   if(!active || hidden)
     if(!fade)
       return false;
@@ -155,10 +165,11 @@ bool Layer::cafudda() {
 
   if( filters.len() ) {
     filters.lock();
-    filt = (Filter *)filters.begin();
+    filt = (FilterInstance *)filters.begin();
     while(filt) {
-      if(filt->active) offset = filt->process(offset);
-      filt = (Filter *)filt->next;
+      if(filt->active)
+	offset = (void*) filt->process(env->fps, (uint32_t*)offset);
+      filt = (FilterInstance *)filt->next;
     }
   }
   

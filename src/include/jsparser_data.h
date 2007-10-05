@@ -49,7 +49,7 @@
 
 // declare constructors
 
-JS(effect_constructor);
+JS(filter_constructor);
 JS(layer_constructor);
 JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
@@ -90,8 +90,8 @@ extern JSClass global_class;
 extern JSFunctionSpec global_functions[];
 
 // Effect
-extern JSClass effect_class;
-extern JSFunctionSpec effect_methods[];
+extern JSClass filter_class;
+extern JSFunctionSpec filter_methods[];
 
 // Layer
 extern JSClass layer_class;
@@ -216,6 +216,14 @@ JS(entry_select);
     {"prev",            entry_prev,             0}, \
     {"select",          entry_select,           0}
 
+
+////////////////////////////////
+// Filter methods
+JS(filter_apply);
+JS(filter_set_parameter);
+#define FILTER_METHODS \
+    {"set_parameter",           filter_set_parameter,             2}
+
 ////////////////////////////////
 // parent Layer methods
 
@@ -234,12 +242,12 @@ JS(layer_get_x_position);
 JS(layer_get_y_position);
 JS(layer_get_width);
 JS(layer_get_height);
-JS(layer_add_effect);
-JS(layer_rem_effect);
+JS(layer_add_filter);
+JS(layer_rem_filter);
 JS(layer_rotate);
 JS(layer_zoom);
 JS(layer_spin);
-JS(layer_list_effects);
+JS(layer_list_filters);
 
 #define LAYER_METHODS \
     {"activate",	layer_activate,	        0}, \
@@ -261,12 +269,12 @@ JS(layer_list_effects);
     {"w",               layer_get_width,        0}, \
     {"get_height",      layer_get_height,       0}, \
     {"h",               layer_get_height,       0}, \
-    {"add_effect",      layer_add_effect,	1}, \
-    {"rem_effect",	layer_rem_effect,	1}, \
+    {"add_filter",      layer_add_filter,	1}, \
+    {"rem_filter",	layer_rem_filter,	1}, \
     {"rotate",          layer_rotate,           1}, \
     {"zoom",            layer_zoom,             2}, \
     {"spin",            layer_spin,             2}, \
-    {"list_effects",    layer_list_effects,     0}
+    {"list_filters",    layer_list_filters,     0}
 
 ////////////////////////////////
 // Particle Layer methods

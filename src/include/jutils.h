@@ -52,6 +52,7 @@ void rtc_freq_wait();
 void rtc_close();
 
 bool filecheck(char *file);
+bool dircheck(char *file);
 
 #endif
 

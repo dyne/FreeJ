@@ -24,11 +24,12 @@
 #define __plugger_h__
 
 #include <string.h>
+
 #include <jutils.h>
 #include <linklist.h>
 #include <filter.h>
 
-#define MAX_PLUGINS 12*12
+class Context;
 
 /**
    This class implements the object storing all available filter
@@ -44,53 +45,22 @@ class Plugger {
   ~Plugger(); ///< Plugger destructor
 
   /**
-     Query the plugger to find a plugin filter of a certain name
-
-     @param name filter name
-     
-     @return the pointer to the Filter class instance found, or NULL
-  */
-  Filter *pick(char *name);
-
-  char **complete(char *str);
-
-  /**
      Tell the Plugger to read again thru configured paths and updates
      the plugin table.
-     
-     @return number of valid Filter plugins found
+     @param env the context environment where to save found plugins
+     @param type the type name of the plugins to look for (ie. "filters")
+     @return number of valid plugins found
   */
-  int refresh();
-  
-  /**
-     Close the plugger and deinitialize all Filter instances, usually
-     this doesn't needs to be called directly: FreeJ does it at quit.
-  */
-  //  void close() { _delete(); };
-  
-  /**
-     Return a pointer to the Filter instance of a plugin, given its
-     number in the Plugger table.
-     
-     @param num Filter plugin position number in the Plugger
+  int refresh(Context *env);
 
-     @return the pointer to the Filter class instance found, or NULL
-  */
-  Filter *operator[](const int num);
-  
-
-  Filter *plugs[MAX_PLUGINS];
 
 
  private:
 
-  /* clears up the whole plugs list */
-  //  int _delete();
-  bool _add_plug(Filter *f);
+  bool open(Context *env, char *file);
+
   /* checks if file/directory exist */
-  bool _filecheck(const char *file);
-  bool _dircheck(const char *dir);
-  void _addsearchdir(const char *dir);
+  void addsearchdir(char *dir);
   void _setsearchpath(const char *path) {
     if(_searchpath) jfree(_searchpath); _searchpath = strdup(path); };
   char *_getsearchpath() { return(_searchpath); };

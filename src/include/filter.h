@@ -19,24 +19,93 @@
 #ifndef __filter_h__
 #define __filter_h__
 
+
 #include <linklist.h>
-#include <plugin.h>
+#include <freej.h>
 
-class Filter: public Plugin, public Entry {
+class Layer;
+class Freior;
+
+#include <string>
+#include <map>
+using namespace std;
+
+
+/* Parameter type for boolean values */
+#define PARAM_BOOL      0
+/* Parameter type for doubles */
+#define PARAM_DOUBLE    1
+/* Parameter type for color */
+#define PARAM_COLOR     2
+/* Parameter type for position */
+#define PARAM_POSITION  3
+/* Parameter type for string */
+#define PARAM_STRING  4
+
+
+class Filter : public Entry {
+  friend class FilterInstance;
  public:
-  Filter() { initialized=false; active=true; inuse=false; };
-  virtual ~Filter() { };
+  Filter(Freior *f);
+  ~Filter();
 
-  //  virtual bool kbd_input(SDL_keysym *keysym) { return(false); };
+  FilterInstance *apply(Layer *lay);
+  
+  char *description();
 
-  /* TODO
+  int get_parameter_type(int i);
 
-  merge Plugin with this class
-  */
+  char *get_parameter_description(int i);
+
+  bool set_parameter_value(FilterInstance *inst, double *value, int idx);
 
   bool initialized;
   bool active;
   bool inuse;
+
+  Freior *freior;
+
+  map<string, int> parameters;
+
+ protected:
+  void Filter::destruct(FilterInstance *inst);
+  void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
+
+
+};
+
+
+class FilterInstance : public Entry {
+ public:
+  FilterInstance(Filter *fr);
+  ~FilterInstance();
+
+  uint32_t *process(float fps, uint32_t *inframe);
+
+  void *core;
+
+  uint32_t *outframe;
+
+  Filter *proto;
+
+  bool active;
+  bool inuse;
+
+};
+
+// tuple of filter proto/instance
+// to be saved in every javascript Filter class
+class FilterDuo {
+public:
+  FilterDuo() {
+    proto = NULL;
+    instance = NULL;
+  }
+  ~FilterDuo() {
+    if(instance) delete instance;
+  }
+  Filter *proto;
+  FilterInstance *instance;
 };
 
 #endif

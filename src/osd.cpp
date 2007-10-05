@@ -244,9 +244,9 @@ void Osd::_selection() {
   if(!lay) return;
   
   Filter *filt = (Filter*) lay->filters.selected();
-  sprintf(msg,"%s::%s %s[%i] [%s]",
+  sprintf(msg,"%s::%s %s[%.1f] [%s]",
 	  lay->get_name(),
-	  (filt)?filt->getname():" ",
+	  (filt)?filt->name:" ",
 	  lay->blitter.current_blit->get_name(),
 	  lay->blitter.current_blit->value,
 	  (env->clear_all)?"0":" ");
@@ -333,7 +333,7 @@ void Osd::_filterlist() {
   Filter *f = (Filter *)lay->filters.begin();
   Filter *filtsel = (Filter*)lay->filters.selected();
   while(f) {
-    strncpy(fname,f->getname(),3); fname[3] = '\0';
+    strncpy(fname,f->name,3); fname[3] = '\0';
     
     if(f == filtsel) {
 
@@ -379,34 +379,8 @@ bool Osd::credits() { return credits(!_credits); }
 bool Osd::credits(bool s) {
   if(!env) return false;
 
-  //  env->clear_once = true; //scr(env->get_surface(),env->size);
-  _credits = s;
+  draw_credits();
 
-  if(_credits) {
-    env->track_fps = true;
-    if(ipernaut) {
-
-      /* add first vertigo effect on logo */
-      if(!osd_vertigo)
-	osd_vertigo = env->plugger.pick("vertigo");
-      if(osd_vertigo)
-	if(!osd_vertigo->list) {
-	  osd_vertigo->init(&ipernaut->geo);
-	  ipernaut->filters.prepend(osd_vertigo);
-	}
-      env->add_layer(ipernaut);
-    }
-
-    draw_credits();
-
-  }  else {
-    env->track_fps = false;
-    if(ipernaut) ipernaut->rem();
-    if(osd_vertigo) {
-      osd_vertigo->rem();
-      osd_vertigo->clean();
-    }
-  }
   return _credits;
 }
 

@@ -174,10 +174,10 @@ void JsParser::init() {
 #endif
     
     
-    REGISTER_CLASS("Effect",
-                   effect_class,
-                   effect_constructor,
-                   effect_methods);
+    REGISTER_CLASS("Filter",
+                   filter_class,
+                   filter_constructor,
+                   filter_methods);
 
     // controller classes
 

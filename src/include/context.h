@@ -140,6 +140,8 @@ class Context {
 
   Linklist layers; ///< linked list of registered layers
 
+  Linklist filters; ///< linked list of registered filters
+
   Linklist encoders; ///< linked list of registered encoders
 
 

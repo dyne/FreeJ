@@ -573,36 +573,3 @@ JS(system_exec) {
   
   return JS_TRUE;
 }
-
-////////////////////////////////
-// Effect methods
-// TODO effect methods to control effect parameters
-JSFunctionSpec effect_methods[] = {
-  ENTRY_METHODS  ,
-  {0}
-};
-DECLARE_CLASS("Effect",effect_class,effect_constructor);
-JS(effect_constructor) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-  Filter *filter;
-  char *effect_name;
-
-  if(argc < 1) JS_ERROR("missing argument");
-
-  JS_ARG_STRING(effect_name,0);
-
-  filter = env->plugger.pick(effect_name);
-
-  if(filter==NULL) {
-    error("JsParser::effect_constructor : filter not found :%s",effect_name); 
-    *rval = JSVAL_FALSE;
-    return JS_TRUE;
-  }
-  
-  if (!JS_SetPrivate(cx, obj, (void *) filter))
-    JS_ERROR("internal error setting private value");
-
-  *rval = OBJECT_TO_JSVAL(obj);
-  return JS_TRUE;
-}

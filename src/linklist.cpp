@@ -218,7 +218,7 @@ Entry *Linklist::search(char *name) {
 }    
 /* searches all the linklist for entries starting with *needle
    returns a list of indexes where to reach the matches */
-int *Linklist::completion(char *needle) { 
+char **Linklist::completion(char *needle) { 
   int c;
   int found;
   int len = strlen(needle);
@@ -232,10 +232,10 @@ int *Linklist::completion(char *needle) {
 
   for( found=0, c=1 ; ptr ; c++ , ptr=ptr->next ) {
     if(!len) { // 0 lenght needle: return the full list
-      compbuf[found] = c;
+      compbuf[found] = ptr->name;
       found++;
     } else if( strncasecmp(needle,ptr->name,len)==0 ) {
-      compbuf[found] = c;
+      compbuf[found] = ptr->name;
       found++;
     }
   }
@@ -288,6 +288,7 @@ void Linklist::sel(int pos) {
 /* returns the last one selected
    this is supposed to be used with single selections */
 Entry *Linklist::selected() {  
+  if(!last) return NULL; // no entries at all
   int c;
   Entry *ptr = last;
   for(c=length;c>0;c--) {

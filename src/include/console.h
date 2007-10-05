@@ -93,7 +93,7 @@ class Console {
 
   void filterprint();
   void filterlist();
-  Filter *filter;
+  int paramsel;
 
   void speedmeter();
 

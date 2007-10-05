@@ -169,7 +169,6 @@ class Layer: public Entry, public JSyncThread {
 
   // working variables
   int res;
-  Filter *filt;
   Iterator *iter;
   Iterator *itertmp;
   // colorkey point
