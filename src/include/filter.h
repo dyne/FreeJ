@@ -25,6 +25,7 @@
 
 class Layer;
 class Freior;
+class FilterInstance;
 
 #include <string>
 #include <map>

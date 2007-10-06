@@ -108,7 +108,7 @@ function integer(i) {
 		return Math.ceil(i)
 }
 
-var i = 0;
+i = 0;
 function Draw() {
     for (j=0; j<10; j++) {
 		if ((iterations > 0) && (++i >= iterations)) {

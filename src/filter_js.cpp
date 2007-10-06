@@ -66,7 +66,7 @@ JS(filter_set_parameter) {
     return JS_TRUE;
   }
 
-  act("set parameter %s->%s to %.1f", duo->proto->name, name, val);
+  act("set parameter %s->%s to %.2f", duo->proto->name, name, val);
   duo->proto->set_parameter_value( duo->instance, &val, it->second );
   return JS_TRUE;
 }
