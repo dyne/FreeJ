@@ -181,14 +181,14 @@ public:
     if(splash.x >0 | splash.y > 0) {
       if(splash.x > geo->w) splash.x = geo->w;
       if(splash.y > geo->h) splash.y = geo->h;
-      water_bigsplash( splash.x, splash.y );
+      water_bigsplash( (int)splash.x, (int)splash.y );
       splash.x = splash.y = 0;
     }
 
     if(drop.x >0 | drop.y > 0) {
       if(drop.x > geo->w) drop.x = geo->w;
       if(drop.y > geo->h) drop.y = geo->h;
-      water_drop( drop.x, drop.y );
+      water_drop( (int)drop.x, (int)drop.y );
       drop.x = drop.y = 0;
     }
 

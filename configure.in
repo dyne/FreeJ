@@ -289,8 +289,8 @@ dnl ==============================================================
 dnl CHECK if there is MIDI
 dnl ==============================================================
 AC_ARG_ENABLE(midi,
-[  --enable-midi           compile with Alsa Midi controller (default: no)],
-[ if test x$enableval = xno; then have_midi=no; else have_midi=yes; fi ], have_midi=no)
+[  --enable-midi           compile with Alsa Midi controller (default: yes)],
+[ if test x$enableval = xno; then have_midi=no; else have_midi=yes; fi ], have_midi=yes)
 if test x$have_midi = xyes; then
    AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
    echo "Compiling midi controller"
@@ -652,6 +652,7 @@ lib/frei0r/filter/threshold0r/Makefile
 lib/frei0r/filter/twolay0r/Makefile
 lib/frei0r/filter/glow/Makefile
 lib/frei0r/filter/water/Makefile
+lib/frei0r/filter/cartoon/Makefile
 ])
 
 echo
