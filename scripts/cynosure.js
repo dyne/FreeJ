@@ -1,9 +1,9 @@
 /*  FreeJ example scripts
- *  (c) Copyright 2005 Christoph Rudorff aka MrGoil <leitzentrale@telebel.de>
+ *  (c) Copyright 2005 Christoph Rudorff aka MrGoil <goil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -18,9 +18,7 @@
  */
 
 /*
-This is an example script by Mr.Goil
-how to to Cynosure
-$Id: $
+Javascript Version of the xscreensaver Cynosure
 */
 
 curColor    = 0;
@@ -36,6 +34,8 @@ iterations  = 100; //get_integer_resource ("iterations", "Iterations");
 MINCELLSIZE = 64;
 MINRECTSIZE = 24;
 THRESHOLD = 100;
+
+i = 0;
 
 colors = new Array(0xa03000ff, 0x006000ff, 0x336000ff, 0x00ff00ff, 0xc20000ff, 0x0000c0ff, 0xc0c0c0ff, 0x30f0f0ff, 0x00ff90ff);
 width=200; height=600;
@@ -108,7 +108,6 @@ function integer(i) {
 		return Math.ceil(i)
 }
 
-i = 0;
 function Draw() {
     for (j=0; j<10; j++) {
 		if ((iterations > 0) && (++i >= iterations)) {
