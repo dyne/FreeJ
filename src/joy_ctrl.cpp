@@ -191,21 +191,30 @@ int JoyCtrl::poll(Context *env) {
 
 JS(js_joy_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  char excp_msg[MAX_ERR_MSG + 1];
 
   JoyCtrl *joy = new JoyCtrl();
 
   // assign instance into javascript object
   if( ! JS_SetPrivate(cx, obj, (void*)joy) ) {
-    error("failed assigning keyboard controller to javascript");
-    delete joy; return JS_FALSE;
+    sprintf(excp_msg, "failed assigning joystick controller to javascript");
+    goto error;
   }
 
   // initialize with javascript context
   if(! joy->init(cx, obj) ) {
-    error("failed initializing keyboard controller");
-    delete joy; return JS_FALSE;
+    sprintf(excp_msg, "failed initializing joystick controller");
+    goto error;
   }
 
   *rval = OBJECT_TO_JSVAL(obj);
   return JS_TRUE;
+
+error:
+    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
+              JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);
+    cx->newborn[GCX_OBJECT] = NULL;
+    delete joy; return JS_FALSE;
 }
+
+
