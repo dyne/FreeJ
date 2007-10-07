@@ -110,22 +110,20 @@ AutoPushJSContext::AutoPushJSContext(nsISupports* aSecuritySupports,
                                      JSContext *cx) 
                                      : mContext(cx), mPushResult(NS_OK)
 {
-    mContextStack = do_GetService("@mozilla.org/js/xpc/ContextStack;1");
+    nsCOMPtr<nsIJSContextStack> contextStack =
+        do_GetService("@mozilla.org/js/xpc/ContextStack;1");
 
-    if(mContextStack)
+    JSContext* currentCX;
+    if(contextStack &&
+       // Don't push if the current context is already on the stack.
+       (NS_FAILED(contextStack->Peek(&currentCX)) ||
+        cx != currentCX) )
     {
-        JSContext* currentCX;
-        if(NS_SUCCEEDED(mContextStack->Peek(&currentCX)))
+        if (NS_SUCCEEDED(contextStack->Push(cx)))
         {
-            // Is the current context already on the stack?
-            if(cx == currentCX)
-                mContextStack = nsnull;
-            else
-            {
-                mContextStack->Push(cx);
-                // Leave the reference to the mContextStack to
-                // indicate that we need to pop it in our dtor.                                               
-            }
+            // Leave the reference in mContextStack to
+            // indicate that we need to pop it in our dtor.
+            mContextStack.swap(contextStack);
         }
     }
 
@@ -541,8 +539,10 @@ nsCLiveconnect::Call(JNIEnv *jEnv, lcjsobject obj, const jchar *name, jsize leng
     /* Convert arguments from Java to JS values */
     for (arg_num = 0; arg_num < argc; arg_num++) {
         jobject arg = jEnv->GetObjectArrayElement(java_args, arg_num);
-
-        if (!jsj_ConvertJavaObjectToJSValue(cx, jEnv, arg, &argv[arg_num]))
+        JSBool ret = jsj_ConvertJavaObjectToJSValue(cx, jEnv, arg, &argv[arg_num]);
+		
+        jEnv->DeleteLocalRef(arg);
+        if (!ret)
             goto cleanup_argv;
         JS_AddRoot(cx, &argv[arg_num]);
     }

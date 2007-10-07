@@ -118,11 +118,11 @@ JSClass perlClass = {
 };
 
 static JSFunctionSpec perlMethods[] = {
-    {"toString",  (JSNative)PerlToString, 0},
-    {"eval",  (JSNative)perl_eval, 0},
-    {"call",  (JSNative)perl_call, 0},
-    {"use",   (JSNative)perl_use,  0},
-    { NULL, NULL,0 }
+    {"toString",        (JSNative)PerlToString, 0,0,0},
+    {"eval",            (JSNative)perl_eval,    0,0,0},
+    {"call",            (JSNative)perl_call,    0,0,0},
+    {"use",             (JSNative)perl_use,     0,0,0},
+    {NULL, NULL, 0,0,0}
 };
 
 
@@ -134,8 +134,8 @@ JSClass perlModuleClass = {
 };
 
 JSFunctionSpec perlModuleMethods[] = {
-    {"toString",  (JSNative)PMToString, 0},
-    { NULL, NULL,0 }
+    {"toString",        (JSNative)PMToString,   0,0,0},
+    {NULL, NULL, 0,0,0}
 };
 
 
@@ -147,8 +147,8 @@ JSClass perlValueClass = {
 };
 
 JSFunctionSpec perlValueMethods[] = {
-    {"toString",  (JSNative)PVToString, 0},
-    { NULL, NULL,             0}
+    {"toString",  (JSNative)PVToString, 0,0,0},
+    {NULL, NULL, 0,0,0}
 };
 
 /*
@@ -188,12 +188,12 @@ JS_InitPerlClass(JSContext *cx, JSObject *obj)
 
 /*
     Perl constructor. Allocates a new interpreter and defines methods on it.
-    The constuctor is sort of bogus in that it doesn't create a new namespace
+    The constructor is sort of bogus in that it doesn't create a new namespace
     and all the variables defined in one instance of the Perl object will be
     visible in others. In the future, I think it may be a good idea to use
     Safe.pm to provide independent contexts for different Perl objects and
     prohibit certain operations (like exit(), alarm(), die(), etc.). Or we
-    may simple disallow calling the constuctor more than once.
+    may simple disallow calling the constructor more than once.
 */
 static JSBool
 PerlConstruct(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *v)
@@ -410,7 +410,7 @@ checkError(JSContext *cx)
 }
 
 /*
-    Take the value of $JS::js and convert in to a jsval. It's stotred
+    Take the value of $JS::js and convert it to a jsval. It is stored
     in *rval. perl_eval and perl_call use $JS::js to store return results.
 */
 static JSBool

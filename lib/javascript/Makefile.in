@@ -49,7 +49,7 @@ LIBRARY_NAME	= mozjs
 LIB_IS_C_ONLY	= 1
 GRE_MODULE	= 1
 
-ifeq ($(OS_ARCH),WINNT)
+ifeq (,$(filter-out WINNT WINCE,$(OS_ARCH)))
 LIBRARY_NAME	= js$(MOZ_BITS)$(VERSION_NUMBER)
 RESFILE		= js$(MOZ_BITS)40.res
 endif
@@ -95,6 +95,7 @@ CSRCS		= \
 		jsstr.c \
 		jsutil.c \
 		jsxdrapi.c \
+		jsxml.c \
 		prmjtime.c \
 		$(NULL)
 
@@ -136,14 +137,15 @@ EXPORTS		= \
 		jsscan.h \
 		jsscope.h \
 		jsscript.h \
+		jsstddef.h \
 		jsstr.h \
 		jstypes.h \
 		jsutil.h \
 		jsxdrapi.h \
-		jsstddef.h \
+		jsxml.h \
 		$(NULL)
 
-ifeq ($(OS_ARCH),WINNT)
+ifeq (,$(filter-out WINNT WINCE,$(OS_ARCH)))
 EXPORTS		+= jscpucfg.h
 endif
 
@@ -157,7 +159,7 @@ include $(topsrcdir)/config/config.mk
 
 EXTRA_DSO_LDOPTS += $(NSPR_LIBS)
 
-ifeq (,$(filter-out OS2 WINNT,$(OS_ARCH)))
+ifeq (,$(filter-out OS2 WINNT WINCE,$(OS_ARCH)))
 SHARED_LIBRARY_LIBS += $(FDLIBM_LIBRARY)
 endif
 
@@ -203,7 +205,7 @@ INCLUDES	+= -I$(srcdir)
 # are taken violates the ISO C and C++ standards.
 ifndef MOZ_DEBUG
 ifeq (_WINNT,$(GNU_CC)_$(OS_ARCH))
-LDFLAGS         += /OPT:NOICF
+LDFLAGS         += -OPT:NOICF
 endif
 endif
 
@@ -238,13 +240,17 @@ endif
 LDFLAGS		+= $(pathsubst -l%,$(NSPR_STATIC_PATH)/%.a,$(NSPR_LIBS))
 
 # BeOS and HP-UX do not require the extra linking of "-lm"
-ifeq (,$(filter BeOS HP-UX WINNT OpenVMS,$(OS_ARCH)))
+ifeq (,$(filter BeOS HP-UX WINNT WINCE OpenVMS,$(OS_ARCH)))
 LDFLAGS		+= -lm
 endif
 
 # Prevent floating point errors caused by VC++ optimizations
 ifeq ($(OS_ARCH)_$(GNU_CC),WINNT_)
-CFLAGS += /Op
+ifeq (,$(filter-out 1200 1300 1310,$(_MSC_VER)))
+CFLAGS += -Op
+else
+CFLAGS += -fp:precise
+endif
 endif # WINNT
 
 ifeq ($(OS_ARCH),FreeBSD)
@@ -346,10 +352,15 @@ ifeq (,$(CROSS_COMPILE)$(filter-out WINNT,$(OS_ARCH)))
 jsautocfg.h:
 	touch $@
 else
+ifeq ($(OS_ARCH),WINCE)
+jsautocfg.h:
+	touch $@
+else
 jsautocfg.h: jscpucfg$(HOST_BIN_SUFFIX)
 	@rm -f $@ jsautocfg.tmp
 	./jscpucfg > jsautocfg.tmp
 	mv jsautocfg.tmp $@
+endif
 endif
 
 # jscpucfg is a strange target
@@ -357,19 +368,43 @@ endif
 # the mdcpucfg for the target so it needs the appropriate target defines
 ifdef HOST_NSPR_MDCPUCFG
 HOST_CC := $(HOST_CC) -DMDCPUCFG=$(TARGET_NSPR_MDCPUCFG)
+HOST_CFLAGS := $(patsubst -DXP_%,,$(HOST_CFLAGS))
+endif
+
+ifdef CROSS_COMPILE
+# jscpucfg needs to know when it's supposed to produce a config for the target
+JSCPUCFG_DEFINES = $(ACDEFINES)
+
+# This is incredibly hacky.  Darwin NSPR uses the same MDCPUCFG for multiple
+# processors, and determines which processor to configure for based on
+# #ifdef i386.  This macro is among the NSPR defines, but is also automatically
+# defined by the compiler when building for i386.  It therefore needs to be
+# defined here if targeting i386, and explicitly undefined otherwise.
+ifeq ($(OS_ARCH),Darwin)
+ifeq ($(TARGET_CPU),powerpc)
+JSCPUCFG_DEFINES += -Ui386
+else
+JSCPUCFG_DEFINES += -Di386=1
+endif
+endif
 endif
 
 ifeq ($(OS_ARCH),QNX)
 ifneq ($(OS_TARGET),NTO)
 # QNX's compiler apparently can't build a binary directly from a source file.
 jscpucfg.o: jscpucfg.c Makefile.in
-	$(HOST_CC) $(HOST_CFLAGS) -c $(DEFINES) $(NSPR_CFLAGS) -o $@ $<
+	$(HOST_CC) $(HOST_CFLAGS) -c $(JSCPUCFG_DEFINES) $(DEFINES) $(NSPR_CFLAGS) -o $@ $<
 
 jscpucfg: jscpucfg.o
-	$(HOST_CC) $(HOST_CFLAGS) $(DEFINES) -o $@ $<
+	$(HOST_CC) $(HOST_CFLAGS) $(JSCPUCFG_DEFINES) $(DEFINES) -o $@ $<
 endif
 else
+ifeq ($(OS_ARCH),WINCE)
+jscpucfg$(HOST_BIN_SUFFIX):
+	echo no need to build jscpucfg $<
+else
 jscpucfg$(HOST_BIN_SUFFIX): jscpucfg.c Makefile.in
-	$(HOST_CC) $(HOST_CFLAGS) $(DEFINES) $(NSPR_CFLAGS) $(OUTOPTION)$@ $<
+	$(HOST_CC) $(HOST_CFLAGS) $(JSCPUCFG_DEFINES) $(DEFINES) $(NSPR_CFLAGS) $(OUTOPTION)$@ $<
+endif
 endif
 

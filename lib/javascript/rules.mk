@@ -176,10 +176,6 @@ ifneq "$(strip $(PROGRAM))" ""
 endif
 	+$(LOOP_OVER_DIRS)
 
-distclean:
-	rm -rf $(OBJS)
-	@cd fdlibm; $(MAKE) -f Makefile.ref clean
-
 clean:
 	rm -rf $(OBJS)
 	@cd fdlibm; $(MAKE) -f Makefile.ref clean

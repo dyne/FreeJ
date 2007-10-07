@@ -306,7 +306,7 @@ init_java_VM_reflection(JSJavaVM *jsjava_vm, JNIEnv *jEnv)
     return JS_TRUE;
 }
 
-#if defined(XP_MAC) || !defined(OJI) 
+#if !defined(OJI) 
 
 /**
  * Workaround for the fact that MRJ loads a different instance of the shared library.
@@ -359,7 +359,7 @@ init_netscape_java_classes(JSJavaVM *jsjava_vm, JNIEnv *jEnv)
     LOAD_CLASS(netscape/javascript/JSException, njJSException);
     LOAD_CLASS(netscape/javascript/JSUtil,      njJSUtil);
 
-#if defined(XP_MAC) || !defined(OJI) 
+#if !defined(OJI) 
     JSObject_RegisterNativeMethods(jEnv);
 #endif
 
@@ -471,8 +471,10 @@ jsj_ConnectToJavaVM(JSJavaVM *jsjava_vm)
         JS_ASSERT(JSJ_callbacks->create_java_vm);
         JS_ASSERT(JSJ_callbacks->destroy_java_vm);
 
-        ok = JSJ_callbacks->create_java_vm(&jsjava_vm->java_vm, &jsjava_vm->main_thread_env, jsjava_vm->init_args);
-        if (!ok || jsjava_vm->java_vm == NULL) {
+        ok = JSJ_callbacks->create_java_vm(&jsjava_vm->java_vm,
+                                           &jsjava_vm->main_thread_env,
+                                           jsjava_vm->init_args);
+        if (!ok) {
             jsj_LogError("Failed to create Java VM\n");
             return JS_FALSE;
         }
@@ -867,7 +869,7 @@ JSJ_ConvertJavaObjectToJSValue(JSContext *cx, jobject java_obj, jsval *vp)
 JS_EXPORT_API(JSBool)
 JSJ_ConvertJSValueToJavaObject(JSContext *cx, jsval v, jobject *vp)
 {
-    if (JSVAL_IS_OBJECT(v)) {
+    if (!JSVAL_IS_PRIMITIVE(v)) {
         JSObject *js_obj = JSVAL_TO_OBJECT(v);
         JavaObjectWrapper *java_wrapper = JS_GetPrivate(cx, js_obj);
         *vp = java_wrapper->java_obj;
