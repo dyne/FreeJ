@@ -20,4 +20,5 @@ SUBDIRS = 	3dflippo	\
 		threshold0r	\
 		twolay0r	\
 		glow		\
-		water
+		water		\
+		cartoon

@@ -66,6 +66,7 @@ typedef struct {
 class Water: public frei0r::filter {
 public:
 
+  f0r_param_position drop;
   f0r_param_position splash;
   f0r_param_double physics;
   bool rain;
@@ -76,7 +77,8 @@ public:
   bool randomize_swirl;
 
   Water(unsigned int width, unsigned int height) {
-    register_param(splash, "splash", "make a big splash in the center");
+    register_param(drop, "drop", "make a drop fall somewhere in water");
+    register_param(splash, "splash", "make a big splash somewhere in water");
     register_param(physics, "physics", "water density: from 1 to 4");
     register_param(rain, "rain", "rain drops all over");
     register_param(distort, "distort", "distort all surface like dropping a bucket to the floor");
@@ -97,8 +99,16 @@ public:
     radius = 30;
     
     raincount = 0;
+    rain = 0;
     blend = 0;
-    
+    smooth = 0;
+    surfer = 0;
+    swirl = 0;
+    distort = 0;
+    randomize_swirl = 0;
+    drop.x = drop.y = 0;
+    splash.x = splash.y = 0;
+
     fastsrand(::time(NULL));
     
     FCreateSines();
@@ -123,9 +133,6 @@ public:
     BkGdImage =    (uint32_t*) malloc(geo->size);
     BkGdImagePost = (uint32_t*)malloc(geo->size);
 
-
-    swirl = 1;
-
   }
 
   ~Water() {
@@ -140,9 +147,58 @@ public:
   virtual void update() {
 
     memcpy(BkGdImage, in, width*height*sizeof(uint32_t));
-    
-    water_update();
 
+
+    if(rain) {
+      raincount++;
+      if(raincount>3) {
+	water_drop( (fastrand()%geo->w-40)+20 , (fastrand()%geo->h-40)+20 );
+	raincount=0;
+      }
+    }
+    
+    if(swirl) water_swirl();
+    if(surfer) water_surfer();
+
+    if(distort) {
+      if(!rain) // prevent extreme distortion
+	water_distort();
+      distort = false;
+    }
+
+    if(smooth) {
+      SmoothWater(Hpage);
+      smooth = false;
+    }
+
+    if(randomize_swirl) {
+      swirlangle = fastrand()%2048;
+      xang = fastrand()%2048;
+      yang = fastrand()%2048;
+      randomize_swirl = false;
+    }
+
+    if(splash.x >0 | splash.y > 0) {
+      if(splash.x > geo->w) splash.x = geo->w;
+      if(splash.y > geo->h) splash.y = geo->h;
+      water_bigsplash( splash.x, splash.y );
+      splash.x = splash.y = 0;
+    }
+
+    if(drop.x >0 | drop.y > 0) {
+      if(drop.x > geo->w) drop.x = geo->w;
+      if(drop.y > geo->h) drop.y = geo->h;
+      water_drop( drop.x, drop.y );
+      drop.x = drop.y = 0;
+    }
+
+    DrawWater(Hpage);
+    
+    CalcWater(Hpage^1, density);
+    Hpage ^=1 ;
+
+
+    
   }
   
 private:
@@ -183,7 +239,6 @@ private:
   void water_clear();
   void water_distort();
   void water_setphysics(int physics);
-  void water_update();
   void water_drop(int x, int y);
   void water_bigsplash(int x, int y);
   void water_surfer();
@@ -232,48 +287,7 @@ private:
 
 
 
-
-
-/* TODO: port as parameters:
-
-int kbd_input(char key) {
-  int res = 1;
-  switch(key) {
-  case 'e': // bigsplash in center
-    water_bigsplash(geo->w>>1,geo->y>>1);
-    break;
-  case 'r': // random splash 
-    water_bigsplash(fastrand()%geo->w,fastrand()%geo->h);
-    break;
-  case 't': // rain
-    rain = (rain)?0:1;
-    break;
-  case 'd': // distort surface
-    if(!rain) water_distort();
-    break;
-  case 'f': // smooth surface
-    SmoothWater(Hpage);
-    break;
-  case 'y': // swirl
-    swirl = (swirl)?0:1;
-    break;
-  case 'u': // surfer
-    surfer = (surfer)?0:1;
-    break;
-  case 'g': // randomize swirl angles
-    swirlangle = fastrand()%2048;
-    xang = fastrand()%2048;
-    yang = fastrand()%2048;
-    break;
-    
-  case 'q':
-    if(physics>1) physics--;
-    water_setphysics(physics);
-    break;
-  case 'w':
-    if(physics<4) physics++;
-    water_setphysics(physics);
-
+/*
   default:
     res = 0;
     break;
@@ -314,24 +328,6 @@ void Water::water_setphysics(int physics) {
     pheight=400;
     break;
   }
-}
-
-void Water::water_update() {
-
-  if(rain) {
-    raincount++;
-    if(raincount>3) {
-      water_drop( (fastrand()%geo->w-40)+20 , (fastrand()%geo->h-40)+20 );
-      raincount=0;
-    }
-  }
-
-  if(swirl) water_swirl();
-  if(surfer) water_surfer();
-  DrawWater(Hpage);
-
-  CalcWater(Hpage^1, density);
-  Hpage ^=1 ;
 }
 
 void Water::water_drop(int x, int y) {
