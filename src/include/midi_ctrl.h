@@ -46,8 +46,6 @@ class MidiControl: public Controller {
 		//bool quit;
 
 	private:
-        JSContext *jsenv; // cx
-        JSObject  *jsobj; // obj
 
 		//int midi_action();
 

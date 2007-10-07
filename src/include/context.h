@@ -55,6 +55,9 @@ class JsParser;
 class AudioInput;
 class VideoEncoder;
 
+class FreejDaemon;
+namespace XmlRpc {  class XmlRpcServer; }
+
 class Context {
  private:
   /* ---- fps ---- */
@@ -151,6 +154,11 @@ class Context {
   Plugger plugger; ///< filter plugins host
 
   JsParser *js; ///< javascript parser object
+
+
+  XmlRpc::XmlRpcServer *xmlrpc; ///< xmlrpc interface
+
+  FreejDaemon *daemon; ///< xmlrpc daemon
 
 
 

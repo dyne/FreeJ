@@ -1,7 +1,6 @@
 SUBDIRS = 	ccvt			\
 		@THEORA_MMX_DIR@	\
-		avformat		\
-		avcodec			\
+		@FFMPEG_SUBDIRS@	\
 		portaudio		\
 		sdl_image		\
 		sdl_gfx			\
@@ -12,4 +11,6 @@ SUBDIRS = 	ccvt			\
 		goom			\
 		tbt			\
 		slw			\
+		xmlrpc++		\
 		frei0r
+

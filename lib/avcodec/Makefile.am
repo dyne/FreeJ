@@ -1,4 +1,4 @@
-SUBDIRS = @AVCODEC_SUBDIRS@
+SUBDIRS = @AVCODEC_ARCH@
 
 INCLUDES = -I$(top_srcdir)/lib/theora-mmx
 

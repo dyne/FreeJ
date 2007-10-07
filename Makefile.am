@@ -21,4 +21,4 @@ dist_pkgdata_DATA = \
 
 pkgdatadir = ${prefix}/share/freej
 
-SUBDIRS = lib src filters 
+SUBDIRS = lib src

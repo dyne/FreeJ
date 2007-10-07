@@ -36,8 +36,6 @@ class TriggerCtrl : Controller {
   
  private:
   
-  JSContext *jsenv;
-  JSObject  *jsobj;
 
   int _poll(Context *env);
 

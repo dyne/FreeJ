@@ -196,6 +196,18 @@ void JsParser::init() {
            js_trigger_ctrl_constructor,
            js_trigger_ctrl_methods);
 
+#ifdef WITH_MIDI
+    REGISTER_CLASS("MidiController",
+		   js_midi_ctrl_class,
+		   js_midi_ctrl_constructor,
+		   js_midi_ctrl_methods);
+#endif
+
+    REGISTER_CLASS("XmlRpcController",
+		   js_xmlrpc_ctrl_class,
+		   js_xmlrpc_ctrl_constructor,
+		   js_xmlrpc_ctrl_methods);
+
 #ifdef WITH_OGGTHEORA
     // encoder class
     REGISTER_CLASS("VideoEncoder",
@@ -204,12 +216,6 @@ void JsParser::init() {
 		   js_vid_enc_methods);
 #endif
 
-#ifdef WITH_MIDI
-    REGISTER_CLASS("MidiController",
-		   js_midi_ctrl_class,
-		   js_midi_ctrl_constructor,
-		   js_midi_ctrl_methods);
-#endif
 
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 

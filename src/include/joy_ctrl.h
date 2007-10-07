@@ -36,8 +36,6 @@ class JoyCtrl : Controller {
   
  private:
   
-  JSContext *jsenv;
-  JSObject  *jsobj;
 
   SDL_Joystick *joy[4];
   int num;

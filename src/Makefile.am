@@ -13,8 +13,11 @@ INCLUDES = -I$(top_srcdir)/src/include \
 	   -I$(top_srcdir)/lib/goom \
            -I$(top_srcdir)/lib/tbt \
            -I$(top_srcdir)/lib/slw \
+	   -I$(top_srcdir)/lib/xmlrpc++ \
            -I/usr/include/slang \
-	   @THEORA_MMX_INCLUDE@
+	   @THEORA_MMX_INCLUDE@ \
+	@XIPH_INCLUDE@
+
 
 #           -I$(top_srcdir)/lib/portaudio-v19/pa_common
 
@@ -48,6 +51,7 @@ freej_SOURCES = \
 	jutils.cpp	\
 	fastmemcpy.cpp  \
 	ringbuffer.cpp  \
+	xmlrpc_ctrl.cpp	\
 \
 	v4l_layer.cpp tvfreq.c	\
 	v4l_layer_js.cpp \
@@ -93,8 +97,7 @@ freej_SOURCES = \
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @THEORA_LIBS@ \
 		 @XIPH_LIBS@ \
-		 @AVFORMAT_LIBS@ \
-		 @AVCODEC_LIBS@ \
+		 @FFMPEG_LIBS@ \
               $(top_srcdir)/lib/portaudio/libportaudio.a \
 		 @PORTAUDIO_LIBS@ \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
@@ -105,8 +108,9 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/goom/libgoom2.a \
               $(top_srcdir)/lib/tbt/libtbt.a \
               $(top_srcdir)/lib/slw/libslw.a \
-              $(top_srcdir)/lib/shout/libshout.a \
-              -ldl -lpthread -lm -lslang -lpng -ljpeg \
+		$(top_srcdir)/lib/shout/libshout.a \
+		$(top_srcdir)/lib/xmlrpc++/libxmlrpc.a \
+              -ldl -lpthread -lm -lslang -lpng -ljpeg -lssl \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \

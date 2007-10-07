@@ -50,6 +50,9 @@ class Controller: public Entry {
   bool initialized;
   bool active;
 
+  JSContext *jsenv;
+  JSObject  *jsobj;
+
 };
 
 #endif

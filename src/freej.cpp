@@ -78,7 +78,6 @@ static const char *short_options = "-hvD:gs:nj:cgf:F";
 /* this is the global FreeJ context */
 Context freej;
 
-
 int   debug_level = 0;
 char  layer_files[MAX_CLI_CHARS];
 int   cli_chars = 0;
@@ -94,6 +93,7 @@ bool gtkgui = false;
 bool opengl = false;
 bool noconsole = false;
 bool fullscreen = false;
+
 
 void cmdline(int argc, char **argv) {
   int res, optlen;
@@ -346,7 +346,6 @@ int main (int argc, char **argv) {
        or the pasta for the pizza. it's an intense
        action for your arms, processing materia */
     freej.cafudda(1.0);
-
   /* also layers have the cafudda() function
      which is called by the Context class (freej instance here)
      so it's a tree of cafudda calls originating from here

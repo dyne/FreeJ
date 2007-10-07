@@ -36,8 +36,6 @@ class KbdCtrl: public Controller {
  private:  
   SDL_keysym *keysym;
   
-  JSContext *jsenv;
-  JSObject  *jsobj;
 
 };
 
