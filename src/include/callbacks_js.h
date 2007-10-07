@@ -33,6 +33,7 @@
 #include <jscntxt.h>
 
 // stuff for exception handling "try{} catch(e) {}"
+#define MAX_ERR_MSG 1024
 typedef enum JSExnType {
     JSEXN_NONE = -1,
         JSEXN_ERR,
@@ -135,35 +136,35 @@ JS(constructor_func) {                                                        \
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);                            \
   constructor_class *layer;                                                   \
   char *filename;                                                             \
-  char excp_msg[255];                                                         \
+  char excp_msg[MAX_ERR_MSG + 1];                                             \
   uint16_t width  = env->screen->w;                                           \
   uint16_t height = env->screen->h;                                           \
                                                                               \
   layer = new constructor_class();                                            \
   if(!layer) {                                                                \
-    sprintf(excp_msg, "cannot create constructor_class");               \
+    sprintf(excp_msg, "cannot create constructor_class");                     \
     goto error;                                                               \
   }                                                                           \
   if(argc==0) {                                                               \
     if(!layer->init(env)) {                                                   \
-      sprintf(excp_msg, "failed init(env)");                            \
+      sprintf(excp_msg, "failed init(env)");                                  \
       goto error;                                                             \
     }                                                                         \
   } else if(argc==1) {                                                        \
     JS_ARG_STRING(filename,0);                                                \
     if(!layer->init(env)) {                                                   \
-      sprintf(excp_msg, "failed init(env)");                            \
+      sprintf(excp_msg, "failed init(env)");                                  \
       goto error;                                                             \
     }                                                                         \
     if(!layer->open(filename)) {                                              \
-      sprintf(excp_msg, "failed open(%s): %s", filename, strerror(errno));    \
+      snprintf(excp_msg, MAX_ERR_MSG, "failed open(%s): %s", filename, strerror(errno));    \
       goto error;                                                             \
     }                                                                         \
   } else if(argc==2) {                                                        \
     js_ValueToUint16(cx, argv[0], &width);                                    \
     js_ValueToUint16(cx, argv[1], &height);                                   \
     if(!layer->init(env, width, height)) {                                    \
-      sprintf(excp_msg, "failed init(env, %u, %u)", width, height);           \
+      snprintf(excp_msg, MAX_ERR_MSG, "failed init(env, %u, %u)", width, height); \
       goto error;                                                             \
     }                                                                         \
   } else if(argc==3) {                                                        \
@@ -171,11 +172,11 @@ JS(constructor_func) {                                                        \
     js_ValueToUint16(cx, argv[1], &height);                                   \
     JS_ARG_STRING(filename,2);                                                \
     if(!layer->init(env, width, height)) {                                    \
-      sprintf(excp_msg, "failed init(env, %u, %u)", width, height);           \
+      snprintf(excp_msg, MAX_ERR_MSG, "failed init(env, %u, %u)", width, height); \
       goto error;                                                             \
     }                                                                         \
     if(!layer->open(filename)) {                                              \
-      sprintf(excp_msg, "failed open(%s): %s", filename, strerror(errno));    \
+      snprintf(excp_msg, MAX_ERR_MSG, "failed open(%s): %s", filename, strerror(errno)); \
       goto error;                                                             \
     }                                                                         \
   } else {                                                                    \
@@ -183,7 +184,7 @@ JS(constructor_func) {                                                        \
     goto error;                                                               \
   }                                                                           \
   if(!JS_SetPrivate(cx,obj,(void*)layer)) {                                   \
-    sprintf(excp_msg,"%s", "JS_SetPrivate failed");                           \
+    sprintf(excp_msg, "%s", "JS_SetPrivate failed");                          \
     goto error;                                                               \
   }                                                                           \
   *rval = OBJECT_TO_JSVAL(obj);                                               \
