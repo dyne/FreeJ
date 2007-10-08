@@ -15,7 +15,6 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/slw \
 	   -I$(top_srcdir)/lib/xmlrpc++ \
            -I/usr/include/slang \
-	   @THEORA_MMX_INCLUDE@ \
 	@XIPH_INCLUDE@
 
 
@@ -95,7 +94,6 @@ freej_SOURCES = \
 	impl_video_encoders.cpp
 
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
-		 @THEORA_LIBS@ \
 		 @XIPH_LIBS@ \
 		 @FFMPEG_LIBS@ \
               $(top_srcdir)/lib/portaudio/libportaudio.a \

@@ -117,6 +117,10 @@ void TTFLayer::set_size(int nsize) {
 
 }
 
+void TTFLayer::calculate_string_size(char *text, int *w, int *h) {
+  TTF_SizeText(font, text, w, h);
+}
+
 bool TTFLayer::keypress(int key) { return false; };
 
 void TTFLayer::print(char *str) {

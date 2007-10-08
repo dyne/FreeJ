@@ -364,6 +364,7 @@ JS(txt_layer_font);
 JS(txt_layer_size);
 JS(txt_layer_print);
 JS(txt_layer_color);
+JS(txt_layer_calculate_size);
 //JS(txt_layer_open);
 //JS(txt_layer_get_word);
 //JS(txt_layer_wordcount);

@@ -155,9 +155,7 @@ dnl Check OGG/THEORA MMX STUFF
 dnl ==============================================================
 XIPH_INCLUDE=""
 XIPH_LIBS=""
-THEORA_LIBS=""
 THEORA_MMX_DIR=""
-THEORA_MMX_INCLUDE=""
 if test x$dynamic_build = xyes ; then
    PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc theora,
    	             have_oggtheora=yes, have_oggtheora=no)
@@ -165,6 +163,8 @@ if test x$dynamic_build = xyes ; then
 else
    PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
                      have_oggtheora=yes, have_oggtheora=no)
+   XIPH_LIBS="$XIPH_LIBS \$(top_srcdir)/lib/theora-mmx/libtheora.a"
+   THEORA_MMX_DIR="theora-mmx"
 fi
 if test x$have_oggtheora = xyes ; then
    AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
@@ -183,11 +183,9 @@ if test x$have_oggtheora = xyes ; then
       XIPH_LIBS="$XIPH_LIBS `pkg-config --variable=prefix vorbis`/lib/libvorbisenc.a"
    fi
 fi
-AC_SUBST(THEORA_LIBS)
-AC_SUBST(THEORA_MMX_DIR)
-AC_SUBST(THEORA_MMX_INCLUDE)
 AC_SUBST(XIPH_LIBS)
 AC_SUBST(XIPH_INCLUDE)
+AC_SUBST(THEORA_MMX_DIR)
 
 
 

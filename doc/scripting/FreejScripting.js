@@ -145,6 +145,7 @@ ParticleLayer.prototype.blossom = blossom;
 function TextLayer() { };
 TextLayer.prototype		= new Layer();
 
+
 ///////////////////////////////////////////////////
 // MOVIE LAYER
 

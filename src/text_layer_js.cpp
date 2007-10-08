@@ -39,6 +39,7 @@ JSFunctionSpec txt_layer_methods[] = {
   {    "color",        txt_layer_color,        4},
   {    "font",         txt_layer_font,         1},
   {    "size",         txt_layer_size,         1},
+  {    "calculate_size", txt_layer_calculate_size, 1},
   {0}
 };
 
@@ -121,6 +122,36 @@ JS(txt_layer_font) {
   } else
     *rval = JSVAL_TRUE;
 
+  return JS_TRUE;
+}
+
+JS(txt_layer_calculate_size) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  if(argc<1) return JS_FALSE;
+
+  GET_LAYER(TTFLayer);
+
+  int w, h;
+  char *text;
+  JSObject *arr;
+  jsdouble num;
+  jsval val;
+
+  JS_ARG_STRING(text,0);
+  
+  lay->calculate_string_size(text, &w, &h);
+
+  arr = JS_NewArrayObject(cx, 0, NULL); // create a void array
+  if(!arr) { error("error generating array"); return JS_FALSE; }
+  
+  // fill the array with [0]w [1]h
+  num = JS_NewNumberValue(cx, (double)w, &val);
+  JS_SetElement(cx, arr, 0, &val);
+  num = JS_NewNumberValue(cx, (double)h, &val);
+  JS_SetElement(cx, arr, 1, &val);
+    
+  *rval = OBJECT_TO_JSVAL( arr);
   return JS_TRUE;
 }
 
