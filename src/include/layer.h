@@ -38,6 +38,8 @@
 class Context;
 
 class JSClass;
+class JSContext;
+class JSObject;
 
 /* function for type detection of implemented layers */
 extern const char *layers_description;
@@ -138,6 +140,10 @@ class Layer: public Entry, public JSyncThread {
   void *offset; ///< pointer to pixel plane
 
   JSClass *jsclass; ///< pointer to the javascript class
+
+  void *js_constructor(Context *env, JSContext *cx,
+		       JSObject *obj, int argc, void *aargv, char *err_msg);
+  ///< javascript layer constructor
 
  protected:
 

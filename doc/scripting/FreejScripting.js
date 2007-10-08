@@ -145,6 +145,49 @@ ParticleLayer.prototype.blossom = blossom;
 function TextLayer() { };
 TextLayer.prototype		= new Layer();
 
+/** Renders a text string in the layer using the currently configured font and size
+    
+    @param {string} string text string to be rendered
+*/
+function print(string) { };
+TextLayer.prototype.print = print;
+
+/** Chooses the color to be used to render the text.
+    The value can be a RGB triplet or a single string in typical HTML format,
+    i.e: #FFEEDD
+
+    @param {int} red red value for the RGB color triplet
+    @param {int} green green value for the RGB color triplet
+    @param {int} blue blue value for the RGB color triplet
+*/
+function text_color(red, green, blue) { };
+TextLayer.prototype.color = text_color;
+
+/** Chooses the font to be used when rendering the text.
+
+    @param {string} font_file full path to the True Type (.TTF) font to be used
+    @returns false if font is not found, true otherwise
+*/
+function font(font_file) { };
+TextLayer.prototype.font = font;
+
+/** Set the font size of the rendered text, relative to the width of a single char, in pixels.
+
+    @param {int} char_size size of a char in pixels
+*/
+function size(char_size) { };
+TextLayer.prototype.size = size;
+
+/** Calculates the width and height of the layer if a specific string would be rendered,
+    so you can acknowledge the occupation of the text on screen with current font and size
+    selected.
+
+    @param {string} string text that we would like to measure
+    @returns array containing width[0] and height[1] values in pixel
+    @type Array
+*/
+function calculate_size(string) { };
+TextLayer.prototype.calculate_size = calculate_size;
 
 ///////////////////////////////////////////////////
 // MOVIE LAYER

@@ -31,6 +31,69 @@ JSFunctionSpec layer_methods[] = {
   {0}
 };
 
+void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
+			    int argc, void *aargv, char *err_msg) {
+
+  char *filename;
+
+  uint16_t width  = env->screen->w;
+  uint16_t height = env->screen->h;
+
+  jsval *argv = (jsval*)aargv;
+
+  if(argc==0) {
+    if(!init(env)) {
+      sprintf(err_msg, "Layer constructor failed initialization");
+      return NULL;    }
+
+  } else if(argc==1) {
+    JS_ARG_STRING(filename,0);
+    if(!init(env)) {
+      sprintf(err_msg, "Layer constructor failed initialization");
+      return NULL;    }
+
+    if(!open(filename)) {
+      snprintf(err_msg, MAX_ERR_MSG, "Layer constructor failed open(%s): %s",
+	       filename, strerror(errno));
+      return NULL;    }
+    
+  } else if(argc==2) {
+    js_ValueToUint16(cx, argv[0], &width);
+    js_ValueToUint16(cx, argv[1], &height);
+    if(!init(env, width, height)) {
+      snprintf(err_msg, MAX_ERR_MSG,
+	       "Layer constructor failed initialization w[%u] h[%u]", width, height);
+      return NULL;
+    }
+    
+  } else if(argc==3) {
+    js_ValueToUint16(cx, argv[0], &width);
+    js_ValueToUint16(cx, argv[1], &height);
+    JS_ARG_STRING(filename,2);
+    if(!init(env, width, height)) {
+      snprintf(err_msg, MAX_ERR_MSG,
+	       "Layer constructor failed initializaztion w[%u] h[%u]", width, height);
+      return NULL;
+    }
+    if(!open(filename)) {
+      snprintf(err_msg, MAX_ERR_MSG,
+	       "Layer constructor failed initialization (%s): %s", filename, strerror(errno));
+      return NULL;
+    }
+    
+  } else {
+    sprintf(err_msg,
+	    "Wrong numbers of arguments\n use (\"filename\") or (width, height, \"filename\") or ()");
+    return NULL;
+  }
+  if(!JS_SetPrivate(cx,obj,(void*)this)) {
+    sprintf(err_msg, "%s", "JS_SetPrivate failed");
+    return NULL;
+  }
+
+  return (void*)OBJECT_TO_JSVAL(obj);
+
+}
 
 JS(layer_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);

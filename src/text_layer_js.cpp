@@ -36,7 +36,7 @@ JSFunctionSpec txt_layer_methods[] = {
   ENTRY_METHODS  ,
   //   name            native                  nargs
   {    "print",        txt_layer_print,        1},
-  {    "color",        txt_layer_color,        4},
+  {    "color",        txt_layer_color,        3},
   {    "font",         txt_layer_font,         1},
   {    "size",         txt_layer_size,         1},
   {    "calculate_size", txt_layer_calculate_size, 1},

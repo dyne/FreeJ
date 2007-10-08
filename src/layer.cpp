@@ -127,8 +127,8 @@ bool Layer::cafudda() {
 
   FilterInstance *filt;
 
-  if(!active || hidden)
-    if(!fade)
+  if(!fade)
+    if(!active || hidden)
       return false;
 
   if(!opened) return false;

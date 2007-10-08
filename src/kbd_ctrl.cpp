@@ -71,40 +71,58 @@ int KbdCtrl::peep(Context *env) {
   return 1;
 }
 
+void KbdCtrl::checksym(SDLKey key, char *name) {
+  jsval ret;
+  if(keysym->sym == key) {
+    strcat(keyname,name);
+    func("keyboard controller detected key: %s",keyname);
+    if(env->event.key.state == SDL_PRESSED)
+      snprintf(funcname, 511, "pressed_%s", keyname);
+    else if(env->event.key.state == SDL_RELEASED)
+      snprintf(funcname, 511, "released_%s", keyname);
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    {
+      jsval js_data[] = {
+        STRING_TO_JSVAL(keyname),
+        DOUBLE_TO_JSVAL(key) };
+      if(env->event.key.state == SDL_PRESSED)
+        JS_CallFunctionName(jsenv, jsobj, "pressed", 2, js_data, &ret);
+      else if(env->event.key.state == SDL_RELEASED)
+        JS_CallFunctionName(jsenv, jsobj, "released", 2, js_data, &ret);
+    }
+  }
+}
+
+
 int KbdCtrl::poll(Context *env) {
   char tmp[8];
-  char funcname[512];
 
   jsval ret;
 
-  //  if(env->event.type != SDL_KEYDOWN) return 0;
-  //  if(env->event.type != SDL_KEYUP)   return 0;  
-
-  if(env->event.key.state == SDL_PRESSED)
-    strcpy(funcname,"pressed_");
-  else if(env->event.key.state == SDL_RELEASED)
-    strcpy(funcname,"released_");
-  else // no key state change
-    return 0;
+  if(env->event.key.state != SDL_PRESSED)
+    if(env->event.key.state != SDL_RELEASED)
+      return 0; // no key state change
   
   keysym = & env->event.key.keysym;
   
+  memset(keyname, 511, sizeof(char));
+  memset(funcname, 511, sizeof(char));
 
   // check key modifiers
   if(keysym->mod & KMOD_CTRL)
-    strcat(funcname,"ctrl_");
+    strcat(keyname,"ctrl_");
 
   if(keysym->mod & KMOD_ALT)
-    strcat(funcname,"alt_");
+    strcat(keyname,"alt_");
 
   // check normal alphabet and letters
   if( keysym->sym >= SDLK_0
       && keysym->sym <= SDLK_9) {
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
-    strcat(funcname,tmp);
-    func("keyboard controller calling method %s()",funcname);
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    strcat(keyname,tmp);
+    func("keyboard controller calling method %s()",keyname);
+    JS_CallFunctionName(jsenv, jsobj, keyname, 0, NULL, &ret);
 
     return 1;
   }
@@ -114,40 +132,40 @@ int KbdCtrl::poll(Context *env) {
     
     // shift modifier only for letters
     if(keysym->mod & KMOD_SHIFT)
-      strcat(funcname,"shift_");
+      strcat(keyname,"shift_");
     
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
-    strcat(funcname,tmp);
-    func("keyboard controller calling method %s()",funcname);
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    strcat(keyname,tmp);
+    func("keyboard controller calling method %s()",keyname);
+    JS_CallFunctionName(jsenv, jsobj, keyname, 0, NULL, &ret);
 
     return 1;
   }
 
   // check arrows
-  CHECKSYM(SDLK_UP,        "up");
-  CHECKSYM(SDLK_DOWN,      "down");
-  CHECKSYM(SDLK_RIGHT,     "right");
-  CHECKSYM(SDLK_LEFT,      "left");
-  CHECKSYM(SDLK_INSERT,    "insert");
-  CHECKSYM(SDLK_HOME,      "home");
-  CHECKSYM(SDLK_END,       "end");
-  CHECKSYM(SDLK_PAGEUP,    "pageup");
-  CHECKSYM(SDLK_PAGEDOWN,  "pagedown");
+  checksym(SDLK_UP,        "up");
+  checksym(SDLK_DOWN,      "down");
+  checksym(SDLK_RIGHT,     "right");
+  checksym(SDLK_LEFT,      "left");
+  checksym(SDLK_INSERT,    "insert");
+  checksym(SDLK_HOME,      "home");
+  checksym(SDLK_END,       "end");
+  checksym(SDLK_PAGEUP,    "pageup");
+  checksym(SDLK_PAGEDOWN,  "pagedown");
 
 
   // check special keys
-  CHECKSYM(SDLK_BACKSPACE, "backspace");
-  CHECKSYM(SDLK_TAB,       "tab");
-  CHECKSYM(SDLK_RETURN,    "return");
-  CHECKSYM(SDLK_SPACE,     "space");
-  CHECKSYM(SDLK_PLUS,      "plus");
-  CHECKSYM(SDLK_MINUS,     "minus");
-  CHECKSYM(SDLK_ESCAPE,    "esc");
-  CHECKSYM(SDLK_LESS,      "less");
-  CHECKSYM(SDLK_GREATER,   "greater");
-  CHECKSYM(SDLK_EQUALS,    "equal");
+  checksym(SDLK_BACKSPACE, "backspace");
+  checksym(SDLK_TAB,       "tab");
+  checksym(SDLK_RETURN,    "return");
+  checksym(SDLK_SPACE,     "space");
+  checksym(SDLK_PLUS,      "plus");
+  checksym(SDLK_MINUS,     "minus");
+  checksym(SDLK_ESCAPE,    "esc");
+  checksym(SDLK_LESS,      "less");
+  checksym(SDLK_GREATER,   "greater");
+  checksym(SDLK_EQUALS,    "equal");
   
 
   // check numeric keypad
@@ -155,19 +173,19 @@ int KbdCtrl::poll(Context *env) {
      && keysym->sym <= SDLK_KP9) {
     tmp[0] = keysym->sym - SDLK_KP0 + 48;
     tmp[1] = 0x0;
-    strcat(funcname,"num_");
-    strcat(funcname,tmp);
-    func("keyboard controller calling method %s()",funcname);
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    strcat(keyname,"num_");
+    strcat(keyname,tmp);
+    func("keyboard controller calling method %s()",keyname);
+    JS_CallFunctionName(jsenv, jsobj, keyname, 0, NULL, &ret);
     return 1;
   }
-  CHECKSYM(SDLK_KP_PERIOD,   "num_period");
-  CHECKSYM(SDLK_KP_DIVIDE,   "num_divide");
-  CHECKSYM(SDLK_KP_MULTIPLY, "num_multiply");
-  CHECKSYM(SDLK_KP_MINUS,    "num_minus");
-  CHECKSYM(SDLK_KP_PLUS,     "num_plus");
-  CHECKSYM(SDLK_KP_ENTER,    "num_enter");
-  CHECKSYM(SDLK_KP_EQUALS,   "num_equals");
+  checksym(SDLK_KP_PERIOD,   "num_period");
+  checksym(SDLK_KP_DIVIDE,   "num_divide");
+  checksym(SDLK_KP_MULTIPLY, "num_multiply");
+  checksym(SDLK_KP_MINUS,    "num_minus");
+  checksym(SDLK_KP_PLUS,     "num_plus");
+  checksym(SDLK_KP_ENTER,    "num_enter");
+  checksym(SDLK_KP_EQUALS,   "num_equals");
   //////
 
   return 0;

@@ -88,7 +88,7 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     variable = (double)JSVAL_TO_BOOLEAN(argv[argnum]); \
   } else { \
     JS_ReportError(cx,"%s: argument %u is not a number",__FUNCTION__,argnum); \
-    error("%s: argument %u is not a number",__FUNCTION__,argnum); \
+    ::error("%s: argument %u is not a number",__FUNCTION__,argnum);	\
     return JS_FALSE; \
   }
 
@@ -134,70 +134,26 @@ JSClass class_struct = { \
 #define JS_CONSTRUCTOR(constructor_name, constructor_func, constructor_class) \
 JS(constructor_func) {                                                        \
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);                            \
-  constructor_class *layer;                                                   \
-  char *filename;                                                             \
+  constructor_class *layer = NULL;					      \
   char excp_msg[MAX_ERR_MSG + 1];                                             \
-  uint16_t width  = env->screen->w;                                           \
-  uint16_t height = env->screen->h;                                           \
-                                                                              \
   layer = new constructor_class();                                            \
   if(!layer) {                                                                \
-    sprintf(excp_msg, "cannot create constructor_class");                     \
-    goto error;                                                               \
+    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
+                         JSSMSG_FJ_CANT_CREATE, __func__,                     \
+                      "cannot create constructor_class");                     \
+    cx->newborn[GCX_OBJECT] = NULL;                                           \
+    return JS_FALSE;						              \
+  }									      \
+  rval = (jsval*)layer->js_constructor(env, cx, obj, argc, argv, excp_msg);   \
+  if(!rval) {                                                                 \
+    delete layer;                                                             \
+    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
+                         JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);          \
+    cx->newborn[GCX_OBJECT] = NULL;                                           \
+    return JS_FALSE;                                                          \
   }                                                                           \
-  if(argc==0) {                                                               \
-    if(!layer->init(env)) {                                                   \
-      sprintf(excp_msg, "failed init(env)");                                  \
-      goto error;                                                             \
-    }                                                                         \
-  } else if(argc==1) {                                                        \
-    JS_ARG_STRING(filename,0);                                                \
-    if(!layer->init(env)) {                                                   \
-      sprintf(excp_msg, "failed init(env)");                                  \
-      goto error;                                                             \
-    }                                                                         \
-    if(!layer->open(filename)) {                                              \
-      snprintf(excp_msg, MAX_ERR_MSG, "failed open(%s): %s", filename, strerror(errno));    \
-      goto error;                                                             \
-    }                                                                         \
-  } else if(argc==2) {                                                        \
-    js_ValueToUint16(cx, argv[0], &width);                                    \
-    js_ValueToUint16(cx, argv[1], &height);                                   \
-    if(!layer->init(env, width, height)) {                                    \
-      snprintf(excp_msg, MAX_ERR_MSG, "failed init(env, %u, %u)", width, height); \
-      goto error;                                                             \
-    }                                                                         \
-  } else if(argc==3) {                                                        \
-    js_ValueToUint16(cx, argv[0], &width);                                    \
-    js_ValueToUint16(cx, argv[1], &height);                                   \
-    JS_ARG_STRING(filename,2);                                                \
-    if(!layer->init(env, width, height)) {                                    \
-      snprintf(excp_msg, MAX_ERR_MSG, "failed init(env, %u, %u)", width, height); \
-      goto error;                                                             \
-    }                                                                         \
-    if(!layer->open(filename)) {                                              \
-      snprintf(excp_msg, MAX_ERR_MSG, "failed open(%s): %s", filename, strerror(errno)); \
-      goto error;                                                             \
-    }                                                                         \
-  } else {                                                                    \
-    sprintf(excp_msg, "Wrong numbers of arguments\n use (\"filename\") or (width, height, \"filename\") or ()");       \
-    goto error;                                                               \
-  }                                                                           \
-  if(!JS_SetPrivate(cx,obj,(void*)layer)) {                                   \
-    sprintf(excp_msg, "%s", "JS_SetPrivate failed");                          \
-    goto error;                                                               \
-  }                                                                           \
-  *rval = OBJECT_TO_JSVAL(obj);                                               \
-  return JS_TRUE;                                                             \
-                                                                              \
-error:                                                                        \
-    func("a");if(layer) delete layer;                                         \
-    func("b");JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,         \
-              JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);                     \
-    func("c");cx->newborn[GCX_OBJECT] = NULL;                                 \
-    func("d");return JS_FALSE;                                                \
-}                                                                             \
-
+  return JS_TRUE;							      \
+}
 
 // Gets a pointer to the layer from the private object of javascript
 // it can be then referenced as *lay
@@ -216,17 +172,6 @@ if(!lay) { \
 }
 
 
-// check if a function of name exists for the current js class
-#define CHECKSYM(key,name) \
-  if(keysym->sym == key) { \
-    strcat(funcname,name); \
-    func("keyboard controller calling method %s()",funcname); \
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret); \
-    return 1; \
-  }
-
-
- 
 extern Context *env;
 extern bool stop_script;
 
