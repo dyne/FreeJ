@@ -113,8 +113,8 @@ encoder.stream_mountpoint("freej-test.ogg");
 */
 
 register_encoder(encoder);
-encoder.start_stream();
-//encoder.start_filesave("prova.ogg");
+//encoder.start_stream();
+encoder.start_filesave("prova.ogg");
 
 while(running) {
 

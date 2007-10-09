@@ -113,6 +113,9 @@ static int getkey_handler() {
   if(SLang_input_pending(0))
     //    return SLang_getkey();
     ch = SLang_getkey();
+
+  SLang_flush_input(); // no slow repeat
+
   //  if(ch) func("SLang_getkey in getkey_handler detected char %u",ch);
   return ch;
 }
