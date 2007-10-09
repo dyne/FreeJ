@@ -44,7 +44,7 @@
 #include <avi_layer.h>
 #endif
 
-#ifdef WITH_AVCODEC
+#ifdef WITH_FFMPEG
 #include <video_layer.h>
 #endif
 

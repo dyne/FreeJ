@@ -165,6 +165,11 @@ AC_ARG_WITH(static-ffmpeg,
 [  static_ffmpeg=yes; ffmpeg_dir="$withval" ],[ static_ffmpeg=no ])
 dnl ==============================================================
 
+if test x$dynamic_ffmpeg = no; then
+   AC_MSG_RESULT(static)
+else
+   AC_MSG_RESULT(dynamic)
+fi
 
 
 dnl ==============================================================
@@ -212,7 +217,6 @@ FFMPEG_CFLAGS=""
 AVCODEC_ARCH=""
 
 if test x$static_ffmpeg = xyes ; then
-   AC_MSG_RESULT(statically)
    FFMPEG_LIBS="${ffmpeg_dir}/libavformat/libavformat.a ${ffmpeg_dir}/libavcodec/libavcodec.a ${ffmpeg_dir}/libpostproc/libpostproc.a ${ffmpeg_dir}/libswscale/libswscale.a ${ffmpeg_dir}/libavutil/libavutil.a"
    FFMPEG_CFLAGS="-I${ffmpeg_dir}/libavformat -I${ffmpeg_dir}/libavcodec -I${ffmpeg_dir}/libavutil"
 
@@ -223,7 +227,7 @@ elif test x$dynamic_ffmpeg = xyes ; then
    FFMPEG_LIBS="$FFMPEG_LIBS -L/opt/video/lib"
    AC_MSG_RESULT(dynamically)
 else
-    FFMPEG_LIBS="\$(top_srcdir)/lib/avcodec/libavcodec.a \$(top_srcdir)/lib/avformat/libavformat.a"
+    FFMPEG_LIBS="\$(top_srcdir)/lib/avformat/libavformat.a \$(top_srcdir)/lib/avcodec/libavcodec.a"
     FFMPEG_SUBDIRS="avcodec avformat"
     FFMPEG_CFLAGS="-I\$(top_srcdir)/lib/avcodec -I\$(top_srcdir)/lib/avformat"
     if test x$have_mmx = xyes ; then

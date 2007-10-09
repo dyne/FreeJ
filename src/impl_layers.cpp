@@ -43,7 +43,7 @@ const char *layers_description =
 #ifdef WITH_AVIFILE
 " .  - AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
 #endif
-#ifdef WITH_AVCODEC
+#ifdef WITH_FFMPEG
 " .  - AVI,ASF,WMA,WMV,MPEG local and remote (http://localhost/file.mpg), dv1394 firewire devices\n"
 #endif
 #ifdef WITH_PNG
@@ -115,7 +115,7 @@ Layer *create_layer(Context *env, char *file) {
 
   } else /* AVI LAYER */
     if( IS_VIDEO_EXTENSION(end_file_ptr) | IS_FIREWIRE_DEVICE(file_ptr)) {
-#ifdef WITH_AVCODEC
+#ifdef WITH_FFMPEG
       nlayer = new VideoLayer();
       if(!nlayer->init( env )) {
 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);

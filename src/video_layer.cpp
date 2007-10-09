@@ -22,7 +22,7 @@
 
 #include <config.h>
 
-#ifdef WITH_AVCODEC
+#ifdef WITH_FFMPEG
 
 #include <iostream>
 #include <string.h>

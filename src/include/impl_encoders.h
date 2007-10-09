@@ -24,9 +24,7 @@
 
 #include <config.h>
 #include <encoder.h>
-#ifdef WITH_AVCODEC
-#include <ffmpeg_encoder.h>
-#endif
+
 #include <oggtheora_encoder.h>
 
 

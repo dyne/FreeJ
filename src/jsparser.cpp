@@ -152,7 +152,7 @@ void JsParser::init() {
 		   v4l_layer_methods);
 #endif
 
-#ifdef WITH_AVCODEC
+#ifdef WITH_FFMPEG
     REGISTER_CLASS("MovieLayer",
 		   video_layer_class,
 		   video_layer_constructor,

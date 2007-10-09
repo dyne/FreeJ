@@ -23,7 +23,7 @@
 #include <jsparser_data.h>
 #include <config.h>
 
-#ifdef WITH_AVCODEC
+#ifdef WITH_FFMPEG
 #include <video_layer.h>
 
 DECLARE_CLASS("MovieLayer",video_layer_class,video_layer_constructor);

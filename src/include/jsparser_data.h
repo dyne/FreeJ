@@ -61,7 +61,7 @@ JS(goom_layer_constructor);
 #ifdef WITH_V4L
 JS(v4l_layer_constructor);
 #endif
-#ifdef WITH_AVCODEC
+#ifdef WITH_FFMPEG
 JS(video_layer_constructor);
 #endif
 #ifdef WITH_FT2
@@ -157,7 +157,7 @@ extern JSFunctionSpec txt_layer_methods[];
 #endif
 
 // MovieLayer
-#ifdef WITH_AVCODEC
+#ifdef WITH_FFMPEG
 extern JSClass video_layer_class;
 extern JSFunctionSpec video_layer_methods[];
 #endif
@@ -347,7 +347,7 @@ JS(v4l_layer_band);
 JS(v4l_layer_freq);
 #endif
 
-#ifdef WITH_AVCODEC
+#ifdef WITH_FFMPEG
 ////////////////////////////////
 // Video Layer methods
 JS(video_layer_forward);
