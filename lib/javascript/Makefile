@@ -377,3 +377,6 @@ TARFILES = files `cat files`
 SUFFIXES: .i
 %.i: %.c
 	$(CC) -C -E $(CFLAGS) $< > $*.i
+
+install:
+	echo "no install for javascript"
