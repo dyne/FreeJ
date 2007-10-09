@@ -105,25 +105,29 @@ int KbdCtrl::poll(Context *env) {
   
   keysym = & env->event.key.keysym;
   
-  memset(keyname, 511, sizeof(char));
-  memset(funcname, 511, sizeof(char));
-
+  memset(keyname, 0, sizeof(char)<<9);  // *512
+  memset(funcname, 0, sizeof(char)<<9); // *512
+  
   // check key modifiers
   if(keysym->mod & KMOD_CTRL)
     strcat(keyname,"ctrl_");
-
+  
   if(keysym->mod & KMOD_ALT)
     strcat(keyname,"alt_");
-
+  
   // check normal alphabet and letters
   if( keysym->sym >= SDLK_0
       && keysym->sym <= SDLK_9) {
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
     strcat(keyname,tmp);
-    func("keyboard controller calling method %s()",keyname);
-    JS_CallFunctionName(jsenv, jsobj, keyname, 0, NULL, &ret);
-
+    if(env->event.key.state == SDL_PRESSED)
+      sprintf(funcname,"pressed_%s",keyname);
+    if(env->event.key.state != SDL_RELEASED)
+      sprintf(funcname,"released_%s",keyname);
+    func("keyboard controller calling method %s()",funcname);
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    
     return 1;
   }
   
@@ -137,8 +141,12 @@ int KbdCtrl::poll(Context *env) {
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
     strcat(keyname,tmp);
-    func("keyboard controller calling method %s()",keyname);
-    JS_CallFunctionName(jsenv, jsobj, keyname, 0, NULL, &ret);
+    if(env->event.key.state == SDL_PRESSED)
+      sprintf(funcname,"pressed_%s",keyname);
+    if(env->event.key.state != SDL_RELEASED)
+      sprintf(funcname,"released_%s",keyname);
+    func("keyboard controller calling method %s()",funcname);
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
 
     return 1;
   }
@@ -175,8 +183,12 @@ int KbdCtrl::poll(Context *env) {
     tmp[1] = 0x0;
     strcat(keyname,"num_");
     strcat(keyname,tmp);
-    func("keyboard controller calling method %s()",keyname);
-    JS_CallFunctionName(jsenv, jsobj, keyname, 0, NULL, &ret);
+    if(env->event.key.state == SDL_PRESSED)
+      sprintf(funcname,"pressed_%s",keyname);
+    if(env->event.key.state != SDL_RELEASED)
+      sprintf(funcname,"released_%s",keyname);
+    func("keyboard controller calling method %s()",funcname);
+    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
     return 1;
   }
   checksym(SDLK_KP_PERIOD,   "num_period");
