@@ -1,0 +1,36 @@
+#!/bin/sh -e
+## 00_pluginpath.dpatch.dpatch by Guido Trotter <ultrotter@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: This patch enables the plugin to be in /usr/lib/freej
+
+if [ $# -ne 1 ]; then
+    echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+    exit 1
+fi
+
+[ -f debian/patches/00patch-opts ] && . debian/patches/00patch-opts
+patch_opts="${patch_opts:--f --no-backup-if-mismatch}"
+
+case "$1" in
+       -patch) patch $patch_opts -p1 < $0;;
+       -unpatch) patch $patch_opts -p1 -R < $0;;
+        *)
+                echo >&2 "`basename $0`: script expects -patch|-unpatch as argument"
+                exit 1;;
+esac
+
+exit 0
+
+@DPATCH@
+diff -urNad /home/ultrotter/docs/projects/deb/freej-0.5/src/plugger.cpp freej-0.5/src/plugger.cpp
+--- /home/ultrotter/docs/projects/deb/freej-0.5/src/plugger.cpp	2003-02-26 23:56:01.000000000 +0100
++++ freej-0.5/src/plugger.cpp	2003-06-04 15:06:27.000000000 +0200
+@@ -15,6 +15,7 @@
+   sprintf(temp,"%s/.freej/plugins",getenv("HOME"));
+   _addsearchdir(temp);
+   _addsearchdir("/usr/local/lib/freej");
++  _addsearchdir("/usr/lib/freej");
+   for(int i=0;i<MAX_PLUGINS;i++) plugs[i] = NULL;
+ }
+ 

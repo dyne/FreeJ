@@ -1,0 +1,20 @@
+Source: freej
+Section: x11
+Priority: optional
+Maintainer: MrGoil <goil@dyne.org>
+Build-Depends: debhelper (>> 4.0.0), libsdl1.2-dev (>= 1.2.0), libpng12-dev, libfreetype6-dev, libfontconfig1-dev, dpatch, libogg-dev, libvorbis-dev, libjpeg62-dev, libavifile-0.7-dev, libasound2-dev, libslang2-dev, libssl-dev, g++, libtheora-dev, libtool, libhtml-template-perl, libavcodec-dev, libavformat-dev
+Standards-Version: 3.7.2.2
+
+Package: freej
+Architecture: any
+Depends: ${shlibs:Depends} ${misc:Depends}
+Description: Digital instrument for video liveset
+ FreeJ is a digital instrument for video livesets, featuring realtime
+ rendering of multilayered video and chained effect filtering directly on
+ the screen (thru dynamically loadable plugins). FreeJ treats every video
+ source as a layer, making then possible to dynamically apply on each a
+ chain of filters, loadable as effect plugins and easily customizable.
+ Layers are planned for rendering of analog video input, digital movie
+ files (avi/mpeg), image bitmaps, sound scopes, texts and eventually
+ more.
+ The whole engine is scriptable with javascript
