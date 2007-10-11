@@ -291,8 +291,9 @@ JS(layer_set_position) {
     
     GET_LAYER(Layer);
 
-    int new_x_position=JSVAL_TO_INT(argv[0]);
-    int new_y_position=JSVAL_TO_INT(argv[1]);
+    int new_x_position, new_y_position;
+    js_ValueToInt32(cx, argv[0], &new_x_position); 
+    js_ValueToInt32(cx, argv[1], &new_y_position); 
     lay->set_position(new_x_position,new_y_position);
 
     return JS_TRUE;
