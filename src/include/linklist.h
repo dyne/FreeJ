@@ -35,6 +35,7 @@
 class Entry;
 
 class Linklist {
+  friend class Entry;
  public:
   Linklist();
   virtual ~Linklist();
@@ -55,7 +56,7 @@ class Linklist {
   bool moveto(int num, int pos);
   Entry *pick(int pos);  
   Entry *search(char *name);
-  char **completion(char *needle);
+  Entry **completion(char *needle);
 
   Entry *selected();
 
@@ -71,14 +72,16 @@ class Linklist {
   void unlock() { pthread_mutex_unlock(&mutex); };
 #endif
 
+ protected:
+  Entry *selection;
+
  private:
 
 #ifdef THREADSAFE
   pthread_mutex_t mutex;
 #endif
   
-  char *compbuf[MAX_COMPLETION]; // maximum completion listsize allowed
-
+  Entry *compbuf[512]; // completion buffer
 };
 
 class Entry {

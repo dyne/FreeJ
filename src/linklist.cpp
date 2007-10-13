@@ -61,6 +61,7 @@ void Linklist::append(Entry *addr) {
     last->next = NULL;
     last->prev = NULL;
     first = last;
+    first->sel(true);
   } else { /* add the entry to the end */
     ptr = last;
     ptr->next = addr;
@@ -199,10 +200,18 @@ Entry *Linklist::pick(int pos) {
   if(pos==1) return(first);
   if(pos==length) return(last);
 
-  Entry *ptr = first;
+  Entry *ptr;
   int c;
-  for(c=1;c<pos;c++) ptr = ptr->next;
-
+  // start from beginning
+  if(pos < length/2) {
+    ptr = first;
+    for(c=1; c<pos; c++)
+      ptr = ptr->next;
+  } else { /// | | | p | | | 
+    ptr = last;
+    for(c=length; c>pos; c--)
+      ptr = ptr->prev; // to be checked
+  }
   return(ptr);
 }
 
@@ -218,13 +227,13 @@ Entry *Linklist::search(char *name) {
 }    
 /* searches all the linklist for entries starting with *needle
    returns a list of indexes where to reach the matches */
-char **Linklist::completion(char *needle) { 
+Entry **Linklist::completion(char *needle) { 
   int c;
   int found;
   int len = strlen(needle);
 
   /* cleanup */
-  memset(compbuf,0,MAX_COMPLETION);
+  memset(compbuf,0,MAX_COMPLETION*sizeof(Entry*));
 
   /* check it */
   Entry *ptr = first;
@@ -232,10 +241,10 @@ char **Linklist::completion(char *needle) {
 
   for( found=0, c=1 ; ptr ; c++ , ptr=ptr->next ) {
     if(!len) { // 0 lenght needle: return the full list
-      compbuf[found] = ptr->name;
+      compbuf[found] = ptr;
       found++;
     } else if( strncasecmp(needle,ptr->name,len)==0 ) {
-      compbuf[found] = ptr->name;
+      compbuf[found] = ptr;
       found++;
     }
   }
@@ -274,11 +283,24 @@ void Linklist::rem(int pos) {
    use Entry::sel() if you want to do multiple selects */
 void Linklist::sel(int pos) {
   int c;
-  Entry *ptr = last;
+  Entry *ptr = first;
+  
+  if(!first) return;
+  if(pos>length) {
+    warning("selection out of range on linklist [%p]",this);
+    return;
+  }
 
-  if(pos>length) return;
+  if(!pos) {
+    while(ptr) {
+      ptr->select = false;
+      ptr = ptr->next;
+    }
+    selection = NULL;
+    return;
+  }
 
-  for(c=length;c>0;c--) {
+  for(c=1;c<=length;c++) {
     if(c==pos) ptr->sel(true);
     else ptr->sel(false);
     ptr = ptr->prev;
@@ -287,8 +309,11 @@ void Linklist::sel(int pos) {
 
 /* returns the last one selected
    this is supposed to be used with single selections */
-Entry *Linklist::selected() {  
+Entry *Linklist::selected() {
+  return selection; // now faster
+  /*
   if(!last) return NULL; // no entries at all
+  
   int c;
   Entry *ptr = last;
   for(c=length;c>0;c--) {
@@ -296,6 +321,7 @@ Entry *Linklist::selected() {
     ptr = ptr->prev;
   }
   return NULL;
+  */
 }
 
 Entry::Entry() {
@@ -433,9 +459,11 @@ void Entry::rem() {
   if(next) { // if there is a next
     next->prev = prev; // link it to the previous
     next->select = select; // inherit selection
+    list->selection = next;
   } else {
     list->last = prev; // else just make it the last
     lastone = true;
+    list->selection = prev;
   }
 
   if(prev) { // if there is a previous
@@ -452,5 +480,8 @@ void Entry::rem() {
 }
 
 void Entry::sel(bool on) {
+  if(!list) return;
   select = on;
+  if(select)
+    list->selection = this;
 }

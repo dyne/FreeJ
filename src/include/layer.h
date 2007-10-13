@@ -47,6 +47,8 @@ extern const char *layers_description;
 extern Layer *create_layer(Context *env, char *file);
 ///< create the propriate Layer type from a file
 
+#define UNKNOWN_LAYER 0
+#define TEXT_LAYER 1
 
 /**
    This class describes methods and properties common to all Layers in
@@ -89,7 +91,9 @@ class Layer: public Entry, public JSyncThread {
 
   Layer(); ///< Layer constructor
   ~Layer(); ///< Layer destructor
-  
+
+  int type; ///< type of the layer
+
   /* these must be defined in layer implementations */
   virtual bool open(char *file) =0; ///< open the file (first called)
   virtual bool init(Context *freej) =0; ///< initialize the layer (second called)
@@ -115,6 +119,9 @@ class Layer: public Entry, public JSyncThread {
   */
   void pulse_alpha(int step, int value);
   ///< Pulse the Layer in alpha blending (in->out) 
+
+  Linklist parameters;
+  ///< Parameter list for the layer
 
   Linklist filters;
   ///< Filter list of effects applied on the Layer

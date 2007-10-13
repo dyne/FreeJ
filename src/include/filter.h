@@ -27,15 +27,10 @@ class Layer;
 class Freior;
 class FilterInstance;
 
-#include <string>
-#include <map>
-using namespace std;
-
-
 /* Parameter type for boolean values */
 #define PARAM_BOOL      0
 /* Parameter type for doubles */
-#define PARAM_DOUBLE    1
+#define PARAM_NUMBER    1
 /* Parameter type for color */
 #define PARAM_COLOR     2
 /* Parameter type for position */
@@ -43,6 +38,24 @@ using namespace std;
 /* Parameter type for string */
 #define PARAM_STRING  4
 
+class Parameter : public Entry {
+  friend class Iterator;
+  // TODO: different iterator beahaviour for different parameter types
+ public:
+  Parameter(int param_type);
+  ~Parameter();
+
+  int type;
+
+  const char *name;
+  const char *description;
+
+  void *get_value(); ///< transparent get (caller must check type)
+  void set_value(void *val); ///< transparent set (caller must check type)
+
+ private:
+  void *value;
+};
 
 class Filter : public Entry {
   friend class FilterInstance;
@@ -65,25 +78,24 @@ class Filter : public Entry {
   bool inuse;
 
   Freior *freior;
-
-  map<string, int> parameters;
+  
+  Linklist parameters;
 
  protected:
   void destruct(FilterInstance *inst);
   void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
 
-
 };
 
 
 class FilterInstance : public Entry {
+  friend class Filter;
+
  public:
   FilterInstance(Filter *fr);
   ~FilterInstance();
 
   uint32_t *process(float fps, uint32_t *inframe);
-
-  void *core;
 
   uint32_t *outframe;
 
@@ -91,6 +103,10 @@ class FilterInstance : public Entry {
 
   bool active;
   bool inuse;
+
+ protected:
+
+  void *core;
 
 };
 

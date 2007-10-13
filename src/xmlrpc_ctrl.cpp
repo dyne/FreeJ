@@ -27,6 +27,11 @@
 
 #include <callbacks_js.h> // javascript
 
+#include <string>
+using namespace std;
+using namespace __gnu_cxx;
+
+
 /////// Javascript XmlRpcController
 JS(js_xmlrpc_ctrl_constructor);
 

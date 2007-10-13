@@ -45,12 +45,9 @@ JS(filter_set_parameter) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   char *name;
-  jsdouble val;
   
-  if(argc < 2) JS_ERROR("missing arguments: name, value");
+  if(argc < 2) JS_ERROR("missing arguments: name, values");
 
-  JS_ARG_STRING(name,0);
-  js_ValueToNumber(cx, argv[1], &val);
 
   FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);
   if(!duo) {
@@ -58,17 +55,49 @@ JS(filter_set_parameter) {
 	  __LINE__,__FILE__,__FUNCTION__);
     return JS_FALSE;
   }
-  
+
+  JS_ARG_STRING(name,0);
+
   // get it by the param name
-  map<string, int>::iterator it = duo->proto->parameters.find(name);
-  if(it == duo->proto->parameters.end()) { // not found
-    error("parameter %s not found in filter %s", name, duo->proto->name);
+  Parameter *param = (Parameter*)duo->proto->parameters.search(name);
+  if(!param) { 
+    error("parameter %s not found in filter %s", param->name, duo->proto->name);
     return JS_TRUE;
   }
 
-  act("set parameter %s->%s to %.2f", duo->proto->name, name, val);
-  duo->proto->set_parameter_value( duo->instance, &val, it->second );
+  switch(param->type) {
+
+  case PARAM_BOOL: {
+    uint16_t val;
+    if(!js_ValueToUint16(cx, argv[1], &val)) {
+      error("set parameter called with an invalid bool value for filter %s",
+	    duo->proto->name);
+      return JS_TRUE;
+    }
+    act("%s->%s (bool) to %s",
+	duo->proto->name, param->name, (val)?"true":"false");
+  //  duo->proto->set_parameter_value( duo->instance, &val, it->second );
+    param->set_value((void*)&val);
+    break; }
+    
+  case PARAM_NUMBER: {
+    jsdouble val;
+    if(!js_ValueToNumber(cx, argv[1], &val)) {
+      error("set parameter called with an invalid numeric value for filter %s",
+	    duo->proto->name);
+      return JS_TRUE;
+    }
+    act("%s->%s (number) to %.2f", duo->proto->name, param->name, val);
+    param->set_value((void*)&val);
+    break; }
+
+  default:
+    error("parameter of unknown type: %s->%s", duo->proto->name, param->name);
+    break;
+  }
+
   return JS_TRUE;
+
 }
 //////
 /// TODO:

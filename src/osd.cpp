@@ -100,7 +100,7 @@ void Osd::init(Context *screen) {
   // setup sizes
   resize();
 
-  /* add ipernaut logo layer */
+  /* add ipernaut logo layer
   if(!ipernaut) {
     char tmp[512];
     sprintf(tmp,"%s/freej/ipernav.png",DATADIR);
@@ -118,7 +118,7 @@ void Osd::init(Context *screen) {
       }
     }
   }
-
+  */
 
   active = false; // deactivate by default
   set_osd(status_msg); /* let jutils know about the osd */

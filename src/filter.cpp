@@ -28,6 +28,60 @@
 #include <jutils.h>
 
 
+Parameter::Parameter(int param_type) {
+  switch(param_type) {
+  case PARAM_BOOL:
+    value = calloc(1, sizeof(bool));
+    break;
+  case PARAM_NUMBER:
+    value = calloc(1, sizeof(float));
+    break;
+  case PARAM_COLOR:
+    value = calloc(3, sizeof(float));
+    break;
+  case PARAM_POSITION:
+    value = calloc(2, sizeof(float));
+    break;
+  case PARAM_STRING:
+    value = calloc(512, sizeof(char));
+    break;
+  default:
+    error("parameter initialized with unknown type: %u", param_type);
+  }
+
+  type = param_type;
+}
+
+Parameter::~Parameter() {
+  free(value);
+}
+
+void *Parameter::get_value() {
+  return value;
+}
+
+void Parameter::set_value(void *val) {
+  if      (type==PARAM_NUMBER)
+    *(float*)value = *(float*)val;
+  else if (type==PARAM_BOOL)
+    *(bool*)value = *(bool*)val;
+  else if (type==PARAM_POSITION) {
+    ((float*)value)[0] = ((float*)val)[0];
+    ((float*)value)[1] = ((float*)val)[1];
+  }
+  else if (type==PARAM_COLOR) {
+    ((float*)value)[0] = ((float*)val)[0];
+    ((float*)value)[1] = ((float*)val)[1];
+    ((float*)value)[2] = ((float*)val)[2];
+  }
+  else if (type==PARAM_STRING)
+    strcpy((char*)value, (char*)val);
+  else
+    error("attempt to set value for a parameter of unknown type: %u", type);
+}
+
+
+
 
 
 Filter::Filter(Freior *f) 
@@ -48,22 +102,26 @@ Filter::Filter(Freior *f)
   // Get the list of params.
   f->param_infos.resize(f->info.num_params);
   for (i = 0; i < f->info.num_params; ++i) {
+
     (*f->f0r_get_param_info)(&f->param_infos[i], i);
-    parameters[f->param_infos[i].name] = i;
+
+    Parameter *param = new Parameter(f->param_infos[i].type);
+    param->name = f->param_infos[i].name;
+    param->description = f->param_infos[i].explanation;
+    parameters.append(param);
   }
-
-
 
   freior = f;
 
-  freior->print_info();
+  if(get_debug()>2)
+    freior->print_info();
 
   set_name((char*)f->info.name);
 
 }
 
 Filter::~Filter() {
-
+  delete freior;
 }
 
 FilterInstance *Filter::apply(Layer *lay) {
@@ -158,6 +216,7 @@ FilterInstance::FilterInstance(Filter *fr)  {
 }
 
 FilterInstance::~FilterInstance() {
+  func("~FilterInstance");
   if(proto)
     if(core) proto->destruct(this);
   if(outframe) free(outframe);

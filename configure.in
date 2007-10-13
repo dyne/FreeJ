@@ -153,11 +153,11 @@ dnl Check if we are going to link DINAMICALLY ffmpeg and theora
 dnl ==============================================================
 AC_MSG_CHECKING(how to link ffmpeg libraries)
 AC_ARG_ENABLE(dynamic-ffmpeg,
-[  --enable-dynamic-ffmpeg     link dynamically ffmpeg and theora (default: yes)],
-[ if test ! x$enableval = xyes; then
-     dynamic_ffmpeg=no
-  else
+[  --enable-dynamic-ffmpeg     link dynamically ffmpeg and theora (default: no)],
+[ if test x$enableval = xyes; then
      dynamic_ffmpeg=yes
+  else
+     dynamic_ffmpeg=no
   fi ],[ dynamic_ffmpeg=no ])
 dnl =====
 AC_ARG_WITH(static-ffmpeg,

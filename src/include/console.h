@@ -51,7 +51,7 @@ extern volatile int SLang_Error; // hack for fucking debian!
 
 class Context;
 class Layer;
-class Filter;
+class FilterInstance;
 
 
 class Console {
@@ -79,8 +79,6 @@ class Console {
   bool active;
 
   Linklist history;
-
-  Layer *layer; ///< pointer to the currently selected layer
 
  private:
   int x,y;

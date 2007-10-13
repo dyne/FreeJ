@@ -71,6 +71,7 @@
 #define KEY_CTRL_H 272 // help the user
 
 #define KEY_CTRL_O 15 // open a file in a new layer
+#define KEY_CTRL_P 16 // parameter set
 #define KEY_CTRL_S 19 // reserved
 #define KEY_CTRL_T 20 // new layer with text
 #define KEY_CTRL_V 22 // change blit value
@@ -114,10 +115,99 @@ static int getkey_handler() {
     //    return SLang_getkey();
     ch = SLang_getkey();
 
-  SLang_flush_input(); // no slow repeat
+  //  SLang_flush_input(); // no slow repeat
 
   //  if(ch) func("SLang_getkey in getkey_handler detected char %u",ch);
   return ch;
+}
+
+static int param_selection(char *cmd) {
+  if(!cmd) return 0;
+  if(!strlen(cmd)) return 0;
+
+  Layer *lay = (Layer*)env->layers.selected();
+  if(!lay) {
+    ::error("no layer currently selected");
+    return 0;
+  }
+  FilterInstance* filt =
+    (FilterInstance*)lay->filters.selected();
+  if(filt) { // parameters for filter
+
+    /*    char *tmp = strtok(cmd, " ");
+    Parameter *param = (Parameter*)filt->proto->parameters.search(tmp);
+    if(param) notice("console.cpp::parameter_set TODO");
+      //parameter_set(param, cmd); // parse the value
+    else {
+      error("parameter %s not found in filter %s", param->name, filt->name);
+      return 0;
+    }
+    */
+  } else { // parameters for layer
+    /*
+    char *tmp = strtok(cmd, " ");
+    Parameter *param = (Parameter*)lay->parameters.search(tmp);
+    if(param) notice("console.cpp:parameter_set TODO");
+      // parameters_set(param, cmd); // parse the value
+    else {
+      error("parameter %s not found in layer %s", param->name, lay->name);
+      return 0;
+    }
+    */
+  }
+  return 1;
+}
+static int param_completion(char *cmd) {
+  Layer *lay = (Layer*)env->layers.selected();
+  if(!lay) {
+    ::error("no layer currently selected");
+    return 0;
+  }
+  FilterInstance* filt =
+    (FilterInstance*)lay->filters.selected();
+
+  Linklist *parameters;
+  if(filt) parameters = &filt->proto->parameters;
+  else     parameters = &lay->parameters;
+
+  Entry **params = parameters->completion(cmd);
+  if(!params[0]) return 0;
+
+  Parameter *p;
+
+  if(!params[1]) { // exact match, then fill in command
+    p = (Parameter*)params[0];
+    ::notice("%s :: %s",p->name,p->description);
+    snprintf(cmd,MAX_CMDLINE,"%s",p->name);
+    return 1;
+  }
+
+  notice("List available parameters starting with \"%s\"",cmd);
+  int c;
+  for(c=0; params[c]; c++) {
+    p = (Parameter*)params[c];
+    switch(p->type) {
+    case PARAM_BOOL:
+      ::act("%s (bool) %s", p->name, p->description);
+      break;
+    case PARAM_NUMBER:
+      ::act("%s (number) %s", p->name, p->description);
+      break;
+    case PARAM_STRING:
+      ::act("%s (string) %s", p->name, p->description);
+      break;
+    case PARAM_POSITION:
+      ::act("%s (position) %s", p->name, p->description);
+      break;
+    case PARAM_COLOR:
+      ::act("%s (color) %s", p->name, p->description);
+      break;
+    default:
+      ::error("%s (unknown) %s", p->name, p->description);
+      break;
+    }
+  }
+  return c;
 }
 
 // callbacks used by readline to handle input from console
@@ -135,7 +225,7 @@ static int blit_selection(char *cmd) {
 }
 static int blit_comp(char *cmd) {
   int c;
-  char **blits;
+  Entry **blits;
   Blit *b;
 
   if(!cmd) return 0;
@@ -151,7 +241,7 @@ static int blit_comp(char *cmd) {
   if(!blits[0]) return 0; // none found
 
   if(!blits[1]) { // exact match, then fill in command
-    b = (Blit*) lay->blitter.blitlist.search(blits[0]);
+    b = (Blit*) blits[0];
     ::notice("%s :: %s",b->get_name(),b->desc);
     snprintf(cmd,MAX_CMDLINE,"%s",b->get_name());
     return 1;
@@ -160,7 +250,7 @@ static int blit_comp(char *cmd) {
   notice("List available blits starting with \"%s\"",cmd);
   for(c=0;blits[c];c++) {
     // was name and desc, now only names listed (TODO?)
-    ::act(" %s",blits[c]);
+    ::act(" %s :: %s",blits[c]->name, ((Blit*)blits[c])->desc);
   }
   return c;
 }
@@ -195,7 +285,7 @@ static int filter_proc(char *cmd) {
 }
 static int filter_comp(char *cmd) {
   int c;
-  char **res;
+  Entry **res;
   Filter *filt;
   if(!cmd) return 0;
   // QUAAA
@@ -204,13 +294,13 @@ static int filter_comp(char *cmd) {
   if(!res[0]) return 0; // no hit 
 
   if(!res[1]) { // exact match: fill in the command
-    filt = (Filter*)env->filters.search(res[0]);
+    filt = (Filter*) res[0];
     if(!filt) return 0; // doublecheck safety fix
     ::notice("%s :: %s",filt->name,filt->description());
-    snprintf(cmd,511,"%s",res[0]); c=1;
+    snprintf(cmd,511,"%s",res[0]->name); c=1;
   } else { // list all matches
     for(c=0;res[c];c++) {
-      filt = (Filter*)env->filters.search(res[c]);
+      filt = (Filter*)res[c];
       if(!filt) continue;
       ::act("%s :: %s",filt->name,filt->description());
     }
@@ -291,9 +381,6 @@ static int open_layer(char *cmd) {
     */
       env->add_layer(l);
 
-      // select the new layer
-      env->console->layer = l;
-
       len = env->layers.len();
       notice("layer succesfully created, now you have %i layers",len);
       env->console->refresh();
@@ -308,15 +395,11 @@ static int open_layer(char *cmd) {
 #include <text_layer.h>
 static int print_text_layer(char *cmd) {
 
-  if( strncmp( env->console->layer->get_name(),"TTF",3) ==0) {
-    ((TTFLayer*)env->console->layer)->print(cmd);
-    return env->layers.len();
+  ((TTFLayer*)env->layers.selected())->print(cmd);
+  return env->layers.len();
 
-  } else {
-    error("console.cpp: print_text layer called on non-TTF layer");
-    return 0;
-  }
 }
+
 static int open_text_layer(char *cmd) {
   TTFLayer *txt = new TTFLayer();
   if(!txt->init(env)) {
@@ -329,16 +412,9 @@ static int open_text_layer(char *cmd) {
   txt->print(cmd);
   env->add_layer(txt);
   
-  // select the new layer
-  env->console->layer = txt;
-  
   notice("layer succesfully created with text: %s",cmd);
   env->console->refresh();
   return env->layers.len();
-
-  error("layer creation aborted");
-  env->console->refresh();
-  return 0;
 }
 #endif
 
@@ -357,7 +433,7 @@ static int filebrowse_completion(char *cmd) {
   char path[MAX_CMDLINE];
   char needle[MAX_CMDLINE];
   bool incomplete = false;
-  char **comps;
+  Entry **comps;
   int found;
   int c;
 
@@ -424,7 +500,7 @@ static int filebrowse_completion(char *cmd) {
       
       if(!comps[1]) { // exact match
 
-	e = files.search(comps[0]);
+	e = comps[0];
 	snprintf(cmd,MAX_CMDLINE,"%s%s",path,e->name);
 	  
 	c = 1;
@@ -433,7 +509,7 @@ static int filebrowse_completion(char *cmd) {
 
 	notice("list of %s* files in %s:",needle,path);	
 	for(c=0;comps[c];c++) {
-	  ::act(" %s",comps[c]);
+	  ::act(" %s",comps[c]->name);
 	}
 	
       }
@@ -492,8 +568,7 @@ Console::Console() {
   parser = DEFAULT;
   do_update_scroll=true;
   active = false;
-  layer = NULL;
-  paramsel = 0;
+  paramsel = 1;
 }
 
 Console::~Console() {
@@ -613,7 +688,7 @@ void Console::getkey() {
   //  if(input) {
   if(parser == COMMANDLINE) parser_commandline(key);
   else if(parser == MOVELAYER) parser_movelayer(key);
-  else if(parser == JAZZ) parser_jazz(key);
+  //  else if(parser == JAZZ) parser_jazz(key);
   else parser_default(key);
     
 }
@@ -634,9 +709,6 @@ void Console::cafudda() {
     real_quit = false;
   }   
 
-  if(!layer) // if no layer selected, pick the first
-    layer = (Layer*)env->layers.begin();
-  
   /* S-Lang says: 
    * All well behaved applications should block signals that
    * may affect the display while performing screen update. */
@@ -651,9 +723,13 @@ void Console::cafudda() {
   }
 
   /* print info the selected layer */
-  layerprint(); // updates the *layer selected pointer
-  layerlist(); // print layer list   
+  if(env->layers.len()) {
     
+    layerprint(); // updates the *layer selected pointer
+    layerlist(); // print layer list   
+
+  }
+
   filterprint(); // updates the *filter selected pointer
   filterlist(); // print filter list
   
@@ -749,6 +825,7 @@ void Console::canvas() {
 }
 
 void Console::layerprint() {
+  Layer *layer = (Layer*)env->layers.selected();
   if(!layer) return;
 
   SLsmg_gotorc(2,1);
@@ -775,16 +852,18 @@ void Console::layerprint() {
 
 void Console::layerlist() {
   int color;
-
-  if(!env->layers.len()) return; // no layers present
+  Entry *layer = NULL;
+  Entry *filter = NULL;
 
   SLsmg_gotorc(4,1);
   //  env->layers.lock();
   /* take layer selected and first */
 
-  Layer *l = (Layer *)env->layers.begin();
-  FilterInstance *filter = (FilterInstance*)l->filters.selected();
-  
+  layer = env->layers.selected();
+  if(layer) filter = ((Layer*)layer)->filters.selected();
+
+  //  filter = (FilterInstance*)l->filters.selected();
+  Layer *l = (Layer *)env->layers.begin();  
   while(l) { /* draw the layer's list */
 
     SLsmg_set_color(LAYERS_COLOR);
@@ -811,8 +890,7 @@ void Console::layerlist() {
 
 void Console::filterprint() {
 
-  int c = 1;
-
+  Layer *layer = (Layer*)env->layers.selected();
   if(!layer) return;
 
   FilterInstance *filter = (FilterInstance*)layer->filters.selected();
@@ -832,40 +910,22 @@ void Console::filterprint() {
   SLsmg_forward(2);
   SLsmg_write_string(filter->proto->description());
   SLsmg_set_color(PLAIN_COLOR);
-  if(paramsel > 0) {
-    SLsmg_gotorc(4,1);
-    SLsmg_set_color(FILTERS_COLOR);
-    SLsmg_write_string("Parameter: ");
-    map<string, int>::iterator it = filter->proto->parameters.begin();
-    do {
-      SLsmg_write_string((char*)it->first.c_str());
-      switch(filter->proto->get_parameter_type(it->second)) {
-      case PARAM_BOOL:     SLsmg_write_string("(bool) "); break;
-      case PARAM_DOUBLE:   SLsmg_write_string("(color) "); break;
-      case PARAM_STRING:   SLsmg_write_string("(string) "); break;
-      case PARAM_POSITION: SLsmg_write_string("(position) "); break;
-      default: SLsmg_write_string("(unknown) ");
-      }
-      SLsmg_write_string( filter->proto->get_parameter_description(it->second));
-      it++;
-    } while( it != filter->proto->parameters.end());
 
-  }
 }
     
 void Console::filterlist() {
-  FilterInstance *f;
-  FilterInstance *filter;
+  Layer *layer;
+  FilterInstance *f, *filter;
   int color;
   int pos = 5;
   
+  layer = (Layer*)env->layers.selected();
   if(layer) {
-
     filter = (FilterInstance*)layer->filters.selected();
-    //    layer->filters.lock();
+    
     f = (FilterInstance *)layer->filters.begin();
     while(f) {
-
+      
       SLsmg_set_color(PLAIN_COLOR);
       SLsmg_gotorc(pos,0);
       SLsmg_erase_eol();
@@ -881,7 +941,6 @@ void Console::filterlist() {
       pos++;
       f = (FilterInstance *)f->next;
     }
-    //    layer->filters.unlock();
   }
   SLsmg_set_color(PLAIN_COLOR);
   for(;pos<5;pos++) {
@@ -972,7 +1031,7 @@ void Console::scroll(char *msg, int color) {
 
 void Console::update_scroll() {
   unsigned int row, col, nrows;
-  row = 5; // first upper row
+  row = 8; // first upper row
   col = 1; // left bound
 
   Line_Window.nrows = nrows = SLtt_Screen_Rows - 3;
@@ -1013,93 +1072,204 @@ void Console::update_scroll() {
 
 
 void Console::parser_default(int key) {
-  Layer *tmp;
-  FilterInstance *filter;
+  Entry *le, *fe;
 
   commandline = false; // print statusline
+
+  ::func("pressed %u",key);
+
+  if(env->layers.len() > 0) { // there are layers
+
+    // get the one selected
+    le = env->layers.selected();
+    if(!le) {
+      env->layers.begin();
+      le->sel(true);
+    }
+
+    fe = ((Layer*)le)->filters.selected();
+    
+    // switch over operations and perform
+    switch(key) {
+      
+    case SL_KEY_UP:
+      
+      if(!fe) break; // no filter
+      
+      fe = fe->prev; // take the upper one
+      ((Layer*)le)->filters.sel(0); // deselect all filters
+      if(fe) fe->sel(true); // select only the current
+      
+      break;
+      
+    case SL_KEY_DOWN:
+      
+      if(!fe) {
+	fe = ((Layer*)le)->filters.begin();
+	if(!fe) break; // no filters
+	else fe->sel(true);
+      } else if(fe->next) {
+	fe = fe->next;
+	((Layer*)le)->filters.sel(0);
+	fe->sel(true);
+      }
+      break;
+      
+    case SL_KEY_LEFT:
+    
+      if(!fe) { // no filter selected, move across layers
+	
+	// move to the previous or the other end
+	if(!le->prev)
+	  le = env->layers.end();
+	else
+	  le = le->prev;
+	
+	// select only this layer
+	env->layers.sel(0);
+	le->sel(true);
+	
+      } else { // a filter is selected: move across filter parameters
+	
+	// TODO
+	
+      }
+      
+      break;
+      
+    case SL_KEY_RIGHT:
+
+      if(!fe) { // no filter selected, move across layers
+	
+	// move to the next layer or the other end
+	if(!le->next)
+	  le = env->layers.begin();
+	else le = le->next;
+	
+	// select only the current
+	env->layers.sel(0);
+	le->sel(true);
+	
+      } else { // move across filter parameters
+	
+	// TODO
+	
+      }
+      break;
+      
+    case SL_KEY_PPAGE:
+    case KEY_PLUS:
+      if(fe) fe->up();
+      else   le->up();
+      break;
+      
+    case SL_KEY_NPAGE:
+    case KEY_MINUS:
+      if(fe) fe->down();
+      else   le->down();
+      break;
+      
+    case SL_KEY_DELETE:
+    case KEY_CTRL_D:
+      if(fe) {
+	fe->rem();
+	delete fe;
+      } else {
+	le->rem();
+	((Layer*)le)->close();
+      }
+      env->console->refresh();
+      break;
+      
+    case KEY_SPACE:
+      if(fe) ((FilterInstance*)fe)->active =
+	       !((FilterInstance*)fe)->active;
+      else  ((Layer*)le)->active =
+	      !((Layer*)le)->active;
+    break;
+      
+    case KEY_CTRL_E:
+      readline("add new Effect - press TAB for completion:",&filter_proc,&filter_comp);
+      break;
+
+    case KEY_CTRL_P:
+      readline("set parameter - press TAB for completion:",&param_selection, &param_completion);
+      break;
+
+    case KEY_CTRL_B:
+      readline("select Blit mode for the selected Layer - press TAB for completion:",
+	       &blit_selection,&blit_comp);
+      break;
+      
+    case KEY_CTRL_V:
+      readline("set Blit value for the selected Layer:",
+	       &set_blit_value,NULL);
+      break;
+      
+#ifdef WITH_FT2      
+    case KEY_CTRL_Y:
+      if(((Layer*)le)->type == TEXT_LAYER)
+	readline("print a new word in Text Layer, type your words:",
+		 &print_text_layer,NULL);
+      break;
+#endif
+
+    case KEY_CTRL_A:
+      ::notice("move layer with arrows, press enter when done");
+      ::act("use arrow keys to move, or keypad numbers");
+      ::act("+ and - zoom, < and > rotate");
+      ::act("w and s spin zoom, a and d spin rotate");
+      ::act(", stop rotation . stop zoom and <space> to center");
+      ::act("press <enter> when you are done");
+      parser = MOVELAYER;
+      break;
+      
+      //  case KEY_CTRL_J:
+      //    ::notice("JAZZ mode activated, press keys to pulse layers");
+      //  parser = JAZZ;
+      //  break;
+      
+    default:
+      ((Layer*)le)->keypress( key );
+      break;
+      
+    }
+  }
   
   switch(key) {
-  case SL_KEY_UP:
-    if(!layer) break;
-    filter = (FilterInstance*)layer->filters.selected();
-    if(!filter) break;
-    filter = (FilterInstance*)filter->prev;
-    layer->filters.sel(0); // deselect all filters
-    if(filter) {
-      // select only the current
-      filter->sel(true);
-    } else {
-      // was already the topmost filter
-    }
+  case KEY_CTRL_H:
+  case KEY_CTRL_H_APPLE:
+  case '?':
+    notice("Hotkeys available in FreeJ console:");
+    act("Arrow keys browse selection thru layers and effects");
+    act("SPACE to de/activate layers and filters selected");
+    act("+ and - move filters and effects thru chains");
+    act(" ! = Switch on/off On Screen Display information");
+    act(" @ = Switch on/off screen cleanup after every frame");
+    act("ctrl+o  = Open new layer (will prompt for path to file)");
+    act("ctrl+e  = Add a new Effect to the selected layer");
+    act("ctrl+b  = Change the Blit for the selected layer");
+    act("ctrl+a  = Move Rotate and Zoom the selected layer"); 
+    act("ctrl+p  = Set parameters for the selected layer or filter");
+    act("ctrl+t  = Add a new Text layer (will prompt for text)");
+    act("ctrl+y  = Insert a new word in selected Text layer");
+    act("ctrl+v  = Fade the Blit Value for the selected layer");
+    act("ctrl+l  = Cleanup and redraw the console");
+    act("ctrl+f  = Go to Fullscreen");
+    act("ctrl+c  = Quit FreeJ");
+    act("ctrl+x  = execute a script command");
+    act("ctrl+j  = load and execute a script file");
     break;
-
-  case SL_KEY_DOWN:
-    if(!layer) break;
-    filter = (FilterInstance*)layer->filters.selected();
-    if(!filter) {
-      filter = (FilterInstance*)layer->filters.begin();
-      layer->filters.sel(0);
-    } else if(filter->next) {
-      filter = (FilterInstance*)filter->next;
-      layer->filters.sel(0);
-    }
-    // select only the current
-    if(filter) filter->sel(true);      
-    break;
-
-  case SL_KEY_LEFT:
-    if(!env->layers.len()) break; // there are no layers
-
-    // get the one selected, or the first
-    layer = (Layer*)env->layers.selected();
-    if(!layer) layer = (Layer*)env->layers.begin();
     
-    filter = (FilterInstance*)layer->filters.selected();
-    if(!filter) { // no filter selected, move across layers
-
-      // move to the previous or the other end
-      if(!layer->prev)
-	layer = (Layer*)env->layers.end();
-      else
-	layer = (Layer*)layer->prev;
-      
-      // select only this layer
-      env->layers.sel(0);
-      layer->sel(true);
-
-    } else { // a filter is selected: move across filter parameters
-
-      // TODO
-
-    }
-
+  case '!':
+    env->osd.active = !env->osd.active;
     break;
-
-  case SL_KEY_RIGHT:
-    if(!env->layers.len()) break; // there are no layers
-
-    // get the one selected, or the first
-    layer = (Layer*)env->layers.selected();
-    if(!layer) layer = (Layer*)env->layers.begin();
-
-    if(!filter) { // no filter selected, move across layers
-
-      // move to the next layer or the other end
-      if(!layer->next)
-	layer = (Layer*)env->layers.begin();
-      else layer = (Layer*)layer->next;
-      
-      // select only the current
-      env->layers.sel(0);
-      layer->sel(true);
-
-    } else { // move across filter parameters
-
-      // TODO
-
-    }
+    
+  case '@':
+    env->clear_all = !env->clear_all;
     break;
-
+    
+    
   case '<':
     // decrease global fps
     if(env->fps_speed>1)
@@ -1114,148 +1284,9 @@ void Console::parser_default(int key) {
     env->set_fps_interval(env->fps_speed);
     ::act("Frames per second increased to %i",env->fps_speed);
     break;
-
-  case SL_KEY_PPAGE:
-  case KEY_PLUS:
-    // move layer/filter selected up in chain
-    if(filter)
-      filter->up();
-    else if(layer)
-      layer->up();
-    break;
-      
-  case SL_KEY_NPAGE:
-  case KEY_MINUS:
-    // move layer/filter selected up in chain
-    if(filter)
-      filter->down();
-    else if(layer)
-      layer->down();
-    break;
-
-    //  case SL_KEY_END: break;
-
-  case SL_KEY_DELETE:
-  case KEY_CTRL_D:
-    if(layer) filter = (FilterInstance*) layer->filters.selected();
-    if(filter) {
-      filter->rem();
-      //      filter->clean();
-      delete filter;
-      filter = NULL;
-    } else if(layer) {
-      layer->rem();
-      layer->close();
-      layer = NULL;
-    }
-    env->console->refresh();
-    break;
     
-  case KEY_SPACE:
-    if(layer) filter = (FilterInstance*) layer->filters.selected();
-    if(filter) filter->active = !filter->active;
-    else if(layer) layer->active = !layer->active;
-    break;
-
- case KEY_CTRL_H:
-  case KEY_CTRL_H_APPLE:
-  case '?':
-    notice("Hotkeys available in FreeJ console:");
-    act("Arrow keys browse selection thru layers and effects");
-    act("SPACE to de/activate layers and filters selected");
-    act("+ and - move filters and effects thru chains");
-    act(" ! = Switch on/off On Screen Display information");
-    act(" @ = Switch on/off screen cleanup after every frame");
-    act("ctrl+o  = Open new layer (will prompt for path to file)");
-    act("ctrl+e  = Add a new Effect to the selected layer");
-    act("ctrl+b  = Change the Blit for the selected layer");
-    act("ctrl+a  = Move Rotate and Zoom the selected layer"); 
-    act("ctrl+t  = Add a new Text layer (will prompt for text)");
-    act("ctrl+y  = Insert a new word in selected Text layer");
-    act("ctrl+v  = Fade the Blit Value for the selected layer");
-    act("ctrl+l  = Cleanup and redraw the console");
-    act("ctrl+f  = Go to Fullscreen");
-    act("ctrl+c  = Quit FreeJ");
-    act("ctrl+x  = execute a script command");
-    act("ctrl+j  = load and execute a script file");
-    break;
-
-  case '!':
-    env->osd.active = !env->osd.active;
-    break;
-
-  case '@':
-    env->clear_all = !env->clear_all;
-    break;
-
-
-  case KEY_CTRL_E:
-    if(!layer) {
-      error("can't add Effect: no Layer is selected, select one using arrows.");
-      break;
-    }
-    readline("add new Effect - press TAB for completion:",&filter_proc,&filter_comp);
-    break;
-
   case KEY_CTRL_F:
     env->screen->fullscreen();
-    break;
-
-  case KEY_CTRL_B:
-    if(!layer) {
-      error("can't change Blit: no Layer is selected, select one using arrows.");
-      break;
-    }
-    readline("select Blit mode for the selected Layer - press TAB for completion:",
-	     &blit_selection,&blit_comp);
-    break;
-
-  case KEY_CTRL_V:
-    if(!layer) {
-      error("can't change Blit Value: no Layer is selected, select one using arrows.");
-      break;
-    }
-    readline("set Blit value for the selected Layer:",
-	     &set_blit_value,NULL);
-    break;
-
-  case KEY_CTRL_O:
-      readline("open a file in a new Layer:",
-	       &open_layer,&filebrowse_completion);
-    break;
-
-#ifdef WITH_FT2
-  case KEY_CTRL_T:
-    readline("create a new text Layer, type your words:",
-	     &open_text_layer,NULL);
-    break;
-  case KEY_CTRL_Y:
-    if(strncmp(layer->get_name(),"TTF",3)==0)
-      readline("print a new word in text Layer, type your words:",
-	       &print_text_layer,NULL);
-    break;
-#endif
-
-  case KEY_CTRL_G:
-    tmp = new GenLayer();
-    if(tmp)
-      if(!tmp->init(env)) {
-	error("can't initialize particle generator layer");
-	delete tmp;
-      } else {
-	env->add_layer(tmp);
-	
-	// select the new layer
-	env->console->layer = tmp;
-
-	env->console->refresh();	
-	notice("particle generator succesfully created");
-	act("press 'p' or 'o' to change its random seed");
-
-	break;
-      }
-    error("layer creation aborted");
-
     break;
     
   case KEY_CTRL_X:
@@ -1270,41 +1301,53 @@ void Console::parser_default(int key) {
     refresh();
     break;
 
-  case KEY_CTRL_A:
-    ::notice("move layer with arrows, press enter when done");
-  ::act("use arrow keys to move, or keypad numbers");
-  ::act("+ and - zoom, < and > rotate");
-  ::act("w and s spin zoom, a and d spin rotate");
-  ::act(", stop rotation . stop zoom and <space> to center");
-  ::act("press <enter> when you are done");
-  parser = MOVELAYER;
-  break;
-
-  //  case KEY_CTRL_J:
-  //    ::notice("JAZZ mode activated, press keys to pulse layers");
-  //  parser = JAZZ;
-  //  break;
-
-  default:
-    //    if(filter)
-    //      filter->kbd_input( key );
-    //    else
-    if(layer)
-      layer->keypress( key );
+  case KEY_CTRL_O:
+    readline("open a file in a new Layer:",
+	     &open_layer,&filebrowse_completion);
     break;
-			 
-    //    case KEY_CTRL_T:
-    //      ::notice("Welcome to %s %s",PACKAGE,VERSION);
-    //    :: act("layers supported:\n%s",layers_description);
-    //    break;
-    }
+
+      
+    case KEY_CTRL_G:
+      { Layer *tmp = new GenLayer();
+	if(!tmp) break;
+	if(!tmp->init(env)) {
+	  error("can't initialize particle generator layer");
+	  delete tmp;
+	  break;
+	}
+
+	env->add_layer(tmp);
+	
+	env->console->refresh();	
+	notice("particle generator succesfully created");
+	act("press 'p' or 'o' to change its random seed");
+      }
+      break;
+
+#ifdef WITH_FT2
+  case KEY_CTRL_T:
+    readline("create a new Text Layer, type your words:",
+	     &open_text_layer,NULL);
+    break;
+#endif
+    
+  default: break;
+  
+  }
 }
 
 void Console::parser_movelayer(int key) {
   commandline = false; // print statusline
 
-  switch(key) {
+  // get the one selected
+  Layer *layer = (Layer*)env->layers.selected();
+  if(!layer) {
+    env->layers.begin();
+    layer->sel(true);
+  }
 
+  switch(key) {
+    
     // zoom
   case KEY_PLUS:  layer->blitter.set_zoom( layer->blitter.zoom_x + 0.01,
 					   layer->blitter.zoom_y + 0.01); break;
@@ -1313,7 +1356,7 @@ void Console::parser_movelayer(int key) {
   case 'w':       layer->blitter.set_spin(0,-0.001);    break;
   case 's':       layer->blitter.set_spin(0,0.001);     break;
   case '.':       layer->blitter.set_zoom(0,0);         break;
-
+    
     // rotation
   case '<': layer->blitter.set_rotate( layer->blitter.rotate + 0.5 ); break;
   case '>': layer->blitter.set_rotate( layer->blitter.rotate - 0.5 ); break;
@@ -1321,9 +1364,9 @@ void Console::parser_movelayer(int key) {
   case 'd': layer->blitter.set_spin(-0.02,0);  break;
   case ',': layer->blitter.set_rotate(0);      break;
   case 'z': layer->blitter.antialias =
-	      !layer->blitter.antialias;       break;
-
-
+      !layer->blitter.antialias;       break;
+    
+    
   case '8':
   case 'k':
   case SL_KEY_UP:
@@ -1379,75 +1422,6 @@ void Console::parser_movelayer(int key) {
   return;
 }
 
-void Console::parser_jazz(int key) {
-  commandline = false;
-  Layer *lay;
-  bool found = false;
-  // table of valid keys
-  char *jazzkeys = "1234567890qwertyuiopasdfghjklzxcvbnm\0";
-  char *p;
-  
-  lay = (Layer*) env->layers.begin();
-  if(!lay) {
-    error("Can't enter Jazz mode: no layers are loaded");
-    parser = DEFAULT;
-    return;
-  }
-  // search for the corresponding layer
-  for(p = jazzkeys; *p != '\0'; p++) {
-
-    if(*p==key) { // stop searching if key is found
-      found = true;
-      break;
-    }
-
-    lay = (Layer*)lay->next; // it's the next layer as well as the next key!
-
-
-    if(!lay) { // stop searching if it's the last layer
-      found = false;
-      break;
-    }
-  } // quits if the key is found
-
-  if(found) { // means it's found
-    // check it
-    //    if(!lay) return;
-    // pulse it
-    lay->pulse_alpha(jazzstep,jazzvalue);
-    layer = lay;
-    //    env->layers.sel(0);
-    //    lay->sel(true);
-
-    return;
-  }
-  
-  switch(key) {
-  case SL_KEY_UP:
-    if(jazzstep<0xff) jazzstep++;
-    ::act("jazz mode velocity set to %i",jazzstep);
-    break;
-  case SL_KEY_DOWN:
-    if(jazzstep>1) jazzstep--;
-    ::act("jazz mode velocity set to %i",jazzstep);
-    break;
-  case SL_KEY_RIGHT:
-    if(jazzvalue<0xff) jazzvalue++;
-    ::act("jazz mode maximal set to %i",jazzvalue);
-    break;
-  case SL_KEY_LEFT:
-    if(jazzvalue>1) jazzvalue--;
-    ::act("jazz mode maximal set to %i",jazzvalue);
-    break;
-
-  case SL_KEY_ENTER:
-  case KEY_ENTER:
-    ::act("JAZZ mode exited");
-  parser = DEFAULT;
-  break;
-  }
-  
-}
 
 // read a command from commandline
 // handles completion and execution from function pointers previously setup

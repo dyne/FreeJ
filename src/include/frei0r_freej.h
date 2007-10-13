@@ -54,7 +54,7 @@ class Freior: public Entry {
   // dlopen handle
   void *handle;
   // full .so file path
-  char filename[256];
+  char filename[512];
 
   // parameter map
   vector<f0r_param_info_t> param_infos;

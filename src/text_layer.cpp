@@ -50,9 +50,18 @@ TTFLayer::TTFLayer()
   bgcolor.g = 0x00;
   bgcolor.b = 0x00;
 
+  type = TEXT_LAYER;
   set_name("TTF");
   surf = NULL;
 
+  { // setup specific layer parameters
+    Parameter *param;
+    
+    param = new Parameter(PARAM_NUMBER);
+    param->name = "size";
+    param->description = "set the size of the font";
+    parameters.append(param);
+  }
 }
 
 
