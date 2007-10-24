@@ -38,7 +38,7 @@ TTFLayer::TTFLayer()
   // set defaults
 
   font = NULL;
-  sel_font = 20;
+  sel_font = 0;
 
   size = 30;
 
