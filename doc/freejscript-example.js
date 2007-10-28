@@ -50,7 +50,8 @@ if(text) {
     text.size(40);
     text.spin(1.05, 0.2);
     for( c=0; c<10; c++) {
-       text.font(c+1);
+       //text.font(c+1);
+       text.font("/usr/share/fonts/truetype/freefont/FreeSans.ttf");
        numba = rand(c*10); // generate random numbers <(c*10)
        msg = c + ": " + numba;
        text.print(msg); // print it in truetype fonts on text layer

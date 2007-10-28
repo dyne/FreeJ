@@ -37,6 +37,14 @@
 
 
 // Linear transparent blits
+BLIT blit_xor(void *src, void *dst, int bytes, void *value) {
+  register int c;
+  register uint32_t *s = (uint32_t*)src;
+  register uint32_t *d = (uint32_t*)dst;
+
+  for(c=bytes>>2;c>0;c--,s++,d++)
+    *d ^= *s;
+}
 
 BLIT red_channel(void *src, void *dst, int bytes, void *value) {
   register int c;
@@ -385,6 +393,11 @@ Blitter::Blitter() {
   sprintf(b->desc,"bitwise or");
   b->type = LINEAR_BLIT;
   b->fun = schiffler_or; blitlist.append(b);
+
+  b = new Blit(); b->set_name("XOR");
+  sprintf(b->desc,"bitwise xor");
+  b->type = LINEAR_BLIT;
+  b->fun = blit_xor; blitlist.append(b);
 
   b = new Blit(); b->set_name("RED");
   sprintf(b->desc,"red channel only blit");
