@@ -186,6 +186,7 @@ else
    PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
                      have_oggtheora=yes, have_oggtheora=no)
    XIPH_LIBS="$XIPH_LIBS \$(top_srcdir)/lib/theora-mmx/libtheora.a"
+   XIPH_INCLUDE="-I\$(top_srcdir)/lib/theora-mmx"
    THEORA_MMX_DIR="theora-mmx"
 fi
 if test x$have_oggtheora = xyes ; then
