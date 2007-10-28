@@ -37,6 +37,7 @@ Linklist::Linklist() {
   length = 0;
   first = NULL;
   last = NULL;
+  selection = NULL;
 #ifdef THREADSAFE
   pthread_mutex_init(&mutex,NULL);
 #endif
@@ -310,7 +311,8 @@ void Linklist::sel(int pos) {
 /* returns the last one selected
    this is supposed to be used with single selections */
 Entry *Linklist::selected() {
-  return selection; // now faster
+  if(!first) return NULL; // no entries at all
+  return selection;       // now faster <= haha
   /*
   if(!last) return NULL; // no entries at all
   

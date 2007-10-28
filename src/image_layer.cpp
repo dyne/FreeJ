@@ -60,6 +60,7 @@ bool ImageLayer::open(char *file) {
     error("ImageLayer::open() error: %s", file,IMG_GetError());
     return false;
   }
+  set_filename(file);
 
   /**
    * Convert to display pixel format if the images is not 32 bit per pixel
