@@ -53,7 +53,7 @@
 		  ci sono le funzioni chiamate */
 #define WARN 1 /* ... blkbblbl */
 
-char msg[255];
+char msg[MAX_ERR_MSG+1];
 
 static int verbosity = 0;
 
@@ -101,25 +101,34 @@ void set_console(Console *c) {
 
 void notice(char *format, ...) {
   va_list arg;
-  va_start(arg, format);
+  const char prefix[] = "[*] ";
+  const unsigned int prefix_len = sizeof(prefix) - 1; 
 
-  vsnprintf(msg, 254, format, arg);
-  if(console) console->notice(msg);
-  else fprintf(stderr,"[*] %s\n",msg);
-  
+  sprintf(msg, prefix);
+
+  va_start(arg, format);
+  vsnprintf(msg+prefix_len, MAX_ERR_MSG-prefix_len, format, arg);
   va_end(arg);
+
+  if(console) console->notice(msg);
+  else fprintf(stderr, "%s\n", msg);
+  
 }
 
 void func(char *format, ...) {
   if(verbosity>=FUNC) {
     va_list arg;
-    va_start(arg, format);
-    
-    vsnprintf(msg, 254, format, arg);
-    if(console) console->func(msg);
-    else fprintf(stderr,"[F] %s\n",msg);
+    const char prefix[] = "[F] ";
+    const unsigned int prefix_len = sizeof(prefix) - 1; 
 
+    sprintf(msg, prefix);
+
+    va_start(arg, format);
+    vsnprintf(msg+prefix_len, MAX_ERR_MSG-prefix_len, format, arg);
     va_end(arg);
+
+    if(console) console->func(msg);
+    else fprintf(stderr,"%s\n",msg);
   }
 }
 
@@ -127,7 +136,7 @@ void error(char *format, ...) {
   va_list arg;
   va_start(arg, format);
   
-  vsnprintf(msg, 254, format, arg);
+  vsnprintf(msg, MAX_ERR_MSG, format, arg);
   if(console) console->error(msg);
   else fprintf(stderr,"[!] %s\n",msg);
 
@@ -138,7 +147,7 @@ void act(char *format, ...) {
   va_list arg;
   va_start(arg, format);
   
-  vsnprintf(msg, 254, format, arg);
+  vsnprintf(msg, MAX_ERR_MSG, format, arg);
   if(console) console->act(msg);
   else fprintf(stderr," .  %s\n",msg);
   
@@ -150,7 +159,7 @@ void warning(char *format, ...) {
     va_list arg;
     va_start(arg, format);
     
-    vsnprintf(msg, 254, format, arg);
+    vsnprintf(msg, MAX_ERR_MSG, format, arg);
     if(console) console->warning(msg);
     else fprintf(stderr,"[W] %s\n",msg);
   

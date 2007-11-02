@@ -23,7 +23,9 @@
 #include <errno.h>
 #include <console.h>
 
-extern char msg[255];
+// max length of (error)messages
+#define MAX_ERR_MSG 1024
+extern char msg[MAX_ERR_MSG+1];
 
 extern void *(*jmemcpy)( void *to, const void *from, size_t len );
 

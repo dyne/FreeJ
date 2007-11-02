@@ -279,6 +279,13 @@ int main (int argc, char **argv) {
   // load default settings
   freej.config_check("keyboard.js");
   
+  /* initialize the S-Lang text Console */
+  if(!noconsole) {
+    if( getenv("TERM") ) {
+      freej.console = new Console();
+      freej.console->init( &freej );
+    }
+  }
 
   /* execute javascript */
   if( javascript[0] ) {
@@ -295,13 +302,6 @@ int main (int argc, char **argv) {
 
 
 
-  /* initialize the S-Lang text Console */
-  if(!noconsole) {
-    if( getenv("TERM") ) {
-      freej.console = new Console();
-      freej.console->init( &freej );
-    }
-  }
 
   /* initialize the On Screen Display */
   freej.osd.init( &freej );

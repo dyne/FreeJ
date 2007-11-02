@@ -33,7 +33,6 @@
 #include <jscntxt.h>
 
 // stuff for exception handling "try{} catch(e) {}"
-#define MAX_ERR_MSG 1024
 typedef enum JSExnType {
     JSEXN_NONE = -1,
         JSEXN_ERR,

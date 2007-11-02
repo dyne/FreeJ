@@ -110,8 +110,10 @@ JS(layer_constructor) {
   layer = create_layer( env, filename );
   if(!layer) {
     error("%s: cannot create a Layer using %s",__FUNCTION__,filename);
-    *rval = JSVAL_FALSE;
-    return JS_TRUE;
+    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
+                     JSSMSG_FJ_CANT_CREATE, filename,
+                     strerror(errno));
+    return JS_FALSE;
   }
 
   //    this_obj = JS_NewObject(cx, &layer_class, NULL, obj);

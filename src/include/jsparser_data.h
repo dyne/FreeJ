@@ -198,6 +198,7 @@ JS(fullscreen);
 JS(set_resolution);
 JS(freej_scandir);
 JS(freej_echo);
+JS(freej_echo_func);
 JS(freej_strstr);
 JS(file_to_strings);
 JS(register_controller);

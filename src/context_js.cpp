@@ -52,6 +52,7 @@ JSFunctionSpec global_functions[] = {
     {"set_resolution",  set_resolution,         2},
     {"scandir",         freej_scandir,          1},
     {"echo",            freej_echo,             1},
+    {"echo_func",       freej_echo_func,        1},
     {"strstr",          freej_strstr,           2},
     //    {"stream_start",    stream_start,           0},
     //    {"stream_stop",     stream_stop,            0},
@@ -265,7 +266,14 @@ JS(freej_scandir) {
 JS(freej_echo) {
   char *msg;
   JS_ARG_STRING(msg,0);
-  fprintf(stderr,"%s\n",msg);
+  notice(msg); 
+  return JS_TRUE;
+}
+
+JS(freej_echo_func) {
+  char *msg;
+  JS_ARG_STRING(msg,0);
+  func(msg); 
   return JS_TRUE;
 }
 
