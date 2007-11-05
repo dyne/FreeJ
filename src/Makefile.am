@@ -1,7 +1,6 @@
 INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/ccvt \
-           -I$(top_srcdir)/lib/avformat \
-           -I$(top_srcdir)/lib/avcodec \
+           -I@FFMPEG_CFLAGS@ \
            -I$(top_srcdir)/lib/shout \
            -I$(top_srcdir)/lib/portaudio \
            -I$(top_srcdir)/lib/sdl_image \

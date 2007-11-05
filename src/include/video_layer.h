@@ -18,10 +18,10 @@
 
 #ifndef __avcodec_h__
 #define __avcodec_h__
-
+extern "C" {
 #include <avcodec.h>
 #include <avformat.h>
-
+}
 #include <layer.h>
 #define INBUF_SIZE 4096
 #define NO_MARK -1

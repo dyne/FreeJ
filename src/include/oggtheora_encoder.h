@@ -33,8 +33,10 @@
 #include "vorbis/codec.h" // TODO vorbis encoding from mic
 #include "vorbis/vorbisenc.h"
 
+extern "C" {
 #include <avcodec.h>
 #include <avformat.h>
+}
 
 // #define AUDIO_BUFFER_SIZE 3528 // sample_rate * channel / fps / bytes of sample format
 
