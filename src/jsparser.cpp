@@ -266,16 +266,16 @@ int JsParser::open(const char* script_file) {
   fclose(fd);
 
   if( JS_EvaluateScript (js_context, global_object,
-			 buf, len, script_file, lineno, &ret_val)
+			 buf, len, script_file, 0, &ret_val)
       == JS_FALSE)
-    error("execution of script aborted");
+  error("execution of script aborted");
 
   return ret_val;
 }
 
 int JsParser::parse(const char *command) {
   jsval res;
-  JSBool ok;
+  JSString *str;
 
   if(!command) { /* true paranoia */
     warning("NULL command passed to javascript parser");
@@ -284,16 +284,21 @@ int JsParser::parse(const char *command) {
 
   func("JsParser::parse : %s",command);
 
-  ok =
-    JS_EvaluateScript(js_context, global_object,
-		      command, strlen(command), "console", 1, &res);
-  if(!ok) {
-    char err[512];
-    JS_ReportError(js_context, "%s", err);
-    error("%s",err);
-    return 0;
-  }
-  return 1;
+  res = JSVAL_VOID;
+  JS_EvaluateScript(js_context, global_object,
+		      command, strlen(command), "console", 0, &res);
+  // return the result (to console)
+  if(!JSVAL_IS_VOID(res)){
+      str=JS_ValueToString(js_context, res);
+      if(str){
+          act("JS: %s", JS_GetStringBytes(str));
+      } else {
+          JS_ReportError(js_context, "Can't convert result to string");
+      }
+      return 0;
+  } // else
+    // if anything went wrong, our ErrorReporter was called!
+  return -1;
 }
 
 void JsParser::stop() {

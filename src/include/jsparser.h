@@ -50,8 +50,6 @@ class JsParser {
 	JSBool branch_callback(JSContext* Context, JSScript* Script);
 	//	void error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
 
-	uint32_t lineno;
-
     private:
 	JSRuntime *js_runtime;
 	JSContext *js_context;
