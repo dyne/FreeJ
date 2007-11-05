@@ -257,12 +257,12 @@ int main (int argc, char **argv) {
   act("----------------------------------------------");
 
   cmdline(argc,argv);
+  set_debug(debug_level);
 
   assert( freej.init(width,height, opengl) );
 
   if(fullscreen) freej.screen->fullscreen();
 
-  set_debug(debug_level);
 
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
      this hangs on some linux kernels - darwin doesn't even bothers with it
