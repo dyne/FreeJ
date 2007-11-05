@@ -135,8 +135,13 @@ FilterInstance *Filter::apply(Layer *lay) {
     delete instance;
     return NULL;
   }
-
+  errno=0;
   instance->outframe = (uint32_t*) calloc(lay->geo.size, 1);
+  if(errno != 0) {
+    error("calloc outframe failed (%i) applying filter %s",name, errno);
+    delete instance;
+    return NULL;
+  }
   
   lay->filters.append(instance);
 
@@ -220,6 +225,7 @@ FilterInstance::~FilterInstance() {
   if(proto)
     if(core) proto->destruct(this);
   if(outframe) free(outframe);
+  outframe=NULL;
 }
 
 uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
