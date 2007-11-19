@@ -36,6 +36,7 @@ class Filter;
 
 class Freior: public Entry {
   friend class Filter;
+  friend class GenF0rLayer;
  public:
 
   Freior();

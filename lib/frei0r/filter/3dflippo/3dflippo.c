@@ -84,57 +84,57 @@ void f0r_get_param_info(f0r_param_info_t* info, int param_index)
   switch(param_index)
   {
   case 0:
-    info->name="X axis rotation";
+    info->name="X.rotation";
     info->type=F0R_PARAM_DOUBLE;
     info->explanation="Rotation on the X axis";
     break;
   case 1:
-    info->name="Y axis rotation";
+    info->name="Y.rotation";
     info->type=F0R_PARAM_DOUBLE;
     info->explanation="Rotation on the Y axis";
     break;
   case 2:
-    info->name="Z axis rotation";
+    info->name="Z.rotation";
     info->type=F0R_PARAM_DOUBLE;
     info->explanation="Rotation on the Z axis";
     break;
   case 3:
-    info->name="X axis rotation rate";
+    info->name="X.spin";
     info->type=F0R_PARAM_DOUBLE;
     info->explanation="Rotation rate on the X axis";
     break;
   case 4:
-    info->name="Y axis rotation rate";
+    info->name="Y.spin";
     info->type=F0R_PARAM_DOUBLE;
     info->explanation="Rotation rate on the Y axis";
     break;
   case 5:
-    info->name="Z axis rotation rate";
+    info->name="Z.spin";
     info->type=F0R_PARAM_DOUBLE;
     info->explanation="Rotation rate on the Z axis";
     break;
   case 6:
-    info->name="Center position (X)";
+    info->name="X.center";
     info->type=F0R_PARAM_DOUBLE;
     info->explanation="Position of the center of rotation on the X axis";
     break;
   case 7:
-    info->name="Center position (Y)";
+    info->name="Y.center";
     info->type=F0R_PARAM_DOUBLE;
     info->explanation="Position of the center of rotation on the Y axis";
     break;
   case 8:
-    info->name="Invert rotation assignment";
+    info->name="Invert";
     info->type=F0R_PARAM_BOOL;
     info->explanation="If true, when mapping rotation, make inverted (wrong) assignment";
     break;
   case 9:
-    info->name="Don't blank mask";
+    info->name="Blank";
     info->type=F0R_PARAM_BOOL;
     info->explanation="Mask for frame transposition is not blanked, so a trace of old transpositions is maintained";
     break;
   case 10:
-    info->name="Fill with image or black";
+    info->name="Fill";
     info->type=F0R_PARAM_BOOL;
     info->explanation="If true, pixels that are not transposed are black, otherwise, they are copied with the original";
     break;

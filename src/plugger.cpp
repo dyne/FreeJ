@@ -98,9 +98,15 @@ int Plugger::refresh(Context *env) {
 
 	// check what kind of plugin is and place it
 	if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
-	  //	case F0R_PLUGIN_TYPE_FILTER:
+
 	  Filter *filt = new Filter(fr);
 	  env->filters.append(filt);
+
+	} else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {
+
+	  Filter *filt = new Filter(fr);
+	  env->generators.append(filt);	  
+	
 	} else {
 	  func("frei0r plugin of type %i not supported (yet)",
 	       fr->info.plugin_type);
@@ -112,7 +118,8 @@ int Plugger::refresh(Context *env) {
   } while((dir = strtok(NULL,":")));
 
   act("filters found: %u", env->filters.len());
-  
+  act("generators found: %u", env->generators.len());
+
   return 0;
 }
 

@@ -55,7 +55,7 @@ class Linklist {
   bool movedown(int pos);
   bool moveto(int num, int pos);
   Entry *pick(int pos);  
-  Entry *search(char *name);
+  Entry *search(char *name, int *idx);
   Entry **completion(char *needle);
 
   Entry *selected();
@@ -106,7 +106,7 @@ class Entry {
   
   bool select;
 
-  char name[256];
+  char *name;
 
   void *data; ///< generic data pointer
 };

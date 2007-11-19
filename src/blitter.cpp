@@ -662,7 +662,10 @@ void Blitter::blit() {
 
 
 bool Blitter::set_blit(char *name) {
+  Blit *b;
   bool zeroing = false;
+  int idx;
+
   if(name[0]=='0') { /* if a 0 is in front of the name
 			we switch to 0 the value of the layer
 			before activating it */
@@ -670,7 +673,7 @@ bool Blitter::set_blit(char *name) {
     name++;
   }
 
-  Blit *b = (Blit*)blitlist.search(name);
+  b = (Blit*)blitlist.search(name, &idx);
 
   if(!b) {
     error("blit %s not found",name);
@@ -752,7 +755,11 @@ bool Blitter::fade_value(float step, float val) {
 
 bool Blitter::set_colorkey(int colorkey_x,int colorkey_y) {
 
-  Blit *b = (Blit*)blitlist.search("CHROMAKEY");
+  Blit *b;
+  int idx;
+
+  b = (Blit*)blitlist.search("CHROMAKEY", &idx);
+
   if(!b) {
     error("can't find chromakey blit");
       return false;

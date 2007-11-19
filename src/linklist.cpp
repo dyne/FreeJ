@@ -218,13 +218,19 @@ Entry *Linklist::pick(int pos) {
 
 /* search the linklist for the entry matching *name
    returns the Entry* on success, NULL on failure */
-Entry *Linklist::search(char *name) {
+Entry *Linklist::search(char *name, int *idx) {
+  int c = 1;
   Entry *ptr = first;
   while(ptr) {
-    if( strcasecmp(ptr->name,name)==0 ) break;
+    if( strcasecmp(ptr->name,name)==0 ) {
+      *idx = c;
+      return(ptr);
+    }
     ptr = ptr->next;
+    c++;
   }
-  return(ptr);
+  *idx = 0;
+  return(NULL);
 }    
 /* searches all the linklist for entries starting with *needle
    returns a list of indexes where to reach the matches */
@@ -332,12 +338,13 @@ Entry::Entry() {
   list = NULL;
   data = NULL;
   select = false;
-  strncpy(name,"noname",255);
+  name = (char*)calloc(256, sizeof(char));
 }
 
 Entry::~Entry() {
   rem();
   if(data) free(data);
+  free(name);
 }
 
 void Entry::set_name(char *nn) {

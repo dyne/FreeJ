@@ -43,14 +43,39 @@ int audio_callback(const void *inputBuffer, void *outputBuffer,
   a->frames = framesPerBuffer;
   a->bytesize = a->frames * sizeof(int16_t) * a->channels;
 
-  num = ringbuffer_write(a->input_pipe, (const char*)inputBuffer, a->bytesize);
-  if(num != a->bytesize)
-    func("audio input pipe full, written %i instead of %u bytes", num, a->bytesize);
+  num = pipe_write("audio_callback", a->input_pipe, (char*) inputBuffer, a->bytesize);
+  //  if(num != a->bytesize)
+  //    func("audio input pipe full, written %i instead of %u bytes", num, a->bytesize);
 
   //  a->output_pipe -> read  (a->bytesize , (void*)outputBuffer);
 
   return paContinue;
 }
+
+int pipe_read(char *name, ringbuffer_t *rb, char *dest, size_t cnt) {
+  // wait until we have enough bytes to read
+  while( ringbuffer_read_space(rb) < cnt ) {
+    warning("%s pipe read not ready", name);
+    jsleep(0,10);    
+  }
+  return ringbuffer_read(rb, dest, cnt);
+}
+int pipe_write(char *name, ringbuffer_t *rb, char *src, size_t cnt) {
+  while( ringbuffer_write_space(rb) < cnt ) {
+    warning("%s pipe write not ready", name);
+    jsleep(0,10);
+  }
+  return ringbuffer_write(rb, src, cnt);
+}
+int pipe_peek(char *name, ringbuffer_t *rb, char *dest, size_t cnt) {
+  while( ringbuffer_read_space(rb) < cnt ) {
+    warning("%s pipe peek not ready", name);
+    jsleep(0,10);
+  }
+  return ringbuffer_peek(rb, dest, cnt);
+}
+
+
 
 AudioInput::AudioInput() {
   func("creating audio input");
@@ -186,7 +211,7 @@ bool AudioInput::init() {
 			   more zero samples have been inserted into the input buffer to compensate
 			   for an input underflow.
 		       */
-//		       paInputUnderflow | 
+		       paInputUnderflow | 
 		       
 		       /** In a stream opened with paFramesPerBufferUnspecified, indicates that data
 			   prior to the first sample of the input buffer was discarded due to an
@@ -194,8 +219,8 @@ bool AudioInput::init() {
 			   Otherwise indicates that data prior to one or more samples in the
 			   input buffer was discarded.
 		       */
-//		       paInputOverflow,
-		       paNoFlag,
+		       paInputOverflow,
+		       //		       paNoFlag,
 		       audio_callback, 
 		       this );
   
@@ -264,10 +289,7 @@ int AudioInput::cafudda() {
 
     num = framesperbuffer*sizeof(int16_t)*channels;
 
-    // wait until we have enough bytes to read
-    while( ringbuffer_read_space(input_pipe) < num ) jsleep(0,10);
-
-    inputframes = ringbuffer_read(input_pipe, (char*) input, num);
+    inputframes = pipe_read("AudioInput::cafudda", input_pipe, (char*)input, num);
 
   }
   //  output_pipe->write(num, (void*)input);

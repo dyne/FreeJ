@@ -69,6 +69,7 @@ public:
   f0r_param_position drop;
   f0r_param_position splash;
   f0r_param_double physics;
+  f0r_param_double old_physics;
   bool rain;
   bool distort;
   bool smooth;
@@ -92,12 +93,14 @@ public:
     oy = 80;
     done = 0;
     mode = 0x4000;
-    
+
+
     /* default physics */
     density = 4;
     pheight = 600;
     radius = 30;
-    
+    old_physics = physics;
+
     raincount = 0;
     rain = 0;
     blend = 0;
@@ -147,8 +150,13 @@ public:
   virtual void update() {
 
     memcpy(BkGdImage, in, width*height*sizeof(uint32_t));
-
-
+    
+    if(old_physics != physics)
+      if(physics < 0.25) water_setphysics(WATER);
+      else if(physics < 0.50) water_setphysics(JELLY);
+      else if(physics < 0.75) water_setphysics(SLUDGE);
+      else water_setphysics(SUPER_SLUDGE);
+    
     if(rain) {
       raincount++;
       if(raincount>3) {
@@ -305,8 +313,8 @@ void Water::water_distort() {
   memset(Height[Hpage], 0, water_surfacesize);
 }
 
-void Water::water_setphysics(int physics) {
-  switch(physics) {
+void Water::water_setphysics(int phys) {
+  switch(phys) {
   case WATER:
     mode |= 0x4000;
     density=4;

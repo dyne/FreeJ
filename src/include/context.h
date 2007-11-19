@@ -145,6 +145,8 @@ class Context {
 
   Linklist filters; ///< linked list of registered filters
 
+  Linklist generators; ///< linked list of registered generators
+
   Linklist encoders; ///< linked list of registered encoders
 
 

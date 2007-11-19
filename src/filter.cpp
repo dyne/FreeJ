@@ -15,8 +15,9 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * "$Id: $"
- *
+
+$Id: $
+
  */
 
 #include <config.h>
@@ -28,19 +29,20 @@
 #include <jutils.h>
 
 
-Parameter::Parameter(int param_type) {
+Parameter::Parameter(int param_type)
+  : Entry() {
   switch(param_type) {
   case PARAM_BOOL:
-    value = calloc(1, sizeof(bool));
+    value = calloc(1, sizeof(double));
     break;
   case PARAM_NUMBER:
-    value = calloc(1, sizeof(float));
+    value = calloc(1, sizeof(double));
     break;
   case PARAM_COLOR:
-    value = calloc(3, sizeof(float));
+    value = calloc(3, sizeof(double));
     break;
   case PARAM_POSITION:
-    value = calloc(2, sizeof(float));
+    value = calloc(2, sizeof(double));
     break;
   case PARAM_STRING:
     value = calloc(512, sizeof(char));
@@ -55,32 +57,6 @@ Parameter::Parameter(int param_type) {
 Parameter::~Parameter() {
   free(value);
 }
-
-void *Parameter::get_value() {
-  return value;
-}
-
-void Parameter::set_value(void *val) {
-  if      (type==PARAM_NUMBER)
-    *(float*)value = *(float*)val;
-  else if (type==PARAM_BOOL)
-    *(bool*)value = *(bool*)val;
-  else if (type==PARAM_POSITION) {
-    ((float*)value)[0] = ((float*)val)[0];
-    ((float*)value)[1] = ((float*)val)[1];
-  }
-  else if (type==PARAM_COLOR) {
-    ((float*)value)[0] = ((float*)val)[0];
-    ((float*)value)[1] = ((float*)val)[1];
-    ((float*)value)[2] = ((float*)val)[2];
-  }
-  else if (type==PARAM_STRING)
-    strcpy((char*)value, (char*)val);
-  else
-    error("attempt to set value for a parameter of unknown type: %u", type);
-}
-
-
 
 
 
@@ -106,7 +82,8 @@ Filter::Filter(Freior *f)
     (*f->f0r_get_param_info)(&f->param_infos[i], i);
 
     Parameter *param = new Parameter(f->param_infos[i].type);
-    param->name = f->param_infos[i].name;
+    strncpy(param->name, f->param_infos[i].name, 255);
+
     param->description = f->param_infos[i].explanation;
     parameters.append(param);
   }
@@ -138,7 +115,7 @@ FilterInstance *Filter::apply(Layer *lay) {
   errno=0;
   instance->outframe = (uint32_t*) calloc(lay->geo.size, 1);
   if(errno != 0) {
-    error("calloc outframe failed (%i) applying filter %s",name, errno);
+    error("calloc outframe failed (%i) applying filter %s",errno, name);
     delete instance;
     return NULL;
   }
@@ -167,30 +144,33 @@ char *Filter::get_parameter_description(int i) {
 
 bool Filter::set_parameter_value(FilterInstance *inst, double *value, int idx) {
 
-  switch(freior->param_infos[idx].type) {
+  switch(freior->param_infos[idx-1].type) {
 
+    // idx-1 because frei0r's index starts from 0
   case F0R_PARAM_BOOL:
-    (*freior->f0r_set_param_value)(inst->core, new f0r_param_bool(value[0]), idx);
+    (*freior->f0r_set_param_value)(inst->core, new f0r_param_bool(value[0]), idx-1);
     break;
 
   case F0R_PARAM_DOUBLE:
-    (*freior->f0r_set_param_value)(inst->core, new f0r_param_double(value[0]), idx);
+    (*freior->f0r_set_param_value)(inst->core, new f0r_param_double(value[0]), idx-1);
     break;
 
   case F0R_PARAM_COLOR:
     { f0r_param_color *color = new f0r_param_color;
       color->r = value[0]; color->g = value[1]; color->b = value[2];
-      (*freior->f0r_set_param_value)(inst->core, color, idx);
+      (*freior->f0r_set_param_value)(inst->core, color, idx-1);
     } break;
 
   case F0R_PARAM_POSITION:
     { f0r_param_position *position = new f0r_param_position;
       position->x = value[0]; position->y = value[1];
-      (*freior->f0r_set_param_value)(inst->core, position, idx);
+      (*freior->f0r_set_param_value)(inst->core, position, idx-1);
     } break;
 
   default:
-    error("Unrecognized parameter type for set_parameter_value");
+
+    error("Unrecognized parameter type %u for set_parameter_value",
+	  freior->param_infos[idx].type);
   }
 
   return(true);
@@ -209,7 +189,10 @@ void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32
 }
 
 
-FilterInstance::FilterInstance(Filter *fr)  {
+FilterInstance::FilterInstance(Filter *fr)
+  : Entry() {
+  func("creating instance for filter %s",fr->name);
+
   proto = fr;
 
   core = NULL;
@@ -237,3 +220,57 @@ uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
   return outframe;
 }
 
+bool FilterInstance::set_parameter(int idx, void *val) {
+  Parameter *param;
+  param = (Parameter*)proto->parameters[idx];
+
+  if( ! param) {
+    error("parameter %s not found in filter %s", param->name, proto->name );
+    return false;
+  } else 
+    func("parameter %s found in filter %s at position %u",
+	 param->name, proto->name, idx);
+  
+  ////////////////////////////////////////
+  if(param->type == PARAM_NUMBER) {
+    
+    ((double*)param->value)[0] = ((double*)val)[0];
+
+    act("filter %s parameter %s set to: %.5f", name, param->name, ((double*)param->value)[0]);
+    
+    //////////////////////////////////////
+  } else if(param->type == PARAM_BOOL) {
+    
+    ((double*)param->value)[0] = ((double*)val)[0];
+
+    //    act("filter %s parameter %s set to: %e", name, param->name, (double*)param->value);
+    //////////////////////////////////////
+  } else if (param->type == PARAM_POSITION) {
+
+    ((double*)param->value)[0] = ((double*)val)[0];
+    ((double*)param->value)[1] = ((double*)val)[1];
+
+    //////////////////////////////////////
+  } else if (param->type==PARAM_COLOR) {
+
+    ((double*)param->value)[0] = ((double*)val)[0];
+    ((double*)param->value)[1] = ((double*)val)[1];
+    ((double*)param->value)[2] = ((double*)val)[2];
+
+    //////////////////////////////////////
+  } else if (param->type==PARAM_STRING) {
+    
+    strcpy((char*)param->value, (char*)val);
+
+  } else {
+    error("attempt to set value for a parameter of unknown type: %u", param->type);
+    return false;
+  }
+  
+  // register parameter in frei0r
+  proto->set_parameter_value(this, (double*)param->value, idx);
+
+  return true;
+}
+
+    

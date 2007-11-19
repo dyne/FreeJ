@@ -58,7 +58,7 @@ TTFLayer::TTFLayer()
     Parameter *param;
     
     param = new Parameter(PARAM_NUMBER);
-    param->name = "size";
+    strcpy(param->name, "size");
     param->description = "set the size of the font";
     parameters.append(param);
   }

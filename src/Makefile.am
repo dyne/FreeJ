@@ -1,6 +1,6 @@
 INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/ccvt \
-           -I@FFMPEG_CFLAGS@ \
+           @FFMPEG_CFLAGS@ \
            -I$(top_srcdir)/lib/shout \
            -I$(top_srcdir)/lib/portaudio \
            -I$(top_srcdir)/lib/sdl_image \
@@ -62,6 +62,7 @@ freej_SOURCES = \
 	text_layer_js.cpp \
 	gen_layer.cpp	\
 	gen_layer_js.cpp \
+	gen_f0r_layer.cpp \
 	geo_layer.cpp	\
 	geo_layer_js.cpp \
 	flash_layer.cpp \

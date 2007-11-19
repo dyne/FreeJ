@@ -33,7 +33,7 @@
 #include <config.h>
 
 #include <gen_layer.h>
-
+#include <gen_f0r_layer.h>
 
 #define PLAIN_COLOR 1
 #define TITLE_COLOR 1
@@ -122,6 +122,10 @@ static int getkey_handler() {
 }
 
 static int param_selection(char *cmd) {
+  Parameter *param;
+  double *value;
+  int idx;
+  
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
 
@@ -132,29 +136,72 @@ static int param_selection(char *cmd) {
   }
   FilterInstance* filt =
     (FilterInstance*)lay->filters.selected();
+
   if(filt) { // parameters for filter
 
-    /*    char *tmp = strtok(cmd, " ");
-    Parameter *param = (Parameter*)filt->proto->parameters.search(tmp);
-    if(param) notice("console.cpp::parameter_set TODO");
-      //parameter_set(param, cmd); // parse the value
-    else {
-      error("parameter %s not found in filter %s", param->name, filt->name);
+    // find the values after the first blank space
+    char *p;
+    for(p = cmd; *p != '\0'; p++)
+      if(*p == ' ') { *p = '\0'; p++; break; }
+
+    // find the parameter
+    param = (Parameter*)filt->proto->parameters.search(cmd, &idx);
+    if( ! param) {
+      error("parameter %s not found in filter %s", cmd, filt->proto->name);
+      return 0;
+    } else 
+      func("parameter %s found in filter %s at position %u",
+	   param->name, filt->proto->name, idx);
+
+    // ACQUIRE THE VALUE
+    ////////////////////////////////////////
+    if(param->type == PARAM_NUMBER) {
+      
+      if( sscanf(p, "%le", (double*)param->value) < 1 ) {
+	error("error parsing value [%s] for parameter %s", p, param->name);
+	return 0;
+      }
+
+    //////////////////////////////////////
+    } else if(param->type == PARAM_BOOL) {
+      
+      if( sscanf(p, "%le", (double*)param->value) < 1 ) {
+	error("error parsing value [%s] for parameter %s", p, param->name);
+	return 0;
+      }
+
+    } else if(param->type == PARAM_POSITION) {
+
+      value = (double*)param->value;
+      if( sscanf(p, "%le %le", &value[0], &value[1]) < 1 ) {
+	error("error parsing position [%s] for parameter %s", p, param->name);
+	return 0;
+      }
+
+    } else if(param->type == PARAM_COLOR) {
+
+      value = (double*)param->value;
+      if( sscanf(p, "%le %le %le", &value[0], &value[1], &value[2]) < 1 ) {
+	error("error parsing position [%s] for parameter %s", p, param->name);
+	return 0;
+      }
+      
+    } else {
+      error("attempt to set value for a parameter of unknown type: %u", param->type);
       return 0;
     }
-    */
-  } else { // parameters for layer
-    /*
-    char *tmp = strtok(cmd, " ");
-    Parameter *param = (Parameter*)lay->parameters.search(tmp);
-    if(param) notice("console.cpp:parameter_set TODO");
-      // parameters_set(param, cmd); // parse the value
-    else {
-      error("parameter %s not found in layer %s", param->name, lay->name);
+
+    // parse the strings into value
+    
+    
+    if( ! filt->set_parameter(idx, param->value) ) {
+      error("error setting value %s for parameter %s on filter %s",
+	    p, param->name, filt->proto->name);
       return 0;
     }
-    */
   }
+  // else { } TODO parameters for layers
+
   return 1;
 }
 static int param_completion(char *cmd) {
@@ -177,12 +224,15 @@ static int param_completion(char *cmd) {
 
   if(!params[1]) { // exact match, then fill in command
     p = (Parameter*)params[0];
-    ::notice("%s :: %s",p->name,p->description);
+    //    ::notice("%s :: %s",p->name,p->description);
     snprintf(cmd,MAX_CMDLINE,"%s",p->name);
-    return 1;
+    //    return 1;
+  } else {
+    
+    notice("List available parameters starting with \"%s\"",cmd);
+
   }
 
-  notice("List available parameters starting with \"%s\"",cmd);
   int c;
   for(c=0; params[c]; c++) {
     p = (Parameter*)params[c];
@@ -258,10 +308,11 @@ static int blit_comp(char *cmd) {
 
 static int filter_proc(char *cmd) {
   Filter *filt;
+  int idx;
 
   if(!cmd) return 0;
 
-  filt = (Filter*)env->filters.search(cmd);
+  filt = (Filter*)env->filters.search(cmd, &idx);
   if(!filt) {
     ::error("filter not found: %s",cmd);  
     return 0;
@@ -1308,7 +1359,7 @@ void Console::parser_default(int key) {
 
       
     case KEY_CTRL_G:
-      { Layer *tmp = new GenLayer();
+      { Layer *tmp = new GenF0rLayer();
 	if(!tmp) break;
 	if(!tmp->init(env)) {
 	  error("can't initialize particle generator layer");

@@ -185,7 +185,7 @@ if test x$dynamic_ffmpeg = xyes ; then
 else
    PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
                      have_oggtheora=yes, have_oggtheora=no)
-   XIPH_LIBS="$XIPH_LIBS \$(top_srcdir)/lib/theora-mmx/libtheora.a"
+   XIPH_LIBS="$XIPH_LIBS -logg -lvorbis \$(top_srcdir)/lib/theora-mmx/libtheora.a"
    XIPH_INCLUDE="-I\$(top_srcdir)/lib/theora-mmx"
    THEORA_MMX_DIR="theora-mmx"
 fi
@@ -673,6 +673,11 @@ lib/frei0r/filter/twolay0r/Makefile
 lib/frei0r/filter/glow/Makefile
 lib/frei0r/filter/water/Makefile
 lib/frei0r/filter/cartoon/Makefile
+lib/frei0r/generator/Makefile
+lib/frei0r/generator/ising0r/Makefile
+lib/frei0r/generator/lissajous0r/Makefile
+lib/frei0r/generator/nois0r/Makefile
+lib/frei0r/generator/onecol0r/Makefile
 ])
 
 echo

@@ -49,6 +49,7 @@ extern Layer *create_layer(Context *env, char *file);
 
 #define UNKNOWN_LAYER 0
 #define TEXT_LAYER 1
+#define F0R_GENERATOR_LAYER 2
 
 /**
    This class describes methods and properties common to all Layers in

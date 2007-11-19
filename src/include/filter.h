@@ -47,13 +47,8 @@ class Parameter : public Entry {
 
   int type;
 
-  const char *name;
   const char *description;
 
-  void *get_value(); ///< transparent get (caller must check type)
-  void set_value(void *val); ///< transparent set (caller must check type)
-
- private:
   void *value;
 };
 
@@ -97,14 +92,14 @@ class FilterInstance : public Entry {
 
   uint32_t *process(float fps, uint32_t *inframe);
 
+  bool set_parameter(int idx, void *val); ///< set the parameter value
+  
   uint32_t *outframe;
 
   Filter *proto;
 
   bool active;
   bool inuse;
-
- protected:
 
   void *core;
 

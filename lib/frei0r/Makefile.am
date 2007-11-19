@@ -1,4 +1,2 @@
-SUBDIRS = 	filter
-
-#		generator		
+SUBDIRS = 	filter	generator		
 #		mixer2

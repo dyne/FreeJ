@@ -582,8 +582,10 @@ void Context::rocknroll() {
   while (l) {
     if (!l->running) {
       if (l->start() == 0) {
-	while (!l->running) 
+	while (!l->running) {
 	  jsleep(0,500);
+	  func("waiting %s layer thread to start", l->name);
+	}
 	l->active = start_running;
       }
       else { // problems starting thread

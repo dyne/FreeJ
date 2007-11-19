@@ -37,6 +37,13 @@ int audio_callback(const void *inputBuffer, void *outputBuffer,
 		   const PaStreamCallbackTimeInfo *timeInfo,
 		   const PaStreamCallbackFlags statusFlags, void *userData );
 
+
+// blocking wrappers for ringbuffer i/o
+int pipe_read (char *name, ringbuffer_t *rb, char *dest, size_t cnt);
+int pipe_write(char *name, ringbuffer_t *rb, char *src, size_t cnt);
+int pipe_peek (char *name, ringbuffer_t *rb, char *dest, size_t cnt);
+
+
 class AudioInput {
   
  public:

@@ -92,11 +92,13 @@ void Layer::_init(int wdt, int hgt) {
 void Layer::run() {
   void *tmp_buf;
 
+  func("Layer %s :: run :: begin thread %d", name, pthread_self());
+
   while(!feed()) 
       jsleep (0,50);
   
   func("ok, layer %s in rolling loop",get_name());
-  func("Layer :: run :: begin thread %d",pthread_self());
+
   
   
   lock_feed();

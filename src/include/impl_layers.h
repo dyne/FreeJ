@@ -29,6 +29,7 @@
 
 /* software layers which don't need special loaders */
 #include <gen_layer.h>
+#include <gen_f0r_layer.h>
 #include <geo_layer.h>
 #include <scroll_layer.h>
 #include <image_layer.h> // statically included sdl_image
