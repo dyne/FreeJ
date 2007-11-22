@@ -166,7 +166,7 @@ void cmdline(int argc, char **argv) {
    case 'j':
       FILE *fd;
       fd = fopen(optarg,"r");
-      if(!fd) error("can't open %s: %s",javascript,strerror(errno));
+      if(!fd) error("can't open JS file '%s': %s", optarg, strerror(errno));
       else {
 	snprintf(javascript,512,"%s",optarg);
 	fclose(fd);
@@ -284,13 +284,14 @@ int main (int argc, char **argv) {
     if( getenv("TERM") ) {
       freej.console = new Console();
       freej.console->init( &freej );
+      freej.console->cafudda ();
     }
   }
 
   /* execute javascript */
   if( javascript[0] ) {
     freej.interactive = false;
-    freej.open_script(javascript);
+    freej.open_script(javascript); // TODO: quit here when script failed??
     if(freej.quit) {
       //      freej.close();
       // here calling close directly we double the destructor
