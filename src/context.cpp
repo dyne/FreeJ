@@ -389,14 +389,16 @@ void Context::handle_controllers() {
 	}
   
   ctrl = (Controller *)controllers.begin();
-  if(ctrl) {
-    controllers.lock();
-    while(ctrl) {
-      if(ctrl->active)
-	ctrl->peep(this);
-      ctrl = (Controller*)ctrl->next;
-    }
-    controllers.unlock();
+  if(res) {
+      if(ctrl) {
+        controllers.lock();
+        while(ctrl) {
+          if(ctrl->active)
+        ctrl->peep(this);
+          ctrl = (Controller*)ctrl->next;
+        }
+        controllers.unlock();
+      }
   }
 
   // flushes all events that are leftover

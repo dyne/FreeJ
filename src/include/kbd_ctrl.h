@@ -36,7 +36,7 @@ class KbdCtrl: public Controller {
  private:  
   SDL_keysym *keysym;
 
-  void checksym(SDLKey, char *name);
+  int checksym(SDLKey, char *name);
 
   char keyname[512];
   char funcname[512];

@@ -66,16 +66,25 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
 
 int KbdCtrl::peep(Context *env) {
   int res;
+  SDL_Event user_event;
 
-  res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK);
+  user_event.type=SDL_USEREVENT;
+  user_event.user.code=42;
+  SDL_PeepEvents(&user_event, 1, SDL_ADDEVENT, SDL_ALLEVENTS);
+
+  res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_EVENTMASK(SDL_USEREVENT));
   while (res>0) {
-    poll(env);
-    res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK);
+    int handled = poll(env);
+    if (handled == 0)
+        SDL_PeepEvents(&env->event, 1, SDL_ADDEVENT, SDL_ALLEVENTS);
+    res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_EVENTMASK(SDL_USEREVENT));
+    if (env->event.type == SDL_USEREVENT)
+        res = 0;
   }
   return 1;
 }
 
-void KbdCtrl::checksym(SDLKey key, char *name) {
+int KbdCtrl::checksym(SDLKey key, char *name) {
   jsval ret;
   if(keysym->sym == key) {
     strcat(keyname,name);
@@ -86,7 +95,7 @@ void KbdCtrl::checksym(SDLKey key, char *name) {
       snprintf(funcname, 511, "released_%s", keyname);
 
     func("keyboard controller calling method %s()",funcname);
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    return JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
 /*
     {
       jsval js_data[] = {
@@ -98,6 +107,7 @@ void KbdCtrl::checksym(SDLKey key, char *name) {
         JS_CallFunctionName(jsenv, jsobj, "released", 2, js_data, &ret);
     } */
   }
+  return 0;
 }
 
 
@@ -134,9 +144,7 @@ int KbdCtrl::poll(Context *env) {
     else //if(env->event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     func("keyboard controller calling method %s()",funcname);
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
-    
-    return 1;
+    return JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
   }
   
   if( keysym->sym >= SDLK_a
@@ -150,9 +158,7 @@ int KbdCtrl::poll(Context *env) {
     else //if(env->event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     func("keyboard controller calling method %s()",funcname);
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
-
-    return 1;
+    return JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
   }
 
   // check arrows
@@ -192,8 +198,7 @@ int KbdCtrl::poll(Context *env) {
     else //if(env->event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     func("keyboard controller calling method %s()",funcname);
-    JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
-    return 1;
+    return JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
   }
   checksym(SDLK_KP_PERIOD,   "num_period");
   checksym(SDLK_KP_DIVIDE,   "num_divide");
