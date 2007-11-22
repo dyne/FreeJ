@@ -78,18 +78,21 @@ void KbdCtrl::checksym(SDLKey key, char *name) {
     func("keyboard controller detected key: %s",keyname);
     if(env->event.key.state == SDL_PRESSED)
       snprintf(funcname, 511, "pressed_%s", keyname);
-    else if(env->event.key.state == SDL_RELEASED)
+    else // if(env->event.key.state == SDL_RELEASED)
       snprintf(funcname, 511, "released_%s", keyname);
+
+    func("keyboard controller calling method %s()",funcname);
     JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+/*
     {
       jsval js_data[] = {
         STRING_TO_JSVAL(keyname),
         DOUBLE_TO_JSVAL(key) };
       if(env->event.key.state == SDL_PRESSED)
         JS_CallFunctionName(jsenv, jsobj, "pressed", 2, js_data, &ret);
-      else if(env->event.key.state == SDL_RELEASED)
+      else // if(env->event.key.state == SDL_RELEASED)
         JS_CallFunctionName(jsenv, jsobj, "released", 2, js_data, &ret);
-    }
+    } */
   }
 }
 
@@ -109,9 +112,10 @@ int KbdCtrl::poll(Context *env) {
   memset(funcname, 0, sizeof(char)<<9); // *512
   
   // check key modifiers
+  if(keysym->mod & KMOD_SHIFT)
+    strcat(keyname,"shift_");
   if(keysym->mod & KMOD_CTRL)
     strcat(keyname,"ctrl_");
-  
   if(keysym->mod & KMOD_ALT)
     strcat(keyname,"alt_");
   
@@ -123,7 +127,7 @@ int KbdCtrl::poll(Context *env) {
     strcat(keyname,tmp);
     if(env->event.key.state == SDL_PRESSED)
       sprintf(funcname,"pressed_%s",keyname);
-    if(env->event.key.state != SDL_RELEASED)
+    else //if(env->event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     func("keyboard controller calling method %s()",funcname);
     JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
@@ -134,16 +138,12 @@ int KbdCtrl::poll(Context *env) {
   if( keysym->sym >= SDLK_a
       && keysym->sym <= SDLK_z) {
     
-    // shift modifier only for letters
-    if(keysym->mod & KMOD_SHIFT)
-      strcat(keyname,"shift_");
-    
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
     strcat(keyname,tmp);
     if(env->event.key.state == SDL_PRESSED)
       sprintf(funcname,"pressed_%s",keyname);
-    if(env->event.key.state != SDL_RELEASED)
+    else //if(env->event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     func("keyboard controller calling method %s()",funcname);
     JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
@@ -185,7 +185,7 @@ int KbdCtrl::poll(Context *env) {
     strcat(keyname,tmp);
     if(env->event.key.state == SDL_PRESSED)
       sprintf(funcname,"pressed_%s",keyname);
-    if(env->event.key.state != SDL_RELEASED)
+    else //if(env->event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     func("keyboard controller calling method %s()",funcname);
     JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
