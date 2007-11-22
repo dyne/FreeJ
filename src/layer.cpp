@@ -53,6 +53,7 @@ Layer::Layer()
   jsclass = &layer_class;
   slide_x = 0;
   slide_y = 0;
+  parameters = NULL;
 }
 
 Layer::~Layer() {
@@ -183,6 +184,29 @@ bool Layer::cafudda() {
 
   return(true);
 }
+
+bool Layer::set_parameter(int idx) {
+
+  Parameter *param;
+  param = (Parameter*)parameters->pick(idx);
+  if( ! param) {
+    error("parameter %s not found in layer %s", param->name, name );
+    return false;
+  } else 
+    func("parameter %s found in layer %s at position %u",
+	 param->name, name, idx);
+
+  if(!param->layer_func) {
+    error("no layer callback function registered in this parameter");
+    return false;
+  }
+
+  (*param->layer_func)(this, param, idx);
+
+  return true;
+}
+
+
 
 void Layer::set_filename(char *f) {
   char *p = f + strlen(f);

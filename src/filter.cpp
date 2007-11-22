@@ -52,13 +52,138 @@ Parameter::Parameter(int param_type)
   }
 
   type = param_type;
+
+  layer_func = NULL;
+  filter_func = NULL;
+
 }
 
 Parameter::~Parameter() {
   free(value);
 }
 
+bool Parameter::set(void *val) {
+  ////////////////////////////////////////
+  if(type == PARAM_NUMBER) {
+    
+    ((double*)value)[0] = ((double*)val)[0];
+    
+    //////////////////////////////////////
+  } else if(type == PARAM_BOOL) {
+    
+    ((double*)value)[0] = ((double*)val)[0];
+    
+    //    act("filter %s parameter %s set to: %e", name, param->name, (double*)value);
+    //////////////////////////////////////
+  } else if (type == PARAM_POSITION) {
+    
+    ((double*)value)[0] = ((double*)val)[0];
+    ((double*)value)[1] = ((double*)val)[1];
+    
+    //////////////////////////////////////
+  } else if (type==PARAM_COLOR) {
 
+    ((double*)value)[0] = ((double*)val)[0];
+    ((double*)value)[1] = ((double*)val)[1];
+    ((double*)value)[2] = ((double*)val)[2];
+    
+    //////////////////////////////////////
+  } else if (type==PARAM_STRING) {
+    
+    strcpy((char*)value, (char*)val);
+
+  } else {
+    error("attempt to set value for a parameter of unknown type: %u", type);
+    return false;
+  }
+  
+  return true;
+}
+
+bool Parameter::parse(char *p) {
+  // parse the strings into value
+  double *val;
+
+  if(type == PARAM_NUMBER) {
+    
+    if( sscanf(p, "%le", (double*)value) < 1 ) {
+      error("error parsing value [%s] for parameter %s", p, name);
+      return false;
+    }
+    
+    //////////////////////////////////////
+  } else if(type == PARAM_BOOL) {
+    
+    if( sscanf(p, "%le", (double*)value) < 1 ) {
+      error("error parsing value [%s] for parameter %s", p, name);
+      return false;
+    }
+    
+  } else if(type == PARAM_POSITION) {
+    
+    val = (double*)value;
+    if( sscanf(p, "%le %le", &val[0], &val[1]) < 1 ) {
+      error("error parsing position [%s] for parameter %s", p, name);
+      return false;
+    }
+    
+  } else if(type == PARAM_COLOR) {
+    
+    val = (double*)value;
+    if( sscanf(p, "%le %le %le", &val[0], &val[1], &val[2]) < 1 ) {
+      error("error parsing position [%s] for parameter %s", p, name);
+      return false;
+    }
+    
+  } else {
+    error("attempt to set value for a parameter of unknown type: %u", type);
+    return false;
+  }
+  
+  return true;
+
+}
+
+/// set_parameter callback
+static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx) {
+
+  Freior *f = filt->proto->freior;
+  double *val = (double*)param->value;
+
+  switch(f->param_infos[idx-1].type) {
+    
+    // idx-1 because frei0r's index starts from 0
+  case F0R_PARAM_BOOL:
+    (*f->f0r_set_param_value)(filt->core, new f0r_param_bool(val[0]), idx-1);
+    break;
+    
+  case F0R_PARAM_DOUBLE:
+    (*f->f0r_set_param_value)(filt->core, new f0r_param_double(val[0]), idx-1);
+    break;
+
+  case F0R_PARAM_COLOR:
+    { f0r_param_color *color = new f0r_param_color;
+      color->r = val[0];
+      color->g = val[1];
+      color->b = val[2];
+      (*f->f0r_set_param_value)(filt->core, color, idx-1);
+    } break;
+
+  case F0R_PARAM_POSITION:
+    { f0r_param_position *position = new f0r_param_position;
+      position->x = val[0];
+      position->y = val[1];
+      (*f->f0r_set_param_value)(filt->core, position, idx-1);
+    } break;
+
+  default:
+
+    error("Unrecognized parameter type %u for set_parameter_value",
+	  f->param_infos[idx].type);
+
+  }
+
+}
 
 Filter::Filter(Freior *f) 
   : Entry() {
@@ -85,6 +210,7 @@ Filter::Filter(Freior *f)
     strncpy(param->name, f->param_infos[i].name, 255);
 
     param->description = f->param_infos[i].explanation;
+    param->filter_func = set_frei0r_parameter;
     parameters.append(param);
   }
 
@@ -93,8 +219,8 @@ Filter::Filter(Freior *f)
   if(get_debug()>2)
     freior->print_info();
 
-  set_name((char*)f->info.name);
 
+  set_name((char*)f->info.name);
 }
 
 Filter::~Filter() {
@@ -142,41 +268,6 @@ char *Filter::get_parameter_description(int i) {
   return (char*)freior->param_infos[i].explanation;
 }
 
-bool Filter::set_parameter_value(FilterInstance *inst, double *value, int idx) {
-
-  switch(freior->param_infos[idx-1].type) {
-
-    // idx-1 because frei0r's index starts from 0
-  case F0R_PARAM_BOOL:
-    (*freior->f0r_set_param_value)(inst->core, new f0r_param_bool(value[0]), idx-1);
-    break;
-
-  case F0R_PARAM_DOUBLE:
-    (*freior->f0r_set_param_value)(inst->core, new f0r_param_double(value[0]), idx-1);
-    break;
-
-  case F0R_PARAM_COLOR:
-    { f0r_param_color *color = new f0r_param_color;
-      color->r = value[0]; color->g = value[1]; color->b = value[2];
-      (*freior->f0r_set_param_value)(inst->core, color, idx-1);
-    } break;
-
-  case F0R_PARAM_POSITION:
-    { f0r_param_position *position = new f0r_param_position;
-      position->x = value[0]; position->y = value[1];
-      (*freior->f0r_set_param_value)(inst->core, position, idx-1);
-    } break;
-
-  default:
-
-    error("Unrecognized parameter type %u for set_parameter_value",
-	  freior->param_infos[idx].type);
-  }
-
-  return(true);
-
-}
-
 void Filter::destruct(FilterInstance *inst) {
   if(inst->core) {
     (*freior->f0r_destruct)((f0r_instance_t*)inst->core);
@@ -206,7 +297,7 @@ FilterInstance::FilterInstance(Filter *fr)
 FilterInstance::~FilterInstance() {
   func("~FilterInstance");
   if(proto)
-    if(core) proto->destruct(this);
+    proto->destruct(this);
   if(outframe) free(outframe);
   outframe=NULL;
 }
@@ -220,7 +311,7 @@ uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
   return outframe;
 }
 
-bool FilterInstance::set_parameter(int idx, void *val) {
+bool FilterInstance::set_parameter(int idx) {
   Parameter *param;
   param = (Parameter*)proto->parameters[idx];
 
@@ -230,45 +321,13 @@ bool FilterInstance::set_parameter(int idx, void *val) {
   } else 
     func("parameter %s found in filter %s at position %u",
 	 param->name, proto->name, idx);
-  
-  ////////////////////////////////////////
-  if(param->type == PARAM_NUMBER) {
-    
-    ((double*)param->value)[0] = ((double*)val)[0];
 
-    act("filter %s parameter %s set to: %.5f", name, param->name, ((double*)param->value)[0]);
-    
-    //////////////////////////////////////
-  } else if(param->type == PARAM_BOOL) {
-    
-    ((double*)param->value)[0] = ((double*)val)[0];
-
-    //    act("filter %s parameter %s set to: %e", name, param->name, (double*)param->value);
-    //////////////////////////////////////
-  } else if (param->type == PARAM_POSITION) {
-
-    ((double*)param->value)[0] = ((double*)val)[0];
-    ((double*)param->value)[1] = ((double*)val)[1];
-
-    //////////////////////////////////////
-  } else if (param->type==PARAM_COLOR) {
-
-    ((double*)param->value)[0] = ((double*)val)[0];
-    ((double*)param->value)[1] = ((double*)val)[1];
-    ((double*)param->value)[2] = ((double*)val)[2];
-
-    //////////////////////////////////////
-  } else if (param->type==PARAM_STRING) {
-    
-    strcpy((char*)param->value, (char*)val);
-
-  } else {
-    error("attempt to set value for a parameter of unknown type: %u", param->type);
+  if(!param->filter_func) {
+    error("no filter callback function registered in this parameter");
     return false;
   }
-  
-  // register parameter in frei0r
-  proto->set_parameter_value(this, (double*)param->value, idx);
+
+  (*param->filter_func)(this, param, idx);
 
   return true;
 }

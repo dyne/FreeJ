@@ -107,12 +107,7 @@ bool OggTheoraEncoder::init (Context *_env) {
   }
   
   
-  if (use_audio) {
-    if(! vorbis_init () ) {
-      warning("initialization of vorbis audio for encoder %s failed", name);
-      use_audio = false;
-    }
-  }
+  use_audio = vorbis_init ();
   
   // write theora and vorbis header and flush them
   write_headers ();
@@ -253,7 +248,7 @@ bool OggTheoraEncoder::vorbis_init() {
       return false;
     }
     
-  } else {
+  } else if(audio_bitrate > 0) {
 
     ret = vorbis_encode_init (&vorbis_information, audio_channels, 
 			      audio_hertz, -1, audio_bitrate, -1);
@@ -262,6 +257,9 @@ bool OggTheoraEncoder::vorbis_init() {
       error("requested bitrate %u results invalid", audio_bitrate);
       return false;
     }
+  } else {
+    act("encoding with no audio");
+    return false;
   }
   
   vorbis_comment_init (&vc);
@@ -287,6 +285,9 @@ int OggTheoraEncoder::encode_frame() {
   
   videoflag = encode_video ( 0);
   
+  //  videotime = theora_granule_time (&td, ogg_page_granulepos (&videopage));
+  //  audiotime = vorbis_granule_time (&vd,ogg_page_granulepos (&audiopage));
+
   return ( flush_ogg (0) );
 
 }
@@ -483,8 +484,6 @@ bool OggTheoraEncoder::write_theora_header() {
   }
 
   // write header and body
-  //  ringbuffer_write(ringbuffer, (const char*)opage.header, opage.header_len);
-  //  ringbuffer_write(ringbuffer, (const char*)opage.body, opage.body_len);
   pipe_write("write theora header", ringbuffer, (char*)opage.header, opage.header_len);
   pipe_write("write theora body", ringbuffer, (char*)opage.body, opage.body_len);
 
@@ -518,8 +517,6 @@ bool OggTheoraEncoder::write_vorbis_header() {
       return false;
     }
     
-//     ringbuffer_write(ringbuffer, (const char*) opage.header, opage.header_len);
-//     ringbuffer_write(ringbuffer, (const char*) opage.body, opage.body_len);
     pipe_write("write vorbis header", ringbuffer, (char*)opage.header, opage.header_len);
     pipe_write("write vorbis body", ringbuffer, (char*)opage.body, opage.body_len);
     
@@ -536,11 +533,11 @@ int OggTheoraEncoder::flush_ogg (int end_of_stream) {
 
   int flushloop = 1; // ugly! :)
   int num = 0;
-  
+
   while(flushloop) {
     flushloop =  0;
     
-    //    if(use_audio) func ("diff: %f", audiotime - videotime);
+    if(use_audio) func ("diff: %f", audiotime - videotime);
 
     
     while ( end_of_stream ||
@@ -553,9 +550,8 @@ int OggTheoraEncoder::flush_ogg (int end_of_stream) {
 	  warning("OggTheoraEncoder::flush_ogg : videopage body is empty");
 	
 	videotime = theora_granule_time (&td, ogg_page_granulepos (&videopage));
+
 	// flush a video page
-// 	num += ringbuffer_write(ringbuffer,(const char*) videopage.header, videopage.header_len);
-// 	num += ringbuffer_write(ringbuffer,(const char*) videopage.body, videopage.body_len);
 	num += pipe_write("flush videopage header", ringbuffer,
 			  (char*)videopage.header, videopage.header_len);
 	num += pipe_write("flush videopage body", ringbuffer,
@@ -583,8 +579,6 @@ int OggTheoraEncoder::flush_ogg (int end_of_stream) {
 	audiotime = vorbis_granule_time (&vd,ogg_page_granulepos (&audiopage));
 	
 	// write it in the ringbuffer
-// 	num += ringbuffer_write(ringbuffer, (const char*) audiopage.header, audiopage.header_len);
-// 	num += ringbuffer_write(ringbuffer, (const char*) audiopage.body, audiopage.body_len);
 	num += pipe_write("flush audiopage header", ringbuffer,
 			  (char*)audiopage.header, audiopage.header_len);
 	num += pipe_write("flush audiopage body", ringbuffer,
@@ -600,6 +594,7 @@ int OggTheoraEncoder::flush_ogg (int end_of_stream) {
     }
   }
   return num;
+
 }
 
 bool OggTheoraEncoder::flush_theora_header() {
@@ -645,8 +640,6 @@ bool OggTheoraEncoder::flush_vorbis_header() {
       if (result == 0) break;
       
       // write it into the ringbuffer
-//       ringbuffer_write(ringbuffer, (const char*) opage.header, opage.header_len);
-//       ringbuffer_write(ringbuffer, (const char*) opage.body, opage.body_len);
       pipe_write("flush vorbis header", ringbuffer, (char*)opage.header, opage.header_len);
       pipe_write("flush vorbis body",   ringbuffer, (char*)opage.body,   opage.body_len);
     }

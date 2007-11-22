@@ -121,13 +121,7 @@ JS(rem_layer) {
 
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) JS_ERROR("Layer core data is NULL");
-
-    lay->rem();
-    //    lay->quit=true;
-    //    lay->signal_feed();
-    //    lay->join();
-
-    //    delete lay;
+    env->rem_layer(lay);
     return JS_TRUE;
 }
 

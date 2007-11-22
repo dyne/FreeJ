@@ -50,6 +50,10 @@ class Freior: public Entry {
 
   bool opened;
 
+  // parameter map
+  vector<f0r_param_info_t> param_infos;
+  void (*f0r_set_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
+
  private:
 
   // dlopen handle
@@ -57,8 +61,6 @@ class Freior: public Entry {
   // full .so file path
   char filename[512];
 
-  // parameter map
-  vector<f0r_param_info_t> param_infos;
 
  protected:
   // Interface function pointers.
@@ -67,7 +69,7 @@ class Freior: public Entry {
   void (*f0r_get_param_info)(f0r_param_info_t* info, int param_index);
   f0r_instance_t (*f0r_construct)(unsigned int width, unsigned int height);
   void (*f0r_destruct)(f0r_instance_t instance);
-  void (*f0r_set_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
+
   void (*f0r_get_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
   void (*f0r_update)(f0r_instance_t instance, double time,
 		     const uint32_t* inframe, uint32_t* outframe);

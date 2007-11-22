@@ -94,7 +94,6 @@ int Plugger::refresh(Context *env) {
 	  delete fr; continue;
 	}
 
-	func("found frei0r plugin: %s (%p)", temp, fr);
 
 	// check what kind of plugin is and place it
 	if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
@@ -102,10 +101,14 @@ int Plugger::refresh(Context *env) {
 	  Filter *filt = new Filter(fr);
 	  env->filters.append(filt);
 
+	  func("found frei0r filter: %s (%p)", filt->name, fr);
+
 	} else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {
 
 	  Filter *filt = new Filter(fr);
-	  env->generators.append(filt);	  
+	  env->generators.append(filt);
+
+	  func("found frei0r generator: %s (%p)", filt->name, fr);
 	
 	} else {
 	  func("frei0r plugin of type %i not supported (yet)",

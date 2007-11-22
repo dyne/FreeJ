@@ -25,10 +25,6 @@
 #include <layer.h>
 
 class GenF0rLayer: public Layer {
- private:
-
-  FilterInstance *generator;
-
  public:
   GenF0rLayer();
   ~GenF0rLayer();
@@ -40,6 +36,8 @@ class GenF0rLayer: public Layer {
   void *feed();
   bool keypress(int key);
   void close();
+
+  FilterInstance *generator;
 
 };
 

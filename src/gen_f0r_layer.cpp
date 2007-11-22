@@ -43,8 +43,47 @@ GenF0rLayer::~GenF0rLayer() {
   close();
 }
 
+/// set_parameter callback
+static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
+  GenF0rLayer *layer = (GenF0rLayer*)lay;
+
+  Freior *f = layer->generator->proto->freior;
+  bool *val = (bool*)param->value;
+
+  switch(f->param_infos[idx-1].type) {
+    
+    // idx-1 because frei0r's index starts from 0
+  case F0R_PARAM_BOOL:
+    (*f->f0r_set_param_value)(layer->generator->core, new f0r_param_bool(val[0]), idx-1);
+    break;
+    
+  case F0R_PARAM_DOUBLE:
+    (*f->f0r_set_param_value)(layer->generator->core, new f0r_param_double(val[0]), idx-1);
+    break;
+
+  case F0R_PARAM_COLOR:
+    { f0r_param_color *color = new f0r_param_color;
+      color->r = val[0];
+      color->g = val[1];
+      color->b = val[2];
+      (*f->f0r_set_param_value)(layer->generator->core, color, idx-1);
+    } break;
+
+  case F0R_PARAM_POSITION:
+    { f0r_param_position *position = new f0r_param_position;
+      position->x = val[0];
+      position->y = val[1];
+      (*f->f0r_set_param_value)(layer->generator->core, position, idx-1);
+    } break;
+
+  default:
+
+    error("Unrecognized parameter type %u for set_parameter_value",
+	  f->param_infos[idx].type);
+  }
+}
+
 bool GenF0rLayer::open(char *file) {
-  /* we don't need this */
   int idx;
   Filter *proto;
 
@@ -56,7 +95,7 @@ bool GenF0rLayer::open(char *file) {
 
   close();
 
-  generator = new FilterInstance((Filter*)this);
+  generator = new FilterInstance((Filter*)proto);
   generator->core = (void*)(*proto->freior->f0r_construct)(geo.w, geo.h);
   if(!generator->core) {
     error("freior constructor returned NULL instantiating generator %s",file);
@@ -65,7 +104,14 @@ bool GenF0rLayer::open(char *file) {
     return false;
   }
   generator->outframe = (uint32_t*) calloc(geo.size, 1);
-  
+  parameters = &proto->parameters;
+
+  Parameter *p = (Parameter*)parameters->begin();
+  while(p) {
+    p->layer_func = set_frei0r_layer_parameter;
+    p = (Parameter*)p->next;
+  }
+
   set_filename(file);
   opened = true;
   return true;
@@ -80,17 +126,18 @@ void GenF0rLayer::close() {
 }
 
 bool GenF0rLayer::init(Context *freej) {
-
   
   int width  = freej->screen->w;
   int height = freej->screen->h;
- 
+
+  env = freej; 
 
   /* internal initalization */
   _init(width,height);
 
-  open("lissajous0r");
-  env = freej;
+  //  open("lissajous0r");
+  open("ising0r");
+
   
   return(true);
 }

@@ -26,6 +26,7 @@
 class Layer;
 class Freior;
 class FilterInstance;
+class Parameter;
 
 /* Parameter type for boolean values */
 #define PARAM_BOOL      0
@@ -38,6 +39,9 @@ class FilterInstance;
 /* Parameter type for string */
 #define PARAM_STRING  4
 
+typedef void (layer_param_f)(Layer *lay, Parameter *param, int idx);
+typedef void (filter_param_f)(FilterInstance *filt, Parameter *param, int idx);
+
 class Parameter : public Entry {
   friend class Iterator;
   // TODO: different iterator beahaviour for different parameter types
@@ -45,11 +49,17 @@ class Parameter : public Entry {
   Parameter(int param_type);
   ~Parameter();
 
+  bool set(void *val);
+  bool parse(char *p);
+
   int type;
 
   const char *description;
 
   void *value;
+
+  layer_param_f *layer_func;
+  filter_param_f *filter_func;
 };
 
 class Filter : public Entry {
@@ -65,8 +75,6 @@ class Filter : public Entry {
   int get_parameter_type(int i);
 
   char *get_parameter_description(int i);
-
-  bool set_parameter_value(FilterInstance *inst, double *value, int idx);
 
   bool initialized;
   bool active;
@@ -92,7 +100,7 @@ class FilterInstance : public Entry {
 
   uint32_t *process(float fps, uint32_t *inframe);
 
-  bool set_parameter(int idx, void *val); ///< set the parameter value
+  bool set_parameter(int idx); ///< apply the parameter value
   
   uint32_t *outframe;
 

@@ -103,8 +103,9 @@ JS(filter_set_parameter) {
       func("javascript %s->%s to [%.5f]",
 	   duo->proto->name, param->name, val[0]);
       //  duo->proto->set_parameter_value( duo->instance, &val, it->second );
-      
-      duo->instance->set_parameter(idx, &val);
+  
+      param->set(&val);
+      duo->instance->set_parameter(idx);
       break; 
     }
   case PARAM_POSITION:
@@ -122,7 +123,8 @@ JS(filter_set_parameter) {
 	 duo->proto->name, param->name, val[0], val[1]);
     //  duo->proto->set_parameter_value( duo->instance, &val, it->second );
     
-    duo->instance->set_parameter(idx, &val[0]);
+    param->set(&val[0]);
+    duo->instance->set_parameter(idx);
     break; 
     
   default:

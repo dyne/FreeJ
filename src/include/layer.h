@@ -102,6 +102,8 @@ class Layer: public Entry, public JSyncThread {
   virtual void close() =0; ///< close the layer (ready to open a new one)
   virtual bool keypress(int key) =0; ///< pass to the Layer a key pressed
 
+  bool set_parameter(int idx); ///< activate the setting on parameter pointed by idx index number
+
   char *get_name() { return name; };
   char *get_filename() { return filename; };
   ///< Get Layer's filename
@@ -121,7 +123,7 @@ class Layer: public Entry, public JSyncThread {
   void pulse_alpha(int step, int value);
   ///< Pulse the Layer in alpha blending (in->out) 
 
-  Linklist parameters;
+  Linklist *parameters;
   ///< Parameter list for the layer
 
   Linklist filters;

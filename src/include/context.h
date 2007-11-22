@@ -99,6 +99,7 @@ class Context {
   bool register_controller(Controller *ctrl);
 
   void add_layer(Layer *lay); ///< add a layer to the screen and engine
+  void rem_layer(Layer *lay);
 
   void add_encoder(VideoEncoder *enc); ///< add an encoder to the engine
 

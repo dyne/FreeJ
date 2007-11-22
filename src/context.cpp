@@ -445,6 +445,21 @@ void Context::add_layer(Layer *lay) {
   func("layer %s succesfully added",lay->name);
 }
 
+void Context::rem_layer(Layer *lay) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  if (!lay->list) {
+        error("removing Layer %p which is not in list", lay);
+        return;
+  }
+  lay->lock_feed();
+  lay->quit=true;
+  lay->signal_feed();
+  lay->unlock_feed();
+  lay->join();
+  lay->rem();
+  delete lay;
+}
+
 void Context::add_encoder(VideoEncoder *enc) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__); 
   if(enc->list) enc->rem();

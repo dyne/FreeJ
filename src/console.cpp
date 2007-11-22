@@ -137,12 +137,12 @@ static int param_selection(char *cmd) {
   FilterInstance* filt =
     (FilterInstance*)lay->filters.selected();
 
-  if(filt) { // parameters for filter
+  // find the values after the first blank space
+  char *p;
+  for(p = cmd; *p != '\0'; p++)
+    if(*p == ' ') { *p = '\0'; p++; break; }
 
-    // find the values after the first blank space
-    char *p;
-    for(p = cmd; *p != '\0'; p++)
-      if(*p == ' ') { *p = '\0'; p++; break; }
+  if(filt) { ///////////////////////// parameters for filter
 
     // find the parameter
     param = (Parameter*)filt->proto->parameters.search(cmd, &idx);
@@ -153,57 +153,41 @@ static int param_selection(char *cmd) {
       func("parameter %s found in filter %s at position %u",
 	   param->name, filt->proto->name, idx);
 
-    // ACQUIRE THE VALUE
-    ////////////////////////////////////////
-    if(param->type == PARAM_NUMBER) {
-      
-      if( sscanf(p, "%le", (double*)param->value) < 1 ) {
-	error("error parsing value [%s] for parameter %s", p, param->name);
-	return 0;
-      }
-
-    //////////////////////////////////////
-    } else if(param->type == PARAM_BOOL) {
-      
-      if( sscanf(p, "%le", (double*)param->value) < 1 ) {
-	error("error parsing value [%s] for parameter %s", p, param->name);
-	return 0;
-      }
-
-    } else if(param->type == PARAM_POSITION) {
-
-      value = (double*)param->value;
-      if( sscanf(p, "%le %le", &value[0], &value[1]) < 1 ) {
-	error("error parsing position [%s] for parameter %s", p, param->name);
-	return 0;
-      }
-
-    } else if(param->type == PARAM_COLOR) {
-
-      value = (double*)param->value;
-      if( sscanf(p, "%le %le %le", &value[0], &value[1], &value[2]) < 1 ) {
-	error("error parsing position [%s] for parameter %s", p, param->name);
-	return 0;
-      }
-      
-    } else {
-      error("attempt to set value for a parameter of unknown type: %u", param->type);
+  } else if(lay->parameters) { /////// parameters for layer
+    param = (Parameter*)lay->parameters->search(cmd, &idx);
+    if( ! param) {
+      error("parameter %s not found in layers %s", cmd, lay->name);
       return 0;
-    }
+    } else 
+      func("parameter %s found in layer %s at position %u",
+	   param->name, lay->name, idx);
+  }
 
-    // parse the strings into value
-    
-    
-    if( ! filt->set_parameter(idx, param->value) ) {
+  // parse from the string to the value
+  param->parse(p);
+  
+  if(filt) {
+
+    if( ! filt->set_parameter(idx) ) {
       error("error setting value %s for parameter %s on filter %s",
 	    p, param->name, filt->proto->name);
       return 0;
     }
+
+  } else {
+
+    if( ! lay->set_parameter(idx) ) {
+      error("error setting value %s for parameter %s on layer %s",
+	    p, param->name, lay->name);
+      return 0;
+    }
+
   }
-  // else { } TODO parameters for layers
+      
 
   return 1;
 }
+
 static int param_completion(char *cmd) {
   Layer *lay = (Layer*)env->layers.selected();
   if(!lay) {
@@ -215,7 +199,9 @@ static int param_completion(char *cmd) {
 
   Linklist *parameters;
   if(filt) parameters = &filt->proto->parameters;
-  else     parameters = &lay->parameters;
+  else     parameters = lay->parameters;
+
+  if(!parameters) return 0;
 
   Entry **params = parameters->completion(cmd);
   if(!params[0]) return 0;
@@ -1226,8 +1212,9 @@ void Console::parser_default(int key) {
 	fe->rem();
 	delete fe;
       } else {
-	le->rem();
-	((Layer*)le)->close();
+	//	le->rem();
+	//	((Layer*)le)->close();
+	env->rem_layer( (Layer*)le );
       }
       env->console->refresh();
       break;

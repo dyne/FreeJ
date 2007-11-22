@@ -55,12 +55,13 @@ TTFLayer::TTFLayer()
   surf = NULL;
 
   { // setup specific layer parameters
+    parameters = new Linklist();
     Parameter *param;
     
     param = new Parameter(PARAM_NUMBER);
     strcpy(param->name, "size");
     param->description = "set the size of the font";
-    parameters.append(param);
+    parameters->append(param);
   }
 }
 
