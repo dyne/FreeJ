@@ -235,6 +235,35 @@ JS(layer_list_filters) {
   return JS_TRUE;
 }  
 
+JS(layer_list_parameters) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  JSObject *arr;
+  JSString *str;
+  jsval val;
+
+
+  GET_LAYER(Layer);
+  if(!lay->parameters) {
+    *rval = JSVAL_FALSE;
+    return JS_TRUE;
+  }
+
+  arr = JS_NewArrayObject(cx, 0, NULL); //create void array
+  if(!arr) return JS_FALSE;
+
+  Parameter *parm = (Parameter*)lay->parameters->begin();
+  int c = 0;
+  while(parm) {
+    str = JS_NewStringCopyZ(cx, parm->name);
+    val = STRING_TO_JSVAL(str);
+    JS_SetElement(cx, arr, c, &val);
+    c++;
+    parm = (Parameter*)parm->next;
+  }
+
+  *rval = OBJECT_TO_JSVAL( arr );
+  return JS_TRUE;
+}
 ////////////////////////////////
 // Generic Layer methods
 

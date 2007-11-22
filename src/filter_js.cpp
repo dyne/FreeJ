@@ -80,18 +80,26 @@ JS(filter_set_parameter) {
 	  __LINE__,__FILE__,__FUNCTION__);
     return JS_FALSE;
   }
-
-  JS_ARG_STRING(name,0);
-
-  // get it by the param name
-  param = (Parameter*) duo->proto->parameters.search(name, &idx);
+  
+  if(JSVAL_IS_DOUBLE(argv[0])) {
+    
+    double *argidx = JSVAL_TO_DOUBLE(argv[0]);
+    param = (Parameter*) duo->proto->parameters.pick((int)*argidx);
+    
+  } else { // get it by the param name
+    
+    JS_ARG_STRING(name,0);
+    param = (Parameter*) duo->proto->parameters.search(name, &idx);
+    
+  }
+  
   if(!param) { 
     error("parameter %s not found in filter %s", name, duo->proto->name);
     return JS_TRUE;
   }
-
+  
   switch(param->type) {
-
+    
   case PARAM_BOOL:
   case PARAM_NUMBER:
     {
@@ -103,7 +111,7 @@ JS(filter_set_parameter) {
       func("javascript %s->%s to [%.5f]",
 	   duo->proto->name, param->name, val[0]);
       //  duo->proto->set_parameter_value( duo->instance, &val, it->second );
-  
+      
       param->set(&val);
       duo->instance->set_parameter(idx);
       break; 
@@ -135,6 +143,37 @@ JS(filter_set_parameter) {
   return JS_TRUE;
 
 }
+
+JS(filter_list_parameters) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  JSObject *arr;
+  JSString *str;
+  jsval val;
+
+  arr = JS_NewArrayObject(cx, 0, NULL); //create void array
+  if(!arr) return JS_FALSE;
+
+  FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);
+  if(!duo) {
+    error("%u:%s:%s :: Layer core data is NULL",
+	  __LINE__,__FILE__,__FUNCTION__);
+    return JS_FALSE;
+  }
+
+  Parameter *parm = (Parameter*)duo->proto->parameters.begin();
+  int c = 0;
+  while(parm) {
+    str = JS_NewStringCopyZ(cx, parm->name);
+    val = STRING_TO_JSVAL(str);
+    JS_SetElement(cx, arr, c, &val);
+    c++;
+    parm = (Parameter*)parm->next;
+  }
+
+  *rval = OBJECT_TO_JSVAL( arr );
+  return JS_TRUE;
+}
+  
 
 ////////////////////////////////////
 /// TODO:

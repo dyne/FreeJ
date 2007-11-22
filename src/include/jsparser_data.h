@@ -227,8 +227,10 @@ JS(entry_select);
 // Filter methods
 JS(filter_apply);
 JS(filter_set_parameter);
+JS(filter_list_parameters);
 #define FILTER_METHODS \
-    {"set_parameter",           filter_set_parameter,             2}
+  {"set_parameter",           filter_set_parameter,             4}, \
+  {"list_parameters",         filter_list_parameters,           0}
 
 ////////////////////////////////
 // parent Layer methods
@@ -254,6 +256,7 @@ JS(layer_rotate);
 JS(layer_zoom);
 JS(layer_spin);
 JS(layer_list_filters);
+JS(layer_list_parameters);
 
 #define LAYER_METHODS \
     {"activate",	layer_activate,	        0}, \
@@ -280,7 +283,8 @@ JS(layer_list_filters);
     {"rotate",          layer_rotate,           1}, \
     {"zoom",            layer_zoom,             2}, \
     {"spin",            layer_spin,             2}, \
-    {"list_filters",    layer_list_filters,     0}
+    {"list_filters",    layer_list_filters,     0}, \
+    {"list_parameters", layer_list_parameters,  0}
 
 ////////////////////////////////
 // Particle Layer methods
