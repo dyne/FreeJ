@@ -123,7 +123,6 @@ static int getkey_handler() {
 
 static int param_selection(char *cmd) {
   Parameter *param;
-  double *value;
   int idx;
   
   if(!cmd) return 0;
@@ -591,6 +590,50 @@ static int set_blit_value(char *cmd) {
     lay->blitter.fade_value(1,val);
   }
 
+  return 1;
+}
+
+static int generator_completion(char *cmd) {
+  Entry **res;
+  Filter *filt;
+  int c;
+
+  if(!cmd) return 0;
+  res = env->generators.completion(cmd);
+  if(!res[0]) return 0;
+
+  if(!res[1]) { // exact match: fill in the command
+    filt = (Filter*)res[0];
+    ::notice("%s :: %s",filt->name,filt->description());
+    snprintf(cmd,511,"%s",filt->name); c=1;
+  } else { // list all matches
+    for(c=0;res[c];c++) {
+      filt = (Filter*)res[c];
+      if(!filt) continue;
+      ::act("%s :: %s",filt->name,filt->description());
+    }
+  }
+  return c;
+}
+
+static int create_generator(char *cmd) {
+  Layer *tmp = new GenF0rLayer();
+  if(!tmp) return 0;
+  if(!tmp->init(env)) {
+    error("can't initialize generator layer");
+    delete tmp;
+    return 0;
+  }
+  if(!tmp->open(cmd)) {
+    error("generator %s is not found", cmd);
+    delete tmp;
+    return 0;
+  }
+  env->add_layer(tmp);
+
+  //env->console->refresh();	
+
+  notice("generator %s succesfully created", tmp->name);
   return 1;
 }
 
@@ -1346,21 +1389,10 @@ void Console::parser_default(int key) {
 
       
     case KEY_CTRL_G:
-      { Layer *tmp = new GenF0rLayer();
-	if(!tmp) break;
-	if(!tmp->init(env)) {
-	  error("can't initialize particle generator layer");
-	  delete tmp;
-	  break;
-	}
-
-	env->add_layer(tmp);
-	
-	env->console->refresh();	
-	notice("particle generator succesfully created");
-	act("press 'p' or 'o' to change its random seed");
-      }
+      readline("create a generator in a new Layer:",
+	       &create_generator,&generator_completion);
       break;
+
 
 #ifdef WITH_FT2
   case KEY_CTRL_T:

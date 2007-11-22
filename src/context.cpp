@@ -29,6 +29,7 @@
 #include <sdl_screen.h>
 #include <sdlgl_screen.h>
 #include <SDL_imageFilter.h>
+#include <SDL_framerate.h>
 #include <jsparser.h>
 #include <video_encoder.h>
 #include <audio_input.h>
@@ -423,8 +424,6 @@ bool Context::register_controller(Controller *ctrl) {
   act("registered %s controller", ctrl->name);
   return true;
 }
-
-
 
 void Context::add_layer(Layer *lay) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);

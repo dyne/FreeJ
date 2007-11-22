@@ -33,12 +33,16 @@
 
 
 #include <callbacks_js.h> // javascript
+#include <jsparser_data.h>
 
 JS(js_trigger_ctrl_constructor);
 
 DECLARE_CLASS("TriggerController",js_trigger_ctrl_class, js_trigger_ctrl_constructor);
 
-JSFunctionSpec js_trigger_ctrl_methods[] = { {0} }; // all dynamic methods
+JSFunctionSpec js_trigger_ctrl_methods[] = {
+  CONTROLLER_METHODS ,
+  {0}
+};
 
 
 

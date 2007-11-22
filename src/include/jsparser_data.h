@@ -233,6 +233,12 @@ JS(filter_list_parameters);
   {"list_parameters",         filter_list_parameters,           0}
 
 ////////////////////////////////
+// Controller methods
+JS(controller_activate);
+#define CONTROLLER_METHODS \
+  {"activate",                controller_activate,              1}
+
+////////////////////////////////
 // parent Layer methods
 
 JS(layer_activate);

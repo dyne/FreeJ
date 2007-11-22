@@ -24,6 +24,7 @@
 #include <jutils.h>
 
 #include <callbacks_js.h> // javascript
+#include <jsparser_data.h>
 
 #define SDL_REPEAT_DELAY	200
 #define SDL_REPEAT_INTERVAL	20
@@ -36,7 +37,10 @@ JS(js_kbd_ctrl_constructor);
 
 DECLARE_CLASS("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor);
 
-JSFunctionSpec js_kbd_ctrl_methods[] = { {0} }; // all dynamic methods
+JSFunctionSpec js_kbd_ctrl_methods[] = {
+  CONTROLLER_METHODS,
+  {0}
+};
 
 
 KbdCtrl::KbdCtrl()

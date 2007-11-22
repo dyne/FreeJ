@@ -31,13 +31,17 @@
 
 
 #include <callbacks_js.h> // javascript
+#include <jsparser_data.h>
 
 /////// Javascript JoystickController
 JS(js_joy_ctrl_constructor);
 
 DECLARE_CLASS("JoystickController",js_joy_ctrl_class, js_joy_ctrl_constructor);
 
-JSFunctionSpec js_joy_ctrl_methods[] = { {0} }; // all dynamic methods
+JSFunctionSpec js_joy_ctrl_methods[] = {
+  CONTROLLER_METHODS,
+  {0}
+};
 
 
 

@@ -23,6 +23,7 @@
 
 #include <kbd_ctrl.h>
 
+#include <callbacks_js.h>
 
 Controller::Controller() {
   initialized = active = false;
@@ -36,3 +37,25 @@ char *Controller::get_name() {
 }
 
 // other functions are pure virtual
+
+// now with controller methods in javascript
+
+JS(controller_activate) {
+
+  JS_CHECK_ARGC(1);
+
+  bool var = (bool)JSVAL_TO_BOOLEAN(argv[0]);
+
+  Controller *ctrl = (Controller *) JS_GetPrivate(cx, obj);
+  if(!ctrl) {
+    error("%u:%s:%s :: Controller core data is NULL",	\
+	  __LINE__,__FILE__,__FUNCTION__);		\
+    return JS_FALSE;					\
+  }
+  
+  ctrl->active = var;
+  if(var) act("controller %s activated", ctrl->name);
+  else    act("controller %s deactivated", ctrl->name);
+
+  return JS_TRUE;
+}

@@ -32,6 +32,7 @@
 //#include <plugger.h>
 #include <jutils.h>
 #include <callbacks_js.h> // javascript
+#include <jsparser_data.h>
 
 JS(js_midi_ctrl_constructor);
 
@@ -40,9 +41,10 @@ DECLARE_CLASS("MidiController", js_midi_ctrl_class, js_midi_ctrl_constructor);
 JS(midi_connect);
 JS(midi_connect_from);
 JSFunctionSpec js_midi_ctrl_methods[] = { 
-    {"connect_from", midi_connect_from, 3},
-//    {"connect", midi_connect, 4 },
-    {0} 
+  CONTROLLER_METHODS ,
+  {"connect_from", midi_connect_from, 3},
+  //    {"connect", midi_connect, 4 },
+  {0} 
 };
 
 JS(js_midi_ctrl_constructor) {
