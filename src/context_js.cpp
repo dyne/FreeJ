@@ -531,13 +531,24 @@ JS(include_javascript) {
   JS_ARG_STRING(jscript,0);
   
   fd = ::fopen(jscript,"r");
-  if(!fd) {
+  if(!fd) { 
     error("include failed for %s: %s", jscript, strerror(errno) );
+    JS_ReportErrorNumber( 
+        cx, JSFreej_GetErrorMessage, NULL,
+        JSSMSG_FJ_NOLUCK,
+        jscript, strerror(errno)
+    );
     return JS_FALSE;
   }
 
   fclose(fd);
-  env->js->open(jscript);
+  if (env->js->open(jscript) == 0) { 
+    // JS_EvaluateScript failed, maybe a 
+    // syntax error. JS_ReportError was already called,
+    // so no need to throw something here.
+      func("%s eval failed", __func__);
+      return JS_FALSE;
+  } 
 
   return JS_TRUE;
 }

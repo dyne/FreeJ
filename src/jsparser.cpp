@@ -216,7 +216,6 @@ void JsParser::init() {
 		   js_vid_enc_methods);
 #endif
 
-
 //    JS_DefineProperties(js_context, layer_object, layer_properties);
 
    /** register SIGINT signal */
@@ -232,7 +231,10 @@ void JsParser::init() {
 
 /* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
-  jsval ret_val;
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  jsval res;
+  JSString *str;
+  JSBool eval_res = JS_TRUE;
   FILE *fd;
   char *buf;
   int len;
@@ -241,16 +243,15 @@ int JsParser::open(const char* script_file) {
 
   fd = fopen(script_file,"r");
   if(!fd) {
-    error("JsParser::open : %s : %s",script_file,strerror(errno));
+    error("%s: %s : %s",__func__,script_file,strerror(errno));
     return 0;
   }
 
   // read all the file in once: line by line won't work well in blocks
-  func("JsParser reading from file %s",script_file);
+  func("%s reading from file %s",__func__,script_file);
   fseek(fd,0,SEEK_END);
   len = ftell(fd);
   rewind(fd);
-
 
   // exclude the first line if it calls the shell interpreter
   fgets(header,1023,fd);
@@ -265,15 +266,26 @@ int JsParser::open(const char* script_file) {
 
   fclose(fd);
 
-  if( JS_EvaluateScript (js_context, global_object,
-			 buf, len, script_file, 0, &ret_val)
-      == JS_FALSE)
-  error("execution of script aborted");
-
-  return ret_val;
+  res = JSVAL_VOID;
+  eval_res = JS_EvaluateScript(js_context, global_object,
+		      buf, len, script_file, 0, &res);
+  // return the result (to console)
+  if(!JSVAL_IS_VOID(res)){
+      str=JS_ValueToString(js_context, res);
+      if(str){
+          act("JS open result: %s", JS_GetStringBytes(str));
+      } else {
+          JS_ReportError(js_context, "Can't convert result msg to string");
+      }
+  } // else
+    // if anything more was wrong, our ErrorReporter was called!
+  func("%s evalres: %i", __func__, eval_res);
+  return eval_res;
 }
 
 int JsParser::parse(const char *command) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  JSBool eval_res = JS_TRUE;
   jsval res;
   JSString *str;
 
@@ -285,20 +297,20 @@ int JsParser::parse(const char *command) {
   func("JsParser::parse : %s",command);
 
   res = JSVAL_VOID;
-  JS_EvaluateScript(js_context, global_object,
+  eval_res = JS_EvaluateScript(js_context, global_object,
 		      command, strlen(command), "console", 0, &res);
   // return the result (to console)
   if(!JSVAL_IS_VOID(res)){
       str=JS_ValueToString(js_context, res);
       if(str){
-          act("JS: %s", JS_GetStringBytes(str));
+          act("JS parse res: %s", JS_GetStringBytes(str));
       } else {
           JS_ReportError(js_context, "Can't convert result to string");
       }
-      return 0;
   } // else
-    // if anything went wrong, our ErrorReporter was called!
-  return -1;
+    // if anything more was wrong, our ErrorReporter was called!
+  func("%s evalres: %i", __func__, eval_res);
+  return eval_res;
 }
 
 void JsParser::stop() {
