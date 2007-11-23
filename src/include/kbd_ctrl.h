@@ -40,6 +40,7 @@ class KbdCtrl: public Controller {
 
   char keyname[512];
   char funcname[512];
+  int JSCall(char*);
 
 };
 

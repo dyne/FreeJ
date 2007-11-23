@@ -85,7 +85,6 @@ int KbdCtrl::peep(Context *env) {
 }
 
 int KbdCtrl::checksym(SDLKey key, char *name) {
-  jsval ret;
   if(keysym->sym == key) {
     strcat(keyname,name);
     func("keyboard controller detected key: %s",keyname);
@@ -94,18 +93,7 @@ int KbdCtrl::checksym(SDLKey key, char *name) {
     else // if(env->event.key.state == SDL_RELEASED)
       snprintf(funcname, 511, "released_%s", keyname);
 
-    func("keyboard controller calling method %s()",funcname);
-    return JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
-/*
-    {
-      jsval js_data[] = {
-        STRING_TO_JSVAL(keyname),
-        DOUBLE_TO_JSVAL(key) };
-      if(env->event.key.state == SDL_PRESSED)
-        JS_CallFunctionName(jsenv, jsobj, "pressed", 2, js_data, &ret);
-      else // if(env->event.key.state == SDL_RELEASED)
-        JS_CallFunctionName(jsenv, jsobj, "released", 2, js_data, &ret);
-    } */
+    return JSCall(funcname);
   }
   return 0;
 }
@@ -113,8 +101,7 @@ int KbdCtrl::checksym(SDLKey key, char *name) {
 
 int KbdCtrl::poll(Context *env) {
   char tmp[8];
-
-  jsval ret;
+  int res = 0;
 
   if(env->event.key.state != SDL_PRESSED)
     if(env->event.key.state != SDL_RELEASED)
@@ -143,8 +130,7 @@ int KbdCtrl::poll(Context *env) {
       sprintf(funcname,"pressed_%s",keyname);
     else //if(env->event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
-    func("keyboard controller calling method %s()",funcname);
-    return JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    return JSCall(funcname);
   }
   
   if( keysym->sym >= SDLK_a
@@ -157,33 +143,32 @@ int KbdCtrl::poll(Context *env) {
       sprintf(funcname,"pressed_%s",keyname);
     else //if(env->event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
-    func("keyboard controller calling method %s()",funcname);
-    return JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    return JSCall(funcname);
   }
 
   // check arrows
-  checksym(SDLK_UP,        "up");
-  checksym(SDLK_DOWN,      "down");
-  checksym(SDLK_RIGHT,     "right");
-  checksym(SDLK_LEFT,      "left");
-  checksym(SDLK_INSERT,    "insert");
-  checksym(SDLK_HOME,      "home");
-  checksym(SDLK_END,       "end");
-  checksym(SDLK_PAGEUP,    "pageup");
-  checksym(SDLK_PAGEDOWN,  "pagedown");
+  res |= checksym(SDLK_UP,        "up");
+  res |= checksym(SDLK_DOWN,      "down");
+  res |= checksym(SDLK_RIGHT,     "right");
+  res |= checksym(SDLK_LEFT,      "left");
+  res |= checksym(SDLK_INSERT,    "insert");
+  res |= checksym(SDLK_HOME,      "home");
+  res |= checksym(SDLK_END,       "end");
+  res |= checksym(SDLK_PAGEUP,    "pageup");
+  res |= checksym(SDLK_PAGEDOWN,  "pagedown");
 
 
   // check special keys
-  checksym(SDLK_BACKSPACE, "backspace");
-  checksym(SDLK_TAB,       "tab");
-  checksym(SDLK_RETURN,    "return");
-  checksym(SDLK_SPACE,     "space");
-  checksym(SDLK_PLUS,      "plus");
-  checksym(SDLK_MINUS,     "minus");
-  checksym(SDLK_ESCAPE,    "esc");
-  checksym(SDLK_LESS,      "less");
-  checksym(SDLK_GREATER,   "greater");
-  checksym(SDLK_EQUALS,    "equal");
+  res |= checksym(SDLK_BACKSPACE, "backspace");
+  res |= checksym(SDLK_TAB,       "tab");
+  res |= checksym(SDLK_RETURN,    "return");
+  res |= checksym(SDLK_SPACE,     "space");
+  res |= checksym(SDLK_PLUS,      "plus");
+  res |= checksym(SDLK_MINUS,     "minus");
+  res |= checksym(SDLK_ESCAPE,    "esc");
+  res |= checksym(SDLK_LESS,      "less");
+  res |= checksym(SDLK_GREATER,   "greater");
+  res |= checksym(SDLK_EQUALS,    "equal");
   
 
   // check numeric keypad
@@ -197,21 +182,37 @@ int KbdCtrl::poll(Context *env) {
       sprintf(funcname,"pressed_%s",keyname);
     else //if(env->event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
-    func("keyboard controller calling method %s()",funcname);
-    return JS_CallFunctionName(jsenv, jsobj, funcname, 0, NULL, &ret);
+    return JSCall(funcname);
   }
-  checksym(SDLK_KP_PERIOD,   "num_period");
-  checksym(SDLK_KP_DIVIDE,   "num_divide");
-  checksym(SDLK_KP_MULTIPLY, "num_multiply");
-  checksym(SDLK_KP_MINUS,    "num_minus");
-  checksym(SDLK_KP_PLUS,     "num_plus");
-  checksym(SDLK_KP_ENTER,    "num_enter");
-  checksym(SDLK_KP_EQUALS,   "num_equals");
-  //////
+  res |= checksym(SDLK_KP_PERIOD,   "num_period");
+  res |= checksym(SDLK_KP_DIVIDE,   "num_divide");
+  res |= checksym(SDLK_KP_MULTIPLY, "num_multiply");
+  res |= checksym(SDLK_KP_MINUS,    "num_minus");
+  res |= checksym(SDLK_KP_PLUS,     "num_plus");
+  res |= checksym(SDLK_KP_ENTER,    "num_enter");
+  res |= checksym(SDLK_KP_EQUALS,   "num_equals");
 
-  return 0;
+  return res;
 }
 
+int KbdCtrl::JSCall(char *funcname) {
+    jsval fval = JSVAL_VOID;
+    jsval ret = JSVAL_VOID;
+
+    func("%s calling method %s()", __func__, funcname);
+    int res = JS_GetProperty(jsenv, jsobj, funcname, &fval);
+    if(!JSVAL_IS_VOID(fval)) {
+        res = JS_CallFunctionValue(jsenv, jsobj, fval, 0, NULL, &ret);
+        if (res)
+            if(!JSVAL_IS_VOID(ret)) {
+                JSBool ok;
+                JS_ValueToBoolean(jsenv, ret, &ok);
+                if (ok) // JSfunc returned 'true', we are done.
+                    return 1;
+            }
+    }
+    return 0;
+}
 
 JS(js_kbd_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
