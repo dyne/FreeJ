@@ -90,6 +90,7 @@ freej_SOURCES = \
 	video_encoder.cpp \
 	video_encoder_js.cpp \
 	ffmpeg_encoder.cpp \
+	theorautils.cpp \
 	oggtheora_encoder.cpp \
 	impl_video_encoders.cpp
 

@@ -817,7 +817,7 @@ void Console::cafudda() {
     update_scroll();
 
   if(!commandline) {
-    speedmeter();
+    //    speedmeter();
     statusline(NULL);
   } else
     GOTO_CURSOR;
@@ -1350,22 +1350,22 @@ void Console::parser_default(int key) {
     env->clear_all = !env->clear_all;
     break;
     
-    
+    /*
   case '<':
     // decrease global fps
     if(env->fps_speed>1)
       env->fps_speed--;
     else break;
-    env->set_fps_interval(env->fps_speed);
-    ::act("Frames per second decreased to %i",env->fps_speed);
+    //    env->set_fps_interval(env->fps_speed);
+    //    ::act("Frames per second decreased to %i",env->fps_speed);
     break;
   case '>':
     // increase global fps
     env->fps_speed++;
-    env->set_fps_interval(env->fps_speed);
-    ::act("Frames per second increased to %i",env->fps_speed);
+    //    env->set_fps_interval(env->fps_speed);
+    //    ::act("Frames per second increased to %i",env->fps_speed);
     break;
-    
+    */
   case KEY_CTRL_F:
     env->screen->fullscreen();
     break;

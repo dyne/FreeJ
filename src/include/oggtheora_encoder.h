@@ -29,9 +29,12 @@
 #include <screen.h>
 
 #ifdef WITH_OGGTHEORA
+/*
 #include "theora/theora.h"
 #include "vorbis/codec.h" // TODO vorbis encoding from mic
 #include "vorbis/vorbisenc.h"
+*/
+#include <theorautils.h>
 
 extern "C" {
 #include <avcodec.h>
@@ -50,13 +53,14 @@ class OggTheoraEncoder: public VideoEncoder {
   ~OggTheoraEncoder();
   
   bool init(Context *_env);
-  bool set_video_quality(int quality);
-  bool set_audio_quality(double quality);
 
   bool feed_video();
+
   int encode_frame();
   
  private:
+
+  oggmux_info oggmux; // theorautils object
 
   int encode_video(int end_of_stream);
   int encode_audio(int end_of_stream);
@@ -67,30 +71,9 @@ class OggTheoraEncoder: public VideoEncoder {
   AVFrame *picture_rgb;
   AVFrame *picture_yuv;
 
-  
-  bool init_ogg_streams();
-  bool theora_init();
-  bool vorbis_init();
-  bool write_headers();
-  bool write_theora_header();
-  bool write_vorbis_header();
-
-  bool flush_theora_header();
-  bool flush_vorbis_header();
-
-  int flush_ogg (int end_of_stream);
-  void close_ogg_streams();
-
   bool  init_yuv_frame();
-  void  print_timing (double timebase);
 
   double rint(double x);
-
-  bool has_finished_frame();
-
-  bool frame_finished;
-  //  int video_quality;
-  double vorbis_quality;
 
   /* video size */
   int video_x;
@@ -99,40 +82,9 @@ class OggTheoraEncoder: public VideoEncoder {
   int frame_x_offset; 
   int frame_y_offset;
 
-  int audioflag;
-  int videoflag;
-
-  ogg_int64_t audio_bytesout;
-  ogg_int64_t video_bytesout;
-
-  ogg_page videopage;
-  ogg_page audiopage;
-
-  double videotime;
-  double audiotime;
-
 
   unsigned char *yuvframe[2]; /* yuv 420 */
-  signed char   *line;
   
-  // 2 separate logical bitstreams for theora and vorbis
-  ogg_stream_state theora_ogg_stream; 
-  ogg_stream_state vorbis_ogg_stream; 
-  
-  ogg_page         opage; /* one Ogg bitstream page.  Vorbis packets are inside */
-  ogg_packet       opacket; /* one raw packet of data for decode */
-  
-  theora_state     td;
-  theora_info      theora_information;
-  theora_comment   tc;
-
-  vorbis_info      vorbis_information; /* struct that stores all the static vorbis bitstream
-                          settings */
-  vorbis_comment   vc; /* struct that stores all the user comments */
-
-  vorbis_dsp_state vd; /* central working state for the packet->PCM decoder */
-  vorbis_block     vb; /* local working space for packet->PCM decode */
-
   ViewPort         *screen;
 
 };

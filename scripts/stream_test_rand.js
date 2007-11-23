@@ -94,7 +94,7 @@ register_controller( kbd );
 
 // create a video encoder object
 //    values 1-100         video quality  video bitrate  audio quality  audio_bitrate
-encoder = new VideoEncoder(10,             128000,        0,             32000);
+encoder = new VideoEncoder(10,             128000,        4,             32000);
 
 
 encoder.stream_host("giss.tv");

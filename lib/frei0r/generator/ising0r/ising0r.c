@@ -96,11 +96,11 @@ void f0r_get_param_info(f0r_param_info_t* info, int param_index)
       info->type        = F0R_PARAM_DOUBLE;
       info->explanation = "Noise Temperature"; break;
     case 1:
-      info->name        = "Border Growth";
+      info->name        = "Border";
       info->type        = F0R_PARAM_DOUBLE;
       info->explanation = "Border Growth"; break;
     case 2:
-      info->name        = "Spontaneous Growth";
+      info->name        = "Spontaneous";
       info->type        = F0R_PARAM_DOUBLE;
       info->explanation = "Spontaneous Growth"; break;
     }

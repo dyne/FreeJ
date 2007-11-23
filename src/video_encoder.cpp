@@ -105,7 +105,7 @@ void VideoEncoder::run() {
   int res;
 
   func("ok, encoder %s in rolling loop",name);
-  func("VideoEncoder::run : begin thread %d",pthread_self());
+  func("VideoEncoder::run : begin thread %p",pthread_self());
   
   lock_feed();
 

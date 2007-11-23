@@ -63,11 +63,8 @@ class VideoEncoder: public Entry, public JSyncThread {
   virtual ~VideoEncoder ();
 
   virtual bool init (Context *_env)                          = 0;  
-  virtual bool set_video_quality (int quality)               = 0;
-  virtual bool set_audio_quality (double quality)            = 0;
-  virtual int encode_frame ()                             = 0;
+  virtual int encode_frame ()                                = 0;
   virtual bool feed_video()                                  = 0;
-  virtual bool has_finished_frame ()                         = 0;
 
   void run();
   bool cafudda();

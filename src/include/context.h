@@ -60,16 +60,6 @@ namespace XmlRpc {  class XmlRpcServer; }
 
 class Context {
  private:
-  /* ---- fps ---- */
-  struct timeval cur_time;
-  struct timeval lst_time;
-  struct timespec slp_time;
-  int fps_frame_interval;
-  int framecount;
-  long elapsed;
-  long min_interval;
-  void calc_fps();
-  /* ------------- */
 
   /* doublesize calculation */
   uint64_t **doubletab;
@@ -167,11 +157,8 @@ class Context {
 
   /* Set the interval (in frames) after
      the fps counter is updated */
-  void set_fps_interval(int interval);
-
   float fps;
   bool track_fps;
-  
   int fps_speed;
 
   bool clear_all;

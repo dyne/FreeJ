@@ -43,6 +43,7 @@
 
 void fsigpipe (int Sig);
 int got_sigpipe;
+FPSmanager FPS;
 
 Context::Context() {
 
@@ -51,7 +52,7 @@ Context::Context() {
   audio           = NULL;
 
   /* initialize fps counter */
-  framecount      = 0; 
+  //  framecount      = 0; 
   fps             = 0.0;
   track_fps       = true;
   magnification   = 0;
@@ -204,9 +205,14 @@ bool Context::init(int wx, int hx, bool opengl) {
   
   if( SDL_imageFilterMMXdetect () )
     act ("using MMX accelerated blit");
-  
+
+  /*  
   set_fps_interval (fps_speed);
   gettimeofday (&lst_time, NULL);
+  */
+
+  SDL_initFramerate(&FPS);
+  SDL_setFramerate(&FPS, fps_speed);
 
   // register SIGPIPE signal handler (stream error)
   got_sigpipe = false;
@@ -328,7 +334,8 @@ void Context::cafudda(double secs) {
 
     riciuca = (dtime() - now < secs) ? true : false;
     
-    calc_fps ();
+    //    calc_fps ();
+    SDL_framerateDelay(&FPS);
     // synced with desired fps here
     //////////////////////////////////
 
@@ -534,48 +541,6 @@ void Context::magnify(int algo) {
 
 /* FPS */
 
-void Context::set_fps_interval(int interval) {
-  fps_speed = interval;
-  fps_frame_interval = interval*1000000;
-  min_interval = (long)1000000/interval;
-}
-
-void Context::calc_fps() {
-  struct timespec tmp_rem,*rem;
-  rem = &tmp_rem;
-  /* 1frame : elapsed = X frames : 1000000 */
-  gettimeofday (&cur_time, NULL);
-  elapsed = cur_time.tv_usec - lst_time.tv_usec;
-  if (cur_time.tv_sec > lst_time.tv_sec)  // ?? should be always true? kysu
-    // nope. see sys/time.h timersub macro -jrml
-    elapsed += 1000000;
-  
-  if (track_fps) {
-    framecount++;
-    if (framecount==24) {
-      // this is the only division
-      fps = (double)1000000 / elapsed;
-      framecount = 0;
-    }
-  }
-  
-  if (elapsed <= min_interval) { // If time elapsed if < 1/frame_for_second wait
-    
-    // the following calculus is approximated to bitwise multiplication
-    // this wont really hurt our precision, anyway we care more about speed
-    // hey are we sure we don't care about precision? was there some problem? -jrml
-    jsleep (0, (min_interval - elapsed) << 10);
-    
-    lst_time.tv_usec += min_interval;
-    if( lst_time.tv_usec > 999999) {
-      lst_time.tv_usec -= 1000000;
-      lst_time.tv_sec++;
-    }
-  } else {
-    lst_time.tv_usec = cur_time.tv_usec;
-    lst_time.tv_sec = cur_time.tv_sec;
-  }
-}
 
 void Context::rocknroll() {
   VideoEncoder *e;

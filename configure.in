@@ -185,9 +185,12 @@ if test x$dynamic_ffmpeg = xyes ; then
 else
    PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
                      have_oggtheora=yes, have_oggtheora=no)
-   XIPH_LIBS="$XIPH_LIBS -logg -lvorbis \$(top_srcdir)/lib/theora-mmx/libtheora.a"
-   XIPH_INCLUDE="-I\$(top_srcdir)/lib/theora-mmx"
-   THEORA_MMX_DIR="theora-mmx"
+#   XIPH_LIBS="$XIPH_LIBS -logg -lvorbis \$(top_srcdir)/lib/theora-mmx/libtheora.a"
+   XIPH_LIBS="$XIPH_LIBS -logg -lvorbis -ltheora"
+#   XIPH_INCLUDE="-I\$(top_srcdir)/lib/theora-mmx"
+   XIPH_INCLUDE=""
+#   THEORA_MMX_DIR="theora-mmx"
+   THEORA_MMX_DIR=""
 fi
 if test x$have_oggtheora = xyes ; then
    AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])

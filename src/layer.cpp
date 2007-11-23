@@ -122,7 +122,7 @@ void Layer::run() {
     wait_feed();
   }
     
-  func("Layer :: run :: end thread %d",pthread_self());
+  func("Layer :: run :: end thread %p",pthread_self());
   running = false;
 }
 
