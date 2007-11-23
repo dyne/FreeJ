@@ -44,12 +44,12 @@ void f0r_get_param_info(f0r_param_info_t* info, int param_index)
   switch(param_index)
   {
   case 0:
-    info->name="X axis";
+    info->name="X";
     info->type=F0R_PARAM_BOOL;
     info->explanation="Flipping on the horizontal axis";
     break;
   case 1:
-    info->name="Y axis";
+    info->name="Y";
     info->type=F0R_PARAM_BOOL;
     info->explanation = "Flipping on the vertical axis";
     break;

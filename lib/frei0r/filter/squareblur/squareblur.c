@@ -151,7 +151,7 @@ void f0r_get_param_info(f0r_param_info_t* info, int param_index)
   switch(param_index)
   {
   case 0:
-    info->name = "Kernel size";
+    info->name = "Kernel";
     info->type = F0R_PARAM_DOUBLE;
     info->explanation = "The size of the kernel, as a proportion to its coverage of the image";
     break;
