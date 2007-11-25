@@ -396,7 +396,7 @@ void Context::handle_controllers() {
 	}
   
   ctrl = (Controller *)controllers.begin();
-  if(res) {
+  //if(res) {
       if(ctrl) {
         controllers.lock();
         while(ctrl) {
@@ -406,7 +406,7 @@ void Context::handle_controllers() {
         }
         controllers.unlock();
       }
-  }
+  //}
 
   // flushes all events that are leftover
   while( SDL_PeepEvents(&event,1,SDL_GETEVENT, SDL_ALLEVENTS) > 0 ) continue;
