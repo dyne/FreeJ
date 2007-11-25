@@ -24,6 +24,7 @@
 #include <kbd_ctrl.h>
 
 #include <callbacks_js.h>
+#include <jsparser_data.h>
 
 Controller::Controller() {
   initialized = active = false;
@@ -39,6 +40,16 @@ char *Controller::get_name() {
 // other functions are pure virtual
 
 // now with controller methods in javascript
+//JS(js_ctrl_constructor);
+//DECLARE_CLASS("Controller", js_ctrl_class, js_ctrl_constructor);
+
+JS(js_ctrl_constructor);
+DECLARE_CLASS("Controller", js_ctrl_class, NULL);
+
+JSFunctionSpec js_ctrl_methods[] = { 
+  {"activate", controller_activate, 1},
+  {0} 
+};
 
 JS(controller_activate) {
 

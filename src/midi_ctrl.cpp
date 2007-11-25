@@ -41,7 +41,6 @@ DECLARE_CLASS("MidiController", js_midi_ctrl_class, js_midi_ctrl_constructor);
 JS(midi_connect);
 JS(midi_connect_from);
 JSFunctionSpec js_midi_ctrl_methods[] = { 
-  CONTROLLER_METHODS ,
   {"connect_from", midi_connect_from, 3},
   //    {"connect", midi_connect, 4 },
   {0} 

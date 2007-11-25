@@ -31,7 +31,6 @@ DECLARE_CLASS("CamLayer",v4l_layer_class,v4l_layer_constructor);
 ////////////////////////////////
 // Video4Linux Layer methods
 JSFunctionSpec v4l_layer_methods[] = {
-  LAYER_METHODS  ,
   ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "chan",         v4l_layer_chan,         1},

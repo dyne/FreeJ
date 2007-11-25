@@ -54,7 +54,7 @@ JsParser::~JsParser() {
 }
 
 void JsParser::init() {
-  JSBool ret;
+  //JSBool ret;
   stop_script=false;
   
   notice("Initializing %s", JS_GetImplementationVersion());
@@ -110,110 +110,137 @@ void JsParser::init() {
     ///////////////////////////////////////////////////////////
     // Initialize classes
 
+	JSObject *object_proto; // reminder for inher.
+	JSObject *layer_object; // used in REGISTER_CLASS macro
     REGISTER_CLASS("Layer",
 		   layer_class,
 		   layer_constructor,
-		   layer_methods);
+		   layer_methods,
+           NULL);
+    object_proto = layer_object;
 
     REGISTER_CLASS("ParticleLayer",
 		   particle_layer_class,
 		   particle_layer_constructor,
-		   particle_layer_methods);
+		   particle_layer_methods,
+           object_proto);
 
     REGISTER_CLASS("GeometryLayer",
 		   geometry_layer_class,
 		   geometry_layer_constructor,
-		   geometry_layer_methods);
+		   geometry_layer_methods,
+           object_proto);
 
     REGISTER_CLASS("VScrollLayer",
 		   vscroll_layer_class,
 		   vscroll_layer_constructor,
-		   vscroll_layer_methods);
+		   vscroll_layer_methods,
+           object_proto);
 
     REGISTER_CLASS("ImageLayer",
 		   image_layer_class,
 		   image_layer_constructor,
-		   image_layer_methods);
+		   image_layer_methods,
+           object_proto);
 
     REGISTER_CLASS("FlashLayer",
 		   flash_layer_class,
 		   flash_layer_constructor,
-		   flash_layer_methods);
+		   flash_layer_methods,
+           object_proto);
 
     REGISTER_CLASS("FlashLayer",
 		   goom_layer_class,
 		   goom_layer_constructor,
-		   goom_layer_methods);
+		   goom_layer_methods,
+           object_proto);
 
 #ifdef WITH_V4L
     REGISTER_CLASS("CamLayer",
 		   v4l_layer_class,
 		   v4l_layer_constructor,
-		   v4l_layer_methods);
+		   v4l_layer_methods,
+           object_proto);
 #endif
 
 #ifdef WITH_FFMPEG
     REGISTER_CLASS("MovieLayer",
 		   video_layer_class,
 		   video_layer_constructor,
-		   video_layer_methods);
+		   video_layer_methods,
+           object_proto);
 #endif
 
 #ifdef WITH_AVIFILE
    REGISTER_CLASS("MovieLayer",
 		   avi_layer_class,
 		   avi_layer_constructor,
-		   avi_layer_methods);
+		   avi_layer_methods,
+           object_proto);
 #endif
 
 #ifdef WITH_FT2
     REGISTER_CLASS("TextLayer",
 		   txt_layer_class,
 		   txt_layer_constructor,
-		   txt_layer_methods);
+		   txt_layer_methods,
+           object_proto);
 #endif
     
     
     REGISTER_CLASS("Filter",
                    filter_class,
                    filter_constructor,
-                   filter_methods);
+                   filter_methods,
+                   NULL);
 
     // controller classes
+    REGISTER_CLASS("Controller",
+		   js_ctrl_class,
+		   NULL,
+		   js_ctrl_methods,
+           NULL);
+    object_proto = layer_object;
 
     REGISTER_CLASS("KeyboardController",
 		   js_kbd_ctrl_class,
 		   js_kbd_ctrl_constructor,
-		   js_kbd_ctrl_methods);
+		   js_kbd_ctrl_methods,
+           object_proto);
 
     REGISTER_CLASS("JoystickController",
 		   js_joy_ctrl_class,
 		   js_joy_ctrl_constructor,
-		   js_joy_ctrl_methods);
+		   js_joy_ctrl_methods,
+           object_proto);
 
     REGISTER_CLASS("TriggerController",
            js_trigger_ctrl_class,
            js_trigger_ctrl_constructor,
-           js_trigger_ctrl_methods);
+           js_trigger_ctrl_methods,
+           object_proto);
 
 #ifdef WITH_MIDI
     REGISTER_CLASS("MidiController",
 		   js_midi_ctrl_class,
 		   js_midi_ctrl_constructor,
-		   js_midi_ctrl_methods);
+		   js_midi_ctrl_methods,
+           object_proto);
 #endif
 
     REGISTER_CLASS("XmlRpcController",
 		   js_xmlrpc_ctrl_class,
 		   js_xmlrpc_ctrl_constructor,
-		   js_xmlrpc_ctrl_methods);
+		   js_xmlrpc_ctrl_methods,
+           object_proto);
 
 #ifdef WITH_OGGTHEORA
     // encoder class
     REGISTER_CLASS("VideoEncoder",
 		   js_vid_enc_class,
 		   js_vid_enc_constructor,
-		   js_vid_enc_methods);
+		   js_vid_enc_methods,
+           NULL);
 #endif
 
 //    JS_DefineProperties(js_context, layer_object, layer_properties);

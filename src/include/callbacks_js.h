@@ -45,15 +45,15 @@ typedef enum JSExnType {
         JSEXN_URIERR,
         JSEXN_LIMIT
 } JSExnType;
-// FIXME:
-// I don't know how to override this ... we don't get our <EXCEPTION_NAME> from jsfreej.msg
+/* FIXME:
+I don't know how to override which JSException type we want ... we don't get ours from jsfreej.msg api still uses js.msg :(
 static JSExnType errorToExceptionNum[] = {
 #define MSG_DEF(name, number, count, exception, format) \
     exception,
 #include "jsfreej.msg"
 #undef MSG_DEF
 };
-
+*/
 typedef enum JSFreejErrNum {
 #define MSG_DEF(name, number, count, exception, format) \
     name = number,
@@ -117,18 +117,13 @@ JSClass class_struct = { \
   class_constructor \
 }
 
-#define REGISTER_CLASS(class_name, class_struct, class_constructor, class_methods) \
-    layer_object = JS_InitClass(js_context, global_object, NULL, \
-				&class_struct, class_constructor, \
-				0, 0, 0, 0, 0); \
+#define REGISTER_CLASS(class_name, class_struct, class_constructor, class_methods, parent_class) \
+    layer_object = JS_InitClass(js_context, global_object, parent_class, \
+				&class_struct, class_constructor, 0, \
+				0, class_methods, 0, 0); \
     if(!layer_object) { \
         error("JsParser::init() can't instantiate %s class",class_name); \
-    } else { \
-      ret = JS_DefineFunctions(js_context, layer_object, class_methods); \
-      if(ret != JS_TRUE) { \
-	error("JsParser::init() can't register %s methods", class_name); \
-      } \
-    }
+    } 
 
 #define JS_CONSTRUCTOR(constructor_name, constructor_func, constructor_class) \
 JS(constructor_func) {                                                        \

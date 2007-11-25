@@ -32,7 +32,6 @@ DECLARE_CLASS("TextLayer",txt_layer_class,txt_layer_constructor);
 ////////////////////////////////
 // Txt Layer methods
 JSFunctionSpec txt_layer_methods[] = {
-  LAYER_METHODS  ,
   ENTRY_METHODS  ,
   //   name            native                  nargs
   {    "print",        txt_layer_print,        1},

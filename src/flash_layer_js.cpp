@@ -29,7 +29,6 @@ DECLARE_CLASS("FlashLayer", flash_layer_class, flash_layer_constructor);
 /////////////////////////////////
 // Flash Layer methods
 JSFunctionSpec flash_layer_methods[] = {
-  LAYER_METHODS ,
   ENTRY_METHODS ,
   {     "open",          flash_layer_open,             1},
   {0}

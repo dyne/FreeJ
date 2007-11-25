@@ -26,9 +26,34 @@
 DECLARE_CLASS("Layer",layer_class,layer_constructor);
 
 JSFunctionSpec layer_methods[] = {
-  LAYER_METHODS  ,
-  ENTRY_METHODS  ,
-  {0}
+    ENTRY_METHODS,
+    {"activate",	layer_activate,	        0},
+    {"deactivate",	layer_deactivate,	0},
+    {"get_name",	layer_get_name,	        0},
+    {"get_filename",	layer_get_filename,	0},
+    {"set_blit",	layer_set_blit,	        1},
+    {"get_blit",	layer_get_blit,	        0},
+    {"set_blit_value",	layer_set_blit_value,	1},
+    {"get_blit_value",	layer_get_blit_value,	0},
+    {"fade_blit_value", layer_fade_blit_value,  2},
+    {"set_position",	layer_set_position,	2},
+    {"slide_position",  layer_slide_position,   2},
+    {"get_x_position",	layer_get_x_position,	0},
+    {"x",               layer_get_x_position,   0},
+    {"get_y_position",	layer_get_y_position,	0},
+    {"y",               layer_get_y_position,   0},
+    {"get_width",       layer_get_width,        0},
+    {"w",               layer_get_width,        0},
+    {"get_height",      layer_get_height,       0},
+    {"h",               layer_get_height,       0},
+    {"add_filter",      layer_add_filter,	1},
+    {"rem_filter",	layer_rem_filter,	1},
+    {"rotate",          layer_rotate,           1},
+    {"zoom",            layer_zoom,             2},
+    {"spin",            layer_spin,             2},
+    {"list_filters",    layer_list_filters,     0},
+    {"list_parameters", layer_list_parameters,  0},
+    {0}
 };
 
 void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,

@@ -31,7 +31,7 @@ DECLARE_CLASS("MovieLayer",video_layer_class,video_layer_constructor);
 ////////////////////////////////
 // Video Layer methods
 JSFunctionSpec video_layer_methods[] = {
-  LAYER_METHODS  ,
+//  LAYER_METHODS  ,
   ENTRY_METHODS  ,
   {	"ff",		video_layer_forward, 		0},
   {	"rew",		video_layer_rewind, 		0},

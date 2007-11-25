@@ -38,7 +38,6 @@ JS(js_kbd_ctrl_constructor);
 DECLARE_CLASS("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor);
 
 JSFunctionSpec js_kbd_ctrl_methods[] = {
-  CONTROLLER_METHODS,
   {0}
 };
 
@@ -59,6 +58,7 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
 
   jsenv = env;
   jsobj = obj;
+  //SDL_EnableUNICODE(true);
   
   initialized = true;
   return(true);
@@ -107,8 +107,11 @@ int KbdCtrl::poll(Context *env) {
     if(env->event.key.state != SDL_RELEASED)
       return 0; // no key state change
   
-  keysym = & env->event.key.keysym;
-  
+  keysym = &env->event.key.keysym;
+  //Uint16 keysym->unicode
+  //char * SDL_GetKeyName(keysym->sym);
+  func("KB u: %i / ks: %s", keysym->unicode, SDL_GetKeyName(keysym->sym));
+
   memset(keyname, 0, sizeof(char)<<9);  // *512
   memset(funcname, 0, sizeof(char)<<9); // *512
   

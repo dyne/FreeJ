@@ -40,7 +40,6 @@ JS(js_trigger_ctrl_constructor);
 DECLARE_CLASS("TriggerController",js_trigger_ctrl_class, js_trigger_ctrl_constructor);
 
 JSFunctionSpec js_trigger_ctrl_methods[] = {
-  CONTROLLER_METHODS ,
   {0}
 };
 
@@ -64,7 +63,7 @@ bool TriggerCtrl::init(JSContext *env, JSObject *obj) {
 }
 
 int TriggerCtrl::peep(Context *env) {
-    poll(env);
+    return poll(env);
 }
 
 int TriggerCtrl::poll(Context *env) {

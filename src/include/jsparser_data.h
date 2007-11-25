@@ -98,6 +98,10 @@ extern JSFunctionSpec filter_methods[];
 extern JSClass layer_class;
 extern JSFunctionSpec layer_methods[];
 
+// Controller
+extern JSClass js_ctrl_class;
+extern JSFunctionSpec js_ctrl_methods[];
+
 // KeyboardController
 extern JSClass js_kbd_ctrl_class;
 extern JSFunctionSpec js_kbd_ctrl_methods[];
@@ -237,8 +241,6 @@ JS(filter_list_parameters);
 ////////////////////////////////
 // Controller methods
 JS(controller_activate);
-#define CONTROLLER_METHODS \
-  {"activate",                controller_activate,              1}
 
 ////////////////////////////////
 // parent Layer methods
@@ -265,36 +267,6 @@ JS(layer_zoom);
 JS(layer_spin);
 JS(layer_list_filters);
 JS(layer_list_parameters);
-JS(layer_list_blits);
-
-#define LAYER_METHODS \
-    {"activate",	layer_activate,	        0}, \
-    {"deactivate",	layer_deactivate,	0}, \
-    {"get_name",	layer_get_name,	        0}, \
-    {"get_filename",	layer_get_filename,	0}, \
-    {"set_blit",	layer_set_blit,	        1}, \
-    {"get_blit",	layer_get_blit,	        0}, \
-    {"set_blit_value",	layer_set_blit_value,	1}, \
-    {"get_blit_value",	layer_get_blit_value,	0}, \
-    {"fade_blit_value", layer_fade_blit_value,  2}, \
-    {"set_position",	layer_set_position,	2}, \
-    {"slide_position",  layer_slide_position,   2}, \
-    {"get_x_position",	layer_get_x_position,	0}, \
-    {"x",               layer_get_x_position,   0}, \
-    {"get_y_position",	layer_get_y_position,	0}, \
-    {"y",               layer_get_y_position,   0}, \
-    {"get_width",       layer_get_width,        0}, \
-    {"w",               layer_get_width,        0}, \
-    {"get_height",      layer_get_height,       0}, \
-    {"h",               layer_get_height,       0}, \
-    {"add_filter",      layer_add_filter,	1}, \
-    {"rem_filter",	layer_rem_filter,	1}, \
-    {"rotate",          layer_rotate,           1}, \
-    {"zoom",            layer_zoom,             2}, \
-    {"spin",            layer_spin,             2}, \
-    {"list_filters",    layer_list_filters,     0}, \
-    {"list_parameters", layer_list_parameters,  0}, \
-    {"list_blits",      layer_list_blits,       0}
 
 ////////////////////////////////
 // Particle Layer methods

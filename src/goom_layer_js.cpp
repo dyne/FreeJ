@@ -29,7 +29,6 @@ DECLARE_CLASS("GoomLayer",goom_layer_class,goom_layer_constructor);
 ////////////////////////////////
 // Goom Layer methods
 JSFunctionSpec goom_layer_methods[] = {
-  LAYER_METHODS  ,
   ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "mode",         goom_layer_mode,        1  },

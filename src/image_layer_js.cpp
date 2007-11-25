@@ -29,7 +29,6 @@ DECLARE_CLASS("ImageLayer",image_layer_class,image_layer_constructor);
 ////////////////////////////////
 // Image Layer methods
 JSFunctionSpec image_layer_methods[] = {
-  LAYER_METHODS  ,
   ENTRY_METHODS  ,
   {     "open",         image_layer_open,               1},
   {0}

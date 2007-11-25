@@ -54,7 +54,6 @@ class JsParser {
 	JSRuntime *js_runtime;
 	JSContext *js_context;
 	JSObject *global_object;
-	JSObject *layer_object;
 	void init();
 
 

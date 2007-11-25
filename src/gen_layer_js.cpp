@@ -29,7 +29,6 @@ DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
 ////////////////////////////////
 // Particle Layer methods
 JSFunctionSpec particle_layer_methods[] = {
-  LAYER_METHODS  ,
   ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "blossom",      particle_layer_blossom, 1},

@@ -29,7 +29,6 @@ DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
 ////////////////////////////////
 // VScroll Layer methods
 JSFunctionSpec vscroll_layer_methods[] = {
-  LAYER_METHODS  ,
   ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "append",       vscroll_layer_append,   1},
