@@ -61,6 +61,7 @@ JSFunctionSpec global_functions[] = {
     {"register_encoder", register_encoder, 1},
     {"include",         include_javascript,     1},
     {"exec",            system_exec,            1},
+    {"list_filters",    list_filters,           0},
     {0}
 };
 
@@ -146,6 +147,28 @@ JS(add_layer) {
     return JS_TRUE;
 }
 
+JS(list_filters) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *arr;
+    JSString *str;
+    jsval val;
+    Entry *f;
+    int c = 0;
+
+    arr = JS_NewArrayObject(cx, 0, NULL); // create void array
+    if(!arr) return JS_FALSE;
+
+    f = env->filters.begin();
+    while(f) {
+      str = JS_NewStringCopyZ(cx, f->name);
+      val = STRING_TO_JSVAL(str);
+      JS_SetElement(cx, arr, c, &val);
+      c++;
+      f = f->next;
+    }
+    *rval = OBJECT_TO_JSVAL( arr );
+    return JS_TRUE;
+}
 
 JS(register_controller) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);

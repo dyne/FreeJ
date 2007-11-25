@@ -235,6 +235,37 @@ JS(layer_list_filters) {
   return JS_TRUE;
 }  
 
+JS(layer_list_blits) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  JSObject *arr;
+  JSString *str;
+  jsval val;
+  int c = 0;
+  Entry *b;
+
+  GET_LAYER(Layer);
+  if(!lay) {
+    *rval = JSVAL_FALSE;
+    return JS_FALSE;
+  }
+  
+  arr = JS_NewArrayObject(cx, 0, NULL); //create void array
+  if(!arr) return JS_FALSE;
+  
+  b = lay->blitter.blitlist.begin();
+  while(b) {
+    
+    str = JS_NewStringCopyZ(cx, b->name);
+    val = STRING_TO_JSVAL(str);
+    JS_SetElement(cx, arr, c, &val);
+    c++;
+    b = b->next;
+  }
+  
+  *rval = OBJECT_TO_JSVAL( arr );
+  return JS_TRUE;
+}
+
 JS(layer_list_parameters) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   JSObject *arr;
@@ -264,6 +295,9 @@ JS(layer_list_parameters) {
   *rval = OBJECT_TO_JSVAL( arr );
   return JS_TRUE;
 }
+
+
+
 ////////////////////////////////
 // Generic Layer methods
 

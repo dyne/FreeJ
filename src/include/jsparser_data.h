@@ -205,6 +205,8 @@ JS(register_controller);
 JS(register_encoder);
 JS(include_javascript);
 JS(system_exec);
+JS(list_filters);
+
 ////////////////////////////////
 // Linklist Entry methods
 
@@ -263,6 +265,7 @@ JS(layer_zoom);
 JS(layer_spin);
 JS(layer_list_filters);
 JS(layer_list_parameters);
+JS(layer_list_blits);
 
 #define LAYER_METHODS \
     {"activate",	layer_activate,	        0}, \
@@ -290,7 +293,8 @@ JS(layer_list_parameters);
     {"zoom",            layer_zoom,             2}, \
     {"spin",            layer_spin,             2}, \
     {"list_filters",    layer_list_filters,     0}, \
-    {"list_parameters", layer_list_parameters,  0}
+    {"list_parameters", layer_list_parameters,  0}, \
+    {"list_blits",      layer_list_blits,       0}
 
 ////////////////////////////////
 // Particle Layer methods
