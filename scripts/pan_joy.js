@@ -62,32 +62,32 @@ init();
 try {
     jc = new JoystickController();
     register_controller(jc);
+    jc.axismotion = function (which, axis, value) {
+        value = value/100000; //equilaze
+        if(!last_js[which]) {
+            last_js[which] = new Array();
+        }
+        last_js[which][axis] = value;
+    }
+
+    jc.button = function (which, button, state) {
+        if(state==1)
+            switch (button) {
+                case 6:
+                    prev_img();
+                break;
+
+                case 7:
+                    next_img();
+                break;
+        }
+    }
 } catch (e) {
     echo("mh, no joystick?! " + e);
     quit();
 }
 
 last_js = new Array();
-jc.axismotion = function (which, axis, value) {
-    value = value/100000; //equilaze
-    if(!last_js[which]) {
-        last_js[which] = new Array();
-    }
-    last_js[which][axis] = value;
-}
-
-jc.button = function (which, button, state) {
-    if(state==1)
-        switch (button) {
-            case 6:
-                prev_img();
-            break;
-
-            case 7:
-                next_img();
-            break;
-    }
-}
 
 function axismotion(which, axis, value) {
 // mh, on macbookporn, the hd joystick is funny ... and must be inverted
