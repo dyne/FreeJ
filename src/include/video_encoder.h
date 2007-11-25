@@ -78,6 +78,9 @@ class VideoEncoder: public Entry, public JSyncThread {
   int audio_quality; ///<  quality of audio encoding: range 0-100
   int audio_bitrate; ///< audio encoding bitrate (default is 0: VBR on the quality value)
 
+  int audio_kbps; ///< encoded audio, kilobit per second 
+  int video_kbps; ///< encoded video, kilobit per second
+  int bytes_encoded; ///< encoded bytes in total in the last encoding pass
 
   bool quit; ///< flag it up if encoder has to quit
 

@@ -46,12 +46,19 @@ VideoEncoder::VideoEncoder()
 
   filedump_fd = NULL;
 
+  audio_kbps = 0;
+  video_kbps = 0;
+  bytes_encoded = 0;
+
   // initialize the encoded data pipe
-  ringbuffer = ringbuffer_create(2048*4096);
+  ringbuffer = ringbuffer_create(1048*2096);
 
   shout_init();
   ice = shout_new();
+
+  
   //  shout_set_nonblocking(ice, 1);
+
   if( shout_set_protocol(ice,SHOUT_PROTOCOL_HTTP) )
     error("shout_set_protocol: %s", shout_get_error(ice));
 
@@ -72,21 +79,24 @@ VideoEncoder::~VideoEncoder() {
 
   do {
     
-    encnum = ringbuffer_read(ringbuffer, encbuf, 2048);
+    encnum = ringbuffer_read(ringbuffer, encbuf,
+			     ((audio_kbps + video_kbps)*1024)/24);
+
 
     if(encnum <=0) break;
 
     if(write_to_disk && filedump_fd) {
       size_t nn;
       nn = fwrite(encbuf, 1, encnum, filedump_fd);
-      func("flushed %u bytes into encoded file", nn);
     }
 
     if(write_to_stream) {
       shout_sync(ice);
       shout_send(ice, (const unsigned char*)encbuf, encnum);
     }
-     
+
+    func("flushed %u bytes closing video encoder", encnum);
+
   } while(encnum > 0); 
 
   // close the filedump
@@ -119,42 +129,43 @@ void VideoEncoder::run() {
     //    lock();
     res = encode_frame();
     //    unlock();
-
     //    if(!res)
     //      warning("encoder %s reports error encoding frame",name);
 
     /// proceed writing and streaming encoded data in encpipe
-
-    if(res > 0 ) {
-
-      if( write_to_disk | write_to_stream )
-	encnum = ringbuffer_read(ringbuffer, encbuf, res);
+    
+    //    if(res > 0 ) {
+    
+    encnum = 0;
+    if( write_to_disk | write_to_stream ) {
       
+      encnum = ringbuffer_read(ringbuffer, encbuf,
+			       ((audio_kbps + video_kbps)*1024)/24);
       
-      if(encnum > 0) {
+    }
+    
+    if(encnum > 0) {
+      
+      func("%s has encoded %i bytes", name, encnum);
+      
+      if(write_to_disk && filedump_fd) {
 	
-	func("%s has encoded %i bytes", name, encnum);
-	
-	if(write_to_disk && filedump_fd) {
-	  size_t nn;
-	  nn = fwrite(encbuf, 1, encnum, filedump_fd);
-	  func("%u bytes written into encoded file", nn);
-	  
-	}
-	
-	if(write_to_stream) {
-	  
-	  shout_sync(ice);
-	  
-	  if( shout_send(ice, (const unsigned char*)encbuf, encnum) )
-	    error("shout_send: %s", shout_get_error(ice));
-	  
-	}
+	fwrite(encbuf, 1, encnum, filedump_fd);
 	
       }
-
+      
+      if(write_to_stream) {
+      
+	shout_sync(ice);
+	
+	if( shout_send(ice, (const unsigned char*)encbuf, encnum) )
+	  error("shout_send: %s", shout_get_error(ice));
+	
+      }
+      
     }
-
+    
+    
     wait_feed();
     
   }
@@ -184,6 +195,8 @@ bool VideoEncoder::cafudda() {
 
   signal_feed();
 
+  
+  
   return(res);
 }
 

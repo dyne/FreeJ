@@ -53,6 +53,7 @@ OggTheoraEncoder::OggTheoraEncoder()
   init_info(&oggmux);
   theora_comment_init(&oggmux.tc);
 
+
   set_name("encoder/theora");
 
 }
@@ -120,7 +121,7 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.ti.frame_height                 = screen->h;
   oggmux.ti.offset_x                     = frame_x_offset;
   oggmux.ti.offset_y                     = frame_y_offset;
-  oggmux.ti.fps_numerator                = 25000000;
+  oggmux.ti.fps_numerator                = 24000000;
   oggmux.ti.fps_denominator              = 1000000;
   oggmux.ti.aspect_numerator             = 0;
   oggmux.ti.aspect_denominator           = 0;
@@ -183,7 +184,10 @@ int OggTheoraEncoder::encode_frame() {
   
   oggmux_flush(&oggmux, 0);
 
-  return oggmux.bytes_encoded;
+  audio_kbps = oggmux.akbps;
+  video_kbps = oggmux.vkbps;
+  bytes_encoded = oggmux.bytes_encoded;
+  return bytes_encoded;
 
 }
 
@@ -227,12 +231,17 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
 }
 
 int OggTheoraEncoder::encode_audio( int end_of_stream) {
+  int num;
+  int read;
 
+  num = env->audio->framesperbuffer*env->audio->channels*sizeof(int16_t);
+  
+  read = ringbuffer_read(env->audio->input_pipe, (char*)env->audio->input, num); 
   ///// QUAAAA
   //  oggmux_add_audio (oggmux_info *info, int16_t * readbuffer, int bytesread, int samplesread,int e_o_s);
   oggmux_add_audio(&oggmux, env->audio->input,
-		   env->audio->inputframes,
-		   env->audio->inputframes / env->audio->channels / 2,
+		   read,
+		   read / env->audio->channels /2,
 		   end_of_stream );
   
   return 1;

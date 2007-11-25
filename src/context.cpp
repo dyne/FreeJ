@@ -272,7 +272,7 @@ void Context::cafudda(double secs) {
 
     ///////////////////////////////
     /// process audio input
-    audio->cafudda();
+    //    audio->cafudda();
     ///////////////////////////////
     
     
@@ -326,13 +326,13 @@ void Context::cafudda(double secs) {
 
     /////////////////////////////
     // handle timing 
-    if(!secs) break; // just one pass
+    //    if(!secs) break; // just one pass
 
     /////////////////////////////
     // honour quit requests
     if(quit) break; // quit was called
 
-    riciuca = (dtime() - now < secs) ? true : false;
+    //    riciuca = (dtime() - now < secs) ? true : false;
     
     //    calc_fps ();
     SDL_framerateDelay(&FPS);

@@ -57,7 +57,8 @@ class OggTheoraEncoder: public VideoEncoder {
   bool feed_video();
 
   int encode_frame();
-  
+
+
  private:
 
   oggmux_info oggmux; // theorautils object

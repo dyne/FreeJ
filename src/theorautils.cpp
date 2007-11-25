@@ -436,7 +436,7 @@ static void print_stats(oggmux_info *info, double timebase){
     int remaining_seconds = (long) remaining % 60;
     int remaining_minutes = ((long) remaining / 60) % 60;
     int remaining_hours = (long) remaining / 3600;
-/*
+
     if(info->frontend) {
         fprintf (stderr,"\nf2t ;position: %.02lf;audio_kbps: %d;video_kbps: %d;remaining: %.02lf\n",
 				 timebase,
@@ -453,7 +453,7 @@ static void print_stats(oggmux_info *info, double timebase){
 				 remaining_hours, remaining_minutes, remaining_seconds
 			);
     }
-*/
+
 }
 
 static int write_audio_page(oggmux_info *info)
