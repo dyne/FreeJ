@@ -68,6 +68,9 @@ int KbdCtrl::peep(Context *env) {
   int res;
   SDL_Event user_event;
 
+  res = SDL_PeepEvents(&env->event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK);
+  if (!res) return 1;
+
   user_event.type=SDL_USEREVENT;
   user_event.user.code=42;
   SDL_PeepEvents(&user_event, 1, SDL_ADDEVENT, SDL_ALLEVENTS);

@@ -149,7 +149,7 @@ void JsParser::init() {
 		   flash_layer_methods,
            object_proto);
 
-    REGISTER_CLASS("FlashLayer",
+    REGISTER_CLASS("GoomLayer",
 		   goom_layer_class,
 		   goom_layer_constructor,
 		   goom_layer_methods,
