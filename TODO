@@ -1,41 +1,32 @@
 
- - list_filters (to be applied)
- - list_blits
-
- *** WTF todo with alpha mask in binary blits ?!?!
-
- !!! reorganization of audio input
- !!! better interaction for encoded file and stream settings
- !!! code cleanup and enhancement of s-lang console
- !!! javascript API for encoding and streaming
-
-  *** More effects (from veejay, freior, effectv)
-    + LiViDO shared plugin library
- 
-  *** re-write the console interface using libviper and VWM
-
   *** fix TBT layer, colors on text
 
-  *** cairo layers: poligons and svg
-
-  *** File object in javascript to read/write files in ascii/binary
-
-  vvv libvisual layer / unstable library. Goom layer is done
-
-  *** build VeeJaying Artificial Intelligence scripts
+  *** port EffecTV filters to Frei0r
 
   *** sound frequency and beat parametrization
-
-  *** 8bit geometrical mask blits and fades
 
   *** complete and refine the Iterator class
 
   *** Open Sound Control for remote interoperability
+
+  *** File object in javascript to read/write files in ascii/binary
+
+  *** Javascript class to read XML RSS feeds
+
+  *** build VeeJaying Artificial Intelligence scripts
+
+  *** 8bit geometrical mask blits and fades
+
+  vvv cairo layers: poligons and svg - SDL_gfx rocks
+
+  vvv libvisual layer / unstable library. Goom layer is done
+
+
   
   vvv enhance text layer (more scrollers, word positioning etc.)
   
   *** XScreensaver layer // must PORT screenhacks code :(
-
+  *** please help solve the riddle if you can...
  HINT from salsaman:
 22:52 @<salsaman2> #ifdef HAVE_DOUBLE_BUFFER_EXTENSION
 22:52 @<salsaman2> #include "xdbe.h"

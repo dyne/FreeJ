@@ -1,29 +1,41 @@
 
  -=:[ dyne.org autoprod ]:=--- -  -- -   proudly presents:
 
-              [[[  FreeJ 0.9 "KRAAKENGAATDOOR"  ]]]
 
-          RASTA SOFTWARE FOR THE FREEDOM OF VIDEO CREATION
+  o__ __o__/_                                            __o__
+ <|    v                                                   |
+ < >                                                      / \
+  |         \o__ __o     o__  __o     o__  __o            \o/
+  o__/_      |     |>   /v      |>   /v      |>            |
+  |         / \   < >  />      //   />      //            < >
+ <o>        \o/        \o    o/     \o    o/      \        |
+  |          |          v\  /v __o   v\  /v __o    o       o
+ / \        / \          <\/> __/>    <\/> __/>    <\__ __/>
+
+                        [[[  FreeJ 0.9.1 "BeTV"  ]]]
+
+                           http://freej.dyne.org
+
 
 :: OVERVIEW
 
-FreeJ is a vision mixer: a digital instrument for realtime video
-manipulation used in the fields of dance teather, veejaying, medical
+FreeJ  is a  vision mixer:  a  digital instrument  for realtime  video
+manipulation used  in the fields of dance  teather, veejaying, medical
 visualisation and TV.
 
-It runs a video engine in which multiple layers can be filtered thru
-effect chains and then mixed together with images, movies, live
-cameras, particle generators, text scrollers and scripted vector
-graphics. All the resulting video mix can be shown on a screen,
+It runs a  video engine in which multiple layers  can be filtered thru
+effect  chains  and then  mixed  together  with  images, movies,  live
+cameras,  particle  generators,  text  scrollers and  scripted  vector
+graphics.  All the  resulting  video mix  can  be shown  on a  screen,
 encoded into a movie and streamed live to the internet.
 
 FreeJ can be controlled locally or remotely, also from multiple places
 at the same time, using its ascii console interface; operations can be
-automated via javascript, also MIDI and Joystick controllers can be
+automated via  javascript, also MIDI  and Joystick controllers  can be
 scripted.
 
-FreeJ's sourcecode is written in portable C and C++, it can run on
-GNU/Linux and Darwin/OSX platforms, PC-x86 or Mac, and is released
+FreeJ's sourcecode  is written in  portable C and  C++, it can  run on
+GNU/Linux  and Darwin/OSX platforms,  PC-x86 or  Mac, and  is released
 free under the GNU General Public License.
 
 
@@ -48,24 +60,29 @@ free under the GNU General Public License.
 
 :: HISTORY
 
-This software started being developed as a digital instrument Jaromil
-used in dance-theater performances. Since 2001 ongoing development
-took inspiration from various artists and programmers: Andreas
-Schiffler, Roberto Paci Dalo', Tom Demeyer, Francescopaolo Isidoro,
-Kentaro Fukuchi, Luigi Pagliarini, Isabella Bordoni, to name just a
+This software started being  developed as a digital instrument Jaromil
+used  in dance-theater  performances. Since  2001  ongoing development
+took  inspiration  from   various  artists  and  programmers:  Andreas
+Schiffler,  Roberto Paci Dalo',  Tom Demeyer,  Francescopaolo Isidoro,
+Kentaro Fukuchi,  Luigi Pagliarini, Isabella  Bordoni, to name  just a
 few.
 
 Set the VeeJay Free! was the first motto for this software.
 
-In 2003 Kysucix joined development contributing the streaming feature
-and helping to include the javascript parser. He employed FreeJ in
+In 2003 Kysucix joined  development contributing the streaming feature
+and helping  to include  the javascript parser.  He employed  FreeJ in
 interactive installations while working with Studio Azzurro.
 
 Since 2004 development has been supported by the Netherlands Media Art
 Insitute employing
 
-In 2005 Mr.Goil joined the project writing programmable controllers
+In 2005  Mr.Goil joined  the project writing  programmable controllers
 and debugging the scripting environment.
+
+In 2007  the austrian initiative Netculture lab  supported Jaromil and
+Mr.Goil  developing the  BeTV release:  it enhanced  scriptability and
+streaming, with  a major  cleanup of the  code and support  for Frei0r
+plugins.
 
 For the time being, FreeJ is employed in various video performances and
 installations, but also used for medical analisys visualizations.
@@ -82,6 +99,9 @@ us on http://dyne.org if you think we can collaborate.
 To start rolling with FreeJ you can have a look to the online
 documentation on it website http://freej.dyne.org
 
+Experiment with the  scripts and follow Piotr's tutorial  on the usage
+of the console. There are many things that can be done with this tool,
+let us know :) http://dyne.org/hackers_contact.php
 
 
 
@@ -90,7 +110,7 @@ documentation on it website http://freej.dyne.org
 
 To run FreeJ is necessary to have:
 
-- a working GNU/Linux workstation
+- a working GNU/Linux e u
   or Darwin/OSX -> see the documentation in README.OSX 
 
 - SDL libraries http://www.libsdl.org
@@ -155,10 +175,10 @@ http://lists.dyne.org - come and join us there :)
 The latest development version is publicly available on our subversion
 repository:
 
- # svn co svn://code.dyne.org/rastasoft/freej/trunk freej
+ # svn co svn://svn.dyne.org/rastasoft/freej/trunk freej
 
 Please download and run this code if you want to submit a bugreport or
-a patch.
+a patch or propose and test new features on our mailinglist.
 
 
 :: DISCLAIMER
