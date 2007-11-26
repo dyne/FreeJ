@@ -34,8 +34,8 @@ class lissajous0r: public frei0r::source
 public:
   lissajous0r(unsigned int width, unsigned int height)
   {
-    register_param(r_x,"ratiox","x-ratio");
-    register_param(r_y,"ratioy","y-ratio");
+    register_param(r_x,"x","x-ratio");
+    register_param(r_y,"y","y-ratio");
   }
 
   

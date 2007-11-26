@@ -1,4 +1,7 @@
 
+ - list_filters (to be applied)
+ - list_blits
+
  *** WTF todo with alpha mask in binary blits ?!?!
 
  !!! reorganization of audio input

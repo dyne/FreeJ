@@ -14,5 +14,5 @@ encoder.stream_password("2t645");
 encoder.stream_mountpoint("freej-test.ogg");
 
 register_encoder(encoder);
-//encoder.start_stream();
-encoder.start_filesave('/mnt/hd1/3/video/luminescenza.ogg');
+encoder.start_stream();
+//encoder.start_filesave('/mnt/hd1/3/video/luminescenza.ogg');

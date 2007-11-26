@@ -97,6 +97,8 @@ class Console {
 
   void statusline(char *msg);
 
+  void print_help();
+
   void getkey();
 
   void scroll(char *msg,int color);

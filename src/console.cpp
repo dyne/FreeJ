@@ -723,6 +723,8 @@ bool Console::init(Context *freej) {
 
   env->track_fps = true; // we wanna know!
 
+  print_help();
+
   active = true;
   return true;
 }
@@ -839,6 +841,27 @@ void Console::refresh() {
     GOTO_CURSOR;
 
 }    
+
+void Console::print_help() {
+  notice("Hotkeys available in FreeJ console:");
+  act("ctrl+o  = Open a Layer (will prompt for path to file)");
+  act("Arrow keys browse selection thru layers and effects");
+  act("SPACE to de/activate layers and filters selected");
+  act("+ and - move filters and effects thru chains");
+  act(" ! = Switch on/off On Screen Display information");
+  act(" @ = Switch on/off screen cleanup after every frame");
+  act("ctrl+e  = Add a Filter to a Layer");
+  act("ctrl+b  = Change the Blit for a Layer");
+  act("ctrl+v  = Fade the Blit Value for a Layer");
+  act("ctrl+a  = Move Rotate and Zoom a Layer"); 
+  act("ctrl+p  = Set Parameters for a Layer or Filter");
+  act("ctrl+t  = Add a new Text layer (will prompt for text)");
+  act("ctrl+x  = execute a javascript command");
+  act("ctrl+j  = load and execute a script file");
+  act("ctrl+l  = Cleanup and redraw the console");
+  act("ctrl+f  = Go to Fullscreen");
+  act("ctrl+c  = Quit FreeJ");
+}
 
 void Console::statusline(char *msg) {
   SLsmg_set_color(TITLE_COLOR+20);
@@ -1321,25 +1344,7 @@ void Console::parser_default(int key) {
   case KEY_CTRL_H:
   case KEY_CTRL_H_APPLE:
   case '?':
-    notice("Hotkeys available in FreeJ console:");
-    act("Arrow keys browse selection thru layers and effects");
-    act("SPACE to de/activate layers and filters selected");
-    act("+ and - move filters and effects thru chains");
-    act(" ! = Switch on/off On Screen Display information");
-    act(" @ = Switch on/off screen cleanup after every frame");
-    act("ctrl+o  = Open new layer (will prompt for path to file)");
-    act("ctrl+e  = Add a new Effect to the selected layer");
-    act("ctrl+b  = Change the Blit for the selected layer");
-    act("ctrl+a  = Move Rotate and Zoom the selected layer"); 
-    act("ctrl+p  = Set parameters for the selected layer or filter");
-    act("ctrl+t  = Add a new Text layer (will prompt for text)");
-    act("ctrl+y  = Insert a new word in selected Text layer");
-    act("ctrl+v  = Fade the Blit Value for the selected layer");
-    act("ctrl+l  = Cleanup and redraw the console");
-    act("ctrl+f  = Go to Fullscreen");
-    act("ctrl+c  = Quit FreeJ");
-    act("ctrl+x  = execute a script command");
-    act("ctrl+j  = load and execute a script file");
+    print_help();
     break;
     
   case '!':
