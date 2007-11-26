@@ -86,7 +86,7 @@ int   height = 300;
 int   magn = 0;
 char  javascript[512]; // script filename
 
-static unsigned int fps = 25;
+int fps = 24;
 
 bool startstate = true;
 bool gtkgui = false;
@@ -309,7 +309,7 @@ int main (int argc, char **argv) {
 
 
   // Set fps
-  //  freej.set_fps_interval ( fps );
+  freej.set_fps( fps );
 
   freej.start_running = startstate;
 

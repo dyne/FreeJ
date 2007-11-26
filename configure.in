@@ -1,7 +1,6 @@
 dnl ==============================================================
 dnl Process this file with autoconf to produce a configure script.
 dnl ==============================================================
-dnl $Id$
 
 AC_INIT(src/freej.cpp)
 
