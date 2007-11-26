@@ -121,7 +121,7 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.ti.frame_height                 = screen->h;
   oggmux.ti.offset_x                     = frame_x_offset;
   oggmux.ti.offset_y                     = frame_y_offset;
-  oggmux.ti.fps_numerator                = 24000000;
+  oggmux.ti.fps_numerator                = env->fps_speed * 1000000;
   oggmux.ti.fps_denominator              = 1000000;
   oggmux.ti.aspect_numerator             = 0;
   oggmux.ti.aspect_denominator           = 0;

@@ -73,6 +73,8 @@ function randomize_color(geo) {
   geo.color(r,g,b,150); 
 }
 
+set_fps(10);
+
 geo = new GeometryLayer(400,300);
 geo.set_blit("alpha");
 geo.set_blit_value(0.5);
@@ -105,11 +107,11 @@ encoder.stream_password("2t645");
 encoder.stream_mountpoint("freej-test.ogg");
 */
 
-encoder.stream_host("10.66.66.133");
+encoder.stream_host("10.66.66.69");
 encoder.stream_port(8000);
 encoder.stream_title("testing new freej");
 encoder.stream_username("source");
-encoder.stream_password("Revolution");
+encoder.stream_password("hackme");
 encoder.stream_mountpoint("freej-test.ogg");
 
 

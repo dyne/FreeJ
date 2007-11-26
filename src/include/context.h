@@ -157,8 +157,7 @@ class Context {
 
   /* Set the interval (in frames) after
      the fps counter is updated */
-  float fps;
-  bool track_fps;
+  void set_fps(int fps);
   int fps_speed;
 
   bool clear_all;

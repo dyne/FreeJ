@@ -53,8 +53,6 @@ Context::Context() {
 
   /* initialize fps counter */
   //  framecount      = 0; 
-  fps             = 0.0;
-  track_fps       = true;
   magnification   = 0;
   changeres       = false;
   clear_all       = false;
@@ -64,7 +62,7 @@ Context::Context() {
   save_to_file    = false;
   interactive     = true;
   
-  fps_speed       = 25;
+  fps_speed       = 24;
 
 
 }
@@ -205,11 +203,6 @@ bool Context::init(int wx, int hx, bool opengl) {
   
   if( SDL_imageFilterMMXdetect () )
     act ("using MMX accelerated blit");
-
-  /*  
-  set_fps_interval (fps_speed);
-  gettimeofday (&lst_time, NULL);
-  */
 
   SDL_initFramerate(&FPS);
   SDL_setFramerate(&FPS, fps_speed);
@@ -541,6 +534,12 @@ void Context::magnify(int algo) {
 
 /* FPS */
 
+void Context::set_fps(int fps) {
+
+  fps_speed = fps;
+  SDL_setFramerate(&FPS, fps_speed);
+  act("engine running at %u FPS", SDL_getFramerate(&FPS));
+}
 
 void Context::rocknroll() {
   VideoEncoder *e;

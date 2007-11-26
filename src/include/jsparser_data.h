@@ -199,6 +199,7 @@ JS(rand);
 JS(srand);
 JS(pause);
 JS(fullscreen);
+JS(set_fps);
 JS(set_resolution);
 JS(freej_scandir);
 JS(freej_echo);

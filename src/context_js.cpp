@@ -49,6 +49,7 @@ JSFunctionSpec global_functions[] = {
     {"srand",           srand,                  1},
     {"pause",           pause,                  0},
     {"fullscreen",      fullscreen,             0},
+    {"set_fps",         set_fps,                1},
     {"set_resolution",  set_resolution,         2},
     {"scandir",         freej_scandir,          1},
     {"echo",            freej_echo,             1},
@@ -212,6 +213,13 @@ JS(fullscreen) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   env->screen->fullscreen();
   //  env->clear_all = !env->clear_all;
+  return JS_TRUE;
+}
+
+JS(set_fps) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  int fps = JSVAL_TO_INT(argv[0]);
+  env->set_fps(fps);
   return JS_TRUE;
 }
 

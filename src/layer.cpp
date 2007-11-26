@@ -171,7 +171,7 @@ bool Layer::cafudda() {
     filt = (FilterInstance *)filters.begin();
     while(filt) {
       if(filt->active)
-	offset = (void*) filt->process(env->fps, (uint32_t*)offset);
+	offset = (void*) filt->process(env->fps_speed, (uint32_t*)offset);
       filt = (FilterInstance *)filt->next;
     }
   }

@@ -721,8 +721,6 @@ bool Console::init(Context *freej) {
 
   SLtt_set_cursor_visibility(0);
 
-  env->track_fps = true; // we wanna know!
-
   print_help();
 
   active = true;
@@ -877,6 +875,7 @@ void Console::statusline(char *msg) {
   SLsmg_set_color(PLAIN_COLOR);
 }
 
+/*
 void Console::speedmeter() {
   char tmp[256];
   SLsmg_gotorc(1,1);
@@ -907,7 +906,7 @@ void Console::speedmeter() {
   SLsmg_erase_eol();
 
 }
-
+*/
 void Console::canvas() {
   SLsmg_gotorc(0,0);
   SLsmg_set_color(TITLE_COLOR+20);

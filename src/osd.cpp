@@ -186,7 +186,7 @@ void Osd::print() {
   
   if(_credits) {
     _print_credits();
-    _show_fps();
+    //    _show_fps();
   }
   
   _print_status();
@@ -221,6 +221,7 @@ bool Osd::calibrate() {
   return _calibrate;
 }
 
+/*
 bool Osd::fps() {
   //  if(_fps) env->clear(); //scr(screen->get_surface(),screen->size);
   _fps = !_fps;
@@ -234,7 +235,7 @@ void Osd::_show_fps() {
   sprintf(fps,"%.1f",env->fps);
   print(fps,fps_offset,1,1);
 }
-
+*/
 void Osd::_selection() {
   char msg[256];
 
