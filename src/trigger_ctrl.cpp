@@ -67,8 +67,20 @@ int TriggerCtrl::peep(Context *env) {
 }
 
 int TriggerCtrl::poll(Context *env) {
-  jsval ret;
-  JS_CallFunctionName(jsenv, jsobj, "frame", 0, NULL, &ret);
+    jsval fval = JSVAL_VOID;
+    jsval ret = JSVAL_VOID;
+    JSObject *objp;
+
+    func("%s calling method %s()", __func__, "frame");
+    int res = JS_GetMethod(jsenv, jsobj, "frame", &objp, &fval);
+
+    if(!JSVAL_IS_VOID(fval)) {
+        res = JS_CallFunctionValue(jsenv, jsobj, fval, 0, NULL, &ret);
+        if (JSVAL_IS_NULL(res)) {
+            error("trigger call frame() failed, deactivate ctrl");
+            active = false;
+        }
+  }
   return(1);
 }
 
