@@ -546,7 +546,7 @@ void Blitter::blit() {
       (zoom_x >= 1.7) ? -spin_zoom :
       (zoom_x < 0.1) ? -spin_zoom :
       spin_zoom;
-    zoom_y = zoom_x += spin_zoom;
+    // zoom_y = zoom_x += spin_zoom;
 
     // if we have to rotate or scale,
     // create a sdl surface from current pixel buffer
