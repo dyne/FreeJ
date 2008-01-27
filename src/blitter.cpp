@@ -788,7 +788,7 @@ bool Blitter::set_kernel(short *krn) {
 }
 
 bool Blitter::set_zoom(double x, double y) {
-  if(!x && !y) {
+  if ((x == 1) && (y == 1)) {
     zooming = false;
     zoom_x = zoom_y = 1.0;
     spin_zoom = 0;

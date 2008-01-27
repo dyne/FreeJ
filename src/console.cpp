@@ -1429,7 +1429,7 @@ void Console::parser_movelayer(int key) {
 					   layer->blitter.zoom_y - 0.01); break;
   case 'w':       layer->blitter.set_spin(0,-0.001);    break;
   case 's':       layer->blitter.set_spin(0,0.001);     break;
-  case '.':       layer->blitter.set_zoom(0,0);         break;
+  case '.':       layer->blitter.set_zoom(1,1);         break;
     
     // rotation
   case '<': layer->blitter.set_rotate( layer->blitter.rotate + 0.5 ); break;
