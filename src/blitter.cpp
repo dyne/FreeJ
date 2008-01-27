@@ -609,7 +609,7 @@ void Blitter::blit() {
     
     (*current_blit->sdl_fun)
       (offset, &current_blit->sdl_rect,
-       ((SdlScreen*)layer->screen)->surface,
+       ((SdlScreen*)layer->screen)->screen,
        NULL, geo, (void*)&current_blit->value);
 
   } else if (current_blit->type == PAST_BLIT) {

@@ -25,7 +25,7 @@
 #include <inttypes.h>
 #include <linklist.h>
 #include <config.h>
-
+#include <SDL.h>
 
 ///////////////////////
 // GLOBAL COLOR MASKING
@@ -77,6 +77,8 @@ class ViewPort {
   virtual void fullscreen() =0;
   virtual bool lock() =0;
   virtual bool unlock() =0;
+  SDL_Surface *screen;
+  //SDL_Surface *surface;
 
   //  void add_layer(Layer *lay);   /// now moved in the context.h API
 

@@ -40,8 +40,8 @@ class SdlScreen : public ViewPort {
   void fullscreen();
   void *get_surface();
 
-  SDL_Surface *screen;
-  SDL_Surface *surface;
+  //SDL_Surface *screen;
+  //SDL_Surface *surface;
   SDL_Event event;
 
   void *coords(int x, int y);

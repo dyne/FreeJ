@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-#include <SDL.h>
+//#include <SDL.h>
 
 #include <layer.h>
 #include <filter.h>

@@ -61,7 +61,7 @@ bool SdlScreen::init(int width, int height) {
   }
 
   setres(width,height);
-  surface = SDL_GetVideoSurface();
+  screen = SDL_GetVideoSurface();
 
   w = width;
   h = height;
@@ -85,7 +85,7 @@ bool SdlScreen::init(int width, int height) {
 
 void SdlScreen::resize(int resize_w, int resize_h) {
   act("resizing viewport to %u x %u",resize_w, resize_h);
-  surface = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
+  screen = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
   w = resize_w;
   h = resize_h;
   size = resize_w * resize_h * (bpp>>3);
@@ -95,7 +95,7 @@ void SdlScreen::resize(int resize_w, int resize_h) {
 void *SdlScreen::coords(int x, int y) {
   return 
     ( x + (w*y) +
-      (uint32_t*)surface->pixels );
+      (uint32_t*)screen->pixels );
 }
 
 void SdlScreen::show() {
@@ -103,13 +103,13 @@ void SdlScreen::show() {
   if(magnification==1) {
     lock();
     scale2x
-	((uint32_t*)surface->pixels,
+	((uint32_t*)screen->pixels,
 	 (uint32_t*)SDL_GetVideoSurface()->pixels);
     unlock();
   } else if(magnification==2) {
     lock();
     scale3x
-	((uint32_t*)surface->pixels,
+	((uint32_t*)screen->pixels,
 	 (uint32_t*)SDL_GetVideoSurface()->pixels);
     unlock();
   }
@@ -120,25 +120,25 @@ void SdlScreen::show() {
   }
 
   lock();
-  SDL_Flip(surface);
+  SDL_Flip(screen);
   unlock();
 
 }
 
 void *SdlScreen::get_surface() {
-  return surface->pixels;
+  return screen->pixels;
 }
 
 void SdlScreen::clear() {
-  SDL_FillRect(surface,NULL,0x0);
+  SDL_FillRect(screen,NULL,0x0);
 }
 void SdlScreen::fullscreen() {
   switch_fullscreen = true;
 }
 
 bool SdlScreen::lock() {
-  if (!SDL_MUSTLOCK(surface)) return true;
-  if (SDL_LockSurface(surface) < 0) {
+  if (!SDL_MUSTLOCK(screen)) return true;
+  if (SDL_LockSurface(screen) < 0) {
     error("%s", SDL_GetError());
     return false;
   }
@@ -146,8 +146,8 @@ bool SdlScreen::lock() {
 }
 
 bool SdlScreen::unlock() {
-  if (SDL_MUSTLOCK(surface)) {
-    SDL_UnlockSurface(surface);
+  if (SDL_MUSTLOCK(screen)) {
+    SDL_UnlockSurface(screen);
   }
   return true;
 }
@@ -188,8 +188,8 @@ void SdlScreen::set_magnification(int algo) {
   if(algo==0) {
     notice("screen magnification off");
     setres(w,h);
-    if(magnification) SDL_FreeSurface(surface);
-    surface = SDL_GetVideoSurface();
+    if(magnification) SDL_FreeSurface(screen);
+    screen = SDL_GetVideoSurface();
 
   } else if(algo==1) {
 
@@ -211,8 +211,9 @@ void SdlScreen::set_magnification(int algo) {
 
   if(!magnification && algo) {
     func("create surface for magnification");
-    surface = SDL_CreateRGBSurface
-      (sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
+    screen = SDL_CreateRGBSurface
+      (sdl_flags,w,h,bpp,red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
+      //(sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
       //      (SDL_HWSURFACE,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
   }
 
