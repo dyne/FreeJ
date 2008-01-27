@@ -95,24 +95,30 @@ Context::~Context() {
     console = NULL;
   }
   
+  layers.unlock(); // in case we crashed while cafudda'ing
   lay = (Layer *)layers.begin ();
   while (lay) {
-    lay-> lock ();
-    layers.rem (1);
+    lay-> lock_feed();
     lay-> quit = true;
-    lay-> signal_feed ();
-    lay-> unlock ();
+    lay-> signal_feed();
+    lay-> unlock_feed();
+    lay-> join();
+    lay-> lock();
+    lay-> rem(); // does layers.lock()
     delete lay;
     lay = (Layer *)layers.begin ();
   }
 
+  encoders.unlock();
   enc = (VideoEncoder *)encoders.begin();
   while(enc) {
-    enc->lock();
-    encoders.rem(1);
+    enc->lock_feed();
     enc->quit = true;
     enc->signal_feed();
-    enc->unlock();
+    enc->unlock_feed();
+    enc->join();
+    enc->lock();
+    enc->rem();
     delete enc;
     enc = (VideoEncoder *)encoders.begin();
   }
@@ -332,6 +338,10 @@ void Context::cafudda(double secs) {
     //    riciuca = (dtime() - now < secs) ? true : false;
     //////////////////////////////////
 
+    if (got_sigpipe) {
+        quit=true;
+        return;
+    }
 
   } while (riciuca);
   
@@ -626,3 +636,5 @@ void fsigpipe (int Sig) {
     warning ("SIGPIPE - Problems streaming video :-(");
   got_sigpipe = true;
 }
+
+
