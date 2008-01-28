@@ -58,7 +58,7 @@ fi
 echo "Generating configuration files for $package, please wait...."
 
 echo "  aclocal-1.9 -I $srcdir/m4"
-aclocal -I $srcdir/m4
+aclocal-1.9 -I $srcdir/m4
 echo "  autoheader"
 autoheader
 echo "  $LIBTOOLIZE --automake -c"
