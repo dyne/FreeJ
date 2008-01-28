@@ -64,7 +64,7 @@ autoheader
 echo "  $LIBTOOLIZE --automake -c"
 $LIBTOOLIZE --automake -c
 echo "  automake --add-missing -c"
-automake --add-missing -c 
+automake-1.9 --add-missing -c 
 echo "  autoconf"
 autoconf
 

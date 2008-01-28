@@ -220,16 +220,25 @@ FFMPEG_CFLAGS=""
 AVCODEC_ARCH=""
 
 if test x$static_ffmpeg = xyes ; then
+
    FFMPEG_LIBS="${ffmpeg_dir}/libavformat/libavformat.a ${ffmpeg_dir}/libavcodec/libavcodec.a ${ffmpeg_dir}/libpostproc/libpostproc.a ${ffmpeg_dir}/libswscale/libswscale.a ${ffmpeg_dir}/libavutil/libavutil.a"
+
    FFMPEG_CFLAGS="-I${ffmpeg_dir}/libavformat -I${ffmpeg_dir}/libavcodec -I${ffmpeg_dir}/libavutil"
 
 
 elif test x$dynamic_ffmpeg = xyes ; then
    PKG_CHECK_MODULES(FFMPEG, libavcodec libavformat libavutil,
    	             have_ffmpeg=yes, have_ffmpeg=no)
-   FFMPEG_LIBS="$FFMPEG_LIBS -L/opt/video/lib"
-   AC_MSG_RESULT(dynamically)
+   if test x$have_ffmpeg = xyes; then
+      FFMPEG_LIBS="$FFMPEG_LIBS -L/opt/video/lib"
+      AC_MSG_RESULT(dynamically)
+      AC_DEFINE(WITH_FFMPEG,1,
+		[define if compiling movie layer linking to ffmpeg libavcodec])
+   else
+      AC_MSG_RESULT(not found)
+   fi
 else
+
     FFMPEG_LIBS="\$(top_srcdir)/lib/avformat/libavformat.a \$(top_srcdir)/lib/avcodec/libavcodec.a"
     FFMPEG_SUBDIRS="avcodec avformat"
     FFMPEG_CFLAGS="-I\$(top_srcdir)/lib/avcodec -I\$(top_srcdir)/lib/avformat"
@@ -241,8 +250,10 @@ else
        AVCODEC_ARCH="ppc"
        FFMPEG_LIBS="$FFMPEG_LIBS \$(top_srcdir)/lib/avcodec/ppc/libavcodecppc.a"
     fi
+    AC_DEFINE(WITH_FFMPEG,1,
+		[define if compiling movie layer linking to ffmpeg libavcodec])
+
 fi
-AC_DEFINE(WITH_FFMPEG,1,[define if compiling movie layer linking to ffmpeg libavcodec])
 AC_SUBST(FFMPEG_LIBS)
 AC_SUBST(FFMPEG_CFLAGS)
 AC_SUBST(FFMPEG_SUBDIRS)
@@ -675,6 +686,7 @@ lib/frei0r/filter/twolay0r/Makefile
 lib/frei0r/filter/glow/Makefile
 lib/frei0r/filter/water/Makefile
 lib/frei0r/filter/cartoon/Makefile
+lib/frei0r/filter/rotozoom/Makefile
 lib/frei0r/generator/Makefile
 lib/frei0r/generator/ising0r/Makefile
 lib/frei0r/generator/lissajous0r/Makefile

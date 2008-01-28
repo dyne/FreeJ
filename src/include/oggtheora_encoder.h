@@ -27,19 +27,19 @@
 #include <linklist.h>
 #include <video_encoder.h>
 #include <screen.h>
+#include <ccvt.h>
 
 #ifdef WITH_OGGTHEORA
-/*
-#include "theora/theora.h"
-#include "vorbis/codec.h" // TODO vorbis encoding from mic
-#include "vorbis/vorbisenc.h"
-*/
+
 #include <theorautils.h>
 
+/*
 extern "C" {
 #include <avcodec.h>
 #include <avformat.h>
 }
+*/
+
 
 // #define AUDIO_BUFFER_SIZE 3528 // sample_rate * channel / fps / bytes of sample format
 
@@ -66,11 +66,10 @@ class OggTheoraEncoder: public VideoEncoder {
   int encode_video(int end_of_stream);
   int encode_audio(int end_of_stream);
 
-  void convert_to_YUV420P();
-
-  yuv_buffer yuv;
-  AVFrame *picture_rgb;
-  AVFrame *picture_yuv;
+  void *enc_rgb24;
+  void *enc_y;
+  void *enc_u;
+  void *enc_v;
 
   bool  init_yuv_frame();
 

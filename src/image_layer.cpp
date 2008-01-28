@@ -169,4 +169,5 @@ void ImageLayer::close() {
   SDL_FreeSurface(image);
   SDL_FreeSurface(surf);
   free(black_image);
+  tmpImage = NULL;
 }

@@ -30,6 +30,7 @@ class ImageLayer: public Layer {
 
 	SDL_Surface *image;
 	SDL_Surface *surf;
+	SDL_Surface *tmpImage;
 
 	void *black_image;
 

@@ -45,8 +45,9 @@ OggTheoraEncoder::OggTheoraEncoder()
   video_quality  = 16;  // it's ok for streaming
   audio_quality =  10; // it's ok for streaming
 
-  picture_rgb = NULL;
-  picture_yuv = NULL;
+  //  picture_rgb = NULL;
+  enc_rgb24 = NULL;
+  enc_y = enc_u = enc_v = NULL;
 
   use_audio = true;
 
@@ -64,14 +65,11 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   oggmux_flush(&oggmux, 1);
   oggmux_close(&oggmux);
   
-  if ( picture_yuv) { 
-    //      avpicture_free(picture_yuv);
-    free(picture_yuv);
-  }
-  if ( picture_rgb) {
-    //      avpicture_free(picture_rgb);
-    free(picture_rgb);
-  }
+  if(enc_rgb24) free(enc_rgb24);
+  if(enc_y) free(enc_y);
+  if(enc_u) free(enc_u);
+  if(enc_v) free(enc_v);
+
 }
 
 
@@ -154,20 +152,24 @@ bool OggTheoraEncoder::init (Context *_env) {
   }
   
   
-
+  /*
   func("init picture_rgb for colorspace conversion (avcodec)");
   picture_rgb = avcodec_alloc_frame ();
   picture_rgb -> data[0]     = NULL;
   picture_rgb -> data[1]     = NULL;
   picture_rgb -> data[2]     = NULL;
   picture_rgb -> linesize[0] = video_x * 4;
-
+  */
   func("init picture_yuv for colorspace conversion (avcodec)");  
-  picture_yuv = avcodec_alloc_frame ();
+  enc_rgb24 = malloc(  screen->w * screen->h *3);
+  enc_y     = malloc(  screen->w * screen->h);
+  enc_u     = malloc( (screen->w * screen->h)/2);
+  enc_v     = malloc( (screen->w * screen->h)/2);
+  //  picture_yuv = avcodec_alloc_frame ();
   
-  int size = avpicture_get_size (PIX_FMT_YUV420P, video_x, video_y);
-  uint8_t *video_outbuf = (uint8_t *) av_malloc (size);
-  avpicture_fill ((AVPicture *)picture_yuv, video_outbuf, PIX_FMT_YUV420P, video_x, video_y);
+  //  int size = avpicture_get_size (PIX_FMT_YUV420P, video_x, video_y);
+  //  uint8_t *video_outbuf = (uint8_t *) av_malloc (size);
+  //  avpicture_fill ((AVPicture *)picture_yuv, video_outbuf, PIX_FMT_YUV420P, video_x, video_y);
   
   act("initialization succesful");
   initialized = true;
@@ -193,11 +195,18 @@ int OggTheoraEncoder::encode_frame() {
 
 
 bool OggTheoraEncoder::feed_video() {  
-  /* Convert picture from rgb to yuv420 */
+  /* Convert picture from rgb to yuv420 
   picture_rgb -> data[0]     = (uint8_t *) screen-> get_surface ();
+  
   img_convert ((AVPicture *)picture_yuv, PIX_FMT_YUV420P,
 	       (AVPicture *)picture_rgb, PIX_FMT_RGBA32,
 	       video_x, video_y);
+
+	       now using ccvt:
+void ccvt_420p_rgb32(int width, int height, const void *src, void *dst);
+  */
+  ccvt_rgb32_rgb24(screen->w, screen->h, screen->get_surface(), enc_rgb24);
+  ccvt_rgb24_420p( screen->w, screen->h, enc_rgb24, enc_y, enc_u, enc_v);
 
   return true;
 }
@@ -214,15 +223,17 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
      for compression and pull out the packet */
   yuv.y_width   = video_x;
   yuv.y_height  = video_y;
-  yuv.y_stride  = picture_yuv->linesize [0];
+  //  yuv.y_stride  = picture_yuv->linesize [0];
+  yuv.y_stride = video_x;
   
   yuv.uv_width  = video_x / 2;
   yuv.uv_height = video_y / 2;
-  yuv.uv_stride = picture_yuv->linesize [1];
+  //  yuv.uv_stride = picture_yuv->linesize [1];
+  yuv.uv_stride = video_x / 2;
   
-  yuv.y = (uint8_t *) picture_yuv->data [0];
-  yuv.u = (uint8_t *) picture_yuv->data [1]; 
-  yuv.v = (uint8_t *) picture_yuv->data [2];
+  yuv.y = (uint8_t *) enc_y;
+  yuv.u = (uint8_t *) enc_u;
+  yuv.v = (uint8_t *) enc_v;
   
   /* encode image */
   oggmux_add_video (&oggmux, &yuv, end_of_stream);

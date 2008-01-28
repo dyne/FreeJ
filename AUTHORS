@@ -1,40 +1,43 @@
-Denis "jaromil" Rojo - http://rastasoft.org
+Denis "Jaromil" Rojo - http://rastasoft.org
  = FreeJ's author and current mantainer
 
-Silvano "kysucix" Galliani - http://kysucix.nexlab.it
+Silvano "Kysucix" Galliani - http://kysucix.nexlab.it
  = FreeJ core developer: truetype, encoding, streaming & more
 
-Christoph Rudorff <christoph.rudorff/@/telebel.de> 
+Christoph "Mr.Goil" Rudorff <goil\\dyne.org> 
  = midi and joystick controller, scriptability
 
 More people using FreeJ or developing free software video applications
 contributed with ideas and code:
 
-Aaron Holtzman <aholtzma/@/ess.engr.uvic.ca>
+Joep Admiraal <joep\\groovytunes.nl>
+     	fixes, effects ported to frei0r
+
+Aaron Holtzman <aholtzma\\ess.engr.uvic.ca>
 	yuv2rgb c conversion code
 
-Andreas Schiffler <aschiffler/@/home.com>
+Andreas Schiffler <aschiffler\\home.com>
 	inspirations, experience and delaygrab filter
 
-Clifford Smith <nullset/@/dookie.net>
+Clifford Smith <nullset\\dookie.net>
 	transform filter from EffecTV
 
-Dries Pruimboom <dries/@/irssystems.nl>
+Dries Pruimboom <dries\\irssystems.nl>
 	cartoon filter
 
-Edo Tannenbaum <et/@/et-arts.com>
+Edo Tannenbaum <et\\et-arts.com>
 	nervous filter from EffecTV
 
-Fukuchi Kentarou <fukuchi/@/is.titech.ac.jp>
+Fukuchi Kentarou <fukuchi\\is.titech.ac.jp>
 	a couple of filters and code goodies from EffecTV
 
-Lluis Gomez I Bigorda <lgomez/@/pangea.org>
+Lluis Gomez I Bigorda <lgomez\\pangea.org>
 	zoom filter
 
-Leonid Andreev <lenonid/@/math.harvard.edu>
+Leonid Andreev <lenonid\\math.harvard.edu>
 	feedback and bugfixes
 
-Olie Lho <ollie/@/sis.com.tw>
+Olie Lho <ollie\\sis.com.tw>
 	yuv2rgb asm mmx optimized code
 
 Pete Warden

@@ -21,4 +21,5 @@ SUBDIRS = 	3dflippo	\
 		twolay0r	\
 		glow		\
 		water		\
-		cartoon
+		cartoon	      	\
+		rotozoom
