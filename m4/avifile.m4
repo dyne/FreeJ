@@ -18,7 +18,7 @@ dnl - working C++ compiler
 dnl - usable libstdc++
 dnl - AC_PATH_XTRA
 
-AC_DEFUN(AC_AVIFILE, 
+AC_DEFUN([AC_AVIFILE], 
 [
   HAVE_AVIFILE="no"
 
