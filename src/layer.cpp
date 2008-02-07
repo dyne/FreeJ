@@ -116,9 +116,20 @@ void Layer::run() {
 
     if(!tmp_buf) 
       func("feed returns NULL on layer %s",get_name());
-    else
+    else { // process filter on tmp_buf
+      if( filters.len() ) {
+        FilterInstance *filt;
+        filters.lock();
+        filt = (FilterInstance *)filters.begin();
+        while(filt) {
+          if(filt->active)
+            offset = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
+          filt = (FilterInstance *)filt->next;
+        }
+        filters.unlock();
+      }
       buffer = tmp_buf;
-
+    } // else
     wait_feed();
   }
     
@@ -127,8 +138,6 @@ void Layer::run() {
 }
 
 bool Layer::cafudda() {
-
-  FilterInstance *filt;
 
   if(!fade)
     if(!active || hidden)
@@ -164,21 +173,7 @@ bool Layer::cafudda() {
     iterators.unlock();
   }
   
-
-
-  if( filters.len() ) {
-    filters.lock();
-    filt = (FilterInstance *)filters.begin();
-    while(filt) {
-      if(filt->active)
-	offset = (void*) filt->process(env->fps_speed, (uint32_t*)offset);
-      filt = (FilterInstance *)filt->next;
-    }
-  }
-  
   blitter.blit();
-  
-  if( filters.len() ) filters.unlock();
 
   signal_feed();
 
