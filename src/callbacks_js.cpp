@@ -87,7 +87,10 @@ void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *R
 }
 
 JSBool _js_is_instanceOf(JSContext* cx, JSClass* clasp, jsval v, const char* caller) {
-    if (!v || !JSVAL_IS_OBJECT(v)) {
+    if (!JSVAL_IS_OBJECT(v)) {
+        JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
+           JSSMSG_FJ_WICKED , caller, "argument is not an object"
+        );
         JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
            JSSMSG_FJ_WICKED , caller, "argument is not an object"
         );
