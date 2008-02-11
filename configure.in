@@ -687,6 +687,7 @@ lib/frei0r/filter/glow/Makefile
 lib/frei0r/filter/water/Makefile
 lib/frei0r/filter/cartoon/Makefile
 lib/frei0r/filter/rotozoom/Makefile
+lib/frei0r/filter/vertigo/Makefile
 lib/frei0r/generator/Makefile
 lib/frei0r/generator/ising0r/Makefile
 lib/frei0r/generator/lissajous0r/Makefile

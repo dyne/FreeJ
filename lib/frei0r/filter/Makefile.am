@@ -22,4 +22,5 @@ SUBDIRS = 	3dflippo	\
 		glow		\
 		water		\
 		cartoon	      	\
-		rotozoom
+		rotozoom	\
+		vertigo
