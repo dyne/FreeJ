@@ -126,19 +126,19 @@ Layer.prototype.get_width	= get_width;
 function get_height() { };
 Layer.prototype.get_height	= get_height;
 
-/** Add an effect to the layer
-    it will append the effect to the chain applied to the layer
-    the effect is specified by its name
-    @param {string} effect_name (in doublequotes) */
-function add_effect(effect_name) { };
-Layer.prototype.add_effect	= add_effect;
+/** Add a frei0r effect filter to the layer
+    it will append the filter to the chain applied to the layer
+    the filter is specified by its name
+    @param {string} filter_name (in doublequotes) */
+function add_filter(filter_name) { };
+Layer.prototype.add_filter	= add_filter;
 
-/** Remove an effect to the layer
-    it will remove the named effect from the chain of the layer
-    the effect is specified by its name
-    @param {string} effect_name (in doublequotes) */
-function rem_effect(effect_name) { };
-Layer.prototype.rem_effect	= rem_effect;
+/** Remove a filter from the layer
+    it will remove the named filter from the chain of the layer
+    the filter is specified by its name
+    @param {string} filter_name (in doublequotes) */
+function rem_filter(filter_name) { };
+Layer.prototype.rem_filter = rem_filter;
 
 /** Rotate the layer at the selected degrees, counterclockwise
     @param {int} degrees for the rotation */
@@ -161,6 +161,6 @@ Layer.prototype.spin		= spin;
 /** List all the effects chain applied on the layer
     @return an array of strings
     @type Array */
-function list_effects() { };
-Layer.prototype.list_effects	= list_effects;
+function list_filters() { };
+Layer.prototype.list_filters = list_filters;
 
