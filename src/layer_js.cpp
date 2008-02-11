@@ -519,20 +519,20 @@ JS(layer_add_filter) {
   JSObject *jsfilter=NULL;
   FilterDuo *duo;
 
+  if(argc<1) JS_ERROR("missing argument");
+  js_is_instanceOf(&filter_class, argv[0]);
+
   jsfilter = JSVAL_TO_OBJECT(argv[0]);
-  if(!jsfilter) JS_ERROR("missing argument");
-  
   /**
    * Extract filter and layer pointers from js objects
    */
   duo = (FilterDuo *) JS_GetPrivate(cx, jsfilter);
   if(!duo) JS_ERROR("Effect is NULL");
-  
+
   if(duo->instance) {
     error("filter %s is already in use", duo->proto->name);
     return JS_TRUE;
   }
-
   GET_LAYER(Layer);
   
   duo->instance = duo->proto->apply(lay);
@@ -547,19 +547,19 @@ JS(layer_rem_filter) {
     FilterDuo *duo;
 
     if(argc<1) JS_ERROR("missing argument");
+    js_is_instanceOf(&filter_class, argv[0]);
 
     /** TODO overload with filter name and position */
-    if(JSVAL_IS_OBJECT(argv[0])) {
-	jsfilter = JSVAL_TO_OBJECT(argv[0]);
-	if(!jsfilter) JS_ERROR("missing argument");
+    jsfilter = JSVAL_TO_OBJECT(argv[0]);
+    if(!jsfilter) JS_ERROR("missing argument");
 
-	duo = (FilterDuo *) JS_GetPrivate(cx, jsfilter);
-	if(!duo) JS_ERROR("Effect data is NULL");
+    duo = (FilterDuo *) JS_GetPrivate(cx, jsfilter);
+    if(!duo) JS_ERROR("Effect data is NULL");
 
-	duo->instance->rem();
-	delete duo->instance;
-	duo->instance = NULL;
-    }
+    duo->instance->rem();
+    delete duo->instance;
+    duo->instance = NULL;
+
     return JS_TRUE;
 }
 
