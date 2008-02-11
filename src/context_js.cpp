@@ -114,15 +114,16 @@ JS(quit) {
 
 JS(rem_layer) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
     JSObject *jslayer;
     Layer *lay;
 
-    jslayer = JSVAL_TO_OBJECT(argv[0]);
-    if(!jslayer) JS_ERROR("missing argument");
+    if(argc<1) JS_ERROR("missing argument");
+    js_is_instanceOf(&layer_class, argv[0]);
 
+    jslayer = JSVAL_TO_OBJECT(argv[0]);
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) JS_ERROR("Layer core data is NULL");
+
     env->rem_layer(lay);
     return JS_TRUE;
 }
@@ -134,17 +135,15 @@ JS(add_layer) {
     *rval=JSVAL_FALSE;
 
     if(argc<1) JS_ERROR("missing argument");
+    js_is_instanceOf(&layer_class, argv[0]);
 
     jslayer = JSVAL_TO_OBJECT(argv[0]);
-
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) JS_ERROR("Layer core data is NULL");
 
     /** really add layer */
     env->add_layer(lay);
     *rval=JSVAL_TRUE;
-    //      env->layers.sel(0); // deselect others
-    //      lay->sel(true);
     return JS_TRUE;
 }
 
@@ -178,8 +177,9 @@ JS(register_controller) {
     *rval=JSVAL_FALSE;
 
     if(argc<1) JS_ERROR("missing argument");
-    jsctrl = JSVAL_TO_OBJECT(argv[0]);
+    js_is_instanceOf(&js_ctrl_class, argv[0]);
 
+    jsctrl = JSVAL_TO_OBJECT(argv[0]);
     ctrl = (Controller *)JS_GetPrivate(cx, jsctrl);
     if(!ctrl) JS_ERROR("Controller core data is NULL");
 
@@ -197,8 +197,9 @@ JS(register_encoder) {
     *rval=JSVAL_FALSE;
 
     if(argc<1) JS_ERROR("missing argument");
-    jsenc = JSVAL_TO_OBJECT(argv[0]);
+    js_is_instanceOf(&js_vid_enc_class, argv[0]);
 
+    jsenc = JSVAL_TO_OBJECT(argv[0]);
     enc = (VideoEncoder *)JS_GetPrivate(cx, jsenc);
     if(!enc) JS_ERROR("VideoEncoder core data is NULL");
 
@@ -560,7 +561,7 @@ JS(include_javascript) {
     error("include failed for %s: %s", jscript, strerror(errno) );
     JS_ReportErrorNumber( 
         cx, JSFreej_GetErrorMessage, NULL,
-        JSSMSG_FJ_NOLUCK,
+        JSSMSG_FJ_WICKED,
         jscript, strerror(errno)
     );
     return JS_FALSE;

@@ -160,11 +160,11 @@ if(!lay) { \
 }
 
 #define JS_ERROR(str) { \
-  JS_ReportError(cx,"%s: %s",__FUNCTION__,str); \
-  env->quit = true; \
+  JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL, \
+  JSSMSG_FJ_WICKED, \
+  __FUNCTION__,str); \
   return JS_FALSE; \
 }
-
 
 extern Context *env;
 extern bool stop_script;
@@ -172,5 +172,12 @@ extern bool stop_script;
 void js_sigint_handler(int sig);
 JSBool js_static_branch_callback(JSContext* Context, JSScript* Script);
 void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
+
+// using this macro keeps the actual function name for the error messages
+#define js_is_instanceOf(clasp, v) \
+    if(!_js_is_instanceOf(cx, clasp, v, __func__)) \
+        return JS_FALSE;
+
+JSBool _js_is_instanceOf(JSContext*, JSClass*, jsval, const char*);
 
 #endif

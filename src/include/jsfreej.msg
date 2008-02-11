@@ -37,13 +37,13 @@
 
 MSG_DEF(JSSMSG_FJ_NOT_AN_ERROR,          0, 0, JSEXN_NONE, "<Error #0 is reserved>")
 MSG_DEF(JSSMSG_FJ_CANT_CREATE,           1, 2, JSEXN_REFERENCEERR, "can't create {0}: {1}") 
-MSG_DEF(JSSMSG_FJ_WICKED,                2, 1, JSEXN_INTERNALERR, "internal error: {0}") 
+MSG_DEF(JSSMSG_FJ_WICKED,                2, 2, JSEXN_INTERNALERR, "in function '{0}': '{1}'") 
 MSG_DEF(JS_JUNK1,                        3, 0, JSEXN_NONE, "fillup")
 MSG_DEF(JS_JUNK2,                        4, 0, JSEXN_NONE, "fillup")
 MSG_DEF(JS_JUNK3,                        5, 0, JSEXN_NONE, "fillup")
 MSG_DEF(JS_JUNK4,                        6, 0, JSEXN_NONE, "fillup")
 MSG_DEF(JS_JUNK5,                        7, 0, JSEXN_NONE, "fillup")
-MSG_DEF(JSSMSG_FJ_NOLUCK,                8, 2, JSEXN_TYPEERR, "no luck with '{0}', reason: '{1}'")
+MSG_DEF(JSSMSG_FJ_WRONGTYPE,             8, 3, JSEXN_TYPEERR, "in function '{0}': '{1}' is not a '{2}'")
 
 /* from js.msg ... JSEXN_NONE are not catch()able !
 
