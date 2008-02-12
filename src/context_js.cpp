@@ -190,6 +190,7 @@ JS(register_controller) {
     return JS_TRUE;
 }
 
+#ifdef WITH_OGGTHEORA
 JS(register_encoder) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     VideoEncoder *enc;
@@ -209,6 +210,7 @@ JS(register_encoder) {
 
     return JS_TRUE;
 }
+#endif
 
 JS(fullscreen) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
