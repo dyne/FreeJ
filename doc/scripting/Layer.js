@@ -147,6 +147,7 @@ Layer.prototype.rotate		= rotate;
 
 /** Zoom the layer by an x and y factor
     aspect ratio doesn't needs to be kept: the layer can be stretched
+    zoom(val) = zoom(val,val). A value of 1 disables the zoom processing.
     @param {float} x horizontal zoom, value between 0.0 and 2.0 (1.0 = original size)
     @param {float} y vertical zoom, value between 0.0 and 2.0 (1.0 = original size) */
 function zoom(x,y) { };

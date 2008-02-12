@@ -579,9 +579,10 @@ JS(layer_rotate) {
 JS(layer_zoom) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  if(argc<2) JS_ERROR("missing argument");
+  if(argc<1) JS_ERROR("missing argument");
+  // take ymang=xmagn on .zoom(val)
   JS_ARG_NUMBER(xmagn,0);
-  JS_ARG_NUMBER(ymagn,1);
+  JS_ARG_NUMBER(ymagn,argc == 1 ? 0 : 1);
   
   GET_LAYER(Layer);
 
