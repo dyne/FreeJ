@@ -198,15 +198,15 @@ JS(js_joy_ctrl_constructor) {
 
   JoyCtrl *joy = new JoyCtrl();
 
-  // assign instance into javascript object
-  if( ! JS_SetPrivate(cx, obj, (void*)joy) ) {
-    sprintf(excp_msg, "failed assigning joystick controller to javascript");
-    goto error;
-  }
-
   // initialize with javascript context
   if(! joy->init(cx, obj) ) {
     sprintf(excp_msg, "failed initializing joystick controller");
+    goto error;
+  }
+
+  // assign instance into javascript object
+  if( ! JS_SetPrivate(cx, obj, (void*)joy) ) {
+    sprintf(excp_msg, "failed assigning joystick controller to javascript");
     goto error;
   }
   *rval = OBJECT_TO_JSVAL(obj);

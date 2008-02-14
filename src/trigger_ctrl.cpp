@@ -71,7 +71,6 @@ int TriggerCtrl::poll(Context *env) {
     jsval ret = JSVAL_VOID;
     JSObject *objp;
 
-    func("%s calling method %s()", __func__, "frame");
     int res = JS_GetMethod(jsenv, jsobj, "frame", &objp, &fval);
 
     if(!JSVAL_IS_VOID(fval)) {

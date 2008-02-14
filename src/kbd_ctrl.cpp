@@ -227,15 +227,14 @@ JS(js_kbd_ctrl_constructor) {
 
   KbdCtrl *kbd = new KbdCtrl();
 
-  // assign instance into javascript object
-  if( ! JS_SetPrivate(cx, obj, (void*)kbd) ) {
-    error("failed assigning keyboard controller to javascript");
-    delete kbd; return JS_FALSE;
-  }
-
   // initialize with javascript context
   if(! kbd->init(cx, obj) ) {
     error("failed initializing keyboard controller");
+    delete kbd; return JS_FALSE;
+  }
+  // assign instance into javascript object
+  if( ! JS_SetPrivate(cx, obj, (void*)kbd) ) {
+    error("failed assigning keyboard controller to javascript");
     delete kbd; return JS_FALSE;
   }
 

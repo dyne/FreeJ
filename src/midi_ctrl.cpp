@@ -51,13 +51,13 @@ JS(js_midi_ctrl_constructor) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     MidiControl *midi = new MidiControl();
     // assign instance into javascript object
-    if( ! JS_SetPrivate(cx, obj, (void*)midi) ) {
-        error("failed assigning midi controller to javascript");
-        delete midi; return JS_FALSE;
-    }
     // initialize with javascript context
     if(! midi->init(cx, obj) ) {
         error("failed initializing midi controller");
+        delete midi; return JS_FALSE;
+    }
+    if( ! JS_SetPrivate(cx, obj, (void*)midi) ) {
+        error("failed assigning midi controller to javascript");
         delete midi; return JS_FALSE;
     }
 
