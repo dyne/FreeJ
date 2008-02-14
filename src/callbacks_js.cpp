@@ -109,3 +109,4 @@ JSBool _js_is_instanceOf(JSContext* cx, JSClass* clasp, jsval v, const char* cal
     return JS_FALSE;
 }
 
+

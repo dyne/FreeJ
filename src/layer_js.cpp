@@ -23,7 +23,7 @@
 #include <jsparser_data.h>
 #include <layer.h>
 
-DECLARE_CLASS("Layer",layer_class,layer_constructor);
+DECLARE_CLASS_GC("Layer",layer_class,layer_constructor, layer_gc);
 
 JSFunctionSpec layer_methods[] = {
     ENTRY_METHODS,
@@ -169,11 +169,16 @@ JS(list_layers) {
 
   lay = (Layer*)env->layers.begin();
   while(lay) {
-    objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
+    if (JSVAL_IS_OBJECT((jsval)lay->data)) {
+func("reusing %p", lay->data);
+    	val = (jsval)lay->data;
+    } else {
+	objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
 
-    JS_SetPrivate(cx,objtmp,(void*) lay);
+	JS_SetPrivate(cx,objtmp,(void*) lay);
 
-    val = OBJECT_TO_JSVAL(objtmp);
+	val = OBJECT_TO_JSVAL(objtmp);
+    }
 
     JS_SetElement(cx, arr, c, &val );
     
@@ -602,4 +607,35 @@ JS(layer_spin) {
   lay->blitter.set_spin(rot, magn);
 
   return JS_TRUE;
+}
+
+void layer_gc (JSContext *cx, JSObject *obj) {
+    func("%s",__PRETTY_FUNCTION__);
+    Layer* l;
+	if (!obj) {
+		error("%n called with NULL object", __PRETTY_FUNCTION__);
+		return;
+	}
+    JSClass *jc = JS_GET_CLASS(cx,obj);
+	l = (Layer *) JS_GetPrivate(cx, obj);
+
+    if (l) {
+    //JSvalcmp(MovieLayer): 0x10222200 / 0x1000 Entry 0x102eefb0
+func("JSvalcmp(%s): %p / %p Layer: %p", jc->name, OBJECT_TO_JSVAL(obj), l->data, l);
+        if(l->list) {
+			func("Layer %s/%s is still on stage", jc->name, l->name);
+			l->data = NULL;
+        } else {
+			func("Layer %s/%s is useless, deleting", jc->name, l->name);
+			l->data = NULL; // Entry~ calls free(data)
+            l->lock_feed();
+            l->quit=true;
+            l->signal_feed();
+            l->unlock_feed();
+            l->join();
+			delete l;
+		}
+    } else {
+		func("Mh, object(%s) has no private data", jc->name);
+	}
 }

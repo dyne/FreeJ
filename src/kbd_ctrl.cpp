@@ -45,9 +45,11 @@ JSFunctionSpec js_kbd_ctrl_methods[] = {
 KbdCtrl::KbdCtrl()
   :Controller() {
   set_name("Keyboard");
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
 }
 
 KbdCtrl::~KbdCtrl() {
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
 
 }
 

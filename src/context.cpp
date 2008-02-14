@@ -72,6 +72,7 @@ Context::Context() {
 }
 
 Context::~Context() {
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
 
   Layer *lay;
   Controller *ctrl;
@@ -417,10 +418,10 @@ void Context::handle_controllers() {
 
 }
 
-
 bool Context::register_controller(Controller *ctrl) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   if(!ctrl) {
-    error("Context::register_controller called on a NULL object");
+    error("%s called on a NULL object", __PRETTY_FUNCTION__);
     return false;
   }
 
@@ -434,6 +435,20 @@ bool Context::register_controller(Controller *ctrl) {
   controllers.append(ctrl);
   
   act("registered %s controller", ctrl->name);
+  return true;
+}
+
+bool Context::rem_controller(Controller *ctrl) {
+  func("%s",__PRETTY_FUNCTION__);
+  if(!ctrl) {
+    error("%s called on a NULL object", __PRETTY_FUNCTION__);
+    return false;
+  }
+  ctrl->rem();
+  if (ctrl->data == NULL) {
+    func("JS controller data null, deleting");
+    delete ctrl;
+  }
   return true;
 }
 
@@ -458,17 +473,21 @@ void Context::add_layer(Layer *lay) {
 
 void Context::rem_layer(Layer *lay) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  /*
   if (!lay->list) {
         error("removing Layer %p which is not in list", lay);
         return;
-  }
-  lay->lock_feed();
-  lay->quit=true;
-  lay->signal_feed();
-  lay->unlock_feed();
-  lay->join();
+  }*/
   lay->rem();
-  delete lay;
+  if (lay->data == NULL) {
+      func("JS layer data null, deleting");
+      lay->lock_feed();
+      lay->quit=true;
+      lay->signal_feed();
+      lay->unlock_feed();
+      lay->join();
+      delete lay;
+  }
 }
 
 void Context::add_encoder(VideoEncoder *enc) {

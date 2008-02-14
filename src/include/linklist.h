@@ -109,7 +109,9 @@ class Entry {
 
   char *name;
 
-  void *data; ///< generic data pointer
+  // generic data pointer, so far only used in console
+  // and now also as JSObject -> jsval
+  void *data; 
 };
 
 #endif

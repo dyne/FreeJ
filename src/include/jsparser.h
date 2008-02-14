@@ -46,6 +46,7 @@ class JsParser {
 	int open(const char* script_file);
 	int parse(const char *command);
 	void stop();
+    void gc();
 
 	JSBool branch_callback(JSContext* Context, JSScript* Script);
 	//	void error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);

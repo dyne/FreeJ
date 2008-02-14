@@ -154,6 +154,7 @@ class Layer: public Entry, public JSyncThread {
   void *js_constructor(Context *env, JSContext *cx,
 		       JSObject *obj, int argc, void *aargv, char *err_msg);
   ///< javascript layer constructor
+  void layer_gc(JSContext *cx, JSObject *obj);
 
  protected:
 

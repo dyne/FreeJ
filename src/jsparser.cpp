@@ -53,6 +53,10 @@ JsParser::~JsParser() {
     func("JsParser::close()");
 }
 
+void JsParser::gc() {
+    JS_GC(js_context);
+}
+
 void JsParser::init() {
   //JSBool ret;
   stop_script=false;

@@ -26,7 +26,8 @@
 #ifdef WITH_FT2
 #include <text_layer.h>
 
-DECLARE_CLASS("TextLayer",txt_layer_class,txt_layer_constructor);
+//DECLARE_CLASS("TextLayer",txt_layer_class,txt_layer_constructor);
+DECLARE_CLASS_GC("TextLayer",txt_layer_class,txt_layer_constructor,layer_gc);
 
 
 ////////////////////////////////

@@ -51,6 +51,7 @@
 
 JS(filter_constructor);
 JS(layer_constructor);
+void layer_gc (JSContext *cx, JSObject *obj);
 JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
@@ -213,10 +214,12 @@ JS(freej_echo_func);
 JS(freej_strstr);
 JS(file_to_strings);
 JS(register_controller);
+JS(rem_controller);
 JS(register_encoder);
 JS(include_javascript);
 JS(system_exec);
 JS(list_filters);
+JS(js_gc);
 
 ////////////////////////////////
 // Linklist Entry methods

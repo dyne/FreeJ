@@ -27,10 +27,13 @@
 #include <jsparser_data.h>
 
 Controller::Controller() {
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
   initialized = active = false;
 }
 
-Controller::~Controller() { }
+Controller::~Controller() {
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
+}
 
 
 char *Controller::get_name() {

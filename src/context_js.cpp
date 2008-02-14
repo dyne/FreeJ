@@ -59,13 +59,19 @@ JSFunctionSpec global_functions[] = {
     //    {"stream_stop",     stream_stop,            0},
     {"file_to_strings", file_to_strings,        1},
     {"register_controller", register_controller, 1},
+    {"rem_controller",  rem_controller, 1},
     {"register_encoder", register_encoder, 1},
     {"include",         include_javascript,     1},
     {"exec",            system_exec,            1},
     {"list_filters",    list_filters,           0},
+	{"gc",				js_gc,					0},
     {0}
 };
 
+JS(js_gc) {
+	//JS_GC(cx);
+        env->js->gc();
+}
 
 JS(cafudda) {
   //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -124,6 +130,7 @@ JS(rem_layer) {
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) JS_ERROR("Layer core data is NULL");
 
+func("JSvalcmp: %p / %p", argv[0], lay->data);
     env->rem_layer(lay);
     return JS_TRUE;
 }
@@ -140,7 +147,7 @@ JS(add_layer) {
     jslayer = JSVAL_TO_OBJECT(argv[0]);
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) JS_ERROR("Layer core data is NULL");
-
+func("JSvalcmp: %p / %p", argv[0], lay->data);
     /** really add layer */
     env->add_layer(lay);
     *rval=JSVAL_TRUE;
@@ -187,6 +194,23 @@ JS(register_controller) {
     env->register_controller( ctrl );
     *rval = JSVAL_TRUE;
 
+    return JS_TRUE;
+}
+
+JS(rem_controller) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jsctrl;
+    Controller *ctrl;
+
+    if(argc<1) JS_ERROR("missing argument");
+    js_is_instanceOf(&js_ctrl_class, argv[0]);
+
+    jsctrl = JSVAL_TO_OBJECT(argv[0]);
+    ctrl = (Controller *) JS_GetPrivate(cx, jsctrl);
+    if(!ctrl) JS_ERROR("Layer core data is NULL");
+
+func("JSvalcmp: %p / %p", argv[0], ctrl->data);
+    env->rem_controller(ctrl);
     return JS_TRUE;
 }
 

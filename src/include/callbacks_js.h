@@ -117,6 +117,17 @@ JSClass class_struct = { \
   class_constructor \
 }
 
+#define DECLARE_CLASS_GC(class_name, class_struct, class_constructor, gc) \
+JSClass class_struct = { \
+  class_name, JSCLASS_HAS_PRIVATE, \
+  JS_PropertyStub,  JS_PropertyStub, \
+  JS_PropertyStub,  JS_PropertyStub, \
+  JS_EnumerateStub, JS_ResolveStub, \
+  JS_ConvertStub,   gc, \
+  NULL,   NULL, \
+  class_constructor \
+}
+
 #define REGISTER_CLASS(class_name, class_struct, class_constructor, class_methods, parent_class) \
     layer_object = JS_InitClass(js_context, global_object, parent_class, \
 				&class_struct, class_constructor, 0, \
@@ -144,6 +155,7 @@ JS(constructor_func) {                                                        \
                          JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);          \
     return JS_FALSE;                                                          \
   }                                                                           \
+  layer->data = (void*)rval;                                                         \
   return JS_TRUE;							      \
 }
 // this was removed from the error proccedure in the macro above:
@@ -181,5 +193,6 @@ void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *R
         return JS_FALSE;
 
 JSBool _js_is_instanceOf(JSContext*, JSClass*, jsval, const char*);
+// JS Destructor
 
 #endif

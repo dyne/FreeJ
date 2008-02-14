@@ -34,6 +34,7 @@
 
 TTFLayer::TTFLayer()
   :Layer() {
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
 
   // set defaults
 
@@ -67,6 +68,7 @@ TTFLayer::TTFLayer()
 
 
 TTFLayer::~TTFLayer() { 
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
   close();
 }
 

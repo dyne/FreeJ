@@ -35,6 +35,7 @@
 
 Layer::Layer()
   :Entry(), JSyncThread() {
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
   env = NULL;
   quit = false;
   active = false;
@@ -57,7 +58,9 @@ Layer::Layer()
 }
 
 Layer::~Layer() {
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
   FilterInstance *f = (FilterInstance*)filters.begin();
+  func("%s",__PRETTY_FUNCTION__);
   while(f) {
     f->rem();
     delete f;
