@@ -264,4 +264,27 @@ Program received signal SIGSEGV, Segmentation fault.
 #14 0x0eccd5e4 in ?? ()
 #15 0x10009e54 in main (argc=4, argv=0x7f8b8424) at freej.cpp:356
 (gdb)
+
+Program received signal SIGSEGV, Segmentation fault.
+[Switching to Thread 805452288 (LWP 6938)]
+0x0f020150 in FT_Done_Face () from /usr/lib/libfreetype.so.6
+(gdb) bt
+#0  0x0f020150 in FT_Done_Face () from /usr/lib/libfreetype.so.6
+#1  0x100838f4 in TTF_CloseFont ()
+#2  0x10033768 in TTFLayer::close (this=0x1032eb80) at text_layer.cpp:102
+#3  0x100337e8 in ~TTFLayer (this=0x1032eb80) at text_layer.cpp:72
+#4  0x10013fd4 in js_layer_gc (cx=0x101f7538, obj=0x10202f98) at layer_js.cpp:640
+#5  0x100cd6c0 in js_FinalizeObject ()
+#6  0x100b6710 in js_GC ()
+#7  0x100b6a10 in js_ForceGC ()
+#8  0x10088160 in JS_GC ()
+#9  0x10029210 in JsParser::gc (this=0x101f2930) at jsparser.cpp:57
+#10 0x1000bcb8 in Context::rem_layer (this=0x101b62e8, lay=0x103ac880) at context.cpp:485
+#11 0x10022960 in Console::parser_default (this=0x10255e30, key=4) at console.cpp:1282
+#12 0x100233fc in Console::getkey (this=0x10255e30) at console.cpp:772
+#13 0x10023424 in Console::cafudda (this=0x10255e30) at console.cpp:778
+#14 0x1000c6f8 in Context::cafudda (this=0x101b62e8, secs=1) at context.cpp:251
+#15 0x10009ed0 in main (argc=4, argv=0x7fef5424) at freej.cpp:345
+
+
 */
