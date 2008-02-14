@@ -79,6 +79,7 @@ class Linklist {
 
 #ifdef THREADSAFE
   pthread_mutex_t mutex;
+  pthread_mutexattr_t mattr;
 #endif
   
   Entry *compbuf[512]; // completion buffer

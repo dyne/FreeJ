@@ -34,19 +34,23 @@
 
 
 Linklist::Linklist() {
-  length = 0;
-  first = NULL;
-  last = NULL;
-  selection = NULL;
+	length = 0;
+	first = NULL;
+	last = NULL;
+	selection = NULL;
 #ifdef THREADSAFE
-  pthread_mutex_init(&mutex,NULL);
+	pthread_mutexattr_init (&mattr);
+	pthread_mutexattr_settype (&mattr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init (&mutex,&mattr);
 #endif
-  
-//  unlock();
 }
 
 Linklist::~Linklist() {
-  clear();
+	clear();
+#ifdef THREADSAFE
+	pthread_mutex_destroy(&mutex);
+	pthread_mutexattr_destroy (&mattr);
+#endif
 }
 
 /* adds one element at the end of the list */
@@ -481,10 +485,11 @@ void Entry::rem() {
   } else list->first = next; // else just make it a first
   
   list->length--;
+  prev = NULL;
+  next = NULL;
 #ifdef THREADSAFE
   list->unlock();
 #endif
-
   list = NULL;
 }
 
