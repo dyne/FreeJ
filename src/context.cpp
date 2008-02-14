@@ -95,7 +95,13 @@ Context::~Context() {
     console->close ();
     console = NULL;
   }
-  
+
+  //js->gc(); 
+  if(js) { // invokes JSGC and all gc call on our JSObjects!
+    delete js;
+    js = NULL;
+  }
+
   layers.unlock(); // in case we crashed while cafudda'ing
   lay = (Layer *)layers.begin ();
   while (lay) {
@@ -149,11 +155,6 @@ Context::~Context() {
   }
 
   //  plugger.close();
-
-  if(js) {
-    delete js;
-    js = NULL;
-  }
 
   notice ("cu on http://freej.dyne.org");
 }
