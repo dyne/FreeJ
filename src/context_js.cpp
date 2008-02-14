@@ -193,6 +193,7 @@ JS(register_controller) {
     /// really add controller
     env->register_controller( ctrl );
     *rval = JSVAL_TRUE;
+func("JSvalcmp: %p / %p", argv[0], ctrl->data);
 
     return JS_TRUE;
 }

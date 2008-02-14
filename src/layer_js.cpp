@@ -23,7 +23,7 @@
 #include <jsparser_data.h>
 #include <layer.h>
 
-DECLARE_CLASS_GC("Layer",layer_class,layer_constructor, layer_gc);
+DECLARE_CLASS_GC("Layer",layer_class,layer_constructor, js_layer_gc);
 
 JSFunctionSpec layer_methods[] = {
     ENTRY_METHODS,
@@ -169,15 +169,18 @@ JS(list_layers) {
 
   lay = (Layer*)env->layers.begin();
   while(lay) {
-    if (JSVAL_IS_OBJECT((jsval)lay->data)) {
+    if (lay->data) {
 func("reusing %p", lay->data);
     	val = (jsval)lay->data;
     } else {
+func("new JS Object");
 	objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
 
 	JS_SetPrivate(cx,objtmp,(void*) lay);
 
 	val = OBJECT_TO_JSVAL(objtmp);
+
+	lay->data = (void*)val;
     }
 
     JS_SetElement(cx, arr, c, &val );
@@ -609,33 +612,34 @@ JS(layer_spin) {
   return JS_TRUE;
 }
 
-void layer_gc (JSContext *cx, JSObject *obj) {
-    func("%s",__PRETTY_FUNCTION__);
-    Layer* l;
+void js_layer_gc (JSContext *cx, JSObject *obj) {
+	func("%s",__PRETTY_FUNCTION__);
+	Layer* l;
 	if (!obj) {
 		error("%n called with NULL object", __PRETTY_FUNCTION__);
 		return;
 	}
-    JSClass *jc = JS_GET_CLASS(cx,obj);
+	// This callback is declared in Layer Class only,
+	// we can skip the typecheck of obj, can't we?
 	l = (Layer *) JS_GetPrivate(cx, obj);
+	JSClass *jc = JS_GET_CLASS(cx,obj);
 
-    if (l) {
-    //JSvalcmp(MovieLayer): 0x10222200 / 0x1000 Entry 0x102eefb0
-func("JSvalcmp(%s): %p / %p Layer: %p", jc->name, OBJECT_TO_JSVAL(obj), l->data, l);
-        if(l->list) {
-			func("Layer %s/%s is still on stage", jc->name, l->name);
+	if (l) {
+		func("JSvalcmp(%s): %p / %p Layer: %p", jc->name, OBJECT_TO_JSVAL(obj), l->data, l);
+		if(l->list) {
+			notice("JSgc: Layer %s/%s is still on stage", jc->name, l->name);
 			l->data = NULL;
-        } else {
-			func("Layer %s/%s is useless, deleting", jc->name, l->name);
+		} else {
+			notice("JSgc: Layer %s/%s is useless, deleting", jc->name, l->name);
 			l->data = NULL; // Entry~ calls free(data)
-            l->lock_feed();
-            l->quit=true;
-            l->signal_feed();
-            l->unlock_feed();
-            l->join();
+			l->lock_feed();
+			l->quit=true;
+			l->signal_feed();
+			l->unlock_feed();
+			l->join();
 			delete l;
 		}
-    } else {
+	} else {
 		func("Mh, object(%s) has no private data", jc->name);
 	}
 }

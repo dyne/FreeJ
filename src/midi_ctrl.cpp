@@ -37,7 +37,7 @@
 
 JS(js_midi_ctrl_constructor);
 
-DECLARE_CLASS("MidiController", js_midi_ctrl_class, js_midi_ctrl_constructor);
+DECLARE_CLASS_GC("MidiController", js_midi_ctrl_class, js_midi_ctrl_constructor,js_ctrl_gc);
 
 JS(midi_connect);
 JS(midi_connect_from);
@@ -62,6 +62,7 @@ JS(js_midi_ctrl_constructor) {
     }
 
     *rval = OBJECT_TO_JSVAL(obj);
+    midi->data = (void*)*rval;
     return JS_TRUE;
 }
 

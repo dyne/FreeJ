@@ -26,7 +26,7 @@
 #ifdef WITH_V4L
 #include <v4l_layer.h>
 
-DECLARE_CLASS("CamLayer",v4l_layer_class,v4l_layer_constructor);
+DECLARE_CLASS_GC("CamLayer",v4l_layer_class,v4l_layer_constructor,js_layer_gc);
 
 ////////////////////////////////
 // Video4Linux Layer methods

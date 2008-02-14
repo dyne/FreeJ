@@ -24,7 +24,7 @@
 
 #include <SDL.h>
 
-class TriggerCtrl : Controller {
+class TriggerCtrl : public Controller {
 
  public:
   TriggerCtrl();

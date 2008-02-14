@@ -241,3 +241,27 @@ int Context::scanfonts(char *path) {
 
   return(num_fonts - num_before);
 }
+/*
+ * [F] virtual TTFLayer::~TTFLayer() this=0x102e1410
+
+Program received signal SIGSEGV, Segmentation fault.
+0x0f020150 in ?? ()
+(gdb) bt
+#0  0x0f020150 in ?? ()
+#1  0x10083724 in TTF_CloseFont ()
+#2  0x10083724 in TTF_CloseFont ()
+#3  0x100335cc in TTFLayer::close (this=0x102e1410) at text_layer.cpp:102
+#4  0x1003364c in ~TTFLayer (this=0x102e1410) at text_layer.cpp:72
+#5  0x10013efc in js_layer_gc (cx=0x101f7538, obj=0x102245d8) at layer_js.cpp:640
+#6  0x100cd4f0 in js_FinalizeObject ()
+#7  0x100b6540 in js_GC ()
+#8  0x100b6840 in js_ForceGC ()
+#9  0x10096750 in js_DestroyContext ()
+#10 0x100870d4 in JS_DestroyContext ()
+#11 0x1002902c in ~JsParser (this=0x101f2930) at jsparser.cpp:50
+#12 0x1000aae8 in ~Context (this=0x101b6108) at context.cpp:97
+#13 0x10009e9c in __tcf_1 () at freej.cpp:79
+#14 0x0eccd5e4 in ?? ()
+#15 0x10009e54 in main (argc=4, argv=0x7f8b8424) at freej.cpp:356
+(gdb)
+*/

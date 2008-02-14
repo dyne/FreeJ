@@ -37,7 +37,7 @@
 
 JS(js_trigger_ctrl_constructor);
 
-DECLARE_CLASS("TriggerController",js_trigger_ctrl_class, js_trigger_ctrl_constructor);
+DECLARE_CLASS_GC("TriggerController",js_trigger_ctrl_class, js_trigger_ctrl_constructor,js_ctrl_gc);
 
 JSFunctionSpec js_trigger_ctrl_methods[] = {
   {0}
@@ -102,5 +102,6 @@ JS(js_trigger_ctrl_constructor) {
   }
 
   *rval = OBJECT_TO_JSVAL(obj);
+  trigger->data = (void*)*rval;
   return JS_TRUE;
 }

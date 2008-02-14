@@ -24,7 +24,7 @@
 #include <config.h>
 #include <flash_layer.h>
 
-DECLARE_CLASS("FlashLayer", flash_layer_class, flash_layer_constructor);
+DECLARE_CLASS_GC("FlashLayer", flash_layer_class, flash_layer_constructor, js_layer_gc);
 
 /////////////////////////////////
 // Flash Layer methods

@@ -36,7 +36,7 @@
 /////// Javascript JoystickController
 JS(js_joy_ctrl_constructor);
 
-DECLARE_CLASS("JoystickController",js_joy_ctrl_class, js_joy_ctrl_constructor);
+DECLARE_CLASS_GC("JoystickController",js_joy_ctrl_class, js_joy_ctrl_constructor,js_ctrl_gc);
 
 JSFunctionSpec js_joy_ctrl_methods[] = {
   {0}
@@ -209,8 +209,8 @@ JS(js_joy_ctrl_constructor) {
     sprintf(excp_msg, "failed initializing joystick controller");
     goto error;
   }
-
   *rval = OBJECT_TO_JSVAL(obj);
+  joy->data = (void*)*rval;
   return JS_TRUE;
 
 error:

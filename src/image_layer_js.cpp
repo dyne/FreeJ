@@ -24,7 +24,7 @@
 #include <config.h>
 #include <image_layer.h>
 
-DECLARE_CLASS("ImageLayer",image_layer_class,image_layer_constructor);
+DECLARE_CLASS_GC("ImageLayer",image_layer_class,image_layer_constructor,js_layer_gc);
 
 ////////////////////////////////
 // Image Layer methods

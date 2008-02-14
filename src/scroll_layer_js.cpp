@@ -24,7 +24,7 @@
 #include <config.h>
 #include <scroll_layer.h>
 
-DECLARE_CLASS("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor);
+DECLARE_CLASS_GC("VScrollLayer",vscroll_layer_class,vscroll_layer_constructor,js_layer_gc);
 
 ////////////////////////////////
 // VScroll Layer methods

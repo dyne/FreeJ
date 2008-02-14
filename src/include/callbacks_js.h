@@ -117,13 +117,13 @@ JSClass class_struct = { \
   class_constructor \
 }
 
-#define DECLARE_CLASS_GC(class_name, class_struct, class_constructor, gc) \
+#define DECLARE_CLASS_GC(class_name, class_struct, class_constructor, gc_callback) \
 JSClass class_struct = { \
   class_name, JSCLASS_HAS_PRIVATE, \
   JS_PropertyStub,  JS_PropertyStub, \
   JS_PropertyStub,  JS_PropertyStub, \
   JS_EnumerateStub, JS_ResolveStub, \
-  JS_ConvertStub,   gc, \
+  JS_ConvertStub,   gc_callback, \
   NULL,   NULL, \
   class_constructor \
 }

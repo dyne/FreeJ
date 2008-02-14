@@ -24,7 +24,7 @@
 
 #include <SDL.h>
 
-class JoyCtrl : Controller {
+class JoyCtrl : public Controller {
 
  public:
   JoyCtrl();

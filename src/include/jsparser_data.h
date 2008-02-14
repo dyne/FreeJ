@@ -51,7 +51,7 @@
 
 JS(filter_constructor);
 JS(layer_constructor);
-void layer_gc (JSContext *cx, JSObject *obj);
+void js_layer_gc (JSContext *cx, JSObject *obj);
 JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
@@ -81,6 +81,7 @@ JS(js_midi_ctrl_constructor);
 #endif
 JS(js_trigger_ctrl_constructor);
 JS(js_osc_ctrl_constructor);
+void js_ctrl_gc (JSContext *cx, JSObject *obj);
 
 // encoder constructor
 #ifdef WITH_OGGTHEORA

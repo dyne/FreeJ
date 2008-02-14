@@ -35,7 +35,7 @@
 /////// Javascript KeyboardController
 JS(js_kbd_ctrl_constructor);
 
-DECLARE_CLASS("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor);
+DECLARE_CLASS_GC("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor,js_ctrl_gc);
 
 JSFunctionSpec js_kbd_ctrl_methods[] = {
   {0}
@@ -240,6 +240,7 @@ JS(js_kbd_ctrl_constructor) {
   }
 
   *rval = OBJECT_TO_JSVAL(obj);
+  kbd->data = (void*)*rval;
   return JS_TRUE;
 }
     

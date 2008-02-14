@@ -445,10 +445,13 @@ bool Context::rem_controller(Controller *ctrl) {
     error("%s called on a NULL object", __PRETTY_FUNCTION__);
     return false;
   }
+  js->gc();
   ctrl->rem();
   if (ctrl->data == NULL) {
     func("JS controller data null, deleting");
     delete ctrl;
+  } else {
+    notice("removed controller %s but still present as JSObject, not deleting!", ctrl->name);
   }
   return true;
 }
@@ -479,15 +482,18 @@ void Context::rem_layer(Layer *lay) {
         error("removing Layer %p which is not in list", lay);
         return;
   }*/
+  js->gc();
   lay->rem();
   if (lay->data == NULL) {
-      func("JS layer data null, deleting");
+      notice("JS layer data null, deleting");
       lay->lock_feed();
       lay->quit=true;
       lay->signal_feed();
       lay->unlock_feed();
       lay->join();
       delete lay;
+  } else {
+      notice("removed layer %s but still present as JSObject, not deleting!", lay->name);
   }
 }
 

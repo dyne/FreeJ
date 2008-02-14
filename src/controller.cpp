@@ -41,13 +41,8 @@ char *Controller::get_name() {
 }
 
 // other functions are pure virtual
-
-// now with controller methods in javascript
-//JS(js_ctrl_constructor);
-//DECLARE_CLASS("Controller", js_ctrl_class, js_ctrl_constructor);
-
 JS(js_ctrl_constructor);
-DECLARE_CLASS("Controller", js_ctrl_class, NULL);
+DECLARE_CLASS_GC("Controller", js_ctrl_class, NULL, js_ctrl_gc);
 
 JSFunctionSpec js_ctrl_methods[] = { 
   {"activate", controller_activate, 1},
@@ -72,4 +67,27 @@ JS(controller_activate) {
   else    act("controller %s deactivated", ctrl->name);
 
   return JS_TRUE;
+}
+
+void js_ctrl_gc (JSContext *cx, JSObject *obj) {
+	func("%s",__PRETTY_FUNCTION__);
+	Controller* ctrl;
+	if (!obj) {
+		error("%n called with NULL object", __PRETTY_FUNCTION__);
+		return;
+	}
+	// This callback is declared a Controller Class only,
+	// we can skip the typecheck of obj, can't we?
+	ctrl = (Controller *) JS_GetPrivate(cx, obj);
+	JSClass *jc = JS_GET_CLASS(cx,obj);
+
+	if (ctrl) {
+		func("JSvalcmp(%s): %p / %p ctrl: %p", jc->name, OBJECT_TO_JSVAL(obj), ctrl->data, ctrl);
+		notice("JSgc: removing %s Controller %s", jc->name, ctrl->name);
+		ctrl->rem();
+		ctrl->data = NULL;
+		delete ctrl;
+	} else {
+		func("Mh, object(%s) has no private data", jc->name);
+	}
 }
