@@ -20,6 +20,7 @@
 #define __JSYNC_H__
 
 #include <pthread.h>
+#include <sys/time.h>
 
 class JSyncThread {
  private:
@@ -33,6 +34,13 @@ class JSyncThread {
   /* mutex and conditional for the feed */
   pthread_mutex_t _mutex_feed;
   pthread_cond_t _cond_feed;
+
+  struct fps_data_t {
+      int i;
+      int n;
+      float sum;
+      float *data;
+  } fpsd;
   
  public:
   
@@ -56,11 +64,18 @@ class JSyncThread {
   void signal_feed() { pthread_cond_signal(&_cond_feed); };
 
   int join() { return pthread_join(_thread,NULL); }
+  int sleep_feed();
+  float get_fps();
+  void set_fps(float);
 
  protected:
 
   static void* kickoff(void *arg) { ((JSyncThread *) arg)->run(); return NULL; };
-
+  float _delay, fps;
+  struct timeval start_tv;
+  struct timespec wake_ts;
+  void set_alarm(float);
+  void calc_fps();
 };
 
 #endif

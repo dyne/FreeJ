@@ -37,6 +37,8 @@ JSFunctionSpec layer_methods[] = {
     {"get_blit_value",	layer_get_blit_value,	0},
     {"fade_blit_value", layer_fade_blit_value,  2},
     {"set_position",	layer_set_position,	2},
+    {"set_fps",		layer_set_fps,		0},
+    {"get_fps",		layer_get_fps,   	0},
     {"slide_position",  layer_slide_position,   2},
     {"get_x_position",	layer_get_x_position,	0},
     {"x",               layer_get_x_position,   0},
@@ -149,6 +151,21 @@ JS(layer_constructor) {
   return JS_TRUE;
 }
 
+JS(layer_set_fps) {
+	GET_LAYER(Layer);
+	if(argc==1) {
+		JS_ARG_NUMBER(fps, 0);
+		lay->set_fps(fps);
+	}
+	lay->signal_feed();
+	return JS_TRUE;
+}
+JS(layer_get_fps) {
+	GET_LAYER(Layer);
+	double fps = lay->get_fps();
+	*rval = DOUBLE_TO_JSVAL(&fps);
+	return JS_TRUE;
+}
 
 JS(list_layers) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);

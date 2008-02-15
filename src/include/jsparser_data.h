@@ -278,6 +278,8 @@ JS(layer_zoom);
 JS(layer_spin);
 JS(layer_list_filters);
 JS(layer_list_parameters);
+JS(layer_set_fps);
+JS(layer_get_fps);
 
 ////////////////////////////////
 // Particle Layer methods

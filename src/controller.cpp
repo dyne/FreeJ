@@ -83,7 +83,7 @@ void js_ctrl_gc (JSContext *cx, JSObject *obj) {
 
 	if (ctrl) {
 		func("JSvalcmp(%s): %p / %p ctrl: %p", jc->name, OBJECT_TO_JSVAL(obj), ctrl->data, ctrl);
-		notice("JSgc: removing %s Controller %s", jc->name, ctrl->name);
+		notice("JSgc: deleting %s Controller %s", jc->name, ctrl->name);
 		ctrl->rem();
 		ctrl->data = NULL;
 		delete ctrl;
