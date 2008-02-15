@@ -57,6 +57,7 @@ class TTFLayer: public Layer {
   int size;
 
   TTF_Font *font;
+  ScreenGeometry geo_new;
 
  private:
   SDL_Surface *surf;
