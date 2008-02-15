@@ -60,6 +60,7 @@ class TTFLayer: public Layer {
 
  private:
   SDL_Surface *surf;
+  SDL_Surface *surf_new;
 
   int sel_font;
 

@@ -54,6 +54,7 @@ TTFLayer::TTFLayer()
   type = TEXT_LAYER;
   set_name("TTF");
   surf = NULL;
+  surf_new = NULL;
 
   { // setup specific layer parameters
     parameters = new Linklist();
@@ -85,6 +86,7 @@ bool TTFLayer::init(Context *freej) {
   // width/height is skipped for its functionality
   // in fact the size is changing at every new print
   // so we'll call the Layer::_init(wdt,hgt) many times
+  _init(0,0);
 
   if( ! TTF_WasInit() )
     TTF_Init();
@@ -97,6 +99,7 @@ bool TTFLayer::init(Context *freej) {
 void TTFLayer::close() {
   // free sdl font surface
   if(surf) SDL_FreeSurface(surf);
+  if(surf_new) SDL_FreeSurface(surf_new);
 
   // close up sdl ttf
   if(font) TTF_CloseFont(font);
@@ -161,40 +164,39 @@ void TTFLayer::print(char *str) {
     // here can be also: TTF_STYLE_BOLD _ITALIC _UNDERLINE
   }
 
-  // lock everything here
-  lock();
-
-  if(surf) SDL_FreeSurface(surf);
-  
   // surf = TTF_RenderText_Blended(font, str, fgcolor);
-  surf = TTF_RenderText_Shaded(font, str, fgcolor, bgcolor);
-  tmp = SDL_DisplayFormat(surf);
-  if(tmp) {
-    SDL_FreeSurface(surf);
-    surf = tmp;
+  tmp = TTF_RenderText_Shaded(font, str, fgcolor, bgcolor);
+  if(!tmp) {
+  	error("Error render text: %s", SDL_GetError());
+	return;
   }
 
-  //  SDL_SetColorKey(surf, SDL_SRCCOLORKEY|SDL_RLEACCEL, 0);
-    //    error("TTFLayer::print : couldn't set text colorkey: %s", SDL_GetError());
-
-  // save original positions
-  x = geo.x;
-  y = geo.y;
-  _init(surf->w, surf->h);  
-  geo.x = x;
-  geo.y = y;
+  lock();
+  surf_new = SDL_DisplayFormat(tmp);
+  // oh no!! plz do not call _init here !!! It messes up the blitter!
+  // _init(surf_new->w, surf_new->h);  
+  geo.w = surf_new->w;
+  geo.h = surf_new->h;
+  geo.bpp = 32;
+  geo.size = geo.w*geo.h*(geo.bpp/8);
+  geo.pitch = geo.w*(geo.bpp/8);
 
   unlock();
+  SDL_FreeSurface(tmp);
 
 }
 
 void *TTFLayer::feed() {
-  if(!surf) {
-    warning("Text layer has no rendered surface");
-    return NULL;
-  }
-  // just return the surface
-  return surf->pixels;
+	if(surf_new) {
+	// just return the surface
+		if(surf) SDL_FreeSurface(surf);
+		surf = surf_new;
+		surf_new = NULL;
+	}
+	if(!surf)
+		return NULL;
+	else
+		return surf->pixels;
 }
 
 static int ttf_dir_selector(const struct dirent *dir) {
