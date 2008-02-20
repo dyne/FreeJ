@@ -469,7 +469,6 @@ char* JsParser::readFile(FILE *file, int *len){
 
 int JsParser::reset() {
 	JS_ClearScope(js_context, global_object);
-	gc();
 	init_class(js_context, global_object);
 	gc();
 	return 0;

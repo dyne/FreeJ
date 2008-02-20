@@ -582,8 +582,6 @@ JS(entry_select) {
 
 JS(include_javascript) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-	FILE *fd;
 	char *jscript;
 
 	if(argc<1) JS_ERROR("missing argument");
@@ -665,8 +663,20 @@ JS(system_exec) {
 
 JS(reset_js) {
 	func("%s",__PRETTY_FUNCTION__);
+	char *jscript;
+
 	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 	js->reset();
+	if(argc == 1) {
+		JS_ARG_STRING(jscript,0);
+		if (js->open(jscript) == 0) {
+			error("JS reset('%s') failed", jscript);
+		}
+	}
+	JS_GC(cx);
+	// if called by an controller, it must then return true
+	// otherwise rehandling it's event can be endless loop
+	*rval = JSVAL_TRUE;
 	return JS_TRUE;
 }
 
