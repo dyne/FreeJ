@@ -106,12 +106,7 @@ Context::~Context() {
   layers.unlock(); // in case we crashed while cafudda'ing
   lay = (Layer *)layers.begin ();
   while (lay) {
-    lay-> lock_feed();
-    lay-> quit = true;
-    lay-> signal_feed();
-    lay-> unlock_feed();
-    lay-> join();
-    lay-> lock();
+	lay-> stop();
     lay-> rem(); // does layers.lock()
     delete lay;
     lay = (Layer *)layers.begin ();
@@ -120,13 +115,7 @@ Context::~Context() {
   encoders.unlock();
   enc = (VideoEncoder *)encoders.begin();
   while(enc) {
-    enc->lock_feed();
-    enc->quit = true;
-    enc->signal_feed();
-    enc->unlock_feed();
-    enc->join();
-    enc->lock();
-    enc->rem();
+	enc->stop();
     delete enc;
     enc = (VideoEncoder *)encoders.begin();
   }
@@ -467,8 +456,8 @@ void Context::add_layer(Layer *lay) {
   lay->blitter.screen = screen;
 
   // center the position
-  lay->geo.x = (screen->w - lay->geo.w)/2;
-  lay->geo.y = (screen->h - lay->geo.h)/2;
+  //lay->geo.x = (screen->w - lay->geo.w)/2;
+  //lay->geo.y = (screen->h - lay->geo.h)/2;
   lay->blitter.crop( true );
   layers.append(lay);
   layers.sel(0);
@@ -486,12 +475,8 @@ void Context::rem_layer(Layer *lay) {
   js->gc();
   lay->rem();
   if (lay->data == NULL) {
-      notice("JS layer data null, deleting");
-      lay->lock_feed();
-      lay->quit=true;
-      lay->signal_feed();
-      lay->unlock_feed();
-      lay->join();
+      notice("Layer: no JS data: deleting");
+	  lay->stop();
       delete lay;
   } else {
       notice("removed layer %s but still present as JSObject, not deleting!", lay->name);
@@ -595,6 +580,7 @@ void Context::rocknroll() {
     }
   
   // Iterate throught linked list of layers and start them
+  /*
   layers.lock();
   while (l) {
     if (!l->running) {
@@ -615,6 +601,7 @@ void Context::rocknroll() {
     l = (Layer *)l->next;
   }
   layers.unlock();
+  */
   /////////////////////////////////////////////////////////////
   ///////////////////////////////////// end of layers rocknroll
 

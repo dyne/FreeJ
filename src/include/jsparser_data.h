@@ -266,6 +266,8 @@ JS(controller_activate);
 
 JS(layer_activate);
 JS(layer_deactivate);
+JS(layer_start);
+JS(layer_stop);
 JS(layer_get_name);
 JS(layer_get_filename);
 JS(layer_get_blit);

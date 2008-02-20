@@ -86,7 +86,6 @@ class VideoEncoder: public Entry, public JSyncThread {
 
   bool active; ////< flag to de/activate the encoder
 
-  bool running; ///< true if thread is running
   bool initialized; ///< true if encoder had been initialized
   bool write_to_disk; ///< true if encoder should write to a file
   bool write_to_stream; ///< true if encoder should write to a stream

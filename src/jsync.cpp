@@ -46,6 +46,8 @@ JSyncThread::JSyncThread() {
   for (int i=0; i<30; i++) {
 	  fpsd.data[i] = 0;
   }
+  running = false;
+  quit = false;
 }
 
 
@@ -63,13 +65,33 @@ JSyncThread::~JSyncThread() {
   if(pthread_cond_destroy(&_cond_feed) == -1)
     error("error destroying POSIX thread feed attribute");
 
+	stop();
 	delete[] fpsd.data;
 
 }
 
 int JSyncThread::start() {
+	if (running)
+		return EBUSY;
+	quit = false;
 	set_alarm(0.0001);
 	return pthread_create(&_thread, &_attr, &kickoff, this);
+}
+
+void JSyncThread::_run() {
+	running = true;
+	run();
+	running = false;
+}
+
+void JSyncThread::stop() {
+	if (running) {
+		lock_feed();
+		quit=true;
+		signal_feed();
+		unlock_feed();
+		join();
+	}
 }
 
 int JSyncThread::sleep_feed() { 
@@ -82,6 +104,11 @@ int JSyncThread::sleep_feed() {
 	int ret =  pthread_cond_timedwait (&_cond_feed, &_mutex_feed, &wake_ts);
 	set_alarm(_delay);
 	return ret;
+};
+
+void JSyncThread::wait_feed() {
+	pthread_cond_wait(&_cond_feed,&_mutex_feed);
+	set_alarm(_delay);
 };
 
 void JSyncThread::calc_fps() {

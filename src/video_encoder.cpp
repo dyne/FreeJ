@@ -36,7 +36,6 @@ VideoEncoder::VideoEncoder()
 
   quit = false;
 
-  running = false;
   initialized = false;
 
   use_audio = false;
@@ -119,7 +118,6 @@ void VideoEncoder::run() {
   
   lock_feed();
 
-  running = true;
 
   wait_feed();
   
@@ -171,7 +169,6 @@ void VideoEncoder::run() {
   }
   
   func("VideoEncoder::run : end thread %d", pthread_self() );
-  running = false;
 
 }
 

@@ -415,6 +415,7 @@ static int open_layer(char *cmd) {
       delete l;
     } else {
     */
+      l->start();
       env->add_layer(l);
 
       len = env->layers.len();

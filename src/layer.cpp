@@ -39,7 +39,6 @@ Layer::Layer()
   env = NULL;
   quit = false;
   active = false;
-  running = false;
   hidden = false;
   fade = false;
   use_audio = false;
@@ -102,7 +101,6 @@ void Layer::run() {
 	while(!feed()) 
 	lock_feed();
 	func("ok, layer %s in rolling loop",get_name());
-	running = true;
 	wait_feed();
 	
 	while(!quit) {
@@ -136,7 +134,6 @@ void Layer::run() {
 		sleep_feed();
 	}
 		
-	running = false;
 		func("%s this=%p thread end: %d %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
 }
 

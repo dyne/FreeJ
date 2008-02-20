@@ -29,6 +29,8 @@ JSFunctionSpec layer_methods[] = {
     ENTRY_METHODS,
     {"activate",	layer_activate,	        0},
     {"deactivate",	layer_deactivate,	0},
+    {"start",		layer_start,		0},
+    {"stop",		layer_stop,		0},
     {"get_name",	layer_get_name,	        0},
     {"get_filename",	layer_get_filename,	0},
     {"set_blit",	layer_set_blit,	        1},
@@ -649,14 +651,24 @@ void js_layer_gc (JSContext *cx, JSObject *obj) {
 		} else {
 			notice("JSgc: Layer %s/%s is useless, deleting", jc->name, l->name);
 			l->data = NULL; // Entry~ calls free(data)
-			l->lock_feed();
-			l->quit=true;
-			l->signal_feed();
-			l->unlock_feed();
-			l->join();
+			l->stop();
 			delete l;
 		}
 	} else {
 		func("Mh, object(%s) has no private data", jc->name);
 	}
+}
+
+JS(layer_start) {
+  GET_LAYER(Layer);
+  lay->start();
+
+  return JS_TRUE;
+}
+
+JS(layer_stop) {
+  GET_LAYER(Layer);
+  lay->stop();
+
+  return JS_TRUE;
 }
