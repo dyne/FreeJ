@@ -270,7 +270,6 @@ int JsParser::open(const char* script_file) {
 int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 	jsval res;
-	JSString *str;
 	JSBool eval_res = JS_TRUE;
 	FILE *fd;
 	char *buf = NULL;
@@ -317,11 +316,8 @@ JSClass UseScriptClass = {
 // compile a script and root it to an object
 int JsParser::use(JSContext *cx, JSObject *obj, const char* script_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-	jsval res;
-	JSString *str;
 	JSObject *scriptObject;
 	JSScript *script;
-	JSBool eval_res = JS_TRUE;
 	FILE *fd;
 	char *buf = NULL;
 	int len;

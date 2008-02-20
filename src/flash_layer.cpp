@@ -102,7 +102,6 @@ FlashLayer::~FlashLayer() {
 bool FlashLayer::init(Context *freej) {
   func("FlashLayer::init");
   env = freej;
-  long res;
   return true;
 }
 

@@ -75,7 +75,7 @@ void GoomLayer::close() {
 
 void *GoomLayer::feed() {
   int c;
-  int num, found, samples;
+  //  int num, found, samples;
 
   //  samples = env->audio->framesperbuffer * env->audio->channels;
 

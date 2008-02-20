@@ -602,7 +602,6 @@ JS(include_javascript) {
 JS(use_javascript) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-	FILE *fd;
 	char *jscript;
 	jsval use;
 
