@@ -215,11 +215,12 @@ int KbdCtrl::JSCall(char *funcname) {
             if(!JSVAL_IS_VOID(ret)) {
                 JSBool ok;
                 JS_ValueToBoolean(jsenv, ret, &ok);
-                if (ok) // JSfunc returned 'true', we are done.
-                    return 1;
+                if (!ok) // JSfunc returned 'false', so redo the event
+                    return 0;
             }
+		return 1; // done, if there was a callback
     }
-    return 0;
+    return 0; // no callback, redo on next controller
 }
 
 JS(js_kbd_ctrl_constructor) {
