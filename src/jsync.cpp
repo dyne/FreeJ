@@ -26,8 +26,8 @@ JSyncThread::JSyncThread() {
 
   if(pthread_mutex_init (&_mutex,NULL) == -1)
     error("error initializing POSIX thread mutex");
-  if(pthread_cond_init (&_cond, NULL) == -1)
-    error("error initializing POSIX thread condtition"); 
+  //if(pthread_cond_init (&_cond, NULL) == -1)
+  //  error("error initializing POSIX thread condtition"); 
   if(pthread_attr_init (&_attr) == -1)
     error("error initializing POSIX thread attribute");
 
@@ -53,8 +53,8 @@ JSyncThread::~JSyncThread() {
 
   if(pthread_mutex_destroy(&_mutex) == -1)
     error("error destroying POSIX thread mutex");
-  if(pthread_cond_destroy(&_cond) == -1)
-    error("error destroying POSIX thread condition");
+  //if(pthread_cond_destroy(&_cond) == -1)
+  //  error("error destroying POSIX thread condition");
   if(pthread_attr_destroy(&_attr) == -1)
     error("error destroying POSIX thread attribute");
   

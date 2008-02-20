@@ -29,7 +29,7 @@ class JSyncThread {
   pthread_attr_t _attr;
 
   pthread_mutex_t _mutex;
-  pthread_cond_t _cond;
+  //pthread_cond_t _cond;
   
   /* mutex and conditional for the feed */
   pthread_mutex_t _mutex_feed;
@@ -57,8 +57,8 @@ class JSyncThread {
   void unlock_feed() { pthread_mutex_unlock(&_mutex_feed); };
   
   /* MUTEX MUST BE LOCKED AND UNLOCKED WHILE USING WAIT */
-  void wait() { pthread_cond_wait(&_cond,&_mutex); };
-  void signal() { pthread_cond_signal(&_cond); };
+  //void wait() { pthread_cond_wait(&_cond,&_mutex); };
+  //void signal() { pthread_cond_signal(&_cond); };
 
   void wait_feed() { pthread_cond_wait(&_cond_feed,&_mutex_feed); };
   void signal_feed() { pthread_cond_signal(&_cond_feed); };
