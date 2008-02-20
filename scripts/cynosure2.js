@@ -1,5 +1,4 @@
 /*  FreeJ example scripts
-#!/looooooollllllllig
  *  (c) Copyright 2005 Christoph Rudorff aka MrGoil <goil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
@@ -37,6 +36,7 @@ inc_ok = false;
 			include(path + "param.js");
 			inc_ok = true;
 		} catch (e) {
+			echo("CY incl err: " + e);
 		}
 	}
 } );

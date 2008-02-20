@@ -91,6 +91,11 @@ JS(js_shouter_constructor);
 
 //////////////////////////////////////////////////////////////
 // classes
+//
+//
+
+// pseudoclass for holding namespace of a use(filename) object
+extern JSClass UseScriptClass;
 
 extern JSClass global_class;
 extern JSFunctionSpec global_functions[];
@@ -218,9 +223,12 @@ JS(register_controller);
 JS(rem_controller);
 JS(register_encoder);
 JS(include_javascript);
+JS(use_javascript);
+JS(ExecScript); // for the use() objects
 JS(system_exec);
 JS(list_filters);
 JS(js_gc);
+JS(reset_js);
 
 ////////////////////////////////
 // Linklist Entry methods

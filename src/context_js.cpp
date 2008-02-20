@@ -62,15 +62,18 @@ JSFunctionSpec global_functions[] = {
     {"rem_controller",  rem_controller, 1},
     {"register_encoder", register_encoder, 1},
     {"include",         include_javascript,     1},
+    {"use",		use_javascript,		1},
     {"exec",            system_exec,            1},
     {"list_filters",    list_filters,           0},
-	{"gc",				js_gc,					0},
+    {"gc",		js_gc,			0},
+    {"reset",		reset_js,		0},
     {0}
 };
 
 JS(js_gc) {
-	//JS_GC(cx);
-        env->js->gc();
+	JS_GC(cx);
+	return JS_TRUE;
+    //    env->js->gc();
 }
 
 JS(cafudda) {
@@ -578,34 +581,46 @@ JS(entry_select) {
 }
 
 JS(include_javascript) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  
-  FILE *fd;
-  char *jscript;
+	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  JS_ARG_STRING(jscript,0);
-  
-  fd = ::fopen(jscript,"r");
-  if(!fd) { 
-    error("include failed for %s: %s", jscript, strerror(errno) );
-    JS_ReportErrorNumber( 
-        cx, JSFreej_GetErrorMessage, NULL,
-        JSSMSG_FJ_WICKED,
-        jscript, strerror(errno)
-    );
-    return JS_FALSE;
-  }
+	FILE *fd;
+	char *jscript;
 
-  fclose(fd);
-  if (env->js->open(jscript) == 0) { 
-    // JS_EvaluateScript failed, maybe a 
-    // syntax error. JS_ReportError was already called,
-    // so no need to throw something here.
-      func("%s eval failed", __func__);
-      return JS_FALSE;
-  } 
+	if(argc<1) JS_ERROR("missing argument");
+	JS_ARG_STRING(jscript,0);
+	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 
-  return JS_TRUE;
+	if (js->open(cx, obj, jscript) == 0) {
+		// all errors already reported,
+		// js->open talks too much
+		error("JS include('%s') failed", jscript);
+		return JS_FALSE;
+	}
+
+	func("JS: include %s", jscript);
+	return JS_TRUE;
+}
+
+JS(use_javascript) {
+	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+	FILE *fd;
+	char *jscript;
+	jsval use;
+
+	if(argc<1) JS_ERROR("missing argument");
+	JS_ARG_STRING(jscript,0);
+	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
+
+	use = js->use(cx, obj, jscript);
+	if (use == JS_FALSE) {
+		// all errors already reported,
+		// js->open talks too much
+		error("JS include('%s') failed", jscript);
+		return JS_FALSE;
+	}
+	*rval = use;
+	return JS_TRUE;
 }
 
 JS(system_exec) {
@@ -647,3 +662,11 @@ JS(system_exec) {
   
   return JS_TRUE;
 }
+
+JS(reset_js) {
+	func("%s",__PRETTY_FUNCTION__);
+	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
+	js->reset();
+	return JS_TRUE;
+}
+

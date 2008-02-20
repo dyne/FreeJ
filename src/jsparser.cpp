@@ -85,116 +85,120 @@ void JsParser::init() {
     /* Set a more strict error checking */
     JS_SetOptions(js_context, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
 
-    /* Create the global object here */
-    global_object = JS_NewObject(js_context, &global_class, NULL, NULL);
-    //    JS_SetGlobalObject(js_context, global_object);
-    //    this is done in JS_InitStandardClasses.
-
     /* Set the branch callback */
     JS_SetBranchCallback(js_context, js_static_branch_callback);
 
     /* Set the error reporter */
     JS_SetErrorReporter(js_context, js_error_reporter);
 
-    /* Sets maximum (if stack grows upward) or minimum (downward) legal stack byte
-     * address in limitAddr for the thread or process stack used by cx.  To disable
-     * stack size checking, pass 0 for limitAddr.
-     * JS_SetThreadStackLimit(js_context, 0x0);
-     */
+    /* Create the global object here */
+    //    JS_SetGlobalObject(js_context, global_object);
+    //    this is done in init_class / JS_InitStandardClasses.
+
+	global_object = JS_NewObject(js_context, &global_class, NULL, NULL);
+	init_class(js_context, global_object);
+
+   /** register SIGINT signal */
+   signal(SIGINT, js_sigint_handler);
+
+   ///////////////////////////////
+   // setup the freej context
+   env->osd.active = false;
+
+   return;
+}
+
+void JsParser::init_class(JSContext *cx, JSObject *obj) {
    
-    /* Initialize the built-in JS objects and the global object */
-    JS_InitStandardClasses(js_context, global_object);
+	/* Initialize the built-in JS objects and the global object 
+	* As a side effect, JS_InitStandardClasses establishes obj as
+	* the global object for cx, if one is not already established. */
+	JS_InitStandardClasses(cx, obj);
 
-    /* Declare shell functions */
-    if (!JS_DefineFunctions(js_context, global_object, global_functions)) {
-	error("JsParser :: error defining global functions");
-	return ;
-    }
+	/* Declare shell functions */
+	if (!JS_DefineFunctions(cx, obj, global_functions)) {
+		error("JsParser :: error defining global functions");
+		return ;
+	}
 
-    ///////////////////////////////////////////////////////////
-    // Initialize classes
+	///////////////////////////////////////////////////////////
+	// Initialize classes
 
 	JSObject *object_proto; // reminder for inher.
 	JSObject *layer_object; // used in REGISTER_CLASS macro
-    REGISTER_CLASS("Layer",
-		   layer_class,
-		   layer_constructor,
-		   layer_methods,
-           NULL);
-    object_proto = layer_object;
+	REGISTER_CLASS("Layer",
+		layer_class,
+		layer_constructor,
+		layer_methods,
+		NULL);
+	object_proto = layer_object; // last created object
 
-    REGISTER_CLASS("ParticleLayer",
-		   particle_layer_class,
-		   particle_layer_constructor,
-		   particle_layer_methods,
-           object_proto);
+	REGISTER_CLASS("ParticleLayer",
+		particle_layer_class,
+		particle_layer_constructor,
+		particle_layer_methods,
+		object_proto);
 
-    REGISTER_CLASS("GeometryLayer",
-		   geometry_layer_class,
-		   geometry_layer_constructor,
-		   geometry_layer_methods,
-           object_proto);
+	REGISTER_CLASS("GeometryLayer",
+		geometry_layer_class,
+		geometry_layer_constructor,
+		geometry_layer_methods,
+		object_proto);
 
-    REGISTER_CLASS("VScrollLayer",
-		   vscroll_layer_class,
-		   vscroll_layer_constructor,
-		   vscroll_layer_methods,
-           object_proto);
+	REGISTER_CLASS("VScrollLayer",
+		vscroll_layer_class,
+		vscroll_layer_constructor,
+		vscroll_layer_methods,
+		object_proto);
 
-    REGISTER_CLASS("ImageLayer",
-		   image_layer_class,
-		   image_layer_constructor,
-		   image_layer_methods,
-           object_proto);
+	REGISTER_CLASS("ImageLayer",
+		image_layer_class,
+		image_layer_constructor,
+		image_layer_methods,
+		object_proto);
 
-    REGISTER_CLASS("FlashLayer",
-		   flash_layer_class,
-		   flash_layer_constructor,
-		   flash_layer_methods,
-           object_proto);
+	REGISTER_CLASS("FlashLayer",
+		flash_layer_class,
+		flash_layer_constructor,
+		flash_layer_methods,
+		object_proto);
 
-    REGISTER_CLASS("GoomLayer",
-		   goom_layer_class,
-		   goom_layer_constructor,
-		   goom_layer_methods,
-           object_proto);
+	REGISTER_CLASS("GoomLayer",
+		goom_layer_class,
+		goom_layer_constructor,
+		goom_layer_methods,
+		object_proto);
 
 #ifdef WITH_V4L
-    REGISTER_CLASS("CamLayer",
-		   v4l_layer_class,
-		   v4l_layer_constructor,
-		   v4l_layer_methods,
-           object_proto);
+	REGISTER_CLASS("CamLayer",
+		v4l_layer_class,
+		v4l_layer_constructor,
+		v4l_layer_methods,
+		object_proto);
 #endif
 
 #ifdef WITH_FFMPEG
-    REGISTER_CLASS("MovieLayer",
-		   video_layer_class,
-		   video_layer_constructor,
-		   video_layer_methods,
-           object_proto);
-#else
-    REGISTER_CLASS("MovieLayer",
-		   movie_layer_class,
-		   movie_layer_constructor,
-		   movie_layer_methods,
-           object_proto);
+	REGISTER_CLASS("MovieLayer",
+		video_layer_class,
+		video_layer_constructor,
+		video_layer_methods,
+		object_proto);
 #endif
 
 #ifdef WITH_AVIFILE
    REGISTER_CLASS("MovieLayer",
-		   avi_layer_class,
-		   avi_layer_constructor,
-		   avi_layer_methods,
-           object_proto);
+		avi_layer_class,
+		avi_layer_constructor,
+		avi_layer_methods,
+		object_proto);
 #endif
 
 #ifdef WITH_FT2
-    REGISTER_CLASS("TextLayer",
-		   txt_layer_class,
-		   txt_layer_constructor,
-		   txt_layer_methods,
-           object_proto);
+	REGISTER_CLASS("TextLayer",
+		txt_layer_class,
+		txt_layer_constructor,
+		txt_layer_methods,
+		object_proto);
 #endif
     
     
@@ -231,11 +235,11 @@ void JsParser::init() {
            object_proto);
 
 #ifdef WITH_MIDI
-    REGISTER_CLASS("MidiController",
-		   js_midi_ctrl_class,
-		   js_midi_ctrl_constructor,
-		   js_midi_ctrl_methods,
-           object_proto);
+	REGISTER_CLASS("MidiController",
+		js_midi_ctrl_class,
+		js_midi_ctrl_constructor,
+		js_midi_ctrl_methods,
+		object_proto);
 #endif
 
     REGISTER_CLASS("OscController",
@@ -245,22 +249,15 @@ void JsParser::init() {
 		   object_proto);
 
 #ifdef WITH_OGGTHEORA
-    // encoder class
-    REGISTER_CLASS("VideoEncoder",
-		   js_vid_enc_class,
-		   js_vid_enc_constructor,
-		   js_vid_enc_methods,
-           NULL);
+	// encoder class
+	REGISTER_CLASS("VideoEncoder",
+		js_vid_enc_class,
+		js_vid_enc_constructor,
+		js_vid_enc_methods,
+		NULL);
 #endif
 
-//    JS_DefineProperties(js_context, layer_object, layer_properties);
-
-   /** register SIGINT signal */
-   signal(SIGINT, js_sigint_handler);
-
-   ///////////////////////////////
-   // setup the freej context
-   env->osd.active = false;
+//	  JS_DefineProperties(js_context, layer_object, layer_properties);
 
 
    return;
@@ -268,56 +265,144 @@ void JsParser::init() {
 
 /* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  jsval res;
-  JSString *str;
-  JSBool eval_res = JS_TRUE;
-  FILE *fd;
-  char *buf;
-  int len;
+	return open(js_context, global_object, script_file);
+}
+int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
+	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+	jsval res;
+	JSString *str;
+	JSBool eval_res = JS_TRUE;
+	FILE *fd;
+	char *buf = NULL;
+	int len;
 
-  char header[1024];
+	fd = fopen(script_file,"r");
+	if(!fd) {
+		//error("%s: %s : %s",__func__,script_file,strerror(errno));
+		JS_ReportErrorNumber(
+			cx, JSFreej_GetErrorMessage, NULL,
+			JSSMSG_FJ_WICKED, script_file, strerror(errno)
+		);
+		return 0;
+	}
+	buf = readFile(fd, &len);
+	fclose(fd);
 
-  fd = fopen(script_file,"r");
-  if(!fd) {
-    error("%s: %s : %s",__func__,script_file,strerror(errno));
-    return 0;
-  }
+	if (!buf) {
+		JS_ReportErrorNumber(
+			cx, JSFreej_GetErrorMessage, NULL,
+			JSSMSG_FJ_WICKED, script_file, "No buffer for file .... out of memory?"
+		);
+		return 0;
+	}
 
-  // read all the file in once: line by line won't work well in blocks
-  func("%s reading from file %s",__func__,script_file);
-  fseek(fd,0,SEEK_END);
-  len = ftell(fd);
-  rewind(fd);
+	res = JSVAL_VOID;
+	notice("%s eval: %p", __PRETTY_FUNCTION__, obj);
+	eval_res = JS_EvaluateScript(cx, obj,
+		buf, len, script_file, 0, &res);
+	// if anything more was wrong, our ErrorReporter was called!
+	free(buf);
+	func("%s evalres: %i", __func__, eval_res);
+	gc();
+	return eval_res;
+}
 
-  // exclude the first line if it calls the shell interpreter
-  fgets(header,1023,fd);
-  if(header[0]!='#')
-    rewind(fd);
-  else
-    len -= strlen(header);
+void js_usescript_gc(JSContext *cx, JSObject *obj);
+JSClass UseScriptClass = {
+	"UseScript", JSCLASS_HAS_PRIVATE,
+	JS_PropertyStub,  JS_PropertyStub, JS_PropertyStub, JS_PropertyStub,
+	JS_EnumerateStub, JS_ResolveStub, JS_ConvertStub,  js_usescript_gc
+};
 
-  buf = (char*)calloc(len+128,sizeof(char));
-  func("JsParser allocated %u bytes",len);
-  fread(buf,len,sizeof(char),fd);
+// compile a script and root it to an object
+int JsParser::use(JSContext *cx, JSObject *obj, const char* script_file) {
+	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+	jsval res;
+	JSString *str;
+	JSObject *scriptObject;
+	JSScript *script;
+	JSBool eval_res = JS_TRUE;
+	FILE *fd;
+	char *buf = NULL;
+	int len;
 
-  fclose(fd);
+	fd = fopen(script_file,"r");
+	if(!fd) {
+		JS_ReportErrorNumber(
+			cx, JSFreej_GetErrorMessage, NULL,
+			JSSMSG_FJ_WICKED, script_file, strerror(errno)
+		);
+		return 0;
+	}
+	buf = readFile(fd, &len);
+	fclose(fd);
 
-  res = JSVAL_VOID;
-  eval_res = JS_EvaluateScript(js_context, global_object,
-		      buf, len, script_file, 0, &res);
-  // return the result (to console)
-  if(!JSVAL_IS_VOID(res)){
-      str=JS_ValueToString(js_context, res);
-      if(str){
-          act("JS open result: %s", JS_GetStringBytes(str));
-      } else {
-          JS_ReportError(js_context, "Can't convert result msg to string");
-      }
-  } // else
-    // if anything more was wrong, our ErrorReporter was called!
-  func("%s evalres: %i", __func__, eval_res);
-  return eval_res;
+	if (!buf) {
+		JS_ReportErrorNumber(
+			cx, JSFreej_GetErrorMessage, NULL,
+			JSSMSG_FJ_WICKED, script_file, "No buffer for file .... out of memory?"
+		);
+		return 0;
+	}
+
+	// use a clean obj and put freej inside
+	scriptObject = JS_NewObject(cx, &UseScriptClass, NULL, NULL);
+	init_class(cx, scriptObject);
+
+	notice("%s from: %p new: %p glob: %p", __PRETTY_FUNCTION__, obj, scriptObject, global_object);
+	if(!scriptObject){
+		JS_ReportError(cx, "Can't create script");
+		return JS_FALSE;
+	}
+
+	script = JS_CompileScript(cx, scriptObject, buf, len, script_file, 0);
+	if(!script){
+		JS_ReportError(cx, "Can't compile script");
+		return JS_FALSE;
+	}
+
+	jsval rval;
+	JS_ExecuteScriptPart(cx, scriptObject, script, JSEXEC_PROLOG, &rval);
+
+	/* save script as private data for the object */
+	if(!JS_SetPrivate(cx, scriptObject, (void*)script)){
+		return JS_FALSE;
+	}
+
+	JS_DefineFunction(cx, scriptObject, "exec", ExecScript, 0, 0);
+	return OBJECT_TO_JSVAL(scriptObject);
+}
+
+JS(ExecScript) {
+	void *p = JS_GetInstancePrivate(cx, obj, &UseScriptClass, NULL);
+	JSScript *script;
+	*rval = JSVAL_FALSE;
+
+	if(!p)
+		return JS_TRUE;
+
+	script = (JSScript*)p;
+	notice("%s : obj:%p  sc:%p", __PRETTY_FUNCTION__, obj, script);
+	if (JS_ExecuteScriptPart(cx, obj, script, JSEXEC_MAIN, rval)) {
+		*rval = JSVAL_TRUE;
+	}
+	//JS_SetPrivate(cx, obj, NULL);
+    JS_GC(cx);
+	return JS_TRUE;
+}
+
+void js_usescript_gc(JSContext *cx, JSObject *obj) {
+	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+	JSScript *script;
+	void *p = JS_GetInstancePrivate(cx, obj, &UseScriptClass, NULL);
+	if(!p)
+		return;
+
+	script = (JSScript*)p;
+	notice("destroy script %p of %p", script, obj);
+	JS_SetPrivate(cx, obj, NULL);
+	JS_ClearScope(cx, obj);
+	JS_DestroyScript(cx, script);
 }
 
 int JsParser::parse(const char *command) {
@@ -331,7 +416,7 @@ int JsParser::parse(const char *command) {
     return 0;
   }
 
-  func("JsParser::parse : %s",command);
+  func("JsParser::parse : %s obj: %p",command, global_object);
 
   res = JSVAL_VOID;
   eval_res = JS_EvaluateScript(js_context, global_object,
@@ -346,6 +431,7 @@ int JsParser::parse(const char *command) {
       }
   } // else
     // if anything more was wrong, our ErrorReporter was called!
+  gc();
   func("%s evalres: %i", __func__, eval_res);
   return eval_res;
 }
@@ -353,3 +439,39 @@ int JsParser::parse(const char *command) {
 void JsParser::stop() {
     stop_script=true;
 }
+
+char* JsParser::readFile(FILE *file, int *len){
+	char *buf;
+	int ch;
+
+	fseek(file,0,SEEK_END);
+	*len = ftell(file);
+	rewind(file);
+	ch=fgetc(file);
+	/* ignore first line starting with # */
+	if(ch=='#') {
+		*len-=1;
+		while((ch=fgetc(file))!=EOF) {
+			*len-=1;
+			if(ch=='\n')
+				break;
+		}
+	} else
+		ungetc(ch,file);
+
+	buf = (char*)calloc(*len,sizeof(char));
+	if (!buf)
+		return NULL;
+	fread(buf,*len,sizeof(char),file);
+
+	return buf;
+}
+
+int JsParser::reset() {
+	JS_ClearScope(js_context, global_object);
+	gc();
+	init_class(js_context, global_object);
+	gc();
+	return 0;
+}
+

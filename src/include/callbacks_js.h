@@ -129,7 +129,7 @@ JSClass class_struct = { \
 }
 
 #define REGISTER_CLASS(class_name, class_struct, class_constructor, class_methods, parent_class) \
-    layer_object = JS_InitClass(js_context, global_object, parent_class, \
+    layer_object = JS_InitClass(cx, obj, parent_class, \
 				&class_struct, class_constructor, 0, \
 				0, class_methods, 0, 0); \
     if(!layer_object) { \
