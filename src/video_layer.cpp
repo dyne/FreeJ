@@ -25,7 +25,6 @@
 
 #ifdef WITH_FFMPEG
 
-#include <iostream>
 #include <string.h>
 
 #include <context.h>

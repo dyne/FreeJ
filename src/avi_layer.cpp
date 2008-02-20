@@ -23,7 +23,6 @@
 
 #ifdef WITH_AVIFILE 
 
-#include <iostream>
 #include <string.h>
 
 #include <avi_layer.h>

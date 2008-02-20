@@ -5,7 +5,6 @@
 #include <utility>
 #include <cassert>
 
-#include <iostream>
 
 class twolay0r : public frei0r::filter
 {

@@ -6,7 +6,6 @@ extern "C"
 #include <list>
 #include <vector>
 #include <string>
-#include <iostream>
 
 
 namespace frei0r

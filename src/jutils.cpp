@@ -33,7 +33,6 @@
 #include <dirent.h>
 #endif
 
-#include <iostream>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <time.h>
