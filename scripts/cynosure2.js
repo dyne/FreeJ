@@ -1,4 +1,5 @@
 /*  FreeJ example scripts
+#!/looooooollllllllig
  *  (c) Copyright 2005 Christoph Rudorff aka MrGoil <goil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
@@ -28,8 +29,24 @@ timeLeft    = 0;
 curColor    = 0;
 curBase     = curColor;
 
+// find my library
+inc_ok = false;
+["./", "scripts/"].forEach ( function inc(path) {
+	if (!inc_ok) {
+		try {
+			include(path + "param.js");
+			inc_ok = true;
+		} catch (e) {
+		}
+	}
+} );
+
+if (!inc_ok) {
+	echo("cant find my libs ..");
+	exit();
+}
+
 // define interactive parameters
-include("param.js");
 param = new Array();
 // Param(obj, name, in_min, in_max, out_min, out_max, out_start_value)
 param[0] = new Param(this, "shadowWidth", 0, 125, 0, 128,  2);
@@ -246,6 +263,3 @@ function genNewColor() {
         return curBase;
     }
 }
-
-
-
