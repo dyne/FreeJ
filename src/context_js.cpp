@@ -319,14 +319,14 @@ JS(freej_scandir) {
 JS(freej_echo) {
   char *msg;
   JS_ARG_STRING(msg,0);
-  notice(msg); 
+  notice("%s", msg);
   return JS_TRUE;
 }
 
 JS(freej_echo_func) {
   char *msg;
   JS_ARG_STRING(msg,0);
-  func(msg); 
+  func("%s", msg);
   return JS_TRUE;
 }
 
