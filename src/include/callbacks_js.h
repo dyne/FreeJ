@@ -115,7 +115,8 @@ JSClass class_struct = { \
   JS_ConvertStub,   JS_FinalizeStub, \
   NULL,   NULL, \
   class_constructor \
-}
+}; \
+static JSClass *jsclass_s = &class_struct;
 
 #define DECLARE_CLASS_GC(class_name, class_struct, class_constructor, gc_callback) \
 JSClass class_struct = { \
@@ -126,7 +127,8 @@ JSClass class_struct = { \
   JS_ConvertStub,   gc_callback, \
   NULL,   NULL, \
   class_constructor \
-}
+}; \
+static JSClass *jsclass_s = &class_struct;
 
 #define REGISTER_CLASS(class_name, class_struct, class_constructor, class_methods, parent_class) \
     layer_object = JS_InitClass(cx, obj, parent_class, \
@@ -141,6 +143,9 @@ JS(constructor_func) {                                                        \
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);                            \
   constructor_class *layer = NULL;					      \
   char excp_msg[MAX_ERR_MSG + 1];                                             \
+  if (jsclass_s != OBJ_GET_CLASS(cx, obj)) {                                  \
+    JS_ERROR("Sorry, this gimmik is not supported.");                         \
+  }                                                                           \
   layer = new constructor_class();                                            \
   if(!layer) {                                                                \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
