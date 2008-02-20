@@ -93,6 +93,7 @@ Context::~Context() {
   
   if (console) {
     console->close ();
+    delete console;
     console = NULL;
   }
 

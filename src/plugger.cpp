@@ -52,6 +52,7 @@ Plugger::Plugger() {
 Plugger::~Plugger() {
 
   func("Plugger::~Plugger()");
+  if(_searchpath) free(_searchpath);
 
 }
 
@@ -88,6 +89,7 @@ int Plugger::refresh(Context *env) {
 	char temp[256];
 	
 	snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
+    free(filelist[found]);
 
 	fr = new Freior();
 	if( ! fr->open(temp) ) {
@@ -119,6 +121,7 @@ int Plugger::refresh(Context *env) {
       }
       
   } while((dir = strtok(NULL,":")));
+  free(filelist);
 
   act("filters found: %u", env->filters.len());
   act("generators found: %u", env->generators.len());

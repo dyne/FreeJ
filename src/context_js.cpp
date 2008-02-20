@@ -306,11 +306,13 @@ JS(freej_scandir) {
   while(found--) {
     char tmp[512];
     snprintf(tmp,512,"%s/%s",dir, filelist[found]->d_name);
+    free(filelist[found]);
     str = JS_NewStringCopyZ(cx, tmp); 
     val = STRING_TO_JSVAL(str);    
     JS_SetElement(cx, arr, c, &val );
     c++;
   }
+  free(filelist);
 
   *rval = OBJECT_TO_JSVAL( arr );
   return JS_TRUE;
