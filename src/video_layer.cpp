@@ -39,36 +39,30 @@
 
 
 VideoLayer::VideoLayer()
-  :Layer() {
-  grab_dv=false;
-  set_name("VID");
-  frame_number=0;
-  av_buf=NULL;
-  //	avformat_context=NULL;
-  packet_len=0;
-  frame_rate=0;
-  play_speed=1;
-  play_speed_control=1;
-  seekable=true;
-
-  backward_control=false;
-  video_clock = 0;
-
-  enc=NULL;
-  rgba_picture = NULL;
-
-  jsclass = &video_layer_class;
-}
+	:Layer() {
+		grab_dv=false;
+		set_name("VID");
+		frame_number=0;
+		av_buf=NULL;
+		avformat_context=NULL;
+		packet_len=0;
+		frame_rate=0;
+		play_speed=1;
+		play_speed_control=1;
+		seekable=true;
+		enc=NULL;
+		backward_control=false;
+		deinterlace_buffer = NULL;
+		video_clock = 0;
+		rgba_picture = NULL;
+		frame_fifo.length = 0;
+		jsclass = &video_layer_class;
+	}
 
 VideoLayer::~VideoLayer() {
-  notice("Closing video %s", get_filename());
-
-  if(rgba_picture) {
-    avpicture_free(rgba_picture);
-    free(rgba_picture);
-  }
-
-  close();
+	notice("Closing video %s", get_filename());
+	stop();
+	close();
 }
 
 /*
@@ -90,11 +84,29 @@ bool VideoLayer::init(Context *freej) {
   user_play_speed=1;
   
   mark_in=NO_MARK;
+  
+  /* init variables */
+  paused=false;
+  user_play_speed=1;
+  
+  mark_in=NO_MARK;
   mark_out=NO_MARK;
   env = freej;
   return true;
 }
 
+int VideoLayer::new_picture(AVPicture *picture) {
+	memset(picture,0,sizeof(AVPicture));
+	return avpicture_alloc(picture,PIX_FMT_RGBA32,enc->width, enc->height);
+
+}
+void VideoLayer::free_picture(AVPicture *picture) {
+	if(picture != NULL) {
+		if (picture->data[0])
+			avpicture_free(picture);
+		free(picture);
+	}
+}
 
 bool VideoLayer::open(char *file) {
   int err=0;
@@ -370,16 +382,19 @@ int VideoLayer::decode_packet(int *got_picture) {
 }
 
 void VideoLayer::close() {
-  if(frame_number!=0)
-    av_free_packet(&pkt);
-  if(enc != NULL) {
-    if(enc->codec) {
-      avcodec_close(enc);
-    }
-  }
-  if(avformat_context) {
-    av_close_input_file(avformat_context);
-  }
+	if(frame_number!=0)
+		av_free_packet(&pkt);
+	if(enc != NULL) {
+		if(enc->codec) {
+			avcodec_close(enc);
+		}
+	}
+	if(avformat_context) {
+		av_close_input_file(avformat_context);
+	}
+	free_fifo();
+	if(rgba_picture) free_picture(rgba_picture);
+	if(deinterlace_buffer) free(deinterlace_buffer);
 }
 
 
