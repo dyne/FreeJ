@@ -80,6 +80,7 @@ freej_SOURCES = \
 \
 	controller.cpp  \
 	kbd_ctrl.cpp	\
+	mouse_ctrl.cpp	\
 	joy_ctrl.cpp	\
 	midi_ctrl.cpp   \
 	trigger_ctrl.cpp \

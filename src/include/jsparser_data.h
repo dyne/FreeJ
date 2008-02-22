@@ -75,6 +75,7 @@ JS(txt_layer_constructor);
 
 // controller constructors
 JS(js_kbd_ctrl_constructor);
+JS(js_mouse_ctrl_constructor);
 JS(js_joy_ctrl_constructor);
 #ifdef WITH_MIDI
 JS(js_midi_ctrl_constructor);
@@ -115,6 +116,10 @@ extern JSFunctionSpec js_ctrl_methods[];
 // KeyboardController
 extern JSClass js_kbd_ctrl_class;
 extern JSFunctionSpec js_kbd_ctrl_methods[];
+
+// MouseController
+extern JSClass js_mouse_ctrl_class;
+extern JSFunctionSpec js_mouse_ctrl_methods[];
 
 // JoystickController
 extern JSClass js_joy_ctrl_class;

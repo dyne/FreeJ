@@ -222,17 +222,23 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   js_kbd_ctrl_methods,
            object_proto);
 
-    REGISTER_CLASS("JoystickController",
-		   js_joy_ctrl_class,
-		   js_joy_ctrl_constructor,
-		   js_joy_ctrl_methods,
-           object_proto);
+	REGISTER_CLASS("MouseController",
+		js_mouse_ctrl_class,
+		js_mouse_ctrl_constructor,
+		js_mouse_ctrl_methods,
+		object_proto);
 
-    REGISTER_CLASS("TriggerController",
-           js_trigger_ctrl_class,
-           js_trigger_ctrl_constructor,
-           js_trigger_ctrl_methods,
-           object_proto);
+	REGISTER_CLASS("JoystickController",
+		js_joy_ctrl_class,
+		js_joy_ctrl_constructor,
+		js_joy_ctrl_methods,
+		object_proto);
+
+	REGISTER_CLASS("TriggerController",
+		js_trigger_ctrl_class,
+		js_trigger_ctrl_constructor,
+		js_trigger_ctrl_methods,
+		object_proto);
 
 #ifdef WITH_MIDI
 	REGISTER_CLASS("MidiController",
