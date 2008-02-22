@@ -24,6 +24,7 @@
 #include <goom_layer.h>
 
 #include <config.h>
+#include <jsparser_data.h>
 
 
 GoomLayer::GoomLayer()
@@ -31,6 +32,7 @@ GoomLayer::GoomLayer()
   set_name("Goom");
   buffer = NULL;
   use_audio = true;
+  jsclass = &goom_layer_class;
 }
 
 GoomLayer::~GoomLayer() {

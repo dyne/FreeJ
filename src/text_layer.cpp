@@ -30,6 +30,7 @@
 #include <context.h>
 #include <text_layer.h>
 #include <jutils.h>
+#include <jsparser_data.h>
 
 TTFLayer::TTFLayer()
   :Layer() {
@@ -54,6 +55,7 @@ TTFLayer::TTFLayer()
   set_name("TTF");
   surf = NULL;
   surf_new = NULL;
+  jsclass = &txt_layer_class;
 
   { // setup specific layer parameters
     parameters = new Linklist();

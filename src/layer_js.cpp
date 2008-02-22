@@ -148,11 +148,12 @@ JS(layer_constructor) {
     return JS_FALSE;
   }
 
-  //    this_obj = JS_NewObject(cx, &layer_class, NULL, obj);
-  if (!JS_SetPrivate(cx, obj, (void *) layer))
+  //*rval is obj but wrong class. so we cheat here our autodetect ...
+  JSObject *thisobj = JS_NewObject(cx, layer->jsclass, NULL, NULL);
+  if (!JS_SetPrivate(cx, thisobj, (void *) layer))
     JS_ERROR("internal error setting private value");
 
-  *rval = OBJECT_TO_JSVAL(obj);
+  *rval = OBJECT_TO_JSVAL(thisobj);
   return JS_TRUE;
 }
 
@@ -220,6 +221,7 @@ JS(selected_layer) {
 
   Layer *lay;
   JSObject *objtmp;
+  jsval val;
 
   if( env->layers.len() == 0 ) {
     error("can't return selected layer: no layers are present");
@@ -234,12 +236,17 @@ JS(selected_layer) {
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
+    if (lay->data) {
+    	val = (jsval)lay->data;
+    } else {
+	objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
+	func("create: %s", lay->jsclass->name);
+	JS_SetPrivate(cx, objtmp, (void*) lay);
+	val = OBJECT_TO_JSVAL(objtmp);
+	lay->data = (void*)val;
+    }
 
-  objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
-
-  JS_SetPrivate(cx, objtmp, (void*) lay);
-
-  *rval = OBJECT_TO_JSVAL( objtmp );
+  *rval = val;
 
   return JS_TRUE;
 }
