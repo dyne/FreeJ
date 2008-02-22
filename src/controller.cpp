@@ -45,16 +45,11 @@ JS(js_ctrl_constructor);
 DECLARE_CLASS_GC("Controller", js_ctrl_class, NULL, js_ctrl_gc);
 
 JSFunctionSpec js_ctrl_methods[] = { 
-  {"activate", controller_activate, 1},
+  {"activate", controller_activate, 0},
   {0} 
 };
 
 JS(controller_activate) {
-
-  JS_CHECK_ARGC(1);
-
-  bool var = (bool)JSVAL_TO_BOOLEAN(argv[0]);
-
   Controller *ctrl = (Controller *) JS_GetPrivate(cx, obj);
   if(!ctrl) {
     error("%u:%s:%s :: Controller core data is NULL",	\
@@ -62,11 +57,18 @@ JS(controller_activate) {
     return JS_FALSE;					\
   }
   
-  ctrl->active = var;
-  if(var) act("controller %s activated", ctrl->name);
-  else    act("controller %s deactivated", ctrl->name);
-
+  *rval = BOOLEAN_TO_JSVAL(ctrl->active);
+  if (argc == 1) {
+	  JS_ARG_NUMBER(var,0);
+	  ctrl->activate(var);
+  }
   return JS_TRUE;
+}
+
+bool Controller::activate(bool state) {
+	bool old = active;
+	active = state;
+	return old;
 }
 
 void js_ctrl_gc (JSContext *cx, JSObject *obj) {

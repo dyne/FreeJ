@@ -441,7 +441,8 @@ bool Context::rem_controller(Controller *ctrl) {
     func("JS controller data null, deleting");
     delete ctrl;
   } else {
-    notice("removed controller %s but still present as JSObject, not deleting!", ctrl->name);
+    notice("removed controller %s but still present as JSObject, deactivating but not deleting!", ctrl->name);
+	ctrl->activate(false);
   }
   return true;
 }

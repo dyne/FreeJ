@@ -49,6 +49,7 @@ class Controller: public Entry {
 
   bool initialized;
   bool active;
+  virtual bool activate(bool);
 
   JSContext *jsenv;
   JSObject  *jsobj;

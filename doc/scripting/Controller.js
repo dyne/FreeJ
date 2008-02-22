@@ -17,8 +17,27 @@
     @constructor
     @class This class is the parent class of all Controller and should 
     not be used directly.
+
+	<p>
+	General notes on all controllers:
+	<ul>
+		<li>They will only be active as long as their js object is alive. If it runs out of scope or is deleted, the controller will be removed on the next gc() call.
+		<li>If the callback function returns 'true' or nothing, it's handled. Dispatch ends.
+		<li>If the callback function returns 'false', the pending event will be rerouted to the next controller, if any.
+		<li>If a callback failed because of any script errors, the controller will be deactivated. Use activate(true) to reenable.
+	</ul></p>
+
 */
 function Controller() { };
+
+/** de/activate the controller
+	<p>If called with one parameter, it sets the state and returns the old state. Without parameters, it just returns the current status.</p>
+
+    @returns last state
+    @type bool
+	@param {bool} new state
+*/
+Controller.prototype.activate = function activate(new state) { };
 
 /** get the name of the controller
     (not implemented yet)
@@ -287,10 +306,10 @@ JoystickController.prototype.ballmotion = function (which, ball, xrel, yrel);
 /** Callback on joystick hat position change
 
     <div class="example">Positionvalues ('or'ed in the corners):
-
+<pre>
      0x01
 0x08 0x00 0x02
-     0x04</div>
+     0x04</pre></div>
 
     @return true if event is handled otherwise false
     @type bool
@@ -331,3 +350,58 @@ TriggerController.prototype = new Controller();
     @type void
 */
 TriggerController.prototype.frame = function ();
+
+//////////////////////////////
+// Mouse Controller
+
+/** The MouseController constructor creates a controller which receives mousebutton and mousemotion events. It dispatches them to {@link #motion .motion()} and {@link #button .button()}.
+	@class The Mouse Controller holds callbacks to javascript. You can use the frame callback to process various stuff, instead using run(). 
+
+	@constructor
+	@base Controller
+	@returns a new MouseController
+*/
+function MouseController() { };
+MouseController.prototype = new Controller();
+
+/** This will be called on mouse button up and down.
+
+	@type bool 
+	@return return true, when event was handled, false to redispatch to next controller
+	@param{int} button number from 1 up to ...
+	@param{int} state 0=up 1=down
+	@param{int} x where in the viewport it happened
+	@param{int} y
+*/
+MouseController.prototype.button = function (button, state, x, y);
+
+/** This will be called when mouse is moving over the viewport.
+	If the input is grabbed, then the mouse will give relative motion events even when the cursor reaches the edge fo the screen. This is currently only implemented on Windows and Linux/Unix-a-likes.
+
+	@type bool 
+	@return return true, when event was handled, false to redispatch to next controller
+	@param{int} buttonmask mousebutton bitmap
+	@param{int} x where in the viewport it happened
+	@param{int} y
+	@param{int} xrel Relative motion in the X/Y direction
+	@param{int} yrel
+*/
+MouseController.prototype.motion = function (buttonmask, x, y, xrel, yrel);
+
+/** Grabbing means that the mouse is confined to the application window.
+	Hides the Cursor.
+
+	<p>Just in case you fuck up with it, the grab will be released when:
+    <ul>
+		<li>the controller object is deleted
+		<li>the controller is {@link GLOBALS#rem_controller removed}
+		<li>script errors in the callback function
+		<li>activate(false)
+	</ul></p>
+	@see #motion
+	@type void 
+	@param{bool} state true to grab the mouse, false to release
+*/
+MouseController.prototype.grab = function (state);
+
+

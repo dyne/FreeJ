@@ -33,6 +33,7 @@ class MouseCtrl : public Controller {
 			int peep(Context *env);
 			bool init(JSContext *env, JSObject *obj);
 			int  poll(Context *env);
+			bool activate(bool);
 
 		private:
 				int _poll(Context *env);
