@@ -79,6 +79,8 @@ MouseCtrl::MouseCtrl()
 }
 
 MouseCtrl::~MouseCtrl() {
+	SDL_ShowCursor(1);
+	SDL_WM_GrabInput(SDL_GRAB_OFF);
 }
 
 bool MouseCtrl::init(JSContext *env, JSObject *obj) {
@@ -164,6 +166,9 @@ int MouseCtrl::poll(Context *env) {
 	if (JSVAL_IS_NULL(res)) {
 		error("MouseController call failed, deactivate ctrl");
 		active = false;
+		// just in case ;)
+		SDL_ShowCursor(1);
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
 		return 0;
 	}
 	if (res) {
