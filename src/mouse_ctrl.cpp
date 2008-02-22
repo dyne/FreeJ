@@ -56,8 +56,22 @@ JSClass js_mouse_ctrl_class = {
 static JSClass *jsclass_s = &js_mouse_ctrl_class;
 
 JSFunctionSpec js_mouse_ctrl_methods[] = {
+	{"grab",	js_mouse_grab,	1},
 	{0}
 };
+
+JS(js_mouse_grab) {
+	JS_CHECK_ARGC(1);
+	JS_ARG_NUMBER(state,0);
+	if (state) {
+		SDL_ShowCursor(0);
+		SDL_WM_GrabInput(SDL_GRAB_ON);
+	} else {
+		SDL_ShowCursor(1);
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
+	}
+	return JS_TRUE;
+}
 
 MouseCtrl::MouseCtrl()
 	:Controller() {

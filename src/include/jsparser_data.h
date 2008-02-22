@@ -265,6 +265,7 @@ JS(filter_list_parameters);
 ////////////////////////////////
 // Controller methods
 JS(controller_activate);
+JS(js_mouse_grab);
 
 ////////////////////////////////
 // parent Layer methods
