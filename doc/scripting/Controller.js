@@ -24,7 +24,7 @@
 		<li>They will only be active as long as their js object is alive. If it runs out of scope or is deleted, the controller will be removed on the next gc() call.
 		<li>If the callback function returns 'true' or nothing, it's handled. Dispatch ends.
 		<li>If the callback function returns 'false', the pending event will be rerouted to the next controller, if any.
-		<li>If a callback failed because of any script errors, the controller will be deactivated. Use activate(true) to reenable.
+		<li>If a callback failed because of any script errors, the controller will be deactivated. Use {@link #activate activate(true)} to reenable.
 	</ul></p>
 
 */
@@ -33,6 +33,7 @@ function Controller() { };
 /** de/activate the controller
 	<p>If called with one parameter, it sets the state and returns the old state. Without parameters, it just returns the current status.</p>
 
+	@author MrGoil
     @returns last state
     @type bool
 	@param {bool} new state
@@ -337,6 +338,7 @@ JoystickController.prototype.button = function (which, button, state);
 /** The TriggerController constructor creates a trigger controller 
     @class The Trigger Controller holds callbacks to javascript. You can use the frame callback to process various stuff, instead using run(). 
 
+	@author MrGoil
     @constructor
     @base Controller
     @returns a new TriggerController
@@ -356,7 +358,7 @@ TriggerController.prototype.frame = function ();
 
 /** The MouseController constructor creates a controller which receives mousebutton and mousemotion events. It dispatches them to {@link #motion .motion()} and {@link #button .button()}.
 	@class The Mouse Controller holds callbacks to javascript. You can use the frame callback to process various stuff, instead using run(). 
-
+	@author MrGoil
 	@constructor
 	@base Controller
 	@returns a new MouseController
@@ -396,10 +398,11 @@ MouseController.prototype.motion = function (buttonmask, x, y, xrel, yrel);
 		<li>the controller object is deleted
 		<li>the controller is {@link GLOBALS#rem_controller removed}
 		<li>script errors in the callback function
-		<li>activate(false)
+		<li>{@link Controller#activate activate}(false)
 	</ul></p>
 	@see #motion
-	@type void 
+	@type boot
+	@return last state or current state when called w/o parameter
 	@param{bool} state true to grab the mouse, false to release
 */
 MouseController.prototype.grab = function (state);
