@@ -38,16 +38,16 @@ JSyncThread::JSyncThread() {
 
   pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_JOINABLE);
 
-  set_fps(25);
-  fpsd.sum = 0;
-  fpsd.i = 0;
-  fpsd.n = 30;
-  fpsd.data = new float[30];
-  for (int i=0; i<30; i++) {
-	  fpsd.data[i] = 0;
-  }
-  running = false;
-  quit = false;
+	set_fps(25);
+	fpsd.sum = 0;
+	fpsd.i = 0;
+	fpsd.n = 30;
+	fpsd.data = new float[30];
+	for (int i=0; i<30; i++) {
+		fpsd.data[i] = 0;
+	}
+	running = false;
+	quit = false;
 }
 
 
@@ -95,7 +95,7 @@ void JSyncThread::stop() {
 }
 
 int JSyncThread::sleep_feed() { 
-	if (fps == 0) {
+	if (_fps == 0) {
 			wait_feed();
 			return EINTR;
 	}
@@ -120,27 +120,32 @@ void JSyncThread::calc_fps() {
 	if (done == 0) return;
 	float curr_fps = 1 / done;
 
-	if (curr_fps > fps) // we are in time
-		curr_fps = fps;
+	if (curr_fps > _fps) // we are in time
+		curr_fps = _fps;
 	else
 		set_alarm(0.0005); // force a little delay
 
 	// statistic only
 	fpsd.sum = fpsd.sum - fpsd.data[fpsd.i] + curr_fps;
 	fpsd.data[fpsd.i] = curr_fps;
-	fpsd.i++;
-	fpsd.i %= fpsd.n;
+	if (++fpsd.i >= fpsd.n)
+		fpsd.i = 0;
 }
+
+
+
+
 
 float JSyncThread::get_fps() {
-	return (fps ? fpsd.sum / fpsd.n : 0 );
+	return (_fps ? fpsd.sum / fpsd.n : 0 );
 }
 
-float JSyncThread::set_fps(float fps) {
-	float old = this->fps;
-	this->fps = fps;
-	if (fps > 0)
-		_delay = 1/fps;
+float JSyncThread::set_fps(float fps_new) {
+	float old = _fps;
+	fps = fps_new;
+	_fps = fps_new;
+	if (_fps > 0)
+		_delay = 1/_fps;
 	return old;
 }
 

@@ -44,7 +44,7 @@ class JSyncThread {
       float *data;
   } fpsd;
 
-  float _delay, fps;
+  float _delay, _fps;
   struct timeval start_tv;
   struct timespec wake_ts;
   void set_alarm(float);
@@ -71,8 +71,9 @@ class JSyncThread {
   int sleep_feed();
 
   float get_fps();
-  void set_fps(float);
+  float set_fps(float);
   bool running, quit;
+  float fps;
 
  protected:
 
