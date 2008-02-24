@@ -73,7 +73,7 @@ class JSyncThread {
   float get_fps();
   float set_fps(float);
   bool running, quit;
-  float fps;
+  float fps, fps_old;
 
  protected:
 

@@ -461,7 +461,7 @@ void Context::add_layer(Layer *lay) {
   //lay->geo.x = (screen->w - lay->geo.w)/2;
   //lay->geo.y = (screen->h - lay->geo.h)/2;
   lay->blitter.crop( true );
-  layers.append(lay);
+  layers.prepend(lay);
   layers.sel(0);
   lay->sel(true);
   func("layer %s succesfully added",lay->name);

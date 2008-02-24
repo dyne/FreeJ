@@ -98,10 +98,11 @@ void Layer::run() {
   func("%s this=%p thread: %d %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
 	void *tmp_buf;
 
-	while(!feed()) 
+	//while(!feed()) 
+
 	lock_feed();
 	func("ok, layer %s in rolling loop",get_name());
-	wait_feed();
+	// wait_feed();
 	
 	while(!quit) {
 

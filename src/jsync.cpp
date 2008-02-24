@@ -38,6 +38,7 @@ JSyncThread::JSyncThread() {
 
   pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_JOINABLE);
 
+	_fps = 0;
 	set_fps(25);
 	fpsd.sum = 0;
 	fpsd.i = 0;
@@ -132,21 +133,22 @@ void JSyncThread::calc_fps() {
 		fpsd.i = 0;
 }
 
-
-
-
-
 float JSyncThread::get_fps() {
 	return (_fps ? fpsd.sum / fpsd.n : 0 );
 }
 
 float JSyncThread::set_fps(float fps_new) {
-	float old = _fps;
-	fps = fps_new;
+	if (fps_new < 0) // invalid
+		return fps_old;
+
+	if (fps_new != _fps)
+		fps_old = _fps;
+
+	fps = fps_new; // public
 	_fps = fps_new;
 	if (_fps > 0)
 		_delay = 1/_fps;
-	return old;
+	return fps_old;
 }
 
 void JSyncThread::set_alarm(float delay) {
