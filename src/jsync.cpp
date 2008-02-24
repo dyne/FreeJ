@@ -132,7 +132,7 @@ void JSyncThread::calc_fps() {
 	fpsd.i %= fpsd.n;
 }
 
-double JSyncThread::get_fps() {
+float JSyncThread::get_fps() {
 	return (fps ? fpsd.sum / fpsd.n : 0 );
 }
 

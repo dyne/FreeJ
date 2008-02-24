@@ -70,7 +70,7 @@ class JSyncThread {
   void signal_feed() { pthread_cond_signal(&_cond_feed); };
   int sleep_feed();
 
-  double get_fps();
+  float get_fps();
   void set_fps(float);
   bool running, quit;
 
