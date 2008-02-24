@@ -27,14 +27,19 @@
 #include <jsparser_data.h>
 
 Controller::Controller() {
-  func("%s this=%p",__PRETTY_FUNCTION__, this);
-  initialized = active = false;
+	func("%s this=%p",__PRETTY_FUNCTION__, this);
+	initialized = active = false;
+	jsenv = NULL;
+	jsobj = NULL;
 }
 
 Controller::~Controller() {
-  func("%s this=%p",__PRETTY_FUNCTION__, this);
+	func("%s this=%p",__PRETTY_FUNCTION__, this);
+	rem();
+	if (jsobj)
+		JS_SetPrivate(jsenv, jsobj, NULL);
+	jsobj = NULL;
 }
-
 
 char *Controller::get_name() {
   return name;
@@ -71,6 +76,29 @@ bool Controller::activate(bool state) {
 	return old;
 }
 
+void Controller::poll_sdlevents(Uint32 eventmask) {
+	int res;
+	SDL_Event user_event;
+
+	res = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, eventmask);
+	if (!res) return;
+
+	user_event.type=SDL_USEREVENT;
+	user_event.user.code=42;
+	SDL_PeepEvents(&user_event, 1, SDL_ADDEVENT, SDL_ALLEVENTS);
+
+	res = SDL_PeepEvents(&event, 1, SDL_GETEVENT, eventmask|SDL_EVENTMASK(SDL_USEREVENT));
+	while (res>0) {
+		int handled = dispatch(); // <<< virtual
+		if (handled == 0)
+				SDL_PeepEvents(&event, 1, SDL_ADDEVENT, SDL_ALLEVENTS);
+		res = SDL_PeepEvents(&event, 1, SDL_GETEVENT, eventmask|SDL_EVENTMASK(SDL_USEREVENT));
+		if (event.type == SDL_USEREVENT)
+				res = 0;
+	}
+	//return 1;
+}
+
 void js_ctrl_gc (JSContext *cx, JSObject *obj) {
 	func("%s",__PRETTY_FUNCTION__);
 	Controller* ctrl;
@@ -84,10 +112,8 @@ void js_ctrl_gc (JSContext *cx, JSObject *obj) {
 	JSClass *jc = JS_GET_CLASS(cx,obj);
 
 	if (ctrl) {
-		func("JSvalcmp(%s): %p / %p ctrl: %p", jc->name, OBJECT_TO_JSVAL(obj), ctrl->data, ctrl);
+		func("JSvalcmp(%s): %p / %p ctrl: %p", jc->name, OBJECT_TO_JSVAL(obj), ctrl->jsobj, ctrl);
 		notice("JSgc: deleting %s Controller %s", jc->name, ctrl->name);
-		ctrl->rem();
-		ctrl->data = NULL;
 		delete ctrl;
 	} else {
 		func("Mh, object(%s) has no private data", jc->name);

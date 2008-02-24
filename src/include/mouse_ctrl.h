@@ -30,13 +30,11 @@ class MouseCtrl : public Controller {
 			MouseCtrl();
 			~MouseCtrl();
 
-			int peep(Context *env);
 			bool init(JSContext *env, JSObject *obj);
-			int  poll(Context *env);
+			int  poll();
+			int dispatch();
 			bool activate(bool);
 
-		private:
-				int _poll(Context *env);
 };
 
 #endif

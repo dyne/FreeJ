@@ -109,87 +109,100 @@ bool JoyCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
-int JoyCtrl::peep(Context *env) {
-  int res;
-
-  res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
-  while (res>0) {
-    poll(env);
-    res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
-  }
-  return 1;
+int JoyCtrl::poll() {
+	poll_sdlevents(SDL_JOYEVENTMASK); // calls dispatch() 
+	return 0;
 }
 
-int JoyCtrl::poll(Context *env) {
-  jsval ret;
+int JoyCtrl::dispatch() {
+	jsval ret = JSVAL_VOID;
+	int argc;
+	char *funcname;
+	jsval *js_data;
 
-  switch(env->event.type) {
-    
-  case SDL_JOYAXISMOTION:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jaxis.which),
-	INT_TO_JSVAL(env->event.jaxis.axis),
-	INT_TO_JSVAL(env->event.jaxis.value) 
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "axismotion", 3, js_data, &ret);
-    }
-    break;
+	switch(event.type) {
+		
+	case SDL_JOYAXISMOTION:
+		{
+			argc = 3;
+			funcname = "axismotion";
+			jsval _js_data[] = { 
+				event.jaxis.which, event.jaxis.axis, event.jaxis.value
+			};
+			js_data = _js_data;
+		}
+		break;
 
-  case SDL_JOYBALLMOTION:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jball.which),
-	INT_TO_JSVAL(env->event.jball.ball),
-	INT_TO_JSVAL(env->event.jball.xrel),
-	INT_TO_JSVAL(env->event.jball.yrel)
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "ballmotion", 4, js_data, &ret);
-    }
-    break;
+	case SDL_JOYBALLMOTION:
+		{
+			argc = 4;
+			funcname = "ballmotion";
+			jsval _js_data[] = { 
+				event.jball.which, event.jball.ball, event.jball.xrel, event.jball.yrel
+			};
+			js_data = _js_data;
+		}
+		break;
 
-  case SDL_JOYHATMOTION:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jhat.which),
-	INT_TO_JSVAL(env->event.jhat.hat),
-	INT_TO_JSVAL(env->event.jhat.value) 
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "hatmotion", 3, js_data, &ret);
-    }
-    break;
-    
-  case SDL_JOYBUTTONDOWN:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jbutton.which),
-	INT_TO_JSVAL(env->event.jbutton.button),
-	INT_TO_JSVAL(1) 
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "button", 3, js_data, &ret);
-    }
-    break;
-    
-  case SDL_JOYBUTTONUP:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jbutton.which),
-	INT_TO_JSVAL(env->event.jbutton.button),
-	INT_TO_JSVAL(0) 
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "button", 3, js_data, &ret);
-    }
-    break;
-    
-  default: return 0;
-    
-  }
-  return(1);
+	case SDL_JOYHATMOTION:
+		{
+			argc = 3;
+			funcname = "hatmotion";
+			jsval _js_data[] = { 
+				event.jhat.which, event.jhat.hat, event.jhat.value
+			};
+			js_data = _js_data;
+		}
+		break;
+		
+	case SDL_JOYBUTTONDOWN:
+		{
+			argc = 3;
+			funcname = "button";
+			jsval _js_data[] = { 
+				event.jbutton.which, event.jbutton.button, 1
+			};
+			js_data = _js_data;
+		}
+		break;
+		
+	case SDL_JOYBUTTONUP:
+		{
+			argc = 3;
+			funcname = "button";
+			jsval _js_data[] = { 
+				event.jbutton.which, event.jbutton.button, 0
+			};
+			js_data = _js_data;
+		}
+		break;
+	default: return 0;
+		
+	}
+
+	if(cnum_to_jsval(jsenv, argc, js_data)) {
+		jsval fval = JSVAL_VOID;
+		JSBool call_ok = JS_FALSE;
+
+		JS_GetProperty(jsenv, jsobj, funcname, &fval);
+		if(!JSVAL_IS_VOID(fval)) {
+			call_ok = JS_CallFunctionValue(jsenv, jsobj, fval, argc, js_data, &ret);
+			if (call_ok == JS_TRUE) {
+				if(!JSVAL_IS_VOID(ret)) {
+					JSBool ok;
+					JS_ValueToBoolean(jsenv, ret, &ok);
+					if (ok) // JSfunc returned 'true', so event is done
+						return 1;
+				}
+				return 0; // requeue event for next controller
+			}         // else script error
+		} else {      // function not found
+			return 0; // requeue event for next controller
+		}
+	}
+	error("JoyController call failed, deactivating ctrl");
+	activate(false);
+	return 0;
 }
 
 JS(js_joy_ctrl_constructor) {
@@ -210,7 +223,6 @@ JS(js_joy_ctrl_constructor) {
     goto error;
   }
   *rval = OBJECT_TO_JSVAL(obj);
-  joy->data = (void*)*rval;
   return JS_TRUE;
 
 error:

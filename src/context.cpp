@@ -396,8 +396,8 @@ void Context::handle_controllers() {
         controllers.lock();
         while(ctrl) {
           if(ctrl->active)
-        ctrl->peep(this);
-          ctrl = (Controller*)ctrl->next;
+            ctrl->poll();
+            ctrl = (Controller*)ctrl->next;
         }
         controllers.unlock();
       }
@@ -435,14 +435,15 @@ bool Context::rem_controller(Controller *ctrl) {
     error("%s called on a NULL object", __PRETTY_FUNCTION__);
     return false;
   }
-  js->gc();
+  js->gc(); // ?!
   ctrl->rem();
-  if (ctrl->data == NULL) {
-    func("JS controller data null, deleting");
+  // mh, the JS_GC callback does the delete ...
+  if (ctrl->jsobj == NULL) {
+    func("controller JSObj is null, deleting ctrl");
     delete ctrl;
   } else {
-    notice("removed controller %s but still present as JSObject, deactivating but not deleting!", ctrl->name);
 	ctrl->activate(false);
+    notice("removed controller %s, deactivated it but not deleting!", ctrl->name);
   }
   return true;
 }

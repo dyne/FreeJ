@@ -22,10 +22,12 @@
 	General notes on all controllers:
 	<ul>
 		<li>They will only be active as long as their js object is alive. If it runs out of scope or is deleted, the controller will be removed on the next gc() call.
-		<li>If the callback function returns 'true' or nothing, it's handled. Dispatch ends.
-		<li>If the callback function returns 'false', the pending event will be rerouted to the next controller, if any.
-		<li>If a callback failed because of any script errors, the controller will be deactivated. Use {@link #activate activate(true)} to reenable.
-	</ul></p>
+		<li>If the callback function returns 'true', the event is 'handled', dispatch ends.
+		<li>If the callback function returns 'false' or nothing, the pending event will be requeued to the next controller, if any.
+		<li>If a callback failed because of any script errors, the controller will be deactivated *). Use {@link #activate activate(true)} to reenable.
+	</ul>
+	*) not true for Keyboardcontroller and MidiController
+	</p>
 
 */
 function Controller() { };
@@ -273,7 +275,6 @@ KeyboardController.prototype.pressed_MOD_KEYSYM = function () { };
         return true;
     }
     </div>
-    You may return true or false in the event handlers to indicate further processing or not. However, this is not implemented properly, yet.
 
     @constructor
     @base Controller
@@ -369,7 +370,7 @@ MouseController.prototype = new Controller();
 /** This will be called on mouse button up and down.
 
 	@type bool 
-	@return return true, when event was handled, false to redispatch to next controller
+	@return return true, when event was handled, false to requeue event
 	@param{int} button number from 1 up to ...
 	@param{int} state 0=up 1=down
 	@param{int} x where in the viewport it happened
@@ -381,7 +382,7 @@ MouseController.prototype.button = function (button, state, x, y);
 	If the input is grabbed, then the mouse will give relative motion events even when the cursor reaches the edge fo the screen. This is currently only implemented on Windows and Linux/Unix-a-likes.
 
 	@type bool 
-	@return return true, when event was handled, false to redispatch to next controller
+	@return return true, when event was handled, false to requeue event
 	@param{int} buttonmask mousebutton bitmap
 	@param{int} x where in the viewport it happened
 	@param{int} y

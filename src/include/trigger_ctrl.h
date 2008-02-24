@@ -30,15 +30,9 @@ class TriggerCtrl : public Controller {
   TriggerCtrl();
   ~TriggerCtrl();
   
-  int peep(Context *env);
   bool init(JSContext *env, JSObject *obj);
-  int  poll(Context *env);
-  
- private:
-  
-
-  int _poll(Context *env);
-
+  int  poll();
+  int dispatch();
 };
 
 #endif

@@ -66,36 +66,18 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
-int KbdCtrl::peep(Context *env) {
-  int res;
-  SDL_Event user_event;
-
-  res = SDL_PeepEvents(&env->event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK);
-  if (!res) return 1;
-
-  user_event.type=SDL_USEREVENT;
-  user_event.user.code=42;
-  SDL_PeepEvents(&user_event, 1, SDL_ADDEVENT, SDL_ALLEVENTS);
-
-  res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_EVENTMASK(SDL_USEREVENT));
-  while (res>0) {
-    int handled = poll(env);
-    if (handled == 0)
-        SDL_PeepEvents(&env->event, 1, SDL_ADDEVENT, SDL_ALLEVENTS);
-    res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_EVENTMASK(SDL_USEREVENT));
-    if (env->event.type == SDL_USEREVENT)
-        res = 0;
-  }
-  return 1;
+int KbdCtrl::poll() {
+	poll_sdlevents(SDL_KEYEVENTMASK); // calls dispatch() foreach SDL_Event
+	return 1;
 }
 
 int KbdCtrl::checksym(SDLKey key, char *name) {
   if(keysym->sym == key) {
     strcat(keyname,name);
     func("keyboard controller detected key: %s",keyname);
-    if(env->event.key.state == SDL_PRESSED)
+    if(event.key.state == SDL_PRESSED)
       snprintf(funcname, 511, "pressed_%s", keyname);
-    else // if(env->event.key.state == SDL_RELEASED)
+    else // if(event.key.state == SDL_RELEASED)
       snprintf(funcname, 511, "released_%s", keyname);
 
     return JSCall(funcname);
@@ -104,15 +86,15 @@ int KbdCtrl::checksym(SDLKey key, char *name) {
 }
 
 
-int KbdCtrl::poll(Context *env) {
+int KbdCtrl::dispatch() {
   char tmp[8];
   int res = 0;
 
-  if(env->event.key.state != SDL_PRESSED)
-    if(env->event.key.state != SDL_RELEASED)
+  if(event.key.state != SDL_PRESSED)
+    if(event.key.state != SDL_RELEASED)
       return 0; // no key state change
   
-  keysym = &env->event.key.keysym;
+  keysym = &event.key.keysym;
   //Uint16 keysym->unicode
   //char * SDL_GetKeyName(keysym->sym);
   func("KB u: %i / ks: %s", keysym->unicode, SDL_GetKeyName(keysym->sym));
@@ -134,9 +116,9 @@ int KbdCtrl::poll(Context *env) {
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
     strcat(keyname,tmp);
-    if(env->event.key.state == SDL_PRESSED)
+    if(event.key.state == SDL_PRESSED)
       sprintf(funcname,"pressed_%s",keyname);
-    else //if(env->event.key.state != SDL_RELEASED)
+    else //if(event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     return JSCall(funcname);
   }
@@ -147,9 +129,9 @@ int KbdCtrl::poll(Context *env) {
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
     strcat(keyname,tmp);
-    if(env->event.key.state == SDL_PRESSED)
+    if(event.key.state == SDL_PRESSED)
       sprintf(funcname,"pressed_%s",keyname);
-    else //if(env->event.key.state != SDL_RELEASED)
+    else //if(event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     return JSCall(funcname);
   }
@@ -186,9 +168,9 @@ int KbdCtrl::poll(Context *env) {
     tmp[1] = 0x0;
     strcat(keyname,"num_");
     strcat(keyname,tmp);
-    if(env->event.key.state == SDL_PRESSED)
+    if(event.key.state == SDL_PRESSED)
       sprintf(funcname,"pressed_%s",keyname);
-    else //if(env->event.key.state != SDL_RELEASED)
+    else //if(event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     return JSCall(funcname);
   }
@@ -215,10 +197,10 @@ int KbdCtrl::JSCall(char *funcname) {
             if(!JSVAL_IS_VOID(ret)) {
                 JSBool ok;
                 JS_ValueToBoolean(jsenv, ret, &ok);
-                if (!ok) // JSfunc returned 'false', so redo the event
-                    return 0;
+				if (ok) // JSfunc returned 'true', so event is done
+                    return 1;
             }
-		return 1; // done, if there was a callback
+		return 0; // requeue event for next controller
     }
     return 0; // no callback, redo on next controller
 }
@@ -240,7 +222,6 @@ JS(js_kbd_ctrl_constructor) {
   }
 
   *rval = OBJECT_TO_JSVAL(obj);
-  kbd->data = (void*)*rval;
   return JS_TRUE;
 }
     

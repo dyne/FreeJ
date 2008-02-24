@@ -5,7 +5,7 @@ m.zoomx = 1; m.zoomy = 1; m.maxzoom=4;
 
 // MouseController.button(button, state, x, y)
 m.button = function(b, s, x, y) {
-	//echo("b"+b+" s"+s+" x"+x+" y"+y);
+	echo("b"+b+" s"+s+" x"+x+" y"+y);
 	this.grab(s);
 
 	if (s == 1)
@@ -18,7 +18,7 @@ m.button = function(b, s, x, y) {
 
 // MouseController.motion(buttonmask, x, y, xrel, yrel)
 m.motion = function(b, x, y, dx, dy) {
-	//echo("b"+b+" x"+x+" y"+y+" dx"+dx+" dy"+dy);
+	echo("b"+b+" x"+x+" y"+y+" dx"+dx+" dy"+dy);
 	
 	var l = this.l
 	if (!l)
@@ -30,12 +30,12 @@ m.motion = function(b, x, y, dx, dy) {
 	if (b & 2) {
 	}
 	if (b & 4) {
-		this.zoomx+= dx/100; 
+		this.zoomx += dx/100; 
 		this.zoomy += dy/100;
 		if (Math.abs(this.zoomx)>this.maxzoom)
-			this.zoomx=maxzoom;
-		if (Math.abs(this.zoomy)>this.mayzoom)
-			this.zoomy=mayzoom;
+			this.zoomx=this.maxzoom;
+		if (Math.abs(this.zoomy)>this.maxzoom)
+			this.zoomy=this.maxzoom;
 		l.zoom(this.zoomx, this.zoomy);
 	}
 }

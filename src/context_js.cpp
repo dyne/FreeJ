@@ -346,8 +346,7 @@ JS(freej_strstr) {
   if(res == NULL)
     intval = 0;
   else intval = 1;
-  *rval = INT_TO_JSVAL(intval);
-  return JS_TRUE;
+  return JS_NewNumberValue(cx, intval, rval);
 }
   
 
@@ -446,7 +445,7 @@ JS(rand) {
 
   randval = randval * 1073741789 + 32749;
 
-  *rval = INT_TO_JSVAL(randval);
+  return JS_NewNumberValue(cx, randval, rval);
   /*
   r = rand();
 
@@ -458,7 +457,6 @@ JS(rand) {
     *rval = INT_TO_JSVAL(r);
   }
   */
-  return JS_TRUE;
 }
 
 JS(srand) {

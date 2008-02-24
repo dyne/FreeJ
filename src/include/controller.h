@@ -24,6 +24,7 @@
 #define __CONTROLLER_H__
 
 #include <linklist.h>
+#include <SDL/SDL.h>
 
 class Context;
 class JSContext;
@@ -38,14 +39,17 @@ class Controller: public Entry {
 
   char *get_name();
 
-  virtual int peep(Context *env) =0;
-  ///< virtual function to be implemented, peeps interesting events in the queue and calls poll
-
+  // store the javascript environment!
   virtual bool init(JSContext *env, JSObject *obj) =0;
-  ///< virtual function to be implemented, receives the javascript environment
+  // function called in main loop, 
+  // handle your events here
+  virtual int poll() = 0;
+  // call this or by poll_sdlevents, return 0 = requeue, 1 = event handled
+  virtual int dispatch() = 0;
 
-  virtual int poll(Context *env)  =0;
-  ///< virtual function called in main loop, receives global freej environment
+  // helper function to filter and redispatch unhandled SDL_Events
+  // calls dispatch() foreach event in eventmask
+  void poll_sdlevents(Uint32 eventmask);
 
   bool initialized;
   bool active;
@@ -53,7 +57,7 @@ class Controller: public Entry {
 
   JSContext *jsenv;
   JSObject  *jsobj;
-
+  SDL_Event event;
 };
 
 #endif

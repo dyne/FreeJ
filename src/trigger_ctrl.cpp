@@ -62,11 +62,11 @@ bool TriggerCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
-int TriggerCtrl::peep(Context *env) {
-    return poll(env);
+int TriggerCtrl::poll() {
+    return dispatch();
 }
 
-int TriggerCtrl::poll(Context *env) {
+int TriggerCtrl::dispatch() {
     jsval fval = JSVAL_VOID;
     jsval ret = JSVAL_VOID;
     JSObject *objp;
@@ -75,7 +75,7 @@ int TriggerCtrl::poll(Context *env) {
 
     if(!JSVAL_IS_VOID(fval)) {
         res = JS_CallFunctionValue(jsenv, jsobj, fval, 0, NULL, &ret);
-        if (JSVAL_IS_NULL(res)) {
+        if (res == JS_FALSE) {
             error("trigger call frame() failed, deactivate ctrl");
             active = false;
         }
@@ -88,19 +88,18 @@ JS(js_trigger_ctrl_constructor) {
 
   TriggerCtrl *trigger = new TriggerCtrl();
 
-  // assign instance into javascript object
-  if( ! JS_SetPrivate(cx, obj, (void*)trigger) ) {
-    error("failed assigning trigger controller to javascript");
-    delete trigger; return JS_FALSE;
-  }
-
   // initialize with javascript context
   if(! trigger->init(cx, obj) ) {
     error("failed initializing trigger controller");
     delete trigger; return JS_FALSE;
   }
 
+  // assign instance into javascript object
+  if( ! JS_SetPrivate(cx, obj, (void*)trigger) ) {
+    error("failed assigning trigger controller to javascript");
+    delete trigger; return JS_FALSE;
+  }
+
   *rval = OBJECT_TO_JSVAL(obj);
-  trigger->data = (void*)*rval;
   return JS_TRUE;
 }

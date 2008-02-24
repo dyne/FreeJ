@@ -39,8 +39,8 @@ class MidiControl: public Controller {
 		~MidiControl();
 
         bool init(JSContext*, JSObject*);
-        int poll(Context *env);
-        int peep(Context *env);
+        int poll();
+        int dispatch();
         int connect_from(int myport, int dest_client, int dest_port);
 
 		//bool quit;
@@ -53,7 +53,6 @@ class MidiControl: public Controller {
         int seq_client_id;
 		//int npfd;
 		//struct pollfd *pfd;
-		Context *env;
 };
 #endif
 #endif

@@ -109,4 +109,14 @@ JSBool _js_is_instanceOf(JSContext* cx, JSClass* clasp, jsval v, const char* cal
     return JS_FALSE;
 }
 
+JSBool cnum_to_jsval(JSContext *cx, uintN argc, jsval *argv) {
+	for (uintN i=0; i<argc; i++) {
+		jsval rval;
+		if(!JS_NewNumberValue(cx, argv[i], &rval))
+			JS_ERROR("Can't create new JS_NumberValue"); // returns JS_FALSE
+		argv[i] = rval;
+	}
+	return JS_TRUE;
+}
+
 

@@ -136,10 +136,12 @@ float JSyncThread::get_fps() {
 	return (fps ? fpsd.sum / fpsd.n : 0 );
 }
 
-void JSyncThread::set_fps(float fps) {
+float JSyncThread::set_fps(float fps) {
+	float old = this->fps;
 	this->fps = fps;
 	if (fps > 0)
 		_delay = 1/fps;
+	return old;
 }
 
 void JSyncThread::set_alarm(float delay) {

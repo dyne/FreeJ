@@ -159,18 +159,20 @@ JS(layer_constructor) {
 
 JS(layer_set_fps) {
 	GET_LAYER(Layer);
+    double fps_old = lay->fps;
+
 	if(argc==1) {
 		JS_ARG_NUMBER(fps, 0);
-		lay->set_fps(fps);
+		fps_old = lay->set_fps(fps);
 	}
 	lay->signal_feed();
-	return JS_TRUE;
+	return JS_NewNumberValue(cx, fps_old, rval);
 }
+
 JS(layer_get_fps) {
 	GET_LAYER(Layer);
-	double fps = lay->get_fps();
-	*rval = DOUBLE_TO_JSVAL(&fps);
-	return JS_TRUE;
+	double fps = double(lay->get_fps());
+	return JS_NewNumberValue(cx, fps, rval);
 }
 
 JS(list_layers) {
@@ -453,36 +455,28 @@ JS(layer_get_x_position) {
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->geo.x);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->geo.x, rval);
 }
 JS(layer_get_y_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->geo.y);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->geo.y, rval);
 }
 JS(layer_get_width) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->geo.w);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->geo.w, rval);
 }
 JS(layer_get_height) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->geo.h);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->geo.h, rval);
 }
 JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -528,9 +522,7 @@ JS(layer_get_blit_value) {
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->blitter.current_blit->value);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->blitter.current_blit->value, rval);
 }
 JS(layer_activate) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);

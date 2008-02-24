@@ -21,7 +21,7 @@
 
 #include <controller.h>
 
-#include <SDL/SDL.h>
+#include <SDL.h>
 
 class KbdCtrl: public Controller {
 
@@ -30,8 +30,8 @@ class KbdCtrl: public Controller {
   ~KbdCtrl();
 
   bool init(JSContext *env, JSObject *obj);
-  int  peep(Context *env);
-  int  poll(Context *env);
+  int  dispatch();
+  int  poll();
 
  private:  
   SDL_keysym *keysym;

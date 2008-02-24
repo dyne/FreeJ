@@ -31,12 +31,10 @@ class JoyCtrl : public Controller {
   ~JoyCtrl();
   
   bool init(JSContext *env, JSObject *obj);
-  int  peep(Context *env);
-  int  poll(Context *env);
+  int  poll();
+  int dispatch();
   
  private:
-  
-
   SDL_Joystick *joy[4];
   int num;
   int axes;

@@ -198,6 +198,8 @@ void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *R
         return JS_FALSE;
 
 JSBool _js_is_instanceOf(JSContext*, JSClass*, jsval, const char*);
-// JS Destructor
+
+// helper for JS_CallFunction convert array of cnum to jsval
+JSBool cnum_to_jsval(JSContext *cx, uintN argc, jsval *argv);
 
 #endif
