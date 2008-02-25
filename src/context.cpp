@@ -116,6 +116,7 @@ Context::~Context() {
   enc = (VideoEncoder *)encoders.begin();
   while(enc) {
 	enc->stop();
+    enc->rem();
     delete enc;
     enc = (VideoEncoder *)encoders.begin();
   }

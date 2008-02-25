@@ -82,6 +82,7 @@ int JSyncThread::start() {
 void JSyncThread::_run() {
 	running = true;
 	run();
+	unlock_feed();
 	running = false;
 }
 
