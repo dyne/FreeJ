@@ -23,8 +23,13 @@
 #ifndef __CONTROLLER_H__
 #define __CONTROLLER_H__
 
+#include <config.h>
 #include <linklist.h>
+//#include <callbacks_js.h> // javascript
 #include <SDL/SDL.h>
+//#include <jstypes.h>
+#include <cstdarg> // va_list
+#include <jsapi.h> // spidermonkey header
 
 class Context;
 class JSContext;
@@ -58,6 +63,10 @@ class Controller: public Entry {
   JSContext *jsenv;
   JSObject  *jsobj;
   SDL_Event event;
+  jsval lol;
+  int JSCall(char *funcname, int argc, const char *format, ...);
+  int JSCall(char *funcname, int argc, jsval *argv);
+  int JSCall(char *funcname, int argc, jsval *argv, JSBool *res);
 };
 
 #endif

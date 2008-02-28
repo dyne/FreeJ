@@ -20,11 +20,8 @@
  */
 
 #include <controller.h>
-
-#include <kbd_ctrl.h>
-
-#include <callbacks_js.h>
 #include <jsparser_data.h>
+#include <callbacks_js.h>
 
 Controller::Controller() {
 	func("%s this=%p",__PRETTY_FUNCTION__, this);
@@ -99,6 +96,7 @@ void Controller::poll_sdlevents(Uint32 eventmask) {
 	//return 1;
 }
 
+// Garbage collector callback for Controller classes
 void js_ctrl_gc (JSContext *cx, JSObject *obj) {
 	func("%s",__PRETTY_FUNCTION__);
 	Controller* ctrl;
@@ -118,4 +116,87 @@ void js_ctrl_gc (JSContext *cx, JSObject *obj) {
 	} else {
 		func("Mh, object(%s) has no private data", jc->name);
 	}
+}
+
+/* JSCall function by name, cvalues will be converted
+ *
+ * deactivates controller if any script errors!
+ *
+ * format values:
+ * case 'b': BOOLEAN_TO_JSVAL((JSBool) va_arg(ap, int));
+ * case 'c': INT_TO_JSVAL((uint16) va_arg(ap, unsigned int));
+ * case 'i':
+ * case 'j': js_NewNumberValue(cx, (jsdouble) va_arg(ap, int32), sp)
+ * case 'u': js_NewNumberValue(cx, (jsdouble) va_arg(ap, uint32), sp)
+ * case 'd':
+ * case 'I': js_NewDoubleValue(cx, va_arg(ap, jsdouble), sp)
+ * case 's': JS_NewStringCopyZ(cx, va_arg(ap, char *))
+ * case 'W': JS_NewUCStringCopyZ(cx, va_arg(ap, jschar *))
+ * case 'S': va_arg(ap, JSString *)
+ * case 'o': OBJECT_TO_JSVAL(va_arg(ap, JSObject *)
+ * case 'f':
+ * fun = va_arg(ap, JSFunction *);
+ *       fun ? OBJECT_TO_JSVAL(fun->object) : JSVAL_NULL;
+ * case 'v': va_arg(ap, jsval);
+ */
+int Controller::JSCall(char *funcname, int argc, const char *format, ...) {
+	va_list ap;
+	jsval fval = JSVAL_VOID;
+	jsval ret = JSVAL_VOID;
+
+	func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
+	int res = JS_GetProperty(jsenv, jsobj, funcname, &fval);
+
+	if(!JSVAL_IS_VOID(fval)) {
+		jsval *argv;
+		void *markp;
+
+		va_start(ap, format);
+		argv = JS_PushArgumentsVA(jsenv, &markp, format, ap);
+		va_end(ap);
+
+        res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
+		JS_PopArguments(jsenv, &markp);
+
+		if (res) {
+			if(!JSVAL_IS_VOID(ret)) {
+				JSBool ok;
+				JS_ValueToBoolean(jsenv, ret, &ok);
+				if (ok) // JSfunc returned 'true', so event is done
+					return 1;
+			}
+		} else { // script error
+			error("%s.%s() call failed, deactivating ctrl", name, funcname);
+			activate(false);
+		}
+		return 0; // requeue event for next controller
+	}
+	return 0; // no callback, redo on next controller
+}
+
+/* less bloat but this only works with 4 byte argv values
+ */
+int Controller::JSCall(char *funcname, int argc, jsval *argv) {
+	JSBool res;
+	return JSCall(funcname, argc, argv, &res);
+}
+int Controller::JSCall(char *funcname, int argc, jsval *argv, JSBool *res) {
+	jsval fval = JSVAL_VOID;
+	jsval ret = JSVAL_VOID;
+
+	func("%s calling method %s.%s()", __func__, name, funcname);
+	JS_GetProperty(jsenv, jsobj, funcname, &fval);
+	if(!JSVAL_IS_VOID(fval)) {
+		cnum_to_jsval(jsenv, argc, argv);
+		*res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
+		if (*res)
+			if(!JSVAL_IS_VOID(ret)) {
+				JSBool ok;
+				JS_ValueToBoolean(jsenv, ret, &ok);
+				if (ok) // JSfunc returned 'true', so event is done
+					return 1;
+			}
+		return 0; // requeue event for next controller
+	}
+	return 0; // no callback, redo on next controller
 }
