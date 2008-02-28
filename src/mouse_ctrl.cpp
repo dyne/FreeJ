@@ -19,19 +19,15 @@
  *
  */
 
-
-#include <string.h>
-
-#include <mouse_ctrl.h>
-
 #include <config.h>
+#include <string.h>
 
 #include <context.h>
 #include <jutils.h>
 
-
 #include <callbacks_js.h> // javascript
 #include <jsparser_data.h>
+#include <mouse_ctrl.h>
 
 JS(js_mouse_ctrl_constructor);
 
@@ -125,53 +121,29 @@ typedef struct{
 */
 
 int MouseCtrl::dispatch() {
-	jsval fval = JSVAL_VOID;
-	jsval ret = JSVAL_VOID;
-	JSObject *objp;
-	jsval res = JSVAL_TRUE;
+	JSBool ret= JS_TRUE; // call ok?
+	int res = 0;		// requeue
 
 	if (event.type == SDL_MOUSEMOTION) {
-		JS_GetMethod(jsenv, jsobj, "motion", &objp, &fval);
-		if(!JSVAL_IS_VOID(fval)) {
-			SDL_MouseMotionEvent mm = event.motion;
-			// MouseController.motion(buttonstate, x, y, xrel, yrel)
-			jsval js_data[] = {
-				mm.state, mm.x, mm.y, mm.xrel, mm.yrel
-			};
-			if (!cnum_to_jsval(jsenv, 5, js_data))
-				goto fail;
-			res = JS_CallFunctionValue(jsenv, jsobj, fval, 5, js_data, &ret);
-		}
+		SDL_MouseMotionEvent mm = event.motion;
+		// MouseController.motion(buttonstate, x, y, xrel, yrel)
+		jsval js_data[] = {
+			mm.state, mm.x, mm.y, mm.xrel, mm.yrel
+		};
+		res = JSCall("motion", 5, js_data, &ret);
 	} else { // MOUSE_BUTTON
-		JS_GetMethod(jsenv, jsobj, "button", &objp, &fval);
-		if(!JSVAL_IS_VOID(fval)) {
-			SDL_MouseButtonEvent mb = event.button;
-			// MouseController.button(button, state, x, y)
-			jsval js_data[] = {
-				mb.button, mb.state, mb.x, mb.y
-			};
-			if (!cnum_to_jsval(jsenv, 4, js_data))
-				goto fail;
-			res = JS_CallFunctionValue(jsenv, jsobj, fval, 4, js_data, &ret);
-		}
+		SDL_MouseButtonEvent mb = event.button;
+		// MouseController.button(button, state, x, y)
+		jsval js_data[] = {
+			mb.button, mb.state, mb.x, mb.y
+		};
+		res = JSCall("button", 4, js_data, &ret);
 	}
-	if (JSVAL_IS_NULL(res)) // any script error?
-		goto fail;
-
-	if (res) {
-		if(!JSVAL_IS_VOID(ret)) {
-			JSBool ok;
-			JS_ValueToBoolean(jsenv, ret, &ok);
-			if (ok) // JSfunc returned 'true', so event is done
-				return 1;
-		}
+	if (!ret) {
+		error("MouseController call failed, deactivate ctrl");
+		activate(false);
 	}
-	return 0; // requeue event for next controller
-
-fail:
-	error("MouseController call failed, deactivate ctrl");
-	activate(false);
-	return 0;
+	return res;
 }
 
 JS(js_mouse_ctrl_constructor) {
