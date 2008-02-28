@@ -115,94 +115,43 @@ int JoyCtrl::poll() {
 }
 
 int JoyCtrl::dispatch() {
-	jsval ret = JSVAL_VOID;
-	int argc;
-	char *funcname;
-	jsval *js_data;
 
 	switch(event.type) {
 		
 	case SDL_JOYAXISMOTION:
-		{
-			argc = 3;
-			funcname = "axismotion";
-			jsval _js_data[] = { 
-				event.jaxis.which, event.jaxis.axis, event.jaxis.value
-			};
-			js_data = _js_data;
-		}
+		return JSCall("axismotion", 3, "uui", 
+			event.jaxis.which, event.jaxis.axis, event.jaxis.value
+		);
 		break;
 
 	case SDL_JOYBALLMOTION:
-		{
-			argc = 4;
-			funcname = "ballmotion";
-			jsval _js_data[] = { 
-				event.jball.which, event.jball.ball, event.jball.xrel, event.jball.yrel
-			};
-			js_data = _js_data;
-		}
+		return JSCall("ballmotion", 4, "uuii", 
+			event.jball.which, event.jball.ball, 
+			event.jball.xrel, event.jball.yrel
+		);
 		break;
 
 	case SDL_JOYHATMOTION:
-		{
-			argc = 3;
-			funcname = "hatmotion";
-			jsval _js_data[] = { 
-				event.jhat.which, event.jhat.hat, event.jhat.value
-			};
-			js_data = _js_data;
-		}
+		return JSCall("hatmotion", 3, "uui", 
+			event.jhat.which, event.jhat.hat, event.jhat.value
+		);
 		break;
 		
 	case SDL_JOYBUTTONDOWN:
-		{
-			argc = 3;
-			funcname = "button";
-			jsval _js_data[] = { 
-				event.jbutton.which, event.jbutton.button, 1
-			};
-			js_data = _js_data;
-		}
+		return JSCall("button", 3, "uuc", 
+			event.jbutton.which, event.jbutton.button, 1
+		);
 		break;
 		
 	case SDL_JOYBUTTONUP:
-		{
-			argc = 3;
-			funcname = "button";
-			jsval _js_data[] = { 
-				event.jbutton.which, event.jbutton.button, 0
-			};
-			js_data = _js_data;
-		}
+		return JSCall("button", 3, "uuc", 
+			event.jbutton.which, event.jbutton.button, 0
+		);
 		break;
-	default: return 0;
-		
-	}
 
-	if(cnum_to_jsval(jsenv, argc, js_data)) {
-		jsval fval = JSVAL_VOID;
-		JSBool call_ok = JS_FALSE;
-
-		JS_GetProperty(jsenv, jsobj, funcname, &fval);
-		if(!JSVAL_IS_VOID(fval)) {
-			call_ok = JS_CallFunctionValue(jsenv, jsobj, fval, argc, js_data, &ret);
-			if (call_ok == JS_TRUE) {
-				if(!JSVAL_IS_VOID(ret)) {
-					JSBool ok;
-					JS_ValueToBoolean(jsenv, ret, &ok);
-					if (ok) // JSfunc returned 'true', so event is done
-						return 1;
-				}
-				return 0; // requeue event for next controller
-			}         // else script error
-		} else {      // function not found
-			return 0; // requeue event for next controller
-		}
+	default: 
+		return 0;
 	}
-	error("JoyController call failed, deactivating ctrl");
-	activate(false);
-	return 0;
 }
 
 JS(js_joy_ctrl_constructor) {
