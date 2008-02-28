@@ -128,17 +128,16 @@ int MidiControl::dispatch() {
             ev->dest.client, ev->dest.port
         );
 
-        jsval ret;
+        JSBool ret;
         switch (ev->type) {
             case SND_SEQ_EVENT_CONTROLLER: 
             {
                 func("midi Control event on Channel\t%2d: %5d %5d (param/value)",
                     ev->data.control.channel, ev->data.control.param, ev->data.control.value);
                 jsval js_data[] = { 
-					ev->data.control.channel, ev->data.control.param, ev->data.control.value
+                    ev->data.control.channel, ev->data.control.param, ev->data.control.value
                 };
-				cnum_to_jsval(jsenv, 3, js_data);
-                JS_CallFunctionName(jsenv, jsobj, "event_ctrl", 3, js_data, &ret);
+                JSCall("event_ctrl", 3, js_data, &ret);
             }
             break;
 
@@ -149,8 +148,7 @@ int MidiControl::dispatch() {
                 jsval js_data[] = {
                     ev->data.control.channel, ev->data.control.param, ev->data.control.value
                 };
-				cnum_to_jsval(jsenv, 3, js_data);
-                JS_CallFunctionName(jsenv, jsobj, "event_pitch", 3, js_data, &ret);
+                JSCall("event_pitch", 3, js_data, &ret);
             }
             break;
 
@@ -161,8 +159,7 @@ int MidiControl::dispatch() {
                 jsval js_data[] = {
                     ev->data.control.channel, ev->data.note.note, ev->data.note.velocity
                 };
-				cnum_to_jsval(jsenv, 3, js_data);
-                JS_CallFunctionName(jsenv, jsobj, "event_noteon", 3, js_data, &ret);
+                JSCall("event_noteon", 3, js_data, &ret);
             }
             break;
 
@@ -173,8 +170,7 @@ int MidiControl::dispatch() {
                 jsval js_data[] = {
                     ev->data.control.channel, ev->data.note.note, ev->data.note.velocity
                 };
-				cnum_to_jsval(jsenv, 3, js_data);
-                JS_CallFunctionName(jsenv, jsobj, "event_noteoff", 3, js_data, &ret);
+                JSCall("event_noteoff", 3, js_data, &ret);
             }
             break;
             
@@ -185,8 +181,7 @@ int MidiControl::dispatch() {
                 jsval js_data[] = {
                     ev->data.control.channel, ev->data.control.param, ev->data.control.value
                 };
-				cnum_to_jsval(jsenv, 3, js_data);
-                JS_CallFunctionName(jsenv, jsobj, "event_pgmchange", 3, js_data, &ret);
+                JSCall("event_pgmchange", 3, js_data, &ret);
             }
             break;
         } // switch
