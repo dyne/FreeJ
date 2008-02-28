@@ -155,7 +155,7 @@ int Controller::JSCall(char *funcname, int argc, const char *format, ...) {
 		argv = JS_PushArgumentsVA(jsenv, &markp, format, ap);
 		va_end(ap);
 
-        res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
+		res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
 		JS_PopArguments(jsenv, &markp);
 
 		if (res) {
@@ -176,10 +176,6 @@ int Controller::JSCall(char *funcname, int argc, const char *format, ...) {
 
 /* less bloat but this only works with 4 byte argv values
  */
-int Controller::JSCall(char *funcname, int argc, jsval *argv) {
-	JSBool res;
-	return JSCall(funcname, argc, argv, &res);
-}
 int Controller::JSCall(char *funcname, int argc, jsval *argv, JSBool *res) {
 	jsval fval = JSVAL_VOID;
 	jsval ret = JSVAL_VOID;

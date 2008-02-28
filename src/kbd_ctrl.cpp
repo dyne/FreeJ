@@ -16,9 +16,8 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <kbd_ctrl.h>
-
 #include <config.h>
+#include <kbd_ctrl.h>
 
 #include <context.h>
 #include <jutils.h>
@@ -38,6 +37,7 @@ JS(js_kbd_ctrl_constructor);
 DECLARE_CLASS_GC("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor,js_ctrl_gc);
 
 JSFunctionSpec js_kbd_ctrl_methods[] = {
+  // idee: dis/enable repeat
   {0}
 };
 
@@ -60,7 +60,7 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
 
   jsenv = env;
   jsobj = obj;
-  //SDL_EnableUNICODE(true);
+  SDL_EnableUNICODE(1);
   
   initialized = true;
   return(true);
@@ -93,15 +93,30 @@ int KbdCtrl::dispatch() {
   if(event.key.state != SDL_PRESSED)
     if(event.key.state != SDL_RELEASED)
       return 0; // no key state change
-  
-  keysym = &event.key.keysym;
+
+	keysym = &event.key.keysym;
+	Uint16 uni[] = {keysym->unicode, 0};
+  //#snprintf(uni, 2, "X %s X", (char*)&keysym->unicode);
+  // universal call
+	res = Controller::JSCall("key", 7, "buusWuu",
+		event.key.state,
+		keysym->scancode,
+		keysym->sym,
+		SDL_GetKeyName(keysym->sym),
+		uni,
+		keysym->mod,
+		event.key.which
+	);
+	if (res)
+		return 1; // returned true, we are done!
+
   //Uint16 keysym->unicode
   //char * SDL_GetKeyName(keysym->sym);
-  func("KB u: %i / ks: %s", keysym->unicode, SDL_GetKeyName(keysym->sym));
+  //func("KB u: %u / ks: %s", keysym->unicode, SDL_GetKeyName(keysym->sym));
 
   memset(keyname, 0, sizeof(char)<<9);  // *512
   memset(funcname, 0, sizeof(char)<<9); // *512
-  
+
   // check key modifiers
   if(keysym->mod & KMOD_SHIFT)
     strcat(keyname,"shift_");
@@ -186,23 +201,10 @@ int KbdCtrl::dispatch() {
 }
 
 int KbdCtrl::JSCall(char *funcname) {
-    jsval fval = JSVAL_VOID;
-    jsval ret = JSVAL_VOID;
-
     func("%s calling method %s()", __func__, funcname);
-    int res = JS_GetProperty(jsenv, jsobj, funcname, &fval);
-    if(!JSVAL_IS_VOID(fval)) {
-        res = JS_CallFunctionValue(jsenv, jsobj, fval, 0, NULL, &ret);
-        if (res)
-            if(!JSVAL_IS_VOID(ret)) {
-                JSBool ok;
-                JS_ValueToBoolean(jsenv, ret, &ok);
-				if (ok) // JSfunc returned 'true', so event is done
-                    return 1;
-            }
-		return 0; // requeue event for next controller
-    }
-    return 0; // no callback, redo on next controller
+	JSBool res;
+	return Controller::JSCall(funcname, 0, NULL, &res);
+	//return Controller::JSCall(funcname, 0, NULL);
 }
 
 JS(js_kbd_ctrl_constructor) {

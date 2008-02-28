@@ -64,9 +64,8 @@ class Controller: public Entry {
   JSObject  *jsobj;
   SDL_Event event;
   jsval lol;
-  int JSCall(char *funcname, int argc, const char *format, ...);
-  int JSCall(char *funcname, int argc, jsval *argv);
   int JSCall(char *funcname, int argc, jsval *argv, JSBool *res);
+  int JSCall(char *funcname, int argc, const char *format, ...);
 };
 
 #endif
