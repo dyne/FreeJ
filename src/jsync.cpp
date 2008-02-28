@@ -88,8 +88,8 @@ void JSyncThread::_run() {
 
 void JSyncThread::stop() {
 	if (running) {
-		lock_feed();
 		quit=true;
+		lock_feed();
 		signal_feed();
 		unlock_feed();
 		join();

@@ -422,7 +422,7 @@ bool Context::register_controller(Controller *ctrl) {
     return false;
   }
 
-  ctrl->active = true;
+  ctrl->activate(true);
 
   controllers.append(ctrl);
   
