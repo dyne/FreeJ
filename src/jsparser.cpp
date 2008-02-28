@@ -240,6 +240,12 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		js_trigger_ctrl_methods,
 		object_proto);
 
+	REGISTER_CLASS("ViMoController",
+		js_vimo_ctrl_class,
+		js_vimo_ctrl_constructor,
+		js_vimo_ctrl_methods,
+		object_proto);
+
 #ifdef WITH_MIDI
 	REGISTER_CLASS("MidiController",
 		js_midi_ctrl_class,

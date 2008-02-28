@@ -77,6 +77,7 @@ JS(txt_layer_constructor);
 JS(js_kbd_ctrl_constructor);
 JS(js_mouse_ctrl_constructor);
 JS(js_joy_ctrl_constructor);
+JS(js_vimo_ctrl_constructor);
 #ifdef WITH_MIDI
 JS(js_midi_ctrl_constructor);
 #endif
@@ -120,6 +121,10 @@ extern JSFunctionSpec js_kbd_ctrl_methods[];
 // MouseController
 extern JSClass js_mouse_ctrl_class;
 extern JSFunctionSpec js_mouse_ctrl_methods[];
+
+// VideoMouseController
+extern JSClass js_vimo_ctrl_class;
+extern JSFunctionSpec js_vimo_ctrl_methods[];
 
 // JoystickController
 extern JSClass js_joy_ctrl_class;
@@ -266,6 +271,8 @@ JS(filter_list_parameters);
 // Controller methods
 JS(controller_activate);
 JS(js_mouse_grab);
+JS(js_vimo_open);
+JS(js_vimo_close);
 
 ////////////////////////////////
 // parent Layer methods

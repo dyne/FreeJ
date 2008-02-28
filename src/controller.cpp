@@ -144,7 +144,7 @@ int Controller::JSCall(char *funcname, int argc, const char *format, ...) {
 	jsval fval = JSVAL_VOID;
 	jsval ret = JSVAL_VOID;
 
-	func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
+	//func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
 	int res = JS_GetProperty(jsenv, jsobj, funcname, &fval);
 
 	if(!JSVAL_IS_VOID(fval)) {
@@ -180,7 +180,7 @@ int Controller::JSCall(char *funcname, int argc, jsval *argv, JSBool *res) {
 	jsval fval = JSVAL_VOID;
 	jsval ret = JSVAL_VOID;
 
-	func("%s calling method %s.%s()", __func__, name, funcname);
+	//func("%s calling method %s.%s()", __func__, name, funcname);
 	JS_GetProperty(jsenv, jsobj, funcname, &fval);
 	if(!JSVAL_IS_VOID(fval)) {
 		cnum_to_jsval(jsenv, argc, argv);
