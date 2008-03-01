@@ -225,7 +225,7 @@ int ViMoController::dispatch() {
 	// button.(button, state, mask, mask_old)
 	unsigned char key_diff = vmd->bits.k ^ vmd_old->bits.k;
 	if (key_diff) {
-		for (char k = 1 << 7 ; k != 0; k = k >> 1) {
+		for (unsigned char k = 1 << 7 ; k != 0; k = k >> 1) {
 			if (k & key_diff) {
 				JSCall("button", 4, "ubuu", k, (k&vmd->bits.k), vmd->bits.k, vmd_old->bits.k);
 			}
@@ -238,13 +238,10 @@ int ViMoController::dispatch() {
 	unsigned char wi_diff = vmd->bits.i ^ vmd_old->bits.i;
 	if (wi_diff) {
 		wi_hist = (wi_hist << 4) | vmd->bits.i;
-		char mv = vmd_old->bits.i | (vmd->bits.i << 4);
+		unsigned char mv = vmd->bits.i | (vmd_old->bits.i << 4);
 		if (vmd->bits.i==3) {
 			func("wi: %02x mv: %02x %08x", wi_diff, mv, wi_hist);
 			JSCall("wheel_i", 3, "uuu", vmd->bits.i, vmd_old->bits.i, wi_hist);
-//double test = 99.345677;
-//JSCall("wheel_i", 4, "diii", &test, (int*)&vmd->bits.i, (int*)&vmd_old->bits.i, &hist);
-//JSCall("wheel_i", 3, "dic", test,  hist, hist);
 		}
 	}
 
