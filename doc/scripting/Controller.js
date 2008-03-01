@@ -358,7 +358,7 @@ TriggerController.prototype.frame = function ();
 // Mouse Controller
 
 /** The MouseController constructor creates a controller which receives mousebutton and mousemotion events. It dispatches them to {@link #motion .motion()} and {@link #button .button()}.
-	@class The Mouse Controller holds callbacks to javascript. You can use the frame callback to process various stuff, instead using run(). 
+	@class Get mouse button and motion events of the SDL output window. The Mouse Controller holds callbacks to javascript.
 	@author MrGoil
 	@constructor
 	@base Controller
@@ -369,7 +369,7 @@ MouseController.prototype = new Controller();
 
 /** This will be called on mouse button up and down.
 
-	@type bool 
+	@type bool callback
 	@return return true, when event was handled, false to requeue event
 	@param{int} button number from 1 up to ...
 	@param{int} state 0=up 1=down
@@ -381,7 +381,7 @@ MouseController.prototype.button = function (button, state, x, y);
 /** This will be called when mouse is moving over the viewport.
 	If the input is grabbed, then the mouse will give relative motion events even when the cursor reaches the edge fo the screen. This is currently only implemented on Windows and Linux/Unix-a-likes.
 
-	@type bool 
+	@type bool callback
 	@return return true, when event was handled, false to requeue event
 	@param{int} buttonmask mousebutton bitmap
 	@param{int} x where in the viewport it happened
@@ -402,7 +402,7 @@ MouseController.prototype.motion = function (buttonmask, x, y, xrel, yrel);
 		<li>{@link Controller#activate activate}(false)
 	</ul></p>
 	@see #motion
-	@type boot
+	@type bool
 	@return last state or current state when called w/o parameter
 	@param{bool} state true to grab the mouse, false to release
 */
