@@ -137,8 +137,10 @@ bool ViMoController::open() {
 	struct termios options;
 	struct stat filestat;
 
-	if (!filename)
+	if (!filename) {
+		error("%s: no filename!", __PRETTY_FUNCTION__);
 		return 0;
+	}
 	if (fd)
 		return 0;
 
@@ -327,9 +329,30 @@ bool ViMoController::activate(bool state) {
 }
 
 JS(js_vimo_open) {
+	ViMoController *vmc = (ViMoController *)JS_GetPrivate(cx, obj);
+	if (!vmc) {
+		error("%s core data NULL", __PRETTY_FUNCTION__);
+		return JS_FALSE;
+	}
+	if (argc == 0) {
+		return JS_NewNumberValue(cx, vmc->open(), rval);
+	}
+	if (argc == 1) {
+		char *filename;
+		JS_ARG_STRING(filename, 0);
+		return JS_NewNumberValue(cx, vmc->open(filename), rval);
+	}
+	JS_ERROR("Wrong number of arguments");
 }
 
 JS(js_vimo_close) {
+	ViMoController *vmc = (ViMoController *)JS_GetPrivate(cx, obj);
+	if (!vmc) {
+		error("%s core data NULL", __PRETTY_FUNCTION__);
+		return JS_FALSE;
+	}
+	vmc->close();
+	return JS_TRUE;
 }
 
 JS(js_vimo_ctrl_constructor) {
