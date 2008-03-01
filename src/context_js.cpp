@@ -45,6 +45,7 @@ JSFunctionSpec global_functions[] = {
     {"list_layers",     list_layers,            0},
     {"selected_layer",  selected_layer,         0},
     {"debug",           debug,                  1},
+    {"set_debug",       js_set_debug,           0},
     {"rand",            rand,                   0},
     {"srand",           srand,                  1},
     {"pause",           pause,                  0},
@@ -252,6 +253,15 @@ JS(set_fps) {
   int fps = JSVAL_TO_INT(argv[0]);
   env->set_fps(fps);
   return JS_TRUE;
+}
+
+JS(js_set_debug) {
+    JSBool ret = JS_NewNumberValue(cx, get_debug(), rval);
+    if(argc==1) {
+            JS_ARG_NUMBER(level, 0);
+            set_debug((int)level);
+    }
+    return ret;
 }
 
 JS(set_resolution) {

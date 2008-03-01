@@ -218,6 +218,7 @@ JS(rem_layer);
 JS(list_layers);
 JS(selected_layer);
 JS(debug);
+JS(js_set_debug);
 JS(rand);
 JS(srand);
 JS(pause);
