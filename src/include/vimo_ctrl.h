@@ -31,33 +31,7 @@ class JSContext;
 class JSObject;
 
 
-typedef union ViMoData {
-	struct {
-		char h :8;	// header 0x03
-
-		char i :2;	// inner wheel
-		char o :4;	// outer whell
-		char   :2;	// pad
-
-		char k :7;	// keys
-		char   :1;	// pad
-
-		char c :8; 	// crc (?)
-	} bits;
-	char data[4];
-	int w;
-};
-/* keys:
-btn_rev, 1,
-btn_rec, 2,
-btn_fwd, 4,
-btn_pause, 8,
-btn_stop, 16,
-btn_play, 32,
-btn_esc,  64,
-btn_player,   1|16,
-btn_recorder, 4|16
-*/
+typedef union ViMoData;
 
 class ViMoController: public Controller {
 	friend class Context;
@@ -79,9 +53,9 @@ class ViMoController: public Controller {
 	private:
 		char *filename;
 		int fd;
-		ViMoData vmd, vmd_old;
+		ViMoData *vmd, *vmd_old;
 		int read_pos;
-//		int JSCall(char *funcname, ...);
+		unsigned int wi_hist; // wheel history
 };
 
 #endif

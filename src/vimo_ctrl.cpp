@@ -28,6 +28,54 @@
 
 #include <vimo_ctrl.h>
 
+/* buttons:
+btn_rev, 1,
+btn_rec, 2,
+btn_fwd, 4,
+btn_pause, 8,
+btn_stop, 16,
+btn_play, 32,
+btn_esc,  64,
+btn_player,   1|16,
+btn_recorder, 4|16
+*/
+// data packet: ... 0xaa (0x07 0x03 ww kk cc) 0xaa ...
+typedef union ViMoData {
+#ifdef WORDS_BIGENDIAN
+	struct {
+		unsigned
+			h :8,	// header 0x03
+
+			i :2,	// inner wheel
+			o :4,	// outer whell
+			  :2,	// pad
+
+			k :7,	// button key
+			  :1,	// pad
+
+			c :8; 	// crc (?)
+	} bits;
+#else
+	struct {
+		unsigned
+			h :8,
+
+			  :2,
+			o :4,
+			i :2,
+
+			  :1,
+			k :7,
+
+			c :8;
+	} bits;
+#endif
+	unsigned char data[4];
+	unsigned int w;
+};
+static const int o_wheel_speed[] = {-5, 5, -6, 6, -4, 4, -7, 7, -2, 2, -1, 1, -3, 3, 0, 0 };
+static const unsigned char magic[] = {0x02, 0x0a, 0x0c, 0x0a};
+
 ViMoController::ViMoController() {
 	func("%s this=%p",__PRETTY_FUNCTION__, this);
 	initialized = active = false;
@@ -36,8 +84,15 @@ ViMoController::ViMoController() {
 	filename = NULL;
 	fd = 0;
 	set_name("Video Mouse");
-	// NULL setting: k: 00 wi: 03 wo: 0f 
-	vmd_old.w = vmd.w = 0x03fc0000;
+	vmd = (ViMoData*)malloc(2*sizeof(ViMoData));
+	vmd_old = vmd+1;
+	// NULL setting: k: 00 wi: 03 wo: 0f
+#ifdef WORDS_BIGENDIAN
+	vmd_old->w = vmd->w = 0x03fc0000;
+#else
+	vmd_old->w = vmd->w = 0x0000fc03;
+#endif
+	wi_hist = 0;
 }
 
 ViMoController::~ViMoController() {
@@ -49,15 +104,16 @@ ViMoController::~ViMoController() {
 	jsobj = NULL;
 	if (filename)
 		free(filename);
+	free(vmd);
 }
 
 JS(js_vimo_ctrl_constructor);
 DECLARE_CLASS_GC("ViMoController", js_vimo_ctrl_class, NULL, js_ctrl_gc);
 
-JSFunctionSpec js_vimo_ctrl_methods[] = { 
+JSFunctionSpec js_vimo_ctrl_methods[] = {
 	{"open",	js_vimo_open,	0},
 	{"close",	js_vimo_close,	0},
-	{0} 
+	{0}
 };
 
 bool ViMoController::init(JSContext *env, JSObject *obj) {
@@ -69,10 +125,8 @@ bool ViMoController::init(JSContext *env, JSObject *obj) {
 	return(true);
 }
 
-static const char magic[] = {0x02, 0x0a, 0x0c, 0x0a};
 
 bool ViMoController::open() {
-//	int curr_fl;
     struct termios options;
 	struct stat filestat;
 
@@ -117,7 +171,7 @@ bool ViMoController::open() {
 	options.c_cc[VSTART] = 0;	//
 	options.c_cc[VSTOP] = 0; 	//
 		
-	cfsetspeed(&options, B19200);	// Set 19200 baud    
+	cfsetspeed(&options, B19200);	// Set 19200 baud
 	options.c_cflag |= CS8;			// set 8bit
 	options.c_cflag &= ~CRTSCTS;	// no flow
 //	options.c_cflag |= CRTSCTS;	// flow
@@ -161,20 +215,19 @@ void ViMoController::close() {
 	fd = 0;
 }
 
-static const int o_wheel_speed[] = {-5, 5, -6, 6, -4, 4, -7, 7, -2, 2, -1, 1, -3, 3, 0, 0 };
-unsigned int wi_hist=0; // wheel history
 
 int ViMoController::dispatch() {
-	//char *data = vmd.data;
+	//char *data = vmd->data;
 	//func("dis: %02x %02x %02x", data[1], data[2], data[3]);
-	vmd.bits.k = ~vmd.bits.k;
+
+	vmd->bits.k = ~vmd->bits.k; // button keys are inverted
 
 	// button.(button, state, mask, mask_old)
-	char key_diff = vmd.bits.k ^ vmd_old.bits.k;
+	unsigned char key_diff = vmd->bits.k ^ vmd_old->bits.k;
 	if (key_diff) {
 		for (char k = 1 << 7 ; k != 0; k = k >> 1) {
 			if (k & key_diff) {
-				JSCall("button", 4, "ubuu", k, (k&vmd.bits.k), vmd.bits.k, vmd_old.bits.k);
+				JSCall("button", 4, "ubuu", k, (k&vmd->bits.k), vmd->bits.k, vmd_old->bits.k);
 			}
 		}
 	}
@@ -182,30 +235,30 @@ int ViMoController::dispatch() {
 	// inner wheel
 	// .wi_lock(pos, speed) pos: <= 2 0 1 /3/ 2 0 1 =>, left:-1, right:1
 	// .wi_fine(dir, speed) dir: 0< 1> speed 1,2,3
-	char wi_diff = vmd.bits.i ^ vmd_old.bits.i;
+	unsigned char wi_diff = vmd->bits.i ^ vmd_old->bits.i;
 	if (wi_diff) {
-		wi_hist = (wi_hist << 4) | vmd.bits.i;
-		char mv = vmd_old.bits.i | (vmd.bits.i << 4);
-		if (vmd.bits.i==3) {
+		wi_hist = (wi_hist << 4) | vmd->bits.i;
+		char mv = vmd_old->bits.i | (vmd->bits.i << 4);
+		if (vmd->bits.i==3) {
 			func("wi: %02x mv: %02x %08x", wi_diff, mv, wi_hist);
-			JSCall("wheel_i", 3, "uuu", vmd.bits.i, vmd_old.bits.i, wi_hist);
+			JSCall("wheel_i", 3, "uuu", vmd->bits.i, vmd_old->bits.i, wi_hist);
 //double test = 99.345677;
-//JSCall("wheel_i", 4, "diii", &test, (int*)&vmd.bits.i, (int*)&vmd_old.bits.i, &hist);
+//JSCall("wheel_i", 4, "diii", &test, (int*)&vmd->bits.i, (int*)&vmd_old->bits.i, &hist);
 //JSCall("wheel_i", 3, "dic", test,  hist, hist);
 		}
 	}
 
 	// outer wheel
 	// .wo(speed, speed_old)
-	char wo_diff = vmd.bits.o ^ vmd_old.bits.o;
+	unsigned char wo_diff = vmd->bits.o ^ vmd_old->bits.o;
 	if (wo_diff) {
-		int s = o_wheel_speed[vmd.bits.o];
-		int so = o_wheel_speed[vmd_old.bits.o];
+		int s = o_wheel_speed[vmd->bits.o];
+		int so = o_wheel_speed[vmd_old->bits.o];
 		func("wo: %02x -> speed: %i old: %i", wo_diff, s, so);
 		JSCall("wheel_o", 2, "ii", s, so);
 	}
 
-	vmd_old.w = vmd.w;
+	vmd_old->w = vmd->w;
 	return 0;
 }
 
@@ -223,8 +276,8 @@ int ViMoController::poll() {
 	// 0,1: 0x07 0x03 burst
 	// 2,3: wheel / keys
 	// 4: crc (?!)
-	char ch;
-	char *data = vmd.data;
+	unsigned char ch;
+	unsigned char *data = vmd->data;
 	int n = read(fd, &ch, 1);
 	while (n > 0) {
 		if (read_pos==0) {
@@ -238,13 +291,13 @@ int ViMoController::poll() {
 			}
 		} else {
 			data[read_pos - 1] = ch;
-			if (read_pos == sizeof(vmd)) { // packet complete
+			if (read_pos == sizeof(ViMoData)) { // packet complete
 				read_pos = 0;
 				if (data[0] == 0x03) {
 					dispatch();
 				} else {
 					func("%s invalid data packet (%s): %08x",
-						__PRETTY_FUNCTION__, filename, vmd.w
+						__PRETTY_FUNCTION__, filename, vmd->w
 					);
 				}
 			} else {
