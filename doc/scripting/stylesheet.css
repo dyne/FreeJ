@@ -80,11 +80,11 @@ dl,ul,ol {
     margin-top: 1pt;
 }
 tt,pre {
-    font-family: Fixed, Lucida Console,Courier New,Courier,monotype;
-    font-size: 12pt;
+    font-family: DejaVu Sans Mono, Lucida Console,Courier New,Courier,monotype;
+    font-size: 10pt;
 }
 .example {
-    font-family: Fixed, Lucida Console,Courier New,Courier,monotype;
+    font-family: DejaVu Sans Mono, Lucida Console,Courier New,Courier,monotype;
     font-size: 8pt;
     white-space: pre;
     background-color: #ffffee;
