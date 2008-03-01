@@ -409,3 +409,54 @@ MouseController.prototype.motion = function (buttonmask, x, y, xrel, yrel);
 MouseController.prototype.grab = function (state);
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////
+// Video Mouse Controller
+
+/** The MouseController constructor creates a controller which receives mousebutton and mousemotion events. It dispatches them to {@link #motion .motion()} and {@link #button .button()}.
+	@class The ViMoController holds callbacks to javascript.
+	@author MrGoil
+	@constructor
+	@base Controller
+	@returns a new ViMoController
+*/
+function ViMoController() { };
+ViMoController.prototype = new Controller();
+
+/** This will be called on mouse button up and down.
+	Each button generates one event.
+    <div class="example">button values (masks are the 'or'ed status):
+<pre>
+1  rev
+2  cut
+4  fwd
+8  pause
+16 stop
+32 play
+64 cancel</pre>
+</div>
+
+	@type bool 
+	@return return whatever ... we don't care
+	@param{int} button
+	@param{int} state 0=up 1=down
+	@param{int} mask current button bitmask
+	@param{int} old_mask old button bitmask
+*/
+ViMoController.prototype.button = function (button, state, mask, old_mask);
+
+
+
+

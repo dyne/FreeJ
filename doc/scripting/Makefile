@@ -7,6 +7,7 @@ all:
 	GeometryLayer.js \
 	Controller.js \
 	VideoEncoder.js
+	cp -a images html
 
 clean:
 	rm -rf html
