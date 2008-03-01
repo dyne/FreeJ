@@ -413,11 +413,15 @@ MouseController.prototype.grab = function (state);
 //////////////////////////////
 // Video Mouse Controller
 
-/** The MouseController constructor creates a controller which receives mousebutton and mousemotion events. It dispatches them to {@link #motion .motion()} and {@link #button .button()}.
-	@class The ViMoController is for the fancy serial Video Mouse. I got two labeled "GSE Video Mouse". Check eBay or your attic.
-	For writing this "driver" I only had a disc  run windows 95 in qemu and sniffed the line.
+/** The ViMoController constructor creates a controller which holds the callbacks.
+	There's an example script "vimo.js".
+	@class 
+	<p>The ViMoController is for this fancy serial Video Mouse device:</p>
 	<img src="images/gse2-500.jpg">
-	lol lol
+	<p>
+	I had no specs for hacking this driver. One mouse had a floppy disc in it's package labeled "WinEdit-Version 1.1". I ran that in qemu and sniffed the line. You may ask if this driver supports the IR sensor or the connectors ... mh, WinEdit came up with a popup: "Sorry, this feature is not implemented yet."<br>
+	Check eBay or your attic!
+	</p>
 	@author MrGoil
 	@constructor
 	@base Controller
@@ -458,7 +462,6 @@ ViMoController.prototype.button = function (button, state, mask, old_mask);
 */
 ViMoController.prototype.wheel_o = function (speed, old_speed);
 
-
 /** This will be called when turning the inner wheel at a locked position.
 	It's not easy to determiate the direction if you move it too fast.
 	The device returns a 3 on a lock position and between 3->2->0->1 to the right, 3->1->0->2 to the left.
@@ -470,7 +473,7 @@ ViMoController.prototype.wheel_o = function (speed, old_speed);
 */
 ViMoController.prototype.wheel_i = function (direction, history);
 
-/** open device and lock it. If a filename is set, open() works without parameter, too.
+/** opens device and locks it. If a filename is set, open() works without parameter, too.
 
 	@type int
 	@return 0 fail 1 ok
@@ -478,12 +481,8 @@ ViMoController.prototype.wheel_i = function (direction, history);
 */
 ViMoController.prototype.open = function (filename);
 
-/** close device and release lock.
+/** closes device and releases lock.
 
 	@type void
 */
 ViMoController.prototype.close = function ();
-
-
-
-
