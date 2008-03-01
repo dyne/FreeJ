@@ -56,9 +56,8 @@ class ViMoController: public Controller {
 		ViMoData *vmd, *vmd_old;
 		int read_pos;
 		unsigned int wi_hist; // wheel history
+		int wi_dir; // inner wheel -1=left; 1=right
 };
 
 #endif
-
-
 

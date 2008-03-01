@@ -73,6 +73,12 @@ typedef union ViMoData {
 	unsigned char data[4];
 	unsigned int w;
 };
+// right: 32013 32 20 01 13 // 20 01 32 13
+// left:  31023 31 10 02 23 // 10 31 02 23
+//static const unsigned char wi_right[] = { 2, 0, 3, 1 };
+//static const unsigned char wi_left[]  = { 1, 3, 0, 2 };
+static const unsigned int wi_right[] = { 0x1320, 0x3201, 0x0132, 0x2013 };
+static const unsigned int wi_left[]  = { 0x2310, 0x0231, 0x3102, 0x1023 };
 static const int o_wheel_speed[] = {-5, 5, -6, 6, -4, 4, -7, 7, -2, 2, -1, 1, -3, 3, 0, 0 };
 static const unsigned char magic[] = {0x02, 0x0a, 0x0c, 0x0a};
 
@@ -93,6 +99,7 @@ ViMoController::ViMoController() {
 	vmd_old->w = vmd->w = 0x0000fc03;
 #endif
 	wi_hist = 0;
+	wi_dir = 0;
 }
 
 ViMoController::~ViMoController() {
@@ -127,7 +134,7 @@ bool ViMoController::init(JSContext *env, JSObject *obj) {
 
 
 bool ViMoController::open() {
-    struct termios options;
+	struct termios options;
 	struct stat filestat;
 
 	if (!filename)
@@ -152,17 +159,8 @@ bool ViMoController::open() {
 	if ( ::flock(fd, LOCK_EX | LOCK_NB) == -1)
 		goto error_close;
 
-	// set block
-//	{
-//	int curr_fl = fcntl(fd, F_GETFL);
-//	if (curr_fl == -1)
-//		goto error_close;
-//	if (fcntl(fd, F_SETFL, curr_fl & ~O_NONBLOCK) == -1)
-//		goto error_close;
-//	}
-
 	// set up serial port
-    if (tcgetattr(fd, &options) == -1)
+	if (tcgetattr(fd, &options) == -1)
 		goto error_close;
 
 	cfmakeraw(&options);		// sets some defaults
@@ -209,7 +207,6 @@ bool ViMoController::open(char* newname) {
 }
 
 void ViMoController::close() {
-	//stop();
 	if (fd)
 		::close(fd);
 	fd = 0;
@@ -233,15 +230,21 @@ int ViMoController::dispatch() {
 	}
 
 	// inner wheel
-	// .wi_lock(pos, speed) pos: <= 2 0 1 /3/ 2 0 1 =>, left:-1, right:1
-	// .wi_fine(dir, speed) dir: 0< 1> speed 1,2,3
+	// .wheel_i(dir,hist) pos: <= 2 0 1 /3/ 2 0 1 =>, left:-1, right:1
 	unsigned char wi_diff = vmd->bits.i ^ vmd_old->bits.i;
 	if (wi_diff) {
 		wi_hist = (wi_hist << 4) | vmd->bits.i;
-		unsigned char mv = vmd->bits.i | (vmd_old->bits.i << 4);
-		if (vmd->bits.i==3) {
-			func("wi: %02x mv: %02x %08x", wi_diff, mv, wi_hist);
-			JSCall("wheel_i", 3, "uuu", vmd->bits.i, vmd_old->bits.i, wi_hist);
+
+		if (wi_right[vmd->bits.i] == (wi_hist & 0xffff))
+				wi_dir++;
+		else
+		if (wi_left [vmd->bits.i] == (wi_hist & 0xffff))
+				wi_dir--;
+
+//func("wi: %02x mv: %s (%i) %08x", wi_diff, (wi_dir > 0 ? "right" : "left"), wi_dir, wi_hist);
+		if (vmd->bits.i==3) { // wheel is on a lock position
+			wi_dir = (wi_dir > 0 ? 1 : -1);
+			JSCall("wheel_i", 2, "iu", wi_dir, wi_hist);
 		}
 	}
 

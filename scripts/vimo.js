@@ -5,11 +5,8 @@ vm = new ViMoController("/dev/ttyUSB0");
 register_controller(vm);
 
 // inner wheel
-vm.wheel_i = function(a,b,c) {
-	var msg = "mh"+a+" "+b+" "+c+"/";
-	for (i=0; i<arguments.length; i++) {
-		msg += " i:"+i+" = "+arguments[i];
-	}
+vm.wheel_i = function(dir, hist) {
+	var msg = "wi "+dir+" "+hist;
 	echo(msg);
 }
 
