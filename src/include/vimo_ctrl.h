@@ -80,6 +80,7 @@ class ViMoController: public Controller {
 		char *filename;
 		int fd;
 		ViMoData vmd, vmd_old;
+		int read_pos;
 //		int JSCall(char *funcname, ...);
 };
 

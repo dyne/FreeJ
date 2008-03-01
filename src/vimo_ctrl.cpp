@@ -81,6 +81,8 @@ bool ViMoController::open() {
 	if (fd)
 		return 0;
 
+	read_pos = 0;
+
 	if (stat(filename, &filestat) == -1)
 		goto error;
 
@@ -213,38 +215,43 @@ int ViMoController::poll() {
 	if (!fd) // not open
 		return 0;
 
-	char ch;
-	int n = read(fd, &ch, 1);
-	// aa 07 03 3c fe 44 aa
+	// []     0  1  2  3
+	// pos    1  2  3  4
+	// aa 07 03 3c fe 44 aa ...
 	// we get one 0xaa every second
 	// and 5 bytes data event:
 	// 0,1: 0x07 0x03 burst
 	// 2,3: wheel / keys
 	// 4: crc (?!)
+	char ch;
+	char *data = vmd.data;
+	int n = read(fd, &ch, 1);
 	while (n > 0) {
-		if (ch == 0xaa) { // empty sync 1/s
-			n = read(fd, &ch, 1);
-			continue;
-		}
-		// data starts with 0x07 0x03
-		if (ch == 0x07) {
-			char *data = vmd.data;
-fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) & ~O_NONBLOCK);
-			n = read(fd, data, sizeof(vmd));
-fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK);
-
-			if ((data[0] == 0x03) && (n == sizeof(vmd))) { // "header" ok
-				dispatch();
+		if (read_pos==0) {
+			if (ch == 0xaa) { // empty sync 1/s
+				n = read(fd, &ch, 1);
+				continue;
+			}
+			// packet starts with 0x07 0x03
+			if (ch == 0x07) {
+				read_pos = 1;
+			}
+		} else {
+			data[read_pos - 1] = ch;
+			if (read_pos == sizeof(vmd)) { // packet complete
+				read_pos = 0;
+				if (data[0] == 0x03) {
+					dispatch();
+				} else {
+					func("%s invalid data packet (%s): %08x",
+						__PRETTY_FUNCTION__, filename, vmd.w
+					);
+				}
 			} else {
-				func("invalid data (%s): %02x %02x %02x %02x %02x / %i",
-					filename,
-					data[0], data[1], data[2], data[3], data[4],
-					n
-				);
+				read_pos++;
 			}
 		}
-		n = read(fd, &ch, 1); // should be 0xaa
-		//func("rd: %02x / %i", ch, n);
+		n = read(fd, &ch, 1);
 	}
 
 	if (n == -1) {
