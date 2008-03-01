@@ -410,52 +410,79 @@ MouseController.prototype.grab = function (state);
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 //////////////////////////////
 // Video Mouse Controller
 
 /** The MouseController constructor creates a controller which receives mousebutton and mousemotion events. It dispatches them to {@link #motion .motion()} and {@link #button .button()}.
-	@class The ViMoController holds callbacks to javascript.
+	@class The ViMoController is for the fancy serial Video Mouse. I got two labeled "GSE Video Mouse". Check eBay or your attic.
+	For writing this "driver" I only had a disc  run windows 95 in qemu and sniffed the line.
+	<img src="images/gse2-500.jpg">
+	lol lol
 	@author MrGoil
 	@constructor
 	@base Controller
 	@returns a new ViMoController
+	@param{string} filename e.g. "/dev/ttyS0". If you set the device filename here, the constructer calls open(filename).
+	You can skip the filename and do open(filename).
 */
-function ViMoController() { };
+function ViMoController(filename) { };
 ViMoController.prototype = new Controller();
 
 /** This will be called on mouse button up and down.
 	Each button generates one event.
-    <div class="example">button values (masks are the 'or'ed status):
-<pre>
+    <div class="example">button number values (masks are the 'or'ed status):
 1  rev
 2  cut
 4  fwd
 8  pause
 16 stop
 32 play
-64 cancel</pre>
+64 cancel
 </div>
 
-	@type bool 
+	@type bool callback 
 	@return return whatever ... we don't care
-	@param{int} button
+	@param{int} button number value
 	@param{int} state 0=up 1=down
 	@param{int} mask current button bitmask
 	@param{int} old_mask old button bitmask
 */
 ViMoController.prototype.button = function (button, state, mask, old_mask);
+
+/** This will be called when turning the outer wheel.
+
+	@type bool callback 
+	@return return whatever ... we don't care
+	@param{int} speed new position range -7 to 7, 0 is the middle. Don't be confused: the wheel seems to have two '0' positions.
+	@param{int} old_speed previous value
+*/
+ViMoController.prototype.wheel_o = function (speed, old_speed);
+
+
+/** This will be called when turning the inner wheel at a locked position.
+	It's not easy to determiate the direction if you move it too fast.
+	The device returns a 3 on a lock position and between 3->2->0->1 to the right, 3->1->0->2 to the left.
+
+	@type bool callback 
+	@return return whatever ... we don't care
+	@param{int} direction -1=left, +1=right
+	@param{uint} history bitmapped history, for debugging or whatever. Left oldest, right octet current position. Each octet is one position, range 0 - 3.
+*/
+ViMoController.prototype.wheel_i = function (direction, history);
+
+/** open device and lock it. If a filename is set, open() works without parameter, too.
+
+	@type int
+	@return 0 fail 1 ok
+	@param{string} filename name of the serial device where the mouse is attached
+*/
+ViMoController.prototype.open = function (filename);
+
+/** close device and release lock.
+
+	@type void
+*/
+ViMoController.prototype.close = function ();
 
 
 
