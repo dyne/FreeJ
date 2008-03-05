@@ -66,6 +66,9 @@ bool XGrabLayer::open() {
 
 bool XGrabLayer::open(uint32_t win_id_new) {
 	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
+	if (opened)
+		return 0;
+
 	char errmsg[MAX_ERR_MSG];
 // check win id ok
 //set_filename(display_name); <- win title ...
@@ -76,6 +79,7 @@ bool XGrabLayer::open(uint32_t win_id_new) {
 		goto fail;
 	}
 	//screen_num = DefaultScreen(display);
+	win = win_id_new;
 	opened = true;
 	active = true;
 	return true;
@@ -159,7 +163,7 @@ bool XGrabLayer::init(Context *freej, int w, int h) {
 	return true;
 }
 void *XGrabLayer::feed() {
-	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
+	//func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
 	//return surf->pixels;
 //XImage *XGetImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format);
 	if (ximage)
@@ -182,12 +186,16 @@ bool XGrabLayer::keypress(int key) {
 
 void XGrabLayer::close() {
 	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
-	if (ximage) {
-		XDestroyImage(ximage); // also frees *data
-		//XFree(xvimage); // does not free pixbuffer
-	}
 	opened = false;
 	active = false;
+	stop();
+	buffer = NULL;
+
+	if (ximage) {
+		XDestroyImage(ximage); // also frees *data
+		ximage = NULL;
+		//XFree(xvimage); // does not free pixbuffer
+	}
 //	if (gc) {
 //		XFreeGC(display, gc);
 //		gc = NULL;
