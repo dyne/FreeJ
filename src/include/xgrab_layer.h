@@ -40,6 +40,7 @@ class XGrabLayer: public Layer {
 		// X stuff
 		Display *display;
 		Window win;
+		XSetWindowAttributes win_sattr;
 		XImage *ximage;
 		//XImage *ximage_new;
 		// OLD

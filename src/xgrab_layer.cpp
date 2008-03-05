@@ -79,6 +79,43 @@ bool XGrabLayer::open(uint32_t win_id_new) {
 		goto fail;
 	}
 	//screen_num = DefaultScreen(display);
+	
+
+	XWindowAttributes wa;
+	if (!XGetWindowAttributes(display, win_id_new, &wa)) {
+		snprintf(errmsg, MAX_ERR_MSG, 
+			"Can't get win attributes");
+		goto fail;
+
+	}
+	lock();
+	geo.w = wa.width;
+	geo.h = wa.height;
+	geo.bpp = 32;
+	geo.size = geo.w*geo.h*(geo.bpp/8);
+	geo.pitch = geo.w*(geo.bpp/8);
+	unlock();
+
+	func("xwin depth:%u ", wa.depth);
+	//CWBackingStore
+	//wa.backing_store // NotUseful, WhenMapped, Always
+	//CWSaveUnder
+	//wa.save_under // bool
+	//
+	//CWEventMask wa.event_mask ...
+	win_sattr.backing_store = Always;
+	win_sattr.save_under = True;
+	if (!XChangeWindowAttributes(display, win_id_new, 
+		CWBackingStore|CWSaveUnder, &win_sattr)) {
+		snprintf(errmsg, MAX_ERR_MSG, 
+			"Can't set win attributes");
+		goto fail;
+	}
+    XSync (display, False);
+	// save old values
+	win_sattr.backing_store = wa.backing_store;
+	win_sattr.save_under = wa.save_under;
+
 	win = win_id_new;
 	opened = true;
 	active = true;
@@ -168,12 +205,14 @@ void *XGrabLayer::feed() {
 //XImage *XGetImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format);
 	if (ximage)
 		XDestroyImage(ximage);
-
-	ximage = XGetImage(display, win, 0, 0, geo.w, geo.h, AllPlanes, ZPixmap);
+	if (win) {
+		ximage = XGetImage(display, win, 0, 0, geo.w, geo.h, AllPlanes, ZPixmap);
+		return ximage->data;
+	}
+	return NULL;
 
 //XImage *XGetSubImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format, XImage *dest_image, int dest_x, dest_y);
 
-	return ximage->data;
 	//(running ? NULL : (void *)0x1 );
 }
 
@@ -200,10 +239,13 @@ void XGrabLayer::close() {
 //		XFreeGC(display, gc);
 //		gc = NULL;
 //	}
-//	if (win) {
-//		XDestroyWindow(display, win);
-//		XSync(display, false);
-//	}
+	if (win) {
+		func("resetting win_attr");
+		if (!XChangeWindowAttributes(display, win, CWBackingStore|CWSaveUnder, &win_sattr)) {
+			error("resetting win_attributes failed");
+		}
+		XSync(display, false);
+	}
 }
 
 DECLARE_CLASS_GC("XGrabLayer",js_xgrab_class,js_xgrab_constructor,js_layer_gc);
