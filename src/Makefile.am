@@ -95,7 +95,8 @@ freej_SOURCES = \
 	ffmpeg_encoder.cpp \
 	theorautils.cpp \
 	oggtheora_encoder.cpp \
-	impl_video_encoders.cpp
+	impl_video_encoders.cpp \
+	xgrab_layer.cpp \
 
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @XIPH_LIBS@ \

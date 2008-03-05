@@ -198,7 +198,12 @@ extern JSClass js_shouter_class;
 extern JSFunctionSpec js_shouter_methods[];
 #endif
 
-
+// XGrabLayer
+JS(js_xgrab_constructor);
+JS(js_xgrab_open);
+JS(js_xgrab_close);
+extern JSClass js_xgrab_class;
+extern JSFunctionSpec js_xgrab_methods[];
 
 
 ////////////////////////////////

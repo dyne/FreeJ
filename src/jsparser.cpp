@@ -200,27 +200,32 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		txt_layer_methods,
 		object_proto);
 #endif
-    
-    
-    REGISTER_CLASS("Filter",
-                   filter_class,
-                   filter_constructor,
-                   filter_methods,
-                   NULL);
 
-    // controller classes
-    REGISTER_CLASS("Controller",
-		   js_ctrl_class,
-		   NULL,
-		   js_ctrl_methods,
-           NULL);
-    object_proto = layer_object;
+	REGISTER_CLASS("XGrabLayer",
+		js_xgrab_class,
+		js_xgrab_constructor,
+		js_xgrab_methods,
+		object_proto);
+	
+	REGISTER_CLASS("Filter",
+		filter_class,
+		filter_constructor,
+		filter_methods,
+		NULL);
 
-    REGISTER_CLASS("KeyboardController",
-		   js_kbd_ctrl_class,
-		   js_kbd_ctrl_constructor,
-		   js_kbd_ctrl_methods,
-           object_proto);
+	// controller classes
+	REGISTER_CLASS("Controller",
+		js_ctrl_class,
+		NULL,
+		js_ctrl_methods,
+		NULL);
+	object_proto = layer_object;
+
+	REGISTER_CLASS("KeyboardController",
+		js_kbd_ctrl_class,
+		js_kbd_ctrl_constructor,
+		js_kbd_ctrl_methods,
+		object_proto);
 
 	REGISTER_CLASS("MouseController",
 		js_mouse_ctrl_class,
