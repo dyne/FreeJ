@@ -177,6 +177,8 @@ void TTFLayer::print(char *str) {
   // _init(surf_new->w, surf_new->h);  
   geo_new.w = surf_new->w;
   geo_new.h = surf_new->h;
+  geo_new.x = geo.x;
+  geo_new.y = geo.y;
   geo_new.bpp = 32;
   geo_new.size = geo_new.w*geo_new.h*(geo_new.bpp/8);
   geo_new.pitch = geo_new.w*(geo_new.bpp/8);
