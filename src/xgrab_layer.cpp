@@ -79,8 +79,19 @@ bool XGrabLayer::open(uint32_t win_id_new) {
 		goto fail;
 	}
 	//screen_num = DefaultScreen(display);
-	
+/* 
+ * find parent win with WM deco:
+	  if (window && !frame) {
+	      Window root;
+	      int dummyi;
+	      unsigned int dummy;
 
+	      if (XGetGeometry (dpy, window, &root, &dummyi, &dummyi,
+				&dummy, &dummy, &dummy, &dummy) &&
+		  window != root)
+	        window = XmuClientWindow (dpy, window);
+	  }
+*/
 	XWindowAttributes wa;
 	if (!XGetWindowAttributes(display, win_id_new, &wa)) {
 		snprintf(errmsg, MAX_ERR_MSG, 
@@ -97,24 +108,34 @@ bool XGrabLayer::open(uint32_t win_id_new) {
 	unlock();
 
 	func("xwin depth:%u ", wa.depth);
+
+	func("screen backstore: %i" , DoesBackingStore(wa.screen));
 	//CWBackingStore
 	//wa.backing_store // NotUseful, WhenMapped, Always
+	//
 	//CWSaveUnder
 	//wa.save_under // bool
+	//"saving of pixels off-screen when the current window
+	// obscures other windows"
 	//
 	//CWEventMask wa.event_mask ...
 	win_sattr.backing_store = Always;
-	win_sattr.save_under = True;
+	win_sattr.backing_planes = AllPlanes;
+	win_sattr.backing_pixel = 0x00ff00ff;
+	//win_sattr.save_under = True;
 	if (!XChangeWindowAttributes(display, win_id_new, 
-		CWBackingStore|CWSaveUnder, &win_sattr)) {
+		CWBackingStore|CWBackingPlanes|CWBackingPixel, &win_sattr)) {
 		snprintf(errmsg, MAX_ERR_MSG, 
 			"Can't set win attributes");
 		goto fail;
 	}
+	XClearArea (display, win_id_new, 0, 0, 0, 0, True); // ExposeEvent, refresh backing store
+	XClearWindow(display, win_id_new);
     XSync (display, False);
 	// save old values
 	win_sattr.backing_store = wa.backing_store;
 	win_sattr.save_under = wa.save_under;
+	win_sattr.backing_planes = wa.backing_planes;
 
 	win = win_id_new;
 	opened = true;
@@ -128,6 +149,19 @@ bool XGrabLayer::open(uint32_t win_id_new) {
 }
 
 #if 0
+resize:
+ConfigureNotify event, serial 19, synthetic NO, window 0x5a00003,
+    event 0x5a00003, window 0x5a0002a, (0,27), width 636, height 32,
+    border_width 0, above 0x5a00021, override NO
+
+VisibilityNotify event, serial 19, synthetic NO, window 0x5a00003,
+    state VisibilityUnobscured
+
+UnmapNotify event, serial 19, synthetic NO, window 0x5a00003,
+    event 0x5a00003, window 0x5a00003, from_configure NO
+
+
+
 	/* Create GC for drawing */
 	XGCValues gcv;
 	gcv.function = GXcopy;
@@ -298,7 +332,6 @@ JS(js_xgrab_open) {
 		return JS_NewNumberValue(cx, lay->open((uint32_t)winid), rval);
 	}
 	JS_ERROR("Wrong number of arguments");
-  
 }
 JS(js_xgrab_close) {
 	GET_LAYER(XGrabLayer);
