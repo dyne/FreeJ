@@ -36,11 +36,21 @@ class XGrabLayer: public Layer {
 	private:
 		//void run(); ///< Main Layer thread loop
 		//bool cafudda();
-
+		void resize();
+		bool autosize, mapped, unobscured;
+		ScreenGeometry crop;
+		typedef struct crop {
+			uint16_t x;
+			uint16_t y;
+			int16_t w; // =<0 = from right
+			int16_t h; // =<0 = from bottom
+		};
 		// X stuff
 		Display *display;
+		int screen_num;
 		Window win;
-		XSetWindowAttributes win_sattr;
+		XWindowAttributes wa;
+		//XSetWindowAttributes win_sattr;
 		XImage *ximage;
 		//XImage *ximage_new;
 		// OLD

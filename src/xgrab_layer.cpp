@@ -2,7 +2,7 @@
  *  (c) Copyright 2007 C. Rudorff <goil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Public License as published 
+ * modify it under the terms of the GNU Public License as published
  * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
@@ -39,6 +39,7 @@ XGrabLayer::XGrabLayer()
 	opened = false;
 	ximage = NULL;
 	win = 0;
+	autosize = true;
 	//gc = NULL;
 	
 	set_name("XGR");
@@ -58,7 +59,7 @@ bool XGrabLayer::open() {
 	if (opened)
 		return 0;
 	if (!win) {
-		error("%s: no win_id set", __PRETTY_FUNCTION__); 
+		error("%s: no win_id set", __PRETTY_FUNCTION__);
 		return false;
 	}
 	return open(win);
@@ -74,12 +75,17 @@ bool XGrabLayer::open(uint32_t win_id_new) {
 //set_filename(display_name); <- win title ...
 
 	if ( (display=XOpenDisplay(NULL)) == NULL ) {
-		snprintf(errmsg, MAX_ERR_MSG, 
+		snprintf(errmsg, MAX_ERR_MSG,
 			"Can't connect to X server");
 		goto fail;
 	}
+	screen_num = DefaultScreen(display);
+
 	//screen_num = DefaultScreen(display);
-/* 
+/*
+ * root win:
+ * w=RootWindow(dpy, screen);
+ *
  * find parent win with WM deco:
 	  if (window && !frame) {
 	      Window root;
@@ -92,52 +98,26 @@ bool XGrabLayer::open(uint32_t win_id_new) {
 	        window = XmuClientWindow (dpy, window);
 	  }
 */
-	XWindowAttributes wa;
 	if (!XGetWindowAttributes(display, win_id_new, &wa)) {
-		snprintf(errmsg, MAX_ERR_MSG, 
+		snprintf(errmsg, MAX_ERR_MSG,
 			"Can't get win attributes");
 		goto fail;
-
 	}
-	lock();
-	geo.w = wa.width;
-	geo.h = wa.height;
-	geo.bpp = 32;
-	geo.size = geo.w*geo.h*(geo.bpp/8);
-	geo.pitch = geo.w*(geo.bpp/8);
-	unlock();
 
 	func("xwin depth:%u ", wa.depth);
-
-	func("screen backstore: %i" , DoesBackingStore(wa.screen));
-	//CWBackingStore
-	//wa.backing_store // NotUseful, WhenMapped, Always
-	//
-	//CWSaveUnder
-	//wa.save_under // bool
-	//"saving of pixels off-screen when the current window
-	// obscures other windows"
-	//
-	//CWEventMask wa.event_mask ...
-	win_sattr.backing_store = Always;
-	win_sattr.backing_planes = AllPlanes;
-	win_sattr.backing_pixel = 0x00ff00ff;
-	//win_sattr.save_under = True;
-	if (!XChangeWindowAttributes(display, win_id_new, 
-		CWBackingStore|CWBackingPlanes|CWBackingPixel, &win_sattr)) {
-		snprintf(errmsg, MAX_ERR_MSG, 
-			"Can't set win attributes");
-		goto fail;
-	}
-	XClearArea (display, win_id_new, 0, 0, 0, 0, True); // ExposeEvent, refresh backing store
-	XClearWindow(display, win_id_new);
-    XSync (display, False);
-	// save old values
-	win_sattr.backing_store = wa.backing_store;
-	win_sattr.save_under = wa.save_under;
-	win_sattr.backing_planes = wa.backing_planes;
-
+{
+	int res = XSelectInput(display, win_id_new,
+	PropertyChangeMask|VisibilityChangeMask|
+	PointerMotionMask);
+	func("xsel input: %i", res);
+}
+	XSync (display, False);
 	win = win_id_new;
+
+	lock();
+	resize();
+	unlock();
+
 	opened = true;
 	active = true;
 	return true;
@@ -147,7 +127,35 @@ bool XGrabLayer::open(uint32_t win_id_new) {
 		close();
 		return false;
 }
+void XGrabLayer::resize() {
+	Window junkwin;
+	int rx, ry, xright, ybelow;
+	int dw = DisplayWidth (display, screen_num);
+	int dh = DisplayHeight(display, screen_num);
 
+	(void) XTranslateCoordinates (display, win, wa.root,
+		-wa.border_width,
+		-wa.border_width,
+		&rx, &ry, &junkwin);
+
+	xright = (dw - rx - wa.border_width * 2 - wa.width);
+	ybelow = (dh - ry - wa.border_width * 2 - wa.height);
+
+	uint32_t wn, hn; // new width, height
+	wn = wa.width - (rx<0 ? -rx : 0) - (xright<0 ? -xright :0) - crop.x;
+//if (crop.w > 0)
+	hn = wa.height- (ry<0 ? -ry : 0) - (ybelow<0 ? -ybelow :0) - crop.y;
+	crop.x = (rx<0 ? -rx : 0);
+	crop.y = (ry<0 ? -ry : 0);
+
+	//lock();
+	geo.w = (wn > 0 ? wn : 0);
+	geo.h = (hn > 0 ? hn : 0);
+	geo.bpp = 32;
+	geo.size = geo.w*geo.h*(geo.bpp/8);
+	geo.pitch = geo.w*(geo.bpp/8);
+	//unlock();
+}
 #if 0
 resize:
 ConfigureNotify event, serial 19, synthetic NO, window 0x5a00003,
@@ -160,7 +168,8 @@ VisibilityNotify event, serial 19, synthetic NO, window 0x5a00003,
 UnmapNotify event, serial 19, synthetic NO, window 0x5a00003,
     event 0x5a00003, window 0x5a00003, from_configure NO
 
-
+DestroyNotify event, serial 26, synthetic NO, window 0x5c00007,
+    event 0x5c00007, window 0x5c0000b
 
 	/* Create GC for drawing */
 	XGCValues gcv;
@@ -210,7 +219,7 @@ UnmapNotify event, serial 19, synthetic NO, window 0x5a00003,
 
 	notice("VP opened %s :: w[%u] h[%u] (%u bytes)",
 	 display_name, geo.w, geo.h, geo.size);
-	//func("VP X: depth:%i r,g,b mask: %x,%x,%x", 
+	//func("VP X: depth:%i r,g,b mask: %x,%x,%x",
 	//xwa.depth, ximage->red_mask, ximage->green_mask, ximage->blue_mask);
 
 	opened = true;
@@ -225,26 +234,42 @@ UnmapNotify event, serial 19, synthetic NO, window 0x5a00003,
 
 bool XGrabLayer::init(Context *freej) {
 	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
-	return init(freej, freej->screen->w, freej->screen->h);
+	return init(freej, 0, 0);
+	//return init(freej, freej->screen->w, freej->screen->h);
 }
 bool XGrabLayer::init(Context *freej, int w, int h) {
 	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
 	env = freej;
+	autosize = false;
 	_init(w, h);
+	crop.x=0;crop.y=0;crop.w=w;crop.h=h;
 	return true;
 }
 void *XGrabLayer::feed() {
 	//func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
 	//return surf->pixels;
-//XImage *XGetImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format);
+	//
+	if (!XGetWindowAttributes(display, win, &wa)) {
+		error("%s", "Can't get win attributes");
+		quit=true;
+		return NULL;
+	}
+//Bool XCheckMaskEvent(Display *display, long event_mask, XEvent
+//*event_return);
+//
+//Bool XCheckTypedEvent(Display *display, int event_type, XEvent
+//*event_return);
+	resize();
 	if (ximage)
 		XDestroyImage(ximage);
 	if (win) {
-		ximage = XGetImage(display, win, 0, 0, geo.w, geo.h, AllPlanes, ZPixmap);
+		//ximage = XGetImage(display, win, 0, 0, geo.w, geo.h, AllPlanes, ZPixmap);
+ximage = XGetImage(display, win, crop.x, crop.y, geo.w, geo.h, AllPlanes, ZPixmap);
 		return ximage->data;
 	}
 	return NULL;
 
+//XImage *XGetImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format);
 //XImage *XGetSubImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format, XImage *dest_image, int dest_x, dest_y);
 
 	//(running ? NULL : (void *)0x1 );
@@ -273,13 +298,8 @@ void XGrabLayer::close() {
 //		XFreeGC(display, gc);
 //		gc = NULL;
 //	}
-	if (win) {
-		func("resetting win_attr");
-		if (!XChangeWindowAttributes(display, win, CWBackingStore|CWSaveUnder, &win_sattr)) {
-			error("resetting win_attributes failed");
-		}
-		XSync(display, false);
-	}
+//	if (win) {
+//	}
 }
 
 DECLARE_CLASS_GC("XGrabLayer",js_xgrab_class,js_xgrab_constructor,js_layer_gc);
