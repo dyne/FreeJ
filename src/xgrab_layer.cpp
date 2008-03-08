@@ -267,7 +267,7 @@ void *XGrabLayer::feed() {
 	//func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
 	//return surf->pixels;
 	//
-	if (!win)
+	if (!win) // deactivate? / void pthread_exit(void *retval); // who join()?
 		return NULL;
 
 	XEvent event;
@@ -319,7 +319,8 @@ void *XGrabLayer::feed() {
 	if (win) {
 		//ximage = XGetImage(display, win, 0, 0, geo.w, geo.h, AllPlanes, ZPixmap);
 		ximage = XGetImage(display, win, crop.x, crop.y, geo.w, geo.h, AllPlanes, ZPixmap);
-		ret = ximage->data;
+		if (ximage)
+			ret = ximage->data;
 	}
 
 exit:
