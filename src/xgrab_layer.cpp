@@ -44,11 +44,18 @@ XGrabLayer::XGrabLayer()
 	
 	set_name("XGR");
 	jsclass = &js_xgrab_class;
+	int r = XInitThreads();
+	func("XinitThread: %i", r);
 }
 
 XGrabLayer::~XGrabLayer() {
 	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
 	close();
+}
+
+int bad_window_handler(Display *disp, XErrorEvent *err) {
+	error("No such window (0x%lx)", err->resourceid);
+	return 0; //the returned value is ignored
 }
 
 bool XGrabLayer::open(char *file) {
@@ -65,12 +72,15 @@ bool XGrabLayer::open() {
 	return open(win);
 }
 
+//int bad_window_handler(Display *, XErrorEvent *);
+
 bool XGrabLayer::open(uint32_t win_id_new) {
 	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
 	if (opened)
 		return 0;
 
 	char errmsg[MAX_ERR_MSG];
+	XErrorHandler old_h = XSetErrorHandler(bad_window_handler);
 // check win id ok
 //set_filename(display_name); <- win title ...
 
@@ -103,18 +113,23 @@ bool XGrabLayer::open(uint32_t win_id_new) {
 			"Can't get win attributes");
 		goto fail;
 	}
-
+	mapped = wa.map_state;
+//wa.class = InputOutput, InputOnly
 	func("xwin depth:%u ", wa.depth);
 {
 	int res = XSelectInput(display, win_id_new,
-	PropertyChangeMask|VisibilityChangeMask|
-	PointerMotionMask);
+		StructureNotifyMask| 	// ConfigureNotify,DestroyNotify,(un)MapNotify
+		VisibilityChangeMask|	// VisibilityNotify
+		PointerMotionMask|		// MotionNotify
+		ExposureMask			// (No)Expose, GraphicsExpose
+	);
 	func("xsel input: %i", res);
 }
 	XSync (display, False);
-	win = win_id_new;
+	//XSetErrorHandler(old_h);
 
 	lock();
+	win = win_id_new;
 	resize();
 	unlock();
 
@@ -245,14 +260,53 @@ bool XGrabLayer::init(Context *freej, int w, int h) {
 	crop.x=0;crop.y=0;crop.w=w;crop.h=h;
 	return true;
 }
+//XImage *XGetImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format);
+//XImage *XGetSubImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format, XImage *dest_image, int dest_x, dest_y);
+
 void *XGrabLayer::feed() {
 	//func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
 	//return surf->pixels;
 	//
+	if (!win)
+		return NULL;
+
+	XEvent event;
+	while(XCheckMaskEvent(display, ~0x0, &event)) {
+		switch (event.type) {
+			case VisibilityNotify:
+				func("vn");
+				break;
+			case DestroyNotify:
+				func("dn");
+				break;
+			case MapNotify:
+				func("mn");
+				mapped = true;
+				break;
+			case UnmapNotify:
+				func("un");
+				mapped = false;
+				break;
+			case ConfigureNotify:
+				func("cn");
+				break;
+			case PropertyNotify:
+				func("pn");
+				break;
+			default:
+				func("unh event: %i w:0x%x", event.type, ((XAnyEvent*)&event)->window);
+		}
+	}
+	void* ret = NULL;
+	XLockDisplay(display);
 	if (!XGetWindowAttributes(display, win, &wa)) {
 		error("%s", "Can't get win attributes");
-		quit=true;
-		return NULL;
+		goto exit;
+	}
+	if (wa.map_state != IsViewable) { // IsUnmapped, IsUnviewable, IsViewable
+		func("unmapped");
+		ret = (ximage ? ximage->data : NULL);
+		goto exit;
 	}
 //Bool XCheckMaskEvent(Display *display, long event_mask, XEvent
 //*event_return);
@@ -264,15 +318,13 @@ void *XGrabLayer::feed() {
 		XDestroyImage(ximage);
 	if (win) {
 		//ximage = XGetImage(display, win, 0, 0, geo.w, geo.h, AllPlanes, ZPixmap);
-ximage = XGetImage(display, win, crop.x, crop.y, geo.w, geo.h, AllPlanes, ZPixmap);
-		return ximage->data;
+		ximage = XGetImage(display, win, crop.x, crop.y, geo.w, geo.h, AllPlanes, ZPixmap);
+		ret = ximage->data;
 	}
-	return NULL;
 
-//XImage *XGetImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format);
-//XImage *XGetSubImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format, XImage *dest_image, int dest_x, dest_y);
-
-	//(running ? NULL : (void *)0x1 );
+exit:
+	XUnlockDisplay(display);
+	return ret;
 }
 
 //SDL_Surface *SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 flags);
