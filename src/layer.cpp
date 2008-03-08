@@ -95,7 +95,7 @@ void Layer::_init(int wdt, int hgt) {
 }
 
 void Layer::run() {
-  func("%s this=%p thread: %d %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
+  func("%s this=%p thread: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
 	void *tmp_buf;
 
 	//while(!feed()) 
@@ -135,7 +135,7 @@ void Layer::run() {
 		sleep_feed();
 	}
 		
-		func("%s this=%p thread end: %d %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
+		func("%s this=%p thread end: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
 }
 
 bool Layer::cafudda() {

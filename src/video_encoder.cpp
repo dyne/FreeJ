@@ -168,7 +168,7 @@ void VideoEncoder::run() {
     
   }
   
-  func("VideoEncoder::run : end thread %d", pthread_self() );
+  func("VideoEncoder::run : end thread %p", pthread_self() );
 
 }
 
