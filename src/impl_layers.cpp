@@ -115,32 +115,45 @@ Layer *create_layer(Context *env, char *file) {
 
   } else /* AVI LAYER */
     if( IS_VIDEO_EXTENSION(end_file_ptr) | IS_FIREWIRE_DEVICE(file_ptr)) {
-#ifdef WITH_FFMPEG
-      nlayer = new VideoLayer();
-      if(!nlayer->init( env )) {
-	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-	delete nlayer; return NULL;
+      func("is a movie layer");
+      nlayer = new MovieLayer();
+      func("MovieLayer instantiated");
+      if(!nlayer->init(env)) {
+ 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+ 	delete nlayer; return NULL;
       }
+      func("MovieLayer initialized");
       if(!nlayer->open(file_ptr)) {
-	error("create_layer : VIDEO open failed");
-	delete nlayer; nlayer = NULL;
+ 	error("create_layer : VIDEO open failed");
+ 	delete nlayer; nlayer = NULL;
       }
-#elif WITH_AVIFILE
-      if( strncasecmp(file_ptr,"/dev/ieee1394/",14)==0)
-	  nlayer=NULL;
-      nlayer = new AviLayer();
-      if(!nlayer->init( env )) {
-	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-	delete nlayer; return NULL;
-      }
-      if(!nlayer->open(file_ptr)) {
-	error("create_layer : AVI open failed");
-	delete nlayer; nlayer = NULL;
-      }
-#else
-      error("VIDEO and AVI layer support not compiled");
-      act("can't load %s",file_ptr);
-#endif
+
+// #ifdef WITH_FFMPEG
+//       nlayer = new VideoLayer();
+//       if(!nlayer->init( env )) {
+// 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+// 	delete nlayer; return NULL;
+//       }
+//       if(!nlayer->open(file_ptr)) {
+// 	error("create_layer : VIDEO open failed");
+// 	delete nlayer; nlayer = NULL;
+//       }
+// #elif WITH_AVIFILE
+//       if( strncasecmp(file_ptr,"/dev/ieee1394/",14)==0)
+// 	  nlayer=NULL;
+//       nlayer = new AviLayer();
+//       if(!nlayer->init( env )) {
+// 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+// 	delete nlayer; return NULL;
+//       }
+//       if(!nlayer->open(file_ptr)) {
+// 	error("create_layer : AVI open failed");
+// 	delete nlayer; nlayer = NULL;
+//       }
+// #else
+//      error("VIDEO and AVI layer support not compiled");
+      //    act("can't load %s",file_ptr);
+      // #endif
   } else /* IMAGE LAYER */
     if( IS_IMAGE_EXTENSION(end_file_ptr)) {
 //		strncasecmp((end_file_ptr-4),".png",4)==0) 

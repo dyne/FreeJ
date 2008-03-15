@@ -22,18 +22,18 @@ use JavaScript::Syntax::HTML qw(to_html);
 
 
 use constant LOCATION           => dirname($0) . '/';
-use constant MAIN_TMPL          => "main.tmpl";
-use constant ALLCLASSES_TMPL    => 'allclasses-frame.tmpl';
-use constant ALLCLASSES_NOFRAME_TMPL    => 'allclasses-noframe.tmpl';
-use constant OVERVIEW_FRAME_TMPL        => 'overview-frame.tmpl';
-use constant TREE_TMPL          => 'overview-tree.tmpl';
-use constant OVERVIEW_TMPL      => 'overview-summary.tmpl';
-use constant INDEX_TMPL         => 'index.tmpl';
-use constant DEFAULT_DEST_DIR   => 'js_docs_out/';
+use constant MAIN_TMPL          => "templates/main.tmpl";
+use constant ALLCLASSES_TMPL    => 'templates/allclasses-frame.tmpl';
+use constant ALLCLASSES_NOFRAME_TMPL    => 'templates/allclasses-noframe.tmpl';
+use constant OVERVIEW_FRAME_TMPL        => 'templates/overview-frame.tmpl';
+use constant TREE_TMPL          => 'templates/overview-tree.tmpl';
+use constant OVERVIEW_TMPL      => 'templates/overview-summary.tmpl';
+use constant INDEX_TMPL         => 'templates/index.tmpl';
+use constant DEFAULT_DEST_DIR   => 'html/';
 use constant STYLESHEET         => 'stylesheet.css';
-use constant HELP_TMPL          => 'help-doc.tmpl';
-use constant INDEX_ALL_TMPL     => 'index-all.tmpl';
-use constant CONSTANTS_TMPL     => 'constant-values.tmpl';
+use constant HELP_TMPL          => 'templates/help-doc.tmpl';
+use constant INDEX_ALL_TMPL     => 'templates/index-all.tmpl';
+use constant CONSTANTS_TMPL     => 'templates/constant-values.tmpl';
 
 use vars qw/ $CLASSES $DEFAULT_CLASSNAME @CLASSNAMES @INDEX %TMPL_CACHE
             %CLASS_ATTRS_MAP %METHOD_ATTRS_MAP %FILE_ATTRS_MAP %OPTIONS 

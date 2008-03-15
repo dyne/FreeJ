@@ -1,7 +1,7 @@
 INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/ccvt \
-           @FFMPEG_CFLAGS@ \
            -I$(top_srcdir)/lib/shout \
+           -I$(top_srcdir)/lib/lo \
            -I$(top_srcdir)/lib/portaudio \
            -I$(top_srcdir)/lib/sdl_image \
            -I$(top_srcdir)/lib/sdl_gfx \
@@ -12,12 +12,9 @@ INCLUDES = -I$(top_srcdir)/src/include \
 	   -I$(top_srcdir)/lib/goom \
            -I$(top_srcdir)/lib/tbt \
            -I$(top_srcdir)/lib/slw \
-	   -I$(top_srcdir)/lib/xmlrpc++ \
            -I/usr/include/slang \
-	@XIPH_INCLUDE@
-
-
-#           -I$(top_srcdir)/lib/portaudio-v19/pa_common
+	@XIPH_INCLUDE@ \
+	@MLT_INCLUDE@
 
 AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
@@ -49,10 +46,11 @@ freej_SOURCES = \
 	jutils.cpp	\
 	fastmemcpy.cpp  \
 	ringbuffer.cpp  \
-	xmlrpc_ctrl.cpp	\
 \
 	v4l_layer.cpp tvfreq.c	\
 	v4l_layer_js.cpp \
+	movie_layer.cpp \
+	movie_layer_js.cpp \
 	video_layer.cpp	\
 	video_layer_js.cpp \
 	image_layer.cpp \
@@ -84,8 +82,10 @@ freej_SOURCES = \
 	joy_ctrl.cpp	\
 	midi_ctrl.cpp   \
 	trigger_ctrl.cpp \
+	osc_ctrl.cpp \
 \
-	audio_input.cpp \
+	audio_jack.cpp  \
+	audio_collector.cpp \
 \
 	video_encoder.cpp \
 	video_encoder_js.cpp \
@@ -96,9 +96,7 @@ freej_SOURCES = \
 
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @XIPH_LIBS@ \
-		 @FFMPEG_LIBS@ \
-              $(top_srcdir)/lib/portaudio/libportaudio.a \
-		 @PORTAUDIO_LIBS@ \
+		 @MLT_LIBS@  \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
               $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
 	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
@@ -107,11 +105,13 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/goom/libgoom2.a \
               $(top_srcdir)/lib/tbt/libtbt.a \
               $(top_srcdir)/lib/slw/libslw.a \
-		$(top_srcdir)/lib/shout/libshout.a \
-		$(top_srcdir)/lib/xmlrpc++/libxmlrpc.a \
-              -ldl -lpthread -lm -lslang -lpng -ljpeg -lssl \
+              $(top_srcdir)/lib/shout/libshout.a \
+              $(top_srcdir)/lib/lo/liblo.a \
+              -ldl -lpthread -lm -lslang -lpng -ljpeg -lsndfile -lfftw3 \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \
-		 @FT2_LIBS@
+		 @FT2_LIBS@ \
+                 @FLASH_LIBS@ \
+		 @JACK_LIBS@
 

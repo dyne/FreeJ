@@ -1,7 +1,5 @@
-/*  FreeJ audio input
- *
+/*  FreeJ OSC controller
  *  (c) Copyright 2008 Denis Rojo <jaromil@dyne.org>
- *                
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -17,46 +15,62 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
+ * "$Id: $"
+ *
  */
 
-#include <stdlib.h>
-#include <string.h>
+#ifndef __OSC_CTRL_H__
+#define __OSC_CTRL_H__
 
-#include <config.h>
-#include <audio_input.h>
-#include <jutils.h>
+#include <controller.h>
+
+#include <lo/lo.h>
+
+#include <callbacks_js.h> // javascript
 
 
-AudioInput::AudioInput() {
-  func("creating audio input");
+class Context;
 
-  //  set_format(1, 44100); // default mono 44khz
+class OscCommand: public Entry {
+ public:
+  // osc_cmd is Entry::name
+  char proto_cmd[128];
+  char js_cmd[512];
+};
 
-  audio = NULL;
+class JsCommand: public Entry {
+ public:
+  // name is function
+  jsval function;
+  int argc;
+  jsval *argv;
 
-  initialized = false;
-  started = false;
-}
+};
 
-AudioInput::~AudioInput() {
+class OscController: public Controller {
 
-  if(audio) delete audio;
+ public:
+  OscController();
+  ~OscController();
 
-}
+  bool init(JSContext *env, JSObject *obj);
 
-bool AudioInput::init() {
-  notice("Initializing audio input jack");
+  bool start(int port);
+  void stop();
 
-  audio = new AudioCollector(name, 2048, 44100);
+  int peep(Context *env);
+  int poll(Context *env);
 
-  if(!audio) return(false);
 
-  act("audio initialization succesful");
-  initialized = true;
+  Context *freej;
 
-  return true;
-  
-}
+  lo_server_thread srv;
 
-  
+  char port[64];
 
+  Linklist commands_handled;
+  Linklist commands_pending;
+
+};
+
+#endif

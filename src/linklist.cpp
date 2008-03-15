@@ -223,13 +223,13 @@ Entry *Linklist::search(char *name, int *idx) {
   Entry *ptr = first;
   while(ptr) {
     if( strcasecmp(ptr->name,name)==0 ) {
-      *idx = c;
+      if(idx) *idx = c;
       return(ptr);
     }
     ptr = ptr->next;
     c++;
   }
-  *idx = 0;
+  if(idx) *idx = 0;
   return(NULL);
 }    
 /* searches all the linklist for entries starting with *needle

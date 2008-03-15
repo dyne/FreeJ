@@ -33,9 +33,12 @@
 
 #include <context.h>
 #include <sdl_screen.h>
-#include <audio_input.h>
+#include <audio_collector.h>
 
 #include <oggtheora_encoder.h>
+extern "C" {
+#include <mlt/framework/mlt.h>
+}
 
 
 OggTheoraEncoder::OggTheoraEncoder() 
@@ -46,7 +49,7 @@ OggTheoraEncoder::OggTheoraEncoder()
   audio_quality =  10; // it's ok for streaming
 
   //  picture_rgb = NULL;
-  enc_rgb24 = NULL;
+  //  enc_rgb24 = NULL;
   enc_y = enc_u = enc_v = NULL;
 
   use_audio = true;
@@ -65,10 +68,11 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   oggmux_flush(&oggmux, 1);
   oggmux_close(&oggmux);
   
-  if(enc_rgb24) free(enc_rgb24);
+  //  if(enc_rgb24) free(enc_rgb24);
   if(enc_y) free(enc_y);
   if(enc_u) free(enc_u);
   if(enc_v) free(enc_v);
+  if(enc_yuyv) free(enc_yuyv);
 
 }
 
@@ -85,11 +89,15 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.bytes_encoded = 0;
 
   oggmux.audio_only = 0;
-  if(use_audio) oggmux.video_only = 0;
-  else oggmux.video_only = 1;
+  if(use_audio && env->audio) 
+    oggmux.video_only = 0;
+  else {
+    oggmux.video_only = 1;
+    use_audio = false;
+  }
 
-  oggmux.sample_rate = env->audio->sample_rate;
-  oggmux.channels = env->audio->channels;
+  oggmux.sample_rate = 44100;
+  oggmux.channels = 1;
   oggmux.vorbis_quality = audio_quality / 100;
   oggmux.vorbis_bitrate = audio_bitrate;
 
@@ -125,9 +133,9 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.ti.aspect_denominator           = 0;
   oggmux.ti.colorspace                   = OC_CS_ITU_REC_470BG;
   //	oggmux.ti.colorspace                   = OC_CS_UNSPECIFIED;
-#ifndef HAVE_64BIT
-  oggmux.ti.pixelformat                  = OC_PF_420;
-#endif
+  // #ifndef HAVE_64BIT
+  oggmux.ti.pixelformat                  = OC_PF_420; // was OC_PF_420 with ccvt
+  // #endif
   oggmux.ti.target_bitrate               = video_bitrate;
   oggmux.ti.quality                      = theora_quality;
   
@@ -143,33 +151,14 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.ti.sharpness                    = 1;
 
   oggmux_init(&oggmux);
+  
 
-
-  
-  if (! init_yuv_frame()) {
-    error("initialization of yuv frame buffer for encoder %s failed", name);
-    return false;
-  }
-  
-  
-  /*
-  func("init picture_rgb for colorspace conversion (avcodec)");
-  picture_rgb = avcodec_alloc_frame ();
-  picture_rgb -> data[0]     = NULL;
-  picture_rgb -> data[1]     = NULL;
-  picture_rgb -> data[2]     = NULL;
-  picture_rgb -> linesize[0] = video_x * 4;
-  */
   func("init picture_yuv for colorspace conversion (avcodec)");  
-  enc_rgb24 = malloc(  screen->w * screen->h *3);
+
   enc_y     = malloc(  screen->w * screen->h);
   enc_u     = malloc( (screen->w * screen->h)/2);
   enc_v     = malloc( (screen->w * screen->h)/2);
-  //  picture_yuv = avcodec_alloc_frame ();
-  
-  //  int size = avpicture_get_size (PIX_FMT_YUV420P, video_x, video_y);
-  //  uint8_t *video_outbuf = (uint8_t *) av_malloc (size);
-  //  avpicture_fill ((AVPicture *)picture_yuv, video_outbuf, PIX_FMT_YUV420P, video_x, video_y);
+  enc_yuyv   = (uint8_t*)malloc(  screen->size );
   
   act("initialization succesful");
   initialized = true;
@@ -195,18 +184,27 @@ int OggTheoraEncoder::encode_frame() {
 
 
 bool OggTheoraEncoder::feed_video() {  
-  /* Convert picture from rgb to yuv420 
-  picture_rgb -> data[0]     = (uint8_t *) screen-> get_surface ();
-  
-  img_convert ((AVPicture *)picture_yuv, PIX_FMT_YUV420P,
-	       (AVPicture *)picture_rgb, PIX_FMT_RGBA32,
-	       video_x, video_y);
+  /* Convert picture from rgb to yuv420 planar 
 
-	       now using ccvt:
-void ccvt_420p_rgb32(int width, int height, const void *src, void *dst);
+     two steps here:
+     
+     1) rgb24a or bgr24a to yuv422 interlaced (yuyv)
+     2) yuv422 to yuv420 planar (yuv420p)
+
+     to fix endiannes issues try adding #define ARCH_PPC
+     and using 
+     mlt_convert_bgr24a_to_yuv422
+     or
+     mlt_convert_argb_to_yuv422
+     (see mlt_frame.h in mltframework.org sourcecode)
+     i can't tell as i don't have PPC, waiting for u mr.goil :)
   */
-  ccvt_rgb32_rgb24(screen->w, screen->h, screen->get_surface(), enc_rgb24);
-  ccvt_rgb24_420p( screen->w, screen->h, enc_rgb24, enc_y, enc_u, enc_v);
+
+  mlt_convert_rgb24a_to_yuv422((uint8_t*)screen->get_surface(),
+			       screen->w, screen->h,
+			       screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+
+  ccvt_yuyv_420p(screen->w, screen->h, enc_yuyv, enc_y, enc_u, enc_v);
 
   return true;
 }
@@ -226,14 +224,14 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
   //  yuv.y_stride  = picture_yuv->linesize [0];
   yuv.y_stride = video_x;
   
-  yuv.uv_width  = video_x / 2;
-  yuv.uv_height = video_y / 2;
+  yuv.uv_width  = video_x >> 1;
+  yuv.uv_height = video_y >> 1;
   //  yuv.uv_stride = picture_yuv->linesize [1];
-  yuv.uv_stride = video_x / 2;
-  
-  yuv.y = (uint8_t *) enc_y;
-  yuv.u = (uint8_t *) enc_u;
-  yuv.v = (uint8_t *) enc_v;
+  yuv.uv_stride = video_x >> 1;
+
+   yuv.y = (uint8_t *) enc_y;
+   yuv.u = (uint8_t *) enc_u;
+   yuv.v = (uint8_t *) enc_v;
   
   /* encode image */
   oggmux_add_video (&oggmux, &yuv, end_of_stream);
@@ -242,45 +240,23 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
 }
 
 int OggTheoraEncoder::encode_audio( int end_of_stream) {
-  int num;
-  int read;
 
-  num = env->audio->framesperbuffer*env->audio->channels*sizeof(int16_t);
+  //  num = env->audio->framesperbuffer*env->audio->channels*sizeof(int16_t);
   
-  read = ringbuffer_read(env->audio->input_pipe, (char*)env->audio->input, num); 
   ///// QUAAAA
   //  oggmux_add_audio (oggmux_info *info, int16_t * readbuffer, int bytesread, int samplesread,int e_o_s);
-  oggmux_add_audio(&oggmux, env->audio->input,
-		   read,
-		   read / env->audio->channels /2,
-		   end_of_stream );
-  
+  //  oggmux_add_audio(&oggmux, env->audio->input,
+  //		   read,
+  //		   read / env->audio->channels /2,
+  //		   end_of_stream );
+  oggmux_add_audio_float(&oggmux, env->audio->GetAudioBuffer(),
+			 env->audio->BufferLength, end_of_stream);
+
+
   return 1;
 }
 
-bool OggTheoraEncoder::init_yuv_frame() {
-  func ("OggTheoraEncoder init yuv frame");
-  
-  yuvframe[0]    = NULL;
-  yuvframe[1]    = NULL;
-  
-  /* initialize the double frame buffer */
-  yuvframe[0] = (uint8_t *)jalloc ( yuvframe[0], video_x * video_y * 3/2);
-  yuvframe[1] = (uint8_t *)jalloc ( yuvframe[1], video_x * video_y * 3/2);
-  
-  if (yuvframe[0] == NULL || yuvframe[1] ==NULL ) {
-    error("OggTheoraEncoder::init_yuv_frame() can't get memory :(");
-    return false;	
-  }
-  
-  /* clear initial frame as it may be larger than actual video data */
-  /* fill Y plane with 0x10 and UV planes with 0X80, for black data */
-  memset (yuvframe[0], 0x10, video_x * video_y);
-  memset (yuvframe[0] + video_x * video_y, 0x80, video_x * video_y / 2);
-  memset (yuvframe[1], 0x10,video_x*video_y);
-  memset (yuvframe[1] + video_x * video_y, 0x80, video_x * video_y / 2);
-  return true;
-}
+
 
 
 #endif

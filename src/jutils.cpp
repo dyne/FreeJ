@@ -167,19 +167,19 @@ void warning(char *format, ...) {
   }
 }
 
-void *jalloc(void *point,size_t size) {
-  if(point!=NULL)
-    if(verbosity>0) warning("requested malloc on a non-NULL pointer");
-  
-  point = malloc(size);
-
-  if(point==NULL) {
-    error("cannot allocate %u bytes of memory",size);
-    return(NULL);
-  } else if(verbosity>=FUNC) {
-    fprintf(stderr,"[M] allocated memory at %p sized %u bytes\n",point,(unsigned int)size);
+void *jalloc(size_t size) {
+  void *buf;
+  int res;
+  res = posix_memalign(&buf, 32, size);
+  if(res!=0) {
+    if(res==ENOMEM)
+      error("insufficient memory to allocate buffer");
+    if(res==EINVAL)
+      error("invalid memory alignement to 32 bytes in buffer allocation");
+    return NULL;
   }
-  return(point);
+  func("allocated %u bytes of memory at %p",size,buf);
+  return(buf);
 }
 
 bool jfree(void *point) {

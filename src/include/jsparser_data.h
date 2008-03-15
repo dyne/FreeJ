@@ -57,12 +57,15 @@ JS(geometry_layer_constructor);
 JS(image_layer_constructor);
 JS(flash_layer_constructor);
 JS(goom_layer_constructor);
+JS(movie_layer_constructor);
 
 #ifdef WITH_V4L
 JS(v4l_layer_constructor);
 #endif
 #ifdef WITH_FFMPEG
 JS(video_layer_constructor);
+#else
+JS(movie_layer_constructor);
 #endif
 #ifdef WITH_FT2
 JS(txt_layer_constructor);
@@ -76,7 +79,7 @@ JS(js_joy_ctrl_constructor);
 JS(js_midi_ctrl_constructor);
 #endif
 JS(js_trigger_ctrl_constructor);
-JS(js_xmlrpc_ctrl_constructor);
+JS(js_osc_ctrl_constructor);
 
 // encoder constructor
 #ifdef WITH_OGGTHEORA
@@ -120,9 +123,9 @@ extern JSFunctionSpec js_midi_ctrl_methods[];
 extern JSClass js_trigger_ctrl_class;
 extern JSFunctionSpec js_trigger_ctrl_methods[];
 
-// XmlRpc Controller
-extern JSClass js_xmlrpc_ctrl_class;
-extern JSFunctionSpec js_xmlrpc_ctrl_methods[];
+// OSC Controller
+extern JSClass js_osc_ctrl_class;
+extern JSFunctionSpec js_osc_ctrl_methods[];
 
 // ParticleLayer
 extern JSClass particle_layer_class;
@@ -164,6 +167,9 @@ extern JSFunctionSpec txt_layer_methods[];
 #ifdef WITH_FFMPEG
 extern JSClass video_layer_class;
 extern JSFunctionSpec video_layer_methods[];
+#else
+extern JSClass movie_layer_class;
+extern JSFunctionSpec movie_layer_methods[];
 #endif
 
 #ifdef WITH_OGGTHEORA

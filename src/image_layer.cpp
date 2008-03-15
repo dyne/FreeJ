@@ -93,7 +93,7 @@ bool ImageLayer::open(char *file) {
     black_image = NULL;
   }
 
-  black_image = jalloc(black_image,geo.size);
+  black_image = jalloc(geo.size);
   // paint it black!
   black_image = memset(black_image,0,geo.size);
 

@@ -150,8 +150,8 @@
 /* Define if using the dmalloc debugging malloc package */
 #undef WITH_DMALLOC
 
-/* define if compiling movie layer linking to ffmpeg libavcodec */
-#undef WITH_FFMPEG
+/* define if compiling flash layer */
+#undef WITH_FLASH
 
 /* define if compiling freetype2 layer */
 #undef WITH_FT2

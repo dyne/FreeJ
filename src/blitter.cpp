@@ -684,7 +684,7 @@ bool Blitter::set_blit(char *name) {
 
   if(b->type == PAST_BLIT) { // must fill previous frame
     if(b->past_frame) free(b->past_frame);
-    b->past_frame = calloc(layer->geo.size,1);
+    b->past_frame = jalloc(layer->geo.size);
   }
 
   if(zeroing) b->value = 0.0;

@@ -1,19 +1,27 @@
 
+  goil revision of threading and timing
+
+  jrml implement OSC programmable controller
+
+  jrml rewrite movielayer with new ffmpeg or openMLT libs
+
+  *** rewrite video4linux layer with libunicap
+
+  jrml sound frequency and beat parametrization (get harmonics from fluxus)
+
+  *** write a separate GUI to control freej via OSC
+
   *** fix TBT layer, colors on text
 
-  *** port EffecTV filters to Frei0r
-
-  *** sound frequency and beat parametrization
+  joep port EffecTV filters to Frei0r
 
   *** complete and refine the Iterator class
-
-  *** Open Sound Control for remote interoperability
 
   *** File object in javascript to read/write files in ascii/binary
 
   *** Javascript class to read XML RSS feeds
 
-  *** build VeeJaying Artificial Intelligence scripts
+  *** build more scripts
 
   *** 8bit geometrical mask blits and fades
 

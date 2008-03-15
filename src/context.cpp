@@ -32,7 +32,7 @@
 #include <SDL_framerate.h>
 #include <jsparser.h>
 #include <video_encoder.h>
-#include <audio_input.h>
+#include <audio_collector.h>
 #include <impl_video_encoders.h>
 #include <signal.h>
 #include <errno.h>
@@ -40,6 +40,10 @@
 #include <jutils.h>
 #include <fastmemcpy.h>
 #include <config.h>
+
+extern "C" {
+#include <mlt/framework/mlt.h>
+}
 
 void fsigpipe (int Sig);
 int got_sigpipe;
@@ -124,6 +128,9 @@ Context::~Context() {
     ctrl = (Controller *)controllers.begin();
   }
 
+  // close MLT
+  mlt_factory_close();
+
   if (screen) {
     delete screen;
     screen = NULL;
@@ -144,7 +151,7 @@ Context::~Context() {
   notice ("cu on http://freej.dyne.org");
 }
 
-bool Context::init(int wx, int hx, bool opengl) {
+bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
 
   notice("initializing context environment", wx, hx);
 
@@ -165,16 +172,6 @@ bool Context::init(int wx, int hx, bool opengl) {
   
   // create javascript object
   js = new JsParser (this);
-
-  /* create Audio Input
-     audio card is opened at audio->init()
-  */
-  audio = new AudioInput();
-  audio->init();
-  /* audio->start() is called by rocknroll
-     if any objects being used needs audio input
-//   audio->start();
-  */
 
 #ifdef WITH_FT2
   num_fonts = 0;
@@ -206,6 +203,14 @@ bool Context::init(int wx, int hx, bool opengl) {
 
   SDL_initFramerate(&FPS);
   SDL_setFramerate(&FPS, fps_speed);
+
+  if(init_audio) 
+    audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
+
+  // initialize MLT
+  mlt_factory_init( NULL );
+
+
 
   // register SIGPIPE signal handler (stream error)
   got_sigpipe = false;
@@ -264,12 +269,6 @@ void Context::cafudda(double secs) {
 
 
     ///////////////////////////////
-    /// process audio input
-    //    audio->cafudda();
-    ///////////////////////////////
-    
-    
-    ///////////////////////////////
     /// cafudda all active LAYERS
     lay = (Layer *)layers.end ();
     ///// process each layer in the chain
@@ -325,11 +324,12 @@ void Context::cafudda(double secs) {
     // honour quit requests
     if(quit) break; // quit was called
 
-    //    riciuca = (dtime() - now < secs) ? true : false;
+
     
-    //    calc_fps ();
-    SDL_framerateDelay(&FPS);
-    // synced with desired fps here
+    /// FPS calculation
+    SDL_framerateDelay(&FPS); // synced with desired fps here
+    // continues N seconds or quits after one cycle
+    //    riciuca = (dtime() - now < secs) ? true : false;
     //////////////////////////////////
 
 
@@ -612,11 +612,11 @@ void Context::rocknroll() {
 
   // start audio capture if needed by layer/encoders
   if(need_audio) {
-    //    act("starting audio capture");
-    audio->start();
-  } else {
-    //    act("stopping audio capture");
-    audio->stop();
+
+    if(!audio)
+
+      audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
+
   }
 
 }

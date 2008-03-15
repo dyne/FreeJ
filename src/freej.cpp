@@ -32,7 +32,6 @@
 
 #include <osd.h>
 #include <video_encoder.h>
-#include <audio_input.h>
 #include <plugger.h>
 #include <jutils.h>
 #include <config.h>
@@ -58,6 +57,7 @@ static const char *help =
 " .   -v   version information\n"
 " .   -D   debug verbosity level - default 1\n"
 " .   -s   size of screen - default 400x300\n"
+" .   -a   initialize audio (using jack)\n"
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
 " .   -c   no interactive text console\n"
@@ -73,7 +73,7 @@ static const char *help =
 " .   this binary is compiled to support the following layer formats:\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gs:nj:cgf:F";
+static const char *short_options = "-hvD:gas:nj:cgf:F";
 
 /* this is the global FreeJ context */
 Context freej;
@@ -91,6 +91,7 @@ int fps = 24;
 bool startstate = true;
 bool gtkgui = false;
 bool opengl = false;
+bool init_audio = false;
 bool noconsole = false;
 bool fullscreen = false;
 
@@ -138,6 +139,10 @@ void cmdline(int argc, char **argv) {
 	width = 240;
       }
       */
+      break;
+
+    case 'a':
+      init_audio = true;
       break;
 
     case 'm':
@@ -259,7 +264,7 @@ int main (int argc, char **argv) {
   cmdline(argc,argv);
   set_debug(debug_level);
 
-  assert( freej.init(width,height, opengl) );
+  assert( freej.init(width,height, opengl, init_audio) );
 
   if(fullscreen) freej.screen->fullscreen();
 
