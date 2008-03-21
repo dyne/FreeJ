@@ -1,4 +1,5 @@
 INCLUDES = -I$(top_srcdir)/src/include \
+           -I$(top_srcdir)/lib \
            -I$(top_srcdir)/lib/ccvt \
            -I$(top_srcdir)/lib/shout \
            -I$(top_srcdir)/lib/lo \
@@ -107,11 +108,13 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/slw/libslw.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/lo/liblo.a \
-              -ldl -lpthread -lm -lslang -lpng -ljpeg -lsndfile -lfftw3 \
+              -ldl -lpthread -lm -lslang -lpng -ljpeg -lsndfile \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \
 		 @FT2_LIBS@ \
                  @FLASH_LIBS@ \
-		 @JACK_LIBS@
+                 @ALSA_LIBS@ \
+		 @JACK_LIBS@ \
+                 @FFTW_LIBS@
 
