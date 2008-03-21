@@ -216,7 +216,8 @@ JS(js_joy_ctrl_constructor) {
 error:
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
               JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);
-    cx->newborn[GCX_OBJECT] = NULL;
+    //    cx->newborn[GCX_OBJECT] = NULL;
+    // same omissis as in callbacks_js.h
     delete joy; return JS_FALSE;
 }
 
