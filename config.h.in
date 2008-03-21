@@ -126,12 +126,6 @@
 /* define little endian arch for portaudio */
 #undef PA_LITTLE_ENDIAN
 
-/* define if portaudio uses Alsa */
-#undef PA_USE_ALSA
-
-/* define if portaudio uses Jack */
-#undef PA_USE_JACK
-
 /* define if compiling for PPC */
 #undef POWERPC_MODE_32BITS
 
