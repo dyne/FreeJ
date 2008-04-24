@@ -32,19 +32,19 @@
 #include <jsnum.h>
 #include <jscntxt.h>
 
-// stuff for exception handling "try{} catch(e) {}"
-typedef enum JSExnType {
-    JSEXN_NONE = -1,
-        JSEXN_ERR,
-        JSEXN_INTERNALERR,
-        JSEXN_EVALERR,
-        JSEXN_RANGEERR,
-        JSEXN_REFERENCEERR,
-        JSEXN_SYNTAXERR,
-        JSEXN_TYPEERR,
-        JSEXN_URIERR,
-        JSEXN_LIMIT
-} JSExnType;
+/* // stuff for exception handling "try{} catch(e) {}" */
+/* typedef enum JSExnType { */
+/*     JSEXN_NONE = -1, */
+/*         JSEXN_ERR, */
+/*         JSEXN_INTERNALERR, */
+/*         JSEXN_EVALERR, */
+/*         JSEXN_RANGEERR, */
+/*         JSEXN_REFERENCEERR, */
+/*         JSEXN_SYNTAXERR, */
+/*         JSEXN_TYPEERR, */
+/*         JSEXN_URIERR, */
+/*         JSEXN_LIMIT */
+/* } JSExnType; */
 /* FIXME:
 I don't know how to override which JSException type we want ... we don't get ours from jsfreej.msg api still uses js.msg :(
 static JSExnType errorToExceptionNum[] = {
@@ -135,7 +135,6 @@ JS(constructor_func) {                                                        \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
                          JSSMSG_FJ_CANT_CREATE, __func__,                     \
                       "cannot create constructor_class");                     \
-    cx->newborn[GCX_OBJECT] = NULL;                                           \
     return JS_FALSE;						              \
   }									      \
   rval = (jsval*)layer->js_constructor(env, cx, obj, argc, argv, excp_msg);   \
@@ -143,11 +142,14 @@ JS(constructor_func) {                                                        \
     delete layer;                                                             \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
                          JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);          \
-    cx->newborn[GCX_OBJECT] = NULL;                                           \
     return JS_FALSE;                                                          \
   }                                                                           \
   return JS_TRUE;							      \
 }
+// this was removed from the error proccedure in the macro above:
+//    cx->newborn[GCX_OBJECT] = NULL;				\
+// as since javascript 1.7 the newborn field of struct doesn't exists anymore
+// hopefully the object is null'd and freed correctly -jrml
 
 // Gets a pointer to the layer from the private object of javascript
 // it can be then referenced as *lay

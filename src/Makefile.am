@@ -108,7 +108,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/slw/libslw.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/lo/liblo.a \
-              -ldl -lpthread -lm -lslang -lpng -ljpeg -lsndfile \
+              -ldl -lpthread -lm -lslang -lpng -ljpeg \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \
@@ -116,5 +116,6 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
                  @FLASH_LIBS@ \
                  @ALSA_LIBS@ \
 		 @JACK_LIBS@ \
-                 @FFTW_LIBS@
+                 @FFTW_LIBS@ \
+                 @SNDFILE_LIBS@
 

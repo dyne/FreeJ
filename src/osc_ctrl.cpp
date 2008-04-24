@@ -163,7 +163,7 @@ JS(js_osc_ctrl_constructor) {
  error:
   JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
 		       JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);
-  cx->newborn[GCX_OBJECT] = NULL;
+  //  cx->newborn[GCX_OBJECT] = NULL;
   delete osc; return JS_FALSE;
 }
 
