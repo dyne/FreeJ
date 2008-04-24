@@ -40,7 +40,7 @@ void func(char *format, ...);
 void error(char *format, ...);
 void act(char *format, ...);
 void warning(char *format, ...);
-void *jalloc(void *point,size_t size);
+void *jalloc(size_t size);
 bool jfree(void *point);
 uint32_t fastrand();
 void fastsrand(uint32_t seed);

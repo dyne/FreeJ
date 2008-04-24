@@ -36,6 +36,7 @@
 #include <flash_layer.h> // statically included flash layer
 #include <goom_layer.h>
 #include <tbt_layer.h>
+#include <movie_layer.h>
 
 #ifdef WITH_V4L
 #include <v4l_layer.h>
@@ -67,6 +68,7 @@
 	| strncasecmp((end_file_ptr-4),".mpg",4)==0  	\
 	| strncasecmp((end_file_ptr-4),".mp4",4)==0     \
 	| strncasecmp((end_file_ptr-4),".ogg",4)==0     \
+        | strncasecmp((end_file_ptr-4),".gif",4)==0  	\
 	| strncasecmp((end_file_ptr-4),".ogm",4)==0     \
 	| strncasecmp((end_file_ptr-4),".3gp",4)==0
 

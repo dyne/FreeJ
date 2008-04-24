@@ -52,7 +52,7 @@
 
 class Console;
 class JsParser;
-class AudioInput;
+class AudioCollector;
 class VideoEncoder;
 
 class FreejDaemon;
@@ -82,7 +82,7 @@ class Context {
   Context();
   ~Context();
 
-  bool init(int wx, int hx, bool opengl);
+  bool init(int wx, int hx, bool opengl, bool init_audio);
   //  void close();
   void cafudda(double secs);
 
@@ -142,7 +142,7 @@ class Context {
 
 
 
-  AudioInput *audio; ///< audio device recording input (PortAudio)
+  AudioCollector *audio; ///< audio device recording input (PortAudio)
 
   Plugger plugger; ///< filter plugins host
 

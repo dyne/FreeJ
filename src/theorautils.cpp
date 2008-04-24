@@ -413,6 +413,45 @@ void oggmux_add_audio (oggmux_info *info, int16_t * buffer, int bytes, int sampl
     }
 }
 
+/** 
+ * adds audio samples (float) to encoding sink
+ * @param buffer pointer to buffer
+ * @param samples samples in buffer
+ * @param e_o_s 1 indicates end of stream.
+ */
+void oggmux_add_audio_float (oggmux_info *info, float * buffer, int samples, int e_o_s){
+    ogg_packet op;
+
+    int i,j, count = 0;
+    float **vorbis_buffer;
+    if (samples <= 0){
+        /* end of audio stream */
+        if(e_o_s)
+            vorbis_analysis_wrote (&info->vd, 0);
+    }
+    else{
+        vorbis_buffer = vorbis_analysis_buffer (&info->vd, samples);
+        /* uninterleave samples */
+        for (i = 0; i < samples; i++){
+            for(j=0;j<info->channels;j++){
+                vorbis_buffer[j][i] = buffer[count++];
+            }
+        }
+        vorbis_analysis_wrote (&info->vd, samples);
+    }
+    while(vorbis_analysis_blockout (&info->vd, &info->vb) == 1){
+        /* analysis, assume we want to use bitrate management */
+        vorbis_analysis (&info->vb, NULL);
+        vorbis_bitrate_addblock (&info->vb);
+        
+        /* weld packets into the bitstream */
+        while (vorbis_bitrate_flushpacket (&info->vd, &op)){
+            ogg_stream_packetin (&info->vo, &op);
+            info->a_pkg++;
+        }
+    }
+}
+
 static double get_remaining(oggmux_info *info, double timebase) {
   double remaining = 0;
   double to_encode, time_so_far;

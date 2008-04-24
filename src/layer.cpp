@@ -95,9 +95,9 @@ void Layer::run() {
 
   func("Layer %s :: run :: begin thread %d", name, pthread_self());
 
-  while(!feed()) 
-      jsleep (0,50);
-  
+  //  while(!feed()) 
+  //      jsleep (0,50);
+  feed();
   func("ok, layer %s in rolling loop",get_name());
 
   

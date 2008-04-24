@@ -1,5 +1,7 @@
-/*  FreeJ
- *  (c) Copyright 2001-2007 Denis Rojo aka jaromil <jaromil@dyne.org>
+/*  FreeJ Midi Controller
+ *  (c) Copyright 2006-2007 Christoph Rudorff <goil@dyne.org>
+ *
+ * code inspired by seqdemo.c by Matthias Nagorni
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -14,10 +16,9 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
-/* seqdemo.c by Matthias Nagorni */
-/* midi_ctrl.cpp for freej by MrGoil */
 
 #include <config.h>
 

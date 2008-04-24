@@ -169,6 +169,12 @@ void JsParser::init() {
 		   video_layer_constructor,
 		   video_layer_methods,
            object_proto);
+#else
+    REGISTER_CLASS("MovieLayer",
+		   movie_layer_class,
+		   movie_layer_constructor,
+		   movie_layer_methods,
+           object_proto);
 #endif
 
 #ifdef WITH_AVIFILE
@@ -228,11 +234,11 @@ void JsParser::init() {
            object_proto);
 #endif
 
-    REGISTER_CLASS("XmlRpcController",
-		   js_xmlrpc_ctrl_class,
-		   js_xmlrpc_ctrl_constructor,
-		   js_xmlrpc_ctrl_methods,
-           object_proto);
+    REGISTER_CLASS("OscController",
+		   js_osc_ctrl_class,
+		   js_osc_ctrl_constructor,
+		   js_osc_ctrl_methods,
+		   object_proto);
 
 #ifdef WITH_OGGTHEORA
     // encoder class

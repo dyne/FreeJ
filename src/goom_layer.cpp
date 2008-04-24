@@ -19,7 +19,7 @@
 
 #include <jutils.h>
 #include <context.h>
-#include <audio_input.h>
+#include <audio_collector.h>
 
 #include <goom_layer.h>
 
@@ -44,11 +44,16 @@ bool GoomLayer::init(Context *freej) {
 
   func("GoomLayer::init()");
 
+  if(!freej->audio) {
+    error("can't create Goom Layer: audio is not connected");
+    return false;
+  }
+
   _init(width,height);
   
   goom = goom_init(geo.w, geo.h);
 
-  buffer = calloc(geo.size,1);
+  buffer = jalloc(geo.size);
 
   
   goom_set_screenbuffer(goom, buffer);
@@ -90,18 +95,23 @@ void *GoomLayer::feed() {
     } */
 
   
-  if(env->audio->channels == 2) {
-    for( c = 0; c<512 ; c++ ) {
-      audio[0][c] = (int16_t) (env->audio->input[c*2]);
-      audio[1][c] = (int16_t) (env->audio->input[(c*2)+1]);
-    }
-  } else {
-    for( c = 0; c<512 ; c++ ) {
-      audio[0][c] = (int16_t) (env->audio->input[c]);
-      audio[1][c] = (int16_t) (env->audio->input[c]);
-    }
+//   if(env->audio->channels == 2) {
+//     for( c = 0; c<512 ; c++ ) {
+//       audio[0][c] = (int16_t) (env->audio->input[c*2]);
+//       audio[1][c] = (int16_t) (env->audio->input[(c*2)+1]);
+//     }
+//   } else {
+//     for( c = 0; c<512 ; c++ ) {
+//       audio[0][c] = (int16_t) (env->audio->input[c]);
+//       audio[1][c] = (int16_t) (env->audio->input[c]);
+//     }
+//   }
+  float *buffer = env->audio->GetAudioBuffer();
+
+  for( c = 0; c<512 ; c++) {
+    audio[0][c] = (int16_t) buffer[c];
+    audio[1][c] = (int16_t) buffer[c];
   }
-  
   //  ringbuffer_peek(env->audio->input_pipe, (char*)audio, 1024);
 
   goom_update(goom, audio, 0, -1, NULL, NULL);

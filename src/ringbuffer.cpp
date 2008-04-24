@@ -29,13 +29,15 @@
 #endif /* USE_MLOCK */
 #include <ringbuffer.h>
 
+#include <jutils.h>
+
 /* Create a new ringbuffer to hold at least `sz' bytes of data. The
    actual buffer size is rounded up to the next power of two.  */
 
 ringbuffer_t *
 ringbuffer_create (size_t sz)
 {
-  int power_of_two;
+  unsigned int power_of_two;
   ringbuffer_t *rb;
 
   rb = (ringbuffer_t*) malloc (sizeof (ringbuffer_t));
@@ -47,7 +49,7 @@ ringbuffer_create (size_t sz)
   rb->size_mask -= 1;
   rb->write_ptr = 0;
   rb->read_ptr = 0;
-  rb->buf = (char*)malloc (rb->size);
+  rb->buf = (char*)jalloc (rb->size);
   rb->mlocked = 0;
 
   return rb;
@@ -158,12 +160,12 @@ ringbuffer_read (ringbuffer_t * rb, char *dest, size_t cnt)
     n2 = 0;
   }
 
-  memcpy (dest, &(rb->buf[rb->read_ptr]), n1);
+  jmemcpy (dest, &(rb->buf[rb->read_ptr]), n1);
   rb->read_ptr += n1;
   rb->read_ptr &= rb->size_mask;
 
   if (n2) {
-    memcpy (dest + n1, &(rb->buf[rb->read_ptr]), n2);
+    jmemcpy (dest + n1, &(rb->buf[rb->read_ptr]), n2);
     rb->read_ptr += n2;
     rb->read_ptr &= rb->size_mask;
   }
@@ -202,12 +204,12 @@ ringbuffer_peek (ringbuffer_t * rb, char *dest, size_t cnt)
     n2 = 0;
   }
 
-  memcpy (dest, &(rb->buf[tmp_read_ptr]), n1);
+  jmemcpy (dest, &(rb->buf[tmp_read_ptr]), n1);
   tmp_read_ptr += n1;
   tmp_read_ptr &= rb->size_mask;
 
   if (n2) {
-    memcpy (dest + n1, &(rb->buf[tmp_read_ptr]), n2);
+    jmemcpy (dest + n1, &(rb->buf[tmp_read_ptr]), n2);
     tmp_read_ptr += n2;
     tmp_read_ptr &= rb->size_mask;
   }
@@ -243,12 +245,12 @@ ringbuffer_write (ringbuffer_t * rb, const char *src, size_t cnt)
     n2 = 0;
   }
 
-  memcpy (&(rb->buf[rb->write_ptr]), src, n1);
+  jmemcpy (&(rb->buf[rb->write_ptr]), src, n1);
   rb->write_ptr += n1;
   rb->write_ptr &= rb->size_mask;
 
   if (n2) {
-    memcpy (&(rb->buf[rb->write_ptr]), src + n1, n2);
+    jmemcpy (&(rb->buf[rb->write_ptr]), src + n1, n2);
     rb->write_ptr += n2;
     rb->write_ptr &= rb->size_mask;
   }

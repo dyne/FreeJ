@@ -27,82 +27,9 @@ extern "C" {
 #define NO_MARK -1
 #define FIFO_SIZE 2
 
-/*********************************/
-/* I want it hard, I want it raw */ 
-/*********************************/
-struct frame_fifo_t {
-	AVPicture *picture[FIFO_SIZE];
-	int picture_type[FIFO_SIZE];
-	int length;
-} ;
-
 void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl);
 
 class VideoLayer: public Layer {
-    private:
-	/**
-	 * av(codec|format) aka ffmpeg related variables
-	 */
-	AVCodec *avcodec;
-	AVInputFormat *fmt;
-	AVFormatContext *avformat_context;
-	AVStream *avformat_stream;
-	AVPicture *rgba_picture;
-	AVPacket pkt;
-	AVCodecContext *enc;
-	AVCodec *codec;
-	AVFrame av_frame;
-	uint8_t *av_buf;
-	uint8_t *deinterlace_buffer;
-	int packet_len;
-	double packet_pts;
-	unsigned char *ptr;
-	double video_last_P_pts;
-	double video_clock;
-	double video_current_pts;
-	double video_current_pts_time;
-
-	/**
-	 * Number of decoded frames. As for now together with picture_number
-	 * it's broken when seeking TODO!
-	 */
-	int frame_number;
-	int picture_number;
-
-	/**
-	 * application variables
-	 */
-	struct frame_fifo_t frame_fifo;
-	int fifo_position;
-	bool deinterlaced;
-	bool backward_control;
-	bool paused;
-	bool seekable;
-	bool grab_dv;
-	double mark_in;
-	double mark_out;
-	/** dropping frames variables */
-	int user_play_speed; /** play speed to be visualized to the user */
-	int play_speed; /** real speed */
-	int play_speed_control;
-	int frame_rate;
-
-	char *full_filename;
-
-	int video_index;
-	FILE *fp;
-
-	/** private methods */
-	int decode_packet( int *got_picture);
-	void free_av_stuff();
-	int seek(int64_t timestamp);
-	void set_speed(int speed);
-	double get_master_clock();
-	void deinterlace(AVPicture *picture);
-	int new_fifo();
-	void free_fifo();
-	int new_picture(AVPicture *p);
-	void free_picture(AVPicture *p);
 
     public:
 	VideoLayer();
@@ -126,6 +53,62 @@ class VideoLayer: public Layer {
 	bool set_mark_in();
 	bool set_mark_out();
 	void pause();
+
+    private:
+	/**
+	 * av(codec|format) aka ffmpeg related variables
+	 */
+	AVCodec *avcodec;
+	AVInputFormat *fmt;
+	AVFormatContext *avformat_context;
+	AVStream *avformat_stream;
+	AVPicture *rgba_picture;
+	AVPacket pkt;
+	AVCodecContext *enc;
+	AVCodec *codec;
+	AVFrame *av_frame;
+	uint8_t *av_buf;
+	int packet_len;
+	double packet_pts;
+	unsigned char *ptr;
+	double video_last_P_pts;
+	double video_clock;
+	double video_current_pts;
+	double video_current_pts_time;
+
+	/**
+	 * Number of decoded frames. As for now together with picture_number
+	 * it's broken when seeking TODO!
+	 */
+	int frame_number;
+	int picture_number;
+
+	/**
+	 * application variables
+	 */
+	bool backward_control;
+	bool paused;
+	bool seekable;
+	bool grab_dv;
+	double mark_in;
+	double mark_out;
+	/** dropping frames variables */
+	int user_play_speed; /** play speed to be visualized to the user */
+	int play_speed; /** real speed */
+	int play_speed_control;
+	int frame_rate;
+
+	char *full_filename;
+
+	int video_index;
+	FILE *fp;
+
+	/** private methods */
+	int decode_packet( int *got_picture);
+	int seek(int64_t timestamp);
+	void set_speed(int speed);
+	double get_master_clock();
+	AVFrame *frame_alloc (int pix_fmt, int width, int height);
 };
 
 #endif

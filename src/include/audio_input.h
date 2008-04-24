@@ -1,9 +1,8 @@
 /*  FreeJ
  *
- *  audio input pipe
+ *  jack audio pipe
  *
- *  (c) Copyright 2005 Silvano Galliani <kysucix@dyne.org>
- *                2007 Denis Rojo <jaromil@dyne.org>
+ *  (c) Copyright 2008 Denis Rojo <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -21,27 +20,18 @@
  *
  */
 
-#ifndef __AUDIO_INPUT_H__
-#define __AUDIO_INPUT_H__
+#ifndef __JACK_AUDIO_H__
+#define __JACK_AUDIO_H__
 
 #include <inttypes.h>
 
-#include <portaudio.h>
+#include <audio_jack.h>
 #include <ringbuffer.h>
 
-#define SAMPLERATE 44100
-#define MAX_FRAMESPERBUFFER 1024*8
-
-int audio_callback(const void *inputBuffer, void *outputBuffer,
-		   unsigned long framesPerBuffer,
-		   const PaStreamCallbackTimeInfo *timeInfo,
-		   const PaStreamCallbackFlags statusFlags, void *userData );
+//#define SAMPLERATE 44100
+//#define MAX_FRAMESPERBUFFER 1024*8
 
 
-// blocking wrappers for ringbuffer i/o
-int pipe_read (char *name, ringbuffer_t *rb, char *dest, size_t cnt);
-int pipe_write(char *name, ringbuffer_t *rb, char *src, size_t cnt);
-int pipe_peek (char *name, ringbuffer_t *rb, char *dest, size_t cnt);
 
 
 class AudioInput {
@@ -55,7 +45,7 @@ class AudioInput {
   bool start();
   void stop();
 
-  void set_format(int chans, int srate); ///< set channels and samplerate
+  //  void set_format(int chans, int srate); ///< set channels and samplerate
 
   int cafudda(); ///< called by Context to publish buffer in data
 
@@ -63,9 +53,9 @@ class AudioInput {
   int16_t *input;  ///< public audio buffer recorder
   int16_t *output; ///< public audio buffer playback
 
-  int framesperbuffer; ///< desired frames per buffer chunk made available
-  int frames;          ///< number of frames returned by last callback
-  int bytesize;     ///< number of bytes returned by last callback
+  //  int framesperbuffer; ///< desired frames per buffer chunk made available
+  //  int frames;          ///< number of frames returned by last callback
+  //  int bytesize;     ///< number of bytes returned by last callback
 
   int sample_rate;  ///< sample rate for soundcard initialization
   int channels;        ///< mono/stereo setting for soundcard
@@ -79,15 +69,8 @@ class AudioInput {
   ringbuffer_t *output_pipe;
 
  private:
-
-  PaHostApiInfo *pai;
-  PaDeviceInfo *captureDeviceInfo;
-  PaDeviceInfo *outputDeviceInfo;
-  PaStream *pa_audioStream;
-  PaStreamParameters *captureParameters;
-  PaStreamParameters *outputParameters;
-  PaError err;
-
+  
+  AudioCollector *audio;
 
 };
 

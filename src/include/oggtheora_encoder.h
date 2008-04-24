@@ -66,14 +66,11 @@ class OggTheoraEncoder: public VideoEncoder {
   int encode_video(int end_of_stream);
   int encode_audio(int end_of_stream);
 
-  void *enc_rgb24;
+  // void *enc_rgb24;
   void *enc_y;
   void *enc_u;
   void *enc_v;
-
-  bool  init_yuv_frame();
-
-  double rint(double x);
+  void *enc_yuyv;
 
   /* video size */
   int video_x;
