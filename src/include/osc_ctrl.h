@@ -60,10 +60,6 @@ class OscController: public Controller {
   bool start(int port);
   void stop();
 
-  int peep(Context *env);
-  int poll(Context *env);
-
-
   Context *freej;
 
   lo_server_thread srv;

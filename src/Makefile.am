@@ -14,8 +14,8 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/tbt \
            -I$(top_srcdir)/lib/slw \
            -I/usr/include/slang \
-	@XIPH_INCLUDE@ \
-	@MLT_INCLUDE@
+	   @XIPH_INCLUDE@ \
+	   @X11_LIBS@
 
 AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
@@ -47,11 +47,10 @@ freej_SOURCES = \
 	jutils.cpp	\
 	fastmemcpy.cpp  \
 	ringbuffer.cpp  \
+	convertvid.cpp  \
 \
 	v4l_layer.cpp tvfreq.c	\
 	v4l_layer_js.cpp \
-	movie_layer.cpp \
-	movie_layer_js.cpp \
 	video_layer.cpp	\
 	video_layer_js.cpp \
 	image_layer.cpp \
@@ -100,7 +99,6 @@ freej_SOURCES = \
 
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @XIPH_LIBS@ \
-		 @MLT_LIBS@  \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
               $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
 	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
@@ -120,5 +118,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
                  @ALSA_LIBS@ \
 		 @JACK_LIBS@ \
                  @FFTW_LIBS@ \
-                 @SNDFILE_LIBS@
+                 @SNDFILE_LIBS@ \
+		 @FFMPEG_LIBS@ \
+		 @X11_LIBS@
 

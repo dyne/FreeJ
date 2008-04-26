@@ -85,7 +85,7 @@ int   height = 300;
 int   magn = 0;
 char  javascript[512]; // script filename
 
-int fps = 24;
+int fps = 25;
 
 bool startstate = true;
 bool gtkgui = false;

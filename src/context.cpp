@@ -41,10 +41,6 @@
 #include <fastmemcpy.h>
 #include <config.h>
 
-extern "C" {
-#include <mlt/framework/mlt.h>
-}
-
 void fsigpipe (int Sig);
 int got_sigpipe;
 FPSmanager FPS;
@@ -133,7 +129,7 @@ Context::~Context() {
   }
 
   // close MLT
-  mlt_factory_close();
+  //  mlt_factory_close();
 
   if (screen) {
     delete screen;
@@ -207,7 +203,7 @@ bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
     audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
 
   // initialize MLT
-  mlt_factory_init( NULL );
+  //  mlt_factory_init( NULL );
 
 
 

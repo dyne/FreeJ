@@ -36,9 +36,9 @@
 #include <audio_collector.h>
 
 #include <oggtheora_encoder.h>
-extern "C" {
-#include <mlt/framework/mlt.h>
-}
+
+#include <convertvid.h>
+
 
 
 OggTheoraEncoder::OggTheoraEncoder() 

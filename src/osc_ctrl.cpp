@@ -30,7 +30,7 @@
 #include <context.h>
 #include <jutils.h>
 
-//#include <callbacks_js.h> // javascript
+#include <callbacks_js.h>
 
 void osc_error_handler(int num, const char *msg, const char *path) {
   error("OSC server error %d in path %s: %s\n", num, path, msg);
@@ -251,16 +251,15 @@ bool OscController::init(JSContext *env, JSObject *obj) {
   
 }
 
-int OscController::peep(Context *env) {
+int OscController::poll() {
   // check if there are pending commands
   if(commands_pending.len() > 0)
-    return poll(env);
+    return dispatch();
   else
     return 0;
-
 }
 
-int OscController::poll(Context *env) {
+int OscController::dispatch() {
   jsval ret = JSVAL_VOID;
   int c = 0;
   // execute pending comamnds (javascript calls)
