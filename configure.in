@@ -439,8 +439,14 @@ if test x$have_lubrifications = xyes; then
     have_lubrifications=no
   else
     if test x$have_darwin = xyes; then
+
+       if test x$have_ppc = xyes; then
       # use optimization flags for darwin
-      CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
+            CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
+       else
+            CGLAGS=$CFLAGS -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -ffast-math
+       fi
+	    
       # adding these provoke 'illegal instruction' errors in some
       # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
     elif test x$have_ppc = xyes; then
@@ -593,6 +599,7 @@ lib/flash/Makefile
 lib/goom/Makefile
 lib/slw/Makefile
 lib/tbt/Makefile
+lib/wiimote/Makefile
 lib/frei0r/Makefile
 lib/frei0r/filter/Makefile
 lib/frei0r/filter/3dflippo/Makefile
