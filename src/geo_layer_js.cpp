@@ -25,7 +25,7 @@
 #include <config.h>
 #include <geo_layer.h>
 
-DECLARE_CLASS("GeometryLayer",geometry_layer_class,geometry_layer_constructor);
+DECLARE_CLASS_GC("GeometryLayer",geometry_layer_class,geometry_layer_constructor,js_layer_gc);
 
 ////////////////////////////////
 // Geometry Layer methods

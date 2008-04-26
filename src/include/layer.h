@@ -136,8 +136,6 @@ class Layer: public Entry, public JSyncThread {
   ///< Iterator list of value modifiers
 
   bool active; ///< is active? (read-only)
-  bool quit; ///< should it quit? (read-write)
-  bool running; ///< is running? (read-only)
   bool hidden; ///< is hidden (read-only by the blit)
   bool fade; ///< layer is deactivated at the end of current iterations (read-write internal)
   bool use_audio; ///< layer makes use of audio input
@@ -154,6 +152,7 @@ class Layer: public Entry, public JSyncThread {
   void *js_constructor(Context *env, JSContext *cx,
 		       JSObject *obj, int argc, void *aargv, char *err_msg);
   ///< javascript layer constructor
+  void layer_gc(JSContext *cx, JSObject *obj);
 
  protected:
 

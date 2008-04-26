@@ -26,7 +26,7 @@
 #ifdef WITH_FFMPEG
 #include <video_layer.h>
 
-DECLARE_CLASS("MovieLayer",video_layer_class,video_layer_constructor);
+DECLARE_CLASS_GC("MovieLayer",video_layer_class,video_layer_constructor,js_layer_gc);
 
 ////////////////////////////////
 // Video Layer methods

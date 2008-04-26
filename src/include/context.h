@@ -28,7 +28,7 @@
 #define __context_h__
 
 #include <inttypes.h>
-#include <iostream>
+#include <unistd.h>
 #include <stdlib.h>
 
 
@@ -87,6 +87,7 @@ class Context {
   void cafudda(double secs);
 
   bool register_controller(Controller *ctrl);
+  bool rem_controller(Controller *ctrl);
 
   void add_layer(Layer *lay); ///< add a layer to the screen and engine
   void rem_layer(Layer *lay);

@@ -32,7 +32,7 @@
 /*
  * Tune this to avoid wasting space for shallow stacks, while saving on
  * malloc overhead/fragmentation for deep or highly-variable stacks. */
-#define STACK_CHUNK_SIZE    8192*8// 8192
+#define STACK_CHUNK_SIZE    8192
 
 //#include <context.h>
 //#include <layer.h>
@@ -44,26 +44,22 @@ class JsParser {
 	JsParser(Context *_env);
 	~JsParser();
 	int open(const char* script_file);
+	int open(JSContext *cx, JSObject *obj, const char* script_file);
+	int use(JSContext *cx, JSObject *obj, const char* script_file);
 	int parse(const char *command);
 	void stop();
+    void gc();
+	char* readFile(FILE *file,int *len);
+	int reset();
 
 	JSBool branch_callback(JSContext* Context, JSScript* Script);
-	//	void error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
 
     private:
 	JSRuntime *js_runtime;
 	JSContext *js_context;
 	JSObject *global_object;
 	void init();
-
-
-
-	//	JSPropertySpec layer_properties[3];
-
-	//	int parse_count;
-	//	JSFunctionSpec shell_functions[3];
-	
-
+    void init_class(JSContext *cx, JSObject *obj);
 };
 #endif
 

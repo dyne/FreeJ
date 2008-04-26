@@ -24,7 +24,7 @@
 #include <config.h>
 #include <goom_layer.h>
 
-DECLARE_CLASS("GoomLayer",goom_layer_class,goom_layer_constructor);
+DECLARE_CLASS_GC("GoomLayer",goom_layer_class,goom_layer_constructor,js_layer_gc);
 
 ////////////////////////////////
 // Goom Layer methods

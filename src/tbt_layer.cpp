@@ -17,7 +17,6 @@
  *
  */
 
-#include <iostream>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -29,12 +28,14 @@
 #include <tbt_layer.h>
 #include <context.h>
 #include <jutils.h>
+//#include <jsparser_data.h>
 
 TBTConsole::TBTConsole()
   :TextConsole() {
   
   // is there scrolling or not?
   scroll = true;
+  //jsclass = &tbt_layer_class;
 
 }
 

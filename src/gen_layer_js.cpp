@@ -24,7 +24,7 @@
 #include <config.h>
 #include <gen_layer.h>
 
-DECLARE_CLASS("ParticleLayer",particle_layer_class,particle_layer_constructor);
+DECLARE_CLASS_GC("ParticleLayer",particle_layer_class,particle_layer_constructor,js_layer_gc);
 
 ////////////////////////////////
 // Particle Layer methods

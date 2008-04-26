@@ -37,7 +37,7 @@
 
 JS(js_midi_ctrl_constructor);
 
-DECLARE_CLASS("MidiController", js_midi_ctrl_class, js_midi_ctrl_constructor);
+DECLARE_CLASS_GC("MidiController", js_midi_ctrl_class, js_midi_ctrl_constructor,js_ctrl_gc);
 
 JS(midi_connect);
 JS(midi_connect_from);
@@ -51,13 +51,13 @@ JS(js_midi_ctrl_constructor) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     MidiControl *midi = new MidiControl();
     // assign instance into javascript object
-    if( ! JS_SetPrivate(cx, obj, (void*)midi) ) {
-        error("failed assigning midi controller to javascript");
-        delete midi; return JS_FALSE;
-    }
     // initialize with javascript context
     if(! midi->init(cx, obj) ) {
         error("failed initializing midi controller");
+        delete midi; return JS_FALSE;
+    }
+    if( ! JS_SetPrivate(cx, obj, (void*)midi) ) {
+        error("failed assigning midi controller to javascript");
         delete midi; return JS_FALSE;
     }
 
@@ -79,35 +79,36 @@ MidiControl::~MidiControl() {
 }
 
 JS(midi_connect_from) {
-    func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
-    JS_CHECK_ARGC(3);
+	func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+	JS_CHECK_ARGC(3);
+	int res = 0;
 
-    MidiControl *midi = (MidiControl *) JS_GetPrivate(cx,obj);
-    if(!midi) {
-        error("%u:%s:%s :: Midi core data is NULL",
-        __LINE__,__FILE__,__FUNCTION__);
-        return JS_FALSE;
-    }
+	MidiControl *midi = (MidiControl *) JS_GetPrivate(cx,obj);
+	if(!midi) {
+		error("%u:%s:%s :: Midi core data is NULL",
+		__LINE__,__FILE__,__FUNCTION__);
+		return JS_FALSE;
+	}
 
-// int snd_seq_connect_to(snd_seq_t * seq, int myport, int dest_client, int dest_port)
-    *rval = INT_TO_JSVAL(midi->connect_from(
-        JSVAL_TO_INT(argv[0]),
-        JSVAL_TO_INT(argv[1]),
-        JSVAL_TO_INT(argv[2])
-    ));
-    return JS_TRUE;
+	// int snd_seq_connect_to(snd_seq_t * seq, int myport, int dest_client, int dest_port)
+	JS_ARG_NUMBER(myport, 0);
+	JS_ARG_NUMBER(dest_client, 1);
+	JS_ARG_NUMBER(dest_port, 2);
+	res = midi->connect_from(int(myport), int(dest_client), int(dest_port));
+
+	return JS_NewNumberValue(cx, res, rval);
 }
 
 int MidiControl::connect_from(int myport, int dest_client, int dest_port) {
     // Returns: 0 on success or negative error code
-    int ret = ( snd_seq_connect_from(seq_handle, myport, dest_client, dest_port) );
+    int ret = snd_seq_connect_from(seq_handle, myport, dest_client, dest_port);
     if (ret != 0) {
         error("midi connect: %i %s", ret, snd_strerror(ret));
     }
     return ret;
 }
 
-int MidiControl::poll(Context *env) {
+int MidiControl::dispatch() {
     snd_seq_event_t *ev;
     JSBool ret = JS_FALSE;
 
@@ -127,18 +128,16 @@ int MidiControl::poll(Context *env) {
             ev->dest.client, ev->dest.port
         );
 
-        jsval ret;
+        JSBool ret;
         switch (ev->type) {
             case SND_SEQ_EVENT_CONTROLLER: 
             {
                 func("midi Control event on Channel\t%2d: %5d %5d (param/value)",
                     ev->data.control.channel, ev->data.control.param, ev->data.control.value);
-                jsval js_data[] = {
-                    INT_TO_JSVAL(ev->data.control.channel),
-                    INT_TO_JSVAL(ev->data.control.param),
-                    INT_TO_JSVAL(ev->data.control.value)
+                jsval js_data[] = { 
+                    ev->data.control.channel, ev->data.control.param, ev->data.control.value
                 };
-                JS_CallFunctionName(jsenv, jsobj, "event_ctrl", 3, js_data, &ret);
+                JSCall("event_ctrl", 3, js_data, &ret);
             }
             break;
 
@@ -147,11 +146,9 @@ int MidiControl::poll(Context *env) {
                 func("midi Pitchbender event on Channel\t%2d: %5d %5d   ", 
                     ev->data.control.channel, ev->data.control.param, ev->data.control.value);
                 jsval js_data[] = {
-                    INT_TO_JSVAL(ev->data.control.channel),
-                    INT_TO_JSVAL(ev->data.control.param),
-                    INT_TO_JSVAL(ev->data.control.value)
+                    ev->data.control.channel, ev->data.control.param, ev->data.control.value
                 };
-                JS_CallFunctionName(jsenv, jsobj, "event_pitch", 3, js_data, &ret);
+                JSCall("event_pitch", 3, js_data, &ret);
             }
             break;
 
@@ -160,11 +157,9 @@ int MidiControl::poll(Context *env) {
                 func("midi Note On event on Channel\t%2d: %5d %5d      ",
                     ev->data.control.channel, ev->data.note.note, ev->data.note.velocity);
                 jsval js_data[] = {
-                    INT_TO_JSVAL(ev->data.control.channel),
-                    INT_TO_JSVAL(ev->data.note.note),
-                    INT_TO_JSVAL(ev->data.note.velocity)
+                    ev->data.control.channel, ev->data.note.note, ev->data.note.velocity
                 };
-                JS_CallFunctionName(jsenv, jsobj, "event_noteon", 3, js_data, &ret);
+                JSCall("event_noteon", 3, js_data, &ret);
             }
             break;
 
@@ -173,11 +168,9 @@ int MidiControl::poll(Context *env) {
                 func("midi Note Off event on Channel\t%2d: %5d      ",
                     ev->data.control.channel, ev->data.note.note);
                 jsval js_data[] = {
-                    INT_TO_JSVAL(ev->data.control.channel),
-                    INT_TO_JSVAL(ev->data.note.note),
-                    INT_TO_JSVAL(ev->data.note.velocity)
+                    ev->data.control.channel, ev->data.note.note, ev->data.note.velocity
                 };
-                JS_CallFunctionName(jsenv, jsobj, "event_noteoff", 3, js_data, &ret);
+                JSCall("event_noteoff", 3, js_data, &ret);
             }
             break;
             
@@ -186,11 +179,9 @@ int MidiControl::poll(Context *env) {
                 func("midi PGM change event on Channel\t%2d: %5d %5d ",
                     ev->data.control.channel, ev->data.control.param, ev->data.control.value);
                 jsval js_data[] = {
-                    INT_TO_JSVAL(ev->data.control.channel),
-                    INT_TO_JSVAL(ev->data.control.param),
-                    INT_TO_JSVAL(ev->data.control.value)
+                    ev->data.control.channel, ev->data.control.param, ev->data.control.value
                 };
-                JS_CallFunctionName(jsenv, jsobj, "event_pgmchange", 3, js_data, &ret);
+                JSCall("event_pgmchange", 3, js_data, &ret);
             }
             break;
         } // switch
@@ -250,10 +241,8 @@ bool MidiControl::init(JSContext* jsenv, JSObject *jsobj) {
     return(true);
 }
 
-int MidiControl::peep(Context *env) {
-    //if (_poll(pfd, npfd, 100000) > 0)
-    // notice("m poll");
-    return poll(env);
+int MidiControl::poll() {
+    return dispatch();
 }
 
 #endif

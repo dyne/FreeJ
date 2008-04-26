@@ -82,11 +82,11 @@ class VideoEncoder: public Entry, public JSyncThread {
   int video_kbps; ///< encoded video, kilobit per second
   int bytes_encoded; ///< encoded bytes in total in the last encoding pass
 
-  bool quit; ///< flag it up if encoder has to quit
+  // now in jsync
+  // bool quit; ///< flag it up if encoder has to quit
 
   bool active; ////< flag to de/activate the encoder
 
-  bool running; ///< true if thread is running
   bool initialized; ///< true if encoder had been initialized
   bool write_to_disk; ///< true if encoder should write to a file
   bool write_to_stream; ///< true if encoder should write to a stream

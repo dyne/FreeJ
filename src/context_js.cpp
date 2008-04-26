@@ -45,6 +45,7 @@ JSFunctionSpec global_functions[] = {
     {"list_layers",     list_layers,            0},
     {"selected_layer",  selected_layer,         0},
     {"debug",           debug,                  1},
+    {"set_debug",       js_set_debug,           0},
     {"rand",            rand,                   0},
     {"srand",           srand,                  1},
     {"pause",           pause,                  0},
@@ -59,13 +60,22 @@ JSFunctionSpec global_functions[] = {
     //    {"stream_stop",     stream_stop,            0},
     {"file_to_strings", file_to_strings,        1},
     {"register_controller", register_controller, 1},
+    {"rem_controller",  rem_controller, 1},
     {"register_encoder", register_encoder, 1},
     {"include",         include_javascript,     1},
+    {"use",		use_javascript,		1},
     {"exec",            system_exec,            1},
     {"list_filters",    list_filters,           0},
+    {"gc",		js_gc,			0},
+    {"reset",		reset_js,		0},
     {0}
 };
 
+JS(js_gc) {
+	JS_GC(cx);
+	return JS_TRUE;
+    //    env->js->gc();
+}
 
 JS(cafudda) {
   //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -124,6 +134,7 @@ JS(rem_layer) {
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) JS_ERROR("Layer core data is NULL");
 
+func("JSvalcmp: %p / %p", argv[0], lay->data);
     env->rem_layer(lay);
     return JS_TRUE;
 }
@@ -140,7 +151,7 @@ JS(add_layer) {
     jslayer = JSVAL_TO_OBJECT(argv[0]);
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) JS_ERROR("Layer core data is NULL");
-
+func("JSvalcmp: %p / %p", argv[0], lay->data);
     /** really add layer */
     env->add_layer(lay);
     *rval=JSVAL_TRUE;
@@ -186,7 +197,25 @@ JS(register_controller) {
     /// really add controller
     env->register_controller( ctrl );
     *rval = JSVAL_TRUE;
+func("JSvalcmp: %p / %p", argv[0], ctrl->data);
 
+    return JS_TRUE;
+}
+
+JS(rem_controller) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    JSObject *jsctrl;
+    Controller *ctrl;
+
+    if(argc<1) JS_ERROR("missing argument");
+    js_is_instanceOf(&js_ctrl_class, argv[0]);
+
+    jsctrl = JSVAL_TO_OBJECT(argv[0]);
+    ctrl = (Controller *) JS_GetPrivate(cx, jsctrl);
+    if(!ctrl) JS_ERROR("Layer core data is NULL");
+
+func("JSvalcmp: %p / %p", argv[0], ctrl->data);
+    env->rem_controller(ctrl);
     return JS_TRUE;
 }
 
@@ -224,6 +253,15 @@ JS(set_fps) {
   int fps = JSVAL_TO_INT(argv[0]);
   env->set_fps(fps);
   return JS_TRUE;
+}
+
+JS(js_set_debug) {
+    JSBool ret = JS_NewNumberValue(cx, get_debug(), rval);
+    if(argc==1) {
+            JS_ARG_NUMBER(level, 0);
+            set_debug((int)level);
+    }
+    return ret;
 }
 
 JS(set_resolution) {
@@ -281,11 +319,13 @@ JS(freej_scandir) {
   while(found--) {
     char tmp[512];
     snprintf(tmp,512,"%s/%s",dir, filelist[found]->d_name);
+    free(filelist[found]);
     str = JS_NewStringCopyZ(cx, tmp); 
     val = STRING_TO_JSVAL(str);    
     JS_SetElement(cx, arr, c, &val );
     c++;
   }
+  free(filelist);
 
   *rval = OBJECT_TO_JSVAL( arr );
   return JS_TRUE;
@@ -294,14 +334,14 @@ JS(freej_scandir) {
 JS(freej_echo) {
   char *msg;
   JS_ARG_STRING(msg,0);
-  notice(msg); 
+  notice("%s", msg);
   return JS_TRUE;
 }
 
 JS(freej_echo_func) {
   char *msg;
   JS_ARG_STRING(msg,0);
-  func(msg); 
+  func("%s", msg);
   return JS_TRUE;
 }
 
@@ -316,8 +356,7 @@ JS(freej_strstr) {
   if(res == NULL)
     intval = 0;
   else intval = 1;
-  *rval = INT_TO_JSVAL(intval);
-  return JS_TRUE;
+  return JS_NewNumberValue(cx, intval, rval);
 }
   
 
@@ -416,7 +455,7 @@ JS(rand) {
 
   randval = randval * 1073741789 + 32749;
 
-  *rval = INT_TO_JSVAL(randval);
+  return JS_NewNumberValue(cx, randval, rval);
   /*
   r = rand();
 
@@ -428,7 +467,6 @@ JS(rand) {
     *rval = INT_TO_JSVAL(r);
   }
   */
-  return JS_TRUE;
 }
 
 JS(srand) {
@@ -551,34 +589,43 @@ JS(entry_select) {
 }
 
 JS(include_javascript) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  
-  FILE *fd;
-  char *jscript;
+	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+	char *jscript;
 
-  JS_ARG_STRING(jscript,0);
-  
-  fd = ::fopen(jscript,"r");
-  if(!fd) { 
-    error("include failed for %s: %s", jscript, strerror(errno) );
-    JS_ReportErrorNumber( 
-        cx, JSFreej_GetErrorMessage, NULL,
-        JSSMSG_FJ_WICKED,
-        jscript, strerror(errno)
-    );
-    return JS_FALSE;
-  }
+	if(argc<1) JS_ERROR("missing argument");
+	JS_ARG_STRING(jscript,0);
+	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 
-  fclose(fd);
-  if (env->js->open(jscript) == 0) { 
-    // JS_EvaluateScript failed, maybe a 
-    // syntax error. JS_ReportError was already called,
-    // so no need to throw something here.
-      func("%s eval failed", __func__);
-      return JS_FALSE;
-  } 
+	if (js->open(cx, obj, jscript) == 0) {
+		// all errors already reported,
+		// js->open talks too much
+		error("JS include('%s') failed", jscript);
+		return JS_FALSE;
+	}
 
-  return JS_TRUE;
+	func("JS: include %s", jscript);
+	return JS_TRUE;
+}
+
+JS(use_javascript) {
+	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+	char *jscript;
+	jsval use;
+
+	if(argc<1) JS_ERROR("missing argument");
+	JS_ARG_STRING(jscript,0);
+	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
+
+	use = js->use(cx, obj, jscript);
+	if (use == JS_FALSE) {
+		// all errors already reported,
+		// js->open talks too much
+		error("JS include('%s') failed", jscript);
+		return JS_FALSE;
+	}
+	*rval = use;
+	return JS_TRUE;
 }
 
 JS(system_exec) {
@@ -620,3 +667,25 @@ JS(system_exec) {
   
   return JS_TRUE;
 }
+
+JS(reset_js) {
+	func("%s",__PRETTY_FUNCTION__);
+	char *jscript;
+
+	*rval = JSVAL_TRUE;
+	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
+	js->reset();
+	if(argc == 1) {
+		JS_ARG_STRING(jscript,0);
+		if (js->open(jscript) == 0) {
+			error("JS reset('%s') failed", jscript);
+			*rval = JSVAL_FALSE;
+			return JS_FALSE;
+		}
+	}
+	JS_GC(cx);
+	// if called by an controller, it must then return true
+	// otherwise rehandling it's event can be endless loop
+	return JS_TRUE;
+}
+

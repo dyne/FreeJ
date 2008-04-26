@@ -72,6 +72,7 @@ Context::Context() {
 }
 
 Context::~Context() {
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
 
   Layer *lay;
   Controller *ctrl;
@@ -92,27 +93,30 @@ Context::~Context() {
   
   if (console) {
     console->close ();
+    delete console;
     console = NULL;
   }
-  
+
+  //js->gc(); 
+  if(js) { // invokes JSGC and all gc call on our JSObjects!
+    delete js;
+    js = NULL;
+  }
+
+  layers.unlock(); // in case we crashed while cafudda'ing
   lay = (Layer *)layers.begin ();
   while (lay) {
-    lay-> lock ();
-    layers.rem (1);
-    lay-> quit = true;
-    lay-> signal_feed ();
-    lay-> unlock ();
+	lay-> stop();
+    lay-> rem(); // does layers.lock()
     delete lay;
     lay = (Layer *)layers.begin ();
   }
 
+  encoders.unlock();
   enc = (VideoEncoder *)encoders.begin();
   while(enc) {
-    enc->lock();
-    encoders.rem(1);
-    enc->quit = true;
-    enc->signal_feed();
-    enc->unlock();
+	enc->stop();
+    enc->rem();
     delete enc;
     enc = (VideoEncoder *)encoders.begin();
   }
@@ -142,11 +146,6 @@ Context::~Context() {
   }
 
   //  plugger.close();
-
-  if(js) {
-    delete js;
-    js = NULL;
-  }
 
   notice ("cu on http://freej.dyne.org");
 }
@@ -332,6 +331,10 @@ void Context::cafudda(double secs) {
     //    riciuca = (dtime() - now < secs) ? true : false;
     //////////////////////////////////
 
+    if (got_sigpipe) {
+        quit=true;
+        return;
+    }
 
   } while (riciuca);
   
@@ -394,8 +397,8 @@ void Context::handle_controllers() {
         controllers.lock();
         while(ctrl) {
           if(ctrl->active)
-        ctrl->peep(this);
-          ctrl = (Controller*)ctrl->next;
+            ctrl->poll();
+            ctrl = (Controller*)ctrl->next;
         }
         controllers.unlock();
       }
@@ -407,10 +410,10 @@ void Context::handle_controllers() {
 
 }
 
-
 bool Context::register_controller(Controller *ctrl) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   if(!ctrl) {
-    error("Context::register_controller called on a NULL object");
+    error("%s called on a NULL object", __PRETTY_FUNCTION__);
     return false;
   }
 
@@ -419,11 +422,30 @@ bool Context::register_controller(Controller *ctrl) {
     return false;
   }
 
-  ctrl->active = true;
+  ctrl->activate(true);
 
   controllers.append(ctrl);
   
   act("registered %s controller", ctrl->name);
+  return true;
+}
+
+bool Context::rem_controller(Controller *ctrl) {
+  func("%s",__PRETTY_FUNCTION__);
+  if(!ctrl) {
+    error("%s called on a NULL object", __PRETTY_FUNCTION__);
+    return false;
+  }
+  js->gc(); // ?!
+  ctrl->rem();
+  // mh, the JS_GC callback does the delete ...
+  if (ctrl->jsobj == NULL) {
+    func("controller JSObj is null, deleting ctrl");
+    delete ctrl;
+  } else {
+	ctrl->activate(false);
+    notice("removed controller %s, deactivated it but not deleting!", ctrl->name);
+  }
   return true;
 }
 
@@ -437,10 +459,10 @@ void Context::add_layer(Layer *lay) {
   lay->blitter.screen = screen;
 
   // center the position
-  lay->geo.x = (screen->w - lay->geo.w)/2;
-  lay->geo.y = (screen->h - lay->geo.h)/2;
+  //lay->geo.x = (screen->w - lay->geo.w)/2;
+  //lay->geo.y = (screen->h - lay->geo.h)/2;
   lay->blitter.crop( true );
-  layers.append(lay);
+  layers.prepend(lay);
   layers.sel(0);
   lay->sel(true);
   func("layer %s succesfully added",lay->name);
@@ -448,17 +470,20 @@ void Context::add_layer(Layer *lay) {
 
 void Context::rem_layer(Layer *lay) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  /*
   if (!lay->list) {
         error("removing Layer %p which is not in list", lay);
         return;
-  }
-  lay->lock_feed();
-  lay->quit=true;
-  lay->signal_feed();
-  lay->unlock_feed();
-  lay->join();
+  }*/
+  js->gc();
   lay->rem();
-  delete lay;
+  if (lay->data == NULL) {
+      notice("Layer: no JS data: deleting");
+	  lay->stop();
+      delete lay;
+  } else {
+      notice("removed layer %s but still present as JSObject, not deleting!", lay->name);
+  }
 }
 
 void Context::add_encoder(VideoEncoder *enc) {
@@ -558,6 +583,7 @@ void Context::rocknroll() {
     }
   
   // Iterate throught linked list of layers and start them
+  /*
   layers.lock();
   while (l) {
     if (!l->running) {
@@ -578,6 +604,7 @@ void Context::rocknroll() {
     l = (Layer *)l->next;
   }
   layers.unlock();
+  */
   /////////////////////////////////////////////////////////////
   ///////////////////////////////////// end of layers rocknroll
 
@@ -626,3 +653,5 @@ void fsigpipe (int Sig) {
     warning ("SIGPIPE - Problems streaming video :-(");
   got_sigpipe = true;
 }
+
+

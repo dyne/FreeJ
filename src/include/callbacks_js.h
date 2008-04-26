@@ -115,10 +115,23 @@ JSClass class_struct = { \
   JS_ConvertStub,   JS_FinalizeStub, \
   NULL,   NULL, \
   class_constructor \
-}
+}; \
+static JSClass *jsclass_s = &class_struct;
+
+#define DECLARE_CLASS_GC(class_name, class_struct, class_constructor, gc_callback) \
+JSClass class_struct = { \
+  class_name, JSCLASS_HAS_PRIVATE, \
+  JS_PropertyStub,  JS_PropertyStub, \
+  JS_PropertyStub,  JS_PropertyStub, \
+  JS_EnumerateStub, JS_ResolveStub, \
+  JS_ConvertStub,   gc_callback, \
+  NULL,   NULL, \
+  class_constructor \
+}; \
+static JSClass *jsclass_s = &class_struct;
 
 #define REGISTER_CLASS(class_name, class_struct, class_constructor, class_methods, parent_class) \
-    layer_object = JS_InitClass(js_context, global_object, parent_class, \
+    layer_object = JS_InitClass(cx, obj, parent_class, \
 				&class_struct, class_constructor, 0, \
 				0, class_methods, 0, 0); \
     if(!layer_object) { \
@@ -130,6 +143,9 @@ JS(constructor_func) {                                                        \
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);                            \
   constructor_class *layer = NULL;					      \
   char excp_msg[MAX_ERR_MSG + 1];                                             \
+  if (jsclass_s != OBJ_GET_CLASS(cx, obj)) {                                  \
+    JS_ERROR("Sorry, this gimmik is not supported.");                         \
+  }                                                                           \
   layer = new constructor_class();                                            \
   if(!layer) {                                                                \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
@@ -144,6 +160,7 @@ JS(constructor_func) {                                                        \
                          JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);          \
     return JS_FALSE;                                                          \
   }                                                                           \
+  layer->data = (void*)rval;                                                         \
   return JS_TRUE;							      \
 }
 // this was removed from the error proccedure in the macro above:
@@ -181,5 +198,8 @@ void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *R
         return JS_FALSE;
 
 JSBool _js_is_instanceOf(JSContext*, JSClass*, jsval, const char*);
+
+// helper for JS_CallFunction convert array of cnum to jsval
+JSBool cnum_to_jsval(JSContext *cx, uintN argc, jsval *argv);
 
 #endif

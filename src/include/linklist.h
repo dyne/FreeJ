@@ -79,6 +79,7 @@ class Linklist {
 
 #ifdef THREADSAFE
   pthread_mutex_t mutex;
+  pthread_mutexattr_t mattr;
 #endif
   
   Entry *compbuf[512]; // completion buffer
@@ -108,7 +109,9 @@ class Entry {
 
   char *name;
 
-  void *data; ///< generic data pointer
+  // generic data pointer, so far only used in console
+  // and now also as JSObject -> jsval
+  void *data; 
 };
 
 #endif

@@ -41,7 +41,11 @@ function exec(program, arguments) { };
 */
 function add_layer(layer) { };
 
-/** Remove a layer from the engine and stop processing it
+/** Remove a layer from the engine but does _not_ stop processing it.
+
+	A removed layer can still be accessed and added again. It lives as long any js 
+	objects holds a reference to it. Use "delete layer" and by the next garbage collection, 
+	it will be finally destroyed, freeing memory and cpu.
     @param {Layer} layer instance to be removed
 */
 function rem_layer(layer) { };
@@ -78,6 +82,13 @@ function file_to_strings(file) { };
     @param {Controller} controller instance of the controller to be registered
 */
 function register_controller(controller) { };
+
+/** Removes a controller for the running engine
+    @param {Controller} controller instance of the controller to be removed.
+
+	The controller can be registered again.
+*/
+function rem_controller(controller) { };
 
 ///////////////////////////////////////////////////
 // IMAGE LAYER

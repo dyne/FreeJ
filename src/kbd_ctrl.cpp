@@ -16,9 +16,8 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#include <kbd_ctrl.h>
-
 #include <config.h>
+#include <kbd_ctrl.h>
 
 #include <context.h>
 #include <jutils.h>
@@ -35,9 +34,10 @@
 /////// Javascript KeyboardController
 JS(js_kbd_ctrl_constructor);
 
-DECLARE_CLASS("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor);
+DECLARE_CLASS_GC("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor,js_ctrl_gc);
 
 JSFunctionSpec js_kbd_ctrl_methods[] = {
+  // idee: dis/enable repeat
   {0}
 };
 
@@ -45,9 +45,11 @@ JSFunctionSpec js_kbd_ctrl_methods[] = {
 KbdCtrl::KbdCtrl()
   :Controller() {
   set_name("Keyboard");
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
 }
 
 KbdCtrl::~KbdCtrl() {
+  func("%s this=%p",__PRETTY_FUNCTION__, this);
 
 }
 
@@ -58,42 +60,24 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
 
   jsenv = env;
   jsobj = obj;
-  //SDL_EnableUNICODE(true);
+  SDL_EnableUNICODE(1);
   
   initialized = true;
   return(true);
 }
 
-int KbdCtrl::peep(Context *env) {
-  int res;
-  SDL_Event user_event;
-
-  res = SDL_PeepEvents(&env->event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK);
-  if (!res) return 1;
-
-  user_event.type=SDL_USEREVENT;
-  user_event.user.code=42;
-  SDL_PeepEvents(&user_event, 1, SDL_ADDEVENT, SDL_ALLEVENTS);
-
-  res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_EVENTMASK(SDL_USEREVENT));
-  while (res>0) {
-    int handled = poll(env);
-    if (handled == 0)
-        SDL_PeepEvents(&env->event, 1, SDL_ADDEVENT, SDL_ALLEVENTS);
-    res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_EVENTMASK(SDL_USEREVENT));
-    if (env->event.type == SDL_USEREVENT)
-        res = 0;
-  }
-  return 1;
+int KbdCtrl::poll() {
+	poll_sdlevents(SDL_KEYEVENTMASK); // calls dispatch() foreach SDL_Event
+	return 1;
 }
 
 int KbdCtrl::checksym(SDLKey key, char *name) {
   if(keysym->sym == key) {
     strcat(keyname,name);
     func("keyboard controller detected key: %s",keyname);
-    if(env->event.key.state == SDL_PRESSED)
+    if(event.key.state == SDL_PRESSED)
       snprintf(funcname, 511, "pressed_%s", keyname);
-    else // if(env->event.key.state == SDL_RELEASED)
+    else // if(event.key.state == SDL_RELEASED)
       snprintf(funcname, 511, "released_%s", keyname);
 
     return JSCall(funcname);
@@ -102,22 +86,37 @@ int KbdCtrl::checksym(SDLKey key, char *name) {
 }
 
 
-int KbdCtrl::poll(Context *env) {
+int KbdCtrl::dispatch() {
   char tmp[8];
   int res = 0;
 
-  if(env->event.key.state != SDL_PRESSED)
-    if(env->event.key.state != SDL_RELEASED)
+  if(event.key.state != SDL_PRESSED)
+    if(event.key.state != SDL_RELEASED)
       return 0; // no key state change
-  
-  keysym = &env->event.key.keysym;
+
+	keysym = &event.key.keysym;
+	Uint16 uni[] = {keysym->unicode, 0};
+  //#snprintf(uni, 2, "X %s X", (char*)&keysym->unicode);
+  // universal call
+	res = Controller::JSCall("key", 7, "buusWuu",
+		event.key.state,
+		keysym->scancode,
+		keysym->sym,
+		SDL_GetKeyName(keysym->sym),
+		uni,
+		keysym->mod,
+		event.key.which
+	);
+	if (res)
+		return 1; // returned true, we are done!
+
   //Uint16 keysym->unicode
   //char * SDL_GetKeyName(keysym->sym);
-  func("KB u: %i / ks: %s", keysym->unicode, SDL_GetKeyName(keysym->sym));
+  //func("KB u: %u / ks: %s", keysym->unicode, SDL_GetKeyName(keysym->sym));
 
   memset(keyname, 0, sizeof(char)<<9);  // *512
   memset(funcname, 0, sizeof(char)<<9); // *512
-  
+
   // check key modifiers
   if(keysym->mod & KMOD_SHIFT)
     strcat(keyname,"shift_");
@@ -132,9 +131,9 @@ int KbdCtrl::poll(Context *env) {
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
     strcat(keyname,tmp);
-    if(env->event.key.state == SDL_PRESSED)
+    if(event.key.state == SDL_PRESSED)
       sprintf(funcname,"pressed_%s",keyname);
-    else //if(env->event.key.state != SDL_RELEASED)
+    else //if(event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     return JSCall(funcname);
   }
@@ -145,9 +144,9 @@ int KbdCtrl::poll(Context *env) {
     tmp[0] = keysym->sym;
     tmp[1] = 0x0;
     strcat(keyname,tmp);
-    if(env->event.key.state == SDL_PRESSED)
+    if(event.key.state == SDL_PRESSED)
       sprintf(funcname,"pressed_%s",keyname);
-    else //if(env->event.key.state != SDL_RELEASED)
+    else //if(event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     return JSCall(funcname);
   }
@@ -184,9 +183,9 @@ int KbdCtrl::poll(Context *env) {
     tmp[1] = 0x0;
     strcat(keyname,"num_");
     strcat(keyname,tmp);
-    if(env->event.key.state == SDL_PRESSED)
+    if(event.key.state == SDL_PRESSED)
       sprintf(funcname,"pressed_%s",keyname);
-    else //if(env->event.key.state != SDL_RELEASED)
+    else //if(event.key.state != SDL_RELEASED)
       sprintf(funcname,"released_%s",keyname);
     return JSCall(funcname);
   }
@@ -202,22 +201,10 @@ int KbdCtrl::poll(Context *env) {
 }
 
 int KbdCtrl::JSCall(char *funcname) {
-    jsval fval = JSVAL_VOID;
-    jsval ret = JSVAL_VOID;
-
     func("%s calling method %s()", __func__, funcname);
-    int res = JS_GetProperty(jsenv, jsobj, funcname, &fval);
-    if(!JSVAL_IS_VOID(fval)) {
-        res = JS_CallFunctionValue(jsenv, jsobj, fval, 0, NULL, &ret);
-        if (res)
-            if(!JSVAL_IS_VOID(ret)) {
-                JSBool ok;
-                JS_ValueToBoolean(jsenv, ret, &ok);
-                if (ok) // JSfunc returned 'true', we are done.
-                    return 1;
-            }
-    }
-    return 0;
+	JSBool res;
+	return Controller::JSCall(funcname, 0, NULL, &res);
+	//return Controller::JSCall(funcname, 0, NULL);
 }
 
 JS(js_kbd_ctrl_constructor) {
@@ -225,15 +212,14 @@ JS(js_kbd_ctrl_constructor) {
 
   KbdCtrl *kbd = new KbdCtrl();
 
-  // assign instance into javascript object
-  if( ! JS_SetPrivate(cx, obj, (void*)kbd) ) {
-    error("failed assigning keyboard controller to javascript");
-    delete kbd; return JS_FALSE;
-  }
-
   // initialize with javascript context
   if(! kbd->init(cx, obj) ) {
     error("failed initializing keyboard controller");
+    delete kbd; return JS_FALSE;
+  }
+  // assign instance into javascript object
+  if( ! JS_SetPrivate(cx, obj, (void*)kbd) ) {
+    error("failed assigning keyboard controller to javascript");
     delete kbd; return JS_FALSE;
   }
 

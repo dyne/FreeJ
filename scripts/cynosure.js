@@ -55,6 +55,21 @@ register_controller(kbd);
 kbd.released_q = function() { quit(); }
 kbd.released_x = function() { Draw(); }
 
+kbd.released_p = function() {
+    echo("ok, I shot myself now");
+    try{rem_controller(trigger);}catch(e){echo("tg nope: "+e);}
+    try{rem_layer(geo);}catch(e){echo("la nope: "+e);}
+    try{rem_controller(mc);}catch(e){echo("mc nope: "+e);}
+    try{rem_controller(kbd);}catch(e){echo("kb nope: "+e);}
+    delete geo;
+    delete mc;
+    delete kbd;
+    delete trigger;
+    gc(); // kbd-js not cleared within this call!
+    echo("Bullet arrived.");
+}
+
+
 mc = new MidiController(); // ('descr')
 register_controller(mc);
 ret = mc.connect_from(0, 20, 0);
@@ -241,4 +256,4 @@ function genNewColor() {
 }
 
 
-
+echo("cyno script end");

@@ -26,7 +26,7 @@
 
 #include <lo/lo.h>
 
-#include <callbacks_js.h> // javascript
+#include <stdlib.h>
 
 
 class Context;
@@ -54,6 +54,8 @@ class OscController: public Controller {
   ~OscController();
 
   bool init(JSContext *env, JSObject *obj);
+  int dispatch();
+  int poll();
 
   bool start(int port);
   void stop();

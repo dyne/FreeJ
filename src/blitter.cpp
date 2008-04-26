@@ -609,7 +609,7 @@ void Blitter::blit() {
     
     (*current_blit->sdl_fun)
       (offset, &current_blit->sdl_rect,
-       ((SdlScreen*)layer->screen)->surface,
+       ((SdlScreen*)layer->screen)->screen,
        NULL, geo, (void*)&current_blit->value);
 
   } else if (current_blit->type == PAST_BLIT) {
@@ -788,7 +788,7 @@ bool Blitter::set_kernel(short *krn) {
 }
 
 bool Blitter::set_zoom(double x, double y) {
-  if(!x && !y) {
+  if ((x == 1) && (y == 1)) {
     zooming = false;
     zoom_x = zoom_y = 1.0;
     spin_zoom = 0;

@@ -51,6 +51,7 @@
 
 JS(filter_constructor);
 JS(layer_constructor);
+void js_layer_gc (JSContext *cx, JSObject *obj);
 JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
@@ -74,12 +75,15 @@ JS(txt_layer_constructor);
 
 // controller constructors
 JS(js_kbd_ctrl_constructor);
+JS(js_mouse_ctrl_constructor);
 JS(js_joy_ctrl_constructor);
+JS(js_vimo_ctrl_constructor);
 #ifdef WITH_MIDI
 JS(js_midi_ctrl_constructor);
 #endif
 JS(js_trigger_ctrl_constructor);
 JS(js_osc_ctrl_constructor);
+void js_ctrl_gc (JSContext *cx, JSObject *obj);
 
 // encoder constructor
 #ifdef WITH_OGGTHEORA
@@ -89,6 +93,11 @@ JS(js_shouter_constructor);
 
 //////////////////////////////////////////////////////////////
 // classes
+//
+//
+
+// pseudoclass for holding namespace of a use(filename) object
+extern JSClass UseScriptClass;
 
 extern JSClass global_class;
 extern JSFunctionSpec global_functions[];
@@ -108,6 +117,14 @@ extern JSFunctionSpec js_ctrl_methods[];
 // KeyboardController
 extern JSClass js_kbd_ctrl_class;
 extern JSFunctionSpec js_kbd_ctrl_methods[];
+
+// MouseController
+extern JSClass js_mouse_ctrl_class;
+extern JSFunctionSpec js_mouse_ctrl_methods[];
+
+// VideoMouseController
+extern JSClass js_vimo_ctrl_class;
+extern JSFunctionSpec js_vimo_ctrl_methods[];
 
 // JoystickController
 extern JSClass js_joy_ctrl_class;
@@ -181,7 +198,12 @@ extern JSClass js_shouter_class;
 extern JSFunctionSpec js_shouter_methods[];
 #endif
 
-
+// XGrabLayer
+JS(js_xgrab_constructor);
+JS(js_xgrab_open);
+JS(js_xgrab_close);
+extern JSClass js_xgrab_class;
+extern JSFunctionSpec js_xgrab_methods[];
 
 
 ////////////////////////////////
@@ -201,6 +223,7 @@ JS(rem_layer);
 JS(list_layers);
 JS(selected_layer);
 JS(debug);
+JS(js_set_debug);
 JS(rand);
 JS(srand);
 JS(pause);
@@ -213,10 +236,15 @@ JS(freej_echo_func);
 JS(freej_strstr);
 JS(file_to_strings);
 JS(register_controller);
+JS(rem_controller);
 JS(register_encoder);
 JS(include_javascript);
+JS(use_javascript);
+JS(ExecScript); // for the use() objects
 JS(system_exec);
 JS(list_filters);
+JS(js_gc);
+JS(reset_js);
 
 ////////////////////////////////
 // Linklist Entry methods
@@ -248,12 +276,17 @@ JS(filter_list_parameters);
 ////////////////////////////////
 // Controller methods
 JS(controller_activate);
+JS(js_mouse_grab);
+JS(js_vimo_open);
+JS(js_vimo_close);
 
 ////////////////////////////////
 // parent Layer methods
 
 JS(layer_activate);
 JS(layer_deactivate);
+JS(layer_start);
+JS(layer_stop);
 JS(layer_get_name);
 JS(layer_get_filename);
 JS(layer_get_blit);
@@ -274,6 +307,8 @@ JS(layer_zoom);
 JS(layer_spin);
 JS(layer_list_filters);
 JS(layer_list_parameters);
+JS(layer_set_fps);
+JS(layer_get_fps);
 
 ////////////////////////////////
 // Particle Layer methods

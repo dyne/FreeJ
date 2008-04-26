@@ -24,21 +24,15 @@
 
 #include <SDL.h>
 
-class TriggerCtrl : Controller {
+class TriggerCtrl : public Controller {
 
  public:
   TriggerCtrl();
   ~TriggerCtrl();
   
-  int peep(Context *env);
   bool init(JSContext *env, JSObject *obj);
-  int  poll(Context *env);
-  
- private:
-  
-
-  int _poll(Context *env);
-
+  int  poll();
+  int dispatch();
 };
 
 #endif

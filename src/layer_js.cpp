@@ -23,12 +23,14 @@
 #include <jsparser_data.h>
 #include <layer.h>
 
-DECLARE_CLASS("Layer",layer_class,layer_constructor);
+DECLARE_CLASS_GC("Layer",layer_class,layer_constructor, js_layer_gc);
 
 JSFunctionSpec layer_methods[] = {
     ENTRY_METHODS,
     {"activate",	layer_activate,	        0},
     {"deactivate",	layer_deactivate,	0},
+    {"start",		layer_start,		0},
+    {"stop",		layer_stop,		0},
     {"get_name",	layer_get_name,	        0},
     {"get_filename",	layer_get_filename,	0},
     {"set_blit",	layer_set_blit,	        1},
@@ -37,6 +39,8 @@ JSFunctionSpec layer_methods[] = {
     {"get_blit_value",	layer_get_blit_value,	0},
     {"fade_blit_value", layer_fade_blit_value,  2},
     {"set_position",	layer_set_position,	2},
+    {"set_fps",		layer_set_fps,		0},
+    {"get_fps",		layer_get_fps,   	0},
     {"slide_position",  layer_slide_position,   2},
     {"get_x_position",	layer_get_x_position,	0},
     {"x",               layer_get_x_position,   0},
@@ -126,6 +130,9 @@ JS(layer_constructor) {
   char *filename;
 
   Layer *layer;
+  if (jsclass_s != OBJ_GET_CLASS(cx, obj)) {
+    JS_ERROR("Sorry, this gimmik is not supported.");
+  }
 
   if(argc < 1) JS_ERROR("missing argument");
 
@@ -141,14 +148,32 @@ JS(layer_constructor) {
     return JS_FALSE;
   }
 
-  //    this_obj = JS_NewObject(cx, &layer_class, NULL, obj);
-  if (!JS_SetPrivate(cx, obj, (void *) layer))
+  //*rval is obj but wrong class. so we cheat here our autodetect ...
+  JSObject *thisobj = JS_NewObject(cx, layer->jsclass, NULL, NULL);
+  if (!JS_SetPrivate(cx, thisobj, (void *) layer))
     JS_ERROR("internal error setting private value");
 
-  *rval = OBJECT_TO_JSVAL(obj);
+  *rval = OBJECT_TO_JSVAL(thisobj);
   return JS_TRUE;
 }
 
+JS(layer_set_fps) {
+	GET_LAYER(Layer);
+    double fps_old = lay->fps;
+
+	if(argc==1) {
+		JS_ARG_NUMBER(fps, 0);
+		fps_old = lay->set_fps(fps);
+	}
+	lay->signal_feed();
+	return JS_NewNumberValue(cx, fps_old, rval);
+}
+
+JS(layer_get_fps) {
+	GET_LAYER(Layer);
+	double fps = double(lay->get_fps());
+	return JS_NewNumberValue(cx, fps, rval);
+}
 
 JS(list_layers) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -169,11 +194,19 @@ JS(list_layers) {
 
   lay = (Layer*)env->layers.begin();
   while(lay) {
-    objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
+    if (lay->data) {
+func("reusing %p", lay->data);
+    	val = (jsval)lay->data;
+    } else {
+func("new JS Object");
+	objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
 
-    JS_SetPrivate(cx,objtmp,(void*) lay);
+	JS_SetPrivate(cx,objtmp,(void*) lay);
 
-    val = OBJECT_TO_JSVAL(objtmp);
+	val = OBJECT_TO_JSVAL(objtmp);
+
+	lay->data = (void*)val;
+    }
 
     JS_SetElement(cx, arr, c, &val );
     
@@ -190,6 +223,7 @@ JS(selected_layer) {
 
   Layer *lay;
   JSObject *objtmp;
+  jsval val;
 
   if( env->layers.len() == 0 ) {
     error("can't return selected layer: no layers are present");
@@ -204,12 +238,17 @@ JS(selected_layer) {
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
+    if (lay->data) {
+    	val = (jsval)lay->data;
+    } else {
+	objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
+	func("create: %s", lay->jsclass->name);
+	JS_SetPrivate(cx, objtmp, (void*) lay);
+	val = OBJECT_TO_JSVAL(objtmp);
+	lay->data = (void*)val;
+    }
 
-  objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
-
-  JS_SetPrivate(cx, objtmp, (void*) lay);
-
-  *rval = OBJECT_TO_JSVAL( objtmp );
+  *rval = val;
 
   return JS_TRUE;
 }
@@ -416,36 +455,28 @@ JS(layer_get_x_position) {
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->geo.x);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->geo.x, rval);
 }
 JS(layer_get_y_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->geo.y);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->geo.y, rval);
 }
 JS(layer_get_width) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->geo.w);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->geo.w, rval);
 }
 JS(layer_get_height) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->geo.h);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->geo.h, rval);
 }
 JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -491,9 +522,7 @@ JS(layer_get_blit_value) {
 
     GET_LAYER(Layer);
 
-    *rval=INT_TO_JSVAL(lay->blitter.current_blit->value);
-
-    return JS_TRUE;
+	return JS_NewNumberValue(cx, lay->blitter.current_blit->value, rval);
 }
 JS(layer_activate) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -600,6 +629,48 @@ JS(layer_spin) {
   GET_LAYER(Layer);
 
   lay->blitter.set_spin(rot, magn);
+
+  return JS_TRUE;
+}
+
+void js_layer_gc (JSContext *cx, JSObject *obj) {
+	func("%s",__PRETTY_FUNCTION__);
+	Layer* l;
+	if (!obj) {
+		error("%n called with NULL object", __PRETTY_FUNCTION__);
+		return;
+	}
+	// This callback is declared in Layer Class only,
+	// we can skip the typecheck of obj, can't we?
+	l = (Layer *) JS_GetPrivate(cx, obj);
+	JSClass *jc = JS_GET_CLASS(cx,obj);
+
+	if (l) {
+		func("JSvalcmp(%s): %p / %p Layer: %p", jc->name, OBJECT_TO_JSVAL(obj), l->data, l);
+		if(l->list) {
+			notice("JSgc: Layer %s/%s is still on stage", jc->name, l->name);
+			l->data = NULL;
+		} else {
+			notice("JSgc: Layer %s/%s is useless, deleting", jc->name, l->name);
+			l->data = NULL; // Entry~ calls free(data)
+			l->stop();
+			delete l;
+		}
+	} else {
+		func("Mh, object(%s) has no private data", jc->name);
+	}
+}
+
+JS(layer_start) {
+  GET_LAYER(Layer);
+  lay->start();
+
+  return JS_TRUE;
+}
+
+JS(layer_stop) {
+  GET_LAYER(Layer);
+  lay->stop();
 
   return JS_TRUE;
 }

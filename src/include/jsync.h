@@ -20,6 +20,7 @@
 #define __JSYNC_H__
 
 #include <pthread.h>
+#include <sys/time.h>
 
 class JSyncThread {
  private:
@@ -28,11 +29,26 @@ class JSyncThread {
   pthread_attr_t _attr;
 
   pthread_mutex_t _mutex;
-  pthread_cond_t _cond;
+  //pthread_cond_t _cond;
   
   /* mutex and conditional for the feed */
   pthread_mutex_t _mutex_feed;
   pthread_cond_t _cond_feed;
+
+  void _run();
+
+  struct fps_data_t {
+      int i;
+      int n;
+      float sum;
+      float *data;
+  } fpsd;
+
+  float _delay, _fps;
+  struct timeval start_tv;
+  struct timespec wake_ts;
+  void set_alarm(float);
+  void calc_fps();
   
  public:
   
@@ -40,27 +56,33 @@ class JSyncThread {
   virtual ~JSyncThread();
 
   int start();
+  void stop();
   virtual void run() {};
 
   void lock() { pthread_mutex_lock(&_mutex); };
   void unlock() { pthread_mutex_unlock(&_mutex); };
 
-  void lock_feed() { pthread_mutex_lock(&_mutex_feed); };
-  void unlock_feed() { pthread_mutex_unlock(&_mutex_feed); };
-  
   /* MUTEX MUST BE LOCKED AND UNLOCKED WHILE USING WAIT */
-  void wait() { pthread_cond_wait(&_cond,&_mutex); };
-  void signal() { pthread_cond_signal(&_cond); };
+  //void wait() { pthread_cond_wait(&_cond,&_mutex); };
+  //void signal() { pthread_cond_signal(&_cond); };
 
-  void wait_feed() { pthread_cond_wait(&_cond_feed,&_mutex_feed); };
+  void wait_feed();
   void signal_feed() { pthread_cond_signal(&_cond_feed); };
+  int sleep_feed();
 
-  int join() { return pthread_join(_thread,NULL); }
+  float get_fps();
+  float set_fps(float);
+  bool running, quit;
+  float fps, fps_old;
 
  protected:
 
-  static void* kickoff(void *arg) { ((JSyncThread *) arg)->run(); return NULL; };
+  static void* kickoff(void *arg) { ((JSyncThread *) arg)->_run(); return NULL; };
 
+  void lock_feed() { pthread_mutex_lock(&_mutex_feed); };
+  void unlock_feed() { pthread_mutex_unlock(&_mutex_feed); };
+  int join() { return pthread_join(_thread,NULL); }
+  
 };
 
 #endif

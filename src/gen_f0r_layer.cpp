@@ -26,6 +26,7 @@ $Id: gen_layer.cpp 845 2007-04-03 07:04:47Z jaromil $
 #include <jutils.h>
 #include <context.h>
 #include <config.h>
+//#include <jsparser_data.h>
 
 
 GenF0rLayer::GenF0rLayer()
@@ -35,6 +36,7 @@ GenF0rLayer::GenF0rLayer()
 
   type = F0R_GENERATOR_LAYER;
   set_name("F0R");
+  //jsclass = &gen0r_layer_class;
   //  set_filename("/particle generator");
 
 }

@@ -66,7 +66,7 @@
 #define KEY_CTRL_I 9 // OSD on/off
 #define KEY_CTRL_K 11 // delete until end of line
 #define KEY_CTRL_L 12 // refresh screen
-#define KEY_CTRL_M 13 // move layer
+#define KEY_CTRL_M 13 // toggle set_fps()  << this is also the RETURN key!
 #define KEY_CTRL_U 21 // delete until beginning of line
 #define KEY_CTRL_H 272 // help the user
 
@@ -415,7 +415,10 @@ static int open_layer(char *cmd) {
       delete l;
     } else {
     */
+	  l->set_fps(env->fps_speed);
+      l->start();
       env->add_layer(l);
+	  l->active=true;
 
       len = env->layers.len();
       notice("layer succesfully created, now you have %i layers",len);
@@ -446,7 +449,10 @@ static int open_text_layer(char *cmd) {
 
   
   txt->print(cmd);
+  txt->start();
+  txt->set_fps(0);
   env->add_layer(txt);
+  txt->active=true;
   
   notice("layer succesfully created with text: %s",cmd);
   env->console->refresh();
@@ -629,7 +635,10 @@ static int create_generator(char *cmd) {
     delete tmp;
     return 0;
   }
+  tmp->start();
+  tmp->set_fps(env->fps_speed);
   env->add_layer(tmp);
+  tmp->active=true;
 
   //env->console->refresh();	
 
@@ -845,6 +854,7 @@ void Console::print_help() {
   act("ctrl+o  = Open a Layer (will prompt for path to file)");
   act("Arrow keys browse selection thru layers and effects");
   act("SPACE to de/activate layers and filters selected");
+  act("ENTER to start/stop layers selected");
   act("+ and - move filters and effects thru chains");
   act(" ! = Switch on/off On Screen Display information");
   act(" @ = Switch on/off screen cleanup after every frame");
@@ -1290,7 +1300,21 @@ void Console::parser_default(int key) {
       else  ((Layer*)le)->active =
 	      !((Layer*)le)->active;
     break;
-      
+
+    case KEY_CTRL_M: {
+		Layer *l=((Layer*)le);
+		if (l->fps > 0)
+			l->set_fps(0);
+		else
+			if (l->fps_old > 0)
+				l->set_fps(l->fps_old);
+			else
+				l->set_fps(env->fps_speed);
+		l->signal_feed();
+		::notice("Layer.set_fps(%f)", l->fps);
+	}
+	break;
+
     case KEY_CTRL_E:
       readline("add new Effect - press TAB for completion:",&filter_proc,&filter_comp);
       break;
@@ -1429,7 +1453,7 @@ void Console::parser_movelayer(int key) {
 					   layer->blitter.zoom_y - 0.01); break;
   case 'w':       layer->blitter.set_spin(0,-0.001);    break;
   case 's':       layer->blitter.set_spin(0,0.001);     break;
-  case '.':       layer->blitter.set_zoom(0,0);         break;
+  case '.':       layer->blitter.set_zoom(1,1);         break;
     
     // rotation
   case '<': layer->blitter.set_rotate( layer->blitter.rotate + 0.5 ); break;

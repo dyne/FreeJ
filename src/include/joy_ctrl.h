@@ -24,19 +24,17 @@
 
 #include <SDL.h>
 
-class JoyCtrl : Controller {
+class JoyCtrl : public Controller {
 
  public:
   JoyCtrl();
   ~JoyCtrl();
   
   bool init(JSContext *env, JSObject *obj);
-  int  peep(Context *env);
-  int  poll(Context *env);
+  int  poll();
+  int dispatch();
   
  private:
-  
-
   SDL_Joystick *joy[4];
   int num;
   int axes;

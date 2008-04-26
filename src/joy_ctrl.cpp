@@ -36,7 +36,7 @@
 /////// Javascript JoystickController
 JS(js_joy_ctrl_constructor);
 
-DECLARE_CLASS("JoystickController",js_joy_ctrl_class, js_joy_ctrl_constructor);
+DECLARE_CLASS_GC("JoystickController",js_joy_ctrl_class, js_joy_ctrl_constructor,js_ctrl_gc);
 
 JSFunctionSpec js_joy_ctrl_methods[] = {
   {0}
@@ -109,87 +109,49 @@ bool JoyCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
-int JoyCtrl::peep(Context *env) {
-  int res;
-
-  res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
-  while (res>0) {
-    poll(env);
-    res = SDL_PeepEvents(&env->event, 1, SDL_GETEVENT, SDL_JOYEVENTMASK);
-  }
-  return 1;
+int JoyCtrl::poll() {
+	poll_sdlevents(SDL_JOYEVENTMASK); // calls dispatch() 
+	return 0;
 }
 
-int JoyCtrl::poll(Context *env) {
-  jsval ret;
+int JoyCtrl::dispatch() {
 
-  switch(env->event.type) {
-    
-  case SDL_JOYAXISMOTION:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jaxis.which),
-	INT_TO_JSVAL(env->event.jaxis.axis),
-	INT_TO_JSVAL(env->event.jaxis.value) 
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "axismotion", 3, js_data, &ret);
-    }
-    break;
+	switch(event.type) {
+		
+	case SDL_JOYAXISMOTION:
+		return JSCall("axismotion", 3, "uui", 
+			event.jaxis.which, event.jaxis.axis, event.jaxis.value
+		);
+		break;
 
-  case SDL_JOYBALLMOTION:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jball.which),
-	INT_TO_JSVAL(env->event.jball.ball),
-	INT_TO_JSVAL(env->event.jball.xrel),
-	INT_TO_JSVAL(env->event.jball.yrel)
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "ballmotion", 4, js_data, &ret);
-    }
-    break;
+	case SDL_JOYBALLMOTION:
+		return JSCall("ballmotion", 4, "uuii", 
+			event.jball.which, event.jball.ball, 
+			event.jball.xrel, event.jball.yrel
+		);
+		break;
 
-  case SDL_JOYHATMOTION:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jhat.which),
-	INT_TO_JSVAL(env->event.jhat.hat),
-	INT_TO_JSVAL(env->event.jhat.value) 
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "hatmotion", 3, js_data, &ret);
-    }
-    break;
-    
-  case SDL_JOYBUTTONDOWN:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jbutton.which),
-	INT_TO_JSVAL(env->event.jbutton.button),
-	INT_TO_JSVAL(1) 
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "button", 3, js_data, &ret);
-    }
-    break;
-    
-  case SDL_JOYBUTTONUP:
-    {
-      jsval js_data[] = { 
-	INT_TO_JSVAL(env->event.jbutton.which),
-	INT_TO_JSVAL(env->event.jbutton.button),
-	INT_TO_JSVAL(0) 
-      };
-      
-      JS_CallFunctionName(jsenv, jsobj, "button", 3, js_data, &ret);
-    }
-    break;
-    
-  default: return 0;
-    
-  }
-  return(1);
+	case SDL_JOYHATMOTION:
+		return JSCall("hatmotion", 3, "uui", 
+			event.jhat.which, event.jhat.hat, event.jhat.value
+		);
+		break;
+		
+	case SDL_JOYBUTTONDOWN:
+		return JSCall("button", 3, "uuc", 
+			event.jbutton.which, event.jbutton.button, 1
+		);
+		break;
+		
+	case SDL_JOYBUTTONUP:
+		return JSCall("button", 3, "uuc", 
+			event.jbutton.which, event.jbutton.button, 0
+		);
+		break;
+
+	default: 
+		return 0;
+	}
 }
 
 JS(js_joy_ctrl_constructor) {
@@ -198,18 +160,17 @@ JS(js_joy_ctrl_constructor) {
 
   JoyCtrl *joy = new JoyCtrl();
 
-  // assign instance into javascript object
-  if( ! JS_SetPrivate(cx, obj, (void*)joy) ) {
-    sprintf(excp_msg, "failed assigning joystick controller to javascript");
-    goto error;
-  }
-
   // initialize with javascript context
   if(! joy->init(cx, obj) ) {
     sprintf(excp_msg, "failed initializing joystick controller");
     goto error;
   }
 
+  // assign instance into javascript object
+  if( ! JS_SetPrivate(cx, obj, (void*)joy) ) {
+    sprintf(excp_msg, "failed assigning joystick controller to javascript");
+    goto error;
+  }
   *rval = OBJECT_TO_JSVAL(obj);
   return JS_TRUE;
 

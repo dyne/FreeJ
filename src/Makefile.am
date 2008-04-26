@@ -80,6 +80,8 @@ freej_SOURCES = \
 \
 	controller.cpp  \
 	kbd_ctrl.cpp	\
+	mouse_ctrl.cpp	\
+	vimo_ctrl.cpp	\
 	joy_ctrl.cpp	\
 	midi_ctrl.cpp   \
 	trigger_ctrl.cpp \
@@ -93,7 +95,8 @@ freej_SOURCES = \
 	ffmpeg_encoder.cpp \
 	theorautils.cpp \
 	oggtheora_encoder.cpp \
-	impl_video_encoders.cpp
+	impl_video_encoders.cpp \
+	xgrab_layer.cpp
 
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @XIPH_LIBS@ \

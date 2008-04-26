@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# prepares for a test run
+# symlink all plugins in ./quickplug
+# and symlink ~/.freej/plugins
+
+mkdir quickplug
+cd quickplug
+find ../filters -name '*.so' -exec ln -sf {} \;
+find ../lib/frei0r -name '*.so' -exec ln -sf {} \;
+
+rm -f $HOME/.freej/plugins
+ln -sf `pwd` $HOME/.freej/plugins
+

@@ -25,7 +25,6 @@
 
 #ifdef WITH_FT2
 
-#include <iostream>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
