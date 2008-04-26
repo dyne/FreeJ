@@ -1,4 +1,6 @@
 
+  console rewrite as controller (accessing linklists for completion)
+
   goil revision of threading and timing
 
   jrml implement OSC programmable controller

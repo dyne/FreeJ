@@ -235,7 +235,8 @@ Entry *Linklist::search(char *name, int *idx) {
   }
   if(idx) *idx = 0;
   return(NULL);
-}    
+}
+
 /* searches all the linklist for entries starting with *needle
    returns a list of indexes where to reach the matches */
 Entry **Linklist::completion(char *needle) { 
