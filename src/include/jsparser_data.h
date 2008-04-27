@@ -83,6 +83,7 @@ JS(js_midi_ctrl_constructor);
 #endif
 JS(js_trigger_ctrl_constructor);
 JS(js_osc_ctrl_constructor);
+JS(js_wii_ctrl_constructor);
 void js_ctrl_gc (JSContext *cx, JSObject *obj);
 
 // encoder constructor
@@ -143,6 +144,10 @@ extern JSFunctionSpec js_trigger_ctrl_methods[];
 // OSC Controller
 extern JSClass js_osc_ctrl_class;
 extern JSFunctionSpec js_osc_ctrl_methods[];
+
+// WII Controller
+extern JSClass js_wii_ctrl_class;
+extern JSFunctionSpec js_wii_ctrl_methods[];
 
 // ParticleLayer
 extern JSClass particle_layer_class;

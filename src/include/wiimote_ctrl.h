@@ -1,4 +1,4 @@
-/*  FreeJ OSC controller
+/*  FreeJ WiiMote controller
  *  (c) Copyright 2008 Denis Rojo <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
@@ -19,55 +19,48 @@
  *
  */
 
-#ifndef __OSC_CTRL_H__
-#define __OSC_CTRL_H__
+#ifndef __WII_CTRL_H__
+#define __WII_CTRL_H__
 
 #include <controller.h>
 
-#include <lo/lo.h>
+extern "C" {
+#include <wiimote.h>
+#include <extension.h>
+}
 
 #include <stdlib.h>
 
-
 class Context;
 
-class OscCommand: public Entry {
- public:
-  // osc_cmd is Entry::name
-  char proto_cmd[128];
-  char js_cmd[512];
-};
-
-class JsCommand: public Entry {
- public:
-  // name is function
-  jsval function;
-  int argc;
-  jsval *argv;
-
-};
-
-class OscController: public Controller {
+class WiiController: public Controller {
 
  public:
-  OscController();
-  ~OscController();
+  WiiController();
+  ~WiiController();
 
   bool init(JSContext *env, JSObject *obj);
   int dispatch();
   int poll();
 
-  bool start(int port);
-  void stop();
+  bool connect(char *hwaddr);
 
   Context *freej;
 
-  lo_server_thread srv;
+  /* TODO: support for multiple wiimotes
+     can be done, but i don't need it ATM
+     if needed: ask. -jrml */
 
-  char port[64];
+ private:
 
-  Linklist commands_handled;
-  Linklist commands_pending;
+  wm_conn_t connection;
+  wm_wiimote_t wiimote;
+  bdaddr_t wiimote_bdaddr;
+
+  // input structures
+  wm_input_t *input;
+  wm_nunchuk_t nunchuk;
+  wm_classic_t classic;
 
 };
 

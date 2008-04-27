@@ -265,6 +265,12 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   js_osc_ctrl_methods,
 		   object_proto);
 
+    REGISTER_CLASS("WiiController",
+		   js_wii_ctrl_class,
+		   js_wii_ctrl_constructor,
+		   js_wii_ctrl_methods,
+		   object_proto);
+
 #ifdef WITH_OGGTHEORA
 	// encoder class
 	REGISTER_CLASS("VideoEncoder",

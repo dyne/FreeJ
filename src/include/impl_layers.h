@@ -70,7 +70,9 @@
 	| strncasecmp((end_file_ptr-4),".ogg",4)==0     \
         | strncasecmp((end_file_ptr-4),".gif",4)==0  	\
 	| strncasecmp((end_file_ptr-4),".ogm",4)==0     \
-	| strncasecmp((end_file_ptr-4),".3gp",4)==0
+	| strncasecmp((end_file_ptr-4),".3gp",4)==0     \
+	| strncasecmp((end_file_ptr-4),".flv",4)==0
+
 
 //	    | strncasecmp(end_file_ptr-4,".gif",4)==0  // it does not handle loops :''(
 //	    | strncasecmp(end_file_ptr-4,".jpg",4)==0

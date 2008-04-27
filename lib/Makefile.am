@@ -11,5 +11,6 @@ SUBDIRS = 	ccvt			\
 		tbt			\
 		slw			\
 		frei0r			\
+		wiimote			\
 		@FLASH_DIR@
 

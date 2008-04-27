@@ -56,7 +56,6 @@ class AudioCollector;
 class VideoEncoder;
 
 class FreejDaemon;
-namespace XmlRpc {  class XmlRpcServer; }
 
 class Context {
  private:
@@ -148,12 +147,6 @@ class Context {
   Plugger plugger; ///< filter plugins host
 
   JsParser *js; ///< javascript parser object
-
-
-  XmlRpc::XmlRpcServer *xmlrpc; ///< xmlrpc interface
-
-  FreejDaemon *daemon; ///< xmlrpc daemon
-
 
 
   /* Set the interval (in frames) after

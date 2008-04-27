@@ -144,6 +144,9 @@
 /* Define if using the dmalloc debugging malloc package */
 #undef WITH_DMALLOC
 
+/* compiling movie layer with static ffmpeg */
+#undef WITH_FFMPEG
+
 /* define if compiling flash layer */
 #undef WITH_FLASH
 
