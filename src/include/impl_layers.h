@@ -36,7 +36,6 @@
 #include <flash_layer.h> // statically included flash layer
 #include <goom_layer.h>
 #include <tbt_layer.h>
-#include <movie_layer.h>
 
 #ifdef WITH_V4L
 #include <v4l_layer.h>
