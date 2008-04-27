@@ -13,7 +13,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
 	   -I$(top_srcdir)/lib/goom \
            -I$(top_srcdir)/lib/tbt \
            -I$(top_srcdir)/lib/slw \
-	   -I$(top_srcdir)/lib/wiimote \
+	   -I$(top_srcdir)/lib/cwiid \
            -I/usr/include/slang \
 	   @XIPH_INCLUDE@ \
 	   @X11_LIBS@

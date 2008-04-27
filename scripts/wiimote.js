@@ -2,17 +2,51 @@
 
 
 wii = new WiiController();
-
-echo("connecting wii");
-wii.connect();
-
-// ARGH!
-// add_controller(wii);
 register_controller(wii);
 
+geo = new GeometryLayer();
+geo.activate(true);
+geo.start();
+geo.set_fps(25);
+add_layer(geo);
+
+kbd = new KeyboardController();
+register_controller(kbd);
+
+kbd.released_q = function() { quit(); }
+
+kbd.released_1 = function() { wii.toggle_led(1); }
+kbd.released_2 = function() { wii.toggle_led(2); }
+kbd.released_3 = function() { wii.toggle_led(3); }
+
+echo("connecting wii");
+//wii.connect();
+
+//register_controller(wii);
+
 wii.acceleration = function(x,y,z) {
-	echo("wii: " + x + " " + y + " " + z);
+    echo("accel x" + x + " y " + y + " z " + z);
+    //    geo.color(0x0);
+    //    geo.clear();
+    geo.color(1.0, 0.0, 0.0);
+    geo.hline(0,x*2,10);
+    geo.hline(0,x*2,11);
+    geo.hline(0,x*2,12);
+    
+    geo.color(0.0,1.0,0.0);
+    geo.hline(0,y*2,20);
+    geo.hline(0,y*2,21);
+    geo.hline(0,y*2,22);
+    
+    geo.color(0.0,0.0,1.0);
+    geo.hline(0,z*2,30);
+    geo.hline(0,z*2,31);
+    geo.hline(0,z*2,32);
 }
+
+// test
+wii.acceleration(100, 100, 100);
+
 function butt(b) {
 	echo("wii button " + b);
 }

@@ -7,6 +7,8 @@
 
   jrml rewrite movielayer with new ffmpeg or openMLT libs
 
+  dump a screenshot of a layer in javascript: layer.dumpfile()
+
   *** rewrite video4linux layer with libunicap
 
   jrml sound frequency and beat parametrization (get harmonics from fluxus)

@@ -47,9 +47,18 @@ JS(js_wii_ctrl_constructor);
 DECLARE_CLASS_GC("WiiController", js_wii_ctrl_class, js_wii_ctrl_constructor, js_ctrl_gc);
 
 JS(js_wii_ctrl_connect);
+JS(js_wii_ctrl_actaccel);
+JS(js_wii_ctrl_actbutt);
+JS(js_wii_ctrl_rumble);
+JS(js_wii_ctrl_actleds);
 
 JSFunctionSpec js_wii_ctrl_methods[] = {
-  {"connect",      js_wii_ctrl_connect,      0},
+  {"connect",        js_wii_ctrl_connect,    1},
+  {"toggle_accel",   js_wii_ctrl_actaccel,   0},
+  {"toggle_buttons", js_wii_ctrl_actbutt,    0},
+  {"toggle_rumble",  js_wii_ctrl_rumble,     0},
+  {"toggle_led",    js_wii_ctrl_actleds,     1},
+
   {0}
 };
 
@@ -96,6 +105,64 @@ JS(js_wii_ctrl_connect) {
     
     return JS_TRUE;
 }
+JS(js_wii_ctrl_actaccel) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
+
+  char rpt_mode = 0;
+
+  toggle_bit(rpt_mode, CWIID_RPT_ACC);
+  cwiid_set_rpt_mode(wii->wiimote, rpt_mode);
+
+  return JS_TRUE;
+}
+
+JS(js_wii_ctrl_actbutt) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
+
+  char rpt_mode = 0;
+
+  toggle_bit(rpt_mode, CWIID_RPT_BTN);
+  cwiid_set_rpt_mode(wii->wiimote, rpt_mode);
+
+  return JS_TRUE;
+}
+
+JS(js_wii_ctrl_rumble) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
+
+  char rumble = 0;
+
+  toggle_bit(rumble, 1);
+  cwiid_set_rumble(wii->wiimote, rumble);
+
+  return JS_TRUE;
+}
+
+JS(js_wii_ctrl_actleds) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+
+  JS_CHECK_ARGC(1);
+
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
+
+  char led_state = 0;
+
+  JS_ARG_NUMBER(led,0);
+  if     (led==1) toggle_bit(led_state, CWIID_LED1_ON);
+  else if(led==2) toggle_bit(led_state, CWIID_LED2_ON);
+  else if(led==3) toggle_bit(led_state, CWIID_LED3_ON);
+  else if(led==4) toggle_bit(led_state, CWIID_LED4_ON);
+  else error("there are only 4 leds on the wiimote");
+
+  return JS_TRUE;
+}
 
 WiiController *tmp; // ARG. this is not reentrant because C sucks.
                     // PLEASE add a void *user_data in the cwiid_wiimote struct!!!!
@@ -108,20 +175,18 @@ void cwiid_callback(cwiid_wiimote_t *wii, int mesg_count,
 
 }
 
-void WiiController::accel(uint8_t nx, uint8_t ny, uint8_t nz) {
-  // dumb simple for now, todo threshold here to calibrate
-  func("accel callback: x%u y%u z%u");
-  if(nx!=x) x=nx;
-  if(ny!=y) y=ny;
-  if(nz!=z) z=nz;
-  accel_changed = true;
+void WiiController::accel(int nx, int ny, int nz) {
+  // simple threshold
+  int thresh = 1;
+  if ( (x-nx > thresh) || (nx-x > thresh) ) x = nx;
+  if ( (y-ny > thresh) || (ny-y > thresh) ) y = ny;
+  if ( (z-nz > thresh) || (nz-z > thresh) ) z = nz;
+
 }
 
 WiiController::WiiController()
 :Controller() {
   
-  accel_changed = false;
-
   tmp = this; // this shouldn't be here, when cwiid callback gets fixed
 
   set_name("WiiCtrl");
@@ -142,7 +207,7 @@ bool WiiController::connect(char *hwaddr) {
   if(hwaddr == NULL) bdaddr = *BDADDR_ANY;
   else str2ba(hwaddr,&bdaddr);
   
-  act("Detecting WiiMote (press A+B on it to handshake)");
+  notice("Detecting WiiMote (press A+B on it to handshake)");
   
   wiimote = cwiid_open(&bdaddr, 0);
   if(!wiimote) {
@@ -190,9 +255,7 @@ int WiiController::dispatch() {
   char funcname[512];
   char keyname[512];
 
-  if(accel_changed)
-    Controller::JSCall("acceleration", 3, "uuu", x, y, z );
-
+  Controller::JSCall("acceleration", 3, "uuu", x, y, z );
 
 }
 

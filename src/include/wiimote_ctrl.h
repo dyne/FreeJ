@@ -42,7 +42,7 @@ class WiiController: public Controller {
 
   bool connect(char *hwaddr);
 
-  void accel(uint8_t nx, uint8_t ny, uint8_t nz);
+  void accel(int nx, int ny, int nz);
 
   Context *freej;
 
@@ -52,12 +52,12 @@ class WiiController: public Controller {
 
   void print_state(struct cwiid_state *state); // debug
 
+  cwiid_wiimote_t  *wiimote;
+
  private:
 
   uint8_t x,y,z;
-  bool accel_changed;
 
-  cwiid_wiimote_t  *wiimote;
 
   cwiid_state state;
   // todo nunchuk_state and classic_state extensions
