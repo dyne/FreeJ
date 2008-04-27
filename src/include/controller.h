@@ -64,6 +64,8 @@ class Controller: public Entry {
   JSObject  *jsobj;
   SDL_Event event;
   jsval lol;
+
+  // TODO: eliminate runtime resolution -> C++ overhead alert!
   int JSCall(char *funcname, int argc, jsval *argv, JSBool *res);
   int JSCall(char *funcname, int argc, const char *format, ...);
 };

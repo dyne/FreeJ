@@ -13,6 +13,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
 	   -I$(top_srcdir)/lib/goom \
            -I$(top_srcdir)/lib/tbt \
            -I$(top_srcdir)/lib/slw \
+	   -I$(top_srcdir)/lib/wiimote \
            -I/usr/include/slang \
 	   @XIPH_INCLUDE@ \
 	   @X11_LIBS@
@@ -85,6 +86,7 @@ freej_SOURCES = \
 	midi_ctrl.cpp   \
 	trigger_ctrl.cpp \
 	osc_ctrl.cpp \
+	wiimote_ctrl.cpp \
 \
 	audio_jack.cpp  \
 	audio_collector.cpp \
@@ -98,7 +100,6 @@ freej_SOURCES = \
 	xgrab_layer.cpp
 
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
-		 @XIPH_LIBS@ \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
               $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
 	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
@@ -109,7 +110,9 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/slw/libslw.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/lo/liblo.a \
+              $(top_srcdir)/lib/wiimote/libwiimote.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg \
+		 @XIPH_LIBS@ \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \
@@ -120,5 +123,6 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
                  @FFTW_LIBS@ \
                  @SNDFILE_LIBS@ \
 		 @FFMPEG_LIBS@ \
-		 @X11_LIBS@
+		 @X11_LIBS@ \
+		 @BLUEZ_LIBS@
 

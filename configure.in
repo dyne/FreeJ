@@ -365,6 +365,17 @@ else
 fi
 
 dnl ==============================================================
+dnl CHECK if there is BLUETOOTH
+dnl ==============================================================
+BLUEZ_LIBS=""
+PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
+if test x$have_bluez = xyes; then
+   AC_DEFINE(HAVE_BLUETOOTH,1,[define if compiling bluetooth wiimote controller])
+   AC_MSG_CHECKING(compiling WiiMote controller) 
+fi
+AC_SUBST(BLUEZ_LIBS)
+			
+dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
 dnl ==============================================================
 AC_CHECK_HEADER(linux/videodev.h)
