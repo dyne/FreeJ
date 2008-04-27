@@ -35,6 +35,11 @@
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 
+#define toggle_bit(bf,b)	\
+	(bf) = ((bf) & b)		\
+	       ? ((bf) & ~(b))	\
+	       : ((bf) | (b))
+
 
 /////// Javascript WiiController
 JS(js_wii_ctrl_constructor);
@@ -81,15 +86,44 @@ JS(js_wii_ctrl_connect) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
     WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
     if(!wii) JS_ERROR("Wii core data is NULL");
-    
-    wii->connect(NULL);
 
+    if(argc>0) {
+      char *addr;
+      JS_ARG_STRING(addr,1);
+      wii->connect(addr);
+    } else
+      wii->connect(NULL);
+    
     return JS_TRUE;
+}
+
+WiiController *tmp; // ARG. this is not reentrant because C sucks.
+                    // PLEASE add a void *user_data in the cwiid_wiimote struct!!!!
+void cwiid_callback(cwiid_wiimote_t *wii, int mesg_count,
+                    union cwiid_mesg mesg[], struct timespec *timestamp) {
+    
+  tmp->accel(     mesg[mesg_count-1].acc_mesg.acc[CWIID_X],
+		  mesg[mesg_count-1].acc_mesg.acc[CWIID_Y],
+		  mesg[mesg_count-1].acc_mesg.acc[CWIID_Z]   );
+
+}
+
+void WiiController::accel(uint8_t nx, uint8_t ny, uint8_t nz) {
+  // dumb simple for now, todo threshold here to calibrate
+  func("accel callback: x%u y%u z%u");
+  if(nx!=x) x=nx;
+  if(ny!=y) y=ny;
+  if(nz!=z) z=nz;
+  accel_changed = true;
 }
 
 WiiController::WiiController()
 :Controller() {
   
+  accel_changed = false;
+
+  tmp = this; // this shouldn't be here, when cwiid callback gets fixed
+
   set_name("WiiCtrl");
 }
 
@@ -103,22 +137,36 @@ WiiController::~WiiController() {
 }
 
 bool WiiController::connect(char *hwaddr) {
-  int res;
-
+  
   // if argument is NULL look for any wiimote
-  if(hwaddr == NULL) wiimote_bdaddr = *BDADDR_ANY;
-  else str2ba(hwaddr,&wiimote_bdaddr);
+  if(hwaddr == NULL) bdaddr = *BDADDR_ANY;
+  else str2ba(hwaddr,&bdaddr);
   
   act("Detecting WiiMote (press A+B on it to handshake)");
   
-  res = wiimote_connect(wiimote_bdaddr, &connection);
-  if(res == 0) act("WiiMote connected");
+  wiimote = cwiid_open(&bdaddr, 0);
+  if(!wiimote) {
+    error("unable to connect to WiiMote");
+    return false;
+  } else
+    act("WiiMote connected");
   
-  wiimote_init(&wiimote, connection);
-  wiimote_mode(&wiimote, WM_MODE_BUTTONS_ACCEL_IRBASIC_EXT6, 1);
-  wiimote_set_ir(&wiimote, WM_IR_BASIC);
-  wiimote_set_leds(&wiimote, WM_LED_2|WM_LED_3);
+  if (cwiid_set_mesg_callback(wiimote, cwiid_callback)) {
+    error("unable to set wiimote message callback");
+    cwiid_close(wiimote);
+    return false;
+  }
 
+  // activate acceleration by default (todo switches)
+ 
+  // for more activation switches see wmdemo.c in cwiid
+  unsigned char rpt_mode = 0;
+
+  toggle_bit(rpt_mode, CWIID_RPT_ACC);
+  cwiid_set_rpt_mode(wiimote, rpt_mode);
+
+  cwiid_enable(wiimote, CWIID_FLAG_MESG_IFC); // enable messages
+  
 }
 
 bool WiiController::init(JSContext *env, JSObject *obj) {
@@ -132,18 +180,9 @@ bool WiiController::init(JSContext *env, JSObject *obj) {
 }
 
 int WiiController::poll() {
-	// check if there are pending commands
-	int res;
-	res = wiimote_process_reports(&wiimote);
 
-	if(res<0) { 
-		error("error processing wiimote reports: deactivating controller");
-		active = false;
-	}
-	else if(res>0) { // there are input reports
-		dispatch();
-	} 
-	else return 0;
+  dispatch();
+
 }
 
 int WiiController::dispatch() {
@@ -151,56 +190,76 @@ int WiiController::dispatch() {
   char funcname[512];
   char keyname[512];
 
-  // gather input data structure
-  input = wiimote_inputdata(&wiimote);
+  if(accel_changed)
+    Controller::JSCall("acceleration", 3, "uuu", x, y, z );
 
-  // buttons
-  if( input->types & WM_DATA_BUTTONS ) {
-
-    memset(keyname, 0, sizeof(char)<<9);  // *512
-    memset(funcname, 0, sizeof(char)<<9); // *512
-    
-    if( input->buttons & WM_BTN_ONE )    JSCall("button_1", 0, NULL, &res);
-    if( input->buttons & WM_BTN_TWO )    JSCall("button_2",  0, NULL, &res);
-    if( input->buttons & WM_BTN_A )      JSCall("button_A", 0, NULL, &res);
-    if( input->buttons & WM_BTN_B )      JSCall("button_B", 0, NULL, &res);
-    if( input->buttons & WM_BTN_MINUS )  JSCall("button_minus", 0, NULL, &res);
-    if( input->buttons & WM_BTN_PLUS )   JSCall("button_plus", 0, NULL, &res);
-    if( input->buttons & WM_BTN_HOME )   JSCall("button_home", 0, NULL, &res);
-    if( input->buttons & WM_BTN_LEFT )   JSCall("button_left", 0, NULL, &res);
-    if( input->buttons & WM_BTN_RIGHT )  JSCall("button_right", 0, NULL, &res);
-    if( input->buttons & WM_BTN_UP )     JSCall("button_up", 0, NULL, &res);
-    if( input->buttons & WM_BTN_DOWN )   JSCall("button_down", 0, NULL, &res);
-
-  }
-  
-  // accelerometer
-  if( input->types & WM_DATA_ACCEL ) {
-
-    Controller::JSCall("acceleration", 3, "uuu",
-		       input->accel.x, input->accel.y, input->accel.z );
-
-  }
-
-  if( input->types & WM_DATA_EXT ) {
-    switch(input->extension.type_id) {
-    case WM_EXT_NONE: break;
-    case WM_EXT_LOOSE: warning("WiiMote extension is loose"); break;
-    case WM_EXT_NUNCHUK:
-      wiimote_decode_nunchuk(&wiimote, &input->extension, &nunchuk);
-      Controller::JSCall("nunchuk_acceleration", 3, "uuu",
-			 nunchuk.accel.x, nunchuk.accel.y, nunchuk.accel.z);
-      Controller::JSCall("nunchuk_stick", 2, "uu",
-			 nunchuk.stick.x, nunchuk.stick.y);
-      if( nunchuk.buttons & WM_NUNCHUK_BTN_Z )
-	JSCall("nunchuk_button_Z", 0, NULL, &res);
-      if( nunchuk.buttons & WM_NUNCHUK_BTN_C )
-	JSCall("nunchuk_button_C", 0, NULL, &res);
-
-      break;
-    default: break;
-    }
-  }
 
 }
 
+void WiiController::print_state(struct cwiid_state *state) {
+	int i;
+	int valid_source = 0;
+
+	act("Report Mode:");
+	if (state->rpt_mode & CWIID_RPT_STATUS) act(" STATUS");
+	if (state->rpt_mode & CWIID_RPT_BTN) act(" BTN");
+	if (state->rpt_mode & CWIID_RPT_ACC) act(" ACC");
+	if (state->rpt_mode & CWIID_RPT_IR) act(" IR");
+	if (state->rpt_mode & CWIID_RPT_NUNCHUK) act(" NUNCHUK");
+	if (state->rpt_mode & CWIID_RPT_CLASSIC) act(" CLASSIC");
+	
+	act("Active LEDs:");
+	if (state->led & CWIID_LED1_ON) act(" 1");
+	if (state->led & CWIID_LED2_ON) act(" 2");
+	if (state->led & CWIID_LED3_ON) act(" 3");
+	if (state->led & CWIID_LED4_ON) act(" 4");
+
+	act("Rumble: %s", state->rumble ? "On" : "Off");
+
+	act("Battery: %d%%",
+	       (int)(100.0 * state->battery / CWIID_BATTERY_MAX));
+
+	act("Buttons: %X", state->buttons);
+
+	act("Acc: x=%d y=%d z=%d", state->acc[CWIID_X], state->acc[CWIID_Y],
+	       state->acc[CWIID_Z]);
+
+	act("IR: ");
+	for (i = 0; i < CWIID_IR_SRC_COUNT; i++) {
+		if (state->ir_src[i].valid) {
+			valid_source = 1;
+			act("(%d,%d) ", state->ir_src[i].pos[CWIID_X],
+			                   state->ir_src[i].pos[CWIID_Y]);
+		}
+	}
+	if (!valid_source) {
+		act("no sources detected");
+	}
+
+	switch (state->ext_type) {
+	case CWIID_EXT_NONE:
+		act("No extension");
+		break;
+	case CWIID_EXT_UNKNOWN:
+		act("Unknown extension attached");
+		break;
+	case CWIID_EXT_NUNCHUK:
+		act("Nunchuk: btns=%.2X stick=(%d,%d) acc.x=%d acc.y=%d "
+		       "acc.z=%d", state->ext.nunchuk.buttons,
+		       state->ext.nunchuk.stick[CWIID_X],
+		       state->ext.nunchuk.stick[CWIID_Y],
+		       state->ext.nunchuk.acc[CWIID_X],
+		       state->ext.nunchuk.acc[CWIID_Y],
+		       state->ext.nunchuk.acc[CWIID_Z]);
+		break;
+	case CWIID_EXT_CLASSIC:
+		act("Classic: btns=%.4X l_stick=(%d,%d) r_stick=(%d,%d) "
+		       "l=%d r=%d", state->ext.classic.buttons,
+		       state->ext.classic.l_stick[CWIID_X],
+		       state->ext.classic.l_stick[CWIID_Y],
+		       state->ext.classic.r_stick[CWIID_X],
+		       state->ext.classic.r_stick[CWIID_Y],
+		       state->ext.classic.l, state->ext.classic.r);
+		break;
+	}
+}

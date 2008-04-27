@@ -25,11 +25,8 @@
 #include <controller.h>
 
 extern "C" {
-#include <wiimote.h>
-#include <extension.h>
+#include <cwiid.h>
 }
-
-#include <stdlib.h>
 
 class Context;
 
@@ -45,22 +42,27 @@ class WiiController: public Controller {
 
   bool connect(char *hwaddr);
 
+  void accel(uint8_t nx, uint8_t ny, uint8_t nz);
+
   Context *freej;
 
   /* TODO: support for multiple wiimotes
      can be done, but i don't need it ATM
      if needed: ask. -jrml */
 
+  void print_state(struct cwiid_state *state); // debug
+
  private:
 
-  wm_conn_t connection;
-  wm_wiimote_t wiimote;
-  bdaddr_t wiimote_bdaddr;
+  uint8_t x,y,z;
+  bool accel_changed;
 
-  // input structures
-  wm_input_t *input;
-  wm_nunchuk_t nunchuk;
-  wm_classic_t classic;
+  cwiid_wiimote_t  *wiimote;
+
+  cwiid_state state;
+  // todo nunchuk_state and classic_state extensions
+
+  bdaddr_t bdaddr;
 
 };
 

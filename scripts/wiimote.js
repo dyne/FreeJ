@@ -4,8 +4,7 @@
 wii = new WiiController();
 
 echo("connecting wii");
-wii.res = wii.connect();
-echo("connected wii res:" + wii.res);
+wii.connect();
 
 // ARGH!
 // add_controller(wii);

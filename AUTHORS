@@ -38,7 +38,7 @@ Leonid Andreev <lenonid\\math.harvard.edu>
 	feedback and bugfixes
 
 Olie Lho <ollie\\sis.com.tw>
-	yuv2rgb asm mmx optimized code
+	ccvt yuv2rgb asm mmx optimized code
 
 Pete Warden
 	backlight filter

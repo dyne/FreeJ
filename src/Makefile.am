@@ -110,8 +110,8 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/slw/libslw.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/lo/liblo.a \
-              $(top_srcdir)/lib/wiimote/libwiimote.a \
-              -ldl -lpthread -lm -lslang -lpng -ljpeg \
+              $(top_srcdir)/lib/cwiid/libwiimote.a \
+              -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 		 @XIPH_LIBS@ \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \

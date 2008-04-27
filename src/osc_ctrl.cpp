@@ -86,7 +86,7 @@ int osc_command_handler(const char *path, const char *types,
       jsargv[c] = INT_TO_JSVAL(argv[c]->i);
       break;
     case 'f':
-      func("arg %u is float",c);
+      func("arg %.2f is float",c);
       jsargv[c] = DOUBLE_TO_JSVAL((double)argv[c]->f);
       break;
     case 's':

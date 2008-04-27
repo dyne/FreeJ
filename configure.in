@@ -610,7 +610,7 @@ lib/flash/Makefile
 lib/goom/Makefile
 lib/slw/Makefile
 lib/tbt/Makefile
-lib/wiimote/Makefile
+lib/cwiid/Makefile
 lib/frei0r/Makefile
 lib/frei0r/filter/Makefile
 lib/frei0r/filter/3dflippo/Makefile
