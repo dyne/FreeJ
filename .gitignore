@@ -5,6 +5,7 @@ config.log
 config.status
 config.sub
 configure
+config.h.in
 depcomp
 install-sh
 libtool
