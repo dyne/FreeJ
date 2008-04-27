@@ -46,8 +46,6 @@
 
 JS_BEGIN_EXTERN_C
 
-extern JSClass js_DateClass;
-
 extern JSObject *
 js_InitDateClass(JSContext *cx, JSObject *obj);
 
