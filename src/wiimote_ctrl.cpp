@@ -97,6 +97,8 @@ WiiController::~WiiController() {
 
   // need to find out how to cleanup?
   // no mention about it in libwii
+  //
+  // disconnect!!! ftw !!!
   
 }
 
@@ -130,18 +132,18 @@ bool WiiController::init(JSContext *env, JSObject *obj) {
 }
 
 int WiiController::poll() {
-  // check if there are pending commands
-  int res;
-  res = wiimote_process_reports(&wiimote);
+	// check if there are pending commands
+	int res;
+	res = wiimote_process_reports(&wiimote);
 
-  if(res<0) error("error processing wiimote reports");
-
-  else if(res>0) { // there are input reports
-    
-    dispatch();
-    
-  } else return 0;
-  
+	if(res<0) { 
+		error("error processing wiimote reports: deactivating controller");
+		active = false;
+	}
+	else if(res>0) { // there are input reports
+		dispatch();
+	} 
+	else return 0;
 }
 
 int WiiController::dispatch() {

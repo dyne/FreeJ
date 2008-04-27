@@ -668,8 +668,8 @@ fi
 echo "= ffmpeg (movie layer)"
 echo "  libs  : $FFMPEG_LIBS"
 
-echo "= mlt (movie layer)"
-echo "  libs:   $MLT_LIBS"
+dnl echo "= mlt (movie layer)"
+dnl echo "  libs:   $MLT_LIBS"
 
 if test x$have_oggtheora = xyes; then
 echo "= ogg-theora (xiph.org)"
