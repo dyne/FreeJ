@@ -166,12 +166,11 @@ endif
 endif
 
 # Name of the binary code directories
-# ifdef BUILD_IDG
-# OBJDIR          = $(OS_CONFIG)$(OBJDIR_TAG).OBJD
-# else
-# OBJDIR          = $(OS_CONFIG)$(OBJDIR_TAG).OBJ
-# endif
-OBJDIR = obj
+ifdef BUILD_IDG
+OBJDIR          = $(OS_CONFIG)$(OBJDIR_TAG).OBJD
+else
+OBJDIR          = $(OS_CONFIG)$(OBJDIR_TAG).OBJ
+endif
 VPATH           = $(OBJDIR)
 
 # Automatic make dependencies file

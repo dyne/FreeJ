@@ -57,7 +57,8 @@ JS_PUBLIC_API(void) JS_Assert(const char *s, const char *file, JSIntn ln)
 #if defined(WIN32)
     DebugBreak();
     exit(3);
-#elif defined(XP_OS2) || (defined(__GNUC__) && defined(__i386))
+#endif
+#if defined(XP_OS2)
     asm("int $3");
 #endif
     abort();
@@ -67,6 +68,7 @@ JS_PUBLIC_API(void) JS_Assert(const char *s, const char *file, JSIntn ln)
 
 #define __USE_GNU 1
 #include <dlfcn.h>
+#include <setjmp.h>
 #include <string.h>
 #include "jshash.h"
 #include "jsprf.h"
@@ -74,9 +76,9 @@ JS_PUBLIC_API(void) JS_Assert(const char *s, const char *file, JSIntn ln)
 JSCallsite js_calltree_root = {0, NULL, NULL, 0, NULL, NULL, NULL, NULL};
 
 static JSCallsite *
-CallTree(void **bp)
+CallTree(uint32 *bp)
 {
-    void **bpup, **bpdown, *pc;
+    uint32 *bpup, *bpdown, pc;
     JSCallsite *parent, *site, **csp;
     Dl_info info;
     int ok, offset;
@@ -86,9 +88,9 @@ CallTree(void **bp)
     /* Reverse the stack frame list to avoid recursion. */
     bpup = NULL;
     for (;;) {
-        bpdown = (void**) bp[0];
-        bp[0] = (void*) bpup;
-        if ((void**) bpdown[0] < bpdown)
+        bpdown = (uint32*) bp[0];
+        bp[0] = (uint32) bpup;
+        if ((uint32*) bpdown[0] < bpdown)
             break;
         bpup = bp;
         bp = bpdown;
@@ -97,8 +99,8 @@ CallTree(void **bp)
     /* Reverse the stack again, finding and building a path in the tree. */
     parent = &js_calltree_root;
     do {
-        bpup = (void**) bp[0];
-        bp[0] = (void*) bpdown;
+        bpup = (uint32*) bp[0];
+        bp[0] = (uint32) bpdown;
         pc = bp[1];
 
         csp = &parent->kids;
@@ -126,7 +128,7 @@ CallTree(void **bp)
          * XXX static syms are masked by nearest lower global
          */
         info.dli_fname = info.dli_sname = NULL;
-        ok = dladdr(pc, &info);
+        ok = dladdr((void*) pc, &info);
         if (ok < 0) {
             fprintf(stderr, "dladdr failed!\n");
             return NULL;
@@ -170,23 +172,15 @@ CallTree(void **bp)
 JSCallsite *
 JS_Backtrace(int skip)
 {
-    void **bp, **bpdown;
+    jmp_buf jb;
+    uint32 *bp, *bpdown;
+
+    setjmp(jb);
 
     /* Stack walking code adapted from Kipp's "leaky". */
-#if defined(__i386)
-    __asm__( "movl %%ebp, %0" : "=g"(bp));
-#elif defined(__x86_64__)
-    __asm__( "movq %%rbp, %0" : "=g"(bp));
-#else
-    /*
-     * It would be nice if this worked uniformly, but at least on i386 and
-     * x86_64, it stopped working with gcc 4.1, because it points to the
-     * end of the saved registers instead of the start.
-     */
-    bp = (void**) __builtin_frame_address(0);
-#endif
+    bp = (uint32*) jb[0].__jmpbuf[JB_BP];
     while (--skip >= 0) {
-        bpdown = (void**) *bp++;
+        bpdown = (uint32*) *bp++;
         if (bpdown < bp)
             break;
         bp = bpdown;

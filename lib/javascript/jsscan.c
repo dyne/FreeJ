@@ -74,81 +74,133 @@
 #include "jsxml.h"
 #endif
 
-#define JS_KEYWORD(keyword, type, op, version) \
-    const char js_##keyword##_str[] = #keyword;
-#include "jskeyword.tbl"
-#undef JS_KEYWORD
+#define RESERVE_JAVA_KEYWORDS
+#define RESERVE_ECMA_KEYWORDS
 
-struct keyword {
-    const char  *chars;         /* C string with keyword text */
+#define MAX_KEYWORD_LENGTH      12
+
+static struct keyword {
+    const char  *name;
     JSTokenType tokentype;      /* JSTokenType */
     JSOp        op;             /* JSOp */
     JSVersion   version;        /* JSVersion */
+} keywords[] = {
+    {"break",           TOK_BREAK,              JSOP_NOP,   JSVERSION_DEFAULT},
+    {"case",            TOK_CASE,               JSOP_NOP,   JSVERSION_DEFAULT},
+    {"continue",        TOK_CONTINUE,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {js_default_str,    TOK_DEFAULT,            JSOP_NOP,   JSVERSION_DEFAULT},
+    {js_delete_str,     TOK_DELETE,             JSOP_NOP,   JSVERSION_DEFAULT},
+    {"do",              TOK_DO,                 JSOP_NOP,   JSVERSION_DEFAULT},
+    {"else",            TOK_ELSE,               JSOP_NOP,   JSVERSION_DEFAULT},
+    {"export",          TOK_EXPORT,             JSOP_NOP,   JSVERSION_1_2},
+    {js_false_str,      TOK_PRIMARY,            JSOP_FALSE, JSVERSION_DEFAULT},
+    {"for",             TOK_FOR,                JSOP_NOP,   JSVERSION_DEFAULT},
+    {js_function_str,   TOK_FUNCTION,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"if",              TOK_IF,                 JSOP_NOP,   JSVERSION_DEFAULT},
+    {js_in_str,         TOK_IN,                 JSOP_IN,    JSVERSION_DEFAULT},
+    {js_new_str,        TOK_NEW,                JSOP_NEW,   JSVERSION_DEFAULT},
+    {js_null_str,       TOK_PRIMARY,            JSOP_NULL,  JSVERSION_DEFAULT},
+    {"return",          TOK_RETURN,             JSOP_NOP,   JSVERSION_DEFAULT},
+    {"switch",          TOK_SWITCH,             JSOP_NOP,   JSVERSION_DEFAULT},
+    {js_this_str,       TOK_PRIMARY,            JSOP_THIS,  JSVERSION_DEFAULT},
+    {js_true_str,       TOK_PRIMARY,            JSOP_TRUE,  JSVERSION_DEFAULT},
+    {js_typeof_str,     TOK_UNARYOP,            JSOP_TYPEOF,JSVERSION_DEFAULT},
+    {js_var_str,        TOK_VAR,                JSOP_DEFVAR,JSVERSION_DEFAULT},
+    {js_void_str,       TOK_UNARYOP,            JSOP_VOID,  JSVERSION_DEFAULT},
+    {"while",           TOK_WHILE,              JSOP_NOP,   JSVERSION_DEFAULT},
+    {"with",            TOK_WITH,               JSOP_NOP,   JSVERSION_DEFAULT},
+
+#if JS_HAS_CONST
+    {js_const_str,      TOK_VAR,                JSOP_DEFCONST,JSVERSION_DEFAULT},
+#else
+    {js_const_str,      TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+#endif
+
+#if JS_HAS_EXCEPTIONS
+    {"try",             TOK_TRY,                JSOP_NOP,   JSVERSION_DEFAULT},
+    {"catch",           TOK_CATCH,              JSOP_NOP,   JSVERSION_DEFAULT},
+    {"finally",         TOK_FINALLY,            JSOP_NOP,   JSVERSION_DEFAULT},
+    {"throw",           TOK_THROW,              JSOP_NOP,   JSVERSION_DEFAULT},
+#else
+    {"try",             TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"catch",           TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"finally",         TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"throw",           TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+#endif
+
+#if JS_HAS_INSTANCEOF
+    {js_instanceof_str, TOK_INSTANCEOF,         JSOP_INSTANCEOF,JSVERSION_1_4},
+#else
+    {js_instanceof_str, TOK_RESERVED,           JSOP_NOP,   JSVERSION_1_4},
+#endif
+
+#ifdef RESERVE_JAVA_KEYWORDS
+    {"abstract",        TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"boolean",         TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"byte",            TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"char",            TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"class",           TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"double",          TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"extends",         TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"final",           TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"float",           TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"goto",            TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"implements",      TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"import",          TOK_IMPORT,             JSOP_NOP,   JSVERSION_DEFAULT},
+    {"int",             TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"interface",       TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"long",            TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"native",          TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"package",         TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"private",         TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"protected",       TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"public",          TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"short",           TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"static",          TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"super",           TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"synchronized",    TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"throws",          TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"transient",       TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+    {"volatile",        TOK_RESERVED,           JSOP_NOP,   JSVERSION_DEFAULT},
+#endif
+
+#ifdef RESERVE_ECMA_KEYWORDS
+    {"enum",           TOK_RESERVED,            JSOP_NOP,   JSVERSION_1_3},
+#endif
+
+#if JS_HAS_DEBUGGER_KEYWORD
+    {"debugger",       TOK_DEBUGGER,            JSOP_NOP,   JSVERSION_1_3},
+#elif defined(RESERVE_ECMA_KEYWORDS)
+    {"debugger",       TOK_RESERVED,            JSOP_NOP,   JSVERSION_1_3},
+#endif
+    {0,                TOK_EOF,                 JSOP_NOP,   JSVERSION_DEFAULT}
 };
 
-static const struct keyword keyword_defs[] = {
-#define JS_KEYWORD(keyword, type, op, version) \
-    {js_##keyword##_str, type, op, version},
-#include "jskeyword.tbl"
-#undef JS_KEYWORD
-};
-
-#define KEYWORD_COUNT (sizeof keyword_defs / sizeof keyword_defs[0])
-
-static const struct keyword *
-FindKeyword(const jschar *s, size_t length)
+JSBool
+js_InitScanner(JSContext *cx)
 {
-    register size_t i;
-    const struct keyword *kw;
-    const char *chars;
+    struct keyword *kw;
+    size_t length;
+    JSAtom *atom;
 
-    JS_ASSERT(length != 0);
-
-#define JSKW_LENGTH()           length
-#define JSKW_AT(column)         s[column]
-#define JSKW_GOT_MATCH(index)   i = (index); goto got_match;
-#define JSKW_TEST_GUESS(index)  i = (index); goto test_guess;
-#define JSKW_NO_MATCH()         goto no_match;
-// #include "jsautokw.h"
-#undef JSKW_NO_MATCH
-#undef JSKW_TEST_GUESS
-#undef JSKW_GOT_MATCH
-#undef JSKW_AT
-#undef JSKW_LENGTH
-
-  got_match:
-    return &keyword_defs[i];
-
-  test_guess:
-    kw = &keyword_defs[i];
-    chars = kw->chars;
-    do {
-        if (*s++ != (unsigned char)(*chars++))
-            goto no_match;
-    } while (--length != 0);
-    return kw;
-
-  no_match:
-    return NULL;
-}
-
-JSTokenType
-js_CheckKeyword(const jschar *str, size_t length)
-{
-    const struct keyword *kw;
-
-    JS_ASSERT(length != 0);
-    kw = FindKeyword(str, length);
-    return kw ? kw->tokentype : TOK_EOF;
+    for (kw = keywords; kw->name; kw++) {
+        length = strlen(kw->name);
+        JS_ASSERT(length <= MAX_KEYWORD_LENGTH);
+        atom = js_Atomize(cx, kw->name, length, ATOM_PINNED);
+        if (!atom)
+            return JS_FALSE;
+        ATOM_SET_KEYWORD(atom, kw);
+    }
+    return JS_TRUE;
 }
 
 JS_FRIEND_API(void)
 js_MapKeywords(void (*mapfun)(const char *))
 {
-    size_t i;
+    struct keyword *kw;
 
-    for (i = 0; i != KEYWORD_COUNT; ++i)
-        mapfun(keyword_defs[i].chars);
+    for (kw = keywords; kw->name; kw++)
+        mapfun(kw->name);
 }
 
 JSTokenStream *
@@ -190,13 +242,9 @@ GrowTokenBuf(JSStringBuffer *sb, size_t newlength)
         JS_ARENA_ALLOCATE_CAST(base, jschar *, pool, tbsize);
     } else {
         length = PTRDIFF(sb->limit, base, jschar);
-        if ((size_t)length >= ~(size_t)0 / sizeof(jschar)) {
-            base = NULL;
-        } else {
-            tbsize = (length + 1) * sizeof(jschar);
-            length += length + 1;
-            JS_ARENA_GROW_CAST(base, jschar *, pool, tbsize, tbsize);
-        }
+        tbsize = (length + 1) * sizeof(jschar);
+        length += length + 1;
+        JS_ARENA_GROW_CAST(base, jschar *, pool, tbsize, tbsize);
     }
     if (!base) {
         JS_ReportOutOfMemory(cx);
@@ -531,11 +579,12 @@ ReportCompileErrorNumber(JSContext *cx, void *handle, uintN flags,
                          uintN errorNumber, JSErrorReport *report,
                          JSBool charArgs, va_list ap)
 {
-    JSTempValueRooter linetvr;
     JSString *linestr = NULL;
     JSTokenStream *ts = NULL;
     JSCodeGenerator *cg = NULL;
+#if JS_HAS_XML_SUPPORT
     JSParseNode *pn = NULL;
+#endif
     JSErrorReporter onError;
     JSTokenPos *tp;
     JSStackFrame *fp;
@@ -554,7 +603,7 @@ ReportCompileErrorNumber(JSContext *cx, void *handle, uintN flags,
         return JS_FALSE;
     }
 
-    JS_PUSH_TEMP_ROOT_STRING(cx, NULL, &linetvr);
+    js_AddRoot(cx, &linestr, "error line buffer");
 
     switch (flags & JSREPORT_HANDLE) {
       case JSREPORT_TS:
@@ -563,139 +612,146 @@ ReportCompileErrorNumber(JSContext *cx, void *handle, uintN flags,
       case JSREPORT_CG:
         cg = handle;
         break;
+#if JS_HAS_XML_SUPPORT
       case JSREPORT_PN:
         pn = handle;
         ts = pn->pn_ts;
         break;
+#endif
     }
 
     JS_ASSERT(!ts || ts->linebuf.limit < ts->linebuf.base + JS_LINE_LIMIT);
-    /*
-     * We are typically called with non-null ts and null cg from jsparse.c.
-     * We can be called with null ts from the regexp compilation functions.
-     * The code generator (jsemit.c) may pass null ts and non-null cg.
-     */
-    do {
-        if (ts) {
-            report->filename = ts->filename;
-            if (pn) {
-                report->lineno = pn->pn_pos.begin.lineno;
-                if (report->lineno != ts->lineno)
-                    break;
-            }
-            report->lineno = ts->lineno;
-            linestr = js_NewStringCopyN(cx, ts->linebuf.base,
-                                        PTRDIFF(ts->linebuf.limit,
-                                                ts->linebuf.base,
-                                                jschar),
-                                        0);
-            linetvr.u.string = linestr;
-            report->linebuf = linestr
-                              ? JS_GetStringBytes(linestr)
-                              : NULL;
-            tp = &ts->tokens[(ts->cursor+ts->lookahead) & NTOKENS_MASK].pos;
-            if (pn)
-                tp = &pn->pn_pos;
-
-            /*
-             * FIXME: What should instead happen here is that we should
-             * find error-tokens in userbuf, if !ts->file.  That will
-             * allow us to deliver a more helpful error message, which
-             * includes all or part of the bad string or bad token.  The
-             * code here yields something that looks truncated.
-             * See https://bugzilla.mozilla.org/show_bug.cgi?id=352970
-             */
-            index = 0;
-            if (tp->begin.lineno == tp->end.lineno) {
-                if (tp->begin.index < ts->linepos)
-                    break;
-
-                index = tp->begin.index - ts->linepos;
-            }
-
-            report->tokenptr = linestr ? report->linebuf + index : NULL;
-            report->uclinebuf = linestr ? JS_GetStringChars(linestr) : NULL;
-            report->uctokenptr = linestr ? report->uclinebuf + index : NULL;
-            break;
-        }
-
-        if (cg) {
-            report->filename = cg->filename;
-            report->lineno = CG_CURRENT_LINE(cg);
-            break;
-        }
-
+    onError = cx->errorReporter;
+    if (onError) {
         /*
-         * If we can't find out where the error was based on the current
-         * frame, see if the next frame has a script/pc combo we can use.
+         * We are typically called with non-null ts and null cg from jsparse.c.
+         * We can be called with null ts from the regexp compilation functions.
+         * The code generator (jsemit.c) may pass null ts and non-null cg.
          */
-        for (fp = cx->fp; fp; fp = fp->down) {
-            if (fp->script && fp->pc) {
-                report->filename = fp->script->filename;
-                report->lineno = js_PCToLineNumber(cx, fp->script, fp->pc);
+        do {
+            if (ts) {
+                report->filename = ts->filename;
+#if JS_HAS_XML_SUPPORT
+                if (pn) {
+                    report->lineno = pn->pn_pos.begin.lineno;
+                    if (report->lineno != ts->lineno)
+                        break;
+                }
+#endif
+                report->lineno = ts->lineno;
+                linestr = js_NewStringCopyN(cx, ts->linebuf.base,
+                                            PTRDIFF(ts->linebuf.limit,
+                                                    ts->linebuf.base,
+                                                    jschar),
+                                            0);
+                report->linebuf = linestr
+                                 ? JS_GetStringBytes(linestr)
+                                 : NULL;
+                tp = &ts->tokens[(ts->cursor+ts->lookahead) & NTOKENS_MASK].pos;
+#if JS_HAS_XML_SUPPORT
+                if (pn)
+                    tp = &pn->pn_pos;
+#endif
+                /*
+                 * FIXME: What should instead happen here is that we should
+                 * find error-tokens in userbuf, if !ts->file.  That will
+                 * allow us to deliver a more helpful error message, which
+                 * includes all or part of the bad string or bad token.  The
+                 * code here yields something that looks truncated.
+                 * See https://bugzilla.mozilla.org/show_bug.cgi?id=352970
+                 */ 
+                index = 0;
+                if (tp->begin.lineno == tp->end.lineno) {
+                    if (tp->begin.index < ts->linepos)
+                        break;
+
+                    index = tp->begin.index - ts->linepos;
+                }
+
+                report->tokenptr = linestr ? report->linebuf + index : NULL;
+                report->uclinebuf = linestr ? JS_GetStringChars(linestr) : NULL;
+                report->uctokenptr = linestr ? report->uclinebuf + index : NULL;
                 break;
             }
-        }
-    } while (0);
 
-    /*
-     * If there's a runtime exception type associated with this error
-     * number, set that as the pending exception.  For errors occuring at
-     * compile time, this is very likely to be a JSEXN_SYNTAXERR.
-     *
-     * If an exception is thrown but not caught, the JSREPORT_EXCEPTION
-     * flag will be set in report.flags.  Proper behavior for an error
-     * reporter is to ignore a report with this flag for all but top-level
-     * compilation errors.  The exception will remain pending, and so long
-     * as the non-top-level "load", "eval", or "compile" native function
-     * returns false, the top-level reporter will eventually receive the
-     * uncaught exception report.
-     *
-     * XXX it'd probably be best if there was only one call to this
-     * function, but there seem to be two error reporter call points.
-     */
-    onError = cx->errorReporter;
+            if (cg) {
+                report->filename = cg->filename;
+                report->lineno = CG_CURRENT_LINE(cg);
+                break;
+            }
 
-    /*
-     * Try to raise an exception only if there isn't one already set --
-     * otherwise the exception will describe the last compile-time error,
-     * which is likely spurious.
-     */
-    if (!ts || !(ts->flags & TSF_ERROR)) {
-        if (js_ErrorToException(cx, message, report))
-            onError = NULL;
-    }
+            /*
+             * If we can't find out where the error was based on the current frame,
+             * see if the next frame has a script/pc combo we can use.
+             */
+            for (fp = cx->fp; fp; fp = fp->down) {
+                if (fp->script && fp->pc) {
+                    report->filename = fp->script->filename;
+                    report->lineno = js_PCToLineNumber(cx, fp->script, fp->pc);
+                    break;
+                }
+            }
+        } while (0);
 
-    /*
-     * Suppress any compile-time errors that don't occur at the top level.
-     * This may still fail, as interplevel may be zero in contexts where we
-     * don't really want to call the error reporter, as when js is called
-     * by other code which could catch the error.
-     */
-    if (cx->interpLevel != 0 && !JSREPORT_IS_WARNING(flags))
-        onError = NULL;
-
-    if (onError) {
-        JSDebugErrorHook hook = cx->runtime->debugErrorHook;
+#if JS_HAS_ERROR_EXCEPTIONS
+        /*
+         * If there's a runtime exception type associated with this error
+         * number, set that as the pending exception.  For errors occuring at
+         * compile time, this is very likely to be a JSEXN_SYNTAXERR.
+         *
+         * If an exception is thrown but not caught, the JSREPORT_EXCEPTION
+         * flag will be set in report.flags.  Proper behavior for an error
+         * reporter is to ignore a report with this flag for all but top-level
+         * compilation errors.  The exception will remain pending, and so long
+         * as the non-top-level "load", "eval", or "compile" native function
+         * returns false, the top-level reporter will eventually receive the
+         * uncaught exception report.
+         *
+         * XXX it'd probably be best if there was only one call to this
+         * function, but there seem to be two error reporter call points.
+         */
 
         /*
-         * If debugErrorHook is present then we give it a chance to veto
-         * sending the error on to the regular error reporter.
+         * Try to raise an exception only if there isn't one already set --
+         * otherwise the exception will describe the last compile-time error,
+         * which is likely spurious.
          */
-        if (hook && !hook(cx, message, report,
-                          cx->runtime->debugErrorHookData)) {
-            onError = NULL;
+        if (!ts || !(ts->flags & TSF_ERROR)) {
+            if (js_ErrorToException(cx, message, report))
+                onError = NULL;
         }
+
+        /*
+         * Suppress any compile-time errors that don't occur at the top level.
+         * This may still fail, as interplevel may be zero in contexts where we
+         * don't really want to call the error reporter, as when js is called
+         * by other code which could catch the error.
+         */
+        if (cx->interpLevel != 0 && !JSREPORT_IS_WARNING(flags))
+            onError = NULL;
+#endif
+        if (onError) {
+            JSDebugErrorHook hook = cx->runtime->debugErrorHook;
+
+            /*
+             * If debugErrorHook is present then we give it a chance to veto
+             * sending the error on to the regular error reporter.
+             */
+            if (hook && !hook(cx, message, report,
+                              cx->runtime->debugErrorHookData)) {
+                onError = NULL;
+            }
+        }
+        if (onError)
+            (*onError)(cx, message, report);
     }
-    if (onError)
-        (*onError)(cx, message, report);
 
     if (message)
         JS_free(cx, message);
     if (report->ucmessage)
         JS_free(cx, (void *)report->ucmessage);
 
-    JS_POP_TEMP_ROOT(cx, &linetvr);
+    js_RemoveRoot(cx->runtime, &linestr);
 
     if (ts && !JSREPORT_IS_WARNING(flags)) {
         /* Set the error flag to suppress spurious reports. */
@@ -721,7 +777,7 @@ js_ReportCompileErrorNumber(JSContext *cx, void *handle, uintN flags,
                                        &report, JS_TRUE, ap);
     va_end(ap);
 
-    /*
+    /* 
      * We have to do this here because js_ReportCompileErrorNumberUC doesn't
      * need to do this.
      */
@@ -745,7 +801,7 @@ js_ReportCompileErrorNumberUC(JSContext *cx, void *handle, uintN flags,
 
     if ((flags & JSREPORT_STRICT) && !JS_HAS_STRICT_OPTION(cx))
         return JS_TRUE;
-
+ 
     va_start(ap, errorNumber);
     warning = ReportCompileErrorNumber(cx, handle, flags, errorNumber,
                                        &report, JS_FALSE, ap);
@@ -1021,8 +1077,10 @@ js_PeekTokenSameLine(JSContext *cx, JSTokenStream *ts)
 {
     JSTokenType tt;
 
-    if (!ON_CURRENT_LINE(ts, CURRENT_TOKEN(ts).pos))
-        return TOK_EOL;
+    JS_ASSERT(ts->lookahead == 0 ||
+              ON_CURRENT_LINE(ts, CURRENT_TOKEN(ts).pos) ||
+              ts->tokens[(ts->cursor + ts->lookahead) & NTOKENS_MASK].type
+                  == TOK_EOL);
     ts->flags |= TSF_NEWLINES;
     tt = js_PeekToken(cx, ts);
     ts->flags &= ~TSF_NEWLINES;
@@ -1077,7 +1135,6 @@ js_GetToken(JSContext *cx, JSTokenStream *ts)
     JSToken *tp;
     JSAtom *atom;
     JSBool hadUnicodeEscape;
-    const struct keyword *kw;
 
 #define INIT_TOKENBUF()     (ts->tokenbuf.ptr = ts->tokenbuf.base)
 #define TOKENBUF_LENGTH()   PTRDIFF(ts->tokenbuf.ptr, ts->tokenbuf.base, jschar)
@@ -1096,6 +1153,10 @@ js_GetToken(JSContext *cx, JSTokenStream *ts)
 #define TRIM_TOKENBUF(i)    (ts->tokenbuf.ptr = ts->tokenbuf.base + i)
 #define NUL_TERM_TOKENBUF() (*ts->tokenbuf.ptr = 0)
 
+    /* If there was a fatal error, keep returning TOK_ERROR. */
+    if (ts->flags & TSF_ERROR)
+        return TOK_ERROR;
+
     /* Check for a pushed-back token resulting from mismatching lookahead. */
     while (ts->lookahead != 0) {
         JS_ASSERT(!(ts->flags & TSF_XMLTEXTMODE));
@@ -1105,10 +1166,6 @@ js_GetToken(JSContext *cx, JSTokenStream *ts)
         if (tt != TOK_EOL || (ts->flags & TSF_NEWLINES))
             return tt;
     }
-
-    /* If there was a fatal error, keep returning TOK_ERROR. */
-    if (ts->flags & TSF_ERROR)
-        return TOK_ERROR;
 
 #if JS_HAS_XML_SUPPORT
     if (ts->flags & TSF_XMLTEXTMODE) {
@@ -1304,33 +1361,35 @@ retry:
         }
         UngetChar(ts, c);
 
-        /*
-         * Check for keywords unless we saw Unicode escape or parser asks
-         * to ignore keywords.
-         */
-        if (!hadUnicodeEscape &&
-            !(ts->flags & TSF_KEYWORD_IS_NAME) &&
-            TOKENBUF_OK() &&
-            (kw = FindKeyword(TOKENBUF_BASE(), TOKENBUF_LENGTH()))) {
+        atom = TOKENBUF_TO_ATOM();
+        if (!atom)
+            goto error;
+        if (!hadUnicodeEscape && ATOM_KEYWORD(atom)) {
+            struct keyword *kw;
+            
+            JS_ASSERT(!(atom->flags & ATOM_HIDDEN));
+            kw = ATOM_KEYWORD(atom);
             if (kw->tokentype == TOK_RESERVED) {
+                char buf[MAX_KEYWORD_LENGTH + 1];
+                size_t buflen = sizeof(buf) - 1;
+                if (!js_DeflateStringToBuffer(cx, TOKENBUF_BASE(), TOKENBUF_LENGTH(),
+                                                  buf, &buflen))
+                    goto error;
+                buf [buflen] = 0;
                 if (!js_ReportCompileErrorNumber(cx, ts,
                                                  JSREPORT_TS |
                                                  JSREPORT_WARNING |
                                                  JSREPORT_STRICT,
-                                                 JSMSG_RESERVED_ID,
-                                                 kw->chars)) {
+                                                 JSMSG_RESERVED_ID, buf)) {
                     goto error;
                 }
-            } else if (kw->version <= JSVERSION_NUMBER(cx)) {
+            } else if (JS_VERSION_IS_ECMA(cx) ||
+                       kw->version <= (cx->version & JSVERSION_MASK)) {
                 tt = kw->tokentype;
                 tp->t_op = (JSOp) kw->op;
                 goto out;
             }
         }
-
-        atom = TOKENBUF_TO_ATOM();
-        if (!atom)
-            goto error;
         tp->t_op = JSOP_NAME;
         tp->t_atom = atom;
         tt = TOK_NAME;
@@ -1581,7 +1640,11 @@ retry:
 
       case '=':
         if (MatchChar(ts, c)) {
+#if JS_HAS_TRIPLE_EQOPS
             tp->t_op = MatchChar(ts, c) ? JSOP_NEW_EQ : (JSOp)cx->jsop_eq;
+#else
+            tp->t_op = cx->jsop_eq;
+#endif
             tt = TOK_EQOP;
         } else {
             tp->t_op = JSOP_NOP;
@@ -1591,7 +1654,11 @@ retry:
 
       case '!':
         if (MatchChar(ts, '=')) {
+#if JS_HAS_TRIPLE_EQOPS
             tp->t_op = MatchChar(ts, '=') ? JSOP_NEW_NE : (JSOp)cx->jsop_ne;
+#else
+            tp->t_op = cx->jsop_ne;
+#endif
             tt = TOK_EQOP;
         } else {
             tp->t_op = JSOP_NOT;
@@ -1704,21 +1771,19 @@ retry:
                     }
                     ADD_TO_TOKENBUF(c);
                 }
-                if (targetLength == 0)
-                    goto bad_xml_markup;
-                if (!TOKENBUF_OK())
-                    goto error;
                 if (contentIndex < 0) {
                     atom = cx->runtime->atomState.emptyAtom;
                 } else {
+                    if (!TOKENBUF_OK())
+                        goto error;
                     atom = js_AtomizeChars(cx,
                                            &TOKENBUF_CHAR(contentIndex),
                                            TOKENBUF_LENGTH() - contentIndex,
                                            0);
                     if (!atom)
                         goto error;
+                    TRIM_TOKENBUF(targetLength);
                 }
-                TRIM_TOKENBUF(targetLength);
                 tp->t_atom2 = atom;
                 tt = TOK_XMLPI;
 
@@ -1878,6 +1943,7 @@ skipline:
             goto retry;
         }
 
+#if JS_HAS_REGEXPS
         if (ts->flags & TSF_OPERAND) {
             JSObject *obj;
             uintN flags;
@@ -1953,6 +2019,7 @@ skipline:
             tt = TOK_OBJECT;
             break;
         }
+#endif /* JS_HAS_REGEXPS */
 
         tp->t_op = JSOP_DIV;
         tt = MatchChar(ts, '=') ? TOK_ASSIGN : TOK_DIVOP;
@@ -2012,7 +2079,7 @@ skipline:
             if (!JS7_ISDEC(c))
                 break;
             n = 10 * n + JS7_UNDEC(c);
-            if (n >= UINT16_LIMIT) {
+            if (n >= ATOM_INDEX_LIMIT) {
                 js_ReportCompileErrorNumber(cx, ts,
                                             JSREPORT_TS | JSREPORT_ERROR,
                                             JSMSG_SHARPVAR_TOO_BIG);
@@ -2087,6 +2154,8 @@ void
 js_UngetToken(JSTokenStream *ts)
 {
     JS_ASSERT(ts->lookahead < NTOKENS_MASK);
+    if (ts->flags & TSF_ERROR)
+        return;
     ts->lookahead++;
     ts->cursor = (ts->cursor - 1) & NTOKENS_MASK;
 }
