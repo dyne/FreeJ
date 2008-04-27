@@ -24,3 +24,4 @@ Makefile
 .deps
 .obj
 .libs
+TAGS

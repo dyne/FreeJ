@@ -10,6 +10,8 @@ int main(int argc, char **argv)
 	int res;
 	wm_conn_t connection;
 	wm_wiimote_t wiimote;
+
+	// can be 		bdaddr = *BDADDR_ANY;
 	
 	char *wiimote_addr = "00:17:AB:33:37:65";
 	bdaddr_t wiimote_bdaddr;
