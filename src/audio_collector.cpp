@@ -129,6 +129,10 @@ m_ProcessPos(0)
 AudioCollector::~AudioCollector()
 {
 	JackClient::Get()->Detach();
+	free(m_Buffer);
+	free(m_FFTBuffer);
+	free(m_JackBuffer);
+	free(m_AudioBuffer);
 }
 
 bool AudioCollector::IsConnected()

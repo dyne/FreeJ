@@ -1,4 +1,5 @@
 Freej 0.9.x Experimental
+	* new AudioJack() collector for realtime sound parametrization
 	* new MouseController()
 	* new ViMoContoller() for serial Video Mouse device
 	* tons of bugfixes

@@ -92,6 +92,9 @@ JS(js_vid_enc_constructor);
 JS(js_shouter_constructor);
 #endif
 
+// audio collectors
+JS(js_audio_jack_constructor);
+
 //////////////////////////////////////////////////////////////
 // classes
 //
@@ -202,6 +205,11 @@ extern JSFunctionSpec js_vid_enc_methods[];
 extern JSClass js_shouter_class;
 extern JSFunctionSpec js_shouter_methods[];
 #endif
+
+// Audio collector
+extern JSClass js_audio_jack_class;
+extern JSFunctionSpec js_audio_jack_methods[];
+
 
 // XGrabLayer
 JS(js_xgrab_constructor);
@@ -425,6 +433,12 @@ JS(stream_password);
 JS(stream_homepage);
 JS(stream_description);
 #endif
+
+//////////////////////////////////
+// Audio collector methods
+JS(js_audio_jack_add_output);
+JS(js_audio_jack_get_harmonics);
+JS(js_audio_jack_fft);
 
 /* TODO: shouter class 
 JS(set_shout_host);

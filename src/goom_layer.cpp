@@ -46,11 +46,6 @@ bool GoomLayer::init(Context *freej) {
 
   func("GoomLayer::init()");
 
-  if(!freej->audio) {
-    error("can't create Goom Layer: audio is not connected");
-    return false;
-  }
-
   _init(width,height);
   
   goom = goom_init(geo.w, geo.h);
@@ -108,15 +103,19 @@ void *GoomLayer::feed() {
 //       audio[1][c] = (int16_t) (env->audio->input[c]);
 //     }
 //   }
-  float *buffer = env->audio->GetAudioBuffer();
+  if(audio) {
+    
+    float *buffer = audio->GetAudioBuffer();
+    
+    for( c = 0; c<512 ; c++) {
+      audiobuf[0][c] = (int16_t) buffer[c];
+      audiobuf[1][c] = (int16_t) buffer[c];
+    }
 
-  for( c = 0; c<512 ; c++) {
-    audio[0][c] = (int16_t) buffer[c];
-    audio[1][c] = (int16_t) buffer[c];
   }
   //  ringbuffer_peek(env->audio->input_pipe, (char*)audio, 1024);
 
-  goom_update(goom, audio, 0, -1, NULL, NULL);
+  goom_update(goom, audiobuf, 0, -1, NULL, NULL);
 
   return buffer;
 }

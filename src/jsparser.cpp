@@ -271,6 +271,12 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   js_wii_ctrl_methods,
 		   object_proto);
 
+    REGISTER_CLASS("AudioJack",
+		   js_audio_jack_class,
+		   js_audio_jack_constructor,
+		   js_audio_jack_methods,
+		   object_proto);
+
 #ifdef WITH_OGGTHEORA
 	// encoder class
 	REGISTER_CLASS("VideoEncoder",
