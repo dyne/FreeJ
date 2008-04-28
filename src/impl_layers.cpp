@@ -33,7 +33,6 @@
 
 #include <impl_layers.h>
 #include <context.h>
-#include <audio_input.h>
 
 const char *layers_description =
 #ifdef WITH_V4L

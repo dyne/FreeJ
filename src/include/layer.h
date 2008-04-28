@@ -36,6 +36,7 @@
 
 
 class Context;
+class AudioCollector;
 
 class JSClass;
 class JSContext;
@@ -143,6 +144,8 @@ class Layer: public Entry, public JSyncThread {
   int bgcolor; ///< matte background color
 
   Blitter blitter; ///< blitter class
+
+  AudioCollector *audio; ///< registered audio collector
 
   /** physical buffers */
   void *offset; ///< pointer to pixel plane

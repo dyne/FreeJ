@@ -44,8 +44,8 @@ class GoomLayer: public Layer {
   
  private:
 
-  short int audio[2][512];
-  uint16_t audiotmp[2048+100];
+  short int audiobuf[2][512];
+
   SDL_Surface *surf;
 
   

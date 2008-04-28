@@ -167,6 +167,7 @@ JS(constructor_func) {                                                        \
 
 // Gets a pointer to the layer from the private object of javascript
 // it can be then referenced as *lay
+
 #define GET_LAYER(layer_class) \
 layer_class *lay = (layer_class *) JS_GetPrivate(cx,obj); \
 if(!lay) { \
