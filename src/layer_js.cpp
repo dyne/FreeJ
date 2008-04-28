@@ -130,9 +130,9 @@ JS(layer_constructor) {
   char *filename;
 
   Layer *layer;
-  if (jsclass_s != OBJ_GET_CLASS(cx, obj)) {
+  /*  if (jsclass_s != OBJ_GET_CLASS(cx, obj)) {
     JS_ERROR("Sorry, this gimmik is not supported.");
-  }
+    } */
 
   if(argc < 1) JS_ERROR("missing argument");
 
