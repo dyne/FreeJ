@@ -90,6 +90,7 @@ freej_SOURCES = \
 \
 	audio_jack.cpp  \
 	audio_collector.cpp \
+	audio_collector_js.cpp \
 \
 	video_encoder.cpp \
 	video_encoder_js.cpp \

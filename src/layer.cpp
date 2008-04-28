@@ -42,6 +42,7 @@ Layer::Layer()
   hidden = false;
   fade = false;
   use_audio = false;
+  audio = NULL;
   opened = true;
   bgcolor = 0;
   bgmatte = NULL;
@@ -96,90 +97,90 @@ void Layer::_init(int wdt, int hgt) {
 
 void Layer::run() {
   func("%s this=%p thread: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
-	void *tmp_buf;
+  void *tmp_buf;
 
-	//while(!feed()) 
+  //while(!feed()) 
 
-	lock_feed();
-	func("ok, layer %s in rolling loop",get_name());
-	// wait_feed();
+  lock_feed();
+  func("ok, layer %s in rolling loop",get_name());
+  // wait_feed();
 	
-	while(!quit) {
+  while(!quit) {
 
-		lock();
+    lock();
 		
-		tmp_buf = feed();
+    tmp_buf = feed();
 		
-		unlock();
+    unlock();
 
-		if(!tmp_buf) 
-			func("feed returns NULL on layer %s",get_name());
-		else { // process filter on tmp_buf
-			if( filters.len() ) {
-				FilterInstance *filt;
-				filters.lock();
-				filt = (FilterInstance *)filters.begin();
-				while(filt) {
-					if(filt->active)
-						tmp_buf = (void*) filt->process(0, (uint32_t*)tmp_buf);
-						// fps_speed ???
-						//tmp_buf = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
-//					offset = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
-					filt = (FilterInstance *)filt->next;
-				}
-				filters.unlock();
-			}
-			buffer = tmp_buf;
-		} // else
-		//wait_feed();
-		sleep_feed();
+    if(!tmp_buf) 
+      func("feed returns NULL on layer %s",get_name());
+    else { // process filter on tmp_buf
+      if( filters.len() ) {
+	FilterInstance *filt;
+	filters.lock();
+	filt = (FilterInstance *)filters.begin();
+	while(filt) {
+	  if(filt->active)
+	    tmp_buf = (void*) filt->process(0, (uint32_t*)tmp_buf);
+	  // fps_speed ???
+	  //tmp_buf = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
+	  //					offset = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
+	  filt = (FilterInstance *)filt->next;
 	}
+	filters.unlock();
+      }
+      buffer = tmp_buf;
+    } // else
+    //wait_feed();
+    sleep_feed();
+  }
 		
-		func("%s this=%p thread end: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
+  func("%s this=%p thread end: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
 }
 
 bool Layer::cafudda() {
-	if(!opened) return false;
+  if(!opened) return false;
 
-	if(!fade)
-		if(!active || hidden)
-			return false;
+  if(!fade)
+    if(!active || hidden)
+      return false;
 
-	/* process thru iterators */
-	if(iterators.len()) {
-		iterators.lock();
-		iter = (Iterator*)iterators.begin();
-		while(iter) {
-			res = iter->cafudda(); // if cafudda returns -1...
-			itertmp = iter;
-			iter = (Iterator*) ((Entry*)iter)->next;
-			if(res<0) {
-				iterators.unlock();
-				delete itertmp; // ...iteration ended
-				iterators.lock();
-				if(!iter)
-					if(fade) { // no more iterations, fade out deactivates layer
-						fade = false;
-						active = false;
-					}
-			}
-		}
-		iterators.unlock();
-	}
-	lock();
-	offset = buffer;
-	if(!offset) {
-		unlock();
-		signal_feed();
-		return(false);
-	}
+  /* process thru iterators */
+  if(iterators.len()) {
+    iterators.lock();
+    iter = (Iterator*)iterators.begin();
+    while(iter) {
+      res = iter->cafudda(); // if cafudda returns -1...
+      itertmp = iter;
+      iter = (Iterator*) ((Entry*)iter)->next;
+      if(res<0) {
+	iterators.unlock();
+	delete itertmp; // ...iteration ended
+	iterators.lock();
+	if(!iter)
+	  if(fade) { // no more iterations, fade out deactivates layer
+	    fade = false;
+	    active = false;
+	  }
+      }
+    }
+    iterators.unlock();
+  }
+  lock();
+  offset = buffer;
+  if(!offset) {
+    unlock();
+    signal_feed();
+    return(false);
+  }
 	
-	blitter.blit();
-	unlock();
+  blitter.blit();
+  unlock();
 
-	//signal_feed();
+  //signal_feed();
 
-	return(true);
+  return(true);
 }
 
 bool Layer::set_parameter(int idx) {
