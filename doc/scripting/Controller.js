@@ -486,3 +486,69 @@ ViMoController.prototype.open = function (filename);
 	@type void
 */
 ViMoController.prototype.close = function ();
+
+
+//////////////////////////////
+// Wii Controller
+
+/** Nintendo Wii remote control.
+	<p>The WiiController constructor creates a controller which holds the callbacks.
+	There's an example script "wiimote.js".</p>
+	@class 
+	<p><b><i>This documentation and the Wii is still under construction.</i></b>However, this controller is already working.</p>
+	<p>The WiiController connects via bluetooth to a Nintendo wii remote controller.</p>
+	<img src="images/wii_ctrl.jpg">
+	<p>
+	</p>
+	@author jaromil, chris
+	@constructor
+	@base Controller
+	@returns a new WiiController
+	@param{string} outdevice IDEA/TODO(?) select bluetooth host device, e.g. 'hci0', 'hci1'
+	@type WiiController
+*/
+function WiiController(outdevice) { };
+WiiController.prototype = new WiiController();
+
+/** Callback on accelleration changes
+	@type bool callback 
+	@return return true, when event was handled, false to requeue event
+	@param{int} x current x-axis value
+	@param{int} y current y-axis value
+	@param{int} z current z-axis value
+*/
+WiiController.prototype.acceleration = function (x, y, z);
+
+/** Connect to wii. Press A+B buttons on the remote.
+	Actually, this call blocks freej until the wii is connected.
+	@type bool
+	@return actually this call returns nothing in any cases ...
+	@param{string} bdaddr (optional) wii remote device address, e.g. '00:19:1D:66:91:D3'
+	Leave empty to scan and connect to any wii.
+*/	
+WiiController.prototype.connect = function (bdaddr);
+
+/** toggle acceleration data on/off
+	@type void
+	@param{bool} state switch acceleration datastream. off by default.
+*/
+WiiController.prototype.toggle_accel = function (state);
+
+/** toggle button data on/off
+	@type void
+	@param{bool} state switch button datastream. on by default.
+*/
+WiiController.prototype.toggle_buttons = function (state);
+
+/** toggle rumble on/off
+	@type void
+	@param{bool} state switch rumble
+*/
+WiiController.prototype.toggle_rumble = function (state);
+
+/** toggle led on/off
+	@type void
+	@param{int} state bitmask state TODO: FIXME
+*/
+WiiController.prototype.toggle_led = function (state);
+
