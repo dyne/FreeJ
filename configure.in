@@ -370,7 +370,7 @@ dnl ==============================================================
 BLUEZ_LIBS=""
 PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
 if test x$have_bluez = xyes; then
-   AC_DEFINE(HAVE_BLUETOOTH,1,[define if compiling bluetooth wiimote controller])
+   AC_DEFINE(HAVE_BLUETOOTH,1,[define if compiling bluetooth cwiid controller])
    AC_MSG_CHECKING(compiling WiiMote controller) 
 fi
 AC_SUBST(BLUEZ_LIBS)
