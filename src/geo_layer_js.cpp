@@ -85,7 +85,7 @@ JS(geometry_layer_clear) {
 
 
 JS(geometry_layer_color) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(1);
   
@@ -95,11 +95,10 @@ JS(geometry_layer_color) {
   // R,G,B,A or R,G,B or the whole 32bit value
   uint16_t r,g,b,a;
 
-  if(JSVAL_IS_DOUBLE(argv[0])) {
+  if(argc == 1) {
 
-    double *hex;
-    hex = JSVAL_TO_DOUBLE(argv[0]);
-    lay->color = (uint32_t)*hex;
+    JS_ARG_NUMBER(hex,0);
+    lay->color = (uint32_t)hex;
     
   } else {
       js_ValueToUint16(cx, argv[0], &r);
@@ -109,14 +108,18 @@ JS(geometry_layer_color) {
           js_ValueToUint16(cx, argv[3], &a);
       else
         a = 0xff;
-    
-      lay->color = a|(r<<8)|(g<<16)|(b<<24);
   }
+  
+  if(SDL_BYTEORDER == SDL_LIL_ENDIAN) 
+    lay->color = a|(b<<8)|(g<<16)|(r<<24);
+  else
+    lay->color = a|(r<<8)|(g<<16)|(b<<24);
+  
   return JS_TRUE;
 }
 
 JS(geometry_layer_pixel) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(2);
 
@@ -133,7 +136,7 @@ JS(geometry_layer_pixel) {
   return JS_TRUE;
 }
 JS(geometry_layer_hline) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(3);
 
@@ -151,7 +154,7 @@ JS(geometry_layer_hline) {
   return JS_TRUE;
 }
 JS(geometry_layer_vline) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(3);
 
@@ -212,7 +215,7 @@ JS(geometry_layer_rectangle_fill) {
   return JS_TRUE;
 }
 JS(geometry_layer_line) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(4);
 
@@ -232,7 +235,7 @@ JS(geometry_layer_line) {
   return JS_TRUE;
 }
 JS(geometry_layer_aaline) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(4);
 
@@ -252,7 +255,7 @@ JS(geometry_layer_aaline) {
   return JS_TRUE;
 }
 JS(geometry_layer_circle) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(3); 
 
@@ -270,7 +273,7 @@ JS(geometry_layer_circle) {
   return JS_TRUE;
 }
 JS(geometry_layer_aacircle) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(3);
 
@@ -288,7 +291,7 @@ JS(geometry_layer_aacircle) {
   return JS_TRUE;
 }
 JS(geometry_layer_circle_fill) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(3);
 
@@ -306,7 +309,7 @@ JS(geometry_layer_circle_fill) {
   return JS_TRUE;
 }
 JS(geometry_layer_ellipse) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(4);
 
@@ -325,7 +328,7 @@ JS(geometry_layer_ellipse) {
   return JS_TRUE;
 }
 JS(geometry_layer_aaellipse) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(4);
 
@@ -344,7 +347,7 @@ JS(geometry_layer_aaellipse) {
   return JS_TRUE;
 }
 JS(geometry_layer_ellipse_fill) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(4);
 
@@ -363,7 +366,7 @@ JS(geometry_layer_ellipse_fill) {
   return JS_TRUE;
 }
 JS(geometry_layer_pie) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(5);
 
@@ -383,7 +386,7 @@ JS(geometry_layer_pie) {
   return JS_TRUE;
 }
 JS(geometry_layer_pie_fill) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(5);
 
@@ -403,7 +406,7 @@ JS(geometry_layer_pie_fill) {
   return JS_TRUE;
 }
 JS(geometry_layer_trigon) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(6);
 
@@ -424,7 +427,7 @@ JS(geometry_layer_trigon) {
   return JS_TRUE;
 }
 JS(geometry_layer_aatrigon) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(6);
 
@@ -445,7 +448,7 @@ JS(geometry_layer_aatrigon) {
   return JS_TRUE;
 }
 JS(geometry_layer_trigon_fill) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
 
   JS_CHECK_ARGC(6);
 
