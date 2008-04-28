@@ -319,7 +319,7 @@ JS(geometry_layer_ellipse) {
   js_ValueToUint16(cx, argv[0], &x);
   js_ValueToUint16(cx, argv[1], &y);
   js_ValueToUint16(cx, argv[2], &rx);
-  js_ValueToUint16(cx, argv[2], &ry);
+  js_ValueToUint16(cx, argv[3], &ry);
 
   OPTIONAL_COLOR_ARG(4);
 
@@ -338,7 +338,7 @@ JS(geometry_layer_aaellipse) {
   js_ValueToUint16(cx, argv[0], &x);
   js_ValueToUint16(cx, argv[1], &y);
   js_ValueToUint16(cx, argv[2], &rx);
-  js_ValueToUint16(cx, argv[2], &ry);
+  js_ValueToUint16(cx, argv[3], &ry);
 
   OPTIONAL_COLOR_ARG(4);
 
@@ -357,7 +357,7 @@ JS(geometry_layer_ellipse_fill) {
   js_ValueToUint16(cx, argv[0], &x);
   js_ValueToUint16(cx, argv[1], &y);
   js_ValueToUint16(cx, argv[2], &rx);
-  js_ValueToUint16(cx, argv[2], &ry);
+  js_ValueToUint16(cx, argv[3], &ry);
 
   OPTIONAL_COLOR_ARG(4);
 
