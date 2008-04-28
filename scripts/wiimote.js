@@ -20,32 +20,30 @@ kbd.released_2 = function() { wii.toggle_led(2); }
 kbd.released_3 = function() { wii.toggle_led(3); }
 
 echo("connecting wii");
-//wii.connect();
+wii.connect();
 
 //register_controller(wii);
 
 wii.acceleration = function(x,y,z) {
-    echo("accel x" + x + " y " + y + " z " + z);
-    //    geo.color(0x0);
-    //    geo.clear();
-    geo.color(1.0, 0.0, 0.0);
+    //    echo("accel x" + x + " y " + y + " z " + z);
+    geo.color(0,0,0,0);
+    geo.clear();
+    //    geo.rectangle_fill(0,0,300,300);
+    geo.color(255,0,0);
     geo.hline(0,x*2,10);
     geo.hline(0,x*2,11);
     geo.hline(0,x*2,12);
     
-    geo.color(0.0,1.0,0.0);
+    geo.color(0,255,0);
     geo.hline(0,y*2,20);
     geo.hline(0,y*2,21);
     geo.hline(0,y*2,22);
     
-    geo.color(0.0,0.0,1.0);
+    geo.color(0,0,255);
     geo.hline(0,z*2,30);
     geo.hline(0,z*2,31);
     geo.hline(0,z*2,32);
 }
-
-// test
-wii.acceleration(100, 100, 100);
 
 function butt(b) {
 	echo("wii button " + b);

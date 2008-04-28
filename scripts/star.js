@@ -30,7 +30,7 @@ function drawStar(lay, s_mul, s2_mul) {
  	x2 = Math.floor(x2);
  	y2 = Math.floor(y2);
 
-	debug("drawing star line:" + x1 + "," + y1 + " " + x2 + "," + y2);
+//	debug("drawing star line:" + x1 + "," + y1 + " " + x2 + "," + y2);
 // 	lay.line( x.toPrecision()+s.toPrecision() * Math.cos(o + k*c),
 // 		  y+s * Math.sin(o + k*c),
 // 		  x+s2 * Math.cos(o + kn*c),
@@ -48,6 +48,8 @@ geo = new GeometryLayer();
 geo.color(255,255,255,255);
 geo.set_blit("alpha");
 geo.set_blit_value(0.1);
+geo.start();
+geo.activate(true);
 add_layer(geo);
 
 drawStar(geo,30,1);

@@ -44,7 +44,7 @@
 /////// Javascript WiiController
 JS(js_wii_ctrl_constructor);
 
-DECLARE_CLASS_GC("WiiController", js_wii_ctrl_class, js_wii_ctrl_constructor, js_ctrl_gc);
+DECLARE_CLASS("WiiController", js_wii_ctrl_class, js_wii_ctrl_constructor);
 
 JS(js_wii_ctrl_connect);
 JS(js_wii_ctrl_actaccel);
@@ -194,10 +194,7 @@ WiiController::WiiController()
 
 WiiController::~WiiController() {
 
-  // need to find out how to cleanup?
-  // no mention about it in libwii
-  //
-  // disconnect!!! ftw !!!
+  cwiid_close(wiimote);
   
 }
 
@@ -219,7 +216,7 @@ bool WiiController::connect(char *hwaddr) {
   if (cwiid_set_mesg_callback(wiimote, cwiid_callback)) {
     error("unable to set wiimote message callback");
     cwiid_close(wiimote);
-    return false;
+    return 0;
   }
 
   // activate acceleration by default (todo switches)
@@ -232,6 +229,7 @@ bool WiiController::connect(char *hwaddr) {
 
   cwiid_enable(wiimote, CWIID_FLAG_MESG_IFC); // enable messages
   
+  return 1;
 }
 
 bool WiiController::init(JSContext *env, JSObject *obj) {
@@ -246,17 +244,20 @@ bool WiiController::init(JSContext *env, JSObject *obj) {
 
 int WiiController::poll() {
 
-  dispatch();
+  if(active)
+    dispatch();
 
+    return 1;
 }
 
 int WiiController::dispatch() {
-  int res;
-  char funcname[512];
-  char keyname[512];
+  //  int res;
+  //  char funcname[512];
+  //  char keyname[512];
 
   Controller::JSCall("acceleration", 3, "uuu", x, y, z );
 
+  return 1;
 }
 
 void WiiController::print_state(struct cwiid_state *state) {

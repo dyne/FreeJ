@@ -451,7 +451,7 @@ JS(debug) {
 
 static uint32_t randval;
 JS(rand) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   randval = randval * 1073741789 + 32749;
 

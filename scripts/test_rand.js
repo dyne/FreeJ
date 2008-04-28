@@ -76,6 +76,9 @@ function randomize_color(geo) {
 geo = new GeometryLayer(400,300);
 geo.set_blit("alpha");
 geo.set_blit_value(0.5);
+geo.activate(true);
+geo.start();
+geo.set_fps(24);
 add_layer(geo);
 
 running = true;

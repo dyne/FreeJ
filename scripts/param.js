@@ -46,7 +46,7 @@ Param.prototype.setValue = function(in_value) {
     this.obj[this.name] = out_value;
     this.in_value = in_value;
     this.out_value= out_value;
-    echo(this.name + "in: " + in_value + " out: " + this.out_value);
+    //    echo(this.name + "in: " + in_value + " out: " + this.out_value);
 }
 
 Param.prototype.step = function(n) {

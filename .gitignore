@@ -15,6 +15,7 @@ src/freej
 stamp-h1
 tags
 lib/javascript/obj
+doc/scripting/html
 *.[oa]
 *.so
 *.la
