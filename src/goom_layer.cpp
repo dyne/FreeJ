@@ -17,6 +17,8 @@
  *
  */
 
+#include <math.h>
+
 #include <jutils.h>
 #include <context.h>
 #include <audio_collector.h>
@@ -72,45 +74,26 @@ void GoomLayer::close() {
 
 void *GoomLayer::feed() {
   int c;
-  //  int num, found, samples;
+  short int hc;
+  // TODO: use FFT values and fill in incval and samples
 
-  //  samples = env->audio->framesperbuffer * env->audio->channels;
-
-  //  num = samples * sizeof(int16_t);
-  
-  
-  /*  num = env->audio->input->read(num,audiotmp);
-
-  if(num<=0) {
-  func("no audio for goom");
-  return buffer;
-  }
-
-  if(num!=samples*sizeof(int16_t)*env->audio->channels) {
-    warning("goom audio buffer underrun");
-    samples = num / sizeof(int16_t) / env->audio->channels;
-    } */
-
-  
-//   if(env->audio->channels == 2) {
-//     for( c = 0; c<512 ; c++ ) {
-//       audio[0][c] = (int16_t) (env->audio->input[c*2]);
-//       audio[1][c] = (int16_t) (env->audio->input[(c*2)+1]);
-//     }
-//   } else {
-//     for( c = 0; c<512 ; c++ ) {
-//       audio[0][c] = (int16_t) (env->audio->input[c]);
-//       audio[1][c] = (int16_t) (env->audio->input[c]);
-//     }
-//   }
   if(audio) {
     
-    float *buffer = audio->GetAudioBuffer();
-    
-    for( c = 0; c<512 ; c++) {
-      audiobuf[0][c] = (int16_t) buffer[c];
-      audiobuf[1][c] = (int16_t) buffer[c];
+    audio->GetFFT();
+
+    /* find the max */
+    float incvar = 0;
+    for (c = 0; c < 16; c++) {
+      hc = (int) floor(audio->GetHarmonic(c));
+      if (incvar < hc) incvar = hc;
+      goom->sound.samples[c] = hc;
     }
+    
+    if (incvar > goom->sound.allTimesMax)
+      goom->sound.allTimesMax = incvar;
+    
+    /* volume sonore */
+    goom->sound.volume = (float)incvar / (float)goom->sound.allTimesMax;
 
   }
   //  ringbuffer_peek(env->audio->input_pipe, (char*)audio, 1024);

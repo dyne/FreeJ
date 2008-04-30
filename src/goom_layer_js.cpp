@@ -32,13 +32,13 @@ JSFunctionSpec goom_layer_methods[] = {
   ENTRY_METHODS  ,
   //    name		native		        nargs
   {     "mode",         goom_layer_mode,        1  },
-  {     "middle",      goom_layer_middle,       2 },
-  {     "reverse",     goom_layer_reverse,     1 },
-  {     "speed",      goom_layer_speed,       1 },
-  {     "plane",    goom_layer_plane,    2  },
+  {     "middle",      goom_layer_middle,       2  },
+  {     "reverse",     goom_layer_reverse,      1  },
+  {     "speed",      goom_layer_speed,         1  },
+  {     "plane",    goom_layer_plane,           2  },
   {     "wave",         goom_layer_wave,        1  },
   {     "hypercos",     goom_layer_hypercos,    1  },
-  {     "noise",    goom_layer_noise,   1 },
+  {     "noise",    goom_layer_noise,           1  },
   {0}
 };
 

@@ -39,7 +39,7 @@ struct _SOUND_INFO {
 	int timeSinceLastBigGoom;   /* >= 0 */
 
 	float volume;     /* [0..1] */
-	short samples[2][512];
+	short samples[16];
 
 	/* other "internal" datas for the sound_tester */
 	float goom_limit; /* auto-updated limit of goom_detection */

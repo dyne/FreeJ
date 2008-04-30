@@ -17,21 +17,6 @@ void evaluate_sound(gint16 data[2][512], SoundInfo *info) {
 	float difaccel;
   float prevspeed;
 
-	/* find the max */
-	int incvar = 0;
-	for (i = 0; i < 512; i+=2) {
-		if (incvar < data[0][i])
-			incvar = data[0][i];
-	}
-
-	if (incvar > info->allTimesMax)
-		info->allTimesMax = incvar;
-
-	/* volume sonore */
-	info->volume = (float)incvar / (float)info->allTimesMax;
-	memcpy(info->samples[0],data[0],512*sizeof(short));
-	memcpy(info->samples[1],data[1],512*sizeof(short));
-
 	difaccel = info->accelvar;
 	info->accelvar = info->volume; /* accel entre 0 et 1 */
 

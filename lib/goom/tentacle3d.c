@@ -10,7 +10,7 @@
 #define D 256.0f
 
 #define nbgrid 6
-#define definitionx 15
+#define definitionx 16
 #define definitionz 45
 
 typedef struct _TENTACLE_FX_DATA {
@@ -40,7 +40,7 @@ typedef struct _TENTACLE_FX_DATA {
 
 static void tentacle_new (TentacleFXData *data);
 static void tentacle_update(PluginInfo *goomInfo, Pixel *buf, Pixel *back, int W, int H,
-                     short[2][512], float, int drawit, TentacleFXData *data);
+                     short[16], float, int drawit, TentacleFXData *data);
 static void tentacle_free (TentacleFXData *data);
 
 /* 
@@ -227,7 +227,7 @@ static void pretty_move (PluginInfo *goomInfo, float cycle, float *dist, float *
 }
 
 static void tentacle_update(PluginInfo *goomInfo, Pixel *buf, Pixel *back, int W, int H,
-                     short data[2][512], float rapport, int drawit, TentacleFXData *fx_data) {
+                     short data[16], float rapport, int drawit, TentacleFXData *fx_data) {
 	
 	int tmp;
 	int tmp2;
@@ -268,10 +268,10 @@ static void tentacle_update(PluginInfo *goomInfo, Pixel *buf, Pixel *back, int W
 
 		for (tmp=0;tmp<nbgrid;tmp++) {
 			for (tmp2=0;tmp2<definitionx;tmp2++) {
-				float val = (float)(ShiftRight(data[0][goom_irand(goomInfo->gRandom,511)],10)) * rapport;
-				fx_data->vals[tmp2] = val;
+			  //				float val = (float)(ShiftRight(data[0][goom_irand(goomInfo->gRandom,511)],10)) * rapport;
+			  
+			  fx_data->vals[tmp2] = data[tmp2] *rapport;
 			}
-
 			grid3d_update (fx_data->grille[tmp], rotangle, fx_data->vals, dist2);
 		}
 		fx_data->cycle+=0.01f;
