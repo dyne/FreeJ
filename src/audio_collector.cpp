@@ -16,7 +16,7 @@
 
 #include <limits.h>
 #include <iostream>
-#include <sndfile.h>
+//#include <sndfile.h>
 #include <audio_collector.h>
 #include <audio_jack.h>
 
@@ -191,7 +191,7 @@ float *AudioCollector::GetFFT()
 	
 	return m_FFTOutput;
 }
-    
+   /* 
 void AudioCollector::Process(const string &filename)
 {
 	if (m_Processing) return;
@@ -230,7 +230,7 @@ void AudioCollector::Process(const string &filename)
 	
 	m_Processing=true;
 	m_ProcessPos=0;
-}
+}*/
 
 void AudioCollector::AudioCallback_i(unsigned int Size)
 {
