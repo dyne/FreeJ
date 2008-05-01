@@ -284,26 +284,54 @@ FilterInstance *Filter::apply(Layer *lay) {
 }
 
 char *Filter::description() {
-  return (char*)freior->info.explanation;
+  char *ret;
+  if(backend==FREIOR) {
+    ret = (char*)freior->info.explanation;
+  } else if(backend==FREEFRAME) {
+    // TODO freeframe
+  }
+  return ret;
+
 }
 
 int Filter::get_parameter_type(int i) {
-  return freior->param_infos[i].type;
+  int ret;
+  if(backend==FREIOR) {
+    ret =  freior->param_infos[i].type;
+  } else if(backend==FREEFRAME) {
+    // TODO freeframe
+  }
+  return ret;
+
 }
 
 char *Filter::get_parameter_description(int i) {
-  return (char*)freior->param_infos[i].explanation;
+  char *ret;
+  if(backend==FREIOR) {
+    ret = (char*)freior->param_infos[i].explanation;
+  } else if(backend==FREEFRAME) {
+    // TODO freeframe
+  }
+  return ret;
 }
 
 void Filter::destruct(FilterInstance *inst) {
-  if(inst->core) {
-    (*freior->f0r_destruct)((f0r_instance_t*)inst->core);
-    inst->core = NULL;
-  }
+  if(inst->core)
+    if(backend==FREIOR) {
+      (*freior->f0r_destruct)((f0r_instance_t*)inst->core);
+      inst->core = NULL;
+    } else if(backend==FREEFRAME) {
+      // TODO freeframe filter desctruct
+    }
 }
 
 void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
-  (*freior->f0r_update)((f0r_instance_t*)inst->core, time, inframe, outframe);
+    if(backend==FREIOR) {
+      (*freior->f0r_update)((f0r_instance_t*)inst->core, time, inframe, outframe);
+    } else if(backend==FREEFRAME) {
+      // TODO freeframe
+    }
+
 }
 
 

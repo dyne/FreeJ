@@ -17,7 +17,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I/usr/include/slang \
 	   @XIPH_INCLUDE@
 
-AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ \
+AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ -freg-struct-return \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
@@ -40,6 +40,7 @@ freej_SOURCES = \
 	plugin.cpp	\
 	plugger.cpp	\
 	frei0r.cpp	\
+	freeframe.cpp   \
 	filter.cpp	\
 	filter_js.cpp   \
 	jsparser.cpp	\

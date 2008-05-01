@@ -81,13 +81,14 @@ int Freeframe::open(char *file) {
   }
 
   
-  /// QUAAA pis has invalid address
+  /// WARNING:  if  compiled  without  -freg-struct-return  this  will
+  /// return an invalid address ...
   PlugInfoStruct *pis = (plugmain(FF_GETINFO,NULL, 0)).PISvalue;
 
   //  func("freeframe plugin: %s",pis->pluginName);
-  /*
+  // ... and here will segfault
   if ((plugmain(FF_GETPLUGINCAPS,
-		(LPVOID) FF_CAP_24BITVIDEO, 0)).ivalue != FF_TRUE) {
+		(LPVOID) FF_CAP_32BITVIDEO, 0)).ivalue != FF_TRUE) {
     error("plugin %s: no 24 bit support", file);
     dlclose(handle);
     handle = NULL;
@@ -99,7 +100,7 @@ int Freeframe::open(char *file) {
     dlclose(handle);
     handle = NULL;
     return 0;
-    }*/
+  }
   // init is called by Filter class
 //   if ((plugmain(FF_INITIALISE, NULL, 0)).ivalue == FF_FAIL) {
 //     error("plugin %s: init failed", file);

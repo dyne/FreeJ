@@ -85,6 +85,7 @@ class Filter : public Entry {
   bool active;
   bool inuse;
 
+  int backend;
   Freior *freior;
   Freeframe *freeframe;
   
