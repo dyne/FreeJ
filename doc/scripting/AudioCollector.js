@@ -5,13 +5,17 @@
     nor is it intended to fulfill any specific purpose apart from generating documentation
 
     @author Jaromil
-    @version 1.0
+    @version $Id: $
 */
 
 ///////////////////////////////////////////////////
 /////// AUDIO COLLECTOR
 
 /**
+   This  constructor  instantiates  an  AudioJack collector  for  Jack
+
+   @class The Audio Jack class collects audio and analizes it for use in parameters
+
    <div class="desc">
    This      object      collects       audio      from      a      <a
    href="http://www.jackaudio.org">Jack</a> source, it  can be used to
@@ -55,7 +59,6 @@
    }
    </div>
 
-   @class The Audio Jack class collects audio and analizes it for use in parameters
    @author Dave Griffiths, Jaromil
    @constructor
    @param {string} jack_port an input name like "alsa_pcm:input_1", see jack connections

@@ -118,7 +118,7 @@ ImageLayer.prototype.open = open;
 
 /**
     The Particle Generator constructor is used to create new instances of this layer
-        @class The Particle Generator will compute and display shiny and moving particles
+        @class The Particle Generator will compute and display shiny moving particles
 	@author Jaromil
 	@constructor
 	@returns a new allocated Particle Generator Layer
@@ -200,6 +200,8 @@ TextLayer.prototype.size = size;
 function calculate_size(string) { };
 TextLayer.prototype.calculate_size = calculate_size;
 
+
+
 ///////////////////////////////////////////////////
 // MOVIE LAYER
 
@@ -213,10 +215,14 @@ TextLayer.prototype.calculate_size = calculate_size;
 function MovieLayer() { };
 MovieLayer.prototype		= new Layer();
 
+///////////////////////////////////////////////////
+// FLASH LAYER
 
 function FlashLayer() { };
 FlashLayer.prototype		= new Layer();
 
+///////////////////////////////////////////////////
+// CAMERA LAYER
 
 function CamLayer() { };
 CamLayer.prototype		= new Layer();

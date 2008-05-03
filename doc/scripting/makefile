@@ -7,7 +7,8 @@ all:
 	GeometryLayer.js \
 	Controller.js \
 	VideoEncoder.js \
-	AudioCollector.js
+	AudioCollector.js \
+	GoomLayer.js \
 	cp -a images html
 
 clean:
