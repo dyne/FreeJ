@@ -1,12 +1,14 @@
 Freej 0.9.x Experimental
-	* new AudioJack() collector for realtime sound parametrization
-	* new MouseController()
-	* new ViMoContoller() for serial Video Mouse device
-	* tons of bugfixes
-	* JS garbage collection framework, rem_controller() and rem_layer()
-	* new fps syncing per layer
-	* Layer.start() .stop()
-	* experimental ViewportLayer() using Xv extension
+	 AudioJack() collector for realtime sound parametrization
+	 WiiController() for bluetooth WiiMote device
+	 MouseController() for mouse pointer
+	 ViMoContoller() for serial Video Mouse device
+	 tons of bugfixes
+	 JS garbage collection framework, rem_controller() and rem_layer()
+	 new fps sync architecture to let layers go
+	 Layer.start() .stop()
+	 OpenGL viewport fixes
+	 experimental ViewportLayer() using Xv extension
 
 FreeJ 0.9.1 BeTV - 26 Nov 2007
 	New video encoder (ffmpeg2theora)

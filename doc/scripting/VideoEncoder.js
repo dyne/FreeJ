@@ -12,10 +12,12 @@
 /////// VIDEO ENCODER
 
 /**
-   This object compresses the video output of FreeJ (using the
-   Ogg/Vorbis/Theora codec) and can be configured to save the
-   compressed video in a file (playable later) or stream che
-   compressed video on the internet for live playback (using icecast2)
+   This object compresses the video output of FreeJ
+   @class  The Video Encoder  compresses video  to save  in a  file or
+   stream on  the net (using  the Ogg/Vorbis/Theora codec) and  can be
+   configured to save the compressed  video in a file (playable later)
+   or stream  che compressed video  on the internet for  live playback
+   (using icecast2)
 
    <div class="example">Example:
 
@@ -34,7 +36,6 @@
    // encoder.start_filesave("prova.ogg");
    </div>
 
-   @class The Video Encoder compresses video to save in a file or stream on the net
    @author Xiph.org, Kysucix, Jaromil
    @constructor
    @param {int} video_quality quality of the video compression, from 1 to 100.

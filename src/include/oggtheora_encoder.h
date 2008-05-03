@@ -26,7 +26,6 @@
 #include <config.h>
 #include <linklist.h>
 #include <video_encoder.h>
-#include <screen.h>
 #include <ccvt.h>
 
 #ifdef WITH_OGGTHEORA
@@ -58,7 +57,6 @@ class OggTheoraEncoder: public VideoEncoder {
 
   int encode_frame();
 
-
  private:
 
   oggmux_info oggmux; // theorautils object
@@ -82,7 +80,6 @@ class OggTheoraEncoder: public VideoEncoder {
 
   unsigned char *yuvframe[2]; /* yuv 420 */
   
-  ViewPort         *screen;
 
 };
 

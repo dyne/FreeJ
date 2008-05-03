@@ -19,8 +19,7 @@
    <div class="desc">
    This      object      collects       audio      from      a      <a
    href="http://www.jackaudio.org">Jack</a> source, it  can be used to
-   change parameter values based on the audio input.
-   </div>
+   change parameter values based on the audio input.  </div>
 
    <div class="desc">
    16 harmonics are provided using a fast fourier transform, returning

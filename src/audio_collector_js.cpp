@@ -157,7 +157,6 @@ JS(js_audio_jack_fft) {
 
 void js_audio_jack_gc(JSContext *cx, JSObject *obj) {
   func("%s",__PRETTY_FUNCTION__);
-  char excp_msg[MAX_ERR_MSG + 1];
 
   AudioCollector *audio = (AudioCollector*)JS_GetPrivate(cx, obj);
   if(!audio) return;

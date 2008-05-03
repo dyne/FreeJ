@@ -421,6 +421,7 @@ JS(txt_layer_calculate_size);
 #ifdef WITH_OGGTHEORA
 JS(vid_enc_start_filesave);
 JS(vid_enc_stop_filesave);
+JS(vid_enc_add_audio);
 // Shouter methods
 JS(start_stream);
 JS(stop_stream);

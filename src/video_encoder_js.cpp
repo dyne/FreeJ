@@ -38,6 +38,8 @@ JSFunctionSpec js_vid_enc_methods[] = {
   { "start_stream", start_stream, 0},
   { "stop_stream", stop_stream, 0},
 
+  { "add_audio", vid_enc_add_audio, 1 }, 
+  
   { "stream_host",   stream_host,  1},
   { "stream_port",   stream_port,  1},
   { "stream_mountpoint",  stream_mount, 1},
@@ -76,15 +78,44 @@ JS(js_vid_enc_constructor) {
     enc->audio_bitrate = JSVAL_TO_INT(argv[3]);
 
 
-  if(!enc->init(env)) {
-    error("JS::VideoEncoder : failed initialization");
-    delete enc; return JS_FALSE;
-  }
+  // initialization is done with audio
+
   if(!JS_SetPrivate(cx,obj,(void*)enc)) {
     error("JS::VideoEncoder : can't set the private value");
     delete enc; return JS_FALSE;
   }
   *rval = OBJECT_TO_JSVAL(obj);
+  return JS_TRUE;
+}
+
+JS(vid_enc_add_audio) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  JS_CHECK_ARGC(1);
+  js_is_instanceOf(&js_audio_jack_class, argv[0]);
+
+  JSObject *jsaudio;
+
+  jsaudio = JSVAL_TO_OBJECT(argv[0]);
+  AudioCollector *audio =
+    (AudioCollector*) JS_GetPrivate(cx, jsaudio);
+  
+  
+  VideoEncoder *enc = (VideoEncoder*)JS_GetPrivate(cx, obj);
+  if(!enc) {
+    error("%u:%s:%s :: VideoEncoder core data is NULL",
+	  __LINE__,__FILE__,__FUNCTION__);
+    return JS_FALSE;
+  }
+
+  enc->use_audio = true;
+  enc->audio = audio;
+
+  if(!enc->init(env)) {
+    error("JS::VideoEncoder : failed initialization");
+    delete enc; return JS_FALSE;
+  }
+
   return JS_TRUE;
 }
 

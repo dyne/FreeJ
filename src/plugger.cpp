@@ -46,6 +46,7 @@ Plugger::Plugger() {
   addsearchdir("/usr/lib/freej");
   addsearchdir("/usr/local/lib/freej");
   addsearchdir("/opt/video/lib/freej");
+  addsearchdir("/usr/lib/FreeFrame");
 
 }
 

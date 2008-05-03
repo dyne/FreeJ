@@ -60,6 +60,8 @@ public:
   bool  IsProcessing() { return m_Processing; }
   float BufferTime() { return m_BufferTime; }
 
+  void get_audio(void *buffer);
+
   unsigned int Samplerate;
   unsigned int BufferLength;
   
@@ -70,9 +72,7 @@ public:
   
   float m_Gain;
   float m_SmoothingBias;
-  unsigned int m_Samplerate;
   float m_BufferTime;
-  unsigned int m_BufferLength;
   FFT m_FFT;
   pthread_mutex_t* m_Mutex;
   float *m_Buffer;

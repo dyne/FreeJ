@@ -151,11 +151,11 @@ bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
   notice("initializing context environment", wx, hx);
 
   // If selected use opengl as video output!
-#ifdef WITH_OPENGL
-  if (opengl)
-    screen = new SdlGlScreen();
-  else
-#endif
+//#ifdef WITH_OPENGL
+//  if (opengl)
+//    screen = new SdlGlScreen();
+//  else
+//#endif
 
     screen = new SdlScreen();
   
@@ -199,8 +199,8 @@ bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
   SDL_initFramerate(&FPS);
   SDL_setFramerate(&FPS, fps_speed);
 
-  if(init_audio) 
-    audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
+//  if(init_audio) 
+//    audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
 
   // initialize MLT
   //  mlt_factory_init( NULL );
@@ -486,11 +486,14 @@ void Context::add_encoder(VideoEncoder *enc) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__); 
   if(enc->list) enc->rem();
   
-  enc->env = this;
+  enc->init(this);
 
   encoders.append(enc);
+
   encoders.sel(0);
+
   enc->sel(true);
+
   func("encoder %s succesfully added", enc->name);
 }
 

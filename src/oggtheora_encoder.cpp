@@ -52,7 +52,9 @@ OggTheoraEncoder::OggTheoraEncoder()
   //  enc_rgb24 = NULL;
   enc_y = enc_u = enc_v = NULL;
 
-  use_audio = true;
+  use_audio = false;
+  audio = NULL;
+  audio_buf = NULL;
 
   init_info(&oggmux);
   theora_comment_init(&oggmux.tc);
@@ -74,6 +76,7 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   if(enc_v) free(enc_v);
   if(enc_yuyv) free(enc_yuyv);
 
+  if(audio_buf) free(audio_buf);
 }
 
 
@@ -89,17 +92,25 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.bytes_encoded = 0;
 
   oggmux.audio_only = 0;
-  if(use_audio && env->audio) 
+
+  if(use_audio && audio) {
+
+    func("allocating encoder audio buffer of %u bytes",audio->BufferLength);
+    audio_buf = (float*)calloc(audio->BufferLength, sizeof(float));
+
     oggmux.video_only = 0;
-  else {
+    oggmux.sample_rate = audio->Samplerate;
+    oggmux.channels = 1; // only 1 channel jack support for now
+    oggmux.vorbis_quality = audio_quality / 100;
+    oggmux.vorbis_bitrate = audio_bitrate;
+    
+  } else {
+
     oggmux.video_only = 1;
     use_audio = false;
+
   }
 
-  oggmux.sample_rate = 44100;
-  oggmux.channels = 1;
-  oggmux.vorbis_quality = audio_quality / 100;
-  oggmux.vorbis_bitrate = audio_bitrate;
 
   /* Set up Theora encoder */
 
@@ -199,12 +210,13 @@ bool OggTheoraEncoder::feed_video() {
      (see mlt_frame.h in mltframework.org sourcecode)
      i can't tell as i don't have PPC, waiting for u mr.goil :)
   */
+  env->screen->lock();
+  mlt_convert_rgb24a_to_yuv422((uint8_t*)env->screen->get_surface(),
+			       env->screen->w, env->screen->h,
+			       env->screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+  env->screen->unlock();
 
-  mlt_convert_rgb24a_to_yuv422((uint8_t*)screen->get_surface(),
-			       screen->w, screen->h,
-			       screen->w<<2, (uint8_t*)enc_yuyv, NULL);
-
-  ccvt_yuyv_420p(screen->w, screen->h, enc_yuyv, enc_y, enc_u, enc_v);
+  ccvt_yuyv_420p(env->screen->w, env->screen->h, enc_yuyv, enc_y, enc_u, enc_v);
 
   return true;
 }
@@ -242,15 +254,16 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
 int OggTheoraEncoder::encode_audio( int end_of_stream) {
 
   //  num = env->audio->framesperbuffer*env->audio->channels*sizeof(int16_t);
-  
+  func("going to encode %u bytes of audio", audio->BufferLength);
   ///// QUAAAA
   //  oggmux_add_audio (oggmux_info *info, int16_t * readbuffer, int bytesread, int samplesread,int e_o_s);
   //  oggmux_add_audio(&oggmux, env->audio->input,
   //		   read,
   //		   read / env->audio->channels /2,
   //		   end_of_stream );
-  oggmux_add_audio_float(&oggmux, env->audio->GetAudioBuffer(),
-			 env->audio->BufferLength, end_of_stream);
+  audio->get_audio(audio_buf);
+  oggmux_add_audio_float(&oggmux, audio_buf,
+			 audio->BufferLength, end_of_stream);
 
 
   return 1;

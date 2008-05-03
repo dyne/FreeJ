@@ -38,6 +38,7 @@
 #include <shout/shout.h>
 
 class Context;
+class AudioCollector;
 
 /**
  * Class describing the general interface of an encoder
@@ -92,6 +93,8 @@ class VideoEncoder: public Entry, public JSyncThread {
   bool write_to_stream; ///< true if encoder should write to a stream
   
   bool use_audio; ///< true if the encoded data should include also audio
+  AudioCollector *audio; ///< holding the pointer to the @AudioCollector class
+  float *audio_buf; ///< audio buffer (local copy for the encoder)
 
   bool streaming; ///< set true when streaming by js start_stream()
 
@@ -101,7 +104,7 @@ class VideoEncoder: public Entry, public JSyncThread {
 
   shout_t *ice;
 
-
+  ViewPort *screen;
 
  private:
   FILE *filedump_fd;

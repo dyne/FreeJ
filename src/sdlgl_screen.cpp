@@ -18,7 +18,10 @@
  * "$Id$"
  *
  */
+
+#include <config.h>
 #ifdef WITH_OPENGL
+
 #include <stdlib.h>
 #include <string.h>
 #include <SDL_syswm.h>
@@ -26,7 +29,6 @@
 
 #include <sdlgl_screen.h>
 #include <jutils.h>
-#include <config.h>
 
 
 
@@ -335,6 +337,12 @@ void SdlGlScreen::show() {
 			notice("GL_TABLE_TOO_LARGE");
 	}
 	// notice("");
+	int x_translation = 0;
+	int y_translation = 0;
+	int x_rotation = 0;
+	int y_rotation = 0;
+	int rotation = 0;
+	int zoom = 0;
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glGetError ();
 

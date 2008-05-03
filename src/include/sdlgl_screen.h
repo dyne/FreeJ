@@ -18,6 +18,9 @@
  * "$Id$"
  *
  */
+
+#include <config.h>
+
 #ifdef WITH_OPENGL
 #ifndef __SDLGL_SCREEN_H__
 #define __SDLGL_SCREEN_H__

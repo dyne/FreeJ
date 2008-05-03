@@ -15,8 +15,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/slw \
 	   -I$(top_srcdir)/lib/cwiid \
            -I/usr/include/slang \
-	   @XIPH_INCLUDE@ \
-	   @X11_LIBS@
+	   @XIPH_INCLUDE@
 
 AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
