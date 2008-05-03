@@ -576,7 +576,6 @@ void Blitter::blit() {
 
 
   crop( false );
-
   
   // executes LINEAR blit
   if( current_blit->type == LINEAR_BLIT ) {
@@ -853,6 +852,11 @@ bool Blitter::set_spin(double rot, double z) {
   return(rotating | zooming);
 }
 
+  // TODO layer 2 layer blit
+// pass src->geo and dst->geo from two layers
+// in case we want to blit one on another
+// then the crop will prepare it's own layer to the other
+
 /* ok, let's draw the crop geometries and be nice commenting ;)
 
    that's tricky stuff
@@ -899,7 +903,7 @@ bool Blitter::set_spin(double rot, double z) {
 */
      
 
-void Blitter::crop(bool force) {     
+void Blitter::crop(bool force) {
 
   Blit *b;
 

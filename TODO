@@ -1,23 +1,25 @@
 
+  expand the blitter.cpp with possibility for layer2layer blit
+
   console rewrite as controller (accessing linklists for completion)
+
+  dump a screenshot of a layer in javascript: layer.dumpfile()
+
+  rewrite video4linux layer with libunicap
+
+  fix TBT layer, colors on text
 
   goil revision of threading and timing
 
   jrml implement OSC programmable controller
 
-  jrml rewrite movielayer with new ffmpeg or openMLT libs
-
-  dump a screenshot of a layer in javascript: layer.dumpfile()
-
-  *** rewrite video4linux layer with libunicap
-
   jrml sound frequency and beat parametrization (get harmonics from fluxus)
 
+  ?joep? port EffecTV filters to Frei0r
+
+  vvv rewrite movielayer with new ffmpeg or openMLT libs
+
   *** write a separate GUI to control freej via OSC
-
-  *** fix TBT layer, colors on text
-
-  joep port EffecTV filters to Frei0r
 
   *** complete and refine the Iterator class
 
