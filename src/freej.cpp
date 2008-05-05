@@ -177,7 +177,7 @@ void cmdline(int argc, char **argv) {
       }
       break;
 
-#ifndef WITH_OPENGL
+#ifdef WITH_OPENGL
    case 'g':
       opengl=true;
       break;
@@ -309,7 +309,7 @@ int main (int argc, char **argv) {
 
 
   /* initialize the On Screen Display */
-  freej.osd.init( &freej );
+  //  freej.osd.init( &freej );
 
 
   // Set fps

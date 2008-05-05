@@ -27,7 +27,12 @@
 #include <context.h>
 
 #include <sdl_screen.h>
+
+#ifdef WITH_OPENGL
 #include <sdlgl_screen.h>
+#include <gl_screen.h>
+#endif
+
 #include <SDL_imageFilter.h>
 #include <SDL_framerate.h>
 #include <jsparser.h>
@@ -40,6 +45,11 @@
 #include <jutils.h>
 #include <fastmemcpy.h>
 #include <config.h>
+
+#ifdef WITH_OPENGL
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
 
 void fsigpipe (int Sig);
 int got_sigpipe;
@@ -151,11 +161,11 @@ bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
   notice("initializing context environment", wx, hx);
 
   // If selected use opengl as video output!
-//#ifdef WITH_OPENGL
-//  if (opengl)
-//    screen = new SdlGlScreen();
-//  else
-//#endif
+#ifdef WITH_OPENGL
+  if (opengl)
+    screen = new GlScreen();
+  else
+#endif
 
     screen = new SdlScreen();
   
@@ -225,114 +235,124 @@ void Context::cafudda(double secs) {
   VideoEncoder *enc;
   Layer *lay;
   
-  if(secs) /* if secs == 0 will go out after one cycle */
+  if(secs>0.0) /* if secs == 0 will go out after one cycle */
     now = dtime();
   
-  do {
-
-    // Change resolution if needed 
-    if (changeres) {
-      handle_resize();
-      changeres = false;
-    } /////////////////////////////
-
-
+  // Change resolution if needed 
+  if (changeres) {
+    handle_resize();
+    changeres = false;
+  } /////////////////////////////
+  
+  
     ///////////////////////////////
     // update the console
-    if (console && interactive) 
-      console->cafudda ();
-    ///////////////////////////////
-
-
-    ///////////////////////////////
-    // start layers threads
-    rocknroll ();
-    ///////////////////////////////
-
-
-    ///////////////////////////////
-    // clear screen if needed
-    if (clear_all) screen->clear();
-    else if (osd.active) osd.clean();
-    ///////////////////////////////
-
-
-    ///////////////////////////////
-    //// process controllers
-    handle_controllers();
-    ///////////////////////////////
-
-
-    ///////////////////////////////
-    /// cafudda all active LAYERS
-    lay = (Layer *)layers.end ();
-    ///// process each layer in the chain
-    if (lay) {
-      layers.lock ();
-      while (lay) {
-	if (!pause)
+  if (console && interactive) 
+    console->cafudda ();
+  ///////////////////////////////
+  
+  
+  ///////////////////////////////
+  // start layers threads
+  rocknroll ();
+  ///////////////////////////////
+  
+  
+  ///////////////////////////////
+  // clear screen if needed
+  if (clear_all) screen->clear();
+  else if (osd.active) osd.clean();
+  ///////////////////////////////
+  
+  
+  ///////////////////////////////
+  //// process controllers
+  handle_controllers();
+  ///////////////////////////////
+  
+  
+  ///////////////////////////////
+  /// cafudda all active LAYERS
+  lay = (Layer *)layers.end ();
+  ///// process each layer in the chain
+  if (lay) {
+    layers.lock ();
+    
+    while (lay) {
+      if (!pause)
+	if(screen->opengl)
+          {
+            lay->offset = lay->buffer;
+	    ((GlScreen*)screen)->glblit(lay);
+	  }
+	else
+	  
 	  lay->cafudda ();
-	lay = (Layer *)lay->prev;
-      }
-      layers.unlock ();
+      
+      lay = (Layer *)lay->prev;
+      
     }
     /////////// finish processing layers
     //////////////////////////////////////
     
-
-    //////////////////////////////////////
-    // cafudda all active ENCODERS
-    enc = (VideoEncoder*)encoders.end();
-    ///// process each encoder in the chain
-    if(enc) {
-      encoders.lock();
-      while(enc) {
-	if(!pause)
-	  enc->cafudda();
-	enc = (VideoEncoder*)enc->prev;
-      }
-      encoders.unlock();
+    layers.unlock ();
+  }
+  /////////// finish processing layers
+  //////////////////////////////////////
+  
+  
+  //////////////////////////////////////
+  // cafudda all active ENCODERS
+  enc = (VideoEncoder*)encoders.end();
+  ///// process each encoder in the chain
+  if(enc) {
+    encoders.lock();
+    while(enc) {
+      if(!pause)
+	enc->cafudda();
+      enc = (VideoEncoder*)enc->prev;
     }
-    /////////// finish processing encoders
-    //////////////////////////////////////
+    encoders.unlock();
+  }
+  /////////// finish processing encoders
+  //////////////////////////////////////
+  
+  
+  /////////////////////////////
+  /// print on screen display 
+  if (osd.active && interactive) 
+    osd.print ();
+  /////////////////////////////
+  
+  
+  
+  /////////////////////////////
+  // show result on non GL screen 
+  screen->show();
+  /////////////////////////////
+  
+  
+  /////////////////////////////
+  // handle timing 
+  //    if(!secs) break; // just one pass
+  
+  /////////////////////////////
+  // honour quit requests
+  //if(quit) break; // quit was called
 
-    
-    /////////////////////////////
-    /// print on screen display 
-    if (osd.active && interactive) 
-      osd.print ();
-    /////////////////////////////
-
-
-
-    /////////////////////////////
-    // show result on screen 
-    screen->show ();
-    /////////////////////////////
-    
-
-    /////////////////////////////
-    // handle timing 
-    //    if(!secs) break; // just one pass
-
-    /////////////////////////////
-    // honour quit requests
-    if(quit) break; // quit was called
-
-
-    
-    /// FPS calculation
+  
+  
+  /// FPS calculation
+  if(secs>0.0)
     SDL_framerateDelay(&FPS); // synced with desired fps here
-    // continues N seconds or quits after one cycle
-    //    riciuca = (dtime() - now < secs) ? true : false;
-    //////////////////////////////////
-
-    if (got_sigpipe) {
-        quit=true;
-        return;
-    }
-
-  } while (riciuca);
+  // continues N seconds or quits after one cycle
+  //    riciuca = (dtime() - now < secs) ? true : false;
+  //////////////////////////////////
+  
+  if (got_sigpipe) {
+    quit=true;
+    return;
+  }
   
 }
 
