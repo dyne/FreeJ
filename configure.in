@@ -608,8 +608,6 @@ lib/sdl_gfx/Makefile
 lib/sdl_ttf/Makefile
 lib/flash/Makefile
 lib/goom/Makefile
-lib/slw/Makefile
-lib/tbt/Makefile
 lib/cwiid/Makefile
 lib/frei0r/Makefile
 lib/frei0r/filter/Makefile

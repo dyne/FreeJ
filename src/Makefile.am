@@ -11,8 +11,6 @@ INCLUDES = -I$(top_srcdir)/src/include \
 	   -I$(top_srcdir)/lib/javascript/obj \
 	   -I$(top_srcdir)/lib/flash \
 	   -I$(top_srcdir)/lib/goom \
-           -I$(top_srcdir)/lib/tbt \
-           -I$(top_srcdir)/lib/slw \
 	   -I$(top_srcdir)/lib/cwiid \
            -I/usr/include/slang \
 	   @XIPH_INCLUDE@
@@ -71,7 +69,6 @@ freej_SOURCES = \
 	xhacks_layer.cpp \
         goom_layer.cpp \
 	goom_layer_js.cpp \
-	tbt_layer.cpp \
 	impl_layers.cpp \
 \
 	screen.cpp	\
@@ -107,8 +104,6 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/javascript/obj/libjs.a \
 	      $(top_srcdir)/lib/flash/libflash.a \
 	      $(top_srcdir)/lib/goom/libgoom2.a \
-              $(top_srcdir)/lib/tbt/libtbt.a \
-              $(top_srcdir)/lib/slw/libslw.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/lo/liblo.a \
               $(top_srcdir)/lib/cwiid/libwiimote.a \

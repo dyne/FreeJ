@@ -8,8 +8,6 @@ SUBDIRS = 	ccvt			\
 		javascript		\
 		flash			\
 		goom			\
-		tbt			\
-		slw			\
 		frei0r			\
 		cwiid			\
 		@FLASH_DIR@

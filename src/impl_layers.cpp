@@ -188,20 +188,7 @@ Layer *create_layer(Context *env, char *file) {
 	  act("can't load %s",file_ptr);
 	  return(NULL);
 #endif
-  } else /* TBT LAYER */
-    if(strncasecmp((end_file_ptr-4),".tbt",4)==0) {
-	    // Time Based Text file recording
-	    nlayer = new TBTLayer();
 
-      if(!nlayer->init( env )) {
-	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-	delete nlayer; return NULL;
-      }
-
-	    if(!nlayer->open(file_ptr)) {
-	      error("create_layer : TBT open failed");
-	      delete nlayer; nlayer = NULL;
-	    }
   } else /* XHACKS LAYER */
     if(strstr(file_ptr,"xscreensaver")) {
 #ifdef WITH_XHACKS
@@ -244,14 +231,6 @@ Layer *create_layer(Context *env, char *file) {
 	      delete nlayer; nlayer = NULL;
 	    }
       */
-	  } else if(strncasecmp(file_ptr,"layer_tbt",9) ==0) {
-
-	    nlayer = new TBTLayer();
-
-      if(!nlayer->init( env )) {
-	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-	delete nlayer; return NULL;
-      }
 
   } else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
 
