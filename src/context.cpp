@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 #include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
@@ -44,12 +45,8 @@
 
 #include <jutils.h>
 #include <fastmemcpy.h>
-#include <config.h>
 
-#ifdef WITH_OPENGL
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
+#include <jsparser_data.h>
 
 void fsigpipe (int Sig);
 int got_sigpipe;
@@ -280,13 +277,14 @@ void Context::cafudda(double secs) {
     
     while (lay) {
       if (!pause)
+#ifdef WITH_OPENGL
 	if(screen->opengl)
           {
             lay->offset = lay->buffer;
 	    ((GlScreen*)screen)->glblit(lay);
 	  }
 	else
-	  
+#endif	  
 	  lay->cafudda ();
       
       lay = (Layer *)lay->prev;

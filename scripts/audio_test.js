@@ -3,7 +3,7 @@
 // also check the values (samplesize and samplerate) to match your conf
 // -jrml
 
-H=800;
+H=600;
 M=H/128;
 W=H/(H/80);
 //W=600
@@ -13,12 +13,12 @@ set_resolution(W,H);
 
 
 
-audio = new AudioJack("alsa_pcm:capture_1", 2048, 44100);
+audio = new AudioJack("alsaplayer", 2048, 44100);
 
-encoder = new VideoEncoder(10, 64000, 5, 24000);
-encoder.add_audio(audio);
-register_encoder(encoder);
-encoder.start_filesave("prova.ogg");
+// encoder = new VideoEncoder(10, 64000, 5, 24000);
+// encoder.add_audio(audio);
+// register_encoder(encoder);
+// encoder.start_filesave("prova.ogg");
 
 geo = new GeometryLayer();
 geo.activate(true);

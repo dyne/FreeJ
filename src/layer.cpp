@@ -217,7 +217,7 @@ void Layer::set_position(int x, int y) {
   lock();
   slide_x = geo.x = x;
   slide_y = geo.y = y;
-  //blitter.crop( screen );
+  blitter.crop( screen );
   unlock();
 }
 

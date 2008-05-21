@@ -49,10 +49,6 @@ class Freeframe: public Entry {
   PlugInfoStruct *info;
 
   VideoInfoStruct vidinfo;
-  /*	vidinfo.frameWidth = width;
-	vidinfo.frameHeight = height;
-	vidinfo.orientation = 1;
-	vidinfo.bitDepth = FF_CAP_V_BITS_VIDEO;  */
 
   bool opened;
 

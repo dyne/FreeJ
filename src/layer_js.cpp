@@ -420,10 +420,10 @@ JS(layer_set_position) {
     
     GET_LAYER(Layer);
 
-    int new_x_position, new_y_position;
-    js_ValueToInt32(cx, argv[0], &new_x_position); 
-    js_ValueToInt32(cx, argv[1], &new_y_position); 
-    lay->set_position(new_x_position,new_y_position);
+    JS_ARG_NUMBER(x,0);
+    JS_ARG_NUMBER(y,1);
+
+    lay->set_position((int)x, (int)y);
 
     return JS_TRUE;
 }
@@ -455,14 +455,15 @@ JS(layer_get_x_position) {
 
     GET_LAYER(Layer);
 
-	return JS_NewNumberValue(cx, lay->geo.x, rval);
+    return JS_NewNumberValue(cx, (double)lay->geo.x, rval);
+
 }
 JS(layer_get_y_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     GET_LAYER(Layer);
 
-	return JS_NewNumberValue(cx, lay->geo.y, rval);
+    return JS_NewNumberValue(cx, (double)lay->geo.y, rval);
 }
 JS(layer_get_width) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -648,13 +649,14 @@ void js_layer_gc (JSContext *cx, JSObject *obj) {
 	if (l) {
 		func("JSvalcmp(%s): %p / %p Layer: %p", jc->name, OBJECT_TO_JSVAL(obj), l->data, l);
 		if(l->list) {
-			notice("JSgc: Layer %s/%s is still on stage", jc->name, l->name);
-			l->data = NULL;
+		  func("JSgc: Layer %s/%s is still on stage", jc->name, l->name);
+		  //l->data = NULL;
+		  //		  delete l;
 		} else {
-			notice("JSgc: Layer %s/%s is useless, deleting", jc->name, l->name);
-			l->data = NULL; // Entry~ calls free(data)
-			l->stop();
-			delete l;
+		  func("JSgc: Layer %s/%s is useless, deleting", jc->name, l->name);
+		  l->data = NULL; // Entry~ calls free(data)
+		  l->stop();
+		  delete l;
 		}
 	} else {
 		func("Mh, object(%s) has no private data", jc->name);

@@ -94,6 +94,7 @@ class Filter : public Entry {
  protected:
   void destruct(FilterInstance *inst);
   void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
+  int bytesize;
 
 };
 
@@ -116,6 +117,7 @@ class FilterInstance : public Entry {
   bool active;
   bool inuse;
 
+  unsigned intcore;
   void *core;
 
 };

@@ -43,11 +43,13 @@ function init() {
             try {
                 i = new ImageLayer(tile_x,tile_y);
                 i.open(images[curr_img]);
+		i.set_fps();
+		i.start();
                 add_layer(i);
                 i.set_position(tile_x*m, tile_y*n);
                 i.activate();
                 imgs[m][n] = i;
-                echo ("size " + i.get_width() + "x" + i.get_height() );
+		// echo ("size " + i.get_width() + "x" + i.get_height() );
             } catch (e) {
                 echo("Failed to open "  + e);
                 //echo("Failed to open " + images[curr_img] + ": " + e);
@@ -84,7 +86,7 @@ try {
     }
 } catch (e) {
     echo("mh, no joystick?! " + e);
-    quit();
+    //    quit();
 }
 
 last_js = new Array();
@@ -120,11 +122,11 @@ function max_speed () {
     if (sy < -max_s) sy=-max_s;
 }
 
-kbd = new KeyboardController();
-register_controller(kbd);
-kbd.released_q = function() { quit(); }
-kbd.released_a = next_img;
-kbd.released_z = prev_img;
+// kbd = new KeyboardController();
+// register_controller(kbd);
+// kbd.released_q = function() { quit(); }
+// kbd.released_a = next_img;
+// kbd.released_z = prev_img;
 
 function next_img() {
     //curr_img++;

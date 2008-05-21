@@ -44,32 +44,33 @@ kbd = new KeyboardController();
 kbd.pressed_esc = function() { running = false; }
 register_controller( kbd );
 
-geo = new GeometryLayer();
-geo.color(255,255,255,255);
-geo.set_blit("alpha");
-geo.set_blit_value(0.1);
-geo.start();
-geo.activate(true);
-add_layer(geo);
+star = new GeometryLayer();
+star.color(255,255,255,255);
+star.set_blit("alpha");
+//star.set_name("star.js");
+star.set_blit_value(0.1);
+//star.start();
+star.activate(true);
+add_layer(star);
 
-drawStar(geo,30,1);
+drawStar(star,30,1);
 
 srand();
 
 cc = 1;
 
-while(running) {
+bang = new TriggerController();
+register_controller(bang);
+bang.frame = function() {
+
     cc += 0.05;
 
-    geo.color(rand()%255, rand()%255, rand()%255, 0xff);
-    drawStar(geo, 30, Math.sin(cc));
+    star.color(rand()%255, rand()%255, rand()%255, 0xff);
+    drawStar(star, 30, Math.sin(cc));
 
     if(cc>4.0) {
 	cc = 1;
 	srand();
     }
-
-    run(0.01);
 }
 
-quit();

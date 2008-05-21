@@ -194,6 +194,11 @@ Filter::Filter(int type, void *filt)
   active = false;
   inuse = false;
 
+  freior = NULL;
+  freeframe = NULL;
+
+  bytesize = 0;
+
   // critical errors:
   if(!filt) error("Filter constructor received a NULL object");
   //  if(!filt->opened) error("Filter constructor received a Freior object that is not open");
@@ -228,51 +233,68 @@ Filter::Filter(int type, void *filt)
   case FREEFRAME:
     freeframe = (Freeframe*)filt;
 
+    set_name((char*)freeframe->info->pluginName);
+
     // init freeframe filter
-    freeframe->main(FF_INITIALISE, NULL, 0);
+    if(freeframe->main(FF_INITIALISE, NULL, 0).ivalue == FF_FAIL)
+      error("cannot initialise freeframe plugin %s",name);
     
     // TODO freeframe parameters
-
-    if(get_debug()>2)
-      freeframe->print_info();
-    set_name((char*)freeframe->info->pluginName);
-
-    if(get_debug()>2)
-      freeframe->print_info();
-    set_name((char*)freeframe->info->pluginName);
+    
+    //    if(get_debug()>2)
+    freeframe->print_info();
+    
+    break;
 
   default:
     error("filter type %u not supported",type);
     return;
   }
 
-
+  backend = type;
 
 }
 
 Filter::~Filter() {
-  delete freior;
+  if(freior) delete freior;
+  if(freeframe) delete freeframe;
 }
 
 FilterInstance *Filter::apply(Layer *lay) {
 
   FilterInstance *instance;
   instance = new FilterInstance(this);
-  instance->core = (void*)(*freior->f0r_construct)(lay->geo.w, lay->geo.h);
 
-  if(!instance->core) {
-    error("freior constructor returned NULL applying filter %s",name);
-    delete instance;
-    return NULL;
+  if(freior) {
+    instance->core = (void*)(*freior->f0r_construct)(lay->geo.w, lay->geo.h);
   }
+
+  if(freeframe) {
+    VideoInfoStruct vidinfo;
+    vidinfo.frameWidth = lay->geo.w;
+    vidinfo.frameHeight = lay->geo.h;
+    vidinfo.orientation = 1;
+    vidinfo.bitDepth = FF_CAP_32BITVIDEO;
+    instance->intcore = freeframe->main(FF_INSTANTIATE, &vidinfo, 0).ivalue;
+    if(instance->intcore == FF_FAIL) {
+      error("Filter %s cannot be instantiated", name);
+      delete instance;
+      return NULL;
+    }
+  }
+
+  
   errno=0;
   instance->outframe = (uint32_t*) calloc(lay->geo.size, 1);
   if(errno != 0) {
     error("calloc outframe failed (%i) applying filter %s",errno, name);
+    error("Filter %s cannot be instantiated", name);
     delete instance;
     return NULL;
   }
   
+  bytesize = lay->geo.size;
+
   lay->filters.append(instance);
 
   act("initialized filter %s on layer %s", name, lay->name);
@@ -288,7 +310,8 @@ char *Filter::description() {
   if(backend==FREIOR) {
     ret = (char*)freior->info.explanation;
   } else if(backend==FREEFRAME) {
-    // TODO freeframe
+    // TODO freeframe has no extentedinfostruct returned!?
+    ret = "freeframe VFX";
   }
   return ret;
 
@@ -316,21 +339,34 @@ char *Filter::get_parameter_description(int i) {
 }
 
 void Filter::destruct(FilterInstance *inst) {
-  if(inst->core)
-    if(backend==FREIOR) {
+
+  if(backend==FREIOR) {
+
+    if(inst->core) {
       (*freior->f0r_destruct)((f0r_instance_t*)inst->core);
       inst->core = NULL;
-    } else if(backend==FREEFRAME) {
-      // TODO freeframe filter desctruct
     }
+
+  } else if(backend==FREEFRAME) {
+
+    freeframe->main(FF_DEINSTANTIATE, NULL, inst->intcore);
+
+  }
 }
 
 void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
-    if(backend==FREIOR) {
-      (*freior->f0r_update)((f0r_instance_t*)inst->core, time, inframe, outframe);
-    } else if(backend==FREEFRAME) {
-      // TODO freeframe
-    }
+
+  if(backend==FREIOR) {
+
+    (*freior->f0r_update)((f0r_instance_t*)inst->core, time, inframe, outframe);
+
+  } else if(backend==FREEFRAME) {
+
+    jmemcpy(outframe,inframe,bytesize);
+
+    freeframe->main(FF_PROCESSFRAME, (void*)outframe, inst->intcore);
+
+  }
 
 }
 
@@ -340,8 +376,9 @@ FilterInstance::FilterInstance(Filter *fr)
   func("creating instance for filter %s",fr->name);
 
   proto = fr;
-
+  
   core = NULL;
+  intcore = 0;
   outframe = NULL;
   
   active = true;
@@ -351,10 +388,12 @@ FilterInstance::FilterInstance(Filter *fr)
 
 FilterInstance::~FilterInstance() {
   func("~FilterInstance");
+
   if(proto)
     proto->destruct(this);
+
   if(outframe) free(outframe);
-  outframe=NULL;
+
 }
 
 uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
@@ -362,6 +401,7 @@ uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
     error("void filter instance was called for process: %p", this);
     return inframe;
   }
+
   proto->update(this, fps, inframe, outframe);
   return outframe;
 }

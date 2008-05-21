@@ -89,7 +89,7 @@ int Freeframe::open(char *file) {
   // ... and here will segfault
   if ((plugmain(FF_GETPLUGINCAPS,
 		(LPVOID) FF_CAP_32BITVIDEO, 0)).ivalue != FF_TRUE) {
-    error("plugin %s: no 24 bit support", file);
+    func("plugin %s: no 32 bit support", file);
     dlclose(handle);
     handle = NULL;
     return 0;
@@ -101,13 +101,9 @@ int Freeframe::open(char *file) {
     handle = NULL;
     return 0;
   }
+
   // init is called by Filter class
-//   if ((plugmain(FF_INITIALISE, NULL, 0)).ivalue == FF_FAIL) {
-//     error("plugin %s: init failed", file);
-//     dlclose(handle);
-//     handle = NULL;
-//     return 0;
-//   }
+  //   (plugmain(FF_INITIALISE, NULL, 0)).ivalue {
 
   main = plugmain;
   info = pis;

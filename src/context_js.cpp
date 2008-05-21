@@ -250,8 +250,10 @@ JS(fullscreen) {
 
 JS(set_fps) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  int fps = JSVAL_TO_INT(argv[0]);
-  env->set_fps(fps);
+
+  JS_ARG_NUMBER(fps, 0);
+
+  env->set_fps((int)fps);
   return JS_TRUE;
 }
 

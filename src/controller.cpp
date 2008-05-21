@@ -33,9 +33,9 @@ Controller::Controller() {
 Controller::~Controller() {
 	func("%s this=%p",__PRETTY_FUNCTION__, this);
 	rem();
-	if (jsobj)
-		JS_SetPrivate(jsenv, jsobj, NULL);
-	jsobj = NULL;
+	//	if (jsobj)
+	  //		JS_SetPrivate(jsenv, jsobj, NULL);
+	//	jsobj = NULL;
 }
 
 char *Controller::get_name() {
