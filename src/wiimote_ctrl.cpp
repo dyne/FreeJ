@@ -57,7 +57,7 @@ JSFunctionSpec js_wii_ctrl_methods[] = {
   {"toggle_accel",   js_wii_ctrl_actaccel,   0},
   {"toggle_buttons", js_wii_ctrl_actbutt,    0},
   {"toggle_rumble",  js_wii_ctrl_rumble,     0},
-  {"toggle_led",    js_wii_ctrl_actleds,     1},
+  {"toggle_led",     js_wii_ctrl_actleds,    1},
 
   {0}
 };
@@ -98,7 +98,7 @@ JS(js_wii_ctrl_connect) {
 
     if(argc>0) {
       char *addr;
-      JS_ARG_STRING(addr,1);
+      JS_ARG_STRING(addr,0);
       wii->connect(addr);
     } else
       wii->connect(NULL);
@@ -175,7 +175,7 @@ void cwiid_callback(cwiid_wiimote_t *wii, int mesg_count,
 
 }
 
-void WiiController::accel(int nx, int ny, int nz) {
+void WiiController::accel(uint8_t nx, uint8_t ny, uint8_t nz) {
   // simple threshold
   int thresh = 1;
   if ( (x-nx > thresh) || (nx-x > thresh) ) x = nx;
@@ -213,6 +213,7 @@ bool WiiController::connect(char *hwaddr) {
   } else
     act("WiiMote connected");
   
+  cwiid_set_data(wiimote, (void*)this);
   if (cwiid_set_mesg_callback(wiimote, cwiid_callback)) {
     error("unable to set wiimote message callback");
     cwiid_close(wiimote);
@@ -260,47 +261,47 @@ int WiiController::dispatch() {
   return 1;
 }
 
-void WiiController::print_state(struct cwiid_state *state) {
+int WiiController::print_state() {
 	int i;
 	int valid_source = 0;
 
 	act("Report Mode:");
-	if (state->rpt_mode & CWIID_RPT_STATUS) act(" STATUS");
-	if (state->rpt_mode & CWIID_RPT_BTN) act(" BTN");
-	if (state->rpt_mode & CWIID_RPT_ACC) act(" ACC");
-	if (state->rpt_mode & CWIID_RPT_IR) act(" IR");
-	if (state->rpt_mode & CWIID_RPT_NUNCHUK) act(" NUNCHUK");
-	if (state->rpt_mode & CWIID_RPT_CLASSIC) act(" CLASSIC");
+	if (state.rpt_mode & CWIID_RPT_STATUS) act(" STATUS");
+	if (state.rpt_mode & CWIID_RPT_BTN) act(" BTN");
+	if (state.rpt_mode & CWIID_RPT_ACC) act(" ACC");
+	if (state.rpt_mode & CWIID_RPT_IR) act(" IR");
+	if (state.rpt_mode & CWIID_RPT_NUNCHUK) act(" NUNCHUK");
+	if (state.rpt_mode & CWIID_RPT_CLASSIC) act(" CLASSIC");
 	
 	act("Active LEDs:");
-	if (state->led & CWIID_LED1_ON) act(" 1");
-	if (state->led & CWIID_LED2_ON) act(" 2");
-	if (state->led & CWIID_LED3_ON) act(" 3");
-	if (state->led & CWIID_LED4_ON) act(" 4");
+	if (state.led & CWIID_LED1_ON) act(" 1");
+	if (state.led & CWIID_LED2_ON) act(" 2");
+	if (state.led & CWIID_LED3_ON) act(" 3");
+	if (state.led & CWIID_LED4_ON) act(" 4");
 
-	act("Rumble: %s", state->rumble ? "On" : "Off");
+	act("Rumble: %s", state.rumble ? "On" : "Off");
 
 	act("Battery: %d%%",
-	       (int)(100.0 * state->battery / CWIID_BATTERY_MAX));
+	       (int)(100.0 * state.battery / CWIID_BATTERY_MAX));
 
-	act("Buttons: %X", state->buttons);
+	act("Buttons: %X", state.buttons);
 
-	act("Acc: x=%d y=%d z=%d", state->acc[CWIID_X], state->acc[CWIID_Y],
-	       state->acc[CWIID_Z]);
+	act("Acc: x=%d y=%d z=%d", state.acc[CWIID_X], state.acc[CWIID_Y],
+	       state.acc[CWIID_Z]);
 
 	act("IR: ");
 	for (i = 0; i < CWIID_IR_SRC_COUNT; i++) {
-		if (state->ir_src[i].valid) {
+		if (state.ir_src[i].valid) {
 			valid_source = 1;
-			act("(%d,%d) ", state->ir_src[i].pos[CWIID_X],
-			                   state->ir_src[i].pos[CWIID_Y]);
+			act("(%d,%d) ", state.ir_src[i].pos[CWIID_X],
+			                   state.ir_src[i].pos[CWIID_Y]);
 		}
 	}
 	if (!valid_source) {
 		act("no sources detected");
 	}
 
-	switch (state->ext_type) {
+	switch (state.ext_type) {
 	case CWIID_EXT_NONE:
 		act("No extension");
 		break;
@@ -309,21 +310,22 @@ void WiiController::print_state(struct cwiid_state *state) {
 		break;
 	case CWIID_EXT_NUNCHUK:
 		act("Nunchuk: btns=%.2X stick=(%d,%d) acc.x=%d acc.y=%d "
-		       "acc.z=%d", state->ext.nunchuk.buttons,
-		       state->ext.nunchuk.stick[CWIID_X],
-		       state->ext.nunchuk.stick[CWIID_Y],
-		       state->ext.nunchuk.acc[CWIID_X],
-		       state->ext.nunchuk.acc[CWIID_Y],
-		       state->ext.nunchuk.acc[CWIID_Z]);
+		       "acc.z=%d", state.ext.nunchuk.buttons,
+		       state.ext.nunchuk.stick[CWIID_X],
+		       state.ext.nunchuk.stick[CWIID_Y],
+		       state.ext.nunchuk.acc[CWIID_X],
+		       state.ext.nunchuk.acc[CWIID_Y],
+		       state.ext.nunchuk.acc[CWIID_Z]);
 		break;
 	case CWIID_EXT_CLASSIC:
 		act("Classic: btns=%.4X l_stick=(%d,%d) r_stick=(%d,%d) "
-		       "l=%d r=%d", state->ext.classic.buttons,
-		       state->ext.classic.l_stick[CWIID_X],
-		       state->ext.classic.l_stick[CWIID_Y],
-		       state->ext.classic.r_stick[CWIID_X],
-		       state->ext.classic.r_stick[CWIID_Y],
-		       state->ext.classic.l, state->ext.classic.r);
+		       "l=%d r=%d", state.ext.classic.buttons,
+		       state.ext.classic.l_stick[CWIID_X],
+		       state.ext.classic.l_stick[CWIID_Y],
+		       state.ext.classic.r_stick[CWIID_X],
+		       state.ext.classic.r_stick[CWIID_Y],
+		       state.ext.classic.l, state.ext.classic.r);
 		break;
 	}
+	return 1;
 }

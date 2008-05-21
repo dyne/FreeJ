@@ -248,10 +248,10 @@ Entry **Linklist::completion(char *needle) {
   memset(compbuf,0,MAX_COMPLETION*sizeof(Entry*));
 
   /* check it */
-  Entry *ptr = first;
+  Entry *ptr = last;
   if(!ptr) return compbuf;
 
-  for( found=0, c=1 ; ptr ; c++ , ptr=ptr->next ) {
+  for( found=0, c=1 ; ptr ; c++ , ptr=ptr->prev ) {
     if(!len) { // 0 lenght needle: return the full list
       compbuf[found] = ptr;
       found++;

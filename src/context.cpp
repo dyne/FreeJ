@@ -586,7 +586,7 @@ void Context::set_fps(int fps) {
 void Context::rocknroll() {
   VideoEncoder *e;
   Layer *l;
-  bool need_audio = false;
+  //  bool need_audio = false;
 
   ///////////////////////////////////////////
   // Layers - start the threads to be started
@@ -600,28 +600,28 @@ void Context::rocknroll() {
     }
   
   // Iterate throught linked list of layers and start them
-  /*
+
   layers.lock();
   while (l) {
     if (!l->running) {
       if (l->start() == 0) {
-	while (!l->running) {
+	/*	while (!l->running) {
 	  jsleep(0,500);
 	  func("waiting %s layer thread to start", l->name);
-	}
+	  } */
 	l->active = start_running;
       }
       else { // problems starting thread
 	func ("Context::rocknroll() : error creating thread");
       }
     }
-
-    need_audio |= (l->running && l->use_audio);
+    
+    //    need_audio |= (l->running && l->use_audio);
     
     l = (Layer *)l->next;
   }
   layers.unlock();
-  */
+
   /////////////////////////////////////////////////////////////
   ///////////////////////////////////// end of layers rocknroll
 
@@ -646,22 +646,13 @@ void Context::rocknroll() {
       }
     }
 
-    need_audio |= (e->running && e->use_audio);
+    //    need_audio |= (e->running && e->use_audio);
 
     e = (VideoEncoder*)e->next;
   }
   encoders.unlock();
   //////////////////////////////////////////////////////////////
   //////////////////////////////////// end of encoders rocknroll
-
-  // start audio capture if needed by layer/encoders
-  if(need_audio) {
-
-    if(!audio)
-
-      audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
-
-  }
 
 }
 

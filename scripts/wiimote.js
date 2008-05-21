@@ -1,14 +1,6 @@
 // sample script for wiimote controller
 
 
-wii = new WiiController();
-register_controller(wii);
-
-geo = new GeometryLayer();
-geo.activate(true);
-geo.start();
-geo.set_fps(25);
-add_layer(geo);
 
 kbd = new KeyboardController();
 register_controller(kbd);
@@ -18,13 +10,26 @@ kbd.released_q = function() { quit(); }
 kbd.released_1 = function() { wii.toggle_led(1); }
 kbd.released_2 = function() { wii.toggle_led(2); }
 kbd.released_3 = function() { wii.toggle_led(3); }
+kbd.released_4 = function() { wii.toggle_led(4); }
+
+wii = new WiiController();
+
+wii.geo = new GeometryLayer(300,100);
+wii.geo.set_position(0,0);
+add_layer(wii.geo);
 
 echo("connecting wii");
 wii.connect();
 
-//register_controller(wii);
+register_controller(wii);
 
 wii.acceleration = function(x,y,z) {
+	draw_accel(this.geo,x,y,z);
+}
+
+wii.toggle_accel(true);
+
+function draw_accel(geo, x,y,z) {
     //    echo("accel x" + x + " y " + y + " z " + z);
     geo.color(0,0,0,0);
     geo.clear();
@@ -48,16 +53,38 @@ wii.acceleration = function(x,y,z) {
 function butt(b) {
 	echo("wii button " + b);
 }
-butts = new Array("button_1", "button_2");
 
-for (i in butts) {
-	wii[butts[i]] = function() {
-		butt(butts[i]);
-	}
+// echo("wii script finish 1");
+
+// wii2 = new WiiController();
+// echo("connecting wii2");
+// wii2.connect("00:19:1D:66:91:D3");
+
+// echo("connected wii2");
+// controllers.add(wii2);
+// wii2.toggle_accel(true);
+// wii2.toggle_buttons(true);
+
+// wii2.acceleration = function(x,y,z) {
+// 	draw_accel(this.geo,x,y,z);
+// }
+
+// wii2.button = function(button_no, state, mask, old_mask) {
+// 	echo("wii2 button " + button_no + " " + state + " " + mask + " " + old_mask);
+// }
+
+// wii2.geo = new GeometryLayer(300,100);
+// wii2.geo.set_position(0,100);
+// layers.add(wii2.geo);
+
+
+function wiiup(w) {
+	w.active(true);
+	w.toggle_accel(true);
+	w.toggle_buttons(true);
 }
 
-echo("wii script finish");
-
+//echo("wii2 script finish 2");
 /*
    JSCall("button_1", 0, NULL, &res);
    JSCall("button_2",  0, NULL, &res);

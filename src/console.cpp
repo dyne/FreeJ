@@ -335,10 +335,34 @@ static int filter_comp(char *cmd) {
     ::notice("%s :: %s",filt->name,filt->description());
     snprintf(cmd,511,"%s",res[0]->name); c=1;
   } else { // list all matches
-    for(c=0;res[c];c++) {
+    for(c=0;res[c];c+=4) {
+      char tmp[256];
+
       filt = (Filter*)res[c];
-      if(!filt) continue;
-      ::act("%s :: %s",filt->name,filt->description());
+      if(!filt) break;
+      snprintf(tmp,256,"%s", filt->name);
+
+      filt = (Filter*)res[c+1];
+      if(filt) {
+	strncat(tmp, "\t", 256);
+	strncat(tmp, filt->name, 256);
+      }
+
+      filt = (Filter*)res[c+2];
+      if(filt) {
+	strncat(tmp, "\t", 256);
+	strncat(tmp, filt->name, 256);
+      }
+
+      filt = (Filter*)res[c+3];
+      if(filt) {
+	strncat(tmp, "\t", 256);
+	strncat(tmp, filt->name, 256);
+      }
+
+      //      ::act("%s :: %s",filt->name,filt->description());
+
+      ::act("%s",tmp);
     }
   }
   return c;

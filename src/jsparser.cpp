@@ -325,7 +325,7 @@ int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	}
 
 	res = JSVAL_VOID;
-	notice("%s eval: %p", __PRETTY_FUNCTION__, obj);
+	func("%s eval: %p", __PRETTY_FUNCTION__, obj);
 	eval_res = JS_EvaluateScript(cx, obj,
 		buf, len, script_file, 0, &res);
 	// if anything more was wrong, our ErrorReporter was called!

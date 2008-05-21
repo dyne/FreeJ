@@ -42,24 +42,26 @@ class WiiController: public Controller {
 
   bool connect(char *hwaddr);
 
-  void accel(int nx, int ny, int nz);
+  void accel(uint8_t nx, uint8_t ny, uint8_t nz);
+  void button(uint16_t buttons);
 
   Context *freej;
 
-  /* TODO: support for multiple wiimotes
-     can be done, but i don't need it ATM
-     if needed: ask. -jrml */
+  int get_battery();
 
-  void print_state(struct cwiid_state *state); // debug
+  int print_state(); // debug
 
   cwiid_wiimote_t  *wiimote;
+  int  x,  y,  z;
+  cwiid_state state;
 
  private:
 
-  uint8_t x,y,z;
+  int nx, ny, nz;
 
+  uint16_t newbutt;
+  uint16_t oldbutt;
 
-  cwiid_state state;
   // todo nunchuk_state and classic_state extensions
 
   bdaddr_t bdaddr;

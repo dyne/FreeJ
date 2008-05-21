@@ -241,8 +241,8 @@ Filter::Filter(int type, void *filt)
     
     // TODO freeframe parameters
     
-    //    if(get_debug()>2)
-    freeframe->print_info();
+    if(get_debug()>2)
+      freeframe->print_info();
     
     break;
 
