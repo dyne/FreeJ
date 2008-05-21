@@ -26,6 +26,7 @@
 #include <config.h>
 
 ViewPort::ViewPort() {
+  opengl = false;
 }
 
 ViewPort::~ViewPort() {

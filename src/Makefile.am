@@ -74,6 +74,7 @@ freej_SOURCES = \
 	screen.cpp	\
 	sdl_screen.cpp 	\
 	sdlgl_screen.cpp \
+	gl_screen.cpp   \
 \
 	controller.cpp  \
 	kbd_ctrl.cpp	\
@@ -96,6 +97,9 @@ freej_SOURCES = \
 	oggtheora_encoder.cpp \
 	impl_video_encoders.cpp \
 	xgrab_layer.cpp
+
+noinst_LIBRARIES = libfreej.a
+libfreej_a_SOURCES = $(freej_SOURCES)
 
 freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \

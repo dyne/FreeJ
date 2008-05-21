@@ -164,7 +164,7 @@ bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
   else
 #endif
 
-    screen = new SdlScreen();
+  screen = new SdlScreen();
   
   if (! screen->init (wx, hx)) {
     error ("Can't initialize the viewport");

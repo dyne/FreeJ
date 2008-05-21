@@ -34,7 +34,6 @@
 #include <screen.h>
 #include <jsync.h>
 
-
 class Context;
 class AudioCollector;
 
@@ -157,6 +156,8 @@ class Layer: public Entry, public JSyncThread {
   ///< javascript layer constructor
   void layer_gc(JSContext *cx, JSObject *obj);
 
+  unsigned int textureID; ///< opengl texture id
+
  protected:
 
   void _init(int wdt, int hgt);
@@ -174,6 +175,8 @@ class Layer: public Entry, public JSyncThread {
   Context *env; ///< private pointer to the environment filled at _init()
 
  private:
+
+
 
   char alphastr[5];
 

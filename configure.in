@@ -483,10 +483,11 @@ AC_SUBST(LUBRIFY_CFLAGS)
 dnl ==============================================================
 dnl CHECK TO USE OPENGL VIDEO OUTPUT
 dnl ==============================================================
+OPENGL_LIB=""
 AC_ARG_ENABLE(opengl,
 	       [  --enable-opengl         experimental opengl rendering (no)],
 	       [ 
-		if test ! x$enableval = xyes; then
+		if test x$enableval = xyes; then
 		    use_opengl=yes 
 		    OPENGL_LIB="-lGL -lGLU"
 		    AC_DEFINE(WITH_OPENGL,1,
@@ -495,7 +496,7 @@ AC_ARG_ENABLE(opengl,
 			use_opengl=no
 		    fi
 		    ],
-		    [ use_opengl=no ]
+		    [ use_opengl=yes ]
 		    )
 AC_SUBST(OPENGL_LIB)
 
@@ -655,6 +656,11 @@ echo "  CFLAGS: $SDL_CFLAGS"
 if test x$have_x11 = xyes; then
 echo "= X11"
 echo "  LIBS  : $X11_LIBS"
+fi
+
+if test x$use_opengl = xyes; then
+echo "= OpenGL"
+echo "= LIBS  : $OPENGL_LIB"
 fi
 
 if test x$have_freetype2 = xyes; then

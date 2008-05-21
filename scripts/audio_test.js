@@ -3,10 +3,13 @@
 // also check the values (samplesize and samplerate) to match your conf
 // -jrml
 
-H=600;
-M=H/128;
-W=H/(H/80);
-//W=600
+H=400
+W=64
+M=4;
+
+//H=600;
+//W=H/(H/80);
+
 
 set_resolution(W,H);
 

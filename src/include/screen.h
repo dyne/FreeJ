@@ -88,6 +88,9 @@ class ViewPort {
   int bpp;
   int size, pitch;
   int magnification;
+  
+  // opengl special blit
+  bool opengl;
 
   /* returns pointer to pixel
      use it only once and then move around from there

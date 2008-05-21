@@ -174,10 +174,11 @@ bool Layer::cafudda() {
     signal_feed();
     return(false);
   }
+
 	
   blitter.blit();
   unlock();
-
+  
   //signal_feed();
 
   return(true);

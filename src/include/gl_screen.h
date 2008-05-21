@@ -21,26 +21,27 @@
 
 #include <config.h>
 
-#ifdef WITH_OPENGL
-#ifndef __SDLGL_SCREEN_H__
-#define __SDLGL_SCREEN_H__
+#ifndef __GL_SCREEN_H__
+#define __GL_SCREEN_H__
 
-#include <SDL.h>
-#include <SDL_opengl.h>
-#include <gl_screen.h>
+//#include <SDL.h>
+//#include <SDL_opengl.h>
+
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include <screen.h>
 
-/* struct Vertex */
-/* { */
-/*     float tu, tv; */
-/*     float x, y, z; */
-/* }; */
+struct Vertex
+{
+    float tu, tv;
+    float x, y, z;
+};
 
-
-class SdlGlScreen : public ViewPort {
+class GlScreen : public ViewPort {
  public:
-  SdlGlScreen();
-  ~SdlGlScreen();
+  GlScreen();
+  ~GlScreen();
 
   bool init(int widt, int height);
   void set_magnification(int algo);
@@ -60,31 +61,28 @@ class SdlGlScreen : public ViewPort {
   float rotation;
   float zoom;
 
+  // opengl stuff
+  bool glblit(Layer *layer);
+  bool glblitX(Layer *layer);
+  GLuint texturize(Layer *layer);
+  Vertex g_quadVertices[4];
+  bool create_gl_context;
+
   // whis is the main window surface
   SDL_Surface *surface;
   void *coords(int x, int y);
-
-  // opengl stuff
-  bool glblit(Layer *layer);
-  GLuint texturize(Layer *layer);
-  Vertex g_quadVertices[4];
 
   bool lock();
   bool unlock();
  
  private:
   int setres(int wx, int hx);
-  SDL_Surface *emuscr;
-
-  GLuint textureID;
   
-  bool dbl;
-  uint32_t sdl_flags;
+  int glwin;
 
   // check gl error and print it
   bool check_opengl_error();
 
 };
 
-#endif 
 #endif 
