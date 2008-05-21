@@ -112,6 +112,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/lo/liblo.a \
               $(top_srcdir)/lib/cwiid/libwiimote.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
+	         @X11_LIBS@ \
 		 @XIPH_LIBS@ \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
@@ -124,5 +125,6 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
                  @SNDFILE_LIBS@ \
 		 @FFMPEG_LIBS@ \
 		 @X11_LIBS@ \
-		 @BLUEZ_LIBS@
+		 @BLUEZ_LIBS@ \
+		 @OPENGL_LIB@
 

@@ -23,8 +23,13 @@
 #include <linklist.h>
 #include <freej.h>
 
+// supported filter types
+#define FREIOR 1
+#define FREEFRAME 2
+
 class Layer;
 class Freior;
+class Freeframe;
 class FilterInstance;
 class Parameter;
 
@@ -65,7 +70,7 @@ class Parameter : public Entry {
 class Filter : public Entry {
   friend class FilterInstance;
  public:
-  Filter(Freior *f);
+  Filter(int type, void *filt);
   ~Filter();
 
   FilterInstance *apply(Layer *lay);
@@ -81,6 +86,7 @@ class Filter : public Entry {
   bool inuse;
 
   Freior *freior;
+  Freeframe *freeframe;
   
   Linklist parameters;
 

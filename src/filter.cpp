@@ -25,6 +25,7 @@ $Id: $
 #include <filter.h>
 
 #include <frei0r_freej.h>
+#include <freeframe_freej.h>
 
 #include <jutils.h>
 
@@ -185,7 +186,7 @@ static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx
 
 }
 
-Filter::Filter(Freior *f) 
+Filter::Filter(int type, void *filt) 
   : Entry() {
   int i;
 
@@ -194,33 +195,59 @@ Filter::Filter(Freior *f)
   inuse = false;
 
   // critical errors:
-  if(!f) error("Filter constructor received a NULL Freior object");
-  if(!f->opened) error("Filter constructor received a Freior object that is not open");
+  if(!filt) error("Filter constructor received a NULL object");
+  //  if(!filt->opened) error("Filter constructor received a Freior object that is not open");
 
+  switch(type) {
 
-  (*f->f0r_init)();
+  case FREIOR:
+    freior = (Freior*)filt;
+    (*freior->f0r_init)();
 
-  // Get the list of params.
-  f->param_infos.resize(f->info.num_params);
-  for (i = 0; i < f->info.num_params; ++i) {
+    // Get the list of params.
+    freior->param_infos.resize(freior->info.num_params);
+    for (i = 0; i < freior->info.num_params; ++i) {
+      
+      (*freior->f0r_get_param_info)(&freior->param_infos[i], i);
+      
+      Parameter *param = new Parameter(freior->param_infos[i].type);
+      strncpy(param->name, freior->param_infos[i].name, 255);
+      
+      param->description = freior->param_infos[i].explanation;
+      param->filter_func = set_frei0r_parameter;
+      parameters.append(param);
+    }
 
-    (*f->f0r_get_param_info)(&f->param_infos[i], i);
+    if(get_debug()>2)
+      freior->print_info();
+    
+    set_name((char*)freior->info.name);
+    
+    break;
 
-    Parameter *param = new Parameter(f->param_infos[i].type);
-    strncpy(param->name, f->param_infos[i].name, 255);
+  case FREEFRAME:
+    freeframe = (Freeframe*)filt;
 
-    param->description = f->param_infos[i].explanation;
-    param->filter_func = set_frei0r_parameter;
-    parameters.append(param);
+    // init freeframe filter
+    freeframe->main(FF_INITIALISE, NULL, 0);
+    
+    // TODO freeframe parameters
+
+    if(get_debug()>2)
+      freeframe->print_info();
+    set_name((char*)freeframe->info->pluginName);
+
+    if(get_debug()>2)
+      freeframe->print_info();
+    set_name((char*)freeframe->info->pluginName);
+
+  default:
+    error("filter type %u not supported",type);
+    return;
   }
 
-  freior = f;
-
-  if(get_debug()>2)
-    freior->print_info();
 
 
-  set_name((char*)f->info.name);
 }
 
 Filter::~Filter() {

@@ -70,7 +70,7 @@ int Freior::open(char *file) {
 
   // return if error
   if( dlerror() ) {
-    warning("not a valid frei0r plugin: %s", file);
+    func("not a valid frei0r plugin: %s", file);
     // don't forget to close
     dlclose(handle);
     handle = NULL;

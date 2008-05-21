@@ -33,7 +33,7 @@
 #include <context.h>
 #include <jutils.h>
 #include <frei0r_freej.h>
-
+#include <freeframe_freej.h>
 
 
 Plugger::Plugger() {
@@ -70,14 +70,14 @@ int Plugger::refresh(Context *env) {
   int found;
   char *path = _getsearchpath();
 
-  Freior *fr;
-
+  
   notice("serching available plugins");
  
   if(!path) { warning("can't find any valid plugger directory"); return(-1); }
 
   dir = strtok(path,":");
 
+  // scan for all available effects
   do {
 
       found = scandir(dir,&filelist,selector,alphasort);
@@ -90,38 +90,71 @@ int Plugger::refresh(Context *env) {
 	char temp[256];
 	
 	snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
-    free(filelist[found]);
+	free(filelist[found]);
 
-	fr = new Freior();
-	if( ! fr->open(temp) ) {
-	  delete fr; continue;
+	{
+	  Freior *fr = new Freior();
+	  
+	  if( ! fr->open(temp) ) {
+	    delete fr;
+	  } else { // freior effect found
+	    // check what kind of plugin is and place it
+	    if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
+	      
+	      Filter *filt = new Filter(FREIOR,fr);
+	      env->filters.append(filt);
+	      
+	      func("found frei0r filter: %s (%p)", filt->name, fr);
+	      continue;
+
+	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {
+	      
+	      Filter *filt = new Filter(FREIOR,fr);
+	      env->generators.append(filt);
+	      
+	      func("found frei0r generator: %s (%p)", filt->name, fr);
+	      continue;
+
+	    } else {
+	      func("frei0r plugin of type %i not supported (yet)",
+		   fr->info.plugin_type);
+	    }
+	  }
 	}
 
+	{
+	  Freeframe *fr = new Freeframe();
+	  if( ! fr->open(temp) ) {
+	    delete fr;
+	  } else { // freeframe effect found
+	    // check what kind of plugin is and place it
+	    if(fr->info->pluginType == FF_EFFECT) {
+	      
+	      Filter *filt = new Filter(FREEFRAME, fr);
+	      env->filters.append(filt);
+	      
+	      func("found freeframe filter: %s (%p)",
+		   fr->info->pluginName, fr);
+	      continue;
 
-	// check what kind of plugin is and place it
-	if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
+	    } else if(fr->info->pluginType == FF_SOURCE) {
+	      
+	      Filter *filt = new Filter(FREEFRAME, fr);
+	      env->generators.append(filt);
+	      
+	      func("found freeframe generator: %s (%p)",
+		   fr->info->pluginName, fr);
+	      continue;
 
-	  Filter *filt = new Filter(fr);
-	  env->filters.append(filt);
-
-	  func("found frei0r filter: %s (%p)", filt->name, fr);
-
-	} else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {
-
-	  Filter *filt = new Filter(fr);
-	  env->generators.append(filt);
-
-	  func("found frei0r generator: %s (%p)", filt->name, fr);
-	
-	} else {
-	  func("frei0r plugin of type %i not supported (yet)",
-	       fr->info.plugin_type);
+	    }
+	  }
 	}
 
 	if(found<0) break;
       }
       
   } while((dir = strtok(NULL,":")));
+
   free(filelist);
 
   act("filters found: %u", env->filters.len());
