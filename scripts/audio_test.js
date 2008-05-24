@@ -18,10 +18,10 @@ set_resolution(W,H);
 
 audio = new AudioJack("alsaplayer", 2048, 44100);
 
-// encoder = new VideoEncoder(10, 64000, 5, 24000);
-// encoder.add_audio(audio);
-// register_encoder(encoder);
-// encoder.start_filesave("prova.ogg");
+//encoder = new VideoEncoder(10, 64000, 5, 24000);
+//encoder.add_audio(audio);
+//register_encoder(encoder);
+//encoder.start_filesave("prova.ogg");
 
 geo = new GeometryLayer();
 geo.activate(true);

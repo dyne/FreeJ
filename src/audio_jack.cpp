@@ -15,6 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+#include <config.h>
+#ifdef WITH_SOUND
+
 #include <stdio.h>
 #include <limits.h>
 
@@ -319,3 +322,6 @@ void JackClient::SetOutputBuf(int ID, float* s)
 	if(m_OutputPortMap.find(ID)!=m_OutputPortMap.end()) m_OutputPortMap[ID]->Buf=s;
 	else error("Could not find port ID %u", ID);
 }
+
+
+#endif

@@ -141,13 +141,13 @@ if (-1 == ioctl(dev, VIDIOCGPICT, &grab_pic)) {
 
   palette = 0;
   func("v4l: probing color formats");
-  TRY_VIDEO_PALETTE(VIDEO_PALETTE_RGB32)
+  TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUV420P)
   if(palette == 0) {
     TRY_VIDEO_PALETTE(VIDEO_PALETTE_RGB24) }
   if(palette == 0) {
-    TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUV422P) }
+    TRY_VIDEO_PALETTE(VIDEO_PALETTE_RGB32) }
   if(palette == 0) {
-    TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUV420P) }
+    TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUV422P) }
   if(palette == 0) {
     TRY_VIDEO_PALETTE(VIDEO_PALETTE_YUYV) }
 //if(palette == 0) {

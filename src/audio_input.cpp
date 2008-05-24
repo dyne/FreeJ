@@ -19,10 +19,13 @@
  *
  */
 
+#include <config.h>
+#ifdef WITH_SOUND
+
 #include <stdlib.h>
 #include <string.h>
 
-#include <config.h>
+
 #include <audio_input.h>
 #include <jutils.h>
 
@@ -60,3 +63,4 @@ bool AudioInput::init() {
 
   
 
+#endif

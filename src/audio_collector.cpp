@@ -14,6 +14,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+#include <config.h>
+#ifdef WITH_SOUND
+
 #include <limits.h>
 #include <iostream>
 //#include <sndfile.h>
@@ -254,3 +257,5 @@ void AudioCollector::AudioCallback(void *Context, unsigned int Size)
 {
 	((AudioCollector*)Context)->AudioCallback_i(Size);
 }
+
+#endif

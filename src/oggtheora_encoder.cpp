@@ -193,6 +193,48 @@ int OggTheoraEncoder::encode_frame() {
 
 }
 
+/* function below taken from ccvt_misc.c
+   CCVT: ColourConVerT: simple library for converting colourspaces
+   Copyright (C) 2002 Nemosoft Unv. */
+inline void ccvt_yuyv_420p(int width, int height,
+			   const void *src, void *dsty,
+			   void *dstu, void *dstv) {
+  register int n, l, j;
+  register unsigned char *dy, *du, *dv;
+  register unsigned char *s1, *s2;
+  
+  dy = (unsigned char *)dsty;
+  du = (unsigned char *)dstu;
+  dv = (unsigned char *)dstv;
+  s1 = (unsigned char *)src;
+  s2 = s1; // keep pointer
+  n = width * height;
+  for (; n > 0; n--) {
+    *dy = *s1;
+    dy++;
+    s1 += 2;
+  }
+  
+  /* Two options here: average U/V values, or skip every second row */
+  s1 = s2; // restore pointer
+  s1++; // point to U
+  for (l = 0; l < height; l += 2) {
+    s2 = s1 + width * 2; // odd line
+    for (j = 0; j < width; j += 2) {
+      *du = (*s1 + *s2) / 2;
+      du++;
+      s1 += 2;
+      s2 += 2;
+      *dv = (*s1 + *s2) / 2;
+      dv++;
+      s1 += 2;
+      s2 += 2;
+    }
+    s1 = s2;
+  }
+}
+
+
 
 bool OggTheoraEncoder::feed_video() {  
   /* Convert picture from rgb to yuv420 planar 

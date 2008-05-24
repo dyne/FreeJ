@@ -12,7 +12,6 @@ param[2] = new Param(this, "pz", 100, 150, 0, 1000, 500);
 
 
 wii = new WiiController();
-register_controller(wii);
 
 x = 100;
 y = 100;
@@ -62,13 +61,15 @@ function drawStar(lay, s_mul, s2_mul) {
 }
 
 
-wii.connect();
+if(wii.connect())
+    register_controller(wii);
+
 wii.toggle_accel();
 
-running = true;
+
 kbd = new KeyboardController();
 kbd.pressed_esc = function() { quit(); }
-
+kbd.released_q = function() { quit(); }
 register_controller( kbd );
 
 geo = new GeometryLayer();

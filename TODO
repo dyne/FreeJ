@@ -1,17 +1,17 @@
 
+  rewrite video4linux layer with libunicap
+
   expand the blitter.cpp with possibility for layer2layer blit
 
   console rewrite as controller (accessing linklists for completion)
 
   dump a screenshot of a layer in javascript: layer.dumpfile()
 
-  rewrite video4linux layer with libunicap
 
-  fix TBT layer, colors on text
+  write TBT layer in javascript, with colors for text
 
-  goil revision of threading and timing
 
-  jrml implement OSC programmable controller
+  write a separate GUI to control freej via OSC
 
   jrml sound frequency and beat parametrization (get harmonics from fluxus)
 
@@ -19,7 +19,11 @@
 
   vvv rewrite movielayer with new ffmpeg or openMLT libs
 
-  *** write a separate GUI to control freej via OSC
+  ^^^ cairo layers: poligons and svg - SDL_gfx rocks
+
+  ** jrml implement OSC programmable controller
+
+  *** goil revision of threading and timing
 
   *** complete and refine the Iterator class
 
@@ -30,8 +34,6 @@
   *** build more scripts
 
   *** 8bit geometrical mask blits and fades
-
-  vvv cairo layers: poligons and svg - SDL_gfx rocks
 
   vvv libvisual layer / unstable library. Goom layer is done
 

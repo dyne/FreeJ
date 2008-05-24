@@ -12,10 +12,11 @@ INCLUDES = -I$(top_srcdir)/src/include \
 	   -I$(top_srcdir)/lib/flash \
 	   -I$(top_srcdir)/lib/goom \
 	   -I$(top_srcdir)/lib/cwiid \
-           -I/usr/include/slang \
-	   @XIPH_INCLUDE@
+           -I/usr/include/slang
 
-AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ -freg-struct-return \
+#-freg-struct-return is to compile an host compatible with freeframe dso
+AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ \
+	      -freg-struct-return \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
@@ -117,12 +118,11 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @STATIC_LIBS@ \
 		 @OPENGL_LIB@ \
 		 @SDL_LIBS@ \
+		 @FLASH_LIBS@ \
 		 @FT2_LIBS@ \
-                 @FLASH_LIBS@ \
                  @ALSA_LIBS@ \
 		 @JACK_LIBS@ \
                  @FFTW_LIBS@ \
-                 @SNDFILE_LIBS@ \
 		 @FFMPEG_LIBS@ \
 		 @X11_LIBS@ \
 		 @BLUEZ_LIBS@ \

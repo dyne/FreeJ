@@ -9,6 +9,6 @@ SUBDIRS = 	ccvt			\
 		flash			\
 		goom			\
 		frei0r			\
-		cwiid			\
+		@CWIID_DIR@             \
 		@FLASH_DIR@
 

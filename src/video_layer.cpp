@@ -138,7 +138,8 @@ bool VideoLayer::open(char *file) {
     av_format_par -> frame_rate      = 25;
     av_format_par -> frame_rate_base = 1;
 #endif
-    av_format_par -> device          = file;
+    // field removed in recent ffmpeg API (todo: check LIBAVCODEC_BUILD)
+    //    av_format_par -> device          = file;
     av_format_par -> standard        = "pal";
     //	av_format_par->channel=0;
     file="";

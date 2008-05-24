@@ -21,11 +21,14 @@
  *
  */
 
+#include <config.h>
+#ifdef WITH_BLUEZ
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <config.h>
+
 
 #include <wiimote_ctrl.h>
 
@@ -96,12 +99,16 @@ JS(js_wii_ctrl_connect) {
     WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
     if(!wii) JS_ERROR("Wii core data is NULL");
 
+    *rval = JSVAL_FALSE;
+
     if(argc>0) {
       char *addr;
       JS_ARG_STRING(addr,0);
-      wii->connect(addr);
+      if(wii->connect(addr))
+	*rval = JSVAL_TRUE;
     } else
-      wii->connect(NULL);
+      if(wii->connect(NULL))
+	*rval = JSVAL_TRUE;
     
     return JS_TRUE;
 }
@@ -329,3 +336,5 @@ int WiiController::print_state() {
 	}
 	return 1;
 }
+
+#endif

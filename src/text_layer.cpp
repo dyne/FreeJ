@@ -19,6 +19,9 @@
  *
  */
 
+#include <config.h>
+#ifdef WITH_FT2
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -26,7 +29,6 @@
 #include <errno.h>
 #include <dirent.h>
 
-#include <config.h>
 #include <context.h>
 #include <text_layer.h>
 #include <jutils.h>
@@ -270,3 +272,5 @@ Program received signal SIGSEGV, Segmentation fault.
 
 
 */
+
+#endif
