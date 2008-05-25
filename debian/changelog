@@ -1,3 +1,21 @@
+freej (0.10-ppa2) hardy; urgency=low
+
+  * fixing debian/rules to make clean in source package
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  25 May 2008 23:08:00 +0200
+
+freej (0.10-ppa1) hardy; urgency=low
+
+  * fixing dependencies while testing launchpad PPA
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  25 May 2008 22:15:35 +0200
+
+freej (0.10) hardy; urgency=low
+
+  * new release, testing build on hardy through launchpad
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  25 May 2008 21:53:35 +0200
+
 freej (0.9.1-0dyne1) feisty; urgency=low
 
   * version bump ... fresh from svn r943
