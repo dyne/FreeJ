@@ -1,3 +1,15 @@
+freej (0.10-ppa4) hardy; urgency=low
+
+  * fixing debian/rules to make PPA source package #3
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 00:39:00 +0200
+
+freej (0.10-ppa3) hardy; urgency=low
+
+  * fixing debian/rules to make clean in source package #2
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  25 May 2008 23:50:00 +0200
+
 freej (0.10-ppa2) hardy; urgency=low
 
   * fixing debian/rules to make clean in source package
@@ -212,3 +224,4 @@ freej (0.3.1-1) unstable; urgency=low
 
  -- Guido Trotter <ultrotter@quaqua.net>  Mon, 24 Jun 2002 17:47:53 +0200
 
+ 

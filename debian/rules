@@ -26,8 +26,7 @@ endif
 config.status: configure
 	dh_testdir
 	# Add here commands to configure the package.
-	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info \
-		--enable-dynamic-ffmpeg
+	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info
 
 
 build: patch-stamp build-stamp
@@ -37,9 +36,10 @@ build-stamp:  config.status
 	dh_testdir
 
 	# Add here commands to compile the package.
-	$(MAKE)
+	./configure
+	$(MAKE) -k
 	# scripting doc
-	make -C doc/scripting
+	make -k -C doc/scripting
 
 
 	touch build-stamp
