@@ -116,19 +116,22 @@ INSTALL	= $(DIST)/bin/nsinstall
 CP = cp
 endif
 
-ifdef BUILD_OPT
-OPTIMIZER  = -O
-DEFINES    += -UDEBUG -DNDEBUG -UDEBUG_$(USER)
-OBJDIR_TAG = _OPT
-else
-ifdef USE_MSVC
-OPTIMIZER  = -Zi
-else
-OPTIMIZER  = -g
-endif
-DEFINES    += -DDEBUG -DDEBUG_$(USER)
-OBJDIR_TAG = _DBG
-endif
+# ifdef BUILD_OPT
+# OPTIMIZER  = -O
+# DEFINES    += -UDEBUG -DNDEBUG -UDEBUG_$(USER)
+# OBJDIR_TAG = _OPT
+# else
+# ifdef USE_MSVC
+# OPTIMIZER  = -Zi
+# else
+# OPTIMIZER  = -g
+# endif
+# DEFINES    += -DDEBUG -DDEBUG_$(USER)
+# OBJDIR_TAG = _DBG
+# endif
+
+OPTIMIZER = -O2 -fexpensive-optimizations -fomit-frame-pointer -ffast-math
+
 
 SO_SUFFIX = so
 

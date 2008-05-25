@@ -141,7 +141,7 @@ AC_SUBST(SDL_CFLAGS)
 dnl ==============================================================
 dnl Check if there is FREETYPE2
 dnl ==============================================================
-PKG_CHECK_MODULES(FT2, freetype,
+PKG_CHECK_MODULES(FT2, freetype2,
                   have_freetype2=yes, have_freetype2=no)
 if test x$have_freetype2 = xyes; then
    AC_DEFINE(WITH_FT2,1,[define if linking freetype for text rendering])
@@ -239,88 +239,6 @@ if test x$have_ffmpeg = xyes; then
 else
    AC_MSG_RESULT(not found)
 fi
-
-dnl ==============================================================
-dnl FFMPEG STATIC
-dnl ==============================================================
-AC_MSG_CHECKING(for embedding static ffmpeg libavcodec)
-AC_ARG_WITH(ffmpeg-static,
-[  --with-ffmpeg-static    embed ffmpeg libavcodec as static library],
-[if test -r "$withval"; then
-  AVCODEC_STATIC_DIR="`find $withval -name 'libavcodec'`"
-  AVCODEC_STATIC_LIB="$AVCODEC_STATIC_DIR/libavcodec.a"
-  AVFORMAT_STATIC_DIR="`find $withval -name 'libavformat'`"
-  AVFORMAT_STATIC_LIB="$AVFORMAT_STATIC_DIR/libavformat.a"
-  AVUTILS_STATIC_DIR="`find $withval -name 'libavutils'`"
-  AVUTILS_STATIC_LIB="$AVFORMAT_STATIC_DIR/libavutils.a"
-  if test ! -r "$AVCODEC_STATIC_LIB"; then
-    AC_MSG_RESULT(no)
-    echo "!! $AVCODEC_STATIC_LIB not found: you must compile a static library of libavcodec"
-  elif test ! -r "$AVFORMAT_STATIC_LIB"; then
-    AC_MSG_RESULT(no)
-    echo "!! $AVFORMAT_STATIC_LIB not found: you must compile a static library of libavformat"
-  else
-    AC_MSG_RESULT(yes)
-    ffmpeg_static=$withval;
-    AC_DEFINE(WITH_FFMPEG,1,[compiling movie layer with static ffmpeg])
-    FFMPEG_LIBS="$AVCODEC_STATIC_LIB $AVFORMAT_STATIC_LIB $AVUTILS_STATIC_LIB"
-  fi
-
- else
-   AC_MSG_RESULT(no)
- fi
-],[AC_MSG_RESULT(no)])
-
-AC_SUBST(FFMPEG_LIBS)
-
-dnl ==============================================================
-dnl AVCODEC AVFORMAT STUFF
-dnl ==============================================================
-
-dnl FFMPEG_SUBDIRS=""
-dnl FFMPEG_LIBS=""
-dnl FFMPEG_CFLAGS=""
-dnl AVCODEC_ARCH=""
-
-dnl if test x$static_ffmpeg = xyes ; then
-
-dnl    FFMPEG_LIBS="${ffmpeg_dir}/libavformat/libavformat.a ${ffmpeg_dir}/libavcodec/libavcodec.a ${ffmpeg_dir}/libpostproc/libpostproc.a ${ffmpeg_dir}/libswscale/libswscale.a ${ffmpeg_dir}/libavutil/libavutil.a"
-
-dnl    FFMPEG_CFLAGS="-I${ffmpeg_dir}/libavformat -I${ffmpeg_dir}/libavcodec -I${ffmpeg_dir}/libavutil"
-
-
-dnl elif test x$dynamic_ffmpeg = xyes ; then
-dnl    PKG_CHECK_MODULES(FFMPEG, libavcodec libavformat libavutil,
-dnl    	             have_ffmpeg=yes, have_ffmpeg=no)
-dnl    if test x$have_ffmpeg = xyes; then
-dnl       FFMPEG_LIBS="$FFMPEG_LIBS -L/opt/video/lib"
-dnl       AC_MSG_RESULT(dynamically)
-dnl       AC_DEFINE(WITH_FFMPEG,1,
-dnl 		[define if compiling movie layer linking to ffmpeg libavcodec])
-dnl    else
-dnl       AC_MSG_RESULT(not found)
-dnl    fi
-dnl else
-
-dnl     FFMPEG_LIBS="\$(top_srcdir)/lib/avformat/libavformat.a \$(top_srcdir)/lib/avcodec/libavcodec.a"
-dnl     FFMPEG_SUBDIRS="avcodec avformat"
-dnl     FFMPEG_CFLAGS="-I\$(top_srcdir)/lib/avcodec -I\$(top_srcdir)/lib/avformat"
-dnl     if test x$have_mmx = xyes ; then
-dnl        AVCODEC_ARCH="i386"
-dnl        FFMPEG_LIBS="$FFMPEG_LIBS \$(top_srcdir)/lib/avcodec/i386/libavcodecmmx.a"
-dnl     fi
-dnl     if test x$have_ppc = xyes ; then
-dnl        AVCODEC_ARCH="ppc"
-dnl        FFMPEG_LIBS="$FFMPEG_LIBS \$(top_srcdir)/lib/avcodec/ppc/libavcodecppc.a"
-dnl     fi
-dnl     AC_DEFINE(WITH_FFMPEG,1,
-dnl 		[define if compiling movie layer linking to ffmpeg libavcodec])
-
-dnl fi
-dnl AC_SUBST(FFMPEG_LIBS)
-dnl AC_SUBST(FFMPEG_CFLAGS)
-dnl AC_SUBST(FFMPEG_SUBDIRS)
-dnl AC_SUBST(AVCODEC_ARCH)
 
 
 
@@ -454,8 +372,8 @@ if test x$have_lubrifications = xyes; then
     elif test x$host_cpu = xx86_64; then
       CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math"
       AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
-    else # any other x86 platform optimizations
-      CFLAGS="$CFLAGS -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -march=${host_cpu} -ffast-math"
+    else # any other platform optimizations
+      CFLAGS="$CFLAGS -O2 -ffast-math"
     fi
   fi
 else
@@ -602,7 +520,6 @@ lib/avcodec/i386/Makefile
 lib/avcodec/ppc/Makefile
 lib/shout/Makefile
 lib/lo/Makefile
-lib/portaudio/Makefile
 lib/sdl_image/Makefile
 lib/sdl_gfx/Makefile
 lib/sdl_ttf/Makefile

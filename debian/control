@@ -1,20 +1,22 @@
 Source: freej
 Section: x11
 Priority: optional
-Maintainer: MrGoil <goil@dyne.org>
+Maintainer: Jaromil <jaromil@dyne.org>
 Build-Depends: debhelper (>> 4.0.0), libsdl1.2-dev (>= 1.2.0), libpng12-dev, libfreetype6-dev, libfontconfig1-dev, dpatch, libogg-dev, libvorbis-dev, libjpeg62-dev, libavifile-0.7-dev, libasound2-dev, libslang2-dev, libssl-dev, g++, libtheora-dev, libtool, libhtml-template-perl, libavcodec-dev, libavformat-dev, libbluetooth1-dev
 Standards-Version: 3.7.2.2
-
 Package: freej
 Architecture: any
+Homepage: http://freej.dyne.org
+Vcs-Browser: http://git.dyne.org
+Vcs-git: git://dev.dyne.org/freej.git
 Depends: ${shlibs:Depends} ${misc:Depends}
-Description: Digital instrument for video liveset
- FreeJ is a digital instrument for video livesets, featuring realtime
- rendering of multilayered video and chained effect filtering directly on
- the screen (thru dynamically loadable plugins). FreeJ treats every video
- source as a layer, making then possible to dynamically apply on each a
- chain of filters, loadable as effect plugins and easily customizable.
- Layers are planned for rendering of analog video input, digital movie
- files (avi/mpeg), image bitmaps, sound scopes, texts and eventually
- more.
- The whole engine is scriptable with javascript
+Description: Vision mixer
+ FreeJ is a digital instrument for realtime video manipulation used in
+ the fields of dance teather, veejaying, medical visualisation and TV.
+ FreeJ  lets  you interact  with  multiple  layers  of video  (images,
+ movies,  live  cameras, particle  generators,  text scrollers,  flash
+ animations and  more), filter  them with effect  chains and  then mix
+ together. It can be operated live from a text console and scripted in
+ Javascript to be controlled by keyboard, midi, OSC and joysticks.
+
+

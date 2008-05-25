@@ -1,5 +1,4 @@
 SUBDIRS = 	ccvt			\
-		portaudio		\
 		sdl_image		\
 		sdl_gfx			\
 		sdl_ttf			\
