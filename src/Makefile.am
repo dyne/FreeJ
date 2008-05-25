@@ -57,8 +57,6 @@ freej_SOURCES = \
 	avi_layer.cpp	\
 	text_layer.cpp \
 	text_layer_js.cpp \
-	gen_layer.cpp	\
-	gen_layer_js.cpp \
 	gen_f0r_layer.cpp \
 	geo_layer.cpp	\
 	geo_layer_js.cpp \

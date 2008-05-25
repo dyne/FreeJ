@@ -514,10 +514,6 @@ src/Makefile
 src/include/Makefile
 lib/Makefile
 lib/ccvt/Makefile
-lib/avformat/Makefile
-lib/avcodec/Makefile
-lib/avcodec/i386/Makefile
-lib/avcodec/ppc/Makefile
 lib/shout/Makefile
 lib/lo/Makefile
 lib/sdl_image/Makefile

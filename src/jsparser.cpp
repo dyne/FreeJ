@@ -133,11 +133,11 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		NULL);
 	object_proto = layer_object; // last created object
 
-	REGISTER_CLASS("ParticleLayer",
-		particle_layer_class,
-		particle_layer_constructor,
-		particle_layer_methods,
-		object_proto);
+// 	REGISTER_CLASS("ParticleLayer",
+// 		particle_layer_class,
+// 		particle_layer_constructor,
+// 		particle_layer_methods,
+// 		object_proto);
 
 	REGISTER_CLASS("GeometryLayer",
 		geometry_layer_class,

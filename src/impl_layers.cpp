@@ -208,15 +208,7 @@ Layer *create_layer(Context *env, char *file) {
 	    act("can't load %s",file_ptr);
 	    return(NULL);
 #endif
-	  } else if(strncasecmp(file_ptr,"layer_gen",9)==0) {
-
-	    nlayer = new GenLayer();
-      if(!nlayer->init( env )) {
-	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-	delete nlayer; return NULL;
-      }
-
-          } else if(strncasecmp(file_ptr,"layer_goom",10)==0) {
+	  }  else if(strncasecmp(file_ptr,"layer_goom",10)==0) {
 
             nlayer = new GoomLayer();
 
