@@ -335,176 +335,176 @@ Blitter::Blitter() {
   b = new Blit(); b->set_name("RGB");
   sprintf(b->desc,"RGB blit (SDL)");
   b->type = SDL_BLIT;
-  b->sdl_fun = sdl_rgb; blitlist.append(b);
+  b->sdl_fun = sdl_rgb; blitlist.prepend(b);
   current_blit = b; b->sel(true);
 
 
   b = new Blit(); b->set_name("ADD");
   sprintf(b->desc,"bytewise addition");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_add; blitlist.append(b);
+  b->fun = schiffler_add; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SUB");
   sprintf(b->desc,"bytewise subtraction");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_sub; blitlist.append(b);
+  b->fun = schiffler_sub; blitlist.prepend(b);
   
   b = new Blit(); b->set_name("MEAN");
   sprintf(b->desc,"bytewise mean");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_add; blitlist.append(b);
+  b->fun = schiffler_add; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("ABSDIFF");
   sprintf(b->desc,"absolute difference");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_absdiff; blitlist.append(b);
+  b->fun = schiffler_absdiff; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULT");
   sprintf(b->desc,"multiplication");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_mult; blitlist.append(b);
+  b->fun = schiffler_mult; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULTNOR");
   sprintf(b->desc,"normalized multiplication");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_multnor; blitlist.append(b);
+  b->fun = schiffler_multnor; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("DIV");
   sprintf(b->desc,"division");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_div; blitlist.append(b);
+  b->fun = schiffler_div; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULTDIV2");
   sprintf(b->desc,"multiplication and division by 2");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_multdiv2; blitlist.append(b);
+  b->fun = schiffler_multdiv2; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULTDIV4");
   sprintf(b->desc,"multiplication and division by 4");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_multdiv4; blitlist.append(b);
+  b->fun = schiffler_multdiv4; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("AND");
   sprintf(b->desc,"bitwise and");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_and; blitlist.append(b);
+  b->fun = schiffler_and; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("OR");
   sprintf(b->desc,"bitwise or");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_or; blitlist.append(b);
+  b->fun = schiffler_or; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("XOR");
   sprintf(b->desc,"bitwise xor");
   b->type = LINEAR_BLIT;
-  b->fun = blit_xor; blitlist.append(b);
+  b->fun = blit_xor; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("RED");
   sprintf(b->desc,"red channel only blit");
   b->type = LINEAR_BLIT;
-  b->fun = red_channel; blitlist.append(b);
+  b->fun = red_channel; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("GREEN");
   sprintf(b->desc,"green channel only blit");
   b->type = LINEAR_BLIT;
-  b->fun = green_channel; blitlist.append(b);
+  b->fun = green_channel; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("BLUE");
   sprintf(b->desc,"blue channel only blit");
   b->type = LINEAR_BLIT;
-  b->fun = blue_channel; blitlist.append(b);
+  b->fun = blue_channel; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("REDMASK");
   sprintf(b->desc,"red channel threshold mask");
   b->type = LINEAR_BLIT; b->value = 200; // default
-  b->fun = red_mask; blitlist.append(b);
+  b->fun = red_mask; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("GREENMASK");
   sprintf(b->desc,"green channel threshold mask");
   b->type = LINEAR_BLIT; b->value = 200; // default
-  b->fun = green_mask; blitlist.append(b);
+  b->fun = green_mask; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("BLUEMASK");
   sprintf(b->desc,"blue channel threshold mask");
   b->type = LINEAR_BLIT; b->value = 200; // default
-  b->fun = blue_mask; blitlist.append(b);
+  b->fun = blue_mask; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("NEG");
   sprintf(b->desc,"bitwise negation");
   b->type = LINEAR_BLIT;
-  b->fun = schiffler_neg; blitlist.append(b);
+  b->fun = schiffler_neg; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("ADDB");
   sprintf(b->desc,"add byte to bytes");
   b->type = LINEAR_BLIT; b->has_value = true;
-  b->fun = schiffler_addbyte; blitlist.append(b);
+  b->fun = schiffler_addbyte; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("ADDBH");
   sprintf(b->desc,"add byte to half");
   b->type = LINEAR_BLIT; b->has_value = true;
-  b->fun = schiffler_addbytetohalf; blitlist.append(b);
+  b->fun = schiffler_addbytetohalf; blitlist.prepend(b);
   
   b = new Blit(); b->set_name("SUBB");
   sprintf(b->desc,"subtract byte to bytes");
   b->type = LINEAR_BLIT; b->has_value = true;
-  b->fun = schiffler_subbyte; blitlist.append(b);
+  b->fun = schiffler_subbyte; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SHL");
   sprintf(b->desc,"shift left bits");
   b->type = LINEAR_BLIT; b->has_value = true;
-  b->fun = schiffler_shl; blitlist.append(b);
+  b->fun = schiffler_shl; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SHLB");
   sprintf(b->desc,"shift left byte");
   b->type = LINEAR_BLIT; b->has_value = true;
-  b->fun = schiffler_shlb; blitlist.append(b);
+  b->fun = schiffler_shlb; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SHR");
   sprintf(b->desc,"shift right bits");
   b->type = LINEAR_BLIT; b->has_value = true;
-  b->fun = schiffler_shr; blitlist.append(b);
+  b->fun = schiffler_shr; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULB");
   sprintf(b->desc,"multiply by byte");
   b->type = LINEAR_BLIT; b->has_value = true;
-  b->fun = schiffler_mulbyte; blitlist.append(b);
+  b->fun = schiffler_mulbyte; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("BIN");
   sprintf(b->desc,"binarize using threshold");
   b->type = LINEAR_BLIT; b->has_value = true;
-  b->fun = schiffler_binarize; blitlist.append(b);
+  b->fun = schiffler_binarize; blitlist.prepend(b);
 
   // SDL blits
   b = new Blit(); b->set_name("ALPHA");
   sprintf(b->desc,"alpha blit (SDL)");
   b->type = SDL_BLIT; b->has_value = true;
-  b->sdl_fun = sdl_alpha; blitlist.append(b);
+  b->sdl_fun = sdl_alpha; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SRCALPHA");
   sprintf(b->desc,"source alpha blit (SDL)");
   b->type = SDL_BLIT;
-  b->sdl_fun = sdl_srcalpha; blitlist.append(b);
+  b->sdl_fun = sdl_srcalpha; blitlist.prepend(b);
   
   b = new Blit(); b->set_name("CHROMAKEY");
   sprintf(b->desc,"chromakey blit (SDL)");
   b->type = SDL_BLIT; b->has_value = true;
-  b->sdl_fun = sdl_chromakey; blitlist.append(b);
+  b->sdl_fun = sdl_chromakey; blitlist.prepend(b);
 
   // PAST blits
   b = new Blit(); b->set_name("PAST_ADD");
   sprintf(b->desc,"add to past frame");
   b->type = PAST_BLIT;
-  b->past_fun = past_add; blitlist.append(b);
+  b->past_fun = past_add; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("PAST_ADDNEG");
   sprintf(b->desc,"add to past frame and negate");
   b->type = PAST_BLIT;
-  b->past_fun = past_addneg; blitlist.append(b);
+  b->past_fun = past_addneg; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("PAST_ABSDIFF");
   sprintf(b->desc,"absolute difference on past frame");
   b->type = PAST_BLIT;
-  b->past_fun = past_absdiff; blitlist.append(b);
+  b->past_fun = past_absdiff; blitlist.prepend(b);
 
 }
 

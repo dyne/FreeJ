@@ -23,6 +23,7 @@ $Id: gen_layer.cpp 845 2007-04-03 07:04:47Z jaromil $
 #include <stdlib.h>
 #include <gen_f0r_layer.h>
 #include <frei0r_freej.h>
+#include <freeframe_freej.h>
 #include <jutils.h>
 #include <context.h>
 #include <config.h>
@@ -46,6 +47,7 @@ GenF0rLayer::~GenF0rLayer() {
 }
 
 /// set_parameter callback
+static void set_freeframe_layer_parameter(Layer *lay, Parameter *param, int idx) { }
 static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
   GenF0rLayer *layer = (GenF0rLayer*)lay;
 
@@ -98,21 +100,48 @@ bool GenF0rLayer::open(char *file) {
   close();
 
   generator = new FilterInstance((Filter*)proto);
-  generator->core = (void*)(*proto->freior->f0r_construct)(geo.w, geo.h);
-  if(!generator->core) {
-    error("freior constructor returned NULL instantiating generator %s",file);
-    delete generator;
-    generator = NULL;
-    return false;
+  
+  if(proto->freior) {
+    generator->core = (void*)(*proto->freior->f0r_construct)(geo.w, geo.h);
+    if(!generator->core) {
+      error("freior constructor returned NULL instantiating generator %s",file);
+      delete generator;
+      generator = NULL;
+      return false;
+    }
+    parameters = &proto->parameters;
+    
+    Parameter *p = (Parameter*)parameters->begin();
+    while(p) {
+      p->layer_func = set_frei0r_layer_parameter;
+      p = (Parameter*)p->next;
+    }
   }
-  generator->outframe = (uint32_t*) calloc(geo.size, 1);
-  parameters = &proto->parameters;
 
-  Parameter *p = (Parameter*)parameters->begin();
-  while(p) {
-    p->layer_func = set_frei0r_layer_parameter;
-    p = (Parameter*)p->next;
+  if(proto->freeframe) {
+    VideoInfoStruct vidinfo;
+    vidinfo.frameWidth = geo.w;
+    vidinfo.frameHeight = geo.h;
+    vidinfo.orientation = 1;
+    vidinfo.bitDepth = FF_CAP_32BITVIDEO;
+    generator->intcore = proto->freeframe->main(FF_INSTANTIATE, &vidinfo, 0).ivalue;
+    if(generator->intcore == FF_FAIL) {
+      error("Freeframe generator %s cannot be instantiated", name);
+      delete generator;
+      generator = NULL;
+      return false;
+    }
+    // todo: parameters in freeframe
+    parameters = &proto->parameters;
+    Parameter *p = (Parameter*)parameters->begin();
+    while(p) {
+      p->layer_func = set_freeframe_layer_parameter;
+      p = (Parameter*)p->next;
+    }
   }
+
+  generator->outframe = (uint32_t*) calloc(geo.size, 1);
+
 
   set_filename(file);
   opened = true;
@@ -138,7 +167,7 @@ bool GenF0rLayer::init(Context *freej) {
   _init(width,height);
 
   //  open("lissajous0r");
-  open("ising0r");
+  //  open("ising0r");
 
   
   return(true);

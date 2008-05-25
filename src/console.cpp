@@ -283,9 +283,33 @@ static int blit_comp(char *cmd) {
   }
   
   notice("List available blits starting with \"%s\"",cmd);
-  for(c=0;blits[c];c++) {
-    // was name and desc, now only names listed (TODO?)
-    ::act(" %s :: %s",blits[c]->name, ((Blit*)blits[c])->desc);
+  for(c=0;blits[c];c+=4) {
+    char tmp[256];
+
+    b = (Blit*)blits[c];
+    if(!b) break;
+    snprintf(tmp,256,"%s", b->name);
+
+    b = (Blit*)blits[c+1];
+    if(b) {
+      strncat(tmp, "\t", 256);
+      strncat(tmp, b->name, 256);
+    }
+
+    b = (Blit*)blits[c+2];
+    if(b) {
+      strncat(tmp, "\t", 256);
+      strncat(tmp, b->name, 256);
+    }
+    
+    b = (Blit*)blits[c+3];
+    if(b) {
+      strncat(tmp, "\t", 256);
+      strncat(tmp, b->name, 256);
+    }
+
+    ::act("%s",tmp);
+    
   }
   return c;
 }
@@ -439,16 +463,16 @@ static int open_layer(char *cmd) {
       delete l;
     } else {
     */
-	  l->set_fps(env->fps_speed);
-      l->start();
-      env->add_layer(l);
-	  l->active=true;
+    //	  l->set_fps(env->fps_speed);
+    //      l->start();
+    env->add_layer(l);
+    //    l->active=true;
 
-      len = env->layers.len();
-      notice("layer succesfully created, now you have %i layers",len);
-      env->console->refresh();
-      return len;
-    }
+    len = env->layers.len();
+    notice("layer succesfully created, now you have %i layers",len);
+    env->console->refresh();
+    return len;
+  }
   error("layer creation aborted");
   env->console->refresh();
   return 0;
@@ -473,7 +497,7 @@ static int open_text_layer(char *cmd) {
 
   
   txt->print(cmd);
-  txt->start();
+  //  txt->start();
   txt->set_fps(0);
   env->add_layer(txt);
   txt->active=true;
@@ -637,11 +661,37 @@ static int generator_completion(char *cmd) {
     ::notice("%s :: %s",filt->name,filt->description());
     snprintf(cmd,511,"%s",filt->name); c=1;
   } else { // list all matches
-    for(c=0;res[c];c++) {
+    for(c=0;res[c];c+=4) {
+      
+      char tmp[256];
+      
       filt = (Filter*)res[c];
-      if(!filt) continue;
-      ::act("%s :: %s",filt->name,filt->description());
+      if(!filt) break;
+      snprintf(tmp,256,"%s", filt->name);
+      
+      filt = (Filter*)res[c+1];
+      if(filt) {
+	strncat(tmp, "\t", 256);
+	strncat(tmp, filt->name, 256);
+      }
+      
+      filt = (Filter*)res[c+2];
+      if(filt) {
+	strncat(tmp, "\t", 256);
+	strncat(tmp, filt->name, 256);
+      }
+      
+      filt = (Filter*)res[c+3];
+      if(filt) {
+	strncat(tmp, "\t", 256);
+	strncat(tmp, filt->name, 256);
+      }
+      
+      //      ::act("%s :: %s",filt->name,filt->description());
+      
+      ::act("%s",tmp);
     }
+
   }
   return c;
 }
@@ -659,7 +709,7 @@ static int create_generator(char *cmd) {
     delete tmp;
     return 0;
   }
-  tmp->start();
+  //  tmp->start();
   tmp->set_fps(env->fps_speed);
   env->add_layer(tmp);
   tmp->active=true;

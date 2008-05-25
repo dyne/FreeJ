@@ -71,7 +71,7 @@ int Freeframe::open(char *file) {
   }
 
   // try the freeframe symbol
-  plugmain = (plugMainType *)(unsigned) dlsym(handle, "plugMain");
+  plugmain = (plugMainType *) dlsym(handle, "plugMain");
   if(!plugmain) {
     func("%s not a valid freeframe plugin: %s", file, dlerror());
     // don't forget to close
