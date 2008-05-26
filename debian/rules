@@ -36,7 +36,6 @@ build-stamp:  config.status
 	dh_testdir
 
 	# Add here commands to compile the package.
-	./configure
 	$(MAKE) -k
 	# scripting doc
 	make -k -C doc/scripting

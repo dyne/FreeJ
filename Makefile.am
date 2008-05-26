@@ -29,6 +29,6 @@ dist_pkgdata_DATA = \
 	scripts/wiimote.js \
 	scripts/wii_star.js
 
-pkgdatadir = @PACKAGE_DATA_DIR@
+#pkgdatadir = ${prefix}/share/freej
 
 SUBDIRS = lib src

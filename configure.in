@@ -18,8 +18,7 @@ case $uname in
      AC_MSG_RESULT(Linux)
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
      have_linux=yes
-     AM_CONDITIONAL(ARCH_PPC, test x$hostcpu = xpowerpc) 
-     if test $host_cpu = powerpc; then
+     if test x$host_cpu = xpowerpc; then
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
@@ -71,7 +70,7 @@ dnl Setup for automake
 dnl ==============================================================
 
 AM_SANITY_CHECK
-AM_INIT_AUTOMAKE(FreeJ, 0.10)
+AM_INIT_AUTOMAKE(freej, 0.10)
 AM_CONFIG_HEADER(config.h)
 AC_DEFINE(PACKAGE_NAME,"FreeJ - vision mixer")
 
@@ -361,7 +360,7 @@ if test x$have_lubrifications = xyes; then
       # use optimization flags for darwin
             CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
        else
-            CGLAGS=$CFLAGS -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -ffast-math
+            CGLAGS="$CFLAGS -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -ffast-math"
        fi
 	    
       # adding these provoke 'illegal instruction' errors in some

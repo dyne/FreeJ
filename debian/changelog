@@ -1,3 +1,27 @@
+freej (0.10-ppa8~ubuntu8.10) hardy; urgency=low
+
+  * more fixes in path installation and clean
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 16:00:00 +0200
+
+freej (0.10-ppa6~ubuntu8.10) hardy; urgency=low
+
+  * more fixes in path installation and clean
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 13:46:00 +0200
+
+freej (0.10-ppa5~ubuntu8.10) hardy; urgency=low
+
+  * new build for hardy
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 12:14:00 +0200
+
+freej (0.10-1~7.10) gutsy; urgency=low
+
+  * gutsy build
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 11:33:00 +0200
+
 freej (0.10-1~8.04) hardy; urgency=low
 
   * stable versioning, fixes
