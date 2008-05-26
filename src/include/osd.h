@@ -95,7 +95,7 @@ class Osd {
 
   Context *env;
 
-  uint32_t *print(char *text, uint32_t* pos, int hsize, int vsize);
+  uint32_t *print(const char *text, uint32_t* pos, int hsize, int vsize);
 
   bool active;
   char status_msg[50];

@@ -110,7 +110,7 @@ class Blitter {
 
   /* ==== BLITS */
   void blit();
-  bool set_blit(char *name); ///< set the active blit
+  bool set_blit(const char *name); ///< set the active blit
   void set_value(float val); ///< set the blit value
   bool fade_value(float step, float val); ///< fade to a new blit value
   bool pulse_value(float step, float val); ///< pulse it to a value and come back

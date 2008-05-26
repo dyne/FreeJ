@@ -38,7 +38,7 @@ class TTFLayer: public Layer {
   bool init(Context *freej, int w, int h) { return init(freej); };
 
   
-  bool open(char *file);
+  bool open(const char *file);
   void *feed();
   void close();
 
@@ -48,7 +48,7 @@ class TTFLayer: public Layer {
   void calculate_string_size(char *text, int *w, int *h);
   ///< calculates the width and height of a string if it would be printed with current settings
 
-  void print(char *str);
+  void print(const char *str);
 
   bool keypress(int key);
 

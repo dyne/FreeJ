@@ -76,7 +76,7 @@ TTFLayer::~TTFLayer() {
   close();
 }
 
-bool TTFLayer::open(char *file) {
+bool TTFLayer::open(const char *file) {
   // open a file and read its contents here?
   // skip it for now, this layer is mostly used for realtime printing
   // would be cool to implement something like justification and paragraph
@@ -141,7 +141,7 @@ void TTFLayer::calculate_string_size(char *text, int *w, int *h) {
 
 bool TTFLayer::keypress(int key) { return false; };
 
-void TTFLayer::print(char *str) {
+void TTFLayer::print(const char *str) {
   SDL_Surface *tmp;
   
   // choose first font and initialize ready for printing
@@ -209,7 +209,7 @@ static int ttf_dir_selector(const struct dirent *dir) {
   if(strstr(dir->d_name,".TTF")) return(1);
   return(0);
 }
-int Context::scanfonts(char *path) {
+int Context::scanfonts(const char *path) {
   /* add to the list of available fonts */
   struct dirent **filelist;
   char temp[1024];

@@ -28,10 +28,10 @@ DIE=0
         DIE=1
 }
 
-(automake --version) < /dev/null > /dev/null 2>&1 || {
+(automake-1.9 --version) < /dev/null > /dev/null 2>&1 || {
         echo
-        echo "You must have automake installed to compile $package."
-	echo "Download the appropriate package for your system,
+        echo "You must have automake 1.9 installed to compile $package."
+	echo "Download the appropriate package for your system,"
 	echo "or get the source from one of the GNU ftp sites"
 	echo "listed in http://www.gnu.org/order/ftp.html"
         DIE=1
@@ -40,7 +40,7 @@ DIE=0
 ($LIBTOOL --version) < /dev/null > /dev/null 2>&1 || {
 	echo
 	echo "You must have libtool installed to compile $package."
-	echo "Download the appropriate package for your system,
+	echo "Download the appropriate package for your system,"
 	echo "or get the source from one of the GNU ftp sites"
 	echo "listed in http://www.gnu.org/order/ftp.html"
 	DIE=1
@@ -63,7 +63,7 @@ echo "  autoheader"
 autoheader
 echo "  $LIBTOOLIZE --automake -c"
 $LIBTOOLIZE --automake -c
-echo "  automake --add-missing -c"
+echo "  automake-1.9 --add-missing -c"
 automake-1.9 --add-missing -c 
 echo "  autoconf"
 autoconf

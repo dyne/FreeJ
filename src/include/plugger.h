@@ -60,7 +60,7 @@ class Plugger {
   bool open(Context *env, char *file);
 
   /* checks if file/directory exist */
-  void addsearchdir(char *dir);
+  void addsearchdir(const char *dir);
   void _setsearchpath(const char *path) {
     if(_searchpath) jfree(_searchpath); _searchpath = strdup(path); };
   char *_getsearchpath() { return(_searchpath); };

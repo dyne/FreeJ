@@ -159,7 +159,7 @@ class Context {
 
 #ifdef WITH_FT2
 #define MAX_FONTS 1024
-  int scanfonts(char *path);
+  int scanfonts(const char *path);
   char** font_files;
   int num_fonts;
 #endif

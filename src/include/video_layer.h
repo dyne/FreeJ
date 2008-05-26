@@ -110,7 +110,7 @@ class VideoLayer: public Layer {
 	bool init(Context *freej);
 	bool init(Context *freej, int w, int h) { return init(freej); };
 
-	bool open(char *file);
+	bool open(const char *file);
 	void *feed();
 	void close();
 

@@ -58,7 +58,7 @@ int bad_window_handler(Display *disp, XErrorEvent *err) {
 	return 0; //the returned value is ignored
 }
 
-bool XGrabLayer::open(char *file) {
+bool XGrabLayer::open(const char *file) {
 	error("%s: not supported", __PRETTY_FUNCTION__);
 	return false;
 }

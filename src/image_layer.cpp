@@ -49,7 +49,7 @@ ImageLayer::~ImageLayer() {
   close();
 }
 
-bool ImageLayer::open(char *file) {
+bool ImageLayer::open(const char *file) {
 
   if(image) SDL_FreeSurface(image);
   if(surf) SDL_FreeSurface(surf);

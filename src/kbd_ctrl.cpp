@@ -71,7 +71,7 @@ int KbdCtrl::poll() {
 	return 1;
 }
 
-int KbdCtrl::checksym(SDLKey key, char *name) {
+int KbdCtrl::checksym(SDLKey key, const char *name) {
   if(keysym->sym == key) {
     strcat(keyname,name);
     func("keyboard controller detected key: %s",keyname);
@@ -200,7 +200,7 @@ int KbdCtrl::dispatch() {
   return res;
 }
 
-int KbdCtrl::JSCall(char *funcname) {
+int KbdCtrl::JSCall(const char *funcname) {
     func("%s calling method %s()", __func__, funcname);
 	JSBool res;
 	return Controller::JSCall(funcname, 0, NULL, &res);

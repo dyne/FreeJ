@@ -70,7 +70,7 @@ class XGrabLayer: public Layer {
 
 		bool open();
 		bool open(uint32_t win_id);
-		bool open(char *);
+		bool open(const char *);
 		bool init(Context *freej);
 		bool init(Context *freej, int w, int h);
 		//void *feed();

@@ -55,7 +55,7 @@ class Linklist {
   bool movedown(int pos);
   bool moveto(int num, int pos);
   Entry *pick(int pos);  
-  Entry *search(char *name, int *idx);
+  Entry *search(const char *name, int *idx);
   Entry **completion(char *needle);
 
   Entry *selected();
@@ -92,7 +92,7 @@ class Entry {
   Entry();
   ~Entry();
 
-  void set_name(char *nn);
+  void set_name(const char *nn);
   
   Entry *next;
   Entry *prev;

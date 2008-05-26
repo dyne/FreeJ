@@ -207,8 +207,8 @@ bool Layer::set_parameter(int idx) {
 
 
 
-void Layer::set_filename(char *f) {
-  char *p = f + strlen(f);
+void Layer::set_filename(const char *f) {
+  const char *p = f + strlen(f);
   while(*p!='/' && (p >= f)) 
       p--;
   strncpy(filename,p+1,256);

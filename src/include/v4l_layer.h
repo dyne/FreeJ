@@ -64,7 +64,7 @@ class V4lGrabber: public Layer {
  public:
   V4lGrabber();
   ~V4lGrabber();
-  bool open(char *devfile);
+  bool open(const char *devfile);
   bool init(Context *freej);
   bool init(Context *freej, int width, int height);
   void *feed();

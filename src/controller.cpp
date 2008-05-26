@@ -139,7 +139,7 @@ void js_ctrl_gc (JSContext *cx, JSObject *obj) {
  *       fun ? OBJECT_TO_JSVAL(fun->object) : JSVAL_NULL;
  * case 'v': va_arg(ap, jsval);
  */
-int Controller::JSCall(char *funcname, int argc, const char *format, ...) {
+int Controller::JSCall(const char *funcname, int argc, const char *format, ...) {
 	va_list ap;
 	jsval fval = JSVAL_VOID;
 	jsval ret = JSVAL_VOID;
@@ -176,7 +176,7 @@ int Controller::JSCall(char *funcname, int argc, const char *format, ...) {
 
 /* less bloat but this only works with 4 byte argv values
  */
-int Controller::JSCall(char *funcname, int argc, jsval *argv, JSBool *res) {
+int Controller::JSCall(const char *funcname, int argc, jsval *argv, JSBool *res) {
 	jsval fval = JSVAL_VOID;
 	jsval ret = JSVAL_VOID;
 

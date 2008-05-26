@@ -64,15 +64,15 @@ class Console {
   void close();
   void cafudda();
 
-  void notice(char *msg);
-  void error(char *msg);
-  void warning(char *msg);
-  void act(char *msg);
-  void func(char *msg);
+  void notice(const char *msg);
+  void error(const char *msg);
+  void warning(const char *msg);
+  void act(const char *msg);
+  void func(const char *msg);
   
   /* takes a pointer to the function which will be
      in charge of processing the input collected */
-  int readline(char *msg, cmd_process_t *proc, cmd_complete_t *comp);  
+  int readline(const char *msg, cmd_process_t *proc, cmd_complete_t *comp);  
 
   void refresh();
 
@@ -101,7 +101,7 @@ class Console {
 
   void getkey();
 
-  void scroll(char *msg,int color);
+  void scroll(const char *msg,int color);
   void update_scroll();
   bool do_update_scroll;
 
@@ -128,7 +128,7 @@ class Console {
 
   /* The SLscroll routines will use this structure. */
   void free_lines(File_Line_Type *line);
-  File_Line_Type *create_line(char *buf);
+  File_Line_Type *create_line(const char *buf);
   File_Line_Type *File_Lines;  
   SLscroll_Window_Type Line_Window;
   File_Line_Type *line, *last_line;

@@ -34,7 +34,7 @@ class GeoLayer: public Layer {
   bool init(Context *freej);
   bool init(Context *freej, int w, int h);
 
-  bool open(char *file);
+  bool open(const char *file);
   void *feed();
   bool keypress(int key);
   void close();

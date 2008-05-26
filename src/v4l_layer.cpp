@@ -72,9 +72,9 @@ void V4lGrabber::close() {
   
 }
 
-bool V4lGrabber::open(char *file) {
+bool V4lGrabber::open(const char *file) {
   int counter, res;
-  char *capabilities[] = {
+  const char *capabilities[] = {
     "VID_TYPE_CAPTURE          can capture to memory",
     "VID_TYPE_TUNER            has a tuner of some form",
     "VID_TYPE_TELETEXT         has teletext capability",

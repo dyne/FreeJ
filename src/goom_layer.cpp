@@ -61,7 +61,7 @@ bool GoomLayer::init(Context *freej) {
   return(true);
 }
 
-bool GoomLayer::open(char *file) {
+bool GoomLayer::open(const char *file) {
 
   return true;
 }

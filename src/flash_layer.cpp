@@ -40,7 +40,7 @@
 static void showUrl(char *url, char *target, void *client_data) {
   act("Flash showURL : %s",url);
 }
-static int readfile(char *filename, char **buffer, long *size) {
+static int readfile(const char *filename, char **buffer, long *size) {
   FILE *in;
   char *buf;
   long length;
@@ -105,7 +105,7 @@ bool FlashLayer::init(Context *freej) {
   return true;
 }
 
-bool FlashLayer::open(char *file){
+bool FlashLayer::open(const char *file){
   char *buffer;
   long size;
   long res;

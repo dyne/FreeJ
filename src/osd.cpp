@@ -34,7 +34,7 @@
 #define TOPLIST 6 /* distance down from vbound where they start the vertical lists */
 
 
-uint32_t *Osd::print(char *text, uint32_t *pos, int hsize, int vsize) {
+uint32_t *Osd::print(const char *text, uint32_t *pos, int hsize, int vsize) {
 	uint32_t *diocrap = pos; //(uint32_t *)env->coords(xpos,ypos);
 	unsigned char *buffer = (unsigned char *) env->screen->get_surface ();
 	v = env->screen->w * vsize; // stride

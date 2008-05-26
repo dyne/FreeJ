@@ -82,7 +82,7 @@ void show_osd() {
     console->notice(osd_msg);
 }
 
-void show_osd(char *format, ...) {
+void show_osd(const char *format, ...) {
   va_list arg;
   va_start(arg, format);
   
@@ -98,7 +98,7 @@ void set_console(Console *c) {
   console = c;
 }
 
-void notice(char *format, ...) {
+void notice(const char *format, ...) {
   va_list arg;
   const char prefix[] = "[*] ";
   const unsigned int prefix_len = sizeof(prefix) - 1; 
@@ -114,7 +114,7 @@ void notice(char *format, ...) {
   
 }
 
-void func(char *format, ...) {
+void func(const char *format, ...) {
   if(verbosity>=FUNC) {
     va_list arg;
     const char prefix[] = "[F] ";
@@ -131,7 +131,7 @@ void func(char *format, ...) {
   }
 }
 
-void error(char *format, ...) {
+void error(const char *format, ...) {
   va_list arg;
   va_start(arg, format);
   
@@ -142,7 +142,7 @@ void error(char *format, ...) {
   va_end(arg);
 }
 
-void act(char *format, ...) {
+void act(const char *format, ...) {
   va_list arg;
   va_start(arg, format);
   
@@ -153,7 +153,7 @@ void act(char *format, ...) {
   va_end(arg);
 }
 
-void warning(char *format, ...) {
+void warning(const char *format, ...) {
   if(verbosity>=WARN) {
     va_list arg;
     va_start(arg, format);
@@ -339,7 +339,7 @@ void rtc_close() {
 void *(* jmemcpy)(void *to, const void *from, size_t len);
 
 
-bool filecheck(char *file) {
+bool filecheck(const char *file) {
   bool res = true;
   FILE *f = fopen(file,"r");
   if(!f) res = false;
@@ -347,7 +347,7 @@ bool filecheck(char *file) {
   return(res);
 }
 
-bool dircheck(char *dir) {
+bool dircheck(const char *dir) {
   bool res = true;
   DIR *d = opendir(dir);
   if(!d) res = false;

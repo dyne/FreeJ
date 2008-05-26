@@ -100,7 +100,7 @@ void VideoLayer::free_picture(AVPicture *picture) {
 	}
 }
 
-bool VideoLayer::open(char *file) {
+bool VideoLayer::open(const char *file) {
   int err=0;
   video_index=-1;
   func("VideoLayer::open(%s)",file);

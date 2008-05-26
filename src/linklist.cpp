@@ -222,7 +222,7 @@ Entry *Linklist::pick(int pos) {
 
 /* search the linklist for the entry matching *name
    returns the Entry* on success, NULL on failure */
-Entry *Linklist::search(char *name, int *idx) {
+Entry *Linklist::search(const char *name, int *idx) {
   int c = 1;
   Entry *ptr = first;
   while(ptr) {
@@ -352,7 +352,7 @@ Entry::~Entry() {
   free(name);
 }
 
-void Entry::set_name(char *nn) {
+void Entry::set_name(const char *nn) {
   strncpy(name,nn,255);
 }
 

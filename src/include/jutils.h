@@ -33,13 +33,13 @@ void set_debug(int lev);
 int get_debug();
 void set_osd(char *st);
 void show_osd();
-void show_osd(char *format, ...);
+void show_osd(const char *format, ...);
 void set_console(Console *c);
-void notice(char *format, ...);
-void func(char *format, ...);
-void error(char *format, ...);
-void act(char *format, ...);
-void warning(char *format, ...);
+void notice(const char *format, ...);
+void func(const char *format, ...);
+void error(const char *format, ...);
+void act(const char *format, ...);
+void warning(const char *format, ...);
 void *jalloc(size_t size);
 bool jfree(void *point);
 uint32_t fastrand();
@@ -53,8 +53,8 @@ void rtc_freq_set(unsigned long freq);
 void rtc_freq_wait();
 void rtc_close();
 
-bool filecheck(char *file);
-bool dircheck(char *file);
+bool filecheck(const char *file);
+bool dircheck(const char *file);
 
 #endif
 

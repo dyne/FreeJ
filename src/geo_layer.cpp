@@ -60,7 +60,7 @@ bool GeoLayer::init(Context *freej, int width, int height) {
   return(true);
 }
 
-bool GeoLayer::open(char *file) {
+bool GeoLayer::open(const char *file) {
   /* we don't need this */
   return true;
 }

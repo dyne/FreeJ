@@ -119,7 +119,7 @@ public:
   void close();
   void advance();
 
-  bool print(char *s);
+  bool print(const char *s);
   int word_ff(int pos);
 
 

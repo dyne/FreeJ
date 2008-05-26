@@ -660,7 +660,7 @@ void Blitter::blit() {
 
 
 
-bool Blitter::set_blit(char *name) {
+bool Blitter::set_blit(const char *name) {
   Blit *b;
   bool zeroing = false;
   int idx;

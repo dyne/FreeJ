@@ -164,7 +164,7 @@ int Plugger::refresh(Context *env) {
 }
 
 
-void Plugger::addsearchdir(char *dir) {
+void Plugger::addsearchdir(const char *dir) {
   char temp[1024];
   if(!dircheck(dir)) return;
   if(_searchpath) {

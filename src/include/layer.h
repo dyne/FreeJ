@@ -96,7 +96,7 @@ class Layer: public Entry, public JSyncThread {
   int type; ///< type of the layer
 
   /* these must be defined in layer implementations */
-  virtual bool open(char *file) =0; ///< open the file (first called)
+  virtual bool open(const char *file) =0; ///< open the file (first called)
   virtual bool init(Context *freej) =0; ///< initialize the layer (second called)
   virtual bool init(Context *freej, int w, int h) { return this->init(freej); }; ///< overload with size
   virtual void close() =0; ///< close the layer (ready to open a new one)
@@ -165,7 +165,7 @@ class Layer: public Entry, public JSyncThread {
 
   ViewPort *screen;
 
-  void set_filename(char *f);
+  void set_filename(const char *f);
   char filename[256];
 
   void *buffer; ///< feed buffer returned by layer implementation

@@ -622,7 +622,7 @@ static void *linux_kernel_memcpy(void *to, const void *from, size_t len) {
 /* save library size on platforms without special memcpy impl. */
 
 static struct {
-     char                 *name;
+     const char         *name;
      void               *(*function)(void *to, const void *from, size_t len);
      unsigned long long    time;
      __u32                 cpu_require;

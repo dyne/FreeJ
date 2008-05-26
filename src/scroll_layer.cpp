@@ -145,7 +145,7 @@ void ScrollLayer::render(struct txtline *l) {
    open the files before initializing, while the append
    function needs the screen to be initialized in order
    to know the maximum lenght for the text lines */
-bool ScrollLayer::open(char *file) {
+bool ScrollLayer::open(const char *file) {
   FILE *fd;
   fd = fopen(file,"r");
   if(!fd) {

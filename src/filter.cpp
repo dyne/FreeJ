@@ -305,10 +305,10 @@ FilterInstance *Filter::apply(Layer *lay) {
 
 }
 
-char *Filter::description() {
-  char *ret;
+const char *Filter::description() {
+  const char *ret;
   if(backend==FREIOR) {
-    ret = (char*)freior->info.explanation;
+    ret = freior->info.explanation;
   } else if(backend==FREEFRAME) {
     // TODO freeframe has no extentedinfostruct returned!?
     ret = "freeframe VFX";

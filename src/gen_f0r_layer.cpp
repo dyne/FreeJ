@@ -87,7 +87,7 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
   }
 }
 
-bool GenF0rLayer::open(char *file) {
+bool GenF0rLayer::open(const char *file) {
   int idx;
   Filter *proto;
 

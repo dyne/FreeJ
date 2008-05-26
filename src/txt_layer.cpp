@@ -155,7 +155,7 @@ int dirent_ttf_selector(const struct dirent *dir) {
   if(strstr(dir->d_name,".TTF")) return(1);
   return(0);
 }
-int TxtLayer::scanfonts(char *path) {
+int TxtLayer::scanfonts(const char *path) {
   /* add to the list of available fonts */
   struct dirent **filelist;
   char temp[256];
@@ -402,7 +402,7 @@ void TxtLayer::close() {
   jfree(buf);
 }
 
-bool TxtLayer::print(char *s) {
+bool TxtLayer::print(const char *s) {
   Entry *tmpw;
   //  int len = strlen(s);
 

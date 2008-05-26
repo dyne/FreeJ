@@ -36,11 +36,11 @@ class KbdCtrl: public Controller {
  private:  
   SDL_keysym *keysym;
 
-  int checksym(SDLKey, char *name);
+  int checksym(SDLKey, const char *name);
 
   char keyname[512];
   char funcname[512];
-  int JSCall(char*);
+  int JSCall(const char*);
 
 };
 

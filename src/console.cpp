@@ -757,40 +757,41 @@ bool Console::init(Context *freej) {
      n+20 = reverse normal;
      n+30 = reverse highlight; */
 
-  SLtt_set_color(1,NULL,"lightgray","black");
-  SLtt_set_color(11,NULL,"white","black");
-  SLtt_set_color(21,NULL,"black","lightgray");
-  SLtt_set_color(31,NULL,"black","white");
+  // crazy casting for crazy slang
+  SLtt_set_color(1,NULL,(char *)"lightgray",(char *)"black");
+  SLtt_set_color(11,NULL,(char *)"white",(char *)"black");
+  SLtt_set_color(21,NULL,(char *)"black",(char *)"lightgray");
+  SLtt_set_color(31,NULL,(char *)"black",(char *)"white");
 
-  SLtt_set_color(2,NULL,"red","black");
-  SLtt_set_color(12,NULL,"brightred","black");
-  SLtt_set_color(22,NULL,"black","red");
-  SLtt_set_color(32,NULL,"black","brightred");
+  SLtt_set_color(2,NULL,(char *)"red",(char *)"black");
+  SLtt_set_color(12,NULL,(char *)"brightred",(char *)"black");
+  SLtt_set_color(22,NULL,(char *)"black",(char *)"red");
+  SLtt_set_color(32,NULL,(char *)"black",(char *)"brightred");
 
-  SLtt_set_color(3,NULL,"green","black");
-  SLtt_set_color(13,NULL,"brightgreen","black");
-  SLtt_set_color(23,NULL,"black","green");
-  SLtt_set_color(33,NULL,"black","brightgreen");
+  SLtt_set_color(3,NULL,(char *)"green",(char *)"black");
+  SLtt_set_color(13,NULL,(char *)"brightgreen",(char *)"black");
+  SLtt_set_color(23,NULL,(char *)"black",(char *)"green");
+  SLtt_set_color(33,NULL,(char *)"black",(char *)"brightgreen");
 
-  SLtt_set_color(4,NULL,"brown","black");
-  SLtt_set_color(14,NULL,"yellow","black");
-  SLtt_set_color(24,NULL,"black","brown");
-  SLtt_set_color(34,NULL,"black","yellow");
+  SLtt_set_color(4,NULL,(char *)"brown",(char *)"black");
+  SLtt_set_color(14,NULL,(char *)"yellow",(char *)"black");
+  SLtt_set_color(24,NULL,(char *)"black",(char *)"brown");
+  SLtt_set_color(34,NULL,(char *)"black",(char *)"yellow");
 
-  SLtt_set_color(5,NULL,"blue","black");
-  SLtt_set_color(15,NULL,"brightblue","black");
-  SLtt_set_color(25,NULL,"black","blue");
-  SLtt_set_color(35,NULL,"black","brightblue");
+  SLtt_set_color(5,NULL,(char *)"blue",(char *)"black");
+  SLtt_set_color(15,NULL,(char *)"brightblue",(char *)"black");
+  SLtt_set_color(25,NULL,(char *)"black",(char *)"blue");
+  SLtt_set_color(35,NULL,(char *)"black",(char *)"brightblue");
 
-  SLtt_set_color(6,NULL,"magenta","black");
-  SLtt_set_color(16,NULL,"brightmagenta","black");
-  SLtt_set_color(26,NULL,"black","magenta");
-  SLtt_set_color(36,NULL,"black","brightmagenta");
+  SLtt_set_color(6,NULL,(char *)"magenta",(char *)"black");
+  SLtt_set_color(16,NULL,(char *)"brightmagenta",(char *)"black");
+  SLtt_set_color(26,NULL,(char *)"black",(char *)"magenta");
+  SLtt_set_color(36,NULL,(char *)"black",(char *)"brightmagenta");
 
-  SLtt_set_color(7,NULL,"cyan","black");
-  SLtt_set_color(17,NULL,"brightcyan","black");
-  SLtt_set_color(27,NULL,"black","cyan");
-  SLtt_set_color(37,NULL,"black","brightcyan");
+  SLtt_set_color(7,NULL,(char *)"cyan",(char *)"black");
+  SLtt_set_color(17,NULL,(char *)"brightcyan",(char *)"black");
+  SLtt_set_color(27,NULL,(char *)"black",(char *)"cyan");
+  SLtt_set_color(37,NULL,(char *)"black",(char *)"brightcyan");
 
   set_console(this);
 
@@ -820,11 +821,11 @@ void Console::close() {
 /* setup the flags and environment to read a new input
    saves the pointer to the command processing function
    to use it once the input is completed */
-int Console::readline(char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
+int Console::readline(const char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
   ::notice(msg);
   update_scroll();
   SLsmg_gotorc(SLtt_Screen_Rows - 1,0);
-  SLsmg_write_string(":");
+  SLsmg_write_string((char *)":");
   SLsmg_erase_eol();
   
   cursor = 0;
@@ -954,7 +955,7 @@ void Console::statusline(char *msg) {
     SLsmg_erase_eol();
   } else
     SLsmg_write_string
-      (" use arrows to move selection, press ctrl-h for help with hotkeys      ");
+      ((char *)" use arrows to move selection, press ctrl-h for help with hotkeys      ");
 
   SLsmg_set_color(PLAIN_COLOR);
 }
@@ -994,16 +995,16 @@ void Console::speedmeter() {
 void Console::canvas() {
   SLsmg_gotorc(0,0);
   SLsmg_set_color(TITLE_COLOR+20);
-  SLsmg_printf(" %s version %s | set the veejay free! | freej.dyne.org | ",
+  SLsmg_printf((char *)" %s version %s | set the veejay free! | freej.dyne.org | ",
 	       PACKAGE, VERSION);
   
   /* this is RASTA SOFTWARE! */
   SLsmg_set_color(32);
-  SLsmg_write_string("RAS");
+  SLsmg_write_string((char *)"RAS");
   SLsmg_set_color(34);
-  SLsmg_write_string("TAS");
+  SLsmg_write_string((char *)"TAS");
   SLsmg_set_color(33);
-  SLsmg_write_string("OFT");
+  SLsmg_write_string((char *)"OFT");
 
   SLsmg_set_color(PLAIN_COLOR);
   SLsmg_gotorc(SLtt_Screen_Rows - 2,0);
@@ -1016,21 +1017,21 @@ void Console::layerprint() {
 
   SLsmg_gotorc(2,1);
   SLsmg_set_color(LAYERS_COLOR);
-  SLsmg_write_string("Layer: ");
+  SLsmg_write_string((char *)"Layer: ");
   SLsmg_set_color(LAYERS_COLOR+10);
   SLsmg_write_string(layer->get_filename());
   SLsmg_set_color(LAYERS_COLOR);
   SLsmg_write_char(' ');
-  SLsmg_write_string("blit: ");
+  SLsmg_write_string((char *)"blit: ");
   SLsmg_set_color(LAYERS_COLOR+10);
   SLsmg_write_string(layer->blitter.current_blit->get_name());
   SLsmg_write_char(' ');
-  SLsmg_printf("[%.0f]",layer->blitter.current_blit->value);
+  SLsmg_printf((char *)"[%.0f]",layer->blitter.current_blit->value);
   SLsmg_write_char(' ');
   SLsmg_set_color(LAYERS_COLOR);
-  SLsmg_write_string("geometry: ");
+  SLsmg_write_string((char *)"geometry: ");
   SLsmg_set_color(LAYERS_COLOR+10);
-  SLsmg_printf("x%i y%i w%u h%u",
+  SLsmg_printf((char *)"x%i y%i w%u h%u",
 	       layer->geo.x, layer->geo.y,
 		 layer->geo.w, layer->geo.h);
   SLsmg_erase_eol();
@@ -1053,7 +1054,7 @@ void Console::layerlist() {
   while(l) { /* draw the layer's list */
 
     SLsmg_set_color(LAYERS_COLOR);
-    SLsmg_write_string(" -> ");
+    SLsmg_write_string((char *)" -> ");
 
     color=LAYERS_COLOR;
     if( l == layer && !filter) {
@@ -1065,7 +1066,7 @@ void Console::layerlist() {
 
     SLsmg_set_color (color);
     
-    SLsmg_printf("%s",l->get_name());
+    SLsmg_printf((char *)"%s",l->get_name());
 
     l = (Layer *)l->next;
   }
@@ -1083,9 +1084,9 @@ void Console::filterprint() {
 
   SLsmg_gotorc(3,1);
   SLsmg_set_color(FILTERS_COLOR);
-  SLsmg_write_string("Filter: ");
+  SLsmg_write_string((char *)"Filter: ");
   if(!filter) {
-    SLsmg_write_string("none selected");
+    SLsmg_write_string((char *)"none selected");
     SLsmg_set_color(PLAIN_COLOR);
     SLsmg_erase_eol();
     return;
@@ -1094,7 +1095,7 @@ void Console::filterprint() {
   SLsmg_write_string(filter->name);
   SLsmg_erase_eol();
   SLsmg_forward(2);
-  SLsmg_write_string(filter->proto->description());
+  SLsmg_write_string((char *)filter->proto->description());
   SLsmg_set_color(PLAIN_COLOR);
 
 }
@@ -1122,7 +1123,7 @@ void Console::filterlist() {
       if( f->active) color+=10;
       SLsmg_set_color (color);
       
-      SLsmg_printf("%s",f->name);
+      SLsmg_printf((char *)"%s",f->name);
       
       pos++;
       f = (FilterInstance *)f->next;
@@ -1137,19 +1138,19 @@ void Console::filterlist() {
 
 
 
-void Console::notice(char *msg) {
+void Console::notice(const char *msg) {
   scroll(msg,PLAIN_COLOR+10);
 }
-void Console::warning(char *msg) {
+void Console::warning(const char *msg) {
   scroll(msg,2);
 }
-void Console::act(char *msg) {
+void Console::act(const char *msg) {
   scroll(msg,PLAIN_COLOR);
 }
-void Console::error(char *msg) {
+void Console::error(const char *msg) {
   scroll(msg,2);
 }
-void Console::func(char *msg) {
+void Console::func(const char *msg) {
   scroll(msg,5);
   update_scroll();
 }
@@ -1170,7 +1171,7 @@ void Console::free_lines (File_Line_Type *line)
    Line_Window.num_lines -= c;
 }
 
-File_Line_Type *Console::create_line (char *buf)
+File_Line_Type *Console::create_line (const char *buf)
 {
    File_Line_Type *line;
    
@@ -1178,7 +1179,7 @@ File_Line_Type *Console::create_line (char *buf)
 
    if (!line) return NULL;
    
-   line->data = SLmake_string (buf);   /* use a slang routine */
+   line->data = SLmake_string ((char *)buf);   /* use a slang routine */
    if (!line->data) {
      free (line);
      return NULL;
@@ -1188,7 +1189,7 @@ File_Line_Type *Console::create_line (char *buf)
 }
 
 
-void Console::scroll(char *msg, int color) {
+void Console::scroll(const char *msg, int color) {
 
   line = create_line(msg);
   line->color = color;

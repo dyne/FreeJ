@@ -42,7 +42,7 @@ int ogg_pipe_read(char *name, ringbuffer_t *rb, char *dest, size_t cnt) {
   }
   return ringbuffer_read(rb, dest, cnt);
 }
-int ogg_pipe_write(char *name, ringbuffer_t *rb, char *src, size_t cnt) {
+int ogg_pipe_write(const char *name, ringbuffer_t *rb, char *src, size_t cnt) {
   while( ringbuffer_write_space(rb) < cnt ) {
     warning("%s pipe write not ready", name);
     jsleep(0,10);
@@ -198,7 +198,7 @@ void oggmux_init (oggmux_info *info){
         }
 
         vorbis_comment_init (&info->vc);
-        vorbis_comment_add_tag (&info->vc, "ENCODER",PACKAGE);
+        vorbis_comment_add_tag (&info->vc, (char *)"ENCODER",(char *)PACKAGE);
         /* set up the analysis state and auxiliary encoding storage */
         vorbis_analysis_init (&info->vd, &info->vi);
         vorbis_block_init (&info->vd, &info->vb);
@@ -240,7 +240,7 @@ void oggmux_init (oggmux_info *info){
 
         /* create the remaining theora headers */
         /* theora_comment_init (&info->tc); is called in main() prior to parsing options */
-        theora_comment_add_tag (&info->tc, "ENCODER",PACKAGE);
+        theora_comment_add_tag (&info->tc, (char *)"ENCODER",(char *)PACKAGE);
         theora_encode_comment (&info->tc, &op);
         ogg_stream_packetin (&info->to, &op);
         theora_encode_tables (&info->td, &op);
