@@ -73,7 +73,6 @@ dnl ==============================================================
 AM_SANITY_CHECK
 AM_INIT_AUTOMAKE(FreeJ, 0.10)
 AM_CONFIG_HEADER(config.h)
-AC_DEFINE(PACKAGE_PREFIX,$prefix,[installation prefix set at compile time])
 AC_DEFINE(PACKAGE_NAME,"FreeJ - vision mixer")
 
 dnl ==============================================================
@@ -508,6 +507,19 @@ CXXFLAGS="$CFLAGS"
 #AC_SUBST(LIBS)
 
 
+dnl ###########################################################################
+dnl ###### now about compile time paths
+if test "x${prefix}" = "xNONE"; then
+   prefix=${ac_default_prefix}
+fi
+AC_DEFINE_UNQUOTED(PACKAGE_PREFIX, "${prefix}", Prefix)
+AC_DEFINE_UNQUOTED(PACKAGE_LIB_DIR, "${prefix}/lib/freej", libs)
+AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${prefix}/share/freej", data)
+AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/share/locale", locale)
+PACKAGE_DATA_DIR="${prefix}/share/freej"
+AC_SUBST(PACKAGE_DATA_DIR)
+
+
 AC_OUTPUT([
 Makefile
 src/Makefile
@@ -631,6 +643,9 @@ if test x$have_sound = xyes; then
 fi
 
 echo "= COMPILER FLAGS : $CFLAGS"
+
+
+
 echo "= INSTALL PREFIX : $prefix"
 echo "============================== now type make, may the source be with you!"
 echo

@@ -29,22 +29,8 @@ curColor    = 0;
 curBase     = curColor;
 
 // find my library
-inc_ok = false;
-["./", "scripts/"].forEach ( function inc(path) {
-	if (!inc_ok) {
-		try {
-			include(path + "param.js");
-			inc_ok = true;
-		} catch (e) {
-			echo("CY incl err: " + e);
-		}
-	}
-} );
 
-if (!inc_ok) {
-	echo("cant find my libs ..");
-	exit();
-}
+include("param.js");
 
 // define interactive parameters
 param = new Array();

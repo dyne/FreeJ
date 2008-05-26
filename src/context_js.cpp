@@ -593,19 +593,38 @@ JS(entry_select) {
 JS(include_javascript) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 	char *jscript;
-
+	char temp[256];
+	FILE *fd;
+	
 	if(argc<1) JS_ERROR("missing argument");
 	JS_ARG_STRING(jscript,0);
 	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 
-	if (js->open(cx, obj, jscript) == 0) {
+	snprintf(temp,255,"%s",jscript);
+	fd = fopen(temp,"r");
+	if(!fd) {
+	  warning("included file %s not found in current directory",jscript);
+
+	  snprintf(temp,255,"%s/%s",PACKAGE_DATA_DIR,jscript);
+	  fd = fopen(temp,"r");
+	  if(!fd) {
+	    error("included file %s not found in %s", jscript, PACKAGE_DATA_DIR);
+	    error("javascript include('%s') failed", jscript);
+
+	    return JS_FALSE;
+	  }
+	}
+	  
+	fclose(fd);
+	    
+	if (js->open(cx, obj, temp) == 0) {
 		// all errors already reported,
 		// js->open talks too much
 		error("JS include('%s') failed", jscript);
 		return JS_FALSE;
 	}
 
-	func("JS: include %s", jscript);
+	func("JS: included %s", jscript);
 	return JS_TRUE;
 }
 

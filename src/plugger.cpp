@@ -41,12 +41,17 @@ Plugger::Plugger() {
 
   _searchpath = NULL;
 
+  addsearchdir(PACKAGE_LIB_DIR);
+
   sprintf(temp,"%s/.freej/plugins",getenv("HOME"));
   addsearchdir(temp);
-  addsearchdir("/usr/lib/freej");
-  addsearchdir("/usr/local/lib/freej");
-  addsearchdir("/opt/video/lib/freej");
+
   addsearchdir("/usr/lib/FreeFrame");
+
+//   addsearchdir("/usr/lib/freej");
+//   addsearchdir("/usr/local/lib/freej");
+//   addsearchdir("/opt/video/lib/freej");
+
 
 }
 

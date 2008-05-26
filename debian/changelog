@@ -1,3 +1,9 @@
+freej (0.10-1~8.04) hardy; urgency=low
+
+  * stable versioning, fixes
+
+ -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 11:20:00 +0200
+
 freej (0.10-ppa4) hardy; urgency=low
 
   * fixing debian/rules to make PPA source package #3
