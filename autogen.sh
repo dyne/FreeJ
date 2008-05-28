@@ -58,15 +58,15 @@ fi
 echo "Generating configuration files for $package, please wait...."
 
 echo "  aclocal-1.9 -I $srcdir/m4"
-aclocal-1.9 -I $srcdir/m4
+aclocal-1.9 -I $srcdir/m4 || exit -1
 echo "  autoheader"
-autoheader
+autoheader || exit -1
 echo "  $LIBTOOLIZE --automake -c"
-$LIBTOOLIZE --automake -c
+$LIBTOOLIZE --automake -c || exit -1
 echo "  automake-1.9 --add-missing -c"
-automake-1.9 --add-missing -c 
+automake-1.9 --add-missing -c || exit -1
 echo "  autoconf"
-autoconf
+autoconf || exit -1
 
 cd $olddir
 $srcdir/configure "$@" && echo

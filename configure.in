@@ -18,6 +18,7 @@ case $uname in
      AC_MSG_RESULT(Linux)
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
      have_linux=yes
+dnl     AM_CONDITIONAL(ARCH_PPC, test x$hostcpu = xpowerpc)
      if test x$host_cpu = xpowerpc; then
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
@@ -228,7 +229,7 @@ dnl FFMPEG DYNAMIC
 dnl ==============================================================
 
 FFMPEG_LIBS=""
-PKG_CHECK_MODULES(FFMPEG, libavcodec libavformat libavutil,
+PKG_CHECK_MODULES(FFMPEG, libavcodec libavformat libavutil libswscale,
 	                  have_ffmpeg=yes, have_ffmpeg=no)
 if test x$have_ffmpeg = xyes; then
    FFMPEG_LIBS="$FFMPEG_LIBS"
@@ -360,7 +361,7 @@ if test x$have_lubrifications = xyes; then
       # use optimization flags for darwin
             CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
        else
-            CGLAGS="$CFLAGS -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -ffast-math"
+            CFLAGS="$CFLAGS -O2 -fexpensive-optimizations -msse -fomit-frame-pointer -ffast-math"
        fi
 	    
       # adding these provoke 'illegal instruction' errors in some

@@ -31,7 +31,7 @@ class JSContext;
 class JSObject;
 
 
-typedef union ViMoData;
+union ViMoData;
 
 class ViMoController: public Controller {
 	friend class Context;

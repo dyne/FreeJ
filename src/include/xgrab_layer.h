@@ -39,7 +39,7 @@ class XGrabLayer: public Layer {
 		void resize();
 		bool autosize, mapped, unobscured;
 		ScreenGeometry crop;
-		typedef struct crop {
+		struct crop {
 			uint16_t x;
 			uint16_t y;
 			int16_t w; // =<0 = from right

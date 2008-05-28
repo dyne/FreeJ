@@ -40,7 +40,7 @@ btn_player,   1|16,
 btn_recorder, 4|16
 */
 // data packet: ... 0xaa (0x07 0x03 ww kk cc) 0xaa ...
-typedef union ViMoData {
+union ViMoData {
 #ifdef WORDS_BIGENDIAN
 	struct {
 		unsigned

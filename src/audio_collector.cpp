@@ -18,6 +18,8 @@
 #ifdef WITH_SOUND
 
 #include <limits.h>
+#include <string.h>
+#include <stdlib.h>
 #include <iostream>
 //#include <sndfile.h>
 #include <audio_collector.h>

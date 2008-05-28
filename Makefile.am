@@ -18,7 +18,7 @@ dist_pkgdata_DATA = \
 	scripts/mouse.js \
 	scripts/mouse_layerctl.js \
 	scripts/stream.js \
-	scripts/stream_test_rand.js \	
+	scripts/stream_test_rand.js \
 	scripts/test_rand.js \
 	scripts/star.js \
 	scripts/error_test.js \

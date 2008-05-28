@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <limits.h>
+#include <string.h>
 
 #include <audio_jack.h>
 
