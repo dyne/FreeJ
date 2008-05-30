@@ -19,9 +19,12 @@
  *
  */
 
+#include <config.h>
+#ifdef WITH_SOUND
+
 #include <callbacks_js.h>
 #include <jsparser_data.h>
-#include <config.h>
+
 #include <goom_layer.h>
 
 DECLARE_CLASS_GC("GoomLayer",goom_layer_class,goom_layer_constructor,js_layer_gc);
@@ -168,3 +171,5 @@ JS(goom_layer_wave) {
 
   return JS_TRUE;
 }
+
+#endif

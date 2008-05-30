@@ -1,11 +1,7 @@
 
-Since FreeJ 0.9 there is an experimental branch in the subversion for
-OSX, if you are interested in hacking on it please join us on the
-mailinglist or on IRC (see the README)
-
-
-
-
+### this documentation is old and not yet updated
+### please check on our website on http://freej.dyne.org
+### in case anything new is published there
 
 FreeJ 0.7.1 notes for Darwin/OSX hackers
 
@@ -41,7 +37,6 @@ below until it's noticed, so scroll down...
 # apt-get install libpng3
 # apt-get install freetype2-dev
 
-
 - OPTIONAL and NOT recommended:
   if you want to compile the gtk+2 graphical interface
 # apt-get install gtk+2-dev
@@ -57,6 +52,8 @@ performance and usability.
 
 
 - OPTIONAL and WELL RECOMMENDED:
+
+
   if you want to compile the Javascript interpreter download the
   SpiderMonkey engine from http://mozilla.org/js/spidermonkey
   it's js-1.5.tar.gz in http://ftp.mozilla.org/pub/mozilla.org/js
@@ -126,5 +123,5 @@ be slick enough on MacOSX and lacks of a Quicktime layer.
  
 if you want to collaborate, subscribe and mail our mailinglist.
 
-$Id$
+$Id: $
 

@@ -412,6 +412,8 @@ AC_SUBST(OPENGL_LIB)
 ALSA_LIBS=""
 JACK_LIBS=""
 FFTW_LIBS=""
+GOOM_DIR=""
+GOOM_PPC_FILES=""
 #SNDFILE_LIBS=""
 if test x$have_linux = xyes ; then
    
@@ -431,8 +433,11 @@ if test x$have_linux = xyes ; then
 		 if test x$have_fftw = xyes; then
 
 		    AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
-
+		    GOOM_DIR=goom
 		    have_sound=yes
+		    if test x$host_cpu = xpowerpc; then
+		       GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
+		    fi
 
 		 fi
   	 fi
@@ -444,6 +449,8 @@ fi # have_linux
 AC_SUBST(ALSA_LIBS)
 AC_SUBST(JACK_LIBS)
 AC_SUBST(FFTW_LIBS)
+AC_SUBST(GOOM_DIR)
+AC_SUBST(GOOM_PPC_FILES)
 #AC_SUBST(SNDFILE_LIBS)
 
 

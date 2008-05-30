@@ -1,5 +1,5 @@
 
- -=:[ dyne.org autoprod ]:=--- -  -- -   proudly presents:
+ -=:[ dyne.org software foundry ]:=--- -  -- -   proudly presents:
 
 
   o__ __o__/_                                            __o__
@@ -12,48 +12,49 @@
   |          |          v\  /v __o   v\  /v __o    o       o
  / \        / \          <\/> __/>    <\/> __/>    <\__ __/>
 
-                        [[[  FreeJ 0.9.1 "BeTV"  ]]]
+              [[[  FreeJ 0.10 "set the vj free"  ]]]
 
-                           http://freej.dyne.org
+                      http://freej.dyne.org
 
 
 :: OVERVIEW
 
 FreeJ  is a  vision mixer:  a  digital instrument  for realtime  video
-manipulation used  in the fields of dance  teather, veejaying, medical
-visualisation and TV.
+manipulation used  in the fields  of dance teather,  veejaying, online
+streaming, medical visualisation and TV.
 
 It runs a  video engine in which multiple layers  can be filtered thru
 effect  chains  and then  mixed  together  with  images, movies,  live
-cameras,  particle  generators,  text  scrollers and  scripted  vector
-graphics.  All the  resulting  video mix  can  be shown  on a  screen,
-encoded into a movie and streamed live to the internet.
+cameras, particle generators, text scrollers and vector graphics.  All
+the resulting video mix can be shown on a screen, encoded into a movie
+and streamed live to the internet.
 
 FreeJ can be controlled locally or remotely, also from multiple places
 at the same time, using its ascii console interface; operations can be
-automated via  javascript, also MIDI  and Joystick controllers  can be
-scripted.
+scripted in  javascript and triggered  live via keyboard,  mouse, MIDI
+controllers,  Joysticks,  OSC  clients,  Wiimotes and more devices.
 
-FreeJ's sourcecode  is written in  portable C and  C++, it can  run on
-GNU/Linux  and Darwin/OSX platforms,  PC-x86 or  Mac, and  is released
-free under the GNU General Public License.
+ FreeJ's sourcecode is  written in portable C and C++  and it works on
+most platforms  supported by the  GNU C compiler, including  32bit and
+64bit processors, PowerPC and various ARM flavours.
+
+FreeJ is released free under the GNU General Public License (v3).
 
 
 
 :: FEATURES
 
 ++ reads and renders layers from multiple sources:
-   webcams, TV, divx/avi movies, images and txt files
+   webcams, TV, divx/avi movies, images, txt files and more
 ++ can encode in Ogg/Theora video, recording on local file
    and streaming live to an online Icecast server
 ++ can be controlled from remote: VJoE - VeeJay over Ethernet
-++ can be scripted in procedural object oriented language
-++ high precision looping of movie clips
-++ plugin effects are chainable on each layer
+++ can be scripted in object oriented javascript
+++ supports frei0r and freeframe video plugins
 ++ very efficient video engine with multithreaded layers
-++ Emacs/Vi style console with hotkeys and completion (S-Lang)
-++ multiple controllers at the same time (Midi,Joystick)
-++ 100% Free and open source: GNU General Public License
+++ Emacs/Vi style console with hotkeys and completion
+++ multiple controllers at the same time (Midi,Joystick etc.)
+++ 100% Free and open source, GCC 4 compliant portable code 
 
 
 
@@ -73,23 +74,32 @@ In 2003 Kysucix joined  development contributing the streaming feature
 and helping  to include  the javascript parser.  He employed  FreeJ in
 interactive installations while working with Studio Azzurro.
 
-Since 2004 development has been supported by the Netherlands Media Art
-Insitute employing
+Since 2004 development has received support from the Netherlands Media
+Art Insitute.
 
-In 2005  Mr.Goil joined  the project writing  programmable controllers
-and debugging the scripting environment.
+In 2005 Mr.Goil  joined development, writing programmable controllers,
+reviewing the scripting environment and adding more features.
 
 In 2007  the austrian initiative Netculture lab  supported Jaromil and
 Mr.Goil  developing the  BeTV release:  it enhanced  scriptability and
-streaming, with  a major  cleanup of the  code and support  for Frei0r
+streaming, with a major cleanup of the code and wider support of video
 plugins.
 
-For the time being, FreeJ is employed in various video performances and
-installations, but also used for medical analisys visualizations.
+In  2008  both Jaromil  and  Mr.Goil  are  meeting regularly  in  code
+sessions which  are rapidly driving  the project towards a  stable 1.0
+release of FreeJ engine  and javascript API. Meanwhile Blender2Crystal
+developer Caedes is experimenting with python bindings and uses of the
+FreeJ engine in a 3d environment.
 
-Developers are keen to accept projects and propositions in order to
-sustain the development activity on this free software, please contact
-us on http://dyne.org if you think we can collaborate.
+For the time  being, FreeJ is employed in  various video performances,
+interactive  installations and  online TV  streams, as  well  used for
+visualisations in medical analysis.
+
+Developers are  keen to accept  projects and propositions in  order to
+sustain the  development activity and involve  more developers, please
+join our  mailinglist on  http://lists.dyne.org to collaborate  and be
+part of our history :)
+
 
 
 
@@ -97,49 +107,80 @@ us on http://dyne.org if you think we can collaborate.
 :: GET STARTED
 
 To start rolling with FreeJ you can have a look to the online
-documentation on it website http://freej.dyne.org
+documentation on http://freej.dyne.org
 
-Experiment with the  scripts and follow Piotr's tutorial  on the usage
-of the console. There are many things that can be done with this tool,
-let us know :) http://dyne.org/hackers_contact.php
+Most  powerful uses of  FreeJ involve  scripting for  live interaction
+with devices and video compositing,  still a first look at the console
+controller can give an initial picture of how the software works.
 
+Tutorials,  examples and  scripting reference  are available  from the
+website as well along with the distributed sourcecode, in the doc/ and
+scripts/ directories. GNU/Linux distributions usually ship these files
+inside /usr/share/freej and /usr/doc/FreeJ*
+
+As development  unrolls suggestions and feedback are  welcome, join us
+on the freej mailinglist on http://lists.dyne.org and let us know your
+impressions and ideas.
 
 
 
 :: REQUIREMENTS
 
-To run FreeJ is necessary to have:
+To compile and run FreeJ it is necessary to have:
 
-- a working GNU/Linux e u
+- a working GNU/Linux system
   or Darwin/OSX -> see the documentation in README.OSX 
 
 - SDL libraries http://www.libsdl.org
 - PNG libraries http://www.libpng.org
 - S-LANG libraries http://www.s-lang.org
-- Ogg/Vorbis/Theora libraries http://www.xiph.org
+
+Several  other  libraries are  optional  and  strongly recommended  to
+benefit  from  all  features   implemented  in  FreeJ,  in  particular
+Ogg/Vorbis/Theora libraries available on http://www.xiph.org
 
 
 
 
 :: HOW TO INSTALL IT
 
-download a binary for your operating system from http://freej.org or
-try dyne:bolic GNU/Linux http://dynebolic.org which includes it ready
-to use from a liveCD which is also easy to install.
+  ++ GNU/Linux users:
 
-Debian GNU/Linux users can 'apt-get install freej',
+     On  Debian  and  Ubuntu  'freej'  stable packages  are  ready  to
+     install. Release  candidates up  to date with  latest development
+     are also published on: http://launchpad.org/~jaromil/+archive
 
-Gentoo GNU/Linux users can 'emerge freej'
+     On Gentoo it is also possible to 'emerge freej'
 
-But if the package of your distribution is out of date you should
-compile from source for the latest features.
+  ++ Apple/OSX users:
+
+     Binary packages  of FreeJ  for OSX should  be available  from the
+     website  http://freej.dyne.org,  although  they  might be  a  bit
+     outdated and limited in features.  It is also possible to compile
+     FreeJ  from  source following  the  README.OSX  and using  XCode,
+     MacPorts and Fink.
+
+     In case you are a programmer talented with OSX please consider to
+     get in touch with us  and contribute to make this software better
+     on the Apple platform, there isn't much work to do anyway.
+
+  ++ Windlows users:
+
+     No-one of us feels to compile FreeJ on the M$ platform, but there
+     is a quick and easy way to try this software using the dyne:bolic
+     liveCD  even  without installing  anything,  just  boot it,  see:
+     http://dynebolic.org
+
+  ++ Game console users:
+
+     Experimental builds  of FreeJ have succeeded to  work on consoles
+     as GP2X and NintendoDS. It  should be also possible to make FreeJ
+     run on other embedded devices and we are very interested in doing
+     so, please contact us if you are as well :)
 
 
 
-
-
-
-:: DEVELOPERS
+:: TEAM
 
  Denis "Jaromil" Rojo        - FreeJ author and mantainer
 
@@ -147,24 +188,32 @@ compile from source for the latest features.
 
  Christoph "Mr.Goil" Rudorff - Scriptability, MIDI and Joystick 
 
- documentation, testing and user case study by:
+ parts of  included code are  written by Andreas  Schiffler (sdl_gfx),
+ Jan  (theorautils),  Dave  Griffiths  (audio bus),  Nemosoft  (ccvt),
+ Charles Yates (yuv2rgb), Steve  Harris (liblo), Sam Lantinga (sdl_*),
+ Jean-Christophe Hoelt (goom), L.  Donnie Smith (cwiid), Olivier Debon
+ (flash).
+ 
+
+ documentation, testing and user case studies have bee contributed by:
  Anne-Marie Skriver, Marloes de Valk, Piotr Sobolewski
 
  refer to the AUTHORS file for a full list of contributions
 
-You are very welcome to join, there is a lot of space for modules and a
-pretty clear (and almost freezed) API to be used.
-You can follow development activity, just visit http://devel.dyne.org
 
 
 
 
 :: DISCUSSION
 
-Come and visit the irc.dyne.org channel #dyne
-
 A mailinglist for further discussion about FreeJ is running on
-http://lists.dyne.org - come and join us there :)
+
+                  http://lists.dyne.org
+
+For chat we hang around the  channel #dyne on irc.dyne.org - access is
+free via  SSL on port 9999,  connection IP is kept  anonymous for your
+own privacy.
+
 
 
 
@@ -172,36 +221,40 @@ http://lists.dyne.org - come and join us there :)
 
 :: DEVELOPMENT
 
-The latest development version is publicly available on our subversion
-repository:
+To follow development activity,  visit our new distributed versioning
+system on http://git.dyne.org
 
- # svn co svn://svn.dyne.org/rastasoft/freej/trunk freej
+To test new branches and latest code, use git:
 
-Please download and run this code if you want to submit a bugreport or
-a patch or propose and test new features on our mailinglist.
+ # git clone git://dyne.org/freej.git
+
+then generate  the build environment running ./autogen.sh  - note that
+automake and aclocal at exactly 1.9 version are required for it.
+
+Please download  and run  the latest  code from there  if you  want to
+submit a bugreport, submit a patch or propose and test new features on
+our mailinglist.
 
 
 :: DISCLAIMER
 
-FreeJ is (c) 2001 - 2007 by Denis Roio
+FreeJ is (c) 2001 - 2008 by Denis Roio
          (c) 2004 - 2005 by Silvano Galliani
-	 (c) 2005 - 2007 by Christoph Rudorff
+	 (c) 2005 - 2008 by Christoph Rudorff
 
 Statically included libraries are copyright of the respective authors.
 
-This source code is free software; you can redistribute it and/or
-modify it under the terms of the GNU Public License as published 
-by the Free Software Foundation; either version 3 of the License,
-or (at your option) any later version.
+This  source code  is free  software; you  can redistribute  it and/or
+modify it  under the terms of  the GNU Public License  as published by
+the Free Software Foundation; either  version 3 of the License, or (at
+your option) any later version.
 
-This source code is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-Please refer to the GNU Public License for more details.
+This source  code is distributed in  the hope that it  will be useful,
+but  WITHOUT  ANY  WARRANTY;  without  even the  implied  warranty  of
+MERCHANTABILITY or FITNESS FOR  A PARTICULAR PURPOSE.  Please refer to
+the GNU Public License for more details.
 
-You should have received a copy of the GNU Public License along with
-this source code; if not, write to:
-Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-
+You should have  received a copy of the GNU  Public License along with
+this source  code; if not,  write to: Free Software  Foundation, Inc.,
+675 Mass Ave, Cambridge, MA 02139, USA.
 

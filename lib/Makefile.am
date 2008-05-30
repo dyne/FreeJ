@@ -5,8 +5,8 @@ SUBDIRS = 	ccvt			\
 		lo			\
 		shout			\
 		javascript		\
-		goom			\
 		frei0r			\
+		@GOOM_DIR@		\
 		@CWIID_DIR@             \
 		@FLASH_DIR@
 

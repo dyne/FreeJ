@@ -53,7 +53,7 @@ really_clean:
 	rm -f config.log
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) -k clean
+#	-$(MAKE) -k clean
 	# rm config.status
 #ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 #	cp -f /usr/share/misc/config.sub config.sub

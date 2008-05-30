@@ -17,6 +17,9 @@
  *
  */
 
+#include <config.h>
+#ifdef WITH_SOUND
+
 #include <math.h>
 
 #include <jutils.h>
@@ -25,7 +28,6 @@
 
 #include <goom_layer.h>
 
-#include <config.h>
 #include <jsparser_data.h>
 
 
@@ -106,3 +108,5 @@ void *GoomLayer::feed() {
 bool GoomLayer::keypress(int key) {
   return false;
 }
+
+#endif

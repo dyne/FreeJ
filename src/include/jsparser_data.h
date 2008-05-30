@@ -57,8 +57,12 @@ JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
 JS(image_layer_constructor);
 JS(flash_layer_constructor);
-JS(goom_layer_constructor);
 JS(movie_layer_constructor);
+
+#ifdef WITH_SOUND
+JS(goom_layer_constructor);
+JS(js_audio_jack_constructor);
+#endif
 
 #ifdef WITH_V4L
 JS(v4l_layer_constructor);
@@ -92,8 +96,6 @@ JS(js_vid_enc_constructor);
 JS(js_shouter_constructor);
 #endif
 
-// audio collectors
-JS(js_audio_jack_constructor);
 
 //////////////////////////////////////////////////////////////
 // classes
@@ -172,9 +174,14 @@ extern JSFunctionSpec image_layer_methods[];
 extern JSClass flash_layer_class;
 extern JSFunctionSpec flash_layer_methods[];
 
+#ifdef WITH_SOUND
+// Audio collector
+extern JSClass js_audio_jack_class;
+extern JSFunctionSpec js_audio_jack_methods[];
 // GoomLayer
 extern JSClass goom_layer_class;
 extern JSFunctionSpec goom_layer_methods[];
+#endif
 
 // CamLayer
 #ifdef WITH_V4L
@@ -192,9 +199,6 @@ extern JSFunctionSpec txt_layer_methods[];
 #ifdef WITH_FFMPEG
 extern JSClass video_layer_class;
 extern JSFunctionSpec video_layer_methods[];
-#else
-extern JSClass movie_layer_class;
-extern JSFunctionSpec movie_layer_methods[];
 #endif
 
 #ifdef WITH_OGGTHEORA
@@ -205,10 +209,6 @@ extern JSFunctionSpec js_vid_enc_methods[];
 extern JSClass js_shouter_class;
 extern JSFunctionSpec js_shouter_methods[];
 #endif
-
-// Audio collector
-extern JSClass js_audio_jack_class;
-extern JSFunctionSpec js_audio_jack_methods[];
 
 
 // XGrabLayer
@@ -370,6 +370,12 @@ JS(vscroll_layer_speed);
 JS(vscroll_layer_linespace);
 JS(vscroll_layer_kerning);
 
+#ifdef WITH_SOUND
+//////////////////////////////////
+// Audio collector methods
+JS(js_audio_jack_add_output);
+JS(js_audio_jack_get_harmonics);
+JS(js_audio_jack_fft);
 ////////////////////////////////
 // Goom Layer methods
 JS(goom_layer_mode);
@@ -380,6 +386,7 @@ JS(goom_layer_plane);
 JS(goom_layer_wave);
 JS(goom_layer_hypercos);
 JS(goom_layer_noise);
+#endif
 
 #ifdef WITH_V4L
 ////////////////////////////////
@@ -435,21 +442,7 @@ JS(stream_homepage);
 JS(stream_description);
 #endif
 
-//////////////////////////////////
-// Audio collector methods
-JS(js_audio_jack_add_output);
-JS(js_audio_jack_get_harmonics);
-JS(js_audio_jack_fft);
-
-/* TODO: shouter class 
-JS(set_shout_host);
-JS(set_shout_port);
-JS(set_shout_pass);
-JS(set_shout_mountpoint);
-JS(set_shout_name);
-*/
-
-/* avifile now removed
+/*
 
 #ifdef WITH_AVIFILE
 ////////////////////////////////

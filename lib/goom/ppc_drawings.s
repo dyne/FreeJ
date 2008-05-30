@@ -2,6 +2,8 @@
 ; © 2003 Guillaume Borios
 ; This Source Code is released under the terms of the General Public License
 
+#include <config.h>
+
 ; Change log :
 ; 30 May 2003 : File creation
 
