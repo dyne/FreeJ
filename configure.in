@@ -229,7 +229,7 @@ dnl FFMPEG DYNAMIC
 dnl ==============================================================
 
 FFMPEG_LIBS=""
-PKG_CHECK_MODULES(FFMPEG, libavcodec libavformat libavutil libswscale,
+PKG_CHECK_MODULES(FFMPEG, libavcodec libavformat libavutil,
 	                  have_ffmpeg=yes, have_ffmpeg=no)
 if test x$have_ffmpeg = xyes; then
    FFMPEG_LIBS="$FFMPEG_LIBS"
