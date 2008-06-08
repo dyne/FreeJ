@@ -29,6 +29,7 @@ freej_entry_typemap_in(Encoder);
 %ignore Layer::layer_gc;
 
 /* Now the freej headers.. */
+%include "freej.h"
 %include "linklist.h"
 %include "filter.h"
 %include "plugger.h"
