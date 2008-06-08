@@ -66,7 +66,6 @@ class GlScreen : public ViewPort {
   bool glblitX(Layer *layer);
   GLuint texturize(Layer *layer);
   Vertex g_quadVertices[4];
-  bool create_gl_context;
 
   // whis is the main window surface
   SDL_Surface *surface;
@@ -77,8 +76,8 @@ class GlScreen : public ViewPort {
  
  private:
   int setres(int wx, int hx);
-  
-  int glwin;
+  bool dbl;
+  uint32_t sdl_flags;
 
   // check gl error and print it
   bool check_opengl_error();

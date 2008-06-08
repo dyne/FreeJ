@@ -30,35 +30,19 @@
 #include <layer.h>
 #include <jutils.h>
 
-#include <GL/freeglut.h>
-
-static Layer *layer;
-
-static void doblit() {
-  func("glut doblit");
-  if(layer) {
-    glColor3f (0., 0., 0.);
-    glRasterPos2i (0,0);
-    layer->lock();
-    glDrawPixels (layer->geo.w, layer->geo.h, GL_BGRA, GL_UNSIGNED_BYTE, layer->offset);
-    layer->unlock();
-  }
-}
 
 GlScreen::GlScreen()
   : ViewPort() {
   
   bpp = 32;
+  dbl = false;
   x_translation = 0;
   y_translation = 0;
   x_rotation = 0;
   y_rotation = 0;
   rotation = 0;
   zoom = 1.0;
-  glwin = 0;
   opengl = true;
-
-  create_gl_context = true;
 
   g_quadVertices[0].tu = 0.0f;
   g_quadVertices[0].tv = 1.0f;
@@ -85,18 +69,15 @@ GlScreen::GlScreen()
   g_quadVertices[3].z = 0.0f;
   
   // add above | SDL_FULLSCREEN to go fullscreen from the start
-
+    
   magnification = 0;
 }
 
 GlScreen::~GlScreen() {
-  glutDestroyWindow(glwin);
+
 }
 
 bool GlScreen::init(int width, int height) {
-
-  char **argv;
-  int argc = 0;
 
 	w = width;
 	h = height;
@@ -104,60 +85,7 @@ bool GlScreen::init(int width, int height) {
 	size = w*h*(bpp>>3);
 	pitch = w*(bpp>>3);
 
-
-	if(create_gl_context) {
-	  float m_perspect[] = {-1.f, /* left */
-				1.f,  /* right */
-				-1.f, /* bottom */
-				1.f,  /* top */
-				1.f,  /* front */
-				20.f};/* back */
-	  int w, h;
-
-// 	  /* set the viewport to the size of the sub frame */
-// 	  glViewport(0, 0, w, h);
-	  
-// 	  /* set orthogonal projection, with a relative frame size of (2asp x 2) */
-// 	  glMatrixMode(GL_PROJECTION);
-// 	  glLoadIdentity();
-// 	  glFrustum(m_perspect[0], m_perspect[1],       // left, right
-// 		    m_perspect[2], m_perspect[3],                   // bottom, top
-// 		    m_perspect[4], m_perspect[5]);                  // front, back
-	  
-// 	  /* reset texture matrix */
-// 	  glMatrixMode(GL_TEXTURE);
-// 	  glLoadIdentity();
-	  
-	  
-// 	  /* set the center of view */
-// 	  glMatrixMode(GL_MODELVIEW);
-// 	  glLoadIdentity();
-// 	  gluLookAt(0, 0, 4, 0, 0, 0, 0, 1, 0);
-// 	  //glTranslatef(asp, 1, 0);
-	  
-	  
-// 	  glEnable(GL_DEPTH_TEST);
-// 	  glEnable(GL_AUTO_NORMAL);
-// 	  glEnable(GL_NORMALIZE);
-// 	  glShadeModel(GL_SMOOTH);
-// 	  //glShadeModel(GL_FLAT);
-	  
-	  
-// 	  /* disable everything that is enabled in other modules
-// 	     this resets the ogl state to its initial conditions */
-// 	  glDisable(GL_LIGHTING);
-// 	  for (int i=0; i<8; i++) glDisable(GL_LIGHT0 + i);
-// 	  glDisable(GL_COLOR_MATERIAL);
-	  
-	  
-	  glutInit (&argc, argv);
-	  glutInitDisplayMode (GLUT_RGBA | GLUT_DOUBLE);
-	  glutInitWindowSize ( width, height);
-	  glwin = glutCreateWindow (PACKAGE);
-	  glutDisplayFunc(doblit);
-	  glutIdleFunc(doblit);
-	  glutShowWindow();
-	}
+	
 //         screen = SDL_CreateRGBSurface
 //          (sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
 	// TODO screen : from where?
@@ -173,7 +101,6 @@ void GlScreen::resize(int resize_w, int resize_h) {
 
 void *GlScreen::coords(int x, int y) {
   // TODO : check to return the correct pixel buffer to draw on
-  error("GlScreen:coords was called");
   return 
     ( x + (w*y) +
       (uint32_t*)screen->pixels );
@@ -205,25 +132,19 @@ bool GlScreen::check_opengl_error()
 GLuint GlScreen::texturize(Layer *layer) {
   GLuint textureID;
   // generate texture for the layer
-  glGenTextures( 1, &textureID );
+ /* glGenTextures( 1, &textureID );
   glBindTexture(GL_TEXTURE_2D, textureID);
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
   glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  layer->textureID = textureID;
+  layer->textureID = textureID;*/
   return textureID;
 }
-bool GlScreen::glblit(Layer *lay) {
-
-  // real blit is done in the doblit glut callback
-  layer = lay;
-
-  //  When you put glutPostRedisplay(); somewhere in your code this means
-  // that the function defined using glutDisplayFunc() will be called at
-  // the next opportunity. It marks the current window as needing a redraw.
-  glutPostRedisplay();
-
-  glutSwapBuffers();
-
+bool GlScreen::glblit(Layer *layer) {
+  glColor3f (0., 0., 0.);
+  glRasterPos2i (0,0);
+  layer->lock();
+  glDrawPixels (layer->geo.w, layer->geo.h, GL_BGRA, GL_UNSIGNED_BYTE, layer->offset);
+  layer->unlock();
   return(true);
 }
 
@@ -267,14 +188,10 @@ bool GlScreen::glblitX(Layer *layer) {
 }
 
 void GlScreen::show() {
-  func("GlScreen::show");
-  if(create_gl_context)
-    glutMainLoopEvent();
   // nop
 }
 
 void *GlScreen::get_surface() {
-  error("GlScreen:get_surface called");
   // TODO: which pixels?
   return screen->pixels;
 }
