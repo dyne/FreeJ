@@ -33,12 +33,12 @@
 
 
 
-struct Vertex
+/*struct Vertex
 {
     float tu, tv;
     float x, y, z;
 };
-
+*/
 Vertex g_quadVertices[] =
 {
     { 0.0f,0.0f, -1.0f,-1.0f, 0.0f },
@@ -241,7 +241,6 @@ void SdlGlScreen::drawframe() {
 			notice("GL_TABLE_TOO_LARGE");
 	}
 }
-*/
 void SdlGlScreen::show() {
 	/*
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1.0);
@@ -325,13 +324,13 @@ void SdlGlScreen::show() {
 	glDrawArrays( GL_QUADS, 0, 4 );
 	check_opengl_error();
 }
-
+/*
 void SdlGlScreen::show() {
 	drawframe();
 	SDL_GL_SwapBuffers();
 	check_opengl_error();
 }
-
+*/
 void *SdlGlScreen::get_surface() {
   return screen->pixels;
 }
