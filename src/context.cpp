@@ -160,11 +160,10 @@ bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
   // If selected use opengl as video output!
 #ifdef WITH_OPENGL
   if (opengl)
-    screen = new GlScreen();
-  else
-#endif
-
+    screen = new SdlGlScreen();
+#elif
   screen = new SdlScreen();
+#endif
   
   if (! screen->init (wx, hx)) {
     error ("Can't initialize the viewport");
