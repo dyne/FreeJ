@@ -18,8 +18,8 @@
  * "$Id$"
  *
  */
-
 #include <config.h>
+
 #ifdef WITH_OPENGL
 
 #include <stdlib.h>
@@ -27,31 +27,16 @@
 #include <SDL_syswm.h>
 #include <SDL_opengl.h>
 
-#include <layer.h>
 #include <sdlgl_screen.h>
 #include <jutils.h>
 
 
 
-/*struct Vertex
-{
-    float tu, tv;
-    float x, y, z;
-};
-*/
-Vertex g_quadVertices[] =
-{
-    { 0.0f,0.0f, -1.0f,-1.0f, 0.0f },
-    { 1.0f,0.0f,  1.0f,-1.0f, 0.0f },
-    { 1.0f,1.0f,  1.0f, 1.0f, 0.0f },
-    { 0.0f,1.0f, -1.0f, 1.0f, 0.0f }
-};
 
 
 SdlGlScreen::SdlGlScreen()
   : ViewPort() {
   
-  screen = NULL;
   emuscr = NULL;
   bpp = 32;
   dbl = false;
@@ -87,7 +72,7 @@ SdlGlScreen::SdlGlScreen()
   g_quadVertices[3].y = 1.0f;
   g_quadVertices[3].z = 0.0f;
 
-  opengl = true;
+
   // add above | SDL_FULLSCREEN to go fullscreen from the start
     
     magnification = 0;
@@ -162,7 +147,7 @@ bool SdlGlScreen::init(int width, int height) {
 	pitch = w*(bpp>>3);
 	SDL_VideoDriverName(temp,120);
 
-	notice("SDL Viewport is %s %ix%i %ibpp",
+	notice("SDLGL Viewport is %s %ix%i %ibpp",
 			temp,w,h,surface->format->BytesPerPixel<<3);
 
         screen = SDL_CreateRGBSurface
@@ -190,6 +175,26 @@ void *SdlGlScreen::coords(int x, int y) {
       (uint32_t*)screen->pixels );
 }
 
+void SdlGlScreen::check_opengl_error()
+{
+	GLenum err = glGetError ();
+	if(err == GL_INVALID_ENUM)
+		notice("GL_INVALID_ENUM");
+	else if (err == GL_INVALID_VALUE)
+		notice("GL_INVALID_VALUE di glTexImage2D");
+	else if (err == GL_INVALID_OPERATION)
+		notice("GL_INVALID_OPERATION");
+	else if (err == GL_STACK_OVERFLOW)
+		notice("GL_STACK_OVERFLOW");
+	else if (err == GL_STACK_UNDERFLOW)
+		notice("GL_STACK_UNDERFLOW");
+	else if (err == GL_OUT_OF_MEMORY)
+		notice("GL_OUT_OF_MEMORY");
+	else if (err == GL_TABLE_TOO_LARGE)
+		notice("GL_TABLE_TOO_LARGE");
+
+}
+
 void SdlGlScreen::drawframe() {
 	// bind freej texture and copy it
 	glBindTexture( GL_TEXTURE_2D, textureID );
@@ -197,107 +202,7 @@ void SdlGlScreen::drawframe() {
 			  0, GL_RGBA, GL_UNSIGNED_BYTE, screen->pixels );
 	check_opengl_error();
 
-	glDrawArrays( GL_QUADS, 0, 4 );
-	{
-		GLenum err = glGetError ();
-		if(err == GL_INVALID_ENUM)
-			notice("GL_INVALID_ENUM");
-		else if (err == GL_INVALID_VALUE) {
-			notice("glDrawArrays");
-			notice("GL_INVALID_VALUE");
-		}
-		else if (err == GL_INVALID_OPERATION)
-			notice("GL_INVALID_OPERATION");
-		else if (err == GL_STACK_OVERFLOW)
-			notice("GL_STACK_OVERFLOW");
-		else if (err == GL_STACK_UNDERFLOW)
-			notice("GL_STACK_UNDERFLOW");
-		else if (err == GL_OUT_OF_MEMORY)
-			notice("GL_OUT_OF_MEMORY");
-		else if (err == GL_TABLE_TOO_LARGE)
-			notice("GL_TABLE_TOO_LARGE");
-	}
-
-
-	//  SDL_Flip(surface); HAHAHAHAH kewl :)
-	SDL_GL_SwapBuffers();
-	{
-		GLenum err = glGetError ();
-		if(err == GL_INVALID_ENUM)
-			notice("GL_INVALID_ENUM");
-		else if (err == GL_INVALID_VALUE) {
-			notice("SDL_GL_SwapBuffers");
-			notice("GL_INVALID_VALUE");
-		}
-		else if (err == GL_INVALID_OPERATION)
-			notice("GL_INVALID_OPERATION");
-		else if (err == GL_STACK_OVERFLOW)
-			notice("GL_STACK_OVERFLOW");
-		else if (err == GL_STACK_UNDERFLOW)
-			notice("GL_STACK_UNDERFLOW");
-		else if (err == GL_OUT_OF_MEMORY)
-			notice("GL_OUT_OF_MEMORY");
-		else if (err == GL_TABLE_TOO_LARGE)
-			notice("GL_TABLE_TOO_LARGE");
-	}
-}
-void SdlGlScreen::show() {
-	/*
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_PRIORITY, 1.0);
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-	glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-	glTexEnvf (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	{
-		GLenum err = glGetError ();
-		if(err == GL_INVALID_ENUM)
-			notice("GL_INVALID_ENUM");
-		else if (err == GL_INVALID_VALUE)
-			notice("GL_INVALID_VALUE PRIMA");
-		else if (err == GL_INVALID_OPERATION)
-			notice("GL_INVALID_OPERATION");
-		else if (err == GL_STACK_OVERFLOW)
-			notice("GL_STACK_OVERFLOW");
-		else if (err == GL_STACK_UNDERFLOW)
-			notice("GL_STACK_UNDERFLOW");
-		else if (err == GL_OUT_OF_MEMORY)
-			notice("GL_OUT_OF_MEMORY");
-		else if (err == GL_TABLE_TOO_LARGE)
-			notice("GL_TABLE_TOO_LARGE");
-	}
-	*/
-	//  glTexImage2D( GL_TEXTURE_2D, 0, 4, surface->w, surface->h, 
-	//		  0, GL_COLOR_INDEX, GL_UNSIGNED_INT, surface->pixels );
-	//  glTexImage2D( GL_TEXTURE_2D, 1, 4, surface->w, surface->h, 
-	//		  0, GL_COLOR_INDEX, GL_UNSIGNED_INT, blu );
-	gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, surface->w,
-			surface->h, GL_RGBA, GL_UNSIGNED_BYTE,
-			surface->pixels);
-	{
-		GLenum err = glGetError ();
-		if(err == GL_INVALID_ENUM)
-			notice("GL_INVALID_ENUM");
-		else if (err == GL_INVALID_VALUE)
-			notice("GL_INVALID_VALUE di glTexImage2D");
-		else if (err == GL_INVALID_OPERATION)
-			notice("GL_INVALID_OPERATION");
-		else if (err == GL_STACK_OVERFLOW)
-			notice("GL_STACK_OVERFLOW");
-		else if (err == GL_STACK_UNDERFLOW)
-			notice("GL_STACK_UNDERFLOW");
-		else if (err == GL_OUT_OF_MEMORY)
-			notice("GL_OUT_OF_MEMORY");
-		else if (err == GL_TABLE_TOO_LARGE)
-			notice("GL_TABLE_TOO_LARGE");
-	}
-	// notice("");
-	int x_translation = 0;
-	int y_translation = 0;
-	int x_rotation = 0;
-	int y_rotation = 0;
-	int rotation = 0;
-	int zoom = 0;
+	// reset opengl environment.
 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 	glGetError ();
 	glMatrixMode( GL_MODELVIEW );
@@ -315,8 +220,8 @@ void SdlGlScreen::show() {
 	glRotatef( rotation, 0.0f, 0.0f, 1.0f );
 	*/
 	// change scale
-	glScaled(zoom, zoom, zoom);
-	zoom-=0.01;
+	//glScaled(zoom, zoom, zoom);
+	//zoom-=0.01;
 
 	// draw the screen quad
 	glInterleavedArrays( GL_T2F_V3F, 0, g_quadVertices );
@@ -324,13 +229,13 @@ void SdlGlScreen::show() {
 	glDrawArrays( GL_QUADS, 0, 4 );
 	check_opengl_error();
 }
-/*
+
 void SdlGlScreen::show() {
 	drawframe();
 	SDL_GL_SwapBuffers();
 	check_opengl_error();
 }
-*/
+
 void *SdlGlScreen::get_surface() {
   return screen->pixels;
 }
@@ -425,48 +330,6 @@ void SdlGlScreen::set_magnification(int algo) {
 
   magnification = algo;
   
-}
-
-bool SdlGlScreen::check_opengl_error()
-{
-	GLenum err = glGetError ();
-	if(err == GL_INVALID_ENUM)
-		notice("GL_INVALID_ENUM");
-	else if (err == GL_INVALID_VALUE)
-		notice("GL_INVALID_VALUE di glTexImage2D");
-	else if (err == GL_INVALID_OPERATION)
-		notice("GL_INVALID_OPERATION");
-	else if (err == GL_STACK_OVERFLOW)
-		notice("GL_STACK_OVERFLOW");
-	else if (err == GL_STACK_UNDERFLOW)
-		notice("GL_STACK_UNDERFLOW");
-	else if (err == GL_OUT_OF_MEMORY)
-		notice("GL_OUT_OF_MEMORY");
-	else if (err == GL_TABLE_TOO_LARGE)
-		notice("GL_TABLE_TOO_LARGE");
-	else
-	  return (true);
-
-	return(false);
-}
-
-GLuint SdlGlScreen::texturize(Layer *layer) {
-  GLuint textureID;
-  // generate texture for the layer
-  glGenTextures( 1, &textureID );
-  glBindTexture(GL_TEXTURE_2D, textureID);
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-  layer->textureID = textureID;
-  return textureID;
-}
-bool SdlGlScreen::glblit(Layer *layer) {
-  glColor3f (0., 0., 0.);
-  glRasterPos2i (0,0);
-  layer->lock();
-  glDrawPixels (layer->geo.w, layer->geo.h, GL_BGRA, GL_UNSIGNED_BYTE, layer->offset);
-  layer->unlock();
-  return(true);
 }
     
 #endif

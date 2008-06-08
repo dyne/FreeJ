@@ -21,7 +21,6 @@
 
 #include <config.h>
 
-#ifdef WITH_OPENGL
 #ifndef __SDLGL_SCREEN_H__
 #define __SDLGL_SCREEN_H__
 
@@ -63,10 +62,7 @@ class SdlGlScreen : public ViewPort {
   // whis is the main window surface
   SDL_Surface *surface;
   void *coords(int x, int y);
-
-  // opengl stuff
-  bool glblit(Layer *layer);
-  GLuint texturize(Layer *layer);
+  
   Vertex g_quadVertices[4];
 
   bool lock();
@@ -82,9 +78,8 @@ class SdlGlScreen : public ViewPort {
   uint32_t sdl_flags;
 
   // check gl error and print it
-  bool check_opengl_error();
+  void check_opengl_error();
 
 };
 
-#endif 
 #endif 
