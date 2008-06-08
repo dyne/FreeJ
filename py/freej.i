@@ -5,6 +5,13 @@
 #include "console.h"
 %}
 
+%immutable layers_description;
+%immutable Parameter::description;
+
+%ignore Linklist::operator[];
+
+%apply unsigned long { uint16_t };
+
 /* Macros that can be redefined for other languages */
 /* freej_entry_typemap_in: to be able to map an Entry* to TypeName* */
 #define freej_entry_typemap_in(TypeName)
@@ -38,9 +45,22 @@ freej_entry_typemap_in(Encoder);
 %include "layer.h"
 %include "jutils.h"
 
+%extend Layer
+{
+  void add_filter(Filter *filter)
+  {
+    filter->apply(self);
+  }
+}
+
+
 /* Language specific extensions */
 #if defined(SWIGPYTHON)
   %include "pypost.i"
+#elif defined(SWIGRUBY)
+  %include "rbpost.i"
+#elif defined(SWIGLUA)
+  %include "luapost.i"
 #endif
 // SWIGPERL5, SWIGRUBY, SWIGJAVA, SWIGLUA...
 

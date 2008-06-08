@@ -22,9 +22,13 @@
 /* add_filter function in the layers :P */
 %extend Layer
 {
-  void add_filter(Filter *filter)
+  int GetWidth()
   {
-    filter->apply(self);
+    return self->geo.w;
+  }
+  int GetHeight()
+  {
+    return self->geo.h;
   }
 }
 
