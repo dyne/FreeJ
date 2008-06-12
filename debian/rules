@@ -66,7 +66,7 @@ really_clean:
 	rm -rf doc/scripting/html
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) -k distclean
+	[ ! -f Makefile ] || $(MAKE) -k distclean
 	# rm config.status
 #ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 #	cp -f /usr/share/misc/config.sub config.sub
