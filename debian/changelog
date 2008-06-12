@@ -11,8 +11,9 @@ freej (0.10-1) unstable; urgency=low
   * Move copyright to gpl-3
   * Remove unused patches
   * Remove configure flags in debian/rules
+  * Add patch to fix interpeter path in js scripts 
 
- -- Luca Bigliardi <shammash@artha.org>  Thu, 12 Jun 2008 18:48:20 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Thu, 12 Jun 2008 21:19:06 +0100
 
 freej (0.9.1+dl0-3.1) unstable; urgency=low
 
