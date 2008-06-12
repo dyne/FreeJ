@@ -3,9 +3,11 @@ Mon, 24 Jun 2002 16:03:54 +0200.
 
 It was downloaded from ftp://ftp.dyne.org/freej/releases/
 
-Upstream Author: Denis Roio <jaromil@dyne.org>
+Upstream Author: Denis Rojo <jaromil@dyne.org>
 
-Copyright:
+License:
+
+   Copyright (C) 2001-2008 Jaromil
 
    This package is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
