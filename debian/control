@@ -2,8 +2,7 @@ Source: freej
 Section: x11
 Priority: optional
 Maintainer: Guido Trotter <ultrotter@debian.org>
-Uploaders: Luca Bigliardi <shammash@artha.org>
-Uploaders: Denis Rojo <jaromil@dyne.org>
+Uploaders: Luca Bigliardi <shammash@artha.org>, Denis Rojo <jaromil@dyne.org>
 Build-Depends: c++-compiler, libtool, debhelper (>> 5.0.0), flex, bison, libsdl-dev, libpng-dev, libfreetype6-dev, libfontconfig-dev, dpatch, libogg-dev, libvorbis-dev, libjpeg-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev, libbluetooth2-dev, fftw3-dev, libjack-dev, libasound-dev
 Standards-Version: 3.7.3.0
 
