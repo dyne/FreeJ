@@ -1,0 +1,1 @@
+?package(freej):needs="X11" section="Applications/Video" title="freej" command="/usr/bin/freej"

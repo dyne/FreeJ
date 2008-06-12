@@ -1,0 +1,1 @@
+- Fix scanfonts() to actually scan subdirs and pick up all installed fonts
