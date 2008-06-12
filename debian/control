@@ -4,19 +4,21 @@ Priority: optional
 Maintainer: Guido Trotter <ultrotter@debian.org>
 Uploaders: Luca Bigliardi <shammash@artha.org>
 Uploaders: Denis Rojo <jaromil@dyne.org>
-Build-Depends: debhelper (>> 5.0.0), libsdl1.2-dev (>= 1.2.0), libpng12-dev, libfreetype6-dev, libfontconfig1-dev, dpatch, libogg-dev, libvorbis-dev, libjpeg62-dev, libasound2-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev, libxmlrpc++-dev, libflash-dev, libsdl-gfx1.2-dev, libsdl-image1.2-dev, libsdl-ttf2.0-dev, libshout3-dev, portaudio19-dev, libmozjs-dev, libssl-dev
+Build-Depends: c++-compiler, libtool, debhelper (>> 5.0.0), flex, bison, libsdl-dev, libpng-dev, libfreetype6-dev, libfontconfig-dev, dpatch, libogg-dev, libvorbis-dev, libjpeg-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev, libbluetooth2-dev, fftw3-dev, libjack-dev, libasound-dev
 Standards-Version: 3.7.3.0
+
 
 Package: freej
 Architecture: any
 Depends: ${shlibs:Depends} ${misc:Depends}
 Recommends: ttf-freefont
-Description: Digital instrument for video liveset
- FreeJ is a digital instrument for video livesets, featuring realtime
- rendering of multilayered video and chained effect filtering directly on
- the screen (thru dynamically loadable plugins). FreeJ treats every video
- source as a layer, making then possible to dynamically apply on each a
- chain of filters, loadable as effect plugins and easily customizable.
- Layers are planned for rendering of analog video input, digital movie
- files (avi/mpeg), image bitmaps, sound scopes, texts and eventually
- more.
+Description: Vision mixer
+ FreeJ is a digital instrument for realtime video manipulation used in
+ the fields of dance teather, veejaying, medical visualisation and TV.
+ FreeJ  lets  you interact  with  multiple  layers  of video  (images,
+ movies,  live  cameras, particle  generators,  text scrollers,  flash
+ animations and  more), filter  them with effect  chains and  then mix
+ together. It can be operated live from a text console and scripted in
+ Javascript to be controlled by keyboard, midi, OSC and joysticks.
+ .
+ Homepage: http://freej.dyne.org/
