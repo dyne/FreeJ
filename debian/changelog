@@ -1,3 +1,9 @@
+freej (0.10-1) unstable; urgency=low
+
+  * New upstream version
+
+ -- Guido Trotter <ultrotter@debian.org>  Thu, 12 Jun 2008 17:50:05 +0100
+
 freej (0.9.1+dl0-3.1) unstable; urgency=low
 
   * Non-maintainer upload for the gcc-4.3 release goal, using
