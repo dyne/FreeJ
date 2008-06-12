@@ -10,8 +10,7 @@ freej (0.10-1) unstable; urgency=low
   * Update description and build-dependencies in control
   * Move copyright to gpl-3
   * Remove unused patches
-  * Remove README.Debian because we don't have dl0 anymore
-  * Fix debian/rules
+  * Remove configure flags in debian/rules
 
  -- Luca Bigliardi <shammash@artha.org>  Thu, 12 Jun 2008 18:48:20 +0100
 
