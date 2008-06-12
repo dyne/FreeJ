@@ -85,7 +85,10 @@ install: build
 
 	# Add here commands to install the package into debian/freej.
 	$(MAKE) install prefix=$(CURDIR)/debian/freej/usr
-	rm -rf $(CURDIR)/debian/freej/usr/doc
+	rm -rf $(CURDIR)/debian/freej/usr/share/doc/freej-0.10
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej/AUTHORS
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej/COPYING
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej/README
 
 
 # Build architecture-dependent files here.
