@@ -1,44 +1,95 @@
 #!/usr/bin/make -f
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
 
-DEB_CONFIGURE_EXTRA_FLAGS= --enable-python
-DEB_DH_INSTALL_SOURCEDIR=debian/tmp
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
 
-include /usr/share/cdbs/1/rules/buildcore.mk
-include /usr/share/cdbs/1/rules/debhelper.mk
-include /usr/share/cdbs/1/class/autotools.mk
-include /usr/share/cdbs/1/rules/dpatch.mk
+# These are used for cross-compiling and for saving the configure script
+# from having to guess our platform (since we know it already)
+DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
+DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
+include /usr/share/dpatch/dpatch.make
 
-common-build-arch common-build-indep::
-	# scripting doc
-	make -k -C doc/scripting
+CFLAGS = -Wall -g
 
-clean::
-	# scripting doc
-	make -k -C doc/scripting clean
-	# bad javascript
-	rm -f lib/javascript/editline/obj/*.o
-	rm -f lib/javascript/editline/obj/*.a
-	rm -f lib/javascript/fdlibm/obj/*.o
-	rm -f lib/javascript/fdlibm/obj/*.a
-	rm -f lib/javascript/obj/*.o
-	rm -f lib/javascript/obj/*.a
-	rm -f lib/javascript/obj/*.so
-	rm -f lib/javascript/obj/jsautocfg.h
-	rm -f lib/javascript/obj/js
-	rm -f lib/javascript/obj/jscpucfg
-	# bad conditional subdirs with
-	# non conditional Makefile creation
-	rm -f lib/goom/Makefile
-	rm -f bindings/java/Makefile
-	rm -f bindings/perl/Makefile
-	rm -f bindings/python/Makefile
-	rm -f bindings/ruby/Makefile
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	CFLAGS += -O0
+else
+	CFLAGS += -O2
+endif
+ifeq (,$(findstring nostrip,$(DEB_BUILD_OPTIONS)))
+	INSTALL_PROGRAM += -s
+endif
 
-common-install-arch common-install-indep::
-	rm -rf $(CURDIR)/debian/freej/usr/share/doc/freej-*
-	rm -rf $(CURDIR)/debian/freej/usr/share/freej/AUTHORS
-	rm -rf $(CURDIR)/debian/freej/usr/share/freej/COPYING
-	rm -rf $(CURDIR)/debian/freej/usr/share/freej/README
+config.status: configure
+	dh_testdir
+	# Add here commands to configure the package.
+	./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info --enable-lubrify --enable-v4l --enable-midi --enable-dynamic-ffmpeg
 
 
+build: patch-stamp build-stamp
+#build: build-stamp
+
+build-stamp:  config.status
+	dh_testdir
+
+	# Add here commands to compile the package.
+	$(MAKE)
+
+	touch build-stamp
+
+clean: really_clean unpatch
+#clean: really_clean
+
+really_clean:	
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp 
+	rm -f config.log
+
+	# Add here commands to clean up after the build process.
+	[ ! -f Makefile ] || $(MAKE) distclean
+#ifneq "$(wildcard /usr/share/misc/config.sub)" ""
+#	cp -f /usr/share/misc/config.sub config.sub
+#endif
+#ifneq "$(wildcard /usr/share/misc/config.guess)" ""
+#	cp -f /usr/share/misc/config.guess config.guess
+#endif
+	dh_clean
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Add here commands to install the package into debian/freej.
+	$(MAKE) install prefix=$(CURDIR)/debian/freej/usr
+	rm -rf $(CURDIR)/debian/freej/usr/doc
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej
+
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installdocs
+	mv $(CURDIR)/debian/freej/usr/share/doc/freej/html \
+	   $(CURDIR)/debian/freej/usr/share/doc/freej/scripting-html
+	dh_installexamples
+	dh_installmenu
+	dh_installchangelogs ChangeLog
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-arch
+.PHONY: build clean binary-indep binary-arch binary install 

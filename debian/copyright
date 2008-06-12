@@ -3,15 +3,13 @@ Mon, 24 Jun 2002 16:03:54 +0200.
 
 It was downloaded from ftp://ftp.dyne.org/freej/releases/
 
-Upstream Author: Denis Rojo <jaromil@dyne.org>
+Upstream Author: Denis Roio <jaromil@dyne.org>
 
-License:
-
-   Copyright (C) 2001-2008 Jaromil
+Copyright:
 
    This package is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; version 3 dated June, 2007.
+   the Free Software Foundation; version 2 dated June, 1991.
 
    This package is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,9 +21,5 @@ License:
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
 
 On Debian GNU/Linux systems, the complete text of the GNU General
-Public License can be found in `/usr/share/common-licenses/GPL-3'.
-
-The freej manpage is distributed under the terms of the GNU Free
-Documentation License, which, on Debian systems, is available at:
-/usr/share/common-licenses/GFDL
+Public License can be found in `/usr/share/common-licenses/GPL'.
 
