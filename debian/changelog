@@ -2,8 +2,9 @@ freej (0.10-1) unstable; urgency=low
 
   * New upstream version
   * Drop 0.9.1 specific patches (now merged upsteam)
+  * Remove debian/README.Debian, which refers to 0.9.1 specific changes
 
- -- Guido Trotter <ultrotter@debian.org>  Thu, 12 Jun 2008 17:52:10 +0100
+ -- Guido Trotter <ultrotter@debian.org>  Thu, 12 Jun 2008 18:24:34 +0100
 
 freej (0.9.1+dl0-3.1) unstable; urgency=low
 
