@@ -1,0 +1,227 @@
+freej (0.9.1+dl0-3.1) unstable; urgency=low
+
+  * Non-maintainer upload for the gcc-4.3 release goal, using
+    a patch provided by Cyril Brulebois.  (Closes: #462204)
+
+ -- Philipp Kern <pkern@debian.org>  Sun, 16 Mar 2008 21:30:59 +0100
+
+freej (0.9.1+dl0-3) unstable; urgency=low
+
+  * Remove no longer needed build-dependency on libavifile0.7-dev
+
+ -- Guido Trotter <ultrotter@debian.org>  Wed, 09 Jan 2008 11:02:15 +0100
+
+freej (0.9.1+dl0-2) unstable; urgency=low
+
+  * Bump up debian/compat to 5
+  * Add Luca Bigliardi as a comaintainer
+  * mv debian/README debian/README.Debian
+  * update debian's readme file to reflect all the changes to +dl0
+
+ -- Guido Trotter <ultrotter@debian.org>  Sat, 05 Jan 2008 10:07:32 +0100
+
+freej (0.9.1+dl0-1) unstable; urgency=low
+
+  [ Guido Trotter and Luca Bigliardi ]
+  * New upstream version (closes: #458599)
+    - Now compiles with gcc 4.2 (closes: #394932, #423765)
+    - ImageLayer objects from a .js file now work (closes: #388132)
+  * Compile linking all libraries which are in debian dynamically
+    - This makes it build on amd64 (closes: #381410, #393749)
+  * Ship upstream manpage (and remove debian's)
+  * Recommend freefonts, whose dir is now scanned by freej (closes: #419813)
+  * Update menu file to the new policy
+  * Ship scripting documentation and example scripts
+
+ -- Guido Trotter <ultrotter@debian.org>  Fri, 04 Jan 2008 17:01:24 +0100
+
+freej (0.8.1-4) unstable; urgency=low
+
+  * Convert build conflict on libavifile-0.7-dev to a build depencency
+  * Add build dependencies on libasound2-dev, libslang2-dev
+  * Bump up standards version
+
+ -- Guido Trotter <ultrotter@debian.org>  Thu,  9 Nov 2006 14:49:56 +0000
+
+freej (0.8.1-3) unstable; urgency=low
+
+  * Patch to enable building with sid's gcc (closes: #374762)
+  * Update standards version
+
+ -- Guido Trotter <ultrotter@debian.org>  Wed, 21 Jun 2006 15:45:38 +0200
+
+freej (0.8.1-2) unstable; urgency=low
+
+  * Update build dependencies (closes: #357004)
+
+ -- Guido Trotter <ultrotter@debian.org>  Fri, 17 Mar 2006 09:19:59 +0100
+
+freej (0.8.1-1) unstable; urgency=low
+
+  * New upstream version
+  * Update FSF address in debian/copyright
+
+ -- Guido Trotter <ultrotter@debian.org>  Fri,  6 Jan 2006 09:54:11 +0000
+
+freej (0.7.1-2) unstable; urgency=low
+
+  * Rebuild against newest sdl library (closes: #318235)
+  * Move "menu" file to "freej.menu"
+
+ -- Guido Trotter <ultrotter@debian.org>  Fri, 15 Jul 2005 10:45:23 +0300
+
+freej (0.7.1-1) unstable; urgency=low
+
+  * The "back to work" release
+  * New upstream version (closes: #308850)
+  * Asm should be now optional (closes: #253556)
+  * Patch for building with gcc 4.0 (had to tweak a couple of things, hope
+    nothing broke!)
+
+ -- Guido Trotter <ultrotter@debian.org>  Sun, 10 Jul 2005 16:23:49 +0000
+
+freej (0.6.0-4) unstable; urgency=low
+
+  * Update watch file
+  * Rebuild freej without avi support as avifile
+    won't probably enter sarge, and shipping 0.6.0 without
+    avi is better than 0.5 without avi
+
+ -- Guido Trotter <ultrotter@debian.org>  Tue,  3 Aug 2004 12:29:43 +0200
+
+freej (0.6.0-3) unstable; urgency=low
+
+  * Wooops... I've compiled freej against libgcc1 in experimental!
+    - Now recompiling it against unstable (closes: #254229)
+
+ -- Guido Trotter <ultrotter@debian.org>  Mon, 14 Jun 2004 12:59:13 +0200
+
+freej (0.6.0-2) unstable; urgency=low
+
+  * Recompile against new avifile (closes: #253326)
+    (Thanks to Giuseppe D'Angelo for spotting the problem)
+
+ -- Guido Trotter <ultrotter@debian.org>  Wed,  9 Jun 2004 16:44:18 +0200
+
+freej (0.6.0-1) unstable; urgency=low
+
+  * The "lintian-clean it" release
+  * Upstream version is 0.6, i've incremented the version number a bit in
+    order to upload a new source without the CVS directories, and so let
+    lintian not complain...
+  * Quote needs and section strings into the debian/menu file
+
+ -- Guido Trotter <ultrotter@debian.org>  Tue, 24 Feb 2004 18:54:55 +0100
+
+freej (0.6-2) unstable; urgency=low
+
+  * Correct URL in copyright and watch file
+  * Update manpage
+
+ -- Guido Trotter <ultrotter@debian.org>  Fri, 23 Jan 2004 12:59:08 +0100
+
+freej (0.6-1) unstable; urgency=low
+
+  * New upstream release
+  * The "Skipped one release, uh?" release!
+  * Reinsert avi support, since it does not depend on ffmpeg anymore
+  
+ -- Guido Trotter <ultrotter@debian.org>  Fri, 23 Jan 2004 08:38:12 +0100
+
+freej (0.5-5) unstable; urgency=low
+
+  * Bump Standards-Version to 3.6.1.0 
+
+ -- Guido Trotter <ultrotter@debian.org>  Thu, 28 Aug 2003 10:04:00 +0200
+
+freej (0.5-4) unstable; urgency=low
+
+  * The "Yes, I know I'm on vacation, but since I was here anyway..." release.
+  * Remove avi files support since building it depends on a
+    non-free divx library (closes: #201103)
+  * Bump Standards-Versions to 3.6.0
+    - Convert debian/changelog to UTF-8
+  * Build-Conflict: with libavifile-0.7-dev (closes: #205563)
+    - Waiting for the new upstream version, in which we should be able to
+      simply disable avi support via a configure option.
+  * Remove statement of avi layer support from the manpage.
+
+ -- Guido Trotter <ultrotter@debian.org>  Sat, 16 Aug 2003 12:06:54 +0200
+
+freej (0.5-3) unstable; urgency=low
+
+  * Moved Makefile.am modification to 02_makefile.dpatch
+  * Added patches description
+  * Build-Depend on automake instead of automake1.7
+
+ -- Guido Trotter <ultrotter@debian.org>  Wed,  4 Jun 2003 16:18:30 +0200
+
+freej (0.5-2) unstable; urgency=low
+
+  * Add patch (using dpatch) to search for the plugins in the directory
+    in which they actually get installed, so to make freej load them.
+
+ -- Guido Trotter <ultrotter@debian.org>  Wed,  4 Jun 2003 15:07:06 +0200
+
+freej (0.5-1) unstable; urgency=low
+
+  * New upstream release (closes: #195532)
+  * Build-depend on libpng12-dev, libfreetype6-dev and libfontconfig1-dev
+  * Enable Avi support (build-depend on libabifile0.7-dev)
+  * Bump standards version to 3.5.10 (no changes required)
+  * Clean config.log in debian/rules
+  * Updated manpage 
+
+ -- Guido Trotter <ultrotter@debian.org>  Sun,  1 Jun 2003 08:12:56 +0200
+
+freej (0.4.1-2) unstable; urgency=low
+
+  * Updated build-dependencies (closes:#189714) 
+
+ -- Guido Trotter <ultrotter@debian.org>  Tue, 22 Apr 2003 20:42:23 +0200
+
+freej (0.4.1-1) unstable; urgency=low
+
+  * The "I uploaded 0.4 and the next day 0.4.1 came out" release
+  * New upstream release
+  * Avi support still delayed (I'll ask for some hint about it, next week)
+  * Updated manpage (closes: #182530)
+
+ -- Guido Trotter <ultrotter@debian.org>  Thu, 27 Feb 2003 09:38:06 +0100
+
+freej (0.4-1) unstable; urgency=low
+
+  * New Upstram Version (closes: #178826)
+  * Compiled without avi support, for now, because there were some problems 
+    including it. I hope to have it in in the next upload.
+
+ -- Guido Trotter <ultrotter@debian.org>  Tue, 25 Feb 2003 19:11:42 +0100
+
+freej (0.3.1-3) unstable; urgency=low
+
+  * Changed maintainer field to new debian account
+  * Standars-Version 3.5.7
+  * Cleaned debian/rules
+  * Restored part of original Makefile.am and make manpage and document
+    installation totally from debian/rules
+  * Fixed typo in description s/threats/treats/ (closes: #161800)
+  * Applied the same correction to README file
+
+ -- Guido Trotter <ultrotter@debian.org>  Sun, 22 Sep 2002 11:09:32 +0200
+
+freej (0.3.1-2) unstable; urgency=low
+
+  * Changed architecture specification, beeing this a package only for
+  	i386 systems (some parts in assembly) (closes: #153196)
+  * Patched the source to avoid segfault when v4l device not detected
+  	(closes: #153925)
+
+ -- Guido Trotter <ultrotter@quaqua.net>  Tue, 23 Jul 2002 10:21:24 +0200
+
+freej (0.3.1-1) unstable; urgency=low
+
+  * Initial Release.
+  * My First Package.
+
+ -- Guido Trotter <ultrotter@quaqua.net>  Mon, 24 Jun 2002 17:47:53 +0200
+
