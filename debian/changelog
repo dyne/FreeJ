@@ -1,8 +1,9 @@
 freej (0.10-1) unstable; urgency=low
 
   * New upstream version
+  * Drop 0.9.1 specific patches (now merged upsteam)
 
- -- Guido Trotter <ultrotter@debian.org>  Thu, 12 Jun 2008 17:50:05 +0100
+ -- Guido Trotter <ultrotter@debian.org>  Thu, 12 Jun 2008 17:52:10 +0100
 
 freej (0.9.1+dl0-3.1) unstable; urgency=low
 
