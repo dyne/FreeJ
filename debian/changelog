@@ -1,10 +1,16 @@
 freej (0.10-1) unstable; urgency=low
 
+  [ Guido Trotter ]
   * New upstream version
   * Drop 0.9.1 specific patches (now merged upsteam)
   * Remove debian/README.Debian, which refers to 0.9.1 specific changes
 
- -- Guido Trotter <ultrotter@debian.org>  Thu, 12 Jun 2008 18:24:34 +0100
+  [ Luca Bigliardi ]
+  * Add jaromil as a co-maintainer
+  * Update description and build-dependencies in control
+  * Move copyright to gpl-3
+
+ -- Luca Bigliardi <shammash@artha.org>  Thu, 12 Jun 2008 18:30:43 +0100
 
 freej (0.9.1+dl0-3.1) unstable; urgency=low
 
