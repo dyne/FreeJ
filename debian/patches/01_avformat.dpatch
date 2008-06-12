@@ -1,0 +1,37 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01_avformat.dpatch by Guido Trotter <ultrotter@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad freej-0.9.1~/src/video_layer.cpp freej-0.9.1/src/video_layer.cpp
+--- freej-0.9.1~/src/video_layer.cpp	2007-10-31 10:33:45.000000000 +0000
++++ freej-0.9.1/src/video_layer.cpp	2008-01-04 11:45:24.466257368 +0000
+@@ -176,7 +176,7 @@
+ 	 */
+ 	for(int i=0; i < avformat_context -> nb_streams; i++) {
+ 		avformat_stream = avformat_context -> streams[i];
+-		enc = &avformat_stream->codec;
++		enc = avformat_stream->codec;
+ 		if(enc == NULL)
+ 			printf("enc nullo\n");
+ 		//notice("VideoLayer:: Codec type= %d\n",enc->codec_type);
+@@ -222,7 +222,7 @@
+ 		return false;
+ 	}
+ 	avformat_stream = avformat_context -> streams [video_index];
+-	enc = &avformat_stream -> codec;
++	enc = avformat_stream -> codec;
+ 	full_filename = strdup (file);
+ 
+ 	_init(enc->width, enc->height);
+@@ -349,7 +349,7 @@
+ 						/**
+ 						 * yuv2rgb
+ 						 */
+-						img_convert(rgba_picture, PIX_FMT_RGBA32, (AVPicture *)yuv_picture, avformat_stream->codec.pix_fmt,
++						img_convert(rgba_picture, PIX_FMT_RGBA32, (AVPicture *)yuv_picture, avformat_stream->codec->pix_fmt,
+ 								enc->width,
+ 								enc->height);
+ 
