@@ -37,8 +37,6 @@ build-stamp:  config.status
 
 	# Add here commands to compile the package.
 	$(MAKE) -k
-	# scripting doc
-	make -k -C doc/scripting
 
 	touch build-stamp
 
