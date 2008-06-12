@@ -8,6 +8,7 @@ Standards-Version: 3.7.3.0
 
 
 Package: freej
+Homepage: http://freej.dyne.org/
 Architecture: any
 Depends: ${shlibs:Depends} ${misc:Depends}
 Recommends: ttf-freefont
@@ -19,5 +20,4 @@ Description: Vision mixer
  animations and  more), filter  them with effect  chains and  then mix
  together. It can be operated live from a text console and scripted in
  Javascript to be controlled by keyboard, midi, OSC and joysticks.
- .
- Homepage: http://freej.dyne.org/
+
