@@ -3,6 +3,7 @@ Section: x11
 Priority: optional
 Maintainer: Guido Trotter <ultrotter@debian.org>
 Uploaders: Luca Bigliardi <shammash@artha.org>
+Uploaders: Denis Rojo <jaromil@dyne.org>
 Build-Depends: debhelper (>> 5.0.0), libsdl1.2-dev (>= 1.2.0), libpng12-dev, libfreetype6-dev, libfontconfig1-dev, dpatch, libogg-dev, libvorbis-dev, libjpeg62-dev, libasound2-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev, libxmlrpc++-dev, libflash-dev, libsdl-gfx1.2-dev, libsdl-image1.2-dev, libsdl-ttf2.0-dev, libshout3-dev, portaudio19-dev, libmozjs-dev, libssl-dev
 Standards-Version: 3.7.3.0
 
