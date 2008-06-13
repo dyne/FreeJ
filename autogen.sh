@@ -56,10 +56,10 @@ if test "$DIE" -eq 1; then
         exit 1
 fi
 
-if test -z "$*"; then
-        echo "I am going to run ./configure with no arguments - if you wish "
-        echo "to pass any to it, please specify them on the $0 command line."
-fi
+#if test -z "$*"; then
+#        echo "I am going to run ./configure with no arguments - if you wish "
+#        echo "to pass any to it, please specify them on the $0 command line."
+#fi
 
 echo "Generating configuration files for $package, please wait...."
 
@@ -75,4 +75,4 @@ echo "  $AUTOCONF"
 $AUTOCONF || exit -1
 
 cd $olddir
-$srcdir/configure "$@" && echo
+#$srcdir/configure "$@" && echo
