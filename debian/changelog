@@ -5,6 +5,7 @@ freej (0.10-1) unstable; urgency=low
      (now compatible with new avlibs) (closes: #482212)
   * Drop 0.9.1 specific patches (now merged upsteam)
   * Remove debian/README.Debian, which refers to 0.9.1 specific changes
+  * Check policy changes and update Standards Version
 
   [ Luca Bigliardi ]
   * Add Denis Rojo (jaromil) as a co-maintainer
