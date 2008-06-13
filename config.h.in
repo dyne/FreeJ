@@ -1,0 +1,203 @@
+/* config.h.in.  Generated from configure.in by autoheader.  */
+
+/* define if compiling for Linux/PPC */
+#undef ARCH_POWERPC
+
+/* define if compiling for Linux/PPC */
+#undef ARCH_PPC
+
+/* define if compiling for Linux/x86 */
+#undef ARCH_X86
+
+/* define if compiling for Apple Darwin OSX */
+#undef CONFIG_DARWIN
+
+/* define if compiling FFMpeg AvCoded with ogg */
+#undef CONFIG_LIBOGG
+
+/* define if compiling FFMpeg AvCoded with theora */
+#undef CONFIG_LIBTHEORA
+
+/* define if compiling FFMpeg AvCoded with vorbis */
+#undef CONFIG_LIBVORBIS
+
+/* define if compiling FFMpeg with oggtheora decoder */
+#undef CONFIG_OGGTHEORA_DECODER
+
+/* define if compiling FFMpeg with oggtheora encoder */
+#undef CONFIG_OGGTHEORA_ENCODER
+
+/* define if compiling FFMpeg with oggvorbis decoder */
+#undef CONFIG_OGGVORBIS_DECODER
+
+/* define if compiling FFMpeg with oggvorbis encoder */
+#undef CONFIG_OGGVORBIS_ENCODER
+
+/* define if host has 64 bit */
+#undef HAVE_64BIT
+
+/* define if cpu supports Altivec instruction set */
+#undef HAVE_ALTIVEC
+
+/* define if cpu supports Altivec instruction set */
+#undef HAVE_ALTIVEC_H
+
+/* define if compiling for Apple Darwin OSX */
+#undef HAVE_DARWIN
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `ioctl' function. */
+#undef HAVE_IOCTL
+
+/* define if compiling for Linux */
+#undef HAVE_LINUX
+
+/* Define to 1 if you have the `malloc' function. */
+#undef HAVE_MALLOC
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `mmap' function. */
+#undef HAVE_MMAP
+
+/* define if enabling MMX acceleration */
+#undef HAVE_MMX
+
+/* Define to 1 if you have the `select' function. */
+#undef HAVE_SELECT
+
+/* define if enabling SSE acceleration */
+#undef HAVE_SSE
+
+/* define if enabling SSE2 acceleration */
+#undef HAVE_SSE2
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Name of package */
+#undef PACKAGE
+
+/* Define to the address where bug reports for this package should be sent. */
+#undef PACKAGE_BUGREPORT
+
+/* data */
+#undef PACKAGE_DATA_DIR
+
+/* libs */
+#undef PACKAGE_LIB_DIR
+
+/* locale */
+#undef PACKAGE_LOCALE_DIR
+
+/* Define to the full name of this package. */
+#undef PACKAGE_NAME
+
+/* Prefix */
+#undef PACKAGE_PREFIX
+
+/* Define to the full name and version of this package. */
+#undef PACKAGE_STRING
+
+/* Define to the one symbol short name of this package. */
+#undef PACKAGE_TARNAME
+
+/* Define to the version of this package. */
+#undef PACKAGE_VERSION
+
+/* define big endian arch for portaudio */
+#undef PA_BIG_ENDIAN
+
+/* define little endian arch for portaudio */
+#undef PA_LITTLE_ENDIAN
+
+/* define if compiling for PPC */
+#undef POWERPC_MODE_32BITS
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* define if compiling Theora encoder */
+#undef THEORA_SUPPORT_ENCODE
+
+/* define if compiling Theora float codec */
+#undef THEORA_SUPPORT_FLOAT
+
+/* Version number of package */
+#undef VERSION
+
+/* define if compiling bluetooth cwiid controller */
+#undef WITH_BLUEZ
+
+/* Define if using the dmalloc debugging malloc package */
+#undef WITH_DMALLOC
+
+/* define if compiling movie layer linking to ffmpeg libavcodec */
+#undef WITH_FFMPEG
+
+/* define if compiling flash layer */
+#undef WITH_FLASH
+
+/* define if linking freetype for text rendering */
+#undef WITH_FT2
+
+/* define if compiling glade gtk+-2 GUI */
+#undef WITH_GLADE2
+
+/* Define is using the javascript interpreter */
+#undef WITH_JAVASCRIPT
+
+/* define if compiling midi controller */
+#undef WITH_MIDI
+
+/* define if compiling with Ogg/Theora encoding */
+#undef WITH_OGGTHEORA
+
+/* define if using experimental opengl rendering */
+#undef WITH_OPENGL
+
+/* define if compiling sound system */
+#undef WITH_SOUND
+
+/* define if compiling video4linux layer */
+#undef WITH_V4L
+
+/* define if compiling for Big Endian CPU */
+#undef WORDS_BIGENDIAN
+
+/* Define use of MAC types in javascript */
+#undef XP_MAC
+
+/* Define use of UNIX types in javascript */
+#undef XP_UNIX
+
+/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+   `char[]'. */
+#undef YYTEXT_POINTER
+
+/* Define to empty if `const' does not conform to ANSI C. */
+#undef const
