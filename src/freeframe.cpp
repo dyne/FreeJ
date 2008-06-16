@@ -38,6 +38,10 @@
 
 #include <jutils.h>
 
+#ifdef HAVE_DARWIN
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 Freeframe::Freeframe() 
   : Entry() { 
 
@@ -64,22 +68,32 @@ int Freeframe::open(char *file) {
   dlerror();
 
   // Create dynamic handle to the library file.
-  handle = dlopen(file, RTLD_NOW);
-  if(!handle) {
-    warning("can't dlopen plugin: %s", file);
-    return 0;
-  }
+  if(strstr(file, ".frf")) {
+#ifdef HAVE_DARWIN
 
-  // try the freeframe symbol
-  plugmain = (plugMainType *) dlsym(handle, "plugMain");
-  if(!plugmain) {
-    func("%s not a valid freeframe plugin: %s", file, dlerror());
-    // don't forget to close
-    dlclose(handle);
-    handle = NULL;
-    return 0;
-  }
+      CFStringRef filestring = CFStringCreateWithCString(NULL, file, kCFStringEncodingUTF8);
+      CFURLRef filepath = CFURLCreateWithFileSystemPath(NULL, filestring, kCFURLPOSIXPathStyle, 1);;
+      CFBundleRef bundle = CFBundleCreate(NULL, filepath);
+      plugmain = (plugMainUnion (*)(DWORD, void*, DWORD))CFBundleGetFunctionPointerForName(bundle, CFSTR("plugMain"));
+#endif
+  } else {
+      handle = dlopen(file, RTLD_NOW);
+      if(!handle) {
+        warning("can't dlopen plugin: %s", file);
+        return 0;
+      }
 
+      // try the freeframe symbol
+      plugmain = (plugMainType *) dlsym(handle, "plugMain");
+      if(!plugmain) {
+        func("%s not a valid freeframe plugin: %s", file, dlerror());
+        // don't forget to close
+        dlclose(handle);
+        handle = NULL;
+        return 0;
+      }
+
+  }
   
   /// WARNING:  if  compiled  without  -freg-struct-return  this  will
   /// return an invalid address ...

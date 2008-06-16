@@ -41,7 +41,6 @@
 // javascript
 #include <jsparser.h>
 
-
 //[of]cli options parser:commandline
 #define MAX_CLI_CHARS 4096
 
@@ -267,7 +266,6 @@ int main (int argc, char **argv) {
   assert( freej.init(width,height, videomode, audiomode) );
 
   if(fullscreen) freej.screen->fullscreen();
-
 
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
      this hangs on some linux kernels - darwin doesn't even bothers with it

@@ -74,7 +74,9 @@ typedef JSUintn uint;
 #endif
 
 typedef JSUintn uintn;
+#ifndef HAVE_DARWIN
 typedef JSUint64 uint64;
+#endif
 #if !defined(_WIN32) && !defined(XP_OS2)
 typedef JSUint32 uint32;
 #else

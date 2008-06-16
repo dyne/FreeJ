@@ -35,6 +35,9 @@
 #include <frei0r_freej.h>
 #include <freeframe_freej.h>
 
+#ifdef HAVE_DARWIN
+#include <Carbon/Carbon.h>
+#endif
 
 Plugger::Plugger() {
   char temp[256];
@@ -54,6 +57,19 @@ Plugger::Plugger() {
 //   addsearchdir("/usr/lib/freej");
 //   addsearchdir("/usr/local/lib/freej");
 //   addsearchdir("/opt/video/lib/freej");
+#ifdef HAVE_DARWIN
+    ProcessSerialNumber psn;
+    GetProcessForPID(getpid(), &psn);
+    FSRef location;
+    GetProcessBundleLocation(&psn, &location);
+    FSRefMakePath(&location, (UInt8 *)temp, 256);
+    strcat(temp, "/plugins");
+    addsearchdir(temp);
+    sprintf(temp, "%s/Library/Application Support/FreeFrame", getenv("HOME"));
+    addsearchdir(temp);
+    addsearchdir("/Library/Application Support/FreeFrame");
+#endif
+
 
 
 }
@@ -67,6 +83,7 @@ Plugger::~Plugger() {
 
 int selector(struct dirent *dir) {
   if(strstr(dir->d_name,".so")) return(1);
+  else if(strstr(dir->d_name,".frf")) return(1);
   return(0);
 }
 
