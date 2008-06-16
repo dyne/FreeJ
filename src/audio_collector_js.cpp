@@ -19,6 +19,8 @@
  *
  */
 
+#include <config.h>
+#ifdef WITH_SOUND
 #include <context.h>
 #include <jutils.h>
 
@@ -165,3 +167,4 @@ void js_audio_jack_gc(JSContext *cx, JSObject *obj) {
 
 }
   
+#endif

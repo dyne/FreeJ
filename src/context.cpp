@@ -653,7 +653,7 @@ void Context::rocknroll() {
   l = (Layer *)layers.begin();
   
   // Show credits when no layers are present and interactive
-  if (!l) // there are no layers
+//   if (!l) // there are no layers
 //     if ( interactive ) { // engine running in interactive mode
 //       osd.credits ( true);
 //       return;

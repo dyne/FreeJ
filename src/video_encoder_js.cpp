@@ -92,7 +92,9 @@ JS(vid_enc_add_audio) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   JS_CHECK_ARGC(1);
+#ifdef WITH_AUDIO
   js_is_instanceOf(&js_audio_jack_class, argv[0]);
+#endif
 
   JSObject *jsaudio;
 

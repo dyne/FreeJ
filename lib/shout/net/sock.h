@@ -34,17 +34,7 @@
 #include <os.h>
 #endif
 
-#ifdef HAVE_SYS_UIO_H
 #include <sys/uio.h>
-#else
-#ifndef _SYS_UIO_H
-struct iovec
-{
-    void   *iov_base;
-    size_t iov_len;
-};
-#endif
-#endif
 
 #if !defined(HAVE_INET_ATON) && defined(HAVE_INET_PTON)
 #define inet_aton(a,b) inet_pton(AF_INET, (a), (b))

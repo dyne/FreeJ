@@ -20,10 +20,10 @@
  * some parts shameless stolen from avidemux GUI_xvDraw.cpp
  */
 
-// #include <context.h>
+#include <config.h>
+#ifdef linux
 #include <jutils.h>
 #include <xgrab_layer.h>
-#include <config.h>
 
 #include <callbacks_js.h>
 #include <jsparser_data.h>
@@ -412,3 +412,5 @@ JS(js_xgrab_close) {
 	return JS_TRUE;
 }
 
+
+#endif

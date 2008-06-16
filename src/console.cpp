@@ -522,7 +522,7 @@ static int open_text_layer(char *cmd) {
 }
 #endif
 
-static int filebrowse_completion_selector(const struct dirent *dir) {
+static int filebrowse_completion_selector(struct dirent *dir) {
   if(dir->d_name[0]=='.')
     if(dir->d_name[1]!='.')
       return(0); // skip hidden files

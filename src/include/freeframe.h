@@ -60,19 +60,13 @@ extern "C" {
 #define WIN32_LEAN_AND_MEAN		/* Exclude rarely-used stuff from Windows headers */
 #include <windows.h>
 
-#elif defined __linux__
+#else
 
 typedef unsigned int DWORD;
 typedef void *LPVOID;
 typedef unsigned char BYTE;
 
-#elif defined MACOS
-
-typedef unsigned int DWORD;
-typedef unsigned char BYTE;
-
 #endif
-
 
 /*
  *	#defines

@@ -34,7 +34,6 @@ DIE=0
 	echo "Download the appropriate package for your system,"
 	echo "or get the source from one of the GNU ftp sites"
 	echo "listed in http://www.gnu.org/order/ftp.html"
-        DIE=1
 }
 
 ($LIBTOOL --version) < /dev/null > /dev/null 2>&1 || {
@@ -58,13 +57,13 @@ fi
 echo "Generating configuration files for $package, please wait...."
 
 echo "  aclocal-1.9 -I $srcdir/m4"
-aclocal-1.9 -I $srcdir/m4 || exit -1
+aclocal -I $srcdir/m4 || exit -1
 echo "  autoheader"
 autoheader || exit -1
 echo "  $LIBTOOLIZE --automake -c"
 $LIBTOOLIZE --automake -c || exit -1
-echo "  automake-1.9 --add-missing -c"
-automake-1.9 --add-missing -c || exit -1
+echo "  automake --add-missing -c"
+automake --add-missing -c || exit -1
 echo "  autoconf"
 autoconf || exit -1
 

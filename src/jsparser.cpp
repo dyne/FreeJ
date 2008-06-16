@@ -220,13 +220,13 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		txt_layer_methods,
 		object_proto);
 #endif
-
+#ifdef linux
 	REGISTER_CLASS("XGrabLayer",
 		js_xgrab_class,
 		js_xgrab_constructor,
 		js_xgrab_methods,
 		object_proto);
-	
+#endif	
 	REGISTER_CLASS("Filter",
 		filter_class,
 		filter_constructor,

@@ -220,7 +220,7 @@ void cmdline(int argc, char **argv) {
 /* ===================================== */
 
 // scandir selection for .js or .freej
-int script_selector(const struct dirent *dir) {
+int script_selector(struct dirent *dir) {
   if(strstr(dir->d_name,".freej")) return(1);
   if(strstr(dir->d_name,".js"))    return(1);
   return(0);

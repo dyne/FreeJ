@@ -25,8 +25,9 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#ifdef HAVE_DARWIN
 #include <sys/stat.h>
-#include <string.h>
+#endif
 
 #include <vimo_ctrl.h>
 

@@ -115,7 +115,15 @@ void SdlScreen::show() {
   }
 
   if(switch_fullscreen) { 
+#ifdef HAVE_DARWIN
+    if((sdl_flags&SDL_FULLSCREEN) == SDL_FULLSCREEN)
+        sdl_flags &= ~SDL_FULLSCREEN;
+    else
+        sdl_flags |= SDL_FULLSCREEN;
+    screen = SDL_SetVideoMode(w, h, bpp, sdl_flags);
+#else
     SDL_WM_ToggleFullScreen(screen);
+#endif
     switch_fullscreen = false;
   }
 

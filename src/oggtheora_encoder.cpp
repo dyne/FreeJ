@@ -295,6 +295,7 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
 
 int OggTheoraEncoder::encode_audio( int end_of_stream) {
 
+#ifdef WITH_SOUND
   //  num = env->audio->framesperbuffer*env->audio->channels*sizeof(int16_t);
   func("going to encode %u bytes of audio", audio->BufferLength);
   ///// QUAAAA
@@ -306,7 +307,7 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
   audio->get_audio(audio_buf);
   oggmux_add_audio_float(&oggmux, audio_buf,
 			 audio->BufferLength, end_of_stream);
-
+#endif
 
   return 1;
 }

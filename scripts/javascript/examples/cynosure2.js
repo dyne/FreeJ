@@ -72,7 +72,7 @@ ncolors = colors.length - 1;
 //width=1024; height=768;
 //width=400; height=300;
 width=640; height=480;
-width=400; height=300;
+width=1024; height=768;
 
 geo = new GeometryLayer(width, height);
 //geo = new GeometryLayer(100,100);
