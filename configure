@@ -820,6 +820,7 @@ SET_MAKE
 INSTALL_PROGRAM
 INSTALL_SCRIPT
 INSTALL_DATA
+am__isrc
 CYGPATH_W
 PACKAGE
 VERSION
@@ -879,10 +880,11 @@ F77
 FFLAGS
 ac_ct_F77
 LIBTOOL
-AS
-ASFLAGS
 CCAS
 CCASFLAGS
+CCASDEPMODE
+am__fastdepCCAS_TRUE
+am__fastdepCCAS_FALSE
 SDL_CONFIG
 SDL_CFLAGS
 SDL_LIBS
@@ -901,6 +903,7 @@ FLASH_DIR
 BLUEZ_CFLAGS
 BLUEZ_LIBS
 CWIID_DIR
+CWIID_LIBS
 GLADE2_CFLAGS
 GLADE2_LIBS
 DEBUG_TRUE
@@ -914,6 +917,7 @@ JACK_LIBS
 FFTW_CFLAGS
 FFTW_LIBS
 GOOM_DIR
+GOOM_LIBS
 GOOM_PPC_FILES
 BUILDLIBS
 STATIC_LIBS
@@ -938,7 +942,28 @@ YFLAGS
 CPP
 CXXCPP
 F77
-FFLAGS'
+FFLAGS
+CCAS
+CCASFLAGS
+PKG_CONFIG
+FT2_CFLAGS
+FT2_LIBS
+X11_CFLAGS
+X11_LIBS
+XIPH_CFLAGS
+XIPH_LIBS
+FFMPEG_CFLAGS
+FFMPEG_LIBS
+BLUEZ_CFLAGS
+BLUEZ_LIBS
+GLADE2_CFLAGS
+GLADE2_LIBS
+ALSA_CFLAGS
+ALSA_LIBS
+JACK_CFLAGS
+JACK_LIBS
+FFTW_CFLAGS
+FFTW_LIBS'
 
 
 # Initialize some variables set by options.
@@ -1567,6 +1592,30 @@ Some influential environment variables:
   CXXCPP      C++ preprocessor
   F77         Fortran 77 compiler command
   FFLAGS      Fortran 77 compiler flags
+  CCAS        assembler compiler command (defaults to CC)
+  CCASFLAGS   assembler compiler flags (defaults to CFLAGS)
+  PKG_CONFIG  path to pkg-config utility
+  FT2_CFLAGS  C compiler flags for FT2, overriding pkg-config
+  FT2_LIBS    linker flags for FT2, overriding pkg-config
+  X11_CFLAGS  C compiler flags for X11, overriding pkg-config
+  X11_LIBS    linker flags for X11, overriding pkg-config
+  XIPH_CFLAGS C compiler flags for XIPH, overriding pkg-config
+  XIPH_LIBS   linker flags for XIPH, overriding pkg-config
+  FFMPEG_CFLAGS
+              C compiler flags for FFMPEG, overriding pkg-config
+  FFMPEG_LIBS linker flags for FFMPEG, overriding pkg-config
+  BLUEZ_CFLAGS
+              C compiler flags for BLUEZ, overriding pkg-config
+  BLUEZ_LIBS  linker flags for BLUEZ, overriding pkg-config
+  GLADE2_CFLAGS
+              C compiler flags for GLADE2, overriding pkg-config
+  GLADE2_LIBS linker flags for GLADE2, overriding pkg-config
+  ALSA_CFLAGS C compiler flags for ALSA, overriding pkg-config
+  ALSA_LIBS   linker flags for ALSA, overriding pkg-config
+  JACK_CFLAGS C compiler flags for JACK, overriding pkg-config
+  JACK_LIBS   linker flags for JACK, overriding pkg-config
+  FFTW_CFLAGS C compiler flags for FFTW, overriding pkg-config
+  FFTW_LIBS   linker flags for FFTW, overriding pkg-config
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
@@ -2342,7 +2391,8 @@ Check your system clock" >&2;}
 fi
 { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
-am__api_version="1.9"
+am__api_version='1.10'
+
 # Find a good install program.  We prefer a C program (faster),
 # so one script is as good as another.  But avoid the broken or
 # incompatible versions:
@@ -2449,38 +2499,53 @@ else
 echo "$as_me: WARNING: \`missing' script is too old or missing" >&2;}
 fi
 
-if mkdir -p --version . >/dev/null 2>&1 && test ! -d ./--version; then
-  # We used to keeping the `.' as first argument, in order to
-  # allow $(mkdir_p) to be used without argument.  As in
-  #   $(mkdir_p) $(somedir)
-  # where $(somedir) is conditionally defined.  However this is wrong
-  # for two reasons:
-  #  1. if the package is installed by a user who cannot write `.'
-  #     make install will fail,
-  #  2. the above comment should most certainly read
-  #     $(mkdir_p) $(DESTDIR)$(somedir)
-  #     so it does not work when $(somedir) is undefined and
-  #     $(DESTDIR) is not.
-  #  To support the latter case, we have to write
-  #     test -z "$(somedir)" || $(mkdir_p) $(DESTDIR)$(somedir),
-  #  so the `.' trick is pointless.
-  mkdir_p='mkdir -p --'
+{ echo "$as_me:$LINENO: checking for a thread-safe mkdir -p" >&5
+echo $ECHO_N "checking for a thread-safe mkdir -p... $ECHO_C" >&6; }
+if test -z "$MKDIR_P"; then
+  if test "${ac_cv_path_mkdir+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
 else
-  # On NextStep and OpenStep, the `mkdir' command does not
-  # recognize any option.  It will interpret all options as
-  # directories to create, and then abort because `.' already
-  # exists.
-  for d in ./-p ./--version;
-  do
-    test -d $d && rmdir $d
-  done
-  # $(mkinstalldirs) is defined by Automake if mkinstalldirs exists.
-  if test -f "$ac_aux_dir/mkinstalldirs"; then
-    mkdir_p='$(mkinstalldirs)'
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH$PATH_SEPARATOR/opt/sfw/bin
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_prog in mkdir gmkdir; do
+	 for ac_exec_ext in '' $ac_executable_extensions; do
+	   { test -f "$as_dir/$ac_prog$ac_exec_ext" && $as_test_x "$as_dir/$ac_prog$ac_exec_ext"; } || continue
+	   case `"$as_dir/$ac_prog$ac_exec_ext" --version 2>&1` in #(
+	     'mkdir (GNU coreutils) '* | \
+	     'mkdir (coreutils) '* | \
+	     'mkdir (fileutils) '4.1*)
+	       ac_cv_path_mkdir=$as_dir/$ac_prog$ac_exec_ext
+	       break 3;;
+	   esac
+	 done
+       done
+done
+IFS=$as_save_IFS
+
+fi
+
+  if test "${ac_cv_path_mkdir+set}" = set; then
+    MKDIR_P="$ac_cv_path_mkdir -p"
   else
-    mkdir_p='$(install_sh) -d'
+    # As a last resort, use the slow shell script.  Don't cache a
+    # value for MKDIR_P within a source directory, because that will
+    # break other packages using the cache if that directory is
+    # removed, or if the value is a relative name.
+    test -d ./--version && rmdir ./--version
+    MKDIR_P="$ac_install_sh -d"
   fi
 fi
+{ echo "$as_me:$LINENO: result: $MKDIR_P" >&5
+echo "${ECHO_T}$MKDIR_P" >&6; }
+
+mkdir_p="$MKDIR_P"
+case $mkdir_p in
+  [\\/$]* | ?:[\\/]*) ;;
+  */*) mkdir_p="\$(top_builddir)/$mkdir_p" ;;
+esac
 
 for ac_prog in gawk mawk nawk awk
 do
@@ -2533,12 +2598,16 @@ else
 fi
 rmdir .tst 2>/dev/null
 
-# test to see if srcdir already configured
-if test "`cd $srcdir && pwd`" != "`pwd`" &&
-   test -f $srcdir/config.status; then
-  { { echo "$as_me:$LINENO: error: source directory already configured; run \"make distclean\" there first" >&5
+if test "`cd $srcdir && pwd`" != "`pwd`"; then
+  # Use -I$(srcdir) only when $(srcdir) != ., so that make's output
+  # is not polluted with repeated "-I."
+  am__isrc=' -I$(srcdir)'
+  # test to see if srcdir already configured
+  if test -f $srcdir/config.status; then
+    { { echo "$as_me:$LINENO: error: source directory already configured; run \"make distclean\" there first" >&5
 echo "$as_me: error: source directory already configured; run \"make distclean\" there first" >&2;}
    { (exit 1); exit 1; }; }
+  fi
 fi
 
 # test whether we have cygpath
@@ -2581,7 +2650,7 @@ AUTOHEADER=${AUTOHEADER-"${am_missing_run}autoheader"}
 
 MAKEINFO=${MAKEINFO-"${am_missing_run}makeinfo"}
 
-install_sh=${install_sh-"$am_aux_dir/install-sh"}
+install_sh=${install_sh-"\$(SHELL) $am_aux_dir/install-sh"}
 
 # Installed binaries are usually stripped using `strip' when the user
 # run `make install-strip'.  However `strip' might not be the right
@@ -2685,7 +2754,7 @@ else
 fi
 
 fi
-INSTALL_STRIP_PROGRAM="\${SHELL} \$(install_sh) -c -s"
+INSTALL_STRIP_PROGRAM="\$(install_sh) -c -s"
 
 # We need awk for the "check" target.  The system "awk" is bad on
 # some platforms.
@@ -3677,16 +3746,13 @@ if test "x$enable_dependency_tracking" != xno; then
   am_depcomp="$ac_aux_dir/depcomp"
   AMDEPBACKSLASH='\'
 fi
-
-
-if test "x$enable_dependency_tracking" != xno; then
+ if test "x$enable_dependency_tracking" != xno; then
   AMDEP_TRUE=
   AMDEP_FALSE='#'
 else
   AMDEP_TRUE='#'
   AMDEP_FALSE=
 fi
-
 
 
 
@@ -3757,6 +3823,7 @@ else
        depfile=sub/conftest.Po tmpdepfile=sub/conftest.TPo \
        $SHELL ./depcomp $depcc -c -o sub/conftest.${OBJEXT-o} sub/conftest.c \
          >/dev/null 2>conftest.err &&
+       grep sub/conftst1.h sub/conftest.Po > /dev/null 2>&1 &&
        grep sub/conftst6.h sub/conftest.Po > /dev/null 2>&1 &&
        grep sub/conftest.${OBJEXT-o} sub/conftest.Po > /dev/null 2>&1 &&
        ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
@@ -3786,9 +3853,7 @@ fi
 echo "${ECHO_T}$am_cv_CC_dependencies_compiler_type" >&6; }
 CCDEPMODE=depmode=$am_cv_CC_dependencies_compiler_type
 
-
-
-if
+ if
   test "x$enable_dependency_tracking" != xno \
   && test "$am_cv_CC_dependencies_compiler_type" = gcc3; then
   am__fastdepCC_TRUE=
@@ -4230,6 +4295,7 @@ else
        depfile=sub/conftest.Po tmpdepfile=sub/conftest.TPo \
        $SHELL ./depcomp $depcc -c -o sub/conftest.${OBJEXT-o} sub/conftest.c \
          >/dev/null 2>conftest.err &&
+       grep sub/conftst1.h sub/conftest.Po > /dev/null 2>&1 &&
        grep sub/conftst6.h sub/conftest.Po > /dev/null 2>&1 &&
        grep sub/conftest.${OBJEXT-o} sub/conftest.Po > /dev/null 2>&1 &&
        ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
@@ -4259,9 +4325,7 @@ fi
 echo "${ECHO_T}$am_cv_CXX_dependencies_compiler_type" >&6; }
 CXXDEPMODE=depmode=$am_cv_CXX_dependencies_compiler_type
 
-
-
-if
+ if
   test "x$enable_dependency_tracking" != xno \
   && test "$am_cv_CXX_dependencies_compiler_type" = gcc3; then
   am__fastdepCXX_TRUE=
@@ -5249,7 +5313,7 @@ ia64-*-hpux*)
   ;;
 *-*-irix6*)
   # Find out which ABI we are using.
-  echo '#line 5252 "configure"' > conftest.$ac_ext
+  echo '#line 5316 "configure"' > conftest.$ac_ext
   if { (eval echo "$as_me:$LINENO: \"$ac_compile\"") >&5
   (eval $ac_compile) 2>&5
   ac_status=$?
@@ -7829,11 +7893,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:7832: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:7896: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:7836: \$? = $ac_status" >&5
+   echo "$as_me:7900: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8119,11 +8183,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8122: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8186: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:8126: \$? = $ac_status" >&5
+   echo "$as_me:8190: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -8223,11 +8287,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:8226: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:8290: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:8230: \$? = $ac_status" >&5
+   echo "$as_me:8294: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -10600,7 +10664,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10603 "configure"
+#line 10667 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -10700,7 +10764,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<EOF
-#line 10703 "configure"
+#line 10767 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -13101,11 +13165,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13104: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13168: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:13108: \$? = $ac_status" >&5
+   echo "$as_me:13172: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -13205,11 +13269,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:13208: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:13272: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:13212: \$? = $ac_status" >&5
+   echo "$as_me:13276: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -14803,11 +14867,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14806: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14870: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:14810: \$? = $ac_status" >&5
+   echo "$as_me:14874: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -14907,11 +14971,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:14910: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:14974: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:14914: \$? = $ac_status" >&5
+   echo "$as_me:14978: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -17127,11 +17191,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17130: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17194: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17134: \$? = $ac_status" >&5
+   echo "$as_me:17198: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17417,11 +17481,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17420: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17484: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>conftest.err)
    ac_status=$?
    cat conftest.err >&5
-   echo "$as_me:17424: \$? = $ac_status" >&5
+   echo "$as_me:17488: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s "$ac_outfile"; then
      # The compiler can only warn and ignore the option if not recognized
      # So say no if there are warnings other than the usual output.
@@ -17521,11 +17585,11 @@ else
    -e 's:.*FLAGS}\{0,1\} :&$lt_compiler_flag :; t' \
    -e 's: [^ ]*conftest\.: $lt_compiler_flag&:; t' \
    -e 's:$: $lt_compiler_flag:'`
-   (eval echo "\"\$as_me:17524: $lt_compile\"" >&5)
+   (eval echo "\"\$as_me:17588: $lt_compile\"" >&5)
    (eval "$lt_compile" 2>out/conftest.err)
    ac_status=$?
    cat out/conftest.err >&5
-   echo "$as_me:17528: \$? = $ac_status" >&5
+   echo "$as_me:17592: \$? = $ac_status" >&5
    if (exit $ac_status) && test -s out/conftest2.$ac_objext
    then
      # The compiler can only warn and ignore the option if not recognized
@@ -20213,13 +20277,117 @@ LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 
 # By default we simply use the C compiler to build assembly code.
 
-: ${AS='$(CC)'}
-# Set ASFLAGS if not already set.
-: ${ASFLAGS='$(CFLAGS)'}
-: ${CCAS='$(CC)'}
-: ${CCASFLAGS='$(CFLAGS)'}
+test "${CCAS+set}" = set || CCAS=$CC
+test "${CCASFLAGS+set}" = set || CCASFLAGS=$CFLAGS
 
 
+
+depcc="$CCAS"   am_compiler_list=
+
+{ echo "$as_me:$LINENO: checking dependency style of $depcc" >&5
+echo $ECHO_N "checking dependency style of $depcc... $ECHO_C" >&6; }
+if test "${am_cv_CCAS_dependencies_compiler_type+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  if test -z "$AMDEP_TRUE" && test -f "$am_depcomp"; then
+  # We make a subdir and do the tests there.  Otherwise we can end up
+  # making bogus files that we don't know about and never remove.  For
+  # instance it was reported that on HP-UX the gcc test will end up
+  # making a dummy file named `D' -- because `-MD' means `put the output
+  # in D'.
+  mkdir conftest.dir
+  # Copy depcomp to subdir because otherwise we won't find it if we're
+  # using a relative directory.
+  cp "$am_depcomp" conftest.dir
+  cd conftest.dir
+  # We will build objects and dependencies in a subdirectory because
+  # it helps to detect inapplicable dependency modes.  For instance
+  # both Tru64's cc and ICC support -MD to output dependencies as a
+  # side effect of compilation, but ICC will put the dependencies in
+  # the current directory while Tru64 will put them in the object
+  # directory.
+  mkdir sub
+
+  am_cv_CCAS_dependencies_compiler_type=none
+  if test "$am_compiler_list" = ""; then
+     am_compiler_list=`sed -n 's/^#*\([a-zA-Z0-9]*\))$/\1/p' < ./depcomp`
+  fi
+  for depmode in $am_compiler_list; do
+    # Setup a source with many dependencies, because some compilers
+    # like to wrap large dependency lists on column 80 (with \), and
+    # we should not choose a depcomp mode which is confused by this.
+    #
+    # We need to recreate these files for each test, as the compiler may
+    # overwrite some of them when testing with obscure command lines.
+    # This happens at least with the AIX C compiler.
+    : > sub/conftest.c
+    for i in 1 2 3 4 5 6; do
+      echo '#include "conftst'$i'.h"' >> sub/conftest.c
+      # Using `: > sub/conftst$i.h' creates only sub/conftst1.h with
+      # Solaris 8's {/usr,}/bin/sh.
+      touch sub/conftst$i.h
+    done
+    echo "${am__include} ${am__quote}sub/conftest.Po${am__quote}" > confmf
+
+    case $depmode in
+    nosideeffect)
+      # after this tag, mechanisms are not by side-effect, so they'll
+      # only be used when explicitly requested
+      if test "x$enable_dependency_tracking" = xyes; then
+	continue
+      else
+	break
+      fi
+      ;;
+    none) break ;;
+    esac
+    # We check with `-c' and `-o' for the sake of the "dashmstdout"
+    # mode.  It turns out that the SunPro C++ compiler does not properly
+    # handle `-M -o', and we need to detect this.
+    if depmode=$depmode \
+       source=sub/conftest.c object=sub/conftest.${OBJEXT-o} \
+       depfile=sub/conftest.Po tmpdepfile=sub/conftest.TPo \
+       $SHELL ./depcomp $depcc -c -o sub/conftest.${OBJEXT-o} sub/conftest.c \
+         >/dev/null 2>conftest.err &&
+       grep sub/conftst1.h sub/conftest.Po > /dev/null 2>&1 &&
+       grep sub/conftst6.h sub/conftest.Po > /dev/null 2>&1 &&
+       grep sub/conftest.${OBJEXT-o} sub/conftest.Po > /dev/null 2>&1 &&
+       ${MAKE-make} -s -f confmf > /dev/null 2>&1; then
+      # icc doesn't choke on unknown options, it will just issue warnings
+      # or remarks (even with -Werror).  So we grep stderr for any message
+      # that says an option was ignored or not supported.
+      # When given -MP, icc 7.0 and 7.1 complain thusly:
+      #   icc: Command line warning: ignoring option '-M'; no argument required
+      # The diagnosis changed in icc 8.0:
+      #   icc: Command line remark: option '-MP' not supported
+      if (grep 'ignoring option' conftest.err ||
+          grep 'not supported' conftest.err) >/dev/null 2>&1; then :; else
+        am_cv_CCAS_dependencies_compiler_type=$depmode
+        break
+      fi
+    fi
+  done
+
+  cd ..
+  rm -rf conftest.dir
+else
+  am_cv_CCAS_dependencies_compiler_type=none
+fi
+
+fi
+{ echo "$as_me:$LINENO: result: $am_cv_CCAS_dependencies_compiler_type" >&5
+echo "${ECHO_T}$am_cv_CCAS_dependencies_compiler_type" >&6; }
+CCASDEPMODE=depmode=$am_cv_CCAS_dependencies_compiler_type
+
+ if
+  test "x$enable_dependency_tracking" != xno \
+  && test "$am_cv_CCAS_dependencies_compiler_type" = gcc3; then
+  am__fastdepCCAS_TRUE=
+  am__fastdepCCAS_FALSE='#'
+else
+  am__fastdepCCAS_TRUE='#'
+  am__fastdepCCAS_FALSE=
+fi
 
 
 
@@ -20652,19 +20820,21 @@ fi
 
 
   if test x$sdl_exec_prefix != x ; then
-     sdl_args="$sdl_args --exec-prefix=$sdl_exec_prefix"
-     if test x${SDL_CONFIG+set} != xset ; then
-        SDL_CONFIG=$sdl_exec_prefix/bin/sdl-config
-     fi
+    sdl_args="$sdl_args --exec-prefix=$sdl_exec_prefix"
+    if test x${SDL_CONFIG+set} != xset ; then
+      SDL_CONFIG=$sdl_exec_prefix/bin/sdl-config
+    fi
   fi
   if test x$sdl_prefix != x ; then
-     sdl_args="$sdl_args --prefix=$sdl_prefix"
-     if test x${SDL_CONFIG+set} != xset ; then
-        SDL_CONFIG=$sdl_prefix/bin/sdl-config
-     fi
+    sdl_args="$sdl_args --prefix=$sdl_prefix"
+    if test x${SDL_CONFIG+set} != xset ; then
+      SDL_CONFIG=$sdl_prefix/bin/sdl-config
+    fi
   fi
 
-
+  if test "x$prefix" != xNONE; then
+    PATH="$prefix/bin:$prefix/usr/bin:$PATH"
+  fi
   # Extract the first word of "sdl-config", so it can be a program name with args.
 set dummy sdl-config; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
@@ -20724,8 +20894,10 @@ echo $ECHO_N "checking for SDL - version >= $min_sdl_version... $ECHO_C" >&6; }
            sed 's/\([0-9]*\).\([0-9]*\).\([0-9]*\)/\3/'`
     if test "x$enable_sdltest" = "xyes" ; then
       ac_save_CFLAGS="$CFLAGS"
+      ac_save_CXXFLAGS="$CXXFLAGS"
       ac_save_LIBS="$LIBS"
       CFLAGS="$CFLAGS $SDL_CFLAGS"
+      CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
       LIBS="$LIBS $SDL_LIBS"
       rm -f conf.sdltest
       if test "$cross_compiling" = yes; then
@@ -20741,7 +20913,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <SDL.h>
+#include "SDL.h"
 
 char*
 my_strdup (char *str)
@@ -20830,6 +21002,7 @@ fi
 
 
        CFLAGS="$ac_save_CFLAGS"
+       CXXFLAGS="$ac_save_CXXFLAGS"
        LIBS="$ac_save_LIBS"
      fi
   fi
@@ -20851,6 +21024,7 @@ echo "${ECHO_T}no" >&6; }
        else
           echo "*** Could not run SDL test program, checking why..."
           CFLAGS="$CFLAGS $SDL_CFLAGS"
+          CXXFLAGS="$CXXFLAGS $SDL_CFLAGS"
           LIBS="$LIBS $SDL_LIBS"
           cat >conftest.$ac_ext <<_ACEOF
 /* confdefs.h.  */
@@ -20860,7 +21034,7 @@ cat >>conftest.$ac_ext <<_ACEOF
 /* end confdefs.h.  */
 
 #include <stdio.h>
-#include <SDL.h>
+#include "SDL.h"
 
 int main(int argc, char *argv[])
 { return 0; }
@@ -20915,6 +21089,7 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
           CFLAGS="$ac_save_CFLAGS"
+          CXXFLAGS="$ac_save_CXXFLAGS"
           LIBS="$ac_save_LIBS"
        fi
      fi
@@ -20933,11 +21108,11 @@ echo "$as_me: error: *** SDL version $SDL_VERSION not found!" >&2;}
 
 
 
-  succeeded=no
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
+if test "x$ac_cv_env_PKG_CONFIG_set" != "xset"; then
+	if test -n "$ac_tool_prefix"; then
+  # Extract the first word of "${ac_tool_prefix}pkg-config", so it can be a program name with args.
+set dummy ${ac_tool_prefix}pkg-config; ac_word=$2
 { echo "$as_me:$LINENO: checking for $ac_word" >&5
 echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
 if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
@@ -20963,7 +21138,6 @@ done
 done
 IFS=$as_save_IFS
 
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
   ;;
 esac
 fi
@@ -20977,58 +21151,153 @@ echo "${ECHO_T}no" >&6; }
 fi
 
 
+fi
+if test -z "$ac_cv_path_PKG_CONFIG"; then
+  ac_pt_PKG_CONFIG=$PKG_CONFIG
+  # Extract the first word of "pkg-config", so it can be a program name with args.
+set dummy pkg-config; ac_word=$2
+{ echo "$as_me:$LINENO: checking for $ac_word" >&5
+echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
+if test "${ac_cv_path_ac_pt_PKG_CONFIG+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  case $ac_pt_PKG_CONFIG in
+  [\\/]* | ?:[\\/]*)
+  ac_cv_path_ac_pt_PKG_CONFIG="$ac_pt_PKG_CONFIG" # Let the user override the test with a path.
+  ;;
+  *)
+  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
+for as_dir in $PATH
+do
+  IFS=$as_save_IFS
+  test -z "$as_dir" && as_dir=.
+  for ac_exec_ext in '' $ac_executable_extensions; do
+  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
+    ac_cv_path_ac_pt_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
+    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
+    break 2
   fi
+done
+done
+IFS=$as_save_IFS
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
+  ;;
+esac
+fi
+ac_pt_PKG_CONFIG=$ac_cv_path_ac_pt_PKG_CONFIG
+if test -n "$ac_pt_PKG_CONFIG"; then
+  { echo "$as_me:$LINENO: result: $ac_pt_PKG_CONFIG" >&5
+echo "${ECHO_T}$ac_pt_PKG_CONFIG" >&6; }
+else
+  { echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+fi
+
+  if test "x$ac_pt_PKG_CONFIG" = x; then
+    PKG_CONFIG=""
   else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for freetype2" >&5
-echo $ECHO_N "checking for freetype2... $ECHO_C" >&6; }
+    case $cross_compiling:$ac_tool_warned in
+yes:)
+{ echo "$as_me:$LINENO: WARNING: In the future, Autoconf will not detect cross-tools
+whose name does not start with the host triplet.  If you think this
+configuration is useful to you, please write to autoconf@gnu.org." >&5
+echo "$as_me: WARNING: In the future, Autoconf will not detect cross-tools
+whose name does not start with the host triplet.  If you think this
+configuration is useful to you, please write to autoconf@gnu.org." >&2;}
+ac_tool_warned=yes ;;
+esac
+    PKG_CONFIG=$ac_pt_PKG_CONFIG
+  fi
+else
+  PKG_CONFIG="$ac_cv_path_PKG_CONFIG"
+fi
 
-        if $PKG_CONFIG --exists "freetype2" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
+fi
+if test -n "$PKG_CONFIG"; then
+	_pkg_min_version=0.9.0
+	{ echo "$as_me:$LINENO: checking pkg-config is at least version $_pkg_min_version" >&5
+echo $ECHO_N "checking pkg-config is at least version $_pkg_min_version... $ECHO_C" >&6; }
+	if $PKG_CONFIG --atleast-pkgconfig-version $_pkg_min_version; then
+		{ echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
+	else
+		{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+		PKG_CONFIG=""
+	fi
 
-            { echo "$as_me:$LINENO: checking FT2_CFLAGS" >&5
-echo $ECHO_N "checking FT2_CFLAGS... $ECHO_C" >&6; }
-            FT2_CFLAGS=`$PKG_CONFIG --cflags "freetype2"`
-            { echo "$as_me:$LINENO: result: $FT2_CFLAGS" >&5
-echo "${ECHO_T}$FT2_CFLAGS" >&6; }
+fi
 
-            { echo "$as_me:$LINENO: checking FT2_LIBS" >&5
-echo $ECHO_N "checking FT2_LIBS... $ECHO_C" >&6; }
-            FT2_LIBS=`$PKG_CONFIG --libs "freetype2"`
-            { echo "$as_me:$LINENO: result: $FT2_LIBS" >&5
-echo "${ECHO_T}$FT2_LIBS" >&6; }
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for FT2" >&5
+echo $ECHO_N "checking for FT2... $ECHO_C" >&6; }
+
+if test -n "$PKG_CONFIG"; then
+    if test -n "$FT2_CFLAGS"; then
+        pkg_cv_FT2_CFLAGS="$FT2_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"freetype2\"") >&5
+  ($PKG_CONFIG --exists --print-errors "freetype2") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_FT2_CFLAGS=`$PKG_CONFIG --cflags "freetype2" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$FT2_LIBS"; then
+        pkg_cv_FT2_LIBS="$FT2_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"freetype2\"") >&5
+  ($PKG_CONFIG --exists --print-errors "freetype2") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_FT2_LIBS=`$PKG_CONFIG --libs "freetype2" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        FT2_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "freetype2"`
         else
-            FT2_CFLAGS=""
-            FT2_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            FT2_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "freetype2"`
-
+	        FT2_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "freetype2"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$FT2_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     have_freetype2=yes
-  else
-     have_freetype2=no
-  fi
-
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_freetype2=no
+elif test $pkg_failed = untried; then
+	have_freetype2=no
+else
+	FT2_CFLAGS=$pkg_cv_FT2_CFLAGS
+	FT2_LIBS=$pkg_cv_FT2_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	have_freetype2=yes
+fi
 if test x$have_freetype2 = xyes; then
 
 cat >>confdefs.h <<\_ACEOF
@@ -21076,102 +21345,76 @@ fi
 X11_LIBS=""
 X11_INCLUDE=""
 
-  succeeded=no
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for X11" >&5
+echo $ECHO_N "checking for X11... $ECHO_C" >&6; }
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
-  { echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6; }
+    if test -n "$X11_CFLAGS"; then
+        pkg_cv_X11_CFLAGS="$X11_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"x11\"") >&5
+  ($PKG_CONFIG --exists --print-errors "x11") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_X11_CFLAGS=`$PKG_CONFIG --cflags "x11" 2>/dev/null`
 else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$X11_LIBS"; then
+        pkg_cv_X11_LIBS="$X11_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"x11\"") >&5
+  ($PKG_CONFIG --exists --print-errors "x11") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_X11_LIBS=`$PKG_CONFIG --libs "x11" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
 fi
 
 
-  fi
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for x11" >&5
-echo $ECHO_N "checking for x11... $ECHO_C" >&6; }
+if test $pkg_failed = yes; then
 
-        if $PKG_CONFIG --exists "x11" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
-
-            { echo "$as_me:$LINENO: checking X11_CFLAGS" >&5
-echo $ECHO_N "checking X11_CFLAGS... $ECHO_C" >&6; }
-            X11_CFLAGS=`$PKG_CONFIG --cflags "x11"`
-            { echo "$as_me:$LINENO: result: $X11_CFLAGS" >&5
-echo "${ECHO_T}$X11_CFLAGS" >&6; }
-
-            { echo "$as_me:$LINENO: checking X11_LIBS" >&5
-echo $ECHO_N "checking X11_LIBS... $ECHO_C" >&6; }
-            X11_LIBS=`$PKG_CONFIG --libs "x11"`
-            { echo "$as_me:$LINENO: result: $X11_LIBS" >&5
-echo "${ECHO_T}$X11_LIBS" >&6; }
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        X11_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "x11"`
         else
-            X11_CFLAGS=""
-            X11_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            X11_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "x11"`
-
+	        X11_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "x11"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$X11_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     have_x11=yes
-  else
-     have_x11=no
-  fi
-
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_x11=no
+elif test $pkg_failed = untried; then
+	have_x11=no
+else
+	X11_CFLAGS=$pkg_cv_X11_CFLAGS
+	X11_LIBS=$pkg_cv_X11_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	have_x11=yes
+fi
 
 
 
@@ -21180,201 +21423,149 @@ XIPH_LIBS=""
 THEORA_MMX_DIR=""
 if test x$dynamic_ffmpeg = xyes ; then
 
-  succeeded=no
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for XIPH" >&5
+echo $ECHO_N "checking for XIPH... $ECHO_C" >&6; }
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
-  { echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6; }
+    if test -n "$XIPH_CFLAGS"; then
+        pkg_cv_XIPH_CFLAGS="$XIPH_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"ogg >= 1.1 vorbis vorbisenc theora\"") >&5
+  ($PKG_CONFIG --exists --print-errors "ogg >= 1.1 vorbis vorbisenc theora") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_XIPH_CFLAGS=`$PKG_CONFIG --cflags "ogg >= 1.1 vorbis vorbisenc theora" 2>/dev/null`
 else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$XIPH_LIBS"; then
+        pkg_cv_XIPH_LIBS="$XIPH_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"ogg >= 1.1 vorbis vorbisenc theora\"") >&5
+  ($PKG_CONFIG --exists --print-errors "ogg >= 1.1 vorbis vorbisenc theora") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_XIPH_LIBS=`$PKG_CONFIG --libs "ogg >= 1.1 vorbis vorbisenc theora" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
 fi
 
 
-  fi
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for ogg >= 1.1 vorbis vorbisenc theora" >&5
-echo $ECHO_N "checking for ogg >= 1.1 vorbis vorbisenc theora... $ECHO_C" >&6; }
+if test $pkg_failed = yes; then
 
-        if $PKG_CONFIG --exists "ogg >= 1.1 vorbis vorbisenc theora" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
-
-            { echo "$as_me:$LINENO: checking XIPH_CFLAGS" >&5
-echo $ECHO_N "checking XIPH_CFLAGS... $ECHO_C" >&6; }
-            XIPH_CFLAGS=`$PKG_CONFIG --cflags "ogg >= 1.1 vorbis vorbisenc theora"`
-            { echo "$as_me:$LINENO: result: $XIPH_CFLAGS" >&5
-echo "${ECHO_T}$XIPH_CFLAGS" >&6; }
-
-            { echo "$as_me:$LINENO: checking XIPH_LIBS" >&5
-echo $ECHO_N "checking XIPH_LIBS... $ECHO_C" >&6; }
-            XIPH_LIBS=`$PKG_CONFIG --libs "ogg >= 1.1 vorbis vorbisenc theora"`
-            { echo "$as_me:$LINENO: result: $XIPH_LIBS" >&5
-echo "${ECHO_T}$XIPH_LIBS" >&6; }
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        XIPH_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "ogg >= 1.1 vorbis vorbisenc theora"`
         else
-            XIPH_CFLAGS=""
-            XIPH_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            XIPH_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "ogg >= 1.1 vorbis vorbisenc theora"`
-
+	        XIPH_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "ogg >= 1.1 vorbis vorbisenc theora"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$XIPH_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     have_oggtheora=yes
-  else
-     have_oggtheora=no
-  fi
-
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_oggtheora=no
+elif test $pkg_failed = untried; then
+	have_oggtheora=no
+else
+	XIPH_CFLAGS=$pkg_cv_XIPH_CFLAGS
+	XIPH_LIBS=$pkg_cv_XIPH_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	have_oggtheora=yes
+fi
    XIPH_LIBS="$XIPH_LIBS -ltheora"
 else
 
-  succeeded=no
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for XIPH" >&5
+echo $ECHO_N "checking for XIPH... $ECHO_C" >&6; }
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
-  { echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6; }
+    if test -n "$XIPH_CFLAGS"; then
+        pkg_cv_XIPH_CFLAGS="$XIPH_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"ogg >= 1.1 vorbis vorbisenc\"") >&5
+  ($PKG_CONFIG --exists --print-errors "ogg >= 1.1 vorbis vorbisenc") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_XIPH_CFLAGS=`$PKG_CONFIG --cflags "ogg >= 1.1 vorbis vorbisenc" 2>/dev/null`
 else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$XIPH_LIBS"; then
+        pkg_cv_XIPH_LIBS="$XIPH_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"ogg >= 1.1 vorbis vorbisenc\"") >&5
+  ($PKG_CONFIG --exists --print-errors "ogg >= 1.1 vorbis vorbisenc") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_XIPH_LIBS=`$PKG_CONFIG --libs "ogg >= 1.1 vorbis vorbisenc" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
 fi
 
 
-  fi
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for ogg >= 1.1 vorbis vorbisenc" >&5
-echo $ECHO_N "checking for ogg >= 1.1 vorbis vorbisenc... $ECHO_C" >&6; }
+if test $pkg_failed = yes; then
 
-        if $PKG_CONFIG --exists "ogg >= 1.1 vorbis vorbisenc" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
-
-            { echo "$as_me:$LINENO: checking XIPH_CFLAGS" >&5
-echo $ECHO_N "checking XIPH_CFLAGS... $ECHO_C" >&6; }
-            XIPH_CFLAGS=`$PKG_CONFIG --cflags "ogg >= 1.1 vorbis vorbisenc"`
-            { echo "$as_me:$LINENO: result: $XIPH_CFLAGS" >&5
-echo "${ECHO_T}$XIPH_CFLAGS" >&6; }
-
-            { echo "$as_me:$LINENO: checking XIPH_LIBS" >&5
-echo $ECHO_N "checking XIPH_LIBS... $ECHO_C" >&6; }
-            XIPH_LIBS=`$PKG_CONFIG --libs "ogg >= 1.1 vorbis vorbisenc"`
-            { echo "$as_me:$LINENO: result: $XIPH_LIBS" >&5
-echo "${ECHO_T}$XIPH_LIBS" >&6; }
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        XIPH_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "ogg >= 1.1 vorbis vorbisenc"`
         else
-            XIPH_CFLAGS=""
-            XIPH_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            XIPH_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "ogg >= 1.1 vorbis vorbisenc"`
-
+	        XIPH_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "ogg >= 1.1 vorbis vorbisenc"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$XIPH_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     have_oggtheora=yes
-  else
-     have_oggtheora=no
-  fi
-
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_oggtheora=no
+elif test $pkg_failed = untried; then
+	have_oggtheora=no
+else
+	XIPH_CFLAGS=$pkg_cv_XIPH_CFLAGS
+	XIPH_LIBS=$pkg_cv_XIPH_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	have_oggtheora=yes
+fi
 #   XIPH_LIBS="$XIPH_LIBS -logg -lvorbis \$(top_srcdir)/lib/theora-mmx/libtheora.a"
    XIPH_LIBS="$XIPH_LIBS -logg -lvorbis -lvorbisenc -ltheora"
 #   XIPH_INCLUDE="-I\$(top_srcdir)/lib/theora-mmx"
@@ -21442,102 +21633,76 @@ fi
 
 FFMPEG_LIBS=""
 
-  succeeded=no
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for FFMPEG" >&5
+echo $ECHO_N "checking for FFMPEG... $ECHO_C" >&6; }
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
-  { echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6; }
+    if test -n "$FFMPEG_CFLAGS"; then
+        pkg_cv_FFMPEG_CFLAGS="$FFMPEG_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"libavcodec libavformat libavutil libswscale\"") >&5
+  ($PKG_CONFIG --exists --print-errors "libavcodec libavformat libavutil libswscale") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_FFMPEG_CFLAGS=`$PKG_CONFIG --cflags "libavcodec libavformat libavutil libswscale" 2>/dev/null`
 else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$FFMPEG_LIBS"; then
+        pkg_cv_FFMPEG_LIBS="$FFMPEG_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"libavcodec libavformat libavutil libswscale\"") >&5
+  ($PKG_CONFIG --exists --print-errors "libavcodec libavformat libavutil libswscale") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_FFMPEG_LIBS=`$PKG_CONFIG --libs "libavcodec libavformat libavutil libswscale" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
 fi
 
 
-  fi
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for libavcodec libavformat libavutil libswscale" >&5
-echo $ECHO_N "checking for libavcodec libavformat libavutil libswscale... $ECHO_C" >&6; }
+if test $pkg_failed = yes; then
 
-        if $PKG_CONFIG --exists "libavcodec libavformat libavutil libswscale" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
-
-            { echo "$as_me:$LINENO: checking FFMPEG_CFLAGS" >&5
-echo $ECHO_N "checking FFMPEG_CFLAGS... $ECHO_C" >&6; }
-            FFMPEG_CFLAGS=`$PKG_CONFIG --cflags "libavcodec libavformat libavutil libswscale"`
-            { echo "$as_me:$LINENO: result: $FFMPEG_CFLAGS" >&5
-echo "${ECHO_T}$FFMPEG_CFLAGS" >&6; }
-
-            { echo "$as_me:$LINENO: checking FFMPEG_LIBS" >&5
-echo $ECHO_N "checking FFMPEG_LIBS... $ECHO_C" >&6; }
-            FFMPEG_LIBS=`$PKG_CONFIG --libs "libavcodec libavformat libavutil libswscale"`
-            { echo "$as_me:$LINENO: result: $FFMPEG_LIBS" >&5
-echo "${ECHO_T}$FFMPEG_LIBS" >&6; }
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        FFMPEG_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libavcodec libavformat libavutil libswscale"`
         else
-            FFMPEG_CFLAGS=""
-            FFMPEG_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            FFMPEG_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libavcodec libavformat libavutil libswscale"`
-
+	        FFMPEG_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libavcodec libavformat libavutil libswscale"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$FFMPEG_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     have_ffmpeg=yes
-  else
-     have_ffmpeg=no
-  fi
-
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_ffmpeg=no
+elif test $pkg_failed = untried; then
+	have_ffmpeg=no
+else
+	FFMPEG_CFLAGS=$pkg_cv_FFMPEG_CFLAGS
+	FFMPEG_LIBS=$pkg_cv_FFMPEG_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	have_ffmpeg=yes
+fi
 if test x$have_ffmpeg = xyes; then
    FFMPEG_LIBS="$FFMPEG_LIBS"
 
@@ -21589,103 +21754,78 @@ fi
 
 BLUEZ_LIBS=""
 CWIID_DIR=""
+CWIID_LIBS=""
 
-  succeeded=no
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for BLUEZ" >&5
+echo $ECHO_N "checking for BLUEZ... $ECHO_C" >&6; }
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
-  { echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6; }
+    if test -n "$BLUEZ_CFLAGS"; then
+        pkg_cv_BLUEZ_CFLAGS="$BLUEZ_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"bluez\"") >&5
+  ($PKG_CONFIG --exists --print-errors "bluez") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_BLUEZ_CFLAGS=`$PKG_CONFIG --cflags "bluez" 2>/dev/null`
 else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$BLUEZ_LIBS"; then
+        pkg_cv_BLUEZ_LIBS="$BLUEZ_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"bluez\"") >&5
+  ($PKG_CONFIG --exists --print-errors "bluez") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_BLUEZ_LIBS=`$PKG_CONFIG --libs "bluez" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
 fi
 
 
-  fi
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for bluez" >&5
-echo $ECHO_N "checking for bluez... $ECHO_C" >&6; }
+if test $pkg_failed = yes; then
 
-        if $PKG_CONFIG --exists "bluez" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
-
-            { echo "$as_me:$LINENO: checking BLUEZ_CFLAGS" >&5
-echo $ECHO_N "checking BLUEZ_CFLAGS... $ECHO_C" >&6; }
-            BLUEZ_CFLAGS=`$PKG_CONFIG --cflags "bluez"`
-            { echo "$as_me:$LINENO: result: $BLUEZ_CFLAGS" >&5
-echo "${ECHO_T}$BLUEZ_CFLAGS" >&6; }
-
-            { echo "$as_me:$LINENO: checking BLUEZ_LIBS" >&5
-echo $ECHO_N "checking BLUEZ_LIBS... $ECHO_C" >&6; }
-            BLUEZ_LIBS=`$PKG_CONFIG --libs "bluez"`
-            { echo "$as_me:$LINENO: result: $BLUEZ_LIBS" >&5
-echo "${ECHO_T}$BLUEZ_LIBS" >&6; }
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        BLUEZ_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "bluez"`
         else
-            BLUEZ_CFLAGS=""
-            BLUEZ_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            BLUEZ_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "bluez"`
-
+	        BLUEZ_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "bluez"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$BLUEZ_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     have_bluez=yes
-  else
-     have_bluez=no
-  fi
-
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_bluez=no
+elif test $pkg_failed = untried; then
+	have_bluez=no
+else
+	BLUEZ_CFLAGS=$pkg_cv_BLUEZ_CFLAGS
+	BLUEZ_LIBS=$pkg_cv_BLUEZ_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	have_bluez=yes
+fi
 if test x$have_bluez = xyes; then
 
 cat >>confdefs.h <<\_ACEOF
@@ -21693,7 +21833,9 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
    CWIID_DIR=cwiid
+   CWIID_LIBS="\$(top_srcdir)/lib/cwiid/libwiimote.a"
 fi
+
 
 
 
@@ -21855,97 +21997,74 @@ fi
 if test "${enable_glade2+set}" = set; then
   enableval=$enable_glade2;
 
-  succeeded=no
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for GLADE2" >&5
+echo $ECHO_N "checking for GLADE2... $ECHO_C" >&6; }
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
-  { echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6; }
+    if test -n "$GLADE2_CFLAGS"; then
+        pkg_cv_GLADE2_CFLAGS="$GLADE2_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0\"") >&5
+  ($PKG_CONFIG --exists --print-errors "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_GLADE2_CFLAGS=`$PKG_CONFIG --cflags "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0" 2>/dev/null`
 else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$GLADE2_LIBS"; then
+        pkg_cv_GLADE2_LIBS="$GLADE2_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0\"") >&5
+  ($PKG_CONFIG --exists --print-errors "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_GLADE2_LIBS=`$PKG_CONFIG --libs "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
 fi
 
 
-  fi
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0" >&5
-echo $ECHO_N "checking for libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0... $ECHO_C" >&6; }
+if test $pkg_failed = yes; then
 
-        if $PKG_CONFIG --exists "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
-
-            { echo "$as_me:$LINENO: checking GLADE2_CFLAGS" >&5
-echo $ECHO_N "checking GLADE2_CFLAGS... $ECHO_C" >&6; }
-            GLADE2_CFLAGS=`$PKG_CONFIG --cflags "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0"`
-            { echo "$as_me:$LINENO: result: $GLADE2_CFLAGS" >&5
-echo "${ECHO_T}$GLADE2_CFLAGS" >&6; }
-
-            { echo "$as_me:$LINENO: checking GLADE2_LIBS" >&5
-echo $ECHO_N "checking GLADE2_LIBS... $ECHO_C" >&6; }
-            GLADE2_LIBS=`$PKG_CONFIG --libs "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0"`
-            { echo "$as_me:$LINENO: result: $GLADE2_LIBS" >&5
-echo "${ECHO_T}$GLADE2_LIBS" >&6; }
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        GLADE2_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0"`
         else
-            GLADE2_CFLAGS=""
-            GLADE2_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            GLADE2_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0"`
-
+	        GLADE2_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$GLADE2_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                 have_glade2=no
+elif test $pkg_failed = untried; then
+	 have_glade2=no
+else
+	GLADE2_CFLAGS=$pkg_cv_GLADE2_CFLAGS
+	GLADE2_LIBS=$pkg_cv_GLADE2_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
 
 
 cat >>confdefs.h <<\_ACEOF
@@ -21953,10 +22072,7 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
   have_glade2=yes
-  else
-      have_glade2=no
-  fi
-
+fi
 
 fi
 
@@ -21974,9 +22090,7 @@ else
   debug=false
 fi
 
-
-
-if test x$debug = xtrue; then
+ if test x$debug = xtrue; then
   DEBUG_TRUE=
   DEBUG_FALSE='#'
 else
@@ -22088,106 +22202,81 @@ JACK_LIBS=""
 FFTW_LIBS=""
 GOOM_DIR=""
 GOOM_PPC_FILES=""
+GOOM_LIBS=""
 #SNDFILE_LIBS=""
 if test x$have_linux = xyes ; then
 
 
-  succeeded=no
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for ALSA" >&5
+echo $ECHO_N "checking for ALSA... $ECHO_C" >&6; }
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
-  { echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6; }
+    if test -n "$ALSA_CFLAGS"; then
+        pkg_cv_ALSA_CFLAGS="$ALSA_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"alsa\"") >&5
+  ($PKG_CONFIG --exists --print-errors "alsa") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_ALSA_CFLAGS=`$PKG_CONFIG --cflags "alsa" 2>/dev/null`
 else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$ALSA_LIBS"; then
+        pkg_cv_ALSA_LIBS="$ALSA_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"alsa\"") >&5
+  ($PKG_CONFIG --exists --print-errors "alsa") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_ALSA_LIBS=`$PKG_CONFIG --libs "alsa" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
 fi
 
 
-  fi
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for alsa" >&5
-echo $ECHO_N "checking for alsa... $ECHO_C" >&6; }
+if test $pkg_failed = yes; then
 
-        if $PKG_CONFIG --exists "alsa" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
-
-            { echo "$as_me:$LINENO: checking ALSA_CFLAGS" >&5
-echo $ECHO_N "checking ALSA_CFLAGS... $ECHO_C" >&6; }
-            ALSA_CFLAGS=`$PKG_CONFIG --cflags "alsa"`
-            { echo "$as_me:$LINENO: result: $ALSA_CFLAGS" >&5
-echo "${ECHO_T}$ALSA_CFLAGS" >&6; }
-
-            { echo "$as_me:$LINENO: checking ALSA_LIBS" >&5
-echo $ECHO_N "checking ALSA_LIBS... $ECHO_C" >&6; }
-            ALSA_LIBS=`$PKG_CONFIG --libs "alsa"`
-            { echo "$as_me:$LINENO: result: $ALSA_LIBS" >&5
-echo "${ECHO_T}$ALSA_LIBS" >&6; }
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        ALSA_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "alsa"`
         else
-            ALSA_CFLAGS=""
-            ALSA_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            ALSA_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "alsa"`
-
+	        ALSA_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "alsa"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$ALSA_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     have_alsa=yes
-  else
-     have_alsa=no
-  fi
-
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_alsa=no
+elif test $pkg_failed = untried; then
+	have_alsa=no
+else
+	ALSA_CFLAGS=$pkg_cv_ALSA_CFLAGS
+	ALSA_LIBS=$pkg_cv_ALSA_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	have_alsa=yes
+fi
 
    if test x$have_alsa = xyes; then
 
@@ -22199,202 +22288,150 @@ _ACEOF
 	 have_midi=yes
 
 
-  succeeded=no
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for JACK" >&5
+echo $ECHO_N "checking for JACK... $ECHO_C" >&6; }
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
-  { echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6; }
+    if test -n "$JACK_CFLAGS"; then
+        pkg_cv_JACK_CFLAGS="$JACK_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"jack\"") >&5
+  ($PKG_CONFIG --exists --print-errors "jack") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_JACK_CFLAGS=`$PKG_CONFIG --cflags "jack" 2>/dev/null`
 else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$JACK_LIBS"; then
+        pkg_cv_JACK_LIBS="$JACK_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"jack\"") >&5
+  ($PKG_CONFIG --exists --print-errors "jack") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_JACK_LIBS=`$PKG_CONFIG --libs "jack" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
 fi
 
 
-  fi
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for jack" >&5
-echo $ECHO_N "checking for jack... $ECHO_C" >&6; }
+if test $pkg_failed = yes; then
 
-        if $PKG_CONFIG --exists "jack" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
-
-            { echo "$as_me:$LINENO: checking JACK_CFLAGS" >&5
-echo $ECHO_N "checking JACK_CFLAGS... $ECHO_C" >&6; }
-            JACK_CFLAGS=`$PKG_CONFIG --cflags "jack"`
-            { echo "$as_me:$LINENO: result: $JACK_CFLAGS" >&5
-echo "${ECHO_T}$JACK_CFLAGS" >&6; }
-
-            { echo "$as_me:$LINENO: checking JACK_LIBS" >&5
-echo $ECHO_N "checking JACK_LIBS... $ECHO_C" >&6; }
-            JACK_LIBS=`$PKG_CONFIG --libs "jack"`
-            { echo "$as_me:$LINENO: result: $JACK_LIBS" >&5
-echo "${ECHO_T}$JACK_LIBS" >&6; }
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        JACK_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "jack"`
         else
-            JACK_CFLAGS=""
-            JACK_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            JACK_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "jack"`
-
+	        JACK_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "jack"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$JACK_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     have_jack=yes
-  else
-     have_jack=no
-  fi
-
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_jack=no
+elif test $pkg_failed = untried; then
+	have_jack=no
+else
+	JACK_CFLAGS=$pkg_cv_JACK_CFLAGS
+	JACK_LIBS=$pkg_cv_JACK_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	have_jack=yes
+fi
 
 	 if test x$have_jack = xyes; then
 
 
-  succeeded=no
+pkg_failed=no
+{ echo "$as_me:$LINENO: checking for FFTW" >&5
+echo $ECHO_N "checking for FFTW... $ECHO_C" >&6; }
 
-  if test -z "$PKG_CONFIG"; then
-    # Extract the first word of "pkg-config", so it can be a program name with args.
-set dummy pkg-config; ac_word=$2
-{ echo "$as_me:$LINENO: checking for $ac_word" >&5
-echo $ECHO_N "checking for $ac_word... $ECHO_C" >&6; }
-if test "${ac_cv_path_PKG_CONFIG+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  case $PKG_CONFIG in
-  [\\/]* | ?:[\\/]*)
-  ac_cv_path_PKG_CONFIG="$PKG_CONFIG" # Let the user override the test with a path.
-  ;;
-  *)
-  as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  test -z "$as_dir" && as_dir=.
-  for ac_exec_ext in '' $ac_executable_extensions; do
-  if { test -f "$as_dir/$ac_word$ac_exec_ext" && $as_test_x "$as_dir/$ac_word$ac_exec_ext"; }; then
-    ac_cv_path_PKG_CONFIG="$as_dir/$ac_word$ac_exec_ext"
-    echo "$as_me:$LINENO: found $as_dir/$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-done
-IFS=$as_save_IFS
-
-  test -z "$ac_cv_path_PKG_CONFIG" && ac_cv_path_PKG_CONFIG="no"
-  ;;
-esac
-fi
-PKG_CONFIG=$ac_cv_path_PKG_CONFIG
 if test -n "$PKG_CONFIG"; then
-  { echo "$as_me:$LINENO: result: $PKG_CONFIG" >&5
-echo "${ECHO_T}$PKG_CONFIG" >&6; }
+    if test -n "$FFTW_CFLAGS"; then
+        pkg_cv_FFTW_CFLAGS="$FFTW_CFLAGS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"fftw3\"") >&5
+  ($PKG_CONFIG --exists --print-errors "fftw3") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_FFTW_CFLAGS=`$PKG_CONFIG --cflags "fftw3" 2>/dev/null`
 else
-  { echo "$as_me:$LINENO: result: no" >&5
-echo "${ECHO_T}no" >&6; }
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
+fi
+if test -n "$PKG_CONFIG"; then
+    if test -n "$FFTW_LIBS"; then
+        pkg_cv_FFTW_LIBS="$FFTW_LIBS"
+    else
+        if test -n "$PKG_CONFIG" && \
+    { (echo "$as_me:$LINENO: \$PKG_CONFIG --exists --print-errors \"fftw3\"") >&5
+  ($PKG_CONFIG --exists --print-errors "fftw3") 2>&5
+  ac_status=$?
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); }; then
+  pkg_cv_FFTW_LIBS=`$PKG_CONFIG --libs "fftw3" 2>/dev/null`
+else
+  pkg_failed=yes
+fi
+    fi
+else
+	pkg_failed=untried
 fi
 
 
-  fi
 
-  if test "$PKG_CONFIG" = "no" ; then
-     echo "*** The pkg-config script could not be found. Make sure it is"
-     echo "*** in your path, or set the PKG_CONFIG environment variable"
-     echo "*** to the full path to pkg-config."
-     echo "*** Or see http://www.freedesktop.org/software/pkgconfig to get pkg-config."
-  else
-     PKG_CONFIG_MIN_VERSION=0.9.0
-     if $PKG_CONFIG --atleast-pkgconfig-version $PKG_CONFIG_MIN_VERSION; then
-        { echo "$as_me:$LINENO: checking for fftw3" >&5
-echo $ECHO_N "checking for fftw3... $ECHO_C" >&6; }
+if test $pkg_failed = yes; then
 
-        if $PKG_CONFIG --exists "fftw3" ; then
-            { echo "$as_me:$LINENO: result: yes" >&5
-echo "${ECHO_T}yes" >&6; }
-            succeeded=yes
-
-            { echo "$as_me:$LINENO: checking FFTW_CFLAGS" >&5
-echo $ECHO_N "checking FFTW_CFLAGS... $ECHO_C" >&6; }
-            FFTW_CFLAGS=`$PKG_CONFIG --cflags "fftw3"`
-            { echo "$as_me:$LINENO: result: $FFTW_CFLAGS" >&5
-echo "${ECHO_T}$FFTW_CFLAGS" >&6; }
-
-            { echo "$as_me:$LINENO: checking FFTW_LIBS" >&5
-echo $ECHO_N "checking FFTW_LIBS... $ECHO_C" >&6; }
-            FFTW_LIBS=`$PKG_CONFIG --libs "fftw3"`
-            { echo "$as_me:$LINENO: result: $FFTW_LIBS" >&5
-echo "${ECHO_T}$FFTW_LIBS" >&6; }
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        FFTW_PKG_ERRORS=`$PKG_CONFIG --short-errors --errors-to-stdout --print-errors "fftw3"`
         else
-            FFTW_CFLAGS=""
-            FFTW_LIBS=""
-            ## If we have a custom action on failure, don't print errors, but
-            ## do set a variable so people can do so.
-            FFTW_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "fftw3"`
-
+	        FFTW_PKG_ERRORS=`$PKG_CONFIG --errors-to-stdout --print-errors "fftw3"`
         fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$FFTW_PKG_ERRORS" >&5
 
-
-
-     else
-        echo "*** Your version of pkg-config is too old. You need version $PKG_CONFIG_MIN_VERSION or newer."
-        echo "*** See http://www.freedesktop.org/software/pkgconfig"
-     fi
-  fi
-
-  if test $succeeded = yes; then
-     have_fftw=yes
-  else
-     have_fftw=no
-  fi
-
+	{ echo "$as_me:$LINENO: result: no" >&5
+echo "${ECHO_T}no" >&6; }
+                have_fftw=no
+elif test $pkg_failed = untried; then
+	have_fftw=no
+else
+	FFTW_CFLAGS=$pkg_cv_FFTW_CFLAGS
+	FFTW_LIBS=$pkg_cv_FFTW_LIBS
+        { echo "$as_me:$LINENO: result: yes" >&5
+echo "${ECHO_T}yes" >&6; }
+	have_fftw=yes
+fi
 
 		 if test x$have_fftw = xyes; then
 
@@ -22404,6 +22441,7 @@ cat >>confdefs.h <<\_ACEOF
 _ACEOF
 
 		    GOOM_DIR=goom
+		    GOOM_LIBS="\$(top_srcdir)/lib/goom/libgoom2.a"
 		    have_sound=yes
 		    if test x$host_cpu = xpowerpc; then
 		       GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
@@ -22415,6 +22453,7 @@ _ACEOF
 #	 PKG_CHECK_MODULES(SNDFILE, sndfile, have_sndfile=yes, have_sndfile=no)
 
 fi # have_linux
+
 
 
 
@@ -22770,6 +22809,13 @@ if test -z "${am__fastdepCXX_TRUE}" && test -z "${am__fastdepCXX_FALSE}"; then
   { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCXX\" was never defined.
 Usually this means the macro was only invoked conditionally." >&5
 echo "$as_me: error: conditional \"am__fastdepCXX\" was never defined.
+Usually this means the macro was only invoked conditionally." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+if test -z "${am__fastdepCCAS_TRUE}" && test -z "${am__fastdepCCAS_FALSE}"; then
+  { { echo "$as_me:$LINENO: error: conditional \"am__fastdepCCAS\" was never defined.
+Usually this means the macro was only invoked conditionally." >&5
+echo "$as_me: error: conditional \"am__fastdepCCAS\" was never defined.
 Usually this means the macro was only invoked conditionally." >&2;}
    { (exit 1); exit 1; }; }
 fi
@@ -23144,6 +23190,7 @@ gives unlimited permission to copy, distribute and modify it."
 ac_pwd='$ac_pwd'
 srcdir='$srcdir'
 INSTALL='$INSTALL'
+MKDIR_P='$MKDIR_P'
 _ACEOF
 
 cat >>$CONFIG_STATUS <<\_ACEOF
@@ -23410,6 +23457,7 @@ SET_MAKE!$SET_MAKE$ac_delim
 INSTALL_PROGRAM!$INSTALL_PROGRAM$ac_delim
 INSTALL_SCRIPT!$INSTALL_SCRIPT$ac_delim
 INSTALL_DATA!$INSTALL_DATA$ac_delim
+am__isrc!$am__isrc$ac_delim
 CYGPATH_W!$CYGPATH_W$ac_delim
 PACKAGE!$PACKAGE$ac_delim
 VERSION!$VERSION$ac_delim
@@ -23453,7 +23501,6 @@ LEX!$LEX$ac_delim
 LEX_OUTPUT_ROOT!$LEX_OUTPUT_ROOT$ac_delim
 LEXLIB!$LEXLIB$ac_delim
 YACC!$YACC$ac_delim
-YFLAGS!$YFLAGS$ac_delim
 _ACEOF
 
   if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 97; then
@@ -23495,6 +23542,7 @@ _ACEOF
 ac_delim='%!_!# '
 for ac_last_try in false false false false false :; do
   cat >conf$$subs.sed <<_ACEOF
+YFLAGS!$YFLAGS$ac_delim
 SED!$SED$ac_delim
 GREP!$GREP$ac_delim
 EGREP!$EGREP$ac_delim
@@ -23510,10 +23558,11 @@ F77!$F77$ac_delim
 FFLAGS!$FFLAGS$ac_delim
 ac_ct_F77!$ac_ct_F77$ac_delim
 LIBTOOL!$LIBTOOL$ac_delim
-AS!$AS$ac_delim
-ASFLAGS!$ASFLAGS$ac_delim
 CCAS!$CCAS$ac_delim
 CCASFLAGS!$CCASFLAGS$ac_delim
+CCASDEPMODE!$CCASDEPMODE$ac_delim
+am__fastdepCCAS_TRUE!$am__fastdepCCAS_TRUE$ac_delim
+am__fastdepCCAS_FALSE!$am__fastdepCCAS_FALSE$ac_delim
 SDL_CONFIG!$SDL_CONFIG$ac_delim
 SDL_CFLAGS!$SDL_CFLAGS$ac_delim
 SDL_LIBS!$SDL_LIBS$ac_delim
@@ -23532,6 +23581,7 @@ FLASH_DIR!$FLASH_DIR$ac_delim
 BLUEZ_CFLAGS!$BLUEZ_CFLAGS$ac_delim
 BLUEZ_LIBS!$BLUEZ_LIBS$ac_delim
 CWIID_DIR!$CWIID_DIR$ac_delim
+CWIID_LIBS!$CWIID_LIBS$ac_delim
 GLADE2_CFLAGS!$GLADE2_CFLAGS$ac_delim
 GLADE2_LIBS!$GLADE2_LIBS$ac_delim
 DEBUG_TRUE!$DEBUG_TRUE$ac_delim
@@ -23545,6 +23595,7 @@ JACK_LIBS!$JACK_LIBS$ac_delim
 FFTW_CFLAGS!$FFTW_CFLAGS$ac_delim
 FFTW_LIBS!$FFTW_LIBS$ac_delim
 GOOM_DIR!$GOOM_DIR$ac_delim
+GOOM_LIBS!$GOOM_LIBS$ac_delim
 GOOM_PPC_FILES!$GOOM_PPC_FILES$ac_delim
 BUILDLIBS!$BUILDLIBS$ac_delim
 STATIC_LIBS!$STATIC_LIBS$ac_delim
@@ -23554,7 +23605,7 @@ LIBOBJS!$LIBOBJS$ac_delim
 LTLIBOBJS!$LTLIBOBJS$ac_delim
 _ACEOF
 
-  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 57; then
+  if test `sed -n "s/.*$ac_delim\$/X/p" conf$$subs.sed | grep -c X` = 61; then
     break
   elif $ac_last_try; then
     { { echo "$as_me:$LINENO: error: could not make $CONFIG_STATUS" >&5
@@ -23781,6 +23832,11 @@ ac_abs_srcdir=$ac_abs_top_srcdir$ac_dir_suffix
   [\\/$]* | ?:[\\/]* ) ac_INSTALL=$INSTALL ;;
   *) ac_INSTALL=$ac_top_build_prefix$INSTALL ;;
   esac
+  ac_MKDIR_P=$MKDIR_P
+  case $MKDIR_P in
+  [\\/$]* | ?:[\\/]* ) ;;
+  */*) ac_MKDIR_P=$ac_top_build_prefix$MKDIR_P ;;
+  esac
 _ACEOF
 
 cat >>$CONFIG_STATUS <<\_ACEOF
@@ -23834,6 +23890,7 @@ s&@builddir@&$ac_builddir&;t t
 s&@abs_builddir@&$ac_abs_builddir&;t t
 s&@abs_top_builddir@&$ac_abs_top_builddir&;t t
 s&@INSTALL@&$ac_INSTALL&;t t
+s&@MKDIR_P@&$ac_MKDIR_P&;t t
 $ac_datarootdir_hack
 " $ac_file_inputs | sed -f "$tmp/subs-1.sed" | sed -f "$tmp/subs-2.sed" >$tmp/out
 
@@ -23949,21 +24006,22 @@ echo "$as_me: $ac_file is unchanged" >&6;}
   fi
   rm -f "$tmp/out12"
 # Compute $ac_file's index in $config_headers.
+_am_arg=$ac_file
 _am_stamp_count=1
 for _am_header in $config_headers :; do
   case $_am_header in
-    $ac_file | $ac_file:* )
+    $_am_arg | $_am_arg:* )
       break ;;
     * )
       _am_stamp_count=`expr $_am_stamp_count + 1` ;;
   esac
 done
-echo "timestamp for $ac_file" >`$as_dirname -- $ac_file ||
-$as_expr X$ac_file : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
-	 X$ac_file : 'X\(//\)[^/]' \| \
-	 X$ac_file : 'X\(//\)$' \| \
-	 X$ac_file : 'X\(/\)' \| . 2>/dev/null ||
-echo X$ac_file |
+echo "timestamp for $_am_arg" >`$as_dirname -- "$_am_arg" ||
+$as_expr X"$_am_arg" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
+	 X"$_am_arg" : 'X\(//\)[^/]' \| \
+	 X"$_am_arg" : 'X\(//\)$' \| \
+	 X"$_am_arg" : 'X\(/\)' \| . 2>/dev/null ||
+echo X"$_am_arg" |
     sed '/^X\(.*[^/]\)\/\/*[^/][^/]*\/*$/{
 	    s//\1/
 	    q
@@ -23998,8 +24056,9 @@ echo "$as_me: executing $ac_file commands" >&6;}
   # some people rename them; so instead we look at the file content.
   # Grep'ing the first line is not enough: some people post-process
   # each Makefile.in and add a new line on top of each file to say so.
-  # So let's grep whole file.
-  if grep '^#.*generated by automake' $mf > /dev/null 2>&1; then
+  # Grep'ing the whole file is not good either: AIX grep has a line
+  # limit of 2048, but all sed's we know have understand at least 4000.
+  if sed -n 's,^#.*generated by automake.*,X,p' "$mf" | grep X >/dev/null 2>&1; then
     dirpart=`$as_dirname -- "$mf" ||
 $as_expr X"$mf" : 'X\(.*[^/]\)//*[^/][^/]*/*$' \| \
 	 X"$mf" : 'X\(//\)[^/]' \| \

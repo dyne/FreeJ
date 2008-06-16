@@ -17,6 +17,9 @@
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include "frei0r.hpp"
 
 /* Clamps a int32-range int between 0 and 255 inclusive. */

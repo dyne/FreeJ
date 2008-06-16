@@ -46,14 +46,14 @@ void f0r_get_param_info(f0r_param_info_t* info, int param_index)
   switch(param_index)
     {
     case 0:
-      info->name = "X.BlockSize";
+      info->name = "x";
       info->type = F0R_PARAM_DOUBLE;
-      info->explanation = "Horizontal size of one \"pixel\"";
+      info->explanation = "Horizontal block size of one \"pixel\"";
       break;
     case 1:
-      info->name = "Y.BlockSize";
+      info->name = "y";
       info->type = F0R_PARAM_DOUBLE;
-      info->explanation = "Vertical size of one \"pixel\"";
+      info->explanation = "Vertical block size of one \"pixel\"";
       break;      
     }
 }
@@ -82,11 +82,14 @@ void f0r_set_param_value(f0r_instance_t instance,
     {
     case 0:
       // scale to [1..width]
-      inst->block_size_x =  1 + ( *((double*)param) * (inst->width/2)) ;
+      // inst->block_size_x =  1 + ( *((double*)param) * (inst->width/2)) ;
+      inst->block_size_x = (int)(double*)param;
       break;
     case 1:
       // scale to [1..height]
-      inst->block_size_y =  1 + ( *((double*)param) * (inst->height/2)) ;
+      //      inst->block_size_y =  1 + ( *((double*)param) * (inst->height/2)) ;
+      inst->block_size_x = (int)(double*)param;
+
       break;
     }  
 }
