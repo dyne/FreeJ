@@ -27,6 +27,9 @@
 
 #include "frei0r.hpp"
 
+#include <stdlib.h>
+#include <string.h>
+
 #include <algorithm>
 #include <cmath>
 

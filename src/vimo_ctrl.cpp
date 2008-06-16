@@ -25,6 +25,8 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include <sys/stat.h>
+#include <string.h>
 
 #include <vimo_ctrl.h>
 
