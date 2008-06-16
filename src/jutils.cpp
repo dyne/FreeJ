@@ -21,9 +21,11 @@
 
 #include <stdio.h>
 
+#ifndef WIN32
 #ifdef linux
 /* we try to use the realtime linux clock on /dev/rtc */
 #include <linux/rtc.h>
+#endif
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <sys/select.h>
@@ -167,6 +169,7 @@ void warning(const char *format, ...) {
 }
 
 void *jalloc(size_t size) {
+#ifndef HAVE_DARWIN
   void *buf;
   int res;
   res = posix_memalign(&buf, 32, size);
@@ -177,6 +180,9 @@ void *jalloc(size_t size) {
       error("invalid memory alignement to 32 bytes in buffer allocation");
     return NULL;
   }
+#else
+  buf = malloc(size);
+#endif
   func("allocated %u bytes of memory at %p",size,buf);
   return(buf);
 }

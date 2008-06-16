@@ -105,10 +105,8 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
 	      $(top_srcdir)/lib/javascript/obj/libjs.a \
 	      $(top_srcdir)/lib/flash/libflash.a \
-	      $(top_srcdir)/lib/goom/libgoom2.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/lo/liblo.a \
-              $(top_srcdir)/lib/cwiid/libwiimote.a \
               -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 	         @X11_LIBS@ \
 		 @XIPH_LIBS@ \
@@ -119,9 +117,11 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @FT2_LIBS@ \
                  @ALSA_LIBS@ \
 		 @JACK_LIBS@ \
+		 @GOOM_LIBS@ \
                  @FFTW_LIBS@ \
 		 @FFMPEG_LIBS@ \
 		 @X11_LIBS@ \
 		 @BLUEZ_LIBS@ \
+		 @CWIID_LIBS@ \
 		 @OPENGL_LIB@
 

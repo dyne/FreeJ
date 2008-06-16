@@ -163,11 +163,19 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		flash_layer_methods,
 		object_proto);
 
+#ifdef WITH_SOUND
 	REGISTER_CLASS("GoomLayer",
 		goom_layer_class,
 		goom_layer_constructor,
 		goom_layer_methods,
 		object_proto);
+
+	REGISTER_CLASS("AudioJack",
+		       js_audio_jack_class,
+		       js_audio_jack_constructor,
+		       js_audio_jack_methods,
+		       object_proto);
+#endif
 
 #ifdef WITH_V4L
 	REGISTER_CLASS("CamLayer",
@@ -269,12 +277,6 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   js_wii_ctrl_class,
 		   js_wii_ctrl_constructor,
 		   js_wii_ctrl_methods,
-		   object_proto);
-
-    REGISTER_CLASS("AudioJack",
-		   js_audio_jack_class,
-		   js_audio_jack_constructor,
-		   js_audio_jack_methods,
 		   object_proto);
 
 #ifdef WITH_OGGTHEORA

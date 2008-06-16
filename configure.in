@@ -273,14 +273,17 @@ dnl CHECK if there is BLUETOOTH
 dnl ==============================================================
 BLUEZ_LIBS=""
 CWIID_DIR=""
+CWIID_LIBS=""
 PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
 if test x$have_bluez = xyes; then
    AC_DEFINE(WITH_BLUEZ,1,[define if compiling bluetooth cwiid controller])
    CWIID_DIR=cwiid
+   CWIID_LIBS="\$(top_srcdir)/lib/cwiid/libwiimote.a"
 fi
 AC_SUBST(BLUEZ_LIBS)
 AC_SUBST(CWIID_DIR)
-			
+AC_SUBST(CWIID_LIBS)
+
 dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
 dnl ==============================================================
@@ -414,6 +417,7 @@ JACK_LIBS=""
 FFTW_LIBS=""
 GOOM_DIR=""
 GOOM_PPC_FILES=""
+GOOM_LIBS=""
 #SNDFILE_LIBS=""
 if test x$have_linux = xyes ; then
    
@@ -434,6 +438,7 @@ if test x$have_linux = xyes ; then
 
 		    AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
 		    GOOM_DIR=goom
+		    GOOM_LIBS="\$(top_srcdir)/lib/goom/libgoom2.a"
 		    have_sound=yes
 		    if test x$host_cpu = xpowerpc; then
 		       GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
@@ -450,6 +455,7 @@ AC_SUBST(ALSA_LIBS)
 AC_SUBST(JACK_LIBS)
 AC_SUBST(FFTW_LIBS)
 AC_SUBST(GOOM_DIR)
+AC_SUBST(GOOM_LIBS)
 AC_SUBST(GOOM_PPC_FILES)
 #AC_SUBST(SNDFILE_LIBS)
 
