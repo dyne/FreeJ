@@ -1,3 +1,9 @@
+freej (0.10-2) unstable; urgency=low
+
+  * Imported from upstream some build fixes.
+
+ -- Luca Bigliardi <shammash@artha.org>  Tue, 24 Jun 2008 10:32:59 +0100
+
 freej (0.10-1) unstable; urgency=low
 
   [ Guido Trotter ]
