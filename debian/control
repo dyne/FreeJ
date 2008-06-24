@@ -12,12 +12,12 @@ Homepage: http://freej.dyne.org/
 Architecture: any
 Depends: ${shlibs:Depends} ${misc:Depends}
 Recommends: ttf-freefont
-Description: Vision mixer
+Description: vision mixer
  FreeJ is a digital instrument for realtime video manipulation used in
- the fields of dance teather, veejaying, medical visualisation and TV.
- FreeJ  lets  you interact  with  multiple  layers  of video  (images,
- movies,  live  cameras, particle  generators,  text scrollers,  flash
- animations and  more), filter  them with effect  chains and  then mix
- together. It can be operated live from a text console and scripted in
- Javascript to be controlled by keyboard, midi, OSC and joysticks.
+ the fields of dance theater, veejaying, medical visualization and TV.
+ FreeJ lets you interact with multiple layers of video (images, movies,
+ live cameras, particle generators, text scrollers, flash animations and
+ more), filter them with effect chains and then mix them together. It can
+ be operated live from a text console and scripted in Javascript to be
+ controlled by keyboard, midi, OSC and joysticks.
 
