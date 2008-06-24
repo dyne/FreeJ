@@ -19,7 +19,9 @@ case $uname in
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
      have_linux=yes
 dnl     AM_CONDITIONAL(ARCH_PPC, test x$hostcpu = xpowerpc)
-     if test x$host_cpu = xpowerpc; then
+
+     case $host_cpu in
+       powerpc*)
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
@@ -29,11 +31,17 @@ dnl     AM_CONDITIONAL(ARCH_PPC, test x$hostcpu = xpowerpc)
        AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
 #       AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
        have_ppc=yes
-     else
+       ;;
+
+       i*86*|x86_64*|ia64*)
        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
        AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
 #       AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
-     fi
+       ;;
+
+       *)
+       ;;
+     esac
 
      CPUFLAGS=`cat /proc/cpuinfo | grep flags`
      if grep "^flags.* mmx" /proc/cpuinfo > /dev/null; then
