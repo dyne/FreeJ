@@ -25,3 +25,7 @@ License:
 On Debian GNU/Linux systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL-3'.
 
+The freej manpage is distributed under the terms of the GNU Free
+Documentation License, which, on Debian systems, is available at:
+/usr/share/common-licenses/GFDL
+
