@@ -1,7 +1,7 @@
 /*
 user settings
 */
-script_search_path = new Array("/usr/lib/freej/scripts", "~/.freej/scripts", ".", "./scripts", "./Scripts");
+script_search_path = new Array("~/.freej/scripts", "/usr/share/freej", "/usr/lib/freej/scripts", ".", "./scripts", "./Scripts");
 // TODO: font path, "media" path, lets see.
 
 /*
