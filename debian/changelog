@@ -1,9 +1,10 @@
-freej (0.10-2) unstable; urgency=low
+freej (0.10git20080824-1) unstable; urgency=low
 
   * Imported from upstream some build fixes.
   * Add a note on GFDL for freej manpage in debian/copyright.
+  * Fix typos in 'Description:' (Closes: #487839)
 
- -- Luca Bigliardi <shammash@artha.org>  Tue, 24 Jun 2008 12:39:02 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Tue, 24 Jun 2008 15:59:29 +0100
 
 freej (0.10-1) unstable; urgency=low
 
