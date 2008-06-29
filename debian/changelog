@@ -1,68 +1,67 @@
-freej (0.10-ppa8~ubuntu8.10) hardy; urgency=low
+freej (0.10git20080824-1) unstable; urgency=low
 
-  * more fixes in path installation and clean
+  * Imported from upstream some build fixes.
+  * Add a note on GFDL for freej manpage in debian/copyright.
+  * Fix typos in 'Description:' (Closes: #487839)
 
- -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 16:00:00 +0200
+ -- Luca Bigliardi <shammash@artha.org>  Tue, 24 Jun 2008 15:59:29 +0100
 
-freej (0.10-ppa6~ubuntu8.10) hardy; urgency=low
+freej (0.10-1) unstable; urgency=low
 
-  * more fixes in path installation and clean
+  [ Guido Trotter ]
+  * New upstream version
+     (now compatible with new avlibs) (closes: #482212)
+  * Drop 0.9.1 specific patches (now merged upsteam)
+  * Remove debian/README.Debian, which refers to 0.9.1 specific changes
+  * Check policy changes and update Standards Version
 
- -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 13:46:00 +0200
+  [ Luca Bigliardi ]
+  * Add Denis Rojo (jaromil) as a co-maintainer
+  * Update description and build-dependencies in control
+  * Move copyright to gpl-3
+  * Remove unused patches
+  * Remove configure flags in debian/rules
+  * Add patch to delete interpeter path in js scripts
+  * Remove unnecessary files while cleaning and installing
 
-freej (0.10-ppa5~ubuntu8.10) hardy; urgency=low
+ -- Guido Trotter <ultrotter@debian.org>  Fri, 13 Jun 2008 11:01:05 +0000
 
-  * new build for hardy
+freej (0.9.1+dl0-3.1) unstable; urgency=low
 
- -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 12:14:00 +0200
+  * Non-maintainer upload for the gcc-4.3 release goal, using
+    a patch provided by Cyril Brulebois.  (Closes: #462204)
 
-freej (0.10-1~7.10) gutsy; urgency=low
+ -- Philipp Kern <pkern@debian.org>  Sun, 16 Mar 2008 21:30:59 +0100
 
-  * gutsy build
+freej (0.9.1+dl0-3) unstable; urgency=low
 
- -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 11:33:00 +0200
+  * Remove no longer needed build-dependency on libavifile0.7-dev
 
-freej (0.10-1~8.04) hardy; urgency=low
+ -- Guido Trotter <ultrotter@debian.org>  Wed, 09 Jan 2008 11:02:15 +0100
 
-  * stable versioning, fixes
+freej (0.9.1+dl0-2) unstable; urgency=low
 
- -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 11:20:00 +0200
+  * Bump up debian/compat to 5
+  * Add Luca Bigliardi as a comaintainer
+  * mv debian/README debian/README.Debian
+  * update debian's readme file to reflect all the changes to +dl0
 
-freej (0.10-ppa4) hardy; urgency=low
+ -- Guido Trotter <ultrotter@debian.org>  Sat, 05 Jan 2008 10:07:32 +0100
 
-  * fixing debian/rules to make PPA source package #3
+freej (0.9.1+dl0-1) unstable; urgency=low
 
- -- Jaromil <jaromil@dyne.org>  Sun,  26 May 2008 00:39:00 +0200
+  [ Guido Trotter and Luca Bigliardi ]
+  * New upstream version (closes: #458599)
+    - Now compiles with gcc 4.2 (closes: #394932, #423765)
+    - ImageLayer objects from a .js file now work (closes: #388132)
+  * Compile linking all libraries which are in debian dynamically
+    - This makes it build on amd64 (closes: #381410, #393749)
+  * Ship upstream manpage (and remove debian's)
+  * Recommend freefonts, whose dir is now scanned by freej (closes: #419813)
+  * Update menu file to the new policy
+  * Ship scripting documentation and example scripts
 
-freej (0.10-ppa3) hardy; urgency=low
-
-  * fixing debian/rules to make clean in source package #2
-
- -- Jaromil <jaromil@dyne.org>  Sun,  25 May 2008 23:50:00 +0200
-
-freej (0.10-ppa2) hardy; urgency=low
-
-  * fixing debian/rules to make clean in source package
-
- -- Jaromil <jaromil@dyne.org>  Sun,  25 May 2008 23:08:00 +0200
-
-freej (0.10-ppa1) hardy; urgency=low
-
-  * fixing dependencies while testing launchpad PPA
-
- -- Jaromil <jaromil@dyne.org>  Sun,  25 May 2008 22:15:35 +0200
-
-freej (0.10) hardy; urgency=low
-
-  * new release, testing build on hardy through launchpad
-
- -- Jaromil <jaromil@dyne.org>  Sun,  25 May 2008 21:53:35 +0200
-
-freej (0.9.1-0dyne1) feisty; urgency=low
-
-  * version bump ... fresh from svn r943
-
- -- MrGoil <goil@dyne.org>  Tue,  9 Oct 2007 22:31:11 +0200
+ -- Guido Trotter <ultrotter@debian.org>  Fri, 04 Jan 2008 17:01:24 +0100
 
 freej (0.8.1-4) unstable; urgency=low
 
@@ -254,4 +253,3 @@ freej (0.3.1-1) unstable; urgency=low
 
  -- Guido Trotter <ultrotter@quaqua.net>  Mon, 24 Jun 2002 17:47:53 +0200
 
- 

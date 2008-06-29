@@ -204,12 +204,18 @@ void *TTFLayer::feed() {
 		return surf->pixels;
 }
 
+int dirent_dir_selector(const struct dirent *dir) {
+	if ((dir->d_type == DT_DIR) &&
+	    (strcmp(dir->d_name,".") || strcmp(dir->d_name,"..")))
+		return 1;
+	return 0;
+}
 static int ttf_dir_selector(const struct dirent *dir) {
   if(strstr(dir->d_name,".ttf")) return(1);
   if(strstr(dir->d_name,".TTF")) return(1);
   return(0);
 }
-int Context::scanfonts(const char *path) {
+int Context::scanfonts(const char *path, int depth) {
   /* add to the list of available fonts */
   struct dirent **filelist;
   char temp[1024];
@@ -245,7 +251,19 @@ int Context::scanfonts(const char *path) {
   }
 
   free(filelist);
+  filelist=NULL;
 
+  if(depth > 0){
+    depth--;
+    found = scandir(path,&filelist,dirent_dir_selector,alphasort);
+    while(found > 0) {
+      found--;
+      snprintf(temp,255,"%s%s",path,filelist[found]->d_name);
+      free(filelist[found]);
+      scanfonts(temp, depth);
+    }
+    free(filelist);
+  }
   return(num_fonts - num_before);
 }
 /*

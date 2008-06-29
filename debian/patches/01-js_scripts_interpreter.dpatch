@@ -1,0 +1,23 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 01-js_scripts_interpreter.dpatch by Luca Bigliardi <shammash@artha.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Fix javascript scripts interpreter path
+
+@DPATCH@
+diff -urNad freej-0.10~/scripts/pan.js freej-0.10/scripts/pan.js
+--- freej-0.10~/scripts/pan.js	2008-06-12 21:30:03.000000000 +0100
++++ freej-0.10/scripts/pan.js	2008-06-12 21:31:02.000000000 +0100
+@@ -1,4 +1,3 @@
+-#!/usr/local/bin/freej -j
+ /*  FreeJ example scripts
+  *  (c) Copyright 2005 Christoph Rudorff aka MrGoil <goil@dyne.org>
+  *
+diff -urNad freej-0.10~/scripts/pan_joy.js freej-0.10/scripts/pan_joy.js
+--- freej-0.10~/scripts/pan_joy.js	2008-06-12 21:30:03.000000000 +0100
++++ freej-0.10/scripts/pan_joy.js	2008-06-12 21:31:07.000000000 +0100
+@@ -1,4 +1,3 @@
+-#!/usr/local/bin/freej -j
+ /*  FreeJ example scripts
+  *  (c) Copyright 2007 Christoph Rudorff aka MrGoil <goil@dyne.org>
+  *

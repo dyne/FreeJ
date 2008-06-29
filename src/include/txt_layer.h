@@ -95,7 +95,7 @@ class TxtLayer: public Layer {
 
   //  int word_rw(int pos);
 
-  int scanfonts(char *path);
+  int scanfonts(char *path, int depth);
   char *fonts[MAX_FONTS];
   int num_fonts;
   int sel_font;

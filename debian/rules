@@ -51,9 +51,22 @@ really_clean:
 	dh_testroot
 	rm -f build-stamp 
 	rm -f config.log
+	rm -f lib/javascript/editline/obj/*.o
+	rm -f lib/javascript/editline/obj/*.a
+	rm -f lib/javascript/fdlibm/obj/*.o
+	rm -f lib/javascript/fdlibm/obj/*.a
+	rm -f lib/javascript/obj/*.o
+	rm -f lib/javascript/obj/*.a
+	rm -f lib/javascript/obj/*.so
+	rm -f lib/javascript/obj/jsautocfg.h
+	rm -f lib/javascript/obj/js
+	rm -f lib/javascript/obj/jscpucfg
+	rm -f lib/goom/goomsl_lex.c
+	rm -f lib/goom/goomsl_yacc.c
+	rm -rf doc/scripting/html
 
 	# Add here commands to clean up after the build process.
-#	-$(MAKE) -k clean
+	[ ! -f Makefile ] || $(MAKE) -k distclean
 	# rm config.status
 #ifneq "$(wildcard /usr/share/misc/config.sub)" ""
 #	cp -f /usr/share/misc/config.sub config.sub
@@ -72,7 +85,10 @@ install: build
 
 	# Add here commands to install the package into debian/freej.
 	$(MAKE) install prefix=$(CURDIR)/debian/freej/usr
-	rm -rf $(CURDIR)/debian/freej/usr/doc
+	rm -rf $(CURDIR)/debian/freej/usr/share/doc/freej-0.10
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej/AUTHORS
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej/COPYING
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej/README
 
 
 # Build architecture-dependent files here.
@@ -81,7 +97,6 @@ binary-arch: build install
 	dh_testroot
 	dh_installdocs
 	dh_installmenu
-	dh_installman debian/freej.1
 	dh_installchangelogs ChangeLog
 	dh_link
 	dh_strip

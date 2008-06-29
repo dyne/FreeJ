@@ -179,12 +179,9 @@ bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
   font_files = NULL;
 
   // parse all font directories  
-  scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
-  scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
-  scanfonts("/usr/X11R6/lib/X11/fonts/TrueType");
-  scanfonts("/usr/share/truetype");
-  scanfonts("/usr/share/fonts");
-  scanfonts("/usr/share/fonts/truetype/freefont");
+  scanfonts("/usr/X11R6/lib/X11/fonts", 1);
+  scanfonts("/usr/share/truetype", 0);
+  scanfonts("/usr/share/fonts/truetype", 1);
 
 
   if(!num_fonts) {

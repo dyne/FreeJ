@@ -6,6 +6,7 @@ config.status
 config.sub
 configure
 config.h.in
+cscope.out
 depcomp
 install-sh
 libtool
@@ -27,3 +28,4 @@ Makefile
 .obj
 .libs
 TAGS
+ylwrap

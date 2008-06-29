@@ -61,11 +61,9 @@ TxtLayer::TxtLayer()
   x=0;
   y=0;
 
-  scanfonts("/usr/X11R6/lib/X11/fonts/TTF");
-  scanfonts("/usr/X11R6/lib/X11/fonts/truetype");
-  scanfonts("/usr/X11R6/lib/X11/fonts/TrueType");
-  scanfonts("/usr/share/truetype");
-  scanfonts("/usr/share/fonts/truetype/freefont");
+  scanfonts("/usr/X11R6/lib/X11/fonts", 1);
+  scanfonts("/usr/share/truetype", 0);
+  scanfonts("/usr/share/fonts/truetype", 1);
 
   func("TxtLayer fonts %i",num_fonts);
 
@@ -150,12 +148,18 @@ int TxtLayer::wordcount() {
 }
 
 
+int dirent_dir_selector(const struct dirent *dir) {
+	if ((dir->d_type == DT_DIR) &&
+	    (strcmp(dir->d_name,".") || strcmp(dir->d_name,"..")))
+		return 1;
+	return 0;
+}
 int dirent_ttf_selector(const struct dirent *dir) {
   if(strstr(dir->d_name,".ttf")) return(1);
   if(strstr(dir->d_name,".TTF")) return(1);
   return(0);
 }
-int TxtLayer::scanfonts(const char *path) {
+int TxtLayer::scanfonts(const char *path, int depth) {
   /* add to the list of available fonts */
   struct dirent **filelist;
   char temp[256];
@@ -167,10 +171,24 @@ int TxtLayer::scanfonts(const char *path) {
   while(found--) {
     if(num_fonts>=MAX_FONTS) break;
     snprintf(temp,255,"%s/%s",path,filelist[found]->d_name);
+    free(filelist[found]);
     fonts[num_fonts] = strdup(temp);
     num_fonts++;
   }
+  free(filelist);
+  filelist=NULL;
   func("scanfont found %i fonts in %s",num_fonts-num_before,path);
+  if(depth > 0){
+    depth--;
+    found = scandir(path,&filelist,dirent_dir_selector,alphasort);
+    while(found > 0) {
+      found--;
+      snprintf(temp,255,"%s%s",path,filelist[found]->d_name);
+      free(filelist[found]);
+      scanfonts(temp, depth);
+    }
+    free(filelist);
+  }
   return(num_fonts - num_before);
 }
 
