@@ -660,13 +660,13 @@ JS(system_exec) {
   JS_ARG_STRING(prog, 0);
 
   // get the arguments in a NULL terminated array
-  args = (char**)calloc(argc +2, sizeof(char*));
-  
-  for (c=1; c<argc; c++) {
+  args = (char**)calloc(argc +1, sizeof(char*));
+
+  for (c=0; c<argc; c++) {
 
     if( JSVAL_IS_STRING(argv[c]) )
 
-      args[c] = JS_GetStringBytes( JS_ValueToString(cx, argv[c]) );
+      args[c] = (char*)JS_GetStringBytes( JS_ValueToString(cx, argv[c]) );
 
     else {
 
@@ -678,14 +678,16 @@ JS(system_exec) {
 
   }
 
+  if(!fork()) {
   /* execvp(3) functions provide an array of pointers to
      null-terminated strings that represent the argument list
      available to the new program.  The first argument, by convention,
      should point to the file name associated with the file being
      executed.  The array of pointers must be terminated by a NULL
      pointer.  */
-  execvp( prog, args );
-  
+    execvp( prog, args );
+  }
+
   return JS_TRUE;
 }
 

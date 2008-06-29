@@ -161,7 +161,7 @@ bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
 #ifdef WITH_OPENGL
   if (opengl)
     screen = new SdlGlScreen();
-#elif
+#else
   screen = new SdlScreen();
 #endif
   
