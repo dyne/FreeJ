@@ -157,11 +157,13 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		image_layer_methods,
 		object_proto);
 
+#ifdef WITH_FLASH
 	REGISTER_CLASS("FlashLayer",
 		flash_layer_class,
 		flash_layer_constructor,
 		flash_layer_methods,
 		object_proto);
+#endif
 
 #ifdef WITH_SOUND
 	REGISTER_CLASS("GoomLayer",
@@ -273,11 +275,13 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   js_osc_ctrl_methods,
 		   object_proto);
 
+#ifdef WITH_BLUEZ
     REGISTER_CLASS("WiiController",
 		   js_wii_ctrl_class,
 		   js_wii_ctrl_constructor,
 		   js_wii_ctrl_methods,
 		   object_proto);
+#endif
 
 #ifdef WITH_OGGTHEORA
 	// encoder class

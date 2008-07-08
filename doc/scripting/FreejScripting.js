@@ -32,9 +32,10 @@ function include(filename) { };
 
 /** Execute an external program on the running system
     @param {string} program executable to be called (current PATH is searched)
-    @param {string} arguments one or more arguments for the program can follow
+    @param {string} arg1 first argument for the program called
+    @param {string} arg2 second argument for the program called
 */
-function exec(program, arguments) { };
+function exec(program, arg1, arg2, ...) { };
 
 /** Add a layer to the engine and start processing it
     @param {Layer} layer instance of the layer to be added

@@ -35,28 +35,21 @@
 #include <context.h>
 
 const char *layers_description =
+" .  - ImageLayer for image files (png, jpeg etc.)\n"
+" .  - GeometryLayer for scripted vectorial primitives\n"
 #ifdef WITH_V4L
 " .  - Video4Linux devices as of BTTV cards and webcams\n"
 " .    you can specify the size  /dev/video0%160x120\n"
 #endif
-#ifdef WITH_AVIFILE
-" .  - AVI,ASF,WMA,WMV movies as of codecs supported by avifile lib\n"
-#endif
 #ifdef WITH_FFMPEG
-" .  - AVI,ASF,WMA,WMV,MPEG local and remote (http://localhost/file.mpg), dv1394 firewire devices\n"
-#endif
-#ifdef WITH_PNG
-" .  - PNG images (also with transparency)\n"
+" .  - MovieLayer for movie files, urls and firewire devices\n"
 #endif
 #ifdef WITH_FT2
-" .  - TXT files rendered with freetype2 library\n"
+" .  - TextLayer for text rendered with freetype2 library\n"
 #endif
-#ifdef WITH_XHACKS
-" .  - xscreensaver screen hack. ex. /usr/X11R6/lib/xscreensaver/cynosure\n"
+#ifdef WITH_FLASH
+" .  - FlashLayer for SWF flash v.3 animations\n"
 #endif
-" .  - SWF flash v.3 layer for vectorial graphics animations\n"
-" .  - particle generator ( try: 'freej layer_gen' on commandline)\n"
-" .  - vertical text scroller (any other extension)\n"
 "\n";
 
 

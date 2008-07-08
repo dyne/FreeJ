@@ -4,7 +4,7 @@
 
 // create a jack audio input
 //                    port name     buffer size  samlerate
-audio = new AudioJack("alsaplayer", 2048,        44100);
+//audio = new AudioJack("alsaplayer", 2048,        44100);
 // in case the port named is not already present:
 // you should connect the input manually using jack
 
@@ -12,18 +12,20 @@ audio = new AudioJack("alsaplayer", 2048,        44100);
 //    values 1-100         video quality  video bitrate  audio quality  audio_bitrate
 encoder = new VideoEncoder(50,             64000,        0,             0);
 
+kbd = new KeyboardController();
+register_controller( kbd );
+
+
 // add the audio channel in the video encoded
-encoder.add_audio(audio);
+//encoder.add_audio(audio);
 
-encoder.stream_host("giss.tv");
-encoder.stream_port(8000);
-encoder.stream_title("testing new freej");
-encoder.stream_username("source");
-encoder.stream_password("2t645");
-encoder.stream_mountpoint("freej-test.ogg");
-
-register_encoder(encoder);
 //encoder.start_stream();
-function record() {
- encoder.start_filesave('/mnt/hd1/2/capture.ogm');
+
+kbd.pressed_s = function() {
+ encoder.stop_filesave();
+ delete encoder;
+}
+
+kbd.pressed_r = function() {
+ register_encoder(encoder);
 }

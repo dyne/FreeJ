@@ -334,12 +334,55 @@ JoystickController.prototype.hatmotion = function (which, hat, value);
 JoystickController.prototype.button = function (which, button, state);
 
 //////////////////////////////
+// Open Sound Controller
+
+/** The  OscController   constructor  creates  a   scriptable  network
+ * listener for OSC protocol commands
+ @class The OscController holds a  list of defined methods scripted to
+ execute actions  when they  are called from  a OSC client  across the
+ network.
+ <div class="example">Define new methods, their name will be exposed as OSC methods:
+ <pre>
+ osc = new OscController(9696); // open an OSC listener on port 9696
+
+ // create a /my_new_method call on OSC, taking one integer as argument, that
+ // will call the remote_called_function() defined in javascript:
+ osc.add_method("my_new_method","i","remote_called_function");
+
+ // define the function that will be called
+ function remote_called_function(i) {
+   echo("OSC remote call to my test function")
+ }
+
+ // starts the osc listener thread
+ osc.start();
+ // to stop it during execution use osc.stop();
+
+ // and don't forget to register the controller
+ register_controller(osc);
+ </pre></div>
+
+ @author Steve Harris (liblo), Jaromil
+ @base Controller
+ @returns a new OscController
+*/
+function OscController() { };
+OscController.prototype = new Controller();
+
+/** Add a method that will be called from OSC
+    @param{string} osc_method The name of the OSC method to be served
+    @param{string} prototype  A string listing the arguments accepted: i=int, f=float, s=string
+    @param{string} js_method  The javascript function that will be called and passed the arguments
+*/
+OscController.prototype.add_method = function(osc_method, prototype, js_method);
+
+//////////////////////////////
 // Trigger Controller
 
 /** The TriggerController constructor creates a trigger controller 
     @class The Trigger Controller holds callbacks to javascript. You can use the frame callback to process various stuff, instead using run(). 
 
-	@author MrGoil
+    @author MrGoil
     @constructor
     @base Controller
     @returns a new TriggerController
