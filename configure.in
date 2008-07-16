@@ -492,6 +492,18 @@ AC_SUBST(STATIC_LIBS)
 
 
 dnl ==============================================================
+dnl unicap lib
+dnl ==============================================================
+UNICAP_LIBS=""
+UNICAP_CFLAGS=""
+PKG_CHECK_MODULES(UNICAP, libunicap, have_unicap=yes, have_unicap=no)
+if test x$have_unicap = xyes; then
+   AC_DEFINE(WITH_UNICAP,1,[Define if to link libunicap for camera capture])
+fi
+AC_SUBST(UNICAP_LIBS)
+AC_SUBST(UNICAP_CFLAGS)
+
+dnl ==============================================================
 dnl link with memory debugging library dmalloc
 dnl ==============================================================
 AC_CHECK_HEADER(dmalloc.h)
@@ -630,6 +642,11 @@ else
         echo "  this is preventing you from saving movies"
 	echo "  in case you are packing a binary package please take care"
 	echo "  because of this many users will miss important functionality"
+fi
+if test x$have_unicap = xyes; then
+echo "= unicap library"
+echo " libs : $UNICAP_LIBS"
+echo " cflags : $UNICAP_CFLAGS"
 fi
 if test x$use_opengl = xyes; then
 echo "= opengl"

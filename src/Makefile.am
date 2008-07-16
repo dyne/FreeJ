@@ -14,7 +14,7 @@ INCLUDES = -I$(top_srcdir)/src/include \
            -I/usr/include/slang
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ \
+AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ \
 	      -freg-struct-return \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
@@ -50,6 +50,8 @@ freej_SOURCES = \
 \
 	v4l_layer.cpp tvfreq.c	\
 	v4l_layer_js.cpp \
+	unicap_layer.cpp \
+	unicap_layer_js.cpp \
 	video_layer.cpp	\
 	video_layer_js.cpp \
 	image_layer.cpp \
@@ -123,5 +125,6 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @X11_LIBS@ \
 		 @BLUEZ_LIBS@ \
 		 @CWIID_LIBS@ \
-		 @OPENGL_LIB@
+		 @OPENGL_LIB@ \
+		 @UNICAP_LIBS@
 

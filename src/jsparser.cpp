@@ -187,6 +187,14 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		object_proto);
 #endif
 
+#ifdef WITH_UNICAP
+	REGISTER_CLASS("UnicapLayer",
+		       unicap_layer_class,
+		       unicap_layer_constructor,
+		       unicap_layer_methods,
+		       object_proto);
+#endif
+
 #ifdef WITH_FFMPEG
 	REGISTER_CLASS("MovieLayer",
 		video_layer_class,

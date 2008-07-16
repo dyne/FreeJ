@@ -67,6 +67,9 @@ JS(js_audio_jack_constructor);
 #ifdef WITH_V4L
 JS(v4l_layer_constructor);
 #endif
+#ifdef WITH_UNICAP
+JS(unicap_layer_constructor);
+#endif
 #ifdef WITH_FFMPEG
 JS(video_layer_constructor);
 #else
@@ -187,6 +190,12 @@ extern JSFunctionSpec goom_layer_methods[];
 #ifdef WITH_V4L
 extern JSClass v4l_layer_class;
 extern JSFunctionSpec v4l_layer_methods[];
+#endif
+
+// Unicap Layer
+#ifdef WITH_UNICAP
+extern JSClass unicap_layer_class;
+extern JSFunctionSpec unicap_layer_methods[];
 #endif
 
 // TextLayer
@@ -394,6 +403,10 @@ JS(goom_layer_noise);
 JS(v4l_layer_chan);
 JS(v4l_layer_band);
 JS(v4l_layer_freq);
+#endif
+
+#ifdef WITH_UNICAP
+JS(unicap_layer_open);
 #endif
 
 #ifdef WITH_FFMPEG

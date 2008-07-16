@@ -100,7 +100,6 @@ class Layer: public Entry, public JSyncThread {
   virtual bool init(Context *freej) =0; ///< initialize the layer (second called)
   virtual bool init(Context *freej, int w, int h) { return this->init(freej); }; ///< overload with size
   virtual void close() =0; ///< close the layer (ready to open a new one)
-  virtual bool keypress(int key) =0; ///< pass to the Layer a key pressed
 
   bool set_parameter(int idx); ///< activate the setting on parameter pointed by idx index number
 

@@ -1432,7 +1432,7 @@ void Console::parser_default(int key) {
       //  break;
       
     default:
-      ((Layer*)le)->keypress( key );
+      //      ((Layer*)le)->keypress( key );
       break;
       
     }
