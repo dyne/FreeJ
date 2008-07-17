@@ -54,7 +54,19 @@ UnicapLayer::~UnicapLayer() {
 }
 
 
-static void new_frame_cb (unicap_event_t event, unicap_handle_t handle,
+static void new_frame_bgr24_cb (unicap_event_t event, unicap_handle_t handle,
+			  unicap_data_buffer_t * buffer, void *usr_data) {
+  UnicapLayer *lay = (UnicapLayer*)usr_data;
+
+  ccvt_bgr24_bgr32(lay->geo.w, lay->geo.h, buffer->data, lay->rgba[lay->swap]);
+
+  lay->feed_ready = lay->rgba[lay->swap];
+
+  lay->swap = (lay->swap+1)%2;
+}
+
+
+static void new_frame_yuyv_cb (unicap_event_t event, unicap_handle_t handle,
 			  unicap_data_buffer_t * buffer, void *usr_data) {
   UnicapLayer *lay = (UnicapLayer*)usr_data;
 
@@ -68,7 +80,7 @@ static void new_frame_cb (unicap_event_t event, unicap_handle_t handle,
 bool UnicapLayer::open(const char *devfile) {
   bool res = false;
   int i = 0;
-  int fourcc;
+  int fourcc, bpp;
   unicap_device_t device;
   unicap_format_t format, format_spec;
   
@@ -104,20 +116,52 @@ bool UnicapLayer::open(const char *devfile) {
     act("%u - %s - 0x%x - %u bpp",i, format.identifier, format.fourcc, format.bpp);
     switch(format.fourcc) {
 
-    case 0x56595559:
-    case 0x32595559:
+    case 0x33524742: // BGR24
       fourcc = format.fourcc;
+      bpp = 24;
+      unicap_register_callback (m_handle,
+				UNICAP_EVENT_NEW_FRAME,
+				(unicap_callback_t) new_frame_bgr24_cb,
+				(void*)this);
+      break;
+
+      /*
+    case 0x34424752: // RGB32
+      fourcc = format.fourcc;
+      unicap_register_callback (m_handle,
+				UNICAP_EVENT_NEW_FRAME,
+				(unicap_callback_t) new_frame_rgb32_cb,
+				(void*)this);
+      break;
+      */
+
+    case 0x56595559: // YUYV and equivalents
+    case 0x32595559:
+      if(!fourcc) {
+	fourcc = format.fourcc;
+	unicap_register_callback (m_handle,
+				  UNICAP_EVENT_NEW_FRAME,
+				  (unicap_callback_t) new_frame_yuyv_cb,
+				  (void*)this);
+      }
       break;
 
     case 0x30323449:
     case 0x56555949:
-      fourcc = format.fourcc;
+      if(!fourcc) {
+	fourcc = format.fourcc;
+	unicap_register_callback (m_handle,
+				  UNICAP_EVENT_NEW_FRAME,
+				  (unicap_callback_t) new_frame_yuyv_cb,
+				  (void*)this);
+      }
       break;
 
     default: break;
 
     }
   }
+
   if(!fourcc) {
     warning("no known colorspace supported - trying YUV422");
     fourcc = 0x56595559;
@@ -125,18 +169,35 @@ bool UnicapLayer::open(const char *devfile) {
 
   if( ! SUCCESS( unicap_get_format (m_handle, &format) ))
     error("format get failed on capture device");
+  
+  // list sizes
+  act("%u supported sizes:", format.size_count);
+  act("min %ux%u - max %ux%u  - stepping %ux%u",
+      format.min_size.width, format.min_size.height,
+      format.max_size.width, format.max_size.height,
+      format.h_stepping, format.v_stepping);
+  for(i=0; i<format.size_count; i++)
+    act("%u - %w x %h", i, 
+	format.sizes[i].width, format.sizes[i].height);
 
-  format.buffer_type = UNICAP_BUFFER_TYPE_SYSTEM;
+  // TODO: choose closest available size
   format.size.width =  geo.w;
   format.size.height = geo.h;
+
+  format.buffer_type = UNICAP_BUFFER_TYPE_SYSTEM;
   format.fourcc = fourcc;
+  format.bpp = bpp;
+  
+  act("initializing at %ux%u bpp:%u fourcc:0x%x",
+      format.size.width, format.size.height,
+      format.bpp, format.fourcc);
 
   if( ! SUCCESS( unicap_set_format(m_handle, &format) )) {
     error("format setting failed on capture device");
-    error("probably the size is not supported by this camera");
+    error("maybe the size is not supported by this camera");
     error("else report your model and format strings");
-    unicap_close(m_handle);
-    return(false);
+    //    unicap_close(m_handle);
+    //    return(false);
   }
       
 
@@ -144,9 +205,7 @@ bool UnicapLayer::open(const char *devfile) {
   rgba[1] = jalloc(format.size.width * format.size.height * 4);
   feed_ready = rgba[1];
 
-  unicap_register_callback (m_handle,
-			    UNICAP_EVENT_NEW_FRAME,
-			    (unicap_callback_t) new_frame_cb, (void*)this);
+
 
   if( ! SUCCESS( unicap_start_capture( m_handle ) ))
     error("start capture failed on capture device");
@@ -173,10 +232,18 @@ void *UnicapLayer::feed() {
 
 void UnicapLayer::close() {
   if(!opened) return;
-  
-  if( ! SUCCESS(unicap_stop_capture(m_handle)))
-    error("unicap reports error in stop_capture");
 
+  int status;
+
+  if(unicap_is_stream_locked(&m_device))
+    unicap_unlock_stream(m_handle);
+
+  status = unicap_stop_capture(m_handle);
+  if( ! SUCCESS( status ) ) {
+    error("unicap reports error in stop_capture: 0x%x", status);
+    unicap_stop_capture(m_handle);
+  }
+  
   unicap_close(m_handle);
 
   jfree(rgba[0]);
