@@ -122,6 +122,7 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @GOOM_LIBS@ \
                  @FFTW_LIBS@ \
 		 @FFMPEG_LIBS@ \
+		 @SWSCALE_LIBS@ \
 		 @X11_LIBS@ \
 		 @BLUEZ_LIBS@ \
 		 @CWIID_LIBS@ \

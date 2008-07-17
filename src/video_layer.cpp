@@ -24,6 +24,7 @@
 
 #ifdef WITH_FFMPEG
 
+
 #include <string.h>
 
 #include <context.h>
@@ -242,6 +243,14 @@ bool VideoLayer::open(const char *file) {
     return false;
   }
 
+#ifdef WITH_SWSCALE
+  img_convert_ctx =
+    sws_getContext(enc->width, enc->height, enc->pix_fmt, 
+		   enc->width, enc->height,
+		   PIX_FMT_BGR24, SWS_BICUBIC, 
+		   NULL, NULL, NULL);
+#endif
+
   // initialize frame fifo 
   if(  new_fifo() < 0) {
     error("VideoLayer::error allocating fifo");
@@ -266,6 +275,7 @@ void *VideoLayer::feed() {
   int len1=0 ;
   int ret=0;
   bool got_it=false;
+
   /**
    * follow user video loop
    */
@@ -349,6 +359,11 @@ void *VideoLayer::feed() {
 	  if(deinterlaced)
 	    deinterlace((AVPicture *)yuv_picture);
 
+#ifdef WITH_SWSCALE
+	  sws_scale(img_convert_ctx, yuv_picture->data, yuv_picture->linesize,
+		    0, enc->height,
+		    rgba_picture->data, rgba_picture->linesize);	  
+#else
 	  /**
 	   * yuv2rgb
 	   */
@@ -357,7 +372,7 @@ void *VideoLayer::feed() {
 		      //avformat_stream.codec->pix_fmt,
 		      enc->width,
 		      enc->height);
-
+#endif
 	  //		    memcpy(frame_fifo.picture[fifo_position % FIFO_SIZE]->data[0],rgba_picture->data[0],geo.size);
 	  /* TODO move */
 	  if(fifo_position == FIFO_SIZE)
@@ -446,6 +461,11 @@ void VideoLayer::close() {
 			avcodec_close(enc);
 		}
 	}
+
+#ifdef HAVE_LIB_SWSCALE
+	sws_freeContext(img_convert_ctx);
+#endif
+
 	if(avformat_context) {
 		av_close_input_file(avformat_context);
 	}

@@ -18,9 +18,15 @@
 
 #ifndef __avcodec_h__
 #define __avcodec_h__
+
+#include <config.h>
+
 extern "C" {
 #include <ffmpeg/avcodec.h>
 #include <ffmpeg/avformat.h>
+#ifdef WITH_SWSCALE
+#include <ffmpeg/swscale.h>
+#endif
 }
 #include <layer.h>
 #define INBUF_SIZE 4096
@@ -52,6 +58,10 @@ class VideoLayer: public Layer {
 	AVCodecContext *enc;
 	AVCodec *codec;
 	AVFrame av_frame;
+#ifdef WITH_SWSCALE
+	struct SwsContext *img_convert_ctx;
+#endif
+
 	uint8_t *av_buf;
 	uint8_t *deinterlace_buffer;
 	int packet_len;

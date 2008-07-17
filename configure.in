@@ -237,16 +237,21 @@ dnl FFMPEG DYNAMIC
 dnl ==============================================================
 
 FFMPEG_LIBS=""
+SWSCALE_LIBS=""
 PKG_CHECK_MODULES(FFMPEG, libavcodec libavformat libavutil,
 	                  have_ffmpeg=yes, have_ffmpeg=no)
 if test x$have_ffmpeg = xyes; then
-   FFMPEG_LIBS="$FFMPEG_LIBS"
    AC_DEFINE(WITH_FFMPEG,1,
 	[define if compiling movie layer linking to ffmpeg libavcodec])
+   PKG_CHECK_MODULES(SWSCALE, libswscale, have_swscale=yes, have_swscale=no)
+   FFMPEG_LIBS="$FFMPEG_LIBS $SWSCALE_LIBS"
+   AC_DEFINE(WITH_SWSCALE,1,
+	[define if using new swscale library from ffmpeg])
 else
    AC_MSG_RESULT(not found)
 fi
-
+AC_SUBST(FFMPEG_LIBS)
+AC_SUBST(SWSCALE_LIBS)
 
 
 
@@ -626,8 +631,13 @@ echo "  LIBS  : $FT2_LIBS"
 echo "  CFLAGS: $FT2_CFLAGS"
 fi
 
+if test x$have_ffmpeg = xyes; then
 echo "= ffmpeg (movie layer)"
 echo "  libs  : $FFMPEG_LIBS"
+if test x$have_swscale = xyes; then
+echo "  using new swscale api"
+fi
+fi
 
 dnl echo "= mlt (movie layer)"
 dnl echo "  libs:   $MLT_LIBS"
