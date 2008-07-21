@@ -22,10 +22,10 @@
 #include <config.h>
 
 extern "C" {
-#include <ffmpeg/avcodec.h>
-#include <ffmpeg/avformat.h>
+#include <avcodec.h>
+#include <avformat.h>
 #ifdef WITH_SWSCALE
-#include <ffmpeg/swscale.h>
+#include <swscale.h>
 #endif
 }
 #include <layer.h>

@@ -121,7 +121,7 @@ bool VideoLayer::open(const char *file) {
   av_format_par->width=0;
   av_format_par->width=0;
   av_format_par->time_base  = (AVRational){1, 25};
-  av_format_par->pix_fmt=PIX_FMT_NONE;
+  av_format_par->pix_fmt=PIX_FMT_RGB32;
 
   /* handle firewire cam */
   if( strncasecmp (file, "/dev/ieee1394/",14) == 0) {
@@ -247,7 +247,7 @@ bool VideoLayer::open(const char *file) {
   img_convert_ctx =
     sws_getContext(enc->width, enc->height, enc->pix_fmt, 
 		   enc->width, enc->height,
-		   PIX_FMT_BGR24, SWS_BICUBIC, 
+		   PIX_FMT_RGB32, SWS_BICUBIC, 
 		   NULL, NULL, NULL);
 #endif
 
