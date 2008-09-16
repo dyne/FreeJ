@@ -48,7 +48,9 @@ class AudioLayer: public Layer {
   static void AudioCallback(void *, unsigned int);
   float *m_AudioBuffer;
   float *m_JackBuffer;
-  
+  unsigned int m_ProcessPos;
+  unsigned int m_ProcessLength;
+  bool   m_Processing;
 };
 
 #endif

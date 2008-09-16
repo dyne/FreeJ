@@ -50,6 +50,9 @@ const char *layers_description =
 #ifdef WITH_FLASH
 " .  - FlashLayer for SWF flash v.3 animations\n"
 #endif
+#ifdef WITH_AUDIO
+" .  - Audio Layer\n" // XXX
+#endif
 "\n";
 
 
@@ -152,6 +155,17 @@ Layer *create_layer(Context *env, char *file) {
       error("VIDEO and AVI layer support not compiled");
       act("can't load %s",file_ptr);
 #endif
+  } else /* Audio LAYER */
+    if(strncasecmp(file_ptr,"/tmp/test",9)==0) {
+      nlayer = new AudioLayer();
+      if(!nlayer->init( env )) {
+	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+	delete nlayer; return NULL;
+      }
+      if(!nlayer->open(file_ptr)) {
+	  error("create_layer : Audio open failed");
+	  delete nlayer; nlayer = NULL;
+      }
   } else /* IMAGE LAYER */
       if( (IS_IMAGE_EXTENSION(end_file_ptr))) {
 //		strncasecmp((end_file_ptr-4),".png",4)==0) 

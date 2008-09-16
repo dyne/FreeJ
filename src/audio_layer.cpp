@@ -19,14 +19,21 @@
 
 #include <config.h>
 
-#define WITH_AUDIO // XXX
 #ifdef WITH_AUDIO
 
 #include <audio_layer.h>
-#include <jutils.h>
+
+
+//#include <sndfile.h>
+#include <audio_jack.h>
+//#include <jutils.h>
 
 AudioLayer::AudioLayer()
-  :Layer() {
+  :Layer(),
+  m_JackBuffer(NULL),
+  m_Processing(false),
+  m_ProcessPos(0)
+{
   notice("Audio layer initialized.");
 }
 
@@ -37,7 +44,7 @@ AudioLayer::~AudioLayer() {
 
 bool AudioLayer::open(const char *file) {
  opened=true;
- return(0);
+ return(true);
 }
 
 bool AudioLayer::init(Context *freej) {
