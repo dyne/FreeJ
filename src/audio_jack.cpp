@@ -257,7 +257,7 @@ void JackClient::ConnectInput(int n, const string &JackPort)
 void JackClient::ConnectOutput(int n, const string &JackPort)
 {
   if (!IsAttached()) return;
-  //cerr<<"JackClient::ConnectOutput: connecting source ["<<m_OutputPortMap[n]->Name<<"] to dest ["<<JackPort<<"]"<<endl;
+  cerr<<"JackClient::ConnectOutput: connecting source ["<<m_OutputPortMap[n]->Name<<"] to dest ["<<JackPort<<"]"<<endl;
   
   if (m_OutputPortMap[n]->ConnectedTo!="")
     {

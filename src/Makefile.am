@@ -23,6 +23,7 @@ SOURCES = \
 	xhacks_layer.cpp        goom_layer.cpp \
 	xgrab_layer.cpp		opencv_cam_layer.cpp \
 	impl_layers.cpp \
+	audio_layer.cpp \
 \
 	screen.cpp		sdl_screen.cpp 	\
 	sdlgl_screen.cpp 	gl_screen.cpp   \
