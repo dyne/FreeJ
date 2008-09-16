@@ -37,7 +37,9 @@ SOURCES = \
 	trigger_ctrl.cpp 	osc_ctrl.cpp \
 	wiimote_ctrl.cpp \
 \
-	audio_jack.cpp  	audio_collector.cpp \
+	audio_jack.cpp  \
+	audio_collector.cpp \
+	audio_collector_js.cpp \
 \
 	video_encoder.cpp 	ffmpeg_encoder.cpp \
 	theorautils.cpp 	oggtheora_encoder.cpp \
