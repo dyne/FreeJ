@@ -31,10 +31,23 @@
 AudioLayer::AudioLayer()
   :Layer(),
   m_JackBuffer(NULL),
-  m_Processing(false),
-  m_ProcessPos(0)
+  m_ProcessPos(0),
+  m_Processing(false)
 {
   notice("Audio layer initialized.");
+  JackClient *Jack = JackClient::Get();
+  if (!Jack->IsAttached()) {
+    Jack->SetCallback(AudioCallback,(void*)this);
+    Jack->Attach("freej");
+  }
+  if (Jack->IsAttached()) {	
+    int id=Jack->AddInputPort();
+    Jack->SetOutputBuf(id,m_JackBuffer);
+    //const string &port;
+    //Jack->ConnectOutput(id, port); // XXX
+  } else {
+    error("Could not attach to jack");
+  }
 }
 
 AudioLayer::~AudioLayer() {
@@ -63,6 +76,20 @@ void *AudioLayer::feed() {
 
 void AudioLayer::close() {
   if(!opened) return;
+}
+     
+void AudioLayer::AudioCallback_i(unsigned int Size) {
+/*
+	if (Size<=BufferLength && !pthread_mutex_trylock(m_Mutex))
+	{
+	  jmemcpy((void*)m_Buffer,(void*)m_JackBuffer,BufferLength*sizeof(float));
+	  pthread_mutex_unlock(m_Mutex);
+	}
+*/
+}
+
+void AudioLayer::AudioCallback(void *Context, unsigned int Size) {
+	((AudioLayer*)Context)->AudioCallback_i(Size);
 }
 
 #endif

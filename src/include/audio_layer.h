@@ -46,11 +46,14 @@ class AudioLayer: public Layer {
 
   void AudioCallback_i(unsigned int);
   static void AudioCallback(void *, unsigned int);
+
   float *m_AudioBuffer;
   float *m_JackBuffer;
   unsigned int m_ProcessPos;
   unsigned int m_ProcessLength;
   bool   m_Processing;
+  pthread_mutex_t* m_Mutex;
+  float *m_Buffer;
 };
 
 #endif
