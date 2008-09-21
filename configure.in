@@ -453,12 +453,15 @@ if test x$have_linux = xyes ; then
 		 if test x$have_fftw = xyes; then
 
 		    AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
-		    GOOM_DIR=goom
-		    GOOM_LIBS="\$(top_srcdir)/lib/goom/libgoom2.a"
 		    have_sound=yes
-		    if test x$host_cpu = xpowerpc; then
-		       GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
-		    fi
+
+dnl goom removed because gives compilation problems
+dnl replicated on Niels ubuntu 7.10
+dnl		    GOOM_DIR=goom
+dnl		    GOOM_LIBS="\$(top_srcdir)/lib/goom/libgoom2.a"
+dnl		    if test x$host_cpu = xpowerpc; then
+dnl		       GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
+dnl		    fi
 
 		 fi
   	 fi

@@ -203,19 +203,18 @@ Layer *create_layer(Context *env, char *file) {
 #endif
 	  }  else if(strncasecmp(file_ptr,"layer_goom",10)==0) {
 
+#ifdef WITH_GOOM
             nlayer = new GoomLayer();
 
       if(!nlayer->init( env )) {
 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
 	delete nlayer; return NULL;
       }
+#else
+      error("goom layer not supported");
+      return(NULL);
+#endif
 
-      /*
-	    if(!nlayer->open(NULL)) {
-	      error("create_layer: Goom can't open audio device");
-	      delete nlayer; nlayer = NULL;
-	    }
-      */
 
   } else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
 

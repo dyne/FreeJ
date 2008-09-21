@@ -165,13 +165,15 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		object_proto);
 #endif
 
-#ifdef WITH_SOUND
+#ifdef WITH_GOOM
 	REGISTER_CLASS("GoomLayer",
 		goom_layer_class,
 		goom_layer_constructor,
 		goom_layer_methods,
 		object_proto);
+#endif
 
+#ifdef WITH_SOUND
 	REGISTER_CLASS("AudioJack",
 		       js_audio_jack_class,
 		       js_audio_jack_constructor,

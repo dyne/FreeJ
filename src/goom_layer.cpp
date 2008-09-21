@@ -18,7 +18,7 @@
  */
 
 #include <config.h>
-#ifdef WITH_SOUND
+#ifdef WITH_GOOM
 
 #include <math.h>
 

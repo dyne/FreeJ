@@ -20,7 +20,7 @@
  */
 
 #include <config.h>
-#ifdef WITH_SOUND
+#ifdef WITH_GOOM
 
 #include <callbacks_js.h>
 #include <jsparser_data.h>
