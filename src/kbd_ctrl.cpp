@@ -201,10 +201,10 @@ int KbdCtrl::dispatch() {
 }
 
 int KbdCtrl::JSCall(const char *funcname) {
-    func("%s calling method %s()", __func__, funcname);
-	JSBool res;
-	return Controller::JSCall(funcname, 0, NULL, &res);
-	//return Controller::JSCall(funcname, 0, NULL);
+  func("%s calling method %s()", __func__, funcname);
+  JSBool res;
+  return Controller::JSCall(funcname, 0, NULL, &res);
+  //return Controller::JSCall(funcname, 0, NULL);
 }
 
 JS(js_kbd_ctrl_constructor) {

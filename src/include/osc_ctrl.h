@@ -42,6 +42,7 @@ class JsCommand: public Entry {
  public:
   // name is function
   jsval function;
+  char *format;
   int argc;
   jsval *argv;
 

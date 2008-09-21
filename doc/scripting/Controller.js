@@ -5,7 +5,7 @@
     it is not intended to be an example of good JavaScript OO-programming,
     nor is it intended to fulfill any specific purpose apart from generating documentation
 
-    @author  Mr Goil
+    @author  Mr Goil, Jaromil
     @version 0.9
 */
 
@@ -343,23 +343,33 @@ JoystickController.prototype.button = function (which, button, state);
  network.
  <div class="example">Define new methods, their name will be exposed as OSC methods:
  <pre>
- osc = new OscController(9696); // open an OSC listener on port 9696
+ // open an OSC listener on port 9696
+ // please note the port is a number in quotes
+osc = new OscController("9696");
 
- // create a /my_new_method call on OSC, taking one integer as argument, that
- // will call the remote_called_function() defined in javascript:
- osc.add_method("my_new_method","i","remote_called_function");
+ // create the callback function that will be called
+osc.test_callback =  function test_callback(i,f,s) {
+     echo("OSC remote call to my test function");
+     echo("int argument is: " + i);
+     echo("float argument is: " + f);
+     echo("string argument is: " + s);
+     return true;
+};
 
- // define the function that will be called
- function remote_called_function(i) {
-   echo("OSC remote call to my test function")
- }
+ // assign my test_callback to an OSC method, declaring the arguments that will
+ // be passed in a string sequence: i -> int32 , f -> float , s -> string
+osc.add_method("/test","ifs","test_callback");
 
  // starts the osc listener thread
- osc.start();
+osc.start();
  // to stop it during execution use osc.stop();
 
  // and don't forget to register the controller
- register_controller(osc);
+register_controller(osc);
+
+ // now you can call the method /test with arguments, for example:
+ // using the OSC message "/test,123,6.66,hello_world" on port 9696
+ 
  </pre></div>
 
  @author Steve Harris (liblo), Jaromil

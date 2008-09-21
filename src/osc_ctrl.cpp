@@ -32,6 +32,29 @@
 
 #include <callbacks_js.h>
 
+/* convert a big endian 32 bit string to an int for internal use */
+//#ifdef ARCH_X86
+/*
+static int toInt(const char* b) {
+  return 
+    (( (int) b[3]) & 0xff)        +
+    ((((int) b[2]) & 0xff) << 8)  +
+    ((((int) b[1]) & 0xff) << 16) +
+    ((((int) b[0]) & 0xff) << 24) ;
+}
+//#else
+*/
+static int toInt(const char *b)
+{
+  return
+    (( (int) b[0]) & 0xff)        +
+    (( (int) b[1]  & 0xff) << 8)  +
+    ((((int) b[2]) & 0xff) << 16) +        
+    ((((int) b[3]) & 0xff) << 24) ;
+}
+//#endif
+
+
 void osc_error_handler(int num, const char *msg, const char *path) {
   error("OSC server error %d in path %s: %s\n", num, path, msg);
 }
@@ -61,54 +84,89 @@ int osc_command_handler(const char *path, const char *types,
     return -1;
   }
 
-  jsval fval = JSVAL_VOID;
-
+  /*
 //   JS_CallFunctionValue(JSContext *cx, JSObject *obj, jsval fval, uintN argc,
 //                      jsval *argv, jsval *rval);
-  JS_GetProperty(osc->jsenv, osc->jsobj, cmd->js_cmd, &fval);
+
   if(JSVAL_IS_VOID(fval)) {
     error("OSC path %s has method but no javascript function", cmd->js_cmd);
     return -1;
   }
+  */
   func("OSC call to %s with argc %u",cmd->js_cmd, argc);
 
       // TODO: arguments are not supported
       // the code below correctly parses them, but then
       // the jsval is not valid as such in JS_CallFunction
 
-  jsval *jsargv;
-  jsargv = (jsval*)calloc(argc+1, sizeof(jsval));
+  JsCommand *jscmd = new JsCommand();
+  jscmd->set_name(cmd->js_cmd);
+  jscmd->format = cmd->proto_cmd;
+  jscmd->argc = argc;
+  jscmd->argv = (jsval*)calloc(argc+1, sizeof(jsval));
+
+  // put values into a jsval array
   int c;
   for(c=0;c<argc;c++) {
     switch(types[c]) {
     case 'i':
-      func("arg %u is int",c);
-      jsargv[c] = INT_TO_JSVAL(argv[c]->i);
+      func("OSC arg %u is int: %i",c, argv[c]->i32 );
+      JS_NewNumberValue(osc->jsenv,(double)argv[c]->i32, &jscmd->argv[c]);
       break;
     case 'f':
-      func("arg %.2f is float",c);
-      jsargv[c] = DOUBLE_TO_JSVAL((double)argv[c]->f);
+      func("OSC arg %u is float: %.2f",c, argv[c]->f);
+      JS_NewNumberValue(osc->jsenv,(double)argv[c]->f, &jscmd->argv[c]);
+      //      jsargv[c] = DOUBLE_TO_JSVAL((double)argv[c]->f);
+      // TODO
       break;
     case 's':
-      func("arg %u is string: %s",c, argv[c]);
-      jsargv[c] = STRING_TO_JSVAL(argv[c]->s);
-      break;
+      {
+	func("OSC arg %u is string: %s",c, argv[c]);
+	JSString *tmp = JS_NewStringCopyZ(osc->jsenv, (const char*)argv[c]);
+	jscmd->argv[c] = STRING_TO_JSVAL(tmp);
+	//      JS_NewString
+	//      jsargv[c] = STRING_TO_JSVAL(argv[c]->s);
+	// TODO
+	break;
+      }
     default:
       error("OSC unrecognized type '%c' in arg %u of path %s",
 	    types[c], c, cmd->name);
     }
   }
-
   
-  JsCommand *jscmd = new JsCommand();
-  jscmd->set_name(cmd->js_cmd);
-  jscmd->function = fval;
-  jscmd->argc = argc;
-  jscmd->argv = jsargv;
   osc->commands_pending.append(jscmd);
 
   return 1;
 }
+
+int OscController::dispatch() {
+  jsval ret = JSVAL_VOID;
+  int res;
+  JSBool ok;
+  int c = 0;
+  // execute pending comamnds (javascript calls)
+  JsCommand *jscmd = (JsCommand*) commands_pending.begin();
+  while(jscmd) {
+
+    //    int res = JS_CallFunctionValue
+    //      (jsenv, jsobj, jscmd->function, jscmd->argc, jscmd->argv, &ret);
+
+    func("OSC controller dispatching %s(%s)", jscmd->name, jscmd->format);
+    res = Controller::JSCall(jscmd->name, jscmd->argc, jscmd->argv, &ok);    
+    if (ok) func("OSC dispatched call to %s", jscmd->name);
+
+    
+    free(jscmd->argv); // must free previous callod on argv
+    commands_pending.rem(1);
+    delete jscmd;
+    jscmd = (JsCommand*)commands_pending.begin();
+    c++;
+  }
+  return c;
+}
+
+
 
 /////// Javascript OscController
 JS(js_osc_ctrl_constructor);
@@ -257,30 +315,5 @@ int OscController::poll() {
     return dispatch();
   else
     return 0;
-}
-
-int OscController::dispatch() {
-  jsval ret = JSVAL_VOID;
-  int c = 0;
-  // execute pending comamnds (javascript calls)
-  JsCommand *jscmd = (JsCommand*) commands_pending.begin();
-  while(jscmd) {
-    
-    int res = JS_CallFunctionValue
-      (jsenv, jsobj, jscmd->function, jscmd->argc, jscmd->argv, &ret);
-    
-    if (res)
-      if(!JSVAL_IS_VOID(ret)) {
-	JSBool ok;
-	JS_ValueToBoolean(jsenv, ret, &ok);
-	if (ok) func("OSC executed call to %s",jscmd->name);
-      }
-    free(jscmd->argv);
-    commands_pending.rem(1);
-    delete jscmd;
-    jscmd = (JsCommand*)commands_pending.begin();
-    c++;
-  }
-  return c;
 }
 

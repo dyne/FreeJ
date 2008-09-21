@@ -144,10 +144,12 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...) 
 	jsval fval = JSVAL_VOID;
 	jsval ret = JSVAL_VOID;
 
-	//func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
+	func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
 	int res = JS_GetProperty(jsenv, jsobj, funcname, &fval);
 
-	if(!JSVAL_IS_VOID(fval)) {
+	if(JSVAL_IS_VOID(fval)) {
+	  warning("method unresolved by JS_GetProperty");
+	} else {
 		jsval *argv;
 		void *markp;
 
@@ -177,22 +179,34 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...) 
 /* less bloat but this only works with 4 byte argv values
  */
 int Controller::JSCall(const char *funcname, int argc, jsval *argv, JSBool *res) {
-	jsval fval = JSVAL_VOID;
-	jsval ret = JSVAL_VOID;
-
-	//func("%s calling method %s.%s()", __func__, name, funcname);
-	JS_GetProperty(jsenv, jsobj, funcname, &fval);
-	if(!JSVAL_IS_VOID(fval)) {
-		cnum_to_jsval(jsenv, argc, argv);
-		*res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
-		if (*res)
-			if(!JSVAL_IS_VOID(ret)) {
-				JSBool ok;
-				JS_ValueToBoolean(jsenv, ret, &ok);
-				if (ok) // JSfunc returned 'true', so event is done
-					return 1;
-			}
-		return 0; // requeue event for next controller
+  jsval fval = JSVAL_VOID;
+  jsval ret = JSVAL_VOID;
+  
+  func("%s calling method %s.%s()", __func__, name, funcname);
+  JS_GetProperty(jsenv, jsobj, funcname, &fval);
+  if(!JSVAL_IS_VOID(fval)) {
+    
+    *res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
+    //    if (*res) {
+    //  if(!JSVAL_IS_VOID(ret)) {
+	JSBool ok;
+	JS_ValueToBoolean(jsenv, ret, &ok);
+	
+	if (ok) { // JSfunc returned 'true', so event is done
+	  func("callback function executed, returned true");
+	  return 1;
+	} else {
+	  func("callback function executed, returned false");
+	  return 0;
 	}
-	return 0; // no callback, redo on next controller
+	
+	//      }
+      
+      //    }
+      //    warning("JS_CallFunctionValue returned NULL in %s",__FUNCTION__);
+      //    return 0; // requeue event for next controller
+  }
+  
+  warning("no callback found, function name unresolved by JS_GetProperty");
+  return 0; // no callback, redo on next controller
 }
