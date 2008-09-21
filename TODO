@@ -1,6 +1,3 @@
-
-  rewrite video4linux layer with libunicap
-
   expand the blitter.cpp with possibility for layer2layer blit
 
   console rewrite as controller (accessing linklists for completion)
@@ -11,9 +8,8 @@
   write TBT layer in javascript, with colors for text
 
 
-  write a separate GUI to control freej via OSC
+  niels: write a separate GUI to control freej via OSC
 
-  jrml sound frequency and beat parametrization (get harmonics from fluxus)
 
   ?joep? port EffecTV filters to Frei0r
 
@@ -21,9 +17,15 @@
 
   ^^^ cairo layers: poligons and svg - SDL_gfx rocks
 
+DONE:
+
+  ** jrml rewrite video4linux layer with libunicap
+
+  ** jrml sound frequency and beat parametrization (get harmonics from fluxus)
+
   ** jrml implement OSC programmable controller
 
-  *** goil revision of threading and timing
+  *** goil revision of threading and timing !!! (pending merge roma-fixes)
 
   *** complete and refine the Iterator class
 
