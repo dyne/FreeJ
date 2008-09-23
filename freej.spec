@@ -1,13 +1,15 @@
 Name:		freej
 Summary:	Linux video DJ and mixing
 Version:	0.10
-Release:	8.20080726%{?dist}
+Release:	9.20080726%{?dist}
 Source:		ftp://ftp.dyne.org/freej/snapshot/freej-20080726.tar.gz
 URL:		http://freej.dyne.org
 License:	GPLv3
 Group:		Applications/Multimedia
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 Patch0:		freej-20080720-with_skeleton.patch
+Patch1:		de-script.patch
+Patch2:		stack-patch.patch
 Requires:	SDL SDL_ttf freetype slang
 Requires:	fftw jack-audio-connection-kit
 Requires:	bluez-libs unicap ffmpeg-libs
@@ -38,6 +40,8 @@ applications which will use libraries from freej.
 %prep
 %setup -q -n freej-20080726
 %patch0 -p1
+%patch1 -p1
+%patch2 -p1
 
 %build
 %configure --enable-v4l --enable-flash --without-goom
@@ -68,6 +72,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%{name}/*.glade
 
 %changelog
+* Tue Sep 23 2008 Yaakov M. Nemoy <loup@hexago.nl> - 0.10-9.20080726
+- escaped macro in the changelog
+- added patch to remove erros about nonexecutables with #!
+- added (non-working) patch to remove warning about executable stack (more work needed upstream)
+
 * Sun Sep 21 2008 Yaakov M. Nemoy <loup@hexago.nl> - 0.10-8.20080726
 - removed explicit requires
 - changed -devel's group to Dev/Libs
@@ -94,7 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 - BuildRequires: remove libgoom2-devel
 - Requires: remove SDL_goom libgoom2
 - configure --without-goom
-- %{__make} -j1
+- %%{__make} -j1
 
 * Sun Jun  1 2008 jeff <moe@blagblagblag.org> 0.10-0blag.f9
 - Update to 0.10
