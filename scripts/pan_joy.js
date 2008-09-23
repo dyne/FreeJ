@@ -1,4 +1,3 @@
-#!/usr/local/bin/freej -j
 /*  FreeJ example scripts
  *  (c) Copyright 2007 Christoph Rudorff aka MrGoil <goil@dyne.org>
  *
