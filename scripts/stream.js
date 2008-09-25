@@ -10,7 +10,7 @@ audio = new AudioJack("alsaplayer", 2048,        44100);
 
 // create a video encoder object
 //    values 1-100         video quality  video bitrate  audio quality  audio_bitrate
-encoder = new VideoEncoder(50,             64000,        0,             0);
+encoder = new VideoEncoder(10,             120000,        5,             24000);
 
 // add the audio channel in the video encoded
 encoder.add_audio(audio);
@@ -23,7 +23,7 @@ encoder.stream_password("2t645");
 encoder.stream_mountpoint("freej-test.ogg");
 
 register_encoder(encoder);
-//encoder.start_stream();
-function record() {
- encoder.start_filesave('/mnt/hd1/2/capture.ogm');
-}
+encoder.start_stream();
+//function record() {
+// encoder.start_filesave('/mnt/hd1/2/capture.ogm');
+//}
