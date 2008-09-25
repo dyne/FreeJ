@@ -176,12 +176,16 @@ DECLARE_CLASS("OscController", js_osc_ctrl_class, js_osc_ctrl_constructor);
 JS(js_osc_ctrl_start);
 JS(js_osc_ctrl_stop);
 JS(js_osc_ctrl_add_method);
+JS(js_osc_ctrl_send_to);
+JS(js_osc_ctrl_send);
 //JS(js_osc_ctrl_rem_method);
 
 JSFunctionSpec js_osc_ctrl_methods[] = {
   {"start",      js_osc_ctrl_start,      0},
   {"stop",       js_osc_ctrl_stop,       0},
   {"add_method", js_osc_ctrl_add_method, 3},
+  {"send_to",    js_osc_ctrl_send_to,    2},
+  {"send",       js_osc_ctrl_send,       8},
   //  {"rem_method", js_osc_ctrl_rem_method, 2},
   {0}
 };
@@ -277,6 +281,89 @@ JS(js_osc_ctrl_add_method) {
     return JS_TRUE;
 }
 
+JS(js_osc_ctrl_send_to) {
+    func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+
+    JS_CHECK_ARGC(2);
+
+    OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
+    if(!osc) JS_ERROR("OSC core data is NULL");
+
+    char *host;
+    JS_ARG_STRING(host,1);
+    char *port;
+    JS_ARG_STRING(port,2);
+    
+    if(osc->sendto) lo_address_free(osc->sendto);
+    osc->sendto = lo_address_new(host,port);
+
+    act("OSC controller sends messages to %s port %s",host,port);
+
+    return JS_TRUE;
+    // TODO
+}
+
+JS(js_osc_ctrl_send) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  
+  JS_CHECK_ARGC(2);
+  
+  OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
+  if(!osc) JS_ERROR("OSC core data is NULL");
+  
+  // minimum arguments: path and type
+  char *path;
+  JS_ARG_STRING(path,1);
+  char *type;
+  JS_ARG_STRING(path,2);
+
+  func("generating OSC message path %s type %s",path,type);
+  // we use the internal functions:
+  // int lo_send_message_from
+  // (lo_address a, lo_server from, const char *path, lo_message msg)
+
+  osc->outmsg = lo_message_new();
+    
+  // put values into a jsval array
+  int c;
+  for(c=2;c<argc;c++) {
+
+    switch(type[c]) {
+    case 'i':
+      {
+	JS_ARG_NUMBER(i,c);
+	func("OSC add message arg %u with value %u",c,i);
+	lo_message_add_int32(osc->outmsg,(int32_t)i);
+      }
+      break;
+    case 'f':
+      {
+	JS_ARG_NUMBER(f,c);
+	func("OSC add message arg %u with value %.2f",c,f);
+	lo_message_add_float(osc->outmsg,(float)f);
+      }
+      break;
+    case 's':
+      {
+	char *s;
+	JS_ARG_STRING(s,c+1);
+	func("OSC add message arg %u with value %s",c,s);
+	lo_message_add_string(osc->outmsg,s);
+      }
+      break;
+    default:
+      error("OSC unrecognized type '%c' in arg %u", type[c], c);
+    }
+    
+  } // foreach type in format
+
+  lo_send_message_from((void*)osc->sendto, osc->srv, path, osc->outmsg);
+  lo_message_free(osc->outmsg);
+
+  return(JS_TRUE);
+
+}
+
 //JS(js_osc_ctrl_rem_method) {
 
   // remove methods from commands_pending linklist
@@ -288,6 +375,7 @@ OscController::OscController()
   :Controller() {
 
   srv = NULL;
+  sendto = NULL;
 
   set_name("OscCtrl");
 }

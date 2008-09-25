@@ -65,6 +65,10 @@ class OscController: public Controller {
 
   lo_server_thread srv;
 
+  lo_address sendto;
+
+  lo_message outmsg;
+
   char port[64];
 
   Linklist commands_handled;
