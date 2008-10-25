@@ -50,6 +50,8 @@ JSFunctionSpec global_functions[] = {
     {"srand",           srand,                  1},
     {"pause",           pause,                  0},
     {"fullscreen",      fullscreen,             0},
+    {"set_clear_all",   set_clear_all,          0},
+    {"unset_clear_all", unset_clear_all,        0},
     {"set_fps",         set_fps,                1},
     {"set_resolution",  set_resolution,         2},
     {"scandir",         freej_scandir,          1},
@@ -245,6 +247,18 @@ JS(fullscreen) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   env->screen->fullscreen();
   //  env->clear_all = !env->clear_all;
+  return JS_TRUE;
+}
+
+JS(set_clear_all) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  env->clear_all = true;
+  return JS_TRUE;
+}
+
+JS(unset_clear_all) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  env->clear_all = false;
   return JS_TRUE;
 }
 

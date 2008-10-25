@@ -250,6 +250,8 @@ JS(rand);
 JS(srand);
 JS(pause);
 JS(fullscreen);
+JS(set_clear_all);
+JS(unset_clear_all);
 JS(set_fps);
 JS(set_resolution);
 JS(freej_scandir);
