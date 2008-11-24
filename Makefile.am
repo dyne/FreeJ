@@ -38,4 +38,4 @@ dist_pkgdata_DATA = \
 
 #pkgdatadir = ${prefix}/share/freej
 
-SUBDIRS = lib src
+SUBDIRS = lib src py
