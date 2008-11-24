@@ -75,9 +75,9 @@ Layer *create_layer(Context *env, char *file) {
 //  while(*end_file_ptr!='\0' && *end_file_ptr!='\n') end_file_ptr++; *end_file_ptr='\0';
 
 
-  /* ==== Video4Linux */
-  if(strncasecmp(file_ptr,"/dev/",5)==0 && ! IS_FIREWIRE_DEVICE(file_ptr)) {
-#ifdef WITH_V4L
+  /* ==== Unified caputure API (V4L & V4L2) */
+  if( strncasecmp ( file_ptr,"/dev/video",10)==0) {
+#ifdef WITH_UNICAP
     unsigned int w=env->screen->w, h=env->screen->h;
     while(end_file_ptr!=file_ptr) {
       if(*end_file_ptr!='%') end_file_ptr--;
@@ -87,13 +87,13 @@ Layer *create_layer(Context *env, char *file) {
         end_file_ptr = file_ptr; 
       }
     }
-    nlayer = new V4lGrabber();
-    if(! ((V4lGrabber*)nlayer)->init( env, (int)w, (int)h) ) {
+    nlayer = new UnicapLayer();
+    if(! ((UnicapLayer*)nlayer)->init( env, (int)w, (int)h) ) {
       error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
       delete nlayer; return NULL;
     }
     if(nlayer->open(file_ptr)) {
-        notice("v4l opened");
+      notice("video camera source opened");z
     //  ((V4lGrabber*)nlayer)->init_width = w;
     //  ((V4lGrabber*)nlayer)->init_heigth = h;
     } else {

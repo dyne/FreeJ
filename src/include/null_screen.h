@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2008 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -21,65 +21,31 @@
 
 #include <config.h>
 
-#ifndef __SDLGL_SCREEN_H__
-#define __SDLGL_SCREEN_H__
+#ifndef __NULL_SCREEN_H__
+#define __NULL_SCREEN_H__
 
-#include <SDL.h>
-#include <SDL_opengl.h>
-#include <gl_screen.h>
+
 #include <screen.h>
 
-/* struct Vertex */
-/* { */
-/*     float tu, tv; */
-/*     float x, y, z; */
-/* }; */
 
-
-class SdlGlScreen : public ViewPort {
+class NullScreen : public ViewPort {
  public:
-  SdlGlScreen();
-  ~SdlGlScreen();
+  NullScreen();
+  ~NullScreen();
 
   bool init(int width, int height);
   void set_magnification(int algo);
   void resize(int resize_w, int resize_h);
-
   void show();
-  void drawframe();
   void clear();
-
+  void *get_sureface();
   void fullscreen();
-  void *get_surface();
-
-  float x_translation;
-  float y_translation;
-  float x_rotation;
-  float y_rotation;
-  float rotation;
-  float zoom;
-
-  // whis is the main window surface
-  SDL_Surface *surface;
-  void *coords(int x, int y);
-  
-  Vertex g_quadVertices[4];
-
   bool lock();
   bool unlock();
- 
- private:
-  int setres(int wx, int hx);
-  SDL_Surface *emuscr;
 
-  GLuint textureID;
-  
-  bool dbl;
-  uint32_t sdl_flags;
-
-  // check gl error and print it
-  void check_opengl_error();
+  void *coords(int x, int y);
 
 };
 
-#endif 
+#endif
+

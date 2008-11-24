@@ -60,8 +60,8 @@ static double rint(double x)
 }
 
 void init_info(oggmux_info *info) {
-    info->with_skeleton = 1; /* skeleton is disabled by default	*/
-    info->frontend = 0; /*frontend mode*/
+    info->with_skeleton = 1; /* skeleton is enabled */
+    info->frontend = 0; /* frontend mode */
     info->videotime =  0;
     info->audiotime = 0;
     info->audio_bytesout = 0;
