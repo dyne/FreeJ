@@ -258,7 +258,7 @@ int Context::scanfonts(const char *path, int depth) {
     found = scandir(path,&filelist,dirent_dir_selector,alphasort);
     while(found > 0) {
       found--;
-      snprintf(temp,255,"%s%s",path,filelist[found]->d_name);
+      snprintf(temp,255,"%s/%s",path,filelist[found]->d_name);
       free(filelist[found]);
       scanfonts(temp, depth);
     }
