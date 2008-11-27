@@ -3,7 +3,7 @@ Section: x11
 Priority: optional
 Maintainer: Guido Trotter <ultrotter@debian.org>
 Uploaders: Luca Bigliardi <shammash@artha.org>, Denis Rojo <jaromil@dyne.org>
-Build-Depends: c++-compiler, libtool, debhelper (>> 5.0.0), flex, bison, libsdl-dev, libpng-dev, libfreetype6-dev, libfontconfig-dev, dpatch, libogg-dev, libvorbis-dev, libjpeg-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev, libbluetooth-dev, fftw3-dev, libjack-dev, libasound-dev, libhtml-template-perl
+Build-Depends: c++-compiler, libtool, debhelper (>> 5.0.0), flex, bison, libsdl-dev, libpng-dev, libfreetype6-dev, libfontconfig-dev, dpatch, libogg-dev, libvorbis-dev, libjpeg-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev, libbluetooth-dev, fftw3-dev, libjack-dev, libasound-dev, libhtml-template-perl, python-devel, swig
 Standards-Version: 3.8.0.1
 
 

@@ -1,3 +1,8 @@
+
+  re-design threading for non-blocking layers (try with ffmpeg on streams)
+
+  link curl library for downloading files from network
+
   expand the blitter.cpp with possibility for layer2layer blit
 
   console rewrite as controller (accessing linklists for completion)

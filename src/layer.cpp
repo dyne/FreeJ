@@ -56,6 +56,7 @@ Layer::Layer()
   slide_x = 0;
   slide_y = 0;
   parameters = NULL;
+  running = false;
 }
 
 Layer::~Layer() {
@@ -131,6 +132,8 @@ void Layer::run() {
     } // else
 
     unlock();
+
+    running = true;
 
     //wait_feed();
     sleep_feed();

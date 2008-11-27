@@ -17,7 +17,7 @@ BuildRequires:	libtheora-devel SDL-devel libpng-devel libjpeg-devel
 BuildRequires:	SDL_ttf-devel freetype-devel  libvorbis-devel slang-devel
 BuildRequires:	fftw-devel jack-audio-connection-kit-devel unicap-devel
 BuildRequires:	bluez-libs-devel nasm gcc-c++ byacc flex bison
-BuildRequires:	ffmpeg-devel
+BuildRequires:	ffmpeg-devel python-devel swig
 
 %description
 FreeJ is a digital instrument for video livesets, featuring realtime

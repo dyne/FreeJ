@@ -89,8 +89,8 @@ int fps = 25;
 
 bool startstate = true;
 bool gtkgui = false;
-bool opengl = false;
-bool init_audio = false;
+int videomode = 0;
+int audiomode = 0;
 bool noconsole = false;
 bool fullscreen = false;
 
@@ -141,7 +141,7 @@ void cmdline(int argc, char **argv) {
       break;
 
     case 'a':
-      init_audio = true;
+      audiomode = 1;
       break;
 
     case 'm':
@@ -179,7 +179,8 @@ void cmdline(int argc, char **argv) {
 
 #ifdef WITH_OPENGL
    case 'g':
-      opengl=true;
+     videomode=SDLGL;
+
       break;
 #endif
 
@@ -263,7 +264,7 @@ int main (int argc, char **argv) {
   cmdline(argc,argv);
   set_debug(debug_level);
 
-  assert( freej.init(width,height, opengl, init_audio) );
+  assert( freej.init(width,height, videomode, audiomode) );
 
   if(fullscreen) freej.screen->fullscreen();
 

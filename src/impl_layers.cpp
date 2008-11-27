@@ -93,7 +93,7 @@ Layer *create_layer(Context *env, char *file) {
       delete nlayer; return NULL;
     }
     if(nlayer->open(file_ptr)) {
-      notice("video camera source opened");z
+      notice("video camera source opened");
     //  ((V4lGrabber*)nlayer)->init_width = w;
     //  ((V4lGrabber*)nlayer)->init_heigth = h;
     } else {

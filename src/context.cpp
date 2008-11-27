@@ -153,14 +153,16 @@ Context::~Context() {
   notice ("cu on http://freej.dyne.org");
 }
 
-bool Context::init(int wx, int hx, bool opengl, bool init_audio) {
+bool Context::init(int wx, int hx, int videomode, int audiomode) {
 
   notice("initializing context environment", wx, hx);
 
   // If selected use opengl as video output!
 #ifdef WITH_OPENGL
-  if (opengl)
+  if (videomode==SDLGL)
     screen = new SdlGlScreen();
+  else if (videomode==GL_HEADLESS)
+    screen = new GlScreen();
 #else
   screen = new SdlScreen();
 #endif

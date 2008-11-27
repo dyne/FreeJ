@@ -50,6 +50,12 @@
 #define MAX_HEIGHT 1024
 #define MAX_WIDTH 768
 
+#define SDL 0
+#define SDLGL 1
+#define GL_HEADLESS 2
+#define HEADLESS 3
+
+
 class Console;
 class JsParser;
 class AudioCollector;
@@ -81,7 +87,8 @@ class Context {
   Context();
   ~Context();
 
-  bool init(int wx, int hx, bool opengl, bool init_audio);
+  bool init(int wx, int hx, int videomode, int audiomode); ///< initialise the engine and screen
+
   //  void close();
   void cafudda(double secs);
 
