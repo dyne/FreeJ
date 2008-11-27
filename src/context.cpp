@@ -153,19 +153,25 @@ Context::~Context() {
   notice ("cu on http://freej.dyne.org");
 }
 
-bool Context::init(int wx, int hx, int videomode, int audiomode) {
+bool Context::init
+(int wx, int hx, int videomode, int audiomode) {
 
   notice("initializing context environment", wx, hx);
 
-  // If selected use opengl as video output!
+  switch(videomode) {
+  case SDL:
+    screen = new SdlScreen();
+    break;
 #ifdef WITH_OPENGL
-  if (videomode==SDLGL)
+  case SDLGL:
     screen = new SdlGlScreen();
-  else if (videomode==GL_HEADLESS)
+    break;
+  case GL_HEADLESS:
     screen = new GlScreen();
-#else
-  screen = new SdlScreen();
+    break;
 #endif
+  }
+   
   
   if (! screen->init (wx, hx)) {
     error ("Can't initialize the viewport");
