@@ -155,8 +155,9 @@ Layer.prototype.zoom		= zoom;
 
 /** Spin the layer into a rotation
     it will keep rotating the layer at the spin factor
-    @param {float} spin_factor value, advised boundary is -3 / +3 */
-function spin(spin_factor) { };
+    @param {float} spin_factor value, advised boundary is -3 / +3
+    @param {float} zoom_factor value, magnification
+function spin(spin_factor, zoom_factor) { };
 Layer.prototype.spin		= spin;
 
 /** List all the effects chain applied on the layer
