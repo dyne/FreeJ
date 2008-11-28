@@ -63,8 +63,12 @@ class Parameter : public Entry {
 
   void *value;
 
-  layer_param_f *layer_func;
-  filter_param_f *filter_func;
+  layer_param_f *layer_get_f;
+  layer_param_f *layer_set_f;
+
+  filter_param_f *filter_get_f;
+  filter_param_f *filter_set_f;
+
 };
 
 class Filter : public Entry {

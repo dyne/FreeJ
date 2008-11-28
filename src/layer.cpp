@@ -198,12 +198,12 @@ bool Layer::set_parameter(int idx) {
     func("parameter %s found in layer %s at position %u",
 	 param->name, name, idx);
 
-  if(!param->layer_func) {
+  if(!param->layer_set_f) {
     error("no layer callback function registered in this parameter");
     return false;
   }
 
-  (*param->layer_func)(this, param, idx);
+  (*param->layer_set_f)(this, param, idx);
 
   return true;
 }

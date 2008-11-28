@@ -46,8 +46,11 @@ GenF0rLayer::~GenF0rLayer() {
   close();
 }
 
-/// set_parameter callback
+/// set_parameter callback for generator layers
+// TODO
 static void set_freeframe_layer_parameter(Layer *lay, Parameter *param, int idx) { }
+static void get_freeframe_layer_parameter(Layer *lay, Parameter *param, int idx) { }
+static void get_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) { }
 static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
   GenF0rLayer *layer = (GenF0rLayer*)lay;
 
@@ -113,7 +116,8 @@ bool GenF0rLayer::open(const char *file) {
     
     Parameter *p = (Parameter*)parameters->begin();
     while(p) {
-      p->layer_func = set_frei0r_layer_parameter;
+      p->layer_set_f = set_frei0r_layer_parameter;
+      p->layer_get_f = get_frei0r_layer_parameter;
       p = (Parameter*)p->next;
     }
   }
@@ -135,7 +139,8 @@ bool GenF0rLayer::open(const char *file) {
     parameters = &proto->parameters;
     Parameter *p = (Parameter*)parameters->begin();
     while(p) {
-      p->layer_func = set_freeframe_layer_parameter;
+      p->layer_set_f = set_freeframe_layer_parameter;
+      p->layer_get_f = get_freeframe_layer_parameter;
       p = (Parameter*)p->next;
     }
   }

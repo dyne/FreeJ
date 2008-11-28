@@ -54,9 +54,10 @@ Parameter::Parameter(int param_type)
 
   type = param_type;
 
-  layer_func = NULL;
-  filter_func = NULL;
-
+  layer_set_f = NULL;
+  layer_get_f = NULL;
+  filter_set_f = NULL;
+  filter_get_f = NULL;
 }
 
 Parameter::~Parameter() {
@@ -145,7 +146,45 @@ bool Parameter::parse(char *p) {
 
 }
 
-/// set_parameter callback
+/// frei0r parameter callbacks
+static void get_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx) {
+  Freior *f = filt->proto->freior;
+
+  switch(f->param_infos[idx-1].type) {
+
+    // idx-1 because frei0r's index starts from 0
+  case F0R_PARAM_BOOL:
+    (*f->f0r_get_param_value)(filt->core, (f0r_param_t)param->value, idx-1);
+    break;
+
+  case F0R_PARAM_DOUBLE:
+    (*f->f0r_get_param_value)(filt->core, (f0r_param_t)param->value, idx-1);
+    break;
+
+  case F0R_PARAM_COLOR:
+    { f0r_param_color *color = new f0r_param_color;
+      (*f->f0r_get_param_value)(filt->core, (f0r_param_t)color, idx-1);
+      ((double*)param->value)[0] = (double)color->r;
+      ((double*)param->value)[1] = (double)color->g;
+      ((double*)param->value)[2] = (double)color->b;
+      delete color;
+    } break;
+
+  case F0R_PARAM_POSITION:
+    { f0r_param_position *position = new f0r_param_position;
+      (*f->f0r_get_param_value)(filt->core, (f0r_param_t)position, idx-1);
+      ((double*)param->value)[0] = (double)position->x;
+      ((double*)param->value)[1] = (double)position->y;
+      delete position;
+    } break;
+
+  default:
+
+    error("Unrecognized parameter type %u for get_parameter_value",
+	  f->param_infos[idx].type);
+  }  
+}
+
 static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx) {
 
   Freior *f = filt->proto->freior;
@@ -168,6 +207,7 @@ static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx
       color->g = val[1];
       color->b = val[2];
       (*f->f0r_set_param_value)(filt->core, color, idx-1);
+      // QUAAA: should we delete the new allocated object? -jrml
     } break;
 
   case F0R_PARAM_POSITION:
@@ -219,7 +259,8 @@ Filter::Filter(int type, void *filt)
       strncpy(param->name, freior->param_infos[i].name, 255);
       
       param->description = freior->param_infos[i].explanation;
-      param->filter_func = set_frei0r_parameter;
+      param->filter_set_f = set_frei0r_parameter;
+      param->filter_get_f = get_frei0r_parameter;
       parameters.append(param);
     }
 
@@ -417,12 +458,12 @@ bool FilterInstance::set_parameter(int idx) {
     func("parameter %s found in filter %s at position %u",
 	 param->name, proto->name, idx);
 
-  if(!param->filter_func) {
+  if(!param->filter_set_f) {
     error("no filter callback function registered in this parameter");
     return false;
   }
 
-  (*param->filter_func)(this, param, idx);
+  (*param->filter_set_f)(this, param, idx);
 
   return true;
 }
