@@ -468,4 +468,26 @@ bool FilterInstance::set_parameter(int idx) {
   return true;
 }
 
+bool FilterInstance::get_parameter(int idx) {
+  Parameter *param;
+  param = (Parameter*)proto->parameters[idx];
+
+  if( ! param) {
+    error("parameter %s not found in filter %s", param->name, proto->name );
+    return false;
+  } else 
+    func("parameter %s found in filter %s at position %u",
+	 param->name, proto->name, idx);
+
+  if(!param->filter_get_f) {
+    error("no filter callback function registered in this parameter");
+    return false;
+  }
+
+  (*param->filter_get_f)(this, param, idx);
+
+  return true;
+}
+
+    
     

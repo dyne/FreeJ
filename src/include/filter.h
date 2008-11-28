@@ -113,6 +113,7 @@ class FilterInstance : public Entry {
   uint32_t *process(float fps, uint32_t *inframe);
 
   bool set_parameter(int idx); ///< apply the parameter value
+  bool get_parameter(int idx); ///< get the parameter value
   
   uint32_t *outframe;
 
