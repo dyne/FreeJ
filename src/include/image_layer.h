@@ -34,13 +34,6 @@ class ImageLayer: public Layer {
 
 	void *black_image;
 
-	/** how many times show image  when in subliminal mode */
-	int subliminal;
-
-	bool blinking;
-
-	int count;
-
     public:
 	ImageLayer();
 	~ImageLayer();
@@ -52,8 +45,6 @@ class ImageLayer: public Layer {
 	void *feed();
 
 	void close();
-
-	bool keypress(int key);
 };
 
 #endif

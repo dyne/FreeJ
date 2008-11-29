@@ -108,9 +108,11 @@ void Layer::run() {
   while(!quit) {
     
     lock();
+  
 		
     tmp_buf = feed();
-		
+
+
     if(!tmp_buf) 
       func("feed returns NULL on layer %s",get_name());
     else { // process filter on tmp_buf
@@ -170,6 +172,7 @@ bool Layer::cafudda() {
     }
     iterators.unlock();
   }
+
   lock();
   offset = buffer;
   if(!offset) {

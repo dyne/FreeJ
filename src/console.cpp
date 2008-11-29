@@ -479,7 +479,8 @@ static int open_layer(char *cmd) {
     //	  l->set_fps(env->fps_speed);
     //      l->start();
     env->add_layer(l);
-    //    l->active=true;
+    l->active=true;
+    l->fps=env->fps_speed;
 
     len = env->layers.len();
     notice("layer succesfully created, now you have %i layers",len);

@@ -107,22 +107,22 @@ Layer *create_layer(Context *env, char *file) {
 
   } else /* VIDEO LAYER */
 
-    if( IS_VIDEO_EXTENSION(end_file_ptr) | IS_FIREWIRE_DEVICE(file_ptr)) {
+    if( ((IS_VIDEO_EXTENSION(end_file_ptr)) | (IS_FIREWIRE_DEVICE(file_ptr))) ) {
       func("is a movie layer");
 
-#if 0 // MLT
-      nlayer = new MovieLayer();
-      func("MovieLayer instantiated");
-      if(!nlayer->init(env)) {
- 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
- 	delete nlayer; return NULL;
-      }
-      func("MovieLayer initialized");
-      if(!nlayer->open(file_ptr)) {
- 	error("create_layer : VIDEO open failed");
- 	delete nlayer; nlayer = NULL;
-      }
-#endif
+      // // MLT experiments
+      //       nlayer = new MovieLayer();
+      //       func("MovieLayer instantiated");
+      //       if(!nlayer->init(env)) {
+      //  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+      //  	delete nlayer; return NULL;
+      //       }
+      //       func("MovieLayer initialized");
+      //       if(!nlayer->open(file_ptr)) {
+      //  	error("create_layer : VIDEO open failed");
+      //  	delete nlayer; nlayer = NULL;
+      //       }
+
 
 #ifdef WITH_FFMPEG
        nlayer = new VideoLayer();
@@ -151,7 +151,7 @@ Layer *create_layer(Context *env, char *file) {
       act("can't load %s",file_ptr);
 #endif
   } else /* IMAGE LAYER */
-    if( IS_IMAGE_EXTENSION(end_file_ptr)) {
+      if( (IS_IMAGE_EXTENSION(end_file_ptr))) {
 //		strncasecmp((end_file_ptr-4),".png",4)==0) 
 	      nlayer = new ImageLayer();
               if(!nlayer->init( env )) {
