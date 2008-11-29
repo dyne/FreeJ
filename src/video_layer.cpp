@@ -342,7 +342,9 @@ void *VideoLayer::feed() {
 
 	AVFrame *yuv_picture=&av_frame;
 	if(len1<0) {
-	  error("VideoLayer::Error while decoding frame");
+	  //	  error("VideoLayer::Error while decoding frame");
+	  func("one frame only?");
+	  return NULL;
 	}
 	else if (len1 == 0) {
 	  packet_len=0;
