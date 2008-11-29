@@ -146,7 +146,7 @@ bool Parameter::parse(char *p) {
       error("error parsing position [%s] for parameter %s", p, name);
       return false;
     }
-    func("parameter %s parsed to %le %le",p, &val[0], &val[1]);
+    func("parameter %s parsed to %g %g",p, val[0], val[1]);
 
 
     //////////////////////////////////////
@@ -159,7 +159,7 @@ bool Parameter::parse(char *p) {
       error("error parsing position [%s] for parameter %s", p, name);
       return false;
     }
-    func("parameter %s parsed to %le %le %le",p, &val[0], &val[1], &val[2]);
+    func("parameter %s parsed to %le %le %le",p, val[0], val[1], val[2]);
 
 
     //////////////////////////////////////
@@ -181,10 +181,12 @@ static void get_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx
     // idx-1 because frei0r's index starts from 0
   case F0R_PARAM_BOOL:
     (*f->f0r_get_param_value)(filt->core, (f0r_param_t)param->value, idx-1);
+    func("bool value is %s",(*(bool*)param->value==true) ? "true" : "false");
     break;
 
   case F0R_PARAM_DOUBLE:
     (*f->f0r_get_param_value)(filt->core, (f0r_param_t)param->value, idx-1);
+    func("number value is %g",*(double*)param->value);
     break;
 
   case F0R_PARAM_COLOR:
