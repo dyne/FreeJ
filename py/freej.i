@@ -39,6 +39,7 @@ freej_entry_typemap_in(Encoder);
 %include "freej.h"
 %include "linklist.h"
 %include "filter.h"
+%include "blitter.h"
 %include "plugger.h"
 %include "context.h"
 %include "jsync.h"
