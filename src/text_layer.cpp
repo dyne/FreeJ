@@ -89,6 +89,11 @@ bool TTFLayer::init(Context *freej) {
   // width/height is skipped for its functionality
   // in fact the size is changing at every new print
   // so we'll call the Layer::_init(wdt,hgt) many times
+  if(freej->num_fonts<1) {
+    error("no fonts found on this system");
+    return false;
+  }
+
   _init(0,0);
 
   if( ! TTF_WasInit() )
