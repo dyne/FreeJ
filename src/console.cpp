@@ -442,14 +442,15 @@ static int open_layer(char *cmd) {
   func("open_layer(%s)",cmd);
 
   // check that is a good file
-  if (strncasecmp(cmd, "/dev/video",10)!=0)
-  if( stat(cmd,&filestatus) < 0 ) {
-    error("invalid file %s: %s",cmd,strerror(errno));
-    return 0;
-  } else { // is it a directory?
-    if( S_ISDIR( filestatus.st_mode ) ) {
-      error("can't open a directory as a layer",cmd);
+  if (strncasecmp(cmd, "/dev/video",10)!=0) {
+    if( stat(cmd,&filestatus) < 0 ) {
+      error("invalid file %s: %s",cmd,strerror(errno));
       return 0;
+    } else { // is it a directory?
+      if( S_ISDIR( filestatus.st_mode ) ) {
+	error("can't open a directory as a layer",cmd);
+	return 0;
+      }
     }
   }
 

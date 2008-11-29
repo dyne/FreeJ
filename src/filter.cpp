@@ -34,7 +34,7 @@ Parameter::Parameter(int param_type)
   : Entry() {
   switch(param_type) {
   case PARAM_BOOL:
-    value = calloc(1, sizeof(double));
+    value = calloc(1, sizeof(bool));
     break;
   case PARAM_NUMBER:
     value = calloc(1, sizeof(double));
@@ -67,13 +67,15 @@ Parameter::~Parameter() {
 bool Parameter::set(void *val) {
   ////////////////////////////////////////
   if(type == PARAM_NUMBER) {
-    
-    ((double*)value)[0] = ((double*)val)[0];
+
+    func("set_parameter number");
+    *(float*)value = *(float*)val;
     
     //////////////////////////////////////
   } else if(type == PARAM_BOOL) {
-    
-    ((double*)value)[0] = ((double*)val)[0];
+
+    func("set_parameter bool");
+    *(bool*)value = *(bool*)val;
     
     //    act("filter %s parameter %s set to: %e", name, param->name, (double*)value);
     //////////////////////////////////////
@@ -102,46 +104,70 @@ bool Parameter::set(void *val) {
   return true;
 }
 
+// TODO VERIFY ALL TYPES
 bool Parameter::parse(char *p) {
   // parse the strings into value
-  double *val;
 
+
+    //////////////////////////////////////
   if(type == PARAM_NUMBER) {
-    
+
+    func("parsing number parameter");
     if( sscanf(p, "%le", (double*)value) < 1 ) {
       error("error parsing value [%s] for parameter %s", p, name);
       return false;
     }
+    func("parameter %s parsed to %g",p, *(double*)value);
+
     
     //////////////////////////////////////
   } else if(type == PARAM_BOOL) {
-    
-    if( sscanf(p, "%le", (double*)value) < 1 ) {
-      error("error parsing value [%s] for parameter %s", p, name);
-      return false;
+
+    func("parsing bool parameter");
+    char *pp;
+    for( pp=p; (*pp!='1') & (*pp!='0') ; pp++) {
+      if(pp-p>128) {
+	error("error parsing value [%s] for parameter %s", p, name);
+	return false;
+      }
     }
-    
+    if(*pp=='1') *(bool*)value = true;
+    if(*pp=='0') *(bool*)value = false;
+    func("parameter %s parsed to %s",p, ( *(bool*)value == true ) ? "true" : "false" );
+ 
+
+    //////////////////////////////////////    
   } else if(type == PARAM_POSITION) {
+
+    double *val;
     
     val = (double*)value;
     if( sscanf(p, "%le %le", &val[0], &val[1]) < 1 ) {
       error("error parsing position [%s] for parameter %s", p, name);
       return false;
     }
-    
+    func("parameter %s parsed to %le %le",p, &val[0], &val[1]);
+
+
+    //////////////////////////////////////
   } else if(type == PARAM_COLOR) {
     
+    double *val;
+
     val = (double*)value;
     if( sscanf(p, "%le %le %le", &val[0], &val[1], &val[2]) < 1 ) {
       error("error parsing position [%s] for parameter %s", p, name);
       return false;
     }
-    
+    func("parameter %s parsed to %le %le %le",p, &val[0], &val[1], &val[2]);
+
+
+    //////////////////////////////////////
   } else {
     error("attempt to set value for a parameter of unknown type: %u", type);
     return false;
   }
-  
+
   return true;
 
 }
@@ -187,6 +213,9 @@ static void get_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx
 
 static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx) {
 
+  func("set_frei0r_param callback on %s for parameter %s at pos %u",
+       filt->proto->name, param->name, idx);
+
   Freior *f = filt->proto->freior;
   double *val = (double*)param->value;
 
@@ -194,11 +223,17 @@ static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx
     
     // idx-1 because frei0r's index starts from 0
   case F0R_PARAM_BOOL:
-    (*f->f0r_set_param_value)(filt->core, new f0r_param_bool(val[0]), idx-1);
+
+    func("bool value is %s",(*(bool*)param->value==true) ? "true" : "false");
+
+    (*f->f0r_set_param_value)
+      (filt->core, new f0r_param_bool(*(bool*)param->value), idx-1);
+
     break;
     
   case F0R_PARAM_DOUBLE:
-    (*f->f0r_set_param_value)(filt->core, new f0r_param_double(val[0]), idx-1);
+    func("number value is %g",*(double*)param->value);
+    (*f->f0r_set_param_value)(filt->core, new f0r_param_double( *(double*)param->value), idx-1);
     break;
 
   case F0R_PARAM_COLOR:
