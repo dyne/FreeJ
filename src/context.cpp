@@ -190,6 +190,7 @@ bool Context::init
   scanfonts("/usr/X11R6/lib/X11/fonts", 1);
   scanfonts("/usr/share/truetype", 0);
   scanfonts("/usr/share/fonts/truetype", 1);
+  scanfonts("/usr/share/fonts", 1);
 
 
   if(!num_fonts) {

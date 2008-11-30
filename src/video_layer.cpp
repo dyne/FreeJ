@@ -39,25 +39,26 @@
 
 
 VideoLayer::VideoLayer()
-	:Layer() {
-		grab_dv=false;
-		set_name("VID");
-		frame_number=0;
-		av_buf=NULL;
-		avformat_context=NULL;
-		packet_len=0;
-		frame_rate=0;
-		play_speed=1;
-		play_speed_control=1;
-		seekable=true;
-		enc=NULL;
-		backward_control=false;
-		deinterlace_buffer = NULL;
-		video_clock = 0;
-		rgba_picture = NULL;
-		frame_fifo.length = 0;
-		jsclass = &video_layer_class;
-	}
+  :Layer() {
+
+  grab_dv=false;
+  set_name("VID");
+  frame_number=0;
+  av_buf=NULL;
+  avformat_context=NULL;
+  packet_len=0;
+  frame_rate=0;
+  play_speed=1;
+  play_speed_control=1;
+  seekable=true;
+  enc=NULL;
+  backward_control=false;
+  deinterlace_buffer = NULL;
+  video_clock = 0;
+  rgba_picture = NULL;
+  frame_fifo.length = 0;
+  jsclass = &video_layer_class;
+}
 
 VideoLayer::~VideoLayer() {
 	notice("Closing video %s", get_filename());
@@ -267,6 +268,8 @@ bool VideoLayer::open(const char *file) {
   }
   func ("VideoLayer :: play_speed: %d",play_speed);
 
+  opened = true;
+
   return true;
 }
 
@@ -339,7 +342,9 @@ void *VideoLayer::feed() {
 
 	AVFrame *yuv_picture=&av_frame;
 	if(len1<0) {
-	  error("VideoLayer::Error while decoding frame");
+	  //	  error("VideoLayer::Error while decoding frame");
+	  func("one frame only?");
+	  return NULL;
 	}
 	else if (len1 == 0) {
 	  packet_len=0;

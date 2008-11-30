@@ -140,6 +140,9 @@ static int param_selection(char *cmd) {
   char *p;
   for(p = cmd; *p != '\0'; p++)
     if(*p == ' ') { *p = '\0'; p++; break; }
+  
+  while(*p == ' ') p++; // jump all spaces
+  if(*p=='\0') return 0; // no value was given
 
   if(filt) { ///////////////////////// parameters for filter
 
@@ -223,16 +226,25 @@ static int param_completion(char *cmd) {
     p = (Parameter*)params[c];
     switch(p->type) {
     case PARAM_BOOL:
-      ::act("%s (bool) %s", p->name, p->description);
+      ::act("(bool) %s = %s ::  %s", p->name,
+	    (*(bool*)p->value == true) ? "true" : "false",
+	    p->description);
       break;
     case PARAM_NUMBER:
-      ::act("%s (number) %s", p->name, p->description);
+      ::act("(number) %s = %g :: %s", p->name,
+	    *(double*)p->value,
+	    p->description);
       break;
     case PARAM_STRING:
       ::act("%s (string) %s", p->name, p->description);
       break;
     case PARAM_POSITION:
-      ::act("%s (position) %s", p->name, p->description);
+      {
+	double *val = (double*)p->value;
+	::act("(position) %s = %g x %g :: %s", p->name,
+	      val[0], val[1],
+	      p->description);
+      }
       break;
     case PARAM_COLOR:
       ::act("%s (color) %s", p->name, p->description);
@@ -442,14 +454,15 @@ static int open_layer(char *cmd) {
   func("open_layer(%s)",cmd);
 
   // check that is a good file
-  if (strncasecmp(cmd, "/dev/video",10)!=0)
-  if( stat(cmd,&filestatus) < 0 ) {
-    error("invalid file %s: %s",cmd,strerror(errno));
-    return 0;
-  } else { // is it a directory?
-    if( S_ISDIR( filestatus.st_mode ) ) {
-      error("can't open a directory as a layer",cmd);
+  if (strncasecmp(cmd, "/dev/video",10)!=0) {
+    if( stat(cmd,&filestatus) < 0 ) {
+      error("invalid file %s: %s",cmd,strerror(errno));
       return 0;
+    } else { // is it a directory?
+      if( S_ISDIR( filestatus.st_mode ) ) {
+	error("can't open a directory as a layer",cmd);
+	return 0;
+      }
     }
   }
 
@@ -466,7 +479,8 @@ static int open_layer(char *cmd) {
     //	  l->set_fps(env->fps_speed);
     //      l->start();
     env->add_layer(l);
-    //    l->active=true;
+    l->active=true;
+    l->fps=env->fps_speed;
 
     len = env->layers.len();
     notice("layer succesfully created, now you have %i layers",len);

@@ -35,10 +35,7 @@ ImageLayer::ImageLayer()
   surf = NULL;
   image = NULL;
   black_image = NULL;
-  
-  subliminal = 0;
-  blinking = false;
-  count = 0;
+
   set_name("IMG");
   is_native_sdl_surface = true;
   jsclass = &image_layer_class;
@@ -121,48 +118,9 @@ bool ImageLayer::init(Context *freej) {
 
   return true;
 }
-void *ImageLayer::feed() {
-  count++;
-  // threads problems !! XXX TODO 
-  //    if(count==freej->fps_speed)
-  //	count=0;
-  if(blinking && count%2!=0) {
-    return black_image;
-  }
-  // subliminal mode
-  if(subliminal!=0 && count>= subliminal)
-    return black_image;
-  
+void *ImageLayer::feed() {  
   return surf->pixels;
 }
-
-bool ImageLayer::keypress(int key) {
-  bool res = true;
-  
-  switch(key) {
-  case 'o':
-    subliminal++;
-    act("ImageLayer::subliminal count %i",subliminal);
-    break;
-  case 'p':
-    subliminal=0;
-    act("ImageLayer::subliminal reset");
-    break;
-  case 'b':
-    if(blinking)
-      blinking=false;
-    else 
-      blinking=true;
-    act("ImageLayer::blinking %s",(blinking)?"ON":"OFF");
-    break;
-    
-  default:
-    res = false;
-    break;
-  }
-  return res;
-}
-
 
 void ImageLayer::close() {
   func("ImageLayer::close()");
