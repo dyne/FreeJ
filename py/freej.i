@@ -3,6 +3,8 @@
 %{
 #include "context.h"
 #include "console.h"
+#include "gen_f0r_layer.h"
+#include "text_layer.h"
 %}
 
 %immutable layers_description;
@@ -45,6 +47,8 @@ freej_entry_typemap_in(Encoder);
 %include "jsync.h"
 %include "layer.h"
 %include "jutils.h"
+%include "gen_f0r_layer.h"
+%include "text_layer.h"
 
 %extend Layer
 {
