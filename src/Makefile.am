@@ -23,9 +23,7 @@ SUBDIRS = include
 
 SOURCES = \
 	context.cpp	\
-	context_js.cpp  \
 	layer.cpp	\
-	layer_js.cpp    \
 	blitter.cpp	\
 	iterator.cpp	\
 	linklist.cpp	\
@@ -38,35 +36,23 @@ SOURCES = \
 	frei0r.cpp	\
 	freeframe.cpp   \
 	filter.cpp	\
-	filter_js.cpp   \
-	jsparser.cpp	\
-	callbacks_js.cpp \
 	jutils.cpp	\
 	fastmemcpy.cpp  \
 	ringbuffer.cpp  \
 	convertvid.cpp  \
 \
 	v4l_layer.cpp tvfreq.c	\
-	v4l_layer_js.cpp \
 	unicap_layer.cpp \
-	unicap_layer_js.cpp \
 	video_layer.cpp	\
-	video_layer_js.cpp \
 	image_layer.cpp \
-	image_layer_js.cpp \
 	avi_layer.cpp	\
 	text_layer.cpp \
-	text_layer_js.cpp \
 	gen_f0r_layer.cpp \
 	geo_layer.cpp	\
-	geo_layer_js.cpp \
 	flash_layer.cpp \
-	flash_layer_js.cpp \
 	scroll_layer.cpp \
-	scroll_layer_js.cpp \
 	xhacks_layer.cpp \
         goom_layer.cpp \
-	goom_layer_js.cpp \
 	impl_layers.cpp \
 \
 	screen.cpp	\
@@ -86,23 +72,36 @@ SOURCES = \
 \
 	audio_jack.cpp  \
 	audio_collector.cpp \
-	audio_collector_js.cpp \
 \
 	video_encoder.cpp \
-	video_encoder_js.cpp \
 	ffmpeg_encoder.cpp \
 	theorautils.cpp \
 	oggtheora_encoder.cpp \
 	impl_video_encoders.cpp \
 	xgrab_layer.cpp
 
+JS_SOURCES = 	context_js.cpp  \
+		layer_js.cpp    \
+		filter_js.cpp   \
+		jsparser.cpp	\
+		callbacks_js.cpp \
+		video_encoder_js.cpp \
+		v4l_layer_js.cpp \
+		unicap_layer_js.cpp \
+		video_layer_js.cpp \
+		image_layer_js.cpp \
+		text_layer_js.cpp \
+		geo_layer_js.cpp \
+		flash_layer_js.cpp \
+		scroll_layer_js.cpp \
+		goom_layer_js.cpp \
+		audio_collector_js.cpp
 
 
 static_libs = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
               $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
 	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
-	      $(top_srcdir)/lib/javascript/obj/libjs.a \
 	      $(top_srcdir)/lib/flash/libflash.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/lo/liblo.a
@@ -133,5 +132,7 @@ libfreej_la_SOURCES = $(SOURCES)
 libfreej_la_LIBADD = $(static_libs) $(shared_libs)
 
 bin_PROGRAMS = freej
-freej_SOURCES = freej.cpp
-freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej $(shared_libs)
+freej_SOURCES = freej.cpp $(JS_SOURCES)
+freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej $(shared_libs) \
+		$(top_srcdir)/lib/javascript/obj/libjs.a 
+

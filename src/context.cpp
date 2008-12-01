@@ -200,7 +200,7 @@ bool Context::init
     error("no truetype fonts found on your system");
     error("you should install .ttf fonts in one of the directories above.");
   } else
-    act("Found %i fonts installed",num_fonts);
+    notice("Found %i fonts installed",num_fonts);
 
 #endif
 

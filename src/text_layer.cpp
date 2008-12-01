@@ -233,7 +233,7 @@ int Context::scanfonts(const char *path, int depth) {
     func("no fonts found in %s : %s",path, strerror(errno));
     return(false);
   } else
-    act("%u fonts found in %s", found, path);
+    func("%u fonts found in %s", found, path);
 
   if(!font_files) { // first allocation
     font_files = (char**) calloc(found, sizeof(char*));

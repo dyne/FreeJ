@@ -42,7 +42,7 @@ JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
 	env=_env;
     init();
-    notice("JavaScript parser initialized");
+    act("javascript parser initialized");
 }
 
 JsParser::~JsParser() {
