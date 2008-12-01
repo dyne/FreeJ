@@ -43,6 +43,7 @@
 #include <plugger.h>
 #include <screen.h>
 #include <shouter.h>
+#include <gen_f0r_layer.h>
 
 #include <config.h>
 
@@ -139,13 +140,13 @@ class Context {
 
   Linklist<Entry> controllers; ///< linked list of registered interactive controllers
 
-  Linklist<Entry> layers; ///< linked list of registered layers
+  Linklist<Layer> layers; ///< linked list of registered layers
 
-  Linklist<Entry> filters; ///< linked list of registered filters
+  Linklist<Filter> filters; ///< linked list of registered filters
 
-  Linklist<Entry> generators; ///< linked list of registered generators
+  Linklist<Filter> generators; ///< linked list of registered generators
 
-  Linklist<Entry> encoders; ///< linked list of registered encoders
+  Linklist<VideoEncoder> encoders; ///< linked list of registered encoders
 
 
 

@@ -37,18 +37,51 @@ void func(const char *format, ...);
 // maximum number of members returned by the completion
 #define MAX_COMPLETION 512
 
+class Entry;
 
+class BaseLinklist {
+ public:
+  BaseLinklist() {
+#ifdef THREADSAFE
+    pthread_mutexattr_init (&mattr);
+    pthread_mutexattr_settype (&mattr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init (&mutex,&mattr);
+#endif
+  };
+  ~BaseLinklist() {
+#ifdef THREADSAFE
+    pthread_mutex_destroy(&mutex);
+    pthread_mutexattr_destroy (&mattr);
+#endif
+  };
 
+  /* don't touch these from outside
+   use begin() and end() and len() methods */
+  Entry *first;
+  Entry *last;
+  int length;
+  Entry *selection;
+  virtual Entry *_pick(int pos) =0;
+
+#ifdef THREADSAFE
+  void lock() { pthread_mutex_lock(&mutex); };
+  void unlock() { pthread_mutex_unlock(&mutex); };
+#endif
+#ifdef THREADSAFE
+  pthread_mutex_t mutex;
+  pthread_mutexattr_t mattr;
+#endif
+
+};
 
 template <class T>
-class Linklist {
-  friend class Entry;
+class Linklist : public BaseLinklist {
  public:
   Linklist();
   virtual ~Linklist();
 
-  T *begin() { return(first); };
-  T *end() { return(last); };
+  T *begin() { return((T*)first); };
+  T *end() { return(  (T*)last); };
   int len() { return(length); };
   
   void append(T *addr);
@@ -61,6 +94,8 @@ class Linklist {
   bool moveup(int pos);
   bool movedown(int pos);
   bool moveto(int num, int pos);
+  Entry *_pick(int pos);
+
   T *pick(int pos);  
   T *search(const char *name, int *idx);
   T **completion(char *needle);
@@ -69,47 +104,64 @@ class Linklist {
 
   T *operator[](int pos) { return pick(pos); };
 
-  /* don't touch these directly */
-  T *first;
-  T *last;
-  int length;
-
-#ifdef THREADSAFE
-  void lock() { pthread_mutex_lock(&mutex); };
-  void unlock() { pthread_mutex_unlock(&mutex); };
-#endif
-
- protected:
-  T *selection;
 
  private:
 
-#ifdef THREADSAFE
-  pthread_mutex_t mutex;
-  pthread_mutexattr_t mattr;
-#endif
   
   T *compbuf[512]; // completion buffer
 };
+
+
+
+class Entry {
+  //  friend class Linklist<Entry>;
+
+ public:
+  Entry();
+  ~Entry();
+
+  void set_name(const char *nn);
+  
+  Entry *next;
+  Entry *prev;
+
+  BaseLinklist *list;
+
+  bool up();
+  bool down();
+  bool move(int pos);
+  void rem();
+  void sel(bool on);
+  
+  bool select;
+
+  char *name;
+
+  // generic data pointer, so far only used in console
+  // and now also as JSObject -> jsval
+  void *data; 
+};
+
+
+
+
+///////////////////////////////////////////////////////////////
+/////////////// IMPLEMENTATIONS
+// here and not in the cpp class for the template linking issue
+
+
+
+
 
 template <class T> Linklist<T>::Linklist() {
 	length = 0;
 	first = NULL;
 	last = NULL;
 	selection = NULL;
-#ifdef THREADSAFE
-	pthread_mutexattr_init (&mattr);
-	pthread_mutexattr_settype (&mattr, PTHREAD_MUTEX_RECURSIVE);
-	pthread_mutex_init (&mutex,&mattr);
-#endif
 }
 
 template <class T> Linklist<T>::~Linklist() {
 	clear();
-#ifdef THREADSAFE
-	pthread_mutex_destroy(&mutex);
-	pthread_mutexattr_destroy (&mattr);
-#endif
 }
 
 /* adds one element at the end of the list */
@@ -127,7 +179,7 @@ template <class T> void Linklist<T>::append(T *addr) {
     first = last;
     first->sel(true);
   } else { /* add the entry to the end */
-    ptr = last;
+    ptr = (T*)last;
     ptr->next = addr;
     addr->next = NULL;
     addr->prev = ptr;
@@ -154,7 +206,7 @@ template <class T> void Linklist<T>::prepend(T *addr) {
     first->prev = NULL;
     last = first;
   } else { /* add an entry to the beginning */
-    ptr = first;
+    ptr = (T*)first;
     ptr->prev = addr;
     addr->next = ptr;
     addr->prev = NULL;
@@ -245,6 +297,12 @@ template <class T> void Linklist<T>::clear() {
 #endif
 }
 
+// virtual implementation for typecasting workaround
+// internal use only by the Entry
+template <class T> Entry *Linklist<T>::_pick(int pos) {
+  return( (Entry*)pick(pos) );
+}
+
 /* takes one element from the list
    === STARTING FROM 1 ===
    returns NULL if called with pos=0 or pos>length
@@ -261,20 +319,20 @@ template <class T> T *Linklist<T>::pick(int pos) {
 	  return(NULL);
   }
   // shortcuts
-  if(pos==1) return(first);
-  if(pos==length) return(last);
+  if(pos==1) return((T*)first);
+  if(pos==length) return((T*)last);
 
   T *ptr;
   int c;
   // start from beginning
   if(pos < length/2) {
-    ptr = first;
+    ptr = (T*)first;
     for(c=1; c<pos; c++)
-      ptr = ptr->next;
+      ptr = (T*)ptr->next;
   } else { /// | | | p | | | 
-    ptr = last;
+    ptr = (T*)last;
     for(c=length; c>pos; c--)
-      ptr = ptr->prev; // to be checked
+      ptr = (T*)ptr->prev; // to be checked
   }
   return(ptr);
 }
@@ -283,13 +341,13 @@ template <class T> T *Linklist<T>::pick(int pos) {
    returns the Entry* on success, NULL on failure */
 template <class T> T *Linklist<T>::search(const char *name, int *idx) {
   int c = 1;
-  T *ptr = first;
+  T *ptr = (T*)first;
   while(ptr) {
     if( strcasecmp(ptr->name,name)==0 ) {
       if(idx) *idx = c;
       return(ptr);
     }
-    ptr = ptr->next;
+    ptr = (T*)ptr->next;
     c++;
   }
   if(idx) *idx = 0;
@@ -307,10 +365,10 @@ template <class T> T **Linklist<T>::completion(char *needle) {
   memset(compbuf,0,MAX_COMPLETION*sizeof(T*));
 
   /* check it */
-  T *ptr = last;
+  T *ptr = (T*)last;
   if(!ptr) return compbuf;
 
-  for( found=0, c=1 ; ptr ; c++ , ptr=ptr->prev ) {
+  for( found=0, c=1 ; ptr ; c++ , ptr=(T*)ptr->prev ) {
     if(!len) { // 0 lenght needle: return the full list
       compbuf[found] = ptr;
       found++;
@@ -354,7 +412,7 @@ template <class T> void Linklist<T>::rem(int pos) {
    use Entry::sel() if you want to do multiple selects */
 template <class T> void Linklist<T>::sel(int pos) {
   int c;
-  T *ptr = first;
+  T *ptr = (T*)first;
   
   if(!first) return;
   if(pos>length) {
@@ -365,7 +423,7 @@ template <class T> void Linklist<T>::sel(int pos) {
   if(!pos) {
     while(ptr) {
       ptr->select = false;
-      ptr = ptr->next;
+      ptr = (T*)ptr->next;
     }
     selection = NULL;
     return;
@@ -374,7 +432,7 @@ template <class T> void Linklist<T>::sel(int pos) {
   for(c=1;c<=length;c++) {
     if(c==pos) ptr->sel(true);
     else ptr->sel(false);
-    ptr = ptr->prev;
+    ptr = (T*)ptr->prev;
   }
 }
 
@@ -382,7 +440,7 @@ template <class T> void Linklist<T>::sel(int pos) {
    this is supposed to be used with single selections */
 template <class T> T *Linklist<T>::selected() {
   if(!first) return NULL; // no entries at all
-  return selection;       // now faster <= haha
+  return (T*)selection;       // now faster <= haha
   /*
   if(!last) return NULL; // no entries at all
   
@@ -395,35 +453,5 @@ template <class T> T *Linklist<T>::selected() {
   return NULL;
   */
 }
-
-
-class Entry {
-  //  friend class Linklist<Entry>;
-
- public:
-  Entry();
-  ~Entry();
-
-  void set_name(const char *nn);
-  
-  Entry *next;
-  Entry *prev;
-
-  Linklist<Entry> *list;
-
-  bool up();
-  bool down();
-  bool move(int pos);
-  void rem();
-  void sel(bool on);
-  
-  bool select;
-
-  char *name;
-
-  // generic data pointer, so far only used in console
-  // and now also as JSObject -> jsval
-  void *data; 
-};
 
 #endif

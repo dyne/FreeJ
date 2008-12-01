@@ -199,13 +199,13 @@ static int param_completion(char *cmd) {
   FilterInstance* filt =
     (FilterInstance*)lay->filters.selected();
 
-  Linklist<Entry> *parameters;
+  Linklist<Parameter> *parameters;
   if(filt) parameters = &filt->proto->parameters;
   else     parameters = lay->parameters;
 
   if(!parameters) return 0;
 
-  Entry **params = parameters->completion(cmd);
+  Parameter **params = parameters->completion(cmd);
   if(!params[0]) return 0;
 
   Parameter *p;
@@ -357,7 +357,7 @@ static int filter_proc(char *cmd) {
 }
 static int filter_comp(char *cmd) {
   int c;
-  Entry **res;
+  Filter **res;
   Filter *filt;
   if(!cmd) return 0;
   // QUAAA
@@ -366,7 +366,7 @@ static int filter_comp(char *cmd) {
   if(!res[0]) return 0; // no hit 
 
   if(!res[1]) { // exact match: fill in the command
-    filt = (Filter*) res[0];
+    filt = res[0];
     if(!filt) return 0; // doublecheck safety fix
     ::notice("%s :: %s",filt->name,filt->description());
     snprintf(cmd,511,"%s",res[0]->name); c=1;
@@ -374,23 +374,23 @@ static int filter_comp(char *cmd) {
     for(c=0;res[c];c+=4) {
       char tmp[256];
 
-      filt = (Filter*)res[c];
+      filt = res[c];
       if(!filt) break;
       snprintf(tmp,256,"%s", filt->name);
 
-      filt = (Filter*)res[c+1];
+      filt = res[c+1];
       if(filt) {
 	strncat(tmp, "\t", 256);
 	strncat(tmp, filt->name, 256);
       }
 
-      filt = (Filter*)res[c+2];
+      filt = res[c+2];
       if(filt) {
 	strncat(tmp, "\t", 256);
 	strncat(tmp, filt->name, 256);
       }
 
-      filt = (Filter*)res[c+3];
+      filt = res[c+3];
       if(filt) {
 	strncat(tmp, "\t", 256);
 	strncat(tmp, filt->name, 256);
@@ -662,16 +662,16 @@ static int set_blit_value(char *cmd) {
 }
 
 static int generator_completion(char *cmd) {
-  Entry **res;
+  Filter **res;
   Filter *filt;
   int c;
 
   if(!cmd) return 0;
-  res = env->generators.completion(cmd);
+  res = (Filter**)env->generators.completion(cmd);
   if(!res[0]) return 0;
 
   if(!res[1]) { // exact match: fill in the command
-    filt = (Filter*)res[0];
+    filt = res[0];
     ::notice("%s :: %s",filt->name,filt->description());
     snprintf(cmd,511,"%s",filt->name); c=1;
   } else { // list all matches
@@ -679,23 +679,23 @@ static int generator_completion(char *cmd) {
       
       char tmp[256];
       
-      filt = (Filter*)res[c];
+      filt = res[c];
       if(!filt) break;
       snprintf(tmp,256,"%s", filt->name);
       
-      filt = (Filter*)res[c+1];
+      filt = res[c+1];
       if(filt) {
 	strncat(tmp, "\t", 256);
 	strncat(tmp, filt->name, 256);
       }
       
-      filt = (Filter*)res[c+2];
+      filt = res[c+2];
       if(filt) {
 	strncat(tmp, "\t", 256);
 	strncat(tmp, filt->name, 256);
       }
       
-      filt = (Filter*)res[c+3];
+      filt = res[c+3];
       if(filt) {
 	strncat(tmp, "\t", 256);
 	strncat(tmp, filt->name, 256);

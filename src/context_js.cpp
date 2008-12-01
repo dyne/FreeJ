@@ -549,7 +549,7 @@ JS(entry_next) {
 
   res = (Layer*)lay->next;
   if(!res) // if last entry the cycle to the first
-    res = (Layer*) lay->list->begin();
+    res = ((Linklist<Layer>*)lay->list)->begin();
 
   objtmp = JS_NewObject(cx, res->jsclass, NULL, obj);
   JS_SetPrivate(cx, objtmp, (void*) res);
@@ -569,7 +569,7 @@ JS(entry_prev) {
   
   res = (Layer*)lay->prev;
   if(!res) // if first entry the cycle to the end
-    res = (Layer*) lay->list->end();
+    res = ((Linklist<Layer>*)lay->list)->end();
   
   objtmp = JS_NewObject(cx, res->jsclass, NULL, obj);
   JS_SetPrivate(cx, objtmp, (void*) res);

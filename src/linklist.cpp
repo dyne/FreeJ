@@ -131,7 +131,7 @@ bool Entry::move(int pos) {
 
   Entry *tn, *tp;
 
-  Entry *swapping = list->pick(pos);
+  Entry *swapping = list->_pick(pos);
   if(swapping == this) return(true);
   if(!swapping) return(false);
 
