@@ -47,6 +47,7 @@ Plugger::Plugger() {
   addsearchdir(temp);
 
   addsearchdir("/usr/lib/FreeFrame");
+  addsearchdir("/usr/local/lib/FreeFrame");
   addsearchdir("/usr/lib/frei0r-1");
   addsearchdir("/usr/local/lib/frei0r-1");
 
@@ -86,6 +87,7 @@ int Plugger::refresh(Context *env) {
 
   // scan for all available effects
   do {
+    func("scanning %s",dir);
 
       found = scandir(dir,&filelist,selector,alphasort);
       if(found<0) { error("Plugger::scandir"); return(-1); };
