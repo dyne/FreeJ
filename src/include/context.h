@@ -137,15 +137,15 @@ class Context {
 
   Console *console; ///< Console parser (will become a controller)
 
-  Linklist controllers; ///< linked list of registered interactive controllers
+  Linklist<Entry> controllers; ///< linked list of registered interactive controllers
 
-  Linklist layers; ///< linked list of registered layers
+  Linklist<Entry> layers; ///< linked list of registered layers
 
-  Linklist filters; ///< linked list of registered filters
+  Linklist<Entry> filters; ///< linked list of registered filters
 
-  Linklist generators; ///< linked list of registered generators
+  Linklist<Entry> generators; ///< linked list of registered generators
 
-  Linklist encoders; ///< linked list of registered encoders
+  Linklist<Entry> encoders; ///< linked list of registered encoders
 
 
 

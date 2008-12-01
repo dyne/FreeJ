@@ -199,7 +199,7 @@ static int param_completion(char *cmd) {
   FilterInstance* filt =
     (FilterInstance*)lay->filters.selected();
 
-  Linklist *parameters;
+  Linklist<Entry> *parameters;
   if(filt) parameters = &filt->proto->parameters;
   else     parameters = lay->parameters;
 
@@ -529,7 +529,7 @@ static int filebrowse_completion_selector(const struct dirent *dir) {
   return(1);
 }
 static int filebrowse_completion(char *cmd) {
-  Linklist files;
+  Linklist<Entry> files;
   Entry *e;
 
   struct stat filestatus;

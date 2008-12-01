@@ -71,8 +71,8 @@ class OscController: public Controller {
 
   char port[64];
 
-  Linklist commands_handled;
-  Linklist commands_pending;
+  Linklist<Entry> commands_handled;
+  Linklist<Entry> commands_pending;
 
 };
 

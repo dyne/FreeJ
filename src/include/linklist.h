@@ -32,39 +32,38 @@
 // maximum number of members returned by the completion
 #define MAX_COMPLETION 512
 
-class Entry;
-
+template <class T>
 class Linklist {
   friend class Entry;
  public:
   Linklist();
   virtual ~Linklist();
 
-  Entry *begin() { return(first); };
-  Entry *end() { return(last); };
+  T *begin() { return(first); };
+  T *end() { return(last); };
   int len() { return(length); };
   
-  void append(Entry *addr);
-  void prepend(Entry *addr);
-  void insert(Entry *addr, int pos);
-  void insert_after(Entry *addr, Entry *pos);  
+  void append(T *addr);
+  void prepend(T *addr);
+  void insert(T *addr, int pos);
+  void insert_after(T *addr, T *pos);  
   void rem(int pos);
   void sel(int pos);
   void clear();
   bool moveup(int pos);
   bool movedown(int pos);
   bool moveto(int num, int pos);
-  Entry *pick(int pos);  
-  Entry *search(const char *name, int *idx);
-  Entry **completion(char *needle);
+  T *pick(int pos);  
+  T *search(const char *name, int *idx);
+  T **completion(char *needle);
 
-  Entry *selected();
+  T *selected();
 
-  Entry *operator[](int pos) { return pick(pos); };
+  T *operator[](int pos) { return pick(pos); };
 
   /* don't touch these directly */
-  Entry *first;
-  Entry *last;
+  T *first;
+  T *last;
   int length;
 
 #ifdef THREADSAFE
@@ -73,7 +72,7 @@ class Linklist {
 #endif
 
  protected:
-  Entry *selection;
+  T *selection;
 
  private:
 
@@ -82,11 +81,11 @@ class Linklist {
   pthread_mutexattr_t mattr;
 #endif
   
-  Entry *compbuf[512]; // completion buffer
+  T *compbuf[512]; // completion buffer
 };
 
 class Entry {
-  friend class Linklist;
+  //  friend class Linklist<Entry>;
 
  public:
   Entry();
@@ -97,7 +96,7 @@ class Entry {
   Entry *next;
   Entry *prev;
 
-  Linklist *list;
+  Linklist<Entry> *list;
 
   bool up();
   bool down();

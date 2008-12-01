@@ -33,7 +33,7 @@
 #include <linklist.h>
 
 
-Linklist::Linklist() {
+template <class T> Linklist<T>::Linklist() {
 	length = 0;
 	first = NULL;
 	last = NULL;
@@ -45,7 +45,7 @@ Linklist::Linklist() {
 #endif
 }
 
-Linklist::~Linklist() {
+template <class T> Linklist<T>::~Linklist() {
 	clear();
 #ifdef THREADSAFE
 	pthread_mutex_destroy(&mutex);
@@ -54,8 +54,8 @@ Linklist::~Linklist() {
 }
 
 /* adds one element at the end of the list */
-void Linklist::append(Entry *addr) {
-  Entry *ptr = NULL;
+template <class T> void Linklist<T>::append(T *addr) {
+  T *ptr = NULL;
   if(addr->list) addr->rem();
 #ifdef THREADSAFE
   lock();
@@ -82,8 +82,8 @@ void Linklist::append(Entry *addr) {
 #endif
 }
 
-void Linklist::prepend(Entry *addr) {
-  Entry *ptr = NULL;
+template <class T> void Linklist<T>::prepend(T *addr) {
+  T *ptr = NULL;
   if(addr->list) addr->rem();
 #ifdef THREADSAFE
   lock();
@@ -110,7 +110,7 @@ void Linklist::prepend(Entry *addr) {
 
 
 // inserts an element after the given one
-void Linklist::insert_after(Entry *addr, Entry *pos) {
+template <class T> void Linklist<T>::insert_after(T *addr, T *pos) {
   
   // take it out from other lists
   if(addr->list) addr->rem();
@@ -140,7 +140,7 @@ void Linklist::insert_after(Entry *addr, Entry *pos) {
    the element occupying allready the position slides down 
    THIS FUNCTION IS NOT YET RELIABLE
 */
-void Linklist::insert(Entry *addr, int pos) {
+template <class T> void Linklist<T>::insert(T *addr, int pos) {
   if(length<=pos) { /* adds it at the end */
     append(addr);
     return;
@@ -151,7 +151,7 @@ void Linklist::insert(Entry *addr, int pos) {
 
   if(addr->list) addr->rem();
 
-  Entry *ptr = pick(pos);
+  T *ptr = pick(pos);
 
 #ifdef THREADSAFE
   lock();
@@ -173,7 +173,7 @@ void Linklist::insert(Entry *addr, int pos) {
    i don't delete filters here because they have to be deleted
    from the procedure creating them. so this call simply discards
    the pointers stored into the linked list. OBJECTS ARE NOT FREED */
-void Linklist::clear() {
+template <class T> void Linklist<T>::clear() {
 #ifdef THREADSAFE
   lock();
 #endif
@@ -192,7 +192,7 @@ void Linklist::clear() {
    returns Entry pointer otherwise 
    this function is then overloading the operator[]
 */
-Entry *Linklist::pick(int pos) {
+template <class T> T *Linklist<T>::pick(int pos) {
   if(pos<1) {
 	  warning("linklist access at element 0 while first element is 1");
 	  return(NULL);
@@ -205,7 +205,7 @@ Entry *Linklist::pick(int pos) {
   if(pos==1) return(first);
   if(pos==length) return(last);
 
-  Entry *ptr;
+  T *ptr;
   int c;
   // start from beginning
   if(pos < length/2) {
@@ -222,9 +222,9 @@ Entry *Linklist::pick(int pos) {
 
 /* search the linklist for the entry matching *name
    returns the Entry* on success, NULL on failure */
-Entry *Linklist::search(const char *name, int *idx) {
+template <class T> T *Linklist<T>::search(const char *name, int *idx) {
   int c = 1;
-  Entry *ptr = first;
+  T *ptr = first;
   while(ptr) {
     if( strcasecmp(ptr->name,name)==0 ) {
       if(idx) *idx = c;
@@ -239,16 +239,16 @@ Entry *Linklist::search(const char *name, int *idx) {
 
 /* searches all the linklist for entries starting with *needle
    returns a list of indexes where to reach the matches */
-Entry **Linklist::completion(char *needle) { 
+template <class T> T **Linklist<T>::completion(char *needle) { 
   int c;
   int found;
   int len = strlen(needle);
 
   /* cleanup */
-  memset(compbuf,0,MAX_COMPLETION*sizeof(Entry*));
+  memset(compbuf,0,MAX_COMPLETION*sizeof(T*));
 
   /* check it */
-  Entry *ptr = last;
+  T *ptr = last;
   if(!ptr) return compbuf;
 
   for( found=0, c=1 ; ptr ; c++ , ptr=ptr->prev ) {
@@ -268,34 +268,34 @@ Entry **Linklist::completion(char *needle) {
 
 /* this function is a wrapper around Entry::up()
    better to use that if you have a pointer to your Entry */
-bool Linklist::moveup(int pos) {
-  Entry *p = pick(pos);
+template <class T> bool Linklist<T>::moveup(int pos) {
+  T *p = pick(pos);
   if(!p) return(false);
   return( p->up() );
 }
-bool Linklist::movedown(int pos) {
-  Entry *p = pick(pos);
+template <class T> bool Linklist<T>::movedown(int pos) {
+  T *p = pick(pos);
   if(!p) return(false);
   return( p->down() );
 }
-bool Linklist::moveto(int num, int pos) {
-  Entry 
+template <class T> bool Linklist<T>::moveto(int num, int pos) {
+  T 
     *p = pick(num);
   if(!p) return(false);
   return( p->move(pos) );
 }
 /* removes one element from the list */
-void Linklist::rem(int pos) {
-  Entry *ptr = pick(pos);
+template <class T> void Linklist<T>::rem(int pos) {
+  T *ptr = pick(pos);
   if(ptr==NULL) return;
   ptr->rem();
 }
   
 /* selects ONLY ONE, deselects the others
    use Entry::sel() if you want to do multiple selects */
-void Linklist::sel(int pos) {
+template <class T> void Linklist<T>::sel(int pos) {
   int c;
-  Entry *ptr = first;
+  T *ptr = first;
   
   if(!first) return;
   if(pos>length) {
@@ -321,14 +321,14 @@ void Linklist::sel(int pos) {
 
 /* returns the last one selected
    this is supposed to be used with single selections */
-Entry *Linklist::selected() {
+template <class T> T *Linklist<T>::selected() {
   if(!first) return NULL; // no entries at all
   return selection;       // now faster <= haha
   /*
   if(!last) return NULL; // no entries at all
   
   int c;
-  Entry *ptr = last;
+  T *ptr = last;
   for(c=length;c>0;c--) {
     if(ptr->select) return ptr;
     ptr = ptr->prev;

@@ -121,7 +121,7 @@ class Blitter {
   bool set_rotate(double angle);
   bool set_spin(double rot, double z);
 
-  Linklist blitlist; ///< list of available blits
+  Linklist<Entry> blitlist; ///< list of available blits
 
   /* ==== CROP */
   /** @param force crop even if nothing changed */

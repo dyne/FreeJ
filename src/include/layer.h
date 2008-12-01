@@ -122,16 +122,16 @@ class Layer: public Entry, public JSyncThread {
   void pulse_alpha(int step, int value);
   ///< Pulse the Layer in alpha blending (in->out) 
 
-  Linklist *parameters;
+  Linklist<Entry> *parameters;
   ///< Parameter list for the layer
 
-  Linklist filters;
+  Linklist<Entry> filters;
   ///< Filter list of effects applied on the Layer
 
   ScreenGeometry geo;
   ///< Geometrical information about the Layer
 
-  Linklist iterators;
+  Linklist<Entry> iterators;
   ///< Iterator list of value modifiers
 
   bool active; ///< is active? (read-only)

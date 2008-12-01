@@ -78,7 +78,7 @@ class Console {
 
   bool active;
 
-  Linklist history;
+  Linklist<Entry> history;
 
  private:
   int x,y;

@@ -93,7 +93,7 @@ class Filter : public Entry {
   Freior *freior;
   Freeframe *freeframe;
   
-  Linklist parameters;
+  Linklist<Entry> parameters;
 
  protected:
   void destruct(FilterInstance *inst);

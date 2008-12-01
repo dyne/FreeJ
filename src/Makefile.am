@@ -1,16 +1,16 @@
-INCLUDES = -I$(top_srcdir)/src/include \
-           -I$(top_srcdir)/lib \
-           -I$(top_srcdir)/lib/ccvt \
-           -I$(top_srcdir)/lib/shout \
-           -I$(top_srcdir)/lib/lo \
-           -I$(top_srcdir)/lib/sdl_image \
-           -I$(top_srcdir)/lib/sdl_gfx \
-	   -I$(top_srcdir)/lib/sdl_ttf \
-	   -I$(top_srcdir)/lib/javascript \
-	   -I$(top_srcdir)/lib/javascript/obj \
-	   -I$(top_srcdir)/lib/flash \
-	   -I$(top_srcdir)/lib/goom \
-	   -I$(top_srcdir)/lib/cwiid \
+INCLUDES = -I$(top_srcdir)/src/include           \
+           -I$(top_srcdir)/lib                   \
+           -I$(top_srcdir)/lib/ccvt              \
+           -I$(top_srcdir)/lib/shout             \
+           -I$(top_srcdir)/lib/lo                \
+           -I$(top_srcdir)/lib/sdl_image         \
+           -I$(top_srcdir)/lib/sdl_gfx           \
+	   -I$(top_srcdir)/lib/sdl_ttf           \
+	   -I$(top_srcdir)/lib/javascript        \
+	   -I$(top_srcdir)/lib/javascript/obj    \
+	   -I$(top_srcdir)/lib/flash             \
+	   -I$(top_srcdir)/lib/goom              \
+	   -I$(top_srcdir)/lib/cwiid             \
            -I/usr/include/slang
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
@@ -108,23 +108,23 @@ static_libs = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/javascript/obj/libjs.a
 
 shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
-	         @X11_LIBS@ \
-		 @XIPH_LIBS@ \
-		 @STATIC_LIBS@ \
-		 @OPENGL_LIB@ \
-		 @SDL_LIBS@ \
-		 @FLASH_LIBS@ \
-		 @FT2_LIBS@ \
-                 @ALSA_LIBS@ \
-		 @JACK_LIBS@ \
-		 @GOOM_LIBS@ \
-                 @FFTW_LIBS@ \
-		 @FFMPEG_LIBS@ \
+	         @X11_LIBS@     \
+		 @XIPH_LIBS@    \
+		 @STATIC_LIBS@  \
+		 @OPENGL_LIB@   \
+		 @SDL_LIBS@     \
+		 @FLASH_LIBS@   \
+		 @FT2_LIBS@     \
+                 @ALSA_LIBS@    \
+		 @JACK_LIBS@    \
+		 @GOOM_LIBS@    \
+                 @FFTW_LIBS@    \
+		 @FFMPEG_LIBS@  \
 		 @SWSCALE_LIBS@ \
-		 @X11_LIBS@ \
-		 @BLUEZ_LIBS@ \
-		 @CWIID_LIBS@ \
-		 @OPENGL_LIB@ \
+		 @X11_LIBS@     \
+		 @BLUEZ_LIBS@   \
+		 @CWIID_LIBS@   \
+		 @OPENGL_LIB@   \
 		 @UNICAP_LIBS@
 
 

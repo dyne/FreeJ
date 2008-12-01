@@ -60,7 +60,7 @@ TTFLayer::TTFLayer()
   jsclass = &txt_layer_class;
 
   { // setup specific layer parameters
-    parameters = new Linklist();
+    parameters = new Linklist<Entry>();
     Parameter *param;
     
     param = new Parameter(PARAM_NUMBER);
