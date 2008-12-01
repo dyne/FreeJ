@@ -138,7 +138,7 @@ class Context {
 
   Console *console; ///< Console parser (will become a controller)
 
-  Linklist<Entry> controllers; ///< linked list of registered interactive controllers
+  Linklist<Controller> controllers; ///< linked list of registered interactive controllers
 
   Linklist<Layer> layers; ///< linked list of registered layers
 
