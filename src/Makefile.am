@@ -129,7 +129,8 @@ shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 
 lib_LTLIBRARIES = libfreej.la
 libfreej_la_SOURCES = $(SOURCES)
-libfreej_la_LIBADD = $(static_libs) $(shared_libs)
+libfreej_la_LIBADD  = $(static_libs) $(shared_libs)
+libfreej_la_LDFLAGS = -version-info @FREEJ_VERSION_INFO@
 
 bin_PROGRAMS = freej
 freej_SOURCES = freej.cpp $(JS_SOURCES)

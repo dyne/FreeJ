@@ -2,7 +2,24 @@ dnl ==============================================================
 dnl Process this file with autoconf to produce a configure script.
 dnl ==============================================================
 
-AC_INIT(src/freej.cpp)
+dnl Define the sub-version numbers for this release
+m4_define([FREEJ_MAJ_VER], 0)
+m4_define([FREEJ_MIN_VER], 11)
+m4_define([FREEJ_REL_VER], 0)
+dnl Construct the final version number out of the sub-version values specified above
+m4_define([FREEJ_RELEASE_VERSION], [FREEJ_MAJ_VER.FREEJ_MIN_VER.FREEJ_REL_VER])
+
+dnl versioning info for libtool
+
+FREEJ_CURRENT=0
+FREEJ_REVISION=0
+FREEJ_AGE=0
+FREEJ_VERSION_INFO=$FREEJ_CURRENT:$FREEJ_REVISION:$FREEJ_AGE
+dnl Note this is the ABI version which is not the same as our actual library version
+AC_SUBST(FREEJ_VERSION_INFO)
+
+
+AC_INIT(src/freej.cpp,[FREEJ_RELEASE_VERSION])
 
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
@@ -90,7 +107,7 @@ dnl Setup for automake
 dnl ==============================================================
 
 AM_SANITY_CHECK
-AM_INIT_AUTOMAKE(freej, 0.10)
+AM_INIT_AUTOMAKE(freej, [FREEJ_RELEASE_VERSION])
 AM_CONFIG_HEADER(config.h)
 AC_DEFINE(PACKAGE_NAME,"FreeJ - vision mixer")
 
