@@ -104,7 +104,8 @@ static_libs = $(top_srcdir)/lib/ccvt/libccvt.a \
 	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
 	      $(top_srcdir)/lib/flash/libflash.a \
               $(top_srcdir)/lib/shout/libshout.a \
-              $(top_srcdir)/lib/lo/liblo.a
+              $(top_srcdir)/lib/lo/liblo.a \
+              $(top_srcdir)/lib/javascript/obj/libjs.a
 
 shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 	         @X11_LIBS@ \
@@ -128,12 +129,12 @@ shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 
 
 lib_LTLIBRARIES = libfreej.la
-libfreej_la_SOURCES = $(SOURCES)
+libfreej_la_SOURCES = $(SOURCES) $(JS_SOURCES)
 libfreej_la_LIBADD  = $(static_libs) $(shared_libs)
 libfreej_la_LDFLAGS = -version-info @FREEJ_VERSION_INFO@
 
 bin_PROGRAMS = freej
-freej_SOURCES = freej.cpp $(JS_SOURCES)
-freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej $(shared_libs) \
-		$(top_srcdir)/lib/javascript/obj/libjs.a 
+freej_SOURCES = freej.cpp
+freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej $(shared_libs)
+
 
