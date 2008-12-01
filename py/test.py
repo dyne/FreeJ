@@ -1,6 +1,6 @@
 import freej
 import time
-
+import sys
 freej.set_debug(3)
 
 # init context
@@ -10,7 +10,7 @@ cx.config_check("keyboard.js")
 cx.plugger.refresh(cx)
 
 # add a layer
-lay = freej.create_layer(cx,"/home/caedes/dvgrab-001.avi")
+lay = freej.create_layer(cx,sys.argv[1])
 lay.start()
 lay.add_filter(cx.filters["vertigo"])
 lay.active = True

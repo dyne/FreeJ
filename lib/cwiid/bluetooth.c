@@ -121,13 +121,17 @@ int cwiid_get_bdinfo_array(int dev_id, unsigned int timeout, int max_bdinfo,
 			continue;
 		}
 
-		/* timeout (10000) in milliseconds */
+		/* timeout (10000) in milliseconds
+
+		   this somehow  breaks when compiling  with bluetooth
+		   libs included in ubuntu intrepid
+
 		if (hci_remote_name(sock, &dev_list[i].bdaddr, BT_NAME_LEN,
 		                    (*bdinfo)[bdinfo_count].name, 10000)) {
 			cwiid_err(NULL, "Bluetooth name read error");
 			err = 1;
 			goto CODA;
-		}
+		} */
 
 		/* Filter by name */
 		if (!(flags & BT_NO_WIIMOTE_FILTER) &&

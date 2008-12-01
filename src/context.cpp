@@ -160,13 +160,16 @@ bool Context::init
 
   switch(videomode) {
   case SDL:
+    act("SDL video output");
     screen = new SdlScreen();
     break;
 #ifdef WITH_OPENGL
   case SDLGL:
+    act("SDL-GL video output");
     screen = new SdlGlScreen();
     break;
   case GL_HEADLESS:
+    act("GL headless output");
     screen = new GlScreen();
     break;
 #endif

@@ -20,10 +20,8 @@ AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CF
 
 SUBDIRS = include
 
-bin_PROGRAMS = freej
 
-freej_SOURCES = \
-	freej.cpp	\
+SOURCES = \
 	context.cpp	\
 	context_js.cpp  \
 	layer.cpp	\
@@ -98,18 +96,18 @@ freej_SOURCES = \
 	impl_video_encoders.cpp \
 	xgrab_layer.cpp
 
-noinst_LIBRARIES = libfreej.a
-libfreej_a_SOURCES = $(freej_SOURCES)
 
-freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
+
+static_libs = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
               $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
 	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
 	      $(top_srcdir)/lib/javascript/obj/libjs.a \
 	      $(top_srcdir)/lib/flash/libflash.a \
               $(top_srcdir)/lib/shout/libshout.a \
-              $(top_srcdir)/lib/lo/liblo.a \
-              -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
+              $(top_srcdir)/lib/lo/liblo.a
+
+shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 	         @X11_LIBS@ \
 		 @XIPH_LIBS@ \
 		 @STATIC_LIBS@ \
@@ -129,3 +127,11 @@ freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
 		 @OPENGL_LIB@ \
 		 @UNICAP_LIBS@
 
+
+lib_LTLIBRARIES = libfreej.la
+libfreej_la_SOURCES = $(SOURCES)
+libfreej_la_LIBADD = $(static_libs) $(shared_libs)
+
+bin_PROGRAMS = freej
+freej_SOURCES = freej.cpp
+freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej $(shared_libs)

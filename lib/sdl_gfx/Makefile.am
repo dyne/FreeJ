@@ -1,5 +1,5 @@
 INCLUDES = -I$(top_srcdir)
-CFLAGS = @SDL_CFLAGS@
+CFLAGS = @SDL_CFLAGS@ @CFLAGS@
 
 AUTOMAKE_OPTIONS = foreign
 

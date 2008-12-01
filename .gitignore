@@ -29,3 +29,9 @@ Makefile
 .libs
 TAGS
 ylwrap
+py-compile
+py/freej.pth
+py/freej.py
+py/freej.pyc
+py/freej_py.cpp
+

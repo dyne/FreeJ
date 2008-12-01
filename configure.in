@@ -115,6 +115,10 @@ if test x$have_darwin = xyes; then
   # add the fink default path to find headers
   CFLAGS="$CFLAGS -I/sw/include"
 fi
+machine_version=`uname -m`
+if test x$machine_version = xx86_64; then
+  CFLAGS="$CFLAGS -fPIC"
+fi
 
 #LIBS="-lpthread -lm -ldl"
 
@@ -409,7 +413,7 @@ else
     CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mmmx"
   fi
 fi
-AC_SUBST(LUBRIFY_CFLAGS)
+AC_SUBST(CFLAGS)
 
 
 
