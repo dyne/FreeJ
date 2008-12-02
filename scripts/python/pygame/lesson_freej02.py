@@ -57,8 +57,8 @@ def init():
 
 def load_textures():
 
-    # nehe texture
-    texturefile = os.path.join('data','nehe.bmp')
+    # here set image file
+    texturefile = os.path.join('..','..','..','doc','ipernav.png')
     textureSurface = pygame.image.load(texturefile)
     textureData = pygame.image.tostring(textureSurface, "RGBX", 1)
 
@@ -71,7 +71,7 @@ def load_textures():
     # freej texture
     glBindTexture(GL_TEXTURE_2D, textures[1])
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, layer.geo.w, layer.geo.h, 0,
-                  GL_RGBA, GL_UNSIGNED_BYTE, "" );
+                  GL_RGBA, GL_UNSIGNED_BYTE, None );
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
 

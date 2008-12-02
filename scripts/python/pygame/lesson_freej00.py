@@ -51,7 +51,7 @@ def load_textures():
     glBindTexture(GL_TEXTURE_2D, textures[0])
     # create texture with freej layer size
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, layer.geo.w, layer.geo.h, 0,
-                  GL_RGBA, GL_UNSIGNED_BYTE, "" );
+                  GL_RGBA, GL_UNSIGNED_BYTE, None );
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
 

@@ -67,8 +67,8 @@ def init():
 
 def load_textures():
 
-    # nehe texture
-    texturefile = os.path.join('data','nehe.bmp')
+    # here set image file
+    texturefile = os.path.join('..','..','..','doc','ipernav.png')
     textureSurface = pygame.image.load(texturefile)
     textureData = pygame.image.tostring(textureSurface, "RGBX", 1)
 

@@ -78,7 +78,7 @@ def init():
 def load_textures():
     global textures
     # nehe texture
-    texturefile = os.path.join('data','flower.png')
+    texturefile = os.path.join('..','..','..','doc','ipernav.png')
     textureSurface = pygame.image.load(texturefile)
     textureData = pygame.image.tostring(textureSurface, "RGBX", 1)
 
@@ -95,7 +95,7 @@ def load_textures():
         glBindTexture(GL_TEXTURE_2D, textures[idx])
         lay = layers[idx]
         glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, lay.geo.w, lay.geo.h, 0,
-                  GL_RGBA, GL_UNSIGNED_BYTE, "" );
+                  GL_RGBA, GL_UNSIGNED_BYTE, None );
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
 
