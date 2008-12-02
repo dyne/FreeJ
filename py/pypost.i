@@ -4,7 +4,7 @@
 %extend BaseLinklist
 {
   %pythoncode %{
-    def __len__():
+    def __len__(self):
         return self.len()
     def __getitem__(self,desc):
         if isinstance(desc,str):
