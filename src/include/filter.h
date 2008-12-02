@@ -21,7 +21,7 @@
 
 
 #include <linklist.h>
-#include <freej.h>
+#include <parameter.h>
 
 // supported filter types
 #define FREIOR 1
@@ -31,45 +31,6 @@ class Layer;
 class Freior;
 class Freeframe;
 class FilterInstance;
-class Parameter;
-
-/* Parameter type for boolean values */
-#define PARAM_BOOL      0
-/* Parameter type for doubles */
-#define PARAM_NUMBER    1
-/* Parameter type for color */
-#define PARAM_COLOR     2
-/* Parameter type for position */
-#define PARAM_POSITION  3
-/* Parameter type for string */
-#define PARAM_STRING  4
-
-typedef void (layer_param_f)(Layer *lay, Parameter *param, int idx);
-typedef void (filter_param_f)(FilterInstance *filt, Parameter *param, int idx);
-
-class Parameter : public Entry {
-  friend class Iterator;
-  // TODO: different iterator beahaviour for different parameter types
- public:
-  Parameter(int param_type);
-  ~Parameter();
-
-  bool set(void *val);
-  bool parse(char *p);
-
-  int type;
-
-  const char *description;
-
-  void *value;
-
-  layer_param_f *layer_get_f;
-  layer_param_f *layer_set_f;
-
-  filter_param_f *filter_get_f;
-  filter_param_f *filter_set_f;
-
-};
 
 class Filter : public Entry {
   friend class FilterInstance;
