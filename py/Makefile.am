@@ -29,3 +29,11 @@ _freej_la_LIBADD = $(PY_LIBS) -L$(top_srcdir)/src/.libs -lfreej
 
 #$(top_srcdir)/py/freej_py.cpp : $(SWIG_SOURCES)
 #	$(SWIG) $(SWIG_PYTHON_OPT) $(SWIG_CFLAGS) -I$(top_srcdir)/py -o $@ $<
+
+clean:
+	rm -rf .libs _libs
+	rm -f freej_py.cpp freej.py*
+	test -z "_freej.la" || rm -f _freej.la
+	rm -f "./so_locations"
+	rm -f *.o
+	rm -f *.lo
