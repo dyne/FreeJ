@@ -42,7 +42,7 @@ freej_entry_typemap_in(Encoder);
 /* Now the freej headers.. */
 %include "freej.h"
 %include "linklist.h"
-%template(ParameterLinkList) Linklist<Entry>;
+%template(EntryLinkList) Linklist<Entry>;
 %include "parameter.h"
 %template(ParameterLinkList) Linklist<Parameter>;
 %include "filter.h"
