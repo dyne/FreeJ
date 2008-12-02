@@ -24,11 +24,13 @@
 #endif
 
 /* Entry/Derived typemaps so we can use entries when the children
-   are required */
+   are required - Should not be needed any more..
+
 freej_entry_typemap_in(Filter);
 freej_entry_typemap_in(Layer);
 freej_entry_typemap_in(Controller);
 freej_entry_typemap_in(Encoder);
+*/
 
 /* for Linklist.search (note normally you want to add
    support for dict like access for specific languages) */
@@ -40,15 +42,20 @@ freej_entry_typemap_in(Encoder);
 /* Now the freej headers.. */
 %include "freej.h"
 %include "linklist.h"
+%template(ParameterLinkList) Linklist<Entry>;
+%include "parameter.h"
+%template(ParameterLinkList) Linklist<Parameter>;
 %include "filter.h"
+%template(FilterLinkList) Linklist<Filter>;
 %include "blitter.h"
 %include "plugger.h"
-%include "context.h"
 %include "jsync.h"
 %include "layer.h"
+%template(LayerLinkList) Linklist<Layer>;
 %include "jutils.h"
 %include "gen_f0r_layer.h"
 %include "text_layer.h"
+%include "context.h"
 
 %extend Layer
 {

@@ -1,41 +1,17 @@
 
 /* Extensions to the cpp api */
 /* dictionary like access to linked list */
-%extend Linklist
+%extend BaseLinklist
 {
-  Entry *__getitem__(const char *desc)
-  {
-    return self->search(const_cast<char*>(desc),0);
-  }
-  Entry *__getitem__(int pos)
-  {
-    return self->pick(pos);
-  }
-
-  Filter *getFilter(int pos)
-  {
-    return (Filter *)self->pick(pos);
-  }
-
-  Layer *getLayer(int pos)
-  {
-    return (Layer *)self->pick(pos);
-  }
-
-  FilterInstance *getFilterInstance(int pos)
-  {
-    return static_cast<FilterInstance *>(self->pick(pos));
-  }
-
-  Parameter *getParameter(int pos)
-  {
-    return (Parameter *)self->pick(pos);
-  }
-
-  int __len__()
-  {
-    return self->len();
-  }
+  %pythoncode %{
+    def __len__():
+        return self.len()
+    def __getitem__(self,desc):
+        if isinstance(desc,str):
+            return self.search(desc)[0]
+        else:
+            return self.pick(desc)
+  %}
 
 }
 
