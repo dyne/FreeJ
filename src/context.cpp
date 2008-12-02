@@ -68,7 +68,8 @@ Context::Context() {
   pause           = false;
   save_to_file    = false;
   interactive     = true;
-  
+  poll_events     = true;
+
   fps_speed       = 24;
 
 
@@ -272,7 +273,8 @@ void Context::cafudda(double secs) {
   
   ///////////////////////////////
   //// process controllers
-  handle_controllers();
+  if(poll_events)
+    handle_controllers();
   ///////////////////////////////
   
   

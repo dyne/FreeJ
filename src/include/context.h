@@ -132,9 +132,9 @@ class Context {
 
   Osd osd; ///< On Screen Display
 
-
-
   SDL_Event event;
+  bool poll_events;
+
 
   Console *console; ///< Console parser (will become a controller)
 
