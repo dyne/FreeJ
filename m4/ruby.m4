@@ -9,7 +9,7 @@ AC_MSG_CHECKING([for Ruby])
 CONFIG_SCRIPTING_RUBY_WITHVAL="no"
 CONFIG_SCRIPTING_RUBY="no"
 
-EL_SAVE_FLAGS
+dnl EL_SAVE_FLAGS
 
 AC_ARG_WITH(ruby,
 	[  --with-ruby             enable Ruby support],
@@ -28,20 +28,20 @@ if test "$CONFIG_SCRIPTING_RUBY" = "yes"; then
 		RUBY_PATH="$PATH"
 	fi
 
-	AC_PATH_PROG(CONFIG_SCRIPTING_RUBY, ruby, no, $RUBY_PATH)
+	AC_PATH_PROG(CONFIG_SCRIPTING_RUBY, ruby1.9, no, $RUBY_PATH)
 	if test "$CONFIG_SCRIPTING_RUBY" != "no"; then
 
-		AC_MSG_CHECKING(Ruby version)
-		if $CONFIG_SCRIPTING_RUBY -e 'exit((VERSION or RUBY_VERSION) >= "1.6.0")' >/dev/null 2>/dev/null; then
+# 		AC_MSG_CHECKING(Ruby version)
+# 		if $CONFIG_SCRIPTING_RUBY -e 'exit((VERSION or RUBY_VERSION) >= "1.6.0")' >/dev/null 2>/dev/null; then
 			ruby_version=`$CONFIG_SCRIPTING_RUBY -e 'puts "#{VERSION rescue RUBY_VERSION}"'`
 			AC_MSG_RESULT($ruby_version)
 
 			AC_MSG_CHECKING(for Ruby header files)
-			rubyhdrdir=`$CONFIG_SCRIPTING_RUBY -r mkmf -e 'print Config::CONFIG[["archdir"]] || $hdrdir' 2>/dev/null`
-
+			rubyhdrdir=`$CONFIG_SCRIPTING_RUBY -r mkmf -e 'print Config::CONFIG[["rubyhdrdir"]] || $hdrdir' 2>/dev/null`
+			rubyarchdir=`$CONFIG_SCRIPTING_RUBY -r mkmf -e 'print Config::CONFIG[["archdir"]] || $hdrdir' 2>/dev/null`
 			if test "X$rubyhdrdir" != "X"; then
 				AC_MSG_RESULT($rubyhdrdir)
-				RUBY_CFLAGS="-I$rubyhdrdir"
+				RUBY_CFLAGS="-I$rubyhdrdir -I$rubyhdrdir/ruby -I$rubyhdrdir/`basename $rubyarchdir` -DRUBY_MISSING_H"
 				rubylibs=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["LIBS"]]'`
 
 				if test "X$rubylibs" != "X"; then
@@ -74,32 +74,28 @@ if test "$CONFIG_SCRIPTING_RUBY" = "yes"; then
 					LDFLAGS="$rubyldflags $LDFLAGS"
 				fi
 
-				LIBS="$RUBY_LIBS $LIBS"
-				CFLAGS="$RUBY_CFLAGS $CFLAGS"
-				CPPFLAGS="$CPPFLAGS $RUBY_CFLAGS"
-
 				AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ruby.h>]], [[ruby_init();]])],[CONFIG_SCRIPTING_RUBY=yes],[CONFIG_SCRIPTING_RUBY=no])
 			else
 				AC_MSG_RESULT([Ruby header files not found])
 			fi
-		else
-			AC_MSG_RESULT(too old; need Ruby version 1.6.0 or later)
-		fi
+# 		else
+# 			AC_MSG_RESULT(too old; need Ruby version 1.6.0 or later)
+# 		fi
 	fi
 fi
 
-EL_RESTORE_FLAGS
+dnl EL_RESTORE_FLAGS
 
-if test "$CONFIG_SCRIPTING_RUBY" != "yes"; then
-	if test -n "$CONFIG_SCRIPTING_RUBY_WITHVAL" &&
-	   test "$CONFIG_SCRIPTING_RUBY_WITHVAL" != no; then
-		AC_MSG_ERROR([Ruby not found])
-	fi
-else
-	EL_CONFIG(CONFIG_SCRIPTING_RUBY, [Ruby])
-
-	LIBS="$LIBS $RUBY_LIBS"
+# if test "$CONFIG_SCRIPTING_RUBY" != "yes"; then
+# 	if test -n "$CONFIG_SCRIPTING_RUBY_WITHVAL" &&
+# 	   test "$CONFIG_SCRIPTING_RUBY_WITHVAL" != no; then
+# 		AC_MSG_ERROR([Ruby not found])
+# 	fi
+# else
+dnl	EL_CONFIG(CONFIG_SCRIPTING_RUBY, [Ruby])
+	have_ruby=true
+#	LIBS="$LIBS $RUBY_LIBS"
 	AC_SUBST(RUBY_CFLAGS)
 	AC_SUBST(RUBY_LIBS)
-fi
+# fi
 ])

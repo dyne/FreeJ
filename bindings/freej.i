@@ -21,6 +21,8 @@
 /* Language specific typemaps */
 #if defined(SWIGPYTHON)
   %include "pypre.i"
+#elif defined(SWIGRUBY)
+  %include "rbpre.i"
 #endif
 
 /* Entry/Derived typemaps so we can use entries when the children

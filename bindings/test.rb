@@ -10,10 +10,10 @@ cx.config_check("keyboard.js")
 cx.plugger.refresh(cx)
 
 # add a layer
-lay = Freej::create_layer(cx,"/home/caedes/dvgrab-001.avi")
+lay = Freej::create_layer(cx,"/home/jaromil/Videos/Lesyeuxnoirs.mp4")
 print lay
 print "\n"
-lay.start()
+# lay.start()
 filter = cx.filters.search("vertigo")[0]
 print filter
 print "\n"
