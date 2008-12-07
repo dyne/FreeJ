@@ -18,7 +18,7 @@ pkgpython_instdir = $(pythondir)
 pkgpython_inst_PYTHON = freej.pth
 
 
-freej_py.cpp:
+freej_py.cpp: freej.i
 	swig -I../src/include/ -python -threads -c++ -shadow -O -o freej_py.cpp freej.i
 
 # lib_LTLIBRARIES = libfreej_py.la

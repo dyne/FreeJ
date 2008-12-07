@@ -11,4 +11,4 @@ dist_pkgdata_DATA = \
 
 #pkgdatadir = ${prefix}/share/freej
 
-SUBDIRS = lib src py scripts
+SUBDIRS = lib src bindings scripts

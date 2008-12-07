@@ -43,20 +43,28 @@ FreeJ installation instructions
 :: INSTALL FROM DEBIAN PACKAGES
 
 You can do 'apt-get install freej' and you will have a precompiled FreeJ 
+
 Anyway to squeeze the best out of your box you want to compile this
 software with machine specific optimizations!
+
 The source configure script guesses the best compiler optimization flags
 for your CPU.
 
+the following commands are then necessary to set your build environment,
+from inside the freej source directory do:
+
+sudo apt-get install autoconf automake1.9
+sudo apt-get build-dep freej
+dpkg-buildpackage -rfakeroot
 
 
 If you have problems, you are welcome to ask on the mailinglist for
-help, there you will probably find somebody to help you.
+help, there you will probably find some good suggestions
 
-Please try to not mix your problems with FreeJ's bugs.
+Please try to not mix your system's problems with FreeJ's bugs.
 
 If you find bugs, you are welcome to report them in the bugtracking
 system on http://bugs.dyne.org
 
-$Id$
+-jrml
 

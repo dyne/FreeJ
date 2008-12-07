@@ -664,7 +664,7 @@ lib/frei0r/generator/lissajous0r/Makefile
 lib/frei0r/generator/nois0r/Makefile
 lib/frei0r/generator/onecol0r/Makefile
 lib/frei0r/generator/partik0l/Makefile
-py/Makefile
+bindings/Makefile
 scripts/Makefile
 ])
 

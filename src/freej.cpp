@@ -258,7 +258,7 @@ int main (int argc, char **argv) {
   Layer *lay = NULL;
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);
-  act("2001-2007 RASTASOFT :: freej.dyne.org");
+  act("2001-2008 RASTASOFT :: freej.dyne.org");
   act("----------------------------------------------");
 
   cmdline(argc,argv);
@@ -371,8 +371,6 @@ int main (int argc, char **argv) {
   /* quit */
 
   //  freej.close();
-
-  jsleep(1,0);
 
   exit(1);
 }
