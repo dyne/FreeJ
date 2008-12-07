@@ -21,7 +21,7 @@ freej_ruby.cpp: freej.i
 
 
 
-pkgpython_PYTHON = $(top_srcdir)/py/freej.py
+pkgpython_PYTHON = $(top_srcdir)/bindings/freej.py
 pkgpyexec_LTLIBRARIES = _freej.la
 pkgpython_instdir = $(pythondir)
 pkgpython_inst_PYTHON = freej.pth
@@ -34,7 +34,7 @@ _freej_la_LDFLAGS = -module -avoid-version
 _freej_la_LIBADD = $(PY_LIBS) -L$(top_srcdir)/src/.libs -lfreej
 
 
-pkgrubyexecdir=/usr/lib/ruby
+pkgrubyexecdir = @RUBY_ARCHDIR@
 pkgrubyexec_LTLIBRARIES = Freej.la
 
 Freej_la_SOURCES = freej_ruby.cpp
