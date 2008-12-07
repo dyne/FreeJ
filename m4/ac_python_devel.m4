@@ -205,6 +205,11 @@ $ac_distutils_result])
 
 	AC_MSG_RESULT([$pythonexists])
 
+	if test x$pythonexists = xyes; then
+	   have_python=true
+	fi
+	AC_SUBST(have_python)
+	
         if test ! "$pythonexists" = "yes"; then
 	   AC_MSG_ERROR([
   Could not link test program to Python. Maybe the main Python library has been

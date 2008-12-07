@@ -18,11 +18,16 @@
 /* freej_entry_typemap_in: to be able to map an Entry* to TypeName* */
 #define freej_entry_typemap_in(TypeName)
 
+
 /* Language specific typemaps */
 #if defined(SWIGPYTHON)
   %include "pypre.i"
 #elif defined(SWIGRUBY)
   %include "rbpre.i"
+#elif defined(SWIGJAVA)
+  %include "javapre.i"
+#elif defined(SWIGPERL)
+  %include "perlpre.i"
 #endif
 
 /* Entry/Derived typemaps so we can use entries when the children
@@ -56,7 +61,7 @@ freej_entry_typemap_in(Encoder);
 %template(LayerLinkList) Linklist<Layer>;
 %include "jutils.h"
 %include "gen_f0r_layer.h"
-%include "text_layer.h"
+// %include "text_layer.h"
 %include "context.h"
 
 %extend Layer

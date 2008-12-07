@@ -28,7 +28,6 @@
 #define __LAYER_H__
 
 #include <inttypes.h>
-#include <iterator.h>
 #include <blitter.h>
 #include <filter.h>
 #include <screen.h>
@@ -36,6 +35,7 @@
 
 class Context;
 class AudioCollector;
+class Iterator;
 
 class JSClass;
 class JSContext;

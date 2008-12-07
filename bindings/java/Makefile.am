@@ -1,0 +1,33 @@
+INCLUDES = -I$(top_srcdir)/src/include \
+           -I$(top_srcdir)/lib/shout \
+	   -I$(top_srcdir)/lib/sdl_ttf \
+	   -I$(top_srcdir)/lib/javascript \
+	   -I$(top_srcdir)/lib/javascript/obj
+
+FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@
+
+BUILT_SOURCES = freej_java.cpp
+
+freej_java.cpp: $(top_srcdir)/bindings/freej.i
+	swig -I$(top_srcdir)/src/include/ -I$(top_srcdir)/bindings \
+	     -java -c++ -O \
+	     -o freej_java.cpp $(top_srcdir)/bindings/freej.i
+
+pkgjavaexecdir = /usr/lib/jni
+pkgjavaexec_LTLIBRARIES = libfreej_g.la
+libfreej_g_la_CXXFLAGS = $(FREEJ_FLAGS) @JAVA_CFLAGS@
+libfreej_g_la_LDFLAGS = $(JAVA_LDFLAGS) 
+libfreej_g_la_SOURCES = freej_java.cpp
+
+
+clean:
+	rm -rf .libs _libs
+	test -z "libfreej_g.la" || rm -f libfreej_g.la
+	rm -f "./so_locations"
+	rm -f *.o
+	rm -f *.lo
+	rm -f *.class
+	rm -f *.java
+	rm -f $(BUILT_SOURCES)
+
+

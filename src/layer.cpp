@@ -25,6 +25,7 @@
 
 #include <layer.h>
 #include <filter.h>
+#include <iterator.h>
 
 #include <context.h>
 #include <jutils.h>

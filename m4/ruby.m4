@@ -4,6 +4,28 @@ dnl The hitchhiked code is from Vim configure.in version 1.98
 
 AC_DEFUN([EL_CONFIG_SCRIPTING_RUBY],
 [
+
+AC_DEFINE(SIGNED_VALUE,long,[signed value used by ruby])
+AC_CACHE_CHECK(whether right shift preserve sign bit, rb_cv_rshift_sign,
+    [AC_TRY_RUN([
+int
+main()
+{
+  if (-1==(-1>>1))
+    return 0;
+  return 1;
+}
+],
+	rb_cv_rshift_sign=yes,
+	rb_cv_rshift_sign=no,
+	rb_cv_rshift_sign=yes)])
+if test "$rb_cv_rshift_sign" = yes; then
+  AC_DEFINE(RSHIFT(x,y), ((x)>>(int)y), [whether right shift preserve sign bit, rb_cv_rshift_sign])
+else
+  AC_DEFINE(RSHIFT(x,y), (((x)<0) ? ~((~(x))>>y) : (x)>>y), [whether right shift preserve sign bit, rb_cv_rshift_sign])
+fi
+
+
 AC_MSG_CHECKING([for Ruby])
 
 CONFIG_SCRIPTING_RUBY_WITHVAL="no"
@@ -11,9 +33,14 @@ CONFIG_SCRIPTING_RUBY="no"
 
 dnl EL_SAVE_FLAGS
 
-AC_ARG_WITH(ruby,
-	[  --with-ruby             enable Ruby support],
-	[CONFIG_SCRIPTING_RUBY_WITHVAL="$withval"])
+# AC_ARG_WITH(ruby,
+# 	[  --with-ruby             enable Ruby support],
+# 	[CONFIG_SCRIPTING_RUBY_WITHVAL="$withval"])
+
+AC_ARG_ENABLE(ruby,
+ 	[  --enable-ruby             enable Ruby support (no)],
+	[CONFIG_SCRIPTING_RUBY_WITHVAL=yes],
+	[CONFIG_SCRIPTING_RUBY_WITHVAL=no])
 
 if test "$CONFIG_SCRIPTING_RUBY_WITHVAL" != no; then
 	CONFIG_SCRIPTING_RUBY="yes"
@@ -82,6 +109,17 @@ if test "$CONFIG_SCRIPTING_RUBY" = "yes"; then
 # 			AC_MSG_RESULT(too old; need Ruby version 1.6.0 or later)
 # 		fi
 	fi
+
+	have_ruby=true
+	AC_SUBST(have_ruby)
+	RUBY_ARCHDIR=$rubyarchdir
+	RUBY_SOURCE=freej_ruby.cpp
+	AC_SUBST(RUBY_SOURCE)
+	AC_SUBST(RUBY_ARCHDIR)
+#	LIBS="$LIBS $RUBY_LIBS"
+	AC_SUBST(RUBY_CFLAGS)
+	AC_SUBST(RUBY_LIBS)
+
 fi
 
 dnl EL_RESTORE_FLAGS
@@ -93,10 +131,5 @@ dnl EL_RESTORE_FLAGS
 # 	fi
 # else
 dnl	EL_CONFIG(CONFIG_SCRIPTING_RUBY, [Ruby])
-	RUBY_ARCHDIR=$rubyarchdir
-	AC_SUBST(RUBY_ARCHDIR)
-#	LIBS="$LIBS $RUBY_LIBS"
-	AC_SUBST(RUBY_CFLAGS)
-	AC_SUBST(RUBY_LIBS)
 # fi
 ])
