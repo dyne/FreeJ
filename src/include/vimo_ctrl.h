@@ -46,7 +46,7 @@ class ViMoController: public Controller {
 		void close();
 
 		int poll();
-		int dispatch();
+		virtual int dispatch();
 
 		bool activate(bool);
 

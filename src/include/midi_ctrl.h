@@ -40,7 +40,7 @@ class MidiControl: public Controller {
 
         bool init(JSContext*, JSObject*);
         int poll();
-        int dispatch();
+        virtual int dispatch();
         int connect_from(int myport, int dest_client, int dest_port);
 
 		//bool quit;

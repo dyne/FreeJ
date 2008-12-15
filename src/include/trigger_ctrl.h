@@ -32,7 +32,7 @@ class TriggerCtrl : public Controller {
   
   bool init(JSContext *env, JSObject *obj);
   int  poll();
-  int dispatch();
+  virtual int dispatch();
 };
 
 #endif

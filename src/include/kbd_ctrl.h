@@ -30,7 +30,7 @@ class KbdCtrl: public Controller {
   ~KbdCtrl();
 
   bool init(JSContext *env, JSObject *obj);
-  int  dispatch();
+  virtual int  dispatch();
   int  poll();
 
  private:  

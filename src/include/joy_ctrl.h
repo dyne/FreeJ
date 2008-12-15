@@ -32,7 +32,7 @@ class JoyCtrl : public Controller {
   
   bool init(JSContext *env, JSObject *obj);
   int  poll();
-  int dispatch();
+  virtual int dispatch();
   
  private:
   SDL_Joystick *joy[4];

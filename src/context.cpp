@@ -441,10 +441,9 @@ bool Context::register_controller(Controller *ctrl) {
     return false;
   }
 
-  if(! ctrl->initialized ) {
-    error("failed registering non initialized controller %s",ctrl->name);
-    return false;
-  }
+  if(! ctrl->initialized )
+    ctrl->init(js->js_context, js->global_object);
+
 
   ctrl->activate(true);
 

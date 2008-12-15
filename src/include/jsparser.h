@@ -54,12 +54,13 @@ class JsParser {
 
 	JSBool branch_callback(JSContext* Context, JSScript* Script);
 
-    private:
-	JSRuntime *js_runtime;
 	JSContext *js_context;
 	JSObject *global_object;
+
+    private:
+	JSRuntime *js_runtime;
 	void init();
-    void init_class(JSContext *cx, JSObject *obj);
+	void init_class(JSContext *cx, JSObject *obj);
 };
 #endif
 

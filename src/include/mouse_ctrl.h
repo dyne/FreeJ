@@ -25,16 +25,16 @@
 #include <SDL.h>
 
 class MouseCtrl : public Controller {
-
-		public:
-			MouseCtrl();
-			~MouseCtrl();
-
-			bool init(JSContext *env, JSObject *obj);
-			int  poll();
-			int dispatch();
-			bool activate(bool);
-
+  
+ public:
+  MouseCtrl();
+  ~MouseCtrl();
+  
+  bool init(JSContext *env, JSObject *obj);
+  int  poll();
+  virtual int dispatch();
+  bool activate(bool);
+  
 };
 
 #endif
