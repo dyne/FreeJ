@@ -89,7 +89,7 @@ int fps = 25;
 
 bool startstate = true;
 bool gtkgui = false;
-int videomode = 0;
+Context::VideoMode videomode = Context::SDL;
 int audiomode = 0;
 bool noconsole = false;
 bool fullscreen = false;
@@ -179,7 +179,7 @@ void cmdline(int argc, char **argv) {
 
 #ifdef WITH_OPENGL
    case 'g':
-     videomode=SDLGL;
+     videomode=Context::SDLGL;
 
       break;
 #endif

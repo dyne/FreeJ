@@ -297,7 +297,7 @@ Blit::Blit() :Entry() {
 
   memset(kernel,0,256);
   fun = NULL;
-  type = 0x0;
+  type = NONE;
   past_frame = NULL;
 
 }
@@ -334,176 +334,176 @@ Blitter::Blitter() {
   // default blit is SDLCPY RGB
   b = new Blit(); b->set_name("RGB");
   sprintf(b->desc,"RGB blit (SDL)");
-  b->type = SDL_BLIT;
+  b->type = Blit::SDL;
   b->sdl_fun = sdl_rgb; blitlist.prepend(b);
   current_blit = b; b->sel(true);
 
 
   b = new Blit(); b->set_name("ADD");
   sprintf(b->desc,"bytewise addition");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_add; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SUB");
   sprintf(b->desc,"bytewise subtraction");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_sub; blitlist.prepend(b);
   
   b = new Blit(); b->set_name("MEAN");
   sprintf(b->desc,"bytewise mean");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_add; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("ABSDIFF");
   sprintf(b->desc,"absolute difference");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_absdiff; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULT");
   sprintf(b->desc,"multiplication");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_mult; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULTNOR");
   sprintf(b->desc,"normalized multiplication");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_multnor; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("DIV");
   sprintf(b->desc,"division");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_div; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULTDIV2");
   sprintf(b->desc,"multiplication and division by 2");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_multdiv2; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULTDIV4");
   sprintf(b->desc,"multiplication and division by 4");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_multdiv4; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("AND");
   sprintf(b->desc,"bitwise and");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_and; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("OR");
   sprintf(b->desc,"bitwise or");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_or; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("XOR");
   sprintf(b->desc,"bitwise xor");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = blit_xor; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("RED");
   sprintf(b->desc,"red channel only blit");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = red_channel; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("GREEN");
   sprintf(b->desc,"green channel only blit");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = green_channel; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("BLUE");
   sprintf(b->desc,"blue channel only blit");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = blue_channel; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("REDMASK");
   sprintf(b->desc,"red channel threshold mask");
-  b->type = LINEAR_BLIT; b->value = 200; // default
+  b->type = Blit::LINEAR; b->value = 200; // default
   b->fun = red_mask; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("GREENMASK");
   sprintf(b->desc,"green channel threshold mask");
-  b->type = LINEAR_BLIT; b->value = 200; // default
+  b->type = Blit::LINEAR; b->value = 200; // default
   b->fun = green_mask; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("BLUEMASK");
   sprintf(b->desc,"blue channel threshold mask");
-  b->type = LINEAR_BLIT; b->value = 200; // default
+  b->type = Blit::LINEAR; b->value = 200; // default
   b->fun = blue_mask; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("NEG");
   sprintf(b->desc,"bitwise negation");
-  b->type = LINEAR_BLIT;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_neg; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("ADDB");
   sprintf(b->desc,"add byte to bytes");
-  b->type = LINEAR_BLIT; b->has_value = true;
+  b->type = Blit::LINEAR; b->has_value = true;
   b->fun = schiffler_addbyte; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("ADDBH");
   sprintf(b->desc,"add byte to half");
-  b->type = LINEAR_BLIT; b->has_value = true;
+  b->type = Blit::LINEAR; b->has_value = true;
   b->fun = schiffler_addbytetohalf; blitlist.prepend(b);
   
   b = new Blit(); b->set_name("SUBB");
   sprintf(b->desc,"subtract byte to bytes");
-  b->type = LINEAR_BLIT; b->has_value = true;
+  b->type = Blit::LINEAR; b->has_value = true;
   b->fun = schiffler_subbyte; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SHL");
   sprintf(b->desc,"shift left bits");
-  b->type = LINEAR_BLIT; b->has_value = true;
+  b->type = Blit::LINEAR; b->has_value = true;
   b->fun = schiffler_shl; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SHLB");
   sprintf(b->desc,"shift left byte");
-  b->type = LINEAR_BLIT; b->has_value = true;
+  b->type = Blit::LINEAR; b->has_value = true;
   b->fun = schiffler_shlb; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SHR");
   sprintf(b->desc,"shift right bits");
-  b->type = LINEAR_BLIT; b->has_value = true;
+  b->type = Blit::LINEAR; b->has_value = true;
   b->fun = schiffler_shr; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("MULB");
   sprintf(b->desc,"multiply by byte");
-  b->type = LINEAR_BLIT; b->has_value = true;
+  b->type = Blit::LINEAR; b->has_value = true;
   b->fun = schiffler_mulbyte; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("BIN");
   sprintf(b->desc,"binarize using threshold");
-  b->type = LINEAR_BLIT; b->has_value = true;
+  b->type = Blit::LINEAR; b->has_value = true;
   b->fun = schiffler_binarize; blitlist.prepend(b);
 
   // SDL blits
   b = new Blit(); b->set_name("ALPHA");
   sprintf(b->desc,"alpha blit (SDL)");
-  b->type = SDL_BLIT; b->has_value = true;
+  b->type = Blit::SDL; b->has_value = true;
   b->sdl_fun = sdl_alpha; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("SRCALPHA");
   sprintf(b->desc,"source alpha blit (SDL)");
-  b->type = SDL_BLIT;
+  b->type = Blit::SDL;
   b->sdl_fun = sdl_srcalpha; blitlist.prepend(b);
   
   b = new Blit(); b->set_name("CHROMAKEY");
   sprintf(b->desc,"chromakey blit (SDL)");
-  b->type = SDL_BLIT; b->has_value = true;
+  b->type = Blit::SDL; b->has_value = true;
   b->sdl_fun = sdl_chromakey; blitlist.prepend(b);
 
   // PAST blits
   b = new Blit(); b->set_name("PAST_ADD");
   sprintf(b->desc,"add to past frame");
-  b->type = PAST_BLIT;
+  b->type = Blit::PAST;
   b->past_fun = past_add; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("PAST_ADDNEG");
   sprintf(b->desc,"add to past frame and negate");
-  b->type = PAST_BLIT;
+  b->type = Blit::PAST;
   b->past_fun = past_addneg; blitlist.prepend(b);
 
   b = new Blit(); b->set_name("PAST_ABSDIFF");
   sprintf(b->desc,"absolute difference on past frame");
-  b->type = PAST_BLIT;
+  b->type = Blit::PAST;
   b->past_fun = past_absdiff; blitlist.prepend(b);
 
 }
@@ -578,7 +578,7 @@ void Blitter::blit() {
   crop( false );
   
   // executes LINEAR blit
-  if( current_blit->type == LINEAR_BLIT ) {
+  if( current_blit->type == Blit::LINEAR ) {
 
     // setup crop variables
     pscr =
@@ -604,14 +604,14 @@ void Blitter::blit() {
     }
     
     // executes SDL blit
-  } else if (current_blit->type == SDL_BLIT) {
+  } else if (current_blit->type == Blit::SDL) {
     
     (*current_blit->sdl_fun)
       (offset, &current_blit->sdl_rect,
        ((SdlScreen*)layer->screen)->screen,
        NULL, geo, (void*)&current_blit->value);
 
-  } else if (current_blit->type == PAST_BLIT) {
+  } else if (current_blit->type == Blit::PAST) {
     // this is a linear blit which operates
     // line by line on the previous frame
 
@@ -681,7 +681,7 @@ bool Blitter::set_blit(const char *name) {
   
   // found the matching name!
 
-  if(b->type == PAST_BLIT) { // must fill previous frame
+  if(b->type == Blit::PAST) { // must fill previous frame
     if(b->past_frame) free(b->past_frame);
     b->past_frame = jalloc(layer->geo.size);
   }
@@ -955,15 +955,15 @@ void Blitter::crop(bool force) {
     screen = layer->screen;
 
   // crop for the SDL blit
-  if(b->type == SDL_BLIT) {
+  if(b->type == Blit::SDL) {
     b->sdl_rect.x = -(geo->x);
     b->sdl_rect.y = -(geo->y);
     b->sdl_rect.w = screen->w;
     b->sdl_rect.h = screen->h;
 
     // crop for the linear and past blit
-  } else if(b->type == LINEAR_BLIT 
-	    || b->type == PAST_BLIT) {
+  } else if(b->type == Blit::LINEAR 
+	    || b->type == Blit::PAST) {
 
     b->lay_pitch = geo->w; // how many pixels to copy each row
     b->lay_height = geo->h; // how many rows we should copy

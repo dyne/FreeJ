@@ -110,7 +110,7 @@ int Plugger::refresh(Context *env) {
 	    // check what kind of plugin is and place it
 	    if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
 	      
-	      Filter *filt = new Filter(FREIOR,fr);
+	      Filter *filt = new Filter(Filter::FREIOR,fr);
 	      env->filters.append(filt);
 	      
 	      func("found frei0r filter: %s (%p)", filt->name, fr);
@@ -118,7 +118,7 @@ int Plugger::refresh(Context *env) {
 
 	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {
 	      
-	      Filter *filt = new Filter(FREIOR,fr);
+	      Filter *filt = new Filter(Filter::FREIOR,fr);
 	      env->generators.append(filt);
 	      
 	      func("found frei0r generator: %s (%p)", filt->name, fr);
@@ -139,7 +139,7 @@ int Plugger::refresh(Context *env) {
 	    // check what kind of plugin is and place it
 	    if(fr->info->pluginType == FF_EFFECT) {
 	      
-	      Filter *filt = new Filter(FREEFRAME, fr);
+	      Filter *filt = new Filter(Filter::FREEFRAME, fr);
 	      env->filters.append(filt);
 	      
 	      func("found freeframe filter: %s (%p)",
@@ -148,7 +148,7 @@ int Plugger::refresh(Context *env) {
 
 	    } else if(fr->info->pluginType == FF_SOURCE) {
 	      
-	      Filter *filt = new Filter(FREEFRAME, fr);
+	      Filter *filt = new Filter(Filter::FREEFRAME, fr);
 	      env->generators.append(filt);
 	      
 	      func("found freeframe generator: %s (%p)",

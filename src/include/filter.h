@@ -23,9 +23,6 @@
 #include <linklist.h>
 #include <parameter.h>
 
-// supported filter types
-#define FREIOR 1
-#define FREEFRAME 2
 
 class Layer;
 class Freior;
@@ -35,7 +32,12 @@ class FilterInstance;
 class Filter : public Entry {
   friend class FilterInstance;
  public:
-  Filter(int type, void *filt);
+  // supported filter types
+  enum Type {
+	  FREIOR = 1,
+	  FREEFRAME = 2
+  };
+  Filter(Type type, void *filt);
   ~Filter();
 
   FilterInstance *apply(Layer *lay);

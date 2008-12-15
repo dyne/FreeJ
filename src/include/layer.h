@@ -47,10 +47,6 @@ extern const char *layers_description;
 extern Layer *create_layer(Context *env, char *file);
 ///< create the propriate Layer type from a file
 
-#define UNKNOWN_LAYER 0
-#define TEXT_LAYER 1
-#define F0R_GENERATOR_LAYER 2
-
 /**
    This class describes methods and properties common to all Layers in
    FreeJ: it is the main interface for functionalities like blit
@@ -90,10 +86,16 @@ class Layer: public Entry, public JSyncThread {
 
  public:
 
+  enum LayerType {
+	  UNKNOWN,
+	  TEXT,
+	  F0R_GENERATOR
+  };
+
   Layer(); ///< Layer constructor
   ~Layer(); ///< Layer destructor
 
-  int type; ///< type of the layer
+  LayerType type; ///< type of the layer
 
   /* these must be defined in layer implementations */
   virtual bool open(const char *file) =0; ///< open the file (first called)

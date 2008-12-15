@@ -35,7 +35,7 @@ GenF0rLayer::GenF0rLayer()
 
   generator = NULL;
 
-  type = F0R_GENERATOR_LAYER;
+  type = Layer::F0R_GENERATOR;
   set_name("F0R");
   //jsclass = &gen0r_layer_class;
   //  set_filename("/particle generator");

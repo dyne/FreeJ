@@ -53,10 +53,17 @@ class Blit: public Entry {
   blit_sdl_f *sdl_fun; ///< pointer to sdl blit function
   blit_past_f *past_fun; ///< pointer to past blit function
 
-#define LINEAR_BLIT 1
-#define SDL_BLIT 2
-#define PAST_BLIT 3
-  int type; ///< LINEAR|SDL|PAST type
+  enum BlitType {
+	  NONE = 0,
+	  LINEAR = 1,
+	  SDL = 2,
+	  PAST = 3
+  };
+
+//#define LINEAR_BLIT 1
+//#define SDL_BLIT 2
+//#define PAST_BLIT 3
+  BlitType type; ///< LINEAR|SDL|PAST type
 
   bool has_value;
 
@@ -103,7 +110,6 @@ class Blitter {
  public:
   Blitter();
   ~Blitter();
-
 
   bool init(Layer *lay); ///< initialize the blitter
 

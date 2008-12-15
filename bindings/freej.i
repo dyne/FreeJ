@@ -7,6 +7,13 @@
 #include "text_layer.h"
 %}
 
+//ditch some of the defines we have that don't need to be exposed to the user
+%ignore THREADSAFE;
+%ignore MAX_ERR_MSG;
+%ignore MAX_COMPLETION;
+%ignore MAX_HEIGHT;
+%ignore MAX_WIDTH;
+
 %immutable layers_description;
 %immutable Parameter::description;
 
@@ -61,7 +68,7 @@ freej_entry_typemap_in(Encoder);
 %template(LayerLinkList) Linklist<Layer>;
 %include "jutils.h"
 %include "gen_f0r_layer.h"
-// %include "text_layer.h"
+%include "text_layer.h"
 %include "context.h"
 
 %extend Layer
@@ -82,4 +89,5 @@ freej_entry_typemap_in(Encoder);
   %include "luapost.i"
 #endif
 // SWIGPERL5, SWIGRUBY, SWIGJAVA, SWIGLUA...
+
 

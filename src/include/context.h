@@ -47,16 +47,6 @@
 
 #include <config.h>
 
-/* maximum height & width supported by context */
-#define MAX_HEIGHT 1024
-#define MAX_WIDTH 768
-
-#define SDL 0
-#define SDLGL 1
-#define GL_HEADLESS 2
-#define HEADLESS 3
-
-
 class Console;
 class JsParser;
 class AudioCollector;
@@ -64,7 +54,18 @@ class VideoEncoder;
 
 class FreejDaemon;
 
+/* maximum height & width supported by context */
+#define MAX_HEIGHT 1024
+#define MAX_WIDTH 768
+
 class Context {
+	public:
+		enum VideoMode {
+			SDL,
+			SDLGL,
+			GL_HEADLESS,
+			HEADLESS
+		};
  private:
 
   /* doublesize calculation */
@@ -88,7 +89,7 @@ class Context {
   Context();
   ~Context();
 
-  bool init(int wx, int hx, int videomode, int audiomode); ///< initialise the engine and screen
+  bool init(int wx, int hx, VideoMode videomode, int audiomode); ///< initialise the engine and screen
 
   //  void close();
   void cafudda(double secs);

@@ -155,7 +155,7 @@ Context::~Context() {
 }
 
 bool Context::init
-(int wx, int hx, int videomode, int audiomode) {
+(int wx, int hx, VideoMode videomode, int audiomode) {
 
   notice("initializing context environment", wx, hx);
 

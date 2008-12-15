@@ -100,8 +100,8 @@ JS(filter_set_parameter) {
   
   switch(param->type) {
     
-  case PARAM_BOOL:
-  case PARAM_NUMBER:
+  case Parameter::BOOL:
+  case Parameter::NUMBER:
     {
       if(!js_ValueToNumber(cx, argv[1], &val[0])) {
 	error("set parameter called with an invalid value for filter %s",
@@ -116,7 +116,7 @@ JS(filter_set_parameter) {
       duo->instance->set_parameter(idx);
       break; 
     }
-  case PARAM_POSITION:
+  case Parameter::POSITION:
     if(!js_ValueToNumber(cx, argv[1], &val[0])) {
       error("set parameter called with an invalid value for filter %s",
 	    duo->proto->name);

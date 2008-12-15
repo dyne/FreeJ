@@ -225,20 +225,20 @@ static int param_completion(char *cmd) {
   for(c=0; params[c]; c++) {
     p = (Parameter*)params[c];
     switch(p->type) {
-    case PARAM_BOOL:
+    case Parameter::BOOL:
       ::act("(bool) %s = %s ::  %s", p->name,
 	    (*(bool*)p->value == true) ? "true" : "false",
 	    p->description);
       break;
-    case PARAM_NUMBER:
+    case Parameter::NUMBER:
       ::act("(number) %s = %g :: %s", p->name,
 	    *(double*)p->value,
 	    p->description);
       break;
-    case PARAM_STRING:
+    case Parameter::STRING:
       ::act("%s (string) %s", p->name, p->description);
       break;
-    case PARAM_POSITION:
+    case Parameter::POSITION:
       {
 	double *val = (double*)p->value;
 	::act("(position) %s = %g x %g :: %s", p->name,
@@ -246,7 +246,7 @@ static int param_completion(char *cmd) {
 	      p->description);
       }
       break;
-    case PARAM_COLOR:
+    case Parameter::COLOR:
       ::act("%s (color) %s", p->name, p->description);
       break;
     default:
@@ -1424,7 +1424,7 @@ void Console::parser_default(int key) {
       
 #ifdef WITH_FT2      
     case KEY_CTRL_Y:
-      if(((Layer*)le)->type == TEXT_LAYER)
+      if(((Layer*)le)->type == Layer::TEXT)
 	readline("print a new word in Text Layer, type your words:",
 		 &print_text_layer,NULL);
       break;

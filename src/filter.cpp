@@ -30,22 +30,22 @@ $Id: $
 #include <jutils.h>
 
 
-Parameter::Parameter(int param_type)
+Parameter::Parameter(Parameter::Type param_type)
   : Entry() {
   switch(param_type) {
-  case PARAM_BOOL:
+  case Parameter::BOOL:
     value = calloc(1, sizeof(bool));
     break;
-  case PARAM_NUMBER:
+  case Parameter::NUMBER:
     value = calloc(1, sizeof(double));
     break;
-  case PARAM_COLOR:
+  case Parameter::COLOR:
     value = calloc(3, sizeof(double));
     break;
-  case PARAM_POSITION:
+  case Parameter::POSITION:
     value = calloc(2, sizeof(double));
     break;
-  case PARAM_STRING:
+  case Parameter::STRING:
     value = calloc(512, sizeof(char));
     break;
   default:
@@ -66,33 +66,33 @@ Parameter::~Parameter() {
 
 bool Parameter::set(void *val) {
   ////////////////////////////////////////
-  if(type == PARAM_NUMBER) {
+  if(type == Parameter::NUMBER) {
 
     func("set_parameter number");
     *(float*)value = *(float*)val;
     
     //////////////////////////////////////
-  } else if(type == PARAM_BOOL) {
+  } else if(type == Parameter::BOOL) {
 
     func("set_parameter bool");
     *(bool*)value = *(bool*)val;
     
     //    act("filter %s parameter %s set to: %e", name, param->name, (double*)value);
     //////////////////////////////////////
-  } else if (type == PARAM_POSITION) {
+  } else if (type == Parameter::POSITION) {
     
     ((double*)value)[0] = ((double*)val)[0];
     ((double*)value)[1] = ((double*)val)[1];
     
     //////////////////////////////////////
-  } else if (type==PARAM_COLOR) {
+  } else if (type==Parameter::COLOR) {
 
     ((double*)value)[0] = ((double*)val)[0];
     ((double*)value)[1] = ((double*)val)[1];
     ((double*)value)[2] = ((double*)val)[2];
     
     //////////////////////////////////////
-  } else if (type==PARAM_STRING) {
+  } else if (type==Parameter::STRING) {
     
     strcpy((char*)value, (char*)val);
 
@@ -110,7 +110,7 @@ bool Parameter::parse(char *p) {
 
 
     //////////////////////////////////////
-  if(type == PARAM_NUMBER) {
+  if(type == Parameter::NUMBER) {
 
     func("parsing number parameter");
     if( sscanf(p, "%le", (double*)value) < 1 ) {
@@ -121,7 +121,7 @@ bool Parameter::parse(char *p) {
 
     
     //////////////////////////////////////
-  } else if(type == PARAM_BOOL) {
+  } else if(type == Parameter::BOOL) {
 
     func("parsing bool parameter");
     char *pp;
@@ -137,7 +137,7 @@ bool Parameter::parse(char *p) {
  
 
     //////////////////////////////////////    
-  } else if(type == PARAM_POSITION) {
+  } else if(type == Parameter::POSITION) {
 
     double *val;
     
@@ -150,7 +150,7 @@ bool Parameter::parse(char *p) {
 
 
     //////////////////////////////////////
-  } else if(type == PARAM_COLOR) {
+  } else if(type == Parameter::COLOR) {
     
     double *val;
 
@@ -263,7 +263,7 @@ static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx
 
 }
 
-Filter::Filter(int type, void *filt) 
+Filter::Filter(Type type, void *filt) 
   : Entry() {
   int i;
 
@@ -292,7 +292,7 @@ Filter::Filter(int type, void *filt)
       
       (*freior->f0r_get_param_info)(&freior->param_infos[i], i);
       
-      Parameter *param = new Parameter(freior->param_infos[i].type);
+      Parameter *param = new Parameter((Parameter::Type)freior->param_infos[i].type);
       strncpy(param->name, freior->param_infos[i].name, 255);
       
       param->description = freior->param_infos[i].explanation;

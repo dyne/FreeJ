@@ -53,7 +53,7 @@ TextLayer::TextLayer()
   bgcolor.g = 0x00;
   bgcolor.b = 0x00;
 
-  type = TEXT_LAYER;
+  type = Layer::TEXT;
   set_name("TTF");
   surf = NULL;
   surf_new = NULL;
@@ -63,7 +63,7 @@ TextLayer::TextLayer()
     parameters = new Linklist<Parameter>();
     Parameter *param;
     
-    param = new Parameter(PARAM_NUMBER);
+    param = new Parameter(Parameter::NUMBER);
     strcpy(param->name, "size");
     param->description = "set the size of the font";
     parameters->append(param);
