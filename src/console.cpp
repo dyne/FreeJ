@@ -496,13 +496,13 @@ static int open_layer(char *cmd) {
 #include <text_layer.h>
 static int print_text_layer(char *cmd) {
 
-  ((TTFLayer*)env->layers.selected())->print(cmd);
+  ((TextLayer*)env->layers.selected())->print(cmd);
   return env->layers.len();
 
 }
 
 static int open_text_layer(char *cmd) {
-  TTFLayer *txt = new TTFLayer();
+  TextLayer *txt = new TextLayer();
   if(!txt->init(env)) {
     error("can't initialize text layer");
     delete txt;

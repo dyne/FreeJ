@@ -34,7 +34,7 @@
 #include <jutils.h>
 #include <jsparser_data.h>
 
-TTFLayer::TTFLayer()
+TextLayer::TextLayer()
   :Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
 
@@ -71,12 +71,12 @@ TTFLayer::TTFLayer()
 }
 
 
-TTFLayer::~TTFLayer() { 
+TextLayer::~TextLayer() { 
   func("%s this=%p",__PRETTY_FUNCTION__, this);
   close();
 }
 
-bool TTFLayer::open(const char *file) {
+bool TextLayer::open(const char *file) {
   // open a file and read its contents here?
   // skip it for now, this layer is mostly used for realtime printing
   // would be cool to implement something like justification and paragraph
@@ -85,7 +85,7 @@ bool TTFLayer::open(const char *file) {
   return true;
 }
 
-bool TTFLayer::init(Context *freej) {
+bool TextLayer::init(Context *freej) {
   // width/height is skipped for its functionality
   // in fact the size is changing at every new print
   // so we'll call the Layer::_init(wdt,hgt) many times
@@ -104,7 +104,7 @@ bool TTFLayer::init(Context *freej) {
   return true;
 }
 
-void TTFLayer::close() {
+void TextLayer::close() {
   // close up sdl ttf
   // mh, this call randomly crashes on my machine ...
   //if(font) TTF_CloseFont(font);
@@ -115,7 +115,7 @@ void TTFLayer::close() {
   if(surf_new) SDL_FreeSurface(surf_new);
 }
 
-void TTFLayer::set_size(int nsize) {
+void TextLayer::set_size(int nsize) {
   TTF_Font *tmp;
 
   tmp = TTF_OpenFont(env->font_files[sel_font], nsize);
@@ -140,13 +140,13 @@ void TTFLayer::set_size(int nsize) {
 
 }
 
-void TTFLayer::calculate_string_size(char *text, int *w, int *h) {
+void TextLayer::calculate_string_size(char *text, int *w, int *h) {
   TTF_SizeText(font, text, w, h);
 }
 
-bool TTFLayer::keypress(int key) { return false; };
+bool TextLayer::keypress(int key) { return false; };
 
-void TTFLayer::print(const char *str) {
+void TextLayer::print(const char *str) {
   SDL_Surface *tmp;
   
   // choose first font and initialize ready for printing
@@ -195,7 +195,7 @@ void TTFLayer::print(const char *str) {
 
 }
 
-void *TTFLayer::feed() {
+void *TextLayer::feed() {
 	if(surf_new) {
 	// just return the surface
 		if(surf) SDL_FreeSurface(surf);
@@ -278,8 +278,8 @@ Program received signal SIGSEGV, Segmentation fault.
 (gdb) bt
 #0  0x0f020150 in FT_Done_Face () from /usr/lib/libfreetype.so.6
 #1  0x100838f4 in TTF_CloseFont ()
-#2  0x10033768 in TTFLayer::close (this=0x1032eb80) at text_layer.cpp:102
-#3  0x100337e8 in ~TTFLayer (this=0x1032eb80) at text_layer.cpp:72
+#2  0x10033768 in TextLayer::close (this=0x1032eb80) at text_layer.cpp:102
+#3  0x100337e8 in ~TextLayer (this=0x1032eb80) at text_layer.cpp:72
 #4  0x10013fd4 in js_layer_gc (cx=0x101f7538, obj=0x10202f98) at layer_js.cpp:640
 #5  0x100cd6c0 in js_FinalizeObject ()
 #6  0x100b6710 in js_GC ()

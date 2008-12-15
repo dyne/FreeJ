@@ -27,11 +27,11 @@
 #include <layer.h>
 
 
-class TTFLayer: public Layer {
+class TextLayer: public Layer {
 
  public:
-  TTFLayer();
-  ~TTFLayer();
+  TextLayer();
+  ~TextLayer();
 
   
   bool init(Context *freej);

@@ -165,7 +165,7 @@ Layer *create_layer(Context *env, char *file) {
   } else /* TXT LAYER */
     if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
 #ifdef WITH_FT2
-	  nlayer = new TTFLayer();
+	  nlayer = new TextLayer();
 
       if(!nlayer->init( env )) {
 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);

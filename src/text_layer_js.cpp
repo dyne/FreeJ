@@ -43,14 +43,14 @@ JSFunctionSpec txt_layer_methods[] = {
 };
 
 
-JS_CONSTRUCTOR("TextLayer",txt_layer_constructor,TTFLayer);
+JS_CONSTRUCTOR("TextLayer",txt_layer_constructor,TextLayer);
 
 JS(txt_layer_color) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   JS_CHECK_ARGC(1);
 
-  GET_LAYER(TTFLayer);
+  GET_LAYER(TextLayer);
 
   // color accepts arguments in many ways
   // R,G,B,A or R,G,B or the whole 32bit value
@@ -81,7 +81,7 @@ JS(txt_layer_print) {
 
   JS_CHECK_ARGC(1);
 
-  GET_LAYER(TTFLayer);
+  GET_LAYER(TextLayer);
 
   char *str;
   JS_ARG_STRING(str, 0);
@@ -95,7 +95,7 @@ JS(txt_layer_size) {
 
   if(argc<1) return JS_FALSE;
 
-  GET_LAYER(TTFLayer);
+  GET_LAYER(TextLayer);
 
   JS_ARG_NUMBER(size,0);
 
@@ -108,7 +108,7 @@ JS(txt_layer_font) {
 
   if(argc<1) return JS_FALSE;
 
-  GET_LAYER(TTFLayer);
+  GET_LAYER(TextLayer);
 
   char *font;
   JS_ARG_STRING(font,0);
@@ -129,7 +129,7 @@ JS(txt_layer_calculate_size) {
 
   if(argc<1) return JS_FALSE;
 
-  GET_LAYER(TTFLayer);
+  GET_LAYER(TextLayer);
 
   int w, h;
   char *text;
