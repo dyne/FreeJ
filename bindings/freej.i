@@ -13,6 +13,7 @@
 #include "mouse_ctrl.h"
 #include "wiimote_ctrl.h"
 #include "osc_ctrl.h"
+#include "screen.h"
 %}
 
 //ditch some of the defines we have that don't need to be exposed to the user
@@ -21,6 +22,15 @@
 %ignore MAX_COMPLETION;
 %ignore MAX_HEIGHT;
 %ignore MAX_WIDTH;
+//from screen.h
+%ignore rchan;
+%ignore red_bitmask;
+%ignore bchan;
+%ignore blue_bitmask;
+%ignore gchan;
+%ignore green_bitmask;
+%ignore achan;
+%ignore alpha_bitmask;
 
 %immutable layers_description;
 %immutable Parameter::description;
@@ -67,6 +77,7 @@ freej_entry_typemap_in(Encoder);
 %include "freej.h"
 %include "jutils.h"
 %include "context.h"
+%include "screen.h"
 
 %include "linklist.h"
 %template(EntryLinkList) Linklist<Entry>;
