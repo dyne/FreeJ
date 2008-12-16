@@ -33,4 +33,4 @@ py-compile
 py/freej.py
 py/freej.pyc
 py/freej_py.cpp
-
+*.*.swp
