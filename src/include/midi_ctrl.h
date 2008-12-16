@@ -33,10 +33,10 @@
 
 class Context;
 
-class MidiControl: public Controller {
+class MidiController: public Controller {
 	public:
-		MidiControl();
-		~MidiControl();
+		MidiController();
+		~MidiController();
 
         bool init(JSContext*, JSObject*);
         int poll();

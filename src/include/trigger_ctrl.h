@@ -24,11 +24,11 @@
 
 #include <SDL.h>
 
-class TriggerCtrl : public Controller {
+class TriggerController : public Controller {
 
  public:
-  TriggerCtrl();
-  ~TriggerCtrl();
+  TriggerController();
+  ~TriggerController();
   
   bool init(JSContext *env, JSObject *obj);
   int  poll();

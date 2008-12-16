@@ -23,11 +23,11 @@
 
 #include <SDL.h>
 
-class KbdCtrl: public Controller {
+class KbdController: public Controller {
 
  public:
-  KbdCtrl();
-  ~KbdCtrl();
+  KbdController();
+  ~KbdController();
 
   bool init(JSContext *env, JSObject *obj);
   virtual int  dispatch();

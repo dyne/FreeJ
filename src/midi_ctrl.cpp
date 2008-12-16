@@ -49,7 +49,7 @@ JSFunctionSpec js_midi_ctrl_methods[] = {
 
 JS(js_midi_ctrl_constructor) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    MidiControl *midi = new MidiControl();
+    MidiController *midi = new MidiController();
     // assign instance into javascript object
     // initialize with javascript context
     if(! midi->init(cx, obj) ) {
@@ -65,14 +65,14 @@ JS(js_midi_ctrl_constructor) {
     return JS_TRUE;
 }
 
-MidiControl::MidiControl():Controller() {
+MidiController::MidiController():Controller() {
     set_name("Midi Controller");
     seq_handle = NULL;
     jsenv = NULL;
     jsobj = NULL;
 }
 
-MidiControl::~MidiControl() {
+MidiController::~MidiController() {
     notice("midi close client %u", seq_client_id);
     if (seq_handle)
         snd_seq_close(seq_handle);
@@ -83,7 +83,7 @@ JS(midi_connect_from) {
 	JS_CHECK_ARGC(3);
 	int res = 0;
 
-	MidiControl *midi = (MidiControl *) JS_GetPrivate(cx,obj);
+	MidiController *midi = (MidiController *) JS_GetPrivate(cx,obj);
 	if(!midi) {
 		error("%u:%s:%s :: Midi core data is NULL",
 		__LINE__,__FILE__,__FUNCTION__);
@@ -99,7 +99,7 @@ JS(midi_connect_from) {
 	return JS_NewNumberValue(cx, res, rval);
 }
 
-int MidiControl::connect_from(int myport, int dest_client, int dest_port) {
+int MidiController::connect_from(int myport, int dest_client, int dest_port) {
     // Returns: 0 on success or negative error code
     int ret = snd_seq_connect_from(seq_handle, myport, dest_client, dest_port);
     if (ret != 0) {
@@ -108,7 +108,7 @@ int MidiControl::connect_from(int myport, int dest_client, int dest_port) {
     return ret;
 }
 
-int MidiControl::dispatch() {
+int MidiController::dispatch() {
     snd_seq_event_t *ev;
     JSBool ret = JS_FALSE;
 
@@ -216,7 +216,7 @@ typedef struct snd_seq_event {
  } snd_seq_event_t;
 */
 
-bool MidiControl::init(JSContext* jsenv, JSObject *jsobj) {
+bool MidiController::init(JSContext* jsenv, JSObject *jsobj) {
     int portid;
     int result=snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_INPUT, SND_SEQ_NONBLOCK);
     if (result<0) {
@@ -241,7 +241,7 @@ bool MidiControl::init(JSContext* jsenv, JSObject *jsobj) {
     return(true);
 }
 
-int MidiControl::poll() {
+int MidiController::poll() {
     return dispatch();
 }
 

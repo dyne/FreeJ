@@ -1,8 +1,13 @@
 INCLUDES = -I$(top_srcdir)/src/include \
+	   -I$(top_srcdir)/lib \
+	   -I$(top_srcdir)/lib/lo \
+	   -I$(top_srcdir)/lib/cwiid \
            -I$(top_srcdir)/lib/shout \
 	   -I$(top_srcdir)/lib/sdl_ttf \
 	   -I$(top_srcdir)/lib/javascript \
-	   -I$(top_srcdir)/lib/javascript/obj
+	   -I$(top_srcdir)/lib/javascript/obj 
+
+
 
 FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@
 
@@ -27,4 +32,4 @@ clean:
 	rm -f "./so_locations"
 	rm -f *.o
 	rm -f *.lo
-	rm -f freej_ruby.cpp
+	rm -f freej_ruby.*

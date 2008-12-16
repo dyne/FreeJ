@@ -45,15 +45,15 @@ JSFunctionSpec js_trigger_ctrl_methods[] = {
 
 
 
-TriggerCtrl::TriggerCtrl()
+TriggerController::TriggerController()
   :Controller() {
     set_name("Trigger");
 }
 
-TriggerCtrl::~TriggerCtrl() {
+TriggerController::~TriggerController() {
 }
 
-bool TriggerCtrl::init(JSContext *env, JSObject *obj) {
+bool TriggerController::init(JSContext *env, JSObject *obj) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   jsenv = env;
   jsobj = obj;
@@ -62,11 +62,11 @@ bool TriggerCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
-int TriggerCtrl::poll() {
+int TriggerController::poll() {
     return dispatch();
 }
 
-int TriggerCtrl::dispatch() {
+int TriggerController::dispatch() {
     jsval fval = JSVAL_VOID;
     jsval ret = JSVAL_VOID;
     JSObject *objp;
@@ -86,7 +86,7 @@ int TriggerCtrl::dispatch() {
 JS(js_trigger_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  TriggerCtrl *trigger = new TriggerCtrl();
+  TriggerController *trigger = new TriggerController();
 
   // initialize with javascript context
   if(! trigger->init(cx, obj) ) {

@@ -1,10 +1,18 @@
-%module freej
+%module(directors="1") freej
 
 %{
 #include "context.h"
 #include "console.h"
 #include "gen_f0r_layer.h"
 #include "text_layer.h"
+#include "kbd_ctrl.h"
+#include "trigger_ctrl.h"
+#include "midi_ctrl.h"
+#include "vimo_ctrl.h"
+#include "joy_ctrl.h"
+#include "mouse_ctrl.h"
+#include "wiimote_ctrl.h"
+#include "osc_ctrl.h"
 %}
 
 //ditch some of the defines we have that don't need to be exposed to the user
@@ -52,24 +60,61 @@ freej_entry_typemap_in(Encoder);
 
 /* This dont compile... */
 %ignore Layer::layer_gc;
+%ignore Controller::JSCall;
+%ignore JSyncThread;
 
 /* Now the freej headers.. */
 %include "freej.h"
+%include "jutils.h"
+%include "context.h"
+
 %include "linklist.h"
 %template(EntryLinkList) Linklist<Entry>;
+
 %include "parameter.h"
 %template(ParameterLinkList) Linklist<Parameter>;
+
 %include "filter.h"
 %template(FilterLinkList) Linklist<Filter>;
+
 %include "blitter.h"
 %include "plugger.h"
-%include "jsync.h"
-%include "layer.h"
+// %include "jsync.h"
+
 %template(LayerLinkList) Linklist<Layer>;
-%include "jutils.h"
+%include "layer.h"
+// layers...
 %include "gen_f0r_layer.h"
 %include "text_layer.h"
-%include "context.h"
+
+// controllers
+%include "controller.h"
+// extends virtual methods of the Controllers to be overloadable (as callbacks)
+
+%feature("director") KbdController;
+%include "kbd_ctrl.h"
+
+%feature("director") TriggerController;
+%include "trigger_ctrl.h"
+
+%feature("director") JoyController;
+%include "joy_ctrl.h"
+
+%feature("director") MidiController;
+%include "midi_ctrl.h"
+
+%feature("director") MouseController;
+%include "mouse_ctrl.h"
+
+%feature("director") OscController;
+%include "osc_ctrl.h"
+
+%feature("director") WiiController;
+%include "wiimote_ctrl.h"
+
+%feature("director") VimoController;
+%include "vimo_ctrl.h"
+
 
 %extend Layer
 {
@@ -89,5 +134,3 @@ freej_entry_typemap_in(Encoder);
   %include "luapost.i"
 #endif
 // SWIGPERL5, SWIGRUBY, SWIGJAVA, SWIGLUA...
-
-

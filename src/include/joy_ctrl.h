@@ -24,11 +24,11 @@
 
 #include <SDL.h>
 
-class JoyCtrl : public Controller {
+class JoyController : public Controller {
 
  public:
-  JoyCtrl();
-  ~JoyCtrl();
+  JoyController();
+  ~JoyController();
   
   bool init(JSContext *env, JSObject *obj);
   int  poll();

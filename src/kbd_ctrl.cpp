@@ -42,18 +42,18 @@ JSFunctionSpec js_kbd_ctrl_methods[] = {
 };
 
 
-KbdCtrl::KbdCtrl()
+KbdController::KbdController()
   :Controller() {
   set_name("Keyboard");
   func("%s this=%p",__PRETTY_FUNCTION__, this);
 }
 
-KbdCtrl::~KbdCtrl() {
+KbdController::~KbdController() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
 
 }
 
-bool KbdCtrl::init(JSContext *env, JSObject *obj) {
+bool KbdController::init(JSContext *env, JSObject *obj) {
 
   /* enable key repeat */
   SDL_EnableKeyRepeat(SDL_REPEAT_DELAY, SDL_REPEAT_INTERVAL);
@@ -66,12 +66,12 @@ bool KbdCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
-int KbdCtrl::poll() {
+int KbdController::poll() {
 	poll_sdlevents(SDL_KEYEVENTMASK); // calls dispatch() foreach SDL_Event
 	return 1;
 }
 
-int KbdCtrl::checksym(SDLKey key, const char *name) {
+int KbdController::checksym(SDLKey key, const char *name) {
   if(keysym->sym == key) {
     strcat(keyname,name);
     func("keyboard controller detected key: %s",keyname);
@@ -86,7 +86,7 @@ int KbdCtrl::checksym(SDLKey key, const char *name) {
 }
 
 
-int KbdCtrl::dispatch() {
+int KbdController::dispatch() {
   char tmp[8];
   int res = 0;
 
@@ -200,7 +200,7 @@ int KbdCtrl::dispatch() {
   return res;
 }
 
-int KbdCtrl::JSCall(const char *funcname) {
+int KbdController::JSCall(const char *funcname) {
   func("%s calling method %s()", __func__, funcname);
   JSBool res;
   return Controller::JSCall(funcname, 0, NULL, &res);
@@ -210,7 +210,7 @@ int KbdCtrl::JSCall(const char *funcname) {
 JS(js_kbd_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  KbdCtrl *kbd = new KbdCtrl();
+  KbdController *kbd = new KbdController();
 
   // initialize with javascript context
   if(! kbd->init(cx, obj) ) {

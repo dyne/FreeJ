@@ -44,7 +44,7 @@ JSFunctionSpec js_joy_ctrl_methods[] = {
 
 
 
-JoyCtrl::JoyCtrl()
+JoyController::JoyController()
   :Controller() {
     
     set_name("Joystick");
@@ -52,7 +52,7 @@ JoyCtrl::JoyCtrl()
     num = 0;
 }
 
-JoyCtrl::~JoyCtrl() {
+JoyController::~JoyController() {
   int c;
 
   for(c=0;c<num;c++)
@@ -60,9 +60,9 @@ JoyCtrl::~JoyCtrl() {
 
 }
 
-bool JoyCtrl::init(JSContext *env, JSObject *obj) {
-  //bool JoyCtrl::init(Context *context) {
-  func("JoyCtrl::init()");
+bool JoyController::init(JSContext *env, JSObject *obj) {
+  //bool JoyController::init(Context *context) {
+  func("JoyController::init()");
  
   int found = 0;
   int c;
@@ -109,12 +109,12 @@ bool JoyCtrl::init(JSContext *env, JSObject *obj) {
   return(true);
 }
 
-int JoyCtrl::poll() {
+int JoyController::poll() {
 	poll_sdlevents(SDL_JOYEVENTMASK); // calls dispatch() 
 	return 0;
 }
 
-int JoyCtrl::dispatch() {
+int JoyController::dispatch() {
 
 	switch(event.type) {
 		
@@ -158,7 +158,7 @@ JS(js_joy_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   char excp_msg[MAX_ERR_MSG + 1];
 
-  JoyCtrl *joy = new JoyCtrl();
+  JoyController *joy = new JoyController();
 
   // initialize with javascript context
   if(! joy->init(cx, obj) ) {
