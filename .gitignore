@@ -33,4 +33,9 @@ py-compile
 py/freej.py
 py/freej.pyc
 py/freej_py.cpp
+bindings/python/freej.py
+bindings/python/freej_py.cpp
+bindings/python/freej_py.h
+bindings/ruby/freej_ruby.cpp
+bindings/ruby/freej_ruby.h
 *.*.swp
