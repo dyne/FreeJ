@@ -86,7 +86,7 @@ class Layer: public Entry, public JSyncThread {
 
  public:
 
-  enum LayerType {
+  enum Type {
 	  UNKNOWN,
 	  TEXT,
 	  F0R_GENERATOR
@@ -95,7 +95,7 @@ class Layer: public Entry, public JSyncThread {
   Layer(); ///< Layer constructor
   ~Layer(); ///< Layer destructor
 
-  LayerType type; ///< type of the layer
+  Type type; ///< type of the layer
 
   /* these must be defined in layer implementations */
   virtual bool open(const char *file) =0; ///< open the file (first called)
