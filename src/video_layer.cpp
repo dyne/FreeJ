@@ -107,6 +107,11 @@ bool VideoLayer::open(const char *file) {
   video_index=-1;
   func("VideoLayer::open(%s)",file);
 
+  if (env == NULL) {
+    error("VideoLayer :: open(%s) - can't open. VideoLayer has not been initialized.", file);
+    return false;
+  }
+
   /** init ffmpeg libraries */
   /* register all codecs, demux and protocols */
   av_register_all();

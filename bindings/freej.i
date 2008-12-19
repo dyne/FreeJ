@@ -3,8 +3,13 @@
 %{
 #include "context.h"
 #include "console.h"
+#include "screen.h"
+
+#include "layer.h"
 #include "gen_f0r_layer.h"
 #include "text_layer.h"
+#include "video_layer.h"
+
 #include "kbd_ctrl.h"
 #include "trigger_ctrl.h"
 #include "midi_ctrl.h"
@@ -13,7 +18,7 @@
 #include "mouse_ctrl.h"
 #include "wiimote_ctrl.h"
 #include "osc_ctrl.h"
-#include "screen.h"
+
 %}
 
 //ditch some of the defines we have that don't need to be exposed to the user
@@ -97,6 +102,7 @@ freej_entry_typemap_in(Encoder);
 // layers...
 %include "gen_f0r_layer.h"
 %include "text_layer.h"
+%include "video_layer.h"
 
 // controllers
 %include "controller.h"
