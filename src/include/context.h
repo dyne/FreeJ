@@ -174,6 +174,9 @@ class Context {
   char** font_files;
   int num_fonts;
 #endif
+  
+  char *layers_description; ///< string with a list of available layers compiled in
+  Layer *open(char *file); ///< creates a layer from a filename, detecting its type
 
 };
 
