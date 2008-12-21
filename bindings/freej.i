@@ -102,7 +102,7 @@ freej_entry_typemap_in(Encoder);
 // layers...
 %include "gen_f0r_layer.h"
 %include "text_layer.h"
-%include "video_layer.h"
+//%include "video_layer.h"
 
 // controllers
 %include "controller.h"
@@ -117,20 +117,20 @@ freej_entry_typemap_in(Encoder);
 %feature("director") JoyController;
 %include "joy_ctrl.h"
 
-%feature("director") MidiController;
-%include "midi_ctrl.h"
+//%feature("director") MidiController;
+//%include "midi_ctrl.h"
 
 %feature("director") MouseController;
 %include "mouse_ctrl.h"
 
-%feature("director") OscController;
-%include "osc_ctrl.h"
+//%feature("director") OscController;
+//%include "osc_ctrl.h"
 
-%feature("director") WiiController;
-%include "wiimote_ctrl.h"
+//%feature("director") WiiController;
+//%include "wiimote_ctrl.h"
 
-%feature("director") VimoController;
-%include "vimo_ctrl.h"
+//%feature("director") VimoController;
+//%include "vimo_ctrl.h"
 
 
 %extend Layer
