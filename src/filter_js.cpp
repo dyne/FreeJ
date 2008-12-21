@@ -62,6 +62,24 @@ JS(filter_constructor) {
   return JS_TRUE;
 }
 
+JS(filter_activate) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  FilterDuo *duo = (FilterDuo *) JS_GetPrivate(cx, obj);
+  if(!duo) {
+    error("%u:%s:%s :: Filter core data is NULL",
+	  __LINE__,__FILE__,__FUNCTION__);
+    return JS_TRUE;
+  }
+  
+  *rval = BOOLEAN_TO_JSVAL(duo->instance->active);
+  if (argc == 1) {
+    JS_ARG_NUMBER(var,0);
+    duo->instance->active = (bool)var;
+  }
+
+  return JS_TRUE;
+}
 
 
 JS(filter_set_parameter) {

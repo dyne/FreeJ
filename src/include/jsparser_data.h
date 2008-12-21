@@ -293,9 +293,11 @@ JS(entry_select);
 JS(filter_apply);
 JS(filter_set_parameter);
 JS(filter_list_parameters);
+JS(filter_activate);
 #define FILTER_METHODS \
   {"set_parameter",           filter_set_parameter,             4}, \
-  {"list_parameters",         filter_list_parameters,           0}
+  {"list_parameters",         filter_list_parameters,           0}, \
+  {"activate",                filter_activate,                  1}
 
 ////////////////////////////////
 // Controller methods
