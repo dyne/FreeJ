@@ -55,7 +55,7 @@ if test "$CONFIG_SCRIPTING_RUBY" = "yes"; then
 		RUBY_PATH="$PATH"
 	fi
 
-	AC_PATH_PROG(CONFIG_SCRIPTING_RUBY, ruby1.9, no, $RUBY_PATH)
+	AC_PATH_PROG(CONFIG_SCRIPTING_RUBY, ruby1.8, no, $RUBY_PATH)
 	if test "$CONFIG_SCRIPTING_RUBY" != "no"; then
 
 # 		AC_MSG_CHECKING(Ruby version)
