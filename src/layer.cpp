@@ -97,6 +97,10 @@ void Layer::_init(int wdt, int hgt) {
 	 get_name(), geo.w, geo.h);
 }
 
+Context * Layer::context(){
+	return env;
+}
+
 void Layer::run() {
 
   void *tmp_buf;
@@ -248,6 +252,36 @@ void Layer::slide_position(int x, int y, int speed) {
     iterators.append(iter);
   }
 
+}
+
+void Layer::fit(bool maintain_aspect_ratio){
+	if(env){
+		double width_zoom, height_zoom;
+		int new_x = 0;
+		int new_y = 0;
+		lock();
+		width_zoom = (double)env->screen->w / geo.w;
+		height_zoom = (double)env->screen->h / geo.h;
+		if (maintain_aspect_ratio){
+			//to maintain the aspect ratio we simply zoom to the smaller of the
+			//two zoom values
+			if(width_zoom > height_zoom) {
+				//if we're using the height zoom then there is going to be space
+				//in x [width] that is unfilled, so center it in the x
+				blitter.set_zoom(height_zoom, height_zoom);
+				new_x = ((double)(env->screen->w - height_zoom * geo.w) / 2.0);
+			} else {
+				//if we're using the width zoom then there is going to be space
+				//in y [height] that is unfilled, so center it in the y
+				blitter.set_zoom(width_zoom, width_zoom);
+				new_y = ((double)(env->screen->h - width_zoom * geo.h) / 2.0);
+			}
+		} else
+			blitter.set_zoom(width_zoom, height_zoom);
+		unlock();
+		//set_position locks, so we unlock before it
+		set_position(new_x, new_y);
+	}
 }
 
 void Layer::pulse_alpha(int step, int value) {

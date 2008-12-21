@@ -103,6 +103,8 @@ class Layer: public Entry, public JSyncThread {
   virtual bool init(Context *freej, int w, int h) { return this->init(freej); }; ///< overload with size
   virtual void close() =0; ///< close the layer (ready to open a new one)
 
+  Context * context();
+
   bool set_parameter(int idx); ///< activate the setting on parameter pointed by idx index number
 
   char *get_name() { return name; };
@@ -114,6 +116,8 @@ class Layer: public Entry, public JSyncThread {
 
   void slide_position(int x, int y, int speed);
   ///< Slide the Layer to a position on screen
+  
+  void fit(bool maintain_aspect_ratio = true);
 
   /**
      If the Layer is in another blit mode then it is switched
