@@ -19,11 +19,11 @@ main()
 	rb_cv_rshift_sign=yes,
 	rb_cv_rshift_sign=no,
 	rb_cv_rshift_sign=yes)])
-if test "$rb_cv_rshift_sign" = yes; then
-  AC_DEFINE(RSHIFT(x,y), ((x)>>(int)y), [whether right shift preserve sign bit, rb_cv_rshift_sign])
-else
-  AC_DEFINE(RSHIFT(x,y), (((x)<0) ? ~((~(x))>>y) : (x)>>y), [whether right shift preserve sign bit, rb_cv_rshift_sign])
-fi
+# if test "$rb_cv_rshift_sign" = yes; then
+#   AC_DEFINE(RSHIFT(x,y), ((x)>>(int)y), [whether right shift preserve sign bit, rb_cv_rshift_sign])
+# else
+#   AC_DEFINE(RSHIFT(x,y), (((x)<0) ? ~((~(x))>>y) : (x)>>y), [whether right shift preserve sign bit, rb_cv_rshift_sign])
+# fi
 
 
 AC_MSG_CHECKING([for Ruby])

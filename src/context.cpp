@@ -234,6 +234,10 @@ bool Context::init
 }
 
 
+void Context::start() {
+  while(!quit) cafudda(0.0);
+}
+
 /*
  * Main loop called fps_speed times a second
  */

@@ -92,7 +92,9 @@ class Context {
   bool init(int wx, int hx, VideoMode videomode, int audiomode); ///< initialise the engine and screen
 
   //  void close();
-  void cafudda(double secs);
+  void cafudda(double secs); ///< run the engine for seconds or one single frame pass
+
+  void start(); ///< start the engine and loop until quit is false
 
   bool register_controller(Controller *ctrl);
   bool rem_controller(Controller *ctrl);
