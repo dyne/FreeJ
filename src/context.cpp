@@ -39,7 +39,6 @@
 #include <jsparser.h>
 #include <video_encoder.h>
 #include <audio_collector.h>
-#include <impl_video_encoders.h>
 #include <signal.h>
 #include <errno.h>
 
@@ -47,6 +46,9 @@
 #include <fastmemcpy.h>
 
 #include <jsparser_data.h>
+
+#include <impl_layers.h>
+#include <impl_video_encoders.h>
 
 void fsigpipe (int Sig);
 int got_sigpipe;
@@ -71,6 +73,25 @@ Context::Context() {
   poll_events     = true;
 
   fps_speed       = 24;
+
+  layers_description =
+" .  - ImageLayer for image files (png, jpeg etc.)\n"
+" .  - GeometryLayer for scripted vectorial primitives\n"
+#ifdef WITH_V4L
+" .  - Video4Linux devices as of BTTV cards and webcams\n"
+" .    you can specify the size  /dev/video0%160x120\n"
+#endif
+#ifdef WITH_FFMPEG
+" .  - MovieLayer for movie files, urls and firewire devices\n"
+#endif
+#ifdef WITH_FT2
+" .  - TextLayer for text rendered with freetype2 library\n"
+#endif
+#ifdef WITH_FLASH
+" .  - FlashLayer for SWF flash v.3 animations\n"
+#endif
+"\n";
+
 
 
 }
@@ -235,7 +256,10 @@ bool Context::init
 
 
 void Context::start() {
-  while(!quit) cafudda(0.0);
+  while(!quit) {
+    cafudda(0.0);
+    SDL_framerateDelay(&FPS); // synced with desired fps here
+  }
 }
 
 /*
@@ -675,4 +699,208 @@ void fsigpipe (int Sig) {
   got_sigpipe = true;
 }
 
+
+//////// implemented layers
+
+
+
+Layer *Context::open(char *file) {
+  char *end_file_ptr,*file_ptr;
+  FILE *tmp;
+  Layer *nlayer = NULL;
+
+  /* check that file exists */
+  if(strncasecmp(file,"/dev/",5)!=0
+     && strncasecmp(file,"http://",7)!=0
+     && strncasecmp(file,"layer_",6)!=0) {
+    tmp = fopen(file,"r");
+    if(!tmp) {
+      error("can't open %s to create a Layer: %s",
+	    file,strerror(errno));
+      return NULL;
+    } else fclose(tmp);
+  }
+  /* check file type, add here new layer types */
+  end_file_ptr = file_ptr = file;
+  end_file_ptr += strlen(file);
+//  while(*end_file_ptr!='\0' && *end_file_ptr!='\n') end_file_ptr++; *end_file_ptr='\0';
+
+
+  /* ==== Unified caputure API (V4L & V4L2) */
+  if( strncasecmp ( file_ptr,"/dev/video",10)==0) {
+#ifdef WITH_UNICAP
+    unsigned int w=screen->w, h=screen->h;
+    while(end_file_ptr!=file_ptr) {
+      if(*end_file_ptr!='%') end_file_ptr--;
+      else { /* size is specified */
+        *end_file_ptr='\0'; end_file_ptr++;
+        sscanf(end_file_ptr,"%ux%u",&w,&h);
+        end_file_ptr = file_ptr; 
+      }
+    }
+    nlayer = new UnicapLayer();
+    if(! ((UnicapLayer*)nlayer)->init( this, (int)w, (int)h) ) {
+      error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+      delete nlayer; return NULL;
+    }
+    if(nlayer->open(file_ptr)) {
+      notice("video camera source opened");
+    //  ((V4lGrabber*)nlayer)->init_width = w;
+    //  ((V4lGrabber*)nlayer)->init_heigth = h;
+    } else {
+      error("create_layer : V4L open failed");
+      delete nlayer; nlayer = NULL;
+    }
+#else
+    error("Video4Linux layer support not compiled");
+    act("can't load %s",file_ptr);
+#endif
+
+  } else /* VIDEO LAYER */
+
+    if( ( ( IS_VIDEO_EXTENSION(end_file_ptr) ) | ( IS_FIREWIRE_DEVICE(file_ptr) ) ) ) {
+      func("is a movie layer");
+
+      // // MLT experiments
+      //       nlayer = new MovieLayer();
+      //       func("MovieLayer instantiated");
+      //       if(!nlayer->init(this)) {
+      //  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+      //  	delete nlayer; return NULL;
+      //       }
+      //       func("MovieLayer initialized");
+      //       if(!nlayer->open(file_ptr)) {
+      //  	error("create_layer : VIDEO open failed");
+      //  	delete nlayer; nlayer = NULL;
+      //       }
+
+
+#ifdef WITH_FFMPEG
+       nlayer = new VideoLayer();
+       if(!nlayer->init( this )) {
+ 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+ 	delete nlayer; return NULL;
+       }
+       if(!nlayer->open(file_ptr)) {
+ 	error("create_layer : VIDEO open failed");
+ 	delete nlayer; nlayer = NULL;
+       }
+// #elif WITH_AVIFILE
+//       if( strncasecmp(file_ptr,"/dev/ieee1394/",14)==0)
+// 	  nlayer=NULL;
+//       nlayer = new AviLayer();
+//       if(!nlayer->init( this )) {
+// 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+// 	delete nlayer; return NULL;
+//       }
+//       if(!nlayer->open(file_ptr)) {
+// 	error("create_layer : AVI open failed");
+// 	delete nlayer; nlayer = NULL;
+//       }
+ #else
+      error("VIDEO and AVI layer support not compiled");
+      act("can't load %s",file_ptr);
+#endif
+  } else /* IMAGE LAYER */
+      if( (IS_IMAGE_EXTENSION(end_file_ptr))) {
+//		strncasecmp((end_file_ptr-4),".png",4)==0) 
+	      nlayer = new ImageLayer();
+              if(!nlayer->init( this )) {
+                error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+                delete nlayer; return NULL;
+              }
+	      if(!nlayer->open(file_ptr)) {
+		  error("create_layer : IMG open failed");
+		  delete nlayer; nlayer = NULL;
+	      }
+  } else /* TXT LAYER */
+    if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
+#ifdef WITH_FT2
+	  nlayer = new TextLayer();
+
+      if(!nlayer->init( this )) {
+	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+	delete nlayer; return NULL;
+      }
+
+	  if(!nlayer->open(file_ptr)) {
+	    error("create_layer : TXT open failed");
+	    delete nlayer; nlayer = NULL;
+	  }
+#else
+	  error("TXT layer support not compiled");
+	  act("can't load %s",file_ptr);
+	  return(NULL);
+#endif
+
+  } else /* XHACKS LAYER */
+    if(strstr(file_ptr,"xscreensaver")) {
+#ifdef WITH_XHACKS
+	    nlayer = new XHacksLayer();
+
+      if(!nlayer->init( this )) {
+	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+	delete nlayer; return NULL;
+      }
+
+	    if (!nlayer->open(file_ptr)) {
+	      error("create_layer : XHACK open failed");
+	      delete nlayer; nlayer = NULL;
+	    }
+#else
+	    error("no xhacks layer support");
+	    act("can't load %s",file_ptr);
+	    return(NULL);
+#endif
+	  }  else if(strncasecmp(file_ptr,"layer_goom",10)==0) {
+
+#ifdef WITH_GOOM
+            nlayer = new GoomLayer();
+
+      if(!nlayer->init( this )) {
+	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+	delete nlayer; return NULL;
+      }
+#else
+      error("goom layer not supported");
+      return(NULL);
+#endif
+
+
+  } else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
+
+	    nlayer = new FlashLayer();
+      if(!nlayer->init( this )) {
+	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+	delete nlayer; return NULL;
+      }
+
+	    if(!nlayer->open(file_ptr)) {
+	      error("create_layer : SWF open failed");
+	      delete nlayer; nlayer = NULL;
+	    }
+
+  } else { /* FALLBACK TO SCROLL LAYER */
+
+    func("opening scroll layer on generic file type for %s",file_ptr);
+    nlayer = new ScrollLayer();
+    
+    if(!nlayer->init( this )) {
+      error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+      delete nlayer; return NULL;
+    }
+       
+       if(!nlayer->open(file_ptr)) {
+	 error("create_layer : SCROLL open failed");
+	 delete nlayer; nlayer = NULL;
+       }
+       
+  }
+
+  if(!nlayer)
+    error("can't create a layer with %s",file);
+  else
+    func("create_layer succesful, returns %p",nlayer);
+  return nlayer;
+}
 

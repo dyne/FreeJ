@@ -58,6 +58,8 @@ Layer *create_layer(Context *env, char *file) {
   FILE *tmp;
   Layer *nlayer = NULL;
 
+  warning("create_layer is deprecated! use Context::open instead");
+
   /* check that file exists */
   if(strncasecmp(file,"/dev/",5)!=0
      && strncasecmp(file,"http://",7)!=0
