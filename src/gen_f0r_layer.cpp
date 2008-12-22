@@ -74,6 +74,7 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
       color->g = val[1];
       color->b = val[2];
       (*f->f0r_set_param_value)(layer->generator->core, color, idx-1);
+      // QUAAA: should we delete the new allocated object? -jrml
     } break;
 
   case F0R_PARAM_POSITION:
@@ -81,6 +82,7 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
       position->x = val[0];
       position->y = val[1];
       (*f->f0r_set_param_value)(layer->generator->core, position, idx-1);
+      // QUAAA: should we delete the new allocated object? -jrml
     } break;
 
   default:

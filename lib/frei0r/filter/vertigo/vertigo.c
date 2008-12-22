@@ -88,7 +88,10 @@ f0r_instance_t f0r_construct(unsigned int width, unsigned int height)
   pixels = width*height;
 
   buffer = malloc(sizeof(uint32_t *)*pixels*2);
-  if(buffer == NULL) return 0;
+  if(buffer == NULL) {
+    free(inst);
+    return 0;
+  }
   memset(buffer,0,pixels * 2);
 
   inst->current_buffer = buffer;

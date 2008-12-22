@@ -244,6 +244,7 @@ static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx
       color->g = val[1];
       color->b = val[2];
       (*f->f0r_set_param_value)(filt->core, color, idx-1);
+      delete color;
       // QUAAA: should we delete the new allocated object? -jrml
     } break;
 

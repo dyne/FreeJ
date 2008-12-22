@@ -43,11 +43,11 @@ class WiiController: public Controller {
   bool connect(char *hwaddr);
 
   void accel(uint8_t nx, uint8_t ny, uint8_t nz);
-  void button(uint16_t buttons);
+  //  void button(uint16_t buttons);
 
   Context *freej;
 
-  int get_battery();
+  //  int get_battery();
 
   int print_state(); // debug
 
