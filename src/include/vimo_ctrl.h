@@ -48,8 +48,6 @@ class ViMoController: public Controller {
 		int poll();
 		virtual int dispatch();
 
-		bool activate(bool);
-
 	private:
 		char *filename;
 		int fd;

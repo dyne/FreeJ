@@ -62,15 +62,9 @@ JS(controller_activate) {
   *rval = BOOLEAN_TO_JSVAL(ctrl->active);
   if (argc == 1) {
 	  JS_ARG_NUMBER(var,0);
-	  ctrl->activate(var);
+	  ctrl->active = var;
   }
   return JS_TRUE;
-}
-
-bool Controller::activate(bool state) {
-	bool old = active;
-	active = state;
-	return old;
 }
 
 void Controller::poll_sdlevents(Uint32 eventmask) {
@@ -169,7 +163,7 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...) 
 			}
 		} else { // script error
 			error("%s.%s() call failed, deactivating ctrl", name, funcname);
-			activate(false);
+			active = false;
 		}
 		return 0; // requeue event for next controller
 	}

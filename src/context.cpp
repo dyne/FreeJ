@@ -473,7 +473,7 @@ bool Context::register_controller(Controller *ctrl) {
     ctrl->init(js->js_context, js->global_object);
 
 
-  ctrl->activate(true);
+  ctrl->active = true;
 
   controllers.append(ctrl);
   
@@ -494,7 +494,7 @@ bool Context::rem_controller(Controller *ctrl) {
     func("controller JSObj is null, deleting ctrl");
     delete ctrl;
   } else {
-	ctrl->activate(false);
+    ctrl->active = false;
     notice("removed controller %s, deactivated it but not deleting!", ctrl->name);
   }
   return true;

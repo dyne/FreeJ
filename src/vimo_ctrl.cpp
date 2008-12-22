@@ -316,19 +316,26 @@ int ViMoController::poll() {
 			return 0;
 		}
 		error("%s: %i %s", __PRETTY_FUNCTION__, errno, strerror(errno));
-		activate(false);
+		active = false;
 		return 0;
 	}
 	return 0;
 }
 
-bool ViMoController::activate(bool state) {
-	// also called on register_controller
-	// flush data
-	if (fd)
-		tcflush(fd, TCIOFLUSH);
-	return Controller::activate(state);
-}
+
+// activate is removed from controller
+// bool active is operated directly
+// this solves a problem with swig and virtual inheritance...
+// hopefully removing the flush data here won't hurt!
+// (jrml & shammash)
+
+// bool ViMoController::activate(bool state) {
+// 	// also called on register_controller
+// 	// flush data
+// 	if (fd)
+// 		tcflush(fd, TCIOFLUSH);
+// 	return Controller::activate(state);
+// }
 
 JS(js_vimo_open) {
 	ViMoController *vmc = (ViMoController *)JS_GetPrivate(cx, obj);

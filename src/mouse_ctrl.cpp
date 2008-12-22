@@ -77,7 +77,7 @@ MouseCtrl::MouseCtrl()
 }
 
 MouseCtrl::~MouseCtrl() {
-	activate(false); // ungrab ... ;)
+  active = false; // ungrab ... ;)
 }
 
 bool MouseCtrl::init(JSContext *env, JSObject *obj) {
@@ -89,15 +89,20 @@ bool MouseCtrl::init(JSContext *env, JSObject *obj) {
 	return(true);
 }
 
-bool MouseCtrl::activate(bool state) {
-	bool old = active;
-	active = state;
-	if (state == false) {
-		SDL_ShowCursor(1);
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
-	}
-	return old;
-}
+// activate is removed from controller
+// bool active is operated directly
+// this solves a problem with swig and virtual inheritance...
+// hopefully removing the flush data here won't hurt!
+
+// bool MouseCtrl::activate(bool state) {
+// 	bool old = active;
+// 	active = state;
+// 	if (state == false) {
+// 		SDL_ShowCursor(1);
+// 		SDL_WM_GrabInput(SDL_GRAB_OFF);
+// 	}
+// 	return old;
+// }
 
 int MouseCtrl::poll() {
 	poll_sdlevents(SDL_MOUSEEVENTMASK); // calls dispatch() foreach SDL_Event
@@ -141,7 +146,7 @@ int MouseCtrl::dispatch() {
 	}
 	if (!ret) {
 		error("MouseController call failed, deactivate ctrl");
-		activate(false);
+		active = false;
 	}
 	return res;
 }
