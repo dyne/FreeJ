@@ -83,6 +83,8 @@ class Context {
   void handle_resize();
   void handle_controllers();
 
+  pthread_t cafudda_thread;
+  bool running;
 
  public:
 
@@ -95,6 +97,7 @@ class Context {
   void cafudda(double secs); ///< run the engine for seconds or one single frame pass
 
   void start(); ///< start the engine and loop until quit is false
+  void start_threaded(); ///< start the engine in a thread, looping until quit is false
 
   bool register_controller(Controller *ctrl);
   bool rem_controller(Controller *ctrl);

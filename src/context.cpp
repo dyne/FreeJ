@@ -54,6 +54,20 @@ void fsigpipe (int Sig);
 int got_sigpipe;
 FPSmanager FPS;
 
+void * runContext(void * data){
+	Context * context = (Context *)data;
+	context->start();
+	/*
+	context->quit = false;
+	while(!context->quit) {
+		context->cafudda(0.0);
+		pthread_yield();
+		SDL_framerateDelay(&FPS); // synced with desired fps here
+	}
+	*/
+	pthread_exit(NULL);
+}
+
 Context::Context() {
 
   screen          = NULL;
@@ -103,6 +117,7 @@ Context::~Context() {
   Controller *ctrl;
   VideoEncoder *enc;
 
+  running = false;
 
 #ifdef WITH_FT2
   // free font path array
@@ -256,10 +271,18 @@ bool Context::init
 
 
 void Context::start() {
-  while(!quit) {
-    cafudda(0.0);
-    SDL_framerateDelay(&FPS); // synced with desired fps here
-  }
+	quit = false;
+	running = true;
+	while(!quit) {
+		cafudda(0.0);
+		SDL_framerateDelay(&FPS); // synced with desired fps here
+	}
+	running = false;
+}
+
+void Context::start_threaded(){
+	if(!running)
+		pthread_create(&cafudda_thread, 0, runContext, this);
 }
 
 /*
