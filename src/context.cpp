@@ -54,7 +54,7 @@ void fsigpipe (int Sig);
 int got_sigpipe;
 FPSmanager FPS;
 
-void * runContext(void * data){
+void * run_context(void * data){
 	Context * context = (Context *)data;
 	context->start();
 	/*
@@ -282,7 +282,7 @@ void Context::start() {
 
 void Context::start_threaded(){
 	if(!running)
-		pthread_create(&cafudda_thread, 0, runContext, this);
+		pthread_create(&cafudda_thread, 0, run_context, this);
 }
 
 /*
