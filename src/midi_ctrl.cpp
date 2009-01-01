@@ -110,12 +110,7 @@ int MidiController::connect_from(int myport, int dest_client, int dest_port) {
 
 int MidiController::dispatch() {
     snd_seq_event_t *ev;
-    JSBool ret = JS_FALSE;
-
-    if (jsenv == NULL) {
-        error("Midi handle action: jsobj is null");
-        return ret;
-    }
+    int ret = 0;
 
     while (snd_seq_event_input(seq_handle, &ev) >=0) {
         func ("midi action type/channel/param/value/time/src:port/dest:port %5d/%5d/%5d/%5d/%5d/%u:%u/%u:%u", 
@@ -128,66 +123,90 @@ int MidiController::dispatch() {
             ev->dest.client, ev->dest.port
         );
 
-        JSBool ret;
         switch (ev->type) {
             case SND_SEQ_EVENT_CONTROLLER: 
-            {
-                func("midi Control event on Channel\t%2d: %5d %5d (param/value)",
-                    ev->data.control.channel, ev->data.control.param, ev->data.control.value);
-                jsval js_data[] = { 
-                    ev->data.control.channel, ev->data.control.param, ev->data.control.value
-                };
-                JSCall("event_ctrl", 3, js_data, &ret);
-            }
+		ret = event_ctrl(ev->data.control.channel, ev->data.control.param, ev->data.control.value);
             break;
 
             case SND_SEQ_EVENT_PITCHBEND:
-            {
-                func("midi Pitchbender event on Channel\t%2d: %5d %5d   ", 
-                    ev->data.control.channel, ev->data.control.param, ev->data.control.value);
-                jsval js_data[] = {
-                    ev->data.control.channel, ev->data.control.param, ev->data.control.value
-                };
-                JSCall("event_pitch", 3, js_data, &ret);
-            }
+		ret = event_pitch(ev->data.control.channel, ev->data.control.param, ev->data.control.value);
             break;
 
             case SND_SEQ_EVENT_NOTEON:
-            {
-                func("midi Note On event on Channel\t%2d: %5d %5d      ",
-                    ev->data.control.channel, ev->data.note.note, ev->data.note.velocity);
-                jsval js_data[] = {
-                    ev->data.control.channel, ev->data.note.note, ev->data.note.velocity
-                };
-                JSCall("event_noteon", 3, js_data, &ret);
-            }
+		ret = event_noteon(ev->data.control.channel, ev->data.note.note, ev->data.note.velocity);
             break;
 
             case SND_SEQ_EVENT_NOTEOFF: 
-            {
-                func("midi Note Off event on Channel\t%2d: %5d      ",
-                    ev->data.control.channel, ev->data.note.note);
-                jsval js_data[] = {
-                    ev->data.control.channel, ev->data.note.note, ev->data.note.velocity
-                };
-                JSCall("event_noteoff", 3, js_data, &ret);
-            }
+		ret = event_noteoff(ev->data.control.channel, ev->data.note.note, ev->data.note.velocity);
             break;
             
             case SND_SEQ_EVENT_PGMCHANGE:
-            {
-                func("midi PGM change event on Channel\t%2d: %5d %5d ",
-                    ev->data.control.channel, ev->data.control.param, ev->data.control.value);
-                jsval js_data[] = {
-                    ev->data.control.channel, ev->data.control.param, ev->data.control.value
-                };
-                JSCall("event_pgmchange", 3, js_data, &ret);
-            }
+		ret = event_pgmchange(ev->data.control.channel, ev->data.control.param, ev->data.control.value);
             break;
         } // switch
         snd_seq_free_event(ev);
     } // while event
     return ret;
+}
+
+int MidiController::event_ctrl(int channel, int param, int value) {
+	func("midi Control event on Channel\t%2d: %5d %5d (param/value)", channel, param, value);
+	JSBool ret = JS_FALSE;
+	if (jsenv == NULL) {
+		error("Midi handle action: jsobj is null");
+		return ret;
+	}
+	jsval js_data[] = { channel, param, value };
+	JSCall("event_ctrl", 3, js_data, &ret);
+	return ret;
+}
+
+int MidiController::event_pitch(int channel, int param, int value) {
+	func("midi Pitchbender event on Channel\t%2d: %5d %5d   ",  channel, param, value);
+	JSBool ret = JS_FALSE;
+	if (jsenv == NULL) {
+		error("Midi handle action: jsobj is null");
+		return ret;
+	}
+	jsval js_data[] = { channel, param, value };
+	JSCall("event_pitch", 3, js_data, &ret);
+	return ret;
+}
+
+int MidiController::event_noteon(int channel, int note, int velocity) {
+	func("midi Note On event on Channel\t%2d: %5d %5d      ", channel, note, velocity);
+	JSBool ret = JS_FALSE;
+	if (jsenv == NULL) {
+		error("Midi handle action: jsobj is null");
+		return ret;
+	}
+	jsval js_data[] = { channel, note, velocity };
+	JSCall("event_noteon", 3, js_data, &ret);
+	return ret;
+}
+
+int MidiController::event_noteoff(int channel, int note, int velocity) {
+	func("midi Note Off event on Channel\t%2d: %5d      ", channel, note);
+	JSBool ret = JS_FALSE;
+	if (jsenv == NULL) {
+		error("Midi handle action: jsobj is null");
+		return ret;
+	}
+	jsval js_data[] = { channel, note, velocity };
+	JSCall("event_noteoff", 3, js_data, &ret);
+	return ret;
+}
+
+int MidiController::event_pgmchange(int channel, int param, int value) {
+	func("midi PGM change event on Channel\t%2d: %5d %5d ", channel, param, value);
+	JSBool ret = JS_FALSE;
+	if (jsenv == NULL) {
+		error("Midi handle action: jsobj is null");
+		return ret;
+	}
+	jsval js_data[] = { channel, param, value };
+	JSCall("event_pgmchange", 3, js_data, &ret);
+	return ret;
 }
 
 /*

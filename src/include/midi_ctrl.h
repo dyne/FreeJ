@@ -41,6 +41,11 @@ class MidiController: public Controller {
         bool init(JSContext*, JSObject*);
         int poll();
         virtual int dispatch();
+	int event_ctrl(int channel, int param, int value);
+	int event_pitch(int channel, int param, int value);
+	int event_noteon(int channel, int note, int velocity);
+	int event_noteoff(int channel, int note, int velocity);
+	int event_pgmchange(int channel, int param, int value);
         int connect_from(int myport, int dest_client, int dest_port);
 
 		//bool quit;
