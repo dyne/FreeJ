@@ -14,8 +14,7 @@ FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CF
 BUILT_SOURCES = freej_py.cpp
 
 freej_py.cpp: $(top_srcdir)/bindings/freej.i
-		swig -I$(top_srcdir)/src/include/ -python -threads -c++ -shadow -O \
-	     	-o freej_py.cpp $(top_srcdir)/bindings/freej.i
+		@SWIG_COMMAND@ -python -threads -shadow -o freej_py.cpp @SWIG_IFACE@
 
 pkgpython_PYTHON = freej.py
 pkgpyexec_LTLIBRARIES = _freej.la

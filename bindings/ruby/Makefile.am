@@ -14,8 +14,7 @@ FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CF
 BUILT_SOURCES = freej_ruby.cpp
 
 freej_ruby.cpp: $(top_srcdir)/bindings/freej.i
-	swig -I$(top_srcdir)/src/include/ -ruby -initname Freej -c++ -O \
-	     -o freej_ruby.cpp $(top_srcdir)/bindings/freej.i
+	@SWIG_COMMAND@ -ruby -initname Freej -o freej_ruby.cpp @SWIG_IFACE@
 
 pkgrubyexecdir = @RUBY_ARCHDIR@
 pkgrubyexec_LTLIBRARIES = Freej.la

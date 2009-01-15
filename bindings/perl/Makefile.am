@@ -13,8 +13,7 @@ BUILT_SOURCES = $(PERL_SOURCE)
 perl_archdir = @PERL_ARCHLIB@
 
 freej_perl.cpp: $(top_srcdir)/bindings/freej.i
-	swig -I$(top_srcdir)/src/include -perl -c++ -O \
-		-o $(PERL_SOURCE) $(top_srcdir)/bindings/freej.i
+	@SWIG_COMMAND@ -perl -o $(PERL_SOURCE) @SWIG_IFACE@
 
 pkgperl_PERL = freej.pm
 

@@ -143,6 +143,10 @@ SWIG_ENABLE_CXX
 if test -z "$SWIG"; then
    AC_MSG_RESULT(No language bindings will be created)
 else
+SWIG_COMMAND='swig -c++ -O -Wall -I$(top_srcdir) -I$(top_srcdir)/src/include'
+AC_SUBST(SWIG_COMMAND)
+SWIG_IFACE='$(top_srcdir)/bindings/freej.i'
+AC_SUBST(SWIG_IFACE)
 
 AC_ARG_ENABLE(python,
 	[  --enable-python           enable Python language bindings (no)],

@@ -9,9 +9,7 @@ FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CF
 BUILT_SOURCES = freej_java.cpp
 
 freej_java.cpp: $(top_srcdir)/bindings/freej.i
-	swig -I$(top_srcdir)/src/include/ -I$(top_srcdir)/bindings \
-	     -java -c++ -O \
-	     -o freej_java.cpp $(top_srcdir)/bindings/freej.i
+	@SWIG_COMMAND@ -java -o freej_java.cpp @SWIG_IFACE@
 
 pkgjavaexecdir = /usr/lib/jni
 pkgjavaexec_LTLIBRARIES = libfreej_g.la
