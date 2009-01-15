@@ -21,6 +21,9 @@
 
 %}
 
+//we need this for ifdefs in included headers
+%include <config.h>
+
 //ditch some of the defines we have that don't need to be exposed to the user
 %ignore THREADSAFE;
 %ignore MAX_ERR_MSG;
