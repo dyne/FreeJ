@@ -30,17 +30,14 @@ class KbdController: public Controller {
   ~KbdController();
 
   bool init(JSContext *env, JSObject *obj);
-  virtual int  dispatch();
   int  poll();
+  virtual int dispatch();
+  virtual int key_event(const char *state, bool shift, bool ctrl, bool alt, bool num, const char *keyname);
 
  private:  
   SDL_keysym *keysym;
-
-  int checksym(SDLKey, const char *name);
-
   char keyname[512];
   char funcname[512];
-  int JSCall(const char*);
 
 };
 

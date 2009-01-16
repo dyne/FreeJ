@@ -71,140 +71,119 @@ int KbdController::poll() {
 	return 1;
 }
 
-int KbdController::checksym(SDLKey key, const char *name) {
-  if(keysym->sym == key) {
-    strcat(keyname,name);
-    func("keyboard controller detected key: %s",keyname);
-    if(event.key.state == SDL_PRESSED)
-      snprintf(funcname, 511, "pressed_%s", keyname);
-    else // if(event.key.state == SDL_RELEASED)
-      snprintf(funcname, 511, "released_%s", keyname);
+int KbdController::key_event(const char *state, bool shift, bool ctrl, bool alt, bool num, const char *keyname) {
 
-    return JSCall(funcname);
-  }
-  return 0;
-}
+  JSBool res;
 
-
-int KbdController::dispatch() {
-  char tmp[8];
-  int res = 0;
-
-  if(event.key.state != SDL_PRESSED)
-    if(event.key.state != SDL_RELEASED)
-      return 0; // no key state change
-
-	keysym = &event.key.keysym;
-	Uint16 uni[] = {keysym->unicode, 0};
+  Uint16 uni[] = {keysym->unicode, 0};
   //#snprintf(uni, 2, "X %s X", (char*)&keysym->unicode);
   // universal call
-	res = Controller::JSCall("key", 7, "buusWuu",
-		event.key.state,
-		keysym->scancode,
-		keysym->sym,
-		SDL_GetKeyName(keysym->sym),
-		uni,
-		keysym->mod,
-		event.key.which
-	);
-	if (res)
-		return 1; // returned true, we are done!
-
+  if (JSCall("key", 7, "buusWuu",
+  		event.key.state,
+  		keysym->scancode,
+  		keysym->sym,
+  		SDL_GetKeyName(keysym->sym),
+  		uni,
+  		keysym->mod,
+  		event.key.which
+  		) )
+  	return 1; // returned true, we are done!
+  
   //Uint16 keysym->unicode
   //char * SDL_GetKeyName(keysym->sym);
   //func("KB u: %u / ks: %s", keysym->unicode, SDL_GetKeyName(keysym->sym));
+
+  // funcname = "state_[shift_][ctrl_][alt_][num_]keyname"
+  if(strlen(keyname)) {
+	  sprintf(funcname, "%s_%s%s%s%s%s",
+			  state,
+			  (shift? "shift_" : ""),
+			  (ctrl?  "ctrl_"  : ""),
+			  (alt?   "alt_"   : ""),
+			  (num?   "num_"   : ""),
+			  keyname);
+
+	  func("%s calling method %s()", __func__, funcname);
+	  return JSCall(funcname, 0, NULL, &res);
+  }
+
+  return 0;
+}
+
+int KbdController::dispatch() {
+  char tmp[8];
+  const char *state;
+  bool shift = false, ctrl = false, alt = false, num = false;
+
+  if(event.key.state != SDL_PRESSED)
+  	state = "pressed";
+  else if(event.key.state != SDL_RELEASED)
+  	state = "released";
+  else
+  	return 0; // no key state change
+
+  keysym = &event.key.keysym;
 
   memset(keyname, 0, sizeof(char)<<9);  // *512
   memset(funcname, 0, sizeof(char)<<9); // *512
 
   // check key modifiers
   if(keysym->mod & KMOD_SHIFT)
-    strcat(keyname,"shift_");
+    shift = true;
   if(keysym->mod & KMOD_CTRL)
-    strcat(keyname,"ctrl_");
+    ctrl = true;
   if(keysym->mod & KMOD_ALT)
-    strcat(keyname,"alt_");
+    alt = true;
   
   // check normal alphabet and letters
-  if( keysym->sym >= SDLK_0
-      && keysym->sym <= SDLK_9) {
-    tmp[0] = keysym->sym;
-    tmp[1] = 0x0;
-    strcat(keyname,tmp);
-    if(event.key.state == SDL_PRESSED)
-      sprintf(funcname,"pressed_%s",keyname);
-    else //if(event.key.state != SDL_RELEASED)
-      sprintf(funcname,"released_%s",keyname);
-    return JSCall(funcname);
+  if( (keysym->sym >= SDLK_0 && keysym->sym <= SDLK_9)
+		  || (keysym->sym >= SDLK_a && keysym->sym <= SDLK_z) ){
+	  tmp[0] = keysym->sym;
+	  tmp[1] = 0x0;
+	  sprintf(keyname,"%s", tmp);
   }
-  
-  if( keysym->sym >= SDLK_a
-      && keysym->sym <= SDLK_z) {
-    
-    tmp[0] = keysym->sym;
-    tmp[1] = 0x0;
-    strcat(keyname,tmp);
-    if(event.key.state == SDL_PRESSED)
-      sprintf(funcname,"pressed_%s",keyname);
-    else //if(event.key.state != SDL_RELEASED)
-      sprintf(funcname,"released_%s",keyname);
-    return JSCall(funcname);
-  }
-
-  // check arrows
-  res |= checksym(SDLK_UP,        "up");
-  res |= checksym(SDLK_DOWN,      "down");
-  res |= checksym(SDLK_RIGHT,     "right");
-  res |= checksym(SDLK_LEFT,      "left");
-  res |= checksym(SDLK_INSERT,    "insert");
-  res |= checksym(SDLK_HOME,      "home");
-  res |= checksym(SDLK_END,       "end");
-  res |= checksym(SDLK_PAGEUP,    "pageup");
-  res |= checksym(SDLK_PAGEDOWN,  "pagedown");
-
-
-  // check special keys
-  res |= checksym(SDLK_BACKSPACE, "backspace");
-  res |= checksym(SDLK_TAB,       "tab");
-  res |= checksym(SDLK_RETURN,    "return");
-  res |= checksym(SDLK_SPACE,     "space");
-  res |= checksym(SDLK_PLUS,      "plus");
-  res |= checksym(SDLK_MINUS,     "minus");
-  res |= checksym(SDLK_ESCAPE,    "esc");
-  res |= checksym(SDLK_LESS,      "less");
-  res |= checksym(SDLK_GREATER,   "greater");
-  res |= checksym(SDLK_EQUALS,    "equal");
-  
-
   // check numeric keypad
-  if(keysym->sym >= SDLK_KP0
-     && keysym->sym <= SDLK_KP9) {
-    tmp[0] = keysym->sym - SDLK_KP0 + 48;
-    tmp[1] = 0x0;
-    strcat(keyname,"num_");
-    strcat(keyname,tmp);
-    if(event.key.state == SDL_PRESSED)
-      sprintf(funcname,"pressed_%s",keyname);
-    else //if(event.key.state != SDL_RELEASED)
-      sprintf(funcname,"released_%s",keyname);
-    return JSCall(funcname);
+  else if(keysym->sym >= SDLK_KP0 && keysym->sym <= SDLK_KP9) {
+	  tmp[0] = keysym->sym - SDLK_KP0 + 48;
+	  tmp[1] = 0x0;
+	  num = true;
+	  sprintf(keyname, "%s", tmp);
+  } else {
+	  switch(keysym->sym) {
+		  // check arrows
+		  case SDLK_UP:        sprintf(keyname,        "up"); break;
+		  case SDLK_DOWN:      sprintf(keyname,      "down"); break;
+		  case SDLK_RIGHT:     sprintf(keyname,     "right"); break;
+		  case SDLK_LEFT:      sprintf(keyname,      "left"); break;
+		  case SDLK_INSERT:    sprintf(keyname,    "insert"); break;
+		  case SDLK_HOME:      sprintf(keyname,      "home"); break;
+		  case SDLK_END:       sprintf(keyname,       "end"); break;
+		  case SDLK_PAGEUP:    sprintf(keyname,    "pageup"); break;
+		  case SDLK_PAGEDOWN:  sprintf(keyname,  "pagedown"); break;
+		  // check special keys
+		  case SDLK_BACKSPACE: sprintf(keyname, "backspace"); break;
+		  case SDLK_TAB:       sprintf(keyname,       "tab"); break;
+		  case SDLK_RETURN:    sprintf(keyname,    "return"); break;
+		  case SDLK_SPACE:     sprintf(keyname,     "space"); break;
+		  case SDLK_PLUS:      sprintf(keyname,      "plus"); break;
+		  case SDLK_MINUS:     sprintf(keyname,     "minus"); break;
+		  case SDLK_ESCAPE:    sprintf(keyname,       "esc"); break;
+		  case SDLK_LESS:      sprintf(keyname,      "less"); break;
+		  case SDLK_GREATER:   sprintf(keyname,   "greater"); break;
+		  case SDLK_EQUALS:    sprintf(keyname,     "equal"); break;
+		  // check numeric keypad special keys
+		  case SDLK_KP_PERIOD:   num = true; sprintf(keyname,   "period"); break;
+		  case SDLK_KP_DIVIDE:   num = true; sprintf(keyname,   "divide"); break;
+		  case SDLK_KP_MULTIPLY: num = true; sprintf(keyname, "multiply"); break;
+		  case SDLK_KP_MINUS:    num = true; sprintf(keyname,    "minus"); break;
+		  case SDLK_KP_PLUS:     num = true; sprintf(keyname,     "plus"); break;
+		  case SDLK_KP_ENTER:    num = true; sprintf(keyname,    "enter"); break;
+		  case SDLK_KP_EQUALS:   num = true; sprintf(keyname,   "equals"); break;
+		  default: break;
+	  }
+
   }
-  res |= checksym(SDLK_KP_PERIOD,   "num_period");
-  res |= checksym(SDLK_KP_DIVIDE,   "num_divide");
-  res |= checksym(SDLK_KP_MULTIPLY, "num_multiply");
-  res |= checksym(SDLK_KP_MINUS,    "num_minus");
-  res |= checksym(SDLK_KP_PLUS,     "num_plus");
-  res |= checksym(SDLK_KP_ENTER,    "num_enter");
-  res |= checksym(SDLK_KP_EQUALS,   "num_equals");
-
-  return res;
-}
-
-int KbdController::JSCall(const char *funcname) {
-  func("%s calling method %s()", __func__, funcname);
-  JSBool res;
-  return Controller::JSCall(funcname, 0, NULL, &res);
-  //return Controller::JSCall(funcname, 0, NULL);
+  return key_event(state, shift, ctrl, alt, num, keyname);
 }
 
 JS(js_kbd_ctrl_constructor) {
