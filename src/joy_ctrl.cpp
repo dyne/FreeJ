@@ -114,39 +114,51 @@ int JoyController::poll() {
 	return 0;
 }
 
+int JoyController::axismotion(int device, int axis, int value) {
+	return JSCall("axismotion", 3, "uui", device, axis, value);
+}
+
+int JoyController::ballmotion(int device, int ball, int xrel, int yrel) {
+	return JSCall("ballmotion", 4, "uuii", device, ball, xrel, yrel);
+}
+
+int JoyController::hatmotion(int device, int hat, int value) {
+	return JSCall("hatmotion", 3, "uui",  device, hat, value);
+}
+
+int JoyController::button_down(int device, int button) {
+	return JSCall("button", 3, "uuc", device, button, 1);
+}
+
+int JoyController::button_up(int device, int button) {
+	return JSCall("button", 3, "uuc", device, button, 0);
+}
+
 int JoyController::dispatch() {
 
 	switch(event.type) {
 		
 	case SDL_JOYAXISMOTION:
-		return JSCall("axismotion", 3, "uui", 
-			event.jaxis.which, event.jaxis.axis, event.jaxis.value
-		);
+		return axismotion(event.jaxis.which, event.jaxis.axis,
+				  event.jaxis.value);
 		break;
 
 	case SDL_JOYBALLMOTION:
-		return JSCall("ballmotion", 4, "uuii", 
-			event.jball.which, event.jball.ball, 
-			event.jball.xrel, event.jball.yrel
-		);
+		return ballmotion(event.jball.which, event.jball.ball,
+				  event.jball.xrel, event.jball.yrel);
 		break;
 
 	case SDL_JOYHATMOTION:
-		return JSCall("hatmotion", 3, "uui", 
-			event.jhat.which, event.jhat.hat, event.jhat.value
-		);
+		return hatmotion(event.jhat.which, event.jhat.hat,
+				 event.jhat.value);
 		break;
 		
 	case SDL_JOYBUTTONDOWN:
-		return JSCall("button", 3, "uuc", 
-			event.jbutton.which, event.jbutton.button, 1
-		);
+		return button_down(event.jbutton.which, event.jbutton.button);
 		break;
 		
 	case SDL_JOYBUTTONUP:
-		return JSCall("button", 3, "uuc", 
-			event.jbutton.which, event.jbutton.button, 0
-		);
+		return button_up(event.jbutton.which, event.jbutton.button);
 		break;
 
 	default: 

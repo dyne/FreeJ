@@ -34,6 +34,12 @@ class JoyController : public Controller {
   int  poll();
   virtual int dispatch();
   
+  virtual int axismotion(int device, int axis, int value);
+  virtual int ballmotion(int device, int ball, int xrel, int yrel);
+  virtual int hatmotion(int device, int hat, int value);
+  virtual int button_down(int device, int button);
+  virtual int button_up(int device, int button);
+
  private:
   SDL_Joystick *joy[4];
   int num;
