@@ -115,23 +115,23 @@ int JoyController::poll() {
 }
 
 int JoyController::axismotion(int device, int axis, int value) {
-	return JSCall("axismotion", 3, "uui", device, axis, value);
+	return JSCall("axismotion", 3, "iii", device, axis, value);
 }
 
 int JoyController::ballmotion(int device, int ball, int xrel, int yrel) {
-	return JSCall("ballmotion", 4, "uuii", device, ball, xrel, yrel);
+	return JSCall("ballmotion", 4, "iiii", device, ball, xrel, yrel);
 }
 
 int JoyController::hatmotion(int device, int hat, int value) {
-	return JSCall("hatmotion", 3, "uui",  device, hat, value);
+	return JSCall("hatmotion", 3, "iii",  device, hat, value);
 }
 
 int JoyController::button_down(int device, int button) {
-	return JSCall("button", 3, "uuc", device, button, 1);
+	return JSCall("button", 3, "iic", device, button, 1);
 }
 
 int JoyController::button_up(int device, int button) {
-	return JSCall("button", 3, "uuc", device, button, 0);
+	return JSCall("button", 3, "iic", device, button, 0);
 }
 
 int JoyController::dispatch() {
