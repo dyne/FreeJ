@@ -61,13 +61,16 @@ JSFunctionSpec js_mouse_ctrl_methods[] = {
 JS(js_mouse_grab) {
 	JS_CHECK_ARGC(1);
 	JS_ARG_NUMBER(state,0);
-	if (state) {
-		SDL_ShowCursor(0);
-		SDL_WM_GrabInput(SDL_GRAB_ON);
-	} else {
-		SDL_ShowCursor(1);
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
+
+	MouseController *mouse = (MouseController *) JS_GetPrivate(cx,obj);
+	if(!mouse) {
+		error("%u:%s:%s :: Mouse core data is NULL",
+		__LINE__,__FILE__,__FUNCTION__);
+		return JS_FALSE;
 	}
+
+	mouse->grab(state);
+
 	return JS_TRUE;
 }
 
@@ -144,6 +147,16 @@ int MouseController::dispatch() {
 	} else { // MOUSE_BUTTON
 		SDL_MouseButtonEvent mb = event.button;
 		return button(mb.button, mb.state, mb.x, mb.y);
+	}
+}
+
+void MouseController::grab(bool state) {
+	if (state) {
+		SDL_ShowCursor(0);
+		SDL_WM_GrabInput(SDL_GRAB_ON);
+	} else {
+		SDL_ShowCursor(1);
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
 	}
 }
 

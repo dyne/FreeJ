@@ -37,6 +37,8 @@ class MouseController : public Controller {
   virtual int motion(int state, int x, int y, int xrel, int yrel);
   virtual int button(int button, int state, int x, int y);
   
+  void grab(bool state);
+
 };
 
 #endif
