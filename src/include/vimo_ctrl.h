@@ -47,6 +47,9 @@ class ViMoController: public Controller {
 
 		int poll();
 		virtual int dispatch();
+		virtual void button(unsigned int button, bool state, unsigned int mask, unsigned int old_mask);
+		virtual void inner_wheel(int direction, unsigned int history);
+		virtual void outer_wheel(int speed, int old_speed);
 
 	private:
 		char *filename;

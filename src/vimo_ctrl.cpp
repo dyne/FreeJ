@@ -216,6 +216,17 @@ void ViMoController::close() {
 	fd = 0;
 }
 
+void ViMoController::button(unsigned int button, bool state, unsigned int mask, unsigned int old_mask) {
+	JSCall("button", 4, "ubuu", button, state, mask, old_mask);
+}
+
+void ViMoController::inner_wheel(int direction, unsigned int history) {
+	JSCall("wheel_i", 2, "iu", direction, history);
+}
+
+void ViMoController::outer_wheel(int speed, int old_speed) {
+	JSCall("wheel_o", 2, "ii", speed, old_speed);
+}
 
 int ViMoController::dispatch() {
 	//char *data = vmd->data;
@@ -228,7 +239,7 @@ int ViMoController::dispatch() {
 	if (key_diff) {
 		for (unsigned char k = 1 << 7 ; k != 0; k = k >> 1) {
 			if (k & key_diff) {
-				JSCall("button", 4, "ubuu", k, (k&vmd->bits.k), vmd->bits.k, vmd_old->bits.k);
+				button(k, (k&vmd->bits.k), vmd->bits.k, vmd_old->bits.k);
 			}
 		}
 	}
@@ -248,7 +259,7 @@ int ViMoController::dispatch() {
 //func("wi: %02x mv: %s (%i) %08x", wi_diff, (wi_dir > 0 ? "right" : "left"), wi_dir, wi_hist);
 		if (vmd->bits.i==3) { // wheel is on a lock position
 			wi_dir = (wi_dir > 0 ? 1 : -1);
-			JSCall("wheel_i", 2, "iu", wi_dir, wi_hist);
+			inner_wheel(wi_dir, wi_hist);
 		}
 	}
 
@@ -259,7 +270,7 @@ int ViMoController::dispatch() {
 		int s = o_wheel_speed[vmd->bits.o];
 		int so = o_wheel_speed[vmd_old->bits.o];
 		func("wo: %02x -> speed: %i old: %i", wo_diff, s, so);
-		JSCall("wheel_o", 2, "ii", s, so);
+		outer_wheel(s, so);
 	}
 
 	vmd_old->w = vmd->w;
