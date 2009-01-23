@@ -71,16 +71,16 @@ JS(js_mouse_grab) {
 	return JS_TRUE;
 }
 
-MouseCtrl::MouseCtrl()
+MouseController::MouseController()
 	:Controller() {
 	set_name("Mouse");
 }
 
-MouseCtrl::~MouseCtrl() {
+MouseController::~MouseController() {
   active = false; // ungrab ... ;)
 }
 
-bool MouseCtrl::init(JSContext *env, JSObject *obj) {
+bool MouseController::init(JSContext *env, JSObject *obj) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 	jsenv = env;
 	jsobj = obj;
@@ -94,7 +94,7 @@ bool MouseCtrl::init(JSContext *env, JSObject *obj) {
 // this solves a problem with swig and virtual inheritance...
 // hopefully removing the flush data here won't hurt!
 
-// bool MouseCtrl::activate(bool state) {
+// bool MouseController::activate(bool state) {
 // 	bool old = active;
 // 	active = state;
 // 	if (state == false) {
@@ -104,7 +104,7 @@ bool MouseCtrl::init(JSContext *env, JSObject *obj) {
 // 	return old;
 // }
 
-int MouseCtrl::poll() {
+int MouseController::poll() {
 	poll_sdlevents(SDL_MOUSEEVENTMASK); // calls dispatch() foreach SDL_Event
 	return 0;
 }
@@ -125,19 +125,19 @@ typedef struct{
 } SDL_MouseButtonEvent;
 */
 
-int MouseCtrl::motion(int state, int x, int y, int xrel, int yrel) {
+int MouseController::motion(int state, int x, int y, int xrel, int yrel) {
 	JSBool ret= JS_TRUE;
 	jsval js_data[] = {state, x, y, xrel, yrel};
 	return JSCall("motion", 5, js_data, &ret);
 }
 
-int MouseCtrl::button(int button, int state, int x, int y) {
+int MouseController::button(int button, int state, int x, int y) {
 	JSBool ret= JS_TRUE;
 	jsval js_data[] = {button, state, x, y};
 	return JSCall("button", 4, js_data, &ret);
 }
 
-int MouseCtrl::dispatch() {
+int MouseController::dispatch() {
 	if (event.type == SDL_MOUSEMOTION) {
 		SDL_MouseMotionEvent mm = event.motion;
 		return motion(mm.state, mm.x, mm.y, mm.xrel, mm.yrel);
@@ -150,7 +150,7 @@ int MouseCtrl::dispatch() {
 JS(js_mouse_ctrl_constructor) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-	MouseCtrl *mouse = new MouseCtrl();
+	MouseController *mouse = new MouseController();
 
 	// initialize with javascript context
 	if(! mouse->init(cx, obj) ) {

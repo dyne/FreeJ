@@ -24,11 +24,11 @@
 
 #include <SDL.h>
 
-class MouseCtrl : public Controller {
+class MouseController : public Controller {
   
  public:
-  MouseCtrl();
-  ~MouseCtrl();
+  MouseController();
+  ~MouseController();
   
   bool init(JSContext *env, JSObject *obj);
   int  poll();
