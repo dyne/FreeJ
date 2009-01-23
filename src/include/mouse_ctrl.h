@@ -33,6 +33,9 @@ class MouseCtrl : public Controller {
   bool init(JSContext *env, JSObject *obj);
   int  poll();
   virtual int dispatch();
+
+  virtual int motion(int state, int x, int y, int xrel, int yrel);
+  virtual int button(int button, int state, int x, int y);
   
 };
 

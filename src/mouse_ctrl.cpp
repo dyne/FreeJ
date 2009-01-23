@@ -125,30 +125,26 @@ typedef struct{
 } SDL_MouseButtonEvent;
 */
 
-int MouseCtrl::dispatch() {
-	JSBool ret= JS_TRUE; // call ok?
-	int res = 0;		// requeue
+int MouseCtrl::motion(int state, int x, int y, int xrel, int yrel) {
+	JSBool ret= JS_TRUE;
+	jsval js_data[] = {state, x, y, xrel, yrel};
+	return JSCall("motion", 5, js_data, &ret);
+}
 
+int MouseCtrl::button(int button, int state, int x, int y) {
+	JSBool ret= JS_TRUE;
+	jsval js_data[] = {button, state, x, y};
+	return JSCall("button", 4, js_data, &ret);
+}
+
+int MouseCtrl::dispatch() {
 	if (event.type == SDL_MOUSEMOTION) {
 		SDL_MouseMotionEvent mm = event.motion;
-		// MouseController.motion(buttonstate, x, y, xrel, yrel)
-		jsval js_data[] = {
-			mm.state, mm.x, mm.y, mm.xrel, mm.yrel
-		};
-		res = JSCall("motion", 5, js_data, &ret);
+		return motion(mm.state, mm.x, mm.y, mm.xrel, mm.yrel);
 	} else { // MOUSE_BUTTON
 		SDL_MouseButtonEvent mb = event.button;
-		// MouseController.button(button, state, x, y)
-		jsval js_data[] = {
-			mb.button, mb.state, mb.x, mb.y
-		};
-		res = JSCall("button", 4, js_data, &ret);
+		return button(mb.button, mb.state, mb.x, mb.y);
 	}
-	if (!ret) {
-		error("MouseController call failed, deactivate ctrl");
-		active = false;
-	}
-	return res;
 }
 
 JS(js_mouse_ctrl_constructor) {
