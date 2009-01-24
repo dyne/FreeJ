@@ -27,6 +27,7 @@
 
 #include <string.h>
 
+#include <screen.h>
 #include <context.h>
 #include <jutils.h>
 
@@ -388,7 +389,22 @@ void *VideoLayer::feed() {
 	  if(fifo_position == FIFO_SIZE)
 	    fifo_position=0;
 
-	  jmemcpy(frame_fifo.picture[fifo_position]->data[0],rgba_picture->data[0],rgba_picture->linesize[0] * enc->height);
+	  /* workaround since sws_scale conversion from YUV
+	     returns an buffer RGBA with alpha set to 0x0  */
+	  {
+	    register int bufsize = ( rgba_picture->linesize[0] * enc->height ) /4;
+	    int32_t *pbuf =  (int32_t*)rgba_picture->data[0];
+	    
+	    for(; bufsize>0; bufsize--) {
+	      *pbuf = (*pbuf | alpha_bitmask);
+	      pbuf++;
+	    }
+	  } 
+
+	  jmemcpy(frame_fifo.picture[fifo_position]->data[0],
+		  rgba_picture->data[0],
+		  rgba_picture->linesize[0] * enc->height);
+
 	  //			    avpicture_get_size(PIX_FMT_RGBA32, enc->width, enc->height));
 	  fifo_position++;
 	}

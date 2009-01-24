@@ -148,6 +148,7 @@ bool GlScreen::glblit(Layer *layer) {
   return(true);
 }
 
+/*
 bool GlScreen::glblitX(Layer *layer) {
   
   glBindTexture( GL_TEXTURE_2D, layer->textureID );
@@ -186,6 +187,7 @@ bool GlScreen::glblitX(Layer *layer) {
   return(true);
 
 }
+*/
 
 void GlScreen::show() {
   // nop
