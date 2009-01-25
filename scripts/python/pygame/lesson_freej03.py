@@ -22,7 +22,7 @@ for gen in range(1,freejc.generators.len()+1):
 layer = freej.GenF0rLayer()
 layer.init(freejc)
 layer.open("partik0l")
-layer.start()
+#layer.start()
 freejc.add_layer(layer)
 time.sleep(0.1)
 
@@ -95,9 +95,11 @@ def draw():
     glBindTexture(GL_TEXTURE_2D, textures[1])
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
-    glTranslatef(0.0,0.0,-1.0) # XXX if this is not used, doesnt draw :P
-    glPixelZoom(-1.0,-1.0)
+    #glTranslatef(0.0,0.0,-1.0) # XXX if this is not used, doesnt draw :P
+    glPixelZoom(1.0,1.0)
     glViewport(layer.geo.w/2,layer.geo.h/2,layer.geo.w,layer.geo.h)
+    #glPixelTransferf(GL_ALPHA_BIAS,1.0)
+    #glPixelTransferf(GL_ALPHA_BIAS,1.0)
     freejc.cafudda(0.0)
     glColor3f (1.0, 1.0, 1.0)
     glPixelZoom(1.0,1.0)
