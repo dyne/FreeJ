@@ -95,6 +95,7 @@ freej_entry_typemap_in(Encoder);
 
 %include "filter.h"
 %template(FilterLinkList) Linklist<Filter>;
+%template(FilterInstanceLinkList) Linklist<FilterInstance>;
 
 %include "blitter.h"
 %include "plugger.h"
