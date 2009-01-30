@@ -496,7 +496,7 @@ static int open_layer(char *cmd) {
 #include <text_layer.h>
 static int print_text_layer(char *cmd) {
 
-  ((TextLayer*)env->layers.selected())->print(cmd);
+  ((TextLayer*)env->layers.selected())->print_text(cmd);
   return env->layers.len();
 
 }
@@ -510,7 +510,7 @@ static int open_text_layer(char *cmd) {
   }
 
   
-  txt->print(cmd);
+  txt->print_text(cmd);
   //  txt->start();
   txt->set_fps(0);
   env->add_layer(txt);

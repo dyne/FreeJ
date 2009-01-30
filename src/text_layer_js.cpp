@@ -66,9 +66,9 @@ JS(txt_layer_color) {
     
   } else {
     
-    lay->fgcolor.r = JSVAL_TO_INT(argv[0]);
-    lay->fgcolor.g = JSVAL_TO_INT(argv[1]);
-    lay->fgcolor.b = JSVAL_TO_INT(argv[2]);
+    lay->set_fgcolor(JSVAL_TO_INT(argv[0]),
+                     JSVAL_TO_INT(argv[1]),
+                     JSVAL_TO_INT(argv[2]));
     
     //    lay->color = 0x0|(r<<8)|(g<<16)|(b<<24);
   }
@@ -86,7 +86,7 @@ JS(txt_layer_print) {
   char *str;
   JS_ARG_STRING(str, 0);
 
-  lay->print(str);
+  lay->print_text(str);
 
   return JS_TRUE;
 }
@@ -99,7 +99,7 @@ JS(txt_layer_size) {
 
   JS_ARG_NUMBER(size,0);
 
-  lay->size = (int)size;
+  lay->set_fontsize((int)size);
 
   return JS_TRUE;
 }
@@ -110,16 +110,14 @@ JS(txt_layer_font) {
 
   GET_LAYER(TextLayer);
 
-  char *font;
+  const char *font;
   JS_ARG_STRING(font,0);
 
   // try full path to .ttf file
-  lay->font = TTF_OpenFont(font, lay->size);
-  if (!lay->font) {
-    error("Couldn't load font %s: %s\n", font, SDL_GetError());
-    *rval = JSVAL_FALSE;
-  } else
+  if (lay->set_font(font))
     *rval = JSVAL_TRUE;
+  else
+    *rval = JSVAL_FALSE;
 
   return JS_TRUE;
 }

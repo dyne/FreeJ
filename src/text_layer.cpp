@@ -41,6 +41,7 @@ TextLayer::TextLayer()
   // set defaults
 
   font = NULL;
+  fontfile = NULL;
   sel_font = 0;
 
   size = 30;
@@ -113,31 +114,7 @@ void TextLayer::close() {
   // free sdl font surface
   if(surf) SDL_FreeSurface(surf);
   if(surf_new) SDL_FreeSurface(surf_new);
-}
-
-void TextLayer::set_size(int nsize) {
-  TTF_Font *tmp;
-
-  tmp = TTF_OpenFont(env->font_files[sel_font], nsize);
-
-  if(!tmp) {
-
-    error("Couldn't load %d pt font from %s: %s\n",
-	  size, env->font_files[sel_font], SDL_GetError());
-
-  } else {
-
-    lock();
-
-    size = nsize;
-    if(font) TTF_CloseFont(font);
-    font = tmp;
-    TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-
-    unlock();
-
-  }
-
+  if(fontfile) free(fontfile);
 }
 
 void TextLayer::calculate_string_size(char *text, int *w, int *h) {
@@ -146,7 +123,51 @@ void TextLayer::calculate_string_size(char *text, int *w, int *h) {
 
 bool TextLayer::keypress(int key) { return false; };
 
-void TextLayer::print(const char *str) {
+void TextLayer::set_fgcolor(int r, int g, int b) {
+  fgcolor.r = r;
+  fgcolor.g = g;
+  fgcolor.b = b;
+}
+
+void TextLayer::set_bgcolor(int r, int g, int b) {
+  bgcolor.r = r;
+  bgcolor.g = g;
+  bgcolor.b = b;
+}
+
+bool TextLayer::set_font(const char *path, int sz) {
+  TTF_Font *tmpfont = TTF_OpenFont(path, sz);
+  if(!tmpfont) {
+    error("Couldn't load font file %s with size %d: %s\n", path, sz, SDL_GetError());
+    return false;
+  }
+  if(fontfile) free(fontfile);
+  fontfile = strdup(path);
+  if(font) TTF_CloseFont(font);
+  font = tmpfont;
+  // TODO(shammash): the user should be able to set a style
+  TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+  // here can be also: TTF_STYLE_BOLD _ITALIC _UNDERLINE
+  size = sz;
+  return true;
+}
+
+bool TextLayer::set_font(const char *path) {
+  return set_font(path, size);
+}
+
+bool TextLayer::set_fontsize(int sz) {
+  if(!fontfile) {
+    error("You must specify a font before setting its size");
+    return false;
+  }
+  char *tmpff = strdup(fontfile); // dup two times, but code should be clearer
+  bool rv = set_font(tmpff, sz);
+  free(tmpff);
+  return rv;
+}
+
+void TextLayer::print_text(const char *str) {
   SDL_Surface *tmp;
   
   // choose first font and initialize ready for printing
@@ -161,14 +182,8 @@ void TextLayer::print(const char *str) {
     func("no font selected on layer %s, using default %s",
 	    this->name, env->font_files[sel_font]);
 
-    font = TTF_OpenFont(env->font_files[sel_font], size);
-    if (!font) {
-      error("Couldn't load %d pt font from %s: %s\n",
-	    size, env->font_files[sel_font], SDL_GetError());
+    if(!set_font(env->font_files[sel_font], size))
       return;
-    }
-    TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
-    // here can be also: TTF_STYLE_BOLD _ITALIC _UNDERLINE
   }
 
   // surf = TTF_RenderText_Blended(font, str, fgcolor);

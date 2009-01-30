@@ -49,20 +49,27 @@ class TextLayer: public Layer {
 
  
   void calculate_string_size(char *text, int *w, int *h);
-  ///< calculates the width and height of a string if it would be printed with current settings
+  // calculates the width and height of a string if it would be printed with
+  // current settings
 
-  void print(const char *str);
+  void print_text(const char *str);
+  void set_fgcolor(int r, int g, int b);
+  void set_bgcolor(int r, int g, int b);
+  bool set_font(const char *path, int sz);
+  bool set_font(const char *path);
+  bool set_fontsize(int sz);
 
   bool keypress(int key);
 
+  ScreenGeometry geo_new;
+
+ private:
   SDL_Color bgcolor;
   SDL_Color fgcolor;
   int size;
 
   TTF_Font *font;
-  ScreenGeometry geo_new;
-
- private:
+  char *fontfile;
   SDL_Surface *surf;
   SDL_Surface *surf_new;
 
