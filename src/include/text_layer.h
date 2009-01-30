@@ -22,6 +22,9 @@
 #ifndef __TEXT_LAYER_H__
 #define __TEXT_LAYER_H__
 
+#include <config.h>
+#ifdef WITH_FT2
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <layer.h>
@@ -67,4 +70,5 @@ class TextLayer: public Layer {
 
 };
 
+#endif
 #endif
