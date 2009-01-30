@@ -119,6 +119,9 @@ class Layer: public Entry, public JSyncThread {
   
   void fit(bool maintain_aspect_ratio = true);
 
+  float get_fps();
+  float set_fps(float);
+
   /**
      If the Layer is in another blit mode then it is switched
      to alpha with zero opacity and pulsed (fade in->out)

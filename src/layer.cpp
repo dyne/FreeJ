@@ -284,6 +284,18 @@ void Layer::fit(bool maintain_aspect_ratio){
 	}
 }
 
+/* wrap JSyncThread::get_fps() so we don't need to export it in SWIG */
+float Layer::get_fps() {
+	return JSyncThread::get_fps();
+}
+
+/* wrap JSyncThread::set_fps() so we don't need to export it in SWIG */
+float Layer::set_fps(float fps_new) {
+	float fps_old = JSyncThread::set_fps(fps_new);
+	JSyncThread::signal_feed();
+	return fps_old;
+}
+
 void Layer::pulse_alpha(int step, int value) {
   if(!fade) {
     blitter.set_blit("0alpha"); /* by placing a '0' in front of the
