@@ -64,9 +64,9 @@ function render_word(wrd) {
 
     lay = new TextLayer();
 
-    lay.size( 50 ); // set the size
-
     lay.print( wrd ); // print the string in the layer
+
+    lay.size( 50 ); // set the size
 
 
     lay.set_fps(25);
