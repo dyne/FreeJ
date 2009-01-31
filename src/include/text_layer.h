@@ -45,9 +45,6 @@ class TextLayer: public Layer {
   void *feed();
   void close();
 
-  void set_size(int nsize);
-
- 
   void calculate_string_size(char *text, int *w, int *h);
   // calculates the width and height of a string if it would be printed with
   // current settings
