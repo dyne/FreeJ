@@ -35,6 +35,7 @@ SOURCES = \
 	frei0r.cpp	\
 	freeframe.cpp   \
 	filter.cpp	\
+	parameter.cpp   \
 	jutils.cpp	\
 	fastmemcpy.cpp  \
 	ringbuffer.cpp  \

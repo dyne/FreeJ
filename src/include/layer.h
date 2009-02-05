@@ -149,6 +149,8 @@ class Layer: public Entry, public JSyncThread {
   bool use_audio; ///< layer makes use of audio input
   bool opened; /// set by the layer (ex: image file has been opened)
   int bgcolor; ///< matte background color
+  int null_feeds; ///< counter of how many sequencial feed() returned null
+  int max_null_feeds; ///< maximum null feeds tolerated
 
   Blitter blitter; ///< blitter class
 

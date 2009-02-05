@@ -56,6 +56,10 @@ Layer::Layer()
   jsclass = &layer_class;
   slide_x = 0;
   slide_y = 0;
+
+  null_feeds = 0;
+  max_null_feeds = 10;
+
   parameters = NULL;
   running = false;
 }
@@ -111,17 +115,27 @@ void Layer::run() {
   func("ok, layer %s in rolling loop",get_name());
 	
   while(!quit) {
-    
-
-  
 		
     tmp_buf = feed();
 
     lock();
 
-    if(!tmp_buf) 
+    if(!tmp_buf) {
+
       func("feed returns NULL on layer %s",get_name());
-    else { // process filter on tmp_buf
+      // check threshold of tolerated null feeds
+      // deactivate the layer when too many
+      null_feeds++;
+      if(null_feeds > max_null_feeds) {
+	warning("layer %s feed seems empty, deactivating", get_name());
+	active = false;
+	break;
+      }
+
+    } else { // process filter on tmp_buf
+
+      null_feeds = 0;
+
       if( filters.len() ) {
 	FilterInstance *filt;
 	filters.lock();
@@ -146,7 +160,8 @@ void Layer::run() {
     //wait_feed();
     sleep_feed();
   }
-		
+    
+  running = false;
   func("%s this=%p thread end: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
 }
 

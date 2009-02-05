@@ -326,6 +326,10 @@ void *VideoLayer::feed() {
 #endif
 
 	      if(!pkt.duration) continue;
+	      
+	      if(!pkt.size || !pkt.data) {
+		return NULL;
+	      }
 
 	    /**
 	     * check eof and loop
