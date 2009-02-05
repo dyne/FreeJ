@@ -16,6 +16,10 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
+/*
+  THIS CODE IS NOT USED ANYMORE (5 feb 2009) -jrml
+*/
+
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>

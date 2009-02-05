@@ -28,7 +28,6 @@ SOURCES = \
 	iterator.cpp	\
 	linklist.cpp	\
 	jsync.cpp	\
-	osd.cpp		\
 	console.cpp	\
 	cpu_accel.cpp	\
 	plugin.cpp	\

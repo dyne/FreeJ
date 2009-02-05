@@ -1458,11 +1458,12 @@ void Console::parser_default(int key) {
   case '?':
     print_help();
     break;
-    
+    /*    
   case '!':
     env->osd.active = !env->osd.active;
     break;
-    
+    */
+
   case '@':
     env->clear_all = !env->clear_all;
     break;

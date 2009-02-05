@@ -103,7 +103,7 @@ void JsParser::init() {
 
    ///////////////////////////////
    // setup the freej context
-   env->osd.active = false;
+   //   env->osd.active = false;
 
    return;
 }

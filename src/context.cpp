@@ -318,7 +318,7 @@ void Context::cafudda(double secs) {
   ///////////////////////////////
   // clear screen if needed
   if (clear_all) screen->clear();
-  else if (osd.active) osd.clean();
+  //  else if (osd.active) osd.clean();
   ///////////////////////////////
   
   
@@ -379,8 +379,8 @@ void Context::cafudda(double secs) {
   
   /////////////////////////////
   /// print on screen display 
-  if (osd.active && interactive) 
-    osd.print ();
+  //  if (osd.active && interactive) 
+  //    osd.print ();
   /////////////////////////////
   
   
@@ -425,7 +425,7 @@ void Context::handle_resize() {
     screen->resize (resize_w, resize_h);
     resizing = false;
   }
-  osd.resize ();
+  //  osd.resize ();
   screen->unlock();
   
   /* crop all layers to new screen size */
@@ -654,10 +654,10 @@ void Context::rocknroll() {
   
   // Show credits when no layers are present and interactive
   if (!l) // there are no layers
-    if ( interactive ) { // engine running in interactive mode
-      osd.credits ( true);
-      return;
-    }
+//     if ( interactive ) { // engine running in interactive mode
+//       osd.credits ( true);
+//       return;
+//     }
   
   // Iterate throught linked list of layers and start them
 

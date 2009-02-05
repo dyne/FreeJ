@@ -29,7 +29,7 @@
 
 #include <context.h>
 
-#include <osd.h>
+// #include <osd.h>
 #include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>

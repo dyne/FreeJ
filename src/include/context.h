@@ -38,7 +38,7 @@
 
 #include <linklist.h>
 #include <layer.h>
-#include <osd.h>
+// #include <osd.h>
 #include <controller.h>
 #include <plugger.h>
 #include <screen.h>
@@ -136,7 +136,7 @@ class Context {
 
   ViewPort *screen; ///< Video Screen
 
-  Osd osd; ///< On Screen Display
+  //  Osd osd; ///< On Screen Display
 
   SDL_Event event;
   bool poll_events;
