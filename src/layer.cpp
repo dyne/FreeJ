@@ -112,11 +112,12 @@ void Layer::run() {
 	
   while(!quit) {
     
-    lock();
+
   
 		
     tmp_buf = feed();
 
+    lock();
 
     if(!tmp_buf) 
       func("feed returns NULL on layer %s",get_name());

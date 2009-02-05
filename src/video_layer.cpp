@@ -310,17 +310,22 @@ void *VideoLayer::feed() {
 	   * Read one packet from the media and put it in pkt
 	   */
 	  while(1) {
+#ifdef DEBUG
+	    func("av_read_frame ...");
+#endif
 	    ret = av_read_frame(avformat_context, &pkt);
-	    /*
-	      func ("pkt.data= %d\t",pkt.data);
+
+#ifdef DEBUG
+	      func ("pkt.data= %p\t",pkt.data);
 	      func ("pkt.size= %d\t",pkt.size);
-	      func ("pkt.pts= %d\t",pkt.pts);
-	      func ("pkt.dts= %d\t",pkt.dts);
+	      func ("pkt.pts/dts= %d/%d\t",pkt.pts, pkt.dts);
 	      func ("pkt.duration= %d\n",pkt.duration);
 	      func ("avformat_context->start_time= %d\n",avformat_context->start_time);
 	      func ("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
 	      func ("avformat_context->duration= %d\n",avformat_context->duration);
-	    */
+#endif
+
+	      if(!pkt.duration) continue;
 
 	    /**
 	     * check eof and loop
@@ -343,6 +348,9 @@ void *VideoLayer::feed() {
 	/**
 	 * Decode video
 	 */
+#ifdef DEBUG
+	func("decode_packet ...");
+#endif
 	len1 = decode_packet(&got_picture);
 
 
@@ -384,7 +392,7 @@ void *VideoLayer::feed() {
 		      enc->width,
 		      enc->height);
 #endif
-	  //		    memcpy(frame_fifo.picture[fifo_position % FIFO_SIZE]->data[0],rgba_picture->data[0],geo.size);
+	  // memcpy(frame_fifo.picture[fifo_position % FIFO_SIZE]->data[0],rgba_picture->data[0],geo.size);
 	  /* TODO move */
 	  if(fifo_position == FIFO_SIZE)
 	    fifo_position=0;

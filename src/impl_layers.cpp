@@ -63,6 +63,7 @@ Layer *create_layer(Context *env, char *file) {
   /* check that file exists */
   if(strncasecmp(file,"/dev/",5)!=0
      && strncasecmp(file,"http://",7)!=0
+     && strncasecmp(file,"ftp://",6)!=0
      && strncasecmp(file,"layer_",6)!=0) {
     tmp = fopen(file,"r");
     if(!tmp) {
