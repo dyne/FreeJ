@@ -20,7 +20,13 @@
 #define __JSYNC_H__
 
 #include <pthread.h>
+#include <errno.h>
 #include <sys/time.h>
+#include <queue>
+
+#include <closure.h>
+
+using std::queue;
 
 class JSyncThread {
  private:
@@ -34,6 +40,10 @@ class JSyncThread {
   /* mutex and conditional for the feed */
   pthread_mutex_t _mutex_feed;
   pthread_cond_t _cond_feed;
+
+  /* job queue used by class methods called from another thread */
+  queue<Closure *> _job_queue;
+  pthread_mutex_t _job_queue_mutex;
 
   void _run();
 
@@ -83,6 +93,8 @@ class JSyncThread {
   void unlock_feed() { pthread_mutex_unlock(&_mutex_feed); };
   int join() { return pthread_join(_thread,NULL); }
   
+  void add_job(Closure *job);
+  void do_jobs();
 };
 
 #endif
