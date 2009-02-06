@@ -156,6 +156,8 @@ void Layer::run() {
 
     unlock();
 
+    do_jobs();
+
     running = true;
 
     //wait_feed();
