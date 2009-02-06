@@ -26,6 +26,7 @@
 #include <layer.h>
 #include <filter.h>
 #include <iterator.h>
+#include <closure.h>
 
 #include <context.h>
 #include <jutils.h>
@@ -270,7 +271,7 @@ void Layer::slide_position(int x, int y, int speed) {
 
 }
 
-void Layer::fit(bool maintain_aspect_ratio){
+void Layer::_fit(bool maintain_aspect_ratio){
 	if(env){
 		double width_zoom, height_zoom;
 		int new_x = 0;
@@ -298,6 +299,11 @@ void Layer::fit(bool maintain_aspect_ratio){
 		//set_position locks, so we unlock before it
 		set_position(new_x, new_y);
 	}
+}
+
+void Layer::fit(bool maintain_aspect_ratio) {
+	Closure *job = NewClosure(this, &Layer::_fit, maintain_aspect_ratio);
+	add_job(job);
 }
 
 /* wrap JSyncThread::get_fps() so we don't need to export it in SWIG */

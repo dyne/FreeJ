@@ -187,6 +187,7 @@ class Layer: public Entry, public JSyncThread {
  private:
 
 
+  void _fit(bool maintain_aspect_ratio);
 
   char alphastr[5];
 
