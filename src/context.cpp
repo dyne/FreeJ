@@ -598,7 +598,11 @@ bool Context::config_check(const char *filename) {
     return(true);
   }
 
+#ifdef HAVE_DARWIN
+  snprintf(tmp, 512, "%s/%s", "CHANGEME", filename);
+#else
   snprintf(tmp, 512, "%s/%s", DATADIR, filename);
+#endif
   if( filecheck(tmp) ) {
     js->open(tmp);
     return(true);

@@ -81,7 +81,12 @@ Plugger::~Plugger() {
 
 }
 
-int selector(const struct dirent *dir) {
+#ifdef HAVE_DARWIN
+int selector(struct dirent *dir)
+#else
+int selector(const struct dirent *dir)
+#endif
+{
   if(strstr(dir->d_name,".so")) return(1);
   else if(strstr(dir->d_name,".frf")) return(1);
   return(0);

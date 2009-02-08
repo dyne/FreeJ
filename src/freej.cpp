@@ -219,7 +219,12 @@ void cmdline(int argc, char **argv) {
 /* ===================================== */
 
 // scandir selection for .js or .freej
-int script_selector(const struct dirent *dir) {
+#ifdef HAVE_DARWIN
+int script_selector(struct dirent *dir)
+#else
+int script_selector(const struct dirent *dir) 
+#endif
+{
   if(strstr(dir->d_name,".freej")) return(1);
   if(strstr(dir->d_name,".js"))    return(1);
   return(0);
@@ -252,8 +257,11 @@ int scripts(char *path) {
 }
 //[js]
 
+#ifdef HAVE_DARWIN
+int freej_main (int argc, char **argv) {
+#else
 int main (int argc, char **argv) {
-
+#endif
   Layer *lay = NULL;
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);

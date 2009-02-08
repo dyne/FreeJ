@@ -19,6 +19,8 @@
  *
  */
 
+#ifdef WITH_FLASH
+
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 #include <config.h>
@@ -56,3 +58,5 @@ JS(flash_layer_open) {
 
   return JS_TRUE;
 }
+
+#endif

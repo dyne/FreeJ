@@ -224,20 +224,35 @@ void *TextLayer::feed() {
 		return surf->pixels;
 }
 
-int dirent_dir_selector(const struct dirent *dir) {
+#ifdef HAVE_DARWIN
+int dirent_dir_selector(struct dirent *dir)
+#else
+int dirent_dir_selector(const struct dirent *dir)
+#endif
+{
 	if ((dir->d_type == DT_DIR) &&
 	    (strcmp(dir->d_name,".") || strcmp(dir->d_name,"..")))
 		return 1;
 	return 0;
 }
-static int ttf_dir_selector(const struct dirent *dir) {
+
+#ifdef HAVE_DARWIN
+static int ttf_dir_selector(struct dirent *dir) 
+#else
+static int ttf_dir_selector(const struct dirent *dir) 
+#endif
+{
   if(strstr(dir->d_name,".ttf")) return(1);
   if(strstr(dir->d_name,".TTF")) return(1);
   return(0);
 }
 int Context::scanfonts(const char *path, int depth) {
   /* add to the list of available fonts */
+#ifdef HAVE_DARWIN
   struct dirent **filelist;
+#else
+  const struct dirent **filelist;
+#endif
   char temp[1024];
   int found, c;
   int num_before = num_fonts;

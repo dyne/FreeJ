@@ -305,8 +305,12 @@ JS(stream_stop) {
   return JS_TRUE;
 }
 */
-
-static int dir_selector(const struct dirent *dir) {
+#ifdef HAVE_DARWIN
+static int dir_selector(struct dirent *dir) 
+#else
+static int dir_selector(const struct dirent *dir) 
+#endif
+{
   if(dir->d_name[0]=='.') return(0); // remove hidden files
   return(1);
 }
@@ -315,8 +319,11 @@ JS(freej_scandir) {
   JSObject *arr;
   JSString *str;
   jsval val;
-    
+#ifdef HAVE_DARWIN
   struct dirent **filelist;
+#else
+  const struct dirent **filelist;
+#endif
   int found;
   int c = 0;
   char *dir;

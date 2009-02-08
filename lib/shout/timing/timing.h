@@ -8,6 +8,8 @@
 #ifndef __TIMING_H__
 #define __TIMING_H__
 
+#include <config.h>
+
 #include <sys/types.h>
 #ifdef HAVE_STDINT_H
 #include <stdint.h>

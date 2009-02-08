@@ -219,7 +219,9 @@ Layer *create_layer(Context *env, char *file) {
 #endif
 
 
-  } else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
+  }
+#ifdef WITH_FLASH
+  else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
 
 	    nlayer = new FlashLayer();
       if(!nlayer->init( env )) {
@@ -232,7 +234,9 @@ Layer *create_layer(Context *env, char *file) {
 	      delete nlayer; nlayer = NULL;
 	    }
 
-  } else { /* FALLBACK TO SCROLL LAYER */
+  }
+#endif
+  else { /* FALLBACK TO SCROLL LAYER */
 
     func("opening scroll layer on generic file type for %s",file_ptr);
     nlayer = new ScrollLayer();

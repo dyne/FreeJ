@@ -169,8 +169,8 @@ void warning(const char *format, ...) {
 }
 
 void *jalloc(size_t size) {
-#ifndef HAVE_DARWIN
   void *buf;
+#ifndef HAVE_DARWIN
   int res;
   res = posix_memalign(&buf, 32, size);
   if(res!=0) {

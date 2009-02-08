@@ -529,7 +529,12 @@ static int open_text_layer(char *cmd) {
 }
 #endif
 
-static int filebrowse_completion_selector(const struct dirent *dir) {
+#ifdef HAVE_DARWIN
+static int filebrowse_completion_selector(struct dirent *dir) 
+#else
+static int filebrowse_completion_selector(const struct dirent *dir) 
+#endif
+{
   if(dir->d_name[0]=='.')
     if(dir->d_name[1]!='.')
       return(0); // skip hidden files
@@ -540,7 +545,11 @@ static int filebrowse_completion(char *cmd) {
   Entry *e;
 
   struct stat filestatus;
+#ifdef HAVE_DARWIN
   struct dirent **filelist;
+#else
+  const struct dirent **filelist;
+#endif
   char path[MAX_CMDLINE];
   char needle[MAX_CMDLINE];
   bool incomplete = false;
