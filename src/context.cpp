@@ -236,9 +236,11 @@ bool Context::init
   if(!num_fonts) {
     error("no truetype fonts found on your system");
     error("you should install .ttf fonts in one of the directories above.");
-  } else
+  } else {
     notice("Found %i fonts installed",num_fonts);
-
+    for(int c=0;c<num_fonts;c++)
+      func("%u - %s",c,font_files[c]);
+  }
 #endif
 
   

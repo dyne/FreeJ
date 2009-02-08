@@ -45,7 +45,6 @@ SOURCES = \
 	unicap_layer.cpp \
 	video_layer.cpp	\
 	image_layer.cpp \
-	avi_layer.cpp	\
 	text_layer.cpp \
 	gen_f0r_layer.cpp \
 	geo_layer.cpp	\
