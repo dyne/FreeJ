@@ -141,9 +141,16 @@ int Plugger::refresh(Context *env) {
 	      func("found frei0r generator: %s (%p)", filt->name, fr);
 	      continue;
 
-	    } else {
-	      func("frei0r plugin of type %i not supported (yet)",
+	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_MIXER2) {
+	      func("frei0r plugin of type MIXER2 not supported (yet)",
 		   fr->info.plugin_type);
+	      delete fr;
+	      continue;
+	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_MIXER3) {
+	      func("frei0r plugin of type MIXER3 not supported (yet)",
+		   fr->info.plugin_type);
+	      delete fr;
+	      continue;
 	    }
 	  }
 	}

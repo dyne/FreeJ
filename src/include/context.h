@@ -36,10 +36,10 @@
 // it is here because of  SDL_PollEvent done in Context
 #include <SDL/SDL.h>
 
-#include <linklist.h>
+//#include <linklist.h>
 #include <layer.h>
 // #include <osd.h>
-#include <controller.h>
+//#include <controller.h>
 #include <plugger.h>
 #include <screen.h>
 #include <shouter.h>
@@ -47,12 +47,16 @@
 
 #include <config.h>
 
+class Controller;
+
 class Console;
 class JsParser;
 class AudioCollector;
 class VideoEncoder;
 
 class FreejDaemon;
+
+template <class T> class Linklist;
 
 /* maximum height & width supported by context */
 #define MAX_HEIGHT 1024

@@ -1,11 +1,16 @@
 %module(directors="1") freej
 
 %{
+
 #include "context.h"
+#include "linklist.h"
 #include "console.h"
 #include "screen.h"
 
 #include "layer.h"
+#include "blitter.h"
+#include "controller.h"
+
 #include "gen_f0r_layer.h"
 #include "text_layer.h"
 #include "video_layer.h"

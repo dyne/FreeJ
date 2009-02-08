@@ -26,8 +26,9 @@
 #include <string.h>
 
 #include <jutils.h>
-#include <linklist.h>
 #include <filter.h>
+
+template <class T> class Linklist;
 
 class Context;
 

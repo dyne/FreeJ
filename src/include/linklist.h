@@ -22,8 +22,8 @@
 
 #include <string.h>
 
-void warning(const char *format, ...);
-void func(const char *format, ...);
+/* void warning(const char *format, ...); */
+/* void func(const char *format, ...); */
 
 // uncomment to have mutex locked operations
 // can be slow on OSX and adds dependency to pthreads
@@ -311,11 +311,11 @@ template <class T> Entry *Linklist<T>::_pick(int pos) {
 */
 template <class T> T *Linklist<T>::pick(int pos) {
   if(pos<1) {
-	  warning("linklist access at element 0 while first element is 1");
+    //	  warning("linklist access at element 0 while first element is 1");
 	  return(NULL);
   }
   if(length<pos) {
-	  warning("linklist access out of boundary");
+    //	  warning("linklist access out of boundary");
 	  return(NULL);
   }
   // shortcuts
@@ -378,7 +378,7 @@ template <class T> T **Linklist<T>::completion(char *needle) {
     }
   }
 
-  func("completion found %i hits",found);
+  //  func("completion found %i hits",found);
   return compbuf;
 }
 
@@ -416,7 +416,7 @@ template <class T> void Linklist<T>::sel(int pos) {
   
   if(!first) return;
   if(pos>length) {
-    warning("selection out of range on linklist [%p]",this);
+    //    warning("selection out of range on linklist [%p]",this);
     return;
   }
 

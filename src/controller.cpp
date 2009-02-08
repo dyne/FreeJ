@@ -20,6 +20,7 @@
  */
 
 #include <controller.h>
+#include <linklist.h>
 #include <jsparser_data.h>
 #include <callbacks_js.h>
 
@@ -36,10 +37,6 @@ Controller::~Controller() {
 	//	if (jsobj)
 	  //		JS_SetPrivate(jsenv, jsobj, NULL);
 	//	jsobj = NULL;
-}
-
-char *Controller::get_name() {
-  return name;
 }
 
 // other functions are pure virtual

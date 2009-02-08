@@ -28,12 +28,13 @@
 #define __LAYER_H__
 
 #include <inttypes.h>
-#include <blitter.h>
+#include <freej.h>
 #include <filter.h>
 #include <screen.h>
 #include <jsync.h>
 
 class Context;
+class Blitter;
 class AudioCollector;
 class Iterator;
 
@@ -152,7 +153,7 @@ class Layer: public Entry, public JSyncThread {
   int null_feeds; ///< counter of how many sequencial feed() returned null
   int max_null_feeds; ///< maximum null feeds tolerated
 
-  Blitter blitter; ///< blitter class
+  Blitter *blitter; ///< blitter class
 
   AudioCollector *audio; ///< registered audio collector
 

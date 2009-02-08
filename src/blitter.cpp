@@ -658,7 +658,10 @@ void Blitter::blit() {
 
 }
 
-
+// char *Blitter::get_name() {
+//   return name;
+// }
+		       
 
 bool Blitter::set_blit(const char *name) {
   Blit *b;
@@ -695,7 +698,7 @@ bool Blitter::set_blit(const char *name) {
 
 
   func("blit %s selected for layer %s",
-       b->get_name(),(layer)?layer->get_name():" ");
+       b->name,(layer)?layer->name:" ");
   return true;
 }
 
@@ -716,7 +719,7 @@ bool Blitter::pulse_value(float step, float val) {
   layer->iterators.append(iter);
   
   func("layer %s blit %s pulse to %.2f by step %.2f",
-      layer->get_name(),current_blit->get_name(),val,step);
+      layer->name,current_blit->name,val,step);
 
   return true;
 }
@@ -748,7 +751,7 @@ bool Blitter::fade_value(float step, float val) {
   layer->iterators.append(iter);
 
   act("layer %s blit %s fade to %.2f by step %.2f",
-      layer->get_name(),current_blit->get_name(),val,step);
+      layer->name,current_blit->name,val,step);
   return true;
 }
 
@@ -948,7 +951,7 @@ void Blitter::crop(bool force) {
   b = current_blit;
 
   func("crop on x%i y%i w%i h%i for blit %s",
-       geo->x, geo->y, geo->w, geo->h, b->get_name());
+       geo->x, geo->y, geo->w, geo->h, b->name);
   
 
   if(!screen) // return;

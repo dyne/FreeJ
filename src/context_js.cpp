@@ -25,6 +25,7 @@
 #include <jsparser_data.h>
 #include <jsparser.h>
 #include <video_encoder.h>
+#include <controller.h>
 
 // global environment class
 JSClass global_class = {

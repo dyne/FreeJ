@@ -20,7 +20,6 @@
 #define __filter_h__
 
 
-#include <linklist.h>
 #include <parameter.h>
 
 
@@ -28,6 +27,7 @@ class Layer;
 class Freior;
 class Freeframe;
 class FilterInstance;
+template <class T> class Linklist;
 
 class Filter : public Entry {
   friend class FilterInstance;

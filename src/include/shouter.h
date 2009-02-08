@@ -24,11 +24,13 @@
 
 #include <shout/shout.h>
 
-#include <linklist.h>
+
 #include <jutils.h>
 
 #include <string.h>
 #include <jsync.h>
+
+template <class T> class Linklist;
 
 #define ERRORMSG 128
 #define RETRY_DELAY 60 /* time to retry connect on broken icecasts, in seconds */

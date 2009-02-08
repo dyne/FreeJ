@@ -23,9 +23,10 @@
 #define __SCREEN_H__
 
 #include <inttypes.h>
-#include <linklist.h>
 #include <config.h>
 #include <SDL.h>
+
+template <class T> class Linklist;
 
 ///////////////////////
 // GLOBAL COLOR MASKING

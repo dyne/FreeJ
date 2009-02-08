@@ -23,6 +23,8 @@
 
 #include <SDL_image.h>
 #include <context.h>
+#include <blitter.h>
+
 #include <jutils.h>
 #include <image_layer.h>
 #include <config.h>
@@ -112,7 +114,7 @@ bool ImageLayer::init(Context *freej) {
   opened = false; // by default we have nothing opened
 
   // but we must init the blitter
-  blitter.init(this);
+  blitter->init(this);
   
   env = freej;
 

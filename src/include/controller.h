@@ -24,16 +24,16 @@
 #define __CONTROLLER_H__
 
 #include <config.h>
-#include <linklist.h>
-//#include <callbacks_js.h> // javascript
 #include <SDL/SDL.h>
-//#include <jstypes.h>
 #include <cstdarg> // va_list
 #include <jsapi.h> // spidermonkey header
+
+#include <linklist.h>
 
 class Context;
 class JSContext;
 class JSObject;
+
 
 class Controller: public Entry {
   friend class Context;
@@ -41,8 +41,6 @@ class Controller: public Entry {
  public:
   Controller();
   virtual ~Controller();
-
-  char *get_name();
 
   // store the javascript environment!
   virtual bool init(JSContext *env, JSObject *obj) =0;

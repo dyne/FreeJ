@@ -24,8 +24,9 @@
 
 #include <SDL.h>
 #include <freej.h>
-#include <linklist.h>
+
 #include <screen.h>
+
 
 typedef void (blit_f)(void *src, void *dst, int len, void *value);
 
@@ -36,6 +37,9 @@ typedef void (blit_sdl_f)(void *src, SDL_Rect *src_rect,
 typedef void (blit_past_f)(void *src, void *past, void *dst, int len);
 
 class Layer;
+
+class Entry;
+template <class T> class Linklist;
 
 
 class Blit: public Entry {
@@ -67,9 +71,7 @@ class Blit: public Entry {
 
   bool has_value;
 
-  char *get_name() { return name; };
-
-
+  //  char *get_name();
 
  private:
   // parameters for linear crop
