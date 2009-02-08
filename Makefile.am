@@ -11,4 +11,7 @@ dist_pkgdata_DATA = \
 
 #pkgdatadir = ${prefix}/share/freej
 
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = freej.pc
+
 SUBDIRS = lib src bindings scripts

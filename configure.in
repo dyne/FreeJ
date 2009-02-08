@@ -663,6 +663,7 @@ AC_SUBST(PACKAGE_DATA_DIR)
 
 AC_OUTPUT([
 Makefile
+freej.pc
 src/Makefile
 src/include/Makefile
 lib/Makefile

@@ -24,6 +24,7 @@ doc/scripting/html
 *~
 Makefile.in
 Makefile
+freej.pc
 .deps
 .obj
 .libs
