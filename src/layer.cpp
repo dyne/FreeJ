@@ -68,13 +68,15 @@ Layer::Layer()
 Layer::~Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
   FilterInstance *f = (FilterInstance*)filters.begin();
-  func("%s",__PRETTY_FUNCTION__);
   while(f) {
-    f->rem();
+    //    f->rem(); rem is contained in delete for Entry
     delete f;
     f = (FilterInstance*)filters.begin();
   }
-  if(bgmatte) jfree(bgmatte);
+  if(bgmatte) { 
+    jfree(bgmatte);
+    bgmatte = NULL;
+  }
 }
 
 void Layer::_init(int wdt, int hgt) {

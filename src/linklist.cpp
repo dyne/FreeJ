@@ -45,7 +45,9 @@ Entry::Entry() {
 
 Entry::~Entry() {
   rem();
-  if(data) free(data);
+  // freeing data in entry provokes crashes in ~Layer
+  // esp. when freeing Filter instances
+  //  if(data) free(data);
   free(name);
 }
 

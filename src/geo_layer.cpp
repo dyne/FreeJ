@@ -36,6 +36,7 @@ GeoLayer::GeoLayer()
 
 GeoLayer::~GeoLayer() {
   if(surf) SDL_FreeSurface(surf);
+  surf = NULL;
 }
 
 bool GeoLayer::init(Context *freej) {
