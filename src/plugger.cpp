@@ -81,7 +81,7 @@ Plugger::~Plugger() {
 
 }
 
-int selector(struct dirent *dir) {
+int selector(const struct dirent *dir) {
   if(strstr(dir->d_name,".so")) return(1);
   else if(strstr(dir->d_name,".frf")) return(1);
   return(0);

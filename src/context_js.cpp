@@ -305,7 +305,7 @@ JS(stream_stop) {
 }
 */
 
-static int dir_selector(struct dirent *dir) {
+static int dir_selector(const struct dirent *dir) {
   if(dir->d_name[0]=='.') return(0); // remove hidden files
   return(1);
 }
