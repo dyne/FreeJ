@@ -207,7 +207,7 @@ bool ViMoController::open(char* newname) {
 		return 0;
 	if (filename)
 		free(filename);
-	filename = strndup(newname, MAX_ERR_MSG);
+	filename = strdup(newname);
 	return open();
 }
 
