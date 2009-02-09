@@ -146,7 +146,12 @@ static int param_selection(char *cmd) {
   // find the values after the first blank space
   char *p;
   for(p = cmd; *p != '\0'; p++)
-    if(*p == ' ') { *p = '\0'; p++; break; }
+    if(*p == '=') {
+      *p = '\0';
+      if(*(p-1)==' ')
+	*(p-1) = '\0';
+      p++; break;
+    }
   
   while(*p == ' ') p++; // jump all spaces
   if(*p=='\0') return 0; // no value was given
@@ -220,7 +225,7 @@ static int param_completion(char *cmd) {
   if(!params[1]) { // exact match, then fill in command
     p = (Parameter*)params[0];
     //    ::notice("%s :: %s",p->name,p->description);
-    snprintf(cmd,MAX_CMDLINE,"%s",p->name);
+    snprintf(cmd,MAX_CMDLINE,"%s = ",p->name);
     //    return 1;
   } else {
     

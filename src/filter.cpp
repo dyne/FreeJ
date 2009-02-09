@@ -347,7 +347,7 @@ bool FilterInstance::set_parameter(int idx) {
   param = (Parameter*)proto->parameters[idx];
 
   if( ! param) {
-    error("parameter %s not found in filter %s", param->name, proto->name );
+    error("parameter [%u]%s not found in filter %s", idx, param->name, proto->name );
     return false;
   } else 
     func("parameter %s found in filter %s at position %u",
