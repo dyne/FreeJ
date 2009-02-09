@@ -251,7 +251,7 @@ int Context::scanfonts(const char *path, int depth) {
 #ifdef HAVE_DARWIN
   struct dirent **filelist;
 #else
-  const struct dirent **filelist;
+  struct dirent **filelist;
 #endif
   char temp[1024];
   int found, c;

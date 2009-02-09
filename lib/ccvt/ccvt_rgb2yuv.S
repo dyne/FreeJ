@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.   
 
 */
-#include <config.h>
+#include "../../config.h"
 #if defined HAVE_MMX && !defined HAVE_64BIT
 
 /* The ccvt_* functions always start with width and height, so these

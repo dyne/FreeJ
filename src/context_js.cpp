@@ -322,7 +322,7 @@ JS(freej_scandir) {
 #ifdef HAVE_DARWIN
   struct dirent **filelist;
 #else
-  const struct dirent **filelist;
+  struct dirent **filelist;
 #endif
   int found;
   int c = 0;

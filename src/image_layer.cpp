@@ -114,7 +114,7 @@ bool ImageLayer::init(Context *freej) {
   opened = false; // by default we have nothing opened
 
   // but we must init the blitter
-  blitter->init(this);
+  blitter.init(this);
   
   env = freej;
 

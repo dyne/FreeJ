@@ -62,8 +62,6 @@ Layer::Layer()
   null_feeds = 0;
   max_null_feeds = 10;
 
-  blitter = new Blitter();
-
   parameters = NULL;
   running = false;
 }
@@ -80,7 +78,7 @@ Layer::~Layer() {
     jfree(bgmatte);
     bgmatte = NULL;
   }
-  delete blitter;
+
 }
 
 void Layer::_init(int wdt, int hgt) {
@@ -99,7 +97,7 @@ void Layer::_init(int wdt, int hgt) {
   //  blitter->crop( freej->screen );
 
   /* initialize the blitter */
-  blitter->init(this);
+  blitter.init(this);
 
   /* allocate memory for the matte background */
 //  bgmatte = jalloc(bgmatte,geo.size);
@@ -212,7 +210,7 @@ bool Layer::cafudda() {
   }
 
 	
-  blitter->blit();
+  blitter.blit();
   unlock();
   
   //signal_feed();
@@ -254,7 +252,7 @@ void Layer::set_position(int x, int y) {
   lock();
   slide_x = geo.x = x;
   slide_y = geo.y = y;
-  blitter->crop( screen );
+  blitter.crop( screen );
   unlock();
 }
 
@@ -293,16 +291,16 @@ void Layer::_fit(bool maintain_aspect_ratio){
 			if(width_zoom > height_zoom) {
 				//if we're using the height zoom then there is going to be space
 				//in x [width] that is unfilled, so center it in the x
-				blitter->set_zoom(height_zoom, height_zoom);
+				blitter.set_zoom(height_zoom, height_zoom);
 				new_x = ((double)(env->screen->w - height_zoom * geo.w) / 2.0);
 			} else {
 				//if we're using the width zoom then there is going to be space
 				//in y [height] that is unfilled, so center it in the y
-				blitter->set_zoom(width_zoom, width_zoom);
+				blitter.set_zoom(width_zoom, width_zoom);
 				new_y = ((double)(env->screen->h - width_zoom * geo.h) / 2.0);
 			}
 		} else
-			blitter->set_zoom(width_zoom, height_zoom);
+			blitter.set_zoom(width_zoom, height_zoom);
 		unlock();
 		//set_position locks, so we unlock before it
 		set_position(new_x, new_y);
@@ -328,12 +326,12 @@ float Layer::set_fps(float fps_new) {
 
 void Layer::pulse_alpha(int step, int value) {
   if(!fade) {
-    blitter->set_blit("0alpha"); /* by placing a '0' in front of the
+    blitter.set_blit("0alpha"); /* by placing a '0' in front of the
 				   blit name we switch its value to
 				   zero before is being showed */
     fade = true; // after the iterator it should deactivate the layer
     // fixme: doesn't works well with concurrent iterators
   }
 
-  blitter->pulse_value(step,value);
+  blitter.pulse_value(step,value);
 }

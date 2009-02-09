@@ -19,11 +19,12 @@
  *
  */
 
+#include <config.h>
 #ifdef WITH_FLASH
 
 #include <callbacks_js.h>
 #include <jsparser_data.h>
-#include <config.h>
+
 #include <flash_layer.h>
 
 DECLARE_CLASS_GC("FlashLayer", flash_layer_class, flash_layer_constructor, js_layer_gc);

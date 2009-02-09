@@ -274,7 +274,7 @@ static int blit_selection(char *cmd) {
     ::error("no layer currently selected");
     return 0;
   }
-  lay->blitter->set_blit(cmd); // now this takes a string!
+  lay->blitter.set_blit(cmd); // now this takes a string!
   return 1;
 }
 static int blit_comp(char *cmd) {
@@ -290,7 +290,7 @@ static int blit_comp(char *cmd) {
     return 0;
   }
 
-  blits = lay->blitter->blitlist.completion(cmd);
+  blits = lay->blitter.blitlist.completion(cmd);
 
   if(!blits[0]) return 0; // none found
 
@@ -532,7 +532,7 @@ static int open_text_layer(char *cmd) {
 #ifdef HAVE_DARWIN
 static int filebrowse_completion_selector(struct dirent *dir) 
 #else
-static int filebrowse_completion_selector(const struct dirent *dir) 
+  static int filebrowse_completion_selector(const struct dirent *dir) 
 #endif
 {
   if(dir->d_name[0]=='.')
@@ -548,7 +548,7 @@ static int filebrowse_completion(char *cmd) {
 #ifdef HAVE_DARWIN
   struct dirent **filelist;
 #else
-  const struct dirent **filelist;
+  struct dirent **filelist;
 #endif
   char path[MAX_CMDLINE];
   char needle[MAX_CMDLINE];
@@ -671,7 +671,7 @@ static int set_blit_value(char *cmd) {
      (supports multiple selection) */
   for(c=0 ; lay ; lay = (Layer*)lay->next) {
     if(!lay->select) continue;
-    lay->blitter->fade_value(1,val);
+    lay->blitter.fade_value(1,val);
   }
 
   return 1;
@@ -1054,9 +1054,9 @@ void Console::layerprint() {
   SLsmg_write_char(' ');
   SLsmg_write_string((char *)"blit: ");
   SLsmg_set_color(LAYERS_COLOR+10);
-  SLsmg_write_string(layer->blitter->current_blit->name);
+  SLsmg_write_string(layer->blitter.current_blit->name);
   SLsmg_write_char(' ');
-  SLsmg_printf((char *)"[%.0f]",layer->blitter->current_blit->value);
+  SLsmg_printf((char *)"[%.0f]",layer->blitter.current_blit->value);
   SLsmg_write_char(' ');
   SLsmg_set_color(LAYERS_COLOR);
   SLsmg_write_string((char *)"geometry: ");
@@ -1553,22 +1553,22 @@ void Console::parser_movelayer(int key) {
   switch(key) {
     
     // zoom
-  case KEY_PLUS:  layer->blitter->set_zoom( layer->blitter->zoom_x + 0.01,
-					   layer->blitter->zoom_y + 0.01); break;
-  case KEY_MINUS: layer->blitter->set_zoom( layer->blitter->zoom_x - 0.01,
-					   layer->blitter->zoom_y - 0.01); break;
-  case 'w':       layer->blitter->set_spin(0,-0.001);    break;
-  case 's':       layer->blitter->set_spin(0,0.001);     break;
-  case '.':       layer->blitter->set_zoom(1,1);         break;
+  case KEY_PLUS:  layer->blitter.set_zoom( layer->blitter.zoom_x + 0.01,
+					   layer->blitter.zoom_y + 0.01); break;
+  case KEY_MINUS: layer->blitter.set_zoom( layer->blitter.zoom_x - 0.01,
+					   layer->blitter.zoom_y - 0.01); break;
+  case 'w':       layer->blitter.set_spin(0,-0.001);    break;
+  case 's':       layer->blitter.set_spin(0,0.001);     break;
+  case '.':       layer->blitter.set_zoom(1,1);         break;
     
     // rotation
-  case '<': layer->blitter->set_rotate( layer->blitter->rotate + 0.5 ); break;
-  case '>': layer->blitter->set_rotate( layer->blitter->rotate - 0.5 ); break;
-  case 'a': layer->blitter->set_spin(0.02,0);   break;
-  case 'd': layer->blitter->set_spin(-0.02,0);  break;
-  case ',': layer->blitter->set_rotate(0);      break;
-  case 'z': layer->blitter->antialias =
-      !layer->blitter->antialias;       break;
+  case '<': layer->blitter.set_rotate( layer->blitter.rotate + 0.5 ); break;
+  case '>': layer->blitter.set_rotate( layer->blitter.rotate - 0.5 ); break;
+  case 'a': layer->blitter.set_spin(0.02,0);   break;
+  case 'd': layer->blitter.set_spin(-0.02,0);  break;
+  case ',': layer->blitter.set_rotate(0);      break;
+  case 'z': layer->blitter.antialias =
+      !layer->blitter.antialias;       break;
     
     
   case '8':

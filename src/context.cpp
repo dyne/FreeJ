@@ -436,7 +436,7 @@ void Context::handle_resize() {
   Layer *lay = (Layer *) layers.begin ();
   while (lay) {
     lay -> lock ();
-    lay -> blitter->crop (screen);
+    lay -> blitter.crop (screen);
     lay -> unlock ();
     lay = (Layer*) lay -> next;
   } 
@@ -534,12 +534,12 @@ void Context::add_layer(Layer *lay) {
 
   lay->env = this;
   lay->screen = screen;
-  lay->blitter->screen = screen;
+  lay->blitter.screen = screen;
 
   // center the position
   //lay->geo.x = (screen->w - lay->geo.w)/2;
   //lay->geo.y = (screen->h - lay->geo.h)/2;
-  lay->blitter->crop( true );
+  lay->blitter.crop( true );
   layers.prepend(lay);
   layers.sel(0);
   lay->sel(true);

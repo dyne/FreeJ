@@ -317,7 +317,7 @@ JS(layer_list_blits) {
   arr = JS_NewArrayObject(cx, 0, NULL); //create void array
   if(!arr) return JS_FALSE;
   
-  b = lay->blitter->blitlist.begin();
+  b = lay->blitter.blitlist.begin();
   while(b) {
     
     str = JS_NewStringCopyZ(cx, b->name);
@@ -375,7 +375,7 @@ JS(layer_set_blit) {
 
   JS_ARG_STRING(blit_name, 0);
 
-  lay->blitter->set_blit( blit_name );
+  lay->blitter.set_blit( blit_name );
 
   return JS_TRUE;
 }
@@ -385,7 +385,7 @@ JS(layer_get_blit) {
 
     GET_LAYER(Layer);
 
-    char *blit_type=lay->blitter->current_blit->name;
+    char *blit_type=lay->blitter.current_blit->name;
     JSString *str = JS_NewStringCopyZ(cx, blit_type); 
     *rval = STRING_TO_JSVAL(str);
 
@@ -494,8 +494,8 @@ JS(layer_set_blit_value) {
       value = 255;
     }
 
-    //    lay->blitter->fade_value(1,new_value);
-    lay->blitter->set_value((float)value);
+    //    lay->blitter.fade_value(1,new_value);
+    lay->blitter.set_value((float)value);
 
     return JS_TRUE;
 }
@@ -514,7 +514,7 @@ JS(layer_fade_blit_value) {
     value = 255;
   }
   
-  lay->blitter->fade_value((float)step, (float)value);
+  lay->blitter.fade_value((float)step, (float)value);
 
   return JS_TRUE;
 }
@@ -524,7 +524,7 @@ JS(layer_get_blit_value) {
 
     GET_LAYER(Layer);
 
-	return JS_NewNumberValue(cx, lay->blitter->current_blit->value, rval);
+	return JS_NewNumberValue(cx, lay->blitter.current_blit->value, rval);
 }
 JS(layer_activate) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -603,7 +603,7 @@ JS(layer_rotate) {
 
   GET_LAYER(Layer);
 
-  lay->blitter->set_rotate(degrees);
+  lay->blitter.set_rotate(degrees);
 
   return JS_TRUE;
 }
@@ -617,7 +617,7 @@ JS(layer_zoom) {
   
   GET_LAYER(Layer);
 
-  lay->blitter->set_zoom(xmagn,ymagn);
+  lay->blitter.set_zoom(xmagn,ymagn);
 
   return JS_TRUE;
 }
@@ -630,7 +630,7 @@ JS(layer_spin) {
 
   GET_LAYER(Layer);
 
-  lay->blitter->set_spin(rot, magn);
+  lay->blitter.set_spin(rot, magn);
 
   return JS_TRUE;
 }
