@@ -70,6 +70,7 @@ bool AudioLayer::init(Context *freej, int width, int height) {
 }
 
 void *AudioLayer::feed() {
+  // add data to the ring-buffer
   return NULL;
 }
 
@@ -80,6 +81,8 @@ void AudioLayer::close() {
      
 void AudioLayer::AudioCallback_i(unsigned int Size) {
 /*
+ *  TODO: check buffer-size - compare counter or use ring-buffer
+ *
 	if (Size<=BufferLength && !pthread_mutex_trylock(m_Mutex))
 	{
 	  jmemcpy((void*)m_Buffer,(void*)m_JackBuffer,BufferLength*sizeof(float));
