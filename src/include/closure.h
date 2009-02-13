@@ -1,6 +1,8 @@
 #ifndef __CLOSURE_H__
 #define __CLOSURE_H__
 
+#include <pthread.h>
+
 /*
  * Copyright (C) 2009 - Luca Bigliardi
  * This program is free software; you can redistribute it and/or
@@ -22,42 +24,79 @@
  * or methods (profoundly inspired by ProtocolBuffers' callbacks).
  *
  * Examples:
- *
- * function(arg1, arg2);
+ * ---- Run a function
+ * void function(arg1, arg2) { ... }
  * Closure *closure = NewClosure(&function, arg1, arg2);
  * ...
  * closure.run();
- *
+ * delete closure;
+ * ---- Run a method
  * class Class {
  *   ...
- *   method(arg1, arg2);
+ *   void method(arg1, arg2);
  *   ...
  * }
  * Class *obj = new Class();
  * Closure *closure = NewClosure(obj, &Class::method, arg1, arg2);
  * ...
  * closure.run();
- *
- *
- * After a run() closure object will be automatically deleted.
- * If you want to delete it by hand use NewPermanentClosure() instead.
- *
+ * delete closure;
+ * ---- Run a method and wait for its execution
+ * class Class {
+ *   ...
+ *   void method(arg1, arg2);
+ *   ...
+ * }
+ * Class *obj = new Class();
+ * Closure *closure = NewSyncClosure(obj, &Class::method, arg1, arg2);
+ * ... pass closure to another thread who will call closure.run() ...
+ * closure.wait();
+ * delete closure;
+ * ---- Return value (design a function having a retval pointer as argument)
+ * void function(arg1, *r);
+ * int retval;
+ * Closure *closure = NewSyncClosure(&function, arg1, &retval);
+ * ...
  *
  * A different number of arguments leads to a different internal representation
  * of a closure to enforce a safe type-checking at compile time. If you need a
  * Closure for a number of arguments not yet covered simply add the appropriate
- * FunctionClosureN MethodClosureN classes, NewClosure() and NewPermanentClosure().
+ * FunctionClosureN MethodClosureN classes, NewClosure() and NewSyncClosure().
  *
  */
 
 
 class Closure {
   public:
-    Closure() {}
-    virtual ~Closure() {}
-    virtual void run() = 0;
+    Closure(bool synchronized) : synchronized_(synchronized) {
+      if (synchronized_) {
+        pthread_cond_init(&cond_, NULL);
+        pthread_mutex_init(&mutex_, NULL);
+        pthread_mutex_lock(&mutex_);
+      }
+    }
+    ~Closure() {
+      if (synchronized_) {
+        pthread_mutex_destroy(&mutex_);
+        pthread_cond_destroy(&cond_);
+      }
+    }
+    void run() {
+      run_();
+      if (synchronized_) pthread_cond_signal(&cond_);
+    }
+    bool is_synchronized() {
+      return synchronized_;
+    }
+    void wait() {
+      if (synchronized_) pthread_cond_wait(&cond_, &mutex_);
+    }
+  private:
+    bool synchronized_;
+    virtual void run_() = 0;
+    pthread_mutex_t mutex_;
+    pthread_cond_t cond_;
 };
-
 
 namespace closures {
 
@@ -65,18 +104,17 @@ namespace closures {
     public:
       typedef void (*FunctionType)();
 
-      FunctionClosure0(FunctionType function, bool self_deleting)
-        : function_(function), self_deleting_(self_deleting) {}
+      FunctionClosure0(FunctionType function, bool synchronized)
+        : Closure(synchronized),
+        function_(function) {}
       ~FunctionClosure0();
 
-      void run() {
+      void run_() {
         function_();
-        if (self_deleting_) delete this;
       }
 
     private:
       FunctionType function_;
-      bool self_deleting_;
   };
 
 
@@ -85,19 +123,18 @@ namespace closures {
     public:
       typedef void (Class::*MethodType)();
 
-      MethodClosure0(Class* object, MethodType method, bool self_deleting)
-        : object_(object), method_(method), self_deleting_(self_deleting) {}
+      MethodClosure0(Class* object, MethodType method, bool synchronized)
+        : Closure(synchronized),
+        object_(object), method_(method) {}
       ~MethodClosure0() {}
 
-      void run() {
+      void run_() {
         (object_->*method_)();
-        if (self_deleting_) delete this;
       }
 
     private:
       Class* object_;
       MethodType method_;
-      bool self_deleting_;
   };
 
 
@@ -106,21 +143,20 @@ namespace closures {
     public:
       typedef void (*FunctionType)(Arg1 arg1);
 
-      FunctionClosure1(FunctionType function, bool self_deleting,
+      FunctionClosure1(FunctionType function, bool synchronized,
           Arg1 arg1)
-        : function_(function), self_deleting_(self_deleting),
+        : Closure(synchronized),
+        function_(function),
         arg1_(arg1) {}
       ~FunctionClosure1() {}
 
 
-      void run() {
+      void run_() {
         function_(arg1_);
-        if (self_deleting_) delete this;
       }
 
     private:
       FunctionType function_;
-      bool self_deleting_;
       Arg1 arg1_;
   };
 
@@ -130,21 +166,20 @@ namespace closures {
     public:
       typedef void (Class::*MethodType)(Arg1 arg1);
 
-      MethodClosure1(Class* object, MethodType method, bool self_deleting,
+      MethodClosure1(Class* object, MethodType method, bool synchronized,
           Arg1 arg1)
-        : object_(object), method_(method), self_deleting_(self_deleting),
+        : Closure(synchronized),
+        object_(object), method_(method),
         arg1_(arg1) {}
       ~MethodClosure1() {}
 
-      void run() {
+      void run_() {
         (object_->*method_)(arg1_);
-        if (self_deleting_) delete this;
       }
 
     private:
       Class* object_;
       MethodType method_;
-      bool self_deleting_;
       Arg1 arg1_;
   };
 
@@ -154,20 +189,19 @@ namespace closures {
     public:
       typedef void (*FunctionType)(Arg1 arg1, Arg2 arg2);
 
-      FunctionClosure2(FunctionType function, bool self_deleting,
+      FunctionClosure2(FunctionType function, bool synchronized,
           Arg1 arg1, Arg2 arg2)
-        : function_(function), self_deleting_(self_deleting),
+        : Closure(synchronized),
+        function_(function),
         arg1_(arg1), arg2_(arg2) {}
       ~FunctionClosure2() {}
 
-      void run() {
+      void run_() {
         function_(arg1_, arg2_);
-        if (self_deleting_) delete this;
       }
 
     private:
       FunctionType function_;
-      bool self_deleting_;
       Arg1 arg1_;
       Arg2 arg2_;
   };
@@ -178,21 +212,20 @@ namespace closures {
     public:
       typedef void (Class::*MethodType)(Arg1 arg1, Arg2 arg2);
 
-      MethodClosure2(Class* object, MethodType method, bool self_deleting,
+      MethodClosure2(Class* object, MethodType method, bool synchronized,
           Arg1 arg1, Arg2 arg2)
-        : object_(object), method_(method), self_deleting_(self_deleting),
+        : Closure(synchronized),
+        object_(object), method_(method),
         arg1_(arg1), arg2_(arg2) {}
       ~MethodClosure2() {}
 
-      void Run() {
+      void run_() {
         (object_->*method_)(arg1_, arg2_);
-        if (self_deleting_) delete this;
       }
 
     private:
       Class* object_;
       MethodType method_;
-      bool self_deleting_;
       Arg1 arg1_;
       Arg2 arg2_;
   };
@@ -201,74 +234,77 @@ namespace closures {
 
 
 inline Closure* NewClosure(void (*function)()) {
-  return new closures::FunctionClosure0(function, true);
+  return new closures::FunctionClosure0(function, false);
 }
 
-inline Closure* NewPermanentClosure(void (*function)()) {
-  return new closures::FunctionClosure0(function, false);
+inline Closure* NewSyncClosure(void (*function)()) {
+  return new closures::FunctionClosure0(function, true);
 }
 
 template <typename Class>
 inline Closure* NewClosure(Class* object, void (Class::*method)()) {
-  return new closures::MethodClosure0<Class>(object, method, true);
+  return new closures::MethodClosure0<Class>(object, method, false);
 }
 
 template <typename Class>
-inline Closure* NewPermanentClosure(Class* object, void (Class::*method)()) {
-  return new closures::MethodClosure0<Class>(object, method, false);
+inline Closure* NewSyncClosure(Class* object, void (Class::*method)()) {
+  return new closures::MethodClosure0<Class>(object, method, true);
 }
 
 template <typename Arg1>
 inline Closure* NewClosure(void (*function)(Arg1),
                             Arg1 arg1) {
-  return new closures::FunctionClosure1<Arg1>(function, true, arg1);
+  return new closures::FunctionClosure1<Arg1>(function, false, arg1);
 }
 
 template <typename Arg1>
-inline Closure* NewPermanentClosure(void (*function)(Arg1),
+inline Closure* NewSyncClosure(void (*function)(Arg1),
                                      Arg1 arg1) {
-  return new closures::FunctionClosure1<Arg1>(function, false, arg1);
+  return new closures::FunctionClosure1<Arg1>(function, true, arg1);
 }
 
 template <typename Class, typename Arg1>
 inline Closure* NewClosure(Class* object, void (Class::*method)(Arg1),
                             Arg1 arg1) {
-  return new closures::MethodClosure1<Class, Arg1>(object, method, true, arg1);
+  return new closures::MethodClosure1<Class, Arg1>(object, method, false, arg1);
 }
 
 template <typename Class, typename Arg1>
-inline Closure* NewPermanentClosure(Class* object, void (Class::*method)(Arg1),
+inline Closure* NewSyncClosure(Class* object, void (Class::*method)(Arg1),
                                      Arg1 arg1) {
-  return new closures::MethodClosure1<Class, Arg1>(object, method, false, arg1);
+  return new closures::MethodClosure1<Class, Arg1>(object, method, true, arg1);
 }
 
 template <typename Arg1, typename Arg2>
 inline Closure* NewClosure(void (*function)(Arg1, Arg2),
                             Arg1 arg1, Arg2 arg2) {
   return new closures::FunctionClosure2<Arg1, Arg2>(
-    function, true, arg1, arg2);
+    function, false, arg1, arg2);
 }
 
 template <typename Arg1, typename Arg2>
-inline Closure* NewPermanentClosure(void (*function)(Arg1, Arg2),
+inline Closure* NewSyncClosure(void (*function)(Arg1, Arg2),
                                      Arg1 arg1, Arg2 arg2) {
   return new closures::FunctionClosure2<Arg1, Arg2>(
-    function, false, arg1, arg2);
+    function, true, arg1, arg2);
 }
 
 template <typename Class, typename Arg1, typename Arg2>
 inline Closure* NewClosure(Class* object, void (Class::*method)(Arg1, Arg2),
                             Arg1 arg1, Arg2 arg2) {
   return new closures::MethodClosure2<Class, Arg1, Arg2>(
-    object, method, true, arg1, arg2);
-}
-
-template <typename Class, typename Arg1, typename Arg2>
-inline Closure* NewPermanentClosure(
-    Class* object, void (Class::*method)(Arg1, Arg2),
-    Arg1 arg1, Arg2 arg2) {
-  return new closures::MethodClosure2<Class, Arg1, Arg2>(
     object, method, false, arg1, arg2);
 }
 
+template <typename Class, typename Arg1, typename Arg2>
+inline Closure* NewSyncClosure(
+    Class* object, void (Class::*method)(Arg1, Arg2),
+    Arg1 arg1, Arg2 arg2) {
+  return new closures::MethodClosure2<Class, Arg1, Arg2>(
+    object, method, true, arg1, arg2);
+}
+
 #endif
+
+// vim:tabstop=2:expandtab:shiftwidth=2
+

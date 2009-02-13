@@ -97,14 +97,18 @@ void JSyncThread::add_job(Closure *job) {
 
 void JSyncThread::do_jobs() {
 	Closure *job;
+	bool to_delete;
 	if (pthread_mutex_trylock(&_job_queue_mutex))
 		return; // don't wait we'll get it next time
 	while (!_job_queue.empty()) {
 		// TODO(shammash): maybe we have to consider fps here and exit
-		// from while even if queue is not empty
+		// the loop even if queue is not empty
 		job = _job_queue.front();
 		_job_queue.pop();
+		// convention: synchronized jobs are deleted by caller
+		to_delete = !job->is_synchronized();
 		job->run();
+		if (to_delete) delete job;
 	}
 	pthread_mutex_unlock(&_job_queue_mutex);
 }
