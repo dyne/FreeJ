@@ -325,11 +325,14 @@ void *VideoLayer::feed() {
 	      func ("avformat_context->duration= %d\n",avformat_context->duration);
 #endif
 
+	      /* TODO(shammash): this may be good for streams but breaks
+	       * looping in files, needs fixing.
 	      if(!pkt.duration) continue;
 	      
 	      if(!pkt.size || !pkt.data) {
 		return NULL;
 	      }
+	      */
 
 	    /**
 	     * check eof and loop
