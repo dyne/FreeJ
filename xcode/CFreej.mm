@@ -10,17 +10,25 @@
 extern int freej_main(int argc, char **argv);
 @implementation CFreej
 @synthesize freej;
+@synthesize layer;
  
 -(id)init
 {
 	if (self = [super init]) {
-	  // Initialization code here
+	  freej = new Context();
+	  assert( freej->init(640, 480, Context::SDL, 0) );
 	}
 	return self;
 }
 
 - (IBAction)run:(id)sender {
-	char *argv[2] = { "freej", NULL };
-	freej_main(1, argv);
+	layer = new CVideoGrabber();
+	layer->init(freej);
+	layer->open(NULL);
+	layer->start();
+	freej->add_layer(layer);
+	layer->active = true;
+	while (!freej->quit)
+		freej->cafudda(1.0);
 }
 @end
