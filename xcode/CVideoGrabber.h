@@ -33,6 +33,7 @@ class CVideoGrabber: public Layer {
 		QTCaptureSession * session;
 		QTCaptureDevice * device;
 		CVideoOutput * output;
+		QTCaptureDeviceInput * input;
 		int height, width;
 		Context *freej;
 		void *vbuffer;

@@ -3,11 +3,12 @@
  *  freej
  *
  *  Created by xant on 2/9/09.
- *  Copyright 2009 __MyCompanyName__. All rights reserved.
+ *  Copyright 2009 dyne. All rights reserved.
  *
  */
 
 #include "CVideoGrabber.h"
+#include <jutils.h>
 
 CVideoGrabber::CVideoGrabber() : Layer()
 {
@@ -17,6 +18,7 @@ CVideoGrabber::CVideoGrabber() : Layer()
 
 CVideoGrabber::~CVideoGrabber()
 {
+	close();
 	if (vbuffer)
 		free(vbuffer);
 }
@@ -24,13 +26,8 @@ CVideoGrabber::~CVideoGrabber()
 bool
 CVideoGrabber::open(const char *dev)
 {
+    notice( "QTCapture opened" );
 
-
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-
-    //msg_Dbg( p_demux, "QTCapture Probed" );
-
-    QTCaptureDeviceInput * input = nil;
     NSError *o_returnedError;
 
     device = [QTCaptureDevice defaultInputDeviceWithMediaType: QTMediaTypeVideo];
@@ -39,27 +36,29 @@ CVideoGrabber::open(const char *dev)
        // intf_UserFatal( p_demux, true, _("No Input device found"),
          //               _("Your Mac does not seem to be equipped with a suitable input device. "
            //               "Please check your connectors and drivers.") );
-        //msg_Err( p_demux, "Can't find any Video device" );
+        error ( "Can't find any Video device" );
         
         goto error;
     }
+	[device retain];
+	
 
     if( ![device open: &o_returnedError] )
     {
-        //msg_Err( p_demux, "Unable to open the capture device (%i)", [o_returnedError code] );
+        error( "Unable to open the capture device (%i)", [o_returnedError code] );
         goto error;
     }
 
     if( [device isInUseByAnotherApplication] == YES )
     {
-        //msg_Err( p_demux, "default capture device is exclusively in use by another application" );
+        error( "default capture device is exclusively in use by another application" );
         goto error;
     }
 
     input = [[QTCaptureDeviceInput alloc] initWithDevice: device];
     if( !input )
     {
-        //msg_Err( p_demux, "can't create a valid capture input facility" );
+        error( "can't create a valid capture input facility" );
         goto error;
     }
 
@@ -68,8 +67,8 @@ CVideoGrabber::open(const char *dev)
 
     /* Hack - This will lower CPU consumption for some reason */
     [output setPixelBufferAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
-        [NSNumber numberWithInt:480], kCVPixelBufferHeightKey,
-        [NSNumber numberWithInt:640], kCVPixelBufferWidthKey, 
+        [NSNumber numberWithInt:height], kCVPixelBufferHeightKey,
+        [NSNumber numberWithInt:width], kCVPixelBufferWidthKey, 
 		[NSNumber numberWithInt:kCVPixelFormatType_32BGRA],
 		(id)kCVPixelBufferPixelFormatTypeKey, nil]];
 
@@ -78,50 +77,33 @@ CVideoGrabber::open(const char *dev)
     bool ret = [session addInput:input error: &o_returnedError];
     if( !ret )
     {
-        //msg_Err( p_demux, "default video capture device could not be added to capture session (%i)", [o_returnedError code] );
+        error( "default video capture device could not be added to capture session (%i)", [o_returnedError code] );
         goto error;
     }
 
     ret = [session addOutput:output error: &o_returnedError];
     if( !ret )
     {
-        //msg_Err( p_demux, "output could not be added to capture session (%i)", [o_returnedError code] );
+        error ( "output could not be added to capture session (%i)", [o_returnedError code] );
         goto error;
     }
 
-    [session startRunning];
-
-    /* Now we can init */
-
-    NSSize size = [[device attributeForKey:QTFormatDescriptionVideoEncodedPixelsSizeAttribute] sizeValue];
-    width = 640;/* size.width; FIXME */
-    height = 480;/* size.height; FIXME */
-
-    //msg_Dbg( p_demux, "added new video es %4.4s %dx%d",
-     //       (char*)&fmt.i_codec, fmt.video.i_width, fmt.video.i_height );
-
-    //p_sys->p_es_video = es_out_Add( p_demux->out, &fmt );
-
-    [input release];
-    [pool release];
-
-    //msg_Dbg( p_demux, "QTCapture: We have a video device ready!" );
+    [session startRunning]; // start the capture session
+    notice( "Video device ready!" );
 
     return true;
 error:
-    [input release];
-    [pool release];
+	[input release];
 
 
     return false;
-
 
 }
 
 bool
 CVideoGrabber::init(Context *ctx)
 {
-	
+	 // * TODO - probe resolution of the default input device
 	return init(freej, 640, 480);
 }
 
@@ -140,38 +122,47 @@ CVideoGrabber::feed()
 {
 	time_t pts = 0;
 	
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-
     @synchronized (output)
     {
 		pts = [output copyCurrentFrameToBuffer: &vbuffer size:&bufsize];
     }
-
-    if( !pts )
-    {
-        /* Nothing to display yet, just forget */
-        [pool release];
+	
+	/* Nothing to display yet, just forget */
+    if( !pts ) 
         return NULL;
-    }
-
-	[pool release];
+   
     return vbuffer;
 }
 
 void
 CVideoGrabber::close()
 {
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 
     /* Hack: if libvlc was killed, main interface thread was,
      * and poor QTKit needs it, so don't tell him.
      * Else we dead lock. */
-  
-	[session stopRunning];
-	[output release];
-	[session release];
+	if (session) {
+		[session stopRunning];
+		if (input) {
+			[session removeInput:input];
+			[input release];
+			input = NULL;
+		}
+		[session release];
+	}
 	
-    [pool release];
+	if (output) {
+		[output release];
+		output = NULL;
+	}
+	
+	if (device) {
+		if ([device isOpen])
+			[device close];
+		[device release];
+		device = NULL;
+	}
+	
 }
 
 bool
@@ -220,8 +211,7 @@ CVideoGrabber::relative_seek(double increment)
 @implementation CVideoOutput : QTCaptureDecompressedVideoOutput
 - (id)init
 {
-    if( self = [super init] )
-    {
+    if( self = [super init] ) {
         currentImageBuffer = nil;
         currentPts = 0;
         previousPts = 0;

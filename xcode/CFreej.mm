@@ -14,14 +14,18 @@ extern int freej_main(int argc, char **argv);
  
 -(id)init
 {
-	if (self = [super init]) {
-	  freej = new Context();
-	  assert( freej->init(640, 480, Context::SDL, 0) );
+	if (self = [super init]) 
+	{
+		freej = new Context();
 	}
 	return self;
 }
 
 - (IBAction)run:(id)sender {
+	freej->quit = false;
+	assert( freej->init(640, 480, Context::SDL, 0) );
+	freej->plugger.refresh(freej);
+	freej->config_check("keyboard.js");
 	layer = new CVideoGrabber();
 	layer->init(freej);
 	layer->open(NULL);
@@ -30,5 +34,8 @@ extern int freej_main(int argc, char **argv);
 	layer->active = true;
 	while (!freej->quit)
 		freej->cafudda(1.0);
+	freej->rem_layer(layer);
+	delete(freej->screen);
+	freej->screen = NULL;
 }
 @end

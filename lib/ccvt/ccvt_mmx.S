@@ -19,7 +19,7 @@
     reached at nemosoft@smcc.demon.nl.
 */
 
-#include "../../config.h"
+#include <config.h>
 #if defined HAVE_MMX && !defined HAVE_64BIT
 
 /* The ccvt_* functions always have 4 paramaters:
