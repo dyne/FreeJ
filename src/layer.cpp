@@ -132,9 +132,10 @@ void Layer::run() {
       // deactivate the layer when too many
       null_feeds++;
       if(null_feeds > max_null_feeds) {
-	warning("layer %s feed seems empty, deactivating", get_name());
-	active = false;
-	break;
+        warning("layer %s feed seems empty, deactivating", get_name());
+        active = false;
+        unlock(); // avoid causing deadlocks
+        break;
       }
 
     } else { // process filter on tmp_buf

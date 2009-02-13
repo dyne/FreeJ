@@ -77,7 +77,6 @@ Layer *create_layer(Context *env, char *file) {
   end_file_ptr += strlen(file);
 //  while(*end_file_ptr!='\0' && *end_file_ptr!='\n') end_file_ptr++; *end_file_ptr='\0';
 
-
   /* ==== Unified caputure API (V4L & V4L2) */
   if( strncasecmp ( file_ptr,"/dev/video",10)==0) {
 #ifdef WITH_UNICAP

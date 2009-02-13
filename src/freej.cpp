@@ -208,9 +208,10 @@ void cmdline(int argc, char **argv) {
     optlen = strlen(argv[optind]);
     if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
       sprintf(p,"%s#",argv[optind]);
-	cli_chars+=optlen+1;
-	p+=optlen+1;
-      } else warning("too much files on commandline, list truncated");
+	  cli_chars+=optlen+1;
+	  p+=optlen+1;
+    } else 
+	  warning("too many files on commandline, list truncated");
   }
 #endif
 }
@@ -257,11 +258,8 @@ int scripts(char *path) {
 }
 //[js]
 
-#ifdef HAVE_DARWIN
-int freej_main (int argc, char **argv) {
-#else
+#ifndef HAVE_DARWIN
 int main (int argc, char **argv) {
-#endif
   Layer *lay = NULL;
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);
@@ -337,25 +335,25 @@ int main (int argc, char **argv) {
 
       func("creating layer for file %s",pp);
 
-	lay = create_layer(&freej, pp); // hey, this already init and open the layer !!
-	if(lay)  { 
-	  lay->set_fps(fps);
-	  lay->start();
-	  freej.add_layer(lay);
-	  if (startstate) lay->active = true;
-	  else lay->active = false;
-	}
+      lay = create_layer(&freej, pp); // hey, this already init and open the layer !!
+      if(lay)  { 
+	    lay->set_fps(fps);
+        lay->start();
+        freej.add_layer(lay);
+        if (startstate) 
+          lay->active = true;
+		else 
+          lay->active = false;
+      }
 
       pp = l;
     }
   }
 
 
-
   /* apply screen magnification */
   //  freej.magnify(magn);
   // deactivated for now
-
 
 
   /* MAIN loop */
@@ -380,3 +378,4 @@ int main (int argc, char **argv) {
 
   exit(1);
 }
+#endif

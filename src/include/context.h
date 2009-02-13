@@ -160,7 +160,7 @@ class Context {
 
 
 
-  AudioCollector *audio; ///< audio device recording input (PortAudio)
+  //AudioCollector *audio; ///< audio device recording input (PortAudio)
 
   Plugger plugger; ///< filter plugins host
 

@@ -74,7 +74,7 @@ Context::Context() {
 
   screen          = NULL;
   console         = NULL;
-  audio           = NULL;
+  //audio           = NULL;
 
   /* initialize fps counter */
   //  framecount      = 0; 
@@ -181,12 +181,12 @@ Context::~Context() {
     delete screen;
     screen = NULL;
   }
-
+/*
   if(audio) {
     delete audio;
     audio = NULL;
   }
-
+*/
   //  plugger.close();
 
   notice ("cu on http://freej.dyne.org");
@@ -756,7 +756,9 @@ Layer *Context::open(char *file) {
   end_file_ptr += strlen(file);
 //  while(*end_file_ptr!='\0' && *end_file_ptr!='\n') end_file_ptr++; *end_file_ptr='\0';
 
+#ifdef HAVE_DARWIN
 
+#endif
   /* ==== Unified caputure API (V4L & V4L2) */
   if( strncasecmp ( file_ptr,"/dev/video",10)==0) {
 #ifdef WITH_UNICAP
@@ -898,7 +900,9 @@ Layer *Context::open(char *file) {
 #endif
 
 
-  } else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
+  } 
+#ifdef WITH_FLASH
+  else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
 
 	    nlayer = new FlashLayer();
       if(!nlayer->init( this )) {
@@ -911,7 +915,9 @@ Layer *Context::open(char *file) {
 	      delete nlayer; nlayer = NULL;
 	    }
 
-  } else { /* FALLBACK TO SCROLL LAYER */
+  }
+#endif
+    else { /* FALLBACK TO SCROLL LAYER */
 
     func("opening scroll layer on generic file type for %s",file_ptr);
     nlayer = new ScrollLayer();
