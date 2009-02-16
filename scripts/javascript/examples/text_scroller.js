@@ -64,20 +64,17 @@ function render_word(wrd) {
 
     lay = new TextLayer();
 
-    lay.print( wrd ); // print the string in the layer
-
-    lay.size( 50 ); // set the size
-
-
     lay.set_fps(25);
 
     lay.start();
-
 
     add_layer( lay ); // add it to the screen
 
     lay.set_position( W, 400 ); // start from the right of the scree
 
+    lay.print( wrd ); // print the string in the layer
+
+    lay.size( 50 ); // set the size
 
     //    lay.slide_position( 0 - lay.w() , 200, 2); // slide to the right
 
@@ -126,11 +123,13 @@ trigger.frame = function() {
     if( rightmost.x() + rightmost.w() <  W - wordspacing ) {
 	// then we need a new one on the left
 	
-	// create a new TextLayer with the word
-	txt = render_word( words[idx] );
+	if ( words[idx].length > 0 ) {
+		// create a new TextLayer with the word
+		txt = render_word( words[idx] );
 
-	// append it as last element of the scroll[] array
-	scroll.push( txt );
+		// append it as last element of the scroll[] array
+		scroll.push( txt );
+	}
 	
 	// advance the index
 	idx++;
