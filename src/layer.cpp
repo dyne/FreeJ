@@ -309,8 +309,10 @@ void Layer::_fit(bool maintain_aspect_ratio){
 }
 
 void Layer::fit(bool maintain_aspect_ratio) {
-	Closure *job = NewClosure(this, &Layer::_fit, maintain_aspect_ratio);
-	add_job(job);
+	// the rest is not yet ready for closures so keep it as before
+	//Closure *job = NewClosure(this, &Layer::_fit, maintain_aspect_ratio);
+	//add_job(job);
+	this->_fit(maintain_aspect_ratio);
 }
 
 /* wrap JSyncThread::get_fps() so we don't need to export it in SWIG */
