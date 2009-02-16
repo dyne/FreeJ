@@ -120,6 +120,8 @@ void Layer::run() {
   func("ok, layer %s in rolling loop",get_name());
 	
   while(!quit) {
+
+    do_jobs();
 		
     tmp_buf = feed();
 
@@ -160,8 +162,6 @@ void Layer::run() {
     } // else
 
     unlock();
-
-    do_jobs();
 
     running = true;
 
