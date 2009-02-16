@@ -58,8 +58,6 @@ class TextLayer: public Layer {
 
   bool keypress(int key);
 
-  ScreenGeometry geo_new;
-
  private:
   SDL_Color bgcolor;
   SDL_Color fgcolor;
@@ -68,9 +66,10 @@ class TextLayer: public Layer {
   TTF_Font *font;
   char *fontfile;
   SDL_Surface *surf;
-  SDL_Surface *surf_new;
 
   int sel_font;
+
+  void _display_text(SDL_Surface *newsurf);
 
 };
 

@@ -57,7 +57,6 @@ TextLayer::TextLayer()
   type = Layer::TEXT;
   set_name("TTF");
   surf = NULL;
-  surf_new = NULL;
   jsclass = &txt_layer_class;
 
   { // setup specific layer parameters
@@ -113,7 +112,6 @@ void TextLayer::close() {
   if( TTF_WasInit() ) TTF_Quit();
   // free sdl font surface
   if(surf) SDL_FreeSurface(surf);
-  if(surf_new) SDL_FreeSurface(surf_new);
   if(fontfile) free(fontfile);
 }
 
@@ -167,19 +165,32 @@ bool TextLayer::set_fontsize(int sz) {
   return rv;
 }
 
+void TextLayer::_display_text(SDL_Surface *newsurf) {
+
+  SDL_Surface *tmp = SDL_DisplayFormat(newsurf);
+  geo.w = tmp->w;
+  geo.h = tmp->h;
+  geo.bpp = 32;
+  geo.size = geo.w*geo.h*(geo.bpp/8);
+  geo.pitch = geo.w*(geo.bpp/8);
+
+  if (surf) SDL_FreeSurface(surf);
+  surf = tmp;
+
+}
+
 void TextLayer::print_text(const char *str) {
   SDL_Surface *tmp;
   
   // choose first font and initialize ready for printing
   
   if(!env) {
-    error("TextLayer: can't print, environment is not yet assigned neither a font is selected");
-    error("call add_layer or choose a font for the layer");
+    error("TextLayer: can't print, environment is not yet assigned");
     return;
   }
 
   if(!font) {
-    func("no font selected on layer %s, using default %s",
+    func("no font selected on layer %s, try default %s",
 	    this->name, env->font_files[sel_font]);
 
     if(!set_font(env->font_files[sel_font], size))
@@ -193,31 +204,16 @@ void TextLayer::print_text(const char *str) {
 	return;
   }
 
-  lock();
-  surf_new = SDL_DisplayFormat(tmp);
-  // oh no!! plz do not call _init here !!! It messes up the blitter!
-  // _init(surf_new->w, surf_new->h);  
-  geo_new.w = surf_new->w;
-  geo_new.h = surf_new->h;
-  geo_new.x = geo.x;
-  geo_new.y = geo.y;
-  geo_new.bpp = 32;
-  geo_new.size = geo_new.w*geo_new.h*(geo_new.bpp/8);
-  geo_new.pitch = geo_new.w*(geo_new.bpp/8);
+  Closure *sync_display = NewSyncClosure(this, &TextLayer::_display_text, tmp);
+  add_job(sync_display);
+  sync_display->wait();
+  delete sync_display;
 
-  unlock();
   SDL_FreeSurface(tmp);
 
 }
 
 void *TextLayer::feed() {
-	if(surf_new) {
-	// just return the surface
-		if(surf) SDL_FreeSurface(surf);
-		surf = surf_new;
-		surf_new = NULL;
-		geo = geo_new;
-	}
 	if(!surf)
 		return NULL;
 	else
