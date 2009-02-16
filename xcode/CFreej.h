@@ -3,20 +3,28 @@
 //  freej
 //
 //  Created by xant on 2/8/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
-#import <Cocoa/Cocoa.h>
+#ifndef __CFREEJ_H__
+#define __CFREEJ_H__
+
+
 #include <context.h>
 #import "CVideoGrabber.h"
 
+#import <Cocoa/Cocoa.h>
+
 @interface CFreej : NSObject {
 	Context *freej;
-	CVideoGrabber *layer;
+	CVideoGrabber *captureLayer;
+	IBOutlet CVideoOutput *captureDevice;
+	IBOutlet NSTextField *scriptPath;
 }
-@property(readwrite) Context *freej;
-@property(readwrite) CVideoGrabber *layer;
 
 - (id)init;
 - (IBAction)run:(id)sender;
+- (IBAction)openScript:(id)sender;
 
 @end
+
+#endif

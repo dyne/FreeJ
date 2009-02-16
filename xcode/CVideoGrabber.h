@@ -16,30 +16,43 @@
 /*****************************************************************************
 * QTKit Bridge
 *****************************************************************************/
+@class CFreej;
 
 @interface CVideoOutput : QTCaptureDecompressedVideoOutput
 {
     CVImageBufferRef currentImageBuffer;
     time_t currentPts;
     time_t previousPts;
+	IBOutlet QTCaptureView *captureView;
+	IBOutlet NSPopUpButton *captureSize;
+	IBOutlet CFreej *controller;
+	QTCaptureDeviceInput * input;
+	QTCaptureMovieFileOutput *captureOutput;
+	QTCaptureSession * session;
+	QTCaptureDevice * device;
+	int width;
+	int height;
+	bool running;
 }
+
 - (id)init;
-- (void)outputVideoFrame:(CVImageBufferRef)videoFrame withSampleBuffer:(QTSampleBuffer *)sampleBuffer fromConnection:(QTCaptureConnection *)connection;
+- (void)awakeFromNib;
 - (time_t)copyCurrentFrameToBuffer:(void **)buffer size:(int *)bufsize;
+- (IBAction)startCapture:(id)sender;
+- (IBAction)stopCapture:(id)sender;
+- (IBAction)toggleCapture:(id)sender;
+- (IBAction)setSize:(id)sender;
 @end
 
 class CVideoGrabber: public Layer {
 	private:
-		QTCaptureSession * session;
-		QTCaptureDevice * device;
-		CVideoOutput * output;
-		QTCaptureDeviceInput * input;
 		int height, width;
 		Context *freej;
 		void *vbuffer;
 		int bufsize;
+		CVideoOutput * output;
 	public:
-		CVideoGrabber();
+		CVideoGrabber(CVideoOutput *vout);
 		~CVideoGrabber();
 		bool open(const char *dev);
 		bool init(Context *freej);
