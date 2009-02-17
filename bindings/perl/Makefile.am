@@ -1,6 +1,7 @@
 INCLUDES = -I$(top_srcdir)/src/include \
            -I$(top_srcdir)/lib/shout \
 	   -I$(top_srcdir)/lib/sdl_ttf \
+	   -I$(top_srcdir)/lib/sdl_gfx \
 	   -I$(top_srcdir)/lib/javascript \
 	   -I$(top_srcdir)/lib/javascript/obj
 
