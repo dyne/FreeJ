@@ -1,6 +1,6 @@
 INCLUDES = -I$(top_srcdir)/
 # Add INCLUDES to CFLAGS because it seems ignored while compiling .S files.
-CFLAGS = $(INCLUDES)
+CFLAGS += $(INCLUDES)
 
 AUTOMAKE_OPTIONS = foreign
 
