@@ -68,7 +68,8 @@ class Context {
 			SDL,
 			SDLGL,
 			GL_HEADLESS,
-			HEADLESS
+			HEADLESS,
+			SOFT
 		};
  private:
 

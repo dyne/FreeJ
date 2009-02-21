@@ -30,7 +30,7 @@
 #include <controller.h>
 
 #include <sdl_screen.h>
-
+#include <soft_screen.h>
 #ifdef WITH_OPENGL
 #include <sdlgl_screen.h>
 #include <gl_screen.h>
@@ -201,6 +201,11 @@ bool Context::init
   case SDL:
     act("SDL video output");
     screen = new SdlScreen();
+    break;
+  case SOFT:
+    act("SOFT video output");
+    warning("warning: calling application should set_buffer(void*) accordingly");
+    screen = new SoftScreen();
     break;
 #ifdef WITH_OPENGL
   case SDLGL:

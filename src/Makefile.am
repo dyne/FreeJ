@@ -58,6 +58,7 @@ SOURCES = \
 	sdl_screen.cpp 	\
 	sdlgl_screen.cpp \
 	gl_screen.cpp   \
+	soft_screen.cpp \
 \
 	controller.cpp  \
 	kbd_ctrl.cpp	\
