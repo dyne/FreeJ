@@ -14,6 +14,7 @@
 #include "gen_f0r_layer.h"
 #include "text_layer.h"
 #include "video_layer.h"
+#include "geo_layer.h"
 
 #include "kbd_ctrl.h"
 #include "trigger_ctrl.h"
@@ -28,6 +29,8 @@
 
 //we need this for ifdefs in included headers
 %include <config.h>
+
+%import "inttypes.i"
 
 //ditch some of the defines we have that don't need to be exposed to the user
 %ignore THREADSAFE;
@@ -112,6 +115,7 @@ freej_entry_typemap_in(Encoder);
 %include "gen_f0r_layer.h"
 %include "text_layer.h"
 //%include "video_layer.h"
+%include "geo_layer.h"
 
 // controllers
 %include "controller.h"

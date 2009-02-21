@@ -167,25 +167,24 @@ bool TextLayer::set_fontsize(int sz) {
 
 void TextLayer::_display_text(SDL_Surface *newsurf) {
 
-  SDL_Surface *tmp = SDL_DisplayFormat(newsurf);
-  geo.w = tmp->w;
-  geo.h = tmp->h;
+  geo.w = newsurf->w;
+  geo.h = newsurf->h;
   geo.bpp = 32;
   geo.size = geo.w*geo.h*(geo.bpp/8);
   geo.pitch = geo.w*(geo.bpp/8);
 
   if (surf) SDL_FreeSurface(surf);
-  surf = tmp;
+  surf = newsurf;
 
 }
 
 void TextLayer::print_text(const char *str) {
-  SDL_Surface *tmp;
+  SDL_Surface *tmp, *newsurf;
   
   // choose first font and initialize ready for printing
   
   if(!env) {
-    error("TextLayer: can't print, environment is not yet assigned");
+    error("TextLayer: can't print, environment not assigned");
     return;
   }
 
@@ -203,11 +202,11 @@ void TextLayer::print_text(const char *str) {
   	error("Error render text: %s", SDL_GetError());
 	return;
   }
+  // newsurf will become next this->surf, we don't need to free
+  newsurf = SDL_DisplayFormat(tmp);
 
-  Closure *sync_display = NewSyncClosure(this, &TextLayer::_display_text, tmp);
-  add_job(sync_display);
-  sync_display->wait();
-  delete sync_display;
+  Closure *display = NewClosure(this, &TextLayer::_display_text, newsurf);
+  add_job(display);
 
   SDL_FreeSurface(tmp);
 

@@ -71,7 +71,7 @@ JS_CONSTRUCTOR("GeometryLayer",geometry_layer_constructor,GeoLayer);
     else \
       color = (uint32_t) (JSVAL_TO_INT(argv[num])); \
   } else \
-    color = lay->color;
+    color = lay->get_color();
 
 JS(geometry_layer_clear) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);  
@@ -98,7 +98,7 @@ JS(geometry_layer_color) {
   if(argc == 1) {
 
     JS_ARG_NUMBER(hex,0);
-    lay->color = (uint32_t)hex;
+    lay->set_color((uint32_t)hex);
     
   } else {
       js_ValueToUint16(cx, argv[0], &r);
@@ -110,11 +110,8 @@ JS(geometry_layer_color) {
         a = 0xff;
   }
   
-  if(SDL_BYTEORDER == SDL_LIL_ENDIAN) 
-    lay->color = a|(b<<8)|(g<<16)|(r<<24);
-  else
-    lay->color = a|(r<<8)|(g<<16)|(b<<24);
-  
+  lay->set_color(r, g, b, a);
+
   return JS_TRUE;
 }
 
