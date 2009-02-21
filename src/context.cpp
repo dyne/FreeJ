@@ -31,6 +31,7 @@
 
 #include <sdl_screen.h>
 #include <soft_screen.h>
+
 #ifdef WITH_OPENGL
 #include <sdlgl_screen.h>
 #include <gl_screen.h>
@@ -588,6 +589,12 @@ int Context::open_script(char *filename) {
   return js->open(filename);
 }
 
+
+int Context::parse_js_cmd(const char *cmd) {
+  return js->parse(cmd);
+}
+
+
 bool Context::config_check(const char *filename) {
   char tmp[512];
   
@@ -945,4 +952,3 @@ Layer *Context::open(char *file) {
     func("create_layer succesful, returns %p",nlayer);
   return nlayer;
 }
-

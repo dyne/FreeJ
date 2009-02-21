@@ -115,6 +115,9 @@ class Context {
   /* this returns the address of selected coords to video memory */
   void *coords(int x, int y) { return screen->coords(x,y); };
 
+  int parse_js_cmd(const char *cmd);
+
+
   int open_script(char *filename);
 
   bool config_check(const char *filename);
