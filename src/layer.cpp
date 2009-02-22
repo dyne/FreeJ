@@ -122,10 +122,10 @@ void Layer::run() {
   while(!quit) {
 
     do_jobs();
-		
-    tmp_buf = feed();
 
     lock();
+		
+    tmp_buf = feed();
 
     if(!tmp_buf) {
 
@@ -150,9 +150,9 @@ void Layer::run() {
 	filt = (FilterInstance *)filters.begin();
 	while(filt) {
 	  if(filt->active)
-	    tmp_buf = (void*) filt->process(0, (uint32_t*)tmp_buf);
+	    //  tmp_buf = (void*) filt->process(0, (uint32_t*)tmp_buf);
 	  // fps_speed ???
-	  //tmp_buf = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
+	  tmp_buf = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
 	  //					offset = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
 	  filt = (FilterInstance *)filt->next;
 	}
