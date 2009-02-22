@@ -21,6 +21,8 @@
  */
 
 #include <config.h>
+#include <stdlib.h>
+
 #ifdef linux
 #include <jutils.h>
 #include <xgrab_layer.h>
