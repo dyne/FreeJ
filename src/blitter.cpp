@@ -46,6 +46,11 @@ BLIT blit_xor(void *src, void *dst, int bytes, void *value) {
     *d ^= *s;
 }
 
+
+BLIT rgb_jmemcpy(void *src, void *dst, int bytes, void *value) {
+  jmemcpy(dst,src,bytes);
+}
+
 BLIT red_channel(void *src, void *dst, int bytes, void *value) {
   register int c;
   register uint8_t *s = (uint8_t*)src;
@@ -331,12 +336,18 @@ Blitter::Blitter() {
 
   /* fill up linklist of blits */
 
-  // default blit is SDLCPY RGB
+
   b = new Blit(); b->set_name("RGB");
+  sprintf(b->desc, "RGB blit (jmemcpy)");
+  b->type = Blit::LINEAR;
+  b->fun = rgb_jmemcpy; blitlist.prepend(b);
+  // default blit is SDLCPY RGB
+  current_blit = b; b->sel(true);
+
+  b = new Blit(); b->set_name("SDL");
   sprintf(b->desc,"RGB blit (SDL)");
   b->type = Blit::SDL;
   b->sdl_fun = sdl_rgb; blitlist.prepend(b);
-  current_blit = b; b->sel(true);
 
 
   b = new Blit(); b->set_name("ADD");
@@ -582,7 +593,7 @@ void Blitter::blit() {
 
     // setup crop variables
     pscr =
-      (uint32_t*)layer->screen->coords(0,0)
+      (uint32_t*)layer->screen->get_surface()
       + current_blit->scr_offset;
     play =
       (uint32_t*)offset + current_blit->lay_offset;
