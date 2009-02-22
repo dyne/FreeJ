@@ -150,9 +150,11 @@ Context::~Context() {
   layers.unlock(); // in case we crashed while cafudda'ing
   lay = (Layer *)layers.begin ();
   while (lay) {
-	lay-> stop();
+    //    lay-> stop();
+    lay->quit = true;
+    lay->do_jobs();
     lay-> rem(); // does layers.lock()
-    delete lay;
+    //    delete lay;
     lay = (Layer *)layers.begin ();
   }
 
@@ -322,7 +324,7 @@ void Context::cafudda(double secs) {
   
   ///////////////////////////////
   // start layers threads
-  rocknroll ();
+  //  rocknroll ();
   ///////////////////////////////
   
   

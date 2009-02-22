@@ -118,15 +118,18 @@ void Layer::run() {
   //pthread_self(), name);
   //  lock_feed();
   func("ok, layer %s in rolling loop",get_name());
+    
+  running = true;
 	
   while(!quit) {
 
     do_jobs();
 		
     tmp_buf = feed();
+    
+    //    lock();
 
-    lock();
-
+    // check if feed returned a NULL buffer
     if(!tmp_buf) {
 
       func("feed returns NULL on layer %s",get_name());
@@ -136,41 +139,39 @@ void Layer::run() {
       if(null_feeds > max_null_feeds) {
         warning("layer %s feed seems empty, deactivating", get_name());
         active = false;
-        unlock(); // avoid causing deadlocks
+	//        unlock(); // avoid causing deadlocks
         break;
       }
+      continue;
 
-    } else { // process filter on tmp_buf
+      ////////////////////////////////////////
+      // process filters on the feed buffer
+    } else {
 
       null_feeds = 0;
 
-      if( filters.len() ) {
-	FilterInstance *filt;
-	filters.lock();
-	filt = (FilterInstance *)filters.begin();
-	while(filt) {
-	  if(filt->active)
-	    //  tmp_buf = (void*) filt->process(0, (uint32_t*)tmp_buf);
-	  // fps_speed ???
-	  tmp_buf = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
-	  //					offset = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
-	  filt = (FilterInstance *)filt->next;
-	}
-	filters.unlock();
-      }
-      buffer = tmp_buf;
-    } // else
+      buffer = do_filters(tmp_buf);
 
-    unlock();
-
-    running = true;
+    }
+    
+    Closure *blit_cb = NewSyncClosure<Layer>(this, &Layer::blit);
+    add_job(blit_cb);
+    blit_cb->wait();
 
     //wait_feed();
-    sleep_feed();
+    //    sleep_feed();
   }
     
   running = false;
   func("%s this=%p thread end: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
+}
+
+
+void Layer::blit() {
+  //  lock();
+  offset = buffer;
+  blitter.blit(this);
+  //  unlock();
 }
 
 bool Layer::cafudda() {
@@ -179,6 +180,37 @@ bool Layer::cafudda() {
   if(!fade)
     if(!active || hidden)
       return false;
+
+  do_iterators();
+
+  // process all registered operations
+  // and signal to the synchronous waiting feed()
+  // includes blits and parameter changes
+  do_jobs();
+
+  
+  //signal_feed();
+
+  return(true);
+}
+
+void *Layer::do_filters(void *tmp_buf) {
+  if( filters.len() ) {
+    FilterInstance *filt;
+    filters.lock();
+    filt = (FilterInstance *)filters.begin();
+    while(filt) {
+      if(filt->active) {
+	tmp_buf = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
+      }
+      filt = (FilterInstance *)filt->next;
+    }
+    filters.unlock();
+  }
+  return tmp_buf;
+}
+
+int Layer::do_iterators() {
 
   /* process thru iterators */
   if(iterators.len()) {
@@ -201,22 +233,6 @@ bool Layer::cafudda() {
     }
     iterators.unlock();
   }
-
-  lock();
-  offset = buffer;
-  if(!offset) {
-    unlock();
-    signal_feed();
-    return(false);
-  }
-
-	
-  blitter.blit();
-  unlock();
-  
-  //signal_feed();
-
-  return(true);
 }
 
 bool Layer::set_parameter(int idx) {
@@ -239,7 +255,6 @@ bool Layer::set_parameter(int idx) {
 
   return true;
 }
-
 
 
 void Layer::set_filename(const char *f) {

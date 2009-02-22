@@ -138,12 +138,15 @@ class Layer: public Entry, public JSyncThread {
 
   Linklist<FilterInstance> filters;
   ///< Filter list of effects applied on the Layer
+  void *do_filters(void *tmp_buf); ///< process all filters on a buffer
 
   ScreenGeometry geo;
   ///< Geometrical information about the Layer
 
   Linklist<Iterator> iterators;
   ///< Iterator list of value modifiers
+  int do_iterators(); ///< process all registered iterators
+  
 
   bool active; ///< is active? (read-only)
   bool hidden; ///< is hidden (read-only by the blit)
@@ -154,6 +157,7 @@ class Layer: public Entry, public JSyncThread {
   int null_feeds; ///< counter of how many sequencial feed() returned null
   int max_null_feeds; ///< maximum null feeds tolerated
 
+  void blit(); ///< operates the blit
   Blitter blitter; ///< blitter class
 
   AudioCollector *audio; ///< registered audio collector

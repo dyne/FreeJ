@@ -117,7 +117,7 @@ class Blitter {
 
 
   /* ==== BLITS */
-  void blit();
+  void blit(Layer *src);
   bool set_blit(const char *name); ///< set the active blit
   void set_value(float val); ///< set the blit value
   bool fade_value(float step, float val); ///< fade to a new blit value

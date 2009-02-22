@@ -491,7 +491,7 @@ static int open_layer(char *cmd) {
     } else {
     */
     //	  l->set_fps(env->fps_speed);
-    //      l->start();
+    l->start();
     env->add_layer(l);
     l->active=true;
     l->fps=env->fps_speed;
@@ -525,7 +525,7 @@ static int open_text_layer(char *cmd) {
 
   
   txt->print_text(cmd);
-  //  txt->start();
+  txt->start();
   txt->set_fps(0);
   env->add_layer(txt);
   txt->active=true;
@@ -746,7 +746,8 @@ static int create_generator(char *cmd) {
     delete tmp;
     return 0;
   }
-  //  tmp->start();
+
+  tmp->start();
   tmp->set_fps(env->fps_speed);
   env->add_layer(tmp);
   tmp->active=true;

@@ -182,9 +182,10 @@ bool GenF0rLayer::init(Context *freej) {
 
 void *GenF0rLayer::feed() {
   void *res;
-  lock();
+  //  lock();
   res = generator->process(env->fps_speed, NULL);
-  unlock();
+  //  unlock();
+  return res;
 }
 
 bool GenF0rLayer::keypress(int key) {

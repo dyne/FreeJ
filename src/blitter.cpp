@@ -541,7 +541,7 @@ bool Blitter::init(Layer *lay) {
   return true;
 }
 
-void Blitter::blit() {
+void Blitter::blit(Layer *src) {
   register int16_t c;
   void *offset;
 
@@ -562,9 +562,9 @@ void Blitter::blit() {
     // if we have to rotate or scale,
     // create a sdl surface from current pixel buffer
     pre_rotozoom = SDL_CreateRGBSurfaceFrom
-      (layer->offset,
-       layer->geo.w, layer->geo.h, layer->geo.bpp,
-       layer->geo.pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
+      (src->offset,
+       src->geo.w, src->geo.h, src->geo.bpp,
+       src->geo.pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
 
     if(rotating) {
       
@@ -582,7 +582,7 @@ void Blitter::blit() {
 
     // free the temporary surface (needed again in sdl blits)
     
-  } else offset = layer->offset;
+  } else offset = src->offset;
 
 
 
@@ -593,7 +593,7 @@ void Blitter::blit() {
 
     // setup crop variables
     pscr =
-      (uint32_t*)layer->screen->get_surface()
+      (uint32_t*)src->screen->get_surface()
       + current_blit->scr_offset;
     play =
       (uint32_t*)offset + current_blit->lay_offset;
@@ -603,7 +603,7 @@ void Blitter::blit() {
 
       (*current_blit->fun)
 	((void*)play, (void*)pscr,
-	 current_blit->lay_bytepitch,// * layer->geo.bpp>>3,
+	 current_blit->lay_bytepitch,// * src->geo.bpp>>3,
 	 (void*)&current_blit->value);
 
       // strides down to the next line
@@ -619,7 +619,7 @@ void Blitter::blit() {
     
     (*current_blit->sdl_fun)
       (offset, &current_blit->sdl_rect,
-       ((SdlScreen*)layer->screen)->screen,
+       ((SdlScreen*)src->screen)->screen,
        NULL, geo, (void*)&current_blit->value);
 
   } else if (current_blit->type == Blit::PAST) {
@@ -628,7 +628,7 @@ void Blitter::blit() {
 
     // setup crop variables
     pscr =
-      (uint32_t*)layer->screen->coords(0,0)
+      (uint32_t*)src->screen->coords(0,0)
       + current_blit->scr_offset;
     play =
       (uint32_t*)offset
