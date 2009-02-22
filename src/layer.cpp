@@ -126,9 +126,9 @@ void Layer::run() {
     //    lock();
     //    do_jobs();
     //    unlock();
-
+    lock();
     tmp_buf = feed();
-    
+    unlock();
     //    lock();
 
     // check if feed returned a NULL buffer
@@ -170,10 +170,10 @@ void Layer::run() {
 
 
 void Layer::blit() {
-  //  lock();
+  lock();
   offset = buffer;
   blitter.blit(this);
-  //  unlock();
+  unlock();
 }
 
 bool Layer::cafudda() {
@@ -188,9 +188,7 @@ bool Layer::cafudda() {
   // process all registered operations
   // and signal to the synchronous waiting feed()
   // includes blits and parameter changes
-  lock();
   do_jobs();
-  unlock();
   
   //signal_feed();
 
