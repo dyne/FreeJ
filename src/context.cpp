@@ -150,9 +150,7 @@ Context::~Context() {
   layers.unlock(); // in case we crashed while cafudda'ing
   lay = (Layer *)layers.begin ();
   while (lay) {
-    //    lay-> stop();
-    lay->quit = true;
-    lay->do_jobs();
+    lay-> stop();
     lay-> rem(); // does layers.lock()
     //    delete lay;
     //  context doesn't deletes layers anymore -jrml feb2009

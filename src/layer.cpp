@@ -120,7 +120,9 @@ void Layer::run() {
   func("ok, layer %s in rolling loop",get_name());
     
   running = true;
-	
+
+  while(!feed()) jsleep(0,50);
+
   while(!quit) {
 
     //    lock();
@@ -128,7 +130,7 @@ void Layer::run() {
     //    unlock();
     lock();
     tmp_buf = feed();
-    unlock();
+
     //    lock();
 
     // check if feed returned a NULL buffer
@@ -141,7 +143,7 @@ void Layer::run() {
       if(null_feeds > max_null_feeds) {
         warning("layer %s feed seems empty, deactivating", get_name());
         active = false;
-	//        unlock(); // avoid causing deadlocks
+	unlock(); // avoid causing deadlocks
         break;
       }
       continue;
@@ -155,6 +157,8 @@ void Layer::run() {
       buffer = do_filters(tmp_buf);
 
     }
+
+    unlock();
     
     Closure *blit_cb = NewSyncClosure<Layer>(this, &Layer::blit);
     add_job(blit_cb);

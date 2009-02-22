@@ -122,11 +122,8 @@ void JSyncThread::_run() {
 
 void JSyncThread::stop() {
 	if (running) {
-		quit=true;
-		lock_feed();
-		signal_feed();
-		unlock_feed();
-		join();
+	  quit = true;
+	  do_jobs();
 	}
 }
 
