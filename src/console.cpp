@@ -494,7 +494,7 @@ static int open_layer(char *cmd) {
     l->start();
     env->add_layer(l);
     l->active=true;
-    l->fps=env->fps_speed;
+    //    l->fps=env->fps_speed;
 
     len = env->layers.len();
     notice("layer succesfully created, now you have %i layers",len);
@@ -526,7 +526,7 @@ static int open_text_layer(char *cmd) {
   
   txt->print_text(cmd);
   txt->start();
-  txt->set_fps(0);
+  //  txt->set_fps(0);
   env->add_layer(txt);
   txt->active=true;
   
@@ -748,7 +748,7 @@ static int create_generator(char *cmd) {
   }
 
   tmp->start();
-  tmp->set_fps(env->fps_speed);
+  //  tmp->set_fps(env->fps_speed);
   env->add_layer(tmp);
   tmp->active=true;
 
@@ -954,6 +954,7 @@ void Console::refresh() {
   canvas();
   layerprint(); layerlist();
   filterprint(); filterlist();  
+  speedmeter();
   update_scroll();
   if(!commandline)
     statusline(NULL);
@@ -998,38 +999,38 @@ void Console::statusline(char *msg) {
   SLsmg_set_color(PLAIN_COLOR);
 }
 
-/*
+
 void Console::speedmeter() {
   char tmp[256];
   SLsmg_gotorc(1,1);
-  sprintf(tmp,"Running at %.0f fps : ",env->fps);
+  sprintf(tmp,"Running at %.2f fps : ",env->fps_speed);
   SLsmg_set_color(PLAIN_COLOR);
   SLsmg_write_string(tmp);
-  if(env->fps <10) {
+  if(env->fps_speed <10) {
     SLsmg_set_color(12);
     SLsmg_write_string("very slow ");
-  } else if(env->fps < 24) {
+  } else if(env->fps_speed < 24) {
     SLsmg_set_color(2);
     SLsmg_write_string("slow ");
-  } else if(env->fps < 30) {
+  } else if(env->fps_speed < 30) {
     SLsmg_set_color(14);
     SLsmg_write_string("ok ");
-  } else if(env->fps > 30) {
+  } else if(env->fps_speed > 30) {
     SLsmg_set_color(3);
     SLsmg_write_string("smooth ");
-  } else if(env->fps > 40) {
+  } else if(env->fps_speed > 40) {
     SLsmg_set_color(13);
     SLsmg_write_string("fast ");
-  } else if(env->fps > 50) {
+  } else if(env->fps_speed > 50) {
     SLsmg_set_color(13);
     SLsmg_write_string("very fast ");
   }
-  SLsmg_draw_hline((int)env->fps);
+  SLsmg_draw_hline((int)env->fps_speed);
   SLsmg_set_color(PLAIN_COLOR);
   SLsmg_erase_eol();
 
 }
-*/
+
 void Console::canvas() {
   SLsmg_gotorc(0,0);
   SLsmg_set_color(TITLE_COLOR+20);

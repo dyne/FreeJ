@@ -95,7 +95,7 @@ class VideoLayer: public Layer {
 	int user_play_speed; /** play speed to be visualized to the user */
 	int play_speed; /** real speed */
 	int play_speed_control;
-	int frame_rate;
+
 
 	char *full_filename;
 

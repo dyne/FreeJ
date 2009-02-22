@@ -35,6 +35,7 @@
 
 #include <jsparser_data.h>
 
+#include <fps.h>
 
 Layer::Layer()
   :Entry(), JSyncThread() {
@@ -64,6 +65,8 @@ Layer::Layer()
 
   parameters = NULL;
   running = false;
+  fps = NULL;
+  frame_rate = 25; // default FPS
 }
 
 Layer::~Layer() {
@@ -78,7 +81,7 @@ Layer::~Layer() {
     jfree(bgmatte);
     bgmatte = NULL;
   }
-
+  if(fps) delete fps;
 }
 
 void Layer::_init(int wdt, int hgt) {
@@ -98,6 +101,10 @@ void Layer::_init(int wdt, int hgt) {
 
   /* initialize the blitter */
   blitter.init(this);
+
+  if(fps) delete(fps);
+  fps = new FPS();
+  fps->init(frame_rate);
 
   /* allocate memory for the matte background */
 //  bgmatte = jalloc(bgmatte,geo.size);
@@ -121,14 +128,14 @@ void Layer::run() {
     
   running = true;
 
-  while(!feed()) jsleep(0,50);
+  while(!feed()) fps->delay();
+
 
   while(!quit) {
 
     //    lock();
-    //    do_jobs();
     //    unlock();
-    lock();
+
     tmp_buf = feed();
 
     //    lock();
@@ -158,12 +165,11 @@ void Layer::run() {
 
     }
 
-    unlock();
+    //    unlock();
     
-    Closure *blit_cb = NewSyncClosure<Layer>(this, &Layer::blit);
-    add_job(blit_cb);
-    blit_cb->wait();
+    do_jobs();
 
+    fps->delay();
     //wait_feed();
     //    sleep_feed();
   }
@@ -192,8 +198,15 @@ bool Layer::cafudda() {
   // process all registered operations
   // and signal to the synchronous waiting feed()
   // includes blits and parameter changes
-  do_jobs();
-  
+  //  do_jobs();
+
+  {
+    Closure *blit_cb =
+      NewSyncClosure<Layer>(this, &Layer::blit);
+    add_job(blit_cb);
+    blit_cb->wait();
+    delete blit_cb;
+  }
   //signal_feed();
 
   return(true);
@@ -335,17 +348,6 @@ void Layer::fit(bool maintain_aspect_ratio) {
 	this->_fit(maintain_aspect_ratio);
 }
 
-/* wrap JSyncThread::get_fps() so we don't need to export it in SWIG */
-float Layer::get_fps() {
-	return JSyncThread::get_fps();
-}
-
-/* wrap JSyncThread::set_fps() so we don't need to export it in SWIG */
-float Layer::set_fps(float fps_new) {
-	float fps_old = JSyncThread::set_fps(fps_new);
-	JSyncThread::signal_feed();
-	return fps_old;
-}
 
 void Layer::pulse_alpha(int step, int value) {
   if(!fade) {

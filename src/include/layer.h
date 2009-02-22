@@ -43,6 +43,8 @@ class JSClass;
 class JSContext;
 class JSObject;
 
+class FPS;
+
 /* function for type detection of implemented layers */
 extern const char *layers_description;
 ///< list of implemented layers to print in help
@@ -121,8 +123,7 @@ class Layer: public Entry, public JSyncThread {
   
   void fit(bool maintain_aspect_ratio = true);
 
-  float get_fps();
-  float set_fps(float);
+
 
   /**
      If the Layer is in another blit mode then it is switched
@@ -174,6 +175,9 @@ class Layer: public Entry, public JSyncThread {
 
   unsigned int textureID; ///< opengl texture id
 
+  FPS *fps; ///< FPS class
+  int frame_rate; ///< value set by implemented layer type
+
  protected:
 
   void _init(int wdt, int hgt);
@@ -190,7 +194,9 @@ class Layer: public Entry, public JSyncThread {
 
   Context *env; ///< private pointer to the environment filled at _init()
 
+
  private:
+
 
 
   void _fit(bool maintain_aspect_ratio);

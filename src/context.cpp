@@ -422,8 +422,8 @@ void Context::cafudda(double secs) {
   
   
   /// FPS calculation
-  if(secs>0.0)
-    SDL_framerateDelay(&FPS); // synced with desired fps here
+  //  if(secs>0.0)
+  //  SDL_framerateDelay(&FPS); // synced with desired fps here
   // continues N seconds or quits after one cycle
   //    riciuca = (dtime() - now < secs) ? true : false;
   //////////////////////////////////

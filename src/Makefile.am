@@ -24,6 +24,7 @@ SUBDIRS = include
 SOURCES = \
 	context.cpp	\
 	layer.cpp	\
+	fps.cpp		\
 	blitter.cpp	\
 	iterator.cpp	\
 	linklist.cpp	\
