@@ -29,11 +29,13 @@
 
 #include <config.h>
 
+#include <console.h>
+
 #include <slang.h>
 #include <context.h>
 #include <blitter.h>
 
-#include <jsparser.h>
+//#include <jsparser.h>
 
 
 #include <jutils.h>
@@ -441,7 +443,7 @@ static int exec_script(char *cmd) {
     }
   }
 
-  env->js->open(cmd);
+  env->open_script(cmd);
 
   env->console->refresh();
   return 0;
@@ -453,7 +455,7 @@ static int exec_script_command(char *cmd) {
 
   // check that is a good file
   
-  env->js->parse(cmd);
+  env->parse_js_cmd(cmd);
 
   env->console->refresh();
   return 0;

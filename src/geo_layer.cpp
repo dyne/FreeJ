@@ -17,10 +17,14 @@
  *
  */
 
+#include <config.h>
+
+#include <stdlib.h>
+
 #include <jutils.h>
 #include <context.h>
 #include <geo_layer.h>
-#include <config.h>
+
 
 #include <jsparser_data.h>
 

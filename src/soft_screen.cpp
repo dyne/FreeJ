@@ -18,6 +18,9 @@
  */
 
 #include <config.h>
+
+#include <stdlib.h>
+
 #include <jutils.h>
 #include <soft_screen.h>
 
@@ -46,13 +49,14 @@ bool SoftScreen::init(int w, int h) {
   size = w*h*(bpp>>3);
   pitch = w*(bpp>>3);
 
+  // test
+  buffer = malloc(size);
+
   return true;
 }
 
 void SoftScreen::set_buffer(void *buf) {
-  lock();
   buffer = buf;
-  unlock();
 }
 
 void *SoftScreen::coords(int x, int y) {
@@ -60,13 +64,17 @@ void *SoftScreen::coords(int x, int y) {
 // if you are trying to get a cropped part of the layer
 // use the .pitch parameter for a pre-calculated stride
 // that is: number of bytes for one full line
-  if(!buffer) {
-    error("SOFT screen output is not properly initialised via set_buffer");
-    return NULL;
-  }
   return
     ( x + (w*y) +
-      (uint32_t*)buffer );
+      (uint32_t*)get_surface() );
 }
 
+void *SoftScreen::get_surface() {
+  if(!buffer) {
+    error("SOFT screen output is not properly initialised via set_buffer");
+    error("this will likely segfault FreeJ");
+    return NULL;
+  }
+  return buffer;
+}
 

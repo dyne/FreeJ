@@ -93,17 +93,21 @@ bool GlScreen::init(int width, int height) {
 	return(true);
 }
 
-void GlScreen::resize(int resize_w, int resize_h) {
-
-  // nop
-
-}
 
 void *GlScreen::coords(int x, int y) {
   // TODO : check to return the correct pixel buffer to draw on
-  return 
-    ( x + (w*y) +
-      (uint32_t*)screen->pixels );
+//   return 
+//     ( x + (w*y) +
+//       (uint32_t*)screen->pixels );
+  return(NULL);
+}
+
+
+void *GlScreen::get_surface() {
+  // TODO: which pixels?
+  //  return screen->pixels;
+  error("GlScreen::get_surface TODO (refactoring)");
+  return(NULL);
 }
 
 bool GlScreen::check_opengl_error()
@@ -189,41 +193,6 @@ bool GlScreen::glblitX(Layer *layer) {
 }
 */
 
-void GlScreen::show() {
-  // nop
-}
 
-void *GlScreen::get_surface() {
-  // TODO: which pixels?
-  return screen->pixels;
-}
-
-
-
-void GlScreen::clear() {
-  // nop
-}
-void GlScreen::fullscreen() {
-  // nop
-}
-
-bool GlScreen::lock() {
-  // TODO
-  return(true);
-}
-
-bool GlScreen::unlock() {
-  // TODO
-  return true;
-}
-
-int GlScreen::setres(int wx, int hx) {
-  // nop
-  return 1;
-}
-
-void GlScreen::set_magnification(int algo) {
-  // nop
-}
     
 #endif

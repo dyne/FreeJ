@@ -29,17 +29,8 @@ class SoftScreen : public ViewPort {
   ~SoftScreen();
 
   bool init(int w, int h);
-  void set_magnification(int algo) { };
-  void resize(int resize_w, int resize_h) { };
 
-  void fullscreen() { };
-  void show() { };
-  void clear() { };
-
-  bool lock() { return true; };
-  bool unlock() { return true; };
-  void *get_surface() { return buffer; };
-
+  void *get_surface();
 
   void set_buffer(void *buf);
   void *coords(int x, int y);

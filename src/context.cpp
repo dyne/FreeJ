@@ -28,6 +28,7 @@
 #include <context.h>
 #include <blitter.h>
 #include <controller.h>
+#include <console.h>
 
 #include <sdl_screen.h>
 #include <soft_screen.h>

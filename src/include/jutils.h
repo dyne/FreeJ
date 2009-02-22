@@ -21,7 +21,8 @@
 
 #include <inttypes.h>
 #include <errno.h>
-#include <console.h>
+
+class Console;
 
 // max length of (error)messages
 #define MAX_ERR_MSG 1024

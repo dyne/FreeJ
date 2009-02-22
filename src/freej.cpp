@@ -19,6 +19,7 @@
  *
  */
 
+#include <config.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -30,10 +31,11 @@
 #include <context.h>
 
 // #include <osd.h>
+#include <console.h>
 #include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
-#include <config.h>
+
 
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
@@ -88,7 +90,7 @@ int fps = 25;
 
 bool startstate = true;
 bool gtkgui = false;
-Context::VideoMode videomode = Context::SDL;
+Context::VideoMode videomode = Context::SDL; // SOFT; // SDL
 int audiomode = 0;
 bool noconsole = false;
 bool fullscreen = false;
@@ -177,7 +179,7 @@ void cmdline(int argc, char **argv) {
       break;
 
 #ifdef WITH_OPENGL
-   case 'g':
+    case 'g':
      videomode=Context::SDLGL;
 
       break;

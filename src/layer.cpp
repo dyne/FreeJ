@@ -122,10 +122,10 @@ void Layer::run() {
   while(!quit) {
 
     do_jobs();
-
-    lock();
 		
     tmp_buf = feed();
+
+    lock();
 
     if(!tmp_buf) {
 

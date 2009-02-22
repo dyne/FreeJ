@@ -1,3 +1,4 @@
+
 /*  FreeJ
  *  (c) Copyright 2001 Silvano Galliani aka kysucix <kysucix@dyne.org>
  *
@@ -36,7 +37,7 @@
 #include <jsparser_data.h>
 
 
-#define DEBUG 1
+// #define DEBUG 1
 
 
 VideoLayer::VideoLayer()
@@ -326,13 +327,13 @@ void *VideoLayer::feed() {
 #endif
 
 	      /* TODO(shammash): this may be good for streams but breaks
-	       * looping in files, needs fixing.
+	       * looping in files, needs fixing. */
 	      if(!pkt.duration) continue;
 	      
 	      if(!pkt.size || !pkt.data) {
 		return NULL;
 	      }
-	      */
+
 
 	    /**
 	     * check eof and loop

@@ -23,6 +23,7 @@
 #include <config.h>
 #include <parameter.h>
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <jutils.h>
 

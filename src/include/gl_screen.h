@@ -44,15 +44,13 @@ class GlScreen : public ViewPort {
   ~GlScreen();
 
   bool init(int widt, int height);
-  void set_magnification(int algo);
-  void resize(int resize_w, int resize_h);
 
-  void show();
   void drawframe();
-  void clear();
-
-  void fullscreen();
   void *get_surface();
+  void *coords(int x, int y);
+
+  // whis is the main window surface
+  SDL_Surface *surface;
 
   float x_translation;
   float y_translation;
@@ -67,9 +65,6 @@ class GlScreen : public ViewPort {
   GLuint texturize(Layer *layer);
   Vertex g_quadVertices[4];
 
-  // whis is the main window surface
-  SDL_Surface *surface;
-  void *coords(int x, int y);
 
   bool lock();
   bool unlock();

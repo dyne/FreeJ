@@ -70,14 +70,21 @@ class ViewPort {
      runtime resolving of methods between parent and child, which
      otherwise burdens our performance */ 
   virtual bool init(int width, int height) =0;
-  virtual void set_magnification(int algo) =0;
-  virtual void resize(int resize_w, int resize_h) =0;
-  virtual void show() =0;
-  virtual void clear() =0;
   virtual void *get_surface() =0; // returns direct pointer to video memory
-  virtual void fullscreen() =0;
-  virtual bool lock() =0;
-  virtual bool unlock() =0;
+  /* returns pointer to pixel
+     use it only once and then move around from there
+     because calling this on every pixel you draw is
+     slowing down everything! */
+  virtual void *coords(int x, int y) =0;
+
+  virtual void set_magnification(int algo) { };
+  virtual void resize(int resize_w, int resize_h) { };
+  virtual void show() { };
+  virtual void clear() { };
+
+  virtual void fullscreen() { };
+  virtual bool lock() { return(true); };
+  virtual bool unlock() { return(true); };
   SDL_Surface *screen;
   //SDL_Surface *surface;
 
@@ -93,11 +100,6 @@ class ViewPort {
   // opengl special blit
   bool opengl;
 
-  /* returns pointer to pixel
-     use it only once and then move around from there
-     because calling this on every pixel you draw is
-     slowing down everything! */
-  virtual void *coords(int x, int y) =0;
 
   //  uint32_t red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask;  
 
