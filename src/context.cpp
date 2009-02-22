@@ -137,8 +137,8 @@ Context::~Context() {
   
   if (console) {
     console->close ();
-    delete console;
-    console = NULL;
+    //    delete console;
+    //    console = NULL;
   }
 
   //js->gc(); 
@@ -155,6 +155,7 @@ Context::~Context() {
     lay->do_jobs();
     lay-> rem(); // does layers.lock()
     //    delete lay;
+    //  context doesn't deletes layers anymore -jrml feb2009
     lay = (Layer *)layers.begin ();
   }
 
@@ -163,7 +164,10 @@ Context::~Context() {
   while(enc) {
 	enc->stop();
     enc->rem();
-    delete enc;
+
+    //    delete enc;
+    //  context doesn't deletes anymore -jrml feb2009
+
     enc = (VideoEncoder *)encoders.begin();
   }
 
@@ -174,17 +178,22 @@ Context::~Context() {
     //    ctrl->quit = true;
     //    ctrl->signal_feed();
     //    ctrl->unlock();
-    delete ctrl;
+
+    //    delete ctrl;
+    //  context doesn't deletes anymore -jrml feb2009
+
     ctrl = (Controller *)controllers.begin();
   }
 
   // close MLT
   //  mlt_factory_close();
 
-  if (screen) {
-    delete screen;
-    screen = NULL;
-  }
+    //  context doesn't deletes anymore -jrml feb2009
+//   if (screen) {
+//     //    delete screen;
+
+//     screen = NULL;
+//   }
 /*
   if(audio) {
     delete audio;

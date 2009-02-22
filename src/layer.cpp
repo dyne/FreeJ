@@ -91,7 +91,7 @@ void Layer::_init(int wdt, int hgt) {
 
   //  this->freej = freej;
   //  geo.fps = freej->fps;
-  //geo.fps = env->fps_speed;
+  //  geo.fps = env->fps_speed;
   geo.x = 0;//(freej->screen->w - geo.w)/2;
   geo.y = 0;//(freej->screen->h - geo.h)/2;
   //  blitter->crop( freej->screen );
@@ -123,8 +123,10 @@ void Layer::run() {
 	
   while(!quit) {
 
-    do_jobs();
-		
+    //    lock();
+    //    do_jobs();
+    //    unlock();
+
     tmp_buf = feed();
     
     //    lock();
@@ -186,8 +188,9 @@ bool Layer::cafudda() {
   // process all registered operations
   // and signal to the synchronous waiting feed()
   // includes blits and parameter changes
+  lock();
   do_jobs();
-
+  unlock();
   
   //signal_feed();
 

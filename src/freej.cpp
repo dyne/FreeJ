@@ -339,9 +339,10 @@ int main (int argc, char **argv) {
 
       lay = create_layer(&freej, pp); // hey, this already init and open the layer !!
       if(lay)  { 
-	    lay->set_fps(fps);
         lay->start();
         freej.add_layer(lay);
+	lay->set_fps(fps);
+
         if (startstate) 
           lay->active = true;
 		else 

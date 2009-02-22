@@ -157,7 +157,7 @@ JS(constructor_func) {                                                        \
                          JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);          \
     return JS_FALSE;                                                          \
   }                                                                           \
-  layer->data = (void*)rval;                                                         \
+  layer->data = (void*)rval;                                                  \
   return JS_TRUE;							      \
 }
 /* this was removed from the error proccedure in the macro above:
