@@ -19,20 +19,30 @@
  *
  */
 
+#include <config.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <SDL_syswm.h>
 
+#include <layer.h>
+#include <linklist.h>
 #include <sdl_screen.h>
+
 #include <jutils.h>
-#include <config.h>
+
+#include <SDL_rotozoom.h>
 
 
 SdlScreen::SdlScreen()
   : ViewPort() {
   
-  screen = NULL;
+  sdl_screen = NULL;
   emuscr = NULL;
+
+  rotozoom = NULL;
+  pre_rotozoom = NULL;
+
   bpp = 32;
   dbl = false;
   sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL );
@@ -42,6 +52,7 @@ SdlScreen::SdlScreen()
   magnification = 0;
   switch_fullscreen = false;
 
+  //  set_name("SDL");
 }
 
 SdlScreen::~SdlScreen() {
@@ -61,7 +72,7 @@ bool SdlScreen::init(int width, int height) {
   }
 
   setres(width,height);
-  screen = SDL_GetVideoSurface();
+  sdl_screen = SDL_GetVideoSurface();
 
   w = width;
   h = height;
@@ -71,7 +82,13 @@ bool SdlScreen::init(int width, int height) {
   SDL_VideoDriverName(temp,120);
 
   notice("SDL Viewport is %s %ix%i %ibpp",
-	 temp,w,h,screen->format->BytesPerPixel<<3);
+	 temp,w,h,sdl_screen->format->BytesPerPixel<<3);
+
+  /* initialise blitters */
+  blitter = new Blitter();
+  setup_linear_blits(blitter); // add linear blitters
+  setup_sdl_blits(blitter); // add SDL blitters
+
 
   /* be nice with the window manager */
   sprintf(temp,"%s %s",PACKAGE,VERSION);
@@ -83,9 +100,125 @@ bool SdlScreen::init(int width, int height) {
   return(true);
 }
 
+void SdlScreen::blit(Layer *src) {
+  register int16_t c;
+  void *offset;
+  Blit *b;
+
+  if(src->rotating | src->zooming) {
+    
+    src->rotate += src->spin_rotation;
+    src->rotate = // cycle rotation
+      (src->rotate>360) ? (src->rotate-360):
+      (src->rotate<0)   ? (360+src->rotate):
+      src->rotate;
+    
+    src->spin_zoom = // cycle zoom
+      (src->zoom_x >= 1.7) ? -src->spin_zoom :
+      (src->zoom_x < 0.1)  ? -src->spin_zoom :
+      src->spin_zoom;
+    // zoom_y = zoom_x += spin_zoom;
+
+    // if we have to rotate or scale,
+    // create a sdl surface from current pixel buffer
+    pre_rotozoom = SDL_CreateRGBSurfaceFrom
+      (src->buffer,
+       src->geo.w, src->geo.h, src->geo.bpp,
+       src->geo.pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
+    
+    if(src->rotating) {
+      
+      rotozoom =
+	rotozoomSurface(pre_rotozoom, src->rotate, src->zoom_x, (int)src->antialias);
+      
+    } else if(src->zooming) {
+      
+      rotozoom =
+	zoomSurface(pre_rotozoom, src->zoom_x, src->zoom_y, (int)src->antialias);
+      
+    }
+    
+    offset = rotozoom->pixels;
+
+    // free the temporary surface (needed again in sdl blits)
+    
+  } else offset = src->buffer;
+
+
+
+
+  blitter->crop( src, this );
+
+  b = src->current_blit;
+  
+  // executes LINEAR blit
+  if( b->type == Blit::LINEAR ) {
+    
+    pscr = (uint32_t*) get_surface() + b->scr_offset;
+    play = (uint32_t*) offset        + b->lay_offset;
+    
+    // iterates the blit on each horizontal line
+    for( c = b->lay_height ; c > 0 ; c-- ) {
+      
+      (*b->fun)
+	((void*)play, (void*)pscr,
+	 b->lay_bytepitch,// * src->geo.bpp>>3,
+	 (void*)&b->value);
+      
+      // strides down to the next line
+      pscr += b->scr_stride + b->lay_pitch;
+      play += b->lay_stride + b->lay_pitch;
+    }
+    
+    // executes SDL blit
+  } else if (b->type == Blit::SDL) {
+    
+    (*b->sdl_fun)
+      (src->buffer, &b->sdl_rect, sdl_screen,
+       NULL, &src->geo, (void*)&b->value);
+
+  }
+
+//  else if (b->type == Blit::PAST) {
+//     // this is a linear blit which operates
+//     // line by line on the previous frame
+
+//     // setup crop variables
+//     pscr  = (uint32_t*)get_surface() + b->scr_offset;
+//     play  = (uint32_t*)offset        + b->lay_offset;
+//     ppast = (uint32_t*)b->past_frame + b->lay_offset;
+
+//     // iterates the blit on each horizontal line
+//     for(c = b->lay_height; c>0; c--) {
+      
+//       (*b->past_fun)
+// 	((void*)play, (void*)ppast, (void*)pscr,
+// 	 b->lay_bytepitch);
+      
+//       // copy the present to the past
+//       jmemcpy(ppast, play, geo->pitch);
+      
+//       // strides down to the next line
+//       pscr  += b->scr_stride + b->lay_pitch;
+//       play  += b->lay_stride + b->lay_pitch;
+//       ppast += b->lay_stride + b->lay_pitch;
+
+//     }
+//   }
+
+  // free rotozooming temporary surface
+  if(rotozoom) {
+    SDL_FreeSurface(pre_rotozoom);
+    pre_rotozoom = NULL;
+    SDL_FreeSurface(rotozoom);
+    rotozoom = NULL;
+  }
+  
+}
+
 void SdlScreen::resize(int resize_w, int resize_h) {
   act("resizing viewport to %u x %u",resize_w, resize_h);
-  screen = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
+  sdl_screen = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
   w = resize_w;
   h = resize_h;
   size = resize_w * resize_h * (bpp>>3);
@@ -95,7 +228,7 @@ void SdlScreen::resize(int resize_w, int resize_h) {
 void *SdlScreen::coords(int x, int y) {
   return 
     ( x + (w*y) +
-      (uint32_t*)screen->pixels );
+      (uint32_t*)sdl_screen->pixels );
 }
 
 void SdlScreen::show() {
@@ -103,13 +236,13 @@ void SdlScreen::show() {
   if(magnification==1) {
     lock();
     scale2x
-	((uint32_t*)screen->pixels,
+	((uint32_t*)sdl_screen->pixels,
 	 (uint32_t*)SDL_GetVideoSurface()->pixels);
     unlock();
   } else if(magnification==2) {
     lock();
     scale3x
-	((uint32_t*)screen->pixels,
+	((uint32_t*)sdl_screen->pixels,
 	 (uint32_t*)SDL_GetVideoSurface()->pixels);
     unlock();
   }
@@ -122,31 +255,31 @@ void SdlScreen::show() {
         sdl_flags |= SDL_FULLSCREEN;
     screen = SDL_SetVideoMode(w, h, bpp, sdl_flags);
 #else
-    SDL_WM_ToggleFullScreen(screen);
+    SDL_WM_ToggleFullScreen(sdl_screen);
 #endif
     switch_fullscreen = false;
   }
 
   lock();
-  SDL_Flip(screen);
+  SDL_Flip(sdl_screen);
   unlock();
 
 }
 
 void *SdlScreen::get_surface() {
-  return screen->pixels;
+  return sdl_screen->pixels;
 }
 
 void SdlScreen::clear() {
-  SDL_FillRect(screen,NULL,0x0);
+  SDL_FillRect(sdl_screen,NULL,0x0);
 }
 void SdlScreen::fullscreen() {
   switch_fullscreen = true;
 }
 
 bool SdlScreen::lock() {
-  if (!SDL_MUSTLOCK(screen)) return true;
-  if (SDL_LockSurface(screen) < 0) {
+  if (!SDL_MUSTLOCK(sdl_screen)) return true;
+  if (SDL_LockSurface(sdl_screen) < 0) {
     error("%s", SDL_GetError());
     return false;
   }
@@ -154,8 +287,8 @@ bool SdlScreen::lock() {
 }
 
 bool SdlScreen::unlock() {
-  if (SDL_MUSTLOCK(screen)) {
-    SDL_UnlockSurface(screen);
+  if (SDL_MUSTLOCK(sdl_screen)) {
+    SDL_UnlockSurface(sdl_screen);
   }
   return true;
 }
@@ -167,9 +300,9 @@ int SdlScreen::setres(int wx, int hx) {
   res = SDL_VideoModeOK(wx, hx, bpp, sdl_flags);
   
   
-  screen = SDL_SetVideoMode(wx, hx, bpp, sdl_flags);
+  sdl_screen = SDL_SetVideoMode(wx, hx, bpp, sdl_flags);
   //  screen = SDL_SetVideoMode(wx, hx, 0, sdl_flags);
-  if( screen == NULL ) {
+  if( sdl_screen == NULL ) {
     error("can't set video mode: %s\n", SDL_GetError());
     return(false);
   }
@@ -196,8 +329,8 @@ void SdlScreen::set_magnification(int algo) {
   if(algo==0) {
     notice("screen magnification off");
     setres(w,h);
-    if(magnification) SDL_FreeSurface(screen);
-    screen = SDL_GetVideoSurface();
+    if(magnification) SDL_FreeSurface(sdl_screen);
+    sdl_screen = SDL_GetVideoSurface();
 
   } else if(algo==1) {
 
@@ -219,7 +352,7 @@ void SdlScreen::set_magnification(int algo) {
 
   if(!magnification && algo) {
     func("create surface for magnification");
-    screen = SDL_CreateRGBSurface
+    sdl_screen = SDL_CreateRGBSurface
       (sdl_flags,w,h,bpp,red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
       //(sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
       //      (SDL_HWSURFACE,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);

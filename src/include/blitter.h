@@ -26,7 +26,10 @@
 #include <freej.h>
 
 #include <screen.h>
+#include <linklist.h>
 
+/////////////////////////////////// blit functions prototypes
+#define BLIT static inline void
 
 typedef void (blit_f)(void *src, void *dst, int len, void *value);
 
@@ -36,14 +39,25 @@ typedef void (blit_sdl_f)(void *src, SDL_Rect *src_rect,
 
 typedef void (blit_past_f)(void *src, void *past, void *dst, int len);
 
+///////////////////////////////////////////////////////////////////////
+
 class Layer;
 
-class Entry;
+
 template <class T> class Linklist;
+
+class Blitter;
+class ViewPort;
+
+////// blit setup functions to be used by the screen
+void setup_sdl_blits(Blitter *blitter);
+void setup_linear_blits(Blitter *blitter);
 
 
 class Blit: public Entry {
   friend class Blitter;
+  friend class ViewPort;
+
  public:
 
   Blit();
@@ -73,9 +87,7 @@ class Blit: public Entry {
 
   //  char *get_name();
 
- private:
-  // parameters for linear crop
-  
+
   int32_t scr_stride_dx;
   int32_t scr_stride_sx;
   int32_t scr_stride_up;
@@ -91,18 +103,21 @@ class Blit: public Entry {
   int32_t lay_height;
   uint32_t lay_offset;
 
+  SDL_Rect sdl_rect; // sdl crop rectangle
+
+ private:
+  // parameters for linear crop
+  
 
 
 
-  // sdl crop rectangle
-  SDL_Rect sdl_rect;
 
   // past blit buffer
   void *past_frame;
 
-  /* small vars used in blits */
-  int chan, c, cc;
-  uint32_t *scr, *pscr, *off, *poff, *pastoff, *ppastoff;
+/*   /\* small vars used in blits *\/ */
+/*   int chan, c, cc; */
+/*   uint32_t *scr, *pscr, *off, *poff, *pastoff, *ppastoff; */
 
 };
 
@@ -113,61 +128,32 @@ class Blitter {
   Blitter();
   ~Blitter();
 
-  bool init(Layer *lay); ///< initialize the blitter
-
-
-  /* ==== BLITS */
-  void blit(Layer *src);
-  bool set_blit(const char *name); ///< set the active blit
-  void set_value(float val); ///< set the blit value
-  bool fade_value(float step, float val); ///< fade to a new blit value
-  bool pulse_value(float step, float val); ///< pulse it to a value and come back
-  bool set_kernel(short *krn); /// set the convolution kernel
-  bool set_colorkey(int x,int y);
-
-  bool set_zoom(double x, double y);
-  bool set_rotate(double angle);
-  bool set_spin(double rot, double z);
 
   Linklist<Entry> blitlist; ///< list of available blits
 
   /* ==== CROP */
   /** @param force crop even if nothing changed */
-  void crop(bool force);
+  void crop(Layer *lay, ViewPort *scr);
   ///< crop to fit in the ViewPort
   
-  Layer *layer; ///< the layer on which is applied the blitter
+  ViewPort *screen; ///< the layer on which is applied the blitter
 
-  Blit *current_blit; ///< currently selected blit
-
-  bool antialias;
-  bool zooming;
-  bool rotating;
-  double zoom_x;
-  double zoom_y;
-  double rotate;
-  double spin_rotation;
-  double spin_zoom;
-
-  ViewPort *screen;
+  Blit *default_blit;
   
  private:
-  int16_t old_x;
-  int16_t old_y;
-  uint16_t old_w;
-  uint16_t old_h;
+  int16_t old_lay_x;
+  int16_t old_lay_y;
+  uint16_t old_lay_w;
+  uint16_t old_lay_h;
 
-  // generic blit buffer pointers
-  uint32_t *pscr, *play, *ppast;
+  int16_t old_scr_x;
+  int16_t old_scr_y;
+  uint16_t old_scr_w;
+  uint16_t old_scr_h;
 
 
 
-  SDL_Surface *sdl_dest;
 
-  SDL_Surface *pre_rotozoom;
-  SDL_Surface *rotozoom; ///< pointer to blittable surface (rotated and zoomed if necessary)
-
-  ScreenGeometry geo_rotozoom; ///< geometrical information about the rotozoomed Layer
   ScreenGeometry *geo;
 
 };
