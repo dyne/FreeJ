@@ -37,7 +37,11 @@
 #include <sdlgl_screen.h>
 #include <gl_screen.h>
 #endif
-
+#ifdef HAVE_DARWIN
+#ifdef WITH_COCOA
+#include <CVScreen.h>
+#endif
+#endif
 #include <SDL_imageFilter.h>
 #include <SDL_framerate.h>
 #include <jsparser.h>
@@ -231,6 +235,14 @@ bool Context::init
     act("GL headless output");
     screen = new GlScreen();
     break;
+#endif
+#ifdef HAVE_DARWIN
+#ifdef WITH_COCOA
+  case GL_COCOA:
+	act("GL Cocoa output");
+	screen = new CVScreen();
+	break;
+#endif
 #endif
   }
    
