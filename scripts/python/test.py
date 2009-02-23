@@ -17,6 +17,7 @@ lay = cx.open(sys.argv[1])
 filt = cx.filters["vertigo"]
 lay.add_filter(filt)
 lay.active = True
+lay.start()
 cx.add_layer(lay)
 
 th = threading.Thread(target = cx.start , name = "freej")
