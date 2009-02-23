@@ -36,9 +36,6 @@ JSyncThread::JSyncThread() {
   if(pthread_cond_init (&_cond_feed, NULL) == -1)
     error("error initializing POSIX thread feed condtition"); 
 
-  if(pthread_mutex_init(&_job_queue_mutex, NULL) == -1)
-    error("error initializing POSIX thread job queue mutex");
-
   pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_JOINABLE);
 
 	_fps = 0;
@@ -69,13 +66,6 @@ JSyncThread::~JSyncThread() {
   if(pthread_cond_destroy(&_cond_feed) == -1)
     error("error destroying POSIX thread feed attribute");
 
-  if(pthread_mutex_destroy(&_job_queue_mutex) == -1)
-    error("error destroying POSIX thread job queue mutex");
-  while (!_job_queue.empty()) {
-    delete _job_queue.front();
-    _job_queue.pop();
-  }
-
 	stop();
 	delete[] fpsd.data;
 
@@ -89,29 +79,6 @@ int JSyncThread::start() {
 	return pthread_create(&_thread, &_attr, &kickoff, this);
 }
 
-void JSyncThread::add_job(Closure *job) {
-	pthread_mutex_lock(&_job_queue_mutex);
-	_job_queue.push(job);
-	pthread_mutex_unlock(&_job_queue_mutex);
-}
-
-void JSyncThread::do_jobs() {
-	Closure *job;
-	bool to_delete;
-	if (pthread_mutex_trylock(&_job_queue_mutex))
-		return; // don't wait we'll get it next time
-	while (!_job_queue.empty()) {
-		// TODO(shammash): maybe we have to consider fps here and exit
-		// the loop even if queue is not empty
-		job = _job_queue.front();
-		_job_queue.pop();
-		// convention: synchronized jobs are deleted by caller
-		to_delete = !job->is_synchronized();
-		job->run();
-		if (to_delete) delete job;
-	}
-	pthread_mutex_unlock(&_job_queue_mutex);
-}
 
 void JSyncThread::_run() {
 	running = true;
@@ -121,10 +88,7 @@ void JSyncThread::_run() {
 }
 
 void JSyncThread::stop() {
-	if (running) {
-	  quit = true;
-	  do_jobs();
-	}
+  if (running) quit = true;
 }
 
 int JSyncThread::sleep_feed() { 

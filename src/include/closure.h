@@ -65,6 +65,25 @@
  *
  */
 
+#include <queue>
+
+using std::queue;
+
+class Closure;
+
+class Closing {
+ public:
+  Closing();
+  ~Closing();
+
+  void add_job(Closure *job);
+  void do_jobs();
+
+  queue<Closure *> _job_queue;
+  pthread_mutex_t _job_queue_mutex;
+
+};  
+
 
 class Closure {
   public:

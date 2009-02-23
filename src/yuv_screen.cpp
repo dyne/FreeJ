@@ -17,30 +17,37 @@
  *
  */
 
-#ifndef __SOFT_SCREEN_H__
-#define __SOFT_SCREEN_H__
+#include <config.h>
 
-#include <screen.h>
+#include <stdlib.h>
 
-class SoftScreen : public ViewPort {
+#include <jutils.h>
+#include <yuv_screen.h>
 
- public:
-  SoftScreen();
-  ~SoftScreen();
+YuvScreen::YuvScreen()
+  : ViewPort() {
 
-  bool init(int w, int h);
+  yuv_buffer = NULL;
+  rgb_buffer = NULL;
 
-  void *get_surface();
+}
 
-  void blit(Layer *src);
+YuvScreen::~YuvScreen() {
+  func("%s",__PRETTY_FUNCTION__);
+  if(yuv_buffer) delete yuv_buffer;
+  if(rgb_buffer) delete rgb_buffer;
+}
 
-  void set_buffer(void *buf);
-  void *coords(int x, int y);
+bool YuvScreen::init(int w, int h) {
 
-  void *buffer;
+  this->w = w;
+  this->h = h;
+  bpp = 32;
+  size = w*h*(bpp>>3);
+  pitch = w*(bpp>>3);
 
-  uint32_t *pscr, *play;  // generic blit buffer pointers
-  
-};
- 
-#endif
+  yuv_buffer = malloc(size);
+  rgb_buffer = malloc(size);
+
+
+}

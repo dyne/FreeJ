@@ -98,7 +98,7 @@ Context::Context() {
   fps_speed       = 25;
   fps = NULL;
 
-  layers_description =
+  layers_description = (char*)
 " .  - ImageLayer for image files (png, jpeg etc.)\n"
 " .  - GeometryLayer for scripted vectorial primitives\n"
 #ifdef WITH_V4L
@@ -326,7 +326,7 @@ void Context::start_threaded(){
  */
 void Context::cafudda(double secs) {
   VideoEncoder *enc;
-  Layer *lay;
+  //  Layer *lay;
   
   if(secs>0.0) /* if secs == 0 will go out after one cycle */
     now = dtime();
@@ -367,33 +367,40 @@ void Context::cafudda(double secs) {
   
   ///////////////////////////////
   /// cafudda all active LAYERS
-  lay = (Layer *)layers.end ();
-  ///// process each layer in the chain
-  if (lay) {
-    layers.lock ();
+//   lay = (Layer *)layers.end ();
+//   ///// process each layer in the chain
+//   if (lay) {
+//     layers.lock ();
     
-    while (lay) {
-      if (!pause)
-#ifdef WITH_OPENGL
-	if(screen->opengl)
-          {
-            lay->offset = lay->buffer;
-	    ((GlScreen*)screen)->glblit(lay);
-	  }
-	else
-#endif	  
-	  lay->cafudda ();
+//     while (lay) {
+//       if (!pause)
+// #ifdef WITH_OPENGL
+// 	if(screen->opengl)
+//           {
+//             lay->offset = lay->buffer;
+// 	    ((GlScreen*)screen)->glblit(lay);
+// 	  }
+// 	else
+// #endif	  
+// 	  lay->cafudda ();
       
-      lay = (Layer *)lay->prev;
+//       lay = (Layer *)lay->prev;
       
-    }
-    /////////// finish processing layers
-    //////////////////////////////////////
+//     }
+//     /////////// finish processing layers
+//     //////////////////////////////////////
     
-    layers.unlock ();
-  }
+//     layers.unlock ();
+//   }
   /////////// finish processing layers
   //////////////////////////////////////
+
+  /////////////////////////////
+  // blit layers on screens
+  screen->process(this);
+
+  screen->show();
+  /////////////////////////////
   
   
   //////////////////////////////////////
@@ -421,10 +428,6 @@ void Context::cafudda(double secs) {
   
   
   
-  /////////////////////////////
-  // show result on non GL screen 
-  screen->show();
-  /////////////////////////////
   
   
   /////////////////////////////
@@ -468,7 +471,8 @@ void Context::handle_resize() {
   Layer *lay = (Layer *) layers.begin ();
   while (lay) {
     lay -> lock ();
-    lay -> blitter.crop (screen);
+    screen->blitter->crop(lay, screen);
+    //    lay -> blitter.crop (screen);
     lay -> unlock ();
     lay = (Layer*) lay -> next;
   } 
@@ -566,12 +570,18 @@ void Context::add_layer(Layer *lay) {
 
   lay->env = this;
   lay->screen = screen;
-  lay->blitter.screen = screen;
+
+  // setup default blit
+  lay->current_blit =
+    (Blit*)screen->blitter->default_blit;
+  screen->blitter->blitlist.sel(0);
+  lay->current_blit->sel(true);
+
 
   // center the position
   //lay->geo.x = (screen->w - lay->geo.w)/2;
   //lay->geo.y = (screen->h - lay->geo.h)/2;
-  lay->blitter.crop( true );
+  //  screen->blitter->crop( lay, screen );
   layers.prepend(lay);
   layers.sel(0);
   lay->sel(true);

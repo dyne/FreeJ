@@ -34,21 +34,23 @@ class SdlScreen : public ViewPort {
   void set_magnification(int algo);
   void resize(int resize_w, int resize_h);
 
+  void blit(Layer *src);
   void show();
   void clear();
 
   void fullscreen();
   void *get_surface();
 
-  //SDL_Surface *screen;
-  //SDL_Surface *surface;
+
   SDL_Event event;
+  SDL_Surface *sdl_screen;
 
   void *coords(int x, int y);
 
   bool lock();
   bool unlock();
  
+
  private:
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
@@ -56,6 +58,19 @@ class SdlScreen : public ViewPort {
   bool switch_fullscreen;  
   bool dbl;
   uint32_t sdl_flags;
+
+  SDL_Surface *sdl_dest;
+
+  SDL_Surface *pre_rotozoom;
+  SDL_Surface *rotozoom; ///< pointer to blittable surface (rotated and zoomed if necessary)
+
+  ScreenGeometry geo_rotozoom; ///< geometrical information about the rotozoomed Layer
+
+  // small vars used in blits
+  int chan, c, cc;
+  uint32_t *scr, *off, *poff, *pastoff, *ppastoff;
+  uint32_t *pscr, *play, *ppast;  // generic blit buffer pointers
+
 
 };
 

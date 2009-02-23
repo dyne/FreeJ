@@ -19,17 +19,46 @@
  *
  */
 
+#include <config.h>
+#include <context.h>
 #include <screen.h>
 #include <layer.h>
 #include <scale2x.h>
 #include <scale3x.h>
-#include <config.h>
 
-ViewPort::ViewPort() {
+
+ViewPort::ViewPort()
+  : Entry() {
   opengl = false;
+  blitter = NULL;
 }
 
 ViewPort::~ViewPort() {
+  if(blitter) delete blitter;
+}
+
+int ViewPort::process(Context *env) {
+  Layer *lay;
+  lay = env->layers.end();
+  if (lay) {
+    env->layers.lock ();
+
+//////////////////////////////////////
+    while (lay) {
+
+      if (lay->active) {
+	
+	lay->blit();
+	
+      }
+
+      lay = (Layer *)lay->prev;
+    }
+/////////// finish processing layers
+    
+    env->layers.unlock ();
+  }
+  return(env->layers.len());
 }
 
 void ViewPort::scale2x(uint32_t *osrc, uint32_t *odst) {

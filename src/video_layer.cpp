@@ -37,7 +37,7 @@
 #include <jsparser_data.h>
 
 
-// #define DEBUG 1
+#define DEBUG 1
 
 
 VideoLayer::VideoLayer()
@@ -192,14 +192,14 @@ bool VideoLayer::open(const char *file) {
   for(int i=0; i < avformat_context -> nb_streams; i++) {
     avformat_stream = avformat_context -> streams[i];
     enc = avformat_stream->codec;
-    if(enc == NULL)
-      printf("enc nullo\n");
+    if(enc == NULL) error("%s: AVCodecContext is NULL", __PRETTY_FUNCTION__);
     //notice("VideoLayer:: Codec type= %d\n",enc->codec_type);
 
     /**
      * Here we look for a video stream
      */
     if (enc->codec_type == CODEC_TYPE_VIDEO) {
+      //      enc->flags |= CODEC_FLAG_LOOP_FILTER;
       video_index = i;
       codec = avcodec_find_decoder (enc -> codec_id);
       if(codec==NULL) {

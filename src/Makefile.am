@@ -26,9 +26,12 @@ SOURCES = \
 	layer.cpp	\
 	fps.cpp		\
 	blitter.cpp	\
+	sdl_blits.cpp   \
+	linear_blits.cpp \
 	iterator.cpp	\
 	linklist.cpp	\
 	jsync.cpp	\
+	closure.cpp     \
 	console.cpp	\
 	cpu_accel.cpp	\
 	plugin.cpp	\

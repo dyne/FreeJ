@@ -21,6 +21,8 @@
 
 #include <stdlib.h>
 
+#include <layer.h>
+
 #include <jutils.h>
 #include <soft_screen.h>
 
@@ -33,6 +35,7 @@ SoftScreen::SoftScreen()
   buffer = NULL;
   bpp = 32;
 
+  //  set_name("SOFT");
 }
 
 SoftScreen::~SoftScreen() {
@@ -52,7 +55,46 @@ bool SoftScreen::init(int w, int h) {
   // test
   buffer = malloc(size);
 
-  return true;
+  /* initialise blitters */
+  blitter = new Blitter();
+  // add linear blitters
+  // (see linear_blits.cpp)
+  setup_linear_blits(blitter);
+
+  return(true);
+}
+
+void SoftScreen::blit(Layer *src) {
+  register int16_t c;
+  Blit *b;
+  void *offset;
+  
+  if(src->screen != this) {
+    error("%s: blit called on a layer not belonging to screen",__PRETTY_FUNCTION__);
+    return;
+  }
+
+  blitter->crop( src, this);
+
+  b = src->current_blit;
+
+  pscr = (uint32_t*) get_surface() + b->scr_offset;
+  play = (uint32_t*) offset        + b->lay_offset;
+  
+  // iterates the blit on each horizontal line
+  for( c = b->lay_height ; c > 0 ; c-- ) {
+    
+    (*b->fun)
+      ((void*)play, (void*)pscr,
+       b->lay_bytepitch,// * src->geo.bpp>>3,
+       (void*)&b->value);
+    
+    // strides down to the next line
+    pscr += b->scr_stride + b->lay_pitch;
+    play += b->lay_stride + b->lay_pitch;
+    
+  }
+  
 }
 
 void SoftScreen::set_buffer(void *buf) {

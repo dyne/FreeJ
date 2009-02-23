@@ -30,7 +30,6 @@
 #include <inttypes.h>
 #include <freej.h>
 #include <filter.h>
-#include <blitter.h>
 #include <screen.h>
 #include <jsync.h>
 
@@ -38,6 +37,7 @@
 class Context;
 class AudioCollector;
 class Iterator;
+class Blitter;
 
 class JSClass;
 class JSContext;
@@ -82,7 +82,7 @@ extern Layer *create_layer(Context *env, char *file);
    
    @brief Layer parent abstract class
 */
-class Layer: public Entry, public JSyncThread {
+class Layer: public Closing, public Entry, public JSyncThread {
   friend class Blitter;
   friend class Context;
   friend class JSyncThread;
@@ -120,6 +120,19 @@ class Layer: public Entry, public JSyncThread {
 
   void slide_position(int x, int y, int speed);
   ///< Slide the Layer to a position on screen
+
+  bool set_zoom(double x, double y); ///< Zoom (resize) a Layer
+  bool set_rotate(double angle); ///< Rotate a Layer
+  bool set_spin(double rot, double z);
+  ///< continously zoom and rotate a Layer with a certain increment
+  bool antialias;
+  bool zooming;
+  bool rotating;
+  double zoom_x;
+  double zoom_y;
+  double rotate;
+  double spin_rotation;
+  double spin_zoom;
   
   void fit(bool maintain_aspect_ratio = true);
 
@@ -143,6 +156,8 @@ class Layer: public Entry, public JSyncThread {
 
   ScreenGeometry geo;
   ///< Geometrical information about the Layer
+  ScreenGeometry geo_rotozoom;
+  ///< Geometrical information about the Rotozoom
 
   Linklist<Iterator> iterators;
   ///< Iterator list of value modifiers
@@ -158,13 +173,21 @@ class Layer: public Entry, public JSyncThread {
   int null_feeds; ///< counter of how many sequencial feed() returned null
   int max_null_feeds; ///< maximum null feeds tolerated
 
-  void blit(); ///< operates the blit
-  Blitter blitter; ///< blitter class
+  //////////////////////// BLIT operations
+  Blit *current_blit;
+  char *get_blit(); ///< return the name of the currently seleted blit
+  bool set_blit(const char *bname); ///< select the current blit 
+  void blit(); ///< operates the current blit
+
+  ViewPort *screen;  
+
 
   AudioCollector *audio; ///< registered audio collector
 
   /** physical buffers */
+  void *buffer; ///< feed buffer returned by layer implementation
   void *offset; ///< pointer to pixel plane
+
 
   JSClass *jsclass; ///< pointer to the javascript class
 
@@ -183,12 +206,11 @@ class Layer: public Entry, public JSyncThread {
   void _init(int wdt, int hgt);
   ///< Layer abstract initialization
 
-  ViewPort *screen;
+  
 
   void set_filename(const char *f);
   char filename[256];
 
-  void *buffer; ///< feed buffer returned by layer implementation
 
   bool is_native_sdl_surface;
 
@@ -208,6 +230,7 @@ class Layer: public Entry, public JSyncThread {
   virtual void *feed() = 0; ///< feeds in the image source
 
   bool cafudda(); ///< cafudda is called by the Context
+
 
   void *bgmatte;
 

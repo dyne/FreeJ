@@ -26,6 +26,10 @@
 #include <config.h>
 #include <SDL.h>
 
+#include <blitter.h>
+#include <closure.h>
+#include <linklist.h>
+
 template <class T> class Linklist;
 
 ///////////////////////
@@ -58,13 +62,16 @@ template <class T> class Linklist;
 
 
 class Layer;
+class Blitter;
+class Context;
 
-class ViewPort {
+class ViewPort : public Entry {
   friend class Layer;
  public:
   ViewPort();
   virtual ~ViewPort();
 
+  int process(Context *env);
 
   /* i keep all the following functions pure virtual to deny the
      runtime resolving of methods between parent and child, which
@@ -77,6 +84,9 @@ class ViewPort {
      slowing down everything! */
   virtual void *coords(int x, int y) =0;
 
+  virtual void blit(Layer *src) =0;
+  Blitter *blitter;
+
   virtual void set_magnification(int algo) { };
   virtual void resize(int resize_w, int resize_h) { };
   virtual void show() { };
@@ -85,7 +95,7 @@ class ViewPort {
   virtual void fullscreen() { };
   virtual bool lock() { return(true); };
   virtual bool unlock() { return(true); };
-  SDL_Surface *screen;
+
   //SDL_Surface *surface;
 
   //  void add_layer(Layer *lay);   /// now moved in the context.h API
