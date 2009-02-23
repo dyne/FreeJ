@@ -195,7 +195,7 @@ void SdlGlScreen::check_opengl_error()
 
 }
 
-void SdlGlScreen::drawframe() {
+void SdlGlScreen::blit(Layer *lay) {
 	// bind freej texture and copy it
 	glBindTexture( GL_TEXTURE_2D, textureID );
 	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, screen->w, screen->h, 
@@ -231,7 +231,7 @@ void SdlGlScreen::drawframe() {
 }
 
 void SdlGlScreen::show() {
-	drawframe();
+  //	drawframe();
 	SDL_GL_SwapBuffers();
 	check_opengl_error();
 }
@@ -249,20 +249,15 @@ void SdlGlScreen::fullscreen() {
   SDL_WM_ToggleFullScreen(surface);
 }
 
-bool SdlGlScreen::lock() {
-  if (!SDL_MUSTLOCK(screen)) return true;
-  if (SDL_LockSurface(screen) < 0) {
-    error("%s", SDL_GetError());
-    return false;
-  }
-  return(true);
+void SdlGlScreen::lock() {
+  if (!SDL_MUSTLOCK(screen)) 
+    if (SDL_LockSurface(screen) < 0) 
+      error("%s", SDL_GetError());
 }
 
-bool SdlGlScreen::unlock() {
-  if (SDL_MUSTLOCK(screen)) {
+void SdlGlScreen::unlock() {
+  if (SDL_MUSTLOCK(screen))
     SDL_UnlockSurface(screen);
-  }
-  return true;
 }
 
 int SdlGlScreen::setres(int wx, int hx) {

@@ -47,8 +47,8 @@ class SdlScreen : public ViewPort {
 
   void *coords(int x, int y);
 
-  bool lock();
-  bool unlock();
+  void lock();
+  void unlock();
  
 
  private:

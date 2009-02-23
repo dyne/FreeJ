@@ -85,7 +85,6 @@ bool SdlScreen::init(int width, int height) {
 	 temp,w,h,sdl_screen->format->BytesPerPixel<<3);
 
   /* initialise blitters */
-  blitter = new Blitter();
   setup_linear_blits(blitter); // add linear blitters
   setup_sdl_blits(blitter); // add SDL blitters
 
@@ -277,20 +276,15 @@ void SdlScreen::fullscreen() {
   switch_fullscreen = true;
 }
 
-bool SdlScreen::lock() {
-  if (!SDL_MUSTLOCK(sdl_screen)) return true;
-  if (SDL_LockSurface(sdl_screen) < 0) {
-    error("%s", SDL_GetError());
-    return false;
-  }
-  return(true);
+void SdlScreen::lock() {
+  if (SDL_MUSTLOCK(sdl_screen))
+    if (SDL_LockSurface(sdl_screen) < 0)
+      error("%s", SDL_GetError());
 }
 
-bool SdlScreen::unlock() {
-  if (SDL_MUSTLOCK(sdl_screen)) {
+void SdlScreen::unlock() {
+  if (SDL_MUSTLOCK(sdl_screen))
     SDL_UnlockSurface(sdl_screen);
-  }
-  return true;
 }
 
 int SdlScreen::setres(int wx, int hx) {

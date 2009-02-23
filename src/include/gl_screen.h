@@ -46,29 +46,27 @@ class GlScreen : public ViewPort {
   bool init(int widt, int height);
 
   void drawframe();
+  void blit(Layer *l);
   void *get_surface();
   void *coords(int x, int y);
 
   // whis is the main window surface
-  SDL_Surface *surface;
+  //  SDL_Surface *surface;
 
-  float x_translation;
-  float y_translation;
-  float x_rotation;
-  float y_rotation;
-  float rotation;
-  float zoom;
+/*   float x_translation; */
+/*   float y_translation; */
+/*   float x_rotation; */
+/*   float y_rotation; */
+/*   float rotation; */
+/*   float zoom; */
 
   // opengl stuff
-  bool glblit(Layer *layer);
-  bool glblitX(Layer *layer);
-  GLuint texturize(Layer *layer);
-  Vertex g_quadVertices[4];
+/*   bool glblit(Layer *layer); */
+/*   bool glblitX(Layer *layer); */
+/*   GLuint texturize(Layer *layer); */
+/*   Vertex g_quadVertices[4]; */
 
 
-  bool lock();
-  bool unlock();
- 
  private:
   int setres(int wx, int hx);
   bool dbl;

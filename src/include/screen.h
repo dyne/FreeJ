@@ -22,8 +22,10 @@
 #ifndef __SCREEN_H__
 #define __SCREEN_H__
 
-#include <inttypes.h>
 #include <config.h>
+
+#include <inttypes.h>
+#include <pthread.h>
 #include <SDL.h>
 
 #include <blitter.h>
@@ -91,10 +93,12 @@ class ViewPort : public Entry {
   virtual void resize(int resize_w, int resize_h) { };
   virtual void show() { };
   virtual void clear() { };
-
   virtual void fullscreen() { };
-  virtual bool lock() { return(true); };
-  virtual bool unlock() { return(true); };
+
+  virtual void lock() { pthread_mutex_lock(&_mutex); };
+  virtual void unlock() { pthread_mutex_unlock(&_mutex); };
+  pthread_mutex_t _mutex;
+
 
   //SDL_Surface *surface;
 

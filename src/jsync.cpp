@@ -72,10 +72,8 @@ JSyncThread::~JSyncThread() {
 }
 
 int JSyncThread::start() {
-	if (running)
-		return EBUSY;
+	if (running) return EBUSY;
 	quit = false;
-	set_alarm(0.0001);
 	return pthread_create(&_thread, &_attr, &kickoff, this);
 }
 

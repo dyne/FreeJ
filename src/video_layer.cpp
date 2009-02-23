@@ -199,7 +199,7 @@ bool VideoLayer::open(const char *file) {
      * Here we look for a video stream
      */
     if (enc->codec_type == CODEC_TYPE_VIDEO) {
-      //      enc->flags |= CODEC_FLAG_LOOP_FILTER;
+      enc->flags |= CODEC_FLAG_LOOP_FILTER;
       video_index = i;
       codec = avcodec_find_decoder (enc -> codec_id);
       if(codec==NULL) {

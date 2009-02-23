@@ -232,6 +232,11 @@ bool Context::init
     screen = new GlScreen();
     break;
 #endif
+  default:
+    if(!screen) {
+      error("no screen initialised, bailing out");
+      return(false);
+    }
   }
    
   
@@ -298,8 +303,8 @@ void Context::start() {
 	quit = false;
 	running = true;
 	while(!quit) {
-		cafudda(0.0);
-		fps->delay();
+		cafudda(1.0);
+		// rocknroll();
 	}
 	running = false;
 }
@@ -335,7 +340,7 @@ void Context::cafudda(double secs) {
   
   ///////////////////////////////
   // start layers threads
-  //  rocknroll ();
+  // rocknroll ();
   ///////////////////////////////
   
   
@@ -355,37 +360,9 @@ void Context::cafudda(double secs) {
   
   ///////////////////////////////
   /// cafudda all active LAYERS
-//   lay = (Layer *)layers.end ();
-//   ///// process each layer in the chain
-//   if (lay) {
-//     layers.lock ();
-    
-//     while (lay) {
-//       if (!pause)
-// #ifdef WITH_OPENGL
-// 	if(screen->opengl)
-//           {
-//             lay->offset = lay->buffer;
-// 	    ((GlScreen*)screen)->glblit(lay);
-// 	  }
-// 	else
-// #endif	  
-// 	  lay->cafudda ();
-      
-//       lay = (Layer *)lay->prev;
-      
-//     }
-//     /////////// finish processing layers
-//     //////////////////////////////////////
-    
-//     layers.unlock ();
-//   }
-  /////////// finish processing layers
-  //////////////////////////////////////
-
-  /////////////////////////////
-  // blit layers on screens
+  // (blit layers on screen)
   screen->process(this);
+  /////////////////////////////
 
   screen->show();
   /////////////////////////////
@@ -559,12 +536,13 @@ void Context::add_layer(Layer *lay) {
   lay->env = this;
   lay->screen = screen;
 
-  // setup default blit
-  lay->current_blit =
-    (Blit*)screen->blitter->default_blit;
-  screen->blitter->blitlist.sel(0);
-  lay->current_blit->sel(true);
-
+  // if multiple blits are there, setup the default blit
+  if(screen->blitter->blitlist.len()>0) {
+    lay->current_blit =
+      (Blit*)screen->blitter->default_blit;
+    screen->blitter->blitlist.sel(0);
+    lay->current_blit->sel(true);
+  }
 
   // center the position
   //lay->geo.x = (screen->w - lay->geo.w)/2;

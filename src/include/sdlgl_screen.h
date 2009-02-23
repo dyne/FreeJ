@@ -42,11 +42,11 @@ class SdlGlScreen : public ViewPort {
   ~SdlGlScreen();
 
   bool init(int width, int height);
+  void blit(Layer *lay);
   void set_magnification(int algo);
   void resize(int resize_w, int resize_h);
 
   void show();
-  void drawframe();
   void clear();
 
   void fullscreen();
@@ -65,12 +65,14 @@ class SdlGlScreen : public ViewPort {
   
   Vertex g_quadVertices[4];
 
-  bool lock();
-  bool unlock();
+  void lock();
+  void unlock();
+
  
  private:
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
+  SDL_Surface *screen;
 
   GLuint textureID;
   

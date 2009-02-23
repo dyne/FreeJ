@@ -137,10 +137,9 @@ void Layer::run() {
   //  lock_feed();
   func("ok, layer %s in rolling loop",get_name());
     
-  running = true;
-
   while(!feed()) fps->delay();
 
+  running = true;
 
   while(!quit) {
 
@@ -206,6 +205,11 @@ bool Layer::set_blit(const char *bname) {
   Blit *b;
   int idx;
 
+  if(!screen) {
+    error("%s: Layer %s has no Screen registered",__PRETTY_FUNCTION__, name);
+    return(false);
+  }
+
   b = (Blit*)screen->blitter->blitlist.search(bname, &idx);
 
   if(!b) {
@@ -222,8 +226,12 @@ bool Layer::set_blit(const char *bname) {
 }
 
 void Layer::blit() {
-  if(!buffer) error("%s: NULL buffer in layer",__PRETTY_FUNCTION__);
+  if(!buffer) func("%s: NULL buffer in layer",__PRETTY_FUNCTION__);
   else {
+    /// DEADLOCK after some time?! (TODO
+    if(!opened) return;
+    if(!active || hidden) return;
+    
     lock();
     offset = buffer;
     screen->blit(this);
@@ -318,11 +326,11 @@ void Layer::set_filename(const char *f) {
 }
 
 void Layer::set_position(int x, int y) {
-  lock();
+
   slide_x = geo.x = x;
   slide_y = geo.y = y;
   screen->blitter->crop( this, screen );
-  unlock();
+
 }
 
 void Layer::slide_position(int x, int y, int speed) {
@@ -420,33 +428,32 @@ bool Layer::set_spin(double rot, double z) {
 
 
 void Layer::_fit(bool maintain_aspect_ratio){
-	if(env){
-		double width_zoom, height_zoom;
-		int new_x = 0;
-		int new_y = 0;
-		lock();
-		width_zoom = (double)env->screen->w / geo.w;
-		height_zoom = (double)env->screen->h / geo.h;
-		if (maintain_aspect_ratio){
-			//to maintain the aspect ratio we simply zoom to the smaller of the
-			//two zoom values
-			if(width_zoom > height_zoom) {
-				//if we're using the height zoom then there is going to be space
-				//in x [width] that is unfilled, so center it in the x
-				set_zoom(height_zoom, height_zoom);
-				new_x = ((double)(env->screen->w - height_zoom * geo.w) / 2.0);
-			} else {
-				//if we're using the width zoom then there is going to be space
-				//in y [height] that is unfilled, so center it in the y
-				set_zoom(width_zoom, width_zoom);
-				new_y = ((double)(env->screen->h - width_zoom * geo.h) / 2.0);
-			}
-		} else
-			set_zoom(width_zoom, height_zoom);
-		unlock();
-		//set_position locks, so we unlock before it
-		set_position(new_x, new_y);
-	}
+  if(env){
+    double width_zoom, height_zoom;
+    int new_x = 0;
+    int new_y = 0;
+
+    width_zoom = (double)env->screen->w / geo.w;
+    height_zoom = (double)env->screen->h / geo.h;
+    if (maintain_aspect_ratio){
+      //to maintain the aspect ratio we simply zoom to the smaller of the
+      //two zoom values
+      if(width_zoom > height_zoom) {
+	//if we're using the height zoom then there is going to be space
+	//in x [width] that is unfilled, so center it in the x
+	set_zoom(height_zoom, height_zoom);
+	new_x = ((double)(env->screen->w - height_zoom * geo.w) / 2.0);
+      } else {
+	//if we're using the width zoom then there is going to be space
+	//in y [height] that is unfilled, so center it in the y
+	set_zoom(width_zoom, width_zoom);
+	new_y = ((double)(env->screen->h - width_zoom * geo.h) / 2.0);
+      }
+    } else
+      set_zoom(width_zoom, height_zoom);
+    //set_position locks, so we unlock before it
+    set_position(new_x, new_y);
+  }
 }
 
 void Layer::fit(bool maintain_aspect_ratio) {

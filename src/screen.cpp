@@ -30,11 +30,11 @@
 ViewPort::ViewPort()
   : Entry() {
   opengl = false;
-  blitter = NULL;
+  blitter = new Blitter();
 }
 
 ViewPort::~ViewPort() {
-  if(blitter) delete blitter;
+  delete blitter;
 }
 
 int ViewPort::process(Context *env) {
@@ -43,18 +43,26 @@ int ViewPort::process(Context *env) {
   if (lay) {
     env->layers.lock ();
 
-//////////////////////////////////////
     while (lay) {
 
-      if (lay->active) {
-	
-	lay->blit();
-	
+      if (!lay->buffer) continue;
+
+      if (lay->active
+	  && !lay->hidden
+	  && lay->opened)  {
+
+	lock();
+	lay->lock();
+
+	blit(lay);
+
+	lay->unlock();
+	unlock();
       }
 
       lay = (Layer *)lay->prev;
     }
-/////////// finish processing layers
+    /////////// finish processing layers
     
     env->layers.unlock ();
   }
