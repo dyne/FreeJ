@@ -26,6 +26,7 @@
 #include <jsparser.h>
 #include <video_encoder.h>
 #include <controller.h>
+#include <fps.h>
 
 // global environment class
 JSClass global_class = {
@@ -269,7 +270,7 @@ JS(set_fps) {
 
   JS_ARG_NUMBER(fps, 0);
 
-  env->set_fps((int)fps);
+  env->fps->set((int)fps);
   return JS_TRUE;
 }
 

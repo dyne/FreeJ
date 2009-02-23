@@ -133,7 +133,15 @@ void Layer::run() {
 
   while(!quit) {
 
-    //    lock();
+    {
+      Closure *blit_cb =
+	NewClosure<Layer>(this, &Layer::blit);
+      add_job(blit_cb);
+      //      blit_cb->wait();
+      //      delete blit_cb;
+    }
+
+    lock();
     //    unlock();
 
     tmp_buf = feed();
@@ -165,9 +173,9 @@ void Layer::run() {
 
     }
 
-    //    unlock();
+    unlock();
     
-    do_jobs();
+    //    do_jobs();
 
     fps->delay();
     //wait_feed();
@@ -198,15 +206,8 @@ bool Layer::cafudda() {
   // process all registered operations
   // and signal to the synchronous waiting feed()
   // includes blits and parameter changes
-  //  do_jobs();
+  do_jobs();
 
-  {
-    Closure *blit_cb =
-      NewSyncClosure<Layer>(this, &Layer::blit);
-    add_job(blit_cb);
-    blit_cb->wait();
-    delete blit_cb;
-  }
   //signal_feed();
 
   return(true);

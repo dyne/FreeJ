@@ -35,7 +35,7 @@
 #include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
-
+#include <fps.h>
 
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
@@ -320,7 +320,7 @@ int main (int argc, char **argv) {
 
 
   // Set fps
-  freej.set_fps( fps );
+  freej.fps->set( fps );
 
   freej.start_running = startstate;
 
@@ -341,7 +341,7 @@ int main (int argc, char **argv) {
       if(lay)  { 
         lay->start();
         freej.add_layer(lay);
-	lay->set_fps(fps);
+	lay->fps->set(fps);
 
         if (startstate) 
           lay->active = true;

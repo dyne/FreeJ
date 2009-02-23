@@ -43,6 +43,8 @@
 #include <jsparser.h>
 #include <video_encoder.h>
 #include <audio_collector.h>
+#include <fps.h>
+
 #include <signal.h>
 #include <errno.h>
 
@@ -56,7 +58,6 @@
 
 void fsigpipe (int Sig);
 int got_sigpipe;
-FPSmanager FPS;
 
 void * run_context(void * data){
 	Context * context = (Context *)data;
@@ -90,7 +91,8 @@ Context::Context() {
   interactive     = true;
   poll_events     = true;
 
-  fps_speed       = 24;
+  fps_speed       = 25;
+  fps = NULL;
 
   layers_description =
 " .  - ImageLayer for image files (png, jpeg etc.)\n"
@@ -200,6 +202,8 @@ Context::~Context() {
 */
   //  plugger.close();
 
+  if(fps) delete(fps);
+
   notice ("cu on http://freej.dyne.org");
 }
 
@@ -268,8 +272,8 @@ bool Context::init
   if( SDL_imageFilterMMXdetect () )
     act ("using MMX accelerated blit");
 
-  SDL_initFramerate(&FPS);
-  SDL_setFramerate(&FPS, fps_speed);
+  fps = new FPS();
+  fps->init(fps_speed);
 
 //  if(init_audio) 
 //    audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
@@ -295,7 +299,7 @@ void Context::start() {
 	running = true;
 	while(!quit) {
 		cafudda(0.0);
-		SDL_framerateDelay(&FPS); // synced with desired fps here
+		fps->delay();
 	}
 	running = false;
 }
@@ -422,7 +426,7 @@ void Context::cafudda(double secs) {
   
   
   /// FPS calculation
-  //  if(secs>0.0)
+  if(secs>0.0) fps->delay();
   //  SDL_framerateDelay(&FPS); // synced with desired fps here
   // continues N seconds or quits after one cycle
   //    riciuca = (dtime() - now < secs) ? true : false;
@@ -666,12 +670,6 @@ void Context::magnify(int algo) {
 
 /* FPS */
 
-void Context::set_fps(int fps) {
-
-  fps_speed = fps;
-  SDL_setFramerate(&FPS, fps_speed);
-  act("engine running at %u FPS", SDL_getFramerate(&FPS));
-}
 
 void Context::rocknroll() {
   VideoEncoder *e;
