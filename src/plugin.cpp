@@ -3,6 +3,7 @@
 
 #include <plugin.h>
 #include <config.h>
+#include <stdio.h>
 
 typedef char* (getch)(void);
 typedef int (getint)(void);

@@ -236,13 +236,11 @@ bool Context::init
     screen = new GlScreen();
     break;
 #endif
-#ifdef HAVE_DARWIN
-#ifdef WITH_COCOA
+#ifdef HAVE_DARWIN && WITH_COCOA
   case GL_COCOA:
 	act("GL Cocoa output");
 	screen = new CVScreen();
 	break;
-#endif
 #endif
   }
    
@@ -571,11 +569,13 @@ void Context::add_layer(Layer *lay) {
   lay->env = this;
   lay->screen = screen;
 
-  // setup default blit
-  lay->current_blit =
-    (Blit*)screen->blitter->default_blit;
-  screen->blitter->blitlist.sel(0);
-  lay->current_blit->sel(true);
+  // setup default blit (if any)
+  if (screen->blitter) {
+	  lay->current_blit =
+		(Blit*)screen->blitter->default_blit;
+	  screen->blitter->blitlist.sel(0);
+	  lay->current_blit->sel(true);
+  }
 
 
   // center the position

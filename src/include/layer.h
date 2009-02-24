@@ -93,7 +93,10 @@ class Layer: public Closing, public Entry, public JSyncThread {
   enum Type {
 	  UNKNOWN,
 	  TEXT,
-	  F0R_GENERATOR
+	  F0R_GENERATOR,
+#ifdef HAVE_DARWIN && WITH_COCOA
+	  GL_COCOA
+#endif
   };
 
   Layer(); ///< Layer constructor

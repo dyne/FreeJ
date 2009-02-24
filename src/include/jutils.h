@@ -19,6 +19,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
+#include <stdlib.h>
 #include <inttypes.h>
 #include <errno.h>
 

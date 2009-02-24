@@ -70,7 +70,8 @@ class Context {
 			SDLGL,
 			GL_HEADLESS,
 			HEADLESS,
-			SOFT
+			SOFT,
+			GL_COCOA
 		};
  private:
 

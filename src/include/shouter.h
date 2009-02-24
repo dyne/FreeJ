@@ -29,6 +29,7 @@
 
 #include <string.h>
 #include <jsync.h>
+#include <linklist.h>
 
 template <class T> class Linklist;
 
