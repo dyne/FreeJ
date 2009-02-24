@@ -44,7 +44,7 @@ const char *layers_description =
 #ifdef WITH_FFMPEG
 " .  - MovieLayer for movie files, urls and firewire devices\n"
 #endif
-#ifdef WITH_FT2
+#if defined WITH_FT2 && defined WITH_FC
 " .  - TextLayer for text rendered with freetype2 library\n"
 #endif
 #ifdef WITH_FLASH
@@ -166,7 +166,7 @@ Layer *create_layer(Context *env, char *file) {
 	      }
   } else /* TXT LAYER */
     if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
-#ifdef WITH_FT2
+#if defined WITH_FT2 && defined WITH_FC
 	  nlayer = new TextLayer();
 
       if(!nlayer->init( env )) {

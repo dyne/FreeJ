@@ -246,6 +246,18 @@ else
    AC_MSG_RESULT(no)
 fi
    
+dnl ==============================================================
+dnl Check if there is FONTCONFIG
+dnl ==============================================================
+PKG_CHECK_MODULES(FC, fontconfig,
+                  have_fontconfig=yes, have_fontconfig=no)
+if test x$have_fontconfig = xyes; then
+   AC_DEFINE(WITH_FC,1,[define if linking fontconfig for font indexing])
+   AC_MSG_RESULT(yes)
+else
+   AC_MSG_RESULT(no)
+fi
+   
 dnl AC_HEADER_DIRENT
 
 dnl ==============================================================
@@ -728,31 +740,51 @@ echo "  CFLAGS: $SDL_CFLAGS"
 if test x$have_x11 = xyes; then
 echo "= X11"
 echo "  LIBS  : $X11_LIBS"
+else
+echo "= X11 disabled"
 fi
 
 if test x$use_opengl = xyes; then
 echo "= OpenGL"
 echo "  LIBS  : $OPENGL_LIB"
+else
+echo "= OpenGL disabled"
 fi
 
 echo "= Language bindings"
 if test x$have_python = xtrue; then
 echo "  Python LIBS   : $PYTHON_EXTRA_LIBS"
 echo "  Python CFLAGS : $PYTHON_CPPFLAGS"
+else
+echo "  Python disabled"
 fi
 if test x$have_ruby = xtrue; then
 echo "  Ruby LIBS     : $RUBY_LIBS"
 echo "  Ruby CFLAGS   : $RUBY_CFLAGS"
+else
+echo "  Ruby disabled"
 fi
 if test x$have_java = xtrue; then
 echo "  Java LIBS     : $JAVA_LIBS"
 echo "  Java CFLAGS   : $JAVA_CFLAGS"
+else
+echo "  Java disabled"
 fi
 
 if test x$have_freetype2 = xyes; then
 echo "= FreeType2"
 echo "  LIBS  : $FT2_LIBS"
 echo "  CFLAGS: $FT2_CFLAGS"
+else
+echo "= FreeType2 disabled"
+fi
+
+if test x$have_fontconfig = xyes; then
+echo "= Fontconfig"
+echo "  LIBS  : $FC_LIBS"
+echo "  CFLAGS: $FC_CFLAGS"
+else
+echo "= Fontconfig disabled"
 fi
 
 if test x$have_ffmpeg = xyes; then
@@ -762,6 +794,8 @@ echo "  LIBS  : $FFMPEG_LIBS"
 if test x$have_swscale = xyes; then
 echo "  using new swscale api"
 fi
+else
+echo "= ffmpeg (movie layer) disabled"
 fi
 
 dnl echo "= mlt (movie layer)"
@@ -769,8 +803,8 @@ dnl echo "  libs:   $MLT_LIBS"
 
 if test x$have_oggtheora = xyes; then
 echo "= ogg-theora (xiph.org)"
-echo "  libs  : $XIPH_LIBS"
-echo "  cflags: $XIPH_CFLAGS"
+echo "  LIBS  : $XIPH_LIBS"
+echo "  CFLAGS: $XIPH_CFLAGS"
 else
 	echo "= Ogg not found! libogg development is missing"
 	echo "  You'll not be able to save in ogg/theora"
@@ -780,25 +814,31 @@ else
 fi
 if test x$have_unicap = xyes; then
 echo "= unicap library"
-echo " libs : $UNICAP_LIBS"
-echo " cflags : $UNICAP_CFLAGS"
-fi
-if test x$use_opengl = xyes; then
-echo "= opengl"
-echo "  libs  : $OPENGL_LIB"
+echo "  LIBS  : $UNICAP_LIBS"
+echo "  CFLAGS: $UNICAP_CFLAGS"
+else
+echo "= unicap library disabled"
 fi
 if test x$have_flash = xyes; then
 echo "= Flash (ver.3 animations only)"
 echo "  LIBS  : $FLASH_LIBS (static)"
+else
+echo "= Flash (ver.3 animations only) disabled"
 fi
 if test x$have_lubrifications = xyes; then
 echo "= Building machine specific lubrificated binary"
+else
+echo "= Not building machine specific lubrificated binary"
 fi
 if test x$debug = xtrue; then
 echo "= Compiling with debugging symbols"
+else
+echo "= Not compiling with debugging symbols"
 fi
 if test x$have_profiling = xyes; then
 echo "= Including support for the GNU Profiler (see man gprof)"
+else
+echo "= Not including support for the GNU Profiler (see man gprof)"
 fi
 
 if test x$have_sound = xyes; then
@@ -813,6 +853,8 @@ if test x$have_sound = xyes; then
    if test x$have_fftw = xyes; then
       echo "  harmonics analisys: $FFTW_LIBS"
    fi
+else
+   echo "= Sound bus disabled"
 fi
 
 echo "= COMPILER FLAGS : $CFLAGS"
