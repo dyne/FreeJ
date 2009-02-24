@@ -246,6 +246,18 @@ else
    AC_MSG_RESULT(no)
 fi
    
+dnl ==============================================================
+dnl Check if there is FONTCONFIG
+dnl ==============================================================
+PKG_CHECK_MODULES(FC, fontconfig,
+                  have_fontconfig=yes, have_fontconfig=no)
+if test x$have_fontconfig = xyes; then
+   AC_DEFINE(WITH_FC,1,[define if linking fontconfig for font indexing])
+   AC_MSG_RESULT(yes)
+else
+   AC_MSG_RESULT(no)
+fi
+   
 dnl AC_HEADER_DIRENT
 
 dnl ==============================================================
@@ -753,6 +765,12 @@ if test x$have_freetype2 = xyes; then
 echo "= FreeType2"
 echo "  LIBS  : $FT2_LIBS"
 echo "  CFLAGS: $FT2_CFLAGS"
+fi
+
+if test x$have_fontconfig = xyes; then
+echo "= Fontconfig"
+echo "  LIBS  : $FC_LIBS"
+echo "  CFLAGS: $FC_CFLAGS"
 fi
 
 if test x$have_ffmpeg = xyes; then

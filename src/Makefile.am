@@ -14,7 +14,7 @@ INCLUDES = -I$(top_srcdir)/src/include           \
            -I/usr/include/slang
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@ \
+AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@ \
 	      -freg-struct-return \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
@@ -119,6 +119,7 @@ shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 		 @SDL_LIBS@     \
 		 @FLASH_LIBS@   \
 		 @FT2_LIBS@     \
+		 @FC_LIBS@      \
                  @ALSA_LIBS@    \
 		 @JACK_LIBS@    \
 		 @GOOM_LIBS@    \

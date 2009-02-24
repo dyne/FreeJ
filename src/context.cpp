@@ -104,7 +104,7 @@ Context::Context() {
 #ifdef WITH_FFMPEG
 " .  - MovieLayer for movie files, urls and firewire devices\n"
 #endif
-#ifdef WITH_FT2
+#if defined WITH_FT2 && defined WITH_FC
 " .  - TextLayer for text rendered with freetype2 library\n"
 #endif
 #ifdef WITH_FLASH
@@ -125,18 +125,6 @@ Context::~Context() {
 
   running = false;
 
-#ifdef WITH_FT2
-  // free font path array
-  int c;
-  if(font_files) {
-    for(c=0; c<num_fonts; c++)
-      free( font_files[c] );
-    num_fonts = 0;
-    free(font_files);
-  }
-#endif
-  
-  
   if (console) {
     console->close ();
     //    delete console;
@@ -249,28 +237,6 @@ bool Context::init
   // create javascript object
   js = new JsParser (this);
 
-#ifdef WITH_FT2
-  num_fonts = 0;
-  font_files = NULL;
-
-  // parse all font directories  
-  scanfonts("/usr/X11R6/lib/X11/fonts", 1);
-  scanfonts("/usr/share/truetype", 0);
-  scanfonts("/usr/share/fonts/truetype", 1);
-  scanfonts("/usr/share/fonts", 1);
-
-
-  if(!num_fonts) {
-    error("no truetype fonts found on your system");
-    error("you should install .ttf fonts in one of the directories above.");
-  } else {
-    notice("Found %i fonts installed",num_fonts);
-    for(int c=0;c<num_fonts;c++)
-      func("%u - %s",c,font_files[c]);
-  }
-#endif
-
-  
   // a fast benchmark to select the best memcpy to use
   find_best_memcpy ();
   
@@ -856,7 +822,7 @@ Layer *Context::open(char *file) {
 	      }
   } else /* TXT LAYER */
     if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
-#ifdef WITH_FT2
+#if defined WITH_FT2 && defined WITH_FC
 	  nlayer = new TextLayer();
 
       if(!nlayer->init( this )) {
