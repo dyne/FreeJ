@@ -8,109 +8,8 @@
  */
 
 #include "CVideoGrabber.h"
+#include "CFreej.h"
 #include <jutils.h>
-
-CVideoGrabber::CVideoGrabber(CVideoOutput *vout) : Layer()
-{
-	output = vout;
-	vbuffer = NULL;
-	bufsize = 0;
-}
-
-CVideoGrabber::~CVideoGrabber()
-{
-	close();
-	if (vbuffer)
-		free(vbuffer);
-}
-
-bool
-CVideoGrabber::open(const char *dev)
-{
-	return true;
-}
-
-bool
-CVideoGrabber::init(Context *ctx)
-{
-	 // * TODO - probe resolution of the default input device
-	return init(freej, 640, 480);
-}
-
-bool
-CVideoGrabber::init(Context *ctx, int w, int h)
-{
-	width = w;
-	height = h;
-	freej = ctx;
-	_init(width,height);
-	return true;
-}
-
-void *
-CVideoGrabber::feed()
-{
-	time_t pts = 0;
-	
-    @synchronized (output)
-    {
-		pts = [output copyCurrentFrameToBuffer: &vbuffer size:&bufsize];
-    }
-	
-	/* Nothing to display yet, just forget */
-    if( !pts ) 
-        return NULL;
-   
-    return vbuffer;
-}
-
-void
-CVideoGrabber::close()
-{
-	
-}
-
-bool
-CVideoGrabber::forward()
-{
-	return false;
-}
-
-bool
-CVideoGrabber::backward()
-{
-	return false;
-}
-
-bool
-CVideoGrabber::backward_one_keyframe()
-{
-	return false;
-}
-
-bool
-CVideoGrabber::set_mark_in()
-{
-	return false;
-}
-
-bool
-CVideoGrabber::set_mark_out()
-{
-	return false;
-}
-
-void
-CVideoGrabber::pause()
-{
-}
-
-bool
-CVideoGrabber::relative_seek(double increment)
-{
-	return false;
-}
-
 
 /* Apple sample code */
 @implementation CVideoOutput : QTCaptureDecompressedVideoOutput
@@ -119,6 +18,7 @@ CVideoGrabber::relative_seek(double increment)
 {
     if( self = [super init] ) {
         currentImageBuffer = nil;
+		freejImageBuffer = nil;
         currentPts = 0;
         previousPts = 0;
 		width = 640;
@@ -141,9 +41,8 @@ CVideoGrabber::relative_seek(double increment)
     // Store the latest frame
     // This must be done in a @synchronized block because this delegate method is not called on the main thread
     CVImageBufferRef imageBufferToRelease;
-
+	[QTMovie enterQTKitOnThread];
     CVBufferRetain(videoFrame);
-
     @synchronized (self)
     {
         imageBufferToRelease = currentImageBuffer;
@@ -153,45 +52,12 @@ CVideoGrabber::relative_seek(double increment)
         /* Try to use hosttime of the sample if available, because iSight Pts seems broken */
         NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
         if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
-    }
-    CVBufferRelease(imageBufferToRelease);
-}
-
-- (time_t)copyCurrentFrameToBuffer:(void **)buffer size:(int *)bufsize
-{
-    CVImageBufferRef imageBuffer;
-    time_t pts;
-	OSType pixelFormat = 0;
-
-    if(!currentImageBuffer || currentPts == previousPts )
-        return 0;
-
-    @synchronized (self)
-    {
-        imageBuffer = CVBufferRetain(currentImageBuffer);
-        pts = previousPts = currentPts;
-
-        CVPixelBufferLockBaseAddress(imageBuffer, 0);
-        void * pixels = CVPixelBufferGetBaseAddress(imageBuffer);
-		pixelFormat=CVPixelBufferGetPixelFormatType(imageBuffer);
-		int size = CVPixelBufferGetBytesPerRow(imageBuffer) * CVPixelBufferGetHeight(imageBuffer);
-		
-		if (*buffer) {
-			if (*bufsize < size) {
-				*bufsize = size;
-				*buffer = realloc(buffer, size);
-			}
-		} else {
-			*bufsize = size;
-			*buffer = malloc(size);
+		if (layer) {
+			layer->buffer = (void *)currentImageBuffer;
 		}
-        memcpy( *buffer, pixels, size );
-        CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
     }
-
-    CVBufferRelease(imageBuffer);
-
-    return currentPts;
+	[QTMovie exitQTKitOnThread];
+    CVBufferRelease(imageBufferToRelease);
 }
 
 - (void)awakeFromNib
@@ -224,7 +90,7 @@ CVideoGrabber::relative_seek(double increment)
 	notice( "QTCapture opened" );
 
     NSError *o_returnedError;
-
+	[QTMovie enterQTKitOnThread];
     device = [QTCaptureDevice defaultInputDeviceWithMediaType: QTMediaTypeVideo];
     if( !device )
     {
@@ -261,7 +127,7 @@ CVideoGrabber::relative_seek(double increment)
     [self setPixelBufferAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
         [NSNumber numberWithInt:height], kCVPixelBufferHeightKey,
         [NSNumber numberWithInt:width], kCVPixelBufferWidthKey, 
-		[NSNumber numberWithInt:kCVPixelFormatType_32BGRA],
+		[NSNumber numberWithInt:kCVPixelFormatType_32ARGB],
 		(id)kCVPixelBufferPixelFormatTypeKey, nil]];
 
     session = [[QTCaptureSession alloc] init];
@@ -285,37 +151,55 @@ CVideoGrabber::relative_seek(double increment)
     notice( "Video device ready!" );
 
 	running = true;
+	[QTMovie exitQTKitOnThread];
+	Context *ctx = [freej getContext];
+	layer = new CVLayer((NSObject *)self);
+	layer->init(ctx);
+	layer->activate();
 	return;
 error:
+	[QTMovie exitQTKitOnThread];
 	[input release];
 
 }
 
 - (IBAction)stopCapture:(id)sender
 {
-	if (session) {
-		[session stopRunning];
-		if (input) {
-			[session removeInput:input];
-			[input release];
-			input = NULL;
+	@synchronized (self) {
+		[QTMovie enterQTKitOnThread];
+		if (session) {
+			[session stopRunning];
+			if (input) {
+				[session removeInput:input];
+				[input release];
+				input = NULL;
+			}
+			[session removeOutput:self];
+			[session release];
 		}
-		[session removeOutput:self];
-		[session release];
+		/*
+		if (output) {
+			[output release];
+			output = NULL;
+		}
+		*/
+		if (device) {
+			if ([device isOpen])
+				[device close];
+			[device release];
+			device = NULL;
+		}
+
+		freejImageBuffer = NULL;
+		[QTMovie exitQTKitOnThread];
+		if (layer) {
+			Context *ctx = [freej getContext];
+			ctx->rem_layer(layer);
+			delete(layer);
+			layer = NULL;
+		}
+		running = false;
 	}
-	/*
-	if (output) {
-		[output release];
-		output = NULL;
-	}
-	*/
-	if (device) {
-		if ([device isOpen])
-			[device close];
-		[device release];
-		device = NULL;
-	}
-	running = false;
 }
 
 - (IBAction)toggleCapture:(id)sender
@@ -325,6 +209,36 @@ error:
 	else
 		[self startCapture:self];
 }
+
+- (void *)grabFrame
+{
+	return (void *)[self getTexture];
+}
+
+- (CIImage *)getTexture
+{
+    time_t pts;
+	//freejImageBuffer = NULL;
+	
+	if(!currentImageBuffer || currentPts == previousPts )
+        return freejImageBuffer;
+
+    @synchronized (self)
+    {
+        pts = previousPts = currentPts;
+
+		if (freejImageBuffer) {
+			[freejImageBuffer release];
+		}
+
+		freejImageBuffer = [CIImage imageWithCVImageBuffer:currentImageBuffer];
+		[freejImageBuffer retain];
+    }
+
+    return freejImageBuffer;
+}
+
+@synthesize layer;
 @end
 
 

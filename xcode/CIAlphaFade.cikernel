@@ -1,0 +1,9 @@
+/* 
+Fades alpha of image. 
+*/  
+kernel vec4 alphaFade(sampler image, float Opacity)  
+{  
+	vec4 pix =  sample(image, samplerCoord(image));  
+	pix.a = pix.a * Opacity;  
+	return pix;  
+} 

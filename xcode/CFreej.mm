@@ -6,58 +6,90 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 #import "CFreej.h"
+#import "CVideoFile.h"
 
 extern int freej_main(int argc, char **argv);
 @implementation CFreej
+
+- (void) consoleOutput:(id)object
+{
+    NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
+	char buf[1024];
+	struct timeval timeout = { 1, 0 };
+	fd_set rfds;
+	
+	fcntl(stdout_pipe[0], F_SETFL, O_NONBLOCK);
+	fcntl(stderr_pipe[0], F_SETFL, O_NONBLOCK);
+
+	buf[1024] = 0;
+	for (;;) {
+		memset(buf, 0, sizeof(buf));
+		if ([outputPanel isEditable])
+			[outputPanel setEditable:NO];
+		FD_ZERO(&rfds);
+		FD_SET(stdout_pipe[0], &rfds);
+		FD_SET(stderr_pipe[0], &rfds);
+		int maxfd = ((stdout_pipe[0] > stderr_pipe[0])?stdout_pipe[0]:stderr_pipe[0]) +1;
+		switch (select(maxfd, &rfds, NULL, NULL, &timeout)) {
+		case -1:
+		case 0:
+			break;
+		default:
+			if (FD_ISSET(stdout_pipe[0], &rfds)) {
+				while (read(stdout_pipe[0], buf, sizeof(buf)-1) > 0) {
+					NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
+					@synchronized (outputPanel)
+					{
+						[outputPanel setEditable:YES];
+						[outputPanel insertText:msg];
+						[outputPanel setEditable:NO];
+					}
+					[msg release];
+				}
+			}
+			if (FD_ISSET(stderr_pipe[0], &rfds)) {
+				while (read(stderr_pipe[0], buf, sizeof(buf)-1) > 0) {
+					NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
+					@synchronized (outputPanel)
+					{
+						[outputPanel setEditable:YES];
+						[outputPanel insertText:msg];
+						[outputPanel setEditable:NO];
+					}
+					[msg release];
+				}
+			}
+		}
+	}
+    [p release];
+}
  
+-(void)awakeFromNib
+{
+	
+
+}
+
 -(id)init
 {
 	if (self = [super init]) 
 	{
-		freej = new Context();
-		freej->quit = true;
-	}
-	return self;	
-}
-
-- (void) runFreej 
-{
-     
-}
-
-- (void) runFreej:(id)object
-{
-    NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
-	while (!freej->quit)
-		freej->cafudda(1.0);
-	freej->rem_layer(captureLayer);
-	delete(freej->screen);
-	freej->screen = NULL;
-    [p release];
-}
-
-- (IBAction)run:(id)sender 
-{
-	if (freej->quit) {
-		const char *filename = [[scriptPath stringValue] UTF8String];
-		freej->quit = false;
-		assert( freej->init(640, 480, Context::SDL, 0) );
-		freej->plugger.refresh(freej);
-		freej->config_check("keyboard.js");
-		captureLayer = new CVideoGrabber(captureDevice);
-		captureLayer->init(freej);
-		captureLayer->open(NULL);
-		captureLayer->start();
-		freej->add_layer(captureLayer);
-		captureLayer->active = true;
-		freej->open_script((char *)filename);
-
-		[NSThread detachNewThreadSelector:@selector(runFreej:) 
+		pipe(stdout_pipe);
+		pipe(stderr_pipe);
+		dup2(stdout_pipe[1], fileno(stdout));
+		dup2(stderr_pipe[1], fileno(stderr));
+		close(stdout_pipe[1]);
+		close(stderr_pipe[1]);
+		[NSThread detachNewThreadSelector:@selector(consoleOutput:) 
 			toTarget:self withObject:nil];
+		return self;
 	}
+	return nil;
 }
 
-- (IBAction)openScript:(id)sender; {	
+
+- (IBAction)openScript:(id)sender 
+{	
      func("doOpen");	
      NSOpenPanel *tvarNSOpenPanelObj	= [NSOpenPanel openPanel];
      NSInteger tvarNSInteger	= [tvarNSOpenPanelObj runModalForTypes:nil];
@@ -80,5 +112,23 @@ extern int freej_main(int argc, char **argv);
 	[scriptPath setStringValue:tvarFilename];
 	
 } // end openScript
+
+- (Context *)getContext
+{
+	return freej;
+}
+
+- (void)start
+{
+	if (!freej) {
+		freej = new Context();
+		
+		const char *filename = [[scriptPath stringValue] UTF8String];
+		freej->quit = false;
+		assert( freej->init(400, 300, Context::GL_COCOA, 0) );
+		freej->plugger.refresh(freej);
+		freej->config_check("keyboard.js");
+	}	
+}
 
 @end

@@ -12,17 +12,25 @@
 #include <context.h>
 #import "CVideoGrabber.h"
 
+@class CVideoFileInput;
+class CVideoFile;
+
 #import <Cocoa/Cocoa.h>
 
+#define CFREEJ_VINPUTS_MAX 8
 @interface CFreej : NSObject {
 	Context *freej;
 	CVideoGrabber *captureLayer;
+	int stdout_pipe[2];
+	int stderr_pipe[2];
 	IBOutlet CVideoOutput *captureDevice;
 	IBOutlet NSTextField *scriptPath;
+	IBOutlet NSTextView *outputPanel;
 }
 
 - (id)init;
-- (IBAction)run:(id)sender;
+- (void)run;
+- (Context *)getContext;
 - (IBAction)openScript:(id)sender;
 
 @end
