@@ -213,7 +213,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		object_proto);
 #endif
 
-#ifdef WITH_FT2
+#if defined WITH_FT2 && defined WITH_FC
 	REGISTER_CLASS("TextLayer",
 		txt_layer_class,
 		txt_layer_constructor,

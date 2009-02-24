@@ -175,13 +175,6 @@ class Context {
   bool clear_all;
   bool start_running;
 
-#ifdef WITH_FT2
-#define MAX_FONTS 1024
-  int scanfonts(const char *path, int depth);
-  char** font_files;
-  int num_fonts;
-#endif
-  
   char *layers_description; ///< string with a list of available layers compiled in
   Layer *open(char *file); ///< creates a layer from a filename, detecting its type
 

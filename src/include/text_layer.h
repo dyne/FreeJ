@@ -23,7 +23,7 @@
 #define __TEXT_LAYER_H__
 
 #include <config.h>
-#ifdef WITH_FT2
+#if defined WITH_FT2 && defined WITH_FC
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -65,11 +65,11 @@ class TextLayer: public Layer {
 
   TTF_Font *font;
   char *fontfile;
+  char *fontname;
   SDL_Surface *surf;
 
-  int sel_font;
-
   void _display_text(SDL_Surface *newsurf);
+  char *_get_fontfile(const char *name);
 
 };
 

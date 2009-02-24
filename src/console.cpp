@@ -504,7 +504,7 @@ static int open_layer(char *cmd) {
   return 0;
 }
 
-#ifdef WITH_FT2
+#if defined WITH_FT2 && defined WITH_FC
 #include <text_layer.h>
 static int print_text_layer(char *cmd) {
 
@@ -1443,7 +1443,7 @@ void Console::parser_default(int key) {
 	       &set_blit_value,NULL);
       break;
       
-#ifdef WITH_FT2      
+#if defined WITH_FT2 && defined WITH_FC
     case KEY_CTRL_Y:
       if(((Layer*)le)->type == Layer::TEXT)
 	readline("print a new word in Text Layer, type your words:",
@@ -1533,7 +1533,7 @@ void Console::parser_default(int key) {
       break;
 
 
-#ifdef WITH_FT2
+#if defined WITH_FT2 && defined WITH_FC
   case KEY_CTRL_T:
     readline("create a new Text Layer, type your words:",
 	     &open_text_layer,NULL);
