@@ -33,16 +33,7 @@ extern "C" {
 #define NO_MARK -1
 #define FIFO_SIZE 2
 
-/*********************************/
-/* I want it hard, I want it raw */ 
-/*********************************/
-struct frame_fifo_t {
-	AVPicture *picture[FIFO_SIZE];
-	int picture_type[FIFO_SIZE];
-	int length;
-} ;
-
-void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl);
+//void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl);
 
 class VideoLayer: public Layer {
     private:
@@ -82,7 +73,11 @@ class VideoLayer: public Layer {
 	/**
 	 * application variables
 	 */
-	struct frame_fifo_t frame_fifo;
+	struct frame_fifo_t { // I want it hard, I want it raw
+		AVPicture *picture[FIFO_SIZE];
+		int picture_type[FIFO_SIZE];
+		int length;
+	} frame_fifo;
 	int fifo_position;
 	bool deinterlaced;
 	bool backward_control;
