@@ -46,7 +46,7 @@ class SdlGlScreen : public ViewPort {
   void resize(int resize_w, int resize_h);
 
   void show();
-  void drawframe();
+  void blit(Layer *lay);
   void clear();
 
   void fullscreen();
@@ -71,6 +71,7 @@ class SdlGlScreen : public ViewPort {
  private:
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
+  SDL_Surface *screen;
 
   GLuint textureID;
   

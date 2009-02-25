@@ -143,13 +143,12 @@ GLuint GlScreen::texturize(Layer *layer) {
   layer->textureID = textureID;*/
   return textureID;
 }
-bool GlScreen::glblit(Layer *layer) {
+void GlScreen::blit(Layer *layer) {
   //glColor3f (0., 0., 0.);
   //glRasterPos2i (0,0);
   layer->lock();
   glDrawPixels (layer->geo.w, layer->geo.h, GL_BGRA, GL_UNSIGNED_BYTE, layer->offset);
   layer->unlock();
-  return(true);
 }
 
 /*

@@ -195,7 +195,7 @@ void SdlGlScreen::check_opengl_error()
 
 }
 
-void SdlGlScreen::drawframe() {
+void SdlGlScreen::blit(Layer *lay) {
 	// bind freej texture and copy it
 	glBindTexture( GL_TEXTURE_2D, textureID );
 	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, screen->w, screen->h, 
@@ -231,7 +231,7 @@ void SdlGlScreen::drawframe() {
 }
 
 void SdlGlScreen::show() {
-	drawframe();
+  //	drawframe();
 	SDL_GL_SwapBuffers();
 	check_opengl_error();
 }

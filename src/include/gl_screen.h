@@ -45,7 +45,6 @@ class GlScreen : public ViewPort {
 
   bool init(int widt, int height);
 
-  void drawframe();
   void *get_surface();
   void *coords(int x, int y);
 
@@ -60,14 +59,14 @@ class GlScreen : public ViewPort {
   float zoom;
 
   // opengl stuff
-  bool glblit(Layer *layer);
-  bool glblitX(Layer *layer);
+  void blit(Layer *layer);
+  //  bool glblitX(Layer *layer);
   GLuint texturize(Layer *layer);
   Vertex g_quadVertices[4];
 
 
-  bool lock();
-  bool unlock();
+  //  bool lock();
+  //  bool unlock();
  
  private:
   int setres(int wx, int hx);

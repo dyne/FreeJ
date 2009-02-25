@@ -224,11 +224,13 @@ bool Context::init
     screen = new GlScreen();
     break;
 #endif
-#ifdef HAVE_DARWIN && WITH_COCOA
+#ifdef HAVE_DARWIN
+#ifdef WITH_COCOA
   case GL_COCOA:
 	act("GL Cocoa output");
 	screen = new CVScreen();
 	break;
+#endif
 #endif
   }
    
