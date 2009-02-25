@@ -104,6 +104,9 @@ class Layer: public Closing, public Entry, public JSyncThread {
   Layer(); ///< Layer constructor
   ~Layer(); ///< Layer destructor
 
+  /* wrap JSyncThread::start() so we don't export JSyncThread on SWIG */
+  int start() { return JSyncThread::start(); }
+
   Type type; ///< type of the layer
 
   /* these must be defined in layer implementations */
