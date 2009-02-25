@@ -114,7 +114,7 @@ freej_entry_typemap_in(Encoder);
 // layers...
 %include "gen_f0r_layer.h"
 %include "text_layer.h"
-//%include "video_layer.h"
+%include "video_layer.h"
 %include "geo_layer.h"
 
 // controllers
