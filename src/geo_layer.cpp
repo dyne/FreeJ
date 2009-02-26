@@ -46,6 +46,7 @@ GeoLayer::~GeoLayer() {
 bool GeoLayer::init(Context *freej) {
   int width  = freej->screen->w;
   int height = freej->screen->h;
+  screen = freej->screen;
   return init(freej, width, height);
 }
 bool GeoLayer::init(Context *freej, int width, int height) {
