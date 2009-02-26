@@ -408,7 +408,7 @@ uninstall-am: uninstall-info-am
 
 
 install:
-	for subdir in $(DIRS); do cp -ra $$subdir $(pkgdatadir); done
+	for subdir in $(DIRS); do cp -ra $$subdir $(DESTDIR)$(pkgdatadir); done
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
