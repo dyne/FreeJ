@@ -14,7 +14,9 @@ common-build-arch common-build-indep::
 	make -k -C doc/scripting
 
 clean::
+	# scripting doc
 	make -k -C doc/scripting clean
+	# bad javascript
 	rm -f lib/javascript/editline/obj/*.o
 	rm -f lib/javascript/editline/obj/*.a
 	rm -f lib/javascript/fdlibm/obj/*.o
@@ -25,7 +27,13 @@ clean::
 	rm -f lib/javascript/obj/jsautocfg.h
 	rm -f lib/javascript/obj/js
 	rm -f lib/javascript/obj/jscpucfg
+	# bad conditional subdirs with
+	# non conditional Makefile creation
 	rm -f lib/goom/Makefile
+	rm -f bindings/java/Makefile
+	rm -f bindings/perl/Makefile
+	rm -f bindings/python/Makefile
+	rm -f bindings/ruby/Makefile
 
 common-install-arch common-install-indep::
 	rm -rf $(CURDIR)/debian/freej/usr/share/doc/freej-*
