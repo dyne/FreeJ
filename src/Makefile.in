@@ -42,90 +42,60 @@ bin_PROGRAMS = freej$(EXEEXT)
 subdir = src
 DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
-am__aclocal_m4_deps = $(top_srcdir)/m4/as.m4 $(top_srcdir)/m4/pkg.m4 \
+am__aclocal_m4_deps = $(top_srcdir)/m4/ac_pkg_swig.m4 \
+	$(top_srcdir)/m4/ac_python_devel.m4 $(top_srcdir)/m4/as.m4 \
+	$(top_srcdir)/m4/java.m4 $(top_srcdir)/m4/perl.m4 \
+	$(top_srcdir)/m4/pkg.m4 $(top_srcdir)/m4/ruby.m4 \
 	$(top_srcdir)/m4/sdl.m4 $(top_srcdir)/configure.in
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-libfreej_a_AR = $(AR) $(ARFLAGS)
-libfreej_a_LIBADD =
-am__objects_1 = freej.$(OBJEXT) context.$(OBJEXT) context_js.$(OBJEXT) \
-	layer.$(OBJEXT) layer_js.$(OBJEXT) blitter.$(OBJEXT) \
-	iterator.$(OBJEXT) linklist.$(OBJEXT) jsync.$(OBJEXT) \
-	osd.$(OBJEXT) console.$(OBJEXT) cpu_accel.$(OBJEXT) \
-	plugin.$(OBJEXT) plugger.$(OBJEXT) frei0r.$(OBJEXT) \
-	freeframe.$(OBJEXT) filter.$(OBJEXT) filter_js.$(OBJEXT) \
-	jsparser.$(OBJEXT) callbacks_js.$(OBJEXT) jutils.$(OBJEXT) \
-	fastmemcpy.$(OBJEXT) ringbuffer.$(OBJEXT) convertvid.$(OBJEXT) \
-	v4l_layer.$(OBJEXT) tvfreq.$(OBJEXT) v4l_layer_js.$(OBJEXT) \
-	video_layer.$(OBJEXT) video_layer_js.$(OBJEXT) \
-	image_layer.$(OBJEXT) image_layer_js.$(OBJEXT) \
-	avi_layer.$(OBJEXT) text_layer.$(OBJEXT) \
-	text_layer_js.$(OBJEXT) gen_f0r_layer.$(OBJEXT) \
-	geo_layer.$(OBJEXT) geo_layer_js.$(OBJEXT) \
-	flash_layer.$(OBJEXT) flash_layer_js.$(OBJEXT) \
-	scroll_layer.$(OBJEXT) scroll_layer_js.$(OBJEXT) \
-	xhacks_layer.$(OBJEXT) goom_layer.$(OBJEXT) \
-	goom_layer_js.$(OBJEXT) impl_layers.$(OBJEXT) screen.$(OBJEXT) \
-	sdl_screen.$(OBJEXT) sdlgl_screen.$(OBJEXT) \
-	gl_screen.$(OBJEXT) controller.$(OBJEXT) kbd_ctrl.$(OBJEXT) \
-	mouse_ctrl.$(OBJEXT) vimo_ctrl.$(OBJEXT) joy_ctrl.$(OBJEXT) \
-	midi_ctrl.$(OBJEXT) trigger_ctrl.$(OBJEXT) osc_ctrl.$(OBJEXT) \
-	wiimote_ctrl.$(OBJEXT) audio_jack.$(OBJEXT) \
-	audio_collector.$(OBJEXT) audio_collector_js.$(OBJEXT) \
-	video_encoder.$(OBJEXT) video_encoder_js.$(OBJEXT) \
-	ffmpeg_encoder.$(OBJEXT) theorautils.$(OBJEXT) \
-	oggtheora_encoder.$(OBJEXT) impl_video_encoders.$(OBJEXT) \
-	xgrab_layer.$(OBJEXT)
-am_libfreej_a_OBJECTS = $(am__objects_1)
-libfreej_a_OBJECTS = $(am_libfreej_a_OBJECTS)
-am__installdirs = "$(DESTDIR)$(bindir)"
-binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
-PROGRAMS = $(bin_PROGRAMS)
-am_freej_OBJECTS = freej.$(OBJEXT) context.$(OBJEXT) \
-	context_js.$(OBJEXT) layer.$(OBJEXT) layer_js.$(OBJEXT) \
-	blitter.$(OBJEXT) iterator.$(OBJEXT) linklist.$(OBJEXT) \
-	jsync.$(OBJEXT) osd.$(OBJEXT) console.$(OBJEXT) \
-	cpu_accel.$(OBJEXT) plugin.$(OBJEXT) plugger.$(OBJEXT) \
-	frei0r.$(OBJEXT) freeframe.$(OBJEXT) filter.$(OBJEXT) \
-	filter_js.$(OBJEXT) jsparser.$(OBJEXT) callbacks_js.$(OBJEXT) \
-	jutils.$(OBJEXT) fastmemcpy.$(OBJEXT) ringbuffer.$(OBJEXT) \
-	convertvid.$(OBJEXT) v4l_layer.$(OBJEXT) tvfreq.$(OBJEXT) \
-	v4l_layer_js.$(OBJEXT) video_layer.$(OBJEXT) \
-	video_layer_js.$(OBJEXT) image_layer.$(OBJEXT) \
-	image_layer_js.$(OBJEXT) avi_layer.$(OBJEXT) \
-	text_layer.$(OBJEXT) text_layer_js.$(OBJEXT) \
-	gen_f0r_layer.$(OBJEXT) geo_layer.$(OBJEXT) \
-	geo_layer_js.$(OBJEXT) flash_layer.$(OBJEXT) \
-	flash_layer_js.$(OBJEXT) scroll_layer.$(OBJEXT) \
-	scroll_layer_js.$(OBJEXT) xhacks_layer.$(OBJEXT) \
-	goom_layer.$(OBJEXT) goom_layer_js.$(OBJEXT) \
-	impl_layers.$(OBJEXT) screen.$(OBJEXT) sdl_screen.$(OBJEXT) \
-	sdlgl_screen.$(OBJEXT) gl_screen.$(OBJEXT) \
-	controller.$(OBJEXT) kbd_ctrl.$(OBJEXT) mouse_ctrl.$(OBJEXT) \
-	vimo_ctrl.$(OBJEXT) joy_ctrl.$(OBJEXT) midi_ctrl.$(OBJEXT) \
-	trigger_ctrl.$(OBJEXT) osc_ctrl.$(OBJEXT) \
-	wiimote_ctrl.$(OBJEXT) audio_jack.$(OBJEXT) \
-	audio_collector.$(OBJEXT) audio_collector_js.$(OBJEXT) \
-	video_encoder.$(OBJEXT) video_encoder_js.$(OBJEXT) \
-	ffmpeg_encoder.$(OBJEXT) theorautils.$(OBJEXT) \
-	oggtheora_encoder.$(OBJEXT) impl_video_encoders.$(OBJEXT) \
-	xgrab_layer.$(OBJEXT)
-freej_OBJECTS = $(am_freej_OBJECTS)
-freej_DEPENDENCIES = $(top_srcdir)/lib/ccvt/libccvt.a \
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
+am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
+libLTLIBRARIES_INSTALL = $(INSTALL)
+LTLIBRARIES = $(lib_LTLIBRARIES)
+am__DEPENDENCIES_1 = $(top_srcdir)/lib/ccvt/libccvt.a \
 	$(top_srcdir)/lib/sdl_image/libsdl_image.a \
 	$(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
 	$(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
-	$(top_srcdir)/lib/javascript/obj/libjs.a \
 	$(top_srcdir)/lib/flash/libflash.a \
-	$(top_srcdir)/lib/goom/libgoom2.a \
 	$(top_srcdir)/lib/shout/libshout.a \
 	$(top_srcdir)/lib/lo/liblo.a \
-	$(top_srcdir)/lib/cwiid/libwiimote.a
+	$(top_srcdir)/lib/javascript/obj/libjs.a
+am__DEPENDENCIES_2 =
+libfreej_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+am__objects_1 = context.lo layer.lo blitter.lo iterator.lo linklist.lo \
+	jsync.lo console.lo cpu_accel.lo plugin.lo plugger.lo \
+	frei0r.lo freeframe.lo filter.lo parameter.lo jutils.lo \
+	fastmemcpy.lo ringbuffer.lo convertvid.lo v4l_layer.lo \
+	tvfreq.lo unicap_layer.lo video_layer.lo image_layer.lo \
+	text_layer.lo gen_f0r_layer.lo geo_layer.lo flash_layer.lo \
+	scroll_layer.lo xhacks_layer.lo goom_layer.lo impl_layers.lo \
+	screen.lo sdl_screen.lo sdlgl_screen.lo gl_screen.lo \
+	controller.lo kbd_ctrl.lo mouse_ctrl.lo vimo_ctrl.lo \
+	joy_ctrl.lo midi_ctrl.lo trigger_ctrl.lo osc_ctrl.lo \
+	wiimote_ctrl.lo audio_jack.lo audio_collector.lo \
+	video_encoder.lo ffmpeg_encoder.lo theorautils.lo \
+	oggtheora_encoder.lo impl_video_encoders.lo xgrab_layer.lo
+am__objects_2 = context_js.lo layer_js.lo filter_js.lo jsparser.lo \
+	callbacks_js.lo video_encoder_js.lo v4l_layer_js.lo \
+	unicap_layer_js.lo video_layer_js.lo image_layer_js.lo \
+	text_layer_js.lo geo_layer_js.lo flash_layer_js.lo \
+	scroll_layer_js.lo goom_layer_js.lo audio_collector_js.lo
+am_libfreej_la_OBJECTS = $(am__objects_1) $(am__objects_2)
+libfreej_la_OBJECTS = $(am_libfreej_la_OBJECTS)
+binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
+PROGRAMS = $(bin_PROGRAMS)
+am_freej_OBJECTS = freej.$(OBJEXT)
+freej_OBJECTS = $(am_freej_OBJECTS)
+freej_DEPENDENCIES = $(am__DEPENDENCIES_2)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -145,8 +115,7 @@ LTCXXCOMPILE = $(LIBTOOL) --tag=CXX --mode=compile $(CXX) $(DEFS) \
 CXXLD = $(CXX)
 CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(libfreej_a_SOURCES) $(freej_SOURCES)
-DIST_SOURCES = $(libfreej_a_SOURCES) $(freej_SOURCES)
+DIST_SOURCES = $(libfreej_la_SOURCES) $(freej_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-exec-recursive install-info-recursive \
@@ -170,6 +139,7 @@ AUTOCONF = @AUTOCONF@
 AUTOHEADER = @AUTOHEADER@
 AUTOMAKE = @AUTOMAKE@
 AWK = @AWK@
+BINDING_DIRS = @BINDING_DIRS@
 BLUEZ_CFLAGS = @BLUEZ_CFLAGS@
 BLUEZ_LIBS = @BLUEZ_LIBS@
 BUILDLIBS = @BUILDLIBS@
@@ -179,9 +149,11 @@ CCASFLAGS = @CCASFLAGS@
 CCDEPMODE = @CCDEPMODE@
 CCVT_CONV = @CCVT_CONV@
 CFLAGS = @CFLAGS@
+CONFIG_SCRIPTING_RUBY = @CONFIG_SCRIPTING_RUBY@
 CPP = @CPP@
 CPPFLAGS = @CPPFLAGS@
 CWIID_DIR = @CWIID_DIR@
+CWIID_LIBS = @CWIID_LIBS@
 CXX = @CXX@
 CXXCPP = @CXXCPP@
 CXXDEPMODE = @CXXDEPMODE@
@@ -206,11 +178,13 @@ FFTW_CFLAGS = @FFTW_CFLAGS@
 FFTW_LIBS = @FFTW_LIBS@
 FLASH_DIR = @FLASH_DIR@
 FLASH_LIBS = @FLASH_LIBS@
+FREEJ_VERSION_INFO = @FREEJ_VERSION_INFO@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_LIBS = @FT2_LIBS@
 GLADE2_CFLAGS = @GLADE2_CFLAGS@
 GLADE2_LIBS = @GLADE2_LIBS@
 GOOM_DIR = @GOOM_DIR@
+GOOM_LIBS = @GOOM_LIBS@
 GOOM_PPC_FILES = @GOOM_PPC_FILES@
 GREP = @GREP@
 INSTALL_DATA = @INSTALL_DATA@
@@ -219,6 +193,8 @@ INSTALL_SCRIPT = @INSTALL_SCRIPT@
 INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
 JACK_CFLAGS = @JACK_CFLAGS@
 JACK_LIBS = @JACK_LIBS@
+JAVA_CFLAGS = @JAVA_CFLAGS@
+JAVA_LDFLAGS = @JAVA_LDFLAGS@
 LDFLAGS = @LDFLAGS@
 LEX = @LEX@
 LEXLIB = @LEXLIB@
@@ -228,7 +204,6 @@ LIBS = @LIBS@
 LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
-LUBRIFY_CFLAGS = @LUBRIFY_CFLAGS@
 MAKEINFO = @MAKEINFO@
 NMEDIT = @NMEDIT@
 OBJEXT = @OBJEXT@
@@ -241,8 +216,24 @@ PACKAGE_STRING = @PACKAGE_STRING@
 PACKAGE_TARNAME = @PACKAGE_TARNAME@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
+PERL_ARCHLIB = @PERL_ARCHLIB@
+PERL_CFLAGS = @PERL_CFLAGS@
 PKG_CONFIG = @PKG_CONFIG@
+PYTHON = @PYTHON@
+PYTHON_CPPFLAGS = @PYTHON_CPPFLAGS@
+PYTHON_EXEC_PREFIX = @PYTHON_EXEC_PREFIX@
+PYTHON_EXTRA_LDFLAGS = @PYTHON_EXTRA_LDFLAGS@
+PYTHON_EXTRA_LIBS = @PYTHON_EXTRA_LIBS@
+PYTHON_LDFLAGS = @PYTHON_LDFLAGS@
+PYTHON_PLATFORM = @PYTHON_PLATFORM@
+PYTHON_PREFIX = @PYTHON_PREFIX@
+PYTHON_SITE_PKG = @PYTHON_SITE_PKG@
+PYTHON_VERSION = @PYTHON_VERSION@
 RANLIB = @RANLIB@
+RUBY_ARCHDIR = @RUBY_ARCHDIR@
+RUBY_CFLAGS = @RUBY_CFLAGS@
+RUBY_LIBS = @RUBY_LIBS@
+RUBY_SOURCE = @RUBY_SOURCE@
 SDL_CFLAGS = @SDL_CFLAGS@
 SDL_CONFIG = @SDL_CONFIG@
 SDL_LIBS = @SDL_LIBS@
@@ -251,6 +242,16 @@ SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
 STATIC_LIBS = @STATIC_LIBS@
 STRIP = @STRIP@
+SWIG = @SWIG@
+SWIG_COMMAND = @SWIG_COMMAND@
+SWIG_IFACE = @SWIG_IFACE@
+SWIG_LIB = @SWIG_LIB@
+SWIG_PYTHON_CPPFLAGS = @SWIG_PYTHON_CPPFLAGS@
+SWIG_PYTHON_OPT = @SWIG_PYTHON_OPT@
+SWSCALE_CFLAGS = @SWSCALE_CFLAGS@
+SWSCALE_LIBS = @SWSCALE_LIBS@
+UNICAP_CFLAGS = @UNICAP_CFLAGS@
+UNICAP_LIBS = @UNICAP_LIBS@
 VERSION = @VERSION@
 X11_CFLAGS = @X11_CFLAGS@
 X11_INCLUDE = @X11_INCLUDE@
@@ -281,7 +282,12 @@ datadir = @datadir@
 datarootdir = @datarootdir@
 docdir = @docdir@
 dvidir = @dvidir@
+enable_perl = @enable_perl@
 exec_prefix = @exec_prefix@
+have_java = @have_java@
+have_perl = @have_perl@
+have_python = @have_python@
+have_ruby = @have_ruby@
 host = @host@
 host_alias = @host_alias@
 host_cpu = @host_cpu@
@@ -299,9 +305,13 @@ mandir = @mandir@
 mkdir_p = @mkdir_p@
 oldincludedir = @oldincludedir@
 pdfdir = @pdfdir@
+pkgpyexecdir = @pkgpyexecdir@
+pkgpythondir = @pkgpythondir@
 prefix = @prefix@
 program_transform_name = @program_transform_name@
 psdir = @psdir@
+pyexecdir = @pyexecdir@
+pythondir = @pythondir@
 sbindir = @sbindir@
 sharedstatedir = @sharedstatedir@
 sysconfdir = @sysconfdir@
@@ -310,39 +320,35 @@ target_alias = @target_alias@
 target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
-INCLUDES = -I$(top_srcdir)/src/include \
-           -I$(top_srcdir)/lib \
-           -I$(top_srcdir)/lib/ccvt \
-           -I$(top_srcdir)/lib/shout \
-           -I$(top_srcdir)/lib/lo \
-           -I$(top_srcdir)/lib/sdl_image \
-           -I$(top_srcdir)/lib/sdl_gfx \
-	   -I$(top_srcdir)/lib/sdl_ttf \
-	   -I$(top_srcdir)/lib/javascript \
-	   -I$(top_srcdir)/lib/javascript/obj \
-	   -I$(top_srcdir)/lib/flash \
-	   -I$(top_srcdir)/lib/goom \
-	   -I$(top_srcdir)/lib/cwiid \
+INCLUDES = -I$(top_srcdir)/src/include           \
+           -I$(top_srcdir)/lib                   \
+           -I$(top_srcdir)/lib/ccvt              \
+           -I$(top_srcdir)/lib/shout             \
+           -I$(top_srcdir)/lib/lo                \
+           -I$(top_srcdir)/lib/sdl_image         \
+           -I$(top_srcdir)/lib/sdl_gfx           \
+	   -I$(top_srcdir)/lib/sdl_ttf           \
+	   -I$(top_srcdir)/lib/javascript        \
+	   -I$(top_srcdir)/lib/javascript/obj    \
+	   -I$(top_srcdir)/lib/flash             \
+	   -I$(top_srcdir)/lib/goom              \
+	   -I$(top_srcdir)/lib/cwiid             \
            -I/usr/include/slang
 
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ \
+AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@ \
 	      -freg-struct-return \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
-freej_SOURCES = \
-	freej.cpp	\
+SOURCES = \
 	context.cpp	\
-	context_js.cpp  \
 	layer.cpp	\
-	layer_js.cpp    \
 	blitter.cpp	\
 	iterator.cpp	\
 	linklist.cpp	\
 	jsync.cpp	\
-	osd.cpp		\
 	console.cpp	\
 	cpu_accel.cpp	\
 	plugin.cpp	\
@@ -350,33 +356,23 @@ freej_SOURCES = \
 	frei0r.cpp	\
 	freeframe.cpp   \
 	filter.cpp	\
-	filter_js.cpp   \
-	jsparser.cpp	\
-	callbacks_js.cpp \
+	parameter.cpp   \
 	jutils.cpp	\
 	fastmemcpy.cpp  \
 	ringbuffer.cpp  \
 	convertvid.cpp  \
 \
 	v4l_layer.cpp tvfreq.c	\
-	v4l_layer_js.cpp \
+	unicap_layer.cpp \
 	video_layer.cpp	\
-	video_layer_js.cpp \
 	image_layer.cpp \
-	image_layer_js.cpp \
-	avi_layer.cpp	\
 	text_layer.cpp \
-	text_layer_js.cpp \
 	gen_f0r_layer.cpp \
 	geo_layer.cpp	\
-	geo_layer_js.cpp \
 	flash_layer.cpp \
-	flash_layer_js.cpp \
 	scroll_layer.cpp \
-	scroll_layer_js.cpp \
 	xhacks_layer.cpp \
         goom_layer.cpp \
-	goom_layer_js.cpp \
 	impl_layers.cpp \
 \
 	screen.cpp	\
@@ -396,44 +392,66 @@ freej_SOURCES = \
 \
 	audio_jack.cpp  \
 	audio_collector.cpp \
-	audio_collector_js.cpp \
 \
 	video_encoder.cpp \
-	video_encoder_js.cpp \
 	ffmpeg_encoder.cpp \
 	theorautils.cpp \
 	oggtheora_encoder.cpp \
 	impl_video_encoders.cpp \
 	xgrab_layer.cpp
 
-noinst_LIBRARIES = libfreej.a
-libfreej_a_SOURCES = $(freej_SOURCES)
-freej_LDADD = $(top_srcdir)/lib/ccvt/libccvt.a \
+JS_SOURCES = context_js.cpp  \
+		layer_js.cpp    \
+		filter_js.cpp   \
+		jsparser.cpp	\
+		callbacks_js.cpp \
+		video_encoder_js.cpp \
+		v4l_layer_js.cpp \
+		unicap_layer_js.cpp \
+		video_layer_js.cpp \
+		image_layer_js.cpp \
+		text_layer_js.cpp \
+		geo_layer_js.cpp \
+		flash_layer_js.cpp \
+		scroll_layer_js.cpp \
+		goom_layer_js.cpp \
+		audio_collector_js.cpp
+
+static_libs = $(top_srcdir)/lib/ccvt/libccvt.a \
               $(top_srcdir)/lib/sdl_image/libsdl_image.a \
               $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
 	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
-	      $(top_srcdir)/lib/javascript/obj/libjs.a \
 	      $(top_srcdir)/lib/flash/libflash.a \
-	      $(top_srcdir)/lib/goom/libgoom2.a \
               $(top_srcdir)/lib/shout/libshout.a \
               $(top_srcdir)/lib/lo/liblo.a \
-              $(top_srcdir)/lib/cwiid/libwiimote.a \
-              -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
-	         @X11_LIBS@ \
-		 @XIPH_LIBS@ \
-		 @STATIC_LIBS@ \
-		 @OPENGL_LIB@ \
-		 @SDL_LIBS@ \
-		 @FLASH_LIBS@ \
-		 @FT2_LIBS@ \
-                 @ALSA_LIBS@ \
-		 @JACK_LIBS@ \
-                 @FFTW_LIBS@ \
-		 @FFMPEG_LIBS@ \
-		 @X11_LIBS@ \
-		 @BLUEZ_LIBS@ \
-		 @OPENGL_LIB@
+              $(top_srcdir)/lib/javascript/obj/libjs.a
 
+shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
+	         @X11_LIBS@     \
+		 @XIPH_LIBS@    \
+		 @STATIC_LIBS@  \
+		 @OPENGL_LIB@   \
+		 @SDL_LIBS@     \
+		 @FLASH_LIBS@   \
+		 @FT2_LIBS@     \
+                 @ALSA_LIBS@    \
+		 @JACK_LIBS@    \
+		 @GOOM_LIBS@    \
+                 @FFTW_LIBS@    \
+		 @FFMPEG_LIBS@  \
+		 @SWSCALE_LIBS@ \
+		 @X11_LIBS@     \
+		 @BLUEZ_LIBS@   \
+		 @CWIID_LIBS@   \
+		 @OPENGL_LIB@   \
+		 @UNICAP_LIBS@
+
+lib_LTLIBRARIES = libfreej.la
+libfreej_la_SOURCES = $(SOURCES) $(JS_SOURCES)
+libfreej_la_LIBADD = $(static_libs) $(shared_libs)
+libfreej_la_LDFLAGS = -version-info @FREEJ_VERSION_INFO@
+freej_SOURCES = freej.cpp
+freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej $(shared_libs)
 all: all-recursive
 
 .SUFFIXES:
@@ -467,13 +485,35 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
+install-libLTLIBRARIES: $(lib_LTLIBRARIES)
+	@$(NORMAL_INSTALL)
+	test -z "$(libdir)" || $(mkdir_p) "$(DESTDIR)$(libdir)"
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  if test -f $$p; then \
+	    f=$(am__strip_dir) \
+	    echo " $(LIBTOOL) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) '$$p' '$(DESTDIR)$(libdir)/$$f'"; \
+	    $(LIBTOOL) --mode=install $(libLTLIBRARIES_INSTALL) $(INSTALL_STRIP_FLAG) "$$p" "$(DESTDIR)$(libdir)/$$f"; \
+	  else :; fi; \
+	done
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libfreej.a: $(libfreej_a_OBJECTS) $(libfreej_a_DEPENDENCIES) 
-	-rm -f libfreej.a
-	$(libfreej_a_AR) libfreej.a $(libfreej_a_OBJECTS) $(libfreej_a_LIBADD)
-	$(RANLIB) libfreej.a
+uninstall-libLTLIBRARIES:
+	@$(NORMAL_UNINSTALL)
+	@set -x; list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  p=$(am__strip_dir) \
+	  echo " $(LIBTOOL) --mode=uninstall rm -f '$(DESTDIR)$(libdir)/$$p'"; \
+	  $(LIBTOOL) --mode=uninstall rm -f "$(DESTDIR)$(libdir)/$$p"; \
+	done
+
+clean-libLTLIBRARIES:
+	-test -z "$(lib_LTLIBRARIES)" || rm -f $(lib_LTLIBRARIES)
+	@list='$(lib_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
+libfreej.la: $(libfreej_la_OBJECTS) $(libfreej_la_DEPENDENCIES) 
+	$(CXXLINK) -rpath $(libdir) $(libfreej_la_LDFLAGS) $(libfreej_la_OBJECTS) $(libfreej_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
 	@$(NORMAL_INSTALL)
 	test -z "$(bindir)" || $(mkdir_p) "$(DESTDIR)$(bindir)"
@@ -512,74 +552,75 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audio_collector.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audio_collector_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audio_jack.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avi_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blitter.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/callbacks_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/console.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/context.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/context_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/controller.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/convertvid.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu_accel.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fastmemcpy.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ffmpeg_encoder.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flash_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flash_layer_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/freeframe.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audio_collector.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audio_collector_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/audio_jack.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/blitter.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/callbacks_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/console.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/context.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/context_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/controller.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/convertvid.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cpu_accel.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fastmemcpy.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ffmpeg_encoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/filter_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flash_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/flash_layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/freeframe.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/freej.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/frei0r.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gen_f0r_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/geo_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/geo_layer_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gl_screen.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/goom_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/goom_layer_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image_layer_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/impl_layers.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/impl_video_encoders.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iterator.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/joy_ctrl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jsparser.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jsync.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jutils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kbd_ctrl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/layer_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linklist.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_ctrl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mouse_ctrl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/oggtheora_encoder.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/osc_ctrl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/osd.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plugger.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plugin.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ringbuffer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/screen.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scroll_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scroll_layer_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sdl_screen.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sdlgl_screen.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/text_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/text_layer_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/theorautils.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trigger_ctrl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tvfreq.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l_layer_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_encoder.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_encoder_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_layer_js.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vimo_ctrl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_ctrl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xgrab_layer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xhacks_layer.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/frei0r.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gen_f0r_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/geo_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/geo_layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gl_screen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/goom_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/goom_layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/image_layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/impl_layers.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/impl_video_encoders.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/iterator.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/joy_ctrl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jsparser.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jsync.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/jutils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kbd_ctrl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linklist.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/midi_ctrl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mouse_ctrl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/oggtheora_encoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/osc_ctrl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/parameter.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plugger.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/plugin.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ringbuffer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/screen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scroll_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/scroll_layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sdl_screen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sdlgl_screen.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/text_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/text_layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/theorautils.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trigger_ctrl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tvfreq.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unicap_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/unicap_layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/v4l_layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_encoder.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_encoder_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/video_layer_js.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vimo_ctrl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/wiimote_ctrl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xgrab_layer.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/xhacks_layer.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -809,10 +850,12 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-recursive
-all-am: Makefile $(LIBRARIES) $(PROGRAMS)
+all-am: Makefile $(LTLIBRARIES) $(PROGRAMS)
+install-binPROGRAMS: install-libLTLIBRARIES
+
 installdirs: installdirs-recursive
 installdirs-am:
-	for dir in "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: install-recursive
@@ -841,8 +884,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-recursive
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool \
-	clean-noinstLIBRARIES mostlyclean-am
+clean-am: clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -rf ./$(DEPDIR)
@@ -862,7 +905,7 @@ info-am:
 
 install-data-am:
 
-install-exec-am: install-binPROGRAMS
+install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
 
 install-info: install-info-recursive
 
@@ -888,24 +931,27 @@ ps: ps-recursive
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-info-am
+uninstall-am: uninstall-binPROGRAMS uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 uninstall-info: uninstall-info-recursive
 
 .PHONY: $(RECURSIVE_TARGETS) CTAGS GTAGS all all-am check check-am \
-	clean clean-binPROGRAMS clean-generic clean-libtool \
-	clean-noinstLIBRARIES clean-recursive ctags ctags-recursive \
-	distclean distclean-compile distclean-generic \
-	distclean-libtool distclean-recursive distclean-tags distdir \
-	dvi dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am install-exec \
-	install-exec-am install-info install-info-am install-man \
-	install-strip installcheck installcheck-am installdirs \
-	installdirs-am maintainer-clean maintainer-clean-generic \
-	maintainer-clean-recursive mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool mostlyclean-recursive \
-	pdf pdf-am ps ps-am tags tags-recursive uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-info-am
+	clean clean-binPROGRAMS clean-generic clean-libLTLIBRARIES \
+	clean-libtool clean-recursive ctags ctags-recursive distclean \
+	distclean-compile distclean-generic distclean-libtool \
+	distclean-recursive distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-binPROGRAMS \
+	install-data install-data-am install-exec install-exec-am \
+	install-info install-info-am install-libLTLIBRARIES \
+	install-man install-strip installcheck installcheck-am \
+	installdirs installdirs-am maintainer-clean \
+	maintainer-clean-generic maintainer-clean-recursive \
+	mostlyclean mostlyclean-compile mostlyclean-generic \
+	mostlyclean-libtool mostlyclean-recursive pdf pdf-am ps ps-am \
+	tags tags-recursive uninstall uninstall-am \
+	uninstall-binPROGRAMS uninstall-info-am \
+	uninstall-libLTLIBRARIES
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

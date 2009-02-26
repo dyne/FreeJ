@@ -78,6 +78,9 @@
 /* define if enabling SSE2 acceleration */
 #undef HAVE_SSE2
 
+/* define if enabling SSSE3 acceleration */
+#undef HAVE_SSSE3
+
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -138,6 +141,18 @@
 /* define if compiling for PPC */
 #undef POWERPC_MODE_32BITS
 
+/* signed value used by ruby */
+#undef SIGNED_VALUE
+
+/* The size of `long', as computed by sizeof. */
+#undef SIZEOF_LONG
+
+/* The size of `long long', as computed by sizeof. */
+#undef SIZEOF_LONG_LONG
+
+/* The size of `void*', as computed by sizeof. */
+#undef SIZEOF_VOIDP
+
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
 
@@ -182,6 +197,12 @@
 
 /* define if compiling sound system */
 #undef WITH_SOUND
+
+/* define if using new swscale library from ffmpeg */
+#undef WITH_SWSCALE
+
+/* Define if to link libunicap for camera capture */
+#undef WITH_UNICAP
 
 /* define if compiling video4linux layer */
 #undef WITH_V4L
