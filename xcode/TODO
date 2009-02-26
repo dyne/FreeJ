@@ -2,7 +2,7 @@
 - Implement blitting-code to handle frames coming from other type 
   of layers provided by the freej engine
 - Fix and activate-back support to load and execute javascript code
-- Allow to select a different blendmodes for each layer (we should
+- Allow to select a different blendmode for each layer (we should
   at least provide access to all blendmodes exposed by  CoreImage
   on a default osx installation)
 - Allow to select the filter to apply on a specific layer

@@ -10,6 +10,7 @@
 
 
 #include <context.h>
+//#define __cocoa
 #import "CVideoGrabber.h"
 
 @class CVideoFileInput;

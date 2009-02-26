@@ -6,6 +6,7 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
+#define __cocoa
 #include <context.h>
 #import <Cocoa/Cocoa.h>
 #import <QuickTime/QuickTime.h>

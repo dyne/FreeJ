@@ -39,18 +39,23 @@ class  CVScreen;
 	CVScreen			*fjScreen;
 	NSRecursiveLock		*lock;
 	CIContext			*ciContext;
+	NSOpenGLContext		*fullScreenContext;
+	NSOpenGLContext		*standardContext;
+	NSOpenGLContext		*currentContext;
 	CIImage				*outFrame;
 	CIImage				*inFrame;
 	bool				needsReshape;
-	bool				cafudding;
+	//bool				cafudding;
 }
-- (bool)isCafudding;
+//- (bool)isCafudding;
 - (void)awakeFromNib;
 - (id)init;
+- (void)update;
 - (CVReturn)outputFrame;
 - (void)prepareOpenGL;
 - (void *)getSurface;
 - (void)drawLayer:(Layer *)layer;
+- (void)setSizeWidth:(int)w Height:(int)h;
 @end
 #else
 class CVScreenView;

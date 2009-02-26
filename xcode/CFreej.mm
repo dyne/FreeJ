@@ -8,6 +8,9 @@
 #import "CFreej.h"
 #import "CVideoFile.h"
 
+#define DEFAULT_FREEJ_WIDTH 400
+#define DEFAULT_FREEJ_HEIGHT 300
+
 extern int freej_main(int argc, char **argv);
 @implementation CFreej
 
@@ -125,7 +128,7 @@ extern int freej_main(int argc, char **argv);
 		
 		const char *filename = [[scriptPath stringValue] UTF8String];
 		freej->quit = false;
-		assert( freej->init(400, 300, Context::GL_COCOA, 0) );
+		assert( freej->init(DEFAULT_FREEJ_WIDTH, DEFAULT_FREEJ_HEIGHT, Context::GL_COCOA, 0) );
 		freej->plugger.refresh(freej);
 		freej->config_check("keyboard.js");
 	}	

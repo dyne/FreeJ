@@ -23,10 +23,10 @@
 
 #include <jutils.h>
 #define __cocoa
-#import <CVScreen.h>
 #import <QuartzCore/CIKernel.h>
-#include <CFreej.h>
-#include <CVLayer.h>
+#import "CFreej.h"
+#import "CVLayer.h"
+#import "CVScreen.h"
 
 static CVReturn renderCallback(CVDisplayLinkRef displayLink, 
                                                 const CVTimeStamp *inNow, 
@@ -38,7 +38,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	static uint64_t save = 0;
 	if (inNow->videoTime >= save + inNow->videoRefreshPeriod) {
 		save = inNow->videoTime;
-	if (![(CVScreenView*)displayLinkContext isCafudding])
 		return [(CVScreenView*)displayLinkContext outputFrame];
 	}
 	return kCVReturnError;
@@ -59,6 +58,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     }
 }
 
+- (void)windowChangedSize:(NSNotification*)inNotification
+{
+	NSRect frame = [self frame];
+	[self setSizeWidth:frame.size.width Height:frame.size.height];	
+}
+
 - (void)awakeFromNib
 {
 	[self init];
@@ -77,7 +82,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (id)init
 {
 	needsReshape = YES;
-	cafudding = NO;
+	//cafudding = NO;
 	[freej start];
 	Context *ctx = (Context *)[freej getContext];
 	fjScreen = (CVScreen *)ctx->screen;
@@ -91,28 +96,27 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	return self;
 }
 
+- (void)update
+{
+	@synchronized (self) {
+		[super update];
+	}
+}
+
 - (void)dealloc
 {
 	CVOpenGLTextureRelease(pixelBuffer);
+	[ciContext release];
+	[fullScreenContext release];
+	[standardContext release];
+	[outFrame release];
+	[inFrame release];
 }
 - (void)prepareOpenGL
 {
 	CVReturn			    ret;
 		
 	lock = [[NSRecursiveLock alloc] init];
-	
-	// Create CGColorSpaceRef 
-	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-		
-	// Create CIContext 
-	
-	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
-			    pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
-			    options:[NSDictionary dictionaryWithObjectsAndKeys:
-				(id)colorSpace,kCIContextOutputColorSpace,
-				(id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
-	CGColorSpaceRelease(colorSpace);
-	
 	  	    		
 	// Create display link 
 	CGOpenGLDisplayMask	totalDisplayMask = 0;
@@ -129,7 +133,46 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	}
 	//ret = CVDisplayLinkCreateWithOpenGLDisplayMask(totalDisplayMask, &displayLink);
 	ret = CVDisplayLinkCreateWithCGDisplay(viewDisplayID, &displayLink);
+	
+
+	func("Setting up full-screen context.");
+	
+	 NSOpenGLPixelFormatAttribute fullScreenAttributes[] =
+         {
+             NSOpenGLPFADoubleBuffer,
+             NSOpenGLPFAFullScreen,
+             NSOpenGLPFAAccelerated,
+             NSOpenGLPFAColorSize, [[[NSUserDefaults 
+standardUserDefaults] objectForKey:@"fullScreenColorBitDepth"] intValue],
+             NSOpenGLPFAAlphaSize, 8,
+             NSOpenGLPFADepthSize, 32,
+             nil
+         };
+
+	// Initialize an NSOpenGLContext for full-screen.
+	NSOpenGLPixelFormat *fullScreenPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:fullScreenAttributes];
+	fullScreenContext = [[NSOpenGLContext alloc] initWithFormat:fullScreenPixelFormat shareContext:nil];
+	//[fullScreenPixelFormat release];
+	// Make current.
+	//[fullScreenContext makeCurrentContext];
+	standardContext = [[self openGLContext] retain];
+	currentContext = standardContext;
+	
+	// Create CGColorSpaceRef 
+	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+		
+	// Create CIContext 
+	
+	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
+			    pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+			    options:[NSDictionary dictionaryWithObjectsAndKeys:
+				(id)colorSpace,kCIContextOutputColorSpace,
+				(id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+	CGColorSpaceRelease(colorSpace);
+
+	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedSize:) name:NSWindowDidResizeNotification object:nil];
 	// Set up display link callbacks 
 	CVDisplayLinkSetOutputCallback(displayLink, renderCallback, self);
 	
@@ -141,8 +184,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
-	[[self openGLContext] makeCurrentContext];
-		
+	[currentContext makeCurrentContext];	
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
 	{
 		GLfloat 	minX, minY, maxX, maxY;
@@ -208,19 +250,19 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (CVReturn)outputFrame
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-		if (outFrame) {
-			[outFrame release];
-			outFrame = NULL;
-		}
-		//CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-		Context *ctx = (Context *)[freej getContext];
-		cafudding = YES;
-		ctx->cafudda(0.0);
-		[self renderFrame];
-		cafudding = NO;
-		//CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+	if (outFrame) {
+		[outFrame release];
+		outFrame = NULL;
+	}
+	//CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+	Context *ctx = (Context *)[freej getContext];
+	//cafudding = YES;
+	ctx->cafudda(0.0);
+	[self renderFrame];
+	//cafudding = NO;
+	//CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
 
-		[pool release];
+	[pool release];
 	return kCVReturnSuccess;
 }
 
@@ -229,7 +271,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	NSAutoreleasePool *pool;
 	pool = [[NSAutoreleasePool alloc] init];
 	//@synchronized (self) {
-
 	if (layer->type = Layer::GL_COCOA) {
 		CVLayer *cvLayer = (CVLayer *)layer;
 		CIImage *inputImage = cvLayer->gl_texture();
@@ -259,10 +300,52 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[pool release];
 }
 
+- (void)setSizeWidth:(int)w Height:(int)h
+{
+	if (w != fjScreen->w || h != fjScreen->h) {
+		@synchronized (self)
+		{
+			CVPixelBufferRelease(pixelBuffer);
+			CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->w, fjScreen->h, NULL, &pixelBuffer);
+			CVPixelBufferRetain(pixelBuffer);
+			fjScreen->w = w;
+			fjScreen->h = h;
+			needsReshape = YES;
+		}
+	}
+}
+
+/*
+- (IBAction)fullScreen
+{
+	if (currentContext != fullScreenContext) {
+		@synchronized (self) {
+			currentContext = fullScreenContext;
+			//[self setOpenGLContext:currentContext];
+			//[currentContext setView:self];
+			[ciContext release];
+			// Create CGColorSpaceRef 
+		CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+			
+		// Create CIContext 
+		
+		ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
+					pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+					options:[NSDictionary dictionaryWithObjectsAndKeys:
+					(id)colorSpace,kCIContextOutputColorSpace,
+					(id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+		CGColorSpaceRelease(colorSpace);
+		}
+	}
+}
+*/
+
+/*
 - (bool)isCafudding
 {
 	return cafudding;
 }
+*/
 @end
 
 CVScreen::CVScreen()

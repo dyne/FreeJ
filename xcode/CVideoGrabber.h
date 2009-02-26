@@ -9,6 +9,7 @@
 #ifndef __CVideo_layer_H__
 #define __CVideo_layer_H__
 
+#define __cocoa
 #include <context.h>
 #import <QTKit/QTKit.h>
 #import <CoreAudio/CoreAudio.h>

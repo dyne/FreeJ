@@ -11,6 +11,9 @@
 #include "CFreej.h"
 #include <jutils.h>
 
+#define CV_GRABBER_HEIGHT_MAX 480
+#define CV_GRABBER_WIDTH_MAX 640
+
 /* Apple sample code */
 @implementation CVideoOutput : QTCaptureDecompressedVideoOutput
 
@@ -122,7 +125,10 @@
         error( "can't create a valid capture input facility" );
         goto error;
     }
-
+	
+	Context *ctx = [freej getContext];
+	int height = (ctx->screen->h < CV_GRABBER_HEIGHT_MAX)?ctx->screen->h:CV_GRABBER_HEIGHT_MAX;
+	int width = (ctx->screen->w < CV_GRABBER_WIDTH_MAX)?ctx->screen->w:CV_GRABBER_WIDTH_MAX;
     /* Hack - This will lower CPU consumption for some reason */
     [self setPixelBufferAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
         [NSNumber numberWithInt:height], kCVPixelBufferHeightKey,
@@ -152,7 +158,6 @@
 
 	running = true;
 	[QTMovie exitQTKitOnThread];
-	Context *ctx = [freej getContext];
 	layer = new CVLayer((NSObject *)self);
 	layer->init(ctx);
 	layer->activate();

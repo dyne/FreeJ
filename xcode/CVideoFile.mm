@@ -157,7 +157,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)update
 {
-    [super update];
+	@synchronized (self) {
+		[super update];
+	}
 }
 
 - (void)drawRect:(NSRect)theRect
@@ -239,7 +241,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)setQTMovie:(QTMovie*)inMovie
 {	
 	OSStatus			    err;
-	
+	Context *ctx = (Context *)[freej getContext];
 	// if we own already a movie let's relase it before trying to open the new one
 	if (qtMovie) 
 		[self unloadMovie];
@@ -263,8 +265,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		SetNumberValue(pixelBufferOptions, kCVPixelBufferPixelFormatTypeKey, k32ARGBPixelFormat);
 
 		// size
-		SetNumberValue(pixelBufferOptions, kCVPixelBufferWidthKey, 400);
-		SetNumberValue(pixelBufferOptions, kCVPixelBufferHeightKey, 300);
+		SetNumberValue(pixelBufferOptions, kCVPixelBufferWidthKey, ctx->screen->w);
+		SetNumberValue(pixelBufferOptions, kCVPixelBufferHeightKey, ctx->screen->h);
 
 		// alignment
 		SetNumberValue(pixelBufferOptions, kCVPixelBufferBytesPerRowAlignmentKey, 1);
@@ -338,7 +340,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		movieDuration = [[[qtMovie movieAttributes] objectForKey:QTMovieDurationAttribute] QTTimeValue];
 		[self setNeedsDisplay:YES];
 		// register the layer within the freej context
-		Context *ctx = (Context *)[freej getContext];
 		layer = new CVLayer((NSObject *)self);
 		layer->init(ctx);
 		//layer->start();

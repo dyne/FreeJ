@@ -45,7 +45,7 @@ bool
 CVLayer::init(Context *ctx)
 {
 	 // * TODO - probe resolution of the default input device
-	return init(ctx, 400, 300);
+	return init(ctx, ctx->screen->w, ctx->screen->h);
 }
 
 bool
