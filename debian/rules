@@ -9,34 +9,28 @@ include /usr/share/cdbs/1/class/autotools.mk
 include /usr/share/cdbs/1/rules/dpatch.mk
 
 
-# scripting doc
-# make -k -C doc/scripting
+common-build-arch common-build-indep::
+	# scripting doc
+	make -k -C doc/scripting
 
-#clean::
-#	dh_testdir
-#	dh_testroot
-#	rm -f build-stamp 
-#	rm -f config.log
-#	rm -f lib/javascript/editline/obj/*.o
-#	rm -f lib/javascript/editline/obj/*.a
-#	rm -f lib/javascript/fdlibm/obj/*.o
-#	rm -f lib/javascript/fdlibm/obj/*.a
-#	rm -f lib/javascript/obj/*.o
-#	rm -f lib/javascript/obj/*.a
-#	rm -f lib/javascript/obj/*.so
-#	rm -f lib/javascript/obj/jsautocfg.h
-#	rm -f lib/javascript/obj/js
-#	rm -f lib/javascript/obj/jscpucfg
-#	rm -f lib/goom/goomsl_lex.c
-#	rm -f lib/goom/goomsl_yacc.c
-#	rm -rf doc/scripting/html
+clean::
+	make -k -C doc/scripting clean
+	rm -f lib/javascript/editline/obj/*.o
+	rm -f lib/javascript/editline/obj/*.a
+	rm -f lib/javascript/fdlibm/obj/*.o
+	rm -f lib/javascript/fdlibm/obj/*.a
+	rm -f lib/javascript/obj/*.o
+	rm -f lib/javascript/obj/*.a
+	rm -f lib/javascript/obj/*.so
+	rm -f lib/javascript/obj/jsautocfg.h
+	rm -f lib/javascript/obj/js
+	rm -f lib/javascript/obj/jscpucfg
+	rm -f lib/goom/Makefile
 
-#install::
-#	# Add here commands to install the package into debian/freej.
-#	$(MAKE) install prefix=$(CURDIR)/debian/freej/usr
-#	rm -rf $(CURDIR)/debian/freej/usr/share/doc/freej-0.10
-#	rm -rf $(CURDIR)/debian/freej/usr/share/freej/AUTHORS
-#	rm -rf $(CURDIR)/debian/freej/usr/share/freej/COPYING
-#	rm -rf $(CURDIR)/debian/freej/usr/share/freej/README
+common-install-arch common-install-indep::
+	rm -rf $(CURDIR)/debian/freej/usr/share/doc/freej-*
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej/AUTHORS
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej/COPYING
+	rm -rf $(CURDIR)/debian/freej/usr/share/freej/README
 
 
