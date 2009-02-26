@@ -6,12 +6,9 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 #import "CFreej.h"
-#import "CVideoFile.h"
-
 #define DEFAULT_FREEJ_WIDTH 400
 #define DEFAULT_FREEJ_HEIGHT 300
 
-extern int freej_main(int argc, char **argv);
 @implementation CFreej
 
 - (void) consoleOutput:(id)object
@@ -113,6 +110,7 @@ extern int freej_main(int argc, char **argv);
      func("openScript filename = %@",tvarFilename);
 
 	[scriptPath setStringValue:tvarFilename];
+	freej->open_script((char *)[tvarFilename UTF8String]);
 	
 } // end openScript
 

@@ -6,8 +6,9 @@
 //  Copyright 2009 dyne.org. All rights reserved.
 //
 
-#import "CVideoFile.h"
 #import "CIAlphaFade.h"
+#import "CVideoFile.h"
+
 #import <QTKit/QTMovie.h>
 
 #define _ARGB2BGRA(__buf, __size) \
@@ -33,6 +34,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
     return noErr;
 }
+
 static CVReturn renderCallback(CVDisplayLinkRef displayLink, 
                                                 const CVTimeStamp *inNow, 
                                                 const CVTimeStamp *inOutputTime, 
@@ -123,13 +125,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (id)init
 {
+	[lock release];
 	needsReshape = YES;
 	//freejFrame = NULL;
 	doFilters = true;
 	currentFrame = NULL;
 	lastFrame = NULL;
 	renderedImage = NULL;
-	
+	filterPanel = NULL;
 	return self;
 }
 
@@ -157,16 +160,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)update
 {
-	@synchronized (self) {
-		[super update];
-	}
+	[lock lock];
+	[super update];
+	[lock unlock];
 }
 
 - (void)drawRect:(NSRect)theRect
 {
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
-    @synchronized (self) {
+	[lock lock];
 		[[self openGLContext] makeCurrentContext];
 		
 		if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
@@ -206,36 +209,36 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		[self renderCurrentFrame];  
 		// flush our output to the screen - this will render with the next beamsync
 		glFlush();
-	}
+
+	[lock unlock];
 }
 
 - (void)unloadMovie
 {
 	NSRect		frame = [self frame]; 
-	@synchronized (self) 
-	{
-		if(CVDisplayLinkIsRunning(displayLink))
-			[self togglePlay:nil];
-		
-		[[self openGLContext] makeCurrentContext];	
-		// clean the OpenGL context
-		glClearColor(0.0, 0.0, 0.0, 0.0);	     
-		glClear(GL_COLOR_BUFFER_BIT);
-		glFlush();
-		
-		SetMovieVisualContext([qtMovie quickTimeMovie], NULL);
-		SetMovieVisualContext([previewMovie quickTimeMovie], NULL);
-		[qtMovie release];
-		[previewMovie release];
-		[cifjContext release];
-		cifjContext = NULL;
-		qtMovie = NULL;
-		QTVisualContextRelease(qtVisualContext);
-		qtVisualContext = NULL;
-		QTVisualContextRelease(previewVisualContext);
-		previewVisualContext = NULL;
-		needsReshape = YES;
-	}
+	[lock lock];
+	if(CVDisplayLinkIsRunning(displayLink))
+		[self togglePlay:nil];
+	
+	[[self openGLContext] makeCurrentContext];	
+	// clean the OpenGL context
+	glClearColor(0.0, 0.0, 0.0, 0.0);	     
+	glClear(GL_COLOR_BUFFER_BIT);
+	glFlush();
+	
+	SetMovieVisualContext([qtMovie quickTimeMovie], NULL);
+	SetMovieVisualContext([previewMovie quickTimeMovie], NULL);
+	[qtMovie release];
+	[previewMovie release];
+	[cifjContext release];
+	cifjContext = NULL;
+	qtMovie = NULL;
+	QTVisualContextRelease(qtVisualContext);
+	qtVisualContext = NULL;
+	QTVisualContextRelease(previewVisualContext);
+	previewVisualContext = NULL;
+	needsReshape = YES;
+	[lock unlock];
 }
 
 - (void)setQTMovie:(QTMovie*)inMovie
@@ -391,8 +394,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)setFilterParameter:(id)sender
 {
-    //[lock lock];
-    @synchronized (self) {
+    [lock lock];
 	switch([sender tag])
     {
 	case 0:
@@ -417,8 +419,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	    break;
 	    
     }
-	}
-    //[lock unlock];
+    [lock unlock];
   //  if(!CVDisplayLinkIsRunning(displayLink))
 	//	[self display];
 }
@@ -427,13 +428,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     CIVector	*centerVector = nil;
     
-    //[lock lock];
-    @synchronized (self)
-	{
+    [lock lock];
+    
 	centerVector = [CIVector vectorWithX:where.x Y:where.y];
     [effectFilter setValue:centerVector forKey:@"inputCenter"];
-    }
-	//[lock unlock];
+    
+	[lock unlock];
     if(!CVDisplayLinkIsRunning(displayLink))
 		[self display];
 }
@@ -468,18 +468,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		[ciContext drawImage:previewImage
 				atPoint:CGPointMake((int)((frame.size.width - imageRect.size.width) * 0.5), (int)((frame.size.height - imageRect.size.height) * 0.5))
 				fromRect:imageRect];
-	
-
     }
     // housekeeping on the visual context
 	QTVisualContextTask(previewVisualContext);
 	QTVisualContextTask(qtVisualContext);
-	[QTMovie exitQTKitOnThread];
 	if (layer) {
 		//layer->lock();
 		layer->buffer = (void *)currentFrame;
 		//layer->unlock();
 	}
+	[QTMovie exitQTKitOnThread];
 	[pool release];
 }
 
@@ -493,33 +491,32 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     OSStatus err = noErr;
 	BOOL rv = NO;
 	
+	[lock lock];
 	//CFDataRef movieTimeData;
 	[QTMovie enterQTKitOnThread];
     // See if a new frame is available
     if(QTVisualContextIsNewImageAvailable(qtVisualContext,timeStamp))
     {	    
-		@synchronized (self) {
-			CVOpenGLTextureRelease(previewFrame);
-			CVPixelBufferRelease(currentFrame);
-			QTVisualContextCopyImageForTime(qtVisualContext,
-				NULL,
-				timeStamp,
-				&currentFrame);
-			
-			//CVPixelBufferLockBaseAddress(currentFrame, 0);
-			/* XXX this conversion wastes cpu time */
-			//_ARGB2BGRA(CVPixelBufferGetBaseAddress(currentFrame), layer->geo.w*layer->geo.h);
-			//CVPixelBufferUnlockBaseAddress(currentFrame, 0);
-			// set preview moview currenttime to match master movie
-			[previewMovie setCurrentTime:[qtMovie currentTime]];
-			// and grab a frame to be used in the preview 
-			// (quicktime will take care of resize and pixel format
-			// since we are using a different visual context
-			QTVisualContextCopyImageForTime(previewVisualContext,
-				NULL,
-				timeStamp,
-				&previewFrame);
-		}
+		CVOpenGLTextureRelease(previewFrame);
+		CVPixelBufferRelease(currentFrame);
+		QTVisualContextCopyImageForTime(qtVisualContext,
+			NULL,
+			timeStamp,
+			&currentFrame);
+		
+		//CVPixelBufferLockBaseAddress(currentFrame, 0);
+		/* XXX this conversion wastes cpu time */
+		//_ARGB2BGRA(CVPixelBufferGetBaseAddress(currentFrame), layer->geo.w*layer->geo.h);
+		//CVPixelBufferUnlockBaseAddress(currentFrame, 0);
+		// set preview moview currenttime to match master movie
+		[previewMovie setCurrentTime:[qtMovie currentTime]];
+		// and grab a frame to be used in the preview 
+		// (quicktime will take care of resize and pixel format
+		// since we are using a different visual context
+		QTVisualContextCopyImageForTime(previewVisualContext,
+			NULL,
+			timeStamp,
+			&previewFrame);
 	    // In general this shouldn't happen, but just in case...
 	    if(err != noErr && !currentFrame)
 	    {
@@ -527,10 +524,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		    rv = NO;
 	    }
 		
-		[delegate performSelectorOnMainThread:@selector(movieTimeChanged:) withObject:self waitUntilDone:NO];
+		//[delegate performSelectorOnMainThread:@selector(movieTimeChanged:) withObject:self waitUntilDone:NO];
 	    rv = YES;
+		newFrame = YES; // announce that we have a new frame
     }
-	//[lock unlock];
+	[lock unlock];
 	[QTMovie exitQTKitOnThread];
 	[pool release];
     return rv;
@@ -639,36 +637,46 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	NSAutoreleasePool *pool;
 	pool = [[NSAutoreleasePool alloc] init];
 	CIImage     *inputImage = NULL;
-	@synchronized (self) {
-		if (currentFrame) {
-			if (currentFrame != lastFrame) {
-				if (lastFrame) {
-					CVPixelBufferRelease(lastFrame);
-					[renderedImage release];
-				}
-				lastFrame = currentFrame;
-				CVPixelBufferRetain(lastFrame);
-				inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
-				if (currentFrame) {
-					if (doFilters) {
-						[colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
-						[effectFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] 
-									  forKey:@"inputImage"];
-						[alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
-									  forKey:@"inputImage"];
-						renderedImage = [alphaFilter valueForKey:@"outputImage"];
-						//CVPixelBufferLockBaseAddress(freejFrame, 0);
-										
-						renderedImage = [renderedImage retain];
-					} else {
-						renderedImage = [inputImage retain];
-					}
-				}
-			} 
+	[lock lock];
+	if (newFrame) {
+		if (lastFrame) {
+			CVPixelBufferRelease(lastFrame);
+			[renderedImage release];
+		}
+		lastFrame = currentFrame;
+		CVPixelBufferRetain(lastFrame);
+		inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
+		newFrame = NO;
+	}
+	[lock unlock];
+	if (inputImage) {
+		if (doFilters) {
+			[colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
+			[effectFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] 
+						  forKey:@"inputImage"];
+			[alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
+						  forKey:@"inputImage"];
+			renderedImage = [alphaFilter valueForKey:@"outputImage"];
+			//CVPixelBufferLockBaseAddress(freejFrame, 0);
+							
+			renderedImage = [renderedImage retain];
+		} else {
+			renderedImage = [inputImage retain];
 		}
 	}
+	
 	[pool release];
 	return renderedImage;
+}
+
+- (void)mouseDown:(NSEvent *)theEvent {
+    // determine if I handle theEvent
+	if (!filterPanel) {
+		filterPanel = [[CVFilterPanel alloc] init];
+	}
+	[filterPanel setLayer:self];
+	[filterPanel show];
+	[super mouseDown:theEvent];
 }
 
 @synthesize layer;

@@ -32,6 +32,7 @@ class  CVScreen;
 
 @interface CVScreenView : NSOpenGLView {
 	IBOutlet CFreej		*freej;
+
 	// display link
     CVDisplayLinkRef	displayLink;		    // the displayLink that runs the show
     CGDirectDisplayID	viewDisplayID;

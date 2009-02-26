@@ -14,6 +14,7 @@ CVLayer::CVLayer(NSObject *vin) : Layer()
 	input = vin;
 	bufsize = 0;
 	blendFilter = NULL;
+	type = Layer::GL_COCOA;
 	set_blend_mode(CVLayer::Overlay);
 	[input setLayer:this];
 }

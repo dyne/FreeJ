@@ -26,6 +26,7 @@ class CVideoGrabber;
 
 @interface CVideoOutput : QTCaptureDecompressedVideoOutput
 {
+	NSRecursiveLock		*lock;
     CVImageBufferRef currentImageBuffer;
 	CIImage *freejImageBuffer;
     time_t currentPts;

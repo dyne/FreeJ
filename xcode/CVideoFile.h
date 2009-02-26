@@ -5,14 +5,16 @@
 //  Created by xant on 2/16/09.
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
+#ifndef __CV_FILEINPUT_H__
+#define __CV_FILEINPUT_H__
 
-#define __cocoa
 #include <context.h>
 #import <Cocoa/Cocoa.h>
 #import <QuickTime/QuickTime.h>
 #import <QTKit/QTKit.h>
 
 #include "CVLayer.h"
+#include "CVFilterPanel.h"
 
 class CFreej;
 
@@ -27,7 +29,9 @@ class CFreej;
     CVImageBufferRef	currentFrame;		    // the current frame from the movie
 	CVImageBufferRef	previewFrame;
 	CVImageBufferRef    lastFrame;
+	BOOL				newFrame;
 	CIImage				*renderedImage;
+	CVFilterPanel       *filterPanel;
     
     // display link
     CVDisplayLinkRef	displayLink;		    // the displayLink that runs the show
@@ -67,5 +71,7 @@ class CFreej;
 - (IBAction)openFile:(id)sender;
 - (IBAction)toggleFilters:(id)sender;
 - (CIImage *)getTexture;
+- (void)mouseDown:(NSEvent *)theEvent;
 @end
 
+#endif

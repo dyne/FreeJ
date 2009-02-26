@@ -82,6 +82,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (id)init
 {
 	needsReshape = YES;
+	lock = [[NSRecursiveLock alloc] init];
 	//cafudding = NO;
 	[freej start];
 	Context *ctx = (Context *)[freej getContext];
@@ -98,9 +99,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)update
 {
-	@synchronized (self) {
+	[lock lock];
+	//@synchronized (self) {
 		[super update];
-	}
+	//}
+	[lock unlock];
 }
 
 - (void)dealloc
@@ -111,6 +114,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[standardContext release];
 	[outFrame release];
 	[inFrame release];
+	[lock release];
 }
 - (void)prepareOpenGL
 {
@@ -228,6 +232,7 @@ standardUserDefaults] objectForKey:@"fullScreenColorBitDepth"] intValue],
 	CGRect	    imageRect;
 	//CIImage	    *inputImage = [CIImage imageWithCVImageBuffer:pixelBuffer];//, *scaledImage;
 	//@synchronized (self) {
+	[lock lock];
 		[self drawRect:NSZeroRect];
 		// and do preview
 		if (outFrame) {
@@ -239,6 +244,7 @@ standardUserDefaults] objectForKey:@"fullScreenColorBitDepth"] intValue],
 		}
 		glFlush();
 	//}
+	[lock unlock];
 	[pool release];
 }
 
@@ -269,50 +275,73 @@ standardUserDefaults] objectForKey:@"fullScreenColorBitDepth"] intValue],
 - (void)drawLayer:(Layer *)layer
 {
 	NSAutoreleasePool *pool;
+	CIImage *inputImage = NULL;
 	pool = [[NSAutoreleasePool alloc] init];
 	//@synchronized (self) {
-	if (layer->type = Layer::GL_COCOA) {
+	[lock lock];
+	if (layer->type == Layer::GL_COCOA) {
 		CVLayer *cvLayer = (CVLayer *)layer;
-		CIImage *inputImage = cvLayer->gl_texture();
-		if (inputImage && inputImage != inFrame) {
-			CIFilter *blendFilter = NULL;
-			if (inFrame)
-				[inFrame release];
-			inFrame = inputImage;
-			[inputImage retain];
-			//if (cvLayer->blendFilter)
-			//	blendFilter = cvLayer->blendFilter;
-			//else 
-			blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"]; 
-			if (!outFrame) {
-				outFrame = inputImage;
-			} else {
-				[blendFilter setValue:outFrame forKey:@"inputBackgroundImage"];
-				[blendFilter setValue:inputImage forKey:@"inputImage"];
-				CIImage *tmp = [blendFilter valueForKey:@"outputImage"];
-				[outFrame release];
-				outFrame = tmp;
-			}
-			[outFrame retain];
-		}
+		inputImage = cvLayer->gl_texture();
+	} else {
+	
+		CVPixelBufferRef pixelBufferOut;
+
+		CVReturn cvRet = CVPixelBufferCreateWithBytes (
+		   NULL,
+		   layer->geo.w,
+		   layer->geo.h,
+		   k32BGRAPixelFormat,
+		   layer->buffer,
+		   layer->geo.w*4,
+		   NULL,
+		   NULL,
+		   NULL,
+		   &pixelBufferOut
+		);
+		inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
+		CVPixelBufferRelease(pixelBufferOut);
 	}
+	if (inputImage && inputImage != inFrame) {
+		CIFilter *blendFilter = NULL;
+		if (inFrame)
+			[inFrame release];
+		inFrame = inputImage;
+		[inputImage retain];
+		//if (cvLayer->blendFilter)
+		//	blendFilter = cvLayer->blendFilter;
+		//else 
+		blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"]; 
+		if (!outFrame) {
+			outFrame = inputImage;
+		} else {
+			[blendFilter setValue:outFrame forKey:@"inputBackgroundImage"];
+			[blendFilter setValue:inputImage forKey:@"inputImage"];
+			CIImage *tmp = [blendFilter valueForKey:@"outputImage"];
+			[outFrame release];
+			outFrame = tmp;
+		}
+		[outFrame retain];
+	}
+	[lock unlock];
 	//}
 	[pool release];
 }
 
 - (void)setSizeWidth:(int)w Height:(int)h
 {
+	[lock lock];
 	if (w != fjScreen->w || h != fjScreen->h) {
-		@synchronized (self)
-		{
+	//	@synchronized (self)
+	//	{
 			CVPixelBufferRelease(pixelBuffer);
 			CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->w, fjScreen->h, NULL, &pixelBuffer);
 			CVPixelBufferRetain(pixelBuffer);
 			fjScreen->w = w;
 			fjScreen->h = h;
 			needsReshape = YES;
-		}
+	//	}
 	}
+	[lock unlock];
 }
 
 /*

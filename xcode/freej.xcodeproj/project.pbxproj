@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA1EB9030F56969E006610D8 /* CVFilterPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = AA1EB9020F56969E006610D8 /* CVFilterPanel.m */; };
+		AA68950C0F562B23002B77E7 /* EffectsPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = AA68950B0F562B23002B77E7 /* EffectsPanel.nib */; };
 		AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04B80F4ED02700723DAC /* OpenGL.framework */; };
 		AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */; };
 		AA8F9F710F510273006A9E2F /* soft_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8F9F700F510272006A9E2F /* soft_screen.cpp */; };
@@ -75,7 +77,6 @@
 		AAA7B7340F404B7F00056C44 /* theorautils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C45230F3EEBE0007C7E8B /* theorautils.cpp */; };
 		AAA7B7350F404B7F00056C44 /* trigger_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C45250F3EEBE0007C7E8B /* trigger_ctrl.cpp */; };
 		AAA7B7360F404B7F00056C44 /* tvfreq.c in Sources */ = {isa = PBXBuildFile; fileRef = AA3C45270F3EEBE0007C7E8B /* tvfreq.c */; };
-		AAA7B7370F404B7F00056C44 /* txt_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C45290F3EEBE0007C7E8B /* txt_layer.cpp */; };
 		AAA7B7380F404B7F00056C44 /* unicap_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C452A0F3EEBE0007C7E8B /* unicap_layer.cpp */; };
 		AAA7B7390F404B7F00056C44 /* unicap_layer_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C452B0F3EEBE0007C7E8B /* unicap_layer_js.cpp */; };
 		AAA7B73A0F404B7F00056C44 /* v4l_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C452C0F3EEBE0007C7E8B /* v4l_layer.cpp */; };
@@ -153,6 +154,8 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		AA1EB9010F56969E006610D8 /* CVFilterPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFilterPanel.h; sourceTree = "<group>"; };
+		AA1EB9020F56969E006610D8 /* CVFilterPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVFilterPanel.m; sourceTree = "<group>"; };
 		AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector.cpp; sourceTree = "<group>"; };
 		AA3C44590F3EEBE0007C7E8B /* audio_collector_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector_js.cpp; sourceTree = "<group>"; };
 		AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_input.cpp; sourceTree = "<group>"; };
@@ -250,7 +253,6 @@
 		AA3C44DF0F3EEBE0007C7E8B /* theorautils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = theorautils.h; sourceTree = "<group>"; };
 		AA3C44E00F3EEBE0007C7E8B /* trigger_ctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = trigger_ctrl.h; sourceTree = "<group>"; };
 		AA3C44E10F3EEBE0007C7E8B /* tvfreq.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tvfreq.h; sourceTree = "<group>"; };
-		AA3C44E20F3EEBE0007C7E8B /* txt_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = txt_layer.h; sourceTree = "<group>"; };
 		AA3C44E30F3EEBE0007C7E8B /* unicap_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = unicap_layer.h; sourceTree = "<group>"; };
 		AA3C44E40F3EEBE0007C7E8B /* v4l_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = v4l_layer.h; sourceTree = "<group>"; };
 		AA3C44E50F3EEBE0007C7E8B /* video_encoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = video_encoder.h; sourceTree = "<group>"; };
@@ -288,7 +290,6 @@
 		AA3C45230F3EEBE0007C7E8B /* theorautils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = theorautils.cpp; sourceTree = "<group>"; };
 		AA3C45250F3EEBE0007C7E8B /* trigger_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = trigger_ctrl.cpp; sourceTree = "<group>"; };
 		AA3C45270F3EEBE0007C7E8B /* tvfreq.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tvfreq.c; sourceTree = "<group>"; };
-		AA3C45290F3EEBE0007C7E8B /* txt_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = txt_layer.cpp; sourceTree = "<group>"; };
 		AA3C452A0F3EEBE0007C7E8B /* unicap_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unicap_layer.cpp; sourceTree = "<group>"; };
 		AA3C452B0F3EEBE0007C7E8B /* unicap_layer_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = unicap_layer_js.cpp; sourceTree = "<group>"; };
 		AA3C452C0F3EEBE0007C7E8B /* v4l_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = v4l_layer.cpp; sourceTree = "<group>"; };
@@ -301,6 +302,7 @@
 		AA3C453A0F3EEBE0007C7E8B /* wiimote_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wiimote_ctrl.cpp; sourceTree = "<group>"; };
 		AA3C453C0F3EEBE0007C7E8B /* xgrab_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xgrab_layer.cpp; sourceTree = "<group>"; };
 		AA3C453E0F3EEBE0007C7E8B /* xhacks_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xhacks_layer.cpp; sourceTree = "<group>"; };
+		AA68950B0F562B23002B77E7 /* EffectsPanel.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = EffectsPanel.nib; sourceTree = "<group>"; };
 		AA7C04B80F4ED02700723DAC /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		AA8F9F700F510272006A9E2F /* soft_screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = soft_screen.cpp; sourceTree = "<group>"; };
@@ -444,6 +446,8 @@
 				AAB84F850F3F1EB300AD479D /* CFreej.h */,
 				AA99CF0B0F535B5F00022106 /* CVLayer.h */,
 				AA99CF0C0F535B5F00022106 /* CVLayer.mm */,
+				AA1EB9010F56969E006610D8 /* CVFilterPanel.h */,
+				AA1EB9020F56969E006610D8 /* CVFilterPanel.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -520,6 +524,7 @@
 				AAA7B6F30F404B4C00056C44 /* freej.app */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
+				AA68950B0F562B23002B77E7 /* EffectsPanel.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -589,7 +594,6 @@
 				AA3C45230F3EEBE0007C7E8B /* theorautils.cpp */,
 				AA3C45250F3EEBE0007C7E8B /* trigger_ctrl.cpp */,
 				AA3C45270F3EEBE0007C7E8B /* tvfreq.c */,
-				AA3C45290F3EEBE0007C7E8B /* txt_layer.cpp */,
 				AA3C452C0F3EEBE0007C7E8B /* v4l_layer.cpp */,
 				AA3C452A0F3EEBE0007C7E8B /* unicap_layer.cpp */,
 				AA3C45300F3EEBE0007C7E8B /* video_encoder.cpp */,
@@ -676,7 +680,6 @@
 				AA3C44DF0F3EEBE0007C7E8B /* theorautils.h */,
 				AA3C44E00F3EEBE0007C7E8B /* trigger_ctrl.h */,
 				AA3C44E10F3EEBE0007C7E8B /* tvfreq.h */,
-				AA3C44E20F3EEBE0007C7E8B /* txt_layer.h */,
 				AA3C44E30F3EEBE0007C7E8B /* unicap_layer.h */,
 				AA3C44E40F3EEBE0007C7E8B /* v4l_layer.h */,
 				AA3C44E50F3EEBE0007C7E8B /* video_encoder.h */,
@@ -885,6 +888,7 @@
 				AAA3904D0F5449810069BF91 /* CIAlphaFade.cikernel in Resources */,
 				AAA7B6F80F404B6C00056C44 /* MainMenu.nib in Resources */,
 				AAA7B6F90F404B6C00056C44 /* InfoPlist.strings in Resources */,
+				AA68950C0F562B23002B77E7 /* EffectsPanel.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -954,7 +958,6 @@
 				AAA7B7340F404B7F00056C44 /* theorautils.cpp in Sources */,
 				AAA7B7350F404B7F00056C44 /* trigger_ctrl.cpp in Sources */,
 				AAA7B7360F404B7F00056C44 /* tvfreq.c in Sources */,
-				AAA7B7370F404B7F00056C44 /* txt_layer.cpp in Sources */,
 				AAA7B7380F404B7F00056C44 /* unicap_layer.cpp in Sources */,
 				AAA7B7390F404B7F00056C44 /* unicap_layer_js.cpp in Sources */,
 				AAA7B73A0F404B7F00056C44 /* v4l_layer.cpp in Sources */,
@@ -1003,6 +1006,7 @@
 				AAAAC1760F533ADF00461C96 /* sdl_blits.cpp in Sources */,
 				AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */,
 				AAA38FB70F542DE80069BF91 /* CIAlphaFade.m in Sources */,
+				AA1EB9030F56969E006610D8 /* CVFilterPanel.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1088,6 +1092,7 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SYMBOL_SEPARATION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
@@ -1133,6 +1138,7 @@
 					ppc,
 					i386,
 				);
+				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SYMBOL_SEPARATION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;

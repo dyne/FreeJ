@@ -26,16 +26,19 @@
         previousPts = 0;
 		width = 640;
 		height = 480;
+		lock = [[NSRecursiveLock alloc] init];
     }
     return self;
 }
 - (void)dealloc
 {
-    @synchronized (self)
-    {
+	[self stopCapture:self];
+    //@synchronized (self)
+    //{
         CVBufferRelease(currentImageBuffer);
         currentImageBuffer = nil;
-    }
+    //}
+	[lock release];
     [super dealloc];
 }
 
@@ -46,8 +49,9 @@
     CVImageBufferRef imageBufferToRelease;
 	[QTMovie enterQTKitOnThread];
     CVBufferRetain(videoFrame);
-    @synchronized (self)
-    {
+    [lock lock];
+	//@synchronized (self)
+    //{
         imageBufferToRelease = currentImageBuffer;
         currentImageBuffer = videoFrame;
         currentPts = (time_t)(1000000L / [sampleBuffer presentationTime].timeScale * [sampleBuffer presentationTime].timeValue);
@@ -58,14 +62,15 @@
 		if (layer) {
 			layer->buffer = (void *)currentImageBuffer;
 		}
-    }
+    //}
+	[lock unlock];
 	[QTMovie exitQTKitOnThread];
     CVBufferRelease(imageBufferToRelease);
 }
 
 - (void)awakeFromNib
 {
-	[self setSize:self];
+	//[self setSize:self];
 }
 
  
@@ -76,17 +81,6 @@
  
 }
 
-- (IBAction)setSize:(id)sender
-{
-	const char *selected = [[captureSize titleOfSelectedItem] UTF8String];
-	if (sscanf(selected, "%dx%d", &width, &height) != 2)
-		error("Bad capture size selected! : %s", selected);
-	if (running) {
-		// restart capture with newer size
-		[self stopCapture:self];
-		[self startCapture:self];
-	}
-}
 
 - (IBAction)startCapture:(id)sender
 {
@@ -170,7 +164,8 @@ error:
 
 - (IBAction)stopCapture:(id)sender
 {
-	@synchronized (self) {
+	//@synchronized (self) {
+	[lock lock];
 		[QTMovie enterQTKitOnThread];
 		if (session) {
 			[session stopRunning];
@@ -204,7 +199,8 @@ error:
 			layer = NULL;
 		}
 		running = false;
-	}
+	[lock unlock];
+	//}
 }
 
 - (IBAction)toggleCapture:(id)sender
@@ -228,8 +224,9 @@ error:
 	if(!currentImageBuffer || currentPts == previousPts )
         return freejImageBuffer;
 
-    @synchronized (self)
-    {
+    //@synchronized (self)
+    //{
+	[lock lock];
         pts = previousPts = currentPts;
 
 		if (freejImageBuffer) {
@@ -238,7 +235,8 @@ error:
 
 		freejImageBuffer = [CIImage imageWithCVImageBuffer:currentImageBuffer];
 		[freejImageBuffer retain];
-    }
+	[lock unlock];
+    //}
 
     return freejImageBuffer;
 }
