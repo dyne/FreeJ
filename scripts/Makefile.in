@@ -246,6 +246,7 @@ target_alias = @target_alias@
 target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
+scriptsdir = "$(DESTDIR)$(prefix)/share/doc/$(PACKAGE)/scripts"
 DIRS := $(shell for d in *; do test -d $$d && echo $$d; done)
 all: all-am
 
@@ -329,7 +330,6 @@ all-am: Makefile
 installdirs:
 install-exec: install-exec-am
 install-data: install-data-am
-uninstall: uninstall-am
 
 install-am: all-am
 	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
@@ -408,7 +408,12 @@ uninstall-am: uninstall-info-am
 
 
 install:
-	for subdir in $(DIRS); do cp -ra $$subdir $(DESTDIR)$(pkgdatadir); done
+	test -z "$(scriptsdir)" || mkdir -p "$(scriptsdir)"
+	for subdir in $(DIRS); do cp -ra $$subdir "$(scriptsdir)"; done
+
+uninstall:
+	for subdir in $(DIRS); do rm -rf "$(scriptsdir)/$$subdir" ; done
+	rm -rf "$(scriptsdir)"
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:
