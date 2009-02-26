@@ -26,7 +26,7 @@ Freej_la_LDFLAGS = -module -avoid-version
 Freej_la_LIBADD = $(RUBY_LIBS) -L$(top_srcdir)/src/.libs -lfreej
 
 
-clean:
+clean-local:
 	rm -rf .libs _libs
 	test -z "Freej.la" || rm -f Freej.la
 	rm -f "./so_locations"

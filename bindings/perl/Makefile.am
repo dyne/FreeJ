@@ -25,7 +25,7 @@ Freej_la_CXXFLAGS = -I$(perl_archdir)/CORE $(FREEJ_FLAGS) @PERL_CFLAGS@
 Freej_la_SOURCES = $(PERL_SOURCE)
 Freej_la_LIBADD = -L$(top_srcdir)/src/.libs -lfreej
 
-clean:
+clean-local:
 	rm -rf .libs _libs
 	test -z "Freej.la" || rm -f Freej.la
 	rm -f "./so_locations"

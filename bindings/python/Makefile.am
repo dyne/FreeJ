@@ -28,7 +28,7 @@ _freej_la_CXXFLAGS =  $(FREEJ_FLAGS) @PYTHON_CPPFLAGS@
 _freej_la_LDFLAGS = -module -avoid-version
 _freej_la_LIBADD = $(PY_LIBS) -L$(top_srcdir)/src/.libs -lfreej
 
-clean:
+clean-local:
 	rm -rf .libs _libs
 	test -z "_freej.la" || rm -f _freej.la
 	rm -f "./so_locations"
