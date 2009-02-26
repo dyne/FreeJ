@@ -505,8 +505,10 @@ maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-clean-am: clean-generic clean-libtool clean-pkgjavaexecLTLIBRARIES \
-	mostlyclean-am
+clean: clean-am
+
+clean-am: clean-generic clean-libtool clean-local \
+	clean-pkgjavaexecLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -555,23 +557,23 @@ ps-am:
 uninstall-am: uninstall-info-am uninstall-pkgjavaexecLTLIBRARIES
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-pkgjavaexecLTLIBRARIES ctags distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-exec \
-	install-exec-am install-info install-info-am install-man \
-	install-pkgjavaexecLTLIBRARIES install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-info-am \
-	uninstall-pkgjavaexecLTLIBRARIES
+	clean-libtool clean-local clean-pkgjavaexecLTLIBRARIES ctags \
+	distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am install-info \
+	install-info-am install-man install-pkgjavaexecLTLIBRARIES \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-info-am uninstall-pkgjavaexecLTLIBRARIES
 
 
 freej_java.cpp: $(top_srcdir)/bindings/freej.i
 	@SWIG_COMMAND@ -java -o freej_java.cpp @SWIG_IFACE@
 
-clean:
+clean-local:
 	rm -rf .libs _libs
 	test -z "libfreej_g.la" || rm -f libfreej_g.la
 	rm -f "./so_locations"

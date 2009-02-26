@@ -510,8 +510,10 @@ maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
-clean-am: clean-generic clean-libtool clean-pkgrubyexecLTLIBRARIES \
-	mostlyclean-am
+clean: clean-am
+
+clean-am: clean-generic clean-libtool clean-local \
+	clean-pkgrubyexecLTLIBRARIES mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -560,23 +562,23 @@ ps-am:
 uninstall-am: uninstall-info-am uninstall-pkgrubyexecLTLIBRARIES
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-pkgrubyexecLTLIBRARIES ctags distclean \
-	distclean-compile distclean-generic distclean-libtool \
-	distclean-tags distdir dvi dvi-am html html-am info info-am \
-	install install-am install-data install-data-am install-exec \
-	install-exec-am install-info install-info-am install-man \
-	install-pkgrubyexecLTLIBRARIES install-strip installcheck \
-	installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags uninstall uninstall-am uninstall-info-am \
-	uninstall-pkgrubyexecLTLIBRARIES
+	clean-libtool clean-local clean-pkgrubyexecLTLIBRARIES ctags \
+	distclean distclean-compile distclean-generic \
+	distclean-libtool distclean-tags distdir dvi dvi-am html \
+	html-am info info-am install install-am install-data \
+	install-data-am install-exec install-exec-am install-info \
+	install-info-am install-man install-pkgrubyexecLTLIBRARIES \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags uninstall uninstall-am \
+	uninstall-info-am uninstall-pkgrubyexecLTLIBRARIES
 
 
 freej_ruby.cpp: $(top_srcdir)/bindings/freej.i
 	@SWIG_COMMAND@ -ruby -initname Freej -o freej_ruby.cpp @SWIG_IFACE@
 
-clean:
+clean-local:
 	rm -rf .libs _libs
 	test -z "Freej.la" || rm -f Freej.la
 	rm -f "./so_locations"
