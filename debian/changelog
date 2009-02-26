@@ -4,8 +4,9 @@ freej (0.10git20090218-1) UNRELEASED; urgency=low
   * Improved package short description (Closes: #493500)
   * Switch maintenance (shammash -> maintainer, ultrotter -> uploader).
   * Bump debhelper requirement to 7.
+  * Move to cdbs.
 
- -- Luca Bigliardi <shammash@artha.org>  Thu, 26 Feb 2009 14:41:46 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Thu, 26 Feb 2009 17:41:21 +0100
 
 freej (0.10git20080824-1) unstable; urgency=low
 
