@@ -94,10 +94,8 @@ class Layer: public Closing, public Entry, public JSyncThread {
 	  UNKNOWN,
 	  TEXT,
 	  F0R_GENERATOR,
-#ifdef HAVE_DARWIN
-#ifdef WITH_COCOA
+#ifdef HAVE_DARWIN && WITH_COCOA
 	  GL_COCOA
-#endif
 #endif
   };
 

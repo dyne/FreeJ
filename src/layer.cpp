@@ -205,19 +205,20 @@ char *Layer::get_blit() {
 bool Layer::set_blit(const char *bname) {
   Blit *b;
   int idx;
-
-  b = (Blit*)screen->blitter->blitlist.search(bname, &idx);
-
-  if(!b) {
-    error("blit %s not found in screen %s",bname, screen->name);
-    return(false);
-  }
-
-  current_blit = b; // start using
-  //  screen->blitter->crop(this, screen);
-  screen->blitter->blitlist.sel(0);
-  b->sel(true);
   
+  if (screen && screen->blitter) {
+	  b = (Blit*)screen->blitter->blitlist.search(bname, &idx);
+
+	  if(!b) {
+		error("blit %s not found in screen %s",bname, screen->name);
+		return(false);
+	  }
+
+	  current_blit = b; // start using
+	  screen->blitter->crop(this, screen);
+	  screen->blitter->blitlist.sel(0);
+	  b->sel(true);
+  }
   return(true);
 }
 
