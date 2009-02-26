@@ -19,7 +19,7 @@ libfreej_g_la_LDFLAGS = $(JAVA_LDFLAGS)
 libfreej_g_la_SOURCES = freej_java.cpp
 
 
-clean:
+clean-local:
 	rm -rf .libs _libs
 	test -z "libfreej_g.la" || rm -f libfreej_g.la
 	rm -f "./so_locations"
