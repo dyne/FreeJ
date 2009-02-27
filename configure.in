@@ -859,6 +859,7 @@ else
 fi
 
 echo "= COMPILER FLAGS : $CFLAGS"
+echo "= LINKER FLAGS   : $LDFLAGS"
 
 
 

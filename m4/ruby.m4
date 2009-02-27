@@ -98,7 +98,7 @@ if test "$CONFIG_SCRIPTING_RUBY" = "yes"; then
 
 				rubyldflags=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["LDFLAGS"]]'`
 				if test "X$rubyldflags" != "X"; then
-					LDFLAGS="$rubyldflags $LDFLAGS"
+					RUBY_LDFLAGS="$rubyldflags $RUBY_LDFLAGS"
 				fi
 
 				AC_LINK_IFELSE([AC_LANG_PROGRAM([[#include <ruby.h>]], [[ruby_init();]])],[CONFIG_SCRIPTING_RUBY=yes],[CONFIG_SCRIPTING_RUBY=no])
@@ -118,6 +118,7 @@ if test "$CONFIG_SCRIPTING_RUBY" = "yes"; then
 	AC_SUBST(RUBY_ARCHDIR)
 #	LIBS="$LIBS $RUBY_LIBS"
 	AC_SUBST(RUBY_CFLAGS)
+	AC_SUBST(RUBY_LDFLAGS)
 	AC_SUBST(RUBY_LIBS)
 
 fi
