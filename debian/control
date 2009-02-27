@@ -1,16 +1,49 @@
 Source: freej
-Section: x11
+Section: graphics
 Priority: optional
 Maintainer: Luca Bigliardi <shammash@artha.org>
 Uploaders: Guido Trotter <ultrotter@debian.org>, Denis Rojo <jaromil@dyne.org>
+DM-Upload-Allowed: yes
+Vcs-Git: git://git.dyne.org/freej.git
+Vcs-Browser: http://git.dyne.org/?r=freej
+Homepage: http://freej.dyne.org/
 Build-Depends: cdbs, libtool, debhelper (>> 7.0.0), pkg-config, flex, bison, libsdl-dev, libpng-dev, libfreetype6-dev, libfontconfig-dev, dpatch, libogg-dev, libvorbis-dev, libjpeg-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev, libswscale-dev, libunicap2-dev, libbluetooth-dev, fftw3-dev, libjack-dev, libasound-dev, libhtml-template-perl, python-dev, swig
 Standards-Version: 3.8.0
 
 
 Package: freej
-Homepage: http://freej.dyne.org/
 Architecture: any
-Depends: ${shlibs:Depends} ${misc:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: realtime video mixer and linear video editor
+ FreeJ is a digital instrument for realtime video manipulation used in
+ the fields of dance theater, veejaying, medical visualization and TV.
+ FreeJ lets you interact with multiple layers of video (images, movies,
+ live cameras, particle generators, text scrollers, flash animations and
+ more), filter them with effect chains and then mix them together. It can
+ be operated live from a text console and scripted to be controlled by
+ keyboard, midi, OSC and joysticks.
+ .
+ This package contains freej console.
+
+
+Package: freej-doc
+Architecture: any
+Depends: ${misc:Depends}
+Description: realtime video mixer and linear video editor
+ FreeJ is a digital instrument for realtime video manipulation used in
+ the fields of dance theater, veejaying, medical visualization and TV.
+ FreeJ lets you interact with multiple layers of video (images, movies,
+ live cameras, particle generators, text scrollers, flash animations and
+ more), filter them with effect chains and then mix them together. It can
+ be operated live from a text console and scripted to be controlled by
+ keyboard, midi, OSC and joysticks.
+ .
+ This package contains freej documentation and some script examples.
+
+
+Package: libfreej
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: ttf-freefont
 Description: realtime video mixer and linear video editor
  FreeJ is a digital instrument for realtime video manipulation used in
@@ -18,6 +51,24 @@ Description: realtime video mixer and linear video editor
  FreeJ lets you interact with multiple layers of video (images, movies,
  live cameras, particle generators, text scrollers, flash animations and
  more), filter them with effect chains and then mix them together. It can
- be operated live from a text console and scripted in Javascript to be
- controlled by keyboard, midi, OSC and joysticks.
+ be operated live from a text console and scripted to be controlled by
+ keyboard, midi, OSC and joysticks.
+ .
+ This package contains freej library.
+
+
+Package: libfreej-dev
+Architecture: any
+Depends: ${misc:Depends}
+Description: realtime video mixer and linear video editor
+ FreeJ is a digital instrument for realtime video manipulation used in
+ the fields of dance theater, veejaying, medical visualization and TV.
+ FreeJ lets you interact with multiple layers of video (images, movies,
+ live cameras, particle generators, text scrollers, flash animations and
+ more), filter them with effect chains and then mix them together. It can
+ be operated live from a text console and scripted to be controlled by
+ keyboard, midi, OSC and joysticks.
+ .
+ This package contains freej library development files.
+
 
