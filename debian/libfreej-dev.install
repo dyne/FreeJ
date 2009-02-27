@@ -1,0 +1,4 @@
+usr/include/*
+usr/lib/libfreej.so
+usr/lib/libfreej.la
+usr/lib/pkgconfig/freej.pc

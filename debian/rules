@@ -35,3 +35,7 @@ clean::
 	rm -f bindings/python/Makefile
 	rm -f bindings/ruby/Makefile
 
+common-install-arch common-install-indep::
+	mkdir -p $(CURDIR)/debian/freej/usr/share/doc/freej/
+	cp -r doc/scripting/html $(CURDIR)/debian/tmp/usr/share/doc/freej/
+
