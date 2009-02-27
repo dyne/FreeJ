@@ -185,6 +185,7 @@ PYTHON_VERSION = @PYTHON_VERSION@
 RANLIB = @RANLIB@
 RUBY_ARCHDIR = @RUBY_ARCHDIR@
 RUBY_CFLAGS = @RUBY_CFLAGS@
+RUBY_LDFLAGS = @RUBY_LDFLAGS@
 RUBY_LIBS = @RUBY_LIBS@
 RUBY_SOURCE = @RUBY_SOURCE@
 SDL_CFLAGS = @SDL_CFLAGS@
@@ -289,7 +290,7 @@ pkgrubyexecdir = @RUBY_ARCHDIR@
 pkgrubyexec_LTLIBRARIES = Freej.la
 Freej_la_SOURCES = freej_ruby.cpp
 Freej_la_CXXFLAGS = $(FREEJ_FLAGS) @RUBY_CFLAGS@
-Freej_la_LDFLAGS = -module -avoid-version
+Freej_la_LDFLAGS = $(RUBY_LDFLAGS) -module -avoid-version
 Freej_la_LIBADD = $(RUBY_LIBS) -L$(top_srcdir)/src/.libs -lfreej
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
