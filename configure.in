@@ -817,6 +817,7 @@ if test x$have_sound = xyes; then
 fi
 
 echo "= COMPILER FLAGS : $CFLAGS"
+echo "= LINKER FLAGS   : $LDFLAGS"
 
 
 

@@ -22,7 +22,7 @@ pkgrubyexec_LTLIBRARIES = Freej.la
 
 Freej_la_SOURCES = freej_ruby.cpp
 Freej_la_CXXFLAGS =  $(FREEJ_FLAGS) @RUBY_CFLAGS@
-Freej_la_LDFLAGS = -module -avoid-version
+Freej_la_LDFLAGS = $(RUBY_LDFLAGS) -module -avoid-version
 Freej_la_LIBADD = $(RUBY_LIBS) -L$(top_srcdir)/src/.libs -lfreej
 
 
