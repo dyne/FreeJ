@@ -35,10 +35,3 @@ clean::
 	rm -f bindings/python/Makefile
 	rm -f bindings/ruby/Makefile
 
-common-install-arch common-install-indep::
-	rm -rf $(CURDIR)/debian/freej/usr/share/doc/freej-*
-	rm -rf $(CURDIR)/debian/freej/usr/share/freej/AUTHORS
-	rm -rf $(CURDIR)/debian/freej/usr/share/freej/COPYING
-	rm -rf $(CURDIR)/debian/freej/usr/share/freej/README
-
-
