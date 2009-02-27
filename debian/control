@@ -1,5 +1,4 @@
 Source: freej
-Section: graphics
 Priority: optional
 Maintainer: Luca Bigliardi <shammash@artha.org>
 Uploaders: Guido Trotter <ultrotter@debian.org>, Denis Rojo <jaromil@dyne.org>
@@ -12,6 +11,7 @@ Standards-Version: 3.8.0
 
 
 Package: freej
+Section: graphics
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: realtime video mixer and linear video editor
@@ -27,6 +27,7 @@ Description: realtime video mixer and linear video editor
 
 
 Package: freej-doc
+Section: doc
 Architecture: any
 Depends: ${misc:Depends}
 Description: realtime video mixer and linear video editor
@@ -41,7 +42,8 @@ Description: realtime video mixer and linear video editor
  This package contains freej documentation and some script examples.
 
 
-Package: libfreej
+Package: libfreej0
+Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Recommends: ttf-freefont
@@ -58,6 +60,7 @@ Description: realtime video mixer and linear video editor
 
 
 Package: libfreej-dev
+Section: libdevel
 Architecture: any
 Depends: ${misc:Depends}
 Description: realtime video mixer and linear video editor
