@@ -22598,15 +22598,16 @@ fi # swig found?
 
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-CFLAGS="-pipe -D_REENTRANT -freg-struct-return"
+CFLAGS="-pipe -D_REENTRANT -freg-struct-return -fPIC"
 if test x$have_darwin = xyes; then
   # add the fink default path to find headers
   CFLAGS="$CFLAGS -I/sw/include"
 fi
-machine_version=`uname -m`
-if test x$machine_version = xx86_64; then
-  CFLAGS="$CFLAGS -fPIC"
-fi
+# always use -fPIC as we are a shared library now
+#machine_version=`uname -m`
+#if test x$machine_version = xx86_64; then
+#  CFLAGS="$CFLAGS -fPIC"
+#fi
 
 #LIBS="-lpthread -lm -ldl"
 
