@@ -39,12 +39,18 @@ class CFreej;
 
     // filters for CI rendering
     CIFilter				*colorCorrectionFilter;	    // hue saturation brightness control through one CI filter
-    CIFilter				*effectFilter;		    // zoom blur filter
     CIFilter				*compositeFilter;	    // composites the timecode over the video
 	CIFilter				*alphaFilter;
+	CIFilter				*exposureAdjustFilter;
+	CIFilter				*rotateFilter;
+	CIFilter				*translateFilter;
+	CIFilter				*effectFilter;
+	NSArray					*paramNames;
+	
 	//CIFilter				*resizeFilter;
     CIContext				*ciContext;
 	CIContext				*cifjContext;
+	
 	bool					needsReshape;
 	//CVImageBufferRef		freejFrame;
 	CVLayer					*layer;

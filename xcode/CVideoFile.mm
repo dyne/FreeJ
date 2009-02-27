@@ -8,8 +8,8 @@
 
 #import "CIAlphaFade.h"
 #import "CVideoFile.h"
-
 #import <QTKit/QTMovie.h>
+#include <math.h>
 
 #define _ARGB2BGRA(__buf, __size) \
 	{\
@@ -63,7 +63,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)prepareOpenGL
 {
 	CVReturn			    ret;
-		
+	NSAutoreleasePool *pool;
+	pool = [[NSAutoreleasePool alloc] init];
 	lock = [[NSRecursiveLock alloc] init];
 	
 	// Create CGColorSpaceRef 
@@ -80,6 +81,19 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	// Create CIFilters used for both preview and main frame
 	colorCorrectionFilter = [[CIFilter filterWithName:@"CIColorControls"] retain];	    // Color filter	
 	[colorCorrectionFilter setDefaults];						    // set the filter to its default values
+	exposureAdjustFilter = [[CIFilter filterWithName:@"CIExposureAdjust"] retain];
+	[exposureAdjustFilter setDefaults];
+	// adjust exposure
+	[exposureAdjustFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputEV"];
+	
+	// rotate
+	NSAffineTransform *rotateTransform = [NSAffineTransform transform];
+	[rotateTransform rotateByDegrees:0.0];
+	rotateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+	[rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
+		//translateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+	//[translateFilter setValue:translateTransform forKey:@"inputTransform"];
+	
 	effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];		    // Effect filter	
 	[effectFilter setDefaults];							    // set the filter to its default values
 	[effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
@@ -115,7 +129,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	*/
 	//timeCodeOverlay = [[TimeCodeOverlay alloc] initWithAttributes:fontAttributes targetSize:NSMakeSize(720.0,480.0 / 4.0)];	// text overlay will go in the bottom quarter of the display
 	
-
+	[pool release];
 }
 
 - (void)awakeFromNib
@@ -145,6 +159,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [effectFilter release];
     [compositeFilter release];
 	[alphaFilter release];
+	[exposureAdjustFilter release];
+	[rotateFilter release];
+	//[translateFilter release];
     ///[timeCodeOverlay release];
     CVOpenGLTextureRelease(currentFrame);
 	CVOpenGLTextureRelease(previewFrame);
@@ -394,32 +411,55 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)setFilterParameter:(id)sender
 {
+	NSAutoreleasePool *pool;
+	float deg = 0;
+	float x = 0;
+	float y = 0;
+	NSAffineTransform		*rotateTransform;
+	NSAffineTransform		*translateTransform;
+	pool = [[NSAutoreleasePool alloc] init];
     [lock lock];
 	switch([sender tag])
     {
-	case 0:
-	    [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
-	    break;
-
-	case 1:
-	    [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
-	    break;
-
-	case 2:
-	    [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
-	    break;
-	    
-	case 3:
-	    [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputAmount"];
-	    break;
-	case 4:
+	case 0:  // opacity (AlphaFade)
 		[alphaFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"outputOpacity"];
 		break;
+	case 1: //brightness (ColorCorrection)
+	    [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
+	    break;
+	case 2: // saturation (ColorCorrection)
+	    [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
+	    break;
+	case 3: // contrast (ColorCorrection)
+	    [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
+	    break;
+	case 4: // exposure (ExposureAdjust)
+		[exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
+		break;
+	case 5: // rotate and translate
+		rotateTransform = [NSAffineTransform transform];
+		[rotateTransform rotateByDegrees:[sender floatValue]];
+		 deg = ([sender floatValue]*M_PI)/180.0;
+		if (deg) {
+			 x = ((layer->geo.w)-((layer->geo.w)*cos(deg)-(layer->geo.h)*sin(deg)))/2;
+			 y = ((layer->geo.h)-((layer->geo.w)*sin(deg)+(layer->geo.h)*cos(deg)))/2;
+		}
+		translateTransform = [NSAffineTransform transform];
+		[translateTransform translateXBy:x yBy:y];
+		[rotateTransform appendTransform:translateTransform];
+		[rotateTransform concat];
+		[translateTransform concat];
+		[rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
+		
+		break;
+	case 7:
+	    [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputAmount"];
+	    break;
 	default:
 	    break;
-	    
     }
     [lock unlock];
+	[pool release];
   //  if(!CVDisplayLinkIsRunning(displayLink))
 	//	[self display];
 }
@@ -459,8 +499,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		if (doFilters) {
 			// preview
 			[colorCorrectionFilter setValue:previewInputImage forKey:@"inputImage"];
-			[effectFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-			previewImage = [effectFilter valueForKey:@"outputImage"];
+			[exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+			[effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+			[rotateFilter setValue:[effectFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+			//[translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+			previewImage = [rotateFilter valueForKey:@"outputImage"];
 			
 		} 
 		// and do preview
@@ -624,7 +667,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[movie gotoBeginning];
 	[self togglePlay:nil];
 
-	layer->activate();
+	if (layer)
+		layer->activate();
 }
 
 - (IBAction)toggleFilters:(id)sender
@@ -652,11 +696,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	if (inputImage) {
 		if (doFilters) {
 			[colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
-			[effectFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] 
+			[exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+			[effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
 						  forKey:@"inputImage"];
 			[alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
 						  forKey:@"inputImage"];
-			renderedImage = [alphaFilter valueForKey:@"outputImage"];
+		    [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+			//[translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+			renderedImage = [rotateFilter valueForKey:@"outputImage"];
 			//CVPixelBufferLockBaseAddress(freejFrame, 0);
 							
 			renderedImage = [renderedImage retain];
