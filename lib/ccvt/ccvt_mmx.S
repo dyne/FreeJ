@@ -47,7 +47,10 @@
 #define Uptr        -4(%ebp)
 #define Vptr        -8(%ebp)
 
-
+/* non executable stack */
+#if defined(__linux__) && defined(__ELF__)
+.section .note.GNU-stack,"",%progbits
+#endif
 
 	.data
 /* Some constants used during processing */
