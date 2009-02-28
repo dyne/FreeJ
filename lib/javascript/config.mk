@@ -130,7 +130,7 @@ endif
 # OBJDIR_TAG = _DBG
 # endif
 
-OPTIMIZER = -O2 -fexpensive-optimizations -fomit-frame-pointer -ffast-math
+OPTIMIZER = -O2 -fexpensive-optimizations -fomit-frame-pointer -ffast-math -fPIC
 
 
 SO_SUFFIX = so
