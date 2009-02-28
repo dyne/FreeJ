@@ -5,9 +5,9 @@ AM_CFLAGS = $(CFLAGS)
 
 AUTOMAKE_OPTIONS = foreign
 
-noinst_LIBRARIES = libflash.a
+noinst_LTLIBRARIES = libflash.la
 
-libflash_a_SOURCES = \
+libflash_la_SOURCES = \
 	adpcm.cc	\
 	bitmap.cc	\
 	button.cc	\

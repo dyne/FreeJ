@@ -3,9 +3,9 @@ CFLAGS = @CFLAGS@ @SDL_CFLAGS@ -DLOAD_BMP -DLOAD_GIF -DLOAD_JPG -DLOAD_LBM -DLOA
 
 AUTOMAKE_OPTIONS = foreign
 
-noinst_LIBRARIES = libsdl_image.a
+noinst_LTLIBRARIES = libsdl_image.la
 
-libsdl_image_a_SOURCES = \
+libsdl_image_la_SOURCES = \
 	IMG.c \
 	IMG_bmp.c \
 	IMG_gif.c \

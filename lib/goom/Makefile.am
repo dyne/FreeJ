@@ -5,13 +5,13 @@ INCLUDES = -I$(top_srcdir)
 AUTOMAKE_OPTIONS = foreign
 
 
-noinst_LIBRARIES = libgoom2.a
+noinst_LTLIBRARIES = libgoom2.la
 
 # removed assembly (fix?)
 #  ppc_zoom_ultimate.s ppc_drawings.s
 
 #goom2_library_include_HEADERS = goom.h goom_plugin_info.h goom_typedefs.h goom_graphic.h goom_config_param.h goom_visual_fx.h goom_filters.h goom_tools.h goomsl.h goomsl_hash.h goomsl_heap.h goom_tools.h goom_config.h
-libgoom2_a_SOURCES = \
+libgoom2_la_SOURCES = \
 	goomsl_yacc.y goomsl_lex.l goomsl.c goomsl_hash.c goomsl_heap.c \
 	goom_tools.c \
 	config_param.c convolve_fx.c filters.c \

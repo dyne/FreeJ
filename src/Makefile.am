@@ -97,13 +97,12 @@ JS_SOURCES = 	context_js.cpp  \
 		audio_collector_js.cpp
 
 
-static_libs = $(top_srcdir)/lib/ccvt/libccvt.a \
-              $(top_srcdir)/lib/sdl_image/libsdl_image.a \
-              $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.a \
-	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.a \
-	      $(top_srcdir)/lib/flash/libflash.a \
-              $(top_srcdir)/lib/shout/libshout.a \
-              $(top_srcdir)/lib/lo/liblo.a \
+static_libs = $(top_srcdir)/lib/ccvt/libccvt.la \
+              $(top_srcdir)/lib/sdl_image/libsdl_image.la \
+              $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.la \
+	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.la \
+              $(top_srcdir)/lib/shout/libshout.la \
+              $(top_srcdir)/lib/lo/liblo.la \
               $(top_srcdir)/lib/javascript/obj/libjs.a
 
 shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
