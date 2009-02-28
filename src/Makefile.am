@@ -135,6 +135,6 @@ libfreej_la_LDFLAGS = -version-info @FREEJ_VERSION_INFO@
 
 bin_PROGRAMS = freej
 freej_SOURCES = freej.cpp
-freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej $(shared_libs)
+freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej
 
 
