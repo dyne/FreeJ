@@ -3,6 +3,6 @@ CFLAGS = @CFLAGS@ @SDL_CFLAGS@ @FT2_CFLAGS@
 
 AUTOMAKE_OPTIONS = foreign
 
-noinst_LIBRARIES = libsdl_ttf.a
+noinst_LTLIBRARIES = libsdl_ttf.la
 
-libsdl_ttf_a_SOURCES = SDL_ttf.c
+libsdl_ttf_la_SOURCES = SDL_ttf.c

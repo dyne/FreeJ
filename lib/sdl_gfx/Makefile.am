@@ -3,9 +3,9 @@ CFLAGS = @SDL_CFLAGS@ @CFLAGS@
 
 AUTOMAKE_OPTIONS = foreign
 
-noinst_LIBRARIES = libsdl_gfx.a
+noinst_LTLIBRARIES = libsdl_gfx.la
 
-libsdl_gfx_a_SOURCES = \
+libsdl_gfx_la_SOURCES = \
 	SDL_gfxPrimitives.c	\
 	SDL_rotozoom.c	\
 	SDL_framerate.c \

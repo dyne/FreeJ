@@ -4,9 +4,9 @@ CFLAGS += $(INCLUDES)
 
 AUTOMAKE_OPTIONS = foreign
 
-noinst_LIBRARIES = libccvt.a
+noinst_LTLIBRARIES = libccvt.la
 
-libccvt_a_SOURCES = \
+libccvt_la_SOURCES = \
 		ccvt_c2.c \
 		ccvt_mmx.S \
 		ccvt_rgb2yuv.S \
