@@ -328,11 +328,11 @@ void *VideoLayer::feed() {
 
 	      /* TODO(shammash): this may be good for streams but breaks
 	       * looping in files, needs fixing. */
-	      if(!pkt.duration) continue;
+// 	      if(!pkt.duration) continue;
 	      
-	      if(!pkt.size || !pkt.data) {
-		return NULL;
-	      }
+// 	      if(!pkt.size || !pkt.data) {
+// 		return NULL;
+// 	      }
 
 
 	    /**
