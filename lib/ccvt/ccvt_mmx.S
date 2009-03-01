@@ -53,16 +53,6 @@
 #endif
 
 	.data
-/* Some constants used during processing */
-mm_0:	 .byte    0,   0,   0,   0,   0,   0,   0,   0
-mm_128:	 .byte  128, 128, 128, 128, 128, 128, 128, 128
-mm_mask: .byte  255, 255, 255,   0, 255, 255, 255,   0
-mm_low:	 .byte  255, 255, 255, 255,   0,   0,   0,   0
-mm_high: .byte    0,   0,   0,   0, 255, 255, 255, 255
-
-/* Multiplication factors for Vb, Vg, Ug, Ur */
-mm_mul_bgr:	 .word  454,  -88, -183,  359
-mm_mul_rgb:	 .word  359, -183,  -88,  454
 
 	.text
 /* This function will load the src and destination pointers, and test the
@@ -130,6 +120,69 @@ param_yuv_src:
 
 /*************************************/
 
+/*
+ * PIC macros
+ * We load constants using the stack instead of .data
+ * so code is position indipendent.
+ */
+
+/* Some constants used during processing */
+# mm_0:    .byte    0,   0,   0,   0,   0,   0,   0,   0
+.macro PUNPCKLBW_mm_0 reg
+	pushl $0x00000000
+	pushl $0x00000000
+	punpcklbw (%esp), %\reg
+	addl $8, %esp
+.endm
+# mm_128:  .byte  128, 128, 128, 128, 128, 128, 128, 128
+.macro MOVQ_mm_128 reg
+	pushl $0x80808080
+	pushl $0x80808080
+	movq (%esp), %\reg
+	addl $8, %esp
+.endm
+# mm_mask: .byte  255, 255, 255,   0, 255, 255, 255,   0
+.macro MOVQ_mm_mask reg
+	pushl $0x00FFFFFF
+	pushl $0x00FFFFFF
+	movq (%esp), %\reg
+	addl $8, %esp
+.endm
+# mm_low:  .byte  255, 255, 255, 255,   0,   0,   0,   0
+.macro PAND_mm_low reg
+	pushl $0x00000000
+	pushl $0xFFFFFFFF
+	pand (%esp), %\reg
+	addl $8, %esp
+.endm
+# mm_high: .byte    0,   0,   0,   0, 255, 255, 255, 255
+.macro PAND_mm_high reg
+	pushl $0xFFFFFFFF
+	pushl $0x00000000
+	pand (%esp), %\reg
+	addl $8, %esp
+.endm
+
+/* Multiplication factors for Vb, Vg, Ug, Ur */
+# mm_mul_bgr: .word  454,  -88, -183,  359
+#                  c6 01 a8 ff 49 ff 67 01
+.macro MOVQ_mm_mul_bgr reg
+	pushl $0x0167FF49
+	pushl $0xFFA801C6
+	movq (%esp), %\reg
+	addl $8, %esp
+.endm
+# mm_mul_rgb: .word  359, -183,  -88,  454
+#                  67 01 49 ff a8 ff c6 01
+.macro MOVQ_mm_mul_rgb reg
+	pushl $0x01C6FFA8
+	pushl $0xFF490167
+	movq (%esp), %\reg
+	addl $8, %esp
+.endm
+
+/* end PIC macros */
+
 .macro ENTER_FUNC
 	enter $8, $0		# 8 bytes for UV pointers
 	push %ebx
@@ -146,9 +199,9 @@ param_yuv_src:
 	mov Width, %ebx		# Use in offset calculation for Y2 / Dst2
 	shrl $1, Height		# Only half the lines
 	shrl $1, Width		# Only half the columns
-	movq mm_128, %mm6	# load constants
-	movq mm_mask, %mm5
-	movq mm_mul_\order, %mm4
+	MOVQ_mm_128 mm6		# load constants
+	MOVQ_mm_mask mm5
+	MOVQ_mm_mul_\order mm4
 
 0:	mov Width, %ecx		# number of loops
 .endm
@@ -181,13 +234,13 @@ param_yuv_src:
 // Section A2: multiply UV values and shuffle
 // Note: byte orders shown in the MMX registers are for BGR order
         psubb %mm6, %mm2	# -128
-        punpcklbw mm_0, %mm2    # 00 VV 00 VV 00 UU 00 UU
+        PUNPCKLBW_mm_0 mm2      # 00 VV 00 VV 00 UU 00 UU
         psllw $8, %mm2          # VV 00 VV 00 UU 00 UU 00
         pmulhw %mm4, %mm2       # multiply with factors, signed
         
         movq %mm2, %mm7		# vr vr vg vg ug ug ub ub
-	pand mm_low, %mm7	# 00 00 00 00 ug ug ub ub
-	pand mm_high, %mm2	# vr vr vg vg 00 00 00 00
+	PAND_mm_low mm7		# 00 00 00 00 ug ug ub ub
+	PAND_mm_high mm2	# vr vr vg vg 00 00 00 00
 	psrlq $16, %mm2		# 00 00 vr vr vg vg 00 00
 	paddw %mm2, %mm7	# 00 00 vr vr *g *g ub ub
 	packsswb %mm7, %mm7	# pack signed saturated, and duplicate values (!)
