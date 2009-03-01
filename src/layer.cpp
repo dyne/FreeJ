@@ -214,7 +214,7 @@ bool Layer::set_blit(const char *bname) {
   }
 
   current_blit = b; // start using
-  screen->blitter->crop(this, screen);
+  //  screen->blitter->crop(this, screen);
   screen->blitter->blitlist.sel(0);
   b->sel(true);
   
@@ -225,7 +225,7 @@ void Layer::blit() {
   if(!buffer) error("%s: NULL buffer in layer",__PRETTY_FUNCTION__);
   else {
     lock();
-    offset = buffer;
+    //    offset = buffer;
     screen->blit(this);
     unlock();
   }

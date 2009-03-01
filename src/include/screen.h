@@ -71,8 +71,6 @@ class ViewPort : public Entry {
   ViewPort();
   virtual ~ViewPort();
 
-  int process(Context *env);
-
   /* i keep all the following functions pure virtual to deny the
      runtime resolving of methods between parent and child, which
      otherwise burdens our performance */ 

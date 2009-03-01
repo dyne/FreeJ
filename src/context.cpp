@@ -292,10 +292,10 @@ void Context::start_threaded(){
  */
 void Context::cafudda(double secs) {
   VideoEncoder *enc;
-  //  Layer *lay;
+  Layer *lay;
   
-  if(secs>0.0) /* if secs == 0 will go out after one cycle */
-    now = dtime();
+//   if(secs>0.0) /* if secs == 0 will go out after one cycle */
+//     now = dtime();
   
   // Change resolution if needed 
   if (changeres) {
@@ -331,40 +331,23 @@ void Context::cafudda(double secs) {
   ///////////////////////////////
   
   
-  ///////////////////////////////
-  /// cafudda all active LAYERS
-//   lay = (Layer *)layers.end ();
-//   ///// process each layer in the chain
-//   if (lay) {
-//     layers.lock ();
-    
-//     while (lay) {
-//       if (!pause)
-// #ifdef WITH_OPENGL
-// 	if(screen->opengl)
-//           {
-//             lay->offset = lay->buffer;
-// 	    ((GlScreen*)screen)->glblit(lay);
-// 	  }
-// 	else
-// #endif	  
-// 	  lay->cafudda ();
-      
-//       lay = (Layer *)lay->prev;
-      
-//     }
-//     /////////// finish processing layers
-//     //////////////////////////////////////
-    
-//     layers.unlock ();
-//   }
-  /////////// finish processing layers
-  //////////////////////////////////////
-
   /////////////////////////////
   // blit layers on screens
-  screen->process(this);
+  lay = layers.end();
+  if (lay) {
+    layers.lock ();
+    while (lay) {
+      if (lay->active) {
+	lay->blit();
+      }
+      lay = (Layer *)lay->prev;
+    }
+    env->layers.unlock ();
+  }
+  /////////// finish processing layers
 
+
+  ////////// flip the screen
   screen->show();
   /////////////////////////////
   
@@ -387,16 +370,6 @@ void Context::cafudda(double secs) {
   
   
   /////////////////////////////
-  /// print on screen display 
-  //  if (osd.active && interactive) 
-  //    osd.print ();
-  /////////////////////////////
-  
-  
-  
-  
-  
-  /////////////////////////////
   // handle timing 
   //    if(!secs) break; // just one pass
   
@@ -407,11 +380,13 @@ void Context::cafudda(double secs) {
   
   
   /// FPS calculation
-  if(secs>0.0) fps->delay();
+  fps->delay();
+
+
   //  SDL_framerateDelay(&FPS); // synced with desired fps here
   // continues N seconds or quits after one cycle
   //    riciuca = (dtime() - now < secs) ? true : false;
-  //////////////////////////////////
+  /////////////////////////////////////////////////////////////
   
   if (got_sigpipe) {
     quit=true;

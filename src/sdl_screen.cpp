@@ -139,7 +139,6 @@ void SdlScreen::blit(Layer *src) {
     }
     
     offset = rotozoom->pixels;
-
     // free the temporary surface (needed again in sdl blits)
     
   } else offset = src->buffer;
@@ -174,7 +173,7 @@ void SdlScreen::blit(Layer *src) {
   } else if (b->type == Blit::SDL) {
     
     (*b->sdl_fun)
-      (src->buffer, &b->sdl_rect, sdl_screen,
+      (offset, &b->sdl_rect, sdl_screen,
        NULL, &src->geo, (void*)&b->value);
 
   }

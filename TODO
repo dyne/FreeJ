@@ -1,5 +1,5 @@
 
-  re-design threading for non-blocking layers (try with ffmpeg on streams)
+
 
   link curl library for downloading files from network
 
@@ -23,6 +23,9 @@
   ^^^ cairo layers: poligons and svg - SDL_gfx rocks
 
 DONE:
+
+  ** re-design threading for non-blocking layers
+     (try with ffmpeg on streams)
 
   ** jrml rewrite video4linux layer with libunicap
 

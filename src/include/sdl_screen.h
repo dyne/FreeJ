@@ -64,8 +64,6 @@ class SdlScreen : public ViewPort {
   SDL_Surface *pre_rotozoom;
   SDL_Surface *rotozoom; ///< pointer to blittable surface (rotated and zoomed if necessary)
 
-  ScreenGeometry geo_rotozoom; ///< geometrical information about the rotozoomed Layer
-
   // small vars used in blits
   int chan, c, cc;
   uint32_t *scr, *off, *poff, *pastoff, *ppastoff;
