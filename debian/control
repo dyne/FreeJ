@@ -62,8 +62,11 @@ Description: realtime video mixer and linear video editor
 
 Package: libfreej-dev
 Section: libdevel
+Provides: libfreej0-dev
+Conflicts: libfreej-dev
 Architecture: any
-Depends: ${misc:Depends}
+Depends: libfreej0 (= ${binary:Version}), libc6-dev | libc-dev, ${misc:Depends}
+Suggests: pkg-config
 Description: realtime video mixer and linear video editor
  FreeJ is a digital instrument for realtime video manipulation used in
  the fields of dance theater, veejaying, medical visualization and TV.
