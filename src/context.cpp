@@ -554,6 +554,7 @@ void Context::add_encoder(VideoEncoder *enc) {
   if(enc->list) enc->rem();
   
   enc->init(this);
+  enc->active = true;
 
   encoders.append(enc);
 

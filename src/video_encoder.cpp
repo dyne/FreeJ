@@ -1,6 +1,6 @@
 /*  FreeJ
- *  (c) Copyright 2005 Silvano Galliani <kysucix@dyne.org>
- *                2007 Denis Rojo       <jaromil@dyne.org>
+ *  (c) Copyright 2005      Silvano Galliani <kysucix@dyne.org>
+ *                2007-2009 Denis Roio       <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -117,8 +117,8 @@ void VideoEncoder::run() {
   func("VideoEncoder::run : begin thread %p",pthread_self());
   
   lock_feed();
-
-
+  
+  
   wait_feed();
   
   while(!quit) {
@@ -141,7 +141,7 @@ void VideoEncoder::run() {
 			       ((audio_kbps + video_kbps)*1024)/24);
       
     }
-    
+
     if(encnum > 0) {
       
       func("%s has encoded %i bytes", name, encnum);
@@ -175,8 +175,10 @@ void VideoEncoder::run() {
 bool VideoEncoder::cafudda() {
   bool res;
 
-  if(!active) return false;
-  
+
+  //  if(!active) return false;
+
+
 
   //  lock();
 
