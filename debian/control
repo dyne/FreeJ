@@ -4,6 +4,7 @@ Priority: optional
 Maintainer: Luca Bigliardi <shammash@artha.org>
 Uploaders: Guido Trotter <ultrotter@debian.org>, Denis Rojo <jaromil@dyne.org>
 DM-Upload-Allowed: yes
+XS-Python-Version: all
 Vcs-Git: git://git.dyne.org/freej.git
 Vcs-Browser: http://git.dyne.org/?r=freej
 Homepage: http://freej.dyne.org/
@@ -77,5 +78,24 @@ Description: realtime video mixer and linear video editor
  keyboard, midi, OSC and joysticks.
  .
  This package contains freej library development files.
+
+
+Package: python-freej
+Section: python
+Provides: ${python:Provides}
+Architecture: any
+Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
+XB-Python-Version: ${python:Versions}
+Suggests: freej-doc
+Description: realtime video mixer and linear video editor
+ FreeJ is a digital instrument for realtime video manipulation used in
+ the fields of dance theater, veejaying, medical visualization and TV.
+ FreeJ lets you interact with multiple layers of video (images, movies,
+ live cameras, particle generators, text scrollers, flash animations and
+ more), filter them with effect chains and then mix them together. It can
+ be operated live from a text console and scripted to be controlled by
+ keyboard, midi, OSC and joysticks.
+ .
+ This package contains freej python bindings.
 
 
