@@ -3,7 +3,7 @@ import freej
 import time
 import sys
 
-freej.set_debug(3)
+#freej.set_debug(3)
 
 # init context
 cx = freej.Context()
@@ -16,9 +16,11 @@ cx.plugger.refresh(cx)
 lay = cx.open(sys.argv[1])
 filt = cx.filters["vertigo"]
 lay.add_filter(filt)
+lay.start()
 lay.active = True
 cx.add_layer(lay)
 
 th = threading.Thread(target = cx.start , name = "freej")
 th.start();
 # th.join();
+

@@ -12,16 +12,19 @@ from pygame.locals import *
 # init freej and create a layer
 import freej
 import time
+#freej.set_debug(3)
 freejc = freej.Context()
 freejc.init(512,512,2,0)
 freejc.plugger.refresh(freejc)
-layer = freej.create_layer(freejc,sys.argv[1])
+layer = freejc.open(sys.argv[1])
+#layer.fps.set(25)
+filt = freejc.filters["vertigo"]
+filt.apply(layer)
 layer.start()
+layer.active = True
 freejc.add_layer(layer)
 time.sleep(0.1)
 
-filt = freejc.filters["water"]
-filt.apply(layer)
 # end init freej
 
 xrot = yrot = zrot = 0.0
@@ -60,15 +63,12 @@ def draw():
     global xrot, yrot, zrot
 
     # draw freej
-    glColor3f (0.0, 0.0, 0.0)
+    glClearColor(1,0,0,1)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glLoadIdentity()
-    glTranslatef(0.0,0.0,-1.0) # XXX if this is not used, doesnt draw :P
-    glPixelZoom(1.0,-1.0)
-    glViewport(-layer.geo.w/2,layer.geo.h/2,layer.geo.w,layer.geo.h)
+    glColor3f (1.0, 1.0, 1.0)
     freejc.cafudda(0.0)
     glColor3f (1.0, 1.0, 1.0)
-    glPixelZoom(1.0,1.0)
 
 def main():
 
