@@ -34,4 +34,4 @@ clean-local:
 	rm -f "./so_locations"
 	rm -f *.o
 	rm -f *.lo
-	rm -f freej_py.cpp freej.py
+	rm -f freej_py.cpp freej_py.h freej.py
