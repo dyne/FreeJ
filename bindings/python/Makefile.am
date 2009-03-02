@@ -17,10 +17,10 @@ BUILT_SOURCES = freej_py.cpp
 freej_py.cpp: $(top_srcdir)/bindings/freej.i
 		@SWIG_COMMAND@ -python -threads -shadow -o freej_py.cpp @SWIG_IFACE@
 
-pkgpython_PYTHON = freej.py
+pkgpython_PYTHON = freej.py __init__.py
 pkgpyexec_LTLIBRARIES = _freej.la
 pkgpython_instdir = $(pythondir)
-pkgpython_inst_PYTHON = freej.pth
+#pkgpython_inst_PYTHON = freej.pth
 
 
 _freej_la_SOURCES = freej_py.cpp
