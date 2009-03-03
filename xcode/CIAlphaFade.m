@@ -53,7 +53,7 @@ static CIKernel *alphaFadeKernel = nil;
 
 + (void)initialize
 {
-    [CIFilter registerFilterName: @"CIAlphaFade"
+    [CIFilter registerFilterName: @"CIAlphaFadeBlendMode"
         constructor: self
         classAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
              @"Fade Alpha", kCIAttributeFilterDisplayName,

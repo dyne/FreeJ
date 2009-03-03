@@ -13,9 +13,9 @@ CVLayer::CVLayer(NSObject *vin) : Layer()
 {
 	input = vin;
 	bufsize = 0;
-	blendFilter = NULL;
+	blendMode = NULL;
 	type = Layer::GL_COCOA;
-	set_blend_mode(CVLayer::Overlay);
+	//set_blend_mode(CVLayer::Overlay);
 	[input setLayer:this];
 }
 
@@ -120,11 +120,11 @@ CVLayer::relative_seek(double increment)
 void
 CVLayer::set_blend_mode(BlendMode mode)
 {
-	if (blendFilter)
-		[blendFilter release];
+	if (blendMode)
+		[blendMode dealloc];
 	switch (mode) {
 		case Overlay:
-			blendFilter = [[CIFilter filterWithName:@"CIOverlayBlendMode"] retain];
+			//blendFilter = [[CIFilter filterWithName:@"CIOverlayBlendMode"] retain];
 			break;
 			
 	}

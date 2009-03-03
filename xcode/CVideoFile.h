@@ -12,25 +12,26 @@
 #import <Cocoa/Cocoa.h>
 #import <QuickTime/QuickTime.h>
 #import <QTKit/QTKit.h>
-
+#import "CFreej.h";
 #include "CVLayer.h"
 #include "CVFilterPanel.h"
-
-class CFreej;
 
 @interface CVideoFileInput : NSOpenGLView {
 	NSRecursiveLock		*lock;
 	id					delegate;
 	QTMovie				*qtMovie; 
-	QTMovie				*previewMovie;
 	QTTime				movieDuration;		    // cached duration of the movie - just for convenience
     QTVisualContextRef	qtVisualContext;	    // the context the movie is playing in
-	QTVisualContextRef	previewVisualContext;
     CVImageBufferRef	currentFrame;		    // the current frame from the movie
-	CVImageBufferRef	previewFrame;
 	CVImageBufferRef    lastFrame;
+	// this is a "fake" buffer exposed to freej core
+	// XXX - freej actaully needs a buffer pointer but it's not going to use it.
+	// The blitter does...but on OSX the blitter is implemented in the CVScreen class.
+	// This means we could expose any address to freej and that would work anyway.
+	CVOpenGLBufferRef	pixelBuffer;			 
 	BOOL				newFrame;
 	CIImage				*renderedImage;
+	CIImage				*previewImage;
 	CVFilterPanel       *filterPanel;
     
     // display link
@@ -45,6 +46,7 @@ class CFreej;
 	CIFilter				*rotateFilter;
 	CIFilter				*translateFilter;
 	CIFilter				*effectFilter;
+	CIFilter				*scaleFilter;
 	NSArray					*paramNames;
 	
 	//CIFilter				*resizeFilter;
@@ -57,6 +59,7 @@ class CFreej;
 	IBOutlet CFreej			*freej;
 	IBOutlet NSSlider		*alphaBar;
 	bool					doFilters;
+	NSTimer					*renderTimer;
 }
 @property (readwrite) CVLayer *layer;
 - (void)awakeFromNib;
@@ -74,6 +77,7 @@ class CFreej;
 - (IBAction)togglePlay:(id)sender;
 - (IBAction)setFilterParameter:(id)sender;
 - (IBAction)setAlpha:(id)sender;
+- (IBAction)setBlendMode:(id)sender;
 - (IBAction)openFile:(id)sender;
 - (IBAction)toggleFilters:(id)sender;
 - (CIImage *)getTexture;

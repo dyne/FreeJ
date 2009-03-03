@@ -25,7 +25,7 @@
 #ifdef __cocoa
 #include <QuartzCore/QuartzCore.h>
 #import <Cocoa/Cocoa.h>
-
+#import "CFreej.h"
 
 @class CFreej;
 class  CVScreen;
@@ -45,8 +45,8 @@ class  CVScreen;
 	NSOpenGLContext		*currentContext;
 	CIImage				*outFrame;
 	CIImage				*inFrame;
+	NSTimer				*renderTimer;
 	bool				needsReshape;
-	//bool				cafudding;
 }
 //- (bool)isCafudding;
 - (void)awakeFromNib;
@@ -57,6 +57,7 @@ class  CVScreen;
 - (void *)getSurface;
 - (void)drawLayer:(Layer *)layer;
 - (void)setSizeWidth:(int)w Height:(int)h;
+- (IBAction)toggleFullScreen:(id)sender;
 @end
 #else
 class CVScreenView;

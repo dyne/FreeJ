@@ -27,6 +27,7 @@ class CVideoFile;
 
 - (id)init;
 - (void)run;
+- (void)start;
 - (Context *)getContext;
 - (IBAction)openScript:(id)sender;
 

@@ -23,7 +23,7 @@ class CVLayer: public Layer {
 		int bufsize;
 	public:
 		id	input;
-		CIFilter *blendFilter; // TODO - make it private and implement setter/getter
+		NSString *blendMode;
 		enum BlendMode {
 			Overlay,
 			Saturation,
