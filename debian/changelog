@@ -10,8 +10,10 @@ freej (0.10git20090218-1) UNRELEASED; urgency=low
   * Change section to 'graphics'.
   * Enable upload for DM.
   * Add vcs fields.
+  * Import cdbs python-distutils.
+  * Add python-freej package.
 
- -- Luca Bigliardi <shammash@artha.org>  Fri, 27 Feb 2009 03:13:02 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Tue, 03 Mar 2009 10:57:59 +0100
 
 freej (0.10git20080824-1) unstable; urgency=low
 
