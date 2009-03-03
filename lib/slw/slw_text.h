@@ -1,5 +1,6 @@
-/*  FreeJ
- *  (c) Copyright 2001-2007 Denis Roio aka jaromil <jaromil@dyne.org>
+/*  S-Lang console widgets
+ *
+ *  (C) Copyright 2004-2006 Denis Rojo <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -14,40 +15,50 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
  */
 
+#ifndef __SLW_TEXT_H__
+#define __SLW_TEXT_H__
 
-#ifndef __JOY_CTRL_H__
-#define __JOY_CTRL_H__
+#include <slw.h>
+#include <abs_text_console.h>
 
-#include <controller.h>
 
-#include <SDL.h>
+class SLW_Text;
 
-class JoyController : public Controller {
+class SLW_TextConsole : public TextConsole {
 
  public:
-  JoyController();
-  ~JoyController();
+  SLW_TextConsole();
+  ~SLW_TextConsole();
   
-  bool init(Context *freej);
-  int  poll();
-  virtual int dispatch();
+  int putnch(CHAR *str, int x, int y, int nchars);
   
-  virtual int axismotion(int device, int axis, int value);
-  virtual int ballmotion(int device, int ball, int xrel, int yrel);
-  virtual int hatmotion(int device, int hat, int value);
-  virtual int button_down(int device, int button);
-  virtual int button_up(int device, int button);
+  void blank();
+  void blank_row(int r);
+
+  SLangWidget *widget;
+};
+
+class SLW_Text : public SLangWidget {
+  
+ public:
+  SLW_Text();
+  ~SLW_Text();
+  
+  // pure virtual functions from parent class
+  bool init();
+  
+  bool feed(int key);
+  
+  bool refresh();
+  ////////////////////////
 
  private:
-  SDL_Joystick *joy[4];
-  int num;
-  int axes;
-  int buttons;
-  int balls;
-  int hats;
-
+  SLW_TextConsole *textconsole;
+  
 };
+
 
 #endif

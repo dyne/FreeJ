@@ -201,7 +201,7 @@ JS(js_osc_ctrl_constructor) {
     goto error;
   }
   // initialize with javascript context
-  if(! osc->init(cx, obj) ) {
+  if(! osc->init(env) ) {
     sprintf(excp_msg, "failed initializing OSC controller");
     goto error;
   }
@@ -384,16 +384,6 @@ OscController::~OscController() {
 
   if(srv)
     lo_server_thread_free(srv);
-  
-}
-
-bool OscController::init(JSContext *env, JSObject *obj) {
-
-  jsenv = env;
-  jsobj = obj;
-
-  initialized = true;
-  return(true);
   
 }
 

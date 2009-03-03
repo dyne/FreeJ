@@ -166,28 +166,10 @@ void Layer::run() {
     //    lock();
 
     // check if feed returned a NULL buffer
-    if(!tmp_buf) {
-
-      func("feed returns NULL on layer %s",get_name());
-      // check threshold of tolerated null feeds
-      // deactivate the layer when too many
-      null_feeds++;
-      if(null_feeds > max_null_feeds) {
-        warning("layer %s feed seems empty, deactivating", get_name());
-        active = false;
-	unlock(); // avoid causing deadlocks
-        break;
-      }
-      continue;
-
+    if(tmp_buf) {
       ////////////////////////////////////////
       // process filters on the feed buffer
-    } else {
-
-      null_feeds = 0;
-
       buffer = do_filters(tmp_buf);
-
     }
 
     unlock();
@@ -236,8 +218,21 @@ bool Layer::set_blit(const char *bname) {
 }
 
 void Layer::blit() {
-  if(!buffer) error("%s: NULL buffer in layer",__PRETTY_FUNCTION__);
-  else {
+  if(!buffer) {
+    // check threshold of tolerated null feeds
+    // deactivate the layer when too many
+    func("feed returns NULL on layer %s",get_name());
+    null_feeds++;
+    if(null_feeds > max_null_feeds) {
+      warning("layer %s has no video, deactivating", get_name());
+      active = false;
+      return;
+    }
+
+  } else {
+
+    null_feeds = 0;
+
     lock();
     //    offset = buffer;
     screen->blit(this);

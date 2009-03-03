@@ -789,6 +789,7 @@ lib/lo/Makefile
 lib/sdl_image/Makefile
 lib/sdl_gfx/Makefile
 lib/sdl_ttf/Makefile
+lib/slw/Makefile
 lib/flash/Makefile
 lib/goom/Makefile
 lib/cwiid/Makefile

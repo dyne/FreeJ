@@ -49,7 +49,6 @@
 
 class Controller;
 
-class Console;
 class JsParser;
 class AudioCollector;
 class VideoEncoder;
@@ -151,8 +150,6 @@ class Context {
   SDL_Event event;
   bool poll_events;
 
-
-  Console *console; ///< Console parser (will become a controller)
 
   Linklist<Controller> controllers; ///< linked list of registered interactive controllers
 

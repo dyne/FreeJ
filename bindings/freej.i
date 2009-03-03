@@ -4,7 +4,6 @@
 
 #include "context.h"
 #include "linklist.h"
-#include "console.h"
 #include "screen.h"
 
 #include "layer.h"

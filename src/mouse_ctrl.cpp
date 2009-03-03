@@ -83,14 +83,6 @@ MouseController::~MouseController() {
   active = false; // ungrab ... ;)
 }
 
-bool MouseController::init(JSContext *env, JSObject *obj) {
-	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-	jsenv = env;
-	jsobj = obj;
-
-	initialized = true;
-	return(true);
-}
 
 // activate is removed from controller
 // bool active is operated directly
@@ -166,7 +158,7 @@ JS(js_mouse_ctrl_constructor) {
 	MouseController *mouse = new MouseController();
 
 	// initialize with javascript context
-	if(! mouse->init(cx, obj) ) {
+	if(! mouse->init(env) ) {
 		error("failed initializing mouse controller");
 		delete mouse; return JS_FALSE;
 	}

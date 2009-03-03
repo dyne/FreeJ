@@ -32,6 +32,8 @@
 #include <context.h>
 //#include <plugger.h>
 #include <jutils.h>
+
+#include <jsparser.h>
 #include <callbacks_js.h> // javascript
 #include <jsparser_data.h>
 
@@ -52,7 +54,7 @@ JS(js_midi_ctrl_constructor) {
     MidiController *midi = new MidiController();
     // assign instance into javascript object
     // initialize with javascript context
-    if(! midi->init(cx, obj) ) {
+    if(! midi->init(env) ) {
         error("failed initializing midi controller");
         delete midi; return JS_FALSE;
     }
@@ -235,8 +237,10 @@ typedef struct snd_seq_event {
  } snd_seq_event_t;
 */
 
-bool MidiController::init(JSContext* jsenv, JSObject *jsobj) {
-    int portid;
+bool MidiController::init(Context *freej) {
+
+
+  int portid;
     int result=snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_INPUT, SND_SEQ_NONBLOCK);
     if (result<0) {
         error("Error opening ALSA sequencer: %s\n", snd_strerror(result));
@@ -253,8 +257,11 @@ bool MidiController::init(JSContext* jsenv, JSObject *jsobj) {
     }
     notice("opened ALSA MIDI sequencer client-id:port #%i:%i", seq_client_id, portid);
 
-    this->jsenv = jsenv;
-    this->jsobj = jsobj;
+    func("%s",__PRETTY_FUNCTION__);
+    env = freej;
+    ::env = freej;
+    jsenv = freej->js->global_context;
+    jsobj = freej->js->global_object;
 
     initialized = true;
     return(true);

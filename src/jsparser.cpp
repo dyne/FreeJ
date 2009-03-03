@@ -54,7 +54,7 @@ JsParser::~JsParser() {
 }
 
 void JsParser::gc() {
-    JS_GC(js_context);
+    JS_GC(global_context);
 }
 
 void JsParser::init() {
@@ -71,32 +71,32 @@ void JsParser::init() {
     }
 
     /* Create a new context. */
-    js_context = JS_NewContext(js_runtime, STACK_CHUNK_SIZE);
+    global_context = JS_NewContext(js_runtime, STACK_CHUNK_SIZE);
 
     // Store a reference to ourselves in the context ...
-    JS_SetContextPrivate(js_context, this);
+    JS_SetContextPrivate(global_context, this);
 
-    /* if js_context does not have a value, end the program here */
-    if (js_context == NULL) {
+    /* if global_context does not have a value, end the program here */
+    if (global_context == NULL) {
 	error("JsParser :: error creating context");
 	return ;
     }
 
     /* Set a more strict error checking */
-    JS_SetOptions(js_context, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
+    JS_SetOptions(global_context, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
 
     /* Set the branch callback */
-    JS_SetBranchCallback(js_context, js_static_branch_callback);
+    JS_SetBranchCallback(global_context, js_static_branch_callback);
 
     /* Set the error reporter */
-    JS_SetErrorReporter(js_context, js_error_reporter);
+    JS_SetErrorReporter(global_context, js_error_reporter);
 
     /* Create the global object here */
-    //    JS_SetGlobalObject(js_context, global_object);
+    //    JS_SetGlobalObject(global_context, global_object);
     //    this is done in init_class / JS_InitStandardClasses.
 
-	global_object = JS_NewObject(js_context, &global_class, NULL, NULL);
-	init_class(js_context, global_object);
+	global_object = JS_NewObject(global_context, &global_class, NULL, NULL);
+	init_class(global_context, global_object);
 
    /** register SIGINT signal */
    signal(SIGINT, js_sigint_handler);
@@ -302,7 +302,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		NULL);
 #endif
 
-//	  JS_DefineProperties(js_context, layer_object, layer_properties);
+//	  JS_DefineProperties(global_context, layer_object, layer_properties);
 
 
    return;
@@ -310,7 +310,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 
 /* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
-	return open(js_context, global_object, script_file);
+	return open(global_context, global_object, script_file);
 }
 int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -460,15 +460,15 @@ int JsParser::parse(const char *command) {
   func("JsParser::parse : %s obj: %p",command, global_object);
 
   res = JSVAL_VOID;
-  eval_res = JS_EvaluateScript(js_context, global_object,
+  eval_res = JS_EvaluateScript(global_context, global_object,
 		      command, strlen(command), "console", 0, &res);
   // return the result (to console)
   if(!JSVAL_IS_VOID(res)){
-      str=JS_ValueToString(js_context, res);
+      str=JS_ValueToString(global_context, res);
       if(str){
           act("JS parse res: %s", JS_GetStringBytes(str));
       } else {
-          JS_ReportError(js_context, "Can't convert result to string");
+          JS_ReportError(global_context, "Can't convert result to string");
       }
   } // else
     // if anything more was wrong, our ErrorReporter was called!
@@ -509,8 +509,8 @@ char* JsParser::readFile(FILE *file, int *len){
 }
 
 int JsParser::reset() {
-	JS_ClearScope(js_context, global_object);
-	init_class(js_context, global_object);
+	JS_ClearScope(global_context, global_object);
+	init_class(global_context, global_object);
 	gc();
 	return 0;
 }

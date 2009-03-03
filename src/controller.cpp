@@ -21,6 +21,7 @@
 
 #include <controller.h>
 #include <linklist.h>
+#include <jsparser.h>
 #include <jsparser_data.h>
 #include <callbacks_js.h>
 
@@ -37,6 +38,16 @@ Controller::~Controller() {
 	//	if (jsobj)
 	  //		JS_SetPrivate(jsenv, jsobj, NULL);
 	//	jsobj = NULL;
+}
+
+bool Controller::init(Context *freej) {
+  func("%s",__PRETTY_FUNCTION__);
+  env = freej;
+  jsenv = freej->js->global_context;
+  jsobj = freej->js->global_object;
+  
+  initialized = true;
+  return(true);
 }
 
 // other functions are pure virtual

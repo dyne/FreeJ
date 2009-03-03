@@ -42,8 +42,9 @@ class Controller: public Entry {
   Controller();
   virtual ~Controller();
 
-  // store the javascript environment!
-  virtual bool init(JSContext *env, JSObject *obj) =0;
+  // we need a pointer to context because controllers aren't depending from javascript
+  // those who need it will retreive JSContext/Object from freej->js->global_context/object
+  virtual bool init(Context *freej);
   // function called in main loop, 
   // handle your events here
   virtual int poll() = 0;
@@ -56,6 +57,8 @@ class Controller: public Entry {
 
   bool initialized;
   bool active;
+
+  Context *env;
 
   JSContext *jsenv;
   JSObject  *jsobj;

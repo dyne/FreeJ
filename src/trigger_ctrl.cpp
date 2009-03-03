@@ -53,15 +53,6 @@ TriggerController::TriggerController()
 TriggerController::~TriggerController() {
 }
 
-bool TriggerController::init(JSContext *env, JSObject *obj) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  jsenv = env;
-  jsobj = obj;
-  
-  initialized = true;
-  return(true);
-}
-
 int TriggerController::poll() {
     return dispatch();
 }
@@ -89,7 +80,7 @@ JS(js_trigger_ctrl_constructor) {
   TriggerController *trigger = new TriggerController();
 
   // initialize with javascript context
-  if(! trigger->init(cx, obj) ) {
+  if(! trigger->init(env) ) {
     error("failed initializing trigger controller");
     delete trigger; return JS_FALSE;
   }

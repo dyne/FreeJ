@@ -38,7 +38,7 @@ class MidiController: public Controller {
 		MidiController();
 		~MidiController();
 
-        bool init(JSContext*, JSObject*);
+        bool init(Context*);
         int poll();
         virtual int dispatch();
 	virtual int event_ctrl(int channel, int param, int value);

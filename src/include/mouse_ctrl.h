@@ -30,7 +30,6 @@ class MouseController : public Controller {
   MouseController();
   ~MouseController();
   
-  bool init(JSContext *env, JSObject *obj);
   int  poll();
   virtual int dispatch();
 

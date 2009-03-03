@@ -54,7 +54,7 @@ class JsParser {
 
 	JSBool branch_callback(JSContext* Context, JSScript* Script);
 
-	JSContext *js_context;
+	JSContext *global_context;
 	JSObject *global_object;
 
     private:

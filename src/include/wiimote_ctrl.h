@@ -36,7 +36,6 @@ class WiiController: public Controller {
   WiiController();
   ~WiiController();
 
-  bool init(JSContext *env, JSObject *obj);
   virtual int dispatch();
   int poll();
 

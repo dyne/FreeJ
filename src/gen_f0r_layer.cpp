@@ -24,6 +24,8 @@ $Id: gen_layer.cpp 845 2007-04-03 07:04:47Z jaromil $
 #include <gen_f0r_layer.h>
 #include <frei0r_freej.h>
 #include <freeframe_freej.h>
+#include <fps.h>
+
 #include <jutils.h>
 #include <context.h>
 #include <config.h>
@@ -183,7 +185,7 @@ bool GenF0rLayer::init(Context *freej) {
 void *GenF0rLayer::feed() {
   void *res;
   //  lock();
-  res = generator->process(env->fps_speed, NULL);
+  res = generator->process(env->fps->get(), NULL);
   //  unlock();
   return res;
 }

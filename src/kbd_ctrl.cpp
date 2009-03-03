@@ -22,6 +22,7 @@
 #include <context.h>
 #include <jutils.h>
 
+#include <jsparser.h>
 #include <callbacks_js.h> // javascript
 #include <jsparser_data.h>
 
@@ -53,16 +54,22 @@ KbdController::~KbdController() {
 
 }
 
-bool KbdController::init(JSContext *env, JSObject *obj) {
+bool KbdController::init(Context *freej) {
 
   /* enable key repeat */
   SDL_EnableKeyRepeat(SDL_REPEAT_DELAY, SDL_REPEAT_INTERVAL);
 
-  jsenv = env;
-  jsobj = obj;
-  SDL_EnableUNICODE(1);
+
+  func("%s",__PRETTY_FUNCTION__);
+  env = freej;
+  ::env = freej;
+  jsenv = freej->js->global_context;
+  jsobj = freej->js->global_object;
   
   initialized = true;
+  
+  SDL_EnableUNICODE(1);
+  
   return(true);
 }
 
@@ -192,7 +199,7 @@ JS(js_kbd_ctrl_constructor) {
   KbdController *kbd = new KbdController();
 
   // initialize with javascript context
-  if(! kbd->init(cx, obj) ) {
+  if(! kbd->init(env) ) {
     error("failed initializing keyboard controller");
     delete kbd; return JS_FALSE;
   }

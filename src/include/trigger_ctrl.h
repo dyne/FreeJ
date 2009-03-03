@@ -29,8 +29,7 @@ class TriggerController : public Controller {
  public:
   TriggerController();
   ~TriggerController();
-  
-  bool init(JSContext *env, JSObject *obj);
+
   int  poll();
   virtual int dispatch();
 };

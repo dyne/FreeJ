@@ -29,7 +29,7 @@
 #include <context.h>
 #include <jutils.h>
 
-
+#include <jsparser.h>
 #include <callbacks_js.h> // javascript
 #include <jsparser_data.h>
 
@@ -60,7 +60,8 @@ JoyController::~JoyController() {
 
 }
 
-bool JoyController::init(JSContext *env, JSObject *obj) {
+bool JoyController::init(Context *freej) {
+
   //bool JoyController::init(Context *context) {
   func("JoyController::init()");
  
@@ -101,12 +102,15 @@ bool JoyController::init(JSContext *env, JSObject *obj) {
   } else
     SDL_JoystickEventState(SDL_ENABLE);
   
-  jsenv = env;
-  jsobj = obj;
+  func("%s",__PRETTY_FUNCTION__);
+  env = freej;
+  ::env = freej;
+  jsenv = freej->js->global_context;
+  jsobj = freej->js->global_object;
   
   initialized = true;
-
   return(true);
+  
 }
 
 int JoyController::poll() {
@@ -173,7 +177,7 @@ JS(js_joy_ctrl_constructor) {
   JoyController *joy = new JoyController();
 
   // initialize with javascript context
-  if(! joy->init(cx, obj) ) {
+  if(! joy->init(env) ) {
     sprintf(excp_msg, "failed initializing joystick controller");
     goto error;
   }

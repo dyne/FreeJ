@@ -28,7 +28,6 @@
 #include <context.h>
 #include <blitter.h>
 #include <controller.h>
-#include <console.h>
 
 #include <sdl_screen.h>
 #include <soft_screen.h>
@@ -80,7 +79,6 @@ void * run_context(void * data){
 Context::Context() {
 
   screen          = NULL;
-  console         = NULL;
   //audio           = NULL;
 
   /* initialize fps counter */
@@ -130,11 +128,6 @@ Context::~Context() {
 
   running = false;
 
-  if (console) {
-    console->close ();
-    //    delete console;
-    //    console = NULL;
-  }
 
   //js->gc(); 
   if(js) { // invokes JSGC and all gc call on our JSObjects!
@@ -304,13 +297,7 @@ void Context::cafudda(double secs) {
     changeres = false;
   } /////////////////////////////
   
-  
-    ///////////////////////////////
-    // update the console
-  if (console && interactive) 
-    console->cafudda ();
-  ///////////////////////////////
-  
+    
   
   ///////////////////////////////
   // start layers threads
@@ -484,9 +471,7 @@ bool Context::register_controller(Controller *ctrl) {
     return false;
   }
 
-  if(! ctrl->initialized )
-    ctrl->init(js->js_context, js->global_object);
-
+  if(! ctrl->initialized ) ctrl->init(this);
 
   ctrl->active = true;
 

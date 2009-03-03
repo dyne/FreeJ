@@ -85,7 +85,8 @@ static const unsigned int wi_left[]  = { 0x2310, 0x0231, 0x3102, 0x1023 };
 static const int o_wheel_speed[] = {-5, 5, -6, 6, -4, 4, -7, 7, -2, 2, -1, 1, -3, 3, 0, 0 };
 static const unsigned char magic[] = {0x02, 0x0a, 0x0c, 0x0a};
 
-ViMoController::ViMoController() {
+ViMoController::ViMoController() 
+  :Controller() {
 	func("%s this=%p",__PRETTY_FUNCTION__, this);
 	initialized = active = false;
 	jsenv = NULL;
@@ -126,14 +127,6 @@ JSFunctionSpec js_vimo_ctrl_methods[] = {
 	{0}
 };
 
-bool ViMoController::init(JSContext *env, JSObject *obj) {
-	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-	jsenv = env;
-	jsobj = obj;
-
-	initialized = true;
-	return(true);
-}
 
 
 bool ViMoController::open() {
@@ -382,7 +375,7 @@ JS(js_vimo_ctrl_constructor) {
 	ViMoController *mouse = new ViMoController();
 
 	// initialize with javascript context
-	if(! mouse->init(cx, obj) ) {
+	if(! mouse->init( env ) ) {
 		error("failed initializing mouse controller");
 		delete mouse; return JS_FALSE;
 	}

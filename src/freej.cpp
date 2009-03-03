@@ -31,7 +31,7 @@
 #include <context.h>
 
 // #include <osd.h>
-#include <console.h>
+#include <console_ctrl.h>
 #include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
@@ -288,20 +288,21 @@ int main (int argc, char **argv) {
   */
 
 
+  
+  /* initialize the S-Lang text Console */
+  if(!noconsole) {
+    if( getenv("TERM") ) {
+      Console *con = new Console();
+      con->init( &freej );
+      freej.register_controller( con );
+    }
+  }
+
   // refresh the list of available plugins
   freej.plugger.refresh(&freej);
 
   // load default settings
   freej.config_check("keyboard.js");
-  
-  /* initialize the S-Lang text Console */
-  if(!noconsole) {
-    if( getenv("TERM") ) {
-      freej.console = new Console();
-      freej.console->init( &freej );
-      freej.console->cafudda ();
-    }
-  }
 
   /* execute javascript */
   if( javascript[0] ) {
