@@ -1,5 +1,5 @@
 //
-//  CVideoFile.h
+//  CVFileInput.h
 //  freej
 //
 //  Created by xant on 2/16/09.
@@ -16,7 +16,7 @@
 #include "CVLayer.h"
 #include "CVFilterPanel.h"
 
-@interface CVideoFileInput : NSOpenGLView {
+@interface CVFileInput : NSOpenGLView {
 	NSRecursiveLock		*lock;
 	id					delegate;
 	QTMovie				*qtMovie; 

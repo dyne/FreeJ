@@ -40,15 +40,12 @@ class  CVScreen;
 	CVScreen			*fjScreen;
 	NSRecursiveLock		*lock;
 	CIContext			*ciContext;
-	NSOpenGLContext		*fullScreenContext;
-	NSOpenGLContext		*standardContext;
 	NSOpenGLContext		*currentContext;
 	CIImage				*outFrame;
 	CIImage				*inFrame;
 	NSTimer				*renderTimer;
 	bool				needsReshape;
 }
-//- (bool)isCafudding;
 - (void)awakeFromNib;
 - (id)init;
 - (void)update;

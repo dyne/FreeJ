@@ -1,5 +1,5 @@
 //
-//  CVideoFile.mm
+//  CVFileInput.mm
 //  freej
 //
 //  Created by xant on 2/16/09.
@@ -7,7 +7,7 @@
 //
 
 #import "CIAlphaFade.h"
-#import "CVideoFile.h"
+#import "CVFileInput.h"
 #import <QTKit/QTMovie.h>
 #include <math.h>
 
@@ -43,10 +43,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                 void *displayLinkContext)
 {
 	//if (inNow->hostTime
-    return [(CVideoFileInput*)displayLinkContext _renderTime:inOutputTime];
+    return [(CVFileInput*)displayLinkContext _renderTime:inOutputTime];
 }
 
-@implementation CVideoFileInput : NSOpenGLView
+@implementation CVFileInput : NSOpenGLView
 
 - (void)windowChangedScreen:(NSNotification*)inNotification
 {
@@ -72,9 +72,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	// Create CIContext 
 	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
 			    pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
-			    options:[NSDictionary dictionaryWithObjectsAndKeys:
-				(id)colorSpace,kCIContextOutputColorSpace,
-				(id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+			    options:nil] retain];
 	CGColorSpaceRelease(colorSpace);
 	
 	// Create CIFilters used for both preview and main frame
@@ -236,47 +234,57 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			atPoint:CGPointMake((int)((frame.size.width - imageRect.size.width) * 0.5), (int)((frame.size.height - imageRect.size.height) * 0.5))
 			fromRect:imageRect];
 	// flush our output to the screen - this will render with the next beamsync
-	glFlush();
+	//glFlush();
+	[[self openGLContext] flushBuffer];
 	[lock unlock];
 }
 
 - (void)unloadMovie
 {
-	NSRect		frame = [self frame]; 
+	NSRect		frame = [self frame];
 	[lock lock];
-	if(CVDisplayLinkIsRunning(displayLink))
-		[self togglePlay:nil];
-	
+	[qtMovie stop];
+	//SetMovieVisualContext([qtMovie quickTimeMovie], NULL);
+	QTVisualContextRelease(qtVisualContext);
+	qtVisualContext = NULL;
+	[cifjContext release];
+	cifjContext = NULL;
+	[renderedImage release];
+	renderedImage = NULL;
+	[previewImage release];
+	previewImage = NULL;
+	CVPixelBufferRelease(currentFrame);
+	CVPixelBufferRelease(lastFrame);
+
+	needsReshape = YES;
+	//[QTMovie exitQTKitOnThread];
 	[[self openGLContext] makeCurrentContext];	
 	// clean the OpenGL context
 	glClearColor(0.0, 0.0, 0.0, 0.0);	     
 	glClear(GL_COLOR_BUFFER_BIT);
-	glFlush();
-	
-	SetMovieVisualContext([qtMovie quickTimeMovie], NULL);
-	[qtMovie release];
-	[cifjContext release];
-	cifjContext = NULL;
-	qtMovie = NULL;
-	QTVisualContextRelease(qtVisualContext);
-	qtVisualContext = NULL;
-	needsReshape = YES;
-	//[QTMovie exitQTKitOnThread];
+	glFinish();
 	[lock unlock];
 }
 
 - (void)setQTMovie:(QTMovie*)inMovie
 {	
 	OSStatus			    err;
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	Context *ctx = (Context *)[freej getContext];
+	[self setNeedsDisplay:NO];
+
+	[lock lock];
 	// if we own already a movie let's relase it before trying to open the new one
-	if (qtMovie) 
+	if (qtMovie) {
 		[self unloadMovie];
-		
+		[qtMovie stop];
+		[qtMovie release];
+	}
 	// no movie has been supplied... perhaps we are going to exit
-	if (!inMovie)
+	if (!inMovie) {
+		[lock unlock];
 		return;
-		
+	}
     qtMovie = inMovie;
 	[qtMovie retain]; // we are going to need this for a while
 	if (!qtVisualContext)
@@ -337,6 +345,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		layer->buffer = (void *)pixelBuffer; // give freej a fake buffer ... that's not going to be used anyway
 		//layer->start();
     }
+	[lock unlock];
+	[pool release];
 }
 
 - (QTTime)currentTime
@@ -351,11 +361,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)setTime:(QTTime)inTime
 {
-    [qtMovie setCurrentTime:inTime];
-    if(CVDisplayLinkIsRunning(displayLink))
-		[self togglePlay:nil];
-    [self updateCurrentFrame];
-    [self display];
+   // [qtMovie setCurrentTime:inTime];
+  //  if(CVDisplayLinkIsRunning(displayLink))
+		//[self togglePlay:nil];
+    //[self updateCurrentFrame];
+   // [self display];
 }
 
 - (IBAction)setMovieTime:(id)sender
@@ -365,6 +375,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)togglePlay:(id)sender
 {
+	[lock lock];
     if(CVDisplayLinkIsRunning(displayLink))
     {
 		CVDisplayLinkStop(displayLink);
@@ -373,6 +384,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		[qtMovie play];
 		CVDisplayLinkStart(displayLink);
     }
+	[lock unlock];
 }
 
 - (IBAction)setFilterParameter:(id)sender
@@ -436,17 +448,19 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (IBAction)setBlendMode:(id)sender
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [lock lock];
-	switch([sender tag])
-    {
-		case 0:
-			NSString *blendMode = [[NSString alloc] initWithFormat:@"CI%@BlendMode", [[sender selectedItem] title]];
-			layer->blendMode = blendMode;
-			break;
-		default:
-			break;
+	if (layer) {
+		[lock lock];
+		switch([sender tag])
+		{
+			case 0:
+				NSString *blendMode = [[NSString alloc] initWithFormat:@"CI%@BlendMode", [[sender selectedItem] title]];
+				layer->blendMode = blendMode;
+				break;
+			default:
+				break;
+		}
+		[lock unlock];
 	}
-	[lock unlock];
 	[pool release];
 }
 
@@ -617,14 +631,19 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
      NSString * tvarFilename = [tvarNSOpenPanelObj filename];
      func("openScript filename = %@",tvarFilename);
  
-	QTMovie *movie = [QTMovie movieWithFile:tvarFilename error:nil];
-	[self setQTMovie:movie];
-	[movie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
-	[movie gotoBeginning];
-	[self togglePlay:nil];
+	if (tvarFilename) {
+		if(CVDisplayLinkIsRunning(displayLink)) 
+			[self togglePlay:nil];
+	
+		QTMovie *movie = [[QTMovie alloc] initWithFile:tvarFilename error:nil];
+		[self setQTMovie:movie];
+		[movie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
+		[movie gotoBeginning];
+		[self togglePlay:nil];
 
-	if (layer)
-		layer->activate();
+		if (layer && !layer->active)
+			layer->activate();
+	}
 }
 
 - (IBAction)toggleFilters:(id)sender

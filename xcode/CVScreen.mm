@@ -89,7 +89,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	Context *ctx = (Context *)[freej getContext];
 	fjScreen = (CVScreen *)ctx->screen;
 	//CVPixelBufferCreate(NULL, 640, 480, k32ARGBPixelFormat , NULL, &pixelBuffer);
-	CVReturn err = CVOpenGLBufferCreate (NULL, 400, 300, NULL, &pixelBuffer);
+	CVReturn err = CVOpenGLBufferCreate (NULL, ctx->screen->w, ctx->screen->h, NULL, &pixelBuffer);
 	if (err) {
 		// TODO - Error messages
 		return nil;
@@ -109,8 +109,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
 	CVOpenGLTextureRelease(pixelBuffer);
 	[ciContext release];
-	[fullScreenContext release];
-	[standardContext release];
+	[currentContext release];
 	[outFrame release];
 	[inFrame release];
 	[lock release];
@@ -137,28 +136,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	}
 	ret = CVDisplayLinkCreateWithCGDisplay(viewDisplayID, &displayLink);
 	
-
-	func("Setting up full-screen context.");
-	
-	
-
-	NSOpenGLPixelFormatAttribute attrs[] = { // 1
-		NSOpenGLPFAFullScreen,
-		NSOpenGLPFAScreenMask,
-		NSOpenGLPFAColorSize, 24,  // 2
-		NSOpenGLPFADepthSize, 8,
-		NSOpenGLPFAAccelerated,
-		0
-	};
-	NSOpenGLPixelFormat *fullScreenPixelFormat = [[NSOpenGLPixelFormat alloc]
-									initWithAttributes:attrs];
-	// Initialize an NSOpenGLContext for full-screen.
-	fullScreenContext = [[NSOpenGLContext alloc] initWithFormat:fullScreenPixelFormat shareContext:nil];
-	[fullScreenPixelFormat release];
-	// Make current.
-	//[fullScreenContext makeCurrentContext];
-	standardContext = [[self openGLContext] retain];
-	currentContext = standardContext;
+	currentContext = [[self openGLContext] retain];
 	
 	// Create CGColorSpaceRef 
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
@@ -245,7 +223,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			atPoint: cg.origin  fromRect: cg];
 	}
 	// flush our output to the screen - this will render with the next beamsync
-	glFlush();
+	//glFlush();
+	[[self openGLContext] flushBuffer];
 	//[lock unlock];
 	[pool release];
 }
