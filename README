@@ -231,6 +231,9 @@ To test new branches and latest code, use git:
 then generate  the build environment running ./autogen.sh  - note that
 automake and aclocal at exactly 1.9 version are required for it.
 
+More detailed instructions about installation by git can be found
+into the INSTALL readme file.
+
 Please download  and run  the latest  code from there  if you  want to
 submit a bugreport, submit a patch or propose and test new features on
 our mailinglist.

@@ -1,6 +1,10 @@
 #!/bin/sh
 # Run this to set up the build system: configure, makefiles, etc.
 # (based on the version in enlightenment's cvs)
+#
+# Please NOTE: autogen 1.9 IS REQUIRED, it doesn't work with
+#              other versions!
+#
 
 package="FreeJ"
 
@@ -17,6 +21,7 @@ else
   LIBTOOL=libtool
   LIBTOOLIZE=libtoolize
   ACLOCAL=aclocal-1.9
+  # this is REQUIRED to be 1.9! Please look INSTALL & README.
   AUTOMAKE=automake-1.9
 fi
 AUTOCONF=autoconf

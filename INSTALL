@@ -4,7 +4,15 @@ FreeJ installation instructions
 *** x86 PC (for Darwin/OSX see README.OSX)
 
 
-[*] be sure to have all the required libraries and tools
+[*] be sure to have all the required libraries and tools:
+ cdbs, libtool, debhelper (>> 7.0.0), pkg-config, flex, bison, libsdl-dev,
+ libpng-dev, libfreetype6-dev, libfontconfig-dev, libogg-dev, libvorbis-dev,
+ libjpeg-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev,
+ libswscale-dev, libunicap2-dev, libbluetooth-dev, fftw3-dev, libjack-dev,
+ libasound-dev, libhtml-template-perl, python-dev, swig
+
+!!! PLEASE NOTE: automake 1.9 is REQUIRED - it doesn't work with a
+    different version.
 
 - A working GNU/Linux system with X or framebuffer video
 
@@ -16,8 +24,6 @@ FreeJ installation instructions
    NASM netwide assembler compiler http://sf.net/projects/nasm
    then go in the filters/nasm-x86 and type make!
    copy by hand the *.so filters in a ~/.freej/ directory in your home
-
-
 
 [*] then you are ready to compile!
 
@@ -58,6 +64,41 @@ sudo apt-get build-dep freej
 dpkg-buildpackage -rfakeroot
 
 
+
+:: INSTALL FROM GIT REPOSITORY
+   (only for developers, skilled users, full code alchemists)
+
+Assuming you have Debian/Ubuntu (for other distro there can be some
+differences), with all tools needed and all developers lib installed 
+(e.g. build-essential, the libs above etc.:
+
+  You need git:
+- apt-get install git-core
+
+  So, get the code:
+- git clone git://code.dyne.org/freej.git
+
+After this, you will have a "freej" dir. Enter in it, and do 
+
+- ./autogen.sh
+  that create all the necessary configuration files (It may ask you
+  to install some missing libraries or to install the required 
+  automake version 1.9). This also run the "configure" script.
+
+- If you need to enable/disable something, relaunch "configure" with
+  your favourite options.
+
+  When you're satisfied:
+- make && sudo make install 
+
+That's all!
+
+
+
+If you want to experiment with live video, please be sure to have a working
+camera and to activate it from your BIOS settings (e.g. for eeepc 701), or
+it will not work! :)
+
 If you have problems, you are welcome to ask on the mailinglist for
 help, there you will probably find some good suggestions
 
@@ -66,5 +107,7 @@ Please try to not mix your system's problems with FreeJ's bugs.
 If you find bugs, you are welcome to report them in the bugtracking
 system on http://bugs.dyne.org
 
--jrml
+
+-jrml, asbesto
+
 
