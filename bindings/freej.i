@@ -9,6 +9,7 @@
 
 #include "layer.h"
 #include "blitter.h"
+#include "fps.h"
 #include "controller.h"
 
 #include "gen_f0r_layer.h"
@@ -109,6 +110,7 @@ freej_entry_typemap_in(Encoder);
 %include "plugger.h"
 // %include "jsync.h"
 
+%include "fps.h"
 %template(LayerLinkList) Linklist<Layer>;
 %include "layer.h"
 // layers...
