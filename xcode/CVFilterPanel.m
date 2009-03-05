@@ -27,10 +27,12 @@ static FilterParams fParams[FILTERS_MAX] =
 };
 
 @implementation CVFilterPanel
-- (id) init
+- (id) initWithName:(NSString *)name
 {
 	if (![super initWithWindowNibName:@"EffectsPanel"])
 		return nil;
+	[[self window] setTitle:name];
+
 	layer = nil;
 	return self;
 }
@@ -54,7 +56,6 @@ static FilterParams fParams[FILTERS_MAX] =
 - (void)setLayer:(NSView *)lay
 {
 	layer = lay;
-	[[self window] setTitle:[layer toolTip]];
 }
 
 - (IBAction)setFilterParameter:(id)sender
@@ -93,7 +94,8 @@ static FilterParams fParams[FILTERS_MAX] =
 	// really outside of the window (but not if we for examples
 	// selected a new filter using the NSPopupButton
 	if (p.x < 0 || p.y < 0 || 
-		p.x > bounds.size.width || p.y > bounds.size.height)
+		p.x > bounds.size.width || 
+		p.y > bounds.size.height)
 	{
 		[[self window] orderOut:self];
 	}

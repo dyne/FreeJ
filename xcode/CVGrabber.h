@@ -15,12 +15,14 @@
 #import <CoreAudio/CoreAudio.h>
 
 #include "CVLayer.h"
+#include "CVFilterPanel.h"
 
 @class CFreej;
 
 /*****************************************************************************
 * QTKit Bridge
 *****************************************************************************/
+
 
 @interface CVGrabber : QTCaptureDecompressedVideoOutput
 {
@@ -40,8 +42,21 @@
 	int height;
 	bool running;
 	CVLayer *layer;
+	CVFilterPanel *filterPanel;
+	    // filters for CI rendering
+    CIFilter				*colorCorrectionFilter;	    // hue saturation brightness control through one CI filter
+    CIFilter				*compositeFilter;	    // composites the timecode over the video
+	CIFilter				*alphaFilter;
+	CIFilter				*exposureAdjustFilter;
+	CIFilter				*rotateFilter;
+	CIFilter				*translateFilter;
+	CIFilter				*effectFilter;
+	CIFilter				*scaleFilter;
+	NSMutableArray			*paramNames;
 }
+
 @property CVLayer *layer;
+@property CVFilterPanel *filterPanel;
 - (id)init;
 - (void)awakeFromNib;
 - (void *)grabFrame;
@@ -49,6 +64,16 @@
 - (IBAction)stopCapture:(id)sender;
 - (IBAction)toggleCapture:(id)sender;
 - (CIImage *)getTexture;
+@end
+
+@interface CVCaptureView : QTCaptureView
+{
+	CVFilterPanel       *filterPanel;
+	IBOutlet CVGrabber *grabber;
+}
+- (void)dealloc;
+- (void)mouseDown:(NSEvent *)theEvent;
+
 @end
 
 #endif

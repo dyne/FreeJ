@@ -112,7 +112,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	}
 	//ret = CVDisplayLinkCreateWithOpenGLDisplayMask(totalDisplayMask, &displayLink);
 	ret = CVDisplayLinkCreateWithCGDisplay(viewDisplayID, &displayLink);
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
 	// Set up display link callbacks 
 	CVDisplayLinkSetOutputCallback(displayLink, renderCallback, self);
 		
@@ -146,6 +145,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		// TODO - error messages
 		pixelBuffer = NULL;
 	}
+	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
 	paramNames = [[NSMutableArray arrayWithCapacity:3] retain];
 	lock = [[NSRecursiveLock alloc] init];
 	[lock retain];
@@ -750,7 +750,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)mouseDown:(NSEvent *)theEvent {
 	if (!filterPanel) {
-		filterPanel = [[CVFilterPanel alloc] init];
+		filterPanel = [[CVFilterPanel alloc] initWithName:[self toolTip]];
 	}
 	[filterPanel setLayer:self];
 	[filterPanel show];

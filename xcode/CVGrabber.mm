@@ -9,6 +9,7 @@
 
 #include "CVGrabber.h"
 #include "CFreej.h"
+#import "CIAlphaFade.h"
 #include <jutils.h>
 
 #define CV_GRABBER_HEIGHT_MAX 480
@@ -24,20 +25,55 @@
 		freejImageBuffer = nil;
         currentPts = 0;
         previousPts = 0;
-		width = 640;
-		height = 480;
+		width = 320; // XXX - make defult size configurable
+		height = 240; // XXX -^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		lock = [[NSRecursiveLock alloc] init];
+		// Create CIFilters used for both preview and main frame
+		colorCorrectionFilter = [[CIFilter filterWithName:@"CIColorControls"] retain];	    // Color filter	
+		[colorCorrectionFilter setDefaults];						    // set the filter to its default values
+		exposureAdjustFilter = [[CIFilter filterWithName:@"CIExposureAdjust"] retain];
+		[exposureAdjustFilter setDefaults];
+		// adjust exposure
+		[exposureAdjustFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputEV"];
+		
+		// rotate
+		NSAffineTransform *rotateTransform = [NSAffineTransform transform];
+		[rotateTransform rotateByDegrees:0.0];
+		rotateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+		[rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
+		//translateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+		//[translateFilter setValue:translateTransform forKey:@"inputTransform"];
+		scaleFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+		//CIFilter *scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+		[scaleFilter setDefaults];    // set the filter to its default values
+		//[scaleFilter setValue:[NSNumber numberWithFloat:scaleFactor] forKey:@"inputScale"];
+		
+		effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];		    // Effect filter	
+		[effectFilter setDefaults];							    // set the filter to its default values
+		[effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
+		compositeFilter = [[CIFilter filterWithName:@"CISourceOverCompositing"] retain];    // Composite filter
+		[CIAlphaFade class];	
+		alphaFilter = [[CIFilter filterWithName:@"CIAlphaFade"] retain]; // AlphaFade filter
+		[alphaFilter setDefaults]; // XXX - setDefaults doesn't work properly
+		[alphaFilter setValue:[NSNumber numberWithFloat:0.5] forKey:@"outputOpacity"]; // set default value
+		paramNames = [[NSMutableArray arrayWithCapacity:3] retain];
+
     }
     return self;
 }
 - (void)dealloc
 {
 	[self stopCapture:self];
-    //@synchronized (self)
-    //{
-        CVBufferRelease(currentImageBuffer);
-        currentImageBuffer = nil;
-    //}
+	CVBufferRelease(currentImageBuffer);
+	currentImageBuffer = nil;
+	[colorCorrectionFilter release];
+    [effectFilter release];
+    [compositeFilter release];
+	[alphaFilter release];
+	[exposureAdjustFilter release];
+	[rotateFilter release];
+	[scaleFilter release];
+	[paramNames release];
 	[lock release];
     [super dealloc];
 }
@@ -47,24 +83,19 @@
     // Store the latest frame
     // This must be done in a @synchronized block because this delegate method is not called on the main thread
     CVImageBufferRef imageBufferToRelease;
-	[QTMovie enterQTKitOnThread];
     CVBufferRetain(videoFrame);
     [lock lock];
-	//@synchronized (self)
-    //{
-        imageBufferToRelease = currentImageBuffer;
-        currentImageBuffer = videoFrame;
-        currentPts = (time_t)(1000000L / [sampleBuffer presentationTime].timeScale * [sampleBuffer presentationTime].timeValue);
-        
-        /* Try to use hosttime of the sample if available, because iSight Pts seems broken */
-        NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
-        if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
-		if (layer) {
-			layer->buffer = (void *)currentImageBuffer;
-		}
-    //}
+
+	imageBufferToRelease = currentImageBuffer;
+	currentImageBuffer = videoFrame;
+	currentPts = (time_t)(1000000L / [sampleBuffer presentationTime].timeScale * [sampleBuffer presentationTime].timeValue);
+	
+	/* Try to use hosttime of the sample if available, because iSight Pts seems broken */
+	NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
+	if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
+	if (layer) 
+		layer->buffer = (void *)currentImageBuffer;
 	[lock unlock];
-	[QTMovie exitQTKitOnThread];
     CVBufferRelease(imageBufferToRelease);
 }
 
@@ -87,7 +118,6 @@
 	notice( "QTCapture opened" );
 
     NSError *o_returnedError;
-	[QTMovie enterQTKitOnThread];
     device = [QTCaptureDevice defaultInputDeviceWithMediaType: QTMediaTypeVideo];
     if( !device )
     {
@@ -151,22 +181,19 @@
     notice( "Video device ready!" );
 
 	running = true;
-	[QTMovie exitQTKitOnThread];
 	layer = new CVLayer((NSObject *)self);
 	layer->init(ctx);
 	layer->activate();
 	return;
 error:
-	[QTMovie exitQTKitOnThread];
+	//[= exitQTKitOnThread];
 	[input release];
 
 }
 
 - (IBAction)stopCapture:(id)sender
 {
-	//@synchronized (self) {
 	[lock lock];
-		[QTMovie enterQTKitOnThread];
 		if (session) {
 			[session stopRunning];
 			if (input) {
@@ -191,7 +218,6 @@ error:
 		}
 
 		freejImageBuffer = NULL;
-		[QTMovie exitQTKitOnThread];
 		if (layer) {
 			Context *ctx = [freej getContext];
 			ctx->rem_layer(layer);
@@ -200,7 +226,6 @@ error:
 		}
 		running = false;
 	[lock unlock];
-	//}
 }
 
 - (IBAction)toggleCapture:(id)sender
@@ -224,24 +249,194 @@ error:
 	if(!currentImageBuffer || currentPts == previousPts )
         return freejImageBuffer;
 
-    //@synchronized (self)
-    //{
+
 	[lock lock];
-        pts = previousPts = currentPts;
+	pts = previousPts = currentPts;
 
-		if (freejImageBuffer) {
-			[freejImageBuffer release];
-		}
+	if (freejImageBuffer) {
+		[freejImageBuffer release];
+	}
 
-		freejImageBuffer = [CIImage imageWithCVImageBuffer:currentImageBuffer];
-		[freejImageBuffer retain];
+	
+	CIImage *frame = [CIImage imageWithCVImageBuffer:currentImageBuffer];
+	[colorCorrectionFilter setValue:frame forKey:@"inputImage"];
+	[exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+	[effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
+				  forKey:@"inputImage"];
+	[alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
+				  forKey:@"inputImage"];
+	[rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+	freejImageBuffer = [rotateFilter valueForKey:@"outputImage"];
+					
+	[freejImageBuffer retain];
+
 	[lock unlock];
-    //}
 
     return freejImageBuffer;
 }
 
+- (IBAction)setFilterParameter:(id)sender
+{
+	NSAutoreleasePool *pool;
+	float deg = 0;
+	float x = 0;
+	float y = 0;
+	NSAffineTransform	*rotateTransform;
+	NSAffineTransform	*translateTransform;
+	NSString *paramName = NULL;
+	pool = [[NSAutoreleasePool alloc] init];
+    [lock lock];
+	switch([sender tag])
+    {
+	case 0:  // opacity (AlphaFade)
+		[alphaFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"outputOpacity"];
+		break;
+	case 1: //brightness (ColorCorrection)
+	    [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
+	    break;
+	case 2: // saturation (ColorCorrection)
+	    [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
+	    break;
+	case 3: // contrast (ColorCorrection)
+	    [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
+	    break;
+	case 4: // exposure (ExposureAdjust)
+		[exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
+		break;
+	case 5: // rotate and translate
+		rotateTransform = [NSAffineTransform transform];
+		[rotateTransform rotateByDegrees:[sender floatValue]];
+		 deg = ([sender floatValue]*M_PI)/180.0;
+		if (deg) {
+			 x = ((layer->geo.w)-((layer->geo.w)*cos(deg)-(layer->geo.h)*sin(deg)))/2;
+			 y = ((layer->geo.h)-((layer->geo.w)*sin(deg)+(layer->geo.h)*cos(deg)))/2;
+		}
+		translateTransform = [NSAffineTransform transform];
+		[translateTransform translateXBy:x yBy:y];
+		[rotateTransform appendTransform:translateTransform];
+		[rotateTransform concat];
+		[translateTransform concat];
+		[rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
+		
+		break;
+	case 6:
+		NSString *filterName = [[NSString alloc] initWithFormat:@"CI%@", [[sender selectedItem] title]];
+		NSLog(filterName);
+		[effectFilter release];
+		effectFilter = [[CIFilter filterWithName:filterName] retain];	
+		FilterParams *pdescr = [filterPanel getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
+		[effectFilter setDefaults];
+		NSView *cView = (NSView *)sender;
+		for (int i = 0; i < 3; i++) {
+			NSTextField *label = (NSTextField *)[cView nextKeyView];
+			NSSlider *slider = (NSSlider *)[label nextKeyView];
+
+			if (i < pdescr->nParams) {
+				[label setHidden:NO];
+				NSString *pLabel = [[[NSString alloc] initWithCString:pdescr->params[i].label] retain];
+				[label setTitleWithMnemonic:pLabel];
+				[slider setHidden:NO];
+				[slider setMinValue:pdescr->params[i].min];
+				[slider setMaxValue:pdescr->params[i].max];
+				[slider setDoubleValue:pdescr->params[i].min];
+				if ([paramNames count] > i) {
+					NSString *old = [paramNames objectAtIndex:i];
+					[paramNames replaceObjectAtIndex:i withObject:pLabel];
+					[old release];	
+				} else {
+					[paramNames insertObject:pLabel atIndex:i];
+				}
+				if ([pLabel isEqual:@"CenterY"])
+					[slider setMaxValue:layer->geo.h];
+				else if ([pLabel isEqual:@"CenterX"])
+					[slider setMaxValue:layer->geo.w];
+				else
+					[effectFilter setValue:[NSNumber numberWithFloat:pdescr->params[i].min] forKey:pLabel];
+			} else {
+				[label setHidden:YES];
+				[slider setHidden:YES];
+			}
+			cView = slider;
+		}
+		break;
+	case 7:
+		paramName = [paramNames objectAtIndex:0];
+		if ([paramName isEqual:@"CenterX"]) {
+			NSSlider *y = (NSSlider *)[[sender nextKeyView] nextKeyView];
+			[effectFilter setValue:[CIVector vectorWithX:[sender floatValue] Y:[y floatValue]]
+				forKey:@"inputCenter"];
+		} else { 
+			[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
+		}
+	    break;
+	case 8:
+		paramName = [paramNames objectAtIndex:1];
+		if ([paramName isEqual:@"CenterY"]) {
+			NSSlider *x = (NSSlider *)[[sender previousKeyView] previousKeyView];
+			[effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[sender floatValue]]
+				forKey:@"inputCenter"];
+		} else { 
+			[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
+		}
+		break;
+	case 9:
+		[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:2]];
+		break;
+	default:
+	    break;
+    }
+    [lock unlock];
+	[pool release];
+}
+
+- (IBAction)setBlendMode:(id)sender
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	if (layer) {
+		[lock lock];
+		switch([sender tag])
+		{
+			case 0:
+				NSString *blendMode = [[NSString alloc] initWithFormat:@"CI%@BlendMode", [[sender selectedItem] title]];
+				layer->blendMode = blendMode;
+				break;
+			default:
+				break;
+		}
+		[lock unlock];
+	}
+	[pool release];
+}
+
+
 @synthesize layer;
+@synthesize filterPanel;
 @end
 
+@implementation CVCaptureView : QTCaptureView
+- (id)init
+{
+    if( self = [super init] ) {
+		return self;
+	}
+	return nil;
+}
 
+- (void)dealloc
+{
+	if (filterPanel)
+		[filterPanel dealloc];
+	[super dealloc];
+}
+
+- (void)mouseDown:(NSEvent *)theEvent {
+	if (!filterPanel)
+		filterPanel =  [[CVFilterPanel alloc] initWithName:[self toolTip]];
+
+	[filterPanel setLayer:(id)grabber];
+	[grabber setFilterPanel:filterPanel];
+	[filterPanel show];
+	[super mouseDown:theEvent];
+}
+
+@end

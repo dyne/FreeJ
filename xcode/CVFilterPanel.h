@@ -36,6 +36,7 @@ typedef struct __FilterParams {
 	IBOutlet CVFilterBox	*mainView;
 }
 - (void)show;
+- (id)initWithName:(NSString *)name;
 - (void)setLayer:(NSView *)lay;
 - (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index;
 - (IBAction)setFilterParameter:(id)sender;
