@@ -29,7 +29,7 @@
 #import "CVLayer.h"
 #import "CVScreen.h"
 
-#define _ARGB2BGRA(__buf, __size) \
+#define _BGRA2ARGB(__buf, __size) \
 	{\
 		long *__bgra = (long *)__buf;\
 		for (int __i = 0; __i < __size; __i++)\
@@ -274,14 +274,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	} else { // freej 'unknown' layer type
 	
 		CVPixelBufferRef pixelBufferOut;
-		//layer->lock(); // expensive lock
-		_ARGB2BGRA(layer->buffer, layer->geo.w*layer->geo.h); // XXX
-		//layer->unlock();
+		_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
 		CVReturn cvRet = CVPixelBufferCreateWithBytes (
 		   NULL,
 		   layer->geo.w,
 		   layer->geo.h,
-		   k32BGRAPixelFormat,
+		   k32ARGBPixelFormat,
 		   layer->buffer,
 		   layer->geo.w*4,
 		   NULL,

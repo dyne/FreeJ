@@ -390,8 +390,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	float deg = 0;
 	float x = 0;
 	float y = 0;
-	NSAffineTransform		*rotateTransform;
-	NSAffineTransform		*translateTransform;
+	NSAffineTransform	*rotateTransform;
+	NSAffineTransform	*translateTransform;
+	NSString *paramName = NULL;
 	pool = [[NSAutoreleasePool alloc] init];
     [lock lock];
 	switch([sender tag])
@@ -454,20 +455,38 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 				} else {
 					[paramNames insertObject:pLabel atIndex:i];
 				}
-				[effectFilter setValue:[NSNumber numberWithFloat:pdescr->params[i].min] forKey:pLabel];
+				if ([pLabel isEqual:@"CenterY"])
+					[slider setMaxValue:layer->geo.h];
+				else if ([pLabel isEqual:@"CenterX"])
+					[slider setMaxValue:layer->geo.w];
+				else
+					[effectFilter setValue:[NSNumber numberWithFloat:pdescr->params[i].min] forKey:pLabel];
 			} else {
 				[label setHidden:YES];
 				[slider setHidden:YES];
 			}
 			cView = slider;
 		}
-		[[filterPanel window]makeKeyAndOrderFront:self];
 		break;
 	case 7:
-	    [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:0]];
+		paramName = [paramNames objectAtIndex:0];
+		if ([paramName isEqual:@"CenterX"]) {
+			NSSlider *y = (NSSlider *)[[sender nextKeyView] nextKeyView];
+			[effectFilter setValue:[CIVector vectorWithX:[sender floatValue] Y:[y floatValue]]
+				forKey:@"inputCenter"];
+		} else { 
+			[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
+		}
 	    break;
 	case 8:
-		[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:1]];
+		paramName = [paramNames objectAtIndex:1];
+		if ([paramName isEqual:@"CenterY"]) {
+			NSSlider *x = (NSSlider *)[[sender previousKeyView] previousKeyView];
+			[effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[sender floatValue]]
+				forKey:@"inputCenter"];
+		} else { 
+			[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
+		}
 		break;
 	case 9:
 		[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:2]];

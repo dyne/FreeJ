@@ -18,11 +18,11 @@ static FilterParams fParams[FILTERS_MAX] =
 	{ 1, { { "inputRadius", 0.0, 100.0 } } }, // GaussianBlur
 	{ 1, { { "inputLevels", 2.0, 30.0 } } }, // ColorPosterize
 	{ 0, { { NULL, 0.0, 0.0 } } }, // ComicEffect
-	{ 3, { { "inputRadius", 1.0, 100.0 }, { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 } } }, // Crystalize
+	{ 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 1.0, 100.0 } } }, // Crystalize
 	{ 1, { { "inputIntensity", 0.0, 10.0 } } }, // Edges
 	{ 1, { { "inputRadius", 0.0, 20.0 } } }, // EdgeWork
-	{ 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "Scale", 1.0, 100.0 } } }, // HexagonalPixellate
-	{ 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "Radius", 0.01, 1000.0 } } }, // HoleDistortion
+	{ 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputScale", 1.0, 100.0 } } }, // HexagonalPixellate
+	{ 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.01, 1000.0 } } }, // HoleDistortion
 	{ 1, { { "inputAngle", -3.14, 3.14 } } } // HueAdjust
 };
 
