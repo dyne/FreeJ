@@ -30,23 +30,11 @@ Closure *Closing::get_job_() {
   return job;
 }
 
-Closure *Closing::tryget_job_() {
-  Closure *job = NULL;
-  if (pthread_mutex_trylock(&job_queue_mutex_))
-    return NULL; // don't wait we'll get it next time
-  if (!job_queue_.empty()) {
-    job = job_queue_.front();
-    job_queue_.pop();
-  }
-  pthread_mutex_unlock(&job_queue_mutex_);
-  return job;
-}
-
 void Closing::do_jobs() {
   Closure *job;
   bool to_delete;
   // TODO(shammash): maybe we'll need a timed condition to exit the loop
-  while ((job = tryget_job_()) != NULL) {
+  while ((job = get_job_()) != NULL) {
     // convention: synchronized jobs are deleted by caller
     to_delete = !job->is_synchronized();
     job->run();
@@ -72,17 +60,6 @@ ThreadedClosing::~ThreadedClosing() {
 void ThreadedClosing::add_job(Closure *job) {
   Closing::add_job(job);
   pthread_mutex_unlock(&loop_mutex_);
-}
-
-void ThreadedClosing::do_jobs() {
-  Closure *job;
-  bool to_delete;
-  while ((job = get_job_()) != NULL) {
-    // convention: synchronized jobs are deleted by caller
-    to_delete = !job->is_synchronized();
-    job->run();
-    if (to_delete) delete job;
-  }
 }
 
 void *ThreadedClosing::jobs_loop_(void *arg) {

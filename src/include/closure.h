@@ -79,11 +79,8 @@ class Closing {
   void add_job(Closure *job);
   void do_jobs();
 
- protected:
-  Closure *get_job_();
-  Closure *tryget_job_();
-
  private:
+  Closure *get_job_();
   queue<Closure *> job_queue_;
   pthread_mutex_t job_queue_mutex_;
 
@@ -95,7 +92,6 @@ class ThreadedClosing : Closing {
     ~ThreadedClosing();
 
     void add_job(Closure *job);
-    void do_jobs();
 
   private:
     static void *jobs_loop_(void *arg);
