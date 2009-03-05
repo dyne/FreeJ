@@ -79,44 +79,66 @@ class Closing {
   void add_job(Closure *job);
   void do_jobs();
 
+ protected:
+  Closure *get_job_();
+  Closure *tryget_job_();
+
  private:
-  void _empty_queue();
-  queue<Closure *> _job_queue;
-  pthread_mutex_t _job_queue_mutex;
+  queue<Closure *> job_queue_;
+  pthread_mutex_t job_queue_mutex_;
 
 };  
 
+class ThreadedClosing : Closing {
+  public:
+    ThreadedClosing();
+    ~ThreadedClosing();
+
+    void add_job(Closure *job);
+    void do_jobs();
+
+  private:
+    static void *jobs_loop_(void *arg);
+    bool running_;
+    pthread_mutex_t loop_mutex_;
+    pthread_cond_t loop_cond_; //TODO(shammash): safer if implemented with a mutex?
+    pthread_attr_t attr_;
+    pthread_t thread_;
+
+};
 
 class Closure {
   public:
     Closure(bool synchronized) : synchronized_(synchronized) {
       if (synchronized_) {
-        pthread_cond_init(&cond_, NULL);
         pthread_mutex_init(&mutex_, NULL);
         pthread_mutex_lock(&mutex_);
       }
     }
     ~Closure() {
       if (synchronized_) {
+        pthread_mutex_unlock(&mutex_);
         pthread_mutex_destroy(&mutex_);
-        pthread_cond_destroy(&cond_);
       }
     }
     void run() {
       run_();
-      if (synchronized_) pthread_cond_signal(&cond_);
+      if (synchronized_) {
+        pthread_mutex_unlock(&mutex_);
+      }
     }
     bool is_synchronized() {
       return synchronized_;
     }
     void wait() {
-      if (synchronized_) pthread_cond_wait(&cond_, &mutex_);
+      if (synchronized_) {
+        pthread_mutex_lock(&mutex_);
+      }
     }
   private:
     bool synchronized_;
     virtual void run_() = 0;
-    pthread_mutex_t mutex_;
-    pthread_cond_t cond_;
+    pthread_mutex_t mutex_; // used as a signal sent from run() to wait()
 };
 
 namespace closures {
