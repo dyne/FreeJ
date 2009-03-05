@@ -47,7 +47,7 @@
 	CIFilter				*translateFilter;
 	CIFilter				*effectFilter;
 	CIFilter				*scaleFilter;
-	NSArray					*paramNames;
+	NSMutableArray			*paramNames;
 	
 	//CIFilter				*resizeFilter;
     CIContext				*ciContext;

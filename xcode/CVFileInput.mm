@@ -11,12 +11,6 @@
 #import <QTKit/QTMovie.h>
 #include <math.h>
 
-#define _ARGB2BGRA(__buf, __size) \
-	{\
-		long *__bgra = (long *)__buf;\
-		for (int __i = 0; __i < __size; __i++)\
-			__bgra[__i] = ntohl(__bgra[__i]);\
-	}
 /* Utility to set a SInt32 value in a CFDictionary
 */
 static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
@@ -152,6 +146,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		// TODO - error messages
 		pixelBuffer = NULL;
 	}
+	paramNames = [[NSMutableArray arrayWithCapacity:3] retain];
 	lock = [[NSRecursiveLock alloc] init];
 	[lock retain];
 	
@@ -180,6 +175,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		[cifjContext release];
 	if (pixelBuffer)
 		CVOpenGLBufferRelease(pixelBuffer);
+	if (paramNames)
+			[paramNames release];
 	[lock release];
     [super dealloc];
 }
@@ -433,11 +430,48 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	case 6:
 		NSString *filterName = [[NSString alloc] initWithFormat:@"CI%@", [[sender selectedItem] title]];
 		NSLog(filterName);
-		
+		[effectFilter release];
+		effectFilter = [[CIFilter filterWithName:filterName] retain];	
+		FilterParams *pdescr = [filterPanel getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
+		[effectFilter setDefaults];
+		NSView *cView = (NSView *)sender;
+		for (int i = 0; i < 3; i++) {
+			NSTextField *label = (NSTextField *)[cView nextKeyView];
+			NSSlider *slider = (NSSlider *)[label nextKeyView];
+
+			if (i < pdescr->nParams) {
+				[label setHidden:NO];
+				NSString *pLabel = [[[NSString alloc] initWithCString:pdescr->params[i].label] retain];
+				[label setTitleWithMnemonic:pLabel];
+				[slider setHidden:NO];
+				[slider setMinValue:pdescr->params[i].min];
+				[slider setMaxValue:pdescr->params[i].max];
+				[slider setDoubleValue:pdescr->params[i].min];
+				if ([paramNames count] > i) {
+					NSString *old = [paramNames objectAtIndex:i];
+					[paramNames replaceObjectAtIndex:i withObject:pLabel];
+					[old release];	
+				} else {
+					[paramNames insertObject:pLabel atIndex:i];
+				}
+				[effectFilter setValue:[NSNumber numberWithFloat:pdescr->params[i].min] forKey:pLabel];
+			} else {
+				[label setHidden:YES];
+				[slider setHidden:YES];
+			}
+			cView = slider;
+		}
+		[[filterPanel window]makeKeyAndOrderFront:self];
 		break;
 	case 7:
-	    [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputAmount"];
+	    [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:0]];
 	    break;
+	case 8:
+		[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:1]];
+		break;
+	case 9:
+		[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:2]];
+		break;
 	default:
 	    break;
     }

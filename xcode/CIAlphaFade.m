@@ -56,13 +56,13 @@ static CIKernel *alphaFadeKernel = nil;
     [CIFilter registerFilterName: @"CIAlphaFadeBlendMode"
         constructor: self
         classAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
-             @"Fade Alpha", kCIAttributeFilterDisplayName,
-             [NSArray arrayWithObjects:
-                kCICategoryColorAdjustment, kCICategoryVideo,
-                kCICategoryStillImage,kCICategoryInterlaced,
-                kCICategoryNonSquarePixels,nil], kCIAttributeFilterCategories,
-            nil]
-            ];
+			@"Fade Alpha", kCIAttributeFilterDisplayName,
+			[NSArray arrayWithObjects:
+			kCICategoryColorAdjustment, kCICategoryVideo,
+			kCICategoryStillImage,kCICategoryInterlaced,
+			kCICategoryNonSquarePixels,nil], kCIAttributeFilterCategories,
+		nil]
+	];
 }
 
 + (CIFilter *)filterWithName: (NSString *)name

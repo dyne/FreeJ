@@ -11,6 +11,15 @@
 
 #import <Cocoa/Cocoa.h>
 
+typedef struct __FilterParams {
+	int nParams;
+	struct __ParamDescr {
+		char *label;
+		double min;
+		double max;
+	} params[3];
+} FilterParams;
+
 @interface CVFilterBox : NSView
 {
 	NSTrackingArea *trackingArea;
@@ -28,6 +37,7 @@
 }
 - (void)show;
 - (void)setLayer:(NSView *)lay;
+- (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index;
 - (IBAction)setFilterParameter:(id)sender;
 @end
 
