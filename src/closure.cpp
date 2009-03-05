@@ -58,25 +58,20 @@ void Closing::do_jobs() {
 
 ThreadedClosing::ThreadedClosing() {
   running_ = true;
-  pthread_cond_init(&loop_cond_, NULL);
   pthread_mutex_init(&loop_mutex_, NULL);
-  pthread_mutex_lock(&loop_mutex_);
   pthread_create(&thread_, &attr_, &ThreadedClosing::jobs_loop_, this);
 }
 
 ThreadedClosing::~ThreadedClosing() {
   running_ = false;
-  pthread_cond_signal(&loop_cond_);
-  pthread_join(thread_, NULL);
-
   pthread_mutex_unlock(&loop_mutex_);
+  pthread_join(thread_, NULL);
   pthread_mutex_destroy(&loop_mutex_);
-  pthread_cond_destroy(&loop_cond_);
 }
 
 void ThreadedClosing::add_job(Closure *job) {
   Closing::add_job(job);
-  pthread_cond_signal(&loop_cond_);
+  pthread_mutex_unlock(&loop_mutex_);
 }
 
 void ThreadedClosing::do_jobs() {
@@ -94,7 +89,9 @@ void *ThreadedClosing::jobs_loop_(void *arg) {
   ThreadedClosing *me = (ThreadedClosing *)arg;
   while (me->running_) {
     me->do_jobs();
-    pthread_cond_wait(&me->loop_cond_, &me->loop_mutex_);
+    pthread_mutex_lock(&me->loop_mutex_); // we block with double locking
+					  // this adds a few spare cycles but
+					  // in this way we don't miss anything
   }
 }
 

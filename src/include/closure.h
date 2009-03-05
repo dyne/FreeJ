@@ -100,8 +100,7 @@ class ThreadedClosing : Closing {
   private:
     static void *jobs_loop_(void *arg);
     bool running_;
-    pthread_mutex_t loop_mutex_;
-    pthread_cond_t loop_cond_; //TODO(shammash): safer if implemented with a mutex?
+    pthread_mutex_t loop_mutex_; // used to wait inside the thread
     pthread_attr_t attr_;
     pthread_t thread_;
 
