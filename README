@@ -113,6 +113,8 @@ Most  powerful uses of  FreeJ involve  scripting for  live interaction
 with devices and video compositing,  still a first look at the console
 controller can give an initial picture of how the software works.
 
+A nice tutorial to start is: http://lab.dyne.org/FreejTutorial 
+
 Tutorials,  examples and  scripting reference  are available  from the
 website as well along with the distributed sourcecode, in the doc/ and
 scripts/ directories. GNU/Linux distributions usually ship these files
