@@ -79,6 +79,8 @@ class Closing {
   void add_job(Closure *job);
   void do_jobs();
 
+ private:
+  void _empty_queue();
   queue<Closure *> _job_queue;
   pthread_mutex_t _job_queue_mutex;
 

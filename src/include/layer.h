@@ -82,7 +82,7 @@ extern Layer *create_layer(Context *env, char *file);
    
    @brief Layer parent abstract class
 */
-class Layer: public Closing, public Entry, public JSyncThread {
+class Layer: public Entry, public JSyncThread {
   friend class Blitter;
   friend class Context;
   friend class JSyncThread;
@@ -209,6 +209,8 @@ class Layer: public Closing, public Entry, public JSyncThread {
 
  protected:
 
+  Closing *deferred_calls;
+
   void _init(int wdt, int hgt);
   ///< Layer abstract initialization
 
@@ -224,8 +226,6 @@ class Layer: public Closing, public Entry, public JSyncThread {
 
 
  private:
-
-
 
   void _fit(bool maintain_aspect_ratio);
 

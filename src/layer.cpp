@@ -40,6 +40,7 @@
 Layer::Layer()
   :Entry(), JSyncThread() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
+  deferred_calls = new Closing();
   env = NULL;
   quit = false;
   active = false;
@@ -83,6 +84,7 @@ Layer::Layer()
 
 Layer::~Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
+  delete deferred_calls;
   FilterInstance *f = (FilterInstance*)filters.begin();
   while(f) {
     //    f->rem(); rem is contained in delete for Entry
@@ -147,7 +149,7 @@ void Layer::run() {
     // process all registered operations
     // and signal to the synchronous waiting feed()
     // includes parameter changes for layer
-    do_jobs();
+    deferred_calls->do_jobs();
     
 
     lock();

@@ -237,7 +237,7 @@ void TextLayer::print_text(const char *str) {
   newsurf = SDL_DisplayFormat(tmp);
 
   Closure *display = NewClosure(this, &TextLayer::_display_text, newsurf);
-  add_job(display);
+  deferred_calls->add_job(display);
 
   SDL_FreeSurface(tmp);
 
