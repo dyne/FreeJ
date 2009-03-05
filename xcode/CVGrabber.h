@@ -22,9 +22,7 @@
 * QTKit Bridge
 *****************************************************************************/
 
-class CVideoGrabber;
-
-@interface CVideoOutput : QTCaptureDecompressedVideoOutput
+@interface CVGrabber : QTCaptureDecompressedVideoOutput
 {
 	NSRecursiveLock		*lock;
     CVImageBufferRef currentImageBuffer;
@@ -50,16 +48,8 @@ class CVideoGrabber;
 - (IBAction)startCapture:(id)sender;
 - (IBAction)stopCapture:(id)sender;
 - (IBAction)toggleCapture:(id)sender;
-- (IBAction)setSize:(id)sender;
-- (CVImageBufferRef)getTexture;
+- (CIImage *)getTexture;
 @end
-
-class CVideoGrabber: public Layer {
-	private:
-		CVideoOutput * output;
-	public:
-
-};
 
 #endif
 

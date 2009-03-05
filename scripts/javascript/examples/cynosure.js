@@ -70,50 +70,54 @@ kbd.released_p = function() {
 }
 
 
-mc = new MidiController(); // ('descr')
-register_controller(mc);
-ret = mc.connect_from(0, 20, 0);
+try { 
+    mc = new MidiController(); // ('descr')
+    register_controller(mc);
+    ret = mc.connect_from(0, 20, 0);
 
-mc.event_ctrl = function (ch, func, value) {
-    switch (ch) {
-        case 0:
-            switch (func) {
-                case 2:
-                    shadowWidth = value;
-                    break;
-                case 3:
-                    elevation = value;
-                    break;
-                case 4:
-                    sway = value;
-                    break;
-            }
-            break;
-        case 1:
-            switch (func) {
-                case 2:
-                    tweak = value+1;
-                    break;
-                case 3:
-                    gridSize = value/4 +1;
-                    break;
-                case 4:
-                    iterations = value*2;
-            }
-            break;
-        case 2:
-            switch (func) {
-                case 2:
-                    MINRECTSIZE = value;
-                    break;
-                case 3:
-                    MINCELLSIZE = value;
-                    break;
-                case 4:
-                    THRESHOLD = value;
-                    break;
-            }
+    mc.event_ctrl = function (ch, func, value) {
+        switch (ch) {
+            case 0:
+                switch (func) {
+                    case 2:
+                        shadowWidth = value;
+                        break;
+                    case 3:
+                        elevation = value;
+                        break;
+                    case 4:
+                        sway = value;
+                        break;
+                }
+                break;
+            case 1:
+                switch (func) {
+                    case 2:
+                        tweak = value+1;
+                        break;
+                    case 3:
+                        gridSize = value/4 +1;
+                        break;
+                    case 4:
+                        iterations = value*2;
+                }
+                break;
+            case 2:
+                switch (func) {
+                    case 2:
+                        MINRECTSIZE = value;
+                        break;
+                    case 3:
+                        MINCELLSIZE = value;
+                        break;
+                    case 4:
+                        THRESHOLD = value;
+                        break;
+                }
+        }
     }
+} catch(e) {
+    echo("No MIDI support ");
 }
 
 function integer(i) {
@@ -255,5 +259,5 @@ function genNewColor() {
 
 }
 
-
+geo.start();
 echo("cyno script end");

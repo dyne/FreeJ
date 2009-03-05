@@ -12,7 +12,7 @@
 		AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04B80F4ED02700723DAC /* OpenGL.framework */; };
 		AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */; };
 		AA8F9F710F510273006A9E2F /* soft_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8F9F700F510272006A9E2F /* soft_screen.cpp */; };
-		AA9145080F4A1590001426A5 /* CVideoFile.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA9145070F4A1590001426A5 /* CVideoFile.mm */; };
+		AA9145080F4A1590001426A5 /* CVFileInput.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA9145070F4A1590001426A5 /* CVFileInput.mm */; };
 		AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA99CF0C0F535B5F00022106 /* CVLayer.mm */; };
 		AAA38FB70F542DE80069BF91 /* CIAlphaFade.m in Sources */ = {isa = PBXBuildFile; fileRef = AAA38FB60F542DE80069BF91 /* CIAlphaFade.m */; };
 		AAA3904D0F5449810069BF91 /* CIAlphaFade.cikernel in Resources */ = {isa = PBXBuildFile; fileRef = AAA3902D0F5448820069BF91 /* CIAlphaFade.cikernel */; };
@@ -138,7 +138,7 @@
 		AAAAC1730F533ADF00461C96 /* closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAAC16F0F533ADF00461C96 /* closure.cpp */; };
 		AAAAC1740F533ADF00461C96 /* linear_blits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAAC1700F533ADF00461C96 /* linear_blits.cpp */; };
 		AAAAC1760F533ADF00461C96 /* sdl_blits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAAC1720F533ADF00461C96 /* sdl_blits.cpp */; };
-		AAB26D2E0F4051F60068E5F5 /* CVideoGrabber.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAB26D2D0F4051F60068E5F5 /* CVideoGrabber.mm */; };
+		AAB26D2E0F4051F60068E5F5 /* CVGrabber.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */; };
 		AAB26E510F4058330068E5F5 /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB26E4A0F4058330068E5F5 /* QuickTime.framework */; };
 		AAB270620F4065220068E5F5 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270610F4065220068E5F5 /* QTKit.framework */; };
 		AAB270860F4065950068E5F5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270850F4065950068E5F5 /* CoreAudio.framework */; };
@@ -307,8 +307,8 @@
 		AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		AA8F9F700F510272006A9E2F /* soft_screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = soft_screen.cpp; sourceTree = "<group>"; };
 		AA8F9F720F510281006A9E2F /* soft_screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = soft_screen.h; sourceTree = "<group>"; };
-		AA9145060F4A1590001426A5 /* CVideoFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVideoFile.h; sourceTree = "<group>"; };
-		AA9145070F4A1590001426A5 /* CVideoFile.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVideoFile.mm; sourceTree = "<group>"; };
+		AA9145060F4A1590001426A5 /* CVFileInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFileInput.h; sourceTree = "<group>"; };
+		AA9145070F4A1590001426A5 /* CVFileInput.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFileInput.mm; sourceTree = "<group>"; };
 		AA99CF0B0F535B5F00022106 /* CVLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVLayer.h; sourceTree = "<group>"; };
 		AA99CF0C0F535B5F00022106 /* CVLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVLayer.mm; sourceTree = "<group>"; };
 		AAA38FB50F542DE80069BF91 /* CIAlphaFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CIAlphaFade.h; sourceTree = "<group>"; };
@@ -326,8 +326,8 @@
 		AAAAC1700F533ADF00461C96 /* linear_blits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = linear_blits.cpp; sourceTree = "<group>"; };
 		AAAAC1720F533ADF00461C96 /* sdl_blits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdl_blits.cpp; sourceTree = "<group>"; };
 		AAAAC1770F533AF900461C96 /* closure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = closure.h; sourceTree = "<group>"; };
-		AAB26D2C0F4051F60068E5F5 /* CVideoGrabber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVideoGrabber.h; sourceTree = "<group>"; };
-		AAB26D2D0F4051F60068E5F5 /* CVideoGrabber.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVideoGrabber.mm; sourceTree = "<group>"; };
+		AAB26D2C0F4051F60068E5F5 /* CVGrabber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVGrabber.h; sourceTree = "<group>"; };
+		AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVGrabber.mm; sourceTree = "<group>"; };
 		AAB26E4A0F4058330068E5F5 /* QuickTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = /System/Library/Frameworks/QuickTime.framework; sourceTree = "<absolute>"; };
 		AAB270610F4065220068E5F5 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
 		AAB270850F4065950068E5F5 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
@@ -438,10 +438,10 @@
 				AAA38FB40F542DBF0069BF91 /* CIFilters */,
 				AAAABF450F5226A700461C96 /* CVScreen.h */,
 				AAAABF460F5226A700461C96 /* CVScreen.mm */,
-				AA9145060F4A1590001426A5 /* CVideoFile.h */,
-				AA9145070F4A1590001426A5 /* CVideoFile.mm */,
-				AAB26D2C0F4051F60068E5F5 /* CVideoGrabber.h */,
-				AAB26D2D0F4051F60068E5F5 /* CVideoGrabber.mm */,
+				AA9145060F4A1590001426A5 /* CVFileInput.h */,
+				AA9145070F4A1590001426A5 /* CVFileInput.mm */,
+				AAB26D2C0F4051F60068E5F5 /* CVGrabber.h */,
+				AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */,
 				AAA7B62B0F40485F00056C44 /* CFreej.mm */,
 				AAB84F850F3F1EB300AD479D /* CFreej.h */,
 				AA99CF0B0F535B5F00022106 /* CVLayer.h */,
@@ -853,6 +853,7 @@
 				AAA7B6EF0F404B4C00056C44 /* Resources */,
 				AAA7B6F00F404B4C00056C44 /* Sources */,
 				AAA7B6F10F404B4C00056C44 /* Frameworks */,
+				AA155AFF0F5E0A7A00234C8F /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -893,6 +894,22 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		AA155AFF0F5E0A7A00234C8F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "mkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\n\nLIBS_PATH=/opt/local/lib\nLIBS=\"libSDL-1.2.0.dylib\nlibpng12.0.dylib\nlibz.1.dylib\nlibjpeg.62.dylib\nlibtiff.3.dylib\nlibSDL-1.2.0.dylib\nlibfreetype.6.dylib\nlibavutil.dylib\nlibz.1.dylib\nliba52.0.dylib\nlibavutil.dylib\nlibogg.0.dylib\nlibvorbis.0.dylib\nlibavcodec.dylib\nlibavformat.dylib\nlibSDL-1.2.0.dylib\nlibsndfile.1.dylib\nlibtheora.0.dylib\nlibvorbis.0.dylib\nlibvorbisfile.3.dylib\nlibogg.0.dylib\nlibSDL_gfx.0.dylib\nlibSDL_image-1.2.0.dylib\nlibSDL_ttf-2.0.0.dylib\nlibvorbisenc.2.dylib\nlibnspr4.dylib\n\"\n\nfor i in $LIBS; do \n\tcp -f $LIBS_PATH/$i \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\n\tinstall_name_tool \\\n        -id @executable_path/../Frameworks/$i \\\n        \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tfor n in $LIBS; do \n\t\tinstall_name_tool \\\n        \t\t-change $LIBS_PATH/$n \\\n\t\t\t@executable_path/../Frameworks/$n \\\n        \t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tdone\n\n\tinstall_name_tool \\\n        -change $LIBS_PATH/$i \\\n        @executable_path/../Frameworks/$i \\\n        \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\"\ndone";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		AAA7B6F00F404B4C00056C44 /* Sources */ = {
@@ -996,8 +1013,8 @@
 				AAA7B75B0F404B7F00056C44 /* vorbis.c in Sources */,
 				AAA7B75C0F404B7F00056C44 /* httpp.c in Sources */,
 				AAA7B75D0F404B7F00056C44 /* CFreej.mm in Sources */,
-				AAB26D2E0F4051F60068E5F5 /* CVideoGrabber.mm in Sources */,
-				AA9145080F4A1590001426A5 /* CVideoFile.mm in Sources */,
+				AAB26D2E0F4051F60068E5F5 /* CVGrabber.mm in Sources */,
+				AA9145080F4A1590001426A5 /* CVFileInput.mm in Sources */,
 				AA8F9F710F510273006A9E2F /* soft_screen.cpp in Sources */,
 				AAAABEE40F521A6000461C96 /* fps.cpp in Sources */,
 				AAAABF470F5226A700461C96 /* CVScreen.mm in Sources */,
@@ -1092,8 +1109,10 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				GCC_CW_ASM_SYNTAX = NO;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SYMBOL_SEPARATION = NO;
+				GCC_UNROLL_LOOPS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
@@ -1138,8 +1157,13 @@
 					ppc,
 					i386,
 				);
+				GCC_ALTIVEC_EXTENSIONS = YES;
+				GCC_CW_ASM_SYNTAX = NO;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
+				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
 				GCC_ENABLE_SYMBOL_SEPARATION = NO;
+				GCC_MODEL_TUNING = "";
+				GCC_UNROLL_LOOPS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (

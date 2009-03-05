@@ -361,9 +361,13 @@ int main (int argc, char **argv) {
 
   /* MAIN loop */
   while( !freej.quit )
-    /* CAFUDDARE in sicilian means to do the bread
-       or the pasta for the pizza. it's an intense
-       action for your arms, processing materia */
+    /* CAFUDDARE in sicilian means to add a lot of 
+       stuff into something; for example, to do the
+       bread or the pasta for the pizza you have to
+       CAFUDDARE a lot of wheat flour or water. 
+       This also involve an intense work for your 
+       arms, mixing wheat flour, ingredients, and so
+       processing materia */
     freej.cafudda(1.0);
   /* also layers have the cafudda() function
      which is called by the Context class (freej instance here)

@@ -7,7 +7,7 @@
  *
  */
 
-#include "CVideoGrabber.h"
+#include "CVGrabber.h"
 #include "CFreej.h"
 #include <jutils.h>
 
@@ -15,7 +15,7 @@
 #define CV_GRABBER_WIDTH_MAX 640
 
 /* Apple sample code */
-@implementation CVideoOutput : QTCaptureDecompressedVideoOutput
+@implementation CVGrabber : QTCaptureDecompressedVideoOutput
 
 - (id)init
 {
@@ -121,12 +121,12 @@
     }
 	
 	Context *ctx = [freej getContext];
-	int height = (ctx->screen->h < CV_GRABBER_HEIGHT_MAX)?ctx->screen->h:CV_GRABBER_HEIGHT_MAX;
-	int width = (ctx->screen->w < CV_GRABBER_WIDTH_MAX)?ctx->screen->w:CV_GRABBER_WIDTH_MAX;
+	int h = (ctx->screen->h < CV_GRABBER_HEIGHT_MAX)?ctx->screen->h:CV_GRABBER_HEIGHT_MAX;
+	int w = (ctx->screen->w < CV_GRABBER_WIDTH_MAX)?ctx->screen->w:CV_GRABBER_WIDTH_MAX;
     /* Hack - This will lower CPU consumption for some reason */
     [self setPixelBufferAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
-        [NSNumber numberWithInt:height], kCVPixelBufferHeightKey,
-        [NSNumber numberWithInt:width], kCVPixelBufferWidthKey, 
+        [NSNumber numberWithInt:h], kCVPixelBufferHeightKey,
+        [NSNumber numberWithInt:w], kCVPixelBufferWidthKey, 
 		[NSNumber numberWithInt:kCVPixelFormatType_32ARGB],
 		(id)kCVPixelBufferPixelFormatTypeKey, nil]];
 

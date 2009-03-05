@@ -1,20 +1,13 @@
-- full-screen for the main video output window
-- Implement blitting-code to handle frames coming from other type 
-  of layers provided by the freej engine
-- Fix and activate-back support to load and execute javascript code
-- Allow to select a different blendmode for each layer (we should
-  at least provide access to all blendmodes exposed by  CoreImage
-  on a default osx installation)
+- allow to unload/reload javascript files
 - Allow to select the filter to apply on a specific layer
   (we actually allow to use only a ZoomBlur but lot more are available
   by default and users could have installed custom filters as well)
 - Implement a CVGenerator layer class for easy access to 'generators' 
   included provided by CIFilters 
-- Include filters and effects usage in the videograb layer 
 - Implement a javascript console to let user insert exec javascript 
   code directly from the gui
-- build the deck panel programmatically (instead of having 
-  it statically defined in the nib file)
 - implement a native text-layer (should be trivial)
 - implement a freej-output-preview window to use when on a dual-screen 
   workstation and running freej in full-screen mode 
+- build the deck panel programmatically (instead of having 
+  it statically defined in the nib file)
