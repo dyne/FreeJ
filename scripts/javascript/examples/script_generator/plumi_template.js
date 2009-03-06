@@ -3,13 +3,13 @@
 //
 
 header_text = new TextLayer();
-header_text.start();
-add_layer(header_text);
 header_text.set_position(70,0);
 header_text.size(50);
 header_text.color(255,0,0);
 header_text.print("$channel_title")
 //header_text.set_fps(25);
+header_text.start();
+add_layer(header_text);
 
 logo_image = new ImageLayer();
 logo_image.open("$image_file_path")
