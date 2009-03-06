@@ -20,6 +20,7 @@
  *
  */
 
+#include <stdlib.h>
 #include <config.h>
 #include <SDL_framerate.h>
 #include <fps.h>
