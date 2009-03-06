@@ -140,10 +140,15 @@ void Layer::run() {
   func("ok, layer %s in rolling loop",get_name());
     
   running = true;
+ 
+  func("%s deplaying until feed",get_name());
+  deferred_calls->do_jobs();
 
   while(!feed()) fps->delay();
 
-
+  func(" layer %s entering loop",get_name());
+ 
+ 
   while(!quit) {
 
     // process all registered operations
