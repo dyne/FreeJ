@@ -12,8 +12,8 @@
 #import "CIAlphaFade.h"
 #include <jutils.h>
 
-#define CV_GRABBER_HEIGHT_MAX 480
 #define CV_GRABBER_WIDTH_MAX 640
+#define CV_GRABBER_HEIGHT_MAX 480
 
 /* Apple sample code */
 @implementation CVGrabber : QTCaptureDecompressedVideoOutput
@@ -30,7 +30,7 @@
 		lock = [[NSRecursiveLock alloc] init];
 		// Create CIFilters used for both preview and main frame
 		colorCorrectionFilter = [[CIFilter filterWithName:@"CIColorControls"] retain];	    // Color filter	
-		[colorCorrectionFilter setDefaults];						    // set the filter to its default values
+		[colorCorrectionFilter setDefaults]; // set the filter to its default values
 		exposureAdjustFilter = [[CIFilter filterWithName:@"CIExposureAdjust"] retain];
 		[exposureAdjustFilter setDefaults];
 		// adjust exposure
@@ -93,6 +93,17 @@
 	/* Try to use hosttime of the sample if available, because iSight Pts seems broken */
 	NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
 	if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
+	CIImage *frame = [CIImage imageWithCVImageBuffer:currentImageBuffer];
+	[colorCorrectionFilter setValue:frame forKey:@"inputImage"];
+	[exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+	[effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
+				  forKey:@"inputImage"];
+	[alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
+				  forKey:@"inputImage"];
+	[rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+	freejImageBuffer = [rotateFilter valueForKey:@"outputImage"];
+	//CVImageBufferRef currentVideoFrame = 
+	[freejImageBuffer retain];
 	if (layer) 
 		layer->buffer = (void *)currentImageBuffer;
 	[lock unlock];
@@ -194,37 +205,37 @@ error:
 - (IBAction)stopCapture:(id)sender
 {
 	[lock lock];
-		if (session) {
-			[session stopRunning];
-			if (input) {
-				[session removeInput:input];
-				[input release];
-				input = NULL;
-			}
-			[session removeOutput:self];
-			[session release];
+	if (session) {
+		[session stopRunning];
+		if (input) {
+			[session removeInput:input];
+			[input release];
+			input = NULL;
 		}
-		/*
-		if (output) {
-			[output release];
-			output = NULL;
-		}
-		*/
-		if (device) {
-			if ([device isOpen])
-				[device close];
-			[device release];
-			device = NULL;
-		}
+		[session removeOutput:self];
+		[session release];
+	}
+	/*
+	if (output) {
+		[output release];
+		output = NULL;
+	}
+	*/
+	if (device) {
+		if ([device isOpen])
+			[device close];
+		[device release];
+		device = NULL;
+	}
 
-		freejImageBuffer = NULL;
-		if (layer) {
-			Context *ctx = [freej getContext];
-			ctx->rem_layer(layer);
-			delete(layer);
-			layer = NULL;
-		}
-		running = false;
+	freejImageBuffer = NULL;
+	if (layer) {
+		Context *ctx = [freej getContext];
+		ctx->rem_layer(layer);
+		delete(layer);
+		layer = NULL;
+	}
+	running = false;
 	[lock unlock];
 }
 
@@ -412,6 +423,14 @@ error:
 @synthesize layer;
 @synthesize filterPanel;
 @end
+
+/* CVCaptureView is intended just as a bridge between the CVGrabber class and 
+ * the CVFilterPanel used to configure/apply filters. 
+ * This 'glue' class is necessary only because the CVGrabber needs to be a subclass
+ * QTCaptureDecompressedVideoOutput. 
+ * XXX - Perhaps there is a better way to do this ...
+ * something that could make it easier to apply filters on the preview window
+ */ 
 
 @implementation CVCaptureView : QTCaptureView
 - (id)init

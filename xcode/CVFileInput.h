@@ -29,9 +29,13 @@
 	// The blitter does...but on OSX the blitter is implemented in the CVScreen class.
 	// This means we could expose any address to freej and that would work anyway.
 	CVOpenGLBufferRef	pixelBuffer;			 
-	BOOL				newFrame;
+	bool				newFrame;
 	CIImage				*renderedImage;
+	CIImage				*freejImage;
 	CIImage				*previewImage;
+	bool					doPreview;
+
+
 	CVFilterPanel       *filterPanel;
     
     // display link
@@ -67,7 +71,6 @@
 - (bool)stepBackward;
 - (bool)setpForward;
 - (void)updateCurrentFrame;
-- (void)renderCurrentFrame;
 - (QTTime)movieDuration;
 - (QTTime)currentTime;
 - (void)setTime:(QTTime)inTime;
@@ -82,6 +85,7 @@
 - (IBAction)toggleFilters:(id)sender;
 - (CIImage *)getTexture;
 - (void)mouseDown:(NSEvent *)theEvent;
+- (bool)isOpaque;
 @end
 
 #endif

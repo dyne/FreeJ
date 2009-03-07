@@ -44,8 +44,11 @@ class  CVScreen;
 	CIImage				*outFrame;
 	CIImage				*inFrame;
 	NSTimer				*renderTimer;
+	bool				fullScreen;
+	CFDictionaryRef		savedMode;
 	bool				needsReshape;
 }
+@property (readonly) bool fullScreen;
 - (void)awakeFromNib;
 - (id)init;
 - (void)update;
@@ -55,6 +58,7 @@ class  CVScreen;
 - (void)drawLayer:(Layer *)layer;
 - (void)setSizeWidth:(int)w Height:(int)h;
 - (IBAction)toggleFullScreen:(id)sender;
+- (bool)isOpaque;
 @end
 #else
 class CVScreenView;
@@ -68,6 +72,7 @@ class CVScreen : public ViewPort {
 
   bool init(int w, int h);
   void set_view(CVScreenView *view);
+  CVScreenView *get_view(void);
   void *get_surface();
   void *coords(int x, int y);
   void blit(Layer *);

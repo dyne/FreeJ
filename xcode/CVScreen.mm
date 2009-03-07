@@ -43,12 +43,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                 CVOptionFlags *flagsOut, 
                                                 void *displayLinkContext)
 {
-	//static uint64_t save = 0;
-	//if (inNow->videoTime >= save + inNow->videoRefreshPeriod) {
-	//	save = inNow->videoTime;
-		return [(CVScreenView*)displayLinkContext outputFrame];
-	//}
-	return kCVReturnSuccess;
+	return [(CVScreenView*)displayLinkContext outputFrame];
 }
 
 
@@ -91,6 +86,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	needsReshape = YES;
 	lock = [[NSRecursiveLock alloc] init];
 	[lock retain];
+	[self setNeedsDisplay:NO];
 	//cafudding = NO;
 	[freej start];
 	Context *ctx = (Context *)[freej getContext];
@@ -102,6 +98,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		return nil;
 	}
 	CVPixelBufferRetain(pixelBuffer);
+
 	return self;
 }
 
@@ -162,7 +159,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedSize:) name:NSWindowDidResizeNotification object:nil];
 	// Set up display link callbacks 
 	CVDisplayLinkSetOutputCallback(displayLink, renderCallback, self);
-	
+
 	// start asking for frames
 	[self start];
 }
@@ -171,8 +168,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
+	[lock lock];	
 	[currentContext makeCurrentContext];
-	//[lock lock];	
+
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
 	{
 		GLfloat 	minX, minY, maxX, maxY;
@@ -209,9 +207,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		glClearColor(0.0, 0.0, 0.0, 0.0);	     
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		needsReshape = NO;		
+		needsReshape = NO;
 	}
-	//[lock unlock];
+	// flush our output to the screen - this will render with the next beamsync
+	//glFlush();
+	[[self openGLContext] flushBuffer];
+	[self setNeedsDisplay:NO];		
+
+	[lock unlock];
 }
 
 - (void)renderFrame
@@ -221,17 +224,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
 	
-	[self drawRect:NSZeroRect];
 	//[lock lock];
+	
 	if (outFrame) {
 		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
 					NSWidth(bounds), NSHeight(bounds));
 		[ciContext drawImage: outFrame
 			atPoint: cg.origin  fromRect: cg];
 	}
-	// flush our output to the screen - this will render with the next beamsync
-	//glFlush();
-	[[self openGLContext] flushBuffer];
+
+	//[self setNeedsDisplay:YES];
+	[self drawRect:NSZeroRect];
 	//[lock unlock];
 	[pool release];
 }
@@ -249,8 +252,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		outFrame = NULL;
 	}
 	Context *ctx = (Context *)[freej getContext];
-
+	//[lock lock];
 	ctx->cafudda(0.0);
+	//[lock unlock];
 	[self renderFrame];
 	[pool release];
 	return kCVReturnSuccess;
@@ -337,17 +341,91 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)toggleFullScreen:(id)sender
 {
-	if ([self isInFullScreenMode]) {
+	CGDirectDisplayID currentDisplay = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] 
+												objectForKey:@"NSScreenNumber"] intValue];
+	if (fullScreen) {
+	
+		CGDisplayReservationInterval seconds = 2.0;
+		CGDisplayFadeReservationToken newToken;
+		CGAcquireDisplayFadeReservation(seconds, &newToken); // reserve display hardware time
+
+		CGDisplayFade(newToken,
+		0.3,	 // 0.3 seconds
+		kCGDisplayBlendNormal,	// Starting state
+		kCGDisplayBlendSolidColor, // Ending state
+		0.0, 0.0, 0.0,	 // black
+		true);	 // wait for completion
+
+		[currentContext clearDrawable];
+		
+		CGDisplaySwitchToMode(currentDisplay, savedMode);
+
+		CGDisplayFade(newToken,
+		0.5,	 // 0.5 seconds
+		kCGDisplayBlendSolidColor, // Starting state
+		kCGDisplayBlendNormal,	// Ending state
+		0.0, 0.0, 0.0,	 // black
+		true);	 // Don't wait for completion
+
+		CGReleaseDisplayFadeReservation(newToken);
+		CGDisplayRelease(currentDisplay);
+		// notify our underlying NSView object that we are exiting fullscreen
 		[self exitFullScreenModeWithOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:0], 
 			NSFullScreenModeAllScreens, nil ]];
-
+		fullScreen = NO;
+		[[self window] setHidden:NO];
 	} else {
-		[self enterFullScreenMode:[[self window] screen] 
-			withOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:0], 
-			NSFullScreenModeAllScreens, nil ]];
+		CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplay, 32, fjScreen->w, fjScreen->h, 0);
+		NSAssert(newMode, @"Couldn't find display mode");
+
+		savedMode = CGDisplayCurrentMode(currentDisplay);
+
+		//fade out
+		CGDisplayReservationInterval seconds = 2.0;
+		CGDisplayFadeReservationToken newToken;
+		CGAcquireDisplayFadeReservation(seconds, &newToken); // reserve display hardware time
+
+		CGDisplayFade(newToken,
+		0.3,	 // 0.3 seconds
+		kCGDisplayBlendNormal,	// Starting state
+		kCGDisplayBlendSolidColor, // Ending state
+		0.0, 0.0, 0.0,	 // black
+		true);	 // wait for completion
+
+		CGDisplayCapture(currentDisplay);	 //capture main display
+
+		//Switch to selected resolution.
+		CGDisplayErr err = CGDisplaySwitchToMode(currentDisplay, newMode);
+		NSAssert(err == CGDisplayNoErr, @"Error switching resolution.");
+
+		[currentContext setFullScreen];	 //set openGL context to draw to screen
+
+
+		CGDisplayFade(newToken,
+		0.5,	 // 0.5 seconds
+		kCGDisplayBlendSolidColor, // Starting state
+		kCGDisplayBlendNormal,	// Ending state
+		0.0, 0.0, 0.0,	 // black
+		false);	 // Don't wait for completion
+
+		CGReleaseDisplayFadeReservation(newToken);
+
+		// notify our underlying NSView object that we are going fullscreen
+		[self enterFullScreenMode:[[self window] screen] withOptions:
+			[NSDictionary dictionaryWithObjectsAndKeys:
+			[NSNumber numberWithInt:0], NSFullScreenModeAllScreens, nil ]];
+		fullScreen = YES;
+		[[self window] setHidden:YES];
 
 	}
 }
+
+- (bool)isOpaque
+{
+	return YES;
+}
+
+@synthesize fullScreen;
 
 @end
 
@@ -396,6 +474,11 @@ void *CVScreen::get_surface() {
 void CVScreen::set_view(CVScreenView *v)
 {
 	view = v;
+}
+
+CVScreenView *CVScreen::get_view(void)
+{
+	return view;
 }
 
 void CVScreen::blit(Layer *lay)

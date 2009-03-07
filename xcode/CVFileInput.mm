@@ -36,7 +36,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                 CVOptionFlags *flagsOut, 
                                                 void *displayLinkContext)
 {
-	//if (inNow->hostTime
     return [(CVFileInput*)displayLinkContext _renderTime:inOutputTime];
 }
 
@@ -122,7 +121,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		nil];
 	*/
 	//timeCodeOverlay = [[TimeCodeOverlay alloc] initWithAttributes:fontAttributes targetSize:NSMakeSize(720.0,480.0 / 4.0)];	// text overlay will go in the bottom quarter of the display
-	
 	[pool release];
 }
 
@@ -145,6 +143,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		// TODO - error messages
 		pixelBuffer = NULL;
 	}
+	doPreview = YES;
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
 	paramNames = [[NSMutableArray arrayWithCapacity:3] retain];
 	lock = [[NSRecursiveLock alloc] init];
@@ -183,26 +182,28 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)update
 {
-	//[lock lock];
+	[lock lock];
 	[super update];
-	//[lock unlock];
+	[lock unlock];
 }
 
 - (void)drawRect:(NSRect)theRect
 {
+
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
 	[lock lock];
-	[[self openGLContext] makeCurrentContext];
 	
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
 	{
 		GLfloat 	minX, minY, maxX, maxY;
-
+		
 		minX = NSMinX(bounds);
 		minY = NSMinY(bounds);
 		maxX = NSMaxX(bounds);
 		maxY = NSMaxY(bounds);
+		
+		[[self openGLContext] makeCurrentContext];
 
 		[self update]; 
 
@@ -218,28 +219,23 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		glLoadIdentity();
 		glOrtho(minX, maxX, minY, maxY, -1.0, 1.0);
 		
+		glClearColor(0.0, 0.0, 0.0, 0.0);	     
+		glClear(GL_COLOR_BUFFER_BIT);
 		
+		[[self openGLContext] flushBuffer];
 		needsReshape = NO;
 	}
 	
-	// clean the OpenGL context - not so important here but very important when you deal with transparency
-	glClearColor(0.0, 0.0, 0.0, 0.0);	     
-	glClear(GL_COLOR_BUFFER_BIT);
-	// and do preview
-	CGRect imageRect = [previewImage extent];
-	[ciContext drawImage:previewImage
-			atPoint:CGPointMake((int)((frame.size.width - imageRect.size.width) * 0.5), (int)((frame.size.height - imageRect.size.height) * 0.5))
-			fromRect:imageRect];
-	// flush our output to the screen - this will render with the next beamsync
-	//glFlush();
-	[[self openGLContext] flushBuffer];
-	[lock unlock];
+	// clean the OpenGL context - not so important here but very important when you deal with transparenc
+
+	[self setNeedsDisplay:NO];
+	[lock unlock];	
 }
 
 - (void)unloadMovie
 {
 	NSRect		frame = [self frame];
-	[lock lock];
+	//[lock lock];
 	[qtMovie stop];
 	//SetMovieVisualContext([qtMovie quickTimeMovie], NULL);
 	QTVisualContextRelease(qtVisualContext);
@@ -250,8 +246,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	renderedImage = NULL;
 	[previewImage release];
 	previewImage = NULL;
-	CVPixelBufferRelease(currentFrame);
-	CVPixelBufferRelease(lastFrame);
+	CVOpenGLTextureRelease(currentFrame);
 
 	needsReshape = YES;
 	//[QTMovie exitQTKitOnThread];
@@ -260,7 +255,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	glClearColor(0.0, 0.0, 0.0, 0.0);	     
 	glClear(GL_COLOR_BUFFER_BIT);
 	glFinish();
-	[lock unlock];
+	//[lock unlock];
 }
 
 - (void)setQTMovie:(QTMovie*)inMovie
@@ -268,9 +263,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	OSStatus			    err;
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	Context *ctx = (Context *)[freej getContext];
-	[self setNeedsDisplay:NO];
 
-	[lock lock];
+	//[lock lock];
 	// if we own already a movie let's relase it before trying to open the new one
 	if (qtMovie) {
 		[self unloadMovie];
@@ -279,7 +273,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	}
 	// no movie has been supplied... perhaps we are going to exit
 	if (!inMovie) {
-		[lock unlock];
+		//[lock unlock];
 		return;
 	}
     qtMovie = inMovie;
@@ -310,9 +304,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		CFDictionarySetValue(visualContextOptions,
 							 kQTVisualContextPixelBufferAttributesKey,
 							 pixelBufferOptions);
-		err = QTPixelBufferContextCreate(kCFAllocatorDefault,
-                                     visualContextOptions, &qtVisualContext);
-			
+
+		err = QTOpenGLTextureContextCreate(kCFAllocatorDefault, (CGLContextObj)[[self openGLContext] CGLContextObj],
+			(CGLPixelFormatObj)[[NSOpenGLView defaultPixelFormat] CGLPixelFormatObj], visualContextOptions, &qtVisualContext);
 		CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 		
 		// Create CIContext to render full-frame images
@@ -325,15 +319,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if(qtMovie) { // ok the movie is here ... let's start the underlying QTMovie object
 		OSStatus error;
 		
-		// create a slave-movie used to render preview images (quicktime is so much faster 
-		// to render scaled images that it doesn't make sense to scale them ourselves
-		//QTTime t0 = { 0, 0, 0 };
-		//QTTimeRange mDuration = { t0, [qtMovie duration] };
-	
 		error = SetMovieVisualContext([qtMovie quickTimeMovie], qtVisualContext);
-		SetMoviePlayHints([qtMovie quickTimeMovie],hintsHighQuality, hintsHighQuality);	
 		[qtMovie gotoBeginning];
 		[qtMovie setMuted:YES]; // still no audio?
+		
 		movieDuration = [[[qtMovie movieAttributes] objectForKey:QTMovieDurationAttribute] QTTimeValue];
 		// register the layer within the freej context
 		layer = new CVLayer((NSObject *)self);
@@ -342,7 +331,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		layer->buffer = (void *)pixelBuffer; // give freej a fake buffer ... that's not going to be used anyway
 		//layer->start();
     }
-	[lock unlock];
+
+	//[lock unlock];
 	[pool release];
 }
 
@@ -372,7 +362,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)togglePlay:(id)sender
 {
-	[lock lock];
+	//[lock lock];
     if(CVDisplayLinkIsRunning(displayLink))
     {
 		CVDisplayLinkStop(displayLink);
@@ -381,7 +371,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		[qtMovie play];
 		CVDisplayLinkStart(displayLink);
     }
-	[lock unlock];
+	//[lock unlock];
 }
 
 - (IBAction)setFilterParameter:(id)sender
@@ -394,7 +384,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	NSAffineTransform	*translateTransform;
 	NSString *paramName = NULL;
 	pool = [[NSAutoreleasePool alloc] init];
-    [lock lock];
+    //[lock lock];
 	switch([sender tag])
     {
 	case 0:  // opacity (AlphaFade)
@@ -494,7 +484,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	default:
 	    break;
     }
-    [lock unlock];
+    //[lock unlock];
 	[pool release];
 }
 
@@ -502,7 +492,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	if (layer) {
-		[lock lock];
+		//[lock lock];
 		switch([sender tag])
 		{
 			case 0:
@@ -512,7 +502,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			default:
 				break;
 		}
-		[lock unlock];
+		//[lock unlock];
 	}
 	[pool release];
 }
@@ -521,26 +511,25 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     CIVector	*centerVector = nil;
     
-    [lock lock];
+    //[lock lock];
     
 	centerVector = [CIVector vectorWithX:where.x Y:where.y];
     [effectFilter setValue:centerVector forKey:@"inputCenter"];
     
-	[lock unlock];
+	//[lock unlock];
     if(!CVDisplayLinkIsRunning(displayLink))
 		[self display];
 }
 
-- (void)renderCurrentFrame
+- (void)renderPreview
 {
 	NSAutoreleasePool *pool;
 	pool = [[NSAutoreleasePool alloc] init];
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
 	float		scaleFactor;
-	
-	//[QTMovie enterQTKitOnThread];
-    if(currentFrame)
+	NSRect vv = [self visibleRect];
+    if(renderedImage && !NSIsEmptyRect([self visibleRect]))
     {
 		Context *ctx = (Context *)[freej getContext];
 		// scale the frame to fit the preview
@@ -557,47 +546,78 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		
 		// update timecode overlay
 		//timecodeImage = [timeCodeOverlay getImageForTime:[self currentTime]];
+
 		if (doFilters) {
 			// preview
-			[colorCorrectionFilter setValue:previewImage forKey:@"inputImage"];
-			[exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-			[effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-			[rotateFilter setValue:[effectFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+//			[colorCorrectionFilter setValue:previewImage forKey:@"inputImage"];
+//			[exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+//			[effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+//			[rotateFilter setValue:[effectFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+			[rotateFilter setValue:previewImage forKey:@"inputImage"];
 			//[translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-			previewImage = [rotateFilter valueForKey:@"outputImage"];
-			
+			previewImage = [rotateFilter valueForKey:@"outputImage"];			
 		} 
+
 		[previewImage retain];
-	
 	}
-	QTVisualContextTask(qtVisualContext);
-	//[QTMovie exitQTKitOnThread];
 	[pool release];
 }
 
 - (BOOL)getFrameForTime:(const CVTimeStamp *)timeStamp
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    OSStatus err = noErr;
+    //OSStatus err = noErr;
+	CIImage     *inputImage = NULL;
+
 	BOOL rv = NO;
-	//[QTMovie enterQTKitOnThread];
-	[lock lock];
-    // See if a new frame is available
-    if(QTVisualContextIsNewImageAvailable(qtVisualContext,timeStamp))
+
+	if(QTVisualContextIsNewImageAvailable(qtVisualContext,timeStamp))
     {	    
-		CVPixelBufferRelease(currentFrame);
+		//[lock lock];
+		CVOpenGLTextureRelease(currentFrame);
 		QTVisualContextCopyImageForTime(qtVisualContext,
 			NULL,
 			timeStamp,
 			&currentFrame);
 		
+		[lock lock];
+
+		if (renderedImage) 
+			[renderedImage release];
+		
+		inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
+
+		if (inputImage) {
+			if (doFilters) {
+				[colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
+				[exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+				[effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
+							  forKey:@"inputImage"];
+				[alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
+							  forKey:@"inputImage"];
+				[rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+				//[translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+				renderedImage = [rotateFilter valueForKey:@"outputImage"];
+								
+				renderedImage = [renderedImage retain];
+			} else {
+				renderedImage = [inputImage retain];
+			}
+			if (doPreview)
+				[self renderPreview];
+		
+		}
+		[lock unlock];
+
 		//[delegate performSelectorOnMainThread:@selector(movieTimeChanged:) withObject:self waitUntilDone:NO];
 	    rv = YES;
-		newFrame = YES; // announce that we have a new frame
-		[self renderCurrentFrame]; 
+		
+		
+		QTVisualContextTask(qtVisualContext);
+
+		//[qtMovie setIdling: YES];
+		//[self setNeedsDisplay:YES];
     }
-	[lock unlock];
-	//[QTMovie exitQTKitOnThread];
 	[pool release];
     return rv;
 }
@@ -614,11 +634,22 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	pool = [[NSAutoreleasePool alloc] init];
     if([self getFrameForTime:timeStamp])
     {
+		if (doPreview) {
+			[[self openGLContext] makeCurrentContext];
+			// and do preview
+			if (previewImage) {
+				NSRect frame = [self frame];
+				CGRect imageRect = [previewImage extent];
+				[ciContext drawImage:previewImage
+						atPoint:CGPointMake((int)((frame.size.width - imageRect.size.width) * 0.5), (int)((frame.size.height - imageRect.size.height) * 0.5))
+						fromRect:imageRect];
+			}
+			// flush our output to the screen - this will render with the next beamsync
+			//glFlush();
+			[[self openGLContext] flushBuffer];
+		}
 		// make sure we have a frame to render    
 		// render the frame
-		//[lock lock];
-		[self drawRect:NSZeroRect]; // refresh the whole view
-		//[lock unlock];
 		rv = kCVReturnSuccess;
     } else {
 		rv = kCVReturnError;
@@ -708,44 +739,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
 	NSAutoreleasePool *pool;
 	pool = [[NSAutoreleasePool alloc] init];
-	CIImage     *inputImage = NULL;
-	MoviesTask([qtMovie quickTimeMovie] , 0);
 	[lock lock];
-	
-	if (newFrame) {
-		if (lastFrame) {
-			CVPixelBufferRelease(lastFrame);
-			[renderedImage release];
-		}
-		
-		lastFrame = currentFrame;
-		CVPixelBufferRetain(lastFrame);
-		inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
-		newFrame = NO;
-	}
-	if (inputImage) {
-		if (doFilters) {
-			[colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
-			[exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-			[effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
-						  forKey:@"inputImage"];
-			[alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
-						  forKey:@"inputImage"];
-		    [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-			//[translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-			renderedImage = [rotateFilter valueForKey:@"outputImage"];
-			//CVPixelBufferLockBaseAddress(freejFrame, 0);
-							
-			renderedImage = [renderedImage retain];
-		} else {
-			renderedImage = [inputImage retain];
-		}
+	if (freejImage != renderedImage) {
+		if (freejImage)
+			[freejImage release];
+		freejImage = renderedImage;
+		[freejImage retain];
+		//[self setNeedsDisplay:YES]; // refresh the preview
 	}
 	[lock unlock];
-
-	// housekeeping on the visual context
 	[pool release];
-	return renderedImage;
+	return freejImage;
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
@@ -755,6 +759,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[filterPanel setLayer:self];
 	[filterPanel show];
 	[super mouseDown:theEvent];
+}
+
+- (bool)isOpaque
+{
+	return YES;
 }
 
 @synthesize layer;
