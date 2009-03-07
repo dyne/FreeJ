@@ -1,6 +1,8 @@
 FreeJ version 0.8 USAGE NOTES
 ===============================
 
+NOTE: please look also at http://lab.dyne.org/FreejTutorial
+
 FreeJ offers you various interfaces to interact with.
 in fact, it's a completely asynchronous rendering engine which can even
 process javascripts.

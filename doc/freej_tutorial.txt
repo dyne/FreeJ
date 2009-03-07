@@ -6,7 +6,9 @@ Written by Anne-Marie Skriver, Montevideo 2004
 
 Edited by Marloes de Valk
 
-
+PLEASE NOTE: This document is obsolete, as is referred to an early version
+of freej. Please look at http://lab.dyne.org/FreejTutorial instead. 
+The document is here just for historical purposes. - asbesto
 
 Contents
 

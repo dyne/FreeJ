@@ -7,6 +7,12 @@
 
 
 
+{OBSOLETE}
+
+Please note: this document refer to an early version of Freej.
+Have a look at http://lab.dyne.org/FreejTutorial and at
+document in http://freej.dyne.org
+
 {OVERVIEW}
 
   FreeJ is a digital instrument for video livesets, featuring realtime
