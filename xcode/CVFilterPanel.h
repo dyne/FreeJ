@@ -17,7 +17,7 @@ typedef struct __FilterParams {
 		char *label;
 		double min;
 		double max;
-	} params[3];
+	} params[4];
 } FilterParams;
 
 @interface CVFilterBox : NSView

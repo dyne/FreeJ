@@ -145,7 +145,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	}
 	doPreview = YES;
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
-	paramNames = [[NSMutableArray arrayWithCapacity:3] retain];
+	paramNames = [[NSMutableArray arrayWithCapacity:4] retain];
 	lock = [[NSRecursiveLock alloc] init];
 	[lock retain];
 	
@@ -170,8 +170,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if(qtVisualContext)
 		QTVisualContextRelease(qtVisualContext);
 	[ciContext release];
-	if (cifjContext)
-		[cifjContext release];
 	if (pixelBuffer)
 		CVOpenGLBufferRelease(pixelBuffer);
 	if (paramNames)
@@ -182,9 +180,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)update
 {
-	[lock lock];
+
+//	[lock lock];
 	[super update];
-	[lock unlock];
+//	[lock unlock];
 }
 
 - (void)drawRect:(NSRect)theRect
@@ -192,7 +191,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
-	[lock lock];
+//	[lock lock];
 	
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
 	{
@@ -229,7 +228,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	// clean the OpenGL context - not so important here but very important when you deal with transparenc
 
 	[self setNeedsDisplay:NO];
-	[lock unlock];	
+//	[lock unlock];	
 }
 
 - (void)unloadMovie
@@ -240,8 +239,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	//SetMovieVisualContext([qtMovie quickTimeMovie], NULL);
 	QTVisualContextRelease(qtVisualContext);
 	qtVisualContext = NULL;
-	[cifjContext release];
-	cifjContext = NULL;
 	[renderedImage release];
 	renderedImage = NULL;
 	[previewImage release];
@@ -309,10 +306,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			(CGLPixelFormatObj)[[NSOpenGLView defaultPixelFormat] CGLPixelFormatObj], visualContextOptions, &qtVisualContext);
 		CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 		
-		// Create CIContext to render full-frame images
-		cifjContext = [[CIContext contextWithCGContext:(CGContextRef)qtVisualContext options:[NSDictionary dictionaryWithObjectsAndKeys:
-				(id)colorSpace,kCIContextOutputColorSpace,
-				(id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
 		CGColorSpaceRelease(colorSpace);
 		
 	}
@@ -374,7 +367,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	//[lock unlock];
 }
 
-- (IBAction)togglePreview:(id)sender
+- (IBAction	)togglePreview:(id)sender
 {
 	doPreview = doPreview?NO:YES;
 }
@@ -431,7 +424,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		FilterParams *pdescr = [filterPanel getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
 		[effectFilter setDefaults];
 		NSView *cView = (NSView *)sender;
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < 4; i++) {
 			NSTextField *label = (NSTextField *)[cView nextKeyView];
 			NSSlider *slider = (NSSlider *)[label nextKeyView];
 
@@ -486,6 +479,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	case 9:
 		[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:2]];
 		break;
+	case 10:
+		[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:3]];
+	break;
 	default:
 	    break;
     }
@@ -578,14 +574,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 	if(QTVisualContextIsNewImageAvailable(qtVisualContext,timeStamp))
     {	    
-		//[lock lock];
+		[lock lock];
 		CVOpenGLTextureRelease(currentFrame);
 		QTVisualContextCopyImageForTime(qtVisualContext,
 			NULL,
 			timeStamp,
 			&currentFrame);
-		
-		[lock lock];
 
 		if (renderedImage) 
 			[renderedImage release];
@@ -610,16 +604,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			}
 			if (doPreview)
 				[self renderPreview];
-		
+			QTVisualContextTask(qtVisualContext);
 		}
 		[lock unlock];
 
 		//[delegate performSelectorOnMainThread:@selector(movieTimeChanged:) withObject:self waitUntilDone:NO];
 	    rv = YES;
-		
-		
-		QTVisualContextTask(qtVisualContext);
-
 		//[qtMovie setIdling: YES];
 		//[self setNeedsDisplay:YES];
     }
@@ -746,6 +736,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		else
 			layer->activate();
 }
+
 - (CIImage *)getTexture
 {
 	NSAutoreleasePool *pool;

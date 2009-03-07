@@ -8,7 +8,7 @@
 
 #import "CVFilterPanel.h"
 
-#define FILTERS_MAX 12
+#define FILTERS_MAX 17
 static FilterParams fParams[FILTERS_MAX] =
 {
 	{ 1, { { "inputAmount", 0.0, 50.0 } } },  // ZoomBlur
@@ -21,9 +21,15 @@ static FilterParams fParams[FILTERS_MAX] =
 	{ 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 1.0, 100.0 } } }, // Crystalize
 	{ 1, { { "inputIntensity", 0.0, 10.0 } } }, // Edges
 	{ 1, { { "inputRadius", 0.0, 20.0 } } }, // EdgeWork
+	{ 1, { { "inputAngle", -3.14, 3.14 } } }, // HueAdjust
 	{ 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputScale", 1.0, 100.0 } } }, // HexagonalPixellate
 	{ 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.01, 1000.0 } } }, // HoleDistortion
-	{ 1, { { "inputAngle", -3.14, 3.14 } } } // HueAdjust
+	//{ 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 600.0 }, { "inputScale", -1.0, 1.0 } } }, // BumpDistortion
+	{ 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 1000.0 } } }, // CircleSplashDistortion
+	{ 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 600 }, { "inputAngle", -3.14, 3.14 } } }, // CircularWrap
+	{ 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 1000.0 }, { "inputScale", 0.0, 1.0 } } }, // PinchDistortion
+	{ 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 500 }, { "inputAngle", -12.57, 12.57 } } }, // TwirlDistortion
+	{ 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 800 }, { "inputAngle", -94.25, 94.25 } } }, // VortexDistortion
 };
 
 @implementation CVFilterPanel

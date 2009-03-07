@@ -56,7 +56,7 @@
 		alphaFilter = [[CIFilter filterWithName:@"CIAlphaFade"] retain]; // AlphaFade filter
 		[alphaFilter setDefaults]; // XXX - setDefaults doesn't work properly
 		[alphaFilter setValue:[NSNumber numberWithFloat:0.5] forKey:@"outputOpacity"]; // set default value
-		paramNames = [[NSMutableArray arrayWithCapacity:3] retain];
+		paramNames = [[NSMutableArray arrayWithCapacity:4] retain];
 
     }
     return self;
@@ -392,6 +392,9 @@ error:
 		break;
 	case 9:
 		[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:2]];
+		break;
+	case 10:
+		[effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:3]];
 		break;
 	default:
 	    break;

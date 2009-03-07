@@ -53,9 +53,7 @@
 	CIFilter				*scaleFilter;
 	NSMutableArray			*paramNames;
 	
-	//CIFilter				*resizeFilter;
     CIContext				*ciContext;
-	CIContext				*cifjContext;
 	
 	bool					needsReshape;
 	//CVImageBufferRef		freejFrame;

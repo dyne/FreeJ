@@ -11,6 +11,7 @@
 		AA68950C0F562B23002B77E7 /* EffectsPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = AA68950B0F562B23002B77E7 /* EffectsPanel.nib */; };
 		AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04B80F4ED02700723DAC /* OpenGL.framework */; };
 		AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */; };
+		AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8858800F631E3C00778C03 /* CVGenerator.m */; };
 		AA8F9F710F510273006A9E2F /* soft_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8F9F700F510272006A9E2F /* soft_screen.cpp */; };
 		AA9145080F4A1590001426A5 /* CVFileInput.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA9145070F4A1590001426A5 /* CVFileInput.mm */; };
 		AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA99CF0C0F535B5F00022106 /* CVLayer.mm */; };
@@ -305,6 +306,8 @@
 		AA68950B0F562B23002B77E7 /* EffectsPanel.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = EffectsPanel.nib; sourceTree = "<group>"; };
 		AA7C04B80F4ED02700723DAC /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
+		AA88587F0F631E3C00778C03 /* CVGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVGenerator.h; sourceTree = "<group>"; };
+		AA8858800F631E3C00778C03 /* CVGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVGenerator.m; sourceTree = "<group>"; };
 		AA8F9F700F510272006A9E2F /* soft_screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = soft_screen.cpp; sourceTree = "<group>"; };
 		AA8F9F720F510281006A9E2F /* soft_screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = soft_screen.h; sourceTree = "<group>"; };
 		AA9145060F4A1590001426A5 /* CVFileInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFileInput.h; sourceTree = "<group>"; };
@@ -448,6 +451,8 @@
 				AA99CF0C0F535B5F00022106 /* CVLayer.mm */,
 				AA1EB9010F56969E006610D8 /* CVFilterPanel.h */,
 				AA1EB9020F56969E006610D8 /* CVFilterPanel.m */,
+				AA88587F0F631E3C00778C03 /* CVGenerator.h */,
+				AA8858800F631E3C00778C03 /* CVGenerator.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -1024,6 +1029,7 @@
 				AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */,
 				AAA38FB70F542DE80069BF91 /* CIAlphaFade.m in Sources */,
 				AA1EB9030F56969E006610D8 /* CVFilterPanel.m in Sources */,
+				AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

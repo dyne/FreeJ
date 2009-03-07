@@ -1,12 +1,12 @@
 - allow to unload/reload javascript files
-- Allow to select the filter to apply on a specific layer
-  (we actually allow to use only a ZoomBlur but lot more are available
-  by default and users could have installed custom filters as well)
-- Implement a CVGenerator layer class for easy access to 'generators' 
-  included provided by CIFilters 
+- implement a keyboard console
+- integrate with the freej Controller subsystem (allowing to control Cocoa-managed 
+  layers through external devices)
+- implement a CVFrei0r class to access the underlying Frei0r Layer implementation
+- implement a native text-layer (should be trivial)
+- Solve remaining issues and Finish implamenting the CVGenerator layer class 
 - Implement a javascript console to let user insert exec javascript 
   code directly from the gui
-- implement a native text-layer (should be trivial)
 - implement a freej-output-preview window to use when on a dual-screen 
   workstation and running freej in full-screen mode 
 - build the deck panel programmatically (instead of having 
