@@ -415,6 +415,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			[NSNumber numberWithInt:0], NSFullScreenModeAllScreens, nil ]];
 		fullScreen = YES;
 	}
+	[lock lock];
+	[currentContext makeCurrentContext];
+	// clean the OpenGL context 
+	glClearColor(0.0, 0.0, 0.0, 0.0);	     
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	[currentContext flushBuffer];
+	[lock unlock];
 }
 
 - (bool)isOpaque

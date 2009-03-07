@@ -727,11 +727,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		QTMovie *movie = [[QTMovie alloc] initWithFile:tvarFilename error:nil];
 		[self setQTMovie:movie];
 		[movie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
-		[movie gotoBeginning];
+		//[movie gotoBeginning];
 		[self togglePlay:nil];
 
-		if (layer && !layer->active)
-			layer->activate();
 	}
 }
 
@@ -740,6 +738,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	doFilters = doFilters?false:true;
 }
 
+- (IBAction)toggleVisibility:(id)sender
+{
+	if (layer)
+		if (layer->active)
+			layer->deactivate();
+		else
+			layer->activate();
+}
 - (CIImage *)getTexture
 {
 	NSAutoreleasePool *pool;

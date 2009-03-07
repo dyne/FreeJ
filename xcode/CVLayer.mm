@@ -7,6 +7,7 @@
  *
  */
 
+#include "Cocoa/Cocoa.h";
 #include "CVLayer.h"
 
 CVLayer::CVLayer(NSObject *vin) : Layer()
@@ -15,6 +16,7 @@ CVLayer::CVLayer(NSObject *vin) : Layer()
 	bufsize = 0;
 	blendMode = NULL;
 	type = Layer::GL_COCOA;
+	data = (void *)this;
 	//set_blend_mode(CVLayer::Overlay);
 	[input setLayer:this];
 }
@@ -22,6 +24,7 @@ CVLayer::CVLayer(NSObject *vin) : Layer()
 CVLayer::~CVLayer()
 {
 	close();
+
 	[input togglePlay:nil];
 	[input setLayer:nil];
 }
@@ -31,8 +34,18 @@ CVLayer::activate()
 {
 	freej->add_layer(this);
 	active = true;
+	name = (char *)[[(NSView *)input toolTip] UTF8String];
+	notice("Activating %s", name);
 	//blitter.set_blit("RGB");
 	//blitter.current_blit->lay
+}
+
+void
+CVLayer::deactivate()
+{
+	name = (char *)[[(NSView *)input toolTip] UTF8String];
+	freej->rem_layer(this);
+	active = false;
 }
 
 bool

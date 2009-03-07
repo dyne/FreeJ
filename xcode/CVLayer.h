@@ -22,7 +22,7 @@ class CVLayer: public Layer {
 		void *vbuffer;
 		int bufsize;
 	public:
-		id	input;
+		NSObject *input;
 		NSString *blendMode;
 		enum BlendMode {
 			Overlay,
@@ -44,7 +44,8 @@ class CVLayer: public Layer {
 
 		CVLayer(NSObject *vin);
 		~CVLayer();
-		void CVLayer::activate();
+		void activate();
+		void deactivate();
 		bool open(const char *path);
 		bool init(Context *freej);
 		bool init(Context *ctx, int w, int h);

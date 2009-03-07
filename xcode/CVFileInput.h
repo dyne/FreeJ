@@ -84,6 +84,7 @@
 - (IBAction)openFile:(id)sender;
 - (IBAction)toggleFilters:(id)sender;
 - (IBAction)togglePreview:(id)sender;
+- (IBAction)toggleVisibility:(id)sender;
 - (CIImage *)getTexture;
 - (void)mouseDown:(NSEvent *)theEvent;
 - (bool)isOpaque;
