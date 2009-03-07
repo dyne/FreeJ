@@ -373,7 +373,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		[self exitFullScreenModeWithOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:0], 
 			NSFullScreenModeAllScreens, nil ]];
 		fullScreen = NO;
-		[[self window] setHidden:NO];
 	} else {
 		CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplay, 32, fjScreen->w, fjScreen->h, 0);
 		NSAssert(newMode, @"Couldn't find display mode");
@@ -415,8 +414,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			[NSDictionary dictionaryWithObjectsAndKeys:
 			[NSNumber numberWithInt:0], NSFullScreenModeAllScreens, nil ]];
 		fullScreen = YES;
-		[[self window] setHidden:YES];
-
 	}
 }
 

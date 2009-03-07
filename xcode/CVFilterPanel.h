@@ -40,6 +40,8 @@ typedef struct __FilterParams {
 - (void)setLayer:(NSView *)lay;
 - (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index;
 - (IBAction)setFilterParameter:(id)sender;
+- (IBAction)togglePreview:(id)sender;
+
 @end
 
 #endif

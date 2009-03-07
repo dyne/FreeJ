@@ -374,6 +374,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	//[lock unlock];
 }
 
+- (IBAction)togglePreview:(id)sender
+{
+	doPreview = doPreview?NO:YES;
+}
+
 - (IBAction)setFilterParameter:(id)sender
 {
 	NSAutoreleasePool *pool;
@@ -384,7 +389,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	NSAffineTransform	*translateTransform;
 	NSString *paramName = NULL;
 	pool = [[NSAutoreleasePool alloc] init];
-    //[lock lock];
+    [lock lock];
 	switch([sender tag])
     {
 	case 0:  // opacity (AlphaFade)
@@ -484,7 +489,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	default:
 	    break;
     }
-    //[lock unlock];
+    [lock unlock];
 	[pool release];
 }
 

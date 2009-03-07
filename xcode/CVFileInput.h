@@ -83,6 +83,7 @@
 - (IBAction)setBlendMode:(id)sender;
 - (IBAction)openFile:(id)sender;
 - (IBAction)toggleFilters:(id)sender;
+- (IBAction)togglePreview:(id)sender;
 - (CIImage *)getTexture;
 - (void)mouseDown:(NSEvent *)theEvent;
 - (bool)isOpaque;

@@ -64,6 +64,12 @@ static FilterParams fParams[FILTERS_MAX] =
 		[layer setFilterParameter:sender];
 }
 
+- (IBAction)togglePreview:(id)sender
+{
+	if(layer)
+		[layer togglePreview:sender];
+}
+
 - (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index
 {
 	if (index >= FILTERS_MAX)
