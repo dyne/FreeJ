@@ -74,8 +74,8 @@ In 2003 Kysucix joined  development contributing the streaming feature
 and helping  to include  the javascript parser.  He employed  FreeJ in
 interactive installations while working with Studio Azzurro.
 
-Since 2004 Jaromil has been employed by Montevideo / Time Based Arts 
-(NIMK) and his research and development activity also converged in
+Since 2004 Jaromil has been employed by Montevideo / Time Based Arts
+(NIMK) and his research  and development  activity also converged in
 FreeJ development.
 
 In 2005 Mr.Goil  joined development, writing programmable controllers,
@@ -87,18 +87,21 @@ streaming, with a major cleanup of the code and wider support of video
 plugins.
 
 After revamping their enthusiasm in the Chaos Computer Camp, in 2008
-  both Jaromil  and  Mr.Goil  met regularly  in  code
-sessions ,  rapidly driving  the project towards a  stable  javascript API.
- Meanwhile Blender2Crystal developer Caedes has joined implementing
- python bindings and using the FreeJ engine in a 3d environment.
+both Jaromil and  Mr.Goil met  regularly in  code sessions , rapidly
+driving the  project  towards a  stable  javascript  API.  Meanwhile
+Blender2Crystal  developer  Caedes  has  joined implementing  python
+bindings and using the FreeJ engine in a 3d environment.
 
-In 2009 FreeJ development is sponsored by Digitale Pioneers and  almost  the entire  team  had  the  opportunity  to join the
-Wintercamp organised by the Institute of Network Cultures in Amsterdam;
- here, a week of coding & sharing gave a significant push to the entire project, leading to many bug fixes and
-some really interesting rewriting and optimization into the code.
-Those magical days saw the presence of Vlax from Oaxaca, Jaromil,
-Acracia, Xant and V@nex, Kobaiashi, Crash, Tomak, Shammash
-and Asbesto, Mr.Goil, Andy, Adnan, Lluis and Rama. What a nice family! :)
+In  2009 FreeJ  development  is  sponsored  by  Digitale Pioneers  and
+almost  the  entire  team had  the opportunity to  join the Wintercamp
+organised by  the  Institute of Network Cultures in Amsterdam; here, a
+week  of  coding  &  sharing  gave  a  significant push  to the entire
+project, leading  to  many  bug  fixes  and  some  really  interesting
+rewriting and optimization into the code. Those magical  days  saw the
+presence of  Vlax  from  Oaxaca,  Jaromil,  Acracia,  Xant  and  V@nex
+here in  Amsterdam,  Kobaiashi,  Crash,  Tomak,  Shammash and  Asbesto 
+from Italy,  Mr.Goil from Germany, Andy from  Australia, Adnan,  Lluis
+and Rama from Argentina. What a nice family! :)
 
 For the time  being, FreeJ is employed in  various video performances,
 interactive  installations and  online TV  streams, as  well  used for
