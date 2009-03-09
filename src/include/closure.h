@@ -19,7 +19,58 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
+ */
+
+#include <queue>
+
+using std::queue;
+
+class Closure;
+
+/*
+ * Closing and ThreadedClosing classes provide a thread-safe queue of Closures.
  *
+ * Closing lets you insert a Closure in the queue and then run all the Closures
+ * by hand.
+ *
+ * ThreadedClosing lets you insert a Closure in the queue; the execution of
+ * enqueued Closures is handled automatically by an internal thread.
+ *
+ */
+
+class Closing {
+ public:
+  Closing();
+  ~Closing();
+
+  void add_job(Closure *job);
+  void do_jobs();
+
+ private:
+  Closure *get_job_();
+  queue<Closure *> job_queue_;
+  pthread_mutex_t job_queue_mutex_;
+
+};
+
+class ThreadedClosing : Closing {
+  public:
+    ThreadedClosing();
+    ~ThreadedClosing();
+
+    void add_job(Closure *job);
+
+  private:
+    static void *jobs_loop_(void *arg);
+    bool running_;
+    pthread_mutex_t loop_mutex_; // used to wait inside the thread
+    pthread_attr_t attr_;
+    pthread_t thread_;
+
+};
+
+
+/*
  * Closure classes, useful for callbacks and delayed executions of functions
  * or methods (profoundly inspired by ProtocolBuffers' callbacks).
  *
@@ -64,43 +115,6 @@
  * FunctionClosureN MethodClosureN classes, NewClosure() and NewSyncClosure().
  *
  */
-
-#include <queue>
-
-using std::queue;
-
-class Closure;
-
-class Closing {
- public:
-  Closing();
-  ~Closing();
-
-  void add_job(Closure *job);
-  void do_jobs();
-
- private:
-  Closure *get_job_();
-  queue<Closure *> job_queue_;
-  pthread_mutex_t job_queue_mutex_;
-
-};  
-
-class ThreadedClosing : Closing {
-  public:
-    ThreadedClosing();
-    ~ThreadedClosing();
-
-    void add_job(Closure *job);
-
-  private:
-    static void *jobs_loop_(void *arg);
-    bool running_;
-    pthread_mutex_t loop_mutex_; // used to wait inside the thread
-    pthread_attr_t attr_;
-    pthread_t thread_;
-
-};
 
 class Closure {
   public:
