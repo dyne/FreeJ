@@ -24110,7 +24110,6 @@ else
    { echo "$as_me:$LINENO: result: not found" >&5
 echo "${ECHO_T}not found" >&6; }
 fi
-FFMPEG_CFLAGS="$FFMPEG_CFLAGS -I/usr/include/ffmpeg/libavutil/ -I/usr/include/ffmpeg/libavformat/ -I/usr/include/ffmpeg/libavcodec/ -I/usr/include/ffmpeg/libswscale -I/usr/include/ffmpeg/"
 
 
 
