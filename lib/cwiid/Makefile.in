@@ -51,14 +51,11 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-libwiimote_a_AR = $(AR) $(ARFLAGS)
-libwiimote_a_LIBADD =
-am_libwiimote_a_OBJECTS = bluetooth.$(OBJEXT) command.$(OBJEXT) \
-	connect.$(OBJEXT) interface.$(OBJEXT) process.$(OBJEXT) \
-	state.$(OBJEXT) thread.$(OBJEXT) util.$(OBJEXT)
-libwiimote_a_OBJECTS = $(am_libwiimote_a_OBJECTS)
+LTLIBRARIES = $(noinst_LTLIBRARIES)
+libwiimote_la_LIBADD =
+am_libwiimote_la_OBJECTS = bluetooth.lo command.lo connect.lo \
+	interface.lo process.lo state.lo thread.lo util.lo
+libwiimote_la_OBJECTS = $(am_libwiimote_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -70,8 +67,8 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(libwiimote_a_SOURCES)
-DIST_SOURCES = $(libwiimote_a_SOURCES)
+SOURCES = $(libwiimote_la_SOURCES)
+DIST_SOURCES = $(libwiimote_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -120,6 +117,8 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 F77 = @F77@
+FC_CFLAGS = @FC_CFLAGS@
+FC_LIBS = @FC_LIBS@
 FFLAGS = @FFLAGS@
 FFMPEG_CFLAGS = @FFMPEG_CFLAGS@
 FFMPEG_LIBS = @FFMPEG_LIBS@
@@ -130,8 +129,6 @@ FLASH_LIBS = @FLASH_LIBS@
 FREEJ_VERSION_INFO = @FREEJ_VERSION_INFO@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_LIBS = @FT2_LIBS@
-GLADE2_CFLAGS = @GLADE2_CFLAGS@
-GLADE2_LIBS = @GLADE2_LIBS@
 GOOM_DIR = @GOOM_DIR@
 GOOM_LIBS = @GOOM_LIBS@
 GOOM_PPC_FILES = @GOOM_PPC_FILES@
@@ -272,8 +269,8 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 INCLUDES = -I$(top_srcdir)/lib
 AUTOMAKE_OPTIONS = foreign
-noinst_LIBRARIES = libwiimote.a
-libwiimote_a_SOURCES = bluetooth.c command.c connect.c interface.c process.c state.c \
+noinst_LTLIBRARIES = libwiimote.la
+libwiimote_la_SOURCES = bluetooth.c command.c connect.c interface.c process.c state.c \
           thread.c util.c
 
 all: all-am
@@ -310,12 +307,16 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libwiimote.a: $(libwiimote_a_OBJECTS) $(libwiimote_a_DEPENDENCIES) 
-	-rm -f libwiimote.a
-	$(libwiimote_a_AR) libwiimote.a $(libwiimote_a_OBJECTS) $(libwiimote_a_LIBADD)
-	$(RANLIB) libwiimote.a
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
+libwiimote.la: $(libwiimote_la_OBJECTS) $(libwiimote_la_DEPENDENCIES) 
+	$(LINK)  $(libwiimote_la_LDFLAGS) $(libwiimote_la_OBJECTS) $(libwiimote_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -323,14 +324,14 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bluetooth.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connect.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interface.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/process.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/state.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bluetooth.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/connect.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/interface.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/process.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/state.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -440,7 +441,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES)
+all-am: Makefile $(LTLIBRARIES)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -468,7 +469,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
+clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -518,7 +519,7 @@ ps-am:
 uninstall-am: uninstall-info-am
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLIBRARIES ctags distclean \
+	clean-libtool clean-noinstLTLIBRARIES ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \

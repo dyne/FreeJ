@@ -171,6 +171,9 @@
 /* Define if using the dmalloc debugging malloc package */
 #undef WITH_DMALLOC
 
+/* define if linking fontconfig for font indexing */
+#undef WITH_FC
+
 /* define if compiling movie layer linking to ffmpeg libavcodec */
 #undef WITH_FFMPEG
 
@@ -179,9 +182,6 @@
 
 /* define if linking freetype for text rendering */
 #undef WITH_FT2
-
-/* define if compiling glade gtk+-2 GUI */
-#undef WITH_GLADE2
 
 /* Define is using the javascript interpreter */
 #undef WITH_JAVASCRIPT

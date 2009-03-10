@@ -51,13 +51,11 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-libccvt_a_AR = $(AR) $(ARFLAGS)
-libccvt_a_LIBADD =
-am_libccvt_a_OBJECTS = ccvt_c2.$(OBJEXT) ccvt_mmx.$(OBJEXT) \
-	ccvt_rgb2yuv.$(OBJEXT) ccvt_misc.$(OBJEXT)
-libccvt_a_OBJECTS = $(am_libccvt_a_OBJECTS)
+LTLIBRARIES = $(noinst_LTLIBRARIES)
+libccvt_la_LIBADD =
+am_libccvt_la_OBJECTS = ccvt_c2.lo ccvt_mmx.lo ccvt_rgb2yuv.lo \
+	ccvt_misc.lo
+libccvt_la_OBJECTS = $(am_libccvt_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -72,8 +70,8 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(libccvt_a_SOURCES)
-DIST_SOURCES = $(libccvt_a_SOURCES)
+SOURCES = $(libccvt_la_SOURCES)
+DIST_SOURCES = $(libccvt_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -123,6 +121,8 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 F77 = @F77@
+FC_CFLAGS = @FC_CFLAGS@
+FC_LIBS = @FC_LIBS@
 FFLAGS = @FFLAGS@
 FFMPEG_CFLAGS = @FFMPEG_CFLAGS@
 FFMPEG_LIBS = @FFMPEG_LIBS@
@@ -133,8 +133,6 @@ FLASH_LIBS = @FLASH_LIBS@
 FREEJ_VERSION_INFO = @FREEJ_VERSION_INFO@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_LIBS = @FT2_LIBS@
-GLADE2_CFLAGS = @GLADE2_CFLAGS@
-GLADE2_LIBS = @GLADE2_LIBS@
 GOOM_DIR = @GOOM_DIR@
 GOOM_LIBS = @GOOM_LIBS@
 GOOM_PPC_FILES = @GOOM_PPC_FILES@
@@ -275,8 +273,8 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 INCLUDES = -I$(top_srcdir)/
 AUTOMAKE_OPTIONS = foreign
-noinst_LIBRARIES = libccvt.a
-libccvt_a_SOURCES = \
+noinst_LTLIBRARIES = libccvt.la
+libccvt_la_SOURCES = \
 		ccvt_c2.c \
 		ccvt_mmx.S \
 		ccvt_rgb2yuv.S \
@@ -316,12 +314,16 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libccvt.a: $(libccvt_a_OBJECTS) $(libccvt_a_DEPENDENCIES) 
-	-rm -f libccvt.a
-	$(libccvt_a_AR) libccvt.a $(libccvt_a_OBJECTS) $(libccvt_a_LIBADD)
-	$(RANLIB) libccvt.a
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
+libccvt.la: $(libccvt_la_OBJECTS) $(libccvt_la_DEPENDENCIES) 
+	$(LINK)  $(libccvt_la_LDFLAGS) $(libccvt_la_OBJECTS) $(libccvt_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -329,8 +331,8 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ccvt_c2.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ccvt_misc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ccvt_c2.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ccvt_misc.Plo@am__quote@
 
 .S.o:
 	$(CCASCOMPILE) -c $<
@@ -449,7 +451,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES)
+all-am: Makefile $(LTLIBRARIES)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -477,7 +479,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
+clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -527,7 +529,7 @@ ps-am:
 uninstall-am: uninstall-info-am
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLIBRARIES ctags distclean \
+	clean-libtool clean-noinstLTLIBRARIES ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \

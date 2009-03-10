@@ -50,12 +50,10 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-libsdl_ttf_a_AR = $(AR) $(ARFLAGS)
-libsdl_ttf_a_LIBADD =
-am_libsdl_ttf_a_OBJECTS = SDL_ttf.$(OBJEXT)
-libsdl_ttf_a_OBJECTS = $(am_libsdl_ttf_a_OBJECTS)
+LTLIBRARIES = $(noinst_LTLIBRARIES)
+libsdl_ttf_la_LIBADD =
+am_libsdl_ttf_la_OBJECTS = SDL_ttf.lo
+libsdl_ttf_la_OBJECTS = $(am_libsdl_ttf_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -67,8 +65,8 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(libsdl_ttf_a_SOURCES)
-DIST_SOURCES = $(libsdl_ttf_a_SOURCES)
+SOURCES = $(libsdl_ttf_la_SOURCES)
+DIST_SOURCES = $(libsdl_ttf_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -117,6 +115,8 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 F77 = @F77@
+FC_CFLAGS = @FC_CFLAGS@
+FC_LIBS = @FC_LIBS@
 FFLAGS = @FFLAGS@
 FFMPEG_CFLAGS = @FFMPEG_CFLAGS@
 FFMPEG_LIBS = @FFMPEG_LIBS@
@@ -127,8 +127,6 @@ FLASH_LIBS = @FLASH_LIBS@
 FREEJ_VERSION_INFO = @FREEJ_VERSION_INFO@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_LIBS = @FT2_LIBS@
-GLADE2_CFLAGS = @GLADE2_CFLAGS@
-GLADE2_LIBS = @GLADE2_LIBS@
 GOOM_DIR = @GOOM_DIR@
 GOOM_LIBS = @GOOM_LIBS@
 GOOM_PPC_FILES = @GOOM_PPC_FILES@
@@ -269,8 +267,8 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 INCLUDES = -I$(top_srcdir)
 AUTOMAKE_OPTIONS = foreign
-noinst_LIBRARIES = libsdl_ttf.a
-libsdl_ttf_a_SOURCES = SDL_ttf.c
+noinst_LTLIBRARIES = libsdl_ttf.la
+libsdl_ttf_la_SOURCES = SDL_ttf.c
 all: all-am
 
 .SUFFIXES:
@@ -305,12 +303,16 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libsdl_ttf.a: $(libsdl_ttf_a_OBJECTS) $(libsdl_ttf_a_DEPENDENCIES) 
-	-rm -f libsdl_ttf.a
-	$(libsdl_ttf_a_AR) libsdl_ttf.a $(libsdl_ttf_a_OBJECTS) $(libsdl_ttf_a_LIBADD)
-	$(RANLIB) libsdl_ttf.a
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
+libsdl_ttf.la: $(libsdl_ttf_la_OBJECTS) $(libsdl_ttf_la_DEPENDENCIES) 
+	$(LINK)  $(libsdl_ttf_la_LDFLAGS) $(libsdl_ttf_la_OBJECTS) $(libsdl_ttf_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -318,7 +320,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SDL_ttf.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SDL_ttf.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -428,7 +430,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES)
+all-am: Makefile $(LTLIBRARIES)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -456,7 +458,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
+clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -506,7 +508,7 @@ ps-am:
 uninstall-am: uninstall-info-am
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLIBRARIES ctags distclean \
+	clean-libtool clean-noinstLTLIBRARIES ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \

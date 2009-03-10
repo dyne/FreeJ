@@ -38,8 +38,8 @@ build_triplet = @build@
 host_triplet = @host@
 target_triplet = @target@
 subdir = bindings/python
-DIST_COMMON = $(pkgpython_PYTHON) $(pkgpython_inst_PYTHON) \
-	$(srcdir)/Makefile.am $(srcdir)/Makefile.in
+DIST_COMMON = $(pkgpython_PYTHON) $(srcdir)/Makefile.am \
+	$(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/ac_pkg_swig.m4 \
 	$(top_srcdir)/m4/ac_python_devel.m4 $(top_srcdir)/m4/as.m4 \
@@ -58,7 +58,7 @@ am__vpath_adj = case $$p in \
   esac;
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(pkgpyexecdir)" \
-	"$(DESTDIR)$(pkgpythondir)" "$(DESTDIR)$(pkgpython_instdir)"
+	"$(DESTDIR)$(pkgpythondir)"
 pkgpyexecLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkgpyexec_LTLIBRARIES)
 _freej_la_DEPENDENCIES =
@@ -78,7 +78,6 @@ CXXLINK = $(LIBTOOL) --tag=CXX --mode=link $(CXXLD) $(AM_CXXFLAGS) \
 SOURCES = $(_freej_la_SOURCES)
 DIST_SOURCES = $(_freej_la_SOURCES)
 pkgpythonPYTHON_INSTALL = $(INSTALL_DATA)
-pkgpython_instPYTHON_INSTALL = $(INSTALL_DATA)
 py_compile = $(top_srcdir)/py-compile
 ETAGS = etags
 CTAGS = ctags
@@ -128,6 +127,8 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 F77 = @F77@
+FC_CFLAGS = @FC_CFLAGS@
+FC_LIBS = @FC_LIBS@
 FFLAGS = @FFLAGS@
 FFMPEG_CFLAGS = @FFMPEG_CFLAGS@
 FFMPEG_LIBS = @FFMPEG_LIBS@
@@ -138,8 +139,6 @@ FLASH_LIBS = @FLASH_LIBS@
 FREEJ_VERSION_INFO = @FREEJ_VERSION_INFO@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_LIBS = @FT2_LIBS@
-GLADE2_CFLAGS = @GLADE2_CFLAGS@
-GLADE2_LIBS = @GLADE2_LIBS@
 GOOM_DIR = @GOOM_DIR@
 GOOM_LIBS = @GOOM_LIBS@
 GOOM_PPC_FILES = @GOOM_PPC_FILES@
@@ -291,10 +290,10 @@ INCLUDES = -I$(top_srcdir)/src/include \
 
 FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@
 BUILT_SOURCES = freej_py.cpp
-pkgpython_PYTHON = freej.py
+pkgpython_PYTHON = freej.py __init__.py
 pkgpyexec_LTLIBRARIES = _freej.la
 pkgpython_instdir = $(pythondir)
-pkgpython_inst_PYTHON = freej.pth
+#pkgpython_inst_PYTHON = freej.pth
 _freej_la_SOURCES = freej_py.cpp
 _freej_la_CXXFLAGS = $(FREEJ_FLAGS) @PYTHON_CPPFLAGS@
 _freej_la_LDFLAGS = -module -avoid-version
@@ -436,34 +435,6 @@ uninstall-pkgpythonPYTHON:
 	  rm -f "$(DESTDIR)$(pkgpythondir)/$${f}c"; \
 	  rm -f "$(DESTDIR)$(pkgpythondir)/$${f}o"; \
 	done
-install-pkgpython_instPYTHON: $(pkgpython_inst_PYTHON)
-	@$(NORMAL_INSTALL)
-	test -z "$(pkgpython_instdir)" || $(mkdir_p) "$(DESTDIR)$(pkgpython_instdir)"
-	@list='$(pkgpython_inst_PYTHON)'; dlist=''; for p in $$list; do\
-	  if test -f "$$p"; then b=; else b="$(srcdir)/"; fi; \
-	  if test -f $$b$$p; then \
-	    f=$(am__strip_dir) \
-	    dlist="$$dlist $$f"; \
-	    echo " $(pkgpython_instPYTHON_INSTALL) '$$b$$p' '$(DESTDIR)$(pkgpython_instdir)/$$f'"; \
-	    $(pkgpython_instPYTHON_INSTALL) "$$b$$p" "$(DESTDIR)$(pkgpython_instdir)/$$f"; \
-	  else :; fi; \
-	done; \
-	if test -n "$$dlist"; then \
-	  if test -z "$(DESTDIR)"; then \
-	    PYTHON=$(PYTHON) $(py_compile) --basedir "$(pkgpython_instdir)" $$dlist; \
-	  else \
-	    PYTHON=$(PYTHON) $(py_compile) --destdir "$(DESTDIR)" --basedir "$(pkgpython_instdir)" $$dlist; \
-	  fi; \
-	else :; fi
-
-uninstall-pkgpython_instPYTHON:
-	@$(NORMAL_UNINSTALL)
-	@list='$(pkgpython_inst_PYTHON)'; dlist=''; for p in $$list; do\
-	  f=$(am__strip_dir) \
-	  rm -f "$(DESTDIR)$(pkgpython_instdir)/$$f"; \
-	  rm -f "$(DESTDIR)$(pkgpython_instdir)/$${f}c"; \
-	  rm -f "$(DESTDIR)$(pkgpython_instdir)/$${f}o"; \
-	done
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -545,7 +516,7 @@ check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES)
 installdirs:
-	for dir in "$(DESTDIR)$(pkgpyexecdir)" "$(DESTDIR)$(pkgpythondir)" "$(DESTDIR)$(pkgpython_instdir)"; do \
+	for dir in "$(DESTDIR)$(pkgpyexecdir)" "$(DESTDIR)$(pkgpythondir)"; do \
 	  test -z "$$dir" || $(mkdir_p) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -595,7 +566,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-pkgpythonPYTHON install-pkgpython_instPYTHON
+install-data-am: install-pkgpythonPYTHON
 
 install-exec-am: install-pkgpyexecLTLIBRARIES
 
@@ -624,7 +595,7 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-info-am uninstall-pkgpyexecLTLIBRARIES \
-	uninstall-pkgpythonPYTHON uninstall-pkgpython_instPYTHON
+	uninstall-pkgpythonPYTHON
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
 	clean-libtool clean-local clean-pkgpyexecLTLIBRARIES ctags \
@@ -633,13 +604,12 @@ uninstall-am: uninstall-info-am uninstall-pkgpyexecLTLIBRARIES \
 	html-am info info-am install install-am install-data \
 	install-data-am install-exec install-exec-am install-info \
 	install-info-am install-man install-pkgpyexecLTLIBRARIES \
-	install-pkgpythonPYTHON install-pkgpython_instPYTHON \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-info-am uninstall-pkgpyexecLTLIBRARIES \
-	uninstall-pkgpythonPYTHON uninstall-pkgpython_instPYTHON
+	install-pkgpythonPYTHON install-strip installcheck \
+	installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-info-am \
+	uninstall-pkgpyexecLTLIBRARIES uninstall-pkgpythonPYTHON
 
 
 freej_py.cpp: $(top_srcdir)/bindings/freej.i
@@ -651,7 +621,7 @@ clean-local:
 	rm -f "./so_locations"
 	rm -f *.o
 	rm -f *.lo
-	rm -f freej_py.cpp freej.py
+	rm -f freej_py.cpp freej_py.h freej.py
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

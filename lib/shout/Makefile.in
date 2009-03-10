@@ -50,15 +50,11 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
-LIBRARIES = $(noinst_LIBRARIES)
-ARFLAGS = cru
-libshout_a_AR = $(AR) $(ARFLAGS)
-libshout_a_LIBADD =
-am_libshout_a_OBJECTS = shout.$(OBJEXT) util.$(OBJEXT) ogg.$(OBJEXT) \
-	vorbis.$(OBJEXT) mp3.$(OBJEXT) theora.$(OBJEXT) avl.$(OBJEXT) \
-	httpp.$(OBJEXT) resolver.$(OBJEXT) sock.$(OBJEXT) \
-	timing.$(OBJEXT)
-libshout_a_OBJECTS = $(am_libshout_a_OBJECTS)
+LTLIBRARIES = $(noinst_LTLIBRARIES)
+libshout_la_LIBADD =
+am_libshout_la_OBJECTS = shout.lo util.lo ogg.lo vorbis.lo mp3.lo \
+	theora.lo avl.lo httpp.lo resolver.lo sock.lo timing.lo
+libshout_la_OBJECTS = $(am_libshout_la_OBJECTS)
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -70,8 +66,8 @@ LTCOMPILE = $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) \
 CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(AM_LDFLAGS) $(LDFLAGS) -o $@
-SOURCES = $(libshout_a_SOURCES)
-DIST_SOURCES = $(libshout_a_SOURCES)
+SOURCES = $(libshout_la_SOURCES)
+DIST_SOURCES = $(libshout_la_SOURCES)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -120,6 +116,8 @@ ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
 F77 = @F77@
+FC_CFLAGS = @FC_CFLAGS@
+FC_LIBS = @FC_LIBS@
 FFLAGS = @FFLAGS@
 FFMPEG_CFLAGS = @FFMPEG_CFLAGS@
 FFMPEG_LIBS = @FFMPEG_LIBS@
@@ -130,8 +128,6 @@ FLASH_LIBS = @FLASH_LIBS@
 FREEJ_VERSION_INFO = @FREEJ_VERSION_INFO@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_LIBS = @FT2_LIBS@
-GLADE2_CFLAGS = @GLADE2_CFLAGS@
-GLADE2_LIBS = @GLADE2_LIBS@
 GOOM_DIR = @GOOM_DIR@
 GOOM_LIBS = @GOOM_LIBS@
 GOOM_PPC_FILES = @GOOM_PPC_FILES@
@@ -272,8 +268,8 @@ target_os = @target_os@
 target_vendor = @target_vendor@
 INCLUDES = -I$(top_srcdir) -I$(top_srcdir)/lib/theora-mmx
 AUTOMAKE_OPTIONS = foreign
-noinst_LIBRARIES = libshout.a
-libshout_a_SOURCES = \
+noinst_LTLIBRARIES = libshout.la
+libshout_la_SOURCES = \
 	shout.c util.c ogg.c vorbis.c mp3.c theora.c \
 	avl/avl.c httpp/httpp.c net/resolver.c net/sock.c timing/timing.c
 
@@ -311,12 +307,16 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 
-clean-noinstLIBRARIES:
-	-test -z "$(noinst_LIBRARIES)" || rm -f $(noinst_LIBRARIES)
-libshout.a: $(libshout_a_OBJECTS) $(libshout_a_DEPENDENCIES) 
-	-rm -f libshout.a
-	$(libshout_a_AR) libshout.a $(libshout_a_OBJECTS) $(libshout_a_LIBADD)
-	$(RANLIB) libshout.a
+clean-noinstLTLIBRARIES:
+	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
+	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
+	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
+	  test "$$dir" != "$$p" || dir=.; \
+	  echo "rm -f \"$${dir}/so_locations\""; \
+	  rm -f "$${dir}/so_locations"; \
+	done
+libshout.la: $(libshout_la_OBJECTS) $(libshout_la_DEPENDENCIES) 
+	$(LINK)  $(libshout_la_LDFLAGS) $(libshout_la_OBJECTS) $(libshout_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -324,17 +324,17 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avl.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/httpp.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mp3.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ogg.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/resolver.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/shout.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sock.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/theora.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timing.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vorbis.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/avl.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/httpp.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/mp3.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ogg.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/resolver.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/shout.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sock.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/theora.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/timing.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vorbis.Plo@am__quote@
 
 .c.o:
 @am__fastdepCC_TRUE@	if $(COMPILE) -MT $@ -MD -MP -MF "$(DEPDIR)/$*.Tpo" -c -o $@ $<; \
@@ -357,75 +357,40 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(LTCOMPILE) -c -o $@ $<
 
-avl.o: avl/avl.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT avl.o -MD -MP -MF "$(DEPDIR)/avl.Tpo" -c -o avl.o `test -f 'avl/avl.c' || echo '$(srcdir)/'`avl/avl.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/avl.Tpo" "$(DEPDIR)/avl.Po"; else rm -f "$(DEPDIR)/avl.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='avl/avl.c' object='avl.o' libtool=no @AMDEPBACKSLASH@
+avl.lo: avl/avl.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT avl.lo -MD -MP -MF "$(DEPDIR)/avl.Tpo" -c -o avl.lo `test -f 'avl/avl.c' || echo '$(srcdir)/'`avl/avl.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/avl.Tpo" "$(DEPDIR)/avl.Plo"; else rm -f "$(DEPDIR)/avl.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='avl/avl.c' object='avl.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o avl.o `test -f 'avl/avl.c' || echo '$(srcdir)/'`avl/avl.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o avl.lo `test -f 'avl/avl.c' || echo '$(srcdir)/'`avl/avl.c
 
-avl.obj: avl/avl.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT avl.obj -MD -MP -MF "$(DEPDIR)/avl.Tpo" -c -o avl.obj `if test -f 'avl/avl.c'; then $(CYGPATH_W) 'avl/avl.c'; else $(CYGPATH_W) '$(srcdir)/avl/avl.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/avl.Tpo" "$(DEPDIR)/avl.Po"; else rm -f "$(DEPDIR)/avl.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='avl/avl.c' object='avl.obj' libtool=no @AMDEPBACKSLASH@
+httpp.lo: httpp/httpp.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT httpp.lo -MD -MP -MF "$(DEPDIR)/httpp.Tpo" -c -o httpp.lo `test -f 'httpp/httpp.c' || echo '$(srcdir)/'`httpp/httpp.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/httpp.Tpo" "$(DEPDIR)/httpp.Plo"; else rm -f "$(DEPDIR)/httpp.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='httpp/httpp.c' object='httpp.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o avl.obj `if test -f 'avl/avl.c'; then $(CYGPATH_W) 'avl/avl.c'; else $(CYGPATH_W) '$(srcdir)/avl/avl.c'; fi`
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o httpp.lo `test -f 'httpp/httpp.c' || echo '$(srcdir)/'`httpp/httpp.c
 
-httpp.o: httpp/httpp.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT httpp.o -MD -MP -MF "$(DEPDIR)/httpp.Tpo" -c -o httpp.o `test -f 'httpp/httpp.c' || echo '$(srcdir)/'`httpp/httpp.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/httpp.Tpo" "$(DEPDIR)/httpp.Po"; else rm -f "$(DEPDIR)/httpp.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='httpp/httpp.c' object='httpp.o' libtool=no @AMDEPBACKSLASH@
+resolver.lo: net/resolver.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT resolver.lo -MD -MP -MF "$(DEPDIR)/resolver.Tpo" -c -o resolver.lo `test -f 'net/resolver.c' || echo '$(srcdir)/'`net/resolver.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/resolver.Tpo" "$(DEPDIR)/resolver.Plo"; else rm -f "$(DEPDIR)/resolver.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='net/resolver.c' object='resolver.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o httpp.o `test -f 'httpp/httpp.c' || echo '$(srcdir)/'`httpp/httpp.c
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o resolver.lo `test -f 'net/resolver.c' || echo '$(srcdir)/'`net/resolver.c
 
-httpp.obj: httpp/httpp.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT httpp.obj -MD -MP -MF "$(DEPDIR)/httpp.Tpo" -c -o httpp.obj `if test -f 'httpp/httpp.c'; then $(CYGPATH_W) 'httpp/httpp.c'; else $(CYGPATH_W) '$(srcdir)/httpp/httpp.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/httpp.Tpo" "$(DEPDIR)/httpp.Po"; else rm -f "$(DEPDIR)/httpp.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='httpp/httpp.c' object='httpp.obj' libtool=no @AMDEPBACKSLASH@
+sock.lo: net/sock.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT sock.lo -MD -MP -MF "$(DEPDIR)/sock.Tpo" -c -o sock.lo `test -f 'net/sock.c' || echo '$(srcdir)/'`net/sock.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/sock.Tpo" "$(DEPDIR)/sock.Plo"; else rm -f "$(DEPDIR)/sock.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='net/sock.c' object='sock.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o httpp.obj `if test -f 'httpp/httpp.c'; then $(CYGPATH_W) 'httpp/httpp.c'; else $(CYGPATH_W) '$(srcdir)/httpp/httpp.c'; fi`
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o sock.lo `test -f 'net/sock.c' || echo '$(srcdir)/'`net/sock.c
 
-resolver.o: net/resolver.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT resolver.o -MD -MP -MF "$(DEPDIR)/resolver.Tpo" -c -o resolver.o `test -f 'net/resolver.c' || echo '$(srcdir)/'`net/resolver.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/resolver.Tpo" "$(DEPDIR)/resolver.Po"; else rm -f "$(DEPDIR)/resolver.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='net/resolver.c' object='resolver.o' libtool=no @AMDEPBACKSLASH@
+timing.lo: timing/timing.c
+@am__fastdepCC_TRUE@	if $(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT timing.lo -MD -MP -MF "$(DEPDIR)/timing.Tpo" -c -o timing.lo `test -f 'timing/timing.c' || echo '$(srcdir)/'`timing/timing.c; \
+@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/timing.Tpo" "$(DEPDIR)/timing.Plo"; else rm -f "$(DEPDIR)/timing.Tpo"; exit 1; fi
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='timing/timing.c' object='timing.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o resolver.o `test -f 'net/resolver.c' || echo '$(srcdir)/'`net/resolver.c
-
-resolver.obj: net/resolver.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT resolver.obj -MD -MP -MF "$(DEPDIR)/resolver.Tpo" -c -o resolver.obj `if test -f 'net/resolver.c'; then $(CYGPATH_W) 'net/resolver.c'; else $(CYGPATH_W) '$(srcdir)/net/resolver.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/resolver.Tpo" "$(DEPDIR)/resolver.Po"; else rm -f "$(DEPDIR)/resolver.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='net/resolver.c' object='resolver.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o resolver.obj `if test -f 'net/resolver.c'; then $(CYGPATH_W) 'net/resolver.c'; else $(CYGPATH_W) '$(srcdir)/net/resolver.c'; fi`
-
-sock.o: net/sock.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT sock.o -MD -MP -MF "$(DEPDIR)/sock.Tpo" -c -o sock.o `test -f 'net/sock.c' || echo '$(srcdir)/'`net/sock.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/sock.Tpo" "$(DEPDIR)/sock.Po"; else rm -f "$(DEPDIR)/sock.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='net/sock.c' object='sock.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o sock.o `test -f 'net/sock.c' || echo '$(srcdir)/'`net/sock.c
-
-sock.obj: net/sock.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT sock.obj -MD -MP -MF "$(DEPDIR)/sock.Tpo" -c -o sock.obj `if test -f 'net/sock.c'; then $(CYGPATH_W) 'net/sock.c'; else $(CYGPATH_W) '$(srcdir)/net/sock.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/sock.Tpo" "$(DEPDIR)/sock.Po"; else rm -f "$(DEPDIR)/sock.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='net/sock.c' object='sock.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o sock.obj `if test -f 'net/sock.c'; then $(CYGPATH_W) 'net/sock.c'; else $(CYGPATH_W) '$(srcdir)/net/sock.c'; fi`
-
-timing.o: timing/timing.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT timing.o -MD -MP -MF "$(DEPDIR)/timing.Tpo" -c -o timing.o `test -f 'timing/timing.c' || echo '$(srcdir)/'`timing/timing.c; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/timing.Tpo" "$(DEPDIR)/timing.Po"; else rm -f "$(DEPDIR)/timing.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='timing/timing.c' object='timing.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o timing.o `test -f 'timing/timing.c' || echo '$(srcdir)/'`timing/timing.c
-
-timing.obj: timing/timing.c
-@am__fastdepCC_TRUE@	if $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT timing.obj -MD -MP -MF "$(DEPDIR)/timing.Tpo" -c -o timing.obj `if test -f 'timing/timing.c'; then $(CYGPATH_W) 'timing/timing.c'; else $(CYGPATH_W) '$(srcdir)/timing/timing.c'; fi`; \
-@am__fastdepCC_TRUE@	then mv -f "$(DEPDIR)/timing.Tpo" "$(DEPDIR)/timing.Po"; else rm -f "$(DEPDIR)/timing.Tpo"; exit 1; fi
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='timing/timing.c' object='timing.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o timing.obj `if test -f 'timing/timing.c'; then $(CYGPATH_W) 'timing/timing.c'; else $(CYGPATH_W) '$(srcdir)/timing/timing.c'; fi`
+@am__fastdepCC_FALSE@	$(LIBTOOL) --tag=CC --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o timing.lo `test -f 'timing/timing.c' || echo '$(srcdir)/'`timing/timing.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -514,7 +479,7 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(LIBRARIES)
+all-am: Makefile $(LTLIBRARIES)
 installdirs:
 install: install-am
 install-exec: install-exec-am
@@ -542,7 +507,7 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-generic clean-libtool clean-noinstLIBRARIES \
+clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
 	mostlyclean-am
 
 distclean: distclean-am
@@ -592,7 +557,7 @@ ps-am:
 uninstall-am: uninstall-info-am
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
-	clean-libtool clean-noinstLIBRARIES ctags distclean \
+	clean-libtool clean-noinstLTLIBRARIES ctags distclean \
 	distclean-compile distclean-generic distclean-libtool \
 	distclean-tags distdir dvi dvi-am html html-am info info-am \
 	install install-am install-data install-data-am install-exec \
