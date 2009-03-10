@@ -333,8 +333,6 @@ if test x$have_ffmpeg = xyes; then
 else
    AC_MSG_RESULT(not found)
 fi
-dnl most recent ffmpeg header mess workaround
-FFMPEG_CFLAGS="$FFMPEG_CFLAGS -I/usr/include/ffmpeg/libavutil/ -I/usr/include/ffmpeg/libavformat/ -I/usr/include/ffmpeg/libavcodec/ -I/usr/include/ffmpeg/libswscale -I/usr/include/ffmpeg/"
 AC_SUBST(FFMPEG_LIBS)
 AC_SUBST(FFMPEG_CFLAGS)
 AC_SUBST(SWSCALE_LIBS)
