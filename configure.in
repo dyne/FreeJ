@@ -195,13 +195,16 @@ AC_CHECK_FUNCS(select malloc mmap ioctl)
 dnl ==============================================================
 dnl Check if we are going for a STATIC BUILD
 dnl ==============================================================
-AC_ARG_ENABLE(static-build,
-[  --enable-static-build      statically include all libraries) (default: no)],
-[ if test ! x$enableval = xyes; then
-    static_build=no
-  else
-    static_build=yes
-  fi ],[ static_build=no ])
+dnl
+dnl what is this doing? apparently nothing..
+dnl
+dnl AC_ARG_ENABLE(static-build,
+dnl [  --enable-static-build      statically include all libraries) (default: no)],
+dnl [ if test ! x$enableval = xyes; then
+dnl     static_build=no
+dnl   else
+dnl     static_build=yes
+dnl   fi ],[ static_build=no ])
 
 
 
