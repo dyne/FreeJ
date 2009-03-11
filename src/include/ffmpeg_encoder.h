@@ -8,8 +8,8 @@
 #include <video_encoder.h>
 
 #ifdef WITH_AVCODEC
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
+#include <avcodec.h>
+#include <avformat.h>
 
 #define STREAM_IS_RAW(avformat_context) \
     (avformat_context->oformat->flags & AVFMT_RAWPICTURE)

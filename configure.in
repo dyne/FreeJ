@@ -333,6 +333,8 @@ if test x$have_ffmpeg = xyes; then
 else
    AC_MSG_RESULT(not found)
 fi
+dnl ffmpeg include path changes dirty workaround
+FFMPEG_CFLAGS="$FFMPEG_CFLAGS \$(addprefix \$(firstword $FFMPEG_CFLAGS),/libavcodec /libavformat /libswscale)"
 AC_SUBST(FFMPEG_LIBS)
 AC_SUBST(FFMPEG_CFLAGS)
 AC_SUBST(SWSCALE_LIBS)
