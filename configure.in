@@ -702,6 +702,33 @@ CXXFLAGS="$CFLAGS"
 #echo "LIBS are $LIBS"
 #AC_SUBST(LIBS)
 
+dnl ==============================================================
+dnl in-tree static libraries
+dnl ==============================================================
+FREEJ_STATIC_INCLUDES="-I\$(top_builddir) \
+    -I\$(top_srcdir)/src/include \
+    -I\$(top_srcdir)/lib \
+    -I\$(top_srcdir)/lib/ccvt \
+    -I\$(top_srcdir)/lib/shout \
+    -I\$(top_srcdir)/lib/lo \
+    -I\$(top_srcdir)/lib/sdl_image \
+    -I\$(top_srcdir)/lib/sdl_gfx \
+    -I\$(top_srcdir)/lib/sdl_ttf \
+    -I\$(top_srcdir)/lib/flash \
+    -I\$(top_srcdir)/lib/goom \
+    -I\$(top_srcdir)/lib/cwiid \
+    -I/usr/include/slang"
+
+FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
+    \$(top_builddir)/lib/sdl_image/libsdl_image.la \
+    \$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la \
+    \$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la \
+    \$(top_builddir)/lib/shout/libshout.la \
+    \$(top_builddir)/lib/lo/liblo.la"
+#    \$(top_builddir)/lib/javascript/obj/libjs.a
+
+AC_SUBST(FREEJ_STATIC_INCLUDES)
+AC_SUBST(FREEJ_STATIC_LIBS)
 
 dnl ###########################################################################
 dnl ###### now about compile time paths
