@@ -1,15 +1,4 @@
-INCLUDES = -I$(top_srcdir)/src/include           \
-           -I$(top_srcdir)/lib                   \
-           -I$(top_srcdir)/lib/ccvt              \
-           -I$(top_srcdir)/lib/shout             \
-           -I$(top_srcdir)/lib/lo                \
-           -I$(top_srcdir)/lib/sdl_image         \
-           -I$(top_srcdir)/lib/sdl_gfx           \
-	   -I$(top_srcdir)/lib/sdl_ttf           \
-	   -I$(top_srcdir)/lib/flash             \
-	   -I$(top_srcdir)/lib/goom              \
-	   -I$(top_srcdir)/lib/cwiid             \
-           -I/usr/include/slang
+INCLUDES = @FREEJ_STATIC_INCLUDES@
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
 AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ \
@@ -95,13 +84,7 @@ JS_SOURCES = 	context_js.cpp  \
 		audio_collector_js.cpp
 
 
-static_libs = $(top_builddir)/lib/ccvt/libccvt.la \
-              $(top_builddir)/lib/sdl_image/libsdl_image.la \
-              $(top_builddir)/lib/sdl_gfx/libsdl_gfx.la \
-              $(top_builddir)/lib/sdl_ttf/libsdl_ttf.la \
-              $(top_builddir)/lib/shout/libshout.la \
-              $(top_builddir)/lib/lo/liblo.la
-#              $(top_builddir)/lib/javascript/obj/libjs.a
+static_libs = @FREEJ_STATIC_LIBS@
 
 shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 	         @X11_LIBS@     \
