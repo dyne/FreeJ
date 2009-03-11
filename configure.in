@@ -11,7 +11,7 @@ m4_define([FREEJ_RELEASE_VERSION], [FREEJ_MAJ_VER.FREEJ_MIN_VER.FREEJ_REL_VER])
 
 
 
-AC_INIT(src/freej.cpp,[FREEJ_RELEASE_VERSION])
+AC_INIT(freej,[FREEJ_RELEASE_VERSION])
 
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
@@ -82,7 +82,8 @@ dnl ==============================================================
 AM_SANITY_CHECK
 AM_INIT_AUTOMAKE(freej, [FREEJ_RELEASE_VERSION])
 AM_CONFIG_HEADER(config.h)
-AC_DEFINE(PACKAGE_NAME,"FreeJ - vision mixer")
+# defined by AC_INIT
+#AC_DEFINE(PACKAGE_NAME,"FreeJ - vision mixer")
 
 dnl ==============================================================
 dnl Check for tools
