@@ -95,13 +95,13 @@ JS_SOURCES = 	context_js.cpp  \
 		audio_collector_js.cpp
 
 
-static_libs = $(top_srcdir)/lib/ccvt/libccvt.la \
-              $(top_srcdir)/lib/sdl_image/libsdl_image.la \
-              $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.la \
-	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.la \
-              $(top_srcdir)/lib/shout/libshout.la \
-              $(top_srcdir)/lib/lo/liblo.la
-#              $(top_srcdir)/lib/javascript/obj/libjs.a
+static_libs = $(top_builddir)/lib/ccvt/libccvt.la \
+              $(top_builddir)/lib/sdl_image/libsdl_image.la \
+              $(top_builddir)/lib/sdl_gfx/libsdl_gfx.la \
+              $(top_builddir)/lib/sdl_ttf/libsdl_ttf.la \
+              $(top_builddir)/lib/shout/libshout.la \
+              $(top_builddir)/lib/lo/liblo.la
+#              $(top_builddir)/lib/javascript/obj/libjs.a
 
 shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 	         @X11_LIBS@     \
@@ -132,6 +132,6 @@ libfreej_la_LDFLAGS = -version-info @FREEJ_VERSION_INFO@
 
 bin_PROGRAMS = freej
 freej_SOURCES = freej.cpp
-freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej
+freej_LDADD = -L$(top_builddir)/src/.libs -lfreej
 
 
