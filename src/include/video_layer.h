@@ -22,10 +22,10 @@
 #include <config.h>
 
 extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
+#include <avcodec.h>
+#include <avformat.h>
 #ifdef WITH_SWSCALE
-#include <libswscale/swscale.h>
+#include <swscale.h>
 #endif
 }
 #include <layer.h>
