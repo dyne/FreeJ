@@ -124,7 +124,7 @@ SWIG_ENABLE_CXX
 if test -z "$SWIG"; then
    AC_MSG_RESULT(No language bindings will be created)
 else
-SWIG_COMMAND='swig -c++ -O -Wall -I$(top_srcdir) -I$(top_srcdir)/src/include'
+SWIG_COMMAND='swig -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include'
 AC_SUBST(SWIG_COMMAND)
 SWIG_IFACE='$(top_srcdir)/bindings/freej.i'
 AC_SUBST(SWIG_IFACE)
@@ -290,10 +290,7 @@ if test x$dynamic_ffmpeg = xyes ; then
 else
    PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
                      have_oggtheora=yes, have_oggtheora=no)
-#   XIPH_LIBS="$XIPH_LIBS -logg -lvorbis \$(top_srcdir)/lib/theora-mmx/libtheora.a"
    XIPH_LIBS="$XIPH_LIBS -logg -lvorbis -lvorbisenc -ltheora"
-#   XIPH_INCLUDE="-I\$(top_srcdir)/lib/theora-mmx"
-#   THEORA_MMX_DIR="theora-mmx"
 fi
 if test x$have_oggtheora = xyes ; then
    AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
@@ -359,7 +356,7 @@ AC_ARG_ENABLE(flash,
 AC_MSG_CHECKING(compiling flash - v3 animation only - layer)
 if test x$have_flash = xyes; then
    AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
-   FLASH_LIBS="\$(top_srcdir)/lib/flash/libflash.la"
+   FLASH_LIBS="\$(top_builddir)/lib/flash/libflash.la"
    FLASH_DIR=flash
    AC_MSG_RESULT(yes)
 else
@@ -380,7 +377,7 @@ PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
 if test x$have_bluez = xyes; then
    AC_DEFINE(WITH_BLUEZ,1,[define if compiling bluetooth cwiid controller])
    CWIID_DIR=cwiid
-   CWIID_LIBS="\$(top_srcdir)/lib/cwiid/libwiimote.la"
+   CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
 fi
 AC_SUBST(BLUEZ_LIBS)
 AC_SUBST(CWIID_DIR)
@@ -583,7 +580,7 @@ if test x$have_linux = xyes ; then
 dnl goom removed because gives compilation problems
 dnl replicated on Niels ubuntu 7.10
 dnl		    GOOM_DIR=goom
-dnl		    GOOM_LIBS="\$(top_srcdir)/lib/goom/libgoom2.a"
+dnl		    GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
 dnl		    if test x$host_cpu = xpowerpc; then
 dnl		       GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
 dnl		    fi
@@ -632,6 +629,7 @@ dnl    in debian, ubuntu and so on. we are stuck at static linking since years :
 
 else
    MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
+   # libs in top_srcdir instead of top_builddir because js is not under autotools
    MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
    JS_DIR="javascript"
    if test x$have_linux = xyes ; then
