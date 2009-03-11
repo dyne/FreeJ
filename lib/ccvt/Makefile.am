@@ -1,4 +1,6 @@
-INCLUDES = -I$(top_srcdir)/
+# We need config.h so use top_builddir instead of top_srcdir
+INCLUDES = -I$(top_builddir)/
+
 # Add INCLUDES to CFLAGS because it seems ignored while compiling .S files.
 CFLAGS += $(INCLUDES)
 

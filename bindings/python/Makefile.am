@@ -26,7 +26,7 @@ pkgpython_instdir = $(pythondir)
 _freej_la_SOURCES = freej_py.cpp
 _freej_la_CXXFLAGS =  $(FREEJ_FLAGS) @PYTHON_CPPFLAGS@
 _freej_la_LDFLAGS = -module -avoid-version
-_freej_la_LIBADD = $(PY_LIBS) -L$(top_srcdir)/src/.libs -lfreej
+_freej_la_LIBADD = $(PY_LIBS) -L$(top_builddir)/src/.libs -lfreej
 
 clean-local:
 	rm -rf .libs _libs
