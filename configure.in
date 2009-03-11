@@ -85,6 +85,9 @@ AM_CONFIG_HEADER(config.h)
 # defined by AC_INIT
 #AC_DEFINE(PACKAGE_NAME,"FreeJ - vision mixer")
 
+# never run autotools and configure automatically
+AM_MAINTAINER_MODE
+
 dnl ==============================================================
 dnl Check for tools
 dnl ==============================================================
