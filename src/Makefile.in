@@ -61,15 +61,8 @@ am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)"
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(lib_LTLIBRARIES)
-am__DEPENDENCIES_1 = $(top_srcdir)/lib/ccvt/libccvt.la \
-	$(top_srcdir)/lib/sdl_image/libsdl_image.la \
-	$(top_srcdir)/lib/sdl_gfx/libsdl_gfx.la \
-	$(top_srcdir)/lib/sdl_ttf/libsdl_ttf.la \
-	$(top_srcdir)/lib/shout/libshout.la \
-	$(top_srcdir)/lib/lo/liblo.la \
-	$(top_srcdir)/lib/javascript/obj/libjs.a
-am__DEPENDENCIES_2 =
-libfreej_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_2)
+am__DEPENDENCIES_1 =
+libfreej_la_DEPENDENCIES = $(am__DEPENDENCIES_1) $(am__DEPENDENCIES_1)
 am__objects_1 = context.lo layer.lo blitter.lo iterator.lo linklist.lo \
 	jsync.lo console.lo cpu_accel.lo plugin.lo plugger.lo \
 	frei0r.lo freeframe.lo filter.lo parameter.lo jutils.lo \
@@ -141,7 +134,6 @@ AWK = @AWK@
 BINDING_DIRS = @BINDING_DIRS@
 BLUEZ_CFLAGS = @BLUEZ_CFLAGS@
 BLUEZ_LIBS = @BLUEZ_LIBS@
-BUILDLIBS = @BUILDLIBS@
 CC = @CC@
 CCAS = @CCAS@
 CCASFLAGS = @CCASFLAGS@
@@ -179,6 +171,8 @@ FFTW_CFLAGS = @FFTW_CFLAGS@
 FFTW_LIBS = @FFTW_LIBS@
 FLASH_DIR = @FLASH_DIR@
 FLASH_LIBS = @FLASH_LIBS@
+FREEJ_STATIC_INCLUDES = @FREEJ_STATIC_INCLUDES@
+FREEJ_STATIC_LIBS = @FREEJ_STATIC_LIBS@
 FREEJ_VERSION_INFO = @FREEJ_VERSION_INFO@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_LIBS = @FT2_LIBS@
@@ -194,6 +188,7 @@ JACK_CFLAGS = @JACK_CFLAGS@
 JACK_LIBS = @JACK_LIBS@
 JAVA_CFLAGS = @JAVA_CFLAGS@
 JAVA_LDFLAGS = @JAVA_LDFLAGS@
+JS_DIR = @JS_DIR@
 LDFLAGS = @LDFLAGS@
 LEX = @LEX@
 LEXLIB = @LEXLIB@
@@ -204,6 +199,8 @@ LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
+MOZJS_CFLAGS = @MOZJS_CFLAGS@
+MOZJS_LIBS = @MOZJS_LIBS@
 NMEDIT = @NMEDIT@
 OBJEXT = @OBJEXT@
 OPENGL_LIB = @OPENGL_LIB@
@@ -240,7 +237,6 @@ SDL_LIBS = @SDL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
-STATIC_LIBS = @STATIC_LIBS@
 STRIP = @STRIP@
 SWIG = @SWIG@
 SWIG_COMMAND = @SWIG_COMMAND@
@@ -320,24 +316,10 @@ target_alias = @target_alias@
 target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
-INCLUDES = -I$(top_srcdir)/src/include           \
-           -I$(top_srcdir)/lib                   \
-           -I$(top_srcdir)/lib/ccvt              \
-           -I$(top_srcdir)/lib/shout             \
-           -I$(top_srcdir)/lib/lo                \
-           -I$(top_srcdir)/lib/sdl_image         \
-           -I$(top_srcdir)/lib/sdl_gfx           \
-	   -I$(top_srcdir)/lib/sdl_ttf           \
-	   -I$(top_srcdir)/lib/javascript        \
-	   -I$(top_srcdir)/lib/javascript/obj    \
-	   -I$(top_srcdir)/lib/flash             \
-	   -I$(top_srcdir)/lib/goom              \
-	   -I$(top_srcdir)/lib/cwiid             \
-           -I/usr/include/slang
-
+INCLUDES = @FREEJ_STATIC_INCLUDES@
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@ \
+AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ \
 	      -freg-struct-return \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
@@ -417,18 +399,11 @@ JS_SOURCES = context_js.cpp  \
 		goom_layer_js.cpp \
 		audio_collector_js.cpp
 
-static_libs = $(top_srcdir)/lib/ccvt/libccvt.la \
-              $(top_srcdir)/lib/sdl_image/libsdl_image.la \
-              $(top_srcdir)/lib/sdl_gfx/libsdl_gfx.la \
-	      $(top_srcdir)/lib/sdl_ttf/libsdl_ttf.la \
-              $(top_srcdir)/lib/shout/libshout.la \
-              $(top_srcdir)/lib/lo/liblo.la \
-              $(top_srcdir)/lib/javascript/obj/libjs.a
-
+static_libs = @FREEJ_STATIC_LIBS@
 shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
 	         @X11_LIBS@     \
 		 @XIPH_LIBS@    \
-		 @STATIC_LIBS@  \
+		 @MOZJS_LIBS@   \
 		 @OPENGL_LIB@   \
 		 @SDL_LIBS@     \
 		 @FLASH_LIBS@   \
@@ -451,7 +426,7 @@ libfreej_la_SOURCES = $(SOURCES) $(JS_SOURCES)
 libfreej_la_LIBADD = $(static_libs) $(shared_libs)
 libfreej_la_LDFLAGS = -version-info @FREEJ_VERSION_INFO@
 freej_SOURCES = freej.cpp
-freej_LDADD = -L$(top_srcdir)/src/.libs -lfreej
+freej_LDADD = -L$(top_builddir)/src/.libs -lfreej
 all: all-recursive
 
 .SUFFIXES:

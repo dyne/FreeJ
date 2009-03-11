@@ -95,7 +95,6 @@ AWK = @AWK@
 BINDING_DIRS = @BINDING_DIRS@
 BLUEZ_CFLAGS = @BLUEZ_CFLAGS@
 BLUEZ_LIBS = @BLUEZ_LIBS@
-BUILDLIBS = @BUILDLIBS@
 CC = @CC@
 CCAS = @CCAS@
 CCASFLAGS = @CCASFLAGS@
@@ -133,6 +132,8 @@ FFTW_CFLAGS = @FFTW_CFLAGS@
 FFTW_LIBS = @FFTW_LIBS@
 FLASH_DIR = @FLASH_DIR@
 FLASH_LIBS = @FLASH_LIBS@
+FREEJ_STATIC_INCLUDES = @FREEJ_STATIC_INCLUDES@
+FREEJ_STATIC_LIBS = @FREEJ_STATIC_LIBS@
 FREEJ_VERSION_INFO = @FREEJ_VERSION_INFO@
 FT2_CFLAGS = @FT2_CFLAGS@
 FT2_LIBS = @FT2_LIBS@
@@ -148,6 +149,7 @@ JACK_CFLAGS = @JACK_CFLAGS@
 JACK_LIBS = @JACK_LIBS@
 JAVA_CFLAGS = @JAVA_CFLAGS@
 JAVA_LDFLAGS = @JAVA_LDFLAGS@
+JS_DIR = @JS_DIR@
 LDFLAGS = @LDFLAGS@
 LEX = @LEX@
 LEXLIB = @LEXLIB@
@@ -158,6 +160,8 @@ LIBTOOL = @LIBTOOL@
 LN_S = @LN_S@
 LTLIBOBJS = @LTLIBOBJS@
 MAKEINFO = @MAKEINFO@
+MOZJS_CFLAGS = @MOZJS_CFLAGS@
+MOZJS_LIBS = @MOZJS_LIBS@
 NMEDIT = @NMEDIT@
 OBJEXT = @OBJEXT@
 OPENGL_LIB = @OPENGL_LIB@
@@ -194,7 +198,6 @@ SDL_LIBS = @SDL_LIBS@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
 SHELL = @SHELL@
-STATIC_LIBS = @STATIC_LIBS@
 STRIP = @STRIP@
 SWIG = @SWIG@
 SWIG_COMMAND = @SWIG_COMMAND@
@@ -274,13 +277,7 @@ target_alias = @target_alias@
 target_cpu = @target_cpu@
 target_os = @target_os@
 target_vendor = @target_vendor@
-INCLUDES = -I$(top_srcdir)/src/include \
-           -I$(top_srcdir)/lib/shout \
-	   -I$(top_srcdir)/lib/sdl_ttf \
-	   -I$(top_srcdir)/lib/sdl_gfx \
-	   -I$(top_srcdir)/lib/javascript \
-	   -I$(top_srcdir)/lib/javascript/obj
-
+INCLUDES = @FREEJ_STATIC_INCLUDES@
 FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@
 PERL_SOURCE = freej_perl.cpp
 BUILT_SOURCES = $(PERL_SOURCE)
@@ -291,7 +288,7 @@ pkgperlexec_LTLIBRARIES = Freej.la
 Freej_la_LDFLAGS = -module -avoid-version
 Freej_la_CXXFLAGS = -I$(perl_archdir)/CORE $(FREEJ_FLAGS) @PERL_CFLAGS@
 Freej_la_SOURCES = $(PERL_SOURCE)
-Freej_la_LIBADD = -L$(top_srcdir)/src/.libs -lfreej
+Freej_la_LIBADD = -L$(top_builddir)/src/.libs -lfreej
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 

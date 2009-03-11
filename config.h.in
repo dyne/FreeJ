@@ -183,7 +183,7 @@
 /* define if linking freetype for text rendering */
 #undef WITH_FT2
 
-/* Define is using the javascript interpreter */
+/* Define if using libmozjs for spidermonkey javascript */
 #undef WITH_JAVASCRIPT
 
 /* define if compiling midi controller */
