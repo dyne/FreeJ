@@ -351,7 +351,7 @@ AC_ARG_ENABLE(flash,
   else
     have_flash=yes;
   fi ],[ have_flash=yes ])
-AC_MSG_CHECKING(compiling flash (v3 animation only) layer)
+AC_MSG_CHECKING(compiling flash - v3 animation only - layer)
 if test x$have_flash = xyes; then
    AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
    FLASH_LIBS="\$(top_srcdir)/lib/flash/libflash.la"
@@ -605,21 +605,50 @@ AC_SUBST(GOOM_PPC_FILES)
 dnl ==============================================================
 dnl compile including the javascript interpreter
 dnl ==============================================================
-AC_DEFINE(WITH_JAVASCRIPT,1,[Define is using the javascript interpreter])
-if test x$have_linux = xyes ; then
-  AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
-fi
-if test x$have_darwin = xyes ; then
-  AC_DEFINE(XP_MAC,1,[Define use of MAC types in javascript])
-fi
-if test x$debug = xyes ; then
-  JS_CFLAGS="$JS_CFLAGS -DJS_GCMETER"
+
+MOZJS_LIBS=""
+MOZJS_CFLAGS=""
+JS_DIR=""
+# ubuntu check for libmozjs-dev
+# i guess debian calls it something else
+# these distros are so good at making developers life more difficult GRRR
+PKG_CHECK_MODULES(MOZJS, xulrunner-js, have_mozjs=yes, have_mozjs=no)
+if test x$have_mozjs = xyes; then
+   MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
+
+dnl see https://bugs.launchpad.net/ubuntu/+source/xulrunner-1.9/+bug/273956
+dnl    pps will fail to link libmozjs since the library is compiled without -DJS_THREADSAFE
+dnl    and to the contrary the .pc file xulrunner-js adopts -DJS_THREADSAFE in the CFLAGS
+dnl    this will generate such an error:
+dnl    undefined reference to `js_GetSlotThreadSafe(JSContext*, JSObject*, unsigned int)'
+   MOZJS_CFLAGS="`echo $MOZJS_CFLAGS | sed 's/-DJS_THREADSAFE//'`"
+dnl    i really cannot figure out how comes the packaging of xulrunner is such a crap
+dnl    in debian, ubuntu and so on. we are stuck at static linking since years :/
+
+else
+   MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
+   MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
+   JS_DIR="javascript"
+   if test x$have_linux = xyes ; then
+      AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
+   fi
+   if test x$have_darwin = xyes ; then
+      AC_DEFINE(XP_MAC,1,[Define use of MAC types in javascript])
+   fi
+   if test x$debug = xyes ; then
+      MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
+   fi
 fi
 
+AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascript])
+AC_SUBST(MOZJS_LIBS)
+AC_SUBST(MOZJS_CFLAGS)
+AC_SUBST(JS_DIR)
 
-
-AC_SUBST(BUILDLIBS)
-AC_SUBST(STATIC_LIBS)
+dnl OLD STATIC:
+dnl AC_DEFINE(WITH_JAVASCRIPT,1,[Define is using the javascript interpreter])
+dnl AC_SUBST(BUILDLIBS)
+dnl AC_SUBST(STATIC_LIBS)
 
 
 dnl ==============================================================
@@ -823,6 +852,11 @@ else
 	echo "  in case you are packing a binary package please take care"
 	echo "  because of this many users will miss important functionality"
 fi
+
+echo "= javascript interpreter"
+echo "  LIBS  : $MOZJS_LIBS"
+echo "  CFLAGS: $MOZJS_CFLAGS"
+
 if test x$have_unicap = xyes; then
 echo "= unicap library"
 echo "  LIBS  : $UNICAP_LIBS"

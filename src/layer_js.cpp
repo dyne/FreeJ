@@ -89,8 +89,8 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
       return NULL;    }
     
   } else if(argc==2) {
-    js_ValueToUint16(cx, argv[0], &width);
-    js_ValueToUint16(cx, argv[1], &height);
+    JS_ValueToUint16(cx, argv[0], &width);
+    JS_ValueToUint16(cx, argv[1], &height);
     if(!init(env, width, height)) {
       snprintf(err_msg, MAX_ERR_MSG,
 	       "Layer constructor failed initialization w[%u] h[%u]", width, height);
@@ -98,8 +98,8 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     }
     
   } else if(argc==3) {
-    js_ValueToUint16(cx, argv[0], &width);
-    js_ValueToUint16(cx, argv[1], &height);
+    JS_ValueToUint16(cx, argv[0], &width);
+    JS_ValueToUint16(cx, argv[1], &height);
     JS_ARG_STRING(filename,2);
     if(!init(env, width, height)) {
       snprintf(err_msg, MAX_ERR_MSG,
