@@ -47,7 +47,7 @@ JsParser::JsParser(Context *_env) {
 
 JsParser::~JsParser() {
     /** The world is over */
-    JS_DestroyContext(js_context);
+  //    JS_DestroyContext(js_context);
     JS_DestroyRuntime(js_runtime);
     JS_ShutDown();
     func("JsParser::close()");
