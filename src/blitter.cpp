@@ -153,14 +153,13 @@ void Blitter::crop(Layer *lay, ViewPort *scr) {
   if(lay->rotating | lay->zooming) {
 
     geo = &lay->geo_rotozoom;
-    // shift up/left to center rotation
-    geo->x = geo->x - (lay->geo_rotozoom.w - geo->w)/2;
-    geo->y = geo->y - (lay->geo_rotozoom.h - geo->h)/2;
 
-    geo->w = lay->geo_rotozoom.w;
-    geo->h = lay->geo_rotozoom.h;
+    // shift up/left to center rotation
+    geo->x = lay->geo.x - (geo->w - lay->geo.w)/2;
+    geo->y = lay->geo.y - (geo->h - lay->geo.h)/2;
+
     geo->bpp = 32;
-    geo->pitch = 4*lay->geo.w;
+    geo->pitch = 4*geo->w;
 
   } else geo = &lay->geo;
 
@@ -263,7 +262,7 @@ void Blitter::crop(Layer *lay, ViewPort *scr) {
   }
   
   // calculate bytes per row
-  b->lay_bytepitch = b->lay_pitch * (geo->bpp/8);
+  b->lay_bytepitch = b->lay_pitch * 4;
   
 }  
 

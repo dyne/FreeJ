@@ -26,7 +26,6 @@
 #include <config.h>
 #include <SDL.h>
 
-#include <blitter.h>
 #include <closure.h>
 #include <linklist.h>
 

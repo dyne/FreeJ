@@ -38,6 +38,7 @@ class Context;
 class AudioCollector;
 class Iterator;
 class Blitter;
+class Blit;
 
 class JSClass;
 class JSContext;

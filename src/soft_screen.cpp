@@ -22,6 +22,7 @@
 #include <stdlib.h>
 
 #include <layer.h>
+#include <blitter.h>
 
 #include <jutils.h>
 #include <soft_screen.h>

@@ -26,6 +26,7 @@
 #include <SDL_syswm.h>
 
 #include <layer.h>
+#include <blitter.h>
 #include <linklist.h>
 #include <sdl_screen.h>
 
@@ -140,7 +141,10 @@ void SdlScreen::blit(Layer *src) {
     
     offset = rotozoom->pixels;
     // free the temporary surface (needed again in sdl blits)
-    
+    src->geo_rotozoom.w = rotozoom->w;
+    src->geo_rotozoom.h = rotozoom->h;
+
+
   } else offset = src->buffer;
 
 
@@ -174,7 +178,7 @@ void SdlScreen::blit(Layer *src) {
     
     (*b->sdl_fun)
       (offset, &b->sdl_rect, sdl_screen,
-       NULL, &src->geo, (void*)&b->value);
+       NULL, blitter->geo, (void*)&b->value);
 
   }
 

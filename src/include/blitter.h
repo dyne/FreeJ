@@ -139,6 +139,8 @@ class Blitter {
   ViewPort *screen; ///< the layer on which is applied the blitter
 
   Blit *default_blit;
+
+  ScreenGeometry *geo;
   
  private:
   int16_t old_lay_x;
@@ -151,10 +153,6 @@ class Blitter {
   uint16_t old_scr_w;
   uint16_t old_scr_h;
 
-
-
-
-  ScreenGeometry *geo;
 
 };
 
