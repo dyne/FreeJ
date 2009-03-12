@@ -620,7 +620,7 @@ dnl ==============================================================
 MOZJS_LIBS=""
 MOZJS_CFLAGS=""
 JS_DIR=""
-PKG_CHECK_MODULES(MOZJS, mozilla-js, have_mozjs=yes, have_mozjs=no)
+PKG_CHECK_MODULES(MOZJS, mozilla-js libxul-embedding-unstable, have_mozjs=yes, have_mozjs=no)
 if test x$have_mozjs = xyes; then
    MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
 
@@ -638,15 +638,16 @@ else
    # libs in top_srcdir instead of top_builddir because js is not under autotools
    MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
    JS_DIR="javascript"
-   if test x$have_linux = xyes ; then
-      AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
-   fi
-   if test x$have_darwin = xyes ; then
-      AC_DEFINE(XP_MAC,1,[Define use of MAC types in javascript])
-   fi
    if test x$debug = xyes ; then
       MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
    fi
+fi
+
+if test x$have_linux = xyes ; then
+   AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
+fi
+if test x$have_darwin = xyes ; then
+   AC_DEFINE(XP_MAC,1,[Define use of MAC types in javascript])
 fi
 
 AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascript])
