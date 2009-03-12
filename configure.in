@@ -621,17 +621,22 @@ MOZJS_LIBS=""
 MOZJS_CFLAGS=""
 JS_DIR=""
 PKG_CHECK_MODULES(MOZJS, mozilla-js libxul-embedding-unstable, have_mozjs=yes, have_mozjs=no)
+if test x$have_mozjs = xno; then
+PKG_CHECK_MODULES(MOZJS, xulrunner-js, have_mozjs=yes, have_mozjs=no)
+ if test x$have_mozjs = xyes; then
+  dnl see https://bugs.launchpad.net/ubuntu/+source/xulrunner-1.9/+bug/273956
+  dnl    pps will fail to link libmozjs since the library is compiled without -DJS_THREADSAFE
+  dnl    and to the contrary the .pc file xulrunner-js adopts -DJS_THREADSAFE in the CFLAGS
+  dnl    this will generate such an error:
+  dnl    undefined reference to `js_GetSlotThreadSafe(JSContext*, JSObject*, unsigned int)'
+  MOZJS_CFLAGS="`echo $MOZJS_CFLAGS | sed 's/-DJS_THREADSAFE//'`"
+  dnl    i really cannot figure out how comes the packaging of xulrunner is such a crap
+  dnl    in debian, ubuntu and so on. we are stuck at static linking since years :/
+ fi
+fi
+
 if test x$have_mozjs = xyes; then
    MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
-
-dnl see https://bugs.launchpad.net/ubuntu/+source/xulrunner-1.9/+bug/273956
-dnl    pps will fail to link libmozjs since the library is compiled without -DJS_THREADSAFE
-dnl    and to the contrary the .pc file xulrunner-js adopts -DJS_THREADSAFE in the CFLAGS
-dnl    this will generate such an error:
-dnl    undefined reference to `js_GetSlotThreadSafe(JSContext*, JSObject*, unsigned int)'
-#   MOZJS_CFLAGS="`echo $MOZJS_CFLAGS | sed 's/-DJS_THREADSAFE//'`"
-dnl    i really cannot figure out how comes the packaging of xulrunner is such a crap
-dnl    in debian, ubuntu and so on. we are stuck at static linking since years :/
 
 else
    MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
