@@ -17,6 +17,9 @@
 
 #include <list>
 #include <string>
+#include <typeinfo>
+
+#include <closure.h>
 
 /*
  * CallbackHandler - pseudocode/draft/will_it_compile?
@@ -65,13 +68,19 @@ namespace callbacks {
       ~CbackDataFun0() { calls_.clear(); }
 
       bool add_call(FunctionType call) {
-        if (get_fun_(call)) {
-          warning("%s %s, callback already added",
+        if (typeid(call) == typeid(function_)) {
+          if (get_fun_(call)) {
+            warning("%s %s, callback already added",
+                    __PRETTY_FUNCTION__, name_.c_str());
+            return false;
+          }
+          calls_.push_back(call);
+          return true;
+        } else {
+          warning("%s %s, signature mismatch",
                   __PRETTY_FUNCTION__, name_.c_str());
           return false;
         }
-        calls_.push_back(call);
-        return true;
       }
 
       bool rem_call(FunctionType call) {
@@ -113,19 +122,25 @@ namespace callbacks {
       ~CbackDataFun1() { calls_.clear(); }
 
       bool add_call(FunctionType call) {
-        if (get_fun_(call)) {
-          warning("%s %s, callback already added",
-                  __PRETTY_FUNCTION__, name);
+        if (typeid(call) == typeid(function_)) {
+          if (get_fun_(call)) {
+            warning("%s %s, callback already added",
+                    __PRETTY_FUNCTION__, name_.c_str());
+            return false;
+          }
+          calls_.push_back(call);
+          return true;
+        } else {
+          warning("%s %s, signature mismatch",
+                  __PRETTY_FUNCTION__, name_.c_str());
           return false;
         }
-        calls_.push_back(call);
-        return true;
       }
 
       bool rem_call(FunctionType call) {
         if (!get_fun_(call)) {
           warning("%s %s, callback not present",
-                  __PRETTY_FUNCTION__, name);
+                  __PRETTY_FUNCTION__, name_.c_str());
           return false;
         }
         calls_.remove(call);
@@ -168,7 +183,6 @@ class CallbackHandler {
           warning("%s name %s not found", __PRETTY_FUNCTION__, name);
           return false;
       }
-      // here we have a static checking for callback signature
       callbacks::CbackDataFun0* c0 = static_cast<callbacks::CbackDataFun0 *>(c);
       return c0->add_call(prototype);
     }
@@ -180,7 +194,7 @@ class CallbackHandler {
           warning("%s name %s not found", __PRETTY_FUNCTION__, name);
           return false;
       }
-      callbacks::CbackDataFun1<Arg1>* c1 = c;
+      callbacks::CbackDataFun1<Arg1>* c1 = static_cast<callbacks::CbackDataFun1<Arg1>*>(c);
       return c1->add_call(prototype);
     }
 
@@ -202,7 +216,7 @@ class CallbackHandler {
           warning("%s name %s not found", __PRETTY_FUNCTION__, name);
           return false;
       }
-      callbacks::CbackDataFun1<Arg1>* c1 = c;
+      callbacks::CbackDataFun1<Arg1>* c1 = static_cast<callbacks::CbackDataFun1<Arg1>*>(c);
       return c1->rem_call(prototype);
     }
 
@@ -219,7 +233,7 @@ class CallbackHandler {
     bool register_callback(const char *name, void (*prototype)()) {
       callbacks::CbackData *c = get_data_(name);
       if (c) {
-          warning("%s name %s already registered", __PRETTY_FUNCTION, name);
+          warning("%s name %s already registered", __PRETTY_FUNCTION__, name);
           return false;
       }
       c = new callbacks::CbackDataFun0(name, prototype);
@@ -231,7 +245,7 @@ class CallbackHandler {
     bool register_callback(const char *name, void (*prototype)(Arg1)) {
       callbacks::CbackData *c = get_data_(name);
       if (c) {
-          warning("%s name %s already registered", __PRETTY_FUNCTION, name);
+          warning("%s name %s already registered", __PRETTY_FUNCTION__, name);
           return false;
       }
       c = new callbacks::CbackDataFun1<Arg1>(name, prototype);
@@ -258,7 +272,7 @@ class CallbackHandler {
           warning("%s name %s not found", __PRETTY_FUNCTION__, name);
           return false;
       }
-      callbacks::CbackDataFun1<Arg1>* c1 = c;
+      callbacks::CbackDataFun1<Arg1>* c1 = static_cast<callbacks::CbackDataFun1<Arg1>*>(c);
       c1->notify(dispatcher_, arg1);
       return true;
     }
@@ -274,6 +288,53 @@ class CallbackHandler {
     }
 
     std::list<callbacks::CbackData*> cbacks_;
+    ThreadedClosing *dispatcher_;
+};
+
+// TODO(shammash): quick hack to provide EOS callback immediately
+typedef void(*CbackFun)();
+
+class DumbCallback {
+  public:
+    DumbCallback() { dispatcher_ = new ThreadedClosing(); }
+    ~DumbCallback() {
+      calls_.clear();
+      delete dispatcher_;
+    }
+
+    bool add_call(CbackFun call) {
+      if (get_fun_(call)) {
+        warning("%s, callback already present", __PRETTY_FUNCTION__);
+        return false;
+      }
+      calls_.push_back(call);
+      return true;
+    }
+
+    bool rem_call(CbackFun call) {
+      if (!get_fun_(call)) {
+        warning("%s, callback already present", __PRETTY_FUNCTION__);
+        return false;
+      }
+      calls_.remove(call);
+      return true;
+    }
+
+    void notify() {
+      std::list<CbackFun>::iterator i;
+      for (i=calls_.begin() ; i!=calls_.end() ; i++)
+        dispatcher_->add_job(NewClosure(*i));
+    }
+
+  private:
+    CbackFun get_fun_(CbackFun call) {
+      CbackFun fun = NULL;
+      std::list<CbackFun>::iterator i;
+      for (i=calls_.begin() ; i!=calls_.end() ; i++)
+        if (*i == call) fun = call;
+      return fun;
+    }
+    std::list<CbackFun> calls_;
     ThreadedClosing *dispatcher_;
 };
 
