@@ -1,3 +1,6 @@
+#ifndef __CALLBACK_H__
+#define __CALLBACK_H__
+
 /*
  * Copyright (C) 2009 - Luca Bigliardi
  * This program is free software; you can redistribute it and/or
@@ -337,6 +340,8 @@ class DumbCallback {
     std::list<CbackFun> calls_;
     ThreadedClosing *dispatcher_;
 };
+
+#endif // __CALLBACK_H__
 
 // vim:tabstop=2:expandtab:shiftwidth=2
 
