@@ -33,6 +33,8 @@ extern "C" {
 #define NO_MARK -1
 #define FIFO_SIZE 2
 
+#include <callback.h>
+
 //void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl);
 
 class VideoLayer: public Layer {
@@ -108,6 +110,9 @@ class VideoLayer: public Layer {
 	int new_picture(AVPicture *p);
 	void free_picture(AVPicture *p);
 
+	// quick hack for EOS callback
+	DumbCallback *eos;
+
     public:
 	VideoLayer();
 	~VideoLayer();
@@ -130,6 +135,10 @@ class VideoLayer: public Layer {
 	bool set_mark_in();
 	bool set_mark_out();
 	void pause();
+
+	// quick hack for EOS callback
+	bool add_eos_call(CbackFun c) { return eos->add_call(c); }
+	bool rem_eos_call(CbackFun c) { return eos->rem_call(c); }
 };
 
 #endif

@@ -60,10 +60,13 @@ VideoLayer::VideoLayer()
   rgba_picture = NULL;
   frame_fifo.length = 0;
   jsclass = &video_layer_class;
+
+  eos = new DumbCallback();
 }
 
 VideoLayer::~VideoLayer() {
 	notice("Closing video %s", get_filename());
+	delete eos;
 	stop();
 	close();
 }
@@ -339,6 +342,7 @@ void *VideoLayer::feed() {
 	     * check eof and loop
 	     */
 	    if(ret!= 0) {
+	      eos->notify();
 	      ret = seek(avformat_context->start_time);
 	      if (ret < 0) {
 		error("VideoLayer::could not loop file");
