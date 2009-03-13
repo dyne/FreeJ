@@ -101,7 +101,7 @@ class Layer: public Entry, public JSyncThread {
   };
 
   Layer(); ///< Layer constructor
-  ~Layer(); ///< Layer destructor
+  virtual ~Layer(); ///< Layer destructor
 
   /* wrap JSyncThread::start() so we don't export JSyncThread on SWIG */
   int start() { return JSyncThread::start(); }
