@@ -11,6 +11,7 @@
 #include "blitter.h"
 #include "fps.h"
 #include "controller.h"
+#include "callback.h"
 
 #include "gen_f0r_layer.h"
 #include "text_layer.h"
@@ -95,6 +96,10 @@ freej_entry_typemap_in(Encoder);
 %include "jutils.h"
 %include "context.h"
 %include "screen.h"
+
+%ignore DumbCallback;
+%feature("director") DumbCall;
+%include "callback.h"
 
 %include "linklist.h"
 %template(EntryLinkList) Linklist<Entry>;
