@@ -54,7 +54,7 @@ SOURCES = \
 	controller.cpp  \
 	console_ctrl.cpp \
 	console_calls_ctrl.cpp \
-	console_keys_ctrl.cpp \
+	console_readline_ctrl.cpp \
 	console_widgets_ctrl.cpp \
 	kbd_ctrl.cpp	\
 	mouse_ctrl.cpp	\

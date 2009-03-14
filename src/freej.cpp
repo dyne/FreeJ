@@ -293,8 +293,9 @@ int main (int argc, char **argv) {
   if(!noconsole) {
     if( getenv("TERM") ) {
       Console *con = new Console();
-      con->init( &freej );
+      //      con->init( &freej );
       freej.register_controller( con );
+      set_console( con );
     }
   }
 

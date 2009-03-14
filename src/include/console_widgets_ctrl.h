@@ -28,9 +28,25 @@ class Context;
 class Layer;
 class FilterInstance;
 
-class SlwSelector : public SLangWidget {
-  
-public:
+class SlwTitle : public SLangWidget {
+ public:
+  SlwTitle();
+  ~SlwTitle();
+
+  bool init();
+  bool feed(int key);
+  bool refresh();
+
+  Context *env;
+
+ private:
+  char title[256];
+  int titlelen;
+
+};
+
+class SlwSelector : public SLangWidget {  
+ public:
 
   SlwSelector();
   ~SlwSelector();
@@ -41,12 +57,13 @@ public:
 
   Context *env;
   
-private:
+ private:
   Layer *layer;
   FilterInstance *filter;
+  
+  char *tmp;
 
 };
-
 
 
 #endif

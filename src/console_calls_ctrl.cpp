@@ -27,6 +27,7 @@
 #include <errno.h>
 
 #include <console_calls_ctrl.h>
+#include <console_readline_ctrl.h>
 #include <console_ctrl.h>
 #include <parameter.h>
 #include <context.h>
@@ -490,7 +491,7 @@ int console_filebrowse_completion(Context *env, char *cmd) {
     strncpy(cmd,path,MAX_CMDLINE);
 
   }
-  
+  func("file completion: %s",cmd);
   // at this point in path there should be something valid
   found = scandir
     (path,&filelist,

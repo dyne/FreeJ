@@ -65,6 +65,7 @@ static int getkey_handler() {
 SLangConsole::SLangConsole() {
 
   w = h = 0;
+  focused = NULL;
 
 }
 
@@ -154,7 +155,7 @@ bool SLangConsole::init() {
 }
 
 void SLangConsole::close() {
-
+  func("%s",__PRETTY_FUNCTION__);
   SLsmg_reset_smg();
   SLang_reset_tty();
 }
@@ -218,7 +219,10 @@ bool SLangConsole::place(SLangWidget *wid, int hx, int hy, int lx, int ly) {
 	// wid->refresh();	
 
 	// focus the first widget
-	if(!focused) focused = wid;
+	if(!focused) {
+	  func("setting focus on widget %s",wid->name);
+	  focused = wid;
+	}
 
 	return true;
 }
@@ -252,12 +256,12 @@ bool SLangConsole::refresh() {
     }
   }
 
-  if(focused && !keyboard_quit)
-	  if(focused->cursor) {
-	    SLtt_set_cursor_visibility(1);
-	    focused->gotoxy( focused->cur_x, focused->cur_y);
-          } else
-	    SLtt_set_cursor_visibility(0);
+//   if(focused && !keyboard_quit)
+// 	  if(focused->cursor) {
+// 	    SLtt_set_cursor_visibility(1);
+// 	    focused->gotoxy( focused->cur_x, focused->cur_y);
+//           } else
+// 	    SLtt_set_cursor_visibility(0);
 
  
   SLsmg_refresh();

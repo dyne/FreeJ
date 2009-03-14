@@ -35,6 +35,7 @@
 #include <console_ctrl.h>
 #include <console_calls_ctrl.h>
 #include <console_widgets_ctrl.h>
+#include <console_readline_ctrl.h>
 
 #include <slw_console.h>
 #include <keycodes.h>
@@ -96,15 +97,28 @@ int quit_proc(Context *env, char *cmd) {
 
 Console::Console() {
   env=NULL;
-  movestep=2;
-  commandline = false;
-  parser = DEFAULT;
   active = false;
   paramsel = 1;
+
+  slw = NULL;
+  sel = NULL;
+  log = NULL;
+  tit = NULL;
+  rdl = NULL;
+
+
 }
 
 Console::~Console() {
-  close();
+  set_console(NULL);
+  SLtt_set_cursor_visibility(1);
+
+  if(sel) delete sel;
+  if(log) delete log;
+  if(slw) delete slw;
+  if(tit) delete tit;
+  if(rdl) delete rdl;
+
 }
 
 bool Console::init(Context *freej) {
@@ -118,64 +132,50 @@ bool Console::init(Context *freej) {
   SLang_set_abort_signal(sigint_handler);
   SLkp_set_getkey_function(getkey_handler);
 
-
-  canvas();
-
   SLtt_set_cursor_visibility(0);
+
+  // title
+  tit = new SlwTitle();
+  tit->set_name("console title");
+  tit->env = freej;
+  slw->place(tit, 0, 0, slw->w, 2);
+  tit->init();
+  /////////////////////////////////
 
   // layer and filter selector
   sel = new SlwSelector();
   sel->set_name("layer & filter selector");
   sel->env = freej;
-  slw->place(sel, 0, 1, slw->w, 8);
+  slw->place(sel, 0, 2, slw->w, 8);
   sel->init();
   ////////////////////////////
 
   // log scroller
   log = new SLW_Log();
   log->set_name("console log messages");
-  slw->place(log, 0, 9, slw->w, slw->h -3);
+  slw->place(log, 0, 10, slw->w, slw->h -3);
   log->init();
+  ////////////////////////////
+
+
+  // status line
+  rdl = new SlwReadline();
+  rdl->set_name("console readline");
+  rdl->env = freej;
+  slw->place(rdl, 0, slw->h-1, slw->w, slw->h);
+  rdl->init();
+  statusline(NULL);
   ////////////////////////////
 
   set_console(this);
 
-  print_help();
+  refresh();
 
-  slw->refresh();
-
+  initialized = true;
   active = true;
   return true;
 }
 
-void Console::close() {
-  SLtt_set_cursor_visibility(1);
-  set_console(NULL);
-  slw->close();
-}
-
-/* setup the flags and environment to read a new input
-   saves the pointer to the command processing function
-   to use it once the input is completed */
-int Console::readline(const char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
-  ::notice(msg);
-  //  update_scroll();
-  SLsmg_gotorc(SLtt_Screen_Rows - 1,0);
-  SLsmg_write_string((char *)":");
-  SLsmg_erase_eol();
-  
-  cursor = 0;
-  memset(command,EOL,MAX_CMDLINE);
-
-  SLtt_set_cursor_visibility(1);
-  cmd_process = proc;
-  cmd_complete = comp;
-  
-  commandline = true;
-  parser = COMMANDLINE;
-  
-  return 1;
-}
 
 
 int Console::dispatch() {
@@ -184,20 +184,19 @@ int Console::dispatch() {
 //  if(key) ::func("SLkd_getkey: %u",key);
 //  else return; /* return if key is zero */
   if(!key) return 0;
-
-  //  if(input) {
-  if(parser == COMMANDLINE) parser_commandline(key);
-  else if(parser == MOVELAYER) parser_movelayer(key);
-  //  else if(parser == JAZZ) parser_jazz(key);
-  else parser_default(key);
   
+  rdl->feed(key);
+
+  sel->feed(key);
+
+  log->feed(key);
+
   return 1;
 }
 
 int Console::poll() {
-
   if(keyboard_quit) {
-    readline("do you really want to quit? type yes to confirm:",&quit_proc,NULL);
+    rdl->readline("do you really want to quit? type yes to confirm:",&quit_proc,NULL);
     keyboard_quit = false;
     return 0;
   }
@@ -211,13 +210,20 @@ int Console::poll() {
 
   dispatch();
 
+
   // refresh all widgets
-  slw->refresh();
+  refresh();
 
   return(1);
 }
 
 void Console::refresh() {
+  tit->refresh();
+  log->refresh();
+  sel->refresh();
+  slw->refresh();
+  rdl->refresh();
+
 //   SLsmg_cls();
 //   canvas();
 //   speedmeter();
@@ -229,92 +235,17 @@ void Console::refresh() {
 
 }    
 
-void Console::print_help() {
-  notice("Hotkeys available in FreeJ console:");
-  act("ctrl+o  = Open a Layer (will prompt for path to file)");
-  act("Arrow keys browse selection thru layers and effects");
-  act("SPACE to de/activate layers and filters selected");
-  act("ENTER to start/stop layers selected");
-  act("+ and - move filters and effects thru chains");
-  act(" ! = Switch on/off On Screen Display information");
-  act(" @ = Switch on/off screen cleanup after every frame");
-  act("ctrl+e  = Add a Filter to a Layer");
-  act("ctrl+b  = Change the Blit for a Layer");
-  act("ctrl+v  = Fade the Blit Value for a Layer");
-  act("ctrl+a  = Move Rotate and Zoom a Layer"); 
-  act("ctrl+p  = Set Parameters for a Layer or Filter");
-  act("ctrl+t  = Add a new Text layer (will prompt for text)");
-  act("ctrl+x  = execute a javascript command");
-  act("ctrl+j  = load and execute a script file");
-  act("ctrl+l  = Cleanup and redraw the console");
-  act("ctrl+f  = Go to Fullscreen");
-  act("ctrl+c  = Quit FreeJ");
-}
 
 void Console::statusline(char *msg) {
-  SLsmg_set_color(TITLE_COLOR+20);
-  SLsmg_gotorc(SLtt_Screen_Rows - 1,0);
-
+  //  SLsmg_set_color(TITLE_COLOR+20);
   if(msg) {
-    SLsmg_write_string(msg);
-    SLsmg_erase_eol();
-  } else
-    SLsmg_write_string
-      ((char *)" use arrows to move selection, press ctrl-h for help with hotkeys      ");
-
-  SLsmg_set_color(PLAIN_COLOR);
-}
-
-
-void Console::speedmeter() {
-  char tmp[256];
-  int fps = env->fps->get();
-  SLsmg_gotorc(1,1);
-  sprintf(tmp,"Running at %u fps : ",fps);
-  SLsmg_set_color(PLAIN_COLOR);
-  SLsmg_write_string(tmp);
-  if(fps <10) {
-    SLsmg_set_color(12);
-    SLsmg_write_string("very slow ");
-  } else if(fps < 24) {
-    SLsmg_set_color(2);
-    SLsmg_write_string("slow ");
-  } else if(fps < 30) {
-    SLsmg_set_color(14);
-    SLsmg_write_string("ok ");
-  } else if(fps > 30) {
-    SLsmg_set_color(3);
-    SLsmg_write_string("smooth ");
-  } else if(fps > 40) {
-    SLsmg_set_color(13);
-    SLsmg_write_string("fast ");
-  } else if(fps > 50) {
-    SLsmg_set_color(13);
-    SLsmg_write_string("very fast ");
+    rdl->set_command(msg);
+    rdl->color = PLAIN_COLOR;
+  } else {
+    rdl->set_command((char*)" use arrows to move selection, press ctrl-h for help with hotkeys");
+    rdl->color = TITLE_COLOR + 20;
   }
-  SLsmg_draw_hline((int)fps);
-  SLsmg_set_color(PLAIN_COLOR);
-  SLsmg_erase_eol();
 
-}
-
-void Console::canvas() {
-  SLsmg_gotorc(0,0);
-  SLsmg_set_color(TITLE_COLOR+20);
-  SLsmg_printf((char *)" %s version %s | set the veejay free! | freej.dyne.org | ",
-	       PACKAGE, VERSION);
-  
-  /* this is RASTA SOFTWARE! */
-  SLsmg_set_color(32);
-  SLsmg_write_string((char *)"RAS");
-  SLsmg_set_color(34);
-  SLsmg_write_string((char *)"TAS");
-  SLsmg_set_color(33);
-  SLsmg_write_string((char *)"OFT");
-
-  SLsmg_set_color(PLAIN_COLOR);
-  SLsmg_gotorc(SLtt_Screen_Rows - 2,0);
-  SLsmg_draw_hline(72);
 }
 
 

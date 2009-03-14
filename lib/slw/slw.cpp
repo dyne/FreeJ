@@ -125,7 +125,8 @@ int SLangWidget::putnch(CHAR *str, int x, int y, int nchars) {
   int len;
   int nwrap = 0;
   
-  if( !nchars ) return 0;
+  if( !nchars )
+    nchars = strlen(str);
   
   // check validity of coordinates
   if( ! check(x, y) ) {

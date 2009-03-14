@@ -446,17 +446,14 @@ void Context::handle_controllers() {
 	}
   
   ctrl = (Controller *)controllers.begin();
-  //if(res) {
-      if(ctrl) {
-        controllers.lock();
-        while(ctrl) {
-          if(ctrl->active)
-            ctrl->poll();
-            ctrl = (Controller*)ctrl->next;
-        }
-        controllers.unlock();
-      }
-  //}
+  if(ctrl) {
+    controllers.lock();
+    while(ctrl) {
+      if(ctrl->active) ctrl->poll();
+      ctrl = (Controller*)ctrl->next;
+    }
+    controllers.unlock();
+  }
 
   // flushes all events that are leftover
   while( SDL_PeepEvents(&event,1,SDL_GETEVENT, SDL_ALLEVENTS) > 0 ) continue;

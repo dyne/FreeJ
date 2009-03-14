@@ -25,7 +25,6 @@
 #include <linklist.h>
 #include <slang.h>
 
-#define MAX_CMDLINE 256
 
 
 #define PLAIN_COLOR 1
@@ -34,10 +33,6 @@
 #define FILTERS_COLOR 4
 #define SCROLL_COLOR 5
 
-
-// just comfortable
-#define GOTO_CURSOR \
-      SLsmg_gotorc(SLtt_Screen_Rows - 1,cursor+1)
 
 
 /* TODO port to slang 2
@@ -48,15 +43,6 @@
 #endif
 */
 
-/* The SLscroll routines will use this structure. */
-typedef struct _File_Line_Type {
-  struct _File_Line_Type *next;
-  struct _File_Line_Type *prev;
-  char *data;			       /* pointer to line data */
-  int color; // line color
-} File_Line_Type;
-
-
 extern volatile int SLang_Error; // hack for fucking debian!
 
 class Context;
@@ -66,10 +52,10 @@ class FilterInstance;
 class SLangConsole;
 class SLW_Log;
 class SlwSelector;
+class SlwTitle;
+class SlwReadline;
 
-/* callback functions for console input modes */
-typedef int (cmd_process_t)(Context *env, char *cmd);
-typedef int (cmd_complete_t)(Context *env, char *cmd);
+
 
 
 class Console: public Controller {
@@ -91,54 +77,28 @@ class Console: public Controller {
   void act(const char *msg);
   void func(const char *msg);
   
-  /* takes a pointer to the function which will be
-     in charge of processing the input collected */
-  int readline(const char *msg, cmd_process_t *proc, cmd_complete_t *comp);  
 
   void refresh();
 
   bool active;
 
-  Linklist<Entry> history;
 
  private:
 
   SLangConsole *slw;
   SlwSelector *sel;
+  SlwTitle *tit;
   SLW_Log *log;
+  SlwReadline *rdl;
 
   int x,y;
 
-  void canvas();
-
   int paramsel;
-
-  void speedmeter();
 
   void statusline(char *msg);
 
-  void print_help();
-
-
-  void scroll(const char *msg,int color);
-
   int movestep;
 
-  /* input console command */
-  bool commandline;
-  int cursor;
-  char command[MAX_CMDLINE];
-  cmd_process_t *cmd_process;
-  cmd_complete_t *cmd_complete;
-
-  enum parser_t { DEFAULT,
-		  COMMANDLINE,
-		  MOVELAYER,
-		  JAZZ } parser; // which parser to use for keys
-
-  void parser_default(int key);
-  void parser_commandline(int key);
-  void parser_movelayer(int key);
 
 };
 

@@ -91,9 +91,9 @@ bool SLW_Log::feed(int key) {
 		refresh();
 		}
 	break;
-	default:
-		func("key [ %c : %u ] fed to log", key, key);
-		refresh();
+	default: break;
+	  //		func("key [ %c : %u ] fed to log", key, key);
+	  //		refresh();
 	}
   // TODO: scrolling pg-up down
   return true;
@@ -128,13 +128,18 @@ bool SLW_Log::refresh() {
 }
 
 void SLW_Log::append(const char *text) {
-	int len = strlen(text);
 	Row *r = new Row();
+	int len = strlen(text);
+	
 	r->insert_string((char*)text, len);
+
 	textconsole->rows.append( r );
+
 	if(!scrolling) textconsole->cur_row = r;
+
 	if(textconsole->cur_y < textconsole->h)
 		textconsole->cur_y++;
+
 	if(!scrolling & (textconsole->cur_y >= textconsole->h) )
 		textconsole->vis_row_in = (Row*) textconsole->vis_row_in->next;
 }
