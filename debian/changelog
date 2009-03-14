@@ -11,8 +11,9 @@ freej (0.10git20090312-1) unstable; urgency=low
   * Enable upload for DM.
   * Add vcs fields.
   * Add python-freej package.
+  * Depend on xulrunner and mozjs to use external js interpreter.
 
- -- Luca Bigliardi <shammash@artha.org>  Sat, 14 Mar 2009 12:31:39 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Sat, 14 Mar 2009 17:08:14 +0100
 
 freej (0.10git20080824-1) unstable; urgency=low
 

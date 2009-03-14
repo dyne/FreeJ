@@ -8,7 +8,7 @@ Vcs-Git: git://git.dyne.org/freej.git
 Vcs-Browser: http://git.dyne.org/?r=freej
 Homepage: http://freej.dyne.org/
 XS-Python-Version: all
-Build-Depends: cdbs, libtool, debhelper (>> 7.0.0), pkg-config, flex, bison, libsdl-dev, libpng-dev, libfreetype6-dev, libfontconfig-dev, libogg-dev, libvorbis-dev, libjpeg-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev, libswscale-dev, libunicap2-dev, libbluetooth-dev, fftw3-dev, libjack-dev, libasound-dev, libhtml-template-perl, python-all-dev, python-central (>= 0.6), swig
+Build-Depends: cdbs, libtool, debhelper (>> 7.0.0), pkg-config, flex, bison, libsdl-dev, libpng-dev, libfreetype6-dev, libfontconfig-dev, libogg-dev, libvorbis-dev, libjpeg-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev, libswscale-dev, libunicap2-dev, libbluetooth-dev, fftw3-dev, libjack-dev, libasound-dev, libhtml-template-perl, python-all-dev, python-central (>= 0.6), swig, libmozjs-dev (>= 1.9.0.6), xulrunner-dev (>= 1.9.0.6)
 Standards-Version: 3.8.0
 
 
