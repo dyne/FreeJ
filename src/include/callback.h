@@ -21,9 +21,11 @@
 #include <list>
 #include <string>
 #include <typeinfo>
+#include <pthread.h>
 
 #include <closure.h>
 
+#if 0
 /*
  * CallbackHandler - pseudocode/draft/will_it_compile?
  *
@@ -293,51 +295,40 @@ class CallbackHandler {
     std::list<callbacks::CbackData*> cbacks_;
     ThreadedClosing *dispatcher_;
 };
+#endif
 
 // TODO(shammash): quick hack to provide EOS callback immediately
-typedef void(*CbackFun)();
+class DumbCall {
+  public:
+    DumbCall();
+    virtual ~DumbCall();
+
+    void notify();
+    void enqueue();
+    void dequeue();
+    
+    virtual void callback() {};
+
+  private:
+    pthread_mutex_t pending_; // used as a flag to block destructor if a call
+                              // is in progress
+    int refcount_; // reference counter for the number of calls in progress
+    pthread_mutex_t refcount_mutex_;
+};
 
 class DumbCallback {
   public:
-    DumbCallback() { dispatcher_ = new ThreadedClosing(); }
-    ~DumbCallback() {
-      calls_.clear();
-      delete dispatcher_;
-    }
+    DumbCallback();
+    ~DumbCallback();
 
-    bool add_call(CbackFun call) {
-      if (get_fun_(call)) {
-        warning("%s, callback already present", __PRETTY_FUNCTION__);
-        return false;
-      }
-      calls_.push_back(call);
-      return true;
-    }
-
-    bool rem_call(CbackFun call) {
-      if (!get_fun_(call)) {
-        warning("%s, callback already present", __PRETTY_FUNCTION__);
-        return false;
-      }
-      calls_.remove(call);
-      return true;
-    }
-
-    void notify() {
-      std::list<CbackFun>::iterator i;
-      for (i=calls_.begin() ; i!=calls_.end() ; i++)
-        dispatcher_->add_job(NewClosure(*i));
-    }
+    bool add_call(DumbCall *call);
+    bool rem_call(DumbCall *call);
+    void notify();
 
   private:
-    CbackFun get_fun_(CbackFun call) {
-      CbackFun fun = NULL;
-      std::list<CbackFun>::iterator i;
-      for (i=calls_.begin() ; i!=calls_.end() ; i++)
-        if (*i == call) fun = call;
-      return fun;
-    }
-    std::list<CbackFun> calls_;
+    DumbCall *get_call_(DumbCall *call);
+
+    std::list<DumbCall *> calls_;
     ThreadedClosing *dispatcher_;
 };
 

@@ -137,8 +137,8 @@ class VideoLayer: public Layer {
 	void pause();
 
 	// quick hack for EOS callback
-	bool add_eos_call(CbackFun c) { return eos->add_call(c); }
-	bool rem_eos_call(CbackFun c) { return eos->rem_call(c); }
+	bool add_eos_call(DumbCall *c) { return eos->add_call(c); }
+	bool rem_eos_call(DumbCall *c) { return eos->rem_call(c); }
 };
 
 #endif
