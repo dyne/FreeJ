@@ -20,6 +20,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 #include <config.h>
 
+/* non executable stack */
+#if defined(__linux__) && defined(__ELF__)
+.section .note.GNU-stack,"",%progbits
+#endif
+
 #if defined HAVE_MMX && !defined HAVE_64BIT
 
 /* The ccvt_* functions always start with width and height, so these
@@ -62,10 +67,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define Uptr        -68(%ebp)
 #define Vptr        -72(%ebp)
 
-/* non executable stack */
-#if defined(__linux__) && defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
 	.text
 
 /* This function will load the src and destination pointers, including
