@@ -29,6 +29,22 @@ Description: realtime video mixer and linear video editor
  This package contains freej console.
 
 
+Package: freej-dbg
+Section: devel
+Architecture: any
+Depends: freej (= ${binary:Version}), ${misc:Depends}
+Description: realtime video mixer and linear video editor
+ FreeJ is a digital instrument for realtime video manipulation used in
+ the fields of dance theater, veejaying, medical visualization and TV.
+ FreeJ lets you interact with multiple layers of video (images, movies,
+ live cameras, particle generators, text scrollers, flash animations and
+ more), filter them with effect chains and then mix them together. It can
+ be operated live from a text console and scripted to be controlled by
+ keyboard, midi, OSC and joysticks.
+ .
+ This package contains debugging symbols for freej console.
+
+
 Package: freej-doc
 Section: doc
 Architecture: any
@@ -60,6 +76,22 @@ Description: realtime video mixer and linear video editor
  keyboard, midi, OSC and joysticks.
  .
  This package contains freej library.
+
+
+Package: libfreej0-dbg
+Section: libdevel
+Architecture: any
+Depends: libfreej0 (= ${binary:Version}), ${misc:Depends}
+Description: realtime video mixer and linear video editor
+ FreeJ is a digital instrument for realtime video manipulation used in
+ the fields of dance theater, veejaying, medical visualization and TV.
+ FreeJ lets you interact with multiple layers of video (images, movies,
+ live cameras, particle generators, text scrollers, flash animations and
+ more), filter them with effect chains and then mix them together. It can
+ be operated live from a text console and scripted to be controlled by
+ keyboard, midi, OSC and joysticks.
+ .
+ This package contains debugging symbols for freej library.
 
 
 Package: libfreej-dev
@@ -96,5 +128,21 @@ Description: realtime video mixer and linear video editor
  keyboard, midi, OSC and joysticks.
  .
  This package contains freej Python bindings.
+
+
+Package: python-freej-dbg
+Section: python
+Architecture: any
+Depends: python-freej (= ${binary:Version}), python-all-dbg, ${misc:Depends}
+Description: realtime video mixer and linear video editor
+ FreeJ is a digital instrument for realtime video manipulation used in
+ the fields of dance theater, veejaying, medical visualization and TV.
+ FreeJ lets you interact with multiple layers of video (images, movies,
+ live cameras, particle generators, text scrollers, flash animations and
+ more), filter them with effect chains and then mix them together. It can
+ be operated live from a text console and scripted to be controlled by
+ keyboard, midi, OSC and joysticks.
+ .
+ This package contains debugging symbols for freej Python bindings.
 
 

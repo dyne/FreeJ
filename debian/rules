@@ -5,11 +5,15 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/autotools.mk
 #include /usr/share/cdbs/1/rules/dpatch.mk
 
-DEB_CONFIGURE_EXTRA_FLAGS := --disable-cpuflags
+DEB_CONFIGURE_EXTRA_FLAGS := --disable-cpuflags --enable-debug
 
 DEB_DH_INSTALL_SOURCEDIR := debian/tmp
 
 DEB_BUILDDIR := build-core
+
+DEB_DBG_PACKAGE_freej := freej-dbg
+DEB_DBG_PACKAGE_libfreej0 := libfreej0-dbg
+DEB_DBG_PACKAGE_python-freej := python-freej-dbg
 
 # Don't compress .py
 DEB_COMPRESS_EXCLUDE := .py
