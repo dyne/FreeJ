@@ -20,6 +20,12 @@
 */
 
 #include <config.h>
+
+/* non executable stack */
+#if defined(__linux__) && defined(__ELF__)
+.section .note.GNU-stack,"",%progbits
+#endif
+
 #if defined HAVE_MMX && !defined HAVE_64BIT
 
 /* The ccvt_* functions always have 4 paramaters:
@@ -46,11 +52,6 @@
 
 #define Uptr        -4(%ebp)
 #define Vptr        -8(%ebp)
-
-/* non executable stack */
-#if defined(__linux__) && defined(__ELF__)
-.section .note.GNU-stack,"",%progbits
-#endif
 
 	.data
 
