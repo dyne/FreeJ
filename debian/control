@@ -95,6 +95,6 @@ Description: realtime video mixer and linear video editor
  be operated live from a text console and scripted to be controlled by
  keyboard, midi, OSC and joysticks.
  .
- This package contains freej python bindings.
+ This package contains freej Python bindings.
 
 
