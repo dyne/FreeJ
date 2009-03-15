@@ -58,10 +58,7 @@ static void new_frame_bgr24_cb (unicap_event_t event, unicap_handle_t handle,
 			  unicap_data_buffer_t * buffer, void *usr_data) {
   UnicapLayer *lay = (UnicapLayer*)usr_data;
 
-#warning FIXME: missing ccvt_yuyv_bgr32 in ppc ?!
-#if defined HAVE_MMX && !defined HAVE_64BIT
   ccvt_bgr24_bgr32(lay->geo.w, lay->geo.h, buffer->data, lay->rgba[lay->swap]);
-#endif
 
   lay->feed_ready = lay->rgba[lay->swap];
 
@@ -73,10 +70,7 @@ static void new_frame_yuyv_cb (unicap_event_t event, unicap_handle_t handle,
 			  unicap_data_buffer_t * buffer, void *usr_data) {
   UnicapLayer *lay = (UnicapLayer*)usr_data;
 
-#warning FIXME: missing ccvt_yuyv_bgr32 in ppc ?!
-#if defined HAVE_MMX && !defined HAVE_64BIT
   ccvt_yuyv_bgr32(lay->geo.w, lay->geo.h, buffer->data, lay->rgba[lay->swap]);
-#endif
 
   lay->feed_ready = lay->rgba[lay->swap];
 
