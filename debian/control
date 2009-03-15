@@ -1,5 +1,5 @@
 Source: freej
-Section: graphics
+Section: video
 Priority: optional
 Maintainer: Luca Bigliardi <shammash@artha.org>
 Uploaders: Guido Trotter <ultrotter@debian.org>, Denis Rojo <jaromil@dyne.org>
@@ -13,7 +13,7 @@ Standards-Version: 3.8.0
 
 
 Package: freej
-Section: graphics
+Section: video
 Architecture: any
 Depends: libfreej0 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
 Suggests: freej-doc
@@ -30,7 +30,7 @@ Description: realtime video mixer and linear video editor
 
 
 Package: freej-dbg
-Section: devel
+Section: debug
 Architecture: any
 Depends: freej (= ${binary:Version}), ${misc:Depends}
 Description: realtime video mixer and linear video editor
@@ -79,7 +79,7 @@ Description: realtime video mixer and linear video editor
 
 
 Package: libfreej0-dbg
-Section: libdevel
+Section: debug
 Architecture: any
 Depends: libfreej0 (= ${binary:Version}), ${misc:Depends}
 Description: realtime video mixer and linear video editor
@@ -131,7 +131,7 @@ Description: realtime video mixer and linear video editor
 
 
 Package: python-freej-dbg
-Section: python
+Section: debug
 Architecture: any
 Depends: python-freej (= ${binary:Version}), python-all-dbg, ${misc:Depends}
 Description: realtime video mixer and linear video editor
