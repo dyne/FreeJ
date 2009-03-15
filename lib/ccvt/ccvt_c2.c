@@ -120,4 +120,49 @@ void ccvt_420p_rgb24(int width, int height, const void *src, void *dst)
 	WHOLE_FUNC2RGB(rgb24)
 }
 
+void ccvt_yuyv_bgr32(int width, int height, const void *src, void *dst)
+{
+   const unsigned char *s;
+   PIXTYPE_bgr32 *d;
+   int l, c;
+   int r, g, b, cr, cg, cb, y1, y2;
+
+   l = height;
+   s = src;
+   d = dst;
+   while (l--) {
+      c = width >> 2;
+      while (c--) {
+         y1 = *s++;
+         cb = ((*s - 128) * 454) >> 8;
+         cg = (*s++ - 128) * 88;
+         y2 = *s++;
+         cr = ((*s - 128) * 359) >> 8;
+         cg = (cg + (*s++ - 128) * 183) >> 8;
+
+         r = y1 + cr;
+         b = y1 + cb;
+         g = y1 - cg;
+         SAT(r);
+         SAT(g);
+         SAT(b);
+         d->b = b;
+         d->g = g;
+         d->r = r;
+         d++;
+         r = y2 + cr;
+         b = y2 + cb;
+         g = y2 - cg;
+         SAT(r);
+         SAT(g);
+         SAT(b);
+         d->b = b;
+         d->g = g;
+         d->r = r;
+         d++;
+      }
+   }
+
+}
+
 #endif
