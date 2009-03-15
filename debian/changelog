@@ -13,8 +13,9 @@ freej (0.10git20090312-1) unstable; urgency=low
   * Add python-freej package.
   * Depend on xulrunner and mozjs to use external js interpreter.
   * Don't check for particular cpu flags while compiling.
+  * Add -dbg packages for freej, libfreej0 and python-freej.
 
- -- Luca Bigliardi <shammash@artha.org>  Sun, 15 Mar 2009 13:52:38 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Sun, 15 Mar 2009 17:33:30 +0100
 
 freej (0.10git20080824-1) unstable; urgency=low
 
