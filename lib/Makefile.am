@@ -4,7 +4,7 @@ SUBDIRS = 	ccvt			\
 		sdl_ttf			\
 		lo			\
 		shout			\
-		frei0r			\
+		@FREI0R_DIR@		\
 		@JS_DIR@		\
 		@GOOM_DIR@		\
 		@CWIID_DIR@             \

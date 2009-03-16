@@ -679,6 +679,24 @@ AC_SUBST(UNICAP_LIBS)
 AC_SUBST(UNICAP_CFLAGS)
 
 dnl ==============================================================
+dnl frei0r plugins
+dnl ==============================================================
+FREI0R_DIR=""
+AC_ARG_ENABLE(frei0r,
+		[  --enable-frei0r       build internal frei0r plugins (yes)],
+		[
+		 if test ! x$enableval = xyes; then
+		     have_frei0r=no
+		 else
+		     have_frei0r=yes;
+		 fi ],[ have_frei0r=yes ])
+
+if test x$have_frei0r = xyes; then
+  FREI0R_DIR="frei0r"
+fi
+AC_SUBST(FREI0R_DIR)
+
+dnl ==============================================================
 dnl link with memory debugging library dmalloc
 dnl ==============================================================
 AC_CHECK_HEADER(dmalloc.h)
@@ -905,6 +923,11 @@ echo "  LIBS  : $UNICAP_LIBS"
 echo "  CFLAGS: $UNICAP_CFLAGS"
 else
 echo "= unicap library disabled"
+fi
+if test x$have_frei0r = xyes; then
+echo "= Build shipped frei0r plugins"
+else
+echo "= Do not build shipped frei0r plugins"
 fi
 if test x$have_flash = xyes; then
 echo "= Flash (ver.3 animations only)"
