@@ -64,7 +64,7 @@ install-stamp-%:
 install/python-freej:: $(addprefix install-stamp-, $(PY_VERSIONS))
 
 binary-install/python-freej::
-	dh_pycentral
+	dh_pycentral -p python-freej
 
 clean::
 	-rm -rf $(addprefix build-, $(PY_VERSIONS))
