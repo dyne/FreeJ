@@ -102,6 +102,10 @@ AC_LIBTOOL_DLOPEN
 AC_DISABLE_STATIC
 
 AM_PROG_LIBTOOL
+
+dnl This macro is defined in our own m4/as.m4 for compatibility with old
+dnl automake versions, if you experience problems please use AM_PROG_AS
+dnl provided by your system
 AM_PROG_AS
 
 
