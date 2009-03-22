@@ -2,7 +2,7 @@
 INCLUDES = -I$(top_builddir)/
 
 # Add INCLUDES to CFLAGS because it seems ignored while compiling .S files.
-CFLAGS += $(INCLUDES)
+CCASFLAGS += $(INCLUDES)
 
 AUTOMAKE_OPTIONS = foreign
 
