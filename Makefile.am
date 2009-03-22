@@ -11,3 +11,5 @@ pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = freej.pc
 
 SUBDIRS = lib src bindings scripts
+
+ACLOCAL_AMFLAGS = -I m4

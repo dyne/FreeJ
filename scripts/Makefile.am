@@ -1,7 +1,7 @@
 
 scriptsdir = "$(DESTDIR)$(prefix)/share/doc/$(PACKAGE)/scripts"
 
-DIRS    := $(shell for d in *; do test -d $$d && echo $$d; done)
+DIRS    = `for x in *; do test -d $$x && echo $$x; done`
 
 install:
 	test -z "$(scriptsdir)" || mkdir -p "$(scriptsdir)"
