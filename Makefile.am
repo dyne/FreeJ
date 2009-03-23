@@ -1,8 +1,6 @@
 docs_DATA = README README.OSX TODO INSTALL API COPYING USAGE AUTHORS NEWS doc/ipernav.png
 docsdir = ${prefix}/share/doc/${PACKAGE}
 
-EXTRA_DIST = setup.py
-
 man_MANS = doc/freej.1
 
 #pkgdatadir = ${prefix}/share/freej
