@@ -11,5 +11,6 @@ uninstall:
 	for subdir in $(DIRS); do rm -rf "$(scriptsdir)/$$subdir" ; done
 	rm -rf "$(scriptsdir)"
 
-# TODO(shammash): 'make dist' does not work here!!!
+dist-hook:
+	for scriptdir in $(DIRS); do cp -ra $$scriptdir "$(distdir)" ; done
 
