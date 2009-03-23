@@ -20,9 +20,8 @@ if [ "`uname -s`" = "Darwin" ]; then
 else
   LIBTOOL=libtool
   LIBTOOLIZE=libtoolize
-  ACLOCAL=aclocal-1.9
-  # this is REQUIRED to be 1.9! Please look INSTALL & README.
-  AUTOMAKE=automake-1.9
+  ACLOCAL=aclocal
+  AUTOMAKE=automake
 fi
 AUTOCONF=autoconf
 
@@ -41,7 +40,7 @@ DIE=0
 
 ($AUTOMAKE --version) < /dev/null > /dev/null 2>&1 || {
         echo
-        echo "You must have automake 1.9 installed to compile $package."
+        echo "You must have automake installed to compile $package."
 	echo "Download the appropriate package for your system,"
 	echo "or get the source from one of the GNU ftp sites"
 	echo "listed in http://www.gnu.org/order/ftp.html"
