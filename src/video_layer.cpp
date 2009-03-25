@@ -224,6 +224,8 @@ bool VideoLayer::open(const char *file) {
 	frame_rate = enc->frame_rate / 
 	  enc->frame_rate_base;
 #endif
+	// set the layer fps
+	fps.set(frame_rate);
 	/* this saves only file without full path! */
 	set_filename (file);
 	//				notice ("%s has codec: %s, height: %d width: %d", get_filename(), codec->name, enc->height, enc->width);

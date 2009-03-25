@@ -93,6 +93,8 @@ class Context {
   pthread_t cafudda_thread;
   bool running;
 
+  void *fps_manager;
+
  public:
 
   Context();

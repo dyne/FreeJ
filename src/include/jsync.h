@@ -25,7 +25,7 @@
 #include <queue>
 
 #include <closure.h>
-
+#include <fps.h>
 
 class JSyncThread {
  private:
@@ -42,19 +42,8 @@ class JSyncThread {
 
   void _run();
 
-  struct fps_data_t {
-      int i;
-      int n;
-      float sum;
-      float *data;
-  } fpsd;
+  FPS fps;
 
-  float _delay, _fps;
-  struct timeval start_tv;
-  struct timespec wake_ts;
-  void set_alarm(float);
-  void calc_fps();
-  
  public:
   
   JSyncThread();
@@ -75,10 +64,7 @@ class JSyncThread {
   void signal_feed() { pthread_cond_signal(&_cond_feed); };
   int sleep_feed();
 
-  float get_fps();
-  float set_fps(float);
   bool running, quit;
-  float fps, fps_old;
 
  protected:
 

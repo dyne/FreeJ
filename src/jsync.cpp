@@ -38,17 +38,8 @@ JSyncThread::JSyncThread() {
 
   pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_JOINABLE);
 
-	_fps = 0;
-	set_fps(25);
-	fpsd.sum = 0;
-	fpsd.i = 0;
-	fpsd.n = 30;
-	fpsd.data = new float[30];
-	for (int i=0; i<30; i++) {
-		fpsd.data[i] = 0;
-	}
-	running = false;
-	quit = false;
+  running = false;
+  quit = false;
 }
 
 
@@ -66,25 +57,23 @@ JSyncThread::~JSyncThread() {
   if(pthread_cond_destroy(&_cond_feed) == -1)
     error("error destroying POSIX thread feed attribute");
 
-	stop();
-	delete[] fpsd.data;
+  stop();
 
 }
 
 int JSyncThread::start() {
-	if (running)
-		return EBUSY;
-	quit = false;
-	set_alarm(0.0001);
-	return pthread_create(&_thread, &_attr, &kickoff, this);
+  if (running) return EBUSY;
+  quit = false;
+  fps.timeout(0.0001);
+  return pthread_create(&_thread, &_attr, &kickoff, this);
 }
 
 
 void JSyncThread::_run() {
-	running = true;
-	run();
-	unlock_feed();
-	running = false;
+  running = true;
+  run();
+  unlock_feed();
+  running = false;
 }
 
 void JSyncThread::stop() {
@@ -92,70 +81,19 @@ void JSyncThread::stop() {
 }
 
 int JSyncThread::sleep_feed() { 
-	if (_fps == 0) {
-			wait_feed();
-			return EINTR;
-	}
-	calc_fps();
-	//return ETIMEDOUT, EINTR=wecker
-	int ret =  pthread_cond_timedwait (&_cond_feed, &_mutex_feed, &wake_ts);
-	set_alarm(_delay);
-	return ret;
+  if (fps.get() == 0) {
+    wait_feed();
+    return EINTR;
+  }
+  fps.calc();
+  //return ETIMEDOUT, EINTR=wecker
+  int ret =  pthread_cond_timedwait (&_cond_feed, &_mutex_feed, &fps.wake_ts);
+  fps.timeout(NULL);
+  return ret;
 };
 
 void JSyncThread::wait_feed() {
 	pthread_cond_wait(&_cond_feed,&_mutex_feed);
-	set_alarm(_delay);
+	fps.timeout(NULL);
 };
-
-void JSyncThread::calc_fps() {
-	timeval now_tv;
-	gettimeofday(&now_tv,NULL);
-
-	float done = now_tv.tv_sec - start_tv.tv_sec +
-				(float)(now_tv.tv_usec - start_tv.tv_usec) / 1000000;
-	if (done == 0) return;
-	float curr_fps = 1 / done;
-
-	if (curr_fps > _fps) // we are in time
-		curr_fps = _fps;
-	else
-		set_alarm(0.0005); // force a little delay
-
-	// statistic only
-	fpsd.sum = fpsd.sum - fpsd.data[fpsd.i] + curr_fps;
-	fpsd.data[fpsd.i] = curr_fps;
-	if (++fpsd.i >= fpsd.n)
-		fpsd.i = 0;
-}
-
-float JSyncThread::get_fps() {
-	return (_fps ? fpsd.sum / fpsd.n : 0 );
-}
-
-float JSyncThread::set_fps(float fps_new) {
-	if (fps_new < 0) // invalid
-		return fps_old;
-
-	if (fps_new != _fps)
-		fps_old = _fps;
-
-	fps = fps_new; // public
-	_fps = fps_new;
-	if (_fps > 0)
-		_delay = 1/_fps;
-	return fps_old;
-}
-
-void JSyncThread::set_alarm(float delay) {
-	gettimeofday(&start_tv,NULL);
-	TIMEVAL_TO_TIMESPEC(&start_tv, &wake_ts);
-	wake_ts.tv_sec += (int)delay;
-	wake_ts.tv_nsec += int(1000000000*(delay - int(delay)));
-	if (wake_ts.tv_nsec >= 1000000000) {
-		wake_ts.tv_sec ++;
-		wake_ts.tv_nsec %= 1000000000;
-	}
-}
-
 

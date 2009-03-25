@@ -1415,19 +1415,19 @@ void Console::parser_default(int key) {
 	      !((Layer*)le)->active;
     break;
 
-    case KEY_CTRL_M: {
-		Layer *l=((Layer*)le);
-		if (l->fps > 0)
-			l->set_fps(0);
-		else
-			if (l->fps_old > 0)
-				l->set_fps(l->fps_old);
-			else
-				l->set_fps(env->fps_speed);
-		l->signal_feed();
-		::notice("Layer.set_fps(%f)", l->fps);
-	}
-	break;
+//     case KEY_CTRL_M: {
+// 		Layer *l=((Layer*)le);
+// 		if (l->fps > 0)
+// 			l->fps.set(0);
+// 		else
+// 			if (l->fps.fps_old > 0)
+// 				l->fps.set(l->fps_old);
+// 			else
+// 				l->set_fps(env->fps_speed);
+// 		l->signal_feed();
+// 		::notice("Layer.set_fps(%f)", l->fps);
+// 	}
+// 	break;
 
     case KEY_CTRL_E:
       readline("add new Effect - press TAB for completion:",&filter_proc,&filter_comp);

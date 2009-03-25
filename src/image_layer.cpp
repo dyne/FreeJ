@@ -118,8 +118,8 @@ bool ImageLayer::init(Context *freej) {
 
   return true;
 }
-void *ImageLayer::feed() {  
-  return surf->pixels;
+void *ImageLayer::feed() {
+  return ( (surf) ? surf->pixels : NULL );
 }
 
 void ImageLayer::close() {

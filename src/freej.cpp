@@ -35,7 +35,7 @@
 #include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
-#include <fps.h>
+//#include <fps.h>
 
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
@@ -171,7 +171,11 @@ void cmdline(int argc, char **argv) {
    case 'j':
       FILE *fd;
       fd = fopen(optarg,"r");
-      if(!fd) error("can't open JS file '%s': %s", optarg, strerror(errno));
+      if(!fd) {
+	error("can't open JS file '%s': %s", optarg, strerror(errno));
+	error("missing script, fatal error.");
+	exit(0);
+      }
       else {
 	snprintf(javascript,512,"%s",optarg);
 	fclose(fd);
@@ -341,7 +345,7 @@ int main (int argc, char **argv) {
       if(lay)  { 
         lay->start();
         freej.add_layer(lay);
-	lay->fps->set(fps);
+	lay->fps.set(fps);
 
         if (startstate) 
           lay->active = true;

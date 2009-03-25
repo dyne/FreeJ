@@ -47,7 +47,7 @@
 #include <jsparser.h>
 #include <video_encoder.h>
 #include <audio_collector.h>
-#include <fps.h>
+//#include <fps.h>
 
 #include <signal.h>
 #include <errno.h>
@@ -97,6 +97,10 @@ Context::Context() {
 
   fps_speed       = 25;
   fps = NULL;
+  fps_manager = (void*)new FPSmanager();
+  SDL_initFramerate((FPSmanager*)fps_manager);
+  SDL_setFramerate((FPSmanager*)fps_manager, 25);
+    
 
   layers_description = (char*)
 " .  - ImageLayer for image files (png, jpeg etc.)\n"
@@ -195,6 +199,7 @@ Context::~Context() {
   //  plugger.close();
 
   if(fps) delete(fps);
+  delete fps_manager;
 
   notice ("cu on http://freej.dyne.org");
 }
@@ -277,7 +282,7 @@ void Context::start() {
 	running = true;
 	while(!quit) {
 		cafudda(0.0);
-		fps->delay();
+		fps->calc();
 	}
 	running = false;
 }
@@ -337,15 +342,23 @@ void Context::cafudda(double secs) {
   if (lay) {
     layers.lock ();
     while (lay) {
-      if (lay->active) {
-	lay->blit();
+      if(lay->buffer)
+      if (lay->active & lay->opened) {
+	
+	lay->lock();
+	screen->blit(lay);
+	lay->unlock();
+	
+	lay->signal_feed();
+
       }
+
       lay = (Layer *)lay->prev;
     }
     env->layers.unlock ();
   }
   /////////// finish processing layers
-
+  
 
   ////////// flip the screen
   screen->show();
@@ -380,7 +393,10 @@ void Context::cafudda(double secs) {
   
 #ifndef WITH_COCOA
   /// FPS calculation
+  fps->calc();
   fps->delay();
+  //  SDL_framerateDelay((FPSmanager*)fps_manager);
+  
 #endif WITH_COCOA
 
 

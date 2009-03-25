@@ -35,7 +35,7 @@
 
 #include <jsparser_data.h>
 
-#include <fps.h>
+//#include <fps.h>
 
 Layer::Layer()
   :Entry(), JSyncThread() {
@@ -78,8 +78,9 @@ Layer::Layer()
 
   parameters = NULL;
   running = false;
-  fps = NULL;
-  frame_rate = 25; // default FPS
+
+  fps.set(25);
+
 }
 
 Layer::~Layer() {
@@ -95,7 +96,7 @@ Layer::~Layer() {
     jfree(bgmatte);
     bgmatte = NULL;
   }
-  if(fps) delete fps;
+
 }
 
 void Layer::_init(int wdt, int hgt) {
@@ -111,13 +112,8 @@ void Layer::_init(int wdt, int hgt) {
   //  geo.fps = env->fps_speed;
   geo.x = 0;//(freej->screen->w - geo.w)/2;
   geo.y = 0;//(freej->screen->h - geo.h)/2;
-  //  blitter->crop( freej->screen );
+  //  blitter->crop( freej->screen );  
 
-
-  
-  if(fps) delete(fps);
-  fps = new FPS();
-  fps->init(frame_rate);
 
   /* allocate memory for the matte background */
 //  bgmatte = jalloc(bgmatte,geo.size);
@@ -141,10 +137,9 @@ void Layer::run() {
     
   running = true;
  
-  func("%s deplaying until feed",get_name());
   deferred_calls->do_jobs();
-
-  while(!feed()) fps->delay();
+ 
+  while(!feed()) fps.calc();
 
   func(" layer %s entering loop",get_name());
  
@@ -190,10 +185,12 @@ void Layer::run() {
     }
 
     unlock();
+
+    fps.calc();
     
-    fps->delay();
     //wait_feed();
-    //    sleep_feed();
+    sleep_feed();
+
   }
     
   running = false;
@@ -249,7 +246,7 @@ bool Layer::cafudda() {
   do_iterators();
 
 
-  //signal_feed();
+  signal_feed();
 
   return(true);
 }

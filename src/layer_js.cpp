@@ -22,7 +22,7 @@
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 #include <layer.h>
-#include <fps.h>
+//#include <fps.h>
 #include <blitter.h>
 
 DECLARE_CLASS_GC("Layer",layer_class,layer_constructor, js_layer_gc);
@@ -161,11 +161,11 @@ JS(layer_constructor) {
 
 JS(layer_set_fps) {
 	GET_LAYER(Layer);
-	int fps_old = lay->fps->get();
+	int fps_old = lay->fps.get();
 
 	if(argc==1) {
 		JS_ARG_NUMBER(fps, 0);
-		fps_old = lay->fps->set(fps);
+		fps_old = lay->fps.set(fps);
 	}
 	lay->signal_feed();
 	return JS_NewNumberValue(cx, fps_old, rval);
@@ -173,7 +173,7 @@ JS(layer_set_fps) {
 
 JS(layer_get_fps) {
 	GET_LAYER(Layer);
-	double fps = double(lay->get_fps());
+	double fps = double(lay->fps.get());
 	return JS_NewNumberValue(cx, fps, rval);
 }
 

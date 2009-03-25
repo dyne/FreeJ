@@ -44,7 +44,6 @@ class JSClass;
 class JSContext;
 class JSObject;
 
-class FPS;
 
 /* function for type detection of implemented layers */
 extern const char *layers_description;
@@ -205,7 +204,7 @@ class Layer: public Entry, public JSyncThread {
 
   unsigned int textureID; ///< opengl texture id
 
-  FPS *fps; ///< FPS class
+  FPS fps; ///< FPS class
   int frame_rate; ///< value set by implemented layer type
 
  protected:
