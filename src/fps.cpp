@@ -106,14 +106,12 @@ int FPS::set(int rate) {
   _fps = rate;
   if (_fps > 0)
     _delay = 1/_fps;
-  act("fps set delay %f", _delay);
   return fps_old;
 }
 
 void FPS::timeout(float delta) {
   float d = (delta>0) ? delta : _delay;
 
-  act("timeout delta is %f", d);
   gettimeofday(&start_tv,NULL);
 
   TIMEVAL_TO_TIMESPEC(&start_tv, &wake_ts);
@@ -131,11 +129,11 @@ void FPS::timeout(float delta) {
     wake_ts.tv_nsec %=   1000000000;
   }
 
-  act("fps timeout %f %f",wake_ts.tv_sec, wake_ts.tv_nsec);
 }
 
 void FPS::delay() {
   //  nanosleep(&wake_ts, NULL);
+  /// pthread conditional timed wait is "more reentrant" :Q
   pthread_cond_timedwait(&_cond, &_mutex, &wake_ts);
   
 }

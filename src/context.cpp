@@ -97,9 +97,6 @@ Context::Context() {
 
   fps_speed       = 25;
   fps = NULL;
-  fps_manager = (void*)new FPSmanager();
-  SDL_initFramerate((FPSmanager*)fps_manager);
-  SDL_setFramerate((FPSmanager*)fps_manager, 25);
     
 
   layers_description = (char*)
@@ -199,7 +196,6 @@ Context::~Context() {
   //  plugger.close();
 
   if(fps) delete(fps);
-  delete fps_manager;
 
   notice ("cu on http://freej.dyne.org");
 }
@@ -395,7 +391,6 @@ void Context::cafudda(double secs) {
   /// FPS calculation
   fps->calc();
   fps->delay();
-  //  SDL_framerateDelay((FPSmanager*)fps_manager);
   
 #endif WITH_COCOA
 
