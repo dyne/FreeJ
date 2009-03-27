@@ -121,7 +121,7 @@ void FPS::timeout(float delta) {
 
 
   wake_ts.tv_sec += (int)d;
-  wake_ts.tv_nsec +=     100000000000*d;
+  wake_ts.tv_nsec +=     100000000000.0*d;
 
 
   if (wake_ts.tv_nsec >= 1000000000) {

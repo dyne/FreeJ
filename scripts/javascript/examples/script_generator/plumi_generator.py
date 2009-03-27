@@ -2,7 +2,8 @@
 # andy@engagemedia.org
 #generate a FreeJ javascript file, using a RSS2 feed
 
-from elementtree import ElementTree as et
+# from elementtree import ElementTree as et
+from xml.etree import ElementTree as et
 from Cheetah.Template import Template
 import urllib
 import os
