@@ -79,4 +79,4 @@ echo "  $AUTOCONF"
 $AUTOCONF || exit -1
 
 cd $olddir
-$srcdir/configure "$@" && echo
+# $srcdir/configure "$@" && echo
