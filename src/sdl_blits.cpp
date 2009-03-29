@@ -109,6 +109,7 @@ BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
 }
 
 void setup_sdl_blits(Blitter *blitter) {
+  Parameter *p;
   Blit *b;
 
   // SDL blits
@@ -128,7 +129,7 @@ void setup_sdl_blits(Blitter *blitter) {
   b->sdl_fun = sdl_alpha;
   blitter->blitlist.prepend(b);
   
-  Parameter *p = new Parameter(Parameter::NUMBER);
+  p = new Parameter(Parameter::NUMBER);
   strcpy(p->name, "alpha");
   p->description = "level of transparency of alpha channel (0.0 - 1.0)";
   b->parameters.append(p);
@@ -141,7 +142,7 @@ void setup_sdl_blits(Blitter *blitter) {
   b->sdl_fun = sdl_srcalpha;
   blitter->blitlist.prepend(b);
 
-  Parameter *p = new Parameter(Parameter::NUMBER);
+  p = new Parameter(Parameter::NUMBER);
   strcpy(p->name, "alpha");
   p->description = "level of transparency of alpha channel (0.0 - 1.0)";
   b->parameters.append(p);
