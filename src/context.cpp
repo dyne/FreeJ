@@ -391,8 +391,7 @@ void Context::cafudda(double secs) {
   /// FPS calculation
   fps->calc();
   fps->delay();
-  
-#endif WITH_COCOA
+#endif 
 
 
   //  SDL_framerateDelay(&FPS); // synced with desired fps here

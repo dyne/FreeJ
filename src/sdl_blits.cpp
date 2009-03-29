@@ -32,7 +32,7 @@ static SDL_Surface *sdl_surf;
 
 BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
 	     SDL_Surface *dst, SDL_Rect *dst_rect,
-	     ScreenGeometry *geo, void *value) {
+	     ScreenGeometry *geo, Linklist<Parameter> *param) {
   
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
@@ -43,49 +43,59 @@ BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
   
   SDL_FreeSurface( sdl_surf );
 
-}
+};
 
 BLIT sdl_alpha(void *src, SDL_Rect *src_rect,
 	       SDL_Surface *dst, SDL_Rect *dst_rect,
-	       ScreenGeometry *geo, void *value) {
+	       ScreenGeometry *geo, Linklist<Parameter> *params) {
+
+  double alpha = *(double*)(params->pick(1)->value);
+  unsigned int int_alpha = alpha * 255;
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
      geo->pitch, red_bitmask, green_bitmask, blue_bitmask, 0x0);
 
-  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, (unsigned int) *(float*)value );  
+  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, int_alpha );  
 
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
   
   SDL_FreeSurface( sdl_surf );
   
-}
+};
 
 BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
 		  SDL_Surface *dst, SDL_Rect *dst_rect,
-		  ScreenGeometry *geo, void *value) {
+		  ScreenGeometry *geo, Linklist<Parameter> *params) {
+
+  double alpha = *(double*)(params->pick(1)->value);
+  unsigned int int_alpha = alpha * 255;
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
      geo->pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   
-  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, (unsigned int) *(float*)value );  
+  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, int_alpha );  
 
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
   
   SDL_FreeSurface( sdl_surf );
   
-}
+};
 
 BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
 		   SDL_Surface *dst, SDL_Rect *dst_rect,
-		   ScreenGeometry *geo, void *value) {
-  
+		   ScreenGeometry *geo, Linklist<Parameter> *params) {
+
+
+  // TODO color
+
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
      geo->pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   
-  SDL_SetColorKey( sdl_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, *(uint32_t*)value);
+  // TODO
+  SDL_SetColorKey( sdl_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, NULL);
   
   //  SDL_SetAlpha(sdl_surf, SDL_RLEACCEL, 0);
   
@@ -110,22 +120,36 @@ void setup_sdl_blits(Blitter *blitter) {
   
   blitter->default_blit = b; // SDL is default
 
+  /////////////
+
   b = new Blit(); b->set_name("ALPHA");
   sprintf(b->desc,"alpha blit (SDL)");
   b->type = Blit::SDL; b->has_value = true;
   b->sdl_fun = sdl_alpha;
   blitter->blitlist.prepend(b);
+  
+  Parameter *p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "alpha");
+  p->description = "level of transparency of alpha channel (0.0 - 1.0)";
+  b->parameters.append(p);
+
+  /////////////
 
   b = new Blit(); b->set_name("SRCALPHA");
   sprintf(b->desc,"source alpha blit (SDL)");
   b->type = Blit::SDL;
   b->sdl_fun = sdl_srcalpha;
   blitter->blitlist.prepend(b);
+
+  Parameter *p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "alpha");
+  p->description = "level of transparency of alpha channel (0.0 - 1.0)";
+  b->parameters.append(p);
   
-  b = new Blit(); b->set_name("CHROMAKEY");
-  sprintf(b->desc,"chromakey blit (SDL)");
-  b->type = Blit::SDL; b->has_value = true;
-  b->sdl_fun = sdl_chromakey;
-  blitter->blitlist.prepend(b);
+//   b = new Blit(); b->set_name("CHROMAKEY");
+//   sprintf(b->desc,"chromakey blit (SDL)");
+//   b->type = Blit::SDL; b->has_value = true;
+//   b->sdl_fun = sdl_chromakey;
+//   blitter->blitlist.prepend(b);
 
 }

@@ -103,12 +103,25 @@ class Layer: public Entry, public JSyncThread {
   virtual ~Layer(); ///< Layer destructor
 
   /* wrap JSyncThread::start() so we don't export JSyncThread on SWIG */
+
+  /**
+     Start the layer thread
+  */
   int start() { return JSyncThread::start(); }
 
   Type type; ///< type of the layer
 
   /* these must be defined in layer implementations */
+
+  /**
+     Open a file or resource for the layer
+     @param file string describing the path to the file, can be also an url
+  */
   virtual bool open(const char *file) =0; ///< open the file (first called)
+  /**
+     Initialize the layer
+     @param freej freej context where the layer will be used
+   */
   virtual bool init(Context *freej) =0; ///< initialize the layer (second called)
   virtual bool init(Context *freej, int w, int h) { return this->init(freej); }; ///< overload with size
   virtual void close() =0; ///< close the layer (ready to open a new one)
@@ -121,13 +134,29 @@ class Layer: public Entry, public JSyncThread {
   char *get_filename() { return filename; };
   ///< Get Layer's filename
 
+  /**
+     Move the layer to absolute position,
+     coordinates refer to the upper left corner
+     @param x horizontal coordinate
+     @param y vertical coordinate
+  */
   void set_position(int x, int y);
   ///< Set Layer's position on screen
 
   void slide_position(int x, int y, int speed);
   ///< Slide the Layer to a position on screen
 
+  /**
+     Set the zoom rate (magnification) for a layer
+     the coordinates are floats, original size is 1.0
+     @param x horizontal zoom float coefficient (default 1.0)
+     @param y vertical zoom float coefficient (default 1.0)
+  */
   bool set_zoom(double x, double y); ///< Zoom (resize) a Layer
+  /**
+     Degrees of rotation
+     @param angle from 0 to 360 degrees rotation
+   */
   bool set_rotate(double angle); ///< Rotate a Layer
   bool set_spin(double rot, double z);
   ///< continously zoom and rotate a Layer with a certain increment
@@ -175,6 +204,7 @@ class Layer: public Entry, public JSyncThread {
   bool fade; ///< layer is deactivated at the end of current iterations (read-write internal)
   bool use_audio; ///< layer makes use of audio input
   bool opened; /// set by the layer (ex: image file has been opened)
+  bool need_crop; /// tell the screen that the layer need a crop (r/w internal)
   int bgcolor; ///< matte background color
   int null_feeds; ///< counter of how many sequencial feed() returned null
   int max_null_feeds; ///< maximum null feeds tolerated
@@ -236,7 +266,6 @@ class Layer: public Entry, public JSyncThread {
   virtual void *feed() = 0; ///< feeds in the image source
 
   bool cafudda(); ///< cafudda is called by the Context
-
 
   void *bgmatte;
 

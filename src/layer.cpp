@@ -47,6 +47,7 @@ Layer::Layer()
   hidden = false;
   fade = false;
   use_audio = false;
+  need_crop = true;
   audio = NULL;
   opened = true;
   bgcolor = 0;
@@ -218,8 +219,11 @@ bool Layer::set_blit(const char *bname) {
 		return(false);
 	  }
 
+	  func("blit for layer %s set to %s",name, b->name);
+
 	  current_blit = b; // start using
-	  screen->blitter->crop(this, screen);
+	  need_crop = true;
+	  //	  screen->blitter->crop(this, screen);
 	  screen->blitter->blitlist.sel(0);
 	  b->sel(true);
   }
@@ -326,9 +330,10 @@ void Layer::set_position(int x, int y) {
   lock();
   slide_x = geo.x = x;
   slide_y = geo.y = y;
-  if (screen && screen->blitter) {
-      screen->blitter->crop( this, screen );
-  }
+  //  if (screen && screen->blitter) {
+  need_crop = true;
+    //      screen->blitter->crop( this, screen );
+  //  }
   unlock();
 }
 
@@ -372,6 +377,8 @@ bool Layer::set_zoom(double x, double y) {
     act("%s layer %s zoom set to x%.2f y%.2f",	name, filename, zoom_x, zoom_y);
 
   }
+
+  need_crop = true;
   return zooming;
 }
 
@@ -392,6 +399,8 @@ bool Layer::set_rotate(double angle) {
     act("%s layer %s rotation set to %.2f", name, filename, rotate);
 
   }
+
+  need_crop = true;
   return rotating;
 }
 

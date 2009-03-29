@@ -271,6 +271,115 @@ static int param_completion(char *cmd) {
   return c;
 }
 
+static int blit_param_selection(char *cmd) {
+  Parameter *param;
+  Blit *b;
+  int idx;
+
+  Layer *lay = (Layer*)env->layers.selected();
+  
+  if(!cmd) return 0;
+  if(!strlen(cmd)) return 0;
+  lay = (Layer*)env->layers.selected();
+  if(!lay) {
+    ::error("no layer currently selected");
+    return 0;
+  }
+  b = lay->current_blit;
+  if(!b) {
+    ::error("no blit selected on layer %s",lay->name);
+    return 0;
+  }
+    // find the values after the first blank space
+  char *p;
+  for(p = cmd; *p != '\0'; p++)
+    if(*p == '=') {
+      *p = '\0';
+      if(*(p-1)==' ')
+	*(p-1) = '\0';
+      p++; break;
+    }
+  
+  while(*p == ' ') p++; // jump all spaces
+  if(*p=='\0') return 0; // no value was given
+  param = (Parameter*)b->parameters.search(cmd, &idx);
+  if(! param) {
+    error("parameter %s not found in blit %s", cmd, b->name);
+    return 0;
+  } else
+    func("parameter %s found in blit %s at position %u",
+	 param->name, b->name, idx);
+
+  param->parse(p);
+  return 1;
+
+}
+
+static int blit_param_completion(char *cmd) {
+  Parameter *p, **params;
+  Blit *b;
+
+  Layer *lay = (Layer*)env->layers.selected();
+
+  if(!lay) {
+    ::error("no layer currently selected");
+    return 0;
+  }
+  b = lay->current_blit;
+  if(!b) {
+    ::error("no blit selected on layer %s",lay->name);
+    return 0;
+  }
+  params = b->parameters.completion(cmd);
+  if(!params[0]) return 0;
+
+  if(!params[1]) { // exact match, then fill in command
+    p = (Parameter*)params[0];
+    //    ::notice("%s :: %s",p->name,p->description);
+    snprintf(cmd,MAX_CMDLINE,"%s = ",p->name);
+    //    return 1;
+  } else {
+    
+    notice("List available parameters starting with \"%s\"",cmd);
+
+  }
+
+  int c;
+  for(c=0; params[c]; c++) {
+    p = (Parameter*)params[c];
+    switch(p->type) {
+    case Parameter::BOOL:
+      ::act("(bool) %s = %s ::  %s", p->name,
+	    (*(bool*)p->value == true) ? "true" : "false",
+	    p->description);
+      break;
+    case Parameter::NUMBER:
+      ::act("(number) %s = %g :: %s", p->name,
+	    *(double*)p->value,
+	    p->description);
+      break;
+    case Parameter::STRING:
+      ::act("%s (string) %s", p->name, p->description);
+      break;
+    case Parameter::POSITION:
+      {
+	double *val = (double*)p->value;
+	::act("(position) %s = %g x %g :: %s", p->name,
+	      val[0], val[1],
+	      p->description);
+      }
+      break;
+    case Parameter::COLOR:
+      ::act("%s (color) %s", p->name, p->description);
+      break;
+    default:
+      ::error("%s (unknown) %s", p->name, p->description);
+      break;
+    }
+  }
+  return c;
+}
+
 // callbacks used by readline to handle input from console
 static int blit_selection(char *cmd) {
   if(!cmd) return 0;
@@ -664,25 +773,6 @@ static int filebrowse_completion(char *cmd) {
   return(c);
 }
 
-static int set_blit_value(char *cmd) {
-  int val;
-  int c;
-  if(!sscanf(cmd,"%u",&val)) {
-    error("error parsing input: %s",cmd);
-    return 0;
-  }
-  func("value parsed: %s in %d",cmd,val);
-  Layer *lay = (Layer*)env->layers.begin();
-  if(!lay) return 0;
-  /* set value in all blits selected
-     (supports multiple selection) */
-  for(c=0 ; lay ; lay = (Layer*)lay->next) {
-    if(!lay->select) continue;
-    //    lay->blitter.fade_value(1,val);
-  }
-
-  return 1;
-}
 
 static int generator_completion(char *cmd) {
   Filter **res;
@@ -1064,8 +1154,8 @@ void Console::layerprint() {
   SLsmg_write_string((char *)"blit: ");
   SLsmg_set_color(LAYERS_COLOR+10);
   SLsmg_write_string(layer->current_blit->name);
-  SLsmg_write_char(' ');
-  SLsmg_printf((char *)"[%.0f]",layer->current_blit->value);
+//   SLsmg_write_char(' ');
+//   SLsmg_printf((char *)"[%.0f]",layer->current_blit->value);
   SLsmg_write_char(' ');
   SLsmg_set_color(LAYERS_COLOR);
   SLsmg_write_string((char *)"geometry: ");
@@ -1443,8 +1533,8 @@ void Console::parser_default(int key) {
       break;
       
     case KEY_CTRL_V:
-      readline("set Blit value for the selected Layer:",
-	       &set_blit_value,NULL);
+      readline("set Blit parameters for the selected Layer - press TAB for completion:",
+	       &blit_param_selection, &blit_param_completion);
       break;
       
 #if defined WITH_FT2 && defined WITH_FC

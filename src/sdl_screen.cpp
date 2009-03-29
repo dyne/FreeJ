@@ -107,7 +107,8 @@ void SdlScreen::blit(Layer *src) {
   Blit *b;
 
   if(src->rotating | src->zooming) {
-    
+
+
     src->rotate += src->spin_rotation;
     src->rotate = // cycle rotation
       (src->rotate>360) ? (src->rotate-360):
@@ -131,7 +132,7 @@ void SdlScreen::blit(Layer *src) {
       
       rotozoom =
 	rotozoomSurface(pre_rotozoom, src->rotate, src->zoom_x, (int)src->antialias);
-      
+
     } else if(src->zooming) {
       
       rotozoom =
@@ -149,11 +150,16 @@ void SdlScreen::blit(Layer *src) {
 
 
 
-
-  blitter->crop( src, this );
+  if(src->need_crop)
+    blitter->crop( src, this );
 
   b = src->current_blit;
-  
+
+//   if(!b) {
+//     error("%s: blit is NULL",__PRETTY_FUNCTION__);
+//     return;
+//   }
+
   // executes LINEAR blit
   if( b->type == Blit::LINEAR ) {
     
@@ -166,7 +172,7 @@ void SdlScreen::blit(Layer *src) {
       (*b->fun)
 	((void*)play, (void*)pscr,
 	 b->lay_bytepitch,// * src->geo.bpp>>3,
-	 (void*)&b->value);
+	 (void*)&b->parameters);
       
       // strides down to the next line
       pscr += b->scr_stride + b->lay_pitch;
@@ -175,10 +181,10 @@ void SdlScreen::blit(Layer *src) {
     
     // executes SDL blit
   } else if (b->type == Blit::SDL) {
-    
+
     (*b->sdl_fun)
       (offset, &b->sdl_rect, sdl_screen,
-       NULL, blitter->geo, (void*)&b->value);
+       NULL, blitter->geo, &b->parameters);
 
   }
 

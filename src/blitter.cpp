@@ -263,7 +263,8 @@ void Blitter::crop(Layer *lay, ViewPort *scr) {
   
   // calculate bytes per row
   b->lay_bytepitch = b->lay_pitch * 4;
-  
+
+  lay->need_crop = false;
 }  
 
 

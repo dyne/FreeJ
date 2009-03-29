@@ -108,7 +108,7 @@ class Linklist : public BaseLinklist {
  private:
 
   
-  T *compbuf[512]; // completion buffer
+  T *compbuf[MAX_COMPLETION*sizeof(T*)]; // completion buffer
 };
 
 

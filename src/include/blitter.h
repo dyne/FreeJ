@@ -27,6 +27,7 @@
 
 #include <screen.h>
 #include <linklist.h>
+#include <parameter.h>
 
 /////////////////////////////////// blit functions prototypes
 #define BLIT static inline void
@@ -35,7 +36,7 @@ typedef void (blit_f)(void *src, void *dst, int len, void *value);
 
 typedef void (blit_sdl_f)(void *src, SDL_Rect *src_rect,
 			  SDL_Surface *dst, SDL_Rect *dst_rect,
-			  ScreenGeometry *geo, void *value);
+			  ScreenGeometry *geo, Linklist<Parameter> *params);
 
 typedef void (blit_past_f)(void *src, void *past, void *dst, int len);
 
@@ -66,7 +67,9 @@ class Blit: public Entry {
   char desc[512];    ///< long description
   float value;    ///< parameter value
   short kernel[256]; ///< convolution kernel
-  
+
+  Linklist<Parameter> parameters;
+
   blit_f *fun; ///< pointer to linear blit function
   blit_sdl_f *sdl_fun; ///< pointer to sdl blit function
   blit_past_f *past_fun; ///< pointer to past blit function
