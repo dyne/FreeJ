@@ -8,6 +8,6 @@ man_MANS = doc/freej.1
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = freej.pc
 
-SUBDIRS = lib src bindings scripts
+SUBDIRS = lib src doc bindings scripts
 
 ACLOCAL_AMFLAGS = -I m4

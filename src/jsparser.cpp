@@ -145,11 +145,11 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		geometry_layer_methods,
 		object_proto);
 
-	REGISTER_CLASS("VScrollLayer",
-		vscroll_layer_class,
-		vscroll_layer_constructor,
-		vscroll_layer_methods,
-		object_proto);
+// 	REGISTER_CLASS("VScrollLayer",
+// 		vscroll_layer_class,
+// 		vscroll_layer_constructor,
+// 		vscroll_layer_methods,
+// 		object_proto);
 
 	REGISTER_CLASS("ImageLayer",
 		image_layer_class,
