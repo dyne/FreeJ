@@ -406,7 +406,7 @@ static int blit_comp(char *cmd) {
     return 0;
   }
 
-  blits = lay->screen->blitter->blitlist.completion(cmd);
+  blits = lay->blitter->blitlist.completion(cmd);
 
   if(!blits[0]) return 0; // none found
 

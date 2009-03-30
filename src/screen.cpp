@@ -30,12 +30,10 @@
 ViewPort::ViewPort()
   : Entry() {
   opengl = false;
-  blitter = NULL;
+
 }
 
-ViewPort::~ViewPort() {
-  if(blitter) delete blitter;
-}
+ViewPort::~ViewPort() { }
 
 
 void ViewPort::scale2x(uint32_t *osrc, uint32_t *odst) {

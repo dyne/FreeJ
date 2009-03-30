@@ -318,7 +318,7 @@ JS(layer_list_blits) {
   arr = JS_NewArrayObject(cx, 0, NULL); //create void array
   if(!arr) return JS_FALSE;
   
-  b = lay->screen->blitter->blitlist.begin();
+  b = lay->blitter->blitlist.begin();
   while(b) {
     
     str = JS_NewStringCopyZ(cx, b->name);

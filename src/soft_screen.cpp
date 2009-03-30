@@ -56,11 +56,6 @@ bool SoftScreen::init(int w, int h) {
   // test
   buffer = malloc(size);
 
-  /* initialise blitters */
-  blitter = new Blitter();
-  // add linear blitters
-  // (see linear_blits.cpp)
-  setup_linear_blits(blitter);
 
   return(true);
 }
@@ -75,7 +70,8 @@ void SoftScreen::blit(Layer *src) {
     return;
   }
 
-  blitter->crop( src, this);
+  if(src->need_crop)
+    src->blitter->crop( src, this );
 
   b = src->current_blit;
 

@@ -177,7 +177,7 @@ bool UnicapLayer::open(const char *devfile) {
       format.max_size.width, format.max_size.height,
       format.h_stepping, format.v_stepping);
   for(i=0; i<format.size_count; i++)
-    act("%u - %w x %h", i, 
+    act("%u - %u x %u", i, 
 	format.sizes[i].width, format.sizes[i].height);
 
   // TODO: choose closest available size

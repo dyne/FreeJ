@@ -82,7 +82,7 @@ class ViewPort : public Entry {
   virtual void *coords(int x, int y) =0;
 
   virtual void blit(Layer *src) =0;
-  Blitter *blitter;
+  //  Blitter *blitter;
 
   virtual void set_magnification(int algo) { };
   virtual void resize(int resize_w, int resize_h) { };

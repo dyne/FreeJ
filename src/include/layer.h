@@ -210,6 +210,7 @@ class Layer: public Entry, public JSyncThread {
   int max_null_feeds; ///< maximum null feeds tolerated
 
   //////////////////////// BLIT operations
+  Blitter *blitter;
   Blit *current_blit;
   char *get_blit(); ///< return the name of the currently seleted blit
   bool set_blit(const char *bname); ///< select the current blit 

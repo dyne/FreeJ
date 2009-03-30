@@ -423,7 +423,7 @@ void Context::handle_resize() {
   Layer *lay = (Layer *) layers.begin ();
   while (lay) {
     lay -> lock ();
-    screen->blitter->crop(lay, screen);
+    lay -> blitter->crop(lay, screen);
     //    lay -> blitter.crop (screen);
     lay -> unlock ();
     lay = (Layer*) lay -> next;
@@ -524,10 +524,10 @@ void Context::add_layer(Layer *lay) {
   lay->screen = screen;
 
   // setup default blit (if any)
-  if (screen->blitter) {
+  if (lay->blitter) {
 	  lay->current_blit =
-		(Blit*)screen->blitter->default_blit;
-	  screen->blitter->blitlist.sel(0);
+		(Blit*)lay->blitter->default_blit;
+	  lay->blitter->blitlist.sel(0);
 	  lay->current_blit->sel(true);
   }
 

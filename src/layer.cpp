@@ -72,6 +72,7 @@ Layer::Layer()
   spin_rotation = 0;
   antialias = false;
 
+  blitter = NULL;
   current_blit = NULL;
 
   null_feeds = 0;
@@ -97,7 +98,7 @@ Layer::~Layer() {
     jfree(bgmatte);
     bgmatte = NULL;
   }
-
+  if(blitter) delete blitter;
 }
 
 void Layer::_init(int wdt, int hgt) {
@@ -115,6 +116,10 @@ void Layer::_init(int wdt, int hgt) {
   geo.y = 0;//(freej->screen->h - geo.h)/2;
   //  blitter->crop( freej->screen );  
 
+  /* initialise blitters */
+  blitter = new Blitter();
+  setup_linear_blits(blitter); // add linear blitters
+  setup_sdl_blits(blitter); // add SDL blitters
 
   /* allocate memory for the matte background */
 //  bgmatte = jalloc(bgmatte,geo.size);
@@ -211,8 +216,8 @@ bool Layer::set_blit(const char *bname) {
   Blit *b;
   int idx;
   
-  if (screen && screen->blitter) {
-	  b = (Blit*)screen->blitter->blitlist.search(bname, &idx);
+  if (screen && blitter) {
+	  b = (Blit*)blitter->blitlist.search(bname, &idx);
 
 	  if(!b) {
 		error("blit %s not found in screen %s",bname, screen->name);
@@ -223,8 +228,8 @@ bool Layer::set_blit(const char *bname) {
 
 	  current_blit = b; // start using
 	  need_crop = true;
-	  //	  screen->blitter->crop(this, screen);
-	  screen->blitter->blitlist.sel(0);
+	  blitter->crop(this, screen);
+	  blitter->blitlist.sel(0);
 	  b->sel(true);
   }
   return(true);

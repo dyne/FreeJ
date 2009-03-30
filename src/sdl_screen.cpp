@@ -85,10 +85,6 @@ bool SdlScreen::init(int width, int height) {
   notice("SDL Viewport is %s %ix%i %ibpp",
 	 temp,w,h,sdl_screen->format->BytesPerPixel<<3);
 
-  /* initialise blitters */
-  blitter = new Blitter();
-  setup_linear_blits(blitter); // add linear blitters
-  setup_sdl_blits(blitter); // add SDL blitters
 
 
   /* be nice with the window manager */
@@ -151,7 +147,7 @@ void SdlScreen::blit(Layer *src) {
 
 
   if(src->need_crop)
-    blitter->crop( src, this );
+    src->blitter->crop( src, this );
 
   b = src->current_blit;
 
@@ -184,8 +180,8 @@ void SdlScreen::blit(Layer *src) {
 
     (*b->sdl_fun)
       (offset, &b->sdl_rect, sdl_screen,
-       NULL, blitter->geo, &b->parameters);
-
+       NULL, src->blitter->geo, &b->parameters);
+    
   }
 
 //  else if (b->type == Blit::PAST) {
