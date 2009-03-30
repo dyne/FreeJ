@@ -1,6 +1,8 @@
 /* breaks compilation with swig .31 (due to mess with overloaded function) */
 %ignore show_osd();
 
+%include "../doc/pydocstrings.i"
+
 /*
 should probably be handled in some way..
 %typemap(out) Entry *

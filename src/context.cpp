@@ -914,22 +914,22 @@ Layer *Context::open(char *file) {
 
   }
 #endif
-    else { /* FALLBACK TO SCROLL LAYER */
+//     else { /* FALLBACK TO SCROLL LAYER */
 
-    func("opening scroll layer on generic file type for %s",file_ptr);
-    nlayer = new ScrollLayer();
+//     func("opening scroll layer on generic file type for %s",file_ptr);
+//     nlayer = new ScrollLayer();
     
-    if(!nlayer->init( this )) {
-      error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-      delete nlayer; return NULL;
-    }
+//     if(!nlayer->init( this )) {
+//       error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+//       delete nlayer; return NULL;
+//     }
        
-       if(!nlayer->open(file_ptr)) {
-	 error("create_layer : SCROLL open failed");
-	 delete nlayer; nlayer = NULL;
-       }
+//        if(!nlayer->open(file_ptr)) {
+// 	 error("create_layer : SCROLL open failed");
+// 	 delete nlayer; nlayer = NULL;
+//        }
        
-  }
+//   }
 
   if(!nlayer)
     error("can't create a layer with %s",file);
