@@ -58,6 +58,7 @@ bool SlwTitle::refresh() {
   color = 32;  putnch("RAS", titlelen, 0, 3);
   color = 34;  putnch("TAS", titlelen+3, 0, 3);
   color = 33;  putnch("OFT", titlelen+6, 0, 3);
+  color = PLAIN_COLOR;
 
   return(true);
 }

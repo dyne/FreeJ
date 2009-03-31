@@ -184,6 +184,13 @@ int Console::dispatch() {
 //  else return; /* return if key is zero */
   if(!key) return(0);
 
+  if( key==KEY_CTRL_L) {
+    tit->blank();
+    log->blank();
+    sel->blank();
+    rdl->blank();
+  }
+
   if( rdl->feed(key) ) return(1);
 
   if( log->feed(key) ) return(1);

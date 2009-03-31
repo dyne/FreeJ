@@ -268,8 +268,6 @@ class Layer: public Entry, public JSyncThread {
 
   bool cafudda(); ///< cafudda is called by the Context
 
-  void *bgmatte;
-
   // working variables
   int res;
   Iterator *iter;

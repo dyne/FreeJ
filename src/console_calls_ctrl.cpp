@@ -214,7 +214,12 @@ int console_blit_completion(Context *env, char *cmd) {
     return 1;
   }
   
-  notice("List available blits starting with \"%s\"",cmd);
+  if(cmd[0]==0x0)
+    notice("List available blits");
+  else
+    notice("List available blits starting with \"%s\"",cmd);
+
+    
   for(c=0;blits[c];c+=4) {
     char tmp[256];
 
@@ -314,8 +319,11 @@ int console_blit_param_completion(Context *env, char *cmd) {
     snprintf(cmd,MAX_CMDLINE,"%s = ",p->name);
     //    return 1;
   } else {
-    
-    notice("List available parameters starting with \"%s\"",cmd);
+
+    if(cmd[0]==0x0)
+      notice("List available blit parameters",cmd);
+    else
+      notice("List available blit parameters starting with \"%s\"",cmd);
 
   }
 
@@ -537,9 +545,9 @@ int console_open_text_layer(Context *env, char *cmd) {
 #endif
 
 #ifdef HAVE_DARWIN
-static int filebrowse_completion_selector(struct dirent *dir) 
+int filebrowse_completion_selector(struct dirent *dir) 
 #else
-  static int filebrowse_completion_selector(const struct dirent *dir) 
+  int filebrowse_completion_selector(const struct dirent *dir) 
 #endif
 {
   if(dir->d_name[0]=='.')

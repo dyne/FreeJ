@@ -77,7 +77,10 @@ void JSyncThread::_run() {
 }
 
 void JSyncThread::stop() {
-  if (running) quit = true;
+  if (running) {
+    quit = true;
+    signal_feed();
+  }
 }
 
 int JSyncThread::sleep_feed() { 

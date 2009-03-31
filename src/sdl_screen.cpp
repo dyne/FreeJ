@@ -263,6 +263,8 @@ void SdlScreen::show() {
 #else
     SDL_WM_ToggleFullScreen(sdl_screen);
 #endif
+#else
+    SDL_WM_ToggleFullScreen(sdl_screen);
 #endif
     switch_fullscreen = false;
   }

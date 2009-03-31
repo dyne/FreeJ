@@ -158,7 +158,7 @@ int SlwReadline::readline(const char *msg,cmd_process_t *proc,cmd_complete_t *co
   //   SLsmg_write_string((char *)":");
   //   SLsmg_erase_eol();
   
-  cursor = 3;
+
   memset(command,EOL,MAX_CMDLINE);
   
   cmd_process = proc;
@@ -166,7 +166,11 @@ int SlwReadline::readline(const char *msg,cmd_process_t *proc,cmd_complete_t *co
   
   commandline = true;
   set_parser(COMMANDLINE);
-  
+
+  if(cmd_complete)
+    (*cmd_complete)(env, command);
+
+  cursor = strlen(command);
   return 1;
 }
 
@@ -319,9 +323,6 @@ bool SlwReadline::parser_default(int key) {
 	     &console_exec_script, &console_filebrowse_completion);
     break;
 
-  case KEY_CTRL_L:
-    refresh();
-    break;
 
   case KEY_CTRL_O:
     readline("open a file in a new Layer:",
@@ -468,11 +469,11 @@ bool SlwReadline::parser_commandline(int key) {
     // a blank commandline aborts the input
     if(command[0]==EOL || command[0]==EOT) {
       set_parser(DEFAULT);
-      return(parsres);
+      break;
     }
     // otherwise process the input
     res = (*cmd_process)(env,command);
-    if(res<0) return(parsres);
+    if(res<0) break;
     // reset the parser
     set_parser(DEFAULT);
     // save in commandline history
@@ -483,7 +484,7 @@ bool SlwReadline::parser_commandline(int key) {
       delete history.begin();
     // cleanup the command
     memset(command, EOL, MAX_CMDLINE);
-    return(parsres);
+    break;
 
   case SL_KEY_UP:
     // pick from history
@@ -498,36 +499,36 @@ bool SlwReadline::parser_commandline(int key) {
 	entr->sel(true);
       }
     }
-    if(!entr) return(parsres); // no hist
+    if(!entr) break; // no hist
     strncpy(command,(char*)entr->data,MAX_CMDLINE);
     // type the command on the consol
     cursor = strlen(command);
     //    GOTO_CURSOR;
-    return(parsres);
+    break;
 
   case SL_KEY_DOWN:
     // pick from history
-    if(!entr) return(parsres);
-    if(!entr->next) return(parsres);
+    if(!entr) break;
+    if(!entr->next) break;
     entr = entr->next;
     strncpy(command,(char*)entr->data,MAX_CMDLINE);
     // type the command on the console
     cursor = strlen(command);
 
     //    GOTO_CURSOR;
-    return(parsres);
+    break;
 
   case KEY_CTRL_G:
     set_parser(DEFAULT);
     // cleanup the command
     memset(command, EOL, MAX_CMDLINE);
-    return(parsres);
+    break;
 
   case KEY_TAB:
-    if(!cmd_complete) return(parsres);
+    if(!cmd_complete) break;
     if(command[0]=='\n') command[0]=0x0;
     res = (*cmd_complete)(env,command);
-    if(!res) return(parsres);
+    if(!res) break;
     //    else if(res==1) { // exact match!
     //      putnch(command,3,0,0);
       //      cursor = strlen(command);
@@ -536,14 +537,13 @@ bool SlwReadline::parser_commandline(int key) {
     // type the command on the console
     cursor = strlen(command);
     //    GOTO_CURSOR;
-
-    return(parsres);
+    break;
 
 
   case KEY_BACKSPACE:
   case KEY_BACKSPACE_APPLE:
   case KEY_BACKSPACE_SOMETIMES:
-    if(!cursor) return(parsres);
+    if(!cursor) break;
 
     for(c=cursor;c<MAX_CMDLINE;c++) {
       command[c-1] = command[c];
@@ -552,7 +552,7 @@ bool SlwReadline::parser_commandline(int key) {
     cursor--;
     //    putnch(command,3,0,cursor);
     //    SLsmg_gotorc(SLtt_Screen_Rows - 1,cursor);
-    return(parsres);
+    break;
 
     /* the following ctrl combos are to imitate
        the Emacs commandline behaviour
@@ -565,11 +565,11 @@ bool SlwReadline::parser_commandline(int key) {
   case SL_KEY_LEFT:
     if(cursor) cursor--;
     //    gotoxy(cursor,0);
-    return(parsres);
+    break;
   case SL_KEY_RIGHT:
     if(command[cursor]) cursor++;
     //    gotoxy(cursor,0);
-    return(parsres);
+    break;
 
   case KEY_CTRL_D:
     for(c=cursor;command[c]!=EOL;c++)
@@ -580,25 +580,25 @@ bool SlwReadline::parser_commandline(int key) {
 //     SLsmg_write_string(&command[cursor]);
 //     SLsmg_erase_eol();
 //     GOTO_CURSOR;
-    return(parsres);
+    break;
 
   case KEY_CTRL_A:
   case KEY_HOME:
     cursor=0;
     //    gotoxy(cursor,0);
-    return(parsres);
+    break;
 
   case KEY_CTRL_E:
     while(command[cursor]!=EOL) cursor++;
     //    gotoxy(cursor,0);
-    return(parsres);
+    break;
 
   case KEY_CTRL_K:
     for(c=cursor;command[c]!=EOL;c++)
       command[c] = EOL;
     //    putnch(command,1,0,0);
     //    gotoxy(cursor,0);
-    return(parsres);
+    break;
 
   case KEY_CTRL_U:
     for(c=0;command[cursor+c]!=EOL;c++)
@@ -608,27 +608,31 @@ bool SlwReadline::parser_commandline(int key) {
     cursor=0;
     //    putnch(command,1,0,0);
     //    gotoxy(cursor,0);
-    return(parsres);
-    
+    break;
+
+  default:
+    parsres = false;
+    break;
+
   }
   /* add char at cursor position
      insert mode       FIX ME!
      must save temporarly the chars to advance
   */
-
-  for(c=cursor;command[c]!=EOL;c++); // go to the EOL
-  
-  command[c+1] = EOL; // be sure we have a EOL
-
-  for(;c>cursor;c--)
-    command[c] = command[c-1]; // move backwards switching right
-
-  command[cursor] = key; // insert new char
-  
-  //  GOTO_CURSOR;
-  //  putnch(command,3,0,0);
-  cursor++;
-  //  gotoxy(cursor+2,0);
+  if( key > 32 && key < 127) {
+    for(c=cursor;command[c]!=EOL;c++); // go to the EOL
+    
+    command[c+1] = EOL; // be sure we have a EOL
+    
+    for(;c>cursor;c--)
+      command[c] = command[c-1]; // move backwards switching right
+    
+    command[cursor] = key; // insert new char
+    
+    cursor++;
+    parsres = true;
+  }
+    //  gotoxy(cursor+2,0);
   return(parsres);
 }
   

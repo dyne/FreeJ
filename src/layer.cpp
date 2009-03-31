@@ -51,7 +51,6 @@ Layer::Layer()
   audio = NULL;
   opened = true;
   bgcolor = 0;
-  bgmatte = NULL;
   set_name("???");
   filename[0] = 0;
   buffer = NULL;
@@ -90,14 +89,11 @@ Layer::~Layer() {
   delete deferred_calls;
   FilterInstance *f = (FilterInstance*)filters.begin();
   while(f) {
-    //    f->rem(); rem is contained in delete for Entry
+    f->rem(); // rem is contained in delete for Entry
     delete f;
     f = (FilterInstance*)filters.begin();
   }
-  if(bgmatte) { 
-    jfree(bgmatte);
-    bgmatte = NULL;
-  }
+
   if(blitter) delete blitter;
 }
 
@@ -121,8 +117,6 @@ void Layer::_init(int wdt, int hgt) {
   setup_linear_blits(blitter); // add linear blitters
   setup_sdl_blits(blitter); // add SDL blitters
 
-  /* allocate memory for the matte background */
-//  bgmatte = jalloc(bgmatte,geo.size);
   
   func("initialized %s layer %ix%i",
 	 get_name(), geo.w, geo.h);
