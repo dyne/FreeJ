@@ -210,25 +210,29 @@ bool SlwSelector::feed(int key) {
 }
 
 bool SlwSelector::refresh() {
-  int layercol, pos;
+  int sellayercol, layercol, pos;
 
   /* print info the selected layer */
+  blank();
 
   layer = env->layers.selected();
   if(layer) {
     snprintf(tmp, w, "Layer: %s blit: %s [%.0f] geometry x%i y%i w%u h%u",
 	     layer->get_filename(), layer->current_blit->name, layer->current_blit->value,
 	     layer->geo.x, layer->geo.y, layer->geo.w, layer->geo.h);
-    ///////////////
-    // layer print
-    color = LAYERS_COLOR;
-    putnch(tmp, 1, 1, 0);
     //    SLsmg_erase_eol();
+  } else {
+    sprintf(tmp, "No Layer selected" );
   }
+  ///////////////
+  // layer print
+  color = LAYERS_COLOR;
+  putnch(tmp, 1, 1, 0);
+
 
   if(env->layers.len()) {
     Layer *l = env->layers.begin();  
-    int color;
+    //    int color;
     int tmpsize = 0;
     layercol = 0;
 
@@ -241,37 +245,38 @@ bool SlwSelector::refresh() {
       filter = layer->filters.selected();
     
     while(l) { /* draw the layer's list */
-      layercol += tmpsize;      
+      layercol += tmpsize + 4;
       //      SLsmg_set_color(LAYERS_COLOR);
       //      SLsmg_write_string((char *)" -> ");
       color = LAYERS_COLOR;
-      
-      if( l == layer && !filter) color+=20;
-      if(l->fade | l->active) color+=10;
+      putnch(" ->", layercol, 2, 3);
 
-      snprintf(tmp, w, " -> %s",l->get_name());
-      tmpsize = strlen(tmp);
-      putnch(tmp, layercol, 4, tmpsize);
+      if( l == layer && !filter) color+=20;
+      if(l->fade | l->active) color+=10;      
+
+      //      snprintf(tmp, w, " -> %s",l->get_name());
+      tmpsize = strlen(l->get_name());
+      putnch(l->get_name(), layercol+4, 2, tmpsize);
+      // save position of selected layer
+      if( l == layer) sellayercol = layercol;
+      
       l = (Layer *)l->next;
     }
 
-    //    SLsmg_set_color(PLAIN_COLOR);
-    //    SLsmg_erase_eol();
     
   }
   
-
+  
   if(layer) {
     FilterInstance *f;
-
+    
     filter = layer->filters.selected();
     
 //     SLsmg_gotorc(3,1);
 //     SLsmg_set_color(FILTERS_COLOR);
 //     SLsmg_write_string((char *)"Filter: ");
-    color = FILTERS_COLOR;
     if(!filter) {
-      snprintf(tmp, w, "Filter: none selected");
+      snprintf(tmp, w, "No Filter selected");
       //      SLsmg_erase_eol();
     } else {
       snprintf(tmp, w, "Filter: %s :: %s", filter->name, filter->proto->description());
@@ -279,10 +284,9 @@ bool SlwSelector::refresh() {
 
       //      SLsmg_erase_eol();
     }
-    putnch(tmp,1,3,0);
     
     f = layer->filters.begin();
-    pos = 5;
+    pos = 4;
     while(f) {
       
 //       SLsmg_set_color(PLAIN_COLOR);
@@ -294,7 +298,7 @@ bool SlwSelector::refresh() {
       if( f == filter ) color+=20;
       if( f->active) color+=10;
 //       SLsmg_set_color (color);
-      putnch(f->name, layercol, pos, 0);
+      putnch(f->name, sellayercol+4, pos, 0);
       pos++;
       f = (FilterInstance*)f->next;
     }
@@ -305,7 +309,10 @@ bool SlwSelector::refresh() {
 //       SLsmg_erase_eol();
 //     }
     
-  }
-  color = PLAIN_COLOR;
+  } else snprintf(tmp, w, "No Filter selected");
+
+  color = FILTERS_COLOR;
+  putnch(tmp,1,3,0);
+
 }
 

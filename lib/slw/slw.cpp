@@ -98,7 +98,6 @@ bool SLangWidget::gotoxy(int x, int y) {
     warning("gotoxy called with invalid coords");
     return false;
   }
-  
   SLsmg_gotorc(y + orig_y, x + orig_x);
   
   return true;

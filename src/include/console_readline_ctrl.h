@@ -40,9 +40,6 @@ class SlwReadline : public SLangWidget {
   bool feed(int key);
   bool refresh();
   
-  void set_command(char *cmd);
-
-
   enum parser_t { DEFAULT,
 		  COMMANDLINE,
 		  MOVELAYER } parser; // which parser to use for keys
@@ -69,9 +66,9 @@ class SlwReadline : public SLangWidget {
   cmd_process_t *cmd_process;
   cmd_complete_t *cmd_complete;
 
-  void parser_default(int key);
-  void parser_commandline(int key);
-  void parser_movelayer(int key);
+  bool parser_default(int key);
+  bool parser_commandline(int key);
+  bool parser_movelayer(int key);
   
 };
 

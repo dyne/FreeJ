@@ -39,7 +39,8 @@ SlwReadline::SlwReadline()
   
   movestep=2;
   parser = DEFAULT;
-  commandline = false;  
+  commandline = false;
+  memset(command, EOL, MAX_CMDLINE);
 
 }
 
@@ -62,6 +63,7 @@ bool SlwReadline::init() {
 }
 
 bool SlwReadline::feed(int key) {
+  bool res = false;
 
   switch(parser) {
   case COMMANDLINE:
@@ -71,37 +73,55 @@ bool SlwReadline::feed(int key) {
 
   case MOVELAYER:
 
-    parser_movelayer(key);
+    res = parser_movelayer(key);
     break;
 
   case DEFAULT:
-    parser_default(key);
+    res = parser_default(key);
     break;
 
   }
 
   // TODO: returns always true
-  return(true);
+  return(res);
 }
 
 bool SlwReadline::refresh() {
-  //  putnch(command, 0, 0, 0);
+  switch(parser) {
+  case DEFAULT:
+  case MOVELAYER:
+    color = TITLE_COLOR+20;
+    putnch(" use arrows to move selection, press ctrl-h for help with hotkeys",0,0,0);
+    break;
+    
+  case COMMANDLINE:
+    blank_row(0);
+    color = PLAIN_COLOR;
+    putnch((char*)": ", 0, 0, 2);
+    if(command[0]!=EOL)
+      putnch(command, 2, 0, 0);
+    else
+      cursor = 0;
+    gotoxy(cursor+2, 0);
+    break;
+    
+  default: break;
+  }
   return(true);
 }
 
-void SlwReadline::set_command(char *cmd) {
-  snprintf(command, w, "%s", cmd);
-}
 
 void SlwReadline::set_parser(parser_t pars) {
   switch(pars) {
 
   case DEFAULT:
     parser = DEFAULT;
+    SLtt_set_cursor_visibility(0);
     break;
     
   case COMMANDLINE:
     parser = COMMANDLINE;
+    SLtt_set_cursor_visibility(1);
     break;
     
   case MOVELAYER:
@@ -112,6 +132,7 @@ void SlwReadline::set_parser(parser_t pars) {
     ::act(", stop rotation . stop zoom and <space> to center");
     ::act("press <enter> when you are done");
     parser = MOVELAYER;
+    SLtt_set_cursor_visibility(0);
     break;
 
   default:
@@ -128,9 +149,11 @@ void SlwReadline::set_parser(parser_t pars) {
 int SlwReadline::readline(const char *msg,cmd_process_t *proc,cmd_complete_t *comp) {
   ::notice(msg);
   //  update_scroll();
-  blank();
   color = PLAIN_COLOR;
-  putnch((char*)": ", 0, 0, 2);
+
+  blank();
+
+  //  putnch((char*)": ", 0, 0, 2);
   //   SLsmg_gotorc(SLtt_Screen_Rows - 1,0);
   //   SLsmg_write_string((char *)":");
   //   SLsmg_erase_eol();
@@ -138,13 +161,11 @@ int SlwReadline::readline(const char *msg,cmd_process_t *proc,cmd_complete_t *co
   cursor = 3;
   memset(command,EOL,MAX_CMDLINE);
   
-  SLtt_set_cursor_visibility(1);
   cmd_process = proc;
   cmd_complete = comp;
   
   commandline = true;
   set_parser(COMMANDLINE);
-  //  parser = COMMANDLINE;
   
   return 1;
 }
@@ -155,8 +176,9 @@ int SlwReadline::readline(const char *msg,cmd_process_t *proc,cmd_complete_t *co
 ////////////////////////////////////////////
 
 
-void SlwReadline::parser_default(int key) {
+bool SlwReadline::parser_default(int key) {
   Entry *le, *fe;
+  bool res = true;
 
   commandline = false; // print statusline
 
@@ -241,7 +263,6 @@ void SlwReadline::parser_default(int key) {
     act("SPACE to de/activate layers and filters selected");
     act("ENTER to start/stop layers selected");
     act("+ and - move filters and effects thru chains");
-    act(" ! = Switch on/off On Screen Display information");
     act(" @ = Switch on/off screen cleanup after every frame");
     act("ctrl+e  = Add a Filter to a Layer");
     act("ctrl+b  = Change the Blit for a Layer");
@@ -305,11 +326,11 @@ void SlwReadline::parser_default(int key) {
     break;
 
       
-    case KEY_CTRL_G:
-      readline("create a generator in a new Layer:",
-	       &console_generator_selection, &console_generator_completion);
-      break;
-
+  case KEY_CTRL_G:
+    readline("create a generator in a new Layer:",
+	     &console_generator_selection, &console_generator_completion);
+    break;
+    
 
 #if defined WITH_FT2 && defined WITH_FC
   case KEY_CTRL_T:
@@ -318,12 +339,17 @@ void SlwReadline::parser_default(int key) {
     break;
 #endif
     
-  default: break;
+  default:
+    res = false;
+    break;
   
   }
+  return(res);
 }
 
-void SlwReadline::parser_movelayer(int key) {
+bool SlwReadline::parser_movelayer(int key) {
+  bool res = true;
+
   commandline = false; // print statusline
 
   // get the one selected
@@ -405,23 +431,28 @@ void SlwReadline::parser_movelayer(int key) {
     ::act("layer repositioned");
     set_parser(DEFAULT);
     break;
+
+  default:
+    res = false;
+    break;
   }
-  return;
+  return(res);
 }
 
 
 // read a command from commandline
 // handles completion and execution from function pointers previously setup
-void SlwReadline::parser_commandline(int key) {
+bool SlwReadline::parser_commandline(int key) {
   int res, c;
-  Entry *entr;
+  bool parsres = true;
+  Entry *entr = NULL;
 
   commandline = true; // don't print statusline
 
   /* =============== console command input */
   if(cursor>MAX_CMDLINE) {
     error("command too long, can't type more.");
-    return;
+    return(parsres);
   }
   //::func("input key: %i",key);
   //  SLsmg_set_color(PLAIN_COLOR);
@@ -434,97 +465,91 @@ void SlwReadline::parser_commandline(int key) {
     // a blank commandline aborts the input
     if(command[0]==EOL || command[0]==EOT) {
       set_parser(DEFAULT);
-//       parser = DEFAULT;
-//       cmd_process = NULL;
-//       cmd_complete = NULL;
-//       statusline(NULL);
-      return;
+      return(parsres);
     }
-    //    statusline(command);
     // otherwise process the input
     res = (*cmd_process)(env,command);
-    if(res<0) return;
+    if(res<0) return(parsres);
     // reset the parser
     set_parser(DEFAULT);
-//     parser = DEFAULT;
-//     cmd_process = NULL;
-//     cmd_complete = NULL;
-//     statusline(NULL);
     // save in commandline history
     entr = new Entry();
     entr->data = strdup(command);
     history.append( entr );
     if(history.len()>32) // histsize
       delete history.begin();
-    return;
+    // cleanup the command
+    memset(command, EOL, MAX_CMDLINE);
+    return(parsres);
 
   case SL_KEY_UP:
     // pick from history
-    if(!entr) // select the latest
+    entr = history.selected();
+    if(!entr) { // select the latest
       entr = history.end();
-    else
+      if(entr) entr->sel(true);
+    } else {
       entr = entr->prev;
-    if(!entr) return; // no hist
+      if(entr) {
+	history.sel(0);
+	entr->sel(true);
+      }
+    }
+    if(!entr) return(parsres); // no hist
     strncpy(command,(char*)entr->data,MAX_CMDLINE);
     // type the command on the consol
     cursor = strlen(command);
-    putnch(command,3,0,cursor);
-    
     //    GOTO_CURSOR;
-    return;
+    return(parsres);
 
   case SL_KEY_DOWN:
     // pick from history
-    if(!entr) return;
-    if(!entr->next) return;
+    if(!entr) return(parsres);
+    if(!entr->next) return(parsres);
     entr = entr->next;
     strncpy(command,(char*)entr->data,MAX_CMDLINE);
     // type the command on the console
     cursor = strlen(command);
-    putnch(command,3,0,cursor);
 
     //    GOTO_CURSOR;
-    return;
+    return(parsres);
 
   case KEY_CTRL_G:
     set_parser(DEFAULT);
-//     parser = DEFAULT;
-//     cmd_process = NULL;
-//     cmd_complete = NULL;
-//     statusline(NULL);
-    return;
+    // cleanup the command
+    memset(command, EOL, MAX_CMDLINE);
+    return(parsres);
 
   case KEY_TAB:
-    if(!cmd_complete) return;
-    if(command[0]=='\n')
-      command[0]=0x0;
+    if(!cmd_complete) return(parsres);
+    if(command[0]=='\n') command[0]=0x0;
     res = (*cmd_complete)(env,command);
-    if(!res) return;
-    else if(res==1) { // exact match!
-      putnch(command,3,0,0);
+    if(!res) return(parsres);
+    //    else if(res==1) { // exact match!
+    //      putnch(command,3,0,0);
       //      cursor = strlen(command);
-    }
+    //    }
     //    update_scroll();
     // type the command on the console
     cursor = strlen(command);
-    putnch(command,3,0,cursor);
     //    GOTO_CURSOR;
-    return;
+
+    return(parsres);
 
 
   case KEY_BACKSPACE:
   case KEY_BACKSPACE_APPLE:
   case KEY_BACKSPACE_SOMETIMES:
-    if(!cursor) return;
+    if(!cursor) return(parsres);
 
     for(c=cursor;c<MAX_CMDLINE;c++) {
       command[c-1] = command[c];
       if(command[c]==EOL) break;
     }
     cursor--;
-    putnch(command,3,0,cursor);
+    //    putnch(command,3,0,cursor);
     //    SLsmg_gotorc(SLtt_Screen_Rows - 1,cursor);
-    return;
+    return(parsres);
 
     /* the following ctrl combos are to imitate
        the Emacs commandline behaviour
@@ -536,41 +561,41 @@ void SlwReadline::parser_commandline(int key) {
 
   case SL_KEY_LEFT:
     if(cursor) cursor--;
-    gotoxy(cursor,0);
-    return;
+    //    gotoxy(cursor,0);
+    return(parsres);
   case SL_KEY_RIGHT:
     if(command[cursor]) cursor++;
-    gotoxy(cursor,0);
-    return;
+    //    gotoxy(cursor,0);
+    return(parsres);
 
   case KEY_CTRL_D:
     for(c=cursor;command[c]!=EOL;c++)
       command[c] = command[c+1];
-    putnch(command,1,0,0);
-    gotoxy(cursor,0);
+    //    putnch(command,1,0,0);
+    //    gotoxy(cursor,0);
 //     GOTO_CURSOR;
 //     SLsmg_write_string(&command[cursor]);
 //     SLsmg_erase_eol();
 //     GOTO_CURSOR;
-    return;
+    return(parsres);
 
   case KEY_CTRL_A:
   case KEY_HOME:
     cursor=0;
-    gotoxy(cursor,0);
-    return;
+    //    gotoxy(cursor,0);
+    return(parsres);
 
   case KEY_CTRL_E:
     while(command[cursor]!=EOL) cursor++;
-    gotoxy(cursor,0);
-    return;
+    //    gotoxy(cursor,0);
+    return(parsres);
 
   case KEY_CTRL_K:
     for(c=cursor;command[c]!=EOL;c++)
       command[c] = EOL;
-    putnch(command,1,0,0);
-    gotoxy(cursor,0);
-    return;
+    //    putnch(command,1,0,0);
+    //    gotoxy(cursor,0);
+    return(parsres);
 
   case KEY_CTRL_U:
     for(c=0;command[cursor+c]!=EOL;c++)
@@ -578,9 +603,9 @@ void SlwReadline::parser_commandline(int key) {
     for(;command[c]!=EOL;c++)
       command[c] = EOL;
     cursor=0;
-    putnch(command,1,0,0);
-    gotoxy(cursor,0);
-    return;
+    //    putnch(command,1,0,0);
+    //    gotoxy(cursor,0);
+    return(parsres);
     
   }
   /* add char at cursor position
@@ -598,9 +623,9 @@ void SlwReadline::parser_commandline(int key) {
   command[cursor] = key; // insert new char
   
   //  GOTO_CURSOR;
-  putnch(command,1,0,0);
+  //  putnch(command,3,0,0);
   cursor++;
-  gotoxy(cursor,0);
-
+  //  gotoxy(cursor+2,0);
+  return(parsres);
 }
   

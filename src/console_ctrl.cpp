@@ -115,9 +115,9 @@ Console::~Console() {
 
   if(sel) delete sel;
   if(log) delete log;
-  if(slw) delete slw;
   if(tit) delete tit;
   if(rdl) delete rdl;
+  if(slw) delete slw;
 
 }
 
@@ -164,7 +164,6 @@ bool Console::init(Context *freej) {
   rdl->env = freej;
   slw->place(rdl, 0, slw->h-1, slw->w, slw->h);
   rdl->init();
-  statusline(NULL);
   ////////////////////////////
 
   set_console(this);
@@ -183,15 +182,17 @@ int Console::dispatch() {
   
 //  if(key) ::func("SLkd_getkey: %u",key);
 //  else return; /* return if key is zero */
-  if(!key) return 0;
+  if(!key) return(0);
+
+  if( rdl->feed(key) ) return(1);
+
+  if( log->feed(key) ) return(1);
   
-  rdl->feed(key);
+  if( sel->feed(key) ) return(1);
+  
 
-  sel->feed(key);
 
-  log->feed(key);
-
-  return 1;
+  return(0);
 }
 
 int Console::poll() {
@@ -221,8 +222,8 @@ void Console::refresh() {
   tit->refresh();
   log->refresh();
   sel->refresh();
-  slw->refresh();
   rdl->refresh();
+  slw->refresh();
 
 //   SLsmg_cls();
 //   canvas();
@@ -236,17 +237,6 @@ void Console::refresh() {
 }    
 
 
-void Console::statusline(char *msg) {
-  //  SLsmg_set_color(TITLE_COLOR+20);
-  if(msg) {
-    rdl->set_command(msg);
-    rdl->color = PLAIN_COLOR;
-  } else {
-    rdl->set_command((char*)" use arrows to move selection, press ctrl-h for help with hotkeys");
-    rdl->color = TITLE_COLOR + 20;
-  }
-
-}
 
 
 

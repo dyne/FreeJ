@@ -76,7 +76,7 @@ static const char *help =
 static const char *short_options = "-hvD:gas:nj:cgf:F";
 
 /* this is the global FreeJ context */
-Context freej;
+Context *freej;
 
 int   debug_level = 0;
 char  layer_files[MAX_CLI_CHARS];
@@ -256,7 +256,7 @@ int scripts(char *path) {
       char temp[256];
       snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
       // if it exist is a default one: source it
-      freej.open_script(temp);
+      freej->open_script(temp);
     }
   } while(( dir = strtok(NULL,":") ));
 
@@ -267,6 +267,9 @@ int scripts(char *path) {
 #ifndef HAVE_DARWIN
 int main (int argc, char **argv) {
   Layer *lay = NULL;
+  Console *con;
+  
+  freej = new Context();
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);
   act("2001-2008 RASTASOFT :: freej.dyne.org");
@@ -275,9 +278,9 @@ int main (int argc, char **argv) {
   cmdline(argc,argv);
   set_debug(debug_level);
 
-  assert( freej.init(width,height, videomode, audiomode) );
+  assert( freej->init(width,height, videomode, audiomode) );
 
-  if(fullscreen) freej.screen->fullscreen();
+  if(fullscreen) freej->screen->fullscreen();
 
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
      this hangs on some linux kernels - darwin doesn't even bothers with it
@@ -292,30 +295,30 @@ int main (int argc, char **argv) {
   /* initialize the S-Lang text Console */
   if(!noconsole) {
     if( getenv("TERM") ) {
-      Console *con = new Console();
+      con = new Console();
       //      con->init( &freej );
-      freej.register_controller( con );
+      freej->register_controller( con );
       set_console( con );
     }
   }
 
   // refresh the list of available plugins
-  freej.plugger.refresh(&freej);
+  freej->plugger.refresh(freej);
 
   // load default settings
-  freej.config_check("keyboard.js");
+  freej->config_check("keyboard.js");
 
   /* execute javascript */
   if( javascript[0] ) {
-    freej.interactive = false;
-    freej.open_script(javascript); // TODO: quit here when script failed??
-    if(freej.quit) {
+    freej->interactive = false;
+    freej->open_script(javascript); // TODO: quit here when script failed??
+    if(freej->quit) {
       //      freej.close();
       // here calling close directly we double the destructor
       // fixed omitting the explicit close() call
       // but would be better to make the destructor reentrant
       exit(1);
-    } else freej.interactive = true;
+    } else freej->interactive = true;
   }
 
 
@@ -326,9 +329,9 @@ int main (int argc, char **argv) {
 
 
   // Set fps
-  freej.fps->set( fps );
+  freej->fps->set( fps );
 
-  freej.start_running = startstate;
+  freej->start_running = startstate;
 
   /* create layers requested on commandline */
   {
@@ -343,10 +346,10 @@ int main (int argc, char **argv) {
 
       func("creating layer for file %s",pp);
 
-      lay = create_layer(&freej, pp); // hey, this already init and open the layer !!
+      lay = create_layer(freej, pp); // hey, this already init and open the layer !!
       if(lay)  { 
         lay->start();
-        freej.add_layer(lay);
+        freej->add_layer(lay);
 	lay->fps.set(fps);
 
         if (startstate) 
@@ -361,12 +364,12 @@ int main (int argc, char **argv) {
 
 
   /* apply screen magnification */
-  //  freej.magnify(magn);
+  //  freej->magnify(magn);
   // deactivated for now
 
 
   /* MAIN loop */
-  while( !freej.quit )
+  while( !freej->quit )
     /* CAFUDDARE in sicilian means to add a lot of 
        stuff into something; for example, to do the
        bread or the pasta for the pizza you have to
@@ -374,7 +377,7 @@ int main (int argc, char **argv) {
        This also involve an intense work for your 
        arms, mixing wheat flour, ingredients, and so
        processing materia */
-    freej.cafudda(1.0);
+    freej->cafudda(1.0);
   /* also layers have the cafudda() function
      which is called by the Context class (freej instance here)
      so it's a tree of cafudda calls originating from here
@@ -386,8 +389,8 @@ int main (int argc, char **argv) {
 
 
   /* quit */
-
-  //  freej.close();
+  delete con;
+  delete freej;
 
   exit(1);
 }

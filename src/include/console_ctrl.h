@@ -95,8 +95,6 @@ class Console: public Controller {
 
   int paramsel;
 
-  void statusline(char *msg);
-
   int movestep;
 
 

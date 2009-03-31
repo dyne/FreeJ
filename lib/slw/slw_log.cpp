@@ -72,31 +72,35 @@ bool SLW_Log::init() {
 } 
 
 bool SLW_Log::feed(int key) {
+  bool res = true;
   // interprets a keycode and perform the action (or write a letter)
-	switch(key) {
-	case 0: break;
-	case KEY_PAGE_UP:
-		if(textconsole->vis_row_in->prev) {
-		  textconsole->cur_row = (Row*) textconsole->cur_row->prev;
-		  textconsole->vis_row_in = (Row*) textconsole->vis_row_in->prev;
-		  scrolling = true;
-		refresh();
-		}
-	break;
-	case KEY_PAGE_DOWN:
-		if(textconsole->cur_row->next) {
-		  textconsole->cur_row = (Row*) textconsole->cur_row->next;
-		  textconsole->vis_row_in = (Row*) textconsole->vis_row_in->next;
-		  if(!textconsole->cur_row->next) scrolling = false;
-		refresh();
-		}
-	break;
-	default: break;
-	  //		func("key [ %c : %u ] fed to log", key, key);
-	  //		refresh();
-	}
+  if(!key) return(false);
+  
+  switch(key) {
+  case KEY_PAGE_UP:
+    if(textconsole->vis_row_in->prev) {
+      textconsole->cur_row = (Row*) textconsole->cur_row->prev;
+      textconsole->vis_row_in = (Row*) textconsole->vis_row_in->prev;
+      scrolling = true;
+      refresh();
+    }
+    break;
+  case KEY_PAGE_DOWN:
+    if(textconsole->cur_row->next) {
+      textconsole->cur_row = (Row*) textconsole->cur_row->next;
+      textconsole->vis_row_in = (Row*) textconsole->vis_row_in->next;
+      if(!textconsole->cur_row->next) scrolling = false;
+      refresh();
+    }
+    break;
+  default:
+    res = false;
+    break;
+    //		func("key [ %c : %u ] fed to log", key, key);
+    //		refresh();
+  }
   // TODO: scrolling pg-up down
-  return true;
+  return(res);
 }
 
 bool SLW_Log::refresh() {
@@ -112,9 +116,14 @@ bool SLW_Log::refresh() {
 
   for(c = 0; c < h; c++ ) {
     
-    if(r->text)
+    if(r->text) {
+      color = 1;
+      if(r->text[1] == '*') color = 3;
+      if(r->text[1] == '!') color = 2;
+      if(r->text[1] == 'W') color = 4;
       putnch(r->text, 0, c, r->len);
-    
+    }
+
     if(!r->next) break;
     else r = (Row*) r->next;
     
