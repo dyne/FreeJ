@@ -5,7 +5,7 @@
 
 // define what's the type of each letter
 #define CHAR char
-#define EOL    0x0a // newline
+#define EOL    0x0  // '\0'
 #define EOT    0x0  // '\0'
 
 
