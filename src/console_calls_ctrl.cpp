@@ -246,6 +246,114 @@ int console_blit_completion(Context *env, char *cmd) {
   return c;
 }
 
+int console_blit_param_selection(Context *env, char *cmd) {
+  Parameter *param;
+  Blit *b;
+  int idx;
+
+  Layer *lay = (Layer*)env->layers.selected();
+  
+  if(!cmd) return 0;
+  if(!strlen(cmd)) return 0;
+  lay = (Layer*)env->layers.selected();
+  if(!lay) {
+    ::error("no layer currently selected");
+    return 0;
+  }
+  b = lay->current_blit;
+  if(!b) {
+    ::error("no blit selected on layer %s",lay->name);
+    return 0;
+  }
+    // find the values after the first blank space
+  char *p;
+  for(p = cmd; *p != '\0'; p++)
+    if(*p == '=') {
+      *p = '\0';
+      if(*(p-1)==' ')
+	*(p-1) = '\0';
+      p++; break;
+    }
+  
+  while(*p == ' ') p++; // jump all spaces
+  if(*p=='\0') return 0; // no value was given
+  param = (Parameter*)b->parameters.search(cmd, &idx);
+  if(! param) {
+    error("parameter %s not found in blit %s", cmd, b->name);
+    return 0;
+  } else
+    func("parameter %s found in blit %s at position %u",
+	 param->name, b->name, idx);
+
+  param->parse(p);
+  return 1;
+
+}
+
+int console_blit_param_completion(Context *env, char *cmd) {
+  Parameter *p, **params;
+  Blit *b;
+
+  Layer *lay = (Layer*)env->layers.selected();
+
+  if(!lay) {
+    ::error("no layer currently selected");
+    return 0;
+  }
+  b = lay->current_blit;
+  if(!b) {
+    ::error("no blit selected on layer %s",lay->name);
+    return 0;
+  }
+  params = b->parameters.completion(cmd);
+  if(!params[0]) return 0;
+
+  if(!params[1]) { // exact match, then fill in command
+    p = (Parameter*)params[0];
+    //    ::notice("%s :: %s",p->name,p->description);
+    snprintf(cmd,MAX_CMDLINE,"%s = ",p->name);
+    //    return 1;
+  } else {
+    
+    notice("List available parameters starting with \"%s\"",cmd);
+
+  }
+
+  int c;
+  for(c=0; params[c]; c++) {
+    p = (Parameter*)params[c];
+    switch(p->type) {
+    case Parameter::BOOL:
+      ::act("(bool) %s = %s ::  %s", p->name,
+	    (*(bool*)p->value == true) ? "true" : "false",
+	    p->description);
+      break;
+    case Parameter::NUMBER:
+      ::act("(number) %s = %g :: %s", p->name,
+	    *(double*)p->value,
+	    p->description);
+      break;
+    case Parameter::STRING:
+      ::act("%s (string) %s", p->name, p->description);
+      break;
+    case Parameter::POSITION:
+      {
+	double *val = (double*)p->value;
+	::act("(position) %s = %g x %g :: %s", p->name,
+	      val[0], val[1],
+	      p->description);
+      }
+      break;
+    case Parameter::COLOR:
+      ::act("%s (color) %s", p->name, p->description);
+      break;
+    default:
+      ::error("%s (unknown) %s", p->name, p->description);
+      break;
+    }
+  }
+  return c;
+}
 
 int console_filter_selection(Context *env, char *cmd) {
   Filter *filt;

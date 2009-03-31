@@ -31,6 +31,9 @@ int console_param_completion(Context *env, char *cmd);
 int console_blit_selection(Context *env, char *cmd);
 int console_blit_completion(Context *env, char *cmd);
 
+int console_blit_param_selection(Context *env, char *cmd);
+int console_blit_param_completion(Context *env, char *cmd);
+
 int console_filter_selection(Context *env, char *cmd);
 int console_filter_completion(Context *env, char *cmd);
 

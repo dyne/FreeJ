@@ -227,7 +227,10 @@ bool SlwReadline::parser_default(int key) {
       readline("select Blit mode for the selected Layer - press TAB for completion:",
 	       &console_blit_selection, &console_blit_completion);
       break;
-      
+    case KEY_CTRL_V:
+      readline("select Blit parameter value - press TAB for completion:",
+	       &console_blit_param_selection, &console_blit_param_completion);
+      break;
       
 #if defined WITH_FT2 && defined WITH_FC
     case KEY_CTRL_Y:
