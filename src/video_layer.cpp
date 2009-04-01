@@ -96,7 +96,7 @@ bool VideoLayer::init(Context *freej) {
 
 int VideoLayer::new_picture(AVPicture *picture) {
 	memset(picture,0,sizeof(AVPicture));
-	return avpicture_alloc(picture,PIX_FMT_RGBA32,enc->width, enc->height);
+	return avpicture_alloc(picture,PIX_FMT_RGB32,enc->width, enc->height);
 
 }
 void VideoLayer::free_picture(AVPicture *picture) {
@@ -400,7 +400,7 @@ void *VideoLayer::feed() {
 	  /**
 	   * yuv2rgb
 	   */
-	  img_convert(rgba_picture, PIX_FMT_RGBA32, (AVPicture *)yuv_picture, 
+	  img_convert(rgba_picture, PIX_FMT_RGB32, (AVPicture *)yuv_picture,
 		      enc->pix_fmt, 
 		      //avformat_stream.codec->pix_fmt,
 		      enc->width,
