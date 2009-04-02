@@ -1,7 +1,7 @@
 /* breaks compilation with swig .31 (due to mess with overloaded function) */
 %ignore show_osd();
 
-%include "@top_builddir@/doc/pydocstrings.i"
+%include "pydocstrings.i"
 
 /*
 should probably be handled in some way..

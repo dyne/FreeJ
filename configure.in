@@ -132,7 +132,7 @@ SWIG_ENABLE_CXX
 if test -z "$SWIG"; then
    AC_MSG_RESULT(No language bindings will be created)
 else
-SWIG_COMMAND='swig -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include -I$(top_builddir)/bindings'
+SWIG_COMMAND='swig -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include -I$(top_builddir)/doc'
 AC_SUBST(SWIG_COMMAND)
 SWIG_IFACE='$(top_srcdir)/bindings/freej.i'
 AC_SUBST(SWIG_IFACE)
@@ -827,7 +827,6 @@ lib/frei0r/generator/nois0r/Makefile
 lib/frei0r/generator/onecol0r/Makefile
 lib/frei0r/generator/partik0l/Makefile
 bindings/Makefile
-bindings/pypre.i
 bindings/python/Makefile
 bindings/ruby/Makefile
 bindings/java/Makefile
