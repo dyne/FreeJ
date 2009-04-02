@@ -1,4 +1,4 @@
-docs_DATA = README README.OSX TODO INSTALL API COPYING USAGE AUTHORS NEWS doc/ipernav.png
+docs_DATA = README README.OSX TODO INSTALL API COPYING USAGE AUTHORS NEWS
 docsdir = ${prefix}/share/doc/${PACKAGE}
 
 #pkgdatadir = ${prefix}/share/freej
