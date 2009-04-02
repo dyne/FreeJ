@@ -2,9 +2,6 @@
 # Run this to set up the build system: configure, makefiles, etc.
 # (based on the version in enlightenment's cvs)
 #
-# Please NOTE: autogen 1.9 IS REQUIRED, it doesn't work with
-#              other versions!
-#
 
 package="FreeJ"
 
@@ -60,10 +57,10 @@ if test "$DIE" -eq 1; then
         exit 1
 fi
 
-if test -z "$*"; then
-        echo "I am going to run ./configure with no arguments - if you wish "
-        echo "to pass any to it, please specify them on the $0 command line."
-fi
+# if test -z "$*"; then
+#         echo "I am going to run ./configure with no arguments - if you wish "
+#         echo "to pass any to it, please specify them on the $0 command line."
+# fi
 
 echo "Generating configuration files for $package, please wait...."
 
@@ -77,6 +74,8 @@ echo "  $AUTOMAKE --add-missing -c"
 $AUTOMAKE --add-missing -c || exit -1
 echo "  $AUTOCONF"
 $AUTOCONF || exit -1
+
+echo "Now you can run $srcdir/configure"
 
 cd $olddir
 # $srcdir/configure "$@" && echo
