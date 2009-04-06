@@ -1,5 +1,5 @@
 INCLUDES = -I$(top_srcdir)/lib/frei0r
-plugindir = ${prefix}/lib/freej
+plugindir = $(libdir)/freej
 
 plugin_LTLIBRARIES = water.la
 water_la_SOURCES = water.cpp

@@ -1,5 +1,5 @@
 INCLUDES = -I$(top_srcdir)/lib/frei0r
-plugindir = ${prefix}/lib/freej
+plugindir = $(libdir)/freej
 
 plugin_LTLIBRARIES = distort0r.la
 distort0r_la_SOURCES = distort0r.c

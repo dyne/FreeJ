@@ -1,5 +1,5 @@
 INCLUDES = -I$(top_srcdir)/lib/frei0r
-plugindir = ${prefix}/lib/freej
+plugindir = $(libdir)/freej
 
 plugin_LTLIBRARIES = ising0r.la
 ising0r_la_SOURCES = ising0r.c

@@ -1,5 +1,5 @@
 INCLUDES = -I$(top_srcdir)/src/include
-plugindir = ${prefix}/lib/freej
+plugindir = $(libdir)/freej
 
 plugin_LTLIBRARIES = nervous.la
 nervous_la_SOURCES = nervous.c
