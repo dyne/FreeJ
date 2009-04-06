@@ -1,9 +1,11 @@
-%global alphatag 20090327git.8c19e5fadf51
+%{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
+%{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
+%global alphatag 20090406git.4eb509638e9f
 
 Name:		freej
 Summary:	Linux video DJ and mixing
 Version:	0.10
-Release:	10%{?alphatag:.%alphatag}%{?dist}
+Release:	11%{?alphatag:.%alphatag}%{?dist}
 Source:		freej-%{version}%{?alphatag:.%{alphatag}}.tar.gz
 URL:		http://freej.dyne.org
 License:	GPLv3
@@ -11,7 +13,7 @@ Group:		Applications/Multimedia
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 Requires:	SDL SDL_ttf freetype slang
 Requires:	fftw jack-audio-connection-kit
-Requires:	bluez-libs unicap ffmpeg-libs
+Requires:	unicap
 BuildRequires:	libtheora-devel SDL-devel libpng-devel libjpeg-devel
 BuildRequires:	SDL_ttf-devel freetype-devel  libvorbis-devel slang-devel
 BuildRequires:	fftw-devel jack-audio-connection-kit-devel unicap-devel
@@ -19,6 +21,7 @@ BuildRequires:	bluez-libs-devel nasm gcc-c++ byacc flex bison
 BuildRequires:	ffmpeg-devel python-devel swig
 BuildRequires:  js-devel
 BuildRequires:  perl-devel
+BuildRequires:  doxygen
 
 %description
 FreeJ is a digital instrument for video livesets, featuring realtime
@@ -55,25 +58,40 @@ rm -fr $RPM_BUILD_ROOT/usr/doc
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post devel -p /sbin/ldconfig
+
+%postun devel -p /sbin/ldconfig
+
+
 %files
 %defattr(-,root,root)
 %doc README AUTHORS ChangeLog KNOWN-BUGS NEWS TODO USAGE doc/*.txt doc/*.png doc/x11*
 %{_bindir}/%name
-%{_libdir}/%name
+# %dir %{_libdir}/%name
+# %{_libdir}/%name/*
 %{_datadir}/%{name}
 %{_mandir}/man1/freej.1.gz
+%{_libdir}/libfreej.*
+
+%dir %{python_sitelib}/%{name}
+%{python_sitelib}/%{name}/*py*
+%dir %{python_sitearch}/%{name}
+%{python_sitearch}/%name/_freej.*
 
 %files devel
 %defattr(-,root,root)
 %doc README
 %{_includedir}/*.h
-%{_datadir}/%{name}/*.glade
+%{_libdir}/pkgconfig/freej.pc
 
 %changelog
-* Sun Apr  5 2009 Yaakov M. Nemoy <yankee@localhost.localdomain> - 0.10-1020090327git.8c19e5fadf51:.%alphatag}%{?dist}
+* Mon Apr  6 2009 Yaakov M. Nemoy <yankee@localhost.localdomain> - 0.10-11.20090406git.4eb509638e9f
+- fixes %%files section
+
+* Sun Apr  5 2009 Yaakov M. Nemoy <yankee@localhost.localdomain> - 0.10-10.20090327git.8c19e5fadf51
 - removes patches
 - updates to git checkout
-- enables python, java, and perl
+- enables python and perl bindings
 
 * Tue Sep 23 2008 Yaakov M. Nemoy <loup@hexago.nl> - 0.10-9.20080726
 - escaped macro in the changelog
