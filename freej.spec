@@ -1,15 +1,14 @@
+%global alphatag 20090327git.8c19e5fadf51
+
 Name:		freej
 Summary:	Linux video DJ and mixing
 Version:	0.10
-Release:	9.20080726%{?dist}
-Source:		ftp://ftp.dyne.org/freej/snapshot/freej-20080726.tar.gz
+Release:	10%{?alphatag:.%alphatag}%{?dist}
+Source:		freej-%{version}%{?alphatag:.%{alphatag}}.tar.gz
 URL:		http://freej.dyne.org
 License:	GPLv3
 Group:		Applications/Multimedia
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
-Patch0:		freej-20080720-with_skeleton.patch
-Patch1:		de-script.patch
-Patch2:		stack-patch.patch
 Requires:	SDL SDL_ttf freetype slang
 Requires:	fftw jack-audio-connection-kit
 Requires:	bluez-libs unicap ffmpeg-libs
@@ -18,6 +17,8 @@ BuildRequires:	SDL_ttf-devel freetype-devel  libvorbis-devel slang-devel
 BuildRequires:	fftw-devel jack-audio-connection-kit-devel unicap-devel
 BuildRequires:	bluez-libs-devel nasm gcc-c++ byacc flex bison
 BuildRequires:	ffmpeg-devel python-devel swig
+BuildRequires:  js-devel
+BuildRequires:  perl-devel
 
 %description
 FreeJ is a digital instrument for video livesets, featuring realtime
@@ -38,13 +39,10 @@ This package contains the headers that programmers will need to develop
 applications which will use libraries from freej.
 
 %prep
-%setup -q -n freej-20080726
-%patch0 -p1
-%patch1 -p1
-%patch2 -p1
+%setup -q -n %{name}-%{version}%{?alphatag:.%{alphatag}}
 
 %build
-%configure --enable-v4l --enable-flash --without-goom
+%configure --enable-v4l --enable-flash --without-goom --enable-python --enable-perl
 # freej does not handle multithreaded building
 # it simply won't build at all
 %{__make} -j1
@@ -72,6 +70,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/%{name}/*.glade
 
 %changelog
+* Sun Apr  5 2009 Yaakov M. Nemoy <yankee@localhost.localdomain> - 0.10-1020090327git.8c19e5fadf51:.%alphatag}%{?dist}
+- removes patches
+- updates to git checkout
+- enables python, java, and perl
+
 * Tue Sep 23 2008 Yaakov M. Nemoy <loup@hexago.nl> - 0.10-9.20080726
 - escaped macro in the changelog
 - added patch to remove erros about nonexecutables with #!
