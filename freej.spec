@@ -1,11 +1,11 @@
 %{!?python_sitelib: %global python_sitelib %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib()")}
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print get_python_lib(1)")}
-%global alphatag 20090406git.4eb509638e9f
+%global alphatag 20090406git.6ab131da4f54
 
 Name:		freej
 Summary:	Linux video DJ and mixing
 Version:	0.10
-Release:	11%{?alphatag:.%alphatag}%{?dist}
+Release:	12%{?alphatag:.%alphatag}%{?dist}
 Source:		freej-%{version}%{?alphatag:.%{alphatag}}.tar.gz
 URL:		http://freej.dyne.org
 License:	GPLv3
@@ -45,7 +45,7 @@ applications which will use libraries from freej.
 %setup -q -n %{name}-%{version}%{?alphatag:.%{alphatag}}
 
 %build
-%configure --enable-v4l --enable-flash --without-goom --enable-python --enable-perl
+%configure --enable-v4l --enable-flash --without-goom --enable-python --enable-dynamic-ffmpeg
 # freej does not handle multithreaded building
 # it simply won't build at all
 %{__make} -j1
@@ -58,6 +58,10 @@ rm -fr $RPM_BUILD_ROOT/usr/doc
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post -p /sbin/ldconfig
+
+%postun -p /sbin/ldconfig
+
 %post devel -p /sbin/ldconfig
 
 %postun devel -p /sbin/ldconfig
@@ -67,24 +71,28 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc README AUTHORS ChangeLog KNOWN-BUGS NEWS TODO USAGE doc/*.txt doc/*.png doc/x11*
 %{_bindir}/%name
-# %dir %{_libdir}/%name
-# %{_libdir}/%name/*
-%{_datadir}/%{name}
+%dir %{_libdir}/%name/
+%{_libdir}/%name/*
+%{_datadir}/doc/%{name}
 %{_mandir}/man1/freej.1.gz
-%{_libdir}/libfreej.*
 
-%dir %{python_sitelib}/%{name}
+%dir %{python_sitelib}/%{name}/
 %{python_sitelib}/%{name}/*py*
-%dir %{python_sitearch}/%{name}
+%dir %{python_sitearch}/%{name}/
 %{python_sitearch}/%name/_freej.*
 
 %files devel
 %defattr(-,root,root)
 %doc README
+%{_libdir}/libfreej.*
 %{_includedir}/*.h
 %{_libdir}/pkgconfig/freej.pc
 
 %changelog
+* Mon Apr  6 2009 Yaakov M. Nemoy <yankee@localhost.localdomain> - 0.10-12.20090406git.6ab131da4f54
+- disables perl
+- enables dynamic mmpeg and theora
+
 * Mon Apr  6 2009 Yaakov M. Nemoy <yankee@localhost.localdomain> - 0.10-11.20090406git.4eb509638e9f
 - fixes %%files section
 
