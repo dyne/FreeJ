@@ -3,7 +3,3 @@ name = freej
 vc_url = freej
 upstream_name = freej
 source = .
-head = 8c19e5fadf51849997938c50b37e003c95a6f6a3, 20090327150645
-sourceball = freej-0.10.20090327git.8c19e5fadf51.tar.gz
-full_name = freej-0.10.20090327git.8c19e5fadf51
-alphatag = 20090327git.8c19e5fadf51
