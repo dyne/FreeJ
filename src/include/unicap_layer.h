@@ -26,6 +26,9 @@
 
 #include <context.h>
 
+#define UNICAP_SYSTEM_CAPTURE 1
+#define UNICAP_USER_CAPTURE 2
+
 
 class UnicapLayer: public Layer {
 
@@ -42,14 +45,25 @@ class UnicapLayer: public Layer {
   void *feed_ready;
   void *rgba[2];
   int swap;
+  int detected;
+
+  int capture_type;
+
+  Linklist<Parameter> parameters;
 
  private:
 
   unicap_device_t m_device;
-  
+  unicap_device_t m_device_spec;
+
   unicap_handle_t m_handle;
 
-  
+  unicap_data_buffer_t m_buffer;
+
+  unicap_format_t m_format;
+
+  unicap_property_t m_property;
+  unicap_property_t m_property_spec;
 };
 
 #endif

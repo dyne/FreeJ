@@ -346,10 +346,10 @@ int main (int argc, char **argv) {
 
       func("creating layer for file %s",pp);
 
-      lay = create_layer(freej, pp); // hey, this already init and open the layer !!
+      lay = freej->open(pp); // hey, this already init and open the layer !!
       if(lay)  { 
-        lay->start();
-        freej->add_layer(lay);
+        freej.add_layer(lay);
+	lay->start();
 	lay->fps.set(fps);
 
         if (startstate) 
