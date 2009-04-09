@@ -20,7 +20,6 @@ SOURCES = \
 	jsync.cpp	\
 	closure.cpp     \
 	callback.cpp    \
-	console.cpp	\
 	cpu_accel.cpp	\
 	plugin.cpp	\
 	plugger.cpp	\

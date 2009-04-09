@@ -31,6 +31,7 @@
 #include <console_ctrl.h>
 #include <parameter.h>
 #include <context.h>
+#include <blitter.h>
 #include <layer.h>
 
 
@@ -203,7 +204,7 @@ int console_blit_completion(Context *env, char *cmd) {
     return 0;
   }
 
-  blits = lay->screen->blitter->blitlist.completion(cmd);
+  blits = lay->blitter->blitlist.completion(cmd);
 
   if(!blits[0]) return 0; // none found
 
