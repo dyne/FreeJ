@@ -696,41 +696,6 @@ else
 fi
 AC_SUBST(FREI0R_DIR)
 
-FREI0R_CONFIG_FILES="lib/frei0r/Makefile \
-   lib/frei0r/filter/Makefile \
-   lib/frei0r/filter/3dflippo/Makefile \
-   lib/frei0r/filter/brightness/Makefile \
-   lib/frei0r/filter/bw0r/Makefile \
-   lib/frei0r/filter/contrast0r/Makefile \
-   lib/frei0r/filter/delay0r/Makefile \
-   lib/frei0r/filter/distort0r/Makefile \
-   lib/frei0r/filter/equaliz0r/Makefile \
-   lib/frei0r/filter/flippo/Makefile \
-   lib/frei0r/filter/gamma/Makefile \
-   lib/frei0r/filter/hueshift0r/Makefile \
-   lib/frei0r/filter/invert0r/Makefile \
-   lib/frei0r/filter/mask0mate/Makefile \
-   lib/frei0r/filter/nosync0r/Makefile \
-   lib/frei0r/filter/pixeliz0r/Makefile \
-   lib/frei0r/filter/saturat0r/Makefile \
-   lib/frei0r/filter/scanline0r/Makefile \
-   lib/frei0r/filter/sobel/Makefile \
-   lib/frei0r/filter/squareblur/Makefile \
-   lib/frei0r/filter/tehroxx0r/Makefile \
-   lib/frei0r/filter/threshold0r/Makefile \
-   lib/frei0r/filter/twolay0r/Makefile \
-   lib/frei0r/filter/glow/Makefile \
-   lib/frei0r/filter/water/Makefile \
-   lib/frei0r/filter/cartoon/Makefile \
-   lib/frei0r/filter/rotozoom/Makefile \
-   lib/frei0r/filter/vertigo/Makefile \
-   lib/frei0r/generator/Makefile \
-   lib/frei0r/generator/ising0r/Makefile \
-   lib/frei0r/generator/lissajous0r/Makefile \
-   lib/frei0r/generator/nois0r/Makefile \
-   lib/frei0r/generator/onecol0r/Makefile \
-   lib/frei0r/generator/partik0l/Makefile"
-
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
 dnl ==============================================================
@@ -825,7 +790,40 @@ lib/slw/Makefile
 lib/flash/Makefile
 lib/goom/Makefile
 lib/cwiid/Makefile
-"${FREI0R_CONFIG_FILES}"
+lib/frei0r/Makefile
+lib/frei0r/filter/Makefile
+lib/frei0r/filter/3dflippo/Makefile
+lib/frei0r/filter/brightness/Makefile
+lib/frei0r/filter/bw0r/Makefile
+lib/frei0r/filter/contrast0r/Makefile
+lib/frei0r/filter/delay0r/Makefile
+lib/frei0r/filter/distort0r/Makefile
+lib/frei0r/filter/equaliz0r/Makefile
+lib/frei0r/filter/flippo/Makefile
+lib/frei0r/filter/gamma/Makefile
+lib/frei0r/filter/hueshift0r/Makefile
+lib/frei0r/filter/invert0r/Makefile
+lib/frei0r/filter/mask0mate/Makefile
+lib/frei0r/filter/nosync0r/Makefile
+lib/frei0r/filter/pixeliz0r/Makefile
+lib/frei0r/filter/saturat0r/Makefile
+lib/frei0r/filter/scanline0r/Makefile
+lib/frei0r/filter/sobel/Makefile
+lib/frei0r/filter/squareblur/Makefile
+lib/frei0r/filter/tehroxx0r/Makefile
+lib/frei0r/filter/threshold0r/Makefile
+lib/frei0r/filter/twolay0r/Makefile
+lib/frei0r/filter/glow/Makefile
+lib/frei0r/filter/water/Makefile
+lib/frei0r/filter/cartoon/Makefile
+lib/frei0r/filter/rotozoom/Makefile
+lib/frei0r/filter/vertigo/Makefile
+lib/frei0r/generator/Makefile
+lib/frei0r/generator/ising0r/Makefile
+lib/frei0r/generator/lissajous0r/Makefile
+lib/frei0r/generator/nois0r/Makefile
+lib/frei0r/generator/onecol0r/Makefile
+lib/frei0r/generator/partik0l/Makefile
 bindings/Makefile
 bindings/python/Makefile
 bindings/ruby/Makefile
