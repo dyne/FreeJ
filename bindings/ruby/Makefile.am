@@ -10,11 +10,12 @@ freej_ruby.cpp: $(top_srcdir)/bindings/freej.i
 pkgrubyexecdir = @RUBY_ARCHDIR@
 pkgrubyexec_LTLIBRARIES = Freej.la
 
-Freej_la_SOURCES = freej_ruby.cpp
+nodist_Freej_la_SOURCES = freej_ruby.cpp
 Freej_la_CXXFLAGS =  $(FREEJ_FLAGS) @RUBY_CFLAGS@
 Freej_la_LDFLAGS = $(RUBY_LDFLAGS) -module -avoid-version
 Freej_la_LIBADD = $(RUBY_LIBS) -L$(top_builddir)/src/.libs -lfreej
 
+EXTRA_DIST = list_classes.rb list_classes.sh
 
 clean-local:
 	rm -rf .libs _libs

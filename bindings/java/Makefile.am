@@ -11,7 +11,7 @@ pkgjavaexecdir = /usr/lib/jni
 pkgjavaexec_LTLIBRARIES = libfreej_g.la
 libfreej_g_la_CXXFLAGS = $(FREEJ_FLAGS) @JAVA_CFLAGS@
 libfreej_g_la_LDFLAGS = $(JAVA_LDFLAGS) 
-libfreej_g_la_SOURCES = freej_java.cpp
+nodist_libfreej_g_la_SOURCES = freej_java.cpp
 
 
 clean-local:
