@@ -238,12 +238,10 @@ JS(register_encoder) {
     enc = (VideoEncoder *)JS_GetPrivate(cx, jsenc);
     if(!enc) JS_ERROR("VideoEncoder core data is NULL");
 
-    enc->start();
+    //    enc->start();
 
     /// really add controller
     env->add_encoder( enc );
-
-    enc->active = true;
     
     *rval = JSVAL_TRUE;
 

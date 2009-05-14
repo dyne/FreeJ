@@ -39,6 +39,7 @@
 
 class Context;
 class AudioCollector;
+class FPS;
 
 /**
  * Class describing the general interface of an encoder
@@ -101,6 +102,8 @@ class VideoEncoder: public Entry, public JSyncThread {
   ringbuffer_t *ringbuffer; ///< FIFO ringbuffer pipe from Jack
 
   Context *env;
+
+  FPS *fps;
 
   shout_t *ice;
 

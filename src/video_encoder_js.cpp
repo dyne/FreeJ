@@ -113,10 +113,6 @@ JS(vid_enc_add_audio) {
   enc->use_audio = true;
   enc->audio = audio;
 
-  if(!enc->init(env)) {
-    error("JS::VideoEncoder : failed initialization");
-    delete enc; return JS_FALSE;
-  }
 
   return JS_TRUE;
 }

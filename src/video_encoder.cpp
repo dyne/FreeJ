@@ -96,6 +96,9 @@ VideoEncoder::VideoEncoder()
 
   enc_y = enc_u = enc_v = NULL;
 
+  fps = new FPS();
+  fps->init(25); // default FPS
+
   // initialize the encoded data pipe
   ringbuffer = ringbuffer_create(1048*2096);
 
@@ -159,6 +162,8 @@ VideoEncoder::~VideoEncoder() {
   if(enc_u) free(enc_u);
   if(enc_v) free(enc_v);
   if(enc_yuyv) free(enc_yuyv);
+  
+  free(fps);
 }
 
 void VideoEncoder::run() {
@@ -169,19 +174,58 @@ void VideoEncoder::run() {
   func("ok, encoder %s in rolling loop",name);
   func("VideoEncoder::run : begin thread %p",pthread_self());
   
-  lock_feed();
+  //  lock_feed();
   
   
-  wait_feed();
+
   
   while(!quit) {
 
+  /* Convert picture from rgb to yuv420 planar 
 
-    //    lock();
+     two steps here:
+     
+     1) rgb24a or bgr24a to yuv422 interlaced (yuyv)
+     2) yuv422 to yuv420 planar (yuv420p)
+
+     to fix endiannes issues try adding #define ARCH_PPC
+     and using 
+     mlt_convert_bgr24a_to_yuv422
+     or
+     mlt_convert_argb_to_yuv422
+     (see mlt_frame.h in mltframework.org sourcecode)
+     i can't tell as i don't have PPC, waiting for u mr.goil :)
+  */
+    screen->lock();
+    
+    switch(screen->get_pixel_format()) {
+      
+    case ViewPort::RGBA32:
+      mlt_convert_rgb24a_to_yuv422((uint8_t*)screen->get_surface(),
+				   screen->w, screen->h,
+				   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+      break;
+      
+    case ViewPort::BGRA32:
+      mlt_convert_bgr24a_to_yuv422((uint8_t*)screen->get_surface(),
+				   screen->w, screen->h,
+				   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+      break;
+      
+    default:
+      error("Video Encoder %s doesn't supports Screen %s pixel format",
+	    name, screen->name);
+    }
+    
+    screen->unlock();
+    
+    ccvt_yuyv_420p(screen->w, screen->h, enc_yuyv, enc_y, enc_u, enc_v);
+    
+
+
+    ////// got the YUV, do the encoding    
     res = encode_frame();
-    //    unlock();
-    //    if(!res)
-    //      warning("encoder %s reports error encoding frame",name);
+
 
     /// proceed writing and streaming encoded data in encpipe
     
@@ -215,10 +259,10 @@ void VideoEncoder::run() {
       }
       
     }
-    
-    
-    wait_feed();
-    
+
+    fps->calc();
+    fps->delay();
+
   }
   
   func("VideoEncoder::run : end thread %p", pthread_self() );
@@ -228,45 +272,6 @@ void VideoEncoder::run() {
 bool VideoEncoder::cafudda() {
   bool res = true;
 
-  /* Convert picture from rgb to yuv420 planar 
-
-     two steps here:
-     
-     1) rgb24a or bgr24a to yuv422 interlaced (yuyv)
-     2) yuv422 to yuv420 planar (yuv420p)
-
-     to fix endiannes issues try adding #define ARCH_PPC
-     and using 
-     mlt_convert_bgr24a_to_yuv422
-     or
-     mlt_convert_argb_to_yuv422
-     (see mlt_frame.h in mltframework.org sourcecode)
-     i can't tell as i don't have PPC, waiting for u mr.goil :)
-  */
-  screen->lock();
-
-  switch(screen->get_pixel_format()) {
-
-  case ViewPort::RGBA32:
-    mlt_convert_rgb24a_to_yuv422((uint8_t*)screen->get_surface(),
-				 screen->w, screen->h,
-				 screen->w<<2, (uint8_t*)enc_yuyv, NULL);
-    break;
-
-  case ViewPort::BGRA32:
-    mlt_convert_bgr24a_to_yuv422((uint8_t*)screen->get_surface(),
-				 screen->w, screen->h,
-				 screen->w<<2, (uint8_t*)enc_yuyv, NULL);
-    break;
-
-  default:
-    error("Video Encoder %s doesn't supports Screen %s pixel format",
-	  name, screen->name);
-  }
-
-  screen->unlock();
-
-  ccvt_yuyv_420p(screen->w, screen->h, enc_yuyv, enc_y, enc_u, enc_v);
   
   signal_feed();
 

@@ -350,17 +350,17 @@ void Context::cafudda(double secs) {
   
   //////////////////////////////////////
   // cafudda all active ENCODERS
-  enc = (VideoEncoder*)encoders.end();
+  //  enc = (VideoEncoder*)encoders.end();
   ///// process each encoder in the chain
-  if(enc) {
-    encoders.lock();
-    while(enc) {
-      if(!pause)
-	enc->cafudda();
-      enc = (VideoEncoder*)enc->prev;
-    }
-    encoders.unlock();
-  }
+//   if(enc) {
+//     encoders.lock();
+//     while(enc) {
+//       if(!pause)
+// 	enc->cafudda();
+//       enc = (VideoEncoder*)enc->prev;
+//     }
+//     encoders.unlock();
+//   }
   /////////// finish processing encoders
   //////////////////////////////////////
   
@@ -559,6 +559,8 @@ void Context::add_encoder(VideoEncoder *enc) {
     error("%s : failed initialization", __PRETTY_FUNCTION__);
     return;
   }
+
+  enc->start();
 
   enc->active = true;
 
