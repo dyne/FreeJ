@@ -494,6 +494,12 @@ if test x$have_cpuflags = xyes; then
        AC_DEFINE(HAVE_SSSE3,1,[define if enabling SSSE3 acceleration])
      fi
   fi
+  if test x$have_freebsd = xyes; then
+        if sysctl -n hw.instruction_sse; then
+            have_mmx=yes
+            AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
+        fi
+  fi
 fi
 
 AC_ARG_ENABLE(lubrify,
