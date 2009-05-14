@@ -638,18 +638,25 @@ PKG_CHECK_MODULES(MOZJS, xulrunner-js, have_mozjs=yes, have_mozjs=no)
   dnl    in debian, ubuntu and so on. we are stuck at static linking since years :/
  fi
 fi
+if test x$have_mozjs = xno; then
+# test on fedora
+PKG_CHECK_MODULES(MOZJS, libxul-embedding, have_mozjs=yes, have_mozjs=no)
+ if test x$have_mozjs = xyes; then
+    MOZJS_CFLAGS=`$PKG_CONFIG --cflags libxul-embedding --define-variable=includetype=js`
+    MOZJS_LIBS=`$PKG_CONFIG --libs libxul-embedding`
+    MOZJS_LIBS="$MOZJS_LIBS -lmozjs"
+ fi
+fi
 
-if test x$have_mozjs = xyes; then
-   MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
-
-else
+if test x$have_mozjs = xno; then
    MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
    # libs in top_srcdir instead of top_builddir because js is not under autotools
    MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
    JS_DIR="javascript"
-   if test x$debug = xyes ; then
-      MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
-   fi
+fi
+
+if test x$debug = xyes ; then
+   MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
 fi
 
 if test x$have_linux = xyes ; then
