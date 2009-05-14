@@ -63,13 +63,13 @@ class VideoEncoder: public Entry, public JSyncThread {
   VideoEncoder ();
   virtual ~VideoEncoder ();
 
-  virtual bool init (Context *_env)                          = 0;  
-  virtual int encode_frame ()                                = 0;
-  virtual bool feed_video()                                  = 0;
 
-  void run();
-  bool cafudda();
-  
+  virtual bool init (Context *_env) = 0;  ///< pure virtual function to implement
+  virtual int encode_frame ()       = 0;  ///< pure virtual function to implement
+
+
+  void run(); ///< runs as a separate encoding thread
+  bool cafudda(); ///< feeds the video from screen to a yuv420p format ready for the encoding thread
   
   bool set_filedump(char *filename); ///< start to dump to filename, call with NULL to stop
   char filedump[512]; ////< filename to which encoder is writing dump
@@ -106,9 +106,16 @@ class VideoEncoder: public Entry, public JSyncThread {
 
   ViewPort *screen;
 
+  void *enc_y;
+  void *enc_u;
+  void *enc_v;
+  void *enc_yuyv;
+
  private:
   FILE *filedump_fd;
   char encbuf[1024*128];
+
+
 
 };
 

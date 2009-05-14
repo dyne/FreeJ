@@ -40,7 +40,7 @@ class SdlScreen : public ViewPort {
 
   void fullscreen();
   void *get_surface();
-
+  fourcc get_pixel_format() { return BGRA32; };
 
   SDL_Event event;
   SDL_Surface *sdl_screen;

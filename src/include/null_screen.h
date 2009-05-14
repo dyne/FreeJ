@@ -38,7 +38,8 @@ class NullScreen : public ViewPort {
   void resize(int resize_w, int resize_h);
   void show();
   void clear();
-  void *get_sureface();
+  void *get_surface();
+  fourcc get_pixel_format() { return RGBA32 };
   void fullscreen();
   bool lock();
   bool unlock();

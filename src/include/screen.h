@@ -74,6 +74,10 @@ class ViewPort : public Entry {
      runtime resolving of methods between parent and child, which
      otherwise burdens our performance */ 
   virtual bool init(int width, int height) =0;
+
+  enum fourcc { RGBA32, BGRA32 }; ///< pixel formats understood
+  virtual fourcc get_pixel_format() =0; ///< return the pixel format
+
   virtual void *get_surface() =0; // returns direct pointer to video memory
   /* returns pointer to pixel
      use it only once and then move around from there

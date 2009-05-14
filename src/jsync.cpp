@@ -84,4 +84,8 @@ void JSyncThread::stop() {
 }
 
 
+void JSyncThread::wait_feed() {
+       pthread_cond_wait(&_cond_feed,&_mutex_feed);
+       fps.timeout(NULL);
+};
 

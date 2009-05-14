@@ -37,9 +37,6 @@
 
 #include <oggtheora_encoder.h>
 
-#include <convertvid.h>
-
-
 
 OggTheoraEncoder::OggTheoraEncoder() 
   : VideoEncoder() {
@@ -50,7 +47,6 @@ OggTheoraEncoder::OggTheoraEncoder()
 
   //  picture_rgb = NULL;
   //  enc_rgb24 = NULL;
-  enc_y = enc_u = enc_v = NULL;
 
   use_audio = false;
   audio = NULL;
@@ -71,10 +67,6 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   oggmux_close(&oggmux);
   
   //  if(enc_rgb24) free(enc_rgb24);
-  if(enc_y) free(enc_y);
-  if(enc_u) free(enc_u);
-  if(enc_v) free(enc_v);
-  if(enc_yuyv) free(enc_yuyv);
 
   if(audio_buf) free(audio_buf);
 }
@@ -164,12 +156,6 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux_init(&oggmux);
   
 
-  func("init picture_yuv for colorspace conversion (avcodec)");  
-
-  enc_y     = malloc(  screen->w * screen->h);
-  enc_u     = malloc( (screen->w * screen->h)/2);
-  enc_v     = malloc( (screen->w * screen->h)/2);
-  enc_yuyv   = (uint8_t*)malloc(  screen->size );
   
   act("initialization succesful");
   initialized = true;
@@ -193,75 +179,7 @@ int OggTheoraEncoder::encode_frame() {
 
 }
 
-/* function below taken from ccvt_misc.c
-   CCVT: ColourConVerT: simple library for converting colourspaces
-   Copyright (C) 2002 Nemosoft Unv. */
-inline void ccvt_yuyv_420p(int width, int height,
-			   const void *src, void *dsty,
-			   void *dstu, void *dstv) {
-  register int n, l, j;
-  register unsigned char *dy, *du, *dv;
-  register unsigned char *s1, *s2;
-  
-  dy = (unsigned char *)dsty;
-  du = (unsigned char *)dstu;
-  dv = (unsigned char *)dstv;
-  s1 = (unsigned char *)src;
-  s2 = s1; // keep pointer
-  n = width * height;
-  for (; n > 0; n--) {
-    *dy = *s1;
-    dy++;
-    s1 += 2;
-  }
-  
-  /* Two options here: average U/V values, or skip every second row */
-  s1 = s2; // restore pointer
-  s1++; // point to U
-  for (l = 0; l < height; l += 2) {
-    s2 = s1 + width * 2; // odd line
-    for (j = 0; j < width; j += 2) {
-      *du = (*s1 + *s2) / 2;
-      du++;
-      s1 += 2;
-      s2 += 2;
-      *dv = (*s1 + *s2) / 2;
-      dv++;
-      s1 += 2;
-      s2 += 2;
-    }
-    s1 = s2;
-  }
-}
 
-
-
-bool OggTheoraEncoder::feed_video() {  
-  /* Convert picture from rgb to yuv420 planar 
-
-     two steps here:
-     
-     1) rgb24a or bgr24a to yuv422 interlaced (yuyv)
-     2) yuv422 to yuv420 planar (yuv420p)
-
-     to fix endiannes issues try adding #define ARCH_PPC
-     and using 
-     mlt_convert_bgr24a_to_yuv422
-     or
-     mlt_convert_argb_to_yuv422
-     (see mlt_frame.h in mltframework.org sourcecode)
-     i can't tell as i don't have PPC, waiting for u mr.goil :)
-  */
-  env->screen->lock();
-  mlt_convert_rgb24a_to_yuv422((uint8_t*)env->screen->get_surface(),
-			       env->screen->w, env->screen->h,
-			       env->screen->w<<2, (uint8_t*)enc_yuyv, NULL);
-  env->screen->unlock();
-
-  ccvt_yuyv_420p(env->screen->w, env->screen->h, enc_yuyv, enc_y, enc_u, enc_v);
-
-  return true;
-}
 
 int OggTheoraEncoder::encode_video( int end_of_stream) {
   yuv_buffer          yuv;

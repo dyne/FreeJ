@@ -30,7 +30,10 @@ class SoftScreen : public ViewPort {
 
   bool init(int w, int h);
 
+  fourcc get_pixel_format() { return RGBA32; };
+
   void *get_surface();
+
 
   void blit(Layer *src);
 

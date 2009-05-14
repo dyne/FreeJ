@@ -547,8 +547,19 @@ void Context::rem_layer(Layer *lay) {
 void Context::add_encoder(VideoEncoder *enc) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__); 
   if(enc->list) enc->rem();
-  
-  enc->init(this);
+
+  // still init phase for the blobal encoder
+  enc->screen = screen;
+  enc->enc_y     = malloc(  screen->w * screen->h);
+  enc->enc_u     = malloc( (screen->w * screen->h)/2);
+  enc->enc_v     = malloc( (screen->w * screen->h)/2);
+  enc->enc_yuyv   = (uint8_t*)malloc(  screen->size );
+
+  if(!enc->init(this)) {
+    error("%s : failed initialization", __PRETTY_FUNCTION__);
+    return;
+  }
+
   enc->active = true;
 
   encoders.append(enc);

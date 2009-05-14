@@ -29,6 +29,51 @@
 #include <video_encoder.h>
 
 
+#include <convertvid.h>
+
+/* function below taken from ccvt_misc.c
+   CCVT: ColourConVerT: simple library for converting colourspaces
+   Copyright (C) 2002 Nemosoft Unv. */
+inline void ccvt_yuyv_420p(int width, int height,
+			   const void *src, void *dsty,
+			   void *dstu, void *dstv) {
+  register int n, l, j;
+  register unsigned char *dy, *du, *dv;
+  register unsigned char *s1, *s2;
+  
+  dy = (unsigned char *)dsty;
+  du = (unsigned char *)dstu;
+  dv = (unsigned char *)dstv;
+  s1 = (unsigned char *)src;
+  s2 = s1; // keep pointer
+  n = width * height;
+  for (; n > 0; n--) {
+    *dy = *s1;
+    dy++;
+    s1 += 2;
+  }
+  
+  /* Two options here: average U/V values, or skip every second row */
+  s1 = s2; // restore pointer
+  s1++; // point to U
+  for (l = 0; l < height; l += 2) {
+    s2 = s1 + width * 2; // odd line
+    for (j = 0; j < width; j += 2) {
+      *du = (*s1 + *s2) / 2;
+      du++;
+      s1 += 2;
+      s2 += 2;
+      *dv = (*s1 + *s2) / 2;
+      dv++;
+      s1 += 2;
+      s2 += 2;
+    }
+    s1 = s2;
+  }
+}
+
+
+
 VideoEncoder::VideoEncoder()
   : Entry(), JSyncThread() {
 
@@ -49,12 +94,13 @@ VideoEncoder::VideoEncoder()
   video_kbps = 0;
   bytes_encoded = 0;
 
+  enc_y = enc_u = enc_v = NULL;
+
   // initialize the encoded data pipe
   ringbuffer = ringbuffer_create(1048*2096);
 
   shout_init();
   ice = shout_new();
-
   
   //  shout_set_nonblocking(ice, 1);
 
@@ -70,6 +116,8 @@ VideoEncoder::VideoEncoder()
   if( shout_set_public(ice,1) )
     error("shout_set_public: %s", shout_get_error(ice));
 
+  func("init picture_yuv for colorspace conversion (avcodec)");  
+
 }
 
 VideoEncoder::~VideoEncoder() {
@@ -80,7 +128,6 @@ VideoEncoder::~VideoEncoder() {
     
     encnum = ringbuffer_read(ringbuffer, encbuf,
 			     ((audio_kbps + video_kbps)*1024)/24);
-
 
     if(encnum <=0) break;
 
@@ -107,11 +154,17 @@ VideoEncoder::~VideoEncoder() {
   shout_close(ice);
   shout_sync(ice);
   shout_free(ice);
+
+  if(enc_y) free(enc_y);
+  if(enc_u) free(enc_u);
+  if(enc_v) free(enc_v);
+  if(enc_yuyv) free(enc_yuyv);
 }
 
 void VideoEncoder::run() {
   int encnum;
   int res;
+
 
   func("ok, encoder %s in rolling loop",name);
   func("VideoEncoder::run : begin thread %p",pthread_self());
@@ -173,29 +226,50 @@ void VideoEncoder::run() {
 }
 
 bool VideoEncoder::cafudda() {
-  bool res;
+  bool res = true;
 
+  /* Convert picture from rgb to yuv420 planar 
 
-  //  if(!active) return false;
+     two steps here:
+     
+     1) rgb24a or bgr24a to yuv422 interlaced (yuyv)
+     2) yuv422 to yuv420 planar (yuv420p)
 
+     to fix endiannes issues try adding #define ARCH_PPC
+     and using 
+     mlt_convert_bgr24a_to_yuv422
+     or
+     mlt_convert_argb_to_yuv422
+     (see mlt_frame.h in mltframework.org sourcecode)
+     i can't tell as i don't have PPC, waiting for u mr.goil :)
+  */
+  screen->lock();
 
+  switch(screen->get_pixel_format()) {
 
-  //  lock();
+  case ViewPort::RGBA32:
+    mlt_convert_rgb24a_to_yuv422((uint8_t*)screen->get_surface(),
+				 screen->w, screen->h,
+				 screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+    break;
 
-  //env->screen->lock();
-// we don't need screen lock
-//  since cafudda() is called synchronously in contect.cpp
-  res = feed_video();
-  //  env->screen->unlock();
+  case ViewPort::BGRA32:
+    mlt_convert_bgr24a_to_yuv422((uint8_t*)screen->get_surface(),
+				 screen->w, screen->h,
+				 screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+    break;
 
+  default:
+    error("Video Encoder %s doesn't supports Screen %s pixel format",
+	  name, screen->name);
+  }
 
-  //  unlock();
+  screen->unlock();
 
-
+  ccvt_yuyv_420p(screen->w, screen->h, enc_yuyv, enc_y, enc_u, enc_v);
+  
   signal_feed();
 
-  
-  
   return(res);
 }
 
