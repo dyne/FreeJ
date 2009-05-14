@@ -169,9 +169,10 @@ void Layer::run() {
     unlock();
 
     fps.calc();
-    
+    fps.delay();
+
     //wait_feed();
-    sleep_feed();
+    //sleep_feed();
 
   }
     
