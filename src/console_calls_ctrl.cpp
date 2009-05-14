@@ -564,7 +564,7 @@ int console_filebrowse_completion(Context *env, char *cmd) {
 #if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD)
   struct dirent **filelist;
 #else
-  const struct dirent **filelist;
+  struct dirent **filelist;
 #endif
   char path[MAX_CMDLINE];
   char needle[MAX_CMDLINE];

@@ -157,7 +157,7 @@ void FPS::delay() {
   //      wake_ts.tv_sec, wake_ts.tv_nsec);
 
   do {
-    nanosleep(&wake_ts, NULL);
+    nanosleep(&wake_ts, &remaining);
   } while (remaining.tv_nsec > 0);
   // update lo start time
   gettimeofday(&start_tv,NULL);

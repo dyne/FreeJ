@@ -29,8 +29,8 @@
 #include <config.h>
 #include <context.h>
 #include <jsapi.h> // spidermonkey header
-//#include <jsnum.h>
-//#include <jscntxt.h>
+#include <jsnum.h>
+#include <jscntxt.h>
 
 /* // stuff for exception handling "try{} catch(e) {}" */
 /* typedef enum JSExnType { */

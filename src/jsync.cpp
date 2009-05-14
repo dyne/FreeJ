@@ -83,20 +83,5 @@ void JSyncThread::stop() {
   }
 }
 
-int JSyncThread::sleep_feed() { 
-  if (fps.get() == 0) {
-    wait_feed();
-    return EINTR;
-  }
-  fps.calc();
-  //return ETIMEDOUT, EINTR=wecker
-  int ret =  pthread_cond_timedwait (&_cond_feed, &_mutex_feed, &fps.wake_ts);
-  fps.timeout(NULL);
-  return ret;
-};
 
-void JSyncThread::wait_feed() {
-	pthread_cond_wait(&_cond_feed,&_mutex_feed);
-	fps.timeout(NULL);
-};
 
