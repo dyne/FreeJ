@@ -93,7 +93,8 @@ JS_SOURCES = 	context_js.cpp  \
 
 static_libs = @FREEJ_STATIC_LIBS@
 
-shared_libs = -ldl -lpthread -lm -lslang -lpng -ljpeg -lrt \
+shared_libs = -lpthread -lm -lslang -lpng -ljpeg -lrt \
+	         @DL_LIBS@	\
 	         @X11_LIBS@     \
 		 @XIPH_LIBS@    \
 		 @MOZJS_LIBS@   \

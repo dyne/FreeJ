@@ -312,7 +312,7 @@ JS(stream_stop) {
   return JS_TRUE;
 }
 */
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD)
 static int dir_selector(struct dirent *dir) 
 #else
 static int dir_selector(const struct dirent *dir) 
@@ -326,7 +326,7 @@ JS(freej_scandir) {
   JSObject *arr;
   JSString *str;
   jsval val;
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD)
   struct dirent **filelist;
 #else
   struct dirent **filelist;

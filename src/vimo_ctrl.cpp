@@ -25,7 +25,7 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <sys/file.h>
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD)
 #include <sys/stat.h>
 #endif
 

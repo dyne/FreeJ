@@ -81,7 +81,7 @@ Plugger::~Plugger() {
 
 }
 
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD) 
 int selector(struct dirent *dir)
 #else
 int selector(const struct dirent *dir)

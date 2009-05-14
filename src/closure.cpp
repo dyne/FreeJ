@@ -80,12 +80,14 @@ void ThreadedClosing::add_job(Closure *job) {
 }
 
 void *ThreadedClosing::jobs_loop_(void *arg) {
+  struct timespec delay = { 0, 100000000 };
   ThreadedClosing *me = (ThreadedClosing *)arg;
   while (me->running_) {
     me->do_jobs();
     pthread_mutex_lock(&me->loop_mutex_); // we block with double locking
 					  // this adds a few spare cycles but
 					  // in this way we don't miss anything
+    nanosleep(&delay, NULL);
   }
 }
 

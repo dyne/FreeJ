@@ -97,15 +97,15 @@ JSBool _js_is_instanceOf(JSContext* cx, JSClass* clasp, jsval v, const char* cal
         return JS_FALSE;
     }
     JSObject *obj = JSVAL_TO_OBJECT(v);
-    while ((obj = OBJ_GET_PROTO(cx, obj)) != NULL) {
-        if (OBJ_GET_CLASS(cx, obj) == clasp)
-            return JS_TRUE;
-    }
-    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
-        JSSMSG_FJ_WRONGTYPE, caller,
-        OBJ_GET_CLASS(cx, JSVAL_TO_OBJECT(v))->name,
-        clasp->name
-    );
+    //while ((obj = OBJ_GET_PROTO(cx, obj)) != NULL) {
+    //    if (OBJ_GET_CLASS(cx, obj) == clasp)
+    //        return JS_TRUE;
+    //}
+    //JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
+    //    JSSMSG_FJ_WRONGTYPE, caller,
+    //    OBJ_GET_CLASS(cx, JSVAL_TO_OBJECT(v))->name,
+    //    clasp->name
+    //);
     return JS_FALSE;
 }
 

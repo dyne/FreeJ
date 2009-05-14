@@ -178,9 +178,10 @@ void SdlScreen::blit(Layer *src) {
     // executes SDL blit
   } else if (b->type == Blit::SDL) {
 
-    (*b->sdl_fun)
-      (offset, &b->sdl_rect, sdl_screen,
-       NULL, src->blitter->geo, &b->parameters);
+    if (src->blitter->geo)
+        (*b->sdl_fun)
+          (offset, &b->sdl_rect, sdl_screen,
+           NULL, src->blitter->geo, &b->parameters);
     
   }
 

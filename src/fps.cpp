@@ -152,17 +152,14 @@ void FPS::timeout(uint32_t delta) {
 }
 
 void FPS::delay() {
-//   func("FPS::delay nanosleep : sec[%d] nsec[%d]",
-//        wake_ts.tv_sec, wake_ts.tv_nsec);
-  nanosleep(&wake_ts, NULL);
+  struct timespec remaining = { 0, 0 };
+  //func("FPS::delay nanosleep : sec[%d] nsec[%d]",
+  //      wake_ts.tv_sec, wake_ts.tv_nsec);
+
+  do {
+    nanosleep(&wake_ts, NULL);
+  } while (remaining.tv_nsec > 0);
   // update lo start time
   gettimeofday(&start_tv,NULL);
 
-  // pthread conditional timed wait is "more reentrant" :Q
-//   if(wake_ts.tv_nsec>0) {
-//     pthread_mutex_lock(&_mutex);
-//     pthread_cond_timedwait(&_cond, &_mutex, &wake_ts);
-//     pthread_mutex_unlock(&_mutex);
-//   }
-  
 }

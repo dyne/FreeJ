@@ -226,7 +226,7 @@ void cmdline(int argc, char **argv) {
 /* ===================================== */
 
 // scandir selection for .js or .freej
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD)
 int script_selector(struct dirent *dir)
 #else
 int script_selector(const struct dirent *dir) 

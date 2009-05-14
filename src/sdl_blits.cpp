@@ -42,7 +42,6 @@ BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
   //SDL_UpdateRects(sdl_surf, 1, dst_rect);
   
   SDL_FreeSurface( sdl_surf );
-
 };
 
 BLIT sdl_alpha(void *src, SDL_Rect *src_rect,

@@ -26,6 +26,7 @@ case $uname in
      Linux)
      AC_MSG_RESULT(Linux)
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
+     DL_LIBS="-ldl"
      have_linux=yes
 
      case $target_cpu in
@@ -65,6 +66,13 @@ case $uname in
      AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
      have_darwin=yes
      ;;
+     FreeBSD)
+     AC_MSG_RESULT(FreeBSD)
+     AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
+     AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
+     CFLAGS="$CFLAGS -I/usr/local/include -L/usr/local/lib"
+     have_freebsd=yes
+     ;;
      *)
      echo "[!] Your system architecture is not supported by FreeJ"
      echo "[!] if you are interested in porting FreeJ to your architecture"
@@ -73,6 +81,7 @@ case $uname in
      ;;
 esac
 
+AC_SUBST(DL_LIBS)
 AC_PROG_MAKE_SET
 
 dnl ==============================================================
@@ -175,7 +184,7 @@ dnl Add the local include path and some flags
 dnl ==============================================================
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-CFLAGS="-pipe -D_REENTRANT -freg-struct-return -fPIC"
+CFLAGS="$CFLAGS -pipe -D_REENTRANT -freg-struct-return -fPIC"
 if test x$have_darwin = xyes; then
   # add the fink default path to find headers
   CFLAGS="$CFLAGS -I/sw/include"
@@ -657,6 +666,13 @@ fi
 
 if test x$debug = xyes ; then
    MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
+fi
+
+if test x$have_freebsd = xyes; then 
+   JS_DIR=""
+   MOZJS_CFLAGS="-I/usr/local/include -L/usr/local/lib -I../lib/javascript"
+   MOZJS_LIBS="-ljs"
+   AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
 fi
 
 if test x$have_linux = xyes ; then

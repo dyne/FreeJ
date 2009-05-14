@@ -545,7 +545,7 @@ int console_open_text_layer(Context *env, char *cmd) {
 }
 #endif
 
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD)
 int filebrowse_completion_selector(struct dirent *dir) 
 #else
   int filebrowse_completion_selector(const struct dirent *dir) 
@@ -561,10 +561,10 @@ int console_filebrowse_completion(Context *env, char *cmd) {
   Entry *e;
 
   struct stat filestatus;
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD)
   struct dirent **filelist;
 #else
-  struct dirent **filelist;
+  const struct dirent **filelist;
 #endif
   char path[MAX_CMDLINE];
   char needle[MAX_CMDLINE];
