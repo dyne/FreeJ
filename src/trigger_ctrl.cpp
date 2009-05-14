@@ -33,6 +33,7 @@
 
 
 #include <callbacks_js.h> // javascript
+#include <jsparser.h>
 #include <jsparser_data.h>
 
 JS(js_trigger_ctrl_constructor);
@@ -54,22 +55,28 @@ TriggerController::~TriggerController() {
 }
 
 int TriggerController::poll() {
-    return dispatch();
+  return dispatch();
 }
 
 int TriggerController::dispatch() {
     jsval fval = JSVAL_VOID;
     jsval ret = JSVAL_VOID;
-    JSObject *objp;
+    JSObject *objp = NULL;
+    JSBool res;
 
-    int res = JS_GetMethod(jsenv, jsobj, "frame", &objp, &fval);
+    res = JS_GetMethod(env->js->global_context, jsobj, "frame", &objp, &fval);
+
+    if(!res || JSVAL_IS_VOID(fval)) {
+      error("method frame not found in TriggerController"); 
+      //      return false;
+    }
 
     if(!JSVAL_IS_VOID(fval)) {
         res = JS_CallFunctionValue(jsenv, jsobj, fval, 0, NULL, &ret);
         if (res == JS_FALSE) {
             error("trigger call frame() failed, deactivate ctrl");
             active = false;
-        }
+        } else { func("trigger frame() called"); }
   }
   return(1);
 }
@@ -84,6 +91,8 @@ JS(js_trigger_ctrl_constructor) {
     error("failed initializing trigger controller");
     delete trigger; return JS_FALSE;
   }
+
+  trigger->jsobj = obj;
 
   // assign instance into javascript object
   if( ! JS_SetPrivate(cx, obj, (void*)trigger) ) {

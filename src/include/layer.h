@@ -227,6 +227,7 @@ class Layer: public Entry, public JSyncThread {
 
 
   JSClass *jsclass; ///< pointer to the javascript class
+  JSObject *jsobj; ///< pointer to the javascript instantiated object
 
   void *js_constructor(Context *env, JSContext *cx,
 		       JSObject *obj, int argc, void *aargv, char *err_msg);

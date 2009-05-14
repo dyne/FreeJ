@@ -37,7 +37,7 @@
 #include <jsparser_data.h>
 
 
-#define DEBUG 1
+// #define DEBUG 1
 
 
 VideoLayer::VideoLayer()

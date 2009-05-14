@@ -57,6 +57,30 @@ class JsParser {
 	JSContext *global_context;
 	JSObject *global_object;
 
+	// list of classes made available by FreeJ
+	JSObject *Layer;
+	JSObject *GeometryLayer;
+	JSObject *ImageLayer;
+	JSObject *FlashLayer;
+	JSObject *GoomLayer;
+	JSObject *AudioJack;
+	JSObject *CamLayer;
+	JSObject *UnicapLayer;
+	JSObject *MovieLayer;
+	JSObject *TextLayer;
+	JSObject *XGrabLayer;
+	JSObject *Filter;
+	JSObject *Controller;
+	JSObject *KeyboardController;
+	JSObject *MouseController;
+	JSObject *JoystickController;
+	JSObject *TriggerController;
+	JSObject *ViMoController;
+	JSObject *MidiController;
+	JSObject *OscController;
+	JSObject *WiiController;
+	JSObject *VideoEncoder;
+
     private:
 	JSRuntime *js_runtime;
 	void init();

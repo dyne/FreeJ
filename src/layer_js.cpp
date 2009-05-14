@@ -122,6 +122,8 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     return NULL;
   }
 
+  jsobj = obj; // save the JS instance object into the C++ instance object
+
   return (void*)OBJECT_TO_JSVAL(obj);
 
 }

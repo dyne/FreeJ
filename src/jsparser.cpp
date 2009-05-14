@@ -131,7 +131,8 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		layer_constructor,
 		layer_methods,
 		NULL);
-	object_proto = layer_object; // last created object
+	Layer = layer_object; // last created object
+	object_proto = Layer; // following registrations inherit from parent class Layer
 
 // 	REGISTER_CLASS("ParticleLayer",
 // 		particle_layer_class,
@@ -143,7 +144,8 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		geometry_layer_class,
 		geometry_layer_constructor,
 		geometry_layer_methods,
-		object_proto);
+	        object_proto);
+	GeometryLayer = layer_object;
 
 // 	REGISTER_CLASS("VScrollLayer",
 // 		vscroll_layer_class,
@@ -156,6 +158,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		image_layer_constructor,
 		image_layer_methods,
 		object_proto);
+	ImageLayer = layer_object;
 
 #ifdef WITH_FLASH
 	REGISTER_CLASS("FlashLayer",
@@ -163,6 +166,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		flash_layer_constructor,
 		flash_layer_methods,
 		object_proto);
+	FlashLayer = layer_object;
 #endif
 
 #ifdef WITH_GOOM
@@ -171,6 +175,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		goom_layer_constructor,
 		goom_layer_methods,
 		object_proto);
+	GoomLayer = layer_object;
 #endif
 
 #ifdef WITH_SOUND
@@ -179,6 +184,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		       js_audio_jack_constructor,
 		       js_audio_jack_methods,
 		       object_proto);
+	AudioJack = layer_object;
 #endif
 
 #ifdef WITH_V4L
@@ -187,6 +193,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		v4l_layer_constructor,
 		v4l_layer_methods,
 		object_proto);
+	CamLayer = layer_object;
 #endif
 
 #ifdef WITH_UNICAP
@@ -195,6 +202,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		       unicap_layer_constructor,
 		       unicap_layer_methods,
 		       object_proto);
+	UnicapLayer = layer_object;
 #endif
 
 #ifdef WITH_FFMPEG
@@ -203,6 +211,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		video_layer_constructor,
 		video_layer_methods,
 		object_proto);
+	MovieLayer = layer_object;
 #endif
 
 #ifdef WITH_AVIFILE
@@ -211,6 +220,8 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		avi_layer_constructor,
 		avi_layer_methods,
 		object_proto);
+   MovieLayer = layer_object;
+
 #endif
 
 #if defined WITH_FT2 && defined WITH_FC
@@ -219,6 +230,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		txt_layer_constructor,
 		txt_layer_methods,
 		object_proto);
+	TextLayer = layer_object;
 #endif
 #ifdef linux
 	REGISTER_CLASS("XGrabLayer",
@@ -226,12 +238,14 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		js_xgrab_constructor,
 		js_xgrab_methods,
 		object_proto);
+	XGrabLayer = layer_object;
 #endif	
 	REGISTER_CLASS("Filter",
 		filter_class,
 		filter_constructor,
 		filter_methods,
 		NULL);
+	Filter = layer_object;
 
 	// controller classes
 	REGISTER_CLASS("Controller",
@@ -239,37 +253,43 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		NULL,
 		js_ctrl_methods,
 		NULL);
-	object_proto = layer_object;
+	Controller = layer_object;
+	object_proto = Controller;
 
 	REGISTER_CLASS("KeyboardController",
 		js_kbd_ctrl_class,
 		js_kbd_ctrl_constructor,
 		js_kbd_ctrl_methods,
 		object_proto);
+	KeyboardController = layer_object;
 
 	REGISTER_CLASS("MouseController",
 		js_mouse_ctrl_class,
 		js_mouse_ctrl_constructor,
 		js_mouse_ctrl_methods,
 		object_proto);
+	MouseController = layer_object;
 
 	REGISTER_CLASS("JoystickController",
 		js_joy_ctrl_class,
 		js_joy_ctrl_constructor,
 		js_joy_ctrl_methods,
 		object_proto);
+	JoystickController = layer_object;
 
 	REGISTER_CLASS("TriggerController",
 		js_trigger_ctrl_class,
 		js_trigger_ctrl_constructor,
 		js_trigger_ctrl_methods,
 		object_proto);
+	TriggerController = layer_object;
 
 	REGISTER_CLASS("ViMoController",
 		js_vimo_ctrl_class,
 		js_vimo_ctrl_constructor,
 		js_vimo_ctrl_methods,
 		object_proto);
+	ViMoController = layer_object;
 
 #ifdef WITH_MIDI
 	REGISTER_CLASS("MidiController",
@@ -277,6 +297,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		js_midi_ctrl_constructor,
 		js_midi_ctrl_methods,
 		object_proto);
+	MidiController = layer_object;
 #endif
 
     REGISTER_CLASS("OscController",
@@ -284,6 +305,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   js_osc_ctrl_constructor,
 		   js_osc_ctrl_methods,
 		   object_proto);
+    OscController = layer_object;
 
 #ifdef WITH_BLUEZ
     REGISTER_CLASS("WiiController",
@@ -291,6 +313,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   js_wii_ctrl_constructor,
 		   js_wii_ctrl_methods,
 		   object_proto);
+    WiiController = layer_object;
 #endif
 
 #ifdef WITH_OGGTHEORA
@@ -300,6 +323,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		js_vid_enc_constructor,
 		js_vid_enc_methods,
 		NULL);
+	VideoEncoder = layer_object;
 #endif
 
 //	  JS_DefineProperties(global_context, layer_object, layer_properties);
