@@ -76,7 +76,9 @@ int TriggerController::dispatch() {
         if (res == JS_FALSE) {
             error("trigger call frame() failed, deactivate ctrl");
             active = false;
-        } else { func("trigger frame() called"); }
+        } else { 
+            //func("trigger frame() called"); 
+        }
   }
   return(1);
 }
