@@ -325,52 +325,52 @@ void V4lGrabber::set_freq(int f) {
   
 
 /* here are defined the keys for this layer */
-bool V4lGrabber::keypress(int key) {
-  int res = 1;
+// bool V4lGrabber::keypress(int key) {
+//   int res = 1;
 
-  switch(key) {
-  case 'k':
-    if(input<channels)
-      set_chan(input+1);
-    break;
+//   switch(key) {
+//   case 'k':
+//     if(input<channels)
+//       set_chan(input+1);
+//     break;
     
-  case 'm':
-    if(input>0)
-      set_chan(input-1);
-    break;
+//   case 'm':
+//     if(input>0)
+//       set_chan(input-1);
+//     break;
     
-    if(have_tuner) {
-    case 'j':
-      if(_band<bandcount)
-	set_band(_band+1);
-      break;
+//     if(have_tuner) {
+//     case 'j':
+//       if(_band<bandcount)
+// 	set_band(_band+1);
+//       break;
       
-    case 'n':
-      if(_band>0)
-	set_band(_band-1);
-      break;
+//     case 'n':
+//       if(_band>0)
+// 	set_band(_band-1);
+//       break;
       
-    case 'h':
-      if(_freq<chanlists[_band].count)
-	set_freq(_freq+1);
-      else
-	set_freq(0);
-      break;
+//     case 'h':
+//       if(_freq<chanlists[_band].count)
+// 	set_freq(_freq+1);
+//       else
+// 	set_freq(0);
+//       break;
 
-    case 'b':
-      if(_freq>0)
-	set_freq(_freq-1);
-      else
-	set_freq(chanlists[_band].count);
-      break;
+//     case 'b':
+//       if(_freq>0)
+// 	set_freq(_freq-1);
+//       else
+// 	set_freq(chanlists[_band].count);
+//       break;
       
-    } /* if (have_tuner) */
+//     } /* if (have_tuner) */
     
-  default:
-    res = 0;
-  }
-  return res;
-}
+//   default:
+//     res = 0;
+//   }
+//   return res;
+// }
 
 void *V4lGrabber::get_buffer() {
   return(rgb_surface);

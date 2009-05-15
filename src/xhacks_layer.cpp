@@ -181,14 +181,14 @@ void XHacksLayer::pause(bool set) {
   show_osd();
 }
 
-bool XHacksLayer::keypress(int key) {
-  bool res = true;
-  switch(key) {
-	case 'p': pause(!paused);
-	  break;
-  default: res = false; break;
-  }
-  return res;
-}
+// bool XHacksLayer::keypress(int key) {
+//   bool res = true;
+//   switch(key) {
+// 	case 'p': pause(!paused);
+// 	  break;
+//   default: res = false; break;
+//   }
+//   return res;
+// }
 
 #endif
