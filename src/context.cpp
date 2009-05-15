@@ -373,12 +373,10 @@ void Context::cafudda(double secs) {
   // honour quit requests
   //if(quit) break; // quit was called
 
-  
-#ifndef WITH_COCOA
+
   /// FPS calculation
   fps->calc();
   fps->delay();
-#endif 
 
 
   //  SDL_framerateDelay(&FPS); // synced with desired fps here
