@@ -138,6 +138,8 @@ class GeoLayer: public Layer {
 
  private:
   SDL_Surface *surf;
+  SDL_Surface *fsurf;
+
   int res;
 
   uint32_t color;

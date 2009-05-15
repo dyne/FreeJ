@@ -34,8 +34,17 @@ template <class T> class Linklist;
 ///////////////////////
 // GLOBAL COLOR MASKING
 
+#ifdef WITH_COCOA
+#define red_bitmask   (uint32_t)0x0000ff00
+#define rchan         2
+#define green_bitmask (uint32_t)0x00ff0000
+#define gchan         1
+#define blue_bitmask  (uint32_t)0xff000000
+#define bchan         0
+#define alpha_bitmask (uint32_t)0x000000ff
+#define achan         3
+#else
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-
 #define red_bitmask   (uint32_t)0x00ff0000
 #define rchan         2
 #define green_bitmask (uint32_t)0x0000ff00
@@ -44,7 +53,6 @@ template <class T> class Linklist;
 #define bchan         0
 #define alpha_bitmask (uint32_t)0xff000000
 #define achan         3
-
 #else
 // I got much better performance with same bitmasks on my ppc
 // maybe runtime detect these like SDL testvidinfo.c?
@@ -56,9 +64,8 @@ template <class T> class Linklist;
 #define bchan         3
 #define alpha_bitmask (uint32_t)0xff000000
 #define achan         0
-
 #endif
-
+#endif
 
 class Layer;
 class Blitter;
@@ -75,7 +82,7 @@ class ViewPort : public Entry {
      otherwise burdens our performance */ 
   virtual bool init(int width, int height) =0;
 
-  enum fourcc { RGBA32, BGRA32 }; ///< pixel formats understood
+  enum fourcc { RGBA32, BGRA32, ARGB32 }; ///< pixel formats understood
   virtual fourcc get_pixel_format() =0; ///< return the pixel format
 
   virtual void *get_surface() =0; // returns direct pointer to video memory

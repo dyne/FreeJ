@@ -60,9 +60,17 @@ bool GeoLayer::init(Context *freej, int width, int height) {
   if(!surf) {
     error("can't allocate GeoLayer memory surface");
     return(false);
-  } else
+  } else {
     func("Geometry surface initialized");
-
+  }
+  
+  fsurf = SDL_CreateRGBSurface(SDL_HWSURFACE,
+			      geo.w,geo.h,32,
+			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
+  if (!fsurf) {
+    error("can't allocate GeoLayer memory surface");
+    return(false);
+  }
   return(true);
 }
 
@@ -90,8 +98,10 @@ void *GeoLayer::feed() {
    */
   if (!surf)
   	return NULL;
-  else
-  	return surf->pixels;
+    
+  SDL_BlitSurface(surf, NULL, fsurf, NULL);
+  return fsurf->pixels;
+
 }
 
 int GeoLayer::clear() {

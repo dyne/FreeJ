@@ -44,7 +44,6 @@ width=800; height=800;
 width=400; height=300;
 
 geo = new GeometryLayer();
-geo.activate(true);
 add_layer(geo);
 
 trigger = new TriggerController();
@@ -260,5 +259,5 @@ function genNewColor() {
 
 }
 
-
+geo.start();
 echo("cyno script end");
