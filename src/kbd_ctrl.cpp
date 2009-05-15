@@ -55,16 +55,14 @@ KbdController::~KbdController() {
 }
 
 bool KbdController::init(Context *freej) {
+  func("%s",__PRETTY_FUNCTION__);
 
   /* enable key repeat */
   SDL_EnableKeyRepeat(SDL_REPEAT_DELAY, SDL_REPEAT_INTERVAL);
 
 
-  func("%s",__PRETTY_FUNCTION__);
   env = freej;
-  ::env = freej;
   jsenv = freej->js->global_context;
-  jsobj = freej->js->global_object;
   
   initialized = true;
   
@@ -203,6 +201,10 @@ JS(js_kbd_ctrl_constructor) {
     error("failed initializing keyboard controller");
     delete kbd; return JS_FALSE;
   }
+
+  // assign the real js object
+  kbd->jsobj = obj;
+
   // assign instance into javascript object
   if( ! JS_SetPrivate(cx, obj, (void*)kbd) ) {
     error("failed assigning keyboard controller to javascript");

@@ -41,14 +41,14 @@ function drawStar(lay, s_mul, s2_mul) {
 
 running = true;
 kbd = new KeyboardController();
-kbd.pressed_esc = function() { running = false; }
+kbd.pressed_esc = function() { quit(); }
 register_controller( kbd );
 
 star = new GeometryLayer();
 star.color(255,255,255,255);
-star.set_blit("alpha");
+//star.set_blit("alpha");
 //star.set_name("star.js");
-star.set_blit_value(0.1);
+//star.set_blit_value(0.1);
 //star.start();
 star.activate(true);
 add_layer(star);

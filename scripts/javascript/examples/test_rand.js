@@ -5,7 +5,6 @@
 
 width =  400;
 height = 300;
-drawer = draw_triangles;
 
 function draw_pixels(geo) {
   var x, y;
@@ -74,31 +73,29 @@ function randomize_color(geo) {
 }
 
 geo = new GeometryLayer(400,300);
-geo.set_blit("alpha");
-geo.set_blit_value(0.5);
+//geo.set_blit("alpha");
+//geo.set_blit_value(0.5);
 geo.activate(true);
-geo.start();
-geo.set_fps(24);
+//geo.start();
+//geo.set_fps(24);
 add_layer(geo);
 
 running = true;
 kbd = new KeyboardController();
-kbd.released_q = function() { running = false; }
+kbd.released_q = function() { quit(); }
 kbd.released_p = function() { drawer = draw_pixels; }
 kbd.released_t = function() { drawer = draw_triangles; }
 kbd.released_e = function() { drawer = draw_ellipses; }
 register_controller( kbd );
 
-while(running) {
+drawer = draw_triangles;
 
+bang = new TriggerController();
+bang.frame = function() {
   randomize_color(geo);
-
   drawer(geo);
-
-  run(0.001);
-
 }
+register_controller(bang);
 
-quit();
 
 

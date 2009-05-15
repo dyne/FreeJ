@@ -61,10 +61,11 @@ static void sigwinch_handler (int sig) {
 }
 
 static bool real_quit;
-static bool keyboard_quit;
+static bool keyboard_quit = false;
 static void sigint_handler (int sig) {
   SLsignal_intr (SIGINT, sigint_handler);
   keyboard_quit = true;
+  func("%s : keyboard quit", __PRETTY_FUNCTION__);
 #if SLANG_VERSION < 20000
   if (SLang_Ignore_User_Abort == 0) 
 	  SLang_Error = USER_BREAK;
@@ -128,8 +129,13 @@ bool Console::init(Context *freej) {
   slw = new SLangConsole();
   slw->init();
 
+  /** register WINdow CHange signal handler (TODO) */
   SLsignal (SIGWINCH, sigwinch_handler);
+
+  /** register SIGINT signal */
+  signal(SIGINT, sigint_handler);
   SLang_set_abort_signal(sigint_handler);
+
   SLkp_set_getkey_function(getkey_handler);
 
   SLtt_set_cursor_visibility(0);

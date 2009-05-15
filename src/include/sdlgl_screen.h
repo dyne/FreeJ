@@ -51,6 +51,7 @@ class SdlGlScreen : public ViewPort {
 
   void fullscreen();
   void *get_surface();
+  fourcc get_pixel_format() { return BGRA32; };
 
   float x_translation;
   float y_translation;

@@ -372,27 +372,32 @@ JS(js_vimo_close) {
 JS(js_vimo_ctrl_constructor) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-	ViMoController *mouse = new ViMoController();
+	ViMoController *vimo = new ViMoController();
 
 	// initialize with javascript context
-	if(! mouse->init( env ) ) {
-		error("failed initializing mouse controller");
-		delete mouse; return JS_FALSE;
+	if(! vimo->init( env ) ) {
+		error("failed initializing ViMo controller");
+		delete vimo; return JS_FALSE;
 	}
 	if (argc == 1) {
 		char *filename;
 		JS_ARG_STRING(filename, 0);
-		if(!mouse->open(filename)) {
-			error("failed initializing mouse controller");
-			delete mouse; return JS_FALSE;
+		if(!vimo->open(filename)) {
+			error("failed initializing ViMo controller");
+			delete vimo; return JS_FALSE;
 		}
 	}
 
 	// assign instance into javascript object
-	if( ! JS_SetPrivate(cx, obj, (void*)mouse) ) {
-		error("failed assigning mouse controller to javascript");
-		delete mouse; return JS_FALSE;
+	if( ! JS_SetPrivate(cx, obj, (void*)vimo) ) {
+		error("failed assigning ViMo controller to javascript");
+		delete vimo; return JS_FALSE;
 	}
+
+	// assign the real js object
+	vimo->jsobj = obj;
+
+
 
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;

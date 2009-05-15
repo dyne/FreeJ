@@ -45,7 +45,7 @@ class GlScreen : public ViewPort {
 
   bool init(int widt, int height);
 
-  fourcc get_pixel_format() { return RGBA32 };
+  fourcc get_pixel_format() { return RGBA32; };
   void *get_surface();
   void *coords(int x, int y);
 

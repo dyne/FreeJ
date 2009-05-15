@@ -169,6 +169,9 @@ JS(js_mouse_ctrl_constructor) {
 		delete mouse; return JS_FALSE;
 	}
 
+	// assign the real js object
+	mouse->jsobj = obj;
+
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;
 }
