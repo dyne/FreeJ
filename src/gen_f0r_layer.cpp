@@ -190,7 +190,4 @@ void *GenF0rLayer::feed() {
   return res;
 }
 
-bool GenF0rLayer::keypress(int key) {
-  return(false);
-}
     

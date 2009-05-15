@@ -82,6 +82,9 @@ JS(js_wii_ctrl_constructor) {
     goto error;
   }
 
+  // assign the real js object
+  wii->jsobj = obj;
+
   notice("WiiMote controller attached");
 
   *rval = OBJECT_TO_JSVAL(obj);

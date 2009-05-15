@@ -31,6 +31,7 @@
 GeoLayer::GeoLayer()
   :Layer() {
   surf = NULL;
+  fsurf = NULL;
   color = 0xffffffff;
   set_name("GEO");
   set_filename("/geometrical layer");
@@ -40,7 +41,8 @@ GeoLayer::GeoLayer()
 
 GeoLayer::~GeoLayer() {
   if(surf) SDL_FreeSurface(surf);
-  surf = NULL;
+  if(fsurf) SDL_FreeSurface(fsurf);
+  surf = fsurf = NULL;
 }
 
 bool GeoLayer::init(Context *freej) {
@@ -60,8 +62,6 @@ bool GeoLayer::init(Context *freej, int width, int height) {
   if(!surf) {
     error("can't allocate GeoLayer memory surface");
     return(false);
-  } else {
-    func("Geometry surface initialized");
   }
   
   fsurf = SDL_CreateRGBSurface(SDL_HWSURFACE,
@@ -71,6 +71,8 @@ bool GeoLayer::init(Context *freej, int width, int height) {
     error("can't allocate GeoLayer memory surface");
     return(false);
   }
+
+  func("Geometry surface initialized");
   return(true);
 }
 
@@ -84,11 +86,6 @@ void GeoLayer::close() {
   return;
 }
 
-
-bool GeoLayer::keypress(int key) {
-  /* neither this */
-  return(true);
-}
 
 void *GeoLayer::feed() {
   /* TODO: check synchronisation here

@@ -113,8 +113,6 @@ void TextLayer::calculate_string_size(char *text, int *w, int *h) {
   TTF_SizeText(font, text, w, h);
 }
 
-bool TextLayer::keypress(int key) { return false; };
-
 void TextLayer::set_fgcolor(int r, int g, int b) {
   fgcolor.r = r;
   fgcolor.g = g;

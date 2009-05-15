@@ -187,6 +187,10 @@ JS(js_joy_ctrl_constructor) {
     sprintf(excp_msg, "failed assigning joystick controller to javascript");
     goto error;
   }
+
+  // assign the real js object
+  joy->jsobj = obj;
+
   *rval = OBJECT_TO_JSVAL(obj);
   return JS_TRUE;
 

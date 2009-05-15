@@ -63,6 +63,9 @@ JS(js_midi_ctrl_constructor) {
         delete midi; return JS_FALSE;
     }
 
+    // assign the real js object
+    midi->jsobj = obj;
+
     *rval = OBJECT_TO_JSVAL(obj);
     return JS_TRUE;
 }
@@ -238,7 +241,7 @@ typedef struct snd_seq_event {
 */
 
 bool MidiController::init(Context *freej) {
-
+  func("%s",__PRETTY_FUNCTION__);
 
   int portid;
     int result=snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_INPUT, SND_SEQ_NONBLOCK);
@@ -257,9 +260,8 @@ bool MidiController::init(Context *freej) {
     }
     notice("opened ALSA MIDI sequencer client-id:port #%i:%i", seq_client_id, portid);
 
-    func("%s",__PRETTY_FUNCTION__);
+    // default assignments
     env = freej;
-    ::env = freej;
     jsenv = freej->js->global_context;
     jsobj = freej->js->global_object;
 
