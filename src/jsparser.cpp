@@ -99,7 +99,7 @@ void JsParser::init() {
 	init_class(global_context, global_object);
 
    /** register SIGINT signal */
-   signal(SIGINT, js_sigint_handler);
+	//   signal(SIGINT, js_sigint_handler);
 
    ///////////////////////////////
    // setup the freej context

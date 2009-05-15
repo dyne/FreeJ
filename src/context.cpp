@@ -349,29 +349,14 @@ void Context::cafudda(double secs) {
   
   
   //////////////////////////////////////
-  // cafudda all active ENCODERS
-  //  enc = (VideoEncoder*)encoders.end();
-  ///// process each encoder in the chain
-//   if(enc) {
-//     encoders.lock();
-//     while(enc) {
-//       if(!pause)
-// 	enc->cafudda();
-//       enc = (VideoEncoder*)enc->prev;
-//     }
-//     encoders.unlock();
-//   }
-  /////////// finish processing encoders
-  //////////////////////////////////////
-  
-  
-  /////////////////////////////
-  // handle timing 
-  //    if(!secs) break; // just one pass
+  // no more synchronous ENCODERS
+  // they  are all  running on  separate  threads now  locking on  the
+  // get_surface to get access to the screen pixel buffer.
+
   
   /////////////////////////////
   // honour quit requests
-  //if(quit) break; // quit was called
+  // if(quit) break; // quit was called
 
   
 #ifndef WITH_COCOA
