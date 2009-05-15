@@ -41,8 +41,8 @@ GeoLayer::GeoLayer()
 
 GeoLayer::~GeoLayer() {
   if(surf) SDL_FreeSurface(surf);
-  if(fsurf) SDL_FreeSurface(fsurf);
-  surf = fsurf = NULL;
+  if(fsurf) free(fsurf);
+
 }
 
 bool GeoLayer::init(Context *freej) {
@@ -64,13 +64,15 @@ bool GeoLayer::init(Context *freej, int width, int height) {
     return(false);
   }
   
-  fsurf = SDL_CreateRGBSurface(SDL_HWSURFACE,
-			      geo.w,geo.h,32,
-			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
-  if (!fsurf) {
-    error("can't allocate GeoLayer memory surface");
-    return(false);
-  }
+//   fsurf = SDL_CreateRGBSurface(SDL_HWSURFACE,
+// 			      geo.w,geo.h,32,
+// 			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
+//   if (!fsurf) {
+//     error("can't allocate GeoLayer memory surface");
+//     return(false);
+//   }
+
+  fsurf = malloc(geo.size);
 
   func("Geometry surface initialized");
   return(true);
@@ -95,9 +97,10 @@ void *GeoLayer::feed() {
    */
   if (!surf)
   	return NULL;
-    
-  SDL_BlitSurface(surf, NULL, fsurf, NULL);
-  return fsurf->pixels;
+
+  jmemcpy(fsurf, surf->pixels, geo.size);
+  //  SDL_BlitSurface(surf, NULL, fsurf, NULL);
+  return fsurf;
 
 }
 

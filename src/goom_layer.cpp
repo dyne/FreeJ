@@ -105,8 +105,8 @@ void *GoomLayer::feed() {
   return buffer;
 }
 
-bool GoomLayer::keypress(int key) {
-  return false;
-}
+// bool GoomLayer::keypress(int key) {
+//   return false;
+// }
 
 #endif

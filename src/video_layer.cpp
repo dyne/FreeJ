@@ -545,57 +545,57 @@ void VideoLayer::free_fifo() {
 		free_picture(frame_fifo.picture[s]);
 	}
 }
-bool VideoLayer::keypress(int key) {
-	switch(key) {
-		case 'k':
-			forward();
-			break;
-		case 'j':
-			backward();
-			break;
-		case 'p': /* pause */
-			pause();
-			break;
-		case 'm': /* increase playing speed */
-			more_speed();
-			break;
-		case 'n': /* decrease playing speed */
-			less_speed();
-			break;
-			/*
-			   case 'b':
-			   if(backward_control) {
-			   backward_control=false;
-			   show_osd("backward off");
-			   }
-			   else {
-			   backward_control=true;
-			   show_osd("backward on");
-			   }
-			//	    backward_one_keyframe();
-			break;
-			*/
+// bool VideoLayer::keypress(int key) {
+// 	switch(key) {
+// 		case 'k':
+// 			forward();
+// 			break;
+// 		case 'j':
+// 			backward();
+// 			break;
+// 		case 'p': /* pause */
+// 			pause();
+// 			break;
+// 		case 'm': /* increase playing speed */
+// 			more_speed();
+// 			break;
+// 		case 'n': /* decrease playing speed */
+// 			less_speed();
+// 			break;
+// 			/*
+// 			   case 'b':
+// 			   if(backward_control) {
+// 			   backward_control=false;
+// 			   show_osd("backward off");
+// 			   }
+// 			   else {
+// 			   backward_control=true;
+// 			   show_osd("backward on");
+// 			   }
+// 			//	    backward_one_keyframe();
+// 			break;
+// 			*/
 
-		case 'i': /* set mark in */
-			set_mark_in();
-			break;
+// 		case 'i': /* set mark in */
+// 			set_mark_in();
+// 			break;
 
-		case 'o': /* set mark out */
-			set_mark_out();
-			break;
+// 		case 'o': /* set mark out */
+// 			set_mark_out();
+// 			break;
 
-		case 'u': /* Swith deinterlace */
-			if(deinterlaced)
-				deinterlaced=false;
-			else
-				deinterlaced=true;
-			break;
+// 		case 'u': /* Swith deinterlace */
+// 			if(deinterlaced)
+// 				deinterlaced=false;
+// 			else
+// 				deinterlaced=true;
+// 			break;
 
-		default:
-			break;
-	}
-	return true;
-}
+// 		default:
+// 			break;
+// 	}
+// 	return true;
+// }
 bool VideoLayer::set_mark_in() {
 	if (mark_in == NO_MARK) {
 		mark_in = get_master_clock();
