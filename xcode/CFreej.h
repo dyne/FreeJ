@@ -21,14 +21,15 @@ class CVideoFile;
 	Context *freej;
 	int stdout_pipe[2];
 	int stderr_pipe[2];
+	NSRecursiveLock *lock;
 	IBOutlet NSTextField *scriptPath;
 	IBOutlet NSTextView *outputPanel;
 }
-
 - (id)init;
 - (void)run;
 - (void)start;
 - (Context *)getContext;
+- (NSRecursiveLock *)getLock;
 - (IBAction)openScript:(id)sender;
 
 @end

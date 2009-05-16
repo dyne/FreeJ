@@ -26,13 +26,15 @@
 #include <QuartzCore/QuartzCore.h>
 #import <Cocoa/Cocoa.h>
 #import "CFreej.h"
+#import "FrameRate.h"
 
 @class CFreej;
 class  CVScreen;
 
 @interface CVScreenView : NSOpenGLView {
 	IBOutlet CFreej		*freej;
-
+	IBOutlet NSTextField *showFps;
+	NSString			*fpsString;
 	// display link
     CVDisplayLinkRef	displayLink;		    // the displayLink that runs the show
     CGDirectDisplayID	viewDisplayID;
@@ -42,23 +44,25 @@ class  CVScreen;
 	CIContext			*ciContext;
 	NSOpenGLContext		*currentContext;
 	CIImage				*outFrame;
-	CIImage				*inFrame;
+    CIImage             *lastFrame;
 	NSTimer				*renderTimer;
 	bool				fullScreen;
 	CFDictionaryRef		savedMode;
 	bool				needsReshape;
+	FrameRate			*rateCalc;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;
 - (id)init;
 - (void)update;
-- (CVReturn)outputFrame;
+- (CVReturn)outputFrame:(uint64_t)timestamp;
 - (void)prepareOpenGL;
 - (void *)getSurface;
 - (void)drawLayer:(Layer *)layer;
 - (void)setSizeWidth:(int)w Height:(int)h;
 - (IBAction)toggleFullScreen:(id)sender;
 - (bool)isOpaque;
+- (double)rate;
 @end
 #else
 class CVScreenView;
@@ -76,7 +80,8 @@ class CVScreen : public ViewPort {
   void *get_surface();
   void *coords(int x, int y);
   void blit(Layer *);
-
+  void CVScreen::show();
+  fourcc get_pixel_format() { return ARGB32; };
 };
 
 #endif

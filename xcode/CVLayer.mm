@@ -12,140 +12,124 @@
 
 CVLayer::CVLayer(NSObject *vin) : Layer()
 {
-	input = vin;
-	bufsize = 0;
-	blendMode = NULL;
-	type = Layer::GL_COCOA;
-	data = (void *)this;
-	//set_blend_mode(CVLayer::Overlay);
-	[input setLayer:this];
+    input = vin;
+    bufsize = 0;
+    blendMode = NULL;
+    type = Layer::GL_COCOA;
+    data = (void *)this;
+    [input setLayer:this];
+    set_name([[(NSView *)input toolTip] UTF8String]);
 }
 
 CVLayer::~CVLayer()
 {
-	close();
-
-	[input togglePlay:nil];
-	[input setLayer:nil];
+    close();
+    deactivate();
+    [input togglePlay:nil];
+    [input setLayer:nil];
 }
 
 void
 CVLayer::activate()
 {
-	freej->add_layer(this);
-	active = true;
-	name = (char *)[[(NSView *)input toolTip] UTF8String];
-	notice("Activating %s", name);
-	//blitter.set_blit("RGB");
-	//blitter.current_blit->lay
+    freej->add_layer(this);
+    active = true;
+    notice("Activating %s", name);
+    //blitter.set_blit("RGB");
+    //blitter.current_blit->lay
 }
 
 void
 CVLayer::deactivate()
 {
-	name = (char *)[[(NSView *)input toolTip] UTF8String];
-	freej->rem_layer(this);
-	active = false;
+    freej->rem_layer(this);
+    active = false;
 }
 
 bool
 CVLayer::open(const char *path)
 {
-	//[input openFile: path];
-	return false;
+    //[input openFile: path];
+    return false;
 }
 
 bool
 CVLayer::init(Context *ctx)
 {
-	 // * TODO - probe resolution of the default input device
-	return init(ctx, ctx->screen->w, ctx->screen->h);
+     // * TODO - probe resolution of the default input device
+    return init(ctx, ctx->screen->w, ctx->screen->h);
 }
 
 bool
 CVLayer::init(Context *ctx, int w, int h)
 {
-	width = w;
-	height = h;
-	freej = ctx;
-	_init(width,height);
-	return true;
+    width = w;
+    height = h;
+    freej = ctx;
+    _init(width,height);
+    return true;
 }
 
 void *
 CVLayer::feed()
 {
-	unsigned long tick = 0;
-	//Delay(1, &tick);
-	return [input grabFrame];
+    unsigned long tick = 0;
+    //Delay(1, &tick);
+    return [input grabFrame];
 }
 
 void
 CVLayer::close()
 {
-	//[input release];
+    //[input release];
 }
 
 bool
 CVLayer::forward()
 {
-	[input stepForward];
-	return true;
+    [input stepForward];
+    return true;
 }
 
 bool
 CVLayer::backward()
 {
-	[input stepBackward];
-	return true;
+    [input stepBackward];
+    return true;
 }
 
 bool
 CVLayer::backward_one_keyframe()
 {
-	return backward();
+    return backward();
 }
 
 bool
 CVLayer::set_mark_in()
 {
-	return false;
+    return false;
 }
 
 bool
 CVLayer::set_mark_out()
 {
-	return false;
+    return false;
 }
 
 void
 CVLayer::pause()
 {
-	[input stop];
+    [input stop];
 }
 
 bool
 CVLayer::relative_seek(double increment)
 {
-	return false;
+    return false;
 }
-
-void
-CVLayer::set_blend_mode(BlendMode mode)
-{
-	if (blendMode)
-		[blendMode dealloc];
-	switch (mode) {
-		case Overlay:
-			//blendFilter = [[CIFilter filterWithName:@"CIOverlayBlendMode"] retain];
-			break;
-			
-	}
-}
-
 
 CIImage * 
 CVLayer::gl_texture()
 {
-	return (CIImage *)[input grabFrame];
+    return [input getTexture];
 }

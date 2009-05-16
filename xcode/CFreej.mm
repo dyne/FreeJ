@@ -66,8 +66,7 @@
  
 -(void)awakeFromNib
 {
-	
-
+	lock = [[NSRecursiveLock alloc] init];
 }
 
 -(id)init
@@ -119,6 +118,10 @@
 	return freej;
 }
 
+- (NSRecursiveLock *)getLock
+{
+	return lock;
+}
 - (void)start
 {
 	if (!freej) {
@@ -131,5 +134,4 @@
 		freej->config_check("keyboard.js");
 	}	
 }
-
 @end

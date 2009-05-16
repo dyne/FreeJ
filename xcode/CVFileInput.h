@@ -15,53 +15,59 @@
 #import "CFreej.h";
 #include "CVLayer.h"
 #include "CVFilterPanel.h"
+#import "FrameRate.h"
 
 @interface CVFileInput : NSOpenGLView {
-	NSRecursiveLock		*lock;
-	id					delegate;
-	QTMovie				*qtMovie; 
-	QTTime				movieDuration;		    // cached duration of the movie - just for convenience
-    QTVisualContextRef	qtVisualContext;	    // the context the movie is playing in
-    CVImageBufferRef	currentFrame;		    // the current frame from the movie
-	CVImageBufferRef    lastFrame;
-	// this is a "fake" buffer exposed to freej core
-	// XXX - freej actaully needs a buffer pointer but it's not going to use it.
-	// The blitter does...but on OSX the blitter is implemented in the CVScreen class.
-	// This means we could expose any address to freej and that would work anyway.
-	CVOpenGLBufferRef	pixelBuffer;			 
-	bool				newFrame;
-	CIImage				*renderedImage;
-	CIImage				*freejImage;
-	CIImage				*previewImage;
-	bool					doPreview;
+    NSRecursiveLock       *lock;
+    id                    delegate;
+    QTMovie               *qtMovie; 
+    QTTime                movieDuration;        // cached duration of the movie - just for convenience
+    CGLContextObj         qtOpenGLContext;
+    QTVisualContextRef    qtVisualContext;        // the context the movie is playing in
+    CVOpenGLBufferPoolRef bufferPool;
+    CVOpenGLBufferRef     currentFrame;            // the current frame from the movie
+    CVOpenGLBufferRef     lastFrame;
+    // this is a "fake" buffer exposed to freej core
+    // XXX - freej actaully needs a buffer pointer but it's not going to use it.
+    // The blitter does...but on OSX the blitter is implemented in the CVScreen class.
+    // This means we could expose any address to freej and that would work anyway.
+    CVOpenGLBufferRef      pixelBuffer;
+    //NSOpenGLContext      *glContext;             
+    bool                   newFrame;
+    CIImage                *renderedImage;
+    CIImage                *freejImage;
+    CIImage                *previewImage;
+    bool                   doPreview;
 
-
-	CVFilterPanel       *filterPanel;
-    
     // display link
-    CVDisplayLinkRef	displayLink;		    // the displayLink that runs the show
-    CGDirectDisplayID	viewDisplayID;
-
+    CVDisplayLinkRef       displayLink;            // the displayLink that runs the show
+    CGDirectDisplayID      viewDisplayID;
+    CVFilterPanel          *filterPanel;
     // filters for CI rendering
-    CIFilter				*colorCorrectionFilter;	    // hue saturation brightness control through one CI filter
-    CIFilter				*compositeFilter;	    // composites the timecode over the video
-	CIFilter				*alphaFilter;
-	CIFilter				*exposureAdjustFilter;
-	CIFilter				*rotateFilter;
-	CIFilter				*translateFilter;
-	CIFilter				*effectFilter;
-	CIFilter				*scaleFilter;
-	NSMutableArray			*paramNames;
-	
-    CIContext				*ciContext;
-	
-	bool					needsReshape;
-	//CVImageBufferRef		freejFrame;
-	CVLayer					*layer;
-	IBOutlet CFreej			*freej;
-	IBOutlet NSSlider		*alphaBar;
-	bool					doFilters;
-	NSTimer					*renderTimer;
+    CIFilter               *colorCorrectionFilter;        // hue saturation brightness control through one CI filter
+    CIFilter               *compositeFilter;        // composites the timecode over the video
+    CIFilter               *alphaFilter;
+    CIFilter               *exposureAdjustFilter;
+    CIFilter               *rotateFilter;
+    CIFilter               *translateFilter;
+    CIFilter               *effectFilter;
+    CIFilter               *scaleFilter;
+    NSMutableArray         *paramNames;
+    
+    CIContext              *ciContext;
+    uint64_t               lastRenderedTime;
+    bool                   needsReshape;
+    //CVImageBufferRef     freejFrame;
+    CVLayer                *layer;
+
+    bool                   doFilters;
+    NSTimer                *renderTimer;
+    //FrameRate            *tick;
+
+    IBOutlet CFreej        *freej;
+    IBOutlet NSSlider      *alphaBar;
+    IBOutlet NSButton      *showButton;
+    IBOutlet NSButton      *previewButton;
 }
 @property (readwrite) CVLayer *layer;
 - (void)awakeFromNib;
@@ -73,7 +79,6 @@
 - (QTTime)currentTime;
 - (void)setTime:(QTTime)inTime;
 - (CVReturn)_renderTime:(const CVTimeStamp *)timeStamp;
-- (void *)grabFrame;
 - (IBAction)setMovieTime:(id)sender;
 - (IBAction)togglePlay:(id)sender;
 - (IBAction)setFilterParameter:(id)sender;

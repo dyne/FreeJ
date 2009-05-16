@@ -12,17 +12,17 @@
 #import <Cocoa/Cocoa.h>
 
 typedef struct __FilterParams {
-	int nParams;
-	struct __ParamDescr {
-		char *label;
-		double min;
-		double max;
-	} params[4];
+    int nParams;
+    struct __ParamDescr {
+        char *label;
+        double min;
+        double max;
+    } params[4];
 } FilterParams;
 
 @interface CVFilterBox : NSView
 {
-	NSTrackingArea *trackingArea;
+    NSTrackingArea *trackingArea;
 }
 - (void)mouseExited:(NSEvent *)theEvent;
 /*
@@ -32,8 +32,9 @@ typedef struct __FilterParams {
 @end
 
 @interface CVFilterPanel : NSWindowController {
-	NSView *layer;
-	IBOutlet CVFilterBox	*mainView;
+    NSView *layer;
+    IBOutlet CVFilterBox    *mainView;
+    IBOutlet NSPopUpButton  *filterButton;
 }
 - (void)show;
 - (id)initWithName:(NSString *)name;

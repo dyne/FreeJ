@@ -42,21 +42,36 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                 CVOptionFlags flagsIn, 
                                                 CVOptionFlags *flagsOut, 
                                                 void *displayLinkContext)
-{
-	return [(CVScreenView*)displayLinkContext outputFrame];
+{	
+	
+    return [(CVScreenView*)displayLinkContext outputFrame:inOutputTime->hostTime];
+	
+	return kCVReturnSuccess;
+	
 }
 
 
 @implementation CVScreenView : NSOpenGLView
+- (double)rate
+{
+    if (rateCalc) 
+        return [rateCalc rate];
+    return 0;
+}
 
 - (void)windowChangedScreen:(NSNotification*)inNotification
 {
     NSWindow *window = [inNotification object]; 
     CGDirectDisplayID displayID = (CGDirectDisplayID)[[[[window screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
 
-    if(displayID && (viewDisplayID != displayID))
+	if(displayID && (viewDisplayID != displayID))
     {
 		CVDisplayLinkSetCurrentCGDisplay(displayLink, displayID);
+		/*
+		CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, 
+			(CGLContextObj)[[self openGLContext] CGLContextObj], 
+			(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]);
+		*/
 		viewDisplayID = displayID;
     }
 }
@@ -78,12 +93,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	Context *ctx = [freej getContext];
 	CVScreen *screen = (CVScreen *)ctx->screen;
 	screen->set_view(self);
+    ctx->fps->set(25);
 	CVDisplayLinkStart(displayLink);
 }
 
 - (id)init
 {
 	needsReshape = YES;
+	//lock = [freej getLock];
+    outFrame = NULL;
+    lastFrame = NULL;
 	lock = [[NSRecursiveLock alloc] init];
 	[lock retain];
 	[self setNeedsDisplay:NO];
@@ -98,7 +117,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		return nil;
 	}
 	CVPixelBufferRetain(pixelBuffer);
-
 	return self;
 }
 
@@ -115,16 +133,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[ciContext release];
 	[currentContext release];
 	[outFrame release];
-	[inFrame release];
+	[lastFrame release];
 	[lock release];
 	[super dealloc];
 }
 - (void)prepareOpenGL
 {
 	CVReturn			    ret;
-		
-	lock = [[NSRecursiveLock alloc] init];
-	  	    		
 	// Create display link 
 	CGOpenGLDisplayMask	totalDisplayMask = 0;
 	int			virtualScreen;
@@ -157,6 +172,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedSize:) name:NSWindowDidResizeNotification object:nil];
+
+    rateCalc = [[FrameRate alloc] init];
+	[rateCalc retain];
+    
 	// Set up display link callbacks 
 	CVDisplayLinkSetOutputCallback(displayLink, renderCallback, self);
 
@@ -168,7 +187,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
-	[lock lock];	
+	//[[freej getLock] lock];
+	[lock lock];
 	[currentContext makeCurrentContext];
 
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
@@ -199,7 +219,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		glDisable(GL_BLEND);
 		glDisable(GL_STENCIL_TEST);
 		glDisable(GL_FOG);
-		glDisable(GL_TEXTURE_2D);
+		//glDisable(GL_TEXTURE_2D);
 		glDisable(GL_DEPTH_TEST);
 		glPixelZoom(1.0,1.0);
 		
@@ -213,7 +233,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	//glFlush();
 	[[self openGLContext] flushBuffer];
 	[self setNeedsDisplay:NO];		
-
+	//[[freej getLock] unlock];
 	[lock unlock];
 }
 
@@ -222,17 +242,15 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	NSAutoreleasePool *pool;
 	pool = [[NSAutoreleasePool alloc] init];
 	NSRect		frame = [self frame];
-    NSRect		bounds = [self bounds];
-	
-	//[lock lock];
-	
+    NSRect		bounds = [self bounds];    
+
+    //[lock lock];
 	if (outFrame) {
 		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
 					NSWidth(bounds), NSHeight(bounds));
 		[ciContext drawImage: outFrame
 			atPoint: cg.origin  fromRect: cg];
 	}
-
 	//[self setNeedsDisplay:YES];
 	[self drawRect:NSZeroRect];
 	//[lock unlock];
@@ -244,7 +262,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	return (void *)CVPixelBufferGetBaseAddress(pixelBuffer);			
 }
 
-- (CVReturn)outputFrame
+- (CVReturn)outputFrame:(uint64_t)timestamp
 {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	if (outFrame) {
@@ -255,17 +273,29 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	//[lock lock];
 	ctx->cafudda(0.0);
 	//[lock unlock];
-	[self renderFrame];
+	// export
+//	if (outFrame) {
+//		NSCIImageRep* rep = [NSCIImageRep imageRepWithCIImage:outFrame];
+//		NSImage* image = [[[NSImage alloc] initWithSize:NSMakeSize (fjScreen->w, fjScreen->h)] autorelease];
+//		[image addRepresentation:rep];
+//	}
+    if (rateCalc) {
+        [rateCalc tick:timestamp];
+        if (fpsString)
+            [fpsString release];
+        fpsString = [[NSString stringWithFormat:@"%0.1lf", [rateCalc rate]] retain];
+        [showFps setStringValue:fpsString];
+    }
 	[pool release];
 	return kCVReturnSuccess;
 }
 
 - (void)drawLayer:(Layer *)layer
 {
-	NSAutoreleasePool *pool;
+	//NSAutoreleasePool *pool;
 	CIImage *inputImage = NULL;
 	CIFilter *blendFilter = NULL;
-	pool = [[NSAutoreleasePool alloc] init];
+	//pool = [[NSAutoreleasePool alloc] init];
 	//[lock lock];
 	if (layer->type == Layer::GL_COCOA) {
 		CVLayer *cvLayer = (CVLayer *)layer;
@@ -275,10 +305,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			blendFilter = [CIFilter filterWithName:blendMode];
 		else
 			blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"]; 
-	} else { // freej 'unknown' layer type
+	} else { // freej 'not-cocoa' layer type
 	
 		CVPixelBufferRef pixelBufferOut;
-		_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
+		//_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
 		CVReturn cvRet = CVPixelBufferCreateWithBytes (
 		   NULL,
 		   layer->geo.w,
@@ -294,30 +324,25 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		if (cvRet != noErr) {
 			// TODO - Error Messages
 		} 
-		inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
+		inputImage = [[CIImage imageWithCVImageBuffer:pixelBufferOut] retain];
 		CVPixelBufferRelease(pixelBufferOut);
 		blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"];
 	}
 	[blendFilter setDefaults];
-	if (inputImage && inputImage != inFrame) {
-		if (inFrame)
-			[inFrame release];
-		inFrame = inputImage;
-		[inputImage retain];	 
-		
+	if (inputImage) {
 		if (!outFrame) {
 			outFrame = inputImage;
 		} else {
 			[blendFilter setValue:outFrame forKey:@"inputBackgroundImage"];
 			[blendFilter setValue:inputImage forKey:@"inputImage"];
-			CIImage *tmp = [blendFilter valueForKey:@"outputImage"];
 			[outFrame release];
-			outFrame = tmp;
+			outFrame = [blendFilter valueForKey:@"outputImage"];
 		}
 		[outFrame retain];
+        [inputImage release];
 	}
 	//[lock unlock];
-	[pool release];
+	//[pool release];
 }
 
 - (void)setSizeWidth:(int)w Height:(int)h
@@ -341,8 +366,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)toggleFullScreen:(id)sender
 {
-	CGDirectDisplayID currentDisplay = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] 
-												objectForKey:@"NSScreenNumber"] intValue];
 	if (fullScreen) {
 	
 		CGDisplayReservationInterval seconds = 2.0;
@@ -358,26 +381,26 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 		[currentContext clearDrawable];
 		
-		CGDisplaySwitchToMode(currentDisplay, savedMode);
+		CGDisplaySwitchToMode(viewDisplayID, savedMode);
 
 		CGDisplayFade(newToken,
-		0.5,	 // 0.5 seconds
+		0.2,	 // 0.2 seconds
 		kCGDisplayBlendSolidColor, // Starting state
 		kCGDisplayBlendNormal,	// Ending state
 		0.0, 0.0, 0.0,	 // black
 		true);	 // Don't wait for completion
 
 		CGReleaseDisplayFadeReservation(newToken);
-		CGDisplayRelease(currentDisplay);
+		CGDisplayRelease(viewDisplayID);
 		// notify our underlying NSView object that we are exiting fullscreen
 		[self exitFullScreenModeWithOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:0], 
 			NSFullScreenModeAllScreens, nil ]];
 		fullScreen = NO;
 	} else {
-		CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplay, 32, fjScreen->w, fjScreen->h, 0);
+		CFDictionaryRef newMode = CGDisplayBestModeForParameters(viewDisplayID, 32, fjScreen->w, fjScreen->h, 0);
 		NSAssert(newMode, @"Couldn't find display mode");
 
-		savedMode = CGDisplayCurrentMode(currentDisplay);
+		savedMode = CGDisplayCurrentMode(viewDisplayID);
 
 		//fade out
 		CGDisplayReservationInterval seconds = 2.0;
@@ -385,16 +408,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		CGAcquireDisplayFadeReservation(seconds, &newToken); // reserve display hardware time
 
 		CGDisplayFade(newToken,
-		0.3,	 // 0.3 seconds
+		0.2,	 // 0.3 seconds
 		kCGDisplayBlendNormal,	// Starting state
 		kCGDisplayBlendSolidColor, // Ending state
 		0.0, 0.0, 0.0,	 // black
 		true);	 // wait for completion
 
-		CGDisplayCapture(currentDisplay);	 //capture main display
+		CGDisplayCapture(viewDisplayID);	 //capture main display
 
 		//Switch to selected resolution.
-		CGDisplayErr err = CGDisplaySwitchToMode(currentDisplay, newMode);
+		CGDisplayErr err = CGDisplaySwitchToMode(viewDisplayID, newMode);
 		NSAssert(err == CGDisplayNoErr, @"Error switching resolution.");
 
 		[currentContext setFullScreen];	 //set openGL context to draw to screen
@@ -416,18 +439,107 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		fullScreen = YES;
 	}
 	[lock lock];
+	//[[freej getLock] lock];
 	[currentContext makeCurrentContext];
 	// clean the OpenGL context 
 	glClearColor(0.0, 0.0, 0.0, 0.0);	     
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	[currentContext flushBuffer];
+	//[[freej getLock] unlock];
 	[lock unlock];
 }
 
 - (bool)isOpaque
 {
 	return YES;
+}
+
+//
+// buildQTKitMovie
+//
+// Build a QTKit movie from a series of image frames
+//
+//
+
+-(void)buildQTKitMovie
+{
+
+/*  
+  NOTES ABOUT CREATING A NEW ("EMPTY") MOVIE AND ADDING IMAGE FRAMES TO IT
+
+  In order to compose a new movie from a series of image frames with QTKit
+  it is of course necessary to first create an "empty" movie to which these
+  frames can be added. Actually, the real requirements (in QuickTime terminology)
+  for such an "empty" movie are that it contain a writable data reference. A
+  movie with a writable data reference can then accept the addition of image 
+  frames via the -addImage method.
+
+  Prior to QuickTime 7.2.1, QTKit did not provide a QTMovie method for creating a 
+  QTMovie with a writable data reference. In this case, we can use the native 
+  QuickTime API CreateMovieStorage() to create a QuickTime movie with a writable 
+  data reference (in our example below we use a data reference to a file). We then 
+  use the QTKit movieWithQuickTimeMovie: method to instantiate a QTMovie from this 
+  native QuickTime movie. 
+
+  Finally, images are added to the movie as movie frames using -addImage.
+
+  NEW IN QUICKTIME 7.2.1
+
+  QuickTime 7.2.1 now provides a new method:
+
+  - (id)initToWritableFile:(NSString *)filename error:(NSError **)errorPtr;
+
+  to create a QTMovie with a writable data reference. This eliminates the need to
+  use the native QuickTime API CreateMovieStorage() as described above.
+
+  The code below checks first to see if this new method initToWritableFile: is 
+  available, and if so it will use it rather than use the native API.
+*/
+	QTMovie *mMovie;
+    // Check first if the new QuickTime 7.2.1 initToWritableFile: method is available
+    if ([[[[QTMovie alloc] init] autorelease] respondsToSelector:@selector(initToWritableFile:error:)] == YES)
+    {
+        // generate a name for our movie file
+        NSString *tempName = [NSString stringWithCString:tmpnam(nil) 
+                                encoding:[NSString defaultCStringEncoding]];
+        if (nil == tempName) goto bail;
+        
+        // Create a QTMovie with a writable data reference
+        mMovie = [[QTMovie alloc] initToWritableFile:tempName error:NULL];
+    }
+    else    
+    {    
+        // The QuickTime 7.2.1 initToWritableFile: method is not available, so use the native 
+        // QuickTime API CreateMovieStorage() to create a QuickTime movie with a writable 
+        // data reference
+    
+        OSErr err;
+        // create a native QuickTime movie
+       // Movie qtMovie = [self quicktimeMovieFromTempFile:&mDataHandlerRef error:&err];
+        //if (nil == qtMovie) goto bail;
+        
+        // instantiate a QTMovie from our native QuickTime movie
+        //mMovie = [QTMovie movieWithQuickTimeMovie:qtMovie disposeWhenDone:YES error:nil];
+        //if (!mMovie || err) goto bail;
+    }
+
+
+  // mark the movie as editable
+  [mMovie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieEditableAttribute];
+  
+  // keep it around until we are done with it...
+  [mMovie retain];
+
+  // build an array of image file paths (NSString objects) to our image files
+  NSArray *imagesArray = [[NSBundle mainBundle] pathsForResourcesOfType:@"jpg" 
+                              inDirectory:nil];
+  // add all the images to our movie as MPEG-4 frames
+  //[mMovie addImage:<#(NSImage *)image#> forDuration:<#(QTTime)duration#> withAttributes:<#(NSDictionary *)attributes#>];
+
+bail:
+
+  return;
 }
 
 @synthesize fullScreen;
@@ -491,3 +603,9 @@ void CVScreen::blit(Layer *lay)
 	if (view)
 		[view drawLayer:lay];
 }
+
+void CVScreen::show() {
+    if (view) 
+        [view renderFrame];
+}
+
