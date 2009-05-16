@@ -40,10 +40,13 @@ function drawStar(lay, s_mul, s2_mul) {
 }
 
 running = true;
-kbd = new KeyboardController();
-kbd.pressed_esc = function() { quit(); }
-register_controller( kbd );
 
+var kbd;
+star_kbd = new KeyboardController();
+star_kbd.pressed_esc = function() { quit(); }
+register_controller( star_kbd );
+
+var star;
 star = new GeometryLayer();
 star.color(255,255,255,255);
 //star.set_blit("alpha");
@@ -59,9 +62,10 @@ srand();
 
 cc = 1;
 
-bang = new TriggerController();
-register_controller(bang);
-bang.frame = function() {
+var star_bang;
+star_bang = new TriggerController();
+register_controller(star_bang);
+star_bang.frame = function() {
 
     cc += 0.05;
 

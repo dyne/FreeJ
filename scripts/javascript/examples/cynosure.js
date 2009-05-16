@@ -43,29 +43,29 @@ width=1024; height=768;
 width=800; height=800;
 width=400; height=300;
 
-geo = new GeometryLayer();
-geo.activate(true);
-add_layer(geo);
+cyno_geo = new GeometryLayer();
+cyno_geo.activate(true);
+add_layer(cyno_geo);
 
-trigger = new TriggerController();
-register_controller(trigger);
-trigger.frame = function() { Draw(); };
+cyno_trigger = new TriggerController();
+register_controller(cyno_trigger);
+cyno_trigger.frame = function() { Draw(); };
 
-kbd = new KeyboardController();
-register_controller(kbd);
-kbd.released_q = function() { quit(); }
-kbd.released_x = function() { Draw(); }
+cyno_kbd = new KeyboardController();
+register_controller(cyno_kbd);
+cyno_kbd.released_q = function() { quit(); }
+cyno_kbd.released_x = function() { Draw(); }
 
-kbd.released_p = function() {
+cyno_kbd.released_p = function() {
     echo("ok, I shot myself now");
-    try{rem_controller(trigger);}catch(e){echo("tg nope: "+e);}
-    try{rem_layer(geo);}catch(e){echo("la nope: "+e);}
+    try{rem_controller(cyno_trigger);}catch(e){echo("tg nope: "+e);}
+    try{rem_layer(cyno_geo);}catch(e){echo("la nope: "+e);}
     try{rem_controller(mc);}catch(e){echo("mc nope: "+e);}
-    try{rem_controller(kbd);}catch(e){echo("kb nope: "+e);}
-    delete geo;
+    try{rem_controller(cyno_kbd);}catch(e){echo("kb nope: "+e);}
+    delete cyno_geo;
     delete mc;
-    delete kbd;
-    delete trigger;
+    delete cyno_kbd;
+    delete cyno_trigger;
     gc(); // kbd-js not cleared within this call!
     echo("Bullet arrived.");
 }
@@ -132,7 +132,7 @@ function Draw() {
     for (j=0; j<10; j++) {
 		if ((iterations > 0) && (++i >= iterations)) {
 			i = 0; // clearScreen
-			geo.rectangle_fill(0,0,width,height,0x000000FF);
+			cyno_geo.rectangle_fill(0,0,width,height,0x000000FF);
 		} 
         paint();
     }
@@ -193,22 +193,22 @@ function paint() {
 
 		/* Draw the shadow */
 		if (elevation > 0)
-		  geo.rectangle_fill(curX + elevation, curY + elevation,
+		  cyno_geo.rectangle_fill(curX + elevation, curY + elevation,
 			  curX + elevation + curWidth, 
 			  curY + elevation + curHeight,
 			  0x00000060);
 
         /* Draw the edge */
 		if (shadowWidth > 0)
-		  geo.rectangle_fill(curX + shadowWidth, curY + shadowWidth,
+		  cyno_geo.rectangle_fill(curX + shadowWidth, curY + shadowWidth,
 		  curX + shadowWidth + curWidth, 
 		  curY + shadowWidth + curHeight,
 		  0x000000ff);
 
-		geo.rectangle_fill(curX, curY, curX+curWidth, curY+curHeight, fg_gc)
+		cyno_geo.rectangle_fill(curX, curY, curX+curWidth, curY+curHeight, fg_gc)
 
 		/* Draw a 1-pixel black border around the rectangle */
-		geo.rectangle(curX, curY, curX+curWidth, curY+curHeight, 0x00000000);
+		cyno_geo.rectangle(curX, curY, curX+curWidth, curY+curHeight, 0x00000000);
     }
   }
 }

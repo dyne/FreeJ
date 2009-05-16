@@ -371,7 +371,7 @@ int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	// if anything more was wrong, our ErrorReporter was called!
 	free(buf);
 	func("%s evalres: %i", __func__, eval_res);
-	gc();
+	//	gc();
 	return eval_res;
 }
 

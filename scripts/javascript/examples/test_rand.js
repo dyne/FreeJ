@@ -6,7 +6,7 @@
 width =  400;
 height = 300;
 
-function draw_pixels(geo) {
+function draw_pixels(rand_geo) {
   var x, y;
 
   x = rand()%width;
@@ -15,11 +15,11 @@ function draw_pixels(geo) {
   if(x<0) x = -x;
   if(y<0) y = -y;
 
-  geo.pixel(x,y);
+  rand_geo.pixel(x,y);
 }
 
 
-function draw_triangles(geo) {
+function draw_triangles(rand_geo) {
   var x1, x2, x3;
   var y1, y2, y3;
 
@@ -37,11 +37,11 @@ function draw_triangles(geo) {
   if(y2<0) y2 = -y2;
   if(y3<0) y3 = -y3;
 
-  geo.trigon_fill(x1,y1,x2,y2,x3,y3);
+  rand_geo.trigon_fill(x1,y1,x2,y2,x3,y3);
 }
 
 
-function draw_ellipses(geo) {
+function draw_ellipses(rand_geo) {
   var x, y;
   var rx, ry;
 
@@ -55,10 +55,10 @@ function draw_ellipses(geo) {
   if(rx<0) rx = -rx;
   if(ry<0) ry = -ry;
 
-  geo.ellipse_fill(x, y, rx, ry);
+  rand_geo.ellipse_fill(x, y, rx, ry);
 }
 
-function randomize_color(geo) {
+function randomize_color(rand_geo) {
   var r, g, b;
 
   r = rand() % 255;
@@ -69,33 +69,33 @@ function randomize_color(geo) {
   if(g<0) g = -g;
   if(b<0) b = -b;
 
-  geo.color(r,g,b,150); 
+  rand_geo.color(r,g,b,150); 
 }
 
-geo = new GeometryLayer(400,300);
-//geo.set_blit("alpha");
-//geo.set_blit_value(0.5);
-geo.activate(true);
+rand_geo = new GeometryLayer(400,300);
+//rand_geo.set_blit("alpha");
+//rand_geo.set_blit_value(0.5);
+rand_geo.activate(true);
 //geo.start();
 //geo.set_fps(24);
-add_layer(geo);
+add_layer(rand_geo);
 
 running = true;
-kbd = new KeyboardController();
-kbd.released_q = function() { quit(); }
-kbd.released_p = function() { drawer = draw_pixels; }
-kbd.released_t = function() { drawer = draw_triangles; }
-kbd.released_e = function() { drawer = draw_ellipses; }
-register_controller( kbd );
+rand_kbd = new KeyboardController();
+rand_kbd.released_q = function() { quit(); }
+rand_kbd.released_p = function() { drawer = draw_pixels; }
+rand_kbd.released_t = function() { drawer = draw_triangles; }
+rand_kbd.released_e = function() { drawer = draw_ellipses; }
+register_controller( rand_kbd );
 
 drawer = draw_triangles;
 
-bang = new TriggerController();
-bang.frame = function() {
-  randomize_color(geo);
-  drawer(geo);
+rand_bang = new TriggerController();
+rand_bang.frame = function() {
+  randomize_color(rand_geo);
+  drawer(rand_geo);
 }
-register_controller(bang);
+register_controller(rand_bang);
 
 
 

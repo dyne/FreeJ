@@ -106,22 +106,25 @@ void Controller::poll_sdlevents(Uint32 eventmask) {
 void js_ctrl_gc (JSContext *cx, JSObject *obj) {
 	func("%s",__PRETTY_FUNCTION__);
 	Controller* ctrl;
+	JSClass *jc;
 	if (!obj) {
 		error("%n called with NULL object", __PRETTY_FUNCTION__);
 		return;
 	}
+	warning("controller garbage collector called (TODO)");
 	// This callback is declared a Controller Class only,
 	// we can skip the typecheck of obj, can't we?
-	ctrl = (Controller *) JS_GetPrivate(cx, obj);
-	JSClass *jc = JS_GET_CLASS(cx,obj);
+// 	ctrl = (Controller *) JS_GetPrivate(cx, obj);
 
-	if (ctrl) {
-		func("JSvalcmp(%s): %p / %p ctrl: %p", jc->name, OBJECT_TO_JSVAL(obj), ctrl->jsobj, ctrl);
-		notice("JSgc: deleting %s Controller %s", jc->name, ctrl->name);
-		delete ctrl;
-	} else {
-		func("Mh, object(%s) has no private data", jc->name);
-	}
+// 	if (ctrl) {
+// 	  //	  jc = JS_GET_CLASS(cx,obj);
+// 	  func("JSvalcmp(%s): %p / %p ctrl: %p", jc->name, OBJECT_TO_JSVAL(obj), ctrl->jsobj, ctrl);
+// 	  notice("JSgc: deleting %s Controller %s", jc->name, ctrl->name);
+// 	  delete ctrl;
+// 	} else {
+// 	  func("Mh, object(%s) has no private data", jc->name);
+// 	}
+	
 }
 
 /* JSCall function by name, cvalues will be converted
