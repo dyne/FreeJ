@@ -143,7 +143,6 @@ int osc_command_handler(const char *path, const char *types,
 int OscController::dispatch() {
   jsval ret = JSVAL_VOID;
   int res;
-  JSBool ok;
   int c = 0;
   // execute pending comamnds (javascript calls)
   JsCommand *jscmd = (JsCommand*) commands_pending.begin();
@@ -153,8 +152,9 @@ int OscController::dispatch() {
     //      (jsenv, jsobj, jscmd->function, jscmd->argc, jscmd->argv, &ret);
 
     func("OSC controller dispatching %s(%s)", jscmd->name, jscmd->format);
-    res = Controller::JSCall(jscmd->name, jscmd->argc, jscmd->argv, &ok);    
-    if (ok) func("OSC dispatched call to %s", jscmd->name);
+    res = Controller::JSCall(jscmd->name, jscmd->argc, jscmd->argv);
+    if (res) func("OSC dispatched call to %s", jscmd->name);
+    else error("OSC failed JSCall to %s", jscmd->name);
 
     
     free(jscmd->argv); // must free previous callod on argv

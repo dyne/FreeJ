@@ -267,7 +267,7 @@ int scripts(char *path) {
 #ifndef HAVE_DARWIN
 int main (int argc, char **argv) {
   Layer *lay = NULL;
-  Console *con;
+  Console *con = NULL;
   
   freej = new Context();
 
@@ -389,7 +389,7 @@ int main (int argc, char **argv) {
 
 
   /* quit */
-  delete con;
+  if(con) delete con;
   delete freej;
 
   exit(1);

@@ -184,35 +184,24 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...) 
 
 /* less bloat but this only works with 4 byte argv values
  */
-int Controller::JSCall(const char *funcname, int argc, jsval *argv, JSBool *res) {
+int Controller::JSCall(const char *funcname, int argc, jsval *argv) {
+  JSObject *objp = NULL;
   jsval fval = JSVAL_VOID;
   jsval ret = JSVAL_VOID;
-  
-  func("%s calling method %s.%s()", __func__, name, funcname);
-  JS_GetProperty(jsenv, jsobj, funcname, &fval);
-  if(!JSVAL_IS_VOID(fval)) {
-    
-    *res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
-    //    if (*res) {
-    //  if(!JSVAL_IS_VOID(ret)) {
-	JSBool ok;
-	JS_ValueToBoolean(jsenv, ret, &ok);
-	
-	if (ok) { // JSfunc returned 'true', so event is done
-	  func("callback function executed, returned true");
-	  return 1;
-	} else {
-	  func("callback function executed, returned false");
-	  return 0;
-	}
-	
-	//      }
-      
-      //    }
-      //    warning("JS_CallFunctionValue returned NULL in %s",__FUNCTION__);
-      //    return 0; // requeue event for next controller
+  JSBool res;
+
+  func("calling js %s.%s()", name, funcname);
+  res = JS_GetMethod(jsenv, jsobj, funcname, &objp, &fval);
+  if(!res || JSVAL_IS_VOID(fval)) {
+    error("method %s not found in MouseController", funcname);
+    return(0);
+  }
+
+  res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
+  if(res == JS_FALSE) {
+    error("%s : failed call", __PRETTY_FUNCTION__);
+    return(0);
   }
   
-  warning("no callback found, function name unresolved by JS_GetProperty");
-  return 0; // no callback, redo on next controller
+  return(1);
 }

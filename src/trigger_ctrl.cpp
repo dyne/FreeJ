@@ -1,5 +1,6 @@
-/*  FreeJ
- *  (c) Copyright 2001-2007 Denis Roio aka jaromil <jaromil@dyne.org>
+/*  FreeJ - Trigger controller
+ *
+ *  (c) Copyright 2007 Christoph Rudorff <goil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -19,8 +20,6 @@
  *
  */
 
-
-// I used a Logitech WingMan here. It got 2 joys and 7 Buttons
 
 #include <string.h>
 
@@ -49,37 +48,40 @@ JSFunctionSpec js_trigger_ctrl_methods[] = {
 TriggerController::TriggerController()
   :Controller() {
     set_name("Trigger");
+    frame_func = NULL;
 }
 
 TriggerController::~TriggerController() {
 }
 
 int TriggerController::poll() {
+
+
+  if(!frame_func) {
+    JSObject *objp = NULL;
+    JSBool res;
+    res = JS_GetMethod(jsenv, jsobj, "frame", &objp, &frame_func);
+    if(!res || JSVAL_IS_VOID(frame_func)) {
+      error("method frame not found in TriggerController"); 
+      return(-1);
+    }
+  }
+
   return dispatch();
 }
 
 int TriggerController::dispatch() {
-    jsval fval = JSVAL_VOID;
+
     jsval ret = JSVAL_VOID;
-    JSObject *objp = NULL;
     JSBool res;
 
-    res = JS_GetMethod(env->js->global_context, jsobj, "frame", &objp, &fval);
-
-    if(!res || JSVAL_IS_VOID(fval)) {
-      error("method frame not found in TriggerController"); 
-      //      return false;
+    res = JS_CallFunctionValue(jsenv, jsobj, frame_func, 0, NULL, &ret);
+    if (res == JS_FALSE) {
+      error("trigger call frame() failed, deactivate ctrl");
+      frame_func = NULL;
+      active = false;
     }
-
-    if(!JSVAL_IS_VOID(fval)) {
-        res = JS_CallFunctionValue(jsenv, jsobj, fval, 0, NULL, &ret);
-        if (res == JS_FALSE) {
-            error("trigger call frame() failed, deactivate ctrl");
-            active = false;
-        } else { 
-            //func("trigger frame() called"); 
-        }
-  }
+    
   return(1);
 }
 

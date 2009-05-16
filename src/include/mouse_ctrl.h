@@ -38,6 +38,13 @@ class MouseController : public Controller {
   
   void grab(bool state);
 
+ private:
+
+  JSObject *objp;
+  JSBool res;
+  
+  jsval motion_f;
+  jsval button_f;
 };
 
 #endif

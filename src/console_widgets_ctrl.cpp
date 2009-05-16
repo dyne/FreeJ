@@ -228,7 +228,7 @@ bool SlwSelector::refresh() {
   ///////////////
   // layer print
   color = LAYERS_COLOR;
-  putnch(tmp, 1, 1, 0);
+  putnch(tmp, 1, 0, 0);
 
 
   if(env->layers.len()) {

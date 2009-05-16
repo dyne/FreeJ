@@ -66,7 +66,7 @@ class Controller: public Entry {
   jsval lol;
 
   // TODO: eliminate runtime resolution -> C++ overhead alert!
-  int JSCall(const char *funcname, int argc, jsval *argv, JSBool *res);
+  int JSCall(const char *funcname, int argc, jsval *argv);
   int JSCall(const char *funcname, int argc, const char *format, ...);
 };
 

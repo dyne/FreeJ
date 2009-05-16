@@ -1,5 +1,6 @@
-/*  FreeJ
- *  (c) Copyright 2006 Denis Roio aka jaromil <jaromil@dyne.org>
+/*  FreeJ - serial Video Mouse jogger controller
+ *
+ *  (c) Copyright 2008 Christoph Rudorff <goil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -15,7 +16,6 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * serial VideoMouse Controller by MrGoil (c) 2008
  *
  */
 

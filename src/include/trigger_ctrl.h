@@ -32,6 +32,9 @@ class TriggerController : public Controller {
 
   int  poll();
   virtual int dispatch();
+
+ private:
+  jsval frame_func;
 };
 
 #endif

@@ -156,62 +156,59 @@ int MidiController::dispatch() {
 
 int MidiController::event_ctrl(int channel, int param, int value) {
 	func("midi Control event on Channel\t%2d: %5d %5d (param/value)", channel, param, value);
-	JSBool ret = JS_FALSE;
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
 	jsval js_data[] = { channel, param, value };
-	JSCall("event_ctrl", 3, js_data, &ret);
-	return ret;
+	JSCall("event_ctrl", 3, js_data);
+	return(1);
 }
 
 int MidiController::event_pitch(int channel, int param, int value) {
 	func("midi Pitchbender event on Channel\t%2d: %5d %5d   ",  channel, param, value);
-	JSBool ret = JS_FALSE;
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
 	jsval js_data[] = { channel, param, value };
-	JSCall("event_pitch", 3, js_data, &ret);
-	return ret;
+	JSCall("event_pitch", 3, js_data);
+	return(1);
 }
 
 int MidiController::event_noteon(int channel, int note, int velocity) {
 	func("midi Note On event on Channel\t%2d: %5d %5d      ", channel, note, velocity);
-	JSBool ret = JS_FALSE;
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
 	jsval js_data[] = { channel, note, velocity };
-	JSCall("event_noteon", 3, js_data, &ret);
-	return ret;
+	JSCall("event_noteon", 3, js_data);
+	return(1);
 }
 
 int MidiController::event_noteoff(int channel, int note, int velocity) {
 	func("midi Note Off event on Channel\t%2d: %5d      ", channel, note);
-	JSBool ret = JS_FALSE;
+
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
+
 	jsval js_data[] = { channel, note, velocity };
-	JSCall("event_noteoff", 3, js_data, &ret);
-	return ret;
+	JSCall("event_noteoff", 3, js_data);
+	return(1);
 }
 
 int MidiController::event_pgmchange(int channel, int param, int value) {
 	func("midi PGM change event on Channel\t%2d: %5d %5d ", channel, param, value);
-	JSBool ret = JS_FALSE;
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
 	jsval js_data[] = { channel, param, value };
-	JSCall("event_pgmchange", 3, js_data, &ret);
-	return ret;
+	JSCall("event_pgmchange", 3, js_data);
+	return(1);
 }
 
 /*
