@@ -109,7 +109,8 @@ int KbdController::key_event(const char *state, bool shift, bool ctrl, bool alt,
 			  keyname);
 
 	  func("%s calling method %s()", __func__, funcname);
-	  return JSCall(funcname, 0, NULL, &res);
+	  jsval fval = JSVAL_VOID;
+	  return JSCall(funcname, 0, &fval);
   }
 
   return 0;
