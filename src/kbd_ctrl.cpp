@@ -121,9 +121,9 @@ int KbdController::dispatch() {
   const char *state;
   bool shift = false, ctrl = false, alt = false, num = false;
 
-  if(event.key.state != SDL_PRESSED)
+  if(event.key.state == SDL_PRESSED)
   	state = "pressed";
-  else if(event.key.state != SDL_RELEASED)
+  else if(event.key.state == SDL_RELEASED)
   	state = "released";
   else
   	return 0; // no key state change
