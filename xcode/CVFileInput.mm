@@ -231,7 +231,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (isPlaying)
         [qtMovie play];
     else 
-        [qtMoview stop];
+        [qtMovie stop];
  
     [lock unlock];
 }
