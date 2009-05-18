@@ -516,7 +516,7 @@ void Context::rem_layer(Layer *lay) {
   }*/
   js->gc();
 
-  lay->stop();
+  //lay->stop();
 
   lay->rem();
   if (lay->data == NULL) {
