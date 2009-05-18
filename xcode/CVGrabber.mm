@@ -274,7 +274,6 @@ error:
             layer->buffer = (void *)pixelBuffer;
         }
     }
-   // [self toggleVisibility];
 }
 
 - (void)stop

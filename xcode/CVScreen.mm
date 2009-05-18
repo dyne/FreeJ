@@ -93,24 +93,19 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	screen->set_view(self);
     ctx->fps->set(25);
 	CVDisplayLinkStart(displayLink);
-    //texturePool = nil;
-
 }
 
 - (id)init
 {
 	needsReshape = YES;
-	//lock = [freej getLock];
     outFrame = NULL;
     lastFrame = NULL;
 	lock = [[NSRecursiveLock alloc] init];
 	[lock retain];
 	[self setNeedsDisplay:NO];
-	//cafudding = NO;
 	[freej start];
 	Context *ctx = (Context *)[freej getContext];
 	fjScreen = (CVScreen *)ctx->screen;
-	//CVPixelBufferCreate(NULL, 640, 480, k32ARGBPixelFormat , NULL, &pixelBuffer);
 	CVReturn err = CVOpenGLBufferCreate (NULL, ctx->screen->w, ctx->screen->h, NULL, &pixelBuffer);
 	if (err) {
 		// TODO - Error messages
@@ -123,9 +118,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)update
 {
-	//[lock lock];
+	[lock lock];
 	[super update];
-	//[lock unlock];
+	[lock unlock];
 }
 
 - (void)dealloc
@@ -192,8 +187,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
-	//[[freej getLock] lock];
-	//[lock lock];
+
 	[currentContext makeCurrentContext];
 
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
@@ -235,11 +229,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		needsReshape = NO;
 	}
 	// flush our output to the screen - this will render with the next beamsync
-	//glFlush();
 	[[self openGLContext] flushBuffer];
 	[self setNeedsDisplay:NO];		
-	//[[freej getLock] unlock];
-	//[lock unlock];
+
 }
 
 - (void)renderFrame
@@ -249,17 +241,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSRect		bounds = [self bounds];    
     [lock lock];
 	if (outFrame) {
-        //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
 		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
 					NSWidth(bounds), NSHeight(bounds));
 		[ciContext drawImage: outFrame
 			atPoint: cg.origin  fromRect: cg];
-        //[self setNeedsDisplay:YES];
         [self drawRect:NSZeroRect];
-        //[outFrame autorelease];
 		outFrame = NULL;
-        //[pool release];
     }
     [lock unlock];
 }
@@ -281,13 +268,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
     ctx->cafudda(0.0);
 
-	//[lock unlock];
-	// export
-//	if (outFrame) {
-//		NSCIImageRep* rep = [NSCIImageRep imageRepWithCIImage:outFrame];
-//		NSImage* image = [[[NSImage alloc] initWithSize:NSMakeSize (fjScreen->w, fjScreen->h)] autorelease];
-//		[image addRepresentation:rep];
-//	}
     if (rateCalc) {
         [rateCalc tick:timestamp];
         fpsString = [[NSString alloc] initWithFormat:@"%0.1lf", [rateCalc rate]];
@@ -353,8 +333,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		}
         [textures addObject:texture];
 	}
-    //[pool release];
-	//[lock unlock];
 }
 
 - (void)setSizeWidth:(int)w Height:(int)h

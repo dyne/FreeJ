@@ -41,6 +41,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 @implementation CVFileInput : CVLayerView
 
+- (id)init
+{
+    isPlaying = NO;
+    [super init];
+}
+
 - (void)dealloc
 {
     if (qtMovie)
@@ -63,16 +69,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSRect        frame = [self frame];
     [lock lock];
-    //delete layer;
-    //layer = NULL;
+
     QTVisualContextTask(qtVisualContext);
     [qtMovie stop];
     [qtMovie release];
     qtMovie = NULL;
-    //SetMovieVisualContext([qtMovie quickTimeMovie], NULL);
-    //[previewImage release];
-    //if (posterImage)
-      //  [posterImage release];
+
     if (lastFrame)
         [lastFrame release];
     lastFrame = NULL;
@@ -80,11 +82,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         CVPixelBufferRelease(currentFrame);
     
     posterImage = NULL;
-    //QTVisualContextRelease(qtVisualContext);
-    //qtVisualContext = NULL;
-    //CVOpenGLTextureRelease(currentFrame);
 
-    //[QTMovie exitQTKitOnThread];
     [[self openGLContext] makeCurrentContext];    
     // clean the OpenGL context
     glClearColor(0.0, 0.0, 0.0, 0.0);         
@@ -175,7 +173,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [scaleFilter setValue:posterInputImage forKey:@"inputImage"];
 
         posterImage = [scaleFilter valueForKey:@"outputImage"];
-        // [posterImage retain];
 
         CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
             NSWidth(bounds), NSHeight(bounds));
@@ -192,7 +189,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         if (!layer) {
             layer = new CVLayer((NSObject *)self);
             layer->init(ctx);
-            layer->buffer = (void *)pixelBuffer; // give freej a fake buffer ... that's not going to be used anyway
+            // give freej a fake buffer ... that's not going to be used anyway
+            layer->buffer = (void *)pixelBuffer;
         }
     }
 
@@ -228,16 +226,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)togglePlay:(id)sender
 {
-    //[lock lock];
-    //if(CVDisplayLinkIsRunning(displayLink))
-    //{
-    //    CVDisplayLinkStop(displayLink);
-     //   [qtMovie stop];
-   // } else {
+    [lock lock];
+
+    if (isPlaying)
         [qtMovie play];
-    //    CVDisplayLinkStart(displayLink);
-   // }
-    //[lock unlock];
+    else 
+        [qtMoview stop];
+ 
+    [lock unlock];
 }
 
 - (CVTexture *)getTexture
@@ -266,10 +262,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         rv = YES;
     } 
     [lock unlock];
-    /*
-    layer->fps.calc();
-    layer->fps.delay();
-    */
     [pool release];
     return rv;
 }

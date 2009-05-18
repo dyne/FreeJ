@@ -36,8 +36,7 @@ class  CVScreen;
 	IBOutlet CFreej		*freej;
 	IBOutlet NSTextField *showFps;
 	NSString			*fpsString;
-	// display link
-    CVDisplayLinkRef	displayLink;		    // the displayLink that runs the show
+    CVDisplayLinkRef	displayLink; // the displayLink that runs the show
     CGDirectDisplayID	viewDisplayID;
 	CVOpenGLBufferRef	pixelBuffer;
 	CVScreen			*fjScreen;

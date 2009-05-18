@@ -273,8 +273,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAffineTransform    *translateTransform;
     NSString *paramName = NULL;
     pool = [[NSAutoreleasePool alloc] init];
-    //[lock lock];
-    // lock underlying CVLayer if present
+
     // to prevent its run() method to try rendering
     // a frame while we change filter parameters
     if (layer) 
@@ -423,12 +422,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (doPreview && previewTarget) { 
         // scale the frame to fit the preview
         [previewTarget renderFrame:[self getTexture]];
-      /* 
-         if (currentPreviewTexture)
-            [currentPreviewTexture autorelease];
-        currentPreviewTexture = texture;
-    */
-        //[previewInputImage release];
+
     }
 }
 
@@ -440,11 +434,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIImage     *renderedImage = nil;
 
- //   NSAutoreleasePool *pool;
     [lock lock];
-    if (newFrame) {
-        //CVPixelBufferRelease(lastFrame);
-        //CVPixelBufferRetain(currentFrame);        
+    if (newFrame) {        
         inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
         if (doFilters) {    
             [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
@@ -471,7 +462,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     texture = [lastFrame retain];
     [lock unlock];
 
-    //[pool release];
     return texture;
 }
 
