@@ -28,6 +28,7 @@
 #import "CFreej.h"
 #import "CVLayer.h"
 #import "CVScreen.h"
+#import "CVTexture.h"
 
 #define _BGRA2ARGB(__buf, __size) \
 	{\
@@ -43,11 +44,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                 CVOptionFlags *flagsOut, 
                                                 void *displayLinkContext)
 {	
-	
-    return [(CVScreenView*)displayLinkContext outputFrame:inOutputTime->hostTime];
-	
-	return kCVReturnSuccess;
-	
+    CVReturn ret = [(CVScreenView*)displayLinkContext outputFrame:inOutputTime->hostTime];
+    return ret;
 }
 
 
@@ -95,6 +93,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	screen->set_view(self);
     ctx->fps->set(25);
 	CVDisplayLinkStart(displayLink);
+    //texturePool = nil;
+
 }
 
 - (id)init
@@ -117,6 +117,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		return nil;
 	}
 	CVPixelBufferRetain(pixelBuffer);
+    textures = [[NSMutableArray arrayWithCapacity:50] retain];
 	return self;
 }
 
@@ -135,11 +136,15 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[outFrame release];
 	[lastFrame release];
 	[lock release];
+    //if (texturePool)
+    //    [texturePool release];
+    [textures release];
 	[super dealloc];
 }
 - (void)prepareOpenGL
 {
 	CVReturn			    ret;
+
 	// Create display link 
 	CGOpenGLDisplayMask	totalDisplayMask = 0;
 	int			virtualScreen;
@@ -188,7 +193,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
 	//[[freej getLock] lock];
-	[lock lock];
+	//[lock lock];
 	[currentContext makeCurrentContext];
 
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
@@ -234,27 +239,29 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[[self openGLContext] flushBuffer];
 	[self setNeedsDisplay:NO];		
 	//[[freej getLock] unlock];
-	[lock unlock];
+	//[lock unlock];
 }
 
 - (void)renderFrame
 {
-	NSAutoreleasePool *pool;
-	pool = [[NSAutoreleasePool alloc] init];
+	//NSAutoreleasePool *pool;
 	NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];    
-
-    //[lock lock];
+    [lock lock];
 	if (outFrame) {
+        //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
 		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
 					NSWidth(bounds), NSHeight(bounds));
 		[ciContext drawImage: outFrame
 			atPoint: cg.origin  fromRect: cg];
-	}
-	//[self setNeedsDisplay:YES];
-	[self drawRect:NSZeroRect];
-	//[lock unlock];
-	[pool release];
+        //[self setNeedsDisplay:YES];
+        [self drawRect:NSZeroRect];
+        //[outFrame autorelease];
+		outFrame = NULL;
+        //[pool release];
+    }
+    [lock unlock];
 }
 
 - (void *)getSurface
@@ -264,14 +271,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (CVReturn)outputFrame:(uint64_t)timestamp
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	if (outFrame) {
-		[outFrame release];
-		outFrame = NULL;
-	}
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    CVTexture *textureToRelease = nil;
+    //if (!texturePool)
+    //    texturePool = [[NSAutoreleasePool alloc] init];
+
 	Context *ctx = (Context *)[freej getContext];
-	//[lock lock];
-	ctx->cafudda(0.0);
+    [lock lock];
+
+    ctx->cafudda(0.0);
+
 	//[lock unlock];
 	// export
 //	if (outFrame) {
@@ -281,26 +290,30 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 //	}
     if (rateCalc) {
         [rateCalc tick:timestamp];
-        if (fpsString)
-            [fpsString release];
-        fpsString = [[NSString stringWithFormat:@"%0.1lf", [rateCalc rate]] retain];
+        fpsString = [[NSString alloc] initWithFormat:@"%0.1lf", [rateCalc rate]];
+        [fpsString autorelease];
         [showFps setStringValue:fpsString];
     }
-	[pool release];
+    [lock unlock];
+    [pool release];
+    
+    while ([textures count]) {
+        textureToRelease = [textures lastObject];
+        [textures removeLastObject];
+        [textureToRelease release];
+    }
 	return kCVReturnSuccess;
 }
 
 - (void)drawLayer:(Layer *)layer
 {
-	//NSAutoreleasePool *pool;
-	CIImage *inputImage = NULL;
-	CIFilter *blendFilter = NULL;
-	//pool = [[NSAutoreleasePool alloc] init];
-	//[lock lock];
+    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	CIFilter *blendFilter = nil;
+    CVTexture *texture = nil;
 	if (layer->type == Layer::GL_COCOA) {
 		CVLayer *cvLayer = (CVLayer *)layer;
-		inputImage = cvLayer->gl_texture();
-		NSString *blendMode = ((CVLayer *)layer)->blendMode;
+        texture = cvLayer->gl_texture();
+        NSString *blendMode = ((CVLayer *)layer)->blendMode;
 		if (blendMode)
 			blendFilter = [CIFilter filterWithName:blendMode];
 		else
@@ -324,25 +337,24 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		if (cvRet != noErr) {
 			// TODO - Error Messages
 		} 
-		inputImage = [[CIImage imageWithCVImageBuffer:pixelBufferOut] retain];
-		CVPixelBufferRelease(pixelBufferOut);
+		CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
+        texture = [[CVTexture alloc] initWithCIImage:inputImage pixelBuffer:pixelBufferOut];
+        CVPixelBufferRelease(pixelBufferOut);
 		blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"];
 	}
 	[blendFilter setDefaults];
-	if (inputImage) {
-		if (!outFrame) {
-			outFrame = inputImage;
+	if (texture) {
+        if (!outFrame) {
+            outFrame = [texture image];
 		} else {
 			[blendFilter setValue:outFrame forKey:@"inputBackgroundImage"];
-			[blendFilter setValue:inputImage forKey:@"inputImage"];
-			[outFrame release];
+			[blendFilter setValue:[texture image] forKey:@"inputImage"];
 			outFrame = [blendFilter valueForKey:@"outputImage"];
 		}
-		[outFrame retain];
-        [inputImage release];
+        [textures addObject:texture];
 	}
+    //[pool release];
 	//[lock unlock];
-	//[pool release];
 }
 
 - (void)setSizeWidth:(int)w Height:(int)h
@@ -496,10 +508,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
   The code below checks first to see if this new method initToWritableFile: is 
   available, and if so it will use it rather than use the native API.
 */
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	QTMovie *mMovie;
     // Check first if the new QuickTime 7.2.1 initToWritableFile: method is available
-    if ([[[[QTMovie alloc] init] autorelease] respondsToSelector:@selector(initToWritableFile:error:)] == YES)
+    if ([[[[QTMovie alloc] init] retain] respondsToSelector:@selector(initToWritableFile:error:)] == YES)
     {
+
         // generate a name for our movie file
         NSString *tempName = [NSString stringWithCString:tmpnam(nil) 
                                 encoding:[NSString defaultCStringEncoding]];
@@ -514,7 +528,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         // QuickTime API CreateMovieStorage() to create a QuickTime movie with a writable 
         // data reference
     
-        OSErr err;
+        //OSErr err;
         // create a native QuickTime movie
        // Movie qtMovie = [self quicktimeMovieFromTempFile:&mDataHandlerRef error:&err];
         //if (nil == qtMovie) goto bail;
@@ -532,11 +546,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
   [mMovie retain];
 
   // build an array of image file paths (NSString objects) to our image files
-  NSArray *imagesArray = [[NSBundle mainBundle] pathsForResourcesOfType:@"jpg" 
-                              inDirectory:nil];
+  //NSArray *imagesArray = [[NSBundle mainBundle] pathsForResourcesOfType:@"jpg" 
+  //                            inDirectory:nil];
   // add all the images to our movie as MPEG-4 frames
   //[mMovie addImage:<#(NSImage *)image#> forDuration:<#(QTTime)duration#> withAttributes:<#(NSDictionary *)attributes#>];
-
+    [pool release];
+    
 bail:
 
   return;

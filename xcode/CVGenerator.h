@@ -10,7 +10,7 @@
 #import <QuartzCore/CIFilter.h>
 #import <QuartzCore/CIImage.h>
 #import <QuartzCore/CIContext.h>
-#include "CVFilterPanel.h"
+//#include "CVFilterPanel.h"
 
 
 @interface CVGenerator : NSOpenGLView {

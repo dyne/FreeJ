@@ -10,6 +10,9 @@
 #define __CV_FILTERPANEL_H__
 
 #import <Cocoa/Cocoa.h>
+#import <CVLayer.h>
+
+@class CVFilterPanel;
 
 typedef struct __FilterParams {
     int nParams;
@@ -23,6 +26,7 @@ typedef struct __FilterParams {
 @interface CVFilterBox : NSView
 {
     NSTrackingArea *trackingArea;
+    IBOutlet CVFilterPanel *filterPanel;
 }
 - (void)mouseExited:(NSEvent *)theEvent;
 /*
@@ -32,16 +36,22 @@ typedef struct __FilterParams {
 @end
 
 @interface CVFilterPanel : NSWindowController {
-    NSView *layer;
+    CVLayerView *layer;
+    NSRecursiveLock         *lock;
     IBOutlet CVFilterBox    *mainView;
     IBOutlet NSPopUpButton  *filterButton;
+    IBOutlet CVPreview      *previewBox;
+    IBOutlet NSButton       *showButton;
+    IBOutlet NSButton       *previewButton;
+
 }
 - (void)show;
-- (id)initWithName:(NSString *)name;
+- (id)init;
 - (void)setLayer:(NSView *)lay;
 - (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index;
 - (IBAction)setFilterParameter:(id)sender;
 - (IBAction)togglePreview:(id)sender;
+- (IBAction)toggleVisibility:(id)sender;
 
 @end
 

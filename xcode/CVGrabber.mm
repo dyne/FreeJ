@@ -7,9 +7,9 @@
  *
  */
 
-#include "CVGrabber.h"
-#include "CFreej.h"
-#import "CIAlphaFade.h"
+#import "CVGrabber.h"
+#import "CFreej.h"
+#import <CIAlphaFade.h>
 #include <jutils.h>
 
 #define CV_GRABBER_WIDTH_MAX 640
@@ -98,21 +98,10 @@
     
     if (layer) 
         layer->buffer = (void *)currentFrame;
+        
+    [grabberView feedFrame:currentFrame];
     [lock unlock];
     CVBufferRelease(imageBufferToRelease);
-}
-
-- (void)awakeFromNib
-{
-    //[self setSize:self];
-}
-
- 
-- (void)windowWillClose:(NSNotification *)notification
-{
-    //[mCaptureSession stopRunning];
-    //[[mCaptureDeviceInput device] close];
- 
 }
 
 
@@ -179,16 +168,12 @@
         goto error;
     }
 
-    [captureView setCaptureSession:session];
     [session startRunning]; // start the capture session
     notice( "Video device ready!" );
 
     running = true;
-    if (!layer) {
-        layer = new CVLayer((NSObject *)self);
-        layer->init(ctx);
-    }
-    layer->activate();
+    [grabberView start];
+
     return;
 error:
     //[= exitQTKitOnThread];
@@ -199,11 +184,8 @@ error:
 - (IBAction)stopCapture:(id)sender
 {
     [lock lock];
-    if (layer) {
-        layer->deactivate();
-    }
     running = false;
-    
+    [grabberView stop];
     if (session) {
         [session stopRunning];
         if (input) {
@@ -238,214 +220,6 @@ error:
         [self startCapture:self];
 }
 
-- (CIImage *)getTexture
-{
-    time_t pts;
-    
-    CIImage     *inputImage = NULL;
-
-    NSAutoreleasePool *pool;
-    pool = [[NSAutoreleasePool alloc] init];
-    [lock lock];
-    if (currentFrame != lastFrame) {
-    //if (currentPts == previousPts) { 
-        lastFrame = currentFrame;
-        if (renderedImage)
-            [renderedImage release];
-        inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
-        
-        if (inputImage) {
-            //if (doFilters) {
-                [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
-                [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-                [effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
-                              forKey:@"inputImage"];
-                [alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
-                              forKey:@"inputImage"];
-                [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-                //[translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-                renderedImage = [rotateFilter valueForKey:@"outputImage"];
-                                
-                renderedImage = [renderedImage retain];
-            //} else {
-            //    renderedImage = [inputImage retain];
-            //}
-        }
-    } 
-    [lock unlock];
-    [pool release];
-    return [renderedImage retain];
-}
-
-- (IBAction)setFilterParameter:(id)sender
-{
-    NSAutoreleasePool *pool;
-    float deg = 0;
-    float x = 0;
-    float y = 0;
-    NSAffineTransform    *rotateTransform;
-    NSAffineTransform    *translateTransform;
-    NSString *paramName = NULL;
-    pool = [[NSAutoreleasePool alloc] init];
-    [lock lock];
-    switch([sender tag])
-    {
-    case 0:  // opacity (AlphaFade)
-        [alphaFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"outputOpacity"];
-        break;
-    case 1: //brightness (ColorCorrection)
-        [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
-        break;
-    case 2: // saturation (ColorCorrection)
-        [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
-        break;
-    case 3: // contrast (ColorCorrection)
-        [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
-        break;
-    case 4: // exposure (ExposureAdjust)
-        [exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
-        break;
-    case 5: // rotate and translate
-        rotateTransform = [NSAffineTransform transform];
-        [rotateTransform rotateByDegrees:[sender floatValue]];
-         deg = ([sender floatValue]*M_PI)/180.0;
-        if (deg) {
-             x = ((layer->geo.w)-((layer->geo.w)*cos(deg)-(layer->geo.h)*sin(deg)))/2;
-             y = ((layer->geo.h)-((layer->geo.w)*sin(deg)+(layer->geo.h)*cos(deg)))/2;
-        }
-        translateTransform = [NSAffineTransform transform];
-        [translateTransform translateXBy:x yBy:y];
-        [rotateTransform appendTransform:translateTransform];
-        [rotateTransform concat];
-        [translateTransform concat];
-        [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-        
-        break;
-    case 6:
-        NSString *filterName = [[NSString alloc] initWithFormat:@"CI%@", [[sender selectedItem] title]];
-        NSLog(filterName);
-        [effectFilter release];
-        effectFilter = [[CIFilter filterWithName:filterName] retain];    
-        FilterParams *pdescr = [filterPanel getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
-        [effectFilter setDefaults];
-        NSView *cView = (NSView *)sender;
-        for (int i = 0; i < 3; i++) {
-            NSTextField *label = (NSTextField *)[cView nextKeyView];
-            NSSlider *slider = (NSSlider *)[label nextKeyView];
-
-            if (i < pdescr->nParams) {
-                [label setHidden:NO];
-                NSString *pLabel = [[[NSString alloc] initWithCString:pdescr->params[i].label] retain];
-                [label setTitleWithMnemonic:pLabel];
-                [slider setHidden:NO];
-                [slider setMinValue:pdescr->params[i].min];
-                [slider setMaxValue:pdescr->params[i].max];
-                [slider setDoubleValue:pdescr->params[i].min];
-                if ([paramNames count] > i) {
-                    NSString *old = [paramNames objectAtIndex:i];
-                    [paramNames replaceObjectAtIndex:i withObject:pLabel];
-                    [old release];    
-                } else {
-                    [paramNames insertObject:pLabel atIndex:i];
-                }
-                if ([pLabel isEqual:@"CenterY"])
-                    [slider setMaxValue:layer->geo.h];
-                else if ([pLabel isEqual:@"CenterX"])
-                    [slider setMaxValue:layer->geo.w];
-                else
-                    [effectFilter setValue:[NSNumber numberWithFloat:pdescr->params[i].min] forKey:pLabel];
-            } else {
-                [label setHidden:YES];
-                [slider setHidden:YES];
-            }
-            cView = slider;
-        }
-        break;
-    case 7:
-        paramName = [paramNames objectAtIndex:0];
-        if ([paramName isEqual:@"CenterX"]) {
-            NSSlider *y = (NSSlider *)[[sender nextKeyView] nextKeyView];
-            [effectFilter setValue:[CIVector vectorWithX:[sender floatValue] Y:[y floatValue]]
-                forKey:@"inputCenter"];
-        } else { 
-            [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-        }
-        break;
-    case 8:
-        paramName = [paramNames objectAtIndex:1];
-        if ([paramName isEqual:@"CenterY"]) {
-            NSSlider *x = (NSSlider *)[[sender previousKeyView] previousKeyView];
-            [effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[sender floatValue]]
-                forKey:@"inputCenter"];
-        } else { 
-            [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-        }
-        break;
-    case 9:
-        [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:2]];
-        break;
-    case 10:
-        [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:3]];
-        break;
-    default:
-        break;
-    }
-    [lock unlock];
-    [pool release];
-}
-
-- (IBAction)setBlendMode:(id)sender
-{
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    if (layer) {
-        [lock lock];
-        switch([sender tag])
-        {
-            case 0:
-                NSString *blendMode = [[NSString alloc] initWithFormat:@"CI%@BlendMode", [[sender selectedItem] title]];
-                layer->blendMode = blendMode;
-                break;
-            default:
-                break;
-        }
-        [lock unlock];
-    }
-    [pool release];
-}
-
-- (NSString *)toolTip
-{
-    return [captureView toolTip];
-}
-
-
-
-//    Delegate of NSCaptureView
-- (CIImage *)view:(QTCaptureView *)view willDisplayImage :(CIImage *)inputImage 
-{
-    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    if (outputImage)
-        [outputImage release];
-    [lock lock];
-
-    [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
-    
-    [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-    [effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
-                  forKey:@"inputImage"];
-    // we don't need the alpha filter in the preview
-    [rotateFilter setValue:[effectFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-    //[translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-    outputImage = [rotateFilter valueForKey:@"outputImage"];
-    [lock unlock];
-
-    //[pool release];
-    return [outputImage retain];
-}
-
-
-@synthesize layer;
-@synthesize filterPanel;
 @end
 
 /* CVCaptureView is intended just as a bridge between the CVGrabber class and 
@@ -456,32 +230,59 @@ error:
  * something that could make it easier to apply filters on the preview window
  */ 
 
-@implementation CVCaptureView : QTCaptureView
+@implementation CVGrabberView : CVLayerView
+
 - (id)init
 {
-    if( self = [super init] ) {
-        return self;
-    }
-    return nil;
+    exportedFrame = nil;
+    currentFrame = nil;
+    return [super init];
 }
 
-- (void)dealloc
+- (CVReturn)_renderTime:(const CVTimeStamp *)timeStamp
 {
-    if (filterPanel)
-        [filterPanel dealloc];
-    [super dealloc];
+    [lock lock];
+    if (exportedFrame)
+        CVPixelBufferRelease(exportedFrame);
+    exportedFrame = CVPixelBufferRetain(currentFrame);
+    [lock unlock];
+    return kCVReturnSuccess;
 }
 
-- (void)mouseDown:(NSEvent *)theEvent {
-    if (!filterPanel) {
-        filterPanel =  [[CVFilterPanel alloc] initWithName:[self toolTip]];
-        [grabber setFilterPanel:filterPanel];
-        [filterPanel setLayer:(id)grabber];
+- (void)feedFrame:(CVPixelBufferRef)frame
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    [lock lock];
+    currentFrame = frame;
+    newFrame = YES;
+    [self renderPreview];
+    [lock unlock];
+    [pool release];
+}
+
+- (void)task
+{
+}
+
+- (void)start
+{
+    if (!layer) {
+        Context *ctx = [freej getContext];
+        if (ctx) {
+            layer = new CVLayer((NSObject *)self);
+            layer->init(ctx);
+            layer->buffer = (void *)pixelBuffer;
+        }
+    }
+   // [self toggleVisibility];
+}
+
+- (void)stop
+{
+    if (layer) {
+        layer->deactivate();
     }
 
-    [filterPanel show];
-    [super mouseDown:theEvent];
 }
-
 
 @end

@@ -25,6 +25,7 @@
 #ifdef __cocoa
 #include <QuartzCore/QuartzCore.h>
 #import <Cocoa/Cocoa.h>
+#import <Foundation/NSArray.h>
 #import "CFreej.h"
 #import "FrameRate.h"
 
@@ -50,6 +51,7 @@ class  CVScreen;
 	CFDictionaryRef		savedMode;
 	bool				needsReshape;
 	FrameRate			*rateCalc;
+    NSMutableArray             *textures;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;

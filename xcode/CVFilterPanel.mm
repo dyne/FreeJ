@@ -33,19 +33,25 @@ static FilterParams fParams[FILTERS_MAX] =
 };
 
 @implementation CVFilterPanel
-- (id) initWithName:(NSString *)name
+- (id) init
 {
-    if (![super initWithWindowNibName:@"EffectsPanel"])
-        return nil;
-    [[self window] setTitle:name];
-
+    //if (![super initWithWindowNibName:@"EffectsPanel"])
+    //    return nil;
     layer = nil;
+    lock = [[NSRecursiveLock alloc] init];
+    [lock retain];
     return self;
 }
 
+- (void)dealloc
+{
+    [lock release];
+    [super dealloc];
+}
 - (void)windowDidLoad
 {
     //NSLog(@"Nib file loaded");
+    
 }
 
 - (void)show
@@ -55,14 +61,40 @@ static FilterParams fParams[FILTERS_MAX] =
     NSRect frame = [[self window] frame];
     origin.x -= frame.size.width/2;
     origin.y -= frame.size.height/2;
+    [previewBox clear];
+
+    if(layer) {
+        [layer setPreviewTarget:previewBox];
+        [showButton setState:[layer isVisible]?NSOnState:NSOffState];
+        if ([layer needPreview]) {
+            [previewButton setState:NSOnState];
+        } else {
+           [previewButton setState:NSOffState];
+        }
+    }
     [[self window] setFrameOrigin:origin];
     [[self window] makeKeyAndOrderFront:self];
 }
 
+- (void)hide
+{
+    if (layer) {
+        //[layer stopPreview];
+        [layer setPreviewTarget:nil];
+        [previewBox clear];
+    }
+    layer = nil;
+}
+
 - (void)setLayer:(NSView *)lay
 {
+    [lock lock];
+    if (layer)
+        [layer stopPreview];
     layer = lay;
+    [[self window] setTitle:[layer toolTip]];
     [self setFilterParameter:filterButton]; // configure default filter
+    [lock unlock];
 }
 
 - (IBAction)setFilterParameter:(id)sender
@@ -73,8 +105,21 @@ static FilterParams fParams[FILTERS_MAX] =
 
 - (IBAction)togglePreview:(id)sender
 {
+    [previewBox clear];
+    if(layer) 
+        if ([previewButton intValue])
+            [layer startPreview];
+        else
+            [layer stopPreview];
+}
+
+- (IBAction)toggleVisibility:(id)sender
+{
     if(layer)
-        [layer togglePreview:sender];
+        if ([showButton state] == NSOnState)
+            [layer activate];
+        else
+            [layer deactivate];
 }
 
 - (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index
@@ -94,8 +139,8 @@ static FilterParams fParams[FILTERS_MAX] =
                 options: (NSTrackingMouseEnteredAndExited | NSTrackingActiveInKeyWindow)
                 owner:self userInfo:nil];
     [self addTrackingArea:trackingArea];
-
 }
+
 
 - (void)mouseEntered:(NSEvent *)theEvent {
 }
@@ -103,6 +148,7 @@ static FilterParams fParams[FILTERS_MAX] =
 - (void)mouseExited:(NSEvent *)theEvent {
     
     [[self window] orderOut:self];
+    [filterPanel hide];
 
 }
 

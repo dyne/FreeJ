@@ -8,8 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		AA00100D0F77FD9200719D5B /* callback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA00100C0F77FD9200719D5B /* callback.cpp */; };
-		AA1EB9030F56969E006610D8 /* CVFilterPanel.m in Sources */ = {isa = PBXBuildFile; fileRef = AA1EB9020F56969E006610D8 /* CVFilterPanel.m */; };
-		AA68950C0F562B23002B77E7 /* EffectsPanel.nib in Resources */ = {isa = PBXBuildFile; fileRef = AA68950B0F562B23002B77E7 /* EffectsPanel.nib */; };
+		AA0E39820FBECC1E00123D3F /* CVPreview.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0E39810FBECC1E00123D3F /* CVPreview.mm */; };
+		AA0E3E760FBF3C0100123D3F /* CVTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3E750FBF3C0100123D3F /* CVTexture.m */; };
+		AA1EB9030F56969E006610D8 /* CVFilterPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */; };
 		AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04B80F4ED02700723DAC /* OpenGL.framework */; };
 		AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */; };
 		AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8858800F631E3C00778C03 /* CVGenerator.m */; };
@@ -169,8 +170,12 @@
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA00100C0F77FD9200719D5B /* callback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callback.cpp; sourceTree = "<group>"; };
 		AA00100E0F77FDA000719D5B /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = callback.h; sourceTree = "<group>"; };
+		AA0E39800FBECC1E00123D3F /* CVPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVPreview.h; sourceTree = "<group>"; };
+		AA0E39810FBECC1E00123D3F /* CVPreview.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVPreview.mm; sourceTree = "<group>"; };
+		AA0E3E740FBF3C0100123D3F /* CVTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVTexture.h; sourceTree = "<group>"; };
+		AA0E3E750FBF3C0100123D3F /* CVTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVTexture.m; sourceTree = "<group>"; };
 		AA1EB9010F56969E006610D8 /* CVFilterPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFilterPanel.h; sourceTree = "<group>"; };
-		AA1EB9020F56969E006610D8 /* CVFilterPanel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVFilterPanel.m; sourceTree = "<group>"; };
+		AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFilterPanel.mm; sourceTree = "<group>"; };
 		AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector.cpp; sourceTree = "<group>"; };
 		AA3C44590F3EEBE0007C7E8B /* audio_collector_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector_js.cpp; sourceTree = "<group>"; };
 		AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_input.cpp; sourceTree = "<group>"; };
@@ -309,7 +314,6 @@
 		AA3C453A0F3EEBE0007C7E8B /* wiimote_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wiimote_ctrl.cpp; sourceTree = "<group>"; };
 		AA3C453C0F3EEBE0007C7E8B /* xgrab_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xgrab_layer.cpp; sourceTree = "<group>"; };
 		AA3C453E0F3EEBE0007C7E8B /* xhacks_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xhacks_layer.cpp; sourceTree = "<group>"; };
-		AA68950B0F562B23002B77E7 /* EffectsPanel.nib */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; path = EffectsPanel.nib; sourceTree = "<group>"; };
 		AA7C04B80F4ED02700723DAC /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		AA88587F0F631E3C00778C03 /* CVGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVGenerator.h; sourceTree = "<group>"; };
@@ -486,11 +490,15 @@
 				AA88592B0F633A7500778C03 /* CVF0rLayer.h */,
 				AA88592C0F633A7500778C03 /* CVF0rLayer.mm */,
 				AA1EB9010F56969E006610D8 /* CVFilterPanel.h */,
-				AA1EB9020F56969E006610D8 /* CVFilterPanel.m */,
+				AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */,
 				AA88587F0F631E3C00778C03 /* CVGenerator.h */,
 				AA8858800F631E3C00778C03 /* CVGenerator.m */,
 				AACBE4810F641605001B610F /* FrameRate.h */,
 				AACBE4820F641605001B610F /* FrameRate.m */,
+				AA0E39800FBECC1E00123D3F /* CVPreview.h */,
+				AA0E39810FBECC1E00123D3F /* CVPreview.mm */,
+				AA0E3E740FBF3C0100123D3F /* CVTexture.h */,
+				AA0E3E750FBF3C0100123D3F /* CVTexture.m */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -567,7 +575,6 @@
 				AAA7B6F30F404B4C00056C44 /* freej.app */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
-				AA68950B0F562B23002B77E7 /* EffectsPanel.nib */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -958,7 +965,6 @@
 				AAA3904D0F5449810069BF91 /* CIAlphaFade.cikernel in Resources */,
 				AAA7B6F80F404B6C00056C44 /* MainMenu.nib in Resources */,
 				AAA7B6F90F404B6C00056C44 /* InfoPlist.strings in Resources */,
-				AA68950C0F562B23002B77E7 /* EffectsPanel.nib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1089,7 +1095,7 @@
 				AAAAC1760F533ADF00461C96 /* sdl_blits.cpp in Sources */,
 				AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */,
 				AAA38FB70F542DE80069BF91 /* CIAlphaFade.m in Sources */,
-				AA1EB9030F56969E006610D8 /* CVFilterPanel.m in Sources */,
+				AA1EB9030F56969E006610D8 /* CVFilterPanel.mm in Sources */,
 				AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */,
 				AA88592D0F633A7500778C03 /* CVF0rLayer.mm in Sources */,
 				AACBE4830F641605001B610F /* FrameRate.m in Sources */,
@@ -1106,6 +1112,8 @@
 				AA8C41E70F91000C00B39710 /* slw_popup.cpp in Sources */,
 				AA8C41E80F91000C00B39710 /* slw_prompt.cpp in Sources */,
 				AA8C41E90F91000C00B39710 /* slw_text.cpp in Sources */,
+				AA0E39820FBECC1E00123D3F /* CVPreview.mm in Sources */,
+				AA0E3E760FBF3C0100123D3F /* CVTexture.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

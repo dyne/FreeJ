@@ -18,11 +18,21 @@
 #include "CVFilterPanel.h"
 
 @class CFreej;
-@class CVCaptureView;
+@class CVGrabber;
+
 /*****************************************************************************
 * QTKit Bridge
 *****************************************************************************/
 
+@interface CVGrabberView : CVLayerView
+{
+    CVPixelBufferRef exportedFrame;
+    IBOutlet CVGrabber *grabber;
+}
+- (void)feedFrame:(CVPixelBufferRef)frame;
+- (void)start;
+- (void)stop;
+@end
 
 @interface CVGrabber : QTCaptureDecompressedVideoOutput
 {
@@ -34,7 +44,7 @@
 
     time_t                      currentPts;
     time_t                      previousPts;
-    IBOutlet CVCaptureView      *captureView;
+    IBOutlet CVGrabberView      *grabberView;
     IBOutlet NSPopUpButton      *captureSize;
     IBOutlet CFreej             *freej;
     QTCaptureDeviceInput        * input;
@@ -58,26 +68,11 @@
     NSMutableArray              *paramNames;
 }
 
-@property CVLayer *layer;
-@property CVFilterPanel *filterPanel;
 - (id)init;
-- (void)awakeFromNib;
 - (IBAction)startCapture:(id)sender;
 - (IBAction)stopCapture:(id)sender;
 - (IBAction)toggleCapture:(id)sender;
-- (CIImage *)getTexture;
-- (CIImage *)view:(QTCaptureView *)view willDisplayImage :(CIImage *)image;
 @end
-
-@interface CVCaptureView : QTCaptureView
-{
-    CVFilterPanel       *filterPanel;
-    IBOutlet CVGrabber *grabber;
-}
-- (void)dealloc;
-- (void)mouseDown:(NSEvent *)theEvent;
-
-@end
-
+ 
 #endif
 

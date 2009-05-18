@@ -9,88 +9,35 @@
 #define __CV_FILEINPUT_H__
 
 #include <context.h>
-#import <Cocoa/Cocoa.h>
-#import <QuickTime/QuickTime.h>
-#import <QTKit/QTKit.h>
-#import "CFreej.h";
+#import  <Cocoa/Cocoa.h>
+#import  <QuickTime/QuickTime.h>
+#import  <QTKit/QTKit.h>
+#import  "CFreej.h";
 #include "CVLayer.h"
 #include "CVFilterPanel.h"
-#import "FrameRate.h"
+#import  "FrameRate.h"
+#import  "CVPreview.h"
+#import  "CVTexture.h"
 
-@interface CVFileInput : NSOpenGLView {
-    NSRecursiveLock       *lock;
+@interface CVFileInput : CVLayerView {
     id                    delegate;
     QTMovie               *qtMovie; 
     QTTime                movieDuration;        // cached duration of the movie - just for convenience
     CGLContextObj         qtOpenGLContext;
     QTVisualContextRef    qtVisualContext;        // the context the movie is playing in
-    CVOpenGLBufferPoolRef bufferPool;
-    CVOpenGLBufferRef     currentFrame;            // the current frame from the movie
-    CVOpenGLBufferRef     lastFrame;
-    // this is a "fake" buffer exposed to freej core
-    // XXX - freej actaully needs a buffer pointer but it's not going to use it.
-    // The blitter does...but on OSX the blitter is implemented in the CVScreen class.
-    // This means we could expose any address to freej and that would work anyway.
-    CVOpenGLBufferRef      pixelBuffer;
-    //NSOpenGLContext      *glContext;             
-    bool                   newFrame;
-    CIImage                *renderedImage;
-    CIImage                *freejImage;
-    CIImage                *previewImage;
-    bool                   doPreview;
-
-    // display link
-    CVDisplayLinkRef       displayLink;            // the displayLink that runs the show
-    CGDirectDisplayID      viewDisplayID;
-    CVFilterPanel          *filterPanel;
-    // filters for CI rendering
-    CIFilter               *colorCorrectionFilter;        // hue saturation brightness control through one CI filter
-    CIFilter               *compositeFilter;        // composites the timecode over the video
-    CIFilter               *alphaFilter;
-    CIFilter               *exposureAdjustFilter;
-    CIFilter               *rotateFilter;
-    CIFilter               *translateFilter;
-    CIFilter               *effectFilter;
-    CIFilter               *scaleFilter;
-    NSMutableArray         *paramNames;
     
-    CIContext              *ciContext;
-    uint64_t               lastRenderedTime;
-    bool                   needsReshape;
-    //CVImageBufferRef     freejFrame;
-    CVLayer                *layer;
-
-    bool                   doFilters;
-    NSTimer                *renderTimer;
     //FrameRate            *tick;
-
-    IBOutlet CFreej        *freej;
-    IBOutlet NSSlider      *alphaBar;
-    IBOutlet NSButton      *showButton;
-    IBOutlet NSButton      *previewButton;
 }
-@property (readwrite) CVLayer *layer;
-- (void)awakeFromNib;
-- (id)init;
-- (bool)stepBackward;
-- (bool)setpForward;
-- (void)updateCurrentFrame;
+//- (bool)stepBackward;
+//- (bool)stepForward;
+//- (void)updateCurrentFrame;
 - (QTTime)movieDuration;
 - (QTTime)currentTime;
 - (void)setTime:(QTTime)inTime;
 - (CVReturn)_renderTime:(const CVTimeStamp *)timeStamp;
 - (IBAction)setMovieTime:(id)sender;
-- (IBAction)togglePlay:(id)sender;
-- (IBAction)setFilterParameter:(id)sender;
-- (IBAction)setAlpha:(id)sender;
-- (IBAction)setBlendMode:(id)sender;
 - (IBAction)openFile:(id)sender;
-- (IBAction)toggleFilters:(id)sender;
-- (IBAction)togglePreview:(id)sender;
-- (IBAction)toggleVisibility:(id)sender;
-- (CIImage *)getTexture;
-- (void)mouseDown:(NSEvent *)theEvent;
-- (bool)isOpaque;
+
 @end
 
 #endif
