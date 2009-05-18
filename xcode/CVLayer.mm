@@ -257,7 +257,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     if (lay) {
         layer = lay;
-        layer->fps.set(25);
+        layer->fps.set(30);
         // set alpha
         [self setAlpha:alphaBar];
     } 
@@ -273,7 +273,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAffineTransform    *translateTransform;
     NSString *paramName = NULL;
     pool = [[NSAutoreleasePool alloc] init];
-    [lock lock];
+    //[lock lock];
+    // lock underlying CVLayer if present
+    // to prevent its run() method to try rendering
+    // a frame while we change filter parameters
+    if (layer) 
+        layer->lock();
     switch([sender tag])
     {
     case 0:  // opacity (AlphaFade)
@@ -376,7 +381,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     default:
         break;
     }
-    [lock unlock];
+    if (layer)
+        layer->unlock();
+    //[lock unlock];
     [pool release];
 }
 
@@ -434,7 +441,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CIImage     *renderedImage = nil;
 
  //   NSAutoreleasePool *pool;
-    //[lock lock];
+    [lock lock];
     if (newFrame) {
         //CVPixelBufferRelease(lastFrame);
         //CVPixelBufferRetain(currentFrame);        
@@ -462,7 +469,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     } 
     
     texture = [lastFrame retain];
-    //[lock unlock];
+    [lock unlock];
 
     //[pool release];
     return texture;
@@ -557,12 +564,14 @@ CVLayer::CVLayer(NSObject *vin) : Layer()
     data = (void *)this;
     [input setLayer:this];
     set_name([[(NSView *)input toolTip] UTF8String]);
-    start();
+    //start();
 }
 
 CVLayer::~CVLayer()
 {
     stop();
+    lock();
+    unlock();
     close();
     deactivate();
     [input togglePlay:nil];
@@ -678,6 +687,7 @@ CVLayer::relative_seek(double increment)
     return false;
 }
 
+// accessor to get a texture from the CVLayerView cocoa class
 CVTexture * 
 CVLayer::gl_texture()
 {

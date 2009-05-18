@@ -61,8 +61,6 @@ static FilterParams fParams[FILTERS_MAX] =
     NSRect frame = [[self window] frame];
     origin.x -= frame.size.width/2;
     origin.y -= frame.size.height/2;
-    [previewBox clear];
-
     if(layer) {
         [layer setPreviewTarget:previewBox];
         [showButton setState:[layer isVisible]?NSOnState:NSOffState];
@@ -74,6 +72,7 @@ static FilterParams fParams[FILTERS_MAX] =
     }
     [[self window] setFrameOrigin:origin];
     [[self window] makeKeyAndOrderFront:self];
+    [previewBox clear];
 }
 
 - (void)hide
@@ -115,13 +114,18 @@ static FilterParams fParams[FILTERS_MAX] =
 
 - (IBAction)toggleVisibility:(id)sender
 {
-    if(layer)
+    if (layer)
         if ([showButton state] == NSOnState)
             [layer activate];
         else
             [layer deactivate];
 }
 
+- (IBAction)setBlendMode:(id)sender
+{
+    if (layer)
+        [layer setBlendMode:sender];
+}
 - (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index
 {
     if (index >= FILTERS_MAX)

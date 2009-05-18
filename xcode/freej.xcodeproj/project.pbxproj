@@ -237,7 +237,6 @@
 		AA3C44BC0F3EEBE0007C7E8B /* impl_video_encoders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = impl_video_encoders.h; sourceTree = "<group>"; };
 		AA3C44BD0F3EEBE0007C7E8B /* iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = iterator.h; sourceTree = "<group>"; };
 		AA3C44BE0F3EEBE0007C7E8B /* joy_ctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = joy_ctrl.h; sourceTree = "<group>"; };
-		AA3C44BF0F3EEBE0007C7E8B /* jsfreej.msg */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = jsfreej.msg; sourceTree = "<group>"; };
 		AA3C44C00F3EEBE0007C7E8B /* jsparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsparser.h; sourceTree = "<group>"; };
 		AA3C44C10F3EEBE0007C7E8B /* jsparser_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsparser_data.h; sourceTree = "<group>"; };
 		AA3C44C20F3EEBE0007C7E8B /* jsync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = jsync.h; sourceTree = "<group>"; };
@@ -704,7 +703,6 @@
 				AA3C44BC0F3EEBE0007C7E8B /* impl_video_encoders.h */,
 				AA3C44BD0F3EEBE0007C7E8B /* iterator.h */,
 				AA3C44BE0F3EEBE0007C7E8B /* joy_ctrl.h */,
-				AA3C44BF0F3EEBE0007C7E8B /* jsfreej.msg */,
 				AA3C44C00F3EEBE0007C7E8B /* jsparser.h */,
 				AA3C44C10F3EEBE0007C7E8B /* jsparser_data.h */,
 				AA3C44C20F3EEBE0007C7E8B /* jsync.h */,

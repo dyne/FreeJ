@@ -50,18 +50,21 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [super dealloc];
 }
 
+/*
 - (void) setLayer:(CVLayer *)lay
 {
     [super setLayer:lay];
-    if (!lay)
+    if (!lay && qtMoview)
         [self setQTMovie:nil];
 }
+*/
 
 - (void)unloadMovie
 {
     NSRect        frame = [self frame];
     [lock lock];
     //delete layer;
+    //layer = NULL;
     QTVisualContextTask(qtVisualContext);
     [qtMovie stop];
     [qtMovie release];
@@ -77,11 +80,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         CVPixelBufferRelease(currentFrame);
     
     posterImage = NULL;
-    QTVisualContextRelease(qtVisualContext);
-    qtVisualContext = NULL;
+    //QTVisualContextRelease(qtVisualContext);
+    //qtVisualContext = NULL;
     //CVOpenGLTextureRelease(currentFrame);
 
-    needsReshape = YES;
     //[QTMovie exitQTKitOnThread];
     [[self openGLContext] makeCurrentContext];    
     // clean the OpenGL context
@@ -97,7 +99,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     Context *ctx = (Context *)[freej getContext];
 
-    //[lock lock];
+    [lock lock];
     // if we own already a movie let's relase it before trying to open the new one
     if (qtMovie) {
         [self unloadMovie];
@@ -177,27 +179,27 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
         CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
             NSWidth(bounds), NSHeight(bounds));
+        [lock lock];
         [ciContext drawImage:posterImage
             atPoint: imageRect.origin
             fromRect: imageRect];
-        [lock lock];
         [[self openGLContext] makeCurrentContext];
         [[self openGLContext] flushBuffer];
         [lock unlock];
-        //[posterImage retain];
-            
-        
+        [posterInputImage release];            
+       
         // register the layer within the freej context
         if (!layer) {
             layer = new CVLayer((NSObject *)self);
             layer->init(ctx);
             layer->buffer = (void *)pixelBuffer; // give freej a fake buffer ... that's not going to be used anyway
-            //layer->start();
         }
     }
 
-    //[lock unlock];
+    [lock unlock];
     [pool release];
+    if (!layer->running)
+        layer->start();
 }
 
 - (QTTime)currentTime
@@ -227,14 +229,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (IBAction)togglePlay:(id)sender
 {
     //[lock lock];
-    if(CVDisplayLinkIsRunning(displayLink))
-    {
-        CVDisplayLinkStop(displayLink);
-        [qtMovie stop];
-    } else {
+    //if(CVDisplayLinkIsRunning(displayLink))
+    //{
+    //    CVDisplayLinkStop(displayLink);
+     //   [qtMovie stop];
+   // } else {
         [qtMovie play];
-        CVDisplayLinkStart(displayLink);
-    }
+    //    CVDisplayLinkStart(displayLink);
+   // }
     //[lock unlock];
 }
 
@@ -262,9 +264,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         // implemented in CVLayerView (our parent)
         newFrame = YES;
         rv = YES;
-    } else {
-        MoviesTask([qtMovie quickTimeMovie], 1000);
-    }
+    } 
     [lock unlock];
     /*
     layer->fps.calc();
@@ -290,9 +290,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     } else {
         rv = kCVReturnError;
     }
-    MoviesTask([qtMovie quickTimeMovie], 0);
     [pool release];
-
+    MoviesTask([qtMovie quickTimeMovie], 0);
     return rv;
 }
 
@@ -335,8 +334,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
      func("openScript filename = %@",tvarFilename);
  
     if (tvarFilename) {
-        if(CVDisplayLinkIsRunning(displayLink)) 
-            [self togglePlay:nil];
+        //if(CVDisplayLinkIsRunning(displayLink)) 
+        //    [self togglePlay:nil];
     
         QTMovie *movie = [[QTMovie alloc] initWithFile:tvarFilename error:nil];
         [self setQTMovie:movie];

@@ -52,6 +52,7 @@ typedef struct __FilterParams {
 - (IBAction)setFilterParameter:(id)sender;
 - (IBAction)togglePreview:(id)sender;
 - (IBAction)toggleVisibility:(id)sender;
+- (IBAction)setBlendMode:(id)sender;
 
 @end
 
