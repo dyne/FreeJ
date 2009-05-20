@@ -96,7 +96,8 @@ int quit_proc(Context *env, char *cmd) {
 }
 
 
-Console::Console() {
+Console::Console() 
+  : Controller() {
   env=NULL;
   active = false;
   paramsel = 1;
@@ -107,7 +108,12 @@ Console::Console() {
   tit = NULL;
   rdl = NULL;
 
+  // the console might be the main controller used in debugging
+  // more often than in other cases, so we make it indestructible
+  // by default, meaning that reset() won't delete it.
+  indestructible = true;
 
+  set_name("Console");
 }
 
 Console::~Console() {

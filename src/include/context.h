@@ -118,8 +118,9 @@ class Context {
 
   int parse_js_cmd(const char *cmd);
 
-
   int open_script(char *filename);
+
+  int reset(); ///< clear the engine and deletes all registered objects
 
   bool config_check(const char *filename);
 
@@ -169,6 +170,7 @@ class Context {
 
   JsParser *js; ///< javascript parser object
 
+  char main_javascript[512]; ///< if started with a javascript, save the filename here (used by reset)
 
   /* Set the interval (in frames) after
      the fps counter is updated */

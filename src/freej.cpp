@@ -296,7 +296,6 @@ int main (int argc, char **argv) {
   if(!noconsole) {
     if( getenv("TERM") ) {
       con = new Console();
-      //      con->init( &freej );
       freej->register_controller( con );
       set_console( con );
     }

@@ -58,6 +58,8 @@ class Controller: public Entry {
   bool initialized;
   bool active;
 
+  bool indestructible; ///< set to true if you want the controller to survive a reset
+
   Context *env;
 
   JSContext *jsenv;

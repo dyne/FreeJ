@@ -96,6 +96,7 @@ Context::Context() {
   fps_speed       = 25;
   fps = NULL;
     
+  main_javascript[0] = 0x0;
 
   layers_description = (char*)
 " .  - ImageLayer for image files (png, jpeg etc.)\n"
@@ -120,76 +121,7 @@ Context::Context() {
 }
 
 Context::~Context() {
-  func("%s this=%p",__PRETTY_FUNCTION__, this);
-
-  Layer *lay;
-  Controller *ctrl;
-  VideoEncoder *enc;
-
-  running = false;
-
-
-  //js->gc(); 
-  if(js) { // invokes JSGC and all gc call on our JSObjects!
-    delete js;
-    js = NULL;
-  }
-
-  layers.unlock(); // in case we crashed while cafudda'ing
-  lay = (Layer *)layers.begin ();
-  while (lay) {
-    lay-> stop();
-    lay-> rem(); // does layers.lock()
-    //    delete lay;
-    //  context doesn't deletes layers anymore -jrml feb2009
-    lay = (Layer *)layers.begin ();
-  }
-
-  encoders.unlock();
-  enc = (VideoEncoder *)encoders.begin();
-  while(enc) {
-	enc->stop();
-    enc->rem();
-
-    //    delete enc;
-    //  context doesn't deletes anymore -jrml feb2009
-
-    enc = (VideoEncoder *)encoders.begin();
-  }
-
-  ctrl = (Controller *)controllers.begin();
-  while(ctrl) {
-    //    ctrl->lock();
-    controllers.rem(1);
-    //    ctrl->quit = true;
-    //    ctrl->signal_feed();
-    //    ctrl->unlock();
-
-    //    delete ctrl;
-    //  context doesn't deletes anymore -jrml feb2009
-
-    ctrl = (Controller *)controllers.begin();
-  }
-
-  // close MLT
-  //  mlt_factory_close();
-
-    //  context doesn't deletes anymore -jrml feb2009
-//   if (screen) {
-//     //    delete screen;
-
-//     screen = NULL;
-//   }
-/*
-  if(audio) {
-    delete audio;
-    audio = NULL;
-  }
-*/
-  //  plugger.close();
-
-  if(fps) delete(fps);
-
+  reset();
   notice ("cu on http://freej.dyne.org");
 }
 
@@ -271,7 +203,6 @@ void Context::start() {
 	running = true;
 	while(!quit) {
 		cafudda(0.0);
-		fps->calc();
 	}
 	running = false;
 }
@@ -369,10 +300,10 @@ void Context::cafudda(double secs) {
   //    riciuca = (dtime() - now < secs) ? true : false;
   /////////////////////////////////////////////////////////////
   
-  if (got_sigpipe) {
-    quit=true;
-    return;
-  }
+//   if (got_sigpipe) {
+//     quit=true;
+//     return;
+//   }
   
 }
 
@@ -452,6 +383,10 @@ bool Context::register_controller(Controller *ctrl) {
   }
 
   if(! ctrl->initialized ) ctrl->init(this);
+  else if(ctrl->env != this) {
+    error("controller is already initialised with another context: %x", ctrl->env);
+  } else 
+    warning("controller was already initialised on this context");
 
   ctrl->active = true;
 
@@ -565,6 +500,60 @@ int Context::parse_js_cmd(const char *cmd) {
   return js->parse(cmd);
 }
 
+int Context::reset() {
+  func("%s",__PRETTY_FUNCTION__);
+
+  Layer *lay;
+  //  Controller *ctrl;
+  VideoEncoder *enc;
+  
+  //  running = false;
+  //  quit = true;
+
+  // javascript garbage collector
+  js->gc(); 
+
+//   func("deleting current layers");
+//   //  layers.unlock(); // in case we crashed while cafudda'ing
+//   layers.lock();
+//   lay = (Layer *)layers.begin ();
+//   while (lay) {
+//     lay-> stop();
+//     lay-> rem(); // does layers.lock()
+//     //    delete lay; this crashes... 
+//     //  context doesn't deletes layers anymore -jrml feb2009
+//     lay = (Layer *)layers.begin ();
+//   }
+//   layers.unlock();
+
+  func("deleting current encoders");
+  encoders.unlock();
+  enc = (VideoEncoder *)encoders.begin();
+  while(enc) {
+    enc->stop();
+    enc->rem();
+    delete(enc);
+    //  context doesn't deletes anymore -jrml feb2009
+    enc = (VideoEncoder *)encoders.begin();
+  }
+  encoders.unlock();
+
+//   func("deleting current controllers");
+//   ctrl = (Controller *)controllers.begin();
+//   while(ctrl) {
+//     if( ! ctrl->indestructible ) {
+
+//       ctrl->rem();
+//       delete(ctrl);
+      
+//     }
+//     ctrl = (Controller *)controllers.begin();
+//   }
+
+  // invokes JSGC and all gc call on our JSObjects
+  //  if(js) js->reset();
+  notice("FreeJ engine reset");
+}
 
 bool Context::config_check(const char *filename) {
   char tmp[512];

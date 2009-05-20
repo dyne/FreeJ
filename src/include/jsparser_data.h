@@ -262,8 +262,8 @@ JS(file_to_strings);
 JS(register_controller);
 JS(rem_controller);
 JS(register_encoder);
-JS(include_javascript);
-JS(use_javascript);
+JS(include_javascript_file);
+JS(execute_javascript_command);
 JS(ExecScript); // for the use() objects
 JS(system_exec);
 JS(list_filters);

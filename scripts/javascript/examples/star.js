@@ -43,7 +43,11 @@ running = true;
 
 var kbd;
 star_kbd = new KeyboardController();
-star_kbd.pressed_esc = function() { quit(); }
+star_kbd.released_esc = function() { quit(); };
+star_kbd.released_r = function() {
+    echo("reset called");
+    reset();
+};
 register_controller( star_kbd );
 
 var star;

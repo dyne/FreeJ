@@ -86,7 +86,11 @@ Layer::Layer()
 
 Layer::~Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
+
+  quit = true;
+
   delete deferred_calls;
+
   FilterInstance *f = (FilterInstance*)filters.begin();
   while(f) {
     f->rem(); // rem is contained in delete for Entry

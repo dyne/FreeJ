@@ -66,8 +66,8 @@ JSFunctionSpec global_functions[] = {
     {"register_controller", register_controller, 1},
     {"rem_controller",  rem_controller, 1},
     {"register_encoder", register_encoder, 1},
-    {"include",         include_javascript,     1},
-    {"use",		use_javascript,		1},
+    {"include",         include_javascript_file, 1},
+    {"use",		execute_javascript_command, 1},
     {"exec",            system_exec,            1},
     {"list_filters",    list_filters,           0},
     {"gc",		js_gc,			0},
@@ -617,17 +617,17 @@ JS(entry_select) {
   return JS_TRUE;
 }
 
-JS(include_javascript) {
+JS(include_javascript_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 	char *jscript;
-	char temp[256];
+	char temp[512];
 	FILE *fd;
 	
 	if(argc<1) JS_ERROR("missing argument");
 	JS_ARG_STRING(jscript,0);
 	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 
-	snprintf(temp,255,"%s",jscript);
+	snprintf(temp,512,"%s",jscript);
 	fd = fopen(temp,"r");
 	if(!fd) {
 	  warning("included file %s not found in current directory",jscript);
@@ -652,10 +652,16 @@ JS(include_javascript) {
 	}
 
 	func("JS: included %s", jscript);
+
+	// if its the first script loaded, save it as main one
+	// this is then used in reset to return at beginning stage
+	if(env->main_javascript[0] == 0x0)
+	  memcpy(env->main_javascript, temp, 512);
+
 	return JS_TRUE;
 }
 
-JS(use_javascript) {
+JS(execute_javascript_command) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
 	char *jscript;
@@ -720,21 +726,28 @@ JS(system_exec) {
 
 JS(reset_js) {
 	func("%s",__PRETTY_FUNCTION__);
-	char *jscript;
+	//	char *jscript;
 
 	*rval = JSVAL_TRUE;
 	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
-	js->reset();
-	if(argc == 1) {
-		JS_ARG_STRING(jscript,0);
-		if (js->open(jscript) == 0) {
-			error("JS reset('%s') failed", jscript);
-			*rval = JSVAL_FALSE;
-			return JS_FALSE;
-		}
-	}
-	JS_GC(cx);
-	// if called by an controller, it must then return true
+	func("resetting freej context");
+	env->reset();
+	//func("reloading main script: %s", env->main_javascript);
+	//	js->open(env->main_javascript);
+
+	//	func("garbage collection of jsparser");
+	//	js->reset();
+
+// 	if(argc == 1) {
+// 		JS_ARG_STRING(jscript,0);
+// 		if (js->open(jscript) == 0) {
+// 			error("JS reset('%s') failed", jscript);
+// 			*rval = JSVAL_FALSE;
+// 			return JS_FALSE;
+// 		}
+// 	}
+// 	JS_GC(cx);
+	// if called by a controller, it must then return true
 	// otherwise rehandling it's event can be endless loop
 	return JS_TRUE;
 }

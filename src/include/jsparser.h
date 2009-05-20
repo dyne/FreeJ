@@ -48,7 +48,7 @@ class JsParser {
 	int use(JSContext *cx, JSObject *obj, const char* script_file);
 	int parse(const char *command);
 	void stop();
-    void gc();
+	void gc();
 	char* readFile(FILE *file,int *len);
 	int reset();
 
