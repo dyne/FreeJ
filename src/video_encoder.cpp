@@ -193,7 +193,6 @@ void VideoEncoder::run() {
      (see mlt_frame.h in mltframework.org sourcecode)
      i can't tell as i don't have PPC, waiting for u mr.goil :)
   */
-    screen->lock();
     
     uint8_t *surface = (uint8_t *)screen->get_surface();
     if (!surface) {
@@ -201,18 +200,25 @@ void VideoEncoder::run() {
         fps->delay();
         continue;
     }
+    screen->lock();
+
     switch(screen->get_pixel_format()) {
     case ViewPort::RGBA32:
+      func("rgba32");
       mlt_convert_rgb24a_to_yuv422(surface,
                    screen->w, screen->h,
                    screen->w<<2, (uint8_t*)enc_yuyv, NULL);
       break;
       
     case ViewPort::BGRA32:
+      func("bgra32");
       mlt_convert_bgr24a_to_yuv422(surface,
                    screen->w, screen->h,
                    screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+      break;
+
     case ViewPort::ARGB32:
+      func("argb32");
       mlt_convert_argb_to_yuv422(surface,
                    screen->w, screen->h,
                    screen->w<<2, (uint8_t*)enc_yuyv, NULL);
@@ -238,27 +244,29 @@ void VideoEncoder::run() {
     //    if(res > 0 ) {
     
     encnum = 0;
-    if(res && (write_to_disk || write_to_stream)) {
+    if(write_to_disk || write_to_stream) {
       
-      encnum = ringbuffer_read(ringbuffer, encbuf, res);
+      encnum = ringbuffer_read(ringbuffer, encbuf,
+			       ((audio_kbps + video_kbps)*1024)/24);
       
     }
 
     if(encnum > 0) {
 
-      func("%s has encoded %i bytes", name, encnum);
+      //      func("%s has encoded %i bytes", name, encnum);
       
       if(write_to_disk && filedump_fd) 
         fwrite(encbuf, 1, encnum, filedump_fd);
     
       if(write_to_stream) {
 	
+	shout_sync(ice);
         if( shout_send(ice, (const unsigned char*)encbuf, encnum)
 	      != SHOUTERR_SUCCESS) 
         {
             error("shout_send: %s", shout_get_error(ice));
 
-        } else shout_sync(ice);
+        }// else 
             //printf("%d %d\n", encnum, (int)shout_queuelen(ice));
 
       }

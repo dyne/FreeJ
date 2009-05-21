@@ -300,15 +300,9 @@ dnl ==============================================================
 XIPH_INCLUDE=""
 XIPH_LIBS=""
 THEORA_MMX_DIR=""
-if test x$dynamic_ffmpeg = xyes ; then
-   PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc theora,
-   	             have_oggtheora=yes, have_oggtheora=no)
-   XIPH_LIBS="$XIPH_LIBS -ltheora"
-else
-   PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
-                     have_oggtheora=yes, have_oggtheora=no)
-   XIPH_LIBS="$XIPH_LIBS -logg -lvorbis -lvorbisenc -ltheora"
-fi
+PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc theora,
+			           have_oggtheora=yes, have_oggtheora=no)
+
 if test x$have_oggtheora = xyes ; then
    AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
    AC_DEFINE(THEORA_SUPPORT_ENCODE,1,[define if compiling Theora encoder])
@@ -715,19 +709,20 @@ dnl ==============================================================
 dnl shout lib
 dnl ==============================================================
 SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
+SHOUT_CFLAGS="-I\$(top_builddir)/lib/shout"
 SHOUT_DIR="shout"
-SHOUT_CFLAGS="-I\$(top_srcdir)/lib/shout"
-
-PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
-if test x$have_shout = xyes; then
-   SHOUT_DIR=""
-   AC_MSG_RESULT([yes, libshout system wide library found])
-else
-   AC_MSG_RESULT([no, using static libshout])
-fi
 AC_SUBST(SHOUT_DIR)
-AC_SUBST(SHOUT_CFLAGS)
 AC_SUBST(SHOUT_LIBS)
+AC_SUBST(SHOUT_CFLAGS)
+dnl PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
+dnl if test x$have_shout = xyes; then
+dnl    SHOUT_DIR=""
+dnl    AC_MSG_RESULT([yes, libshout system wide library found])
+dnl else
+dnl    AC_MSG_RESULT([no, using static libshout])
+dnl fi
+dnl AC_SUBST(SHOUT_CFLAGS)
+dnl AC_SUBST(SHOUT_LIBS)
 
 dnl ==============================================================
 dnl frei0r plugins
@@ -802,7 +797,6 @@ FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la \
     \$(top_builddir)/lib/lo/liblo.la \
     \$(top_builddir)/lib/slw/libslw.la"
-#    \$(top_builddir)/lib/javascript/obj/libjs.a
 
 AC_SUBST(FREEJ_STATIC_INCLUDES)
 AC_SUBST(FREEJ_STATIC_LIBS)
@@ -964,14 +958,6 @@ else
 	echo "  because of this many users will miss important functionality"
 fi
 
-echo "= shout libraries"
-if test x$have_shout = xyes; then
-echo "  linked system wide"
-else
-echo "  linked from static version"
-fi
-echo "  LIBS  : $SHOUT_LIBS"
-echo "  CFLAGS: $SHOUT_CFLAGS"
 
 echo "= javascript interpreter"
 echo "  LIBS  : $MOZJS_LIBS"

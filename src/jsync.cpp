@@ -81,7 +81,8 @@ void JSyncThread::_run() {
 void JSyncThread::stop() {
   if (running) {
     quit = true;
-    while(running) jsleep(0,50);
+    pthread_join(_thread,NULL);
+    //    while(running) jsleep(0,50);
     //    signal_feed();
   }
 }
