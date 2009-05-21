@@ -30,6 +30,7 @@
 #include <context.h>
 #include <layer.h>
 #include <blitter.h>
+#include <video_encoder.h>
 
 #include <jutils.h>
 
@@ -43,7 +44,8 @@ SlwTitle::~SlwTitle() { }
 
 bool SlwTitle::init() {
 
-  snprintf(title, 256, " %s version %s | set the veejay free! | freej.dyne.org | ", PACKAGE, VERSION);
+  snprintf(title, 256,
+	   " %s version %s | set the veejay free! | freej.dyne.org | ", PACKAGE, VERSION);
   titlelen = strlen(title);
   initialized = true;
   return(true);
@@ -216,6 +218,15 @@ bool SlwSelector::refresh() {
   /* print info the selected layer */
   blank();
 
+  // also put info from encoders, if active
+  // so far supported only one encoder
+  VideoEncoder *enc = env->encoders.begin();
+  if(enc) {
+    snprintf(tmp, w, "Stream: video %u kb/s : audio %u kb/s : encoded %u kb",
+	     enc->video_kbps, enc->audio_kbps, enc->bytes_encoded / 1024);
+    putnch(tmp, 1, 0, 0);
+  }
+    
   layer = env->layers.selected();
   if(layer) {
     snprintf(tmp, w, "Layer: %s blit: %s [%.0f] geometry x%i y%i w%u h%u",
@@ -228,7 +239,7 @@ bool SlwSelector::refresh() {
   ///////////////
   // layer print
   color = LAYERS_COLOR;
-  putnch(tmp, 1, 0, 0);
+  putnch(tmp, 1, 1, 0);
 
 
   if(env->layers.len()) {

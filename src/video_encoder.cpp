@@ -90,6 +90,7 @@ VideoEncoder::VideoEncoder()
 
   filedump_fd = NULL;
 
+  status = NULL;
   audio_kbps = 0;
   video_kbps = 0;
   bytes_encoded = 0;
@@ -155,8 +156,9 @@ VideoEncoder::~VideoEncoder() {
   ringbuffer_free(ringbuffer);
 
   shout_close(ice);
-  shout_sync(ice);
-  shout_free(ice);
+  //  shout_sync(ice);
+  //  shout_free(ice);
+  shout_shutdown();
 
   if(enc_y) free(enc_y);
   if(enc_u) free(enc_u);
@@ -226,7 +228,7 @@ void VideoEncoder::run() {
     ////// got the YUV, do the encoding    
     res = encode_frame();
 
-
+    
     /// proceed writing and streaming encoded data in encpipe
     
     //    if(res > 0 ) {
@@ -240,7 +242,7 @@ void VideoEncoder::run() {
     }
 
     if(encnum > 0) {
-      
+
       func("%s has encoded %i bytes", name, encnum);
       
       if(write_to_disk && filedump_fd) {
@@ -250,11 +252,12 @@ void VideoEncoder::run() {
       }
       
       if(write_to_stream) {
-      
-	shout_sync(ice);
 	
-	if( shout_send(ice, (const unsigned char*)encbuf, encnum) )
+	if( shout_send(ice, (const unsigned char*)encbuf, encnum)
+	    != SHOUTERR_SUCCESS ) {
 	  error("shout_send: %s", shout_get_error(ice));
+
+	} else shout_sync(ice);
 	
       }
       

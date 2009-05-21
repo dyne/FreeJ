@@ -17,7 +17,7 @@ SUBDIRS = 	ccvt			\
 		sdl_ttf			\
 		slw			\
 		lo			\
-		shout			\
+		@SHOUT_DIR@		\
 		@FREI0R_DIR@		\
 		@JS_DIR@		\
 		@GOOM_DIR@		\

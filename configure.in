@@ -712,6 +712,24 @@ AC_SUBST(UNICAP_LIBS)
 AC_SUBST(UNICAP_CFLAGS)
 
 dnl ==============================================================
+dnl shout lib
+dnl ==============================================================
+SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
+SHOUT_DIR="shout"
+SHOUT_CFLAGS="-I\$(top_srcdir)/lib/shout"
+
+PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
+if test x$have_shout = xyes; then
+   SHOUT_DIR=""
+   AC_MSG_RESULT([yes, libshout system wide library found])
+else
+   AC_MSG_RESULT([no, using static libshout])
+fi
+AC_SUBST(SHOUT_DIR)
+AC_SUBST(SHOUT_CFLAGS)
+AC_SUBST(SHOUT_LIBS)
+
+dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
 PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
@@ -782,7 +800,6 @@ FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(top_builddir)/lib/sdl_image/libsdl_image.la \
     \$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la \
     \$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la \
-    \$(top_builddir)/lib/shout/libshout.la \
     \$(top_builddir)/lib/lo/liblo.la \
     \$(top_builddir)/lib/slw/libslw.la"
 #    \$(top_builddir)/lib/javascript/obj/libjs.a
@@ -946,6 +963,15 @@ else
 	echo "  in case you are packing a binary package please take care"
 	echo "  because of this many users will miss important functionality"
 fi
+
+echo "= shout libraries"
+if test x$have_shout = xyes; then
+echo "  linked system wide"
+else
+echo "  linked from static version"
+fi
+echo "  LIBS  : $SHOUT_LIBS"
+echo "  CFLAGS: $SHOUT_CFLAGS"
 
 echo "= javascript interpreter"
 echo "  LIBS  : $MOZJS_LIBS"

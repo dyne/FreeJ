@@ -166,7 +166,7 @@ JS(start_stream) {
     return JS_FALSE;
   }
 
-  shout_sync(enc->ice);
+
   act("starting stream to server %s on port %u",shout_get_host(enc->ice),shout_get_port(enc->ice));
   
   if( shout_open(enc->ice) == SHOUTERR_SUCCESS ) {

@@ -75,6 +75,8 @@ class VideoEncoder: public Entry, public JSyncThread {
   bool set_filedump(char *filename); ///< start to dump to filename, call with NULL to stop
   char filedump[512]; ////< filename to which encoder is writing dump
 
+  char *status; ///< string updated with encoder status
+
   int video_quality; ///< quality of video encoding: range 0-100
   int video_bitrate; ///< video encoding bitrate (default is 0: VBR on the quality value)
   int audio_quality; ///<  quality of audio encoding: range 0-100

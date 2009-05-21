@@ -175,6 +175,10 @@ int OggTheoraEncoder::encode_frame() {
   audio_kbps = oggmux.akbps;
   video_kbps = oggmux.vkbps;
   bytes_encoded = oggmux.bytes_encoded;
+
+  // just pass the reference for the status
+  status = &oggmux.status[0];
+
   return bytes_encoded;
 
 }

@@ -456,7 +456,7 @@ void Context::rem_layer(Layer *lay) {
   lay->rem();
   if (lay->data == NULL) {
       notice("Layer: no JS data: deleting");
-      delete lay;
+      //      delete lay;
   } else {
       notice("removed layer %s but still present as JSObject, not deleting!", lay->name);
   }

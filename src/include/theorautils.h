@@ -79,6 +79,8 @@ typedef struct
     double vorbis_quality;
     int vorbis_bitrate;
 
+	char status[512]; // status string line
+
     vorbis_info vi;       /* struct that stores all the static vorbis bitstream settings */
     vorbis_comment vc;    /* struct that stores all the user comments */
 

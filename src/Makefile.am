@@ -1,7 +1,8 @@
 INCLUDES = @FREEJ_STATIC_INCLUDES@
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ @FREI0R_CFLAGS@ \
+AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ \
+	      @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ @FREI0R_CFLAGS@ @SHOUT_CFLAGS@ \
 	      -freg-struct-return \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
@@ -9,70 +10,42 @@ SUBDIRS = include
 
 
 SOURCES = \
-	context.cpp	\
-	layer.cpp	\
-	fps.cpp		\
-	blitter.cpp	\
-	sdl_blits.cpp   \
-	linear_blits.cpp \
-	iterator.cpp	\
-	linklist.cpp	\
-	jsync.cpp	\
-	closure.cpp     \
-	callback.cpp    \
-	cpu_accel.cpp	\
-	plugin.cpp	\
-	plugger.cpp	\
-	frei0r.cpp	\
-	freeframe.cpp   \
-	filter.cpp	\
-	parameter.cpp   \
-	jutils.cpp	\
-	fastmemcpy.cpp  \
-	ringbuffer.cpp  \
-	convertvid.cpp  \
+	context.cpp		layer.cpp	\
+	fps.cpp			blitter.cpp	\
+	sdl_blits.cpp   	linear_blits.cpp \
+	iterator.cpp		linklist.cpp	\
+	jsync.cpp		closure.cpp     \
+	callback.cpp    	cpu_accel.cpp	\
+	plugin.cpp		plugger.cpp	\
+	frei0r.cpp		freeframe.cpp   \
+	filter.cpp		parameter.cpp   \
+	jutils.cpp		fastmemcpy.cpp  \
+	ringbuffer.cpp  	convertvid.cpp  \
 \
-	v4l_layer.cpp tvfreq.c	\
-	unicap_layer.cpp \
-	video_layer.cpp	\
-	image_layer.cpp \
-	text_layer.cpp \
-	gen_f0r_layer.cpp \
-	geo_layer.cpp	\
-	flash_layer.cpp \
-	xhacks_layer.cpp \
-        goom_layer.cpp \
-	impl_layers.cpp \
+	v4l_layer.cpp tvfreq.c	unicap_layer.cpp \
+	video_layer.cpp		image_layer.cpp \
+	text_layer.cpp 		gen_f0r_layer.cpp \
+	geo_layer.cpp		flash_layer.cpp \
+	xhacks_layer.cpp        goom_layer.cpp \
+	xgrab_layer.cpp		impl_layers.cpp \
 \
-	screen.cpp	\
-	sdl_screen.cpp 	\
-	sdlgl_screen.cpp \
-	gl_screen.cpp   \
+	screen.cpp		sdl_screen.cpp 	\
+	sdlgl_screen.cpp 	gl_screen.cpp   \
 	soft_screen.cpp \
 \
-	controller.cpp  \
-	console_ctrl.cpp \
-	console_calls_ctrl.cpp \
-	console_readline_ctrl.cpp \
-	console_widgets_ctrl.cpp \
-	kbd_ctrl.cpp	\
-	mouse_ctrl.cpp	\
-	vimo_ctrl.cpp	\
-	joy_ctrl.cpp	\
-	midi_ctrl.cpp   \
-	trigger_ctrl.cpp \
-	osc_ctrl.cpp \
+	controller.cpp  	console_ctrl.cpp \
+	console_calls_ctrl.cpp 	console_readline_ctrl.cpp \
+	console_widgets_ctrl.cpp 	kbd_ctrl.cpp	\
+	mouse_ctrl.cpp		vimo_ctrl.cpp	\
+	joy_ctrl.cpp		midi_ctrl.cpp   \
+	trigger_ctrl.cpp 	osc_ctrl.cpp \
 	wiimote_ctrl.cpp \
 \
-	audio_jack.cpp  \
-	audio_collector.cpp \
+	audio_jack.cpp  	audio_collector.cpp \
 \
-	video_encoder.cpp \
-	ffmpeg_encoder.cpp \
-	theorautils.cpp \
-	oggtheora_encoder.cpp \
-	impl_video_encoders.cpp \
-	xgrab_layer.cpp
+	video_encoder.cpp 	ffmpeg_encoder.cpp \
+	theorautils.cpp 	oggtheora_encoder.cpp \
+	impl_video_encoders.cpp
 
 JS_SOURCES = 	context_js.cpp  \
 		layer_js.cpp    \
@@ -113,7 +86,8 @@ shared_libs = -lpthread -lm -lslang -lpng -ljpeg -lrt \
 		 @BLUEZ_LIBS@   \
 		 @CWIID_LIBS@   \
 		 @OPENGL_LIB@   \
-		 @UNICAP_LIBS@
+		 @UNICAP_LIBS@	\
+		 @SHOUT_LIBS@
 
 
 lib_LTLIBRARIES = libfreej.la
