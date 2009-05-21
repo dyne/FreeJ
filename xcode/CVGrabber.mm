@@ -94,7 +94,7 @@
     
     /* Try to use hosttime of the sample if available, because iSight Pts seems broken */
     NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
-    if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
+  //  if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
     
     if (layer) 
         layer->buffer = (void *)currentFrame;

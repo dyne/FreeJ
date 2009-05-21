@@ -148,8 +148,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         
         error = SetMovieVisualContext([qtMovie quickTimeMovie], qtVisualContext);
         [qtMovie gotoBeginning];
-        [qtMovie setMuted:YES]; // still no audio?
-        [qtMovie setIdling:NO];
+        //[qtMovie setMuted:YES]; // still no audio?
+        
+        NSArray *tracks = [qtMovie tracks];
+        for (NSUInteger i = 0; i < [tracks count]; i ++) {
+            QTTrack *track = [tracks objectAtIndex:i];
+            NSString *type = [track attributeForKey:QTTrackMediaTypeAttribute];
+            if (![type isEqualToString:QTMediaTypeVideo]) {
+                [track setEnabled:NO];
+                DisposeMovieTrack([track quickTimeTrack]);
+            }
+        }
 
         movieDuration = [[[qtMovie movieAttributes] objectForKey:QTMovieDurationAttribute] QTTimeValue];
     
@@ -196,8 +205,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
     [lock unlock];
     [pool release];
-    if (!layer->running)
-        layer->start();
 }
 
 - (QTTime)currentTime
@@ -241,7 +248,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (CVTexture *)getTexture
 {
-    [self _renderTime:nil];
     return [super getTexture];
 }
 
@@ -264,6 +270,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         newFrame = YES;
         rv = YES;
     } 
+    /*
+    else {
+        //notice("No frame?");
+        layer->fps.calc();
+        layer->fps.delay();
+    }
+    */
     [lock unlock];
     [pool release];
     return rv;
@@ -275,7 +288,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
     CVReturn rv = kCVReturnError;
-
+    [QTMovie enterQTKitOnThread];
+    MoviesTask([qtMovie quickTimeMovie], 0);
+    // we can care ourselves about thread safety when accessing the qtmovie
     if(qtMovie && [self getFrameForTime:timeStamp])
     {
        
@@ -287,6 +302,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     }
     [pool release];
     MoviesTask([qtMovie quickTimeMovie], 0);
+    [QTMovie exitQTKitOnThread];
     return rv;
 }
 
@@ -331,10 +347,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (tvarFilename) {
         //if(CVDisplayLinkIsRunning(displayLink)) 
         //    [self togglePlay:nil];
-    
-        QTMovie *movie = [[QTMovie alloc] initWithFile:tvarFilename error:nil];
+        NSDictionary *movieAttributes = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], QTMovieOpenAsyncOKAttribute,tvarFilename, QTMovieFileNameAttribute,[NSNumber numberWithBool:NO] , QTMovieHasAudioAttribute, nil];
+        QTMovie *movie = [[QTMovie alloc] initWithAttributes:movieAttributes error:nil];
+        [movie setIdling:NO];
         [self setQTMovie:movie];
         [movie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
+        //[movie setAttribute:[NSNumber numberWithBool:NO] forKey:QTMovieHasAudioAttribute];
+        NSLog(@"movie %@", [movie movieAttributes]);
+
         //[movie gotoBeginning];
         [self togglePlay:nil];
 

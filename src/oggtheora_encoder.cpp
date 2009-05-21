@@ -130,8 +130,8 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.ti.frame_height                 = screen->h;
   oggmux.ti.offset_x                     = frame_x_offset;
   oggmux.ti.offset_y                     = frame_y_offset;
-  oggmux.ti.fps_numerator                = env->fps_speed * 1000000;
-  oggmux.ti.fps_denominator              = 1000000;
+  oggmux.ti.fps_numerator                = env->fps_speed;
+  oggmux.ti.fps_denominator              = 1;
   oggmux.ti.aspect_numerator             = 0;
   oggmux.ti.aspect_denominator           = 0;
   oggmux.ti.colorspace                   = OC_CS_ITU_REC_470BG;
@@ -142,12 +142,12 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.ti.target_bitrate               = video_bitrate;
   oggmux.ti.quality                      = theora_quality;
   
-  oggmux.ti.dropframes_p                 = 0;
+  oggmux.ti.dropframes_p                 = 1;
   oggmux.ti.quick_p                      = 1;
   oggmux.ti.keyframe_auto_p              = 1;
-  oggmux.ti.keyframe_frequency           = 64;
-  oggmux.ti.keyframe_frequency_force     = 64;
-  oggmux.ti.keyframe_data_target_bitrate = (unsigned int) (video_bitrate * 1.5);
+  oggmux.ti.keyframe_frequency           = 25;
+  oggmux.ti.keyframe_frequency_force     = 25;
+  oggmux.ti.keyframe_data_target_bitrate = (unsigned int) (video_bitrate);
   oggmux.ti.keyframe_auto_threshold      = 80;
   oggmux.ti.keyframe_mindistance         = 8;
   oggmux.ti.noise_sensitivity            = 1;
@@ -172,9 +172,10 @@ int OggTheoraEncoder::encode_frame() {
   
   oggmux_flush(&oggmux, 0);
 
+  bytes_encoded = oggmux.video_bytesout+oggmux.audio_bytesout;
+
   audio_kbps = oggmux.akbps;
   video_kbps = oggmux.vkbps;
-  bytes_encoded = oggmux.bytes_encoded;
 
   // just pass the reference for the status
   status = &oggmux.status[0];
@@ -211,7 +212,6 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
   
   /* encode image */
   oggmux_add_video (&oggmux, &yuv, end_of_stream);
-  
   return 1;
 }
 

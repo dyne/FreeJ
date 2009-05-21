@@ -38,19 +38,22 @@ class  CVScreen;
 	NSString			*fpsString;
     CVDisplayLinkRef	displayLink; // the displayLink that runs the show
     CGDirectDisplayID	viewDisplayID;
-	CVOpenGLBufferRef	pixelBuffer;
+	//CVPixelBufferRef	pixelBuffer;
+    void                *pixelBuffer;
 	CVScreen			*fjScreen;
 	NSRecursiveLock		*lock;
 	CIContext			*ciContext;
 	NSOpenGLContext		*currentContext;
 	CIImage				*outFrame;
+    CIImage             *exportedFrame;
+    NSBitmapImageRep    *exportedFrameBuffer;  
     CIImage             *lastFrame;
 	NSTimer				*renderTimer;
 	bool				fullScreen;
 	CFDictionaryRef		savedMode;
 	bool				needsReshape;
 	FrameRate			*rateCalc;
-    NSMutableArray             *textures;
+    NSMutableArray      *textures;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;

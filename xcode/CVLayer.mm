@@ -7,7 +7,8 @@
  *
  */
 
-#include "Cocoa/Cocoa.h";
+#import <QTKit/QTMovie.h>
+#include <Cocoa/Cocoa.h>;
 #include "CVLayer.h"
 #import "CIAlphaFade.h"
 #import "CVFilterPanel.h"
@@ -50,6 +51,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (id)init
 {
+    lock = [[NSRecursiveLock alloc] init];
+    [lock retain];
     [self setNeedsDisplay:NO];
     needsReshape = YES;
     //freejFrame = NULL;
@@ -65,8 +68,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     doPreview = NO;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
     paramNames = [[NSMutableArray arrayWithCapacity:4] retain];
-    lock = [[NSRecursiveLock alloc] init];
-    [lock retain];
     return self;
 }
 
@@ -257,7 +258,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     if (lay) {
         layer = lay;
-        layer->fps.set(30);
+        layer->fps.set(25);
         // set alpha
         [self setAlpha:alphaBar];
     } 
@@ -418,12 +419,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)renderPreview
 {
     Context *ctx = (Context *)[freej getContext];
-
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     if (doPreview && previewTarget) { 
         // scale the frame to fit the preview
         [previewTarget renderFrame:[self getTexture]];
 
     }
+    [pool release];
 }
 
 
@@ -554,7 +556,7 @@ CVLayer::CVLayer(NSObject *vin) : Layer()
     data = (void *)this;
     [input setLayer:this];
     set_name([[(NSView *)input toolTip] UTF8String]);
-    //start();
+    start();
 }
 
 CVLayer::~CVLayer()
@@ -621,9 +623,9 @@ CVLayer::init(Context *ctx, int w, int h)
 void *
 CVLayer::feed()
 {
-    //unsigned long tick = 0;
-    //Delay(1, &tick);
-    [input _renderTime:nil];
+    if (active || [input needPreview]) {
+        [input _renderTime:nil];
+    }
     return (void *)buffer;
 }
 

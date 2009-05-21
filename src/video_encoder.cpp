@@ -105,8 +105,6 @@ VideoEncoder::VideoEncoder()
 
   shout_init();
   ice = shout_new();
-  
-  //  shout_set_nonblocking(ice, 1);
 
   if( shout_set_protocol(ice,SHOUT_PROTOCOL_HTTP) )
     error("shout_set_protocol: %s", shout_get_error(ice));
@@ -178,9 +176,6 @@ void VideoEncoder::run() {
   
   //  lock_feed();
   
-  
-
-  
   while(!quit) {
 
   /* Convert picture from rgb to yuv420 planar 
@@ -200,25 +195,34 @@ void VideoEncoder::run() {
   */
     screen->lock();
     
+    uint8_t *surface = (uint8_t *)screen->get_surface();
+    if (!surface) {
+        fps->calc();
+        fps->delay();
+        continue;
+    }
     switch(screen->get_pixel_format()) {
-      
     case ViewPort::RGBA32:
-      mlt_convert_rgb24a_to_yuv422((uint8_t*)screen->get_surface(),
-				   screen->w, screen->h,
-				   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+      mlt_convert_rgb24a_to_yuv422(surface,
+                   screen->w, screen->h,
+                   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
       break;
       
     case ViewPort::BGRA32:
-      mlt_convert_bgr24a_to_yuv422((uint8_t*)screen->get_surface(),
-				   screen->w, screen->h,
-				   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+      mlt_convert_bgr24a_to_yuv422(surface,
+                   screen->w, screen->h,
+                   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+    case ViewPort::ARGB32:
+      mlt_convert_argb_to_yuv422(surface,
+                   screen->w, screen->h,
+                   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
       break;
       
     default:
       error("Video Encoder %s doesn't supports Screen %s pixel format",
-	    name, screen->name);
+        name, screen->name);
     }
-    
+
     screen->unlock();
     
     ccvt_yuyv_420p(screen->w, screen->h, enc_yuyv, enc_y, enc_u, enc_v);
@@ -234,10 +238,9 @@ void VideoEncoder::run() {
     //    if(res > 0 ) {
     
     encnum = 0;
-    if( write_to_disk | write_to_stream ) {
+    if( (write_to_disk || write_to_stream) && ringbuffer_read_space(ringbuffer) > 4096) {
       
-      encnum = ringbuffer_read(ringbuffer, encbuf,
-			       ((audio_kbps + video_kbps)*1024)/24);
+      encnum = ringbuffer_read(ringbuffer, encbuf, 4096);
       
     }
 
@@ -245,28 +248,22 @@ void VideoEncoder::run() {
 
       func("%s has encoded %i bytes", name, encnum);
       
-      if(write_to_disk && filedump_fd) {
-	
-	fwrite(encbuf, 1, encnum, filedump_fd);
-	
-      }
-      
+      if(write_to_disk && filedump_fd) 
+        fwrite(encbuf, 1, encnum, filedump_fd);
+    
       if(write_to_stream) {
 	
-	if( shout_send(ice, (const unsigned char*)encbuf, encnum)
-	    != SHOUTERR_SUCCESS ) {
-	  error("shout_send: %s", shout_get_error(ice));
+        if( shout_send(ice, (const unsigned char*)encbuf, encnum)
+	      != SHOUTERR_SUCCESS) 
+        {
+            error("shout_send: %s", shout_get_error(ice));
 
-	} else shout_sync(ice);
-	
+        } 
+            //printf("%d %d\n", encnum, (int)shout_queuelen(ice));
+
       }
-      
-    }
-
-    fps->calc();
-    fps->delay();
-
-  }
+    } 
+  } 
   
   func("VideoEncoder::run : end thread %p", pthread_self() );
 

@@ -154,7 +154,6 @@
 		AAB26D2E0F4051F60068E5F5 /* CVGrabber.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */; };
 		AAB26E510F4058330068E5F5 /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB26E4A0F4058330068E5F5 /* QuickTime.framework */; };
 		AAB270620F4065220068E5F5 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270610F4065220068E5F5 /* QTKit.framework */; };
-		AAB270860F4065950068E5F5 /* CoreAudio.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270850F4065950068E5F5 /* CoreAudio.framework */; };
 		AAB270980F406ACE0068E5F5 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270970F406ACE0068E5F5 /* CoreVideo.framework */; };
 		AACBE4830F641605001B610F /* FrameRate.m in Sources */ = {isa = PBXBuildFile; fileRef = AACBE4820F641605001B610F /* FrameRate.m */; };
 /* End PBXBuildFile section */
@@ -368,7 +367,6 @@
 		AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVGrabber.mm; sourceTree = "<group>"; };
 		AAB26E4A0F4058330068E5F5 /* QuickTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = /System/Library/Frameworks/QuickTime.framework; sourceTree = "<absolute>"; };
 		AAB270610F4065220068E5F5 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
-		AAB270850F4065950068E5F5 /* CoreAudio.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreAudio.framework; path = /System/Library/Frameworks/CoreAudio.framework; sourceTree = "<absolute>"; };
 		AAB270970F406ACE0068E5F5 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		AAB843AA0F3EEEAF00AD479D /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		AAB8442C0F3EFA9500AD479D /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = /opt/local/lib/libavcodec.a; sourceTree = "<absolute>"; };
@@ -462,7 +460,6 @@
 				AAA7B76F0F404B8C00056C44 /* libnspr4.a in Frameworks */,
 				AAB26E510F4058330068E5F5 /* QuickTime.framework in Frameworks */,
 				AAB270620F4065220068E5F5 /* QTKit.framework in Frameworks */,
-				AAB270860F4065950068E5F5 /* CoreAudio.framework in Frameworks */,
 				AAB270980F406ACE0068E5F5 /* CoreVideo.framework in Frameworks */,
 				AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */,
 				AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */,
@@ -508,7 +505,6 @@
 				AA7C04B80F4ED02700723DAC /* OpenGL.framework */,
 				AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */,
 				AAB270970F406ACE0068E5F5 /* CoreVideo.framework */,
-				AAB270850F4065950068E5F5 /* CoreAudio.framework */,
 				AAB270610F4065220068E5F5 /* QTKit.framework */,
 				AAB26E4A0F4058330068E5F5 /* QuickTime.framework */,
 				AAA7B6470F40492500056C44 /* libnspr4.a */,
@@ -1249,14 +1245,17 @@
 					i386,
 				);
 				GCC_ALTIVEC_EXTENSIONS = YES;
+				GCC_AUTO_VECTORIZATION = YES;
 				GCC_CW_ASM_SYNTAX = NO;
 				GCC_ENABLE_CPP_EXCEPTIONS = NO;
 				GCC_ENABLE_CPP_RTTI = NO;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
 				GCC_ENABLE_SYMBOL_SEPARATION = NO;
+				GCC_FAST_MATH = YES;
 				GCC_MODEL_TUNING = "";
-				GCC_UNROLL_LOOPS = NO;
+				GCC_OPTIMIZATION_LEVEL = 3;
+				GCC_UNROLL_LOOPS = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (

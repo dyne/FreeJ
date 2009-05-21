@@ -100,18 +100,30 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	needsReshape = YES;
     outFrame = NULL;
     lastFrame = NULL;
+    exportedFrame = NULL;
 	lock = [[NSRecursiveLock alloc] init];
 	[lock retain];
 	[self setNeedsDisplay:NO];
 	[freej start];
 	Context *ctx = (Context *)[freej getContext];
 	fjScreen = (CVScreen *)ctx->screen;
-	CVReturn err = CVOpenGLBufferCreate (NULL, ctx->screen->w, ctx->screen->h, NULL, &pixelBuffer);
-	if (err) {
+	/*
+    //CVReturn err = CVOpenGLBufferCreate (NULL, ctx->screen->w, ctx->screen->h, NULL, &pixelBuffer);
+	CVReturn err = CVPixelBufferCreate (
+		   NULL,
+		   fjScreen->w,
+		   fjScreen->h,
+		   k32ARGBPixelFormat,
+           NULL,
+           &pixelBuffer
+		);
+    if (err) {
 		// TODO - Error messages
 		return nil;
 	}
 	CVPixelBufferRetain(pixelBuffer);
+    */
+    pixelBuffer = malloc(fjScreen->w*fjScreen->h*4);
     textures = [[NSMutableArray arrayWithCapacity:50] retain];
 	return self;
 }
@@ -125,11 +137,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)dealloc
 {
-	CVOpenGLTextureRelease(pixelBuffer);
+	//CVOpenGLTextureRelease(pixelBuffer);
+    free(pixelBuffer);
 	[ciContext release];
 	[currentContext release];
 	[outFrame release];
-	[lastFrame release];
+	if (lastFrame)
+        [lastFrame release];
 	[lock release];
     //if (texturePool)
     //    [texturePool release];
@@ -188,6 +202,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
 
+    [lock lock];
 	[currentContext makeCurrentContext];
 
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
@@ -230,7 +245,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	}
 	// flush our output to the screen - this will render with the next beamsync
 	[[self openGLContext] flushBuffer];
-	[self setNeedsDisplay:NO];		
+	[self setNeedsDisplay:NO];
+    [lock unlock];		
 
 }
 
@@ -239,27 +255,67 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	//NSAutoreleasePool *pool;
 	NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];    
+    
+   // [QTMovie enterQTKitOnThread];
     [lock lock];
 	if (outFrame) {
 		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
 					NSWidth(bounds), NSHeight(bounds));
 		[ciContext drawImage: outFrame
 			atPoint: cg.origin  fromRect: cg];
-        [self drawRect:NSZeroRect];
+        if (lastFrame)
+            [lastFrame release];
+        lastFrame = [outFrame retain];
 		outFrame = NULL;
     }
     [lock unlock];
+    [self drawRect:NSZeroRect];
+
+  //  [QTMovie exitQTKitOnThread];
+
 }
 
 - (void *)getSurface
-{		
-	return (void *)CVPixelBufferGetBaseAddress(pixelBuffer);			
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    [lock lock];
+    Context *ctx = (Context *)[freej getContext];
+    if (lastFrame) {
+        NSRect bounds = [self bounds];
+        
+        CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+        CGContextRef context = CGBitmapContextCreate (NULL,
+                                     ctx->screen->w,
+                                     ctx->screen->h,
+                                     8,      // bits per component
+                                     ctx->screen->w*4,
+                                     colorSpace,
+                                     kCGImageAlphaPremultipliedLast);
+        
+        if (context == NULL)
+            NSLog(@"Context not created!");
+        CIContext  *rContext = [CIContext contextWithCGContext:context options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB forKey:  kCIContextOutputColorSpace]];
+        CGRect rect = CGRectMake(0,0, ctx->screen->w, ctx->screen->h);
+        [rContext render:lastFrame 
+             toBitmap:pixelBuffer
+             rowBytes:ctx->screen->w*4
+               bounds:rect 
+               format:kCIFormatARGB8 
+           colorSpace:NULL];
+           
+       CGColorSpaceRelease( colorSpace );
+       CGContextRelease( context );
+    }
+    [lock unlock];
+    [pool release];
+    return pixelBuffer;
 }
 
 - (CVReturn)outputFrame:(uint64_t)timestamp
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CVTexture *textureToRelease = nil;
+
     //if (!texturePool)
     //    texturePool = [[NSAutoreleasePool alloc] init];
 
@@ -274,14 +330,20 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [fpsString autorelease];
         [showFps setStringValue:fpsString];
     }
+    
     [lock unlock];
     [pool release];
     
-    while ([textures count]) {
-        textureToRelease = [textures lastObject];
-        [textures removeLastObject];
-        [textureToRelease release];
+    if ([textures count]) {
+        //[QTMovie enterQTKitOnThread];
+        while ([textures count]) {
+            textureToRelease = [textures lastObject];
+            [textures removeLastObject];
+            [textureToRelease release];
+        }
+        //[QTMovie exitQTKitOnThread];
     }
+
 	return kCVReturnSuccess;
 }
 
@@ -290,9 +352,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	CIFilter *blendFilter = nil;
     CVTexture *texture = nil;
+
 	if (layer->type == Layer::GL_COCOA) {
+
 		CVLayer *cvLayer = (CVLayer *)layer;
+        //[QTMovie enterQTKitOnThread];
         texture = cvLayer->gl_texture();
+        //[QTMovie exitQTKitOnThread];
+
         NSString *blendMode = ((CVLayer *)layer)->blendMode;
 		if (blendMode)
 			blendFilter = [CIFilter filterWithName:blendMode];
@@ -340,13 +407,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[lock lock];
 	if (w != fjScreen->w || h != fjScreen->h) {
 
-			CVPixelBufferRelease(pixelBuffer);
-			CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->w, fjScreen->h, NULL, &pixelBuffer);
-			if (err != noErr) {
+			//CVPixelBufferRelease(pixelBuffer);
+			//CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->w, fjScreen->h, NULL, &pixelBuffer);
+			//if (err != noErr) {
 				// TODO - Error Messages
-			}
-			CVPixelBufferRetain(pixelBuffer);
-			fjScreen->w = w;
+			//}
+			//CVPixelBufferRetain(pixelBuffer);
+			pixelBuffer = realloc(pixelBuffer, w*h*4);
+            fjScreen->w = w;
 			fjScreen->h = h;
 			needsReshape = YES;
 
@@ -584,6 +652,7 @@ void *CVScreen::get_surface() {
 void CVScreen::set_view(CVScreenView *v)
 {
 	view = v;
+    [view setSizeWidth:w Height:h];
 }
 
 CVScreenView *CVScreen::get_view(void)
