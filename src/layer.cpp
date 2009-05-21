@@ -246,7 +246,7 @@ bool Layer::cafudda() {
   do_iterators();
 
 
-  signal_feed();
+  //  signal_feed();
 
   return(true);
 }

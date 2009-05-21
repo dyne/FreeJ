@@ -60,9 +60,9 @@ class JSyncThread {
   //void wait() { pthread_cond_wait(&_cond,&_mutex); };
   //void signal() { pthread_cond_signal(&_cond); };
 
-  void wait_feed();
-  void signal_feed() { pthread_cond_signal(&_cond_feed); };
-  int sleep_feed();
+/*   void wait_feed(); */
+/*   void signal_feed() { pthread_cond_signal(&_cond_feed); }; */
+/*   int sleep_feed(); */
 
   bool running, quit;
 

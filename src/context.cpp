@@ -46,7 +46,7 @@
 #include <jsparser.h>
 #include <video_encoder.h>
 #include <audio_collector.h>
-//#include <fps.h>
+#include <fps.h>
 
 #include <signal.h>
 #include <errno.h>
@@ -94,7 +94,6 @@ Context::Context() {
   poll_events     = true;
 
   fps_speed       = 25;
-  fps = NULL;
     
   main_javascript[0] = 0x0;
 
@@ -121,7 +120,27 @@ Context::Context() {
 }
 
 Context::~Context() {
+
+  Controller *ctrl;
+
   reset();
+
+
+  func("deleting current controllers");
+  ctrl = (Controller *)controllers.begin();
+  while(ctrl) {
+    if( ! ctrl->indestructible ) {
+
+      ctrl->rem();
+      delete(ctrl);
+      
+    }
+    ctrl = (Controller *)controllers.begin();
+  }
+
+  //   invokes JSGC and all gc call on our JSObjects
+  if(js) js->reset();
+
   notice ("cu on http://freej.dyne.org");
 }
 
@@ -176,8 +195,7 @@ bool Context::init
   if( SDL_imageFilterMMXdetect () )
     act ("using MMX accelerated blit");
 
-  fps = new FPS();
-  fps->init(fps_speed);
+  fps.init(fps_speed);
 
 //  if(init_audio) 
 //    audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
@@ -263,7 +281,7 @@ void Context::cafudda(double secs) {
 	screen->blit(lay);
 	lay->unlock();
 	
-	lay->signal_feed();
+	//	lay->signal_feed();
 
       }
 
@@ -291,8 +309,8 @@ void Context::cafudda(double secs) {
 
 
   /// FPS calculation
-  fps->calc();
-  fps->delay();
+  fps.calc();
+  fps.delay();
 
 
   //  SDL_framerateDelay(&FPS); // synced with desired fps here
@@ -449,9 +467,9 @@ void Context::rem_layer(Layer *lay) {
         error("removing Layer %p which is not in list", lay);
         return;
   }*/
-  js->gc();
+  //  js->gc();
 
-  //lay->stop();
+  lay->stop();
 
   lay->rem();
   if (lay->data == NULL) {
@@ -513,18 +531,18 @@ int Context::reset() {
   // javascript garbage collector
   js->gc(); 
 
-//   func("deleting current layers");
-//   //  layers.unlock(); // in case we crashed while cafudda'ing
-//   layers.lock();
-//   lay = (Layer *)layers.begin ();
-//   while (lay) {
-//     lay-> stop();
-//     lay-> rem(); // does layers.lock()
-//     //    delete lay; this crashes... 
-//     //  context doesn't deletes layers anymore -jrml feb2009
-//     lay = (Layer *)layers.begin ();
-//   }
-//   layers.unlock();
+  func("deleting current layers");
+  //  layers.unlock(); // in case we crashed while cafudda'ing
+  layers.lock();
+  lay = (Layer *)layers.begin ();
+  while (lay) {
+    lay-> stop();
+    lay-> rem(); // does layers.lock()
+    //    delete lay; this crashes... 
+    //  context doesn't deletes layers anymore -jrml feb2009
+    lay = (Layer *)layers.begin ();
+  }
+  layers.unlock();
 
   func("deleting current encoders");
   encoders.unlock();

@@ -52,7 +52,7 @@ class Controller;
 class JsParser;
 class AudioCollector;
 class VideoEncoder;
-class FPS;
+
 
 class FreejDaemon;
 
@@ -174,7 +174,7 @@ class Context {
 
   /* Set the interval (in frames) after
      the fps counter is updated */
-  FPS *fps;
+  FPS fps;
   int fps_speed;
 
   bool clear_all;

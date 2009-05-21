@@ -273,7 +273,7 @@ JS(set_fps) {
 
   JS_ARG_NUMBER(fps, 0);
 
-  env->fps->set((int)fps);
+  env->fps.set((int)fps);
   return JS_TRUE;
 }
 

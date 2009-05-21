@@ -45,6 +45,11 @@ JSyncThread::JSyncThread() {
 
 JSyncThread::~JSyncThread() {
 
+  if (running) {
+    quit = true;
+    while(running) jsleep(0,50);
+  }
+
   if(pthread_mutex_destroy(&_mutex) == -1)
     error("error destroying POSIX thread mutex");
   //if(pthread_cond_destroy(&_cond) == -1)
@@ -56,8 +61,6 @@ JSyncThread::~JSyncThread() {
     error("error destroying POSIX thread feed mutex");
   if(pthread_cond_destroy(&_cond_feed) == -1)
     error("error destroying POSIX thread feed attribute");
-
-  stop();
 
 }
 
@@ -78,12 +81,13 @@ void JSyncThread::_run() {
 void JSyncThread::stop() {
   if (running) {
     quit = true;
-    signal_feed();
+    while(running) jsleep(0,50);
+    //    signal_feed();
   }
 }
 
 
-void JSyncThread::wait_feed() {
-       pthread_cond_wait(&_cond_feed,&_mutex_feed);
-};
+// void JSyncThread::wait_feed() {
+//        pthread_cond_wait(&_cond_feed,&_mutex_feed);
+// };
 

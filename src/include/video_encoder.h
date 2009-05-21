@@ -70,7 +70,7 @@ class VideoEncoder: public Entry, public JSyncThread {
 
 
   void run(); ///< runs as a separate encoding thread
-  bool cafudda(); ///< feeds the video from screen to a yuv420p format ready for the encoding thread
+  //  bool cafudda(); ///< feeds the video from screen to a yuv420p format ready for the encoding thread
   
   bool set_filedump(char *filename); ///< start to dump to filename, call with NULL to stop
   char filedump[512]; ////< filename to which encoder is writing dump

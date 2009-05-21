@@ -328,7 +328,7 @@ int main (int argc, char **argv) {
 
 
   // Set fps
-  freej->fps->set( fps );
+  freej->fps.set( fps );
 
   freej->start_running = startstate;
 

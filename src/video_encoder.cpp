@@ -238,9 +238,9 @@ void VideoEncoder::run() {
     //    if(res > 0 ) {
     
     encnum = 0;
-    if( (write_to_disk || write_to_stream) && ringbuffer_read_space(ringbuffer) > 4096) {
+    if(res && (write_to_disk || write_to_stream)) {
       
-      encnum = ringbuffer_read(ringbuffer, encbuf, 4096);
+      encnum = ringbuffer_read(ringbuffer, encbuf, res);
       
     }
 
@@ -258,7 +258,7 @@ void VideoEncoder::run() {
         {
             error("shout_send: %s", shout_get_error(ice));
 
-        } 
+        } else shout_sync(ice);
             //printf("%d %d\n", encnum, (int)shout_queuelen(ice));
 
       }
@@ -269,14 +269,14 @@ void VideoEncoder::run() {
 
 }
 
-bool VideoEncoder::cafudda() {
-  bool res = true;
+// bool VideoEncoder::cafudda() {
+//   bool res = true;
 
   
-  signal_feed();
+//   //  signal_feed();
 
-  return(res);
-}
+//   return(res);
+// }
 
 bool VideoEncoder::set_filedump(char *filename) {
   int filename_number=1;

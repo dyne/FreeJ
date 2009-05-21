@@ -169,7 +169,7 @@ JS(layer_set_fps) {
 		JS_ARG_NUMBER(fps, 0);
 		fps_old = lay->fps.set(fps);
 	}
-	lay->signal_feed();
+
 	return JS_NewNumberValue(cx, fps_old, rval);
 }
 

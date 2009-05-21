@@ -230,7 +230,8 @@ bool VideoLayer::open(const char *file) {
 	set_filename (file);
 	//				notice ("%s has codec: %s, height: %d width: %d", get_filename(), codec->name, enc->height, enc->width);
 	//	if(rgba_picture == NULL)
-	act ("%s (codec: %s) has resolution %dx%d and framerate %d", get_filename(), codec->name, enc->height, enc->width, frame_rate);
+	act ("%s (codec: %s) has resolution %dx%d and framerate %d",
+	     get_filename(), codec->name, enc->width, enc->height, frame_rate);
 	//				func ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
 	//				func ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);
 	break;
