@@ -38,8 +38,8 @@ class  CVScreen;
 	NSString			*fpsString;
     CVDisplayLinkRef	displayLink; // the displayLink that runs the show
     CGDirectDisplayID	viewDisplayID;
-	//CVPixelBufferRef	pixelBuffer;
-    void                *pixelBuffer;
+	CVPixelBufferRef	pixelBuffer;
+    //void                *pixelBuffer;
 	CVScreen			*fjScreen;
 	NSRecursiveLock		*lock;
 	CIContext			*ciContext;
