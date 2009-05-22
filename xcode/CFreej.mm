@@ -127,11 +127,44 @@
 	if (!freej) {
 		freej = new Context();
 		
-		const char *filename = [[scriptPath stringValue] UTF8String];
+		//const char *filename = [[scriptPath stringValue] UTF8String];
 		freej->quit = false;
 		assert( freej->init(DEFAULT_FREEJ_WIDTH, DEFAULT_FREEJ_HEIGHT, Context::GL_COCOA, 0) );
 		freej->plugger.refresh(freej);
 		freej->config_check("keyboard.js");
+        Filter *gen = freej->generators.end();
+        while (gen) {
+            [generatorsButton addItemWithTitle:[NSString stringWithCString:gen->name]];
+            gen = (Filter *)gen->prev;
+        }
 	}	
 }
+
+- (IBAction)startGenerator:(id)sender
+{
+    Context *ctx = [self getContext];
+    Layer *tmp = new GenF0rLayer();
+    if(!tmp) return ;
+    if(!tmp->init(ctx)) {
+        error("can't initialize generator layer");
+        delete tmp;
+        return;
+    }
+
+    if(!tmp->open([[[generatorsButton selectedItem] title] UTF8String])) {
+        error("generator Partik0l is not found");
+        delete tmp;
+        return;
+    }
+
+    tmp->start();
+
+    //  tmp->set_fps(env->fps_speed);
+    ctx->add_layer(tmp);
+    tmp->active=true;
+
+    notice("generator %s succesfully created", tmp->name);
+
+}
+
 @end

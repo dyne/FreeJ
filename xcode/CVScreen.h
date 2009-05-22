@@ -61,8 +61,6 @@ class  CVScreen;
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;
 - (id)init;
-- (void)update;
-- (CVReturn)outputFrame:(uint64_t)timestamp;
 - (void)prepareOpenGL;
 - (void *)getSurface;
 - (void)drawLayer:(Layer *)layer;
@@ -70,6 +68,7 @@ class  CVScreen;
 - (IBAction)toggleFullScreen:(id)sender;
 - (bool)isOpaque;
 - (double)rate;
+- (CVReturn)outputFrame:(uint64_t)timestamp;
 @end
 #else
 class CVScreenView;

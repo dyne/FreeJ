@@ -91,7 +91,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	Context *ctx = [freej getContext];
 	CVScreen *screen = (CVScreen *)ctx->screen;
 	screen->set_view(self);
-    ctx->fps.set(25);
 	CVDisplayLinkStart(displayLink);
 }
 
@@ -141,13 +140,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                 forKey:  kCIContextOutputColorSpace]] retain];
     CGColorSpaceRelease( colorSpace );
 	return self;
-}
-
-- (void)update
-{
-	[lock lock];
-	[super update];
-	[lock unlock];
 }
 
 - (void)dealloc
@@ -212,12 +204,25 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[self start];
 }
 
-- (void)drawRect:(NSRect)theRect
+- (void)renderFrame
 {
-    NSRect		frame = [self frame];
-    NSRect		bounds = [self bounds];
-
+	//NSAutoreleasePool *pool;
+	NSRect		frame = [self frame];
+    NSRect		bounds = [self bounds];    
+    
+   // [QTMovie enterQTKitOnThread];
     [lock lock];
+	if (outFrame) {
+		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+					NSWidth(bounds), NSHeight(bounds));
+		[ciContext drawImage: outFrame
+			atPoint: cg.origin  fromRect: cg];
+        if (lastFrame)
+            [lastFrame release];
+        lastFrame = [outFrame retain];
+		outFrame = NULL;
+    }
+
 	[currentContext makeCurrentContext];
 
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
@@ -261,30 +266,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	// flush our output to the screen - this will render with the next beamsync
 	[[self openGLContext] flushBuffer];
 	[self setNeedsDisplay:NO];
-    [lock unlock];		
-
-}
-
-- (void)renderFrame
-{
-	//NSAutoreleasePool *pool;
-	NSRect		frame = [self frame];
-    NSRect		bounds = [self bounds];    
-    
-   // [QTMovie enterQTKitOnThread];
-    [lock lock];
-	if (outFrame) {
-		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-					NSWidth(bounds), NSHeight(bounds));
-		[ciContext drawImage: outFrame
-			atPoint: cg.origin  fromRect: cg];
-        if (lastFrame)
-            [lastFrame release];
-        lastFrame = [outFrame retain];
-		outFrame = NULL;
-    }
-    [lock unlock];
-    [self drawRect:NSZeroRect];
+    [lock unlock];	
+    //[self drawRect:NSZeroRect];
 
   //  [QTMovie exitQTKitOnThread];
 

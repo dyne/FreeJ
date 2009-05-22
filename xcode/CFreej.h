@@ -24,6 +24,7 @@ class CVideoFile;
 	NSRecursiveLock *lock;
 	IBOutlet NSTextField *scriptPath;
 	IBOutlet NSTextView *outputPanel;
+    IBOutlet NSPopUpButton *generatorsButton;
 }
 - (id)init;
 - (void)run;
@@ -31,6 +32,7 @@ class CVideoFile;
 - (Context *)getContext;
 - (NSRecursiveLock *)getLock;
 - (IBAction)openScript:(id)sender;
+- (IBAction)startGenerator:(id)sender;
 
 @end
 
