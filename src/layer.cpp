@@ -179,6 +179,7 @@ void Layer::run() {
     
   running = false;
   func("%s this=%p thread end: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
+  pthread_exit(NULL);
 }
 
 char *Layer::get_blit() {

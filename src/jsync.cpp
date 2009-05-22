@@ -45,10 +45,7 @@ JSyncThread::JSyncThread() {
 
 JSyncThread::~JSyncThread() {
 
-  if (running) {
-    quit = true;
-    while(running) jsleep(0,50);
-  }
+  //  if (running) quit = true;
 
   if(pthread_mutex_destroy(&_mutex) == -1)
     error("error destroying POSIX thread mutex");

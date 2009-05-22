@@ -648,23 +648,13 @@ void js_layer_gc (JSContext *cx, JSObject *obj) {
 	// This callback is declared in Layer Class only,
 	// we can skip the typecheck of obj, can't we?
 	l = (Layer *) JS_GetPrivate(cx, obj);
-	JSClass *jc = JS_GET_CLASS(cx,obj);
 
-	if (l) {
-		func("JSvalcmp(%s): %p / %p Layer: %p", jc->name, OBJECT_TO_JSVAL(obj), l->data, l);
-		if(l->list) {
-		  func("JSgc: Layer %s/%s is still on stage", jc->name, l->name);
-		  //l->data = NULL;
-		  //		  delete l;
-		} else {
-		  func("JSgc: Layer %s/%s is useless, deleting", jc->name, l->name);
-		  l->data = NULL; // Entry~ calls free(data)
-		  l->stop();
-		  delete l;
-		}
-	} else {
-		func("Mh, object(%s) has no private data", jc->name);
+	if(l) {
+	  func("js gc deleting layer %s", l->name);
+	  //	l->data = NULL; // Entry~ calls free(data)
+	  delete l;
 	}
+
 }
 
 JS(layer_start) {

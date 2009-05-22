@@ -243,15 +243,8 @@ void Context::cafudda(double secs) {
   if (changeres) {
     handle_resize();
     changeres = false;
-  } /////////////////////////////
-  
-    
-  
-  ///////////////////////////////
-  // start layers threads
-  //  rocknroll ();
-  ///////////////////////////////
-  
+  } /////////////////////////////  
+
   
   ///////////////////////////////
   // clear screen if needed
@@ -277,7 +270,9 @@ void Context::cafudda(double secs) {
       if (lay->active & lay->opened) {
 	
 	lay->lock();
+	screen->lock();
 	screen->blit(lay);
+	screen->unlock();
 	lay->unlock();
 	
 	//	lay->signal_feed();
@@ -633,81 +628,9 @@ void Context::magnify(int algo) {
   changeres = true;
 }
 
-/* FPS */
-
-
-void Context::rocknroll() {
-  VideoEncoder *e;
-  Layer *l;
-  //  bool need_audio = false;
-
-  ///////////////////////////////////////////
-  // Layers - start the threads to be started
-  l = (Layer *)layers.begin();
-  
-  // Show credits when no layers are present and interactive
-//   if (!l) // there are no layers
-//     if ( interactive ) { // engine running in interactive mode
-//       osd.credits ( true);
-//       return;
-//     }
-  
-  // Iterate throught linked list of layers and start them
-
-  layers.lock();
-  while (l) {
-    if (!l->running) {
-      if (l->start() == 0) {
-	/*	while (!l->running) {
-	  jsleep(0,500);
-	  func("waiting %s layer thread to start", l->name);
-	  } */
-	l->active = start_running;
-      }
-      else { // problems starting thread
-	func ("Context::rocknroll() : error creating thread");
-      }
-    }
-    
-    //    need_audio |= (l->running && l->use_audio);
-    
-    l = (Layer *)l->next;
-  }
-  layers.unlock();
-
-  /////////////////////////////////////////////////////////////
-  ///////////////////////////////////// end of layers rocknroll
 
 
 
-  /////////////////////////////////////////////////////
-  // Video Encoders - start the encoders to be launched
-  e = (VideoEncoder*) encoders.begin();
-
-  encoders.lock();
-  while(e) {
-    if(!e->running) {
-      func("launching thread for %s",e->name);
-      if( e->start() == 0 ) {
-	act("waiting for %s thread to start...", e->name);
-	while(! e->running ) jsleep(0,500);
-	act("%s thread started", e->name);
-	e->active = start_running;
-      }
-      else { // problems starting thread
-	error("can't launch thread for %s", e->name);
-      }
-    }
-
-    //    need_audio |= (e->running && e->use_audio);
-
-    e = (VideoEncoder*)e->next;
-  }
-  encoders.unlock();
-  //////////////////////////////////////////////////////////////
-  //////////////////////////////////// end of encoders rocknroll
-
-}
 
 void fsigpipe (int Sig) {
   if (!got_sigpipe)

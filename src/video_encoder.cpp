@@ -204,21 +204,18 @@ void VideoEncoder::run() {
 
     switch(screen->get_pixel_format()) {
     case ViewPort::RGBA32:
-      func("rgba32");
       mlt_convert_rgb24a_to_yuv422(surface,
                    screen->w, screen->h,
                    screen->w<<2, (uint8_t*)enc_yuyv, NULL);
       break;
       
     case ViewPort::BGRA32:
-      func("bgra32");
       mlt_convert_bgr24a_to_yuv422(surface,
                    screen->w, screen->h,
                    screen->w<<2, (uint8_t*)enc_yuyv, NULL);
       break;
 
     case ViewPort::ARGB32:
-      func("argb32");
       mlt_convert_argb_to_yuv422(surface,
                    screen->w, screen->h,
                    screen->w<<2, (uint8_t*)enc_yuyv, NULL);
