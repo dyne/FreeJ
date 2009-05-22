@@ -586,6 +586,7 @@
 		AA3C44100F3EEBE0007C7E8B /* src */ = {
 			isa = PBXGroup;
 			children = (
+				AAB843990F3EEDE400AD479D /* javascript */,
 				AA8C41AB0F90FF4F00B39710 /* console_calls_ctrl.cpp */,
 				AA8C41AC0F90FF4F00B39710 /* console_ctrl.cpp */,
 				AA8C41AD0F90FF4F00B39710 /* console_keys_ctrl.cpp */,
@@ -595,8 +596,6 @@
 				AAAAC16F0F533ADF00461C96 /* closure.cpp */,
 				AAAAC1700F533ADF00461C96 /* linear_blits.cpp */,
 				AAAAC1720F533ADF00461C96 /* sdl_blits.cpp */,
-				AAB843990F3EEDE400AD479D /* javascript */,
-				AAAABEE30F521A6000461C96 /* fps.cpp */,
 				AA8F9F700F510272006A9E2F /* soft_screen.cpp */,
 				AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */,
 				AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */,
@@ -612,6 +611,7 @@
 				AA3C447C0F3EEBE0007C7E8B /* freeframe.cpp */,
 				AA3C447F0F3EEBE0007C7E8B /* freej.cpp */,
 				AA3C44810F3EEBE0007C7E8B /* frei0r.cpp */,
+				AAAABEE30F521A6000461C96 /* fps.cpp */,
 				AA3C44830F3EEBE0007C7E8B /* gen_f0r_layer.cpp */,
 				AA3C44850F3EEBE0007C7E8B /* geo_layer.cpp */,
 				AA3C44890F3EEBE0007C7E8B /* gl_screen.cpp */,
@@ -665,7 +665,6 @@
 				AA8C41B80F90FF8800B39710 /* console_widgets_ctrl.h */,
 				AA00100E0F77FDA000719D5B /* callback.h */,
 				AAAAC1770F533AF900461C96 /* closure.h */,
-				AAAABEE50F521A6C00461C96 /* fps.h */,
 				AA8F9F720F510281006A9E2F /* soft_screen.h */,
 				AA3C44990F3EEBE0007C7E8B /* asm-linkage.h */,
 				AA3C449A0F3EEBE0007C7E8B /* audio_collector.h */,
@@ -688,6 +687,7 @@
 				AA3C44AF0F3EEBE0007C7E8B /* freej.h */,
 				AA3C44B00F3EEBE0007C7E8B /* freej_plugin.h */,
 				AA3C44B20F3EEBE0007C7E8B /* frei0r_freej.h */,
+				AAAABEE50F521A6C00461C96 /* fps.h */,
 				AA3C44B30F3EEBE0007C7E8B /* gen_f0r_layer.h */,
 				AA3C44B40F3EEBE0007C7E8B /* gen_layer.h */,
 				AA3C44B50F3EEBE0007C7E8B /* geo_layer.h */,

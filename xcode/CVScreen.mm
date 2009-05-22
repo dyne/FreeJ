@@ -91,7 +91,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	Context *ctx = [freej getContext];
 	CVScreen *screen = (CVScreen *)ctx->screen;
 	screen->set_view(self);
-    ctx->fps->set(25);
+    ctx->fps.set(25);
 	CVDisplayLinkStart(displayLink);
 }
 
@@ -122,9 +122,24 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		return nil;
 	}
 	CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
-    
+    exportBuffer = CVPixelBufferGetBaseAddress(pixelBuffer);
     //pixelBuffer = malloc(fjScreen->w*fjScreen->h*4);
     textures = [[NSMutableArray arrayWithCapacity:50] retain];
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    exportCGContextRef = CGBitmapContextCreate (NULL,
+                                     ctx->screen->w,
+                                     ctx->screen->h,
+                                     8,      // bits per component
+                                     ctx->screen->w*4,
+                                     colorSpace,
+                                     kCGImageAlphaPremultipliedLast);
+        
+    if (exportCGContextRef == NULL)
+        NSLog(@"Context not created!");
+    exportContext = [[CIContext contextWithCGContext:exportCGContextRef 
+            options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
+                forKey:  kCIContextOutputColorSpace]] retain];
+    CGColorSpaceRelease( colorSpace );
 	return self;
 }
 
@@ -139,16 +154,15 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     CVPixelBufferUnlockBaseAddress(pixelBuffer, NULL);
 	CVOpenGLTextureRelease(pixelBuffer);
-    //free(pixelBuffer);
 	[ciContext release];
 	[currentContext release];
 	[outFrame release];
 	if (lastFrame)
         [lastFrame release];
 	[lock release];
-    //if (texturePool)
-    //    [texturePool release];
     [textures release];
+    [exportContext release];
+    CGContextRelease( exportCGContextRef );
 	[super dealloc];
 }
 - (void)prepareOpenGL
@@ -281,36 +295,21 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     [lock lock];
     Context *ctx = (Context *)[freej getContext];
-    void *buffer = CVPixelBufferGetBaseAddress(pixelBuffer);
+    
     if (lastFrame) {
         NSRect bounds = [self bounds];
         
-        CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-        CGContextRef context = CGBitmapContextCreate (NULL,
-                                     ctx->screen->w,
-                                     ctx->screen->h,
-                                     8,      // bits per component
-                                     ctx->screen->w*4,
-                                     colorSpace,
-                                     kCGImageAlphaPremultipliedLast);
-        
-        if (context == NULL)
-            NSLog(@"Context not created!");
-        CIContext  *rContext = [CIContext contextWithCGContext:context options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB forKey:  kCIContextOutputColorSpace]];
         CGRect rect = CGRectMake(0,0, ctx->screen->w, ctx->screen->h);
-        [rContext render:lastFrame 
-             toBitmap:buffer
+        [exportContext render:lastFrame 
+             toBitmap:exportBuffer
              rowBytes:ctx->screen->w*4
                bounds:rect 
                format:kCIFormatARGB8 
            colorSpace:NULL];
-           
-       CGColorSpaceRelease( colorSpace );
-       CGContextRelease( context );
     }
     [lock unlock];
     [pool release];
-    return buffer;
+    return exportBuffer;
 }
 
 - (CVReturn)outputFrame:(uint64_t)timestamp

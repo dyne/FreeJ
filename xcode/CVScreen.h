@@ -54,6 +54,9 @@ class  CVScreen;
 	bool				needsReshape;
 	FrameRate			*rateCalc;
     NSMutableArray      *textures;
+    CGContextRef        exportCGContextRef;
+    CIContext           *exportContext;
+    void                *exportBuffer;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;
