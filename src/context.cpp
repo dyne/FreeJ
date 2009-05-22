@@ -534,7 +534,6 @@ int Context::reset() {
   layers.lock();
   lay = (Layer *)layers.begin ();
   while (lay) {
-    lay-> stop();
     lay-> rem(); // does layers.lock()
     //    delete lay; this crashes... 
     //  context doesn't deletes layers anymore -jrml feb2009
