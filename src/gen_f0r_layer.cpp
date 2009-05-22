@@ -41,11 +41,13 @@ GenF0rLayer::GenF0rLayer()
   set_name("F0R");
   //jsclass = &gen0r_layer_class;
   //  set_filename("/particle generator");
-
+  swap_buffer = NULL;
 }
 
 GenF0rLayer::~GenF0rLayer() {
   close();
+  if (swap_buffer)
+    free(swap_buffer);
 }
 
 /// set_parameter callback for generator layers
@@ -178,16 +180,19 @@ bool GenF0rLayer::init(Context *freej) {
   //  open("lissajous0r");
   //  open("ising0r");
 
-  
+  if (!swap_buffer)
+    swap_buffer = malloc(freej->screen->size);
+  else { // if changing context ensure we can handle its resolution
+    swap_buffer = realloc(swap_buffer, freej->screen->size);
+  }
   return(true);
 }
 
 void *GenF0rLayer::feed() {
   void *res;
-  //  lock();
   res = generator->process(env->fps.get(), NULL);
-  //  unlock();
-  return res;
+  jmemcpy(swap_buffer, res, env->screen->size);
+  return swap_buffer;
 }
 
     

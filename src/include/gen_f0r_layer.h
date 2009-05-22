@@ -36,7 +36,7 @@ class GenF0rLayer: public Layer {
   void *feed();
   bool keypress(int key);
   void close();
-
+  void *swap_buffer;
   FilterInstance *generator;
 
 };
