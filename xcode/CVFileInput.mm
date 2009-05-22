@@ -236,7 +236,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [lock lock];
 
     if (!isPlaying) {
-        [qtMovie play];
+        //[qtMovie play];
         isPlaying = YES;
     } else {
         [qtMovie stop];
@@ -255,11 +255,24 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     BOOL rv = NO;
-    [lock lock];
-    if(qtVisualContext && QTVisualContextIsNewImageAvailable(qtVisualContext, NULL))
+    [lock lock];    
+    // we can care ourselves about thread safety when accessing the QTKit api
+    [QTMovie enterQTKitOnThreadDisablingThreadSafetyProtection];
+    QTTime now = [qtMovie currentTime];
+    // TODO - check against real hosttime to skip frames instead of
+    // slowing down playback
+    now.timeValue+=(now.timeScale/layer->fps.fps);
+    QTTime duration = [qtMovie duration];
+    if (QTTimeCompare(now, duration) == NSOrderedAscending)
+        [qtMovie setCurrentTime:now];
+    else 
+        [qtMovie gotoBeginning];
+    MoviesTask([qtMovie quickTimeMovie], 0);
+    if(qtVisualContext)
     {        
         if (currentFrame) 
             CVOpenGLTextureRelease(currentFrame);
+            
         QTVisualContextCopyImageForTime(qtVisualContext,
         NULL,
         NULL,
@@ -270,13 +283,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         newFrame = YES;
         rv = YES;
     } 
-    /*
-    else {
-        //notice("No frame?");
-        layer->fps.calc();
-        layer->fps.delay();
-    }
-    */
+
+    [QTMovie exitQTKitOnThread];
     [lock unlock];
     [pool release];
     return rv;
@@ -285,12 +293,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (CVReturn)_renderTime:(const CVTimeStamp *)timeStamp
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool *pool = nil;
     
     CVReturn rv = kCVReturnError;
-    [QTMovie enterQTKitOnThread];
-    MoviesTask([qtMovie quickTimeMovie], 0);
-    // we can care ourselves about thread safety when accessing the qtmovie
+
+    pool =[[NSAutoreleasePool alloc] init];
+
     if(qtMovie && [self getFrameForTime:timeStamp])
     {
        
@@ -301,8 +309,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         rv = kCVReturnError;
     }
     [pool release];
-    MoviesTask([qtMovie quickTimeMovie], 0);
-    [QTMovie exitQTKitOnThread];
     return rv;
 }
 
