@@ -76,12 +76,12 @@ void FPS::calc() {
   timeval done, now_tv;
   float curr_fps;  
 
-  gettimeofday(&now_tv,NULL);
+  gettimeofday(&now_tv, NULL);
 
   if(now_tv.tv_usec == start_tv.tv_usec) {
     // tight loop, take a minimum breath
     wake_ts.tv_sec  = 0;
-    wake_ts.tv_nsec = 1000; // set the delay
+    wake_ts.tv_nsec = 1000000; // set the delay
     return;
   }
 
@@ -96,7 +96,7 @@ void FPS::calc() {
   }
 
   wake_ts.tv_sec  = 0;
-  wake_ts.tv_nsec = rate - done.tv_usec; // set the delay
+  wake_ts.tv_nsec = (rate - done.tv_usec)*1000; // set the delay
   
   curr_fps = 1000000L /  done.tv_usec;
 
