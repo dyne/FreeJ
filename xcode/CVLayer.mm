@@ -169,9 +169,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)update
 {
 
-    [lock lock];
-    [super update];
-    [lock unlock];
 }
 
 - (void)drawRect:(NSRect)theRect
@@ -220,6 +217,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [lock unlock];
 
 }
+
 
 - (CVReturn)_renderTime:(const CVTimeStamp *)time
 {

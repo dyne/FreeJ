@@ -72,13 +72,6 @@ class CVLayer;
 - (void)startPreview;
 - (void)stopPreview;
 - (void)renderPreview;
-- (IBAction)togglePlay:(id)sender;
-- (IBAction)setFilterParameter:(id)sender;
-- (IBAction)setAlpha:(id)sender;
-- (IBAction)setBlendMode:(id)sender;
-- (IBAction)toggleFilters:(id)sender;
-- (IBAction)togglePreview:(id)sender;
-- (IBAction)toggleVisibility:(id)sender;
 - (bool)isVisible;
 - (void)activate;
 - (void)deactivate;
@@ -89,6 +82,13 @@ class CVLayer;
 - (void)setPreviewTarget:(CVPreview *)targetView;
 - (void)lock;
 - (void)unlock;
+- (IBAction)togglePlay:(id)sender;
+- (IBAction)setFilterParameter:(id)sender;
+- (IBAction)setAlpha:(id)sender;
+- (IBAction)setBlendMode:(id)sender;
+- (IBAction)toggleFilters:(id)sender;
+- (IBAction)togglePreview:(id)sender;
+- (IBAction)toggleVisibility:(id)sender;
 @end
 
 class CVLayer: public Layer {
