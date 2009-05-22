@@ -79,12 +79,16 @@ geo = new GeometryLayer(400,300);
 geo.activate(true);
 add_layer(geo);
 
-txt = new TextLayer();
-txt.activate(true);
-txt.print("FreeJ 0.9 test stream");
-txt.set_position(20,10);
-txt.set_blit("add");
-add_layer(txt);
+try {
+    txt = new TextLayer();
+    txt.activate(true);
+    txt.print("FreeJ 0.9 test stream");
+    txt.set_position(20,10);
+    txt.set_blit("add");
+    add_layer(txt);
+} catch(e) {
+    echo("No text layer "+e);
+}
 
 
 bang = new TriggerController();
