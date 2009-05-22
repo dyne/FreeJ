@@ -74,9 +74,7 @@ void FPS::init(int rate) {
 void FPS::calc() {
 
   timeval done, now_tv;
-  float curr_fps;
-  uint32_t delta;
-  
+  float curr_fps;  
 
   gettimeofday(&now_tv,NULL);
 
@@ -88,21 +86,20 @@ void FPS::calc() {
   }
 
   timersub(&now_tv, &start_tv, &done);
-
-  curr_fps = 1000000L /  done.tv_usec;
+  int rate = 1000000 / _fps;
 
   if ( (done.tv_sec > 0)
-       || (curr_fps <= _fps) ) {
+       || (done.tv_usec >= rate) ) {
 	 start_tv.tv_sec = now_tv.tv_sec;
 	 start_tv.tv_usec = now_tv.tv_usec;
 	 return;
   }
 
-  delta = ((1.0/ _fps)*1000000.0) - done.tv_usec;
-
   wake_ts.tv_sec  = 0;
-  wake_ts.tv_nsec = 1000 *delta; // set the delay
+  wake_ts.tv_nsec = rate - done.tv_usec; // set the delay
   
+  curr_fps = 1000000L /  done.tv_usec;
+
   // statistic only
   fpsd.sum = fpsd.sum - fpsd.data[fpsd.i] + curr_fps;
   fpsd.data[fpsd.i] = curr_fps;
@@ -135,7 +132,8 @@ void FPS::delay() {
 
   do {
     nanosleep(&wake_ts, &remaining);
-  } while (remaining.tv_nsec > 0);
+    wake_ts.tv_nsec = remaining.tv_nsec;
+  } while (wake_ts.tv_nsec > 0);
   // update lo start time
   gettimeofday(&start_tv,NULL);
   
