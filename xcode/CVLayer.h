@@ -25,7 +25,7 @@ class CVLayer;
     NSRecursiveLock       *lock;
     
     bool                   newFrame;
-    CVOpenGLBufferRef      currentFrame;    // the current frame from the movie
+    CVPixelBufferRef       currentFrame;    // the current frame from the movie
     CVTexture              *lastFrame;
     CIImage                *posterImage;
     bool                   doPreview;
@@ -35,7 +35,7 @@ class CVLayer;
     // XXX - freej actaully needs a buffer pointer but it's not going to use it.
     // The blitter does...but on OSX the blitter is implemented in the CVScreen class.
     // This means we could expose any address to freej and that would work anyway.
-    CVOpenGLBufferRef      pixelBuffer;
+    CVPixelBufferRef       pixelBuffer;
 
     // display link
     CVDisplayLinkRef       displayLink;            // the displayLink that runs the show
@@ -101,8 +101,9 @@ class CVLayer: public Layer {
         CVLayerView *input;
         NSString *blendMode;
         
-
+        CVLayer();
         CVLayer(NSObject *vin);
+
         ~CVLayer();
         void activate();
         void deactivate();

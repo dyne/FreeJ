@@ -145,6 +145,7 @@
     Context *ctx = [freej getContext];
     int h = (ctx->screen->h < CV_GRABBER_HEIGHT_MAX)?ctx->screen->h:CV_GRABBER_HEIGHT_MAX;
     int w = (ctx->screen->w < CV_GRABBER_WIDTH_MAX)?ctx->screen->w:CV_GRABBER_WIDTH_MAX;
+    printf("PORKODIO %d -- %d \n", h, w);
     /* Hack - This will lower CPU consumption for some reason */
     [self setPixelBufferAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
         [NSNumber numberWithInt:h], kCVPixelBufferHeightKey,
@@ -245,23 +246,18 @@ error:
     if (exportedFrame)
         CVPixelBufferRelease(exportedFrame);
     exportedFrame = CVPixelBufferRetain(currentFrame);
+    [self renderPreview];
+
     [lock unlock];
     return kCVReturnSuccess;
 }
 
 - (void)feedFrame:(CVPixelBufferRef)frame
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     [lock lock];
     currentFrame = frame;
     newFrame = YES;
-    [self renderPreview];
     [lock unlock];
-    [pool release];
-}
-
-- (void)task
-{
 }
 
 - (void)start

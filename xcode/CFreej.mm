@@ -5,7 +5,9 @@
 //  Created by xant on 2/8/09.
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
-#import "CFreej.h"
+#import <CFreej.h>
+#import <CVLayer.h>
+#import <CVF0rLayer.h>
 #define DEFAULT_FREEJ_WIDTH 400
 #define DEFAULT_FREEJ_HEIGHT 300
 
@@ -132,39 +134,38 @@
 		assert( freej->init(DEFAULT_FREEJ_WIDTH, DEFAULT_FREEJ_HEIGHT, Context::GL_COCOA, 0) );
 		freej->plugger.refresh(freej);
 		freej->config_check("keyboard.js");
-        Filter *gen = freej->generators.end();
+        Filter *gen = freej->generators.begin();
         while (gen) {
             [generatorsButton addItemWithTitle:[NSString stringWithCString:gen->name]];
-            gen = (Filter *)gen->prev;
+            gen = (Filter *)gen->next;
         }
 	}	
 }
 
 - (IBAction)startGenerator:(id)sender
 {
-    Context *ctx = [self getContext];
-    Layer *tmp = new GenF0rLayer();
+    static GenF0rLayer *tmp = NULL;
+    
+    if (tmp) {
+        delete tmp;
+        tmp = NULL;
+    }
+    tmp = new CVF0rLayer(f0rView, (char *)[[[generatorsButton selectedItem] title] UTF8String], freej);
     if(!tmp) return ;
-    if(!tmp->init(ctx)) {
-        error("can't initialize generator layer");
-        delete tmp;
-        return;
-    }
-
-    if(!tmp->open([[[generatorsButton selectedItem] title] UTF8String])) {
-        error("generator Partik0l is not found");
-        delete tmp;
-        return;
-    }
-
-    tmp->start();
+    
+    //tmp->start();
 
     //  tmp->set_fps(env->fps_speed);
-    ctx->add_layer(tmp);
-    tmp->active=true;
+   // freej->add_layer(tmp);
+   // tmp->active=true;
 
     notice("generator %s succesfully created", tmp->name);
 
+}
+
+- (IBAction)reset:(id)sender
+{
+    freej->reset();
 }
 
 @end

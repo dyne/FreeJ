@@ -9,9 +9,17 @@
 #include <gen_f0r_layer.h>
 #include <CVLayer.h>
 
-class CVF0rLayer : public CVLayer, public GenF0rLayer
+@interface CVF0rLayerView : CVLayerView
+{
+}
+- (void)feedFrame:(void *)frame;
+@end;
+
+class CVF0rLayer : public GenF0rLayer, public CVLayer
 {
 	public:
-		CVF0rLayer::CVF0rLayer(NSObject *vin);
-		
+		CVF0rLayer(CVLayerView *view, char *file, Context *freej);
+        ~CVF0rLayer();
+		void *feed();
+        void start();
 };

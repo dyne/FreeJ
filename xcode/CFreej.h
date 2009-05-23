@@ -14,7 +14,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class CVideoFileInput;
-class CVideoFile;
+@class CVLayerView;
 
 #define CFREEJ_VINPUTS_MAX 8
 @interface CFreej : NSObject {
@@ -25,6 +25,7 @@ class CVideoFile;
 	IBOutlet NSTextField *scriptPath;
 	IBOutlet NSTextView *outputPanel;
     IBOutlet NSPopUpButton *generatorsButton;
+    IBOutlet CVLayerView *f0rView;
 }
 - (id)init;
 - (void)run;
@@ -33,6 +34,7 @@ class CVideoFile;
 - (NSRecursiveLock *)getLock;
 - (IBAction)openScript:(id)sender;
 - (IBAction)startGenerator:(id)sender;
+- (IBAction)reset:(id)sender;
 
 @end
 

@@ -166,11 +166,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [pool release];
 }
 
-- (void)update
-{
-
-}
-
 - (void)drawRect:(NSRect)theRect
 {
 
@@ -223,6 +218,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSLog(@"_renderTime MUST be overridden");
     return kCVReturnError;
+}
+
+/* TODO - document me */
+- (void)task
+{
 }
 
 - (IBAction)toggleFilters:(id)sender
@@ -545,6 +545,15 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 @end
 
+CVLayer::CVLayer() : Layer()
+{
+    bufsize = 0;
+    blendMode = NULL;
+    type = Layer::GL_COCOA;
+    data = (void *)this;
+    start();
+}
+
 CVLayer::CVLayer(NSObject *vin) : Layer()
 {
     input = vin;
@@ -560,11 +569,9 @@ CVLayer::CVLayer(NSObject *vin) : Layer()
 CVLayer::~CVLayer()
 {
     stop();
-    lock();
-    unlock();
     close();
     deactivate();
-    [input togglePlay:nil];
+    //[input togglePlay:nil];
     [input setLayer:nil];
 }
 
