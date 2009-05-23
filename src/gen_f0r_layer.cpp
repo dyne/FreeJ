@@ -190,8 +190,10 @@ bool GenF0rLayer::init(Context *freej) {
 
 void *GenF0rLayer::feed() {
   void *res;
-  res = generator->process(env->fps.get(), NULL);
-  jmemcpy(swap_buffer, res, env->screen->size);
+  if (env && generator) {
+      res = generator->process(env->fps.get(), NULL);
+      jmemcpy(swap_buffer, res, env->screen->size);
+  }
   return swap_buffer;
 }
 
