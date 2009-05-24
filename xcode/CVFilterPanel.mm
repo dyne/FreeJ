@@ -85,20 +85,64 @@ static FilterParams fParams[FILTERS_MAX] =
     layer = nil;
 }
 
-- (void)setLayer:(NSView *)lay
+- (void)setLayer:(CVLayerView *)lay
 {
     [lock lock];
     if (layer)
         [layer stopPreview];
     layer = lay;
     [[self window] setTitle:[layer toolTip]];
-    [self setFilterParameter:filterButton]; // configure default filter
+    /* check if the layer has an already configured filter */
+    NSString *filter = [layer filterName];
+    if (filter) {
+        [filterButton selectItemWithTitle:filter];
+    } else {
+        [self setFilterParameter:filterButton]; // configure default filter
+        filter = [filterButton itemTitleAtIndex:0];
+    }
+    FilterParams *pdescr = [self getFilterParamsDescriptorAtIndex:
+        [filterButton indexOfItemWithTitle:filter]];
+    NSDictionary *filterParams = [layer filterParams];
+    /* restore filter selection and parameters for this specific layer */
+    if (filterParams) {
+        NSView *cView = (NSView *)filterButton;
+        for (int i = 0; i < 4; i++) {
+            if (i < pdescr->nParams) {
+                NSTextField *label = (NSTextField *)[cView nextKeyView];
+                NSSlider *slider = (NSSlider *)[label nextKeyView];
+                NSString *pLabel = [[[NSString alloc] initWithCString:pdescr->params[i].label] retain];
+                NSNumber *value = [filterParams valueForKey:pLabel];
+                [slider setHidden:NO];
+                [slider setMinValue:pdescr->params[i].min];
+                [slider setMaxValue:pdescr->params[i].max];
+                
+                if (value) 
+                    [slider setDoubleValue:[value floatValue]];
+                else
+                    [slider setDoubleValue:pdescr->params[i].min];
+
+                [slider setToolTip:pLabel];
+            }
+        }
+        
+        /* restore image parameters (brightness, contrast, exposure and such) */
+        NSSlider *imageParam = firstImageParam;
+        while ([imageParam tag] <= [lastImageParam tag]) {
+            NSNumber *value = [filterParams valueForKey:[imageParam toolTip]];
+            if (value) {
+                [imageParam setDoubleValue:[value floatValue]];
+            } else {
+                [imageParam setDoubleValue:([imageParam minValue]+[imageParam maxValue])/2];
+            }
+            imageParam = (NSSlider *)[[imageParam nextKeyView] nextKeyView];
+        }
+    }
     [lock unlock];
 }
 
 - (IBAction)setFilterParameter:(id)sender
 {
-    if(layer)
+    if(layer) // propagate the event if we have a controlling layer
         [layer setFilterParameter:sender];
 }
 
@@ -126,6 +170,7 @@ static FilterParams fParams[FILTERS_MAX] =
     if (layer)
         [layer setBlendMode:sender];
 }
+
 - (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index
 {
     if (index >= FILTERS_MAX)

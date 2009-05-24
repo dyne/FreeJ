@@ -44,7 +44,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                 CVOptionFlags *flagsOut, 
                                                 void *displayLinkContext)
 {	
-    CVReturn ret = [(CVScreenView*)displayLinkContext outputFrame:inOutputTime->hostTime];
+    CVReturn ret = [(CVScreenView*)displayLinkContext outputFrame:inNow->hostTime];
     return ret;
 }
 
@@ -104,10 +104,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[lock retain];
 	[self setNeedsDisplay:NO];
 	[freej start];
+    
 	Context *ctx = (Context *)[freej getContext];
 	fjScreen = (CVScreen *)ctx->screen;
 	
-    //CVReturn err = CVOpenGLBufferCreate (NULL, ctx->screen->w, ctx->screen->h, NULL, &pixelBuffer);
 	CVReturn err = CVPixelBufferCreate (
 		   NULL,
 		   fjScreen->w,
@@ -122,7 +122,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	}
 	CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
     exportBuffer = CVPixelBufferGetBaseAddress(pixelBuffer);
-    //pixelBuffer = malloc(fjScreen->w*fjScreen->h*4);
     textures = [[NSMutableArray arrayWithCapacity:50] retain];
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     exportCGContextRef = CGBitmapContextCreate (NULL,
@@ -314,7 +313,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [fpsString autorelease];
         [showFps setStringValue:fpsString];
     }
-    
+
     [lock unlock];
     [pool release];
     
@@ -575,16 +574,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
   // keep it around until we are done with it...
   [mMovie retain];
 
-  // build an array of image file paths (NSString objects) to our image files
-  //NSArray *imagesArray = [[NSBundle mainBundle] pathsForResourcesOfType:@"jpg" 
-  //                            inDirectory:nil];
-  // add all the images to our movie as MPEG-4 frames
-  //[mMovie addImage:<#(NSImage *)image#> forDuration:<#(QTTime)duration#> withAttributes:<#(NSDictionary *)attributes#>];
-    [pool release];
+  [pool release];
     
 bail:
 
   return;
+}
+
+- (void)reset
+{
+    needsReshape = YES;
+    [self drawRect:NSZeroRect];
 }
 
 @synthesize fullScreen;

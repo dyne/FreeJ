@@ -50,6 +50,8 @@ class CVLayer;
     CIFilter               *effectFilter;
     CIFilter               *scaleFilter;
     NSMutableArray         *paramNames;
+    NSMutableArray         *paramValues;
+    NSMutableDictionary    *filterParams;
     
     CIContext              *ciContext;
     uint64_t               lastRenderedTime;
@@ -79,10 +81,11 @@ class CVLayer;
 - (void)mouseDown:(NSEvent *)theEvent;
 - (bool)isOpaque;
 - (bool)needPreview;
+- (NSString *)filterName;
+- (NSDictionary *)filterParams;
 - (void)setPreviewTarget:(CVPreview *)targetView;
 - (void)lock;
 - (void)unlock;
-- (IBAction)togglePlay:(id)sender;
 - (IBAction)setFilterParameter:(id)sender;
 - (IBAction)setAlpha:(id)sender;
 - (IBAction)setBlendMode:(id)sender;
@@ -102,7 +105,7 @@ class CVLayer: public Layer {
         NSString *blendMode;
         
         CVLayer();
-        CVLayer(NSObject *vin);
+        CVLayer(CVLayerView *vin);
 
         ~CVLayer();
         void activate();

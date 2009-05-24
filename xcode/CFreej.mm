@@ -8,8 +8,8 @@
 #import <CFreej.h>
 #import <CVLayer.h>
 #import <CVF0rLayer.h>
-#define DEFAULT_FREEJ_WIDTH 400
-#define DEFAULT_FREEJ_HEIGHT 300
+#define DEFAULT_FREEJ_WIDTH 512
+#define DEFAULT_FREEJ_HEIGHT 384
 
 @implementation CFreej
 
@@ -127,8 +127,7 @@
 - (void)start
 {
 	if (!freej) {
-		freej = new Context();
-		
+        freej = new Context();
 		//const char *filename = [[scriptPath stringValue] UTF8String];
 		freej->quit = false;
 		assert( freej->init(DEFAULT_FREEJ_WIDTH, DEFAULT_FREEJ_HEIGHT, Context::GL_COCOA, 0) );
@@ -140,6 +139,22 @@
             gen = (Filter *)gen->next;
         }
 	}	
+}
+
+- (bool)isVisible:(CVLayer *)layer
+{
+    bool ret = NO;
+    freej->layers.lock();
+    Layer *lay = (Layer *)freej->layers.begin ();
+    while (lay) {
+        if (strcmp(layer->name, lay->name) == 0) {
+            ret = YES;
+            break;
+        }
+        lay =  (Layer *)lay->next;
+    }
+    freej->layers.unlock();
+    return ret;
 }
 
 - (IBAction)startGenerator:(id)sender
@@ -166,6 +181,8 @@
 - (IBAction)reset:(id)sender
 {
     freej->reset();
+    [screen reset];
 }
+
 
 @end

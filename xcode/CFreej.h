@@ -10,11 +10,13 @@
 
 
 #include <context.h>
-//#define __cocoa
 #import <Cocoa/Cocoa.h>
+#define __cocoa
+#import <CVScreen.h>
 
 @class CVideoFileInput;
 @class CVLayerView;
+class CVLayer;
 
 #define CFREEJ_VINPUTS_MAX 8
 @interface CFreej : NSObject {
@@ -26,12 +28,14 @@
 	IBOutlet NSTextView *outputPanel;
     IBOutlet NSPopUpButton *generatorsButton;
     IBOutlet CVLayerView *f0rView;
+    IBOutlet CVScreenView *screen;
 }
 - (id)init;
-- (void)run;
+//- (void)run;
 - (void)start;
 - (Context *)getContext;
 - (NSRecursiveLock *)getLock;
+- (bool)isVisible:(CVLayer *)layer;
 - (IBAction)openScript:(id)sender;
 - (IBAction)startGenerator:(id)sender;
 - (IBAction)reset:(id)sender;

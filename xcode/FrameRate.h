@@ -12,11 +12,12 @@
 
 #pragma mark
 // Frame rate calculator
+#define NumStamps 50
 @interface FrameRate : NSObject
 {
-  #define NumStamps 50
   int _count;
   double _frequency;
+  double rate;
   uint64_t _stamps[NumStamps + 1];
   NSRecursiveLock *lock;
 

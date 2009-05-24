@@ -16,6 +16,7 @@
 {
   //[super init];
   _count = 0;
+  rate = 0;
   _frequency = CVGetHostClockFrequency();
  // lock = [[NSRecursiveLock alloc] init];
  // [lock retain]; 
@@ -30,25 +31,27 @@
 
 -(void)tick:(uint64_t)timestamp;
 {
-  int i;
+  int i = 0;
   //[lock lock];
-  for (i = 0; i < _count; i++)
-    _stamps[i] = _stamps[i+1];
+  if (_count > NumStamps) {
+      for (i = 0; i < _count; i++) {
+        _stamps[i] = _stamps[i+1];
+      }
+      _count = NumStamps;  
+  }
   _stamps[_count++] = timestamp;
-  if (_count > NumStamps)
-    _count = NumStamps;
-    //[lock unlock];
+
+      //[lock unlock];
 }
 
 -(double)rate
 {
-    double rate = 0;
     //[lock lock];
     if (_count > 1)  {
-        rate = (_count - 1) / ((_stamps[_count - 1] - _stamps[0]) / _frequency);
+        rate = 1000000000/((_stamps[_count - 1] - _stamps[0])/_count);
     }
     //[lock unlock];
-    return abs(rate);
+    return rate;
 }
 
 @end

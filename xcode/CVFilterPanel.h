@@ -38,16 +38,18 @@ typedef struct __FilterParams {
 @interface CVFilterPanel : NSWindowController {
     CVLayerView *layer;
     NSRecursiveLock         *lock;
-    IBOutlet CVFilterBox    *mainView;
-    IBOutlet NSPopUpButton  *filterButton;
-    IBOutlet CVPreview      *previewBox;
-    IBOutlet NSButton       *showButton;
-    IBOutlet NSButton       *previewButton;
-
+    IBOutlet CVFilterBox    *mainView; /// our container
+    IBOutlet NSPopUpButton  *filterButton; /// filters-selection button
+    IBOutlet CVPreview      *previewBox; /// the preview box
+    IBOutlet NSButton       *showButton; /// toggle visibility button
+    IBOutlet NSButton       *previewButton; /// toggle preview button
+    /* TODO - use mainView to access each slider ...  this outlets should be removed asap */
+    IBOutlet NSSlider       *firstImageParam; /// first "image-parameters' slider
+    IBOutlet NSSlider       *lastImageParam;  /// last "image-parameters' slider
 }
 - (void)show;
 - (id)init;
-- (void)setLayer:(NSView *)lay;
+- (void)setLayer:(CVLayerView *)lay;
 - (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index;
 - (IBAction)setFilterParameter:(id)sender;
 - (IBAction)togglePreview:(id)sender;

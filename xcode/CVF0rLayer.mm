@@ -34,6 +34,40 @@
     [self renderPreview];
 }
 
+- (void)drawRect:(NSRect)theRect
+{
+    char temp[256];
+    GLint zeroOpacity = 0;
+    [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
+    [super drawRect:theRect];
+    ProcessSerialNumber psn;
+    GetProcessForPID(getpid(), &psn);
+    FSRef location;
+    GetProcessBundleLocation(&psn, &location);
+    // 238 == 256 - strlen("/Contents/Plugins") - 1
+    FSRefMakePath(&location, (UInt8 *)temp, 238);
+    strcat(temp, "/Contents/Resources/frei0r.png");
+    CIImage *image = [CIImage imageWithContentsOfURL:[NSURL fileURLWithPath:[NSString stringWithCString:temp]]];
+    NSRect bounds = [self bounds];
+    NSRect frame = [self frame];
+    CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+        NSWidth(bounds), NSHeight(bounds));
+    glClearColor(1, 1, 1, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    [ciContext drawImage:image
+        atPoint: imageRect.origin
+        fromRect: imageRect];
+    [[self openGLContext] makeCurrentContext];
+    [[self openGLContext] flushBuffer];
+
+}
+
+- (bool)isOpaque
+{
+    return NO;
+}
+
 @end
 
 CVF0rLayer::CVF0rLayer(CVLayerView *view, char *file, Context *_freej)

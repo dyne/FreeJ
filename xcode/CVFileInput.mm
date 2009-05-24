@@ -44,7 +44,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (id)init
 {
     isPlaying = NO;
-    [super init];
+    return [super init];
 }
 
 - (void)dealloc
@@ -55,15 +55,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         QTVisualContextRelease(qtVisualContext);
     [super dealloc];
 }
-
-/*
-- (void) setLayer:(CVLayer *)lay
-{
-    [super setLayer:lay];
-    if (!lay && qtMoview)
-        [self setQTMovie:nil];
-}
-*/
 
 - (void)unloadMovie
 {
@@ -196,7 +187,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
        
         // register the layer within the freej context
         if (!layer) {
-            layer = new CVLayer((NSObject *)self);
+            layer = new CVLayer(self);
             layer->init(ctx);
             // give freej a fake buffer ... that's not going to be used anyway
             layer->buffer = (void *)pixelBuffer;
@@ -234,15 +225,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (IBAction)togglePlay:(id)sender
 {
     [lock lock];
-
-    if (!isPlaying) {
-        //[qtMovie play];
-        isPlaying = YES;
-    } else {
-        [qtMovie stop];
-        isPlaying = NO;
-    }
- 
+    isPlaying = isPlaying?NO:YES;
     [lock unlock];
 }
 
@@ -255,7 +238,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     BOOL rv = NO;
-    [lock lock];    
     // we can care ourselves about thread safety when accessing the QTKit api
     [QTMovie enterQTKitOnThreadDisablingThreadSafetyProtection];
     QTTime now = [qtMovie currentTime];
@@ -267,9 +249,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [qtMovie setCurrentTime:now];
     else 
         [qtMovie gotoBeginning];
-    MoviesTask([qtMovie quickTimeMovie], 0);
     if(qtVisualContext)
     {        
+        [lock lock];    
         if (currentFrame) 
             CVOpenGLTextureRelease(currentFrame);
             
@@ -282,10 +264,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         // implemented in CVLayerView (our parent)
         newFrame = YES;
         rv = YES;
+        [lock unlock];
     } 
-
-    [QTMovie exitQTKitOnThread];
-    [lock unlock];
+    MoviesTask([qtMovie quickTimeMovie], 0);
+    [QTMovie exitQTKitOnThread];    
     [pool release];
     return rv;
 }
@@ -359,7 +341,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [self setQTMovie:movie];
         [movie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
         //[movie setAttribute:[NSNumber numberWithBool:NO] forKey:QTMovieHasAudioAttribute];
-        //NSLog(@"movie %@", [movie movieAttributes]);
+        NSLog(@"movie %@", [movie movieAttributes]);
 
         //[movie gotoBeginning];
         [self togglePlay:nil];

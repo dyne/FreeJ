@@ -69,6 +69,7 @@ class  CVScreen;
 - (bool)isOpaque;
 - (double)rate;
 - (CVReturn)outputFrame:(uint64_t)timestamp;
+- (void)reset;
 @end
 #else
 class CVScreenView;

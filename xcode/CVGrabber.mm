@@ -93,8 +93,8 @@
     currentPts = (time_t)(1000000L / [sampleBuffer presentationTime].timeScale * [sampleBuffer presentationTime].timeValue);
     
     /* Try to use hosttime of the sample if available, because iSight Pts seems broken */
-    NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
-  //  if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
+    //NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
+    //if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
     
     if (layer) 
         layer->buffer = (void *)currentFrame;
@@ -145,7 +145,6 @@
     Context *ctx = [freej getContext];
     int h = (ctx->screen->h < CV_GRABBER_HEIGHT_MAX)?ctx->screen->h:CV_GRABBER_HEIGHT_MAX;
     int w = (ctx->screen->w < CV_GRABBER_WIDTH_MAX)?ctx->screen->w:CV_GRABBER_WIDTH_MAX;
-    printf("PORKODIO %d -- %d \n", h, w);
     /* Hack - This will lower CPU consumption for some reason */
     [self setPixelBufferAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
         [NSNumber numberWithInt:h], kCVPixelBufferHeightKey,
@@ -265,7 +264,7 @@ error:
     if (!layer) {
         Context *ctx = [freej getContext];
         if (ctx) {
-            layer = new CVLayer((NSObject *)self);
+            layer = new CVLayer(self);
             layer->init(ctx);
             layer->buffer = (void *)pixelBuffer;
         }
@@ -278,6 +277,40 @@ error:
         layer->deactivate();
     }
 
+}
+
+- (void)drawRect:(NSRect)theRect
+{
+    char temp[256];
+    GLint zeroOpacity = 0;
+    [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
+    [super drawRect:theRect];
+    ProcessSerialNumber psn;
+    GetProcessForPID(getpid(), &psn);
+    FSRef location;
+    GetProcessBundleLocation(&psn, &location);
+    // 238 == 256 - strlen("/Contents/Plugins") - 1
+    FSRefMakePath(&location, (UInt8 *)temp, 238);
+    strcat(temp, "/Contents/Resources/webcam.png");
+    CIImage *image = [CIImage imageWithContentsOfURL:[NSURL fileURLWithPath:[NSString stringWithCString:temp]]];
+    NSRect bounds = [self bounds];
+    NSRect frame = [self frame];
+    CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+        NSWidth(bounds), NSHeight(bounds));
+    glClearColor(1, 1, 1, 0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    [ciContext drawImage:image
+        atPoint: imageRect.origin
+        fromRect: imageRect];
+    [[self openGLContext] makeCurrentContext];
+    [[self openGLContext] flushBuffer];
+
+}
+
+- (bool)isOpaque
+{
+    return NO;
 }
 
 @end

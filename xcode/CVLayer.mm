@@ -61,13 +61,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     lastFrame = NULL;
     posterImage = NULL;
     currentPreviewTexture = NULL;
-    if (CVOpenGLBufferCreate (NULL, 400, 300, NULL, &pixelBuffer) != noErr) {
+    if (CVOpenGLBufferCreate (NULL, 512, 384, NULL, &pixelBuffer) != noErr) {
         // TODO - error messages
         pixelBuffer = NULL;
     }
-    doPreview = NO;
+    doPreview = YES;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
-    paramNames = [[NSMutableArray arrayWithCapacity:4] retain];
+    filterParams = [[NSMutableDictionary dictionary] retain];
     return self;
 }
 
@@ -88,8 +88,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [ciContext release];
     if (pixelBuffer)
         CVOpenGLBufferRelease(pixelBuffer);
-    if (paramNames)
-            [paramNames release];
+    if (filterParams)
+            [filterParams release];
     [lock release];
     [super dealloc];
 }
@@ -133,7 +133,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [scaleFilter setDefaults];    // set the filter to its default values
     //[scaleFilter setValue:[NSNumber numberWithFloat:scaleFactor] forKey:@"inputScale"];
     
-    effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];            // Effect filter    
+    effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];            // Effect filter   
+    [effectFilter setName:@"ZoomBlur"];
     [effectFilter setDefaults];                                // set the filter to its default values
     [effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
     compositeFilter = [[CIFilter filterWithName:@"CISourceOverCompositing"] retain];    // Composite filter
@@ -262,6 +263,21 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     } 
 }
 
+- (NSString *)filterName
+{
+    NSString *filter = nil;
+    [lock lock];
+    if (effectFilter)
+        filter = [effectFilter name];
+    [lock unlock];
+    return filter;
+}
+
+- (NSDictionary *)filterParams
+{
+    return filterParams;
+}
+
 - (IBAction)setFilterParameter:(id)sender
 {
     NSAutoreleasePool *pool;
@@ -275,24 +291,28 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
     // to prevent its run() method to try rendering
     // a frame while we change filter parameters
-    if (layer) 
-        layer->lock();
+    [lock lock];
     switch([sender tag])
     {
     case 0:  // opacity (AlphaFade)
         [alphaFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"outputOpacity"];
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
         break;
     case 1: //brightness (ColorCorrection)
         [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
         break;
     case 2: // saturation (ColorCorrection)
         [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
         break;
     case 3: // contrast (ColorCorrection)
         [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
         break;
     case 4: // exposure (ExposureAdjust)
         [exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
         break;
     case 5: // rotate and translate
         rotateTransform = [NSAffineTransform transform];
@@ -308,13 +328,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [rotateTransform concat];
         [translateTransform concat];
         [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-        
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
         break;
     case 6:
         NSString *filterName = [[NSString alloc] initWithFormat:@"CI%@", [[sender selectedItem] title]];
         NSLog(filterName);
         [effectFilter release];
-        effectFilter = [[CIFilter filterWithName:filterName] retain];    
+        effectFilter = [[CIFilter filterWithName:filterName] retain];  
+        [effectFilter setName:[[sender selectedItem] title]]; 
         FilterParams *pdescr = [filterPanel getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
         [effectFilter setDefaults];
         NSView *cView = (NSView *)sender;
@@ -330,13 +351,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                 [slider setMinValue:pdescr->params[i].min];
                 [slider setMaxValue:pdescr->params[i].max];
                 [slider setDoubleValue:pdescr->params[i].min];
-                if ([paramNames count] > i) {
-                    NSString *old = [paramNames objectAtIndex:i];
-                    [paramNames replaceObjectAtIndex:i withObject:pLabel];
-                    [old release];    
-                } else {
-                    [paramNames insertObject:pLabel atIndex:i];
-                }
+                [filterParams setValue:[NSNumber numberWithFloat:pdescr->params[i].min]  forKey:pLabel];
+                [slider setToolTip:pLabel];
                 if ([pLabel isEqual:@"CenterY"])
                     [slider setMaxValue:layer->geo.h];
                 else if ([pLabel isEqual:@"CenterX"])
@@ -351,7 +367,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         }
         break;
     case 7:
-        paramName = [paramNames objectAtIndex:0];
+        paramName = [sender toolTip];
         if ([paramName isEqual:@"CenterX"]) {
             NSSlider *y = (NSSlider *)[[sender nextKeyView] nextKeyView];
             [effectFilter setValue:[CIVector vectorWithX:[sender floatValue] Y:[y floatValue]]
@@ -359,9 +375,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         } else { 
             [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         }
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         break;
     case 8:
-        paramName = [paramNames objectAtIndex:1];
+        paramName = [sender toolTip];
         if ([paramName isEqual:@"CenterY"]) {
             NSSlider *x = (NSSlider *)[[sender previousKeyView] previousKeyView];
             [effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[sender floatValue]]
@@ -369,19 +386,22 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         } else { 
             [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         }
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         break;
     case 9:
-        [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:2]];
+        paramName = [sender toolTip];
+        [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         break;
     case 10:
-        [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[paramNames objectAtIndex:3]];
+        paramName = [sender toolTip];
+        [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
     break;
     default:
         break;
     }
-    if (layer)
-        layer->unlock();
-    //[lock unlock];
+    [lock unlock];
     [pool release];
 }
 
@@ -416,7 +436,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)renderPreview
 {
-    Context *ctx = (Context *)[freej getContext];
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     if (doPreview && previewTarget) { 
         // scale the frame to fit the preview
@@ -525,7 +544,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (bool)isVisible
 {
     if (layer)
-        return layer->active?YES:NO;
+        return [freej isVisible:layer];
     return NO;
 }
 
@@ -554,7 +573,7 @@ CVLayer::CVLayer() : Layer()
     start();
 }
 
-CVLayer::CVLayer(NSObject *vin) : Layer()
+CVLayer::CVLayer(CVLayerView *vin) : Layer()
 {
     input = vin;
     bufsize = 0;
@@ -590,8 +609,6 @@ CVLayer::activate()
     freej->add_layer(this);
     active = true;
     notice("Activating %s", name);
-    //blitter.set_blit("RGB");
-    //blitter.current_blit->lay
 }
 
 void
