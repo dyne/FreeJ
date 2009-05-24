@@ -98,7 +98,7 @@ void FPS::calc() {
   wake_ts.tv_sec  = 0;
   wake_ts.tv_nsec = (rate - done.tv_usec)*1000; // set the delay
   
-  curr_fps = 1000000L /  done.tv_usec;
+  curr_fps = 1000000 /  done.tv_usec;
 
   // statistic only
   fpsd.sum = fpsd.sum - fpsd.data[fpsd.i] + curr_fps;

@@ -234,7 +234,6 @@ void Context::start_threaded(){
  * Main loop called fps_speed times a second
  */
 void Context::cafudda(double secs) {
-  VideoEncoder *enc;
   Layer *lay;
   
 //   if(secs>0.0) /* if secs == 0 will go out after one cycle */
@@ -570,6 +569,9 @@ int Context::reset() {
   // invokes JSGC and all gc call on our JSObjects
   //  if(js) js->reset();
   notice("FreeJ engine reset");
+  // should return 1 on success? 
+  //does anyone care about rese() return address?
+  return 1; 
 }
 
 bool Context::config_check(const char *filename) {
