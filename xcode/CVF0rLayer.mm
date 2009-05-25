@@ -10,12 +10,30 @@
 
 @implementation CVF0rLayerView : CVLayerView
 
+- (id)init
+{
+    static char *postfix = "/Contents/Resources/frei0r.png";
+    char iconFile[1024];
+    ProcessSerialNumber psn;
+    GetProcessForPID(getpid(), &psn);
+    FSRef location;
+    GetProcessBundleLocation(&psn, &location);
+    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(postfix)-1);
+    strcat(iconFile, postfix);
+    icon = [CIImage imageWithContentsOfURL:
+        [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
+    [icon retain];
+    return [super init];
+}
+
 - (void)feedFrame:(void *)frame
 {
     //Context *ctx = (Context *)[freej getContext];
     [lock lock];
-    if (currentFrame)
+    if (currentFrame) {
         CVPixelBufferRelease(currentFrame);
+        currentFrame = NULL;
+    }
     CVReturn err = CVPixelBufferCreateWithBytes (
         NULL,
         layer->geo.w,
@@ -36,31 +54,28 @@
 
 - (void)drawRect:(NSRect)theRect
 {
-    char temp[256];
     GLint zeroOpacity = 0;
-    [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
-    [super drawRect:theRect];
-    ProcessSerialNumber psn;
-    GetProcessForPID(getpid(), &psn);
-    FSRef location;
-    GetProcessBundleLocation(&psn, &location);
-    // 238 == 256 - strlen("/Contents/Plugins") - 1
-    FSRefMakePath(&location, (UInt8 *)temp, 238);
-    strcat(temp, "/Contents/Resources/frei0r.png");
-    CIImage *image = [CIImage imageWithContentsOfURL:[NSURL fileURLWithPath:[NSString stringWithCString:temp]]];
     NSRect bounds = [self bounds];
     NSRect frame = [self frame];
     CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-        NSWidth(bounds), NSHeight(bounds));
-    glClearColor(1, 1, 1, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    NSWidth(bounds), NSHeight(bounds));
 
-    [ciContext drawImage:image
-        atPoint: imageRect.origin
-        fromRect: imageRect];
-    [[self openGLContext] makeCurrentContext];
-    [[self openGLContext] flushBuffer];
+    if (needsReshape) {
+        [lock lock];
+        [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
+        [super drawRect:theRect];
+        glClearColor(1, 1, 1, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        [ciContext drawImage:icon
+            atPoint: imageRect.origin
+            fromRect: imageRect];
+        [[self openGLContext] makeCurrentContext];
+        [[self openGLContext] flushBuffer];
+        needsReshape = NO;
+        [lock unlock];
+    }
+    [self setNeedsDisplay:NO];
 }
 
 - (bool)isOpaque
@@ -70,22 +85,24 @@
 
 @end
 
-CVF0rLayer::CVF0rLayer(CVLayerView *view, char *file, Context *_freej)
+CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
     : GenF0rLayer()
 {
     input = view;
     freej = _freej;
+    CVLayer *layerPersonality = (CVLayer *)this;
+    GenF0rLayer *f0rPersonality = (GenF0rLayer *)this;
     [input setLayer:this];
-    ((CVLayer *)this)->type = Layer::GL_COCOA;
+    layerPersonality->type = Layer::GL_COCOA;
     blendMode = NULL;
-    if (!((GenF0rLayer *)this)->init(freej)) {
+    if (!f0rPersonality->init(freej)) {
         error("can't initialize generator layer");
     }
-    ((CVLayer *)this)->init(freej, freej->screen->w, freej->screen->h);
-    if (!((GenF0rLayer *)this)->open(file)) {
-          error("generator Partik0l is not found");
+    layerPersonality->init(freej, freej->screen->w, freej->screen->h);
+    if (f0rPersonality->open(generatorName)) {
+          error("generator %s hasn't been found", generatorName);
     }
-    ((CVLayer *)this)->set_name("F0R");
+    layerPersonality->set_name("F0R");
 }
 
 CVF0rLayer::~CVF0rLayer()

@@ -50,13 +50,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 
 @implementation CVScreenView : NSOpenGLView
-- (double)rate
-{
-    if (rateCalc) 
-        return [rateCalc rate];
-    return 0;
-}
 
+/*
 - (void)windowChangedScreen:(NSNotification*)inNotification
 {
     NSWindow *window = [inNotification object]; 
@@ -70,15 +65,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			(CGLContextObj)[[self openGLContext] CGLContextObj], 
 			(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]);
 		*/
-		viewDisplayID = displayID;
-    }
-}
+		//viewDisplayID = displayID;
+    //}
+//}
 
+/*
 - (void)windowChangedSize:(NSNotification*)inNotification
 {
 //	NSRect frame = [self frame];
 //	[self setSizeWidth:frame.size.width Height:frame.size.height];	
 }
+*/
 
 - (void)awakeFromNib
 {
@@ -115,7 +112,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		   k32ARGBPixelFormat,
            NULL,
            &pixelBuffer
-		);
+    );
     if (err) {
 		// TODO - Error messages
 		return nil;
@@ -156,6 +153,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CGContextRelease( exportCGContextRef );
 	[super dealloc];
 }
+
 - (void)prepareOpenGL
 {
 	CVReturn			    ret;
@@ -190,8 +188,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	CGColorSpaceRelease(colorSpace);
 
 	
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
-	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedSize:) name:NSWindowDidResizeNotification object:nil];
+	//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
+	//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedSize:) name:NSWindowDidResizeNotification object:nil];
 
     rateCalc = [[FrameRate alloc] init];
 	[rateCalc retain];
@@ -203,25 +201,21 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[self start];
 }
 
-- (void)renderFrame
+- (void)update
 {
-	//NSAutoreleasePool *pool;
+    [lock lock];
+    [super update];
+    [lock unlock];
+}
+
+- (void)drawRect:(NSRect)theRect
+{
 	NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];    
-    
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
    // [QTMovie enterQTKitOnThread];
     [lock lock];
-	if (outFrame) {
-		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-					NSWidth(bounds), NSHeight(bounds));
-		[ciContext drawImage: outFrame
-			atPoint: cg.origin  fromRect: cg];
-        if (lastFrame)
-            [lastFrame release];
-        lastFrame = [outFrame retain];
-		outFrame = NULL;
-    }
-
 	[currentContext makeCurrentContext];
 
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
@@ -266,10 +260,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[[self openGLContext] flushBuffer];
 	[self setNeedsDisplay:NO];
     [lock unlock];	
-    //[self drawRect:NSZeroRect];
 
-  //  [QTMovie exitQTKitOnThread];
-
+    [pool release];
 }
 
 - (void *)getSurface
@@ -298,12 +290,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CVTexture *textureToRelease = nil;
-
+    NSRect		bounds = [self bounds];
     //if (!texturePool)
     //    texturePool = [[NSAutoreleasePool alloc] init];
 
 	Context *ctx = (Context *)[freej getContext];
-    [lock lock];
+  //  [lock lock];
 
     ctx->cafudda(0.0);
 
@@ -314,10 +306,20 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [showFps setStringValue:fpsString];
     }
 
-    [lock unlock];
-    [pool release];
-    
-    if ([textures count]) {
+  //  [lock unlock];
+    [lock lock];
+
+    if (outFrame) {
+		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+					NSWidth(bounds), NSHeight(bounds));
+		[ciContext drawImage: outFrame
+			atPoint: cg.origin  fromRect: cg];
+        if (lastFrame)
+            [lastFrame release];
+        lastFrame = [outFrame retain];
+		outFrame = NULL;
+    }
+        if ([textures count]) {
         //[QTMovie enterQTKitOnThread];
         while ([textures count]) {
             textureToRelease = [textures lastObject];
@@ -326,7 +328,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         }
         //[QTMovie exitQTKitOnThread];
     }
-
+    [lock unlock];
+    [self setNeedsDisplay:YES];
+    [pool release];
 	return kCVReturnSuccess;
 }
 
@@ -387,7 +391,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)setSizeWidth:(int)w Height:(int)h
 {
-	[lock lock];
+	//[lock lock];
 	if (w != fjScreen->w || h != fjScreen->h) {
 
 			CVPixelBufferRelease(pixelBuffer);
@@ -402,7 +406,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			needsReshape = YES;
 
 	}
-	[lock unlock];
+	//[lock unlock];
 }
 
 - (IBAction)toggleFullScreen:(id)sender
@@ -479,7 +483,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			[NSNumber numberWithInt:0], NSFullScreenModeAllScreens, nil ]];
 		fullScreen = YES;
 	}
-	[lock lock];
+	//[lock lock];
 	//[[freej getLock] lock];
 	[currentContext makeCurrentContext];
 	// clean the OpenGL context 
@@ -488,7 +492,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 	[currentContext flushBuffer];
 	//[[freej getLock] unlock];
-	[lock unlock];
+	//[lock unlock];
 }
 
 - (bool)isOpaque
@@ -581,6 +585,13 @@ bail:
   return;
 }
 
+- (double)rate
+{
+    if (rateCalc) 
+        return [rateCalc rate];
+    return 0;
+}
+
 - (void)reset
 {
     needsReshape = YES;
@@ -651,7 +662,8 @@ void CVScreen::blit(Layer *lay)
 }
 
 void CVScreen::show() {
-    if (view) 
-        [view renderFrame];
+    // do nothing
+   // if (view) 
+   //     [view setNeedsDisplay:YES];
 }
 

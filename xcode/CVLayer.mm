@@ -3,7 +3,7 @@
  *  freej
  *
  *  Created by xant on 2/23/09.
- *  Copyright 2009 __MyCompanyName__. All rights reserved.
+ *  Copyright 2009 dyne.org. All rights reserved.
  *
  */
 
@@ -66,7 +66,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         pixelBuffer = NULL;
     }
     doPreview = YES;
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
+    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
     filterParams = [[NSMutableDictionary dictionary] retain];
     return self;
 }
@@ -153,7 +153,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         totalDisplayMask |= displayMask;
     }
     //ret = CVDisplayLinkCreateWithOpenGLDisplayMask(totalDisplayMask, &displayLink);
-    ret = CVDisplayLinkCreateWithCGDisplay(viewDisplayID, &displayLink);
+    //ret = CVDisplayLinkCreateWithCGDisplay(viewDisplayID, &displayLink);
     // Set up display link callbacks 
     //CVDisplayLinkSetOutputCallback(displayLink, renderCallback, self);
         
@@ -169,7 +169,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)drawRect:(NSRect)theRect
 {
-
     NSRect        frame = [self frame];
     NSRect        bounds = [self bounds];
     //[[freej getLock] lock];
@@ -185,7 +184,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         
         [[self openGLContext] makeCurrentContext];
 
-        [self update]; 
+        //[self update]; 
 
         if(NSIsEmptyRect([self visibleRect])) 
         {
@@ -211,9 +210,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [self setNeedsDisplay:NO];
     //[[freej getLock] unlock];
     [lock unlock];
-
 }
 
+- (void)update
+{
+    // do nothing
+}
 
 - (CVReturn)_renderTime:(const CVTimeStamp *)time
 {
@@ -410,7 +412,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (layer) {
         switch([sender tag])
         {
-            case 0:
+            case -1:
                 NSString *blendMode = [[NSString alloc] initWithFormat:@"CI%@BlendMode", [[sender selectedItem] title]];
                 layer->blendMode = blendMode;
                 break;
@@ -430,8 +432,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [effectFilter setValue:centerVector forKey:@"inputCenter"];
     
     //[lock unlock];
-    if(!CVDisplayLinkIsRunning(displayLink))
-        [self display];
 }
 
 - (void)renderPreview
@@ -518,6 +518,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     doPreview = NO;
 }
 
+/*
 - (void)windowChangedScreen:(NSNotification*)inNotification
 {
     NSWindow *window = [inNotification object]; 
@@ -530,6 +531,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         viewDisplayID = displayID;
     }
 }
+*/
 
 - (void)lock
 {
@@ -660,14 +662,16 @@ CVLayer::close()
 bool
 CVLayer::forward()
 {
-    [input stepForward];
+    if ([input respondsToSelector:@selector(stepForward)])
+        [(id)input stepForward];
     return true;
 }
 
 bool
 CVLayer::backward()
 {
-    [input stepBackward];
+    if ([input respondsToSelector:@selector(stepForward)])
+        [(id)input stepBackward];
     return true;
 }
 
@@ -692,7 +696,8 @@ CVLayer::set_mark_out()
 void
 CVLayer::pause()
 {
-    [input stop];
+    if ([input respondsToSelector:@selector(stop)])
+        [input stop];
 }
 
 bool

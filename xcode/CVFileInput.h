@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 2/16/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 #ifndef __CV_FILEINPUT_H__
 #define __CV_FILEINPUT_H__

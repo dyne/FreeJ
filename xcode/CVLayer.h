@@ -68,30 +68,36 @@ class CVLayer;
 }
 
 @property (readwrite) CVLayer *layer;
+// subclass implementation should override this method and update 
+// the currentFrame pointer only within the _renderTime implementation
 - (CVReturn)_renderTime:(const CVTimeStamp *)time;
-- (void)awakeFromNib;
 - (id)init;
-- (void)startPreview;
-- (void)stopPreview;
-- (void)renderPreview;
-- (bool)isVisible;
-- (void)activate;
-- (void)deactivate;
+- (void)startPreview; // enable preview rendering
+- (void)stopPreview; // disable preview rendering
+- (void)renderPreview; // render the preview frame
+- (bool)isVisible; // query the layer to check if it's being sent to the Screen or not
+- (void)activate; /// activate the underlying CVLayer
+- (void)deactivate; /// deactivate the underlying CVLayer
+// Retain currentFrame, apply filters and return a CVTexture
 - (CVTexture *)getTexture;
-- (void)mouseDown:(NSEvent *)theEvent;
-- (bool)isOpaque;
+// query the layer to check if it needs to display a preview or not (used by CVPreview)
 - (bool)needPreview;
 - (NSString *)filterName;
 - (NSDictionary *)filterParams;
 - (void)setPreviewTarget:(CVPreview *)targetView;
-- (void)lock;
-- (void)unlock;
-- (IBAction)setFilterParameter:(id)sender;
-- (IBAction)setAlpha:(id)sender;
-- (IBAction)setBlendMode:(id)sender;
-- (IBAction)toggleFilters:(id)sender;
-- (IBAction)togglePreview:(id)sender;
-- (IBAction)toggleVisibility:(id)sender;
+- (void)lock; /// accessor to the internal mutex
+- (void)unlock; /// accessor to the internal mutex
+
+// Interface Builder API 
+- (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
+- (IBAction)setAlpha:(id)sender; /// tag 0
+- (IBAction)setBlendMode:(id)sender; /// tag -1
+- (IBAction)toggleFilters:(id)sender; /// toggle CIImage filters
+- (IBAction)togglePreview:(id)sender; /// toggle preview rendering
+// toggle layer registration on the underlying context
+// (so to control wether the layer has to be sent to the Screen or not)
+- (IBAction)toggleVisibility:(id)sender; 
+
 @end
 
 class CVLayer: public Layer {

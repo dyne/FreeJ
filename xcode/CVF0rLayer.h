@@ -11,6 +11,7 @@
 
 @interface CVF0rLayerView : CVLayerView
 {
+    CIImage *icon;
 }
 - (void)feedFrame:(void *)frame;
 @end;
@@ -18,7 +19,7 @@
 class CVF0rLayer : public GenF0rLayer, public CVLayer
 {
 	public:
-		CVF0rLayer(CVLayerView *view, char *file, Context *freej);
+		CVF0rLayer(CVLayerView *view, char *generatorName, Context *freej);
         ~CVF0rLayer();
 		void *feed();
         void start();

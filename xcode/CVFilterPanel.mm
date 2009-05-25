@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 2/26/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 
 #import "CVFilterPanel.h"
@@ -48,10 +48,12 @@ static FilterParams fParams[FILTERS_MAX] =
     [lock release];
     [super dealloc];
 }
-- (void)windowDidLoad
+
+- (void)awakeFromNib
 {
-    //NSLog(@"Nib file loaded");
-    
+    initialWindowFrame = [[self window] frame];
+    initialFrame = [mainView frame];
+    initialBounds = [mainView bounds];
 }
 
 - (void)show

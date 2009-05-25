@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 2/26/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 
 #ifndef __CV_FILTERPANEL_H__
@@ -38,6 +38,9 @@ typedef struct __FilterParams {
 @interface CVFilterPanel : NSWindowController {
     CVLayerView *layer;
     NSRecursiveLock         *lock;
+    NSRect initialWindowFrame;
+    NSRect initialFrame;
+    NSRect initialBounds;
     IBOutlet CVFilterBox    *mainView; /// our container
     IBOutlet NSPopUpButton  *filterButton; /// filters-selection button
     IBOutlet CVPreview      *previewBox; /// the preview box

@@ -3,7 +3,7 @@
  *  freej
  *
  *  Created by xant on 2/9/09.
- *  Copyright 2009 dyne. All rights reserved.
+ *  Copyright 2009 dyne.org. All rights reserved.
  *
  */
 
@@ -24,8 +24,8 @@
         currentFrame = nil;
         currentPts = 0;
         previousPts = 0;
-        width = 320; // XXX - make defult size configurable
-        height = 240; // XXX -^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        width = 512; // XXX - make defult size configurable
+        height = 384; // XXX -^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         lock = [[NSRecursiveLock alloc] init];
         // Create CIFilters used for both preview and main frame
         colorCorrectionFilter = [[CIFilter filterWithName:@"CIColorControls"] retain];        // Color filter    
@@ -121,7 +121,6 @@
         goto error;
     }
     [device retain];
-    
 
     if( ![device open: &o_returnedError] )
     {
@@ -234,8 +233,21 @@ error:
 
 - (id)init
 {
+    static char *postfix = "/Contents/Resources/webcam.png";
+    char iconFile[1024];
+    
     exportedFrame = nil;
     currentFrame = nil;
+    
+    ProcessSerialNumber psn;
+    GetProcessForPID(getpid(), &psn);
+    FSRef location;
+    GetProcessBundleLocation(&psn, &location);
+    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(postfix)-1);
+    strcat(iconFile, postfix);
+    icon = [CIImage imageWithContentsOfURL:
+        [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
+    [icon retain];
     return [super init];
 }
 
@@ -245,16 +257,17 @@ error:
     if (exportedFrame)
         CVPixelBufferRelease(exportedFrame);
     exportedFrame = CVPixelBufferRetain(currentFrame);
-    [self renderPreview];
-
     [lock unlock];
+    [self renderPreview];
     return kCVReturnSuccess;
 }
 
 - (void)feedFrame:(CVPixelBufferRef)frame
 {
     [lock lock];
-    currentFrame = frame;
+    if (currentFrame)
+        CVPixelBufferRelease(currentFrame);
+    currentFrame = CVPixelBufferRetain(frame);
     newFrame = YES;
     [lock unlock];
 }
@@ -278,34 +291,38 @@ error:
     }
 
 }
+/*
 
+- (void)update
+{
+    [lock lock];
+    [super update];
+    [lock unlock];
+}
+*/
 - (void)drawRect:(NSRect)theRect
 {
-    char temp[256];
     GLint zeroOpacity = 0;
-    [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
-    [super drawRect:theRect];
-    ProcessSerialNumber psn;
-    GetProcessForPID(getpid(), &psn);
-    FSRef location;
-    GetProcessBundleLocation(&psn, &location);
-    // 238 == 256 - strlen("/Contents/Plugins") - 1
-    FSRefMakePath(&location, (UInt8 *)temp, 238);
-    strcat(temp, "/Contents/Resources/webcam.png");
-    CIImage *image = [CIImage imageWithContentsOfURL:[NSURL fileURLWithPath:[NSString stringWithCString:temp]]];
-    NSRect bounds = [self bounds];
-    NSRect frame = [self frame];
-    CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-        NSWidth(bounds), NSHeight(bounds));
-    glClearColor(1, 1, 1, 0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (needsReshape) {
+        NSRect bounds = [self bounds];
+        NSRect frame = [self frame];
+        CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+            NSWidth(bounds), NSHeight(bounds));
+        [lock lock];
+        [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
+        [super drawRect:theRect];
+        glClearColor(1, 1, 1, 0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    [ciContext drawImage:image
-        atPoint: imageRect.origin
-        fromRect: imageRect];
-    [[self openGLContext] makeCurrentContext];
-    [[self openGLContext] flushBuffer];
-
+        [ciContext drawImage:icon
+            atPoint: imageRect.origin
+            fromRect: imageRect];
+        [[self openGLContext] makeCurrentContext];
+        [[self openGLContext] flushBuffer];
+        needsReshape = NO;
+        [lock unlock];
+    }
+    [self setNeedsDisplay:NO];
 }
 
 - (bool)isOpaque

@@ -177,12 +177,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
             NSWidth(bounds), NSHeight(bounds));
         
+        [lock lock];
         [ciContext drawImage:posterImage
             atPoint: imageRect.origin
             fromRect: imageRect];
         [[self openGLContext] makeCurrentContext];
         [[self openGLContext] flushBuffer];
-        
+        [lock unlock];
         [posterInputImage release];            
        
         // register the layer within the freej context
@@ -210,11 +211,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)setTime:(QTTime)inTime
 {
-   // [qtMovie setCurrentTime:inTime];
-  //  if(CVDisplayLinkIsRunning(displayLink))
-        //[self togglePlay:nil];
-    //[self updateCurrentFrame];
-   // [self display];
+/*
+    [qtMovie setCurrentTime:inTime];
+    if(CVDisplayLinkIsRunning(displayLink))
+        [self togglePlay:nil];
+    [self updateCurrentFrame];
+    [self display];
+*/
 }
 
 - (IBAction)setMovieTime:(id)sender
@@ -341,7 +344,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [self setQTMovie:movie];
         [movie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
         //[movie setAttribute:[NSNumber numberWithBool:NO] forKey:QTMovieHasAudioAttribute];
-        NSLog(@"movie %@", [movie movieAttributes]);
+        //NSLog(@"movie %@", [movie movieAttributes]);
 
         //[movie gotoBeginning];
         [self togglePlay:nil];

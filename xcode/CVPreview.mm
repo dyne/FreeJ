@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 5/16/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 
 #import "CVPreview.h"
@@ -113,7 +113,7 @@
     NSRect        frame = [self frame];
     NSRect        bounds = [self bounds];
     float       scaleFactor;
-    CVTexture   *textureToRelease = nil;
+    //CVTexture   *textureToRelease = nil;
     Context     *ctx = (Context *)[freej getContext];
     
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];

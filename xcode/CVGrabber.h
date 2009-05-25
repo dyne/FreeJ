@@ -3,7 +3,7 @@
  *  freej
  *
  *  Created by xant on 2/9/09.
- *  Copyright 2009 __MyCompanydyne.orgName__. All rights reserved.
+ *  Copyright 2009 dyne.org. All rights reserved.
  *
  */
 #ifndef __CVideo_layer_H__
@@ -28,7 +28,9 @@
 {
     CVPixelBufferRef exportedFrame;
     IBOutlet CVGrabber *grabber;
+    CIImage *icon;
 }
+
 - (void)feedFrame:(CVPixelBufferRef)frame;
 - (void)start;
 - (void)stop;

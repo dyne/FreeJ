@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 5/16/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 
 
@@ -14,6 +14,8 @@
     CVPixelBufferRef    _pixelBuffer;
     CIImage             *_image;
 }
++ (id)alloc;
++ (id)textureWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (id)initWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (CIImage *)image;
 - (void)dealloc;

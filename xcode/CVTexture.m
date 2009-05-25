@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 5/16/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 
 #import "CVTexture.h"
@@ -11,14 +11,17 @@
 
 @implementation CVTexture
 
-/*
-- (id)alloc
++ (id)alloc
 {
-    [super alloc];
-    _image = nil;
-    _pixelBuffer = nil;
+    return [super alloc];
 }
-*/
+
++ (id)textureWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer
+{
+    id obj = [super alloc];
+    [obj autorelease];
+    return [obj initWithCIImage:image pixelBuffer:pixelBuffer];
+}
 
 - (id)initWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer
 {
