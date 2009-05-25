@@ -20,10 +20,6 @@
 @class CFreej;
 @class CVGrabber;
 
-/*****************************************************************************
-* QTKit Bridge
-*****************************************************************************/
-
 @interface CVGrabberView : CVLayerView
 {
     CVPixelBufferRef exportedFrame;
@@ -35,6 +31,11 @@
 - (void)start;
 - (void)stop;
 @end
+
+
+/*
+ * QTKit Bridge
+ */
 
 @interface CVGrabber : QTCaptureDecompressedVideoOutput
 {
@@ -57,17 +58,6 @@
     int                         height;
     bool                        running;
     CVLayer                     *layer;
-    CVFilterPanel               *filterPanel;
-        // filters for CI rendering
-    CIFilter                    *colorCorrectionFilter;        // hue saturation brightness control through one CI filter
-    CIFilter                    *compositeFilter;        // composites the timecode over the video
-    CIFilter                    *alphaFilter;
-    CIFilter                    *exposureAdjustFilter;
-    CIFilter                    *rotateFilter;
-    CIFilter                    *translateFilter;
-    CIFilter                    *effectFilter;
-    CIFilter                    *scaleFilter;
-    NSMutableArray              *paramNames;
 }
 
 - (id)init;

@@ -27,55 +27,15 @@
         width = 512; // XXX - make defult size configurable
         height = 384; // XXX -^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         lock = [[NSRecursiveLock alloc] init];
-        // Create CIFilters used for both preview and main frame
-        colorCorrectionFilter = [[CIFilter filterWithName:@"CIColorControls"] retain];        // Color filter    
-        [colorCorrectionFilter setDefaults]; // set the filter to its default values
-        exposureAdjustFilter = [[CIFilter filterWithName:@"CIExposureAdjust"] retain];
-        [exposureAdjustFilter setDefaults];
-        // adjust exposure
-        [exposureAdjustFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputEV"];
-        
-        // rotate
-        NSAffineTransform *rotateTransform = [NSAffineTransform transform];
-        [rotateTransform rotateByDegrees:0.0];
-        rotateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-        [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-        //translateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-        //[translateFilter setValue:translateTransform forKey:@"inputTransform"];
-        scaleFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-        //CIFilter *scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
-        [scaleFilter setDefaults];    // set the filter to its default values
-        //[scaleFilter setValue:[NSNumber numberWithFloat:scaleFactor] forKey:@"inputScale"];
-        
-        effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];            // Effect filter    
-        [effectFilter setDefaults];                                // set the filter to its default values
-        [effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
-        compositeFilter = [[CIFilter filterWithName:@"CISourceOverCompositing"] retain];    // Composite filter
-        [CIAlphaFade class];    
-        alphaFilter = [[CIFilter filterWithName:@"CIAlphaFade"] retain]; // AlphaFade filter
-        [alphaFilter setDefaults]; // XXX - setDefaults doesn't work properly
-        [alphaFilter setValue:[NSNumber numberWithFloat:0.5] forKey:@"outputOpacity"]; // set default value
-        paramNames = [[NSMutableArray arrayWithCapacity:4] retain];
-        renderedImage = nil;
-        outputImage = nil;
     }
     return self;
 }
+
 - (void)dealloc
 {
     [self stopCapture:self];
     CVBufferRelease(currentFrame);
-    currentFrame = nil;
-    [colorCorrectionFilter release];
-    [effectFilter release];
-    [compositeFilter release];
-    [alphaFilter release];
-    [exposureAdjustFilter release];
-    [rotateFilter release];
-    [scaleFilter release];
-    [paramNames release];
-    if (renderedImage)
-        [renderedImage release];
+
     [lock release];
     [super dealloc];
 }
