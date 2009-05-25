@@ -13,6 +13,8 @@
 
 @implementation CFreej
 
+
+// bridge stdout and stderr with the NSTextView outlet (if any)
 - (void) consoleOutput:(id)object
 {
     NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
@@ -88,31 +90,42 @@
 	return nil;
 }
 
+- (void)openScriptPanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void  *)contextInfo
+{
+     if(returnCode == NSOKButton){
+     	func("openScript we have an OK button");	
+     } else if(returnCode == NSCancelButton) {
+     	func("openScript we have a Cancel button");
+     	return;
+     } else {
+     	error("doOpen tvarInt not equal 1 or zero = %3d",returnCode);
+     	return;
+     } // end if     
+     NSString * tvarDirectory = [panel directory];
+     func("openScript directory = %@",tvarDirectory);
+
+     NSString * tvarFilename = [panel filename];
+     func("openScript filename = %@",tvarFilename);
+
+	[scriptPath setStringValue:tvarFilename];
+	freej->open_script((char *)[tvarFilename UTF8String]);
+
+}
 
 - (IBAction)openScript:(id)sender 
 {	
      func("doOpen");	
      NSOpenPanel *tvarNSOpenPanelObj	= [NSOpenPanel openPanel];
-     NSInteger tvarNSInteger	= [tvarNSOpenPanelObj runModalForTypes:nil];
-     if(tvarNSInteger == NSOKButton){
-     	func("openScript we have an OK button");	
-     } else if(tvarNSInteger == NSCancelButton) {
-     	func("openScript we have a Cancel button");
-     	return;
-     } else {
-     	error("doOpen tvarInt not equal 1 or zero = %3d",tvarNSInteger);
-     	return;
-     } // end if     
-
-     NSString * tvarDirectory = [tvarNSOpenPanelObj directory];
-     func("openScript directory = %@",tvarDirectory);
-
-     NSString * tvarFilename = [tvarNSOpenPanelObj filename];
-     func("openScript filename = %@",tvarFilename);
-
-	[scriptPath setStringValue:tvarFilename];
-	freej->open_script((char *)[tvarFilename UTF8String]);
-	
+     NSArray *types = [NSArray arrayWithObject:[NSString stringWithUTF8String:"js"]];
+     [tvarNSOpenPanelObj 
+        beginSheetForDirectory:nil 
+        file:nil
+        types:types 
+        modalForWindow:[sender window]
+        modalDelegate:self 
+        didEndSelector:@selector(openScriptPanelDidEnd: returnCode: contextInfo:) 
+        contextInfo:nil];	
+    [tvarNSOpenPanelObj setCanChooseFiles:YES];
 } // end openScript
 
 - (Context *)getContext

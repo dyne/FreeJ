@@ -314,27 +314,23 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     return true;
 }
 
-- (IBAction)openFile:(id)sender
+- (void)openFilePanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void  *)contextInfo
 {
-     func("doOpen");    
-     NSOpenPanel *tvarNSOpenPanelObj    = [NSOpenPanel openPanel];
-     NSInteger tvarNSInteger    = [tvarNSOpenPanelObj runModalForTypes:nil];
-     if(tvarNSInteger == NSOKButton){
-         func("openScript we have an OK button");    
-     } else if(tvarNSInteger == NSCancelButton) {
-         func("openScript we have a Cancel button");
-         return;
+     if(returnCode == NSOKButton){
+     	func("openScript we have an OK button");	
+     } else if(returnCode == NSCancelButton) {
+     	func("openScript we have a Cancel button");
+     	return;
      } else {
-         error("doOpen tvarInt not equal 1 or zero = %3d",tvarNSInteger);
-         return;
+     	error("doOpen tvarInt not equal 1 or zero = %3d",returnCode);
+     	return;
      } // end if     
-
-     NSString * tvarDirectory = [tvarNSOpenPanelObj directory];
+     NSString * tvarDirectory = [panel directory];
      func("openScript directory = %@",tvarDirectory);
 
-     NSString * tvarFilename = [tvarNSOpenPanelObj filename];
+     NSString * tvarFilename = [panel filename];
      func("openScript filename = %@",tvarFilename);
- 
+	 
     if (tvarFilename) {
         //if(CVDisplayLinkIsRunning(displayLink)) 
         //    [self togglePlay:nil];
@@ -350,6 +346,36 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [self togglePlay:nil];
 
     }
+
 }
+
+- (IBAction)openFile:(id)sender 
+{	
+     func("doOpen");	
+     NSOpenPanel *tvarNSOpenPanelObj	= [NSOpenPanel openPanel];
+     NSArray *types = [NSArray arrayWithObjects:
+        [NSString stringWithUTF8String:"avi"],
+        [NSString stringWithUTF8String:"mov"],
+        [NSString stringWithUTF8String:"mpg"],
+        [NSString stringWithUTF8String:"asf"],
+        [NSString stringWithUTF8String:"jpg"],
+        [NSString stringWithUTF8String:"png"],
+        [NSString stringWithUTF8String:"tif"],
+        [NSString stringWithUTF8String:"bmp"],
+        [NSString stringWithUTF8String:"gif"],
+        [NSString stringWithUTF8String:"pdf"],
+        nil];
+        
+     [tvarNSOpenPanelObj 
+        beginSheetForDirectory:nil 
+        file:nil
+        types:types 
+        modalForWindow:[sender window]
+        modalDelegate:self 
+        didEndSelector:@selector(openFilePanelDidEnd: returnCode: contextInfo:) 
+        contextInfo:nil];	
+    [tvarNSOpenPanelObj setCanChooseFiles:YES];
+} // end openFile
+
 
 @end
