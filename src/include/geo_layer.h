@@ -36,7 +36,6 @@ class GeoLayer: public Layer {
 
   bool open(const char *file);
   void *feed();
-  bool keypress(int key);
   void close();
 
   void set_color(uint32_t hex) { color = hex; }

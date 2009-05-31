@@ -76,7 +76,6 @@ class XGrabLayer: public Layer {
 		//void *feed();
 		void close();
 
-		bool keypress(int key);
 		void *feed();
 };
 

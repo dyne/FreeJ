@@ -52,7 +52,6 @@
 JS(filter_constructor);
 JS(layer_constructor);
 void js_layer_gc (JSContext *cx, JSObject *obj);
-JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
 JS(image_layer_constructor);
@@ -156,10 +155,6 @@ extern JSFunctionSpec js_osc_ctrl_methods[];
 // WII Controller
 extern JSClass js_wii_ctrl_class;
 extern JSFunctionSpec js_wii_ctrl_methods[];
-
-// ParticleLayer
-extern JSClass particle_layer_class;
-extern JSFunctionSpec particle_layer_methods[];
 
 // GeometryLayer
 extern JSClass geometry_layer_class;
@@ -335,10 +330,6 @@ JS(layer_list_filters);
 JS(layer_list_parameters);
 JS(layer_set_fps);
 JS(layer_get_fps);
-
-////////////////////////////////
-// Particle Layer methods
-JS(particle_layer_blossom);
 
 ////////////////////////////////
 // Image Layer methods

@@ -134,12 +134,6 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	Layer = layer_object; // last created object
 	object_proto = Layer; // following registrations inherit from parent class Layer
 
-// 	REGISTER_CLASS("ParticleLayer",
-// 		particle_layer_class,
-// 		particle_layer_constructor,
-// 		particle_layer_methods,
-// 		object_proto);
-
 	REGISTER_CLASS("GeometryLayer",
 		geometry_layer_class,
 		geometry_layer_constructor,

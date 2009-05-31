@@ -65,7 +65,8 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
     
     // idx-1 because frei0r's index starts from 0
   case F0R_PARAM_BOOL:
-    (*f->f0r_set_param_value)(layer->generator->core, new f0r_param_bool(val[0]), idx-1);
+    (*f->f0r_set_param_value)
+      (layer->generator->core, new f0r_param_bool(val[0]), idx-1);
     break;
     
   case F0R_PARAM_DOUBLE:

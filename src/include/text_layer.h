@@ -56,8 +56,6 @@ class TextLayer: public Layer {
   bool set_font(const char *path);
   bool set_fontsize(int sz);
 
-  bool keypress(int key);
-
  private:
   SDL_Color bgcolor;
   SDL_Color fgcolor;
