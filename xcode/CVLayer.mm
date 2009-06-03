@@ -31,17 +31,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     return noErr;
 }
 
-static CVReturn renderCallback(CVDisplayLinkRef displayLink, 
-                                                const CVTimeStamp *inNow, 
-                                                const CVTimeStamp *inOutputTime, 
-                                                CVOptionFlags flagsIn, 
-                                                CVOptionFlags *flagsOut, 
-                                                void *displayLinkContext)
-{
-    CVReturn ret = [(CVLayerView *)displayLinkContext _renderTime:inOutputTime];
-    return ret;
-}
-
 @implementation CVLayerView : NSOpenGLView
 
 - (void)awakeFromNib
@@ -61,19 +50,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     lastFrame = NULL;
     posterImage = NULL;
     currentPreviewTexture = NULL;
-    if (CVOpenGLBufferCreate (NULL, 512, 384, NULL, &pixelBuffer) != noErr) {
-        // TODO - error messages
-        pixelBuffer = NULL;
-    }
     doPreview = YES;
-    //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
     filterParams = [[NSMutableDictionary dictionary] retain];
     return self;
 }
 
 - (void)dealloc
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
     [colorCorrectionFilter release];
     [effectFilter release];
     [compositeFilter release];
@@ -86,8 +69,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CVOpenGLTextureRelease(currentFrame);
     if (ciContext)
         [ciContext release];
-    if (pixelBuffer)
-        CVOpenGLBufferRelease(pixelBuffer);
     if (filterParams)
             [filterParams release];
     [lock release];
@@ -96,7 +77,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)prepareOpenGL
 {
-    CVReturn                ret;
     CGOpenGLDisplayMask    totalDisplayMask = 0;
     int     virtualScreen;
     GLint   displayMask;
@@ -152,11 +132,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [openGLPixelFormat getValues:&displayMask forAttribute:NSOpenGLPFAScreenMask forVirtualScreen:virtualScreen];
         totalDisplayMask |= displayMask;
     }
-    //ret = CVDisplayLinkCreateWithOpenGLDisplayMask(totalDisplayMask, &displayLink);
-    //ret = CVDisplayLinkCreateWithCGDisplay(viewDisplayID, &displayLink);
-    // Set up display link callbacks 
-    //CVDisplayLinkSetOutputCallback(displayLink, renderCallback, self);
-        
+
     // Setup the timecode overlay
     /*
     NSDictionary *fontAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:[NSFont labelFontOfSize:24.0f], NSFontAttributeName,
@@ -164,6 +140,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         nil];
     */
     //timeCodeOverlay = [[TimeCodeOverlay alloc] initWithAttributes:fontAttributes targetSize:NSMakeSize(720.0,480.0 / 4.0)];    // text overlay will go in the bottom quarter of the display
+    
+    GLint params[] = { 1 };
+    CGLSetParameter( CGLGetCurrentContext(), kCGLCPSwapInterval, params );
+                     
     [pool release];
 }
 
@@ -171,8 +151,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSRect        frame = [self frame];
     NSRect        bounds = [self bounds];
-    //[[freej getLock] lock];
-    [lock lock];
     if(needsReshape)    // if the view has been resized, reset the OpenGL coordinate system
     {
         GLfloat     minX, minY, maxX, maxY;
@@ -182,6 +160,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         maxX = NSMaxX(bounds);
         maxY = NSMaxY(bounds);
         
+        if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+            return;
+
         [[self openGLContext] makeCurrentContext];
 
         //[self update]; 
@@ -203,23 +184,26 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         
         [[self openGLContext] flushBuffer];
         needsReshape = NO;
+        CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
     }
     
     // clean the OpenGL context - not so important here but very important when you deal with transparenc
 
     [self setNeedsDisplay:NO];
     //[[freej getLock] unlock];
-    [lock unlock];
 }
 
-- (void)update
+- (void) update
 {
-    // do nothing
+    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+        return;
+    [super update];
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
 }
 
-- (CVReturn)_renderTime:(const CVTimeStamp *)time
+- (CVReturn)renderFrame
 {
-    NSLog(@"_renderTime MUST be overridden");
+    NSLog(@"renderFrame MUST be overridden");
     return kCVReturnError;
 }
 
@@ -439,7 +423,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     if (doPreview && previewTarget) { 
         // scale the frame to fit the preview
-        [previewTarget renderFrame:[self getTexture]];
+        if (![previewTarget isHiddenOrHasHiddenAncestor])
+            [previewTarget renderFrame:[self getTexture]];
 
     }
     [pool release];
@@ -453,9 +438,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIImage     *renderedImage = nil;
 
-    [lock lock];
-    if (newFrame) {        
+    if (newFrame) {       
+        [lock lock];
         inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
+        newFrame = NO;
         if (doFilters) {    
             [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
             [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
@@ -470,16 +456,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             renderedImage = inputImage;
         }
         texture = [[CVTexture alloc] initWithCIImage:renderedImage pixelBuffer:currentFrame];
+
         if (lastFrame)
             [lastFrame release];
         lastFrame = texture;
-        [self task]; // notify we have a new frame and the qtvisualcontext can be tasked
-        newFrame = NO;
+        [lock unlock];
 
+        [self task]; // notify we have a new frame and the qtvisualcontext can be tasked
     } 
     
     texture = [lastFrame retain];
-    [lock unlock];
 
     return texture;
 }
@@ -517,21 +503,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     doPreview = NO;
 }
-
-/*
-- (void)windowChangedScreen:(NSNotification*)inNotification
-{
-    NSWindow *window = [inNotification object]; 
-    CGDirectDisplayID displayID = (CGDirectDisplayID)[[[[window screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
-    if(displayID && (viewDisplayID != displayID))
-    {
-        CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, 
-            (CGLContextObj)[[self openGLContext] CGLContextObj], 
-            (CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]);
-        viewDisplayID = displayID;
-    }
-}
-*/
 
 - (void)lock
 {
@@ -648,7 +619,7 @@ void *
 CVLayer::feed()
 {
     if (active || [input needPreview]) {
-        [input _renderTime:nil];
+        [input renderFrame];
     }
     return (void *)buffer;
 }
@@ -696,8 +667,8 @@ CVLayer::set_mark_out()
 void
 CVLayer::pause()
 {
-    if ([input respondsToSelector:@selector(stop)])
-        [input stop];
+    if ([input respondsToSelector:@selector(pause)])
+        [(id)input pause];
 }
 
 bool

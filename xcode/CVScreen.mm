@@ -50,25 +50,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 
 @implementation CVScreenView : NSOpenGLView
-
-/*
-- (void)windowChangedScreen:(NSNotification*)inNotification
-{
-    NSWindow *window = [inNotification object]; 
-    CGDirectDisplayID displayID = (CGDirectDisplayID)[[[[window screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];
-
-	if(displayID && (viewDisplayID != displayID))
-    {
-		CVDisplayLinkSetCurrentCGDisplay(displayLink, displayID);
-		/*
-		CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, 
-			(CGLContextObj)[[self openGLContext] CGLContextObj], 
-			(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]);
-		*/
-		//viewDisplayID = displayID;
-    //}
-//}
-
 /*
 - (void)windowChangedSize:(NSNotification*)inNotification
 {
@@ -101,7 +82,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[lock retain];
 	[self setNeedsDisplay:NO];
 	[freej start];
-    
 	Context *ctx = (Context *)[freej getContext];
 	fjScreen = (CVScreen *)ctx->screen;
 	
@@ -119,7 +99,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	}
 	CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
     exportBuffer = CVPixelBufferGetBaseAddress(pixelBuffer);
-    textures = [[NSMutableArray arrayWithCapacity:50] retain];
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     exportCGContextRef = CGBitmapContextCreate (NULL,
                                      ctx->screen->w,
@@ -144,11 +123,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	CVOpenGLTextureRelease(pixelBuffer);
 	[ciContext release];
 	[currentContext release];
-	[outFrame release];
-	if (lastFrame)
-        [lastFrame release];
+	//[outFrame release];
+	//if (lastFrame)
+    //    [lastFrame release];
 	[lock release];
-    [textures release];
     [exportContext release];
     CGContextRelease( exportCGContextRef );
 	[super dealloc];
@@ -188,24 +166,27 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	CGColorSpaceRelease(colorSpace);
 
 	
-	//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedScreen:) name:NSWindowDidMoveNotification object:nil];
 	//[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedSize:) name:NSWindowDidResizeNotification object:nil];
 
     rateCalc = [[FrameRate alloc] init];
 	[rateCalc retain];
     
+    GLint params[] = { 1 };
+    CGLSetParameter( CGLGetCurrentContext(), kCGLCPSwapInterval, params );
+     
 	// Set up display link callbacks 
 	CVDisplayLinkSetOutputCallback(displayLink, renderCallback, self);
-
+    
 	// start asking for frames
 	[self start];
 }
 
-- (void)update
+- (void) update
 {
-    [lock lock];
+    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+        return;
     [super update];
-    [lock unlock];
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
 }
 
 - (void)drawRect:(NSRect)theRect
@@ -214,8 +195,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSRect		bounds = [self bounds];    
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
-   // [QTMovie enterQTKitOnThread];
-    [lock lock];
+    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+            return;
 	[currentContext makeCurrentContext];
 
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
@@ -258,9 +239,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	}
 	// flush our output to the screen - this will render with the next beamsync
 	[[self openGLContext] flushBuffer];
+    //[super drawRect:theRect];
 	[self setNeedsDisplay:NO];
-    [lock unlock];	
-
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
     [pool release];
 }
 
@@ -289,13 +270,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (CVReturn)outputFrame:(uint64_t)timestamp
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    CVTexture *textureToRelease = nil;
+    //CVTexture *textureToRelease = nil;
     NSRect		bounds = [self bounds];
-    //if (!texturePool)
-    //    texturePool = [[NSAutoreleasePool alloc] init];
 
 	Context *ctx = (Context *)[freej getContext];
-  //  [lock lock];
 
     ctx->cafudda(0.0);
 
@@ -304,32 +282,23 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         fpsString = [[NSString alloc] initWithFormat:@"%0.1lf", [rateCalc rate]];
         [fpsString autorelease];
         [showFps setStringValue:fpsString];
-    }
-
-  //  [lock unlock];
-    [lock lock];
+    } 
 
     if (outFrame) {
 		CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
 					NSWidth(bounds), NSHeight(bounds));
 		[ciContext drawImage: outFrame
 			atPoint: cg.origin  fromRect: cg];
+        outFrame = NULL;
+        /*
         if (lastFrame)
             [lastFrame release];
         lastFrame = [outFrame retain];
-		outFrame = NULL;
+        */
     }
-        if ([textures count]) {
-        //[QTMovie enterQTKitOnThread];
-        while ([textures count]) {
-            textureToRelease = [textures lastObject];
-            [textures removeLastObject];
-            [textureToRelease release];
-        }
-        //[QTMovie exitQTKitOnThread];
-    }
-    [lock unlock];
-    [self setNeedsDisplay:YES];
+
+    //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread
+    [self drawRect:NSZeroRect]; // this directly render the frame out in this thread
     [pool release];
 	return kCVReturnSuccess;
 }
@@ -373,7 +342,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		} 
 		CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
         texture = [[CVTexture alloc] initWithCIImage:inputImage pixelBuffer:pixelBufferOut];
-        CVPixelBufferRelease(pixelBufferOut);
+        //CVPixelBufferRelease(pixelBufferOut);
 		blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"];
 	}
 	[blendFilter setDefaults];
@@ -385,7 +354,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 			[blendFilter setValue:[texture image] forKey:@"inputImage"];
 			outFrame = [blendFilter valueForKey:@"outputImage"];
 		}
-        [textures addObject:texture];
+        [texture autorelease];
+        //[textures addObject:texture];
 	}
 }
 

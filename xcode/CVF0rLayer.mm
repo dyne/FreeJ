@@ -23,17 +23,16 @@
     icon = [CIImage imageWithContentsOfURL:
         [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
     [icon retain];
+    currentFrame = NULL;
     return [super init];
 }
 
 - (void)feedFrame:(void *)frame
 {
     //Context *ctx = (Context *)[freej getContext];
-    [lock lock];
-    if (currentFrame) {
-        CVPixelBufferRelease(currentFrame);
-        currentFrame = NULL;
-    }
+    //[lock lock];
+    CVPixelBufferRef newPixelBuffer;
+    
     CVReturn err = CVPixelBufferCreateWithBytes (
         NULL,
         layer->geo.w,
@@ -46,24 +45,25 @@
         NULL,
         &currentFrame
     ); 
+	
     //if (err == kCVReturnSuccess)
     newFrame = YES;
-    [lock unlock];
     [self renderPreview];
 }
 
 - (void)drawRect:(NSRect)theRect
 {
     GLint zeroOpacity = 0;
-    NSRect bounds = [self bounds];
-    NSRect frame = [self frame];
-    CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-    NSWidth(bounds), NSHeight(bounds));
-
     if (needsReshape) {
-        [lock lock];
+        NSRect bounds = [self bounds];
+        NSRect frame = [self frame];
+        CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+            NSWidth(bounds), NSHeight(bounds));
+        if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+            return;
         [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
         [super drawRect:theRect];
+        
         glClearColor(1, 1, 1, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -73,7 +73,7 @@
         [[self openGLContext] makeCurrentContext];
         [[self openGLContext] flushBuffer];
         needsReshape = NO;
-        [lock unlock];
+        CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);       
     }
     [self setNeedsDisplay:NO];
 }

@@ -33,15 +33,13 @@
 class  CVScreen;
 
 @interface CVScreenView : NSOpenGLView {
-	IBOutlet CFreej		*freej;
-	IBOutlet NSTextField *showFps;
+	NSRecursiveLock		*lock;
 	NSString			*fpsString;
     CVDisplayLinkRef	displayLink; // the displayLink that runs the show
     CGDirectDisplayID	viewDisplayID;
 	CVPixelBufferRef	pixelBuffer;
     //void                *pixelBuffer;
 	CVScreen			*fjScreen;
-	NSRecursiveLock		*lock;
 	CIContext			*ciContext;
 	NSOpenGLContext		*currentContext;
 	CIImage				*outFrame;
@@ -53,10 +51,11 @@ class  CVScreen;
 	CFDictionaryRef		savedMode;
 	bool				needsReshape;
 	FrameRate			*rateCalc;
-    NSMutableArray      *textures;
     CGContextRef        exportCGContextRef;
     CIContext           *exportContext;
     void                *exportBuffer;
+	IBOutlet CFreej		*freej;
+	IBOutlet NSTextField *showFps;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;
@@ -74,6 +73,11 @@ class  CVScreen;
 #else
 class CVScreenView;
 #endif // __cocoa
+
+/*
+ * C++ glue class exposed to the freej context
+ */
+
 class CVScreen : public ViewPort {
  private:
 	CVScreenView *view;

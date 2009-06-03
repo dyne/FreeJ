@@ -12,7 +12,7 @@
 
 #pragma mark
 // Frame rate calculator
-#define NumStamps 50
+#define NumStamps 25
 @interface FrameRate : NSObject
 {
   int _count;

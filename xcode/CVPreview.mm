@@ -38,6 +38,10 @@
 {
     NSRect		frame = [self frame];
     NSRect		bounds = [self bounds];
+    
+    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+            return;
+            
 	[[self openGLContext] makeCurrentContext];
 
 	if(needsReshape)	// if the view has been resized, reset the OpenGL coordinate system
@@ -81,14 +85,17 @@
 	// flush our output to the screen - this will render with the next beamsync
 	//glFlush();
 	[[self openGLContext] flushBuffer];
-	[self setNeedsDisplay:NO];		
+  //  [super drawRect:theRect];
+	[self setNeedsDisplay:NO];	
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);	
 }
 
 - (void)update
 {
-    [lock lock];
+    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+            return;
     [super update];
-    [lock unlock];
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
 }
 
 - (void)prepareOpenGL
@@ -141,12 +148,12 @@
             atPoint: imageRect.origin
             fromRect: imageRect];
     [self drawRect:NSZeroRect];  
+    //[self setNeedsDisplay:YES];
     //if (textureToRelease)
     //    [textureToRelease release];
     [lock unlock];
-    [pool release];
     [texture release];
-
+    [pool release];
 }
 
 - (void)clear

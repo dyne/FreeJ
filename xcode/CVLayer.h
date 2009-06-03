@@ -31,11 +31,6 @@ class CVLayer;
     bool                   doPreview;
     CVPreview              *previewTarget;
     CVTexture              *currentPreviewTexture;
-    // this is a "fake" buffer exposed to freej core
-    // XXX - freej actaully needs a buffer pointer but it's not going to use it.
-    // The blitter does...but on OSX the blitter is implemented in the CVScreen class.
-    // This means we could expose any address to freej and that would work anyway.
-    CVPixelBufferRef       pixelBuffer;
 
     // display link
     CVDisplayLinkRef       displayLink;            // the displayLink that runs the show
@@ -69,8 +64,8 @@ class CVLayer;
 
 @property (readwrite) CVLayer *layer;
 // subclass implementation should override this method and update 
-// the currentFrame pointer only within the _renderTime implementation
-- (CVReturn)_renderTime:(const CVTimeStamp *)time;
+// the currentFrame pointer only within the renderFrame implementation
+- (CVReturn)renderFrame;
 - (id)init;
 - (void)startPreview; // enable preview rendering
 - (void)stopPreview; // disable preview rendering

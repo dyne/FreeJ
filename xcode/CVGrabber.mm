@@ -11,6 +11,8 @@
 #import "CFreej.h"
 #import <CIAlphaFade.h>
 #include <jutils.h>
+#include <OpenGL/OpenGL.h>
+#include <OpenGL/gl.h>
 
 #define CV_GRABBER_WIDTH_MAX 640
 #define CV_GRABBER_HEIGHT_MAX 480
@@ -44,24 +46,23 @@
 {
     // Store the latest frame
     // This must be done in a @synchronized block because this delegate method is not called on the main thread
-    CVImageBufferRef imageBufferToRelease;
-    CVBufferRetain(videoFrame);
-    [lock lock];
+    @synchronized(self) {
+        CVImageBufferRef imageBufferToRelease;
+        CVBufferRetain(videoFrame);
+        //[lock lock];
 
-    imageBufferToRelease = currentFrame;
-    currentFrame = videoFrame;
-    currentPts = (time_t)(1000000L / [sampleBuffer presentationTime].timeScale * [sampleBuffer presentationTime].timeValue);
-    
-    /* Try to use hosttime of the sample if available, because iSight Pts seems broken */
-    //NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
-    //if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
-    
-    if (layer) 
-        layer->buffer = (void *)currentFrame;
+        imageBufferToRelease = currentFrame;
+        currentFrame = videoFrame;
+        currentPts = (time_t)(1000000L / [sampleBuffer presentationTime].timeScale * [sampleBuffer presentationTime].timeValue);
         
-    [grabberView feedFrame:currentFrame];
-    [lock unlock];
-    CVBufferRelease(imageBufferToRelease);
+        /* Try to use hosttime of the sample if available, because iSight Pts seems broken */
+        //NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
+        //if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
+        
+        [grabberView feedFrame:currentFrame];
+        //[lock unlock];
+        CVBufferRelease(imageBufferToRelease);
+    }
 }
 
 
@@ -70,14 +71,15 @@
     notice( "QTCapture opened" );
 
     NSError *o_returnedError;
+    Context *ctx = [freej getContext];
+    /* Hack - using ma resolution seems to lower cpu consuption for some reason */
+    int h = (ctx->screen->h < CV_GRABBER_HEIGHT_MAX)?ctx->screen->h:CV_GRABBER_HEIGHT_MAX;
+    int w = (ctx->screen->w < CV_GRABBER_WIDTH_MAX)?ctx->screen->w:CV_GRABBER_WIDTH_MAX;
+ 
     device = [QTCaptureDevice defaultInputDeviceWithMediaType: QTMediaTypeVideo];
     if( !device )
     {
-       // intf_UserFatal( p_demux, true, _("No Input device found"),
-         //               _("Your Mac does not seem to be equipped with a suitable input device. "
-           //               "Please check your connectors and drivers.") );
         error ( "Can't find any Video device" );
-        
         goto error;
     }
     [device retain];
@@ -101,10 +103,6 @@
         goto error;
     }
     
-    Context *ctx = [freej getContext];
-    int h = (ctx->screen->h < CV_GRABBER_HEIGHT_MAX)?ctx->screen->h:CV_GRABBER_HEIGHT_MAX;
-    int w = (ctx->screen->w < CV_GRABBER_WIDTH_MAX)?ctx->screen->w:CV_GRABBER_WIDTH_MAX;
-    /* Hack - This will lower CPU consumption for some reason */
     [self setPixelBufferAttributes: [NSDictionary dictionaryWithObjectsAndKeys:
         [NSNumber numberWithInt:h], kCVPixelBufferHeightKey,
         [NSNumber numberWithInt:w], kCVPixelBufferWidthKey, 
@@ -131,6 +129,7 @@
     notice( "Video device ready!" );
 
     running = true;
+    [self setDelegate:grabberView];
     [grabberView start];
 
     return;
@@ -211,25 +210,22 @@ error:
     return [super init];
 }
 
-- (CVReturn)_renderTime:(const CVTimeStamp *)timeStamp
+- (CVReturn)renderFrame
 {
     [lock lock];
-    if (exportedFrame)
-        CVPixelBufferRelease(exportedFrame);
-    exportedFrame = CVPixelBufferRetain(currentFrame);
-    [lock unlock];
     [self renderPreview];
+    if (layer)
+        layer->buffer = currentFrame;
+    [lock unlock];
     return kCVReturnSuccess;
 }
 
 - (void)feedFrame:(CVPixelBufferRef)frame
 {
-    [lock lock];
-    if (currentFrame)
-        CVPixelBufferRelease(currentFrame);
-    currentFrame = CVPixelBufferRetain(frame);
+   [lock lock];
+    currentFrame = frame;
     newFrame = YES;
-    [lock unlock];
+   [lock unlock];
 }
 
 - (void)start
@@ -239,7 +235,6 @@ error:
         if (ctx) {
             layer = new CVLayer(self);
             layer->init(ctx);
-            layer->buffer = (void *)pixelBuffer;
         }
     }
 }
@@ -251,15 +246,7 @@ error:
     }
 
 }
-/*
 
-- (void)update
-{
-    [lock lock];
-    [super update];
-    [lock unlock];
-}
-*/
 - (void)drawRect:(NSRect)theRect
 {
     GLint zeroOpacity = 0;
@@ -268,7 +255,8 @@ error:
         NSRect frame = [self frame];
         CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
             NSWidth(bounds), NSHeight(bounds));
-        [lock lock];
+        if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+            return;
         [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
         [super drawRect:theRect];
         glClearColor(1, 1, 1, 0);
@@ -280,7 +268,7 @@ error:
         [[self openGLContext] makeCurrentContext];
         [[self openGLContext] flushBuffer];
         needsReshape = NO;
-        [lock unlock];
+        CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
     }
     [self setNeedsDisplay:NO];
 }

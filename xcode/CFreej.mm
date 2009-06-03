@@ -145,7 +145,7 @@
 		freej->quit = false;
 		assert( freej->init(DEFAULT_FREEJ_WIDTH, DEFAULT_FREEJ_HEIGHT, Context::GL_COCOA, 0) );
 		freej->plugger.refresh(freej);
-		freej->config_check("keyboard.js");
+		//freej->config_check("keyboard.js");
         Filter *gen = freej->generators.begin();
         while (gen) {
             [generatorsButton addItemWithTitle:[NSString stringWithCString:gen->name]];

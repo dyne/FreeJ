@@ -28,17 +28,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     return noErr;
 }
 
-static CVReturn renderCallback(CVDisplayLinkRef displayLink, 
-                                                const CVTimeStamp *inNow, 
-                                                const CVTimeStamp *inOutputTime, 
-                                                CVOptionFlags flagsIn, 
-                                                CVOptionFlags *flagsOut, 
-                                                void *displayLinkContext)
-{
-    CVReturn ret = [(CVFileInput*)displayLinkContext _renderTime:inOutputTime];
-    return ret;
-}
-
 @implementation CVFileInput : CVLayerView
 
 - (id)init
@@ -177,13 +166,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
             NSWidth(bounds), NSHeight(bounds));
         
-        [lock lock];
+        //[lock lock];
         [ciContext drawImage:posterImage
             atPoint: imageRect.origin
             fromRect: imageRect];
         [[self openGLContext] makeCurrentContext];
         [[self openGLContext] flushBuffer];
-        [lock unlock];
+        //[lock unlock];
         [posterInputImage release];            
        
         // register the layer within the freej context
@@ -191,7 +180,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             layer = new CVLayer(self);
             layer->init(ctx);
             // give freej a fake buffer ... that's not going to be used anyway
-            layer->buffer = (void *)pixelBuffer;
         }
     }
 
@@ -240,9 +228,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (BOOL)getFrameForTime:(const CVTimeStamp *)timeStamp
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    CVOpenGLBufferRef newPixelBuffer;
     BOOL rv = NO;
     // we can care ourselves about thread safety when accessing the QTKit api
-    [QTMovie enterQTKitOnThreadDisablingThreadSafetyProtection];
+    [QTMovie enterQTKitOnThread];
     QTTime now = [qtMovie currentTime];
     // TODO - check against real hosttime to skip frames instead of
     // slowing down playback
@@ -254,20 +243,22 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [qtMovie gotoBeginning];
     if(qtVisualContext)
     {        
-        [lock lock];    
-        if (currentFrame) 
-            CVOpenGLTextureRelease(currentFrame);
-            
         QTVisualContextCopyImageForTime(qtVisualContext,
         NULL,
         NULL,
-        &currentFrame);
+        &newPixelBuffer);
       
         // rendering (aka: applying filters) is now done in getTexture()
         // implemented in CVLayerView (our parent)
-        newFrame = YES;
+        
         rv = YES;
+        [lock lock];
+        if (currentFrame) 
+            CVOpenGLTextureRelease(currentFrame);
+        currentFrame = newPixelBuffer;
+        newFrame = YES;
         [lock unlock];
+
     } 
     MoviesTask([qtMovie quickTimeMovie], 0);
     [QTMovie exitQTKitOnThread];    
@@ -276,7 +267,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 }
 
 
-- (CVReturn)_renderTime:(const CVTimeStamp *)timeStamp
+- (CVReturn)renderFrame
 {
     NSAutoreleasePool *pool = nil;
     
@@ -284,7 +275,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
     pool =[[NSAutoreleasePool alloc] init];
 
-    if(qtMovie && [self getFrameForTime:timeStamp])
+    if(qtMovie && [self getFrameForTime:nil])
     {
        
         // render preview if necessary
@@ -293,6 +284,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     } else {
         rv = kCVReturnError;
     }
+    if (layer) 
+        layer->buffer = currentFrame;
     [pool release];
     return rv;
 }
