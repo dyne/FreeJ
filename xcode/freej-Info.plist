@@ -9,7 +9,7 @@
     <key>CFBundleIconFile</key>
 	<string>ipernav</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.yourcompany.freej</string>
+	<string>org.dyne.freej</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundlePackageType</key>
