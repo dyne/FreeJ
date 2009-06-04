@@ -83,6 +83,13 @@
     return NO;
 }
 
+- (void)reset
+{
+    if (layer)
+        layer->stop();
+    layer = NULL;
+}
+
 @end
 
 CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
@@ -99,7 +106,7 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
         error("can't initialize generator layer");
     }
     layerPersonality->init(freej, freej->screen->w, freej->screen->h);
-    if (f0rPersonality->open(generatorName)) {
+    if (!f0rPersonality->open(generatorName)) {
           error("generator %s hasn't been found", generatorName);
     }
     layerPersonality->set_name("F0R");
@@ -107,6 +114,7 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
 
 CVF0rLayer::~CVF0rLayer()
 {
+
 }
 
 void *
@@ -121,4 +129,11 @@ void
 CVF0rLayer::start()
 {
     ((GenF0rLayer *)this)->start();
+}
+
+void
+CVF0rLayer::stop()
+{
+    GenF0rLayer *f0rPersonality = (GenF0rLayer *)this;
+    f0rPersonality->stop();
 }

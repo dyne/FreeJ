@@ -15,7 +15,7 @@
 #import <CVScreen.h>
 
 @class CVideoFileInput;
-@class CVLayerView;
+@class CVF0rLayerView;
 class CVLayer;
 
 #define CFREEJ_VINPUTS_MAX 8
@@ -27,7 +27,7 @@ class CVLayer;
 	IBOutlet NSTextField *scriptPath;
 	IBOutlet NSTextView *outputPanel;
     IBOutlet NSPopUpButton *generatorsButton;
-    IBOutlet CVLayerView *f0rView;
+    IBOutlet CVF0rLayerView *f0rView;
     IBOutlet CVScreenView *screen;
 }
 - (id)init;

@@ -115,7 +115,7 @@
 - (IBAction)openScript:(id)sender 
 {	
      func("doOpen");	
-     NSOpenPanel *tvarNSOpenPanelObj	= [NSOpenPanel openPanel];
+     NSOpenPanel *tvarNSOpenPanelObj = [NSOpenPanel openPanel];
      NSArray *types = [NSArray arrayWithObject:[NSString stringWithUTF8String:"js"]];
      [tvarNSOpenPanelObj 
         beginSheetForDirectory:nil 
@@ -126,7 +126,7 @@
         didEndSelector:@selector(openScriptPanelDidEnd: returnCode: contextInfo:) 
         contextInfo:nil];	
     [tvarNSOpenPanelObj setCanChooseFiles:YES];
-} // end openScript
+}
 
 - (Context *)getContext
 {
@@ -137,6 +137,7 @@
 {
 	return lock;
 }
+
 - (void)start
 {
 	if (!freej) {
@@ -173,20 +174,15 @@
 - (IBAction)startGenerator:(id)sender
 {
     static GenF0rLayer *tmp = NULL;
-    
+    char *name = (char *)[[[generatorsButton selectedItem] title] UTF8String];
     if (tmp) {
         delete tmp;
         tmp = NULL;
     }
-    tmp = new CVF0rLayer(f0rView, (char *)[[[generatorsButton selectedItem] title] UTF8String], freej);
-    if(!tmp) return ;
+    tmp = new CVF0rLayer(f0rView, name, freej);
+    if(!tmp) 
+        error("Can't create F0R layer %s", name);
     
-    //tmp->start();
-
-    //  tmp->set_fps(env->fps_speed);
-   // freej->add_layer(tmp);
-   // tmp->active=true;
-
     notice("generator %s succesfully created", tmp->name);
 
 }
@@ -194,6 +190,9 @@
 - (IBAction)reset:(id)sender
 {
     freej->reset();
+    [f0rView reset];
+    // give the engine some time to stop all layers
+    Delay(5, NULL); 
     [screen reset];
 }
 

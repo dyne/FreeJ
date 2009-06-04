@@ -13,6 +13,7 @@
 {
     CIImage *icon;
 }
+- (void)reset;
 - (void)feedFrame:(void *)frame;
 @end;
 
@@ -23,4 +24,5 @@ class CVF0rLayer : public GenF0rLayer, public CVLayer
         ~CVF0rLayer();
 		void *feed();
         void start();
+        void stop();
 };
