@@ -180,6 +180,13 @@ static FilterParams fParams[FILTERS_MAX] =
     return &fParams[index];
 }
 
+
+// handle keystrokes
+- (void)keyDown:(NSEvent *)event
+{
+    NSLog(@"Keypress (%hu) %@\n", [event keyCode], [event characters]);
+}
+
 @end
 
 @implementation CVFilterBox
@@ -202,7 +209,5 @@ static FilterParams fParams[FILTERS_MAX] =
     [filterPanel hide];
 
 }
-
-
 
 @end

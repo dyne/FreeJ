@@ -64,7 +64,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [exposureAdjustFilter release];
     [rotateFilter release];
     [scaleFilter release];
-    //[translateFilter release];
+    [translateFilter release];
     ///[timeCodeOverlay release];
     CVOpenGLTextureRelease(currentFrame);
     if (ciContext)
@@ -106,8 +106,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [rotateTransform rotateByDegrees:0.0];
     rotateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
     [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-    //translateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    //[translateFilter setValue:translateTransform forKey:@"inputTransform"];
+    translateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+    NSAffineTransform   *translateTransform = [NSAffineTransform transform];
+    [translateTransform translateXBy:0.0 yBy:0.0];
+    [translateFilter setValue:translateTransform forKey:@"inputTransform"];
     scaleFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
     //CIFilter *scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
     [scaleFilter setDefaults];    // set the filter to its default values
@@ -271,7 +273,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     float x = 0;
     float y = 0;
     NSAffineTransform    *rotateTransform;
-    NSAffineTransform    *translateTransform;
+    NSAffineTransform    *rototranslateTransform;
     NSString *paramName = NULL;
     pool = [[NSAutoreleasePool alloc] init];
 
@@ -300,7 +302,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         [exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
         [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
         break;
-    case 5: // rotate and translate
+    case 5: // rotate 
         rotateTransform = [NSAffineTransform transform];
         [rotateTransform rotateByDegrees:[sender floatValue]];
          deg = ([sender floatValue]*M_PI)/180.0;
@@ -308,15 +310,25 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
              x = ((layer->geo.w)-((layer->geo.w)*cos(deg)-(layer->geo.h)*sin(deg)))/2;
              y = ((layer->geo.h)-((layer->geo.w)*sin(deg)+(layer->geo.h)*cos(deg)))/2;
         }
-        translateTransform = [NSAffineTransform transform];
-        [translateTransform translateXBy:x yBy:y];
-        [rotateTransform appendTransform:translateTransform];
+        rototranslateTransform = [NSAffineTransform transform];
+        [rototranslateTransform translateXBy:x yBy:y];
+        [rotateTransform appendTransform:rototranslateTransform];
         [rotateTransform concat];
-        [translateTransform concat];
+        [rototranslateTransform concat];
         [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
         [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
         break;
-    case 6:
+    case 6: // traslate X
+        if (layer) 
+            layer->geo.x = [sender floatValue];
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+        break;
+    case 7: // traslate Y
+        if (layer)
+            layer->geo.y = [sender floatValue];
+        [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+        break;
+    case 100:
         NSString *filterName = [[NSString alloc] initWithFormat:@"CI%@", [[sender selectedItem] title]];
         NSLog(filterName);
         [effectFilter release];
@@ -352,7 +364,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             cView = slider;
         }
         break;
-    case 7:
+    case 101:
         paramName = [sender toolTip];
         if ([paramName isEqual:@"CenterX"]) {
             NSSlider *y = (NSSlider *)[[sender nextKeyView] nextKeyView];
@@ -363,7 +375,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         }
         [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         break;
-    case 8:
+    case 102:
         paramName = [sender toolTip];
         if ([paramName isEqual:@"CenterY"]) {
             NSSlider *x = (NSSlider *)[[sender previousKeyView] previousKeyView];
@@ -374,12 +386,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         }
         [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         break;
-    case 9:
+    case 103:
         paramName = [sender toolTip];
         [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         break;
-    case 10:
+    case 104:
         paramName = [sender toolTip];
         [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
@@ -450,8 +462,16 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
                           forKey:@"inputImage"];
             [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-            //[translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-            renderedImage = [rotateFilter valueForKey:@"outputImage"];
+            if (layer->geo.x || layer->geo.y) {
+                NSAffineTransform   *translateTransform = [NSAffineTransform transform];
+                [translateTransform translateXBy:layer->geo.x yBy:layer->geo.y];
+                [translateFilter setValue:translateTransform forKey:@"inputTransform"];
+            
+                [translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+                renderedImage = [translateFilter valueForKey:@"outputImage"];
+            } else {
+                renderedImage = [rotateFilter valueForKey:@"outputImage"];
+            }
         } else {
             renderedImage = inputImage;
         }
@@ -531,6 +551,21 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     if (layer)
         layer->deactivate();
+}
+
+- (void)rotateBy:(float)deg
+{
+    if (layer) {
+        
+    }
+}
+
+- (void)translateXby:(float)x Yby:(float)y
+{
+    if (layer) {
+        layer->geo.x = x;
+        layer->geo.y = y;
+    }
 }
 
 @synthesize layer;

@@ -82,6 +82,8 @@ class CVLayer;
 - (void)setPreviewTarget:(CVPreview *)targetView;
 - (void)lock; /// accessor to the internal mutex
 - (void)unlock; /// accessor to the internal mutex
+- (void)translateXby:(float)x Yby:(float)y;
+- (void)rotateBy:(float)deg;
 
 // Interface Builder API 
 - (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
@@ -91,7 +93,7 @@ class CVLayer;
 - (IBAction)togglePreview:(id)sender; /// toggle preview rendering
 // toggle layer registration on the underlying context
 // (so to control wether the layer has to be sent to the Screen or not)
-- (IBAction)toggleVisibility:(id)sender; 
+- (IBAction)toggleVisibility:(id)sender;
 
 @end
 

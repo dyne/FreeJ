@@ -123,9 +123,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	CVOpenGLTextureRelease(pixelBuffer);
 	[ciContext release];
 	[currentContext release];
-	//[outFrame release];
-	//if (lastFrame)
-    //    [lastFrame release];
+	if (outFrame)
+        [outFrame release];
+	if (lastFrame)
+        [lastFrame release];
 	[lock release];
     [exportContext release];
     CGContextRelease( exportCGContextRef );
@@ -289,12 +290,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 					NSWidth(bounds), NSHeight(bounds));
 		[ciContext drawImage: outFrame
 			atPoint: cg.origin  fromRect: cg];
-        outFrame = NULL;
-        /*
         if (lastFrame)
             [lastFrame release];
-        lastFrame = [outFrame retain];
-        */
+        lastFrame = outFrame;
+        outFrame = NULL;
     }
 
     //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread
@@ -348,11 +347,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	[blendFilter setDefaults];
 	if (texture) {
         if (!outFrame) {
-            outFrame = [texture image];
+            outFrame = [[texture image] retain];
 		} else {
 			[blendFilter setValue:outFrame forKey:@"inputBackgroundImage"];
 			[blendFilter setValue:[texture image] forKey:@"inputImage"];
-			outFrame = [blendFilter valueForKey:@"outputImage"];
+			CIImage *temp = [blendFilter valueForKey:@"outputImage"];
+            [outFrame autorelease];
+            outFrame = [temp retain];
 		}
         [texture autorelease];
         //[textures addObject:texture];
