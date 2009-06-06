@@ -101,9 +101,6 @@ void JsParser::init() {
    /** register SIGINT signal */
 	//   signal(SIGINT, js_sigint_handler);
 
-   ///////////////////////////////
-   // setup the freej context
-   //   env->osd.active = false;
 
    return;
 }

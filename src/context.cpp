@@ -549,17 +549,6 @@ int Context::reset() {
   }
   encoders.unlock();
 
-//   func("deleting current controllers");
-//   ctrl = (Controller *)controllers.begin();
-//   while(ctrl) {
-//     if( ! ctrl->indestructible ) {
-
-//       ctrl->rem();
-//       delete(ctrl);
-      
-//     }
-//     ctrl = (Controller *)controllers.begin();
-//   }
 
   // invokes JSGC and all gc call on our JSObjects
   //  if(js) js->reset();
@@ -702,20 +691,6 @@ Layer *Context::open(char *file) {
     if( ( ( IS_VIDEO_EXTENSION(end_file_ptr) ) | ( IS_FIREWIRE_DEVICE(file_ptr) ) ) ) {
       func("is a movie layer");
 
-      // // MLT experiments
-      //       nlayer = new MovieLayer();
-      //       func("MovieLayer instantiated");
-      //       if(!nlayer->init(this)) {
-      //  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-      //  	delete nlayer; return NULL;
-      //       }
-      //       func("MovieLayer initialized");
-      //       if(!nlayer->open(file_ptr)) {
-      //  	error("create_layer : VIDEO open failed");
-      //  	delete nlayer; nlayer = NULL;
-      //       }
-
-
 #ifdef WITH_FFMPEG
        nlayer = new VideoLayer();
        if(!nlayer->init( this )) {
@@ -726,18 +701,6 @@ Layer *Context::open(char *file) {
  	error("create_layer : VIDEO open failed");
  	delete nlayer; nlayer = NULL;
        }
-// #elif WITH_AVIFILE
-//       if( strncasecmp(file_ptr,"/dev/ieee1394/",14)==0)
-// 	  nlayer=NULL;
-//       nlayer = new AviLayer();
-//       if(!nlayer->init( this )) {
-// 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-// 	delete nlayer; return NULL;
-//       }
-//       if(!nlayer->open(file_ptr)) {
-// 	error("create_layer : AVI open failed");
-// 	delete nlayer; nlayer = NULL;
-//       }
  #else
       error("VIDEO and AVI layer support not compiled");
       act("can't load %s",file_ptr);
@@ -825,22 +788,6 @@ Layer *Context::open(char *file) {
 
   }
 #endif
-//     else { /* FALLBACK TO SCROLL LAYER */
-
-//     func("opening scroll layer on generic file type for %s",file_ptr);
-//     nlayer = new ScrollLayer();
-    
-//     if(!nlayer->init( this )) {
-//       error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-//       delete nlayer; return NULL;
-//     }
-       
-//        if(!nlayer->open(file_ptr)) {
-// 	 error("create_layer : SCROLL open failed");
-// 	 delete nlayer; nlayer = NULL;
-//        }
-       
-//   }
 
   if(!nlayer)
     error("can't create a layer with %s",file);

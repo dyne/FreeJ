@@ -58,6 +58,8 @@ static void new_frame_bgr24_cb (unicap_event_t event, unicap_handle_t handle,
 			  unicap_data_buffer_t * buffer, void *usr_data) {
   UnicapLayer *lay = (UnicapLayer*)usr_data;
 
+  func("cam callback");
+
   ccvt_bgr24_bgr32(lay->geo.w, lay->geo.h, buffer->data, lay->rgba[lay->swap]);
 
   lay->feed_ready = lay->rgba[lay->swap];
@@ -71,6 +73,7 @@ static void new_frame_yuyv_cb (unicap_event_t event, unicap_handle_t handle,
   UnicapLayer *lay = (UnicapLayer*)usr_data;
 
   func("cam callback");
+
   ccvt_yuyv_bgr32(lay->geo.w, lay->geo.h, buffer->data, lay->rgba[lay->swap]);
 
   lay->feed_ready = lay->rgba[lay->swap];
@@ -330,6 +333,8 @@ void *UnicapLayer::feed() {
     p->changed = false;
     p = (Parameter*)p->next;
   }
+
+  func("unicap feed() on %s (%ux%u)", name, geo.w, geo.h);
 
   if(capture_type==UNICAP_USER_CAPTURE) {
     unicap_data_buffer_t *res;
