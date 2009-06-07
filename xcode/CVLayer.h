@@ -87,7 +87,6 @@ class CVLayer;
 
 // Interface Builder API 
 - (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
-- (IBAction)setAlpha:(id)sender; /// tag 0
 - (IBAction)setBlendMode:(id)sender; /// tag -1
 - (IBAction)toggleFilters:(id)sender; /// toggle CIImage filters
 - (IBAction)togglePreview:(id)sender; /// toggle preview rendering
@@ -97,7 +96,8 @@ class CVLayer;
 
 @end
 
-class CVLayer: public Layer {
+class CVLayer: public Layer 
+{
     protected:
         int height, width;
         Context *freej;

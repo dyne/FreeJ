@@ -10,16 +10,29 @@
 
 @implementation CVF0rLayerView : CVLayerView
 
+- (void)prepareOpenGL
+{
+    [super prepareOpenGL];
+        Context *ctx = [freej getContext];
+    ctx->plugger.refresh(ctx);
+		//freej->config_check("keyboard.js");
+    Filter *gen = ctx->generators.begin();
+    while (gen) {
+        [selectButton addItemWithTitle:[NSString stringWithCString:gen->name]];
+        gen = (Filter *)gen->next;
+    }
+
+}
 - (id)init
 {
-    static char *postfix = "/Contents/Resources/frei0r.png";
+    static char *suffix = "/Contents/Resources/frei0r.png";
     char iconFile[1024];
     ProcessSerialNumber psn;
     GetProcessForPID(getpid(), &psn);
     FSRef location;
     GetProcessBundleLocation(&psn, &location);
-    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(postfix)-1);
-    strcat(iconFile, postfix);
+    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix)-1);
+    strcat(iconFile, suffix);
     icon = [CIImage imageWithContentsOfURL:
         [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
     [icon retain];
@@ -30,8 +43,7 @@
 - (void)feedFrame:(void *)frame
 {
     //Context *ctx = (Context *)[freej getContext];
-    //[lock lock];
-    CVPixelBufferRef newPixelBuffer;
+    [lock lock];
     
     CVReturn err = CVPixelBufferCreateWithBytes (
         NULL,
@@ -45,9 +57,9 @@
         NULL,
         &currentFrame
     ); 
-	
-    //if (err == kCVReturnSuccess)
-    newFrame = YES;
+    [lock unlock];
+    if (err == kCVReturnSuccess) 
+        newFrame = YES;
     [self renderPreview];
 }
 
@@ -83,11 +95,44 @@
     return NO;
 }
 
+- (void) setLayer:(CVLayer *)lay
+{
+    if (layer) // ensure to remove/stop old genf0rlayer if we are setting a new one
+        [self reset];
+    [super setLayer:lay];
+}
+
 - (void)reset
 {
-    if (layer)
-        layer->stop();
-    layer = NULL;
+    CVLayer *toDelete;
+    if (layer) {
+        toDelete = layer;
+        layer = NULL;
+        toDelete->stop();
+        delete toDelete;
+    }
+}
+
+- (IBAction)stop:(id)sender
+{
+    [self reset];
+    [sender setTitle:@"Start"];
+    [sender setAction:@selector(start:)];
+    [selectButton setEnabled:YES];
+}
+
+- (IBAction)start:(id)sender
+{
+    GenF0rLayer *newLayer = NULL;
+    
+    char *name = (char *)[[[selectButton selectedItem] title] UTF8String];
+    newLayer = new CVF0rLayer(self, name, [freej getContext]);
+    if(!newLayer) 
+        error("Can't create F0R layer %s", name);
+    [sender setTitle:@"Stop"];
+    [sender setAction:@selector(stop:)];
+    [selectButton setEnabled:NO];
+    notice("generator %s succesfully created", newLayer->name);
 }
 
 @end
@@ -99,8 +144,8 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
     freej = _freej;
     CVLayer *layerPersonality = (CVLayer *)this;
     GenF0rLayer *f0rPersonality = (GenF0rLayer *)this;
-    [input setLayer:this];
     layerPersonality->type = Layer::GL_COCOA;
+    [input setLayer:this];
     blendMode = NULL;
     if (!f0rPersonality->init(freej)) {
         error("can't initialize generator layer");
@@ -109,7 +154,7 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
     if (!f0rPersonality->open(generatorName)) {
           error("generator %s hasn't been found", generatorName);
     }
-    layerPersonality->set_name("F0R");
+    layerPersonality->set_name([[view toolTip] UTF8String]);
 }
 
 CVF0rLayer::~CVF0rLayer()

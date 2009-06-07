@@ -8,7 +8,7 @@
 
 #import "CVFilterPanel.h"
 
-#define FILTERS_MAX 17
+#define FILTERS_MAX 18
 static FilterParams fParams[FILTERS_MAX] =
 {
     { 1, { { "inputAmount", 0.0, 50.0 } } },  // ZoomBlur
@@ -17,6 +17,7 @@ static FilterParams fParams[FILTERS_MAX] =
     { 1, { { "inputRadius", 0.0, 50.0 } } }, // DiscBlur
     { 1, { { "inputRadius", 0.0, 100.0 } } }, // GaussianBlur
     { 1, { { "inputLevels", 2.0, 30.0 } } }, // ColorPosterize
+    { 0, { { NULL, 0.0, 0.0  } } }, // ColorInvert
     { 0, { { NULL, 0.0, 0.0 } } }, // ComicEffect
     { 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 1.0, 100.0 } } }, // Crystalize
     { 1, { { "inputIntensity", 0.0, 10.0 } } }, // Edges
@@ -99,34 +100,17 @@ static FilterParams fParams[FILTERS_MAX] =
     if (filter) {
         [filterButton selectItemWithTitle:filter];
     } else {
-        [self setFilterParameter:filterButton]; // configure default filter
         filter = [filterButton itemTitleAtIndex:0];
     }
-    FilterParams *pdescr = [self getFilterParamsDescriptorAtIndex:
-        [filterButton indexOfItemWithTitle:filter]];
+    [self setFilterParameter:filterButton]; // configure default filter
+
+    /* TODO - move this logic out of the FilterPanel. This should really be done in the 
+       CVLayerView implementation perhaps in setFilterParameter , but it would be better 
+       to do this in a sort of notification callback executed when the filterpanel attaches
+       the CVLayer */
     NSDictionary *filterParams = [layer filterParams];
     /* restore filter selection and parameters for this specific layer */
     if (filterParams) {
-        NSView *cView = (NSView *)filterButton;
-        for (int i = 0; i < 4; i++) {
-            if (i < pdescr->nParams) {
-                NSTextField *label = (NSTextField *)[cView nextKeyView];
-                NSSlider *slider = (NSSlider *)[label nextKeyView];
-                NSString *pLabel = [[[NSString alloc] initWithCString:pdescr->params[i].label] retain];
-                NSNumber *value = [filterParams valueForKey:pLabel];
-                [slider setHidden:NO];
-                [slider setMinValue:pdescr->params[i].min];
-                [slider setMaxValue:pdescr->params[i].max];
-                
-                if (value) 
-                    [slider setDoubleValue:[value floatValue]];
-                else
-                    [slider setDoubleValue:pdescr->params[i].min];
-
-                [slider setToolTip:pLabel];
-            }
-        }
-        
         /* restore image parameters (brightness, contrast, exposure and such) */
         NSSlider *imageParam = firstImageParam;
         while ([imageParam tag] <= [lastImageParam tag]) {
@@ -204,10 +188,15 @@ static FilterParams fParams[FILTERS_MAX] =
 }
  
 - (void)mouseExited:(NSEvent *)theEvent {
-    
-    [[self window] orderOut:self];
-    [filterPanel hide];
-
+    NSPoint eventLocation = [theEvent locationInWindow];
+    NSRect bounds = [self bounds];
+    // check if the pointer is really outside the panel's bounds
+    if (eventLocation.x <= 0 || eventLocation.x >= bounds.size.width ||
+        eventLocation.y <= 0 || eventLocation.y >= bounds.size.height)
+    {
+        [[self window] orderOut:self];
+        [filterPanel hide];
+    }
 }
 
 @end

@@ -294,6 +294,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             [lastFrame release];
         lastFrame = outFrame;
         outFrame = NULL;
+    } else {
+        needsReshape = YES;
     }
 
     //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread

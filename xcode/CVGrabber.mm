@@ -46,7 +46,7 @@
 {
     // Store the latest frame
     // This must be done in a @synchronized block because this delegate method is not called on the main thread
-    @synchronized(self) {
+    @synchronized(grabberView) {
         CVImageBufferRef imageBufferToRelease;
         CVBufferRetain(videoFrame);
         //[lock lock];
@@ -180,19 +180,15 @@ error:
 
 @end
 
-/* CVCaptureView is intended just as a bridge between the CVGrabber class and 
- * the CVFilterPanel used to configure/apply filters. 
- * This 'glue' class is necessary only because the CVGrabber needs to be a subclass
+/* This 'glue' class is necessary only because the CVGrabber needs to be a subclass
  * QTCaptureDecompressedVideoOutput. 
- * XXX - Perhaps there is a better way to do this ...
- * something that could make it easier to apply filters on the preview window
  */ 
 
 @implementation CVGrabberView : CVLayerView
 
 - (id)init
 {
-    static char *postfix = "/Contents/Resources/webcam.png";
+    static char *suffix = "/Contents/Resources/webcam.png";
     char iconFile[1024];
     
     exportedFrame = nil;
@@ -202,8 +198,8 @@ error:
     GetProcessForPID(getpid(), &psn);
     FSRef location;
     GetProcessBundleLocation(&psn, &location);
-    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(postfix)-1);
-    strcat(iconFile, postfix);
+    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix)-1);
+    strcat(iconFile, suffix);
     icon = [CIImage imageWithContentsOfURL:
         [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
     [icon retain];
@@ -212,18 +208,19 @@ error:
 
 - (CVReturn)renderFrame
 {
-    [lock lock];
-    [self renderPreview];
-    if (layer)
-        layer->buffer = currentFrame;
-    [lock unlock];
+    @synchronized(self) {
+        [self renderPreview];
+        if (layer)
+            layer->buffer = currentFrame;
+    }
     return kCVReturnSuccess;
 }
 
 - (void)feedFrame:(CVPixelBufferRef)frame
 {
    [lock lock];
-    currentFrame = frame;
+    CVPixelBufferRelease(currentFrame);
+    currentFrame = CVPixelBufferRetain(frame);
     newFrame = YES;
    [lock unlock];
 }

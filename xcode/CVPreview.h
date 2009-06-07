@@ -7,8 +7,8 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import <CFreeJ.h>
 #import <CVTexture.h>
+#import <CFreeJ.h>
 
 
 @interface CVPreview : NSOpenGLView {

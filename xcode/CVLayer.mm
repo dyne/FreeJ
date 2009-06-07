@@ -43,6 +43,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     lock = [[NSRecursiveLock alloc] init];
     [lock retain];
     [self setNeedsDisplay:NO];
+    layer = NULL;
     needsReshape = YES;
     //freejFrame = NULL;
     doFilters = true;
@@ -233,21 +234,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     doPreview = doPreview?NO:YES;
 }
 
-- (IBAction)setAlpha:(id)sender
-{
-    if (layer) {
-        //layer->set_blit("alpha");
-        //layer->set_([sender floatValue]);
-    }
-}
-
 - (void) setLayer:(CVLayer *)lay
 {
     if (lay) {
         layer = lay;
         layer->fps.set(25);
-        // set alpha
-        [self setAlpha:alphaBar];
     } 
 }
 
@@ -277,6 +268,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     NSString *paramName = NULL;
     pool = [[NSAutoreleasePool alloc] init];
 
+    // TODO - optimize the logic in this routine ... it's becoming huge!!
     // to prevent its run() method to try rendering
     // a frame while we change filter parameters
     [lock lock];
@@ -330,7 +322,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         break;
     case 100:
         NSString *filterName = [[NSString alloc] initWithFormat:@"CI%@", [[sender selectedItem] title]];
-        NSLog(filterName);
+        //NSLog(filterName);
         [effectFilter release];
         effectFilter = [[CIFilter filterWithName:filterName] retain];  
         [effectFilter setName:[[sender selectedItem] title]]; 
@@ -343,21 +335,37 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
             if (i < pdescr->nParams) {
                 [label setHidden:NO];
-                NSString *pLabel = [[[NSString alloc] initWithCString:pdescr->params[i].label] retain];
-                [label setTitleWithMnemonic:pLabel];
+                [label setTitleWithMnemonic:[NSString stringWithUTF8String:pdescr->params[i].label]];
+                
+                // first update sliders' min and max values
+                [slider setToolTip:[label stringValue]];
                 [slider setHidden:NO];
                 [slider setMinValue:pdescr->params[i].min];
                 [slider setMaxValue:pdescr->params[i].max];
-                [slider setDoubleValue:pdescr->params[i].min];
-                [filterParams setValue:[NSNumber numberWithFloat:pdescr->params[i].min]  forKey:pLabel];
-                [slider setToolTip:pLabel];
-                if ([pLabel isEqual:@"CenterY"])
-                    [slider setMaxValue:layer->geo.h];
-                else if ([pLabel isEqual:@"CenterX"])
-                    [slider setMaxValue:layer->geo.w];
+                NSNumber *value = [filterParams valueForKey:[label stringValue]];
+                if (value) 
+                    [slider setDoubleValue:[value floatValue]];
                 else
-                    [effectFilter setValue:[NSNumber numberWithFloat:pdescr->params[i].min] forKey:pLabel];
+                    [slider setDoubleValue:pdescr->params[i].min];
+                // than update the current value for this specific layer (saved in filterParams)
+                [filterParams setValue:[NSNumber numberWithFloat:[slider doubleValue]]  forKey:[label stringValue]];
+                
+                // handle the case it refers to a "center" coordinate
+                if (strcmp(pdescr->params[i].label, "CenterY") == 0) {
+                    [slider setMaxValue:layer->geo.h];
+                    NSSlider *x = (NSSlider *)[[slider previousKeyView] previousKeyView];
+                    [effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[slider floatValue]]
+                        forKey:@"inputCenter"];
+                } else if (strcmp(pdescr->params[i].label, "CenterX") == 0) {
+                    [slider setMaxValue:layer->geo.w];
+                    NSSlider *y = (NSSlider *)[[slider nextKeyView] nextKeyView];
+                    [effectFilter setValue:[CIVector vectorWithX:[slider floatValue] Y:[y floatValue]]
+                        forKey:@"inputCenter"];
+                } else {
+                    [effectFilter setValue:[NSNumber numberWithFloat:[slider doubleValue]] forKey:[label stringValue]];
+                }
             } else {
+                // hide unused sliders
                 [label setHidden:YES];
                 [slider setHidden:YES];
             }
@@ -395,7 +403,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         paramName = [sender toolTip];
         [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
         [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-    break;
+        break;
     default:
         break;
     }

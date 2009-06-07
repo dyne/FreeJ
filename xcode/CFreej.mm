@@ -5,11 +5,15 @@
 //  Created by xant on 2/8/09.
 //  Copyright 2009 dyne.org. All rights reserved.
 //
+#include <jsparser.h>
+#define _UINT64 1
+#define __cocoa 1
 #import <CFreej.h>
 #import <CVLayer.h>
-#import <CVF0rLayer.h>
+
 #define DEFAULT_FREEJ_WIDTH 512
 #define DEFAULT_FREEJ_HEIGHT 384
+
 
 @implementation CFreej
 
@@ -68,6 +72,7 @@
     [p release];
 }
  
+
 -(void)awakeFromNib
 {
 	lock = [[NSRecursiveLock alloc] init];
@@ -138,20 +143,38 @@
 	return lock;
 }
 
+ - (void)updateLayerList:(id)object
+{
+    NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
+    
+    if (layerSelect) {
+        [layerSelect removeAllItems];
+        NSMenu *menu = [layerSelect menu];
+        freej->layers.lock();
+        Layer *lay = (Layer *)freej->layers.begin ();
+        while (lay) {
+            if (lay->type !=  Layer::GL_COCOA)
+                [menu addItemWithTitle:[NSString stringWithUTF8String:lay->name] action:nil keyEquivalent:@""];
+            lay = (Layer *)lay->next;
+        }
+        freej->layers.unlock();
+    }
+    [layerSelect synchronizeTitleAndSelectedItem];
+    [p release];
+}
+
 - (void)start
 {
 	if (!freej) {
+        //freej = new CVContext(self);
         freej = new Context();
-		//const char *filename = [[scriptPath stringValue] UTF8String];
 		freej->quit = false;
 		assert( freej->init(DEFAULT_FREEJ_WIDTH, DEFAULT_FREEJ_HEIGHT, Context::GL_COCOA, 0) );
-		freej->plugger.refresh(freej);
-		//freej->config_check("keyboard.js");
-        Filter *gen = freej->generators.begin();
-        while (gen) {
-            [generatorsButton addItemWithTitle:[NSString stringWithCString:gen->name]];
-            gen = (Filter *)gen->next;
-        }
+
+        [[NSNotificationCenter defaultCenter] addObserver:self
+            selector:@selector(updateLayerList:)
+             name:NSPopUpButtonWillPopUpNotification
+             object:layerSelect];  
 	}	
 }
 
@@ -161,6 +184,7 @@
     freej->layers.lock();
     Layer *lay = (Layer *)freej->layers.begin ();
     while (lay) {
+        // TODO - should check against something more unique than the layer name
         if (strcmp(layer->name, lay->name) == 0) {
             ret = YES;
             break;
@@ -171,30 +195,38 @@
     return ret;
 }
 
-- (IBAction)startGenerator:(id)sender
-{
-    static GenF0rLayer *tmp = NULL;
-    char *name = (char *)[[[generatorsButton selectedItem] title] UTF8String];
-    if (tmp) {
-        delete tmp;
-        tmp = NULL;
-    }
-    tmp = new CVF0rLayer(f0rView, name, freej);
-    if(!tmp) 
-        error("Can't create F0R layer %s", name);
-    
-    notice("generator %s succesfully created", tmp->name);
-
-}
-
 - (IBAction)reset:(id)sender
 {
     freej->reset();
-    [f0rView reset];
     // give the engine some time to stop all layers
     Delay(5, NULL); 
+
     [screen reset];
 }
 
-
 @end
+
+/*
+
+CVContext::CVContext(CFreej *cfreej) :
+    Context()
+{
+    _cfreej = cfreej;
+}
+
+CVContext::~CVContext()
+{
+}
+
+void CVContext::add_layer(Layer *lay)
+{
+    Context::add_layer(lay);
+}
+
+bool CVContext::init(int wx, int hx, VideoMode videomode, int audiomode)
+{
+    bool ret = Context::init(wx, hx, videomode, audiomode);
+    return ret;
+}
+*/
+

@@ -12,9 +12,13 @@
 @interface CVF0rLayerView : CVLayerView
 {
     CIImage *icon;
+    IBOutlet NSPopUpButton *selectButton;
+    IBOutlet NSButton *startButton;
 }
 - (void)reset;
 - (void)feedFrame:(void *)frame;
+- (IBAction)start:(id)sender;
+- (IBAction)stop:(id)sender;
 @end;
 
 class CVF0rLayer : public GenF0rLayer, public CVLayer

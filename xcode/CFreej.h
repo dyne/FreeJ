@@ -11,11 +11,9 @@
 
 #include <context.h>
 #import <Cocoa/Cocoa.h>
-#define __cocoa
 #import <CVScreen.h>
 
 @class CVideoFileInput;
-@class CVF0rLayerView;
 class CVLayer;
 
 #define CFREEJ_VINPUTS_MAX 8
@@ -24,10 +22,9 @@ class CVLayer;
 	int stdout_pipe[2];
 	int stderr_pipe[2];
 	NSRecursiveLock *lock;
+    IBOutlet NSPopUpButton *layerSelect;
 	IBOutlet NSTextField *scriptPath;
 	IBOutlet NSTextView *outputPanel;
-    IBOutlet NSPopUpButton *generatorsButton;
-    IBOutlet CVF0rLayerView *f0rView;
     IBOutlet CVScreenView *screen;
 }
 - (id)init;
@@ -37,9 +34,21 @@ class CVLayer;
 - (NSRecursiveLock *)getLock;
 - (bool)isVisible:(CVLayer *)layer;
 - (IBAction)openScript:(id)sender;
-- (IBAction)startGenerator:(id)sender;
 - (IBAction)reset:(id)sender;
 
 @end
+
+/*
+class CVContext : public Context
+{
+    public:
+        CFreej *_cfreej;
+    
+        CVContext(CFreej *cfreej);
+        ~CVContext();
+        void add_layer(Layer *lay);
+        bool init(int wx, int hx, VideoMode videomode, int audiomode);
+};
+*/
 
 #endif
