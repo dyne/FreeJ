@@ -46,23 +46,22 @@
 {
     // Store the latest frame
     // This must be done in a @synchronized block because this delegate method is not called on the main thread
-    @synchronized(grabberView) {
-        CVImageBufferRef imageBufferToRelease;
-        CVBufferRetain(videoFrame);
-        //[lock lock];
+    CVImageBufferRef imageBufferToRelease;
+    CVBufferRetain(videoFrame);
 
-        imageBufferToRelease = currentFrame;
-        currentFrame = videoFrame;
-        currentPts = (time_t)(1000000L / [sampleBuffer presentationTime].timeScale * [sampleBuffer presentationTime].timeValue);
-        
-        /* Try to use hosttime of the sample if available, because iSight Pts seems broken */
-        //NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
-        //if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
-        
-        [grabberView feedFrame:currentFrame];
-        //[lock unlock];
+    imageBufferToRelease = currentFrame;
+    currentFrame = videoFrame;
+    currentPts = (time_t)(1000000L / [sampleBuffer presentationTime].timeScale * [sampleBuffer presentationTime].timeValue);
+    
+    /* Try to use hosttime of the sample if available, because iSight Pts seems broken */
+    //NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
+    //if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
+    
+    [grabberView feedFrame:currentFrame];
+
+    if (imageBufferToRelease)
         CVBufferRelease(imageBufferToRelease);
-    }
+
 }
 
 
@@ -206,22 +205,57 @@ error:
     return [super init];
 }
 
+- (void)dealloc
+{
+    if (currentFrame)
+        CVPixelBufferRelease(currentFrame);
+    [super dealloc];
+}
+
 - (CVReturn)renderFrame
 {
-    @synchronized(self) {
-        [self renderPreview];
-        if (layer)
-            layer->buffer = currentFrame;
-    }
+    [lock lock];
+    [self renderPreview];
+    if (layer)
+        layer->buffer = currentFrame;
+    [lock unlock];
     return kCVReturnSuccess;
 }
 
 - (void)feedFrame:(CVPixelBufferRef)frame
 {
-   [lock lock];
-    CVPixelBufferRelease(currentFrame);
-    currentFrame = CVPixelBufferRetain(frame);
-    newFrame = YES;
+    CVReturn error;
+    [lock lock];
+    u_char *sourceAddr, *destAddr;
+    if (!currentFrame) {
+        error = CVPixelBufferCreate (
+		   NULL,
+		   CVPixelBufferGetWidth(frame),
+		   CVPixelBufferGetHeight(frame),
+		   CVPixelBufferGetPixelFormatType(frame),
+           NULL,
+           &currentFrame
+        );
+        if (error != kCVReturnSuccess) {
+            NSLog(@"Can't create pixelbuffer to store currentFrame (err=%i)", error);
+            [lock unlock];
+            return;
+        }
+    }
+    // copy the pixelbuffer coming from the capture device to avoid holding it for 
+    // too much time (causing the system to hang)
+    if(CVPixelBufferLockBaseAddress(frame, 0) == kCVReturnSuccess) {
+        CVPixelBufferLockBaseAddress(currentFrame, 0);
+
+        sourceAddr = (u_char *)CVPixelBufferGetBaseAddress(frame);
+        destAddr = (u_char *)CVPixelBufferGetBaseAddress(currentFrame);
+        memcpy(destAddr, sourceAddr, CVPixelBufferGetBytesPerRow(frame)*CVPixelBufferGetHeight(frame));
+        
+        CVPixelBufferUnlockBaseAddress(currentFrame, 0);
+        newFrame = YES;
+    } else {
+        NSLog(@"CVPixelBufferLockBaseAddress() failed with error %i", error);
+    }
    [lock unlock];
 }
 
