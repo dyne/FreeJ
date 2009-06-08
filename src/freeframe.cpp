@@ -70,11 +70,12 @@ int Freeframe::open(char *file) {
   // Create dynamic handle to the library file.
   if(strstr(file, ".frf")) {
 #ifdef HAVE_DARWIN
-
       CFStringRef filestring = CFStringCreateWithCString(NULL, file, kCFStringEncodingUTF8);
       CFURLRef filepath = CFURLCreateWithFileSystemPath(NULL, filestring, kCFURLPOSIXPathStyle, 1);;
       CFBundleRef bundle = CFBundleCreate(NULL, filepath);
       plugmain = (plugMainUnion (*)(DWORD, void*, DWORD))CFBundleGetFunctionPointerForName(bundle, CFSTR("plugMain"));
+      CFRelease(filestring);
+      CFRelease(filepath);
 #endif
   } else {
       handle = dlopen(file, RTLD_NOW);

@@ -37,8 +37,7 @@ FPS::FPS() {
   fpsd.sum = 0;
   fpsd.i = 0;
   fpsd.n = 30;  
-  fpsd.data = (float*)calloc(fpsd.n, sizeof(float));
-  
+  fpsd.data = new float[fpsd.n];
   gettimeofday(&start_tv,NULL);
 
   wake_ts.tv_sec = wake_ts.tv_nsec = 0;
@@ -64,7 +63,6 @@ void FPS::init(int rate) {
 
   this->set(25);
 
-  fpsd.data = new float[30];
   for (int i=0; i<30; i++) {
     fpsd.data[i] = 0;
   }

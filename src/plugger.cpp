@@ -195,10 +195,9 @@ int Plugger::refresh(Context *env) {
 
 	if(found<0) break;
       }
-      
-  } while((dir = strtok(NULL,":")));
 
-  free(filelist);
+     free(filelist);
+  } while((dir = strtok(NULL,":")));
 
   act("filters found: %u", env->filters.len());
   act("generators found: %u", env->generators.len());
