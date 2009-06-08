@@ -14,8 +14,6 @@
 {
     [super prepareOpenGL];
         Context *ctx = [freej getContext];
-    ctx->plugger.refresh(ctx);
-		//freej->config_check("keyboard.js");
     Filter *gen = ctx->generators.begin();
     while (gen) {
         [selectButton addItemWithTitle:[NSString stringWithCString:gen->name]];
@@ -44,7 +42,8 @@
 {
     //Context *ctx = (Context *)[freej getContext];
     [lock lock];
-    
+    if (currentFrame)
+        CVPixelBufferRelease(currentFrame);
     CVReturn err = CVPixelBufferCreateWithBytes (
         NULL,
         layer->geo.w,

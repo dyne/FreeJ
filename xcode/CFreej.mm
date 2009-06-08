@@ -170,7 +170,8 @@
         freej = new Context();
 		freej->quit = false;
 		assert( freej->init(DEFAULT_FREEJ_WIDTH, DEFAULT_FREEJ_HEIGHT, Context::GL_COCOA, 0) );
-
+        freej->plugger.refresh(freej);
+		//freej->config_check("keyboard.js");
         [[NSNotificationCenter defaultCenter] addObserver:self
             selector:@selector(updateLayerList:)
              name:NSPopUpButtonWillPopUpNotification

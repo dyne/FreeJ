@@ -309,6 +309,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (void)openFilePanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void  *)contextInfo
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
      if(returnCode == NSOKButton){
      	func("openScript we have an OK button");	
      } else if(returnCode == NSCancelButton) {
@@ -339,11 +340,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         [self togglePlay:nil];
 
     }
-
+    [pool release];
 }
 
 - (IBAction)openFile:(id)sender 
 {	
+     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
      func("doOpen");	
      NSOpenPanel *tvarNSOpenPanelObj	= [NSOpenPanel openPanel];
      NSArray *types = [NSArray arrayWithObjects:
@@ -368,6 +370,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         didEndSelector:@selector(openFilePanelDidEnd: returnCode: contextInfo:) 
         contextInfo:nil];	
     [tvarNSOpenPanelObj setCanChooseFiles:YES];
+    [pool release];
 } // end openFile
 
 
