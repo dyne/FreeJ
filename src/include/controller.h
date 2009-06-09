@@ -44,7 +44,7 @@ class Controller: public Entry {
 
   // we need a pointer to context because controllers aren't depending from javascript
   // those who need it will retreive JSContext/Object from freej->js->global_context/object
-  virtual bool init(Context *freej);
+  bool init(Context *freej);
   // function called in main loop, 
   // handle your events here
   virtual int poll() = 0;

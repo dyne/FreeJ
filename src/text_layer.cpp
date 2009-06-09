@@ -214,7 +214,7 @@ void TextLayer::_display_text(SDL_Surface *newsurf) {
 
 }
 
-void TextLayer::print_text(const char *str) {
+void TextLayer::print(const char *str) {
   SDL_Surface *tmp, *newsurf;
   
   // choose first font and initialize ready for printing

@@ -520,7 +520,7 @@ int console_open_layer(Context *env, char *cmd) {
 #include <text_layer.h>
 int console_print_text_layer(Context *env, char *cmd) {
 
-  ((TextLayer*)env->layers.selected())->print_text(cmd);
+  ((TextLayer*)env->layers.selected())->print(cmd);
   return env->layers.len();
 
 }
@@ -534,7 +534,7 @@ int console_open_text_layer(Context *env, char *cmd) {
   }
 
   
-  txt->print_text(cmd);
+  txt->print(cmd);
   txt->start();
   //  txt->set_fps(0);
   env->add_layer(txt);

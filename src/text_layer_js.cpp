@@ -86,7 +86,7 @@ JS(txt_layer_print) {
   char *str;
   JS_ARG_STRING(str, 0);
 
-  lay->print_text(str);
+  lay->print(str);
 
   return JS_TRUE;
 }

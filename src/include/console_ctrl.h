@@ -64,9 +64,10 @@ class Console: public Controller {
   Console();
   ~Console();
   
-  bool init(Context *freej);
   int poll();
   int dispatch();
+
+  bool slw_init();
 
   void close();
   void cafudda();

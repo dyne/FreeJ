@@ -128,9 +128,8 @@ Console::~Console() {
 
 }
 
-bool Console::init(Context *freej) {
+bool Console::slw_init() {
   ::func("%s",__PRETTY_FUNCTION__);
-  env = freej;
 
   slw = new SLangConsole();
   slw->init();
@@ -149,7 +148,7 @@ bool Console::init(Context *freej) {
   // title
   tit = new SlwTitle();
   tit->set_name("console title");
-  tit->env = freej;
+  tit->env = env;
   slw->place(tit, 0, 0, slw->w, 2);
   tit->init();
   /////////////////////////////////
@@ -157,7 +156,7 @@ bool Console::init(Context *freej) {
   // layer and filter selector
   sel = new SlwSelector();
   sel->set_name("layer & filter selector");
-  sel->env = freej;
+  sel->env = env;
   slw->place(sel, 0, 2, slw->w, 8);
   sel->init();
   ////////////////////////////
@@ -173,7 +172,7 @@ bool Console::init(Context *freej) {
   // status line
   rdl = new SlwReadline();
   rdl->set_name("console readline");
-  rdl->env = freej;
+  rdl->env = env;
   slw->place(rdl, 0, slw->h-1, slw->w, slw->h);
   rdl->init();
   ////////////////////////////

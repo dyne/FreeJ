@@ -389,16 +389,25 @@ void Context::handle_controllers() {
 
 bool Context::register_controller(Controller *ctrl) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
   if(!ctrl) {
     error("%s called on a NULL object", __PRETTY_FUNCTION__);
     return false;
   }
 
-  if(! ctrl->initialized ) ctrl->init(this);
-  else if(ctrl->env != this) {
+  if(! ctrl->initialized ) {
+    func("initialising controller %s (%p)",ctrl->name, ctrl);
+
+    ctrl->init(this);
+
+  } else if(ctrl->env != this) {
+
     error("controller is already initialised with another context: %x", ctrl->env);
+
   } else 
     warning("controller was already initialised on this context");
+
+  func("controller %s initialized", ctrl->name);
 
   ctrl->active = true;
 
@@ -451,6 +460,7 @@ void Context::add_layer(Layer *lay) {
   layers.prepend(lay);
   layers.sel(0);
   lay->sel(true);
+  lay->active = true;
   func("layer %s succesfully added",lay->name);
 }
 

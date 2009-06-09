@@ -45,11 +45,13 @@ bool Controller::init(Context *freej) {
   func("%s",__PRETTY_FUNCTION__);
   env = freej;
 
-  jsenv = freej->js->global_context;
-
-  // the object is set to global, but should be overwritten
-  // in every specific object constructor with the "obj" from JS
-  jsobj = freej->js->global_object;
+  if(freej->js) {
+    jsenv = freej->js->global_context;
+    
+    // the object is set to global, but should be overwritten
+    // in every specific object constructor with the "obj" from JS
+    jsobj = freej->js->global_object;
+  }
   
   initialized = true;
   return(true);
