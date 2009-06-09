@@ -124,8 +124,6 @@ class Context {
 
   bool config_check(const char *filename);
 
-  void rocknroll();
-
   void magnify(int algo);
   int magnification;
 
