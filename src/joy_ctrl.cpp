@@ -165,9 +165,11 @@ int JoyController::dispatch() {
 		return button_up(event.jbutton.which, event.jbutton.button);
 		break;
 
-	default: 
-		return 0;
+	default: break;
+
 	}
+
+	return 0;
 }
 
 JS(js_joy_ctrl_constructor) {
@@ -190,6 +192,8 @@ JS(js_joy_ctrl_constructor) {
 
   // assign the real js object
   joy->jsobj = obj;
+
+  joy->javascript = true;
 
   *rval = OBJECT_TO_JSVAL(obj);
   return JS_TRUE;

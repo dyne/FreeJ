@@ -396,7 +396,7 @@ JS(js_vimo_ctrl_constructor) {
 
 	// assign the real js object
 	vimo->jsobj = obj;
-
+	vimo->javascript = true;
 
 
 	*rval = OBJECT_TO_JSVAL(obj);

@@ -94,7 +94,8 @@ Context::Context() {
   poll_events     = true;
 
   fps_speed       = 25;
-    
+
+  js = NULL;
   main_javascript[0] = 0x0;
 
   layers_description = (char*)
@@ -144,8 +145,7 @@ Context::~Context() {
   notice ("cu on http://freej.dyne.org");
 }
 
-bool Context::init
-(int wx, int hx, VideoMode videomode, int audiomode) {
+bool Context::init(int wx, int hx, VideoMode videomode, int audiomode) {
 
   notice("initializing context environment", wx, hx);
 
@@ -186,8 +186,6 @@ bool Context::init
     return (false);
   }
   
-  // create javascript object
-  js = new JsParser (this);
 
   // a fast benchmark to select the best memcpy to use
   find_best_memcpy ();
@@ -196,6 +194,9 @@ bool Context::init
     act ("using MMX accelerated blit");
 
   fps.init(fps_speed);
+
+  // create javascript object
+  js = new JsParser (this);
 
 //  if(init_audio) 
 //    audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
@@ -423,7 +424,9 @@ bool Context::rem_controller(Controller *ctrl) {
     error("%s called on a NULL object", __PRETTY_FUNCTION__);
     return false;
   }
-  js->gc(); // ?!
+
+  if(js) js->gc(); // ?!
+
   ctrl->rem();
   // mh, the JS_GC callback does the delete ...
   if (ctrl->jsobj == NULL) {
@@ -474,12 +477,9 @@ void Context::rem_layer(Layer *lay) {
   //  js->gc();
 
   lay->rem();
-  if (lay->data == NULL) {
-      notice("Layer: no JS data: deleting");
-      //      delete lay;
-  } else {
-      notice("removed layer %s but still present as JSObject, not deleting!", lay->name);
-  }
+
+  notice("removed layer %s (but still present as an instance)", lay->name);
+
 }
 
 void Context::add_encoder(VideoEncoder *enc) {
@@ -512,11 +512,20 @@ void Context::add_encoder(VideoEncoder *enc) {
 }
 
 int Context::open_script(char *filename) {
+  if(!js) {
+    error("can't open script %s: javascript interpreter is not initialized", filename);
+    return 0;
+  }
   return js->open(filename);
 }
 
 
 int Context::parse_js_cmd(const char *cmd) {
+  if(!js) {
+    error("javascript interpreter is not initialized");
+    error("can't parse script \"%s\"",cmd);
+    return 0;
+  }
   return js->parse(cmd);
 }
 
@@ -531,7 +540,7 @@ int Context::reset() {
   //  quit = true;
 
   // javascript garbage collector
-  js->gc(); 
+  if(js) js->gc(); 
 
   func("deleting current layers");
   //  layers.unlock(); // in case we crashed while cafudda'ing
@@ -570,7 +579,13 @@ int Context::reset() {
 
 bool Context::config_check(const char *filename) {
   char tmp[512];
-  
+
+  if(!js) {
+    warning("javascript is not initialized");
+    warning("no configuration is loaded");
+    return(false);
+  }
+
   snprintf(tmp, 512, "%s/.freej/%s", getenv("HOME"), filename);
   if( filecheck(tmp) ) {
     js->open(tmp);

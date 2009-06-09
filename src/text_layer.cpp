@@ -214,14 +214,13 @@ void TextLayer::_display_text(SDL_Surface *newsurf) {
 
 }
 
-void TextLayer::print(const char *str) {
+void TextLayer::write(const char *str) {
   SDL_Surface *tmp, *newsurf;
   
   // choose first font and initialize ready for printing
   
   if(!font) {
-    func("%s: no font selected on layer %s, please choose one!",
-	    __PRETTY_FUNCTION__, this->name);
+    error("no font selected on text layer %s, please choose one!", this->name);
     return;
   }
 

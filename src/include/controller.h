@@ -60,6 +60,8 @@ class Controller: public Entry {
 
   bool indestructible; ///< set to true if you want the controller to survive a reset
 
+  bool javascript; ///< mark that this controller was created by javascript
+
   Context *env;
 
   JSContext *jsenv;

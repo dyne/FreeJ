@@ -106,19 +106,21 @@ MouseController::~MouseController() {
 
 int MouseController::poll() {
 
-  if(!motion_f) { // find javascript function pointer
-    res = JS_GetMethod(jsenv, jsobj, "motion", &objp, &motion_f);
-    if(!res || JSVAL_IS_VOID(motion_f)) {
-      error("motion method not found in MouseController"); 
-      return(-1);
+  if(javascript) {
+    if(!motion_f) { // find javascript function pointer
+      res = JS_GetMethod(jsenv, jsobj, "motion", &objp, &motion_f);
+      if(!res || JSVAL_IS_VOID(motion_f)) {
+	error("motion method not found in MouseController"); 
+	return(-1);
+      }
     }
-  }
-
-  if(!button_f) { // find javascript function pointer
-    res = JS_GetMethod(jsenv, jsobj, "button", &objp, &button_f);
-    if(!res || JSVAL_IS_VOID(button_f)) {
-      error("button method not found in MouseController"); 
-      return(-1);
+    
+    if(!button_f) { // find javascript function pointer
+      res = JS_GetMethod(jsenv, jsobj, "button", &objp, &button_f);
+      if(!res || JSVAL_IS_VOID(button_f)) {
+	error("button method not found in MouseController"); 
+	return(-1);
+      }
     }
   }
  
@@ -218,6 +220,7 @@ JS(js_mouse_ctrl_constructor) {
 
 	// assign the real js object
 	mouse->jsobj = obj;
+	mouse->javascript = true;
 
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;

@@ -29,6 +29,7 @@ Controller::Controller() {
 	func("%s this=%p",__PRETTY_FUNCTION__, this);
 	initialized = active = false;
 	indestructible = false;
+	javascript = false;
 	jsenv = NULL;
 	jsobj = NULL;
 }

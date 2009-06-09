@@ -210,6 +210,8 @@ JS(js_osc_ctrl_constructor) {
   // assign the real js object
   osc->jsobj = obj;
 
+  osc->javascript = true;
+
   char *port;
   JS_ARG_STRING(port,0);
   strncpy(osc->port, port, 64);

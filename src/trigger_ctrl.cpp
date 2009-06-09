@@ -56,31 +56,36 @@ TriggerController::~TriggerController() {
 
 int TriggerController::poll() {
 
-
-  if(!frame_func) {
-    JSObject *objp = NULL;
-    JSBool res;
-    res = JS_GetMethod(jsenv, jsobj, "frame", &objp, &frame_func);
-    if(!res || JSVAL_IS_VOID(frame_func)) {
-      error("method frame not found in TriggerController"); 
-      return(-1);
+  if(javascript)
+    if(!frame_func) {
+      JSObject *objp = NULL;
+      JSBool res;
+      res = JS_GetMethod(jsenv, jsobj, "frame", &objp, &frame_func);
+      if(!res || JSVAL_IS_VOID(frame_func)) {
+	error("method frame not found in TriggerController"); 
+	return(-1);
+      }
     }
-  }
 
   return dispatch();
 }
 
 int TriggerController::dispatch() {
 
+  // if no javascript is initilized then this function
+  // should be overridden by other binded languages
+  if(javascript) {
     jsval ret = JSVAL_VOID;
     JSBool res;
-
+    
     res = JS_CallFunctionValue(jsenv, jsobj, frame_func, 0, NULL, &ret);
     if (res == JS_FALSE) {
       error("trigger call frame() failed, deactivate ctrl");
       frame_func = NULL;
       active = false;
     }
+  }
+
     
   return(1);
 }
@@ -97,6 +102,9 @@ JS(js_trigger_ctrl_constructor) {
   }
 
   trigger->jsobj = obj;
+
+  // mark that this controller was created by javascript
+  trigger->javascript = true;
 
   // assign instance into javascript object
   if( ! JS_SetPrivate(cx, obj, (void*)trigger) ) {

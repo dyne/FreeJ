@@ -371,7 +371,7 @@ bool Layer::set_zoom(double x, double y) {
     zoom_y = y;
     spin_zoom = 0; // block spin
     zooming = true;
-    act("%s layer %s zoom set to x%.2f y%.2f",	name, filename, zoom_x, zoom_y);
+    func("%s layer %s zoom set to x%.2f y%.2f",	name, filename, zoom_x, zoom_y);
 
   }
 
@@ -393,7 +393,7 @@ bool Layer::set_rotate(double angle) {
     rotate = angle;
     spin_rotation = 0; // blocks spin
     rotating = true;
-    act("%s layer %s rotation set to %.2f", name, filename, rotate);
+    func("%s layer %s rotation set to %.2f", name, filename, rotate);
 
   }
 

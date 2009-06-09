@@ -65,6 +65,7 @@ JS(js_midi_ctrl_constructor) {
 
     // assign the real js object
     midi->jsobj = obj;
+    midi->javascript = true;
 
     *rval = OBJECT_TO_JSVAL(obj);
     return JS_TRUE;
