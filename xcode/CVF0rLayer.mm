@@ -72,6 +72,8 @@
             NSWidth(bounds), NSHeight(bounds));
         if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
             return;
+        [[self openGLContext] makeCurrentContext];
+
         [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
         [super drawRect:theRect];
         
@@ -81,7 +83,6 @@
         [ciContext drawImage:icon
             atPoint: imageRect.origin
             fromRect: imageRect];
-        [[self openGLContext] makeCurrentContext];
         [[self openGLContext] flushBuffer];
         needsReshape = NO;
         CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);       

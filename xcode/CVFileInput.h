@@ -22,7 +22,6 @@
     CGLContextObj         qtOpenGLContext;
     QTVisualContextRef    qtVisualContext;        // the context the movie is playing in
     bool                  isPlaying;
-    
 }
 
 - (QTTime)movieDuration;

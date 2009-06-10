@@ -196,6 +196,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     //[[freej getLock] unlock];
 }
 
+- (void)reshape
+{
+    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+        return;
+    [super reshape];
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+}
+
 - (void) update
 {
     if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
@@ -321,10 +329,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
         break;
     case 100:
-        NSString *filterName = [[NSString alloc] initWithFormat:@"CI%@", [[sender selectedItem] title]];
+        NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
         //NSLog(filterName);
         [effectFilter release];
-        effectFilter = [[CIFilter filterWithName:filterName] retain];  
+        effectFilter = [[CIFilter filterWithName:filterName] retain]; 
         [effectFilter setName:[[sender selectedItem] title]]; 
         FilterParams *pdescr = [filterPanel getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
         [effectFilter setDefaults];

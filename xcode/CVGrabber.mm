@@ -229,10 +229,10 @@ error:
     u_char *sourceAddr, *destAddr;
     if (!currentFrame) {
         error = CVPixelBufferCreate (
-		   NULL,
-		   CVPixelBufferGetWidth(frame),
-		   CVPixelBufferGetHeight(frame),
-		   CVPixelBufferGetPixelFormatType(frame),
+                    NULL,
+                    CVPixelBufferGetWidth(frame),
+                    CVPixelBufferGetHeight(frame),
+                    CVPixelBufferGetPixelFormatType(frame),
            NULL,
            &currentFrame
         );
@@ -286,8 +286,11 @@ error:
         NSRect frame = [self frame];
         CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
             NSWidth(bounds), NSHeight(bounds));
+
         if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
             return;
+        [[self openGLContext] makeCurrentContext];
+
         [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
         [super drawRect:theRect];
         glClearColor(1, 1, 1, 0);
@@ -296,7 +299,6 @@ error:
         [ciContext drawImage:icon
             atPoint: imageRect.origin
             fromRect: imageRect];
-        [[self openGLContext] makeCurrentContext];
         [[self openGLContext] flushBuffer];
         needsReshape = NO;
         CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);

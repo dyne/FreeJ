@@ -33,6 +33,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (id)init
 {
     isPlaying = NO;
+        qtVisualContext = nil;
     return [super init];
 }
 
@@ -43,6 +44,45 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     if(qtVisualContext)
         QTVisualContextRelease(qtVisualContext);
     [super dealloc];
+}
+
+- (void)prepareOpenGL
+{
+    OSStatus err;
+    
+    [super prepareOpenGL];
+    Context *ctx = (Context *)[freej getContext];
+
+    /* Create QT Visual context */
+    
+    // Pixel Buffer attributes
+    CFMutableDictionaryRef pixelBufferOptions = CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                                                          &kCFTypeDictionaryKeyCallBacks,
+                                                                          &kCFTypeDictionaryValueCallBacks);
+    
+    // the pixel format we want (freej require BGRA pixel format
+    SetNumberValue(pixelBufferOptions, kCVPixelBufferPixelFormatTypeKey, k32ARGBPixelFormat);
+    
+    // size
+    SetNumberValue(pixelBufferOptions, kCVPixelBufferWidthKey, ctx->screen->w);
+    SetNumberValue(pixelBufferOptions, kCVPixelBufferHeightKey, ctx->screen->h);
+    
+    // alignment
+    SetNumberValue(pixelBufferOptions, kCVPixelBufferBytesPerRowAlignmentKey, 1);
+    // QT Visual Context attributes
+    CFMutableDictionaryRef visualContextOptions = CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+                                                                            &kCFTypeDictionaryKeyCallBacks,
+                                                                            &kCFTypeDictionaryValueCallBacks);
+    // set the pixel buffer attributes for the visual context
+    CFDictionarySetValue(visualContextOptions,
+                         kQTVisualContextPixelBufferAttributesKey,
+                         pixelBufferOptions);
+    CFRelease(pixelBufferOptions);
+    err = QTOpenGLTextureContextCreate(kCFAllocatorDefault, (CGLContextObj)[[self openGLContext] CGLContextObj],
+                                       (CGLPixelFormatObj)[[NSOpenGLView defaultPixelFormat] CGLPixelFormatObj], visualContextOptions, &qtVisualContext);
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CFRelease(visualContextOptions);
+    CGColorSpaceRelease(colorSpace);    
 }
 
 - (void)unloadMovie
@@ -63,19 +103,24 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     
     posterImage = NULL;
 
+    
+    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]))
+        return;
+    
     [[self openGLContext] makeCurrentContext];    
     // clean the OpenGL context
     glClearColor(0.0, 0.0, 0.0, 0.0);         
     glClear(GL_COLOR_BUFFER_BIT);
     glFinish();
+    
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
     [lock unlock];
 }
 
 - (void)setQTMovie:(QTMovie*)inMovie
 {    
-    OSStatus                err;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    Context *ctx = (Context *)[freej getContext];
+    //Context *ctx = (Context *)[freej getContext];
 
     [lock lock];
     // if we own already a movie let's relase it before trying to open the new one
@@ -88,44 +133,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         return;
     }
     qtMovie = inMovie;
-    [qtMovie retain]; // we are going to need this for a while
-    if (!qtVisualContext)
-    {
-        /* Create QT Visual context */
 
-        // Pixel Buffer attributes
-        CFMutableDictionaryRef pixelBufferOptions = CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
-                                                       &kCFTypeDictionaryKeyCallBacks,
-                                                       &kCFTypeDictionaryValueCallBacks);
-
-        // the pixel format we want (freej require BGRA pixel format
-        SetNumberValue(pixelBufferOptions, kCVPixelBufferPixelFormatTypeKey, k32ARGBPixelFormat);
-
-        // size
-        SetNumberValue(pixelBufferOptions, kCVPixelBufferWidthKey, ctx->screen->w);
-        SetNumberValue(pixelBufferOptions, kCVPixelBufferHeightKey, ctx->screen->h);
-
-        // alignment
-        SetNumberValue(pixelBufferOptions, kCVPixelBufferBytesPerRowAlignmentKey, 1);
-        // QT Visual Context attributes
-        CFMutableDictionaryRef visualContextOptions = CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
-                                                         &kCFTypeDictionaryKeyCallBacks,
-                                                         &kCFTypeDictionaryValueCallBacks);
-        // set the pixel buffer attributes for the visual context
-        CFDictionarySetValue(visualContextOptions,
-                             kQTVisualContextPixelBufferAttributesKey,
-                             pixelBufferOptions);
-
-        err = QTOpenGLTextureContextCreate(kCFAllocatorDefault, (CGLContextObj)[[self openGLContext] CGLContextObj],
-            (CGLPixelFormatObj)[[NSOpenGLView defaultPixelFormat] CGLPixelFormatObj], visualContextOptions, &qtVisualContext);
-        CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        
-        CGColorSpaceRelease(colorSpace);
-        
-    }
     if(qtMovie) { // ok the movie is here ... let's start the underlying QTMovie object
         OSStatus error;
-        
+
+        [qtMovie retain]; // we are going to need this for a while
+
         error = SetMovieVisualContext([qtMovie quickTimeMovie], qtVisualContext);
         [qtMovie gotoBeginning];
         //[qtMovie setMuted:YES]; // still no audio?
@@ -149,13 +162,13 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         NSData  * tiffData = [poster TIFFRepresentation];
         NSBitmapImageRep * bitmap;
         bitmap = [NSBitmapImageRep imageRepWithData:tiffData];
-
+        
+        NSRect bounds = [self bounds];
         CIImage *posterInputImage = [[CIImage alloc] initWithBitmapImageRep:bitmap];
         // scale the frame to fit the preview
         NSAffineTransform *scaleTransform = [NSAffineTransform transform];
-        NSRect bounds = [self bounds];
-        NSRect frame = [self frame];
-        float scaleFactor = frame.size.width/ctx->screen->w;
+    
+        float scaleFactor = bounds.size.width/[poster size].width;
         [scaleTransform scaleBy:scaleFactor];
     
         [scaleFilter setValue:scaleTransform forKey:@"inputTransform"];
@@ -179,7 +192,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         if (!layer) {
             layer = new CVLayer(self);
             layer->init(ctx);
-            // give freej a fake buffer ... that's not going to be used anyway
         }
     }
 
@@ -309,68 +321,52 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (void)openFilePanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void  *)contextInfo
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
      if(returnCode == NSOKButton){
-     	func("openScript we have an OK button");	
+         func("openFilePanel: OK");    
      } else if(returnCode == NSCancelButton) {
-     	func("openScript we have a Cancel button");
-     	return;
+         func("openFilePanel: Cancel");
+         return;
      } else {
-     	error("doOpen tvarInt not equal 1 or zero = %3d",returnCode);
-     	return;
+         error("openFilePanel: Error %3d",returnCode);
+         return;
      } // end if     
      NSString * tvarDirectory = [panel directory];
-     func("openScript directory = %@",tvarDirectory);
+     func("openFile directory = %@",tvarDirectory);
 
      NSString * tvarFilename = [panel filename];
-     func("openScript filename = %@",tvarFilename);
-	 
+     func("openFile filename = %@",tvarFilename);
+     
     if (tvarFilename) {
-        //if(CVDisplayLinkIsRunning(displayLink)) 
-        //    [self togglePlay:nil];
-        NSDictionary *movieAttributes = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], QTMovieOpenAsyncOKAttribute,tvarFilename, QTMovieFileNameAttribute,[NSNumber numberWithBool:NO] , QTMovieHasAudioAttribute, nil];
+        NSDictionary *movieAttributes = [NSDictionary dictionaryWithObjectsAndKeys:
+            [NSNumber numberWithBool:YES], QTMovieOpenAsyncOKAttribute,
+            tvarFilename, QTMovieFileNameAttribute,
+            [NSNumber numberWithBool:NO] , QTMovieHasAudioAttribute,
+            nil];
         QTMovie *movie = [[QTMovie alloc] initWithAttributes:movieAttributes error:nil];
         [movie setIdling:NO];
         [self setQTMovie:movie];
         [movie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
-        //[movie setAttribute:[NSNumber numberWithBool:NO] forKey:QTMovieHasAudioAttribute];
-        //NSLog(@"movie %@", [movie movieAttributes]);
-
-        //[movie gotoBeginning];
-        [self togglePlay:nil];
-
+        [self togglePlay:nil]; // start playing the movie
     }
-    [pool release];
 }
 
 - (IBAction)openFile:(id)sender 
-{	
-     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-     func("doOpen");	
-     NSOpenPanel *tvarNSOpenPanelObj	= [NSOpenPanel openPanel];
-     NSArray *types = [NSArray arrayWithObjects:
-        [NSString stringWithUTF8String:"avi"],
-        [NSString stringWithUTF8String:"mov"],
-        [NSString stringWithUTF8String:"mpg"],
-        [NSString stringWithUTF8String:"asf"],
-        [NSString stringWithUTF8String:"jpg"],
-        [NSString stringWithUTF8String:"png"],
-        [NSString stringWithUTF8String:"tif"],
-        [NSString stringWithUTF8String:"bmp"],
-        [NSString stringWithUTF8String:"gif"],
-        [NSString stringWithUTF8String:"pdf"],
-        nil];
+{    
+    NSOpenPanel *fileSelectionPanel    = [NSOpenPanel openPanel];
+    func("doOpen");    
+    NSArray *types = [NSArray arrayWithObjects:
+        @"avi", @"mov", @"mpg", @"asf", @"jpg", 
+        @"png", @"tif", @"bmp", @"gif", @"pdf", nil];
         
-     [tvarNSOpenPanelObj 
+    [fileSelectionPanel 
         beginSheetForDirectory:nil 
         file:nil
         types:types 
         modalForWindow:[sender window]
         modalDelegate:self 
         didEndSelector:@selector(openFilePanelDidEnd: returnCode: contextInfo:) 
-        contextInfo:nil];	
-    [tvarNSOpenPanelObj setCanChooseFiles:YES];
-    [pool release];
+        contextInfo:nil];    
+   [fileSelectionPanel setCanChooseFiles:YES];
 } // end openFile
 
 
