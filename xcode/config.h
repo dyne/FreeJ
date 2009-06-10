@@ -209,6 +209,8 @@
 
 #define WITH_COCOA 1
 
+#define WITH_SWSCALE 1
+
 #define _SINT64
 //#define _UINT64
 //#define _SINT32
