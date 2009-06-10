@@ -109,7 +109,6 @@
 		AAA7B7430F404B7F00056C44 /* xhacks_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C453E0F3EEBE0007C7E8B /* xhacks_layer.cpp */; };
 		AAA7B7440F404B7F00056C44 /* ccvt_c2.c in Sources */ = {isa = PBXBuildFile; fileRef = AAB8444A0F3EFB3400AD479D /* ccvt_c2.c */; };
 		AAA7B7450F404B7F00056C44 /* ccvt_misc.c in Sources */ = {isa = PBXBuildFile; fileRef = AAB8444C0F3EFB3400AD479D /* ccvt_misc.c */; };
-		AAA7B7460F404B7F00056C44 /* ccvt_mmx.S in Sources */ = {isa = PBXBuildFile; fileRef = AAB8444F0F3EFB3400AD479D /* ccvt_mmx.S */; };
 		AAA7B7470F404B7F00056C44 /* ccvt_rgb2yuv.S in Sources */ = {isa = PBXBuildFile; fileRef = AAB844510F3EFB3400AD479D /* ccvt_rgb2yuv.S */; };
 		AAA7B7480F404B7F00056C44 /* address.c in Sources */ = {isa = PBXBuildFile; fileRef = AAB849090F3EFB3600AD479D /* address.c */; };
 		AAA7B7490F404B7F00056C44 /* blob.c in Sources */ = {isa = PBXBuildFile; fileRef = AAB8490C0F3EFB3600AD479D /* blob.c */; };
@@ -134,23 +133,8 @@
 		AAA7B75C0F404B7F00056C44 /* httpp.c in Sources */ = {isa = PBXBuildFile; fileRef = AAB84E9C0F3F080600AD479D /* httpp.c */; };
 		AAA7B75D0F404B7F00056C44 /* CFreej.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAA7B62B0F40485F00056C44 /* CFreej.mm */; };
 		AAA7B75E0F404B8C00056C44 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
-		AAA7B75F0F404B8C00056C44 /* libavcodec.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB8442C0F3EFA9500AD479D /* libavcodec.a */; };
-		AAA7B7600F404B8C00056C44 /* libavformat.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB8442D0F3EFA9500AD479D /* libavformat.a */; };
-		AAA7B7610F404B8C00056C44 /* libavutil.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB8442E0F3EFA9500AD479D /* libavutil.a */; };
-		AAA7B7620F404B8C00056C44 /* libSDL.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB8442F0F3EFA9500AD479D /* libSDL.a */; };
 		AAA7B7630F404B8C00056C44 /* libSDLmain.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB844300F3EFA9500AD479D /* libSDLmain.a */; };
-		AAA7B7640F404B8C00056C44 /* libsndfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB844310F3EFA9500AD479D /* libsndfile.a */; };
-		AAA7B7650F404B8C00056C44 /* libtheora.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB844320F3EFA9500AD479D /* libtheora.a */; };
-		AAA7B7660F404B8C00056C44 /* libvorbis.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB844330F3EFA9500AD479D /* libvorbis.a */; };
-		AAA7B7670F404B8C00056C44 /* libvorbisfile.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB844340F3EFA9500AD479D /* libvorbisfile.a */; };
-		AAA7B7680F404B8C00056C44 /* libogg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB84E800F3F055500AD479D /* libogg.a */; };
-		AAA7B7690F404B8C00056C44 /* libjs.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB84E830F3F05EB00AD479D /* libjs.a */; };
-		AAA7B76A0F404B8C00056C44 /* libslang.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB84E860F3F060F00AD479D /* libslang.a */; };
 		AAA7B76B0F404B8C00056C44 /* libSDL_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB84E890F3F063400AD479D /* libSDL_gfx.a */; };
-		AAA7B76C0F404B8C00056C44 /* libSDL_image.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB84E8A0F3F063400AD479D /* libSDL_image.a */; };
-		AAA7B76D0F404B8C00056C44 /* libSDL_ttf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB84E8B0F3F063400AD479D /* libSDL_ttf.a */; };
-		AAA7B76E0F404B8C00056C44 /* libvorbisenc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB84E900F3F06D800AD479D /* libvorbisenc.a */; };
-		AAA7B76F0F404B8C00056C44 /* libnspr4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAA7B6470F40492500056C44 /* libnspr4.a */; };
 		AAAABEE40F521A6000461C96 /* fps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAABEE30F521A6000461C96 /* fps.cpp */; };
 		AAAABF470F5226A700461C96 /* CVScreen.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAAABF460F5226A700461C96 /* CVScreen.mm */; };
 		AAAAC1730F533ADF00461C96 /* closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAAC16F0F533ADF00461C96 /* closure.cpp */; };
@@ -161,6 +145,23 @@
 		AAB270620F4065220068E5F5 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270610F4065220068E5F5 /* QTKit.framework */; };
 		AAB270980F406ACE0068E5F5 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270970F406ACE0068E5F5 /* CoreVideo.framework */; };
 		AACBE4830F641605001B610F /* FrameRate.m in Sources */ = {isa = PBXBuildFile; fileRef = AACBE4820F641605001B610F /* FrameRate.m */; };
+		AAD0A4CC0FDEC08100968886 /* libavcodec.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C00FDEC08100968886 /* libavcodec.dylib */; };
+		AAD0A4CD0FDEC08100968886 /* libavformat.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C10FDEC08100968886 /* libavformat.dylib */; };
+		AAD0A4CE0FDEC08100968886 /* libfftw3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C20FDEC08100968886 /* libfftw3.dylib */; };
+		AAD0A4CF0FDEC08100968886 /* libjs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C30FDEC08100968886 /* libjs.dylib */; };
+		AAD0A4D00FDEC08100968886 /* libogg.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C40FDEC08100968886 /* libogg.dylib */; };
+		AAD0A4D10FDEC08100968886 /* libSDL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C50FDEC08100968886 /* libSDL.dylib */; };
+		AAD0A4D20FDEC08100968886 /* libSDL_ttf.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */; };
+		AAD0A4D30FDEC08100968886 /* libslang.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C70FDEC08100968886 /* libslang.2.dylib */; };
+		AAD0A4D40FDEC08100968886 /* libswscale.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C80FDEC08100968886 /* libswscale.dylib */; };
+		AAD0A4D50FDEC08100968886 /* libtheora.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C90FDEC08100968886 /* libtheora.dylib */; };
+		AAD0A4D60FDEC08100968886 /* libvorbis.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4CA0FDEC08100968886 /* libvorbis.dylib */; };
+		AAD0A4D70FDEC08100968886 /* libvorbisenc.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4CB0FDEC08100968886 /* libvorbisenc.dylib */; };
+		AAD0A4D90FDEC0E300968886 /* libSDL_image.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4D80FDEC0E300968886 /* libSDL_image.dylib */; };
+		AAD0A4DB0FDEC0FF00968886 /* libavutil.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4DA0FDEC0FF00968886 /* libavutil.dylib */; };
+		AAD0A4DF0FDEC15A00968886 /* libvorbisfile.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4DE0FDEC15A00968886 /* libvorbisfile.dylib */; };
+		AAD0A4E10FDEC20100968886 /* libSDL_gfx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */; };
+		AAD0A4E30FDEC2A200968886 /* libsndfile.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */; };
 		AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */ = {isa = PBXBuildFile; fileRef = AADF79FF0FD7F84500167F57 /* ipernav.icns */; };
 		AAEE68940FC8906B007FB46B /* webcam.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE68930FC8906B007FB46B /* webcam.png */; };
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
@@ -442,7 +443,6 @@
 		AAA6BE160FC6B8F5008E5936 /* vertigo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vertigo.c; sourceTree = "<group>"; };
 		AAA6BE210FC6B945008E5936 /* libpartik0l.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpartik0l.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAA7B62B0F40485F00056C44 /* CFreej.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CFreej.mm; sourceTree = "<group>"; };
-		AAA7B6470F40492500056C44 /* libnspr4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libnspr4.a; path = /opt/local/lib/libnspr4.a; sourceTree = "<absolute>"; };
 		AAA7B6530F40494400056C44 /* freej-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "freej-Info.plist"; sourceTree = "<group>"; };
 		AAA7B6F30F404B4C00056C44 /* freej.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = freej.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAAABEE30F521A6000461C96 /* fps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fps.cpp; sourceTree = "<group>"; };
@@ -459,19 +459,10 @@
 		AAB270610F4065220068E5F5 /* QTKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QTKit.framework; path = /System/Library/Frameworks/QTKit.framework; sourceTree = "<absolute>"; };
 		AAB270970F406ACE0068E5F5 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = /System/Library/Frameworks/CoreVideo.framework; sourceTree = "<absolute>"; };
 		AAB843AA0F3EEEAF00AD479D /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		AAB8442C0F3EFA9500AD479D /* libavcodec.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavcodec.a; path = /opt/local/lib/libavcodec.a; sourceTree = "<absolute>"; };
-		AAB8442D0F3EFA9500AD479D /* libavformat.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavformat.a; path = /opt/local/lib/libavformat.a; sourceTree = "<absolute>"; };
-		AAB8442E0F3EFA9500AD479D /* libavutil.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libavutil.a; path = /opt/local/lib/libavutil.a; sourceTree = "<absolute>"; };
-		AAB8442F0F3EFA9500AD479D /* libSDL.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL.a; path = /opt/local/lib/libSDL.a; sourceTree = "<absolute>"; };
 		AAB844300F3EFA9500AD479D /* libSDLmain.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDLmain.a; path = /opt/local/lib/libSDLmain.a; sourceTree = "<absolute>"; };
-		AAB844310F3EFA9500AD479D /* libsndfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsndfile.a; path = /opt/local/lib/libsndfile.a; sourceTree = "<absolute>"; };
-		AAB844320F3EFA9500AD479D /* libtheora.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtheora.a; path = /opt/local/lib/libtheora.a; sourceTree = "<absolute>"; };
-		AAB844330F3EFA9500AD479D /* libvorbis.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbis.a; path = /opt/local/lib/libvorbis.a; sourceTree = "<absolute>"; };
-		AAB844340F3EFA9500AD479D /* libvorbisfile.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbisfile.a; path = /opt/local/lib/libvorbisfile.a; sourceTree = "<absolute>"; };
 		AAB844470F3EFB3400AD479D /* ccvt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccvt.h; sourceTree = "<group>"; };
 		AAB8444A0F3EFB3400AD479D /* ccvt_c2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ccvt_c2.c; sourceTree = "<group>"; };
 		AAB8444C0F3EFB3400AD479D /* ccvt_misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ccvt_misc.c; sourceTree = "<group>"; };
-		AAB8444F0F3EFB3400AD479D /* ccvt_mmx.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = ccvt_mmx.S; sourceTree = "<group>"; };
 		AAB844510F3EFB3400AD479D /* ccvt_rgb2yuv.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = ccvt_rgb2yuv.S; sourceTree = "<group>"; };
 		AAB844520F3EFB3400AD479D /* ccvt_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccvt_types.h; sourceTree = "<group>"; };
 		AAB849090F3EFB3600AD479D /* address.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = address.c; sourceTree = "<group>"; };
@@ -511,18 +502,29 @@
 		AAB849CC0F3EFB3600AD479D /* util.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = util.c; sourceTree = "<group>"; };
 		AAB849CD0F3EFB3600AD479D /* util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = util.h; sourceTree = "<group>"; };
 		AAB849CF0F3EFB3600AD479D /* vorbis.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vorbis.c; sourceTree = "<group>"; };
-		AAB84E800F3F055500AD479D /* libogg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libogg.a; path = /opt/local/lib/libogg.a; sourceTree = "<absolute>"; };
-		AAB84E830F3F05EB00AD479D /* libjs.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjs.a; path = /opt/local/lib/libjs.a; sourceTree = "<absolute>"; };
-		AAB84E860F3F060F00AD479D /* libslang.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libslang.a; path = /opt/local/lib/libslang.a; sourceTree = "<absolute>"; };
 		AAB84E890F3F063400AD479D /* libSDL_gfx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL_gfx.a; path = /opt/local/lib/libSDL_gfx.a; sourceTree = "<absolute>"; };
-		AAB84E8A0F3F063400AD479D /* libSDL_image.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL_image.a; path = /opt/local/lib/libSDL_image.a; sourceTree = "<absolute>"; };
-		AAB84E8B0F3F063400AD479D /* libSDL_ttf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL_ttf.a; path = /opt/local/lib/libSDL_ttf.a; sourceTree = "<absolute>"; };
-		AAB84E900F3F06D800AD479D /* libvorbisenc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libvorbisenc.a; path = /opt/local/lib/libvorbisenc.a; sourceTree = "<absolute>"; };
 		AAB84E9C0F3F080600AD479D /* httpp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = httpp.c; sourceTree = "<group>"; };
 		AAB84E9D0F3F080600AD479D /* httpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = httpp.h; sourceTree = "<group>"; };
 		AAB84F850F3F1EB300AD479D /* CFreej.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFreej.h; sourceTree = "<group>"; };
 		AACBE4810F641605001B610F /* FrameRate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameRate.h; sourceTree = "<group>"; };
 		AACBE4820F641605001B610F /* FrameRate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FrameRate.m; sourceTree = "<group>"; };
+		AAD0A4C00FDEC08100968886 /* libavcodec.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.dylib; path = /opt/local/lib/libavcodec.dylib; sourceTree = "<absolute>"; };
+		AAD0A4C10FDEC08100968886 /* libavformat.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavformat.dylib; path = /opt/local/lib/libavformat.dylib; sourceTree = "<absolute>"; };
+		AAD0A4C20FDEC08100968886 /* libfftw3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfftw3.dylib; path = /opt/local/lib/libfftw3.dylib; sourceTree = "<absolute>"; };
+		AAD0A4C30FDEC08100968886 /* libjs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjs.dylib; path = /opt/local/lib/libjs.dylib; sourceTree = "<absolute>"; };
+		AAD0A4C40FDEC08100968886 /* libogg.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libogg.dylib; path = /opt/local/lib/libogg.dylib; sourceTree = "<absolute>"; };
+		AAD0A4C50FDEC08100968886 /* libSDL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL.dylib; path = /opt/local/lib/libSDL.dylib; sourceTree = "<absolute>"; };
+		AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_ttf.dylib; path = /opt/local/lib/libSDL_ttf.dylib; sourceTree = "<absolute>"; };
+		AAD0A4C70FDEC08100968886 /* libslang.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libslang.2.dylib; path = /opt/local/lib/libslang.2.dylib; sourceTree = "<absolute>"; };
+		AAD0A4C80FDEC08100968886 /* libswscale.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libswscale.dylib; path = /opt/local/lib/libswscale.dylib; sourceTree = "<absolute>"; };
+		AAD0A4C90FDEC08100968886 /* libtheora.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtheora.dylib; path = /opt/local/lib/libtheora.dylib; sourceTree = "<absolute>"; };
+		AAD0A4CA0FDEC08100968886 /* libvorbis.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvorbis.dylib; path = /opt/local/lib/libvorbis.dylib; sourceTree = "<absolute>"; };
+		AAD0A4CB0FDEC08100968886 /* libvorbisenc.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvorbisenc.dylib; path = /opt/local/lib/libvorbisenc.dylib; sourceTree = "<absolute>"; };
+		AAD0A4D80FDEC0E300968886 /* libSDL_image.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_image.dylib; path = /opt/local/lib/libSDL_image.dylib; sourceTree = "<absolute>"; };
+		AAD0A4DA0FDEC0FF00968886 /* libavutil.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavutil.dylib; path = /opt/local/lib/libavutil.dylib; sourceTree = "<absolute>"; };
+		AAD0A4DE0FDEC15A00968886 /* libvorbisfile.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvorbisfile.dylib; path = /opt/local/lib/libvorbisfile.dylib; sourceTree = "<absolute>"; };
+		AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_gfx.dylib; path = /opt/local/lib/libSDL_gfx.dylib; sourceTree = "<absolute>"; };
+		AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsndfile.1.dylib; path = /opt/local/lib/libsndfile.1.dylib; sourceTree = "<absolute>"; };
 		AADF79FF0FD7F84500167F57 /* ipernav.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ipernav.icns; sourceTree = "<group>"; };
 		AAEE68930FC8906B007FB46B /* webcam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = webcam.png; sourceTree = "<group>"; };
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
@@ -569,28 +571,30 @@
 			buildActionMask = 2147483647;
 			files = (
 				AAA7B75E0F404B8C00056C44 /* Cocoa.framework in Frameworks */,
-				AAA7B75F0F404B8C00056C44 /* libavcodec.a in Frameworks */,
-				AAA7B7600F404B8C00056C44 /* libavformat.a in Frameworks */,
-				AAA7B7610F404B8C00056C44 /* libavutil.a in Frameworks */,
-				AAA7B7620F404B8C00056C44 /* libSDL.a in Frameworks */,
 				AAA7B7630F404B8C00056C44 /* libSDLmain.a in Frameworks */,
-				AAA7B7640F404B8C00056C44 /* libsndfile.a in Frameworks */,
-				AAA7B7650F404B8C00056C44 /* libtheora.a in Frameworks */,
-				AAA7B7660F404B8C00056C44 /* libvorbis.a in Frameworks */,
-				AAA7B7670F404B8C00056C44 /* libvorbisfile.a in Frameworks */,
-				AAA7B7680F404B8C00056C44 /* libogg.a in Frameworks */,
-				AAA7B7690F404B8C00056C44 /* libjs.a in Frameworks */,
-				AAA7B76A0F404B8C00056C44 /* libslang.a in Frameworks */,
 				AAA7B76B0F404B8C00056C44 /* libSDL_gfx.a in Frameworks */,
-				AAA7B76C0F404B8C00056C44 /* libSDL_image.a in Frameworks */,
-				AAA7B76D0F404B8C00056C44 /* libSDL_ttf.a in Frameworks */,
-				AAA7B76E0F404B8C00056C44 /* libvorbisenc.a in Frameworks */,
-				AAA7B76F0F404B8C00056C44 /* libnspr4.a in Frameworks */,
 				AAB26E510F4058330068E5F5 /* QuickTime.framework in Frameworks */,
 				AAB270620F4065220068E5F5 /* QTKit.framework in Frameworks */,
 				AAB270980F406ACE0068E5F5 /* CoreVideo.framework in Frameworks */,
 				AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */,
 				AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */,
+				AAD0A4CC0FDEC08100968886 /* libavcodec.dylib in Frameworks */,
+				AAD0A4CD0FDEC08100968886 /* libavformat.dylib in Frameworks */,
+				AAD0A4CE0FDEC08100968886 /* libfftw3.dylib in Frameworks */,
+				AAD0A4CF0FDEC08100968886 /* libjs.dylib in Frameworks */,
+				AAD0A4D00FDEC08100968886 /* libogg.dylib in Frameworks */,
+				AAD0A4D10FDEC08100968886 /* libSDL.dylib in Frameworks */,
+				AAD0A4D20FDEC08100968886 /* libSDL_ttf.dylib in Frameworks */,
+				AAD0A4D30FDEC08100968886 /* libslang.2.dylib in Frameworks */,
+				AAD0A4D40FDEC08100968886 /* libswscale.dylib in Frameworks */,
+				AAD0A4D50FDEC08100968886 /* libtheora.dylib in Frameworks */,
+				AAD0A4D60FDEC08100968886 /* libvorbis.dylib in Frameworks */,
+				AAD0A4D70FDEC08100968886 /* libvorbisenc.dylib in Frameworks */,
+				AAD0A4D90FDEC0E300968886 /* libSDL_image.dylib in Frameworks */,
+				AAD0A4DB0FDEC0FF00968886 /* libavutil.dylib in Frameworks */,
+				AAD0A4DF0FDEC15A00968886 /* libvorbisfile.dylib in Frameworks */,
+				AAD0A4E10FDEC20100968886 /* libSDL_gfx.dylib in Frameworks */,
+				AAD0A4E30FDEC2A200968886 /* libsndfile.1.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -620,28 +624,30 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */,
+				AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */,
+				AAD0A4DE0FDEC15A00968886 /* libvorbisfile.dylib */,
+				AAD0A4DA0FDEC0FF00968886 /* libavutil.dylib */,
+				AAD0A4D80FDEC0E300968886 /* libSDL_image.dylib */,
+				AAD0A4C00FDEC08100968886 /* libavcodec.dylib */,
+				AAD0A4C10FDEC08100968886 /* libavformat.dylib */,
+				AAD0A4C20FDEC08100968886 /* libfftw3.dylib */,
+				AAD0A4C30FDEC08100968886 /* libjs.dylib */,
+				AAD0A4C40FDEC08100968886 /* libogg.dylib */,
+				AAD0A4C50FDEC08100968886 /* libSDL.dylib */,
+				AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */,
+				AAD0A4C70FDEC08100968886 /* libslang.2.dylib */,
+				AAD0A4C80FDEC08100968886 /* libswscale.dylib */,
+				AAD0A4C90FDEC08100968886 /* libtheora.dylib */,
+				AAD0A4CA0FDEC08100968886 /* libvorbis.dylib */,
+				AAD0A4CB0FDEC08100968886 /* libvorbisenc.dylib */,
 				AA7C04B80F4ED02700723DAC /* OpenGL.framework */,
 				AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */,
 				AAB270970F406ACE0068E5F5 /* CoreVideo.framework */,
 				AAB270610F4065220068E5F5 /* QTKit.framework */,
 				AAB26E4A0F4058330068E5F5 /* QuickTime.framework */,
-				AAA7B6470F40492500056C44 /* libnspr4.a */,
-				AAB84E900F3F06D800AD479D /* libvorbisenc.a */,
-				AAB84E8A0F3F063400AD479D /* libSDL_image.a */,
 				AAB84E890F3F063400AD479D /* libSDL_gfx.a */,
-				AAB84E8B0F3F063400AD479D /* libSDL_ttf.a */,
-				AAB84E860F3F060F00AD479D /* libslang.a */,
-				AAB84E830F3F05EB00AD479D /* libjs.a */,
-				AAB84E800F3F055500AD479D /* libogg.a */,
-				AAB8442C0F3EFA9500AD479D /* libavcodec.a */,
-				AAB8442D0F3EFA9500AD479D /* libavformat.a */,
-				AAB8442E0F3EFA9500AD479D /* libavutil.a */,
-				AAB8442F0F3EFA9500AD479D /* libSDL.a */,
 				AAB844300F3EFA9500AD479D /* libSDLmain.a */,
-				AAB844310F3EFA9500AD479D /* libsndfile.a */,
-				AAB844320F3EFA9500AD479D /* libtheora.a */,
-				AAB844330F3EFA9500AD479D /* libvorbis.a */,
-				AAB844340F3EFA9500AD479D /* libvorbisfile.a */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -1259,7 +1265,6 @@
 				AAB844470F3EFB3400AD479D /* ccvt.h */,
 				AAB8444A0F3EFB3400AD479D /* ccvt_c2.c */,
 				AAB8444C0F3EFB3400AD479D /* ccvt_misc.c */,
-				AAB8444F0F3EFB3400AD479D /* ccvt_mmx.S */,
 				AAB844510F3EFB3400AD479D /* ccvt_rgb2yuv.S */,
 				AAB844520F3EFB3400AD479D /* ccvt_types.h */,
 			);
@@ -1558,7 +1563,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "mkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\n\nLIBS_PATH=/opt/local/lib\nLIBS=\"libSDL-1.2.0.dylib\n      libpng12.0.dylib\n      libz.1.dylib\n      libjpeg.62.dylib\n      libtiff.3.dylib\n      libSDL-1.2.0.dylib\n      libfreetype.6.dylib\n      libavutil.dylib\n      libz.1.dylib\n      liba52.0.dylib\n      libavutil.dylib\n      libogg.0.dylib\n      libvorbis.0.dylib\n      libavcodec.dylib\n      libavformat.dylib\n      libSDL-1.2.0.dylib\n      libsndfile.1.dylib\n      libtheora.0.dylib\n      libvorbis.0.dylib\n      libvorbisfile.3.dylib\n      libogg.0.dylib\n      libSDL_gfx.0.dylib\n      libSDL_image-1.2.0.dylib\n      libSDL_ttf-2.0.0.dylib\n      libvorbisenc.2.dylib\n      libnspr4.dylib\"\n\nfor i in $LIBS; do\n\tcp -f $LIBS_PATH/$i \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tinstall_name_tool \\\n\t\t-id @executable_path/../Frameworks/$i \\\n\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tfor n in $LIBS; do\n\t\tinstall_name_tool \\\n\t\t\t-change $LIBS_PATH/$n \\\n\t\t\t@executable_path/../Frameworks/$n \\\n\t\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tdone\n\tinstall_name_tool \\\n\t\t-change $LIBS_PATH/$i \\\n\t\t@executable_path/../Frameworks/$i \\\n\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\"\ndone\n\ncp -r \"$TARGET_BUILD_DIR/Plugins\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\"";
+			shellScript = "mkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\n\nLIBS_PATH=/opt/local/lib\nLIBS=`otool -L \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\" | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}' | xargs basename`\n\nfor i in $LIBS; do\n\tcp -f $LIBS_PATH/$i \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tinstall_name_tool \\\n\t\t-id @executable_path/../Frameworks/$i \\\n\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tfor n in $LIBS; do\n\t\tinstall_name_tool \\\n\t\t\t-change $LIBS_PATH/$n \\\n\t\t\t@executable_path/../Frameworks/$n \\\n\t\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tdone\n\tinstall_name_tool \\\n\t\t-change $LIBS_PATH/$i \\\n\t\t@executable_path/../Frameworks/$i \\\n\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\"\ndone\n\ncp -r \"$TARGET_BUILD_DIR/Plugins\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1677,7 +1682,6 @@
 				AAA7B7430F404B7F00056C44 /* xhacks_layer.cpp in Sources */,
 				AAA7B7440F404B7F00056C44 /* ccvt_c2.c in Sources */,
 				AAA7B7450F404B7F00056C44 /* ccvt_misc.c in Sources */,
-				AAA7B7460F404B7F00056C44 /* ccvt_mmx.S in Sources */,
 				AAA7B7470F404B7F00056C44 /* ccvt_rgb2yuv.S in Sources */,
 				AAA7B7480F404B7F00056C44 /* address.c in Sources */,
 				AAA7B7490F404B7F00056C44 /* blob.c in Sources */,
@@ -2021,6 +2025,8 @@
 					../lib,
 					/usr/local/include/js,
 					/opt/local/include/js,
+					/usr/local/include/libswscale,
+					/opt/local/include/libswscale,
 					/usr/local/include/libavformat,
 					/opt/local/include/libavformat,
 					/usr/local/include/libavcodec,
@@ -2079,6 +2085,8 @@
 					../lib,
 					/usr/local/include/js,
 					/opt/local/include/js,
+					/usr/local/include/libswscale,
+					/opt/local/include/libswscale,
 					/usr/local/include/libavformat,
 					/opt/local/include/libavformat,
 					/usr/local/include/libavcodec,
