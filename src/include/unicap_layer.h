@@ -49,8 +49,6 @@ class UnicapLayer: public Layer {
 
   int capture_type;
 
-  Linklist<Parameter> parameters;
-
  private:
 
   unicap_device_t m_device;

@@ -55,7 +55,7 @@ class Parameter : public Entry {
 
   Type type;
 
-  const char *description;
+  char description[512];
 
   void *value;
 

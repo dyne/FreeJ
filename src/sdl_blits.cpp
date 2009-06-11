@@ -130,7 +130,7 @@ void setup_sdl_blits(Blitter *blitter) {
   
   p = new Parameter(Parameter::NUMBER);
   strcpy(p->name, "alpha");
-  p->description = "level of transparency of alpha channel (0.0 - 1.0)";
+  strcpy(p->description, "level of transparency of alpha channel (0.0 - 1.0)");
   b->parameters.append(p);
 
   /////////////
@@ -143,7 +143,7 @@ void setup_sdl_blits(Blitter *blitter) {
 
   p = new Parameter(Parameter::NUMBER);
   strcpy(p->name, "alpha");
-  p->description = "level of transparency of alpha channel (0.0 - 1.0)";
+  strcpy(p->description, "level of transparency of alpha channel (0.0 - 1.0)");
   b->parameters.append(p);
   
 //   b = new Blit(); b->set_name("CHROMAKEY");

@@ -153,7 +153,7 @@ Filter::Filter(Type type, void *filt)
       Parameter *param = new Parameter((Parameter::Type)freior->param_infos[i].type);
       strncpy(param->name, freior->param_infos[i].name, 255);
       
-      param->description = freior->param_infos[i].explanation;
+      strcpy(param->description, freior->param_infos[i].explanation);
       param->filter_set_f = set_frei0r_parameter;
       param->filter_get_f = get_frei0r_parameter;
       parameters.append(param);

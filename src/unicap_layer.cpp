@@ -60,11 +60,11 @@ static void new_frame_bgr24_cb (unicap_event_t event, unicap_handle_t handle,
 
   func("cam callback");
 
-  ccvt_bgr24_bgr32(lay->geo.w, lay->geo.h, buffer->data, lay->rgba[lay->swap]);
+  ccvt_bgr24_bgr32(lay->geo.w, lay->geo.h, buffer->data, lay->rgba[0]);
 
-  lay->feed_ready = lay->rgba[lay->swap];
+  lay->feed_ready = lay->rgba[0];
 
-  lay->swap = (lay->swap+1)%2;
+  //  lay->swap = (lay->swap+1)%2;
 }
 
 
@@ -74,11 +74,11 @@ static void new_frame_yuyv_cb (unicap_event_t event, unicap_handle_t handle,
 
   func("cam callback");
 
-  ccvt_yuyv_bgr32(lay->geo.w, lay->geo.h, buffer->data, lay->rgba[lay->swap]);
+  ccvt_yuyv_bgr32(lay->geo.w, lay->geo.h, buffer->data, lay->rgba[0]);
 
-  lay->feed_ready = lay->rgba[lay->swap];
+  lay->feed_ready = lay->rgba[0];
 
-  lay->swap = (lay->swap+1)%2;
+  //  lay->swap = (lay->swap+1)%2;
 }
 
 bool UnicapLayer::open(const char *devfile) {
@@ -249,17 +249,29 @@ bool UnicapLayer::open(const char *devfile) {
     switch( m_property.type ) {
     case UNICAP_PROPERTY_TYPE_RANGE:
     case UNICAP_PROPERTY_TYPE_VALUE_LIST:
-      sprintf(tmp,"%s = %.2f", tmp, m_property.value );
-      p = new Parameter(Parameter::NUMBER);
-      p->set_name(m_property.identifier);
-      p->description = " ";
-      p->set((void*)&m_property.value);
-      parameters.append(p);
+      {
+	sprintf(tmp,"%s = %.2f", tmp, m_property.value );
+	p = new Parameter(Parameter::NUMBER);
+	p->set_name(m_property.identifier);
+	//	size_t s = 512;
+	//	unicap_describe_property(&m_property, p->description, &s);
+	p->set((void*)&m_property.value);
+	parameters->append(p);
+      }
       break;
       
     case UNICAP_PROPERTY_TYPE_MENU:
-      sprintf(tmp,"%s = %s", tmp, m_property.menu_item );
+      {
+	sprintf(tmp,"%s = %s", tmp, m_property.menu_item );
+	p = new Parameter(Parameter::STRING);
+	p->set_name(m_property.identifier);
+	//	size_t s = 512;
+	//	unicap_describe_property(&m_property, p->description, &s);
+	p->set((void*)&m_property.value);
+	parameters->append(p);
+      }
       break;
+
     case UNICAP_PROPERTY_TYPE_FLAGS:
       {
 	sprintf(tmp,"%s =",tmp);
@@ -311,7 +323,8 @@ bool UnicapLayer::init(Context *freej, int width, int height) {
     detected++;
   }
 
-
+  parameters = new Linklist<Parameter>();
+  
   _init(width, height);
   return true;
 }
@@ -326,7 +339,7 @@ void *UnicapLayer::feed() {
   //  func("%s",__PRETTY_FUNCTION__);
 
   // update parameters that changed
-  p = parameters.begin();
+  p = parameters->begin();
   while(p) {
     if(p->changed)
       unicap_set_property_value( m_handle, p->name, *(double*)p->value);

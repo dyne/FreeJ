@@ -57,6 +57,9 @@ Parameter::Parameter(Parameter::Type param_type)
   layer_get_f = NULL;
   filter_set_f = NULL;
   filter_get_f = NULL;
+
+  set_name("unnamed");
+  strcpy(description, " ");
 }
 
 Parameter::~Parameter() {
