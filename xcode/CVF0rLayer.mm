@@ -40,10 +40,9 @@
 
 - (void)feedFrame:(void *)frame
 {
+    CVPixelBufferRef newPixelBuffer;
     //Context *ctx = (Context *)[freej getContext];
     [lock lock];
-    if (currentFrame)
-        CVPixelBufferRelease(currentFrame);
     CVReturn err = CVPixelBufferCreateWithBytes (
         NULL,
         layer->geo.w,
@@ -54,11 +53,15 @@
         NULL,
         NULL,
         NULL,
-        &currentFrame
+        &newPixelBuffer
     ); 
-    [lock unlock];
-    if (err == kCVReturnSuccess) 
+    if (err == kCVReturnSuccess) {
+        if (currentFrame)
+            CVPixelBufferRelease(currentFrame);
+        currentFrame = newPixelBuffer;
         newFrame = YES;
+    }
+    [lock unlock];
     [self renderPreview];
 }
 
@@ -106,9 +109,11 @@
 {
     CVLayer *toDelete;
     if (layer) {
+        [lock lock];
         toDelete = layer;
         layer = NULL;
         toDelete->stop();
+        [lock unlock];
         delete toDelete;
     }
 }
@@ -116,15 +121,17 @@
 - (IBAction)stop:(id)sender
 {
     [self reset];
+    [lock lock];
     [sender setTitle:@"Start"];
     [sender setAction:@selector(start:)];
     [selectButton setEnabled:YES];
+    [lock unlock];
 }
 
 - (IBAction)start:(id)sender
 {
     GenF0rLayer *newLayer = NULL;
-    
+    [lock lock];
     char *name = (char *)[[[selectButton selectedItem] title] UTF8String];
     newLayer = new CVF0rLayer(self, name, [freej getContext]);
     if(!newLayer) 
@@ -133,6 +140,7 @@
     [sender setAction:@selector(stop:)];
     [selectButton setEnabled:NO];
     notice("generator %s succesfully created", newLayer->name);
+    [lock unlock];
 }
 
 @end
@@ -147,12 +155,14 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
     layerPersonality->type = Layer::GL_COCOA;
     [input setLayer:this];
     blendMode = NULL;
+    layerPersonality->init(freej, freej->screen->w, freej->screen->h);
     if (!f0rPersonality->init(freej)) {
         error("can't initialize generator layer");
+        return;
     }
-    layerPersonality->init(freej, freej->screen->w, freej->screen->h);
     if (!f0rPersonality->open(generatorName)) {
-          error("generator %s hasn't been found", generatorName);
+        error("generator %s hasn't been found", generatorName);
+        return;
     }
     layerPersonality->set_name([[view toolTip] UTF8String]);
 }

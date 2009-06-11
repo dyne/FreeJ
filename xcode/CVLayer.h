@@ -51,7 +51,6 @@ class CVLayer;
     CIContext              *ciContext;
     uint64_t               lastRenderedTime;
     bool                   needsReshape;
-    //CVImageBufferRef     freejFrame;
     CVLayer                *layer;
 
     bool                   doFilters;

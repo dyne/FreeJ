@@ -45,7 +45,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [self setNeedsDisplay:NO];
     layer = NULL;
     needsReshape = YES;
-    //freejFrame = NULL;
     doFilters = true;
     currentFrame = NULL;
     lastFrame = NULL;
