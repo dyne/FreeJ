@@ -325,9 +325,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (layer->type == Layer::GL_COCOA) {
 
         CVLayer *cvLayer = (CVLayer *)layer;
-        //[QTMovie enterQTKitOnThread];
         texture = cvLayer->gl_texture();
-        //[QTMovie exitQTKitOnThread];
 
         NSString *blendMode = ((CVLayer *)layer)->blendMode;
         if (blendMode)
@@ -396,90 +394,46 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)toggleFullScreen:(id)sender
 {    
+    CGDirectDisplayID currentDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  
+
     if (fullScreen) {
-    
-        CGDisplayReservationInterval seconds = 2.0;
-        CGDisplayFadeReservationToken newToken;
-        CGAcquireDisplayFadeReservation(seconds, &newToken); // reserve display hardware time
-
-        CGDisplayFade(newToken,
-        0.3,     // 0.3 seconds
-        kCGDisplayBlendNormal,    // Starting state
-        kCGDisplayBlendSolidColor, // Ending state
-        0.0, 0.0, 0.0,     // black
-        true);     // wait for completion
-
-        [currentContext clearDrawable];
-        
-        CGDisplaySwitchToMode(viewDisplayID, savedMode);
-
-        CGDisplayFade(newToken,
-        0.2,     // 0.2 seconds
-        kCGDisplayBlendSolidColor, // Starting state
-        kCGDisplayBlendNormal,    // Ending state
-        0.0, 0.0, 0.0,     // black
-        true);     // Don't wait for completion
-
-        CGReleaseDisplayFadeReservation(newToken);
-        CGDisplayRelease(viewDisplayID);
-        // notify our underlying NSView object that we are exiting fullscreen
-        [self exitFullScreenModeWithOptions:[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithInt:0], 
-            NSFullScreenModeAllScreens, nil ]];
+        CGDisplaySwitchToMode(currentDisplayID, savedMode);
+        SetSystemUIMode(kUIModeNormal, kUIOptionAutoShowMenuBar);
+        [self retain];
+        NSWindow *fullScreenWindow = [self window];
+        [self removeFromSuperview];
+        [myWindow setContentView:self];
+        [myWindow setFrame:[self frame] display:YES];
+        [myWindow release];
+        [self release];
+        [fullScreenWindow release];
         fullScreen = NO;
+        needsReshape = YES;
     } else {
-        CFDictionaryRef newMode = CGDisplayBestModeForParameters(viewDisplayID, 32, fjScreen->w, fjScreen->h, 0);
+        CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->w, fjScreen->h, 0);
         NSAssert(newMode, @"Couldn't find display mode");
-
-        savedMode = CGDisplayCurrentMode(viewDisplayID);
-
-        //fade out
-        CGDisplayReservationInterval seconds = 2.0;
-        CGDisplayFadeReservationToken newToken;
-        CGAcquireDisplayFadeReservation(seconds, &newToken); // reserve display hardware time
-
-        CGDisplayFade(newToken,
-        0.2,     // 0.3 seconds
-        kCGDisplayBlendNormal,    // Starting state
-        kCGDisplayBlendSolidColor, // Ending state
-        0.0, 0.0, 0.0,     // black
-        true);     // wait for completion
-
-        CGDisplayCapture(viewDisplayID);     //capture main display
-
-        //Switch to selected resolution.
-        CGDisplayErr err = CGDisplaySwitchToMode(viewDisplayID, newMode);
-        NSAssert(err == CGDisplayNoErr, @"Error switching resolution.");
-
-        [currentContext setFullScreen];     //set openGL context to draw to screen
-
-
-        CGDisplayFade(newToken,
-        0.5,     // 0.5 seconds
-        kCGDisplayBlendSolidColor, // Starting state
-        kCGDisplayBlendNormal,    // Ending state
-        0.0, 0.0, 0.0,     // black
-        false);     // Don't wait for completion
-
-        CGReleaseDisplayFadeReservation(newToken);
-
-        // notify our underlying NSView object that we are going fullscreen
-        [self enterFullScreenMode:[[self window] screen] withOptions:
-            [NSDictionary dictionaryWithObjectsAndKeys:
-            [NSNumber numberWithInt:0], NSFullScreenModeAllScreens, nil ]];
+        
+        savedMode = CGDisplayCurrentMode(currentDisplayID);
+        CGDisplaySwitchToMode(currentDisplayID, newMode);
+        
+        SetSystemUIMode(kUIModeAllSuppressed, kUIOptionAutoShowMenuBar);
+        NSScreen *screen = [[self window] screen];
+        NSWindow *window = [[NSWindow alloc] initWithContentRect:[screen frame]
+                                styleMask:NSBorderlessWindowMask
+                                backing:NSBackingStoreBuffered
+                                defer:NO
+                                screen:screen];
+        myWindow = [[self window] retain];
+        [self retain];
+        [self removeFromSuperview];
+        [window setContentView:self];
+        [window setFrameOrigin:[screen frame].origin];
+        [self release];
+        [window makeKeyAndOrderFront:sender];
+        [NSCursor setHiddenUntilMouseMoves:YES];
         fullScreen = YES;
     }
-    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
-        return;
-    
-    [currentContext makeCurrentContext];
-    // clean the OpenGL context 
-    glClearColor(0.0, 0.0, 0.0, 0.0);         
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    [currentContext flushBuffer];
-    
-    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
-
+    [self drawRect:NSZeroRect];
 }
 
 - (bool)isOpaque

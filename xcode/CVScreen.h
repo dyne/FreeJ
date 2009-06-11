@@ -35,6 +35,7 @@ class  CVScreen;
 @interface CVScreenView : NSOpenGLView {
 	NSRecursiveLock		*lock;
 	NSString			*fpsString;
+    NSWindow            *myWindow;
     CVDisplayLinkRef	displayLink; // the displayLink that runs the show
     CGDirectDisplayID	viewDisplayID;
 	CVPixelBufferRef	pixelBuffer;
