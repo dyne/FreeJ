@@ -504,9 +504,6 @@ Layer *Context::open(char *file) {
   FILE *tmp;
   Layer *nlayer = NULL;
 
-  // uses the currently selected screen
-  ViewPort *screen = screens.selected();
-
   /* check that file exists */
   if(strncasecmp(file,"/dev/",5)!=0
      && strncasecmp(file,"http://",7)!=0

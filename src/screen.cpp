@@ -95,11 +95,7 @@ bool ViewPort::add_layer(Layer *lay) {
       (Blit*)lay->blitter->default_blit;
     lay->blitter->blitlist.sel(0);
     lay->current_blit->sel(true);
-  } else {
-    error("screen %s has no blits available for layer %s", this->name, lay->name);
-    return(false);
-  }
-
+  } 
   // center the position
   //lay->geo.x = (screen->w - lay->geo.w)/2;
   //lay->geo.y = (screen->h - lay->geo.h)/2;
