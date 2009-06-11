@@ -44,7 +44,7 @@ int console_param_selection(Context *env, char *cmd) {
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
 
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -112,7 +112,7 @@ int console_param_selection(Context *env, char *cmd) {
 }
 
  int console_param_completion(Context *env, char *cmd) {
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -183,7 +183,7 @@ int console_blit_selection(Context *env, char *cmd) {
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
 
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -198,13 +198,13 @@ int console_blit_completion(Context *env, char *cmd) {
 
   if(!cmd) return 0;
 
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
   }
 
-  blits = lay->blitter->blitlist.completion(cmd);
+  blits = (Entry**)lay->blitter->blitlist.completion(cmd);
 
   if(!blits[0]) return 0; // none found
 
@@ -257,11 +257,11 @@ int console_blit_param_selection(Context *env, char *cmd) {
   Blit *b;
   int idx;
 
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
   
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
-  lay = (Layer*)env->layers.selected();
+  lay = (Layer*)env->screen->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -300,7 +300,7 @@ int console_blit_param_completion(Context *env, char *cmd) {
   Parameter *p, **params;
   Blit *b;
 
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
 
   if(!lay) {
     ::error("no layer currently selected");
@@ -376,7 +376,7 @@ int console_filter_selection(Context *env, char *cmd) {
     return 0;
   }
 
-  Layer *lay = (Layer*)env->layers.selected();
+  Layer *lay = (Layer*)env->screen->layers.selected();
   if(!lay) {
     ::error("no layer selected for effect %s",filt->name);
     return 0;
@@ -508,7 +508,7 @@ int console_open_layer(Context *env, char *cmd) {
     l->active=true;
     //    l->fps=env->fps_speed;
 
-    len = env->layers.len();
+    len = env->screen->layers.len();
     notice("layer succesfully created, now you have %i layers",len);
     return len;
   }
@@ -520,8 +520,8 @@ int console_open_layer(Context *env, char *cmd) {
 #include <text_layer.h>
 int console_print_text_layer(Context *env, char *cmd) {
 
-  ((TextLayer*)env->layers.selected())->write(cmd);
-  return env->layers.len();
+  ((TextLayer*)env->screen->layers.selected())->write(cmd);
+  return env->screen->layers.len();
 
 }
 
@@ -541,7 +541,7 @@ int console_open_text_layer(Context *env, char *cmd) {
   txt->active=true;
   
   notice("layer succesfully created with text: %s",cmd);
-  return env->layers.len();
+  return env->screen->layers.len();
 }
 #endif
 
@@ -681,7 +681,7 @@ int console_filebrowse_completion(Context *env, char *cmd) {
 //     return 0;
 //   }
 //   func("value parsed: %s in %d",cmd,val);
-//   Layer *lay = (Layer*)env->layers.begin();
+//   Layer *lay = (Layer*)env->screen->layers.begin();
 //   if(!lay) return 0;
 //   /* set value in all blits selected
 //      (supports multiple selection) */

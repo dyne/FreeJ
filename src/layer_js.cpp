@@ -188,7 +188,7 @@ JS(list_layers) {
   jsval val;
   int c = 0;
   
-  if( env->layers.len() == 0 ) {
+  if( env->screen->layers.len() == 0 ) {
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
@@ -196,7 +196,7 @@ JS(list_layers) {
   arr = JS_NewArrayObject(cx, 0, NULL); // create void array
   if(!arr) return JS_FALSE;
 
-  lay = (Layer*)env->layers.begin();
+  lay = (Layer*)env->screen->layers.begin();
   while(lay) {
     if (lay->data) {
 func("reusing %p", lay->data);
@@ -229,13 +229,13 @@ JS(selected_layer) {
   JSObject *objtmp;
   jsval val;
 
-  if( env->layers.len() == 0 ) {
+  if( env->screen->layers.len() == 0 ) {
     error("can't return selected layer: no layers are present");
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
   
-  lay = (Layer*)env->layers.selected();
+  lay = (Layer*)env->screen->layers.selected();
 
   if(!lay) {
     warning("there is no selected layer");

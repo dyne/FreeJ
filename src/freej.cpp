@@ -38,7 +38,9 @@
 //#include <fps.h>
 
 #include <impl_layers.h>
+#include <impl_screens.h>
 #include <impl_video_encoders.h>
+
 
 // javascript
 #include <jsparser.h>
@@ -76,7 +78,10 @@ static const char *help =
 static const char *short_options = "-hvD:gas:nj:cgf:F";
 
 /* this is the global FreeJ context */
-Context *freej;
+Context *freej = NULL;
+
+// the runtime will open one screen by default
+ViewPort *screen = NULL;
 
 int   debug_level = 0;
 char  layer_files[MAX_CLI_CHARS];
@@ -90,7 +95,7 @@ int fps = 25;
 
 bool startstate = true;
 bool gtkgui = false;
-Context::VideoMode videomode = Context::SDL; // SOFT; // SDL
+
 int audiomode = 0;
 bool noconsole = false;
 bool fullscreen = false;
@@ -184,8 +189,7 @@ void cmdline(int argc, char **argv) {
 
 #ifdef WITH_OPENGL
     case 'g':
-     videomode=Context::SDLGL;
-
+      screen = new SdlGlScreen();
       break;
 #endif
 
@@ -278,7 +282,11 @@ int main (int argc, char **argv) {
   cmdline(argc,argv);
   set_debug(debug_level);
 
-  assert( freej->init(width,height, videomode, audiomode) );
+  // create SDL screen by default at selected size
+  if(!screen) screen = new SdlScreen(width, height);
+
+  // add the screen to the context
+  freej->add_screen(screen);
 
   if(fullscreen) freej->screen->fullscreen();
 

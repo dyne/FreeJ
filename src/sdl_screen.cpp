@@ -30,13 +30,16 @@
 #include <linklist.h>
 #include <sdl_screen.h>
 
-#include <jutils.h>
-
+#include <SDL_imageFilter.h>
+#include <SDL_framerate.h>
 #include <SDL_rotozoom.h>
 
+#include <jutils.h>
 
-SdlScreen::SdlScreen()
-  : ViewPort() {
+
+
+SdlScreen::SdlScreen(int w, int h)
+  : ViewPort(w, h) {
   
   sdl_screen = NULL;
   emuscr = NULL;
@@ -44,7 +47,6 @@ SdlScreen::SdlScreen()
   rotozoom = NULL;
   pre_rotozoom = NULL;
 
-  bpp = 32;
   dbl = false;
   sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL );
 	  //| SDL_DOUBLEBUF | SDL_HWACCEL | SDL_RESIZABLE);
@@ -54,6 +56,7 @@ SdlScreen::SdlScreen()
   switch_fullscreen = false;
 
   //  set_name("SDL");
+  init(w, h);
 }
 
 SdlScreen::~SdlScreen() {
@@ -67,6 +70,7 @@ bool SdlScreen::init(int width, int height) {
   
   setenv("SDL_VIDEO_HWACCEL", "1", 1);  
 
+
   if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ) < 0 ) {
     error("Can't initialize SDL: %s",SDL_GetError());
     return(false);
@@ -75,17 +79,10 @@ bool SdlScreen::init(int width, int height) {
   setres(width,height);
   sdl_screen = SDL_GetVideoSurface();
 
-  w = width;
-  h = height;
-  bpp = 32;
-  size = w*h*(bpp>>3);
-  pitch = w*(bpp>>3);
   SDL_VideoDriverName(temp,120);
 
   notice("SDL Viewport is %s %ix%i %ibpp",
 	 temp,w,h,sdl_screen->format->BytesPerPixel<<3);
-
-
 
   /* be nice with the window manager */
   sprintf(temp,"%s %s",PACKAGE,VERSION);
@@ -94,7 +91,22 @@ bool SdlScreen::init(int width, int height) {
   /* hide mouse cursor */
   SDL_ShowCursor(SDL_DISABLE);
 
+  // optimise sdl_gfx blits
+  if( SDL_imageFilterMMXdetect () )
+    act ("SDL using MMX accelerated blit");
+
   return(true);
+}
+
+void SdlScreen::setup_blits(Layer *lay) {
+
+  Blitter *b = new Blitter();
+
+  setup_linear_blits(b);
+
+  setup_sdl_blits(b);
+
+  lay->blitter = b;
 }
 
 void SdlScreen::blit(Layer *src) {

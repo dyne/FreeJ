@@ -39,6 +39,8 @@ class AudioCollector;
 class Iterator;
 class Blitter;
 class Blit;
+class ViewPort;
+
 
 class JSClass;
 class JSContext;

@@ -27,14 +27,16 @@
 
 class SdlScreen : public ViewPort {
  public:
-  SdlScreen();
+  SdlScreen(int w, int h);
   ~SdlScreen();
 
-  bool init(int widt, int height);
+
   void set_magnification(int algo);
   void resize(int resize_w, int resize_h);
-
+  void setup_blits(Layer *lay);
   void blit(Layer *src);
+
+
   void show();
   void clear();
 
@@ -52,6 +54,7 @@ class SdlScreen : public ViewPort {
  
 
  private:
+  bool init(int width, int height);
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
 

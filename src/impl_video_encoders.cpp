@@ -22,7 +22,6 @@
 #include <config.h>
 #include <string.h>
 
-#include <video_encoder.h>
 #include <jutils.h>
 
 #include <impl_video_encoders.h>

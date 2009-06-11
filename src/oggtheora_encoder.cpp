@@ -32,7 +32,7 @@
 #include <time.h>
 
 #include <context.h>
-#include <sdl_screen.h>
+#include <screen.h>
 #include <audio_collector.h>
 
 #include <oggtheora_encoder.h>
@@ -72,13 +72,11 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
 }
 
 
-bool OggTheoraEncoder::init (Context *_env) {
+bool OggTheoraEncoder::init (ViewPort *scr) {
 
   if(initialized) return true;
 
-  env = _env;
-  
-  screen = env->screen;
+  screen = scr;
 
   oggmux.ringbuffer = ringbuffer;
   oggmux.bytes_encoded = 0;
@@ -155,7 +153,10 @@ bool OggTheoraEncoder::init (Context *_env) {
 
   oggmux_init(&oggmux);
   
-
+  enc_y     = malloc( screen->w * screen->h);
+  enc_u     = malloc((screen->w * screen->h) /2);
+  enc_v     = malloc((screen->w * screen->h) /2);
+  enc_yuyv   = (uint8_t*)malloc(  screen->size );
   
   act("initialization succesful");
   initialized = true;

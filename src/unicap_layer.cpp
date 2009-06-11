@@ -307,7 +307,7 @@ bool UnicapLayer::open(const char *devfile) {
 }
 
 bool UnicapLayer::init(Context *freej) {
-  return init(freej, freej->screen->w, freej->screen->h);
+  return init(freej, screen->w, screen->h);
 }
 
 bool UnicapLayer::init(Context *freej, int width, int height) {

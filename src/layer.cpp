@@ -127,10 +127,6 @@ void Layer::_init(int wdt, int hgt) {
   geo.y = 0;//(freej->screen->h - geo.h)/2;
   //  blitter->crop( freej->screen );  
 
-  /* initialise blitters */
-  blitter = new Blitter();
-  setup_linear_blits(blitter); // add linear blitters
-  setup_sdl_blits(blitter); // add SDL blitters
 
   
   func("initialized %s layer %ix%i",
@@ -449,8 +445,8 @@ void Layer::_fit(bool maintain_aspect_ratio){
 		int new_x = 0;
 		int new_y = 0;
 		lock();
-		width_zoom = (double)env->screen->w / geo.w;
-		height_zoom = (double)env->screen->h / geo.h;
+		width_zoom = (double)screen->w / geo.w;
+		height_zoom = (double)screen->h / geo.h;
 		if (maintain_aspect_ratio){
 			//to maintain the aspect ratio we simply zoom to the smaller of the
 			//two zoom values
@@ -458,12 +454,12 @@ void Layer::_fit(bool maintain_aspect_ratio){
 				//if we're using the height zoom then there is going to be space
 				//in x [width] that is unfilled, so center it in the x
 				set_zoom(height_zoom, height_zoom);
-				new_x = ((double)(env->screen->w - height_zoom * geo.w) / 2.0);
+				new_x = ((double)(screen->w - height_zoom * geo.w) / 2.0);
 			} else {
 				//if we're using the width zoom then there is going to be space
 				//in y [height] that is unfilled, so center it in the y
 				set_zoom(width_zoom, width_zoom);
-				new_y = ((double)(env->screen->h - width_zoom * geo.h) / 2.0);
+				new_y = ((double)(screen->h - width_zoom * geo.h) / 2.0);
 			}
 		} else
 			set_zoom(width_zoom, height_zoom);

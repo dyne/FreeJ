@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2009 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -17,36 +17,22 @@
  *
  */
 
-#ifndef __SOFT_SCREEN_H__
-#define __SOFT_SCREEN_H__
+#ifndef __IMPL_SCREENS_H__
+#define __IMPL_SCREENS_H__
 
-#include <screen.h>
+#include <sdl_screen.h>
+#include <soft_screen.h>
 
-class SoftScreen : public ViewPort {
-
- public:
-  SoftScreen(int w, int h);
-  ~SoftScreen();
-
-
-
-  fourcc get_pixel_format() { return RGBA32; };
-
-  void *get_surface();
+#ifdef WITH_OPENGL
+#include <sdlgl_screen.h>
+#include <gl_screen.h>
+#endif
+#ifdef HAVE_DARWIN
+#ifdef WITH_COCOA
+#include <CVScreen.h>
+#endif
+#endif
 
 
-  void blit(Layer *src);
 
-  void set_buffer(void *buf);
-  void *coords(int x, int y);
-
-  void *buffer;
-
-  uint32_t *pscr, *play;  // generic blit buffer pointers
-
- private:
-  bool init(int w, int h);
-
-};
- 
 #endif

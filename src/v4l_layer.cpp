@@ -280,7 +280,7 @@ bool V4lGrabber::init(Context *env, int width, int height) {
 
 bool V4lGrabber::init(Context *env) {
   func("%s %s", __FILE__, __FUNCTION__);
-  return init(env, env->screen->w, env->screen->h);
+  return init(env, screen->w, screen->h);
 }
 
 void V4lGrabber::set_chan(int ch) {

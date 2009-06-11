@@ -40,6 +40,7 @@
 class Context;
 class AudioCollector;
 class FPS;
+class ViewPort;
 
 /**
  * Class describing the general interface of an encoder
@@ -65,7 +66,7 @@ class VideoEncoder: public Entry, public JSyncThread {
   virtual ~VideoEncoder ();
 
 
-  virtual bool init (Context *_env) = 0;  ///< pure virtual function to implement
+  virtual bool init (ViewPort *scr) = 0;  ///< pure virtual function to implement
   virtual int encode_frame ()       = 0;  ///< pure virtual function to implement
 
 

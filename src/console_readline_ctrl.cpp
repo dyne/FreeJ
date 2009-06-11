@@ -188,12 +188,12 @@ bool SlwReadline::parser_default(int key) {
 
   //  ::func("pressed %u",key);
 
-  if(env->layers.len() > 0) { // there are layers
+  if(env->screen->layers.len() > 0) { // there are layers
 
     // get the one selected
-    le = env->layers.selected();
+    le = env->screen->layers.selected();
     if(!le) {
-      env->layers.begin();
+      env->screen->layers.begin();
       le->sel(true);
     }
 
@@ -357,9 +357,9 @@ bool SlwReadline::parser_movelayer(int key) {
   commandline = false; // print statusline
 
   // get the one selected
-  Layer *layer = (Layer*)env->layers.selected();
+  Layer *layer = (Layer*)env->screen->layers.selected();
   if(!layer) {
-    env->layers.begin();
+    env->screen->layers.begin();
     layer->sel(true);
   }
 
