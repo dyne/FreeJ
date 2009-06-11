@@ -98,6 +98,17 @@ Layer::~Layer() {
     f = (FilterInstance*)filters.begin();
   }
 
+  // free all parameters
+  if(parameters) {
+    Parameter *par;
+    par = parameters->begin();
+    while(par) {
+      par->rem();
+      delete par;
+      par = parameters->begin();
+    }
+  }
+  
   if(blitter) delete blitter;
 }
 
