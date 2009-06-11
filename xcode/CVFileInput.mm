@@ -272,8 +272,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         [lock unlock];
 
     } 
+    [QTMovie exitQTKitOnThread];   
     MoviesTask([qtMovie quickTimeMovie], 0);
-    [QTMovie exitQTKitOnThread];    
     [pool release];
     return rv;
 }
