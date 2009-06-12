@@ -99,7 +99,7 @@ class ViewPort : public Entry {
 
   void blit_layers();
 
-  bool add_layer(Layer *lay); ///< add a new layer to the screen
+  virtual bool add_layer(Layer *lay); ///< add a new layer to the screen
 
   Linklist<Layer> layers; ///< linked list of registered layers
 
