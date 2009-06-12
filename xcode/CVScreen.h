@@ -82,16 +82,17 @@ class CVScreenView;
 class CVScreen : public ViewPort {
  private:
 	CVScreenView *view;
+    bool init(int w, int h);
  public:
-  CVScreen();
+  CVScreen(int w, int h);
   ~CVScreen();
 
-  bool init(int w, int h);
   void set_view(CVScreenView *view);
   CVScreenView *get_view(void);
   void *get_surface();
   void *coords(int x, int y);
   void blit(Layer *);
+  inline void setup_blits(Layer *lay) { };
   void CVScreen::show();
   fourcc get_pixel_format() { return ARGB32; };
 };

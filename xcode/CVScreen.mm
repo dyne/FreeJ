@@ -353,7 +353,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         } 
         CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
         texture = [[CVTexture alloc] initWithCIImage:inputImage pixelBuffer:pixelBufferOut];
-        //CVPixelBufferRelease(pixelBufferOut);
+        // we can release our reference to the pixelBuffer now. 
+        // The CVTexture will retain it as long as it is needed
+        CVPixelBufferRelease(pixelBufferOut);
         blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"];
     }
     [blendFilter setDefaults];
@@ -368,7 +370,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             outFrame = [temp retain];
         }
         [texture autorelease];
-        //[textures addObject:texture];
     }
 }
 
@@ -543,10 +544,9 @@ bail:
 
 @end
 
-CVScreen::CVScreen()
-  : ViewPort() {
-
-  bpp = 32;
+CVScreen::CVScreen(int w, int h)
+  : ViewPort(w, h) {
+  init(w, h);
   view = NULL;
 }
 
