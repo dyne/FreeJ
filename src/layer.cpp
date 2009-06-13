@@ -59,9 +59,6 @@ Layer::Layer()
   is_native_sdl_surface = false;
   jsclass = &layer_class;
 
-  slide_x = 0;
-  slide_y = 0;
-
   zoom_x = 1.0;
   zoom_y = 1.0;
   rotate = 0.0;
@@ -332,35 +329,12 @@ void Layer::set_filename(const char *f) {
 
 void Layer::set_position(int x, int y) {
   lock();
-  slide_x = geo.x = x;
-  slide_y = geo.y = y;
-  //  if (screen && screen->blitter) {
+  geo.x = x;
+  geo.y = y;
   need_crop = true;
-    //      screen->blitter->crop( this, screen );
-  //  }
   unlock();
 }
 
-void Layer::slide_position(int x, int y, int speed) {
-  
-  slide_x = (float)geo.x;
-  slide_y = (float)geo.y;
-
-  if(x!=geo.x) {
-    iter = new Iterator(&slide_x);
-    iter->set_aim((float)x);
-    iter->set_step((float)speed);
-    iterators.append(iter);
-  }
-
-  if(y!=geo.y) {
-    iter = new Iterator(&slide_y);
-    iter->set_aim((float)y);
-    iter->set_step((float)speed);
-    iterators.append(iter);
-  }
-
-}
 
 
 bool Layer::set_zoom(double x, double y) {
@@ -408,36 +382,6 @@ bool Layer::set_rotate(double angle) {
   return rotating;
 }
 
-// TODO: here should be used iterators instead
-bool Layer::set_spin(double rot, double z) {
-
-  if(rot) {
-    spin_rotation += rot;
-    // rotation spin boundary
-    spin_rotation =
-      // scalar value 2 here is the maximum rotation speed
-      (spin_rotation > 5) ? 5 :
-      (spin_rotation < -5) ? -5 :
-      spin_rotation;
-    
-    rotating = true;
-  }// else spin_rotation = 0;
-  
-  if(z) {
-    spin_zoom += z;
-    // zoom spin boundary
-    spin_zoom = 
-      // scalar value 1 here is the maximum zoom speed
-      (spin_zoom > 1) ? 1 :
-      (spin_zoom < -1) ? -1 :
-      spin_zoom;
-    
-    zooming = true;
-  }// else spin_zoom = 0;
-  
-  return(rotating | zooming);
-}
-
 
 void Layer::_fit(bool maintain_aspect_ratio){
 	if(env){
@@ -476,15 +420,3 @@ void Layer::fit(bool maintain_aspect_ratio) {
 	this->_fit(maintain_aspect_ratio);
 }
 
-
-void Layer::pulse_alpha(int step, int value) {
-  if(!fade) {
-    set_blit("0alpha"); /* by placing a '0' in front of the
-				   blit name we switch its value to
-				   zero before is being showed */
-    fade = true; // after the iterator it should deactivate the layer
-    // fixme: doesn't works well with concurrent iterators
-  }
-
-  //  blitter.pulse_value(step,value);
-}
