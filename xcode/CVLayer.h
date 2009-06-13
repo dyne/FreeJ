@@ -83,6 +83,8 @@ class CVLayer;
 - (void)unlock; /// accessor to the internal mutex
 - (void)translateXby:(float)x Yby:(float)y;
 - (void)rotateBy:(float)deg;
+- (void)start;
+- (void)stop;
 
 // Interface Builder API 
 - (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10

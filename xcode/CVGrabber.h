@@ -28,8 +28,6 @@
 }
 
 - (void)feedFrame:(CVPixelBufferRef)frame;
-- (void)start;
-- (void)stop;
 @end
 
 

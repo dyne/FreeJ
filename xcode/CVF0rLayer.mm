@@ -155,7 +155,6 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
     layerPersonality->type = Layer::GL_COCOA;
     [input setLayer:this];
     blendMode = NULL;
-    layerPersonality->init(freej, freej->screen->w, freej->screen->h);
     if (!f0rPersonality->init(freej)) {
         error("can't initialize generator layer");
         return;
@@ -164,6 +163,8 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
         error("generator %s hasn't been found", generatorName);
         return;
     }
+    layerPersonality->init(freej, freej->screen->w, freej->screen->h);
+
     layerPersonality->set_name([[view toolTip] UTF8String]);
 }
 

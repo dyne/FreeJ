@@ -119,7 +119,6 @@
 
 - (IBAction)openScript:(id)sender 
 {    
-     func("doOpen");    
      NSOpenPanel *tvarNSOpenPanelObj = [NSOpenPanel openPanel];
      NSArray *types = [NSArray arrayWithObject:[NSString stringWithUTF8String:"js"]];
      [tvarNSOpenPanelObj 
@@ -150,14 +149,14 @@
     if (layerSelect) {
         [layerSelect removeAllItems];
         NSMenu *menu = [layerSelect menu];
-        freej->layers.lock();
-        Layer *lay = (Layer *)freej->layers.begin ();
+        screen->layers.lock();
+        Layer *lay = (Layer *)screen->layers.begin ();
         while (lay) {
             if (lay->type !=  Layer::GL_COCOA)
                 [menu addItemWithTitle:[NSString stringWithUTF8String:lay->name] action:nil keyEquivalent:@""];
             lay = (Layer *)lay->next;
         }
-        freej->layers.unlock();
+        screen->layers.unlock();
     }
     [layerSelect synchronizeTitleAndSelectedItem];
     [p release];
@@ -169,7 +168,9 @@
         //freej = new CVContext(self);
         freej = new Context();
         freej->quit = false;
-        assert( freej->init(DEFAULT_FREEJ_WIDTH, DEFAULT_FREEJ_HEIGHT, Context::GL_COCOA, 0) );
+        NSRect frame = [screenView frame];
+        screen = new CVScreen(frame.size.width, frame.size.height);
+        freej->add_screen(screen);
         freej->plugger.refresh(freej);
         //freej->config_check("keyboard.js");
         [[NSNotificationCenter defaultCenter] addObserver:self
@@ -182,8 +183,8 @@
 - (bool)isVisible:(CVLayer *)layer
 {
     bool ret = NO;
-    freej->layers.lock();
-    Layer *lay = (Layer *)freej->layers.begin ();
+    screen->layers.lock();
+    Layer *lay = (Layer *)screen->layers.begin ();
     while (lay) {
         // TODO - should check against something more unique than the layer name
         if (strcmp(layer->name, lay->name) == 0) {
@@ -192,7 +193,7 @@
         }
         lay =  (Layer *)lay->next;
     }
-    freej->layers.unlock();
+    screen->layers.unlock();
     return ret;
 }
 
@@ -202,7 +203,7 @@
     // give the engine some time to stop all layers
     Delay(5, NULL); 
 
-    [screen reset];
+    [screenView reset];
 }
 
 @end

@@ -526,6 +526,25 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     doPreview = YES;
 }
 
+- (void)start
+{
+    if (!layer) {
+        Context *ctx = [freej getContext];
+        if (ctx) {
+            layer = new CVLayer(self);
+            layer->init(ctx);
+        }
+    }
+}
+
+- (void)stop
+{
+    if (layer) {
+        layer->deactivate();
+    }
+    
+}
+
 - (void)setPreviewTarget:(CVPreview *)targetView
 {
     [lock lock];
@@ -593,7 +612,6 @@ CVLayer::CVLayer() : Layer()
     blendMode = NULL;
     type = Layer::GL_COCOA;
     data = (void *)this;
-    start();
 }
 
 CVLayer::CVLayer(CVLayerView *vin) : Layer()
@@ -605,7 +623,6 @@ CVLayer::CVLayer(CVLayerView *vin) : Layer()
     data = (void *)this;
     [input setLayer:this];
     set_name([[(NSView *)input toolTip] UTF8String]);
-    start();
 }
 
 CVLayer::~CVLayer()
@@ -662,7 +679,7 @@ CVLayer::init(Context *ctx, int w, int h)
     height = h;
     freej = ctx;
     _init(width,height);
-    return true;
+    return start();
 }
 
 void *

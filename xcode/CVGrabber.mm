@@ -259,25 +259,6 @@ error:
    [lock unlock];
 }
 
-- (void)start
-{
-    if (!layer) {
-        Context *ctx = [freej getContext];
-        if (ctx) {
-            layer = new CVLayer(self);
-            layer->init(ctx);
-        }
-    }
-}
-
-- (void)stop
-{
-    if (layer) {
-        layer->deactivate();
-    }
-
-}
-
 - (void)drawRect:(NSRect)theRect
 {
     GLint zeroOpacity = 0;

@@ -129,7 +129,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     }
     // no movie has been supplied... perhaps we are going to exit
     if (!inMovie) {
-        //[lock unlock];
+        [lock unlock];
         return;
     }
     qtMovie = inMovie;
@@ -144,15 +144,23 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         //[qtMovie setMuted:YES]; // still no audio?
         
         NSArray *tracks = [qtMovie tracks];
+        bool hasVideo = NO;
         for (NSUInteger i = 0; i < [tracks count]; i ++) {
             QTTrack *track = [tracks objectAtIndex:i];
             NSString *type = [track attributeForKey:QTTrackMediaTypeAttribute];
             if (![type isEqualToString:QTMediaTypeVideo]) {
                 [track setEnabled:NO];
                 DisposeMovieTrack([track quickTimeTrack]);
+            } else {
+                hasVideo = YES;
             }
         }
-
+        if (!hasVideo) {
+            qtMovie = nil;
+            [lock unlock];
+            return;
+        }
+        
         movieDuration = [[[qtMovie movieAttributes] objectForKey:QTMovieDurationAttribute] QTTimeValue];
     
         Context *ctx = (Context *)[freej getContext];
@@ -345,15 +353,18 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         QTMovie *movie = [[QTMovie alloc] initWithAttributes:movieAttributes error:nil];
         [movie setIdling:NO];
         [self setQTMovie:movie];
-        [movie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
-        [self togglePlay:nil]; // start playing the movie
+        if (qtMovie) {
+            [movie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
+            [self togglePlay:nil]; // start playing the movie
+        } else {
+            warning("Can't open file: %s", [tvarFilename UTF8String]);
+        }
     }
 }
 
 - (IBAction)openFile:(id)sender 
 {    
     NSOpenPanel *fileSelectionPanel    = [NSOpenPanel openPanel];
-    func("doOpen");    
     NSArray *types = [NSArray arrayWithObjects:
         @"avi", @"mov", @"mpg", @"asf", @"jpg", 
         @"png", @"tif", @"bmp", @"gif", @"pdf", nil];

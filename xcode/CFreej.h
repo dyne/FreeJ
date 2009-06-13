@@ -21,11 +21,12 @@ class CVLayer;
 	Context *freej;
 	int stdout_pipe[2];
 	int stderr_pipe[2];
+    CVScreen *screen;
 	NSRecursiveLock *lock;
     IBOutlet NSPopUpButton *layerSelect;
 	IBOutlet NSTextField *scriptPath;
 	IBOutlet NSTextView *outputPanel;
-    IBOutlet CVScreenView *screen;
+    IBOutlet CVScreenView *screenView;
 }
 - (id)init;
 //- (void)run;
