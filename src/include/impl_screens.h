@@ -20,6 +20,8 @@
 #ifndef __IMPL_SCREENS_H__
 #define __IMPL_SCREENS_H__
 
+#include <config.h>
+
 #include <sdl_screen.h>
 #include <soft_screen.h>
 

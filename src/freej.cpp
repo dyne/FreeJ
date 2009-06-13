@@ -99,7 +99,7 @@ bool gtkgui = false;
 int audiomode = 0;
 bool noconsole = false;
 bool fullscreen = false;
-
+bool opengl = false;
 
 void cmdline(int argc, char **argv) {
   int res, optlen;
@@ -189,7 +189,7 @@ void cmdline(int argc, char **argv) {
 
 #ifdef WITH_OPENGL
     case 'g':
-      screen = new SdlGlScreen();
+      opengl = true;
       break;
 #endif
 
@@ -283,7 +283,12 @@ int main (int argc, char **argv) {
   set_debug(debug_level);
 
   // create SDL screen by default at selected size
-  if(!screen) screen = new SdlScreen(width, height);
+#ifdef WITH_OPENGL
+  if(opengl)
+    screen = new SdlGlScreen(width, height);
+  else
+#endif
+    screen = new SdlScreen(width, height);
 
   // add the screen to the context
   freej->add_screen(screen);

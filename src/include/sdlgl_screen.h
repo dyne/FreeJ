@@ -53,6 +53,8 @@ class SdlGlScreen : public ViewPort {
   void *get_surface();
   fourcc get_pixel_format() { return BGRA32; };
 
+  void setup_blits(Layer *lay);
+
   float x_translation;
   float y_translation;
   float x_rotation;
