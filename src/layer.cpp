@@ -64,8 +64,7 @@ Layer::Layer()
   rotate = 0.0;
   zooming = false;
   rotating = false;
-  spin_zoom = 0;
-  spin_rotation = 0;
+
   antialias = false;
 
   blitter = NULL;
@@ -343,14 +342,12 @@ bool Layer::set_zoom(double x, double y) {
 
     zooming = false;
     zoom_x = zoom_y = 1.0;
-    spin_zoom = 0;
     act("%s layer %s zoom deactivated", name, filename);
 
   } else {
 
     zoom_x = x;
     zoom_y = y;
-    spin_zoom = 0; // block spin
     zooming = true;
     func("%s layer %s zoom set to x%.2f y%.2f",	name, filename, zoom_x, zoom_y);
 
@@ -366,13 +363,11 @@ bool Layer::set_rotate(double angle) {
 
     rotating = false;
     rotate = 0;
-    spin_rotation = 0;
     act("%s layer %s rotation deactivated", name, filename);
 
   } else {
 
     rotate = angle;
-    spin_rotation = 0; // blocks spin
     rotating = true;
     func("%s layer %s rotation set to %.2f", name, filename, rotate);
 

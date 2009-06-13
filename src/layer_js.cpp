@@ -43,7 +43,6 @@ JSFunctionSpec layer_methods[] = {
     {"set_position",	layer_set_position,	2},
     {"set_fps",		layer_set_fps,		0},
     {"get_fps",		layer_get_fps,   	0},
-    {"slide_position",  layer_slide_position,   2},
     {"get_x_position",	layer_get_x_position,	0},
     {"x",               layer_get_x_position,   0},
     {"get_y_position",	layer_get_y_position,	0},
@@ -56,7 +55,6 @@ JSFunctionSpec layer_methods[] = {
     {"rem_filter",	layer_rem_filter,	1},
     {"rotate",          layer_rotate,           1},
     {"zoom",            layer_zoom,             2},
-    {"spin",            layer_spin,             2},
     {"list_filters",    layer_list_filters,     0},
     {"list_parameters", layer_list_parameters,  0},
     {0}
@@ -432,28 +430,6 @@ JS(layer_set_position) {
     return JS_TRUE;
 }
 
-
-JS(layer_slide_position) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  
-  JS_CHECK_ARGC(2);
-  
-  GET_LAYER(Layer);
-  
-  int speed = 1;
-  int x,y;
-
-  x = JSVAL_TO_INT(argv[0]);
-  y = JSVAL_TO_INT(argv[1]);
-  
-  if(argc == 3)
-    speed = JSVAL_TO_INT(argv[2]);
-  
-  lay->slide_position(x, y, speed);
-
-  return JS_TRUE;
-}
-
 JS(layer_get_x_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
@@ -621,19 +597,6 @@ JS(layer_zoom) {
   GET_LAYER(Layer);
 
   lay->set_zoom(xmagn,ymagn);
-
-  return JS_TRUE;
-}
-JS(layer_spin) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-  if(argc<2) JS_ERROR("missing argument");
-  JS_ARG_NUMBER(rot,0);
-  JS_ARG_NUMBER(magn,1);
-
-  GET_LAYER(Layer);
-
-  lay->set_spin(rot, magn);
 
   return JS_TRUE;
 }

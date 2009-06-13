@@ -1,9 +1,9 @@
 /*  FreeJ
- *  (c) Copyright 2006 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2006-2009 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -19,6 +19,10 @@
 
  */
 
+/**
+   @file controller.h
+   @brief FreeJ generic Controller interface
+*/
 
 #ifndef __CONTROLLER_H__
 #define __CONTROLLER_H__
@@ -44,30 +48,32 @@ class Controller: public Entry {
 
   // we need a pointer to context because controllers aren't depending from javascript
   // those who need it will retreive JSContext/Object from freej->js->global_context/object
-  bool init(Context *freej);
+  bool init(Context *freej); ///< initialize the controller to be used on the Context
+
   // function called in main loop, 
-  // handle your events here
-  virtual int poll() = 0;
-  // call this or by poll_sdlevents, return 0 = requeue, 1 = event handled
-  virtual int dispatch() = 0;
+  virtual int poll() = 0; ///< poll() is called internally at every frame processed,
+  ///< returns 0 = requeue, 1 = event handled
 
-  // helper function to filter and redispatch unhandled SDL_Events
-  // calls dispatch() foreach event in eventmask
+  virtual int dispatch() = 0; ///< dispatch() is implemented by the specific controller 
+  ///< distributes the signals to listeners, can be overrided in python
+
   void poll_sdlevents(Uint32 eventmask);
+  ///< helper function to filter and redispatch unhandled SDL_Events
+  ///< calls dispatch() foreach event in eventmask
 
-  bool initialized;
-  bool active;
+  
+  bool initialized; ///< is this class initialized on a context?
+  bool active; ///< is this class active?
 
   bool indestructible; ///< set to true if you want the controller to survive a reset
 
-  bool javascript; ///< mark that this controller was created by javascript
+  bool javascript; ///< was this controller created by javascript?
 
-  Context *env;
+  Context *env; ///< pointer to the Context
 
-  JSContext *jsenv;
-  JSObject  *jsobj;
-  SDL_Event event;
-  jsval lol;
+  JSContext *jsenv; ///< javascript environment
+  JSObject  *jsobj; ///< this javascript object
+  SDL_Event event; ///< SDL event structure
 
   // TODO: eliminate runtime resolution -> C++ overhead alert!
   int JSCall(const char *funcname, int argc, jsval *argv);

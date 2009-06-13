@@ -370,15 +370,11 @@ bool SlwReadline::parser_movelayer(int key) {
 				   layer->zoom_y + 0.01); break;
   case KEY_MINUS: layer->set_zoom( layer->zoom_x - 0.01,
 				   layer->zoom_y - 0.01); break;
-  case 'w':       layer->set_spin(0,-0.001);    break;
-  case 's':       layer->set_spin(0,0.001);     break;
   case '.':       layer->set_zoom(1,1);         break;
     
     // rotation
   case '<': layer->set_rotate( layer->rotate + 0.5 ); break;
   case '>': layer->set_rotate( layer->rotate - 0.5 ); break;
-  case 'a': layer->set_spin(0.02,0);   break;
-  case 'd': layer->set_spin(-0.02,0);  break;
   case ',': layer->set_rotate(0);      break;
   case 'z': layer->antialias =
       !layer->antialias;       break;

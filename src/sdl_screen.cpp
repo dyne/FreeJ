@@ -116,19 +116,6 @@ void SdlScreen::blit(Layer *src) {
 
   if(src->rotating | src->zooming) {
 
-
-    src->rotate += src->spin_rotation;
-    src->rotate = // cycle rotation
-      (src->rotate>360) ? (src->rotate-360):
-      (src->rotate<0)   ? (360+src->rotate):
-      src->rotate;
-    
-    src->spin_zoom = // cycle zoom
-      (src->zoom_x >= 1.7) ? -src->spin_zoom :
-      (src->zoom_x < 0.1)  ? -src->spin_zoom :
-      src->spin_zoom;
-    // zoom_y = zoom_x += spin_zoom;
-
     // if we have to rotate or scale,
     // create a sdl surface from current pixel buffer
     pre_rotozoom = SDL_CreateRGBSurfaceFrom
