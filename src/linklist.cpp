@@ -125,7 +125,89 @@ bool Entry::down() {
 }
 
 bool Entry::move(int pos) {
-  func("Entry::move(%i) - NEW LINKLIST MOVE, TRYING IT...");
+    func("Entry::move(%i)", pos);
+    if(!list) 
+        return(false);
+#ifdef THREADSAFE
+    list->lock();
+#endif
+    Entry *displaced;
+
+    // find our position
+    Entry *search = list->first;
+    int mypos = 1;
+    while (search && search != this) {
+        mypos++;
+        search = search->next;
+    }
+    
+    // no move is necessary
+    if (mypos == pos) {
+#ifdef THREADSAFE
+        list->unlock();
+#endif
+        return(true);
+    }
+    displaced = list->_pick(pos);
+    
+    // detach ourselves from the list
+    if (next) {
+        next->prev = prev;
+        if (prev)
+            prev->next = next;
+        else
+            list->first = next;
+    } else { 
+        list->last = prev;
+    }
+    if (prev) {
+        prev->next = next;
+        if (next)
+            next->prev = prev;
+        else
+            list->last = prev;
+    
+    } else {
+        list->first = next;
+    }
+    prev = NULL;
+    next = NULL;
+    // now insert ourselves at the new position
+    if (pos >= list->length) { // shortcut if we are going to be the last entry
+        list->last->next = this;
+        prev = list->last;
+        list->last = this;
+    } else if (pos == 1) { // shortcut if we are going to be the first entry
+        list->first->prev = this;
+        next = list->first;
+        list->first = this;
+    } else {
+        if (mypos > pos) { 
+            prev = displaced->prev;
+            if (prev) 
+                prev->next = this;
+            else 
+                list->first = this;
+            next = displaced;
+            displaced->prev = this;
+        } else if (mypos < pos) {
+            next = displaced->next;
+            if (next)
+                next->prev = this;
+            else
+                list->last = this;
+            prev = displaced;
+            displaced->next = this;
+        } 
+    }
+#ifdef THREADSAFE
+    list->unlock();
+#endif
+    return(true);
+}
+
+bool Entry::swap(int pos) {
+  func("Entry::swap(%i) - NEW LINKLIST SWAP, TRYING IT...");
   if(!list) return(false);
 #ifdef THREADSAFE
   list->lock();
@@ -134,26 +216,49 @@ bool Entry::move(int pos) {
   Entry *tn, *tp;
 
   Entry *swapping = list->_pick(pos);
-  if(swapping == this) return(true);
-  if(!swapping) return(false);
 
+  if (!swapping) {
+#ifdef THREADSAFE
+    list->unlock();
+#endif
+      return(false);
+  }
+    
+  if (swapping == this) {
+#ifdef THREADSAFE
+    list->unlock();
+#endif
+    return (true);
+  }
+    
   tn = swapping->next;
   tp = swapping->prev;
 
-  swapping->next = next;
-  swapping->prev = prev;
-  if(next) next->prev = swapping;
-  else list->last = swapping;
-  if(prev) prev->next = swapping;
-  else list->first = swapping;
+  swapping->next = (next == swapping)?this:next;
+  next = (tn == this)?swapping:tn;
+  swapping->prev = (prev == swapping)?this:prev;
+  prev = (tp == this)?swapping:tp;
 
-  next = tn;
-  prev = tp;
-  if(next) next->prev = this;
-  else list->last = this;
-  if(prev) prev->next = this;
-  else list->first = this;
-
+  // update head of the list if necessary
+  if (!prev) {
+      list->first = this;
+  } else {
+      prev->next = this;
+      if (!swapping->prev)
+          list->first = swapping;
+      else
+          swapping->prev->next = swapping;
+  }
+  // update the tail of the list if necessary
+  if (!next) {
+      list->last = this;
+  } else {
+      next->prev = this;
+      if (!swapping->next)
+          list->last = swapping;
+      else
+          swapping->next->prev = swapping;
+  }  
 #ifdef THREADSAFE
   list->unlock();
 #endif
@@ -172,11 +277,12 @@ void Entry::rem() {
   if(next) { // if there is a next
     next->prev = prev; // link it to the previous
     next->select = select; // inherit selection
-    list->selection = next;
+    list->selection = next; // XXX - why changing selection without first checking if we are selected?
   } else {
     list->last = prev; // else just make it the last
     lastone = true;
-    list->selection = prev;
+    list->selection = prev;  // XXX - why changing selection without first checking if we are selected?
+
   }
 
   if(prev) { // if there is a previous

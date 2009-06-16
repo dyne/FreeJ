@@ -130,6 +130,7 @@ class Entry {
   bool up();
   bool down();
   bool move(int pos);
+  bool swap(int pos);
   void rem();
   void sel(bool on);
   
