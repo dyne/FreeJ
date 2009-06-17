@@ -70,7 +70,6 @@ ViewPort::~ViewPort() {
 
 }
 
-
 bool ViewPort::add_layer(Layer *lay) {
   func("%s",__PRETTY_FUNCTION__);
 
@@ -106,6 +105,12 @@ bool ViewPort::add_layer(Layer *lay) {
   lay->active = true;
   func("layer %s succesfully added",lay->name);
   return(true);
+}
+
+void ViewPort::rem_layer(Layer *lay)
+{
+    lay->rem();
+    notice("removed layer %s (but still present as an instance)", lay->name);
 }
 
 bool ViewPort::add_encoder(VideoEncoder *enc) {

@@ -348,8 +348,7 @@ bool Context::add_encoder(VideoEncoder *enc) {
 bool Context::add_layer(Layer *lay) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  ViewPort *scr;
-  scr = screens.selected();
+  ViewPort *scr = screens.selected();
   if(!scr) {
     error("no screen initialized, can't add layer %s", lay->name);
     return(false);
@@ -360,17 +359,10 @@ bool Context::add_layer(Layer *lay) {
 
 void Context::rem_layer(Layer *lay) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  /*
-  if (!lay->list) {
-        error("removing Layer %p which is not in list", lay);
-        return;
-  }*/
-  //  js->gc();
-
-  lay->rem();
-
-  notice("removed layer %s (but still present as an instance)", lay->name);
-
+    
+  ViewPort *scr = screens.selected();
+  if (scr)
+    scr->rem_layer(lay);
 }
 
 

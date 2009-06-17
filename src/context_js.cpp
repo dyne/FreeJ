@@ -138,7 +138,8 @@ JS(rem_layer) {
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) JS_ERROR("Layer core data is NULL");
 
-func("JSvalcmp: %p / %p", argv[0], lay->data);
+    func("JSvalcmp: %p / %p", argv[0], lay->data);
+    lay->stop();
     env->rem_layer(lay);
     return JS_TRUE;
 }
@@ -155,9 +156,9 @@ JS(add_layer) {
     jslayer = JSVAL_TO_OBJECT(argv[0]);
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
     if(!lay) JS_ERROR("Layer core data is NULL");
-func("JSvalcmp: %p / %p", argv[0], lay->data);
+    func("JSvalcmp: %p / %p", argv[0], lay->data);
     /** really add layer */
- lay->start();
+    lay->start();
     env->add_layer(lay);
     *rval=JSVAL_TRUE;
     return JS_TRUE;
