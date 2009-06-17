@@ -1,6 +1,7 @@
 /*  FreeJ
  *  (c) Copyright 2001-2009 Denis Roio <jaromil@dyne.org>
  *                2008-2009 Christoph Rudorff <goil@dyne.org>
+ *                     2009 Andrea Guzzo <xant@xant.net>
  *
  * This source code  is free software; you can  redistribute it and/or
  * modify it under the terms of the GNU Public License as published by
@@ -36,8 +37,11 @@ FPS::FPS() {
   fpsd.sum = 0;
   fpsd.i = 0;
   fpsd.n = 30;  
-  fpsd.data = (float*)calloc(fpsd.n, sizeof(float));
-  
+  fpsd.data = new float[fpsd.n];
+  gettimeofday(&start_tv,NULL);
+
+  wake_ts.tv_sec = wake_ts.tv_nsec = 0;
+
   if(pthread_mutex_init (&_mutex,NULL) == -1)
     error("error initializing POSIX thread feed mutex");
   if(pthread_cond_init (&_cond, NULL) == -1)
@@ -59,7 +63,6 @@ void FPS::init(int rate) {
 
   this->set(25);
 
-  fpsd.data = new float[30];
   for (int i=0; i<30; i++) {
     fpsd.data[i] = 0;
   }
@@ -68,22 +71,33 @@ void FPS::init(int rate) {
 
 void FPS::calc() {
 
-  timeval now_tv;
-  float done, curr_fps;
+  timeval done, now_tv;
+  float curr_fps;  
 
-  gettimeofday(&now_tv,NULL);
+  gettimeofday(&now_tv, NULL);
+
+  if(now_tv.tv_usec == start_tv.tv_usec) {
+    // tight loop, take a minimum breath
+    wake_ts.tv_sec  = 0;
+    wake_ts.tv_nsec = 1000000; // set the delay
+    return;
+  }
+
+  timersub(&now_tv, &start_tv, &done);
+  int rate = 1000000 / _fps;
+
+  if ( (done.tv_sec > 0)
+       || (done.tv_usec >= rate) ) {
+	 start_tv.tv_sec = now_tv.tv_sec;
+	 start_tv.tv_usec = now_tv.tv_usec;
+	 return;
+  }
+
+  wake_ts.tv_sec  = 0;
+  wake_ts.tv_nsec = (rate - done.tv_usec)*1000; // set the delay
   
-  done = now_tv.tv_sec - start_tv.tv_sec +
-    (float)(now_tv.tv_usec - start_tv.tv_usec) / 1000000;
-  if (done == 0) return;
-  curr_fps = 1 / done;
-  
-  if (curr_fps > _fps) // we are in time
-    curr_fps = _fps;
-  else
-    //    timeout(0);
-    timeout(0.0005); // force a little delay
-  
+  curr_fps = 1000000 /  done.tv_usec;
+
   // statistic only
   fpsd.sum = fpsd.sum - fpsd.data[fpsd.i] + curr_fps;
   fpsd.data[fpsd.i] = curr_fps;
@@ -96,6 +110,7 @@ int FPS::get() {
 }
 
 int FPS::set(int rate) {
+  func("FPS set to %u",rate);
   if (rate < 0) // invalid
     return fps_old;
   
@@ -109,31 +124,18 @@ int FPS::set(int rate) {
   return fps_old;
 }
 
-void FPS::timeout(float delta) {
-  float d = (delta>0) ? delta : _delay;
-
-  gettimeofday(&start_tv,NULL);
-
-  TIMEVAL_TO_TIMESPEC(&start_tv, &wake_ts);
-
-//   wake_ts.tv_sec += (int)d;
-//   wake_ts.tv_nsec += int(1000000000*(d - int(d)));
-
-
-  wake_ts.tv_sec += (int)d;
-  wake_ts.tv_nsec +=     100000000000.0*d;
-
-
-  if (wake_ts.tv_nsec >= 1000000000) {
-    wake_ts.tv_sec ++;
-    wake_ts.tv_nsec %=   1000000000;
-  }
-
-}
 
 void FPS::delay() {
-  //  nanosleep(&wake_ts, NULL);
-  /// pthread conditional timed wait is "more reentrant" :Q
-  pthread_cond_timedwait(&_cond, &_mutex, &wake_ts);
+  struct timespec remaining = { 0, 0 };
+
+  do {
+    nanosleep(&wake_ts, &remaining);
+    wake_ts.tv_nsec = remaining.tv_nsec;
+  } while (wake_ts.tv_nsec > 0);
+  // update lo start time
+  gettimeofday(&start_tv,NULL);
   
+  wake_ts.tv_sec  = wake_ts.tv_nsec = 0;
+
+
 }

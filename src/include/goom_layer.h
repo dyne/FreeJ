@@ -37,7 +37,6 @@ class GoomLayer: public Layer {
 
   bool open(const char *file);
   void *feed();
-  bool keypress(int key);
   void close();
 
   PluginInfo *goom;

@@ -49,11 +49,10 @@
 
 class Controller;
 
-class Console;
 class JsParser;
 class AudioCollector;
 class VideoEncoder;
-class FPS;
+
 
 class FreejDaemon;
 
@@ -64,15 +63,6 @@ template <class T> class Linklist;
 #define MAX_WIDTH 768
 
 class Context {
-	public:
-		enum VideoMode {
-			SDL,
-			SDLGL,
-			GL_HEADLESS,
-			HEADLESS,
-			SOFT,
-			GL_COCOA
-		};
  private:
 
   /* doublesize calculation */
@@ -81,10 +71,6 @@ class Context {
   int dcy, cy, cx;
   uint64_t eax;
   /* ---------------------- */
-
-  /* timing and other amenities */
-  double now;
-  bool riciuca;
 
   // parts of the cafudda process
   void handle_resize();
@@ -98,7 +84,7 @@ class Context {
   Context();
   ~Context();
 
-  bool init(int wx, int hx, VideoMode videomode, int audiomode); ///< initialise the engine and screen
+  bool init(); ///< initialise the engine
 
   //  void close();
   void cafudda(double secs); ///< run the engine for seconds or one single frame pass
@@ -109,32 +95,24 @@ class Context {
   bool register_controller(Controller *ctrl);
   bool rem_controller(Controller *ctrl);
 
-  void add_layer(Layer *lay); ///< add a layer to the screen and engine
+  bool add_layer(Layer *lay); ///< add a layer to the screen and engine
   void rem_layer(Layer *lay);
 
-  void add_encoder(VideoEncoder *enc); ///< add an encoder to the engine
+  bool add_encoder(VideoEncoder *enc); ///< add an encoder to the engine
 
-  /* this returns the address of selected coords to video memory */
-  void *coords(int x, int y) { return screen->coords(x,y); };
+  void *coords(int x, int y); ///< returns an offset to currently selected screen
 
   int parse_js_cmd(const char *cmd);
 
-
   int open_script(char *filename);
+
+  int reset(); ///< clear the engine and deletes all registered objects
 
   bool config_check(const char *filename);
 
-  void rocknroll();
-
   void magnify(int algo);
-  int magnification;
 
   void resize(int w, int h);
-  bool resizing;
-  int resize_w;
-  int resize_h;
-
-  bool changeres;
 
   bool quit;
   
@@ -144,27 +122,21 @@ class Context {
 
   bool interactive;
 
-  ViewPort *screen; ///< Video Screen
-
   //  Osd osd; ///< On Screen Display
 
   SDL_Event event;
   bool poll_events;
 
-
-  Console *console; ///< Console parser (will become a controller)
+  bool add_screen(ViewPort *scr); ///< add a new screen
+  Linklist<ViewPort> screens; ///< linked list of registered screens
+  ViewPort *screen;
+  ///< currently selected screen (auxiliary pointer, use screens.selected() instead)
 
   Linklist<Controller> controllers; ///< linked list of registered interactive controllers
-
-  Linklist<Layer> layers; ///< linked list of registered layers
 
   Linklist<Filter> filters; ///< linked list of registered filters
 
   Linklist<Filter> generators; ///< linked list of registered generators
-
-  Linklist<VideoEncoder> encoders; ///< linked list of registered encoders
-
-
 
   //AudioCollector *audio; ///< audio device recording input (PortAudio)
 
@@ -172,10 +144,11 @@ class Context {
 
   JsParser *js; ///< javascript parser object
 
+  char main_javascript[512]; ///< if started with a javascript, save the filename here (used by reset)
 
   /* Set the interval (in frames) after
      the fps counter is updated */
-  FPS *fps;
+  FPS fps;
   int fps_speed;
 
   bool clear_all;

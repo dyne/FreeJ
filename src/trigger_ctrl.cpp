@@ -1,5 +1,6 @@
-/*  FreeJ
- *  (c) Copyright 2001-2007 Denis Roio aka jaromil <jaromil@dyne.org>
+/*  FreeJ - Trigger controller
+ *
+ *  (c) Copyright 2007 Christoph Rudorff <goil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -20,8 +21,6 @@
  */
 
 
-// I used a Logitech WingMan here. It got 2 joys and 7 Buttons
-
 #include <string.h>
 
 #include <trigger_ctrl.h>
@@ -33,6 +32,7 @@
 
 
 #include <callbacks_js.h> // javascript
+#include <jsparser.h>
 #include <jsparser_data.h>
 
 JS(js_trigger_ctrl_constructor);
@@ -48,38 +48,45 @@ JSFunctionSpec js_trigger_ctrl_methods[] = {
 TriggerController::TriggerController()
   :Controller() {
     set_name("Trigger");
+    frame_func = NULL;
 }
 
 TriggerController::~TriggerController() {
 }
 
-bool TriggerController::init(JSContext *env, JSObject *obj) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  jsenv = env;
-  jsobj = obj;
-  
-  initialized = true;
-  return(true);
-}
-
 int TriggerController::poll() {
-    return dispatch();
+
+  if(javascript)
+    if(!frame_func) {
+      JSObject *objp = NULL;
+      JSBool res;
+      res = JS_GetMethod(jsenv, jsobj, "frame", &objp, &frame_func);
+      if(!res || JSVAL_IS_VOID(frame_func)) {
+	error("method frame not found in TriggerController"); 
+	return(-1);
+      }
+    }
+
+  return dispatch();
 }
 
 int TriggerController::dispatch() {
-    jsval fval = JSVAL_VOID;
+
+  // if no javascript is initilized then this function
+  // should be overridden by other binded languages
+  if(javascript) {
     jsval ret = JSVAL_VOID;
-    JSObject *objp;
-
-    int res = JS_GetMethod(jsenv, jsobj, "frame", &objp, &fval);
-
-    if(!JSVAL_IS_VOID(fval)) {
-        res = JS_CallFunctionValue(jsenv, jsobj, fval, 0, NULL, &ret);
-        if (res == JS_FALSE) {
-            error("trigger call frame() failed, deactivate ctrl");
-            active = false;
-        }
+    JSBool res;
+    
+    res = JS_CallFunctionValue(jsenv, jsobj, frame_func, 0, NULL, &ret);
+    if (res == JS_FALSE) {
+      error("trigger call frame() failed, deactivate ctrl");
+      frame_func = NULL;
+      active = false;
+    }
   }
+
+    
   return(1);
 }
 
@@ -89,10 +96,15 @@ JS(js_trigger_ctrl_constructor) {
   TriggerController *trigger = new TriggerController();
 
   // initialize with javascript context
-  if(! trigger->init(cx, obj) ) {
+  if(! trigger->init(env) ) {
     error("failed initializing trigger controller");
     delete trigger; return JS_FALSE;
   }
+
+  trigger->jsobj = obj;
+
+  // mark that this controller was created by javascript
+  trigger->javascript = true;
 
   // assign instance into javascript object
   if( ! JS_SetPrivate(cx, obj, (void*)trigger) ) {

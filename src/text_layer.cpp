@@ -60,7 +60,7 @@ TextLayer::TextLayer()
     
     param = new Parameter(Parameter::NUMBER);
     strcpy(param->name, "size");
-    param->description = "set the size of the font";
+    strcpy(param->description, "set the size of the font");
     parameters->append(param);
   }
 }
@@ -112,8 +112,6 @@ void TextLayer::close() {
 void TextLayer::calculate_string_size(char *text, int *w, int *h) {
   TTF_SizeText(font, text, w, h);
 }
-
-bool TextLayer::keypress(int key) { return false; };
 
 void TextLayer::set_fgcolor(int r, int g, int b) {
   fgcolor.r = r;
@@ -216,14 +214,13 @@ void TextLayer::_display_text(SDL_Surface *newsurf) {
 
 }
 
-void TextLayer::print_text(const char *str) {
+void TextLayer::write(const char *str) {
   SDL_Surface *tmp, *newsurf;
   
   // choose first font and initialize ready for printing
   
   if(!font) {
-    func("%s: no font selected on layer %s, please choose one!",
-	    __PRETTY_FUNCTION__, this->name);
+    error("no font selected on text layer %s, please choose one!", this->name);
     return;
   }
 

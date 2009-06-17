@@ -37,7 +37,7 @@
 #include <jsparser_data.h>
 
 
-#define DEBUG 1
+// #define DEBUG 1
 
 
 VideoLayer::VideoLayer()
@@ -61,12 +61,12 @@ VideoLayer::VideoLayer()
   frame_fifo.length = 0;
   jsclass = &video_layer_class;
 
-  eos = new DumbCallback();
+  //  eos = new DumbCallback();
 }
 
 VideoLayer::~VideoLayer() {
 	notice("Closing video %s", get_filename());
-	delete eos;
+	//	delete eos;
 	stop();
 	close();
 }
@@ -230,7 +230,8 @@ bool VideoLayer::open(const char *file) {
 	set_filename (file);
 	//				notice ("%s has codec: %s, height: %d width: %d", get_filename(), codec->name, enc->height, enc->width);
 	//	if(rgba_picture == NULL)
-	act ("%s (codec: %s) has resolution %dx%d and framerate %d", get_filename(), codec->name, enc->height, enc->width, frame_rate);
+	act ("%s (codec: %s) has resolution %dx%d and framerate %d",
+	     get_filename(), codec->name, enc->width, enc->height, frame_rate);
 	//				func ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
 	//				func ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);
 	break;
@@ -344,7 +345,7 @@ void *VideoLayer::feed() {
 	     * check eof and loop
 	     */
 	    if(ret!= 0) {
-	      eos->notify();
+	      //	      eos->notify();
 	      ret = seek(avformat_context->start_time);
 	      if (ret < 0) {
 		error("VideoLayer::could not loop file");
@@ -545,57 +546,57 @@ void VideoLayer::free_fifo() {
 		free_picture(frame_fifo.picture[s]);
 	}
 }
-bool VideoLayer::keypress(int key) {
-	switch(key) {
-		case 'k':
-			forward();
-			break;
-		case 'j':
-			backward();
-			break;
-		case 'p': /* pause */
-			pause();
-			break;
-		case 'm': /* increase playing speed */
-			more_speed();
-			break;
-		case 'n': /* decrease playing speed */
-			less_speed();
-			break;
-			/*
-			   case 'b':
-			   if(backward_control) {
-			   backward_control=false;
-			   show_osd("backward off");
-			   }
-			   else {
-			   backward_control=true;
-			   show_osd("backward on");
-			   }
-			//	    backward_one_keyframe();
-			break;
-			*/
+// bool VideoLayer::keypress(int key) {
+// 	switch(key) {
+// 		case 'k':
+// 			forward();
+// 			break;
+// 		case 'j':
+// 			backward();
+// 			break;
+// 		case 'p': /* pause */
+// 			pause();
+// 			break;
+// 		case 'm': /* increase playing speed */
+// 			more_speed();
+// 			break;
+// 		case 'n': /* decrease playing speed */
+// 			less_speed();
+// 			break;
+// 			/*
+// 			   case 'b':
+// 			   if(backward_control) {
+// 			   backward_control=false;
+// 			   show_osd("backward off");
+// 			   }
+// 			   else {
+// 			   backward_control=true;
+// 			   show_osd("backward on");
+// 			   }
+// 			//	    backward_one_keyframe();
+// 			break;
+// 			*/
 
-		case 'i': /* set mark in */
-			set_mark_in();
-			break;
+// 		case 'i': /* set mark in */
+// 			set_mark_in();
+// 			break;
 
-		case 'o': /* set mark out */
-			set_mark_out();
-			break;
+// 		case 'o': /* set mark out */
+// 			set_mark_out();
+// 			break;
 
-		case 'u': /* Swith deinterlace */
-			if(deinterlaced)
-				deinterlaced=false;
-			else
-				deinterlaced=true;
-			break;
+// 		case 'u': /* Swith deinterlace */
+// 			if(deinterlaced)
+// 				deinterlaced=false;
+// 			else
+// 				deinterlaced=true;
+// 			break;
 
-		default:
-			break;
-	}
-	return true;
-}
+// 		default:
+// 			break;
+// 	}
+// 	return true;
+// }
 bool VideoLayer::set_mark_in() {
 	if (mark_in == NO_MARK) {
 		mark_in = get_master_clock();

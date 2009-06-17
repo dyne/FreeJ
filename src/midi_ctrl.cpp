@@ -32,6 +32,8 @@
 #include <context.h>
 //#include <plugger.h>
 #include <jutils.h>
+
+#include <jsparser.h>
 #include <callbacks_js.h> // javascript
 #include <jsparser_data.h>
 
@@ -52,7 +54,7 @@ JS(js_midi_ctrl_constructor) {
     MidiController *midi = new MidiController();
     // assign instance into javascript object
     // initialize with javascript context
-    if(! midi->init(cx, obj) ) {
+    if(! midi->init(env) ) {
         error("failed initializing midi controller");
         delete midi; return JS_FALSE;
     }
@@ -60,6 +62,10 @@ JS(js_midi_ctrl_constructor) {
         error("failed assigning midi controller to javascript");
         delete midi; return JS_FALSE;
     }
+
+    // assign the real js object
+    midi->jsobj = obj;
+    midi->javascript = true;
 
     *rval = OBJECT_TO_JSVAL(obj);
     return JS_TRUE;
@@ -151,62 +157,59 @@ int MidiController::dispatch() {
 
 int MidiController::event_ctrl(int channel, int param, int value) {
 	func("midi Control event on Channel\t%2d: %5d %5d (param/value)", channel, param, value);
-	JSBool ret = JS_FALSE;
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
 	jsval js_data[] = { channel, param, value };
-	JSCall("event_ctrl", 3, js_data, &ret);
-	return ret;
+	JSCall("event_ctrl", 3, js_data);
+	return(1);
 }
 
 int MidiController::event_pitch(int channel, int param, int value) {
 	func("midi Pitchbender event on Channel\t%2d: %5d %5d   ",  channel, param, value);
-	JSBool ret = JS_FALSE;
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
 	jsval js_data[] = { channel, param, value };
-	JSCall("event_pitch", 3, js_data, &ret);
-	return ret;
+	JSCall("event_pitch", 3, js_data);
+	return(1);
 }
 
 int MidiController::event_noteon(int channel, int note, int velocity) {
 	func("midi Note On event on Channel\t%2d: %5d %5d      ", channel, note, velocity);
-	JSBool ret = JS_FALSE;
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
 	jsval js_data[] = { channel, note, velocity };
-	JSCall("event_noteon", 3, js_data, &ret);
-	return ret;
+	JSCall("event_noteon", 3, js_data);
+	return(1);
 }
 
 int MidiController::event_noteoff(int channel, int note, int velocity) {
 	func("midi Note Off event on Channel\t%2d: %5d      ", channel, note);
-	JSBool ret = JS_FALSE;
+
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
+
 	jsval js_data[] = { channel, note, velocity };
-	JSCall("event_noteoff", 3, js_data, &ret);
-	return ret;
+	JSCall("event_noteoff", 3, js_data);
+	return(1);
 }
 
 int MidiController::event_pgmchange(int channel, int param, int value) {
 	func("midi PGM change event on Channel\t%2d: %5d %5d ", channel, param, value);
-	JSBool ret = JS_FALSE;
 	if (jsenv == NULL) {
 		error("Midi handle action: jsobj is null");
-		return ret;
+		return(0);
 	}
 	jsval js_data[] = { channel, param, value };
-	JSCall("event_pgmchange", 3, js_data, &ret);
-	return ret;
+	JSCall("event_pgmchange", 3, js_data);
+	return(1);
 }
 
 /*
@@ -235,8 +238,10 @@ typedef struct snd_seq_event {
  } snd_seq_event_t;
 */
 
-bool MidiController::init(JSContext* jsenv, JSObject *jsobj) {
-    int portid;
+bool MidiController::init(Context *freej) {
+  func("%s",__PRETTY_FUNCTION__);
+
+  int portid;
     int result=snd_seq_open(&seq_handle, "default", SND_SEQ_OPEN_INPUT, SND_SEQ_NONBLOCK);
     if (result<0) {
         error("Error opening ALSA sequencer: %s\n", snd_strerror(result));
@@ -253,8 +258,10 @@ bool MidiController::init(JSContext* jsenv, JSObject *jsobj) {
     }
     notice("opened ALSA MIDI sequencer client-id:port #%i:%i", seq_client_id, portid);
 
-    this->jsenv = jsenv;
-    this->jsobj = jsobj;
+    // default assignments
+    env = freej;
+    jsenv = freej->js->global_context;
+    jsobj = freej->js->global_object;
 
     initialized = true;
     return(true);

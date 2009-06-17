@@ -31,6 +31,7 @@
 GeoLayer::GeoLayer()
   :Layer() {
   surf = NULL;
+  fsurf = NULL;
   color = 0xffffffff;
   set_name("GEO");
   set_filename("/geometrical layer");
@@ -40,7 +41,8 @@ GeoLayer::GeoLayer()
 
 GeoLayer::~GeoLayer() {
   if(surf) SDL_FreeSurface(surf);
-  surf = NULL;
+  if(fsurf) free(fsurf);
+
 }
 
 bool GeoLayer::init(Context *freej) {
@@ -60,9 +62,19 @@ bool GeoLayer::init(Context *freej, int width, int height) {
   if(!surf) {
     error("can't allocate GeoLayer memory surface");
     return(false);
-  } else
-    func("Geometry surface initialized");
+  }
+  
+//   fsurf = SDL_CreateRGBSurface(SDL_HWSURFACE,
+// 			      geo.w,geo.h,32,
+// 			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
+//   if (!fsurf) {
+//     error("can't allocate GeoLayer memory surface");
+//     return(false);
+//   }
 
+  fsurf = malloc(geo.size);
+
+  func("Geometry surface initialized");
   return(true);
 }
 
@@ -77,11 +89,6 @@ void GeoLayer::close() {
 }
 
 
-bool GeoLayer::keypress(int key) {
-  /* neither this */
-  return(true);
-}
-
 void *GeoLayer::feed() {
   /* TODO: check synchronisation here
      we might want to use a double buffer and do a memcpy here
@@ -90,8 +97,11 @@ void *GeoLayer::feed() {
    */
   if (!surf)
   	return NULL;
-  else
-  	return surf->pixels;
+
+  jmemcpy(fsurf, surf->pixels, geo.size);
+  //  SDL_BlitSurface(surf, NULL, fsurf, NULL);
+  return fsurf;
+
 }
 
 int GeoLayer::clear() {

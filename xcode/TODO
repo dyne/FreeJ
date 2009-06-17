@@ -1,3 +1,4 @@
+- configuration panel to set preview-fps, resolution and such
 - allow to unload/reload javascript files
 - implement a keyboard console
 - integrate with the freej Controller subsystem (allowing to control Cocoa-managed 

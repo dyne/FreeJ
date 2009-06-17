@@ -312,8 +312,10 @@ class DumbCall {
   private:
     pthread_mutex_t pending_; // used as a flag to block destructor if a call
                               // is in progress
+    pthread_mutexattr_t pendingattr_;
     int refcount_; // reference counter for the number of calls in progress
     pthread_mutex_t refcount_mutex_;
+    pthread_mutexattr_t refcount_mutexattr_;
 };
 
 class DumbCallback {

@@ -24,6 +24,8 @@ $Id: gen_layer.cpp 845 2007-04-03 07:04:47Z jaromil $
 #include <gen_f0r_layer.h>
 #include <frei0r_freej.h>
 #include <freeframe_freej.h>
+#include <fps.h>
+
 #include <jutils.h>
 #include <context.h>
 #include <config.h>
@@ -39,11 +41,13 @@ GenF0rLayer::GenF0rLayer()
   set_name("F0R");
   //jsclass = &gen0r_layer_class;
   //  set_filename("/particle generator");
-
+  swap_buffer = NULL;
 }
 
 GenF0rLayer::~GenF0rLayer() {
   close();
+  if (swap_buffer)
+    free(swap_buffer);
 }
 
 /// set_parameter callback for generator layers
@@ -61,7 +65,8 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
     
     // idx-1 because frei0r's index starts from 0
   case F0R_PARAM_BOOL:
-    (*f->f0r_set_param_value)(layer->generator->core, new f0r_param_bool(val[0]), idx-1);
+    (*f->f0r_set_param_value)
+      (layer->generator->core, new f0r_param_bool(val[0]), idx-1);
     break;
     
   case F0R_PARAM_DOUBLE:
@@ -176,19 +181,21 @@ bool GenF0rLayer::init(Context *freej) {
   //  open("lissajous0r");
   //  open("ising0r");
 
-  
+  if (!swap_buffer)
+    swap_buffer = malloc(freej->screen->size);
+  else { // if changing context ensure we can handle its resolution
+    swap_buffer = realloc(swap_buffer, freej->screen->size);
+  }
   return(true);
 }
 
 void *GenF0rLayer::feed() {
   void *res;
-  //  lock();
-  res = generator->process(env->fps_speed, NULL);
-  //  unlock();
-  return res;
+  if (env && generator) {
+      res = generator->process(env->fps.get(), NULL);
+      jmemcpy(swap_buffer, res, env->screen->size);
+  }
+  return swap_buffer;
 }
 
-bool GenF0rLayer::keypress(int key) {
-  return(false);
-}
     

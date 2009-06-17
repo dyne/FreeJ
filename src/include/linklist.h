@@ -23,7 +23,7 @@
 #include <string.h>
 
 /* void warning(const char *format, ...); */
-/* void func(const char *format, ...); */
+void func(const char *format, ...);
 
 // uncomment to have mutex locked operations
 // can be slow on OSX and adds dependency to pthreads
@@ -130,6 +130,7 @@ class Entry {
   bool up();
   bool down();
   bool move(int pos);
+  bool swap(int pos);
   void rem();
   void sel(bool on);
   
@@ -378,7 +379,7 @@ template <class T> T **Linklist<T>::completion(char *needle) {
     }
   }
 
-  //  func("completion found %i hits",found);
+  func("completion found %i hits",found);
   return compbuf;
 }
 

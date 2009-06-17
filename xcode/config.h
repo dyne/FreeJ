@@ -70,7 +70,7 @@
 #define HAVE_MMAP 1
 
 /* define if enabling MMX acceleration */
-/* #undef HAVE_MMX */
+#define HAVE_MMX 1
 
 /* Define to 1 if you have the `select' function. */
 #define HAVE_SELECT 1
@@ -208,6 +208,8 @@
 #define XP_UNIX
 
 #define WITH_COCOA 1
+
+#define WITH_SWSCALE 1
 
 #define _SINT64
 //#define _UINT64

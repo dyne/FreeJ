@@ -22,6 +22,7 @@
 #define __FPS_H__
 
 #include <pthread.h>
+#include <inttypes.h>
 
 class FPS {
  public:
@@ -33,7 +34,6 @@ class FPS {
   int get();
   int set(int rate);
   void calc();
-  void timeout(float delta);
   void delay();
 
   float fps, fps_old;

@@ -17,7 +17,7 @@ pkgperlexecdir = $(perl_archdir)/auto/Freej
 pkgperlexec_LTLIBRARIES = Freej.la
 Freej_la_LDFLAGS = -module -avoid-version
 Freej_la_CXXFLAGS = -I$(perl_archdir)/CORE $(FREEJ_FLAGS) @PERL_CFLAGS@
-Freej_la_SOURCES = $(PERL_SOURCE)
+nodist_Freej_la_SOURCES = $(PERL_SOURCE)
 Freej_la_LIBADD = -L$(top_builddir)/src/.libs -lfreej
 
 clean-local:

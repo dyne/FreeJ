@@ -62,15 +62,17 @@ Plugger::Plugger() {
     GetProcessForPID(getpid(), &psn);
     FSRef location;
     GetProcessBundleLocation(&psn, &location);
-    FSRefMakePath(&location, (UInt8 *)temp, 256);
-    strcat(temp, "/plugins");
+    // 238 == 256 - strlen("/Contents/Plugins") - 1
+    FSRefMakePath(&location, (UInt8 *)temp, 238);
+    strcat(temp, "/Contents/Plugins");
+    addsearchdir(temp);
+    sprintf(temp, "%s/Library/Application Support/FreeJ", getenv("HOME"));
     addsearchdir(temp);
     sprintf(temp, "%s/Library/Application Support/FreeFrame", getenv("HOME"));
     addsearchdir(temp);
+    addsearchdir("/Library/Application Support/FreeJ");
     addsearchdir("/Library/Application Support/FreeFrame");
 #endif
-
-
 
 }
 
@@ -81,7 +83,7 @@ Plugger::~Plugger() {
 
 }
 
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD) 
 int selector(struct dirent *dir)
 #else
 int selector(const struct dirent *dir)
@@ -89,6 +91,9 @@ int selector(const struct dirent *dir)
 {
   if(strstr(dir->d_name,".so")) return(1);
   else if(strstr(dir->d_name,".frf")) return(1);
+#ifdef HAVE_DARWIN
+  else if(strstr(dir->d_name,".dylib")) return(1);
+#endif
   return(0);
 }
 
@@ -100,10 +105,10 @@ int Plugger::refresh(Context *env) {
   int found;
   char *path = _getsearchpath();
 
-  
-  notice("serching available plugins");
- 
+   
   if(!path) { warning("can't find any valid plugger directory"); return(-1); }
+
+  notice("serching available plugins in %s", path);
 
   dir = strtok(path,":");
 
@@ -190,10 +195,9 @@ int Plugger::refresh(Context *env) {
 
 	if(found<0) break;
       }
-      
-  } while((dir = strtok(NULL,":")));
 
-  free(filelist);
+     free(filelist);
+  } while((dir = strtok(NULL,":")));
 
   act("filters found: %u", env->filters.len());
   act("generators found: %u", env->generators.len());

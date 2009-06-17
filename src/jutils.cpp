@@ -43,7 +43,7 @@
 #include <string.h>
 
 /* freej specific: */
-#include <console.h>
+#include <console_ctrl.h>
 
 #include <jutils.h>
 #include <config.h>

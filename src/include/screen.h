@@ -29,13 +29,27 @@
 #include <closure.h>
 #include <linklist.h>
 
+
+#include <layer.h>
+#include <blitter.h>
+
+
 template <class T> class Linklist;
 
 ///////////////////////
 // GLOBAL COLOR MASKING
 
+#ifdef WITH_COCOA
+#define red_bitmask   (uint32_t)0x0000ff00
+#define rchan         2
+#define green_bitmask (uint32_t)0x00ff0000
+#define gchan         1
+#define blue_bitmask  (uint32_t)0xff000000
+#define bchan         0
+#define alpha_bitmask (uint32_t)0x000000ff
+#define achan         3
+#else
 #if SDL_BYTEORDER == SDL_LIL_ENDIAN
-
 #define red_bitmask   (uint32_t)0x00ff0000
 #define rchan         2
 #define green_bitmask (uint32_t)0x0000ff00
@@ -44,7 +58,6 @@ template <class T> class Linklist;
 #define bchan         0
 #define alpha_bitmask (uint32_t)0xff000000
 #define achan         3
-
 #else
 // I got much better performance with same bitmasks on my ppc
 // maybe runtime detect these like SDL testvidinfo.c?
@@ -56,33 +69,45 @@ template <class T> class Linklist;
 #define bchan         3
 #define alpha_bitmask (uint32_t)0xff000000
 #define achan         0
-
+#endif
 #endif
 
-
 class Layer;
-class Blitter;
 class Context;
+class VideoEncoder;
 
 class ViewPort : public Entry {
   friend class Layer;
  public:
-  ViewPort();
+  ViewPort(int w, int h);
   virtual ~ViewPort();
 
-  /* i keep all the following functions pure virtual to deny the
-     runtime resolving of methods between parent and child, which
-     otherwise burdens our performance */ 
-  virtual bool init(int width, int height) =0;
-  virtual void *get_surface() =0; // returns direct pointer to video memory
-  /* returns pointer to pixel
-     use it only once and then move around from there
-     because calling this on every pixel you draw is
-     slowing down everything! */
-  virtual void *coords(int x, int y) =0;
 
-  virtual void blit(Layer *src) =0;
-  //  Blitter *blitter;
+  enum fourcc { RGBA32, BGRA32, ARGB32 }; ///< pixel formats understood
+  virtual fourcc get_pixel_format() =0; ///< return the pixel format
+
+  virtual void *get_surface() =0; ///< returns direct pointer to video memory
+
+  virtual void *coords(int x, int y) =0;
+  ///< returns pointer to pixel (slow! use it once and then move around)
+
+  virtual void blit(Layer *src) =0; ///< operate the blit
+
+  virtual void setup_blits(Layer *lay) =0; ///< setup available blits on added layer
+
+  Context *env;
+
+  void blit_layers();
+
+  virtual bool add_layer(Layer *lay); ///< add a new layer to the screen
+
+  Linklist<Layer> layers; ///< linked list of registered layers
+
+  bool add_encoder(VideoEncoder *enc); ///< add a new encoder for the screen
+
+  Linklist<VideoEncoder> encoders; ///< linked list of registered encoders
+
+  void handle_resize();
 
   virtual void set_magnification(int algo) { };
   virtual void resize(int resize_w, int resize_h) { };
@@ -103,9 +128,17 @@ class ViewPort : public Entry {
   int bpp;
   int size, pitch;
   int magnification;
+
+  bool changeres;
+  bool resizing;
+  int resize_w;
+  int resize_h;
   
+
   // opengl special blit
   bool opengl;
+
+ private:
 
 
   //  uint32_t red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask;  

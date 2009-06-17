@@ -29,6 +29,51 @@
 #include <video_encoder.h>
 
 
+#include <convertvid.h>
+
+/* function below taken from ccvt_misc.c
+   CCVT: ColourConVerT: simple library for converting colourspaces
+   Copyright (C) 2002 Nemosoft Unv. */
+inline void ccvt_yuyv_420p(int width, int height,
+			   const void *src, void *dsty,
+			   void *dstu, void *dstv) {
+  register int n, l, j;
+  register unsigned char *dy, *du, *dv;
+  register unsigned char *s1, *s2;
+  
+  dy = (unsigned char *)dsty;
+  du = (unsigned char *)dstu;
+  dv = (unsigned char *)dstv;
+  s1 = (unsigned char *)src;
+  s2 = s1; // keep pointer
+  n = width * height;
+  for (; n > 0; n--) {
+    *dy = *s1;
+    dy++;
+    s1 += 2;
+  }
+  
+  /* Two options here: average U/V values, or skip every second row */
+  s1 = s2; // restore pointer
+  s1++; // point to U
+  for (l = 0; l < height; l += 2) {
+    s2 = s1 + width * 2; // odd line
+    for (j = 0; j < width; j += 2) {
+      *du = (*s1 + *s2) / 2;
+      du++;
+      s1 += 2;
+      s2 += 2;
+      *dv = (*s1 + *s2) / 2;
+      dv++;
+      s1 += 2;
+      s2 += 2;
+    }
+    s1 = s2;
+  }
+}
+
+
+
 VideoEncoder::VideoEncoder()
   : Entry(), JSyncThread() {
 
@@ -45,18 +90,21 @@ VideoEncoder::VideoEncoder()
 
   filedump_fd = NULL;
 
+  status = NULL;
   audio_kbps = 0;
   video_kbps = 0;
   bytes_encoded = 0;
+
+  enc_y = enc_u = enc_v = NULL;
+
+  fps = new FPS();
+  fps->init(25); // default FPS
 
   // initialize the encoded data pipe
   ringbuffer = ringbuffer_create(1048*2096);
 
   shout_init();
   ice = shout_new();
-
-  
-  //  shout_set_nonblocking(ice, 1);
 
   if( shout_set_protocol(ice,SHOUT_PROTOCOL_HTTP) )
     error("shout_set_protocol: %s", shout_get_error(ice));
@@ -70,6 +118,8 @@ VideoEncoder::VideoEncoder()
   if( shout_set_public(ice,1) )
     error("shout_set_public: %s", shout_get_error(ice));
 
+  func("init picture_yuv for colorspace conversion (avcodec)");  
+
 }
 
 VideoEncoder::~VideoEncoder() {
@@ -80,7 +130,6 @@ VideoEncoder::~VideoEncoder() {
     
     encnum = ringbuffer_read(ringbuffer, encbuf,
 			     ((audio_kbps + video_kbps)*1024)/24);
-
 
     if(encnum <=0) break;
 
@@ -105,37 +154,94 @@ VideoEncoder::~VideoEncoder() {
   ringbuffer_free(ringbuffer);
 
   shout_close(ice);
-  shout_sync(ice);
-  shout_free(ice);
+  //  shout_sync(ice);
+  //  shout_free(ice);
+  shout_shutdown();
+
+  if(enc_y) free(enc_y);
+  if(enc_u) free(enc_u);
+  if(enc_v) free(enc_v);
+  if(enc_yuyv) free(enc_yuyv);
+  
+  free(fps);
 }
 
 void VideoEncoder::run() {
   int encnum;
   int res;
 
+
   func("ok, encoder %s in rolling loop",name);
   func("VideoEncoder::run : begin thread %p",pthread_self());
   
-  lock_feed();
-  
-  
-  wait_feed();
+  //  lock_feed();
   
   while(!quit) {
 
+  /* Convert picture from rgb to yuv420 planar 
 
-    //    lock();
+     two steps here:
+     
+     1) rgb24a or bgr24a to yuv422 interlaced (yuyv)
+     2) yuv422 to yuv420 planar (yuv420p)
+
+     to fix endiannes issues try adding #define ARCH_PPC
+     and using 
+     mlt_convert_bgr24a_to_yuv422
+     or
+     mlt_convert_argb_to_yuv422
+     (see mlt_frame.h in mltframework.org sourcecode)
+     i can't tell as i don't have PPC, waiting for u mr.goil :)
+  */
+    
+    uint8_t *surface = (uint8_t *)screen->get_surface();
+    if (!surface) {
+        fps->calc();
+        fps->delay();
+        continue;
+    }
+    screen->lock();
+
+    switch(screen->get_pixel_format()) {
+    case ViewPort::RGBA32:
+      mlt_convert_rgb24a_to_yuv422(surface,
+                   screen->w, screen->h,
+                   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+      break;
+      
+    case ViewPort::BGRA32:
+      mlt_convert_bgr24a_to_yuv422(surface,
+                   screen->w, screen->h,
+                   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+      break;
+
+    case ViewPort::ARGB32:
+      mlt_convert_argb_to_yuv422(surface,
+                   screen->w, screen->h,
+                   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+      break;
+      
+    default:
+      error("Video Encoder %s doesn't supports Screen %s pixel format",
+        name, screen->name);
+    }
+
+    screen->unlock();
+    
+    ccvt_yuyv_420p(screen->w, screen->h, enc_yuyv, enc_y, enc_u, enc_v);
+    
+
+
+    ////// got the YUV, do the encoding    
     res = encode_frame();
-    //    unlock();
-    //    if(!res)
-    //      warning("encoder %s reports error encoding frame",name);
 
+    
     /// proceed writing and streaming encoded data in encpipe
     
     //    if(res > 0 ) {
     
     encnum = 0;
-    if( write_to_disk | write_to_stream ) {
+    if(write_to_disk || write_to_stream) {
       
       encnum = ringbuffer_read(ringbuffer, encbuf,
 			       ((audio_kbps + video_kbps)*1024)/24);
@@ -143,61 +249,39 @@ void VideoEncoder::run() {
     }
 
     if(encnum > 0) {
+
+      //      func("%s has encoded %i bytes", name, encnum);
       
-      func("%s has encoded %i bytes", name, encnum);
-      
-      if(write_to_disk && filedump_fd) {
-	
-	fwrite(encbuf, 1, encnum, filedump_fd);
-	
-      }
-      
+      if(write_to_disk && filedump_fd) 
+        fwrite(encbuf, 1, encnum, filedump_fd);
+    
       if(write_to_stream) {
-      
+	
 	shout_sync(ice);
-	
-	if( shout_send(ice, (const unsigned char*)encbuf, encnum) )
-	  error("shout_send: %s", shout_get_error(ice));
-	
+        if( shout_send(ice, (const unsigned char*)encbuf, encnum)
+	      != SHOUTERR_SUCCESS) 
+        {
+            error("shout_send: %s", shout_get_error(ice));
+
+        }// else 
+            //printf("%d %d\n", encnum, (int)shout_queuelen(ice));
+
       }
-      
-    }
-    
-    
-    wait_feed();
-    
-  }
+    } 
+  } 
   
   func("VideoEncoder::run : end thread %p", pthread_self() );
 
 }
 
-bool VideoEncoder::cafudda() {
-  bool res;
-
-
-  //  if(!active) return false;
-
-
-
-  //  lock();
-
-  //env->screen->lock();
-// we don't need screen lock
-//  since cafudda() is called synchronously in contect.cpp
-  res = feed_video();
-  //  env->screen->unlock();
-
-
-  //  unlock();
-
-
-  signal_feed();
+// bool VideoEncoder::cafudda() {
+//   bool res = true;
 
   
-  
-  return(res);
-}
+//   //  signal_feed();
+
+//   return(res);
+// }
 
 bool VideoEncoder::set_filedump(char *filename) {
   int filename_number=1;

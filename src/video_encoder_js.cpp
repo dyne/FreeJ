@@ -113,10 +113,6 @@ JS(vid_enc_add_audio) {
   enc->use_audio = true;
   enc->audio = audio;
 
-  if(!enc->init(env)) {
-    error("JS::VideoEncoder : failed initialization");
-    delete enc; return JS_FALSE;
-  }
 
   return JS_TRUE;
 }
@@ -137,6 +133,8 @@ JS(vid_enc_start_filesave) {
   char *file;
 
   JS_ARG_STRING(file, 0);
+
+  if(!enc->running) enc->start();
 
   enc->set_filedump(file);
 
@@ -170,8 +168,10 @@ JS(start_stream) {
     return JS_FALSE;
   }
 
-  shout_sync(enc->ice);
+
   act("starting stream to server %s on port %u",shout_get_host(enc->ice),shout_get_port(enc->ice));
+
+  if(!enc->running) enc->start();
   
   if( shout_open(enc->ice) == SHOUTERR_SUCCESS ) {
 

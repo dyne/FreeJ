@@ -332,10 +332,10 @@ exit:
 
 //SDL_Surface *SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 flags);
 
-bool XGrabLayer::keypress(int key) {
-	bool res = true;
-	return res;
-}
+// bool XGrabLayer::keypress(int key) {
+// 	bool res = true;
+// 	return res;
+// }
 
 void XGrabLayer::close() {
 	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);

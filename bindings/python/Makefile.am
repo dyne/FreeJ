@@ -7,13 +7,14 @@ BUILT_SOURCES = freej_py.cpp
 freej_py.cpp: $(top_srcdir)/bindings/freej.i
 		@SWIG_COMMAND@ -python -threads -shadow -o freej_py.cpp @SWIG_IFACE@
 
-pkgpython_PYTHON = freej.py __init__.py
+pkgpython_PYTHON = __init__.py
+nodist_pkgpython_PYTHON = freej.py
 pkgpyexec_LTLIBRARIES = _freej.la
 pkgpython_instdir = $(pythondir)
 #pkgpython_inst_PYTHON = freej.pth
 
 
-_freej_la_SOURCES = freej_py.cpp
+nodist__freej_la_SOURCES = freej_py.cpp
 _freej_la_CXXFLAGS =  $(FREEJ_FLAGS) @PYTHON_CPPFLAGS@
 _freej_la_LDFLAGS = -module -avoid-version
 _freej_la_LIBADD = $(PY_LIBS) -L$(top_builddir)/src/.libs -lfreej

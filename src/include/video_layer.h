@@ -129,7 +129,6 @@ class VideoLayer: public Layer {
 	bool backward_one_keyframe();
 	bool relative_seek(double increment);
 
-	bool keypress(int key);
 	void more_speed();
 	void less_speed();
 	bool set_mark_in();

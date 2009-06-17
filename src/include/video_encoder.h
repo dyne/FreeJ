@@ -39,6 +39,8 @@
 
 class Context;
 class AudioCollector;
+class FPS;
+class ViewPort;
 
 /**
  * Class describing the general interface of an encoder
@@ -63,16 +65,18 @@ class VideoEncoder: public Entry, public JSyncThread {
   VideoEncoder ();
   virtual ~VideoEncoder ();
 
-  virtual bool init (Context *_env)                          = 0;  
-  virtual int encode_frame ()                                = 0;
-  virtual bool feed_video()                                  = 0;
 
-  void run();
-  bool cafudda();
-  
+  virtual bool init (ViewPort *scr) = 0;  ///< pure virtual function to implement
+  virtual int encode_frame ()       = 0;  ///< pure virtual function to implement
+
+
+  void run(); ///< runs as a separate encoding thread
+  //  bool cafudda(); ///< feeds the video from screen to a yuv420p format ready for the encoding thread
   
   bool set_filedump(char *filename); ///< start to dump to filename, call with NULL to stop
   char filedump[512]; ////< filename to which encoder is writing dump
+
+  char *status; ///< string updated with encoder status
 
   int video_quality; ///< quality of video encoding: range 0-100
   int video_bitrate; ///< video encoding bitrate (default is 0: VBR on the quality value)
@@ -102,13 +106,22 @@ class VideoEncoder: public Entry, public JSyncThread {
 
   Context *env;
 
+  FPS *fps;
+
   shout_t *ice;
 
   ViewPort *screen;
 
+  void *enc_y;
+  void *enc_u;
+  void *enc_v;
+  void *enc_yuyv;
+
  private:
   FILE *filedump_fd;
   char encbuf[1024*128];
+
+
 
 };
 

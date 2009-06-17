@@ -50,6 +50,7 @@ class Closing {
   Closure *get_job_();
   queue<Closure *> job_queue_;
   pthread_mutex_t job_queue_mutex_;
+  pthread_mutexattr_t job_queue_mutexattr_;
 
 };
 
@@ -64,6 +65,7 @@ class ThreadedClosing : Closing {
     static void *jobs_loop_(void *arg);
     bool running_;
     pthread_mutex_t loop_mutex_; // used to wait inside the thread
+    pthread_mutexattr_t loop_mutexattr_;
     pthread_attr_t attr_;
     pthread_t thread_;
 
@@ -120,7 +122,9 @@ class Closure {
   public:
     Closure(bool synchronized) : synchronized_(synchronized) {
       if (synchronized_) {
-        pthread_mutex_init(&mutex_, NULL);
+        pthread_mutexattr_init(&mutexattr_);
+        pthread_mutexattr_settype(&mutexattr_, PTHREAD_MUTEX_NORMAL);
+        pthread_mutex_init(&mutex_, &mutexattr_);
         pthread_mutex_lock(&mutex_);
       }
     }
@@ -128,6 +132,7 @@ class Closure {
       if (synchronized_) {
         pthread_mutex_unlock(&mutex_);
         pthread_mutex_destroy(&mutex_);
+        pthread_mutexattr_destroy(&mutexattr_);
       }
     }
     void run() {
@@ -148,6 +153,7 @@ class Closure {
     bool synchronized_;
     virtual void run_() = 0;
     pthread_mutex_t mutex_; // used as a signal sent from run() to wait()
+    pthread_mutexattr_t mutexattr_;
 };
 
 namespace closures {

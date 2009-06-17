@@ -31,10 +31,9 @@
 #include <jutils.h>
 
 
-GlScreen::GlScreen()
-  : ViewPort() {
+GlScreen::GlScreen(int w, int h)
+  : ViewPort(w, h) {
   
-  bpp = 32;
   dbl = false;
   x_translation = 0;
   y_translation = 0;
@@ -71,6 +70,8 @@ GlScreen::GlScreen()
   // add above | SDL_FULLSCREEN to go fullscreen from the start
     
   magnification = 0;
+
+  init(w, h);
 }
 
 GlScreen::~GlScreen() {
@@ -79,13 +80,6 @@ GlScreen::~GlScreen() {
 
 bool GlScreen::init(int width, int height) {
 
-	w = width;
-	h = height;
-	bpp = 32;
-	size = w*h*(bpp>>3);
-	pitch = w*(bpp>>3);
-
-	
 //         screen = SDL_CreateRGBSurface
 //          (sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
 	// TODO screen : from where?

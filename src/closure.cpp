@@ -20,7 +20,11 @@
 
 
 Closing::Closing() {
-  if(pthread_mutex_init(&job_queue_mutex_, NULL) == -1)
+  if(pthread_mutexattr_init(&job_queue_mutexattr_) == -1)
+    error("error initializing POSIX thread job queue mutex attr");
+  if(pthread_mutexattr_settype(&job_queue_mutexattr_, PTHREAD_MUTEX_NORMAL) == -1)
+    error("error setting type of POSIX thread job queue mutex attr");
+  if(pthread_mutex_init(&job_queue_mutex_, &job_queue_mutexattr_) == -1)
     error("error initializing POSIX thread job queue mutex");
 }
 
@@ -28,6 +32,8 @@ Closing::~Closing() {
   do_jobs(); // flush queue
   if(pthread_mutex_destroy(&job_queue_mutex_) == -1)
     error("error destroying POSIX thread job queue mutex");
+  if(pthread_mutexattr_destroy(&job_queue_mutexattr_) == -1)
+    error("error destroying POSIX thread job queue mutex attr");
 }
 
 void Closing::add_job(Closure *job) {
@@ -63,7 +69,9 @@ void Closing::do_jobs() {
 
 ThreadedClosing::ThreadedClosing() {
   running_ = true;
-  pthread_mutex_init(&loop_mutex_, NULL);
+  pthread_mutexattr_init(&loop_mutexattr_);
+  pthread_mutexattr_settype(&loop_mutexattr_, PTHREAD_MUTEX_NORMAL);
+  pthread_mutex_init(&loop_mutex_, &loop_mutexattr_);
   pthread_create(&thread_, &attr_, &ThreadedClosing::jobs_loop_, this);
 }
 
@@ -72,6 +80,7 @@ ThreadedClosing::~ThreadedClosing() {
   pthread_mutex_unlock(&loop_mutex_);
   pthread_join(thread_, NULL);
   pthread_mutex_destroy(&loop_mutex_);
+  pthread_mutexattr_destroy(&loop_mutexattr_);
 }
 
 void ThreadedClosing::add_job(Closure *job) {

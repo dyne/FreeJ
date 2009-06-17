@@ -54,7 +54,7 @@ JsParser::~JsParser() {
 }
 
 void JsParser::gc() {
-    JS_GC(js_context);
+    JS_GC(global_context);
 }
 
 void JsParser::init() {
@@ -71,39 +71,36 @@ void JsParser::init() {
     }
 
     /* Create a new context. */
-    js_context = JS_NewContext(js_runtime, STACK_CHUNK_SIZE);
+    global_context = JS_NewContext(js_runtime, STACK_CHUNK_SIZE);
 
     // Store a reference to ourselves in the context ...
-    JS_SetContextPrivate(js_context, this);
+    JS_SetContextPrivate(global_context, this);
 
-    /* if js_context does not have a value, end the program here */
-    if (js_context == NULL) {
+    /* if global_context does not have a value, end the program here */
+    if (global_context == NULL) {
 	error("JsParser :: error creating context");
 	return ;
     }
 
     /* Set a more strict error checking */
-    JS_SetOptions(js_context, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
+    JS_SetOptions(global_context, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
 
     /* Set the branch callback */
-    JS_SetBranchCallback(js_context, js_static_branch_callback);
+    JS_SetBranchCallback(global_context, js_static_branch_callback);
 
     /* Set the error reporter */
-    JS_SetErrorReporter(js_context, js_error_reporter);
+    JS_SetErrorReporter(global_context, js_error_reporter);
 
     /* Create the global object here */
-    //    JS_SetGlobalObject(js_context, global_object);
+    //    JS_SetGlobalObject(global_context, global_object);
     //    this is done in init_class / JS_InitStandardClasses.
 
-	global_object = JS_NewObject(js_context, &global_class, NULL, NULL);
-	init_class(js_context, global_object);
+	global_object = JS_NewObject(global_context, &global_class, NULL, NULL);
+	init_class(global_context, global_object);
 
    /** register SIGINT signal */
-   signal(SIGINT, js_sigint_handler);
+	//   signal(SIGINT, js_sigint_handler);
 
-   ///////////////////////////////
-   // setup the freej context
-   //   env->osd.active = false;
 
    return;
 }
@@ -131,19 +128,15 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		layer_constructor,
 		layer_methods,
 		NULL);
-	object_proto = layer_object; // last created object
-
-// 	REGISTER_CLASS("ParticleLayer",
-// 		particle_layer_class,
-// 		particle_layer_constructor,
-// 		particle_layer_methods,
-// 		object_proto);
+	Layer = layer_object; // last created object
+	object_proto = Layer; // following registrations inherit from parent class Layer
 
 	REGISTER_CLASS("GeometryLayer",
 		geometry_layer_class,
 		geometry_layer_constructor,
 		geometry_layer_methods,
-		object_proto);
+	        object_proto);
+	GeometryLayer = layer_object;
 
 // 	REGISTER_CLASS("VScrollLayer",
 // 		vscroll_layer_class,
@@ -156,6 +149,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		image_layer_constructor,
 		image_layer_methods,
 		object_proto);
+	ImageLayer = layer_object;
 
 #ifdef WITH_FLASH
 	REGISTER_CLASS("FlashLayer",
@@ -163,6 +157,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		flash_layer_constructor,
 		flash_layer_methods,
 		object_proto);
+	FlashLayer = layer_object;
 #endif
 
 #ifdef WITH_GOOM
@@ -171,6 +166,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		goom_layer_constructor,
 		goom_layer_methods,
 		object_proto);
+	GoomLayer = layer_object;
 #endif
 
 #ifdef WITH_SOUND
@@ -179,6 +175,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		       js_audio_jack_constructor,
 		       js_audio_jack_methods,
 		       object_proto);
+	AudioJack = layer_object;
 #endif
 
 #ifdef WITH_V4L
@@ -187,6 +184,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		v4l_layer_constructor,
 		v4l_layer_methods,
 		object_proto);
+	CamLayer = layer_object;
 #endif
 
 #ifdef WITH_UNICAP
@@ -195,6 +193,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		       unicap_layer_constructor,
 		       unicap_layer_methods,
 		       object_proto);
+	UnicapLayer = layer_object;
 #endif
 
 #ifdef WITH_FFMPEG
@@ -203,6 +202,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		video_layer_constructor,
 		video_layer_methods,
 		object_proto);
+	MovieLayer = layer_object;
 #endif
 
 #ifdef WITH_AVIFILE
@@ -211,6 +211,8 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		avi_layer_constructor,
 		avi_layer_methods,
 		object_proto);
+   MovieLayer = layer_object;
+
 #endif
 
 #if defined WITH_FT2 && defined WITH_FC
@@ -219,6 +221,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		txt_layer_constructor,
 		txt_layer_methods,
 		object_proto);
+	TextLayer = layer_object;
 #endif
 #ifdef linux
 	REGISTER_CLASS("XGrabLayer",
@@ -226,12 +229,14 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		js_xgrab_constructor,
 		js_xgrab_methods,
 		object_proto);
+	XGrabLayer = layer_object;
 #endif	
 	REGISTER_CLASS("Filter",
 		filter_class,
 		filter_constructor,
 		filter_methods,
 		NULL);
+	Filter = layer_object;
 
 	// controller classes
 	REGISTER_CLASS("Controller",
@@ -239,37 +244,43 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		NULL,
 		js_ctrl_methods,
 		NULL);
-	object_proto = layer_object;
+	Controller = layer_object;
+	object_proto = Controller;
 
 	REGISTER_CLASS("KeyboardController",
 		js_kbd_ctrl_class,
 		js_kbd_ctrl_constructor,
 		js_kbd_ctrl_methods,
 		object_proto);
+	KeyboardController = layer_object;
 
 	REGISTER_CLASS("MouseController",
 		js_mouse_ctrl_class,
 		js_mouse_ctrl_constructor,
 		js_mouse_ctrl_methods,
 		object_proto);
+	MouseController = layer_object;
 
 	REGISTER_CLASS("JoystickController",
 		js_joy_ctrl_class,
 		js_joy_ctrl_constructor,
 		js_joy_ctrl_methods,
 		object_proto);
+	JoystickController = layer_object;
 
 	REGISTER_CLASS("TriggerController",
 		js_trigger_ctrl_class,
 		js_trigger_ctrl_constructor,
 		js_trigger_ctrl_methods,
 		object_proto);
+	TriggerController = layer_object;
 
 	REGISTER_CLASS("ViMoController",
 		js_vimo_ctrl_class,
 		js_vimo_ctrl_constructor,
 		js_vimo_ctrl_methods,
 		object_proto);
+	ViMoController = layer_object;
 
 #ifdef WITH_MIDI
 	REGISTER_CLASS("MidiController",
@@ -277,6 +288,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		js_midi_ctrl_constructor,
 		js_midi_ctrl_methods,
 		object_proto);
+	MidiController = layer_object;
 #endif
 
     REGISTER_CLASS("OscController",
@@ -284,6 +296,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   js_osc_ctrl_constructor,
 		   js_osc_ctrl_methods,
 		   object_proto);
+    OscController = layer_object;
 
 #ifdef WITH_BLUEZ
     REGISTER_CLASS("WiiController",
@@ -291,6 +304,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   js_wii_ctrl_constructor,
 		   js_wii_ctrl_methods,
 		   object_proto);
+    WiiController = layer_object;
 #endif
 
 #ifdef WITH_OGGTHEORA
@@ -300,9 +314,10 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		js_vid_enc_constructor,
 		js_vid_enc_methods,
 		NULL);
+	VideoEncoder = layer_object;
 #endif
 
-//	  JS_DefineProperties(js_context, layer_object, layer_properties);
+//	  JS_DefineProperties(global_context, layer_object, layer_properties);
 
 
    return;
@@ -310,7 +325,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 
 /* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
-	return open(js_context, global_object, script_file);
+	return open(global_context, global_object, script_file);
 }
 int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -347,7 +362,7 @@ int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	// if anything more was wrong, our ErrorReporter was called!
 	free(buf);
 	func("%s evalres: %i", __func__, eval_res);
-	gc();
+	//	gc();
 	return eval_res;
 }
 
@@ -460,15 +475,15 @@ int JsParser::parse(const char *command) {
   func("JsParser::parse : %s obj: %p",command, global_object);
 
   res = JSVAL_VOID;
-  eval_res = JS_EvaluateScript(js_context, global_object,
+  eval_res = JS_EvaluateScript(global_context, global_object,
 		      command, strlen(command), "console", 0, &res);
   // return the result (to console)
   if(!JSVAL_IS_VOID(res)){
-      str=JS_ValueToString(js_context, res);
+      str=JS_ValueToString(global_context, res);
       if(str){
           act("JS parse res: %s", JS_GetStringBytes(str));
       } else {
-          JS_ReportError(js_context, "Can't convert result to string");
+          JS_ReportError(global_context, "Can't convert result to string");
       }
   } // else
     // if anything more was wrong, our ErrorReporter was called!
@@ -509,8 +524,8 @@ char* JsParser::readFile(FILE *file, int *len){
 }
 
 int JsParser::reset() {
-	JS_ClearScope(js_context, global_object);
-	init_class(js_context, global_object);
+	JS_ClearScope(global_context, global_object);
+	init_class(global_context, global_object);
 	gc();
 	return 0;
 }

@@ -8,7 +8,13 @@
         return self.len()
     def __getitem__(self,desc):
         if isinstance(desc,str):
-            return self.search(desc)[0]
+
+            res = self.search(desc)
+            if(res == 0):
+                print "[!] element ", desc, " not found"
+            else:
+                return res[0]
+
         else:
             return self.pick(desc)
   %}

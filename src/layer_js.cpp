@@ -43,7 +43,6 @@ JSFunctionSpec layer_methods[] = {
     {"set_position",	layer_set_position,	2},
     {"set_fps",		layer_set_fps,		0},
     {"get_fps",		layer_get_fps,   	0},
-    {"slide_position",  layer_slide_position,   2},
     {"get_x_position",	layer_get_x_position,	0},
     {"x",               layer_get_x_position,   0},
     {"get_y_position",	layer_get_y_position,	0},
@@ -56,7 +55,6 @@ JSFunctionSpec layer_methods[] = {
     {"rem_filter",	layer_rem_filter,	1},
     {"rotate",          layer_rotate,           1},
     {"zoom",            layer_zoom,             2},
-    {"spin",            layer_spin,             2},
     {"list_filters",    layer_list_filters,     0},
     {"list_parameters", layer_list_parameters,  0},
     {0}
@@ -122,6 +120,8 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     return NULL;
   }
 
+  jsobj = obj; // save the JS instance object into the C++ instance object
+
   return (void*)OBJECT_TO_JSVAL(obj);
 
 }
@@ -167,7 +167,7 @@ JS(layer_set_fps) {
 		JS_ARG_NUMBER(fps, 0);
 		fps_old = lay->fps.set(fps);
 	}
-	lay->signal_feed();
+
 	return JS_NewNumberValue(cx, fps_old, rval);
 }
 
@@ -186,7 +186,7 @@ JS(list_layers) {
   jsval val;
   int c = 0;
   
-  if( env->layers.len() == 0 ) {
+  if( env->screen->layers.len() == 0 ) {
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
@@ -194,7 +194,7 @@ JS(list_layers) {
   arr = JS_NewArrayObject(cx, 0, NULL); // create void array
   if(!arr) return JS_FALSE;
 
-  lay = (Layer*)env->layers.begin();
+  lay = (Layer*)env->screen->layers.begin();
   while(lay) {
     if (lay->data) {
 func("reusing %p", lay->data);
@@ -227,13 +227,13 @@ JS(selected_layer) {
   JSObject *objtmp;
   jsval val;
 
-  if( env->layers.len() == 0 ) {
+  if( env->screen->layers.len() == 0 ) {
     error("can't return selected layer: no layers are present");
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
   
-  lay = (Layer*)env->layers.selected();
+  lay = (Layer*)env->screen->layers.selected();
 
   if(!lay) {
     warning("there is no selected layer");
@@ -430,28 +430,6 @@ JS(layer_set_position) {
     return JS_TRUE;
 }
 
-
-JS(layer_slide_position) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  
-  JS_CHECK_ARGC(2);
-  
-  GET_LAYER(Layer);
-  
-  int speed = 1;
-  int x,y;
-
-  x = JSVAL_TO_INT(argv[0]);
-  y = JSVAL_TO_INT(argv[1]);
-  
-  if(argc == 3)
-    speed = JSVAL_TO_INT(argv[2]);
-  
-  lay->slide_position(x, y, speed);
-
-  return JS_TRUE;
-}
-
 JS(layer_get_x_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
@@ -622,19 +600,6 @@ JS(layer_zoom) {
 
   return JS_TRUE;
 }
-JS(layer_spin) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-  if(argc<2) JS_ERROR("missing argument");
-  JS_ARG_NUMBER(rot,0);
-  JS_ARG_NUMBER(magn,1);
-
-  GET_LAYER(Layer);
-
-  lay->set_spin(rot, magn);
-
-  return JS_TRUE;
-}
 
 void js_layer_gc (JSContext *cx, JSObject *obj) {
 	func("%s",__PRETTY_FUNCTION__);
@@ -646,23 +611,13 @@ void js_layer_gc (JSContext *cx, JSObject *obj) {
 	// This callback is declared in Layer Class only,
 	// we can skip the typecheck of obj, can't we?
 	l = (Layer *) JS_GetPrivate(cx, obj);
-	JSClass *jc = JS_GET_CLASS(cx,obj);
 
-	if (l) {
-		func("JSvalcmp(%s): %p / %p Layer: %p", jc->name, OBJECT_TO_JSVAL(obj), l->data, l);
-		if(l->list) {
-		  func("JSgc: Layer %s/%s is still on stage", jc->name, l->name);
-		  //l->data = NULL;
-		  //		  delete l;
-		} else {
-		  func("JSgc: Layer %s/%s is useless, deleting", jc->name, l->name);
-		  l->data = NULL; // Entry~ calls free(data)
-		  l->stop();
-		  delete l;
-		}
-	} else {
-		func("Mh, object(%s) has no private data", jc->name);
+	if(l) {
+	  func("js gc deleting layer %s", l->name);
+	  //	l->data = NULL; // Entry~ calls free(data)
+	  delete l;
 	}
+
 }
 
 JS(layer_start) {

@@ -36,7 +36,6 @@ class GeoLayer: public Layer {
 
   bool open(const char *file);
   void *feed();
-  bool keypress(int key);
   void close();
 
   void set_color(uint32_t hex) { color = hex; }
@@ -138,6 +137,8 @@ class GeoLayer: public Layer {
 
  private:
   SDL_Surface *surf;
+  void *fsurf;
+
   int res;
 
   uint32_t color;

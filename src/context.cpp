@@ -1,9 +1,9 @@
 /*  FreeJ
- *  (c) Copyright 2001 - 2007 Denis Rojo aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001 - 2007 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -14,8 +14,6 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * "$Id$"
  *
  */
 
@@ -28,26 +26,12 @@
 #include <context.h>
 #include <blitter.h>
 #include <controller.h>
-#include <console.h>
 
-#include <sdl_screen.h>
-#include <soft_screen.h>
 
-#ifdef WITH_OPENGL
-#include <sdlgl_screen.h>
-#include <gl_screen.h>
-#endif
-#ifdef HAVE_DARWIN
-#ifdef WITH_COCOA
-#include <CVScreen.h>
-#endif
-#endif
-#include <SDL_imageFilter.h>
-#include <SDL_framerate.h>
 #include <jsparser.h>
 #include <video_encoder.h>
 #include <audio_collector.h>
-//#include <fps.h>
+#include <fps.h>
 
 #include <signal.h>
 #include <errno.h>
@@ -79,14 +63,10 @@ void * run_context(void * data){
 
 Context::Context() {
 
-  screen          = NULL;
-  console         = NULL;
   //audio           = NULL;
 
   /* initialize fps counter */
   //  framecount      = 0; 
-  magnification   = 0;
-  changeres       = false;
   clear_all       = false;
   start_running   = true;
   quit            = false;
@@ -96,8 +76,9 @@ Context::Context() {
   poll_events     = true;
 
   fps_speed       = 25;
-  fps = NULL;
-    
+
+  js = NULL;
+  main_javascript[0] = 0x0;
 
   layers_description = (char*)
 " .  - ImageLayer for image files (png, jpeg etc.)\n"
@@ -117,142 +98,73 @@ Context::Context() {
 #endif
 "\n";
 
-
+  assert( init() );
 
 }
 
 Context::~Context() {
-  func("%s this=%p",__PRETTY_FUNCTION__, this);
 
-  Layer *lay;
   Controller *ctrl;
-  VideoEncoder *enc;
+  ViewPort *scr;
 
-  running = false;
+  //  reset();
 
-  if (console) {
-    console->close ();
-    //    delete console;
-    //    console = NULL;
-  }
 
-  //js->gc(); 
-  if(js) { // invokes JSGC and all gc call on our JSObjects!
-    delete js;
-    js = NULL;
-  }
-
-  layers.unlock(); // in case we crashed while cafudda'ing
-  lay = (Layer *)layers.begin ();
-  while (lay) {
-    lay-> stop();
-    lay-> rem(); // does layers.lock()
-    //    delete lay;
-    //  context doesn't deletes layers anymore -jrml feb2009
-    lay = (Layer *)layers.begin ();
-  }
-
-  encoders.unlock();
-  enc = (VideoEncoder *)encoders.begin();
-  while(enc) {
-	enc->stop();
-    enc->rem();
-
-    //    delete enc;
-    //  context doesn't deletes anymore -jrml feb2009
-
-    enc = (VideoEncoder *)encoders.begin();
-  }
-
-  ctrl = (Controller *)controllers.begin();
+  func("deleting current controllers");
+  ctrl = controllers.begin();
   while(ctrl) {
-    //    ctrl->lock();
-    controllers.rem(1);
-    //    ctrl->quit = true;
-    //    ctrl->signal_feed();
-    //    ctrl->unlock();
+    if( ! ctrl->indestructible ) {
 
-    //    delete ctrl;
-    //  context doesn't deletes anymore -jrml feb2009
-
-    ctrl = (Controller *)controllers.begin();
+      ctrl->rem();
+      delete(ctrl);
+      
+    }
+    ctrl = controllers.begin();
   }
 
-  // close MLT
-  //  mlt_factory_close();
+  func("deleting current screens");
+  scr = screens.begin();
+  while(scr) {
 
-    //  context doesn't deletes anymore -jrml feb2009
-//   if (screen) {
-//     //    delete screen;
-
-//     screen = NULL;
-//   }
-/*
-  if(audio) {
-    delete audio;
-    audio = NULL;
+    scr->rem();
+    delete(scr);
+    scr = (ViewPort *)screens.begin();
+    
   }
-*/
-  //  plugger.close();
 
-  if(fps) delete(fps);
+  //   invokes JSGC and all gc call on our JSObjects
+  if(js) js->reset();
 
   notice ("cu on http://freej.dyne.org");
 }
 
-bool Context::init
-(int wx, int hx, VideoMode videomode, int audiomode) {
+bool Context::add_screen(ViewPort *scr) {
 
-  notice("initializing context environment", wx, hx);
+  scr->env = this;
+  
+  screens.prepend(scr);
+  screens.sel(0);
+  scr->sel(true);
+  func("screen %s succesfully added", scr->name);
 
-  switch(videomode) {
-  case SDL:
-    act("SDL video output");
-    screen = new SdlScreen();
-    break;
-  case SOFT:
-    act("SOFT video output");
-    warning("warning: calling application should set_buffer(void*) accordingly");
-    screen = new SoftScreen();
-    break;
-#ifdef WITH_OPENGL
-  case SDLGL:
-    act("SDL-GL video output");
-    screen = new SdlGlScreen();
-    break;
-  case GL_HEADLESS:
-    act("GL headless output");
-    screen = new GlScreen();
-    break;
-#endif
-#ifdef HAVE_DARWIN
-#ifdef WITH_COCOA
-  case GL_COCOA:
-	act("GL Cocoa output");
-	screen = new CVScreen();
-	break;
-#endif
-#endif
-  }
-   
-  
-  if (! screen->init (wx, hx)) {
-    error ("Can't initialize the viewport");
-    error ("This is a fatal error");
-    return (false);
-  }
-  
-  // create javascript object
-  js = new JsParser (this);
+  // selected layer auxiliary pointer
+  screen = scr;
+
+  return(true);
+}
+
+bool Context::init() {
+
+  notice("initializing context environment");
 
   // a fast benchmark to select the best memcpy to use
   find_best_memcpy ();
   
-  if( SDL_imageFilterMMXdetect () )
-    act ("using MMX accelerated blit");
 
-  fps = new FPS();
-  fps->init(fps_speed);
+  fps.init(fps_speed);
+
+  // create javascript object
+  js = new JsParser (this);
 
 //  if(init_audio) 
 //    audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
@@ -278,7 +190,6 @@ void Context::start() {
 	running = true;
 	while(!quit) {
 		cafudda(0.0);
-		fps->calc();
 	}
 	running = false;
 }
@@ -292,38 +203,6 @@ void Context::start_threaded(){
  * Main loop called fps_speed times a second
  */
 void Context::cafudda(double secs) {
-  VideoEncoder *enc;
-  Layer *lay;
-  
-//   if(secs>0.0) /* if secs == 0 will go out after one cycle */
-//     now = dtime();
-  
-  // Change resolution if needed 
-  if (changeres) {
-    handle_resize();
-    changeres = false;
-  } /////////////////////////////
-  
-  
-    ///////////////////////////////
-    // update the console
-  if (console && interactive) 
-    console->cafudda ();
-  ///////////////////////////////
-  
-  
-  ///////////////////////////////
-  // start layers threads
-  //  rocknroll ();
-  ///////////////////////////////
-  
-  
-  ///////////////////////////////
-  // clear screen if needed
-  if (clear_all) screen->clear();
-  //  else if (osd.active) osd.clean();
-  ///////////////////////////////
-  
   
   ///////////////////////////////
   //// process controllers
@@ -331,103 +210,31 @@ void Context::cafudda(double secs) {
     handle_controllers();
   ///////////////////////////////
   
-  
   /////////////////////////////
   // blit layers on screens
-  lay = layers.end();
-  if (lay) {
-    layers.lock ();
-    while (lay) {
-      if(lay->buffer)
-      if (lay->active & lay->opened) {
-	
-	lay->lock();
-	screen->blit(lay);
-	lay->unlock();
-	
-	lay->signal_feed();
+  ViewPort *scr;
+  scr = screens.begin();
+  while(scr) {
 
-      }
+    if (clear_all) scr->clear();
+    
+    // Change resolution if needed 
+    if (scr->changeres) scr->handle_resize();
+    
+    scr->blit_layers();
 
-      lay = (Layer *)lay->prev;
-    }
-    env->layers.unlock ();
+    // show the new painted screen
+    scr->show();
+
+    scr = (ViewPort*)scr->next;
+
   }
-  /////////// finish processing layers
-  
+  /////////////////////////////
 
-  ////////// flip the screen
-  screen->show();
-  /////////////////////////////
-  
-  
-  //////////////////////////////////////
-  // cafudda all active ENCODERS
-  enc = (VideoEncoder*)encoders.end();
-  ///// process each encoder in the chain
-  if(enc) {
-    encoders.lock();
-    while(enc) {
-      if(!pause)
-	enc->cafudda();
-      enc = (VideoEncoder*)enc->prev;
-    }
-    encoders.unlock();
-  }
-  /////////// finish processing encoders
-  //////////////////////////////////////
-  
-  
-  /////////////////////////////
-  // handle timing 
-  //    if(!secs) break; // just one pass
-  
-  /////////////////////////////
-  // honour quit requests
-  //if(quit) break; // quit was called
-
-  
-#ifndef WITH_COCOA
   /// FPS calculation
-  fps->calc();
-  fps->delay();
-#endif 
-
-
-  //  SDL_framerateDelay(&FPS); // synced with desired fps here
-  // continues N seconds or quits after one cycle
-  //    riciuca = (dtime() - now < secs) ? true : false;
-  /////////////////////////////////////////////////////////////
+  fps.calc();
+  fps.delay();
   
-  if (got_sigpipe) {
-    quit=true;
-    return;
-  }
-  
-}
-
-void Context::handle_resize() {
-  screen->lock ();
-  if (magnification) {
-    screen->set_magnification (magnification);
-    magnification = 0;
-  }
-  if(resizing) {
-    screen->resize (resize_w, resize_h);
-    resizing = false;
-  }
-  //  osd.resize ();
-  screen->unlock();
-  
-  /* crop all layers to new screen size */
-  Layer *lay = (Layer *) layers.begin ();
-  while (lay) {
-    lay -> lock ();
-    lay -> blitter->crop(lay, screen);
-    //    lay -> blitter.crop (screen);
-    lay -> unlock ();
-    lay = (Layer*) lay -> next;
-  } 
 }
 
 #define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
@@ -454,22 +261,20 @@ void Context::handle_controllers() {
     if(event.key.state == SDL_PRESSED)
       if(event.key.keysym.mod & KMOD_CTRL)
 	if(event.key.keysym.sym == SDLK_f) {
-	  screen->fullscreen();
+	  ViewPort *scr = screens.selected();
+	  scr->fullscreen();
 	  res = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);  
 	}
   
   ctrl = (Controller *)controllers.begin();
-  //if(res) {
-      if(ctrl) {
-        controllers.lock();
-        while(ctrl) {
-          if(ctrl->active)
-            ctrl->poll();
-            ctrl = (Controller*)ctrl->next;
-        }
-        controllers.unlock();
-      }
-  //}
+  if(ctrl) {
+    controllers.lock();
+    while(ctrl) {
+      if(ctrl->active) ctrl->poll();
+      ctrl = (Controller*)ctrl->next;
+    }
+    controllers.unlock();
+  }
 
   // flushes all events that are leftover
   while( SDL_PeepEvents(&event,1,SDL_GETEVENT, SDL_ALLEVENTS) > 0 ) continue;
@@ -479,14 +284,25 @@ void Context::handle_controllers() {
 
 bool Context::register_controller(Controller *ctrl) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
   if(!ctrl) {
     error("%s called on a NULL object", __PRETTY_FUNCTION__);
     return false;
   }
 
-  if(! ctrl->initialized )
-    ctrl->init(js->js_context, js->global_object);
+  if(! ctrl->initialized ) {
+    func("initialising controller %s (%p)",ctrl->name, ctrl);
 
+    ctrl->init(this);
+
+  } else if(ctrl->env != this) {
+
+    error("controller is already initialised with another context: %x", ctrl->env);
+
+  } else 
+    warning("controller was already initialised on this context");
+
+  func("controller %s initialized", ctrl->name);
 
   ctrl->active = true;
 
@@ -502,7 +318,9 @@ bool Context::rem_controller(Controller *ctrl) {
     error("%s called on a NULL object", __PRETTY_FUNCTION__);
     return false;
   }
-  js->gc(); // ?!
+
+  if(js) js->gc(); // ?!
+
   ctrl->rem();
   // mh, the JS_GC callback does the delete ...
   if (ctrl->jsobj == NULL) {
@@ -515,31 +333,29 @@ bool Context::rem_controller(Controller *ctrl) {
   return true;
 }
 
-void Context::add_layer(Layer *lay) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  if(lay->list) lay->rem();
-  //  lay->geo.fps = fps;
+bool Context::add_encoder(VideoEncoder *enc) {
+  func("%s",__PRETTY_FUNCTION__);
 
-  lay->env = this;
-  lay->screen = screen;
-
-  // setup default blit (if any)
-  if (lay->blitter) {
-	  lay->current_blit =
-		(Blit*)lay->blitter->default_blit;
-	  lay->blitter->blitlist.sel(0);
-	  lay->current_blit->sel(true);
+  ViewPort *scr;
+  scr = screens.selected();
+  if(!scr) {
+    error("no screen initialized, can't add encoder %s", enc->name);
+    return(false);
   }
+  return( scr->add_encoder(enc) );
+}
 
+bool Context::add_layer(Layer *lay) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  // center the position
-  //lay->geo.x = (screen->w - lay->geo.w)/2;
-  //lay->geo.y = (screen->h - lay->geo.h)/2;
-  //  screen->blitter->crop( lay, screen );
-  layers.prepend(lay);
-  layers.sel(0);
-  lay->sel(true);
-  func("layer %s succesfully added",lay->name);
+  ViewPort *scr;
+  scr = screens.selected();
+  if(!scr) {
+    error("no screen initialized, can't add layer %s", lay->name);
+    return(false);
+  }
+  return( scr->add_layer(lay) );
+  
 }
 
 void Context::rem_layer(Layer *lay) {
@@ -549,46 +365,65 @@ void Context::rem_layer(Layer *lay) {
         error("removing Layer %p which is not in list", lay);
         return;
   }*/
-  js->gc();
+  //  js->gc();
+
   lay->rem();
-  if (lay->data == NULL) {
-      notice("Layer: no JS data: deleting");
-	  lay->stop();
-      delete lay;
-  } else {
-      notice("removed layer %s but still present as JSObject, not deleting!", lay->name);
-  }
+
+  notice("removed layer %s (but still present as an instance)", lay->name);
+
 }
 
-void Context::add_encoder(VideoEncoder *enc) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__); 
-  if(enc->list) enc->rem();
-  
-  enc->init(this);
-  enc->active = true;
-
-  encoders.append(enc);
-
-  encoders.sel(0);
-
-  enc->sel(true);
-
-  func("encoder %s succesfully added", enc->name);
-}
 
 int Context::open_script(char *filename) {
+  if(!js) {
+    error("can't open script %s: javascript interpreter is not initialized", filename);
+    return 0;
+  }
   return js->open(filename);
 }
 
 
 int Context::parse_js_cmd(const char *cmd) {
+  if(!js) {
+    error("javascript interpreter is not initialized");
+    error("can't parse script \"%s\"",cmd);
+    return 0;
+  }
   return js->parse(cmd);
 }
 
+int Context::reset() {
+  func("%s",__PRETTY_FUNCTION__);
+
+  func("context deleting %u screens", screens.len() );
+  ViewPort *scr;
+  scr = screens.begin();
+  while(scr) {
+    scr->rem();
+    delete(scr);
+    scr = screens.begin();
+  }
+
+  // javascript garbage collector
+  if(js) js->gc(); 
+
+  // invokes JSGC and all gc call on our JSObjects
+  //  if(js) js->reset();
+  notice("FreeJ engine reset");
+  // should return 1 on success? 
+  //does anyone care about rese() return address?
+  return 1; 
+}
 
 bool Context::config_check(const char *filename) {
   char tmp[512];
-  
+
+  if(!js) {
+    warning("javascript is not initialized");
+    warning("no configuration is loaded");
+    return(false);
+  }
+
   snprintf(tmp, 512, "%s/.freej/%s", getenv("HOME"), filename);
   if( filecheck(tmp) ) {
     js->open(tmp);
@@ -633,93 +468,25 @@ bool Context::config_check(const char *filename) {
 }
 	  
 void Context::resize(int w, int h) {
-  resize_w = w;
-  resize_h = h;
-  resizing = true;
-  changeres = true;
+  ViewPort *scr = screens.selected();
+  scr->resize_w = w;
+  scr->resize_h = h;
+  scr->resizing = true;
+  scr->changeres = true;
 }
 
 void Context::magnify(int algo) {
-  if(magnification == algo) return;
-  magnification = algo;
-  changeres = true;
+  ViewPort *scr = screens.selected();  
+  if(scr->magnification == algo) return;
+  scr->magnification = algo;
+  scr->changeres = true;
 }
 
-/* FPS */
-
-
-void Context::rocknroll() {
-  VideoEncoder *e;
-  Layer *l;
-  //  bool need_audio = false;
-
-  ///////////////////////////////////////////
-  // Layers - start the threads to be started
-  l = (Layer *)layers.begin();
-  
-  // Show credits when no layers are present and interactive
-//   if (!l) // there are no layers
-//     if ( interactive ) { // engine running in interactive mode
-//       osd.credits ( true);
-//       return;
-//     }
-  
-  // Iterate throught linked list of layers and start them
-
-  layers.lock();
-  while (l) {
-    if (!l->running) {
-      if (l->start() == 0) {
-	/*	while (!l->running) {
-	  jsleep(0,500);
-	  func("waiting %s layer thread to start", l->name);
-	  } */
-	l->active = start_running;
-      }
-      else { // problems starting thread
-	func ("Context::rocknroll() : error creating thread");
-      }
-    }
-    
-    //    need_audio |= (l->running && l->use_audio);
-    
-    l = (Layer *)l->next;
-  }
-  layers.unlock();
-
-  /////////////////////////////////////////////////////////////
-  ///////////////////////////////////// end of layers rocknroll
-
-
-
-  /////////////////////////////////////////////////////
-  // Video Encoders - start the encoders to be launched
-  e = (VideoEncoder*) encoders.begin();
-
-  encoders.lock();
-  while(e) {
-    if(!e->running) {
-      func("launching thread for %s",e->name);
-      if( e->start() == 0 ) {
-	act("waiting for %s thread to start...", e->name);
-	while(! e->running ) jsleep(0,500);
-	act("%s thread started", e->name);
-	e->active = start_running;
-      }
-      else { // problems starting thread
-	error("can't launch thread for %s", e->name);
-      }
-    }
-
-    //    need_audio |= (e->running && e->use_audio);
-
-    e = (VideoEncoder*)e->next;
-  }
-  encoders.unlock();
-  //////////////////////////////////////////////////////////////
-  //////////////////////////////////// end of encoders rocknroll
-
+void *Context::coords(int x, int y) {
+  ViewPort *scr = screens.selected();
+  return( scr->coords(x,y) );
 }
+
 
 void fsigpipe (int Sig) {
   if (!got_sigpipe)
@@ -791,20 +558,6 @@ Layer *Context::open(char *file) {
     if( ( ( IS_VIDEO_EXTENSION(end_file_ptr) ) | ( IS_FIREWIRE_DEVICE(file_ptr) ) ) ) {
       func("is a movie layer");
 
-      // // MLT experiments
-      //       nlayer = new MovieLayer();
-      //       func("MovieLayer instantiated");
-      //       if(!nlayer->init(this)) {
-      //  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-      //  	delete nlayer; return NULL;
-      //       }
-      //       func("MovieLayer initialized");
-      //       if(!nlayer->open(file_ptr)) {
-      //  	error("create_layer : VIDEO open failed");
-      //  	delete nlayer; nlayer = NULL;
-      //       }
-
-
 #ifdef WITH_FFMPEG
        nlayer = new VideoLayer();
        if(!nlayer->init( this )) {
@@ -815,18 +568,6 @@ Layer *Context::open(char *file) {
  	error("create_layer : VIDEO open failed");
  	delete nlayer; nlayer = NULL;
        }
-// #elif WITH_AVIFILE
-//       if( strncasecmp(file_ptr,"/dev/ieee1394/",14)==0)
-// 	  nlayer=NULL;
-//       nlayer = new AviLayer();
-//       if(!nlayer->init( this )) {
-// 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-// 	delete nlayer; return NULL;
-//       }
-//       if(!nlayer->open(file_ptr)) {
-// 	error("create_layer : AVI open failed");
-// 	delete nlayer; nlayer = NULL;
-//       }
  #else
       error("VIDEO and AVI layer support not compiled");
       act("can't load %s",file_ptr);
@@ -914,22 +655,6 @@ Layer *Context::open(char *file) {
 
   }
 #endif
-//     else { /* FALLBACK TO SCROLL LAYER */
-
-//     func("opening scroll layer on generic file type for %s",file_ptr);
-//     nlayer = new ScrollLayer();
-    
-//     if(!nlayer->init( this )) {
-//       error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-//       delete nlayer; return NULL;
-//     }
-       
-//        if(!nlayer->open(file_ptr)) {
-// 	 error("create_layer : SCROLL open failed");
-// 	 delete nlayer; nlayer = NULL;
-//        }
-       
-//   }
 
   if(!nlayer)
     error("can't create a layer with %s",file);

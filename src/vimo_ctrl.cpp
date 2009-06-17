@@ -1,5 +1,6 @@
-/*  FreeJ
- *  (c) Copyright 2006 Denis Roio aka jaromil <jaromil@dyne.org>
+/*  FreeJ - serial Video Mouse jogger controller
+ *
+ *  (c) Copyright 2008 Christoph Rudorff <goil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -15,7 +16,6 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * serial VideoMouse Controller by MrGoil (c) 2008
  *
  */
 
@@ -25,7 +25,7 @@
 #include <termios.h>
 #include <fcntl.h>
 #include <sys/file.h>
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD)
 #include <sys/stat.h>
 #endif
 
@@ -85,7 +85,8 @@ static const unsigned int wi_left[]  = { 0x2310, 0x0231, 0x3102, 0x1023 };
 static const int o_wheel_speed[] = {-5, 5, -6, 6, -4, 4, -7, 7, -2, 2, -1, 1, -3, 3, 0, 0 };
 static const unsigned char magic[] = {0x02, 0x0a, 0x0c, 0x0a};
 
-ViMoController::ViMoController() {
+ViMoController::ViMoController() 
+  :Controller() {
 	func("%s this=%p",__PRETTY_FUNCTION__, this);
 	initialized = active = false;
 	jsenv = NULL;
@@ -126,14 +127,6 @@ JSFunctionSpec js_vimo_ctrl_methods[] = {
 	{0}
 };
 
-bool ViMoController::init(JSContext *env, JSObject *obj) {
-	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-	jsenv = env;
-	jsobj = obj;
-
-	initialized = true;
-	return(true);
-}
 
 
 bool ViMoController::open() {
@@ -379,27 +372,32 @@ JS(js_vimo_close) {
 JS(js_vimo_ctrl_constructor) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-	ViMoController *mouse = new ViMoController();
+	ViMoController *vimo = new ViMoController();
 
 	// initialize with javascript context
-	if(! mouse->init(cx, obj) ) {
-		error("failed initializing mouse controller");
-		delete mouse; return JS_FALSE;
+	if(! vimo->init( env ) ) {
+		error("failed initializing ViMo controller");
+		delete vimo; return JS_FALSE;
 	}
 	if (argc == 1) {
 		char *filename;
 		JS_ARG_STRING(filename, 0);
-		if(!mouse->open(filename)) {
-			error("failed initializing mouse controller");
-			delete mouse; return JS_FALSE;
+		if(!vimo->open(filename)) {
+			error("failed initializing ViMo controller");
+			delete vimo; return JS_FALSE;
 		}
 	}
 
 	// assign instance into javascript object
-	if( ! JS_SetPrivate(cx, obj, (void*)mouse) ) {
-		error("failed assigning mouse controller to javascript");
-		delete mouse; return JS_FALSE;
+	if( ! JS_SetPrivate(cx, obj, (void*)vimo) ) {
+		error("failed assigning ViMo controller to javascript");
+		delete vimo; return JS_FALSE;
 	}
+
+	// assign the real js object
+	vimo->jsobj = obj;
+	vimo->javascript = true;
+
 
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;

@@ -49,14 +49,12 @@ class TextLayer: public Layer {
   // calculates the width and height of a string if it would be printed with
   // current settings
 
-  void print_text(const char *str);
+  void write(const char *str);
   void set_fgcolor(int r, int g, int b);
   void set_bgcolor(int r, int g, int b);
   bool set_font(const char *path, int sz);
   bool set_font(const char *path);
   bool set_fontsize(int sz);
-
-  bool keypress(int key);
 
  private:
   SDL_Color bgcolor;

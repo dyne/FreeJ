@@ -182,7 +182,7 @@ void FlashLayer::close() {
   //  if(render) free(render);
 }
 
-bool FlashLayer::keypress(int key) {
+//bool FlashLayer::keypress(int key) {
 
   //    FlashEvent fe;
     // TODO parse SDL event here and fill in flash
@@ -212,5 +212,5 @@ bool FlashLayer::keypress(int key) {
   //    }
     
 //    return FlashExec(fh,flag,&fe,wakeDate);
-  return false;
-}
+//  return false;
+//}

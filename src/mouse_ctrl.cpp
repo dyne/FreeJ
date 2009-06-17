@@ -1,5 +1,6 @@
-/*  FreeJ
- *  (c) Copyright 2001-2007 Denis Roio aka jaromil <jaromil@dyne.org>
+/*  FreeJ - Mouse controller 
+ *
+ *  (c) Copyright 2008 Christoph Rudorff <goil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published
@@ -77,20 +78,16 @@ JS(js_mouse_grab) {
 MouseController::MouseController()
 	:Controller() {
 	set_name("Mouse");
+
+	motion_f = NULL;
+	button_f = NULL;
+	objp = NULL;
 }
 
 MouseController::~MouseController() {
   active = false; // ungrab ... ;)
 }
 
-bool MouseController::init(JSContext *env, JSObject *obj) {
-	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-	jsenv = env;
-	jsobj = obj;
-
-	initialized = true;
-	return(true);
-}
 
 // activate is removed from controller
 // bool active is operated directly
@@ -108,8 +105,27 @@ bool MouseController::init(JSContext *env, JSObject *obj) {
 // }
 
 int MouseController::poll() {
-	poll_sdlevents(SDL_MOUSEEVENTMASK); // calls dispatch() foreach SDL_Event
-	return 0;
+
+  if(javascript) {
+    if(!motion_f) { // find javascript function pointer
+      res = JS_GetMethod(jsenv, jsobj, "motion", &objp, &motion_f);
+      if(!res || JSVAL_IS_VOID(motion_f)) {
+	error("motion method not found in MouseController"); 
+	return(-1);
+      }
+    }
+    
+    if(!button_f) { // find javascript function pointer
+      res = JS_GetMethod(jsenv, jsobj, "button", &objp, &button_f);
+      if(!res || JSVAL_IS_VOID(button_f)) {
+	error("button method not found in MouseController"); 
+	return(-1);
+      }
+    }
+  }
+ 
+  poll_sdlevents(SDL_MOUSEEVENTMASK); // calls dispatch() foreach SDL_Event
+  return 0;
 }
 
 /*
@@ -129,15 +145,40 @@ typedef struct{
 */
 
 int MouseController::motion(int state, int x, int y, int xrel, int yrel) {
-	JSBool ret= JS_TRUE;
-	jsval js_data[] = {state, x, y, xrel, yrel};
-	return JSCall("motion", 5, js_data, &ret);
+  jsval ret = JSVAL_VOID;
+  JSBool res;
+
+  jsval js_data[] = {
+    INT_TO_JSVAL(state),
+    INT_TO_JSVAL(x), INT_TO_JSVAL(y),
+    INT_TO_JSVAL(xrel), INT_TO_JSVAL(yrel)
+  };
+  res = JS_CallFunctionValue(jsenv, jsobj, motion_f, 5, js_data, &ret);
+  if (res == JS_FALSE) {
+    error("mouse motion() function undefined");
+    motion_f = NULL;
+    return(0);
+  }
+  return(1);
 }
 
 int MouseController::button(int button, int state, int x, int y) {
-	JSBool ret= JS_TRUE;
-	jsval js_data[] = {button, state, x, y};
-	return JSCall("button", 4, js_data, &ret);
+  jsval ret = JSVAL_VOID;
+  JSBool res;
+
+  jsval js_data[] = {
+    INT_TO_JSVAL(button),
+    INT_TO_JSVAL(state),
+    INT_TO_JSVAL(x),
+    INT_TO_JSVAL(y)
+  };
+  res = JS_CallFunctionValue(jsenv, jsobj, button_f, 4, js_data, &ret);
+  if (res == JS_FALSE) {
+    error("mouse button() function undefined");
+    button_f = NULL;
+    return(0);
+  }
+  return(1);
 }
 
 int MouseController::dispatch() {
@@ -166,7 +207,7 @@ JS(js_mouse_ctrl_constructor) {
 	MouseController *mouse = new MouseController();
 
 	// initialize with javascript context
-	if(! mouse->init(cx, obj) ) {
+	if(! mouse->init(env) ) {
 		error("failed initializing mouse controller");
 		delete mouse; return JS_FALSE;
 	}
@@ -176,6 +217,10 @@ JS(js_mouse_ctrl_constructor) {
 		error("failed assigning mouse controller to javascript");
 		delete mouse; return JS_FALSE;
 	}
+
+	// assign the real js object
+	mouse->jsobj = obj;
+	mouse->javascript = true;
 
 	*rval = OBJECT_TO_JSVAL(obj);
 	return JS_TRUE;

@@ -38,10 +38,10 @@
 
 class SdlGlScreen : public ViewPort {
  public:
-  SdlGlScreen();
+  SdlGlScreen(int w, int h);
   ~SdlGlScreen();
 
-  bool init(int width, int height);
+
   void set_magnification(int algo);
   void resize(int resize_w, int resize_h);
 
@@ -51,6 +51,9 @@ class SdlGlScreen : public ViewPort {
 
   void fullscreen();
   void *get_surface();
+  fourcc get_pixel_format() { return BGRA32; };
+
+  void setup_blits(Layer *lay);
 
   float x_translation;
   float y_translation;
@@ -69,6 +72,7 @@ class SdlGlScreen : public ViewPort {
   bool unlock();
  
  private:
+  bool init(int width, int height);
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
   SDL_Surface *screen;

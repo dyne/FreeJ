@@ -1,0 +1,20 @@
+
+S-Lang widgets by Jaromil http://jaromil.dyne.org
+
+This simple set of widgets are developed on top of the console library
+S-Lang,  providing a  thread safe  implementation in  C++  for console
+interface  elements as  popup boxes,  scroll  text boxes  and more  in
+future: this is just a start and will hopefully grow in needs.
+
+Main features that this library aims to achieve:
+ - Low latency in operations (must react fast!)
+ - Modularity and ease of use design
+ - Complete thread safety
+
+Most  notable  there is  the  abs_text_console  which  is an  abstract
+implementation  for  a text  scrolling  console  (a  la readline,  but
+different) that is  also ported to javascript for  TBT. Abstract means
+this  text  console  handling  is completely  independent  from  other
+libraries and  can be  included in other  software components  (as for
+instance FreeJ for playback of TBT files in videos).
+

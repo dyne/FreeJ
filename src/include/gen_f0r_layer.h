@@ -34,9 +34,8 @@ class GenF0rLayer: public Layer {
 
   bool open(const char *file);
   void *feed();
-  bool keypress(int key);
   void close();
-
+  void *swap_buffer;
   FilterInstance *generator;
 
 };

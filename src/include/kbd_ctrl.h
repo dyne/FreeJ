@@ -29,7 +29,7 @@ class KbdController: public Controller {
   KbdController();
   ~KbdController();
 
-  bool init(JSContext *env, JSObject *obj);
+  bool init(Context *freej);
   int  poll();
   virtual int dispatch();
   virtual int key_event(const char *state, bool shift, bool ctrl, bool alt, bool num, const char *keyname);

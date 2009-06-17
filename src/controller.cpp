@@ -21,12 +21,15 @@
 
 #include <controller.h>
 #include <linklist.h>
+#include <jsparser.h>
 #include <jsparser_data.h>
 #include <callbacks_js.h>
 
 Controller::Controller() {
 	func("%s this=%p",__PRETTY_FUNCTION__, this);
 	initialized = active = false;
+	indestructible = false;
+	javascript = false;
 	jsenv = NULL;
 	jsobj = NULL;
 }
@@ -37,6 +40,22 @@ Controller::~Controller() {
 	//	if (jsobj)
 	  //		JS_SetPrivate(jsenv, jsobj, NULL);
 	//	jsobj = NULL;
+}
+
+bool Controller::init(Context *freej) {
+  func("%s",__PRETTY_FUNCTION__);
+  env = freej;
+
+  if(freej->js) {
+    jsenv = freej->js->global_context;
+    
+    // the object is set to global, but should be overwritten
+    // in every specific object constructor with the "obj" from JS
+    jsobj = freej->js->global_object;
+  }
+  
+  initialized = true;
+  return(true);
 }
 
 // other functions are pure virtual
@@ -91,22 +110,25 @@ void Controller::poll_sdlevents(Uint32 eventmask) {
 void js_ctrl_gc (JSContext *cx, JSObject *obj) {
 	func("%s",__PRETTY_FUNCTION__);
 	Controller* ctrl;
+	JSClass *jc;
 	if (!obj) {
 		error("%n called with NULL object", __PRETTY_FUNCTION__);
 		return;
 	}
+	warning("controller garbage collector called (TODO)");
 	// This callback is declared a Controller Class only,
 	// we can skip the typecheck of obj, can't we?
-	ctrl = (Controller *) JS_GetPrivate(cx, obj);
-	JSClass *jc = JS_GET_CLASS(cx,obj);
+// 	ctrl = (Controller *) JS_GetPrivate(cx, obj);
 
-	if (ctrl) {
-		func("JSvalcmp(%s): %p / %p ctrl: %p", jc->name, OBJECT_TO_JSVAL(obj), ctrl->jsobj, ctrl);
-		notice("JSgc: deleting %s Controller %s", jc->name, ctrl->name);
-		delete ctrl;
-	} else {
-		func("Mh, object(%s) has no private data", jc->name);
-	}
+// 	if (ctrl) {
+// 	  //	  jc = JS_GET_CLASS(cx,obj);
+// 	  func("JSvalcmp(%s): %p / %p ctrl: %p", jc->name, OBJECT_TO_JSVAL(obj), ctrl->jsobj, ctrl);
+// 	  notice("JSgc: deleting %s Controller %s", jc->name, ctrl->name);
+// 	  delete ctrl;
+// 	} else {
+// 	  func("Mh, object(%s) has no private data", jc->name);
+// 	}
+	
 }
 
 /* JSCall function by name, cvalues will be converted
@@ -169,35 +191,24 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...) 
 
 /* less bloat but this only works with 4 byte argv values
  */
-int Controller::JSCall(const char *funcname, int argc, jsval *argv, JSBool *res) {
+int Controller::JSCall(const char *funcname, int argc, jsval *argv) {
+  JSObject *objp = NULL;
   jsval fval = JSVAL_VOID;
   jsval ret = JSVAL_VOID;
-  
-  func("%s calling method %s.%s()", __func__, name, funcname);
-  JS_GetProperty(jsenv, jsobj, funcname, &fval);
-  if(!JSVAL_IS_VOID(fval)) {
-    
-    *res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
-    //    if (*res) {
-    //  if(!JSVAL_IS_VOID(ret)) {
-	JSBool ok;
-	JS_ValueToBoolean(jsenv, ret, &ok);
-	
-	if (ok) { // JSfunc returned 'true', so event is done
-	  func("callback function executed, returned true");
-	  return 1;
-	} else {
-	  func("callback function executed, returned false");
-	  return 0;
-	}
-	
-	//      }
-      
-      //    }
-      //    warning("JS_CallFunctionValue returned NULL in %s",__FUNCTION__);
-      //    return 0; // requeue event for next controller
+  JSBool res;
+
+  func("calling js %s.%s()", name, funcname);
+  res = JS_GetMethod(jsenv, jsobj, funcname, &objp, &fval);
+  if(!res || JSVAL_IS_VOID(fval)) {
+    error("method %s not found in %s controller", funcname, name);
+    return(0);
+  }
+
+  res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
+  if(res == JS_FALSE) {
+    error("%s : failed call", __PRETTY_FUNCTION__);
+    return(0);
   }
   
-  warning("no callback found, function name unresolved by JS_GetProperty");
-  return 0; // no callback, redo on next controller
+  return(1);
 }

@@ -132,7 +132,7 @@ class Blitter {
   ~Blitter();
 
 
-  Linklist<Entry> blitlist; ///< list of available blits
+  Linklist<Blit> blitlist; ///< list of available blits
 
   /* ==== CROP */
   /** @param force crop even if nothing changed */

@@ -40,7 +40,6 @@ class ViMoController: public Controller {
 		ViMoController();
 		virtual ~ViMoController();
 
-		bool init(JSContext *env, JSObject *obj);
 		bool open();
 		bool open(char *filename);
 		void close();

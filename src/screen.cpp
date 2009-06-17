@@ -20,21 +20,170 @@
  */
 
 #include <config.h>
+
 #include <context.h>
 #include <screen.h>
 #include <layer.h>
+#include <video_encoder.h>
+
 #include <scale2x.h>
 #include <scale3x.h>
 
 
-ViewPort::ViewPort()
+ViewPort::ViewPort(int w, int h)
   : Entry() {
+
   opengl = false;
+  env = false;
+
+  magnification   = 0;
+  changeres       = false;
+
+  this->w = w;
+  this->h = h;
+  bpp = 32; // we use only RGBA
+  size = w*h*(bpp>>3);
+  pitch = w*(bpp>>3);
+}
+
+ViewPort::~ViewPort() {
+
+  func("screen %s deleting %u layers", name, layers.len() );
+  Layer *lay;
+  lay = layers.begin();
+  while(lay) {
+    lay->rem();
+    // deleting layers crashes
+    //    delete(lay);
+    lay = layers.begin();
+  }
+
+  func("screen %s deleting %u encoders", name, encoders.len() );
+  VideoEncoder *enc;
+  enc = encoders.begin();
+  while(enc) {
+    enc->stop();
+    enc->rem();
+    delete(enc);
+    enc = encoders.begin();
+  }
 
 }
 
-ViewPort::~ViewPort() { }
 
+bool ViewPort::add_layer(Layer *lay) {
+  func("%s",__PRETTY_FUNCTION__);
+
+  if(!env) {
+    error("can't add layer %s to non initialized screen %s", lay->name, name);
+    return(false);
+  }
+
+  if(lay->list) {
+    warning("passing a layer from a screen to another is not (yet) supported");
+    return(false);
+  }
+
+  lay->env = env;
+  lay->screen = this;
+  
+  setup_blits( lay );
+
+  // setup default blit (if any)
+  if (lay->blitter) {
+    lay->current_blit =
+      (Blit*)lay->blitter->default_blit;
+    lay->blitter->blitlist.sel(0);
+    lay->current_blit->sel(true);
+  } 
+  // center the position
+  //lay->geo.x = (screen->w - lay->geo.w)/2;
+  //lay->geo.y = (screen->h - lay->geo.h)/2;
+  //  screen->blitter->crop( lay, screen );
+  layers.prepend(lay);
+  layers.sel(0);
+  lay->sel(true);
+  lay->active = true;
+  func("layer %s succesfully added",lay->name);
+  return(true);
+}
+
+bool ViewPort::add_encoder(VideoEncoder *enc) {
+  func("%s",__PRETTY_FUNCTION__);
+ 
+  if(enc->list) {
+    error("moving an encoder from one screen to another is not supported");
+    return(false);
+  }
+
+
+  if(!enc->init(this)) {
+    error("%s : failed initialization", __PRETTY_FUNCTION__);
+    return(false);
+  }
+
+  enc->start();
+
+  enc->active = true;
+
+  encoders.append(enc);
+
+  encoders.sel(0);
+
+  enc->sel(true);
+
+  func("encoder %s succesfully added to screen %s", enc->name, name);
+}
+
+
+void ViewPort::blit_layers() {
+  Layer *lay;
+
+  lay = layers.end();
+  if (lay) {
+    layers.lock ();
+    while (lay) {
+      if(lay->buffer)
+	if (lay->active & lay->opened) {
+	  
+	  lay->lock();
+	  lock();
+	  blit(lay);
+	  unlock();
+	  lay->unlock();
+	  
+	}
+      
+      lay = (Layer *)lay->prev;
+    }
+    layers.unlock ();
+  }
+  /////////// finish processing layers
+
+}
+
+
+void ViewPort::handle_resize() {
+  lock ();
+  if (magnification) {
+    set_magnification (magnification);
+    magnification = 0;
+  }
+  if(resizing) {
+    resize (resize_w, resize_h);
+    resizing = false;
+  }
+  unlock();
+  
+  /* crop all layers to new screen size */
+  Layer *lay = layers.begin ();
+  while (lay) {
+    lay -> lock ();
+    lay -> blitter->crop(lay, this);
+    lay -> unlock ();
+    lay = (Layer*) lay -> next;
+  } 
+}
 
 void ViewPort::scale2x(uint32_t *osrc, uint32_t *odst) {
 

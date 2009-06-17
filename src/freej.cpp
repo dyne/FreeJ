@@ -31,14 +31,16 @@
 #include <context.h>
 
 // #include <osd.h>
-#include <console.h>
+#include <console_ctrl.h>
 #include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
 //#include <fps.h>
 
 #include <impl_layers.h>
+#include <impl_screens.h>
 #include <impl_video_encoders.h>
+
 
 // javascript
 #include <jsparser.h>
@@ -76,7 +78,10 @@ static const char *help =
 static const char *short_options = "-hvD:gas:nj:cgf:F";
 
 /* this is the global FreeJ context */
-Context freej;
+Context *freej = NULL;
+
+// the runtime will open one screen by default
+ViewPort *screen = NULL;
 
 int   debug_level = 0;
 char  layer_files[MAX_CLI_CHARS];
@@ -90,11 +95,11 @@ int fps = 25;
 
 bool startstate = true;
 bool gtkgui = false;
-Context::VideoMode videomode = Context::SDL; // SOFT; // SDL
+
 int audiomode = 0;
 bool noconsole = false;
 bool fullscreen = false;
-
+bool opengl = false;
 
 void cmdline(int argc, char **argv) {
   int res, optlen;
@@ -184,8 +189,7 @@ void cmdline(int argc, char **argv) {
 
 #ifdef WITH_OPENGL
     case 'g':
-     videomode=Context::SDLGL;
-
+      opengl = true;
       break;
 #endif
 
@@ -226,7 +230,7 @@ void cmdline(int argc, char **argv) {
 /* ===================================== */
 
 // scandir selection for .js or .freej
-#ifdef HAVE_DARWIN
+#if defined (HAVE_DARWIN) || defined (HAVE_FREEBSD)
 int script_selector(struct dirent *dir)
 #else
 int script_selector(const struct dirent *dir) 
@@ -256,7 +260,7 @@ int scripts(char *path) {
       char temp[256];
       snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
       // if it exist is a default one: source it
-      freej.open_script(temp);
+      freej->open_script(temp);
     }
   } while(( dir = strtok(NULL,":") ));
 
@@ -267,6 +271,9 @@ int scripts(char *path) {
 #ifndef HAVE_DARWIN
 int main (int argc, char **argv) {
   Layer *lay = NULL;
+  Console *con = NULL;
+  
+  freej = new Context();
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);
   act("2001-2008 RASTASOFT :: freej.dyne.org");
@@ -275,9 +282,18 @@ int main (int argc, char **argv) {
   cmdline(argc,argv);
   set_debug(debug_level);
 
-  assert( freej.init(width,height, videomode, audiomode) );
+  // create SDL screen by default at selected size
+#ifdef WITH_OPENGL
+  if(opengl)
+    screen = new SdlGlScreen(width, height);
+  else
+#endif
+    screen = new SdlScreen(width, height);
 
-  if(fullscreen) freej.screen->fullscreen();
+  // add the screen to the context
+  freej->add_screen(screen);
+
+  if(fullscreen) freej->screen->fullscreen();
 
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
      this hangs on some linux kernels - darwin doesn't even bothers with it
@@ -288,32 +304,34 @@ int main (int argc, char **argv) {
   */
 
 
-  // refresh the list of available plugins
-  freej.plugger.refresh(&freej);
-
-  // load default settings
-  freej.config_check("keyboard.js");
   
   /* initialize the S-Lang text Console */
   if(!noconsole) {
     if( getenv("TERM") ) {
-      freej.console = new Console();
-      freej.console->init( &freej );
-      freej.console->cafudda ();
+      con = new Console();
+      freej->register_controller( con );
+      con->slw_init();
+      set_console( con );
     }
   }
 
+  // refresh the list of available plugins
+  freej->plugger.refresh(freej);
+
+  // load default settings
+  freej->config_check("keyboard.js");
+
   /* execute javascript */
   if( javascript[0] ) {
-    freej.interactive = false;
-    freej.open_script(javascript); // TODO: quit here when script failed??
-    if(freej.quit) {
+    freej->interactive = false;
+    freej->open_script(javascript); // TODO: quit here when script failed??
+    if(freej->quit) {
       //      freej.close();
       // here calling close directly we double the destructor
       // fixed omitting the explicit close() call
       // but would be better to make the destructor reentrant
       exit(1);
-    } else freej.interactive = true;
+    } else freej->interactive = true;
   }
 
 
@@ -324,9 +342,9 @@ int main (int argc, char **argv) {
 
 
   // Set fps
-  freej.fps->set( fps );
+  freej->fps.set( fps );
 
-  freej.start_running = startstate;
+  freej->start_running = startstate;
 
   /* create layers requested on commandline */
   {
@@ -341,10 +359,10 @@ int main (int argc, char **argv) {
 
       func("creating layer for file %s",pp);
 
-      lay = create_layer(&freej, pp); // hey, this already init and open the layer !!
+      lay = freej->open(pp); // hey, this already init and open the layer !!
       if(lay)  { 
-        lay->start();
-        freej.add_layer(lay);
+        freej->add_layer(lay);
+	lay->start();
 	lay->fps.set(fps);
 
         if (startstate) 
@@ -359,12 +377,12 @@ int main (int argc, char **argv) {
 
 
   /* apply screen magnification */
-  //  freej.magnify(magn);
+  //  freej->magnify(magn);
   // deactivated for now
 
 
   /* MAIN loop */
-  while( !freej.quit )
+  while( !freej->quit )
     /* CAFUDDARE in sicilian means to add a lot of 
        stuff into something; for example, to do the
        bread or the pasta for the pizza you have to
@@ -372,7 +390,7 @@ int main (int argc, char **argv) {
        This also involve an intense work for your 
        arms, mixing wheat flour, ingredients, and so
        processing materia */
-    freej.cafudda(1.0);
+    freej->cafudda(1.0);
   /* also layers have the cafudda() function
      which is called by the Context class (freej instance here)
      so it's a tree of cafudda calls originating from here
@@ -384,8 +402,8 @@ int main (int argc, char **argv) {
 
 
   /* quit */
-
-  //  freej.close();
+  if(con) delete con;
+  delete freej;
 
   exit(1);
 }

@@ -50,7 +50,16 @@ Blit::Blit() :Entry() {
 
 }
 
-Blit::~Blit() { }
+Blit::~Blit() {
+  // clean up all parameters
+  Parameter *par;
+  par = parameters.begin();
+  while(par) {
+    par->rem();
+    delete par;
+    par = parameters.begin();
+  }
+}
 
 Blitter::Blitter() {
 
@@ -65,13 +74,15 @@ Blitter::Blitter() {
 }
 
 Blitter::~Blitter() {
+
   Blit *tmp;
-  Blit *b = (Blit*)blitlist.begin();
+  Blit *b = blitlist.begin();
   while(b) {
-    tmp = (Blit*)b->next;
-    delete b;
-    b = tmp;
+    b->rem();
+    delete(b);
+    b = blitlist.begin();
   }
+
 }
 
 

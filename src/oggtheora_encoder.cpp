@@ -32,13 +32,10 @@
 #include <time.h>
 
 #include <context.h>
-#include <sdl_screen.h>
+#include <screen.h>
 #include <audio_collector.h>
 
 #include <oggtheora_encoder.h>
-
-#include <convertvid.h>
-
 
 
 OggTheoraEncoder::OggTheoraEncoder() 
@@ -50,7 +47,6 @@ OggTheoraEncoder::OggTheoraEncoder()
 
   //  picture_rgb = NULL;
   //  enc_rgb24 = NULL;
-  enc_y = enc_u = enc_v = NULL;
 
   use_audio = false;
   audio = NULL;
@@ -71,22 +67,16 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   oggmux_close(&oggmux);
   
   //  if(enc_rgb24) free(enc_rgb24);
-  if(enc_y) free(enc_y);
-  if(enc_u) free(enc_u);
-  if(enc_v) free(enc_v);
-  if(enc_yuyv) free(enc_yuyv);
 
   if(audio_buf) free(audio_buf);
 }
 
 
-bool OggTheoraEncoder::init (Context *_env) {
+bool OggTheoraEncoder::init (ViewPort *scr) {
 
   if(initialized) return true;
 
-  env = _env;
-  
-  screen = env->screen;
+  screen = scr;
 
   oggmux.ringbuffer = ringbuffer;
   oggmux.bytes_encoded = 0;
@@ -138,8 +128,8 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.ti.frame_height                 = screen->h;
   oggmux.ti.offset_x                     = frame_x_offset;
   oggmux.ti.offset_y                     = frame_y_offset;
-  oggmux.ti.fps_numerator                = env->fps_speed * 1000000;
-  oggmux.ti.fps_denominator              = 1000000;
+  oggmux.ti.fps_numerator                = 25; // env->fps.fps;
+  oggmux.ti.fps_denominator              = 1;
   oggmux.ti.aspect_numerator             = 0;
   oggmux.ti.aspect_denominator           = 0;
   oggmux.ti.colorspace                   = OC_CS_ITU_REC_470BG;
@@ -150,7 +140,7 @@ bool OggTheoraEncoder::init (Context *_env) {
   oggmux.ti.target_bitrate               = video_bitrate;
   oggmux.ti.quality                      = theora_quality;
   
-  oggmux.ti.dropframes_p                 = 0;
+  oggmux.ti.dropframes_p                 = 0; // was 0
   oggmux.ti.quick_p                      = 1;
   oggmux.ti.keyframe_auto_p              = 1;
   oggmux.ti.keyframe_frequency           = 64;
@@ -163,12 +153,9 @@ bool OggTheoraEncoder::init (Context *_env) {
 
   oggmux_init(&oggmux);
   
-
-  func("init picture_yuv for colorspace conversion (avcodec)");  
-
-  enc_y     = malloc(  screen->w * screen->h);
-  enc_u     = malloc( (screen->w * screen->h)/2);
-  enc_v     = malloc( (screen->w * screen->h)/2);
+  enc_y     = malloc( screen->w * screen->h);
+  enc_u     = malloc((screen->w * screen->h) /2);
+  enc_v     = malloc((screen->w * screen->h) /2);
   enc_yuyv   = (uint8_t*)malloc(  screen->size );
   
   act("initialization succesful");
@@ -186,82 +173,19 @@ int OggTheoraEncoder::encode_frame() {
   
   oggmux_flush(&oggmux, 0);
 
+  bytes_encoded = oggmux.video_bytesout + oggmux.audio_bytesout;
+
   audio_kbps = oggmux.akbps;
   video_kbps = oggmux.vkbps;
-  bytes_encoded = oggmux.bytes_encoded;
+
+  // just pass the reference for the status
+  status = &oggmux.status[0];
+
   return bytes_encoded;
 
 }
 
-/* function below taken from ccvt_misc.c
-   CCVT: ColourConVerT: simple library for converting colourspaces
-   Copyright (C) 2002 Nemosoft Unv. */
-inline void ccvt_yuyv_420p(int width, int height,
-			   const void *src, void *dsty,
-			   void *dstu, void *dstv) {
-  register int n, l, j;
-  register unsigned char *dy, *du, *dv;
-  register unsigned char *s1, *s2;
-  
-  dy = (unsigned char *)dsty;
-  du = (unsigned char *)dstu;
-  dv = (unsigned char *)dstv;
-  s1 = (unsigned char *)src;
-  s2 = s1; // keep pointer
-  n = width * height;
-  for (; n > 0; n--) {
-    *dy = *s1;
-    dy++;
-    s1 += 2;
-  }
-  
-  /* Two options here: average U/V values, or skip every second row */
-  s1 = s2; // restore pointer
-  s1++; // point to U
-  for (l = 0; l < height; l += 2) {
-    s2 = s1 + width * 2; // odd line
-    for (j = 0; j < width; j += 2) {
-      *du = (*s1 + *s2) / 2;
-      du++;
-      s1 += 2;
-      s2 += 2;
-      *dv = (*s1 + *s2) / 2;
-      dv++;
-      s1 += 2;
-      s2 += 2;
-    }
-    s1 = s2;
-  }
-}
 
-
-
-bool OggTheoraEncoder::feed_video() {  
-  /* Convert picture from rgb to yuv420 planar 
-
-     two steps here:
-     
-     1) rgb24a or bgr24a to yuv422 interlaced (yuyv)
-     2) yuv422 to yuv420 planar (yuv420p)
-
-     to fix endiannes issues try adding #define ARCH_PPC
-     and using 
-     mlt_convert_bgr24a_to_yuv422
-     or
-     mlt_convert_argb_to_yuv422
-     (see mlt_frame.h in mltframework.org sourcecode)
-     i can't tell as i don't have PPC, waiting for u mr.goil :)
-  */
-  env->screen->lock();
-  mlt_convert_rgb24a_to_yuv422((uint8_t*)env->screen->get_surface(),
-			       env->screen->w, env->screen->h,
-			       env->screen->w<<2, (uint8_t*)enc_yuyv, NULL);
-  env->screen->unlock();
-
-  ccvt_yuyv_420p(env->screen->w, env->screen->h, enc_yuyv, enc_y, enc_u, enc_v);
-
-  return true;
-}
 
 int OggTheoraEncoder::encode_video( int end_of_stream) {
   yuv_buffer          yuv;
@@ -289,7 +213,6 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
   
   /* encode image */
   oggmux_add_video (&oggmux, &yuv, end_of_stream);
-  
   return 1;
 }
 

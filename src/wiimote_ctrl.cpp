@@ -71,7 +71,7 @@ JS(js_wii_ctrl_constructor) {
   
   WiiController *wii = new WiiController();
   // initialize with javascript context
-  if(! wii->init(cx, obj) ) {
+  if(! wii->init(env) ) {
     sprintf(excp_msg, "failed initializing WiiMote controller");
     goto error;
   }
@@ -82,6 +82,10 @@ JS(js_wii_ctrl_constructor) {
     goto error;
   }
 
+  // assign the real js object
+  wii->jsobj = obj;
+  wii->javascript = true;
+  
   notice("WiiMote controller attached");
 
   *rval = OBJECT_TO_JSVAL(obj);
@@ -238,16 +242,6 @@ bool WiiController::connect(char *hwaddr) {
   cwiid_enable(wiimote, CWIID_FLAG_MESG_IFC); // enable messages
   
   return 1;
-}
-
-bool WiiController::init(JSContext *env, JSObject *obj) {
-
-  jsenv = env;
-  jsobj = obj;
-
-  initialized = true;
-  return(true);
-  
 }
 
 int WiiController::poll() {

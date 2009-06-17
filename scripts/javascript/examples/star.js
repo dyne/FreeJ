@@ -40,15 +40,22 @@ function drawStar(lay, s_mul, s2_mul) {
 }
 
 running = true;
-kbd = new KeyboardController();
-kbd.pressed_esc = function() { running = false; }
-register_controller( kbd );
 
+var kbd;
+star_kbd = new KeyboardController();
+star_kbd.released_esc = function() { quit(); };
+star_kbd.released_r = function() {
+    echo("reset called");
+    reset();
+};
+register_controller( star_kbd );
+
+var star;
 star = new GeometryLayer();
 star.color(255,255,255,255);
-star.set_blit("alpha");
+//star.set_blit("alpha");
 //star.set_name("star.js");
-star.set_blit_value(0.1);
+//star.set_blit_value(0.1);
 //star.start();
 star.activate(true);
 add_layer(star);
@@ -59,9 +66,10 @@ srand();
 
 cc = 1;
 
-bang = new TriggerController();
-register_controller(bang);
-bang.frame = function() {
+var star_bang;
+star_bang = new TriggerController();
+register_controller(star_bang);
+star_bang.frame = function() {
 
     cc += 0.05;
 

@@ -4,7 +4,6 @@
 
 #include "context.h"
 #include "linklist.h"
-#include "console.h"
 #include "screen.h"
 
 #include "layer.h"
@@ -12,6 +11,11 @@
 #include "fps.h"
 #include "controller.h"
 #include "callback.h"
+
+#include "sdl_screen.h"
+#include "soft_screen.h"
+#include "sdlgl_screen.h"
+#include "gl_screen.h"
 
 #include "gen_f0r_layer.h"
 #include "text_layer.h"
@@ -115,15 +119,32 @@ freej_entry_typemap_in(Encoder);
 %include "plugger.h"
 // %include "jsync.h"
 
+
+// layers
 %include "fps.h"
 %template(LayerLinkList) Linklist<Layer>;
 %include "layer.h"
-// layers...
+
 %include "gen_f0r_layer.h"
 %include "text_layer.h"
 %include "video_layer.h"
 %include "geo_layer.h"
 
+
+// screens...
+%template(ScreenLinkList) Linklist<ViewPort>;
+%include "screen.h"
+
+%include "sdl_screen.h"
+%include "soft_screen.h"
+#if defined(WITH_OPENGL)
+%include "sdlgl_screen.h"
+%include "gl_screen.h"
+#endif
+#if defined(WITH_COCOA)
+%include "CVScreen.h"
+#endif
+			 
 // controllers
 %include "controller.h"
 // extends virtual methods of the Controllers to be overloadable (as callbacks)

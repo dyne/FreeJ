@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 2/24/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 
 #import "CIAlphaFade.h"

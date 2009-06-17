@@ -34,8 +34,8 @@
 
 
 
-SdlGlScreen::SdlGlScreen()
-  : ViewPort() {
+SdlGlScreen::SdlGlScreen(int w, int h)
+  : ViewPort(w, h) {
   
   emuscr = NULL;
   bpp = 32;
@@ -75,7 +75,10 @@ SdlGlScreen::SdlGlScreen()
 
   // add above | SDL_FULLSCREEN to go fullscreen from the start
     
-    magnification = 0;
+  magnification = 0;
+
+
+  init(w, h);
 }
 
 SdlGlScreen::~SdlGlScreen() {
@@ -140,11 +143,6 @@ bool SdlGlScreen::init(int width, int height) {
 
 	surface = SDL_GetVideoSurface();
 
-	w = width;
-	h = height;
-	bpp = 32;
-	size = w*h*(bpp>>3);
-	pitch = w*(bpp>>3);
 	SDL_VideoDriverName(temp,120);
 
 	notice("SDLGL Viewport is %s %ix%i %ibpp",
@@ -160,6 +158,15 @@ bool SdlGlScreen::init(int width, int height) {
 	SDL_ShowCursor(SDL_DISABLE);
 	return(true);
 }
+
+void SdlGlScreen::setup_blits(Layer *lay) {
+  Blitter *b = new Blitter();
+
+  setup_linear_blits(b);
+
+  lay->blitter = b;
+}
+
 
 void SdlGlScreen::resize(int resize_w, int resize_h) {
   surface = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);

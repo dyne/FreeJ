@@ -55,7 +55,7 @@ class Parameter : public Entry {
 
   Type type;
 
-  const char *description;
+  char description[512];
 
   void *value;
 
@@ -65,6 +65,7 @@ class Parameter : public Entry {
   filter_param_f *filter_get_f;
   filter_param_f *filter_set_f;
 
+  bool changed; ///< can be used externally by application caller
 };
 
 #endif

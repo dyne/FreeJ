@@ -25,12 +25,15 @@
 class SoftScreen : public ViewPort {
 
  public:
-  SoftScreen();
+  SoftScreen(int w, int h);
   ~SoftScreen();
 
-  bool init(int w, int h);
+
+
+  fourcc get_pixel_format() { return RGBA32; };
 
   void *get_surface();
+
 
   void blit(Layer *src);
 
@@ -40,7 +43,10 @@ class SoftScreen : public ViewPort {
   void *buffer;
 
   uint32_t *pscr, *play;  // generic blit buffer pointers
-  
+
+ private:
+  bool init(int w, int h);
+
 };
  
 #endif

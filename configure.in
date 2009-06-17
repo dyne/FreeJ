@@ -26,6 +26,7 @@ case $uname in
      Linux)
      AC_MSG_RESULT(Linux)
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
+     DL_LIBS="-ldl"
      have_linux=yes
 
      case $target_cpu in
@@ -41,11 +42,15 @@ case $uname in
        have_ppc=yes
        ;;
 
-       x86_64*|ia64*)
+       x86_64*)
        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
        AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
        ;;
 
+       ia64*)
+       AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
+       ;;
+       
        i*86*)
        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
        AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
@@ -65,6 +70,13 @@ case $uname in
      AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
      have_darwin=yes
      ;;
+     FreeBSD)
+     AC_MSG_RESULT(FreeBSD)
+     AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
+     AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
+     CFLAGS="$CFLAGS -I/usr/local/include -L/usr/local/lib"
+     have_freebsd=yes
+     ;;
      *)
      echo "[!] Your system architecture is not supported by FreeJ"
      echo "[!] if you are interested in porting FreeJ to your architecture"
@@ -73,6 +85,7 @@ case $uname in
      ;;
 esac
 
+AC_SUBST(DL_LIBS)
 AC_PROG_MAKE_SET
 
 dnl ==============================================================
@@ -175,7 +188,7 @@ dnl Add the local include path and some flags
 dnl ==============================================================
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-CFLAGS="-pipe -D_REENTRANT -freg-struct-return -fPIC"
+CFLAGS="$CFLAGS -pipe -D_REENTRANT -freg-struct-return -fPIC"
 if test x$have_darwin = xyes; then
   # add the fink default path to find headers
   CFLAGS="$CFLAGS -I/sw/include"
@@ -291,15 +304,9 @@ dnl ==============================================================
 XIPH_INCLUDE=""
 XIPH_LIBS=""
 THEORA_MMX_DIR=""
-if test x$dynamic_ffmpeg = xyes ; then
-   PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc theora,
-   	             have_oggtheora=yes, have_oggtheora=no)
-   XIPH_LIBS="$XIPH_LIBS -ltheora"
-else
-   PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc,
-                     have_oggtheora=yes, have_oggtheora=no)
-   XIPH_LIBS="$XIPH_LIBS -logg -lvorbis -lvorbisenc -ltheora"
-fi
+PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc theora,
+			           have_oggtheora=yes, have_oggtheora=no)
+
 if test x$have_oggtheora = xyes ; then
    AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
    AC_DEFINE(THEORA_SUPPORT_ENCODE,1,[define if compiling Theora encoder])
@@ -485,6 +492,12 @@ if test x$have_cpuflags = xyes; then
        AC_DEFINE(HAVE_SSSE3,1,[define if enabling SSSE3 acceleration])
      fi
   fi
+  if test x$have_freebsd = xyes; then
+        if sysctl -n hw.instruction_sse; then
+            have_mmx=yes
+            AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
+        fi
+  fi
 fi
 
 AC_ARG_ENABLE(lubrify,
@@ -638,18 +651,32 @@ PKG_CHECK_MODULES(MOZJS, xulrunner-js, have_mozjs=yes, have_mozjs=no)
   dnl    in debian, ubuntu and so on. we are stuck at static linking since years :/
  fi
 fi
+if test x$have_mozjs = xno; then
+# test on fedora
+PKG_CHECK_MODULES(MOZJS, libxul-embedding, have_mozjs=yes, have_mozjs=no)
+ if test x$have_mozjs = xyes; then
+    MOZJS_CFLAGS=`$PKG_CONFIG --cflags libxul-embedding --define-variable=includetype=js`
+    MOZJS_LIBS=`$PKG_CONFIG --libs libxul-embedding`
+    MOZJS_LIBS="$MOZJS_LIBS -lmozjs"
+ fi
+fi
 
-if test x$have_mozjs = xyes; then
-   MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
-
-else
+if test x$have_mozjs = xno; then
    MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
    # libs in top_srcdir instead of top_builddir because js is not under autotools
    MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
    JS_DIR="javascript"
-   if test x$debug = xyes ; then
-      MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
-   fi
+fi
+
+if test x$debug = xyes ; then
+   MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
+fi
+
+if test x$have_freebsd = xyes; then 
+   JS_DIR=""
+   MOZJS_CFLAGS="-I/usr/local/include -L/usr/local/lib -I../lib/javascript"
+   MOZJS_LIBS="-ljs"
+   AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
 fi
 
 if test x$have_linux = xyes ; then
@@ -683,20 +710,35 @@ AC_SUBST(UNICAP_LIBS)
 AC_SUBST(UNICAP_CFLAGS)
 
 dnl ==============================================================
+dnl shout lib
+dnl ==============================================================
+SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
+SHOUT_CFLAGS="-I\$(top_builddir)/lib/shout"
+SHOUT_DIR="shout"
+AC_SUBST(SHOUT_DIR)
+AC_SUBST(SHOUT_LIBS)
+AC_SUBST(SHOUT_CFLAGS)
+dnl PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
+dnl if test x$have_shout = xyes; then
+dnl    SHOUT_DIR=""
+dnl    AC_MSG_RESULT([yes, libshout system wide library found])
+dnl else
+dnl    AC_MSG_RESULT([no, using static libshout])
+dnl fi
+dnl AC_SUBST(SHOUT_CFLAGS)
+dnl AC_SUBST(SHOUT_LIBS)
+
+dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
-FREI0R_DIR=""
-AC_ARG_ENABLE(frei0r,
-		[  --enable-frei0r       build internal frei0r plugins (yes)],
-		[
-		 if test ! x$enableval = xyes; then
-		     have_frei0r=no
-		 else
-		     have_frei0r=yes;
-		 fi ],[ have_frei0r=yes ])
-
+PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
 if test x$have_frei0r = xyes; then
-  FREI0R_DIR="frei0r"
+   FREI0R_DIR=""
+else
+   # Build embedded frei0r
+   AC_MSG_RESULT([no, use freej version])
+   FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
+   FREI0R_DIR="frei0r"
 fi
 AC_SUBST(FREI0R_DIR)
 
@@ -751,15 +793,14 @@ FREEJ_STATIC_INCLUDES="-I\$(top_builddir) \
     -I\$(top_srcdir)/lib/flash \
     -I\$(top_srcdir)/lib/goom \
     -I\$(top_srcdir)/lib/cwiid \
-    -I/usr/include/slang"
+    -I\$(top_srcdir)/lib/slw"
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(top_builddir)/lib/sdl_image/libsdl_image.la \
     \$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la \
     \$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la \
-    \$(top_builddir)/lib/shout/libshout.la \
-    \$(top_builddir)/lib/lo/liblo.la"
-#    \$(top_builddir)/lib/javascript/obj/libjs.a
+    \$(top_builddir)/lib/lo/liblo.la \
+    \$(top_builddir)/lib/slw/libslw.la"
 
 AC_SUBST(FREEJ_STATIC_INCLUDES)
 AC_SUBST(FREEJ_STATIC_LIBS)
@@ -789,6 +830,7 @@ lib/lo/Makefile
 lib/sdl_image/Makefile
 lib/sdl_gfx/Makefile
 lib/sdl_ttf/Makefile
+lib/slw/Makefile
 lib/flash/Makefile
 lib/goom/Makefile
 lib/cwiid/Makefile
@@ -920,6 +962,7 @@ else
 	echo "  because of this many users will miss important functionality"
 fi
 
+
 echo "= javascript interpreter"
 echo "  LIBS  : $MOZJS_LIBS"
 echo "  CFLAGS: $MOZJS_CFLAGS"
@@ -932,9 +975,9 @@ else
 echo "= unicap library disabled"
 fi
 if test x$have_frei0r = xyes; then
-echo "= Build shipped frei0r plugins"
+echo "= frei0r plugins (system provided)"
 else
-echo "= Do not build shipped frei0r plugins"
+echo "= frei0r plugins (freej provided)"
 fi
 if test x$have_flash = xyes; then
 echo "= Flash (ver.3 animations only)"

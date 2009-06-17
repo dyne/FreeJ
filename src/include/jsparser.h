@@ -48,14 +48,38 @@ class JsParser {
 	int use(JSContext *cx, JSObject *obj, const char* script_file);
 	int parse(const char *command);
 	void stop();
-    void gc();
+	void gc();
 	char* readFile(FILE *file,int *len);
 	int reset();
 
 	JSBool branch_callback(JSContext* Context, JSScript* Script);
 
-	JSContext *js_context;
+	JSContext *global_context;
 	JSObject *global_object;
+
+	// list of classes made available by FreeJ
+	JSObject *Layer;
+	JSObject *GeometryLayer;
+	JSObject *ImageLayer;
+	JSObject *FlashLayer;
+	JSObject *GoomLayer;
+	JSObject *AudioJack;
+	JSObject *CamLayer;
+	JSObject *UnicapLayer;
+	JSObject *MovieLayer;
+	JSObject *TextLayer;
+	JSObject *XGrabLayer;
+	JSObject *Filter;
+	JSObject *Controller;
+	JSObject *KeyboardController;
+	JSObject *MouseController;
+	JSObject *JoystickController;
+	JSObject *TriggerController;
+	JSObject *ViMoController;
+	JSObject *MidiController;
+	JSObject *OscController;
+	JSObject *WiiController;
+	JSObject *VideoEncoder;
 
     private:
 	JSRuntime *js_runtime;

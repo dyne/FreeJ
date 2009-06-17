@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 2/8/09.
-//  Copyright __MyCompanyName__ 2009. All rights reserved.
+//  Copyright dyne.org 2009. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>

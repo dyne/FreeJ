@@ -48,7 +48,11 @@ Freior::~Freior() {
 
 int Freior::open(char *file) {
   void *sym;
+#ifdef HAVE_FREEBSD
+  const char *err;
+#else
   char *err;
+#endif
 
   if(opened) {
     error("Freior object %p has already opened file %s",this, filename);

@@ -54,7 +54,6 @@ class OscController: public Controller {
   OscController();
   ~OscController();
 
-  bool init(JSContext *env, JSObject *obj);
   virtual int dispatch();
   int poll();
 

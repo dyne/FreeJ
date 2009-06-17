@@ -99,6 +99,9 @@ void init_info(oggmux_info *info) {
     info->with_kate = 0;
     info->n_kate_streams = 0;
     info->kate_streams = NULL;
+
+	memset(info->status, 0x0, 512); // zeroing stats
+
 }
 
 void oggmux_setup_kate_streams(oggmux_info *info, int n_kate_streams)
@@ -653,45 +656,24 @@ static double get_remaining(oggmux_info *info, double timebase) {
     return remaining;
 }
 
-static void print_stats(oggmux_info *info, double timebase){
-    int hundredths = timebase * 100 - (long) timebase * 100;
+static void print_stats(oggmux_info *info, double timebase) {
+//    int hundredths = timebase * 100 - (long) timebase * 100;
     int seconds = (long) timebase % 60;
     int minutes = ((long) timebase / 60) % 60;
     int hours = (long) timebase / 3600;
-    double remaining = get_remaining(info, timebase);
+ 	double remaining = time(NULL) - info->start_time;
+//    double remaining = get_remaining(info, timebase);
     int remaining_seconds = (long) remaining % 60;
     int remaining_minutes = ((long) remaining / 60) % 60;
     int remaining_hours = (long) remaining / 3600;
-    if(info->frontend) {
-		/// quaaa progress on the frontend
-        fprintf (info->frontend,"\nf2t ;position: %.02lf;audio_kbps: %d;video_kbps: %d;remaining: %.02lf\n",
-           timebase,
-           info->akbps, info->vkbps,
-           remaining
-           );
-        fflush (info->frontend);
-    }
-    else {
-      if(!remaining) {
-          remaining = time(NULL) - info->start_time;
-          remaining_seconds = (long) remaining % 60;
-          remaining_minutes = ((long) remaining / 60) % 60;
-          remaining_hours = (long) remaining / 3600;
-          fprintf (stderr,"\r      %d:%02d:%02d.%02d audio: %dkbps video: %dkbps, time elapsed: %02d:%02d:%02d      ",
-           hours, minutes, seconds, hundredths,
-           info->akbps, info->vkbps,
-           remaining_hours, remaining_minutes, remaining_seconds
-           );
-      }
-      else {
-          fprintf (stderr,"\r      %d:%02d:%02d.%02d audio: %dkbps video: %dkbps, time remaining: %02d:%02d:%02d      ",
-           hours, minutes, seconds, hundredths,
-           info->akbps, info->vkbps,
-           remaining_hours, remaining_minutes, remaining_seconds
-           );
-      }
-    }
+	
+	// status
+	snprintf (info->status, 511,
+			  "%d:%02d:%02d audio: %dkbps video: %dkbps, time elapsed: %02d:%02d:%02d",
+			  hours, minutes, seconds, info->akbps, info->vkbps,
+			  remaining_hours, remaining_minutes, remaining_seconds );
 }
+
 
 static void write_audio_page(oggmux_info *info)
 {

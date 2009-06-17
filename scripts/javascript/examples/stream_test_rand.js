@@ -76,38 +76,42 @@ function randomize_color(geo) {
 set_fps(10);
 
 geo = new GeometryLayer(400,300);
-geo.set_blit("alpha");
-geo.set_blit_value(0.5);
+geo.activate(true);
 add_layer(geo);
 
-txt = new TextLayer();
-txt.print("FreeJ 0.9 test stream");
-txt.set_position(20,10);
-txt.set_blit("add");
-add_layer(txt);
+try {
+    txt = new TextLayer();
+    txt.activate(true);
+    txt.print("FreeJ 0.9 test stream");
+    txt.set_position(20,10);
+    txt.set_blit("add");
+    add_layer(txt);
+} catch(e) {
+    echo("No text layer "+e);
+}
 
-running = true;
+
+bang = new TriggerController();
+bang.frame = function() {
+  randomize_color(geo);
+  drawer(geo);
+};
+register_controller(bang);
+
+
 kbd = new KeyboardController();
-kbd.released_q = function() { running = false; }
-kbd.released_p = function() { drawer = draw_pixels; }
-kbd.released_t = function() { drawer = draw_triangles; }
-kbd.released_e = function() { drawer = draw_ellipses; }
+kbd.released_q = function() { quit(); };
+kbd.released_p = function() { drawer = draw_pixels; };
+kbd.released_t = function() { drawer = draw_triangles; };
+kbd.released_e = function() { drawer = draw_ellipses; };
 register_controller( kbd );
 
 // create a video encoder object
 //    values 1-100         video quality  video bitrate  audio quality  audio_bitrate
-encoder = new VideoEncoder(10,             128000,        4,             32000);
+encoder = new VideoEncoder(10,             128000,        0,             0);
 
-/*
-encoder.stream_host("10.66.66.133");
-encoder.stream_port(8000);
-encoder.stream_title("testing new freej");
-encoder.stream_username("source");
-encoder.stream_password("Revolution");
-encoder.stream_mountpoint("freej-test.ogg");
-*/
 
-encoder.stream_host("10.66.66.69");
+encoder.stream_host("localhost");
 encoder.stream_port(8000);
 encoder.stream_title("testing new freej");
 encoder.stream_username("source");
@@ -116,20 +120,6 @@ encoder.stream_mountpoint("freej-test.ogg");
 
 
 register_encoder(encoder);
-//encoder.start_stream();
-encoder.start_filesave("prova.ogg");
-
-while(running) {
-
-  randomize_color(geo);
-
-  drawer(geo);
-
-  run(0.001);
-
-}
-
-encoder.stop_filesave();
-//encoder.stop_stream();
-quit();
+encoder.start_stream();
+//encoder.start_filesave("prova.ogg");
 

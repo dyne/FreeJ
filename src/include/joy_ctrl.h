@@ -30,7 +30,7 @@ class JoyController : public Controller {
   JoyController();
   ~JoyController();
   
-  bool init(JSContext *env, JSObject *obj);
+  bool init(Context *freej);
   int  poll();
   virtual int dispatch();
   

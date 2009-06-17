@@ -3,14 +3,14 @@
 //  freej
 //
 //  Created by xant on 3/7/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 #import <QuartzCore/CIFilter.h>
 #import <QuartzCore/CIImage.h>
 #import <QuartzCore/CIContext.h>
-#include "CVFilterPanel.h"
+//#include "CVFilterPanel.h"
 
 
 @interface CVGenerator : NSOpenGLView {

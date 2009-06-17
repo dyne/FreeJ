@@ -49,12 +49,17 @@ Parameter::Parameter(Parameter::Type param_type)
     error("parameter initialized with unknown type: %u", param_type);
   }
 
+  changed = false;
+
   type = param_type;
 
   layer_set_f = NULL;
   layer_get_f = NULL;
   filter_set_f = NULL;
   filter_get_f = NULL;
+
+  set_name("unnamed");
+  strcpy(description, " ");
 }
 
 Parameter::~Parameter() {
@@ -65,13 +70,11 @@ bool Parameter::set(void *val) {
   ////////////////////////////////////////
   if(type == Parameter::NUMBER) {
 
-    func("set_parameter number");
     *(float*)value = *(float*)val;
     
     //////////////////////////////////////
   } else if(type == Parameter::BOOL) {
 
-    func("set_parameter bool");
     *(bool*)value = *(bool*)val;
     
     //    act("filter %s parameter %s set to: %e", name, param->name, (double*)value);
@@ -97,7 +100,8 @@ bool Parameter::set(void *val) {
     error("attempt to set value for a parameter of unknown type: %u", type);
     return false;
   }
-  
+
+  changed = true;
   return true;
 }
 

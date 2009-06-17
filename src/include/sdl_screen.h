@@ -27,20 +27,22 @@
 
 class SdlScreen : public ViewPort {
  public:
-  SdlScreen();
+  SdlScreen(int w, int h);
   ~SdlScreen();
 
-  bool init(int widt, int height);
+
   void set_magnification(int algo);
   void resize(int resize_w, int resize_h);
-
+  void setup_blits(Layer *lay);
   void blit(Layer *src);
+
+
   void show();
   void clear();
 
   void fullscreen();
   void *get_surface();
-
+  fourcc get_pixel_format() { return BGRA32; };
 
   SDL_Event event;
   SDL_Surface *sdl_screen;
@@ -52,6 +54,7 @@ class SdlScreen : public ViewPort {
  
 
  private:
+  bool init(int width, int height);
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
 

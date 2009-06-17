@@ -51,7 +51,6 @@ Layer::Layer()
   audio = NULL;
   opened = true;
   bgcolor = 0;
-  bgmatte = NULL;
   set_name("???");
   filename[0] = 0;
   buffer = NULL;
@@ -60,16 +59,12 @@ Layer::Layer()
   is_native_sdl_surface = false;
   jsclass = &layer_class;
 
-  slide_x = 0;
-  slide_y = 0;
-
   zoom_x = 1.0;
   zoom_y = 1.0;
   rotate = 0.0;
   zooming = false;
   rotating = false;
-  spin_zoom = 0;
-  spin_rotation = 0;
+
   antialias = false;
 
   blitter = NULL;
@@ -87,17 +82,29 @@ Layer::Layer()
 
 Layer::~Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
+
+  quit = true;
+
   delete deferred_calls;
+
   FilterInstance *f = (FilterInstance*)filters.begin();
   while(f) {
-    //    f->rem(); rem is contained in delete for Entry
+    f->rem(); // rem is contained in delete for Entry
     delete f;
     f = (FilterInstance*)filters.begin();
   }
-  if(bgmatte) { 
-    jfree(bgmatte);
-    bgmatte = NULL;
+
+  // free all parameters
+  if(parameters) {
+    Parameter *par;
+    par = parameters->begin();
+    while(par) {
+      par->rem();
+      delete par;
+      par = parameters->begin();
+    }
   }
+  
   if(blitter) delete blitter;
 }
 
@@ -116,13 +123,7 @@ void Layer::_init(int wdt, int hgt) {
   geo.y = 0;//(freej->screen->h - geo.h)/2;
   //  blitter->crop( freej->screen );  
 
-  /* initialise blitters */
-  blitter = new Blitter();
-  setup_linear_blits(blitter); // add linear blitters
-  setup_sdl_blits(blitter); // add SDL blitters
 
-  /* allocate memory for the matte background */
-//  bgmatte = jalloc(bgmatte,geo.size);
   
   func("initialized %s layer %ix%i",
 	 get_name(), geo.w, geo.h);
@@ -166,41 +167,22 @@ void Layer::run() {
     //    lock();
 
     // check if feed returned a NULL buffer
-    if(!tmp_buf) {
-
-      func("feed returns NULL on layer %s",get_name());
-      // check threshold of tolerated null feeds
-      // deactivate the layer when too many
-      null_feeds++;
-      if(null_feeds > max_null_feeds) {
-        warning("layer %s feed seems empty, deactivating", get_name());
-        active = false;
-	unlock(); // avoid causing deadlocks
-        break;
-      }
-      continue;
-
+    if(tmp_buf) {
       ////////////////////////////////////////
       // process filters on the feed buffer
-    } else {
-
-      null_feeds = 0;
-
       buffer = do_filters(tmp_buf);
-
     }
 
     unlock();
 
     fps.calc();
-    
-    //wait_feed();
-    sleep_feed();
+    fps.delay();
 
   }
     
   running = false;
   func("%s this=%p thread end: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
+  pthread_exit(NULL);
 }
 
 char *Layer::get_blit() {
@@ -236,8 +218,21 @@ bool Layer::set_blit(const char *bname) {
 }
 
 void Layer::blit() {
-  if(!buffer) error("%s: NULL buffer in layer",__PRETTY_FUNCTION__);
-  else {
+  if(!buffer) {
+    // check threshold of tolerated null feeds
+    // deactivate the layer when too many
+    func("feed returns NULL on layer %s",get_name());
+    null_feeds++;
+    if(null_feeds > max_null_feeds) {
+      warning("layer %s has no video, deactivating", get_name());
+      active = false;
+      return;
+    }
+
+  } else {
+
+    null_feeds = 0;
+
     lock();
     //    offset = buffer;
     screen->blit(this);
@@ -255,7 +250,7 @@ bool Layer::cafudda() {
   do_iterators();
 
 
-  signal_feed();
+  //  signal_feed();
 
   return(true);
 }
@@ -333,35 +328,12 @@ void Layer::set_filename(const char *f) {
 
 void Layer::set_position(int x, int y) {
   lock();
-  slide_x = geo.x = x;
-  slide_y = geo.y = y;
-  //  if (screen && screen->blitter) {
+  geo.x = x;
+  geo.y = y;
   need_crop = true;
-    //      screen->blitter->crop( this, screen );
-  //  }
   unlock();
 }
 
-void Layer::slide_position(int x, int y, int speed) {
-  
-  slide_x = (float)geo.x;
-  slide_y = (float)geo.y;
-
-  if(x!=geo.x) {
-    iter = new Iterator(&slide_x);
-    iter->set_aim((float)x);
-    iter->set_step((float)speed);
-    iterators.append(iter);
-  }
-
-  if(y!=geo.y) {
-    iter = new Iterator(&slide_y);
-    iter->set_aim((float)y);
-    iter->set_step((float)speed);
-    iterators.append(iter);
-  }
-
-}
 
 
 bool Layer::set_zoom(double x, double y) {
@@ -370,16 +342,14 @@ bool Layer::set_zoom(double x, double y) {
 
     zooming = false;
     zoom_x = zoom_y = 1.0;
-    spin_zoom = 0;
     act("%s layer %s zoom deactivated", name, filename);
 
   } else {
 
     zoom_x = x;
     zoom_y = y;
-    spin_zoom = 0; // block spin
     zooming = true;
-    act("%s layer %s zoom set to x%.2f y%.2f",	name, filename, zoom_x, zoom_y);
+    func("%s layer %s zoom set to x%.2f y%.2f",	name, filename, zoom_x, zoom_y);
 
   }
 
@@ -393,50 +363,18 @@ bool Layer::set_rotate(double angle) {
 
     rotating = false;
     rotate = 0;
-    spin_rotation = 0;
     act("%s layer %s rotation deactivated", name, filename);
 
   } else {
 
     rotate = angle;
-    spin_rotation = 0; // blocks spin
     rotating = true;
-    act("%s layer %s rotation set to %.2f", name, filename, rotate);
+    func("%s layer %s rotation set to %.2f", name, filename, rotate);
 
   }
 
   need_crop = true;
   return rotating;
-}
-
-// TODO: here should be used iterators instead
-bool Layer::set_spin(double rot, double z) {
-
-  if(rot) {
-    spin_rotation += rot;
-    // rotation spin boundary
-    spin_rotation =
-      // scalar value 2 here is the maximum rotation speed
-      (spin_rotation > 5) ? 5 :
-      (spin_rotation < -5) ? -5 :
-      spin_rotation;
-    
-    rotating = true;
-  }// else spin_rotation = 0;
-  
-  if(z) {
-    spin_zoom += z;
-    // zoom spin boundary
-    spin_zoom = 
-      // scalar value 1 here is the maximum zoom speed
-      (spin_zoom > 1) ? 1 :
-      (spin_zoom < -1) ? -1 :
-      spin_zoom;
-    
-    zooming = true;
-  }// else spin_zoom = 0;
-  
-  return(rotating | zooming);
 }
 
 
@@ -446,8 +384,8 @@ void Layer::_fit(bool maintain_aspect_ratio){
 		int new_x = 0;
 		int new_y = 0;
 		lock();
-		width_zoom = (double)env->screen->w / geo.w;
-		height_zoom = (double)env->screen->h / geo.h;
+		width_zoom = (double)screen->w / geo.w;
+		height_zoom = (double)screen->h / geo.h;
 		if (maintain_aspect_ratio){
 			//to maintain the aspect ratio we simply zoom to the smaller of the
 			//two zoom values
@@ -455,12 +393,12 @@ void Layer::_fit(bool maintain_aspect_ratio){
 				//if we're using the height zoom then there is going to be space
 				//in x [width] that is unfilled, so center it in the x
 				set_zoom(height_zoom, height_zoom);
-				new_x = ((double)(env->screen->w - height_zoom * geo.w) / 2.0);
+				new_x = ((double)(screen->w - height_zoom * geo.w) / 2.0);
 			} else {
 				//if we're using the width zoom then there is going to be space
 				//in y [height] that is unfilled, so center it in the y
 				set_zoom(width_zoom, width_zoom);
-				new_y = ((double)(env->screen->h - width_zoom * geo.h) / 2.0);
+				new_y = ((double)(screen->h - width_zoom * geo.h) / 2.0);
 			}
 		} else
 			set_zoom(width_zoom, height_zoom);
@@ -477,15 +415,3 @@ void Layer::fit(bool maintain_aspect_ratio) {
 	this->_fit(maintain_aspect_ratio);
 }
 
-
-void Layer::pulse_alpha(int step, int value) {
-  if(!fade) {
-    set_blit("0alpha"); /* by placing a '0' in front of the
-				   blit name we switch its value to
-				   zero before is being showed */
-    fade = true; // after the iterator it should deactivate the layer
-    // fixme: doesn't works well with concurrent iterators
-  }
-
-  //  blitter.pulse_value(step,value);
-}

@@ -30,7 +30,6 @@ class MouseController : public Controller {
   MouseController();
   ~MouseController();
   
-  bool init(JSContext *env, JSObject *obj);
   int  poll();
   virtual int dispatch();
 
@@ -39,6 +38,13 @@ class MouseController : public Controller {
   
   void grab(bool state);
 
+ private:
+
+  JSObject *objp;
+  JSBool res;
+  
+  jsval motion_f;
+  jsval button_f;
 };
 
 #endif

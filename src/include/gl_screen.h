@@ -40,11 +40,11 @@ struct Vertex
 
 class GlScreen : public ViewPort {
  public:
-  GlScreen();
+  GlScreen(int w, int h);
   ~GlScreen();
 
-  bool init(int widt, int height);
 
+  fourcc get_pixel_format() { return RGBA32; };
   void *get_surface();
   void *coords(int x, int y);
 
@@ -69,6 +69,7 @@ class GlScreen : public ViewPort {
   //  bool unlock();
  
  private:
+  bool init(int widt, int height);
   int setres(int wx, int hx);
   bool dbl;
   uint32_t sdl_flags;

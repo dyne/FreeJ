@@ -52,7 +52,6 @@
 JS(filter_constructor);
 JS(layer_constructor);
 void js_layer_gc (JSContext *cx, JSObject *obj);
-JS(particle_layer_constructor);
 JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
 JS(image_layer_constructor);
@@ -157,10 +156,6 @@ extern JSFunctionSpec js_osc_ctrl_methods[];
 extern JSClass js_wii_ctrl_class;
 extern JSFunctionSpec js_wii_ctrl_methods[];
 
-// ParticleLayer
-extern JSClass particle_layer_class;
-extern JSFunctionSpec particle_layer_methods[];
-
 // GeometryLayer
 extern JSClass geometry_layer_class;
 extern JSFunctionSpec geometry_layer_methods[];
@@ -262,8 +257,8 @@ JS(file_to_strings);
 JS(register_controller);
 JS(rem_controller);
 JS(register_encoder);
-JS(include_javascript);
-JS(use_javascript);
+JS(include_javascript_file);
+JS(execute_javascript_command);
 JS(ExecScript); // for the use() objects
 JS(system_exec);
 JS(list_filters);
@@ -321,7 +316,6 @@ JS(layer_get_blit_value);
 JS(layer_set_blit_value);
 JS(layer_fade_blit_value);
 JS(layer_set_position);
-JS(layer_slide_position);
 JS(layer_get_x_position);
 JS(layer_get_y_position);
 JS(layer_get_width);
@@ -330,15 +324,10 @@ JS(layer_add_filter);
 JS(layer_rem_filter);
 JS(layer_rotate);
 JS(layer_zoom);
-JS(layer_spin);
 JS(layer_list_filters);
 JS(layer_list_parameters);
 JS(layer_set_fps);
 JS(layer_get_fps);
-
-////////////////////////////////
-// Particle Layer methods
-JS(particle_layer_blossom);
 
 ////////////////////////////////
 // Image Layer methods

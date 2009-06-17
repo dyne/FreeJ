@@ -67,7 +67,6 @@ class GenLayer: public Layer {
 
   bool open(char *file);
   void *feed();
-  bool keypress(int key);
   void close();
 
   void blossom_recal(bool r);

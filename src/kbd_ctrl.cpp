@@ -22,6 +22,7 @@
 #include <context.h>
 #include <jutils.h>
 
+#include <jsparser.h>
 #include <callbacks_js.h> // javascript
 #include <jsparser_data.h>
 
@@ -53,16 +54,20 @@ KbdController::~KbdController() {
 
 }
 
-bool KbdController::init(JSContext *env, JSObject *obj) {
+bool KbdController::init(Context *freej) {
+  func("%s",__PRETTY_FUNCTION__);
 
   /* enable key repeat */
   SDL_EnableKeyRepeat(SDL_REPEAT_DELAY, SDL_REPEAT_INTERVAL);
 
-  jsenv = env;
-  jsobj = obj;
-  SDL_EnableUNICODE(1);
+
+  env = freej;
+  jsenv = freej->js->global_context;
   
   initialized = true;
+  
+  SDL_EnableUNICODE(1);
+  
   return(true);
 }
 
@@ -104,7 +109,8 @@ int KbdController::key_event(const char *state, bool shift, bool ctrl, bool alt,
 			  keyname);
 
 	  func("%s calling method %s()", __func__, funcname);
-	  return JSCall(funcname, 0, NULL, &res);
+	  jsval fval = JSVAL_VOID;
+	  return JSCall(funcname, 0, &fval);
   }
 
   return 0;
@@ -115,9 +121,9 @@ int KbdController::dispatch() {
   const char *state;
   bool shift = false, ctrl = false, alt = false, num = false;
 
-  if(event.key.state != SDL_PRESSED)
+  if(event.key.state == SDL_PRESSED)
   	state = "pressed";
-  else if(event.key.state != SDL_RELEASED)
+  else if(event.key.state == SDL_RELEASED)
   	state = "released";
   else
   	return 0; // no key state change
@@ -192,10 +198,15 @@ JS(js_kbd_ctrl_constructor) {
   KbdController *kbd = new KbdController();
 
   // initialize with javascript context
-  if(! kbd->init(cx, obj) ) {
+  if(! kbd->init(env) ) {
     error("failed initializing keyboard controller");
     delete kbd; return JS_FALSE;
   }
+
+  // assign the real js object
+  kbd->jsobj = obj;
+  kbd->javascript = true;
+
   // assign instance into javascript object
   if( ! JS_SetPrivate(cx, obj, (void*)kbd) ) {
     error("failed assigning keyboard controller to javascript");

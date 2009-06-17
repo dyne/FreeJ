@@ -30,12 +30,13 @@
 
 
 
-SoftScreen::SoftScreen()
-  : ViewPort() {
+SoftScreen::SoftScreen(int w, int h)
+  : ViewPort(w, h) {
 
   buffer = NULL;
   bpp = 32;
 
+  init(w, h);
   //  set_name("SOFT");
 }
 
@@ -47,15 +48,8 @@ SoftScreen::~SoftScreen() {
 
 bool SoftScreen::init(int w, int h) {
 
-  this->w = w;
-  this->h = h;
-  bpp = 32;
-  size = w*h*(bpp>>3);
-  pitch = w*(bpp>>3);
-
   // test
   buffer = malloc(size);
-
 
   return(true);
 }

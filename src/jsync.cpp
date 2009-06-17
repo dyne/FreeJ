@@ -45,6 +45,8 @@ JSyncThread::JSyncThread() {
 
 JSyncThread::~JSyncThread() {
 
+  //  if (running) quit = true;
+
   if(pthread_mutex_destroy(&_mutex) == -1)
     error("error destroying POSIX thread mutex");
   //if(pthread_cond_destroy(&_cond) == -1)
@@ -57,14 +59,11 @@ JSyncThread::~JSyncThread() {
   if(pthread_cond_destroy(&_cond_feed) == -1)
     error("error destroying POSIX thread feed attribute");
 
-  stop();
-
 }
 
 int JSyncThread::start() {
   if (running) return EBUSY;
   quit = false;
-  fps.timeout(0.0001);
   return pthread_create(&_thread, &_attr, &kickoff, this);
 }
 
@@ -77,23 +76,16 @@ void JSyncThread::_run() {
 }
 
 void JSyncThread::stop() {
-  if (running) quit = true;
+  if (running) {
+    quit = true;
+    pthread_join(_thread,NULL);
+    //    while(running) jsleep(0,50);
+    //    signal_feed();
+  }
 }
 
-int JSyncThread::sleep_feed() { 
-  if (fps.get() == 0) {
-    wait_feed();
-    return EINTR;
-  }
-  fps.calc();
-  //return ETIMEDOUT, EINTR=wecker
-  int ret =  pthread_cond_timedwait (&_cond_feed, &_mutex_feed, &fps.wake_ts);
-  fps.timeout(NULL);
-  return ret;
-};
 
-void JSyncThread::wait_feed() {
-	pthread_cond_wait(&_cond_feed,&_mutex_feed);
-	fps.timeout(NULL);
-};
+// void JSyncThread::wait_feed() {
+//        pthread_cond_wait(&_cond_feed,&_mutex_feed);
+// };
 

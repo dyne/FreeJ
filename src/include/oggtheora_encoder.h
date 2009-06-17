@@ -50,7 +50,7 @@ class OggTheoraEncoder: public VideoEncoder {
   OggTheoraEncoder();
   ~OggTheoraEncoder();
   
-  bool init(Context *_env);
+  bool init(ViewPort *scr);
 
   bool feed_video();
 
@@ -64,10 +64,6 @@ class OggTheoraEncoder: public VideoEncoder {
   int encode_audio(int end_of_stream);
 
   // void *enc_rgb24;
-  void *enc_y;
-  void *enc_u;
-  void *enc_v;
-  void *enc_yuyv;
 
   /* video size */
   int video_x;

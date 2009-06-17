@@ -3,7 +3,7 @@
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -14,8 +14,6 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * "$Id$"
  *
  */
 
@@ -39,6 +37,8 @@ class AudioCollector;
 class Iterator;
 class Blitter;
 class Blit;
+class ViewPort;
+
 
 class JSClass;
 class JSContext;
@@ -59,23 +59,27 @@ extern Layer *create_layer(Context *env, char *file);
    The public methods hereby described are matching the javascript API
    which is made available by the internal parser.
 
-   Methods implemented to create and destroy a layer:
-   - Layer::open
+   Methods implemented to create and destroy a Layer:
    - Layer::init
+   - Layer::open
    - Layer::close
    
-   Miscellaneus operations made available for the layer:
+   Miscellaneus operations made available for the Layer:
    - Layer::set_position
+   - Layer::set_zoom
+   - Layer::set_rotate
+
+   Blitter interface of the Layer
+   - Layer::blitter
+   - Layer::current_blit
    - Layer::set_blit
    - Layer::get_blit
-   - Layer::set_alpha
-   - Layer::get_name
 
-   LinkList of filters used on the layer:
+   LinkList of Filter instances added to the Layer:
    - Layer::filters
 
-   Pointer to the initialized Context where the layer is used:
-   - Layer::freej
+   LinkList of Parameters available for the Layer:
+   - Layer::parameters
 
    Geometrical informations about the layer:
    - Layer::geo
@@ -143,9 +147,6 @@ class Layer: public Entry, public JSyncThread {
   void set_position(int x, int y);
   ///< Set Layer's position on screen
 
-  void slide_position(int x, int y, int speed);
-  ///< Slide the Layer to a position on screen
-
   /**
      Set the zoom rate (magnification) for a layer
      the coordinates are floats, original size is 1.0
@@ -158,29 +159,16 @@ class Layer: public Entry, public JSyncThread {
      @param angle from 0 to 360 degrees rotation
    */
   bool set_rotate(double angle); ///< Rotate a Layer
-  bool set_spin(double rot, double z);
-  ///< continously zoom and rotate a Layer with a certain increment
+
   bool antialias;
   bool zooming;
   bool rotating;
   double zoom_x;
   double zoom_y;
   double rotate;
-  double spin_rotation;
-  double spin_zoom;
   
   void fit(bool maintain_aspect_ratio = true);
 
-
-
-  /**
-     If the Layer is in another blit mode then it is switched
-     to alpha with zero opacity and pulsed (fade in->out)
-     @param step fade value change for every frame (affects speed of fade, the higher the slower)
-     @param value ceiling of the pulse, fade until there and back
-  */
-  void pulse_alpha(int step, int value);
-  ///< Pulse the Layer in alpha blending (in->out) 
 
   Linklist<Parameter> *parameters;
   ///< Parameter list for the layer
@@ -199,34 +187,36 @@ class Layer: public Entry, public JSyncThread {
   int do_iterators(); ///< process all registered iterators
   
 
-  bool active; ///< is active? (read-only)
-  bool hidden; ///< is hidden (read-only by the blit)
-  bool fade; ///< layer is deactivated at the end of current iterations (read-write internal)
-  bool use_audio; ///< layer makes use of audio input
-  bool opened; /// set by the layer (ex: image file has been opened)
-  bool need_crop; /// tell the screen that the layer need a crop (r/w internal)
-  int bgcolor; ///< matte background color
-  int null_feeds; ///< counter of how many sequencial feed() returned null
-  int max_null_feeds; ///< maximum null feeds tolerated
+  bool active; // is active? (read-only)
+  bool hidden; // is hidden (read-only by the blit)
+  bool fade; // layer is deactivated at the end of current iterations (read-write internal)
+  bool use_audio; // layer makes use of audio input
+  bool opened; // set by the layer (ex: image file has been opened)
+  bool need_crop; // tell the screen that the layer need a crop (r/w internal)
+  int bgcolor; // matte background color
+  int null_feeds; // counter of how many sequencial feed() returned null
+  int max_null_feeds; // maximum null feeds tolerated
 
   //////////////////////// BLIT operations
-  Blitter *blitter;
-  Blit *current_blit;
-  char *get_blit(); ///< return the name of the currently seleted blit
-  bool set_blit(const char *bname); ///< select the current blit 
-  void blit(); ///< operates the current blit
+  Blitter *blitter; ///< Blitter interface for this Layer
+  Blit *current_blit; ///< currently set Blit on this Layer
+  char *get_blit(); ///< return the name of the currently seleted Blit
+  bool set_blit(const char *bname); ///< select a Blit by name
 
-  ViewPort *screen;  
+  void blit(); // operates the current blit
+
+  ViewPort *screen;  ///< ViewPort on which the Layer is blitted
 
 
-  AudioCollector *audio; ///< registered audio collector
+  AudioCollector *audio; //< registered audio collector
 
   /** physical buffers */
-  void *buffer; ///< feed buffer returned by layer implementation
+  void *buffer; ///< RGBA pixel buffer returned by the layer
   void *offset; ///< pointer to pixel plane
 
 
   JSClass *jsclass; ///< pointer to the javascript class
+  JSObject *jsobj; ///< pointer to the javascript instantiated object
 
   void *js_constructor(Context *env, JSContext *cx,
 		       JSObject *obj, int argc, void *aargv, char *err_msg);
@@ -267,8 +257,6 @@ class Layer: public Entry, public JSyncThread {
   virtual void *feed() = 0; ///< feeds in the image source
 
   bool cafudda(); ///< cafudda is called by the Context
-
-  void *bgmatte;
 
   // working variables
   int res;

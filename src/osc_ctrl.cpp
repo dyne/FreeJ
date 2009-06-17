@@ -143,7 +143,6 @@ int osc_command_handler(const char *path, const char *types,
 int OscController::dispatch() {
   jsval ret = JSVAL_VOID;
   int res;
-  JSBool ok;
   int c = 0;
   // execute pending comamnds (javascript calls)
   JsCommand *jscmd = (JsCommand*) commands_pending.begin();
@@ -153,8 +152,9 @@ int OscController::dispatch() {
     //      (jsenv, jsobj, jscmd->function, jscmd->argc, jscmd->argv, &ret);
 
     func("OSC controller dispatching %s(%s)", jscmd->name, jscmd->format);
-    res = Controller::JSCall(jscmd->name, jscmd->argc, jscmd->argv, &ok);    
-    if (ok) func("OSC dispatched call to %s", jscmd->name);
+    res = Controller::JSCall(jscmd->name, jscmd->argc, jscmd->argv);
+    if (res) func("OSC dispatched call to %s", jscmd->name);
+    else error("OSC failed JSCall to %s", jscmd->name);
 
     
     free(jscmd->argv); // must free previous callod on argv
@@ -201,10 +201,16 @@ JS(js_osc_ctrl_constructor) {
     goto error;
   }
   // initialize with javascript context
-  if(! osc->init(cx, obj) ) {
+  if(! osc->init(env) ) {
     sprintf(excp_msg, "failed initializing OSC controller");
     goto error;
   }
+
+
+  // assign the real js object
+  osc->jsobj = obj;
+
+  osc->javascript = true;
 
   char *port;
   JS_ARG_STRING(port,0);
@@ -384,16 +390,6 @@ OscController::~OscController() {
 
   if(srv)
     lo_server_thread_free(srv);
-  
-}
-
-bool OscController::init(JSContext *env, JSObject *obj) {
-
-  jsenv = env;
-  jsobj = obj;
-
-  initialized = true;
-  return(true);
   
 }
 
