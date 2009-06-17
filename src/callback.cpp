@@ -19,8 +19,12 @@
 #include <jutils.h>
 
 DumbCall::DumbCall() {
-  pthread_mutex_init(&pending_, NULL);
-  pthread_mutex_init(&refcount_mutex_, NULL);
+  pthread_mutexattr_init(&pendingattr_);
+  pthread_mutexattr_settype(&pendingattr_, PTHREAD_MUTEX_NORMAL);
+  pthread_mutex_init(&pending_, &pendingattr_);
+  pthread_mutexattr_init(&refcount_mutexattr_);
+  pthread_mutexattr_settype(&refcount_mutexattr_, PTHREAD_MUTEX_NORMAL);
+  pthread_mutex_init(&refcount_mutex_, &refcount_mutexattr_);
   refcount_ = 0;
 }
 
@@ -28,7 +32,9 @@ DumbCall::~DumbCall() {
   pthread_mutex_lock(&pending_); // this blocks as far as we're in queue
   pthread_mutex_unlock(&pending_);
   pthread_mutex_destroy(&pending_);
+  pthread_mutexattr_destroy(&pendingattr_);
   pthread_mutex_destroy(&refcount_mutex_);
+  pthread_mutexattr_destroy(&refcount_mutexattr_);
 }
 
 void DumbCall::notify() {
