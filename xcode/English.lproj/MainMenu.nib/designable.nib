@@ -8,12 +8,12 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="1887"/>
-			<integer value="1576"/>
-			<integer value="380"/>
-			<integer value="2465"/>
-			<integer value="2212"/>
+			<integer value="2711"/>
 			<integer value="296"/>
+			<integer value="1887"/>
+			<integer value="2212"/>
+			<integer value="1576"/>
+			<integer value="2465"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1776,7 +1776,7 @@
 																					<string>WebURLsWithTitlesPboardType</string>
 																				</object>
 																			</object>
-																			<string key="NSFrameSize">{138, 133}</string>
+																			<string key="NSFrameSize">{138, 76}</string>
 																			<reference key="NSSuperview" ref="668214954"/>
 																			<object class="NSTextContainer" key="NSTextContainer" id="139407311">
 																				<object class="NSLayoutManager" key="NSLayoutManager">
@@ -1873,7 +1873,7 @@
 																			</object>
 																			<int key="NSTVFlags">6</int>
 																			<string key="NSMaxSize">{463, 1e+07}</string>
-																			<string key="NSMinize">{86, 133}</string>
+																			<string key="NSMinize">{86, 76}</string>
 																			<nil key="NSDelegate"/>
 																		</object>
 																	</object>
@@ -1896,7 +1896,7 @@
 																	<bool key="NSEnabled">YES</bool>
 																	<reference key="NSTarget" ref="123921278"/>
 																	<string key="NSAction">_doScroller:</string>
-																	<double key="NSPercent">4.135338e-01</double>
+																	<double key="NSPercent">7.236842e-01</double>
 																</object>
 																<object class="NSScroller" id="812496967">
 																	<reference key="NSNextResponder" ref="123921278"/>
@@ -2022,7 +2022,7 @@
 																					<string>WebURLsWithTitlesPboardType</string>
 																				</object>
 																			</object>
-																			<string key="NSFrameSize">{138, 133}</string>
+																			<string key="NSFrameSize">{138, 76}</string>
 																			<reference key="NSSuperview" ref="534300966"/>
 																			<object class="NSTextContainer" key="NSTextContainer" id="124571948">
 																				<object class="NSLayoutManager" key="NSLayoutManager">
@@ -2079,7 +2079,7 @@
 																			</object>
 																			<int key="NSTVFlags">6</int>
 																			<string key="NSMaxSize">{463, 1e+07}</string>
-																			<string key="NSMinize">{86, 133}</string>
+																			<string key="NSMinize">{86, 76}</string>
 																			<nil key="NSDelegate"/>
 																		</object>
 																	</object>
@@ -2099,7 +2099,7 @@
 																	<bool key="NSEnabled">YES</bool>
 																	<reference key="NSTarget" ref="216849768"/>
 																	<string key="NSAction">_doScroller:</string>
-																	<double key="NSPercent">4.135338e-01</double>
+																	<double key="NSPercent">7.236842e-01</double>
 																</object>
 																<object class="NSScroller" id="452106786">
 																	<reference key="NSNextResponder" ref="216849768"/>
@@ -4867,6 +4867,22 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<reference key="destination" ref="540209562"/>
 					</object>
 					<int key="connectionID">2718</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">filterPanel</string>
+						<reference key="source" ref="186620022"/>
+						<reference key="destination" ref="567669164"/>
+					</object>
+					<int key="connectionID">2719</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">freej</string>
+						<reference key="source" ref="186620022"/>
+						<reference key="destination" ref="42434134"/>
+					</object>
+					<int key="connectionID">2720</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -8085,8 +8101,8 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<object class="NSAttributedString">
 						<string key="NSString"/>
 					</object>
-					<string>{{300, 26}, {654, 730}}</string>
-					<string>{{300, 26}, {654, 730}}</string>
+					<string>{{600, 26}, {654, 730}}</string>
+					<string>{{600, 26}, {654, 730}}</string>
 					<reference ref="9"/>
 					<string>{{437, 135}, {451, 576}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -8150,7 +8166,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">2718</int>
+			<int key="maxID">2720</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
