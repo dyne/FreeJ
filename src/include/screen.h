@@ -100,7 +100,7 @@ class ViewPort : public Entry {
   void blit_layers();
 
   virtual bool add_layer(Layer *lay); ///< add a new layer to the screen
-  virtual void ViewPort::rem_layer(Layer *lay);
+  virtual void rem_layer(Layer *lay);
     
   Linklist<Layer> layers; ///< linked list of registered layers
 
