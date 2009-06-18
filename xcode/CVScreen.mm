@@ -70,6 +70,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CVScreen *screen = (CVScreen *)ctx->screen;
     screen->set_view(self);
     CVDisplayLinkStart(displayLink);
+    [layerList setDataSource:(id)self];
+    [layerList registerForDraggedTypes:[NSArray arrayWithObject:@"CVLayer"]];
 }
 
 - (id)init
@@ -177,7 +179,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
      
     // Set up display link callbacks 
     CVDisplayLinkSetOutputCallback(displayLink, renderCallback, self);
-    
+
     // start asking for frames
     [self start];
 }
@@ -311,7 +313,15 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     // CVScreen thread
     //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread
     [self drawRect:NSZeroRect]; // this directly render the frame out in this thread
-
+   /*
+    fjScreen->layers.unlock();
+    Layer *lay = (Layer *)fjScreen->layers.begin();
+    while (lay) {
+        printf("PORKODIO %s\n", lay->name);
+        lay =  (Layer *)lay->next;
+    }
+    fjScreen->layers.unlock();
+    */
     [pool release];
     return kCVReturnSuccess;
 }
@@ -540,6 +550,74 @@ bail:
     [self drawRect:NSZeroRect];
 }
 
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
+{
+    return fjScreen->layers.length;
+}
+
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
+{
+    Layer *lay = fjScreen->layers.pick(rowIndex+1);
+    if (lay)
+        return [NSString stringWithUTF8String:lay->name];
+    return nil;
+}
+
+- (NSArray *)tableView:(NSTableView *)aTableView namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination forDraggedRowsWithIndexes:(NSIndexSet *)indexSet
+{
+    return [NSArray arrayWithObjects:@"CVLayer", @"CVLayerIndex", nil];
+}
+
+- (BOOL)tableView:(NSTableView *)aTableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
+{
+    NSUInteger row = [rowIndexes firstIndex];
+    Layer *lay = fjScreen->layers.pick(row+1);
+    if (lay) {
+        [pboard addTypes:[NSArray arrayWithObjects:@"CVLayer", @"CVLayerIndex", nil] owner:(id)self];
+        [pboard setData:[NSData dataWithBytes:(void *)&lay length:sizeof(Layer *)] forType:@"CVLayer"];
+        [pboard setData:[NSData dataWithBytes:(void *)&row length:sizeof(NSUInteger)] forType:@"CVLayerIndex"];
+        return YES;
+    }
+    return NO;
+}
+
+
+- (NSDragOperation)tableView:(NSTableView *)aTableView validateDrop:(id < NSDraggingInfo >)info proposedRow:(NSInteger)row proposedDropOperation:(NSTableViewDropOperation)operation
+{
+    NSDragOperation dragOp = NSDragOperationCopy;
+    if ([info draggingSource] == layerList) {
+        dragOp =  NSDragOperationMove;
+    }
+    [aTableView setDropRow:row dropOperation:NSTableViewDropAbove];
+    
+    return dragOp;
+}
+
+- (BOOL)tableView:(NSTableView *)aTableView acceptDrop:(id < NSDraggingInfo >)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation
+{
+    Layer *lay = NULL;
+    NSUInteger srcRow;
+    
+    [[[info draggingPasteboard] dataForType:@"CVLayerIndex"] getBytes:&srcRow length:sizeof(NSUInteger)];  
+    [[[info draggingPasteboard] dataForType:@"CVLayer"] getBytes:&lay length:sizeof(Layer *)];
+    if (lay) {
+        lay->move((srcRow > row)?(row+1):row);
+        [layerList reloadData];
+        return YES;
+    }
+    return NO;
+}
+
+- (void)addLayer:(Layer *)lay
+{
+    [layerList reloadData];
+}
+
+- (void)remLayer:(Layer *)lay
+{
+    [layerList reloadData];
+}
+
 @synthesize fullScreen;
 
 @end
@@ -606,5 +684,19 @@ void CVScreen::show() {
     if (view) 
         [view setNeedsDisplay:YES];
     */
+}
+
+bool CVScreen::add_layer(Layer *lay)
+{    
+    bool rc = ViewPort::add_layer(lay);
+    if (rc)
+        [view addLayer:lay];
+    return rc;
+}
+
+void CVScreen::rem_layer(Layer *lay)
+{
+    ViewPort::rem_layer(lay);
+    [view remLayer:lay];
 }
 

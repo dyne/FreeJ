@@ -103,7 +103,7 @@ class CVLayer: public Layer
         int height, width;
         Context *freej;
         void *vbuffer;
-        int bufsize;
+        int bufsize;    
     public:
         CVLayerView *input;
         NSString *blendMode;
@@ -114,25 +114,26 @@ class CVLayer: public Layer
         ~CVLayer();
         void activate();
         void deactivate();
-        bool open(const char *path);
-        bool init(Context *freej);
-        bool init(Context *ctx, int w, int h);
-        void *feed();
-        void close();
+        virtual bool open(const char *path);
+        virtual bool init(Context *ctx);
+        virtual bool init(Context *ctx, int w, int h);
+        virtual void close();
         //void run();
-        bool forward();
-        bool backward();
-        bool backward_one_keyframe();
+        virtual bool forward();
+        virtual bool backward();
+        virtual bool backward_one_keyframe();
         
-        bool relative_seek(double increment);
+        virtual bool relative_seek(double increment);
         
-        bool set_mark_in();
-        bool set_mark_out();
+        virtual bool set_mark_in();
+        virtual bool set_mark_out();
         
-        void pause();
+        virtual void pause();
         
-        CVTexture *gl_texture();
-        
+        virtual CVTexture *gl_texture();
+    
+    private:
+        virtual void *feed();
 };
 
 #endif

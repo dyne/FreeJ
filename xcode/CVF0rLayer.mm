@@ -134,12 +134,15 @@
     [lock lock];
     char *name = (char *)[[[selectButton selectedItem] title] UTF8String];
     newLayer = new CVF0rLayer(self, name, [freej getContext]);
-    if(!newLayer) 
+    if(newLayer) { 
+        //[self setLayer:(CVLayer *)newLayer];
+        [sender setTitle:@"Stop"];
+        [sender setAction:@selector(stop:)];
+        [selectButton setEnabled:NO];
+        notice("generator %s succesfully created", newLayer->name);
+    } else {
         error("Can't create F0R layer %s", name);
-    [sender setTitle:@"Stop"];
-    [sender setAction:@selector(stop:)];
-    [selectButton setEnabled:NO];
-    notice("generator %s succesfully created", newLayer->name);
+    }
     [lock unlock];
 }
 
@@ -153,7 +156,6 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
     CVLayer *layerPersonality = (CVLayer *)this;
     GenF0rLayer *f0rPersonality = (GenF0rLayer *)this;
     layerPersonality->type = Layer::GL_COCOA;
-    [input setLayer:this];
     blendMode = NULL;
     if (!f0rPersonality->init(freej)) {
         error("can't initialize generator layer");
@@ -166,6 +168,7 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
     layerPersonality->init(freej, freej->screen->w, freej->screen->h);
 
     layerPersonality->set_name([[view toolTip] UTF8String]);
+    [input setLayer:layerPersonality];
 }
 
 CVF0rLayer::~CVF0rLayer()

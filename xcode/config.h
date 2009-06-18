@@ -211,13 +211,14 @@
 
 #define WITH_SWSCALE 1
 
-#define _SINT64
+#define _SINT64 int64_t
 //#define _UINT64
 //#define _SINT32
 //#define _UINT32
-#define _SINT16
+#define _SINT16 int16_t
 //#define _UINT16
-#define _SINT8
+#define _SINT8 int8_t
 //#define _UINT8
 
+#define THREADSAFE 1
 #endif

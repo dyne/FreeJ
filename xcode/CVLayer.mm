@@ -8,7 +8,7 @@
  */
 
 #import <QTKit/QTMovie.h>
-#include <Cocoa/Cocoa.h>;
+#include <Cocoa/Cocoa.h>
 #include "CVLayer.h"
 #import "CIAlphaFade.h"
 #import "CVFilterPanel.h"

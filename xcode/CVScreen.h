@@ -57,6 +57,7 @@ class  CVScreen;
     void                *exportBuffer;
 	IBOutlet CFreej		*freej;
 	IBOutlet NSTextField *showFps;
+    IBOutlet NSTableView *layerList;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;
@@ -70,6 +71,8 @@ class  CVScreen;
 - (double)rate;
 - (CVReturn)outputFrame:(uint64_t)timestamp;
 - (void)reset;
+- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
+- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
 @end
 #else
 class CVScreenView;
@@ -80,21 +83,23 @@ class CVScreenView;
  */
 
 class CVScreen : public ViewPort {
- private:
-	CVScreenView *view;
-    bool init(int w, int h);
- public:
-  CVScreen(int w, int h);
-  ~CVScreen();
+    private:
+        CVScreenView *view;
+        bool init(int w, int h);
+    public:
+        CVScreen(int w, int h);
+        ~CVScreen();
 
-  void set_view(CVScreenView *view);
-  CVScreenView *get_view(void);
-  void *get_surface();
-  void *coords(int x, int y);
-  void blit(Layer *);
-  inline void setup_blits(Layer *lay) { };
-  void CVScreen::show();
-  fourcc get_pixel_format() { return ARGB32; };
+        void set_view(CVScreenView *view);
+        CVScreenView *get_view(void);
+        void *get_surface();
+        void *coords(int x, int y);
+        void blit(Layer *);
+        inline void setup_blits(Layer *lay) { };
+        void show();
+        bool add_layer(Layer *lay);
+        void rem_layer(Layer *lay);
+        fourcc get_pixel_format() { return ARGB32; };
 };
 
 #endif
