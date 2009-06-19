@@ -518,13 +518,21 @@ Layer *Context::open(char *file) {
   /* ==== Unified caputure API (V4L & V4L2) */
   if( strncasecmp ( file_ptr,"/dev/video",10)==0) {
 #ifdef WITH_UNICAP
-    unsigned int w=screen->w, h=screen->h;
+    unsigned int w, h;
     while(end_file_ptr!=file_ptr) {
-      if(*end_file_ptr!='%') end_file_ptr--;
-      else { /* size is specified */
+      if(*end_file_ptr!='%') {
+
+	// uses the size of currently selected screen
+	ViewPort *screen = screens.selected();
+	w = screen->w; h = screen->h;
+	end_file_ptr--;
+
+      } else { /* size is specified */
+
         *end_file_ptr='\0'; end_file_ptr++;
         sscanf(end_file_ptr,"%ux%u",&w,&h);
         end_file_ptr = file_ptr; 
+
       }
     }
     nlayer = new UnicapLayer();
