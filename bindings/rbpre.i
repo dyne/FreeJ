@@ -1,3 +1,6 @@
+%ignore Context::start();
+%ignore Context::start_threaded();
+
 %{
 #define RSHIFT(x,y) ((x)>>(int)y)
 
