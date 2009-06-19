@@ -1,3 +1,4 @@
+#!/usr/bin/ruby
 #import the freej module
 #if not require 'freej'
   require '../../bindings/ruby/.libs/Freej'
@@ -20,6 +21,6 @@ txt.start
 # add the layer to the screen
 cx.add_layer(txt)
 # starts Freej
-th = Thread.new { loop{cx.cafudda(1)} }
-#XXX ruby doesn't have native threads, so we cannot call cx.start
-#th = Thread.new { cx.start }
+cx.start
+#loop until the user kills the script
+loop{ sleep(1) }

@@ -5,4 +5,3 @@
     filter->apply(self);
   }
 }
-
