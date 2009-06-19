@@ -40,3 +40,5 @@ bindings/python/freej_py.h
 bindings/ruby/freej_ruby.cpp
 bindings/ruby/freej_ruby.h
 *.*.swp
+core
+core.*
