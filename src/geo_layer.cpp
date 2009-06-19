@@ -31,7 +31,8 @@
 GeoLayer::GeoLayer()
   :Layer() {
   surf = NULL;
-  fsurf = NULL;
+  fsurf[0] = NULL;
+  fsurf[1] = NULL;
   color = 0xffffffff;
   set_name("GEO");
   set_filename("/geometrical layer");
@@ -41,7 +42,8 @@ GeoLayer::GeoLayer()
 
 GeoLayer::~GeoLayer() {
   if(surf) SDL_FreeSurface(surf);
-  if(fsurf) free(fsurf);
+  if(fsurf[0]) free(fsurf[0]);
+  if(fsurf[1]) free(fsurf[1]);
 
 }
 
@@ -72,7 +74,8 @@ bool GeoLayer::init(Context *freej, int width, int height) {
 //     return(false);
 //   }
 
-  fsurf = malloc(geo.size);
+  fsurf[0] = (uint32_t*)malloc(geo.size);
+  fsurf[1] = (uint32_t*)malloc(geo.size);
 
   func("Geometry surface initialized");
   return(true);
@@ -98,7 +101,9 @@ void *GeoLayer::feed() {
   if (!surf)
   	return NULL;
 
-  jmemcpy(fsurf, surf->pixels, geo.size);
+  doublebuf = (doublebuf+1)%2;
+
+  jmemcpy(fsurf[doublebuf], surf->pixels, geo.size);
   //  SDL_BlitSurface(surf, NULL, fsurf, NULL);
   return fsurf;
 

@@ -137,7 +137,8 @@ class GeoLayer: public Layer {
 
  private:
   SDL_Surface *surf;
-  void *fsurf;
+  uint32_t *fsurf[2];
+  int doublebuf;
 
   int res;
 

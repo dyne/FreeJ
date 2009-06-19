@@ -100,7 +100,7 @@ class ViewPort : public Entry {
   void blit_layers();
 
   virtual bool add_layer(Layer *lay); ///< add a new layer to the screen
-  virtual void rem_layer(Layer *lay);
+  virtual void rem_layer(Layer *lay); ///< remove a layer from the screen
     
   Linklist<Layer> layers; ///< linked list of registered layers
 
@@ -118,10 +118,6 @@ class ViewPort : public Entry {
   virtual void fullscreen() { };
   virtual bool lock() { return(true); };
   virtual bool unlock() { return(true); };
-
-  //SDL_Surface *surface;
-
-  //  void add_layer(Layer *lay);   /// now moved in the context.h API
 
   void scale2x(uint32_t *osrc, uint32_t *odst);
   void scale3x(uint32_t *osrc, uint32_t *odst);
