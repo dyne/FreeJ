@@ -48,8 +48,14 @@ class VideoLayer: public Layer {
 	AVStream *avformat_stream;
 	AVPicture *rgba_picture;
 	AVPacket pkt;
-	AVCodecContext *enc;
-	AVCodec *codec;
+
+
+	AVCodecContext *video_codec_ctx;	
+	AVCodec *video_codec;
+
+	AVCodecContext *audio_codec_ctx;
+	AVCodec *audio_codec;
+
 	AVFrame av_frame;
 #ifdef WITH_SWSCALE
 	struct SwsContext *img_convert_ctx;
@@ -64,6 +70,9 @@ class VideoLayer: public Layer {
 	double video_clock;
 	double video_current_pts;
 	double video_current_pts_time;
+
+	double audio_channels;
+	double audio_samplerate;
 
 	/**
 	 * Number of decoded frames. As for now together with picture_number
@@ -97,10 +106,14 @@ class VideoLayer: public Layer {
 	char *full_filename;
 
 	int video_index;
+	int audio_index;
+
 	FILE *fp;
 
 	/** private methods */
-	int decode_packet( int *got_picture);
+	int decode_video_packet( int *got_picture);
+	int decode_audio_packet();
+
 	int seek(int64_t timestamp);
 	void set_speed(int speed);
 	double get_master_clock();

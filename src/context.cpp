@@ -39,7 +39,13 @@
 #include <jutils.h>
 #include <fastmemcpy.h>
 
+#ifdef WITH_JAVASCRIPT
 #include <jsparser_data.h>
+#endif
+
+#ifdef WITH_FFMPEG
+#include <video_layer.h>
+#endif
 
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
@@ -163,15 +169,19 @@ bool Context::init() {
 
   fps.init(fps_speed);
 
+#ifdef WITH_JAVASCRIPT
   // create javascript object
   js = new JsParser (this);
+#endif
 
-//  if(init_audio) 
-//    audio = new AudioCollector("alsa_pcm:capture_1", 2048, 44100);
-
-  // initialize MLT
-  //  mlt_factory_init( NULL );
-
+#ifdef WITH_FFMPEG
+  /** init ffmpeg libraries: register all codecs, demux and protocols */
+  av_register_all();
+  /** make ffmpeg silent */
+  av_log_set_level(AV_LOG_QUIET);
+  //av_log_set_level(AV_LOG_DEBUG);
+  act("FFmpeg initialized all codec and format");
+#endif
 
 
   // register SIGPIPE signal handler (stream error)
