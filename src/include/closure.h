@@ -50,7 +50,6 @@ class Closing {
   Closure *get_job_();
   queue<Closure *> job_queue_;
   pthread_mutex_t job_queue_mutex_;
-  pthread_mutexattr_t job_queue_mutexattr_;
 
 };
 
@@ -62,10 +61,11 @@ class ThreadedClosing : Closing {
     void add_job(Closure *job);
 
   private:
+    void signal_();
     static void *jobs_loop_(void *arg);
     bool running_;
-    pthread_mutex_t loop_mutex_; // used to wait inside the thread
-    pthread_mutexattr_t loop_mutexattr_;
+    pthread_mutex_t cond_mutex_;
+    pthread_cond_t cond_;
     pthread_attr_t attr_;
     pthread_t thread_;
 
