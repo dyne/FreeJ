@@ -122,23 +122,23 @@ class Closure {
   public:
     Closure(bool synchronized) : synchronized_(synchronized) {
       if (synchronized_) {
-        pthread_mutexattr_init(&mutexattr_);
-        pthread_mutexattr_settype(&mutexattr_, PTHREAD_MUTEX_NORMAL);
-        pthread_mutex_init(&mutex_, &mutexattr_);
-        pthread_mutex_lock(&mutex_);
+        pthread_mutex_init(&cond_mutex_, NULL);
+        pthread_cond_init(&cond_, NULL);
+        pthread_mutex_lock(&cond_mutex_);
       }
     }
     ~Closure() {
       if (synchronized_) {
-        pthread_mutex_unlock(&mutex_);
-        pthread_mutex_destroy(&mutex_);
-        pthread_mutexattr_destroy(&mutexattr_);
+        pthread_cond_destroy(&cond_);
+        pthread_mutex_destroy(&cond_mutex_);
       }
     }
     void run() {
       run_();
       if (synchronized_) {
-        pthread_mutex_unlock(&mutex_);
+        pthread_mutex_lock(&cond_mutex_);
+        pthread_cond_broadcast(&cond_);
+        pthread_mutex_unlock(&cond_mutex_);
       }
     }
     bool is_synchronized() {
@@ -146,14 +146,14 @@ class Closure {
     }
     void wait() {
       if (synchronized_) {
-        pthread_mutex_lock(&mutex_);
+        pthread_cond_wait(&cond_, &cond_mutex_);
       }
     }
   private:
     bool synchronized_;
     virtual void run_() = 0;
-    pthread_mutex_t mutex_; // used as a signal sent from run() to wait()
-    pthread_mutexattr_t mutexattr_;
+    pthread_mutex_t cond_mutex_;
+    pthread_cond_t cond_;
 };
 
 namespace closures {
