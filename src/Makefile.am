@@ -2,7 +2,7 @@ INCLUDES = @FREEJ_STATIC_INCLUDES@
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
 AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ \
-	      @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ @FREI0R_CFLAGS@ @SHOUT_CFLAGS@ \
+	      @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ @FREI0R_CFLAGS@ @SHOUT_CFLAGS@ @SDLGFX_CFLAGS@ \
 	      -freg-struct-return \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
@@ -87,7 +87,8 @@ shared_libs = -lpthread -lm -lslang -lpng -ljpeg -lrt \
 		 @CWIID_LIBS@   \
 		 @OPENGL_LIB@   \
 		 @UNICAP_LIBS@	\
-		 @SHOUT_LIBS@
+		 @SHOUT_LIBS@   \
+		 @SDLGFX_LIBS@
 
 
 lib_LTLIBRARIES = libfreej.la

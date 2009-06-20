@@ -13,7 +13,7 @@ DIST_SUBDIRS =  ccvt       \
 
 SUBDIRS = 	ccvt			\
 		sdl_image		\
-		sdl_gfx			\
+		@SDLGFX_DIR@		\
 		sdl_ttf			\
 		slw			\
 		lo			\
