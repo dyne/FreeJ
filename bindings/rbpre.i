@@ -59,7 +59,8 @@ end\n\
 }
 
 //XXX i think we might lose some data here..
+// was it a typo?
 %typemap(out) uint16_t {
-   $result = INT2FIX((int16_t)$1);
+   $result = INT2FIX((uint16_t)$1);
 }
 
