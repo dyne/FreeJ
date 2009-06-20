@@ -25,6 +25,7 @@
 #include <screen.h>
 #include <layer.h>
 #include <video_encoder.h>
+#include <ringbuffer.h>
 
 #include <scale2x.h>
 #include <scale3x.h>
@@ -44,6 +45,12 @@ ViewPort::ViewPort(int w, int h)
   bpp = 32; // we use only RGBA
   size = w*h*(bpp>>3);
   pitch = w*(bpp>>3);
+
+  audio = NULL;
+#ifdef WITH_SOUND 
+  // if compiled with audio initialize the audio data pipe
+  audio = ringbuffer_create(1024 * 512);
+#endif
 }
 
 ViewPort::~ViewPort() {
@@ -57,6 +64,8 @@ ViewPort::~ViewPort() {
     //    delete(lay);
     lay = layers.begin();
   }
+
+  if(audio) ringbuffer_free(audio);
 
   func("screen %s deleting %u encoders", name, encoders.len() );
   VideoEncoder *enc;

@@ -38,6 +38,35 @@ extern "C" {
 //void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl);
 
 class VideoLayer: public Layer {
+
+    public:
+	VideoLayer();
+	~VideoLayer();
+
+	bool init(Context *freej);
+	bool init(Context *freej, int w, int h) { return init(freej); };
+
+	bool open(const char *file);
+	void *feed();
+	void close();
+
+	bool forward();
+	bool backward();
+	bool backward_one_keyframe();
+	bool relative_seek(double increment);
+
+	void more_speed();
+	void less_speed();
+	bool set_mark_in();
+	bool set_mark_out();
+	void pause();
+
+	// quick hack for EOS callback
+	bool add_eos_call(DumbCall *c) { return eos->add_call(c); }
+	bool rem_eos_call(DumbCall *c) { return eos->rem_call(c); }
+
+	bool use_audio; ///< set true if audio should be decoded and fed to the scren->audio FIFO pipe
+
     private:
 	/**
 	 * av(codec|format) aka ffmpeg related variables
@@ -55,6 +84,8 @@ class VideoLayer: public Layer {
 
 	AVCodecContext *audio_codec_ctx;
 	AVCodec *audio_codec;
+	uint8_t *audio_buf; // buffer used by decode_audio_packet
+	double audio_size;
 
 	AVFrame av_frame;
 #ifdef WITH_SWSCALE
@@ -126,31 +157,6 @@ class VideoLayer: public Layer {
 	// quick hack for EOS callback
 	DumbCallback *eos;
 
-    public:
-	VideoLayer();
-	~VideoLayer();
-
-	bool init(Context *freej);
-	bool init(Context *freej, int w, int h) { return init(freej); };
-
-	bool open(const char *file);
-	void *feed();
-	void close();
-
-	bool forward();
-	bool backward();
-	bool backward_one_keyframe();
-	bool relative_seek(double increment);
-
-	void more_speed();
-	void less_speed();
-	bool set_mark_in();
-	bool set_mark_out();
-	void pause();
-
-	// quick hack for EOS callback
-	bool add_eos_call(DumbCall *c) { return eos->add_call(c); }
-	bool rem_eos_call(DumbCall *c) { return eos->rem_call(c); }
 };
 
 #endif

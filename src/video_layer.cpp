@@ -32,6 +32,8 @@
 #include <context.h>
 #include <jutils.h>
 
+#include <ringbuffer.h>
+
 #include <video_layer.h>
 
 #include <jsparser_data.h>
@@ -61,6 +63,9 @@ VideoLayer::VideoLayer()
   audio_codec_ctx = NULL;
   audio_index = -1;
   audio_codec = NULL;
+  audio_buf = NULL;
+
+  use_audio = false;
 
   backward_control=false;
   deinterlace_buffer = NULL;
@@ -194,7 +199,8 @@ bool VideoLayer::open(const char *file) {
   /**
    * Open codec if we find a video stream
    */
-  for(int i=0; i < avformat_context -> nb_streams; i++) {
+  unsigned int i;
+  for(i=0; i < avformat_context -> nb_streams; i++) {
     avformat_stream = avformat_context -> streams[i];
     enc = avformat_stream->codec;
     if(enc == NULL) error("%s: AVCodecContext is NULL", __PRETTY_FUNCTION__);
@@ -259,6 +265,8 @@ bool VideoLayer::open(const char *file) {
 	return false;
 	
       } else { // correctly opened
+
+	audio_buf = (uint8_t*)calloc((AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2, 1);
 	
 	audio_channels = audio_codec_ctx->channels;
 	audio_samplerate = audio_codec_ctx->sample_rate;
@@ -479,10 +487,14 @@ void *VideoLayer::feed() {
       }
     } // end video packet decoding
     
+
+    ////////////////////////
     // audio packet decoding
     else if(pkt.stream_index == audio_index) {
-      
-      act("TODO: decode audio packet");
+      if(use_audio) {
+	len1 = decode_audio_packet();
+	ringbuffer_write(screen->audio, (const char*)audio_buf, len1);
+      }
     }
     
     av_free_packet(&pkt); /* sun's good. love's bad */
@@ -494,9 +506,19 @@ void *VideoLayer::feed() {
 
 
 int VideoLayer::decode_audio_packet() {
+  int data_size, res;
   
-  return 0;
-};
+  res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
+			      &data_size, pkt.data, pkt.size);
+  
+  if(res < 0) {
+    /* if error, skip frame */
+    pkt.size = 0;
+    return 0;
+  }
+  /* We have data, return it and come back for more later */
+  return data_size;
+}
    
 int VideoLayer::decode_video_packet(int *got_picture) {
 	double pts1 = 0;
@@ -566,12 +588,13 @@ void VideoLayer::close() {
   if(video_codec_ctx)
     if(video_codec_ctx->codec)
       avcodec_close(video_codec_ctx);
-
-  if(audio_codec_ctx)
+  
+  if(audio_codec_ctx) {
     if(audio_codec_ctx->codec)
       avcodec_close(audio_codec_ctx);
+    if(audio_buf) free(audio_buf);
+  }
 
-	
 #ifdef HAVE_LIB_SWSCALE
   sws_freeContext(img_convert_ctx);
 #endif
@@ -588,7 +611,7 @@ void VideoLayer::close() {
  * allocate fifo
  */
 int VideoLayer::new_fifo() {
-	fifo_position=0;
+  fifo_position=0;
 	int ret;
 	// loop throught fifo
 	for ( int s = 0; s < FIFO_SIZE; s++) {

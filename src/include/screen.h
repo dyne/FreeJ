@@ -28,7 +28,7 @@
 
 #include <closure.h>
 #include <linklist.h>
-
+#include <ringbuffer.h>
 
 #include <layer.h>
 #include <blitter.h>
@@ -118,6 +118,8 @@ class ViewPort : public Entry {
   virtual void fullscreen() { };
   virtual bool lock() { return(true); };
   virtual bool unlock() { return(true); };
+
+  ringbuffer_t *audio; ///< FIFO ringbuffer for audio
 
   void scale2x(uint32_t *osrc, uint32_t *odst);
   void scale3x(uint32_t *osrc, uint32_t *odst);
