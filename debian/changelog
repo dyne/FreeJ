@@ -1,6 +1,13 @@
+freej (0.10git20090620-1) UNRELEASED; urgency=low
+
+  * New upstream import
+  * Build-Depend on libsdl-gfx1.2-dev
+
+ -- Luca Bigliardi <shammash@artha.org>  Sat, 20 Jun 2009 08:44:24 +0100
+
 freej (0.10git20090312-1) unstable; urgency=low
 
-  * New upstram import, fix FTBFS (Closes: #517146)
+  * New upstream import, fix FTBFS (Closes: #517146)
   * Improved package short description (Closes: #493500)
   * Switch maintenance (shammash -> maintainer, ultrotter -> uploader).
   * Bump debhelper requirement to 7.
