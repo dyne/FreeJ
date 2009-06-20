@@ -5,7 +5,7 @@ FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ \
 
 BUILT_SOURCES = freej_ruby.cpp
 
-freej_ruby.cpp: $(top_srcdir)/bindings/freej.i
+freej_ruby.cpp: $(top_srcdir)/bindings/freej.i $(top_srcdir)/bindings/rbpre.i $(top_srcdir)/bindings/rbpost.i
 	@SWIG_COMMAND@ -ruby -initname Freej -o freej_ruby.cpp @SWIG_IFACE@
 
 pkgrubyexecdir = @RUBY_ARCHDIR@
