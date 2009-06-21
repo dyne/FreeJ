@@ -6,6 +6,6 @@ docsdir = ${prefix}/share/doc/${PACKAGE}
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = freej.pc
 
-SUBDIRS = lib src doc bindings scripts
+SUBDIRS = lib src doc bindings scripts tests
 
 ACLOCAL_AMFLAGS = -I m4

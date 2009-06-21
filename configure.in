@@ -831,6 +831,7 @@ Makefile
 freej.pc
 src/Makefile
 src/include/Makefile
+tests/Makefile
 lib/Makefile
 lib/ccvt/Makefile
 lib/shout/Makefile
