@@ -733,7 +733,7 @@ if test x$have_sdlgfx = xyes; then
 else
    AC_MSG_RESULT([no, use freej version])
    SDLGFX_DIR="sdl_gfx"
-   SDLGFX_LIBS="$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
+   SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
 fi
 AC_SUBST(SDLGFX_DIR)
