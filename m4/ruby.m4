@@ -65,7 +65,8 @@ if test "$CONFIG_SCRIPTING_RUBY" = "yes"; then
 
 			AC_MSG_CHECKING(for Ruby header files)
 			rubyhdrdir=`$CONFIG_SCRIPTING_RUBY -r mkmf -e 'print Config::CONFIG[["rubyhdrdir"]] || $hdrdir' 2>/dev/null`
-			rubyarchdir=`$CONFIG_SCRIPTING_RUBY -r mkmf -e 'print Config::CONFIG[["archdir"]] || $hdrdir' 2>/dev/null`
+			rubyarchdir=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["archdir"]]' 2>/dev/null`
+			rubyinstdir=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["archdir"]].sub(Config::CONFIG[["exec_prefix"]], "")' 2>/dev/null`
 			if test "X$rubyhdrdir" != "X"; then
 				AC_MSG_RESULT($rubyhdrdir)
 				RUBY_CFLAGS="-I$rubyhdrdir -I$rubyhdrdir/ruby -I$rubyhdrdir/`basename $rubyarchdir` -DRUBY_MISSING_H"
@@ -113,9 +114,9 @@ if test "$CONFIG_SCRIPTING_RUBY" = "yes"; then
 	have_ruby=true
 	AC_SUBST(have_ruby)
 	RUBY_ARCHDIR=$rubyarchdir
-	RUBY_SOURCE=freej_ruby.cpp
-	AC_SUBST(RUBY_SOURCE)
+	RUBY_INSTDIR=$rubyinstdir
 	AC_SUBST(RUBY_ARCHDIR)
+	AC_SUBST(RUBY_INSTDIR)
 #	LIBS="$LIBS $RUBY_LIBS"
 	AC_SUBST(RUBY_CFLAGS)
 	AC_SUBST(RUBY_LDFLAGS)

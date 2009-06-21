@@ -8,7 +8,7 @@ BUILT_SOURCES = freej_ruby.cpp
 freej_ruby.cpp: $(top_srcdir)/bindings/freej.i $(top_srcdir)/bindings/rbpre.i $(top_srcdir)/bindings/rbpost.i
 	@SWIG_COMMAND@ -ruby -initname Freej -o freej_ruby.cpp @SWIG_IFACE@
 
-pkgrubyexecdir = @RUBY_ARCHDIR@
+pkgrubyexecdir = $(exec_prefix)/@RUBY_INSTDIR@
 pkgrubyexec_LTLIBRARIES = Freej.la
 
 nodist_Freej_la_SOURCES = freej_ruby.cpp
