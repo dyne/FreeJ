@@ -267,11 +267,6 @@ class Layer: public Entry, public JSyncThread {
   uint8_t colorkey_g;
   uint8_t colorkey_b;
 
-  // slide_position values
-  float slide_x;
-  float slide_y;
-
-
 };
 
 

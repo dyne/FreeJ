@@ -174,11 +174,6 @@ void Blitter::crop(Layer *lay, ViewPort *scr) {
 
   } else geo = &lay->geo;
 
-  // QUAAA
-
-  if(lay->slide_x != geo->x) geo->x = (int16_t)lay->slide_x;
-  if(lay->slide_y != geo->y) geo->y = (int16_t)lay->slide_y;
-
   //////////////////////
 
 
