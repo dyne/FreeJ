@@ -265,25 +265,25 @@ dnl AC_HEADER_DIRENT
 dnl ==============================================================
 dnl Check if we are going to link DINAMICALLY ffmpeg and theora
 dnl ==============================================================
-AC_MSG_CHECKING(how to link ffmpeg libraries)
-AC_ARG_ENABLE(dynamic-ffmpeg,
-[  --enable-dynamic-ffmpeg     link dynamically ffmpeg and theora (default: no)],
-[ if test x$enableval = xyes; then
-     dynamic_ffmpeg=yes
-  else
-     dynamic_ffmpeg=no
-  fi ],[ dynamic_ffmpeg=no ])
-dnl =====
-AC_ARG_WITH(static-ffmpeg,
-[  --with-static-ffmpeg    embed ffmpeg as static library from the build directory],
-[  static_ffmpeg=yes; ffmpeg_dir="$withval" ],[ static_ffmpeg=no ])
-dnl ==============================================================
-
-if test x$dynamic_ffmpeg = no; then
-   AC_MSG_RESULT(static)
-else
-   AC_MSG_RESULT(dynamic)
-fi
+dnl AC_MSG_CHECKING(how to link ffmpeg libraries)
+dnl AC_ARG_ENABLE(dynamic-ffmpeg,
+dnl [  --enable-dynamic-ffmpeg     link dynamically ffmpeg and theora (default: no)],
+dnl [ if test x$enableval = xyes; then
+dnl      dynamic_ffmpeg=yes
+dnl   else
+dnl      dynamic_ffmpeg=no
+dnl   fi ],[ dynamic_ffmpeg=no ])
+dnl dnl =====
+dnl AC_ARG_WITH(static-ffmpeg,
+dnl [  --with-static-ffmpeg    embed ffmpeg as static library from the build directory],
+dnl [  static_ffmpeg=yes; ffmpeg_dir="$withval" ],[ static_ffmpeg=no ])
+dnl dnl ==============================================================
+dnl 
+dnl if test x$dynamic_ffmpeg = no; then
+dnl    AC_MSG_RESULT(static)
+dnl else
+dnl    AC_MSG_RESULT(dynamic)
+dnl fi
 
 dnl ==============================================================
 dnl Check X11 for xgrab
