@@ -1,6 +1,10 @@
 #!/usr/bin/ruby
+#for now update the load path to include the location of 
+#the freej module and freej_extensions [as we haven't installed it yet]
+$: << '../../bindings/ruby/.libs'
+$: << '../../bindings/ruby/'
 ##import the Freej module
-require '../../bindings/ruby/.libs/Freej'
+require 'Freej'
 
 # check that we have an argument
 if ARGV.length < 1
@@ -40,7 +44,3 @@ lay.fit
 
 #start the context
 cx.start
-
-#loop until the user kills the script
-loop{ sleep(1) }
-

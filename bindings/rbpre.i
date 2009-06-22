@@ -2,43 +2,11 @@
 %ignore Context::start();
 %ignore Context::start_threaded();
 
-//insert some ruby code into the module
-//this is actually just calling a ruby c api function and passing the ruby code as a string
-//there is no 'rubycode' method for swig at this point
-
-//create a new start method which uses a ruby thread and cafudda
-//extend BaseLinklist to allow for array style indexing with strings
+//here we load up some ruby code which overwrites and extends some of the freej methods
+//this file freej_extensions must be in ruby's load path
 %init %{
-   rb_eval_string("\
-class Freej::Context\n\
-  def start\n\
-    #create a ruby thread and call cafudda in a loop so that we render\n\
-    @thread = Thread.new { loop { self.cafudda(1); sleep(0.04) } }\n\
-    self\n\
-  end\n\
-  def stop\n\
-    #if the thread exists terminate it\n\
-    if @thread\n\
-      @thread.terminate\n\
-    end\n\
-    self\n\
-  end\n\
-end\n\
-class Freej::BaseLinklist\n\
-  def [](item)\n\
-    if item.is_a?(String)\n\
-      res = self.search(item)\n\
-      if res == 0\n\
-        return nil\n\
-      else\n\
-        return res[0]\n\
-      end\n\
-    else\n\
-      return self.pick(item)\n\
-    end\n\
-  end\n\
-end\n\
-");
+   rb_eval_string("begin; require 'freej_extensions'\n \
+         rescue LoadError; puts \"An error occurred: \", $!; end\n");
 %}
 
 %{

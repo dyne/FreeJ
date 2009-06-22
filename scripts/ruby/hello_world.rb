@@ -1,8 +1,10 @@
 #!/usr/bin/ruby
-#import the freej module
-#if not require 'freej'
-  require '../../bindings/ruby/.libs/Freej'
-#end
+#for now update the load path to include the location of 
+#the freej module and freej_extensions [as we haven't installed it yet]
+$: << '../../bindings/ruby/.libs'
+$: << '../../bindings/ruby/'
+##import the Freej module
+require 'Freej'
 
 # initializes FreeJ creating a Contex
 cx = Freej::Context.new
@@ -22,5 +24,3 @@ txt.start
 cx.add_layer(txt)
 # starts Freej
 cx.start
-#loop until the user kills the script
-loop{ sleep(1) }
