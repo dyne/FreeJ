@@ -95,5 +95,6 @@ void *ThreadedClosing::jobs_loop_(void *arg) {
     pthread_cond_wait(&me->cond_, &me->cond_mutex_);
   }
   pthread_mutex_unlock(&me->cond_mutex_);
+  return NULL;
 }
 
