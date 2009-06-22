@@ -51,5 +51,18 @@ module Freej
       end
       self
     end
+    #apply the block to every element in the linked list and return an array
+    #with the resultant return values from the block
+    def collect(&block)
+      res = Array.new
+      index = 1
+      item = self.pick(index)
+      while item != nil
+        res << block.call(item)
+        index = index + 1
+        item = self.pick(index)
+      end
+      res
+    end
   end
 end
