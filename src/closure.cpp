@@ -89,11 +89,11 @@ void ThreadedClosing::add_job(Closure *job) {
 
 void *ThreadedClosing::jobs_loop_(void *arg) {
   ThreadedClosing *me = (ThreadedClosing *)arg;
+  pthread_mutex_lock(&me->cond_mutex_);
   while (me->running_) {
-    pthread_mutex_lock(&me->cond_mutex_);
     me->do_jobs();
     pthread_cond_wait(&me->cond_, &me->cond_mutex_);
-    pthread_mutex_unlock(&me->cond_mutex_);
   }
+  pthread_mutex_unlock(&me->cond_mutex_);
 }
 
