@@ -63,11 +63,19 @@ if test "$CONFIG_SCRIPTING_RUBY" = "yes"; then
 			ruby_version=`$CONFIG_SCRIPTING_RUBY -e 'puts "#{VERSION rescue RUBY_VERSION}"'`
 			AC_MSG_RESULT($ruby_version)
 
+			dnl   -- Is this the right rationale?
+			dnl   if we install in /usr/local then provide /lib/site_ruby/...
+			dnl   otherwise provide /lib/ruby/...
+			if test "X$prefix" = "X/usr/local" || test "X$prefix" = "XNONE" ; then
+				rubyinstdir=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["sitelibdir"]].sub("/usr/local", "")' 2>/dev/null`
+				rubyarchinstdir=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["sitearchdir"]].sub("/usr/local", "")' 2>/dev/null`
+			else
+				rubyinstdir=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["rubylibdir"]].sub(Config::CONFIG[["exec_prefix"]], "")' 2>/dev/null`
+				rubyarchinstdir=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["archdir"]].sub(Config::CONFIG[["exec_prefix"]], "")' 2>/dev/null`
+			fi
 			AC_MSG_CHECKING(for Ruby header files)
 			rubyhdrdir=`$CONFIG_SCRIPTING_RUBY -r mkmf -e 'print Config::CONFIG[["rubyhdrdir"]] || $hdrdir' 2>/dev/null`
-			rubyinstdir=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["rubylibdir"]].sub(Config::CONFIG[["exec_prefix"]], "")' 2>/dev/null`
 			rubyarchdir=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["archdir"]]' 2>/dev/null`
-			rubyarchinstdir=`$CONFIG_SCRIPTING_RUBY -r rbconfig -e 'print Config::CONFIG[["archdir"]].sub(Config::CONFIG[["exec_prefix"]], "")' 2>/dev/null`
 			if test "X$rubyhdrdir" != "X"; then
 				AC_MSG_RESULT($rubyhdrdir)
 				RUBY_CFLAGS="-I$rubyhdrdir -I$rubyhdrdir/ruby -I$rubyhdrdir/`basename $rubyarchdir` -DRUBY_MISSING_H"
