@@ -112,7 +112,7 @@ bool ViewPort::add_layer(Layer *lay) {
   layers.sel(0);
   lay->sel(true);
   lay->active = true;
-  func("layer %s succesfully added",lay->name);
+  func("layer %s added to screen %s",lay->name, name);
   return(true);
 }
 
@@ -130,11 +130,12 @@ bool ViewPort::add_encoder(VideoEncoder *enc) {
     return(false);
   }
 
-
+  func("initializing encoder %s",enc->name);
   if(!enc->init(this)) {
     error("%s : failed initialization", __PRETTY_FUNCTION__);
     return(false);
   }
+  func("initialization done");
 
   enc->start();
 
@@ -146,7 +147,7 @@ bool ViewPort::add_encoder(VideoEncoder *enc) {
 
   enc->sel(true);
 
-  func("encoder %s succesfully added to screen %s", enc->name, name);
+  act("encoder %s added to screen %s", enc->name, name);
 }
 
 

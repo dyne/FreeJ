@@ -52,8 +52,6 @@ class OggTheoraEncoder: public VideoEncoder {
   
   bool init(ViewPort *scr);
 
-  bool feed_video();
-
   int encode_frame();
 
  private:

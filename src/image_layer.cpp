@@ -15,10 +15,12 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * "$Id$"
- *
  */
 
+/**
+   @file image_layer.h
+   @brief FreeJ Layer class to show images (SDL_image)
+*/
 
 
 #include <SDL_image.h>

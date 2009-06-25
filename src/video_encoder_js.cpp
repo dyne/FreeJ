@@ -27,6 +27,7 @@
 
 #include <video_encoder.h>
 #include <oggtheora_encoder.h>
+#include <theora11_encoder.h>
 
 DECLARE_CLASS("VideoEncoder", js_vid_enc_class, js_vid_enc_constructor);
 
@@ -56,6 +57,9 @@ JS(js_vid_enc_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   OggTheoraEncoder *enc;
   enc = new OggTheoraEncoder();
+  //  Theora11Encoder *enc;
+  //  enc = new Theora11Encoder();
+
   if(!enc) {
     error("JS::VideoEncoder : error constructing ogg theora video encoder");
     return JS_FALSE;

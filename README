@@ -197,17 +197,21 @@ Ogg/Vorbis/Theora libraries available on http://www.xiph.org
 
 :: TEAM
 
- Denis "Jaromil" Rojo        - FreeJ author and mantainer
+ Denis "Jaromil" Roio        - FreeJ author and mantainer
 
- Silvano "Kysucix" Galliani  - TXT layer, encoder, streaming
+ Silvano "Kysucix" Galliani  - Scriptability, encoding and layers
 
- Christoph "Mr.Goil" Rudorff - Scriptability, MIDI and Joystick 
+ Christoph "Mr.Goil" Rudorff - Scriptability and several controllers
+
+ Luca "Shammash" Bigliardi   - Debian packaging and core development
+
+ Andrea "Xant" Guzzo         - OSX porting and core development
 
  parts of  included code are  written by Andreas  Schiffler (sdl_gfx),
- Jan  (theorautils),  Dave  Griffiths  (audio bus),  Nemosoft  (ccvt),
- Charles Yates (yuv2rgb), Steve  Harris (liblo), Sam Lantinga (sdl_*),
- Jean-Christophe Hoelt (goom), L.  Donnie Smith (cwiid), Olivier Debon
- (flash).
+ Jan  Gerber  (theorautils),  Dave  Griffiths  (audio  bus),  Nemosoft
+ (ccvt), Charles  Yates (yuv2rgb), Steve Harris  (liblo), Sam Lantinga
+ (sdl_*),  Jean-Christophe  Hoelt (goom),  L.   Donnie Smith  (cwiid),
+ Olivier Debon (flash).
  
 
  documentation, testing and user case studies have bee contributed by:

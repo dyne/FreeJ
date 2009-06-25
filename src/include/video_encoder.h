@@ -43,7 +43,9 @@ class FPS;
 class ViewPort;
 
 /**
- * Class describing the general interface of an encoder
+ * Abstract class describing the general interface of a VideoEncoder
+ *
+ * 
  * Method implemented are:
  *   - VideoEncoder::set_output_name()
  *   - VideoEncoder::set_sdl_surface()
