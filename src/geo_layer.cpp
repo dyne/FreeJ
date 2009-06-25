@@ -105,7 +105,7 @@ void *GeoLayer::feed() {
 
   jmemcpy(fsurf[doublebuf], surf->pixels, geo.size);
   //  SDL_BlitSurface(surf, NULL, fsurf, NULL);
-  return fsurf;
+  return fsurf[doublebuf];
 
 }
 

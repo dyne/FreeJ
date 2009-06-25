@@ -40,7 +40,6 @@ typedef struct {
   uint8_t bpp; ///< bits per pixel
   uint16_t pitch; ///< width of frame in bytes
   uint32_t size; ///< size of the whole frame in bytes
-  float fps; ///< frames per second
 } ScreenGeometry;
 
 #endif

@@ -285,18 +285,42 @@ void setup_linear_blits(Blitter *blitter) {
 
   b = new Blit(); b->set_name("REDMASK");
   sprintf(b->desc,"red channel threshold mask");
-  b->type = Blit::LINEAR; b->value = 200; // default
+  b->type = Blit::LINEAR;
   b->fun = red_mask; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "bit threshold");
+  strcpy(p->description, "bitmask threshold to apply to the red channel");
+  p->multiplier = 255.0;
+  b->parameters.append(p);
+
+  /////////
 
   b = new Blit(); b->set_name("GREENMASK");
   sprintf(b->desc,"green channel threshold mask");
-  b->type = Blit::LINEAR; b->value = 200; // default
+  b->type = Blit::LINEAR;
   b->fun = green_mask; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "bit threshold");
+  strcpy(p->description, "bitmask threshold to apply to the green channel");
+  p->multiplier = 255.0;
+  b->parameters.append(p);
+
+  ////////
 
   b = new Blit(); b->set_name("BLUEMASK");
   sprintf(b->desc,"blue channel threshold mask");
-  b->type = Blit::LINEAR; b->value = 200; // default
+  b->type = Blit::LINEAR;
   b->fun = blue_mask; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "bit threshold");
+  strcpy(p->description, "bitmask threshold to apply to the blue channel");
+  p->multiplier = 255.0;
+  b->parameters.append(p);
+
+  /////////
 
   b = new Blit(); b->set_name("NEG");
   sprintf(b->desc,"bitwise negation");
