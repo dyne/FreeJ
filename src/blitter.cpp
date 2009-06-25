@@ -41,9 +41,7 @@ Blit::Blit() :Entry() {
   sprintf(desc,"none");
 
   value = 0.0;
-  has_value = false;
 
-  memset(kernel,0,256);
   fun = NULL;
   type = NONE;
   past_frame = NULL;

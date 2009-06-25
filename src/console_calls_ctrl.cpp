@@ -152,8 +152,8 @@ int console_param_selection(Context *env, char *cmd) {
 	    p->description);
       break;
     case Parameter::NUMBER:
-      ::act("(number) %s = %g :: %s", p->name,
-	    *(double*)p->value,
+      ::act("(number) %s = %.2f :: %s", p->name,
+	    *(float*)p->value,
 	    p->description);
       break;
     case Parameter::STRING:
@@ -161,8 +161,8 @@ int console_param_selection(Context *env, char *cmd) {
       break;
     case Parameter::POSITION:
       {
-	double *val = (double*)p->value;
-	::act("(position) %s = %g x %g :: %s", p->name,
+	float *val = (float*)p->value;
+	::act("(position) %s = %.2f x %.2f :: %s", p->name,
 	      val[0], val[1],
 	      p->description);
       }
@@ -338,8 +338,8 @@ int console_blit_param_completion(Context *env, char *cmd) {
 	    p->description);
       break;
     case Parameter::NUMBER:
-      ::act("(number) %s = %g :: %s", p->name,
-	    *(double*)p->value,
+      ::act("(number) %s = %.2f :: %s", p->name,
+	    *(float*)p->value,
 	    p->description);
       break;
     case Parameter::STRING:
@@ -347,8 +347,8 @@ int console_blit_param_completion(Context *env, char *cmd) {
       break;
     case Parameter::POSITION:
       {
-	double *val = (double*)p->value;
-	::act("(position) %s = %g x %g :: %s", p->name,
+	float *val = (float*)p->value;
+	::act("(position) %s = %.2f x %.2f :: %s", p->name,
 	      val[0], val[1],
 	      p->description);
       }

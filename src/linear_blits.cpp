@@ -11,7 +11,7 @@
 
 
 // Linear transparent blits
-BLIT blit_xor(void *src, void *dst, int bytes, void *value) {
+BLIT blit_xor(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   register int c;
   register uint32_t *s = (uint32_t*)src;
   register uint32_t *d = (uint32_t*)dst;
@@ -21,11 +21,11 @@ BLIT blit_xor(void *src, void *dst, int bytes, void *value) {
 }
 
 
-BLIT rgb_jmemcpy(void *src, void *dst, int bytes, void *value) {
+BLIT rgb_jmemcpy(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   jmemcpy(dst,src,bytes);
 }
 
-BLIT red_channel(void *src, void *dst, int bytes, void *value) {
+BLIT red_channel(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   register int c;
   register uint8_t *s = (uint8_t*)src;
   register uint8_t *d = (uint8_t*)dst;
@@ -33,7 +33,7 @@ BLIT red_channel(void *src, void *dst, int bytes, void *value) {
     *(d+rchan) = *(s+rchan);
 }
 
-BLIT green_channel(void *src, void *dst, int bytes, void *value) {
+BLIT green_channel(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   register int c;
   register uint8_t *s = (uint8_t*)src;
   register uint8_t *d = (uint8_t*)dst;
@@ -41,7 +41,7 @@ BLIT green_channel(void *src, void *dst, int bytes, void *value) {
     *(d+gchan) = *(s+gchan);
 }
 
-BLIT blue_channel(void *src, void *dst, int bytes, void *value) {
+BLIT blue_channel(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   register int c;
   register uint8_t *s = (uint8_t*)src;
   register uint8_t *d = (uint8_t*)dst;
@@ -49,7 +49,7 @@ BLIT blue_channel(void *src, void *dst, int bytes, void *value) {
     *(d+bchan) = *(s+bchan);
 }
 
-BLIT red_mask(void *src, void *dst, int bytes, void *value) {
+BLIT red_mask(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   register int c;
   register uint32_t *s = (uint32_t*)src;
   register uint32_t *d = (uint32_t*)dst;
@@ -57,11 +57,13 @@ BLIT red_mask(void *src, void *dst, int bytes, void *value) {
   for(c=bytes>>2;c>0;c--,s++,d++)
     *d |= *s & red_bitmask;
 
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+
   SDL_imageFilterBinarizeUsingThreshold
-    ((unsigned char*)dst,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+    ((unsigned char*)dst,(unsigned char*)dst,bytes, v);
 }
 
-BLIT green_mask(void *src, void *dst, int bytes, void *value) {
+BLIT green_mask(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   register int c;
   register uint32_t *s = (uint32_t*)src;
   register uint32_t *d = (uint32_t*)dst;
@@ -69,63 +71,68 @@ BLIT green_mask(void *src, void *dst, int bytes, void *value) {
   for(c=bytes>>2;c>0;c--,s++,d++)
     *d |= *s & green_bitmask;
 
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+
   SDL_imageFilterBinarizeUsingThreshold
-    ((unsigned char*)dst,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+    ((unsigned char*)dst,(unsigned char*)dst,bytes, v);
 }
 
-BLIT blue_mask(void *src, void *dst, int bytes, void *value) {
+BLIT blue_mask(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   register int c;
   register uint32_t *s = (uint32_t*)src;
   register uint32_t *d = (uint32_t*)dst;
 
   for(c=bytes>>2;c>0;c--,s++,d++)
     *d |= *s & blue_bitmask;
+
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+  
   SDL_imageFilterBinarizeUsingThreshold
-    ((unsigned char*)dst,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+    ((unsigned char*)dst,(unsigned char*)dst,bytes,v);
 }
 
 
-BLIT schiffler_add(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_add(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterAdd((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_sub(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_sub(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterSub((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_mean(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_mean(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterMean((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_absdiff(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_absdiff(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterAbsDiff((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_mult(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_mult(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterMult((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_multnor(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_multnor(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterMultNor((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_div(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_div(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterDiv((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_multdiv2(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_multdiv2(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterMultDivby2((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_multdiv4(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_multdiv4(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterMultDivby2((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_and(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_and(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterBitAnd((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_or(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_or(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterBitOr((unsigned char*)src,(unsigned char*)dst,(unsigned char*)dst,bytes);
 }
 
@@ -135,41 +142,56 @@ BLIT schiffler_or(void *src, void *dst, int bytes, void *value) {
 
 /// Linear non-transparent blits
 
-BLIT schiffler_neg(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_neg(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
   SDL_imageFilterBitNegation((unsigned char*)src,(unsigned char*)dst,bytes);
 }
 
-BLIT schiffler_addbyte(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterAddByte((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+BLIT schiffler_addbyte(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+
+  SDL_imageFilterAddByte((unsigned char*)src,(unsigned char*)dst,bytes, v);
 }
 
-BLIT schiffler_addbytetohalf(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterAddByteToHalf((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+BLIT schiffler_addbytetohalf(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+
+  SDL_imageFilterAddByteToHalf((unsigned char*)src,(unsigned char*)dst,bytes, v);
 }
 
-BLIT schiffler_subbyte(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterSubByte((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+BLIT schiffler_subbyte(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+
+  SDL_imageFilterSubByte((unsigned char*)src,(unsigned char*)dst,bytes, v);
 }
 
-BLIT schiffler_shl(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterShiftLeft((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+BLIT schiffler_shl(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+
+  SDL_imageFilterShiftLeft((unsigned char*)src,(unsigned char*)dst,bytes, v);
 }
 
-BLIT schiffler_shlb(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterShiftLeftByte((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+BLIT schiffler_shlb(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+
+  SDL_imageFilterShiftLeftByte((unsigned char*)src,(unsigned char*)dst,bytes,v);
 }
 
-BLIT schiffler_shr(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterShiftRight((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+BLIT schiffler_shr(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+
+  SDL_imageFilterShiftRight((unsigned char*)src,(unsigned char*)dst,bytes,v);
 }
 
-BLIT schiffler_mulbyte(void *src, void *dst, int bytes, void *value) {
-  SDL_imageFilterMultByByte((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+BLIT schiffler_mulbyte(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
+
+  SDL_imageFilterMultByByte((unsigned char*)src,(unsigned char*)dst,bytes,v);
 }
 
-BLIT schiffler_binarize(void *src, void *dst, int bytes, void *value) {
+BLIT schiffler_binarize(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
+  unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
   SDL_imageFilterBinarizeUsingThreshold
-    ((unsigned char*)src,(unsigned char*)dst,bytes, (unsigned char)*(float*)value);
+    ((unsigned char*)src,(unsigned char*)dst,bytes, v);
 }
 
 
@@ -177,6 +199,7 @@ BLIT schiffler_binarize(void *src, void *dst, int bytes, void *value) {
 
 void setup_linear_blits(Blitter *blitter) {
   Blit *b;
+  Parameter *p;
 
   b = new Blit(); b->set_name("RGB");
   sprintf(b->desc, "RGB blit (jmemcpy)");
@@ -280,44 +303,109 @@ void setup_linear_blits(Blitter *blitter) {
   b->type = Blit::LINEAR;
   b->fun = schiffler_neg; blitter->blitlist.prepend(b);
 
+  /////////
+
   b = new Blit(); b->set_name("ADDB");
   sprintf(b->desc,"add byte to bytes");
-  b->type = Blit::LINEAR; b->has_value = true;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_addbyte; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "byte increment");
+  strcpy(p->description, "amount to sum to the byte");
+  p->multiplier = 255.0;
+  b->parameters.append(p);
+
+  /////////
 
   b = new Blit(); b->set_name("ADDBH");
   sprintf(b->desc,"add byte to half");
-  b->type = Blit::LINEAR; b->has_value = true;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_addbytetohalf; blitter->blitlist.prepend(b);
-  
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "half byte increment");
+  strcpy(p->description, "amount to sum to the half byte");
+  p->multiplier = 127.0;
+  b->parameters.append(p);
+
+  /////////
+
   b = new Blit(); b->set_name("SUBB");
   sprintf(b->desc,"subtract byte to bytes");
-  b->type = Blit::LINEAR; b->has_value = true;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_subbyte; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "byte decrement");
+  strcpy(p->description, "amount to substract to the pixel bytes");
+  p->multiplier = 255.0;
+  b->parameters.append(p);
+
+  /////////
 
   b = new Blit(); b->set_name("SHL");
   sprintf(b->desc,"shift left bits");
-  b->type = Blit::LINEAR; b->has_value = true;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_shl; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "byte decrement");
+  strcpy(p->description, "amount to substract to the pixel bytes");
+  p->multiplier = 255.0;
+  b->parameters.append(p);
+
+  /////////
 
   b = new Blit(); b->set_name("SHLB");
   sprintf(b->desc,"shift left byte");
-  b->type = Blit::LINEAR; b->has_value = true;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_shlb; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "shift bits");
+  strcpy(p->description, "amount of left bit shifts to apply on each pixel's byte");
+  p->multiplier = 8.0;
+  b->parameters.append(p);
+
+  /////////
 
   b = new Blit(); b->set_name("SHR");
   sprintf(b->desc,"shift right bits");
-  b->type = Blit::LINEAR; b->has_value = true;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_shr; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "shift bits");
+  strcpy(p->description, "amount of right bit shifts to apply on each pixel's byte");
+  p->multiplier = 8.0;
+  b->parameters.append(p);
+
+  /////////
 
   b = new Blit(); b->set_name("MULB");
   sprintf(b->desc,"multiply by byte");
-  b->type = Blit::LINEAR; b->has_value = true;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_mulbyte; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "byte multiplier");
+  strcpy(p->description, "amount to multiply on each pixel's byte");
+  p->multiplier = 255.0;
+  b->parameters.append(p);
+
+  /////////
 
   b = new Blit(); b->set_name("BIN");
   sprintf(b->desc,"binarize using threshold");
-  b->type = Blit::LINEAR; b->has_value = true;
+  b->type = Blit::LINEAR;
   b->fun = schiffler_binarize; blitter->blitlist.prepend(b);
+
+  p = new Parameter(Parameter::NUMBER);
+  strcpy(p->name, "threshold");
+  strcpy(p->description, "binary threshold value");
+  p->multiplier = 255.0;
+  b->parameters.append(p);
+
 
 }

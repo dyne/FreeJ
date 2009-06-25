@@ -66,6 +66,11 @@ class Parameter : public Entry {
   filter_param_f *filter_set_f;
 
   bool changed; ///< can be used externally by application caller
+  float multiplier; ///< multiplier to adjust the value on set (none if 1.0)
+
+ private:
+  double d1, d2, d3; // temp values
+  
 };
 
 #endif

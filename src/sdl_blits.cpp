@@ -48,8 +48,8 @@ BLIT sdl_alpha(void *src, SDL_Rect *src_rect,
 	       SDL_Surface *dst, SDL_Rect *dst_rect,
 	       ScreenGeometry *geo, Linklist<Parameter> *params) {
 
-  double alpha = *(double*)(params->pick(1)->value);
-  unsigned int int_alpha = alpha * 255;
+  float alpha = *(float*)(params->begin()->value); // only one value
+  unsigned int int_alpha = (unsigned int) alpha;
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
@@ -67,8 +67,8 @@ BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
 		  SDL_Surface *dst, SDL_Rect *dst_rect,
 		  ScreenGeometry *geo, Linklist<Parameter> *params) {
 
-  double alpha = *(double*)(params->pick(1)->value);
-  unsigned int int_alpha = alpha * 255;
+  float alpha = *(float*)(params->begin()->value); // only one value
+  unsigned int int_alpha = (unsigned int) alpha;
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
@@ -124,13 +124,14 @@ void setup_sdl_blits(Blitter *blitter) {
 
   b = new Blit(); b->set_name("ALPHA");
   sprintf(b->desc,"alpha blit (SDL)");
-  b->type = Blit::SDL; b->has_value = true;
+  b->type = Blit::SDL;
   b->sdl_fun = sdl_alpha;
   blitter->blitlist.prepend(b);
   
   p = new Parameter(Parameter::NUMBER);
   strcpy(p->name, "alpha");
   strcpy(p->description, "level of transparency of alpha channel (0.0 - 1.0)");
+  p->multiplier = 255.0;
   b->parameters.append(p);
 
   /////////////
@@ -144,6 +145,7 @@ void setup_sdl_blits(Blitter *blitter) {
   p = new Parameter(Parameter::NUMBER);
   strcpy(p->name, "alpha");
   strcpy(p->description, "level of transparency of alpha channel (0.0 - 1.0)");
+  p->multiplier = 255.0;
   b->parameters.append(p);
   
 //   b = new Blit(); b->set_name("CHROMAKEY");

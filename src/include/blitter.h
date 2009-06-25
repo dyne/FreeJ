@@ -32,7 +32,7 @@
 /////////////////////////////////// blit functions prototypes
 #define BLIT static inline void
 
-typedef void (blit_f)(void *src, void *dst, int len, void *value);
+typedef void (blit_f)(void *src, void *dst, int len, Linklist<Parameter> *params);
 
 typedef void (blit_sdl_f)(void *src, SDL_Rect *src_rect,
 			  SDL_Surface *dst, SDL_Rect *dst_rect,
@@ -66,9 +66,8 @@ class Blit: public Entry {
 
   char desc[512];    ///< long description
   float value;    ///< parameter value
-  short kernel[256]; ///< convolution kernel
 
-  Linklist<Parameter> parameters;
+  Linklist<Parameter> parameters; ///< linklist of blit parameters
 
   blit_f *fun; ///< pointer to linear blit function
   blit_sdl_f *sdl_fun; ///< pointer to sdl blit function
@@ -85,8 +84,6 @@ class Blit: public Entry {
 //#define SDL_BLIT 2
 //#define PAST_BLIT 3
   BlitType type; ///< LINEAR|SDL|PAST type
-
-  bool has_value;
 
   //  char *get_name();
 

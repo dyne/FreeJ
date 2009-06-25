@@ -466,15 +466,21 @@ JS(layer_set_blit_value) {
     JS_ARG_NUMBER(value,0);
 
     GET_LAYER(Layer);
-    
-    value = 255.0*value;
-    if(value>255) {
-      warning("blit values should be float ranged between 0.0 and 1.0");
-      value = 255;
-    }
 
-    //    lay->blitter.fade_value(1,new_value);
-    //    lay->blitter.set_value((float)value);
+    Parameter *p;
+    // when this function is used we
+    // assume blit has only one parameter
+    // (basically we keep this for backward compat)
+
+    if(!lay->current_blit)
+      error("layer %s has no blit selected (not added yet?)", lay->name);
+    else
+      p = lay->current_blit->parameters.begin();
+
+    if(!p) 
+      warning("no blit parameter found on layer %s", lay->name);
+    else
+      p->set((void*)&value);
 
     return JS_TRUE;
 }

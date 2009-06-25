@@ -78,7 +78,7 @@ void SoftScreen::blit(Layer *src) {
     (*b->fun)
       ((void*)play, (void*)pscr,
        b->lay_bytepitch,// * src->geo.bpp>>3,
-       (void*)&b->value);
+       &b->parameters);
     
     // strides down to the next line
     pscr += b->scr_stride + b->lay_pitch;

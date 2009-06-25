@@ -98,3 +98,5 @@ class Theora11Encoder: public Videoencoder {
 };
 
 #endif
+
+#endif

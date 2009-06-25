@@ -50,6 +50,7 @@ Parameter::Parameter(Parameter::Type param_type)
   }
 
   changed = false;
+  multiplier = 1.0;
 
   type = param_type;
 
@@ -69,8 +70,19 @@ Parameter::~Parameter() {
 bool Parameter::set(void *val) {
   ////////////////////////////////////////
   if(type == Parameter::NUMBER) {
-
-    *(float*)value = *(float*)val;
+    double v = *(double*)val;
+    float f;
+    func("%s NUMBER %g",__PRETTY_FUNCTION__, v);
+    // range check (input is always 0.0 - 1.0)
+    if((v<0.0) || (v>1.0)) {
+      error("%s parameter: value %.2f out of range", name, v);
+      return(false);
+    }
+    // apply multiplier for internal value storage
+    if(multiplier!= 1.0) f = v * multiplier;
+    func("parameter %s set to %.2f", name, f);
+    // store value
+    *(float*)value = f;
     
     //////////////////////////////////////
   } else if(type == Parameter::BOOL) {
@@ -112,14 +124,14 @@ bool Parameter::parse(char *p) {
 
     //////////////////////////////////////
   if(type == Parameter::NUMBER) {
-
+    
     func("parsing number parameter");
-    if( sscanf(p, "%le", (double*)value) < 1 ) {
+    if( sscanf(p, "%le", &d1) < 1 ) {
       error("error parsing value [%s] for parameter %s", p, name);
       return false;
     }
-    func("parameter %s parsed to %g",p, *(double*)value);
-
+    func("parameter %s parsed to %g", p, d1);
+    set(&d1);
     
     //////////////////////////////////////
   } else if(type == Parameter::BOOL) {
