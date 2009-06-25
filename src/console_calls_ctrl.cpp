@@ -84,6 +84,9 @@ int console_param_selection(Context *env, char *cmd) {
     } else 
       func("parameter %s found in layer %s at position %u",
 	   param->name, lay->name, idx);
+  } else {
+    warning("no parameters found in layer %s", lay->name);
+    return 0;
   }
 
   // parse from the string to the value

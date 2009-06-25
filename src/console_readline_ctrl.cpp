@@ -615,7 +615,7 @@ bool SlwReadline::parser_commandline(int key) {
      insert mode       FIX ME!
      must save temporarly the chars to advance
   */
-  if( key > 32 && key < 127) {
+  if( key >= 32 && key < 127) {
     for(c=cursor;command[c]!=EOL;c++); // go to the EOL
     
     command[c+1] = EOL; // be sure we have a EOL

@@ -87,8 +87,8 @@ BLIT blue_mask(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
 
   unsigned char v = (unsigned int) *(float*)(params->begin()->value); // only one value
   
-  SDL_imageFilterBinarizeUsingThreshold
-    ((unsigned char*)dst,(unsigned char*)dst,bytes,v);
+    SDL_imageFilterBinarizeUsingThreshold
+      ((unsigned char*)dst,(unsigned char*)dst,bytes,v);
 }
 
 
