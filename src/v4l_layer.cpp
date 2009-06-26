@@ -269,6 +269,8 @@ func("v4l: memory map of %i frames: %u bytes",grab_map.frames,grab_map.size);
   if(grab_cap.channels>1)
     act("using input channel %s",grab_chan.name);
 
+  opened = true;
+
   return(true);
 }
 

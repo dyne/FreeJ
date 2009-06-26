@@ -49,7 +49,7 @@ Layer::Layer()
   use_audio = false;
   need_crop = true;
   audio = NULL;
-  opened = true;
+  opened = false;
   bgcolor = 0;
   set_name("???");
   filename[0] = 0;

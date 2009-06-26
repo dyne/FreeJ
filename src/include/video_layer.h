@@ -50,13 +50,8 @@ class VideoLayer: public Layer {
 	void *feed();
 	void close();
 
-	bool forward();
-	bool backward();
-	bool backward_one_keyframe();
 	bool relative_seek(double increment);
 
-	void more_speed();
-	void less_speed();
 	bool set_mark_in();
 	bool set_mark_out();
 	void pause();

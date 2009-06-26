@@ -93,6 +93,8 @@ bool TextLayer::init(Context *freej) {
   env = freej;
   set_font("sans"); // just try one..
 
+  opened = true;
+
   return true;
 }
 

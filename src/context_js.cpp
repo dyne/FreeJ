@@ -158,9 +158,12 @@ JS(add_layer) {
     if(!lay) JS_ERROR("Layer core data is NULL");
     func("JSvalcmp: %p / %p", argv[0], lay->data);
     /** really add layer */
-    lay->start();
-    env->add_layer(lay);
-    *rval=JSVAL_TRUE;
+    if( env->add_layer(lay) ) {
+      lay->start();
+      *rval=JSVAL_TRUE;
+    } else 
+      *rval=JSVAL_FALSE;
+
     return JS_TRUE;
 }
 

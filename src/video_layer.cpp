@@ -705,30 +705,7 @@ bool VideoLayer::set_mark_out() {
 	show_osd();
 	return true;
 }
-void VideoLayer::more_speed() {
-	set_speed(1);
-}
-void VideoLayer::less_speed() {
-	set_speed(-1);
-}
-void VideoLayer::set_speed(int speed) {
-	user_play_speed+=speed;
-	play_speed+=speed;
-	play_speed_control=play_speed;
-	show_osd("speed is %d",user_play_speed);
-}
-bool VideoLayer::forward() {
-	relative_seek(+10);
-	return true;
-}
-bool VideoLayer::backward() {
-	relative_seek(-10);
-	return true;
-}
-bool VideoLayer::backward_one_keyframe() {
-	relative_seek(-1);
-	return true;
-}
+
 bool VideoLayer::relative_seek(double increment) {
 	int ret=0;
 	lock_feed();
@@ -840,49 +817,49 @@ double VideoLayer::get_master_clock() {
 	double delta = (av_gettime() - video_current_pts_time) / 1000000.0;
 	return (video_current_pts+delta);
 }
-	void VideoLayer::pause() {
-		if(paused)
-			paused=false;
-		else
-			paused=true;
-		notice("pause : %s",(paused)?"on":"off");
-		show_osd();
-	}
+void VideoLayer::pause() {
+  if(paused)
+    paused=false;
+  else
+    paused=true;
+  notice("pause : %s",(paused)?"on":"off");
+  show_osd();
+}
 void VideoLayer::deinterlace(AVPicture *picture) {
-	int size;
-	AVPicture *picture2;
-	AVPicture picture_tmp;
-
-	/* create temporary picture */
-	size = avpicture_get_size(video_codec_ctx->pix_fmt,
-				  video_codec_ctx->width,
-				  video_codec_ctx->height);
-
-	/* allocate only first time */
-	if(deinterlace_buffer==NULL)
-		deinterlace_buffer = (uint8_t *)av_malloc(size);
-	if (!deinterlace_buffer)
-		return ;
-
-	picture2 = &picture_tmp;
-	avpicture_fill(picture2, deinterlace_buffer,
-		       video_codec_ctx->pix_fmt,
-		       video_codec_ctx->width,
-		       video_codec_ctx->height);
-	
-	if(avpicture_deinterlace(picture2, picture,
-				 video_codec_ctx->pix_fmt,
-				 video_codec_ctx->width,
-				 video_codec_ctx->height) < 0) {
-	  /* if error, do not deinterlace */
-	  //	av_free(deinterlace_buffer);
-	  //	deinterlace_buffer = NULL;
-	  picture2 = picture;
-	}
-	if (picture != picture2)
-	  *picture = *picture2;
-	//    av_free(deinterlace_buffer);
-	return;
+  int size;
+  AVPicture *picture2;
+  AVPicture picture_tmp;
+  
+  /* create temporary picture */
+  size = avpicture_get_size(video_codec_ctx->pix_fmt,
+			    video_codec_ctx->width,
+			    video_codec_ctx->height);
+  
+  /* allocate only first time */
+  if(deinterlace_buffer==NULL)
+    deinterlace_buffer = (uint8_t *)av_malloc(size);
+  if (!deinterlace_buffer)
+    return ;
+  
+  picture2 = &picture_tmp;
+  avpicture_fill(picture2, deinterlace_buffer,
+		 video_codec_ctx->pix_fmt,
+		 video_codec_ctx->width,
+		 video_codec_ctx->height);
+  
+  if(avpicture_deinterlace(picture2, picture,
+			   video_codec_ctx->pix_fmt,
+			   video_codec_ctx->width,
+			   video_codec_ctx->height) < 0) {
+    /* if error, do not deinterlace */
+    //	av_free(deinterlace_buffer);
+    //	deinterlace_buffer = NULL;
+    picture2 = picture;
+  }
+  if (picture != picture2)
+    *picture = *picture2;
+  //    av_free(deinterlace_buffer);
+  return;
 }
 
 #endif

@@ -33,8 +33,6 @@ DECLARE_CLASS_GC("MovieLayer",video_layer_class,video_layer_constructor,js_layer
 JSFunctionSpec video_layer_methods[] = {
 //  LAYER_METHODS  ,
   ENTRY_METHODS  ,
-  {	"ff",		video_layer_forward, 		0},
-  {	"rew",		video_layer_rewind, 		0},
 //  {	"seek",		video_layer_seek, 		0},
   {	"mark-in",	video_layer_mark_in, 		0},
   {	"mark-out",	video_layer_mark_out, 		0},
@@ -62,23 +60,6 @@ JS(video_layer_seek) {
 }
 */
 
-JS(video_layer_forward) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-  GET_LAYER(VideoLayer);
-
-  lay->forward();
-
-  return JS_TRUE;
-}
-JS(video_layer_rewind) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-  GET_LAYER(VideoLayer);
-
-  lay->backward();
-  return JS_TRUE;
-}
 JS(video_layer_mark_in) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 

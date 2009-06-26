@@ -92,6 +92,11 @@ bool ViewPort::add_layer(Layer *lay) {
     return(false);
   }
 
+  if(!lay->opened) {
+    error("layer %s is not yet opened, can't add it");
+    return(false);
+  }
+
   lay->env = env;
   lay->screen = this;
   

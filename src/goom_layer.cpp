@@ -59,6 +59,7 @@ bool GoomLayer::init(Context *freej) {
   
   goom_set_screenbuffer(goom, buffer);
 
+  opened = true;
 
   return(true);
 }

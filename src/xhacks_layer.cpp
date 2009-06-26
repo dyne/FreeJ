@@ -133,6 +133,8 @@ int res =  system(args);
 
   notice("Opened xhacks '%s' with back_win %p",file , back_win);
 
+  opened = true;
+
   set_filename(file);
   return(true);
 }

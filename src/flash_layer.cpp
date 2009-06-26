@@ -156,6 +156,8 @@ bool FlashLayer::open(const char *file){
   
   set_filename(file);
 
+  opened = true;
+
   return true;
 }
 
