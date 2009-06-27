@@ -65,6 +65,8 @@ ThreadedClosing::ThreadedClosing() {
   running_ = true;
   pthread_mutex_init(&cond_mutex_, NULL);
   pthread_cond_init(&cond_, NULL);
+  pthread_attr_init(&attr_);
+  pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE);
   pthread_create(&thread_, &attr_, &ThreadedClosing::jobs_loop_, this);
 }
 
@@ -72,6 +74,7 @@ ThreadedClosing::~ThreadedClosing() {
   running_ = false;
   signal_();
   pthread_join(thread_, NULL);
+  pthread_attr_destroy(&attr_);
   pthread_cond_destroy(&cond_);
   pthread_mutex_destroy(&cond_mutex_);
 }
