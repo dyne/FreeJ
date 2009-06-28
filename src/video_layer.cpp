@@ -401,7 +401,7 @@ void *VideoLayer::feed() {
 	 */
 	if(ret!= 0) {
 	  eos->notify();
-	  eos->dispatcher->do_jobs(); /// XXX hack hack hack
+	  //	  eos->dispatcher->do_jobs(); /// XXX hack hack hack
 	  ret = seek(avformat_context->start_time);
 	  if (ret < 0) {
 	    error("VideoLayer::could not loop file");

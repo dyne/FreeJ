@@ -327,7 +327,7 @@ class DumbCallback {
     bool rem_call(DumbCall *call);
     void notify();
 
-    Closing *dispatcher;
+    ThreadedClosing *dispatcher;
 
   private:
     DumbCall *get_call_(DumbCall *call);

@@ -59,7 +59,7 @@ void DumbCall::dequeue() {
 }
 
 DumbCallback::DumbCallback() {
-  dispatcher = new Closing();
+  dispatcher = new ThreadedClosing();
 }
 
 DumbCallback::~DumbCallback() {
