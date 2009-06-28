@@ -59,11 +59,11 @@ void DumbCall::dequeue() {
 }
 
 DumbCallback::DumbCallback() {
-  dispatcher = new ThreadedClosing();
+  dispatcher_ = new ThreadedClosing();
 }
 
 DumbCallback::~DumbCallback() {
-  delete dispatcher;
+  delete dispatcher_;
   calls_.clear();
 }
 
@@ -89,7 +89,7 @@ void DumbCallback::notify() {
   std::list<DumbCall *>::iterator i;
   for (i=calls_.begin() ; i!=calls_.end() ; i++) {
     (*i)->enqueue();
-    dispatcher->add_job(NewClosure(*i, &DumbCall::notify));
+    dispatcher_->add_job(NewClosure(*i, &DumbCall::notify));
   }
 }
 

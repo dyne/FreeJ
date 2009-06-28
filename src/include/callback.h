@@ -327,12 +327,12 @@ class DumbCallback {
     bool rem_call(DumbCall *call);
     void notify();
 
-    ThreadedClosing *dispatcher;
-
   private:
     DumbCall *get_call_(DumbCall *call);
 
     std::list<DumbCall *> calls_;
+    ThreadedClosing *dispatcher_;
+
 };
 
 #endif // __CALLBACK_H__
