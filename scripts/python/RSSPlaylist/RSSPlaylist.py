@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# by Lluis Gomez y Bigorda
+# GNU GPL v3
 
 """
 Classes to make a continuous video stream playlist from an RSS feed.
@@ -25,6 +27,16 @@ import sys
 import inspect
 import urllib
 from RSS import ns, CollectionChannel, TrackingChannel
+
+end_of_video = False;
+
+class NextVideoCB(freej.DumbCall):
+  def __init__(self, *args):
+      super(NextVideoCB, self).__init__(*args)
+
+  def callback(self):
+      global end_of_video
+      end_of_video = True;
 
 
 class RSSsucker(object):
@@ -64,24 +76,36 @@ class RSSPlaylist(object):
     self.ctx_thread = None
 
     if len(self.rsssucker.list):
-      self.cx = freej.Context()
-      self.cx.init(self.width, self.height, 0, 0)
-      self.cx.plugger.refresh(self.cx)
-      self.ctx_thread = threading.Thread(target = self.cx.start,
-                                         name = "freej")
-      self.ctx_thread.start()
+        self.cx = freej.Context()
+        self.scr = freej.SdlScreen( self.width, self.height )
+        self.cx.add_screen(self.scr)
 
-      while (True):
-        for file in self.rsssucker.list:
-	  print file
-	  self.lay = self.cx.open(urllib.pathname2url(file).replace("%3A",":"))
-	  self.lay.fit()
-	  self.lay.active = True
-	  self.cx.add_layer(self.lay)
-	  time.sleep(5)
-          self.cx.rem_layer(self.lay)
+        self.cx.plugger.refresh(self.cx)
+        self.ctx_thread = threading.Thread(target = self.cx.start,
+                                           name = "freej")
+        self.ctx_thread.start()
+        
+        self.callback = NextVideoCB()
+        
+        while (not self.cx.quit):
+            
+            for file in self.rsssucker.list:
+                print file
+                self.lay = freej.VideoLayer()
+                self.lay.init(self.cx)
+
+                self.lay.open(urllib.pathname2url(file).replace("%3A",":"))
+                self.lay.add_eos_call(self.callback)
+                self.lay.start()
+
+                self.cx.add_layer(self.lay)
+                while(not end_of_video): time.sleep(5)
+                print "end of video"
+                self.lay.quit = True
+                self.cx.rem_layer(self.lay)
+
     else:
-      print "Cannot start a show without playlist!"
+        print "Cannot start a show without playlist!"
 
 
 
@@ -90,7 +114,7 @@ class RSSPlaylist(object):
 
 
 if len(sys.argv) > 1:
-    rssplaylist = RSSPlaylist(320,240,sys.argv[1])
+    rssplaylist = RSSPlaylist(400,300,sys.argv[1])
 else:
     rssplaylist = RSSPlaylist()
 

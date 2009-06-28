@@ -50,13 +50,18 @@ class DIRPlaylist(object):
             if( string.find(f,"mp4")>0):
                 videos.append(f)
                 print("+ " + f)
+            if( string.find(f,"avi")>0):
+                videos.append(f)
+                print("+ " + f)
 
         if(len(videos)<1):
             print("error: no videos found in dir " + dir)
             exit()
 
         self.cx = freej.Context()
-        self.cx.init(self.width, self.height, 0, 0)
+        self.scr = freej.SdlScreen( self.width, self.height )
+        self.cx.add_screen(self.scr)
+        
         self.cx.plugger.refresh(self.cx)
         self.ctx_thread = threading.Thread(target = self.cx.start,
                                            name = "freej")
@@ -64,33 +69,33 @@ class DIRPlaylist(object):
 
         current = 0
 
-        callback = NextVideoCB()
+        self.callback = NextVideoCB()
 
         while (not self.cx.quit):
 
             if(current >= len(videos)): current = 0
         
-            video = freej.VideoLayer()
-            video.init(self.cx)
+            self.video = freej.VideoLayer()
+            self.video.init(self.cx)
             
-            video.open(dir + "/" + videos[current])
-            video.add_eos_call(callback)
-            video.fit()
-            video.active = True
-            self.cx.add_layer(video)
-            video.start()
+            self.video.open(dir + "/" + videos[current])
+            self.video.add_eos_call(self.callback)
+#             self.video.fit()
+            self.video.start()
+
+            self.cx.add_layer(self.video)
             while(not end_of_video): time.sleep(5)
             print "end of video"
-            video.quit = True
+            self.video.quit = True
             time.sleep(1)
-            self.cx.rem_layer(video)
+            self.cx.rem_layer(self.video)
             current += 1
 
 
 ############### main()
 
 if len(sys.argv) > 1:
-    dirplaylist = DIRPlaylist(320,240,sys.argv[1])
+    dirplaylist = DIRPlaylist(400,300,sys.argv[1])
 else:
     dirplaylist = DIRPlaylist()
 
