@@ -20,30 +20,39 @@
 
 
 Closing::Closing() {
-  if(pthread_mutex_init(&job_queue_mutex_, NULL) == -1)
-    error("error initializing POSIX thread job queue mutex");
+  int r;
+  if ((r=pthread_mutex_init(&job_queue_mutex_, NULL)) != 0)
+    throw Error("Initializing job_queue_mutex_", r);
 }
 
 Closing::~Closing() {
+  int r;
   do_jobs(); // flush queue
-  if(pthread_mutex_destroy(&job_queue_mutex_) == -1)
-    error("error destroying POSIX thread job queue mutex");
+  if ((r=pthread_mutex_destroy(&job_queue_mutex_)) != 0)
+    error("In %s , pthread_mutex_destroy(): %s",
+          __PRETTY_FUNCTION__, strerror(r));
 }
 
 void Closing::add_job(Closure *job) {
-  pthread_mutex_lock(&job_queue_mutex_);
+  int r;
+  if ((r=pthread_mutex_lock(&job_queue_mutex_)) != 0)
+    throw Error("Locking job_queue_mutex_ to add job", r);
   job_queue_.push(job);
-  pthread_mutex_unlock(&job_queue_mutex_);
+  if ((r=pthread_mutex_unlock(&job_queue_mutex_)) != 0)
+    throw Error("Unlocking job_queue_mutex_ to add job", r);
 }
 
 Closure *Closing::get_job_() {
   Closure *job = NULL;
-  pthread_mutex_lock(&job_queue_mutex_);
+  int r;
+  if ((r=pthread_mutex_lock(&job_queue_mutex_)) != 0)
+    throw Error("Locking job_queue_mutex_ to get job", r);
   if (!job_queue_.empty()) {
     job = job_queue_.front();
     job_queue_.pop();
   }
-  pthread_mutex_unlock(&job_queue_mutex_);
+  if ((r=pthread_mutex_unlock(&job_queue_mutex_)) != 0)
+    throw Error("Unocking job_queue_mutex_ to get job", r);
   return job;
 }
 
@@ -62,27 +71,46 @@ void Closing::do_jobs() {
 
 
 ThreadedClosing::ThreadedClosing() {
+  int r;
   running_ = true;
-  pthread_mutex_init(&cond_mutex_, NULL);
-  pthread_cond_init(&cond_, NULL);
-  pthread_attr_init(&attr_);
-  pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE);
-  pthread_create(&thread_, &attr_, &ThreadedClosing::jobs_loop_, this);
+  if ((r=pthread_mutex_init(&cond_mutex_, NULL)) != 0)
+    throw Error("Initializing cond_mutex_", r);
+  if ((r=pthread_cond_init(&cond_, NULL)) != 0)
+    throw Error("Initializing cond_", r);
+  if ((r=pthread_attr_init(&attr_)) != 0)
+    throw Error("Initializing attr_", r);
+  if ((r=pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE)) != 0)
+    throw Error("Setting attr_ joinable", r);
+  if ((r=pthread_create(&thread_, &attr_, &ThreadedClosing::jobs_loop_, this)) != 0)
+    throw Error("Creating jobs_loop_ thread", r);
 }
 
 ThreadedClosing::~ThreadedClosing() {
+  int r;
   running_ = false;
   signal_();
-  pthread_join(thread_, NULL);
-  pthread_attr_destroy(&attr_);
-  pthread_cond_destroy(&cond_);
-  pthread_mutex_destroy(&cond_mutex_);
+  if ((r=pthread_join(thread_, NULL)) != 0)
+    error("In %s, pthread_join() : %s",
+          __PRETTY_FUNCTION__, strerror(r));
+  if ((r=pthread_attr_destroy(&attr_)) != 0)
+    error("In %s, pthread_attr_destroy() : %s",
+          __PRETTY_FUNCTION__, strerror(r));
+  if ((r=pthread_cond_destroy(&cond_)) != 0)
+    error("In %s, pthread_cond_destroy() : %s",
+          __PRETTY_FUNCTION__, strerror(r));
+  if ((r=pthread_mutex_destroy(&cond_mutex_)) != 0)
+    error("In %s, pthread_mutex_destroy() : %s",
+          __PRETTY_FUNCTION__, strerror(r));
 }
 
 void ThreadedClosing::signal_() {
-  pthread_mutex_lock(&cond_mutex_);
-  pthread_cond_broadcast(&cond_);
-  pthread_mutex_unlock(&cond_mutex_);
+  int r;
+  if ((r=pthread_mutex_lock(&cond_mutex_)) != 0)
+    throw Error("Pre-signal locking of cond_mutex_", r);
+  if ((r=pthread_cond_broadcast(&cond_)) != 0)
+    throw Error("Signaling cond_", r);
+  if ((r=pthread_mutex_unlock(&cond_mutex_)) != 0)
+    throw Error("Post-signal unlocking of cond_mutex_", r);
 }
 
 void ThreadedClosing::add_job(Closure *job) {
@@ -91,13 +119,18 @@ void ThreadedClosing::add_job(Closure *job) {
 }
 
 void *ThreadedClosing::jobs_loop_(void *arg) {
+  int r;
   ThreadedClosing *me = (ThreadedClosing *)arg;
-  pthread_mutex_lock(&me->cond_mutex_);
+  if ((r=pthread_mutex_lock(&me->cond_mutex_)) != 0)
+    throw ThreadError("First lock of cond_mutex_", r);
   while (me->running_) {
     me->do_jobs();
-    pthread_cond_wait(&me->cond_, &me->cond_mutex_);
+    if ((r=pthread_cond_wait(&me->cond_, &me->cond_mutex_)) != 0)
+    throw ThreadError("Waiting cond_", r);
   }
-  pthread_mutex_unlock(&me->cond_mutex_);
+  if ((r=pthread_mutex_unlock(&me->cond_mutex_)) != 0)
+    throw ThreadError("Final unlock for cond_mutex_", r);
   return NULL;
 }
 
+// vim:tabstop=2:expandtab:shiftwidth=2

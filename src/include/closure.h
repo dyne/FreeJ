@@ -1,8 +1,6 @@
 #ifndef __CLOSURE_H__
 #define __CLOSURE_H__
 
-#include <pthread.h>
-
 /*
  * Copyright (C) 2009 - Luca Bigliardi
  * This program is free software; you can redistribute it and/or
@@ -21,9 +19,12 @@
  *
  */
 
+#include <pthread.h>
+
+#include <cstring>
 #include <queue>
 
-using std::queue;
+#include <jutils.h>
 
 class Closure;
 
@@ -39,22 +40,40 @@ class Closure;
  */
 
 class Closing {
- public:
-  Closing();
-  ~Closing();
+  public:
+    class Error : public FreejError {
+      public:
+        Error(const std::string& msg, int rv)
+          : FreejError(msg, rv) { }
+    };
 
-  void add_job(Closure *job);
-  void do_jobs();
+    Closing();
+    ~Closing();
 
- private:
-  Closure *get_job_();
-  queue<Closure *> job_queue_;
-  pthread_mutex_t job_queue_mutex_;
+    void add_job(Closure *job);
+    void do_jobs();
+
+  private:
+    Closure *get_job_();
+    std::queue<Closure *> job_queue_;
+    pthread_mutex_t job_queue_mutex_;
 
 };
 
 class ThreadedClosing : Closing {
   public:
+    class Error : public FreejError {
+      public:
+        Error(const std::string& msg, int rv)
+          : FreejError(msg, rv) { }
+    };
+
+    class ThreadError : public Error {
+      public:
+        ThreadError(const std::string& msg, int rv)
+          : Error(msg, rv) { }
+    };
+
     ThreadedClosing();
     ~ThreadedClosing();
 
@@ -120,25 +139,47 @@ class ThreadedClosing : Closing {
 
 class Closure {
   public:
+    class Error : public FreejError {
+      public:
+        Error(const std::string& msg, int rv)
+          : FreejError(msg, rv) { }
+    };
+
     Closure(bool synchronized) : synchronized_(synchronized) {
       if (synchronized_) {
-        pthread_mutex_init(&cond_mutex_, NULL);
-        pthread_cond_init(&cond_, NULL);
-        pthread_mutex_lock(&cond_mutex_);
+        int r;
+        if ((r=pthread_mutex_init(&cond_mutex_, NULL)) != 0)
+          throw Error("Initializing cond_mutex_", r);
+        if ((r=pthread_cond_init(&cond_, NULL)) != 0)
+          throw Error("Initializing cond_", r);
+        if ((r=pthread_mutex_lock(&cond_mutex_)) != 0)
+          throw Error("Preliminary lock of cond_mutex_", r);
       }
     }
     ~Closure() {
       if (synchronized_) {
-        pthread_cond_destroy(&cond_);
-        pthread_mutex_destroy(&cond_mutex_);
+        int r;
+        if ((r=pthread_mutex_unlock(&cond_mutex_)) != 0)
+          error("In %s , pthread_mutex_unlock(): %s",
+                __PRETTY_FUNCTION__, strerror(r));
+        if ((r=pthread_cond_destroy(&cond_)) != 0)
+          error("In %s , pthread_cond_destroy(): %s",
+                __PRETTY_FUNCTION__, strerror(r));
+        if ((r=pthread_mutex_destroy(&cond_mutex_)) != 0)
+          error("In %s , pthread_mutex_destroy(): %s",
+                __PRETTY_FUNCTION__, strerror(r));
       }
     }
     void run() {
       run_();
       if (synchronized_) {
-        pthread_mutex_lock(&cond_mutex_);
-        pthread_cond_broadcast(&cond_);
-        pthread_mutex_unlock(&cond_mutex_);
+        int r;
+        if ((r=pthread_mutex_lock(&cond_mutex_)) != 0)
+          throw Error("Pre-signal locking of cond_mutex_", r);
+        if ((r=pthread_cond_broadcast(&cond_)) != 0)
+          throw Error("Signaling cond_", r);
+        if ((r=pthread_mutex_unlock(&cond_mutex_)) != 0)
+          throw Error("Post-signal unlocking of cond_mutex_", r);
       }
     }
     bool is_synchronized() {
@@ -146,7 +187,9 @@ class Closure {
     }
     void wait() {
       if (synchronized_) {
-        pthread_cond_wait(&cond_, &cond_mutex_);
+        int r;
+        if ((r=pthread_cond_wait(&cond_, &cond_mutex_)) != 0)
+          throw Error("Waiting cond_", r);
       }
     }
   private:
