@@ -116,7 +116,7 @@ m_ProcessPos(0)
 	m_Mutex = new pthread_mutex_t;
 	pthread_mutex_init(m_Mutex,NULL);
 	
-	JackClient *Jack = JackClient::Get();
+	Jack = JackClient::Get();
 	Jack->SetCallback(AudioCallback,(void*)this);
 	Jack->Attach("freej");
 	if (Jack->IsAttached())

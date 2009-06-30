@@ -19,6 +19,8 @@
 #include <pthread.h>
 #include <string>
 
+class JackClient;
+
 #ifndef AUDIO_COLLECTOR
 #define AUDIO_COLLECTOR
 
@@ -65,6 +67,8 @@ public:
   unsigned int Samplerate;
   unsigned int BufferLength;
   
+  JackClient *Jack;
+
  private:
   
   void AudioCallback_i(unsigned int);
@@ -91,6 +95,7 @@ public:
   float *m_ProcessBuffer;
   unsigned int m_ProcessPos;
   unsigned int m_ProcessLength;
+
 };
 
 #endif
