@@ -137,6 +137,27 @@ JS(js_audio_jack_get_harmonic) {
   return JS_FALSE;
 }
 
+JS(js_audio_add_layer) {
+   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+   Layer *lay;
+   JSObject *jslayer;
+   *rval=JSVAL_FALSE;
+
+   if(argc<1) JS_ERROR("missing argument");
+   js_is_instanceOf(&layer_class, argv[0]);
+   
+   jslayer = JSVAL_TO_OBJECT(argv[0]);
+   lay = (Layer *) JS_GetPrivate(cx, jslayer);
+   if(!lay) JS_ERROR("Layer core data is NULL");
+   
+   AudioCollector *audio = (AudioCollector*)JS_GetPrivate(cx, obj);
+     
+   lay->screen->add_audio( audio->jack );
+
+   return JS_TRUE;
+}
+
 JS(js_audio_jack_fft) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   char excp_msg[MAX_ERR_MSG + 1];
