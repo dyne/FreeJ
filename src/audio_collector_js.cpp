@@ -153,7 +153,7 @@ JS(js_audio_add_layer) {
    
    AudioCollector *audio = (AudioCollector*)JS_GetPrivate(cx, obj);
      
-   lay->screen->add_audio( audio->jack );
+   lay->screen->add_audio( audio->Jack );
 
    return JS_TRUE;
 }
