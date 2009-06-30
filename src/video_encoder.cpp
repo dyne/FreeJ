@@ -101,6 +101,7 @@ VideoEncoder::VideoEncoder()
   fps->init(25); // default FPS
 
   // initialize the encoded data pipe
+  // TODO: set the size to width * height * 4 * nframes (3-4)
   ringbuffer = ringbuffer_create(1048*2096);
 
   shout_init();

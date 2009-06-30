@@ -271,6 +271,12 @@ bool VideoLayer::open(const char *file) {
 	audio_channels = audio_codec_ctx->channels;
 	audio_samplerate = audio_codec_ctx->sample_rate;
 
+	// TODO : read the format of the audio
+	// (signed or not, conversion to float)
+
+	// 
+
+
 	act("audio stream (codec: %s) has %u channels at samplerate %u",
 	    audio_codec->name, audio_channels, audio_samplerate);
 
@@ -509,9 +515,14 @@ void *VideoLayer::feed() {
 int VideoLayer::decode_audio_packet() {
   int data_size, res;
   
+#if LIBAVCODEC_VERSION_MAJOR < 52
   res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
 			      &data_size, pkt.data, pkt.size);
-  
+#else
+  res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
+			      &data_size, &pkt);
+#endif
+
   if(res < 0) {
     /* if error, skip frame */
     pkt.size = 0;
