@@ -500,6 +500,12 @@ void *VideoLayer::feed() {
     else if(pkt.stream_index == audio_index) {
       if(use_audio) {
 	len1 = decode_audio_packet();
+
+	// TODO: convert audio to float-values here.
+	// decode_int16_to_float() in audio_jack.cpp
+
+	// resample audio  
+
 	ringbuffer_write(screen->audio, (const char*)audio_buf, len1);
       }
     }

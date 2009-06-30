@@ -82,6 +82,9 @@ class VideoLayer: public Layer {
 
 	bool use_audio; ///< set true if audio should be decoded and fed to the scren->audio FIFO pipe
 
+	double audio_channels;
+	double audio_samplerate;
+
     private:
 	/**
 	 * av(codec|format) aka ffmpeg related variables
@@ -116,9 +119,6 @@ class VideoLayer: public Layer {
 	double video_clock;
 	double video_current_pts;
 	double video_current_pts_time;
-
-	double audio_channels;
-	double audio_samplerate;
 
 	/**
 	 * Number of decoded frames. As for now together with picture_number

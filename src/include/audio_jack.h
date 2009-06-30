@@ -20,6 +20,8 @@
 #include <iostream>
 #include <jack/jack.h>
 
+#include <ringbuffer.h>
+
 using namespace std;
 
 typedef jack_default_audio_sample_t sample_t;
@@ -51,6 +53,8 @@ public:
 	void   SetOutputBuf(int ID, float* s);
          int 	 AddInputPort();
          int 	 AddOutputPort();
+	
+	int SetRingbufferPtr(ringbuffer_t *rb, int samplerate, int channels); ///< connect a rinbuffer to JACK out
 
 protected:
 	JackClient();
@@ -61,6 +65,7 @@ protected:
 	static void OnJackShutdown(void *o);
 
 private:
+
 
 	class JackPort
 	{		
@@ -74,6 +79,8 @@ private:
 		jack_port_t*   Port;
 		string         ConnectedTo;
 	};
+
+	ringbuffer_t*      m_ringbuffer;
 
 	static JackClient*        m_Singleton;
 	static jack_client_t*     m_Client;

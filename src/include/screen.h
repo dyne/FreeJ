@@ -72,6 +72,7 @@ template <class T> class Linklist;
 #endif
 #endif
 
+class JackClient;
 class Layer;
 class Context;
 class VideoEncoder;
@@ -100,6 +101,7 @@ class ViewPort : public Entry {
   void blit_layers();
 
   virtual bool add_layer(Layer *lay); ///< add a new layer to the screen
+  virtual bool add_audio(JackClient *jcl); ///< connect layer to audio output
   virtual void rem_layer(Layer *lay); ///< remove a layer from the screen
     
   Linklist<Layer> layers; ///< linked list of registered layers

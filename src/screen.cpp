@@ -25,11 +25,13 @@
 #include <screen.h>
 #include <layer.h>
 #include <video_encoder.h>
+#include <audio_jack.h>
 #include <ringbuffer.h>
 
 #include <scale2x.h>
 #include <scale3x.h>
 
+#include <video_layer.h>
 
 ViewPort::ViewPort(int w, int h)
   : Entry() {
@@ -119,6 +121,12 @@ bool ViewPort::add_layer(Layer *lay) {
   lay->active = true;
   func("layer %s added to screen %s",lay->name, name);
   return(true);
+}
+
+bool ViewPort::add_audio(JackClient *jcl) {
+ 	if (layers.len() == 0 ) return false;	
+
+	jcl->SetRingbufferPtr(audio, (int) ((VideoLayer*) layers.begin())->audio_samplerate, (int) ((VideoLayer*) layers.begin())->audio_channels);
 }
 
 void ViewPort::rem_layer(Layer *lay)

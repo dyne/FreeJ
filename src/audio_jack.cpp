@@ -54,6 +54,7 @@ JackClient::~JackClient()
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+
 bool JackClient::Attach(const string &ClientName)
 {
 	if (m_Attached) return true;
@@ -64,7 +65,7 @@ bool JackClient::Attach(const string &ClientName)
 	  return false;
 	}
 
-	jack_set_process_callback(m_Client, JackClient::Process, 0);
+	jack_set_process_callback(m_Client, JackClient::Process, this);
 	jack_set_sample_rate_callback (m_Client, JackClient::OnSRateChange, 0);
 	jack_on_shutdown (m_Client, JackClient::OnJackShutdown, this);
 
@@ -101,7 +102,7 @@ void JackClient::Detach()
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-int JackClient::Process(jack_nframes_t nframes, void *o)
+int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
 	for (map<int,JackPort*>::iterator i=m_InputPortMap.begin();
 		i!=m_InputPortMap.end(); i++)
@@ -119,7 +120,11 @@ int JackClient::Process(jack_nframes_t nframes, void *o)
 		if (i->second->Buf)
 		{
 			sample_t *out = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
+			memset (out, 0, sizeof (sample_t) * m_BufferSize); // TODO: only-zero pad after ringbuffer-size
+			ringbuffer_read(((JackClient*) self)->m_ringbuffer, (char *) out, nframes);
+	/*
 			memcpy (out, i->second->Buf, sizeof (sample_t) * m_BufferSize);
+	*/
 		}
 		else // no output availible, clear
 		{
@@ -138,6 +143,18 @@ int JackClient::Process(jack_nframes_t nframes, void *o)
 	
 	return 0;
 }
+
+int JackClient::SetRingbufferPtr(ringbuffer_t *rb, int samplerate, int channels) {
+	int i;
+	m_ringbuffer = rb;
+
+	// TODO: if samplerate doesnot match bail out
+	for (i=0; i<channels; i++) {
+		AddOutputPort();
+	}
+	return (0);
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 

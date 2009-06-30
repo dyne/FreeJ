@@ -31,6 +31,7 @@
 #include "mouse_ctrl.h"
 #include "wiimote_ctrl.h"
 #include "osc_ctrl.h"
+#include "audio_collector.h"
 
 %}
 
@@ -101,6 +102,8 @@ freej_entry_typemap_in(Encoder);
 %include "jutils.h"
 %include "context.h"
 %include "screen.h"
+
+%include "audio_collector.h"
 
 %ignore DumbCallback;
 %feature("director") DumbCall;

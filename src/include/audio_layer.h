@@ -16,8 +16,8 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __FREEJ_UNICAP_H__
-#define __FREEJ_UNICAP_H__
+#ifndef __FREEJ_AUDIO_H__
+#define __FREEJ_AUDIO_H__
 
 #include <unicap.h>
 #include <unicap_status.h>
