@@ -378,7 +378,7 @@ JS(vscroll_layer_kerning);
 JS(js_audio_jack_add_output);
 JS(js_audio_jack_get_harmonics);
 JS(js_audio_jack_fft);
-JS(js_audio_add_layer);
+JS(js_audio_jack_add_layer);
 
 ////////////////////////////////
 // Goom Layer methods

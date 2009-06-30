@@ -41,6 +41,7 @@ JS(js_audio_jack_get_harmonic);
 JS(js_audio_jack_fft);
 
 JSFunctionSpec js_audio_jack_methods[] = {
+  {"set_layer", js_audio_jack_add_layer, 1},
   {"add_output", js_audio_jack_add_output, 1},
   {"get_harmonic", js_audio_jack_get_harmonic, 1},
   {"fft", js_audio_jack_fft, 0},
@@ -137,7 +138,7 @@ JS(js_audio_jack_get_harmonic) {
   return JS_FALSE;
 }
 
-JS(js_audio_add_layer) {
+JS(js_audio_jack_add_layer) {
    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
    Layer *lay;
