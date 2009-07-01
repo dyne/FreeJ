@@ -33,6 +33,7 @@
 #include <jutils.h>
 
 #include <ringbuffer.h>
+#include <jack/jack.h>
 
 #include <video_layer.h>
 
@@ -65,7 +66,7 @@ VideoLayer::VideoLayer()
   audio_codec = NULL;
   audio_buf = NULL;
 
-  use_audio = false;
+  use_audio = true;
 
   backward_control=false;
   deinterlace_buffer = NULL;
@@ -254,6 +255,7 @@ bool VideoLayer::open(const char *file) {
     case CODEC_TYPE_AUDIO:
       audio_index = i;
       audio_codec_ctx = enc;
+      func ("VideoLayer :: audio id=%i", audio_index);
 
       audio_codec = avcodec_find_decoder(audio_codec_ctx -> codec_id);
       if(audio_codec==NULL) {
@@ -266,18 +268,12 @@ bool VideoLayer::open(const char *file) {
 	
       } else { // correctly opened
 
-	audio_buf = (uint8_t*)calloc((AVCODEC_MAX_AUDIO_FRAME_SIZE * 3) / 2, 1);
+	audio_buf = (uint8_t*)calloc(AVCODEC_MAX_AUDIO_FRAME_SIZE, sizeof(int16_t));
 	
 	audio_channels = audio_codec_ctx->channels;
 	audio_samplerate = audio_codec_ctx->sample_rate;
 
-	// TODO : read the format of the audio
-	// (signed or not, conversion to float)
-
-	// 
-
-
-	act("audio stream (codec: %s) has %u channels at samplerate %u",
+	act("VideoLayer :: audio stream (codec: %s) has %u channels at samplerate %u",
 	    audio_codec->name, audio_channels, audio_samplerate);
 
       }
@@ -499,14 +495,11 @@ void *VideoLayer::feed() {
     // audio packet decoding
     else if(pkt.stream_index == audio_index) {
       if(use_audio) {
-	len1 = decode_audio_packet();
-
-	// TODO: convert audio to float-values here.
-	// decode_int16_to_float() in audio_jack.cpp
-
-	// resample audio  
-
-	ringbuffer_write(screen->audio, (const char*)audio_buf, len1);
+	int data_size;
+	len1 = decode_audio_packet(&data_size);
+	if (len1 > 0)  {
+	  ringbuffer_write(screen->audio, (const char*)audio_buf, data_size);
+	}
       }
     }
     
@@ -519,23 +512,31 @@ void *VideoLayer::feed() {
 
 
 int VideoLayer::decode_audio_packet() {
-  int data_size, res;
-  
-#if LIBAVCODEC_VERSION_MAJOR < 53
+  return decode_audio_packet(NULL);
+}
+
+int VideoLayer::decode_audio_packet(int *data_size) {
+  int datasize, res;
+
+  datasize = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+
+#if LIBAVCODEC_VERSION_MAJOR < 52
   res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
-			      &data_size, pkt.data, pkt.size);
+			      &datasize, pkt.data, pkt.size);
 #else
   res = avcodec_decode_audio3(audio_codec_ctx, (int16_t *)audio_buf,
-			      &data_size, &pkt);
+			      &datasize, &pkt);
 #endif
 
+  if (data_size) *data_size = datasize; 
+  
   if(res < 0) {
     /* if error, skip frame */
     pkt.size = 0;
     return 0;
   }
   /* We have data, return it and come back for more later */
-  return data_size;
+  return res;
 }
    
 int VideoLayer::decode_video_packet(int *got_picture) {
@@ -555,14 +556,9 @@ int VideoLayer::decode_video_packet(int *got_picture) {
 
 	avcodec_get_frame_defaults (&av_frame);
 	
-#if LIBAVCODEC_VERSION_MAJOR < 53
 	int lien = avcodec_decode_video(video_codec_ctx, &av_frame,
 					got_picture, ptr,packet_len);
-#else
-	int lien = avcodec_decode_video2(video_codec_ctx, &av_frame,
-					got_picture, &pkt);
-#endif
-
+	
 	pts1 = packet_pts;
 	if (packet_pts != 0) {
 		/* update video clock with pts, if present */

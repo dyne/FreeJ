@@ -82,8 +82,8 @@ class VideoLayer: public Layer {
 
 	bool use_audio; ///< set true if audio should be decoded and fed to the scren->audio FIFO pipe
 
-	double audio_channels;
-	double audio_samplerate;
+	int audio_channels;
+	int audio_samplerate;
 
     private:
 	/**
@@ -158,6 +158,7 @@ class VideoLayer: public Layer {
 
 	/** private methods */
 	int decode_video_packet( int *got_picture);
+	int decode_audio_packet( int *data_size);
 	int decode_audio_packet();
 
 	int seek(int64_t timestamp);
