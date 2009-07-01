@@ -59,7 +59,7 @@ public:
 protected:
 	JackClient();
 	~JackClient();
-	
+
 	static int  Process(jack_nframes_t nframes, void *o);
 	static int  OnSRateChange(jack_nframes_t n, void *o);
 	static void OnJackShutdown(void *o);
@@ -81,6 +81,9 @@ private:
 	};
 
 	ringbuffer_t*      m_ringbuffer;
+	int 		   m_ringbufferchannels;
+	char* 		   m_inbuf;
+	
 
 	static JackClient*        m_Singleton;
 	static jack_client_t*     m_Client;
