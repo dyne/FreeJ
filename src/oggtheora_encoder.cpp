@@ -85,11 +85,11 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
 
   if(use_audio && audio) {
 
-    func("allocating encoder audio buffer of %u bytes",audio->BufferLength);
-    audio_buf = (float*)calloc(audio->BufferLength, sizeof(float));
+    func("allocating encoder audio buffer of %u bytes",audio->buffersize);
+    audio_buf = (float*)calloc(audio->buffersize, sizeof(float));
 
     oggmux.video_only = 0;
-    oggmux.sample_rate = audio->Samplerate;
+    oggmux.sample_rate = audio->samplerate;
     oggmux.channels = 1; // only 1 channel jack support for now
     oggmux.vorbis_quality = audio_quality / 100;
     oggmux.vorbis_bitrate = audio_bitrate;
@@ -220,7 +220,7 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 
 #ifdef WITH_SOUND
   //  num = env->audio->framesperbuffer*env->audio->channels*sizeof(int16_t);
-  func("going to encode %u bytes of audio", audio->BufferLength);
+  func("going to encode %u bytes of audio", audio->buffersize);
   ///// QUAAAA
   //  oggmux_add_audio (oggmux_info *info, int16_t * readbuffer, int bytesread, int samplesread,int e_o_s);
   //  oggmux_add_audio(&oggmux, env->audio->input,

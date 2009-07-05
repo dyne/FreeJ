@@ -1,13 +1,16 @@
 
-audio = new AudioJack("freej", 1024, 48000);
+audio = new AudioJack("freej", 1024, 44100);
 
-animation_file = "/home/rgareus/Desktop/TELESCOPERA_MPEG2.mpg";
+animation_file = "/home/jaromil/Movies/TheRevolutionWillNotBeTelevisedGilScottHeron.mp4";
 
 anim = new MovieLayer(animation_file);
-anim.set_fps(25);
+
+anim.activate(true);
+
 add_layer(anim);
 
 audio.set_layer(anim);
 
-anim.activate(true);
+
+
 

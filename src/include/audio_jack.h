@@ -55,6 +55,9 @@ public:
          int 	 AddOutputPort();
 	
 	int SetRingbufferPtr(ringbuffer_t *rb, int samplerate, int channels); ///< connect a rinbuffer to JACK out
+	static long unsigned int  m_BufferSize;
+	static long unsigned int  m_SampleRate;	
+	static bool               m_Attached;
 
 protected:
 	JackClient();
@@ -89,9 +92,6 @@ private:
 	static jack_client_t*     m_Client;
 	static map<int,JackPort*> m_InputPortMap;	
 	static map<int,JackPort*> m_OutputPortMap;	
-	static long unsigned int  m_BufferSize;
-	static long unsigned int  m_SampleRate;	
-	static bool               m_Attached;
 	int m_NextInputID;
 	int m_NextOutputID;
 	

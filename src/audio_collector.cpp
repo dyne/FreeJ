@@ -94,21 +94,21 @@ m_OneOverSHRT_MAX(1/(float)SHRT_MAX),
 m_Processing(false),
 m_ProcessPos(0)
 {
-	BufferLength = n_BufferLength;
-	Samplerate = n_Samplerate;
-	m_BufferTime = BufferLength/(float)Samplerate;
+  buffersize = n_BufferLength;
+  samplerate = n_Samplerate;
+	m_BufferTime = buffersize/(float)samplerate;
 	
-	m_Buffer = (float*) jalloc(BufferLength * sizeof(float));
-	memset(m_Buffer,0,BufferLength*sizeof(float));
+	m_Buffer = (float*) jalloc(buffersize * sizeof(float));
+	memset(m_Buffer,0,buffersize*sizeof(float));
 	
-	m_FFTBuffer = (float*) jalloc(BufferLength*m_FFTBuffers*sizeof(float));
-	memset(m_FFTBuffer,0,BufferLength*sizeof(float));
+	m_FFTBuffer = (float*) jalloc(buffersize*m_FFTBuffers*sizeof(float));
+	memset(m_FFTBuffer,0,buffersize*sizeof(float));
 	
-	m_JackBuffer = (float*) jalloc(BufferLength*sizeof(float));
-	memset(m_JackBuffer,0,BufferLength*sizeof(float));
+	m_JackBuffer = (float*) jalloc(buffersize*sizeof(float));
+	memset(m_JackBuffer,0,buffersize*sizeof(float));
 	
-	m_AudioBuffer = (float*) jalloc(BufferLength*sizeof(float));
-	memset(m_AudioBuffer,0,BufferLength*sizeof(float));
+	m_AudioBuffer = (float*) jalloc(buffersize*sizeof(float));
+	memset(m_AudioBuffer,0,buffersize*sizeof(float));
 	
 	m_FFTOutput = new float[NUM_BARS];
 	for (int n=0; n<NUM_BARS; n++) m_FFTOutput[n]=0;
@@ -129,6 +129,10 @@ m_ProcessPos(0)
 	{
 	  error("Could not attach to jack");
 	}
+	Jack->m_SampleRate = samplerate;
+	Jack->m_BufferSize = buffersize;
+	attached = true;
+	  
 }
 
 AudioCollector::~AudioCollector()
@@ -154,10 +158,10 @@ float *AudioCollector::GetFFT()
 {
 	if (m_Processing)
 	{
-		if (m_ProcessPos+BufferLength<m_ProcessLength)
+		if (m_ProcessPos+buffersize<m_ProcessLength)
 		{
 			m_FFT.Impulse2Freq(m_ProcessBuffer+m_ProcessPos,m_FFTBuffer);
-			m_ProcessPos+=BufferLength;
+			m_ProcessPos+=buffersize;
 		}
 		else
 		{
@@ -170,7 +174,7 @@ float *AudioCollector::GetFFT()
 	else
 	{
 		pthread_mutex_lock(m_Mutex);
-		jmemcpy((void*)m_AudioBuffer,(void*)m_Buffer,BufferLength*sizeof(float));
+		jmemcpy((void*)m_AudioBuffer,(void*)m_Buffer,buffersize*sizeof(float));
 		pthread_mutex_unlock(m_Mutex);
 		
 		m_FFT.Impulse2Freq(m_AudioBuffer,m_FFTBuffer);
@@ -241,16 +245,16 @@ void AudioCollector::Process(const string &filename)
 void AudioCollector::get_audio(void *dest) {
   if (!pthread_mutex_trylock(m_Mutex))
     {
-      jmemcpy(dest, (void*)m_Buffer, BufferLength*sizeof(float));
+      jmemcpy(dest, (void*)m_Buffer, buffersize*sizeof(float));
       pthread_mutex_unlock(m_Mutex);
     }
 }
      
 void AudioCollector::AudioCallback_i(unsigned int Size)
 {
-	if (Size<=BufferLength && !pthread_mutex_trylock(m_Mutex))
+	if (Size<=buffersize && !pthread_mutex_trylock(m_Mutex))
 	{
-	  jmemcpy((void*)m_Buffer,(void*)m_JackBuffer,BufferLength*sizeof(float));
+	  jmemcpy((void*)m_Buffer,(void*)m_JackBuffer,buffersize*sizeof(float));
 	  pthread_mutex_unlock(m_Mutex);
 	}
 }

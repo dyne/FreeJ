@@ -28,6 +28,7 @@
 #include <jsparser_data.h>
 
 #include <audio_collector.h>
+#include <audio_jack.h>
 
 /// Javascript audio collector
 JS(js_audio_jack_constructor);
@@ -151,10 +152,24 @@ JS(js_audio_jack_add_layer) {
    jslayer = JSVAL_TO_OBJECT(argv[0]);
    lay = (Layer *) JS_GetPrivate(cx, jslayer);
    if(!lay) JS_ERROR("Layer core data is NULL");
+
+   if(!lay->screen) {
+     error("layer %s is not added to any screen", lay->name);
+     *rval = JSVAL_FALSE;
+     return JS_TRUE;
+   }
    
    AudioCollector *audio = (AudioCollector*)JS_GetPrivate(cx, obj);
-     
+   if(!audio) JS_ERROR("Audio core data is NULL");
+   if(!audio->attached) {
+     error("audio jack is not attached (jack daemon not running?)");
+     *rval = JSVAL_FALSE;
+     return JS_TRUE;
+   }
+
    lay->screen->add_audio( audio->Jack );
+
+   *rval = JSVAL_TRUE;
 
    return JS_TRUE;
 }

@@ -191,16 +191,16 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 	return 0;
 }
 
-int JackClient::SetRingbufferPtr(ringbuffer_t *rb, int samplerate, int channels) {
+int JackClient::SetRingbufferPtr(ringbuffer_t *rb, int rate, int channels) {
 	int i;
 	m_ringbuffer = NULL;
 
 	func ("jack-client ringbuffer set for %i channels", channels);
 
 	// TODO: if samplerate doesnot match bail out
-	if (m_SampleRate != samplerate) {
+	if (m_SampleRate != rate) {
 	   // resampling is not yet implemented 
-	   func ("JACK :: JACK and layer sample-rate mismatch (%i vs %i)!!",m_SampleRate, samplerate);
+	  func ("JACK :: JACK and layer sample-rate mismatch (%i vs %i)!!",m_SampleRate, rate);
 	}
 
 	for (i=m_NextOutputID; i<channels; i++) {
