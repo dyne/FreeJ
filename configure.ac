@@ -149,10 +149,7 @@ AC_CHECK_FUNCS([atexit bzero clock_gettime floor ftime getcwd gethostbyaddr \
 		strpbrk strrchr strstr strtol])
 
 dnl Check for dlopen support
-AC_LIBTOOL_DLOPEN
-AC_DISABLE_STATIC
-
-AM_PROG_LIBTOOL
+LT_INIT([disable-static dlopen])
 
 dnl This macro is defined in our own m4/as.m4 for compatibility with old
 dnl automake versions, if you experience problems please use AM_PROG_AS
