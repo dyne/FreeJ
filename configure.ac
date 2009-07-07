@@ -82,7 +82,6 @@ case $uname in
 esac
 
 AC_SUBST(DL_LIBS)
-AC_PROG_MAKE_SET
 
 dnl ==============================================================
 dnl Setup for automake
@@ -97,14 +96,57 @@ AC_CONFIG_HEADERS([config.h])
 # never run autotools and configure automatically
 AM_MAINTAINER_MODE
 
-dnl ==============================================================
-dnl Check for tools
-dnl ==============================================================
-AC_PROG_CC
-AC_PROG_CXX
+# Checks for programs.
 AC_PROG_LEX
 AC_PROG_YACC
+AC_PROG_CXX
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
 
+# Checks for header files.
+AC_HEADER_STDC
+AC_PATH_X
+AC_FUNC_ALLOCA
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h limits.h locale.h \
+		memory.h netdb.h netinet/in.h sgtty.h stddef.h stdint.h \
+		stdlib.h string.h strings.h sys/file.h sys/ioctl.h sys/socket.h \
+		sys/time.h sys/timeb.h termio.h termios.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_INT8_T
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_STRUCT_TIMEZONE
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
+AC_CHECK_TYPES([ptrdiff_t])
+
+# Checks for library functions.
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_FORK
+AC_FUNC_MALLOC
+AC_FUNC_MKTIME
+AC_FUNC_MMAP
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([atexit bzero clock_gettime floor ftime getcwd gethostbyaddr \
+		gethostbyname gethostname gettimeofday inet_ntoa localeconv \
+		localtime_r memmove memset munmap pow putenv rint select setenv \
+		socket sqrt strcasecmp strchr strdup strerror strncasecmp \
+		strpbrk strrchr strstr strtol])
 
 dnl Check for dlopen support
 AC_LIBTOOL_DLOPEN
@@ -196,17 +238,6 @@ fi
 #fi
 
 #LIBS="-lpthread -lm -ldl"
-
-dnl Checks for header files.
-AC_HEADER_STDC
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
-
-dnl ==============================================================
-dnl Checks for library functions.
-dnl ==============================================================
-AC_CHECK_FUNCS(select malloc mmap ioctl)
 
 
 dnl ==============================================================
