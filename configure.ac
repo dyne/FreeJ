@@ -14,25 +14,26 @@ m4_define([FREEJ_RELEASE_VERSION], [FREEJ_MAJ_VER.FREEJ_MIN_VER.FREEJ_REL_VER])
 AC_INIT([freej],[FREEJ_RELEASE_VERSION])
 
 AC_CANONICAL_HOST
+# TODO(godog) this is required only by am_path_sdl and IMO useless, since 1.2.11
+# sdl ships pkgconfig so it might be worth using that
 AC_CANONICAL_TARGET
 
 dnl ==============================================================
 dnl Get the operating system and version number...
 dnl ==============================================================
-uname=`uname`
-uversion=`uname -r | sed -e 's/-.*$//g;s/[\.]//g'`
 AC_MSG_CHECKING(for which platform we are compiling)
-case $uname in
-     Linux)
+case $host_os in
+     *linux*)
      AC_MSG_RESULT(Linux)
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
      DL_LIBS="-ldl"
      have_linux=yes
 
-     case $target_cpu in
+     case $host_cpu in
        powerpc*)
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
+       # TODO(godog) what about ppc64?
        AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
        AC_DEFINE(HAVE_ALTIVEC,1,[define if cpu supports Altivec instruction set])
        AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
@@ -52,32 +53,31 @@ case $uname in
        AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
 #       AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
        ;;
-
-
-       *)
-       ;;
      esac
-
      ;;
 
-     Darwin)
+     *darwin*)
      AC_MSG_RESULT(Darwin/OSX)
      AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
      AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
      have_darwin=yes
      ;;
-     FreeBSD)
+
+     *freebsd*)
      AC_MSG_RESULT(FreeBSD)
      AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
      AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
      CFLAGS="$CFLAGS -I/usr/local/include -L/usr/local/lib"
      have_freebsd=yes
      ;;
+
      *)
-     echo "[!] Your system architecture is not supported by FreeJ"
-     echo "[!] if you are interested in porting FreeJ to your architecture"
-     echo "[!] you are very welcome to contact me <jaromil@dyne.org>"
-     exit 0
+     AC_MSG_RESULT([$host_os?!])
+     AC_MSG_ERROR([[
+[!] Your system architecture is not supported by FreeJ
+[!] if you are interested in porting FreeJ to your architecture
+[!] you are very welcome to contact me <jaromil@dyne.org>
+]], 0)
      ;;
 esac
 
@@ -535,7 +535,7 @@ AC_ARG_ENABLE(lubrify,
 
 if test x$have_lubrifications = xyes; then
   if test x$have_profiling = xyes -o x$debug = xtrue; then
-    echo "cannot lubrify code if debug or profiling are enabled"
+    AC_MSG_WARN([cannot lubrify code if debug or profiling are enabled])
     have_lubrifications=no
   else
     if test x$have_darwin = xyes; then
@@ -551,7 +551,7 @@ if test x$have_lubrifications = xyes; then
       # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
     elif test x$have_ppc = xyes; then
       CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
-    elif test x$target_cpu = xx86_64; then
+    elif test x$host_cpu = xx86_64; then
 	# should complete this with all 64bit CPUs (AMD too)
 	if test x$have_ssse3 = xyes; then
 		# multiple core cpu
@@ -562,13 +562,13 @@ if test x$have_lubrifications = xyes; then
 	fi
     fi
     # any other platform optimizations
-    echo "no special optimisation flags found for your cpu"
-    echo "please suggest some on our mailinglist if you know better!"
+    AC_MSG_WARN([no special optimisation flags found for your cpu])
+    AC_MSG_WARN([please suggest some on our mailinglist if you know better!])
     CFLAGS="$CFLAGS -O2"
   fi
 else
   if test x$have_profiling = xno -a x$debug = xfalse; then
-    echo "enabling generic compiler optimizations"
+    AC_MSG_NOTICE([enabling generic compiler optimizations])
     CFLAGS="$CFLAGS -O2"
   fi
 fi
