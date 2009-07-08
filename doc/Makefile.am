@@ -1,7 +1,7 @@
-
-# TODO(godog): build only if perl and perl modules required by jsdoc have been
-# found (html::template)
-SUBDIRS = scripting
+if DOC_SCRIPTING
+	SCRIPTINGDIR = scripting
+endif
+SUBDIRS = $(SCRIPTINGDIR)
 
 EXTRA_DIST = doxy2swig.py freej.1 ipernav.png ipernav-small.png
 

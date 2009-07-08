@@ -14,7 +14,7 @@ noinst_DATA = jsdoc
 # TODO(godog): parametrize $perl and invoke as $perl ./jsdoc.pl
 jsdoc: $(htmlbuild)/index.html
 $(htmlbuild)/index.html: $(allsources)
-	$(srcdir)/jsdoc.pl -d $(htmlbuild) \
+	$(PERL) $(srcdir)/jsdoc.pl -d $(htmlbuild) \
 		--project-name "<a href="http://freej.dyne.org">FreeJ</a> scripting" \
 		--logo "$(srcdir)/../ipernav-small.png" \
 		--page-footer "`cat $(srcdir)/footer.html`" \
