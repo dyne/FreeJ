@@ -89,9 +89,8 @@ dnl ==============================================================
 
 AM_SANITY_CHECK
 AM_INIT_AUTOMAKE(freej, [FREEJ_RELEASE_VERSION])
+AC_CONFIG_SRCDIR([src/freej.cpp])
 AC_CONFIG_HEADERS([config.h])
-# defined by AC_INIT
-#AC_DEFINE(PACKAGE_NAME,"FreeJ - vision mixer")
 
 # never run autotools and configure automatically
 AM_MAINTAINER_MODE
