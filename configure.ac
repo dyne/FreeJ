@@ -87,8 +87,7 @@ dnl ==============================================================
 dnl Setup for automake
 dnl ==============================================================
 
-AM_SANITY_CHECK
-AM_INIT_AUTOMAKE(freej, [FREEJ_RELEASE_VERSION])
+AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/freej.cpp])
 AC_CONFIG_HEADERS([config.h])
 
@@ -782,6 +781,7 @@ AC_SUBST(FREI0R_DIR)
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
 dnl ==============================================================
+# TODO(godog): automake provides AM_WITH_DMALLOC
 AC_CHECK_HEADER(dmalloc.h)
 if test "$ac_cv_header_dmalloc_h" = "yes"; then
 
