@@ -884,6 +884,7 @@ bindings/java/Makefile
 bindings/perl/Makefile
 scripts/Makefile
 doc/Makefile
+doc/scripting/Makefile
 doc/freej.dox
 ])
 AC_OUTPUT
