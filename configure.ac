@@ -596,59 +596,57 @@ AC_ARG_ENABLE(opengl,
 AC_SUBST(OPENGL_LIB)
 
 
-
-
+dnl ==============================================================
+dnl Audio
+dnl ==============================================================
 ALSA_LIBS=""
+PKG_CHECK_MODULES(ALSA, alsa, have_alsa=yes, have_alsa=no)
+AC_SUBST(ALSA_LIBS)
+
+# TODO(shammash): is this enough to enable midi on alsa?
+if test x$have_alsa = xyes; then
+  AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
+  have_midi=yes
+fi
+
+# TODO(shammash): before this refactoring we were enabling jack
+# only if alsa was present, check inconsistencies in the code.
 JACK_LIBS=""
+PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
+AC_SUBST(JACK_LIBS)
+
 FFTW_LIBS=""
+PKG_CHECK_MODULES(FFTW, fftw3, have_fftw=yes, have_fftw=no)
+AC_SUBST(FFTW_LIBS)
+
+# TODO(shammash): here we enable audio only if FFTW is present which is
+# probably wrong. Maybe it's better to split checks, but this needs
+# code refactoring as well. When changing this policy please remember
+# to change output summary at the end of this file.
+if test x$have_jack = xyes && test x$have_fftw = xyes; then
+  AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
+  have_sound=yes
+fi
+
 GOOM_DIR=""
 GOOM_PPC_FILES=""
 GOOM_LIBS=""
-#SNDFILE_LIBS=""
-if test x$have_linux = xyes ; then
-   
-   PKG_CHECK_MODULES(ALSA, alsa, have_alsa=yes, have_alsa=no)
-
-   if test x$have_alsa = xyes; then
-
-         AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
-	 have_midi=yes
-
-         PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
-
-	 if test x$have_jack = xyes; then
-
-	 	 PKG_CHECK_MODULES(FFTW, fftw3, have_fftw=yes, have_fftw=no)
-
-		 if test x$have_fftw = xyes; then
-
-		    AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
-		    have_sound=yes
-
-dnl goom removed because gives compilation problems
-dnl replicated on Niels ubuntu 7.10
-dnl		    GOOM_DIR=goom
-dnl		    GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
-dnl		    if test x$host_cpu = xpowerpc; then
-dnl		       GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
-dnl		    fi
-
-		 fi
-  	 fi
-   fi
-#	 PKG_CHECK_MODULES(SNDFILE, sndfile, have_sndfile=yes, have_sndfile=no)
-
-fi # have_linux
-
-AC_SUBST(ALSA_LIBS)
-AC_SUBST(JACK_LIBS)
-AC_SUBST(FFTW_LIBS)
+# goom removed because gives compilation problems
+# replicated on Niels ubuntu 7.10
+#if test x$have_sound = xyes; then
+#  GOOM_DIR=goom
+#  GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
+#  if test x$host_cpu = xpowerpc; then
+#    GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
+#  fi
+#fi
 AC_SUBST(GOOM_DIR)
 AC_SUBST(GOOM_LIBS)
 AC_SUBST(GOOM_PPC_FILES)
+
+#SNDFILE_LIBS=""
+#PKG_CHECK_MODULES(SNDFILE, sndfile, have_sndfile=yes, have_sndfile=no)
 #AC_SUBST(SNDFILE_LIBS)
-
-
 
 
 
