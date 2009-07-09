@@ -1,5 +1,5 @@
 if DOC_SCRIPTING
-	SCRIPTINGDIR = scripting
+SCRIPTINGDIR = scripting
 endif
 SUBDIRS = $(SCRIPTINGDIR)
 
