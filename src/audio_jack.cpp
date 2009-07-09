@@ -107,7 +107,7 @@ void JackClient::Detach()
 extern "C" {
 #include <jack/jack.h>
 
-void deinterlace(void * _in, jack_default_audio_sample_t *out, int num_channels, int channel, int num_samples)
+void deinterleave(void * _in, jack_default_audio_sample_t *out, int num_channels, int channel, int num_samples)
 {
   int j;
   float * in;
@@ -165,9 +165,8 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		if (output_available && j < channels) 
 		{
 			sample_t *out = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
-
 			memset (out, 0, sizeof (jack_default_audio_sample_t) * nframes);
-			deinterlace(((JackClient*) self)->m_inbuf, out, channels, j, nframes);
+			deinterleave(((JackClient*) self)->m_inbuf, out, channels, j, nframes);
 
 #if 0  			// test-noise:
 			int i; for (i=0; i< nframes; i++) out[i]=(float) i/(float)nframes;
