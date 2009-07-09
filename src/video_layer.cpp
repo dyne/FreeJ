@@ -809,8 +809,10 @@ int VideoLayer::seek(int64_t timestamp) {
   }
   else { // seek with success
     // Flush buffers, should be called when seeking or when swicthing to a different stream.
-    avcodec_flush_buffers(video_codec_ctx);
-    avcodec_flush_buffers(audio_codec_ctx);
+    if (video_codec_ctx)
+	avcodec_flush_buffers(video_codec_ctx);
+    if (audio_codec_ctx)
+	avcodec_flush_buffers(audio_codec_ctx);
   }
   return 0;
 }
