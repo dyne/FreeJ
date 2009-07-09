@@ -399,13 +399,13 @@ AC_MSG_CHECKING(compiling flash - v3 animation only - layer)
 if test x$have_flash = xyes; then
    AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
    FLASH_LIBS="\$(top_builddir)/lib/flash/libflash.la"
-   FLASH_DIR=flash
+   AM_CONDITIONAL(BUILD_FLASH, true)
    AC_MSG_RESULT(yes)
 else
+   AM_CONDITIONAL(BUILD_FLASH, false)
    AC_MSG_RESULT(no)
 fi
 AC_SUBST(FLASH_LIBS)
-AC_SUBST(FLASH_DIR)
 
 
 
@@ -413,16 +413,16 @@ dnl ==============================================================
 dnl CHECK if there is BLUETOOTH
 dnl ==============================================================
 BLUEZ_LIBS=""
-CWIID_DIR=""
 CWIID_LIBS=""
 PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
 if test x$have_bluez = xyes; then
    AC_DEFINE(WITH_BLUEZ,1,[define if compiling bluetooth cwiid controller])
-   CWIID_DIR=cwiid
    CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
+   AM_CONDITIONAL(BUILD_CWIID, true)
+else
+   AM_CONDITIONAL(BUILD_CWIID, false)
 fi
 AC_SUBST(BLUEZ_LIBS)
-AC_SUBST(CWIID_DIR)
 AC_SUBST(CWIID_LIBS)
 
 dnl ==============================================================
@@ -628,19 +628,19 @@ if test x$have_jack = xyes && test x$have_fftw = xyes; then
   have_sound=yes
 fi
 
-GOOM_DIR=""
 GOOM_PPC_FILES=""
 GOOM_LIBS=""
 # goom removed because gives compilation problems
 # replicated on Niels ubuntu 7.10
-#if test x$have_sound = xyes; then
-#  GOOM_DIR=goom
-#  GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
-#  if test x$host_cpu = xpowerpc; then
-#    GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
-#  fi
-#fi
-AC_SUBST(GOOM_DIR)
+if test x$have_sound = xyes && test 1 = 0; then
+  GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
+  if test x$host_cpu = xpowerpc; then
+    GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
+  fi
+  AM_CONDITIONAL(BUILD_GOOM, true)
+else
+  AM_CONDITIONAL(BUILD_GOOM, false)
+fi
 AC_SUBST(GOOM_LIBS)
 AC_SUBST(GOOM_PPC_FILES)
 
@@ -656,7 +656,6 @@ dnl ==============================================================
 
 MOZJS_LIBS=""
 MOZJS_CFLAGS=""
-JS_DIR=""
 PKG_CHECK_MODULES(MOZJS, mozilla-js libxul-embedding-unstable, have_mozjs=yes, have_mozjs=no)
 if test x$have_mozjs = xno; then
 PKG_CHECK_MODULES(MOZJS, xulrunner-js, have_mozjs=yes, have_mozjs=no)
@@ -685,7 +684,9 @@ if test x$have_mozjs = xno; then
    MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
    # libs in top_srcdir instead of top_builddir because js is not under autotools
    MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
-   JS_DIR="javascript"
+   AM_CONDITIONAL(BUILD_JAVASCRIPT, true)
+else
+   AM_CONDITIONAL(BUILD_JAVASCRIPT, false)
 fi
 
 if test x$debug = xyes ; then
@@ -693,7 +694,6 @@ if test x$debug = xyes ; then
 fi
 
 if test x$have_freebsd = xyes; then 
-   JS_DIR=""
    MOZJS_CFLAGS="-I/usr/local/include -L/usr/local/lib -I../lib/javascript"
    MOZJS_LIBS="-ljs"
    AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
@@ -709,7 +709,6 @@ fi
 AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascript])
 AC_SUBST(MOZJS_LIBS)
 AC_SUBST(MOZJS_CFLAGS)
-AC_SUBST(JS_DIR)
 
 dnl OLD STATIC:
 dnl AC_DEFINE(WITH_JAVASCRIPT,1,[Define is using the javascript interpreter])
@@ -734,8 +733,7 @@ dnl shout lib
 dnl ==============================================================
 SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
 SHOUT_CFLAGS="-I\$(top_builddir)/lib/shout"
-SHOUT_DIR="shout"
-AC_SUBST(SHOUT_DIR)
+AM_CONDITIONAL(BUILD_SHOUT, true)
 AC_SUBST(SHOUT_LIBS)
 AC_SUBST(SHOUT_CFLAGS)
 dnl PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
@@ -753,28 +751,26 @@ dnl SDL_gfx
 dnl ==============================================================
 PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
 if test x$have_sdlgfx = xyes; then
-   SDLGFX_DIR=""
+   AM_CONDITIONAL(BUILD_SDLGFX, false)
 else
    AC_MSG_RESULT([no, use freej version])
-   SDLGFX_DIR="sdl_gfx"
+   AM_CONDITIONAL(BUILD_SDLGFX, true)
    SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
 fi
-AC_SUBST(SDLGFX_DIR)
 
 dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
 PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
 if test x$have_frei0r = xyes; then
-   FREI0R_DIR=""
+   AM_CONDITIONAL(BUILD_FREI0R, false)
 else
    # Build embedded frei0r
    AC_MSG_RESULT([no, use freej version])
    FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
-   FREI0R_DIR="frei0r"
+   AM_CONDITIONAL(BUILD_FREI0R, true)
 fi
-AC_SUBST(FREI0R_DIR)
 
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
