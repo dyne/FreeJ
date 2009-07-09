@@ -6,3 +6,5 @@ noinst_LTLIBRARIES = libwiimote.la
 
 libwiimote_la_SOURCES = bluetooth.c command.c connect.c interface.c process.c state.c \
           thread.c util.c
+
+noinst_HEADERS = cwiid.h cwiid_internal.h

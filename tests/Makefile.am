@@ -8,6 +8,8 @@ CXXTESTGEN = $(CXXTESTHOME)/cxxtestgen.pl $(CXXTESTFLAGS)
 AM_CPPFLAGS = -I$(top_srcdir)/src/include \
               -I$(CXXTESTHOME)
 
+noinst_HEADERS = testClosure.h
+
 check_PROGRAMS = cxxtests
 TESTS = $(check_PROGRAMS)
 CLEANFILES = cxxtests.cpp

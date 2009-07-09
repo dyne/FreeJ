@@ -19,3 +19,5 @@ libsdl_image_la_SOURCES = \
 	IMG_xcf.c \
 	IMG_xpm.c \
 	IMG_xxx.c
+
+noinst_HEADERS = SDL_image.h

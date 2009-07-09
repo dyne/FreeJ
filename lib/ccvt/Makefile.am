@@ -12,4 +12,6 @@ libccvt_la_SOURCES = \
 		ccvt_c2.c \
 		ccvt_mmx.S \
 		ccvt_rgb2yuv.S \
-		ccvt_misc.c 
+		ccvt_misc.c
+
+noinst_HEADERS = ccvt.h ccvt_types.h

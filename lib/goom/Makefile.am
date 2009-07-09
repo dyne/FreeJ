@@ -22,3 +22,6 @@ libgoom2_la_SOURCES = \
 	v3d.c drawmethods.c \
 	cpu_info.c
 
+noinst_HEADERS = goom.h goom_plugin_info.h goom_typedefs.h goom_graphic.h \
+	goom_config_param.h goom_visual_fx.h goom_filters.h goom_tools.h goomsl.h \
+	goomsl_hash.h goomsl_heap.h goom_tools.h goom_config.h
