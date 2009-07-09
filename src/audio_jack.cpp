@@ -107,16 +107,14 @@ void JackClient::Detach()
 extern "C" {
 #include <jack/jack.h>
 
-void decode_int16_to_float(void * _in, jack_default_audio_sample_t *out, int num_channels, int channel, int num_samples)
+void deinterlace(void * _in, jack_default_audio_sample_t *out, int num_channels, int channel, int num_samples)
 {
   int j;
-  int16_t * in;
-  in = ((int16_t*)_in) + channel;
+  float * in;
+  in = ((float*)_in) + channel;
   for(j = 0; j < num_samples; j++)
   {
-    int16_t sval = (*in);
-    if (sval>=0) out[j] = (float)  sval / 32768.0;
-    else out[j] = (float) sval / 32767.0 ;
+    out[j] = (*in);
     in += num_channels;
   }
 }
@@ -144,14 +142,17 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 	//  func("Jack inbuf avail %i", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
 	//  fprintf(stderr, "Jack inbuf avail %i\n", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
 
+	  static int firsttime = 3;
+
 	  if (ringbuffer_read_space(((JackClient*) self)->m_ringbuffer) >= 
-			       channels * nframes * sizeof(int16_t)) 
+			      firsttime * channels * nframes * sizeof(float)) 
 	  {
+		  firsttime=1;
 		  size_t rv = ringbuffer_read(((JackClient*) self)->m_ringbuffer, 
 					      ((JackClient*) self)->m_inbuf,
-					      channels*nframes*sizeof(int16_t));
+					      channels*nframes*sizeof(float));
 
-  		if (rv >= channels * nframes * sizeof(int16_t))
+  		if (rv >= channels * nframes * sizeof(float))
   			output_available = true;
 		  
 	  }
@@ -166,7 +167,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 			sample_t *out = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
 
 			memset (out, 0, sizeof (jack_default_audio_sample_t) * nframes);
-			decode_int16_to_float(((JackClient*) self)->m_inbuf, out, channels, j, nframes);
+			deinterlace(((JackClient*) self)->m_inbuf, out, channels, j, nframes);
 
 #if 0  			// test-noise:
 			int i; for (i=0; i< nframes; i++) out[i]=(float) i/(float)nframes;
@@ -197,18 +198,12 @@ int JackClient::SetRingbufferPtr(ringbuffer_t *rb, int rate, int channels) {
 
 	func ("jack-client ringbuffer set for %i channels", channels);
 
-	// TODO: if samplerate doesnot match bail out
-	if (m_SampleRate != rate) {
-	   // resampling is not yet implemented 
-	  func ("JACK :: JACK and layer sample-rate mismatch (%i vs %i)!!",m_SampleRate, rate);
-	}
-
 	for (i=m_NextOutputID; i<channels; i++) {
 		AddOutputPort();
 	}
 
 	if(m_inbuf) free(m_inbuf);
-	m_inbuf = (char*) malloc(4096 * channels * sizeof(int16_t));
+	m_inbuf = (char*) malloc(4096 * channels * sizeof(float));
 
 	m_ringbufferchannels = channels;
 	m_ringbuffer = rb;

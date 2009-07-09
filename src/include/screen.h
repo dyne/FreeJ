@@ -135,6 +135,7 @@ class ViewPort : public Entry {
   int resize_w;
   int resize_h;
   
+  long unsigned int  *m_SampleRate; // pointer to JACKd's SampleRate (add_audio)
 
   // opengl special blit
   bool opengl;

@@ -49,6 +49,7 @@ ViewPort::ViewPort(int w, int h)
   pitch = w*(bpp>>3);
 
   audio = NULL;
+  m_SampleRate=NULL;
 #ifdef WITH_SOUND 
   // if compiled with audio initialize the audio data pipe
   audio = ringbuffer_create(1024 * 512);
@@ -127,6 +128,8 @@ bool ViewPort::add_audio(JackClient *jcl) {
  	if (layers.len() == 0 ) return false;	
 
 	jcl->SetRingbufferPtr(audio, (int) ((VideoLayer*) layers.begin())->audio_samplerate, (int) ((VideoLayer*) layers.begin())->audio_channels);
+	m_SampleRate = &jcl->m_SampleRate;
+	long unsigned int  m_SampleRate;	
 }
 
 void ViewPort::rem_layer(Layer *lay)

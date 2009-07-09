@@ -23,6 +23,8 @@
 
 #include <config.h>
 
+#include<samplerate.h>
+
 #ifdef WITH_FFMPEG
 
 
@@ -498,7 +500,50 @@ void *VideoLayer::feed() {
 	int data_size;
 	len1 = decode_audio_packet(&data_size);
 	if (len1 > 0)  {
-	  ringbuffer_write(screen->audio, (const char*)audio_buf, data_size);
+	  int samples = data_size/sizeof(uint16_t);
+
+	  #define RSBS (4096*8)  // XXX - dynamically allocate on class creation..
+	  float float_buf[RSBS]; // XXX 
+
+	  long unsigned int m_SampleRate = screen->m_SampleRate?*(screen->m_SampleRate):48000;
+	  double m_ResampleRatio = (double)(m_SampleRate)/(double)audio_samplerate; 
+
+	  src_short_to_float_array ((const short*) audio_buf, float_buf, samples);
+
+	  if (m_ResampleRatio == 1.0) 
+	  {
+	    ringbuffer_write(screen->audio, (const char*)float_buf,  samples*sizeof(float));
+	  } 
+	  else 
+	  {
+	    float resampled_buf[RSBS]; // XXX
+
+	    src_short_to_float_array ((const short*) audio_buf, float_buf, samples);
+
+	    SRC_DATA src_data;
+	    int offset = 0;
+
+            do {
+	      src_data.input_frames  = samples/audio_channels;
+	      src_data.output_frames = RSBS/audio_channels - offset;
+	      src_data.end_of_input  = 0;
+	      src_data.src_ratio     =  m_ResampleRatio;
+	      src_data.input_frames_used = 0;
+	      src_data.output_frames_gen = 0;
+	      src_data.data_in       = float_buf + offset; 
+	      src_data.data_out      = resampled_buf + offset;
+
+	      src_simple (&src_data, SRC_SINC_MEDIUM_QUALITY, audio_channels) ;
+	      ringbuffer_write(screen->audio, (const char*)resampled_buf, src_data.output_frames_gen * audio_channels *sizeof(float));
+
+	      offset += src_data.input_frames_used * audio_channels;
+	      samples -= src_data.input_frames_used * audio_channels;
+
+	      if (samples>0)
+		fprintf(stderr, "WARNING: resampling left: %i < %i\n", src_data.input_frames_used, samples/audio_channels);
+
+	    } while (samples > audio_channels);
+	  }
 	}
       }
     }
