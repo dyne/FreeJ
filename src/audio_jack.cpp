@@ -142,7 +142,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 	//  func("Jack inbuf avail %i", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
 	//  fprintf(stderr, "Jack inbuf avail %i\n", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
 
-	  static int firsttime = 3;
+	  static int firsttime = 1 + ceil(4096/nframes); // XXX pre-buffer  TODO decrease this and compensate latency
 
 	  if (ringbuffer_read_space(((JackClient*) self)->m_ringbuffer) >= 
 			      firsttime * channels * nframes * sizeof(float)) 
@@ -156,6 +156,10 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
   			output_available = true;
 		  
 	  }
+#if 0
+	  else if (firsttime==1)
+	  	fprintf(stderr, "AUDIO BUFFER UNDERRUN: %i samples < %i\n", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer) / sizeof(float) / channels, nframes);
+#endif
 	}
 
 	int j=0;	
