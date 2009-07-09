@@ -120,6 +120,11 @@ class VideoLayer: public Layer {
 	double video_current_pts;
 	double video_current_pts_time;
 
+	/* audio resample buffer */
+	float *audio_float_buf;
+	float *audio_resampled_buf;
+	unsigned long audio_resampled_buf_len;
+
 	/**
 	 * Number of decoded frames. As for now together with picture_number
 	 * it's broken when seeking TODO!

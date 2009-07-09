@@ -59,6 +59,10 @@ VideoLayer::VideoLayer()
   play_speed_control=1;
   seekable=true;
 
+  audio_resampled_buf_len=0;
+  audio_float_buf = NULL;
+  audio_resampled_buf = NULL;
+
   video_codec_ctx = NULL;
   video_index = -1;
   video_codec = NULL;
@@ -121,6 +125,8 @@ void VideoLayer::free_picture(AVPicture *picture) {
 			avpicture_free(picture);
 		free(picture);
 	}
+	if (audio_float_buf) free (audio_float_buf);
+	if (audio_resampled_buf) free (audio_resampled_buf);
 }
 
 bool VideoLayer::open(const char *file) {
@@ -274,6 +280,8 @@ bool VideoLayer::open(const char *file) {
 	
 	audio_channels = audio_codec_ctx->channels;
 	audio_samplerate = audio_codec_ctx->sample_rate;
+
+	audio_float_buf = (float*) malloc(audio_channels * AVCODEC_MAX_AUDIO_FRAME_SIZE * sizeof(float));
 
 	act("VideoLayer :: audio stream (codec: %s) has %u channels at samplerate %u",
 	    audio_codec->name, audio_channels, audio_samplerate);
@@ -502,39 +510,41 @@ void *VideoLayer::feed() {
 	if (len1 > 0)  {
 	  int samples = data_size/sizeof(uint16_t);
 
-	  #define RSBS (4096*8)  // XXX - dynamically allocate on class creation..
-	  float float_buf[RSBS]; // XXX 
-
 	  long unsigned int m_SampleRate = screen->m_SampleRate?*(screen->m_SampleRate):48000;
 	  double m_ResampleRatio = (double)(m_SampleRate)/(double)audio_samplerate; 
+	  long unsigned max_buf = ceil(AVCODEC_MAX_AUDIO_FRAME_SIZE * m_ResampleRatio * audio_channels);
 
-	  src_short_to_float_array ((const short*) audio_buf, float_buf, samples);
+	  if (audio_resampled_buf_len < max_buf) {
+		if (audio_resampled_buf) free (audio_resampled_buf);
+		audio_resampled_buf = (float*) malloc(max_buf * sizeof(float));
+		audio_resampled_buf_len = max_buf;
+	  }
+
+	  src_short_to_float_array ((const short*) audio_buf, audio_float_buf, samples);
 
 	  if (m_ResampleRatio == 1.0) 
 	  {
-	    ringbuffer_write(screen->audio, (const char*)float_buf,  samples*sizeof(float));
+	    ringbuffer_write(screen->audio, (const char*)audio_float_buf,  samples*sizeof(float));
 	  } 
 	  else 
 	  {
-	    float resampled_buf[RSBS]; // XXX
-
-	    src_short_to_float_array ((const short*) audio_buf, float_buf, samples);
+	    src_short_to_float_array ((const short*) audio_buf, audio_float_buf, samples);
 
 	    SRC_DATA src_data;
 	    int offset = 0;
 
             do {
 	      src_data.input_frames  = samples/audio_channels;
-	      src_data.output_frames = RSBS/audio_channels - offset;
+	      src_data.output_frames = audio_resampled_buf_len/audio_channels - offset;
 	      src_data.end_of_input  = 0;
 	      src_data.src_ratio     =  m_ResampleRatio;
 	      src_data.input_frames_used = 0;
 	      src_data.output_frames_gen = 0;
-	      src_data.data_in       = float_buf + offset; 
-	      src_data.data_out      = resampled_buf + offset;
+	      src_data.data_in       = audio_float_buf + offset; 
+	      src_data.data_out      = audio_resampled_buf + offset;
 
 	      src_simple (&src_data, SRC_SINC_MEDIUM_QUALITY, audio_channels) ;
-	      ringbuffer_write(screen->audio, (const char*)resampled_buf, src_data.output_frames_gen * audio_channels *sizeof(float));
+	      ringbuffer_write(screen->audio, (const char*)audio_resampled_buf, src_data.output_frames_gen * audio_channels *sizeof(float));
 
 	      offset += src_data.input_frames_used * audio_channels;
 	      samples -= src_data.input_frames_used * audio_channels;
