@@ -646,6 +646,7 @@ CVLayer::run()
 void
 CVLayer::activate()
 {
+	opened = true;
     freej->add_layer(this);
     active = true;
     notice("Activating %s", name);
