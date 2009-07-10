@@ -19,3 +19,5 @@ cxxtests_LDADD = $(top_builddir)/src/libfreej.la
 
 cxxtests.cpp: $(CXXTEST_TESTSUITES)
 	$(CXXTESTGEN) -o $@ $^
+
+EXTRA_DIST = cxxtest
