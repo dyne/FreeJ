@@ -519,7 +519,7 @@ int VideoLayer::decode_audio_packet() {
   res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
 			      &data_size, pkt.data, pkt.size);
 #else
-  res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
+  res = avcodec_decode_audio3(audio_codec_ctx, (int16_t *)audio_buf,
 			      &data_size, &pkt);
 #endif
 
