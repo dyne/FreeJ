@@ -1,6 +1,7 @@
-
-# TODO(shammash): include it later because it's not directory independent
-#SUBDIRS = scripting
+if BUILD_JSAPIDOC
+SCRIPTINGDIR = scripting
+endif
+SUBDIRS = $(SCRIPTINGDIR)
 
 EXTRA_DIST = doxy2swig.py freej.1 ipernav.png ipernav-small.png
 

@@ -29,3 +29,7 @@ libflash_la_SOURCES = \
 	sprite.cc	\
 	sqrt.cc		\
 	text.cc
+
+noinst_HEADERS = adpcm.h bitmap.h button.h character.h cxform.h displaylist.h \
+	flash.h font.h graphic.h matrix.h movie.h program.h rect.h script.h \
+	shape.h sprite.h swf.h text.h graphic16.h graphic24.h graphic32.h

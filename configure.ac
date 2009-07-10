@@ -14,25 +14,26 @@ m4_define([FREEJ_RELEASE_VERSION], [FREEJ_MAJ_VER.FREEJ_MIN_VER.FREEJ_REL_VER])
 AC_INIT([freej],[FREEJ_RELEASE_VERSION])
 
 AC_CANONICAL_HOST
+# TODO(godog) this is required only by am_path_sdl and IMO useless, since 1.2.11
+# sdl ships pkgconfig so it might be worth using that
 AC_CANONICAL_TARGET
 
 dnl ==============================================================
 dnl Get the operating system and version number...
 dnl ==============================================================
-uname=`uname`
-uversion=`uname -r | sed -e 's/-.*$//g;s/[\.]//g'`
 AC_MSG_CHECKING(for which platform we are compiling)
-case $uname in
-     Linux)
+case $host_os in
+     *linux*)
      AC_MSG_RESULT(Linux)
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
      DL_LIBS="-ldl"
      have_linux=yes
 
-     case $target_cpu in
+     case $host_cpu in
        powerpc*)
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
+       # TODO(godog) what about ppc64?
        AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
        AC_DEFINE(HAVE_ALTIVEC,1,[define if cpu supports Altivec instruction set])
        AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
@@ -52,65 +53,101 @@ case $uname in
        AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
 #       AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
        ;;
-
-
-       *)
-       ;;
      esac
-
      ;;
 
-     Darwin)
+     *darwin*)
      AC_MSG_RESULT(Darwin/OSX)
      AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
      AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
      have_darwin=yes
      ;;
-     FreeBSD)
+
+     *freebsd*)
      AC_MSG_RESULT(FreeBSD)
      AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
      AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
      CFLAGS="$CFLAGS -I/usr/local/include -L/usr/local/lib"
      have_freebsd=yes
      ;;
+
      *)
-     echo "[!] Your system architecture is not supported by FreeJ"
-     echo "[!] if you are interested in porting FreeJ to your architecture"
-     echo "[!] you are very welcome to contact me <jaromil@dyne.org>"
-     exit 0
+     AC_MSG_RESULT([$host_os?!])
+     AC_MSG_ERROR([[
+[!] Your system architecture is not supported by FreeJ
+[!] if you are interested in porting FreeJ to your architecture
+[!] you are very welcome to contact me <jaromil@dyne.org>
+]], 0)
      ;;
 esac
 
 AC_SUBST(DL_LIBS)
-AC_PROG_MAKE_SET
 
 dnl ==============================================================
 dnl Setup for automake
 dnl ==============================================================
 
-AM_SANITY_CHECK
-AM_INIT_AUTOMAKE(freej, [FREEJ_RELEASE_VERSION])
+AM_INIT_AUTOMAKE
+AC_CONFIG_SRCDIR([src/freej.cpp])
 AC_CONFIG_HEADERS([config.h])
-# defined by AC_INIT
-#AC_DEFINE(PACKAGE_NAME,"FreeJ - vision mixer")
 
 # never run autotools and configure automatically
 AM_MAINTAINER_MODE
 
-dnl ==============================================================
-dnl Check for tools
-dnl ==============================================================
-AC_PROG_CC
-AC_PROG_CXX
+# Checks for programs.
 AC_PROG_LEX
 AC_PROG_YACC
+AC_PROG_CXX
+AC_PROG_AWK
+AC_PROG_CC
+AC_PROG_CPP
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_RANLIB
 
+# Checks for header files.
+AC_HEADER_STDC
+AC_PATH_X
+AC_FUNC_ALLOCA
+AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h limits.h locale.h \
+		memory.h netdb.h netinet/in.h sgtty.h stddef.h stdint.h \
+		stdlib.h string.h strings.h sys/file.h sys/ioctl.h sys/socket.h \
+		sys/time.h sys/timeb.h termio.h termios.h unistd.h])
+
+# Checks for typedefs, structures, and compiler characteristics.
+AC_C_CONST
+AC_HEADER_STDBOOL
+AC_C_INLINE
+AC_TYPE_INT16_T
+AC_TYPE_INT32_T
+AC_TYPE_INT64_T
+AC_TYPE_INT8_T
+AC_TYPE_PID_T
+AC_TYPE_SIZE_T
+AC_TYPE_SSIZE_T
+AC_STRUCT_TIMEZONE
+AC_TYPE_UINT16_T
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
+AC_CHECK_TYPES([ptrdiff_t])
+
+# Checks for library functions.
+AC_FUNC_ERROR_AT_LINE
+AC_FUNC_FORK
+AC_FUNC_MALLOC
+AC_FUNC_MKTIME
+AC_FUNC_MMAP
+AC_FUNC_REALLOC
+AC_CHECK_FUNCS([atexit bzero clock_gettime floor ftime getcwd gethostbyaddr \
+		gethostbyname gethostname gettimeofday inet_ntoa localeconv \
+		localtime_r memmove memset munmap pow putenv rint select setenv \
+		socket sqrt strcasecmp strchr strdup strerror strncasecmp \
+		strpbrk strrchr strstr strtol])
 
 dnl Check for dlopen support
-AC_LIBTOOL_DLOPEN
-AC_DISABLE_STATIC
-
-AM_PROG_LIBTOOL
+LT_INIT([disable-static dlopen])
 
 dnl This macro is defined in our own m4/as.m4 for compatibility with old
 dnl automake versions, if you experience problems please use AM_PROG_AS
@@ -196,17 +233,6 @@ fi
 #fi
 
 #LIBS="-lpthread -lm -ldl"
-
-dnl Checks for header files.
-AC_HEADER_STDC
-
-dnl Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
-
-dnl ==============================================================
-dnl Checks for library functions.
-dnl ==============================================================
-AC_CHECK_FUNCS(select malloc mmap ioctl)
 
 
 dnl ==============================================================
@@ -373,13 +399,13 @@ AC_MSG_CHECKING(compiling flash - v3 animation only - layer)
 if test x$have_flash = xyes; then
    AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
    FLASH_LIBS="\$(top_builddir)/lib/flash/libflash.la"
-   FLASH_DIR=flash
+   AM_CONDITIONAL(BUILD_FLASH, true)
    AC_MSG_RESULT(yes)
 else
+   AM_CONDITIONAL(BUILD_FLASH, false)
    AC_MSG_RESULT(no)
 fi
 AC_SUBST(FLASH_LIBS)
-AC_SUBST(FLASH_DIR)
 
 
 
@@ -387,16 +413,16 @@ dnl ==============================================================
 dnl CHECK if there is BLUETOOTH
 dnl ==============================================================
 BLUEZ_LIBS=""
-CWIID_DIR=""
 CWIID_LIBS=""
 PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
 if test x$have_bluez = xyes; then
    AC_DEFINE(WITH_BLUEZ,1,[define if compiling bluetooth cwiid controller])
-   CWIID_DIR=cwiid
    CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
+   AM_CONDITIONAL(BUILD_CWIID, true)
+else
+   AM_CONDITIONAL(BUILD_CWIID, false)
 fi
 AC_SUBST(BLUEZ_LIBS)
-AC_SUBST(CWIID_DIR)
 AC_SUBST(CWIID_LIBS)
 
 dnl ==============================================================
@@ -507,7 +533,7 @@ AC_ARG_ENABLE(lubrify,
 
 if test x$have_lubrifications = xyes; then
   if test x$have_profiling = xyes -o x$debug = xtrue; then
-    echo "cannot lubrify code if debug or profiling are enabled"
+    AC_MSG_WARN([cannot lubrify code if debug or profiling are enabled])
     have_lubrifications=no
   else
     if test x$have_darwin = xyes; then
@@ -523,7 +549,7 @@ if test x$have_lubrifications = xyes; then
       # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
     elif test x$have_ppc = xyes; then
       CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
-    elif test x$target_cpu = xx86_64; then
+    elif test x$host_cpu = xx86_64; then
 	# should complete this with all 64bit CPUs (AMD too)
 	if test x$have_ssse3 = xyes; then
 		# multiple core cpu
@@ -534,13 +560,13 @@ if test x$have_lubrifications = xyes; then
 	fi
     fi
     # any other platform optimizations
-    echo "no special optimisation flags found for your cpu"
-    echo "please suggest some on our mailinglist if you know better!"
+    AC_MSG_WARN([no special optimisation flags found for your cpu])
+    AC_MSG_WARN([please suggest some on our mailinglist if you know better!])
     CFLAGS="$CFLAGS -O2"
   fi
 else
   if test x$have_profiling = xno -a x$debug = xfalse; then
-    echo "enabling generic compiler optimizations"
+    AC_MSG_NOTICE([enabling generic compiler optimizations])
     CFLAGS="$CFLAGS -O2"
   fi
 fi
@@ -570,59 +596,57 @@ AC_ARG_ENABLE(opengl,
 AC_SUBST(OPENGL_LIB)
 
 
-
-
+dnl ==============================================================
+dnl Audio
+dnl ==============================================================
 ALSA_LIBS=""
+PKG_CHECK_MODULES(ALSA, alsa, have_alsa=yes, have_alsa=no)
+AC_SUBST(ALSA_LIBS)
+
+# TODO(shammash): is this enough to enable midi on alsa?
+if test x$have_alsa = xyes; then
+  AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
+  have_midi=yes
+fi
+
+# TODO(shammash): before this refactoring we were enabling jack
+# only if alsa was present, check inconsistencies in the code.
 JACK_LIBS=""
+PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
+AC_SUBST(JACK_LIBS)
+
 FFTW_LIBS=""
-GOOM_DIR=""
+PKG_CHECK_MODULES(FFTW, fftw3, have_fftw=yes, have_fftw=no)
+AC_SUBST(FFTW_LIBS)
+
+# TODO(shammash): here we enable audio only if FFTW is present which is
+# probably wrong. Maybe it's better to split checks, but this needs
+# code refactoring as well. When changing this policy please remember
+# to change output summary at the end of this file.
+if test x$have_jack = xyes && test x$have_fftw = xyes; then
+  AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
+  have_sound=yes
+fi
+
 GOOM_PPC_FILES=""
 GOOM_LIBS=""
-#SNDFILE_LIBS=""
-if test x$have_linux = xyes ; then
-   
-   PKG_CHECK_MODULES(ALSA, alsa, have_alsa=yes, have_alsa=no)
-
-   if test x$have_alsa = xyes; then
-
-         AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
-	 have_midi=yes
-
-         PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
-
-	 if test x$have_jack = xyes; then
-
-	 	 PKG_CHECK_MODULES(FFTW, fftw3, have_fftw=yes, have_fftw=no)
-
-		 if test x$have_fftw = xyes; then
-
-		    AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
-		    have_sound=yes
-
-dnl goom removed because gives compilation problems
-dnl replicated on Niels ubuntu 7.10
-dnl		    GOOM_DIR=goom
-dnl		    GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
-dnl		    if test x$host_cpu = xpowerpc; then
-dnl		       GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
-dnl		    fi
-
-		 fi
-  	 fi
-   fi
-#	 PKG_CHECK_MODULES(SNDFILE, sndfile, have_sndfile=yes, have_sndfile=no)
-
-fi # have_linux
-
-AC_SUBST(ALSA_LIBS)
-AC_SUBST(JACK_LIBS)
-AC_SUBST(FFTW_LIBS)
-AC_SUBST(GOOM_DIR)
+# goom removed because gives compilation problems
+# replicated on Niels ubuntu 7.10
+if test x$have_sound = xyes && test 1 = 0; then
+  GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
+  if test x$host_cpu = xpowerpc; then
+    GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
+  fi
+  AM_CONDITIONAL(BUILD_GOOM, true)
+else
+  AM_CONDITIONAL(BUILD_GOOM, false)
+fi
 AC_SUBST(GOOM_LIBS)
 AC_SUBST(GOOM_PPC_FILES)
+
+#SNDFILE_LIBS=""
+#PKG_CHECK_MODULES(SNDFILE, sndfile, have_sndfile=yes, have_sndfile=no)
 #AC_SUBST(SNDFILE_LIBS)
-
-
 
 
 
@@ -632,7 +656,6 @@ dnl ==============================================================
 
 MOZJS_LIBS=""
 MOZJS_CFLAGS=""
-JS_DIR=""
 PKG_CHECK_MODULES(MOZJS, mozilla-js libxul-embedding-unstable, have_mozjs=yes, have_mozjs=no)
 if test x$have_mozjs = xno; then
 PKG_CHECK_MODULES(MOZJS, xulrunner-js, have_mozjs=yes, have_mozjs=no)
@@ -661,7 +684,9 @@ if test x$have_mozjs = xno; then
    MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
    # libs in top_srcdir instead of top_builddir because js is not under autotools
    MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
-   JS_DIR="javascript"
+   AM_CONDITIONAL(BUILD_JAVASCRIPT, true)
+else
+   AM_CONDITIONAL(BUILD_JAVASCRIPT, false)
 fi
 
 if test x$debug = xyes ; then
@@ -669,7 +694,6 @@ if test x$debug = xyes ; then
 fi
 
 if test x$have_freebsd = xyes; then 
-   JS_DIR=""
    MOZJS_CFLAGS="-I/usr/local/include -L/usr/local/lib -I../lib/javascript"
    MOZJS_LIBS="-ljs"
    AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
@@ -685,7 +709,6 @@ fi
 AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascript])
 AC_SUBST(MOZJS_LIBS)
 AC_SUBST(MOZJS_CFLAGS)
-AC_SUBST(JS_DIR)
 
 dnl OLD STATIC:
 dnl AC_DEFINE(WITH_JAVASCRIPT,1,[Define is using the javascript interpreter])
@@ -710,8 +733,7 @@ dnl shout lib
 dnl ==============================================================
 SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
 SHOUT_CFLAGS="-I\$(top_builddir)/lib/shout"
-SHOUT_DIR="shout"
-AC_SUBST(SHOUT_DIR)
+AM_CONDITIONAL(BUILD_SHOUT, true)
 AC_SUBST(SHOUT_LIBS)
 AC_SUBST(SHOUT_CFLAGS)
 dnl PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
@@ -729,32 +751,31 @@ dnl SDL_gfx
 dnl ==============================================================
 PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
 if test x$have_sdlgfx = xyes; then
-   SDLGFX_DIR=""
+   AM_CONDITIONAL(BUILD_SDLGFX, false)
 else
    AC_MSG_RESULT([no, use freej version])
-   SDLGFX_DIR="sdl_gfx"
+   AM_CONDITIONAL(BUILD_SDLGFX, true)
    SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
 fi
-AC_SUBST(SDLGFX_DIR)
 
 dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
 PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
 if test x$have_frei0r = xyes; then
-   FREI0R_DIR=""
+   AM_CONDITIONAL(BUILD_FREI0R, false)
 else
    # Build embedded frei0r
    AC_MSG_RESULT([no, use freej version])
    FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
-   FREI0R_DIR="frei0r"
+   AM_CONDITIONAL(BUILD_FREI0R, true)
 fi
-AC_SUBST(FREI0R_DIR)
 
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
 dnl ==============================================================
+# TODO(godog): automake provides AM_WITH_DMALLOC
 AC_CHECK_HEADER(dmalloc.h)
 if test "$ac_cv_header_dmalloc_h" = "yes"; then
 
@@ -777,6 +798,9 @@ fi], [AC_MSG_RESULT(no)])
 
 fi
 
+AC_PROG_PERL_MODULES([HTML::Template],
+		 AM_CONDITIONAL(BUILD_JSAPIDOC, true),
+		 AM_CONDITIONAL(BUILD_JSAPIDOC, false))
 
 # select CCVT CONVERSION TYPE
 CCVT_CONV="ccvt_c2.c"
@@ -884,6 +908,7 @@ bindings/java/Makefile
 bindings/perl/Makefile
 scripts/Makefile
 doc/Makefile
+doc/scripting/Makefile
 doc/freej.dox
 ])
 AC_OUTPUT

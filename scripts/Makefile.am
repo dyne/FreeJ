@@ -1,16 +1,17 @@
+scriptsdir = "$(DESTDIR)$(docdir)/examples"
 
-scriptsdir = "$(DESTDIR)$(prefix)/share/doc/$(PACKAGE)/scripts"
+DIRS = javascript python ruby
 
-DIRS    = `for x in $(top_srcdir)/$(subdir)/*; do test -d $$x && echo $$x; done`
+install-data-local:
+	$(INSTALL) -d $(scriptsdir)
+	( cd $(srcdir); \
+	for subdir in $(DIRS); do \
+		for d in `find $$subdir -type d`; do $(INSTALL) -m755 -d  $(scriptsdir)/$$d; done ;\
+		for f in `find $$subdir -type f`; do $(INSTALL) -m644 $$f $(scriptsdir)/$$f; done ;\
+	done )
 
-install:
-	test -z "$(scriptsdir)" || mkdir -p "$(scriptsdir)"
-	for subdir in $(DIRS); do cp -ra $$subdir "$(scriptsdir)"; done
+uninstall-local:
+	for subdir in $(DIRS); do rm -rf "$(scriptsdir)/$$subdir"; done
+	-rm -rf "$(scriptsdir)"
 
-uninstall:
-	for subdir in $(DIRS); do rm -rf "$(scriptsdir)/$$subdir" ; done
-	rm -rf "$(scriptsdir)"
-
-dist-hook:
-	for scriptdir in $(DIRS); do cp -ra $$scriptdir "$(distdir)" ; done
-
+EXTRA_DIST = $(DIRS)
