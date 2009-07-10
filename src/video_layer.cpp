@@ -549,9 +549,14 @@ int VideoLayer::decode_video_packet(int *got_picture) {
 
 	avcodec_get_frame_defaults (&av_frame);
 	
+#if LIBAVCODEC_VERSION_MAJOR < 52
 	int lien = avcodec_decode_video(video_codec_ctx, &av_frame,
 					got_picture, ptr,packet_len);
-	
+#else
+	int lien = avcodec_decode_video2(video_codec_ctx, &av_frame,
+					got_picture, &pkt);
+#endif
+
 	pts1 = packet_pts;
 	if (packet_pts != 0) {
 		/* update video clock with pts, if present */
