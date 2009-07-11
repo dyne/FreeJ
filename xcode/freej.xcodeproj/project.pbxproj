@@ -442,10 +442,10 @@
 		AAA6BD930FC6B2BD008E5936 /* nois0r.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nois0r.cpp; sourceTree = "<group>"; };
 		AAA6BD960FC6B2BD008E5936 /* onecol0r.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = onecol0r.cpp; sourceTree = "<group>"; };
 		AAA6BD990FC6B2BD008E5936 /* partik0l.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = partik0l.cpp; sourceTree = "<group>"; };
-		AAA6BDCD0FC6B340008E5936 /* libising0r.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libising0r.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		AAA6BDFB0FC6B7BE008E5936 /* liblissajous0r.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = liblissajous0r.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		AAA6BE050FC6B7E2008E5936 /* libnois0r.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libnois0r.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		AAA6BE0F0FC6B7FC008E5936 /* libonecol0r.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libonecol0r.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAA6BDCD0FC6B340008E5936 /* libpartik0l.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpartik0l.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAA6BDFB0FC6B7BE008E5936 /* libpartik0l.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpartik0l.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAA6BE050FC6B7E2008E5936 /* libpartik0l.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpartik0l.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAA6BE0F0FC6B7FC008E5936 /* libpartik0l.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libpartik0l.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAA6BE120FC6B8F5008E5936 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
 		AAA6BE130FC6B8F5008E5936 /* squareblur.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = squareblur.c; sourceTree = "<group>"; };
 		AAA6BE150FC6B8F5008E5936 /* Makefile.am */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Makefile.am; sourceTree = "<group>"; };
@@ -693,10 +693,10 @@
 		19C28FACFE9D520D11CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				AAA6BDCD0FC6B340008E5936 /* libising0r.dylib */,
-				AAA6BDFB0FC6B7BE008E5936 /* liblissajous0r.dylib */,
-				AAA6BE050FC6B7E2008E5936 /* libnois0r.dylib */,
-				AAA6BE0F0FC6B7FC008E5936 /* libonecol0r.dylib */,
+				AAA6BDCD0FC6B340008E5936 /* libpartik0l.dylib */,
+				AAA6BDFB0FC6B7BE008E5936 /* libpartik0l.dylib */,
+				AAA6BE050FC6B7E2008E5936 /* libpartik0l.dylib */,
+				AAA6BE0F0FC6B7FC008E5936 /* libpartik0l.dylib */,
 				AAA6BE210FC6B945008E5936 /* libpartik0l.dylib */,
 			);
 			name = Products;
@@ -1426,7 +1426,7 @@
 			);
 			name = ising0r;
 			productName = partik0l;
-			productReference = AAA6BDCD0FC6B340008E5936 /* libising0r.dylib */;
+			productReference = AAA6BDCD0FC6B340008E5936 /* libpartik0l.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		AAA6BDF30FC6B7BE008E5936 /* lissajous0r */ = {
@@ -1443,7 +1443,7 @@
 			);
 			name = lissajous0r;
 			productName = partik0l;
-			productReference = AAA6BDFB0FC6B7BE008E5936 /* liblissajous0r.dylib */;
+			productReference = AAA6BDFB0FC6B7BE008E5936 /* libpartik0l.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		AAA6BDFD0FC6B7E2008E5936 /* nois0r */ = {
@@ -1460,7 +1460,7 @@
 			);
 			name = nois0r;
 			productName = partik0l;
-			productReference = AAA6BE050FC6B7E2008E5936 /* libnois0r.dylib */;
+			productReference = AAA6BE050FC6B7E2008E5936 /* libpartik0l.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		AAA6BE070FC6B7FC008E5936 /* onecol0r */ = {
@@ -1477,7 +1477,7 @@
 			);
 			name = onecol0r;
 			productName = partik0l;
-			productReference = AAA6BE0F0FC6B7FC008E5936 /* libonecol0r.dylib */;
+			productReference = AAA6BE0F0FC6B7FC008E5936 /* libpartik0l.dylib */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		AAA6BE190FC6B945008E5936 /* partik0l */ = {
@@ -1569,7 +1569,7 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
+			shellPath = "";
 			shellScript = "mkdir -p \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\n\nLIBS_PATH=/opt/local/lib\nLIBS=`otool -L \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\" | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}' | xargs basename`\n\nfor i in $LIBS; do\n\tcp -f $LIBS_PATH/$i \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tinstall_name_tool \\\n\t\t-id @executable_path/../Frameworks/$i \\\n\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tfor n in $LIBS; do\n\t\tinstall_name_tool \\\n\t\t\t-change $LIBS_PATH/$n \\\n\t\t\t@executable_path/../Frameworks/$n \\\n\t\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$i\"\n\tdone\n\tinstall_name_tool \\\n\t\t-change $LIBS_PATH/$i \\\n\t\t@executable_path/../Frameworks/$i \\\n\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\"\ndone\n\ncp -r \"$TARGET_BUILD_DIR/Plugins\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\"";
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -1800,6 +1800,8 @@
 		AAA6BDCB0FC6B340008E5936 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/Plugins";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)/Plugins";
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1834,6 +1836,8 @@
 		AAA6BDF90FC6B7BE008E5936 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/Plugins";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)/Plugins";
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1868,6 +1872,8 @@
 		AAA6BE030FC6B7E2008E5936 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/Plugins";
+				CONFIGURATION_TEMP_DIR = "$(PROJET_TEMP_DIR)/$(CONFIGURATION)/Plugins";
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1885,7 +1891,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/Plugins";
-				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)/Plugins";
+				CONFIGURATION_TEMP_DIR = "$(PROJET_TEMP_DIR)/$(CONFIGURATION)/Plugins";
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
@@ -1901,6 +1907,8 @@
 		AAA6BE0D0FC6B7FC008E5936 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/Plugins";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)/Plugins";
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -1934,6 +1942,8 @@
 		AAA6BE1F0FC6B945008E5936 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CONFIGURATION_BUILD_DIR = "$(BUILD_DIR)/$(CONFIGURATION)/Plugins";
+				CONFIGURATION_TEMP_DIR = "$(PROJECT_TEMP_DIR)/$(CONFIGURATION)/Plugins";
 				COPY_PHASE_STRIP = NO;
 				EXECUTABLE_PREFIX = lib;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -2062,6 +2072,7 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
+				OTHER_CFLAGS = "-fexceptions";
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -2122,6 +2133,7 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
+				OTHER_CFLAGS = "-fexceptions";
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				STRIP_INSTALLED_PRODUCT = YES;
