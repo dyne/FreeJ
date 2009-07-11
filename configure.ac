@@ -267,9 +267,6 @@ PKG_CHECK_MODULES(FT2, freetype2,
                   have_freetype2=yes, have_freetype2=no)
 if test x$have_freetype2 = xyes; then
    AC_DEFINE(WITH_FT2,1,[define if linking freetype for text rendering])
-   AC_MSG_RESULT(yes)
-else
-   AC_MSG_RESULT(no)
 fi
    
 dnl ==============================================================
@@ -279,9 +276,6 @@ PKG_CHECK_MODULES(FC, fontconfig,
                   have_fontconfig=yes, have_fontconfig=no)
 if test x$have_fontconfig = xyes; then
    AC_DEFINE(WITH_FC,1,[define if linking fontconfig for font indexing])
-   AC_MSG_RESULT(yes)
-else
-   AC_MSG_RESULT(no)
 fi
    
 dnl AC_HEADER_DIRENT
@@ -764,10 +758,8 @@ PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
 if test x$have_frei0r = xyes; then
    AM_CONDITIONAL(BUILD_FREI0R, false)
 else
-   # Build embedded frei0r
-   AC_MSG_RESULT([no, use freej version])
-   FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
    AM_CONDITIONAL(BUILD_FREI0R, true)
+   FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
 fi
 
 dnl ==============================================================
