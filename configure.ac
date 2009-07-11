@@ -104,6 +104,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+AM_PROG_AS
 # compatibility with older libtool
 m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
 
@@ -153,11 +154,6 @@ m4_ifdef([LT_INIT],
 	[AC_LIBTOOL_DLOPEN
 	 AC_DISABLE_STATIC
 	 AC_PROG_LIBTOOL])
-
-dnl This macro is defined in our own m4/as.m4 for compatibility with old
-dnl automake versions, if you experience problems please use AM_PROG_AS
-dnl provided by your system
-AM_PROG_AS
 
 
 dnl Check sizes and shift
