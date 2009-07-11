@@ -14,9 +14,6 @@ m4_define([FREEJ_RELEASE_VERSION], [FREEJ_MAJ_VER.FREEJ_MIN_VER.FREEJ_REL_VER])
 AC_INIT([freej],[FREEJ_RELEASE_VERSION])
 
 AC_CANONICAL_HOST
-# TODO(godog) this is required only by am_path_sdl and IMO useless, since 1.2.11
-# sdl ships pkgconfig so it might be worth using that
-AC_CANONICAL_TARGET
 
 dnl ==============================================================
 dnl Get the operating system and version number...
