@@ -4,6 +4,8 @@ AC_DEFUN([BIND_JAVA_SCRIPTING],
 java_enable=no
 java=no
 
+AC_MSG_CHECKING([for Java])
+
 AC_ARG_ENABLE(java,
 	[  --enable-java             enable Java language bindings (no)],
 	[java_enable=yes],[java_enable=no])
