@@ -104,7 +104,8 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
-AC_PROG_RANLIB
+# compatibility with older libtool
+m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -146,8 +147,12 @@ AC_CHECK_FUNCS([atexit bzero clock_gettime floor ftime getcwd gethostbyaddr \
 		socket sqrt strcasecmp strchr strdup strerror strncasecmp \
 		strpbrk strrchr strstr strtol])
 
-dnl Check for dlopen support
-LT_INIT([disable-static dlopen])
+# compatibility with older libtool
+m4_ifdef([LT_INIT],
+	[LT_INIT([disable-static dlopen])],
+	[AC_LIBTOOL_DLOPEN
+	 AC_DISABLE_STATIC
+	 AC_PROG_LIBTOOL])
 
 dnl This macro is defined in our own m4/as.m4 for compatibility with old
 dnl automake versions, if you experience problems please use AM_PROG_AS
