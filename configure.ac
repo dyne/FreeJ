@@ -231,7 +231,7 @@ dnl ==============================================================
 dnl Check for SDL
 dnl ==============================================================
 PKG_CHECK_MODULES(SDL, sdl > 1.2, :,
-	AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!]))
+	AC_MSG_ERROR([*** SDL development files not found!]))
 
 
 dnl ==============================================================
@@ -821,8 +821,8 @@ AC_OUTPUT
 
 echo
 echo
-echo "Compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
-echo "= SDL v${SDL_VERSION}"
+echo "Compile $PACKAGE $VERSION for ${host}"
+echo "= SDL"
 echo "  LIBS  : $SDL_LIBS"
 echo "  CFLAGS: $SDL_CFLAGS"
 
