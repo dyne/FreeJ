@@ -11,9 +11,9 @@ m4_define([FREEJ_RELEASE_VERSION], [FREEJ_MAJ_VER.FREEJ_MIN_VER.FREEJ_REL_VER])
 
 
 AC_INIT([freej],[FREEJ_RELEASE_VERSION])
+AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
-
 
 dnl ==============================================================
 dnl Get the operating system and version number...
@@ -86,6 +86,8 @@ dnl Setup for automake
 dnl ==============================================================
 
 AM_INIT_AUTOMAKE
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
 AC_CONFIG_SRCDIR([src/freej.cpp])
 AC_CONFIG_HEADERS([config.h])
 
@@ -188,6 +190,7 @@ if test x$enableval = xyes; then
    AC_MSG_RESULT(yes)
    AM_PATH_PYTHON(2.4)
    SWIG_PYTHON
+   have_python=true
 fi
 ],[have_python=false])
 
