@@ -265,29 +265,21 @@ AC_SUBST(X11_INCLUDE)
 
 
 dnl ==============================================================
-dnl Check OGG/THEORA MMX STUFF
+dnl Check OGG VORBIS THEORA
 dnl ==============================================================
-XIPH_INCLUDE=""
-XIPH_LIBS=""
-THEORA_MMX_DIR=""
-PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc theora,
-			           have_oggtheora=yes, have_oggtheora=no)
-if test x$have_oggtheora = xyes ; then
-   AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
-   AC_DEFINE(THEORA_SUPPORT_ENCODE,1,[define if compiling Theora encoder])
-   AC_DEFINE(THEORA_SUPPORT_FLOAT,1,[define if compiling Theora float codec])
-   AC_DEFINE(CONFIG_LIBOGG,1,[define if compiling FFMpeg AvCoded with ogg])
-   AC_DEFINE(CONFIG_LIBVORBIS,1,[define if compiling FFMpeg AvCoded with vorbis])
-   AC_DEFINE(CONFIG_LIBTHEORA,1,[define if compiling FFMpeg AvCoded with theora])
-   AC_DEFINE(CONFIG_OGGVORBIS_ENCODER,1,[define if compiling FFMpeg with oggvorbis encoder])
-   AC_DEFINE(CONFIG_OGGVORBIS_DECODER,1,[define if compiling FFMpeg with oggvorbis decoder])
-   AC_DEFINE(CONFIG_OGGTHEORA_ENCODER,1,[define if compiling FFMpeg with oggtheora encoder])
-   AC_DEFINE(CONFIG_OGGTHEORA_DECODER,1,[define if compiling FFMpeg with oggtheora decoder])
-fi
-AC_SUBST(XIPH_LIBS)
-AC_SUBST(XIPH_CFLAGS)
-# AC_SUBST(XIPH_INCLUDE)
-# AC_SUBST(THEORA_MMX_DIR)
+PKG_CHECK_MODULES(OGG, ogg >= 1.1, :,
+	AC_MSG_ERROR([*** Ogg >=1.1 development files not found!]))
+PKG_CHECK_MODULES(VORBIS, vorbis, :,
+	AC_MSG_ERROR([*** Vorbis development files not found!]))
+PKG_CHECK_MODULES(VORBISENC, vorbisenc, :,
+	AC_MSG_ERROR([*** Vorbisenc development files not found!]))
+PKG_CHECK_MODULES(THEORA, theora, :,
+	AC_MSG_ERROR([*** Theora development files not found!]))
+XIPH_CFLAGS="$OGG_CFLAGS $VORBIS_CFLAGS $VORBISENC_CFLAGS $THEORA_CFLAGS"
+XIPH_LIBS="$OGG_LIBS $VORBIS_LIBS $VORBISENC_LIBS $THEORA_LIBS"
+
+# TODO(shammash): heritage from conditional build, still used somewhere.
+AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
 
 
 dnl ==============================================================
@@ -895,18 +887,9 @@ else
 echo "= ffmpeg (movie layer) disabled"
 fi
 
-if test x$have_oggtheora = xyes; then
 echo "= ogg-theora (xiph.org)"
 echo "  LIBS  : $XIPH_LIBS"
 echo "  CFLAGS: $XIPH_CFLAGS"
-else
-	echo "= Ogg not found! libogg development is missing"
-	echo "  You'll not be able to save in ogg/theora"
-        echo "  this is preventing you from saving movies"
-	echo "  in case you are packing a binary package please take care"
-	echo "  because of this many users will miss important functionality"
-fi
-
 
 echo "= javascript interpreter"
 echo "  LIBS  : $MOZJS_LIBS"
