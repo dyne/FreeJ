@@ -188,6 +188,7 @@ if test x$enableval = xyes; then
    AC_MSG_RESULT(yes)
    AM_PATH_PYTHON(2.4)
    SWIG_PYTHON
+   have_python=true
 fi
 ],[have_python=false])
 
