@@ -280,6 +280,8 @@ PKG_CHECK_MODULES(THEORA, theora, :,
 	AC_MSG_ERROR([*** Theora development files not found!]))
 XIPH_CFLAGS="$OGG_CFLAGS $VORBIS_CFLAGS $VORBISENC_CFLAGS $THEORA_CFLAGS"
 XIPH_LIBS="$OGG_LIBS $VORBIS_LIBS $VORBISENC_LIBS $THEORA_LIBS"
+AC_SUBST([XIPH_CFLAGS])
+AC_SUBST([XIPH_LIBS])
 
 # TODO(shammash): heritage from conditional build, still used somewhere.
 AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
