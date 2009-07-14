@@ -175,7 +175,7 @@ dnl ==============================================================
 AC_PROG_SWIG
 SWIG_ENABLE_CXX
 
-if test -z "$SWIG"; then
+if test -z "$SWIG_LIB"; then
    AC_MSG_WARN([No language bindings will be created])
 else
 
