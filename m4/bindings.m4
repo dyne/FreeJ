@@ -237,21 +237,12 @@ AC_DEFUN([AC_PERL_INSTALLDIRS],
 
 AC_DEFUN([SWIG_PERL],
 [
-    AC_ARG_ENABLE(perl,
-    AS_HELP_STRING([--enable-perl],[enable Perl bindings (no)]),
-    [enable_perl=yes],
-    [enable_perl=no])
-
-if test x"$enable_perl" = xyes; then
-    dnl # declare PERL precious to let user override the guess
-    dnl AC_ARG_VAR([PERL], [Path to perl interpreter])
-
     if test -z "$PERL"; then
             AC_PATH_PROG([PERL], [perl])
     fi
 
     if test -z "$PERL"; then
-            AC_MSG_ERROR([Can't find perl interpreter])
+            AC_MSG_ERROR([Can't find perl interpreter in PATH, set PERL])
     fi
 
     AC_PERL_INSTALLDIRS([PERL_INSTALLARCH], arch)
@@ -262,5 +253,16 @@ if test x"$enable_perl" = xyes; then
 
     AX_PERL_EXT_CFLAGS([PERL_CFLAGS])
     AC_SUBST([PERL_CFLAGS])
+])
+
+AC_DEFUN([ENABLE_SWIG_PERL],
+[
+    AC_ARG_ENABLE(perl,
+    AS_HELP_STRING([--enable-perl],[enable Perl bindings (no)]),
+    [enable_perl=yes],
+    [enable_perl=no])
+
+if test x"$enable_perl" = xyes; then
+	SWIG_PERL
 fi
 ])

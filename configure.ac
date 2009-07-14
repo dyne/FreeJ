@@ -200,7 +200,7 @@ EL_CONFIG_SCRIPTING_RUBY
 dnl and java?
 BIND_JAVA_SCRIPTING
 dnl and perl?
-SWIG_PERL
+ENABLE_SWIG_PERL
 
 if test x$have_python = xtrue; then
    BINDING_DIRS="$BINDING_DIRS python"
