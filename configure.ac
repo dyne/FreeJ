@@ -172,7 +172,7 @@ AC_SUBST(FREEJ_VERSION_INFO)
 dnl ==============================================================
 dnl check for python to compile the module with swig
 dnl ==============================================================
-AC_PROG_SWIG
+AC_PROG_SWIG([1.3])
 SWIG_ENABLE_CXX
 
 if test -z "$SWIG_LIB"; then
