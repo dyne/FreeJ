@@ -51,9 +51,6 @@ AC_SUBST(PERL_ARCHLIB)
 PERL_CFLAGS="`perl -e 'use Config; print $Config{ccflags};'`"
 AC_SUBST(PERL_CFLAGS)
 
-
-
-
 ])
 
 dnl Thank you very much Vim for this lovely ruby configuration
@@ -203,4 +200,67 @@ dnl EL_RESTORE_FLAGS
 # else
 dnl	EL_CONFIG(CONFIG_SCRIPTING_RUBY, [Ruby])
 # fi
+])
+
+
+dnl ################# new macros ##################################
+
+dnl how directories are affected wrt INSTALLDIRS (ExtUtils::MakeMaker)
+dnl                        perl            site                vendor
+dnl                        PERLPREFIX      SITEPREFIX          VENDORPREFIX
+dnl         INST_ARCHLIB   INSTALLARCHLIB  INSTALLSITEARCH     INSTALLVENDORARCH
+dnl         INST_LIB       INSTALLPRIVLIB  INSTALLSITELIB      INSTALLVENDORLIB
+dnl         INST_BIN       INSTALLBIN      INSTALLSITEBIN      INSTALLVENDORBIN
+dnl         INST_SCRIPT    INSTALLSCRIPT   INSTALLSITESCRIPT   INSTALLVENDORSCRIPT
+dnl         INST_MAN1DIR   INSTALLMAN1DIR  INSTALLSITEMAN1DIR  INSTALLVENDORMAN1DIR
+dnl         INST_MAN3DIR   INSTALLMAN3DIR  INSTALLSITEMAN3DIR  INSTALLVENDORMAN3DIR
+
+dnl TODO
+dnl - support INSTALLDIRS "perl" style?
+
+dnl ac_perl_dirs variable_to_set dir_type (arch, lib, bin, script, man1dir, man3dir)
+AC_DEFUN([AC_PERL_INSTALLDIRS],
+[
+    AC_ARG_WITH([perl-installdirs],
+        AS_HELP_STRING([--with-perl-installdirs],[style of perl install
+            directories, vendor/site (site)]),
+        [perl_dirs=$enable],
+        [perl_dirs=site])
+
+    AC_MSG_CHECKING([for perl $2 dirs])
+
+    # use a temp variable to avoid needless quoting inside backticks together with expansion
+    ac_perl_dirs_prog="use Config; print \$Config{install${perl_dirs}$2}"
+    $1="`$PERL -e \"$ac_perl_dirs_prog\"`"
+    AC_MSG_RESULT($$1)
+])
+
+AC_DEFUN([SWIG_PERL],
+[
+    AC_ARG_ENABLE(perl,
+    AS_HELP_STRING([--enable-perl],[enable Perl bindings (no)]),
+    [enable_perl=yes],
+    [enable_perl=no])
+
+if test x"$enable_perl" = xyes; then
+    dnl # declare PERL precious to let user override the guess
+    dnl AC_ARG_VAR([PERL], [Path to perl interpreter])
+
+    if test -z "$PERL"; then
+            AC_PATH_PROG([PERL], [perl])
+    fi
+
+    if test -z "$PERL"; then
+            AC_MSG_ERROR([Can't find perl interpreter])
+    fi
+
+    AC_PERL_INSTALLDIRS([PERL_INSTALLARCH], arch)
+    AC_SUBST([PERL_INSTALLARCH])
+
+    AC_PERL_INSTALLDIRS([PERL_INSTALLLIB], lib)
+    AC_SUBST([PERL_INSTALLLIB])
+
+    AX_PERL_EXT_CFLAGS([PERL_CFLAGS])
+    AC_SUBST([PERL_CFLAGS])
+fi
 ])
