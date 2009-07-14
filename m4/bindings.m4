@@ -266,3 +266,16 @@ if test x"$enable_perl" = xyes; then
 	SWIG_PERL
 fi
 ])
+
+AC_DEFUN([ENABLE_SWIG_PYTHON],
+[
+AC_ARG_ENABLE(python,
+    AS_HELP_STRING([--enable-python],[enable Python bindings (no)]),
+	[enable_python=yes],
+	[enable_python=no])
+
+if test x"$enable_python" = xyes; then
+	AM_PATH_PYTHON(2.4)
+	SWIG_PYTHON
+fi
+])

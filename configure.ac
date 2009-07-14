@@ -184,16 +184,7 @@ AC_SUBST(SWIG_COMMAND)
 SWIG_IFACE='$(top_srcdir)/bindings/freej.i'
 AC_SUBST(SWIG_IFACE)
 
-AC_ARG_ENABLE(python,
-	[  --enable-python           enable Python language bindings (no)],
-	[
-if test x$enableval = xyes; then
-   AC_MSG_RESULT(yes)
-   AM_PATH_PYTHON(2.4)
-   SWIG_PYTHON
-   have_python=true
-fi
-],[have_python=false])
+ENABLE_SWIG_PYTHON
 
 dnl and ruby?
 EL_CONFIG_SCRIPTING_RUBY
@@ -202,7 +193,7 @@ BIND_JAVA_SCRIPTING
 dnl and perl?
 ENABLE_SWIG_PERL
 
-if test x$have_python = xtrue; then
+if test x$enable_python = xyes; then
    BINDING_DIRS="$BINDING_DIRS python"
 fi
 if test x$have_ruby = xtrue; then
@@ -847,7 +838,7 @@ echo "= OpenGL disabled"
 fi
 
 echo "= Language bindings"
-if test x$have_python = xtrue; then
+if test x$enable_python = xyes; then
 echo "  Python LIBS   : $PYTHON_EXTRA_LIBS"
 echo "  Python CFLAGS : $PYTHON_CPPFLAGS"
 else
