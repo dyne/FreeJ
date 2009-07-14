@@ -279,3 +279,18 @@ if test x"$enable_python" = xyes; then
 	SWIG_PYTHON
 fi
 ])
+
+AC_DEFUN([ENABLE_SWIG_JAVA],
+[
+AC_ARG_ENABLE(java,
+    AS_HELP_STRING([--enable-java],[enable Java bindings (no)]),
+	[enable_java=yes],
+	[enable_java=no])
+
+if test x"$enable_java" = x"yes"; then
+   JAVA_CFLAGS="-W -Wall -static-libgcc"
+   JAVA_LDFLAGS="-norunpath -xnolib"
+   AC_SUBST(JAVA_CFLAGS)
+   AC_SUBST(JAVA_LDFLAGS)
+fi
+])

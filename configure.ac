@@ -189,7 +189,7 @@ ENABLE_SWIG_PYTHON
 dnl and ruby?
 EL_CONFIG_SCRIPTING_RUBY
 dnl and java?
-BIND_JAVA_SCRIPTING
+ENABLE_SWIG_JAVA
 dnl and perl?
 ENABLE_SWIG_PERL
 
@@ -199,7 +199,7 @@ fi
 if test x$have_ruby = xtrue; then
    BINDING_DIRS="$BINDING_DIRS ruby"
 fi
-if test x$have_java = xtrue; then
+if test x$enable_java = xyes; then
    BINDING_DIRS="$BINDING_DIRS java"
 fi
 if test x$enable_perl = xyes; then
