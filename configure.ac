@@ -176,9 +176,10 @@ AC_PROG_SWIG
 SWIG_ENABLE_CXX
 
 if test -z "$SWIG"; then
-   AC_MSG_RESULT(No language bindings will be created)
+   AC_MSG_WARN([No language bindings will be created])
 else
-SWIG_COMMAND='swig -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include -I$(top_builddir)/doc'
+
+SWIG_COMMAND='$(SWIG) -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include -I$(top_builddir)/doc'
 AC_SUBST(SWIG_COMMAND)
 SWIG_IFACE='$(top_srcdir)/bindings/freej.i'
 AC_SUBST(SWIG_IFACE)
