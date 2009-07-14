@@ -193,32 +193,12 @@ ENABLE_SWIG_JAVA
 dnl and perl?
 ENABLE_SWIG_PERL
 
-if test x$enable_python = xyes; then
-   AM_CONDITIONAL([BUILD_SWIG_PYTHON], true)
-else
-   AM_CONDITIONAL([BUILD_SWIG_PYTHON], false)
-fi
-
-if test x$have_ruby = xtrue; then
-   AM_CONDITIONAL([BUILD_SWIG_RUBY], true)
-else
-   AM_CONDITIONAL([BUILD_SWIG_RUBY], false)
-fi
-
-if test x$enable_java = xyes; then
-   AM_CONDITIONAL([BUILD_SWIG_JAVA], true)
-else
-   AM_CONDITIONAL([BUILD_SWIG_JAVA], false)
-fi
-
-if test x$enable_perl = xyes; then
-   AM_CONDITIONAL([BUILD_SWIG_PERL], true)
-else
-   AM_CONDITIONAL([BUILD_SWIG_PERL], false)
-fi
-
 fi # swig found?
 
+AM_CONDITIONAL([BUILD_SWIG_PYTHON], [x$enable_python = xyes])
+AM_CONDITIONAL([BUILD_SWIG_RUBY], [x$enable_ruby = xyes])
+AM_CONDITIONAL([BUILD_SWIG_JAVA], [x$enable_java = xyes])
+AM_CONDITIONAL([BUILD_SWIG_PERL], [x$enable_perl = xyes])
 
 dnl ==============================================================
 dnl Add the local include path and some flags
