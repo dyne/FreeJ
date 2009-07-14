@@ -6,7 +6,7 @@ FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ \
 swig_source = freej_perl.cpp
 perl_module = freej.pm
 
-BUILT_SOURCES = $(swig_source)
+BUILT_SOURCES = $(swig_source) $(perl_module)
 
 $(swig_source): $(SWIG_IFACE)
 	$(SWIG_COMMAND) -perl -o $(swig_source) $(SWIG_IFACE)
@@ -25,4 +25,4 @@ Freej_la_CXXFLAGS = $(FREEJ_FLAGS) $(PERL_CFLAGS)
 nodist_Freej_la_SOURCES = $(swig_source)
 Freej_la_LIBADD = -L$(top_builddir)/src/.libs -lfreej
 
-CLEANFILES = $(swig_source) $(perl_module)
+CLEANFILES = $(BUILT_SOURCES)

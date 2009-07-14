@@ -4,9 +4,9 @@ FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ \
               @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ @SDLGFX_CFLAGS@
 
 swig_source = freej_ruby.cpp
-ruby_header = freej_ruby.h
+swig_header = freej_ruby.h
 
-BUILT_SOURCES = $(swig_source)
+BUILT_SOURCES = $(swig_source) $(swig_header)
 
 $(swig_source): $(SWIG_IFACE) $(top_srcdir)/bindings/rbpre.i $(top_srcdir)/bindings/rbpost.i
 	$(SWIG_COMMAND) -ruby -initname Freej -o $(swig_source) $(SWIG_IFACE)
@@ -24,4 +24,4 @@ Freej_la_LIBADD = $(RUBY_LIBS) -L$(top_builddir)/src/.libs -lfreej
 
 EXTRA_DIST = list_classes.rb list_classes.sh
 
-CLEANFILES = $(swig_source) $(ruby_header)
+CLEANFILES = $(BUILT_SOURCES)

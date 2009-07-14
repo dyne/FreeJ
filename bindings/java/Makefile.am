@@ -5,9 +5,9 @@ FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ \
 
 # XXX(godog) what's missing? compilation and jar packaging?
 swig_source = freej_java.cpp
-java_header = freej_java.h
+swig_header = freej_java.h
 
-BUILT_SOURCES = $(swig_source)
+BUILT_SOURCES = $(swig_source) $(swig_header)
 
 $(swig_source): $(SWIG_IFACE)
 	$(SWIG_COMMAND) -java -o $(swig_source) $(SWIG_IFACE)
@@ -18,7 +18,7 @@ libfreej_g_la_CXXFLAGS = $(FREEJ_FLAGS) $(JAVA_CFLAGS)
 libfreej_g_la_LDFLAGS = $(JAVA_LDFLAGS) 
 nodist_libfreej_g_la_SOURCES = $(swig_source)
 
-CLEANFILES = $(swig_source) $(java_header)
+CLEANFILES = $(BUILT_SOURCES)
 
 clean-local:
 	rm -f *.class
