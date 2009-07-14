@@ -1,3 +1,61 @@
+AC_DEFUN([BIND_JAVA_SCRIPTING],
+[
+
+java_enable=no
+java=no
+
+AC_MSG_CHECKING([for Java])
+
+AC_ARG_ENABLE(java,
+	[  --enable-java             enable Java language bindings (no)],
+	[java_enable=yes],[java_enable=no])
+
+AC_MSG_RESULT($java_enable)
+
+if test "$java_enable" = "yes"; then
+   have_java=true
+   AC_SUBST(have_java)
+   JAVA_CFLAGS="-W -Wall -static-libgcc"
+   JAVA_LDFLAGS="-norunpath -xnolib"
+   AC_SUBST(JAVA_CFLAGS)
+   AC_SUBST(JAVA_LDFLAGS)
+fi
+
+])
+
+dnl i'll give m4 a try for perl... :S -jrml
+AC_DEFUN([PERL_SWIG_BINDINGS],
+[
+
+AC_MSG_CHECKING([for Perl])
+
+AC_ARG_ENABLE(perl,
+ 	[  --enable-perl             enable Perl support (no)],
+	[enable_perl=yes],
+	[enable_perl=no])
+
+if test "$enable_perl" != "no"; then
+   enable_perl=yes
+   have_perl=true
+   AC_SUBST(have_perl)
+fi
+
+AC_MSG_RESULT($enable_perl)
+
+PERL_PATH=$PATH
+AC_PATH_PROG(enable_perl, perl, no, $PERL_PATH)
+
+PERL_ARCHLIB="`perl -e 'use Config; print $Config{archlib};'`"
+AC_SUBST(PERL_ARCHLIB)
+
+PERL_CFLAGS="`perl -e 'use Config; print $Config{ccflags};'`"
+AC_SUBST(PERL_CFLAGS)
+
+
+
+
+])
+
 dnl Thank you very much Vim for this lovely ruby configuration
 dnl The hitchhiked code is from Vim configure.in version 1.98
 

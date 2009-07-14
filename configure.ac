@@ -10,13 +10,10 @@ dnl Construct the final version number out of the sub-version values specified a
 m4_define([FREEJ_RELEASE_VERSION], [FREEJ_MAJ_VER.FREEJ_MIN_VER.FREEJ_REL_VER])
 
 
-
 AC_INIT([freej],[FREEJ_RELEASE_VERSION])
+AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
-# TODO(godog) this is required only by am_path_sdl and IMO useless, since 1.2.11
-# sdl ships pkgconfig so it might be worth using that
-AC_CANONICAL_TARGET
 
 dnl ==============================================================
 dnl Get the operating system and version number...
@@ -83,11 +80,14 @@ esac
 
 AC_SUBST(DL_LIBS)
 
+
 dnl ==============================================================
 dnl Setup for automake
 dnl ==============================================================
 
 AM_INIT_AUTOMAKE
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
+
 AC_CONFIG_SRCDIR([src/freej.cpp])
 AC_CONFIG_HEADERS([config.h])
 
@@ -104,6 +104,7 @@ AC_PROG_CPP
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
+AM_PROG_AS
 # compatibility with older libtool
 m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
 
@@ -154,17 +155,10 @@ m4_ifdef([LT_INIT],
 	 AC_DISABLE_STATIC
 	 AC_PROG_LIBTOOL])
 
-dnl This macro is defined in our own m4/as.m4 for compatibility with old
-dnl automake versions, if you experience problems please use AM_PROG_AS
-dnl provided by your system
-AM_PROG_AS
-
-
 dnl Check sizes and shift
 AC_CHECK_SIZEOF(void*)
 AC_CHECK_SIZEOF(long)
 AC_CHECK_SIZEOF(long long)
-
 
 dnl versioning info for libtool
 FREEJ_CURRENT=0
@@ -173,6 +167,7 @@ FREEJ_AGE=0
 FREEJ_VERSION_INFO="$FREEJ_CURRENT:$FREEJ_REVISION:$FREEJ_AGE"
 dnl Note this is the ABI version which is not the same as our actual library version
 AC_SUBST(FREEJ_VERSION_INFO)
+
 
 dnl ==============================================================
 dnl check for python to compile the module with swig
@@ -195,6 +190,7 @@ if test x$enableval = xyes; then
    AC_MSG_RESULT(yes)
    AM_PATH_PYTHON(2.4)
    SWIG_PYTHON
+   have_python=true
 fi
 ],[have_python=false])
 
@@ -221,6 +217,7 @@ fi
 fi # swig found?
 AC_SUBST(BINDING_DIRS)
 
+
 dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
@@ -231,41 +228,14 @@ if test x$have_darwin = xyes; then
   # add the fink default path to find headers
   CFLAGS="$CFLAGS -I/sw/include"
 fi
-# always use -fPIC as we are a shared library now
-#machine_version=`uname -m`
-#if test x$machine_version = xx86_64; then
-#  CFLAGS="$CFLAGS -fPIC"
-#fi
-
-#LIBS="-lpthread -lm -ldl"
-
-
-dnl ==============================================================
-dnl Check if we are going for a STATIC BUILD
-dnl ==============================================================
-dnl
-dnl what is this doing? apparently nothing..
-dnl
-dnl AC_ARG_ENABLE(static-build,
-dnl [  --enable-static-build      statically include all libraries) (default: no)],
-dnl [ if test ! x$enableval = xyes; then
-dnl     static_build=no
-dnl   else
-dnl     static_build=yes
-dnl   fi ],[ static_build=no ])
-
 
 
 dnl ==============================================================
 dnl Check for SDL
 dnl ==============================================================
-SDL_VERSION=1.2.0
-AM_PATH_SDL($SDL_VERSION,
-            :,
-	AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
-           )
-AC_SUBST(SDL_LIBS)
-AC_SUBST(SDL_CFLAGS)
+PKG_CHECK_MODULES(SDL, sdl > 1.2, :,
+	AC_MSG_ERROR([*** SDL development files not found!]))
+
 
 dnl ==============================================================
 dnl Check if there is FREETYPE2
@@ -274,10 +244,8 @@ PKG_CHECK_MODULES(FT2, freetype2,
                   have_freetype2=yes, have_freetype2=no)
 if test x$have_freetype2 = xyes; then
    AC_DEFINE(WITH_FT2,1,[define if linking freetype for text rendering])
-   AC_MSG_RESULT(yes)
-else
-   AC_MSG_RESULT(no)
 fi
+
    
 dnl ==============================================================
 dnl Check if there is FONTCONFIG
@@ -286,35 +254,8 @@ PKG_CHECK_MODULES(FC, fontconfig,
                   have_fontconfig=yes, have_fontconfig=no)
 if test x$have_fontconfig = xyes; then
    AC_DEFINE(WITH_FC,1,[define if linking fontconfig for font indexing])
-   AC_MSG_RESULT(yes)
-else
-   AC_MSG_RESULT(no)
 fi
    
-dnl AC_HEADER_DIRENT
-
-dnl ==============================================================
-dnl Check if we are going to link DINAMICALLY ffmpeg and theora
-dnl ==============================================================
-dnl AC_MSG_CHECKING(how to link ffmpeg libraries)
-dnl AC_ARG_ENABLE(dynamic-ffmpeg,
-dnl [  --enable-dynamic-ffmpeg     link dynamically ffmpeg and theora (default: no)],
-dnl [ if test x$enableval = xyes; then
-dnl      dynamic_ffmpeg=yes
-dnl   else
-dnl      dynamic_ffmpeg=no
-dnl   fi ],[ dynamic_ffmpeg=no ])
-dnl dnl =====
-dnl AC_ARG_WITH(static-ffmpeg,
-dnl [  --with-static-ffmpeg    embed ffmpeg as static library from the build directory],
-dnl [  static_ffmpeg=yes; ffmpeg_dir="$withval" ],[ static_ffmpeg=no ])
-dnl dnl ==============================================================
-dnl 
-dnl if test x$dynamic_ffmpeg = no; then
-dnl    AC_MSG_RESULT(static)
-dnl else
-dnl    AC_MSG_RESULT(dynamic)
-dnl fi
 
 dnl ==============================================================
 dnl Check X11 for xgrab
@@ -325,37 +266,26 @@ PKG_CHECK_MODULES(X11, x11, have_x11=yes, have_x11=no)
 AC_SUBST(X11_LIBS)
 AC_SUBST(X11_INCLUDE)
 
+
 dnl ==============================================================
-dnl Check OGG/THEORA MMX STUFF
+dnl Check OGG VORBIS THEORA
 dnl ==============================================================
-XIPH_INCLUDE=""
-XIPH_LIBS=""
-THEORA_MMX_DIR=""
-PKG_CHECK_MODULES(XIPH, ogg >= 1.1 vorbis vorbisenc theora,
-			           have_oggtheora=yes, have_oggtheora=no)
+PKG_CHECK_MODULES(OGG, ogg >= 1.1, :,
+	AC_MSG_ERROR([*** Ogg >=1.1 development files not found!]))
+PKG_CHECK_MODULES(VORBIS, vorbis, :,
+	AC_MSG_ERROR([*** Vorbis development files not found!]))
+PKG_CHECK_MODULES(VORBISENC, vorbisenc, :,
+	AC_MSG_ERROR([*** Vorbisenc development files not found!]))
+PKG_CHECK_MODULES(THEORA, theora, :,
+	AC_MSG_ERROR([*** Theora development files not found!]))
+XIPH_CFLAGS="$OGG_CFLAGS $VORBIS_CFLAGS $VORBISENC_CFLAGS $THEORA_CFLAGS"
+XIPH_LIBS="$OGG_LIBS $VORBIS_LIBS $VORBISENC_LIBS $THEORA_LIBS"
+AC_SUBST([XIPH_CFLAGS])
+AC_SUBST([XIPH_LIBS])
 
-if test x$have_oggtheora = xyes ; then
-   AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
-   AC_DEFINE(THEORA_SUPPORT_ENCODE,1,[define if compiling Theora encoder])
-   AC_DEFINE(THEORA_SUPPORT_FLOAT,1,[define if compiling Theora float codec])
-   AC_DEFINE(CONFIG_LIBOGG,1,[define if compiling FFMpeg AvCoded with ogg])
-   AC_DEFINE(CONFIG_LIBVORBIS,1,[define if compiling FFMpeg AvCoded with vorbis])
-   AC_DEFINE(CONFIG_LIBTHEORA,1,[define if compiling FFMpeg AvCoded with theora])
-   AC_DEFINE(CONFIG_OGGVORBIS_ENCODER,1,[define if compiling FFMpeg with oggvorbis encoder])
-   AC_DEFINE(CONFIG_OGGVORBIS_DECODER,1,[define if compiling FFMpeg with oggvorbis decoder])
-   AC_DEFINE(CONFIG_OGGTHEORA_ENCODER,1,[define if compiling FFMpeg with oggtheora encoder])
-   AC_DEFINE(CONFIG_OGGTHEORA_DECODER,1,[define if compiling FFMpeg with oggtheora decoder])
-fi
-AC_SUBST(XIPH_LIBS)
-AC_SUBST(XIPH_CFLAGS)
-# AC_SUBST(XIPH_INCLUDE)
-# AC_SUBST(THEORA_MMX_DIR)
+# TODO(shammash): heritage from conditional build, still used somewhere.
+AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
 
-
-dnl PKG_CHECK_MODULES(MLT, mlt-framework, have_mlt=yes, have_mlt=no)
-dnl AC_SUBST(MLT_LIBS)
-dnl AC_SUBST(MLT_INCLUDE)
-dnl AC_SUBST(MLT_CFLAGS)
 
 dnl ==============================================================
 dnl FFMPEG DYNAMIC
@@ -387,9 +317,6 @@ AC_SUBST(FFMPEG_CFLAGS)
 AC_SUBST(SWSCALE_LIBS)
 
 
-
-
-
 dnl ==============================================================
 dnl ENABLE LIBFLASH
 dnl ==============================================================
@@ -413,7 +340,6 @@ fi
 AC_SUBST(FLASH_LIBS)
 
 
-
 dnl ==============================================================
 dnl CHECK if there is BLUETOOTH
 dnl ==============================================================
@@ -429,6 +355,7 @@ else
 fi
 AC_SUBST(BLUEZ_LIBS)
 AC_SUBST(CWIID_LIBS)
+
 
 dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
@@ -447,15 +374,6 @@ if test x$HAVE_V4L = xyes; then
    have_video4linux=yes
 fi])
 
-dnl ==============================================================
-dnl CHECK if there is LIBGLADE2
-dnl ==============================================================
-dnl AC_ARG_ENABLE(glade2,
-dnl [  --enable-glade2         compile with Glade/Gtk2 interface (deprecated, default: no)], [
-dnl PKG_CHECK_MODULES(GLADE2, libglade-2.0 >= 1.99.0 gthread-2.0 >= 2.0.0, [
-dnl   AC_DEFINE(WITH_GLADE2,1,[define if compiling glade gtk+-2 GUI])
-dnl   have_glade2=yes ],[ have_glade2=no ])
-dnl ])
 
 dnl ==============================================================
 dnl compile with full warnings and debugging symbols
@@ -471,6 +389,7 @@ AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
 if test x$debug = xtrue; then
    CFLAGS="$CFLAGS -Wall -g -ggdb"
 fi
+
 
 dnl ==============================================================================
 dnl CHECK to use profiling flags when compiling, for execution analysis with gprof
@@ -578,8 +497,6 @@ fi
 AC_SUBST(CFLAGS)
 
 
-
-
 dnl ==============================================================
 dnl CHECK TO USE OPENGL VIDEO OUTPUT
 dnl ==============================================================
@@ -649,11 +566,6 @@ fi
 AC_SUBST(GOOM_LIBS)
 AC_SUBST(GOOM_PPC_FILES)
 
-#SNDFILE_LIBS=""
-#PKG_CHECK_MODULES(SNDFILE, sndfile, have_sndfile=yes, have_sndfile=no)
-#AC_SUBST(SNDFILE_LIBS)
-
-
 
 dnl ==============================================================
 dnl compile including the javascript interpreter
@@ -715,11 +627,6 @@ AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascrip
 AC_SUBST(MOZJS_LIBS)
 AC_SUBST(MOZJS_CFLAGS)
 
-dnl OLD STATIC:
-dnl AC_DEFINE(WITH_JAVASCRIPT,1,[Define is using the javascript interpreter])
-dnl AC_SUBST(BUILDLIBS)
-dnl AC_SUBST(STATIC_LIBS)
-
 
 dnl ==============================================================
 dnl unicap lib
@@ -732,6 +639,7 @@ if test x$have_unicap = xyes; then
 fi
 AC_SUBST(UNICAP_LIBS)
 AC_SUBST(UNICAP_CFLAGS)
+
 
 dnl ==============================================================
 dnl shout lib
@@ -751,6 +659,7 @@ dnl fi
 dnl AC_SUBST(SHOUT_CFLAGS)
 dnl AC_SUBST(SHOUT_LIBS)
 
+
 dnl ==============================================================
 dnl SDL_gfx
 dnl ==============================================================
@@ -764,6 +673,7 @@ else
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
 fi
 
+
 dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
@@ -771,11 +681,10 @@ PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
 if test x$have_frei0r = xyes; then
    AM_CONDITIONAL(BUILD_FREI0R, false)
 else
-   # Build embedded frei0r
-   AC_MSG_RESULT([no, use freej version])
-   FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
    AM_CONDITIONAL(BUILD_FREI0R, true)
+   FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
 fi
+
 
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
@@ -812,10 +721,7 @@ CCVT_CONV="ccvt_c2.c"
 AC_SUBST(CCVT_CONV)
 
 CXXFLAGS="$CFLAGS"
-#CXXFLAGS="$CFLAGS $AVIFILE_CXXFLAGS $FT2_CFLAGS"
-#CFLAGS="$CFLAGS $SDL_FLAGS"
-#echo "LIBS are $LIBS"
-#AC_SUBST(LIBS)
+
 
 dnl ==============================================================
 dnl in-tree static libraries
@@ -920,8 +826,8 @@ AC_OUTPUT
 
 echo
 echo
-echo "Compile $PACKAGE $VERSION for ${host} (kernel $uname$uversion)"
-echo "= SDL v${SDL_VERSION}"
+echo "Compile $PACKAGE $VERSION for ${host}"
+echo "= SDL"
 echo "  LIBS  : $SDL_LIBS"
 echo "  CFLAGS: $SDL_CFLAGS"
 
@@ -986,21 +892,9 @@ else
 echo "= ffmpeg (movie layer) disabled"
 fi
 
-dnl echo "= mlt (movie layer)"
-dnl echo "  libs:   $MLT_LIBS"
-
-if test x$have_oggtheora = xyes; then
 echo "= ogg-theora (xiph.org)"
 echo "  LIBS  : $XIPH_LIBS"
 echo "  CFLAGS: $XIPH_CFLAGS"
-else
-	echo "= Ogg not found! libogg development is missing"
-	echo "  You'll not be able to save in ogg/theora"
-        echo "  this is preventing you from saving movies"
-	echo "  in case you are packing a binary package please take care"
-	echo "  because of this many users will miss important functionality"
-fi
-
 
 echo "= javascript interpreter"
 echo "  LIBS  : $MOZJS_LIBS"

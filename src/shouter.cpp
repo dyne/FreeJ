@@ -20,7 +20,7 @@
  */
 
 #include <config.h>
-#ifdef CONFIG_OGGTHEORA_ENCODER
+#ifdef WITH_OGGTHEORA
 
 #include <shouter.h>
 #include <jutils.h>
