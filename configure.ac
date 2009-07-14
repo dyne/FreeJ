@@ -194,20 +194,30 @@ dnl and perl?
 ENABLE_SWIG_PERL
 
 if test x$enable_python = xyes; then
-   BINDING_DIRS="$BINDING_DIRS python"
+   AM_CONDITIONAL([BUILD_SWIG_PYTHON], true)
+else
+   AM_CONDITIONAL([BUILD_SWIG_PYTHON], false)
 fi
+
 if test x$have_ruby = xtrue; then
-   BINDING_DIRS="$BINDING_DIRS ruby"
+   AM_CONDITIONAL([BUILD_SWIG_RUBY], true)
+else
+   AM_CONDITIONAL([BUILD_SWIG_RUBY], false)
 fi
+
 if test x$enable_java = xyes; then
-   BINDING_DIRS="$BINDING_DIRS java"
+   AM_CONDITIONAL([BUILD_SWIG_JAVA], true)
+else
+   AM_CONDITIONAL([BUILD_SWIG_JAVA], false)
 fi
+
 if test x$enable_perl = xyes; then
-   BINDING_DIRS="$BINDING_DIRS perl"
+   AM_CONDITIONAL([BUILD_SWIG_PERL], true)
+else
+   AM_CONDITIONAL([BUILD_SWIG_PERL], false)
 fi
 
 fi # swig found?
-AC_SUBST(BINDING_DIRS)
 
 
 dnl ==============================================================
