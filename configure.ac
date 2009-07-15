@@ -602,6 +602,7 @@ if test x$have_mozjs = xno; then
    # libs in top_srcdir instead of top_builddir because js is not under autotools
    MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
    AM_CONDITIONAL(BUILD_JAVASCRIPT, true)
+   AC_MSG_NOTICE([Using freej version of MOZJS])
 else
    AM_CONDITIONAL(BUILD_JAVASCRIPT, false)
 fi
@@ -667,7 +668,7 @@ PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
 if test x$have_sdlgfx = xyes; then
    AM_CONDITIONAL(BUILD_SDLGFX, false)
 else
-   AC_MSG_RESULT([no, use freej version])
+   AC_MSG_NOTICE([Using freej version of SDLGFX])
    AM_CONDITIONAL(BUILD_SDLGFX, true)
    SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
@@ -681,6 +682,7 @@ PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
 if test x$have_frei0r = xyes; then
    AM_CONDITIONAL(BUILD_FREI0R, false)
 else
+   AC_MSG_NOTICE([Using freej version of FREI0R])
    AM_CONDITIONAL(BUILD_FREI0R, true)
    FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
 fi
