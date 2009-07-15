@@ -259,7 +259,7 @@ AC_DEFUN([ENABLE_SWIG_PERL],
 [
     AC_ARG_ENABLE(perl,
     AS_HELP_STRING([--enable-perl],[enable Perl bindings (no)]),
-    [enable_perl=yes],
+    [enable_perl=$enableval],
     [enable_perl=no])
 
 if test x"$enable_perl" = xyes; then
@@ -271,7 +271,7 @@ AC_DEFUN([ENABLE_SWIG_PYTHON],
 [
 AC_ARG_ENABLE(python,
     AS_HELP_STRING([--enable-python],[enable Python bindings (no)]),
-	[enable_python=yes],
+	[enable_python=$enableval],
 	[enable_python=no])
 
 if test x"$enable_python" = xyes; then
@@ -284,7 +284,7 @@ AC_DEFUN([ENABLE_SWIG_JAVA],
 [
 AC_ARG_ENABLE(java,
     AS_HELP_STRING([--enable-java],[enable Java bindings (no)]),
-	[enable_java=yes],
+	[enable_java=$enableval],
 	[enable_java=no])
 
 if test x"$enable_java" = x"yes"; then
