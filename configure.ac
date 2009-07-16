@@ -95,8 +95,6 @@ AC_CONFIG_HEADERS([config.h])
 AM_MAINTAINER_MODE
 
 # Checks for programs.
-AC_PROG_LEX
-AC_PROG_YACC
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
@@ -108,45 +106,72 @@ AM_PROG_AS
 # compatibility with older libtool
 m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
 
+# from lib/goom
+AM_PROG_LEX
+AC_PROG_YACC
+
 # Checks for header files.
-AC_HEADER_STDC
 AC_PATH_X
-AC_FUNC_ALLOCA
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h float.h inttypes.h limits.h locale.h \
-		memory.h netdb.h netinet/in.h sgtty.h stddef.h stdint.h \
-		stdlib.h string.h strings.h sys/file.h sys/ioctl.h sys/socket.h \
-		sys/time.h sys/timeb.h termio.h termios.h unistd.h])
+AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h memory.h stdint.h stdlib.h \
+	string.h strings.h sys/file.h sys/ioctl.h sys/time.h termios.h \
+	unistd.h])
+
+# from lib/cwiid
+AC_CHECK_HEADERS([sys/socket.h])
+# from lib/goom
+AC_CHECK_HEADERS([stddef.h libintl.h malloc.h])
+# from lib/lo
+AC_CHECK_HEADERS([netdb.h netinet/in.h arpa/inet.h float.h])
+# from lib/javascript
+#AC_CHECK_HEADERS([sgtty.h termio.h locale.h sys/timeb.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
-AC_C_CONST
 AC_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_INT16_T
 AC_TYPE_INT32_T
 AC_TYPE_INT64_T
 AC_TYPE_INT8_T
-AC_TYPE_PID_T
 AC_TYPE_SIZE_T
-AC_TYPE_SSIZE_T
-AC_STRUCT_TIMEZONE
 AC_TYPE_UINT16_T
 AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
-AC_CHECK_TYPES([ptrdiff_t])
+
+# from lib/cwiid
+AC_TYPE_SSIZE_T
+# from lib/javascript
+#AC_CHECK_TYPES([ptrdiff_t])
+#AC_STRUCT_TIMEZONE
 
 # Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_FORK
 AC_FUNC_MALLOC
-AC_FUNC_MKTIME
 AC_FUNC_MMAP
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([atexit bzero clock_gettime floor ftime getcwd gethostbyaddr \
-		gethostbyname gethostname gettimeofday inet_ntoa localeconv \
-		localtime_r memmove memset munmap pow putenv rint select setenv \
-		socket sqrt strcasecmp strchr strdup strerror strncasecmp \
-		strpbrk strrchr strstr strtol])
+AC_CHECK_FUNCS([bzero floor gettimeofday memmove memset munmap rint select \
+		setenv strcasecmp strdup strerror strncasecmp strrchr strstr])
+
+# bindings/perl
+AC_CHECK_FUNCS([strtoul])
+AC_FUNC_STRTOD
+# lib/goom
+AC_FUNC_ALLOCA
+AC_CHECK_FUNCS([strtol])
+# lib/cwiid
+AC_CHECK_FUNCS([socket clock_gettime])
+# lib/flash
+AC_CHECK_FUNCS([sqrt])
+# lib/lo
+AC_CHECK_FUNCS([strchr gethostname gethostbyname strpbrk atexit])
+# lib/sdl_gfx
+AC_CHECK_FUNCS([pow])
+# lib/shout/net
+AC_CHECK_FUNCS([gethostbyaddr inet_ntoa])
+# lib/javascript
+#AC_FUNC_MKTIME
+#AC_CHECK_FUNCS([putenv getcwd localeconv ftime localtime_r])
 
 # compatibility with older libtool
 m4_ifdef([LT_INIT],
@@ -154,11 +179,6 @@ m4_ifdef([LT_INIT],
 	[AC_LIBTOOL_DLOPEN
 	 AC_DISABLE_STATIC
 	 AC_PROG_LIBTOOL])
-
-dnl Check sizes and shift
-AC_CHECK_SIZEOF(void*)
-AC_CHECK_SIZEOF(long)
-AC_CHECK_SIZEOF(long long)
 
 dnl versioning info for libtool
 FREEJ_CURRENT=0
