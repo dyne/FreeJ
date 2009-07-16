@@ -294,3 +294,28 @@ if test x"$enable_java" = x"yes"; then
    AC_SUBST(JAVA_LDFLAGS)
 fi
 ])
+
+AC_DEFUN([ENABLE_SWIG_RUBY],
+[
+AC_ARG_ENABLE(ruby,
+    AS_HELP_STRING([--enable-ruby],[enable Ruby bindings (no)]),
+                   [enable_ruby=$enableval],
+                   [enable_ruby=no])
+
+if test x"$enable_ruby" = x"yes"; then
+   AX_WITH_RUBY
+   if test -z "$RUBY"; then
+      AC_MSG_ERROR([Can't find ruby interpreter in PATH])
+   fi
+
+   AX_RUBY_DEVEL
+
+   dnl AX_RUBY_DEVEL doesn't provide this variable yet
+   AC_MSG_CHECKING([for Ruby site-libraries path])
+   if test -z "$RUBY_SITE_LIB"; then
+      RUBY_SITE_LIB=`$RUBY -rmkmf -e 'print Config::CONFIG[["sitelibdir"]]'`
+   fi
+   AC_MSG_RESULT([$RUBY_SITE_LIB])
+   AC_SUBST([RUBY_SITE_LIB])
+fi
+])
