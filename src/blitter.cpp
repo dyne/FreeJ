@@ -73,7 +73,6 @@ Blitter::Blitter() {
 
 Blitter::~Blitter() {
 
-  Blit *tmp;
   Blit *b = blitlist.begin();
   while(b) {
     b->rem();

@@ -102,6 +102,9 @@ Context::Context() {
 #ifdef WITH_FLASH
 " .  - FlashLayer for SWF flash v.3 animations\n"
 #endif
+#ifdef WITH_OPENCV
+" .  - OpenCV for camera capture\n"
+#endif
 "\n";
 
   assert( init() );
@@ -502,6 +505,7 @@ void fsigpipe (int Sig) {
 
 
 Layer *Context::open(char *file) {
+  func("%s",__PRETTY_FUNCTION__);
   char *end_file_ptr,*file_ptr;
   FILE *tmp;
   Layer *nlayer = NULL;
@@ -663,6 +667,17 @@ Layer *Context::open(char *file) {
 	      delete nlayer; nlayer = NULL;
 	    }
 
+  }
+#endif
+
+#ifdef WITH_OPENCV
+  else if(strcasecmp(file_ptr,"layer_opencv_cam")==0) {
+    func("creating a cam layer using OpenCV");
+    nlayer = new OpenCVCamLayer();
+    if(!nlayer->init(this)) {
+      error("failed initialization of webcam with OpenCV");
+      delete nlayer; return NULL;
+    }
   }
 #endif
 

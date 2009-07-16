@@ -116,7 +116,7 @@ void cmdline(int argc, char **argv) {
     switch(res) {
     case 'h':
       fprintf(stdout, "%s", help);
-      fprintf(stdout, "%s", layers_description);
+      fprintf(stdout, "%s", freej->layers_description);
       exit(0);
       break;
     case 'v':

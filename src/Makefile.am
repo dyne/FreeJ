@@ -1,7 +1,7 @@
 INCLUDES = @FREEJ_STATIC_INCLUDES@
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ \
+AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @OPENCV_CFLAGS@ \
 	      @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ @FREI0R_CFLAGS@ @SHOUT_CFLAGS@ @SDLGFX_CFLAGS@ \
 	      -freg-struct-return \
               -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
@@ -27,7 +27,8 @@ SOURCES = \
 	text_layer.cpp 		gen_f0r_layer.cpp \
 	geo_layer.cpp		flash_layer.cpp \
 	xhacks_layer.cpp        goom_layer.cpp \
-	xgrab_layer.cpp		impl_layers.cpp \
+	xgrab_layer.cpp		opencv_cam_layer.cpp \
+	impl_layers.cpp \
 \
 	screen.cpp		sdl_screen.cpp 	\
 	sdlgl_screen.cpp 	gl_screen.cpp   \
@@ -87,6 +88,7 @@ shared_libs = -lpthread -lm -lslang -lpng -ljpeg -lrt \
 		 @CWIID_LIBS@   \
 		 @OPENGL_LIB@   \
 		 @UNICAP_LIBS@	\
+		 @OPENCV_LIBS@  \
 		 @SHOUT_LIBS@   \
 		 @SDLGFX_LIBS@
 

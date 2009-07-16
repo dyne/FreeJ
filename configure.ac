@@ -661,6 +661,17 @@ fi
 AC_SUBST(UNICAP_LIBS)
 AC_SUBST(UNICAP_CFLAGS)
 
+dnl ==============================================================
+dnl opencv lib
+dnl ==============================================================
+OPENCV_LIBS=""
+OPENCV_FLAGS=""
+PKG_CHECK_MODULES(OPENCV, opencv, have_opencv=yes, have_opencv=no)
+if test x$have_opencv = xyes; then
+   AC_DEFINE(WITH_OPENCV,1,[Define if to link opencv framework])
+fi
+AC_SUBST(OPENCV_LIBS)
+AC_SUBST(OPENCV_CFLAGS)
 
 dnl ==============================================================
 dnl shout lib
