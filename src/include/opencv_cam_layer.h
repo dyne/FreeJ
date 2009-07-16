@@ -19,6 +19,9 @@
 #ifndef __FREEJ_OPENCV_CAM_H__
 #define __FREEJ_OPENCV_CAM_H__
 
+#include <config.h>
+#ifdef WITH_OPENCV
+
 #include <cv.h>
 #include <highgui.h>
 
@@ -45,5 +48,7 @@ class OpenCVCamLayer: public Layer {
   CvSize cvsize;
 
 };
+
+#endif // WITH_OPENCV
 
 #endif

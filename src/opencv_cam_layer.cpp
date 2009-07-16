@@ -18,6 +18,8 @@
 
 #include <config.h>
 
+#ifdef WITH_OPENCV
+
 #include <cv.h>
 #include <highgui.h>
 
@@ -99,3 +101,5 @@ void *OpenCVCamLayer::feed() {
 void OpenCVCamLayer::close() {
 
 }
+
+#endif // WITH_OPENCV
