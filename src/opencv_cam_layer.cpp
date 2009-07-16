@@ -33,15 +33,13 @@ OpenCVCamLayer::OpenCVCamLayer()
   capture = NULL;
   frame = NULL;
   rgba = NULL;
-  rgb = NULL;
 
   set_name("CAM");
 }
 
 OpenCVCamLayer::~OpenCVCamLayer() {
 
-  if(rgba) cvReleaseImage(&rgba);
-  if(rgb) cvReleaseImage(&rgb);
+  if(rgba) free(rgba);
   if(frame) cvReleaseImage(&frame);
   if(capture)
     cvReleaseCapture( &capture );
@@ -58,32 +56,30 @@ bool OpenCVCamLayer::init(Context *freej) {
 }
 
 bool OpenCVCamLayer::init(Context *freej, int width, int height) {
-  func("%s %ux%u",__PRETTY_FUNCTION__,width, height);
+  func("%s",__PRETTY_FUNCTION__);
+
+  // set size doesn't work, why?
+  cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, width);
+  cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT, height);
 
   capture = cvCaptureFromCAM( CV_CAP_ANY );
   if( !capture ) {
     error("OpenCV capture is NULL");
     return(false);
   }
-  // doesn't work, why?
-  cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, width);
-  cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT, height);
   
-
   frame = cvQueryFrame( capture );
-  act("Camera capture initialized: %u chans, %u depth",
-      frame->nChannels, frame->depth);
 
   int w = (int)cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH);
   int h = (int)cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT);
-  cvsize = cvSize(w, h);
-  
-  //  dst = cvCreateImage(cvsize, IPL_DEPTH_32S, 4);
 
-  rgb = cvCreateImage(cvsize, IPL_DEPTH_32S, frame->nChannels);
-  rgba = cvCreateImage(cvsize, IPL_DEPTH_32S, 4);
-  
+  cvsize = cvSize(w, h);
   _init(w, h);
+
+  act("Camera capture initialized: %u chans, %u depth, fourcc %s (seq %s)",
+      frame->nChannels, frame->depth, frame->colorModel, frame->channelSeq);
+
+  rgba = jalloc(geo.size);
 
   opened = true;
   return(true);
@@ -92,19 +88,11 @@ bool OpenCVCamLayer::init(Context *freej, int width, int height) {
 
 void *OpenCVCamLayer::feed() {
 
-
-  IplImage *tmp;
   frame = cvQueryFrame( capture );
 
-  cvConvert(frame, rgb);
-  //  func("cvConvert from %u to %u depth", frame->depth, rgb->depth);
-  cvCvtColor(rgb, rgba, CV_RGB2BGRA);
-  //  func("cvCvtcolor..");
-  //  cvCvtColor(tmp, dst, CV_YCrCb2RGB);
+  ccvt_bgr24_bgr32(geo.w, geo.h, frame->imageData, rgba);
 
-  //  cvReleaseImage( &tmp );
-
-  return(rgba->imageData);
+  return(rgba);
 
 }
 

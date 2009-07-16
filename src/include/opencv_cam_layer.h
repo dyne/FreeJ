@@ -40,8 +40,7 @@ class OpenCVCamLayer: public Layer {
   CvCapture *capture;
 
   IplImage *frame;
-  IplImage *rgba;
-  IplImage *rgb;
+  void *rgba;
 
   CvSize cvsize;
 
