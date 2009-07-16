@@ -11,16 +11,16 @@ BUILT_SOURCES = $(swig_source) $(swig_header)
 $(swig_source): $(SWIG_IFACE) $(top_srcdir)/bindings/rbpre.i $(top_srcdir)/bindings/rbpost.i
 	$(SWIG_COMMAND) -ruby -initname Freej -o $(swig_source) $(SWIG_IFACE)
 
-pkgrubydir = $(exec_prefix)/$(RUBY_INSTDIR)
+pkgrubydir = $(RUBY_SITE_LIB)
 dist_pkgruby_DATA = freej_extensions.rb
 
-pkgrubyarchdir = $(exec_prefix)/$(RUBY_ARCHINSTDIR)
+pkgrubyarchdir = $(RUBY_SITE_PKG)
 pkgrubyarch_LTLIBRARIES = Freej.la
 
 nodist_Freej_la_SOURCES = $(swig_source)
-Freej_la_CXXFLAGS =  $(FREEJ_FLAGS) $(RUBY_CFLAGS)
+Freej_la_CXXFLAGS =  $(FREEJ_FLAGS) $(RUBY_CPPFLAGS)
 Freej_la_LDFLAGS = $(RUBY_LDFLAGS) -module -avoid-version
-Freej_la_LIBADD = $(RUBY_LIBS) -L$(top_builddir)/src/.libs -lfreej
+Freej_la_LIBADD = $(RUBY_EXTRA_LIBS) -L$(top_builddir)/src/.libs -lfreej
 
 EXTRA_DIST = list_classes.rb list_classes.sh
 
