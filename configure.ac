@@ -289,7 +289,7 @@ else
 fi
 
 dnl ffmpeg include path changes dirty workaround
-if test -z $FFMPEG_CFLAGS ; then
+if test -z "$FFMPEG_CFLAGS" ; then
    FFMPEG_CFLAGS="-I/usr/include"
 fi
 FFMPEG_CFLAGS="$FFMPEG_CFLAGS \$(addprefix \$(firstword $FFMPEG_CFLAGS),/libavcodec /libavformat /libswscale)"
