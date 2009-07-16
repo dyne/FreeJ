@@ -21,6 +21,7 @@
 #include "text_layer.h"
 #include "video_layer.h"
 #include "geo_layer.h"
+#include "opencv_cam_layer.h"
 
 #include "kbd_ctrl.h"
 #include "trigger_ctrl.h"
@@ -129,6 +130,7 @@ freej_entry_typemap_in(Encoder);
 %include "text_layer.h"
 %include "video_layer.h"
 %include "geo_layer.h"
+%include "opencv_cam_layer.h"
 
 
 // screens...
