@@ -196,8 +196,10 @@ AC_PROG_SWIG([1.3])
 SWIG_ENABLE_CXX
 
 if test -z "$SWIG_LIB"; then
+   have_swig=no
    AC_MSG_WARN([No language bindings will be created])
 else
+   have_swig=yes
 
 SWIG_COMMAND='$(SWIG) -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include -I$(top_builddir)/doc'
 AC_SUBST(SWIG_COMMAND)
@@ -219,6 +221,17 @@ AM_CONDITIONAL([BUILD_SWIG_PYTHON], [test x$enable_python = xyes])
 AM_CONDITIONAL([BUILD_SWIG_RUBY], [test x$enable_ruby = xyes])
 AM_CONDITIONAL([BUILD_SWIG_JAVA], [test x$enable_java = xyes])
 AM_CONDITIONAL([BUILD_SWIG_PERL], [test x$enable_perl = xyes])
+
+# swig not found but bindings requested is fatal
+if test x$have_swig = xno && {
+      test x$enable_python = xyes ||
+      test x$enable_java = xyes   ||
+      test x$enable_ruby = xyes   ||
+      test x$enable_perl = xyes
+   }; then
+    AC_MSG_ERROR([bindings requested but swig not found!])
+fi
+
 
 dnl ==============================================================
 dnl Add the local include path and some flags
