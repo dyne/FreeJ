@@ -190,32 +190,28 @@ AC_SUBST(FREEJ_VERSION_INFO)
 
 
 dnl ==============================================================
-dnl check for python to compile the module with swig
+dnl check for swig and whether to enable bindings
 dnl ==============================================================
 AC_PROG_SWIG([1.3])
 SWIG_ENABLE_CXX
 
 if test -z "$SWIG_LIB"; then
-   have_swig=no
-   AC_MSG_WARN([No language bindings will be created])
+    have_swig=no
+
+    AC_MSG_WARN([No language bindings will be created])
 else
-   have_swig=yes
+    have_swig=yes
 
-SWIG_COMMAND='$(SWIG) -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include -I$(top_builddir)/doc'
-AC_SUBST(SWIG_COMMAND)
-SWIG_IFACE='$(top_srcdir)/bindings/freej.i'
-AC_SUBST(SWIG_IFACE)
+    SWIG_COMMAND='$(SWIG) -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include -I$(top_builddir)/doc'
+    AC_SUBST(SWIG_COMMAND)
+    SWIG_IFACE='$(top_srcdir)/bindings/freej.i'
+    AC_SUBST(SWIG_IFACE)
 
-ENABLE_SWIG_PYTHON
-
-dnl and ruby?
-ENABLE_SWIG_RUBY
-dnl and java?
-ENABLE_SWIG_JAVA
-dnl and perl?
-ENABLE_SWIG_PERL
-
-fi # swig found?
+    ENABLE_SWIG_PYTHON
+    ENABLE_SWIG_RUBY
+    ENABLE_SWIG_JAVA
+    ENABLE_SWIG_PERL
+fi
 
 AM_CONDITIONAL([BUILD_SWIG_PYTHON], [test x$enable_python = xyes])
 AM_CONDITIONAL([BUILD_SWIG_RUBY], [test x$enable_ruby = xyes])
