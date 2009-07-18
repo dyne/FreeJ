@@ -51,9 +51,6 @@ AC_SUBST(PERL_ARCHLIB)
 PERL_CFLAGS="`perl -e 'use Config; print $Config{ccflags};'`"
 AC_SUBST(PERL_CFLAGS)
 
-
-
-
 ])
 
 dnl Thank you very much Vim for this lovely ruby configuration
@@ -203,4 +200,122 @@ dnl EL_RESTORE_FLAGS
 # else
 dnl	EL_CONFIG(CONFIG_SCRIPTING_RUBY, [Ruby])
 # fi
+])
+
+
+dnl ################# new macros ##################################
+
+dnl how directories are affected wrt INSTALLDIRS (ExtUtils::MakeMaker)
+dnl                        perl            site                vendor
+dnl                        PERLPREFIX      SITEPREFIX          VENDORPREFIX
+dnl         INST_ARCHLIB   INSTALLARCHLIB  INSTALLSITEARCH     INSTALLVENDORARCH
+dnl         INST_LIB       INSTALLPRIVLIB  INSTALLSITELIB      INSTALLVENDORLIB
+dnl         INST_BIN       INSTALLBIN      INSTALLSITEBIN      INSTALLVENDORBIN
+dnl         INST_SCRIPT    INSTALLSCRIPT   INSTALLSITESCRIPT   INSTALLVENDORSCRIPT
+dnl         INST_MAN1DIR   INSTALLMAN1DIR  INSTALLSITEMAN1DIR  INSTALLVENDORMAN1DIR
+dnl         INST_MAN3DIR   INSTALLMAN3DIR  INSTALLSITEMAN3DIR  INSTALLVENDORMAN3DIR
+
+dnl TODO
+dnl - support INSTALLDIRS "perl" style?
+
+dnl ac_perl_dirs variable_to_set dir_type (arch, lib, bin, script, man1dir, man3dir)
+AC_DEFUN([AC_PERL_INSTALLDIRS],
+[
+    AC_ARG_WITH([perl-installdirs],
+        AS_HELP_STRING([--with-perl-installdirs],[style of perl install
+            directories, vendor/site (site)]),
+        [perl_dirs=$enable],
+        [perl_dirs=site])
+
+    AC_MSG_CHECKING([for perl $2 dirs])
+
+    # use a temp variable to avoid needless quoting inside backticks together with expansion
+    ac_perl_dirs_prog="use Config; print \$Config{install${perl_dirs}$2}"
+    $1="`$PERL -e \"$ac_perl_dirs_prog\"`"
+    AC_MSG_RESULT($$1)
+])
+
+AC_DEFUN([SWIG_PERL],
+[
+    if test -z "$PERL"; then
+            AC_PATH_PROG([PERL], [perl])
+    fi
+
+    if test -z "$PERL"; then
+            AC_MSG_ERROR([Can't find perl interpreter in PATH, set PERL])
+    fi
+
+    AC_PERL_INSTALLDIRS([PERL_INSTALLARCH], arch)
+    AC_SUBST([PERL_INSTALLARCH])
+
+    AC_PERL_INSTALLDIRS([PERL_INSTALLLIB], lib)
+    AC_SUBST([PERL_INSTALLLIB])
+
+    AX_PERL_EXT_CFLAGS([PERL_CFLAGS])
+    AC_SUBST([PERL_CFLAGS])
+])
+
+AC_DEFUN([ENABLE_SWIG_PERL],
+[
+    AC_ARG_ENABLE(perl,
+    AS_HELP_STRING([--enable-perl],[enable Perl bindings (no)]),
+    [enable_perl=$enableval],
+    [enable_perl=no])
+
+if test x"$enable_perl" = xyes; then
+	SWIG_PERL
+fi
+])
+
+AC_DEFUN([ENABLE_SWIG_PYTHON],
+[
+AC_ARG_ENABLE(python,
+    AS_HELP_STRING([--enable-python],[enable Python bindings (no)]),
+	[enable_python=$enableval],
+	[enable_python=no])
+
+if test x"$enable_python" = xyes; then
+	AM_PATH_PYTHON(2.4)
+	SWIG_PYTHON
+fi
+])
+
+AC_DEFUN([ENABLE_SWIG_JAVA],
+[
+AC_ARG_ENABLE(java,
+    AS_HELP_STRING([--enable-java],[enable Java bindings (no)]),
+	[enable_java=$enableval],
+	[enable_java=no])
+
+if test x"$enable_java" = x"yes"; then
+   JAVA_CFLAGS="-W -Wall -static-libgcc"
+   JAVA_LDFLAGS="-norunpath -xnolib"
+   AC_SUBST(JAVA_CFLAGS)
+   AC_SUBST(JAVA_LDFLAGS)
+fi
+])
+
+AC_DEFUN([ENABLE_SWIG_RUBY],
+[
+AC_ARG_ENABLE(ruby,
+    AS_HELP_STRING([--enable-ruby],[enable Ruby bindings (no)]),
+                   [enable_ruby=$enableval],
+                   [enable_ruby=no])
+
+if test x"$enable_ruby" = x"yes"; then
+   AX_WITH_RUBY
+   if test -z "$RUBY"; then
+      AC_MSG_ERROR([Can't find ruby interpreter in PATH])
+   fi
+
+   AX_RUBY_DEVEL
+
+   dnl AX_RUBY_DEVEL doesn't provide this variable yet
+   AC_MSG_CHECKING([for Ruby site-libraries path])
+   if test -z "$RUBY_SITE_LIB"; then
+      RUBY_SITE_LIB=`$RUBY -rmkmf -e 'print Config::CONFIG[["sitelibdir"]]'`
+   fi
+   AC_MSG_RESULT([$RUBY_SITE_LIB])
+   AC_SUBST([RUBY_SITE_LIB])
+fi
 ])

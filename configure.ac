@@ -192,51 +192,33 @@ AC_SUBST(FREEJ_VERSION_INFO)
 dnl ==============================================================
 dnl check for python to compile the module with swig
 dnl ==============================================================
-AC_PROG_SWIG
+AC_PROG_SWIG([1.3])
 SWIG_ENABLE_CXX
 
-if test -z "$SWIG"; then
-   AC_MSG_RESULT(No language bindings will be created)
+if test -z "$SWIG_LIB"; then
+   AC_MSG_WARN([No language bindings will be created])
 else
-SWIG_COMMAND='swig -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include -I$(top_builddir)/doc'
+
+SWIG_COMMAND='$(SWIG) -c++ -O -Wall -I$(top_builddir) -I$(top_srcdir)/src/include -I$(top_builddir)/doc'
 AC_SUBST(SWIG_COMMAND)
 SWIG_IFACE='$(top_srcdir)/bindings/freej.i'
 AC_SUBST(SWIG_IFACE)
 
-AC_ARG_ENABLE(python,
-	[  --enable-python           enable Python language bindings (no)],
-	[
-if test x$enableval = xyes; then
-   AC_MSG_RESULT(yes)
-   AM_PATH_PYTHON(2.4)
-   SWIG_PYTHON
-   have_python=true
-fi
-],[have_python=false])
+ENABLE_SWIG_PYTHON
 
 dnl and ruby?
-EL_CONFIG_SCRIPTING_RUBY
+ENABLE_SWIG_RUBY
 dnl and java?
-BIND_JAVA_SCRIPTING
+ENABLE_SWIG_JAVA
 dnl and perl?
-PERL_SWIG_BINDINGS
-
-if test x$have_python = xtrue; then
-   BINDING_DIRS="$BINDING_DIRS python"
-fi
-if test x$have_ruby = xtrue; then
-   BINDING_DIRS="$BINDING_DIRS ruby"
-fi
-if test x$have_java = xtrue; then
-   BINDING_DIRS="$BINDING_DIRS java"
-fi
-if test x$have_perl = xtrue; then
-   BINDING_DIRS="$BINDING_DIRS perl"
-fi
+ENABLE_SWIG_PERL
 
 fi # swig found?
-AC_SUBST(BINDING_DIRS)
 
+AM_CONDITIONAL([BUILD_SWIG_PYTHON], [test x$enable_python = xyes])
+AM_CONDITIONAL([BUILD_SWIG_RUBY], [test x$enable_ruby = xyes])
+AM_CONDITIONAL([BUILD_SWIG_JAVA], [test x$enable_java = xyes])
+AM_CONDITIONAL([BUILD_SWIG_PERL], [test x$enable_perl = xyes])
 
 dnl ==============================================================
 dnl Add the local include path and some flags
@@ -879,7 +861,7 @@ echo "= OpenGL disabled"
 fi
 
 echo "= Language bindings"
-if test x$have_python = xtrue; then
+if test x$enable_python = xyes; then
 echo "  Python LIBS   : $PYTHON_EXTRA_LIBS"
 echo "  Python CFLAGS : $PYTHON_CPPFLAGS"
 else
