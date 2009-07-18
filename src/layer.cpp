@@ -106,6 +106,7 @@ Layer::~Layer() {
   }
   
   if(blitter) delete blitter;
+  if(buffer) free(buffer);
 }
 
 void Layer::_init(int wdt, int hgt) {
@@ -123,7 +124,7 @@ void Layer::_init(int wdt, int hgt) {
   geo.y = 0;//(freej->screen->h - geo.h)/2;
   //  blitter->crop( freej->screen );  
 
-
+  buffer = jalloc(geo.size);
   
   func("initialized %s layer %ix%i",
 	 get_name(), geo.w, geo.h);
@@ -159,7 +160,7 @@ void Layer::run() {
     deferred_calls->do_jobs();
     
 
-    lock();
+    //    lock();
     //    unlock();
 
     tmp_buf = feed();
@@ -170,9 +171,15 @@ void Layer::run() {
     if(tmp_buf) {
       ////////////////////////////////////////
       // process filters on the feed buffer
-      buffer = do_filters(tmp_buf);
+      tmp_buf = do_filters(tmp_buf);
     }
 
+    // we add  a memcpy at the end  of the layer pipeline  this is not
+    // that  expensive as leaving  the lock  around the  feed(), which
+    // slows down the whole engine in case the layer is slow. -jrml
+
+    lock();
+    jmemcpy(buffer, tmp_buf, geo.size);
     unlock();
 
     fps.calc();
