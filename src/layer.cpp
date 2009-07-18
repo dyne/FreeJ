@@ -106,7 +106,7 @@ Layer::~Layer() {
   }
   
   if(blitter) delete blitter;
-  //breaks textlayer//if(buffer) free(buffer);
+  if(buffer) free(buffer);
 }
 
 void Layer::_init(int wdt, int hgt) {
@@ -124,7 +124,11 @@ void Layer::_init(int wdt, int hgt) {
   geo.y = 0;//(freej->screen->h - geo.h)/2;
   //  blitter->crop( freej->screen );  
 
-  //breaks textlayer//buffer = jalloc(geo.size);
+  if(geo.size>0)
+    buffer = jalloc(geo.size);
+  // if  the   size  is  still  unknown   at  init  then   it  is  the
+  // responsability for the layer implementation to create the buffer
+  // (see for instance text_layer)
   
   func("initialized %s layer %ix%i",
 	 get_name(), geo.w, geo.h);
@@ -160,7 +164,7 @@ void Layer::run() {
     deferred_calls->do_jobs();
     
 
-    lock();
+    //    lock();
     //    unlock();
 
     tmp_buf = feed();
@@ -171,19 +175,15 @@ void Layer::run() {
     if(tmp_buf) {
       ////////////////////////////////////////
       // process filters on the feed buffer
-      buffer = do_filters(tmp_buf);
+      tmp_buf = do_filters(tmp_buf);
     }
 
-    // this breaks if layers change their buffer size
-    // (e.g. TextLayer which has a 0 buffer during _init() and that
-    // is changed for each write() )
-    //
     // we add  a memcpy at the end  of the layer pipeline  this is not
     // that  expensive as leaving  the lock  around the  feed(), which
     // slows down the whole engine in case the layer is slow. -jrml
 
-    //breaks textlayer//lock();
-    //breaks textlayer//jmemcpy(buffer, tmp_buf, geo.size);
+    lock();
+    jmemcpy(buffer, tmp_buf, geo.size);
     unlock();
 
     fps.calc();

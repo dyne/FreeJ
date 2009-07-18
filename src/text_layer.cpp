@@ -214,6 +214,9 @@ void TextLayer::_display_text(SDL_Surface *newsurf) {
   if (surf) SDL_FreeSurface(surf);
   surf = newsurf;
 
+  if(buffer) free(buffer);
+  buffer = jalloc(geo.size);
+
 }
 
 void TextLayer::write(const char *str) {
