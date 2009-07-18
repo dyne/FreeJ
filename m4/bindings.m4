@@ -224,7 +224,7 @@ AC_DEFUN([AC_PERL_INSTALLDIRS],
     AC_ARG_WITH([perl-installdirs],
         AS_HELP_STRING([--with-perl-installdirs],[style of perl install
             directories, vendor/site (site)]),
-        [perl_dirs=$enable],
+        [perl_dirs=$enableval],
         [perl_dirs=site])
 
     AC_MSG_CHECKING([for perl $2 dirs])
