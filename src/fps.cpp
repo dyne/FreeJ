@@ -129,13 +129,21 @@ void FPS::delay() {
   struct timespec remaining = { 0, 0 };
 
   do {
-    nanosleep(&wake_ts, &remaining);
-    wake_ts.tv_nsec = remaining.tv_nsec;
+    if (nanosleep(&wake_ts, &remaining) == -1) {
+      if (errno == EINTR) {
+        // we've been interrupted use remaining and then reset it
+        wake_ts.tv_nsec = remaining.tv_nsec;
+        remaining.tv_sec = remaining.tv_nsec = 0;
+      } else {
+        error("nanosleep returned an error, not performing delay!");
+        wake_ts.tv_sec  = wake_ts.tv_nsec = 0;
+      }
+    } else {
+      // nanosleep successful, reset wake_ts
+      wake_ts.tv_sec  = wake_ts.tv_nsec = 0;
+    }
   } while (wake_ts.tv_nsec > 0);
   // update lo start time
   gettimeofday(&start_tv,NULL);
   
-  wake_ts.tv_sec  = wake_ts.tv_nsec = 0;
-
-
 }
