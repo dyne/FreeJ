@@ -18,15 +18,15 @@ AC_CANONICAL_HOST
 dnl ==============================================================
 dnl Get the operating system and version number...
 dnl ==============================================================
-AC_MSG_CHECKING(for which platform we are compiling)
-case $host_os in
+AC_MSG_CHECKING([for which platform we are compiling])
+case "$host_os" in
      *linux*)
-     AC_MSG_RESULT(Linux)
+     AC_MSG_RESULT([Linux])
      AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
      DL_LIBS="-ldl"
      have_linux=yes
 
-     case $host_cpu in
+     case "$host_cpu" in
        powerpc*)
        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
@@ -54,14 +54,14 @@ case $host_os in
      ;;
 
      *darwin*)
-     AC_MSG_RESULT(Darwin/OSX)
+     AC_MSG_RESULT([Darwin/OSX])
      AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
      AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
      have_darwin=yes
      ;;
 
      *freebsd*)
-     AC_MSG_RESULT(FreeBSD)
+     AC_MSG_RESULT([FreeBSD])
      AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
      AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
      CFLAGS="$CFLAGS -I/usr/local/include -L/usr/local/lib"
@@ -314,7 +314,7 @@ if test x$have_ffmpeg = xyes; then
    AC_DEFINE(WITH_SWSCALE,1,
 	[define if using new swscale library from ffmpeg])
 else
-   AC_MSG_RESULT(not found)
+   AC_MSG_RESULT([not found])
 fi
 
 dnl ffmpeg include path changes dirty workaround
@@ -338,7 +338,7 @@ AC_ARG_ENABLE(flash,
   else
     have_flash=yes;
   fi ],[ have_flash=yes ])
-AC_MSG_CHECKING(compiling flash - v3 animation only - layer)
+AC_MSG_CHECKING([compiling flash - v3 animation only - layer])
 if test x$have_flash = xyes; then
    AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
    FLASH_LIBS="\$(top_builddir)/lib/flash/libflash.la"
@@ -371,7 +371,7 @@ AC_SUBST(CWIID_LIBS)
 dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
 dnl ==============================================================
-AC_CHECK_HEADER(linux/videodev.h)
+AC_CHECK_HEADER([linux/videodev.h])
 if test "$ac_cv_header_linux_videodev_h" = "yes"; then
    HAVE_V4L=yes
 fi
@@ -717,7 +717,7 @@ dnl ==============================================================
 AC_CHECK_HEADER(dmalloc.h)
 if test "$ac_cv_header_dmalloc_h" = "yes"; then
 
-AC_MSG_CHECKING(if malloc debugging is wanted)
+AC_MSG_CHECKING([if malloc debugging is wanted])
 AC_ARG_WITH(dmalloc,
 [  --with-dmalloc          use dmalloc, as in
                           ftp://ftp.letters.com/src/dmalloc/dmalloc.tar.gz],
