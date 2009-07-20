@@ -324,7 +324,7 @@ dnl ==============================================================
 dnl ENABLE LIBFLASH
 dnl ==============================================================
 AC_ARG_ENABLE(flash,
-[  --enable-flash          compile with Flash animation layer (default: yes)],
+AS_HELP_STRING([--enable-flash],[compile with Flash animation layer (yes)]),
 [ if test x$enableval = xno; then
     have_flash=no
   else
@@ -367,7 +367,7 @@ AC_CHECK_HEADER([linux/videodev.h])
 if test "$ac_cv_header_linux_videodev_h" = "yes"; then
    HAVE_V4L=yes
 fi
-AC_ARG_ENABLE(v4l,[  --enable-v4l            compile with Video4Linux Layer (autodetect)], [
+AC_ARG_ENABLE(v4l,AS_HELP_STRING([--enable-v4l],[compile with Video4Linux Layer (autodetect)]), [
 if test x$HAVE_V4L = xyes -a ! x$enableval = xno; then
    AC_DEFINE(WITH_V4L,1,[define if compiling video4linux layer])
    have_video4linux=yes
@@ -382,7 +382,7 @@ dnl ==============================================================
 dnl compile with full warnings and debugging symbols
 dnl ==============================================================
 AC_ARG_ENABLE(debug,
-	[  --enable-debug          compile with debug symbols (no)],
+	AS_HELP_STRING([--enable-debug],[compile with debug symbols (no)]),
 	[case "${enableval}" in
 		yes) debug=true ;;
 		no) debug=false ;;
@@ -398,7 +398,7 @@ dnl ============================================================================
 dnl CHECK to use profiling flags when compiling, for execution analysis with gprof
 dnl ==============================================================================
 AC_ARG_ENABLE(profiling,
-[  --enable-profiling      compile using gprof flags for execution analysis (no)],
+AS_HELP_STRING([--enable-profiling],[compile using gprof flags for execution analysis (no)]),
 [ if test ! x$enableval = xyes; then
     have_profiling=no
   else
@@ -413,7 +413,7 @@ dnl ==============================================================
 dnl CHECK to use processor specific optimizations to compile
 dnl ==============================================================
 AC_ARG_ENABLE(cpuflags,
-	       [  --enable-cpuflags       compile with advanced cpu instructions (yes)],
+	       AS_HELP_STRING([--enable-cpuflags],[compile with advanced cpu instructions (yes)]),
 	       [ 
 		if test ! x$enableval = xyes; then
 		    have_cpuflags=no
@@ -450,7 +450,7 @@ if test x$have_cpuflags = xyes; then
 fi
 
 AC_ARG_ENABLE(lubrify,
-	       [  --enable-lubrify        compile using processor lubrifications (yes)],
+	       AS_HELP_STRING([--enable-lubrify],[compile using processor lubrifications (yes)]),
 	       [ 
 		if test ! x$enableval = xyes; then
 		    have_lubrifications=no
@@ -505,7 +505,7 @@ dnl CHECK TO USE OPENGL VIDEO OUTPUT
 dnl ==============================================================
 OPENGL_LIB=""
 AC_ARG_ENABLE(opengl,
-	       [  --enable-opengl         experimental opengl rendering (no)],
+	       AS_HELP_STRING([--enable-opengl],[experimental opengl rendering (no)]),
 	       [ 
 		if test x$enableval = xyes; then
 		    use_opengl=yes 
@@ -711,8 +711,7 @@ if test "$ac_cv_header_dmalloc_h" = "yes"; then
 
 AC_MSG_CHECKING([if malloc debugging is wanted])
 AC_ARG_WITH(dmalloc,
-[  --with-dmalloc          use dmalloc, as in
-                          ftp://ftp.letters.com/src/dmalloc/dmalloc.tar.gz],
+AS_HELP_STRING([--with-dmalloc],[use dmalloc, as in ftp://ftp.letters.com/src/dmalloc/dmalloc.tar.gz]),
 [if test "$withval" = yes; then
   AC_MSG_RESULT(yes)
   AC_DEFINE(WITH_DMALLOC,1,
