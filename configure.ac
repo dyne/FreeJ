@@ -2,15 +2,7 @@ dnl ==============================================================
 dnl Process this file with autoconf to produce a configure script.
 dnl ==============================================================
 
-dnl Define the sub-version numbers for this release
-m4_define([FREEJ_MAJ_VER], 0)
-m4_define([FREEJ_MIN_VER], 11)
-m4_define([FREEJ_REL_VER], 0)
-dnl Construct the final version number out of the sub-version values specified above
-m4_define([FREEJ_RELEASE_VERSION], [FREEJ_MAJ_VER.FREEJ_MIN_VER.FREEJ_REL_VER])
-
-
-AC_INIT([freej],[FREEJ_RELEASE_VERSION])
+AC_INIT([freej],[0.11.0])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
