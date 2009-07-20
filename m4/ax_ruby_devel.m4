@@ -137,11 +137,10 @@ $ac_distutils_result])
     LIBS="$ac_save_LIBS $RUBY_LDFLAGS"
     ac_save_CPPFLAGS="$CPPFLAGS"
     CPPFLAGS="$ac_save_CPPFLAGS $RUBY_CPPFLAGS"
-    AC_TRY_LINK([
-        #include <ruby.h>
-    ],[
-        ruby_init();
-    ],[rubyexists=yes],[rubyexists=no])
+    AC_LINK_IFELSE(
+		[AC_LANG_PROGRAM([#include <ruby.h>],[ruby_init()])],
+		[rubyexists=yes],
+		[rubyexists=no])
 
     AC_MSG_RESULT([$rubyexists])
 
