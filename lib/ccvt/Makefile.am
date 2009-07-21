@@ -1,8 +1,6 @@
 # We need config.h so use top_builddir instead of top_srcdir
-INCLUDES = -I$(top_builddir)/
-
-# Add INCLUDES to CFLAGS because it seems ignored while compiling .S files.
-CCASFLAGS += $(INCLUDES)
+AM_CPPFLAGS = -I$(top_builddir)/
+AM_CCASFLAGS = -I$(top_builddir)/
 
 AUTOMAKE_OPTIONS = foreign
 

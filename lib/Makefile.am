@@ -27,11 +27,11 @@ FREI0RDIR = frei0r
 endif
 
 SUBDIRS = ccvt \
-	sdl_image        \
-	$(SDLGFXDIR)     \
-	sdl_ttf          \
 	slw              \
 	lo               \
+	sdl_image        \
+	sdl_ttf          \
+	$(SDLGFXDIR)     \
 	$(SHOUTDIR)      \
 	$(FREI0RDIR)     \
 	$(JAVASCRIPTDIR) \
@@ -41,11 +41,11 @@ SUBDIRS = ccvt \
 
 # XXX(godog) after lib/javascript is gone remove this
 DIST_SUBDIRS = ccvt \
-	sdl_image        \
-	sdl_gfx          \
-	sdl_ttf          \
 	slw              \
 	lo               \
+	sdl_image        \
+	sdl_ttf          \
+	sdl_gfx          \
 	shout            \
 	frei0r           \
 	goom             \
