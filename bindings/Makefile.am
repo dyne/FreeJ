@@ -1,11 +1,3 @@
-INCLUDES = @FREEJ_STATIC_INCLUDES@
-
-FREEJ_FLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ \
-              @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ @SDLGFX_CFLAGS@ @OPENCV_CFLAGS@
-
-# SWIG_SOURCES = freej.i
-# SWIG_CFLAGS = -modern ${SWIG_ADD_CFLAGS}
-
 if BUILD_SWIG_PYTHON
 SWIG_PYTHON_DIR = python
 endif
@@ -36,4 +28,3 @@ EXTRA_DIST = freej.i   \
              rbpost.i  \
              rbpre.i   \
              test.lua
-
