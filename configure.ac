@@ -349,13 +349,11 @@ dnl CHECK if there is BLUETOOTH
 dnl ==============================================================
 PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
 if test x$have_bluez = xyes; then
-   AC_DEFINE(WITH_BLUEZ,1,[define if compiling bluetooth cwiid controller])
-   CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
-   CWIID_CFLAGS="-I\$(top_srcdir)/lib/cwiid"
-   AM_CONDITIONAL(BUILD_CWIID, true)
-else
-   AM_CONDITIONAL(BUILD_CWIID, false)
+    AC_DEFINE(WITH_BLUEZ,1,[define if compiling bluetooth cwiid controller])
+    CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
+    CWIID_CFLAGS="-I\$(top_srcdir)/lib/cwiid"
 fi
+AM_CONDITIONAL(BUILD_CWIID, [test x$have_bluez = xyes])
 AC_SUBST(CWIID_LIBS)
 AC_SUBST(CWIID_CFLAGS)
 
