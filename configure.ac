@@ -50,6 +50,13 @@ case "$host_os" in
      AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
      AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
      have_darwin=yes
+
+     # detect ppc also on darwin, for lubrifications
+     case "$host_cpu" in
+       powerpc*)
+         have_ppc=yes
+       ;;
+     esac
      ;;
 
      *freebsd*)
@@ -444,49 +451,45 @@ if test x$enable_cpuflags = xyes; then
 fi
 
 AC_ARG_ENABLE(lubrify,
-	       AS_HELP_STRING([--enable-lubrify],[compile using processor lubrifications (yes)]),
-	       [ 
-		if test ! x$enableval = xyes; then
-		    have_lubrifications=no
-		else
-		    have_lubrifications=yes;
-		fi ],[ have_lubrifications=yes ])
+    AS_HELP_STRING([--enable-lubrify],[compile using processor lubrifications (yes)]),
+    [enable_lubrifications=$enableval],
+    [enable_lubrifications=yes])
 
-if test x$have_lubrifications = xyes; then
-  if test x$enable_profiling = xyes -o x$enable_debug = xyes; then
+# XXX(godog) integrate with AX_GCC_ARCHFLAG
+if test x$enable_lubrifications = xyes; then
+  if test x$enable_profiling = xyes || test x$enable_debug = xyes; then
     AC_MSG_WARN([cannot lubrify code if debug or profiling are enabled])
-    have_lubrifications=no
+    enable_lubrifications=no
   else
     if test x$have_darwin = xyes; then
-
-       if test x$have_ppc = xyes; then
-      # use optimization flags for darwin
-            GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mabi=altivec -maltivec -mpowerpc-gfxopt"
-       else
-            GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=pentium4"
-       fi
-	    
-      # adding these provoke 'illegal instruction' errors in some
-      # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
+      if test x$have_ppc = xyes; then
+        # use optimization flags for darwin
+        GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mabi=altivec -maltivec -mpowerpc-gfxopt"
+      else
+        GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=pentium4"
+      fi
+    # adding these provoke 'illegal instruction' errors in some
+    # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
     elif test x$have_ppc = xyes; then
       GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
     elif test x$host_cpu = xx86_64; then
-	# should complete this with all 64bit CPUs (AMD too)
-	if test x$have_ssse3 = xyes; then
-		# multiple core cpu
-		GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=core2"
-	else
-		# single core 64bit cpu
-		GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=nocona"
-	fi
+      # should complete this with all 64bit CPUs (AMD too)
+      if test x$have_ssse3 = xyes; then
+        # multiple core cpu
+        GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=core2"
+      else
+        # single core 64bit cpu
+        GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=nocona"
+      fi
+    else
+      # any other platform optimizations
+      AC_MSG_WARN([no special optimisation flags found for your cpu])
+      AC_MSG_WARN([please suggest some on our mailinglist if you know better!])
+      GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
     fi
-    # any other platform optimizations
-    AC_MSG_WARN([no special optimisation flags found for your cpu])
-    AC_MSG_WARN([please suggest some on our mailinglist if you know better!])
-    GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
   fi
 else
-  if test x$enable_profiling = xno -a x$enable_debug = xno; then
+  if test x$enable_profiling = xno && test x$enable_debug = xno; then
     AC_MSG_NOTICE([enabling generic compiler optimizations])
     GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
   fi
@@ -960,7 +963,7 @@ echo "= Building binary with support for machine specific advanced instructions"
 else
 echo "= Not building binary with support for machine specific advanced instructions"
 fi
-if test x$have_lubrifications = xyes; then
+if test x$enable_lubrifications = xyes; then
 echo "= Building machine specific lubrificated binary"
 else
 echo "= Not building machine specific lubrificated binary"
