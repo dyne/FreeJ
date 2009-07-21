@@ -382,15 +382,15 @@ dnl ==============================================================
 dnl compile with full warnings and debugging symbols
 dnl ==============================================================
 AC_ARG_ENABLE(debug,
-	AS_HELP_STRING([--enable-debug],[compile with debug symbols (no)]),
-	[case "${enableval}" in
-		yes) debug=true ;;
-		no) debug=false ;;
-		*) AC_MSG_ERROR(--enable-debug expects either yes or no) ;;
-	esac], [debug=false])
-AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
-if test x$debug = xtrue; then
-   GLOBAL_CFLAGS="$GLOBAL_CFLAGS -Wall -g -ggdb"
+    AS_HELP_STRING([--enable-debug],[compile with debug symbols (no)]),
+    [enable_debug=$enableval],
+    [enable_debug=no])
+
+# XXX(godog) is this used?
+AM_CONDITIONAL(DEBUG, [test x$enable_debug = xyes])
+
+if test x$enable_debug = xyes; then
+    GLOBAL_CFLAGS="$GLOBAL_CFLAGS -Wall -g -ggdb"
 fi
 
 
@@ -459,7 +459,7 @@ AC_ARG_ENABLE(lubrify,
 		fi ],[ have_lubrifications=yes ])
 
 if test x$have_lubrifications = xyes; then
-  if test x$have_profiling = xyes -o x$debug = xtrue; then
+  if test x$have_profiling = xyes -o x$enable_debug = xyes; then
     AC_MSG_WARN([cannot lubrify code if debug or profiling are enabled])
     have_lubrifications=no
   else
@@ -492,7 +492,7 @@ if test x$have_lubrifications = xyes; then
     GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
   fi
 else
-  if test x$have_profiling = xno -a x$debug = xfalse; then
+  if test x$have_profiling = xno -a x$enable_debug = xno; then
     AC_MSG_NOTICE([enabling generic compiler optimizations])
     GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
   fi
@@ -600,7 +600,7 @@ else
    AM_CONDITIONAL(BUILD_JAVASCRIPT, false)
 fi
 
-if test x$debug = xyes ; then
+if test x$enable_debug = xyes ; then
    MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
 fi
 
@@ -971,7 +971,7 @@ echo "= Building machine specific lubrificated binary"
 else
 echo "= Not building machine specific lubrificated binary"
 fi
-if test x$debug = xtrue; then
+if test x$enable_debug = xyes; then
 echo "= Compiling with debugging symbols"
 else
 echo "= Not compiling with debugging symbols"
