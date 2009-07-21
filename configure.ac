@@ -908,22 +908,28 @@ fi
 
 echo "= Language bindings"
 if test x$enable_python = xyes; then
-echo "  Python LIBS   : $PYTHON_EXTRA_LIBS"
+echo "  Python LIBS   : $PYTHON_LDFLAGS"
 echo "  Python CFLAGS : $PYTHON_CPPFLAGS"
 else
 echo "  Python disabled"
 fi
-if test x$have_ruby = xtrue; then
-echo "  Ruby LIBS     : $RUBY_LIBS"
-echo "  Ruby CFLAGS   : $RUBY_CFLAGS"
+if test x$enable_ruby = xyes; then
+echo "  Ruby LIBS     : $RUBY_LDFLAGS"
+echo "  Ruby CFLAGS   : $RUBY_CPPFLAGS"
 else
 echo "  Ruby disabled"
 fi
-if test x$have_java = xtrue; then
-echo "  Java LIBS     : $JAVA_LIBS"
+if test x$enable_java = xyes; then
+echo "  Java LIBS     : $JAVA_LDFLAGS"
 echo "  Java CFLAGS   : $JAVA_CFLAGS"
 else
 echo "  Java disabled"
+fi
+if test x$enable_perl = xyes; then
+echo "  Perl LIBS     : $PERL_LDFLAGS"
+echo "  Perl CFLAGS   : $PERL_CFLAGS"
+else
+echo "  Perl disabled"
 fi
 
 if test x$have_freetype2 = xyes; then
