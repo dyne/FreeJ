@@ -327,23 +327,19 @@ dnl ==============================================================
 dnl ENABLE LIBFLASH
 dnl ==============================================================
 AC_ARG_ENABLE(flash,
-AS_HELP_STRING([--enable-flash],[compile with Flash animation layer (yes)]),
-[ if test x$enableval = xno; then
-    have_flash=no
-  else
-    have_flash=yes;
-  fi ],[ have_flash=yes ])
-AC_MSG_CHECKING([compiling flash - v3 animation only - layer])
+    AS_HELP_STRING([--enable-flash],[compile with Flash animation layer (yes)]),
+    [have_flash=$enableval],
+    [have_flash=yes])
+AC_MSG_CHECKING([flash - v3 animation only - layer])
 if test x$have_flash = xyes; then
-   AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
-   FLASH_LIBS="\$(top_builddir)/lib/flash/libflash.la"
-   FLASH_CFLAGS="-I\$(top_srcdir)/lib/flash"
-   AM_CONDITIONAL(BUILD_FLASH, true)
-   AC_MSG_RESULT(yes)
+    AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
+    FLASH_LIBS="\$(top_builddir)/lib/flash/libflash.la"
+    FLASH_CFLAGS="-I\$(top_srcdir)/lib/flash"
+    AC_MSG_RESULT(yes)
 else
-   AM_CONDITIONAL(BUILD_FLASH, false)
-   AC_MSG_RESULT(no)
+    AC_MSG_RESULT(no)
 fi
+AM_CONDITIONAL(BUILD_FLASH, [test x$have_flash = xyes])
 AC_SUBST(FLASH_LIBS)
 AC_SUBST(FLASH_CFLAGS)
 
