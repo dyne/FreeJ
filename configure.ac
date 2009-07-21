@@ -676,26 +676,19 @@ fi
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
 dnl ==============================================================
-# TODO(godog): automake provides AM_WITH_DMALLOC
-AC_CHECK_HEADER(dmalloc.h)
-if test "$ac_cv_header_dmalloc_h" = "yes"; then
-
-AC_MSG_CHECKING([if malloc debugging is wanted])
+AC_CHECK_HEADERS([dmalloc.h], [have_dmalloc=yes], [have_dmalloc=no])
 AC_ARG_WITH(dmalloc,
-AS_HELP_STRING([--with-dmalloc],[use dmalloc, as in ftp://ftp.letters.com/src/dmalloc/dmalloc.tar.gz]),
-[if test "$withval" = yes; then
-  AC_MSG_RESULT(yes)
-  AC_DEFINE(WITH_DMALLOC,1,
-            [Define if using the dmalloc debugging malloc package])
-  LIBS="$LIBS -ldmallocthcxx"
-  DMALLOCC="dmallocc.cpp"
-  have_dmalloc=yes
-else
-  AC_MSG_RESULT(no)
-  DMALLOCC=""
-  have_dmalloc=no
-fi], [AC_MSG_RESULT(no)])
+    AS_HELP_STRING([--with-dmalloc],[use dmalloc, as in ftp://ftp.letters.com/src/dmalloc/dmalloc.tar.gz]),
+    [with_dmalloc=$withval],
+    [with_dmalloc=no])
 
+if test x$with_dmalloc = xyes; then
+  if test x$have_dmalloc = xyes; then
+      AC_DEFINE(WITH_DMALLOC,1,[Define if using the dmalloc debugging malloc package])
+      LIBS="$LIBS -ldmallocthcxx"
+  else
+      AC_MSG_ERROR([*** dmalloc requested but header not found!])
+  fi
 fi
 
 AC_PROG_PERL_MODULES([HTML::Template],
