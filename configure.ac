@@ -500,19 +500,14 @@ dnl ==============================================================
 dnl CHECK TO USE OPENGL VIDEO OUTPUT
 dnl ==============================================================
 AC_ARG_ENABLE(opengl,
-	       AS_HELP_STRING([--enable-opengl],[experimental opengl rendering (no)]),
-	       [ 
-		if test x$enableval = xyes; then
-		    use_opengl=yes 
-		    OPENGL_LIB="-lGL -lGLU"
-		    AC_DEFINE(WITH_OPENGL,1,
-				[define if using experimental opengl rendering])
-		    else
-			use_opengl=no
-		    fi
-		    ],
-		    [ use_opengl=yes ]
-		    )
+    AS_HELP_STRING([--enable-opengl],[experimental opengl rendering (no)]),
+    [enable_opengl=$enableval],
+    [enable_opengl=no])
+
+if test x$enable_opengl = xyes; then
+    OPENGL_LIB="-lGL -lGLU"
+    AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
+fi
 AC_SUBST(OPENGL_LIB)
 
 
@@ -870,7 +865,7 @@ else
 echo "= X11 disabled"
 fi
 
-if test x$use_opengl = xyes; then
+if test x$enable_opengl = xyes; then
 echo "= OpenGL"
 echo "  LIBS  : $OPENGL_LIB"
 else
