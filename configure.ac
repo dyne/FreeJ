@@ -398,13 +398,11 @@ dnl ============================================================================
 dnl CHECK to use profiling flags when compiling, for execution analysis with gprof
 dnl ==============================================================================
 AC_ARG_ENABLE(profiling,
-AS_HELP_STRING([--enable-profiling],[compile using gprof flags for execution analysis (no)]),
-[ if test ! x$enableval = xyes; then
-    have_profiling=no
-  else
-    have_profiling=yes;
-  fi ],[ have_profiling=no ])
-if test x$have_profiling = xyes; then
+    AS_HELP_STRING([--enable-profiling],[compile using gprof flags for execution analysis (no)]),
+    [enable_profiling=$enableval],
+    [enable_profiling=no])
+
+if test x$enable_profiling = xyes; then
   GLOBAL_CFLAGS="$GLOBAL_CFLAGS -pg"
 fi
 
@@ -459,7 +457,7 @@ AC_ARG_ENABLE(lubrify,
 		fi ],[ have_lubrifications=yes ])
 
 if test x$have_lubrifications = xyes; then
-  if test x$have_profiling = xyes -o x$enable_debug = xyes; then
+  if test x$enable_profiling = xyes -o x$enable_debug = xyes; then
     AC_MSG_WARN([cannot lubrify code if debug or profiling are enabled])
     have_lubrifications=no
   else
@@ -492,7 +490,7 @@ if test x$have_lubrifications = xyes; then
     GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
   fi
 else
-  if test x$have_profiling = xno -a x$enable_debug = xno; then
+  if test x$enable_profiling = xno -a x$enable_debug = xno; then
     AC_MSG_NOTICE([enabling generic compiler optimizations])
     GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
   fi
@@ -976,7 +974,7 @@ echo "= Compiling with debugging symbols"
 else
 echo "= Not compiling with debugging symbols"
 fi
-if test x$have_profiling = xyes; then
+if test x$enable_profiling = xyes; then
 echo "= Including support for the GNU Profiler (see man gprof)"
 else
 echo "= Not including support for the GNU Profiler (see man gprof)"
