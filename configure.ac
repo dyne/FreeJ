@@ -56,7 +56,7 @@ case "$host_os" in
      AC_MSG_RESULT([FreeBSD])
      AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
      AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
-     CFLAGS="$CFLAGS -I/usr/local/include -L/usr/local/lib"
+     GLOBAL_CFLAGS="$GLOBAL_CFLAGS -I/usr/local/include -L/usr/local/lib"
      have_freebsd=yes
      ;;
 
@@ -226,10 +226,10 @@ dnl Add the local include path and some flags
 dnl ==============================================================
 
 #-freg-struct-return is to compile an host compatible with freeframe dso
-CFLAGS="$CFLAGS -pipe -D_REENTRANT -freg-struct-return -fPIC"
+GLOBAL_CFLAGS="$GLOBAL_CFLAGS -pipe -D_REENTRANT -freg-struct-return -fPIC"
 if test x$have_darwin = xyes; then
   # add the fink default path to find headers
-  CFLAGS="$CFLAGS -I/sw/include"
+  GLOBAL_CFLAGS="$GLOBAL_CFLAGS -I/sw/include"
 fi
 
 
@@ -390,7 +390,7 @@ AC_ARG_ENABLE(debug,
 	esac], [debug=false])
 AM_CONDITIONAL(DEBUG, test x$debug = xtrue)
 if test x$debug = xtrue; then
-   CFLAGS="$CFLAGS -Wall -g -ggdb"
+   GLOBAL_CFLAGS="$GLOBAL_CFLAGS -Wall -g -ggdb"
 fi
 
 
@@ -405,7 +405,7 @@ AS_HELP_STRING([--enable-profiling],[compile using gprof flags for execution ana
     have_profiling=yes;
   fi ],[ have_profiling=no ])
 if test x$have_profiling = xyes; then
-  CFLAGS="$CFLAGS -pg"
+  GLOBAL_CFLAGS="$GLOBAL_CFLAGS -pg"
 fi
 
 
@@ -467,37 +467,36 @@ if test x$have_lubrifications = xyes; then
 
        if test x$have_ppc = xyes; then
       # use optimization flags for darwin
-            CFLAGS="$CFLAGS -O2 -mabi=altivec -maltivec -mpowerpc-gfxopt"
+            GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mabi=altivec -maltivec -mpowerpc-gfxopt"
        else
-            CFLAGS="$CFLAGS -O2 -mfpmath=sse -mtune=pentium4"
+            GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=pentium4"
        fi
 	    
       # adding these provoke 'illegal instruction' errors in some
       # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
     elif test x$have_ppc = xyes; then
-      CFLAGS="$CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
+      GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
     elif test x$host_cpu = xx86_64; then
 	# should complete this with all 64bit CPUs (AMD too)
 	if test x$have_ssse3 = xyes; then
 		# multiple core cpu
-		CFLAGS="$CFLAGS -O2 -mfpmath=sse -mtune=core2"
+		GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=core2"
 	else
 		# single core 64bit cpu
-		CFLAGS="$CFLAGS -O2 -mfpmath=sse -mtune=nocona"
+		GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=nocona"
 	fi
     fi
     # any other platform optimizations
     AC_MSG_WARN([no special optimisation flags found for your cpu])
     AC_MSG_WARN([please suggest some on our mailinglist if you know better!])
-    CFLAGS="$CFLAGS -O2"
+    GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
   fi
 else
   if test x$have_profiling = xno -a x$debug = xfalse; then
     AC_MSG_NOTICE([enabling generic compiler optimizations])
-    CFLAGS="$CFLAGS -O2"
+    GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
   fi
 fi
-AC_SUBST(CFLAGS)
 
 
 dnl ==============================================================
@@ -736,8 +735,8 @@ AC_PROG_PERL_MODULES([HTML::Template],
 CCVT_CONV="ccvt_c2.c"
 AC_SUBST(CCVT_CONV)
 
-CXXFLAGS="$CFLAGS"
-
+CFLAGS="$GLOBAL_CFLAGS $CFLAGS"
+AC_SUBST(CFLAGS)
 
 dnl ==============================================================
 dnl in-tree static libraries
