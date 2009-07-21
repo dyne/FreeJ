@@ -519,7 +519,6 @@ PKG_CHECK_MODULES(ALSA, alsa, have_alsa=yes, have_alsa=no)
 # TODO(shammash): is this enough to enable midi on alsa?
 if test x$have_alsa = xyes; then
   AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
-  have_midi=yes
 fi
 
 # TODO(shammash): before this refactoring we were enabling jack
