@@ -334,6 +334,7 @@ AC_MSG_CHECKING([compiling flash - v3 animation only - layer])
 if test x$have_flash = xyes; then
    AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
    FLASH_LIBS="\$(top_builddir)/lib/flash/libflash.la"
+   FLASH_CFLAGS="-I\$(top_builddir)/lib/flash"
    AM_CONDITIONAL(BUILD_FLASH, true)
    AC_MSG_RESULT(yes)
 else
@@ -341,6 +342,7 @@ else
    AC_MSG_RESULT(no)
 fi
 AC_SUBST(FLASH_LIBS)
+AC_SUBST(FLASH_CFLAGS)
 
 
 dnl ==============================================================
@@ -352,12 +354,14 @@ PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
 if test x$have_bluez = xyes; then
    AC_DEFINE(WITH_BLUEZ,1,[define if compiling bluetooth cwiid controller])
    CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
+   CWIID_CFLAGS="-I\$(top_builddir)/lib/cwiid"
    AM_CONDITIONAL(BUILD_CWIID, true)
 else
    AM_CONDITIONAL(BUILD_CWIID, false)
 fi
 AC_SUBST(BLUEZ_LIBS)
 AC_SUBST(CWIID_LIBS)
+AC_SUBST(CWIID_CFLAGS)
 
 
 dnl ==============================================================
@@ -559,6 +563,7 @@ GOOM_LIBS=""
 if test x$have_sound = xyes && test 1 = 0; then
   AC_DEFINE(WITH_GOOM,1,[define if goom is enabled])
   GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
+  GOOM_CFLAGS="-I\$(top_builddir)/lib/goom"
   if test x$host_cpu = xpowerpc; then
     GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
   fi
@@ -567,8 +572,8 @@ else
   AM_CONDITIONAL(BUILD_GOOM, false)
 fi
 AC_SUBST(GOOM_LIBS)
+AC_SUBST(GOOM_CFLAGS)
 AC_SUBST(GOOM_PPC_FILES)
-
 
 dnl ==============================================================
 dnl compile including the javascript interpreter
