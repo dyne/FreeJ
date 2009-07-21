@@ -558,6 +558,7 @@ GOOM_LIBS=""
 # goom removed because gives compilation problems
 # replicated on Niels ubuntu 7.10
 if test x$have_sound = xyes && test 1 = 0; then
+  AC_DEFINE(WITH_GOOM,1,[define if goom is enabled])
   GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
   if test x$host_cpu = xpowerpc; then
     GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"

@@ -20,6 +20,9 @@
 #ifndef __GOOM_LAYER_H__
 #define __GOOM_LAYER_H__
 
+#include <config.h>
+#ifdef WITH_GOOM
+
 extern "C" {
 #include <goom.h>
 }
@@ -49,5 +52,7 @@ class GoomLayer: public Layer {
 
   
 };
+
+#endif // WITH_GOOM
 
 #endif
