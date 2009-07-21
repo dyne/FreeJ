@@ -361,20 +361,22 @@ AC_SUBST(CWIID_CFLAGS)
 dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
 dnl ==============================================================
-AC_CHECK_HEADER([linux/videodev.h])
-if test "$ac_cv_header_linux_videodev_h" = "yes"; then
-   HAVE_V4L=yes
-fi
-AC_ARG_ENABLE(v4l,AS_HELP_STRING([--enable-v4l],[compile with Video4Linux Layer (autodetect)]), [
-if test x$HAVE_V4L = xyes -a ! x$enableval = xno; then
-   AC_DEFINE(WITH_V4L,1,[define if compiling video4linux layer])
-   have_video4linux=yes
-fi], [
-if test x$HAVE_V4L = xyes; then
-   AC_DEFINE(WITH_V4L,1,[define if compiling video4linux layer])
-   have_video4linux=yes
-fi])
+AC_CHECK_HEADERS([linux/videodev.h], [have_videodev=yes], [have_videodev=no])
+AC_ARG_ENABLE(v4l,
+    AS_HELP_STRING([--enable-v4l],[compile with Video4Linux Layer (autodetect)]),
+    [enable_v4l=$enableval],
+    [enable_v4l=autodetect])
 
+if test x$have_videodev = xno && test x$enable_v4l = xyes; then
+    AC_MSG_ERROR([*** v4l enabled but header videodev.h not found!])
+fi
+
+if test x$have_videodev = xyes && {
+        test x$enable_v4l = xyes ||
+        test x$enable_v4l = xautodetect
+   }; then
+        AC_DEFINE(WITH_V4L,1,[define if compiling video4linux layer])
+fi
 
 dnl ==============================================================
 dnl compile with full warnings and debugging symbols
