@@ -744,29 +744,70 @@ CFLAGS="$GLOBAL_CFLAGS $CFLAGS"
 AC_SUBST(CFLAGS)
 
 dnl ==============================================================
-dnl in-tree static libraries
+dnl freej specific flags, explanation:
+dnl STATIC_CFLAGS cflags regarding static libraries from lib/
+dnl CFLAGS        ordinary cflags from shared libraries _plus static_cflags_
+dnl STATIC_LIBS   libtool static libraries plus some optional ones
+dnl LIBS          ordinary shared libraries used to link libfreej
 dnl ==============================================================
-FREEJ_STATIC_INCLUDES="-I\$(top_builddir) \
-    -I\$(top_srcdir)/src/include \
-    -I\$(top_srcdir)/lib \
-    -I\$(top_srcdir)/lib/ccvt \
-    -I\$(top_srcdir)/lib/shout \
-    -I\$(top_srcdir)/lib/lo \
-    -I\$(top_srcdir)/lib/sdl_image \
-    -I\$(top_srcdir)/lib/sdl_ttf \
-    -I\$(top_srcdir)/lib/flash \
-    -I\$(top_srcdir)/lib/goom \
-    -I\$(top_srcdir)/lib/cwiid \
-    -I\$(top_srcdir)/lib/slw"
+FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
+    -I\$(top_srcdir)/lib/ccvt        \
+    -I\$(top_srcdir)/lib/sdl_image   \
+    -I\$(top_srcdir)/lib/sdl_ttf     \
+dnl liblo needs both lib/ and lib/lo
+    -I\$(top_srcdir)/lib             \
+    -I\$(top_srcdir)/lib/lo          \
+    -I\$(top_srcdir)/lib/slw         \
+    \$(FLASH_CFLAGS)                 \
+    \$(CWIID_CFLAGS)                 \
+    \$(GOOM_CFLAGS)"
+AC_SUBST(FREEJ_STATIC_CFLAGS)
+
+FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
+    \$(SDL_CFLAGS)     \
+    \$(FT2_CFLAGS)     \
+    \$(FC_CFLAGS)      \
+    \$(XIPH_CFLAGS)    \
+    \$(UNICAP_CFLAGS)  \
+    \$(OPENCV_CFLAGS)  \
+    \$(FFMPEG_CFLAGS)  \
+    \$(MOZJS_CFLAGS)   \
+    \$(FREI0R_CFLAGS)  \
+    \$(SHOUT_CFLAGS)   \
+    \$(SDLGFX_CFLAGS)"
+AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(top_builddir)/lib/sdl_image/libsdl_image.la \
     \$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la \
     \$(top_builddir)/lib/lo/liblo.la \
-    \$(top_builddir)/lib/slw/libslw.la"
-
-AC_SUBST(FREEJ_STATIC_INCLUDES)
+    \$(top_builddir)/lib/slw/libslw.la \
+    \$(FLASH_LIBS) \
+    \$(CWIID_LIBS) \
+    \$(GOOM_LIBS)"
 AC_SUBST(FREEJ_STATIC_LIBS)
+
+FREEJ_LIBS="-lpthread -lm -lslang -lpng -ljpeg -lrt \
+    \$(DL_LIBS)      \
+    \$(X11_LIBS)     \
+    \$(XIPH_LIBS)    \
+    \$(MOZJS_LIBS)   \
+    \$(OPENGL_LIB)   \
+    \$(SDL_LIBS)     \
+    \$(FT2_LIBS)     \
+    \$(FC_LIBS)      \
+    \$(ALSA_LIBS)    \
+    \$(JACK_LIBS)    \
+    \$(FFTW_LIBS)    \
+    \$(FFMPEG_LIBS)  \
+    \$(SWSCALE_LIBS) \
+    \$(X11_LIBS)     \
+    \$(BLUEZ_LIBS)   \
+    \$(UNICAP_LIBS)  \
+    \$(OPENCV_LIBS)  \
+    \$(SHOUT_LIBS)   \
+    \$(SDLGFX_LIBS)"
+AC_SUBST(FREEJ_LIBS)
 
 dnl ###########################################################################
 dnl ###### now about compile time paths
@@ -986,7 +1027,6 @@ fi
 
 echo "= COMPILER FLAGS : $CFLAGS"
 echo "= LINKER FLAGS   : $LDFLAGS"
-
 
 
 echo "= INSTALL PREFIX : $prefix"

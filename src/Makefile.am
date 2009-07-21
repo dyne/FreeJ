@@ -1,13 +1,7 @@
-INCLUDES = @FREEJ_STATIC_INCLUDES@
-
-#-freg-struct-return is to compile an host compatible with freeframe dso
-AM_CXXFLAGS = @SDL_CFLAGS@ @FT2_CFLAGS@ @FC_CFLAGS@ @XIPH_CFLAGS@ @UNICAP_CFLAGS@ @OPENCV_CFLAGS@ \
-	      @FFMPEG_CFLAGS@ @MOZJS_CFLAGS@ @FREI0R_CFLAGS@ @SHOUT_CFLAGS@ @SDLGFX_CFLAGS@ \
-	      -freg-struct-return \
-              -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
+AM_CFLAGS = $(FREEJ_CFLAGS) -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
+AM_CXXFLAGS = $(FREEJ_CFLAGS) -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
 SUBDIRS = include
-
 
 SOURCES = \
 	context.cpp		layer.cpp	\
@@ -64,42 +58,11 @@ JS_SOURCES = 	context_js.cpp  \
 		goom_layer_js.cpp \
 		audio_collector_js.cpp
 
-
-static_libs = @FREEJ_STATIC_LIBS@
-
-shared_libs = -lpthread -lm -lslang -lpng -ljpeg -lrt \
-	         @DL_LIBS@	\
-	         @X11_LIBS@     \
-		 @XIPH_LIBS@    \
-		 @MOZJS_LIBS@   \
-		 @OPENGL_LIB@   \
-		 @SDL_LIBS@     \
-		 @FLASH_LIBS@   \
-		 @FT2_LIBS@     \
-		 @FC_LIBS@      \
-                 @ALSA_LIBS@    \
-		 @JACK_LIBS@    \
-		 @GOOM_LIBS@    \
-                 @FFTW_LIBS@    \
-		 @FFMPEG_LIBS@  \
-		 @SWSCALE_LIBS@ \
-		 @X11_LIBS@     \
-		 @BLUEZ_LIBS@   \
-		 @CWIID_LIBS@   \
-		 @OPENGL_LIB@   \
-		 @UNICAP_LIBS@	\
-		 @OPENCV_LIBS@  \
-		 @SHOUT_LIBS@   \
-		 @SDLGFX_LIBS@
-
-
 lib_LTLIBRARIES = libfreej.la
 libfreej_la_SOURCES = $(SOURCES) $(JS_SOURCES)
-libfreej_la_LIBADD  = $(static_libs) $(shared_libs)
-libfreej_la_LDFLAGS = -version-info @FREEJ_VERSION_INFO@
+libfreej_la_LIBADD  = $(FREEJ_STATIC_LIBS)
+libfreej_la_LDFLAGS = $(FREEJ_LIBS) -version-info $(FREEJ_VERSION_INFO)
 
 bin_PROGRAMS = freej
 freej_SOURCES = freej.cpp
-freej_LDADD = -L$(top_builddir)/src/.libs -lfreej
-
-
+freej_LDADD = libfreej.la
