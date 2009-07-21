@@ -263,12 +263,7 @@ fi
 dnl ==============================================================
 dnl Check X11 for xgrab
 dnl ==============================================================
-X11_LIBS=""
-X11_INCLUDE=""
 PKG_CHECK_MODULES(X11, x11, have_x11=yes, have_x11=no)
-AC_SUBST(X11_LIBS)
-AC_SUBST(X11_INCLUDE)
-
 
 dnl ==============================================================
 dnl Check OGG VORBIS THEORA
@@ -328,7 +323,6 @@ FREEJ_RESTORE_FLAGS
 AC_DEFINE(WITH_FFMPEG,1, [define if compiling movie layer linking to ffmpeg libavcodec])
 AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
 
-
 dnl ==============================================================
 dnl ENABLE LIBFLASH
 dnl ==============================================================
@@ -357,8 +351,6 @@ AC_SUBST(FLASH_CFLAGS)
 dnl ==============================================================
 dnl CHECK if there is BLUETOOTH
 dnl ==============================================================
-BLUEZ_LIBS=""
-CWIID_LIBS=""
 PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
 if test x$have_bluez = xyes; then
    AC_DEFINE(WITH_BLUEZ,1,[define if compiling bluetooth cwiid controller])
@@ -368,7 +360,6 @@ if test x$have_bluez = xyes; then
 else
    AM_CONDITIONAL(BUILD_CWIID, false)
 fi
-AC_SUBST(BLUEZ_LIBS)
 AC_SUBST(CWIID_LIBS)
 AC_SUBST(CWIID_CFLAGS)
 
@@ -515,7 +506,6 @@ fi
 dnl ==============================================================
 dnl CHECK TO USE OPENGL VIDEO OUTPUT
 dnl ==============================================================
-OPENGL_LIB=""
 AC_ARG_ENABLE(opengl,
 	       AS_HELP_STRING([--enable-opengl],[experimental opengl rendering (no)]),
 	       [ 
@@ -536,9 +526,7 @@ AC_SUBST(OPENGL_LIB)
 dnl ==============================================================
 dnl Audio
 dnl ==============================================================
-ALSA_LIBS=""
 PKG_CHECK_MODULES(ALSA, alsa, have_alsa=yes, have_alsa=no)
-AC_SUBST(ALSA_LIBS)
 
 # TODO(shammash): is this enough to enable midi on alsa?
 if test x$have_alsa = xyes; then
@@ -548,13 +536,9 @@ fi
 
 # TODO(shammash): before this refactoring we were enabling jack
 # only if alsa was present, check inconsistencies in the code.
-JACK_LIBS=""
 PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
-AC_SUBST(JACK_LIBS)
 
-FFTW_LIBS=""
 PKG_CHECK_MODULES(FFTW, fftw3, have_fftw=yes, have_fftw=no)
-AC_SUBST(FFTW_LIBS)
 
 # TODO(shammash): here we enable audio only if FFTW is present which is
 # probably wrong. Maybe it's better to split checks, but this needs
@@ -565,8 +549,6 @@ if test x$have_jack = xyes && test x$have_fftw = xyes; then
   have_sound=yes
 fi
 
-GOOM_PPC_FILES=""
-GOOM_LIBS=""
 # goom removed because gives compilation problems
 # replicated on Niels ubuntu 7.10
 if test x$have_sound = xyes && test 1 = 0; then
@@ -588,8 +570,6 @@ dnl ==============================================================
 dnl compile including the javascript interpreter
 dnl ==============================================================
 
-MOZJS_LIBS=""
-MOZJS_CFLAGS=""
 PKG_CHECK_MODULES(MOZJS, mozilla-js libxul-embedding-unstable, have_mozjs=yes, have_mozjs=no)
 if test x$have_mozjs = xno; then
 PKG_CHECK_MODULES(MOZJS, xulrunner-js, have_mozjs=yes, have_mozjs=no)
@@ -642,33 +622,23 @@ if test x$have_darwin = xyes ; then
 fi
 
 AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascript])
-AC_SUBST(MOZJS_LIBS)
-AC_SUBST(MOZJS_CFLAGS)
 
 
 dnl ==============================================================
 dnl unicap lib
 dnl ==============================================================
-UNICAP_LIBS=""
-UNICAP_CFLAGS=""
 PKG_CHECK_MODULES(UNICAP, libunicap, have_unicap=yes, have_unicap=no)
 if test x$have_unicap = xyes; then
    AC_DEFINE(WITH_UNICAP,1,[Define if to link libunicap for camera capture])
 fi
-AC_SUBST(UNICAP_LIBS)
-AC_SUBST(UNICAP_CFLAGS)
 
 dnl ==============================================================
 dnl opencv lib
 dnl ==============================================================
-OPENCV_LIBS=""
-OPENCV_FLAGS=""
 PKG_CHECK_MODULES(OPENCV, opencv, have_opencv=yes, have_opencv=no)
 if test x$have_opencv = xyes; then
    AC_DEFINE(WITH_OPENCV,1,[Define if to link opencv framework])
 fi
-AC_SUBST(OPENCV_LIBS)
-AC_SUBST(OPENCV_CFLAGS)
 
 dnl ==============================================================
 dnl shout lib
