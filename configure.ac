@@ -411,17 +411,12 @@ dnl ==============================================================
 dnl CHECK to use processor specific optimizations to compile
 dnl ==============================================================
 AC_ARG_ENABLE(cpuflags,
-	       AS_HELP_STRING([--enable-cpuflags],[compile with advanced cpu instructions (yes)]),
-	       [ 
-		if test ! x$enableval = xyes; then
-		    have_cpuflags=no
-		else
-		    have_cpuflags=yes;
-		fi ],[ have_cpuflags=yes ])
+    AS_HELP_STRING([--enable-cpuflags],[compile with advanced cpu instructions (yes)]),
+    [enable_cpuflags=$enableval],
+    [enable_cpuflags=yes])
 
-if test x$have_cpuflags = xyes; then
+if test x$enable_cpuflags = xyes; then
   if test x$have_linux = xyes; then
-     CPUFLAGS=`cat /proc/cpuinfo | grep flags`
      if grep "^flags.* mmx" /proc/cpuinfo > /dev/null; then
        have_mmx=yes
        AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
@@ -440,10 +435,11 @@ if test x$have_cpuflags = xyes; then
      fi
   fi
   if test x$have_freebsd = xyes; then
-        if sysctl -n hw.instruction_sse; then
-            have_mmx=yes
-            AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
-        fi
+     if sysctl -n hw.instruction_sse; then
+         # XXX(godog) is this MMX or SSE?
+         have_mmx=yes
+         AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
+     fi
   fi
 fi
 
@@ -959,7 +955,7 @@ echo "  LIBS  : $FLASH_LIBS (static)"
 else
 echo "= Flash (ver.3 animations only) disabled"
 fi
-if test x$have_cpuflags = xyes; then
+if test x$enable_cpuflags = xyes; then
 echo "= Building binary with support for machine specific advanced instructions"
 else
 echo "= Not building binary with support for machine specific advanced instructions"
