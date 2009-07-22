@@ -306,19 +306,26 @@ AC_ARG_ENABLE(ruby,
                    [enable_ruby=no])
 
 if test x"$enable_ruby" = x"yes"; then
-   AX_WITH_RUBY
-   if test -z "$RUBY"; then
-      AC_MSG_ERROR([Can't find ruby interpreter in PATH])
-   fi
+    AX_WITH_RUBY
+    if test -z "$RUBY"; then
+       AC_MSG_ERROR([Can't find ruby interpreter in PATH])
+    fi
 
-   AX_RUBY_DEVEL
+    AX_RUBY_DEVEL
 
-   dnl AX_RUBY_DEVEL doesn't provide this variable yet
-   AC_MSG_CHECKING([for Ruby site-libraries path])
-   if test -z "$RUBY_SITE_LIB"; then
-      RUBY_SITE_LIB=`$RUBY -rmkmf -e 'print Config::CONFIG[["sitelibdir"]]'`
-   fi
-   AC_MSG_RESULT([$RUBY_SITE_LIB])
-   AC_SUBST([RUBY_SITE_LIB])
+    dnl   -- Is this the right rationale?
+    dnl   if we install in /usr/local then provide /lib/site_ruby/...
+    dnl   otherwise provide /lib/ruby/...
+    if test "X$prefix" = "X/usr/local" || test "X$prefix" = "XNONE" ; then
+        RUBY_SITE_LIB=`$RUBY -rrbconfig -e'print Config::CONFIG[["sitelibdir"]].sub("/usr/local", "")' 2>/dev/null`
+        RUBY_SITE_PKG=`$RUBY -rrbconfig -e'print Config::CONFIG[["sitearchdir"]].sub("/usr/local", "")' 2>/dev/null`
+    else
+        RUBY_SITE_LIB=`$RUBY -rrbconfig -e'print Config::CONFIG[["rubylibdir"]].sub(Config::CONFIG[["exec_prefix"]], "")' 2>/dev/null`
+        RUBY_SITE_PKG=`$RUBY -rrbconfig -e'print Config::CONFIG[["archdir"]].sub(Config::CONFIG[["exec_prefix"]], "")' 2>/dev/null`
+    fi
+    RUBY_SITE_LIB="\${prefix}/$RUBY_SITE_LIB"
+    RUBY_SITE_PKG="\${prefix}/$RUBY_SITE_PKG"
+    AC_SUBST([RUBY_SITE_LIB])
+    AC_SUBST([RUBY_SITE_PKG]) dnl not strictly needed, ax_ruby_devel already ac_substs this
 fi
 ])
