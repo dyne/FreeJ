@@ -293,31 +293,27 @@ AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
 dnl ==============================================================
 dnl FFMPEG DYNAMIC
 dnl ==============================================================
-
-FFMPEG_LIBS=""
-SWSCALE_LIBS=""
-PKG_CHECK_MODULES(FFMPEG, libavcodec libavformat libavutil,
-	                  have_ffmpeg=yes, have_ffmpeg=no)
-if test x$have_ffmpeg = xyes; then
-   AC_DEFINE(WITH_FFMPEG,1,
-	[define if compiling movie layer linking to ffmpeg libavcodec])
-   PKG_CHECK_MODULES(SWSCALE, libswscale, have_swscale=yes, have_swscale=no)
-   FFMPEG_LIBS="$FFMPEG_LIBS $SWSCALE_LIBS"
-   AC_DEFINE(WITH_SWSCALE,1,
-	[define if using new swscale library from ffmpeg])
-else
-   AC_MSG_RESULT([not found])
-fi
-
+PKG_CHECK_MODULES(AVCODEC, libavcodec, :,
+	AC_MSG_ERROR([*** Libavcodec development files not found!]))
+PKG_CHECK_MODULES(AVFORMAT, libavformat, :,
+	AC_MSG_ERROR([*** Libavformat development files not found!]))
+PKG_CHECK_MODULES(AVUTIL, libavutil, :,
+	AC_MSG_ERROR([*** Libavutil development files not found!]))
+PKG_CHECK_MODULES(SWSCALE, libswscale, :,
+	AC_MSG_ERROR([*** Libswscale development files not found!]))
+FFMPEG_CFLAGS="$AVCODEC_CFLAGS $AVFORMAT_CFLAGS $AVUTIL_CFLAGS $SWSCALE_CFLAGS"
+FFMPEG_LIBS="$AVCODEC_LIBS $AVFORMAT_LIBS $AVUTIL_LIBS $SWSCALE_LIBS"
 dnl ffmpeg include path changes dirty workaround
 if test -z "$FFMPEG_CFLAGS" ; then
    FFMPEG_CFLAGS="-I/usr/include"
 fi
 FFMPEG_CFLAGS="$FFMPEG_CFLAGS \$(addprefix \$(firstword $FFMPEG_CFLAGS),/libavcodec /libavformat /libswscale)"
+AC_SUBST([FFMPEG_CFLAGS])
+AC_SUBST([FFMPEG_LIBS])
 
-AC_SUBST(FFMPEG_LIBS)
-AC_SUBST(FFMPEG_CFLAGS)
-AC_SUBST(SWSCALE_LIBS)
+# TODO(shammash): heritage from conditional build, still used somewhere.
+AC_DEFINE(WITH_FFMPEG,1, [define if compiling movie layer linking to ffmpeg libavcodec])
+AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
 
 
 dnl ==============================================================
@@ -800,7 +796,6 @@ FREEJ_LIBS="-lpthread -lm -lslang -lpng -ljpeg -lrt \
     \$(JACK_LIBS)    \
     \$(FFTW_LIBS)    \
     \$(FFMPEG_LIBS)  \
-    \$(SWSCALE_LIBS) \
     \$(X11_LIBS)     \
     \$(BLUEZ_LIBS)   \
     \$(UNICAP_LIBS)  \
@@ -948,16 +943,9 @@ else
 echo "= Fontconfig disabled"
 fi
 
-if test x$have_ffmpeg = xyes; then
 echo "= ffmpeg (movie layer)"
 echo "  CFLAGS: $FFMPEG_CFLAGS"
 echo "  LIBS  : $FFMPEG_LIBS"
-if test x$have_swscale = xyes; then
-echo "  using new swscale api"
-fi
-else
-echo "= ffmpeg (movie layer) disabled"
-fi
 
 echo "= ogg-theora (xiph.org)"
 echo "  LIBS  : $XIPH_LIBS"
