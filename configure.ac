@@ -272,6 +272,7 @@ dnl Check X11 for xgrab
 dnl ==============================================================
 PKG_CHECK_MODULES(X11, x11, have_x11=yes, have_x11=no)
 
+
 dnl ==============================================================
 dnl Check OGG VORBIS THEORA
 dnl ==============================================================
@@ -608,6 +609,9 @@ if test x$have_darwin = xyes ; then
    AC_DEFINE(XP_MAC,1,[Define use of MAC types in javascript])
 fi
 
+AC_SUBST(MOZJS_CFLAGS)
+AC_SUBST(MOZJS_LIBS)
+
 AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascript])
 
 AM_CONDITIONAL([BUILD_JAVASCRIPT], [test x$have_mozjs = xno])
@@ -657,6 +661,8 @@ if test x$have_sdlgfx = xno; then
    SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
 fi
+AC_SUBST(SDLGFX_CFLAGS)
+AC_SUBST(SDLGFX_LIBS)
 
 AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
 
@@ -686,6 +692,7 @@ if test x$have_frei0r = xno; then
    AC_MSG_NOTICE([Using freej version of FREI0R])
    FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
 fi
+AC_SUBST(FREIOR_CFLAGS)
 
 AM_CONDITIONAL([BUILD_FREI0R],[test x$have_frei0r = xno])
 
