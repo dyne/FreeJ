@@ -672,6 +672,8 @@ else
    SDLTTF_CFLAGS="-I\$(top_srcdir)/lib/sdl_ttf"
    SDLTTF_LIBS="\$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la"
 fi
+AC_SUBST(SDLTTF_CFLAGS)
+AC_SUBST(SDLTTF_LIBS)
 
 AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlgfx = xno])
 
@@ -747,7 +749,8 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(MOZJS_CFLAGS)   \
     \$(FREI0R_CFLAGS)  \
     \$(SHOUT_CFLAGS)   \
-    \$(SDLGFX_CFLAGS)"
+    \$(SDLGFX_CFLAGS)  \
+    \$(SDLTTF_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
@@ -777,7 +780,8 @@ FREEJ_LIBS="-lpthread -lm -lslang -lpng -ljpeg -lrt \
     \$(UNICAP_LIBS)  \
     \$(OPENCV_LIBS)  \
     \$(SHOUT_LIBS)   \
-    \$(SDLGFX_LIBS)"
+    \$(SDLGFX_LIBS)  \
+    \$(SDLTTF_LIBS)"
 AC_SUBST(FREEJ_LIBS)
 
 dnl ###########################################################################
