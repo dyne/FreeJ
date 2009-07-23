@@ -26,6 +26,10 @@ if BUILD_SDLTTF
 SDLTTFDIR = sdl_ttf
 endif
 
+if BUILD_SDLIMAGE
+SDLIMAGEDIR = sdl_image
+endif
+
 if BUILD_FREI0R
 FREI0RDIR = frei0r
 endif
@@ -33,7 +37,7 @@ endif
 SUBDIRS = ccvt \
 	slw              \
 	lo               \
-	sdl_image        \
+	$(SDLIMAGEDIR)   \
 	$(SDLTTFDIR)     \
 	$(SDLGFXDIR)     \
 	$(SHOUTDIR)      \

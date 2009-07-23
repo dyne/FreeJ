@@ -685,6 +685,23 @@ AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlgfx = xno])
 
 
 dnl ==============================================================
+dnl SDL_image
+dnl ==============================================================
+AC_CHECK_LIB(SDL_image, IMG_Load, have_sdlimage=yes, have_sdlimage=no)
+if test x$have_sdlimage = xyes; then
+   SDLIMAGE_CFLAGS="$SDL_CFLAGS"
+   SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image"
+else
+   SDLIMAGE_CFLAGS="-I\$(top_srcdir)/lib/sdl_image"
+   SDLIMAGE_LIBS="-lpng -ljpeg \$(top_builddir)/lib/sdl_image/libsdl_image.la"
+fi
+AC_SUBST(SDLIMAGE_CFLAGS)
+AC_SUBST(SDLIMAGE_LIBS)
+
+AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlgfx = xno])
+
+
+dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
 PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
@@ -735,7 +752,6 @@ dnl LIBS          ordinary shared libraries used to link libfreej
 dnl ==============================================================
 FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
     -I\$(top_srcdir)/lib/ccvt        \
-    -I\$(top_srcdir)/lib/sdl_image   \
 dnl liblo needs both lib/ and lib/lo
     -I\$(top_srcdir)/lib             \
     -I\$(top_srcdir)/lib/lo          \
@@ -757,11 +773,11 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(FREI0R_CFLAGS)  \
     \$(SHOUT_CFLAGS)   \
     \$(SDLGFX_CFLAGS)  \
-    \$(SDLTTF_CFLAGS)"
+    \$(SDLTTF_CFLAGS)  \
+    \$(SDLIMAGE_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
-    \$(top_builddir)/lib/sdl_image/libsdl_image.la \
     \$(top_builddir)/lib/lo/liblo.la \
     \$(top_builddir)/lib/slw/libslw.la \
     \$(FLASH_LIBS) \
@@ -769,7 +785,7 @@ FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(GOOM_LIBS)"
 AC_SUBST(FREEJ_STATIC_LIBS)
 
-FREEJ_LIBS="-lpthread -lm -lslang -lpng -ljpeg -lrt \
+FREEJ_LIBS="-lpthread -lm -lslang -lrt \
     \$(DL_LIBS)      \
     \$(X11_LIBS)     \
     \$(XIPH_LIBS)    \
@@ -788,7 +804,8 @@ FREEJ_LIBS="-lpthread -lm -lslang -lpng -ljpeg -lrt \
     \$(OPENCV_LIBS)  \
     \$(SHOUT_LIBS)   \
     \$(SDLGFX_LIBS)  \
-    \$(SDLTTF_LIBS)"
+    \$(SDLTTF_LIBS)  \
+    \$(SDLIMAGE_LIBS)"
 AC_SUBST(FREEJ_LIBS)
 
 dnl ###########################################################################
@@ -965,6 +982,14 @@ echo "= SDL_ttf (static)"
 fi
 echo "  LIBS  : $SDLTTF_LIBS"
 echo "  CFLAGS: $SDLTTF_CFLAGS"
+
+if test x$have_sdlimage = xyes; then
+echo "= SDL_image (dynamic)"
+else
+echo "= SDL_image (static)"
+fi
+echo "  LIBS  : $SDLIMAGE_LIBS"
+echo "  CFLAGS: $SDLIMAGE_CFLAGS"
 
 if test x$have_frei0r = xyes; then
 echo "= frei0r plugins (system provided)"
