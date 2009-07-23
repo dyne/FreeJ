@@ -539,19 +539,22 @@ fi
 # goom removed because gives compilation problems
 # replicated on Niels ubuntu 7.10
 if test x$have_sound = xyes && test 1 = 0; then
+  enable_goom=yes
   AC_DEFINE(WITH_GOOM,1,[define if goom is enabled])
   GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
   GOOM_CFLAGS="-I\$(top_srcdir)/lib/goom"
   if test x$host_cpu = xpowerpc; then
     GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
   fi
-  AM_CONDITIONAL(BUILD_GOOM, true)
 else
-  AM_CONDITIONAL(BUILD_GOOM, false)
+  enable_goom=no
 fi
 AC_SUBST(GOOM_LIBS)
 AC_SUBST(GOOM_CFLAGS)
 AC_SUBST(GOOM_PPC_FILES)
+
+AM_CONDITIONAL([BUILD_GOOM], [test x$enable_goom = xyes])
+
 
 dnl ==============================================================
 dnl compile including the javascript interpreter
@@ -977,6 +980,11 @@ if test x$have_sound = xyes; then
    fi
    if test x$have_fftw = xyes; then
       echo "  harmonics analisys: $FFTW_LIBS"
+   fi
+   if test x$enable_goom = xyes; then
+      echo "  goom: yes"
+   else
+      echo "  goom: no"
    fi
 else
    echo "= Sound bus disabled"
