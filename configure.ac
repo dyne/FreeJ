@@ -369,7 +369,7 @@ else
    fi
 fi
 
-if test x$have_cwiid = xyes || text x$have_bluez = xyes ; then
+if test x$have_cwiid = xyes || test x$have_bluez = xyes ; then
    AC_DEFINE(WITH_CWIID,1,[define if compiling bluetooth cwiid controller])
 fi
 
@@ -695,7 +695,7 @@ fi
 AC_SUBST(SDLTTF_CFLAGS)
 AC_SUBST(SDLTTF_LIBS)
 
-AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlgfx = xno])
+AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
 
 
 dnl ==============================================================
