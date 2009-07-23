@@ -22,6 +22,10 @@ if BUILD_SDLGFX
 SDLGFXDIR = sdl_gfx
 endif
 
+if BUILD_SDLTTF
+SDLTTFDIR = sdl_ttf
+endif
+
 if BUILD_FREI0R
 FREI0RDIR = frei0r
 endif
@@ -30,7 +34,7 @@ SUBDIRS = ccvt \
 	slw              \
 	lo               \
 	sdl_image        \
-	sdl_ttf          \
+	$(SDLTTFDIR)     \
 	$(SDLGFXDIR)     \
 	$(SHOUTDIR)      \
 	$(FREI0RDIR)     \

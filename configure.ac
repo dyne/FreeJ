@@ -662,6 +662,21 @@ AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
 
 
 dnl ==============================================================
+dnl SDL_ttf
+dnl ==============================================================
+AC_CHECK_LIB(SDL_ttf, TTF_Init, have_sdlttf=yes, have_sdlttf=no)
+if test x$have_sdlttf = xyes; then
+   SDLTTF_CFLAGS="$SDL_CFLAGS"
+   SDLTTF_LIBS="$SDL_LIBS -lSDL_ttf"
+else
+   SDLTTF_CFLAGS="-I\$(top_srcdir)/lib/sdl_ttf"
+   SDLTTF_LIBS="\$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la"
+fi
+
+AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlgfx = xno])
+
+
+dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
 PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
@@ -712,7 +727,6 @@ dnl ==============================================================
 FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
     -I\$(top_srcdir)/lib/ccvt        \
     -I\$(top_srcdir)/lib/sdl_image   \
-    -I\$(top_srcdir)/lib/sdl_ttf     \
 dnl liblo needs both lib/ and lib/lo
     -I\$(top_srcdir)/lib             \
     -I\$(top_srcdir)/lib/lo          \
@@ -738,7 +752,6 @@ AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(top_builddir)/lib/sdl_image/libsdl_image.la \
-    \$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la \
     \$(top_builddir)/lib/lo/liblo.la \
     \$(top_builddir)/lib/slw/libslw.la \
     \$(FLASH_LIBS) \
@@ -933,6 +946,14 @@ echo "= SDL_gfx (static)"
 fi
 echo "  LIBS  : $SDLGFX_LIBS"
 echo "  CFLAGS: $SDLGFX_CFLAGS"
+
+if test x$have_sdlttf = xyes; then
+echo "= SDL_ttf (dynamic)"
+else
+echo "= SDL_ttf (static)"
+fi
+echo "  LIBS  : $SDLTTF_LIBS"
+echo "  CFLAGS: $SDLTTF_CFLAGS"
 
 if test x$have_frei0r = xyes; then
 echo "= frei0r plugins (system provided)"
