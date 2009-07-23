@@ -303,13 +303,26 @@ PKG_CHECK_MODULES(SWSCALE, libswscale, :,
 	AC_MSG_ERROR([*** Libswscale development files not found!]))
 FFMPEG_CFLAGS="$AVCODEC_CFLAGS $AVFORMAT_CFLAGS $AVUTIL_CFLAGS $SWSCALE_CFLAGS"
 FFMPEG_LIBS="$AVCODEC_LIBS $AVFORMAT_LIBS $AVUTIL_LIBS $SWSCALE_LIBS"
-dnl ffmpeg include path changes dirty workaround
-if test -z "$FFMPEG_CFLAGS" ; then
-   FFMPEG_CFLAGS="-I/usr/include"
-fi
-FFMPEG_CFLAGS="$FFMPEG_CFLAGS \$(addprefix \$(firstword $FFMPEG_CFLAGS),/libavcodec /libavformat /libswscale)"
 AC_SUBST([FFMPEG_CFLAGS])
 AC_SUBST([FFMPEG_LIBS])
+
+# FFmpeg changed include path policy, let's check which one is in use.
+FREEJ_SAVE_FLAGS
+CPPFLAGS="$CPPFLAGS $FFMPEG_CFLAGS"
+CFLAGS="$CFLAGS $FFMPEG_CFLAGS"
+AC_CHECK_HEADERS(libavcodec/avcodec.h ffmpeg/avcodec.h)
+AC_CHECK_HEADERS(libavformat/avformat.h ffmpeg/avformat.h)
+AC_CHECK_HEADERS(libavutil/avutil.h ffmpeg/avutil.h)
+AC_CHECK_HEADERS(libswscale/swscale.h ffmpeg/swscale.h)
+FREEJ_RESTORE_FLAGS
+# Then in sources we have to include in the following way:
+#    #ifdef HAVE_LIBAVCODEC_AVCODEC_H
+#    #   include <libavcodec/avcodec.h>
+#    #elif defined(HAVE_FFMPEG_AVCODEC_H)
+#    #   include <ffmpeg/avcodec.h>
+#    #else
+#    #   include <avcodec.h>
+#    #endif
 
 # TODO(shammash): heritage from conditional build, still used somewhere.
 AC_DEFINE(WITH_FFMPEG,1, [define if compiling movie layer linking to ffmpeg libavcodec])

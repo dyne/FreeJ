@@ -22,10 +22,30 @@
 #include <config.h>
 
 extern "C" {
-#include <avcodec.h>
-#include <avformat.h>
+#ifdef HAVE_LIBAVCODEC_AVCODEC_H
+#   include <libavcodec/avcodec.h>
+#elif defined(HAVE_FFMPEG_AVCODEC_H)
+#   include <ffmpeg/avcodec.h>
+#else
+#   include <avcodec.h>
+#endif
+
+#ifdef HAVE_LIBAVFORMAT_AVFORMAT_H
+#   include <libavformat/avformat.h>
+#elif defined(HAVE_FFMPEG_AVFORMAT_H)
+#   include <ffmpeg/avformat.h>
+#else
+#   include <avformat.h>
+#endif
+
 #ifdef WITH_SWSCALE
-#include <swscale.h>
+#ifdef HAVE_LIBSWSCALE_SWSCALE_H
+#   include <libswscale/swscale.h>
+#elif defined(HAVE_FFMPEG_SWSCALE_H)
+#   include <ffmpeg/swscale.h>
+#else
+#   include <swscale.h>
+#endif
 #endif
 }
 #include <layer.h>
