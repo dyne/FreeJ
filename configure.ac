@@ -720,7 +720,7 @@ if test x$have_sdlimage = xyes; then
    SDLIMAGE_CFLAGS="$SDL_CFLAGS"
    SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image"
 else
-   AC_CHECK_LIB(jpeg, jpeg_create_decompress, have_libjpeg=yes, have_libjpeg=no)
+   AC_CHECK_LIB(jpeg, jpeg_std_error, have_libjpeg=yes, have_libjpeg=no)
    if test x$have_libjpeg = xno; then
       AC_MSG_ERROR([*** Libjpeg development files are required to build static SDL_image])
    fi
