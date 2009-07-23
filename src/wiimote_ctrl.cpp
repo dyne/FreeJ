@@ -22,7 +22,7 @@
  */
 
 #include <config.h>
-#ifdef WITH_BLUEZ
+#ifdef WITH_CWIID
 
 #include <stdio.h>
 #include <stdlib.h>

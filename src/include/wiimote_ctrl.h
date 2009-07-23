@@ -22,6 +22,9 @@
 #ifndef __WII_CTRL_H__
 #define __WII_CTRL_H__
 
+#include <config.h>
+#ifdef WITH_CWIID
+
 #include <controller.h>
 
 extern "C" {
@@ -66,5 +69,7 @@ class WiiController: public Controller {
   bdaddr_t bdaddr;
 
 };
+
+#endif // WITH_CWIID
 
 #endif

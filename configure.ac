@@ -353,15 +353,29 @@ AC_SUBST(FLASH_CFLAGS)
 
 
 dnl ==============================================================
-dnl CHECK if there is BLUETOOTH
+dnl CHECK if there is CWIID, otherwise try to build
 dnl ==============================================================
-PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
-if test x$have_bluez = xyes; then
-    AC_DEFINE(WITH_BLUEZ,1,[define if compiling bluetooth cwiid controller])
-    CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
-    CWIID_CFLAGS="-I\$(top_srcdir)/lib/cwiid"
+CWIID_CFLAGS=""
+CWIID_LIBS=""
+AC_CHECK_LIB(cwiid, cwiid_open, have_cwiid=yes, have_cwiid=no)
+if test x$have_cwiid = xyes; then
+   CWIID_CFLAGS=""
+   CWIID_LIBS="-lcwiid"
+else
+   PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
+   if test x$have_bluez = xyes; then
+      CWIID_CFLAGS="-I\$(top_srcdir)/lib/cwiid"
+      CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
+   fi
 fi
+
+if test x$have_cwiid = xyes || text x$have_bluez = xyes ; then
+   AC_DEFINE(WITH_CWIID,1,[define if compiling bluetooth cwiid controller])
+fi
+
+# have_bluez is defined only if cwiid has to be built
 AM_CONDITIONAL(BUILD_CWIID, [test x$have_bluez = xyes])
+
 AC_SUBST(CWIID_LIBS)
 AC_SUBST(CWIID_CFLAGS)
 
@@ -757,7 +771,6 @@ dnl liblo needs both lib/ and lib/lo
     -I\$(top_srcdir)/lib/lo          \
     -I\$(top_srcdir)/lib/slw         \
     \$(FLASH_CFLAGS)                 \
-    \$(CWIID_CFLAGS)                 \
     \$(GOOM_CFLAGS)"
 AC_SUBST(FREEJ_STATIC_CFLAGS)
 
@@ -774,14 +787,14 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(SHOUT_CFLAGS)   \
     \$(SDLGFX_CFLAGS)  \
     \$(SDLTTF_CFLAGS)  \
-    \$(SDLIMAGE_CFLAGS)"
+    \$(SDLIMAGE_CFLAGS)\
+    \$(CWIID_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(top_builddir)/lib/lo/liblo.la \
     \$(top_builddir)/lib/slw/libslw.la \
     \$(FLASH_LIBS) \
-    \$(CWIID_LIBS) \
     \$(GOOM_LIBS)"
 AC_SUBST(FREEJ_STATIC_LIBS)
 
@@ -805,7 +818,8 @@ FREEJ_LIBS="-lpthread -lm -lslang -lrt \
     \$(SHOUT_LIBS)   \
     \$(SDLGFX_LIBS)  \
     \$(SDLTTF_LIBS)  \
-    \$(SDLIMAGE_LIBS)"
+    \$(SDLIMAGE_LIBS)\
+    \$(CWIID_LIBS)"
 AC_SUBST(FREEJ_LIBS)
 
 dnl ###########################################################################
@@ -1042,6 +1056,20 @@ if test x$have_sound = xyes; then
    fi
 else
    echo "= Sound bus disabled"
+fi
+
+if test x$have_cwiid = xyes; then
+   echo "= WiiMote controller (cwiid dynamic)"
+   echo "  LIBS  : $CWIID_LIBS"
+   echo "  CFLAGS: $CWIID_CFLAGS"
+else
+   if test x$have_bluez = xyes; then
+      echo "= WiiMote controller (cwiid static)"
+      echo "  LIBS  : $CWIID_LIBS"
+      echo "  CFLAGS: $CWIID_CFLAGS"
+   else
+      echo "= WiiMote controller disabled"
+   fi
 fi
 
 echo "= COMPILER FLAGS : $CFLAGS"

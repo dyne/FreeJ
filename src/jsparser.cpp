@@ -298,7 +298,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		   object_proto);
     OscController = layer_object;
 
-#ifdef WITH_BLUEZ
+#ifdef WITH_CWIID
     REGISTER_CLASS("WiiController",
 		   js_wii_ctrl_class,
 		   js_wii_ctrl_constructor,
