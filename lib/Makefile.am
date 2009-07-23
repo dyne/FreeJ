@@ -34,9 +34,13 @@ if BUILD_FREI0R
 FREI0RDIR = frei0r
 endif
 
+if BUILD_LIBLO
+LIBLODIR = lo
+endif
+
 SUBDIRS = ccvt \
 	slw              \
-	lo               \
+	$(LIBLODIR)      \
 	$(SDLIMAGEDIR)   \
 	$(SDLTTFDIR)     \
 	$(SDLGFXDIR)     \

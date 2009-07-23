@@ -381,6 +381,20 @@ AC_SUBST(CWIID_CFLAGS)
 
 
 dnl ==============================================================
+dnl LIBLO
+dnl ==============================================================
+PKG_CHECK_MODULES(LIBLO, liblo, have_liblo=yes, have_liblo=no)
+if test x$have_liblo = xno; then
+   LIBLO_LIBS="\$(top_builddir)/lib/lo/liblo.la"
+   LIBLO_CFLAGS="-I\$(top_srcdir)/lib -I\$(top_srcdir)/lib/lo"
+fi
+AC_SUBST(LIBLO_LIBS)
+AC_SUBST(LIBLO_CFLAGS)
+
+AM_CONDITIONAL([BUILD_LIBLO], [test x$have_liblo = xno])
+
+
+dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
 dnl ==============================================================
 AC_CHECK_HEADERS([linux/videodev.h], [have_videodev=yes], [have_videodev=no])
@@ -766,9 +780,6 @@ dnl LIBS          ordinary shared libraries used to link libfreej
 dnl ==============================================================
 FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
     -I\$(top_srcdir)/lib/ccvt        \
-dnl liblo needs both lib/ and lib/lo
-    -I\$(top_srcdir)/lib             \
-    -I\$(top_srcdir)/lib/lo          \
     -I\$(top_srcdir)/lib/slw         \
     \$(FLASH_CFLAGS)                 \
     \$(GOOM_CFLAGS)"
@@ -788,11 +799,11 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(SDLGFX_CFLAGS)  \
     \$(SDLTTF_CFLAGS)  \
     \$(SDLIMAGE_CFLAGS)\
-    \$(CWIID_CFLAGS)"
+    \$(CWIID_CFLAGS)   \
+    \$(LIBLO_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
-    \$(top_builddir)/lib/lo/liblo.la \
     \$(top_builddir)/lib/slw/libslw.la \
     \$(FLASH_LIBS) \
     \$(GOOM_LIBS)"
@@ -819,7 +830,8 @@ FREEJ_LIBS="-lpthread -lm -lslang -lrt \
     \$(SDLGFX_LIBS)  \
     \$(SDLTTF_LIBS)  \
     \$(SDLIMAGE_LIBS)\
-    \$(CWIID_LIBS)"
+    \$(CWIID_LIBS)   \
+    \$(LIBLO_LIBS)"
 AC_SUBST(FREEJ_LIBS)
 
 dnl ###########################################################################
@@ -1071,6 +1083,14 @@ else
       echo "= WiiMote controller disabled"
    fi
 fi
+
+if test x$have_liblo = xyes; then
+echo "= OSC controller (liblo dynamic)"
+else
+echo "= OSC controller (liblo static)"
+fi
+echo "  LIBS  : $LIBLO_LIBS"
+echo "  CFLAGS: $LIBLO_CFLAGS"
 
 echo "= COMPILER FLAGS : $CFLAGS"
 echo "= LINKER FLAGS   : $LDFLAGS"
