@@ -588,10 +588,7 @@ if test x$have_mozjs = xno; then
    MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
    # libs in top_srcdir instead of top_builddir because js is not under autotools
    MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
-   AM_CONDITIONAL(BUILD_JAVASCRIPT, true)
    AC_MSG_NOTICE([Using freej version of MOZJS])
-else
-   AM_CONDITIONAL(BUILD_JAVASCRIPT, false)
 fi
 
 if test x$enable_debug = xyes ; then
@@ -612,6 +609,8 @@ if test x$have_darwin = xyes ; then
 fi
 
 AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascript])
+
+AM_CONDITIONAL([BUILD_JAVASCRIPT], [test x$have_mozjs = xno])
 
 
 dnl ==============================================================
@@ -653,27 +652,25 @@ dnl ==============================================================
 dnl SDL_gfx
 dnl ==============================================================
 PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
-if test x$have_sdlgfx = xyes; then
-   AM_CONDITIONAL(BUILD_SDLGFX, false)
-else
+if test x$have_sdlgfx = xno; then
    AC_MSG_NOTICE([Using freej version of SDLGFX])
-   AM_CONDITIONAL(BUILD_SDLGFX, true)
    SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
 fi
+
+AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
 
 
 dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
 PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
-if test x$have_frei0r = xyes; then
-   AM_CONDITIONAL(BUILD_FREI0R, false)
-else
+if test x$have_frei0r = xno; then
    AC_MSG_NOTICE([Using freej version of FREI0R])
-   AM_CONDITIONAL(BUILD_FREI0R, true)
    FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
 fi
+
+AM_CONDITIONAL([BUILD_FREI0R],[test x$have_frei0r = xno])
 
 
 dnl ==============================================================
