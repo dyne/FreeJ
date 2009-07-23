@@ -224,7 +224,7 @@ if test x$have_swig = xno && {
       test x$enable_ruby = xyes   ||
       test x$enable_perl = xyes
    }; then
-    AC_MSG_ERROR([bindings requested but swig not found!])
+    AC_MSG_ERROR([*** bindings requested but swig not found!])
 fi
 
 
@@ -721,9 +721,12 @@ if test x$have_sdlimage = xyes; then
    SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image"
 else
    AC_CHECK_LIB(jpeg, jpeg_create_decompress, have_libjpeg=yes, have_libjpeg=no)
+   if test x$have_libjpeg = xno; then
+      AC_MSG_ERROR([*** Libjpeg development files are required to build static SDL_image])
+   fi
    PKG_CHECK_MODULES(LIBPNG, libpng, have_libpng=yes, have_libpng=no)
-   if test x$have_libjpeg = xno || test x$have_libpng = xno; then
-      AC_MSG_ERROR([both libjpeg and libpng are required to build libsdl_image])
+   if test x$have_libpng = xno; then
+      AC_MSG_ERROR([*** Libpng development files are required to build static SDL_image])
    fi
 
    SDLIMAGE_CFLAGS="-I\$(top_srcdir)/lib/sdl_image"
