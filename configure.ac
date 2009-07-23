@@ -737,7 +737,7 @@ if test x$have_frei0r = xno; then
    AC_MSG_NOTICE([Using freej version of FREI0R])
    FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
 fi
-AC_SUBST(FREIOR_CFLAGS)
+AC_SUBST(FREI0R_CFLAGS)
 
 AM_CONDITIONAL([BUILD_FREI0R],[test x$have_frei0r = xno])
 
