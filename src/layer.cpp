@@ -40,7 +40,7 @@
 Layer::Layer()
   :Entry(), JSyncThread() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
-  deferred_calls = new Closing();
+  deferred_calls = new ClosureQueue();
   env = NULL;
   quit = false;
   active = false;
