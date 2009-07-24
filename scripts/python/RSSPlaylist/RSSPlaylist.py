@@ -70,6 +70,7 @@ class RSSPlaylist(object):
   """A RSSPlaylist is a running freej context and a video playlist from an RSS."""
 
   def __init__(self, width=320, height=240, url = "http://giss.tv/dmmdb/rss.php?channel=piksel08"):
+    global end_of_video
     self.width = width
     self.height = height
     self.rsssucker = RSSsucker(url)
@@ -90,7 +91,7 @@ class RSSPlaylist(object):
         self.audio = freej.AudioCollector('freej', 1024, 44100);
 
         while (not self.cx.quit):
-            
+	            
             for file in self.rsssucker.list:
                 print file
                 self.lay = freej.VideoLayer()
@@ -102,12 +103,13 @@ class RSSPlaylist(object):
 
                 self.scr.add_layer(self.lay)
 
-                self.scr.add_audio( self.audio.Jack )
+	        self.scr.add_audio( self.audio.Jack )
 
                 while(not end_of_video): time.sleep(5)
                 print "end of video"
                 self.lay.quit = True
                 self.cx.rem_layer(self.lay)
+		end_of_video = False
 
     else:
         print "Cannot start a show without playlist!"

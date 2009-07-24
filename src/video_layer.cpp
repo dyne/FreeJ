@@ -663,16 +663,25 @@ int VideoLayer::decode_video_packet(int *got_picture) {
 }
 
 void VideoLayer::close() {
-  if(frame_number!=0)
+  if(frame_number!=0) {
+	func("free packet");
     av_free_packet(&pkt);
+  }
+
   if(video_codec_ctx)
-    if(video_codec_ctx->codec)
+    if(video_codec_ctx->codec) {
+	func("close video codec");
       avcodec_close(video_codec_ctx);
+  }
   
-  if(audio_codec_ctx) {
-    if(audio_codec_ctx->codec)
+  if(audio_codec_ctx) 
+    if(audio_codec_ctx->codec) {
+	func("close audio codec");
       avcodec_close(audio_codec_ctx);
-    if(audio_buf) free(audio_buf);
+    if(audio_buf) {
+	func("free audio buffer");
+	 free(audio_buf);
+	}
   }
 
 #ifdef HAVE_LIB_SWSCALE
@@ -682,7 +691,7 @@ void VideoLayer::close() {
   if(avformat_context) {
     av_close_input_file(avformat_context);
   }
-  free_fifo();
+//  free_fifo();
   if(rgba_picture) free_picture(rgba_picture);
   if(deinterlace_buffer) free(deinterlace_buffer);
 }
