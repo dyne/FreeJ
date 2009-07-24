@@ -664,20 +664,13 @@ fi
 dnl ==============================================================
 dnl shout lib
 dnl ==============================================================
-SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
-SHOUT_CFLAGS="-I\$(top_srcdir)/lib/shout"
-AM_CONDITIONAL(BUILD_SHOUT, true)
-AC_SUBST(SHOUT_LIBS)
-AC_SUBST(SHOUT_CFLAGS)
-dnl PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
-dnl if test x$have_shout = xyes; then
-dnl    SHOUT_DIR=""
-dnl    AC_MSG_RESULT([yes, libshout system wide library found])
-dnl else
-dnl    AC_MSG_RESULT([no, using static libshout])
-dnl fi
-dnl AC_SUBST(SHOUT_CFLAGS)
-dnl AC_SUBST(SHOUT_LIBS)
+PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
+if test x$have_shout = xno; then
+   SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
+   SHOUT_CFLAGS="-I\$(top_srcdir)/lib/shout"
+fi
+
+AM_CONDITIONAL(BUILD_SHOUT, [test x$have_shout = xno])
 
 
 dnl ==============================================================
@@ -1002,6 +995,14 @@ echo "  CFLAGS: $UNICAP_CFLAGS"
 else
 echo "= unicap library disabled"
 fi
+
+if test x$have_shout = xyes; then
+echo "= Shout library (dynamic)"
+else
+echo "= Shout library (static)"
+fi
+echo "  LIBS  : $SHOUT_LIBS"
+echo "  CFLAGS: $SHOUT_CFLAGS"
 
 if test x$have_sdlgfx = xyes; then
 echo "= SDL_gfx (dynamic)"
