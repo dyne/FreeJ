@@ -8,12 +8,12 @@
 		<string key="IBDocument.HIToolboxVersion">353.00</string>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="2465"/>
-			<integer value="296"/>
-			<integer value="2212"/>
-			<integer value="380"/>
-			<integer value="1574"/>
 			<integer value="1887"/>
+			<integer value="296"/>
+			<integer value="1574"/>
+			<integer value="380"/>
+			<integer value="2212"/>
+			<integer value="2465"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1697,7 +1697,7 @@
 																					<string>WebURLsWithTitlesPboardType</string>
 																				</object>
 																			</object>
-																			<string key="NSFrameSize">{236, 19}</string>
+																			<string key="NSFrameSize">{236, 14}</string>
 																			<reference key="NSSuperview" ref="534300966"/>
 																			<object class="NSTextContainer" key="NSTextContainer" id="124571948">
 																				<object class="NSLayoutManager" key="NSLayoutManager">
@@ -1793,8 +1793,8 @@
 																				<nil key="NSDefaultParagraphStyle"/>
 																			</object>
 																			<int key="NSTVFlags">6</int>
-																			<string key="NSMaxSize">{463, 1e+07}</string>
-																			<string key="NSMinize">{86, 19}</string>
+																			<string key="NSMaxSize">{489, 1e+07}</string>
+																			<string key="NSMinize">{86, 0}</string>
 																			<nil key="NSDelegate"/>
 																		</object>
 																	</object>
@@ -1942,7 +1942,7 @@
 																					<string>WebURLsWithTitlesPboardType</string>
 																				</object>
 																			</object>
-																			<string key="NSFrameSize">{236, 19}</string>
+																			<string key="NSFrameSize">{236, 14}</string>
 																			<reference key="NSSuperview" ref="371376898"/>
 																			<object class="NSTextContainer" key="NSTextContainer" id="179369675">
 																				<object class="NSLayoutManager" key="NSLayoutManager">
@@ -1998,8 +1998,8 @@
 																				<nil key="NSDefaultParagraphStyle"/>
 																			</object>
 																			<int key="NSTVFlags">6</int>
-																			<string key="NSMaxSize">{463, 1e+07}</string>
-																			<string key="NSMinize">{86, 19}</string>
+																			<string key="NSMaxSize">{489, 1e+07}</string>
+																			<string key="NSMinize">{86, 0}</string>
 																			<nil key="NSDelegate"/>
 																		</object>
 																	</object>
@@ -2393,7 +2393,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 			<object class="NSWindowTemplate" id="661674131">
 				<int key="NSWindowStyleMask">8209</int>
 				<int key="NSWindowBacking">2</int>
-				<string key="NSWindowRect">{{552, 289}, {215, 439}}</string>
+				<string key="NSWindowRect">{{552, 168}, {215, 560}}</string>
 				<int key="NSWTFlags">1677722624</int>
 				<string key="NSWindowTitle">Video Effects</string>
 				<string key="NSWindowClass">NSPanel</string>
@@ -3467,12 +3467,12 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 									</object>
 								</object>
 							</object>
-							<string key="NSFrame">{{0, -121}, {215, 560}}</string>
+							<string key="NSFrameSize">{215, 560}</string>
 							<reference key="NSSuperview" ref="150416448"/>
 							<string key="NSClassName">CVFilterBox</string>
 						</object>
 					</object>
-					<string key="NSFrameSize">{215, 439}</string>
+					<string key="NSFrameSize">{215, 560}</string>
 					<reference key="NSSuperview"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1280, 778}}</string>
@@ -7527,8 +7527,8 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<reference ref="9"/>
 					<string>{{608, 612}, {241, 103}}</string>
-					<string>{{63, 4}, {215, 439}}</string>
-					<string>{{63, 4}, {215, 439}}</string>
+					<string>{{250, 240}, {215, 560}}</string>
+					<string>{{250, 240}, {215, 560}}</string>
 					<reference ref="9"/>
 					<string>{{488, 170}, {215, 560}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -7942,8 +7942,8 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<object class="NSAttributedString">
 						<string key="NSString"/>
 					</object>
-					<string>{{530, 26}, {654, 730}}</string>
-					<string>{{530, 26}, {654, 730}}</string>
+					<string>{{441, 26}, {654, 730}}</string>
+					<string>{{441, 26}, {654, 730}}</string>
 					<reference ref="9"/>
 					<string>{{437, 135}, {451, 576}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>

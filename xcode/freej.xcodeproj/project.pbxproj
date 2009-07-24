@@ -139,6 +139,7 @@
 		AAA7B75E0F404B8C00056C44 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		AAA7B7630F404B8C00056C44 /* libSDLmain.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB844300F3EFA9500AD479D /* libSDLmain.a */; };
 		AAA7B76B0F404B8C00056C44 /* libSDL_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB84E890F3F063400AD479D /* libSDL_gfx.a */; };
+		AAA7DA9A101A4F79009B32FD /* libsamplerate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */; };
 		AAAABEE40F521A6000461C96 /* fps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAABEE30F521A6000461C96 /* fps.cpp */; };
 		AAAABF470F5226A700461C96 /* CVScreen.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAAABF460F5226A700461C96 /* CVScreen.mm */; };
 		AAAAC1730F533ADF00461C96 /* closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAAC16F0F533ADF00461C96 /* closure.cpp */; };
@@ -454,6 +455,7 @@
 		AAA7B62B0F40485F00056C44 /* CFreej.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CFreej.mm; sourceTree = "<group>"; };
 		AAA7B6530F40494400056C44 /* freej-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "freej-Info.plist"; sourceTree = "<group>"; };
 		AAA7B6F30F404B4C00056C44 /* freej.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = freej.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsamplerate.dylib; path = /opt/local/lib/libsamplerate.dylib; sourceTree = "<absolute>"; };
 		AAAABEE30F521A6000461C96 /* fps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fps.cpp; sourceTree = "<group>"; };
 		AAAABEE50F521A6C00461C96 /* fps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fps.h; path = include/fps.h; sourceTree = "<group>"; };
 		AAAABF450F5226A700461C96 /* CVScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVScreen.h; sourceTree = "<group>"; };
@@ -605,6 +607,7 @@
 				AAD0A4E10FDEC20100968886 /* libSDL_gfx.dylib in Frameworks */,
 				AAD0A4E30FDEC2A200968886 /* libsndfile.1.dylib in Frameworks */,
 				AA5844880FE114970059D860 /* Carbon.framework in Frameworks */,
+				AAA7DA9A101A4F79009B32FD /* libsamplerate.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -650,6 +653,7 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */,
 				AA5844870FE114970059D860 /* Carbon.framework */,
 				AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */,
 				AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */,
