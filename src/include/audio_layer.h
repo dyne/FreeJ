@@ -19,9 +19,6 @@
 #ifndef __FREEJ_AUDIO_H__
 #define __FREEJ_AUDIO_H__
 
-#include <unicap.h>
-#include <unicap_status.h>
-
 #include <sys/types.h>
 
 #include <context.h>
