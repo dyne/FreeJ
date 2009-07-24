@@ -576,7 +576,7 @@ int VideoLayer::decode_audio_packet(int *data_size) {
 
   datasize = AVCODEC_MAX_AUDIO_FRAME_SIZE;
 
-#if LIBAVCODEC_VERSION_MAJOR < 52
+#if LIBAVCODEC_VERSION_MAJOR < 53
   res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
 			      &datasize, pkt.data, pkt.size);
 #else
@@ -612,8 +612,13 @@ int VideoLayer::decode_video_packet(int *got_picture) {
 
 	avcodec_get_frame_defaults (&av_frame);
 	
+#if LIBAVCODEC_VERSION_MAJOR < 53
 	int lien = avcodec_decode_video(video_codec_ctx, &av_frame,
 					got_picture, ptr,packet_len);
+#else
+	int lien = avcodec_decode_video2(video_codec_ctx, &av_frame,
+					got_picture, &pkt);
+#endif
 	
 	pts1 = packet_pts;
 	if (packet_pts != 0) {
