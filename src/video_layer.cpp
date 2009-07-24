@@ -23,10 +23,11 @@
 
 #include <config.h>
 
-#include<samplerate.h>
-
 #ifdef WITH_FFMPEG
 
+#include<samplerate.h>
+
+#include <math.h>
 
 #include <string.h>
 

@@ -556,6 +556,8 @@ PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
 
 PKG_CHECK_MODULES(FFTW, fftw3, have_fftw=yes, have_fftw=no)
 
+PKG_CHECK_MODULES(SAMPLERATE, samplerate, have_samplerate=yes, have_samplerate=no)
+
 # TODO(shammash): here we enable audio only if FFTW is present which is
 # probably wrong. Maybe it's better to split checks, but this needs
 # code refactoring as well. When changing this policy please remember
@@ -830,6 +832,7 @@ FREEJ_LIBS="-lpthread -lm -lslang -lrt \
     \$(ALSA_LIBS)    \
     \$(JACK_LIBS)    \
     \$(FFTW_LIBS)    \
+    \$(SAMPLERATE_LIBS) \
     \$(FFMPEG_LIBS)  \
     \$(X11_LIBS)     \
     \$(BLUEZ_LIBS)   \
