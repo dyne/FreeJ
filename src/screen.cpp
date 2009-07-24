@@ -124,6 +124,7 @@ bool ViewPort::add_layer(Layer *lay) {
   return(true);
 }
 
+#ifdef WITH_AUDIO
 bool ViewPort::add_audio(JackClient *jcl) {
  	if (layers.len() == 0 ) return false;	
 
@@ -131,6 +132,7 @@ bool ViewPort::add_audio(JackClient *jcl) {
 	m_SampleRate = &jcl->m_SampleRate;
 	long unsigned int  m_SampleRate;	
 }
+#endif
 
 void ViewPort::rem_layer(Layer *lay)
 {
