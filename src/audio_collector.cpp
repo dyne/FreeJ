@@ -83,7 +83,7 @@ void FFT::Impulse2Freq(float *imp, float *out)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AudioCollector::AudioCollector(const string &port, int n_BufferLength, unsigned int n_Samplerate, int FFTBuffers) :
+AudioCollector::AudioCollector(char *port, int n_BufferLength, unsigned int n_Samplerate, int FFTBuffers) :
 m_Gain(1),
 m_SmoothingBias(1.2),
 m_FFT(n_BufferLength),

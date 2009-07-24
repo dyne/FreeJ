@@ -49,7 +49,7 @@ public:
 
 class AudioCollector {
 public:
-  AudioCollector(const string &port, int BufferLength, unsigned int Samplerate, int FFTBuffers = 1);
+  AudioCollector(char *port, int BufferLength, unsigned int Samplerate, int FFTBuffers = 1);
   ~AudioCollector();
   
   float *GetFFT();
@@ -58,7 +58,7 @@ public:
   bool  IsConnected();
   void  SetGain(float s) { m_Gain=s; }
   void  SetSmoothingBias(float s) { if (s<2 && s>0) m_SmoothingBias=s; }
-  void  Process(const string &filename);
+  //  void  Process(const string &filename);
   bool  IsProcessing() { return m_Processing; }
   float BufferTime() { return m_BufferTime; }
 

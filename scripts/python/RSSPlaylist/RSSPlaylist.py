@@ -87,6 +87,8 @@ class RSSPlaylist(object):
         
         self.callback = NextVideoCB()
         
+        self.audio = freej.AudioCollector('freej', 1024, 44100);
+
         while (not self.cx.quit):
             
             for file in self.rsssucker.list:
@@ -98,7 +100,10 @@ class RSSPlaylist(object):
                 self.lay.add_eos_call(self.callback)
                 self.lay.start()
 
-                self.cx.add_layer(self.lay)
+                self.scr.add_layer(self.lay)
+
+                self.scr.add_audio( self.audio.Jack )
+
                 while(not end_of_video): time.sleep(5)
                 print "end of video"
                 self.lay.quit = True
