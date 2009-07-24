@@ -552,24 +552,22 @@ fi
 
 # TODO(shammash): before this refactoring we were enabling jack
 # only if alsa was present, check inconsistencies in the code.
-PKG_CHECK_MODULES(JACK, jack, have_jack=yes, have_jack=no)
+PKG_CHECK_MODULES(JACK, jack, :,
+	AC_MSG_ERROR([*** Jack development files not found!]))
 
-PKG_CHECK_MODULES(FFTW, fftw3, have_fftw=yes, have_fftw=no)
+PKG_CHECK_MODULES(FFTW, fftw3, :,
+	AC_MSG_ERROR([*** Fftw3 development files not found!]))
 
-PKG_CHECK_MODULES(SAMPLERATE, samplerate, have_samplerate=yes, have_samplerate=no)
+PKG_CHECK_MODULES(SAMPLERATE, samplerate, :,
+	AC_MSG_ERROR([*** Samplerate development files not found!]))
 
-# TODO(shammash): here we enable audio only if FFTW is present which is
-# probably wrong. Maybe it's better to split checks, but this needs
-# code refactoring as well. When changing this policy please remember
-# to change output summary at the end of this file.
-if test x$have_jack = xyes && test x$have_fftw = xyes; then
-  AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
-  have_sound=yes
-fi
+#TODO(shammash): should we unify now?
+AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
+AC_DEFINE(WITH_AUDIO,1,[define if compiling audio system])
 
 # goom removed because gives compilation problems
 # replicated on Niels ubuntu 7.10
-if test x$have_sound = xyes && test 1 = 0; then
+if test 1 = 0; then
   enable_goom=yes
   AC_DEFINE(WITH_GOOM,1,[define if goom is enabled])
   GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
@@ -1061,25 +1059,30 @@ else
 echo "= Not including support for the GNU Profiler (see man gprof)"
 fi
 
-if test x$have_sound = xyes; then
-   echo "= Sound bus enabled"
-   if test x$have_alsa = xyes; then
-      echo "  device libraries: $ALSA_LIBS"
-      echo "  midi controller: alsa"
-   fi
-   if test x$have_jack = xyes; then
-      echo "  input connection $JACK_LIBS"
-   fi
-   if test x$have_fftw = xyes; then
-      echo "  harmonics analisys: $FFTW_LIBS"
-   fi
-   if test x$enable_goom = xyes; then
-      echo "  goom: yes"
-   else
-      echo "  goom: no"
-   fi
+if test x$have_alsa = xyes; then
+echo "= ALSA / MidiController enabled"
+echo "  LIBS  : $ALSA_LIBS"
+echo "  CFLAGS: $ALSA_CFLAGS"
 else
-   echo "= Sound bus disabled"
+echo "= ALSA / MidiController disabled"
+fi
+
+echo "= Jack"
+echo "  LIBS  : $JACK_LIBS"
+echo "  CFLAGS: $JACK_CFLAGS"
+
+echo "= Fftw / harmonics analisys"
+echo "  LIBS  : $FFTW_LIBS"
+echo "  CFLAGS: $FFTW_CFLAGS"
+
+echo "= Samplerate"
+echo "  LIBS  : $SAMPLERATE_LIBS"
+echo "  CFLAGS: $SAMPLERATE_CFLAGS"
+
+if test x$enable_goom = xyes; then
+   echo "  goom: yes"
+else
+   echo "  goom: no"
 fi
 
 if test x$have_cwiid = xyes; then
