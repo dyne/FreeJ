@@ -19,13 +19,13 @@
 #include <jutils.h>
 
 
-Closing::Closing() {
+ClosureQueue::ClosureQueue() {
   int r;
   if ((r=pthread_mutex_init(&job_queue_mutex_, NULL)) != 0)
     throw Error("Initializing job_queue_mutex_", r);
 }
 
-Closing::~Closing() {
+ClosureQueue::~ClosureQueue() {
   int r;
   do_jobs(); // flush queue
   if ((r=pthread_mutex_destroy(&job_queue_mutex_)) != 0)
@@ -33,7 +33,7 @@ Closing::~Closing() {
           __PRETTY_FUNCTION__, strerror(r));
 }
 
-void Closing::add_job(Closure *job) {
+void ClosureQueue::add_job(Closure *job) {
   int r;
   if ((r=pthread_mutex_lock(&job_queue_mutex_)) != 0)
     throw Error("Locking job_queue_mutex_ to add job", r);
@@ -42,7 +42,7 @@ void Closing::add_job(Closure *job) {
     throw Error("Unlocking job_queue_mutex_ to add job", r);
 }
 
-Closure *Closing::get_job_() {
+Closure *ClosureQueue::get_job_() {
   Closure *job = NULL;
   int r;
   if ((r=pthread_mutex_lock(&job_queue_mutex_)) != 0)
@@ -56,7 +56,7 @@ Closure *Closing::get_job_() {
   return job;
 }
 
-void Closing::do_jobs() {
+void ClosureQueue::do_jobs() {
   Closure *job;
   bool to_delete;
   // TODO(shammash): maybe we'll need a timed condition to exit the loop
@@ -70,7 +70,7 @@ void Closing::do_jobs() {
 
 
 
-ThreadedClosing::ThreadedClosing() {
+ThreadedClosureQueue::ThreadedClosureQueue() {
   int r;
   running_ = true;
   if ((r=pthread_mutex_init(&cond_mutex_, NULL)) != 0)
@@ -81,11 +81,11 @@ ThreadedClosing::ThreadedClosing() {
     throw Error("Initializing attr_", r);
   if ((r=pthread_attr_setdetachstate(&attr_, PTHREAD_CREATE_JOINABLE)) != 0)
     throw Error("Setting attr_ joinable", r);
-  if ((r=pthread_create(&thread_, &attr_, &ThreadedClosing::jobs_loop_, this)) != 0)
+  if ((r=pthread_create(&thread_, &attr_, &ThreadedClosureQueue::jobs_loop_, this)) != 0)
     throw Error("Creating jobs_loop_ thread", r);
 }
 
-ThreadedClosing::~ThreadedClosing() {
+ThreadedClosureQueue::~ThreadedClosureQueue() {
   int r;
   running_ = false;
   signal_();
@@ -103,7 +103,7 @@ ThreadedClosing::~ThreadedClosing() {
           __PRETTY_FUNCTION__, strerror(r));
 }
 
-void ThreadedClosing::signal_() {
+void ThreadedClosureQueue::signal_() {
   int r;
   if ((r=pthread_mutex_lock(&cond_mutex_)) != 0)
     throw Error("Pre-signal locking of cond_mutex_", r);
@@ -113,14 +113,14 @@ void ThreadedClosing::signal_() {
     throw Error("Post-signal unlocking of cond_mutex_", r);
 }
 
-void ThreadedClosing::add_job(Closure *job) {
-  Closing::add_job(job);
+void ThreadedClosureQueue::add_job(Closure *job) {
+  ClosureQueue::add_job(job);
   signal_();
 }
 
-void *ThreadedClosing::jobs_loop_(void *arg) {
+void *ThreadedClosureQueue::jobs_loop_(void *arg) {
   int r;
-  ThreadedClosing *me = (ThreadedClosing *)arg;
+  ThreadedClosureQueue *me = (ThreadedClosureQueue *)arg;
   if ((r=pthread_mutex_lock(&me->cond_mutex_)) != 0)
     throw ThreadError("First lock of cond_mutex_", r);
   while (me->running_) {

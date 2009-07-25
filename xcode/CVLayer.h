@@ -62,6 +62,7 @@ class CVLayer;
 }
 
 @property (readwrite) CVLayer *layer;
+@property (readonly) CVPixelBufferRef currentFrame;
 // subclass implementation should override this method and update 
 // the currentFrame pointer only within the renderFrame implementation
 - (CVReturn)renderFrame;
@@ -102,12 +103,12 @@ class CVLayer: public Layer
     protected:
         int height, width;
         Context *freej;
-        void *vbuffer;
         int bufsize;    
     public:
         CVLayerView *input;
         NSString *blendMode;
-        
+        void *vbuffer;
+
         CVLayer();
         CVLayer(CVLayerView *vin);
 

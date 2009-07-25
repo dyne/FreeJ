@@ -158,6 +158,7 @@
     //    [textureToRelease release];
     [lock unlock];
     [texture release];
+
     [pool release];
 }
 

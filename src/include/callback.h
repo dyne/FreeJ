@@ -98,7 +98,7 @@ namespace callbacks {
         return true;
       }
 
-      void notify(ThreadedClosing *dispatcher) {
+      void notify(ThreadedClosureQueue *dispatcher) {
         std::list<FunctionType>::iterator i;
         for (i=calls_.begin() ; i!=calls_.end() ; i++)
           dispatcher->add_job(NewClosure(*i));
@@ -152,7 +152,7 @@ namespace callbacks {
         return true;
       }
 
-      void notify(ThreadedClosing *dispatcher, Arg1 arg1) {
+      void notify(ThreadedClosureQueue *dispatcher, Arg1 arg1) {
         typename std::list<FunctionType>::iterator i;
         for (i=calls_.begin() ; i!=calls_.end() ; i++)
           dispatcher->add_job(NewClosure(*i, arg1));
@@ -176,7 +176,7 @@ namespace callbacks {
 
 class CallbackHandler {
   public:
-    CallbackHandler() { dispatcher_ = new ThreadedClosing(); }
+    CallbackHandler() { dispatcher_ = new ThreadedClosureQueue(); }
     ~CallbackHandler() {
       cbacks_.clear();
       delete dispatcher_;
@@ -293,7 +293,7 @@ class CallbackHandler {
     }
 
     std::list<callbacks::CbackData*> cbacks_;
-    ThreadedClosing *dispatcher_;
+    ThreadedClosureQueue *dispatcher_;
 };
 #endif
 
@@ -331,7 +331,7 @@ class DumbCallback {
     DumbCall *get_call_(DumbCall *call);
 
     std::list<DumbCall *> calls_;
-    ThreadedClosing *dispatcher_;
+    ThreadedClosureQueue *dispatcher_;
 
 };
 
