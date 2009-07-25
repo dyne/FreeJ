@@ -142,18 +142,19 @@ JSClass class_struct = { \
         error("JsParser::init() can't instantiate %s class",class_name); \
     } 
 
+
 #define JS_CONSTRUCTOR(constructor_name, constructor_func, constructor_class) \
 JS(constructor_func) {                                                        \
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);                            \
-  constructor_class *layer = NULL;					      \
+  constructor_class *layer = NULL;                                            \
   char excp_msg[MAX_ERR_MSG + 1];                                             \
-  layer = new constructor_class();                                            \
+  layer = (constructor_class *)env->get_layer_instance( #constructor_class ); \
   if(!layer) {                                                                \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
                          JSSMSG_FJ_CANT_CREATE, __func__,                     \
                       "cannot create constructor_class");                     \
-    return JS_FALSE;						              \
-  }									      \
+    return JS_FALSE;                                                          \
+  }                                                                           \
   rval = (jsval*)layer->js_constructor(env, cx, obj, argc, argv, excp_msg);   \
   if(!rval) {                                                                 \
     delete layer;                                                             \

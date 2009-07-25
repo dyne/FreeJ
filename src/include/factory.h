@@ -10,6 +10,7 @@
 
 #define __QUOTE__(__s) #__s
 #define __CONCAT__(__a, __b) __a##__b
+
 #define FACTORY_REGISTER_INSTANTIATOR(__name, __category, __tag) \
     void * get##__name() \
     { \
@@ -34,10 +35,12 @@ class Factory
   private:
     static InstantiatorsMap instantiators_map;
   public:
-    static T *new_instance(const char *tag)
+    static T *new_instance(const char *category, const char *tag)
     {
-        Instantiator create_instance = instantiators_map.find(tag)->second;
-        return create_instance();
+        char id[1024];
+        snprintf(id, sizeof(id), "%s::%s", category, tag);
+        Instantiator create_instance = instantiators_map.find(id)->second;
+        return (T *)create_instance();
     };
     static int register_instantiator(const char *tag, Instantiator func)
     {

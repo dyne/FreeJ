@@ -43,6 +43,8 @@
 #include <jsparser_data.h>
 
 // #define DEBUG 1
+
+// our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(VideoLayer, video, ffmpeg);
 
 VideoLayer::VideoLayer()

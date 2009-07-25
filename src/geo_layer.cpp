@@ -26,6 +26,7 @@
 #include <geo_layer.h>
 #include <jsparser_data.h>
 
+// our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(GeoLayer, geo, base);
 
 GeoLayer::GeoLayer()

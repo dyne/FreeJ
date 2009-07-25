@@ -46,6 +46,7 @@
 #include <gen_f0r_layer.h>
 #include <factory.h>
 #include <config.h>
+#include <string>
 
 class Controller;
 
@@ -65,6 +66,7 @@ template <class T> class Linklist;
 class Context {
  private:
   static   Factory<Layer> layer_factory;
+  std::map<std::string, const char *> default_layertypes_map;
   /* doublesize calculation */
   uint64_t **doubletab;
   Uint8 *doublebuf;
@@ -157,7 +159,8 @@ class Context {
   char *layers_description; ///< string with a list of available layers compiled in
   Layer *open(char *file); ///< creates a layer from a filename, detecting its type
     
-  //Layer* new_layer_instance( const char *tag );
+  Layer* get_layer_instance( const char *classname );
+  Layer* get_layer_instance( const char *classname, const char *tag );
   static int register_layer_instantiator(const char *id, Instantiator func);
 
 };

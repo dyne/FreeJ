@@ -146,6 +146,17 @@ Context::~Context() {
   notice ("cu on http://freej.dyne.org");
 }
 
+
+Layer *Context::get_layer_instance(const char *classname, const char *tag)
+{
+    return layer_factory.new_instance(classname, tag);
+}
+
+Layer *Context::get_layer_instance(const char *classname)
+{
+    return layer_factory.new_instance(classname, default_layertypes_map.find(classname)->second);
+}
+
 int Context::register_layer_instantiator(const char *id, Instantiator func)
 {
     return layer_factory.register_instantiator(id, func);
