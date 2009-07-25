@@ -221,6 +221,7 @@
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		AA00100C0F77FD9200719D5B /* callback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callback.cpp; sourceTree = "<group>"; };
 		AA00100E0F77FDA000719D5B /* callback.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = callback.h; path = include/callback.h; sourceTree = "<group>"; };
+		AA076FFD101B391500CA7A96 /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = factory.h; path = include/factory.h; sourceTree = "<group>"; };
 		AA0E39800FBECC1E00123D3F /* CVPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVPreview.h; sourceTree = "<group>"; };
 		AA0E39810FBECC1E00123D3F /* CVPreview.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVPreview.mm; sourceTree = "<group>"; };
 		AA0E3E740FBF3C0100123D3F /* CVTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVTexture.h; sourceTree = "<group>"; };
@@ -861,6 +862,7 @@
 				AA3C44A20F3EEBE0007C7E8B /* controller.h */,
 				AA3C44A30F3EEBE0007C7E8B /* convertvid.h */,
 				AA3C44A40F3EEBE0007C7E8B /* cpu_accel.h */,
+				AA076FFD101B391500CA7A96 /* factory.h */,
 				AA3C44A60F3EEBE0007C7E8B /* fastmemcpy.h */,
 				AA3C44A70F3EEBE0007C7E8B /* ffmpeg_encoder.h */,
 				AA3C44A80F3EEBE0007C7E8B /* filter.h */,

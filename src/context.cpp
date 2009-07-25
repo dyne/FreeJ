@@ -50,8 +50,6 @@
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
 
-static LayerInstantiatorMap layerInstancesMap;
-
 void fsigpipe (int Sig);
 int got_sigpipe;
 
@@ -108,7 +106,6 @@ Context::Context() {
 " .  - OpenCV for camera capture\n"
 #endif
 "\n";
-
   assert( init() );
 
 }
@@ -149,10 +146,9 @@ Context::~Context() {
   notice ("cu on http://freej.dyne.org");
 }
 
-int Context::registerLayerInstantiator(std::string id, LayerInstantiator func)
+int Context::register_layer_instantiator(const char *id, Instantiator func)
 {
-    layerInstancesMap.insert(TStrInstantiatorPair(id, func));
-    return 1;
+    return layer_factory.register_instantiator(id, func);
 }
 
 bool Context::add_screen(ViewPort *scr) {
