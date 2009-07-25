@@ -11,8 +11,18 @@
 #define __QUOTE__(__s) #__s
 #define __CONCAT__(__a, __b) __a##__b
 #define FACTORY_REGISTER_INSTANTIATOR(__name, __category, __tag) \
-    void * get##__name() { return (void *)new __name(); } \
-    int __name::isRegistered = Context::register_layer_instantiator( __QUOTE__(__CONCAT__(__CONCAT__(__category, ::), __tag)), get##__name );
+    void * get##__name() \
+    { \
+        return (void *)new __name(); \
+    } \
+    int __name::isRegistered = Context::register_layer_instantiator( \
+        __QUOTE__( \
+            __CONCAT__( \
+                __CONCAT__(__category, ::), \
+                __tag \
+            ) \
+        ), get##__name \
+    );
 
 typedef void *(*Instantiator)();
 typedef std::map<std::string, Instantiator> InstantiatorsMap;
