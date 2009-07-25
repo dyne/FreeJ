@@ -230,7 +230,7 @@ class Layer: public Entry, public JSyncThread {
 
  protected:
 
-  Closing *deferred_calls;
+  ClosureQueue *deferred_calls;
 
   void _init(int wdt, int hgt);
   ///< Layer abstract initialization

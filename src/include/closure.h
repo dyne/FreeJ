@@ -29,17 +29,17 @@
 class Closure;
 
 /*
- * Closing and ThreadedClosing classes provide a thread-safe queue of Closures.
+ * ClosureQueue and ThreadedClosureQueue classes provide a thread-safe queue of Closures.
  *
- * Closing lets you insert a Closure in the queue and then run all the Closures
+ * ClosureQueue lets you insert a Closure in the queue and then run all the Closures
  * by hand.
  *
- * ThreadedClosing lets you insert a Closure in the queue; the execution of
+ * ThreadedClosureQueue lets you insert a Closure in the queue; the execution of
  * enqueued Closures is handled automatically by an internal thread.
  *
  */
 
-class Closing {
+class ClosureQueue {
   public:
     class Error : public FreejError {
       public:
@@ -47,8 +47,8 @@ class Closing {
           : FreejError(msg, rv) { }
     };
 
-    Closing();
-    ~Closing();
+    ClosureQueue();
+    ~ClosureQueue();
 
     void add_job(Closure *job);
     void do_jobs();
@@ -60,7 +60,7 @@ class Closing {
 
 };
 
-class ThreadedClosing : Closing {
+class ThreadedClosureQueue : ClosureQueue {
   public:
     class Error : public FreejError {
       public:
@@ -74,8 +74,8 @@ class ThreadedClosing : Closing {
           : Error(msg, rv) { }
     };
 
-    ThreadedClosing();
-    ~ThreadedClosing();
+    ThreadedClosureQueue();
+    ~ThreadedClosureQueue();
 
     void add_job(Closure *job);
 
