@@ -25,6 +25,8 @@
 
 #include <layer.h>
 
+#include <factory.h>
+
 class GeoLayer: public Layer {
   
  public:
@@ -144,6 +146,8 @@ class GeoLayer: public Layer {
 
   uint32_t color;
 
+  // allow to use Factory on this class
+  FACTORY_ALLOWED
 };
 
 #endif

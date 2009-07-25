@@ -24,9 +24,9 @@
 #include <jutils.h>
 #include <context.h>
 #include <geo_layer.h>
-
-
 #include <jsparser_data.h>
+
+FACTORY_REGISTER_INSTANTIATOR(GeoLayer, geo, base);
 
 GeoLayer::GeoLayer()
   :Layer() {

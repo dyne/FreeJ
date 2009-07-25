@@ -42,16 +42,8 @@
 
 #include <jsparser_data.h>
 
-#include <factory.h>
-
-
 // #define DEBUG 1
-
-void * getVideoLayer() { return (void *)new VideoLayer(); }
-
-// TODO make through a macro which can build the tag (<category>:<id>)
-int VideoLayer::isRegistered = 
-    Context::register_layer_instantiator( "video:ffmpeg", getVideoLayer );
+FACTORY_REGISTER_INSTANTIATOR(VideoLayer, video, ffmpeg);
 
 VideoLayer::VideoLayer()
   :Layer() {
