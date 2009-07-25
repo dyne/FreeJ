@@ -5,6 +5,8 @@
 #include <map> // for std::map
 #include <string> // for std::string
 
+#define FACORY_ID_MAXLEN 64
+
 #define FACTORY_ALLOWED \
     static int isRegistered;
 
@@ -40,7 +42,15 @@ class Factory
   public:
     static T *new_instance(const char *category, const char *tag)
     {
-        char id[1024];
+        char id[FACORY_ID_MAXLEN];
+
+        if (!category || !tag) // safety belts
+            return NULL;
+
+        if (strlen(category)+strlen(tag)+3 > sizeof(id)) { // check the size of the requested id
+            error("Factory::new_instance : requested ID (%s:%s) exceedes maximum size", category, tag);
+            return NULL;
+        }
         snprintf(id, sizeof(id), "%s::%s", category, tag);
         Instantiator create_instance = instantiators_map.find(id)->second;
         return (T *)create_instance();
