@@ -47,6 +47,9 @@
 
 #include <config.h>
 
+#include <map> // for std::map
+#include <string> // for std::string
+
 class Controller;
 
 class JsParser;
@@ -58,13 +61,16 @@ class FreejDaemon;
 
 template <class T> class Linklist;
 
+typedef Layer *(*LayerInstantiator)();
+typedef std::map<std::string, LayerInstantiator> LayerInstantiatorMap;
+typedef std::pair<std::string, LayerInstantiator> TStrInstantiatorPair;
+    
 /* maximum height & width supported by context */
 #define MAX_HEIGHT 1024
 #define MAX_WIDTH 768
 
 class Context {
  private:
-
   /* doublesize calculation */
   uint64_t **doubletab;
   Uint8 *doublebuf;
@@ -156,6 +162,9 @@ class Context {
 
   char *layers_description; ///< string with a list of available layers compiled in
   Layer *open(char *file); ///< creates a layer from a filename, detecting its type
+    
+  Layer* getFooInstance( int id );
+  static int registerLayerInstantiator(std::string id, LayerInstantiator func);
 
 };
 

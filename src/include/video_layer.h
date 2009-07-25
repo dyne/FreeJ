@@ -86,6 +86,7 @@ class VideoLayer: public Layer {
 	int audio_samplerate;
 
     private:
+    static int isRegistered;
 	/**
 	 * av(codec|format) aka ffmpeg related variables
 	 */

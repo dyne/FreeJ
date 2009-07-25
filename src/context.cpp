@@ -50,6 +50,8 @@
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
 
+static LayerInstantiatorMap layerInstancesMap;
+
 void fsigpipe (int Sig);
 int got_sigpipe;
 
@@ -145,6 +147,12 @@ Context::~Context() {
   if(js) js->reset();
 
   notice ("cu on http://freej.dyne.org");
+}
+
+int Context::registerLayerInstantiator(std::string id, LayerInstantiator func)
+{
+    layerInstancesMap.insert(TStrInstantiatorPair(id, func));
+    return 1;
 }
 
 bool Context::add_screen(ViewPort *scr) {

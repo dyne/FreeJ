@@ -45,6 +45,10 @@
 
 // #define DEBUG 1
 
+Layer* getVideoLayer() { return new VideoLayer(); }
+
+int VideoLayer::isRegistered = 
+    Context::registerLayerInstantiator( "ffmpeg_layer", getVideoLayer );
 
 VideoLayer::VideoLayer()
   :Layer() {
