@@ -38,6 +38,9 @@
 //we need this for ifdefs in included headers
 %include <config.h>
 
+//we need this for macro definitions appearing in included headers
+%include <factory.h>
+
 %import "inttypes.i"
 
 //ditch some of the defines we have that don't need to be exposed to the user
