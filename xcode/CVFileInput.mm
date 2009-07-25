@@ -305,7 +305,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         rv = kCVReturnError;
     }
     if (layer) 
-        layer->buffer = currentFrame;
+        layer->vbuffer = currentFrame;
     [pool release];
     return rv;
 }

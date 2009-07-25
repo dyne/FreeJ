@@ -217,7 +217,7 @@ error:
     [lock lock];
     [self renderPreview];
     if (layer)
-        layer->buffer = currentFrame;
+        layer->vbuffer = currentFrame;
     [lock unlock];
     return kCVReturnSuccess;
 }

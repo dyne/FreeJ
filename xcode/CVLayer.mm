@@ -686,10 +686,12 @@ CVLayer::init(Context *ctx, int w, int h)
 void *
 CVLayer::feed()
 {
+    lock();
     if (active || [input needPreview]) {
         [input renderFrame];
     }
-    return (void *)buffer;
+    unlock();
+    return (void *)vbuffer;
 }
 
 void
