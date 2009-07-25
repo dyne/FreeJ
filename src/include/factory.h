@@ -16,8 +16,16 @@ class Factory
   private:
     static InstantiatorsMap instantiators_map;
   public:
-    static T *new_instance(const char *tag) {};
-    static int register_instantiator(const char *tag, Instantiator func) { instantiators_map.insert(TInstantiatorPair(tag, func)); return 1; };
+    static T *new_instance(const char *tag) 
+    { 
+        Instantiator create_instance = instantiators_map.find(tag)->second; 
+        return create_instance(); 
+    };
+    static int register_instantiator(const char *tag, Instantiator func) 
+    {
+        instantiators_map.insert(TInstantiatorPair(tag, func)); 
+        return 1; 
+    };
 };
 
 template <class T> InstantiatorsMap Factory<T>::instantiators_map;
