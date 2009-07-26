@@ -19,6 +19,8 @@
  *
  */
 
+#include <config.h>
+
 #ifdef WITH_FREI0R
 
 #include <dlfcn.h>
@@ -26,8 +28,6 @@
 
 #include <cstdlib>
 #include <string>
-
-#include <config.h>
 
 #include <frei0r_freej.h>
 

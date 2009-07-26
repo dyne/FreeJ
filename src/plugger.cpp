@@ -18,16 +18,18 @@
  * "$Id$"
  *
  */
+
+#include <config.h>
+
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 #include <dirent.h>
 
+#ifdef WITH_FREI0R
 #include <frei0r.h>
-
-#include <config.h>
-
+#endif
 
 #include <plugger.h>
 #include <context.h>
