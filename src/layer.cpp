@@ -40,7 +40,6 @@
 Layer::Layer()
   :Entry(), JSyncThread() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
-  deferred_calls = new ClosureQueue();
   env = NULL;
   quit = false;
   active = false;
@@ -84,8 +83,6 @@ Layer::~Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
 
   quit = true;
-
-  delete deferred_calls;
 
   FilterInstance *f = (FilterInstance*)filters.begin();
   while(f) {
@@ -140,8 +137,6 @@ Context * Layer::context(){
 
 void Layer::thread_setup() {
   func("ok, layer %s in rolling loop",get_name());
-    
-  deferred_calls->do_jobs();
  
   while(!feed()) fps.calc();
 
@@ -155,7 +150,6 @@ void Layer::thread_loop() {
   // process all registered operations
   // and signal to the synchronous waiting feed()
   // includes parameter changes for layer
-  deferred_calls->do_jobs();
 
   tmp_buf = feed();
 

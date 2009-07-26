@@ -230,12 +230,8 @@ class Layer: public Entry, public JSyncThread {
 
  protected:
 
-  ClosureQueue *deferred_calls;
-
   void _init(int wdt, int hgt);
   ///< Layer abstract initialization
-
-  
 
   void set_filename(const char *f);
   char filename[256];

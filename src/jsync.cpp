@@ -29,6 +29,8 @@ JSyncThread::JSyncThread() {
 
   pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_JOINABLE);
 
+  deferred_calls = new ClosureQueue();
+
   running = false;
   quit = false;
 }
@@ -37,6 +39,8 @@ JSyncThread::~JSyncThread() {
 
   // be sure we stop the thread before destroying
   stop();
+
+  delete deferred_calls;
 
   if(pthread_mutex_destroy(&_mutex) == -1)
     error("error destroying POSIX thread mutex");
@@ -61,8 +65,18 @@ void* JSyncThread::_run(void *arg) {
   JSyncThread *me = (JSyncThread *)arg;
 
   me->running = true;
+  /*
+   * In addiction to 'looped' invocation below, we execute deferred calls before
+   * setting up the thread because the setup phase might take into account some
+   * informations arrived within a deferred call while the thread was not
+   * running.
+   */
+  me->deferred_calls->do_jobs();
   me->thread_setup();
-  while (! me->quit) me->thread_loop();
+  while (! me->quit) {
+    me->deferred_calls->do_jobs();
+    me->thread_loop();
+  }
   me->thread_teardown();
   me->running = false;
 }

@@ -39,6 +39,10 @@ class JSyncThread {
 
   FPS fps;
 
+ protected:
+
+  ClosureQueue *deferred_calls;
+
  public:
   
   JSyncThread();
