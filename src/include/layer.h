@@ -252,7 +252,9 @@ class Layer: public Entry, public JSyncThread {
 
   char alphastr[5];
 
-  void run(); ///< Main Layer thread loop
+  void thread_setup();
+  void thread_loop();
+  void thread_teardown();
 
   virtual void *feed() = 0; ///< feeds in the image source
 

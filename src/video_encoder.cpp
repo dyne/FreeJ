@@ -167,17 +167,14 @@ VideoEncoder::~VideoEncoder() {
   free(fps);
 }
 
-void VideoEncoder::run() {
-  int encnum;
-  int res;
-
-
+void VideoEncoder::thread_setup() {
   func("ok, encoder %s in rolling loop",name);
   func("VideoEncoder::run : begin thread %p",pthread_self());
-  
-  //  lock_feed();
-  
-  while(!quit) {
+}
+
+void VideoEncoder::thread_loop() {
+  int encnum;
+  int res;
 
   /* Convert picture from rgb to yuv420 planar 
 
@@ -199,7 +196,7 @@ void VideoEncoder::run() {
     if (!surface) {
         fps->calc();
         fps->delay();
-        continue;
+        return;
     }
     screen->lock();
 
@@ -230,59 +227,38 @@ void VideoEncoder::run() {
     screen->unlock();
     
     ccvt_yuyv_420p(screen->w, screen->h, enc_yuyv, enc_y, enc_u, enc_v);
-    
-
 
     ////// got the YUV, do the encoding    
     res = encode_frame();
 
-    
     /// proceed writing and streaming encoded data in encpipe
-    
-    //    if(res > 0 ) {
     
     encnum = 0;
     if(write_to_disk || write_to_stream) {
-      
       encnum = ringbuffer_read(ringbuffer, encbuf,
 			       ((audio_kbps + video_kbps)*1024)/24);
-      
     }
 
     if(encnum > 0) {
-
       //      func("%s has encoded %i bytes", name, encnum);
-      
       if(write_to_disk && filedump_fd) 
         fwrite(encbuf, 1, encnum, filedump_fd);
     
       if(write_to_stream) {
-	
 	shout_sync(ice);
         if( shout_send(ice, (const unsigned char*)encbuf, encnum)
-	      != SHOUTERR_SUCCESS) 
-        {
+	      != SHOUTERR_SUCCESS) {
             error("shout_send: %s", shout_get_error(ice));
-
         }// else 
             //printf("%d %d\n", encnum, (int)shout_queuelen(ice));
-
       }
     } 
-  } 
   
-  func("VideoEncoder::run : end thread %p", pthread_self() );
-
 }
 
-// bool VideoEncoder::cafudda() {
-//   bool res = true;
-
-  
-//   //  signal_feed();
-
-//   return(res);
-// }
+void VideoEncoder::thread_teardown() {
+  func("VideoEncoder::run : end thread %p", pthread_self() );
+}
 
 bool VideoEncoder::set_filedump(char *filename) {
   int filename_number=1;

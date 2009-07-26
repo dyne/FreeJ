@@ -61,7 +61,9 @@ void* JSyncThread::_run(void *arg) {
   JSyncThread *me = (JSyncThread *)arg;
 
   me->running = true;
-  me->run();
+  me->thread_setup();
+  while (! me->quit) me->thread_loop();
+  me->thread_teardown();
   me->running = false;
 }
 

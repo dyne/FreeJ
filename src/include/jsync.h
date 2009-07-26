@@ -46,7 +46,9 @@ class JSyncThread {
 
   int start();
   void stop();
-  virtual void run() {};
+  virtual void thread_setup() {};
+  virtual void thread_loop() {};
+  virtual void thread_teardown() {};
 
   void lock() { pthread_mutex_lock(&_mutex); };
   void unlock() { pthread_mutex_unlock(&_mutex); };
