@@ -505,7 +505,12 @@ void *VideoLayer::feed() {
     ////////////////////////
     // audio packet decoding
     else if(pkt.stream_index == audio_index) {
-      if(use_audio) {
+      // XXX(shammash): audio decoding seems to depend on screen properties, so
+      //                we skip decoding audio frames if there's no screen
+      //  long unsigned int m_SampleRate = screen->m_SampleRate?*(screen->m_SampleRate):48000;
+      //  ringbuffer_write(screen->audio, (const char*)audio_float_buf,  samples*sizeof(float));
+      //  ... and so on ...
+      if(use_audio && screen) {
 	int data_size;
 	len1 = decode_audio_packet(&data_size);
 	if (len1 > 0)  {
