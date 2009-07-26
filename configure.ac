@@ -737,9 +737,10 @@ dnl ==============================================================
 # TODO(shammash): freej now lacks the right 'ifdef's to compile without
 # frei0r headers, make this check non-fatal in the future when introducing
 # conditional compilation or contrib-subsystem.
-PKG_CHECK_MODULES(FREI0R, frei0r, :,
-      AC_MSG_ERROR([*** frei0r plugins development files not found!]))
-
+PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
+if test x$have_frei0r = xyes; then
+   AC_DEFINE(WITH_FREI0R,1,[Define if using frei0r plugins])
+fi
 
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
@@ -991,9 +992,13 @@ fi
 echo "  LIBS  : $SDLIMAGE_LIBS"
 echo "  CFLAGS: $SDLIMAGE_CFLAGS"
 
+if test x$have_frei0r = xyes; then
 echo "= frei0r plugins"
 echo "  LIBS  : $FREI0R_LIBS"
 echo "  CFLAGS: $FREI0R_CFLAGS"
+else
+echo "= frei0r plugins disabled"
+fi
 
 if test x$have_flash = xyes; then
 echo "= Flash (ver.3 animations only)"
