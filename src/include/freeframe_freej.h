@@ -22,12 +22,6 @@
 #ifndef __FREEFRAME_FREEJ_H__
 #define __FREEFRAME_FREEJ_H__
 
-
-#include <vector>
-#include <map>
-using namespace std;
-
-
 #include <linklist.h>
 #include <freeframe.h>
 

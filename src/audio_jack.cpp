@@ -35,8 +35,8 @@ long unsigned int JackClient::m_SampleRate = 0;
 void            (*JackClient::RunCallback)(void*, unsigned int BufSize)=NULL;
 void             *JackClient::RunContext   = NULL;	
 jack_client_t    *JackClient::m_Client     = NULL;
-map<int,JackClient::JackPort*> JackClient::m_InputPortMap;	
-map<int,JackClient::JackPort*> JackClient::m_OutputPortMap;	
+std::map<int,JackClient::JackPort*> JackClient::m_InputPortMap;
+std::map<int,JackClient::JackPort*> JackClient::m_OutputPortMap;
 
 ///////////////////////////////////////////////////////
 
@@ -58,7 +58,7 @@ JackClient::~JackClient()
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 
-bool JackClient::Attach(const string &ClientName)
+bool JackClient::Attach(const std::string &ClientName)
 {
 	if (m_Attached) return true;
 
@@ -125,7 +125,7 @@ void deinterleave(void * _in, jack_default_audio_sample_t *out, int num_channels
 
 int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
-	for (map<int,JackPort*>::iterator i=m_InputPortMap.begin();
+	for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
 		i!=m_InputPortMap.end(); i++)
 	{
 		if (jack_port_connected(i->second->Port))
@@ -164,7 +164,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 	}
 
 	int j=0;	
-	for (map<int,JackPort*>::iterator i=m_OutputPortMap.begin();
+	for (std::map<int,JackPort*>::iterator i=m_OutputPortMap.begin();
 		i!=m_OutputPortMap.end(); i++)
 	{
 		if (output_available && j < channels) 
@@ -270,7 +270,7 @@ void JackClient::OnJackShutdown(void *o)
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-void JackClient::GetPortNames(vector<string> &InputNames, vector<string> &OutputNames)
+void JackClient::GetPortNames(std::vector<std::string> &InputNames, std::vector<std::string> &OutputNames)
 {
 	InputNames.clear();
 	OutputNames.clear();
@@ -304,7 +304,7 @@ void JackClient::GetPortNames(vector<string> &InputNames, vector<string> &Output
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // Input means input of SSM, so this connects jack sources to the plugin outputs
-void JackClient::ConnectInput(int n, const string &JackPort)
+void JackClient::ConnectInput(int n, const std::string &JackPort)
 {
   if (!IsAttached()) return;
   
@@ -330,10 +330,10 @@ void JackClient::ConnectInput(int n, const string &JackPort)
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // Output means output of SSM, so this connects plugin inputs to a jack destination
-void JackClient::ConnectOutput(int n, const string &JackPort)
+void JackClient::ConnectOutput(int n, const std::string &JackPort)
 {
   if (!IsAttached()) return;
-  cerr<<"JackClient::ConnectOutput: connecting source ["<<m_OutputPortMap[n]->Name<<"] to dest ["<<JackPort<<"]"<<endl;
+  std::cerr<<"JackClient::ConnectOutput: connecting source ["<<m_OutputPortMap[n]->Name<<"] to dest ["<<JackPort<<"]"<<std::endl;
   
   if (m_OutputPortMap[n]->ConnectedTo!="")
     {
@@ -390,7 +390,7 @@ void JackClient::DisconnectOutput(int n)
 void JackClient::SetInputBuf(int ID, float* s)
 {
 	if(m_InputPortMap.find(ID)!=m_InputPortMap.end()) m_InputPortMap[ID]->Buf=s;
-	else cerr<<"Could not find port ID "<<ID<<endl;
+	else std::cerr<<"Could not find port ID "<<ID<<std::endl;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////

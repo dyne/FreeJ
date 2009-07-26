@@ -22,8 +22,6 @@
 
 #include <ringbuffer.h>
 
-using namespace std;
-
 typedef jack_default_audio_sample_t sample_t;
 
 #ifndef JACK_CLIENT
@@ -38,17 +36,17 @@ public:
 	static JackClient *Get()      { if(!m_Singleton) m_Singleton=new JackClient; return m_Singleton; }
 	static void PackUpAndGoHome() { if(m_Singleton)  { delete m_Singleton; m_Singleton=NULL; } }
 	
-	bool   Attach(const string &ClientName);
+	bool   Attach(const std::string &ClientName);
 	void   Detach();
 	bool   IsAttached()                   { return m_Attached; }
 	void   SetCallback(void(*Run)(void*, unsigned int),void *Context) { RunCallback=Run; RunContext=Context; }					
-	void   GetPortNames(vector<string> &InputNames,vector<string> &OutputNames);
-	void   ConnectInput(int n, const string &JackPort);
-	void   ConnectOutput(int n, const string &JackPort);
+	void   GetPortNames(std::vector<std::string> &InputNames,std::vector<std::string> &OutputNames);
+	void   ConnectInput(int n, const std::string &JackPort);
+	void   ConnectOutput(int n, const std::string &JackPort);
 	void   DisconnectInput(int n);
 	void   DisconnectOutput(int n);
-	string GetInputName(int ID)           { return m_InputPortMap[ID]->Name; }
-	string GetOutputName(int ID)          { return m_OutputPortMap[ID]->Name; }
+	std::string GetInputName(int ID)           { return m_InputPortMap[ID]->Name; }
+	std::string GetOutputName(int ID)          { return m_OutputPortMap[ID]->Name; }
 	void   SetInputBuf(int ID, float* s);
 	void   SetOutputBuf(int ID, float* s);
          int 	 AddInputPort();
@@ -76,11 +74,11 @@ private:
 		JackPort() :
 			Connected(false),Buf(NULL),Port(NULL) {}
 		
-		string         Name;
+		std::string         Name;
 		bool           Connected;
 		float*         Buf;
 		jack_port_t*   Port;
-		string         ConnectedTo;
+		std::string         ConnectedTo;
 	};
 
 	ringbuffer_t*      m_ringbuffer;
@@ -90,8 +88,8 @@ private:
 
 	static JackClient*        m_Singleton;
 	static jack_client_t*     m_Client;
-	static map<int,JackPort*> m_InputPortMap;	
-	static map<int,JackPort*> m_OutputPortMap;	
+	static std::map<int,JackPort*> m_InputPortMap;
+	static std::map<int,JackPort*> m_OutputPortMap;
 	int m_NextInputID;
 	int m_NextOutputID;
 	

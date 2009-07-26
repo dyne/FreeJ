@@ -24,8 +24,6 @@
 
 
 #include <vector>
-#include <map>
-using namespace std;
 
 
 #include <linklist.h>
@@ -51,7 +49,7 @@ class Freior: public Entry {
   bool opened;
 
   // parameter map
-  vector<f0r_param_info_t> param_infos;
+  std::vector<f0r_param_info_t> param_infos;
   void (*f0r_set_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
   void (*f0r_get_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
 

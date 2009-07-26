@@ -24,8 +24,6 @@ class JackClient;
 #ifndef AUDIO_COLLECTOR
 #define AUDIO_COLLECTOR
 
-using namespace std;
-
 static const int NUM_BARS = 16;
 
 class FFT {
