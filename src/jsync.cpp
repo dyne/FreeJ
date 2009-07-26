@@ -20,8 +20,6 @@
 #include <jutils.h>
 #include <config.h>
 
-typedef void* (kickoff)(void*);
-
 JSyncThread::JSyncThread() {
 
   if(pthread_mutex_init (&_mutex,NULL) == -1)
@@ -37,7 +35,8 @@ JSyncThread::JSyncThread() {
 
 JSyncThread::~JSyncThread() {
 
-  //  if (running) quit = true;
+  // be sure we stop the thread before destroying
+  stop();
 
   if(pthread_mutex_destroy(&_mutex) == -1)
     error("error destroying POSIX thread mutex");
@@ -48,13 +47,7 @@ JSyncThread::~JSyncThread() {
 int JSyncThread::start() {
   if (running) return EBUSY;
   quit = false;
-  return pthread_create(&_thread, &_attr, &kickoff, this);
-}
-
-void JSyncThread::_run() {
-  running = true;
-  run();
-  running = false;
+  return pthread_create(&_thread, &_attr, &JSyncThread::_run, this);
 }
 
 void JSyncThread::stop() {
@@ -62,5 +55,13 @@ void JSyncThread::stop() {
     quit = true;
     pthread_join(_thread,NULL);
   }
+}
+
+void* JSyncThread::_run(void *arg) {
+  JSyncThread *me = (JSyncThread *)arg;
+
+  me->running = true;
+  me->run();
+  me->running = false;
 }
 

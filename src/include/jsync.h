@@ -35,7 +35,7 @@ class JSyncThread {
 
   pthread_mutex_t _mutex;
   
-  void _run();
+  static void* _run(void *arg);
 
   FPS fps;
 
@@ -53,12 +53,6 @@ class JSyncThread {
 
   bool running, quit;
 
- protected:
-
-  static void* kickoff(void *arg) { ((JSyncThread *) arg)->_run(); return NULL; };
-
-  int join() { return pthread_join(_thread,NULL); }
-  
 };
 
 #endif
