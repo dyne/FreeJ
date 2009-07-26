@@ -734,14 +734,11 @@ AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlgfx = xno])
 dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
-PKG_CHECK_MODULES(FREI0R, frei0r, have_frei0r=yes, have_frei0r=no)
-if test x$have_frei0r = xno; then
-   AC_MSG_NOTICE([Using freej version of FREI0R])
-   FREI0R_CFLAGS="-I\$(top_srcdir)/lib/frei0r"
-fi
-AC_SUBST(FREI0R_CFLAGS)
-
-AM_CONDITIONAL([BUILD_FREI0R],[test x$have_frei0r = xno])
+# TODO(shammash): freej now lacks the right 'ifdef's to compile without
+# frei0r headers, make this check non-fatal in the future when introducing
+# conditional compilation or contrib-subsystem.
+PKG_CHECK_MODULES(FREI0R, frei0r, :,
+      AC_MSG_ERROR([*** frei0r plugins development files not found!]))
 
 
 dnl ==============================================================
@@ -867,40 +864,6 @@ lib/slw/Makefile
 lib/flash/Makefile
 lib/goom/Makefile
 lib/cwiid/Makefile
-lib/frei0r/Makefile
-lib/frei0r/filter/Makefile
-lib/frei0r/filter/3dflippo/Makefile
-lib/frei0r/filter/brightness/Makefile
-lib/frei0r/filter/bw0r/Makefile
-lib/frei0r/filter/contrast0r/Makefile
-lib/frei0r/filter/delay0r/Makefile
-lib/frei0r/filter/distort0r/Makefile
-lib/frei0r/filter/equaliz0r/Makefile
-lib/frei0r/filter/flippo/Makefile
-lib/frei0r/filter/gamma/Makefile
-lib/frei0r/filter/hueshift0r/Makefile
-lib/frei0r/filter/invert0r/Makefile
-lib/frei0r/filter/mask0mate/Makefile
-lib/frei0r/filter/nosync0r/Makefile
-lib/frei0r/filter/pixeliz0r/Makefile
-lib/frei0r/filter/saturat0r/Makefile
-lib/frei0r/filter/scanline0r/Makefile
-lib/frei0r/filter/sobel/Makefile
-lib/frei0r/filter/squareblur/Makefile
-lib/frei0r/filter/tehroxx0r/Makefile
-lib/frei0r/filter/threshold0r/Makefile
-lib/frei0r/filter/twolay0r/Makefile
-lib/frei0r/filter/glow/Makefile
-lib/frei0r/filter/water/Makefile
-lib/frei0r/filter/cartoon/Makefile
-lib/frei0r/filter/rotozoom/Makefile
-lib/frei0r/filter/vertigo/Makefile
-lib/frei0r/generator/Makefile
-lib/frei0r/generator/ising0r/Makefile
-lib/frei0r/generator/lissajous0r/Makefile
-lib/frei0r/generator/nois0r/Makefile
-lib/frei0r/generator/onecol0r/Makefile
-lib/frei0r/generator/partik0l/Makefile
 bindings/Makefile
 bindings/python/Makefile
 bindings/ruby/Makefile
@@ -1028,11 +991,10 @@ fi
 echo "  LIBS  : $SDLIMAGE_LIBS"
 echo "  CFLAGS: $SDLIMAGE_CFLAGS"
 
-if test x$have_frei0r = xyes; then
-echo "= frei0r plugins (system provided)"
-else
-echo "= frei0r plugins (freej provided)"
-fi
+echo "= frei0r plugins"
+echo "  LIBS  : $FREI0R_LIBS"
+echo "  CFLAGS: $FREI0R_CFLAGS"
+
 if test x$have_flash = xyes; then
 echo "= Flash (ver.3 animations only)"
 echo "  LIBS  : $FLASH_LIBS (static)"
