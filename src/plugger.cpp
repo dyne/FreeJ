@@ -51,8 +51,10 @@ Plugger::Plugger() {
 
   addsearchdir("/usr/lib/FreeFrame");
   addsearchdir("/usr/local/lib/FreeFrame");
+#ifdef WITH_FREI0R
   addsearchdir("/usr/lib/frei0r-1");
   addsearchdir("/usr/local/lib/frei0r-1");
+#endif
 
 //   addsearchdir("/usr/lib/freej");
 //   addsearchdir("/usr/local/lib/freej");
@@ -128,6 +130,7 @@ int Plugger::refresh(Context *env) {
 	snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
 	free(filelist[found]);
 
+#ifdef WITH_FREI0R
 	{
 	  Freior *fr = new Freior();
 	  
@@ -164,6 +167,7 @@ int Plugger::refresh(Context *env) {
 	    }
 	  }
 	}
+#endif
 
 	{
 	  Freeframe *fr = new Freeframe();

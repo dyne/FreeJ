@@ -22,9 +22,10 @@
 #ifndef __FREI0R_H__
 #define __FREI0R_H__
 
+#include <config.h>
+#ifdef WITH_FREI0R
 
 #include <vector>
-
 
 #include <linklist.h>
 #include <frei0r.h>
@@ -77,5 +78,6 @@ class Freior: public Entry {
 
 };
 
+#endif // WITH_FREI0R
 
 #endif
