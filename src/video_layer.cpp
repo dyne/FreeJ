@@ -802,7 +802,6 @@ bool VideoLayer::set_mark_out() {
 
 bool VideoLayer::relative_seek(double increment) {
 	int ret=0;
-	lock_feed();
 	double current_time=get_master_clock();
 	//    printf("master_clock(): %f\n",current_time);
 	current_time += increment;
@@ -824,13 +823,11 @@ bool VideoLayer::relative_seek(double increment) {
 	//    printf("VideoLayer::seeking to: %f\n",current_time);
 	ret = seek ((int64_t) current_time * AV_TIME_BASE);
 	if (ret < 0) {
-		unlock_feed ();
 		error ("Can't seek file: %s", get_filename());
 		return false;
 	}
 	else
 		show_osd("seek to %.1f\%",current_time);
-	unlock_feed();
 	return true;
 }
 /**
