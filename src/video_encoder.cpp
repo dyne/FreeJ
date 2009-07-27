@@ -79,8 +79,6 @@ VideoEncoder::VideoEncoder()
 
   env = NULL;	
 
-  quit = false;
-
   initialized = false;
 
   use_audio = false;

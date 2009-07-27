@@ -39,7 +39,7 @@ class JSyncThread {
 
   FPS fps;
 
-  bool running;
+  bool _running;
 
  protected:
 
@@ -59,8 +59,7 @@ class JSyncThread {
   void lock() { pthread_mutex_lock(&_mutex); };
   void unlock() { pthread_mutex_unlock(&_mutex); };
 
-  bool is_running() { return running; };
-  bool quit;
+  bool is_running() { return _running; };
 
 };
 

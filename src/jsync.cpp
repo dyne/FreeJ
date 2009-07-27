@@ -31,8 +31,7 @@ JSyncThread::JSyncThread() {
 
   deferred_calls = new ClosureQueue();
 
-  running = false;
-  quit = false;
+  _running = false;
 }
 
 JSyncThread::~JSyncThread() {
@@ -49,14 +48,14 @@ JSyncThread::~JSyncThread() {
 }
 
 int JSyncThread::start() {
-  if (running) return EBUSY;
-  quit = false;
+  if (_running)
+  	return EBUSY;
   return pthread_create(&_thread, &_attr, &JSyncThread::_run, this);
 }
 
 void JSyncThread::stop() {
-  if (running) {
-    quit = true;
+  if (_running) {
+    _running = false;
     pthread_join(_thread,NULL);
   }
 }
@@ -64,7 +63,7 @@ void JSyncThread::stop() {
 void* JSyncThread::_run(void *arg) {
   JSyncThread *me = (JSyncThread *)arg;
 
-  me->running = true;
+  me->_running = true;
   /*
    * In addiction to 'looped' invocation below, we execute deferred calls before
    * setting up the thread because the setup phase might take into account some
@@ -73,11 +72,10 @@ void* JSyncThread::_run(void *arg) {
    */
   me->deferred_calls->do_jobs();
   me->thread_setup();
-  while (! me->quit) {
+  while (me->_running) {
     me->deferred_calls->do_jobs();
     me->thread_loop();
   }
   me->thread_teardown();
-  me->running = false;
 }
 

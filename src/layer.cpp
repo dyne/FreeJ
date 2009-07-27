@@ -41,7 +41,6 @@ Layer::Layer()
   :Entry(), JSyncThread() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
   env = NULL;
-  quit = false;
   active = false;
   hidden = false;
   fade = false;
@@ -80,8 +79,6 @@ Layer::Layer()
 
 Layer::~Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
-
-  quit = true;
 
   FilterInstance *f = (FilterInstance*)filters.begin();
   while(f) {
