@@ -629,7 +629,7 @@ void js_layer_gc (JSContext *cx, JSObject *obj) {
 JS(layer_start) {
   GET_LAYER(Layer);
   lay->active = true;
-  if(!lay->running) lay->start();
+  if(!lay->is_running()) lay->start();
 
   return JS_TRUE;
 }

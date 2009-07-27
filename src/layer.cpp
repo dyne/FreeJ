@@ -73,7 +73,6 @@ Layer::Layer()
   max_null_feeds = 10;
 
   parameters = NULL;
-  running = false;
 
   fps.set(25);
 
@@ -171,7 +170,6 @@ void Layer::thread_loop() {
 }
 
 void Layer::thread_teardown() {
-  running = false;
   func("%s this=%p thread end: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
 }
 

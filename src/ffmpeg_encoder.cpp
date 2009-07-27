@@ -70,7 +70,7 @@ void FFmpegEncoder::free_av_objects() {
 }
 
 bool FFmpegEncoder::init(Context *_env) { 
-  if(running) return true;
+  if(this->is_running()) return true;
   if(!_init(_env)) return false;
   // initialize libavcodec, and register all codecs and formats
   av_register_all();

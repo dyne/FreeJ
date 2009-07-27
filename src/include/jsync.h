@@ -39,6 +39,8 @@ class JSyncThread {
 
   FPS fps;
 
+  bool running;
+
  protected:
 
   ClosureQueue *deferred_calls;
@@ -57,7 +59,8 @@ class JSyncThread {
   void lock() { pthread_mutex_lock(&_mutex); };
   void unlock() { pthread_mutex_unlock(&_mutex); };
 
-  bool running, quit;
+  bool is_running() { return running; };
+  bool quit;
 
 };
 
