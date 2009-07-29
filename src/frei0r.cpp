@@ -21,8 +21,6 @@
 
 #include <config.h>
 
-#ifdef WITH_FREI0R
-
 #include <dlfcn.h>
 #include <stdlib.h>
 
@@ -135,7 +133,3 @@ void Freior::print_info() {
     }
   }
 }
-
-
-#endif // WITH_FREI0R
-

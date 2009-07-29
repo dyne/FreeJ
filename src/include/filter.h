@@ -25,9 +25,7 @@
 
 
 class Layer;
-#ifdef WITH_FREI0R
 class Freior;
-#endif
 class Freeframe;
 class FilterInstance;
 template <class T> class Linklist;
@@ -37,9 +35,7 @@ class Filter : public Entry {
  public:
   // supported filter types
   enum Type {
-#ifdef WITH_FREI0R
 	  FREIOR = 1,
-#endif
 	  FREEFRAME = 2
   };
   Filter(Type type, void *filt);
@@ -58,9 +54,7 @@ class Filter : public Entry {
   bool inuse;
 
   int backend;
-#ifdef WITH_FREI0R
   Freior *freior;
-#endif
   Freeframe *freeframe;
   
   Linklist<Parameter> parameters;
