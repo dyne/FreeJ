@@ -198,7 +198,7 @@ void add_fisbone_packet (oggmux_info *info) {
         write64le(op.packet+28, info->ti.fps_denominator); /* granulrate denominator */
         write64le(op.packet+36, 0); /* start granule */
         write32le(op.packet+44, 0); /* preroll, for theora its 0 */
-        *(op.packet+48) = theora_granule_shift (&info->ti); /* granule shift */
+        *(op.packet+48) = info->ti.keyframe_granule_shift; /* granule shift */
         memcpy(op.packet+FISBONE_SIZE, "Content-Type: video/theora\r\n", 28); /* message header field, Content-Type */
 
         op.b_o_s = 0;
@@ -269,9 +269,10 @@ void add_fisbone_packet (oggmux_info *info) {
 #endif
 }
 
-void oggmux_init (oggmux_info *info){
+int oggmux_init (oggmux_info *info) {
     ogg_page og;
     ogg_packet op;
+    int ret;
 
     /* yayness.  Set up Ogg output stream */
     srand (time (NULL));
@@ -279,15 +280,6 @@ void oggmux_init (oggmux_info *info){
 
     if(!info->audio_only){
         ogg_stream_init (&info->to, rand ());    /* oops, add one ot the above */
-        theora_encode_init (&info->td, &info->ti);
-
-        if(info->speed_level >= 0) {
-            int max_speed_level;
-            theora_control(&info->td, TH_ENCCTL_GET_SPLEVEL_MAX, &max_speed_level, sizeof(int));
-            if(info->speed_level > max_speed_level)
-            info->speed_level = max_speed_level;
-            theora_control(&info->td, TH_ENCCTL_SET_SPLEVEL, &info->speed_level, sizeof(int));
-        }
     }
     /* init theora done */
 
@@ -305,11 +297,14 @@ void oggmux_init (oggmux_info *info){
             error(
                  "The Vorbis encoder could not set up a mode according to"
                  "the requested quality or bitrate.");
-			return;
+			return 0;
         }
 
         vorbis_comment_init (&info->vc);
-        vorbis_comment_add_tag (&info->vc, "ENCODER",PACKAGE);
+        vorbis_comment_add_tag (&info->vc, (char*)"ENCODER",(char*)PACKAGE);
+        if (strcmp(info->oshash,"0000000000000000") > 0) {
+            vorbis_comment_add_tag (&info->vc, (char*)"SOURCE_OSHASH", info->oshash);
+        }
         /* set up the analysis state and auxiliary encoding storage */
         vorbis_analysis_init (&info->vd, &info->vi);
         vorbis_block_init (&info->vd, &info->vb);
@@ -321,18 +316,19 @@ void oggmux_init (oggmux_info *info){
     if (info->with_kate) {
         int ret, n;
 #ifdef HAVE_KATE
+        int ret, n;
         for (n=0; n<info->n_kate_streams; ++n) {
             oggmux_kate_stream *ks=info->kate_streams+n;
             ogg_stream_init (&ks->ko, rand ());    /* oops, add one ot the above */
             ret = kate_encode_init (&ks->k, &ks->ki);
             if (ret<0) {
 				error("kate_encode_init: %d",ret);
-				return;
+				return 0;
             }
             ret = kate_comment_init(&ks->kc);
             if (ret<0) {
 				error("kate_comment_init: %d",ret);
-				return;
+				return 0;
             }
             kate_comment_add_tag (&ks->kc, "ENCODER",PACKAGE_STRING);
         }
@@ -347,7 +343,7 @@ void oggmux_init (oggmux_info *info){
         add_fishead_packet (info);
         if (ogg_stream_pageout (&info->so, &og) != 1){
             error("Internal Ogg library error.");
-			return;
+			return 0;
         }
 
 		ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
@@ -360,47 +356,61 @@ void oggmux_init (oggmux_info *info){
     /* write the bitstream header packets with proper page interleave */
 
     /* first packet will get its own page automatically */
-    if(!info->audio_only){
-        theora_encode_header (&info->td, &op);
-        ogg_stream_packetin (&info->to, &op);
-        if (ogg_stream_pageout (&info->to, &og) != 1){
-            error("Internal Ogg library error.");
-			return;
+    if (!info->audio_only) {
+        /* write the bitstream header packets with proper page interleave */
+        th_comment_init(&info->tc);
+        th_comment_add_tag(&info->tc, (char*)"ENCODER",(char*)PACKAGE);
+        if (strcmp(info->oshash,"0") > 0) {
+            th_comment_add_tag(&info->tc, (char*)"SOURCE_OSHASH", info->oshash);
         }
+
+        /* write the bitstream header packets with proper page interleave */
+        /* first packet will get its own page automatically */
+        if(th_encode_flushheader(info->td, &info->tc, &op) <= 0) {
+			error("Internal Theora library error: creating first header");
+			return 0;
+        }
+		
+		ogg_stream_packetin(&info->to, &op);
+		if(ogg_stream_pageout(&info->to, &og) != 1) {
+			error("Internal Ogg library error");
+			return 0;
+		}
+		
 		ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
 		ogg_pipe_write("write theora body", info->ringbuffer, (char*)og.body, og.body_len);
-//         fwrite (og.header, 1, og.header_len, info->outfile);
-//         fwrite (og.body, 1, og.body_len, info->outfile);
+	}
+	
+	/* create the remaining theora headers */
+	for(;;){
+		ret=th_encode_flushheader(info->td, &info->tc, &op);
+		if(ret < 0) {
+            error("Internal Theora library error: creating remaining headers");
+			return 0;
+          }
+		else if(!ret) break;
+		ogg_stream_packetin(&info->to, &op);
+	}
 
-        /* create the remaining theora headers */
-        /* theora_comment_init (&info->tc); is called in main() prior to parsing options */
-        theora_comment_add_tag (&info->tc, "ENCODER",PACKAGE_STRING);
-        theora_encode_comment (&info->tc, &op);
-        ogg_stream_packetin (&info->to, &op);
-        _ogg_free (op.packet);
-
-        theora_encode_tables (&info->td, &op);
-        ogg_stream_packetin (&info->to, &op);
-    }
     if(!info->video_only){
         ogg_packet header;
         ogg_packet header_comm;
         ogg_packet header_code;
-
+		
         vorbis_analysis_headerout (&info->vd, &info->vc, &header,
-                       &header_comm, &header_code);
+								   &header_comm, &header_code);
         ogg_stream_packetin (&info->vo, &header);    /* automatically placed in its own
-                                 * page */
+													  * page */
         if (ogg_stream_pageout (&info->vo, &og) != 1){
             error("Internal Ogg library error.");
-            return;
+            return 0;
         }
 		ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
 		ogg_pipe_write("write theora body", info->ringbuffer, (char*)og.body, og.body_len);
-
+		
 //         fwrite (og.header, 1, og.header_len, info->outfile);
 //         fwrite (og.body, 1, og.body_len, info->outfile);
-
+		
         /* remaining vorbis header packets */
         ogg_stream_packetin (&info->vo, &header_comm);
         ogg_stream_packetin (&info->vo, &header_code);
@@ -426,7 +436,7 @@ void oggmux_init (oggmux_info *info){
             ret=ogg_stream_pageout (&ks->ko, &og);
             if (ret!=1) {
                 error("Internal Ogg library error.");
-				return;
+				return 0;
             }
 			ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
 			ogg_pipe_write("write theora body", info->ringbuffer, (char*)og.body, og.body_len);
@@ -445,7 +455,7 @@ void oggmux_init (oggmux_info *info){
 			if (result < 0) {
                 /* can't get here */
                 error("Internal Ogg library error.");
-				return;
+				return 0;
 			}
             if (result == 0)  break;
 			ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
@@ -454,19 +464,15 @@ void oggmux_init (oggmux_info *info){
         }
     }
 
-    if (!info->audio_only) {
-    theora_info_clear(&info->ti);
-    }
-
     /* Flush the rest of our headers. This ensures
      * the actual data in each stream will start
      * on a new page, as per spec. */
     while (1 && !info->audio_only){
         int result = ogg_stream_flush (&info->to, &og);
-        if (result < 0){
+        if (result < 0) {
             /* can't get here */
             error("Internal Ogg library error.");
-			return;
+			return 0;
         }
         if (result == 0) break;
 		ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
@@ -477,10 +483,10 @@ void oggmux_init (oggmux_info *info){
     }
     while (1 && !info->video_only){
         int result = ogg_stream_flush (&info->vo, &og);
-        if (result < 0){
+        if (result < 0) {
             /* can't get here */
             error("Internal Ogg library error.");
-			return;
+			return 0;
         }
         if (result == 0) break;
 		ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
@@ -494,10 +500,10 @@ void oggmux_init (oggmux_info *info){
             oggmux_kate_stream *ks=info->kate_streams+n;
             while (1) {
                 int result = ogg_stream_flush (&ks->ko, &og);
-                if (result < 0){
+                if (result < 0) {
                     /* can't get here */
                     error("Internal Ogg library error.");
-					return;
+					return 0;
                 }
                 if (result == 0) break;
 				ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
@@ -521,10 +527,10 @@ void oggmux_init (oggmux_info *info){
             ogg_stream_packetin (&info->so, &op);
 
         result = ogg_stream_flush (&info->so, &og);
-        if (result < 0){
+        if (result < 0) {
             /* can't get here */
             error("Internal Ogg library error.");
-			return;
+			return 0;
         }
 		ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
 		ogg_pipe_write("write theora body", info->ringbuffer, (char*)og.body, og.body_len);
@@ -532,6 +538,7 @@ void oggmux_init (oggmux_info *info){
 //         fwrite (og.header, 1, og.header_len,info->outfile);
 //         fwrite (og.body, 1, og.body_len, info->outfile);
     }
+	return 1;
 }
 
 /**
@@ -542,13 +549,18 @@ void oggmux_init (oggmux_info *info){
  * @param yuv_buffer
  * @param e_o_s 1 indicates ond of stream
  */
-void oggmux_add_video (oggmux_info *info, yuv_buffer *yuv, int e_o_s){
+void oggmux_add_video (oggmux_info *info, th_ycbcr_buffer ycbcr, int e_o_s) {
     ogg_packet op;
-    theora_encode_YUVin (&info->td, yuv);
-    while(theora_encode_packetout (&info->td, e_o_s, &op)) {
+    int r, ret;
+
+
+    th_encode_ycbcr_in(info->td, ycbcr);
+
+    while (th_encode_packetout (info->td, e_o_s, &op) > 0) {
         ogg_stream_packetin (&info->to, &op);
         info->v_pkg++;
     }
+
 }
 
 /**
@@ -558,40 +570,43 @@ void oggmux_add_video (oggmux_info *info, yuv_buffer *yuv, int e_o_s){
  * @param samples samples in buffer
  * @param e_o_s 1 indicates end of stream.
  */
-void oggmux_add_audio (oggmux_info *info, int16_t * buffer, int bytes, int samples, int e_o_s){
+void oggmux_add_audio (oggmux_info *info, int16_t * buffer, int bytes, int samples, int e_o_s) {
     ogg_packet op;
 
     int i,j, count = 0;
     float **vorbis_buffer;
-    if (bytes <= 0 && samples <= 0){
+    if (bytes <= 0 && samples <= 0) {
         /* end of audio stream */
-        if(e_o_s)
+        if (e_o_s)
             vorbis_analysis_wrote (&info->vd, 0);
     }
     else{
         vorbis_buffer = vorbis_analysis_buffer (&info->vd, samples);
         /* uninterleave samples */
-        for (i = 0; i < samples; i++){
-            for(j=0;j<info->channels;j++){
+        for (i = 0; i < samples; i++) {
+            for (j=0;j<info->channels;j++) {
                 vorbis_buffer[j][i] = buffer[count++] / 32768.f;
             }
         }
         vorbis_analysis_wrote (&info->vd, samples);
+        /* end of audio stream */
+        if (e_o_s)
+            vorbis_analysis_wrote (&info->vd, 0);
     }
-    while(vorbis_analysis_blockout (&info->vd, &info->vb) == 1){
+    while (vorbis_analysis_blockout (&info->vd, &info->vb) == 1) {
         /* analysis, assume we want to use bitrate management */
         vorbis_analysis (&info->vb, NULL);
         vorbis_bitrate_addblock (&info->vb);
 
         /* weld packets into the bitstream */
-        while (vorbis_bitrate_flushpacket (&info->vd, &op)){
+        while (vorbis_bitrate_flushpacket (&info->vd, &op)) {
             ogg_stream_packetin (&info->vo, &op);
             info->a_pkg++;
         }
     }
 }
 
-/**    
+/**
  * adds a subtitles text to the encoding sink
  * if e_o_s is 1 the end of the logical bitstream will be marked.
  * @param info oggmux_info
@@ -601,7 +616,7 @@ void oggmux_add_audio (oggmux_info *info, int16_t * buffer, int bytes, int sampl
  * @param text the utf-8 text
  * @param len the number of bytes in the text
  */
-void oggmux_add_kate_text (oggmux_info *info, int idx, double t0, double t1, const char *text, size_t len){
+void oggmux_add_kate_text (oggmux_info *info, int idx, double t0, double t1, const char *text, size_t len) {
 #ifdef HAVE_KATE
     ogg_packet op;
     oggmux_kate_stream *ks=info->kate_streams+idx;
@@ -618,14 +633,14 @@ void oggmux_add_kate_text (oggmux_info *info, int idx, double t0, double t1, con
     }
 #endif
 }
-    
-/**    
+
+/**
  * adds a kate end packet to the encoding sink
  * @param info oggmux_info
  * @param idx which kate stream to output to
  * @param t the time of the end packet
  */
-void oggmux_add_kate_end_packet (oggmux_info *info, int idx, double t){
+void oggmux_add_kate_end_packet (oggmux_info *info, int idx, double t) {
 #ifdef HAVE_KATE
     ogg_packet op;
     oggmux_kate_stream *ks=info->kate_streams+idx;
@@ -646,23 +661,33 @@ static double get_remaining(oggmux_info *info, double timebase) {
   double remaining = 0;
   double to_encode, time_so_far;
 
-    if(info->duration != -1 && timebase > 0) {
+    if (info->duration != -1 && timebase > 0) {
         time_so_far = time(NULL) - info->start_time;
         to_encode = info->duration - timebase;
-        if(to_encode > 0) {
+        if (to_encode > 0) {
             remaining = (time_so_far / timebase) * to_encode;
         }
     }
     return remaining;
 }
 
+static double estimated_size(oggmux_info *info, double timebase) {
+  double projected_size = 0;
+  double to_encode, time_so_far;
+
+  if (info->duration != -1 && timebase > 0) {
+    projected_size = ((info->audio_bytesout + info->video_bytesout)  /  timebase) * info->duration / 1024 / 1024;
+  }
+  return projected_size;
+}
+
 static void print_stats(oggmux_info *info, double timebase) {
-//    int hundredths = timebase * 100 - (long) timebase * 100;
+    static double last = -2;
+    int hundredths = timebase * 100 - (long) timebase * 100;
     int seconds = (long) timebase % 60;
     int minutes = ((long) timebase / 60) % 60;
     int hours = (long) timebase / 3600;
- 	double remaining = time(NULL) - info->start_time;
-//    double remaining = get_remaining(info, timebase);
+    double remaining = get_remaining(info, timebase);
     int remaining_seconds = (long) remaining % 60;
     int remaining_minutes = ((long) remaining / 60) % 60;
     int remaining_hours = (long) remaining / 3600;
@@ -788,143 +813,141 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
     int best;
 
     /* flush out the ogg pages to info->outfile */
-    while(1) {
-      /* Get pages for both streams, if not already present, and if available.*/
-      if(!info->audio_only && !info->videopage_valid) {
-        // this way seeking is much better,
-        // not sure if 23 packets  is a good value. it works though
-        int v_next=0;
-        if(info->v_pkg>22 && ogg_stream_flush(&info->to, &og) > 0) {
-          v_next=1;
-        }
-        else if(ogg_stream_pageout(&info->to, &og) > 0) {
-          v_next=1;
-        }
-        if(v_next) {
-          len = og.header_len + og.body_len;
-          if(info->videopage_buffer_length < len) {
-			  info->videopage = (unsigned char*)realloc(info->videopage, len);
-            info->videopage_buffer_length = len;
-          }
-          info->videopage_len = len;
-          memcpy(info->videopage, og.header, og.header_len);
-          memcpy(info->videopage+og.header_len , og.body, og.body_len);
+    while (1) {
+        /* Get pages for both streams, if not already present, and if available.*/
+        if (!info->audio_only && !info->videopage_valid) {
+            // this way seeking is much better,
+            // not sure if 23 packets  is a good value. it works though
+            int v_next=0;
+            if (info->v_pkg>22 && ogg_stream_flush(&info->to, &og) > 0) {
+                v_next=1;
+            }
+            else if (ogg_stream_pageout(&info->to, &og) > 0) {
+                v_next=1;
+            }
+            if (v_next) {
+                len = og.header_len + og.body_len;
+                if (info->videopage_buffer_length < len) {
+                    info->videopage = (unsigned char*)realloc(info->videopage, len);
+                    info->videopage_buffer_length = len;
+                }
+                info->videopage_len = len;
+                memcpy(info->videopage, og.header, og.header_len);
+                memcpy(info->videopage+og.header_len , og.body, og.body_len);
 
-          info->videopage_valid = 1;
-          if(ogg_page_granulepos(&og)>0) {
-            info->videotime = theora_granule_time (&info->td,
-                  ogg_page_granulepos(&og));
-          }
+                info->videopage_valid = 1;
+                if (ogg_page_granulepos(&og)>0) {
+                    info->videotime = th_granule_time(info->td, ogg_page_granulepos(&og));
+                }
+            }
         }
-      }
-      if(!info->video_only && !info->audiopage_valid) {
-        // this way seeking is much better,
-        // not sure if 23 packets  is a good value. it works though
-        int a_next=0;
-        if(info->a_pkg>22 && ogg_stream_flush(&info->vo, &og) > 0) {
-          a_next=1;
-        }
-        else if(ogg_stream_pageout(&info->vo, &og) > 0) {
-          a_next=1;
-        }
-        if(a_next) {
-          len = og.header_len + og.body_len;
-          if(info->audiopage_buffer_length < len) {
-			  info->audiopage = (unsigned char*)realloc(info->audiopage, len);
-            info->audiopage_buffer_length = len;
-          }
-          info->audiopage_len = len;
-          memcpy(info->audiopage, og.header, og.header_len);
-          memcpy(info->audiopage+og.header_len , og.body, og.body_len);
+        if (!info->video_only && !info->audiopage_valid) {
+            // this way seeking is much better,
+            // not sure if 23 packets  is a good value. it works though
+            int a_next=0;
+            if (info->a_pkg>22 && ogg_stream_flush(&info->vo, &og) > 0) {
+                a_next=1;
+            }
+            else if (ogg_stream_pageout(&info->vo, &og) > 0) {
+                a_next=1;
+            }
+            if (a_next) {
+                len = og.header_len + og.body_len;
+                if (info->audiopage_buffer_length < len) {
+                    info->audiopage = (unsigned char*)realloc(info->audiopage, len);
+                    info->audiopage_buffer_length = len;
+                }
+                info->audiopage_len = len;
+                memcpy(info->audiopage, og.header, og.header_len);
+                memcpy(info->audiopage+og.header_len , og.body, og.body_len);
 
-          info->audiopage_valid = 1;
-          if(ogg_page_granulepos(&og)>0) {
-            info->audiotime= vorbis_granule_time (&info->vd,
-                  ogg_page_granulepos(&og));
-          }
+                info->audiopage_valid = 1;
+                if (ogg_page_granulepos(&og)>0) {
+                    info->audiotime= vorbis_granule_time (&info->vd, ogg_page_granulepos(&og));
+                }
+            }
         }
-      }
 
 #ifdef HAVE_KATE
-      if (info->with_kate) for (n=0; n<info->n_kate_streams; ++n) {
-        oggmux_kate_stream *ks=info->kate_streams+n;
-        if (!ks->katepage_valid) {
-          int k_next=0;
-          /* always flush kate stream */
-          if (ogg_stream_flush(&ks->ko, &og) > 0) {
-            k_next = 1;
-          }
-          if (k_next) {
-            len = og.header_len + og.body_len;
-            if(ks->katepage_buffer_length < len) {
-              ks->katepage = realloc(ks->katepage, len);
-              ks->katepage_buffer_length = len;
-            }
-            ks->katepage_len = len;
-            memcpy(ks->katepage, og.header, og.header_len);
-            memcpy(ks->katepage+og.header_len , og.body, og.body_len);
+        if (info->with_kate) for (n=0; n<info->n_kate_streams; ++n) {
+            oggmux_kate_stream *ks=info->kate_streams+n;
+            if (!ks->katepage_valid) {
+                int k_next=0;
+                /* always flush kate stream */
+                if (ogg_stream_flush(&ks->ko, &og) > 0) {
+                    k_next = 1;
+                }
+                if (k_next) {
+                    len = og.header_len + og.body_len;
+                    if (ks->katepage_buffer_length < len) {
+                        ks->katepage = realloc(ks->katepage, len);
+                        ks->katepage_buffer_length = len;
+                    }
+                    ks->katepage_len = len;
+                    memcpy(ks->katepage, og.header, og.header_len);
+                    memcpy(ks->katepage+og.header_len , og.body, og.body_len);
 
-            ks->katepage_valid = 1;
-            if(ogg_page_granulepos(&og)>0) {
-              ks->katetime= kate_granule_time (&ks->ki,
-                    ogg_page_granulepos(&og));
+                    ks->katepage_valid = 1;
+                    if (ogg_page_granulepos(&og)>0) {
+                        ks->katetime= kate_granule_time (&ks->ki,
+                            ogg_page_granulepos(&og));
+                    }
+                }
             }
-          }
         }
-      }
 #endif
 
 #ifdef HAVE_KATE
 #define CHECK_KATE_OUTPUT(which) \
-        if (best>=0 && info->kate_streams[best].katetime/*-1.0*/<=info->which##time) { \
-          write_kate_page(info, best); \
-          continue; \
+        if (best >= 0 && info->kate_streams[best].katetime <= info->which##time) { \
+            write_kate_page(info, best); \
+            continue; \
         }
 #else
 #define CHECK_KATE_OUTPUT(which) ((void)0)
 #endif
 
-      best=find_best_valid_kate_page(info);
+        best=find_best_valid_kate_page(info);
 
-      if(info->video_only && info->videopage_valid) {
-        CHECK_KATE_OUTPUT(video);
-        write_video_page(info);
-      }
-      else if(info->audio_only && info->audiopage_valid) {
-        CHECK_KATE_OUTPUT(audio);
-        write_audio_page(info);
-      }
-      /* We're using both. We can output only:
-       *  a) If we have valid pages for both
-       *  b) At EOS, for the remaining stream.
-       */
-      else if(info->videopage_valid && info->audiopage_valid) {
-        /* Make sure they're in the right order. */
-        if(info->videotime <= info->audiotime) {
-          CHECK_KATE_OUTPUT(video);
-          write_video_page(info);
+        if (info->video_only && info->videopage_valid) {
+            CHECK_KATE_OUTPUT(video);
+            write_video_page(info);
+        }
+        else if (info->audio_only && info->audiopage_valid) {
+            CHECK_KATE_OUTPUT(audio);
+            write_audio_page(info);
+        }
+        /* We're using both. We can output only:
+        *  a) If we have valid pages for both
+        *  b) At EOS, for the remaining stream.
+        */
+        else if (info->videopage_valid && info->audiopage_valid) {
+            /* Make sure they're in the right order. */
+            if (info->videotime <= info->audiotime) {
+              CHECK_KATE_OUTPUT(video);
+              write_video_page(info);
+            }
+            else {
+              CHECK_KATE_OUTPUT(audio);
+              write_audio_page(info);
+            }
+        }
+        else if (e_o_s && best>=0) {
+            write_kate_page(info, best);
+        }
+        else if (e_o_s && info->videopage_valid) {
+            write_video_page(info);
+        }
+        else if (e_o_s && info->audiopage_valid) {
+            write_audio_page(info);
         }
         else {
-          CHECK_KATE_OUTPUT(audio);
-          write_audio_page(info);
+            break; /* Nothing more writable at the moment */
         }
-      }
-      else if(e_o_s && best>=0) {
-          write_kate_page(info, best);
-      }
-      else if(e_o_s && info->videopage_valid) {
-          write_video_page(info);
-      }
-      else if(e_o_s && info->audiopage_valid) {
-          write_audio_page(info);
-      }
-      else {
-        break; /* Nothing more writable at the moment */
-      }
     }
 }
 
-void oggmux_close (oggmux_info *info){
+void oggmux_close (oggmux_info *info) {
     int n;
 
     ogg_stream_clear (&info->vo);
@@ -934,8 +957,7 @@ void oggmux_close (oggmux_info *info){
     vorbis_info_clear (&info->vi);
 
     ogg_stream_clear (&info->to);
-    theora_comment_clear (&info->tc);
-    theora_clear (&info->td);
+    th_comment_clear (&info->tc);
 
 #ifdef HAVE_KATE
     for (n=0; n<info->n_kate_streams; ++n) {
@@ -952,14 +974,15 @@ void oggmux_close (oggmux_info *info){
     if (info->outfile && info->outfile != stdout)
         fclose (info->outfile);
 
-    if(info->videopage)
+    if (info->videopage)
         free(info->videopage);
-    if(info->audiopage)
+    if (info->audiopage)
         free(info->audiopage);
 
     for (n=0; n<info->n_kate_streams; ++n) {
-        if(info->kate_streams[n].katepage)
-          free(info->kate_streams[n].katepage);
+        if (info->kate_streams[n].katepage)
+            free(info->kate_streams[n].katepage);
     }
     free(info->kate_streams);
 }
+

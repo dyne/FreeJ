@@ -130,7 +130,12 @@ JS(vid_enc_start_filesave) {
 	  __LINE__,__FILE__,__FUNCTION__);
     return JS_FALSE;
   }
-  
+
+  if(!enc->initialized) {
+    error("Video Encoder is not initialized correctly");
+    return JS_FALSE;
+  }
+
   JS_CHECK_ARGC(1);
 
   char *file;
@@ -168,6 +173,11 @@ JS(start_stream) {
   if(!enc) {
     error("%u:%s:%s :: VideoEncoder core data is NULL",
 	  __LINE__,__FILE__,__FUNCTION__);
+    return JS_FALSE;
+  }
+
+  if(!enc->initialized) {
+    error("Video Encoder is not initialized correctly");
     return JS_FALSE;
   }
 
