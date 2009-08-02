@@ -24,8 +24,6 @@
 
 #include <stdint.h>
 #include <theora/theora.h>
-#include <theora/theoraenc.h>
-
 #include <vorbis/codec.h>
 #include <vorbis/vorbisenc.h>
 #ifdef HAVE_KATE
@@ -71,7 +69,6 @@ typedef struct
 	int bytes_encoded;
     FILE *outfile;
 
-    char oshash[32];
     int audio_only;
     int video_only;
     int with_skeleton;
@@ -88,12 +85,12 @@ typedef struct
     vorbis_comment vc;    /* struct that stores all the user comments */
 
     /* theora settings */
-    th_info ti;
-    th_comment tc;
+    theora_info ti;
+    theora_comment tc;
     int speed_level;
 
     /* state info */
-    th_enc_ctx *td;
+    theora_state td;
     vorbis_dsp_state vd; /* central working state for the packet->PCM decoder */
     vorbis_block vb;     /* local working space for packet->PCM decode */
 
@@ -145,8 +142,8 @@ oggmux_info;
 
 void init_info(oggmux_info *info);
 extern void oggmux_setup_kate_streams(oggmux_info *info, int n_kate_streams);
-extern int oggmux_init (oggmux_info *info);
-extern void oggmux_add_video (oggmux_info *info, th_ycbcr_buffer ycbcr, int e_o_s);
+extern void oggmux_init (oggmux_info *info);
+extern void oggmux_add_video (oggmux_info *info, yuv_buffer *yuv, int e_o_s);
 extern void oggmux_add_audio (oggmux_info *info, int16_t * readbuffer, int bytesread, int samplesread,int e_o_s);
 extern void oggmux_add_kate_text (oggmux_info *info, int idx, double t0, double t1, const char *text, size_t len);
 extern void oggmux_add_kate_end_packet (oggmux_info *info, int idx, double t);

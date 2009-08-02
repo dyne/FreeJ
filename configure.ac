@@ -282,7 +282,7 @@ PKG_CHECK_MODULES(VORBIS, vorbis, :,
 	AC_MSG_ERROR([*** Vorbis development files not found!]))
 PKG_CHECK_MODULES(VORBISENC, vorbisenc, :,
 	AC_MSG_ERROR([*** Vorbisenc development files not found!]))
-PKG_CHECK_MODULES(THEORA, theora theoraenc theoradec, :,
+PKG_CHECK_MODULES(THEORA, theora, :,
 	AC_MSG_ERROR([*** Theora development files not found!]))
 XIPH_CFLAGS="$OGG_CFLAGS $VORBIS_CFLAGS $VORBISENC_CFLAGS $THEORA_CFLAGS"
 XIPH_LIBS="$OGG_LIBS $VORBIS_LIBS $VORBISENC_LIBS $THEORA_LIBS"

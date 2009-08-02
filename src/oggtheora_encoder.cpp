@@ -53,8 +53,7 @@ OggTheoraEncoder::OggTheoraEncoder()
   audio_buf = NULL;
 
   init_info(&oggmux);
-
-  enc_y = enc_u = enc_v = enc_yuyv = NULL;
+  theora_comment_init(&oggmux.tc);
 
 
   set_name("encoder/theora");
@@ -63,25 +62,13 @@ OggTheoraEncoder::OggTheoraEncoder()
 
 OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   func("OggTheoraEncoder:::~OggTheoraEncoder");
-
+  
   oggmux_flush(&oggmux, 1);
   oggmux_close(&oggmux);
-
+  
   //  if(enc_rgb24) free(enc_rgb24);
 
   if(audio_buf) free(audio_buf);
-
-//   if(enc_y) free(enc_y);
-//   if(enc_u) free(enc_u);
-//   if(enc_v) free(enc_v);
-//   if(enc_yuyv) free(enc_yuyv);
-
-}
-
-inline static int ilog(unsigned _v){
-  int ret;
-  for(ret=0;_v;ret++)_v>>=1;
-  return ret;
 }
 
 
@@ -133,54 +120,38 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
 
 
   /* video settings here */
-  th_info_init (&oggmux.ti);
+  theora_info_init (&oggmux.ti);
 
-  oggmux.ti.pic_width                        = video_x;
-  oggmux.ti.pic_height                       = video_y;
+  oggmux.ti.width                        = video_x;
+  oggmux.ti.height                       = video_y;
   oggmux.ti.frame_width                  = screen->w;
   oggmux.ti.frame_height                 = screen->h;
-  oggmux.ti.pic_x                     = frame_x_offset;
-  oggmux.ti.pic_y                     = frame_y_offset;
+  oggmux.ti.offset_x                     = frame_x_offset;
+  oggmux.ti.offset_y                     = frame_y_offset;
   oggmux.ti.fps_numerator                = 25; // env->fps.fps;
   oggmux.ti.fps_denominator              = 1;
-  oggmux.ti.aspect_numerator             = 1;
-  oggmux.ti.aspect_denominator           = 1;
-  //  oggmux.ti.colorspace                   = OC_CS_ITU_REC_470BG;
-  oggmux.ti.aspect_denominator           = TH_CS_UNSPECIFIED;
+  oggmux.ti.aspect_numerator             = 0;
+  oggmux.ti.aspect_denominator           = 0;
+  oggmux.ti.colorspace                   = OC_CS_ITU_REC_470BG;
   //	oggmux.ti.colorspace                   = OC_CS_UNSPECIFIED;
   // #ifndef HAVE_64BIT
-  oggmux.ti.pixel_fmt                  = TH_PF_420;
+  oggmux.ti.pixelformat                  = OC_PF_420; // was OC_PF_420 with ccvt
   // #endif
   oggmux.ti.target_bitrate               = video_bitrate;
   oggmux.ti.quality                      = theora_quality;
-
-  int keyint = 64; // default keyframe interval
-  oggmux.ti.keyframe_granule_shift = ilog(keyint-1);
-
-  //  oggmux.ti.dropframes_p                 = 0; // was 0
-  //  oggmux.ti.quick_p                      = 1;
-  //  oggmux.ti.keyframe_auto_p              = 1;
-//   oggmux.ti.keyframe_frequency           = 64;
-//   oggmux.ti.keyframe_frequency_force     = 64;
-//   oggmux.ti.keyframe_data_target_bitrate = (unsigned int) (video_bitrate * 1.5);
-//   oggmux.ti.keyframe_auto_threshold      = 80;
-//   oggmux.ti.keyframe_mindistance         = 8;
-//   oggmux.ti.noise_sensitivity            = 1;
-//   oggmux.ti.sharpness                    = 1;
-
-  oggmux.td = th_encode_alloc(&oggmux.ti);
-  if(!oggmux.td) {
-    error("cannot allocate a theora encoder, encoding parameters might be invalid");
-    return false;
-  }
-  // set the keyframe interval
-  //  th_encode_ctl(oggmux.td, TH_ENCCTL_SET_KEYFRAME_FREQUENCY_FORCE, &keyint, sizeof(keyint-1));
-
   
-  if( ! oggmux_init(&oggmux) ) {
-    error("error initialising Ogg/Theora video encoder");
-    return false;
-  }
+  oggmux.ti.dropframes_p                 = 0; // was 0
+  oggmux.ti.quick_p                      = 1;
+  oggmux.ti.keyframe_auto_p              = 1;
+  oggmux.ti.keyframe_frequency           = 64;
+  oggmux.ti.keyframe_frequency_force     = 64;
+  oggmux.ti.keyframe_data_target_bitrate = (unsigned int) (video_bitrate * 1.5);
+  oggmux.ti.keyframe_auto_threshold      = 80;
+  oggmux.ti.keyframe_mindistance         = 8;
+  oggmux.ti.noise_sensitivity            = 1;
+  oggmux.ti.sharpness                    = 1;
+
+  oggmux_init(&oggmux);
   
   enc_y     = malloc( screen->w * screen->h);
   enc_u     = malloc((screen->w * screen->h) /2);
@@ -217,34 +188,31 @@ int OggTheoraEncoder::encode_frame() {
 
 
 int OggTheoraEncoder::encode_video( int end_of_stream) {
-  //  yuv_buffer          yuv;
-  th_ycbcr_buffer ycbcr;
+  yuv_buffer          yuv;
   
   /* take picture and convert it to yuv420 */
-  //  if (!env) warning("OggTheoraEncoder::encode_video called with NULL environment");
+  if (!env) warning("OggTheoraEncoder::encode_video called with NULL environment");
 
   // picture was feeded in the right format by feed_video
   
   /* Theora is a one-frame-in,one-frame-out system; submit a frame
      for compression and pull out the packet */
-  ycbcr[0].width   = video_x;
-  ycbcr[0].height  = video_y;
-  ycbcr[0].stride  = video_x;
-  ycbcr[0].data = (unsigned char*)enc_y;
+  yuv.y_width   = video_x;
+  yuv.y_height  = video_y;
+  //  yuv.y_stride  = picture_yuv->linesize [0];
+  yuv.y_stride = video_x;
+  
+  yuv.uv_width  = video_x >> 1;
+  yuv.uv_height = video_y >> 1;
+  //  yuv.uv_stride = picture_yuv->linesize [1];
+  yuv.uv_stride = video_x >> 1;
 
-  ycbcr[1].width   = video_x /2;
-  ycbcr[1].height  = video_y /2;
-  ycbcr[1].stride  = video_x /2;
-  ycbcr[1].data = (unsigned char*)enc_u;
-
-  ycbcr[2].width   = video_x /2;
-  ycbcr[2].height  = video_y /2;
-  ycbcr[2].stride  = video_x /2;
-  ycbcr[2].data = (unsigned char*)enc_v;
-
+   yuv.y = (uint8_t *) enc_y;
+   yuv.u = (uint8_t *) enc_u;
+   yuv.v = (uint8_t *) enc_v;
   
   /* encode image */
-  oggmux_add_video (&oggmux, ycbcr, end_of_stream);
+  oggmux_add_video (&oggmux, &yuv, end_of_stream);
   return 1;
 }
 
