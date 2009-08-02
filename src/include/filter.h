@@ -19,6 +19,7 @@
 #ifndef __filter_h__
 #define __filter_h__
 
+#include <config.h>
 
 #include <parameter.h>
 

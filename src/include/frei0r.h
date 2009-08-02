@@ -186,8 +186,6 @@
 #define INCLUDED_FREI0R_H
 
 #include <inttypes.h>
-#include <string.h>
-#include <stdlib.h>
 
 /**
  * The frei0r API major version

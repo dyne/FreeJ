@@ -19,14 +19,13 @@
  *
  */
 
+#include <config.h>
 
 #include <dlfcn.h>
 #include <stdlib.h>
 
 #include <cstdlib>
 #include <string>
-
-#include <config.h>
 
 #include <frei0r_freej.h>
 
@@ -134,4 +133,3 @@ void Freior::print_info() {
     }
   }
 }
-

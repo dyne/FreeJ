@@ -230,12 +230,8 @@ class Layer: public Entry, public JSyncThread {
 
  protected:
 
-  ClosureQueue *deferred_calls;
-
   void _init(int wdt, int hgt);
   ///< Layer abstract initialization
-
-  
 
   void set_filename(const char *f);
   char filename[256];
@@ -252,7 +248,9 @@ class Layer: public Entry, public JSyncThread {
 
   char alphastr[5];
 
-  void run(); ///< Main Layer thread loop
+  void thread_setup();
+  void thread_loop();
+  void thread_teardown();
 
   virtual void *feed() = 0; ///< feeds in the image source
 

@@ -506,7 +506,12 @@ void *VideoLayer::feed() {
     ////////////////////////
     // audio packet decoding
     else if(pkt.stream_index == audio_index) {
-      if(use_audio) {
+      // XXX(shammash): audio decoding seems to depend on screen properties, so
+      //                we skip decoding audio frames if there's no screen
+      //  long unsigned int m_SampleRate = screen->m_SampleRate?*(screen->m_SampleRate):48000;
+      //  ringbuffer_write(screen->audio, (const char*)audio_float_buf,  samples*sizeof(float));
+      //  ... and so on ...
+      if(use_audio && screen) {
 	int data_size;
 	len1 = decode_audio_packet(&data_size);
 	if (len1 > 0)  {
@@ -798,7 +803,6 @@ bool VideoLayer::set_mark_out() {
 
 bool VideoLayer::relative_seek(double increment) {
 	int ret=0;
-	lock_feed();
 	double current_time=get_master_clock();
 	//    printf("master_clock(): %f\n",current_time);
 	current_time += increment;
@@ -820,13 +824,11 @@ bool VideoLayer::relative_seek(double increment) {
 	//    printf("VideoLayer::seeking to: %f\n",current_time);
 	ret = seek ((int64_t) current_time * AV_TIME_BASE);
 	if (ret < 0) {
-		unlock_feed ();
 		error ("Can't seek file: %s", get_filename());
 		return false;
 	}
 	else
 		show_osd("seek to %.1f\%",current_time);
-	unlock_feed();
 	return true;
 }
 /**

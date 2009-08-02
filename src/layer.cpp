@@ -40,9 +40,7 @@
 Layer::Layer()
   :Entry(), JSyncThread() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
-  deferred_calls = new ClosureQueue();
   env = NULL;
-  quit = false;
   active = false;
   hidden = false;
   fade = false;
@@ -74,7 +72,6 @@ Layer::Layer()
   max_null_feeds = 10;
 
   parameters = NULL;
-  running = false;
 
   fps.set(25);
 
@@ -82,10 +79,6 @@ Layer::Layer()
 
 Layer::~Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
-
-  quit = true;
-
-  delete deferred_calls;
 
   FilterInstance *f = (FilterInstance*)filters.begin();
   while(f) {
@@ -138,62 +131,43 @@ Context * Layer::context(){
 	return env;
 }
 
-void Layer::run() {
-
-  void *tmp_buf;
-
-  //  func("%s this=%p thread: %p %s",__PRETTY_FUNCTION__, this,
-  //pthread_self(), name);
-  //  lock_feed();
+void Layer::thread_setup() {
   func("ok, layer %s in rolling loop",get_name());
-    
-  running = true;
- 
-  deferred_calls->do_jobs();
  
   while(!feed()) fps.calc();
 
   func(" layer %s entering loop",get_name());
- 
- 
-  while(!quit) {
+}
 
-    // process all registered operations
-    // and signal to the synchronous waiting feed()
-    // includes parameter changes for layer
-    deferred_calls->do_jobs();
-    
+void Layer::thread_loop() {
 
-    //    lock();
-    //    unlock();
+  void *tmp_buf;
 
-    tmp_buf = feed();
+  // process all registered operations
+  // and signal to the synchronous waiting feed()
+  // includes parameter changes for layer
 
-    //    lock();
+  tmp_buf = feed();
 
-    // check if feed returned a NULL buffer
-    if(tmp_buf) {
-      ////////////////////////////////////////
-      // process filters on the feed buffer
-      tmp_buf = do_filters(tmp_buf);
-    }
-
-    // we add  a memcpy at the end  of the layer pipeline  this is not
-    // that  expensive as leaving  the lock  around the  feed(), which
-    // slows down the whole engine in case the layer is slow. -jrml
-
-    lock();
-    jmemcpy(buffer, tmp_buf, geo.size);
-    unlock();
-
-    fps.calc();
-    fps.delay();
-
+  // check if feed returned a NULL buffer
+  if(tmp_buf) {
+    // process filters on the feed buffer
+    tmp_buf = do_filters(tmp_buf);
   }
-    
-  running = false;
+
+  // we add  a memcpy at the end  of the layer pipeline  this is not
+  // that  expensive as leaving  the lock  around the  feed(), which
+  // slows down the whole engine in case the layer is slow. -jrml
+  lock();
+  jmemcpy(buffer, tmp_buf, geo.size);
+  unlock();
+
+  fps.calc();
+  fps.delay();
+}
+
+void Layer::thread_teardown() {
   func("%s this=%p thread end: %p %s",__PRETTY_FUNCTION__, this, pthread_self(), name);
-  pthread_exit(NULL);
 }
 
 char *Layer::get_blit() {

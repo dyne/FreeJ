@@ -34,15 +34,16 @@ class JSyncThread {
   pthread_attr_t _attr;
 
   pthread_mutex_t _mutex;
-  //pthread_cond_t _cond;
   
-  /* mutex and conditional for the feed */
-  pthread_mutex_t _mutex_feed;
-  pthread_cond_t _cond_feed;
-
-  void _run();
+  static void* _run(void *arg);
 
   FPS fps;
+
+  bool _running;
+
+ protected:
+
+  ClosureQueue *deferred_calls;
 
  public:
   
@@ -51,29 +52,15 @@ class JSyncThread {
 
   int start();
   void stop();
-  virtual void run() {};
+  virtual void thread_setup() {};
+  virtual void thread_loop() {};
+  virtual void thread_teardown() {};
 
   void lock() { pthread_mutex_lock(&_mutex); };
   void unlock() { pthread_mutex_unlock(&_mutex); };
 
-  /* MUTEX MUST BE LOCKED AND UNLOCKED WHILE USING WAIT */
-  //void wait() { pthread_cond_wait(&_cond,&_mutex); };
-  //void signal() { pthread_cond_signal(&_cond); };
+  bool is_running() { return _running; };
 
-/*   void wait_feed(); */
-/*   void signal_feed() { pthread_cond_signal(&_cond_feed); }; */
-/*   int sleep_feed(); */
-
-  bool running, quit;
-
- protected:
-
-  static void* kickoff(void *arg) { ((JSyncThread *) arg)->_run(); return NULL; };
-
-  void lock_feed() { pthread_mutex_lock(&_mutex_feed); };
-  void unlock_feed() { pthread_mutex_unlock(&_mutex_feed); };
-  int join() { return pthread_join(_thread,NULL); }
-  
 };
 
 #endif

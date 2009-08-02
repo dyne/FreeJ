@@ -245,7 +245,8 @@ const char *Filter::description() {
   const char *ret;
   if(backend==FREIOR) {
     ret = freior->info.explanation;
-  } else if(backend==FREEFRAME) {
+  }
+  if(backend==FREEFRAME) {
     // TODO freeframe has no extentedinfostruct returned!?
     ret = "freeframe VFX";
   }
@@ -257,7 +258,8 @@ int Filter::get_parameter_type(int i) {
   int ret;
   if(backend==FREIOR) {
     ret =  freior->param_infos[i].type;
-  } else if(backend==FREEFRAME) {
+  }
+  if(backend==FREEFRAME) {
     // TODO freeframe
   }
   return ret;
@@ -268,7 +270,8 @@ char *Filter::get_parameter_description(int i) {
   char *ret;
   if(backend==FREIOR) {
     ret = (char*)freior->param_infos[i].explanation;
-  } else if(backend==FREEFRAME) {
+  }
+  if(backend==FREEFRAME) {
     // TODO freeframe
   }
   return ret;
@@ -283,7 +286,9 @@ void Filter::destruct(FilterInstance *inst) {
       inst->core = NULL;
     }
 
-  } else if(backend==FREEFRAME) {
+  }
+
+  if(backend==FREEFRAME) {
 
     freeframe->main(FF_DEINSTANTIATE, NULL, inst->intcore);
 
@@ -296,7 +301,8 @@ void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32
 
     (*freior->f0r_update)((f0r_instance_t*)inst->core, time, inframe, outframe);
 
-  } else if(backend==FREEFRAME) {
+  }
+  if(backend==FREEFRAME) {
 
     jmemcpy(outframe,inframe,bytesize);
 

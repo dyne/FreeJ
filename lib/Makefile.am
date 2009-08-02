@@ -30,10 +30,6 @@ if BUILD_SDLIMAGE
 SDLIMAGEDIR = sdl_image
 endif
 
-if BUILD_FREI0R
-FREI0RDIR = frei0r
-endif
-
 if BUILD_LIBLO
 LIBLODIR = lo
 endif
@@ -45,7 +41,6 @@ SUBDIRS = ccvt \
 	$(SDLTTFDIR)     \
 	$(SDLGFXDIR)     \
 	$(SHOUTDIR)      \
-	$(FREI0RDIR)     \
 	$(JAVASCRIPTDIR) \
 	$(GOOMDIR)       \
 	$(CWIIDDIR)      \
@@ -59,7 +54,6 @@ DIST_SUBDIRS = ccvt \
 	sdl_ttf          \
 	sdl_gfx          \
 	shout            \
-	frei0r           \
 	goom             \
 	cwiid            \
 	flash

@@ -71,10 +71,10 @@ class VideoEncoder: public Entry, public JSyncThread {
   virtual bool init (ViewPort *scr) = 0;  ///< pure virtual function to implement
   virtual int encode_frame ()       = 0;  ///< pure virtual function to implement
 
+  void thread_setup(); ///< setup data needed in encoding thread
+  void thread_loop(); ///< encoding thread main loop
+  void thread_teardown(); ///< ending phase of encoding thread
 
-  void run(); ///< runs as a separate encoding thread
-  //  bool cafudda(); ///< feeds the video from screen to a yuv420p format ready for the encoding thread
-  
   bool set_filedump(char *filename); ///< start to dump to filename, call with NULL to stop
   char filedump[512]; ////< filename to which encoder is writing dump
 

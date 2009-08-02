@@ -18,6 +18,9 @@
  * "$Id$"
  *
  */
+
+#include <config.h>
+
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,9 +28,6 @@
 #include <dirent.h>
 
 #include <frei0r.h>
-
-#include <config.h>
-
 
 #include <plugger.h>
 #include <context.h>

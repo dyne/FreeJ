@@ -22,11 +22,9 @@
 #ifndef __FREI0R_H__
 #define __FREI0R_H__
 
+#include <config.h>
 
 #include <vector>
-#include <map>
-using namespace std;
-
 
 #include <linklist.h>
 #include <frei0r.h>
@@ -51,7 +49,7 @@ class Freior: public Entry {
   bool opened;
 
   // parameter map
-  vector<f0r_param_info_t> param_infos;
+  std::vector<f0r_param_info_t> param_infos;
   void (*f0r_set_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
   void (*f0r_get_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
 
@@ -78,6 +76,5 @@ class Freior: public Entry {
 		      const uint32_t* inframe3, uint32_t* outframe);
 
 };
-
 
 #endif
