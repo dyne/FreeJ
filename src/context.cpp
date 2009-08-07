@@ -164,7 +164,7 @@ bool Context::add_screen(ViewPort *scr) {
 
 bool Context::init() {
 
-  notice("Initializing the FreeJ engine");
+  notice("initializing context environment");
 
   // a fast benchmark to select the best memcpy to use
   find_best_memcpy ();

@@ -54,7 +54,7 @@ GenF0rLayer::~GenF0rLayer() {
 // TODO
 static void set_freeframe_layer_parameter(Layer *lay, Parameter *param, int idx) { }
 static void get_freeframe_layer_parameter(Layer *lay, Parameter *param, int idx) { }
-
+#ifdef WITH_FREI0R
 static void get_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) { }
 static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
   GenF0rLayer *layer = (GenF0rLayer*)lay;
@@ -97,7 +97,7 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
 	  f->param_infos[idx].type);
   }
 }
-
+#endif
 
 bool GenF0rLayer::open(const char *file) {
   int idx;
@@ -113,7 +113,7 @@ bool GenF0rLayer::open(const char *file) {
 
   generator = new FilterInstance((Filter*)proto);
   
-
+#ifdef WITH_FREI0R
   if(proto->freior) {
     generator->core = (void*)(*proto->freior->f0r_construct)(geo.w, geo.h);
     if(!generator->core) {
@@ -131,7 +131,7 @@ bool GenF0rLayer::open(const char *file) {
       p = (Parameter*)p->next;
     }
   }
-
+#endif
 
   if(proto->freeframe) {
     VideoInfoStruct vidinfo;

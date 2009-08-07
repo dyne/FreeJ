@@ -29,6 +29,7 @@ $Id: $
 
 #include <jutils.h>
 
+#ifdef WITH_FREI0R
 /// frei0r parameter callbacks
 static void get_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx) {
   Freior *f = filt->proto->freior;
@@ -120,6 +121,7 @@ static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx
   }
 
 }
+#endif
 
 Filter::Filter(Type type, void *filt) 
   : Entry() {
@@ -129,7 +131,9 @@ Filter::Filter(Type type, void *filt)
   active = false;
   inuse = false;
 
+#ifdef WITH_FREI0R
   freior = NULL;
+#endif
   freeframe = NULL;
 
   bytesize = 0;
@@ -140,6 +144,7 @@ Filter::Filter(Type type, void *filt)
 
   switch(type) {
 
+#ifdef WITH_FREI0R
   case FREIOR:
     freior = (Freior*)filt;
     (*freior->f0r_init)();
@@ -165,6 +170,7 @@ Filter::Filter(Type type, void *filt)
     set_name((char*)freior->info.name);
     
     break;
+#endif
 
   case FREEFRAME:
     freeframe = (Freeframe*)filt;
@@ -192,7 +198,9 @@ Filter::Filter(Type type, void *filt)
 }
 
 Filter::~Filter() {
+#ifdef WITH_FREI0R
   if(freior) delete freior;
+#endif
   if(freeframe) delete freeframe;
 }
 
@@ -201,9 +209,11 @@ FilterInstance *Filter::apply(Layer *lay) {
   FilterInstance *instance;
   instance = new FilterInstance(this);
 
+#ifdef WITH_FREI0R
   if(freior) {
     instance->core = (void*)(*freior->f0r_construct)(lay->geo.w, lay->geo.h);
   }
+#endif
 
   if(freeframe) {
     VideoInfoStruct vidinfo;
@@ -243,9 +253,11 @@ FilterInstance *Filter::apply(Layer *lay) {
 
 const char *Filter::description() {
   const char *ret;
+#ifdef WITH_FREI0R
   if(backend==FREIOR) {
     ret = freior->info.explanation;
   }
+#endif
   if(backend==FREEFRAME) {
     // TODO freeframe has no extentedinfostruct returned!?
     ret = "freeframe VFX";
@@ -256,9 +268,11 @@ const char *Filter::description() {
 
 int Filter::get_parameter_type(int i) {
   int ret;
+#ifdef WITH_FREI0R
   if(backend==FREIOR) {
     ret =  freior->param_infos[i].type;
   }
+#endif
   if(backend==FREEFRAME) {
     // TODO freeframe
   }
@@ -268,9 +282,11 @@ int Filter::get_parameter_type(int i) {
 
 char *Filter::get_parameter_description(int i) {
   char *ret;
+#ifdef WITH_FREI0R
   if(backend==FREIOR) {
     ret = (char*)freior->param_infos[i].explanation;
   }
+#endif
   if(backend==FREEFRAME) {
     // TODO freeframe
   }
@@ -279,6 +295,7 @@ char *Filter::get_parameter_description(int i) {
 
 void Filter::destruct(FilterInstance *inst) {
 
+#ifdef WITH_FREI0R
   if(backend==FREIOR) {
 
     if(inst->core) {
@@ -287,7 +304,7 @@ void Filter::destruct(FilterInstance *inst) {
     }
 
   }
-
+#endif
   if(backend==FREEFRAME) {
 
     freeframe->main(FF_DEINSTANTIATE, NULL, inst->intcore);
@@ -297,11 +314,13 @@ void Filter::destruct(FilterInstance *inst) {
 
 void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
 
+#ifdef WITH_FREI0R
   if(backend==FREIOR) {
 
     (*freior->f0r_update)((f0r_instance_t*)inst->core, time, inframe, outframe);
 
   }
+#endif
   if(backend==FREEFRAME) {
 
     jmemcpy(outframe,inframe,bytesize);
