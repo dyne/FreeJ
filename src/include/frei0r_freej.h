@@ -23,6 +23,7 @@
 #define __FREI0R_H__
 
 #include <config.h>
+#ifdef WITH_FREI0R
 
 #include <vector>
 
@@ -76,5 +77,7 @@ class Freior: public Entry {
 		      const uint32_t* inframe3, uint32_t* outframe);
 
 };
+
+#endif // WITH_FREI0R
 
 #endif

@@ -746,6 +746,8 @@ dnl ==============================================================
 #if test x$have_frei0r = xyes; then
 #   AC_DEFINE(WITH_FREI0R,1,[Define if using frei0r plugins])
 #fi
+AC_DEFINE(WITH_FREI0R,1,[Define as using frei0r plugins])
+
 
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
