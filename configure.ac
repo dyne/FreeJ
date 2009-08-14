@@ -12,69 +12,69 @@ dnl Get the operating system and version number...
 dnl ==============================================================
 AC_MSG_CHECKING([for which platform we are compiling])
 case "$host_os" in
-     *linux*)
-     AC_MSG_RESULT([Linux])
-     AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
-     DL_LIBS="-ldl"
-     have_linux=yes
+  *linux*)
+    AC_MSG_RESULT([Linux])
+    AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
+    DL_LIBS="-ldl"
+    have_linux=yes
 
-     case "$host_cpu" in
-       powerpc*)
-       AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
-       AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
-       # TODO(godog) what about ppc64?
-       AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
-       AC_DEFINE(HAVE_ALTIVEC,1,[define if cpu supports Altivec instruction set])
-       AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
-       AC_DEFINE(WORDS_BIGENDIAN,1,[define if compiling for Big Endian CPU])
-       AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
-#       AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
-       have_ppc=yes
-       ;;
+    case "$host_cpu" in
+      powerpc*)
+        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
+        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
+        # TODO(godog) what about ppc64?
+        AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
+        AC_DEFINE(HAVE_ALTIVEC,1,[define if cpu supports Altivec instruction set])
+        AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
+        AC_DEFINE(WORDS_BIGENDIAN,1,[define if compiling for Big Endian CPU])
+        AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
+#        AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
+      have_ppc=yes
+      ;;
 
-       x86_64*)
-       AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
-       AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
-       ;;
+      x86_64*)
+        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
+        AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
+      ;;
 
-       i*86*)
-       AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
-       AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
-#       AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
-       ;;
-     esac
-     ;;
+      i*86*)
+        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
+        AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
+#        AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
+      ;;
+    esac
+  ;;
 
-     *darwin*)
-     AC_MSG_RESULT([Darwin/OSX])
-     AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
-     AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
-     have_darwin=yes
+  *darwin*)
+    AC_MSG_RESULT([Darwin/OSX])
+    AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
+    AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
+    have_darwin=yes
 
-     # detect ppc also on darwin, for lubrifications
-     case "$host_cpu" in
-       powerpc*)
-         have_ppc=yes
-       ;;
-     esac
-     ;;
+    # detect ppc also on darwin, for lubrifications
+    case "$host_cpu" in
+      powerpc*)
+        have_ppc=yes
+      ;;
+    esac
+  ;;
 
-     *freebsd*)
-     AC_MSG_RESULT([FreeBSD])
-     AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
-     AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
-     GLOBAL_CFLAGS="$GLOBAL_CFLAGS -I/usr/local/include -L/usr/local/lib"
-     have_freebsd=yes
-     ;;
+  *freebsd*)
+    AC_MSG_RESULT([FreeBSD])
+    AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
+    AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
+    GLOBAL_CFLAGS="$GLOBAL_CFLAGS -I/usr/local/include -L/usr/local/lib"
+    have_freebsd=yes
+  ;;
 
-     *)
-     AC_MSG_RESULT([$host_os?!])
-     AC_MSG_ERROR([[
+  *)
+    AC_MSG_RESULT([$host_os?!])
+    AC_MSG_ERROR([[
 [!] Your system architecture is not supported by FreeJ
 [!] if you are interested in porting FreeJ to your architecture
 [!] you are very welcome to contact me <jaromil@dyne.org>
 ]], 0)
-     ;;
+  ;;
 esac
 
 AC_SUBST(DL_LIBS)
