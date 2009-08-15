@@ -20,7 +20,7 @@
  */
 
 #include <config.h>
-#ifdef WITH_SOUND
+#ifdef WITH_AUDIO
 #include <context.h>
 #include <jutils.h>
 

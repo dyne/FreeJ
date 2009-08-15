@@ -561,8 +561,6 @@ PKG_CHECK_MODULES(FFTW, fftw3, :,
 PKG_CHECK_MODULES(SAMPLERATE, samplerate, :,
 	AC_MSG_ERROR([*** Samplerate development files not found!]))
 
-#TODO(shammash): should we unify now?
-AC_DEFINE(WITH_SOUND,1,[define if compiling sound system])
 AC_DEFINE(WITH_AUDIO,1,[define if compiling audio system])
 
 # goom removed because gives compilation problems

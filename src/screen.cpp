@@ -50,7 +50,7 @@ ViewPort::ViewPort(int w, int h)
 
   audio = NULL;
   m_SampleRate=NULL;
-#ifdef WITH_SOUND 
+#ifdef WITH_AUDIO
   // if compiled with audio initialize the audio data pipe
   audio = ringbuffer_create(1024 * 512);
 #endif
