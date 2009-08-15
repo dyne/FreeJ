@@ -231,7 +231,6 @@ fi
 dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
-
 #-freg-struct-return is to compile an host compatible with freeframe dso
 GLOBAL_CFLAGS="$GLOBAL_CFLAGS -pipe -D_REENTRANT -freg-struct-return -fPIC"
 if test x$have_darwin = xyes; then
@@ -245,32 +244,6 @@ dnl Check for SDL
 dnl ==============================================================
 PKG_CHECK_MODULES(SDL, sdl > 1.2, :,
 	AC_MSG_ERROR([*** SDL development files not found!]))
-
-
-dnl ==============================================================
-dnl Check if there is FREETYPE2
-dnl ==============================================================
-PKG_CHECK_MODULES(FT2, freetype2,
-                  have_freetype2=yes, have_freetype2=no)
-if test x$have_freetype2 = xyes; then
-   AC_DEFINE(WITH_FT2,1,[define if linking freetype for text rendering])
-fi
-
-   
-dnl ==============================================================
-dnl Check if there is FONTCONFIG
-dnl ==============================================================
-PKG_CHECK_MODULES(FC, fontconfig,
-                  have_fontconfig=yes, have_fontconfig=no)
-if test x$have_fontconfig = xyes; then
-   AC_DEFINE(WITH_FC,1,[define if linking fontconfig for font indexing])
-fi
-   
-
-dnl ==============================================================
-dnl Check X11 for xgrab
-dnl ==============================================================
-PKG_CHECK_MODULES(X11, x11, have_x11=yes, have_x11=no)
 
 
 dnl ==============================================================
@@ -330,6 +303,33 @@ FREEJ_RESTORE_FLAGS
 # TODO(shammash): heritage from conditional build, still used somewhere.
 AC_DEFINE(WITH_FFMPEG,1, [define if compiling movie layer linking to ffmpeg libavcodec])
 AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
+
+
+dnl ==============================================================
+dnl Check if there is FREETYPE2
+dnl ==============================================================
+PKG_CHECK_MODULES(FT2, freetype2,
+                  have_freetype2=yes, have_freetype2=no)
+if test x$have_freetype2 = xyes; then
+   AC_DEFINE(WITH_FT2,1,[define if linking freetype for text rendering])
+fi
+
+   
+dnl ==============================================================
+dnl Check if there is FONTCONFIG
+dnl ==============================================================
+PKG_CHECK_MODULES(FC, fontconfig,
+                  have_fontconfig=yes, have_fontconfig=no)
+if test x$have_fontconfig = xyes; then
+   AC_DEFINE(WITH_FC,1,[define if linking fontconfig for font indexing])
+fi
+   
+
+dnl ==============================================================
+dnl Check X11 for xgrab
+dnl ==============================================================
+PKG_CHECK_MODULES(X11, x11, have_x11=yes, have_x11=no)
+
 
 dnl ==============================================================
 dnl ENABLE LIBFLASH
