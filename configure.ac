@@ -534,10 +534,13 @@ AC_ARG_ENABLE(opengl,
     [enable_opengl=no])
 
 if test x$enable_opengl = xyes; then
-    OPENGL_LIBS="-lGL -lGLU"
-    AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
+   # note: checking for GLU only, this brings in also GL
+   PKG_CHECK_MODULES(GLU, glu,
+                     :
+                     GLU_LIBS="-lGLU -lGL"; GLU_CFLAGS="")
+
+   AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
 fi
-AC_SUBST(OPENGL_LIBS)
 
 
 dnl ==============================================================
@@ -797,6 +800,7 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(XIPH_CFLAGS)    \
     \$(UNICAP_CFLAGS)  \
     \$(OPENCV_CFLAGS)  \
+    \$(GLU_CFLAGS)     \
     \$(FFMPEG_CFLAGS)  \
     \$(MOZJS_CFLAGS)   \
     \$(SHOUT_CFLAGS)   \
@@ -818,7 +822,7 @@ FREEJ_LIBS="-lpthread -lm -lslang -lrt \
     \$(X11_LIBS)     \
     \$(XIPH_LIBS)    \
     \$(MOZJS_LIBS)   \
-    \$(OPENGL_LIBS)   \
+    \$(GLU_LIBS)     \
     \$(SDL_LIBS)     \
     \$(FT2_LIBS)     \
     \$(FC_LIBS)      \
@@ -897,7 +901,8 @@ fi
 
 if test x$enable_opengl = xyes; then
 echo "= OpenGL"
-echo "  LIBS  : $OPENGL_LIBS"
+echo "  GLU LIBS   : $GLU_LIBS"
+echo "  GLU CFLAGS : $GLU_CFLAGS"
 else
 echo "= OpenGL disabled"
 fi
