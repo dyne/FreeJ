@@ -11,6 +11,18 @@ dnl ==============================================================
 dnl Get the operating system and version number...
 dnl ==============================================================
 AC_MSG_CHECKING([for which platform we are compiling])
+case "$host_cpu" in
+  powerpc*)
+    have_ppc=yes
+  ;;
+  x86_64*)
+    have_x86_64=yes
+  ;;
+  i*86*)
+    have_x86_32=yes
+  ;;
+esac
+
 case "$host_os" in
   *linux*)
     AC_MSG_RESULT([Linux])
@@ -18,8 +30,7 @@ case "$host_os" in
     DL_LIBS="-ldl"
     have_linux=yes
 
-    case "$host_cpu" in
-      powerpc*)
+    if test x$have_ppc = xyes; then
         AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
         AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
         # TODO(godog) what about ppc64?
@@ -29,20 +40,18 @@ case "$host_os" in
         AC_DEFINE(WORDS_BIGENDIAN,1,[define if compiling for Big Endian CPU])
         AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
 #        AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
-      have_ppc=yes
-      ;;
+    fi
 
-      x86_64*)
+    if test x$have_x86_64 = xyes; then
         AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
         AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
-      ;;
+    fi
 
-      i*86*)
+    if test x$have_x86_32 = xyes; then
         AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
         AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
 #        AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
-      ;;
-    esac
+    fi
   ;;
 
   *darwin*)
@@ -50,13 +59,6 @@ case "$host_os" in
     AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
     AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
     have_darwin=yes
-
-    # detect ppc also on darwin, for lubrifications
-    case "$host_cpu" in
-      powerpc*)
-        have_ppc=yes
-      ;;
-    esac
   ;;
 
   *freebsd*)
@@ -501,7 +503,7 @@ if test x$enable_lubrifications = xyes; then
     # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
     elif test x$have_ppc = xyes; then
       GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
-    elif test x$host_cpu = xx86_64; then
+    elif test x$have_x86_64 = xyes; then
       # should complete this with all 64bit CPUs (AMD too)
       if test x$have_ssse3 = xyes; then
         # multiple core cpu
@@ -573,7 +575,7 @@ if test 1 = 0; then
   AC_DEFINE(WITH_GOOM,1,[define if goom is enabled])
   GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
   GOOM_CFLAGS="-I\$(top_srcdir)/lib/goom"
-  if test x$host_cpu = xpowerpc; then
+  if test x$have_ppc = xyes; then
     GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
   fi
 else
