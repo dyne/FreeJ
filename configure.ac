@@ -390,8 +390,6 @@ if test x$have_liblo = xno; then
    LIBLO_LIBS="\$(top_builddir)/lib/lo/liblo.la"
    LIBLO_CFLAGS="-I\$(top_srcdir)/lib -I\$(top_srcdir)/lib/lo"
 fi
-AC_SUBST(LIBLO_LIBS)
-AC_SUBST(LIBLO_CFLAGS)
 
 AM_CONDITIONAL([BUILD_LIBLO], [test x$have_liblo = xno])
 
@@ -685,8 +683,6 @@ if test x$have_sdlgfx = xno; then
    SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
 fi
-AC_SUBST(SDLGFX_CFLAGS)
-AC_SUBST(SDLGFX_LIBS)
 
 AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
 
@@ -850,11 +846,9 @@ dnl ###### now about compile time paths
 if test "x${prefix}" = "xNONE"; then
    prefix=${ac_default_prefix}
 fi
-AC_DEFINE_UNQUOTED(PACKAGE_PREFIX, "${prefix}", Prefix)
-AC_DEFINE_UNQUOTED(PACKAGE_LIB_DIR, "${prefix}/lib/freej", libs)
-AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${prefix}/share/freej", data)
-AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/share/locale", locale)
-PACKAGE_DATA_DIR="${prefix}/share/freej"
+PACKAGE_LIB_DIR='${prefix}/lib/freej'
+AC_SUBST(PACKAGE_LIB_DIR)
+PACKAGE_DATA_DIR='${prefix}/share/freej'
 AC_SUBST(PACKAGE_DATA_DIR)
 
 
