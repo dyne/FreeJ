@@ -28,6 +28,7 @@
 #import <Foundation/NSArray.h>
 #import "CFreej.h"
 #import "FrameRate.h"
+#import "QTExporter.h"
 
 @class CFreej;
 class  CVScreen;
@@ -55,6 +56,7 @@ class  CVScreen;
     CGContextRef        exportCGContextRef;
     CIContext           *exportContext;
     void                *exportBuffer;
+    QTExporter          *exporter;
 	IBOutlet CFreej		*freej;
 	IBOutlet NSTextField *showFps;
     IBOutlet NSTableView *layerList;
@@ -66,13 +68,17 @@ class  CVScreen;
 - (void *)getSurface;
 - (void)drawLayer:(Layer *)layer;
 - (void)setSizeWidth:(int)w Height:(int)h;
-- (IBAction)toggleFullScreen:(id)sender;
 - (bool)isOpaque;
 - (double)rate;
 - (CVReturn)outputFrame:(uint64_t)timestamp;
 - (void)reset;
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
+- (IBAction)toggleFullScreen:(id)sender;
+- (IBAction)toggleExport:(id)sender;
+- (IBAction)startExport:(id)sender;
+- (IBAction)stopExport:(id)sender;
+- (IBAction)setExportFile:(id)sender;
 @end
 #else
 class CVScreenView;

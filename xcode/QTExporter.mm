@@ -10,7 +10,6 @@
 
 @implementation QTExporter
 
-
 //
 // quicktimeMovieFromTempFile
 //
@@ -18,6 +17,13 @@
 //
 //
 
+- (id)init
+{
+    mDataHandlerRef = nil;
+    mMovie = nil;
+    outputFile = nil;
+    return [super init];
+}
 - (Movie)quicktimeMovieFromTempFile:(DataHandler *)outDataHandler error:(OSErr *)outErr
 {
 	*outErr = -1;
@@ -25,7 +31,8 @@
 	// generate a name for our movie file
 	NSString *tempName = [NSString stringWithCString:tmpnam(nil) 
                                             encoding:[NSString defaultCStringEncoding]];
-	if (nil == tempName) goto nostring;
+	if (!tempName) 
+        return nil;
 	
 	Handle	dataRefH		= nil;
 	OSType	dataRefType;
@@ -36,7 +43,8 @@
                                                      0,
                                                      &dataRefH,
                                                      &dataRefType);
-	if (*outErr != noErr) goto nodataref;
+	if (*outErr != noErr) 
+        return nil;
 	
 	// create a QuickTime movie from our file data reference
 	Movie	qtMovie	= nil;
@@ -55,27 +63,82 @@
     // error handling
 cantcreatemovstorage:
 	DisposeHandle(dataRefH);
-nodataref:
-nostring:
     
 	return nil;
 }
 
-- (void)addImage:(NSImage *)image
+- (BOOL)pathExists:(NSString *)aFilePath
 {
+	NSFileManager *defaultMgr = [NSFileManager defaultManager]; 
+	
+	return [defaultMgr fileExistsAtPath:aFilePath];
+}
+
+//
+// writeSafelyToURL
+//
+// Write the document to a movie file
+//
+//
+- (BOOL)writeSafelyToURL:(NSURL *)absoluteURL 
+{
+    BOOL success = NO;
+
+    if ([self pathExists:[absoluteURL path]] == YES)
+    {
+        // movie file already exists, so we'll just update
+        // the movie resource
+        success = [mMovie updateMovieFile];
+    }
+    else
+    {
+        NSMutableDictionary *savedMovieAttributes = [NSDictionary 
+                                                     dictionaryWithObjects:[NSArray arrayWithObjects:
+                                                        [NSNumber numberWithBool:YES],
+                                                        [NSNumber numberWithBool:YES],
+                                                        [NSNumber numberWithLong:'mpg4'],
+                                                        nil]
+                                                      forKeys:[NSArray arrayWithObjects:
+                                                        QTMovieFlatten, QTMovieExport, QTMovieExportType, nil]];
+       
+        success = [mMovie writeToFile:outputFile withAttributes:savedMovieAttributes];
+        // movie file does not exist, so we'll flatten our in-memory 
+        // movie to the file
+        
+        // now we can release our old in-memory movie
+        [mMovie release];
+        mMovie = nil;
+        // ...and re-acquire our movie from the new movie file
+        mMovie = [QTMovie movieWithFile:[absoluteURL path] error:nil];
+        [mMovie retain];
+        
+        // set the new movie to the view
+        //[[mWinController movieView] setMovie:mMovie];
+    }
+    
+    return success;
+}
+
+- (void)addImage:(CIImage *)image
+{
+    
+    NSImage *nsImage = [[NSImage alloc] initWithSize:NSMakeSize([image extent].size.width, [image extent].size.height)];
+    [nsImage addRepresentation:[NSCIImageRep imageRepWithCIImage:image]];
     // create a QTTime value to be used as a duration when adding 
     // the image to the movie
-	long long timeValue = 30;
+	long long timeValue = 25;
 	long timeScale      = 600;
 	QTTime duration     = QTMakeTime(timeValue, timeScale);
     
     // Adds an image for the specified duration to the QTMovie
-    [mMovie addImage:image 
+    [mMovie addImage:nsImage 
         forDuration:duration
      withAttributes:encodingProperties];
     
     // free up our image object
-    [image release];
+    [nsImage release];
+    
+    [self writeSafelyToURL:[NSURL fileURLWithPath:outputFile]];
     
 }
 
@@ -121,7 +184,7 @@ bail:
 //
 //
 
--(id)init
+- (BOOL)startExport
 {
     
     /*  
@@ -159,13 +222,8 @@ bail:
     // Check first if the new QuickTime 7.2.1 initToWritableFile: method is available
     if ([[[[QTMovie alloc] init] autorelease] respondsToSelector:@selector(initToWritableFile:error:)] == YES)
     {
-        // generate a name for our movie file
-        NSString *tempName = [NSString stringWithCString:tmpnam(nil) 
-                                                encoding:[NSString defaultCStringEncoding]];
-        if (nil == tempName) goto bail;
-        
         // Create a QTMovie with a writable data reference
-        mMovie = [[QTMovie alloc] initToWritableFile:tempName error:NULL];
+        mMovie = [[QTMovie alloc] initToWritableFile:outputFile error:NULL];
     }
     else    
     {    
@@ -189,22 +247,48 @@ bail:
 	
 	// keep it around until we are done with it...
 	[mMovie retain];
-    
+    [mMovie setIdling:NO];
     
     
 	// when adding images we must provide a dictionary
 	// specifying the codec attributes
-	encodingProperties = [NSDictionary dictionaryWithObjectsAndKeys:@"mp4v",
+	encodingProperties = [[NSDictionary dictionaryWithObjectsAndKeys:@"mp4v",
               QTAddImageCodecType,
               [NSNumber numberWithLong:codecHighQuality],
               QTAddImageCodecQuality,
-              nil];
+              nil] retain];
 	if (!encodingProperties)
 		goto bail;
     
+    //if (!outputFile)
+      //  outputFile = [[NSString stringWithCString:DEFAULT_OUTPUT_FILE  encoding:NSUTF8StringEncoding] retain];
+    
 bail:
     
-	return [super init];
+	return YES;
+}
+
+- (BOOL)setOutputFile:(NSString *)path
+{
+    if (outputFile)
+        [outputFile release];
+    outputFile = [path retain];
+    return YES;
+}
+
+- (void)stopExport
+{
+    if ([self isRunning]) {
+        [outputFile release];
+        [mMovie release];
+        CFRelease(mDataHandlerRef);
+        [encodingProperties release];
+    }
+}
+
+- (BOOL)isRunning
+{
+    return mMovie?YES:NO;
 }
 
 @end

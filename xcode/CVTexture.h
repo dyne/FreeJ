@@ -14,12 +14,10 @@
 @interface CVTexture : NSObject {
     CVPixelBufferRef    _pixelBuffer;
     CIImage             *_image;
-    NSImage             *_nsImage;
 }
 + (id)alloc;
 + (id)textureWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (id)initWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (CIImage *)image;
-- (NSImage *) nsImage;
 - (void)dealloc;
 @end

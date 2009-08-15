@@ -27,8 +27,6 @@
 {
     _pixelBuffer = CVPixelBufferRetain(pixelBuffer);
     _image = [image retain];
-    _nsImage = [[NSImage alloc] initWithSize:NSMakeSize([_image extent].size.width, [_image extent].size.height)];
-    [_nsImage addRepresentation:[NSCIImageRep imageRepWithCIImage:_image]];
     return self; 
 }
 
@@ -36,7 +34,6 @@
 {
    if (_pixelBuffer) {
         //NSLog(@"%d", [_image retainCount]);
-        [_nsImage release];
         [_image release];
         CVPixelBufferRelease(_pixelBuffer);
     }
@@ -46,11 +43,6 @@
 - (CIImage *)image
 {
     return _image;
-}
-
-- (NSImage *) nsImage;
-{
-    return _nsImage;
 }
 
 @end
