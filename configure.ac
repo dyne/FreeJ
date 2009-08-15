@@ -792,21 +792,21 @@ FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
 AC_SUBST(FREEJ_STATIC_CFLAGS)
 
 FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
-    \$(SDL_CFLAGS)     \
-    \$(FT2_CFLAGS)     \
-    \$(FC_CFLAGS)      \
-    \$(XIPH_CFLAGS)    \
-    \$(UNICAP_CFLAGS)  \
-    \$(OPENCV_CFLAGS)  \
-    \$(GLU_CFLAGS)     \
-    \$(FFMPEG_CFLAGS)  \
-    \$(MOZJS_CFLAGS)   \
-    \$(SHOUT_CFLAGS)   \
-    \$(SDLGFX_CFLAGS)  \
-    \$(SDLTTF_CFLAGS)  \
-    \$(SDLIMAGE_CFLAGS)\
-    \$(CWIID_CFLAGS)   \
-    \$(LIBLO_CFLAGS)"
+    \$(CWIID_CFLAGS)    \
+    \$(FC_CFLAGS)       \
+    \$(FFMPEG_CFLAGS)   \
+    \$(FT2_CFLAGS)      \
+    \$(GLU_CFLAGS)      \
+    \$(LIBLO_CFLAGS)    \
+    \$(MOZJS_CFLAGS)    \
+    \$(OPENCV_CFLAGS)   \
+    \$(SDL_CFLAGS)      \
+    \$(SDLGFX_CFLAGS)   \
+    \$(SDLIMAGE_CFLAGS) \
+    \$(SDLTTF_CFLAGS)   \
+    \$(SHOUT_CFLAGS)    \
+    \$(UNICAP_CFLAGS)   \
+    \$(XIPH_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
@@ -816,29 +816,29 @@ FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
 AC_SUBST(FREEJ_STATIC_LIBS)
 
 FREEJ_LIBS="-lpthread -lm -lslang -lrt \
-    \$(DL_LIBS)      \
-    \$(X11_LIBS)     \
-    \$(XIPH_LIBS)    \
-    \$(MOZJS_LIBS)   \
-    \$(GLU_LIBS)     \
-    \$(SDL_LIBS)     \
-    \$(FT2_LIBS)     \
-    \$(FC_LIBS)      \
-    \$(ALSA_LIBS)    \
-    \$(JACK_LIBS)    \
-    \$(FFTW_LIBS)    \
+    \$(ALSA_LIBS)       \
+    \$(BLUEZ_LIBS)      \
+    \$(CWIID_LIBS)      \
+    \$(DL_LIBS)         \
+    \$(FC_LIBS)         \
+    \$(FFMPEG_LIBS)     \
+    \$(FFTW_LIBS)       \
+    \$(FT2_LIBS)        \
+    \$(GLU_LIBS)        \
+    \$(JACK_LIBS)       \
+    \$(LIBLO_LIBS)      \
+    \$(MOZJS_LIBS)      \
+    \$(OPENCV_LIBS)     \
     \$(SAMPLERATE_LIBS) \
-    \$(FFMPEG_LIBS)  \
-    \$(X11_LIBS)     \
-    \$(BLUEZ_LIBS)   \
-    \$(UNICAP_LIBS)  \
-    \$(OPENCV_LIBS)  \
-    \$(SHOUT_LIBS)   \
-    \$(SDLGFX_LIBS)  \
-    \$(SDLTTF_LIBS)  \
-    \$(SDLIMAGE_LIBS)\
-    \$(CWIID_LIBS)   \
-    \$(LIBLO_LIBS)"
+    \$(SDLGFX_LIBS)     \
+    \$(SDLIMAGE_LIBS)   \
+    \$(SDL_LIBS)        \
+    \$(SDLTTF_LIBS)     \
+    \$(SHOUT_LIBS)      \
+    \$(UNICAP_LIBS)     \
+    \$(X11_LIBS)        \
+    \$(X11_LIBS)        \
+    \$(XIPH_LIBS)"
 AC_SUBST(FREEJ_LIBS)
 
 dnl ###########################################################################
