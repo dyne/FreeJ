@@ -216,6 +216,11 @@ if test x$have_darwin = xyes; then
   GLOBAL_CFLAGS="$GLOBAL_CFLAGS -I/sw/include"
 fi
 
+dnl ==============================================================
+dnl Check for slang
+dnl ==============================================================
+PKG_CHECK_MODULES(SLANG, slang, :,
+	AC_MSG_ERROR([*** SLANG development files not found!]))
 
 dnl ==============================================================
 dnl Check for SDL
@@ -794,6 +799,7 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(SDLIMAGE_CFLAGS) \
     \$(SDLTTF_CFLAGS)   \
     \$(SHOUT_CFLAGS)    \
+    \$(SLANG_CFLAGS)    \
     \$(UNICAP_CFLAGS)   \
     \$(XIPH_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
@@ -804,7 +810,7 @@ FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(GOOM_LIBS)"
 AC_SUBST(FREEJ_STATIC_LIBS)
 
-FREEJ_LIBS="-lpthread -lm -lslang -lrt $DL_LIBS \
+FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(ALSA_LIBS)       \
     \$(BLUEZ_LIBS)      \
     \$(CWIID_LIBS)      \
@@ -823,6 +829,7 @@ FREEJ_LIBS="-lpthread -lm -lslang -lrt $DL_LIBS \
     \$(SDL_LIBS)        \
     \$(SDLTTF_LIBS)     \
     \$(SHOUT_LIBS)      \
+    \$(SLANG_LIBS)      \
     \$(UNICAP_LIBS)     \
     \$(X11_LIBS)        \
     \$(X11_LIBS)        \
