@@ -218,8 +218,11 @@ fi
 dnl ==============================================================
 dnl Check for slang
 dnl ==============================================================
-PKG_CHECK_MODULES(SLANG, slang, :,
+AC_CHECK_LIB(slang, SLang_getkey, :,
 	AC_MSG_ERROR([*** SLANG development files not found!]))
+# apparently pkg-config is not in slang distribution (yet)
+#PKG_CHECK_MODULES(SLANG, slang, :,
+#	AC_MSG_ERROR([*** SLANG development files not found!]))
 
 dnl ==============================================================
 dnl Check for SDL
