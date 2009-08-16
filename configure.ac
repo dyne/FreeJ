@@ -105,9 +105,6 @@ AM_PROG_AS
 # compatibility with older libtool
 m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
 
-# from lib/goom
-AM_PROG_LEX
-AC_PROG_YACC
 
 # Checks for header files.
 AC_PATH_X
@@ -115,12 +112,6 @@ AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h memory.h stdint.h stdlib.h \
 	string.h strings.h sys/file.h sys/ioctl.h sys/time.h termios.h \
 	unistd.h])
 
-# from lib/cwiid
-AC_CHECK_HEADERS([sys/socket.h])
-# from lib/goom
-AC_CHECK_HEADERS([stddef.h libintl.h malloc.h])
-# from lib/lo
-AC_CHECK_HEADERS([netdb.h netinet/in.h arpa/inet.h float.h])
 # from lib/javascript
 #AC_CHECK_HEADERS([sgtty.h termio.h locale.h sys/timeb.h])
 
@@ -137,8 +128,6 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
 
-# from lib/cwiid
-AC_TYPE_SSIZE_T
 # from lib/javascript
 #AC_CHECK_TYPES([ptrdiff_t])
 #AC_STRUCT_TIMEZONE
@@ -152,22 +141,6 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([bzero floor gettimeofday memmove memset munmap rint select \
 		setenv strcasecmp strdup strerror strncasecmp strrchr strstr])
 
-# bindings/perl
-AC_CHECK_FUNCS([strtoul])
-AC_FUNC_STRTOD
-# lib/goom
-AC_FUNC_ALLOCA
-AC_CHECK_FUNCS([strtol])
-# lib/cwiid
-AC_CHECK_FUNCS([socket clock_gettime])
-# lib/flash
-AC_CHECK_FUNCS([sqrt])
-# lib/lo
-AC_CHECK_FUNCS([strchr gethostname gethostbyname strpbrk atexit])
-# lib/sdl_gfx
-AC_CHECK_FUNCS([pow])
-# lib/shout/net
-AC_CHECK_FUNCS([gethostbyaddr inet_ntoa])
 # lib/javascript
 #AC_FUNC_MKTIME
 #AC_CHECK_FUNCS([putenv getcwd localeconv ftime localtime_r])
@@ -210,6 +183,11 @@ else
     ENABLE_SWIG_RUBY
     ENABLE_SWIG_JAVA
     ENABLE_SWIG_PERL
+
+    if test x$enable_perl = xyes; then
+      AC_CHECK_FUNCS([strtoul])
+      AC_FUNC_STRTOD
+    fi
 fi
 
 AM_CONDITIONAL([BUILD_SWIG_PYTHON], [test x$enable_python = xyes])
@@ -340,10 +318,11 @@ AC_ARG_ENABLE(flash,
     [have_flash=yes])
 AC_MSG_CHECKING([flash - v3 animation only - layer])
 if test x$have_flash = xyes; then
+    AC_MSG_RESULT(yes)
+    AC_CHECK_FUNCS([sqrt])
     AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
     FLASH_LIBS="\$(top_builddir)/lib/flash/libflash.la"
     FLASH_CFLAGS="-I\$(top_srcdir)/lib/flash"
-    AC_MSG_RESULT(yes)
 else
     AC_MSG_RESULT(no)
 fi
@@ -365,6 +344,10 @@ if test x$have_cwiid = xno; then
    PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
    if test x$have_bluez = xyes; then
       build_cwiid=yes
+      AC_CHECK_HEADERS([sys/socket.h])
+      AC_TYPE_SSIZE_T
+      AC_CHECK_FUNCS([socket clock_gettime])
+
       CWIID_CFLAGS="-I\$(top_srcdir)/lib/cwiid"
       CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
    fi
@@ -380,6 +363,9 @@ dnl LIBLO
 dnl ==============================================================
 PKG_CHECK_MODULES(LIBLO, liblo, have_liblo=yes, have_liblo=no)
 if test x$have_liblo = xno; then
+   AC_CHECK_HEADERS([netdb.h netinet/in.h arpa/inet.h float.h])
+   AC_CHECK_FUNCS([strchr gethostname gethostbyname strpbrk atexit])
+
    LIBLO_LIBS="\$(top_builddir)/lib/lo/liblo.la"
    LIBLO_CFLAGS="-I\$(top_srcdir)/lib -I\$(top_srcdir)/lib/lo"
 fi
@@ -563,6 +549,12 @@ AC_DEFINE(WITH_AUDIO,1,[define if compiling audio system])
 # replicated on Niels ubuntu 7.10
 if test 1 = 0; then
   enable_goom=yes
+   AM_PROG_LEX
+   AC_PROG_YACC
+   AC_CHECK_HEADERS([stddef.h libintl.h malloc.h])
+   AC_FUNC_ALLOCA
+   AC_CHECK_FUNCS([strtol])
+
   AC_DEFINE(WITH_GOOM,1,[define if goom is enabled])
   GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
   GOOM_CFLAGS="-I\$(top_srcdir)/lib/goom"
@@ -660,6 +652,8 @@ dnl shout lib
 dnl ==============================================================
 PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
 if test x$have_shout = xno; then
+   AC_CHECK_FUNCS([gethostbyaddr inet_ntoa])
+
    SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
    SHOUT_CFLAGS="-I\$(top_srcdir)/lib/shout"
 fi
@@ -673,6 +667,8 @@ dnl ==============================================================
 PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
 if test x$have_sdlgfx = xno; then
    AC_MSG_NOTICE([Using freej version of SDLGFX])
+
+   AC_CHECK_FUNCS([pow])
    SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
 fi
