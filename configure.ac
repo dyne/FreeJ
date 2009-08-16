@@ -1073,4 +1073,4 @@ echo "= INSTALL PREFIX : $prefix"
 echo "============================== now type make, may the source be with you!"
 echo
 
-# vim:et:ts=3
+# vim:et:ts=3:sw=3
