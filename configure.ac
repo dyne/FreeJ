@@ -79,8 +79,6 @@ case "$host_os" in
   ;;
 esac
 
-AC_SUBST(DL_LIBS)
-
 
 dnl ==============================================================
 dnl Setup for automake
@@ -810,11 +808,10 @@ FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(GOOM_LIBS)"
 AC_SUBST(FREEJ_STATIC_LIBS)
 
-FREEJ_LIBS="-lpthread -lm -lslang -lrt \
+FREEJ_LIBS="-lpthread -lm -lslang -lrt $DL_LIBS \
     \$(ALSA_LIBS)       \
     \$(BLUEZ_LIBS)      \
     \$(CWIID_LIBS)      \
-    \$(DL_LIBS)         \
     \$(FC_LIBS)         \
     \$(FFMPEG_LIBS)     \
     \$(FFTW_LIBS)       \
