@@ -11,73 +11,72 @@ dnl ==============================================================
 dnl Get the operating system and version number...
 dnl ==============================================================
 AC_MSG_CHECKING([for which platform we are compiling])
+case "$host_cpu" in
+  powerpc*)
+    have_ppc=yes
+  ;;
+  x86_64*)
+    have_x86_64=yes
+  ;;
+  i*86*)
+    have_x86_32=yes
+  ;;
+esac
+
 case "$host_os" in
-     *linux*)
-     AC_MSG_RESULT([Linux])
-     AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
-     DL_LIBS="-ldl"
-     have_linux=yes
+  *linux*)
+    AC_MSG_RESULT([Linux])
+    AC_DEFINE(HAVE_LINUX,1,[define if compiling for Linux])
+    DL_LIBS="-ldl"
+    have_linux=yes
 
-     case "$host_cpu" in
-       powerpc*)
-       AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
-       AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
-       # TODO(godog) what about ppc64?
-       AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
-       AC_DEFINE(HAVE_ALTIVEC,1,[define if cpu supports Altivec instruction set])
-       AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
-       AC_DEFINE(WORDS_BIGENDIAN,1,[define if compiling for Big Endian CPU])
-       AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
-#       AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
-       have_ppc=yes
-       ;;
+    if test x$have_ppc = xyes; then
+        AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
+        AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
+        # TODO(godog) what about ppc64?
+        AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
+        AC_DEFINE(HAVE_ALTIVEC,1,[define if cpu supports Altivec instruction set])
+        AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
+        AC_DEFINE(WORDS_BIGENDIAN,1,[define if compiling for Big Endian CPU])
+        AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
+#        AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
+    fi
 
-       x86_64*)
-       AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
-       AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
-       ;;
+    if test x$have_x86_64 = xyes; then
+        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
+        AC_DEFINE(HAVE_64BIT,1,[define if host has 64 bit])
+    fi
 
-       i*86*)
-       AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
-       AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
-#       AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
-       ;;
-     esac
-     ;;
+    if test x$have_x86_32 = xyes; then
+        AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
+        AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
+#        AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
+    fi
+  ;;
 
-     *darwin*)
-     AC_MSG_RESULT([Darwin/OSX])
-     AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
-     AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
-     have_darwin=yes
+  *darwin*)
+    AC_MSG_RESULT([Darwin/OSX])
+    AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
+    have_darwin=yes
+  ;;
 
-     # detect ppc also on darwin, for lubrifications
-     case "$host_cpu" in
-       powerpc*)
-         have_ppc=yes
-       ;;
-     esac
-     ;;
+  *freebsd*)
+    AC_MSG_RESULT([FreeBSD])
+    AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
+    AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
+    GLOBAL_CFLAGS="$GLOBAL_CFLAGS -I/usr/local/include -L/usr/local/lib"
+    have_freebsd=yes
+  ;;
 
-     *freebsd*)
-     AC_MSG_RESULT([FreeBSD])
-     AC_DEFINE(HAVE_FREEBSD,1,[define if compiling for FreeBSD])
-     AC_DEFINE(HAVE_SYS_SOCKET_H,1,[define if compiling for FreeBSD])
-     GLOBAL_CFLAGS="$GLOBAL_CFLAGS -I/usr/local/include -L/usr/local/lib"
-     have_freebsd=yes
-     ;;
-
-     *)
-     AC_MSG_RESULT([$host_os?!])
-     AC_MSG_ERROR([[
+  *)
+    AC_MSG_RESULT([$host_os?!])
+    AC_MSG_ERROR([[
 [!] Your system architecture is not supported by FreeJ
 [!] if you are interested in porting FreeJ to your architecture
 [!] you are very welcome to contact me <jaromil@dyne.org>
 ]], 0)
-     ;;
+  ;;
 esac
-
-AC_SUBST(DL_LIBS)
 
 
 dnl ==============================================================
@@ -105,9 +104,6 @@ AM_PROG_AS
 # compatibility with older libtool
 m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
 
-# from lib/goom
-AM_PROG_LEX
-AC_PROG_YACC
 
 # Checks for header files.
 AC_PATH_X
@@ -115,12 +111,6 @@ AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h memory.h stdint.h stdlib.h \
 	string.h strings.h sys/file.h sys/ioctl.h sys/time.h termios.h \
 	unistd.h])
 
-# from lib/cwiid
-AC_CHECK_HEADERS([sys/socket.h])
-# from lib/goom
-AC_CHECK_HEADERS([stddef.h libintl.h malloc.h])
-# from lib/lo
-AC_CHECK_HEADERS([netdb.h netinet/in.h arpa/inet.h float.h])
 # from lib/javascript
 #AC_CHECK_HEADERS([sgtty.h termio.h locale.h sys/timeb.h])
 
@@ -137,8 +127,6 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
 
-# from lib/cwiid
-AC_TYPE_SSIZE_T
 # from lib/javascript
 #AC_CHECK_TYPES([ptrdiff_t])
 #AC_STRUCT_TIMEZONE
@@ -152,22 +140,6 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([bzero floor gettimeofday memmove memset munmap rint select \
 		setenv strcasecmp strdup strerror strncasecmp strrchr strstr])
 
-# bindings/perl
-AC_CHECK_FUNCS([strtoul])
-AC_FUNC_STRTOD
-# lib/goom
-AC_FUNC_ALLOCA
-AC_CHECK_FUNCS([strtol])
-# lib/cwiid
-AC_CHECK_FUNCS([socket clock_gettime])
-# lib/flash
-AC_CHECK_FUNCS([sqrt])
-# lib/lo
-AC_CHECK_FUNCS([strchr gethostname gethostbyname strpbrk atexit])
-# lib/sdl_gfx
-AC_CHECK_FUNCS([pow])
-# lib/shout/net
-AC_CHECK_FUNCS([gethostbyaddr inet_ntoa])
 # lib/javascript
 #AC_FUNC_MKTIME
 #AC_CHECK_FUNCS([putenv getcwd localeconv ftime localtime_r])
@@ -210,6 +182,11 @@ else
     ENABLE_SWIG_RUBY
     ENABLE_SWIG_JAVA
     ENABLE_SWIG_PERL
+
+    if test x$enable_perl = xyes; then
+      AC_CHECK_FUNCS([strtoul])
+      AC_FUNC_STRTOD
+    fi
 fi
 
 AM_CONDITIONAL([BUILD_SWIG_PYTHON], [test x$enable_python = xyes])
@@ -231,7 +208,6 @@ fi
 dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
-
 #-freg-struct-return is to compile an host compatible with freeframe dso
 GLOBAL_CFLAGS="$GLOBAL_CFLAGS -pipe -D_REENTRANT -freg-struct-return -fPIC"
 if test x$have_darwin = xyes; then
@@ -239,38 +215,20 @@ if test x$have_darwin = xyes; then
   GLOBAL_CFLAGS="$GLOBAL_CFLAGS -I/sw/include"
 fi
 
+dnl ==============================================================
+dnl Check for slang
+dnl ==============================================================
+AC_CHECK_LIB(slang, SLang_getkey, :,
+	AC_MSG_ERROR([*** SLANG development files not found!]))
+# apparently pkg-config is not in slang distribution (yet)
+#PKG_CHECK_MODULES(SLANG, slang, :,
+#	AC_MSG_ERROR([*** SLANG development files not found!]))
 
 dnl ==============================================================
 dnl Check for SDL
 dnl ==============================================================
 PKG_CHECK_MODULES(SDL, sdl > 1.2, :,
 	AC_MSG_ERROR([*** SDL development files not found!]))
-
-
-dnl ==============================================================
-dnl Check if there is FREETYPE2
-dnl ==============================================================
-PKG_CHECK_MODULES(FT2, freetype2,
-                  have_freetype2=yes, have_freetype2=no)
-if test x$have_freetype2 = xyes; then
-   AC_DEFINE(WITH_FT2,1,[define if linking freetype for text rendering])
-fi
-
-   
-dnl ==============================================================
-dnl Check if there is FONTCONFIG
-dnl ==============================================================
-PKG_CHECK_MODULES(FC, fontconfig,
-                  have_fontconfig=yes, have_fontconfig=no)
-if test x$have_fontconfig = xyes; then
-   AC_DEFINE(WITH_FC,1,[define if linking fontconfig for font indexing])
-fi
-   
-
-dnl ==============================================================
-dnl Check X11 for xgrab
-dnl ==============================================================
-PKG_CHECK_MODULES(X11, x11, have_x11=yes, have_x11=no)
 
 
 dnl ==============================================================
@@ -331,6 +289,33 @@ FREEJ_RESTORE_FLAGS
 AC_DEFINE(WITH_FFMPEG,1, [define if compiling movie layer linking to ffmpeg libavcodec])
 AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
 
+
+dnl ==============================================================
+dnl Check if there is FREETYPE2
+dnl ==============================================================
+PKG_CHECK_MODULES(FT2, freetype2,
+                  have_freetype2=yes, have_freetype2=no)
+if test x$have_freetype2 = xyes; then
+   AC_DEFINE(WITH_FT2,1,[define if linking freetype for text rendering])
+fi
+
+   
+dnl ==============================================================
+dnl Check if there is FONTCONFIG
+dnl ==============================================================
+PKG_CHECK_MODULES(FC, fontconfig,
+                  have_fontconfig=yes, have_fontconfig=no)
+if test x$have_fontconfig = xyes; then
+   AC_DEFINE(WITH_FC,1,[define if linking fontconfig for font indexing])
+fi
+   
+
+dnl ==============================================================
+dnl Check X11 for xgrab
+dnl ==============================================================
+PKG_CHECK_MODULES(X11, x11, have_x11=yes, have_x11=no)
+
+
 dnl ==============================================================
 dnl ENABLE LIBFLASH
 dnl ==============================================================
@@ -340,10 +325,11 @@ AC_ARG_ENABLE(flash,
     [have_flash=yes])
 AC_MSG_CHECKING([flash - v3 animation only - layer])
 if test x$have_flash = xyes; then
+    AC_MSG_RESULT(yes)
+    AC_CHECK_FUNCS([sqrt])
     AC_DEFINE(WITH_FLASH,1,[define if compiling flash layer])
     FLASH_LIBS="\$(top_builddir)/lib/flash/libflash.la"
     FLASH_CFLAGS="-I\$(top_srcdir)/lib/flash"
-    AC_MSG_RESULT(yes)
 else
     AC_MSG_RESULT(no)
 fi
@@ -355,29 +341,28 @@ AC_SUBST(FLASH_CFLAGS)
 dnl ==============================================================
 dnl CHECK if there is CWIID, otherwise try to build
 dnl ==============================================================
-CWIID_CFLAGS=""
-CWIID_LIBS=""
-AC_CHECK_LIB(cwiid, cwiid_open, have_cwiid=yes, have_cwiid=no)
-if test x$have_cwiid = xyes; then
+PKG_CHECK_MODULES(CWIID, cwiid, have_cwiid=yes, have_cwiid=no)
+if test x$have_cwiid = xno; then
+   AC_CHECK_LIB(cwiid, cwiid_open, have_cwiid=yes, have_cwiid=no)
    CWIID_CFLAGS=""
    CWIID_LIBS="-lcwiid"
-else
+fi
+if test x$have_cwiid = xno; then
    PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
    if test x$have_bluez = xyes; then
+      build_cwiid=yes
+      AC_CHECK_HEADERS([sys/socket.h])
+      AC_TYPE_SSIZE_T
+      AC_CHECK_FUNCS([socket clock_gettime])
+
       CWIID_CFLAGS="-I\$(top_srcdir)/lib/cwiid"
       CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
    fi
 fi
-
-if test x$have_cwiid = xyes || test x$have_bluez = xyes ; then
+if test x$have_cwiid = xyes || test x$build_cwiid = xyes ; then
    AC_DEFINE(WITH_CWIID,1,[define if compiling bluetooth cwiid controller])
 fi
-
-# have_bluez is defined only if cwiid has to be built
-AM_CONDITIONAL(BUILD_CWIID, [test x$have_bluez = xyes])
-
-AC_SUBST(CWIID_LIBS)
-AC_SUBST(CWIID_CFLAGS)
+AM_CONDITIONAL(BUILD_CWIID, [test x$build_cwiid = xyes])
 
 
 dnl ==============================================================
@@ -385,11 +370,12 @@ dnl LIBLO
 dnl ==============================================================
 PKG_CHECK_MODULES(LIBLO, liblo, have_liblo=yes, have_liblo=no)
 if test x$have_liblo = xno; then
+   AC_CHECK_HEADERS([netdb.h netinet/in.h arpa/inet.h float.h])
+   AC_CHECK_FUNCS([strchr gethostname gethostbyname strpbrk atexit])
+
    LIBLO_LIBS="\$(top_builddir)/lib/lo/liblo.la"
    LIBLO_CFLAGS="-I\$(top_srcdir)/lib -I\$(top_srcdir)/lib/lo"
 fi
-AC_SUBST(LIBLO_LIBS)
-AC_SUBST(LIBLO_CFLAGS)
 
 AM_CONDITIONAL([BUILD_LIBLO], [test x$have_liblo = xno])
 
@@ -501,7 +487,7 @@ if test x$enable_lubrifications = xyes; then
     # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
     elif test x$have_ppc = xyes; then
       GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
-    elif test x$host_cpu = xx86_64; then
+    elif test x$have_x86_64 = xyes; then
       # should complete this with all 64bit CPUs (AMD too)
       if test x$have_ssse3 = xyes; then
         # multiple core cpu
@@ -534,21 +520,22 @@ AC_ARG_ENABLE(opengl,
     [enable_opengl=no])
 
 if test x$enable_opengl = xyes; then
-    OPENGL_LIBS="-lGL -lGLU"
-    AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
+   # note: checking for GLU only, this brings in also GL
+   PKG_CHECK_MODULES(GLU, glu,
+                     :
+                     GLU_LIBS="-lGLU -lGL"; GLU_CFLAGS="")
+
+   AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
 fi
-AC_SUBST(OPENGL_LIBS)
 
 
 dnl ==============================================================
 dnl Audio
 dnl ==============================================================
-PKG_CHECK_MODULES(ALSA, alsa, have_alsa=yes, have_alsa=no)
-
-# TODO(shammash): is this enough to enable midi on alsa?
-if test x$have_alsa = xyes; then
-  AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
-fi
+PKG_CHECK_MODULES(ALSA, alsa,
+    AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
+    have_midi=yes,
+    have_midi=no)
 
 # TODO(shammash): before this refactoring we were enabling jack
 # only if alsa was present, check inconsistencies in the code.
@@ -567,10 +554,16 @@ AC_DEFINE(WITH_AUDIO,1,[define if compiling audio system])
 # replicated on Niels ubuntu 7.10
 if test 1 = 0; then
   enable_goom=yes
+   AM_PROG_LEX
+   AC_PROG_YACC
+   AC_CHECK_HEADERS([stddef.h libintl.h malloc.h])
+   AC_FUNC_ALLOCA
+   AC_CHECK_FUNCS([strtol])
+
   AC_DEFINE(WITH_GOOM,1,[define if goom is enabled])
   GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
   GOOM_CFLAGS="-I\$(top_srcdir)/lib/goom"
-  if test x$host_cpu = xpowerpc; then
+  if test x$have_ppc = xyes; then
     GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
   fi
 else
@@ -664,6 +657,8 @@ dnl shout lib
 dnl ==============================================================
 PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
 if test x$have_shout = xno; then
+   AC_CHECK_FUNCS([gethostbyaddr inet_ntoa])
+
    SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
    SHOUT_CFLAGS="-I\$(top_srcdir)/lib/shout"
 fi
@@ -677,11 +672,11 @@ dnl ==============================================================
 PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
 if test x$have_sdlgfx = xno; then
    AC_MSG_NOTICE([Using freej version of SDLGFX])
+
+   AC_CHECK_FUNCS([pow])
    SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
    SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
 fi
-AC_SUBST(SDLGFX_CFLAGS)
-AC_SUBST(SDLGFX_LIBS)
 
 AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
 
@@ -791,20 +786,22 @@ FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
 AC_SUBST(FREEJ_STATIC_CFLAGS)
 
 FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
-    \$(SDL_CFLAGS)     \
-    \$(FT2_CFLAGS)     \
-    \$(FC_CFLAGS)      \
-    \$(XIPH_CFLAGS)    \
-    \$(UNICAP_CFLAGS)  \
-    \$(OPENCV_CFLAGS)  \
-    \$(FFMPEG_CFLAGS)  \
-    \$(MOZJS_CFLAGS)   \
-    \$(SHOUT_CFLAGS)   \
-    \$(SDLGFX_CFLAGS)  \
-    \$(SDLTTF_CFLAGS)  \
-    \$(SDLIMAGE_CFLAGS)\
-    \$(CWIID_CFLAGS)   \
-    \$(LIBLO_CFLAGS)"
+    \$(CWIID_CFLAGS)    \
+    \$(FC_CFLAGS)       \
+    \$(FFMPEG_CFLAGS)   \
+    \$(FT2_CFLAGS)      \
+    \$(GLU_CFLAGS)      \
+    \$(LIBLO_CFLAGS)    \
+    \$(MOZJS_CFLAGS)    \
+    \$(OPENCV_CFLAGS)   \
+    \$(SDL_CFLAGS)      \
+    \$(SDLGFX_CFLAGS)   \
+    \$(SDLIMAGE_CFLAGS) \
+    \$(SDLTTF_CFLAGS)   \
+    \$(SHOUT_CFLAGS)    \
+    \$(SLANG_CFLAGS)    \
+    \$(UNICAP_CFLAGS)   \
+    \$(XIPH_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
@@ -813,30 +810,30 @@ FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(GOOM_LIBS)"
 AC_SUBST(FREEJ_STATIC_LIBS)
 
-FREEJ_LIBS="-lpthread -lm -lslang -lrt \
-    \$(DL_LIBS)      \
-    \$(X11_LIBS)     \
-    \$(XIPH_LIBS)    \
-    \$(MOZJS_LIBS)   \
-    \$(OPENGL_LIBS)   \
-    \$(SDL_LIBS)     \
-    \$(FT2_LIBS)     \
-    \$(FC_LIBS)      \
-    \$(ALSA_LIBS)    \
-    \$(JACK_LIBS)    \
-    \$(FFTW_LIBS)    \
+FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
+    \$(ALSA_LIBS)       \
+    \$(BLUEZ_LIBS)      \
+    \$(CWIID_LIBS)      \
+    \$(FC_LIBS)         \
+    \$(FFMPEG_LIBS)     \
+    \$(FFTW_LIBS)       \
+    \$(FT2_LIBS)        \
+    \$(GLU_LIBS)        \
+    \$(JACK_LIBS)       \
+    \$(LIBLO_LIBS)      \
+    \$(MOZJS_LIBS)      \
+    \$(OPENCV_LIBS)     \
     \$(SAMPLERATE_LIBS) \
-    \$(FFMPEG_LIBS)  \
-    \$(X11_LIBS)     \
-    \$(BLUEZ_LIBS)   \
-    \$(UNICAP_LIBS)  \
-    \$(OPENCV_LIBS)  \
-    \$(SHOUT_LIBS)   \
-    \$(SDLGFX_LIBS)  \
-    \$(SDLTTF_LIBS)  \
-    \$(SDLIMAGE_LIBS)\
-    \$(CWIID_LIBS)   \
-    \$(LIBLO_LIBS)"
+    \$(SDLGFX_LIBS)     \
+    \$(SDLIMAGE_LIBS)   \
+    \$(SDL_LIBS)        \
+    \$(SDLTTF_LIBS)     \
+    \$(SHOUT_LIBS)      \
+    \$(SLANG_LIBS)      \
+    \$(UNICAP_LIBS)     \
+    \$(X11_LIBS)        \
+    \$(X11_LIBS)        \
+    \$(XIPH_LIBS)"
 AC_SUBST(FREEJ_LIBS)
 
 dnl ###########################################################################
@@ -844,40 +841,38 @@ dnl ###### now about compile time paths
 if test "x${prefix}" = "xNONE"; then
    prefix=${ac_default_prefix}
 fi
-AC_DEFINE_UNQUOTED(PACKAGE_PREFIX, "${prefix}", Prefix)
-AC_DEFINE_UNQUOTED(PACKAGE_LIB_DIR, "${prefix}/lib/freej", libs)
-AC_DEFINE_UNQUOTED(PACKAGE_DATA_DIR, "${prefix}/share/freej", data)
-AC_DEFINE_UNQUOTED(PACKAGE_LOCALE_DIR, "${prefix}/share/locale", locale)
-PACKAGE_DATA_DIR="${prefix}/share/freej"
+PACKAGE_LIB_DIR='${prefix}/lib/freej'
+AC_SUBST(PACKAGE_LIB_DIR)
+PACKAGE_DATA_DIR='${prefix}/share/freej'
 AC_SUBST(PACKAGE_DATA_DIR)
 
-
+# alphabetic order on dir/subdir, but Makefile sorts before everything
 AC_CONFIG_FILES([
 Makefile
 freej.pc
+bindings/Makefile
+bindings/java/Makefile
+bindings/perl/Makefile
+bindings/python/Makefile
+bindings/ruby/Makefile
+doc/Makefile
+doc/freej.dox
+doc/scripting/Makefile
+lib/Makefile
+lib/ccvt/Makefile
+lib/cwiid/Makefile
+lib/flash/Makefile
+lib/goom/Makefile
+lib/lo/Makefile
+lib/sdl_gfx/Makefile
+lib/sdl_image/Makefile
+lib/sdl_ttf/Makefile
+lib/shout/Makefile
+lib/slw/Makefile
+scripts/Makefile
 src/Makefile
 src/include/Makefile
 tests/Makefile
-lib/Makefile
-lib/ccvt/Makefile
-lib/shout/Makefile
-lib/lo/Makefile
-lib/sdl_image/Makefile
-lib/sdl_gfx/Makefile
-lib/sdl_ttf/Makefile
-lib/slw/Makefile
-lib/flash/Makefile
-lib/goom/Makefile
-lib/cwiid/Makefile
-bindings/Makefile
-bindings/python/Makefile
-bindings/ruby/Makefile
-bindings/java/Makefile
-bindings/perl/Makefile
-scripts/Makefile
-doc/Makefile
-doc/scripting/Makefile
-doc/freej.dox
 ])
 AC_OUTPUT
 
@@ -897,7 +892,8 @@ fi
 
 if test x$enable_opengl = xyes; then
 echo "= OpenGL"
-echo "  LIBS  : $OPENGL_LIBS"
+echo "  GLU LIBS   : $GLU_LIBS"
+echo "  GLU CFLAGS : $GLU_CFLAGS"
 else
 echo "= OpenGL disabled"
 fi
@@ -1023,7 +1019,7 @@ else
 echo "= Not including support for the GNU Profiler (see man gprof)"
 fi
 
-if test x$have_alsa = xyes; then
+if test x$have_midi = xyes; then
 echo "= ALSA / MidiController enabled"
 echo "  LIBS  : $ALSA_LIBS"
 echo "  CFLAGS: $ALSA_CFLAGS"
@@ -1053,14 +1049,12 @@ if test x$have_cwiid = xyes; then
    echo "= WiiMote controller (cwiid dynamic)"
    echo "  LIBS  : $CWIID_LIBS"
    echo "  CFLAGS: $CWIID_CFLAGS"
+elif test x$build_cwiid = xyes; then
+   echo "= WiiMote controller (cwiid static)"
+   echo "  LIBS  : $CWIID_LIBS"
+   echo "  CFLAGS: $CWIID_CFLAGS"
 else
-   if test x$have_bluez = xyes; then
-      echo "= WiiMote controller (cwiid static)"
-      echo "  LIBS  : $CWIID_LIBS"
-      echo "  CFLAGS: $CWIID_CFLAGS"
-   else
-      echo "= WiiMote controller disabled"
-   fi
+   echo "= WiiMote controller disabled"
 fi
 
 if test x$have_liblo = xyes; then
@@ -1079,4 +1073,4 @@ echo "= INSTALL PREFIX : $prefix"
 echo "============================== now type make, may the source be with you!"
 echo
 
-# vim:et:ts=3
+# vim:et:ts=3:sw=3
