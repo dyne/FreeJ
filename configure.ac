@@ -57,7 +57,6 @@ case "$host_os" in
   *darwin*)
     AC_MSG_RESULT([Darwin/OSX])
     AC_DEFINE(HAVE_DARWIN,1,[define if compiling for Apple Darwin OSX])
-    AC_DEFINE(CONFIG_DARWIN,1,[define if compiling for Apple Darwin OSX])
     have_darwin=yes
   ;;
 
