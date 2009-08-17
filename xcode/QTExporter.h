@@ -17,12 +17,15 @@
     NSString *outputFile;
     QTMovie *mMovie;
     DataHandler mDataHandlerRef;
+    NSMutableDictionary *savedMovieAttributes;
+    NSMutableArray *images;
     NSDictionary *encodingProperties;
+    NSRecursiveLock *lock;
 }
 
 - (BOOL)setOutputFile:(NSString *)path;
 - (void)addImage:(CIImage *)image;
-- (void)addImages:(NSArray *)imageFilesArray;
+- (void)flushImages;
 - (BOOL)startExport;
 - (void)stopExport;
 - (BOOL)isRunning;

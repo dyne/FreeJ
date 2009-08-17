@@ -250,6 +250,34 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [pool release];
 }
 
+- (CIImage *)exportSurface
+{
+    CIImage *exportedSurface = nil;
+    void *surface = [self getSurface];
+    if (surface) {
+        CVPixelBufferRef pixelBufferOut;
+        //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
+        CVReturn cvRet = CVPixelBufferCreateWithBytes (
+                                                       NULL,
+                                                       fjScreen->w,
+                                                       fjScreen->h,
+                                                       k32ARGBPixelFormat,
+                                                       surface,
+                                                       fjScreen->w*4,
+                                                       NULL,
+                                                       NULL,
+                                                       NULL,
+                                                       &pixelBufferOut
+                                                       );
+        if (cvRet != noErr) {
+            // TODO - Error Messages
+        }
+        exportedSurface = [CIImage imageWithCVImageBuffer:pixelBufferOut];
+        CVPixelBufferRelease(pixelBufferOut);
+    }
+    return exportedSurface;
+}
+
 - (void *)getSurface
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -293,6 +321,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         return kCVReturnError;
     
     if (outFrame) {
+        if (exporter && [exporter isRunning])
+            [exporter addImage:[self exportSurface]];
+        
         CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
                     NSWidth(bounds), NSHeight(bounds));
         [ciContext drawImage: outFrame
@@ -314,9 +345,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     // CVScreen thread
     //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread
     [self drawRect:NSZeroRect]; // this directly render the frame out in this thread
-
-    if (lastFrame && exporter && [exporter isRunning])
-        [exporter addImage:lastFrame];
     
     //[lock unlock];
     [pool release];

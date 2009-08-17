@@ -7,6 +7,7 @@
 //
 
 #import "QTExporter.h"
+#include <fps.h>
 
 @implementation QTExporter
 
@@ -22,8 +23,39 @@
     mDataHandlerRef = nil;
     mMovie = nil;
     outputFile = nil;
+    savedMovieAttributes = [NSDictionary 
+        dictionaryWithObjects:
+            [NSArray arrayWithObjects:
+                [NSNumber numberWithBool:YES],
+                [NSNumber numberWithBool:YES],
+                [NSNumber numberWithLong:'mpg4'],
+                nil]
+        forKeys:
+            [NSArray arrayWithObjects:
+                QTMovieFlatten, QTMovieExport, QTMovieExportType, nil]];
+    
+    // when adding images we must provide a dictionary
+	// specifying the codec attributes
+    encodingProperties = [[NSDictionary dictionaryWithObjectsAndKeys:@"mp4v",
+                           QTAddImageCodecType,
+                           [NSNumber numberWithLong:codecNormalQuality],
+                           QTAddImageCodecQuality,
+                           nil] retain];
+    
+    lock = [[NSRecursiveLock alloc] init];
+    images = [[NSMutableArray arrayWithCapacity:100] retain];
+
     return [super init];
 }
+
+- (void)dealloc
+{
+    [savedMovieAttributes release];
+    [encodingProperties release];
+    [lock release];
+    [super dealloc];
+}
+
 - (Movie)quicktimeMovieFromTempFile:(DataHandler *)outDataHandler error:(OSErr *)outErr
 {
 	*outErr = -1;
@@ -92,15 +124,6 @@ cantcreatemovstorage:
     }
     else
     {
-        NSMutableDictionary *savedMovieAttributes = [NSDictionary 
-                                                     dictionaryWithObjects:[NSArray arrayWithObjects:
-                                                        [NSNumber numberWithBool:YES],
-                                                        [NSNumber numberWithBool:YES],
-                                                        [NSNumber numberWithLong:'mpg4'],
-                                                        nil]
-                                                      forKeys:[NSArray arrayWithObjects:
-                                                        QTMovieFlatten, QTMovieExport, QTMovieExportType, nil]];
-       
         success = [mMovie writeToFile:outputFile withAttributes:savedMovieAttributes];
         // movie file does not exist, so we'll flatten our in-memory 
         // movie to the file
@@ -121,25 +144,14 @@ cantcreatemovstorage:
 
 - (void)addImage:(CIImage *)image
 {
-    
     NSImage *nsImage = [[NSImage alloc] initWithSize:NSMakeSize([image extent].size.width, [image extent].size.height)];
     [nsImage addRepresentation:[NSCIImageRep imageRepWithCIImage:image]];
-    // create a QTTime value to be used as a duration when adding 
-    // the image to the movie
-	long long timeValue = 25;
-	long timeScale      = 600;
-	QTTime duration     = QTMakeTime(timeValue, timeScale);
-    
-    // Adds an image for the specified duration to the QTMovie
-    [mMovie addImage:nsImage 
-        forDuration:duration
-     withAttributes:encodingProperties];
-    
-    // free up our image object
-    [nsImage release];
-    
-    [self writeSafelyToURL:[NSURL fileURLWithPath:outputFile]];
-    
+
+    [lock lock];
+    [images addObject:nsImage];
+    [lock unlock];
+    //MoviesTask([mMovie quickTimeMovie], 0);
+
 }
 
 //
@@ -156,37 +168,51 @@ cantcreatemovstorage:
 //      as new movie frames
 //
 
-- (void)addImages:(NSArray *)imageFilesArray
-{
-	if (!imageFilesArray)
-		goto bail;
+- (void)flushImages
+{    
+    
+    // create a QTTime value to be used as a duration when adding 
+    // the image to the movie
+	long timeScale      = [[mMovie attributeForKey:@"QTMovieTimeScaleAttribute"] longValue];
+    long long timeValue = timeScale/25;
+	QTTime duration     = QTMakeTime(timeValue, timeScale);
     
 	// iterate over all the images in the array and add
 	// them to our movie one-by-one
-	int i;
-	for (i = 0; i < [imageFilesArray count]; ++i)
-	{
-		NSImage *anImage = [imageFilesArray objectAtIndex:i];    
-        
-        if (anImage)
-            [self addImage:anImage];
+    //NSLog(@"%d\n", [images count]);
+    [lock lock];
+    while ([images count]) {
+        NSImage *anImage = [images objectAtIndex:0];
+        [images removeObjectAtIndex:0];
 
+        [lock unlock];
+        if (anImage) {
+            
+            [QTMovie enterQTKitOnThread];   
+            
+            // Adds an image for the specified duration to the QTMovie
+            [mMovie addImage:anImage 
+                 forDuration:duration
+              withAttributes:encodingProperties];
+            
+            // free up our image object
+            [anImage release];
+            if ([self isRunning])
+                [self writeSafelyToURL:[NSURL fileURLWithPath:outputFile]];
+            [QTMovie exitQTKitOnThread];
+            
+        }
+
+        [lock lock];
     }
-    
+    [lock unlock];
 bail:
 	return;
 }
 
-//
-// buildQTKitMovie
-//
-// Build a QTKit movie from a series of image frames
-//
-//
 
-- (BOOL)startExport
+- (BOOL)openOutputMovie
 {
-    
     /*  
      NOTES ABOUT CREATING A NEW ("EMPTY") MOVIE AND ADDING IMAGE FRAMES TO IT
      
@@ -218,6 +244,7 @@ bail:
      The code below checks first to see if this new method initToWritableFile: is 
      available, and if so it will use it rather than use the native API.
      */
+    //[QTMovie enterQTKitOnThread];
     
     // Check first if the new QuickTime 7.2.1 initToWritableFile: method is available
     if ([[[[QTMovie alloc] init] autorelease] respondsToSelector:@selector(initToWritableFile:error:)] == YES)
@@ -234,38 +261,62 @@ bail:
         OSErr err;
         // create a native QuickTime movie
         Movie qtMovie = [self quicktimeMovieFromTempFile:&mDataHandlerRef error:&err];
-        if (nil == qtMovie) goto bail;
+        if (nil == qtMovie) {
+            [lock unlock];
+            return NO;
+        }
         
         // instantiate a QTMovie from our native QuickTime movie
         mMovie = [QTMovie movieWithQuickTimeMovie:qtMovie disposeWhenDone:YES error:nil];
-        if (!mMovie || err) goto bail;
+        if (!mMovie || err) { 
+            [lock unlock];
+            return NO;
+        }
     }
     
     
 	// mark the movie as editable
 	[mMovie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieEditableAttribute];
-	
 	// keep it around until we are done with it...
 	[mMovie retain];
-    [mMovie setIdling:NO];
+    //[mMovie setIdling:NO];
     
-    
-	// when adding images we must provide a dictionary
-	// specifying the codec attributes
-	encodingProperties = [[NSDictionary dictionaryWithObjectsAndKeys:@"mp4v",
-              QTAddImageCodecType,
-              [NSNumber numberWithLong:codecHighQuality],
-              QTAddImageCodecQuality,
-              nil] retain];
+    //[QTMovie exitQTKitOnThread];
+    return YES;
+}
+
+- (void) exporterThread:(id)arg
+{
+    NSAutoreleasePool *pool;
+    pool = [[NSAutoreleasePool alloc] init];
+    FPS fps;
+    fps.init(25);
 	if (!encodingProperties)
-		goto bail;
-    
-    //if (!outputFile)
-      //  outputFile = [[NSString stringWithCString:DEFAULT_OUTPUT_FILE  encoding:NSUTF8StringEncoding] retain];
-    
-bail:
-    
-	return YES;
+        ;// TODO - Handle error condition
+    while ([self isRunning]) {
+        [self flushImages];
+        fps.calc();
+        fps.delay();
+    }
+    [pool release];
+}
+
+//
+// buildQTKitMovie
+//
+// Build a QTKit movie from a series of image frames
+//
+//
+
+- (BOOL)startExport
+{
+    if (!outputFile)
+        outputFile = [[NSString stringWithCString:DEFAULT_OUTPUT_FILE  encoding:NSUTF8StringEncoding] retain];
+    [self openOutputMovie];
+
+    [NSThread detachNewThreadSelector:@selector(exporterThread:) 
+                             toTarget:self withObject:nil];
+    return YES;
 }
 
 - (BOOL)setOutputFile:(NSString *)path
@@ -279,10 +330,15 @@ bail:
 - (void)stopExport
 {
     if ([self isRunning]) {
-        [outputFile release];
+        [lock lock];
         [mMovie release];
-        CFRelease(mDataHandlerRef);
-        [encodingProperties release];
+        mMovie = nil;
+        if (mDataHandlerRef) {
+            CFRelease(mDataHandlerRef);
+            mDataHandlerRef = nil;
+        }
+        [images removeAllObjects];
+        [lock unlock];
     }
 }
 
