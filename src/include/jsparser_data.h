@@ -58,7 +58,7 @@ JS(image_layer_constructor);
 JS(flash_layer_constructor);
 JS(movie_layer_constructor);
 
-#ifdef WITH_SOUND
+#ifdef WITH_AUDIO
 JS(goom_layer_constructor);
 JS(js_audio_jack_constructor);
 #endif
@@ -172,7 +172,7 @@ extern JSFunctionSpec image_layer_methods[];
 extern JSClass flash_layer_class;
 extern JSFunctionSpec flash_layer_methods[];
 
-#ifdef WITH_SOUND
+#ifdef WITH_AUDIO
 // Audio collector
 extern JSClass js_audio_jack_class;
 extern JSFunctionSpec js_audio_jack_methods[];
@@ -372,7 +372,7 @@ JS(vscroll_layer_speed);
 JS(vscroll_layer_linespace);
 JS(vscroll_layer_kerning);
 
-#ifdef WITH_SOUND
+#ifdef WITH_AUDIO
 //////////////////////////////////
 // Audio collector methods
 JS(js_audio_jack_add_output);

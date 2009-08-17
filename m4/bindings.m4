@@ -278,6 +278,7 @@ AC_ARG_ENABLE(python,
 	[enable_python=no])
 
 if test x"$enable_python" = xyes; then
+	AC_PYTHON_DEVEL
 	AM_PATH_PYTHON(2.4)
 	SWIG_PYTHON
 fi

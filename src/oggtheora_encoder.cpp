@@ -218,7 +218,7 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
 
 int OggTheoraEncoder::encode_audio( int end_of_stream) {
 
-#ifdef WITH_SOUND
+#ifdef WITH_AUDIO
   //  num = env->audio->framesperbuffer*env->audio->channels*sizeof(int16_t);
   func("going to encode %u bytes of audio", audio->buffersize);
   ///// QUAAAA

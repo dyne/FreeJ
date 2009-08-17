@@ -1,5 +1,7 @@
 AM_CFLAGS = $(FREEJ_CFLAGS) -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
-AM_CXXFLAGS = $(FREEJ_CFLAGS) -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
+AM_CXXFLAGS = $(FREEJ_CFLAGS) -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\"" \
+			  -DPACKAGE_DATA_DIR="\"$(PACKAGE_DATA_DIR)\"" \
+			  -DPACKAGE_LIB_DIR="\"$(PACKAGE_LIB_DIR)\""
 
 SUBDIRS = include
 
