@@ -307,9 +307,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSRect        bounds = [self bounds];
     //[lock lock];
     Context *ctx = (Context *)[freej getContext];
-
+    
     ctx->cafudda(0.0);
-
+    
     if (rateCalc) {
         [rateCalc tick:timestamp];
         fpsString = [[NSString alloc] initWithFormat:@"%0.1lf", [rateCalc rate]];
@@ -321,9 +321,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         return kCVReturnError;
     
     if (outFrame) {
-        if (exporter && [exporter isRunning])
-            [exporter addImage:[self exportSurface]];
-        
         CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
                     NSWidth(bounds), NSHeight(bounds));
         [ciContext drawImage: outFrame
@@ -337,14 +334,21 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     }
     
     CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);    
-
-    // XXX - we force rendering at this stace instead of delaying it setting the needsDisplay flag
+    
+    // XXX - we force rendering at this stage instead of delaying it setting the needsDisplay flag
     // to avoid stopping displaying new frames on the output screen while system animations are in progress
     // (for example, when opening a fileselction panel the CVScreen rendering would stop while the animation is in progress
     // because both the actions would happen in the main application thread. Forcing rendering now makes it happen in the 
     // CVScreen thread
     //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread
     [self drawRect:NSZeroRect]; // this directly render the frame out in this thread
+    
+    if (exporter && [exporter isRunning]) {
+        CVTimeStamp *exportTimestamp = (CVTimeStamp *)malloc(sizeof(CVTimeStamp));
+        CVDisplayLinkGetCurrentTime(displayLink, exportTimestamp);
+        [exporter addImage:[self exportSurface] atTime:exportTimestamp];
+    }
+    
     
     //[lock unlock];
     [pool release];

@@ -21,10 +21,12 @@
     NSMutableArray *images;
     NSDictionary *encodingProperties;
     NSRecursiveLock *lock;
+    NSData  *lastTimestamp;
+    NSImage *lastImage;
 }
 
 - (BOOL)setOutputFile:(NSString *)path;
-- (void)addImage:(CIImage *)image;
+- (void)addImage:(CIImage *)image atTime:(CVTimeStamp *)timestamp;
 - (void)flushImages;
 - (BOOL)startExport;
 - (void)stopExport;

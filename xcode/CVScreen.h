@@ -96,7 +96,6 @@ class CVScreen : public ViewPort {
     public:
         CVScreen(int w, int h);
         ~CVScreen();
-
         void set_view(CVScreenView *view);
         CVScreenView *get_view(void);
         void *get_surface();

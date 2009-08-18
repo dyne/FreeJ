@@ -44,7 +44,8 @@
     
     lock = [[NSRecursiveLock alloc] init];
     images = [[NSMutableArray arrayWithCapacity:100] retain];
-
+    lastTimestamp = 0;
+    lastImage = nil;
     return [super init];
 }
 
@@ -142,13 +143,17 @@ cantcreatemovstorage:
     return success;
 }
 
-- (void)addImage:(CIImage *)image
+- (void)addImage:(CIImage *)image atTime:(CVTimeStamp *)timestamp
 {
     NSImage *nsImage = [[NSImage alloc] initWithSize:NSMakeSize([image extent].size.width, [image extent].size.height)];
     [nsImage addRepresentation:[NSCIImageRep imageRepWithCIImage:image]];
 
     [lock lock];
-    [images addObject:nsImage];
+    NSMutableDictionary *entry = [[NSMutableDictionary dictionaryWithCapacity:2] retain];
+    [entry setValue:nsImage forKey:@"image"];
+    [entry setValue:[NSData dataWithBytes:(void *)timestamp length:sizeof(CVTimeStamp)] forKey:@"timestamp"];
+    free(timestamp);
+    [images addObject:entry];
     [lock unlock];
     //MoviesTask([mMovie quickTimeMovie], 0);
 
@@ -173,36 +178,43 @@ cantcreatemovstorage:
     
     // create a QTTime value to be used as a duration when adding 
     // the image to the movie
-	long timeScale      = [[mMovie attributeForKey:@"QTMovieTimeScaleAttribute"] longValue];
-    long long timeValue = timeScale/25;
-	QTTime duration     = QTMakeTime(timeValue, timeScale);
-    
+	//long timeScale      = [[mMovie attributeForKey:@"QTMovieTimeScaleAttribute"] longValue];
+    //long long timeValue = timeScale/25;
+	QTTime duration;//     = QTMakeTime(timeValue, timeScale);
 	// iterate over all the images in the array and add
 	// them to our movie one-by-one
     //NSLog(@"%d\n", [images count]);
     [lock lock];
     while ([images count]) {
-        NSImage *anImage = [images objectAtIndex:0];
+        NSMutableDictionary *entry = [images objectAtIndex:0];
         [images removeObjectAtIndex:0];
-
+        NSImage *anImage = [entry valueForKey:@"image"];
+        CVTimeStamp *timestamp = (CVTimeStamp *)[[entry valueForKey:@"timestamp"] bytes];
         [lock unlock];
-        if (anImage) {
-            
+
+        if (lastImage && timestamp) {
+            uint64_t timedelta = lastTimestamp?timestamp->videoTime-((CVTimeStamp *)[lastTimestamp bytes])->videoTime:timestamp->videoTimeScale/25;            
+            duration = QTMakeTime(timedelta, timestamp->videoTimeScale);
+
+            if (lastTimestamp)
+                [lastTimestamp release];
+            lastTimestamp = [entry valueForKey:@"timestamp"];
+
             [QTMovie enterQTKitOnThread];   
             
             // Adds an image for the specified duration to the QTMovie
-            [mMovie addImage:anImage 
+            [mMovie addImage:lastImage 
                  forDuration:duration
               withAttributes:encodingProperties];
             
             // free up our image object
-            [anImage release];
+            [lastImage release];
             if ([self isRunning])
                 [self writeSafelyToURL:[NSURL fileURLWithPath:outputFile]];
             [QTMovie exitQTKitOnThread];
             
         }
-
+        lastImage = anImage;
         [lock lock];
     }
     [lock unlock];
@@ -280,7 +292,7 @@ bail:
 	// keep it around until we are done with it...
 	[mMovie retain];
     //[mMovie setIdling:NO];
-    
+    //[mMovie setAttribute:[NSNumber numberWithLong:1000000000] forKey:QTMovieTimeScaleAttribute];
     //[QTMovie exitQTKitOnThread];
     return YES;
 }
@@ -329,17 +341,16 @@ bail:
 
 - (void)stopExport
 {
-    if ([self isRunning]) {
-        [lock lock];
+    [lock lock];
+    if (mMovie)
         [mMovie release];
-        mMovie = nil;
-        if (mDataHandlerRef) {
-            CFRelease(mDataHandlerRef);
-            mDataHandlerRef = nil;
-        }
-        [images removeAllObjects];
-        [lock unlock];
+    mMovie = nil;
+    if (mDataHandlerRef) {
+        CFRelease(mDataHandlerRef);
+        mDataHandlerRef = nil;
     }
+    [images removeAllObjects];
+    [lock unlock];
 }
 
 - (BOOL)isRunning
