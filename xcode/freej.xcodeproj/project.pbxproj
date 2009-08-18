@@ -14,7 +14,7 @@
 		AA5844880FE114970059D860 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5844870FE114970059D860 /* Carbon.framework */; };
 		AA5846530FE1626E0059D860 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = AA5846520FE1626E0059D860 /* GLString.m */; };
 		AA5846560FE162C60059D860 /* CVTextLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA5846550FE162C60059D860 /* CVTextLayer.mm */; };
-		AA63CF8E102DAED400FDA024 /* QTExporter.m in Sources */ = {isa = PBXBuildFile; fileRef = AA63CF8D102DAED400FDA024 /* QTExporter.m */; };
+		AA63CF8E102DAED400FDA024 /* QTExporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA63CF8D102DAED400FDA024 /* QTExporter.mm */; };
 		AA71AE030FE58838002FFD23 /* CVInternalLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */; };
 		AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04B80F4ED02700723DAC /* OpenGL.framework */; };
 		AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */; };
@@ -327,7 +327,7 @@
 		AA5846540FE162C60059D860 /* CVTextLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVTextLayer.h; sourceTree = "<group>"; };
 		AA5846550FE162C60059D860 /* CVTextLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVTextLayer.mm; sourceTree = "<group>"; };
 		AA63CF8C102DAED400FDA024 /* QTExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTExporter.h; sourceTree = "<group>"; };
-		AA63CF8D102DAED400FDA024 /* QTExporter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QTExporter.m; sourceTree = "<group>"; };
+		AA63CF8D102DAED400FDA024 /* QTExporter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTExporter.mm; sourceTree = "<group>"; };
 		AA71AE010FE58838002FFD23 /* CVInternalLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVInternalLayer.h; sourceTree = "<group>"; };
 		AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVInternalLayer.mm; sourceTree = "<group>"; };
 		AA7C04B80F4ED02700723DAC /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
@@ -568,7 +568,7 @@
 				AA71AE010FE58838002FFD23 /* CVInternalLayer.h */,
 				AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */,
 				AA63CF8C102DAED400FDA024 /* QTExporter.h */,
-				AA63CF8D102DAED400FDA024 /* QTExporter.m */,
+				AA63CF8D102DAED400FDA024 /* QTExporter.mm */,
 			);
 			name = Cocoa;
 			sourceTree = "<group>";
@@ -1493,7 +1493,7 @@
 				AA5846530FE1626E0059D860 /* GLString.m in Sources */,
 				AA5846560FE162C60059D860 /* CVTextLayer.mm in Sources */,
 				AA71AE030FE58838002FFD23 /* CVInternalLayer.mm in Sources */,
-				AA63CF8E102DAED400FDA024 /* QTExporter.m in Sources */,
+				AA63CF8E102DAED400FDA024 /* QTExporter.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

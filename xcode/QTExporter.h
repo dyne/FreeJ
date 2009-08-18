@@ -9,12 +9,24 @@
 
 #import <Cocoa/Cocoa.h>
 #import <QTKit/QTKit.h>
+#import "CVScreen.h"
+
+#define DEFAULT_OUTPUT_FILE "/tmp/freej_export.mov"
 
 @interface QTExporter : NSObject {
+    NSString *outputFile;
     QTMovie *mMovie;
     DataHandler mDataHandlerRef;
+    NSMutableDictionary *savedMovieAttributes;
+    NSMutableArray *images;
     NSDictionary *encodingProperties;
+    NSRecursiveLock *lock;
 }
-- (void)addImage:(NSImage *)image;
-- (void)addImages:(NSArray *)imageFilesArray;
+
+- (BOOL)setOutputFile:(NSString *)path;
+- (void)addImage:(CIImage *)image;
+- (void)flushImages;
+- (BOOL)startExport;
+- (void)stopExport;
+- (BOOL)isRunning;
 @end

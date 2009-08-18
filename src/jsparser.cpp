@@ -169,7 +169,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	GoomLayer = layer_object;
 #endif
 
-#ifdef WITH_SOUND
+#ifdef WITH_AUDIO
 	REGISTER_CLASS("AudioJack",
 		       js_audio_jack_class,
 		       js_audio_jack_constructor,

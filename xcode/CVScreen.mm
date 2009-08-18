@@ -116,6 +116,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
                 forKey:  kCIContextOutputColorSpace]] retain];
     CGColorSpaceRelease( colorSpace );
+    exporter = [[[QTExporter alloc] init] retain];
     return self;
 }
 
@@ -249,6 +250,34 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [pool release];
 }
 
+- (CIImage *)exportSurface
+{
+    CIImage *exportedSurface = nil;
+    void *surface = [self getSurface];
+    if (surface) {
+        CVPixelBufferRef pixelBufferOut;
+        //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
+        CVReturn cvRet = CVPixelBufferCreateWithBytes (
+                                                       NULL,
+                                                       fjScreen->w,
+                                                       fjScreen->h,
+                                                       k32ARGBPixelFormat,
+                                                       surface,
+                                                       fjScreen->w*4,
+                                                       NULL,
+                                                       NULL,
+                                                       NULL,
+                                                       &pixelBufferOut
+                                                       );
+        if (cvRet != noErr) {
+            // TODO - Error Messages
+        }
+        exportedSurface = [CIImage imageWithCVImageBuffer:pixelBufferOut];
+        CVPixelBufferRelease(pixelBufferOut);
+    }
+    return exportedSurface;
+}
+
 - (void *)getSurface
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -276,7 +305,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     //CVTexture *textureToRelease = nil;
     NSRect        bounds = [self bounds];
-
+    //[lock lock];
     Context *ctx = (Context *)[freej getContext];
 
     ctx->cafudda(0.0);
@@ -292,6 +321,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         return kCVReturnError;
     
     if (outFrame) {
+        if (exporter && [exporter isRunning])
+            [exporter addImage:[self exportSurface]];
+        
         CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
                     NSWidth(bounds), NSHeight(bounds));
         [ciContext drawImage: outFrame
@@ -313,15 +345,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     // CVScreen thread
     //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread
     [self drawRect:NSZeroRect]; // this directly render the frame out in this thread
-   /*
-    fjScreen->layers.unlock();
-    Layer *lay = (Layer *)fjScreen->layers.begin();
-    while (lay) {
-        printf("PORKODIO %s\n", lay->name);
-        lay =  (Layer *)lay->next;
-    }
-    fjScreen->layers.unlock();
-    */
+    
+    //[lock unlock];
     [pool release];
     return kCVReturnSuccess;
 }
@@ -445,6 +470,66 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         fullScreen = YES;
     }
     [self drawRect:NSZeroRect];
+}
+
+- (IBAction)startExport:(id)sender
+{
+    if (exporter) 
+        if ([exporter startExport])
+            [sender setTitle:@"Stop"];
+}
+
+- (IBAction)stopExport:(id)sender
+{
+    if (exporter)
+        [exporter stopExport];
+        [sender setTitle:@"Start"];
+}
+
+- (IBAction)toggleExport:(id)sender
+{
+    if (exporter) {
+        if ([exporter isRunning])
+            [self stopExport:sender];
+        else
+            [self startExport:sender];
+    }
+}
+
+- (void)setExportFileDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void  *)contextInfo
+{
+    if(returnCode == NSOKButton){
+        func("openFilePanel: OK");    
+    } else if(returnCode == NSCancelButton) {
+        func("openFilePanel: Cancel");
+        return;
+    } else {
+        error("openFilePanel: Error %3d",returnCode);
+        return;
+    } // end if     
+    NSString * tvarDirectory = [panel directory];
+    func("openFile directory = %@",tvarDirectory);
+    
+    NSString * tvarFilename = [panel filename];
+    func("openFile filename = %@",tvarFilename);
+    
+    if (tvarFilename) {
+        [exporter setOutputFile:tvarFilename];
+        [[(id)contextInfo nextKeyView] setStringValue:tvarFilename]; 
+    }
+}
+
+- (IBAction)setExportFile:(id)sender
+{
+    NSSavePanel *fileSelectionPanel    = [NSSavePanel savePanel];
+    
+    [fileSelectionPanel 
+     beginSheetForDirectory:nil 
+     file:nil
+     modalForWindow:[sender window]
+     modalDelegate:self 
+     didEndSelector:@selector(setExportFileDidEnd: returnCode: contextInfo:) 
+     contextInfo:sender];        
 }
 
 - (bool)isOpaque
@@ -618,6 +703,12 @@ bail:
     [layerList reloadData];
 }
 
+- (BOOL)startExport
+{
+}
+
+
+
 @synthesize fullScreen;
 
 @end
@@ -641,7 +732,6 @@ bool CVScreen::init(int w, int h) {
   bpp = 32;
   size = w*h*(bpp>>3);
   pitch = w*(bpp>>3);
-
 
   return true;
 }
