@@ -8,8 +8,9 @@ freej (0.10git20090819-1) UNRELEASED; urgency=low
     libsdl-image1.2-dev.
   * Remove doc/scripting make rules as now it is handled by freej itself.
   * Update freej-doc install paths to reflect upstream changes.
+  * Recommend frei0r-plugins.
 
- -- Luca Bigliardi <shammash@artha.org>  Wed, 19 Aug 2009 21:05:16 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Wed, 19 Aug 2009 21:21:34 +0100
 
 freej (0.10git20090312-1) unstable; urgency=low
 

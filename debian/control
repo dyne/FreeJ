@@ -74,7 +74,7 @@ Package: libfreej0
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Recommends: ttf-freefont
+Recommends: ttf-freefont, frei0r-plugins
 Description: realtime video mixer and linear video editor
  FreeJ is a digital instrument for realtime video manipulation used in
  the fields of dance theater, veejaying, medical visualization and TV.
