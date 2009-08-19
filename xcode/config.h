@@ -221,4 +221,6 @@
 //#define _UINT8
 
 #define THREADSAFE 1
+
+#define WITH_FREI0R 1
 #endif
