@@ -1,9 +1,13 @@
-freej (0.10git20090620-1) UNRELEASED; urgency=low
+freej (0.10git20090819-1) UNRELEASED; urgency=low
 
   * New upstream import
-  * Build-Depend on libsdl-gfx1.2-dev
+  * Build-Depend on libcwiid instead of libbluetooth
+  * Build-Depend on libfftw3 instead of fftw3
+  * Add Build-Depend on libsdl-gfx1.2-dev, libx11-dev, liblo0-dev,
+    libsamplerate-dev, libcv-dev, libshout-dev, libsdl-ttf2.0-dev,
+    libsdl-image1.2-dev
 
- -- Luca Bigliardi <shammash@artha.org>  Sat, 20 Jun 2009 08:44:24 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Wed, 19 Aug 2009 20:24:51 +0100
 
 freej (0.10git20090312-1) unstable; urgency=low
 
