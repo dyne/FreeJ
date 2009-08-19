@@ -775,6 +775,9 @@ AC_SUBST(CCVT_CONV)
 CFLAGS="$GLOBAL_CFLAGS $CFLAGS"
 AC_SUBST(CFLAGS)
 
+CXXFLAGS="$GLOBAL_CFLAGS $CXXFLAGS"
+AC_SUBST(CXXFLAGS)
+
 dnl ==============================================================
 dnl freej specific flags, explanation:
 dnl STATIC_CFLAGS cflags regarding static libraries from lib/
