@@ -310,6 +310,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     ctx->cafudda(0.0);
     
+    if (exporter && [exporter isRunning]) {
+        CVTimeStamp *exportTimestamp = (CVTimeStamp *)malloc(sizeof(CVTimeStamp));
+        CVDisplayLinkGetCurrentTime(displayLink, exportTimestamp);
+        [exporter addImage:[self exportSurface] atTime:exportTimestamp];
+    }
+    
     if (rateCalc) {
         [rateCalc tick:timestamp];
         fpsString = [[NSString alloc] initWithFormat:@"%0.1lf", [rateCalc rate]];
@@ -342,13 +348,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     // CVScreen thread
     //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread
     [self drawRect:NSZeroRect]; // this directly render the frame out in this thread
-    
-    if (exporter && [exporter isRunning]) {
-        CVTimeStamp *exportTimestamp = (CVTimeStamp *)malloc(sizeof(CVTimeStamp));
-        CVDisplayLinkGetCurrentTime(displayLink, exportTimestamp);
-        [exporter addImage:[self exportSurface] atTime:exportTimestamp];
-    }
-    
     
     //[lock unlock];
     [pool release];

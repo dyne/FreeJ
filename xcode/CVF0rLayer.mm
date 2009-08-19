@@ -173,7 +173,9 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
 
 CVF0rLayer::~CVF0rLayer()
 {
+    CVLayer *layerPersonality = (CVLayer *)this;
 
+    layerPersonality->buffer = NULL; // XXX
 }
 
 void *

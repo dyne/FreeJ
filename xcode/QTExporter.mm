@@ -196,9 +196,10 @@ cantcreatemovstorage:
             uint64_t timedelta = lastTimestamp?timestamp->videoTime-((CVTimeStamp *)[lastTimestamp bytes])->videoTime:timestamp->videoTimeScale/25;            
             duration = QTMakeTime(timedelta, timestamp->videoTimeScale);
 
-            if (lastTimestamp)
+            if (lastTimestamp) {
                 [lastTimestamp release];
-            lastTimestamp = [entry valueForKey:@"timestamp"];
+            }
+            lastTimestamp = [[entry valueForKey:@"timestamp"] retain];
 
             [QTMovie enterQTKitOnThread];   
             
@@ -215,6 +216,8 @@ cantcreatemovstorage:
             
         }
         lastImage = anImage;
+        [entry removeAllObjects];
+        [entry release];
         [lock lock];
     }
     [lock unlock];
@@ -300,17 +303,17 @@ bail:
 - (void) exporterThread:(id)arg
 {
     NSAutoreleasePool *pool;
-    pool = [[NSAutoreleasePool alloc] init];
     FPS fps;
     fps.init(25);
 	if (!encodingProperties)
         ;// TODO - Handle error condition
     while ([self isRunning]) {
+        pool = [[NSAutoreleasePool alloc] init];
         [self flushImages];
         fps.calc();
         fps.delay();
+        [pool release];
     }
-    [pool release];
 }
 
 //
