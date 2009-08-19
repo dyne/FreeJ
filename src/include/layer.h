@@ -98,7 +98,9 @@ class Layer: public Entry, public JSyncThread {
 	  UNKNOWN,
 	  TEXT,
 	  F0R_GENERATOR,
+#if defined HAVE_DARWIN && defined WITH_COCOA
 	  GL_COCOA
+#endif
   };
 
   Layer(); ///< Layer constructor
