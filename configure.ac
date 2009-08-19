@@ -526,8 +526,8 @@ AC_ARG_ENABLE(opengl,
 if test x$enable_opengl = xyes; then
    # note: checking for GLU only, this brings in also GL
    PKG_CHECK_MODULES(GLU, glu,
-                     :
-                     GLU_LIBS="-lGLU -lGL"; GLU_CFLAGS="")
+                     :,
+                     [GLU_LIBS="-lGLU -lGL"; GLU_CFLAGS=""])
 
    AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
 fi
