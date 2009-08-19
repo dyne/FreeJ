@@ -223,6 +223,10 @@ AC_CHECK_LIB(slang, SLang_getkey, :,
 # apparently pkg-config is not in slang distribution (yet)
 #PKG_CHECK_MODULES(SLANG, slang, :,
 #	AC_MSG_ERROR([*** SLANG development files not found!]))
+SLANG_CFLAGS=""
+SLANG_LIBS="-lslang"
+AC_SUBST([SLANG_CFLAGS])
+AC_SUBST([SLANG_LIBS])
 
 dnl ==============================================================
 dnl Check for SDL
