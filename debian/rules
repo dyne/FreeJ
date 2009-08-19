@@ -18,19 +18,9 @@ DEB_DBG_PACKAGE_python-freej := python-freej-dbg
 # Don't compress .py
 DEB_COMPRESS_EXCLUDE := .py
 
-common-build-arch common-build-indep::
-	# scripting doc
-	make -k -C doc/scripting
-
 clean::
-	# scripting doc
-	make -k -C doc/scripting clean
-	#
 	-rm -rf $(DEB_BUILDDIR)
 
-common-install-arch common-install-indep::
-	mkdir -p $(CURDIR)/debian/freej/usr/share/doc/freej/
-	cp -r doc/scripting/html $(CURDIR)/debian/tmp/usr/share/doc/freej/
 
 ## python-freej
 
