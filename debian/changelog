@@ -7,8 +7,9 @@ freej (0.10git20090819-1) UNRELEASED; urgency=low
     libsamplerate-dev, libcv-dev, libshout-dev, libsdl-ttf2.0-dev,
     libsdl-image1.2-dev.
   * Remove doc/scripting make rules as now it is handled by freej itself.
+  * Update freej-doc install paths to reflect upstream changes.
 
- -- Luca Bigliardi <shammash@artha.org>  Wed, 19 Aug 2009 20:38:13 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Wed, 19 Aug 2009 21:05:16 +0100
 
 freej (0.10git20090312-1) unstable; urgency=low
 
