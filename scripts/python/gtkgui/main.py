@@ -41,6 +41,7 @@ class MyCall(freej.DumbCall):
    def callback(self):
        self.func(*self.args)
 
+
 class FreeJ(object):
     def __init__(self):
         self.cx = freej.Context()
@@ -48,7 +49,7 @@ class FreeJ(object):
         self.scr = freej.SdlScreen( 400, 300)
         
         self.cx.add_screen( self.scr )
-        self.open_layer('/home/caedes/ca-midi.xavi')
+        self.open_layer('/home/caedes/ca-midi.avi')
         self.th = threading.Thread(target = self.cx.start , name = "freej")
 
         #cb = MyCall(self.finished)
@@ -82,7 +83,8 @@ class App(FreeJ):
         freej.set_console(self.console)
         FreeJ.__init__(self)
         self.th.start();
-        self.wTree.signal_autoconnect({"open_file":self.open_file})
+        self.wTree.signal_autoconnect({"open_file": self.open_file,
+                                       "open_script": self.open_script})
 
     def open_file(self, *args):
         self.filew = gtk.FileChooserDialog("File selection",
@@ -95,6 +97,19 @@ class App(FreeJ):
         if response == gtk.RESPONSE_OK:
             filename = self.filew.get_filename()
             self.open_layer(filename)
+        self.filew.hide()
+
+    def open_script(self, *args):
+        self.filew = gtk.FileChooserDialog("File selection",
+                                          None,
+                                          gtk.FILE_CHOOSER_ACTION_OPEN,
+                                          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                          gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        self.filew.set_default_response(gtk.RESPONSE_OK)
+        response = self.filew.run()
+        if response == gtk.RESPONSE_OK:
+            filename = self.filew.get_filename()
+            self.cx.open_script(filename)
         self.filew.hide()
 
 # -----------------------------------------------------
