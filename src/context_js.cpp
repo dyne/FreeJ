@@ -55,6 +55,8 @@ JSFunctionSpec global_functions[] = {
     {"set_clear_all",   set_clear_all,          0},
     {"unset_clear_all", unset_clear_all,        0},
     {"set_fps",         set_fps,                1},
+    {"width",           get_width,              0},
+    {"height",          get_height,             0},      
     {"set_resolution",  set_resolution,         2},
     {"scandir",         freej_scandir,          1},
     {"echo",            freej_echo,             1},
@@ -288,6 +290,18 @@ JS(js_set_debug) {
             set_debug((int)level);
     }
     return ret;
+}
+
+JS(get_width) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    *rval = INT_TO_JSVAL(env->screen->w);
+    return JS_TRUE;
+}
+
+JS(get_height) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    *rval = INT_TO_JSVAL(env->screen->h);
+    return JS_TRUE;
 }
 
 JS(set_resolution) {

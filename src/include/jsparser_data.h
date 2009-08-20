@@ -249,6 +249,8 @@ JS(set_clear_all);
 JS(unset_clear_all);
 JS(set_fps);
 JS(set_resolution);
+JS(get_width);
+JS(get_height);
 JS(freej_scandir);
 JS(freej_echo);
 JS(freej_echo_func);
