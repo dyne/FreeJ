@@ -344,7 +344,7 @@ AC_SUBST(FLASH_CFLAGS)
 
 
 dnl ==============================================================
-dnl CHECK if there is CWIID, otherwise try to build
+dnl CHECK if there is CWIID
 dnl ==============================================================
 PKG_CHECK_MODULES(CWIID, cwiid, have_cwiid=yes, have_cwiid=no)
 if test x$have_cwiid = xno; then
@@ -353,20 +353,8 @@ if test x$have_cwiid = xno; then
    CWIID_CFLAGS=""
    CWIID_LIBS="-lcwiid"
 fi
-if test x$have_cwiid = xno; then
-   PKG_CHECK_MODULES(BLUEZ, bluez, have_bluez=yes, have_bluez=no)
-   if test x$have_bluez = xyes; then
-      build_cwiid=yes
-      AC_CHECK_HEADERS([sys/socket.h])
-      AC_TYPE_SSIZE_T
-      AC_CHECK_FUNCS([socket clock_gettime])
-
-      CWIID_CFLAGS="-I\$(top_srcdir)/lib/cwiid"
-      CWIID_LIBS="\$(top_builddir)/lib/cwiid/libwiimote.la"
-   fi
-fi
-if test x$have_cwiid = xyes || test x$build_cwiid = xyes ; then
-   AC_DEFINE(WITH_CWIID,1,[define if compiling bluetooth cwiid controller])
+if test x$have_cwiid = xyes; then
+   AC_DEFINE(WITH_CWIID,1,[define if compiling cwiid WiiMote controller])
 fi
 AM_CONDITIONAL(BUILD_CWIID, [test x$build_cwiid = xyes])
 
@@ -1068,11 +1056,7 @@ else
 fi
 
 if test x$have_cwiid = xyes; then
-   echo "= WiiMote controller (cwiid dynamic)"
-   echo "  LIBS  : $CWIID_LIBS"
-   echo "  CFLAGS: $CWIID_CFLAGS"
-elif test x$build_cwiid = xyes; then
-   echo "= WiiMote controller (cwiid static)"
+   echo "= WiiMote controller (cwiid)"
    echo "  LIBS  : $CWIID_LIBS"
    echo "  CFLAGS: $CWIID_CFLAGS"
 else
