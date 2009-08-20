@@ -28,7 +28,7 @@
             [NSArray arrayWithObjects:
                 [NSNumber numberWithBool:YES],
                 [NSNumber numberWithBool:YES],
-                [NSNumber numberWithLong:'mpg4'],
+                [NSNumber numberWithLong:'mpg4'],  // TODO - allow to select the codec
                 nil]
         forKeys:
             [NSArray arrayWithObjects:

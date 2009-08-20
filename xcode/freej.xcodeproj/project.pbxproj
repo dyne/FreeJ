@@ -145,6 +145,7 @@
 		AAB26E510F4058330068E5F5 /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB26E4A0F4058330068E5F5 /* QuickTime.framework */; };
 		AAB270620F4065220068E5F5 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270610F4065220068E5F5 /* QTKit.framework */; };
 		AAB270980F406ACE0068E5F5 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270970F406ACE0068E5F5 /* CoreVideo.framework */; };
+		AAC9DB37103D2C7F00A0111E /* PreferencesPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */; };
 		AACBE4830F641605001B610F /* FrameRate.m in Sources */ = {isa = PBXBuildFile; fileRef = AACBE4820F641605001B610F /* FrameRate.m */; };
 		AAD0A4CC0FDEC08100968886 /* libavcodec.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C00FDEC08100968886 /* libavcodec.dylib */; };
 		AAD0A4CD0FDEC08100968886 /* libavformat.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C10FDEC08100968886 /* libavformat.dylib */; };
@@ -472,6 +473,8 @@
 		AAB84E9C0F3F080600AD479D /* httpp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = httpp.c; sourceTree = "<group>"; };
 		AAB84E9D0F3F080600AD479D /* httpp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = httpp.h; sourceTree = "<group>"; };
 		AAB84F850F3F1EB300AD479D /* CFreej.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFreej.h; sourceTree = "<group>"; };
+		AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PreferencesPanel.h; sourceTree = "<group>"; };
+		AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = PreferencesPanel.mm; sourceTree = "<group>"; };
 		AACBE4810F641605001B610F /* FrameRate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FrameRate.h; sourceTree = "<group>"; };
 		AACBE4820F641605001B610F /* FrameRate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FrameRate.m; sourceTree = "<group>"; };
 		AAD0A4C00FDEC08100968886 /* libavcodec.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.dylib; path = /opt/local/lib/libavcodec.dylib; sourceTree = "<absolute>"; };
@@ -568,6 +571,8 @@
 				AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */,
 				AA63CF8C102DAED400FDA024 /* QTExporter.h */,
 				AA63CF8D102DAED400FDA024 /* QTExporter.mm */,
+				AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */,
+				AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */,
 			);
 			name = Cocoa;
 			sourceTree = "<group>";
@@ -1493,6 +1498,7 @@
 				AA5846560FE162C60059D860 /* CVTextLayer.mm in Sources */,
 				AA71AE030FE58838002FFD23 /* CVInternalLayer.mm in Sources */,
 				AA63CF8E102DAED400FDA024 /* QTExporter.mm in Sources */,
+				AAC9DB37103D2C7F00A0111E /* PreferencesPanel.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

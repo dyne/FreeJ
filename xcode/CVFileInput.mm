@@ -46,11 +46,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [super dealloc];
 }
 
-- (void)prepareOpenGL
+- (void)setupPixelBuffer
 {
     OSStatus err;
     
-    [super prepareOpenGL];
     Context *ctx = (Context *)[freej getContext];
 
     /* Create QT Visual context */
@@ -60,7 +59,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                                                                           &kCFTypeDictionaryKeyCallBacks,
                                                                           &kCFTypeDictionaryValueCallBacks);
     
-    // the pixel format we want (freej require BGRA pixel format
+    // the pixel format we want (freej require BGRA pixel format)
     SetNumberValue(pixelBufferOptions, kCVPixelBufferPixelFormatTypeKey, k32ARGBPixelFormat);
     
     // size
@@ -136,6 +135,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
     if(qtMovie) { // ok the movie is here ... let's start the underlying QTMovie object
         OSStatus error;
+
+        [self setupPixelBuffer];
 
         [qtMovie retain]; // we are going to need this for a while
 

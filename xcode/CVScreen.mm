@@ -413,9 +413,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)setSizeWidth:(int)w Height:(int)h
 {
-    //[lock lock];
+    [lock lock];
     if (w != fjScreen->w || h != fjScreen->h) {
-
             CVPixelBufferRelease(pixelBuffer);
             CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->w, fjScreen->h, NULL, &pixelBuffer);
             if (err != noErr) {
@@ -426,9 +425,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             fjScreen->w = w;
             fjScreen->h = h;
             needsReshape = YES;
-
+            NSRect frame = [window frame];
+            frame.size.width = w;
+            frame.size.height = h;
+            [window setFrame:frame display:YES];
+            fjScreen->resize_w = w;
+            fjScreen->resize_h = h;
     }
-    //[lock unlock];
+    [lock unlock];
 }
 
 - (IBAction)toggleFullScreen:(id)sender
@@ -793,3 +797,10 @@ void CVScreen::rem_layer(Layer *lay)
     [view remLayer:lay];
 }
 
+void CVScreen::resize(int rw, int rh)
+{
+    lock();
+    w = rw;
+    h = rh;
+    unlock();
+}
