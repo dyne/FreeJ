@@ -94,11 +94,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [qtMovie release];
     qtMovie = NULL;
 
+    /* TODO - try a way to safely reset currentFrame and lastFrame 
+     * (note that other threads can be trying to access them) */
     if (lastFrame)
         [lastFrame release];
     lastFrame = NULL;
     if (currentFrame)
         CVPixelBufferRelease(currentFrame);
+    */
     
     posterImage = NULL;
 
@@ -121,16 +124,16 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     //Context *ctx = (Context *)[freej getContext];
 
-    [lock lock];
-    // if we own already a movie let's relase it before trying to open the new one
-    if (qtMovie) {
-        [self unloadMovie];
-    }
     // no movie has been supplied... perhaps we are going to exit
-    if (!inMovie) {
-        [lock unlock];
+    if (!inMovie)
         return;
-    }
+    
+    // if we own already a movie let's relase it before trying to open the new one
+    if (qtMovie)
+        [self unloadMovie];
+
+    [lock lock];
+
     qtMovie = inMovie;
 
     if(qtMovie) { // ok the movie is here ... let's start the underlying QTMovie object
@@ -253,6 +256,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     BOOL rv = NO;
     // we can care ourselves about thread safety when accessing the QTKit api
     [QTMovie enterQTKitOnThread];
+
+    [lock lock];
+
+    if (!qtMovie)
+        return NO;
+    
     QTTime now = [qtMovie currentTime];
     // TODO - check against real hosttime to skip frames instead of
     // slowing down playback
@@ -273,16 +282,17 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         // implemented in CVLayerView (our parent)
         
         rv = YES;
-        [lock lock];
         if (currentFrame) 
             CVOpenGLTextureRelease(currentFrame);
         currentFrame = newPixelBuffer;
         newFrame = YES;
-        [lock unlock];
 
     } 
-    [QTMovie exitQTKitOnThread];   
     MoviesTask([qtMovie quickTimeMovie], 0);
+    
+    [lock unlock];
+    [QTMovie exitQTKitOnThread];   
+
     [pool release];
     return rv;
 }
