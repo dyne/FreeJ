@@ -24,7 +24,7 @@
 
 #include <slw.h>
 
-#include <console_ctrl.h>
+#include <slang_console_ctrl.h>
 #include <console_widgets_ctrl.h>
 
 #include <context.h>

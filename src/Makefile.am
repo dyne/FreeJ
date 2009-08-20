@@ -31,7 +31,7 @@ SOURCES = \
 	sdlgl_screen.cpp 	gl_screen.cpp   \
 	soft_screen.cpp \
 \
-	controller.cpp  	console_ctrl.cpp \
+	controller.cpp  	console_ctrl.cpp  \
 	console_calls_ctrl.cpp 	console_readline_ctrl.cpp \
 	console_widgets_ctrl.cpp 	kbd_ctrl.cpp	\
 	mouse_ctrl.cpp		vimo_ctrl.cpp	\

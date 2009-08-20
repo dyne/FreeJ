@@ -25,7 +25,7 @@
 #include <layer.h>
 #include <jutils.h>
 
-#include <console_ctrl.h>
+#include <slang_console_ctrl.h>
 #include <console_calls_ctrl.h>
 #include <console_readline_ctrl.h>
 

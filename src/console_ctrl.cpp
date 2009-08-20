@@ -32,7 +32,7 @@
 
 #include <slw_log.h>
 
-#include <console_ctrl.h>
+#include <slang_console_ctrl.h>
 #include <console_calls_ctrl.h>
 #include <console_widgets_ctrl.h>
 #include <console_readline_ctrl.h>
@@ -96,8 +96,7 @@ int quit_proc(Context *env, char *cmd) {
 }
 
 
-Console::Console() 
-  : Controller() {
+SlwConsole::SlwConsole() :ConsoleController() {
   env=NULL;
   active = false;
   paramsel = 1;
@@ -116,7 +115,7 @@ Console::Console()
   set_name("Console");
 }
 
-Console::~Console() {
+SlwConsole::~SlwConsole() {
   set_console(NULL);
   SLtt_set_cursor_visibility(1);
 
@@ -128,7 +127,11 @@ Console::~Console() {
 
 }
 
-bool Console::slw_init() {
+bool SlwConsole::console_init() {
+  slw_init();
+}
+
+bool SlwConsole::slw_init() {
   ::func("%s",__PRETTY_FUNCTION__);
 
   slw = new SLangConsole();
@@ -188,7 +191,7 @@ bool Console::slw_init() {
 
 
 
-int Console::dispatch() {
+int SlwConsole::dispatch() {
   int key = SLkp_getkey();
   
 //  if(key) ::func("SLkd_getkey: %u",key);
@@ -213,7 +216,7 @@ int Console::dispatch() {
   return(0);
 }
 
-int Console::poll() {
+int SlwConsole::poll() {
   if(keyboard_quit) {
     rdl->readline("do you really want to quit? type yes to confirm:",&quit_proc,NULL);
     keyboard_quit = false;
@@ -236,7 +239,7 @@ int Console::poll() {
   return(1);
 }
 
-void Console::refresh() {
+void SlwConsole::refresh() {
   tit->refresh();
   log->refresh();
   sel->refresh();
@@ -258,18 +261,18 @@ void Console::refresh() {
 
 
 
-void Console::notice(const char *msg) {
+void SlwConsole::notice(const char *msg) {
   log->append(msg);
 }
-void Console::warning(const char *msg) {
+void SlwConsole::warning(const char *msg) {
   log->append(msg);
 }
-void Console::act(const char *msg) {
+void SlwConsole::act(const char *msg) {
   log->append(msg);
 }
-void Console::error(const char *msg) {
+void SlwConsole::error(const char *msg) {
   log->append(msg);
 }
-void Console::func(const char *msg) {
+void SlwConsole::func(const char *msg) {
   log->append(msg);
 }

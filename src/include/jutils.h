@@ -33,7 +33,7 @@ class FreejError : public std::runtime_error {
     int rv;
 };
 
-class Console;
+class ConsoleController;
 
 // max length of (error)messages
 #define MAX_ERR_MSG 1024
@@ -46,7 +46,7 @@ int get_debug();
 void set_osd(char *st);
 void show_osd();
 void show_osd(const char *format, ...);
-void set_console(Console *c);
+void set_console(ConsoleController *c);
 void notice(const char *format, ...);
 void func(const char *format, ...);
 void error(const char *format, ...);
