@@ -218,7 +218,8 @@ fi
 dnl ==============================================================
 dnl Check for slang
 dnl ==============================================================
-AC_CHECK_LIB(slang, SLang_getkey, :,
+FREEJ_CHECK_LIB_HEADERS([slang], [SLang_getkey], [slang.h],
+   [:],
 	AC_MSG_ERROR([*** SLANG development files not found!]))
 # apparently pkg-config is not in slang distribution (yet)
 #PKG_CHECK_MODULES(SLANG, slang, :,
@@ -347,7 +348,8 @@ dnl CHECK if there is CWIID, otherwise try to build
 dnl ==============================================================
 PKG_CHECK_MODULES(CWIID, cwiid, have_cwiid=yes, have_cwiid=no)
 if test x$have_cwiid = xno; then
-   AC_CHECK_LIB(cwiid, cwiid_open, have_cwiid=yes, have_cwiid=no)
+   FREEJ_CHECK_LIB_HEADERS([cwiid], [cwiid_open], [cwiid.h],
+                           [have_cwiid=yes], [have_cwiid=no])
    CWIID_CFLAGS=""
    CWIID_LIBS="-lcwiid"
 fi
@@ -688,7 +690,13 @@ AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
 dnl ==============================================================
 dnl SDL_ttf
 dnl ==============================================================
-AC_CHECK_LIB(SDL_ttf, TTF_Init, have_sdlttf=yes, have_sdlttf=no)
+FREEJ_SAVE_FLAGS
+CFLAGS="$SDL_CFLAGS"
+CPPFLAGS="$SDL_CFLAGS"
+LDFLAGS="$SDL_LIBS"
+FREEJ_CHECK_LIB_HEADERS(SDL_ttf, TTF_Init, [SDL_ttf.h],
+                        [have_sdlttf=yes], [have_sdlttf=no])
+FREEJ_RESTORE_FLAGS
 if test x$have_sdlttf = xyes; then
    SDLTTF_CFLAGS="$SDL_CFLAGS"
    SDLTTF_LIBS="$SDL_LIBS -lSDL_ttf"
@@ -705,12 +713,19 @@ AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
 dnl ==============================================================
 dnl SDL_image
 dnl ==============================================================
-AC_CHECK_LIB(SDL_image, IMG_Load, have_sdlimage=yes, have_sdlimage=no)
+FREEJ_SAVE_FLAGS
+CFLAGS="$SDL_CFLAGS"
+CPPFLAGS="$SDL_CFLAGS"
+LDFLAGS="$SDL_LIBS"
+FREEJ_CHECK_LIB_HEADERS([SDL_image], [IMG_Load], [SDL_image.h],
+                        [have_sdlimage=yes], [have_sdlimage=no])
+FREEJ_RESTORE_FLAGS
 if test x$have_sdlimage = xyes; then
    SDLIMAGE_CFLAGS="$SDL_CFLAGS"
    SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image"
 else
-   AC_CHECK_LIB(jpeg, jpeg_std_error, have_libjpeg=yes, have_libjpeg=no)
+   FREEJ_CHECK_LIB_HEADERS([jpeg], [jpeg_std_error], [jpeglib.h],
+                           [have_libjpeg=yes], [have_libjpeg=no])
    if test x$have_libjpeg = xno; then
       AC_MSG_ERROR([*** Libjpeg development files are required to build static SDL_image])
    fi
