@@ -356,7 +356,6 @@ fi
 if test x$have_cwiid = xyes; then
    AC_DEFINE(WITH_CWIID,1,[define if compiling cwiid WiiMote controller])
 fi
-AM_CONDITIONAL(BUILD_CWIID, [test x$build_cwiid = xyes])
 
 
 dnl ==============================================================
