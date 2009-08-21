@@ -64,7 +64,7 @@ void js_sigint_handler(int sig) {
 }
 
 
-JSBool js_static_branch_callback(JSContext* Context, JSScript* Script) {
+JSBool js_static_branch_callback(JSContext* Context) {
     if(stop_script) {
 	stop_script=false;
 	return JS_FALSE;

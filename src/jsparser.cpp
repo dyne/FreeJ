@@ -86,7 +86,7 @@ void JsParser::init() {
     JS_SetOptions(global_context, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
 
     /* Set the branch callback */
-    JS_SetBranchCallback(global_context, js_static_branch_callback);
+    JS_SetOperationCallback(global_context, js_static_branch_callback);
 
     /* Set the error reporter */
     JS_SetErrorReporter(global_context, js_error_reporter);
