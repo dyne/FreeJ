@@ -869,7 +869,6 @@ doc/freej.dox
 doc/scripting/Makefile
 lib/Makefile
 lib/ccvt/Makefile
-lib/cwiid/Makefile
 lib/flash/Makefile
 lib/goom/Makefile
 lib/lo/Makefile
