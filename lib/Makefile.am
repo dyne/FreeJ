@@ -2,10 +2,6 @@ if BUILD_FLASH
 FLASHDIR = flash
 endif
 
-if BUILD_CWIID
-CWIIDDIR = cwiid
-endif
-
 if BUILD_GOOM
 GOOMDIR = goom
 endif
@@ -43,7 +39,6 @@ SUBDIRS = ccvt \
 	$(SHOUTDIR)      \
 	$(JAVASCRIPTDIR) \
 	$(GOOMDIR)       \
-	$(CWIIDDIR)      \
 	$(FLASHDIR)
 
 # XXX(godog) after lib/javascript is gone remove this
@@ -55,5 +50,4 @@ DIST_SUBDIRS = ccvt \
 	sdl_gfx          \
 	shout            \
 	goom             \
-	cwiid            \
 	flash

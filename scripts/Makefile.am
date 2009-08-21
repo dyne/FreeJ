@@ -1,4 +1,4 @@
-scriptsdir = "$(DESTDIR)$(docdir)/examples"
+scriptsdir = "$(DESTDIR)$(docdir)/scripts"
 
 DIRS = javascript python ruby
 
