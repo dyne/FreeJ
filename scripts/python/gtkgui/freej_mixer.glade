@@ -117,6 +117,19 @@
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_View</property>
                 <property name="use_underline">True</property>
+                <child>
+                  <widget class="GtkMenu" id="menu4">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkCheckMenuItem" id="history_menu">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">History</property>
+                        <property name="use_underline">True</property>
+                        <signal name="toggled" handler="show_history"/>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
               </widget>
             </child>
             <child>
@@ -150,7 +163,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <child>
-              <widget class="GtkTreeView" id="treeview1">
+              <widget class="GtkTreeView" id="main_tree">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
               </widget>
@@ -168,6 +181,7 @@
                 <child>
                   <widget class="GtkTextView" id="status">
                     <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                   </widget>
                 </child>
@@ -186,6 +200,7 @@
           <widget class="GtkEntry" id="entry1">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <signal name="activate" handler="run_command"/>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -235,6 +250,17 @@
             <property name="position">3</property>
           </packing>
         </child>
+      </widget>
+    </child>
+  </widget>
+  <widget class="GtkWindow" id="window_history">
+    <property name="title" translatable="yes">Command History</property>
+    <property name="default_width">200</property>
+    <property name="default_height">200</property>
+    <child>
+      <widget class="GtkTextView" id="textview_history">
+        <property name="visible">True</property>
+        <property name="can_focus">True</property>
       </widget>
     </child>
   </widget>

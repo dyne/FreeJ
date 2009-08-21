@@ -1,4 +1,5 @@
 import freej
+import sys
 import gtk
 import threading
 import gtk.glade
@@ -23,9 +24,11 @@ class MyConsole(freej.ConsoleController):
         iter = self.textview.get_buffer().get_end_iter()
         self.textview.get_buffer().insert(iter, msg+'\n')
     def act(self, msg):
-        print " X*",msg
+        iter = self.textview.get_buffer().get_end_iter()
+        self.textview.get_buffer().insert(iter, msg+'\n')
     def func(self, msg):
-        print " X*",msg
+        iter = self.textview.get_buffer().get_end_iter()
+        self.textview.get_buffer().insert(iter, msg+'\n')
     def refresh(self, msg):
         print " X*",msg
 
@@ -78,13 +81,53 @@ class App(FreeJ):
         self.wTree = gtk.glade.XML(self.fname)
         self.window = self.wTree.get_widget("main")
         self.window.connect('destroy', gtk.main_quit)
+        self.history_w = self.wTree.get_widget("window_history")
+        self.history_w.connect('delete-event', self.hide_history)
+        self.history_t = self.wTree.get_widget("textview_history")
         textview = self.wTree.get_widget("status")
         self.console = MyConsole(textview)
         freej.set_console(self.console)
         FreeJ.__init__(self)
         self.th.start();
         self.wTree.signal_autoconnect({"open_file": self.open_file,
-                                       "open_script": self.open_script})
+                                       "open_script": self.open_script,
+                                       "run_command": self.run_command,
+                                       "show_history": self.show_history})
+        self.prepare_tree()
+        self.fill_tree()
+
+    def prepare_tree(self):
+        self.main_tree = self.wTree.get_widget("main_tree")
+        self.main_model = gtk.TreeStore(str)
+        self.main_tree.set_model(self.main_model)
+        cell = gtk.CellRendererText()
+        column = gtk.TreeViewColumn('name', cell)
+        column.add_attribute(cell, "text", 0)
+        self.main_tree.append_column(column)
+        print self.main_tree.get_model()
+
+    def fill_tree(self):
+        iter = self.main_model.append(None, ["bla"])
+        self.main_model.append(None, ["foo"])
+        self.main_model.append(iter, ["bla2"])
+
+    def hide_history(self, window, event):
+        self.wTree.get_widget("history_menu").set_active(False)
+        window.hide()
+        return 1
+
+    def show_history(self, checkitem):
+        if checkitem.get_active():
+            self.history_w.show()
+        else:
+            self.history_w.hide()
+
+    def run_command(self, entry):
+        text = entry.get_text()
+        self.cx.parse_js_cmd(text)
+        entry.set_text("")
+        iter = self.history_t.get_buffer().get_end_iter()
+        self.history_t.get_buffer().insert(iter, text+"\n")
 
     def open_file(self, *args):
         self.filew = gtk.FileChooserDialog("File selection",
