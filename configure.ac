@@ -350,10 +350,10 @@ PKG_CHECK_MODULES(CWIID, cwiid, have_cwiid=yes, have_cwiid=no)
 if test x$have_cwiid = xno; then
    FREEJ_CHECK_LIB_HEADERS([cwiid], [cwiid_open], [cwiid.h],
                            [have_cwiid=yes], [have_cwiid=no])
-   CWIID_CFLAGS=""
-   CWIID_LIBS="-lcwiid"
 fi
 if test x$have_cwiid = xyes; then
+   CWIID_CFLAGS=""
+   CWIID_LIBS="-lcwiid"
    AC_DEFINE(WITH_CWIID,1,[define if compiling cwiid WiiMote controller])
 fi
 
