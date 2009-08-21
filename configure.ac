@@ -884,195 +884,256 @@ tests/Makefile
 ])
 AC_OUTPUT
 
+# function to print verbose configure options only if V=1 is passed to
+# configure
+AC_DEFUN([VRB],
+         AS_IF([test x"$V" == x1], [$1]))
 echo
 echo
 echo "Compile $PACKAGE $VERSION for ${host}"
-echo "= SDL"
-echo "  LIBS  : $SDL_LIBS"
-echo "  CFLAGS: $SDL_CFLAGS"
+echo "configuration summary, pass V=1 to configure for verbose output"
 
-if test x$have_x11 = xyes; then
-echo "= X11"
-echo "  LIBS  : $X11_LIBS"
-else
-echo "= X11 disabled"
-fi
+# mandatory libs, outputted only if verbose
+VRB([echo "= SDL"])
+VRB([echo "  LIBS   : $SDL_LIBS"])
+VRB([echo "  CFLAGS : $SDL_CFLAGS"])
 
-if test x$enable_opengl = xyes; then
-echo "= OpenGL"
-echo "  GLU LIBS   : $GLU_LIBS"
-echo "  GLU CFLAGS : $GLU_CFLAGS"
-else
-echo "= OpenGL disabled"
-fi
+VRB([echo "= ogg-theora (xiph.org)"])
+VRB([echo "  LIBS  : $XIPH_LIBS"])
+VRB([echo "  CFLAGS: $XIPH_CFLAGS"])
 
-echo "= Language bindings"
+VRB([echo "= Jack"])
+VRB([echo "  LIBS  : $JACK_LIBS"])
+VRB([echo "  CFLAGS: $JACK_CFLAGS"])
+
+VRB([echo "= Fftw / harmonics analysis"])
+VRB([echo "  LIBS  : $FFTW_LIBS"])
+VRB([echo "  CFLAGS: $FFTW_CFLAGS"])
+
+VRB([echo "= Samplerate"])
+VRB([echo "  LIBS  : $SAMPLERATE_LIBS"])
+VRB([echo "  CFLAGS: $SAMPLERATE_CFLAGS"])
+
+VRB([echo "= ffmpeg"])
+VRB([echo "  CFLAGS: $FFMPEG_CFLAGS"])
+VRB([echo "  LIBS  : $FFMPEG_LIBS"])
+
+
+#### bindings
+
+enabled_bindings=""
+disabled_bindings=""
+
 if test x$enable_python = xyes; then
-echo "  Python LIBS   : $PYTHON_LDFLAGS"
-echo "  Python CFLAGS : $PYTHON_CPPFLAGS"
+AS_VAR_APPEND(enabled_bindings, " python")
+VRB([echo "  Python:"])
+VRB([echo "    LIBS   : $PYTHON_LDFLAGS"])
+VRB([echo "    CFLAGS : $PYTHON_CPPFLAGS"])
 else
-echo "  Python disabled"
+AS_VAR_APPEND(disabled_bindings, " python")
 fi
+
 if test x$enable_ruby = xyes; then
-echo "  Ruby LIBS     : $RUBY_LDFLAGS"
-echo "  Ruby CFLAGS   : $RUBY_CPPFLAGS"
+AS_VAR_APPEND(enabled_bindings, " ruby")
+VRB([echo "  Ruby:"])
+VRB([echo "    LIBS     : $RUBY_LDFLAGS"])
+VRB([echo "    CFLAGS   : $RUBY_CPPFLAGS"])
 else
-echo "  Ruby disabled"
+AS_VAR_APPEND(disabled_bindings, " ruby")
 fi
+
 if test x$enable_java = xyes; then
-echo "  Java LIBS     : $JAVA_LDFLAGS"
-echo "  Java CFLAGS   : $JAVA_CFLAGS"
+AS_VAR_APPEND(enabled_bindings, " java")
+VRB([echo "  Java:"])
+VRB([echo "    LIBS     : $JAVA_LDFLAGS"])
+VRB([echo "    CFLAGS   : $JAVA_CFLAGS"])
 else
-echo "  Java disabled"
+AS_VAR_APPEND(disabled_bindings, " java")
 fi
+
 if test x$enable_perl = xyes; then
-echo "  Perl LIBS     : $PERL_LDFLAGS"
-echo "  Perl CFLAGS   : $PERL_CFLAGS"
+AS_VAR_APPEND(enabled_bindings, " perl")
+VRB([echo "  Perl:"])
+VRB([echo "    LIBS     : $PERL_LDFLAGS"])
+VRB([echo "    CFLAGS   : $PERL_CFLAGS"])
 else
-echo "  Perl disabled"
+AS_VAR_APPEND(disabled_bindings, " perl")
 fi
 
-if test x$have_freetype2 = xyes; then
-echo "= FreeType2"
-echo "  LIBS  : $FT2_LIBS"
-echo "  CFLAGS: $FT2_CFLAGS"
+echo "= Enabled language bindings  : $enabled_bindings"
+echo "= Disabled language bindings : $disabled_bindings"
+
+
+#### shipped libraries, can be static or dynamic
+
+if test x$have_mozjs = xyes; then
+echo "= javascript interpreter (dynamic)"
 else
-echo "= FreeType2 disabled"
+echo "= javascript interpreter (static)"
 fi
-
-if test x$have_fontconfig = xyes; then
-echo "= Fontconfig"
-echo "  LIBS  : $FC_LIBS"
-echo "  CFLAGS: $FC_CFLAGS"
-else
-echo "= Fontconfig disabled"
-fi
-
-echo "= ffmpeg (movie layer)"
-echo "  CFLAGS: $FFMPEG_CFLAGS"
-echo "  LIBS  : $FFMPEG_LIBS"
-
-echo "= ogg-theora (xiph.org)"
-echo "  LIBS  : $XIPH_LIBS"
-echo "  CFLAGS: $XIPH_CFLAGS"
-
-echo "= javascript interpreter"
-echo "  LIBS  : $MOZJS_LIBS"
-echo "  CFLAGS: $MOZJS_CFLAGS"
-
-if test x$have_unicap = xyes; then
-echo "= unicap library"
-echo "  LIBS  : $UNICAP_LIBS"
-echo "  CFLAGS: $UNICAP_CFLAGS"
-else
-echo "= unicap library disabled"
-fi
+VRB([echo "  LIBS  : $MOZJS_LIBS"])
+VRB([echo "  CFLAGS: $MOZJS_CFLAGS"])
 
 if test x$have_shout = xyes; then
 echo "= Shout library (dynamic)"
 else
 echo "= Shout library (static)"
 fi
-echo "  LIBS  : $SHOUT_LIBS"
-echo "  CFLAGS: $SHOUT_CFLAGS"
+VRB([echo "  LIBS  : $SHOUT_LIBS"])
+VRB([echo "  CFLAGS: $SHOUT_CFLAGS"])
 
 if test x$have_sdlgfx = xyes; then
 echo "= SDL_gfx (dynamic)"
 else
 echo "= SDL_gfx (static)"
 fi
-echo "  LIBS  : $SDLGFX_LIBS"
-echo "  CFLAGS: $SDLGFX_CFLAGS"
+VRB([echo "  LIBS  : $SDLGFX_LIBS"])
+VRB([echo "  CFLAGS: $SDLGFX_CFLAGS"])
 
 if test x$have_sdlttf = xyes; then
 echo "= SDL_ttf (dynamic)"
 else
 echo "= SDL_ttf (static)"
 fi
-echo "  LIBS  : $SDLTTF_LIBS"
-echo "  CFLAGS: $SDLTTF_CFLAGS"
+VRB([echo "  LIBS  : $SDLTTF_LIBS"])
+VRB([echo "  CFLAGS: $SDLTTF_CFLAGS"])
 
 if test x$have_sdlimage = xyes; then
 echo "= SDL_image (dynamic)"
 else
 echo "= SDL_image (static)"
 fi
-echo "  LIBS  : $SDLIMAGE_LIBS"
-echo "  CFLAGS: $SDLIMAGE_CFLAGS"
-
-if test x$have_flash = xyes; then
-echo "= Flash (ver.3 animations only)"
-echo "  LIBS  : $FLASH_LIBS (static)"
-else
-echo "= Flash (ver.3 animations only) disabled"
-fi
-if test x$enable_cpuflags = xyes; then
-echo "= Building binary with support for machine specific advanced instructions"
-else
-echo "= Not building binary with support for machine specific advanced instructions"
-fi
-if test x$enable_lubrifications = xyes; then
-echo "= Building machine specific lubrificated binary"
-else
-echo "= Not building machine specific lubrificated binary"
-fi
-if test x$enable_debug = xyes; then
-echo "= Compiling with debugging symbols"
-else
-echo "= Not compiling with debugging symbols"
-fi
-if test x$enable_profiling = xyes; then
-echo "= Including support for the GNU Profiler (see man gprof)"
-else
-echo "= Not including support for the GNU Profiler (see man gprof)"
-fi
-
-if test x$have_midi = xyes; then
-echo "= ALSA / MidiController enabled"
-echo "  LIBS  : $ALSA_LIBS"
-echo "  CFLAGS: $ALSA_CFLAGS"
-else
-echo "= ALSA / MidiController disabled"
-fi
-
-echo "= Jack"
-echo "  LIBS  : $JACK_LIBS"
-echo "  CFLAGS: $JACK_CFLAGS"
-
-echo "= Fftw / harmonics analisys"
-echo "  LIBS  : $FFTW_LIBS"
-echo "  CFLAGS: $FFTW_CFLAGS"
-
-echo "= Samplerate"
-echo "  LIBS  : $SAMPLERATE_LIBS"
-echo "  CFLAGS: $SAMPLERATE_CFLAGS"
-
-if test x$enable_goom = xyes; then
-   echo "  goom: yes"
-else
-   echo "  goom: no"
-fi
-
-if test x$have_cwiid = xyes; then
-   echo "= WiiMote controller (cwiid)"
-   echo "  LIBS  : $CWIID_LIBS"
-   echo "  CFLAGS: $CWIID_CFLAGS"
-else
-   echo "= WiiMote controller disabled"
-fi
+VRB([echo "  LIBS  : $SDLIMAGE_LIBS"])
+VRB([echo "  CFLAGS: $SDLIMAGE_CFLAGS"])
 
 if test x$have_liblo = xyes; then
 echo "= OSC controller (liblo dynamic)"
 else
 echo "= OSC controller (liblo static)"
 fi
-echo "  LIBS  : $LIBLO_LIBS"
-echo "  CFLAGS: $LIBLO_CFLAGS"
+VRB([echo "  LIBS   : $LIBLO_LIBS"])
+VRB([echo "  CFLAGS : $LIBLO_CFLAGS"])
+
+
+#### optional stuff
+
+echo -n "= OpenGL : "
+if test x$enable_opengl = xyes; then
+   echo "yes"
+VRB([echo "  GLU LIBS   : $GLU_LIBS"])
+VRB([echo "  GLU CFLAGS : $GLU_CFLAGS"])
+else
+   echo "no"
+fi
+
+echo -n "= FreeType2 : "
+if test x$have_freetype2 = xyes; then
+   echo "yes"
+VRB([echo "  LIBS  : $FT2_LIBS"])
+VRB([echo "  CFLAGS: $FT2_CFLAGS"])
+else
+   echo "no"
+fi
+
+echo -n "= Fontconfig : "
+if test x$have_fontconfig = xyes; then
+echo "yes"
+VRB([echo "  LIBS  : $FC_LIBS"])
+VRB([echo "  CFLAGS: $FC_CFLAGS"])
+else
+echo "no"
+fi
+
+echo -n "= unicap library : "
+if test x$have_unicap = xyes; then
+echo "yes"
+VRB([echo "  LIBS  : $UNICAP_LIBS"])
+VRB([echo "  CFLAGS: $UNICAP_CFLAGS"])
+else
+echo "no"
+fi
+
+
+#### layers
+
+echo -n "= xgrab layer : "
+if test x$have_x11 = xyes; then
+   echo "yes"
+#echo "  LIBS  : $X11_LIBS"
+else
+   echo "no"
+fi
+
+echo -n "= Flash layer : "
+if test x$have_flash = xyes; then
+   echo "yes (v3 animations only)"
+VRB([echo "  LIBS  : $FLASH_LIBS (static)"])
+else
+   echo "no"
+fi
+
+echo -n "= goom layer : "
+if test x$enable_goom = xyes; then
+   echo "yes"
+else
+   echo "no"
+fi
+
+
+#### controllers
+
+echo -n "= ALSA / MidiController : "
+if test x$have_midi = xyes; then
+   echo "yes"
+VRB([echo "  LIBS  : $ALSA_LIBS"])
+VRB([echo "  CFLAGS: $ALSA_CFLAGS"])
+else
+   echo "no"
+fi
+
+echo -n "= WiiMote controller (cwiid) : "
+if test x$have_cwiid = xyes; then
+   echo "yes"
+VRB([echo "  LIBS   : $CWIID_LIBS"])
+VRB([echo "  CFLAGS : $CWIID_CFLAGS"])
+else
+   echo "no"
+fi
+
+
+#### misc stuff
+
+echo -n "= Building binary with support for machine specific advanced instructions : "
+if test x$enable_cpuflags = xyes; then
+   echo "yes"
+else
+   echo "no"
+fi
+
+echo -n "= Building machine specific lubrificated binary : "
+if test x$enable_lubrifications = xyes; then
+echo "yes"
+else
+echo "no"
+fi
+
+echo -n "= Compiling with debugging symbols : "
+if test x$enable_debug = xyes; then
+echo "yes"
+else
+echo "no"
+fi
+
+echo -n "= Including support for the GNU Profiler : "
+if test x$enable_profiling = xyes; then
+echo "yes"
+else
+echo "no (see man gprof)"
+fi
+
 
 echo "= COMPILER FLAGS : $CFLAGS"
 echo "= LINKER FLAGS   : $LDFLAGS"
-
-
 echo "= INSTALL PREFIX : $prefix"
 echo "============================== now type make, may the source be with you!"
 echo
