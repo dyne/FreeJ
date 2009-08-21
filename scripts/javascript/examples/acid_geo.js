@@ -1,10 +1,10 @@
 // dinges met iets acid-achtigs, met vierkantjes en rondjes ofzo, geen idee nog precies, maar iig 'jaren 90-ish'
 // buZz, Puik.
 
-W=640
-H=480
+W=width();
+H=height();
 
-set_resolution(W,H);
+//set_resolution(W,H);
 
 kbd = new KeyboardController();
 

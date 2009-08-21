@@ -38,10 +38,7 @@ THRESHOLD = 100;
 i = 0;
 
 colors = new Array(0xa03000ff, 0x006000ff, 0x336000ff, 0x00ff00ff, 0xc20000ff, 0x0000c0ff, 0xc0c0c0ff, 0x30f0f0ff, 0x00ff90ff);
-width=200; height=600;
-width=1024; height=768;
-width=800; height=800;
-width=400; height=300;
+width=width(); height=height();
 
 cyno_geo = new GeometryLayer();
 cyno_geo.activate(true);
