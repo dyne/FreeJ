@@ -17,6 +17,9 @@
 
         else:
             return self.pick(desc)
+    def __iter__(self):
+       for idx in xrange(len(self)):
+           yield self.pick(idx+1)
   %}
 
 }
