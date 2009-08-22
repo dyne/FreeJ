@@ -165,6 +165,7 @@
 		AAD0A4E10FDEC20100968886 /* libSDL_gfx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */; };
 		AAD0A4E30FDEC2A200968886 /* libsndfile.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */; };
 		AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */ = {isa = PBXBuildFile; fileRef = AADF79FF0FD7F84500167F57 /* ipernav.icns */; };
+		AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */; };
 		AAEE68940FC8906B007FB46B /* webcam.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE68930FC8906B007FB46B /* webcam.png */; };
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
 /* End PBXBuildFile section */
@@ -496,6 +497,8 @@
 		AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_gfx.dylib; path = /opt/local/lib/libSDL_gfx.dylib; sourceTree = "<absolute>"; };
 		AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsndfile.1.dylib; path = /opt/local/lib/libsndfile.1.dylib; sourceTree = "<absolute>"; };
 		AADF79FF0FD7F84500167F57 /* ipernav.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ipernav.icns; sourceTree = "<group>"; };
+		AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kbd_ctrl_js.cpp; sourceTree = "<group>"; };
+		AAE2C2B7103FE2AE00D62E4F /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = factory.h; path = include/factory.h; sourceTree = "<group>"; };
 		AAEE68930FC8906B007FB46B /* webcam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = webcam.png; sourceTree = "<group>"; };
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -767,6 +770,7 @@
 		AA9337EF0FD7FDEB002B760B /* include */ = {
 			isa = PBXGroup;
 			children = (
+				AAE2C2B7103FE2AE00D62E4F /* factory.h */,
 				AA8C41B50F90FF8800B39710 /* console_calls_ctrl.h */,
 				AA8C41B60F90FF8800B39710 /* console_ctrl.h */,
 				AA8C41B70F90FF8800B39710 /* console_readline_ctrl.h */,
@@ -1176,6 +1180,7 @@
 				AA3C452E0F3EEBE0007C7E8B /* v4l_layer_js.cpp */,
 				AA3C45320F3EEBE0007C7E8B /* video_encoder_js.cpp */,
 				AA3C45360F3EEBE0007C7E8B /* video_layer_js.cpp */,
+				AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */,
 			);
 			name = javascript;
 			sourceTree = "<group>";
@@ -1500,6 +1505,7 @@
 				AA71AE030FE58838002FFD23 /* CVInternalLayer.mm in Sources */,
 				AA63CF8E102DAED400FDA024 /* QTExporter.mm in Sources */,
 				AAC9DB37103D2C7F00A0111E /* PreferencesPanel.mm in Sources */,
+				AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

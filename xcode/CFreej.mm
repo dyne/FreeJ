@@ -11,8 +11,8 @@
 #import <CFreej.h>
 #import <CVLayer.h>
 
-#define DEFAULT_FREEJ_WIDTH 512
-#define DEFAULT_FREEJ_HEIGHT 384
+#define DEFAULT_FREEJ_WIDTH 352
+#define DEFAULT_FREEJ_HEIGHT 288
 
 
 @implementation CFreej

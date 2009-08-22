@@ -82,6 +82,13 @@ class  CVScreen;
 - (IBAction)stopExport:(id)sender;
 - (IBAction)setExportFile:(id)sender;
 @end
+
+@interface CVScreenController : NSWindowController {
+    
+}
+
+@end
+
 #else
 class CVScreenView;
 #endif // __cocoa
