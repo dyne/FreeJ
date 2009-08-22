@@ -23,82 +23,29 @@
 
 #include <controller.h>
 #include <linklist.h>
-#include <slang.h>
 
 
-
-#define PLAIN_COLOR 1
-#define TITLE_COLOR 1
-#define LAYERS_COLOR 3
-#define FILTERS_COLOR 4
-#define SCROLL_COLOR 5
-
-
-
-/* TODO port to slang 2
-#if SLANG_VERSION >= 20000
-#define SLANG_ERROR()  SLang_get_error()
-#else
-#define SLANG_ERROR()  SLang_Error
-#endif
-*/
-
-extern volatile int SLang_Error; // hack for fucking debian!
-
-class Context;
-class Layer;
-class FilterInstance;
-
-class SLangConsole;
-class SLW_Log;
-class SlwSelector;
-class SlwTitle;
-class SlwReadline;
-
-
-
-
-class Console: public Controller {
+class ConsoleController: public Controller {
  public:
   
-  Console();
-  ~Console();
-  
-  int poll();
-  int dispatch();
+  ConsoleController() : Controller() {};
+  virtual ~ConsoleController() {};
+  virtual bool console_init() = 0;
 
-  bool slw_init();
+  virtual int poll() = 0;
+  virtual int dispatch() = 0;
+  virtual void close() = 0;
 
-  void close();
-  void cafudda();
-
-  void notice(const char *msg);
-  void error(const char *msg);
-  void warning(const char *msg);
-  void act(const char *msg);
-  void func(const char *msg);
+  virtual void notice(const char *msg) = 0;
+  virtual void error(const char *msg) = 0;
+  virtual void warning(const char *msg) = 0;
+  virtual void act(const char *msg) = 0;
+  virtual void func(const char *msg) = 0;
   
 
-  void refresh();
+  virtual void refresh() = 0;
 
   bool active;
-
-
- private:
-
-  SLangConsole *slw;
-  SlwSelector *sel;
-  SlwTitle *tit;
-  SLW_Log *log;
-  SlwReadline *rdl;
-
-  int x,y;
-
-  int paramsel;
-
-  int movestep;
-
-
 };
 
 

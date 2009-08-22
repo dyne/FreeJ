@@ -26,8 +26,9 @@
         currentFrame = nil;
         currentPts = 0;
         previousPts = 0;
-        width = 512; // XXX - make defult size configurable
-        height = 384; // XXX -^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        Context *ctx = [freej getContext];
+        width = ctx->screen->w;
+        height = ctx->screen->h;
         lock = [[NSRecursiveLock alloc] init];
     }
     return self;

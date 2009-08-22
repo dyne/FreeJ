@@ -31,7 +31,7 @@
 #include <context.h>
 
 // #include <osd.h>
-#include <console_ctrl.h>
+#include <slang_console_ctrl.h>
 #include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
@@ -271,7 +271,7 @@ int scripts(char *path) {
 #ifndef HAVE_DARWIN
 int main (int argc, char **argv) {
   Layer *lay = NULL;
-  Console *con = NULL;
+  ConsoleController *con = NULL;
   
   freej = new Context();
 
@@ -308,9 +308,9 @@ int main (int argc, char **argv) {
   /* initialize the S-Lang text Console */
   if(!noconsole) {
     if( getenv("TERM") ) {
-      con = new Console();
+      con = new SlwConsole();
       freej->register_controller( con );
-      con->slw_init();
+      con->console_init();
       set_console( con );
     }
   }

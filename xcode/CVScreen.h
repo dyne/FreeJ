@@ -60,6 +60,7 @@ class  CVScreen;
 	IBOutlet CFreej		*freej;
 	IBOutlet NSTextField *showFps;
     IBOutlet NSTableView *layerList;
+    IBOutlet NSWindow   *window;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;
@@ -96,7 +97,6 @@ class CVScreen : public ViewPort {
     public:
         CVScreen(int w, int h);
         ~CVScreen();
-
         void set_view(CVScreenView *view);
         CVScreenView *get_view(void);
         void *get_surface();
@@ -107,6 +107,7 @@ class CVScreen : public ViewPort {
         bool add_layer(Layer *lay);
         void rem_layer(Layer *lay);
         fourcc get_pixel_format() { return ARGB32; };
+        void CVScreen::resize(int w, int h);
 };
 
 #endif

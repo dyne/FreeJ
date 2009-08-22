@@ -56,6 +56,7 @@ Plugger::Plugger() {
 #ifdef WITH_FREI0R
   addsearchdir("/usr/lib/frei0r-1");
   addsearchdir("/usr/local/lib/frei0r-1");
+  addsearchdir("/opt/local/lib/frei0r-1");
 #endif
 
 //   addsearchdir("/usr/lib/freej");

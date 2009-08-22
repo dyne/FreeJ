@@ -32,6 +32,7 @@
 #include "wiimote_ctrl.h"
 #include "osc_ctrl.h"
 #include "audio_collector.h"
+#include "console_ctrl.h"
 
 %}
 
@@ -180,6 +181,9 @@ freej_entry_typemap_in(Encoder);
 
 %feature("director") VimoController;
 %include "vimo_ctrl.h"
+
+%feature("director") ConsoleController;
+%include "console_ctrl.h"
 
 
 %extend Layer

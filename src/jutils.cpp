@@ -60,7 +60,7 @@ static int verbosity = 0;
 
 static char *osd_msg;
 
-static Console *console = NULL;
+static ConsoleController *console = NULL;
 
 void set_debug(int lev) {
   lev = lev<0 ? 0 : lev;
@@ -96,7 +96,7 @@ void show_osd(const char *format, ...) {
     console->notice(osd_msg);
 }
 
-void set_console(Console *c) {
+void set_console(ConsoleController *c) {
   console = c;
 }
 

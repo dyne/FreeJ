@@ -192,7 +192,11 @@ extern Context *env;
 extern bool stop_script;
 
 void js_sigint_handler(int sig);
+#if defined JSOPTION_NATIVE_BRANCH_CALLBACK
 JSBool js_static_branch_callback(JSContext* Context, JSScript* Script);
+#else
+JSBool js_static_branch_callback(JSContext* Context);
+#endif
 void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report);
 
 // using this macro keeps the actual function name for the error messages
