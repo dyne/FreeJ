@@ -158,17 +158,14 @@ void Layer::thread_loop() {
   // we add  a memcpy at the end  of the layer pipeline  this is not
   // that  expensive as leaving  the lock  around the  feed(), which
   // slows down the whole engine in case the layer is slow. -jrml
+lock();
 #if defined HAVE_DARWIN && defined WITH_COCOA
-  if (type !=  Layer::GL_COCOA) { // XXX
-#endif
-    lock();
+    buffer = tmp_buf;
+#else
     jmemcpy(buffer, tmp_buf, geo.size);
-    unlock();
-#if defined HAVE_DARWIN && defined WITH_COCOA
-  } else {
-      buffer = tmp_buf;
-  }
 #endif
+unlock();
+
   fps.calc();
   fps.delay();
 }
