@@ -25,23 +25,15 @@
 #include <jsparser.h>
 #include <callbacks_js.h> // javascript
 #include <jsparser_data.h>
+#include <factory.h>
 
 #define SDL_REPEAT_DELAY	200
 #define SDL_REPEAT_INTERVAL	20
 
 #define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
 
-
-/////// Javascript KeyboardController
-JS(js_kbd_ctrl_constructor);
-
-DECLARE_CLASS_GC("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor,js_ctrl_gc);
-
-JSFunctionSpec js_kbd_ctrl_methods[] = {
-  // idee: dis/enable repeat
-  {0}
-};
-
+// our objects are allowed to be created trough the factory engine
+FACTORY_REGISTER_INSTANTIATOR(controller, KbdController, KeyboardController, sdl);
 
 KbdController::KbdController()
   :Controller() {
@@ -192,28 +184,3 @@ int KbdController::dispatch() {
   return key_event(state, shift, ctrl, alt, num, keyname);
 }
 
-JS(js_kbd_ctrl_constructor) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-  KbdController *kbd = new KbdController();
-
-  // initialize with javascript context
-  if(! kbd->init(env) ) {
-    error("failed initializing keyboard controller");
-    delete kbd; return JS_FALSE;
-  }
-
-  // assign the real js object
-  kbd->jsobj = obj;
-  kbd->javascript = true;
-
-  // assign instance into javascript object
-  if( ! JS_SetPrivate(cx, obj, (void*)kbd) ) {
-    error("failed assigning keyboard controller to javascript");
-    delete kbd; return JS_FALSE;
-  }
-
-  *rval = OBJECT_TO_JSVAL(obj);
-  return JS_TRUE;
-}
-    

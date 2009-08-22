@@ -45,7 +45,7 @@
 // #define DEBUG 1
 
 // our objects are allowed to be created trough the factory engine
-FACTORY_REGISTER_INSTANTIATOR(VideoLayer, video, ffmpeg);
+FACTORY_REGISTER_INSTANTIATOR(layer, VideoLayer, video, ffmpeg);
 
 VideoLayer::VideoLayer()
   :Layer() {

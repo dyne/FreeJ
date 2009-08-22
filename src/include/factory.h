@@ -10,29 +10,24 @@
 #define FACTORY_ALLOWED \
     static int isRegistered;
 
-#define __QUOTE__(__s) #__s
-#define __CONCAT__(__a, __b) __a##__b
+//#define __CONCAT__(__a, __b) __a ## __b
 
-#define FACTORY_MAKE_ID(__category, __tag) \
-    __QUOTE__( \
-        __CONCAT__( \
-            __CONCAT__(__category, ::), \
-            __tag \
-        ) \
-    )
+#define FACTORY_MAKE_ID(__category, __tag) #__category "::" #__tag
 
-#define FACTORY_REGISTER_INSTANTIATOR(__name, __category, __tag) \
-    void * get##__name() \
+#define FACTORY_REGISTER_INSTANTIATOR(__class, __name, __category, __tag) \
+    static __name * get##__name() \
     { \
-        return (void *)new __name(); \
+        func("Creating %s -- %s\n", #__class, #__name);\
+        return new __name(); \
     } \
-    int __name::isRegistered = Context::register_layer_instantiator( \
-        FACTORY_MAKE_ID(__category, __tag), get##__name \
+    int __name::isRegistered = Context::register_##__class##_instantiator( \
+        FACTORY_MAKE_ID(__category, __tag), (Instantiator)get##__name \
     );
 
 typedef void *(*Instantiator)();
 typedef std::map<std::string, Instantiator> InstantiatorsMap;
 typedef std::pair<std::string, Instantiator> TInstantiatorPair;
+typedef std::pair<std::string, const char *> TIdPair;
 
 template <class T>
 class Factory 
@@ -43,17 +38,22 @@ class Factory
     static T *new_instance(const char *category, const char *tag)
     {
         char id[FACORY_ID_MAXLEN];
-
         if (!category || !tag) // safety belts
             return NULL;
 
         if (strlen(category)+strlen(tag)+3 > sizeof(id)) { // check the size of the requested id
-            error("Factory::new_instance : requested ID (%s:%s) exceedes maximum size", category, tag);
+            error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", category, tag);
             return NULL;
         }
         snprintf(id, sizeof(id), "%s::%s", category, tag);
-        Instantiator create_instance = instantiators_map.find(id)->second;
-        return (T *)create_instance();
+        std::map<std::string, Instantiator>::iterator pair = instantiators_map.find(id);
+        if (pair != instantiators_map.end()) { // check if we have 
+            Instantiator create_instance = pair->second;
+            //return (T *)
+            if (create_instance) 
+                return (T*)create_instance();
+        }
+        return NULL;
     };
     static int register_instantiator(const char *tag, Instantiator func)
     {

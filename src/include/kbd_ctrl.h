@@ -20,6 +20,7 @@
 #define __KBD_CTRL_H__
 
 #include <controller.h>
+#include <factory.h>
 
 #include <SDL.h>
 
@@ -38,7 +39,8 @@ class KbdController: public Controller {
   SDL_keysym *keysym;
   char keyname[512];
   char funcname[512];
-
+  // allow to use Factory on this class
+  FACTORY_ALLOWED
 };
 
 #endif

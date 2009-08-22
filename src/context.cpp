@@ -50,6 +50,7 @@
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
 
+
 void fsigpipe (int Sig);
 int got_sigpipe;
 
@@ -106,6 +107,10 @@ Context::Context() {
 " .  - OpenCV for camera capture\n"
 #endif
 "\n";
+    
+  default_layertypes();
+  default_controllertypes();
+  
   assert( init() );
 
 }
@@ -157,9 +162,26 @@ Layer *Context::get_layer_instance(const char *classname)
     return layer_factory.new_instance(classname, default_layertypes_map.find(classname)->second);
 }
 
+
+Controller *Context::get_controller_instance(const char *classname, const char *tag)
+{
+    return controller_factory.new_instance(classname, tag);
+}
+
+Controller *Context::get_controller_instance(const char *classname)
+{
+    return controller_factory.new_instance(classname, default_controllertypes_map.find(classname)->second);
+}
+
+
 int Context::register_layer_instantiator(const char *id, Instantiator func)
 {
     return layer_factory.register_instantiator(id, func);
+}
+
+int Context::register_controller_instantiator(const char *id, Instantiator func)
+{
+    return controller_factory.register_instantiator(id, func);
 }
 
 bool Context::add_screen(ViewPort *scr) {
