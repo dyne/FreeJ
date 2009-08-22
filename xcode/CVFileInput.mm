@@ -95,13 +95,15 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     qtMovie = NULL;
 
     /* TODO - try a way to safely reset currentFrame and lastFrame 
-     * (note that other threads can be trying to access them) */
+     * (note that other threads can be trying to access them) 
+     
     if (lastFrame)
         [lastFrame release];
     lastFrame = NULL;
     if (currentFrame)
         CVPixelBufferRelease(currentFrame);
-    */
+    
+     */
     
     posterImage = NULL;
 
@@ -288,11 +290,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         newFrame = YES;
 
     } 
-    MoviesTask([qtMovie quickTimeMovie], 0);
     
     [lock unlock];
     [QTMovie exitQTKitOnThread];   
-
+    MoviesTask([qtMovie quickTimeMovie], 0);
     [pool release];
     return rv;
 }
