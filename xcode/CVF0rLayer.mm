@@ -110,10 +110,10 @@
     CVLayer *toDelete;
     if (layer) {
         [lock lock];
-        toDelete = layer;
+        toDelete = (CVLayer *)layer;
         layer = NULL;
-        toDelete->stop();
         [lock unlock];
+        toDelete->stop();
         delete toDelete;
     }
 }
@@ -173,9 +173,9 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
 
 CVF0rLayer::~CVF0rLayer()
 {
-    CVLayer *layerPersonality = (CVLayer *)this;
-
-    layerPersonality->buffer = NULL; // XXX
+    //if (swap_buffer)
+        //free(swap_buffer);
+    swap_buffer = NULL;
 }
 
 void *
@@ -186,15 +186,3 @@ CVF0rLayer::feed()
     return swap_buffer;
 }
 
-void
-CVF0rLayer::start()
-{
-    ((GenF0rLayer *)this)->start();
-}
-
-void
-CVF0rLayer::stop()
-{
-    GenF0rLayer *f0rPersonality = (GenF0rLayer *)this;
-    f0rPersonality->stop();
-}

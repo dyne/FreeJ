@@ -21,12 +21,10 @@
 - (IBAction)stop:(id)sender;
 @end;
 
-class CVF0rLayer : public GenF0rLayer, public CVLayer
+class CVF0rLayer : public CVLayer, public GenF0rLayer
 {
 	public:
 		CVF0rLayer(CVLayerView *view, char *generatorName, Context *freej);
         ~CVF0rLayer();
 		void *feed();
-        void start();
-        void stop();
 };

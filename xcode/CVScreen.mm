@@ -720,6 +720,34 @@ bail:
 
 @end
 
+@implementation CVScreenController
+
+// handle keystrokes
+- (void)keyDown:(NSEvent *)event
+{
+ //   NSLog(@"Keypress (%hu, modifier flags: 0x%x) %@\n", [event keyCode], [event modifierFlags], [event charactersIgnoringModifiers]);
+    NSString *modifier = nil;
+    switch ([event modifierFlags]) { 
+        case NSShiftKeyMask:
+            modifier = [NSString stringWithUTF8String:"shift_"];
+            break;
+        case NSControlKeyMask:
+            modifier = [NSString stringWithUTF8String:"control_"];
+            break;
+        case NSAlternateKeyMask:
+            modifier = [NSString stringWithUTF8String:"alt_"];
+            break;
+        case NSCommandKeyMask:
+            modifier = [NSString stringWithUTF8String:"cmd_"];
+            break;
+        case NSFunctionKeyMask:
+            modifier = [NSString stringWithUTF8String:"fn_"];
+            break;
+    }
+}
+
+@end
+
 CVScreen::CVScreen(int w, int h)
   : ViewPort(w, h) {
   init(w, h);

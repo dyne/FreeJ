@@ -26,9 +26,8 @@
         currentFrame = nil;
         currentPts = 0;
         previousPts = 0;
-        Context *ctx = [freej getContext];
-        width = ctx->screen->w;
-        height = ctx->screen->h;
+        width = 352;
+        height = 288;
         lock = [[NSRecursiveLock alloc] init];
     }
     return self;
@@ -72,9 +71,11 @@
 
     NSError *o_returnedError;
     Context *ctx = [freej getContext];
+    width = ctx->screen->w;
+    height = ctx->screen->h;
     /* Hack - using ma resolution seems to lower cpu consuption for some reason */
-    int h = (ctx->screen->h < CV_GRABBER_HEIGHT_MAX)?ctx->screen->h:CV_GRABBER_HEIGHT_MAX;
-    int w = (ctx->screen->w < CV_GRABBER_WIDTH_MAX)?ctx->screen->w:CV_GRABBER_WIDTH_MAX;
+    int h = (height < CV_GRABBER_HEIGHT_MAX)?height:CV_GRABBER_HEIGHT_MAX;
+    int w = (width < CV_GRABBER_WIDTH_MAX)?width:CV_GRABBER_WIDTH_MAX;
  
     device = [QTCaptureDevice defaultInputDeviceWithMediaType: QTMediaTypeVideo];
     if( !device )
