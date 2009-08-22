@@ -60,7 +60,8 @@ JS_SOURCES = 	context_js.cpp  \
 		geo_layer_js.cpp \
 		flash_layer_js.cpp \
 		goom_layer_js.cpp \
-		audio_collector_js.cpp
+		audio_collector_js.cpp \
+		kbd_ctrl_js.cpp
 
 lib_LTLIBRARIES = libfreej.la
 libfreej_la_SOURCES = $(SOURCES) $(JS_SOURCES)
