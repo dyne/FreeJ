@@ -10,10 +10,6 @@ if BUILD_JAVASCRIPT
 JAVASCRIPTDIR = javascript
 endif
 
-if BUILD_SHOUT
-SHOUTDIR = shout
-endif
-
 if BUILD_SDLGFX
 SDLGFXDIR = sdl_gfx
 endif
@@ -31,7 +27,6 @@ SUBDIRS = ccvt \
 	$(SDLIMAGEDIR)   \
 	$(SDLTTFDIR)     \
 	$(SDLGFXDIR)     \
-	$(SHOUTDIR)      \
 	$(JAVASCRIPTDIR) \
 	$(GOOMDIR)       \
 	$(FLASHDIR)
@@ -42,6 +37,5 @@ DIST_SUBDIRS = ccvt \
 	sdl_image        \
 	sdl_ttf          \
 	sdl_gfx          \
-	shout            \
 	goom             \
 	flash

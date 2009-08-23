@@ -312,8 +312,6 @@ dnl ==============================================================
 PKG_CHECK_MODULES([SHOUT], [shout], [:],
 	AC_MSG_ERROR([*** LIBLO development files not found!]))
 
-AM_CONDITIONAL(BUILD_SHOUT, [test x$have_shout = xno])
-
 
 dnl ==============================================================
 dnl Check if there is FREETYPE2
@@ -881,7 +879,6 @@ lib/goom/Makefile
 lib/sdl_gfx/Makefile
 lib/sdl_image/Makefile
 lib/sdl_ttf/Makefile
-lib/shout/Makefile
 lib/slw/Makefile
 scripts/Makefile
 src/Makefile
