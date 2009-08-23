@@ -948,7 +948,7 @@ disabled_bindings=""
 
 if test x$enable_python = xyes; then
 AS_VAR_APPEND(enabled_bindings, " python")
-VRB([echo "  Python:"])
+VRB([echo "= Python:"])
 VRB([echo "    LIBS   : $PYTHON_LDFLAGS"])
 VRB([echo "    CFLAGS : $PYTHON_CPPFLAGS"])
 else
@@ -957,7 +957,7 @@ fi
 
 if test x$enable_ruby = xyes; then
 AS_VAR_APPEND(enabled_bindings, " ruby")
-VRB([echo "  Ruby:"])
+VRB([echo "= Ruby:"])
 VRB([echo "    LIBS     : $RUBY_LDFLAGS"])
 VRB([echo "    CFLAGS   : $RUBY_CPPFLAGS"])
 else
@@ -966,7 +966,7 @@ fi
 
 if test x$enable_java = xyes; then
 AS_VAR_APPEND(enabled_bindings, " java")
-VRB([echo "  Java:"])
+VRB([echo "= Java:"])
 VRB([echo "    LIBS     : $JAVA_LDFLAGS"])
 VRB([echo "    CFLAGS   : $JAVA_CFLAGS"])
 else
@@ -975,7 +975,7 @@ fi
 
 if test x$enable_perl = xyes; then
 AS_VAR_APPEND(enabled_bindings, " perl")
-VRB([echo "  Perl:"])
+VRB([echo "= Perl:"])
 VRB([echo "    LIBS     : $PERL_LDFLAGS"])
 VRB([echo "    CFLAGS   : $PERL_CFLAGS"])
 else
