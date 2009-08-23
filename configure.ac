@@ -218,21 +218,21 @@ fi
 dnl ==============================================================
 dnl Check for slang
 dnl ==============================================================
-SLANG_CFLAGS="-I/usr/include/slang"
-SLANG_LIBS="-lslang"
-FREEJ_SAVE_FLAGS
-CFLAGS="$SLANG_CFLAGS"
-CPPFLAGS="$SLANG_CFLAGS"
-LDFLAGS=""
-FREEJ_CHECK_LIB_HEADERS([slang], [SLang_getkey], [slang.h],
-   [:],
-	AC_MSG_ERROR([*** SLANG development files not found!]))
-FREEJ_RESTORE_FLAGS
-# apparently pkg-config is not in slang distribution (yet)
-#PKG_CHECK_MODULES(SLANG, slang, :,
-#	AC_MSG_ERROR([*** SLANG development files not found!]))
-AC_SUBST([SLANG_CFLAGS])
-AC_SUBST([SLANG_LIBS])
+PKG_CHECK_MODULES([SLANG], [slang], [have_slang=yes], [have_slang=no])
+if test x$have_slang = xno; then
+   SLANG_CFLAGS="-I/usr/include/slang"
+   SLANG_LIBS="-lslang"
+   FREEJ_SAVE_FLAGS
+   CFLAGS="$SLANG_CFLAGS"
+   CPPFLAGS="$SLANG_CFLAGS"
+   LDFLAGS=""
+   FREEJ_CHECK_LIB_HEADERS([slang], [SLang_getkey], [slang.h],
+                           [have_slang=yes], [have_slang=no])
+   FREEJ_RESTORE_FLAGS
+fi
+if test x$have_slang = xno; then
+   AC_MSG_ERROR([*** SLANG development files not found!])
+fi
 
 dnl ==============================================================
 dnl Check for SDL
