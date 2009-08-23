@@ -893,6 +893,11 @@ AC_OUTPUT
 # configure
 AC_DEFUN([VRB],
          AS_IF([test x"$V" == x1], [$1]))
+
+dnl autoconf < 2.63 compatibility
+m4_ifndef([AS_VAR_APPEND],
+          AC_DEFUN([AS_VAR_APPEND], $1=$$1$2))
+
 echo
 echo
 echo "Compile $PACKAGE $VERSION for ${host}"
@@ -926,47 +931,47 @@ VRB([echo "  LIBS  : $FFMPEG_LIBS"])
 
 #### bindings
 
-#enabled_bindings=""
-#disabled_bindings=""
+enabled_bindings=""
+disabled_bindings=""
 
 if test x$enable_python = xyes; then
-#AS_VAR_APPEND(enabled_bindings, " python")
+AS_VAR_APPEND(enabled_bindings, " python")
 VRB([echo "  Python:"])
 VRB([echo "    LIBS   : $PYTHON_LDFLAGS"])
 VRB([echo "    CFLAGS : $PYTHON_CPPFLAGS"])
-#else
-#AS_VAR_APPEND(disabled_bindings, " python")
+else
+AS_VAR_APPEND(disabled_bindings, " python")
 fi
 
 if test x$enable_ruby = xyes; then
-#AS_VAR_APPEND(enabled_bindings, " ruby")
+AS_VAR_APPEND(enabled_bindings, " ruby")
 VRB([echo "  Ruby:"])
 VRB([echo "    LIBS     : $RUBY_LDFLAGS"])
 VRB([echo "    CFLAGS   : $RUBY_CPPFLAGS"])
-#else
-#AS_VAR_APPEND(disabled_bindings, " ruby")
+else
+AS_VAR_APPEND(disabled_bindings, " ruby")
 fi
 
 if test x$enable_java = xyes; then
-#AS_VAR_APPEND(enabled_bindings, " java")
+AS_VAR_APPEND(enabled_bindings, " java")
 VRB([echo "  Java:"])
 VRB([echo "    LIBS     : $JAVA_LDFLAGS"])
 VRB([echo "    CFLAGS   : $JAVA_CFLAGS"])
-#else
-#AS_VAR_APPEND(disabled_bindings, " java")
+else
+AS_VAR_APPEND(disabled_bindings, " java")
 fi
 
 if test x$enable_perl = xyes; then
-#AS_VAR_APPEND(enabled_bindings, " perl")
+AS_VAR_APPEND(enabled_bindings, " perl")
 VRB([echo "  Perl:"])
 VRB([echo "    LIBS     : $PERL_LDFLAGS"])
 VRB([echo "    CFLAGS   : $PERL_CFLAGS"])
-#else
-#AS_VAR_APPEND(disabled_bindings, " perl")
+else
+AS_VAR_APPEND(disabled_bindings, " perl")
 fi
 
-#echo "= Enabled language bindings  : $enabled_bindings"
-#echo "= Disabled language bindings : $disabled_bindings"
+echo "= Enabled language bindings  : $enabled_bindings"
+echo "= Disabled language bindings : $disabled_bindings"
 
 
 #### shipped libraries, can be static or dynamic
