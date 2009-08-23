@@ -693,22 +693,23 @@ AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
 dnl ==============================================================
 dnl SDL_ttf
 dnl ==============================================================
-FREEJ_SAVE_FLAGS
-CFLAGS="$SDL_CFLAGS"
-CPPFLAGS="$SDL_CFLAGS"
-LDFLAGS="$SDL_LIBS"
-FREEJ_CHECK_LIB_HEADERS(SDL_ttf, TTF_Init, [SDL_ttf.h],
-                        [have_sdlttf=yes], [have_sdlttf=no])
-FREEJ_RESTORE_FLAGS
-if test x$have_sdlttf = xyes; then
+PKG_CHECK_MODULES([SDLTTF], [SDL_ttf], [have_sdlttf=yes], [have_sdlttf=no])
+if test x$have_sdlttf = xno; then
    SDLTTF_CFLAGS="$SDL_CFLAGS"
    SDLTTF_LIBS="$SDL_LIBS -lSDL_ttf"
-else
+   FREEJ_SAVE_FLAGS
+   CFLAGS="$SDLTTF_CFLAGS"
+   CPPFLAGS="$SDLTTF_CFLAGS"
+   LDFLAGS="$SDLTTF_LIBS"
+   FREEJ_CHECK_LIB_HEADERS([SDL_ttf], [TTF_Init], [SDL_ttf.h],
+                           [have_sdlttf=yes], [have_sdlttf=no])
+   FREEJ_RESTORE_FLAGS
+fi
+if test x$have_sdlttf = xno; then
+   AC_MSG_NOTICE([Using freej version of SDLTTF])
    SDLTTF_CFLAGS="-I\$(top_srcdir)/lib/sdl_ttf"
    SDLTTF_LIBS="\$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la"
 fi
-AC_SUBST(SDLTTF_CFLAGS)
-AC_SUBST(SDLTTF_LIBS)
 
 AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
 
