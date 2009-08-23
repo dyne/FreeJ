@@ -28,6 +28,7 @@
 
 #include <dlfcn.h>
 #include <stdlib.h>
+#include <stdio.h> // for snprintf()
 
 #include <cstdlib>
 #include <string>
