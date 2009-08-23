@@ -306,6 +306,14 @@ dnl ==============================================================
 PKG_CHECK_MODULES([LIBLO], [liblo], [:],
 	AC_MSG_ERROR([*** LIBLO development files not found!]))
 
+dnl ==============================================================
+dnl shout lib
+dnl ==============================================================
+PKG_CHECK_MODULES([SHOUT], [shout], [:],
+	AC_MSG_ERROR([*** LIBLO development files not found!]))
+
+AM_CONDITIONAL(BUILD_SHOUT, [test x$have_shout = xno])
+
 
 dnl ==============================================================
 dnl Check if there is FREETYPE2
@@ -645,19 +653,6 @@ if test x$have_opencv = xyes; then
    AC_DEFINE(WITH_OPENCV,1,[Define if to link opencv framework])
 fi
 
-dnl ==============================================================
-dnl shout lib
-dnl ==============================================================
-PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
-if test x$have_shout = xno; then
-   AC_CHECK_FUNCS([gethostbyaddr inet_ntoa])
-
-   SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
-   SHOUT_CFLAGS="-I\$(top_srcdir)/lib/shout"
-fi
-
-AM_CONDITIONAL(BUILD_SHOUT, [test x$have_shout = xno])
-
 
 dnl ==============================================================
 dnl SDL_gfx
@@ -938,6 +933,10 @@ VRB([echo "= OSC controller (liblo)"])
 VRB([echo "  LIBS   : $LIBLO_LIBS"])
 VRB([echo "  CFLAGS : $LIBLO_CFLAGS"])
 
+VRB([echo "= Shout library (static)"])
+VRB([echo "  LIBS  : $SHOUT_LIBS"])
+VRB([echo "  CFLAGS: $SHOUT_CFLAGS"])
+
 #### bindings
 
 enabled_bindings=""
@@ -992,14 +991,6 @@ echo "= javascript interpreter (static)"
 fi
 VRB([echo "  LIBS  : $MOZJS_LIBS"])
 VRB([echo "  CFLAGS: $MOZJS_CFLAGS"])
-
-if test x$have_shout = xyes; then
-echo "= Shout library (dynamic)"
-else
-echo "= Shout library (static)"
-fi
-VRB([echo "  LIBS  : $SHOUT_LIBS"])
-VRB([echo "  CFLAGS: $SHOUT_CFLAGS"])
 
 if test x$have_sdlgfx = xyes; then
 echo "= SDL_gfx (dynamic)"
