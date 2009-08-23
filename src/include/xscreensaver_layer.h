@@ -26,11 +26,11 @@
 
 #define NIL (0)       // A name for the void pointer
 
-class XHacksLayer: public Layer {
+class XScreenSaverLayer: public Layer {
 
  public:
-  XHacksLayer();
-  ~XHacksLayer();
+  XScreenSaverLayer();
+  ~XScreenSaverLayer();
 
   //bool init(Context *screen=NULL);
   bool init(Context *screen);

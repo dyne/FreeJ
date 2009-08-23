@@ -1,5 +1,5 @@
 #include <config.h>
-#ifdef WITH_XHACKS
+#ifdef WITH_XSCREENSAVER
 
 #include <assert.h>
 #include <unistd.h>
@@ -20,17 +20,17 @@
 #define NIL (0)       // A name for the void pointer
 
 
-XHacksLayer::XHacksLayer()
+XScreenSaverLayer::XScreenSaverLayer()
   :Layer() {
   set_name("XSS");
 }
 
-XHacksLayer::~XHacksLayer() {
+XScreenSaverLayer::~XScreenSaverLayer() {
   close();
 }
 
-bool XHacksLayer::init(Context *scr) {
-  func("XHacksLayer::init");
+bool XScreenSaverLayer::init(Context *scr) {
+  func("XScreenSaverLayer::init");
   if(scr) freej = scr;
      _init(freej, freej->screen->w, freej->screen->h, freej->screen->bpp);
 
@@ -56,12 +56,12 @@ image->depth
  * */
 
 
-bool XHacksLayer::open(char *file) {
-  func("XHacksLayer::open(%s)", file);
+bool XScreenSaverLayer::open(char *file) {
+  func("XScreenSaverLayer::open(%s)", file);
 
       dpy = XOpenDisplay(NIL);
   if(!dpy) {
-    error("XHacksLayer can't open X display");
+    error("XScreenSaverLayer can't open X display");
     return false;
   }
 
@@ -117,9 +117,9 @@ XGCValues gcv;
       if (x_pid == 0) { // child
 	char args[32];
 	sprintf(args, "0x%x", (int)back_win);
-	notice("Xlayer::open exec %s", args);
+	notice("%s exec %s", __PRETTY_FUNCTION__, args);
 int res =  execl(file, "", "-window-id", args, NULL);
-	notice("Xlayer::open exec failed %i because %s", res, strerror(errno));
+	notice("%s exec failed %i because %s", __PRETTY_FUNCTION_, res, strerror(errno));
 	exit(0);
       } else {
       }
@@ -131,7 +131,7 @@ int res =  system(args);
 	notice("Xlayer::open exec result %i", res);
 */
 
-  notice("Opened xhacks '%s' with back_win %p",file , back_win);
+  notice("Opened XScreenSaver '%s' with back_win %p",file , back_win);
 
   opened = true;
 
@@ -139,7 +139,7 @@ int res =  system(args);
   return(true);
 }
 
-void *XHacksLayer::feed() {
+void *XScreenSaverLayer::feed() {
 //	notice("feed %i, %i",  freej->screen->w, freej->screen->h);
 //  XCopyArea(display, wmgen.pixmap, iconwin, NormalGC, 0,0, wmgen.attributes.width, wmgen.attributes.height, 0, 0);
 //  XCopyArea(dpy, back_win, *img, gc, 0,0, freej->screen->w , freej->screen->h, 0, 0);
@@ -165,13 +165,13 @@ void *XHacksLayer::feed() {
   return buffer;
 }
 
-void XHacksLayer::close() {
-  notice("Closing XHC layer");
+void XScreenSaverLayer::close() {
+  notice("Closing XScreenSaver layer");
   if(buffer) jfree(buffer);
   kill(x_pid, SIGTERM);
 }
 
-void XHacksLayer::pause(bool set) {
+void XScreenSaverLayer::pause(bool set) {
   paused = set;
   int res;
   if (paused)
@@ -179,11 +179,11 @@ void XHacksLayer::pause(bool set) {
   else
 	  res=kill(x_pid, SIGCONT);
 
-  notice("xhack to %i pause : %s is %i err %i", x_pid, ((paused) ? "on" : "off"), res,errno );
+  notice("XScreenSaver to %i pause : %s is %i err %i", x_pid, ((paused) ? "on" : "off"), res,errno );
   show_osd();
 }
 
-// bool XHacksLayer::keypress(int key) {
+// bool XScreenSaverLayer::keypress(int key) {
 //   bool res = true;
 //   switch(key) {
 // 	case 'p': pause(!paused);

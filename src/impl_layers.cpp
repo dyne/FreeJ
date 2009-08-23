@@ -198,10 +198,10 @@ Layer *create_layer(Context *env, char *file) {
 	  return(NULL);
 #endif
 
-  } else /* XHACKS LAYER */
+  } else /* XSCREENSAVER LAYER */
     if(strstr(file_ptr,"xscreensaver")) {
-#ifdef WITH_XHACKS
-	    nlayer = new XHacksLayer();
+#ifdef WITH_XSCREENSAVER
+	    nlayer = new XScreenSaverLayer();
 
       if(!nlayer->init( env )) {
 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
@@ -209,11 +209,11 @@ Layer *create_layer(Context *env, char *file) {
       }
 
 	    if (!nlayer->open(file_ptr)) {
-	      error("create_layer : XHACK open failed");
+	      error("create_layer : XScreenSaver open failed");
 	      delete nlayer; nlayer = NULL;
 	    }
 #else
-	    error("no xhacks layer support");
+	    error("no xscreensaver layer support");
 	    act("can't load %s",file_ptr);
 	    return(NULL);
 #endif

@@ -51,7 +51,7 @@
 #include <text_layer.h>
 #endif
 
-#ifdef WITH_XHACKS
+#ifdef WITH_XSCREENSAVER
 #include <xscreensaver_layer.h>
 #endif
 
