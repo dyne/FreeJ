@@ -717,17 +717,19 @@ AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
 dnl ==============================================================
 dnl SDL_image
 dnl ==============================================================
-FREEJ_SAVE_FLAGS
-CFLAGS="$SDL_CFLAGS"
-CPPFLAGS="$SDL_CFLAGS"
-LDFLAGS="$SDL_LIBS"
-FREEJ_CHECK_LIB_HEADERS([SDL_image], [IMG_Load], [SDL_image.h],
-                        [have_sdlimage=yes], [have_sdlimage=no])
-FREEJ_RESTORE_FLAGS
-if test x$have_sdlimage = xyes; then
+PKG_CHECK_MODULES([SDLIMAGE], [SDL_image], [have_sdlimage=yes], [have_sdlimage=no])
+if test x$have_sdlimage = xno; then
    SDLIMAGE_CFLAGS="$SDL_CFLAGS"
    SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image"
-else
+   FREEJ_SAVE_FLAGS
+   CFLAGS="$SDLIMAGE_CFLAGS"
+   CPPFLAGS="$SDLIMAGE_CFLAGS"
+   LDFLAGS="$SDLIMAGE_LIBS"
+   FREEJ_CHECK_LIB_HEADERS([SDL_image], [IMG_Load], [SDL_image.h],
+                           [have_sdlimage=yes], [have_sdlimage=no])
+   FREEJ_RESTORE_FLAGS
+fi
+if test x$have_sdlimage = xno; then
    FREEJ_CHECK_LIB_HEADERS([jpeg], [jpeg_std_error], [jpeglib.h],
                            [have_libjpeg=yes], [have_libjpeg=no])
    if test x$have_libjpeg = xno; then
@@ -741,8 +743,6 @@ else
    SDLIMAGE_CFLAGS="-I\$(top_srcdir)/lib/sdl_image"
    SDLIMAGE_LIBS="-lpng -ljpeg \$(top_builddir)/lib/sdl_image/libsdl_image.la"
 fi
-AC_SUBST(SDLIMAGE_CFLAGS)
-AC_SUBST(SDLIMAGE_LIBS)
 
 AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlgfx = xno])
 
