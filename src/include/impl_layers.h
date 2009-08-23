@@ -52,7 +52,7 @@
 #endif
 
 #ifdef WITH_XHACKS
-#include <xhacks_layer.h>
+#include <xscreensaver_layer.h>
 #endif
 
 #ifdef WITH_UNICAP

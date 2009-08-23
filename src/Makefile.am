@@ -22,7 +22,7 @@ SOURCES = \
 	video_layer.cpp		image_layer.cpp \
 	text_layer.cpp 		gen_f0r_layer.cpp \
 	geo_layer.cpp		flash_layer.cpp \
-	xhacks_layer.cpp        goom_layer.cpp \
+	xscreensaver_layer.cpp  goom_layer.cpp \
 	xgrab_layer.cpp		opencv_cam_layer.cpp \
 	impl_layers.cpp \
 	audio_layer.cpp \

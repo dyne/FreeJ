@@ -2,7 +2,7 @@
  *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Public License as published 
+ * modify it under the terms of the GNU Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
  *
@@ -31,7 +31,7 @@ class XHacksLayer: public Layer {
  public:
   XHacksLayer();
   ~XHacksLayer();
-  
+
   //bool init(Context *screen=NULL);
   bool init(Context *screen);
   Context *screen;
@@ -39,7 +39,7 @@ class XHacksLayer: public Layer {
   void *feed();
   void close();
   void pause(bool paused);
-  
+
   //extern char *progclass;
  // void xhacks_handle_events(int);
 
@@ -48,7 +48,7 @@ class XHacksLayer: public Layer {
   Display *dpy;
   Window back_win;
   //Pixmap back_win;
-  XImage *img;	
+  XImage *img;
   GC gc;
   bool paused;
 
