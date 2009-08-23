@@ -323,7 +323,10 @@ fi
 dnl ==============================================================
 dnl Check X11 for xgrab
 dnl ==============================================================
-PKG_CHECK_MODULES(X11, x11, have_x11=yes, have_x11=no)
+PKG_CHECK_MODULES(X11, x11, have_xgrab=yes, have_xgrab=no)
+if test x$have_xgrab = xyes; then
+   AC_DEFINE(WITH_XGRAB,1,[define if using xgrab layer])
+fi
 
 
 dnl ==============================================================
@@ -1079,7 +1082,7 @@ fi
 #### layers
 
 echo -n "= xgrab layer : "
-if test x$have_x11 = xyes; then
+if test x$have_xgrab = xyes; then
    echo "yes"
 #echo "  LIBS  : $X11_LIBS"
 else

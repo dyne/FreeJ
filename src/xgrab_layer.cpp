@@ -21,9 +21,9 @@
  */
 
 #include <config.h>
-#include <stdlib.h>
 
-#ifdef linux
+#ifdef WITH_XGRAB
+#include <stdlib.h>
 #include <jutils.h>
 #include <xgrab_layer.h>
 
@@ -415,4 +415,4 @@ JS(js_xgrab_close) {
 }
 
 
-#endif
+#endif // WITH_XGRAB
