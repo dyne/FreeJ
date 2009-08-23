@@ -306,8 +306,6 @@ dnl ==============================================================
 PKG_CHECK_MODULES([LIBLO], [liblo], [:],
 	AC_MSG_ERROR([*** LIBLO development files not found!]))
 
-AM_CONDITIONAL([BUILD_LIBLO], [test x$have_liblo = xno])
-
 
 dnl ==============================================================
 dnl Check if there is FREETYPE2
@@ -885,7 +883,6 @@ lib/Makefile
 lib/ccvt/Makefile
 lib/flash/Makefile
 lib/goom/Makefile
-lib/lo/Makefile
 lib/sdl_gfx/Makefile
 lib/sdl_image/Makefile
 lib/sdl_ttf/Makefile

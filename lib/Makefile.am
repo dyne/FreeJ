@@ -26,13 +26,8 @@ if BUILD_SDLIMAGE
 SDLIMAGEDIR = sdl_image
 endif
 
-if BUILD_LIBLO
-LIBLODIR = lo
-endif
-
 SUBDIRS = ccvt \
 	slw              \
-	$(LIBLODIR)      \
 	$(SDLIMAGEDIR)   \
 	$(SDLTTFDIR)     \
 	$(SDLGFXDIR)     \
@@ -44,7 +39,6 @@ SUBDIRS = ccvt \
 # XXX(godog) after lib/javascript is gone remove this
 DIST_SUBDIRS = ccvt \
 	slw              \
-	lo               \
 	sdl_image        \
 	sdl_ttf          \
 	sdl_gfx          \
