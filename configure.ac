@@ -301,6 +301,15 @@ AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
 
 
 dnl ==============================================================
+dnl LIBLO
+dnl ==============================================================
+PKG_CHECK_MODULES([LIBLO], [liblo], [:],
+	AC_MSG_ERROR([*** LIBLO development files not found!]))
+
+AM_CONDITIONAL([BUILD_LIBLO], [test x$have_liblo = xno])
+
+
+dnl ==============================================================
 dnl Check if there is FREETYPE2
 dnl ==============================================================
 PKG_CHECK_MODULES(FT2, freetype2,
@@ -364,21 +373,6 @@ if test x$have_cwiid = xyes; then
    CWIID_LIBS="-lcwiid"
    AC_DEFINE(WITH_CWIID,1,[define if compiling cwiid WiiMote controller])
 fi
-
-
-dnl ==============================================================
-dnl LIBLO
-dnl ==============================================================
-PKG_CHECK_MODULES(LIBLO, liblo, have_liblo=yes, have_liblo=no)
-if test x$have_liblo = xno; then
-   AC_CHECK_HEADERS([netdb.h netinet/in.h arpa/inet.h float.h])
-   AC_CHECK_FUNCS([strchr gethostname gethostbyname strpbrk atexit])
-
-   LIBLO_LIBS="\$(top_builddir)/lib/lo/liblo.la"
-   LIBLO_CFLAGS="-I\$(top_srcdir)/lib -I\$(top_srcdir)/lib/lo"
-fi
-
-AM_CONDITIONAL([BUILD_LIBLO], [test x$have_liblo = xno])
 
 
 dnl ==============================================================
@@ -943,6 +937,9 @@ VRB([echo "= ffmpeg"])
 VRB([echo "  CFLAGS: $FFMPEG_CFLAGS"])
 VRB([echo "  LIBS  : $FFMPEG_LIBS"])
 
+VRB([echo "= OSC controller (liblo)"])
+VRB([echo "  LIBS   : $LIBLO_LIBS"])
+VRB([echo "  CFLAGS : $LIBLO_CFLAGS"])
 
 #### bindings
 
@@ -1030,14 +1027,6 @@ echo "= SDL_image (static)"
 fi
 VRB([echo "  LIBS  : $SDLIMAGE_LIBS"])
 VRB([echo "  CFLAGS: $SDLIMAGE_CFLAGS"])
-
-if test x$have_liblo = xyes; then
-echo "= OSC controller (liblo dynamic)"
-else
-echo "= OSC controller (liblo static)"
-fi
-VRB([echo "  LIBS   : $LIBLO_LIBS"])
-VRB([echo "  CFLAGS : $LIBLO_CFLAGS"])
 
 
 #### optional stuff
