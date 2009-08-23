@@ -20,7 +20,7 @@
  */
 
 #include <config.h>
-#if defined WITH_FT2 && defined WITH_FC
+#if defined WITH_TEXTLAYER
 
 #include <fontconfig/fontconfig.h>
 

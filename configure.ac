@@ -321,22 +321,15 @@ PKG_CHECK_MODULES([SHOUT], [shout], [:],
 
 
 dnl ==============================================================
-dnl Check if there is FREETYPE2
+dnl Font handling (text layer)
 dnl ==============================================================
 PKG_CHECK_MODULES(FT2, freetype2,
                   have_freetype2=yes, have_freetype2=no)
-if test x$have_freetype2 = xyes; then
-   AC_DEFINE(WITH_FT2,1,[define if linking freetype for text rendering])
-fi
-
-   
-dnl ==============================================================
-dnl Check if there is FONTCONFIG
-dnl ==============================================================
 PKG_CHECK_MODULES(FC, fontconfig,
                   have_fontconfig=yes, have_fontconfig=no)
-if test x$have_fontconfig = xyes; then
-   AC_DEFINE(WITH_FC,1,[define if linking fontconfig for font indexing])
+if test x$have_freetype2 = xyes && test x$have_fontconfig = xyes; then
+   have_textlayer=yes
+   AC_DEFINE(WITH_TEXTLAYER,1,[define if having fontconfig and freetype])
 fi
    
 
@@ -1032,24 +1025,6 @@ else
    echo "no"
 fi
 
-echo -n "= FreeType2 : "
-if test x$have_freetype2 = xyes; then
-   echo "yes"
-VRB([echo "  LIBS  : $FT2_LIBS"])
-VRB([echo "  CFLAGS: $FT2_CFLAGS"])
-else
-   echo "no"
-fi
-
-echo -n "= Fontconfig : "
-if test x$have_fontconfig = xyes; then
-echo "yes"
-VRB([echo "  LIBS  : $FC_LIBS"])
-VRB([echo "  CFLAGS: $FC_CFLAGS"])
-else
-echo "no"
-fi
-
 echo -n "= unicap library : "
 if test x$have_unicap = xyes; then
 echo "yes"
@@ -1061,6 +1036,19 @@ fi
 
 
 #### layers
+
+echo -n "= text layer : "
+if test x$have_textlayer = xyes; then
+echo "yes"
+VRB([echo "= freetype2"])
+VRB([echo "  LIBS  : $FT2_LIBS"])
+VRB([echo "  CFLAGS: $FT2_CFLAGS"])
+VRB([echo "= fontconfig"])
+VRB([echo "  LIBS  : $FC_LIBS"])
+VRB([echo "  CFLAGS: $FC_CFLAGS"])
+else
+echo "no"
+fi
 
 echo -n "= xgrab layer : "
 if test x$have_xgrab = xyes; then

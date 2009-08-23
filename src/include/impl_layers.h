@@ -47,7 +47,7 @@
 #include <video_layer.h>
 #endif
 
-#if defined WITH_FT2 && defined WITH_FC
+#if defined WITH_TEXTLAYER
 #include <text_layer.h>
 #endif
 

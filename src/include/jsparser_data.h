@@ -74,7 +74,7 @@ JS(video_layer_constructor);
 #else
 JS(movie_layer_constructor);
 #endif
-#if defined WITH_FT2 && defined WITH_FC
+#if defined WITH_TEXTLAYER
 JS(txt_layer_constructor);
 #endif
 
@@ -194,7 +194,7 @@ extern JSFunctionSpec unicap_layer_methods[];
 #endif
 
 // TextLayer
-#if defined WITH_FT2 && defined WITH_FC
+#if defined WITH_TEXTLAYER
 extern JSClass txt_layer_class;
 extern JSFunctionSpec txt_layer_methods[];
 #endif
@@ -417,7 +417,7 @@ JS(video_layer_mark_out);
 JS(video_layer_pause);
 #endif
 
-#if defined WITH_FT2 && defined WITH_FC
+#if defined WITH_TEXTLAYER
 ////////////////////////////////
 // Txt Layer methods
 JS(txt_layer_font);

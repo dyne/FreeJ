@@ -23,7 +23,7 @@
 #include <jsparser_data.h>
 #include <config.h>
 
-#if defined WITH_FT2 && defined WITH_FC
+#if defined WITH_TEXTLAYER
 #include <text_layer.h>
 
 DECLARE_CLASS_GC("TextLayer",txt_layer_class,txt_layer_constructor,js_layer_gc);
