@@ -669,6 +669,17 @@ dnl SDL_gfx
 dnl ==============================================================
 PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
 if test x$have_sdlgfx = xno; then
+   SDLGFX_CFLAGS="$SDL_CFLAGS"
+   SDLGFX_LIBS="$SDL_LIBS -lSDL_gfx"
+   FREEJ_SAVE_FLAGS
+   CFLAGS="$SDLGFX_CFLAGS"
+   CPPFLAGS="$SDLGFX_CFLAGS"
+   LDFLAGS="$SDLGFX_LIBS"
+   FREEJ_CHECK_LIB_HEADERS([SDL_gfx], [pixelColor], [SDL_gfxPrimitives.h],
+                           [have_sdlgfx=yes], [have_sdlgfx=no])
+   FREEJ_RESTORE_FLAGS
+fi
+if test x$have_sdlgfx = xno; then
    AC_MSG_NOTICE([Using freej version of SDLGFX])
 
    AC_CHECK_FUNCS([pow])
