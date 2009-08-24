@@ -12,8 +12,9 @@ freej (0.10git20090824-1) UNRELEASED; urgency=low
     longer shipped.
   * Recommend frei0r-plugins.
   * Enable OpenGL screen.
+  * Update Standards Version to 3.8.3.
 
- -- Luca Bigliardi <shammash@artha.org>  Mon, 24 Aug 2009 20:07:27 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Mon, 24 Aug 2009 20:47:14 +0100
 
 freej (0.10git20090312-1) unstable; urgency=low
 
