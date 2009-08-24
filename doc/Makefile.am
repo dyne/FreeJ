@@ -7,13 +7,11 @@ EXTRA_DIST = doxy2swig.py freej.1 ipernav.png ipernav-small.png
 
 man_MANS = freej.1
 
-# TODO(shammash):
-# - look for doxygen autotools support
-# - check for doxygen and python while configuring
-# - make install
+if BUILD_SWIG_PYTHON
 pydocstrings.i:
-	doxygen freej.dox
-	python $(srcdir)/doxy2swig.py xml/index.xml $@
+	$(DOXYGEN) freej.dox
+	$(PYTHON) $(srcdir)/doxy2swig.py xml/index.xml $@
+endif
 
 noinst_DATA = pydocstrings.i
 

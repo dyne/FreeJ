@@ -204,6 +204,12 @@ if test x$have_swig = xno && {
     AC_MSG_ERROR([*** bindings requested but swig not found!])
 fi
 
+if test x$enable_python = xyes; then
+   AC_CHECK_PROG([DOXYGEN], [doxygen], [doxygen])
+   if test -z "$DOXYGEN"; then
+      AC_MSG_ERROR([*** Doxygen is required to build python docstrings.])
+   fi
+fi
 
 dnl ==============================================================
 dnl Add the local include path and some flags
