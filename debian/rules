@@ -5,7 +5,7 @@ include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/autotools.mk
 #include /usr/share/cdbs/1/rules/dpatch.mk
 
-DEB_CONFIGURE_EXTRA_FLAGS := --disable-cpuflags --enable-debug
+DEB_CONFIGURE_EXTRA_FLAGS := --disable-cpuflags --enable-debug --enable-opengl
 
 DEB_DH_INSTALL_SOURCEDIR := debian/tmp
 
