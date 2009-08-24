@@ -339,6 +339,7 @@ dnl ==============================================================
 PKG_CHECK_MODULES(X11, x11, have_xgrab=yes, have_xgrab=no)
 if test x$have_xgrab = xyes; then
    AC_DEFINE(WITH_XGRAB,1,[define if using xgrab layer])
+   AC_DEFINE(WITH_XSCREENSAVER,1,[define if using xscreensaver layer])
 fi
 
 
