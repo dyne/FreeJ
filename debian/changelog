@@ -1,18 +1,18 @@
-freej (0.10git20090819-1) UNRELEASED; urgency=low
+freej (0.10git20090824-1) UNRELEASED; urgency=low
 
   * New upstream import.
   * Build-Depend on libcwiid instead of libbluetooth.
   * Build-Depend on libfftw3 instead of fftw3.
   * Add Build-Depend on libsdl-gfx1.2-dev, libx11-dev, liblo0-dev,
     libsamplerate-dev, libcv-dev, libshout-dev, libsdl-ttf2.0-dev,
-    libsdl-image1.2-dev.
+    libsdl-image1.2-dev, doxygen.
   * Remove doc/scripting make rules as now it is handled by freej itself.
   * Update freej-doc install paths to reflect upstream changes.
   * Remove usr/lib/freej from libfreej0 install path because frei0r is no
     longer shipped.
   * Recommend frei0r-plugins.
 
- -- Luca Bigliardi <shammash@artha.org>  Wed, 19 Aug 2009 21:25:47 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Mon, 24 Aug 2009 20:02:49 +0100
 
 freej (0.10git20090312-1) unstable; urgency=low
 
