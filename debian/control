@@ -16,7 +16,7 @@ Build-Depends: cdbs, libtool, debhelper (>> 7.0.0), pkg-config, flex, bison,
  python-central (>= 0.6), swig, libmozjs-dev (>= 1.9.0.6),
  xulrunner-dev (>=1.9.0.6), libsdl-gfx1.2-dev (>= 2.0.19), libx11-dev,
  liblo0-dev, libsamplerate-dev, libcv-dev, libshout-dev, libsdl-ttf2.0-dev,
- libsdl-image1.2-dev, doxygen, libglu1-mesa-dev.
+ libsdl-image1.2-dev, doxygen, libglu1-mesa-dev
 Standards-Version: 3.8.1
 
 
