@@ -304,13 +304,14 @@ dnl ==============================================================
 dnl LIBLO
 dnl ==============================================================
 PKG_CHECK_MODULES([LIBLO], [liblo], [:],
-	AC_MSG_ERROR([*** LIBLO development files not found!]))
+	AC_MSG_ERROR([*** Liblo development files not found!]))
+
 
 dnl ==============================================================
 dnl shout lib
 dnl ==============================================================
 PKG_CHECK_MODULES([SHOUT], [shout], [:],
-	AC_MSG_ERROR([*** LIBLO development files not found!]))
+	AC_MSG_ERROR([*** Libshout development files not found!]))
 
 
 dnl ==============================================================
