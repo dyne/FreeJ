@@ -16,15 +16,14 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-#ifndef __xhl_h__
-#define __xhl_h__
+#ifndef __XSCREENSAVER_LAYER_H__
+#define __XSCREENSAVER_LAYER_H__
 
-//#include <renderer.h>
-#undef BIG_ENDIAN
+#include <config.h>
+#ifdef WITH_XSCREENSAVER
+
 #include <layer.h>
 #include <vroot.h>
-
-#define NIL (0)       // A name for the void pointer
 
 class XScreenSaverLayer: public Layer {
 
@@ -32,10 +31,9 @@ class XScreenSaverLayer: public Layer {
   XScreenSaverLayer();
   ~XScreenSaverLayer();
 
-  //bool init(Context *screen=NULL);
-  bool init(Context *screen);
-  Context *screen;
-  bool open(char *file);
+  bool init(Context *ctx, int width, int height);
+  bool init(Context *ctx);
+  bool open(const char *file);
   void *feed();
   void close();
   void pause(bool paused);
@@ -61,4 +59,7 @@ class XScreenSaverLayer: public Layer {
   char *_path;
 
 };
-#endif
+
+#endif // WITH_XSCREENSAVER
+#endif // __XSCREENSAVER_LAYER_H__
+

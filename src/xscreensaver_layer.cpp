@@ -15,9 +15,6 @@
 #include <context.h>
 #include <jutils.h>
 #include <xscreensaver_layer.h>
-#include <config.h>
-
-#define NIL (0)       // A name for the void pointer
 
 
 XScreenSaverLayer::XScreenSaverLayer()
@@ -29,18 +26,26 @@ XScreenSaverLayer::~XScreenSaverLayer() {
   close();
 }
 
-bool XScreenSaverLayer::init(Context *scr) {
-  func("XScreenSaverLayer::init");
-  if(scr) freej = scr;
-     _init(freej, freej->screen->w, freej->screen->h, freej->screen->bpp);
+bool XScreenSaverLayer::init(Context *ctx, int width, int height) {
+  func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
+  if(!ctx)
+    return false;
 
-  buffer = jalloc(buffer,geo.size);
+  _init(width, height);
+
+  buffer = jalloc(geo.size);
 //  img=XCreatePixmap(dpy, back_win, freej->screen->w, freej->screen->h, 32);
 //img = XGetImage(dpy, back_win, 0, 0, geo.w, geo.h, ~0L, ZPixmap);
 //buffer=img->data;
 //buffer=*(&img->data);
+
   return true;
 }
+
+bool XScreenSaverLayer::init(Context *ctx) {
+  return init(ctx, 0, 0);
+}
+
 
 /*
  *  XWindowAttributes xgwa;
@@ -56,10 +61,10 @@ image->depth
  * */
 
 
-bool XScreenSaverLayer::open(char *file) {
+bool XScreenSaverLayer::open(const char *file) {
   func("XScreenSaverLayer::open(%s)", file);
 
-      dpy = XOpenDisplay(NIL);
+      dpy = XOpenDisplay(NULL);
   if(!dpy) {
     error("XScreenSaverLayer can't open X display");
     return false;
@@ -87,7 +92,7 @@ XChangeWindowAttributes(dpy, back_win, CWBackingStore, &attrib);
 
   XMapWindow(dpy, back_win);
       // Create a "Graphics Context"
-      gc = XCreateGC(dpy, back_win, 0, NIL);
+      gc = XCreateGC(dpy, back_win, 0, NULL);
 
 /*
 Status XGetWindowAttributes(display, w, window_attributes_return)
@@ -119,7 +124,7 @@ XGCValues gcv;
 	sprintf(args, "0x%x", (int)back_win);
 	notice("%s exec %s", __PRETTY_FUNCTION__, args);
 int res =  execl(file, "", "-window-id", args, NULL);
-	notice("%s exec failed %i because %s", __PRETTY_FUNCTION_, res, strerror(errno));
+	notice("%s exec failed %i because %s", __PRETTY_FUNCTION__, res, strerror(errno));
 	exit(0);
       } else {
       }
