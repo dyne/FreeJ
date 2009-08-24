@@ -1,4 +1,4 @@
-freej (0.10git20090824-1) UNRELEASED; urgency=low
+freej (0.10git20090824-1) unstable; urgency=low
 
   * New upstream import.
   * Build-Depend on libcwiid instead of libbluetooth.
@@ -14,7 +14,7 @@ freej (0.10git20090824-1) UNRELEASED; urgency=low
   * Enable OpenGL screen.
   * Update Standards Version to 3.8.3.
 
- -- Luca Bigliardi <shammash@artha.org>  Mon, 24 Aug 2009 20:47:14 +0100
+ -- Luca Bigliardi <shammash@artha.org>  Mon, 24 Aug 2009 21:15:51 +0100
 
 freej (0.10git20090312-1) unstable; urgency=low
 
