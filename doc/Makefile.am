@@ -11,9 +11,9 @@ if BUILD_SWIG_PYTHON
 pydocstrings.i:
 	$(DOXYGEN) freej.dox
 	$(PYTHON) $(srcdir)/doxy2swig.py xml/index.xml $@
-endif
 
 noinst_DATA = pydocstrings.i
+endif
 
 clean-local:
 	rm -rf html
