@@ -227,7 +227,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		object_proto);
 	TextLayer = layer_object;
 #endif
-#ifdef linux
+#ifdef WITH_XGRAB
 	REGISTER_CLASS("XGrabLayer",
 		js_xgrab_class,
 		js_xgrab_constructor,

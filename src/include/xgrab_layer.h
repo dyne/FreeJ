@@ -18,8 +18,11 @@
  * "$Id: image_layer.h 926 2007-10-05 21:21:44Z jaromil $"
  *
  */
-#ifndef __vp_h__
-#define __vp_h__
+#ifndef __FREEJ_XGRAB_H__
+#define __FREEJ_XGRAB_H__
+
+#include <config.h>
+#ifdef WITH_XGRAB
 
 #include <SDL.h>
 #include <layer.h>
@@ -78,8 +81,9 @@ class XGrabLayer: public Layer {
 
 		void *feed();
 };
+#endif // WITH_XGRAB
 
-#endif
+
 #if 0
        SDL_Surface *SDL_GetVideoSurface(void);
 
@@ -102,3 +106,4 @@ class XGrabLayer: public Layer {
 
 #endif
 
+#endif

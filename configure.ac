@@ -204,6 +204,12 @@ if test x$have_swig = xno && {
     AC_MSG_ERROR([*** bindings requested but swig not found!])
 fi
 
+if test x$enable_python = xyes; then
+   AC_CHECK_PROG([DOXYGEN], [doxygen], [doxygen])
+   if test -z "$DOXYGEN"; then
+      AC_MSG_ERROR([*** Doxygen is required to build python docstrings.])
+   fi
+fi
 
 dnl ==============================================================
 dnl Add the local include path and some flags
@@ -218,21 +224,21 @@ fi
 dnl ==============================================================
 dnl Check for slang
 dnl ==============================================================
-SLANG_CFLAGS="-I/usr/include/slang"
-SLANG_LIBS="-lslang"
-FREEJ_SAVE_FLAGS
-CFLAGS="$SLANG_CFLAGS"
-CPPFLAGS="$SLANG_CFLAGS"
-LDFLAGS=""
-FREEJ_CHECK_LIB_HEADERS([slang], [SLang_getkey], [slang.h],
-   [:],
-	AC_MSG_ERROR([*** SLANG development files not found!]))
-FREEJ_RESTORE_FLAGS
-# apparently pkg-config is not in slang distribution (yet)
-#PKG_CHECK_MODULES(SLANG, slang, :,
-#	AC_MSG_ERROR([*** SLANG development files not found!]))
-AC_SUBST([SLANG_CFLAGS])
-AC_SUBST([SLANG_LIBS])
+PKG_CHECK_MODULES([SLANG], [slang], [have_slang=yes], [have_slang=no])
+if test x$have_slang = xno; then
+   SLANG_CFLAGS="-I/usr/include/slang"
+   SLANG_LIBS="-lslang"
+   FREEJ_SAVE_FLAGS
+   CFLAGS="$SLANG_CFLAGS"
+   CPPFLAGS="$SLANG_CFLAGS"
+   LDFLAGS=""
+   FREEJ_CHECK_LIB_HEADERS([slang], [SLang_getkey], [slang.h],
+                           [have_slang=yes], [have_slang=no])
+   FREEJ_RESTORE_FLAGS
+fi
+if test x$have_slang = xno; then
+   AC_MSG_ERROR([*** SLANG development files not found!])
+fi
 
 dnl ==============================================================
 dnl Check for SDL
@@ -301,6 +307,20 @@ AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
 
 
 dnl ==============================================================
+dnl LIBLO
+dnl ==============================================================
+PKG_CHECK_MODULES([LIBLO], [liblo], [:],
+	AC_MSG_ERROR([*** Liblo development files not found!]))
+
+
+dnl ==============================================================
+dnl shout lib
+dnl ==============================================================
+PKG_CHECK_MODULES([SHOUT], [shout], [:],
+	AC_MSG_ERROR([*** Libshout development files not found!]))
+
+
+dnl ==============================================================
 dnl Check if there is FREETYPE2
 dnl ==============================================================
 PKG_CHECK_MODULES(FT2, freetype2,
@@ -323,7 +343,10 @@ fi
 dnl ==============================================================
 dnl Check X11 for xgrab
 dnl ==============================================================
-PKG_CHECK_MODULES(X11, x11, have_x11=yes, have_x11=no)
+PKG_CHECK_MODULES(X11, x11, have_xgrab=yes, have_xgrab=no)
+if test x$have_xgrab = xyes; then
+   AC_DEFINE(WITH_XGRAB,1,[define if using xgrab layer])
+fi
 
 
 dnl ==============================================================
@@ -361,21 +384,6 @@ if test x$have_cwiid = xyes; then
    CWIID_LIBS="-lcwiid"
    AC_DEFINE(WITH_CWIID,1,[define if compiling cwiid WiiMote controller])
 fi
-
-
-dnl ==============================================================
-dnl LIBLO
-dnl ==============================================================
-PKG_CHECK_MODULES(LIBLO, liblo, have_liblo=yes, have_liblo=no)
-if test x$have_liblo = xno; then
-   AC_CHECK_HEADERS([netdb.h netinet/in.h arpa/inet.h float.h])
-   AC_CHECK_FUNCS([strchr gethostname gethostbyname strpbrk atexit])
-
-   LIBLO_LIBS="\$(top_builddir)/lib/lo/liblo.la"
-   LIBLO_CFLAGS="-I\$(top_srcdir)/lib -I\$(top_srcdir)/lib/lo"
-fi
-
-AM_CONDITIONAL([BUILD_LIBLO], [test x$have_liblo = xno])
 
 
 dnl ==============================================================
@@ -650,24 +658,22 @@ if test x$have_opencv = xyes; then
    AC_DEFINE(WITH_OPENCV,1,[Define if to link opencv framework])
 fi
 
-dnl ==============================================================
-dnl shout lib
-dnl ==============================================================
-PKG_CHECK_MODULES(SHOUT, shout, have_shout=yes, have_shout=no)
-if test x$have_shout = xno; then
-   AC_CHECK_FUNCS([gethostbyaddr inet_ntoa])
-
-   SHOUT_LIBS="\$(top_builddir)/lib/shout/libshout.la"
-   SHOUT_CFLAGS="-I\$(top_srcdir)/lib/shout"
-fi
-
-AM_CONDITIONAL(BUILD_SHOUT, [test x$have_shout = xno])
-
 
 dnl ==============================================================
 dnl SDL_gfx
 dnl ==============================================================
 PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
+if test x$have_sdlgfx = xno; then
+   SDLGFX_CFLAGS="$SDL_CFLAGS"
+   SDLGFX_LIBS="$SDL_LIBS -lSDL_gfx"
+   FREEJ_SAVE_FLAGS
+   CFLAGS="$SDLGFX_CFLAGS"
+   CPPFLAGS="$SDLGFX_CFLAGS"
+   LDFLAGS="$SDLGFX_LIBS"
+   FREEJ_CHECK_LIB_HEADERS([SDL_gfx], [pixelColor], [SDL_gfxPrimitives.h],
+                           [have_sdlgfx=yes], [have_sdlgfx=no])
+   FREEJ_RESTORE_FLAGS
+fi
 if test x$have_sdlgfx = xno; then
    AC_MSG_NOTICE([Using freej version of SDLGFX])
 
@@ -682,22 +688,23 @@ AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
 dnl ==============================================================
 dnl SDL_ttf
 dnl ==============================================================
-FREEJ_SAVE_FLAGS
-CFLAGS="$SDL_CFLAGS"
-CPPFLAGS="$SDL_CFLAGS"
-LDFLAGS="$SDL_LIBS"
-FREEJ_CHECK_LIB_HEADERS(SDL_ttf, TTF_Init, [SDL_ttf.h],
-                        [have_sdlttf=yes], [have_sdlttf=no])
-FREEJ_RESTORE_FLAGS
-if test x$have_sdlttf = xyes; then
+PKG_CHECK_MODULES([SDLTTF], [SDL_ttf], [have_sdlttf=yes], [have_sdlttf=no])
+if test x$have_sdlttf = xno; then
    SDLTTF_CFLAGS="$SDL_CFLAGS"
    SDLTTF_LIBS="$SDL_LIBS -lSDL_ttf"
-else
+   FREEJ_SAVE_FLAGS
+   CFLAGS="$SDLTTF_CFLAGS"
+   CPPFLAGS="$SDLTTF_CFLAGS"
+   LDFLAGS="$SDLTTF_LIBS"
+   FREEJ_CHECK_LIB_HEADERS([SDL_ttf], [TTF_Init], [SDL_ttf.h],
+                           [have_sdlttf=yes], [have_sdlttf=no])
+   FREEJ_RESTORE_FLAGS
+fi
+if test x$have_sdlttf = xno; then
+   AC_MSG_NOTICE([Using freej version of SDLTTF])
    SDLTTF_CFLAGS="-I\$(top_srcdir)/lib/sdl_ttf"
    SDLTTF_LIBS="\$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la"
 fi
-AC_SUBST(SDLTTF_CFLAGS)
-AC_SUBST(SDLTTF_LIBS)
 
 AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
 
@@ -705,17 +712,19 @@ AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
 dnl ==============================================================
 dnl SDL_image
 dnl ==============================================================
-FREEJ_SAVE_FLAGS
-CFLAGS="$SDL_CFLAGS"
-CPPFLAGS="$SDL_CFLAGS"
-LDFLAGS="$SDL_LIBS"
-FREEJ_CHECK_LIB_HEADERS([SDL_image], [IMG_Load], [SDL_image.h],
-                        [have_sdlimage=yes], [have_sdlimage=no])
-FREEJ_RESTORE_FLAGS
-if test x$have_sdlimage = xyes; then
+PKG_CHECK_MODULES([SDLIMAGE], [SDL_image], [have_sdlimage=yes], [have_sdlimage=no])
+if test x$have_sdlimage = xno; then
    SDLIMAGE_CFLAGS="$SDL_CFLAGS"
    SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image"
-else
+   FREEJ_SAVE_FLAGS
+   CFLAGS="$SDLIMAGE_CFLAGS"
+   CPPFLAGS="$SDLIMAGE_CFLAGS"
+   LDFLAGS="$SDLIMAGE_LIBS"
+   FREEJ_CHECK_LIB_HEADERS([SDL_image], [IMG_Load], [SDL_image.h],
+                           [have_sdlimage=yes], [have_sdlimage=no])
+   FREEJ_RESTORE_FLAGS
+fi
+if test x$have_sdlimage = xno; then
    FREEJ_CHECK_LIB_HEADERS([jpeg], [jpeg_std_error], [jpeglib.h],
                            [have_libjpeg=yes], [have_libjpeg=no])
    if test x$have_libjpeg = xno; then
@@ -729,8 +738,6 @@ else
    SDLIMAGE_CFLAGS="-I\$(top_srcdir)/lib/sdl_image"
    SDLIMAGE_LIBS="-lpng -ljpeg \$(top_builddir)/lib/sdl_image/libsdl_image.la"
 fi
-AC_SUBST(SDLIMAGE_CFLAGS)
-AC_SUBST(SDLIMAGE_LIBS)
 
 AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlgfx = xno])
 
@@ -876,11 +883,9 @@ lib/Makefile
 lib/ccvt/Makefile
 lib/flash/Makefile
 lib/goom/Makefile
-lib/lo/Makefile
 lib/sdl_gfx/Makefile
 lib/sdl_image/Makefile
 lib/sdl_ttf/Makefile
-lib/shout/Makefile
 lib/slw/Makefile
 scripts/Makefile
 src/Makefile
@@ -893,6 +898,11 @@ AC_OUTPUT
 # configure
 AC_DEFUN([VRB],
          AS_IF([test x"$V" == x1], [$1]))
+
+dnl autoconf < 2.63 compatibility
+m4_ifndef([AS_VAR_APPEND],
+          AC_DEFUN([AS_VAR_APPEND], $1=$$1$2))
+
 echo
 echo
 echo "Compile $PACKAGE $VERSION for ${host}"
@@ -923,6 +933,13 @@ VRB([echo "= ffmpeg"])
 VRB([echo "  CFLAGS: $FFMPEG_CFLAGS"])
 VRB([echo "  LIBS  : $FFMPEG_LIBS"])
 
+VRB([echo "= OSC controller (liblo)"])
+VRB([echo "  LIBS   : $LIBLO_LIBS"])
+VRB([echo "  CFLAGS : $LIBLO_CFLAGS"])
+
+VRB([echo "= Shout library (static)"])
+VRB([echo "  LIBS  : $SHOUT_LIBS"])
+VRB([echo "  CFLAGS: $SHOUT_CFLAGS"])
 
 #### bindings
 
@@ -931,7 +948,7 @@ disabled_bindings=""
 
 if test x$enable_python = xyes; then
 AS_VAR_APPEND(enabled_bindings, " python")
-VRB([echo "  Python:"])
+VRB([echo "= Python:"])
 VRB([echo "    LIBS   : $PYTHON_LDFLAGS"])
 VRB([echo "    CFLAGS : $PYTHON_CPPFLAGS"])
 else
@@ -940,7 +957,7 @@ fi
 
 if test x$enable_ruby = xyes; then
 AS_VAR_APPEND(enabled_bindings, " ruby")
-VRB([echo "  Ruby:"])
+VRB([echo "= Ruby:"])
 VRB([echo "    LIBS     : $RUBY_LDFLAGS"])
 VRB([echo "    CFLAGS   : $RUBY_CPPFLAGS"])
 else
@@ -949,7 +966,7 @@ fi
 
 if test x$enable_java = xyes; then
 AS_VAR_APPEND(enabled_bindings, " java")
-VRB([echo "  Java:"])
+VRB([echo "= Java:"])
 VRB([echo "    LIBS     : $JAVA_LDFLAGS"])
 VRB([echo "    CFLAGS   : $JAVA_CFLAGS"])
 else
@@ -958,7 +975,7 @@ fi
 
 if test x$enable_perl = xyes; then
 AS_VAR_APPEND(enabled_bindings, " perl")
-VRB([echo "  Perl:"])
+VRB([echo "= Perl:"])
 VRB([echo "    LIBS     : $PERL_LDFLAGS"])
 VRB([echo "    CFLAGS   : $PERL_CFLAGS"])
 else
@@ -978,14 +995,6 @@ echo "= javascript interpreter (static)"
 fi
 VRB([echo "  LIBS  : $MOZJS_LIBS"])
 VRB([echo "  CFLAGS: $MOZJS_CFLAGS"])
-
-if test x$have_shout = xyes; then
-echo "= Shout library (dynamic)"
-else
-echo "= Shout library (static)"
-fi
-VRB([echo "  LIBS  : $SHOUT_LIBS"])
-VRB([echo "  CFLAGS: $SHOUT_CFLAGS"])
 
 if test x$have_sdlgfx = xyes; then
 echo "= SDL_gfx (dynamic)"
@@ -1010,14 +1019,6 @@ echo "= SDL_image (static)"
 fi
 VRB([echo "  LIBS  : $SDLIMAGE_LIBS"])
 VRB([echo "  CFLAGS: $SDLIMAGE_CFLAGS"])
-
-if test x$have_liblo = xyes; then
-echo "= OSC controller (liblo dynamic)"
-else
-echo "= OSC controller (liblo static)"
-fi
-VRB([echo "  LIBS   : $LIBLO_LIBS"])
-VRB([echo "  CFLAGS : $LIBLO_CFLAGS"])
 
 
 #### optional stuff
@@ -1062,7 +1063,7 @@ fi
 #### layers
 
 echo -n "= xgrab layer : "
-if test x$have_x11 = xyes; then
+if test x$have_xgrab = xyes; then
    echo "yes"
 #echo "  LIBS  : $X11_LIBS"
 else
