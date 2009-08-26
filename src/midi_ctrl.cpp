@@ -118,6 +118,10 @@ int MidiController::dispatch() {
     snd_seq_event_t *ev;
     int ret = 0;
 
+    if (!seq_handle) {
+        error("%s invalid ALSA seq handler, did you init?");
+        return ret;
+    }
     while (snd_seq_event_input(seq_handle, &ev) >=0) {
         func ("midi action type/channel/param/value/time/src:port/dest:port %5d/%5d/%5d/%5d/%5d/%u:%u/%u:%u", 
             ev->type, 

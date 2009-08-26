@@ -143,6 +143,7 @@ freej_entry_typemap_in(Encoder);
 // screens...
 %template(ScreenLinkList) Linklist<ViewPort>;
 %include "screen.h"
+%include "sdlgl_screen.h"
 
 %include "sdl_screen.h"
 %include "soft_screen.h"

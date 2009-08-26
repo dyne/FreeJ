@@ -107,9 +107,15 @@ class App(FreeJ):
         print self.main_tree.get_model()
 
     def fill_tree(self):
-        iter = self.main_model.append(None, ["bla"])
-        self.main_model.append(None, ["foo"])
-        self.main_model.append(iter, ["bla2"])
+        self.main_model.clear()
+        for layer in self.scr.layers:
+            print " * layer:",layer, layer.name
+            lay_iter = self.main_model.append(None, [layer.name])
+            for filter in layer.filters:
+                print "  * filter" , filter, filter.name
+                #iter = self.main_model.append(None, ["bla"])
+                #self.main_model.append(None, ["foo"])
+                #self.main_model.append(iter, ["bla2"])
 
     def hide_history(self, window, event):
         self.wTree.get_widget("history_menu").set_active(False)
@@ -141,6 +147,7 @@ class App(FreeJ):
             filename = self.filew.get_filename()
             self.open_layer(filename)
         self.filew.hide()
+        self.fill_tree()
 
     def open_script(self, *args):
         self.filew = gtk.FileChooserDialog("File selection",
@@ -154,6 +161,7 @@ class App(FreeJ):
             filename = self.filew.get_filename()
             self.cx.open_script(filename)
         self.filew.hide()
+        self.fill_tree()
 
 # -----------------------------------------------------
 

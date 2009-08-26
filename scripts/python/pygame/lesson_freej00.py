@@ -14,7 +14,10 @@ import freej
 import time
 #freej.set_debug(3)
 freejc = freej.Context()
-freejc.init(512,512,2,0)
+#freejc.init(512,512,2,0)
+freejc.init()
+scr = freej.SdlGlScreen(512, 512)
+freejc.add_screen(scr)
 freejc.plugger.refresh(freejc)
 layer = freejc.open(sys.argv[1])
 #layer.fps.set(25)
