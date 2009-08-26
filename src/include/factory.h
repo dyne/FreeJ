@@ -1,9 +1,11 @@
 #ifndef __FACTORY_H__
 #define __FACTORY_H__
 
-#include <layer.h>
 #include <map> // for std::map
 #include <string> // for std::string
+#include <jutils.h>
+using std::make_pair;
+
 
 #define FACORY_ID_MAXLEN 64
 
@@ -25,17 +27,18 @@
     );
 
 typedef void *(*Instantiator)();
-typedef std::map<std::string, Instantiator> InstantiatorsMap;
+#define InstantiatorsMap std::map<std::string, Instantiator>
 typedef std::pair<std::string, Instantiator> TInstantiatorPair;
-typedef std::pair<std::string, const char *> TIdPair;
+#define TIdPair std::pair<std::string, const char *>
 
 template <class T>
 class Factory 
 {
   private:
-    static InstantiatorsMap instantiators_map;
+    static int initialized;
   public:
-    static T *new_instance(const char *category, const char *tag)
+    
+    static T *new_instance(const char *category, const char *tag, InstantiatorsMap *instantiators_map)
     {
         char id[FACORY_ID_MAXLEN];
         if (!category || !tag) // safety belts
@@ -46,22 +49,23 @@ class Factory
             return NULL;
         }
         snprintf(id, sizeof(id), "%s::%s", category, tag);
-        std::map<std::string, Instantiator>::iterator pair = instantiators_map.find(id);
-        if (pair != instantiators_map.end()) { // check if we have 
+        func("Looking for %s in instantiators_map (%d)\n", id, instantiators_map->size());
+        std::map<std::string, Instantiator>::iterator pair = instantiators_map->find(id);
+        if (pair != instantiators_map->end()) { // check if we have 
             Instantiator create_instance = pair->second;
-            //return (T *)
             if (create_instance) 
                 return (T*)create_instance();
         }
         return NULL;
     };
-    static int register_instantiator(const char *tag, Instantiator func)
+    static int register_instantiator(const char *tag, Instantiator func, InstantiatorsMap *instantiators_map)
     {
-        instantiators_map.insert(TInstantiatorPair(tag, func));
+        //Factory<T>::instantiators_map.insert(std::make_pair<std::string, Instantiator>(tag, func));
+        instantiators_map->insert(TInstantiatorPair(tag, func));
         return 1;
     };
 };
 
-template <class T> InstantiatorsMap Factory<T>::instantiators_map;
+template<class T> int Factory<T>::initialized = 0;
 
 #endif

@@ -66,9 +66,6 @@ template <class T> class Linklist;
 class Context {
  private:
   
-  static Factory<Layer> layer_factory;
-  static Factory<Controller> controller_factory;
-
   std::map<std::string, const char *> default_layertypes_map;
   std::map<std::string, const char *> default_controllertypes_map;
   

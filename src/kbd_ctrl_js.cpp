@@ -26,6 +26,8 @@ JS(js_kbd_ctrl_constructor) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     
     KbdController *kbd = (KbdController *)env->get_controller_instance( "KeyboardController" );
+    if (!kbd)
+        return JS_FALSE;
     
     // initialize with javascript context
     if(! kbd->init(env) ) {
