@@ -51,8 +51,6 @@
 #include <impl_video_encoders.h>
 #include <factory.h>
 
-static InstantiatorsMap *layer_instantiators_map = NULL;
-static InstantiatorsMap *controller_instantiators_map = NULL;
 static Factory<Layer> layer_factory;
 static Factory<Controller> controller_factory;
 
@@ -159,40 +157,35 @@ Context::~Context() {
 
 Layer *Context::get_layer_instance(const char *classname, const char *tag)
 {
-    return layer_factory.new_instance(classname, tag, layer_instantiators_map);
+    return layer_factory.new_instance(classname, tag);
 }
 
 Layer *Context::get_layer_instance(const char *classname)
 {
-    return layer_factory.new_instance(classname, default_layertypes_map.find(classname)->second, layer_instantiators_map);
+    return layer_factory.new_instance(classname, default_layertypes_map.find(classname)->second);
 }
 
 
 Controller *Context::get_controller_instance(const char *classname, const char *tag)
 {
-    return controller_factory.new_instance(classname, tag, controller_instantiators_map);
+    return controller_factory.new_instance(classname, tag);
 }
 
 Controller *Context::get_controller_instance(const char *classname)
 {
-    return controller_factory.new_instance(classname, default_controllertypes_map.find(classname)->second, controller_instantiators_map);
+    return controller_factory.new_instance(classname, default_controllertypes_map.find(classname)->second);
 }
 
 
 int Context::register_layer_instantiator(const char *id, Instantiator func)
 {
-    if (!layer_instantiators_map) {
-        layer_instantiators_map =  new InstantiatorsMap();
-    }
-    return layer_factory.register_instantiator(id, func, layer_instantiators_map);
+    return layer_factory.register_instantiator(id, func);
 }
 
 int Context::register_controller_instantiator(const char *id, Instantiator func)
 {
-    if (!controller_instantiators_map) {
-        controller_instantiators_map = new InstantiatorsMap();
-    }
-    return controller_factory.register_instantiator(id, func, controller_instantiators_map);
+    // create on first use idiom
+    return controller_factory.register_instantiator(id, func);
 }
 
 bool Context::add_screen(ViewPort *scr) {

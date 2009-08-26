@@ -36,9 +36,10 @@ class Factory
 {
   private:
     static int initialized;
+    static InstantiatorsMap *instantiators_map;
   public:
     
-    static T *new_instance(const char *category, const char *tag, InstantiatorsMap *instantiators_map)
+    static T *new_instance(const char *category, const char *tag)
     {
         char id[FACORY_ID_MAXLEN];
         if (!category || !tag) // safety belts
@@ -58,14 +59,15 @@ class Factory
         }
         return NULL;
     };
-    static int register_instantiator(const char *tag, Instantiator func, InstantiatorsMap *instantiators_map)
+    static int register_instantiator(const char *tag, Instantiator func)
     {
-        //Factory<T>::instantiators_map.insert(std::make_pair<std::string, Instantiator>(tag, func));
+        if (!instantiators_map)
+            instantiators_map = new InstantiatorsMap();
         instantiators_map->insert(TInstantiatorPair(tag, func));
         return 1;
     };
 };
 
-template<class T> int Factory<T>::initialized = 0;
+template<class T> InstantiatorsMap *Factory<T>::instantiators_map = NULL;
 
 #endif
