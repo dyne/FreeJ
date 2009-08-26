@@ -68,5 +68,4 @@ threading or synchronizing the execution: just be sure to correctly
 free all the buffers you malloc ;)
 also compile --with-dmalloc to use a good memory fencing library
 
-$Id$
 

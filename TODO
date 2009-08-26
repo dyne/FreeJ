@@ -1,31 +1,37 @@
 
-  expand and finish the entire documentation
+  ^^^ re-design threading for non-blocking layers
+      broken again! need re-design with framering
+      see framering branch in progress
+      (to test try with ffmpeg on streams)
 
-  link curl library for downloading files from network
+  ^^^ expand and finish the entire documentation
 
-  expand the blitter.cpp with possibility for layer2layer blit
+  ^^^ cairo layers: poligons and svg - SDL_gfx rocks
 
-  console rewrite as controller (accessing linklists for completion)
+  ^^^ expand the blitter.cpp with possibility for layer2layer blit
 
   dump a screenshot of a layer in javascript: layer.dumpfile()
 
+  dump a screenshot of the screen in js
+
+  apply effects directly on screen
 
   write TBT layer in javascript, with colors for text
 
 
-  niels: write a separate GUI to control freej via OSC
+  write a separate GUI to control freej via OSC
 
-
-  ?joep? port EffecTV filters to Frei0r
+  port EffecTV filters to Frei0r
 
   vvv rewrite movielayer with new ffmpeg or openMLT libs
 
-  ^^^ cairo layers: poligons and svg - SDL_gfx rocks
+  vvv link curl library for downloading files from network
+
 
 DONE:
 
-  ** re-design threading for non-blocking layers
-     (try with ffmpeg on streams)
+  ** console rewrite as controller (accessing linklists for completion)
+
 
   ** jrml rewrite video4linux layer with libunicap
 
