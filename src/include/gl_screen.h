@@ -63,6 +63,7 @@ class GlScreen : public ViewPort {
   //  bool glblitX(Layer *layer);
   GLuint texturize(Layer *layer);
   Vertex g_quadVertices[4];
+  void setup_blits(Layer *lay) {};
 
 
   //  bool lock();
