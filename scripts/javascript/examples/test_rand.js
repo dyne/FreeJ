@@ -3,14 +3,14 @@
 // and smart use of function pointers
 // (C)2005 Denis Jaromil Rojo - GNU GPL 
 
-width =  width();
-height = height();
+W =  width();
+H = height();
 
 function draw_pixels(rand_geo) {
   var x, y;
 
-  x = rand()%width;
-  y = rand()%height;
+  x = rand()%W;
+  y = rand()%H;
 
   if(x<0) x = -x;
   if(y<0) y = -y;
@@ -23,12 +23,12 @@ function draw_triangles(rand_geo) {
   var x1, x2, x3;
   var y1, y2, y3;
 
-  x1 = rand()%width;
-  x2 = rand()%width;
-  x3 = rand()%width;
-  y1 = rand()%height;
-  y2 = rand()%height;
-  y3 = rand()%height;
+  x1 = rand()%W;
+  x2 = rand()%W;
+  x3 = rand()%W;
+  y1 = rand()%H;
+  y2 = rand()%H;
+  y3 = rand()%H;
 
   if(x1<0) x1 = -x1;
   if(x2<0) x2 = -x2;
@@ -45,10 +45,10 @@ function draw_ellipses(rand_geo) {
   var x, y;
   var rx, ry;
 
-  x = rand()%width;
-  y = rand()%height;
-  rx = rand()%(width/2);
-  ry = rand()%(height/2);
+  x = rand()%W;
+  y = rand()%H;
+  rx = rand()%(W/2);
+  ry = rand()%(H/2);
 
   if(x<0) x = -x;
   if(y<0) y = -y;
