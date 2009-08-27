@@ -6,13 +6,10 @@
 #include <jutils.h>
 using std::make_pair;
 
-
 #define FACORY_ID_MAXLEN 64
 
 #define FACTORY_ALLOWED \
     static int isRegistered;
-
-//#define __CONCAT__(__a, __b) __a ## __b
 
 #define FACTORY_MAKE_ID(__category, __tag) #__category "::" #__tag
 
@@ -22,38 +19,61 @@ using std::make_pair;
         func("Creating %s -- %s\n", #__class, #__name);\
         return new __name(); \
     } \
-    int __name::isRegistered = Context::register_##__class##_instantiator( \
+    int __name::isRegistered = Factory<__class>::register_instantiator( \
         FACTORY_MAKE_ID(__category, __tag), (Instantiator)get##__name \
     );
 
 typedef void *(*Instantiator)();
-#define InstantiatorsMap std::map<std::string, Instantiator>
-typedef std::pair<std::string, Instantiator> TInstantiatorPair;
-#define TIdPair std::pair<std::string, const char *>
+#define FInstantiatorsMap std::map<std::string, Instantiator>
+#define FInstantiatorPair std::pair<std::string, Instantiator>
+#define FIdPair std::pair<std::string, const char *>
+#define FIdMap std::map<std::string, const char *>
+#define FMapsMap std::map<std::string, FInstantiatorsMap *>
+#define FDefaultClassesMap std::map<std::string, const char *> 
+#define FMapPair std::pair<std::string, FInstantiatorsMap *> 
+static FMapsMap *factory_map = NULL;
 
 template <class T>
 class Factory 
 {
   private:
-    static int initialized;
-    static InstantiatorsMap *instantiators_map;
+      static FInstantiatorsMap *instantiators_map;
+      static FDefaultClassesMap *classes_map;
   public:
     
-    static T *new_instance(const char *category, const char *tag)
+    static int set_default_classtype(const char *classname, const char *id)
     {
-        char id[FACORY_ID_MAXLEN];
-        if (!category || !tag) // safety belts
+        if (!classes_map)
+            classes_map = new FDefaultClassesMap();
+        classes_map->insert(FIdPair(classname, id));
+    }
+
+    static T *new_instance(const char *classname)
+    {
+        FIdMap::iterator pair = classes_map->find(classname);
+        if (pair != classes_map->end())
+            return new_instance(classname, pair->second);
+        return NULL;
+    }
+
+    static T *new_instance(const char *classname, const char *id)
+    {
+        char tag[FACORY_ID_MAXLEN];
+        if (!classname || !id) // safety belts
             return NULL;
 
-        if (strlen(category)+strlen(tag)+3 > sizeof(id)) { // check the size of the requested id
-            error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", category, tag);
+        func("Looking for %s::%s \n", classname, id);
+
+        if (strlen(classname)+strlen(id)+3 > sizeof(tag)) { // check the size of the requested id
+            error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", classname, id);
             return NULL;
         }
-        snprintf(id, sizeof(id), "%s::%s", category, tag);
-        func("Looking for %s in instantiators_map (%d)\n", id, instantiators_map->size());
-        std::map<std::string, Instantiator>::iterator pair = instantiators_map->find(id);
-        if (pair != instantiators_map->end()) { // check if we have 
-            Instantiator create_instance = pair->second;
+        snprintf(tag, sizeof(tag), "%s::%s", classname, id);
+        func("Looking for %s in instantiators_map (%d)\n", tag, instantiators_map->size());
+        FInstantiatorsMap::iterator iterators_pair = instantiators_map->find(tag);
+        if (iterators_pair != instantiators_map->end()) { // check if we have 
+            func("id %s found\n", id);
+            Instantiator create_instance = iterators_pair->second;
             if (create_instance) 
                 return (T*)create_instance();
         }
@@ -61,13 +81,18 @@ class Factory
     };
     static int register_instantiator(const char *tag, Instantiator func)
     {
-        if (!instantiators_map)
-            instantiators_map = new InstantiatorsMap();
-        instantiators_map->insert(TInstantiatorPair(tag, func));
-        return 1;
+        if (!instantiators_map) {
+            instantiators_map = new FInstantiatorsMap();
+        }
+        if (instantiators_map) {
+            instantiators_map->insert(FInstantiatorPair(tag, func));
+            return 1;
+        }
+        return 0;
     };
 };
 
-template<class T> InstantiatorsMap *Factory<T>::instantiators_map = NULL;
+template <class T> FInstantiatorsMap *Factory<T>::instantiators_map = NULL;
+template <class T> FDefaultClassesMap *Factory<T>::classes_map = NULL;
 
 #endif

@@ -51,9 +51,6 @@
 #include <impl_video_encoders.h>
 #include <factory.h>
 
-static Factory<Layer> layer_factory;
-static Factory<Controller> controller_factory;
-
 void fsigpipe (int Sig);
 int got_sigpipe;
 
@@ -111,8 +108,8 @@ Context::Context() {
 #endif
 "\n";
     
-  default_layertypes();
-  default_controllertypes();
+  Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
+  Factory<Controller>::set_default_classtype("KeyboardController", "sdl");
   
   assert( init() );
 
@@ -155,38 +152,14 @@ Context::~Context() {
 }
 
 
-Layer *Context::get_layer_instance(const char *classname, const char *tag)
-{
-    return layer_factory.new_instance(classname, tag);
-}
-
-Layer *Context::get_layer_instance(const char *classname)
-{
-    return layer_factory.new_instance(classname, default_layertypes_map.find(classname)->second);
-}
+// 
+// Factory-related methods
+//
 
 
-Controller *Context::get_controller_instance(const char *classname, const char *tag)
-{
-    return controller_factory.new_instance(classname, tag);
-}
-
-Controller *Context::get_controller_instance(const char *classname)
-{
-    return controller_factory.new_instance(classname, default_controllertypes_map.find(classname)->second);
-}
-
-
-int Context::register_layer_instantiator(const char *id, Instantiator func)
-{
-    return layer_factory.register_instantiator(id, func);
-}
-
-int Context::register_controller_instantiator(const char *id, Instantiator func)
-{
-    // create on first use idiom
-    return controller_factory.register_instantiator(id, func);
-}
+//
+// End of Factory-related methods
+//
 
 bool Context::add_screen(ViewPort *scr) {
 

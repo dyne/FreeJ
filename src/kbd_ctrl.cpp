@@ -33,7 +33,7 @@
 #define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
 
 // our objects are allowed to be created trough the factory engine
-FACTORY_REGISTER_INSTANTIATOR(controller, KbdController, KeyboardController, sdl);
+FACTORY_REGISTER_INSTANTIATOR(Controller, KbdController, KeyboardController, sdl);
 
 KbdController::KbdController()
   :Controller() {

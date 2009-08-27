@@ -148,7 +148,7 @@ JS(constructor_func) {                                                        \
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);                            \
   constructor_class *layer = NULL;                                            \
   char excp_msg[MAX_ERR_MSG + 1];                                             \
-  layer = (constructor_class *)env->get_layer_instance( constructor_name ); \
+  layer = (constructor_class *)Factory<Layer>::new_instance( constructor_name ); \
   if(!layer) {                                                                \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
                          JSSMSG_FJ_CANT_CREATE, __func__,                     \

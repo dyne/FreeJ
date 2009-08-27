@@ -25,7 +25,7 @@ DECLARE_CLASS_GC("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor
 JS(js_kbd_ctrl_constructor) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     
-    KbdController *kbd = (KbdController *)env->get_controller_instance( "KeyboardController" );
+    KbdController *kbd = (KbdController *)Factory<Controller>::new_instance( "KeyboardController" );
     if (!kbd)
         return JS_FALSE;
     

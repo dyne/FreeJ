@@ -66,9 +66,6 @@ template <class T> class Linklist;
 class Context {
  private:
   
-  std::map<std::string, const char *> default_layertypes_map;
-  std::map<std::string, const char *> default_controllertypes_map;
-  
   /* doublesize calculation */
   uint64_t **doubletab;
   Uint8 *doublebuf;
@@ -83,16 +80,22 @@ class Context {
   pthread_t cafudda_thread;
   bool running;
 
-    void default_layertypes()
-    {
-        default_layertypes_map.insert(TIdPair("GeometryLayer", "basic"));
-    }
-    
-    void default_controllertypes()
-    {
-        default_controllertypes_map.insert(TIdPair("KeyboardController", "sdl"));
-    }
-    
+  // Factories 
+  //static Factory<Layer> layer_factory; // Layer Factory
+  // Default layer types
+  /*
+  inline void default_layertypes()
+  {
+    default_layertypes_map.insert(FIdPair("GeometryLayer", "basic"));
+  }
+
+  //static Factory<Controller> controller_factory; // Controller Factory
+  // Default controller types
+  inline void default_controllertypes()
+  {
+    default_controllertypes_map.insert(FIdPair("KeyboardController", "sdl"));
+  }
+  */
     
  public:
 
@@ -172,14 +175,14 @@ class Context {
   char *layers_description; ///< string with a list of available layers compiled in
   Layer *open(char *file); ///< creates a layer from a filename, detecting its type
     
+
+  /* Factory-related methods */
   Layer *get_layer_instance( const char *classname );
   Layer *get_layer_instance( const char *classname, const char *tag );
   
   Controller *get_controller_instance(const char *classname);
   Controller *get_controller_instance(const char *classname, const char *tag);
   
-  static int register_layer_instantiator(const char *id, Instantiator func);
-  static int register_controller_instantiator(const char *id, Instantiator func);
 };
 
 #endif
