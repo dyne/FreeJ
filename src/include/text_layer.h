@@ -23,7 +23,7 @@
 #define __TEXT_LAYER_H__
 
 #include <config.h>
-#if defined TEXTLAYER
+#if defined WITH_TEXTLAYER
 
 #include <SDL.h>
 #include <SDL_ttf.h>

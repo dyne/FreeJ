@@ -219,7 +219,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 
 #endif
 
-#if defined TEXTLAYER
+#if defined WITH_TEXTLAYER
 	REGISTER_CLASS("TextLayer",
 		txt_layer_class,
 		txt_layer_constructor,
