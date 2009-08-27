@@ -4,32 +4,59 @@ import gtk
 import threading
 import gtk.glade
 gtk.gdk.threads_init ()
-freej.set_debug(3)
+#freej.set_debug(3)
+
 
 class MyConsole(freej.ConsoleController):
-    def __init__(self, textview):
+    def __init__(self, textview, statuslist):
         self.textview = textview
+        self.statuslist = statuslist
+        self.infoicon = self.statuslist.render_icon(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU)
+        self.w_icon = self.statuslist.render_icon(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
+        self.e_icon = self.statuslist.render_icon(gtk.STOCK_DIALOG_ERROR, gtk.ICON_SIZE_MENU)
+        self.d_icon = self.statuslist.render_icon(gtk.STOCK_EXECUTE, gtk.ICON_SIZE_MENU)
+        self.u_icon = self.statuslist.render_icon(gtk.STOCK_DIALOG_QUESTION, gtk.ICON_SIZE_MENU)
+        self.statusmodel = statuslist.get_model()
         freej.ConsoleController.__init__(self)
-        print "init"
     def poll(self):
         return 0
     def dispatch(self):
         return 0
     def notice(self, msg):
+        """
+        task opened
+        """
         iter = self.textview.get_buffer().get_end_iter()
         self.textview.get_buffer().insert(iter, msg+'\n')
+        self.statusmodel.append([self.infoicon, msg])
     def error(self, msg):
+        """
+        fatal error
+        """
         iter = self.textview.get_buffer().get_end_iter()
         self.textview.get_buffer().insert(iter, msg+'\n')
+        self.statusmodel.append([self.e_icon, msg])
     def warning(self, msg):
+        """
+        warning
+        """
         iter = self.textview.get_buffer().get_end_iter()
         self.textview.get_buffer().insert(iter, msg+'\n')
+        self.statusmodel.append([self.w_icon, msg])
     def act(self, msg):
+        """
+        normal message
+        """
         iter = self.textview.get_buffer().get_end_iter()
         self.textview.get_buffer().insert(iter, msg+'\n')
+        self.statusmodel.append([self.d_icon, msg])
     def func(self, msg):
+        """
+        debug
+        """
         iter = self.textview.get_buffer().get_end_iter()
         self.textview.get_buffer().insert(iter, msg+'\n')
+        self.statusmodel.append([self.u_icon, msg])
     def refresh(self, msg):
         print " X*",msg
 
@@ -87,8 +114,9 @@ class App(FreeJ):
         self.history_w = self.wTree.get_widget("window_history")
         self.history_w.connect('delete-event', self.hide_history)
         self.history_t = self.wTree.get_widget("textview_history")
+        self.prepare_status()
         textview = self.wTree.get_widget("status")
-        self.console = MyConsole(textview)
+        self.console = MyConsole(textview, self.statustree)
         freej.set_console(self.console)
         FreeJ.__init__(self)
         self.th.start();
@@ -119,6 +147,20 @@ class App(FreeJ):
                 filter.rem()
                 self.fill_tree()
                 return
+
+    def prepare_status(self):
+        self.statustree = self.wTree.get_widget("status_list")
+        self.statusmodel = gtk.ListStore(gtk.gdk.Pixbuf, str)
+        self.statustree.set_model(self.statusmodel)
+
+        px = gtk.CellRendererPixbuf()
+        text = gtk.CellRendererText()
+        col = gtk.TreeViewColumn()
+        col.pack_start(px, expand=False)
+        col.pack_start(text, expand=True)
+        col.add_attribute(px, "pixbuf", 0)
+        col.add_attribute(text, "text", 1)
+        self.statustree.append_column(col)
 
     def fill_effects(self):
         self.effects_cb = self.wTree.get_widget("combobox_effects")
