@@ -34,8 +34,7 @@ class XHacksLayer: public Layer {
   
   //bool init(Context *screen=NULL);
   bool init(Context *screen);
-  Context *screen;
-  bool open(char *file);
+  bool open(const char *file);
   void *feed();
   void close();
   void pause(bool paused);

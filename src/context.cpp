@@ -620,6 +620,7 @@ Layer *Context::open(char *file) {
 
   } else /* XHACKS LAYER */
     if(strstr(file_ptr,"xscreensaver")) {
+
 #ifdef WITH_XHACKS
 	    nlayer = new XHacksLayer();
 
