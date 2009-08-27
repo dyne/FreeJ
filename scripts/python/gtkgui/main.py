@@ -81,7 +81,8 @@ class FreeJ(object):
         
         self.cx.add_screen( self.scr )
         self.layers = []
-        self.layers.append(self.open_layer('/home/caedes/ca-midi.avi'))
+	if len(sys.argv) > 1:
+	    self.open_layer(sys.argv[1])
         self.th = threading.Thread(target = self.cx.start , name = "freej")
 
         #cb = MyCall(self.finished)
@@ -99,6 +100,7 @@ class FreeJ(object):
         v.start()
         self.cx.add_layer( v )
         v.thisown = False
+        self.layers.append(v)
         return v
 
     def finished(self):
