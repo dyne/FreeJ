@@ -4,6 +4,7 @@ import gtk
 import threading
 import gtk.glade
 gtk.gdk.threads_init ()
+freej.set_debug(3)
 
 class MyConsole(freej.ConsoleController):
     def __init__(self, textview):
@@ -52,7 +53,8 @@ class FreeJ(object):
         self.scr = freej.SdlScreen( 400, 300)
         
         self.cx.add_screen( self.scr )
-        self.open_layer('/home/caedes/ca-midi.avi')
+        self.layers = []
+        self.layers.append(self.open_layer('/home/caedes/ca-midi.avi'))
         self.th = threading.Thread(target = self.cx.start , name = "freej")
 
         #cb = MyCall(self.finished)
@@ -70,6 +72,7 @@ class FreeJ(object):
         v.start()
         self.cx.add_layer( v )
         v.thisown = False
+        return v
 
     def finished(self):
         print "video looping!"
@@ -91,10 +94,46 @@ class App(FreeJ):
         self.th.start();
         self.wTree.signal_autoconnect({"open_file": self.open_file,
                                        "open_script": self.open_script,
+                                       "add_effect" : self.add_effect,
+                                       "del_effect" : self.del_effect,
                                        "run_command": self.run_command,
                                        "show_history": self.show_history})
         self.prepare_tree()
         self.fill_tree()
+        self.fill_effects()
+
+    def add_effect(self, button):
+        idx = self.effects_cb.get_active()
+        layer = self.layers[-1]
+        effect = self.cx.filters.pick(idx+1)
+        self.eff = effect.apply(layer)
+        self.fill_tree()
+
+    def del_effect(self, button):
+        model, iter = self.main_tree.get_selection().get_selected()
+        effect_name = model.get_value(iter, 0)
+        layer = self.layers[-1]
+        for idx, filter in enumerate(layer.filters):
+            if filter.name == effect_name:
+                layer.filters.rem(idx+1)
+                filter.rem()
+                self.fill_tree()
+                return
+
+    def fill_effects(self):
+        self.effects_cb = self.wTree.get_widget("combobox_effects")
+        self.effect_model = gtk.ListStore(str)
+        self.effects_cb.set_model(self.effect_model)
+        self.cx.plugger.refresh(self.cx)
+        for effect in self.cx.filters:
+            self.effect_model.append([effect.name])
+            #self.effect_model.append(["effect"])
+            #self.effect_model.append(["effect1"])
+            #self.effect_model.append(["effect2"])
+            #self.effect_model.append(["effect3"])
+        cell = gtk.CellRendererText()
+        self.effects_cb.pack_start(cell, True)
+        self.effects_cb.add_attribute(cell, 'text', 0)
 
     def prepare_tree(self):
         self.main_tree = self.wTree.get_widget("main_tree")
@@ -113,7 +152,7 @@ class App(FreeJ):
             lay_iter = self.main_model.append(None, [layer.name])
             for filter in layer.filters:
                 print "  * filter" , filter, filter.name
-                #iter = self.main_model.append(None, ["bla"])
+                iter = self.main_model.append(lay_iter, [filter.name])
                 #self.main_model.append(None, ["foo"])
                 #self.main_model.append(iter, ["bla2"])
 
