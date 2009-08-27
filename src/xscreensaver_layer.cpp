@@ -31,9 +31,11 @@ bool XScreenSaverLayer::init(Context *ctx, int width, int height) {
   if(!ctx)
     return false;
 
+  env = ctx;
+
   _init(width, height);
 
-  buffer = jalloc(geo.size);
+  buffer = malloc(geo.size);
 //  img=XCreatePixmap(dpy, back_win, freej->screen->w, freej->screen->h, 32);
 //img = XGetImage(dpy, back_win, 0, 0, geo.w, geo.h, ~0L, ZPixmap);
 //buffer=img->data;
@@ -43,7 +45,9 @@ bool XScreenSaverLayer::init(Context *ctx, int width, int height) {
 }
 
 bool XScreenSaverLayer::init(Context *ctx) {
-  return init(ctx, 0, 0);
+  if(!ctx)
+    return false;
+  return init(ctx, ctx->screen->w, ctx->screen->h);
 }
 
 
@@ -126,7 +130,6 @@ XGCValues gcv;
 int res =  execl(file, "", "-window-id", args, NULL);
 	notice("%s exec failed %i because %s", __PRETTY_FUNCTION__, res, strerror(errno));
 	exit(0);
-      } else {
       }
 
       /*char args[sizeof file + 42];
