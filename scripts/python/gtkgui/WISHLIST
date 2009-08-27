@@ -1,6 +1,10 @@
 Write your ideas here:
 
  - Javascript editor using scintilla
- - Changing blitmode for layers
- - Removing layers
+ - Reset button (experimental)
+ - Info tooltip for layers
+
+let's keep in mind  this gui is meant to run scripts
+not to manipulate the state of the engine, but to aid debugging;
+somehow also the "open file" button then becomes too much.
 
