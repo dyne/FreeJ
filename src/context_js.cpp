@@ -134,7 +134,7 @@ JS(rem_layer) {
     Layer *lay;
 
     if(argc<1) JS_ERROR("missing argument");
-    js_is_instanceOf(&layer_class, argv[0]);
+    //    js_is_instanceOf(&layer_class, argv[0]);
 
     jslayer = JSVAL_TO_OBJECT(argv[0]);
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
@@ -153,7 +153,7 @@ JS(add_layer) {
     *rval=JSVAL_FALSE;
 
     if(argc<1) JS_ERROR("missing argument");
-    js_is_instanceOf(&layer_class, argv[0]);
+    //    _js_is_instanceOf(env->js->global_context, &layer_class, argv[0], "Context");
 
     jslayer = JSVAL_TO_OBJECT(argv[0]);
     lay = (Layer *) JS_GetPrivate(cx, jslayer);
@@ -199,7 +199,7 @@ JS(register_controller) {
     *rval=JSVAL_FALSE;
 
     if(argc<1) JS_ERROR("missing argument");
-    js_is_instanceOf(&js_ctrl_class, argv[0]);
+    //    _js_is_instanceOf(env->js->global_context, &js_ctrl_class, argv[0], "Context");
 
     jsctrl = JSVAL_TO_OBJECT(argv[0]);
     ctrl = (Controller *)JS_GetPrivate(cx, jsctrl);
@@ -219,7 +219,7 @@ JS(rem_controller) {
     Controller *ctrl;
 
     if(argc<1) JS_ERROR("missing argument");
-    js_is_instanceOf(&js_ctrl_class, argv[0]);
+    //    js_is_instanceOf(&js_ctrl_class, argv[0]);
 
     jsctrl = JSVAL_TO_OBJECT(argv[0]);
     ctrl = (Controller *) JS_GetPrivate(cx, jsctrl);
@@ -238,7 +238,7 @@ JS(register_encoder) {
     *rval=JSVAL_FALSE;
 
     if(argc<1) JS_ERROR("missing argument");
-    js_is_instanceOf(&js_vid_enc_class, argv[0]);
+    //    js_is_instanceOf(&js_vid_enc_class, argv[0]);
 
     jsenc = JSVAL_TO_OBJECT(argv[0]);
     enc = (VideoEncoder *)JS_GetPrivate(cx, jsenc);

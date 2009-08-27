@@ -536,7 +536,7 @@ JS(layer_add_filter) {
   FilterDuo *duo;
 
   if(argc<1) JS_ERROR("missing argument");
-  js_is_instanceOf(&filter_class, argv[0]);
+  //  js_is_instanceOf(&filter_class, argv[0]);
 
   jsfilter = JSVAL_TO_OBJECT(argv[0]);
   /**
@@ -563,7 +563,7 @@ JS(layer_rem_filter) {
     FilterDuo *duo;
 
     if(argc<1) JS_ERROR("missing argument");
-    js_is_instanceOf(&filter_class, argv[0]);
+    //    js_is_instanceOf(&filter_class, argv[0]);
 
     /** TODO overload with filter name and position */
     jsfilter = JSVAL_TO_OBJECT(argv[0]);

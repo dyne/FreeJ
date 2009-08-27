@@ -88,7 +88,7 @@ JS(js_audio_jack_add_output) {
   JSObject *jslayer;
 
   JS_CHECK_ARGC(1);
-  js_is_instanceOf(&layer_class, argv[0]);
+  //  js_is_instanceOf(&layer_class, argv[0]);
 
   audio = (AudioCollector*)JS_GetPrivate(cx, obj);
   if(!audio) {
@@ -147,7 +147,7 @@ JS(js_audio_jack_add_layer) {
    *rval=JSVAL_FALSE;
 
    if(argc<1) JS_ERROR("missing argument");
-   js_is_instanceOf(&layer_class, argv[0]);
+   //   js_is_instanceOf(&layer_class, argv[0]);
    
    jslayer = JSVAL_TO_OBJECT(argv[0]);
    lay = (Layer *) JS_GetPrivate(cx, jslayer);
