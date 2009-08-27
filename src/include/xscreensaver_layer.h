@@ -38,7 +38,7 @@ class XScreenSaverLayer: public Layer {
   void close();
   void pause(bool paused);
 
-  //extern char *progclass;
+ // extern char *progclass;
  // void xhacks_handle_events(int);
 
  private:
