@@ -76,6 +76,7 @@ class MyCall(freej.DumbCall):
 class FreeJ(object):
     def __init__(self):
         self.cx = freej.Context()
+        self.cx.clear_all = True
         
         self.scr = freej.SdlScreen( 400, 300)
         
@@ -194,6 +195,7 @@ class App(FreeJ):
         for layer in self.scr.layers:
             print " * layer:",layer, layer.name
             lay_iter = self.main_model.append(None, [layer.name])
+            layer.set_blit("ADD")
             for filter in layer.filters:
                 print "  * filter" , filter, filter.name
                 iter = self.main_model.append(lay_iter, [filter.name])
