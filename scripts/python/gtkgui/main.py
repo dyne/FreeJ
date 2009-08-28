@@ -1,11 +1,18 @@
 import freej
+import os
 import sys
 import gtk
+import gobject
 import threading
 import gtk.glade
 import traceback
 import gtksourceview2 as gtksourceview
 gtk.gdk.threads_init ()
+try:
+    import numpy
+    has_numpy = True
+except:
+    has_numpy = False
 #freej.set_debug(3)
 
 MENU = -1
@@ -14,7 +21,7 @@ LAYER = 1
 FILTER = 2
 
 class MyConsole(freej.ConsoleController):
-    def __init__(self, statuslist):
+    def __init__(self, statuslist, statusbar):
         self.statuslist = statuslist
         #self.scrolledwindow = scroll
         self.infoicon = self.statuslist.render_icon(gtk.STOCK_INFO, gtk.ICON_SIZE_MENU)
@@ -23,44 +30,50 @@ class MyConsole(freej.ConsoleController):
         self.d_icon = self.statuslist.render_icon(gtk.STOCK_EXECUTE, gtk.ICON_SIZE_MENU)
         self.u_icon = self.statuslist.render_icon(gtk.STOCK_DIALOG_QUESTION, gtk.ICON_SIZE_MENU)
         self.statusmodel = statuslist.get_model()
+        self.statusbar = statusbar
+        self.status_id = self.statusbar.get_context_id('freej')
+        self.statusbar.push(self.status_id, "FreeJ started")
         freej.ConsoleController.__init__(self)
+
     def poll(self):
         return 0
+
     def dispatch(self):
         return 0
+
     def notice(self, msg):
         """
         task opened
         """
-        iter = self.statusmodel.append([self.infoicon, msg])
-        self.advance(iter)
+        self.advance(self.infoicon, msg)
+
     def error(self, msg):
         """
         fatal error
         """
-        iter = self.statusmodel.append([self.e_icon, msg])
-        self.advance(iter)
+        self.advance(self.e_icon, msg)
     def warning(self, msg):
         """
         warning
         """
-        iter = self.statusmodel.append([self.w_icon, msg])
-        self.advance(iter)
+        self.advance(self.w_icon, msg)
     def act(self, msg):
         """
         normal message
         """
-        iter = self.statusmodel.append([self.d_icon, msg])
-        self.advance(iter)
+        self.advance(self.d_icon, msg)
     def func(self, msg):
         """
         debug
         """
-        iter = self.statusmodel.append([self.u_icon, msg])
-        self.advance(iter)
-    def advance(self, iter):
+        self.advance(self.u_icon, msg)
+
+    def advance(self, icon, msg):
+        iter = self.statusmodel.append([icon, msg])
+        self.statusbar.push(self.status_id, msg)
         path = self.statuslist.get_model().get_path(iter)
         self.statuslist.scroll_to_cell(path, None)
+
     def refresh(self, msg):
         print " X*", msg
 
@@ -156,24 +169,50 @@ class FreeJ(object):
 class JsBuffer(gtksourceview.Buffer):
     def __init__(self):
         gtksourceview.Buffer.__init__(self)
+        lang_manager = gtksourceview.LanguageManager()
+        lang = lang_manager.get_language('js')
+        self.set_language(lang)
+        self.filename = None
+
+    def reset(self):
+        self.filename = None
+        self.set_property('text', "")
+
+    def save(self, filename=None):
+        if not filename:
+            filename = self.filename
+        else:
+            self.filename = filename
+        if filename:
+            text = self.get_property('text')
+            f = open(filename, 'w')
+            f.write(text)
+            f.close()
+            print " * saved as", filename
 
     def load_file(self, filename):
         f = open(filename, 'r')
         self.set_property('text', f.read())
         f.close()
+        self.filename = filename
 
 class App(FreeJ):
     def __init__(self):
         self.fname = 'freej_mixer.glade'
         self.wTree = gtk.glade.XML(self.fname)
         self.window = self.wTree.get_widget("main")
+        self.statusbar = self.wTree.get_widget("statusbar")
+        #self.preview_scroll = self.wTree.get_widget("preview_scroll")
+        #self.preview_scroll.hide()
+        self.vbox2 = self.wTree.get_widget("vbox2")
         self.setup_editor()
+        self.setup_file_dialogs()
         self.window.connect('destroy', gtk.main_quit)
         self.history_w = self.wTree.get_widget("window_history")
         self.history_w.connect('delete-event', self.hide_history)
         self.history_t = self.wTree.get_widget("textview_history")
         self.prepare_status()
-        self.console = MyConsole(self.statustree)
+        self.console = MyConsole(self.statustree, self.statusbar)
         freej.set_console(self.console)
         FreeJ.__init__(self)
         self.wTree.signal_autoconnect({"open_file": self.open_file,
@@ -182,22 +221,109 @@ class App(FreeJ):
                                        "add_effect" : self.add_effect,
                                        "do_reset" : self.do_reset,
                                        "on_debug" : self.on_debug,
+                                       "on_script_save" : self.on_script_save,
+                                       "on_script_save_as" :
+                                       self.on_script_save_as,
+                                       "on_script_new" : self.on_script_new,
+                                       "on_script_play" : self.on_script_play,
+                                       "on_script_stop" : self.on_script_stop,
                                        "run_command": self.run_command,
+                                       "show_preview": self.show_preview,
                                        "show_history": self.show_history})
+
+        self.popup = ContextMenu(self, ["delete"])
+        #data = self.cx.
+        self.preview_box = None
         self.prepare_tree()
         self.fill_tree()
         self.fill_effects()
 
-        self.popup = ContextMenu(self, ["delete"])
+    def invert_array(self, data):
+        if not has_numpy:
+            return data
+        datac = numpy.frombuffer(data, numpy.uint8)
+        data = numpy.copy(datac)
+        data[0::4], data[2::4] = datac[2::4], datac[0::4] 
+        return data
+
+    def update_previews(self):
+        self.scr.lock()
+        self.scr.layers.lock()
+        data = self.scr.get_surface_buffer()
+        w = self.scr.w
+        h = self.scr.h
+        #data = self.invert_array(data)
+        data_array = []
+        if len(self.scr.layers):
+            # layer preview
+            for layer in self.scr.layers:
+                data = layer.get_surface_buffer()
+                data = self.invert_array(data)
+                w = layer.geo.w
+                h = layer.geo.h
+                data_array.append([data,w,h])
+        else:
+            return
+        if self.preview_box:
+            self.vbox2.remove(self.preview_box)
+            self.preview_box = None
+        self.preview_box = gtk.VBox()
+        self.vbox2.pack_start(self.preview_box, expand=False)
+        for data,w,h in data_array:
+            self.pixbuf = gtk.gdk.pixbuf_new_from_data(data, gtk.gdk.COLORSPACE_RGB,
+                                                   True, 8, w,
+                                                   h, w*4)
+            self.scr.layers.unlock()
+            self.scr.unlock()
+            self.pixbuf = self.pixbuf.scale_simple(200, 150, gtk.gdk.INTERP_BILINEAR)
+            self.gtkpixmap = gtk.Image()
+            self.gtkpixmap.set_from_pixbuf(self.pixbuf)
+            self.preview_box.pack_start(self.gtkpixmap, expand=False)
+            self.gtkpixmap.show()
+        self.preview_box.show()
+        #self.preview_scroll.add_with_viewport(self.preview_box)
+
+    def __timeout(self, widget):
+        self.update_previews()
+        self._timeout_id = gobject.idle_add(self.__timeout, self.window)
+
+    def on_script_play(self, button):
+        self.on_script_save(button)
+        if self.buffer.filename:
+            self.cx.open_script(self.buffer.filename)
+        self.fill_tree()
+
+    def on_script_stop(self, button):
+        self.do_reset(button)
+
+    def on_script_save(self, button):
+        if self.buffer.filename:
+            self.buffer.save()
+        else:
+            self.on_script_save_as(button)
+
+    def on_script_save_as(self, button):
+        self.filew = gtk.FileChooserDialog("SaveAs",
+                                          None,
+                                          gtk.FILE_CHOOSER_ACTION_SAVE,
+                                          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                          gtk.STOCK_SAVE, gtk.RESPONSE_OK))
+        self.filew.set_default_response(gtk.RESPONSE_OK)
+        response = self.filew.run()
+        if response == gtk.RESPONSE_OK:
+            filename = self.filew.get_filename()
+            self.buffer.save(filename)
+        self.filew.hide()
+
+    def on_script_new(self, button):
+        self.buffer.reset()
+
 
     def setup_editor(self):
         self.content_pane = self.wTree.get_widget("text_scroll")
         self.buffer = JsBuffer()
         self.editor = gtksourceview.View(self.buffer)
         self.editor.set_show_line_numbers(True)
-        lang_manager = gtksourceview.LanguageManager()
-        lang = lang_manager.get_language('js')
-        self.buffer.set_language(lang)
 
         self.content_pane.add(self.editor)
         self.editor.show()
@@ -369,6 +495,16 @@ class App(FreeJ):
         else:
             self.history_w.hide()
 
+    def show_preview(self, checkitem):
+        if checkitem.get_active():
+            self._timeout_id = gobject.idle_add(self.__timeout, self.window)
+        else:
+            gobject.source_remove(self._timeout_id)
+            if self.preview_box:
+                self.vbox2.remove(self.preview_box)
+                self.preview_box = None
+
+
     def run_command(self, entry):
         text = entry.get_text()
         self.cx.parse_js_cmd(text)
@@ -376,13 +512,28 @@ class App(FreeJ):
         iter = self.history_t.get_buffer().get_end_iter()
         self.history_t.get_buffer().insert(iter, text+"\n")
 
-    def open_file(self, *args):
-        self.filew = gtk.FileChooserDialog("File selection",
+    def setup_file_dialogs(self):
+        # video selection dialog
+        self.filew = gtk.FileChooserDialog("Video selection",
                                           None,
                                           gtk.FILE_CHOOSER_ACTION_OPEN,
                                           (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
                                           gtk.STOCK_OPEN, gtk.RESPONSE_OK))
         self.filew.set_default_response(gtk.RESPONSE_OK)
+        # script selection dialog
+        self.files = gtk.FileChooserDialog("Script selection",
+                                          None,
+                                          gtk.FILE_CHOOSER_ACTION_OPEN,
+                                          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
+                                          gtk.STOCK_OPEN, gtk.RESPONSE_OK))
+        self.files.set_default_response(gtk.RESPONSE_OK)
+        currdir = os.path.realpath(os.path.curdir)
+        examplesdir = os.path.join(currdir, '..', '..', 'javascript', 'examples')
+        if os.path.exists(examplesdir):
+            self.files.set_current_folder(examplesdir)
+
+
+    def open_file(self, *args):
         response = self.filew.run()
         if response == gtk.RESPONSE_OK:
             filename = self.filew.get_filename()
@@ -391,18 +542,12 @@ class App(FreeJ):
         self.fill_tree()
 
     def open_script(self, *args):
-        self.filew = gtk.FileChooserDialog("File selection",
-                                          None,
-                                          gtk.FILE_CHOOSER_ACTION_OPEN,
-                                          (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL,
-                                          gtk.STOCK_OPEN, gtk.RESPONSE_OK))
-        self.filew.set_default_response(gtk.RESPONSE_OK)
-        response = self.filew.run()
+        response = self.files.run()
         if response == gtk.RESPONSE_OK:
-            filename = self.filew.get_filename()
-            self.cx.open_script(filename)
+            filename = self.files.get_filename()
+            #self.cx.open_script(filename)
             self.buffer.load_file(filename)
-        self.filew.hide()
+        self.files.hide()
         self.fill_tree()
 
 # -----------------------------------------------------
