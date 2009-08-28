@@ -201,6 +201,24 @@ class App(FreeJ):
 
         self.content_pane.add(self.editor)
         self.editor.show()
+        accel_group = gtk.AccelGroup()
+        self.window.add_accel_group(accel_group)
+
+        self.editor.add_accelerator("paste-clipboard",
+                                               accel_group,
+                                               ord('v'),
+                                               gtk.gdk.CONTROL_MASK,
+                                               0)
+        self.editor.add_accelerator("copy-clipboard",
+                                               accel_group,
+                                               ord('c'),
+                                               gtk.gdk.CONTROL_MASK,
+                                               0)
+        self.editor.add_accelerator("cut-clipboard",
+                                               accel_group,
+                                               ord('x'),
+                                               gtk.gdk.CONTROL_MASK,
+                                               0)
 
     def on_debug(self, menuitem):
         if menuitem.get_active():
