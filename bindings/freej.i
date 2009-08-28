@@ -35,6 +35,7 @@
 #include "audio_collector.h"
 #include "console_ctrl.h"
 
+
 %}
 
 //we need this for ifdefs in included headers
@@ -194,7 +195,6 @@ freej_entry_typemap_in(Encoder);
   }
 }
 
-
 /* Language specific extensions */
 #if defined(SWIGPYTHON)
   %include "pypost.i"
@@ -203,4 +203,16 @@ freej_entry_typemap_in(Encoder);
 #elif defined(SWIGLUA)
   %include "luapost.i"
 #endif
+
+%inline %{
+void delete_entry(Entry *entry)
+{
+   delete(entry);
+}
+void delete_layer(Layer *lay)
+{
+   delete(lay);
+}
+%}
+
 // SWIGPERL5, SWIGRUBY, SWIGJAVA, SWIGLUA...
