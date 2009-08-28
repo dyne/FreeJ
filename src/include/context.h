@@ -174,14 +174,6 @@ class Context {
 
   char *layers_description; ///< string with a list of available layers compiled in
   Layer *open(char *file); ///< creates a layer from a filename, detecting its type
-    
-
-  /* Factory-related methods */
-  Layer *get_layer_instance( const char *classname );
-  Layer *get_layer_instance( const char *classname, const char *tag );
-  
-  Controller *get_controller_instance(const char *classname);
-  Controller *get_controller_instance(const char *classname, const char *tag);
   
 };
 
