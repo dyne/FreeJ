@@ -129,6 +129,14 @@
                         <signal name="toggled" handler="on_debug"/>
                       </widget>
                     </child>
+                    <child>
+                      <widget class="GtkCheckMenuItem" id="menuitem9">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">python mode</property>
+                        <property name="use_underline">True</property>
+                        <signal name="toggled" handler="set_python_mode"/>
+                      </widget>
+                    </child>
                   </widget>
                 </child>
               </widget>

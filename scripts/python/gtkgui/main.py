@@ -7,6 +7,7 @@ import threading
 import gtk.glade
 import traceback
 import gtksourceview2 as gtksourceview
+from pythoncontext import PythonExecutionContext
 gtk.gdk.threads_init ()
 try:
     import numpy
@@ -129,7 +130,8 @@ class FreeJ(object):
         self.cx.add_screen( self.scr )
         self.layers = []
         if len(sys.argv) > 1:
-            self.open_layer(sys.argv[1])
+            for lay in sys.argv[1:]:
+                self.open_layer(lay)
         self.th = threading.Thread(target = self.cx.start , name = "freej")
         self.th.start();
 
@@ -169,8 +171,11 @@ class FreeJ(object):
 class JsBuffer(gtksourceview.Buffer):
     def __init__(self):
         gtksourceview.Buffer.__init__(self)
-        lang_manager = gtksourceview.LanguageManager()
-        lang = lang_manager.get_language('js')
+        self.lang_manager = gtksourceview.LanguageManager()
+        self.set_syntax_highlight('js')
+
+    def set_syntax_highlight(self, language):
+        lang = self.lang_manager.get_language(language)
         self.set_language(lang)
         self.filename = None
 
@@ -198,6 +203,7 @@ class JsBuffer(gtksourceview.Buffer):
 
 class App(FreeJ):
     def __init__(self):
+        self.pyctx = PythonExecutionContext()
         self.fname = 'freej_mixer.glade'
         self.wTree = gtk.glade.XML(self.fname)
         self.window = self.wTree.get_widget("main")
@@ -225,18 +231,21 @@ class App(FreeJ):
                                        "on_script_save_as" :
                                        self.on_script_save_as,
                                        "on_script_new" : self.on_script_new,
+                                       "set_python_mode" : self.set_python_mode,
                                        "on_script_play" : self.on_script_play,
                                        "on_script_stop" : self.on_script_stop,
                                        "run_command": self.run_command,
                                        "show_preview": self.show_preview,
                                        "show_history": self.show_history})
-
+        self.lang = "js"
         self.popup = ContextMenu(self, ["delete"])
         #data = self.cx.
         self.preview_box = None
         self.prepare_tree()
         self.fill_tree()
         self.fill_effects()
+        self.pyctx['Context'] = self.cx
+        self.pyctx['Screen'] = self.scr
 
     def invert_array(self, data):
         if not has_numpy:
@@ -245,6 +254,13 @@ class App(FreeJ):
         data = numpy.copy(datac)
         data[0::4], data[2::4] = datac[2::4], datac[0::4] 
         return data
+
+    def set_python_mode(self, toggle):
+        if toggle.get_active():
+            self.lang = "python"
+        else:
+            self.lang = "js"
+        self.buffer.set_syntax_highlight(self.lang)
 
     def update_previews(self):
         self.scr.lock()
@@ -267,8 +283,10 @@ class App(FreeJ):
         if self.preview_box:
             self.vbox2.remove(self.preview_box)
             self.preview_box = None
-        self.preview_box = gtk.VBox()
+            #self.preview_box = gtk.VBox()
+        self.preview_box = gtk.Table(3,3)
         self.vbox2.pack_start(self.preview_box, expand=False)
+        i = 0
         for data,w,h in data_array:
             self.pixbuf = gtk.gdk.pixbuf_new_from_data(data, gtk.gdk.COLORSPACE_RGB,
                                                    True, 8, w,
@@ -278,8 +296,11 @@ class App(FreeJ):
             self.pixbuf = self.pixbuf.scale_simple(200, 150, gtk.gdk.INTERP_BILINEAR)
             self.gtkpixmap = gtk.Image()
             self.gtkpixmap.set_from_pixbuf(self.pixbuf)
-            self.preview_box.pack_start(self.gtkpixmap, expand=False)
+            #self.preview_box.pack_start(self.gtkpixmap, expand=False)
+            self.preview_box.attach(self.gtkpixmap, i/2, (i/2)+1, i%2, (i%2)+1)
+            #self.preview_box.pack_start(self.gtkpixmap, expand=False)
             self.gtkpixmap.show()
+            i += 1
         self.preview_box.show()
         #self.preview_scroll.add_with_viewport(self.preview_box)
 
@@ -289,8 +310,12 @@ class App(FreeJ):
 
     def on_script_play(self, button):
         self.on_script_save(button)
-        if self.buffer.filename:
-            self.cx.open_script(self.buffer.filename)
+        if self.lang == 'js':
+            if self.buffer.filename:
+                self.cx.open_script(self.buffer.filename)
+        elif self.lang == 'python':
+            if self.buffer.filename:
+                self.run_python_command(self.buffer.get_property('text'))
         self.fill_tree()
 
     def on_script_stop(self, button):
@@ -507,10 +532,30 @@ class App(FreeJ):
 
     def run_command(self, entry):
         text = entry.get_text()
-        self.cx.parse_js_cmd(text)
+        if  self.lang == 'js':
+            self.run_js_command(text)
+        else:
+            self.run_python_command(text)
         entry.set_text("")
         iter = self.history_t.get_buffer().get_end_iter()
         self.history_t.get_buffer().insert(iter, text+"\n")
+
+    def run_python_command(self, text):
+        class OutputRedirector(object):
+            def __init__(s):
+                pass
+            def write(s, msg):
+                if msg.strip():
+                    self.console.notice(msg)
+        def printfunc(msg):
+            self.console.error(msg)
+        _stdout = sys.stdout
+        sys.stdout = OutputRedirector()
+        self.pyctx.RunUserCode(text, printfunc)
+        sys.stdout = _stdout
+
+    def run_js_command(self, text):
+        self.cx.parse_js_cmd(text)
 
     def setup_file_dialogs(self):
         # video selection dialog
