@@ -24,6 +24,20 @@
 
 }
 
+%extend ViewPort
+{
+    PyObject *get_surface_buffer()
+    {
+        return PyBuffer_FromMemory(self->get_surface(), self->w*self->h*self->bpp/8);
+    }
+}
+%extend Layer
+{
+    PyObject *get_surface_buffer()
+    {
+        return PyBuffer_FromMemory(self->buffer, self->geo.w*self->geo.h*4);
+    }
+}
 %extend Blitter
 {
    %pythoncode %{
