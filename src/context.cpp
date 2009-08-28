@@ -49,6 +49,7 @@
 
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
+#include <factory.h>
 
 void fsigpipe (int Sig);
 int got_sigpipe;
@@ -106,7 +107,10 @@ Context::Context() {
 " .  - OpenCV for camera capture\n"
 #endif
 "\n";
-
+    
+  Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
+  Factory<Controller>::set_default_classtype("KeyboardController", "sdl");
+  
   assert( init() );
 
 }
@@ -147,6 +151,16 @@ Context::~Context() {
   notice ("cu on http://freej.dyne.org");
 }
 
+
+// 
+// Factory-related methods
+//
+
+
+//
+// End of Factory-related methods
+//
+
 bool Context::add_screen(ViewPort *scr) {
 
   scr->env = this;
@@ -164,7 +178,7 @@ bool Context::add_screen(ViewPort *scr) {
 
 bool Context::init() {
 
-  notice("initializing context environment");
+  notice("Initializing the FreeJ engine");
 
   // a fast benchmark to select the best memcpy to use
   find_best_memcpy ();
@@ -687,3 +701,4 @@ Layer *Context::open(char *file) {
     func("create_layer succesful, returns %p",nlayer);
   return nlayer;
 }
+

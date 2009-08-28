@@ -55,6 +55,8 @@ extern "C" {
 
 #include <callback.h>
 
+#include <factory.h>
+
 //void av_log_null_callback(void* ptr, int level, const char* fmt, va_list vl);
 
 class VideoLayer: public Layer {
@@ -85,8 +87,8 @@ class VideoLayer: public Layer {
 	int audio_channels;
 	int audio_samplerate;
 
-    private:
-	/**
+    private:	
+    /**
 	 * av(codec|format) aka ffmpeg related variables
 	 */
 	AVCodec *avcodec;
@@ -177,7 +179,9 @@ class VideoLayer: public Layer {
 
 	// quick hack for EOS callback
 	DumbCallback *eos;
-
+    
+    // allow to use Factory on this class
+    FACTORY_ALLOWED
 };
 
 #endif

@@ -76,7 +76,7 @@ JS(js_mouse_grab) {
 }
 
 MouseController::MouseController()
-	:Controller() {
+	:SdlController() {
 	set_name("Mouse");
 
 	motion_f = NULL;

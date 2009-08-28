@@ -44,8 +44,9 @@
 #include <screen.h>
 #include <shouter.h>
 #include <gen_f0r_layer.h>
-
+#include <factory.h>
 #include <config.h>
+#include <string>
 
 class Controller;
 
@@ -57,14 +58,14 @@ class VideoEncoder;
 class FreejDaemon;
 
 template <class T> class Linklist;
-
+    
 /* maximum height & width supported by context */
 #define MAX_HEIGHT 1024
 #define MAX_WIDTH 768
 
 class Context {
  private:
-
+  
   /* doublesize calculation */
   uint64_t **doubletab;
   Uint8 *doublebuf;
@@ -79,6 +80,23 @@ class Context {
   pthread_t cafudda_thread;
   bool running;
 
+  // Factories 
+  //static Factory<Layer> layer_factory; // Layer Factory
+  // Default layer types
+  /*
+  inline void default_layertypes()
+  {
+    default_layertypes_map.insert(FIdPair("GeometryLayer", "basic"));
+  }
+
+  //static Factory<Controller> controller_factory; // Controller Factory
+  // Default controller types
+  inline void default_controllertypes()
+  {
+    default_controllertypes_map.insert(FIdPair("KeyboardController", "sdl"));
+  }
+  */
+    
  public:
 
   Context();
@@ -156,7 +174,15 @@ class Context {
 
   char *layers_description; ///< string with a list of available layers compiled in
   Layer *open(char *file); ///< creates a layer from a filename, detecting its type
+    
 
+  /* Factory-related methods */
+  Layer *get_layer_instance( const char *classname );
+  Layer *get_layer_instance( const char *classname, const char *tag );
+  
+  Controller *get_controller_instance(const char *classname);
+  Controller *get_controller_instance(const char *classname, const char *tag);
+  
 };
 
 #endif

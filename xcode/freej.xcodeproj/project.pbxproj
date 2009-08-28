@@ -10,6 +10,7 @@
 		AA00100D0F77FD9200719D5B /* callback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA00100C0F77FD9200719D5B /* callback.cpp */; };
 		AA0E39820FBECC1E00123D3F /* CVPreview.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA0E39810FBECC1E00123D3F /* CVPreview.mm */; };
 		AA0E3E760FBF3C0100123D3F /* CVTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3E750FBF3C0100123D3F /* CVTexture.m */; };
+		AA134AC01047B6D500BA39EB /* CKbdController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA134ABF1047B6D500BA39EB /* CKbdController.cpp */; };
 		AA1EB9030F56969E006610D8 /* CVFilterPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */; };
 		AA5844880FE114970059D860 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5844870FE114970059D860 /* Carbon.framework */; };
 		AA5846530FE1626E0059D860 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = AA5846520FE1626E0059D860 /* GLString.m */; };
@@ -185,6 +186,8 @@
 		AA0E39810FBECC1E00123D3F /* CVPreview.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVPreview.mm; sourceTree = "<group>"; };
 		AA0E3E740FBF3C0100123D3F /* CVTexture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVTexture.h; sourceTree = "<group>"; };
 		AA0E3E750FBF3C0100123D3F /* CVTexture.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVTexture.m; sourceTree = "<group>"; };
+		AA134ABE1047B6D500BA39EB /* CKbdController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CKbdController.h; sourceTree = "<group>"; };
+		AA134ABF1047B6D500BA39EB /* CKbdController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CKbdController.cpp; sourceTree = "<group>"; };
 		AA1EB9010F56969E006610D8 /* CVFilterPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFilterPanel.h; sourceTree = "<group>"; };
 		AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFilterPanel.mm; sourceTree = "<group>"; };
 		AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector.cpp; sourceTree = "<group>"; };
@@ -576,6 +579,8 @@
 				AA63CF8D102DAED400FDA024 /* QTExporter.mm */,
 				AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */,
 				AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */,
+				AA134ABE1047B6D500BA39EB /* CKbdController.h */,
+				AA134ABF1047B6D500BA39EB /* CKbdController.cpp */,
 			);
 			name = Cocoa;
 			sourceTree = "<group>";
@@ -1505,6 +1510,7 @@
 				AA63CF8E102DAED400FDA024 /* QTExporter.mm in Sources */,
 				AAC9DB37103D2C7F00A0111E /* PreferencesPanel.mm in Sources */,
 				AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */,
+				AA134AC01047B6D500BA39EB /* CKbdController.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
