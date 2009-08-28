@@ -24,7 +24,7 @@
 
 //#include <unistd.h>
 #include <alsa/asoundlib.h>
-#include <controller.h>
+#include <sdl_controller.h>
 
 // #include <callbacks_js.h>
 #define CLIENT_NAME "freej MidiController" 
@@ -33,7 +33,7 @@
 
 class Context;
 
-class MidiController: public Controller {
+class MidiController: public SdlController {
 	public:
 		MidiController();
 		~MidiController();

@@ -28,7 +28,6 @@
 #define __CONTROLLER_H__
 
 #include <config.h>
-#include <SDL/SDL.h>
 #include <cstdarg> // va_list
 #include <jsapi.h> // spidermonkey header
 
@@ -57,11 +56,7 @@ class Controller: public Entry {
   virtual int dispatch() = 0; ///< dispatch() is implemented by the specific controller 
   ///< distributes the signals to listeners, can be overrided in python
 
-  void poll_sdlevents(Uint32 eventmask);
-  ///< helper function to filter and redispatch unhandled SDL_Events
-  ///< calls dispatch() foreach event in eventmask
-
-  
+ 
   bool initialized; ///< is this class initialized on a context?
   bool active; ///< is this class active?
 
@@ -73,7 +68,6 @@ class Controller: public Entry {
 
   JSContext *jsenv; ///< javascript environment
   JSObject  *jsobj; ///< this javascript object
-  SDL_Event event; ///< SDL event structure
 
   // TODO: eliminate runtime resolution -> C++ overhead alert!
   int JSCall(const char *funcname, int argc, jsval *argv);

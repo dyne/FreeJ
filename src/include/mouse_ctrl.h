@@ -20,11 +20,9 @@
 #ifndef __MOUSE_CTRL_H__
 #define __MOUSE_CTRL_H__
 
-#include <controller.h>
+#include <sdl_controller.h>
 
-#include <SDL.h>
-
-class MouseController : public Controller {
+class MouseController : public SdlController {
   
  public:
   MouseController();

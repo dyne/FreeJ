@@ -20,11 +20,11 @@
 #ifndef __JOY_CTRL_H__
 #define __JOY_CTRL_H__
 
-#include <controller.h>
+#include <sdl_controller.h>
 
 #include <SDL.h>
 
-class JoyController : public Controller {
+class JoyController : public SdlController {
 
  public:
   JoyController();

@@ -19,12 +19,12 @@
 #ifndef __KBD_CTRL_H__
 #define __KBD_CTRL_H__
 
-#include <controller.h>
+#include <sdl_controller.h>
 #include <factory.h>
 
 #include <SDL.h>
 
-class KbdController: public Controller {
+class KbdController: public SdlController {
 
  public:
   KbdController();

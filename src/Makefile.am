@@ -37,7 +37,7 @@ SOURCES = \
 	mouse_ctrl.cpp		vimo_ctrl.cpp	\
 	joy_ctrl.cpp		midi_ctrl.cpp   \
 	trigger_ctrl.cpp 	osc_ctrl.cpp \
-	wiimote_ctrl.cpp \
+	wiimote_ctrl.cpp 	sdl_controller.cpp \
 \
 	audio_jack.cpp  \
 	audio_collector.cpp \

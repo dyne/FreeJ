@@ -36,7 +36,7 @@
 FACTORY_REGISTER_INSTANTIATOR(Controller, KbdController, KeyboardController, sdl);
 
 KbdController::KbdController()
-  :Controller() {
+  :SdlController() {
   set_name("Keyboard");
   func("%s this=%p",__PRETTY_FUNCTION__, this);
 }
