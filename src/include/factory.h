@@ -49,6 +49,7 @@ class Factory
             classes_map->erase(pair);
         // set new default
         classes_map->insert(FTagPair(classname, id));
+        return 1;
     }
 
     static T *new_instance(const char *classname)
