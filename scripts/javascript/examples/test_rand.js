@@ -3,8 +3,8 @@
 // and smart use of function pointers
 // (C)2005 Denis Jaromil Rojo - GNU GPL 
 
-W =  width();
-H = height();
+W = get_width();
+H = get_height();
 
 function draw_pixels(rand_geo) {
   var x, y;

@@ -1,8 +1,8 @@
 // dinges met iets acid-achtigs, met vierkantjes en rondjes ofzo, geen idee nog precies, maar iig 'jaren 90-ish'
 // buZz, Puik.
 
-W=width();
-H=height();
+W=get_width();
+H=get_height();
 
 //set_resolution(W,H);
 
