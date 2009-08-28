@@ -11,23 +11,23 @@ using std::make_pair;
 #define FACTORY_ALLOWED \
     static int isRegistered;
 
-#define FACTORY_MAKE_ID(__category, __tag) #__category "::" #__tag
+#define FACTORY_MAKE_TAG(__category, __id) #__category "::" #__id
 
-#define FACTORY_REGISTER_INSTANTIATOR(__class, __name, __category, __tag) \
-    static __name * get##__name() \
+#define FACTORY_REGISTER_INSTANTIATOR(__base_class, __class_name, __category, __id) \
+    static __class_name * get##__class_name() \
     { \
-        func("Creating %s -- %s\n", #__class, #__name);\
-        return new __name(); \
+        func("Creating %s -- %s\n", #__base_class, #__class_name);\
+        return new __class_name(); \
     } \
-    int __name::isRegistered = Factory<__class>::register_instantiator( \
-        FACTORY_MAKE_ID(__category, __tag), (Instantiator)get##__name \
+    int __class_name::isRegistered = Factory<__base_class>::register_instantiator( \
+        FACTORY_MAKE_TAG(__category, __id), (Instantiator)get##__class_name \
     );
 
 typedef void *(*Instantiator)();
 #define FInstantiatorsMap std::map<std::string, Instantiator>
 #define FInstantiatorPair std::pair<std::string, Instantiator>
-#define FIdPair std::pair<std::string, const char *>
-#define FIdMap std::map<std::string, const char *>
+#define FTagPair std::pair<std::string, const char *>
+#define FTagMap std::map<std::string, const char *>
 #define FMapsMap std::map<std::string, FInstantiatorsMap *>
 #define FDefaultClassesMap std::map<std::string, const char *> 
 #define FMapPair std::pair<std::string, FInstantiatorsMap *> 
@@ -45,12 +45,12 @@ class Factory
     {
         if (!classes_map)
             classes_map = new FDefaultClassesMap();
-        classes_map->insert(FIdPair(classname, id));
+        classes_map->insert(FTagPair(classname, id));
     }
 
     static T *new_instance(const char *classname)
     {
-        FIdMap::iterator pair = classes_map->find(classname);
+        FTagMap::iterator pair = classes_map->find(classname);
         if (pair != classes_map->end())
             return new_instance(classname, pair->second);
         return NULL;
