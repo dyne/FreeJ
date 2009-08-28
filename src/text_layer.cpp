@@ -208,7 +208,7 @@ void TextLayer::_display_text(SDL_Surface *newsurf) {
   surf = newsurf;
 
   if(buffer) free(buffer);
-  buffer = jalloc(geo.bytesize);
+  buffer = malloc(geo.bytesize);
 
 }
 

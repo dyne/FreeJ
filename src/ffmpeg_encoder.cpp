@@ -52,7 +52,7 @@ FFmpegEncoder::~FFmpegEncoder() {
 
 	// free the streams
 	for(int i = 0; i < afc->nb_streams; i++) {
-	  jfree(&afc->streams[i]);
+	  free(&afc->streams[i]);
 	}
 	
 	if (!(aof->flags & AVFMT_NOFILE)) {
@@ -60,13 +60,13 @@ FFmpegEncoder::~FFmpegEncoder() {
 	  url_fclose(&afc->pb);
 	}
 	/* free the stream */
-	jfree(afc);
+	free(afc);
 }
 
 void FFmpegEncoder::free_av_objects() {
-  jfree(picture);
-  jfree(tmp_picture);
-  jfree(video_outbuf);
+  free(picture);
+  free(tmp_picture);
+  free(video_outbuf);
 }
 
 bool FFmpegEncoder::init(Context *_env) { 

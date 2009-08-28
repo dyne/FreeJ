@@ -68,7 +68,7 @@ void V4lGrabber::close() {
     ::close(dev);
   }
   
-  if(rgb_surface) jfree(rgb_surface);
+  if(rgb_surface) free(rgb_surface);
   
 }
 

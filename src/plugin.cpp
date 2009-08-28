@@ -81,7 +81,7 @@ void Plugin::_delete() {
   //  if(__clean) clean();
   if(_handle) dlclose(_handle);
 
-  if(_path) jfree(_path);
+  if(_path) free(_path);
 }
 
 Plugin::~Plugin(void) {

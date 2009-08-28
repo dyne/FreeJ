@@ -218,7 +218,7 @@ void Plugger::addsearchdir(const char *dir) {
   if(!dircheck(dir)) return;
   if(_searchpath) {
     snprintf(temp,1024,"%s:%s",_searchpath,dir);
-    jfree(_searchpath);
+    free(_searchpath);
     _searchpath = strdup(temp);
   } else _searchpath = strdup(dir);
 }

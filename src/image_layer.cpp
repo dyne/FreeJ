@@ -93,11 +93,11 @@ bool ImageLayer::open(const char *file) {
 
   /** allocate memory for the black image */
   if(black_image) {
-    jfree(black_image);
+    free(black_image);
     black_image = NULL;
   }
 
-  black_image = jalloc(geo.bytesize);
+  black_image = malloc(geo.bytesize);
   // paint it black!
   black_image = memset(black_image,0,geo.bytesize);
 

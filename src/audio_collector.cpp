@@ -98,16 +98,16 @@ m_ProcessPos(0)
   samplerate = n_Samplerate;
 	m_BufferTime = buffersize/(float)samplerate;
 	
-	m_Buffer = (float*) jalloc(buffersize * sizeof(float));
+	m_Buffer = (float*) malloc(buffersize * sizeof(float));
 	memset(m_Buffer,0,buffersize*sizeof(float));
 	
-	m_FFTBuffer = (float*) jalloc(buffersize*m_FFTBuffers*sizeof(float));
+	m_FFTBuffer = (float*) malloc(buffersize*m_FFTBuffers*sizeof(float));
 	memset(m_FFTBuffer,0,buffersize*sizeof(float));
 	
-	m_JackBuffer = (float*) jalloc(buffersize*sizeof(float));
+	m_JackBuffer = (float*) malloc(buffersize*sizeof(float));
 	memset(m_JackBuffer,0,buffersize*sizeof(float));
 	
-	m_AudioBuffer = (float*) jalloc(buffersize*sizeof(float));
+	m_AudioBuffer = (float*) malloc(buffersize*sizeof(float));
 	memset(m_AudioBuffer,0,buffersize*sizeof(float));
 	
 	m_FFTOutput = new float[NUM_BARS];

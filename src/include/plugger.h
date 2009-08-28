@@ -63,7 +63,7 @@ class Plugger {
   /* checks if file/directory exist */
   void addsearchdir(const char *dir);
   void _setsearchpath(const char *path) {
-    if(_searchpath) jfree(_searchpath); _searchpath = strdup(path); };
+    if(_searchpath) free(_searchpath); _searchpath = strdup(path); };
   char *_getsearchpath() { return(_searchpath); };
 
   char *_searchpath;

@@ -49,7 +49,7 @@ ringbuffer_create (size_t sz)
   rb->size_mask -= 1;
   rb->write_ptr = 0;
   rb->read_ptr = 0;
-  rb->buf = (char*)jalloc (rb->size);
+  rb->buf = (char*)malloc (rb->size);
   rb->mlocked = 0;
 
   return rb;

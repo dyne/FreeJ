@@ -54,7 +54,7 @@ bool GoomLayer::init(Context *freej) {
   
   goom = goom_init(geo.w, geo.h);
 
-  buffer = jalloc(geo.size);
+  buffer = malloc(geo.size);
 
   
   goom_set_screenbuffer(goom, buffer);

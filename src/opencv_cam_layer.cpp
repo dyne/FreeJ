@@ -77,7 +77,7 @@ bool OpenCVCamLayer::_init() {
   act("Camera capture initialized: %u chans, %u depth, fourcc %s (seq %s)",
       frame->nChannels, frame->depth, frame->colorModel, frame->channelSeq);
 
-  rgba = jalloc(geo.bytesize);
+  rgba = malloc(geo.bytesize);
 
   opened = true;
   return(true);

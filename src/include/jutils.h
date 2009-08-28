@@ -52,8 +52,6 @@ void func(const char *format, ...);
 void error(const char *format, ...);
 void act(const char *format, ...);
 void warning(const char *format, ...);
-void *jalloc(size_t size);
-bool jfree(void *point);
 uint32_t fastrand();
 void fastsrand(uint32_t seed);
 double dtime();

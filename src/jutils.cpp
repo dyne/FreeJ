@@ -168,39 +168,45 @@ void warning(const char *format, ...) {
   }
 }
 
-void *jalloc(size_t size) {
-  void *buf;
-#ifndef HAVE_DARWIN
-  int res;
-  res = posix_memalign(&buf, 32, size);
-  if(res!=0) {
-    if(res==ENOMEM)
-      error("insufficient memory to allocate buffer");
-    if(res==EINVAL)
-      error("invalid memory alignement to 32 bytes in buffer allocation");
-    return NULL;
-  }
-#else
-  buf = malloc(size);
-#endif
-  func("allocated %u bytes of memory at %p",size,buf);
-  return(buf);
-}
+/*
+ * Obsolete memory-aligned implementation
+ * void *jalloc(size_t size) {
+ * 	void *buf;
+ * #ifndef HAVE_DARWIN
+ * 	int res;
+ * 	res = posix_memalign(&buf, 32, size);
+ * 	if(res!=0) {
+ * 		if(res==ENOMEM)
+ * 			error("insufficient memory to allocate buffer");
+ * 		if(res==EINVAL)
+ * 			error("invalid memory alignement to 32 bytes in buffer allocation");
+ * 		return NULL;
+ * 	}
+ * #else
+ * 	buf = malloc(size);
+ * #endif
+ * 	func("allocated %u bytes of memory at %p",size,buf);
+ * 	return(buf);
+ * }
+ */
 
-bool jfree(void *point) {
-
-  if(point==NULL) {
-    warning("requested free on a NULL pointer");
-    return(false);
-  }
-  
-  //  if(verbosity>=FUNC)
-  //    fprintf(stderr,"[M] freeing memory at address %p\n",point);
-
-  free(point);
-  point = NULL;
-  return(true);
-}
+/*
+ * Obsolete
+ * bool jfree(void *point) {
+ *
+ *   if(point==NULL) {
+ *     warning("requested free on a NULL pointer");
+ *     return(false);
+ *   }
+ *
+ *   //  if(verbosity>=FUNC)
+ *   //    fprintf(stderr,"[M] freeing memory at address %p\n",point);
+ *
+ *   free(point);
+ *   point = NULL;
+ *   return(true);
+ * }
+ */
 
 /*
  * fastrand - fast fake random number generator

@@ -224,12 +224,12 @@ bool UnicapLayer::open(const char *devfile) {
   }
       
   // allocate first yuv buffer for grabbing
-  m_buffer.data = (unsigned char*)jalloc(m_format.buffer_size);
+  m_buffer.data = (unsigned char*)malloc(m_format.buffer_size);
   m_buffer.buffer_size = m_format.buffer_size;
 
   // allocate 32bit buffer for YUV -> RGBA transform
-  rgba[0] = jalloc(m_format.size.width * m_format.size.height * 4);
-//   rgba[1] = jalloc(format.size.width * format.size.height * 4);
+  rgba[0] = malloc(m_format.size.width * m_format.size.height * 4);
+//   rgba[1] = malloc(format.size.width * format.size.height * 4);
 //   feed_ready = rgba[0];
 
 
@@ -371,10 +371,10 @@ void UnicapLayer::close() {
     unicap_close(m_handle);
   }
 
-  if(m_buffer.data) jfree(m_buffer.data);
+  if(m_buffer.data) free(m_buffer.data);
 
-  if(rgba[0]) jfree(rgba[0]);
-//   if(rgba[1]) jfree(rgba[1]);
+  if(rgba[0]) free(rgba[0]);
+//   if(rgba[1]) free(rgba[1]);
 
   opened = false;
 }
