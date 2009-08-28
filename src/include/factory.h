@@ -31,7 +31,6 @@ typedef void *(*Instantiator)();
 #define FMapsMap std::map<std::string, FInstantiatorsMap *>
 #define FDefaultClassesMap std::map<std::string, const char *> 
 #define FMapPair std::pair<std::string, FInstantiatorsMap *> 
-static FMapsMap *factory_map = NULL;
 
 template <class T>
 class Factory 
