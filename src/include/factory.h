@@ -45,7 +45,11 @@ class Factory
     {
         if (!classes_map)
             classes_map = new FDefaultClassesMap();
-        classes_map->insert(FTagPair(classname, id));
+        FTagMap::iterator pair = classes_map->find(classname);
+        if (pair != classes_map->end) // remove old default (if any)
+            classes_map->erase(pair);
+        // set new default
+        classes_map->insert(FIdPair(classname, id));
     }
 
     static T *new_instance(const char *classname)
