@@ -1,7 +1,7 @@
 Write your ideas here:
 
- - Javascript editor using scintilla
- - Reset button (experimental)
+ - Javascript editor using scintilla (done with gtksourceview)
+ - Reset button (experimental) - done
  - Info tooltip for layers
 
 let's keep in mind  this gui is meant to run scripts
