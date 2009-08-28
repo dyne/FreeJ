@@ -129,7 +129,10 @@ class FreeJ(object):
             self.layers.pop(layer_idx)
         except:
             pass
-        freej.delete_layer(layer)
+        try:
+            freej.delete_layer(layer)
+        except:
+            pass # only on some branch
 
 
     def open_layer(self, filename):
