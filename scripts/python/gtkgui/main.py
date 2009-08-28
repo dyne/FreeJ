@@ -128,7 +128,6 @@ class FreeJ(object):
         
         
         self.cx.add_screen( self.scr )
-        self.layers = []
         if len(sys.argv) > 1:
             for lay in sys.argv[1:]:
                 self.open_layer(lay)
@@ -140,29 +139,18 @@ class FreeJ(object):
 
     def delete_layer(self, layer, layer_idx=-1):
         self.scr.rem_layer(layer)
-        try:
-            self.layers.pop(layer_idx)
-        except:
-            pass
-        try:
-            freej.delete_layer(layer)
-        except:
-            pass # only on some branch
+        freej.delete_layer(layer)
 
 
     def open_layer(self, filename):
-        #v = freej.VideoLayer()
-        print " * opening:",filename
         v = self.cx.open(filename)
         if not v:
-            print " * cant open", filename
             return
         v.init(self.cx)
         v.open(filename)
         v.start()
         self.cx.add_layer( v )
         v.thisown = False
-        self.layers.append(v)
         return v
 
     def finished(self):
@@ -203,24 +191,39 @@ class JsBuffer(gtksourceview.Buffer):
 
 class App(FreeJ):
     def __init__(self):
-        self.pyctx = PythonExecutionContext()
+        # load the xml interface
         self.fname = 'freej_mixer.glade'
         self.wTree = gtk.glade.XML(self.fname)
+        # get some widgets
         self.window = self.wTree.get_widget("main")
         self.statusbar = self.wTree.get_widget("statusbar")
-        #self.preview_scroll = self.wTree.get_widget("preview_scroll")
-        #self.preview_scroll.hide()
+        self.history_w = self.wTree.get_widget("window_history")
+        self.history_t = self.wTree.get_widget("textview_history")
         self.vbox2 = self.wTree.get_widget("vbox2")
+        # setup subsystems
+        self.preview_box = None
         self.setup_editor()
         self.setup_file_dialogs()
-        self.window.connect('destroy', gtk.main_quit)
-        self.history_w = self.wTree.get_widget("window_history")
-        self.history_w.connect('delete-event', self.hide_history)
-        self.history_t = self.wTree.get_widget("textview_history")
         self.prepare_status()
+        self.prepare_tree()
         self.console = MyConsole(self.statustree, self.statusbar)
+        self.popup = ContextMenu(self, ["delete"])
+        self.pyctx = PythonExecutionContext()
         freej.set_console(self.console)
+        # init freej
         FreeJ.__init__(self)
+        # setup python execution context main engine pointers
+        self.pyctx['Context'] = self.cx
+        self.pyctx['Screen'] = self.scr
+        # fill lists with engine contents
+        self.fill_tree()
+        self.fill_effects()
+        # connect signals
+        self.autoconnect_signals()
+        self.history_w.connect('delete-event', self.hide_history)
+        self.window.connect('destroy', gtk.main_quit)
+
+    def autoconnect_signals(self):
         self.wTree.signal_autoconnect({"open_file": self.open_file,
                                        "open_script": self.open_script,
                                        "tree_button": self.on_treeview_button_press_event,
@@ -237,15 +240,6 @@ class App(FreeJ):
                                        "run_command": self.run_command,
                                        "show_preview": self.show_preview,
                                        "show_history": self.show_history})
-        self.lang = "js"
-        self.popup = ContextMenu(self, ["delete"])
-        #data = self.cx.
-        self.preview_box = None
-        self.prepare_tree()
-        self.fill_tree()
-        self.fill_effects()
-        self.pyctx['Context'] = self.cx
-        self.pyctx['Screen'] = self.scr
 
     def invert_array(self, data):
         if not has_numpy:
@@ -269,6 +263,7 @@ class App(FreeJ):
         w = self.scr.w
         h = self.scr.h
         #data = self.invert_array(data)
+        self.images = {}
         data_array = []
         if len(self.scr.layers):
             # layer preview
@@ -277,7 +272,7 @@ class App(FreeJ):
                 data = self.invert_array(data)
                 w = layer.geo.w
                 h = layer.geo.h
-                data_array.append([data,w,h])
+                data_array.append([data,w,h,layer.get_filename()])
         else:
             return
         if self.preview_box:
@@ -287,7 +282,7 @@ class App(FreeJ):
         self.preview_box = gtk.Table(3,3)
         self.vbox2.pack_start(self.preview_box, expand=False)
         i = 0
-        for data,w,h in data_array:
+        for data,w,h,name in data_array:
             self.pixbuf = gtk.gdk.pixbuf_new_from_data(data, gtk.gdk.COLORSPACE_RGB,
                                                    True, 8, w,
                                                    h, w*4)
@@ -295,6 +290,7 @@ class App(FreeJ):
             self.scr.unlock()
             self.pixbuf = self.pixbuf.scale_simple(200, 150, gtk.gdk.INTERP_BILINEAR)
             self.gtkpixmap = gtk.Image()
+            self.gtkpixmap.set_tooltip_text(name)
             self.gtkpixmap.set_from_pixbuf(self.pixbuf)
             #self.preview_box.pack_start(self.gtkpixmap, expand=False)
             self.preview_box.attach(self.gtkpixmap, i/2, (i/2)+1, i%2, (i%2)+1)
@@ -345,6 +341,7 @@ class App(FreeJ):
 
 
     def setup_editor(self):
+        self.lang = "js"
         self.content_pane = self.wTree.get_widget("text_scroll")
         self.buffer = JsBuffer()
         self.editor = gtksourceview.View(self.buffer)
@@ -415,7 +412,6 @@ class App(FreeJ):
         for layer in list(self.scr.layers):
             self.delete_layer(layer)
         print " * clear layers"
-        self.layers = []
         print " * init context"
         #self.init_context()
         print " * fill tree"
@@ -431,6 +427,19 @@ class App(FreeJ):
             effect = self.cx.filters.pick(idx+1)
             self.eff = effect.apply(layer)
             self.fill_tree()
+
+    def get_selected_object(self, iter):
+        if not iter:
+            return
+        model = self.main_tree.get_model()
+        idx = model.get_value(iter, 1)
+        obj_type = model.get_value(iter, 2)
+        if obj_type == LAYER:
+            return self.scr.layers[idx+1]
+        elif obj_type == FILTER:
+            return None
+        elif obj_type == CONTROLLER:
+            return None
 
     def delete_effect(self, button=None):
         model, iter = self.main_tree.get_selection().get_selected()
@@ -470,9 +479,23 @@ class App(FreeJ):
         self.effects_cb.pack_start(cell, True)
         self.effects_cb.add_attribute(cell, 'text', 0)
 
+    def on_tree_tooltip(self, widget, x, y, keyboard_mode, tooltip):
+        path = self.main_tree.get_path_at_pos(x, y)
+        if not path:
+            return
+        iter = self.main_tree.get_model().get_iter(path[0])
+        obj = self.get_selected_object(iter)
+        if not obj:
+            return
+        tooltip.set_text(obj.get_filename()+"\n  active: "+str(obj.active))
+        return True
+
     def prepare_tree(self):
         self.main_tree = self.wTree.get_widget("main_tree")
-        self.main_model = gtk.TreeStore(str, int, int, gtk.gdk.Pixbuf)
+        #self.main_tree.set_tooltip_column(4)
+        self.main_tree.set_property('has-tooltip', True)
+        self.main_tree.connect('query-tooltip', self.on_tree_tooltip)
+        self.main_model = gtk.TreeStore(str, int, int, gtk.gdk.Pixbuf, str)
         self.main_tree.set_model(self.main_model)
         self.folder_icon = self.main_tree.render_icon(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU)
         self.layer_icon = self.main_tree.render_icon(gtk.STOCK_FILE, gtk.ICON_SIZE_MENU)
@@ -490,23 +513,28 @@ class App(FreeJ):
 
     def fill_tree(self):
         self.main_model.clear()
+        tooltip = "tooltip"
         controllers = self.main_model.append(None, ["Controllers", 0, MENU,
-                                                    self.folder_icon])
+                                                    self.folder_icon, tooltip])
         for c_idx, controller in enumerate(self.cx.controllers):
             c_iter = self.main_model.append(controllers, [controller.name,
                                                           c_idx, CONTROLLER,
-                                                          self.ctl_icon])
+                                                          self.ctl_icon, tooltip])
         layers = self.main_model.append(None, ["Layers", 0, MENU,
-                                               self.folder_icon])
+                                               self.folder_icon, tooltip])
         for l_idx, layer in enumerate(self.scr.layers):
-            lay_iter = self.main_model.append(layers, [layer.name, l_idx, LAYER,
-                                                      self.layer_icon])
+            name = layer.get_filename()
+            if not name:
+                name = layer.name
+            lay_iter = self.main_model.append(layers, [name, l_idx, LAYER,
+                                                      self.layer_icon, tooltip])
             layer.set_blit("ADD")
             print layer.type
             for f_idx, filter in enumerate(layer.filters):
                 iter = self.main_model.append(lay_iter, [filter.name, f_idx,
                                                          FILTER,
-                                                         self.effect_icon])
+                                                         self.effect_icon,
+                                                         tooltip])
         self.main_tree.expand_all()
 
     def hide_history(self, window, event):
@@ -528,7 +556,6 @@ class App(FreeJ):
             if self.preview_box:
                 self.vbox2.remove(self.preview_box)
                 self.preview_box = None
-
 
     def run_command(self, entry):
         text = entry.get_text()
