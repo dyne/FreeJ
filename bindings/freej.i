@@ -155,6 +155,7 @@ freej_entry_typemap_in(Encoder);
 			 
 // controllers
 %include "controller.h"
+%template(ControllerLinkList) Linklist<Controller>;
 // extends virtual methods of the Controllers to be overloadable (as callbacks)
 
 %feature("director") KbdController;
