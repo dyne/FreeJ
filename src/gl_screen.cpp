@@ -79,7 +79,7 @@ GlScreen::~GlScreen() {
 
 }
 
-bool GlScreen::init(int width, int height) {
+bool GlScreen::_init(int width, int height) {
 
 //         screen = SDL_CreateRGBSurface
 //          (sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);

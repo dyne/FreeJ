@@ -26,6 +26,7 @@
 #include <GL/glu.h>
 
 #include <screen.h>
+#include <factory.h>
 
 struct Vertex
 {
