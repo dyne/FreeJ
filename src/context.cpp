@@ -110,6 +110,7 @@ Context::Context() {
     
   Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
   Factory<Controller>::set_default_classtype("KeyboardController", "sdl");
+  Factory<ViewPort>::set_default_classtype("Screen", "sdl");
   
   assert( init() );
 

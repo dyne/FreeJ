@@ -12,12 +12,15 @@ freej.set_debug(3)
 
 W = 400
 H = 300
+
+# init context
 cx = freej.Context()
+cx.init()
+# init screen
+scr = freej.SdlScreen()
+scr.init( 400, 300 )
 
-
-scr = freej.SdlScreen( 400, 300)
-
-cx.add_screen( scr )
+cx.add_screen(scr)
 
 v = freej.VideoLayer()
 
@@ -27,7 +30,7 @@ v.open('/home/jaromil/Movies/TheRevolutionWillNotBeTelevisedGilScottHeron.mp4')
 
 v.start()
 
-cx.add_layer( v )
+scr.add_layer( v )
 
 
 

@@ -119,11 +119,13 @@ class ContextMenu(gtk.Menu):
 
 class FreeJ(object):
     def __init__(self):
-        self.scr = freej.SdlScreen( 400, 300)
+        self.scr = freej.SdlScreen()
+        self.scr.init( 400 , 300 )
         self.init_context()
 
     def init_context(self):
         self.cx = freej.Context()
+        self.cx.init()
         self.cx.clear_all = True
         
         

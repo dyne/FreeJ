@@ -169,7 +169,8 @@
         freej = new Context();
         freej->quit = false;
         NSRect frame = [screenView frame];
-        screen = new CVScreen(frame.size.width, frame.size.height);
+        screen = new CVScreen();
+	screen->init(frame.size.width, frame.size.height);
         freej->add_screen(screen);
         freej->plugger.refresh(freej);
         //freej->config_check("keyboard.js");

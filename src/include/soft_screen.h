@@ -22,18 +22,22 @@
 
 #include <screen.h>
 
+#include <factory.h>
+
 class SoftScreen : public ViewPort {
 
  public:
-  SoftScreen(int w, int h);
+  SoftScreen();
   ~SoftScreen();
 
+  bool _init(int w, int h);
 
 
   fourcc get_pixel_format() { return RGBA32; };
 
   void *get_surface();
 
+  void setup_blits(Layer *);
 
   void blit(Layer *src);
 
@@ -44,8 +48,9 @@ class SoftScreen : public ViewPort {
 
   uint32_t *pscr, *play;  // generic blit buffer pointers
 
- private:
-  bool init(int w, int h);
+  // allow to use Factory on this class
+  FACTORY_ALLOWED
+
 
 };
  

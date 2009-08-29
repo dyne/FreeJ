@@ -25,9 +25,11 @@
 #include <SDL.h>
 #include <screen.h>
 
+#include <factory.h>
+
 class SdlScreen : public ViewPort {
  public:
-  SdlScreen(int w, int h);
+  SdlScreen();
   ~SdlScreen();
 
 
@@ -54,7 +56,9 @@ class SdlScreen : public ViewPort {
  
 
  private:
-  bool init(int width, int height);
+
+  bool _init(int width, int height);
+
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
 
@@ -72,6 +76,8 @@ class SdlScreen : public ViewPort {
   uint32_t *scr, *off, *poff, *pastoff, *ppastoff;
   uint32_t *pscr, *play, *ppast;  // generic blit buffer pointers
 
+  // allow to use Factory on this class
+  FACTORY_ALLOWED;
 
 };
 

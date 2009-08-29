@@ -15,9 +15,8 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * "$Id$"
- *
  */
+
 #include <config.h>
 
 #ifdef WITH_OPENGL
@@ -30,12 +29,14 @@
 #include <sdlgl_screen.h>
 #include <jutils.h>
 
+// our objects are allowed to be created trough the factory engine
+FACTORY_REGISTER_INSTANTIATOR(ViewPort, SdlGlScreen, Screen, sdlgl);
 
 
 
 
-SdlGlScreen::SdlGlScreen(int w, int h)
-  : ViewPort(w, h) {
+SdlGlScreen::SdlGlScreen()
+  : ViewPort() {
   
   emuscr = NULL;
   bpp = 32;

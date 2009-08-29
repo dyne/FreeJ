@@ -58,9 +58,13 @@ class DIRPlaylist(object):
             print("error: no videos found in dir " + dir)
             exit()
 
+# init context
         self.cx = freej.Context()
-        self.scr = freej.SdlScreen( self.width, self.height )
-        self.cx.add_screen(self.scr)
+        self.cx.init()
+
+        self.scr = freej.SdlScreen()
+        self.scr.init( 400, 300 );
+        self.cx.add_screen(scr)
         
         self.cx.plugger.refresh(self.cx)
         self.ctx_thread = threading.Thread(target = self.cx.start,

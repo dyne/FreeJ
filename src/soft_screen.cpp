@@ -27,16 +27,17 @@
 #include <jutils.h>
 #include <soft_screen.h>
 
+// our objects are allowed to be created trough the factory engine
+FACTORY_REGISTER_INSTANTIATOR(ViewPort, SoftScreen, Screen, soft);
 
 
 
-SoftScreen::SoftScreen(int w, int h)
-  : ViewPort(w, h) {
+SoftScreen::SoftScreen()
+  : ViewPort() {
 
   buffer = NULL;
   bpp = 32;
 
-  init(w, h);
   //  set_name("SOFT");
 }
 
@@ -45,8 +46,11 @@ SoftScreen::~SoftScreen() {
 
 }
 
+void SoftScreen::setup_blits(Layer *lay) {
 
-bool SoftScreen::init(int w, int h) {
+}
+
+bool SoftScreen::_init(int w, int h) {
 
   // test
   buffer = malloc(size);

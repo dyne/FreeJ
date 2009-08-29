@@ -283,12 +283,22 @@ int main (int argc, char **argv) {
   set_debug(debug_level);
 
   // create SDL screen by default at selected size
-#ifdef WITH_OPENGL
+  screen = NULL;
   if(opengl)
-    screen = new SdlGlScreen(width, height);
+    screen = Factory<ViewPort>::new_instance( "SdlGlScreen" );
   else
-#endif
-    screen = new SdlScreen(width, height);
+    //    screen = Factory<ViewPort>::new_instance( "SdlScreen" );
+    screen = Factory<ViewPort>::new_instance( "Screen", "sdl" );
+
+    screen = new SdlScreen();
+
+  if(!screen) {
+    error("no screen can be opened");
+    delete freej;
+    exit(1);
+  }
+
+  screen->init(width, height);
 
   // add the screen to the context
   freej->add_screen(screen);

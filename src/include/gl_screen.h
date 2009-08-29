@@ -15,17 +15,12 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * "$Id$"
- *
  */
 
 #include <config.h>
 
 #ifndef __GL_SCREEN_H__
 #define __GL_SCREEN_H__
-
-//#include <SDL.h>
-//#include <SDL_opengl.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -40,9 +35,10 @@ struct Vertex
 
 class GlScreen : public ViewPort {
  public:
-  GlScreen(int w, int h);
+  GlScreen();
   ~GlScreen();
 
+  bool _init(int widt, int height);
 
   fourcc get_pixel_format() { return RGBA32; };
   void *get_surface();
@@ -70,13 +66,15 @@ class GlScreen : public ViewPort {
   //  bool unlock();
  
  private:
-  bool init(int widt, int height);
   int setres(int wx, int hx);
   bool dbl;
   uint32_t sdl_flags;
 
   // check gl error and print it
   bool check_opengl_error();
+
+  // allow to use Factory on this class
+  FACTORY_ALLOWED
 
 };
 

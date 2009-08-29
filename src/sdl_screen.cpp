@@ -36,10 +36,11 @@
 
 #include <jutils.h>
 
+// our objects are allowed to be created trough the factory engine
+FACTORY_REGISTER_INSTANTIATOR(ViewPort, SdlScreen, Screen, sdl);
 
-
-SdlScreen::SdlScreen(int w, int h)
-  : ViewPort(w, h) {
+SdlScreen::SdlScreen()
+  : ViewPort() {
   
   sdl_screen = NULL;
   emuscr = NULL;
@@ -55,15 +56,13 @@ SdlScreen::SdlScreen(int w, int h)
   magnification = 0;
   switch_fullscreen = false;
 
-  //  set_name("SDL");
-  init(w, h);
 }
 
 SdlScreen::~SdlScreen() {
   SDL_Quit();
 }
 
-bool SdlScreen::init(int width, int height) {
+bool SdlScreen::_init(int width, int height) {
   char temp[120];
  
   /* initialize SDL */

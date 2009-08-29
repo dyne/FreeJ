@@ -9,7 +9,8 @@ import sys
 cx = freej.Context()
 cx.init()
 #cx.init(400,300,0,0)
-scr = freej.SdlScreen( 400, 300)
+scr = freej.SdlScreen()
+scr.init( 400, 300 );
 cx.add_screen(scr)
 cx.config_check("keyboard.js")
 cx.plugger.refresh(cx)
