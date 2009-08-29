@@ -62,7 +62,7 @@ int CKbdController::poll()
                  ((modifierFlags&NSAlternateKeyMask)?   "alt_"   : ""),
                  ((modifierFlags&NSNumericPadKeyMask)?   "num_"   : ""),
                  [[event charactersIgnoringModifiers] UTF8String] );
-        notice("%s calling method %s()", __func__, funcname);
+        func("%s calling method %s()", __func__, funcname);
         [entry release];
         return JSCall(funcname, 0, &fval);
     }
