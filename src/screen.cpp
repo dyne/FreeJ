@@ -175,15 +175,9 @@ void ViewPort::blit_layers() {
     layers.lock ();
     while (lay) {
 
-      func("layer %s",lay->name);
-
       if(lay->buffer) {
 
-	func("layer has buffer");
-
 	if (lay->active & lay->opened) {
-
-	  func("layer is active and opened");
 
 	  lay->lock();
 	  lock();

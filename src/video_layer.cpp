@@ -310,7 +310,7 @@ bool VideoLayer::open(const char *file) {
 
   full_filename = strdup (file);
 
-  geo.init(video_codec_ctx->width, video_codec_ctx->height, geo.bpp);
+  geo.init(video_codec_ctx->width, video_codec_ctx->height, 32);
   func("VideoLayer :: w[%u] h[%u] size[%u]", geo.w, geo.h, geo.bytesize);
   func("VideoLayer :: frame_rate[%d]",frame_rate);
 
