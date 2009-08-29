@@ -15,6 +15,7 @@
 
 @class CVideoFileInput;
 class CVLayer;
+class CVScreen;
 
 #define CFREEJ_VINPUTS_MAX 8
 @interface CFreej : NSObject {

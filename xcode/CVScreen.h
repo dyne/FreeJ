@@ -76,17 +76,12 @@ class  CVScreen;
 - (void)reset;
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
+- (NSWindow *)getWindow;
 - (IBAction)toggleFullScreen:(id)sender;
 - (IBAction)toggleExport:(id)sender;
 - (IBAction)startExport:(id)sender;
 - (IBAction)stopExport:(id)sender;
 - (IBAction)setExportFile:(id)sender;
-@end
-
-@interface CVScreenController : NSWindowController {
-    
-}
-
 @end
 
 #else
