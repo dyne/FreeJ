@@ -85,7 +85,7 @@ bool ImageLayer::open(const char *file) {
 
   
   notice("ImageLayer opened %s :: w[%u] h[%u] (%u bytes)",
-	 file, geo.w, geo.h, geo.size);
+	 file, geo.w, geo.h, geo.bytesize);
 
 
   /** allocate memory for the black image */
@@ -94,9 +94,9 @@ bool ImageLayer::open(const char *file) {
     black_image = NULL;
   }
 
-  black_image = jalloc(geo.size);
+  black_image = jalloc(geo.bytesize);
   // paint it black!
-  black_image = memset(black_image,0,geo.size);
+  black_image = memset(black_image,0,geo.bytesize);
 
   // do not apply the mask,
   // copy image+alpha to surf

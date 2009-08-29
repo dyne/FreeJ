@@ -260,12 +260,12 @@ func("v4l: memory map of %i frames: %u bytes",grab_map.frames,grab_map.size);
     grab_buf[i].width = geo.w;
   }
 
-  rgb_surface = malloc(geo.size);
+  rgb_surface = malloc(geo.bytesize);
 
   cur_frame = ok_frame = 0;
 
   func("V4L layer :: w[%u] h[%u] bpp[%u] size[%u] grab_mmap[%u]",
-	 geo.w,geo.h,geo.bpp,geo.size,geo.size*num_frame);
+	 geo.w,geo.h,geo.bpp,geo.bytesize,geo.bytesize*num_frame);
   if(grab_cap.channels>1)
     act("using input channel %s",grab_chan.name);
 
@@ -419,7 +419,7 @@ void *V4lGrabber::feed() {
     ccvt_420p_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
 
   else if(palette == VIDEO_PALETTE_RGB32) 
-    memcpy(rgb_surface,&buffer[grab_map.offsets[ok_frame]],geo.size);
+    memcpy(rgb_surface,&buffer[grab_map.offsets[ok_frame]],geo.bytesize);
 
   else if(palette == VIDEO_PALETTE_RGB24) 
     ccvt_rgb24_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);

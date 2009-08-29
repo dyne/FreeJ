@@ -104,21 +104,10 @@ Layer::~Layer() {
 
 void Layer::_init(int wdt, int hgt) {
 
-  geo.w = wdt;
-  geo.h = hgt;
-  geo.bpp = 32;
-  geo.size = geo.w*geo.h*(geo.bpp/8);
-  geo.pitch = geo.w*(geo.bpp/8);
+  geo.init(wdt, hgt, 32);
 
-  //  this->freej = freej;
-  //  geo.fps = freej->fps;
-  //  geo.fps = env->fps_speed;
-  geo.x = 0;//(freej->screen->w - geo.w)/2;
-  geo.y = 0;//(freej->screen->h - geo.h)/2;
-  //  blitter->crop( freej->screen );  
-
-  if(geo.size>0)
-    buffer = jalloc(geo.size);
+  if(geo.bytesize>0)
+    buffer = jalloc(geo.bytesize);
   // if  the   size  is  still  unknown   at  init  then   it  is  the
   // responsability for the layer implementation to create the buffer
   // (see for instance text_layer)
@@ -162,7 +151,7 @@ lock();
 #if defined HAVE_DARWIN && defined WITH_COCOA
     buffer = tmp_buf;
 #else
-    jmemcpy(buffer, tmp_buf, geo.size);
+    jmemcpy(buffer, tmp_buf, geo.bytesize);
 #endif
 unlock();
 

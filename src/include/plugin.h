@@ -24,7 +24,7 @@
 #include <jutils.h>
 
 class Plugin {
-  typedef int (t_init)(ScreenGeometry*);
+  typedef int (t_init)(Geometry*);
   typedef int (t_clean)(void);
   typedef void* (t_process)(void*);
   typedef int (t_kbdin)(int);
@@ -35,7 +35,7 @@ class Plugin {
   bool open(const char *path);
   void *operator[](const char *);
 
-  int init(ScreenGeometry *sg) { 
+  int init(Geometry *sg) { 
 //    func("plugin %s::init",getname());
     return (*__init)(sg); };
 

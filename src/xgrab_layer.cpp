@@ -166,11 +166,7 @@ void XGrabLayer::resize() {
 	crop.y = (ry<0 ? -ry : 0);
 
 	//lock();
-	geo.w = (wn > 0 ? wn : 0);
-	geo.h = (hn > 0 ? hn : 0);
-	geo.bpp = 32;
-	geo.size = geo.w*geo.h*(geo.bpp/8);
-	geo.pitch = geo.w*(geo.bpp/8);
+	geo.init( (wn > 0 ? wn : 0) , (hn > 0 ? hn : 0) , 32);
 	//unlock();
 }
 #if 0

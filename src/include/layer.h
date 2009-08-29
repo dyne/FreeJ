@@ -177,9 +177,9 @@ class Layer: public Entry, public JSyncThread {
   ///< Filter list of effects applied on the Layer
   void *do_filters(void *tmp_buf); ///< process all filters on a buffer
 
-  ScreenGeometry geo;
+  Geometry geo;
   ///< Geometrical information about the Layer
-  ScreenGeometry geo_rotozoom;
+  Geometry geo_rotozoom;
   ///< Geometrical information about the Rotozoom
 
   Linklist<Iterator> iterators;

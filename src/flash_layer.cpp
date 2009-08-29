@@ -133,12 +133,12 @@ bool FlashLayer::open(const char *file){
   //  render = calloc(geo.size,1);
 
   if(procbuf) free(procbuf);
-  procbuf = calloc(geo.size,1);
+  procbuf = calloc(geo.bytesize,1);
   
   fd.pixels = procbuf;
   fd.width = geo.w;
   fd.height = geo.h;
-  fd.bpl = geo.pitch;
+  fd.bpl = geo.bytewidth;
   fd.depth = geo.bpp>>3; //DefaultDepth(dpy, DefaultScreen(dpy));
   fd.bpp = geo.bpp>>3; // bytes per pixel
 

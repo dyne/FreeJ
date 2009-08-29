@@ -36,7 +36,7 @@ typedef void (blit_f)(void *src, void *dst, int len, Linklist<Parameter> *params
 
 typedef void (blit_sdl_f)(void *src, SDL_Rect *src_rect,
 			  SDL_Surface *dst, SDL_Rect *dst_rect,
-			  ScreenGeometry *geo, Linklist<Parameter> *params);
+			  Geometry *geo, Linklist<Parameter> *params);
 
 typedef void (blit_past_f)(void *src, void *past, void *dst, int len);
 
@@ -140,7 +140,7 @@ class Blitter {
 
   Blit *default_blit;
 
-  ScreenGeometry *geo;
+  Geometry *geo;
   
  private:
   int16_t old_lay_x;

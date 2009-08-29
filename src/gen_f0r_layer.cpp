@@ -156,7 +156,7 @@ bool GenF0rLayer::open(const char *file) {
     }
   }
 
-  generator->outframe = (uint32_t*) calloc(geo.size, 1);
+  generator->outframe = (uint32_t*) calloc(geo.bytesize, 1);
 
 
   set_filename(file);

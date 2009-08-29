@@ -231,7 +231,7 @@ FilterInstance *Filter::apply(Layer *lay) {
 
   
   errno=0;
-  instance->outframe = (uint32_t*) calloc(lay->geo.size, 1);
+  instance->outframe = (uint32_t*) calloc(lay->geo.bytesize, 1);
   if(errno != 0) {
     error("calloc outframe failed (%i) applying filter %s",errno, name);
     error("Filter %s cannot be instantiated", name);
@@ -239,7 +239,7 @@ FilterInstance *Filter::apply(Layer *lay) {
     return NULL;
   }
   
-  bytesize = lay->geo.size;
+  bytesize = lay->geo.bytesize;
 
   lay->filters.append(instance);
 

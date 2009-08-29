@@ -205,17 +205,13 @@ bool TextLayer::set_fontsize(int sz) {
 
 void TextLayer::_display_text(SDL_Surface *newsurf) {
 
-  geo.w = newsurf->w;
-  geo.h = newsurf->h;
-  geo.bpp = 32;
-  geo.size = geo.w*geo.h*(geo.bpp/8);
-  geo.pitch = geo.w*(geo.bpp/8);
+  geo.init( newsurf->w, newsurf->h, 32);
 
   if (surf) SDL_FreeSurface(surf);
   surf = newsurf;
 
   if(buffer) free(buffer);
-  buffer = jalloc(geo.size);
+  buffer = jalloc(geo.bytesize);
 
 }
 

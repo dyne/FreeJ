@@ -41,7 +41,7 @@ class XGrabLayer: public Layer {
 		//bool cafudda();
 		void resize();
 		bool autosize, mapped, unobscured;
-		ScreenGeometry crop;
+		Geometry crop;
 		struct crop {
 			uint16_t x;
 			uint16_t y;

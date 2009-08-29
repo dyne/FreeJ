@@ -317,7 +317,7 @@ bool VideoLayer::open(const char *file) {
   full_filename = strdup (file);
 
   _init(video_codec_ctx->width, video_codec_ctx->height);
-  func("VideoLayer :: w[%u] h[%u] size[%u]", geo.w, geo.h, geo.size);
+  func("VideoLayer :: w[%u] h[%u] size[%u]", geo.w, geo.h, geo.bytesize);
   func("VideoLayer :: frame_rate[%d]",frame_rate);
 
   // initialize picture

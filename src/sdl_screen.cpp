@@ -120,7 +120,7 @@ void SdlScreen::blit(Layer *src) {
     pre_rotozoom = SDL_CreateRGBSurfaceFrom
       (src->buffer,
        src->geo.w, src->geo.h, src->geo.bpp,
-       src->geo.pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
+       src->geo.bytewidth, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
     
     if(src->rotating) {
       
@@ -136,8 +136,7 @@ void SdlScreen::blit(Layer *src) {
     
     offset = rotozoom->pixels;
     // free the temporary surface (needed again in sdl blits)
-    src->geo_rotozoom.w = rotozoom->w;
-    src->geo_rotozoom.h = rotozoom->h;
+    src->geo_rotozoom.init( rotozoom->w, rotozoom->h, src->geo.bpp);
 
 
   } else offset = src->buffer;

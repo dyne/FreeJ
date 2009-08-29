@@ -32,11 +32,11 @@ static SDL_Surface *sdl_surf;
 
 BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
 	     SDL_Surface *dst, SDL_Rect *dst_rect,
-	     ScreenGeometry *geo, Linklist<Parameter> *param) {
+	     Geometry *geo, Linklist<Parameter> *param) {
   
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
-     geo->pitch, red_bitmask, green_bitmask, blue_bitmask, 0x0);
+     geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, 0x0);
   
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
   //SDL_UpdateRects(sdl_surf, 1, dst_rect);
@@ -46,14 +46,14 @@ BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
 
 BLIT sdl_alpha(void *src, SDL_Rect *src_rect,
 	       SDL_Surface *dst, SDL_Rect *dst_rect,
-	       ScreenGeometry *geo, Linklist<Parameter> *params) {
+	       Geometry *geo, Linklist<Parameter> *params) {
 
   float alpha = *(float*)(params->begin()->value); // only one value
   unsigned int int_alpha = (unsigned int) alpha;
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
-     geo->pitch, red_bitmask, green_bitmask, blue_bitmask, 0x0);
+     geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, 0x0);
 
   SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, int_alpha );  
 
@@ -65,14 +65,14 @@ BLIT sdl_alpha(void *src, SDL_Rect *src_rect,
 
 BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
 		  SDL_Surface *dst, SDL_Rect *dst_rect,
-		  ScreenGeometry *geo, Linklist<Parameter> *params) {
+		  Geometry *geo, Linklist<Parameter> *params) {
 
   float alpha = *(float*)(params->begin()->value); // only one value
   unsigned int int_alpha = (unsigned int) alpha;
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
-     geo->pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
+     geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   
   SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, int_alpha );  
 
@@ -84,14 +84,14 @@ BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
 
 BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
 		   SDL_Surface *dst, SDL_Rect *dst_rect,
-		   ScreenGeometry *geo, Linklist<Parameter> *params) {
+		   Geometry *geo, Linklist<Parameter> *params) {
 
 
   // TODO color
 
   sdl_surf = SDL_CreateRGBSurfaceFrom
     (src, geo->w, geo->h, geo->bpp,
-     geo->pitch, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
+     geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   
   // TODO
   SDL_SetColorKey( sdl_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, NULL);

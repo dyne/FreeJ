@@ -75,8 +75,8 @@ bool GeoLayer::init(Context *freej, int width, int height) {
 //     return(false);
 //   }
 
-  fsurf[0] = (uint32_t*)malloc(geo.size);
-  fsurf[1] = (uint32_t*)malloc(geo.size);
+  fsurf[0] = (uint32_t*)malloc(geo.bytesize);
+  fsurf[1] = (uint32_t*)malloc(geo.bytesize);
 
   func("Geometry surface initialized");
   opened = true;
