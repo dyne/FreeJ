@@ -74,10 +74,10 @@ class Factory
         }
         snprintf(tag, sizeof(tag), "%s::%s", classname, id);
         func("Looking for %s in instantiators_map (%d)\n", tag, instantiators_map->size());
-        FInstantiatorsMap::iterator iterators_pair = instantiators_map->find(tag);
-        if (iterators_pair != instantiators_map->end()) { // check if we have 
+        FInstantiatorsMap::iterator instantiators_pair = instantiators_map->find(tag);
+        if (instantiators_pair != instantiators_map->end()) { // check if we have 
             func("id %s found\n", id);
-            Instantiator create_instance = iterators_pair->second;
+            Instantiator create_instance = instantiators_pair->second;
             if (create_instance) 
                 return (T*)create_instance();
         }
@@ -89,6 +89,11 @@ class Factory
             instantiators_map = new FInstantiatorsMap();
         }
         if (instantiators_map) {
+            FInstantiatorsMap::iterator instantiators_pair = instantiators_map->find(tag);
+            if (instantiators_pair != instantiators_map->end()) {
+                error("Can't register new class. Tag '%s' already exists!", tag);
+                return 0;
+            }
             instantiators_map->insert(FInstantiatorPair(tag, func));
             return 1;
         }
