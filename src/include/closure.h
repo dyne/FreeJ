@@ -25,6 +25,7 @@
 #include <queue>
 
 #include <jutils.h>
+#include <exceptions.h>
 
 class Closure;
 
