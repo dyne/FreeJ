@@ -25,7 +25,7 @@
  *
  *  >  FACTORY_REGISTER_INSTANTIATOR(Layer, MyClass, GeometryLayer, MyImplementation);
  *
- * the tag associated to MyClass will be GeometryLayer::MyClass
+ * the tag (<category>::<id>) associated to MyClass will be GeometryLayer::MyImplementation
  * and new instances can be obtained using:
  *
  *  >  Factory<Layer>::new_instance('GeometryLayer', 'MyImplementation);
@@ -39,6 +39,10 @@
  * instances without specifying any id.
  * for example:
  *  >  MyClass *newInstance = Factory<Layer>::new_instance('GeometryLayer');
+ *
+ * This will allow javascripts to call "var geo_layer = new GeometryLayer()" 
+ * obtaining an instance of a different subclass depending on the platform and setup.
+ *
  */
 #include <map> // for std::map
 #include <string> // for std::string
@@ -83,7 +87,7 @@ class Factory
     // Define a default class for a certain category
     static int set_default_classtype(const char *category, const char *id)
     {
-        if (!defaults_map)
+        if (!defaults_map) // create on first use
             defaults_map = new FDefaultClassesMap();
         FTagMap::iterator pair = defaults_map->find(category);
         if (pair != defaults_map->end()) // remove old default (if any)
@@ -138,7 +142,7 @@ class Factory
     //          (referencing a specific VideoLayer implementation)
     static int register_instantiator(const char *tag, Instantiator func)
     {
-        if (!instantiators_map) {
+        if (!instantiators_map) { // create on first use
             instantiators_map = new FInstantiatorsMap();
         }
         if (instantiators_map) {
