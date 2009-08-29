@@ -121,9 +121,13 @@ int CKbdController::poll()
     // create the entry
     entry = [[NSDictionary 
               dictionaryWithObjects:
-                [NSArray arrayWithObjects:event, state, type, nil]
+                [NSArray arrayWithObjects:
+                    event, state, type, nil
+                ]
               forKeys:
-                [NSArray arrayWithObjects:@"event", @"state", @"type", nil]
+                [NSArray arrayWithObjects:
+                    @"event", @"state", @"type", nil
+                ]
             ] retain];
     @synchronized(self) {
         [_keyEvents addObject:entry];
