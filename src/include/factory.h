@@ -1,16 +1,61 @@
 #ifndef __FACTORY_H__
 #define __FACTORY_H__
 
+/* Factory implementation
+ * This draft implementation aims to provide factory functionalities
+ * within Freej environment.
+ * It can be used to provide instances of any class, requiring a very little
+ * effort to integrate the factory in your class.
+ * It requires just two statements : one in the class definition and one in the implementation file.
+ * FACTORY_ALLOWED must be put at the end of your class definition. For instance:
+ *
+ *  >   class MyClass {
+ *  >      public:
+ *  >        ...
+ *  >      private:
+ *  >        ...
+ *  >
+ *  >        FACTORY_ALLOWED
+ *  >   };
+ *
+ * Then the macro FACTORY_REGISTER_INSTANTIATOR() must be put somewhere in the class implementation.
+ *
+ * For instance, if we want to create a new GeometryLayer implementation called MyClass,
+ * we would probably put somewhere in myclass.cpp :
+ *
+ *  >  FACTORY_REGISTER_INSTANTIATOR(Layer, MyClass, GeometryLayer, MyImplementation);
+ *
+ * the tag associated to MyClass will be GeometryLayer::MyClass
+ * and new instances can be obtained using:
+ *
+ *  >  Factory<Layer>::new_instance('GeometryLayer', 'MyImplementation);
+ *
+ * You can also set 'defaults' anywhere in the code. For example you could put somewhere
+ * in the initialization logic (or even at runtime)
+ *
+ *  >  Factory<Layer>::set_default("GeometryLayer", "MyImplementation");
+ *
+ * this will define 'MyImplementation' as default id to be used when querying for 'GeometryLayer'
+ * instances without specifying any id.
+ * for example, to obtain a new MyClass instance from the factory you would have usually called:
+ *
+ *  >  MyClass *newInstance = Factory<Layer>::new_instance('GeometryLayer', 'MyImplementation');
+ * 
+ * if 'MyImplementation' has been set as default you can obtain such instances just calling:
+ *  
+ *  >  MyClass *newInstance = Factory<Layer>::new_instance('GeometryLayer');
+ */
 #include <map> // for std::map
 #include <string> // for std::string
 #include <jutils.h>
-using std::make_pair;
 
 #define FACORY_ID_MAXLEN 64
 
 #define FACTORY_ALLOWED \
     static int isRegistered;
 
+// facility to easily create a factory-tag starting from the category name 
+// and the id ( for instance: FACTORY_MAKE_TAG(VideoLayer, ffmpeg) )
 #define FACTORY_MAKE_TAG(__category, __id) #__category "::" #__id
 
 #define FACTORY_REGISTER_INSTANTIATOR(__base_class, __class_name, __category, __id) \
@@ -29,53 +74,59 @@ typedef void *(*Instantiator)();
 #define FTagPair std::pair<std::string, const char *>
 #define FTagMap std::map<std::string, const char *>
 #define FMapsMap std::map<std::string, FInstantiatorsMap *>
-#define FDefaultClassesMap std::map<std::string, const char *> 
-#define FMapPair std::pair<std::string, FInstantiatorsMap *> 
+#define FDefaultClassesMap std::map<std::string, const char *>
+#define FMapPair std::pair<std::string, FInstantiatorsMap *>
 
 template <class T>
-class Factory 
+class Factory
 {
   private:
       static FInstantiatorsMap *instantiators_map;
-      static FDefaultClassesMap *classes_map;
+      static FDefaultClassesMap *defaults_map;
   public:
     
-    static int set_default_classtype(const char *classname, const char *id)
+    // Define a default class for a certain category
+    static int set_default_classtype(const char *category, const char *id)
     {
-        if (!classes_map)
-            classes_map = new FDefaultClassesMap();
-        FTagMap::iterator pair = classes_map->find(classname);
-        if (pair != classes_map->end()) // remove old default (if any)
-            classes_map->erase(pair);
+        if (!defaults_map)
+            defaults_map = new FDefaultClassesMap();
+        FTagMap::iterator pair = defaults_map->find(category);
+        if (pair != defaults_map->end()) // remove old default (if any)
+            defaults_map->erase(pair);
         // set new default
-        classes_map->insert(FTagPair(classname, id));
+        defaults_map->insert(FTagPair(category, id));
         return 1;
     }
 
-    static T *new_instance(const char *classname)
+    // allow to ask for an instance of a certain category
+    // regardless of the real class of the returned object.
+    // The configured default for the current platform (if defined)
+    // will be returned.
+    static T *new_instance(const char *category)
     {
-        FTagMap::iterator pair = classes_map->find(classname);
-        if (pair != classes_map->end())
-            return new_instance(classname, pair->second);
+        FTagMap::iterator pair = defaults_map->find(category);
+        if (pair != defaults_map->end())
+            return new_instance(category, pair->second);
         return NULL;
     }
 
-    static T *new_instance(const char *classname, const char *id)
+    // Create (and return) a new instance of class which matches 'id' within a certain category.
+    static T *new_instance(const char *category, const char *id)
     {
         char tag[FACORY_ID_MAXLEN];
-        if (!classname || !id) // safety belts
+        if (!category || !id) // safety belts
             return NULL;
 
-        func("Looking for %s::%s \n", classname, id);
+        func("Looking for %s::%s \n", category, id);
 
-        if (strlen(classname)+strlen(id)+3 > sizeof(tag)) { // check the size of the requested id
-            error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", classname, id);
+        if (strlen(category)+strlen(id)+3 > sizeof(tag)) { // check the size of the requested id
+            error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", category, id);
             return NULL;
         }
-        snprintf(tag, sizeof(tag), "%s::%s", classname, id);
+        snprintf(tag, sizeof(tag), "%s::%s", category, id);
         func("Looking for %s in instantiators_map (%d)\n", tag, instantiators_map->size());
         FInstantiatorsMap::iterator instantiators_pair = instantiators_map->find(tag);
-        if (instantiators_pair != instantiators_map->end()) { // check if we have 
+        if (instantiators_pair != instantiators_map->end()) { // check if we have a match
             func("id %s found\n", id);
             Instantiator create_instance = instantiators_pair->second;
             if (create_instance) 
@@ -83,6 +134,13 @@ class Factory
         }
         return NULL;
     };
+
+    // register a new class instantiator
+    // tag is : <category>::<id>
+    // where 'category' could be for instance "VideoLayer"
+    //          (when using a Factory<Layer>)
+    //       'id' could be any of 'ffmpeg' or 'qt' or 'opencv' and so on
+    //          (referencing a specific VideoLayer implementation)
     static int register_instantiator(const char *tag, Instantiator func)
     {
         if (!instantiators_map) {
@@ -102,6 +160,6 @@ class Factory
 };
 
 template <class T> FInstantiatorsMap *Factory<T>::instantiators_map = NULL;
-template <class T> FDefaultClassesMap *Factory<T>::classes_map = NULL;
+template <class T> FDefaultClassesMap *Factory<T>::defaults_map = NULL;
 
 #endif
