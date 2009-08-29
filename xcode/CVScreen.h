@@ -95,9 +95,9 @@ class CVScreenView;
 class CVScreen : public ViewPort {
     private:
         CVScreenView *view;
-        bool init(int w, int h);
+        bool CVScreen::_init(int w, int h);
     public:
-        CVScreen(int w, int h);
+        CVScreen();
         ~CVScreen();
         void set_view(CVScreenView *view);
         CVScreenView *get_view(void);
