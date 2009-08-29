@@ -14,10 +14,14 @@
 #include <CVScreen.h>
 #import <Cocoa/Cocoa.h>
 
-@interface CVScreenController : NSWindowController {
-    
-}
+class CKbdController;
 
+@interface CVScreenController : NSWindowController {
+    CKbdController *_kbdController;
+    NSMutableArray *_keyEvents;
+}
+- (NSEvent *)getEvent;
+- (void)setKbdController:(CKbdController *)kbdController;
 @end
 
 class CKbdController: public Controller {

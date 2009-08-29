@@ -177,7 +177,11 @@ int Controller::JSCall(const char *funcname, int argc, jsval *argv) {
   func("calling js %s.%s()", name, funcname);
   res = JS_GetMethod(jsenv, jsobj, funcname, &objp, &fval);
   if(!res || JSVAL_IS_VOID(fval)) {
-    error("method %s not found in %s controller", funcname, name);
+    // using func() instead of error() because this is not a real error condition.
+    // controller could ask for unregistered functions ...
+    // for instance in the case of a keyboardcontroller which propagates keystrokes 
+    // for unregistered keys 
+    func("method %s not found in %s controller", funcname, name);
     return(0);
   }
 
