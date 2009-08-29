@@ -8,6 +8,7 @@
  */
 
 #include <factory.h>
+#include <controller.h>
 
 class CKbdController: public Controller {
   private:

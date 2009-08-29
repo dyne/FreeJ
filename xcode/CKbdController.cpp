@@ -11,3 +11,21 @@
 
 FACTORY_REGISTER_INSTANTIATOR(Controller, CKbdController, KeyboardController, cocoa);
 
+CKbdController::CKbdController() 
+    : Controller()
+{
+}
+
+CKbdController::~CKbdController()
+{
+}
+
+int CKbdController::dispatch()
+{
+    return 0;
+}
+
+int CKbdController::poll()
+{
+    return 0;
+}

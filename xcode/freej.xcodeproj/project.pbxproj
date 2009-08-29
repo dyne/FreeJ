@@ -107,7 +107,6 @@
 		AAA7B7400F404B7F00056C44 /* vimo_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C45380F3EEBE0007C7E8B /* vimo_ctrl.cpp */; };
 		AAA7B7410F404B7F00056C44 /* wiimote_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C453A0F3EEBE0007C7E8B /* wiimote_ctrl.cpp */; };
 		AAA7B7420F404B7F00056C44 /* xgrab_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C453C0F3EEBE0007C7E8B /* xgrab_layer.cpp */; };
-		AAA7B7430F404B7F00056C44 /* xhacks_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C453E0F3EEBE0007C7E8B /* xhacks_layer.cpp */; };
 		AAA7B7440F404B7F00056C44 /* ccvt_c2.c in Sources */ = {isa = PBXBuildFile; fileRef = AAB8444A0F3EFB3400AD479D /* ccvt_c2.c */; };
 		AAA7B7450F404B7F00056C44 /* ccvt_misc.c in Sources */ = {isa = PBXBuildFile; fileRef = AAB8444C0F3EFB3400AD479D /* ccvt_misc.c */; };
 		AAA7B7470F404B7F00056C44 /* ccvt_rgb2yuv.S in Sources */ = {isa = PBXBuildFile; fileRef = AAB844510F3EFB3400AD479D /* ccvt_rgb2yuv.S */; };
@@ -165,6 +164,7 @@
 		AAD0A4DF0FDEC15A00968886 /* libvorbisfile.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4DE0FDEC15A00968886 /* libvorbisfile.dylib */; };
 		AAD0A4E10FDEC20100968886 /* libSDL_gfx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */; };
 		AAD0A4E30FDEC2A200968886 /* libsndfile.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */; };
+		AAD9EF6B10487BC400A3E51A /* sdl_controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAD9EF6A10487BC400A3E51A /* sdl_controller.cpp */; };
 		AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */ = {isa = PBXBuildFile; fileRef = AADF79FF0FD7F84500167F57 /* ipernav.icns */; };
 		AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */; };
 		AAEE68940FC8906B007FB46B /* webcam.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE68930FC8906B007FB46B /* webcam.png */; };
@@ -286,7 +286,6 @@
 		AA3C44E80F3EEBE0007C7E8B /* vroot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vroot.h; path = include/vroot.h; sourceTree = "<group>"; };
 		AA3C44E90F3EEBE0007C7E8B /* wiimote_ctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = wiimote_ctrl.h; path = include/wiimote_ctrl.h; sourceTree = "<group>"; };
 		AA3C44EA0F3EEBE0007C7E8B /* xgrab_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xgrab_layer.h; path = include/xgrab_layer.h; sourceTree = "<group>"; };
-		AA3C44EB0F3EEBE0007C7E8B /* xhacks_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = xhacks_layer.h; path = include/xhacks_layer.h; sourceTree = "<group>"; };
 		AA3C44EC0F3EEBE0007C7E8B /* iterator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = iterator.cpp; sourceTree = "<group>"; };
 		AA3C44EE0F3EEBE0007C7E8B /* joy_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = joy_ctrl.cpp; sourceTree = "<group>"; };
 		AA3C44F00F3EEBE0007C7E8B /* jsparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = jsparser.cpp; sourceTree = "<group>"; };
@@ -324,7 +323,6 @@
 		AA3C45380F3EEBE0007C7E8B /* vimo_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vimo_ctrl.cpp; sourceTree = "<group>"; };
 		AA3C453A0F3EEBE0007C7E8B /* wiimote_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = wiimote_ctrl.cpp; sourceTree = "<group>"; };
 		AA3C453C0F3EEBE0007C7E8B /* xgrab_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xgrab_layer.cpp; sourceTree = "<group>"; };
-		AA3C453E0F3EEBE0007C7E8B /* xhacks_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xhacks_layer.cpp; sourceTree = "<group>"; };
 		AA5844870FE114970059D860 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		AA5846510FE1626E0059D860 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
 		AA5846520FE1626E0059D860 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
@@ -498,6 +496,8 @@
 		AAD0A4DE0FDEC15A00968886 /* libvorbisfile.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvorbisfile.dylib; path = /opt/local/lib/libvorbisfile.dylib; sourceTree = "<absolute>"; };
 		AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_gfx.dylib; path = /opt/local/lib/libSDL_gfx.dylib; sourceTree = "<absolute>"; };
 		AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsndfile.1.dylib; path = /opt/local/lib/libsndfile.1.dylib; sourceTree = "<absolute>"; };
+		AAD9EF6A10487BC400A3E51A /* sdl_controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdl_controller.cpp; sourceTree = "<group>"; };
+		AAD9EF6C10487BDD00A3E51A /* sdl_controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sdl_controller.h; path = include/sdl_controller.h; sourceTree = "<group>"; };
 		AADF79FF0FD7F84500167F57 /* ipernav.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ipernav.icns; sourceTree = "<group>"; };
 		AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kbd_ctrl_js.cpp; sourceTree = "<group>"; };
 		AAE2C2B7103FE2AE00D62E4F /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = factory.h; path = include/factory.h; sourceTree = "<group>"; };
@@ -729,6 +729,7 @@
 				AA3C450F0F3EEBE0007C7E8B /* plugin.cpp */,
 				AA3C45110F3EEBE0007C7E8B /* ringbuffer.cpp */,
 				AA3C45130F3EEBE0007C7E8B /* screen.cpp */,
+				AAD9EF6A10487BC400A3E51A /* sdl_controller.cpp */,
 				AA3C45190F3EEBE0007C7E8B /* sdl_screen.cpp */,
 				AA3C451B0F3EEBE0007C7E8B /* sdlgl_screen.cpp */,
 				AA3C451E0F3EEBE0007C7E8B /* shouter.cpp */,
@@ -743,7 +744,6 @@
 				AA3C45380F3EEBE0007C7E8B /* vimo_ctrl.cpp */,
 				AA3C453A0F3EEBE0007C7E8B /* wiimote_ctrl.cpp */,
 				AA3C453C0F3EEBE0007C7E8B /* xgrab_layer.cpp */,
-				AA3C453E0F3EEBE0007C7E8B /* xhacks_layer.cpp */,
 			);
 			name = "C++";
 			path = ../src;
@@ -774,6 +774,7 @@
 		AA9337EF0FD7FDEB002B760B /* include */ = {
 			isa = PBXGroup;
 			children = (
+				AAD9EF6C10487BDD00A3E51A /* sdl_controller.h */,
 				AAE2C2B7103FE2AE00D62E4F /* factory.h */,
 				AA8C41B50F90FF8800B39710 /* console_calls_ctrl.h */,
 				AA8C41B60F90FF8800B39710 /* console_ctrl.h */,
@@ -850,7 +851,6 @@
 				AA3C44E80F3EEBE0007C7E8B /* vroot.h */,
 				AA3C44E90F3EEBE0007C7E8B /* wiimote_ctrl.h */,
 				AA3C44EA0F3EEBE0007C7E8B /* xgrab_layer.h */,
-				AA3C44EB0F3EEBE0007C7E8B /* xhacks_layer.h */,
 			);
 			name = include;
 			sourceTree = "<group>";
@@ -1449,7 +1449,6 @@
 				AAA7B7400F404B7F00056C44 /* vimo_ctrl.cpp in Sources */,
 				AAA7B7410F404B7F00056C44 /* wiimote_ctrl.cpp in Sources */,
 				AAA7B7420F404B7F00056C44 /* xgrab_layer.cpp in Sources */,
-				AAA7B7430F404B7F00056C44 /* xhacks_layer.cpp in Sources */,
 				AAA7B7440F404B7F00056C44 /* ccvt_c2.c in Sources */,
 				AAA7B7450F404B7F00056C44 /* ccvt_misc.c in Sources */,
 				AAA7B7470F404B7F00056C44 /* ccvt_rgb2yuv.S in Sources */,
@@ -1511,6 +1510,7 @@
 				AAC9DB37103D2C7F00A0111E /* PreferencesPanel.mm in Sources */,
 				AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */,
 				AA134AC01047B6D500BA39EB /* CKbdController.cpp in Sources */,
+				AAD9EF6B10487BC400A3E51A /* sdl_controller.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
