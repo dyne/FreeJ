@@ -461,7 +461,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         
         SetSystemUIMode(kUIModeAllSuppressed, kUIOptionAutoShowMenuBar);
         NSScreen *screen = [[self window] screen];
-        NSWindow *window = [[NSWindow alloc] initWithContentRect:[screen frame]
+        NSWindow *newWindow = [[NSWindow alloc] initWithContentRect:[screen frame]
                                 styleMask:NSBorderlessWindowMask
                                 backing:NSBackingStoreBuffered
                                 defer:NO
@@ -469,10 +469,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         myWindow = [[self window] retain];
         [self retain];
         [self removeFromSuperview];
-        [window setContentView:self];
-        [window setFrameOrigin:[screen frame].origin];
+        [newWindow setContentView:self];
+        [newWindow setFrameOrigin:[screen frame].origin];
         [self release];
-        [window makeKeyAndOrderFront:sender];
+        [newWindow makeKeyAndOrderFront:sender];
         [NSCursor setHiddenUntilMouseMoves:YES];
         fullScreen = YES;
     }
@@ -522,7 +522,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     if (tvarFilename) {
         [exporter setOutputFile:tvarFilename];
-        [[(id)contextInfo nextKeyView] setStringValue:tvarFilename]; 
+        [(NSTextField *)[(id)contextInfo nextKeyView] setStringValue:tvarFilename]; 
     }
 }
 
@@ -542,91 +542,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (bool)isOpaque
 {
     return YES;
-}
-
-//
-// buildQTKitMovie
-//
-// Build a QTKit movie from a series of image frames
-//
-//
-
--(void)buildQTKitMovie
-{
-
-    /*  
-      NOTES ABOUT CREATING A NEW ("EMPTY") MOVIE AND ADDING IMAGE FRAMES TO IT
-
-      In order to compose a new movie from a series of image frames with QTKit
-      it is of course necessary to first create an "empty" movie to which these
-      frames can be added. Actually, the real requirements (in QuickTime terminology)
-      for such an "empty" movie are that it contain a writable data reference. A
-      movie with a writable data reference can then accept the addition of image 
-      frames via the -addImage method.
-
-      Prior to QuickTime 7.2.1, QTKit did not provide a QTMovie method for creating a 
-      QTMovie with a writable data reference. In this case, we can use the native 
-      QuickTime API CreateMovieStorage() to create a QuickTime movie with a writable 
-      data reference (in our example below we use a data reference to a file). We then 
-      use the QTKit movieWithQuickTimeMovie: method to instantiate a QTMovie from this 
-      native QuickTime movie. 
-
-      Finally, images are added to the movie as movie frames using -addImage.
-
-      NEW IN QUICKTIME 7.2.1
-
-      QuickTime 7.2.1 now provides a new method:
-
-      - (id)initToWritableFile:(NSString *)filename error:(NSError **)errorPtr;
-
-      to create a QTMovie with a writable data reference. This eliminates the need to
-      use the native QuickTime API CreateMovieStorage() as described above.
-
-      The code below checks first to see if this new method initToWritableFile: is 
-      available, and if so it will use it rather than use the native API.
-    */
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    QTMovie *mMovie;
-    // Check first if the new QuickTime 7.2.1 initToWritableFile: method is available
-    if ([[[[QTMovie alloc] init] retain] respondsToSelector:@selector(initToWritableFile:error:)] == YES)
-    {
-
-        // generate a name for our movie file
-        NSString *tempName = [NSString stringWithCString:tmpnam(nil) 
-                                encoding:[NSString defaultCStringEncoding]];
-        if (nil == tempName) goto bail;
-        
-        // Create a QTMovie with a writable data reference
-        mMovie = [[QTMovie alloc] initToWritableFile:tempName error:NULL];
-    }
-    else    
-    {    
-        // The QuickTime 7.2.1 initToWritableFile: method is not available, so use the native 
-        // QuickTime API CreateMovieStorage() to create a QuickTime movie with a writable 
-        // data reference
-    
-        //OSErr err;
-        // create a native QuickTime movie
-        //Movie qtMovie = [self quicktimeMovieFromTempFile:&mDataHandlerRef error:&err];
-        //if (nil == qtMovie) goto bail;
-        
-        // instantiate a QTMovie from our native QuickTime movie
-        //mMovie = [QTMovie movieWithQuickTimeMovie:qtMovie disposeWhenDone:YES error:nil];
-        //if (!mMovie || err) goto bail;
-    }
-
-
-  // mark the movie as editable
-  [mMovie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieEditableAttribute];
-  
-  // keep it around until we are done with it...
-  [mMovie retain];
-
-  [pool release];
-    
-bail:
-
-  return;
 }
 
 - (double)rate
@@ -710,10 +625,6 @@ bail:
     [layerList reloadData];
 }
 
-- (BOOL)startExport
-{
-    
-}
 - (NSWindow *)getWindow
 {
     return window;
