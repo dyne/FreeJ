@@ -99,7 +99,7 @@ int CKbdController::poll()
     return [super initWithWindow:window];
 }
 
-- (NSEvent *)getEvent
+- (NSMutableDictionary *)getEvent
 {
     NSEvent *event = NULL;
     @synchronized(self) {
