@@ -225,10 +225,6 @@ class App(FreeJ):
         self.autoconnect_signals()
         self.history_w.connect('delete-event', self.hide_history)
         self.window.connect('destroy', gtk.main_quit)
-        self.setup_glut()
-
-    def setup_glut(self):
-        return
 
     def autoconnect_signals(self):
         self.wTree.signal_autoconnect({"open_file": self.open_file,
@@ -289,7 +285,6 @@ class App(FreeJ):
         if self.preview_box:
             self.vbox2.remove(self.preview_box)
             self.preview_box = None
-            #self.preview_box = gtk.VBox()
         self.preview_box = gtk.Table(3,3)
         self.vbox2.pack_start(self.preview_box, expand=False)
         i = 0
@@ -303,13 +298,10 @@ class App(FreeJ):
             self.gtkpixmap = gtk.Image()
             self.gtkpixmap.set_tooltip_text(name)
             self.gtkpixmap.set_from_pixbuf(self.pixbuf)
-            #self.preview_box.pack_start(self.gtkpixmap, expand=False)
             self.preview_box.attach(self.gtkpixmap, i/2, (i/2)+1, i%2, (i%2)+1)
-            #self.preview_box.pack_start(self.gtkpixmap, expand=False)
             self.gtkpixmap.show()
             i += 1
         self.preview_box.show()
-        #self.preview_scroll.add_with_viewport(self.preview_box)
 
     def __timeout(self, widget):
         self.update_previews()
@@ -520,7 +512,6 @@ class App(FreeJ):
         self.main_tree.append_column(column)
         column.add_attribute(cell, "text", 0)
         column.add_attribute(px, "pixbuf", 3)
-        print self.main_tree.get_model()
 
     def fill_tree(self):
         self.main_model.clear()
