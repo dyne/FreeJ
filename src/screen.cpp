@@ -171,6 +171,7 @@ bool ViewPort::add_encoder(VideoEncoder *enc) {
   enc->sel(true);
 
   act("encoder %s added to screen %s", enc->name, name);
+  return true;
 }
 
 

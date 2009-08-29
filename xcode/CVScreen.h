@@ -22,7 +22,6 @@
 
 #include <context.h>
 #include <screen.h>
-#ifdef __cocoa
 #include <QuartzCore/QuartzCore.h>
 #import <Cocoa/Cocoa.h>
 #import <Foundation/NSArray.h>
@@ -83,10 +82,6 @@ class  CVScreen;
 - (IBAction)stopExport:(id)sender;
 - (IBAction)setExportFile:(id)sender;
 @end
-
-#else
-class CVScreenView;
-#endif // __cocoa
 
 /*
  * C++ glue class exposed to the freej context

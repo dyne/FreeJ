@@ -30,9 +30,7 @@
 #include <gl_screen.h>
 #endif
 #ifdef HAVE_DARWIN
-#ifdef WITH_COCOA
-#include <CVScreen.h>
-#endif
+
 #endif
 
 
