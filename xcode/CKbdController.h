@@ -20,7 +20,7 @@ class CKbdController;
     CKbdController *_kbdController;
     NSMutableArray *_keyEvents;
 }
-- (NSMutableDictionary *)getEvent;
+- (NSDictionary *)getEvent;
 - (void)setKbdController:(CKbdController *)kbdController;
 @end
 
