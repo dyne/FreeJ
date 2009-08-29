@@ -151,6 +151,7 @@ class FreeJ(object):
         v.start()
         self.cx.add_layer( v )
         v.thisown = False
+        v.set_blit("ADD")
         return v
 
     def finished(self):
@@ -197,6 +198,8 @@ class App(FreeJ):
         # get some widgets
         self.window = self.wTree.get_widget("main")
         self.statusbar = self.wTree.get_widget("statusbar")
+        self.label_mode = self.wTree.get_widget("label_mode")
+        self.pythonmode = self.wTree.get_widget("menuitem_pythonmode")
         self.history_w = self.wTree.get_widget("window_history")
         self.history_t = self.wTree.get_widget("textview_history")
         self.vbox2 = self.wTree.get_widget("vbox2")
@@ -222,6 +225,10 @@ class App(FreeJ):
         self.autoconnect_signals()
         self.history_w.connect('delete-event', self.hide_history)
         self.window.connect('destroy', gtk.main_quit)
+        self.setup_glut()
+
+    def setup_glut(self):
+        return
 
     def autoconnect_signals(self):
         self.wTree.signal_autoconnect({"open_file": self.open_file,
@@ -252,8 +259,12 @@ class App(FreeJ):
     def set_python_mode(self, toggle):
         if toggle.get_active():
             self.lang = "python"
+            self.window.set_title('freej: python mode')
+            self.label_mode.set_text('py>')
         else:
             self.lang = "js"
+            self.window.set_title('freej: javascript mode')
+            self.label_mode.set_text('js>')
         self.buffer.set_syntax_highlight(self.lang)
 
     def update_previews(self):
@@ -435,7 +446,7 @@ class App(FreeJ):
         idx = model.get_value(iter, 1)
         obj_type = model.get_value(iter, 2)
         if obj_type == LAYER:
-            return self.scr.layers[idx+1]
+            return self.scr.layers[idx]
         elif obj_type == FILTER:
             return None
         elif obj_type == CONTROLLER:
@@ -528,7 +539,6 @@ class App(FreeJ):
                 name = layer.name
             lay_iter = self.main_model.append(layers, [name, l_idx, LAYER,
                                                       self.layer_icon, tooltip])
-            layer.set_blit("ADD")
             print layer.type
             for f_idx, filter in enumerate(layer.filters):
                 iter = self.main_model.append(lay_iter, [filter.name, f_idx,
@@ -617,7 +627,10 @@ class App(FreeJ):
         response = self.files.run()
         if response == gtk.RESPONSE_OK:
             filename = self.files.get_filename()
-            #self.cx.open_script(filename)
+            if filename.endswith('.py'):
+                self.pythonmode.set_active(True)
+            elif filename.endswith('.js'):
+                self.pythonmode.set_active(False)
             self.buffer.load_file(filename)
         self.files.hide()
         self.fill_tree()
