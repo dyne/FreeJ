@@ -37,12 +37,7 @@
  *
  * this will define 'MyImplementation' as default id to be used when querying for 'GeometryLayer'
  * instances without specifying any id.
- * for example, to obtain a new MyClass instance from the factory you would have usually called:
- *
- *  >  MyClass *newInstance = Factory<Layer>::new_instance('GeometryLayer', 'MyImplementation');
- * 
- * if 'MyImplementation' has been set as default you can obtain such instances just calling:
- *  
+ * for example:
  *  >  MyClass *newInstance = Factory<Layer>::new_instance('GeometryLayer');
  */
 #include <map> // for std::map
