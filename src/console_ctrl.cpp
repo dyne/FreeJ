@@ -45,12 +45,9 @@
 
 #include <fps.h>
 
-
 #include <jutils.h>
 
-
-#include <gen_layer.h>
-#include <gen_f0r_layer.h>
+#include <generator_layer.h>
 
 
 

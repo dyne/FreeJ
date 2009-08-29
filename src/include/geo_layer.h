@@ -32,9 +32,6 @@ class GeoLayer: public Layer {
  public:
   GeoLayer();
   ~GeoLayer();
-  
-  bool init(Context *freej);
-  bool init(Context *freej, int w, int h);
 
   bool open(const char *file);
   void *feed();
@@ -136,6 +133,9 @@ class GeoLayer: public Layer {
 
   //  int character(int16_t x, int16_t y, char c, uint32_t color);
   //  int string(int16_t x, int16_t y, const char *c, uint32_t color);
+
+ protected:
+  bool _init();
 
  private:
   SDL_Surface *surf;

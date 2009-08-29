@@ -60,14 +60,6 @@ bool AudioLayer::open(const char *file) {
  return(true);
 }
 
-bool AudioLayer::init(Context *freej) {
-  return init(freej, freej->screen->w, freej->screen->h);
-}
-
-bool AudioLayer::init(Context *freej, int width, int height) {
-  _init(width, height);
-  return true;
-}
 
 void *AudioLayer::feed() {
   // add data to the ring-buffer

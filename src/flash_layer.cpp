@@ -99,35 +99,29 @@ FlashLayer::~FlashLayer() {
   close();
 }
 
-bool FlashLayer::init(Context *freej) {
-  func("FlashLayer::init");
-  env = freej;
-  return true;
-}
+
 
 bool FlashLayer::open(const char *file){
-  char *buffer;
+  char *tmpbuffer;
   long size;
   long res;
 
   int status;
 
-  int width  = env->screen->w;
-  int height = env->screen->h;
+  int width  = geo.w;
+  int height = geo.h;
 
-  if(!readfile(file,&buffer,&size))
+  if(!readfile(file,&tmpbuffer,&size))
     return false;
   
   // Load level 0 movie
   do {
-    status = FlashParse(fh, 0, buffer, size);
+    status = FlashParse(fh, 0, tmpbuffer, size);
   } while (status & FLASH_PARSE_NEED_DATA);
   
-  free(buffer);
+  free(tmpbuffer);
   
   FlashGetInfo(fh, &fi);
-
-  _init(width,height);
 
   //  if(render) free(render);
   //  render = calloc(geo.size,1);

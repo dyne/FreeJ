@@ -34,6 +34,7 @@
 #include <blitter.h>
 #include <layer.h>
 
+#include <generator_layer.h>
 
 #include <jutils.h>
 
@@ -497,7 +498,7 @@ int console_open_layer(Context *env, char *cmd) {
 
   // ok the path in cmd should be good here
 
-  Layer *l = create_layer(env, cmd);
+  Layer *l = env->open(cmd);
   if(l) {
   /*
     if(!l->init(env)) {
@@ -530,7 +531,7 @@ int console_print_text_layer(Context *env, char *cmd) {
 
 int console_open_text_layer(Context *env, char *cmd) {
   TextLayer *txt = new TextLayer();
-  if(!txt->init(env)) {
+  if(!txt->init()) {
     error("can't initialize text layer");
     delete txt;
     return 0;
@@ -716,7 +717,7 @@ int console_generator_completion(Context *env, char *cmd) {
   } else { // list all matches
     for(c=0;res[c];c+=4) {
       
-      char tmp[256];
+      char tmp[260];
       
       filt = res[c];
       if(!filt) break;
@@ -750,13 +751,17 @@ int console_generator_completion(Context *env, char *cmd) {
 }
 
 int console_generator_selection(Context *env, char *cmd) {
-  Layer *tmp = new GenF0rLayer();
+  GeneratorLayer *tmp = new GeneratorLayer();
   if(!tmp) return 0;
-  if(!tmp->init(env)) {
+  if(!tmp->init(env->screen->w, env->screen->h, 32)) {
     error("can't initialize generator layer");
     delete tmp;
     return 0;
   }
+  // this is something specific to the generator layer
+  // it needs this from the environment..
+  tmp->register_generators( &env->generators );
+
   if(!tmp->open(cmd)) {
     error("generator %s is not found", cmd);
     delete tmp;

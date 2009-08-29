@@ -64,9 +64,7 @@ class VideoLayer: public Layer {
     public:
 	VideoLayer();
 	~VideoLayer();
-
-	bool init(Context *freej);
-	bool init(Context *freej, int w, int h) { return init(freej); };
+	
 
 	bool open(const char *file);
 	void *feed();
@@ -86,6 +84,9 @@ class VideoLayer: public Layer {
 
 	int audio_channels;
 	int audio_samplerate;
+
+ protected:
+	bool _init();
 
     private:	
     /**

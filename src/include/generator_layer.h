@@ -1,5 +1,5 @@
-/*  FreeJ - Freeframe wrapper
- *  (c) Copyright 2008 - 2009 Denis Roio <jaromil@dyne.org>
+/*  FreeJ
+ *  (c) Copyright 2001-2009 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -17,47 +17,30 @@
  *
  */
 
-#ifndef __FREEFRAME_FREEJ_H__
-#define __FREEFRAME_FREEJ_H__
+#ifndef __GENERATOR_LAYER_H__
+#define __GENERATOR_LAYER_H__
 
-#include <linklist.h>
-#include <freeframe.h>
+#include <layer.h>
 
-class Filter;
-
-
-class Freeframe: public Entry {
-  friend class Filter;
-  friend class GeneratorLayer;
+class GeneratorLayer: public Layer {
  public:
+  GeneratorLayer();
+  ~GeneratorLayer();
+  
+  bool open(const char *file);
+  void *feed();
+  void close();
 
-  Freeframe();
-  virtual ~Freeframe();
+  void register_generators(Linklist<Filter> *gens);
 
-  int open(char *file);
-
-  void print_info();
-
-  PlugInfoStruct *info;
-
-  VideoInfoStruct vidinfo;
-
-  bool opened;
-
-
- private:
-
-  // dlopen handle
-  void *handle;
-  // full .so file path
-  char filename[512];
-
+  void *swap_buffer;
+  FilterInstance *generator;
 
  protected:
-  // Interface function pointers.
-  plugMainType *main;
+  bool _init();
+
+  Linklist<Filter> *generators; ///< linked list of registered generators
 
 };
-
 
 #endif

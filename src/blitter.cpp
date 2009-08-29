@@ -143,9 +143,15 @@ void Blitter::crop(Layer *lay, ViewPort *scr) {
 
   Blit *b;
 
-  if(!lay || !scr) return;
+  if(!lay || !scr) {
+    warning("crop called with lay[%p] scr[%p]", lay, scr);
+    return;
+  }
 
-  if(!lay->current_blit) return;
+  if(!lay->current_blit) {
+    warning("no blit selected for layer %s", lay->name);
+    return;
+  }
 
   b = lay->current_blit;
 

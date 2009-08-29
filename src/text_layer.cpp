@@ -80,17 +80,14 @@ bool TextLayer::open(const char *file) {
   return true;
 }
 
-bool TextLayer::init(Context *freej) {
+bool TextLayer::_init() {
   // width/height is skipped for its functionality
   // in fact the size is changing at every new print
   // so we'll call the Layer::_init(wdt,hgt) many times
 
-  _init(0,0);
-
   if( ! TTF_WasInit() )
     TTF_Init();
 
-  env = freej;
   set_font("sans"); // just try one..
 
   opened = true;

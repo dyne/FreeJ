@@ -35,7 +35,6 @@ ViewPort::ViewPort()
   : Entry() {
 
   opengl = false;
-  env = false;
 
   magnification   = 0;
   changeres       = false;
@@ -90,11 +89,6 @@ bool ViewPort::init(int w, int h) {
 bool ViewPort::add_layer(Layer *lay) {
   func("%s",__PRETTY_FUNCTION__);
 
-  if(!env) {
-    error("can't add layer %s to non initialized screen %s", lay->name, name);
-    return(false);
-  }
-
   if(lay->list) {
     warning("passing a layer from a screen to another is not (yet) supported");
     return(false);
@@ -105,7 +99,6 @@ bool ViewPort::add_layer(Layer *lay) {
     return(false);
   }
 
-  lay->env = env;
   lay->screen = this;
   
   setup_blits( lay );
@@ -181,9 +174,17 @@ void ViewPort::blit_layers() {
   if (lay) {
     layers.lock ();
     while (lay) {
-      if(lay->buffer)
+
+      func("layer %s",lay->name);
+
+      if(lay->buffer) {
+
+	func("layer has buffer");
+
 	if (lay->active & lay->opened) {
-	  
+
+	  func("layer is active and opened");
+
 	  lay->lock();
 	  lock();
 	  blit(lay);
@@ -191,7 +192,7 @@ void ViewPort::blit_layers() {
 	  lay->unlock();
 	  
 	}
-      
+      }
       lay = (Layer *)lay->prev;
     }
     layers.unlock ();

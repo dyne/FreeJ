@@ -34,14 +34,13 @@ class FlashLayer : public Layer {
  public:
   FlashLayer();
   ~FlashLayer();
-  
-  bool init(Context *freej);
-  bool init(Context *freej, int w, int h) { return init(freej); };
 
   bool open(const char *file);
   void *feed();
   void close();
   
+ protected:
+  bool _init() { return true; };
   
  private:
   

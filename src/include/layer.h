@@ -46,10 +46,8 @@ class JSObject;
 
 
 /* function for type detection of implemented layers */
-extern const char *layers_description;
+//extern const char *layers_description;
 ///< list of implemented layers to print in help
-extern Layer *create_layer(Context *env, char *file);
-///< create the propriate Layer type from a file
 
 /**
    This class describes methods and properties common to all Layers in
@@ -122,15 +120,11 @@ class Layer: public Entry, public JSyncThread {
      @param file string describing the path to the file, can be also an url
   */
   virtual bool open(const char *file) =0; ///< open the file (first called)
-  /**
-     Initialize the layer
-     @param freej freej context where the layer will be used
-   */
-  virtual bool init(Context *freej) =0; ///< initialize the layer (second called)
-  virtual bool init(Context *freej, int w, int h) { return this->init(freej); }; ///< overload with size
-  virtual void close() =0; ///< close the layer (ready to open a new one)
 
-  Context * context();
+  bool init(int w = 0, int h = 0, int bpp = 0);
+  ///< initializes the layer (this will call also the layer implementation's init)
+
+  virtual void close() =0; ///< close the layer (ready to open a new one)
 
   bool set_parameter(int idx); ///< activate the setting on parameter pointed by idx index number
 
@@ -225,22 +219,21 @@ class Layer: public Entry, public JSyncThread {
 
   unsigned int textureID; ///< opengl texture id
 
-  FPS fps; ///< FPS class
   int frame_rate; ///< value set by implemented layer type
 
  protected:
 
-  void _init(int wdt, int hgt);
-  ///< Layer abstract initialization
+  /**
+     Initialize the layer implementation
+     @param freej freej context where the layer will be used
+   */
+  virtual bool _init() = 0; ///< implementation specific _init() to be present in all layers
 
   void set_filename(const char *f);
   char filename[256];
 
 
   bool is_native_sdl_surface;
-
-  Context *env; ///< private pointer to the environment filled at _init()
-
 
  private:
 

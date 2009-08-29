@@ -15,8 +15,6 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * "$Id: $"
- *
  */
 
 #ifndef __FREI0R_H__
@@ -35,7 +33,7 @@ class Filter;
 
 class Freior: public Entry {
   friend class Filter;
-  friend class GenF0rLayer;
+  friend class GeneratorLayer;
  public:
 
   Freior();

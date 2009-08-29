@@ -33,9 +33,9 @@
 //#include <X11/extensions/Xvlib.h>
 
 class XGrabLayer: public Layer {
-	protected:
-		//ViewPort *screen;
-		//SDL_Surface *surf;
+ protected:
+  bool _init();
+
 	private:
 		//void run(); ///< Main Layer thread loop
 		//bool cafudda();
@@ -74,8 +74,7 @@ class XGrabLayer: public Layer {
 		bool open();
 		bool open(uint32_t win_id);
 		bool open(const char *);
-		bool init(Context *freej);
-		bool init(Context *freej, int w, int h);
+
 		//void *feed();
 		void close();
 

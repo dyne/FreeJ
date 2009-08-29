@@ -65,19 +65,19 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
 
   char *filename;
 
-  uint16_t width  = env->screen->w;
-  uint16_t height = env->screen->h;
+  uint16_t width  = geo.w;
+  uint16_t height = geo.h;
 
   jsval *argv = (jsval*)aargv;
 
   if(argc==0) {
-    if(!init(env)) {
+    if(!init()) {
       sprintf(err_msg, "Layer constructor failed initialization");
       return NULL;    }
 
   } else if(argc==1) {
     JS_ARG_STRING(filename,0);
-    if(!init(env)) {
+    if(!init()) {
       sprintf(err_msg, "Layer constructor failed initialization");
       return NULL;    }
 
@@ -89,7 +89,7 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
   } else if(argc==2) {
     JS_ValueToUint16(cx, argv[0], &width);
     JS_ValueToUint16(cx, argv[1], &height);
-    if(!init(env, width, height)) {
+    if(!init(width, height, 32)) {
       snprintf(err_msg, MAX_ERR_MSG,
 	       "Layer constructor failed initialization w[%u] h[%u]", width, height);
       return NULL;
@@ -99,7 +99,7 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     JS_ValueToUint16(cx, argv[0], &width);
     JS_ValueToUint16(cx, argv[1], &height);
     JS_ARG_STRING(filename,2);
-    if(!init(env, width, height)) {
+    if(!init(width, height,32)) {
       snprintf(err_msg, MAX_ERR_MSG,
 	       "Layer constructor failed initializaztion w[%u] h[%u]", width, height);
       return NULL;
@@ -141,7 +141,7 @@ JS(layer_constructor) {
   // recognize the extension and open the file given in argument
   JS_ARG_STRING(filename,0);
 
-  layer = create_layer( env, filename );
+  layer = env->open( filename );
   if(!layer) {
     error("%s: cannot create a Layer using %s",__FUNCTION__,filename);
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,

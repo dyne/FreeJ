@@ -285,12 +285,9 @@ int main (int argc, char **argv) {
   // create SDL screen by default at selected size
   screen = NULL;
   if(opengl)
-    screen = Factory<ViewPort>::new_instance( "SdlGlScreen" );
+    screen = Factory<ViewPort>::new_instance( "Screen", "sdlgl" );
   else
-    //    screen = Factory<ViewPort>::new_instance( "SdlScreen" );
     screen = Factory<ViewPort>::new_instance( "Screen", "sdl" );
-
-    screen = new SdlScreen();
 
   if(!screen) {
     error("no screen can be opened");

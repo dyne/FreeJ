@@ -1,9 +1,9 @@
 /*  FreeJ
- *  (c) Copyright 2001-2003 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2009 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -14,8 +14,6 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * "$Id$"
  *
  */
 
@@ -28,8 +26,7 @@
 #include <kbd_ctrl.h>
 
 /* software layers which don't need special loaders */
-#include <gen_layer.h>
-#include <gen_f0r_layer.h>
+#include <generator_layer.h>
 #include <geo_layer.h>
 #include <image_layer.h> // statically included sdl_image
 #include <flash_layer.h> // statically included flash layer

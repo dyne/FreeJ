@@ -31,8 +31,7 @@ class XScreenSaverLayer: public Layer {
   XScreenSaverLayer();
   ~XScreenSaverLayer();
 
-  bool init(Context *ctx, int width, int height);
-  bool init(Context *ctx);
+
   bool open(const char *file);
   void *feed();
   void close();
@@ -40,6 +39,11 @@ class XScreenSaverLayer: public Layer {
 
  // extern char *progclass;
  // void xhacks_handle_events(int);
+
+ protected:
+  bool _init();
+
+  void *output;
 
  private:
 

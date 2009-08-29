@@ -65,8 +65,7 @@ class V4lGrabber: public Layer {
   V4lGrabber();
   ~V4lGrabber();
   bool open(const char *devfile);
-  bool init(Context *freej);
-  bool init(Context *freej, int width, int height);
+
   void *feed();
   void close();
 
@@ -74,7 +73,11 @@ class V4lGrabber: public Layer {
   void set_band(int b);
   void set_freq(int f);
 
-  unsigned char *buffer;
+  unsigned char *v4l_buffer;
+
+ protected:
+  bool _init() { return true; };
+
 };
 
 #endif

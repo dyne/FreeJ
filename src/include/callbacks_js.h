@@ -101,7 +101,7 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
       ( JS_ValueToString(cx, argv[argnum]) ); \
   else { \
     JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__,argnum); \
-    error("%s: argument %u is not a string",__FUNCTION__,argnum); \
+    ::error("%s: argument %u is not a string",__FUNCTION__,argnum);	\
     return JS_FALSE; \
   }
 
@@ -139,7 +139,7 @@ JSClass class_struct = { \
 				&class_struct, class_constructor, 0, \
 				0, class_methods, 0, 0); \
     if(!layer_object) { \
-        error("JsParser::init() can't instantiate %s class",class_name); \
+      ::error("JsParser::init() can't instantiate %s class",class_name); \
     } 
 
 
@@ -182,11 +182,12 @@ if(!lay) { \
 }
 
 #define JS_ERROR(str) { \
-  JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL, \
-  JSSMSG_FJ_WICKED, \
-  __FUNCTION__,str); \
-  return JS_FALSE; \
-}
+    ::error(str);					  \
+    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,	\
+			 JSSMSG_FJ_WICKED,			\
+			 __FUNCTION__,str);			\
+    return JS_FALSE;						\
+  }
 
 extern Context *env;
 extern bool stop_script;

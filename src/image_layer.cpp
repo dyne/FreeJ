@@ -43,6 +43,8 @@ ImageLayer::ImageLayer()
   set_name("IMG");
   is_native_sdl_surface = true;
   jsclass = &image_layer_class;
+
+  opened = false;
 }
 
 ImageLayer::~ImageLayer() {
@@ -81,7 +83,8 @@ bool ImageLayer::open(const char *file) {
 
   //SDL_FillRect(surf, NULL, 0x0);
 
-  _init(image->w, image->h);
+
+  geo.init(image->w, image->h, 32);
 
   
   notice("ImageLayer opened %s :: w[%u] h[%u] (%u bytes)",
@@ -110,16 +113,6 @@ bool ImageLayer::open(const char *file) {
   return true;
 }
 
-bool ImageLayer::init(Context *freej) {
-  func("ImageLayer::init");
-
-  opened = false; // by default we have nothing opened
-
-  
-  env = freej;
-
-  return true;
-}
 void *ImageLayer::feed() {
   return ( (surf) ? surf->pixels : NULL );
 }
