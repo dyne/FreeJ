@@ -7,7 +7,6 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#define __cocoa
 #import <CVScreen.h>
 
 @interface PreferencesPanel : NSWindow {
