@@ -72,38 +72,11 @@ GlScreen::GlScreen()
     
   magnification = 0;
 
-  init(w, h);
-}
-
-GlScreen::~GlScreen() {
-
-}
-
-bool GlScreen::init(int width, int height) {
-
-//         screen = SDL_CreateRGBSurface
-//          (sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
-	// TODO screen : from where?
-
-	return(true);
 }
 
 
-void *GlScreen::coords(int x, int y) {
-  // TODO : check to return the correct pixel buffer to draw on
-//   return 
-//     ( x + (w*y) +
-//       (uint32_t*)screen->pixels );
-  return(NULL);
-}
 
 
-void *GlScreen::get_surface() {
-  // TODO: which pixels?
-  //  return screen->pixels;
-  error("GlScreen::get_surface TODO (refactoring)");
-  return(NULL);
-}
 
 bool GlScreen::check_opengl_error()
 {

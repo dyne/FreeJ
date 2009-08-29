@@ -544,7 +544,7 @@ Layer *Context::open(char *file, int w, int h) {
   if( !w || !h ) {
     // uses the size of currently selected screen
     ViewPort *screen = screens.selected();
-    w = screen->w; h = screen->h;
+    w = screen->geo.w; h = screen->geo.h;
   }
 
   /* ==== Unified caputure API (V4L & V4L2) */

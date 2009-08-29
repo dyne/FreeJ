@@ -24,6 +24,7 @@
 #include <config.h>
 #include <SDL.h>
 
+
 #include <closure.h>
 #include <linklist.h>
 #include <ringbuffer.h>
@@ -73,6 +74,7 @@ template <class T> class Linklist;
 class JackClient;
 class Layer;
 class Context;
+class Geometry;
 class VideoEncoder;
 
 class ViewPort : public Entry {
@@ -81,9 +83,8 @@ class ViewPort : public Entry {
   ViewPort();
   virtual ~ViewPort();
 
-  bool init(int w, int h); ///< general initialization
+  bool init(int w = 0, int h = 0, int bpp = 0); ///< general initialization
 
-  virtual bool _init(int w, int h) = 0; ///< implemented initialization
 
   enum fourcc { RGBA32, BGRA32, ARGB32 }; ///< pixel formats understood
   virtual fourcc get_pixel_format() =0; ///< return the pixel format
@@ -128,9 +129,9 @@ class ViewPort : public Entry {
 
   void scale2x(uint32_t *osrc, uint32_t *odst);
   void scale3x(uint32_t *osrc, uint32_t *odst);
-  int w, h;
-  int bpp;
-  int size, pitch;
+
+  Geometry geo;
+
   int magnification;
 
   bool changeres;
@@ -143,10 +144,8 @@ class ViewPort : public Entry {
   // opengl special blit
   bool opengl;
 
- private:
-
-
-  //  uint32_t red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask;  
+ protected:
+  virtual bool _init() = 0; ///< implemented initialization
 
 };
 

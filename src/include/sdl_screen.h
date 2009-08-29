@@ -57,7 +57,7 @@ class SdlScreen : public ViewPort {
 
  private:
 
-  bool _init(int width, int height);
+  bool _init();
 
   int setres(int wx, int hx);
   SDL_Surface *emuscr;

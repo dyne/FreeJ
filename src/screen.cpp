@@ -74,15 +74,18 @@ ViewPort::~ViewPort() {
 
 }
 
-bool ViewPort::init(int w, int h) {
+bool ViewPort::init(int w, int h, int bpp) {
 
-  this->w = w;
-  this->h = h;
-  bpp = 32; // we use only RGBA
-  size = w*h*(bpp>>3);
-  pitch = w*(bpp>>3);
+  if(bpp!=32) {
+    warning("FreeJ is forced to use 32bit pixel formats, hardcoded internally");
+    warning("you are initializing a ViewPort with a different bpp value");
+    warning("please submit a patch if you can make it :)");
+    return false;
+  }
 
-  return _init(w, h);
+  geo.init(w,h,bpp);
+
+  return _init();
 
 }
 
@@ -225,35 +228,35 @@ void ViewPort::scale2x(uint32_t *osrc, uint32_t *odst) {
     uint32_t *src, *dst, dw;
     src = osrc;
     dst = odst;
-    dw = w*2;
+    dw = geo.w*2;
 
 #if defined(__GNUC__) && defined(__i386__)
     scale2x_32_mmx(dst,dst+dw,
-		   src,src,src+w,w);
+		   src,src,src+geo.w,geo.w);
 #else
     scale2x_32_def(dst,dst+dw,
-		   src,src,src+w,w);
+		   src,src,src+geo.w,geo.w);
 #endif
     dst += dw<<1;
-    src += w;
-    for(c=0;c<h-2;c++) {
+    src += geo.w;
+    for(c=0;c<geo.h-2;c++) {
 #if defined(__GNUC__) && defined(__i386__)      
       scale2x_32_mmx(dst,dst+dw,
-		     src-w,src,src+w,w);
+		     src-geo.w,src,src+geo.w,geo.w);
 #else
       scale2x_32_def(dst,dst+dw,
-		     src-w,src,src+w,w);
+		     src-geo.w,src,src+geo.w,geo.w);
 #endif
       dst += dw<<1;
-      src += w;
+      src += geo.w;
     }
 #if defined(__GNUC__) && defined(__i386__)
     scale2x_32_mmx(dst,dst+dw,
-		   src-w,src,src,w);
+		   src-geo.w,src,src,geo.w);
     scale2x_mmx_emms();
 #else
     scale2x_32_def(dst,dst+dw,
-		   src-w,src,src,w);
+		   src-geo.w,src,src,geo.w);
 #endif
 
 }
@@ -265,22 +268,22 @@ void ViewPort::scale3x(uint32_t *osrc, uint32_t *odst) {
   uint32_t *src, *dst, tw;
   src = osrc;
   dst = odst;
-  tw = w*3;
+  tw = geo.w*3;
   
   scale3x_32_def(dst,dst+tw,dst+tw+tw,
-		 src,src,src+w,w);
+		 src,src,src+geo.w,geo.w);
   dst += tw*3;
-  src += w;
-  for(c=0;c<h-2;c++) {
+  src += geo.w;
+  for(c=0;c<geo.h-2;c++) {
     
     scale3x_32_def(dst,dst+tw,dst+tw+tw,
-		   src-w,src,src+w,w);
+		   src-geo.w,src,src+geo.w,geo.w);
     
     dst += tw*3;
-    src += w;
+    src += geo.w;
   }
   
   scale3x_32_def(dst,dst+tw,dst+tw+tw,
-		 src-w,src,src,w);
+		 src-geo.w,src,src,geo.w);
 
 }

@@ -421,8 +421,8 @@ bool SlwReadline::parser_movelayer(int key) {
   case KEY_SPACE:
     // place at the center
     layer->set_position
-      ( (env->screen->w - layer->geo.w)/2,
-	(env->screen->h - layer->geo.h)/2 );
+      ( (env->screen->geo.w - layer->geo.w)/2,
+	(env->screen->geo.h - layer->geo.h)/2 );
     break;
 
   case SL_KEY_ENTER:

@@ -35,25 +35,23 @@ FACTORY_REGISTER_INSTANTIATOR(ViewPort, SoftScreen, Screen, soft);
 SoftScreen::SoftScreen()
   : ViewPort() {
 
-  buffer = NULL;
-  bpp = 32;
-
+  screen_buffer = NULL;
   //  set_name("SOFT");
 }
 
 SoftScreen::~SoftScreen() {
   func("%s",__PRETTY_FUNCTION__);
-
+  if(screen_buffer) free(screen_buffer);
 }
 
 void SoftScreen::setup_blits(Layer *lay) {
 
 }
 
-bool SoftScreen::_init(int w, int h) {
+bool SoftScreen::_init() {
 
   // test
-  buffer = malloc(size);
+  screen_buffer = malloc(geo.bytesize);
 
   return(true);
 }
@@ -93,7 +91,8 @@ void SoftScreen::blit(Layer *src) {
 }
 
 void SoftScreen::set_buffer(void *buf) {
-  buffer = buf;
+  if(screen_buffer) free(screen_buffer);
+  screen_buffer = buf;
 }
 
 void *SoftScreen::coords(int x, int y) {
@@ -102,16 +101,16 @@ void *SoftScreen::coords(int x, int y) {
 // use the .pitch parameter for a pre-calculated stride
 // that is: number of bytes for one full line
   return
-    ( x + (w*y) +
+    ( x + geo.pixelsize +
       (uint32_t*)get_surface() );
 }
 
 void *SoftScreen::get_surface() {
-  if(!buffer) {
+  if(!screen_buffer) {
     error("SOFT screen output is not properly initialised via set_buffer");
     error("this will likely segfault FreeJ");
     return NULL;
   }
-  return buffer;
+  return screen_buffer;
 }
 

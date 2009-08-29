@@ -297,13 +297,13 @@ JS(js_set_debug) {
 
 JS(get_width) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    *rval = INT_TO_JSVAL(env->screen->w);
+    *rval = INT_TO_JSVAL(env->screen->geo.w);
     return JS_TRUE;
 }
 
 JS(get_height) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    *rval = INT_TO_JSVAL(env->screen->h);
+    *rval = INT_TO_JSVAL(env->screen->geo.h);
     return JS_TRUE;
 }
 

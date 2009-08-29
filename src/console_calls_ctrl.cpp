@@ -753,7 +753,9 @@ int console_generator_completion(Context *env, char *cmd) {
 int console_generator_selection(Context *env, char *cmd) {
   GeneratorLayer *tmp = new GeneratorLayer();
   if(!tmp) return 0;
-  if(!tmp->init(env->screen->w, env->screen->h, 32)) {
+  if(!tmp->init(env->screen->geo.w,
+		env->screen->geo.h,
+		env->screen->geo.bpp)) {
     error("can't initialize generator layer");
     delete tmp;
     return 0;
