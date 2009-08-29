@@ -70,8 +70,6 @@ int KbdController::poll() {
 
 int KbdController::key_event(const char *state, bool shift, bool ctrl, bool alt, bool num, const char *keyname) {
 
-  JSBool res;
-
   Uint16 uni[] = {keysym->unicode, 0};
   //#snprintf(uni, 2, "X %s X", (char*)&keysym->unicode);
   // universal call

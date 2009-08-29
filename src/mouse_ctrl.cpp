@@ -52,7 +52,7 @@ JSClass js_mouse_ctrl_class = {
 	NULL,   NULL,
 	js_mouse_ctrl_constructor
 };
-static JSClass *jsclass_s = &js_mouse_ctrl_class;
+//static JSClass *jsclass_s = &js_mouse_ctrl_class;
 
 JSFunctionSpec js_mouse_ctrl_methods[] = {
 	{"grab",	js_mouse_grab,	1},

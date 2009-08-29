@@ -86,8 +86,6 @@ JS(controller_activate) {
 // Garbage collector callback for Controller classes
 void js_ctrl_gc (JSContext *cx, JSObject *obj) {
 	func("%s",__PRETTY_FUNCTION__);
-	Controller* ctrl;
-	JSClass *jc;
 	if (!obj) {
 		error("%n called with NULL object", __PRETTY_FUNCTION__);
 		return;

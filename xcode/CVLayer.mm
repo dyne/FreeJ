@@ -603,6 +603,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 }
 
 @synthesize layer;
+@synthesize currentFrame;
 
 @end
 
