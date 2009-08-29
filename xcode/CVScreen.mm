@@ -727,9 +727,6 @@ CVScreen::CVScreen()
   : ViewPort() {
 
   view = NULL;
-
-  Factory<Controller>::set_default_classtype("KeyboardController", "cocoa");
-
 }
 
 CVScreen::~CVScreen() {
@@ -739,7 +736,7 @@ CVScreen::~CVScreen() {
 
 bool CVScreen::_init(int w, int h) {
 
-  // do your init here if you need
+  Factory<Controller>::set_default_classtype("KeyboardController", "cocoa");
 
   return true;
 }
