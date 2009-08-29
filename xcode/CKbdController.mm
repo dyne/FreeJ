@@ -118,15 +118,14 @@ int CKbdController::poll()
 - (void)insertEvent:(NSEvent *)event OfType:(NSString *)type WithState:(NSString *)state
 {
     NSDictionary *entry;
+    // create the entry
+    entry = [[NSDictionary 
+              dictionaryWithObjects:
+                [NSArray arrayWithObjects:event, state, type, nil]
+              forKeys:
+                [NSArray arrayWithObjects:@"event", @"state", @"type", nil]
+            ] retain];
     @synchronized(self) {
-        // create the entry
-        entry = [[NSDictionary 
-                  dictionaryWithObjects:
-                    [NSArray arrayWithObjects:event, state, type, nil]
-                  forKeys:
-                    [NSArray arrayWithObjects:@"event", @"state", @"type", nil]
-                ] retain];
-
         [_keyEvents addObject:entry];
     }
 }
