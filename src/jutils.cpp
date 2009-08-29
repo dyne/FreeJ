@@ -58,8 +58,6 @@ char msg[MAX_ERR_MSG+1];
 
 static int verbosity = 0;
 
-static char *osd_msg;
-
 static ConsoleController *console = NULL;
 
 void set_debug(int lev) {
@@ -70,30 +68,6 @@ void set_debug(int lev) {
 
 int get_debug() {
   return(verbosity);
-}
-
-void set_osd(char *st) {
-  osd_msg = st;
-  osd_msg[0] = '\0';
-}
-
-void show_osd() {
-  strncpy(osd_msg,msg,49);
-  osd_msg[50] = '\0';
-  if(console)
-    console->notice(osd_msg);
-}
-
-void show_osd(const char *format, ...) {
-  va_list arg;
-  va_start(arg, format);
-  
-  vsnprintf(osd_msg,49, format, arg);
-  osd_msg[50] = '\0';
-  va_end(arg);
-
-  if(console)
-    console->notice(osd_msg);
 }
 
 void set_console(ConsoleController *c) {

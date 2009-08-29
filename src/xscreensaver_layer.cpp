@@ -174,7 +174,6 @@ void XScreenSaverLayer::pause(bool set) {
 
   notice("XScreenSaver to %i pause : %s is %i err %i", x_pid,
          ((paused) ? "on" : "off"), res,errno );
-  show_osd();
 }
 
 // bool XScreenSaverLayer::keypress(int key) {

@@ -288,7 +288,6 @@ void V4lGrabber::set_chan(int ch) {
     error("error in ioctl VIDIOCSCHAN ");
   
   act("V4L: input chan %u %s",ch,grab_chan.name);
-  show_osd();
 }
 
 void V4lGrabber::set_band(int b) {
@@ -296,7 +295,6 @@ void V4lGrabber::set_band(int b) {
   chanlist = chanlists[b].list;
   if(_freq>chanlists[b].count) _freq = chanlists[b].count;
   act("V4L: frequency table %u %s [%u]",b,chanlists[b].name,chanlists[b].count);
-  show_osd();
 }
 
 void V4lGrabber::set_freq(int f) {
@@ -312,7 +310,6 @@ void V4lGrabber::set_freq(int f) {
     error("error in ioctl VIDIOCSFREQ ");
   //  unlock_feed();
   act("V4L: frequency %s %.3f Mhz (%s)",chanlist[f].name,ffreq,chanlists[_band].name);
-  show_osd();
 }
   
 

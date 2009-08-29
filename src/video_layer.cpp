@@ -744,11 +744,11 @@ void VideoLayer::free_fifo() {
 // 			   case 'b':
 // 			   if(backward_control) {
 // 			   backward_control=false;
-// 			   show_osd("backward off");
+// 			   notice("backward off");
 // 			   }
 // 			   else {
 // 			   backward_control=true;
-// 			   show_osd("backward on");
+// 			   notice("backward on");
 // 			   }
 // 			//	    backward_one_keyframe();
 // 			break;
@@ -783,7 +783,6 @@ bool VideoLayer::set_mark_in() {
 		mark_in = NO_MARK;
 		notice("mark_in deleted");
 	}
-	show_osd();
 	return true;
 }
 bool VideoLayer::set_mark_out() {
@@ -795,7 +794,6 @@ bool VideoLayer::set_mark_out() {
 		mark_out = NO_MARK;
 		notice("mark_out deleted");
 	}
-	show_osd();
 	return true;
 }
 
@@ -826,7 +824,7 @@ bool VideoLayer::relative_seek(double increment) {
 		return false;
 	}
 	else
-		show_osd("seek to %.1f\%",current_time);
+		notice("seek to %.1f\%",current_time);
 	return true;
 }
 /**
@@ -915,7 +913,6 @@ void VideoLayer::pause() {
   else
     paused=true;
   notice("pause : %s",(paused)?"on":"off");
-  show_osd();
 }
 void VideoLayer::deinterlace(AVPicture *picture) {
   int size;

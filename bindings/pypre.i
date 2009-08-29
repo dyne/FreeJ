@@ -1,5 +1,3 @@
-/* breaks compilation with swig .31 (due to mess with overloaded function) */
-%ignore show_osd();
 
 %include "pydocstrings.i"
 

@@ -43,9 +43,6 @@ extern void *(*jmemcpy)( void *to, const void *from, size_t len );
 
 void set_debug(int lev);
 int get_debug();
-void set_osd(char *st);
-void show_osd();
-void show_osd(const char *format, ...);
 void set_console(ConsoleController *c);
 void notice(const char *format, ...);
 void func(const char *format, ...);
