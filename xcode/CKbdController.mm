@@ -51,38 +51,18 @@ int CKbdController::poll()
     NSDictionary *entry;
     while (entry = [windowController getEvent]) {
         char funcname[256];
-        char modifier = 0;
         static jsval fval = JSVAL_NULL;
         NSEvent *event = [entry valueForKey:@"event"];
         NSString *state = [entry valueForKey:@"state"];
-        switch ([event modifierFlags]) { 
-            case NSShiftKeyMask:
-                modifier |= MMASK_SHIFT;
-                break;
-            case NSControlKeyMask:
-                modifier |= MMASK_CTRL;
-                break;
-            case NSAlternateKeyMask:
-                modifier |= MMASK_ALT;
-                break;
-            case NSCommandKeyMask:
-                modifier |= MMASK_CMD;
-                break;
-            case NSFunctionKeyMask:
-                modifier |= MMASK_FN;
-                break;
-            case NSNumericPadKeyMask:
-                modifier |= MMASK_NUM;
-                break;
-        }
+        NSUInteger modifierFlags = [event modifierFlags];
         snprintf(funcname, sizeof(funcname), "%s_%s%s%s%s%s",
                  [state UTF8String],
-                 ((modifier&MMASK_SHIFT)? "shift_" : ""),
-                 ((modifier&MMASK_CTRL)?  "ctrl_"  : ""),
-                 ((modifier&MMASK_ALT)?   "alt_"   : ""),
-                 ((modifier&MMASK_NUM)?   "num_"   : ""),
+                 ((modifierFlags&NSShiftKeyMask)? "shift_" : ""),
+                 ((modifierFlags&NSControlKeyMask)?  "ctrl_"  : ""),
+                 ((modifierFlags&NSAlternateKeyMask)?   "alt_"   : ""),
+                 ((modifierFlags&NSNumericPadKeyMask)?   "num_"   : ""),
                  [[event charactersIgnoringModifiers] UTF8String] );
-        func("%s calling method %s()", __func__, funcname);
+        notice("%s calling method %s()", __func__, funcname);
         [entry release];
         return JSCall(funcname, 0, &fval);
     }
