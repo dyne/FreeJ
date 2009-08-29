@@ -77,6 +77,7 @@ class SlwConsole: public ConsoleController {
   void warning(const char *msg);
   void act(const char *msg);
   void func(const char *msg);
+  void old_printlog(const char *msg);
   
 
   void refresh();

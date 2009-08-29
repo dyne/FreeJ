@@ -274,3 +274,7 @@ void SlwConsole::error(const char *msg) {
 void SlwConsole::func(const char *msg) {
   log->append(msg);
 }
+void SlwConsole::old_printlog(const char *msg) {
+  log->append(msg);
+}
+

@@ -41,6 +41,7 @@ class ConsoleController: public Controller {
   virtual void warning(const char *msg) = 0;
   virtual void act(const char *msg) = 0;
   virtual void func(const char *msg) = 0;
+  virtual void old_printlog(const char *msg) = 0;
   
 
   virtual void refresh() = 0;
