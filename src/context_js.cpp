@@ -43,6 +43,7 @@ JSFunctionSpec global_functions[] = {
     {"quit",            quit,                   0},
     {"add_screen",	add_screen,		1},
     {"rem_screen",	rem_screen,		1},
+    {"add_layer",       ctx_add_layer,          1},
     //    {"selected_layer",  selected_screen,        0},
     {"debug",           debug,                  1},
     {"set_debug",       js_set_debug,           0},
@@ -164,6 +165,28 @@ JS(add_screen) {
     }
 
     return JS_TRUE;
+}
+
+JS(ctx_add_layer) {
+  func("%s",__PRETTY_FUNCTION__);
+
+    JSObject *jslayer = NULL;
+  Layer *lay;
+
+  if(argc<1) JS_ERROR("missing argument");
+  //  js_is_instanceOf(&layer_class, argv[0]);
+
+  jslayer = JSVAL_TO_OBJECT(argv[0]);
+  lay = (Layer*) JS_GetPrivate(cx, jslayer);
+  if(!lay) JS_ERROR("Layer is NULL");
+
+  if( global_environment->add_layer(lay) ) {
+    *rval=JSVAL_TRUE;
+  } else {
+    *rval=JSVAL_FALSE;
+  }
+
+  return JS_TRUE;
 }
 
 JS(list_filters) {

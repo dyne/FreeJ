@@ -120,8 +120,8 @@ class ContextMenu(gtk.Menu):
 
 class FreeJ(object):
     def __init__(self):
-#        self.scr = freej.SdlScreen()
-#        self.scr.init( 400 , 300 , 32 )
+        self.scr = freej.SdlScreen()
+        self.scr.init( 400 , 300 , 32 )
         self.init_context()
 
     def init_context(self):
@@ -130,7 +130,7 @@ class FreeJ(object):
         self.cx.clear_all = True
         
         
-#        self.cx.add_screen( self.scr )
+        self.cx.add_screen( self.scr )
         if len(sys.argv) > 1:
             for lay in sys.argv[1:]:
                 self.open_layer(lay)
@@ -221,7 +221,7 @@ class App(FreeJ):
         FreeJ.__init__(self)
         # setup python execution context main engine pointers
         self.pyctx['Context'] = self.cx
-        self.pyctx['Screen'] = self.scr
+        self.pyctx['Screen'] = self.cx.screens.selected()
         # fill lists with engine contents
         self.fill_tree()
         self.fill_effects()
@@ -268,11 +268,14 @@ class App(FreeJ):
         self.buffer.set_syntax_highlight(self.lang)
 
     def update_previews(self):
+	self.scr = self.cx.scr.selected()
+	if(not self.scr):
+		return
         self.scr.lock()
         self.scr.layers.lock()
         data = self.scr.get_surface_buffer()
-        w = self.scr.w
-        h = self.scr.h
+        w = self.scr.geo.w
+        h = self.scr.geo.h
         #data = self.invert_array(data)
         self.images = {}
         data_array = []
@@ -506,6 +509,7 @@ class App(FreeJ):
         self.main_tree.set_model(self.main_model)
         self.folder_icon = self.main_tree.render_icon(gtk.STOCK_DIRECTORY, gtk.ICON_SIZE_MENU)
         self.layer_icon = self.main_tree.render_icon(gtk.STOCK_FILE, gtk.ICON_SIZE_MENU)
+        self.screen_icon = self.main_tree.render_icon(gtk.STOCK_FILE, gtk.ICON_SIZE_MENU)
         self.effect_icon = self.main_tree.render_icon(gtk.STOCK_EXECUTE, gtk.ICON_SIZE_MENU)
         self.ctl_icon = self.main_tree.render_icon(gtk.STOCK_CONNECT, gtk.ICON_SIZE_MENU)
         cell = gtk.CellRendererText()
@@ -521,10 +525,10 @@ class App(FreeJ):
         self.main_model.clear()
         tooltip = "tooltip"
 
-        screens = self.main_model.append(Nune, ["Screens", 0, MENU,
+        screens = self.main_model.append(None, ["Screens", 0, MENU,
                                                 self.folder_icon, tooltip])
         for c_idx, screen in enumerate(self.cx.screens):
-            c_iter = self.main_model.append(screens, [ screen.name,
+            c_iter = self.main_model.append(screens, [ "screen",
                                                        c_idx, SCREEN,
                                                        self.screen_icon, tooltip])
             for l_idx, layer in enumerate(screen.layers):

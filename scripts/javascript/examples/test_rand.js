@@ -8,9 +8,9 @@
 W = 400;
 H = 300;
 
-scr = new Screen("sdl");
-scr.init(W,H);
-add_screen(scr);
+// scr = new Screen("sdl");
+// scr.init(W,H);
+// add_screen(scr);
 
 function draw_pixels(rand_geo) {
   var x, y;
@@ -84,7 +84,7 @@ rand_geo = new GeometryLayer(400,300);
 rand_geo.activate(true);
 //geo.start();
 //geo.set_fps(24);
-scr.add_layer(rand_geo);
+add_layer(rand_geo);
 
 running = true;
 rand_kbd = new KeyboardController();

@@ -244,6 +244,7 @@ JS(cafudda);
 JS(quit);
 JS(add_screen);
 JS(rem_screen);
+JS(ctx_add_layer);
 JS(selected_screen);
 JS(debug);
 JS(js_set_debug);

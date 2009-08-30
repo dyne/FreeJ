@@ -347,6 +347,11 @@ bool Context::add_encoder(VideoEncoder *enc) {
 bool Context::add_layer(Layer *lay) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
+  warning("use of Context::add_layer is DEPRECATED");
+  warning("please use ViewPort::add_layer instead");
+  warning("a list of screens (view ports) is available");
+  warning("kijk in Context::screens Linklist");
+
   ViewPort *scr = screens.selected();
   if(!scr) {
     error("no screen initialized, can't add layer %s", lay->name);
