@@ -71,7 +71,7 @@ JS(js_wii_ctrl_constructor) {
   
   WiiController *wii = new WiiController();
   // initialize with javascript context
-  if(! wii->init(env) ) {
+  if(! wii->init(global_environment) ) {
     sprintf(excp_msg, "failed initializing WiiMote controller");
     goto error;
   }
