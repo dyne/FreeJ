@@ -65,7 +65,7 @@
     } \
     int __class_name::isRegistered = Factory<__base_class>::register_instantiator( \
         FACTORY_MAKE_TAG(__category, __id), (Instantiator)get##__class_name \
-    );
+    ); \
 
 typedef void *(*Instantiator)();
 #define FInstantiatorsMap std::map<std::string, Instantiator>
@@ -75,6 +75,8 @@ typedef void *(*Instantiator)();
 #define FMapsMap std::map<std::string, FInstantiatorsMap *>
 #define FDefaultClassesMap std::map<std::string, const char *>
 #define FMapPair std::pair<std::string, FInstantiatorsMap *>
+#define FInstancesMap std::map<std::string, void *>
+#define FInstancePair std::pair<std::string, void *>
 
 template <class T>
 class Factory
@@ -82,6 +84,7 @@ class Factory
   private:
       static FInstantiatorsMap *instantiators_map;
       static FDefaultClassesMap *defaults_map;
+      static FInstancesMap *instances_map;
   public:
     
     // Define a default class for a certain category
@@ -108,15 +111,15 @@ class Factory
             return new_instance(category, pair->second);
         return NULL;
     }
-
-    // Create (and return) a new instance of class which matches 'id' within a certain category.
+    
+    // Create (and return) a new instance of the class which matches 'id' within a certain category.
     static T *new_instance(const char *category, const char *id)
     {
         char tag[FACTORY_ID_MAXLEN];
         if (!category || !id) // safety belts
             return NULL;
 
-        func("Looking for %s::%s \n", category, id);
+        func("(new_instance) Looking for %s::%s \n", category, id);
 
         if (strlen(category)+strlen(id)+3 > sizeof(tag)) { // check the size of the requested id
             error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", category, id);
@@ -128,11 +131,49 @@ class Factory
         if (instantiators_pair != instantiators_map->end()) { // check if we have a match
             func("id %s found\n", id);
             Instantiator create_instance = instantiators_pair->second;
-            if (create_instance) 
+            if (create_instance)
                 return (T*)create_instance();
         }
         return NULL;
     };
+
+    static T*get_instance(const char *category)
+    {
+        FTagMap::iterator pair = defaults_map->find(category);
+        if (pair != defaults_map->end())
+            return get_instance(category, pair->second);
+        return NULL;        
+    }
+    
+    static T *get_instance(const char *category, const char *id)
+    {
+        char tag[FACTORY_ID_MAXLEN];
+        if (!category || !id) // safety belts
+            return NULL;
+        
+        func("(get_instance) Looking for %s::%s \n", category, id);
+        
+        if (strlen(category)+strlen(id)+3 > sizeof(tag)) { // check the size of the requested id
+            error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", category, id);
+            return NULL;
+        }
+        snprintf(tag, sizeof(tag), "%s::%s", category, id);
+        if (instances_map) {
+            func("Looking for %s in instantiators_map (%d)\n", tag, instances_map->size());
+            FInstancesMap::iterator instance_pair = instances_map->find(tag);
+            if (instance_pair != instances_map->end()) {
+                void *instance = instance_pair->second;
+                func("Returning instance of %s at address %p", tag, instance);
+                return (T *)instance;
+            }
+        } else {
+            instances_map = new FInstancesMap();
+        }
+        T *instance = new_instance(category, id);
+        instances_map->insert(FInstancePair(tag, (void *)instance));
+        func("Created instance of %s at address %p", tag, (void *)instance);
+        return instance;
+    }
 
     // register a new class instantiator
     // tag is : <category>::<id>
@@ -160,5 +201,7 @@ class Factory
 
 template <class T> FInstantiatorsMap *Factory<T>::instantiators_map = NULL;
 template <class T> FDefaultClassesMap *Factory<T>::defaults_map = NULL;
+template <class T> FInstancesMap *Factory<T>::instances_map = NULL;
+
 
 #endif

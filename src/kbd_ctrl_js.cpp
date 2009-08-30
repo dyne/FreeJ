@@ -25,26 +25,29 @@ DECLARE_CLASS_GC("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor
 JS(js_kbd_ctrl_constructor) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
     
-    KbdController *kbd = (KbdController *)Factory<Controller>::new_instance( "KeyboardController" );
+    KbdController *kbd = (KbdController *)Factory<Controller>::get_instance( "KeyboardController" );
     if (!kbd)
         return JS_FALSE;
     
     // initialize with javascript context
-    if(! kbd->init(env) ) {
-        error("failed initializing keyboard controller");
-        delete kbd; return JS_FALSE;
+    if (!kbd->initialized) {
+        if(! kbd->init(env) ) {
+            error("failed initializing keyboard controller");
+            delete kbd; return JS_FALSE;
+        }
+        
+        // assign the real js object
+        kbd->jsobj = obj;
+        kbd->javascript = true;
+        
+    } else {
+        obj = kbd->jsobj;
     }
-    
-    // assign the real js object
-    kbd->jsobj = obj;
-    kbd->javascript = true;
-    
     // assign instance into javascript object
     if( ! JS_SetPrivate(cx, obj, (void*)kbd) ) {
         error("failed assigning keyboard controller to javascript");
         delete kbd; return JS_FALSE;
     }
-    
     *rval = OBJECT_TO_JSVAL(obj);
     return JS_TRUE;
 }
