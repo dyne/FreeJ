@@ -1,25 +1,45 @@
-Denis "Jaromil" Rojo - http://rastasoft.org
- = FreeJ's author and current maintainer
+Filippo "GodoG" Giunchedi <godog\\dyne.org>
+ = Auto-tools, binary packaging, build daemon
+ = Debian GNU/Linux package mantainer
 
-Silvano "Kysucix" Galliani - http://kysucix.nexlab.it
- = FreeJ core developer: truetype, encoding, streaming & more
-
-Christoph "Mr.Goil" Rudorff <goil\\dyne.org> 
- = midi and joystick controller, scriptability
-
-Andrea "Xant" Guzzo <xant\\dyne.org>
- = Freej core developer: osx (cocoa), factory, internals
- = OSX maintainer
+Pablo "Caedes" Martines <caedes\\sindominio.net>
+ = Core developer: swig bindings, opengl, python
+ = Interoperability in 3D Worlds
 
 Luca "Shammash" Bigliardi <shammash\\dyne.org>
- = Freej core developer: closures, python, opencv layer, internals
- = Building/Packaging
+ = Core developer: closures, python, internals
+ = Debian GNU/Linux package co-mantainer
 
-Filippo "GodoG" Giunchedi <godog\\dyne.org>
- = Building/Packaging
+Andrea "Xant" Guzzo http://www.xant.org
+ = Core developer: Cocoa GUI, factory, internals
+ = OSX port maintainer
 
-More people using FreeJ or developing free software video applications
-contributed with ideas and code:
+Christoph "Mr.Goil" Rudorff <goil\\dyne.org> 
+ = midi, joystick controllers, scripts, profiling
+ = Big-Endian port, usability
+
+Silvano "Kysucix" Galliani - http://kysucix.nexlab.it
+ = Core developer: encoding, streaming, javascript
+ = On hold since approx 2006
+
+Denis "Jaromil" Roio - http://rastasoft.org
+ = Core developer: architecture, language, progress
+ = Project initiator and current mantainer
+
+
+
+Even  more  people  using  FreeJ  or developing  free  software  video
+applications   contributed  with   ideas  and   code,  see   stats  on
+http://git.dyne.org/stats/freej ... below some names:
+
+Jan Gerber <j \\ v2v>
+	ogg/vorbis/theora utils
+
+Lluis Gomez I Bigorda <lgomez\\pangea.org>
+	zoom filter, web portal integration (dmmdb)
+
+Andy Nicholson http://www.engagemedia.org
+     	web portal integration (plumi)
 
 Dave Griffiths <pawfall.org/software/fluxus>
      	jack audio collector
@@ -42,12 +62,6 @@ Dries Pruimboom <dries\\irssystems.nl>
 Edo Tannenbaum <et\\et-arts.com>
 	nervous filter from EffecTV
 
-Fukuchi Kentarou <fukuchi\\is.titech.ac.jp>
-	a couple of filters and code goodies from EffecTV
-
-Lluis Gomez I Bigorda <lgomez\\pangea.org>
-	zoom filter
-
 Leonid Andreev <lenonid\\math.harvard.edu>
 	feedback and bugfixes
 
@@ -57,16 +71,23 @@ Olie Lho <ollie\\sis.com.tw>
 Pete Warden
 	backlight filter
 
-J@v2v
-	ogg/vorbis/theora utils
 
-*** DEVELOPMENT OF FREEJ IS SUPPORTED BY ::
+
+Fukuchi Kentarou http://effectv.sf.net
+
+	filters and code goodies  from EffecTV... early inspiration :)
+	we released similar  free software at the very  same time from
+	one side to the other of the Planet :)
+
+
+
+*** DEVELOPMENT OF FREEJ HAS BEEN SUPPORTED BY ::
 
 Nederlands Instituut voor Mediakunst - Montevideo/Time Based Arts
  .... < http://www.montevideo.nl >
 
 Netculture Lab Austria - osAlliance
- .... < http://www.netculture.at >
+ .... < http://www.netculture.at >     
 
 Digitale Pioneers
  .... < www.digitalepioniers.nl >
