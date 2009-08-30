@@ -46,3 +46,6 @@ doc/freej.dox
 doc/html
 doc/pydocstrings.i
 doc/xml
+xcode/build
+xcode/freej.xcodeproj/*.mode1v3
+xcode/freej.xcodeproj/*.pbxuser

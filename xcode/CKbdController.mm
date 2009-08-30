@@ -28,8 +28,8 @@ bool CKbdController::init(Context *freej) {
         // XXX - we are assuming we will always get a CVSCreen on OSX
         CVScreen *screen = (CVScreen *)freej->screen;
         CVScreenView *sView = screen->get_view();
-        windowController = [CVScreenController alloc];
-        [windowController setWindow:[sView getWindow]];
+        windowController = [[CVScreenController alloc] initWithWindow:[sView getWindow]];
+        [windowController setKbdController:this];
     }
     return Controller::init(freej);
 }
@@ -41,33 +41,84 @@ int CKbdController::dispatch()
 
 int CKbdController::poll()
 {
+    NSDictionary *entry;
+    while (entry = [windowController getEvent]) {
+        char funcname[256];
+        static jsval fval = JSVAL_NULL;
+        NSEvent *event = [entry valueForKey:@"event"];
+        NSString *state = [entry valueForKey:@"state"];
+        NSUInteger modifierFlags = [event modifierFlags];
+        snprintf(funcname, sizeof(funcname), "%s_%s%s%s%s%s",
+                 [state UTF8String],
+                 ((modifierFlags&NSShiftKeyMask)?      "shift_" : ""),
+                 ((modifierFlags&NSControlKeyMask)?    "ctrl_"  : ""),
+                 ((modifierFlags&NSAlternateKeyMask)?  "alt_"   : ""),
+                 ((modifierFlags&NSNumericPadKeyMask)? "num_"   : ""),
+                 [[event charactersIgnoringModifiers] UTF8String]
+        );
+        func("%s calling method %s()", __func__, funcname);
+        [entry release];
+        return JSCall(funcname, 0, &fval);
+    }
     return 0;
 }
 
 @implementation CVScreenController
 
+- (id)initWithWindow:(NSWindow *)window
+{
+    _keyEvents = [[NSMutableArray arrayWithCapacity:100] retain];
+    return [super initWithWindow:window];
+}
+
+- (NSDictionary *)getEvent
+{
+    NSDictionary *event = NULL;
+    @synchronized(self) {
+        if ([_keyEvents count]) {
+            event = [_keyEvents objectAtIndex:0];
+            [_keyEvents removeObjectAtIndex:0];
+        }
+    }
+    return event;
+}
+
+- (void)setKbdController:(CKbdController *)kbdController
+{
+    _kbdController = kbdController;
+}
+
+
+- (void)insertEvent:(NSEvent *)event OfType:(NSString *)type WithState:(NSString *)state
+{
+    NSDictionary *entry;
+    // create the entry
+    entry = [[NSDictionary 
+              dictionaryWithObjects:
+                [NSArray arrayWithObjects:
+                    event, state, type, nil
+                ]
+              forKeys:
+                [NSArray arrayWithObjects:
+                    @"event", @"state", @"type", nil
+                ]
+            ] retain];
+    @synchronized(self) {
+        [_keyEvents addObject:entry];
+    }
+}
+
+- (void)keyUp:(NSEvent *)event
+{
+    //NSLog(@"Keyrelease (%hu, modifier flags: 0x%x) %@\n", [event keyCode], [event modifierFlags], [event charactersIgnoringModifiers]);
+    [self insertEvent:[event retain] OfType:@"kbd" WithState:@"released"];
+}
+
 // handle keystrokes
 - (void)keyDown:(NSEvent *)event
 {
-    NSLog(@"Keypress (%hu, modifier flags: 0x%x) %@\n", [event keyCode], [event modifierFlags], [event charactersIgnoringModifiers]);
-    NSString *modifier = nil;
-    switch ([event modifierFlags]) { 
-        case NSShiftKeyMask:
-            modifier = [NSString stringWithUTF8String:"shift_"];
-            break;
-        case NSControlKeyMask:
-            modifier = [NSString stringWithUTF8String:"control_"];
-            break;
-        case NSAlternateKeyMask:
-            modifier = [NSString stringWithUTF8String:"alt_"];
-            break;
-        case NSCommandKeyMask:
-            modifier = [NSString stringWithUTF8String:"cmd_"];
-            break;
-        case NSFunctionKeyMask:
-            modifier = [NSString stringWithUTF8String:"fn_"];
-            break;
-    }
+    //NSLog(@"Keypress (%hu, modifier flags: 0x%x) %@\n", [event keyCode], [event modifierFlags], [event charactersIgnoringModifiers]);
+    [self insertEvent:event OfType:@"kbd" WithState:@"pressed"];
 }
 
 @end

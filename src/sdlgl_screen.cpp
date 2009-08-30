@@ -86,7 +86,7 @@ SdlGlScreen::~SdlGlScreen() {
   SDL_Quit();
 }
 
-bool SdlGlScreen::init(int width, int height) {
+bool SdlGlScreen::_init(int width, int height) {
 	char temp[120];
 
 	/* initialize SDL */

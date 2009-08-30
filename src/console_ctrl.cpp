@@ -126,6 +126,7 @@ SlwConsole::~SlwConsole() {
 
 bool SlwConsole::console_init() {
   slw_init();
+  return true;
 }
 
 bool SlwConsole::slw_init() {

@@ -9,7 +9,8 @@
 
 #import <Cocoa/Cocoa.h>
 #import <QTKit/QTKit.h>
-#import "CVScreen.h"
+
+@class CVScreenView;
 
 #define DEFAULT_OUTPUT_FILE "/tmp/freej_export.mov"
 

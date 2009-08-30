@@ -14,6 +14,7 @@
 #import <CVScreen.h>
 
 @class CVideoFileInput;
+@class CVScreenView;
 class CVLayer;
 class CVScreen;
 

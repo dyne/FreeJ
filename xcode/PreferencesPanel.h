@@ -7,7 +7,7 @@
 //
 
 #import <Cocoa/Cocoa.h>
-#import "CFreej.h"
+#import <CVScreen.h>
 
 @interface PreferencesPanel : NSWindow {
     IBOutlet CFreej *freej;

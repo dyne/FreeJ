@@ -89,6 +89,7 @@ class ViewPort : public Entry {
 
   bool init(int w = 0, int h = 0, int bpp = 0); ///< general initialization
 
+  bool initialized;
 
   enum fourcc { RGBA32, BGRA32, ARGB32 }; ///< pixel formats understood
   virtual fourcc get_pixel_format() =0; ///< return the pixel format

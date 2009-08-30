@@ -1,14 +1,11 @@
-- configuration panel to set preview-fps, resolution and such
-- allow to unload/reload javascript files
-- implement a keyboard console
-- integrate with the freej Controller subsystem (allowing to control Cocoa-managed 
-  layers through external devices)
-- implement a CVFrei0r class to access the underlying Frei0r Layer implementation
-- implement a native text-layer (should be trivial)
-- Solve remaining issues and Finish implamenting the CVGenerator layer class 
+- configuration panel to set preview-fps, resolution and such (WIP)
+- allow to instantiate new layers
+- allow to attach the effectspanel to any layer present in the sortable list
+  (so also internal layers ... which don't have their own panel on the gui)
 - Implement a javascript console to let user insert exec javascript 
   code directly from the gui
 - implement a freej-output-preview window to use when on a dual-screen 
   workstation and running freej in full-screen mode 
 - build the deck panel programmatically (instead of having 
   it statically defined in the nib file)
+- the whole GUI needs refactoring

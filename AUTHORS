@@ -1,11 +1,22 @@
 Denis "Jaromil" Rojo - http://rastasoft.org
- = FreeJ's author and current mantainer
+ = FreeJ's author and current maintainer
 
 Silvano "Kysucix" Galliani - http://kysucix.nexlab.it
  = FreeJ core developer: truetype, encoding, streaming & more
 
 Christoph "Mr.Goil" Rudorff <goil\\dyne.org> 
  = midi and joystick controller, scriptability
+
+Andrea "Xant" Guzzo <xant\\dyne.org>
+ = Freej core developer: osx (cocoa), factory, internals
+ = OSX maintainer
+
+Luca "Shammash" Bigliardi <shammash\\dyne.org>
+ = Freej core developer: closures, python, opencv layer, internals
+ = Building/Packaging
+
+Filippo "GodoG" Giunchedi <godog\\dyne.org>
+ = Building/Packaging
 
 More people using FreeJ or developing free software video applications
 contributed with ideas and code:

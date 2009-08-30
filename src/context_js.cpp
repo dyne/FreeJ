@@ -767,7 +767,7 @@ JS(reset_js) {
 	//	char *jscript;
 
 	*rval = JSVAL_TRUE;
-	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
+	//JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 	func("resetting freej context");
 	global_environment->reset();
 	//func("reloading main script: %s", global_environment->main_javascript);

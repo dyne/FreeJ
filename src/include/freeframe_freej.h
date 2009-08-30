@@ -29,6 +29,9 @@ class Filter;
 class Freeframe: public Entry {
   friend class Filter;
   friend class GeneratorLayer;
+#ifdef WITH_COCOA
+  friend class CVF0rLayer;
+#endif
  public:
 
   Freeframe();

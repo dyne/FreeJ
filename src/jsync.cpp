@@ -77,5 +77,6 @@ void* JSyncThread::_run(void *arg) {
     me->thread_loop();
   }
   me->thread_teardown();
+  return NULL;
 }
 

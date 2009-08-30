@@ -85,6 +85,7 @@ SlwSelector::~SlwSelector() {
 bool SlwSelector::init() {
   tmp = (char*)calloc(w, sizeof(char));
   initialized = true;
+    return true;
 }
 
 bool SlwSelector::feed(int key) {
@@ -325,6 +326,6 @@ bool SlwSelector::refresh() {
 
   color = FILTERS_COLOR;
   putnch(tmp,1,3,0);
-
+  return true;
 }
 

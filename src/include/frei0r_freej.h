@@ -33,7 +33,10 @@ class Filter;
 
 class Freior: public Entry {
   friend class Filter;
-  friend class GeneratorLayer;
+  friend class GenF0rLayer;
+#ifdef WITH_COCOA
+  friend class CVF0rLayer;
+#endif
  public:
 
   Freior();
@@ -52,6 +55,8 @@ class Freior: public Entry {
   void (*f0r_set_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
   void (*f0r_get_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
 
+  f0r_instance_t (*f0r_construct)(unsigned int width, unsigned int height);
+
  private:
 
   // dlopen handle
@@ -65,7 +70,6 @@ class Freior: public Entry {
   int (*f0r_init)();
   void (*f0r_get_plugin_info)(f0r_plugin_info_t* pluginInfo);
   void (*f0r_get_param_info)(f0r_param_info_t* info, int param_index);
-  f0r_instance_t (*f0r_construct)(unsigned int width, unsigned int height);
   void (*f0r_destruct)(f0r_instance_t instance);
 
   void (*f0r_update)(f0r_instance_t instance, double time,

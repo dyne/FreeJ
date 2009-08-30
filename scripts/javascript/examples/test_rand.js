@@ -78,7 +78,7 @@ function randomize_color(rand_geo) {
   rand_geo.color(r,g,b,150); 
 }
 
-rand_geo = new GeometryLayer(400,300);
+rand_geo = new GeometryLayer(W,H);
 //rand_geo.set_blit("alpha");
 //rand_geo.set_blit_value(0.5);
 rand_geo.activate(true);

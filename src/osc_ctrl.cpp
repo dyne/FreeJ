@@ -141,7 +141,6 @@ int osc_command_handler(const char *path, const char *types,
 }
 
 int OscController::dispatch() {
-  jsval ret = JSVAL_VOID;
   int res;
   int c = 0;
   // execute pending comamnds (javascript calls)

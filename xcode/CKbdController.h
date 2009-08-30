@@ -9,15 +9,18 @@
 #include <factory.h>
 #include <controller.h>
 #define _UINT64
-#define __cocoa
 #include <CFreej.h>
 #include <CVScreen.h>
 #import <Cocoa/Cocoa.h>
 
-@interface CVScreenController : NSWindowController {
-    
-}
+class CKbdController;
 
+@interface CVScreenController : NSWindowController {
+    CKbdController *_kbdController;
+    NSMutableArray *_keyEvents;
+}
+- (NSDictionary *)getEvent;
+- (void)setKbdController:(CKbdController *)kbdController;
 @end
 
 class CKbdController: public Controller {

@@ -28,4 +28,16 @@ static struct {
     [mainScreen setSizeWidth:allowedScreenSizes[idx].w Height:allowedScreenSizes[idx].h];
 }
 
+- (IBAction)setJScriptsPath:(id)sender
+{
+}
+
+- (IBAction) setPluginsPath:(id)sender
+{
+}
+
+- (IBAction) setExportQuality:(id)sender
+{
+}
+
 @end

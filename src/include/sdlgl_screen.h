@@ -29,6 +29,8 @@
 #include <gl_screen.h>
 #include <screen.h>
 
+#include <factory.h>
+
 /* struct Vertex */
 /* { */
 /*     float tu, tv; */

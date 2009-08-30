@@ -98,7 +98,9 @@ Layer::~Layer() {
   }
   
   if(blitter) delete blitter;
-  //  if(buffer) free(buffer);
+#ifndef WITH_COCOA
+  if(buffer) free(buffer);
+#endif
 }
 
 bool Layer::init(int wdt, int hgt, int bpp) {
@@ -143,7 +145,7 @@ void Layer::thread_loop() {
   // process all registered operations
   // and signal to the synchronous waiting feed()
   // includes parameter changes for layer
-  //  lock();
+
   tmp_buf = feed();
 
   // check if feed returned a NULL buffer
