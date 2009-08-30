@@ -48,7 +48,7 @@
 #include <string> // for std::string
 #include <jutils.h>
 
-#define FACORY_ID_MAXLEN 64
+#define FACTORY_ID_MAXLEN 64
 
 #define FACTORY_ALLOWED \
     static int isRegistered;
@@ -112,7 +112,7 @@ class Factory
     // Create (and return) a new instance of class which matches 'id' within a certain category.
     static T *new_instance(const char *category, const char *id)
     {
-        char tag[FACORY_ID_MAXLEN];
+        char tag[FACTORY_ID_MAXLEN];
         if (!category || !id) // safety belts
             return NULL;
 
