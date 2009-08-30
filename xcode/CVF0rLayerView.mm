@@ -44,17 +44,17 @@
     //Context *ctx = (Context *)[freej getContext];
     [lock lock];
     CVReturn err = CVPixelBufferCreateWithBytes (
-                                                 NULL,
-                                                 layer->geo.w,
-                                                 layer->geo.h,
-                                                 k32ARGBPixelFormat,
-                                                 frame,
-                                                 layer->geo.w*4,
-                                                 NULL,
-                                                 NULL,
-                                                 NULL,
-                                                 &newPixelBuffer
-                                                 ); 
+             NULL,
+             layer->geo.w,
+             layer->geo.h,
+             k32ARGBPixelFormat,
+             frame,
+             layer->geo.w*4,
+             NULL,
+             NULL,
+             NULL,
+             &newPixelBuffer
+    ); 
     if (err == kCVReturnSuccess) {
         if (currentFrame)
             CVPixelBufferRelease(currentFrame);
@@ -110,6 +110,10 @@
     CVLayer *toDelete;
     if (layer) {
         [lock lock];
+        if (currentFrame) {
+            CVPixelBufferRelease(currentFrame);
+            currentFrame = NULL;
+        }
         toDelete = (CVLayer *)layer;
         layer = NULL;
         [lock unlock];

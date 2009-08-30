@@ -9,13 +9,6 @@
 
 #include "CKbdController.h"
 
-#define MMASK_SHIFT (1)
-#define MMASK_CTRL  (1<<1)
-#define MMASK_ALT   (1<<2)
-#define MMASK_CMD   (1<<3)
-#define MMASK_FN    (1<<4)
-#define MMASK_NUM   (1<<5)
-
 FACTORY_REGISTER_INSTANTIATOR(Controller, CKbdController, KeyboardController, cocoa);
 
 CKbdController::CKbdController() 
