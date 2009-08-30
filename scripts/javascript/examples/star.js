@@ -3,6 +3,9 @@
 // it also shows the usage of keyboard controller
 // press 'q' to quit while running
 
+W = get_width();
+H = get_height();
+
 x = 100;
 y = 100;
 s = 30 / 0.383;
@@ -13,7 +16,7 @@ c = PI * 2;
 o = -PI / 2;
 
 scr = new Screen("sdl");
-scr.init(500,500);
+scr.init(W,H);
 add_screen(scr);
 
 function drawStar(lay, s_mul, s2_mul) {
@@ -55,7 +58,7 @@ star_kbd.released_r = function() {
 register_controller( star_kbd );
 
 var star;
-star = new GeometryLayer(300,300);
+star = new GeometryLayer(W,H);
 star.color(255,255,255,255);
 //star.set_blit("alpha");
 //star.set_name("star.js");

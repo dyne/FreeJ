@@ -120,15 +120,12 @@ class ContextMenu(gtk.Menu):
 
 class FreeJ(object):
     def __init__(self):
-        self.scr = freej.SdlScreen()
-        self.scr.init( 400 , 300 , 32 )
-        self.init_context()
-
-    def init_context(self):
         self.cx = freej.Context()
         self.cx.init()
         self.cx.clear_all = True
-        
+
+        self.scr = freej.SdlScreen()
+        self.scr.init( 400 , 300 , 32 )
         
         self.cx.add_screen( self.scr )
         if len(sys.argv) > 1:
@@ -143,7 +140,7 @@ class FreeJ(object):
     def delete_layer(self, layer, layer_idx=-1):
         layer.rem()
  #       self.scr.rem_layer(layer)
-        freej.delete_layer(layer)
+ #        freej.delete_layer(layer)
 
 
     def open_layer(self, filename):
@@ -414,16 +411,16 @@ class App(FreeJ):
 
     def do_reset(self, button):
         #del self.cx
-        self.cx.reset()
-#         print " * delete controllers"
-#         for controller in list(self.cx.controllers):
-#             self.cx.rem_controller(controller)
-#         print " * delete layers"
-#         for layer in list(self.scr.layers):
-#             self.delete_layer(layer)
-#         print " * clear layers"
-#         print " * init context"
-#         #self.init_context()
+#        self.cx.reset()
+        print " * delete controllers"
+        for controller in list(self.cx.controllers):
+            self.cx.rem_controller(controller)
+        print " * delete layers"
+        for layer in list(self.scr.layers):
+            self.delete_layer(layer)
+        print " * clear layers"
+        print " * init context"
+         #self.init_context()
         print " * fill tree"
         self.fill_tree()
 
@@ -527,22 +524,26 @@ class App(FreeJ):
 
         screens = self.main_model.append(None, ["Screens", 0, MENU,
                                                 self.folder_icon, tooltip])
+        layers = self.main_model.append(None, ["Layers", 0, MENU,
+                                                self.folder_icon, tooltip])
+
         for c_idx, screen in enumerate(self.cx.screens):
             c_iter = self.main_model.append(screens, [ "screen",
                                                        c_idx, SCREEN,
                                                        self.screen_icon, tooltip])
+
             for l_idx, layer in enumerate(screen.layers):
                 name = layer.get_filename()
                 if not name:
                     name = layer.name
                     lay_iter = self.main_model.append(layers, [name, l_idx, LAYER,
                                                                self.layer_icon, tooltip])
-                    print layer.type
-                    for f_idx, filter in enumerate(layer.filters):
-                        iter = self.main_model.append(lay_iter, [filter.name, f_idx,
-                                                                 FILTER,
-                                                                 self.effect_icon,
-                                                                 tooltip])
+#                     print layer.type
+#                     for f_idx, filter in enumerate(layer.filters):
+#                         iter = self.main_model.append(lay_iter, [filter.name, f_idx,
+#                                                                  FILTER,
+#                                                                  self.effect_icon,
+#                                                                  tooltip])
             
         controllers = self.main_model.append(None, ["Controllers", 0, MENU,
                                                     self.folder_icon, tooltip])

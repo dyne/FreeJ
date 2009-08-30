@@ -79,6 +79,7 @@ Layer::Layer()
 Layer::~Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
 
+  active = false;
   FilterInstance *f = (FilterInstance*)filters.begin();
   while(f) {
     f->rem(); // rem is contained in delete for Entry
