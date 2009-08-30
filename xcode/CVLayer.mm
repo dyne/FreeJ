@@ -24,6 +24,7 @@ CVLayer::CVLayer(CVLayerView *vin) : Layer()
     blendMode = NULL;
     type = Layer::GL_COCOA;
     data = (void *)this;
+    buffer = NULL;
     [input setLayer:this];
     set_name([[(NSView *)input toolTip] UTF8String]);
 }

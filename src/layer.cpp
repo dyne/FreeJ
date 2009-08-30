@@ -99,15 +99,20 @@ Layer::~Layer() {
   }
   
   if(blitter) delete blitter;
+#ifndef WITH_COCOA
   if(buffer) free(buffer);
+#endif
 }
 
 void Layer::_init(int wdt, int hgt) {
 
   geo.init(wdt, hgt, 32);
 
+#ifndef WITH_COCOA
   if(geo.bytesize>0)
     buffer = jalloc(geo.bytesize);
+#endif
+    
   // if  the   size  is  still  unknown   at  init  then   it  is  the
   // responsability for the layer implementation to create the buffer
   // (see for instance text_layer)

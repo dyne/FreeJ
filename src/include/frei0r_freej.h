@@ -36,6 +36,9 @@ class Filter;
 class Freior: public Entry {
   friend class Filter;
   friend class GenF0rLayer;
+#ifdef WITH_COCOA
+  friend class CVF0rLayer;
+#endif
  public:
 
   Freior();
