@@ -22,6 +22,7 @@ class CVLayer: public Layer
         int height, width;
         Context *freej;
         int bufsize;    
+        virtual bool _init();
     public:
         CVLayerView *input;
         NSString *blendMode;
@@ -34,8 +35,6 @@ class CVLayer: public Layer
         void activate();
         void deactivate();
         virtual bool open(const char *path);
-        virtual bool init(Context *ctx);
-        virtual bool init(Context *ctx, int w, int h);
         virtual void close();
         //void run();
         virtual bool forward();

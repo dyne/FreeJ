@@ -532,7 +532,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         Context *ctx = [freej getContext];
         if (ctx) {
             layer = new CVLayer(self);
-            layer->init(ctx);
+            layer->init();
         }
     }
 }
@@ -577,8 +577,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (void)activate
 {
-    if (layer)
+    if (layer) {
+        Context *ctx = [freej getContext];
         layer->activate();
+        ctx->add_layer(layer);
+    }
 }
 
 - (void)deactivate

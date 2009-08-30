@@ -131,7 +131,7 @@ Layer *create_layer(Context *env, char *file) {
 
 #ifdef WITH_FFMPEG
        nlayer = new VideoLayer();
-       if(!nlayer->init( env )) {
+       if(!nlayer->init( )) {
  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
  	delete nlayer; return NULL;
        }
@@ -170,7 +170,7 @@ Layer *create_layer(Context *env, char *file) {
       if( (IS_IMAGE_EXTENSION(end_file_ptr))) {
 //		strncasecmp((end_file_ptr-4),".png",4)==0) 
 	      nlayer = new ImageLayer();
-              if(!nlayer->init( env )) {
+              if(!nlayer->init( )) {
                 error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
                 delete nlayer; return NULL;
               }

@@ -7,9 +7,9 @@
 //
 #include <jsparser.h>
 #define _UINT64 1
-#define __cocoa 1
 #import <CFreej.h>
 #import <CVLayer.h>
+#include <CVScreen.h>
 
 #define DEFAULT_FREEJ_WIDTH 352
 #define DEFAULT_FREEJ_HEIGHT 288
@@ -170,7 +170,7 @@
         freej->quit = false;
         NSRect frame = [screenView frame];
         screen = new CVScreen();
-	screen->init(frame.size.width, frame.size.height);
+        screen->init(frame.size.width, frame.size.height, 32);
         freej->add_screen(screen);
         freej->plugger.refresh(freej);
         //freej->config_check("keyboard.js");

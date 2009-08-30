@@ -130,7 +130,7 @@
     texture = image;
     [lock lock];
     NSAffineTransform *scaleTransform = [NSAffineTransform transform];
-    scaleFactor = frame.size.width/ctx->screen->w;
+    scaleFactor = frame.size.width/ctx->screen->geo.w;
     [scaleTransform scaleBy:scaleFactor];
     CIFilter    *scaleFilter = [CIFilter filterWithName:@"CIAffineTransform"];
     [scaleFilter setDefaults];    // set the filter to its default values

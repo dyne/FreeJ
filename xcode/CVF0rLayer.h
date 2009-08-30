@@ -9,7 +9,6 @@
 #ifndef __CVF0RLAYER_H__
 #define __CVF0RLAYER_H__
 
-#include <gen_f0r_layer.h>
 #include <CVLayer.h>
 
 class CVF0rLayer : public CVLayer

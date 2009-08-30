@@ -15,6 +15,8 @@
 		AA3B0AF4104A6C3B00A27B2E /* CVScreenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0AF3104A6C3B00A27B2E /* CVScreenView.mm */; };
 		AA3B0B0A104A6DAC00A27B2E /* CVLayerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0B09104A6DAC00A27B2E /* CVLayerView.mm */; };
 		AA3B0B78104A728600A27B2E /* CVF0rLayerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0B77104A728600A27B2E /* CVF0rLayerView.mm */; };
+		AA3B0D10104B05F600A27B2E /* screen_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0D0F104B05F600A27B2E /* screen_js.cpp */; };
+		AA3B0DA3104B131100A27B2E /* generator_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0DA2104B131100A27B2E /* generator_layer.cpp */; };
 		AA5844880FE114970059D860 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5844870FE114970059D860 /* Carbon.framework */; };
 		AA5846530FE1626E0059D860 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = AA5846520FE1626E0059D860 /* GLString.m */; };
 		AA5846560FE162C60059D860 /* CVTextLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA5846550FE162C60059D860 /* CVTextLayer.mm */; };
@@ -63,7 +65,6 @@
 		AAA7B70D0F404B7F00056C44 /* freeframe.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C447C0F3EEBE0007C7E8B /* freeframe.cpp */; };
 		AAA7B70E0F404B7F00056C44 /* freej.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C447F0F3EEBE0007C7E8B /* freej.cpp */; };
 		AAA7B70F0F404B7F00056C44 /* frei0r.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44810F3EEBE0007C7E8B /* frei0r.cpp */; };
-		AAA7B7100F404B7F00056C44 /* gen_f0r_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44830F3EEBE0007C7E8B /* gen_f0r_layer.cpp */; };
 		AAA7B7110F404B7F00056C44 /* geo_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44850F3EEBE0007C7E8B /* geo_layer.cpp */; };
 		AAA7B7120F404B7F00056C44 /* geo_layer_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44870F3EEBE0007C7E8B /* geo_layer_js.cpp */; };
 		AAA7B7130F404B7F00056C44 /* gl_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44890F3EEBE0007C7E8B /* gl_screen.cpp */; };
@@ -180,6 +181,11 @@
 		AA3B0B09104A6DAC00A27B2E /* CVLayerView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVLayerView.mm; sourceTree = "<group>"; };
 		AA3B0B76104A728600A27B2E /* CVF0rLayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVF0rLayerView.h; sourceTree = "<group>"; };
 		AA3B0B77104A728600A27B2E /* CVF0rLayerView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVF0rLayerView.mm; sourceTree = "<group>"; };
+		AA3B0D0F104B05F600A27B2E /* screen_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = screen_js.cpp; sourceTree = "<group>"; };
+		AA3B0DA2104B131100A27B2E /* generator_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = generator_layer.cpp; sourceTree = "<group>"; };
+		AA3B0DA6104B133600A27B2E /* frei0r.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = frei0r.h; path = include/frei0r.h; sourceTree = "<group>"; };
+		AA3B0DA7104B133600A27B2E /* generator_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = generator_layer.h; path = include/generator_layer.h; sourceTree = "<group>"; };
+		AA3B0DA8104B133600A27B2E /* impl_screens.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = impl_screens.h; path = include/impl_screens.h; sourceTree = "<group>"; };
 		AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector.cpp; sourceTree = "<group>"; };
 		AA3C44590F3EEBE0007C7E8B /* audio_collector_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector_js.cpp; sourceTree = "<group>"; };
 		AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_input.cpp; sourceTree = "<group>"; };
@@ -199,7 +205,6 @@
 		AA3C447C0F3EEBE0007C7E8B /* freeframe.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = freeframe.cpp; sourceTree = "<group>"; };
 		AA3C447F0F3EEBE0007C7E8B /* freej.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = freej.cpp; sourceTree = "<group>"; };
 		AA3C44810F3EEBE0007C7E8B /* frei0r.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = frei0r.cpp; sourceTree = "<group>"; };
-		AA3C44830F3EEBE0007C7E8B /* gen_f0r_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gen_f0r_layer.cpp; sourceTree = "<group>"; };
 		AA3C44850F3EEBE0007C7E8B /* geo_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = geo_layer.cpp; sourceTree = "<group>"; };
 		AA3C44870F3EEBE0007C7E8B /* geo_layer_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = geo_layer_js.cpp; sourceTree = "<group>"; };
 		AA3C44890F3EEBE0007C7E8B /* gl_screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gl_screen.cpp; sourceTree = "<group>"; };
@@ -228,7 +233,6 @@
 		AA3C44AF0F3EEBE0007C7E8B /* freej.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = freej.h; path = include/freej.h; sourceTree = "<group>"; };
 		AA3C44B00F3EEBE0007C7E8B /* freej_plugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = freej_plugin.h; path = include/freej_plugin.h; sourceTree = "<group>"; };
 		AA3C44B20F3EEBE0007C7E8B /* frei0r_freej.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = frei0r_freej.h; path = include/frei0r_freej.h; sourceTree = "<group>"; };
-		AA3C44B30F3EEBE0007C7E8B /* gen_f0r_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gen_f0r_layer.h; path = include/gen_f0r_layer.h; sourceTree = "<group>"; };
 		AA3C44B40F3EEBE0007C7E8B /* gen_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gen_layer.h; path = include/gen_layer.h; sourceTree = "<group>"; };
 		AA3C44B50F3EEBE0007C7E8B /* geo_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geo_layer.h; path = include/geo_layer.h; sourceTree = "<group>"; };
 		AA3C44B60F3EEBE0007C7E8B /* gl_screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gl_screen.h; path = include/gl_screen.h; sourceTree = "<group>"; };
@@ -605,6 +609,7 @@
 				AA9337EF0FD7FDEB002B760B /* include */,
 				AAB843990F3EEDE400AD479D /* javascript */,
 				AA8C41AB0F90FF4F00B39710 /* console_calls_ctrl.cpp */,
+				AA3B0DA2104B131100A27B2E /* generator_layer.cpp */,
 				AA8C41AC0F90FF4F00B39710 /* console_ctrl.cpp */,
 				AA8C41AD0F90FF4F00B39710 /* console_keys_ctrl.cpp */,
 				AA8C41AE0F90FF4F00B39710 /* console_readline_ctrl.cpp */,
@@ -629,7 +634,6 @@
 				AA3C447F0F3EEBE0007C7E8B /* freej.cpp */,
 				AA3C44810F3EEBE0007C7E8B /* frei0r.cpp */,
 				AAAABEE30F521A6000461C96 /* fps.cpp */,
-				AA3C44830F3EEBE0007C7E8B /* gen_f0r_layer.cpp */,
 				AA3C44850F3EEBE0007C7E8B /* geo_layer.cpp */,
 				AA3C44890F3EEBE0007C7E8B /* gl_screen.cpp */,
 				AA3C448B0F3EEBE0007C7E8B /* goom_layer.cpp */,
@@ -698,6 +702,9 @@
 		AA9337EF0FD7FDEB002B760B /* include */ = {
 			isa = PBXGroup;
 			children = (
+				AA3B0DA6104B133600A27B2E /* frei0r.h */,
+				AA3B0DA7104B133600A27B2E /* generator_layer.h */,
+				AA3B0DA8104B133600A27B2E /* impl_screens.h */,
 				AAD9EF6C10487BDD00A3E51A /* sdl_controller.h */,
 				AAE2C2B7103FE2AE00D62E4F /* factory.h */,
 				AA8C41B50F90FF8800B39710 /* console_calls_ctrl.h */,
@@ -727,7 +734,6 @@
 				AA3C44B00F3EEBE0007C7E8B /* freej_plugin.h */,
 				AA3C44B20F3EEBE0007C7E8B /* frei0r_freej.h */,
 				AAAABEE50F521A6C00461C96 /* fps.h */,
-				AA3C44B30F3EEBE0007C7E8B /* gen_f0r_layer.h */,
 				AA3C44B40F3EEBE0007C7E8B /* gen_layer.h */,
 				AA3C44B50F3EEBE0007C7E8B /* geo_layer.h */,
 				AA3C44B60F3EEBE0007C7E8B /* gl_screen.h */,
@@ -792,6 +798,7 @@
 		AAB843990F3EEDE400AD479D /* javascript */ = {
 			isa = PBXGroup;
 			children = (
+				AA3B0D0F104B05F600A27B2E /* screen_js.cpp */,
 				AA3C44590F3EEBE0007C7E8B /* audio_collector_js.cpp */,
 				AA3C44620F3EEBE0007C7E8B /* callbacks_js.cpp */,
 				AA3C44680F3EEBE0007C7E8B /* context_js.cpp */,
@@ -928,7 +935,6 @@
 				AAA7B70D0F404B7F00056C44 /* freeframe.cpp in Sources */,
 				AAA7B70E0F404B7F00056C44 /* freej.cpp in Sources */,
 				AAA7B70F0F404B7F00056C44 /* frei0r.cpp in Sources */,
-				AAA7B7100F404B7F00056C44 /* gen_f0r_layer.cpp in Sources */,
 				AAA7B7110F404B7F00056C44 /* geo_layer.cpp in Sources */,
 				AAA7B7120F404B7F00056C44 /* geo_layer_js.cpp in Sources */,
 				AAA7B7130F404B7F00056C44 /* gl_screen.cpp in Sources */,
@@ -1019,6 +1025,8 @@
 				AA3B0AF4104A6C3B00A27B2E /* CVScreenView.mm in Sources */,
 				AA3B0B0A104A6DAC00A27B2E /* CVLayerView.mm in Sources */,
 				AA3B0B78104A728600A27B2E /* CVF0rLayerView.mm in Sources */,
+				AA3B0D10104B05F600A27B2E /* screen_js.cpp in Sources */,
+				AA3B0DA3104B131100A27B2E /* generator_layer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
