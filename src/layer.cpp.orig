@@ -98,7 +98,13 @@ Layer::~Layer() {
   }
   
   if(blitter) delete blitter;
+<<<<<<< HEAD:src/layer.cpp
+  //  if(buffer) free(buffer);
+=======
+#ifndef WITH_COCOA
   if(buffer) free(buffer);
+#endif
+>>>>>>> singleton:src/layer.cpp
 }
 
 bool Layer::init(int wdt, int hgt, int bpp) {
@@ -106,19 +112,33 @@ bool Layer::init(int wdt, int hgt, int bpp) {
   geo.init(wdt, hgt, bpp);
 
   if(geo.bytesize>0) {
+
+<<<<<<< HEAD:src/layer.cpp
+    //    buffer = jalloc(geo.bytesize);
+
+    func("initialized %s layer %ix%i",
+=======
+#ifndef WITH_COCOA
+  if(geo.bytesize>0)
     buffer = jalloc(geo.bytesize);
+#endif
+    
+  // if  the   size  is  still  unknown   at  init  then   it  is  the
+  // responsability for the layer implementation to create the buffer
+  // (see for instance text_layer)
   
   func("initialized %s layer %ix%i",
-       get_name(), geo.w, geo.h);
-  
+>>>>>>> singleton:src/layer.cpp
+	 get_name(), geo.w, geo.h);
+    
   } else {
     // if  the   size  is  still  unknown   at  init  then   it  is  the
     // responsability for the layer implementation to create the buffer
     // (see for instance text_layer)
     act("initialized %s layer with dynamic size", get_name());
-    
+
   }
-  
+
   // default fps
   fps.set(25);
   
@@ -142,7 +162,7 @@ void Layer::thread_loop() {
   // process all registered operations
   // and signal to the synchronous waiting feed()
   // includes parameter changes for layer
-
+  //  lock();
   tmp_buf = feed();
 
   // check if feed returned a NULL buffer

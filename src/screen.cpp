@@ -94,7 +94,9 @@ bool ViewPort::init(int w, int h, int bpp) {
 
   geo.init(w,h,bpp);
 
-  return _init();
+  initialized = _init();
+
+  return initialized;
 
 }
 

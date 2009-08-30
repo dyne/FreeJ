@@ -46,7 +46,7 @@ JS(screen_constructor) {
   // recognize the type and instantiate the screen using the factory
   JS_ARG_STRING(type,0);
 
-  screen = Factory<ViewPort>::new_instance( "Screen", type );
+  screen = Factory<ViewPort>::get_instance( "Screen", type );
   if(!screen) {
     error("%s: cannot create a Screen of type %s",__FUNCTION__,type);
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
@@ -54,9 +54,14 @@ JS(screen_constructor) {
 			 strerror(errno));
     return JS_FALSE;
   }
+
+  // if already existing, return the singleton
+  if(screen->initialized) obj = screen->jsobj;
+
   if (!JS_SetPrivate(cx, obj, (void *) screen))
     JS_ERROR("internal error setting private value");
 
+  // assign the real js object
   screen->jsclass = &screen_class;
   screen->jsobj = obj;
   *rval = OBJECT_TO_JSVAL(obj);
