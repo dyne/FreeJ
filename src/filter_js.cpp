@@ -46,7 +46,7 @@ JS(filter_constructor) {
 
   FilterDuo *duo = new FilterDuo();
   
-  duo->proto = (Filter*) env->filters.search(name, &idx);
+  duo->proto = (Filter*) global_environment->filters.search(name, &idx);
 
   if(!duo->proto) {
     error("filter not found: %s",name);

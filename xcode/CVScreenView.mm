@@ -69,8 +69,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     CVReturn err = CVPixelBufferCreate (
                                         NULL,
-                                        fjScreen->w,
-                                        fjScreen->h,
+                                        fjScreen->geo.w,
+                                        fjScreen->geo.h,
                                         k32ARGBPixelFormat,
                                         NULL,
                                         &pixelBuffer
@@ -83,10 +83,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     exportBuffer = CVPixelBufferGetBaseAddress(pixelBuffer);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     exportCGContextRef = CGBitmapContextCreate (NULL,
-                                                ctx->screen->w,
-                                                ctx->screen->h,
+                                                ctx->screen->geo.w,
+                                                ctx->screen->geo.h,
                                                 8,      // bits per component
-                                                ctx->screen->w*4,
+                                                ctx->screen->geo.w*4,
                                                 colorSpace,
                                                 kCGImageAlphaPremultipliedLast);
     
@@ -239,11 +239,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
         CVReturn cvRet = CVPixelBufferCreateWithBytes (
                                                        NULL,
-                                                       fjScreen->w,
-                                                       fjScreen->h,
+                                                       fjScreen->geo.w,
+                                                       fjScreen->geo.h,
                                                        k32ARGBPixelFormat,
                                                        surface,
-                                                       fjScreen->w*4,
+                                                       fjScreen->geo.w*4,
                                                        NULL,
                                                        NULL,
                                                        NULL,
@@ -267,10 +267,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (lastFrame) {
         NSRect bounds = [self bounds];
         
-        CGRect rect = CGRectMake(0,0, ctx->screen->w, ctx->screen->h);
+        CGRect rect = CGRectMake(0,0, ctx->screen->geo.w, ctx->screen->geo.h);
         [exportContext render:lastFrame 
                      toBitmap:exportBuffer
-                     rowBytes:ctx->screen->w*4
+                     rowBytes:ctx->screen->geo.w*4
                        bounds:rect 
                        format:kCIFormatARGB8 
                    colorSpace:NULL];
@@ -394,16 +394,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)setSizeWidth:(int)w Height:(int)h
 {
     [lock lock];
-    if (w != fjScreen->w || h != fjScreen->h) {
+    if (w != fjScreen->geo.w || h != fjScreen->geo.h) {
         CVPixelBufferRelease(pixelBuffer);
-        CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->w, fjScreen->h, NULL, &pixelBuffer);
+        CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->geo.w, fjScreen->geo.h, NULL, &pixelBuffer);
         if (err != noErr) {
             // TODO - Error Messages
         }
         CVPixelBufferRetain(pixelBuffer);
         //pixelBuffer = realloc(pixelBuffer, w*h*4);
-        fjScreen->w = w;
-        fjScreen->h = h;
+        fjScreen->geo.w = w;
+        fjScreen->geo.h = h;
         needsReshape = YES;
         NSRect frame = [window frame];
         frame.size.width = w;
@@ -433,7 +433,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         fullScreen = NO;
         needsReshape = YES;
     } else {
-        CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->w, fjScreen->h, 0);
+        CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
         NSAssert(newMode, @"Couldn't find display mode");
         
         savedMode = CGDisplayCurrentMode(currentDisplayID);

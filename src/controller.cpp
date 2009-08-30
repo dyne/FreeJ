@@ -35,11 +35,7 @@ Controller::Controller() {
 }
 
 Controller::~Controller() {
-	func("%s this=%p",__PRETTY_FUNCTION__, this);
-	rem();
-	//	if (jsobj)
-	  //		JS_SetPrivate(jsenv, jsobj, NULL);
-	//	jsobj = NULL;
+  func("%s %s (%p)",__PRETTY_FUNCTION__, name, this);
 }
 
 bool Controller::init(Context *freej) {
@@ -60,7 +56,7 @@ bool Controller::init(Context *freej) {
 
 // other functions are pure virtual
 JS(js_ctrl_constructor);
-DECLARE_CLASS_GC("Controller", js_ctrl_class, NULL, js_ctrl_gc);
+DECLARE_CLASS("Controller", js_ctrl_class, NULL);
 
 JSFunctionSpec js_ctrl_methods[] = { 
   {"activate", controller_activate, 0},

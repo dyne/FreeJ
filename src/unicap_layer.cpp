@@ -306,12 +306,8 @@ bool UnicapLayer::open(const char *devfile) {
   return(res);
 }
 
-bool UnicapLayer::init(Context *freej) {
-  return init(freej, screen->w, screen->h);
-}
-
-bool UnicapLayer::init(Context *freej, int width, int height) {
-  func("%s %ux%u",__PRETTY_FUNCTION__,width, height);
+bool UnicapLayer::_init() {
+  func("%s %ux%u",__PRETTY_FUNCTION__,geo.w, geo.h);
 
   notice("Unicap layer initialized, devices detected:");
 
@@ -325,7 +321,6 @@ bool UnicapLayer::init(Context *freej, int width, int height) {
 
   parameters = new Linklist<Parameter>();
   
-  _init(width, height);
   return true;
 }
 

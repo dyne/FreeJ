@@ -25,7 +25,9 @@
 //#include <fps.h>
 #include <blitter.h>
 
-DECLARE_CLASS_GC("Layer",layer_class,layer_constructor, js_layer_gc);
+void js_layer_gc (JSContext *cx, JSObject *obj);
+
+DECLARE_CLASS("Layer",layer_class,layer_constructor);
 
 JSFunctionSpec layer_methods[] = {
     ENTRY_METHODS,
@@ -65,19 +67,19 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
 
   char *filename;
 
-  uint16_t width  = env->screen->w;
-  uint16_t height = env->screen->h;
+  uint16_t width  = geo.w;
+  uint16_t height = geo.h;
 
   jsval *argv = (jsval*)aargv;
 
   if(argc==0) {
-    if(!init(env)) {
+    if(!init()) {
       sprintf(err_msg, "Layer constructor failed initialization");
       return NULL;    }
 
   } else if(argc==1) {
     JS_ARG_STRING(filename,0);
-    if(!init(env)) {
+    if(!init()) {
       sprintf(err_msg, "Layer constructor failed initialization");
       return NULL;    }
 
@@ -89,7 +91,7 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
   } else if(argc==2) {
     JS_ValueToUint16(cx, argv[0], &width);
     JS_ValueToUint16(cx, argv[1], &height);
-    if(!init(env, width, height)) {
+    if(!init(width, height, 32)) {
       snprintf(err_msg, MAX_ERR_MSG,
 	       "Layer constructor failed initialization w[%u] h[%u]", width, height);
       return NULL;
@@ -99,7 +101,7 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     JS_ValueToUint16(cx, argv[0], &width);
     JS_ValueToUint16(cx, argv[1], &height);
     JS_ARG_STRING(filename,2);
-    if(!init(env, width, height)) {
+    if(!init(width, height,32)) {
       snprintf(err_msg, MAX_ERR_MSG,
 	       "Layer constructor failed initializaztion w[%u] h[%u]", width, height);
       return NULL;
@@ -141,7 +143,7 @@ JS(layer_constructor) {
   // recognize the extension and open the file given in argument
   JS_ARG_STRING(filename,0);
 
-  layer = create_layer( env, filename );
+  layer = global_environment->open( filename );
   if(!layer) {
     error("%s: cannot create a Layer using %s",__FUNCTION__,filename);
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
@@ -177,48 +179,6 @@ JS(layer_get_fps) {
 	return JS_NewNumberValue(cx, fps, rval);
 }
 
-JS(list_layers) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  JSObject *arr;
-  JSObject *objtmp;
-  
-  Layer *lay;
-  jsval val;
-  int c = 0;
-  
-  if( env->screen->layers.len() == 0 ) {
-    *rval = JSVAL_FALSE;
-    return JS_TRUE;
-  }
-
-  arr = JS_NewArrayObject(cx, 0, NULL); // create void array
-  if(!arr) return JS_FALSE;
-
-  lay = (Layer*)env->screen->layers.begin();
-  while(lay) {
-    if (lay->data) {
-func("reusing %p", lay->data);
-    	val = (jsval)lay->data;
-    } else {
-func("new JS Object");
-	objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
-
-	JS_SetPrivate(cx,objtmp,(void*) lay);
-
-	val = OBJECT_TO_JSVAL(objtmp);
-
-	lay->data = (void*)val;
-    }
-
-    JS_SetElement(cx, arr, c, &val );
-    
-    c++;
-    lay = (Layer*)lay->next;
-  }
-
-  *rval = OBJECT_TO_JSVAL( arr );
-  return JS_TRUE;
-}
 
 JS(selected_layer) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -227,13 +187,13 @@ JS(selected_layer) {
   JSObject *objtmp;
   jsval val;
 
-  if( env->screen->layers.len() == 0 ) {
+  if( global_environment->screens.selected()->layers.len() == 0 ) {
     error("can't return selected layer: no layers are present");
     *rval = JSVAL_FALSE;
     return JS_TRUE;
   }
   
-  lay = (Layer*)env->screen->layers.selected();
+  lay = (Layer*)global_environment->screens.selected()->layers.selected();
 
   if(!lay) {
     warning("there is no selected layer");

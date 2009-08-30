@@ -121,33 +121,11 @@ Context::~Context() {
   Controller *ctrl;
   ViewPort *scr;
 
-  //  reset();
+  reset();
 
-
-  func("deleting current controllers");
-  ctrl = controllers.begin();
-  while(ctrl) {
-    if( ! ctrl->indestructible ) {
-
-      ctrl->rem();
-      delete(ctrl);
-      
-    }
-    ctrl = controllers.begin();
-  }
-
-  func("deleting current screens");
-  scr = screens.begin();
-  while(scr) {
-
-    scr->rem();
-    delete(scr);
-    scr = (ViewPort *)screens.begin();
-    
-  }
 
   //   invokes JSGC and all gc call on our JSObjects
-  if(js) js->reset();
+  //  if(js) js->reset();
 
   notice ("cu on http://freej.dyne.org");
 }
@@ -164,15 +142,17 @@ Context::~Context() {
 
 bool Context::add_screen(ViewPort *scr) {
 
-  scr->env = this;
-  
+  if(!scr->initialized) {
+    error("can't add screen %s - not initialized yet",scr->name);
+    error("use init( width, height, bits_per_pixel )");
+    return false;
+  }
   screens.prepend(scr);
   screens.sel(0);
   scr->sel(true);
+  screen = screens.begin();
   func("screen %s succesfully added", scr->name);
-
-  // selected layer auxiliary pointer
-  screen = scr;
+  act("screen %s now on top",screen->name);
 
   return(true);
 }
@@ -347,17 +327,13 @@ bool Context::rem_controller(Controller *ctrl) {
     return false;
   }
 
-  if(js) js->gc(); // ?!
+  //  if(js) js->gc(); // ?!
 
+  ctrl->active = false;
   ctrl->rem();
-  // mh, the JS_GC callback does the delete ...
-  if (ctrl->jsobj == NULL) {
-    func("controller JSObj is null, deleting ctrl");
-    delete ctrl;
-  } else {
-    ctrl->active = false;
-    notice("removed controller %s, deactivated it but not deleting!", ctrl->name);
-  }
+  act("removed controller %s", ctrl->name);
+  delete ctrl;
+
   return true;
 }
 
@@ -375,6 +351,11 @@ bool Context::add_encoder(VideoEncoder *enc) {
 
 bool Context::add_layer(Layer *lay) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  warning("use of Context::add_layer is DEPRECATED");
+  warning("please use ViewPort::add_layer instead");
+  warning("a list of screens (view ports) is available");
+  warning("kijk in Context::screens Linklist");
 
   ViewPort *scr = screens.selected();
   if(!scr) {
@@ -415,22 +396,30 @@ int Context::parse_js_cmd(const char *cmd) {
 int Context::reset() {
   func("%s",__PRETTY_FUNCTION__);
 
-  func("context deleting %u screens", screens.len() );
-  ViewPort *scr;
-  scr = screens.begin();
+  notice("FreeJ engine reset");
+  
+  func("deleting %u controllers", controllers.len() );
+  Controller *ctrl = controllers.begin();
+  while(ctrl) {
+    if( ! ctrl->indestructible ) {
+
+      ctrl->rem();
+      delete(ctrl);
+      
+    }
+    ctrl = controllers.begin();
+  }
+
+  func("deleting %u screens", screens.len() );
+  ViewPort *scr = screens.begin();
   while(scr) {
+
     scr->rem();
     delete(scr);
     scr = screens.begin();
+    
   }
 
-  // javascript garbage collector
-  if(js) js->gc(); 
-
-  // invokes JSGC and all gc call on our JSObjects
-  //  if(js) js->reset();
-  notice("FreeJ engine reset");
-  // should return 1 on success? 
   //does anyone care about rese() return address?
   return 1; 
 }
@@ -519,7 +508,7 @@ void fsigpipe (int Sig) {
 
 
 
-Layer *Context::open(char *file) {
+Layer *Context::open(char *file, int w, int h) {
   func("%s",__PRETTY_FUNCTION__);
   char *end_file_ptr,*file_ptr;
   FILE *tmp;
@@ -541,31 +530,33 @@ Layer *Context::open(char *file) {
   end_file_ptr += strlen(file);
 //  while(*end_file_ptr!='\0' && *end_file_ptr!='\n') end_file_ptr++; *end_file_ptr='\0';
 
-#ifdef HAVE_DARWIN
+  if( !w || !h ) {
+    // uses the size of currently selected screen
+    ViewPort *screen = screens.selected();
+    w = screen->geo.w; h = screen->geo.h;
+  }
 
-#endif
   /* ==== Unified caputure API (V4L & V4L2) */
   if( strncasecmp ( file_ptr,"/dev/video",10)==0) {
 #ifdef WITH_UNICAP
-    unsigned int w, h;
+    unsigned int uw, uh;
     while(end_file_ptr!=file_ptr) {
       if(*end_file_ptr!='%') {
 
 	// uses the size of currently selected screen
-	ViewPort *screen = screens.selected();
-	w = screen->w; h = screen->h;
+	uw = w; uh = h;
 	end_file_ptr--;
 
       } else { /* size is specified */
 
         *end_file_ptr='\0'; end_file_ptr++;
-        sscanf(end_file_ptr,"%ux%u",&w,&h);
+        sscanf(end_file_ptr,"%ux%u",&uw,&uh);
         end_file_ptr = file_ptr; 
 
       }
     }
     nlayer = new UnicapLayer();
-    if(! ((UnicapLayer*)nlayer)->init( this, (int)w, (int)h) ) {
+    if(! nlayer->init( uw, uh, 32 ) ){
       error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
       delete nlayer; return NULL;
     }
@@ -589,7 +580,7 @@ Layer *Context::open(char *file) {
 
 #ifdef WITH_FFMPEG
        nlayer = new VideoLayer();
-       if(!nlayer->init( this )) {
+       if(!nlayer->init()) {
  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
  	delete nlayer; return NULL;
        }
@@ -605,7 +596,7 @@ Layer *Context::open(char *file) {
       if( (IS_IMAGE_EXTENSION(end_file_ptr))) {
 //		strncasecmp((end_file_ptr-4),".png",4)==0) 
 	      nlayer = new ImageLayer();
-              if(!nlayer->init( this )) {
+              if(!nlayer->init()) {
                 error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
                 delete nlayer; return NULL;
               }
@@ -618,7 +609,7 @@ Layer *Context::open(char *file) {
 #if defined WITH_TEXTLAYER
 	  nlayer = new TextLayer();
 
-      if(!nlayer->init( this )) {
+      if(!nlayer->init()) {
 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
 	delete nlayer; return NULL;
       }
@@ -638,10 +629,10 @@ Layer *Context::open(char *file) {
 #ifdef WITH_XSCREENSAVER
 	    nlayer = new XScreenSaverLayer();
 
-      if(!nlayer->init( this )) {
-	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-	delete nlayer; return NULL;
-      }
+	    if(!nlayer->init(w, h, 32)) {
+	      error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+	      delete nlayer; return NULL;
+	    }
 
 	    if (!nlayer->open(file_ptr)) {
 	      error("create_layer : XScreenSaver open failed");
@@ -672,7 +663,7 @@ Layer *Context::open(char *file) {
   else if(strncasecmp(end_file_ptr-4,".swf",4)==0) {
 
 	    nlayer = new FlashLayer();
-      if(!nlayer->init( this )) {
+      if(!nlayer->init( )) {
 	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
 	delete nlayer; return NULL;
       }
@@ -689,7 +680,7 @@ Layer *Context::open(char *file) {
   else if(strcasecmp(file_ptr,"layer_opencv_cam")==0) {
     func("creating a cam layer using OpenCV");
     nlayer = new OpenCVCamLayer();
-    if(!nlayer->init(this)) {
+    if(!nlayer->init()) {
       error("failed initialization of webcam with OpenCV");
       delete nlayer; return NULL;
     }

@@ -40,7 +40,6 @@
 Layer::Layer()
   :Entry(), JSyncThread() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
-  env = NULL;
   active = false;
   hidden = false;
   fade = false;
@@ -99,30 +98,33 @@ Layer::~Layer() {
   }
   
   if(blitter) delete blitter;
-#ifndef WITH_COCOA
   if(buffer) free(buffer);
-#endif
 }
 
-void Layer::_init(int wdt, int hgt) {
+bool Layer::init(int wdt, int hgt, int bpp) {
+  
+  geo.init(wdt, hgt, bpp);
 
-  geo.init(wdt, hgt, 32);
-
-#ifndef WITH_COCOA
-  if(geo.bytesize>0)
+  if(geo.bytesize>0) {
     buffer = jalloc(geo.bytesize);
-#endif
-    
-  // if  the   size  is  still  unknown   at  init  then   it  is  the
-  // responsability for the layer implementation to create the buffer
-  // (see for instance text_layer)
   
   func("initialized %s layer %ix%i",
-	 get_name(), geo.w, geo.h);
-}
+       get_name(), geo.w, geo.h);
+  
+  } else {
+    // if  the   size  is  still  unknown   at  init  then   it  is  the
+    // responsability for the layer implementation to create the buffer
+    // (see for instance text_layer)
+    act("initialized %s layer with dynamic size", get_name());
+    
+  }
+  
+  // default fps
+  fps.set(25);
+  
+  // call the specific layer's implementation _init()
+  return _init();
 
-Context * Layer::context(){
-	return env;
 }
 
 void Layer::thread_setup() {
@@ -152,14 +154,9 @@ void Layer::thread_loop() {
   // we add  a memcpy at the end  of the layer pipeline  this is not
   // that  expensive as leaving  the lock  around the  feed(), which
   // slows down the whole engine in case the layer is slow. -jrml
-lock();
-#if defined HAVE_DARWIN && defined WITH_COCOA
-    buffer = tmp_buf;
-#else
-    jmemcpy(buffer, tmp_buf, geo.bytesize);
-#endif
-unlock();
 
+  buffer = tmp_buf;
+  //  unlock();
   fps.calc();
   fps.delay();
 }
@@ -245,7 +242,8 @@ void *Layer::do_filters(void *tmp_buf) {
     filt = (FilterInstance *)filters.begin();
     while(filt) {
       if(filt->active) {
-	tmp_buf = (void*) filt->process(env->fps_speed, (uint32_t*)tmp_buf);
+	/// QUAAA fps should be passed XXX TODO
+	tmp_buf = (void*) filt->process(25.0, (uint32_t*)tmp_buf);
       }
       filt = (FilterInstance *)filt->next;
     }
@@ -362,33 +360,31 @@ bool Layer::set_rotate(double angle) {
 
 
 void Layer::_fit(bool maintain_aspect_ratio){
-	if(env){
-		double width_zoom, height_zoom;
-		int new_x = 0;
-		int new_y = 0;
-		lock();
-		width_zoom = (double)screen->w / geo.w;
-		height_zoom = (double)screen->h / geo.h;
-		if (maintain_aspect_ratio){
-			//to maintain the aspect ratio we simply zoom to the smaller of the
-			//two zoom values
-			if(width_zoom > height_zoom) {
-				//if we're using the height zoom then there is going to be space
-				//in x [width] that is unfilled, so center it in the x
-				set_zoom(height_zoom, height_zoom);
-				new_x = ((double)(screen->w - height_zoom * geo.w) / 2.0);
-			} else {
-				//if we're using the width zoom then there is going to be space
-				//in y [height] that is unfilled, so center it in the y
-				set_zoom(width_zoom, width_zoom);
-				new_y = ((double)(screen->h - width_zoom * geo.h) / 2.0);
-			}
-		} else
-			set_zoom(width_zoom, height_zoom);
-		unlock();
-		//set_position locks, so we unlock before it
-		set_position(new_x, new_y);
-	}
+  double width_zoom, height_zoom;
+  int new_x = 0;
+  int new_y = 0;
+  lock();
+  width_zoom = (double)screen->geo.w / geo.w;
+  height_zoom = (double)screen->geo.h / geo.h;
+  if (maintain_aspect_ratio){
+    //to maintain the aspect ratio we simply zoom to the smaller of the
+    //two zoom values
+    if(width_zoom > height_zoom) {
+      //if we're using the height zoom then there is going to be space
+      //in x [width] that is unfilled, so center it in the x
+      set_zoom(height_zoom, height_zoom);
+      new_x = ((double)(screen->geo.w - height_zoom * geo.w) / 2.0);
+    } else {
+      //if we're using the width zoom then there is going to be space
+      //in y [height] that is unfilled, so center it in the y
+      set_zoom(width_zoom, width_zoom);
+      new_y = ((double)(screen->geo.h - width_zoom * geo.h) / 2.0);
+    }
+  } else
+    set_zoom(width_zoom, height_zoom);
+  unlock();
+  //set_position locks, so we unlock before it
+  set_position(new_x, new_y);
 }
 
 void Layer::fit(bool maintain_aspect_ratio) {

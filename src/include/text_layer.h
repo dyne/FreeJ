@@ -36,11 +36,6 @@ class TextLayer: public Layer {
   TextLayer();
   ~TextLayer();
 
-  
-  bool init(Context *freej);
-  bool init(Context *freej, int w, int h) { return init(freej); };
-
-  
   bool open(const char *file);
   void *feed();
   void close();
@@ -55,6 +50,9 @@ class TextLayer: public Layer {
   bool set_font(const char *path, int sz);
   bool set_font(const char *path);
   bool set_fontsize(int sz);
+
+ protected:
+  bool _init();
 
  private:
   SDL_Color bgcolor;

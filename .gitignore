@@ -22,6 +22,7 @@ doc/scripting/html
 *.la
 *.lo
 *~
+*.orig
 Makefile.in
 Makefile
 freej.pc
@@ -34,6 +35,7 @@ py-compile
 py/freej.py
 py/freej.pyc
 py/freej_py.cpp
+*.pyc
 bindings/python/freej.py
 bindings/python/freej_py.cpp
 bindings/python/freej_py.h

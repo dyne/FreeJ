@@ -104,7 +104,6 @@ bool JoyController::init(Context *freej) {
   
   func("%s",__PRETTY_FUNCTION__);
   env = freej;
-  ::env = freej;
   jsenv = freej->js->global_context;
   jsobj = freej->js->global_object;
   
@@ -179,7 +178,7 @@ JS(js_joy_ctrl_constructor) {
   JoyController *joy = new JoyController();
 
   // initialize with javascript context
-  if(! joy->init(env) ) {
+  if(! joy->init(global_environment) ) {
     sprintf(excp_msg, "failed initializing joystick controller");
     goto error;
   }

@@ -196,7 +196,11 @@ template <class T> void Linklist<T>::append(T *addr) {
 
 template <class T> void Linklist<T>::prepend(T *addr) {
   T *ptr = NULL;
-  if(addr->list) addr->rem();
+  if(addr->list) {
+    func("Entry %s is already present in linklist %p - skipping duplicate prepend",
+	 addr->name, this);
+    return;
+  }
 #ifdef THREADSAFE
   lock();
 #endif

@@ -274,16 +274,6 @@ func("v4l: memory map of %i frames: %u bytes",grab_map.frames,grab_map.size);
   return(true);
 }
 
-bool V4lGrabber::init(Context *env, int width, int height) {
-    func("%s %s", __FILE__, __FUNCTION__);
-    _init(width,height);
-    return true;
-}
-
-bool V4lGrabber::init(Context *env) {
-  func("%s %s", __FILE__, __FUNCTION__);
-  return init(env, screen->w, screen->h);
-}
 
 void V4lGrabber::set_chan(int ch) {
 
@@ -411,18 +401,18 @@ void *V4lGrabber::feed() {
 #if defined HAVE_MMX && !defined HAVE_64BIT
   if(palette == VIDEO_PALETTE_YUV422P
      || palette == VIDEO_PALETTE_YUYV)
-    ccvt_yuyv_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
+    ccvt_yuyv_rgb32(geo.w, geo.h, &v4l_buffer[grab_map.offsets[ok_frame]], rgb_surface);
 
   else
 #endif
   if(palette == VIDEO_PALETTE_YUV420P) 
-    ccvt_420p_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
+    ccvt_420p_rgb32(geo.w, geo.h, &v4l_buffer[grab_map.offsets[ok_frame]], rgb_surface);
 
   else if(palette == VIDEO_PALETTE_RGB32) 
-    memcpy(rgb_surface,&buffer[grab_map.offsets[ok_frame]],geo.bytesize);
+    memcpy(rgb_surface,&v4l_buffer[grab_map.offsets[ok_frame]],geo.bytesize);
 
   else if(palette == VIDEO_PALETTE_RGB24) 
-    ccvt_rgb24_rgb32(geo.w, geo.h, &buffer[grab_map.offsets[ok_frame]], rgb_surface);
+    ccvt_rgb24_rgb32(geo.w, geo.h, &v4l_buffer[grab_map.offsets[ok_frame]], rgb_surface);
 
   else
     error("video palette %i for layer %s %s not supported",

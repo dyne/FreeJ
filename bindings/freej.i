@@ -17,7 +17,7 @@
 #include "sdlgl_screen.h"
 #include "gl_screen.h"
 
-#include "gen_f0r_layer.h"
+#include "generator_layer.h"
 #include "text_layer.h"
 #include "video_layer.h"
 #include "geo_layer.h"
@@ -135,7 +135,7 @@ freej_entry_typemap_in(Encoder);
 %template(LayerLinkList) Linklist<Layer>;
 %include "layer.h"
 
-%include "gen_f0r_layer.h"
+%include "generator_layer.h"
 %include "text_layer.h"
 %include "video_layer.h"
 %include "geo_layer.h"

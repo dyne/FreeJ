@@ -20,16 +20,15 @@ SOURCES = \
 \
 	v4l_layer.cpp tvfreq.c	unicap_layer.cpp \
 	video_layer.cpp		image_layer.cpp \
-	text_layer.cpp 		gen_f0r_layer.cpp \
+	text_layer.cpp 		generator_layer.cpp \
 	geo_layer.cpp		flash_layer.cpp \
 	xscreensaver_layer.cpp  goom_layer.cpp \
 	xgrab_layer.cpp		opencv_cam_layer.cpp \
-	impl_layers.cpp \
 	audio_layer.cpp \
 \
-	screen.cpp		sdl_screen.cpp 	\
-	sdlgl_screen.cpp 	gl_screen.cpp   \
-	soft_screen.cpp \
+	screen.cpp		screen_js.cpp      \
+	sdl_screen.cpp 		sdlgl_screen.cpp   \
+	gl_screen.cpp   	soft_screen.cpp    \
 \
 	controller.cpp  	console_ctrl.cpp  \
 	console_calls_ctrl.cpp 	console_readline_ctrl.cpp \

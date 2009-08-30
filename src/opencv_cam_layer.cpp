@@ -53,16 +53,12 @@ bool OpenCVCamLayer::open(const char *devfile) {
   return(true);
 }
 
-bool OpenCVCamLayer::init(Context *freej) {
-  return init(freej, freej->screen->w, freej->screen->h);
-}
-
-bool OpenCVCamLayer::init(Context *freej, int width, int height) {
+bool OpenCVCamLayer::_init() {
   func("%s",__PRETTY_FUNCTION__);
 
   // set size doesn't work, why?
-  cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, width);
-  cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT, height);
+  cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, geo.w);
+  cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT, geo.h);
 
   capture = cvCaptureFromCAM( CV_CAP_ANY );
   if( !capture ) {
@@ -76,7 +72,7 @@ bool OpenCVCamLayer::init(Context *freej, int width, int height) {
   int h = (int)cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT);
 
   cvsize = cvSize(w, h);
-  _init(w, h);
+  geo.init(w, h, 32);
 
   act("Camera capture initialized: %u chans, %u depth, fourcc %s (seq %s)",
       frame->nChannels, frame->depth, frame->colorModel, frame->channelSeq);

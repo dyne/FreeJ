@@ -34,10 +34,11 @@ class OpenCVCamLayer: public Layer {
   ~OpenCVCamLayer();
 
   bool open(const char *devfile);
-  bool init(Context *freej);
-  bool init(Context *freej, int width, int height);
   void *feed();
   void close();
+
+ protected:
+  bool _init();
 
  private:
   CvCapture *capture;

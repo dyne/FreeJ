@@ -37,13 +37,13 @@ struct Vertex
 class GlScreen : public ViewPort {
  public:
   GlScreen();
-  ~GlScreen();
+  ~GlScreen() { };
 
-  bool _init(int widt, int height);
+
 
   fourcc get_pixel_format() { return RGBA32; };
-  void *get_surface();
-  void *coords(int x, int y);
+  void *get_surface() {   error("GlScreen::get_surface TODO (refactoring)"); return NULL; };
+  void *coords(int x, int y) { return NULL; };
 
   // whis is the main window surface
   SDL_Surface *surface;
@@ -65,7 +65,10 @@ class GlScreen : public ViewPort {
 
   //  bool lock();
   //  bool unlock();
- 
+
+ protected:
+  bool _init() { return true; };
+
  private:
   int setres(int wx, int hx);
   bool dbl;

@@ -245,17 +245,12 @@ DestroyNotify event, serial 26, synthetic NO, window 0x5c00007,
 }
 #endif
 
-bool XGrabLayer::init(Context *freej) {
-	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
-	return init(freej, 0, 0);
-	//return init(freej, freej->screen->w, freej->screen->h);
-}
-bool XGrabLayer::init(Context *freej, int w, int h) {
-	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
-	env = freej;
+bool XGrabLayer::_init() {
 	autosize = false;
-	_init(w, h);
-	crop.x=0;crop.y=0;crop.w=w;crop.h=h;
+	crop.x=0;
+	crop.y=0;
+	crop.w=geo.w;
+	crop.h=geo.h;
 	return true;
 }
 //XImage *XGetImage(Display *display, Drawable d, int x, int y, unsigned int width, unsigned int height, unsigned long plane_mask, int format);

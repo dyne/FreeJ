@@ -43,7 +43,7 @@
 #include <plugger.h>
 #include <screen.h>
 #include <shouter.h>
-#include <gen_f0r_layer.h>
+
 #include <factory.h>
 #include <config.h>
 #include <string>
@@ -147,8 +147,7 @@ class Context {
 
   bool add_screen(ViewPort *scr); ///< add a new screen
   Linklist<ViewPort> screens; ///< linked list of registered screens
-  ViewPort *screen;
-  ///< currently selected screen (auxiliary pointer, use screens.selected() instead)
+  ViewPort *screen; ///< pointer to the first screen on top of the list (auxiliary)
 
   Linklist<Controller> controllers; ///< linked list of registered interactive controllers
 
@@ -173,7 +172,7 @@ class Context {
   bool start_running;
 
   char *layers_description; ///< string with a list of available layers compiled in
-  Layer *open(char *file); ///< creates a layer from a filename, detecting its type
+  Layer *open(char *file, int w = 0, int h = 0); ///< creates a layer from a filename, detecting its type
   
 };
 

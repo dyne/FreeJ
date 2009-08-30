@@ -201,20 +201,20 @@ void VideoEncoder::thread_loop() {
     switch(screen->get_pixel_format()) {
     case ViewPort::RGBA32:
       mlt_convert_rgb24a_to_yuv422(surface,
-                   screen->w, screen->h,
-                   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+                   screen->geo.w, screen->geo.h,
+                   screen->geo.w<<2, (uint8_t*)enc_yuyv, NULL);
       break;
       
     case ViewPort::BGRA32:
       mlt_convert_bgr24a_to_yuv422(surface,
-                   screen->w, screen->h,
-                   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+                   screen->geo.w, screen->geo.h,
+                   screen->geo.w<<2, (uint8_t*)enc_yuyv, NULL);
       break;
 
     case ViewPort::ARGB32:
       mlt_convert_argb_to_yuv422(surface,
-                   screen->w, screen->h,
-                   screen->w<<2, (uint8_t*)enc_yuyv, NULL);
+                   screen->geo.w, screen->geo.h,
+                   screen->geo.w<<2, (uint8_t*)enc_yuyv, NULL);
       break;
       
     default:
@@ -224,7 +224,7 @@ void VideoEncoder::thread_loop() {
 
     screen->unlock();
     
-    ccvt_yuyv_420p(screen->w, screen->h, enc_yuyv, enc_y, enc_u, enc_v);
+    ccvt_yuyv_420p(screen->geo.w, screen->geo.h, enc_yuyv, enc_y, enc_u, enc_v);
 
     ////// got the YUV, do the encoding    
     res = encode_frame();

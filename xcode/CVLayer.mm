@@ -51,7 +51,7 @@ void
 CVLayer::activate()
 {
 	opened = true;
-    freej->add_layer(this);
+    //freej->add_layer(this);
     active = true;
     notice("Activating %s", name);
 }
@@ -71,19 +71,8 @@ CVLayer::open(const char *path)
 }
 
 bool
-CVLayer::init(Context *ctx)
+CVLayer::_init()
 {
-     // * TODO - probe resolution of the default input device
-    return init(ctx, ctx->screen->w, ctx->screen->h);
-}
-
-bool
-CVLayer::init(Context *ctx, int w, int h)
-{
-    width = w;
-    height = h;
-    freej = ctx;
-    _init(width,height);
     return start();
 }
 

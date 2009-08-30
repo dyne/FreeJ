@@ -39,7 +39,7 @@ CVScreen::~CVScreen() {
 
 }
 
-bool CVScreen::_init(int w, int h) {
+bool CVScreen::_init() {
 
   Factory<Controller>::set_default_classtype("KeyboardController", "cocoa");
 
@@ -52,7 +52,7 @@ void *CVScreen::coords(int x, int y) {
     // if you are trying to get a cropped part of the layer
     // use the .pitch parameter for a pre-calculated stride
     // that is: number of bytes for one full line
-    return ( x + (w*y) + (uint32_t*)get_surface() );
+    return ( x + (geo.w*y) + (uint32_t*)get_surface() );
 }
 
 void *CVScreen::get_surface() {
@@ -64,7 +64,7 @@ void *CVScreen::get_surface() {
 void CVScreen::set_view(CVScreenView *v)
 {
     view = v;
-    [view setSizeWidth:w Height:h];
+    [view setSizeWidth:geo.w Height:geo.h];
 }
 
 CVScreenView *CVScreen::get_view(void)
@@ -103,7 +103,17 @@ void CVScreen::rem_layer(Layer *lay)
 void CVScreen::resize(int rw, int rh)
 {
     lock();
-    w = rw;
-    h = rh;
+    geo.w = rw;
+    geo.h = rh;
     unlock();
+}
+
+int CVScreen::setres(int wx, int hx)
+{
+    resize(wx, hx);
+    return 1;
+}
+
+void CVScreen::clear()
+{
 }

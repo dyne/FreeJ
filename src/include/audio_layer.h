@@ -31,13 +31,16 @@ class AudioLayer: public Layer {
   ~AudioLayer();
 
   bool open(const char *devfile);
-  bool init(Context *freej);
-  bool init(Context *freej, int width, int height);
+
+
   void *feed();
   void close();
 
   unsigned int Samplerate;
   unsigned int BufferLength;
+
+ protected:
+  bool _init() { return true; };
 
  private:
 

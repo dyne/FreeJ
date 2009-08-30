@@ -54,7 +54,7 @@ JS(js_midi_ctrl_constructor) {
     MidiController *midi = new MidiController();
     // assign instance into javascript object
     // initialize with javascript context
-    if(! midi->init(env) ) {
+    if(! midi->init(global_environment) ) {
         error("failed initializing midi controller");
         delete midi; return JS_FALSE;
     }

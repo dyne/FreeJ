@@ -1,9 +1,9 @@
 /*  FreeJ
- *  (c) Copyright 2001-2007 Denis Rojo <jaromil@dyne.org>
+ *  (c) Copyright 2001-2009 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -285,12 +285,9 @@ int main (int argc, char **argv) {
   // create SDL screen by default at selected size
   screen = NULL;
   if(opengl)
-    screen = Factory<ViewPort>::new_instance( "SdlGlScreen" );
+    screen = Factory<ViewPort>::new_instance( "Screen", "sdlgl" );
   else
-    //    screen = Factory<ViewPort>::new_instance( "SdlScreen" );
     screen = Factory<ViewPort>::new_instance( "Screen", "sdl" );
-
-    screen = new SdlScreen();
 
   if(!screen) {
     error("no screen can be opened");
@@ -298,12 +295,12 @@ int main (int argc, char **argv) {
     exit(1);
   }
 
-  screen->init(width, height);
+  screen->init(width, height, 32);
 
   // add the screen to the context
   freej->add_screen(screen);
 
-  if(fullscreen) freej->screen->fullscreen();
+  if(fullscreen) screen->fullscreen();
 
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
      this hangs on some linux kernels - darwin doesn't even bothers with it

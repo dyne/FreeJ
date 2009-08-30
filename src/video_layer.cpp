@@ -43,7 +43,7 @@
 #include <jsparser_data.h>
 
 #include <factory.h>
-// #define DEBUG 1
+//#define DEBUG 1
 
 // our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(Layer, VideoLayer, video, ffmpeg);
@@ -98,7 +98,7 @@ VideoLayer::~VideoLayer() {
  * lickme.txt!
  */
 
-bool VideoLayer::init(Context *freej) {
+bool VideoLayer::_init() {
   func("VideoLayer::init");
   
   rgba_picture = (AVPicture *)calloc(1, sizeof(AVPicture));
@@ -111,7 +111,6 @@ bool VideoLayer::init(Context *freej) {
   
   mark_in=NO_MARK;
   mark_out=NO_MARK;
-  env = freej;
   return true;
 }
 
@@ -137,11 +136,6 @@ bool VideoLayer::open(const char *file) {
   int err=0;
   video_index=-1;
   func("VideoLayer::open(%s)",file);
-
-  if (env == NULL) {
-    error("VideoLayer :: open(%s) - can't open. VideoLayer has not been initialized.", file);
-    return false;
-  }
 
 
   AVInputFormat *av_input_format = NULL;
@@ -316,7 +310,7 @@ bool VideoLayer::open(const char *file) {
 
   full_filename = strdup (file);
 
-  _init(video_codec_ctx->width, video_codec_ctx->height);
+  geo.init(video_codec_ctx->width, video_codec_ctx->height, 32);
   func("VideoLayer :: w[%u] h[%u] size[%u]", geo.w, geo.h, geo.bytesize);
   func("VideoLayer :: frame_rate[%d]",frame_rate);
 
@@ -552,13 +546,16 @@ void *VideoLayer::feed() {
 	      src_data.data_out      = audio_resampled_buf + offset;
 
 	      src_simple (&src_data, SRC_SINC_MEDIUM_QUALITY, audio_channels) ;
-	      ringbuffer_write(screen->audio, (const char*)audio_resampled_buf, src_data.output_frames_gen * audio_channels *sizeof(float));
+	      ringbuffer_write(screen->audio,
+			       (const char*)audio_resampled_buf,
+			       src_data.output_frames_gen * audio_channels *sizeof(float));
 
 	      offset += src_data.input_frames_used * audio_channels;
 	      samples -= src_data.input_frames_used * audio_channels;
 
 	      if (samples>0)
-		fprintf(stderr, "WARNING: resampling left: %i < %i\n", src_data.input_frames_used, samples/audio_channels);
+		warning("resampling left: %i < %i",
+			src_data.input_frames_used, samples/audio_channels);
 
 	    } while (samples > audio_channels);
 	  }

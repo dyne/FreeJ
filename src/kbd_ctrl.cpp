@@ -42,7 +42,6 @@ KbdController::KbdController()
 }
 
 KbdController::~KbdController() {
-  func("%s this=%p",__PRETTY_FUNCTION__, this);
 
 }
 

@@ -28,10 +28,14 @@ class Filter;
 
 class Freeframe: public Entry {
   friend class Filter;
+<<<<<<< HEAD:src/include/freeframe_freej.h
   friend class GeneratorLayer;
+=======
+  friend class GenF0rLayer;
 #ifdef WITH_COCOA
   friend class CVF0rLayer;
 #endif
+>>>>>>> singleton:src/include/freeframe_freej.h
  public:
 
   Freeframe();

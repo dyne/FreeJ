@@ -39,9 +39,13 @@ class  CVScreen;
  */
 
 class CVScreen : public ViewPort {
+    protected:
+        bool _init();
+
     private:
         CVScreenView *view;
-        bool CVScreen::_init(int w, int h);
+        int setres(int wx, int hx);
+
     public:
         CVScreen();
         ~CVScreen();
@@ -52,10 +56,13 @@ class CVScreen : public ViewPort {
         void blit(Layer *);
         inline void setup_blits(Layer *lay) { };
         void show();
+        void clear();
         bool add_layer(Layer *lay);
         void rem_layer(Layer *lay);
         fourcc get_pixel_format() { return ARGB32; };
-        void CVScreen::resize(int w, int h);
+        void resize(int w, int h);
+        void set_magnification(int algo) { }; // TODO - implement
+        void fullscreen() { }; // TODO - implement
 };
 
 #endif

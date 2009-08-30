@@ -26,28 +26,16 @@ XScreenSaverLayer::~XScreenSaverLayer() {
   close();
 }
 
-bool XScreenSaverLayer::init(Context *ctx, int width, int height) {
+bool XScreenSaverLayer::_init() {
   func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
-  if(!ctx)
-    return false;
 
-  env = ctx;
-
-  _init(width, height);
-
-  buffer = malloc(geo.bytesize);
   // img=XCreatePixmap(dpy, back_win, freej->screen->w, freej->screen->h, 32);
   // img = XGetImage(dpy, back_win, 0, 0, geo.w, geo.h, ~0L, ZPixmap);
   // buffer=img->data;
   // buffer=*(&img->data);
+  output = malloc(geo.bytesize);
 
   return true;
-}
-
-bool XScreenSaverLayer::init(Context *ctx) {
-  if(!ctx)
-    return false;
-  return init(ctx, ctx->screen->w, ctx->screen->h);
 }
 
 // XWindowAttributes xgwa;
@@ -162,17 +150,17 @@ void *XScreenSaverLayer::feed() {
   // img = XGetImage(dpy, back_win, 0, 0, geo.w, geo.h, 32, XYBitmap);
   img = XGetImage(dpy, back_win, 0, 0, geo.w, geo.h, ~0L, ZPixmap);
   // buffer=img->data;
-  memcpy(buffer, img->data, geo.bytesize);
+  memcpy(output, img->data, geo.bytesize);
   // buffer=*(&img->data);
   XDestroyImage(img);
   // XSync(dpy, true);
-  return buffer;
+  return output;
 }
 
 void XScreenSaverLayer::close() {
   notice("Closing XScreenSaver layer");
-  if(buffer)
-    free(buffer);
+  if(output)
+    free(output);
   kill(x_pid, SIGTERM);
 }
 

@@ -101,7 +101,7 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
       ( JS_ValueToString(cx, argv[argnum]) ); \
   else { \
     JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__,argnum); \
-    error("%s: argument %u is not a string",__FUNCTION__,argnum); \
+    ::error("%s: argument %u is not a string",__FUNCTION__,argnum);	\
     return JS_FALSE; \
   }
 
@@ -128,10 +128,11 @@ JSClass class_struct = { \
   JS_PropertyStub,  JS_PropertyStub, \
   JS_PropertyStub,  JS_PropertyStub, \
   JS_EnumerateStub, JS_ResolveStub, \
-  JS_ConvertStub,   gc_callback, \
+  JS_ConvertStub,   JS_FinalizeStub, \
   NULL,   NULL, \
   class_constructor \
 };
+ // s/JS_FinalizeStub/gc_callback/ to activate GC in JS (not working currently)
 //static JSClass *jsclass_s = &class_struct;
 
 #define REGISTER_CLASS(class_name, class_struct, class_constructor, class_methods, parent_class) \
@@ -139,7 +140,7 @@ JSClass class_struct = { \
 				&class_struct, class_constructor, 0, \
 				0, class_methods, 0, 0); \
     if(!layer_object) { \
-        error("JsParser::init() can't instantiate %s class",class_name); \
+      ::error("JsParser::init() can't instantiate %s class",class_name); \
     } 
 
 
@@ -155,7 +156,7 @@ JS(constructor_func) {                                                        \
                       "cannot create constructor_class");                     \
     return JS_FALSE;                                                          \
   }                                                                           \
-  rval = (jsval*)layer->js_constructor(env, cx, obj, argc, argv, excp_msg);   \
+  rval = (jsval*)layer->js_constructor(global_environment, cx, obj, argc, argv, excp_msg);   \
   if(!rval) {                                                                 \
     delete layer;                                                             \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
@@ -182,13 +183,14 @@ if(!lay) { \
 }
 
 #define JS_ERROR(str) { \
-  JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL, \
-  JSSMSG_FJ_WICKED, \
-  __FUNCTION__,str); \
-  return JS_FALSE; \
-}
+    ::error(str);					  \
+    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,	\
+			 JSSMSG_FJ_WICKED,			\
+			 __FUNCTION__,str);			\
+    return JS_FALSE;						\
+  }
 
-extern Context *env;
+extern Context *global_environment;
 extern bool stop_script;
 
 void js_sigint_handler(int sig);

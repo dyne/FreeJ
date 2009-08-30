@@ -1,9 +1,9 @@
 /*  FreeJ
- *  (c) Copyright 2001-2007 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2009 Denis Roio aka jaromil <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -15,28 +15,31 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * "$Id: gen_layer.h 926 2007-10-05 21:21:44Z jaromil $"
- *
  */
 
-#ifndef __GEN_F0R_LAYER_H__
-#define __GEN_F0R_LAYER_H__
+#ifndef __GENERATOR_LAYER_H__
+#define __GENERATOR_LAYER_H__
 
 #include <layer.h>
 
-class GenF0rLayer: public Layer {
+class GeneratorLayer: public Layer {
  public:
-  GenF0rLayer();
-  ~GenF0rLayer();
+  GeneratorLayer();
+  ~GeneratorLayer();
   
-  bool init(Context *freej);
-  bool init(Context *freej, int w, int h) { return init(freej); };
-
   bool open(const char *file);
   void *feed();
   void close();
+
+  void register_generators(Linklist<Filter> *gens);
+
   void *swap_buffer;
   FilterInstance *generator;
+
+ protected:
+  bool _init();
+
+  Linklist<Filter> *generators; ///< linked list of registered generators
 
 };
 

@@ -1,9 +1,9 @@
 /*  FreeJ
- *  (c) Copyright 2001-2005 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2009 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -15,7 +15,6 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * "$Id: freej.cpp 654 2005-08-18 16:52:47Z jaromil $"
  *
  */
 
@@ -42,10 +41,10 @@ JSFunctionSpec global_functions[] = {
     {"cafudda",         cafudda,                1},
     {"run",             cafudda,                1},
     {"quit",            quit,                   0},
-    {"add_layer",	add_layer,		1},
-    {"rem_layer",	rem_layer,		1},
-    {"list_layers",     list_layers,            0},
-    {"selected_layer",  selected_layer,         0},
+    {"add_screen",	add_screen,		1},
+    {"rem_screen",	rem_screen,		1},
+    {"add_layer",       ctx_add_layer,          1},
+    //    {"selected_layer",  selected_screen,        0},
     {"debug",           debug,                  1},
     {"set_debug",       js_set_debug,           0},
     {"rand",            rand,                   0},
@@ -55,8 +54,8 @@ JSFunctionSpec global_functions[] = {
     {"set_clear_all",   set_clear_all,          0},
     {"unset_clear_all", unset_clear_all,        0},
     {"set_fps",         set_fps,                1},
-    {"get_width",           get_width,              0},
-    {"get_height",          get_height,             0},      
+    {"get_width",       get_width,              0},
+    {"get_height",      get_height,             0},      
     {"set_resolution",  set_resolution,         2},
     {"scandir",         freej_scandir,          1},
     {"echo",            freej_echo,             1},
@@ -108,14 +107,14 @@ JS(cafudda) {
 
   
   //  func("JsParser :: run for %f seconds",seconds);
-  env->cafudda(seconds);
+  global_environment->cafudda(seconds);
 
   return JS_TRUE;
 }
 
 JS(pause) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  env->pause = !env->pause;
+  global_environment->pause = !global_environment->pause;
 
   return JS_TRUE;
 }
@@ -123,50 +122,71 @@ JS(pause) {
 JS(quit) {
  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
- env->quit = true;
+ global_environment->quit = true;
  return JS_TRUE;
 }
 
 
-JS(rem_layer) {
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    JSObject *jslayer;
-    Layer *lay;
+JS(rem_screen) {
+    func("%s",__PRETTY_FUNCTION__);
+    JSObject *tmp_jsobj;
+    ViewPort *scr;
 
     if(argc<1) JS_ERROR("missing argument");
     //    js_is_instanceOf(&layer_class, argv[0]);
 
-    jslayer = JSVAL_TO_OBJECT(argv[0]);
-    lay = (Layer *) JS_GetPrivate(cx, jslayer);
-    if(!lay) JS_ERROR("Layer core data is NULL");
+    tmp_jsobj = JSVAL_TO_OBJECT(argv[0]);
+    scr = (ViewPort *) JS_GetPrivate(cx, tmp_jsobj);
+    if(!scr) JS_ERROR("Screen core data is NULL");
 
-    func("JSvalcmp: %p / %p", argv[0], lay->data);
-    lay->stop();
-    env->rem_layer(lay);
+    //    global_environment->rem_screen(scr);
+    warning("Context::rem_screen TODO");
     return JS_TRUE;
 }
 
-JS(add_layer) {
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    Layer *lay;
-    JSObject *jslayer;
+JS(add_screen) {
+    func("%s",__PRETTY_FUNCTION__);
+    ViewPort *scr;
+    JSObject *tmp_jsobj;
     *rval=JSVAL_FALSE;
 
     if(argc<1) JS_ERROR("missing argument");
-    //    _js_is_instanceOf(env->js->global_context, &layer_class, argv[0], "Context");
+    //    _js_is_instanceOf(global_environment->js->global_context, &layer_class, argv[0], "Context");
 
-    jslayer = JSVAL_TO_OBJECT(argv[0]);
-    lay = (Layer *) JS_GetPrivate(cx, jslayer);
-    if(!lay) JS_ERROR("Layer core data is NULL");
-    func("JSvalcmp: %p / %p", argv[0], lay->data);
-    /** really add layer */
-    if( env->add_layer(lay) ) {
-      lay->start();
+    tmp_jsobj = JSVAL_TO_OBJECT(argv[0]);
+    scr = (ViewPort *) JS_GetPrivate(cx, tmp_jsobj);
+    if(!scr) JS_ERROR("Screen core data is NULL");
+
+    /** really add screen */
+    if( global_environment->add_screen(scr) ) {
       *rval=JSVAL_TRUE;
-    } else 
+    } else {
       *rval=JSVAL_FALSE;
+    }
 
     return JS_TRUE;
+}
+
+JS(ctx_add_layer) {
+  func("%s",__PRETTY_FUNCTION__);
+
+    JSObject *jslayer = NULL;
+  Layer *lay;
+
+  if(argc<1) JS_ERROR("missing argument");
+  //  js_is_instanceOf(&layer_class, argv[0]);
+
+  jslayer = JSVAL_TO_OBJECT(argv[0]);
+  lay = (Layer*) JS_GetPrivate(cx, jslayer);
+  if(!lay) JS_ERROR("Layer is NULL");
+
+  if( global_environment->add_layer(lay) ) {
+    *rval=JSVAL_TRUE;
+  } else {
+    *rval=JSVAL_FALSE;
+  }
+
+  return JS_TRUE;
 }
 
 JS(list_filters) {
@@ -180,7 +200,7 @@ JS(list_filters) {
     arr = JS_NewArrayObject(cx, 0, NULL); // create void array
     if(!arr) return JS_FALSE;
 
-    f = env->filters.begin();
+    f = global_environment->filters.begin();
     while(f) {
       str = JS_NewStringCopyZ(cx, f->name);
       val = STRING_TO_JSVAL(str);
@@ -199,14 +219,14 @@ JS(register_controller) {
     *rval=JSVAL_FALSE;
 
     if(argc<1) JS_ERROR("missing argument");
-    //    _js_is_instanceOf(env->js->global_context, &js_ctrl_class, argv[0], "Context");
+    //    _js_is_instanceOf(global_environment->js->global_context, &js_ctrl_class, argv[0], "Context");
 
     jsctrl = JSVAL_TO_OBJECT(argv[0]);
     ctrl = (Controller *)JS_GetPrivate(cx, jsctrl);
     if(!ctrl) JS_ERROR("Controller core data is NULL");
 
     /// really add controller
-    env->register_controller( ctrl );
+    global_environment->register_controller( ctrl );
     *rval = JSVAL_TRUE;
 func("JSvalcmp: %p / %p", argv[0], ctrl->data);
 
@@ -226,7 +246,7 @@ JS(rem_controller) {
     if(!ctrl) JS_ERROR("Layer core data is NULL");
 
 func("JSvalcmp: %p / %p", argv[0], ctrl->data);
-    env->rem_controller(ctrl);
+    global_environment->rem_controller(ctrl);
     return JS_TRUE;
 }
 
@@ -247,7 +267,7 @@ JS(register_encoder) {
     //    enc->start();
 
     /// really add controller
-    env->add_encoder( enc );
+    global_environment->add_encoder( enc );
     
     *rval = JSVAL_TRUE;
 
@@ -257,20 +277,20 @@ JS(register_encoder) {
 
 JS(fullscreen) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  env->screen->fullscreen();
-  //  env->clear_all = !env->clear_all;
+  global_environment->screens.selected()->fullscreen();
+  //  global_environment->clear_all = !global_environment->clear_all;
   return JS_TRUE;
 }
 
 JS(set_clear_all) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  env->clear_all = true;
+  global_environment->clear_all = true;
   return JS_TRUE;
 }
 
 JS(unset_clear_all) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  env->clear_all = false;
+  global_environment->clear_all = false;
   return JS_TRUE;
 }
 
@@ -279,7 +299,7 @@ JS(set_fps) {
 
   JS_ARG_NUMBER(fps, 0);
 
-  env->fps.set((int)fps);
+  global_environment->fps.set((int)fps);
   return JS_TRUE;
 }
 
@@ -294,13 +314,13 @@ JS(js_set_debug) {
 
 JS(get_width) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    *rval = INT_TO_JSVAL(env->screen->w);
+    *rval = INT_TO_JSVAL(global_environment->screens.begin()->geo.w);
     return JS_TRUE;
 }
 
 JS(get_height) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    *rval = INT_TO_JSVAL(env->screen->h);
+    *rval = INT_TO_JSVAL(global_environment->screens.begin()->geo.h);
     return JS_TRUE;
 }
 
@@ -308,23 +328,23 @@ JS(set_resolution) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   int w = JSVAL_TO_INT(argv[0]);
   int h = JSVAL_TO_INT(argv[1]);
-  env->screen->resize(w, h);
+  global_environment->screens.selected()->resize(w, h);
   return JS_TRUE;
 }
 
 /*
 JS(stream_start) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  notice ("Streaming to %s:%u",env->shouter->host(), env->shouter->port());
+  notice ("Streaming to %s:%u",global_environment->shouter->host(), global_environment->shouter->port());
   act ("Saving to %s", env -> video_encoder -> get_filename());
-  env->save_to_file = true;
+  global_environment->save_to_file = true;
   return JS_TRUE;
 }
 JS(stream_stop) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  ::notice ("Stopped stream to %s:%u", env->shouter->host(), env->shouter->port());
+  ::notice ("Stopped stream to %s:%u", global_environment->shouter->host(), global_environment->shouter->port());
   ::act ("Video saved in file %s",env -> video_encoder -> get_filename());
-  env->save_to_file = false;
+  global_environment->save_to_file = false;
   return JS_TRUE;
 }
 */
@@ -673,8 +693,8 @@ JS(include_javascript_file) {
 
 	// if its the first script loaded, save it as main one
 	// this is then used in reset to return at beginning stage
-	if(env->main_javascript[0] == 0x0)
-	  memcpy(env->main_javascript, temp, 512);
+	if(global_environment->main_javascript[0] == 0x0)
+	  memcpy(global_environment->main_javascript, temp, 512);
 
 	return JS_TRUE;
 }
@@ -722,7 +742,7 @@ JS(system_exec) {
     else {
 
       JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__, c);
-      env->quit = true;
+      global_environment->quit = true;
       return JS_FALSE;
 
     }
@@ -749,9 +769,9 @@ JS(reset_js) {
 	*rval = JSVAL_TRUE;
 	//JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 	func("resetting freej context");
-	env->reset();
-	//func("reloading main script: %s", env->main_javascript);
-	//	js->open(env->main_javascript);
+	global_environment->reset();
+	//func("reloading main script: %s", global_environment->main_javascript);
+	//	js->open(global_environment->main_javascript);
 
 	//	func("garbage collection of jsparser");
 	//	js->reset();

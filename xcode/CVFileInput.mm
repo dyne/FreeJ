@@ -63,8 +63,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     SetNumberValue(pixelBufferOptions, kCVPixelBufferPixelFormatTypeKey, k32ARGBPixelFormat);
     
     // size
-    SetNumberValue(pixelBufferOptions, kCVPixelBufferWidthKey, ctx->screen->w);
-    SetNumberValue(pixelBufferOptions, kCVPixelBufferHeightKey, ctx->screen->h);
+    SetNumberValue(pixelBufferOptions, kCVPixelBufferWidthKey, ctx->screen->geo.w);
+    SetNumberValue(pixelBufferOptions, kCVPixelBufferHeightKey, ctx->screen->geo.h);
     
     // alignment
     SetNumberValue(pixelBufferOptions, kCVPixelBufferBytesPerRowAlignmentKey, 1);
@@ -205,7 +205,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         // register the layer within the freej context
         if (!layer) {
             layer = new CVLayer(self);
-            layer->init(ctx);
+            layer->init();
         }
     }
 

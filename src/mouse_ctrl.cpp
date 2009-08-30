@@ -32,7 +32,7 @@
 
 JS(js_mouse_ctrl_constructor);
 
-//DECLARE_CLASS_GC("MouseController",js_mouse_ctrl_class, js_mouse_ctrl_constructor,js_ctrl_gc);
+DECLARE_CLASS("MouseController",js_mouse_ctrl_class, js_mouse_ctrl_constructor);
 
 JSBool js_add_p (JSContext *cx, JSObject *obj, jsval id, jsval *vp) {
 	func("add prop: %s %s", JS_GetStringBytes(JS_ValueToString(cx, id)), JS_GetStringBytes(JS_ValueToString(cx, *vp)));
@@ -43,15 +43,17 @@ JSBool js_del_p (JSContext *cx, JSObject *obj, jsval id, jsval *vp) {
 	return JS_TRUE;
 }
 
-JSClass js_mouse_ctrl_class = {
-	"MouseController", JSCLASS_HAS_PRIVATE,
-	js_add_p,  js_del_p, // add, del
-	JS_PropertyStub,  JS_PropertyStub,
-	JS_EnumerateStub, JS_ResolveStub,
-	JS_ConvertStub,   js_ctrl_gc,
-	NULL,   NULL,
-	js_mouse_ctrl_constructor
-};
+// JSClass js_mouse_ctrl_class = {
+// 	"MouseController", JSCLASS_HAS_PRIVATE,
+// 	//	js_add_p,  js_del_p, // add, del
+// 	JS_PropertyStub,  JS_PropertyStub,
+
+// 	JS_PropertyStub,  JS_PropertyStub,
+// 	JS_EnumerateStub, JS_ResolveStub,
+// 	JS_ConvertStub,   js_ctrl_gc,
+// 	NULL,   NULL,
+// 	js_mouse_ctrl_constructor
+// };
 //static JSClass *jsclass_s = &js_mouse_ctrl_class;
 
 JSFunctionSpec js_mouse_ctrl_methods[] = {
@@ -207,7 +209,7 @@ JS(js_mouse_ctrl_constructor) {
 	MouseController *mouse = new MouseController();
 
 	// initialize with javascript context
-	if(! mouse->init(env) ) {
+	if(! mouse->init(global_environment) ) {
 		error("failed initializing mouse controller");
 		delete mouse; return JS_FALSE;
 	}

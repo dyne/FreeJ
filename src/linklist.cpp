@@ -276,18 +276,22 @@ void Entry::rem() {
 
   if(next) { // if there is a next
     next->prev = prev; // link it to the previous
-    next->select = select; // inherit selection
-    list->selection = next; // XXX - why changing selection without first checking if we are selected?
+    if(select) { // change selection if we are selected
+      next->select = select; // inherit selection
+      list->selection = next;
+    }
   } else {
     list->last = prev; // else just make it the last
     lastone = true;
-    list->selection = prev;  // XXX - why changing selection without first checking if we are selected?
-
   }
+
 
   if(prev) { // if there is a previous
     prev->next = next; // link it to the next
-    if(lastone) prev->select = select;
+    if(select) { // change selection if we are selected
+      if(lastone) prev->select = select;
+      list->selection = prev;
+    }
   } else list->first = next; // else just make it a first
   
   list->length--;

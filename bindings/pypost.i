@@ -28,14 +28,14 @@
 {
     PyObject *get_surface_buffer()
     {
-        return PyBuffer_FromMemory(self->get_surface(), self->w*self->h*self->bpp/8);
+        return PyBuffer_FromMemory(self->get_surface(), self->geo.bytesize);
     }
 }
 %extend Layer
 {
     PyObject *get_surface_buffer()
     {
-        return PyBuffer_FromMemory(self->buffer, self->geo.w*self->geo.h*4);
+        return PyBuffer_FromMemory(self->buffer, self->geo.bytesize);
     }
 }
 %extend Blitter

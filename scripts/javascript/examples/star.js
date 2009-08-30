@@ -12,6 +12,10 @@ PI = 3.141592654;
 c = PI * 2;
 o = -PI / 2;
 
+scr = new Screen("sdl");
+scr.init(500,500);
+add_screen(scr);
+
 function drawStar(lay, s_mul, s2_mul) {
     s = s_mul / 0.383;
     s2 = s / s2_mul;
@@ -51,14 +55,14 @@ star_kbd.released_r = function() {
 register_controller( star_kbd );
 
 var star;
-star = new GeometryLayer();
+star = new GeometryLayer(300,300);
 star.color(255,255,255,255);
 //star.set_blit("alpha");
 //star.set_name("star.js");
 //star.set_blit_value(0.1);
 //star.start();
 star.activate(true);
-add_layer(star);
+scr.add_layer(star);
 
 drawStar(star,30,1);
 

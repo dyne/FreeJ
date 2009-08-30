@@ -37,8 +37,7 @@ class UnicapLayer: public Layer {
   ~UnicapLayer();
 
   bool open(const char *devfile);
-  bool init(Context *freej);
-  bool init(Context *freej, int width, int height);
+
   void *feed();
   void close();
 
@@ -48,6 +47,9 @@ class UnicapLayer: public Layer {
   int detected;
 
   int capture_type;
+
+ protected:
+  bool _init();
 
  private:
 

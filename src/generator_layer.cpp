@@ -1,7 +1,7 @@
 /*  FreeJ
  *  Frei0r particle generator layer
- *  (c) Copyright 2007 Denis Roio aka jaromil <jaromil@dyne.org>
-
+ *  (c) Copyright 2007 - 2009 Denis Roio <jaromil@dyne.org>
+ *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
  * by the Free Software Foundation; either version 3 of the License,
@@ -15,13 +15,10 @@
  * You should have received a copy of the GNU Public License along with
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-$Id: gen_layer.cpp 845 2007-04-03 07:04:47Z jaromil $
-
  */
 
 #include <stdlib.h>
-#include <gen_f0r_layer.h>
+#include <generator_layer.h>
 #include <frei0r_freej.h>
 #include <freeframe_freej.h>
 #include <fps.h>
@@ -32,7 +29,7 @@ $Id: gen_layer.cpp 845 2007-04-03 07:04:47Z jaromil $
 //#include <jsparser_data.h>
 
 
-GenF0rLayer::GenF0rLayer()
+GeneratorLayer::GeneratorLayer()
   :Layer() {
 
   generator = NULL;
@@ -44,7 +41,7 @@ GenF0rLayer::GenF0rLayer()
   swap_buffer = NULL;
 }
 
-GenF0rLayer::~GenF0rLayer() {
+GeneratorLayer::~GeneratorLayer() {
   close();
   if (swap_buffer)
     free(swap_buffer);
@@ -57,7 +54,7 @@ static void get_freeframe_layer_parameter(Layer *lay, Parameter *param, int idx)
 #ifdef WITH_FREI0R
 static void get_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) { }
 static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
-  GenF0rLayer *layer = (GenF0rLayer*)lay;
+  GeneratorLayer *layer = (GeneratorLayer*)lay;
 
   Freior *f = layer->generator->proto->freior;
   bool *val = (bool*)param->value;
@@ -99,11 +96,16 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
 }
 #endif
 
-bool GenF0rLayer::open(const char *file) {
+void GeneratorLayer::register_generators(Linklist<Filter> *gens) {
+  generators = gens;
+  act("%u registered generators found", gens->len());
+}
+
+bool GeneratorLayer::open(const char *file) {
   int idx;
   Filter *proto;
 
-  proto = (Filter*) env->generators.search(file, &idx);
+  proto = (Filter*) generators->search(file, &idx);
   if(!proto) {
     error("generator not found: %s", file);
     return(false);
@@ -164,7 +166,7 @@ bool GenF0rLayer::open(const char *file) {
   return true;
 }
 
-void GenF0rLayer::close() {
+void GeneratorLayer::close() {
   if(generator) {
     delete generator;
     generator = NULL;
@@ -172,32 +174,24 @@ void GenF0rLayer::close() {
   opened = false;
 }
 
-bool GenF0rLayer::init(Context *freej) {
+bool GeneratorLayer::_init() {
   
-  int width  = freej->screen->w;
-  int height = freej->screen->h;
-
-  env = freej; 
-
-  /* internal initalization */
-  _init(width,height);
-
   //  open("lissajous0r");
   //  open("ising0r");
 
   if (!swap_buffer)
-    swap_buffer = malloc(freej->screen->size);
+    swap_buffer = malloc(geo.bytesize);
   else { // if changing context ensure we can handle its resolution
-    swap_buffer = realloc(swap_buffer, freej->screen->size);
+    swap_buffer = realloc(swap_buffer, geo.bytesize);
   }
   return(true);
 }
 
-void *GenF0rLayer::feed() {
+void *GeneratorLayer::feed() {
   void *res;
-  if (env && generator) {
-      res = generator->process(env->fps.get(), NULL);
-      jmemcpy(swap_buffer, res, env->screen->size);
+  if (generator) {
+      res = generator->process(fps.get(), NULL);
+      jmemcpy(swap_buffer, res, geo.bytesize);
   }
   return swap_buffer;
 }

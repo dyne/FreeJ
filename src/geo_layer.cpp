@@ -48,19 +48,10 @@ GeoLayer::~GeoLayer() {
 
 }
 
-bool GeoLayer::init(Context *freej) {
-  int width  = freej->screen->w;
-  int height = freej->screen->h;
-  screen = freej->screen;
-  return init(freej, width, height);
-}
-bool GeoLayer::init(Context *freej, int width, int height) {
+bool GeoLayer::_init() {
 
-  // internal initialization
-  _init(width, height);
-  
   surf = SDL_CreateRGBSurface(SDL_HWSURFACE,
-			      geo.w,geo.h,32,
+			      geo.w,geo.h,geo.bpp,
 			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
   if(!surf) {
     error("can't allocate GeoLayer memory surface");

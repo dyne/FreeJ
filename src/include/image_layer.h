@@ -26,6 +26,21 @@
 #include <layer.h>
 
 class ImageLayer: public Layer {
+
+    public:
+	ImageLayer();
+	~ImageLayer();
+	
+	bool open(const char *file);
+	void *feed();
+
+	void close();
+
+ protected:
+	bool _init() { return true; };
+	// no specific init for implementation 
+	// most happens in open (when we have the file and know the size..)
+
     private:
 
 	SDL_Surface *image;
@@ -34,17 +49,6 @@ class ImageLayer: public Layer {
 
 	void *black_image;
 
-    public:
-	ImageLayer();
-	~ImageLayer();
-
-	bool init(Context *freej);
-	bool init(Context *freej, int w, int h) { return init(freej); };
-
-	bool open(const char *file);
-	void *feed();
-
-	void close();
 };
 
 #endif

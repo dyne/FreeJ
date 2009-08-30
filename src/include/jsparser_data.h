@@ -49,9 +49,11 @@
 
 // declare constructors
 
+JS(screen_constructor);
+//void js_screen_gc (JSContext *cx, JSObject *obj);
 JS(filter_constructor);
 JS(layer_constructor);
-void js_layer_gc (JSContext *cx, JSObject *obj);
+//void js_layer_gc (JSContext *cx, JSObject *obj);
 JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
 JS(image_layer_constructor);
@@ -109,6 +111,10 @@ extern JSClass UseScriptClass;
 
 extern JSClass global_class;
 extern JSFunctionSpec global_functions[];
+
+// Screen
+extern JSClass screen_class;
+extern JSFunctionSpec screen_methods[];
 
 // Effect
 extern JSClass filter_class;
@@ -236,10 +242,10 @@ extern JSFunctionSpec js_xgrab_methods[];
 
 JS(cafudda);
 JS(quit);
-JS(add_layer);
-JS(rem_layer);
-JS(list_layers);
-JS(selected_layer);
+JS(add_screen);
+JS(rem_screen);
+JS(ctx_add_layer);
+JS(selected_screen);
 JS(debug);
 JS(js_set_debug);
 JS(rand);
@@ -284,6 +290,13 @@ JS(entry_select);
     {"next",            entry_next,             0}, \
     {"prev",            entry_prev,             0}, \
     {"select",          entry_select,           0}
+
+////////////////////////////////
+// Screen methods
+JS(screen_init);
+JS(screen_add_layer);
+JS(screen_rem_layer);
+JS(screen_list_layers);
 
 
 ////////////////////////////////

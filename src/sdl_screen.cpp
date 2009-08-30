@@ -56,13 +56,14 @@ SdlScreen::SdlScreen()
   magnification = 0;
   switch_fullscreen = false;
 
+  set_name("SDL");
 }
 
 SdlScreen::~SdlScreen() {
   SDL_Quit();
 }
 
-bool SdlScreen::_init(int width, int height) {
+bool SdlScreen::_init() {
   char temp[120];
  
   /* initialize SDL */
@@ -75,13 +76,13 @@ bool SdlScreen::_init(int width, int height) {
     return(false);
   }
 
-  setres(width,height);
+  setres(geo.w,geo.h);
   sdl_screen = SDL_GetVideoSurface();
 
   SDL_VideoDriverName(temp,120);
 
   notice("SDL Viewport is %s %ix%i %ibpp",
-	 temp,w,h,sdl_screen->format->BytesPerPixel<<3);
+	 temp,geo.w,geo.h,geo.bpp);
 
   /* be nice with the window manager */
   sprintf(temp,"%s %s",PACKAGE,VERSION);
@@ -106,6 +107,8 @@ void SdlScreen::setup_blits(Layer *lay) {
   setup_sdl_blits(b);
 
   lay->blitter = b;
+
+  lay->set_blit("SDL"); // default
 }
 
 void SdlScreen::blit(Layer *src) {
@@ -222,15 +225,12 @@ void SdlScreen::blit(Layer *src) {
 void SdlScreen::resize(int resize_w, int resize_h) {
   act("resizing viewport to %u x %u",resize_w, resize_h);
   sdl_screen = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
-  w = resize_w;
-  h = resize_h;
-  size = resize_w * resize_h * (bpp>>3);
-  pitch = resize_w * (bpp>>3);
+  geo.init( resize_w, resize_h, 32);
 }
 
 void *SdlScreen::coords(int x, int y) {
   return 
-    ( x + (w*y) +
+    ( x + geo.pixelsize +
       (uint32_t*)sdl_screen->pixels );
 }
 
@@ -303,6 +303,7 @@ bool SdlScreen::unlock() {
 int SdlScreen::setres(int wx, int hx) {
   /* check and set available videomode */
   int res;
+  int bpp = 32;
   act("setting resolution to %u x %u", wx, hx);
   res = SDL_VideoModeOK(wx, hx, bpp, sdl_flags);
   
@@ -335,19 +336,19 @@ void SdlScreen::set_magnification(int algo) {
 
   if(algo==0) {
     notice("screen magnification off");
-    setres(w,h);
+    setres(geo.w,geo.h);
     if(magnification) SDL_FreeSurface(sdl_screen);
     sdl_screen = SDL_GetVideoSurface();
 
   } else if(algo==1) {
 
     notice("screen magnification scale2x");
-    setres(w*2,h*2);
+    setres(geo.w*2,geo.h*2);
 
   } else if(algo==2) {
 
     notice("screen magnification scale3x");
-    setres(w*3,h*3);
+    setres(geo.w*3,geo.h*3);
 
   } else {
 
@@ -360,7 +361,7 @@ void SdlScreen::set_magnification(int algo) {
   if(!magnification && algo) {
     func("create surface for magnification");
     sdl_screen = SDL_CreateRGBSurface
-      (sdl_flags,w,h,bpp,red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
+      (sdl_flags,geo.w,geo.h,geo.bpp,red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
       //(sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
       //      (SDL_HWSURFACE,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
   }

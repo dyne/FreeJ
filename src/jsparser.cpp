@@ -37,10 +37,11 @@
 
 #include <impl_layers.h>
 
+Context *global_environment;
 
 JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
-	env=_env;
+      global_environment=_env;
     init();
     act("javascript parser initialized");
 }
@@ -125,8 +126,20 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	///////////////////////////////////////////////////////////
 	// Initialize classes
 
+
 	JSObject *object_proto; // reminder for inher.
 	JSObject *layer_object; // used in REGISTER_CLASS macro
+
+
+	// Screen (in C++ ViewPort) has only one class type
+	// all implementations are masked behind the factory
+	REGISTER_CLASS("Screen",
+		       screen_class,
+		       screen_constructor,
+		       screen_methods,
+		       NULL);
+	Screen = layer_object;
+
 	REGISTER_CLASS("Layer",
 		layer_class,
 		layer_constructor,

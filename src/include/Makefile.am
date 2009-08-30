@@ -7,7 +7,7 @@ noinst_HEADERS = asm-linkage.h audio_collector.h audio_input.h audio_jack.h \
 	console_ctrl.h console_readline_ctrl.h console_widgets_ctrl.h context.h \
 	controller.h convertvid.h cpu_accel.h fastmemcpy.h ffmpeg_encoder.h filter.h \
 	flash_layer.h fps.h freeframe_freej.h freeframe.h frei0r_freej.h \
-	gen_f0r_layer.h gen_layer.h geo_layer.h gl_screen.h goom_layer.h image_layer.h \
+	generator_layer.h geo_layer.h gl_screen.h goom_layer.h image_layer.h \
 	impl_encoders.h impl_layers.h impl_screens.h impl_video_encoders.h iterator.h \
 	joy_ctrl.h jsparser_data.h jsparser.h jsync.h jutils.h kbd_ctrl.h layer.h \
 	linklist.h midi_ctrl.h mm_accel.h mmx.h mouse_ctrl.h null_screen.h \
