@@ -70,23 +70,30 @@
 typedef void *(*Instantiator)();
 #define FInstantiatorsMap std::map<std::string, Instantiator>
 #define FInstantiatorPair std::pair<std::string, Instantiator>
+
 #define FTagPair std::pair<std::string, const char *>
 #define FTagMap std::map<std::string, const char *>
+
 #define FMapsMap std::map<std::string, FInstantiatorsMap *>
-#define FDefaultClassesMap std::map<std::string, const char *>
 #define FMapPair std::pair<std::string, FInstantiatorsMap *>
+
 #define FInstancesMap std::map<std::string, void *>
 #define FInstancePair std::pair<std::string, void *>
+
+#define FDefaultClassesMap std::map<std::string, const char *>
 
 template <class T>
 class Factory
 {
+
   private:
+
       static FInstantiatorsMap *instantiators_map;
       static FDefaultClassesMap *defaults_map;
       static FInstancesMap *instances_map;
+
   public:
-    
+
     // Define a default class for a certain category
     static int set_default_classtype(const char *category, const char *id)
     {
@@ -169,6 +176,7 @@ class Factory
         } else {
             instances_map = new FInstancesMap();
         }
+        // create on first use
         T *instance = new_instance(category, id);
         instances_map->insert(FInstancePair(tag, (void *)instance));
         func("Created instance of %s at address %p", tag, (void *)instance);
