@@ -28,60 +28,11 @@
 #import "CFreej.h"
 #import "FrameRate.h"
 #import "QTExporter.h"
+#import "CVScreenView.h"
 
 @class CFreej;
 class  CVScreen;
 
-@interface CVScreenView : NSOpenGLView {
-	NSRecursiveLock		*lock;
-	NSString			*fpsString;
-    NSWindow            *myWindow;
-    CVDisplayLinkRef	displayLink; // the displayLink that runs the show
-    CGDirectDisplayID	viewDisplayID;
-	CVPixelBufferRef	pixelBuffer;
-    //void                *pixelBuffer;
-	CVScreen			*fjScreen;
-	CIContext			*ciContext;
-	NSOpenGLContext		*currentContext;
-	CIImage				*outFrame;
-    CIImage             *exportedFrame;
-    NSBitmapImageRep    *exportedFrameBuffer;  
-    CIImage             *lastFrame;
-	NSTimer				*renderTimer;
-	bool				fullScreen;
-	CFDictionaryRef		savedMode;
-	bool				needsReshape;
-	FrameRate			*rateCalc;
-    CGContextRef        exportCGContextRef;
-    CIContext           *exportContext;
-    void                *exportBuffer;
-    QTExporter          *exporter;
-	IBOutlet CFreej		*freej;
-	IBOutlet NSTextField *showFps;
-    IBOutlet NSTableView *layerList;
-    IBOutlet NSWindow   *window;
-}
-@property (readonly) bool fullScreen;
-- (void)awakeFromNib;
-- (id)init;
-- (void)prepareOpenGL;
-- (void *)getSurface;
-- (CIImage *)exportSurface;
-- (void)drawLayer:(Layer *)layer;
-- (void)setSizeWidth:(int)w Height:(int)h;
-- (bool)isOpaque;
-- (double)rate;
-- (CVReturn)outputFrame:(uint64_t)timestamp;
-- (void)reset;
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
-- (NSWindow *)getWindow;
-- (IBAction)toggleFullScreen:(id)sender;
-- (IBAction)toggleExport:(id)sender;
-- (IBAction)startExport:(id)sender;
-- (IBAction)stopExport:(id)sender;
-- (IBAction)setExportFile:(id)sender;
-@end
 
 /*
  * C++ glue class exposed to the freej context

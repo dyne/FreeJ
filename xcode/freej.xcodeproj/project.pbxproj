@@ -12,6 +12,8 @@
 		AA0E3E760FBF3C0100123D3F /* CVTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3E750FBF3C0100123D3F /* CVTexture.m */; };
 		AA134AC01047B6D500BA39EB /* CKbdController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA134ABF1047B6D500BA39EB /* CKbdController.mm */; };
 		AA1EB9030F56969E006610D8 /* CVFilterPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */; };
+		AA3B0AF4104A6C3B00A27B2E /* CVScreenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0AF3104A6C3B00A27B2E /* CVScreenView.mm */; };
+		AA3B0B0A104A6DAC00A27B2E /* CVLayerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0B09104A6DAC00A27B2E /* CVLayerView.mm */; };
 		AA5844880FE114970059D860 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5844870FE114970059D860 /* Carbon.framework */; };
 		AA5846530FE1626E0059D860 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = AA5846520FE1626E0059D860 /* GLString.m */; };
 		AA5846560FE162C60059D860 /* CVTextLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA5846550FE162C60059D860 /* CVTextLayer.mm */; };
@@ -171,6 +173,10 @@
 		AA134ABF1047B6D500BA39EB /* CKbdController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CKbdController.mm; sourceTree = "<group>"; };
 		AA1EB9010F56969E006610D8 /* CVFilterPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFilterPanel.h; sourceTree = "<group>"; };
 		AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFilterPanel.mm; sourceTree = "<group>"; };
+		AA3B0AF2104A6C3B00A27B2E /* CVScreenView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVScreenView.h; sourceTree = "<group>"; };
+		AA3B0AF3104A6C3B00A27B2E /* CVScreenView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVScreenView.mm; sourceTree = "<group>"; };
+		AA3B0B08104A6DAC00A27B2E /* CVLayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVLayerView.h; sourceTree = "<group>"; };
+		AA3B0B09104A6DAC00A27B2E /* CVLayerView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVLayerView.mm; sourceTree = "<group>"; };
 		AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector.cpp; sourceTree = "<group>"; };
 		AA3C44590F3EEBE0007C7E8B /* audio_collector_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector_js.cpp; sourceTree = "<group>"; };
 		AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_input.cpp; sourceTree = "<group>"; };
@@ -454,16 +460,20 @@
 			isa = PBXGroup;
 			children = (
 				AAA38FB40F542DBF0069BF91 /* CIFilters */,
-				AAAABF460F5226A700461C96 /* CVScreen.mm */,
 				AAAABF450F5226A700461C96 /* CVScreen.h */,
-				AA9145070F4A1590001426A5 /* CVFileInput.mm */,
+				AAAABF460F5226A700461C96 /* CVScreen.mm */,
+				AA3B0AF2104A6C3B00A27B2E /* CVScreenView.h */,
+				AA3B0AF3104A6C3B00A27B2E /* CVScreenView.mm */,
 				AA9145060F4A1590001426A5 /* CVFileInput.h */,
-				AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */,
+				AA9145070F4A1590001426A5 /* CVFileInput.mm */,
 				AAB26D2C0F4051F60068E5F5 /* CVGrabber.h */,
-				AAA7B62B0F40485F00056C44 /* CFreej.mm */,
+				AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */,
 				AAB84F850F3F1EB300AD479D /* CFreej.h */,
-				AA99CF0C0F535B5F00022106 /* CVLayer.mm */,
+				AAA7B62B0F40485F00056C44 /* CFreej.mm */,
 				AA99CF0B0F535B5F00022106 /* CVLayer.h */,
+				AA99CF0C0F535B5F00022106 /* CVLayer.mm */,
+				AA3B0B08104A6DAC00A27B2E /* CVLayerView.h */,
+				AA3B0B09104A6DAC00A27B2E /* CVLayerView.mm */,
 				AA88592C0F633A7500778C03 /* CVF0rLayer.mm */,
 				AA88592B0F633A7500778C03 /* CVF0rLayer.h */,
 				AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */,
@@ -1001,6 +1011,8 @@
 				AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */,
 				AA134AC01047B6D500BA39EB /* CKbdController.mm in Sources */,
 				AAD9EF6B10487BC400A3E51A /* sdl_controller.cpp in Sources */,
+				AA3B0AF4104A6C3B00A27B2E /* CVScreenView.mm in Sources */,
+				AA3B0B0A104A6DAC00A27B2E /* CVLayerView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
