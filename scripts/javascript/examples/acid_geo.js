@@ -107,8 +107,7 @@ geo = new GeometryLayer(W,H);
 //geo.color(255,255,255,255);
 geo.set_blit("alpha");
 //geo.set_blit_value(1);
-geo.set_fps();
-geo.activate(true);
+geo.start();
 add_layer(geo);
 
 //drawStar(geo,30,1);

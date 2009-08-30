@@ -142,6 +142,11 @@ Context::~Context() {
 
 bool Context::add_screen(ViewPort *scr) {
 
+  if(!scr->initialized) {
+    error("can't add screen %s - not initialized yet",scr->name);
+    error("use init( width, height, bits_per_pixel )");
+    return false;
+  }
   screens.prepend(scr);
   screens.sel(0);
   scr->sel(true);

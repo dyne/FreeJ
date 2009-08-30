@@ -50,7 +50,7 @@ GeoLayer::~GeoLayer() {
 
 bool GeoLayer::_init() {
 
-  surf = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA,
+  surf = SDL_CreateRGBSurface(SDL_HWSURFACE,
 			      geo.w,geo.h,geo.bpp,
 			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
   if(!surf) {

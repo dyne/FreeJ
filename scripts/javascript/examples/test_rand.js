@@ -81,9 +81,9 @@ function randomize_color(rand_geo) {
 rand_geo = new GeometryLayer(W,H);
 //rand_geo.set_blit("alpha");
 //rand_geo.set_blit_value(0.5);
-rand_geo.activate(true);
-//geo.start();
+//rand_geo.activate(true);
 //geo.set_fps(24);
+rand_geo.start();
 add_layer(rand_geo);
 
 running = true;
@@ -100,7 +100,6 @@ rand_bang = new TriggerController();
 rand_bang.frame = function() {
   randomize_color(rand_geo);
   drawer(rand_geo);
-  echo("tick");
 }
 register_controller(rand_bang);
 
