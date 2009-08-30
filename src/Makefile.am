@@ -26,9 +26,9 @@ SOURCES = \
 	xgrab_layer.cpp		opencv_cam_layer.cpp \
 	audio_layer.cpp \
 \
-	screen.cpp		sdl_screen.cpp 	\
-	sdlgl_screen.cpp 	gl_screen.cpp   \
-	soft_screen.cpp \
+	screen.cpp		screen_js.cpp      \
+	sdl_screen.cpp 		sdlgl_screen.cpp   \
+	gl_screen.cpp   	soft_screen.cpp    \
 \
 	controller.cpp  	console_ctrl.cpp  \
 	console_calls_ctrl.cpp 	console_readline_ctrl.cpp \

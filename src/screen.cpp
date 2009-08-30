@@ -38,7 +38,10 @@ ViewPort::ViewPort()
 
   magnification   = 0;
   changeres       = false;
+  deleted = false;
 
+  jsclass = NULL;
+  jsobj = NULL;
 
   audio = NULL;
   m_SampleRate=NULL;
@@ -49,6 +52,11 @@ ViewPort::ViewPort()
 }
 
 ViewPort::~ViewPort() {
+
+  if(deleted) {
+    warning("double deletion of Screen %s", name);
+    return;
+  }
 
   func("screen %s deleting %u layers", name, layers.len() );
   Layer *lay;
@@ -72,6 +80,7 @@ ViewPort::~ViewPort() {
     enc = encoders.begin();
   }
 
+  deleted = false;
 }
 
 bool ViewPort::init(int w, int h, int bpp) {

@@ -3,8 +3,14 @@
 // and smart use of function pointers
 // (C)2005 Denis Jaromil Rojo - GNU GPL 
 
-W = get_width();
-H = get_height();
+// W = get_width();
+// H = get_height();
+W = 400;
+H = 300;
+
+scr = new Screen("sdl");
+scr.init(W,H);
+add_screen(scr);
 
 function draw_pixels(rand_geo) {
   var x, y;
@@ -78,7 +84,7 @@ rand_geo = new GeometryLayer(400,300);
 rand_geo.activate(true);
 //geo.start();
 //geo.set_fps(24);
-add_layer(rand_geo);
+scr.add_layer(rand_geo);
 
 running = true;
 rand_kbd = new KeyboardController();
@@ -94,6 +100,7 @@ rand_bang = new TriggerController();
 rand_bang.frame = function() {
   randomize_color(rand_geo);
   drawer(rand_geo);
+  echo("tick");
 }
 register_controller(rand_bang);
 

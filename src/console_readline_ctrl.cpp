@@ -188,12 +188,12 @@ bool SlwReadline::parser_default(int key) {
 
   //  ::func("pressed %u",key);
 
-  if(env->screen->layers.len() > 0) { // there are layers
+  if(env->screens.selected()->layers.len() > 0) { // there are layers
 
     // get the one selected
-    le = env->screen->layers.selected();
+    le = env->screens.selected()->layers.selected();
     if(!le) {
-      env->screen->layers.begin();
+      env->screens.selected()->layers.begin();
       le->sel(true);
     }
 
@@ -310,7 +310,7 @@ bool SlwReadline::parser_default(int key) {
     break;
     */
   case KEY_CTRL_F:
-    env->screen->fullscreen();
+    env->screens.selected()->fullscreen();
     break;
     
   case KEY_CTRL_X:
@@ -357,9 +357,9 @@ bool SlwReadline::parser_movelayer(int key) {
   commandline = false; // print statusline
 
   // get the one selected
-  Layer *layer = (Layer*)env->screen->layers.selected();
+  Layer *layer = (Layer*)env->screens.selected()->layers.selected();
   if(!layer) {
-    env->screen->layers.begin();
+    env->screens.selected()->layers.begin();
     layer->sel(true);
   }
 
@@ -421,8 +421,8 @@ bool SlwReadline::parser_movelayer(int key) {
   case KEY_SPACE:
     // place at the center
     layer->set_position
-      ( (env->screen->geo.w - layer->geo.w)/2,
-	(env->screen->geo.h - layer->geo.h)/2 );
+      ( (env->screens.selected()->geo.w - layer->geo.w)/2,
+	(env->screens.selected()->geo.h - layer->geo.h)/2 );
     break;
 
   case SL_KEY_ENTER:

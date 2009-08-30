@@ -38,6 +38,7 @@
 //#include <layer.h>
 #include <jsapi.h> // spidermonkey header
 
+extern Context *global_environment;
 
 class JsParser {
     public:
@@ -58,6 +59,7 @@ class JsParser {
 	JSObject *global_object;
 
 	// list of classes made available by FreeJ
+	JSObject *Screen;
 	JSObject *Layer;
 	JSObject *GeometryLayer;
 	JSObject *ImageLayer;

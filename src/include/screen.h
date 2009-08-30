@@ -77,6 +77,10 @@ class Context;
 class Geometry;
 class VideoEncoder;
 
+class JSClass;
+class JSContext;
+class JSObject;
+
 class ViewPort : public Entry {
   friend class Layer;
  public:
@@ -127,6 +131,9 @@ class ViewPort : public Entry {
 
   ringbuffer_t *audio; ///< FIFO ringbuffer for audio
 
+  JSClass *jsclass; ///< pointer to the javascript class
+  JSObject *jsobj; ///< pointer to the javascript instantiated object
+
   void scale2x(uint32_t *osrc, uint32_t *odst);
   void scale3x(uint32_t *osrc, uint32_t *odst);
 
@@ -143,6 +150,8 @@ class ViewPort : public Entry {
 
   // opengl special blit
   bool opengl;
+
+  bool deleted;
 
  protected:
   virtual bool _init() = 0; ///< implemented initialization

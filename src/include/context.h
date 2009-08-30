@@ -147,8 +147,6 @@ class Context {
 
   bool add_screen(ViewPort *scr); ///< add a new screen
   Linklist<ViewPort> screens; ///< linked list of registered screens
-  ViewPort *screen;
-  ///< currently selected screen (auxiliary pointer, use screens.selected() instead)
 
   Linklist<Controller> controllers; ///< linked list of registered interactive controllers
 

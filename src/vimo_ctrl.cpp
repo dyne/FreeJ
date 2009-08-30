@@ -119,7 +119,7 @@ ViMoController::~ViMoController() {
 }
 
 JS(js_vimo_ctrl_constructor);
-DECLARE_CLASS_GC("ViMoController", js_vimo_ctrl_class, NULL, js_ctrl_gc);
+DECLARE_CLASS("ViMoController", js_vimo_ctrl_class, js_vimo_ctrl_constructor);
 
 JSFunctionSpec js_vimo_ctrl_methods[] = {
 	{"open",	js_vimo_open,	0},
@@ -375,7 +375,7 @@ JS(js_vimo_ctrl_constructor) {
 	ViMoController *vimo = new ViMoController();
 
 	// initialize with javascript context
-	if(! vimo->init( env ) ) {
+	if(! vimo->init( global_environment ) ) {
 		error("failed initializing ViMo controller");
 		delete vimo; return JS_FALSE;
 	}

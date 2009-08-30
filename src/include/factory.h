@@ -16,7 +16,7 @@ using std::make_pair;
 #define FACTORY_REGISTER_INSTANTIATOR(__base_class, __class_name, __category, __id) \
     static __class_name * get##__class_name() \
     { \
-        func("Creating %s -- %s\n", #__base_class, #__class_name);\
+        func("Creating %s -- %s", #__base_class, #__class_name);\
         return new __class_name(); \
     } \
     int __class_name::isRegistered = Factory<__base_class>::register_instantiator( \
@@ -66,17 +66,17 @@ class Factory
         if (!classname || !id) // safety belts
             return NULL;
 
-        func("Looking for %s::%s \n", classname, id);
+        func("Looking for %s::%s", classname, id);
 
         if (strlen(classname)+strlen(id)+3 > sizeof(tag)) { // check the size of the requested id
             error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", classname, id);
             return NULL;
         }
         snprintf(tag, sizeof(tag), "%s::%s", classname, id);
-        func("Looking for %s in instantiators_map (%d)\n", tag, instantiators_map->size());
+        func("Looking for %s in instantiators_map (%d)", tag, instantiators_map->size());
         FInstantiatorsMap::iterator iterators_pair = instantiators_map->find(tag);
         if (iterators_pair != instantiators_map->end()) { // check if we have 
-            func("id %s found\n", id);
+            func("id %s found", id);
             Instantiator create_instance = iterators_pair->second;
             if (create_instance) 
                 return (T*)create_instance();

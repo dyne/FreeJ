@@ -281,7 +281,7 @@ int main (int argc, char **argv) {
 
   cmdline(argc,argv);
   set_debug(debug_level);
-
+  /*
   // create SDL screen by default at selected size
   screen = NULL;
   if(opengl)
@@ -300,8 +300,8 @@ int main (int argc, char **argv) {
   // add the screen to the context
   freej->add_screen(screen);
 
-  if(fullscreen) freej->screen->fullscreen();
-
+  if(fullscreen) screen->fullscreen();
+  */
   /* sets realtime priority to maximum allowed for SCHED_RR (POSIX.1b)
      this hangs on some linux kernels - darwin doesn't even bothers with it
      anybody knows what's wrong when you turn it on? ouch! it hurts :|

@@ -92,14 +92,14 @@ bool SlwSelector::feed(int key) {
 
   bool res = false;
 
-  if(env->screen->layers.len() > 0) { // there are layers
+  if(env->screens.selected()->layers.len() > 0) { // there are layers
 
     res = true;
 
     // get the one selected
-    le = env->screen->layers.selected();
+    le = env->screens.selected()->layers.selected();
     if(!le) {
-      env->screen->layers.begin();
+      env->screens.selected()->layers.begin();
       le->sel(true);
     }
 
@@ -137,12 +137,12 @@ bool SlwSelector::feed(int key) {
 	
 	// move to the previous or the other end
 	if(!le->prev)
-	  le = env->screen->layers.end();
+	  le = env->screens.selected()->layers.end();
 	else
 	  le = le->prev;
 	
 	// select only this layer
-	env->screen->layers.sel(0);
+	env->screens.selected()->layers.sel(0);
 	le->sel(true);
 	
       } else { // a filter is selected: move across filter parameters
@@ -159,11 +159,11 @@ bool SlwSelector::feed(int key) {
 	
 	// move to the next layer or the other end
 	if(!le->next)
-	  le = env->screen->layers.begin();
+	  le = env->screens.selected()->layers.begin();
 	else le = le->next;
 	
 	// select only the current
-	env->screen->layers.sel(0);
+	env->screens.selected()->layers.sel(0);
 	le->sel(true);
 	
       } else { // move across filter parameters
@@ -220,14 +220,14 @@ bool SlwSelector::refresh() {
 
   // also put info from encoders, if active
   // so far supported only one encoder
-  VideoEncoder *enc = env->screen->encoders.begin();
+  VideoEncoder *enc = env->screens.selected()->encoders.begin();
   if(enc) {
     snprintf(tmp, w, "Stream: video %u kb/s : audio %u kb/s : encoded %u kb",
 	     enc->video_kbps, enc->audio_kbps, enc->bytes_encoded / 1024);
     putnch(tmp, 1, 0, 0);
   }
     
-  layer = env->screen->layers.selected();
+  layer = env->screens.selected()->layers.selected();
   if(layer) {
     snprintf(tmp, w, "Layer: %s blit: %s [%.0f] geometry x%i y%i w%u h%u",
 	     layer->get_filename(), layer->current_blit->name, layer->current_blit->value,
@@ -242,8 +242,8 @@ bool SlwSelector::refresh() {
   putnch(tmp, 1, 1, 0);
 
 
-  if(env->screen->layers.len()) {
-    Layer *l = env->screen->layers.begin();  
+  if(env->screens.selected()->layers.len()) {
+    Layer *l = env->screens.selected()->layers.begin();  
     //    int color;
     int tmpsize = 0;
     layercol = 0;

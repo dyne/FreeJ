@@ -20,7 +20,7 @@ JSFunctionSpec js_kbd_ctrl_methods[] = {
 /////// Javascript KeyboardController
 JS(js_kbd_ctrl_constructor);
 
-DECLARE_CLASS_GC("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor,js_ctrl_gc);
+DECLARE_CLASS("KeyboardController",js_kbd_ctrl_class, js_kbd_ctrl_constructor);
 
 JS(js_kbd_ctrl_constructor) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -30,7 +30,7 @@ JS(js_kbd_ctrl_constructor) {
         return JS_FALSE;
     
     // initialize with javascript context
-    if(! kbd->init(env) ) {
+    if(! kbd->init(global_environment) ) {
         error("failed initializing keyboard controller");
         delete kbd; return JS_FALSE;
     }

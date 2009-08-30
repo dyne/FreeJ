@@ -128,10 +128,11 @@ JSClass class_struct = { \
   JS_PropertyStub,  JS_PropertyStub, \
   JS_PropertyStub,  JS_PropertyStub, \
   JS_EnumerateStub, JS_ResolveStub, \
-  JS_ConvertStub,   gc_callback, \
+  JS_ConvertStub,   JS_FinalizeStub, \
   NULL,   NULL, \
   class_constructor \
 };
+ // s/JS_FinalizeStub/gc_callback/ to activate GC in JS (not working currently)
 //static JSClass *jsclass_s = &class_struct;
 
 #define REGISTER_CLASS(class_name, class_struct, class_constructor, class_methods, parent_class) \
@@ -155,7 +156,7 @@ JS(constructor_func) {                                                        \
                       "cannot create constructor_class");                     \
     return JS_FALSE;                                                          \
   }                                                                           \
-  rval = (jsval*)layer->js_constructor(env, cx, obj, argc, argv, excp_msg);   \
+  rval = (jsval*)layer->js_constructor(global_environment, cx, obj, argc, argv, excp_msg);   \
   if(!rval) {                                                                 \
     delete layer;                                                             \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
@@ -189,7 +190,7 @@ if(!lay) { \
     return JS_FALSE;						\
   }
 
-extern Context *env;
+extern Context *global_environment;
 extern bool stop_script;
 
 void js_sigint_handler(int sig);

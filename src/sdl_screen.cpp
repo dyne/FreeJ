@@ -56,6 +56,7 @@ SdlScreen::SdlScreen()
   magnification = 0;
   switch_fullscreen = false;
 
+  set_name("SDL");
 }
 
 SdlScreen::~SdlScreen() {
@@ -106,6 +107,8 @@ void SdlScreen::setup_blits(Layer *lay) {
   setup_sdl_blits(b);
 
   lay->blitter = b;
+
+  lay->set_blit("SDL"); // default
 }
 
 void SdlScreen::blit(Layer *src) {

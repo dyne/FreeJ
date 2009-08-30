@@ -121,33 +121,11 @@ Context::~Context() {
   Controller *ctrl;
   ViewPort *scr;
 
-  //  reset();
+  reset();
 
-
-  func("deleting current controllers");
-  ctrl = controllers.begin();
-  while(ctrl) {
-    if( ! ctrl->indestructible ) {
-
-      ctrl->rem();
-      delete(ctrl);
-      
-    }
-    ctrl = controllers.begin();
-  }
-
-  func("deleting current screens");
-  scr = screens.begin();
-  while(scr) {
-
-    scr->rem();
-    delete(scr);
-    scr = (ViewPort *)screens.begin();
-    
-  }
 
   //   invokes JSGC and all gc call on our JSObjects
-  if(js) js->reset();
+  //  if(js) js->reset();
 
   notice ("cu on http://freej.dyne.org");
 }
@@ -170,9 +148,6 @@ bool Context::add_screen(ViewPort *scr) {
   screens.sel(0);
   scr->sel(true);
   func("screen %s succesfully added", scr->name);
-
-  // selected layer auxiliary pointer
-  screen = scr;
 
   return(true);
 }
@@ -347,17 +322,13 @@ bool Context::rem_controller(Controller *ctrl) {
     return false;
   }
 
-  if(js) js->gc(); // ?!
+  //  if(js) js->gc(); // ?!
 
+  ctrl->active = false;
   ctrl->rem();
-  // mh, the JS_GC callback does the delete ...
-  if (ctrl->jsobj == NULL) {
-    func("controller JSObj is null, deleting ctrl");
-    delete ctrl;
-  } else {
-    ctrl->active = false;
-    notice("removed controller %s, deactivated it but not deleting!", ctrl->name);
-  }
+  act("removed controller %s", ctrl->name);
+  delete ctrl;
+
   return true;
 }
 
@@ -415,22 +386,30 @@ int Context::parse_js_cmd(const char *cmd) {
 int Context::reset() {
   func("%s",__PRETTY_FUNCTION__);
 
-  func("context deleting %u screens", screens.len() );
-  ViewPort *scr;
-  scr = screens.begin();
+  notice("FreeJ engine reset");
+  
+  func("deleting %u controllers", controllers.len() );
+  Controller *ctrl = controllers.begin();
+  while(ctrl) {
+    if( ! ctrl->indestructible ) {
+
+      ctrl->rem();
+      delete(ctrl);
+      
+    }
+    ctrl = controllers.begin();
+  }
+
+  func("deleting %u screens", screens.len() );
+  ViewPort *scr = screens.begin();
   while(scr) {
+
     scr->rem();
     delete(scr);
     scr = screens.begin();
+    
   }
 
-  // javascript garbage collector
-  if(js) js->gc(); 
-
-  // invokes JSGC and all gc call on our JSObjects
-  //  if(js) js->reset();
-  notice("FreeJ engine reset");
-  // should return 1 on success? 
   //does anyone care about rese() return address?
   return 1; 
 }

@@ -45,7 +45,7 @@ int console_param_selection(Context *env, char *cmd) {
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
 
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->screens.selected()->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -116,7 +116,7 @@ int console_param_selection(Context *env, char *cmd) {
 }
 
  int console_param_completion(Context *env, char *cmd) {
-  Layer *lay = (Layer*)env->screen->layers.selected();
+   Layer *lay = (Layer*)env->screens.selected()->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -187,7 +187,7 @@ int console_blit_selection(Context *env, char *cmd) {
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
 
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->screens.selected()->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -202,7 +202,7 @@ int console_blit_completion(Context *env, char *cmd) {
 
   if(!cmd) return 0;
 
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->screens.selected()->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -261,11 +261,11 @@ int console_blit_param_selection(Context *env, char *cmd) {
   Blit *b;
   int idx;
 
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->screens.selected()->layers.selected();
   
   if(!cmd) return 0;
   if(!strlen(cmd)) return 0;
-  lay = (Layer*)env->screen->layers.selected();
+  lay = (Layer*)env->screens.selected()->layers.selected();
   if(!lay) {
     ::error("no layer currently selected");
     return 0;
@@ -304,7 +304,7 @@ int console_blit_param_completion(Context *env, char *cmd) {
   Parameter *p, **params;
   Blit *b;
 
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->screens.selected()->layers.selected();
 
   if(!lay) {
     ::error("no layer currently selected");
@@ -380,7 +380,7 @@ int console_filter_selection(Context *env, char *cmd) {
     return 0;
   }
 
-  Layer *lay = (Layer*)env->screen->layers.selected();
+  Layer *lay = (Layer*)env->screens.selected()->layers.selected();
   if(!lay) {
     ::error("no layer selected for effect %s",filt->name);
     return 0;
@@ -512,7 +512,7 @@ int console_open_layer(Context *env, char *cmd) {
     l->active=true;
     //    l->fps=env->fps_speed;
 
-    len = env->screen->layers.len();
+    len = env->screens.selected()->layers.len();
     notice("layer succesfully created, now you have %i layers",len);
     return len;
   }
@@ -524,8 +524,8 @@ int console_open_layer(Context *env, char *cmd) {
 #include <text_layer.h>
 int console_print_text_layer(Context *env, char *cmd) {
 
-  ((TextLayer*)env->screen->layers.selected())->write(cmd);
-  return env->screen->layers.len();
+  ((TextLayer*)env->screens.selected()->layers.selected())->write(cmd);
+  return env->screens.selected()->layers.len();
 
 }
 
@@ -545,7 +545,7 @@ int console_open_text_layer(Context *env, char *cmd) {
   txt->active=true;
   
   notice("layer succesfully created with text: %s",cmd);
-  return env->screen->layers.len();
+  return env->screens.selected()->layers.len();
 }
 #endif
 
@@ -685,7 +685,7 @@ int console_filebrowse_completion(Context *env, char *cmd) {
 //     return 0;
 //   }
 //   func("value parsed: %s in %d",cmd,val);
-//   Layer *lay = (Layer*)env->screen->layers.begin();
+//   Layer *lay = (Layer*)env->screens.selected()->layers.begin();
 //   if(!lay) return 0;
 //   /* set value in all blits selected
 //      (supports multiple selection) */
@@ -753,9 +753,9 @@ int console_generator_completion(Context *env, char *cmd) {
 int console_generator_selection(Context *env, char *cmd) {
   GeneratorLayer *tmp = new GeneratorLayer();
   if(!tmp) return 0;
-  if(!tmp->init(env->screen->geo.w,
-		env->screen->geo.h,
-		env->screen->geo.bpp)) {
+  if(!tmp->init(env->screens.selected()->geo.w,
+		env->screens.selected()->geo.h,
+		env->screens.selected()->geo.bpp)) {
     error("can't initialize generator layer");
     delete tmp;
     return 0;

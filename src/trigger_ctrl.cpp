@@ -37,7 +37,7 @@
 
 JS(js_trigger_ctrl_constructor);
 
-DECLARE_CLASS_GC("TriggerController",js_trigger_ctrl_class, js_trigger_ctrl_constructor,js_ctrl_gc);
+DECLARE_CLASS("TriggerController",js_trigger_ctrl_class, js_trigger_ctrl_constructor);
 
 JSFunctionSpec js_trigger_ctrl_methods[] = {
   {0}
@@ -96,7 +96,7 @@ JS(js_trigger_ctrl_constructor) {
   TriggerController *trigger = new TriggerController();
 
   // initialize with javascript context
-  if(! trigger->init(env) ) {
+  if(! trigger->init(global_environment) ) {
     error("failed initializing trigger controller");
     delete trigger; return JS_FALSE;
   }

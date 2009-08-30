@@ -201,7 +201,7 @@ JS(js_osc_ctrl_constructor) {
     goto error;
   }
   // initialize with javascript context
-  if(! osc->init(env) ) {
+  if(! osc->init(global_environment) ) {
     sprintf(excp_msg, "failed initializing OSC controller");
     goto error;
   }
