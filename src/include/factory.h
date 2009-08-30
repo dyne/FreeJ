@@ -131,14 +131,8 @@ class Factory
         if (instantiators_pair != instantiators_map->end()) { // check if we have a match
             func("id %s found\n", id);
             Instantiator create_instance = instantiators_pair->second;
-            if (create_instance) {
-                T *instance = (T*)create_instance();
-                if (!instances_map)
-                    instances_map = new FInstancesMap();
-                instances_map->insert(FInstancePair(tag, (void *)instance));
-                notice("Created instance of %s at address %p", tag, (void *)instance);
-                return instance;
-            }
+            if (create_instance)
+                return (T*)create_instance();
         }
         return NULL;
     };
@@ -172,8 +166,13 @@ class Factory
                 notice("Returning instance of %s at address %p", tag, instance);
                 return (T *)instance;
             }
-        } 
-        return new_instance(category, id);
+        } else {
+            instances_map = new FInstancesMap();
+        }
+        T *instance = new_instance(category, id);
+        instances_map->insert(FInstancePair(tag, (void *)instance));
+        notice("Created instance of %s at address %p", tag, (void *)instance);
+        return instance;
     }
 
     // register a new class instantiator
