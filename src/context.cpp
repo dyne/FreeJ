@@ -142,12 +142,12 @@ Context::~Context() {
 
 bool Context::add_screen(ViewPort *scr) {
 
-  scr->env = this;
-  
   screens.prepend(scr);
   screens.sel(0);
   scr->sel(true);
+  screen = screens.begin();
   func("screen %s succesfully added", scr->name);
+  act("screen %s now on top",screen->name);
 
   return(true);
 }

@@ -103,8 +103,6 @@ class ViewPort : public Entry {
 
   virtual void setup_blits(Layer *lay) =0; ///< setup available blits on added layer
 
-  Context *env;
-
   void blit_layers();
 
   virtual bool add_layer(Layer *lay); ///< add a new layer to the screen

@@ -147,6 +147,7 @@ class Context {
 
   bool add_screen(ViewPort *scr); ///< add a new screen
   Linklist<ViewPort> screens; ///< linked list of registered screens
+  ViewPort *screen; ///< pointer to the first screen on top of the list (auxiliary)
 
   Linklist<Controller> controllers; ///< linked list of registered interactive controllers
 

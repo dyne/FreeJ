@@ -314,13 +314,13 @@ JS(js_set_debug) {
 
 JS(get_width) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    *rval = INT_TO_JSVAL(global_environment->screens.selected()->geo.w);
+    *rval = INT_TO_JSVAL(global_environment->screens.begin()->geo.w);
     return JS_TRUE;
 }
 
 JS(get_height) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-    *rval = INT_TO_JSVAL(global_environment->screens.selected()->geo.h);
+    *rval = INT_TO_JSVAL(global_environment->screens.begin()->geo.h);
     return JS_TRUE;
 }
 

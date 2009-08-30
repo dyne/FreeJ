@@ -4,6 +4,7 @@
 W=get_width();
 H=get_height();
 
+echo("w=" + W);
 //set_resolution(W,H);
 
 kbd = new KeyboardController();
@@ -102,7 +103,7 @@ kbd.pressed_esc = function() { quit(); }
 //kbd.released_q = function() { quit(); }
 register_controller( kbd );
 
-geo = new GeometryLayer();
+geo = new GeometryLayer(W,H);
 //geo.color(255,255,255,255);
 geo.set_blit("alpha");
 //geo.set_blit_value(1);
