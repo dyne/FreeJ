@@ -108,6 +108,7 @@ freej_entry_typemap_in(Encoder);
 %include "jutils.h"
 %include "context.h"
 %include "screen.h"
+%template(ScreenFactory) Factory<ViewPort>;
 
 %include "audio_collector.h"
 

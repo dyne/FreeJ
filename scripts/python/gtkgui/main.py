@@ -124,7 +124,7 @@ class FreeJ(object):
         self.cx.init()
         self.cx.clear_all = True
 
-        self.scr = freej.SdlScreen()
+        self.scr = freej.ScreenFactory.get_instance("Screen")
         self.scr.init( 400 , 300 , 32 )
         
         self.cx.add_screen( self.scr )
