@@ -74,9 +74,7 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, Context *_freej)
 
 CVF0rLayer::~CVF0rLayer()
 {
-
     close();
-
 }
 
 void *

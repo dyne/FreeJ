@@ -148,9 +148,9 @@
         return;
 
     CGPoint origin;
-    origin.x = (frame.size.width-imageRect.size.width)/2;
-    origin.y = (frame.size.height-imageRect.size.height)/2;
-    NSLog(@"Drawing at %d -- %d \n", origin.x, origin.y);
+
+    origin.x = (frame.size.width-(ctx->screen->geo.w * scaleFactor))/2;
+    origin.y = (frame.size.height-(ctx->screen->geo.h * scaleFactor))/2;
     [ciContext drawImage:previewImage
             atPoint: origin
             fromRect: imageRect];
