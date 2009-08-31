@@ -130,7 +130,7 @@
     texture = image;
     [lock lock];
     NSAffineTransform *scaleTransform = [NSAffineTransform transform];
-    scaleFactor = frame.size.width/ctx->screen->geo.w;
+    scaleFactor = frame.size.height/ctx->screen->geo.h;
     [scaleTransform scaleBy:scaleFactor];
     CIFilter    *scaleFilter = [CIFilter filterWithName:@"CIAffineTransform"];
     [scaleFilter setDefaults];    // set the filter to its default values
@@ -147,8 +147,12 @@
     if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
         return;
 
+    CGPoint origin;
+    origin.x = (frame.size.width-imageRect.size.width)/2;
+    origin.y = (frame.size.height-imageRect.size.height)/2;
+    NSLog(@"Drawing at %d -- %d \n", origin.x, origin.y);
     [ciContext drawImage:previewImage
-            atPoint: imageRect.origin
+            atPoint: origin
             fromRect: imageRect];
     //[self drawRect:NSZeroRect]; 
     CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);    

@@ -137,7 +137,11 @@
     CVF0rLayer *newLayer = NULL;
     [lock lock];
     char *name = (char *)[[[selectButton selectedItem] title] UTF8String];
-    newLayer = new CVF0rLayer(self, name, [freej getContext]);
+    newLayer = new CVF0rLayer(self, [freej getContext]);
+    Context *ctx = [freej getContext];
+    newLayer->init(ctx->screen->geo.w, ctx->screen->geo.h, ctx->screen->geo.bpp); // XXX 
+    newLayer->register_generators(&ctx->generators);
+    newLayer->open(name);
     if(newLayer) { 
         //[self setLayer:(CVLayer *)newLayer];
         [sender setTitle:@"Stop"];

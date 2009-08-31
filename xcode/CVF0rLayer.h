@@ -13,15 +13,18 @@
 
 class CVF0rLayer : public CVLayer
 {
+    protected:
+        bool _init();
+
 	public:
-		CVF0rLayer(CVLayerView *view, char *generatorName, Context *freej);
+		CVF0rLayer(CVLayerView *view, Context *freej);
         ~CVF0rLayer();
-        bool init(Context *freej);
-        bool init(Context *freej, int w, int h) { return init(freej); };
-        
+        void register_generators(Linklist<Filter> *gens);
+
         bool open(const char *file);
         void *feed();
         void close();
+        Linklist<Filter> *generators; ///< linked list of registered generators
         FilterInstance *generator;
 };
 

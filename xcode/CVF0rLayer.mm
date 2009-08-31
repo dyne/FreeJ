@@ -57,7 +57,7 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
     }
 }
 
-CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
+CVF0rLayer::CVF0rLayer(CVLayerView *view, Context *_freej)
     : CVLayer()
 {
     input = view;
@@ -68,11 +68,6 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, char *generatorName, Context *_freej)
     set_name("F0R");
     //jsclass = &gen0r_layer_class;
     //  set_filename("/particle generator");    
-    init(freej, freej->screens.begin()->geo.w, freej->screens.begin()->geo.h);
-    if (!open(generatorName)) {
-        error("generator %s hasn't been found", generatorName);
-        return;
-    }
     set_name([[view toolTip] UTF8String]);
     [input setLayer:this];
 }
@@ -99,7 +94,7 @@ bool CVF0rLayer::open(const char *file) {
     int idx;
     Filter *proto;
     
-    proto = NULL; //(Filter*) generators.search(file, &idx);
+    proto = (Filter*) generators->search(file, &idx);
     if(!proto) {
         error("generator not found: %s", file);
         return(false);
@@ -168,18 +163,12 @@ void CVF0rLayer::close() {
     opened = false;
 }
 
-bool CVF0rLayer::init(Context *freej) {
-    int width  = freej->screen->geo.w;
-    int height = freej->screen->geo.h;
-    
-    //env = freej; 
-    
-    /* internal initalization */
-    _init();
-    
-    //  open("lissajous0r");
-    //  open("ising0r");
-    
+bool CVF0rLayer::_init() {    
     return(true);
+}
+
+void CVF0rLayer::register_generators(Linklist<Filter> *gens) {
+    generators = gens;
+    act("%u registered generators found", gens->len());
 }
 
