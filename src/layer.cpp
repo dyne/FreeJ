@@ -99,20 +99,16 @@ Layer::~Layer() {
   }
   
   if(blitter) delete blitter;
-  if(buffer) free(buffer);
 }
 
 bool Layer::init(int wdt, int hgt, int bpp) {
   
   geo.init(wdt, hgt, bpp);
-
-  if(geo.bytesize>0) {
-    buffer = jalloc(geo.bytesize);
   
   func("initialized %s layer %ix%i",
        get_name(), geo.w, geo.h);
   
-  } else {
+  if (!geo.bytesize) {
     // if  the   size  is  still  unknown   at  init  then   it  is  the
     // responsability for the layer implementation to create the buffer
     // (see for instance text_layer)
