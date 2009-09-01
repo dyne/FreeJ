@@ -242,8 +242,19 @@ class App(FreeJ):
                                        "on_script_play" : self.on_script_play,
                                        "on_script_stop" : self.on_script_stop,
                                        "run_command": self.run_command,
+                                       "on_item_activated": self.on_item_activated,
                                        "show_preview": self.show_preview,
                                        "show_history": self.show_history})
+
+    def on_item_activated(self, treeview, path, view_column):
+        """
+        An item from the main tree view was selected.
+        """
+        obj = self.get_selected_object(treeview.get_model().get_iter(path))
+        if not obj: # type of object not handled
+            return
+        self.console.act(self.get_description(obj))
+        
 
     def invert_array(self, data):
         if not has_numpy:
@@ -312,10 +323,11 @@ class App(FreeJ):
         self._timeout_id = gobject.idle_add(self.__timeout, self.window)
 
     def on_script_play(self, button):
-        self.on_script_save(button)
+#        self.on_script_save(button)
         if self.lang == 'js':
             if self.buffer.filename:
-                self.cx.open_script(self.buffer.filename)
+                self.cx.parse_js_cmd(self.buffer.get_property('text'))
+#                self.cx.open_script(self.buffer.filename)
         elif self.lang == 'python':
             if self.buffer.filename:
                 self.run_python_command(self.buffer.get_property('text'))
@@ -411,17 +423,18 @@ class App(FreeJ):
 
     def do_reset(self, button):
         #del self.cx
-#        self.cx.reset()
-        print " * delete controllers"
-        for controller in list(self.cx.controllers):
-            self.cx.rem_controller(controller)
-        print " * delete layers"
-        for layer in list(self.scr.layers):
-            self.delete_layer(layer)
-        print " * clear layers"
-        print " * init context"
-         #self.init_context()
-        print " * fill tree"
+        self.cx.reset()
+#         print " * delete controllers"
+#         for controller in list(self.cx.controllers):
+#             self.cx.rem_controller(controller)
+#         print " * delete layers"
+#         for layer in list(self.scr.layers):
+#              layer.rem()
+# #            self.delete_layer(layer)
+#         print " * clear layers"
+#        print " * init context"
+#        self.init_context()
+
         self.fill_tree()
 
     def add_effect(self, button):
@@ -442,11 +455,17 @@ class App(FreeJ):
         idx = model.get_value(iter, 1)
         obj_type = model.get_value(iter, 2)
         if obj_type == LAYER:
-            return self.scr.layers[idx]
+            return self.scr.layers[idx+1]
         elif obj_type == FILTER:
-            return None
+            parent_iter = model.iter_parent(iter)
+            lay_idx = model.get_value(parent_iter, 1)
+            layer = self.scr.layers[lay_idx+1]
+            filter = layer.filters[idx+1]
+            return filter
         elif obj_type == CONTROLLER:
-            return None
+            return self.cx.controllers[idx+1]
+        elif obj_type == SCREEN:
+            return self.cx.screens[idx+1]
 
     def delete_effect(self, button=None):
         model, iter = self.main_tree.get_selection().get_selected()
@@ -494,8 +513,16 @@ class App(FreeJ):
         obj = self.get_selected_object(iter)
         if not obj:
             return
-        tooltip.set_text(obj.get_filename()+"\n  active: "+str(obj.active))
+        tooltip.set_text(self.get_description(obj))
         return True
+
+    def get_description(self, obj):
+        if isinstance(obj, freej.Layer):
+            return obj.name+"\n  active: "+str(obj.active)
+        elif isinstance(obj, freej.ViewPort):
+            return "a viewport has no name"
+        else:
+            return obj.name
 
     def prepare_tree(self):
         self.main_tree = self.wTree.get_widget("main_tree")
@@ -536,14 +563,13 @@ class App(FreeJ):
                 name = layer.get_filename()
                 if not name:
                     name = layer.name
-                    lay_iter = self.main_model.append(layers, [name, l_idx, LAYER,
+                lay_iter = self.main_model.append(layers, [name, l_idx, LAYER,
                                                                self.layer_icon, tooltip])
-#                     print layer.type
-#                     for f_idx, filter in enumerate(layer.filters):
-#                         iter = self.main_model.append(lay_iter, [filter.name, f_idx,
-#                                                                  FILTER,
-#                                                                  self.effect_icon,
-#                                                                  tooltip])
+                for f_idx, filter in enumerate(layer.filters):
+                     iter = self.main_model.append(lay_iter, [filter.name, f_idx,
+                                                                  FILTER,
+                                                                  self.effect_icon,
+                                                                  tooltip])
             
         controllers = self.main_model.append(None, ["Controllers", 0, MENU,
                                                     self.folder_icon, tooltip])
