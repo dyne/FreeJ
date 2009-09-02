@@ -43,7 +43,6 @@ class SdlGlScreen : public ViewPort {
   SdlGlScreen();
   ~SdlGlScreen();
 
-  bool _init(int width, int height);
 
   void set_magnification(int algo);
   void resize(int resize_w, int resize_h);
@@ -75,6 +74,9 @@ class SdlGlScreen : public ViewPort {
   bool unlock();
  
  private:
+
+  bool _init();
+
   int setres(int wx, int hx);
   SDL_Surface *emuscr;
   SDL_Surface *screen;

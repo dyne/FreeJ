@@ -39,7 +39,6 @@ SdlGlScreen::SdlGlScreen()
   : ViewPort() {
   
   emuscr = NULL;
-  bpp = 32;
   dbl = false;
   sdl_flags = (SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_OPENGLBLIT | SDL_RESIZABLE | SDL_HWPALETTE | SDL_HWSURFACE );
   x_translation = 0;
@@ -79,14 +78,14 @@ SdlGlScreen::SdlGlScreen()
   magnification = 0;
 
 
-  init(w, h);
+  set_name("SDLGL");
 }
 
 SdlGlScreen::~SdlGlScreen() {
   SDL_Quit();
 }
 
-bool SdlGlScreen::_init(int width, int height) {
+bool SdlGlScreen::_init() {
 	char temp[120];
 
 	/* initialize SDL */
@@ -105,7 +104,7 @@ bool SdlGlScreen::_init(int width, int height) {
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);		//Use at least 5 bits of Blue
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);	//Use at least 16 bits for the depth buffer
 
-	setres(width,height);
+	setres(geo.w, geo.h);
 
 	// init open GL
 	{
@@ -147,10 +146,10 @@ bool SdlGlScreen::_init(int width, int height) {
 	SDL_VideoDriverName(temp,120);
 
 	notice("SDLGL Viewport is %s %ix%i %ibpp",
-			temp,w,h,surface->format->BytesPerPixel<<3);
+			temp,geo.w,geo.h,surface->format->BytesPerPixel<<3);
 
-        screen = SDL_CreateRGBSurface
-         (sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
+        screen = SDL_CreateRGBSurface(sdl_flags, geo.w, geo.h, geo.bpp,
+                     blue_bitmask, green_bitmask, red_bitmask, alpha_bitmask);
 	/* be nice with the window manager */
 	sprintf(temp,"%s %s",PACKAGE,VERSION);
 	SDL_WM_SetCaption (temp, temp);
@@ -171,15 +170,12 @@ void SdlGlScreen::setup_blits(Layer *lay) {
 
 void SdlGlScreen::resize(int resize_w, int resize_h) {
   surface = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
-  w = resize_w;
-  h = resize_h;
-  size = resize_w * resize_h * (bpp>>3);
-  pitch = resize_w * (bpp>>3);
+  geo.init( resize_w, resize_h, 32);
 }
 
 void *SdlGlScreen::coords(int x, int y) {
   return 
-    ( x + (w*y) +
+    ( x + geo.pixelsize +
       (uint32_t*)screen->pixels );
 }
 
@@ -276,6 +272,7 @@ bool SdlGlScreen::unlock() {
 int SdlGlScreen::setres(int wx, int hx) {
   /* check and set available videomode */
   int res;
+  int bpp = 32;
   res = SDL_VideoModeOK(wx, hx, bpp, sdl_flags);
   
   
@@ -307,19 +304,19 @@ void SdlGlScreen::set_magnification(int algo) {
 
   if(algo==0) {
     notice("screen magnification off");
-    setres(w,h);
+    setres(geo.w,geo.h);
     if(magnification) SDL_FreeSurface(surface);
     surface = SDL_GetVideoSurface();
 
   } else if(algo==1) {
 
     notice("screen magnification scale2x");
-    setres(w*2,h*2);
+    setres(geo.w*2,geo.h*2);
 
   } else if(algo==2) {
 
     notice("screen magnification scale3x");
-    setres(w*3,h*3);
+    setres(geo.w*3,geo.h*3);
 
   } else {
 
@@ -331,8 +328,8 @@ void SdlGlScreen::set_magnification(int algo) {
 
   if(!magnification && algo) {
     func("create surface for magnification");
-    screen = SDL_CreateRGBSurface
-      (sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
+    screen = SDL_CreateRGBSurface(sdl_flags, geo.w, geo.h, geo.bpp,
+                 blue_bitmask, green_bitmask, red_bitmask, alpha_bitmask);
       //      (SDL_HWSURFACE,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
   }
 
