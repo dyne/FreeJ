@@ -62,7 +62,7 @@ int Loggable::log(LogLevel level, const char *format, ...) {
   int rv = 0;
 
   va_start(arg, format);
-  vlog(level, format, arg);
+  rv = vlog(level, format, arg);
   va_end(arg);
   return rv;
 }
