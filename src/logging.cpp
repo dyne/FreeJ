@@ -17,8 +17,22 @@
 
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
 
 #include <logging.h>
+
+int Logger::printlog(LogLevel level, const char *format, ...) {
+  va_list arg;
+  int rv;
+  va_start(arg, format);
+  rv = vprintlog(level, format, arg);
+  va_end(arg);
+  return rv;
+}
+
+int Logger::vprintlog(LogLevel level, const char *format, va_list arg){
+  return 0;
+}
 
 Loggable::Loggable() : logger_(NULL), loglevel_(INFO) {
   int r;
@@ -159,6 +173,37 @@ int GlobalLogger::vprintlog(LogLevel level, const char *format, va_list arg) {
     pthread_mutex_unlock(&logger_mutex_);
   }
   return rv;
+}
+
+WrapperLogger::WrapperLogger() {
+  int r;
+  if ((r=pthread_mutex_init(&logbuf_mutex_, NULL)) != 0)
+    throw Error("Initializing logbuf_mutex_", r);
+  if ((logbuf_ = (char *)malloc(sizeof(char)*(MAX_LOG_MSG+1))) == NULL) {
+    pthread_mutex_destroy(&logbuf_mutex_);
+    throw Error("Allocating logbuf_", 0);
+  }
+}
+
+WrapperLogger::~WrapperLogger() {
+  int r;
+  if ((r=pthread_mutex_destroy(&logbuf_mutex_)) != 0)
+    GlobalLogger::printlog(ERROR, "In %s , pthread_mutex_destroy(): %s",
+          __PRETTY_FUNCTION__, strerror(r));
+  free(logbuf_);
+}
+
+int WrapperLogger::vprintlog(LogLevel level, const char *format, va_list arg){
+  int rv;
+  pthread_mutex_lock(&logbuf_mutex_);
+  rv = vsnprintf(logbuf_, MAX_LOG_MSG, format, arg);
+  logmsg(level, logbuf_);
+  pthread_mutex_unlock(&logbuf_mutex_);
+  return rv;
+}
+
+void WrapperLogger::logmsg(LogLevel level, const char *msg) {
+  return;
 }
 
 // These are for backward compatibility:

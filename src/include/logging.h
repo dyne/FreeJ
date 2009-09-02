@@ -53,11 +53,11 @@ enum LogLevel { // ordered by increasing verbosity
   DEBUG
 };
 
-// Interface to implement for providing a logging service
+// Base class to implement for providing a logging service
 class Logger {
   public:
-    virtual int printlog(LogLevel level, const char *format, ...) = 0;
-    virtual int vprintlog(LogLevel level, const char *format, va_list arg) = 0;
+    virtual int printlog(LogLevel level, const char *format, ...);
+    virtual int vprintlog(LogLevel level, const char *format, va_list arg);
 };
 
 // This class has to be inherited by all the classes which expect to print on a
@@ -103,6 +103,25 @@ class GlobalLogger {
     static pthread_mutex_t logger_mutex_;
     static ConsoleController *console_; // accessed under logger_mutex_
     static char logbuf_[];
+};
+
+// Basic Logger implementation compatible with dynamic languages bindings,
+// subclasses in other languages should implement logmsg()
+class WrapperLogger : public Logger {
+  public:
+    class Error : public FreejError {
+      public:
+        Error(const std::string& msg, int rv)
+          : FreejError(msg, rv) { }
+    };
+
+    WrapperLogger();
+    virtual ~WrapperLogger();
+    int vprintlog(LogLevel level, const char *format, va_list arg);
+    virtual void logmsg(LogLevel level, const char *msg);
+  private:
+    char *logbuf_;
+    pthread_mutex_t logbuf_mutex_;
 };
 
 // These are for backward compatibility:
