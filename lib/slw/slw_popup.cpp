@@ -22,8 +22,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <jutils.h>
-
 #include <slw_popup.h>
 
 SLW_Popup::SLW_Popup()
@@ -44,7 +42,7 @@ SLW_Popup::~SLW_Popup() {
 bool SLW_Popup::init() {
 
 	if(!console) {
-		error("can't initialize widget '%s': not places on console",
+		fprintf(stderr, "can't initialize widget '%s': not places on console",
 				name);
 		return false;
 	}

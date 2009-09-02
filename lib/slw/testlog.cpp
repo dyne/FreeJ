@@ -9,8 +9,6 @@
 #include <slw_log.h>
 #include <slw_prompt.h>
 
-#include <jutils.h>
-
 
 SLangConsole con;
 SLW_Log log;

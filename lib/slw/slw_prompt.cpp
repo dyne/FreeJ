@@ -22,8 +22,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <jutils.h>
-
 #include <slw_prompt.h>
 
 
@@ -44,7 +42,7 @@ SLW_Prompt::~SLW_Prompt() {
 bool SLW_Prompt::init() {
 
   if(!console) {
-    ::error("can't initialize widget '%s': not placed on console", name);
+    fprintf(stderr, "can't initialize widget '%s': not placed on console", name);
     return false;
   }
 

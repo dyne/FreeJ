@@ -12,6 +12,4 @@ libslw_la_SOURCES = slw_console.cpp slw.cpp \
 noinst_HEADERS = abs_text_console.h keycodes.h slw_console.h slw.h \
 	slw_log.h slw_popup.h slw_prompt.h slw_text.h
 
-#	$(top_srcdir)/linklist.o $(top_srcdir)/jutils.o
-
 

@@ -22,9 +22,8 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <errno.h>
-
-#include <jutils.h>
 
 #include <keycodes.h>
 #include <abs_text_console.h>
@@ -476,7 +475,7 @@ bool Row::fit(int l) {
     // this is the first time we allocate the buffer
     text = (CHAR*) calloc(max + enlarge, sizeof(CHAR));
     if( ! text ) {
-      error("can't allocate new text buffer for a row: %s",
+      fprintf(stderr, "can't allocate new text buffer for a row: %s",
 	    strerror(errno));
       return false;
     }
@@ -488,7 +487,7 @@ bool Row::fit(int l) {
     // preserving the contents of the old
     text = (CHAR*) realloc(text, (max + enlarge) * sizeof(CHAR) );
     if( ! text) {
-      error("can't reallocate text buffer for a row: %s",
+      fprintf(stderr, "can't reallocate text buffer for a row: %s",
 	    strerror(errno));
       return false; 
     }

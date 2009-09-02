@@ -24,8 +24,6 @@
 
 #include <slang.h>
 
-#include <jutils.h>
-
 #include <slw_console.h>
 
 
@@ -77,7 +75,7 @@ bool SLangConsole::init() {
   SLtt_get_terminfo();
 
   if( -1 == SLkp_init() ) { // keyboard interface
-	error("failure in SLkp_init()");
+	fprintf(stderr, "failure in SLkp_init()");
   	return false;
   }
 

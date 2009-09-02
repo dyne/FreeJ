@@ -22,8 +22,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <jutils.h>
-
 #include <slw_text.h>
 
 
@@ -44,7 +42,7 @@ SLW_Text::~SLW_Text() {
 bool SLW_Text::init() {
   
   if(!console) {
-    error("can't initialize widget '%s': not placed on console", name);
+    fprintf(stderr, "can't initialize widget '%s': not placed on console", name);
     return false;
   }
   

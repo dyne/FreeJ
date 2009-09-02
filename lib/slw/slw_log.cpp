@@ -22,8 +22,6 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <jutils.h>
-
 #include <slw_log.h>
 
 
@@ -45,7 +43,7 @@ SLW_Log::~SLW_Log() {
 bool SLW_Log::init() {
 
   if(!console) {
-    ::error("can't initialize widget '%s': not placed on console", name);
+    fprintf(stderr, "can't initialize widget '%s': not placed on console", name);
     return false;
   }
 

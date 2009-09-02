@@ -23,8 +23,6 @@
 #include <slw.h>
 #include <slw_console.h>
 
-#include <jutils.h>
-
 SLangWidget::SLangWidget()
   : Entry() {
   
@@ -95,7 +93,7 @@ bool SLangWidget::gotoxy(int x, int y) {
   
   // check validity of coordinates
   if( ! check(x, y) ) {
-    warning("gotoxy called with invalid coords");
+    fprintf(stderr, "gotoxy called with invalid coords");
     return false;
   }
   SLsmg_gotorc(y + orig_y, x + orig_x);
@@ -107,7 +105,7 @@ bool SLangWidget::putch(CHAR ch, int x, int y) {
 
   // check validity of coordinates
   if( ! check(x, y) ) {
-    warning("putch called with invalid coords");
+    fprintf(stderr, "putch called with invalid coords");
     return false;
   }
 
@@ -129,7 +127,7 @@ int SLangWidget::putnch(CHAR *str, int x, int y, int nchars) {
   
   // check validity of coordinates
   if( ! check(x, y) ) {
-    warning("putnch called with invalid coords");
+    fprintf(stderr, "putnch called with invalid coords");
     return false;
   }
   
@@ -182,7 +180,7 @@ int SLangWidget::putnch(CHAR *str, int x, int y, int nchars) {
 void SLangWidget::blank_row(int y) {
   
   if( ! check(0,y) ) {
-    warning("blank_row failed: y=%u",y);
+    fprintf(stderr, "blank_row failed: y=%u",y);
     return;
   }
 
@@ -207,17 +205,17 @@ void SLangWidget::blank() {
 bool SLangWidget::check(int x, int y) {
 
   if(!console) { // check if its placed
-    error("can't draw on unplaced widget '%s'", name);
+    fprintf(stderr, "can't draw on unplaced widget '%s'", name);
     return false;
   }
   
   if(!initialized) { // check if its initialized
-    error("can't operate on non initialized widget '%s'",name);
+    fprintf(stderr, "can't operate on non initialized widget '%s'",name);
     return false;
   }
   
   if( x>w || y>h ) { // check bounds
-    warning("position out of bounds (%u,%u) in widget '%s'",
+    fprintf(stderr, "position out of bounds (%u,%u) in widget '%s'",
 	    x, y, name);
     return false;
   }
@@ -259,7 +257,7 @@ void SLangWidget::set_color(int col) {
     color = col;
     break;
   default:
-    warning("invalid color %u selected for widget %s", col, name);
+    fprintf(stderr, "invalid color %u selected for widget %s", col, name);
     break;
   }
 }
