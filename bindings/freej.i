@@ -11,6 +11,7 @@
 #include "fps.h"
 #include "controller.h"
 #include "callback.h"
+#include "logging.h"
 
 #include "sdl_screen.h"
 #include "soft_screen.h"
@@ -115,6 +116,9 @@ freej_entry_typemap_in(Encoder);
 %ignore DumbCallback;
 %feature("director") DumbCall;
 %include "callback.h"
+
+%feature("director") WrapperLogger;
+%include "logging.h"
 
 %include "linklist.h"
 %template(EntryLinkList) Linklist<Entry>;
