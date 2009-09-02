@@ -23,22 +23,11 @@
 #include <inttypes.h>
 #include <errno.h>
 
-class ConsoleController;
-
-// max length of (error)messages
-#define MAX_ERR_MSG 1024
-extern char msg[MAX_ERR_MSG+1];
+// FIXME: Cheap way to get logging included everywhere
+#include <logging.h>
 
 extern void *(*jmemcpy)( void *to, const void *from, size_t len );
 
-void set_debug(int lev);
-int get_debug();
-void set_console(ConsoleController *c);
-void notice(const char *format, ...);
-void func(const char *format, ...);
-void error(const char *format, ...);
-void act(const char *format, ...);
-void warning(const char *format, ...);
 uint32_t fastrand();
 void fastsrand(uint32_t seed);
 double dtime();
