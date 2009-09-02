@@ -73,9 +73,9 @@ int Loggable::vlog(LogLevel level, const char *format, va_list arg) {
   if (level <= loglevel_) {
     pthread_mutex_lock(&logger_mutex_);
     if (logger_)
-      rv = logger_->printlog(level, format, arg);
+      rv = logger_->vprintlog(level, format, arg);
     else
-      rv = GlobalLogger::printlog(level, format, arg);
+      rv = GlobalLogger::vprintlog(level, format, arg);
     pthread_mutex_unlock(&logger_mutex_);
   }
   return rv;
@@ -138,7 +138,7 @@ int GlobalLogger::vprintlog(LogLevel level, const char *format, va_list arg) {
   if (level <= loglevel_) {
     pthread_mutex_lock(&logger_mutex_);
     if (logger_) {
-      rv = logger_->printlog(level, format, arg);
+      rv = logger_->vprintlog(level, format, arg);
     } else {
       vsnprintf(logbuf_, MAX_LOG_MSG, format, arg);
       if (console_) { // Old console compatibility
