@@ -158,7 +158,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         [self togglePlay:nil]; // start playing the movie
         movieDuration = [[[qtMovie movieAttributes] objectForKey:QTMovieDurationAttribute] QTTimeValue];
     
-        Context *ctx = layer->context();
         QTTime posterTime = [qtMovie duration];
         posterTime.timeValue /= 2;
         NSImage *poster = [qtMovie frameImageAtTime:posterTime];

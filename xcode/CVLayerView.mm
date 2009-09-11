@@ -205,7 +205,7 @@
     if ([layerController doPreview] && previewTarget) { 
         // scale the frame to fit the preview
         if (![previewTarget isHiddenOrHasHiddenAncestor])
-            [previewTarget renderFrame:[self getTexture]];
+            [previewTarget renderFrame:[layerController getTexture]];
         
     }
     [pool release];
