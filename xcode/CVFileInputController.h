@@ -26,6 +26,7 @@
 - (QTTime)movieDuration;
 - (QTTime)currentTime;
 - (void)setTime:(QTTime)inTime;
+- (BOOL)togglePlay;
 @end
 
 #endif

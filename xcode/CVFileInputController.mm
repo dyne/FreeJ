@@ -155,7 +155,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         }
         
         [qtMovie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieLoopsAttribute];
-        [self togglePlay:nil]; // start playing the movie
+        [self togglePlay]; // start playing the movie
         movieDuration = [[[qtMovie movieAttributes] objectForKey:QTMovieDurationAttribute] QTTimeValue];
     
         QTTime posterTime = [qtMovie duration];
@@ -204,11 +204,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [self setTime:QTTimeFromString([sender stringValue])];
 }
 
-- (IBAction)togglePlay:(id)sender
+- (BOOL)togglePlay
 {
     [lock lock];
     isPlaying = isPlaying?NO:YES;
     [lock unlock];
+    return isPlaying;
 }
 
 - (CVTexture *)getTexture

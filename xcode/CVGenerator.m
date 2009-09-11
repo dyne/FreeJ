@@ -40,7 +40,6 @@
 
 - (void)prepareOpenGL
 {
-	CVReturn			    ret;
 	NSAutoreleasePool *pool;
 	pool = [[NSAutoreleasePool alloc] init];
 	

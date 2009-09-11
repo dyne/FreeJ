@@ -72,7 +72,7 @@
     
 	// create a file data reference for our movie
 	*outErr = QTNewDataReferenceFromFullPathCFString((CFStringRef)tempName,
-                                                     kQTNativeDefaultPathStyle,
+                                                     kQTPOSIXPathStyle,
                                                      0,
                                                      &dataRefH,
                                                      &dataRefType);

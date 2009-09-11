@@ -57,6 +57,8 @@ class CVScreen;
 - (CVReturn)outputFrame:(uint64_t)timestamp;
 - (void)reset;
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
+- (void)addLayer:(Layer *)lay;
+- (void)remLayer:(Layer *)lay;
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
 - (NSWindow *)getWindow;
 - (IBAction)toggleFullScreen:(id)sender;

@@ -171,15 +171,16 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [alphaFilter setValue:[NSNumber numberWithFloat:0.5] forKey:@"outputOpacity"]; // set default value
     
     // Create display link 
-    NSOpenGLPixelFormat    *openGLPixelFormat = [self pixelFormat];
-    viewDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  // we start with our view on the main display
-    // build up list of displays from OpenGL's pixel format
-    for (virtualScreen = 0; virtualScreen < [openGLPixelFormat  numberOfVirtualScreens]; virtualScreen++)
-    {
-        [openGLPixelFormat getValues:&displayMask forAttribute:NSOpenGLPFAScreenMask forVirtualScreen:virtualScreen];
-        totalDisplayMask |= displayMask;
+    if (layerView) {
+        NSOpenGLPixelFormat    *openGLPixelFormat = [layerView pixelFormat];
+        viewDisplayID = (CGDirectDisplayID)[[[[[layerView window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  // we start with our view on the main display
+        // build up list of displays from OpenGL's pixel format
+        for (virtualScreen = 0; virtualScreen < [openGLPixelFormat  numberOfVirtualScreens]; virtualScreen++)
+        {
+            [openGLPixelFormat getValues:&displayMask forAttribute:NSOpenGLPFAScreenMask forVirtualScreen:virtualScreen];
+            totalDisplayMask |= displayMask;
+        }
     }
-    
     // Setup the timecode overlay
     /*
      NSDictionary *fontAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:[NSFont labelFontOfSize:24.0f], NSFontAttributeName,

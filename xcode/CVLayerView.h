@@ -42,9 +42,15 @@ class CVLayer;
 - (CVPreview *)getPreviewTarget;
 - (NSString *)filterName;
 - (NSDictionary *)filterParams;
-// - (void)drawPosterImage:(CIImage *)posterInputImage withScaleFactor:(float)scaleFactor;
 - (void)setPosterImage:(NSImage *)image;
-- (void)initialized;
+- (void)setPreviewTarget:(CVPreview *)targetView;
+- (bool)needPreview; // true if we need to provide a preview, else otherwise
+- (void)startPreview; // enable preview rendering
+- (void)stopPreview; // disable preview rendering
+- (void)renderPreview; // render the preview frame
+- (bool)isVisible; // query the layer to check if it's being sent to the Screen or not
+- (void)activate; /// activate the underlying CVLayer
+- (void)deactivate; /// deactivate the underlying CVLayer
 // Interface Builder API 
 - (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
 - (IBAction)setBlendMode:(id)sender; /// tag -1

@@ -303,25 +303,6 @@
     CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
 }
 
-/*
-- (void)drawPosterImage:(CIImage *)posterInputImage withScaleFactor:(float)scaleFactor
-{
-
-    
-    CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-                                   NSWidth(bounds), NSHeight(bounds));
-    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
-        return;    
-    //[lock lock];
-    [ciContext drawImage:posterImage
-                 atPoint: imageRect.origin
-                fromRect: imageRect];
-    [[self openGLContext] makeCurrentContext];
-    [[self openGLContext] flushBuffer];
-    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
-}
-*/
-
 - (void)setPosterImage:(NSImage *)image
 {
     NSRect bounds = [self bounds];
@@ -357,10 +338,6 @@
         return [layerController filterParams];
     return nil;
 
-}
-
-- (void)initialized
-{
 }
 
 @end
