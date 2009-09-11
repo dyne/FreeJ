@@ -7,13 +7,12 @@
 //
 #ifndef __CV_FILEINPUT_H__
 #define __CV_FILEINPUT_H__
-
+#include "CVLayer.h"
 #include <context.h>
 #import  <Cocoa/Cocoa.h>
 #import  <QuickTime/QuickTime.h>
 #import  <QTKit/QTKit.h>
 #import  "CFreej.h";
-#include "CVLayer.h"
 
 @interface CVFileInputController : CVLayerController {
     id                    delegate;

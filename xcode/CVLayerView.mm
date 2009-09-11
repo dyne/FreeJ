@@ -6,12 +6,10 @@
 //  Copyright 2009 dyne.org. All rights reserved.
 //
 
-
-#import <QTKit/QTMovie.h>
-#include <Cocoa/Cocoa.h>
+#import "CVLayerView.h"
 #import "CIAlphaFade.h"
 #import "CVFilterPanel.h"
-#import "CVLayerView.h"
+#import <QTKit/QTMovie.h>
 
 @implementation CVLayerView : NSOpenGLView
 

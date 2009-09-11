@@ -6,8 +6,8 @@
 //  Copyright 2009 dyne.org. All rights reserved.
 //
 
-#import "CIAlphaFade.h"
 #import "CVFileInputController.h"
+#import "CIAlphaFade.h"
 #include <math.h>
 
 /* Utility to set a SInt32 value in a CFDictionary

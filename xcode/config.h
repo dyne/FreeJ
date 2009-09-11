@@ -205,7 +205,7 @@
 /* Define to empty if `const' does not conform to ANSI C. */
 /* #undef const */
 
-#define XP_UNIX
+#define XP_UNIX 1
 
 #define WITH_COCOA 1
 
@@ -214,4 +214,5 @@
 #define THREADSAFE 1
 
 #define WITH_FREI0R 1
+
 #endif

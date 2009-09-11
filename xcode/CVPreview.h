@@ -6,10 +6,10 @@
 //  Copyright 2009 dyne.org. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import <CVLayer.h>
 #import <CVTexture.h>
-#import <CFreeJ.h>
 
+@class CFreej;
 
 @interface CVPreview : NSOpenGLView {
     CIContext              *ciContext;

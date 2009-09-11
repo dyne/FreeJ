@@ -118,8 +118,8 @@ Context::Context() {
 
 Context::~Context() {
 
-  Controller *ctrl;
-  ViewPort *scr;
+  //Controller *ctrl;
+  //ViewPort *scr;
 
   reset();
 

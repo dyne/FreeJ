@@ -8,16 +8,7 @@
 
 #import "CVF0rLayerController.h"
 
-
 @implementation CVF0rLayerController : CVLayerController
-
-
-- (id)init
-{
-    NSLog(@"MADONNA!!! \n");
-
-    return [super init];
-}
 
 - (void)feedFrame:(void *)frame
 {

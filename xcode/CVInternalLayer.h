@@ -6,9 +6,7 @@
 //  Copyright 2009 dyne.org. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
 #import <CVLayer.h>
-#include <layer.h>
 
 @interface CVInternalLayerView : CVLayerController {
 }

@@ -38,6 +38,7 @@
 #include <freeframe_freej.h>
 
 #ifdef HAVE_DARWIN
+#define _UINT64
 #include <Carbon/Carbon.h>
 #endif
 

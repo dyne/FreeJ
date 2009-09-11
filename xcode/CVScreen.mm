@@ -17,16 +17,15 @@
  *
  */
 
-#include <config.h>
-
-#include <stdlib.h>
-
-#include <jutils.h>
-#import <QuartzCore/CIKernel.h>
-#import <QTKit/QTMovie.h>
+#import "CVScreen.h"
 #import "CFreej.h"
 #import "CVLayerView.h"
 #import "CVScreenView.h"
+#include <stdlib.h>
+#include <jutils.h>
+#import <QuartzCore/CIKernel.h>
+#import <QTKit/QTMovie.h>
+
 
 
 FACTORY_REGISTER_INSTANTIATOR(ViewPort, CVScreen, Screen, cocoa);

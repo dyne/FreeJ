@@ -9,8 +9,8 @@
 #ifndef __CV_FILTERPANEL_H__
 #define __CV_FILTERPANEL_H__
 
-#import <Cocoa/Cocoa.h>
 #import <CVLayer.h>
+#import <Cocoa/Cocoa.h>
 
 @class CVFilterPanel;
 

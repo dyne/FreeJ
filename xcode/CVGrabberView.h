@@ -9,7 +9,6 @@
 #ifndef __CVGRABBERVIEW_H__
 #define __CVGRABBERVIEW_H__
 
-#import <Cocoa/Cocoa.h>
 #import "CVLayerView.h"
 #import "CVGrabber.h"
 

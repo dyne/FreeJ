@@ -8,8 +8,9 @@
 #ifndef __CFREEJ_H__
 #define __CFREEJ_H__
 
-
 #include <context.h>
+
+#define _UINT64
 #import <Cocoa/Cocoa.h>
 #import <CVScreen.h>
 

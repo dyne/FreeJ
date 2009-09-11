@@ -6,6 +6,7 @@
 //  Copyright 2009 __MyCompanyName__. All rights reserved.
 //
 
+#include "CVLayerController.h"
 #import "CVFileInputView.h"
 
 
@@ -63,5 +64,18 @@
 {
     [super drawRect:theRect];
 }
+
+- (IBAction)setMovieTime:(id)sender
+{
+    // TODO - Implement
+    NSLog(@"ImplementMe()");
+}
+
+- (IBAction)togglePlay:(id)sender
+{
+    // TODO - Implement
+    NSLog(@"ImplementMe()");
+}
+
 
 @end

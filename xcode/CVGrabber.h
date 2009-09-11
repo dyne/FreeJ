@@ -9,13 +9,14 @@
 #ifndef __CVGRABBERCONTROLLER_H__
 #define __CVGRABBERCONTROLLER_H__
 
+#include "CVLayer.h"
+#import "CVLayerController.h"
+
 #include <context.h>
 #import <QTKit/QTKit.h>
 #import <CoreAudio/CoreAudio.h>
 
-#include "CVLayer.h"
 #include "CVFilterPanel.h"
-#import "CVLayerController.h"
 
 @class CFreej;
 @class CVGrabber;

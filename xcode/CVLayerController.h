@@ -9,8 +9,10 @@
 #ifndef __CVLAYERCONTROLLER_H__
 #define __CVLAYERCONTROLLER_H__
 
+#include "CVLayer.h"
+#import "CFreej.h"
+#import "CVPreview.h"
 #import <Cocoa/Cocoa.h>
-#import <CVLayer.h>
 #import <CVLayerView.h>
 
 @class CVLayerView;

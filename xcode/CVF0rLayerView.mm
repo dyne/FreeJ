@@ -6,6 +6,7 @@
 //  Copyright 2009 dyne.org. All rights reserved.
 //
 
+#include "CVF0rLayer.h"
 #import "CVF0rLayerView.h"
 
 @implementation CVF0rLayerView : CVLayerView

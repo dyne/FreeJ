@@ -10,18 +10,16 @@
 #define __CVF0RLAYERVIEW_H__
 
 #import <Cocoa/Cocoa.h>
-#include <CVF0rLayer.h>
 #import "CVLayerView.h"
 #import "CVF0rLayerController.h"
 
 
 @interface CVF0rLayerView : CVLayerView
 {
-    CIImage *icon;
+    NSImage *icon;
     IBOutlet NSPopUpButton *selectButton;
     IBOutlet NSButton *startButton;
 }
-- (void)feedFrame:(void *)frame;
 - (IBAction)start:(id)sender;
 - (IBAction)stop:(id)sender;
 @end

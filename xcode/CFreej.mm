@@ -6,7 +6,6 @@
 //  Copyright 2009 dyne.org. All rights reserved.
 //
 #include <jsparser.h>
-#define _UINT64 1
 #import <CFreej.h>
 #import <CVLayer.h>
 #include <CVScreen.h>

@@ -8,7 +8,6 @@
  */
 #include <factory.h>
 #include <controller.h>
-#define _UINT64
 #include <CFreej.h>
 #include <CVScreen.h>
 #import <Cocoa/Cocoa.h>

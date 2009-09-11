@@ -9,11 +9,12 @@
 #ifndef __CVLAYER_H__
 #define __CVLAYER_H__
 
-
 #include <layer.h>
 #include <context.h>
-#import "CVLayerController.h"
-#import "CVTexture.h"
+
+#import <CFreej.h>
+#import <CVLayerController.h>
+#import <CVTexture.h>
 
 @class CVLayerView;
 @class CVLayerController;

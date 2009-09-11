@@ -9,16 +9,14 @@
 #ifndef __CVLAYERVIEW_H__
 #define __CVLAYERVIEW_H__
 
-#import <Cocoa/Cocoa.h>
+#include "CVLayerController.h"
 #include <QuartzCore/QuartzCore.h>
 #import  <CVtexture.h>
-#import  <CVPreview.h>
 #import  <CFreeJ.h>
-#include "CVLayer.h"
-#include "CVLayerController.h"
 
 @class CVFilterPanel;
 @class CVLayerController;
+@class CVPreview;
 class CVLayer;
 
 @interface CVLayerView : NSOpenGLView {

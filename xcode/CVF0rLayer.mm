@@ -89,7 +89,7 @@ CVF0rLayer::feed()
     if (!lastFrame)
         lastFrame = malloc(geo.bytesize);
     memcpy(lastFrame, res, geo.bytesize);
-    [(CVF0rLayerView *)input feedFrame:lastFrame]; 
+    //[(CVF0rLayerView *)input feedFrame:lastFrame]; 
     return res;
 }
 

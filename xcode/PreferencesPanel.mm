@@ -7,6 +7,7 @@
 //
 
 #import "PreferencesPanel.h"
+#import "CVScreenView.h"
 
 static struct {
     int w;

@@ -6,9 +6,9 @@
 //  Copyright 2009 dyne.org. All rights reserved.
 //
 
-#import "CVScreenView.h"
-#import "CVTexture.h"
-#include "CVLayer.h"
+#import <CVScreenView.h>
+
+#include <CVLayer.h>
 
 #define _BGRA2ARGB(__buf, __size) \
 {\

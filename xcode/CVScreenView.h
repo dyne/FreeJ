@@ -9,9 +9,8 @@
 #ifndef __CV_SCREENVIEW_H__
 #define __CV_SCREENVIEW_H__
 
-#import <Cocoa/Cocoa.h>
-#include "CVScreen.h"
-#include "CFreej.h"
+#import <CVScreen.h>
+#import <CVTexture.h>
 
 class CVScreen;
 @class CFreej;

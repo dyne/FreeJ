@@ -9,7 +9,6 @@
 #ifndef __CVF0RLAYERCONTROLLER_H__
 #define __CVF0RLAYERCONTROLLER_H__
 
-#import <Cocoa/Cocoa.h>
 #import "CVLayerController.h"
 
 @interface CVF0rLayerController : CVLayerController 
@@ -18,7 +17,7 @@
 }
 
 - (void)reset;
-- (void)feedFrame:(CVPixelBufferRef)frame;
+- (void)feedFrame:(void *)frame;
 - (char *)name;
 @end
 

@@ -6,8 +6,11 @@
 //  Copyright 2009 dyne.org. All rights reserved.
 //
 
+#import <CVLayer.h>
 #import <Cocoa/Cocoa.h>
-#import <CVScreen.h>
+
+@class CVScreenView;
+@class CFreej;
 
 @interface PreferencesPanel : NSWindow {
     IBOutlet CFreej *freej;

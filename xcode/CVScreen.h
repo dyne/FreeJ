@@ -22,14 +22,15 @@
 
 #include <context.h>
 #include <screen.h>
-#include <QuartzCore/QuartzCore.h>
-#import <Cocoa/Cocoa.h>
-#import <Foundation/NSArray.h>
-#import "CFreej.h"
-#import "FrameRate.h"
-#import "QTExporter.h"
-#import "CVScreenView.h"
 #include <factory.h>
+
+#import  <CFreej.h>
+#import  <FrameRate.h>
+#import  <QTExporter.h>
+#import  <CVScreenView.h>
+#import  <QuartzCore/QuartzCore.h>
+#import  <Foundation/NSArray.h>
+
 
 @class CFreej;
 class  CVScreen;
