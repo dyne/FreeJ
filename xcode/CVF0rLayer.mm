@@ -65,10 +65,11 @@ CVF0rLayer::CVF0rLayer(CVLayerController *controller, Context *_freej)
     generator = NULL;
     
     type = Layer::F0R_GENERATOR;
-    set_name("F0R");
+    //set_name("F0R");
     //jsclass = &gen0r_layer_class;
     //  set_filename("/particle generator");    
-   // set_name([[controller toolTip] UTF8String]);
+    set_name([controller name]);
+    lastFrame = NULL;
     [input setLayer:this];
 }
 
@@ -84,7 +85,11 @@ CVF0rLayer::feed()
     if (generator) 
         res = generator->process(fps.get(), NULL);
 
-    [(CVF0rLayerView *)input feedFrame:res]; 
+    // TODO - handle geometry changes
+    if (!lastFrame)
+        lastFrame = malloc(geo.bytesize);
+    memcpy(lastFrame, res, geo.bytesize);
+    [(CVF0rLayerView *)input feedFrame:lastFrame]; 
     return res;
 }
 

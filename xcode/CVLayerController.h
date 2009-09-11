@@ -26,7 +26,8 @@ class CVLayer;
         CIImage                *posterImage;
         bool                   doPreview;
         CVTexture              *currentPreviewTexture;
-        
+        CGLContextObj         glContext;
+
         // display link
         CVDisplayLinkRef       displayLink;            // the displayLink that runs the show
         CGDirectDisplayID      viewDisplayID;
@@ -47,7 +48,6 @@ class CVLayer;
         CVLayer                *layer;
         IBOutlet CVLayerView   *layerView;
         bool                   doFilters;
-
     }
     
     @property (readwrite) CVLayer *layer;

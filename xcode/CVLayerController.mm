@@ -41,7 +41,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (id)initWithContext:(CFreej *)ctx
 {
-    CGLContextObj glContext;
     CGLPixelFormatObj pFormat;
     GLint npix;
     const int attrs[2] = { kCGLPFADoubleBuffer, NULL};
@@ -53,7 +52,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     freej = ctx;
     err = CGLCreateContext(pFormat , NULL, &glContext);
     lock = [[NSRecursiveLock alloc] init];
-    //[lock retain];
     [layerView setNeedsDisplay:NO];
     layer = NULL;
     doFilters = true;

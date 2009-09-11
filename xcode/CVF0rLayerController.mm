@@ -70,4 +70,10 @@
     [super setLayer:lay];
 }
 
+- (char *)name {
+    if (layerView)
+        return (char *)[[layerView toolTip] UTF8String];
+    return (char *)"F0R";
+}
+
 @end

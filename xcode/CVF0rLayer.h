@@ -20,7 +20,7 @@ class CVF0rLayer : public CVLayer
 		CVF0rLayer(CVLayerController *controller, Context *freej);
         ~CVF0rLayer();
         void register_generators(Linklist<Filter> *gens);
-
+        void *lastFrame;
         bool open(const char *file);
         void *feed();
         void close();

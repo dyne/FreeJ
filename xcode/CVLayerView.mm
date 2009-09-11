@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 8/30/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 
 
@@ -59,10 +59,7 @@
                                           options:[NSDictionary dictionaryWithObjectsAndKeys:
                                                    (id)colorSpace,kCIContextOutputColorSpace,
                                                    (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
-	// Create CIContext 
-	//ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
-    //                                  pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
-    //                                      options:nil] retain];
+
 	CGColorSpaceRelease(colorSpace);
     /*
      // build up list of displays from OpenGL's pixel format
@@ -148,56 +145,6 @@
         [self setNeedsDisplay:NO];
     }
 }
-
-/*
-- (void)drawRect:(NSRect)theRect
-{
-    NSRect        frame = [self frame];
-    NSRect        bounds = [self bounds];
-    [lock lock];
-    if(needsReshape)    // if the view has been resized, reset the OpenGL coordinate system
-    {
-        GLfloat     minX, minY, maxX, maxY;
-        
-        minX = NSMinX(bounds);
-        minY = NSMinY(bounds);
-        maxX = NSMaxX(bounds);
-        maxY = NSMaxY(bounds);
-        
-        if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
-            return;
-        
-        [[self openGLContext] makeCurrentContext];
-        
-        //[self update]; 
-        
-        if(NSIsEmptyRect([self visibleRect])) 
-        {
-            glViewport(0, 0, 1, 1);
-        } else {
-            glViewport(0, 0,  frame.size.width ,frame.size.height);
-        }
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        glOrtho(minX, maxX, minY, maxY, -1.0, 1.0);
-        
-        glClearColor(0.0, 0.0, 0.0, 0.0);         
-        glClear(GL_COLOR_BUFFER_BIT);
-        
-        [[self openGLContext] flushBuffer];
-        needsReshape = NO;
-        CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
-    }
-    
-    // clean the OpenGL context - not so important here but very important when you deal with transparenc
-    
-    [self setNeedsDisplay:NO];
-    [lock unlock];
-    //[[freej getLock] unlock];
-}
-*/
 
 - (void)reshape
 {
@@ -417,8 +364,5 @@
 - (void)initialized
 {
 }
-
-@synthesize layerController;
-//@synthesize previewTarget;
 
 @end

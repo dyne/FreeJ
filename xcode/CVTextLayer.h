@@ -24,7 +24,5 @@
     NSString *text;
     bool needsNewFrame;
 }
-
-@property (readwrite) NSString *text;
-- (IBAction)startText:(id)sender;
+- (IBAction)setText:(NSString *)theText;
 @end

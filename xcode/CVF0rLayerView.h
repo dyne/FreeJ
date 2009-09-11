@@ -21,6 +21,7 @@
     IBOutlet NSPopUpButton *selectButton;
     IBOutlet NSButton *startButton;
 }
+- (void)feedFrame:(void *)frame;
 - (IBAction)start:(id)sender;
 - (IBAction)stop:(id)sender;
 @end

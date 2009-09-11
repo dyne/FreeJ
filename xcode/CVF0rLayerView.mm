@@ -27,6 +27,18 @@
     return [super init];
 }
 
+- (void)prepareOpenGL
+{
+    [super prepareOpenGL];
+    Context *ctx = [freej getContext];
+    Filter *gen = ctx->generators.begin();
+    while (gen) {
+        [selectButton addItemWithTitle:[NSString stringWithCString:gen->name]];
+        gen = (Filter *)gen->next;
+    }
+    return [super prepareOpenGL];
+}
+
 - (void)drawRect:(NSRect)theRect
 {
     if (!posterImage)

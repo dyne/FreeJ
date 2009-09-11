@@ -11,12 +11,26 @@
 
 @implementation CVTextLayerView
 
-- (id)startText:(id)sender
+- (IBAction)startText:(id)sender
 {
     NSString *text = [textView string];
-    [layerController setText:text];
+    [(CVTextLayerController *)layerController setText:text];
 }
 
+- (NSFont *)font
+{
+    return [textView font];
+}
+
+- (NSColor *)textColor
+{
+    return [textView textColor];
+}
+
+- (NSColor *)backgroundColor
+{
+    return [textView backgroundColor];
+}
 
 @end
 
@@ -32,6 +46,7 @@
 - (CVReturn)renderFrame
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    Context *ctx = [freej getContext];
     [lock lock];
 
     if (needsNewFrame) {
@@ -40,23 +55,32 @@
         NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:
                            [NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, 
                            [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, 
+                           [NSNumber numberWithBool:YES], kCVPixelBufferOpenGLCompatibilityKey,
                            nil];
         
         // create pixel buffer
-        CVPixelBufferCreate(kCFAllocatorDefault, layer->geo.w, layer->geo.h, k32ARGBPixelFormat, (CFDictionaryRef)d, &currentFrame);
+        CVPixelBufferCreate(kCFAllocatorDefault, ctx->screen->geo.w, ctx->screen->geo.h, k32ARGBPixelFormat, (CFDictionaryRef)d, &currentFrame);
 
-        //NSFont * font =[NSFont fontWithName:@"Helvetica" size:32.0];
         NSMutableDictionary *stanStringAttrib = [[NSMutableDictionary dictionary] retain];
-        /* TODO - implement 
-        [stanStringAttrib setObject:[textView font] forKey:NSFontAttributeName];
-        [stanStringAttrib setObject:[textView textColor] forKey:NSForegroundColorAttributeName];
-        [stanStringAttrib setObject:[textView backgroundColor] forKey:NSBackgroundColorAttributeName];
-         */
-        //[font release];
-        //[theString initWithString:string withAttributes:stanStringAttrib withTextColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:1.0f] withBoxColor:[NSColor colorWithDeviceRed:0.5f green:0.5f blue:0.0f alpha:0.5f] withBorderColor:[NSColor colorWithDeviceRed:0.3f green:0.8f blue:0.3f alpha:0.8f]];
-        [theString initWithString:text withAttributes:stanStringAttrib];
-        [[self openGLContext] makeCurrentContext];
+        if (layerView) {
+            [stanStringAttrib setObject:[(CVTextLayerView *)layerView font] forKey:NSFontAttributeName];
+            [stanStringAttrib setObject:[(CVTextLayerView *)layerView textColor] forKey:NSForegroundColorAttributeName];
+            [stanStringAttrib setObject:[(CVTextLayerView *)layerView backgroundColor] forKey:NSBackgroundColorAttributeName];
+            [theString initWithString:text withAttributes:stanStringAttrib];
+
+        } else {
+            // TODO - Implement properly
+            //NSFont * font =[NSFont fontWithName:@"Helvetica" size:32.0];
+            [theString initWithString:text withAttributes:stanStringAttrib 
+                withTextColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:1.0f] 
+                withBoxColor:[NSColor colorWithDeviceRed:0.5f green:0.5f blue:0.0f alpha:0.5f] 
+                withBorderColor:[NSColor colorWithDeviceRed:0.3f green:0.8f blue:0.3f alpha:0.8f]];
+            //[font release];
+        }
+        CGLLockContext(glContext);
+        CGLSetCurrentContext(glContext);
         [theString drawOnBuffer:currentFrame];
+        CGLUnlockContext(glContext);
         layer->buffer = currentFrame;
         needsNewFrame = NO;
     }
@@ -67,15 +91,13 @@
     return 0;
 }
 
-- (IBAction)startText:(id)sender
+- (IBAction)setText:(NSString *)theText
 {
     if (!layer)
         [self start];
-    if (layerView)
-        [(CVTextLayerView *)layerView startText];
+    text = theText;
+    //NSLog(@"%@\n",theText);
     needsNewFrame = YES;
 }
-
-@synthesize text;
 
 @end

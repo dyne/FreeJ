@@ -39,9 +39,6 @@ class CVLayer;
     IBOutlet CVLayerController *layerController;
 }
 
-@property (readwrite) CVLayerController *layerController;
-//@property (readwrite) CVPreview *previewTarget;
-
 - (void)clear;
 - (CVFilterPanel *)filterPanel;
 - (CVPreview *)getPreviewTarget;

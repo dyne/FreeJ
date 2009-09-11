@@ -19,7 +19,7 @@
 
 - (void)reset;
 - (void)feedFrame:(CVPixelBufferRef)frame;
-
+- (char *)name;
 @end
 
 #endif

@@ -77,23 +77,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                          kQTVisualContextPixelBufferAttributesKey,
                          pixelBufferOptions);
     CFRelease(pixelBufferOptions);
-   // if (layerView) { // let's use the openglcontext owned by the view
-   //     err = QTOpenGLTextureContextCreate(kCFAllocatorDefault, (CGLContextObj)[[layerView openGLContext] CGLContextObj],
-   //                                   (CGLPixelFormatObj)[[NSOpenGLView defaultPixelFormat] CGLPixelFormatObj], visualContextOptions, &qtVisualContext);
-   // } else { // otherwise create our own 
-        CGLContextObj glContext;
-        CGLPixelFormatObj pFormat;
-        GLint npix;
-        const int attrs[2] = { kCGLPFADoubleBuffer, NULL};
-        err = CGLChoosePixelFormat (
-                             (CGLPixelFormatAttribute *)attrs,
-                             &pFormat,
-                             &npix
-                        );
-        err = CGLCreateContext(pFormat , NULL, &glContext);
         err = QTOpenGLTextureContextCreate(kCFAllocatorDefault, glContext,
-                                           pFormat, visualContextOptions, &qtVisualContext);
-    //}
+                    CGLGetPixelFormat(glContext), visualContextOptions, &qtVisualContext);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CFRelease(visualContextOptions);
     CGColorSpaceRelease(colorSpace);    
