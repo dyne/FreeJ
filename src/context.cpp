@@ -507,7 +507,8 @@ void fsigpipe (int Sig) {
 //////// implemented layers
 
 
-
+// TODO - use factory to create instances for each class of layers
+//        (cam-input, videofile-input, whatever)
 Layer *Context::open(char *file, int w, int h) {
   func("%s",__PRETTY_FUNCTION__);
   char *end_file_ptr,*file_ptr;

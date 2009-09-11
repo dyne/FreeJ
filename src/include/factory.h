@@ -4,8 +4,7 @@
 /* Factory implementation
  * This draft implementation aims to provide factory functionalities
  * within Freej environment.
- * It can be used to provide instances of any class, requiring a very little
- * effort to integrate the factory in your class.
+ * It can be used to provide instances of any class with no extraeffort to integrate the factory in your class.
  * It requires just two statements : one in the class definition and one in the implementation file.
  * FACTORY_ALLOWED must be put at the end of your class definition. For instance:
  *
@@ -42,6 +41,12 @@
  *
  * This will allow javascripts to call "var geo_layer = new GeometryLayer()" 
  * obtaining an instance of a different subclass depending on the platform and setup.
+ *
+ * If the purpose is to reuse instances (implementing singletons) the get_instance() method can be used insted.
+ *  > MyScreen *screenInstance = Factory<Screen>::get_instance("Screen"); 
+ * will return always the same instance as long as only 'get_instance()' is called.
+ * mixing calls new_instance() and get_instance() can lead to unexpected behaviours.
+ * get_instance() will take care of creating a new instance when called the first time 
  *
  */
 #include <map> // for std::map
@@ -144,6 +149,8 @@ class Factory
         return NULL;
     };
 
+    // TODO - remove duplicated code across get_instance() and new_instance
+    //        (move common code in a private method used by both (get|new)_instance()
     static T*get_instance(const char *category)
     {
         FTagMap::iterator pair = defaults_map->find(category);
@@ -210,6 +217,5 @@ class Factory
 template <class T> FInstantiatorsMap *Factory<T>::instantiators_map = NULL;
 template <class T> FDefaultClassesMap *Factory<T>::defaults_map = NULL;
 template <class T> FInstancesMap *Factory<T>::instances_map = NULL;
-
 
 #endif
