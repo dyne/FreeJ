@@ -51,7 +51,6 @@
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
     // Create CIContext 
-    
     ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[[self openGLContext] retain] CGLContextObj]
                                       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
                                           options:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -59,29 +58,12 @@
                                                    (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
 
 	CGColorSpaceRelease(colorSpace);
-    /*
-     // build up list of displays from OpenGL's pixel format
-     for (virtualScreen = 0; virtualScreen < [openGLPixelFormat  numberOfVirtualScreens]; virtualScreen++)
-     {
-     [openGLPixelFormat getValues:&displayMask forAttribute:NSOpenGLPFAScreenMask forVirtualScreen:virtualScreen];
-     totalDisplayMask |= displayMask;
-     }
-     */
-    // Setup the timecode overlay
-    /*
-     NSDictionary *fontAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:[NSFont labelFontOfSize:24.0f], NSFontAttributeName,
-     [NSColor colorWithCalibratedRed:1.0f green:0.2f blue:0.2f alpha:0.60f], NSForegroundColorAttributeName,
-     nil];
-     */
-    //timeCodeOverlay = [[TimeCodeOverlay alloc] initWithAttributes:fontAttributes targetSize:NSMakeSize(720.0,480.0 / 4.0)];    // text overlay will go in the bottom quarter of the display
     [lock lock];
-    NSLog(@"%@\n",[layerController class]);
     [layerController initWithOpenGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj] 
                                pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj] Context:freej];
     [lock unlock];
     GLint params[] = { 1 };
     CGLSetParameter( CGLGetCurrentContext(), kCGLCPSwapInterval, params );
-    //[self drawRect:NSZeroRect];
     needsReshape = YES;
     [self setNeedsDisplay:YES];
     [pool release];
