@@ -1,3 +1,22 @@
+/*  FreeJ
+ *  (c) Copyright 2009 Xant <xant@dyne.org>
+ *
+ * This source code is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Public License as published 
+ * by the Free Software Foundation; either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * This source code is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * Please refer to the GNU Public License for more details.
+ *
+ * You should have received a copy of the GNU Public License along with
+ * this source code; if not, write to:
+ * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ *
+ */
+
 #ifndef __FACTORY_H__
 #define __FACTORY_H__
 
@@ -42,16 +61,19 @@
  * This will allow javascripts to call "var geo_layer = new GeometryLayer()" 
  * obtaining an instance of a different subclass depending on the platform and setup.
  *
- * If the purpose is to reuse instances (implementing singletons) the get_instance() method can be used insted.
+ * If the purpose is to reuse instances (implementing, for instance, singletons) the get_instance() method 
+ * can be used instead of new_instance().
+ * for example: 
  *  > MyScreen *screenInstance = Factory<Screen>::get_instance("Screen"); 
+ * 
  * will return always the same instance as long as only 'get_instance()' is called.
- * mixing calls new_instance() and get_instance() can lead to unexpected behaviours.
- * get_instance() will take care of creating a new instance when called the first time 
+ * It will take care of creating a new instance when called the first time so 
+ * mixing calls to new_instance() and get_instance() can lead to unexpected behaviours.
  *
  */
-#include <map> // for std::map
-#include <string> // for std::string
-#include <jutils.h>
+#include <map>      // std::map
+#include <string>   // std::string
+#include <jutils.h> // func() and error()
 
 #define FACTORY_ID_MAXLEN 64
 

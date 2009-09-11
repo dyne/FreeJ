@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2009 Xant <xant@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
