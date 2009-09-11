@@ -29,6 +29,7 @@
 #import "FrameRate.h"
 #import "QTExporter.h"
 #import "CVScreenView.h"
+#include <factory.h>
 
 @class CFreej;
 class  CVScreen;
@@ -63,6 +64,7 @@ class CVScreen : public ViewPort {
         void resize(int w, int h);
         void set_magnification(int algo) { }; // TODO - implement
         void fullscreen() { }; // TODO - implement
+        FACTORY_ALLOWED
 };
 
 #endif

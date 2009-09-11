@@ -167,9 +167,14 @@
     if (!freej) {
         //freej = new CVContext(self);
         freej = new Context();
+        
+        // override factory defaults
+        Factory<Controller>::set_default_classtype("KeyboardController", "cocoa");
+        Factory<ViewPort>::set_default_classtype("Screen", "cocoa");
+        
         freej->quit = false;
         NSRect frame = [screenView frame];
-        screen = new CVScreen();
+        screen = (CVScreen *)Factory<ViewPort>::get_instance("Screen");
         screen->init(frame.size.width, frame.size.height, 32);
         freej->add_screen(screen);
         freej->plugger.refresh(freej);

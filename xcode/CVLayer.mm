@@ -17,7 +17,7 @@ CVLayer::CVLayer() : Layer()
     data = (void *)this;
 }
 
-CVLayer::CVLayer(CVLayerView *vin) : Layer()
+CVLayer::CVLayer(CVLayerController *vin) : Layer()
 {
     input = vin;
     bufsize = 0;
@@ -26,7 +26,7 @@ CVLayer::CVLayer(CVLayerView *vin) : Layer()
     data = (void *)this;
     buffer = NULL;
     [input setLayer:this];
-    set_name([[(NSView *)input toolTip] UTF8String]);
+    set_name([input name]);
 }
 
 CVLayer::~CVLayer()
@@ -54,6 +54,7 @@ CVLayer::activate()
     //freej->add_layer(this);
     active = true;
     notice("Activating %s", name);
+    start();
 }
 
 void

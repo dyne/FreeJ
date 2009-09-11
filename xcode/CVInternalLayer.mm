@@ -8,7 +8,7 @@
 
 #import "CVInternalLayer.h"
 
-@implementation CVInternalLayerView : CVLayerView
+@implementation CVInternalLayerView : CVLayerController
 
 - (void)feedFrame:(void *)frame
 {

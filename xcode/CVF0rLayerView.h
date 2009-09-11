@@ -11,6 +11,8 @@
 
 #import <Cocoa/Cocoa.h>
 #include <CVF0rLayer.h>
+#import "CVLayerView.h"
+#import "CVF0rLayerController.h"
 
 
 @interface CVF0rLayerView : CVLayerView
@@ -19,8 +21,6 @@
     IBOutlet NSPopUpButton *selectButton;
     IBOutlet NSButton *startButton;
 }
-- (void)reset;
-- (void)feedFrame:(void *)frame;
 - (IBAction)start:(id)sender;
 - (IBAction)stop:(id)sender;
 @end

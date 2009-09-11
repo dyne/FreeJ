@@ -28,6 +28,9 @@
 #import "CVLayerView.h"
 #import "CVScreenView.h"
 
+
+FACTORY_REGISTER_INSTANTIATOR(ViewPort, CVScreen, Screen, cocoa);
+
 CVScreen::CVScreen()
   : ViewPort() {
 
@@ -40,8 +43,6 @@ CVScreen::~CVScreen() {
 }
 
 bool CVScreen::_init() {
-
-  Factory<Controller>::set_default_classtype("KeyboardController", "cocoa");
 
   return true;
 }

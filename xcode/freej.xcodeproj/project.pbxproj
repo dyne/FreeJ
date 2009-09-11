@@ -24,8 +24,13 @@
 		AA71AE030FE58838002FFD23 /* CVInternalLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */; };
 		AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04B80F4ED02700723DAC /* OpenGL.framework */; };
 		AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */; };
+		AA819B26104CFC0500FD1991 /* CVLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819B25104CFC0500FD1991 /* CVLayerController.mm */; };
+		AA819B80104E4C7B00FD1991 /* CVGrabberView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819B7F104E4C7B00FD1991 /* CVGrabberView.mm */; };
+		AA819B88104E4D2700FD1991 /* CVFileInputView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819B87104E4D2700FD1991 /* CVFileInputView.mm */; };
+		AA819D16104EF69800FD1991 /* CVF0rLayerController.mm in Resources */ = {isa = PBXBuildFile; fileRef = AA819D15104EF69800FD1991 /* CVF0rLayerController.mm */; };
 		AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8858800F631E3C00778C03 /* CVGenerator.m */; };
 		AA88592D0F633A7500778C03 /* CVF0rLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA88592C0F633A7500778C03 /* CVF0rLayer.mm */; };
+		AA8A1BDA1056391B007D067B /* CVF0rLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819D15104EF69800FD1991 /* CVF0rLayerController.mm */; };
 		AA8C41B00F90FF4F00B39710 /* console_calls_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41AB0F90FF4F00B39710 /* console_calls_ctrl.cpp */; };
 		AA8C41B10F90FF4F00B39710 /* console_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41AC0F90FF4F00B39710 /* console_ctrl.cpp */; };
 		AA8C41B20F90FF4F00B39710 /* console_keys_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41AD0F90FF4F00B39710 /* console_keys_ctrl.cpp */; };
@@ -39,7 +44,7 @@
 		AA8C41E80F91000C00B39710 /* slw_prompt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41DA0F91000C00B39710 /* slw_prompt.cpp */; };
 		AA8C41E90F91000C00B39710 /* slw_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41DC0F91000C00B39710 /* slw_text.cpp */; };
 		AA8F9F710F510273006A9E2F /* soft_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8F9F700F510272006A9E2F /* soft_screen.cpp */; };
-		AA9145080F4A1590001426A5 /* CVFileInput.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA9145070F4A1590001426A5 /* CVFileInput.mm */; };
+		AA9145080F4A1590001426A5 /* CVFileInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA9145070F4A1590001426A5 /* CVFileInputController.mm */; };
 		AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA99CF0C0F535B5F00022106 /* CVLayer.mm */; };
 		AAA38FB70F542DE80069BF91 /* CIAlphaFade.m in Sources */ = {isa = PBXBuildFile; fileRef = AAA38FB60F542DE80069BF91 /* CIAlphaFade.m */; };
 		AAA3904D0F5449810069BF91 /* CIAlphaFade.cikernel in Resources */ = {isa = PBXBuildFile; fileRef = AAA3902D0F5448820069BF91 /* CIAlphaFade.cikernel */; };
@@ -328,6 +333,14 @@
 		AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVInternalLayer.mm; sourceTree = "<group>"; };
 		AA7C04B80F4ED02700723DAC /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
+		AA819B24104CFC0500FD1991 /* CVLayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVLayerController.h; sourceTree = "<group>"; };
+		AA819B25104CFC0500FD1991 /* CVLayerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVLayerController.mm; sourceTree = "<group>"; };
+		AA819B7E104E4C7B00FD1991 /* CVGrabberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVGrabberView.h; sourceTree = "<group>"; };
+		AA819B7F104E4C7B00FD1991 /* CVGrabberView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVGrabberView.mm; sourceTree = "<group>"; };
+		AA819B86104E4D2700FD1991 /* CVFileInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFileInputView.h; sourceTree = "<group>"; };
+		AA819B87104E4D2700FD1991 /* CVFileInputView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFileInputView.mm; sourceTree = "<group>"; };
+		AA819D14104EF69800FD1991 /* CVF0rLayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVF0rLayerController.h; sourceTree = "<group>"; };
+		AA819D15104EF69800FD1991 /* CVF0rLayerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVF0rLayerController.mm; sourceTree = "<group>"; };
 		AA88587F0F631E3C00778C03 /* CVGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVGenerator.h; sourceTree = "<group>"; };
 		AA8858800F631E3C00778C03 /* CVGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVGenerator.m; sourceTree = "<group>"; };
 		AA88592B0F633A7500778C03 /* CVF0rLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVF0rLayer.h; sourceTree = "<group>"; };
@@ -358,8 +371,8 @@
 		AA8C41DD0F91000C00B39710 /* slw_text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slw_text.h; sourceTree = "<group>"; };
 		AA8F9F700F510272006A9E2F /* soft_screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = soft_screen.cpp; sourceTree = "<group>"; };
 		AA8F9F720F510281006A9E2F /* soft_screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = soft_screen.h; path = include/soft_screen.h; sourceTree = "<group>"; };
-		AA9145060F4A1590001426A5 /* CVFileInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFileInput.h; sourceTree = "<group>"; };
-		AA9145070F4A1590001426A5 /* CVFileInput.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFileInput.mm; sourceTree = "<group>"; };
+		AA9145060F4A1590001426A5 /* CVFileInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFileInputController.h; sourceTree = "<group>"; };
+		AA9145070F4A1590001426A5 /* CVFileInputController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFileInputController.mm; sourceTree = "<group>"; };
 		AA99CF0B0F535B5F00022106 /* CVLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVLayer.h; sourceTree = "<group>"; };
 		AA99CF0C0F535B5F00022106 /* CVLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVLayer.mm; sourceTree = "<group>"; };
 		AAA38FB50F542DE80069BF91 /* CIAlphaFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CIAlphaFade.h; sourceTree = "<group>"; };
@@ -467,46 +480,54 @@
 			isa = PBXGroup;
 			children = (
 				AAA38FB40F542DBF0069BF91 /* CIFilters */,
+				AAB84F850F3F1EB300AD479D /* CFreej.h */,
+				AAA7B62B0F40485F00056C44 /* CFreej.mm */,
 				AAAABF450F5226A700461C96 /* CVScreen.h */,
 				AAAABF460F5226A700461C96 /* CVScreen.mm */,
 				AA3B0AF2104A6C3B00A27B2E /* CVScreenView.h */,
 				AA3B0AF3104A6C3B00A27B2E /* CVScreenView.mm */,
-				AA9145060F4A1590001426A5 /* CVFileInput.h */,
-				AA9145070F4A1590001426A5 /* CVFileInput.mm */,
-				AAB26D2C0F4051F60068E5F5 /* CVGrabber.h */,
-				AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */,
-				AAB84F850F3F1EB300AD479D /* CFreej.h */,
-				AAA7B62B0F40485F00056C44 /* CFreej.mm */,
 				AA99CF0B0F535B5F00022106 /* CVLayer.h */,
 				AA99CF0C0F535B5F00022106 /* CVLayer.mm */,
 				AA3B0B08104A6DAC00A27B2E /* CVLayerView.h */,
 				AA3B0B09104A6DAC00A27B2E /* CVLayerView.mm */,
+				AA819B24104CFC0500FD1991 /* CVLayerController.h */,
+				AA819B25104CFC0500FD1991 /* CVLayerController.mm */,
+				AA819B86104E4D2700FD1991 /* CVFileInputView.h */,
+				AA819B87104E4D2700FD1991 /* CVFileInputView.mm */,
+				AA9145060F4A1590001426A5 /* CVFileInputController.h */,
+				AA9145070F4A1590001426A5 /* CVFileInputController.mm */,
+				AA819B7E104E4C7B00FD1991 /* CVGrabberView.h */,
+				AA819B7F104E4C7B00FD1991 /* CVGrabberView.mm */,
+				AAB26D2C0F4051F60068E5F5 /* CVGrabber.h */,
+				AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */,
+				AA819D14104EF69800FD1991 /* CVF0rLayerController.h */,
+				AA819D15104EF69800FD1991 /* CVF0rLayerController.mm */,
 				AA3B0B76104A728600A27B2E /* CVF0rLayerView.h */,
 				AA3B0B77104A728600A27B2E /* CVF0rLayerView.mm */,
 				AA88592B0F633A7500778C03 /* CVF0rLayer.h */,
 				AA88592C0F633A7500778C03 /* CVF0rLayer.mm */,
-				AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */,
 				AA1EB9010F56969E006610D8 /* CVFilterPanel.h */,
-				AA8858800F631E3C00778C03 /* CVGenerator.m */,
+				AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */,
 				AA88587F0F631E3C00778C03 /* CVGenerator.h */,
-				AACBE4820F641605001B610F /* FrameRate.m */,
+				AA8858800F631E3C00778C03 /* CVGenerator.m */,
 				AACBE4810F641605001B610F /* FrameRate.h */,
-				AA0E39810FBECC1E00123D3F /* CVPreview.mm */,
+				AACBE4820F641605001B610F /* FrameRate.m */,
 				AA0E39800FBECC1E00123D3F /* CVPreview.h */,
-				AA0E3E750FBF3C0100123D3F /* CVTexture.m */,
+				AA0E39810FBECC1E00123D3F /* CVPreview.mm */,
 				AA0E3E740FBF3C0100123D3F /* CVTexture.h */,
-				AA5846520FE1626E0059D860 /* GLString.m */,
-				AA5846510FE1626E0059D860 /* GLString.h */,
-				AA5846550FE162C60059D860 /* CVTextLayer.mm */,
+				AA0E3E750FBF3C0100123D3F /* CVTexture.m */,
 				AA5846540FE162C60059D860 /* CVTextLayer.h */,
+				AA5846550FE162C60059D860 /* CVTextLayer.mm */,
+				AA5846510FE1626E0059D860 /* GLString.h */,
+				AA5846520FE1626E0059D860 /* GLString.m */,
 				AA71AE010FE58838002FFD23 /* CVInternalLayer.h */,
 				AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */,
 				AA63CF8C102DAED400FDA024 /* QTExporter.h */,
 				AA63CF8D102DAED400FDA024 /* QTExporter.mm */,
-				AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */,
-				AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */,
 				AA134ABE1047B6D500BA39EB /* CKbdController.h */,
 				AA134ABF1047B6D500BA39EB /* CKbdController.mm */,
+				AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */,
+				AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */,
 			);
 			name = Cocoa;
 			sourceTree = "<group>";
@@ -889,6 +910,7 @@
 				AAEE68940FC8906B007FB46B /* webcam.png in Resources */,
 				AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */,
 				AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */,
+				AA819D16104EF69800FD1991 /* CVF0rLayerController.mm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -985,20 +1007,11 @@
 				AAA7B7450F404B7F00056C44 /* ccvt_misc.c in Sources */,
 				AAA7B7470F404B7F00056C44 /* ccvt_rgb2yuv.S in Sources */,
 				AAA7B75D0F404B7F00056C44 /* CFreej.mm in Sources */,
-				AAB26D2E0F4051F60068E5F5 /* CVGrabber.mm in Sources */,
-				AA9145080F4A1590001426A5 /* CVFileInput.mm in Sources */,
 				AA8F9F710F510273006A9E2F /* soft_screen.cpp in Sources */,
 				AAAABEE40F521A6000461C96 /* fps.cpp in Sources */,
-				AAAABF470F5226A700461C96 /* CVScreen.mm in Sources */,
 				AAAAC1730F533ADF00461C96 /* closure.cpp in Sources */,
 				AAAAC1740F533ADF00461C96 /* linear_blits.cpp in Sources */,
 				AAAAC1760F533ADF00461C96 /* sdl_blits.cpp in Sources */,
-				AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */,
-				AAA38FB70F542DE80069BF91 /* CIAlphaFade.m in Sources */,
-				AA1EB9030F56969E006610D8 /* CVFilterPanel.mm in Sources */,
-				AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */,
-				AA88592D0F633A7500778C03 /* CVF0rLayer.mm in Sources */,
-				AACBE4830F641605001B610F /* FrameRate.m in Sources */,
 				AA00100D0F77FD9200719D5B /* callback.cpp in Sources */,
 				AA8C41B00F90FF4F00B39710 /* console_calls_ctrl.cpp in Sources */,
 				AA8C41B10F90FF4F00B39710 /* console_ctrl.cpp in Sources */,
@@ -1012,21 +1025,34 @@
 				AA8C41E70F91000C00B39710 /* slw_popup.cpp in Sources */,
 				AA8C41E80F91000C00B39710 /* slw_prompt.cpp in Sources */,
 				AA8C41E90F91000C00B39710 /* slw_text.cpp in Sources */,
+				AAC9DB37103D2C7F00A0111E /* PreferencesPanel.mm in Sources */,
+				AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */,
+				AAD9EF6B10487BC400A3E51A /* sdl_controller.cpp in Sources */,
+				AA3B0D10104B05F600A27B2E /* screen_js.cpp in Sources */,
+				AA3B0DA3104B131100A27B2E /* generator_layer.cpp in Sources */,
+				AA8A1BDA1056391B007D067B /* CVF0rLayerController.mm in Sources */,
+				AA3B0B78104A728600A27B2E /* CVF0rLayerView.mm in Sources */,
+				AA88592D0F633A7500778C03 /* CVF0rLayer.mm in Sources */,
+				AA819B88104E4D2700FD1991 /* CVFileInputView.mm in Sources */,
+				AA9145080F4A1590001426A5 /* CVFileInputController.mm in Sources */,
+				AA819B80104E4C7B00FD1991 /* CVGrabberView.mm in Sources */,
+				AAB26D2E0F4051F60068E5F5 /* CVGrabber.mm in Sources */,
+				AA5846560FE162C60059D860 /* CVTextLayer.mm in Sources */,
+				AA3B0B0A104A6DAC00A27B2E /* CVLayerView.mm in Sources */,
+				AA819B26104CFC0500FD1991 /* CVLayerController.mm in Sources */,
+				AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */,
+				AA3B0AF4104A6C3B00A27B2E /* CVScreenView.mm in Sources */,
+				AAAABF470F5226A700461C96 /* CVScreen.mm in Sources */,
+				AAA38FB70F542DE80069BF91 /* CIAlphaFade.m in Sources */,
+				AA1EB9030F56969E006610D8 /* CVFilterPanel.mm in Sources */,
+				AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */,
+				AACBE4830F641605001B610F /* FrameRate.m in Sources */,
 				AA0E39820FBECC1E00123D3F /* CVPreview.mm in Sources */,
 				AA0E3E760FBF3C0100123D3F /* CVTexture.m in Sources */,
 				AA5846530FE1626E0059D860 /* GLString.m in Sources */,
-				AA5846560FE162C60059D860 /* CVTextLayer.mm in Sources */,
 				AA71AE030FE58838002FFD23 /* CVInternalLayer.mm in Sources */,
 				AA63CF8E102DAED400FDA024 /* QTExporter.mm in Sources */,
-				AAC9DB37103D2C7F00A0111E /* PreferencesPanel.mm in Sources */,
-				AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */,
 				AA134AC01047B6D500BA39EB /* CKbdController.mm in Sources */,
-				AAD9EF6B10487BC400A3E51A /* sdl_controller.cpp in Sources */,
-				AA3B0AF4104A6C3B00A27B2E /* CVScreenView.mm in Sources */,
-				AA3B0B0A104A6DAC00A27B2E /* CVLayerView.mm in Sources */,
-				AA3B0B78104A728600A27B2E /* CVF0rLayerView.mm in Sources */,
-				AA3B0D10104B05F600A27B2E /* screen_js.cpp in Sources */,
-				AA3B0DA3104B131100A27B2E /* generator_layer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

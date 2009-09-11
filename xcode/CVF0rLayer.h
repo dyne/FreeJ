@@ -17,7 +17,7 @@ class CVF0rLayer : public CVLayer
         bool _init();
 
 	public:
-		CVF0rLayer(CVLayerView *view, Context *freej);
+		CVF0rLayer(CVLayerController *controller, Context *freej);
         ~CVF0rLayer();
         void register_generators(Linklist<Filter> *gens);
 

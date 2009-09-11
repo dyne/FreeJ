@@ -3,24 +3,13 @@
 //  freej
 //
 //  Created by xant on 8/30/09.
-//  Copyright 2009 __MyCompanyName__. All rights reserved.
+//  Copyright 2009 dyne.org. All rights reserved.
 //
 
 #import "CVF0rLayerView.h"
 
 @implementation CVF0rLayerView : CVLayerView
 
-- (void)prepareOpenGL
-{
-    [super prepareOpenGL];
-    Context *ctx = [freej getContext];
-    Filter *gen = ctx->generators.begin();
-    while (gen) {
-        [selectButton addItemWithTitle:[NSString stringWithCString:gen->name]];
-        gen = (Filter *)gen->next;
-    }
-    
-}
 - (id)init
 {
     static char *suffix = "/Contents/Resources/frei0r.png";
@@ -31,66 +20,18 @@
     GetProcessBundleLocation(&psn, &location);
     FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix)-1);
     strcat(iconFile, suffix);
-    icon = [CIImage imageWithContentsOfURL:
+    icon = [[NSImage alloc] initWithContentsOfURL:
             [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
-    [icon retain];
-    currentFrame = NULL;
+    //posterImage = [[CIImage imageWithContentsOfURL:
+    //                [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]] retain];    
     return [super init];
-}
-
-- (void)feedFrame:(void *)frame
-{
-    CVPixelBufferRef newPixelBuffer;
-    //Context *ctx = (Context *)[freej getContext];
-    [lock lock];
-    CVReturn err = CVPixelBufferCreateWithBytes (
-             NULL,
-             layer->geo.w,
-             layer->geo.h,
-             k32ARGBPixelFormat,
-             frame,
-             layer->geo.w*4,
-             NULL,
-             NULL,
-             NULL,
-             &newPixelBuffer
-    ); 
-    if (err == kCVReturnSuccess) {
-        if (currentFrame)
-            CVPixelBufferRelease(currentFrame);
-        currentFrame = newPixelBuffer;
-        newFrame = YES;
-    }
-    [lock unlock];
-    [self renderPreview];
 }
 
 - (void)drawRect:(NSRect)theRect
 {
-    GLint zeroOpacity = 0;
-    if (needsReshape) {
-        NSRect bounds = [self bounds];
-        NSRect frame = [self frame];
-        CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-                                       NSWidth(bounds), NSHeight(bounds));
-        if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
-            return;
-        [[self openGLContext] makeCurrentContext];
-        
-        [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
-        [super drawRect:theRect];
-        
-        glClearColor(1, 1, 1, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        [ciContext drawImage:icon
-                     atPoint: imageRect.origin
-                    fromRect: imageRect];
-        [[self openGLContext] flushBuffer];
-        needsReshape = NO;
-        CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);       
-    }
-    [self setNeedsDisplay:NO];
+    if (!posterImage)
+        [self setPosterImage:icon];
+    [super drawRect:theRect];
 }
 
 - (bool)isOpaque
@@ -98,33 +39,9 @@
     return NO;
 }
 
-- (void) setLayer:(CVLayer *)lay
-{
-    if (layer) // ensure to remove/stop old genf0rlayer if we are setting a new one
-        [self reset];
-    [super setLayer:lay];
-}
-
-- (void)reset
-{
-    CVLayer *toDelete;
-    if (layer) {
-        [lock lock];
-        if (currentFrame) {
-            CVPixelBufferRelease(currentFrame);
-            currentFrame = NULL;
-        }
-        toDelete = (CVLayer *)layer;
-        layer = NULL;
-        [lock unlock];
-        toDelete->stop();
-        delete toDelete;
-    }
-}
-
 - (IBAction)stop:(id)sender
 {
-    [self reset];
+    [(CVF0rLayerController *)layerController reset];
     [lock lock];
     [sender setTitle:@"Start"];
     [sender setAction:@selector(start:)];
@@ -137,7 +54,7 @@
     CVF0rLayer *newLayer = NULL;
     [lock lock];
     char *name = (char *)[[[selectButton selectedItem] title] UTF8String];
-    newLayer = new CVF0rLayer(self, [freej getContext]);
+    newLayer = new CVF0rLayer(layerController, [freej getContext]);
     Context *ctx = [freej getContext];
     newLayer->init(ctx->screen->geo.w, ctx->screen->geo.h, ctx->screen->geo.bpp); // XXX 
     newLayer->register_generators(&ctx->generators);

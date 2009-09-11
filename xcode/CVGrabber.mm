@@ -57,7 +57,7 @@
     //NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
     //if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
     
-    [grabberView feedFrame:currentFrame];
+    [grabberController feedFrame:currentFrame];
 
     if (imageBufferToRelease)
         CVBufferRelease(imageBufferToRelease);
@@ -130,9 +130,8 @@
     notice( "Video device ready!" );
 
     running = true;
-    [self setDelegate:grabberView];
-    [grabberView start];
-
+    [self setDelegate:grabberController];
+    [grabberController start];
     return;
 error:
     //[= exitQTKitOnThread];
@@ -144,7 +143,7 @@ error:
 {
     [lock lock];
     running = false;
-    [grabberView stop];
+    [grabberController stop];
     if (session) {
         [session stopRunning];
         if (input) {
@@ -185,25 +184,15 @@ error:
  * QTCaptureDecompressedVideoOutput. 
  */ 
 
-@implementation CVGrabberView : CVLayerView
+@implementation CVGrabberController : CVLayerController
 
 - (id)init
 {
-    static char *suffix = "/Contents/Resources/webcam.png";
-    char iconFile[1024];
     
     exportedFrame = nil;
     currentFrame = nil;
-    
-    ProcessSerialNumber psn;
-    GetProcessForPID(getpid(), &psn);
-    FSRef location;
-    GetProcessBundleLocation(&psn, &location);
-    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix)-1);
-    strcat(iconFile, suffix);
-    icon = [CIImage imageWithContentsOfURL:
-        [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
-    [icon retain];
+    NSLog(@"MADONNA!!! \n");
+
     return [super init];
 }
 
@@ -261,37 +250,5 @@ error:
    [lock unlock];
 }
 
-- (void)drawRect:(NSRect)theRect
-{
-    GLint zeroOpacity = 0;
-    if (needsReshape) {
-        NSRect bounds = [self bounds];
-        NSRect frame = [self frame];
-        CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-            NSWidth(bounds), NSHeight(bounds));
-
-        if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
-            return;
-        [[self openGLContext] makeCurrentContext];
-
-        [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
-        [super drawRect:theRect];
-        glClearColor(1, 1, 1, 0);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        [ciContext drawImage:icon
-            atPoint: imageRect.origin
-            fromRect: imageRect];
-        [[self openGLContext] flushBuffer];
-        needsReshape = NO;
-        CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
-    }
-    [self setNeedsDisplay:NO];
-}
-
-- (bool)isOpaque
-{
-    return NO;
-}
-
 @end
+

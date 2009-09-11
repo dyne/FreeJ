@@ -6,25 +6,23 @@
  *  Copyright 2009 dyne.org. All rights reserved.
  *
  */
-#ifndef __CVideo_layer_H__
-#define __CVideo_layer_H__
+#ifndef __CVGRABBERCONTROLLER_H__
+#define __CVGRABBERCONTROLLER_H__
 
-#define __cocoa
 #include <context.h>
 #import <QTKit/QTKit.h>
 #import <CoreAudio/CoreAudio.h>
 
 #include "CVLayer.h"
 #include "CVFilterPanel.h"
+#import "CVLayerController.h"
 
 @class CFreej;
 @class CVGrabber;
 
-@interface CVGrabberView : CVLayerView
+@interface CVGrabberController : CVLayerController
 {
     CVPixelBufferRef exportedFrame;
-    IBOutlet CVGrabber *grabber;
-    CIImage *icon;
 }
 
 - (void)feedFrame:(CVPixelBufferRef)frame;
@@ -37,25 +35,25 @@
 
 @interface CVGrabber : QTCaptureDecompressedVideoOutput
 {
-    NSRecursiveLock             *lock;
-    CVImageBufferRef            currentFrame;
-    CVImageBufferRef            lastFrame;
-    CIImage                     *renderedImage;
-    CIImage                     *outputImage;
+    NSRecursiveLock              *lock;
+    CVImageBufferRef             currentFrame;
+    CVImageBufferRef             lastFrame;
+    CIImage                      *renderedImage;
+    CIImage                      *outputImage;
 
-    time_t                      currentPts;
-    time_t                      previousPts;
-    IBOutlet CVGrabberView      *grabberView;
-    IBOutlet NSPopUpButton      *captureSize;
-    IBOutlet CFreej             *freej;
-    QTCaptureDeviceInput        * input;
-    QTCaptureMovieFileOutput    *captureOutput;
-    QTCaptureSession            *session;
-    QTCaptureDevice             *device;
-    int                         width;
-    int                         height;
-    bool                        running;
-    CVLayer                     *layer;
+    time_t                       currentPts;
+    time_t                       previousPts;
+    IBOutlet CVGrabberController *grabberController;
+    IBOutlet NSPopUpButton       *captureSize;
+    IBOutlet CFreej              *freej;
+    QTCaptureDeviceInput         * input;
+    QTCaptureMovieFileOutput     *captureOutput;
+    QTCaptureSession             *session;
+    QTCaptureDevice              *device;
+    int                          width;
+    int                          height;
+    bool                         running;
+    CVLayer                      *layer;
 }
 
 - (id)init;

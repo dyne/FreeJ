@@ -57,10 +57,10 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
     }
 }
 
-CVF0rLayer::CVF0rLayer(CVLayerView *view, Context *_freej)
+CVF0rLayer::CVF0rLayer(CVLayerController *controller, Context *_freej)
     : CVLayer()
 {
-    input = view;
+    input = controller;
     freej = _freej;
     generator = NULL;
     
@@ -68,7 +68,7 @@ CVF0rLayer::CVF0rLayer(CVLayerView *view, Context *_freej)
     set_name("F0R");
     //jsclass = &gen0r_layer_class;
     //  set_filename("/particle generator");    
-    set_name([[view toolTip] UTF8String]);
+   // set_name([[controller toolTip] UTF8String]);
     [input setLayer:this];
 }
 

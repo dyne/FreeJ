@@ -12,9 +12,11 @@
 
 #include <layer.h>
 #include <context.h>
-#import <CVLayerView.h>
+#import "CVLayerController.h"
+#import "CVTexture.h"
 
 @class CVLayerView;
+@class CVLayerController;
 
 class CVLayer: public Layer 
 {
@@ -24,16 +26,17 @@ class CVLayer: public Layer
         int bufsize;    
         virtual bool _init();
     public:
-        CVLayerView *input;
+        CVLayerController *input;
         NSString *blendMode;
         void *vbuffer;
 
         CVLayer();
-        CVLayer(CVLayerView *vin);
+        CVLayer(CVLayerController *vin);
 
         ~CVLayer();
         void activate();
         void deactivate();
+        Context *context() { return freej; }; 
         virtual bool open(const char *path);
         virtual void close();
         //void run();

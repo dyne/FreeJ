@@ -10,7 +10,7 @@
 #import <CVLayer.h>
 #include <layer.h>
 
-@interface CVInternalLayerView : CVLayerView {
+@interface CVInternalLayerView : CVLayerController {
 }
 - (void)feedFrame:(void *)frame;
 @end

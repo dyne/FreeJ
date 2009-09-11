@@ -10,12 +10,21 @@
 #import <CVLayer.h>
 #import <GLString.h>
 
-@interface CVTextLayer : CVLayerView {
-    GLString *theString;
-    NSString *text;
-    bool needsNewFrame;
+@interface CVTextLayerView : CVLayerView {
     IBOutlet NSTextView *textView;
 }
 
+- (IBAction)startText:(id)sender;
+
+
+@end
+
+@interface CVTextLayerController : CVLayerController {
+    GLString *theString;
+    NSString *text;
+    bool needsNewFrame;
+}
+
+@property (readwrite) NSString *text;
 - (IBAction)startText:(id)sender;
 @end

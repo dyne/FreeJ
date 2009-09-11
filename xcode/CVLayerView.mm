@@ -13,24 +13,6 @@
 #import "CVFilterPanel.h"
 #import "CVLayerView.h"
 
-/* Utility to set a SInt32 value in a CFDictionary
- */
-static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
-                               CFStringRef inKey,
-                               SInt32 inValue)
-{
-    CFNumberRef number;
-    
-    number = CFNumberCreate(kCFAllocatorDefault, kCFNumberSInt32Type, &inValue);
-    if (NULL == number) return coreFoundationUnknownErr;
-    
-    CFDictionarySetValue(inDict, inKey, number);
-    
-    CFRelease(number);
-    
-    return noErr;
-}
-
 @implementation CVLayerView : NSOpenGLView
 
 - (void)awakeFromNib
@@ -42,99 +24,54 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     lock = [[NSRecursiveLock alloc] init];
     [lock retain];
-    [self setNeedsDisplay:NO];
-    layer = NULL;
-    needsReshape = YES;
-    doFilters = true;
-    currentFrame = NULL;
-    lastFrame = NULL;
-    posterImage = NULL;
-    currentPreviewTexture = NULL;
-    doPreview = YES;
-    filterParams = [[NSMutableDictionary dictionary] retain];
+    //[self setNeedsDisplay:NO];
+    //layer = NULL;
+    //layerController = NULL;
     return self;
 }
 
 - (void)dealloc
 {
-    [colorCorrectionFilter release];
-    [effectFilter release];
-    [compositeFilter release];
-    [alphaFilter release];
-    [exposureAdjustFilter release];
-    [rotateFilter release];
-    [scaleFilter release];
-    [translateFilter release];
-    ///[timeCodeOverlay release];
-    CVOpenGLTextureRelease(currentFrame);
     if (ciContext)
         [ciContext release];
-    if (filterParams)
-        [filterParams release];
-    [lock release];
+
+    [layerController release];
     [super dealloc];
 }
 
 - (void)prepareOpenGL
 {
-    CGOpenGLDisplayMask    totalDisplayMask = 0;
-    int     virtualScreen;
-    GLint   displayMask;
     NSAutoreleasePool *pool;
     pool = [[NSAutoreleasePool alloc] init];
     
+    scaleFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+    //CIFilter *scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+    [scaleFilter setDefaults];    // set the filter to its default values
+
     
     // Create CGColorSpaceRef 
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
     // Create CIContext 
-    ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
+    
+    ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[[self openGLContext] retain] CGLContextObj]
                                       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
-                                          options:nil] retain];
-    CGColorSpaceRelease(colorSpace);
-    
-    // Create CIFilters used for both preview and main frame
-    colorCorrectionFilter = [[CIFilter filterWithName:@"CIColorControls"] retain];        // Color filter    
-    [colorCorrectionFilter setDefaults];                            // set the filter to its default values
-    exposureAdjustFilter = [[CIFilter filterWithName:@"CIExposureAdjust"] retain];
-    [exposureAdjustFilter setDefaults];
-    // adjust exposure
-    [exposureAdjustFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputEV"];
-    
-    // rotate
-    NSAffineTransform *rotateTransform = [NSAffineTransform transform];
-    [rotateTransform rotateByDegrees:0.0];
-    rotateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-    translateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    NSAffineTransform   *translateTransform = [NSAffineTransform transform];
-    [translateTransform translateXBy:0.0 yBy:0.0];
-    [translateFilter setValue:translateTransform forKey:@"inputTransform"];
-    scaleFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    //CIFilter *scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
-    [scaleFilter setDefaults];    // set the filter to its default values
-    //[scaleFilter setValue:[NSNumber numberWithFloat:scaleFactor] forKey:@"inputScale"];
-    
-    effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];            // Effect filter   
-    [effectFilter setName:@"ZoomBlur"];
-    [effectFilter setDefaults];                                // set the filter to its default values
-    [effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
-    compositeFilter = [[CIFilter filterWithName:@"CISourceOverCompositing"] retain];    // Composite filter
-    [CIAlphaFade class];    
-    alphaFilter = [[CIFilter filterWithName:@"CIAlphaFade"] retain]; // AlphaFade filter
-    [alphaFilter setDefaults]; // XXX - setDefaults doesn't work properly
-    [alphaFilter setValue:[NSNumber numberWithFloat:0.5] forKey:@"outputOpacity"]; // set default value
-    
-    // Create display link 
-    NSOpenGLPixelFormat    *openGLPixelFormat = [self pixelFormat];
-    viewDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  // we start with our view on the main display
-    // build up list of displays from OpenGL's pixel format
-    for (virtualScreen = 0; virtualScreen < [openGLPixelFormat  numberOfVirtualScreens]; virtualScreen++)
-    {
-        [openGLPixelFormat getValues:&displayMask forAttribute:NSOpenGLPFAScreenMask forVirtualScreen:virtualScreen];
-        totalDisplayMask |= displayMask;
-    }
-    
+                                          options:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                   (id)colorSpace,kCIContextOutputColorSpace,
+                                                   (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+	// Create CIContext 
+	//ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
+    //                                  pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+    //                                      options:nil] retain];
+	CGColorSpaceRelease(colorSpace);
+    /*
+     // build up list of displays from OpenGL's pixel format
+     for (virtualScreen = 0; virtualScreen < [openGLPixelFormat  numberOfVirtualScreens]; virtualScreen++)
+     {
+     [openGLPixelFormat getValues:&displayMask forAttribute:NSOpenGLPFAScreenMask forVirtualScreen:virtualScreen];
+     totalDisplayMask |= displayMask;
+     }
+     */
     // Setup the timecode overlay
     /*
      NSDictionary *fontAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:[NSFont labelFontOfSize:24.0f], NSFontAttributeName,
@@ -142,17 +79,82 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
      nil];
      */
     //timeCodeOverlay = [[TimeCodeOverlay alloc] initWithAttributes:fontAttributes targetSize:NSMakeSize(720.0,480.0 / 4.0)];    // text overlay will go in the bottom quarter of the display
-    
+    [lock lock];
+    NSLog(@"%@\n",[layerController class]);
+    [layerController initWithOpenGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj] 
+                               pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj] Context:freej];
+    [lock unlock];
     GLint params[] = { 1 };
     CGLSetParameter( CGLGetCurrentContext(), kCGLCPSwapInterval, params );
-    
+    //[self drawRect:NSZeroRect];
+    needsReshape = YES;
+    [self setNeedsDisplay:YES];
     [pool release];
 }
 
 - (void)drawRect:(NSRect)theRect
 {
+    NSRect bounds = [self bounds];
+    NSRect frame = [self frame];
+    CGRect imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+                                  NSWidth(bounds), NSHeight(bounds));
+    GLint zeroOpacity = 0;
+    if (needsReshape) {
+        
+        if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+            return;
+        [[self openGLContext] makeCurrentContext];
+        [[self openGLContext] setValues:&zeroOpacity forParameter:NSOpenGLCPSurfaceOpacity];
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glOrtho(NSMinX(bounds), NSWidth(bounds), NSMinY(bounds), NSHeight(bounds), -1.0, 1.0);
+        
+        glDisable(GL_DITHER);
+        glDisable(GL_ALPHA_TEST);
+        glDisable(GL_BLEND);
+        glDisable(GL_STENCIL_TEST);
+        glDisable(GL_FOG);
+        //glDisable(GL_TEXTURE_2D);
+        glDisable(GL_DEPTH_TEST);
+        glPixelZoom(1.0,1.0);
+        
+        // clean the OpenGL context 
+        glClearColor(0.0, 0.0, 0.0, 0.0);         
+        glClear(GL_COLOR_BUFFER_BIT);
+        [[self openGLContext] flushBuffer];
+
+        needsReshape = NO;
+    }
+    if ([self needsDisplay]) {
+        if (posterImage) {
+            CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+            [[self openGLContext] makeCurrentContext];
+            [ciContext drawImage: posterImage
+                         atPoint: imageRect.origin
+                        fromRect: imageRect];
+            [[self openGLContext] flushBuffer];
+            CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+        } else {
+            CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+            [[self openGLContext] makeCurrentContext];
+            [ciContext drawImage: [CIImage imageWithColor:[CIColor colorWithRed:0.0 green:0.0 blue:0.0]]
+                         atPoint: imageRect.origin
+                        fromRect: imageRect];
+            [[self openGLContext] flushBuffer];
+            CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);            
+        }
+        [self setNeedsDisplay:NO];
+    }
+}
+
+/*
+- (void)drawRect:(NSRect)theRect
+{
     NSRect        frame = [self frame];
     NSRect        bounds = [self bounds];
+    [lock lock];
     if(needsReshape)    // if the view has been resized, reset the OpenGL coordinate system
     {
         GLfloat     minX, minY, maxX, maxY;
@@ -192,8 +194,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     // clean the OpenGL context - not so important here but very important when you deal with transparenc
     
     [self setNeedsDisplay:NO];
+    [lock unlock];
     //[[freej getLock] unlock];
 }
+*/
 
 - (void)reshape
 {
@@ -224,231 +228,36 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (IBAction)toggleFilters:(id)sender
 {
-    doFilters = doFilters?false:true;
+    [layerController toggleFilters];
 }
 
 - (IBAction)toggleVisibility:(id)sender
 {
-    if (layer)
-        if (layer->active)
-            layer->deactivate();
-        else
-            layer->activate();
+    [layerController toggleVisibility];
 }
 
 - (IBAction)togglePreview:(id)sender
 {
-    doPreview = doPreview?NO:YES;
+    [layerController togglePreview];
 }
 
-- (void) setLayer:(CVLayer *)lay
-{
-    if (lay) {
-        layer = lay;
-        layer->fps.set(25);
-    } 
-}
-
-- (NSString *)filterName
-{
-    NSString *filter = nil;
-    [lock lock];
-    if (effectFilter)
-        filter = [effectFilter name];
-    [lock unlock];
-    return filter;
-}
-
-- (NSDictionary *)filterParams
-{
-    return filterParams;
-}
 
 - (IBAction)setFilterParameter:(id)sender
 {
-    NSAutoreleasePool *pool;
-    float deg = 0;
-    float x = 0;
-    float y = 0;
-    NSAffineTransform    *rotateTransform;
-    NSAffineTransform    *rototranslateTransform;
-    NSString *paramName = NULL;
-    pool = [[NSAutoreleasePool alloc] init];
-    
-    // TODO - optimize the logic in this routine ... it's becoming huge!!
-    // to prevent its run() method to try rendering
-    // a frame while we change filter parameters
-    [lock lock];
-    switch([sender tag])
-    {
-        case 0:  // opacity (AlphaFade)
-            [alphaFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"outputOpacity"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-        case 1: //brightness (ColorCorrection)
-            [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-        case 2: // saturation (ColorCorrection)
-            [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-        case 3: // contrast (ColorCorrection)
-            [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-        case 4: // exposure (ExposureAdjust)
-            [exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-        case 5: // rotate 
-            rotateTransform = [NSAffineTransform transform];
-            [rotateTransform rotateByDegrees:[sender floatValue]];
-            deg = ([sender floatValue]*M_PI)/180.0;
-            if (deg) {
-                x = ((layer->geo.w)-((layer->geo.w)*cos(deg)-(layer->geo.h)*sin(deg)))/2;
-                y = ((layer->geo.h)-((layer->geo.w)*sin(deg)+(layer->geo.h)*cos(deg)))/2;
-            }
-            rototranslateTransform = [NSAffineTransform transform];
-            [rototranslateTransform translateXBy:x yBy:y];
-            [rotateTransform appendTransform:rototranslateTransform];
-            [rotateTransform concat];
-            [rototranslateTransform concat];
-            [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-        case 6: // traslate X
-            if (layer) 
-                layer->geo.x = [sender floatValue];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-        case 7: // traslate Y
-            if (layer)
-                layer->geo.y = [sender floatValue];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-        case 100:
-            NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
-            //NSLog(filterName);
-            [effectFilter release];
-            effectFilter = [[CIFilter filterWithName:filterName] retain]; 
-            [effectFilter setName:[[sender selectedItem] title]]; 
-            FilterParams *pdescr = [filterPanel getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
-            [effectFilter setDefaults];
-            NSView *cView = (NSView *)sender;
-            for (int i = 0; i < 4; i++) {
-                NSTextField *label = (NSTextField *)[cView nextKeyView];
-                NSSlider *slider = (NSSlider *)[label nextKeyView];
-                
-                if (i < pdescr->nParams) {
-                    [label setHidden:NO];
-                    [label setTitleWithMnemonic:[NSString stringWithUTF8String:pdescr->params[i].label]];
-                    
-                    // first update sliders' min and max values
-                    [slider setToolTip:[label stringValue]];
-                    [slider setHidden:NO];
-                    [slider setMinValue:pdescr->params[i].min];
-                    [slider setMaxValue:pdescr->params[i].max];
-                    NSNumber *value = [filterParams valueForKey:[label stringValue]];
-                    if (value) 
-                        [slider setDoubleValue:[value floatValue]];
-                    else
-                        [slider setDoubleValue:pdescr->params[i].min];
-                    // than update the current value for this specific layer (saved in filterParams)
-                    [filterParams setValue:[NSNumber numberWithFloat:[slider doubleValue]]  forKey:[label stringValue]];
-                    
-                    // handle the case it refers to a "center" coordinate
-                    if (strcmp(pdescr->params[i].label, "CenterY") == 0) {
-                        [slider setMaxValue:layer->geo.h];
-                        NSSlider *x = (NSSlider *)[[slider previousKeyView] previousKeyView];
-                        [effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[slider floatValue]]
-                                        forKey:@"inputCenter"];
-                    } else if (strcmp(pdescr->params[i].label, "CenterX") == 0) {
-                        [slider setMaxValue:layer->geo.w];
-                        NSSlider *y = (NSSlider *)[[slider nextKeyView] nextKeyView];
-                        [effectFilter setValue:[CIVector vectorWithX:[slider floatValue] Y:[y floatValue]]
-                                        forKey:@"inputCenter"];
-                    } else {
-                        [effectFilter setValue:[NSNumber numberWithFloat:[slider doubleValue]] forKey:[label stringValue]];
-                    }
-                } else {
-                    // hide unused sliders
-                    [label setHidden:YES];
-                    [slider setHidden:YES];
-                }
-                cView = slider;
-            }
-            break;
-        case 101:
-            paramName = [sender toolTip];
-            if ([paramName isEqual:@"CenterX"]) {
-                NSSlider *y = (NSSlider *)[[sender nextKeyView] nextKeyView];
-                [effectFilter setValue:[CIVector vectorWithX:[sender floatValue] Y:[y floatValue]]
-                                forKey:@"inputCenter"];
-            } else { 
-                [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            }
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            break;
-        case 102:
-            paramName = [sender toolTip];
-            if ([paramName isEqual:@"CenterY"]) {
-                NSSlider *x = (NSSlider *)[[sender previousKeyView] previousKeyView];
-                [effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[sender floatValue]]
-                                forKey:@"inputCenter"];
-            } else { 
-                [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            }
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            break;
-        case 103:
-            paramName = [sender toolTip];
-            [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            break;
-        case 104:
-            paramName = [sender toolTip];
-            [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-        default:
-            break;
-    }
-    [lock unlock];
-    [pool release];
+    [layerController setFilterParameter:sender];
 }
 
 - (IBAction)setBlendMode:(id)sender
 {
-    if (layer) {
-        switch([sender tag])
-        {
-            case -1:
-                NSString *blendMode = [[NSString alloc] initWithFormat:@"CI%@BlendMode", [[sender selectedItem] title]];
-                layer->blendMode = blendMode;
-                break;
-            default:
-                break;
-        }
-    }
+    [layerController setBlendMode:sender];
+
 }
 
-- (void)setFilterCenterFromMouseLocation:(NSPoint)where
-{
-    CIVector    *centerVector = nil;
-    
-    //[lock lock];
-    
-    centerVector = [CIVector vectorWithX:where.x Y:where.y];
-    [effectFilter setValue:centerVector forKey:@"inputCenter"];
-    
-    //[lock unlock];
-}
 
 - (void)renderPreview
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    if (doPreview && previewTarget) { 
+    if ([layerController doPreview] && previewTarget) { 
         // scale the frame to fit the preview
         if (![previewTarget isHiddenOrHasHiddenAncestor])
             [previewTarget renderFrame:[self getTexture]];
@@ -457,53 +266,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [pool release];
 }
 
-
-- (CVTexture *)getTexture
-{
-    CIImage     *inputImage = nil;
-    CVTexture   *texture = nil;
-    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    CIImage     *renderedImage = nil;
-    
-    if (newFrame) {       
-        [lock lock];
-        inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
-        newFrame = NO;
-        if (doFilters) {    
-            [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
-            [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-            [effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
-                            forKey:@"inputImage"];
-            [alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
-                            forKey:@"inputImage"];
-            [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-            if (layer->geo.x || layer->geo.y) {
-                NSAffineTransform   *translateTransform = [NSAffineTransform transform];
-                [translateTransform translateXBy:layer->geo.x yBy:layer->geo.y];
-                [translateFilter setValue:translateTransform forKey:@"inputTransform"];
-                
-                [translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-                renderedImage = [translateFilter valueForKey:@"outputImage"];
-            } else {
-                renderedImage = [rotateFilter valueForKey:@"outputImage"];
-            }
-        } else {
-            renderedImage = inputImage;
-        }
-        texture = [[CVTexture alloc] initWithCIImage:renderedImage pixelBuffer:currentFrame];
-        
-        if (lastFrame)
-            [lastFrame release];
-        lastFrame = texture;
-        [lock unlock];
-        
-        [self task]; // notify we have a new frame and the qtvisualcontext can be tasked
-    } 
-    
-    texture = [lastFrame retain];
-    
-    return texture;
-}
 
 - (void)mouseDown:(NSEvent *)theEvent {
     [filterPanel setLayer:self];
@@ -518,32 +280,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (bool)needPreview
 {
-    return doPreview;
+    return [layerController doPreview];
 }
 
 - (void)startPreview
 {  
-    doPreview = YES;
+    [layerController startPreview];
 }
 
-- (void)start
-{
-    if (!layer) {
-        Context *ctx = [freej getContext];
-        if (ctx) {
-            layer = new CVLayer(self);
-            layer->init();
-        }
-    }
-}
-
-- (void)stop
-{
-    if (layer) {
-        layer->deactivate();
-    }
-    
-}
 
 - (void)setPreviewTarget:(CVPreview *)targetView
 {
@@ -553,9 +297,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     
 }
 
+- (CVPreview *)getPreviewTarget
+{
+    return previewTarget;
+}
+
 - (void)stopPreview
 {
-    doPreview = NO;
+    [layerController stopPreview];
 }
 
 - (void)lock
@@ -570,42 +319,106 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (bool)isVisible
 {
-    if (layer)
-        return [freej isVisible:layer];
-    return NO;
+    return [layerController isVisible];
 }
 
 - (void)activate
 {
-    if (layer) {
-        Context *ctx = [freej getContext];
-        layer->activate();
-        ctx->add_layer(layer);
-    }
+    [layerController activate];
 }
 
 - (void)deactivate
 {
-    if (layer)
-        layer->deactivate();
+    [layerController deactivate];
 }
 
 - (void)rotateBy:(float)deg
 {
-    if (layer) {
-        
-    }
+    [layerController rotateBy:deg];
 }
 
 - (void)translateXby:(float)x Yby:(float)y
 {
-    if (layer) {
-        layer->geo.x = x;
-        layer->geo.y = y;
-    }
+    [layerController translateXby:x Yby:y];
 }
 
-@synthesize layer;
-@synthesize currentFrame;
+- (void)clear {
+    NSRect        frame = [self frame];
+
+    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]))
+    return;
+    posterImage = nil;
+
+    [[self openGLContext] makeCurrentContext];    
+    // clean the OpenGL context
+    glClearColor(0.0, 0.0, 0.0, 0.0);         
+    glClear(GL_COLOR_BUFFER_BIT);
+    glFinish();
+
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+}
+
+/*
+- (void)drawPosterImage:(CIImage *)posterInputImage withScaleFactor:(float)scaleFactor
+{
+
+    
+    CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+                                   NSWidth(bounds), NSHeight(bounds));
+    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+        return;    
+    //[lock lock];
+    [ciContext drawImage:posterImage
+                 atPoint: imageRect.origin
+                fromRect: imageRect];
+    [[self openGLContext] makeCurrentContext];
+    [[self openGLContext] flushBuffer];
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+}
+*/
+
+- (void)setPosterImage:(NSImage *)image
+{
+    NSRect bounds = [self bounds];
+    NSRect frame = [self frame];
+    NSData  * tiffData = [image TIFFRepresentation];
+    NSBitmapImageRep * bitmap;
+    bitmap = [NSBitmapImageRep imageRepWithData:tiffData];
+    // scale the frame to fit the preview
+    NSAffineTransform *scaleTransform = [NSAffineTransform transform];
+    float scaleFactor = frame.size.height/[image size].height;
+    [scaleTransform scaleBy:scaleFactor];
+    
+    [scaleFilter setValue:scaleTransform forKey:@"inputTransform"];
+    [scaleFilter setValue:[[CIImage alloc] initWithBitmapImageRep:bitmap] forKey:@"inputImage"];
+    
+    posterImage = [[scaleFilter valueForKey:@"outputImage"] retain];
+    [self setNeedsDisplay:YES];
+}
+
+- (CVFilterPanel *)filterPanel
+{
+    return filterPanel;
+}
+
+- (NSString *)filterName {
+    if (layerController)
+        return [layerController filterName];
+    return nil;
+}
+
+- (NSDictionary *)filterParams {
+    if (layerController)
+        return [layerController filterParams];
+    return nil;
+
+}
+
+- (void)initialized
+{
+}
+
+@synthesize layerController;
+//@synthesize previewTarget;
 
 @end
