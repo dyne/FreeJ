@@ -508,7 +508,7 @@ int console_open_layer(Context *env, char *cmd) {
     */
     //	  l->set_fps(env->fps_speed);
     l->start();
-    env->add_layer(l);
+    env->screen->add_layer(l);
     l->active=true;
     //    l->fps=env->fps_speed;
 
@@ -541,7 +541,7 @@ int console_open_text_layer(Context *env, char *cmd) {
   txt->write(cmd);
   txt->start();
   //  txt->set_fps(0);
-  env->add_layer(txt);
+  env->screen->add_layer(txt);
   txt->active=true;
   
   notice("layer succesfully created with text: %s",cmd);
@@ -772,7 +772,7 @@ int console_generator_selection(Context *env, char *cmd) {
 
   tmp->start();
   //  tmp->set_fps(env->fps_speed);
-  env->add_layer(tmp);
+  env->screen->add_layer(tmp);
   tmp->active=true;
 
   notice("generator %s succesfully created", tmp->name);

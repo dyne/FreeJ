@@ -34,26 +34,6 @@
 #include <impl_layers.h>
 #include <context.h>
 
-const char *layers_description =
-" .  - ImageLayer for image files (png, jpeg etc.)\n"
-" .  - GeometryLayer for scripted vectorial primitives\n"
-#ifdef WITH_V4L
-" .  - Video4Linux devices as of BTTV cards and webcams\n"
-" .    you can specify the size  /dev/video0%160x120\n"
-#endif
-#ifdef WITH_FFMPEG
-" .  - MovieLayer for movie files, urls and firewire devices\n"
-#endif
-#if defined WITH_TEXTLAYER
-" .  - TextLayer for text rendered with freetype2 library\n"
-#endif
-#ifdef WITH_FLASH
-" .  - FlashLayer for SWF flash v.3 animations\n"
-#endif
-#ifdef WITH_AUDIO
-" .  - Audio Layer\n" // XXX
-#endif
-"\n";
 
 
 Layer *create_layer(Context *env, char *file) {

@@ -107,6 +107,16 @@ Context::Context() {
 " .  - OpenCV for camera capture\n"
 #endif
 "\n";
+
+  screens_description = (char*)
+" .  - [ sdl   ] screen - Simple Directmedia Layer\n"
+" .  - [ soft  ] screen - internal shared buffer\n"
+#ifdef WITH_OPENGL
+" .  - [ sdlgl ] screen - SDL 3d opengl\n"
+" .  - [ gl    ] screen - 3d opengl surface\n"
+#endif
+"\n";
+
     
   Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
   Factory<Controller>::set_default_classtype("KeyboardController", "sdl");

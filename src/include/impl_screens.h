@@ -29,9 +29,6 @@
 #include <sdlgl_screen.h>
 #include <gl_screen.h>
 #endif
-#ifdef HAVE_DARWIN
-
-#endif
 
 
 

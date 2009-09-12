@@ -59,6 +59,7 @@ static const char *help =
 " .   -v   version information\n"
 " .   -D   debug verbosity level - default 1\n"
 " .   -s   size of screen - default 400x300\n"
+" .   -S   screen type - default 'sdl'\n"
 " .   -a   initialize audio (using jack)\n"
 //" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
@@ -69,19 +70,17 @@ static const char *help =
 " .   -g   experimental opengl engine! (better pow(2) res as 256x256)\n"
 #endif
 " .   -j   <javascript.js>  execute a javascript file\n"
-" .\n"
-" .  Layers available:\n"
-" .   you can specify any number of files or devices to be loaded,\n"
-" .   this binary is compiled to support the following layer formats:\n";
+" .\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gas:nj:cgf:F";
+static const char *short_options = "-hvD:gas:S:nj:cgf:F";
 
 /* this is the global FreeJ context */
 Context *freej = NULL;
 
 // the runtime will open one screen by default
 ViewPort *screen = NULL;
+char screen_name[16];
 
 int   debug_level = 0;
 char  layer_files[MAX_CLI_CHARS];
@@ -110,13 +109,22 @@ void cmdline(int argc, char **argv) {
 
   debug_level              = 0;
 
+  // default screen
+  snprintf(screen_name, 16, "sdl");
+
   do {
 //    res = getopt_long (argc, argv, short_options); TODO getopt_long
     res = getopt(argc, argv, short_options);
     switch(res) {
     case 'h':
       fprintf(stdout, "%s", help);
+      fprintf(stdout,
+" .  Layers available:\n"
+" .   you can specify any number of files or devices to be loaded,\n"
+" .   this binary is compiled to support the following layer formats:\n");
       fprintf(stdout, "%s", freej->layers_description);
+      fprintf(stdout, " .  Screens available:\n");
+      fprintf(stdout, "%s", freej->screens_description);
       exit(0);
       break;
     case 'v':
@@ -144,6 +152,9 @@ void cmdline(int argc, char **argv) {
 	width = 240;
       }
       */
+      break;
+    case 'S':
+      snprintf(screen_name, 16, "%s", optarg);
       break;
 
     case 'a':
@@ -284,10 +295,7 @@ int main (int argc, char **argv) {
 
   // create SDL screen by default at selected size
   screen = NULL;
-  if(opengl)
-    screen = Factory<ViewPort>::new_instance( "Screen", "sdlgl" );
-  else
-    screen = Factory<ViewPort>::new_instance( "Screen", "sdl" );
+  screen = Factory<ViewPort>::new_instance( "Screen", screen_name );
 
   if(!screen) {
     error("no screen can be opened");

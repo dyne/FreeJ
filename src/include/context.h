@@ -171,7 +171,9 @@ class Context {
   bool clear_all;
   bool start_running;
 
-  char *layers_description; ///< string with a list of available layers compiled in
+  char *layers_description; ///< string describing available layer types
+  char *screens_description; ///< string describing available screen types
+
   Layer *open(char *file, int w = 0, int h = 0); ///< creates a layer from a filename, detecting its type
   
 };
