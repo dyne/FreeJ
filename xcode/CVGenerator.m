@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Xant <xant@dyne.org>
+ *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -19,7 +19,7 @@
 
 // XXX - WIP
 
-#import "CVGenerator.h"
+#import <CVGenerator.h>
 
 
 @implementation CVGenerator

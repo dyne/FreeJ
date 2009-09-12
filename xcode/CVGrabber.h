@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Xant <xant@dyne.org>
+ *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -20,14 +20,14 @@
 #ifndef __CVGRABBERCONTROLLER_H__
 #define __CVGRABBERCONTROLLER_H__
 
-#include "CVLayer.h"
-#import "CVLayerController.h"
+#include <CVLayer.h>
+#import <CVLayerController.h>
 
 #include <context.h>
 #import <QTKit/QTKit.h>
 #import <CoreAudio/CoreAudio.h>
 
-#include "CVFilterPanel.h"
+#include <CVFilterPanel.h>
 
 @class CFreej;
 @class CVGrabber;

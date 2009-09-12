@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Xant <xant@dyne.org>
+ *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -20,9 +20,8 @@
 #ifndef __CVF0RLAYERVIEW_H__
 #define __CVF0RLAYERVIEW_H__
 
-#import <Cocoa/Cocoa.h>
-#import "CVLayerView.h"
-#import "CVF0rLayerController.h"
+#import <CVLayerView.h>
+#import <CVF0rLayerController.h>
 
 
 @interface CVF0rLayerView : CVLayerView

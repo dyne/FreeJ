@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Xant <xant@dyne.org>
+ *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -17,8 +17,8 @@
  *
  */
 
-#import "CVFileInputController.h"
-#import "CIAlphaFade.h"
+#import <CVFileInputController.h>
+#import <CIAlphaFade.h>
 #include <math.h>
 
 /* Utility to set a SInt32 value in a CFDictionary

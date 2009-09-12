@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Xant <xant@dyne.org>
+ *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -17,10 +17,10 @@
  *
  */
 
-#include <jsparser.h>
 #import <CFreej.h>
-#import <CVLayer.h>
+#include <CVLayer.h>
 #include <CVScreen.h>
+#include <jsparser.h>
 
 #define DEFAULT_FREEJ_WIDTH 352
 #define DEFAULT_FREEJ_HEIGHT 288
