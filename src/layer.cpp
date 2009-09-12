@@ -190,7 +190,12 @@ bool Layer::set_blit(const char *bname) {
 	  blitter->crop(this, screen);
 	  blitter->blitlist.sel(0);
 	  b->sel(true);
-  }
+	  act("blit %s set for layer %s", current_blit->name, name);
+  } else {
+    warning("can't set blit for layer %s: not added on any screen yet", name);
+    return(false);
+  } 
+
   return(true);
 }
 

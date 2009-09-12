@@ -32,11 +32,12 @@ FACTORY_REGISTER_INSTANTIATOR(ViewPort, SoftScreen, Screen, soft);
 
 
 
+
 SoftScreen::SoftScreen()
   : ViewPort() {
 
   screen_buffer = NULL;
-  //  set_name("SOFT");
+  set_name("SOFT");
 }
 
 SoftScreen::~SoftScreen() {
@@ -46,23 +47,33 @@ SoftScreen::~SoftScreen() {
 
 void SoftScreen::setup_blits(Layer *lay) {
 
+  Blitter *b = new Blitter();
+
+  setup_linear_blits(b);
+
+  lay->blitter = b;
+
+  lay->set_blit("RGB"); // default
+
 }
 
 bool SoftScreen::_init() {
 
   // test
   screen_buffer = malloc(geo.bytesize);
-
+  func("SoftScreen buffer initialized at %p (%u bytes)",
+       screen_buffer, geo.bytesize);
   return(true);
 }
 
 void SoftScreen::blit(Layer *src) {
-  register int16_t c;
+  int16_t c;
   Blit *b;
   void *offset;
   
   if(src->screen != this) {
-    error("%s: blit called on a layer not belonging to screen",__PRETTY_FUNCTION__);
+    error("%s: blit called on a layer not belonging to screen",
+	  __PRETTY_FUNCTION__);
     return;
   }
 
@@ -72,22 +83,22 @@ void SoftScreen::blit(Layer *src) {
   b = src->current_blit;
 
   pscr = (uint32_t*) get_surface() + b->scr_offset;
-  play = (uint32_t*) offset        + b->lay_offset;
-  
+  play = (uint32_t*) src->buffer   + b->lay_offset;
+
   // iterates the blit on each horizontal line
   for( c = b->lay_height ; c > 0 ; c-- ) {
-    
+
     (*b->fun)
       ((void*)play, (void*)pscr,
        b->lay_bytepitch,// * src->geo.bpp>>3,
        &b->parameters);
-    
+
     // strides down to the next line
     pscr += b->scr_stride + b->lay_pitch;
     play += b->lay_stride + b->lay_pitch;
     
   }
-  
+
 }
 
 void SoftScreen::set_buffer(void *buf) {
@@ -98,7 +109,7 @@ void SoftScreen::set_buffer(void *buf) {
 void *SoftScreen::coords(int x, int y) {
 //   func("method coords(%i,%i) invoked", x, y);
 // if you are trying to get a cropped part of the layer
-// use the .pitch parameter for a pre-calculated stride
+// use the .pixelsize geometric property for a pre-calculated stride
 // that is: number of bytes for one full line
   return
     ( x + geo.pixelsize +

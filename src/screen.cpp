@@ -93,8 +93,9 @@ bool ViewPort::init(int w, int h, int bpp) {
   }
 
   geo.init(w,h,bpp);
-
   initialized = _init();
+  act("screen %s initialized with size %ux%u",
+      name, geo.w, geo.h);
 
   return initialized;
 
