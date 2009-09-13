@@ -510,6 +510,17 @@ else
   fi
 fi
 
+dnl ==============================================================
+dnl CHECK if we have aalib
+dnl ==============================================================
+AC_CHECK_LIB(aa,aa_init, have_aa=yes, have_aa=no)
+if test x$have_aa = xyes; then
+   AC_DEFINE(WITH_AALIB,1,[define if to compile aalib ascii screen])
+   AA_LIBS="-laa"
+   AC_SUBST(AA_LIBS)
+fi   
+
+
 
 dnl ==============================================================
 dnl CHECK TO USE OPENGL VIDEO OUTPUT
@@ -1016,6 +1027,13 @@ VRB([echo "  CFLAGS: $SDLIMAGE_CFLAGS"])
 
 
 #### optional stuff
+echo -n "= AAlib  : "
+if test x$have_aa = xyes; then
+   echo "yes"
+VRB([echo "  AA  LIBS   : $AA_LIBS"])
+else
+   echo "no"
+fi
 
 echo -n "= OpenGL : "
 if test x$enable_opengl = xyes; then

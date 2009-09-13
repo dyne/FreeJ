@@ -18,6 +18,7 @@
  */
 
 #include <config.h>
+#ifdef WITH_AALIB
 
 #include <stdlib.h>
 
@@ -25,27 +26,32 @@
 #include <blitter.h>
 
 #include <jutils.h>
-#include <soft_screen.h>
+#include <aa_screen.h>
 
 // our objects are allowed to be created trough the factory engine
-FACTORY_REGISTER_INSTANTIATOR(ViewPort, SoftScreen, Screen, soft);
+FACTORY_REGISTER_INSTANTIATOR(ViewPort, AaScreen, Screen, ascii);
 
 
 
 
-SoftScreen::SoftScreen()
+AaScreen::AaScreen()
   : ViewPort() {
 
   screen_buffer = NULL;
-  set_name("SOFT");
+
+  ascii_context = NULL;
+  set_name("ASCII");
 }
 
-SoftScreen::~SoftScreen() {
+AaScreen::~AaScreen() {
   func("%s",__PRETTY_FUNCTION__);
+  if(ascii_context)
+    aa_close(ascii_context);
   if(screen_buffer) free(screen_buffer);
+
 }
 
-void SoftScreen::setup_blits(Layer *lay) {
+void AaScreen::setup_blits(Layer *lay) {
 
   Blitter *b = new Blitter();
 
@@ -57,16 +63,33 @@ void SoftScreen::setup_blits(Layer *lay) {
 
 }
 
-bool SoftScreen::_init() {
+bool AaScreen::_init() {
 
+  /* width/height image setup */
+  ascii_size = geo.pixelsize / 4;
+
+  ascii_hwparms.width  = geo.w / 2;
+  ascii_hwparms.height = geo.h / 2;
+
+  ascii_rndparms = aa_getrenderparams();
+  ascii_rndparms->bright = 60;
+  ascii_rndparms->contrast = 4;
+  ascii_rndparms->gamma = 3;
+
+
+  ascii_context = aa_autoinit (&ascii_hwparms);
+  if(!ascii_context) {
+    error("cannot initialize ASCII screen (aa_autoinit failed)");
+    return(false);
+  }
   screen_buffer = malloc(geo.bytesize);
+
   return(true);
 }
 
-void SoftScreen::blit(Layer *src) {
+void AaScreen::blit(Layer *src) {
   int16_t c;
   Blit *b;
-  void *offset;
   
   if(src->screen != this) {
     error("%s: blit called on a layer not belonging to screen",
@@ -98,12 +121,29 @@ void SoftScreen::blit(Layer *src) {
 
 }
 
-void SoftScreen::set_buffer(void *buf) {
-  if(screen_buffer) free(screen_buffer);
-  screen_buffer = buf;
+uint32_t AaScreen::rgba_to_r(uint32_t c) { return       c & 0xff; }
+uint32_t AaScreen::rgba_to_g(uint32_t c) { return (c>> 8) & 0xff; }
+uint32_t AaScreen::rgba_to_b(uint32_t c) { return (c>>16) & 0xff; }
+uint32_t AaScreen::rgba_to_a(uint32_t c) { return (c>>24);        }
+
+void AaScreen::show() {
+  int c;
+  // make screen_buffer RGBA to grey
+  uint8_t *aa_buf = (uint8_t*)aa_image(ascii_context);
+  uint32_t *rgb_buf = (uint32_t*) screen_buffer;
+
+  for(c=0;c<geo.pixelsize;c++)
+    aa_buf[c] = .30*rgba_to_r(rgb_buf[c])
+      + .59*rgba_to_g(rgb_buf[c])
+      + .11*rgba_to_b(rgb_buf[c]);
+
+
+  aa_render (ascii_context, ascii_rndparms, 0, 0, geo.w,geo.h);
+  aa_flush (ascii_context);
+
 }
 
-void *SoftScreen::coords(int x, int y) {
+void *AaScreen::coords(int x, int y) {
 //   func("method coords(%i,%i) invoked", x, y);
 // if you are trying to get a cropped part of the layer
 // use the .pixelsize geometric property for a pre-calculated stride
@@ -113,7 +153,7 @@ void *SoftScreen::coords(int x, int y) {
       (uint32_t*)get_surface() );
 }
 
-void *SoftScreen::get_surface() {
+void *AaScreen::get_surface() {
   if(!screen_buffer) {
     error("SOFT screen output is not properly initialised via set_buffer");
     error("this will likely segfault FreeJ");
@@ -122,3 +162,4 @@ void *SoftScreen::get_surface() {
   return screen_buffer;
 }
 
+#endif

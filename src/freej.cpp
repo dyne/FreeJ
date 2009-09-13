@@ -294,7 +294,6 @@ int main (int argc, char **argv) {
   set_debug(debug_level);
 
   // create SDL screen by default at selected size
-  screen = NULL;
   screen = Factory<ViewPort>::new_instance( "Screen", screen_name );
 
   if(!screen) {

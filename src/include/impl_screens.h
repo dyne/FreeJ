@@ -30,6 +30,9 @@
 #include <gl_screen.h>
 #endif
 
+#ifdef WITH_AALIB
+#include <aa_screen.h>
+#endif
 
 
 #endif

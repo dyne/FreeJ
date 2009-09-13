@@ -30,6 +30,7 @@ SOURCES = \
 	screen.cpp		screen_js.cpp      \
 	sdl_screen.cpp 		sdlgl_screen.cpp   \
 	gl_screen.cpp   	soft_screen.cpp    \
+	aa_screen.cpp \
 \
 	controller.cpp  	console_ctrl.cpp  \
 	console_calls_ctrl.cpp 	console_readline_ctrl.cpp \

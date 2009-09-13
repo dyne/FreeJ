@@ -115,6 +115,9 @@ Context::Context() {
 " .  - [ sdlgl ] screen - SDL 3d opengl\n"
 " .  - [ gl    ] screen - 3d opengl surface\n"
 #endif
+#ifdef WITH_AALIB
+" .  - [ aa    ] screen - Ascii (aalib) text output\n"
+#endif
 "\n";
 
     
