@@ -294,6 +294,7 @@ JS(entry_select);
 ////////////////////////////////
 // Screen methods
 JS(screen_init);
+JS(screen_initialized);
 JS(screen_add_layer);
 JS(screen_rem_layer);
 JS(screen_list_layers);

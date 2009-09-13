@@ -33,6 +33,7 @@ JSFunctionSpec screen_methods[] = {
   {"add_layer",         screen_add_layer,       1},
   {"rem_layer",         screen_rem_layer,       1},
   {"list_layers",       screen_list_layers,     0},
+  {"is_initialized",    screen_initialized,     0}, 
   {0}
 };
 
@@ -85,12 +86,22 @@ JS(screen_init) {
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
-    return JS_TRUE;
+    return JS_FALSE;
   }
   
   screen->init(w, h, 32); // hardcoded at 32bit bpp
 
   return JS_TRUE;
+}
+
+JS(screen_initialized) {
+  func("%s",__PRETTY_FUNCTION__);
+  ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  if(!screen) {
+    JS_ERROR("Screen core data is NULL");
+    return JS_FALSE;
+  }
+  return screen->initialized?JS_TRUE:JS_FALSE;
 }
 
 JS(screen_list_layers) {

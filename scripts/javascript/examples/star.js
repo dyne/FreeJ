@@ -16,8 +16,10 @@ o = -PI / 2;
 scr = new Screen();
 W = get_width();
 H = get_height();
-//scr.init(W,H);
-//add_screen(scr);
+if (!scr.is_initialized()) {
+    scr.init(W,H);
+    add_screen(scr);
+}
 
 function drawStar(lay, s_mul, s2_mul) {
     s = s_mul / 0.383;
