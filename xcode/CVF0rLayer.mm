@@ -74,34 +74,51 @@ CVF0rLayer::CVF0rLayer(CVLayerController *controller, Context *_freej)
     input = controller;
     freej = _freej;
     generator = NULL;
-    type = Layer::GL_COCOA;
-    //type = Layer::F0R_GENERATOR;
-    //set_name("F0R");
-    //jsclass = &gen0r_layer_class;
-    //  set_filename("/particle generator");    
-    set_name([controller name]);
-    lastFrame = NULL;
+    type = Layer::GL_COCOA;   
+    set_name([input name]);
+    currentFrame = NULL;
+    pixelBuffer = NULL;
     [input setLayer:this];
 }
 
 CVF0rLayer::~CVF0rLayer()
 {
     close();
+    if (pixelBuffer)
+        CVPixelBufferRelease(pixelBuffer);
+    if (currentFrame)
+        free(currentFrame);
 }
 
 void *
 CVF0rLayer::feed()
 {
     void *res;
+
     if (generator) 
         res = generator->process(fps.get(), NULL);
 
     // TODO - handle geometry changes
-    if (!lastFrame)
-        lastFrame = malloc(geo.bytesize);
-    memcpy(lastFrame, res, geo.bytesize);
-    [(CVF0rLayerController *)input feedFrame:lastFrame];
-    return lastFrame;
+    if (!currentFrame)
+        currentFrame = malloc(geo.bytesize);
+    memcpy(currentFrame, res, geo.bytesize);
+    if (pixelBuffer)
+        CVPixelBufferRelease(pixelBuffer);
+    CVReturn err = CVPixelBufferCreateWithBytes (
+             NULL,
+             geo.w,
+             geo.h,
+             k32ARGBPixelFormat,
+             currentFrame,
+             geo.w*4,
+             NULL,
+             NULL,
+             NULL,
+             &pixelBuffer
+    ); 
+    if (err == kCVReturnSuccess)
+        [(CVF0rLayerController *)input feedFrame:pixelBuffer];
+    return currentFrame;
 }
 
 bool CVF0rLayer::open(const char *file) {

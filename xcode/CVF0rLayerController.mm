@@ -21,29 +21,14 @@
 
 @implementation CVF0rLayerController : CVLayerController
 
-- (void)feedFrame:(void *)frame
+- (void)feedFrame:(CVPixelBufferRef)frame
 {
-    CVPixelBufferRef newPixelBuffer;
     //Context *ctx = (Context *)[freej getContext];
     [lock lock];
-    CVReturn err = CVPixelBufferCreateWithBytes (
-                                                 NULL,
-                                                 layer->geo.w,
-                                                 layer->geo.h,
-                                                 k32ARGBPixelFormat,
-                                                 frame,
-                                                 layer->geo.w*4,
-                                                 NULL,
-                                                 NULL,
-                                                 NULL,
-                                                 &newPixelBuffer
-                                                 ); 
-    if (err == kCVReturnSuccess) {
-        if (currentFrame)
-            CVPixelBufferRelease(currentFrame);
-        currentFrame = newPixelBuffer;
-        newFrame = YES;
-    }
+    if (currentFrame)
+        CVPixelBufferRelease(currentFrame);
+    currentFrame = CVPixelBufferRetain(frame);
+    newFrame = YES;
     [lock unlock];
     [self renderPreview];
 }

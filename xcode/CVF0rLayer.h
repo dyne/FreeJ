@@ -26,12 +26,13 @@ class CVF0rLayer : public CVLayer
 {
     protected:
         bool _init();
+        void *currentFrame;
+        CVPixelBufferRef pixelBuffer;
 
 	public:
 		CVF0rLayer(CVLayerController *controller, Context *freej);
         ~CVF0rLayer();
         void register_generators(Linklist<Filter> *gens);
-        void *lastFrame;
         bool open(const char *file);
         void *feed();
         void close();

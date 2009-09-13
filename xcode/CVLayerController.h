@@ -69,6 +69,7 @@ class CVLayer;
     // subclass implementation should override this method and update 
     // the currentFrame pointer only within the renderFrame implementation
     - (char *)name;
+    - (void)feedFrame:(CVPixelBufferRef)frame;
     - (CVReturn)renderFrame;
     - (id)initWithOpenGLContext:(CGLContextObj)context pixelFormat:(CGLPixelFormatObj)pixelFormat Context:(CFreej *)ctx;
     - (id)initWithContext:(CFreej *)context;

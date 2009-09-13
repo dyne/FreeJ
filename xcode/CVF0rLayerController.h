@@ -28,7 +28,6 @@
 }
 
 - (void)reset;
-- (void)feedFrame:(void *)frame;
 - (char *)name;
 @end
 

@@ -37,7 +37,6 @@
     CVPixelBufferRef exportedFrame;
 }
 
-- (void)feedFrame:(CVPixelBufferRef)frame;
 @end
 
 
