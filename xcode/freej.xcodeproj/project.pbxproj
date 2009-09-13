@@ -873,10 +873,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "freej" */;
 			buildPhases = (
+				AA4077DC105D471100401BB3 /* PreBuildScript */,
 				AAA7B6EF0F404B4C00056C44 /* Resources */,
 				AAA7B6F00F404B4C00056C44 /* Sources */,
 				AAA7B6F10F404B4C00056C44 /* Frameworks */,
-				AA155AFF0F5E0A7A00234C8F /* ShellScript */,
+				AA155AFF0F5E0A7A00234C8F /* PostBuildScript */,
 			);
 			buildRules = (
 			);
@@ -922,18 +923,33 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		AA155AFF0F5E0A7A00234C8F /* ShellScript */ = {
+		AA155AFF0F5E0A7A00234C8F /* PostBuildScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = PostBuildScript;
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export INSTALLED=\"\"\nexport LIBS_PATH=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\nmkdir -p $LIBS_PATH\nexport TARGET=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\"\n\nfollow_dependencies () {\n\tlibname=$1\n\tcd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\n\tdependencies=`otool -L \"$libname\"  | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $dependencies; do\n\t\tdepname=`basename $l`\n\t\tdeppath=`dirname $l`\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$depname\" ]; then\n\t\t\tdeploy_lib $depname \"$deppath\"\n\t\tfi\n\tdone\n}\n\nupdate_links () {\n\tlibname=$1\n\tlibpath=$2\n\tfor n in `ls $LIBS_PATH/*`; do\n\t\tinstall_name_tool \\\n\t\t\t-change \"$libpath/$libname\" \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$n\"\n\tdone\n}\n\ndeploy_lib () {\n\tlibname=$1\n\tlibpath=$2\n\tcheck=`echo $INSTALLED | grep $libname`\n\tif [ \"X$check\" = \"X\" ]; then\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\" ]; then\n\t\t\tcp -f \"$libpath/$libname\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tinstall_name_tool \\\n\t\t\t\t-id @executable_path/../Frameworks/$libname \\\n\t\t\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tfollow_dependencies $libname\n\t\tfi\n\t\texport INSTALLED=\"$INSTALLED $libname\"\n\tfi\n\tupdate_links $libname $libpath\n}\n\nupdate_executable() {\n\tLIBS=`otool -L \"$TARGET\" | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $LIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib $libname $libpath\n\t\techo \"install_name_tool -change $libpath/$libname @executable_path/../Frameworks/$libname \\\"$TARGET\\\"\"\n\t\tinstall_name_tool \\\n\t\t\t-change $libpath/$libname \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$TARGET\"\n\tdone\n}\n\nupdate_executable\ncd $LIBS_PATH && MORELIBS=`otool -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\nwhile [ \"X$MORELIBS\" != \"X\" ]; do\n\tfor l in $MORELIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib \"$libname\" \"$libpath\"\n\tdone\n\tcd $LIBS_PATH && MORELIBS=`otool -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\ndone\nupdate_executable\n\nif [ -d \"$TARGET_BUILD_DIR/Plugins\" ]; then\n\tcp -r \"$TARGET_BUILD_DIR/Plugins\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\"\nfi\n\nif [ -d \"/opt/local/lib/frei0r-1/\" ]; then\n\tcp -r \"/opt/local/lib/frei0r-1\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Plugins\"\nfi";
+		};
+		AA4077DC105D471100401BB3 /* PreBuildScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = PreBuildScript;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "BUILD_NUMBER=`grep BUILD_NUMBER $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nOLD_BUILD_NUMBER=$BUILD_NUMBER\n((BUILD_NUMBER++))\nsed -i -e \"s#BUILD_NUMBER $OLD_BUILD_NUMBER#BUILD_NUMBER $BUILD_NUMBER#\" $TARGET_BUILD_DIR/../../config.h";
 		};
 /* End PBXShellScriptBuildPhase section */
 

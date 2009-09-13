@@ -206,7 +206,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (void)feedFrame:(CVPixelBufferRef)frame
 {
-    //Context *ctx = (Context *)[freej getContext];
     [lock lock];
     if (currentFrame)
         CVPixelBufferRelease(currentFrame);
