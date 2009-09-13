@@ -101,7 +101,8 @@ JS(screen_initialized) {
     JS_ERROR("Screen core data is NULL");
     return JS_FALSE;
   }
-  return screen->initialized?JS_TRUE:JS_FALSE;
+  *rval = BOOLEAN_TO_JSVAL(screen->initialized?JS_TRUE:JS_FALSE);
+  return JS_TRUE;
 }
 
 JS(screen_list_layers) {
