@@ -3,14 +3,16 @@
 // and smart use of function pointers
 // (C)2005 Denis Jaromil Rojo - GNU GPL 
 
-// W = get_width();
-// H = get_height();
-W = 400;
-H = 300;
 
-// scr = new Screen("sdl");
-// scr.init(W,H);
-// add_screen(scr);
+scr = new Screen();
+if (!scr.is_initialized()) {
+    // screen hasn't been initialized yet, let's do it now
+    scr.init(400,300);
+    add_screen(scr);
+} 
+
+W = get_width();
+H = get_height();
 
 function draw_pixels(rand_geo) {
   var x, y;
