@@ -437,7 +437,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         NSWindow *fullScreenWindow = [self window];
         [self removeFromSuperview];
         [myWindow setContentView:self];
-        [myWindow setFrame:[self frame] display:YES];
         [myWindow release];
         [self release];
         [fullScreenWindow release];
@@ -446,18 +445,18 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     } else {
         CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
         NSAssert(newMode, @"Couldn't find display mode");
-        
+        myWindow = [[self window] retain];
         savedMode = CGDisplayCurrentMode(currentDisplayID);
+        SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
+
         CGDisplaySwitchToMode(currentDisplayID, newMode);
         
-        SetSystemUIMode(kUIModeAllSuppressed, kUIOptionAutoShowMenuBar);
         NSScreen *screen = [[self window] screen];
         NSWindow *newWindow = [[NSWindow alloc] initWithContentRect:[screen frame]
                                                           styleMask:NSBorderlessWindowMask
                                                             backing:NSBackingStoreBuffered
                                                               defer:NO
                                                              screen:screen];
-        myWindow = [[self window] retain];
         [self retain];
         [self removeFromSuperview];
         [newWindow setContentView:self];
