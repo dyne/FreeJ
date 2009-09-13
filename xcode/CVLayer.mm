@@ -60,17 +60,20 @@ CVLayer::run()
 void
 CVLayer::activate()
 {
-	opened = true;
-    //freej->add_layer(this);
-    active = true;
-    notice("Activating %s", name);
-    start();
+    if (!active) {
+        opened = true;
+        //freej->add_layer(this);
+        active = true;
+        notice("Activating %s", name);
+        start();
+    }
 }
 
 void
 CVLayer::deactivate()
 {
-    freej->rem_layer(this);
+    if (screen)
+        screen->rem_layer(this);
     active = false;
 }
 

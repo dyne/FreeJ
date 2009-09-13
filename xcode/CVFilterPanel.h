@@ -53,6 +53,7 @@ typedef struct __FilterParams {
     NSRect initialFrame;
     NSRect initialBounds;
     IBOutlet CVFilterBox    *mainView; /// our container
+    IBOutlet NSPopUpButton  *blendModeButton;
     IBOutlet NSPopUpButton  *filterButton; /// filters-selection button
     IBOutlet CVPreview      *previewBox; /// the preview box
     IBOutlet NSButton       *showButton; /// toggle visibility button

@@ -358,7 +358,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         
         NSString *blendMode = ((CVLayer *)layer)->blendMode;
         if (blendMode)
-            blendFilter = [CIFilter filterWithName:blendMode];
+            blendFilter = [CIFilter filterWithName:[[NSString alloc] initWithFormat:@"CI%@BlendMode", blendMode]];
         else
             blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"]; 
     } else { // freej 'not-cocoa' layer type

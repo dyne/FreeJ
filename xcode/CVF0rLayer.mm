@@ -74,8 +74,8 @@ CVF0rLayer::CVF0rLayer(CVLayerController *controller, Context *_freej)
     input = controller;
     freej = _freej;
     generator = NULL;
-    
-    type = Layer::F0R_GENERATOR;
+    type = Layer::GL_COCOA;
+    //type = Layer::F0R_GENERATOR;
     //set_name("F0R");
     //jsclass = &gen0r_layer_class;
     //  set_filename("/particle generator");    
@@ -101,7 +101,7 @@ CVF0rLayer::feed()
         lastFrame = malloc(geo.bytesize);
     memcpy(lastFrame, res, geo.bytesize);
     [(CVF0rLayerController *)input feedFrame:lastFrame];
-    return lastFrame;
+    return [input getTexture];
 }
 
 bool CVF0rLayer::open(const char *file) {

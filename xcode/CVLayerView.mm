@@ -188,7 +188,6 @@
 - (IBAction)setBlendMode:(id)sender
 {
     [layerController setBlendMode:sender];
-
 }
 
 
@@ -268,6 +267,11 @@
 - (void)deactivate
 {
     [layerController deactivate];
+}
+
+- (NSString *)blendMode 
+{
+    return [layerController blendMode];
 }
 
 - (void)rotateBy:(float)deg

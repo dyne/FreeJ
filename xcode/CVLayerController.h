@@ -76,6 +76,7 @@ class CVLayer;
     - (void)stopPreview; // disable preview rendering
     - (void)renderPreview; // render the preview frame
     - (bool)isVisible; // query the layer to check if it's being sent to the Screen or not
+    - (NSString *)blendMode;
     - (void)activate; /// activate the underlying CVLayer
     - (void)deactivate; /// deactivate the underlying CVLayer
     // Retain currentFrame, apply filters and return a CVTexture
@@ -97,7 +98,7 @@ class CVLayer;
     - (void)togglePreview;
     - (bool)doPreview;
     - (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
-    - (IBAction)setBlendMode:(id)sender;
+    - (void)setBlendMode:(NSString *)mode;
 @end
 
 #endif

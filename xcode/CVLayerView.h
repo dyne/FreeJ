@@ -63,6 +63,7 @@ class CVLayer;
 - (bool)isVisible; // query the layer to check if it's being sent to the Screen or not
 - (void)activate; /// activate the underlying CVLayer
 - (void)deactivate; /// deactivate the underlying CVLayer
+- (NSString *)blendMode;
 // Interface Builder API 
 - (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
 - (IBAction)setBlendMode:(id)sender; /// tag -1

@@ -106,6 +106,14 @@ static FilterParams fParams[FILTERS_MAX] =
         [layer stopPreview];
     layer = lay;
     [[self window] setTitle:[layer toolTip]];
+    
+    // check if a blendmode has been defined for this layer and update the selectbutton
+    NSMenuItem *blendMode = [layer blendMode]?[blendModeButton itemWithTitle:[layer blendMode]]:nil;
+    if (blendMode)
+        [blendModeButton selectItem:blendMode];
+    else
+        [blendModeButton selectItemAtIndex:0];
+    
     /* check if the layer has an already configured filter */
     NSString *filter = [layer filterName];
     if (filter) {
@@ -164,8 +172,10 @@ static FilterParams fParams[FILTERS_MAX] =
 
 - (IBAction)setBlendMode:(id)sender
 {
-    if (layer)
-        [layer setBlendMode:sender];
+    if (layer) {
+        NSString *blendMode = [[sender selectedItem] title];
+        [layer setBlendMode:blendMode];
+    }
 }
 
 - (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index

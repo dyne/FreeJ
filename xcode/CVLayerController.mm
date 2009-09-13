@@ -412,19 +412,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [pool release];
 }
 
-- (IBAction)setBlendMode:(id)sender
+- (void)setBlendMode:(NSString *)mode
 {
-    if (layer) {
-        switch([sender tag])
-        {
-            case -1:
-                NSString *blendMode = [[NSString alloc] initWithFormat:@"CI%@BlendMode", [[sender selectedItem] title]];
-                layer->blendMode = blendMode;
-                break;
-            default:
-                break;
-        }
-    }
+    if (layer) 
+        layer->blendMode = mode;
 }
 
 - (void)setFilterCenterFromMouseLocation:(NSPoint)where
@@ -457,7 +448,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     CIImage     *inputImage = nil;
     CVTexture   *texture = nil;
-    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIImage     *renderedImage = nil;
     
     if (newFrame) {       
@@ -496,7 +487,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     } 
     
     texture = [lastFrame retain];
-    
+    [pool release];
     return texture;
 }
 
@@ -566,6 +557,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         layer->activate();
         ctx->screen->add_layer(layer);
     }
+}
+
+- (NSString *)blendMode {
+    if (layer)
+        return layer->blendMode;
+    return NULL;
 }
 
 - (void)deactivate
