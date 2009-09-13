@@ -51,3 +51,4 @@ doc/xml
 xcode/build
 xcode/freej.xcodeproj/*.mode1v3
 xcode/freej.xcodeproj/*.pbxuser
+xcode/freej.xcodeproj/config.h-e
