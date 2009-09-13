@@ -60,10 +60,10 @@ int CKbdController::poll()
         NSUInteger modifierFlags = [event modifierFlags];
         snprintf(funcname, sizeof(funcname), "%s_%s%s%s%s%s",
                  [state UTF8String],
-                 ((modifierFlags&NSShiftKeyMask)?      "shift_" : ""),
-                 ((modifierFlags&NSControlKeyMask)?    "ctrl_"  : ""),
-                 ((modifierFlags&NSAlternateKeyMask)?  "alt_"   : ""),
-                 ((modifierFlags&NSNumericPadKeyMask)? "num_"   : ""),
+                 ((modifierFlags&NSShiftKeyMask)      ? "shift_" : ""),
+                 ((modifierFlags&NSControlKeyMask)    ? "ctrl_"  : ""),
+                 ((modifierFlags&NSAlternateKeyMask)  ? "alt_"   : ""),
+                 ((modifierFlags&NSNumericPadKeyMask) ? "num_"   : ""),
                  [[event charactersIgnoringModifiers] UTF8String]
         );
         func("%s calling method %s()", __func__, funcname);

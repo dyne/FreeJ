@@ -564,7 +564,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     if (layer) {
         Context *ctx = [freej getContext];
         layer->activate();
-        ctx->add_layer(layer);
+        ctx->screen->add_layer(layer);
     }
 }
 
