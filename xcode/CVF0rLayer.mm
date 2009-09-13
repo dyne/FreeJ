@@ -101,7 +101,7 @@ CVF0rLayer::feed()
         lastFrame = malloc(geo.bytesize);
     memcpy(lastFrame, res, geo.bytesize);
     [(CVF0rLayerController *)input feedFrame:lastFrame];
-    return [input getTexture];
+    return lastFrame;
 }
 
 bool CVF0rLayer::open(const char *file) {
