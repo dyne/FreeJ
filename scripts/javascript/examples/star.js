@@ -3,8 +3,6 @@
 // it also shows the usage of keyboard controller
 // press 'q' to quit while running
 
-W = get_width();
-H = get_height();
 
 x = 100;
 y = 100;
@@ -15,9 +13,11 @@ PI = 3.141592654;
 c = PI * 2;
 o = -PI / 2;
 
-scr = new Screen("sdl");
-scr.init(W,H);
-add_screen(scr);
+scr = new Screen();
+W = get_width();
+H = get_height();
+//scr.init(W,H);
+//add_screen(scr);
 
 function drawStar(lay, s_mul, s2_mul) {
     s = s_mul / 0.383;

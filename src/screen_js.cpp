@@ -38,17 +38,20 @@ JSFunctionSpec screen_methods[] = {
 
 JS(screen_constructor) {
   func("%s",__PRETTY_FUNCTION__);
-  char *type;
-  ViewPort *screen;
+  char *type = NULL;
+  ViewPort *screen = NULL;
   
-  if(argc < 1) JS_ERROR("missing argument");
+  if(argc >= 1) {  
+    // a specific screen type has been requested
+    JS_ARG_STRING(type,0);
+    screen = Factory<ViewPort>::get_instance( "Screen", type );
+  } else {
+    // no screen type has been specified, return the default one
+    screen = Factory<ViewPort>::get_instance( "Screen" );
+  }
 
-  // recognize the type and instantiate the screen using the factory
-  JS_ARG_STRING(type,0);
-
-  screen = Factory<ViewPort>::get_instance( "Screen", type );
   if(!screen) {
-    error("%s: cannot create a Screen of type %s",__FUNCTION__,type);
+    error("%s: cannot obtain current Screen",__FUNCTION__);
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
 			 JSSMSG_FJ_CANT_CREATE, type,
 			 strerror(errno));
@@ -56,14 +59,16 @@ JS(screen_constructor) {
   }
 
   // if already existing, return the singleton
-  if(screen->initialized) obj = screen->jsobj;
+  if(screen->jsobj) {
+    obj = screen->jsobj;
+  } else {
+    if (!JS_SetPrivate(cx, obj, (void *) screen))
+        JS_ERROR("internal error setting private value");
 
-  if (!JS_SetPrivate(cx, obj, (void *) screen))
-    JS_ERROR("internal error setting private value");
-
-  // assign the real js object
-  screen->jsclass = &screen_class;
-  screen->jsobj = obj;
+    // assign the real js object
+    screen->jsclass = &screen_class;
+    screen->jsobj = obj;
+  }
   *rval = OBJECT_TO_JSVAL(obj);
   return JS_TRUE;
 }
