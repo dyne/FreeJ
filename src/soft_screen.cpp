@@ -66,8 +66,7 @@ bool SoftScreen::_init() {
 void SoftScreen::blit(Layer *src) {
   int16_t c;
   Blit *b;
-  void *offset;
-  
+    
   if(src->screen != this) {
     error("%s: blit called on a layer not belonging to screen",
 	  __PRETTY_FUNCTION__);
