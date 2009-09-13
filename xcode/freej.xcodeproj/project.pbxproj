@@ -949,7 +949,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "BUILD_NUMBER=`grep BUILD_NUMBER $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nOLD_BUILD_NUMBER=$BUILD_NUMBER\n((BUILD_NUMBER++))\nsed -i -e \"s#BUILD_NUMBER $OLD_BUILD_NUMBER#BUILD_NUMBER $BUILD_NUMBER#\" $TARGET_BUILD_DIR/../../config.h";
+			shellScript = "BUILD_NUMBER=`grep BUILD_NUMBER $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nOLD_BUILD_NUMBER=$BUILD_NUMBER\n((BUILD_NUMBER++))\nexport BUILD_NUMBER\nexport OSX_VERSION=`grep OSX_VERSION $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nsed -i -e \"s#BUILD_NUMBER $OLD_BUILD_NUMBER#BUILD_NUMBER $BUILD_NUMBER#\" $TARGET_BUILD_DIR/../../config.h\nsed -i -e \"s#%BUILD_NUMBER%#$BUILD_NUMBER#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"\nsed -i -e \"s#%OSX_VERSION%#$OSX_VERSION#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
