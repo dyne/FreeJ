@@ -309,9 +309,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     if (rateCalc) {
         [rateCalc tick:timestamp];
+        NSString *toRelease = nil;
+        if (fpsString)
+            toRelease = fpsString;
         fpsString = [[NSString alloc] initWithFormat:@"%0.1lf", [rateCalc rate]];
-        [fpsString autorelease];
         [showFps setStringValue:fpsString];
+        if (toRelease)
+            [toRelease release];
     } 
     
     if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
@@ -323,7 +327,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [ciContext drawImage: outFrame
                      atPoint: cg.origin  fromRect: cg];
         if (lastFrame)
-            [lastFrame release];
+            [lastFrame autorelease];
         lastFrame = outFrame;
         outFrame = NULL;
     } else {
@@ -395,10 +399,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             [blendFilter setValue:outFrame forKey:@"inputBackgroundImage"];
             [blendFilter setValue:[texture image] forKey:@"inputImage"];
             CIImage *temp = [blendFilter valueForKey:@"outputImage"];
-            [outFrame autorelease];
+            [outFrame release];
             outFrame = [temp retain];
         }
-        [texture autorelease];
+        [texture release];
     }
 }
 

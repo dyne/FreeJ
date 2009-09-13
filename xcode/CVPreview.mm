@@ -50,9 +50,9 @@
     NSRect frame = [self frame];
     NSRect bounds = [self bounds];
 
+    @synchronized(self) {
     if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
             return;
-            
     [[self openGLContext] makeCurrentContext];
 
     if(needsReshape)    // if the view has been resized, reset the OpenGL coordinate system
@@ -98,7 +98,8 @@
     [[self openGLContext] flushBuffer];
     //[super drawRect:theRect];
     [self setNeedsDisplay:NO];    
-    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);    
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+    }
 }
 
 - (void)update
@@ -139,7 +140,7 @@
    // if (texture)
    //     textureToRelease = texture;
     texture = image;
-    [lock lock];
+    @synchronized(self) {
     NSAffineTransform *scaleTransform = [NSAffineTransform transform];
     scaleFactor = frame.size.height/ctx->screen->geo.h;
     [scaleTransform scaleBy:scaleFactor];
@@ -171,7 +172,7 @@
     [self setNeedsDisplay:YES];
     //if (textureToRelease)
     //    [textureToRelease release];
-    [lock unlock];
+    }
     [texture release];
 
     [pool release];

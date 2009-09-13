@@ -490,13 +490,13 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         
         if (lastFrame)
             [lastFrame release];
-        lastFrame = texture;
+        lastFrame = [texture retain];
         [lock unlock];
         
         [self task]; // notify we have a new frame and the qtvisualcontext can be tasked
-    } 
-    
-    texture = [lastFrame retain];
+    } else { 
+        texture = [lastFrame retain];
+    }
     [pool release];
     return texture;
 }
