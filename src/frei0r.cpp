@@ -98,8 +98,10 @@ int Freior::open(char *file) {
   *(void**) (&f0r_get_param_value) = dlsym(handle, "f0r_get_param_value");
   err = dlerror(); if (err) warning("%s in frei0r plugin %s", err, file);
   *(void**) (&f0r_update) = dlsym(handle, "f0r_update");
-  err = dlerror(); if (err) warning("%s in frei0r plugin %s", err, file);
-
+  // XXX - don't output an error since f0r_update() is exported only by generators
+  //       and it won't be found when opening filters
+  //err = dlerror(); if (err) warning("%s in frei0r plugin %s", err, file);
+  
   // get the info on the plugin
   (*f0r_get_plugin_info)(&info);
 
