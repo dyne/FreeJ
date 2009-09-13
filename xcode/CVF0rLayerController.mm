@@ -21,18 +21,6 @@
 
 @implementation CVF0rLayerController : CVLayerController
 
-- (void)feedFrame:(CVPixelBufferRef)frame
-{
-    //Context *ctx = (Context *)[freej getContext];
-    [lock lock];
-    if (currentFrame)
-        CVPixelBufferRelease(currentFrame);
-    currentFrame = CVPixelBufferRetain(frame);
-    newFrame = YES;
-    [lock unlock];
-    [self renderPreview];
-}
-
 - (void)reset
 {
     CVLayer *toDelete;

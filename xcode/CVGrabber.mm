@@ -224,42 +224,5 @@ error:
     return kCVReturnSuccess;
 }
 
-- (void)feedFrame:(CVPixelBufferRef)frame
-{
-    CVReturn error;
-    [lock lock];
-    u_char *sourceAddr, *destAddr;
-    if (!currentFrame) {
-        error = CVPixelBufferCreate (
-                    NULL,
-                    CVPixelBufferGetWidth(frame),
-                    CVPixelBufferGetHeight(frame),
-                    CVPixelBufferGetPixelFormatType(frame),
-           NULL,
-           &currentFrame
-        );
-        if (error != kCVReturnSuccess) {
-            NSLog(@"Can't create pixelbuffer to store currentFrame (err=%i)", error);
-            [lock unlock];
-            return;
-        }
-    }
-    // copy the pixelbuffer coming from the capture device to avoid holding it for 
-    // too much time (causing the system to hang)
-    if(CVPixelBufferLockBaseAddress(frame, 0) == kCVReturnSuccess) {
-        CVPixelBufferLockBaseAddress(currentFrame, 0);
-
-        sourceAddr = (u_char *)CVPixelBufferGetBaseAddress(frame);
-        destAddr = (u_char *)CVPixelBufferGetBaseAddress(currentFrame);
-        memcpy(destAddr, sourceAddr, CVPixelBufferGetBytesPerRow(frame)*CVPixelBufferGetHeight(frame));
-        
-        CVPixelBufferUnlockBaseAddress(currentFrame, 0);
-        newFrame = YES;
-    } else {
-        NSLog(@"CVPixelBufferLockBaseAddress() failed with error %i", error);
-    }
-   [lock unlock];
-}
-
 @end
 
