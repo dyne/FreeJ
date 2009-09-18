@@ -35,6 +35,8 @@ function Widget(name,x,y,w,h,type) {
 }
 
 Widget.prototype.draw = function(lay) {
+	var temp;
+
 	// draw a widget, make sure to draw it's state!
 	// lay = target geolayer
 
@@ -74,7 +76,7 @@ Widget.prototype.draw = function(lay) {
 			lay.line(this.x+1,this.y+this.h-1,this.x+this.w-1,this.y+this.h-1);
 
 			// bottomright corner
-			lay.line(0,0,0,255);
+			lay.color(0,0,0,255);
 			lay.line(this.x+this.w,this.y+this.h,this.x+this.w-2,this.y+this.h-2);
 
 			// middle
@@ -101,6 +103,37 @@ Widget.prototype.draw = function(lay) {
 			lay.rectangle_fill(this.x+2,this.y+2,this.x+this.h-2,this.y+this.w-2);
 
 			break;
+		case 3:
+			// slide (horizontal)
+
+			// draw grey background
+			lay.color(128,128,128,255);
+			lay.rectangle_fill(this.x,this.y,this.x+this.h,this.y+this.w);
+
+			// outline
+			lay.color(255,255,255,255);
+			lay.rectangle(this.x,this.y,this.x+this.h,this.y+this.w);
+
+			// calc steps
+
+			// (as i am a lazy fuck, all sliders are 0-255 now)
+
+			temp = (this.h-this.w)/256;
+
+			// slider
+
+			// lighter grey background
+			lay.color(192,192,192,255);
+			lay.rectangle_fill(this.x+(temp*this.data),this.y,this.x+(temp*this.data)+this.w,this.y+this.w);
+
+			// outline
+			lay.color(255,255,255,255);
+			lay.rectangle(this.x+(temp*this.data),this.y,this.x+(temp*this.data)+this.w,this.y+this.w);
+
+			break;
+		case 4:
+			// select
+			break;
 		case 0:
 		default:
 			// do nothing
@@ -122,12 +155,20 @@ Widget.prototype.change = function(b,mousestate) {
 
 	switch(this.type) {
 		case 1:
+			// bang
 			this.data = 1;
 			echo ("BANG @ "+this.name);
 			break;
 		case 2:
+			// toggle
 			if (this.data>0) { this.data = 0; } else { this.data = 1; }
 			echo ("TOGGLE newdata: "+this.data+" @ "+this.name);
+			break;
+		case 3:
+			// slide
+			break;
+		case 4:
+			// select
 			break;
 		case 0:
 		default:

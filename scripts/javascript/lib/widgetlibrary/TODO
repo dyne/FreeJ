@@ -1,0 +1,4 @@
+- move to event style programming for all mouse events
+- improve visuals on mousedown events
+- test and improve on slider
+- implement select (and all the others)
