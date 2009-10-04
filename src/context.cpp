@@ -140,7 +140,7 @@ Context::~Context() {
   //   invokes JSGC and all gc call on our JSObjects
   //  if(js) js->reset();
 
-  notice ("cu on http://freej.dyne.org");
+  notice ("cu on %s", PACKAGE_URL);
 }
 
 

@@ -2,7 +2,7 @@ dnl ==============================================================
 dnl Process this file with autoconf to produce a configure script.
 dnl ==============================================================
 
-AC_INIT([freej],[0.11.0])
+AC_INIT([FreeJ],[0.11.0],[freej@lists.dyne.org],[freej],[http://freej.dyne.org])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
@@ -407,9 +407,6 @@ AC_ARG_ENABLE(debug,
     AS_HELP_STRING([--enable-debug],[compile with debug symbols (no)]),
     [enable_debug=$enableval],
     [enable_debug=no])
-
-# XXX(godog) is this used?
-AM_CONDITIONAL(DEBUG, [test x$enable_debug = xyes])
 
 if test x$enable_debug = xyes; then
     GLOBAL_CFLAGS="$GLOBAL_CFLAGS -Wall -g -ggdb"

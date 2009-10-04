@@ -15,7 +15,7 @@ jsdoc: $(htmlbuild)/index.html
 $(htmlbuild)/index.html: $(allsources)
 	$(INSTALL) -d $(htmlbuild)
 	$(PERL) $(srcdir)/jsdoc.pl -d $(htmlbuild) \
-		--project-name "<a href="http://freej.dyne.org">FreeJ</a> scripting" \
+		--project-name "<a href="@PACKAGE_URL@">@PACKAGE_NAME@</a> scripting" \
 		--logo "$(srcdir)/../ipernav-small.png" \
 		--page-footer "`cat $(srcdir)/footer.html`" \
 		$(srcdir)

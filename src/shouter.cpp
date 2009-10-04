@@ -58,7 +58,7 @@ Shouter::Shouter()
   mount("freej.ogg");
   login(SHOUT_PROTOCOL_HTTP); // defaults to icecast 2 login now
   name("Streaming with FreeJ");
-  url("http://freej.dyne.org");
+  url(PACKAGE_URL);
   desc("Free the veejay in you");
   //  bps("24000");
   //  freq("22050");

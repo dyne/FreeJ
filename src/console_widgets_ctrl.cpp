@@ -45,7 +45,7 @@ SlwTitle::~SlwTitle() { }
 bool SlwTitle::init() {
 
   snprintf(title, 256,
-	   " %s version %s | set the veejay free! | freej.dyne.org | ", PACKAGE, VERSION);
+	   " %s version %s | set the veejay free! | %s | ", PACKAGE, VERSION, PACKAGE_URL);
   titlelen = strlen(title);
   initialized = true;
   return(true);
