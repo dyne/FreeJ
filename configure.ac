@@ -510,12 +510,14 @@ fi
 dnl ==============================================================
 dnl CHECK if we have aalib
 dnl ==============================================================
-AC_CHECK_LIB(aa,aa_init, have_aa=yes, have_aa=no)
+FREEJ_CHECK_LIB_HEADERS([aa], [aa_init], [aalib.h], [have_aa=yes], [have_aa=no])
 if test x$have_aa = xyes; then
    AC_DEFINE(WITH_AALIB,1,[define if to compile aalib ascii screen])
+   AA_CFLAGS=""
    AA_LIBS="-laa"
-   AC_SUBST(AA_LIBS)
-fi   
+fi
+AC_SUBST(AA_CFLAGS)
+AC_SUBST(AA_LIBS)
 
 
 
@@ -809,6 +811,7 @@ FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
 AC_SUBST(FREEJ_STATIC_CFLAGS)
 
 FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
+    \$(AA_CFLAGS)       \
     \$(CWIID_CFLAGS)    \
     \$(FC_CFLAGS)       \
     \$(FFMPEG_CFLAGS)   \
@@ -834,6 +837,7 @@ FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
 AC_SUBST(FREEJ_STATIC_LIBS)
 
 FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
+    \$(AA_LIBS)         \
     \$(ALSA_LIBS)       \
     \$(BLUEZ_LIBS)      \
     \$(CWIID_LIBS)      \
