@@ -2,7 +2,8 @@ dnl ==============================================================
 dnl Process this file with autoconf to produce a configure script.
 dnl ==============================================================
 
-AC_INIT([FreeJ],[0.11.0],[freej@lists.dyne.org],[freej],[http://freej.dyne.org])
+AC_INIT([FreeJ],[0.11.0],[freej@lists.dyne.org],[freej])
+AC_DEFINE(PACKAGE_URL, ["http://freej.dyne.org"], [autoconf < 2.64 compatibility])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
