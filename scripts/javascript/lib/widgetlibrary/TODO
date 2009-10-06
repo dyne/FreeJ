@@ -1,3 +1,4 @@
+- fix new Viewport style code, and make it actually draw something again :S
 - move to event style programming for all mouse events
 - improve visuals on mousedown events
 - test and improve on slider

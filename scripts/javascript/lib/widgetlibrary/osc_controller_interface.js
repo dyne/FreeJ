@@ -15,7 +15,13 @@ H = 480;
 
 include('widget_class.js');
 
-set_resolution(W,H);
+
+scr = new Screen();
+if (!scr.is_initialized()) {
+    // screen hasn't been initialized yet, let's do it now
+    scr.init(W,H);
+    add_screen(scr);
+}
 
 MAX_WIDGETS = 10; // unused atm
 
@@ -24,12 +30,12 @@ widgets = new Array();
 mousestate = 0;
 plzredraw = 1;
 
-geo = new GeometryLayer();
-geo.set_blit("ADD");
-geo.set_fps();
-geo.activate(true);
+geo = new GeometryLayer(W,H);
+//geo.set_blit("ADD");
+//geo.set_fps();
 geo.color(255,255,255,255);
-add_layer(geo);
+geo.activate(true);
+scr.add_layer(geo);
 
 kbd = new KeyboardController();
 kbd.activate(true);
