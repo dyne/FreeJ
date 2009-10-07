@@ -175,7 +175,7 @@ void SdlGlScreen::resize(int resize_w, int resize_h) {
 
 void *SdlGlScreen::coords(int x, int y) {
   return 
-    ( x + geo.pixelsize +
+    ( x + geo.pixelsize*y +
       (uint32_t*)screen->pixels );
 }
 
@@ -202,19 +202,19 @@ void SdlGlScreen::check_opengl_error()
 void SdlGlScreen::blit(Layer *lay) {
 	// bind freej texture and copy it
 	glBindTexture( GL_TEXTURE_2D, textureID );
-	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, screen->w, screen->h, 
-			  0, GL_RGBA, GL_UNSIGNED_BYTE, screen->pixels );
+	glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, lay->geo.w, lay->geo.h, 
+			  0, GL_RGBA, GL_UNSIGNED_BYTE, lay->buffer );
 	check_opengl_error();
 
 	// reset opengl environment.
-	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-	glGetError ();
-	glMatrixMode( GL_MODELVIEW );
-	glGetError ();
-	glLoadIdentity();
-	glGetError ();
-	glTranslatef( x_translation, y_translation, -1 );
-	glGetError ();
+// 	glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+// 	glGetError ();
+// 	glMatrixMode( GL_MODELVIEW );
+// 	glGetError ();
+// 	glLoadIdentity();
+// 	glGetError ();
+// 	glTranslatef( x_translation, y_translation, -1 );
+// 	glGetError ();
 	
 	// rotation
 	/*
@@ -228,10 +228,10 @@ void SdlGlScreen::blit(Layer *lay) {
 	//zoom-=0.01;
 
 	// draw the screen quad
-	glInterleavedArrays( GL_T2F_V3F, 0, g_quadVertices );
-	glGetError ();
-	glDrawArrays( GL_QUADS, 0, 4 );
-	check_opengl_error();
+// 	glInterleavedArrays( GL_T2F_V3F, 0, g_quadVertices );
+// 	glGetError ();
+// 	glDrawArrays( GL_QUADS, 0, 4 );
+// 	check_opengl_error();
 }
 
 void SdlGlScreen::show() {

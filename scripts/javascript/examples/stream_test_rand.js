@@ -111,7 +111,7 @@ register_controller( kbd );
 encoder = new VideoEncoder(10,             128000,        0,             0);
 
 
-encoder.stream_host("localhost");
+encoder.stream_host("video.dyne.org");
 encoder.stream_port(8000);
 encoder.stream_title("testing new freej");
 encoder.stream_username("source");

@@ -230,7 +230,7 @@ void SdlScreen::resize(int resize_w, int resize_h) {
 
 void *SdlScreen::coords(int x, int y) {
   return 
-    ( x + geo.pixelsize +
+    ( x + geo.pixelsize*y +
       (uint32_t*)sdl_screen->pixels );
 }
 

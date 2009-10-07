@@ -3,16 +3,14 @@
 // and smart use of function pointers
 // (C)2005 Denis Jaromil Rojo - GNU GPL 
 
+// W = get_width();
+// H = get_height();
+W = 400;
+H = 300;
 
-scr = new Screen();
-if (!scr.is_initialized()) {
-    // screen hasn't been initialized yet, let's do it now
-    scr.init(400,300);
-    add_screen(scr);
-} 
-
-W = get_width();
-H = get_height();
+scr = new Screen("sdl");
+scr.init(W,H);
+add_screen(scr);
 
 function draw_pixels(rand_geo) {
   var x, y;
@@ -86,7 +84,7 @@ rand_geo = new GeometryLayer(W,H);
 //rand_geo.activate(true);
 //geo.set_fps(24);
 rand_geo.start();
-add_layer(rand_geo);
+scr.add_layer(rand_geo);
 
 running = true;
 rand_kbd = new KeyboardController();

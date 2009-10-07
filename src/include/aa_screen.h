@@ -60,8 +60,6 @@ class AaScreen : public ViewPort {
 
   uint32_t *pscr, *play;  // generic blit buffer pointers
 
-  int ascii_size;
-
   /* ascii context & html formatting stuff*/
   aa_context *ascii_context;
   struct aa_renderparams *ascii_rndparms;

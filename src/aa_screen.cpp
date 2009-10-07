@@ -66,15 +66,13 @@ void AaScreen::setup_blits(Layer *lay) {
 bool AaScreen::_init() {
 
   /* width/height image setup */
-  ascii_size = geo.pixelsize / 4;
-
-  ascii_hwparms.width  = geo.w / 2;
-  ascii_hwparms.height = geo.h / 2;
+  ascii_hwparms.width  = geo.w / 2;// / 2;
+  ascii_hwparms.height = geo.h / 2;// / 2;
 
   ascii_rndparms = aa_getrenderparams();
   ascii_rndparms->bright = 60;
   ascii_rndparms->contrast = 4;
-  ascii_rndparms->gamma = 3;
+  ascii_rndparms->gamma = 1;
 
 
   ascii_context = aa_autoinit (&ascii_hwparms);
@@ -149,7 +147,7 @@ void *AaScreen::coords(int x, int y) {
 // use the .pixelsize geometric property for a pre-calculated stride
 // that is: number of bytes for one full line
   return
-    ( x + geo.pixelsize +
+    ( x + geo.pixelsize*y +
       (uint32_t*)get_surface() );
 }
 
