@@ -117,6 +117,10 @@ freej_entry_typemap_in(Encoder);
 %feature("director") DumbCall;
 %include "callback.h"
 
+/* swig on amd64 doesn't play nice with va_args, just ignore vprintlog because
+ * we don't need it in bindings */
+%ignore Logger::vprintlog;
+%ignore GlobalLogger::vprintlog;
 %feature("director") WrapperLogger;
 %include "logging.h"
 
