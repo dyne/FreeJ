@@ -950,7 +950,7 @@ VRB([echo "= OSC controller (liblo)"])
 VRB([echo "  LIBS   : $LIBLO_LIBS"])
 VRB([echo "  CFLAGS : $LIBLO_CFLAGS"])
 
-VRB([echo "= Shout library (static)"])
+VRB([echo "= Shout library"])
 VRB([echo "  LIBS  : $SHOUT_LIBS"])
 VRB([echo "  CFLAGS: $SHOUT_CFLAGS"])
 
