@@ -612,7 +612,7 @@ if test x$have_mozjs = xyes; then
 fi
 if test x$have_mozjs = xyes; then
   MOZJS_CFLAGS="$MOZJS_JS_CFLAGS"
-  MOZJS_LDFLAGS="$MOZJS_JS_LDFLAGS"
+  MOZJS_LIBS="$MOZJS_JS_LIBS"
 else
   # test if https://bugzilla.mozilla.org/show_bug.cgi?id=500645 has been closed
   PKG_CHECK_MODULES([MOZJS_STABLE],
@@ -631,7 +631,7 @@ else
 fi
 if test x$have_mozjs = xyes; then
   MOZJS_CFLAGS="$MOZJS_STABLE_CFLAGS"
-  MOZJS_LDFLAGS="$MOZJS_STABLE_LDFLAGS"
+  MOZJS_LIBS="$MOZJS_STABLE_LIBS"
 else
   # test if adding unstable is enough
   PKG_CHECK_MODULES([MOZJS_UNSTABLE],
@@ -650,7 +650,7 @@ else
 fi
 if test x$have_mozjs = xyes; then
   MOZJS_CFLAGS="$MOZJS_UNSTABLE_CFLAGS"
-  MOZJS_LDFLAGS="$MOZJS_UNSTABLE_LDFLAGS"
+  MOZJS_LIBS="$MOZJS_UNSTABLE_LIBS"
 else
   AC_MSG_NOTICE([fallback to static mozjs])
   MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
