@@ -597,8 +597,47 @@ dnl ==============================================================
 dnl compile including the javascript interpreter
 dnl ==============================================================
 
-PKG_CHECK_MODULES(MOZJS, mozilla-js libxul-embedding-unstable, have_mozjs=yes, have_mozjs=no)
+# test on debian
+PKG_CHECK_MODULES([MOZJS], [mozilla-js], [have_mozjs=yes], [have_mozjs=no])
+if test x$have_mozjs = xyes; then
+  FREEJ_SAVE_FLAGS
+  CFLAGS="$MOZJS_CFLAGS"
+  CPPFLAGS="$MOZJS_CFLAGS"
+  LDFLAGS="$MOZJS_LIBS"
+  FREEJ_CHECK_LIB_HEADERS([mozjs], [JS_NewContext], [jsapi.h],
+                          [have_mozjs=yes], [have_mozjs=no])
+  FREEJ_RESTORE_FLAGS
+fi
 if test x$have_mozjs = xno; then
+  # test if https://bugzilla.mozilla.org/show_bug.cgi?id=500645 has been closed
+  PKG_CHECK_MODULES([MOZJS], [libxul-embedding-stable], [have_mozjs=yes],
+                    [have_mozjs=no])
+  if test x$have_mozjs = xyes; then
+    FREEJ_SAVE_FLAGS
+    CFLAGS="$MOZJS_CFLAGS"
+    CPPFLAGS="$MOZJS_CFLAGS"
+    LDFLAGS="$MOZJS_LIBS"
+    FREEJ_CHECK_LIB_HEADERS([mozjs], [JS_NewContext], [jsapi.h],
+                            [have_mozjs=yes], [have_mozjs=no])
+    FREEJ_RESTORE_FLAGS
+  fi
+fi
+if test x$have_mozjs = xno; then
+  # test on gentoo
+  PKG_CHECK_MODULES([MOZJS], [libxul-embedding-unstable], [have_mozjs=yes],
+                    [have_mozjs=no])
+  if test x$have_mozjs = xyes; then
+    FREEJ_SAVE_FLAGS
+    CFLAGS="$MOZJS_CFLAGS"
+    CPPFLAGS="$MOZJS_CFLAGS"
+    LDFLAGS="$MOZJS_LIBS"
+    FREEJ_CHECK_LIB_HEADERS([mozjs], [JS_NewContext], [jsapi.h],
+                            [have_mozjs=yes], [have_mozjs=no])
+    FREEJ_RESTORE_FLAGS
+  fi
+fi
+if test x$have_mozjs = xno; then
+# test on ubuntu
 PKG_CHECK_MODULES(MOZJS, xulrunner-js, have_mozjs=yes, have_mozjs=no)
  if test x$have_mozjs = xyes; then
   dnl see https://bugs.launchpad.net/ubuntu/+source/xulrunner-1.9/+bug/273956
