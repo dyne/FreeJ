@@ -239,7 +239,7 @@ if test x$have_slang = xno; then
    CFLAGS="$SLANG_CFLAGS"
    CPPFLAGS="$SLANG_CFLAGS"
    LDFLAGS=""
-   FREEJ_CHECK_LIB_HEADERS([slang], [SLang_getkey], [slang.h],
+   FREEJ_CHECK_LIB_HEADER([slang], [SLang_getkey], [slang.h],
                            [have_slang=yes], [have_slang=no])
    FREEJ_RESTORE_FLAGS
 fi
@@ -377,7 +377,7 @@ dnl CHECK if there is CWIID
 dnl ==============================================================
 PKG_CHECK_MODULES(CWIID, cwiid, have_cwiid=yes, have_cwiid=no)
 if test x$have_cwiid = xno; then
-   FREEJ_CHECK_LIB_HEADERS([cwiid], [cwiid_open], [cwiid.h],
+   FREEJ_CHECK_LIB_HEADER([cwiid], [cwiid_open], [cwiid.h],
                            [have_cwiid=yes], [have_cwiid=no])
 fi
 if test x$have_cwiid = xyes; then
@@ -517,7 +517,7 @@ fi
 dnl ==============================================================
 dnl CHECK if we have aalib
 dnl ==============================================================
-FREEJ_CHECK_LIB_HEADERS([aa], [aa_init], [aalib.h], [have_aa=yes], [have_aa=no])
+FREEJ_CHECK_LIB_HEADER([aa], [aa_init], [aalib.h], [have_aa=yes], [have_aa=no])
 if test x$have_aa = xyes; then
    AC_DEFINE(WITH_AALIB,1,[define if to compile aalib ascii screen])
    AA_CFLAGS=""
@@ -604,7 +604,7 @@ if test x$have_mozjs = xyes; then
   CFLAGS="$MOZJS_CFLAGS"
   CPPFLAGS="$MOZJS_CFLAGS"
   LDFLAGS="$MOZJS_LIBS"
-  FREEJ_CHECK_LIB_HEADERS([mozjs], [JS_NewContext], [jsapi.h],
+  FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
                           [have_mozjs=yes], [have_mozjs=no])
   FREEJ_RESTORE_FLAGS
 fi
@@ -617,7 +617,7 @@ if test x$have_mozjs = xno; then
     CFLAGS="$MOZJS_CFLAGS"
     CPPFLAGS="$MOZJS_CFLAGS"
     LDFLAGS="$MOZJS_LIBS"
-    FREEJ_CHECK_LIB_HEADERS([mozjs], [JS_NewContext], [jsapi.h],
+    FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
                             [have_mozjs=yes], [have_mozjs=no])
     FREEJ_RESTORE_FLAGS
   fi
@@ -631,7 +631,7 @@ if test x$have_mozjs = xno; then
     CFLAGS="$MOZJS_CFLAGS"
     CPPFLAGS="$MOZJS_CFLAGS"
     LDFLAGS="$MOZJS_LIBS"
-    FREEJ_CHECK_LIB_HEADERS([mozjs], [JS_NewContext], [jsapi.h],
+    FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
                             [have_mozjs=yes], [have_mozjs=no])
     FREEJ_RESTORE_FLAGS
   fi
@@ -720,7 +720,7 @@ if test x$have_sdlgfx = xno; then
    CFLAGS="$SDLGFX_CFLAGS"
    CPPFLAGS="$SDLGFX_CFLAGS"
    LDFLAGS="$SDLGFX_LIBS"
-   FREEJ_CHECK_LIB_HEADERS([SDL_gfx], [pixelColor], [SDL_gfxPrimitives.h],
+   FREEJ_CHECK_LIB_HEADER([SDL_gfx], [pixelColor], [SDL_gfxPrimitives.h],
                            [have_sdlgfx=yes], [have_sdlgfx=no])
    FREEJ_RESTORE_FLAGS
 fi
@@ -746,7 +746,7 @@ if test x$have_sdlttf = xno; then
    CFLAGS="$SDLTTF_CFLAGS"
    CPPFLAGS="$SDLTTF_CFLAGS"
    LDFLAGS="$SDLTTF_LIBS"
-   FREEJ_CHECK_LIB_HEADERS([SDL_ttf], [TTF_Init], [SDL_ttf.h],
+   FREEJ_CHECK_LIB_HEADER([SDL_ttf], [TTF_Init], [SDL_ttf.h],
                            [have_sdlttf=yes], [have_sdlttf=no])
    FREEJ_RESTORE_FLAGS
 fi
@@ -770,12 +770,12 @@ if test x$have_sdlimage = xno; then
    CFLAGS="$SDLIMAGE_CFLAGS"
    CPPFLAGS="$SDLIMAGE_CFLAGS"
    LDFLAGS="$SDLIMAGE_LIBS"
-   FREEJ_CHECK_LIB_HEADERS([SDL_image], [IMG_Load], [SDL_image.h],
+   FREEJ_CHECK_LIB_HEADER([SDL_image], [IMG_Load], [SDL_image.h],
                            [have_sdlimage=yes], [have_sdlimage=no])
    FREEJ_RESTORE_FLAGS
 fi
 if test x$have_sdlimage = xno; then
-   FREEJ_CHECK_LIB_HEADERS([jpeg], [jpeg_std_error], [jpeglib.h],
+   FREEJ_CHECK_LIB_HEADER([jpeg], [jpeg_std_error], [jpeglib.h],
                            [have_libjpeg=yes], [have_libjpeg=no])
    if test x$have_libjpeg = xno; then
       AC_MSG_ERROR([*** Libjpeg development files are required to build static SDL_image])
