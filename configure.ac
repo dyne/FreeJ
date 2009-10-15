@@ -610,8 +610,8 @@ if test x$have_mozjs = xyes; then
 fi
 if test x$have_mozjs = xno; then
   # test if https://bugzilla.mozilla.org/show_bug.cgi?id=500645 has been closed
-  PKG_CHECK_MODULES([MOZJS], [libxul-embedding-stable], [have_mozjs=yes],
-                    [have_mozjs=no])
+  PKG_CHECK_MODULES([MOZJS], [mozilla-js libxul-embedding-stable],
+                    [have_mozjs=yes], [have_mozjs=no])
   if test x$have_mozjs = xyes; then
     FREEJ_SAVE_FLAGS
     CFLAGS="$MOZJS_CFLAGS"
@@ -624,8 +624,8 @@ if test x$have_mozjs = xno; then
 fi
 if test x$have_mozjs = xno; then
   # test on gentoo
-  PKG_CHECK_MODULES([MOZJS], [libxul-embedding-unstable], [have_mozjs=yes],
-                    [have_mozjs=no])
+  PKG_CHECK_MODULES([MOZJS], [mozilla-js libxul-embedding-unstable],
+                    [have_mozjs=yes], [have_mozjs=no])
   if test x$have_mozjs = xyes; then
     FREEJ_SAVE_FLAGS
     CFLAGS="$MOZJS_CFLAGS"
