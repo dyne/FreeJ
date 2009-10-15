@@ -597,85 +597,78 @@ dnl ==============================================================
 dnl compile including the javascript interpreter
 dnl ==============================================================
 
-# test on debian
-PKG_CHECK_MODULES([MOZJS], [mozilla-js], [have_mozjs=yes], [have_mozjs=no])
+PKG_CHECK_MODULES([MOZJS_JS],
+                  [mozilla-js >= 1.9.0],
+                  [have_mozjs=yes], [have_mozjs=no])
 if test x$have_mozjs = xyes; then
+  AC_MSG_NOTICE([checking if mozilla-js is ok])
   FREEJ_SAVE_FLAGS
-  CFLAGS="$MOZJS_CFLAGS"
-  CPPFLAGS="$MOZJS_CFLAGS"
-  LDFLAGS="$MOZJS_LIBS"
+  CFLAGS="$MOZJS_JS_CFLAGS"
+  CPPFLAGS="$MOZJS_JS_CFLAGS"
+  LDFLAGS="$MOZJS_JS_LIBS"
   FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
                           [have_mozjs=yes], [have_mozjs=no])
   FREEJ_RESTORE_FLAGS
 fi
-if test x$have_mozjs = xno; then
+if test x$have_mozjs = xyes; then
+  MOZJS_CFLAGS="$MOZJS_JS_CFLAGS"
+  MOZJS_LDFLAGS="$MOZJS_JS_LDFLAGS"
+else
   # test if https://bugzilla.mozilla.org/show_bug.cgi?id=500645 has been closed
-  PKG_CHECK_MODULES([MOZJS], [mozilla-js libxul-embedding-stable],
+  PKG_CHECK_MODULES([MOZJS_STABLE],
+                    [mozilla-js >= 1.9.0 libxul-embedding-stable >= 1.9.0],
                     [have_mozjs=yes], [have_mozjs=no])
   if test x$have_mozjs = xyes; then
+    AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-stable are ok])
     FREEJ_SAVE_FLAGS
-    CFLAGS="$MOZJS_CFLAGS"
-    CPPFLAGS="$MOZJS_CFLAGS"
-    LDFLAGS="$MOZJS_LIBS"
+    CFLAGS="$MOZJS_STABLE_CFLAGS"
+    CPPFLAGS="$MOZJS_STABLE_CFLAGS"
+    LDFLAGS="$MOZJS_STABLE_LIBS"
     FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
                             [have_mozjs=yes], [have_mozjs=no])
     FREEJ_RESTORE_FLAGS
   fi
 fi
-if test x$have_mozjs = xno; then
-  # test on gentoo
-  PKG_CHECK_MODULES([MOZJS], [mozilla-js libxul-embedding-unstable],
+if test x$have_mozjs = xyes; then
+  MOZJS_CFLAGS="$MOZJS_STABLE_CFLAGS"
+  MOZJS_LDFLAGS="$MOZJS_STABLE_LDFLAGS"
+else
+  # test if adding unstable is enough
+  PKG_CHECK_MODULES([MOZJS_UNSTABLE],
+                    [mozilla-js >= 1.9.0 libxul-embedding-unstable >= 1.9.0],
                     [have_mozjs=yes], [have_mozjs=no])
   if test x$have_mozjs = xyes; then
+    AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-unstable are ok])
     FREEJ_SAVE_FLAGS
-    CFLAGS="$MOZJS_CFLAGS"
-    CPPFLAGS="$MOZJS_CFLAGS"
-    LDFLAGS="$MOZJS_LIBS"
+    CFLAGS="$MOZJS_UNSTABLE_CFLAGS"
+    CPPFLAGS="$MOZJS_UNSTABLE_CFLAGS"
+    LDFLAGS="$MOZJS_UNSTABLE_LIBS"
     FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
                             [have_mozjs=yes], [have_mozjs=no])
     FREEJ_RESTORE_FLAGS
   fi
 fi
-if test x$have_mozjs = xno; then
-# test on ubuntu
-PKG_CHECK_MODULES(MOZJS, xulrunner-js, have_mozjs=yes, have_mozjs=no)
- if test x$have_mozjs = xyes; then
-  dnl see https://bugs.launchpad.net/ubuntu/+source/xulrunner-1.9/+bug/273956
-  dnl    pps will fail to link libmozjs since the library is compiled without -DJS_THREADSAFE
-  dnl    and to the contrary the .pc file xulrunner-js adopts -DJS_THREADSAFE in the CFLAGS
-  dnl    this will generate such an error:
-  dnl    undefined reference to `js_GetSlotThreadSafe(JSContext*, JSObject*, unsigned int)'
-  MOZJS_CFLAGS="`echo $MOZJS_CFLAGS | sed 's/-DJS_THREADSAFE//'`"
-  dnl    i really cannot figure out how comes the packaging of xulrunner is such a crap
-  dnl    in debian, ubuntu and so on. we are stuck at static linking since years :/
- fi
-fi
-if test x$have_mozjs = xno; then
-# test on fedora
-PKG_CHECK_MODULES(MOZJS, libxul-embedding, have_mozjs=yes, have_mozjs=no)
- if test x$have_mozjs = xyes; then
-    MOZJS_CFLAGS=`$PKG_CONFIG --cflags libxul-embedding --define-variable=includetype=js`
-    MOZJS_LIBS=`$PKG_CONFIG --libs libxul-embedding`
-    MOZJS_LIBS="$MOZJS_LIBS -lmozjs"
- fi
-fi
-
-if test x$have_mozjs = xno; then
-   MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
-   # libs in top_srcdir instead of top_builddir because js is not under autotools
-   MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
-   AC_MSG_NOTICE([Using freej version of MOZJS])
+if test x$have_mozjs = xyes; then
+  MOZJS_CFLAGS="$MOZJS_UNSTABLE_CFLAGS"
+  MOZJS_LDFLAGS="$MOZJS_UNSTABLE_LDFLAGS"
+else
+  AC_MSG_NOTICE([fallback to static mozjs])
+  MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
+  # libs in top_srcdir instead of top_builddir because js is not under autotools
+  MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
+  AC_MSG_NOTICE([Using freej version of MOZJS])
 fi
 
 if test x$enable_debug = xyes ; then
    MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
 fi
 
-if test x$have_freebsd = xyes; then 
-   MOZJS_CFLAGS="-I/usr/local/include -L/usr/local/lib -I../lib/javascript"
-   MOZJS_LIBS="-ljs"
-   AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
-fi
+# I don't think this is needed (shammash)
+#if test x$have_freebsd = xyes; then
+#   MOZJS_CFLAGS="-I/usr/local/include -L/usr/local/lib -I../lib/javascript"
+#   MOZJS_LIBS="-ljs"
+#   AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
+#fi
 
 if test x$have_linux = xyes ; then
    AC_DEFINE(XP_UNIX,1,[Define use of UNIX types in javascript])
