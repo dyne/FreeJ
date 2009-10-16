@@ -597,61 +597,82 @@ dnl ==============================================================
 dnl compile including the javascript interpreter
 dnl ==============================================================
 
+AC_MSG_NOTICE([checking if mozilla-js is ok])
 PKG_CHECK_MODULES([MOZJS_JS],
                   [mozilla-js >= 1.9.0],
-                  [have_mozjs=yes], [have_mozjs=no])
-if test x$have_mozjs = xyes; then
-  AC_MSG_NOTICE([checking if mozilla-js is ok])
+                  [have_mozjs_js=yes], [have_mozjs_js=no])
+if test x$have_mozjs_js = xyes; then
   FREEJ_SAVE_FLAGS
   CFLAGS="$MOZJS_JS_CFLAGS"
   CPPFLAGS="$MOZJS_JS_CFLAGS"
   LDFLAGS="$MOZJS_JS_LIBS"
   FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
-                          [have_mozjs=yes], [have_mozjs=no])
+                          [have_mozjs_js=yes], [have_mozjs_js=no])
   FREEJ_RESTORE_FLAGS
 fi
-if test x$have_mozjs = xyes; then
+if test x$have_mozjs_js = xyes; then
+  AC_MSG_NOTICE([using mozilla-js])
   MOZJS_CFLAGS="$MOZJS_JS_CFLAGS"
   MOZJS_LIBS="$MOZJS_JS_LIBS"
+  have_mozjs=yes
 else
+  AC_MSG_NOTICE([NOT using mozilla-js])
+  have_mozjs=no
+fi
+
+if test x$have_mozjs = xno; then
+  AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-stable are ok])
   # test if https://bugzilla.mozilla.org/show_bug.cgi?id=500645 has been closed
   PKG_CHECK_MODULES([MOZJS_STABLE],
                     [mozilla-js >= 1.9.0 libxul-embedding-stable >= 1.9.0],
-                    [have_mozjs=yes], [have_mozjs=no])
-  if test x$have_mozjs = xyes; then
-    AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-stable are ok])
+                    [have_mozjs_stable=yes], [have_mozjs_stable=no])
+  if test x$have_mozjs_stable = xyes; then
     FREEJ_SAVE_FLAGS
     CFLAGS="$MOZJS_STABLE_CFLAGS"
     CPPFLAGS="$MOZJS_STABLE_CFLAGS"
     LDFLAGS="$MOZJS_STABLE_LIBS"
     FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
-                            [have_mozjs=yes], [have_mozjs=no])
+                            [have_mozjs_stable=yes], [have_mozjs_stable=no])
     FREEJ_RESTORE_FLAGS
   fi
+  if test x$have_mozjs_stable = xyes; then
+    AC_MSG_NOTICE([using mozilla-js && libxul-embedding-stable])
+    MOZJS_CFLAGS="$MOZJS_STABLE_CFLAGS"
+    MOZJS_LIBS="$MOZJS_STABLE_LIBS"
+    have_mozjs=yes
+  else
+    AC_MSG_NOTICE([NOT using mozilla-js && libxul-embedding-stable])
+    have_mozjs=no
+  fi
 fi
-if test x$have_mozjs = xyes; then
-  MOZJS_CFLAGS="$MOZJS_STABLE_CFLAGS"
-  MOZJS_LIBS="$MOZJS_STABLE_LIBS"
-else
+
+if test x$have_mozjs = xno; then
   # test if adding unstable is enough
+  AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-unstable are ok])
   PKG_CHECK_MODULES([MOZJS_UNSTABLE],
                     [mozilla-js >= 1.9.0 libxul-embedding-unstable >= 1.9.0],
-                    [have_mozjs=yes], [have_mozjs=no])
-  if test x$have_mozjs = xyes; then
-    AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-unstable are ok])
+                    [have_mozjs_unstable=yes], [have_mozjs_unstable=no])
+  if test x$have_mozjs_unstable = xyes; then
     FREEJ_SAVE_FLAGS
     CFLAGS="$MOZJS_UNSTABLE_CFLAGS"
     CPPFLAGS="$MOZJS_UNSTABLE_CFLAGS"
     LDFLAGS="$MOZJS_UNSTABLE_LIBS"
     FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
-                            [have_mozjs=yes], [have_mozjs=no])
+                            [have_mozjs_unstable=yes], [have_mozjs_unstable=no])
     FREEJ_RESTORE_FLAGS
   fi
+  if test x$have_mozjs_unstable = xyes; then
+    AC_MSG_NOTICE([using mozilla-js && libxul-embedding-unstable])
+    MOZJS_CFLAGS="$MOZJS_UNSTABLE_CFLAGS"
+    MOZJS_LIBS="$MOZJS_UNSTABLE_LIBS"
+    have_mozjs=yes
+  else
+    AC_MSG_NOTICE([NOT using mozilla-js && libxul-embedding-unstable])
+    have_mozjs=no
+  fi
 fi
-if test x$have_mozjs = xyes; then
-  MOZJS_CFLAGS="$MOZJS_UNSTABLE_CFLAGS"
-  MOZJS_LIBS="$MOZJS_UNSTABLE_LIBS"
-else
+
+if test x$have_mozjs = xno; then
   AC_MSG_NOTICE([fallback to static mozjs])
   MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
   # libs in top_srcdir instead of top_builddir because js is not under autotools
