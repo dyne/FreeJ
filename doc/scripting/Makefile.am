@@ -2,7 +2,7 @@ allsources = FreejScripting.js Layer.js GeometryLayer.js Controller.js \
 	VideoEncoder.js AudioCollector.js GoomLayer.js footer.html
 
 # where to build docs
-htmlbuild = html
+htmlbuild = $(builddir)/html
 # final install dir
 installdest = $(DESTDIR)$(docdir)/jsdoc
 
@@ -19,7 +19,7 @@ $(htmlbuild)/index.html: $(allsources)
 		--logo "$(srcdir)/../ipernav-small.png" \
 		--page-footer "`cat $(srcdir)/footer.html`" \
 		$(srcdir)
-	cp -a $(srcdir)/images $(htmlbuild)
+	$(LN_S) $(srcdir)/images $(htmlbuild)/
 
 
 install-data-local:
