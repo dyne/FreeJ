@@ -1,6 +1,6 @@
 #include <cxxtest/TestSuite.h>
 
-class TestClosure : public CxxTest::TestSuite 
+class TestClosure : public CxxTest::TestSuite
 {
 public:
    void testAddition( void )
@@ -11,7 +11,7 @@ public:
 
    void testMultiplication( void )
    {
-      TS_ASSERT_EQUALS( 2 * 2, 5 );
+      TS_ASSERT_DIFFERS( 2 * 2, 5 );
    }
 };
 
