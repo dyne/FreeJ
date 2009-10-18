@@ -40,8 +40,9 @@ JSFunctionSpec video_layer_methods[] = {
   {0}
 };
 
+JS_CONSTRUCTOR("MovieLayer",video_layer_constructor,VideoLayer);
 
-JS_CONSTRUCTOR("VideoLayer",video_layer_constructor,VideoLayer);
+
 
 /*
 JS(video_layer_seek) {

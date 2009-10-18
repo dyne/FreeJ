@@ -1,7 +1,5 @@
 
-animation_file = "Desktop/Bart_Simpson_2.gif";
+animation_file = "/home/jaromil//Movies/TheRevolutionWillNotBeTelevisedGilScottHeron.mp4";
 anim = new MovieLayer(animation_file);
-anim.set_fps(25);
 add_layer(anim);
-anim.activate(true);
-
+anim.start();
