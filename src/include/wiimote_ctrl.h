@@ -26,31 +26,36 @@
 #ifdef WITH_CWIID
 
 #include <controller.h>
+#include <jsync.h>
 
 extern "C" {
 #include <cwiid.h>
 }
 
-class Context;
 
-class WiiController: public Controller {
+class WiiController: public Controller , public JSyncThread {
 
  public:
   WiiController();
   ~WiiController();
 
-  virtual int dispatch();
+  int dispatch();
   int poll();
+  void run();
 
   bool connect(char *hwaddr);
+  bool close();
 
   void accel(uint8_t nx, uint8_t ny, uint8_t nz);
-  //  void button(uint16_t buttons);
+  void ir(cwiid_ir_mesg*);
+  void button(uint16_t buttons);
+  void error_event(cwiid_error err);
 
-  Context *freej;
+  bool activate(bool state);
 
-  //  int get_battery();
+  double get_battery();
 
+  int update_state(); // debug
   int print_state(); // debug
 
   cwiid_wiimote_t  *wiimote;
@@ -60,6 +65,10 @@ class WiiController: public Controller {
  private:
 
   int nx, ny, nz;
+  struct cwiid_ir_mesg ir_data;
+  bool wii_event_ir;
+  bool wii_event_connect;
+  bool wii_event_connect_err;
 
   uint16_t newbutt;
   uint16_t oldbutt;

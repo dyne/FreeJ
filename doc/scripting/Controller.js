@@ -12,10 +12,10 @@
 ///////////////////////////////////////////////////
 /// Controller VIRTUAL PARENT
 
-/** 
-    Virtual Controller 
+/**
+    Virtual Controller
     @constructor
-    @class This class is the parent class of all Controller and should 
+    @class This class is the parent class of all Controller and should
     not be used directly.
 
 	<p>
@@ -49,7 +49,7 @@ Controller.prototype.activate = function activate(new state) { };
 */
 Controller.prototype.get_name = function get_name() { };
 
-/** The Midi Controller constructor creates a midi controller 
+/** The Midi Controller constructor creates a midi controller
     @class The Midi Controller holds callbacks to javascript on midi events.
     Assign functions to the callback to handle events:
     <div class="example">Example:
@@ -57,7 +57,7 @@ Controller.prototype.get_name = function get_name() { };
     mc = new MidiController();
     register_controller(mc);
     mc.event_ctrl = function (ch, param, value) {
-        echo("midi event ctrl called: " + ch + ", " + param + ", " + value); 
+        echo("midi event ctrl called: " + ch + ", " + param + ", " + value);
         // do something
         return true;
     }
@@ -139,7 +139,7 @@ MidiController.prototype.connect_from = connect_from;
 //////////////////////////////
 // Keyboard Controller
 
-/** KeyboardController constructor creates a keyboard controller 
+/** KeyboardController constructor creates a keyboard controller
     @class The KeyboardController holds callbacks to javascript.
     Assign functions to the callback to handle events:
     <div class="example">Example:
@@ -164,96 +164,96 @@ KeyboardController.prototype = new Controller();
 kbd = new KeyboardController();
 register_controller( kbd );
 
-kbd.pressed_1 
-kbd.pressed_2 
-kbd.pressed_3 
-kbd.pressed_4 
-kbd.pressed_5 
-kbd.pressed_6 
-kbd.pressed_7 
-kbd.pressed_8 
-kbd.pressed_9 
-kbd.pressed_0 
+kbd.pressed_1
+kbd.pressed_2
+kbd.pressed_3
+kbd.pressed_4
+kbd.pressed_5
+kbd.pressed_6
+kbd.pressed_7
+kbd.pressed_8
+kbd.pressed_9
+kbd.pressed_0
 
-kbd.pressed_a 
-kbd.pressed_b 
-kbd.pressed_c 
-kbd.pressed_d 
-kbd.pressed_e 
-kbd.pressed_f 
-kbd.pressed_g 
-kbd.pressed_h 
-kbd.pressed_i 
-kbd.pressed_j 
-kbd.pressed_k 
-kbd.pressed_l 
-kbd.pressed_m 
-kbd.pressed_n 
-kbd.pressed_o 
-kbd.pressed_p 
-kbd.pressed_q 
-kbd.pressed_r 
-kbd.pressed_s 
-kbd.pressed_t 
-kbd.pressed_u 
-kbd.pressed_v 
-kbd.pressed_w 
-kbd.pressed_x 
-kbd.pressed_y 
-kbd.pressed_z 
+kbd.pressed_a
+kbd.pressed_b
+kbd.pressed_c
+kbd.pressed_d
+kbd.pressed_e
+kbd.pressed_f
+kbd.pressed_g
+kbd.pressed_h
+kbd.pressed_i
+kbd.pressed_j
+kbd.pressed_k
+kbd.pressed_l
+kbd.pressed_m
+kbd.pressed_n
+kbd.pressed_o
+kbd.pressed_p
+kbd.pressed_q
+kbd.pressed_r
+kbd.pressed_s
+kbd.pressed_t
+kbd.pressed_u
+kbd.pressed_v
+kbd.pressed_w
+kbd.pressed_x
+kbd.pressed_y
+kbd.pressed_z
 
 // more letter keys are available
 // in combination with control, shift or alt keys
 // define them as:
-kbd.pressed_ctrl_a  
-kbd.pressed_shift_b 
-kbd.pressed_alt_c   
+kbd.pressed_ctrl_a
+kbd.pressed_shift_b
+kbd.pressed_alt_c
 // .. and so on with other letters
 // you can also combine ctrl+shift+alt for example:
-kbd.pressed_ctrl_shift_alt_a 
+kbd.pressed_ctrl_shift_alt_a
 
 // symbol keys:
-kbd.pressed_up       
-kbd.pressed_down     
-kbd.pressed_insert   
-kbd.pressed_home     
-kbd.pressed_end      
-kbd.pressed_pageup   
-kbd.pressed_pagedown 
+kbd.pressed_up
+kbd.pressed_down
+kbd.pressed_insert
+kbd.pressed_home
+kbd.pressed_end
+kbd.pressed_pageup
+kbd.pressed_pagedown
 
-kbd.pressed_backspace 
-kbd.pressed_tab       
-kbd.pressed_return    
-kbd.pressed_space     
-kbd.pressed_less      
-kbd.pressed_greater   
-kbd.pressed_equals    
+kbd.pressed_backspace
+kbd.pressed_tab
+kbd.pressed_return
+kbd.pressed_space
+kbd.pressed_less
+kbd.pressed_greater
+kbd.pressed_equals
 
 // numeric keypad keys:
-kbd.pressed_num_1 
-kbd.pressed_num_2 
-kbd.pressed_num_3 
-kbd.pressed_num_4 
-kbd.pressed_num_5 
-kbd.pressed_num_6 
-kbd.pressed_num_7 
-kbd.pressed_num_8 
-kbd.pressed_num_9 
-kbd.pressed_num_0 
+kbd.pressed_num_1
+kbd.pressed_num_2
+kbd.pressed_num_3
+kbd.pressed_num_4
+kbd.pressed_num_5
+kbd.pressed_num_6
+kbd.pressed_num_7
+kbd.pressed_num_8
+kbd.pressed_num_9
+kbd.pressed_num_0
 
-kbd.pressed_num_period   
-kbd.pressed_num_divide   
-kbd.pressed_num_multiply 
-kbd.pressed_num_minus    
-kbd.pressed_num_plus     
-kbd.pressed_num_enter    
-kbd.pressed_num_equals   
+kbd.pressed_num_period
+kbd.pressed_num_divide
+kbd.pressed_num_multiply
+kbd.pressed_num_minus
+kbd.pressed_num_plus
+kbd.pressed_num_enter
+kbd.pressed_num_equals
 
 // to quit we have default keys.
 // never forget to define the quit key! ;^)
-kbd.pressed_ctrl_q 
-kbd.pressed_ctrl_c 
-kbd.pressed_esc    
+kbd.pressed_ctrl_q
+kbd.pressed_ctrl_c
+kbd.pressed_esc
 </div>
 */
 KeyboardController.prototype.pressed_MOD_KEYSYM = function () { };
@@ -262,7 +262,7 @@ KeyboardController.prototype.pressed_MOD_KEYSYM = function () { };
 //////////////////////////////
 // Joystick Controller
 
-/** The JoystickController constructor creates a joystick controller 
+/** The JoystickController constructor creates a joystick controller
     @class The Joystick Controller holds callbacks to javascript.
     Assign functions to the callback to handle events:
     <div class="example">Example:
@@ -270,7 +270,7 @@ KeyboardController.prototype.pressed_MOD_KEYSYM = function () { };
     jc = new JoystickController();
     register_controller(jc);
     jc.axismotion = function (which, axis, value) {
-        echo("joystick axis event: " + which + ", " + axis + ", " + value); 
+        echo("joystick axis event: " + which + ", " + axis + ", " + value);
         // do something
         return true;
     }
@@ -369,7 +369,7 @@ register_controller(osc);
 
  // now you can call the method /test with arguments, for example:
  // using the OSC message "/test,123,6.66,hello_world" on port 9696
- 
+
  </pre></div>
 
  @author Steve Harris (liblo), Jaromil
@@ -389,8 +389,8 @@ OscController.prototype.add_method = function(osc_method, prototype, js_method);
 //////////////////////////////
 // Trigger Controller
 
-/** The TriggerController constructor creates a trigger controller 
-    @class The Trigger Controller holds callbacks to javascript. You can use the frame callback to process various stuff, instead using run(). 
+/** The TriggerController constructor creates a trigger controller
+    @class The Trigger Controller holds callbacks to javascript. You can use the frame callback to process various stuff, instead using run().
 
     @author MrGoil
     @constructor
@@ -400,7 +400,7 @@ OscController.prototype.add_method = function(osc_method, prototype, js_method);
 function TriggerController() { };
 TriggerController.prototype = new Controller();
 
-/** This will be called each frame. 
+/** This will be called each frame.
     Don't waste too much time here!
 
     @type void
@@ -468,7 +468,7 @@ MouseController.prototype.grab = function (state);
 
 /** The ViMoController constructor creates a controller which holds the callbacks.
 	There's an example script "vimo.js".
-	@class 
+	@class
 	<p>The ViMoController is for this fancy serial Video Mouse device:</p>
 	<img src="images/gse2-500.jpg">
 	<p>
@@ -497,7 +497,7 @@ ViMoController.prototype = new Controller();
 64 cancel
 </div>
 
-	@type bool callback 
+	@type bool callback
 	@return return whatever ... we don't care
 	@param{int} button number value
 	@param{int} state 0=up 1=down
@@ -508,7 +508,7 @@ ViMoController.prototype.button = function (button, state, mask, old_mask);
 
 /** This will be called when turning the outer wheel.
 
-	@type bool callback 
+	@type bool callback
 	@return return whatever ... we don't care
 	@param{int} speed new position range -7 to 7, 0 is the middle. Don't be confused: the wheel seems to have two '0' positions.
 	@param{int} old_speed previous value
@@ -519,7 +519,7 @@ ViMoController.prototype.wheel_o = function (speed, old_speed);
 	It's not easy to determiate the direction if you move it too fast.
 	The device returns a 3 on a lock position and between 3->2->0->1 to the right, 3->1->0->2 to the left.
 
-	@type bool callback 
+	@type bool callback
 	@return return whatever ... we don't care
 	@param{int} direction -1=left, +1=right
 	@param{uint} history bitmapped history, for debugging or whatever. Left oldest, right octet current position. Each octet is one position, range 0 - 3.
@@ -547,10 +547,10 @@ ViMoController.prototype.close = function ();
 /** Nintendo Wii remote control.
 	<p>The WiiController constructor creates a controller which holds the callbacks.
 	There's an example script "wiimote.js".</p>
-	@class 
-	<p><b><i>This documentation and the Wii is still under construction.</i></b>However, this controller is already working.</p>
+	@class
 	<p>The WiiController connects via bluetooth to a Nintendo wii remote controller.</p>
 	<img src="images/wii_ctrl.jpg">
+	<p>For more information on this device see <a href="http://abstrakraft.org/cwiid/">http://abstrakraft.org/cwiid/</a></p>
 	<p>
 	</p>
 	@author jaromil, chris
@@ -564,7 +564,7 @@ function WiiController(outdevice) { };
 WiiController.prototype = new WiiController();
 
 /** Callback on accelleration changes
-	@type bool callback 
+	@type bool callback
 	@return return true, when event was handled, false to requeue event
 	@param{int} x current x-axis value
 	@param{int} y current y-axis value
@@ -573,35 +573,92 @@ WiiController.prototype = new WiiController();
 WiiController.prototype.acceleration = function (x, y, z);
 
 /** Connect to wii. Press A+B buttons on the remote.
-	Actually, this call blocks freej until the wii is connected.
-	@type bool
-	@return actually this call returns nothing in any cases ...
-	@param{string} bdaddr (optional) wii remote device address, e.g. '00:19:1D:66:91:D3'
-	Leave empty to scan and connect to any wii.
-*/	
-WiiController.prototype.connect = function (bdaddr);
+	This call returns immediatly. On success, we call {@link #connect connect()} otherwise {@link #error error()}
+	@type void
+	@param{string} bdaddr (optional) wii remote device address, e.g. "00:19:1D:66:91:D3"
+	Leave empty to scan and connect to any wii. The bdaddr will be stored in {@link #filename filename}.
+	@see #error
+	@see #connect
+	@see #close
+*/
+WiiController.prototype.open = function (bdaddr);
+
+/** Disconnect the wii
+	@type void
+*/
+WiiController.prototype.close = function ();
 
 /** toggle acceleration data on/off
-	@type void
-	@param{bool} state switch acceleration datastream. off by default.
+	@type bool
+	@return old/current state
+	@param{bool} state (optional) switch acceleration datastream. off by default.
 */
 WiiController.prototype.toggle_accel = function (state);
 
 /** toggle button data on/off
-	@type void
-	@param{bool} state switch button datastream. on by default.
+	@type bool
+	@return old/current state
+	@param{bool} state (optional) switch button datastream. on by default.
 */
 WiiController.prototype.toggle_buttons = function (state);
 
 /** toggle rumble on/off
-	@type void
-	@param{bool} state switch rumble
+	@type bool
+	@return old/current state
+	@param{bool} state (optional) switch rumble
 */
 WiiController.prototype.toggle_rumble = function (state);
 
 /** toggle led on/off
-	@type void
-	@param{int} state bitmask state TODO: FIXME
+	@type bool
+	@return old/current state
+	@param{int} state (optional) bitmask state
 */
 WiiController.prototype.toggle_led = function (state);
+
+/** Callback on sucessful connect
+
+	@type void callback
+*/
+WiiController.prototype.connect = function ();
+
+/** Callback on errors and disconnect.
+	Press and hold down the power button of the wii to disconnect.
+	@type bool callback
+	@param{int} status code :
+	<ol>
+	<li>CWIID_ERROR_NONE
+	<li>CWIID_ERROR_DISCONNECT
+	<li>CWIID_ERROR_COMM
+	</ol>
+*/
+WiiController.prototype.error = function (status);
+
+/** Dumps out some information to the console.
+	@type void
+*/
+WiiController.prototype.dump = function ();
+
+/** Battery status
+	@type int
+	@returns battery level in percent
+*/
+WiiController.prototype.battery = value;
+
+/** last x accel state
+	@type int
+	@returns last accel axis state
+*/
+WiiController.prototype.x = value;
+/** last y accel state
+	@type int
+	@returns last accel axis state
+*/
+WiiController.prototype.y = value;
+/** last z accel state
+	@type int
+	@returns last accel axis state
+*/
+WiiController.prototype.z = value;
+
 
