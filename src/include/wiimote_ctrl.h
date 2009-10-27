@@ -43,39 +43,58 @@ class WiiController: public Controller , public JSyncThread {
   int poll();
   void run();
 
-  bool connect(char *hwaddr);
+  bool open();
+  bool open(const char *hwaddr);
   bool close();
 
   void accel(uint8_t nx, uint8_t ny, uint8_t nz);
+  bool get_accel_report();
+  bool set_accel_report(bool state);
+
   void ir(cwiid_ir_mesg*);
+  bool get_ir_report();
+  bool set_ir_report(bool state);
+
   void button(uint16_t buttons);
+  bool get_button_report();
+  bool set_button_report(bool state);
+
   void error_event(cwiid_error err);
 
   bool activate(bool state);
 
-  double get_battery();
+  bool get_rumble();
+  bool set_rumble(bool state);
+
+  bool get_led(unsigned int led);
+  bool set_led(unsigned int led, bool state);
+
+  double battery();
+  double x() { return (double)_x;}
+  double y() { return (double)_y;}
+  double z() { return (double)_z;}
 
   int update_state(); // debug
-  int print_state(); // debug
-
-  cwiid_wiimote_t  *wiimote;
-  int  x,  y,  z;
-  cwiid_state state;
+  int dump(); // debug
 
  private:
 
-  int nx, ny, nz;
-  struct cwiid_ir_mesg ir_data;
-  bool wii_event_ir;
-  bool wii_event_connect;
-  bool wii_event_connect_err;
+  int _nx, _ny, _nz;
+  int  _x,  _y,  _z;
+  struct cwiid_ir_mesg _ir_data;
+  bool _wii_event_ir;
+  bool _wii_event_connect;
+  bool _wii_event_connect_err;
 
-  uint16_t newbutt;
-  uint16_t oldbutt;
+  uint16_t _newbutt;
+  uint16_t _oldbutt;
 
   // todo nunchuk_state and classic_state extensions
 
-  bdaddr_t bdaddr;
+  bdaddr_t _bdaddr;
+  cwiid_wiimote_t  *_wiimote;
+  cwiid_state _state;
+
 
 };
 

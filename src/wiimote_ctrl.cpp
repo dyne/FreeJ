@@ -36,124 +36,10 @@
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 
-#define toggle_bit(set,val,bit) \
-	(set ? val | bit : val & ~bit)
-
-#define GET_PRIVATE(item_class, item) \
-item_class *item = static_cast<item_class *> (JS_GetPrivate(cx,obj)); \
-if(!item) { \
-  error("%u:%s:%s :: JS core data is NULL", \
-  __LINE__,__FILE__,__FUNCTION__); \
-  return JS_FALSE; \
-}
-
-#define JS_FUNC_CALL(fun, item_class, value) \
-JS(fun) { \
-  *rval = JSVAL_TRUE; \
-  GET_PRIVATE(item_class, item) \
-\
-  if(!item->value ) { \
-    warning("cannot value %s %s", item->name, ""#value); \
-    *rval = JSVAL_FALSE; \
-  } \
-  return JS_TRUE; \
-}
-
-#define JS_FUNC_TOGGLE_BIT(fun, BIT, value) \
-JS(fun) { \
-  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc); \
-	GET_PRIVATE(WiiController, wii); \
-\
-	*rval = JSVAL_FALSE; \
-\
-	if (wii->initialized) { \
-		wii->update_state(); \
-		cwiid_state state; \
-		cwiid_get_state(wii->wiimote, &state); \
-		*rval = BOOLEAN_TO_JSVAL(state.value & BIT); \
-		if (argc == 1) { \
-			JSBool newstate; \
-			JS_ValueToBoolean(cx, argv[0], &newstate); \
-			cwiid_set_rpt_mode( \
-				wii->wiimote, \
-				(newstate ? \
-					state.value | BIT : \
-					state.value & ~BIT \
-				) \
-			); \
-		} \
-	} \
-	return JS_TRUE; \
-}
-
-#define PROP_ATTRIB_RO JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_SHARED
-#define PROP_ATTRIB_RW JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED
-
-#define JS_PROP_OP(fun) \
-JSBool fun(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
-
-#define JS_PROP_GET_NUM(fun, item_class, value) \
-JS_PROP_OP(fun) { \
-  func("JS_PROP_GET_NUM %s %p",__PRETTY_FUNCTION__, obj); \
-  *vp = JSVAL_VOID; \
-    GET_PRIVATE(item_class, item); \
-\
-  double value = double(item->value); \
-  return JS_NewNumberValue(cx, value, vp); \
-}
+#define WII_FLAGS CWIID_FLAG_MESG_IFC
+// | CWIID_FLAG_NONBLOCK
 
 /////// Javascript WiiController
-JS(js_wii_ctrl_constructor);
-
-DECLARE_CLASS_GC("WiiController", js_wii_ctrl_class, js_wii_ctrl_constructor, js_ctrl_gc);
-
-JS(js_wii_ctrl_open);
-JS_FUNC_CALL(js_wii_ctrl_close, WiiController, close());
-JS(js_wii_ctrl_actaccel);
-JS(js_wii_ctrl_ir);
-JS(js_wii_ctrl_actbutt);
-JS(js_wii_ctrl_rumble);
-JS(js_wii_ctrl_actleds);
-JS_FUNC_CALL(js_wii_ctrl_dump, WiiController, print_state());
-
-JSFunctionSpec js_wii_ctrl_methods[] = {
-  {"open",           js_wii_ctrl_open,       1},
-  {"close",          js_wii_ctrl_close,      0},
-  {"toggle_accel",   js_wii_ctrl_actaccel,   0},
-  {"toggle_ir",      js_wii_ctrl_ir,         0},
-  {"toggle_buttons", js_wii_ctrl_actbutt,    0},
-  {"toggle_rumble",  js_wii_ctrl_rumble,     0},
-  {"toggle_led",     js_wii_ctrl_actleds,    1},
-  {"dump",           js_wii_ctrl_dump,       0},
-
-  {0}
-};
-
-//JS_PROP_GET_NUM(js_wii_ctrl_battery, WiiController, get_battery );
-JS_PROP_OP(js_wii_ctrl_battery) {
-	*vp = JSVAL_VOID;
-    GET_PRIVATE(WiiController, wii);
-
-	if (wii->initialized) {
-		double value = wii->get_battery();
-		return JS_NewNumberValue(cx, value, vp);
-	} else {
-		return JSVAL_FALSE;
-	}
-}
-
-JS_PROP_GET_NUM(js_wii_ctrl_x, WiiController, x);
-JS_PROP_GET_NUM(js_wii_ctrl_y, WiiController, y);
-JS_PROP_GET_NUM(js_wii_ctrl_z, WiiController, z);
-
-JSPropertySpec js_wii_ctrl_props[] = {
-	{"battery",     0, PROP_ATTRIB_RO, js_wii_ctrl_battery, NULL},
-	{"x",           1, PROP_ATTRIB_RO, js_wii_ctrl_x,       NULL},
-	{"y",           2, PROP_ATTRIB_RO, js_wii_ctrl_y,       NULL},
-	{"z",           3, PROP_ATTRIB_RO, js_wii_ctrl_z,       NULL},
-	{0}
-};
-
 JS(js_wii_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   char excp_msg[MAX_ERR_MSG + 1];
@@ -195,67 +81,167 @@ JS(js_wii_ctrl_open) {
     if(argc>0) {
       char *addr;
       JS_ARG_STRING(addr,0);
-      wii->connect(addr);
-    } else
-      wii->connect(NULL);
-    
+      wii->open(addr);
+    } else {
+      wii->open();
+    }
+
     return JS_TRUE;
 }
 
-JS_FUNC_TOGGLE_BIT(js_wii_ctrl_actaccel, CWIID_RPT_ACC, rpt_mode)
-JS_FUNC_TOGGLE_BIT(js_wii_ctrl_ir, CWIID_RPT_IR, rpt_mode)
-JS_FUNC_TOGGLE_BIT(js_wii_ctrl_actbutt,  CWIID_RPT_BTN, rpt_mode)
+JS(js_wii_ctrl_close) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
 
-JS(js_wii_ctrl_rumble) {
-	GET_PRIVATE(WiiController, wii);
+  wii->close();
+
+  return JS_TRUE;
+}
+
+JS(js_wii_ctrl_battery) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
+
+  double value = wii->battery();
+  return JS_NewNumberValue(cx, value, rval);
+}
+
+JS(js_wii_ctrl_x) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
+
+  double value = wii->x();
+  return JS_NewNumberValue(cx, value, rval);
+}
+
+JS(js_wii_ctrl_y) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
+
+  double value = wii->y();
+  return JS_NewNumberValue(cx, value, rval);
+}
+
+JS(js_wii_ctrl_z) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
+
+  double value = wii->z();
+  return JS_NewNumberValue(cx, value, rval);
+}
+
+JS(js_wii_ctrl_actaccel) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
 
 	*rval = JSVAL_FALSE;
-
-	if (wii->initialized) {
-		wii->update_state();
-		cwiid_state state;
-		cwiid_get_state(wii->wiimote, &state);
-		*rval = BOOLEAN_TO_JSVAL(state.rumble);
-		if (argc == 1) {
-			JSBool newstate;
-			JS_ValueToBoolean(cx, argv[0], &newstate);
-			cwiid_set_rumble(wii->wiimote, newstate);
-		}
-	}
+  if (argc == 1) {
+    JSBool state;
+    JS_ValueToBoolean(cx, argv[0], &state);
+    *rval = BOOLEAN_TO_JSVAL(wii->set_accel_report(state));
+  } else {
+    *rval = BOOLEAN_TO_JSVAL(wii->get_accel_report());
+  }
 	return JS_TRUE;
 }
 
-//JS_NATIVE(js_wii_ctrl_dump) {
-//	*rval = JSVAL_FALSE;
-//	GET_PRIVATE(WiiController, wii);
-//
-//	cwiid_state state;
-//	cwiid_get_state(wii->wiimote, &state);
-//	wii->print_state();
-//
-//	return JS_TRUE;
-//}
+JS(js_wii_ctrl_ir) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
 
-double WiiController::get_battery() {
-	update_state();
-	return (double)(100.0 * state.battery / CWIID_BATTERY_MAX);
+	*rval = JSVAL_FALSE;
+  if (argc == 1) {
+    JSBool state;
+    JS_ValueToBoolean(cx, argv[0], &state);
+    *rval = BOOLEAN_TO_JSVAL(wii->set_ir_report(state));
+  } else {
+    *rval = BOOLEAN_TO_JSVAL(wii->get_ir_report());
+  }
+	return JS_TRUE;
+}
+
+JS(js_wii_ctrl_actbutt) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+
+	*rval = JSVAL_FALSE;
+  if (argc == 1) {
+    JSBool state;
+    JS_ValueToBoolean(cx, argv[0], &state);
+    *rval = BOOLEAN_TO_JSVAL(wii->set_button_report(state));
+  } else {
+    *rval = BOOLEAN_TO_JSVAL(wii->get_button_report());
+  }
+	return JS_TRUE;
+}
+
+JS(js_wii_ctrl_rumble) {
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+
+  if (argc == 1) {
+    JSBool state;
+    JS_ValueToBoolean(cx, argv[0], &state);
+    *rval = BOOLEAN_TO_JSVAL(wii->set_rumble(state));
+  } else {
+    *rval = BOOLEAN_TO_JSVAL(wii->get_rumble());
+  }
+
+	return JS_TRUE;
 }
 
 JS(js_wii_ctrl_actleds) {
-	func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
-	*rval = JSVAL_FALSE;
-	GET_PRIVATE(WiiController, wii);
-	if (wii && wii->initialized) {
-		wii->update_state();
-		JS_NewNumberValue(cx, wii->state.led, rval);
-		if (argc == 1) {
-			uint16_t led_new;
-			JS_ValueToUint16(cx, argv[0], &led_new);
-			cwiid_set_led(wii->wiimote, led_new);
-		}
-	}
-	return JS_TRUE;
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  *rval = JSVAL_FALSE;
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+
+  unsigned int led = 0;
+  JSBool state = false;
+
+  if (argc == 2) {
+    JS_ValueToUint16(cx, argv[0], (uint16_t *)&led);
+    JS_ValueToBoolean(cx, argv[1], &state);
+    *rval = BOOLEAN_TO_JSVAL(wii->set_led(led, state));
+  } else if (argc == 1) {
+    JS_ValueToUint16(cx, argv[0], (uint16_t *)&led);
+    *rval = BOOLEAN_TO_JSVAL(wii->get_led(led));
+  }
+
+  return JS_TRUE;
 }
+
+JS(js_wii_ctrl_dump) {
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+  WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
+  if(!wii) JS_ERROR("Wii core data is NULL");
+
+  wii->dump();
+
+  return JS_TRUE;
+}
+
+DECLARE_CLASS_GC("WiiController", js_wii_ctrl_class, js_wii_ctrl_constructor, js_ctrl_gc);
+
+JSFunctionSpec js_wii_ctrl_methods[] = {
+  {"open",           js_wii_ctrl_open,       1},
+  {"close",          js_wii_ctrl_close,      0},
+  {"battery",        js_wii_ctrl_battery,    0},
+  {"x",              js_wii_ctrl_x,          0},
+  {"y",              js_wii_ctrl_y,          0},
+  {"z",              js_wii_ctrl_z,          0},
+  {"toggle_accel",   js_wii_ctrl_actaccel,   0},
+  {"toggle_ir",      js_wii_ctrl_ir,         0},
+  {"toggle_buttons", js_wii_ctrl_actbutt,    0},
+  {"toggle_rumble",  js_wii_ctrl_rumble,     0},
+  {"toggle_led",     js_wii_ctrl_actleds,    2},
+  {"dump",           js_wii_ctrl_dump,       0},
+
+  {0}
+};
 
 void cwiid_callback(cwiid_wiimote_t *wii, int mesg_count,
                     union cwiid_mesg mesg[], struct timespec *timestamp) {
@@ -284,34 +270,14 @@ void cwiid_callback(cwiid_wiimote_t *wii, int mesg_count,
 
 }
 
-void WiiController::error_event(cwiid_error err) {
-  func("%s : %i", __PRETTY_FUNCTION__, err);
+WiiController::WiiController() :Controller() {
 
-  initialized = false;
-  cwiid_close(wiimote);
-  JSCall("error", 1, "u", err);
-}
-
-
-
-void WiiController::accel(uint8_t wx, uint8_t wy, uint8_t wz) {
-	nx = wx;
-	ny = wy;
-	nz = wz;
-}
-
-void WiiController::button(uint16_t buttons) {
-	newbutt = buttons;
-}
-
-WiiController::WiiController()
-:Controller() {
-
-	wii_event_connect = false;
-	wii_event_ir = false;
-	wii_event_connect_err = false;
+	_wii_event_connect = false;
+	_wii_event_ir = false;
+	_wii_event_connect_err = false;
 	initialized = false;
-	newbutt = oldbutt = 0;
+	_newbutt = _oldbutt = 0;
+  _x = _y = _z = 0;
 
 	set_name("WiiCtrl");
 }
@@ -320,126 +286,44 @@ WiiController::~WiiController() {
 	close();
 }
 
-bool WiiController::close() {
-	//stop(); TODO: cancel thread
-	if (initialized) {
-		cwiid_close(wiimote);
-	}
-	initialized = false;
-	return true;
-}
-
-#define WII_FLAGS CWIID_FLAG_MESG_IFC
-// | CWIID_FLAG_NONBLOCK
-
-bool WiiController::activate(bool state) {
-	bool old = active;
-	active = state;
-
-	if (initialized) {
-		if (active)
-			cwiid_enable(wiimote, WII_FLAGS);
-		else
-			cwiid_disable(wiimote, WII_FLAGS);
-	}
-
-	return old;
-}
-
-bool WiiController::connect(char *hwaddr) {
-  // if argument is NULL look for any wiimote
-  if (!is_running()) {
-    if(hwaddr == NULL) {
-    const char *anyaddr = "00:00:00:00:00:00";
-      str2ba(anyaddr, &bdaddr);
-    }	else {
-      str2ba(hwaddr,&bdaddr);
-    }
-		start();
-  }
-  if (initialized) {
-    close();
-  }
-  return 1;
-}
-
-void WiiController::run() {
-  
-  notice("Detecting WiiMote (press A+B on it to handshake)");
-  
-  wiimote = cwiid_open(&bdaddr, WII_FLAGS);
-  if(!wiimote) {
-    error("unable to connect to WiiMote");
-	wii_event_connect_err = true;
-    return;
-  } else
-    act("WiiMote connected");
-  
-  cwiid_set_data(wiimote, (void*)this);
-  if (cwiid_set_mesg_callback(wiimote, cwiid_callback)) {
-    error("unable to set wiimote message callback");
-    cwiid_close(wiimote);
-	wii_event_connect_err = true;
-    return;
-  }
-
-  // set filename to bdaddr
-  //char addr_str[18];
-  //ba2str(&bdaddr, addr_str);
-  //set_filename(addr_str);
-  
-  wii_event_connect = true;
-  initialized = true;
-  activate(true);
-}
-
-int WiiController::poll() {
-	return dispatch();
-}
-
-void WiiController::ir(cwiid_ir_mesg* msg) {
-	ir_data = *msg;
-	wii_event_ir = true;
-}
-
 int WiiController::dispatch() {
   if (is_running()) return 0; // connecting thread is running
 
-  if (wii_event_ir) {
+  if (_wii_event_ir) {
     for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
-      if (ir_data.src[n].valid) {
+      if (_ir_data.src[n].valid) {
         JSCall("ir", 4, "iuui",
-                n, ir_data.src[n].pos[CWIID_X], ir_data.src[n].pos[CWIID_Y],
-                ir_data.src[n].size);
+                n, _ir_data.src[n].pos[CWIID_X], _ir_data.src[n].pos[CWIID_Y],
+                _ir_data.src[n].size);
       }
     }
-    wii_event_ir = false;
+    _wii_event_ir = false;
   }
-	if (wii_event_connect) {
+	if (_wii_event_connect) {
 		JSCall("connect", 1, "b", 1);
-		wii_event_connect = false;
+		_wii_event_connect = false;
 	}
-	if (wii_event_connect_err) {
+	if (_wii_event_connect_err) {
     JSCall("error", 1, "u", CWIID_ERROR_COMM);
-		wii_event_connect_err = false;
+		_wii_event_connect_err = false;
 	}
 
-	if( (nx ^ x) || (ny ^ y) || (nz ^ z) ) {
-		x = nx; y = ny; z = nz;
+	if( (_nx ^ _x) || (_ny ^ _y) || (_nz ^ _z) ) {
+		_x = _nx; _y = _ny; _z = _nz;
 		if (jsobj) {
-      JSCall("acceleration", 3, "uuu", x, y, z);
+      JSCall("acceleration", 3, "uuu", _x, _y, _z);
 		}
 	}
 // button(<int> button, <int> state, <int> mask, <int> old_mask)
-    uint16_t butt_diff = newbutt ^ oldbutt;
+    uint16_t butt_diff = _newbutt ^ _oldbutt;
 	if (butt_diff) {
 		for (uint16_t k = 1 << 15; k != 0; k = k >> 1 ) {
 			if (k & butt_diff) {
 				JSCall("button", 4, "ubuu",
-                  k, ((k & newbutt) > 0), newbutt, oldbutt);
+                  k, ((k & _newbutt) > 0), _newbutt, _oldbutt);
 			}
 		}
-		oldbutt = newbutt;
+		_oldbutt = _newbutt;
 	}
 //	if (!res) {
 //		error("deactivating %s [%s]", name, filename);
@@ -448,12 +332,283 @@ int WiiController::dispatch() {
 	return 1;
 }
 
+int WiiController::poll() {
+	return dispatch();
+}
+
+void WiiController::run() {
+  
+  notice("Detecting WiiMote (press A+B on it to handshake)");
+  
+  _wiimote = cwiid_open(&_bdaddr, WII_FLAGS);
+  if(!_wiimote) {
+    error("unable to connect to WiiMote");
+	_wii_event_connect_err = true;
+    return;
+  } else
+    act("WiiMote connected");
+  
+  cwiid_set_data(_wiimote, (void*)this);
+  if (cwiid_set_mesg_callback(_wiimote, cwiid_callback)) {
+    error("unable to set wiimote message callback");
+    cwiid_close(_wiimote);
+	_wii_event_connect_err = true;
+    return;
+  }
+
+  _wii_event_connect = true;
+  initialized = true;
+  activate(true);
+}
+
+bool WiiController::open(const char *hwaddr) {
+  if (initialized) {
+    close();
+  }
+  if (!is_running()) {
+    str2ba(hwaddr,&_bdaddr);
+		start();
+  }
+  return 1;
+}
+
+bool WiiController::open() {
+  // look for any wiimote
+  const char *anyaddr = "00:00:00:00:00:00";
+  return open(anyaddr);
+}
+
+bool WiiController::close() {
+	//stop(); TODO: cancel thread
+	if (initialized) {
+		cwiid_close(_wiimote);
+	}
+	initialized = false;
+	return true;
+}
+
+void WiiController::accel(uint8_t wx, uint8_t wy, uint8_t wz) {
+	_nx = wx;
+	_ny = wy;
+	_nz = wz;
+}
+
+bool WiiController::get_accel_report() {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  return (wiistate.rpt_mode & CWIID_RPT_ACC);
+}
+
+bool WiiController::set_accel_report(bool state) {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  bool oldstate = (wiistate.rpt_mode & CWIID_RPT_ACC);
+  if (state) {
+    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode | CWIID_RPT_ACC);
+  } else {
+    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode & ~CWIID_RPT_ACC);
+  }
+  return oldstate;
+}
+
+void WiiController::ir(cwiid_ir_mesg* msg) {
+	_ir_data = *msg;
+	_wii_event_ir = true;
+}
+
+bool WiiController::get_ir_report() {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  return (wiistate.rpt_mode & CWIID_RPT_IR);
+}
+
+bool WiiController::set_ir_report(bool state) {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  bool oldstate = (wiistate.rpt_mode & CWIID_RPT_IR);
+  if (state) {
+    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode | CWIID_RPT_IR);
+  } else {
+    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode & ~CWIID_RPT_IR);
+  }
+  return oldstate;
+}
+
+void WiiController::button(uint16_t buttons) {
+	_newbutt = buttons;
+}
+
+bool WiiController::get_button_report() {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  return (wiistate.rpt_mode & CWIID_RPT_BTN);
+}
+
+bool WiiController::set_button_report(bool state) {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  bool oldstate = (wiistate.rpt_mode & CWIID_RPT_BTN);
+  if (state) {
+    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode | CWIID_RPT_BTN);
+  } else {
+    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode & ~CWIID_RPT_BTN);
+  }
+  return oldstate;
+}
+
+void WiiController::error_event(cwiid_error err) {
+  func("%s : %i", __PRETTY_FUNCTION__, err);
+
+  initialized = false;
+  cwiid_close(_wiimote);
+  JSCall("error", 1, "u", err);
+}
+
+bool WiiController::activate(bool state) {
+	bool old = active;
+	active = state;
+
+	if (initialized) {
+		if (active)
+			cwiid_enable(_wiimote, WII_FLAGS);
+		else
+			cwiid_disable(_wiimote, WII_FLAGS);
+	}
+
+	return old;
+}
+
+bool WiiController::get_rumble() {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  return wiistate.rumble;
+}
+
+bool WiiController::set_rumble(bool state) {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  bool oldstate = wiistate.rumble;
+  cwiid_set_rumble(_wiimote, state);
+  return oldstate;
+}
+
+bool WiiController::get_led(unsigned int led) {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  switch(led) {
+    case 1:
+      return (wiistate.led & CWIID_LED1_ON);
+    case 2:
+      return (wiistate.led & CWIID_LED2_ON);
+    case 3:
+      return (wiistate.led & CWIID_LED3_ON);
+    case 4:
+      return (wiistate.led & CWIID_LED4_ON);
+    default:
+      error("%s led %d outside range (1-4)", __PRETTY_FUNCTION__, led);
+      return false;
+  }
+}
+
+bool WiiController::set_led(unsigned int led, bool state) {
+	if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return false;
+  }
+  update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
+  uint16_t new_led = wiistate.led;
+  bool old_state = false;
+  switch(led) {
+    case 1:
+      old_state = wiistate.led & CWIID_LED1_ON;
+      new_led = (state ? (wiistate.led | CWIID_LED1_ON) :
+                          (wiistate.led & ~CWIID_LED1_ON));
+      break;
+    case 2:
+      old_state = wiistate.led & CWIID_LED2_ON;
+      new_led = (state ? (wiistate.led | CWIID_LED2_ON) :
+                          (wiistate.led & ~CWIID_LED2_ON));
+      break;
+    case 3:
+      old_state = wiistate.led & CWIID_LED3_ON;
+      new_led = (state ? (wiistate.led | CWIID_LED3_ON) :
+                          (wiistate.led & ~CWIID_LED3_ON));
+      break;
+    case 4:
+      old_state = wiistate.led & CWIID_LED4_ON;
+      new_led = (state ? (wiistate.led | CWIID_LED4_ON) :
+                          (wiistate.led & ~CWIID_LED4_ON));
+      break;
+    default:
+      error("%s led %d outside range (1-4)", __PRETTY_FUNCTION__, led);
+  }
+  cwiid_set_led(_wiimote, new_led);
+  return old_state;
+}
+
+double WiiController::battery() {
+  if (!initialized) {
+    error("%s controller not initialized", __PRETTY_FUNCTION__);
+    return 0.0;
+  } else {
+    update_state();
+    return (double)(100.0 * _state.battery / CWIID_BATTERY_MAX);
+  }
+}
+
 int WiiController::update_state() {
-	cwiid_get_state(wiimote, &state);
+	cwiid_get_state(_wiimote, &_state);
 	return 0;
 }
 
-int WiiController::print_state() {
+int WiiController::dump() {
 	int i;
 	int valid_source = 0;
 
@@ -465,42 +620,42 @@ int WiiController::print_state() {
 	update_state();
 
 	act("Report Mode:");
-	if (state.rpt_mode & CWIID_RPT_STATUS) act(" STATUS");
-	if (state.rpt_mode & CWIID_RPT_BTN) act(" BTN");
-	if (state.rpt_mode & CWIID_RPT_ACC) act(" ACC");
-	if (state.rpt_mode & CWIID_RPT_IR) act(" IR");
-	if (state.rpt_mode & CWIID_RPT_NUNCHUK) act(" NUNCHUK");
-	if (state.rpt_mode & CWIID_RPT_CLASSIC) act(" CLASSIC");
+	if (_state.rpt_mode & CWIID_RPT_STATUS) act(" STATUS");
+	if (_state.rpt_mode & CWIID_RPT_BTN) act(" BTN");
+	if (_state.rpt_mode & CWIID_RPT_ACC) act(" ACC");
+	if (_state.rpt_mode & CWIID_RPT_IR) act(" IR");
+	if (_state.rpt_mode & CWIID_RPT_NUNCHUK) act(" NUNCHUK");
+	if (_state.rpt_mode & CWIID_RPT_CLASSIC) act(" CLASSIC");
 	
 	act("Active LEDs:");
-	if (state.led & CWIID_LED1_ON) act(" 1");
-	if (state.led & CWIID_LED2_ON) act(" 2");
-	if (state.led & CWIID_LED3_ON) act(" 3");
-	if (state.led & CWIID_LED4_ON) act(" 4");
+	if (_state.led & CWIID_LED1_ON) act(" 1");
+	if (_state.led & CWIID_LED2_ON) act(" 2");
+	if (_state.led & CWIID_LED3_ON) act(" 3");
+	if (_state.led & CWIID_LED4_ON) act(" 4");
 
-	act("Rumble: %s", state.rumble ? "On" : "Off");
+	act("Rumble: %s", _state.rumble ? "On" : "Off");
 
 	act("Battery: %d%%",
-	       (int)(100.0 * state.battery / CWIID_BATTERY_MAX));
+	       (int)(100.0 * _state.battery / CWIID_BATTERY_MAX));
 
-	act("Buttons: %X", state.buttons);
+	act("Buttons: %X", _state.buttons);
 
-	act("Acc: x=%d y=%d z=%d", state.acc[CWIID_X], state.acc[CWIID_Y],
-	       state.acc[CWIID_Z]);
+	act("Acc: x=%d y=%d z=%d", _state.acc[CWIID_X], _state.acc[CWIID_Y],
+	       _state.acc[CWIID_Z]);
 
 	act("IR: ");
 	for (i = 0; i < CWIID_IR_SRC_COUNT; i++) {
-		if (state.ir_src[i].valid) {
+		if (_state.ir_src[i].valid) {
 			valid_source = 1;
-			act("(%d,%d) ", state.ir_src[i].pos[CWIID_X],
-			                   state.ir_src[i].pos[CWIID_Y]);
+			act("(%d,%d) ", _state.ir_src[i].pos[CWIID_X],
+			                   _state.ir_src[i].pos[CWIID_Y]);
 		}
 	}
 	if (!valid_source) {
 		act("no sources detected");
 	}
 
-	switch (state.ext_type) {
+	switch (_state.ext_type) {
 	case CWIID_EXT_NONE:
 		act("No extension");
 		break;
@@ -509,21 +664,21 @@ int WiiController::print_state() {
 		break;
 	case CWIID_EXT_NUNCHUK:
 		act("Nunchuk: btns=%.2X stick=(%d,%d) acc.x=%d acc.y=%d "
-		       "acc.z=%d", state.ext.nunchuk.buttons,
-		       state.ext.nunchuk.stick[CWIID_X],
-		       state.ext.nunchuk.stick[CWIID_Y],
-		       state.ext.nunchuk.acc[CWIID_X],
-		       state.ext.nunchuk.acc[CWIID_Y],
-		       state.ext.nunchuk.acc[CWIID_Z]);
+		       "acc.z=%d", _state.ext.nunchuk.buttons,
+		       _state.ext.nunchuk.stick[CWIID_X],
+		       _state.ext.nunchuk.stick[CWIID_Y],
+		       _state.ext.nunchuk.acc[CWIID_X],
+		       _state.ext.nunchuk.acc[CWIID_Y],
+		       _state.ext.nunchuk.acc[CWIID_Z]);
 		break;
 	case CWIID_EXT_CLASSIC:
 		act("Classic: btns=%.4X l_stick=(%d,%d) r_stick=(%d,%d) "
-		       "l=%d r=%d", state.ext.classic.buttons,
-		       state.ext.classic.l_stick[CWIID_X],
-		       state.ext.classic.l_stick[CWIID_Y],
-		       state.ext.classic.r_stick[CWIID_X],
-		       state.ext.classic.r_stick[CWIID_Y],
-		       state.ext.classic.l, state.ext.classic.r);
+		       "l=%d r=%d", _state.ext.classic.buttons,
+		       _state.ext.classic.l_stick[CWIID_X],
+		       _state.ext.classic.l_stick[CWIID_Y],
+		       _state.ext.classic.r_stick[CWIID_X],
+		       _state.ext.classic.r_stick[CWIID_Y],
+		       _state.ext.classic.l, _state.ext.classic.r);
 		break;
 	case CWIID_EXT_BALANCE:
     act("Balance: --");
