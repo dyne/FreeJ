@@ -39,18 +39,81 @@
 #define toggle_bit(set,val,bit) \
 	(set ? val | bit : val & ~bit)
 
+#define GET_PRIVATE(item_class, item) \
+item_class *item = static_cast<item_class *> (JS_GetPrivate(cx,obj)); \
+if(!item) { \
+  error("%u:%s:%s :: JS core data is NULL", \
+  __LINE__,__FILE__,__FUNCTION__); \
+  return JS_FALSE; \
+}
+
+#define JS_FUNC_CALL(fun, item_class, value) \
+JS(fun) { \
+  *rval = JSVAL_TRUE; \
+  GET_PRIVATE(item_class, item) \
+\
+  if(!item->value ) { \
+    warning("cannot value %s %s", item->name, ""#value); \
+    *rval = JSVAL_FALSE; \
+  } \
+  return JS_TRUE; \
+}
+
+#define JS_FUNC_TOGGLE_BIT(fun, BIT, value) \
+JS(fun) { \
+  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc); \
+	GET_PRIVATE(WiiController, wii); \
+\
+	*rval = JSVAL_FALSE; \
+\
+	if (wii->initialized) { \
+		wii->update_state(); \
+		cwiid_state state; \
+		cwiid_get_state(wii->wiimote, &state); \
+		*rval = BOOLEAN_TO_JSVAL(state.value & BIT); \
+		if (argc == 1) { \
+			JSBool newstate; \
+			JS_ValueToBoolean(cx, argv[0], &newstate); \
+			cwiid_set_rpt_mode( \
+				wii->wiimote, \
+				(newstate ? \
+					state.value | BIT : \
+					state.value & ~BIT \
+				) \
+			); \
+		} \
+	} \
+	return JS_TRUE; \
+}
+
+#define PROP_ATTRIB_RO JSPROP_ENUMERATE | JSPROP_READONLY | JSPROP_PERMANENT | JSPROP_SHARED
+#define PROP_ATTRIB_RW JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_SHARED
+
+#define JS_PROP_OP(fun) \
+JSBool fun(JSContext *cx, JSObject *obj, jsval id, jsval *vp)
+
+#define JS_PROP_GET_NUM(fun, item_class, value) \
+JS_PROP_OP(fun) { \
+  func("JS_PROP_GET_NUM %s %p",__PRETTY_FUNCTION__, obj); \
+  *vp = JSVAL_VOID; \
+    GET_PRIVATE(item_class, item); \
+\
+  double value = double(item->value); \
+  return JS_NewNumberValue(cx, value, vp); \
+}
+
 /////// Javascript WiiController
-JS_NATIVE(js_wii_ctrl_constructor);
+JS(js_wii_ctrl_constructor);
 
 DECLARE_CLASS_GC("WiiController", js_wii_ctrl_class, js_wii_ctrl_constructor, js_ctrl_gc);
 
-JS_NATIVE(js_wii_ctrl_open);
+JS(js_wii_ctrl_open);
 JS_FUNC_CALL(js_wii_ctrl_close, WiiController, close());
-JS_NATIVE(js_wii_ctrl_actaccel);
-JS_NATIVE(js_wii_ctrl_ir);
-JS_NATIVE(js_wii_ctrl_actbutt);
-JS_NATIVE(js_wii_ctrl_rumble);
-JS_NATIVE(js_wii_ctrl_actleds);
+JS(js_wii_ctrl_actaccel);
+JS(js_wii_ctrl_ir);
+JS(js_wii_ctrl_actbutt);
+JS(js_wii_ctrl_rumble);
+JS(js_wii_ctrl_actleds);
 JS_FUNC_CALL(js_wii_ctrl_dump, WiiController, print_state());
 
 JSFunctionSpec js_wii_ctrl_methods[] = {
@@ -91,7 +154,7 @@ JSPropertySpec js_wii_ctrl_props[] = {
 	{0}
 };
 
-JS_NATIVE(js_wii_ctrl_constructor) {
+JS(js_wii_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   char excp_msg[MAX_ERR_MSG + 1];
   
@@ -124,7 +187,7 @@ JS_NATIVE(js_wii_ctrl_constructor) {
   delete wii; return JS_FALSE;
 }
 
-JS_NATIVE(js_wii_ctrl_open) {
+JS(js_wii_ctrl_open) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
     WiiController *wii = (WiiController *)JS_GetPrivate(cx, obj);
     if(!wii) JS_ERROR("Wii core data is NULL");
@@ -139,37 +202,11 @@ JS_NATIVE(js_wii_ctrl_open) {
     return JS_TRUE;
 }
 
-#define JS_FUNC_TOGGLE_BIT(fun, BIT, value) \
-JS_NATIVE(fun) { \
-  func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc); \
-	GET_PRIVATE(WiiController, wii); \
-\
-	*rval = JSVAL_FALSE; \
-\
-	if (wii->initialized) { \
-		wii->update_state(); \
-		cwiid_state state; \
-		cwiid_get_state(wii->wiimote, &state); \
-		*rval = BOOLEAN_TO_JSVAL(state.value & BIT); \
-		if (argc == 1) { \
-			JSBool newstate; \
-			JS_ValueToBoolean(cx, argv[0], &newstate); \
-			cwiid_set_rpt_mode( \
-				wii->wiimote, \
-				(newstate ? \
-					state.value | BIT : \
-					state.value & ~BIT \
-				) \
-			); \
-		} \
-	} \
-	return JS_TRUE; \
-}
-
 JS_FUNC_TOGGLE_BIT(js_wii_ctrl_actaccel, CWIID_RPT_ACC, rpt_mode)
 JS_FUNC_TOGGLE_BIT(js_wii_ctrl_ir, CWIID_RPT_IR, rpt_mode)
 JS_FUNC_TOGGLE_BIT(js_wii_ctrl_actbutt,  CWIID_RPT_BTN, rpt_mode)
-JS_NATIVE(js_wii_ctrl_rumble) {
+
+JS(js_wii_ctrl_rumble) {
 	GET_PRIVATE(WiiController, wii);
 
 	*rval = JSVAL_FALSE;
@@ -204,7 +241,7 @@ double WiiController::get_battery() {
 	return (double)(100.0 * state.battery / CWIID_BATTERY_MAX);
 }
 
-JS_NATIVE(js_wii_ctrl_actleds) {
+JS(js_wii_ctrl_actleds) {
 	func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
 	*rval = JSVAL_FALSE;
 	GET_PRIVATE(WiiController, wii);
@@ -248,16 +285,14 @@ void cwiid_callback(cwiid_wiimote_t *wii, int mesg_count,
 }
 
 void WiiController::error_event(cwiid_error err) {
-	func("%s : %i", __PRETTY_FUNCTION__, err);
+  func("%s : %i", __PRETTY_FUNCTION__, err);
 
-    JSBool res = JS_FALSE;
-
-	initialized = false;
-
-    cwiid_close(wiimote);
-	jsval js_data[] = { err };
-	JSCall_NUM("error", 1, js_data, &res);
+  initialized = false;
+  cwiid_close(wiimote);
+  JSCall("error", 1, "u", err);
 }
+
+
 
 void WiiController::accel(uint8_t wx, uint8_t wy, uint8_t wz) {
 	nx = wx;
@@ -272,7 +307,6 @@ void WiiController::button(uint16_t buttons) {
 WiiController::WiiController()
 :Controller() {
 
-	jsclass = &js_wii_ctrl_class;
 	wii_event_connect = false;
 	wii_event_ir = false;
 	wii_event_connect_err = false;
@@ -288,7 +322,6 @@ WiiController::~WiiController() {
 
 bool WiiController::close() {
 	//stop(); TODO: cancel thread
-	cancel();
 	if (initialized) {
 		cwiid_close(wiimote);
 	}
@@ -315,15 +348,19 @@ bool WiiController::activate(bool state) {
 
 bool WiiController::connect(char *hwaddr) {
   // if argument is NULL look for any wiimote
-	if (!running) {
-		if(hwaddr == NULL) bdaddr = *BDADDR_ANY;
-		else str2ba(hwaddr,&bdaddr);
+  if (!is_running()) {
+    if(hwaddr == NULL) {
+    const char *anyaddr = "00:00:00:00:00:00";
+      str2ba(anyaddr, &bdaddr);
+    }	else {
+      str2ba(hwaddr,&bdaddr);
+    }
 		start();
-	}
-	if (initialized) {
-		close();
-	}
-	return 1;
+  }
+  if (initialized) {
+    close();
+  }
+  return 1;
 }
 
 void WiiController::run() {
@@ -347,9 +384,9 @@ void WiiController::run() {
   }
 
   // set filename to bdaddr
-  char addr_str[18];
-  ba2str(&bdaddr, addr_str);
-  set_filename(addr_str);
+  //char addr_str[18];
+  //ba2str(&bdaddr, addr_str);
+  //set_filename(addr_str);
   
   wii_event_connect = true;
   initialized = true;
@@ -366,39 +403,31 @@ void WiiController::ir(cwiid_ir_mesg* msg) {
 }
 
 int WiiController::dispatch() {
-	JSBool res = JS_TRUE;
-	if (running) return 0; // connecting thread is running
+  if (is_running()) return 0; // connecting thread is running
 
-	if (wii_event_ir) {
-		for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
-			if (ir_data.src[n].valid) {
-				jsval js_data[] = {
-					n,
-					ir_data.src[n].pos[CWIID_X],
-					ir_data.src[n].pos[CWIID_Y],
-					ir_data.src[n].size
-				};
-				JSCall_NUM("ir", 4, js_data, &res);
-			}
-		}
-		wii_event_ir = false;
-	}
+  if (wii_event_ir) {
+    for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
+      if (ir_data.src[n].valid) {
+        JSCall("ir", 4, "iuui",
+                n, ir_data.src[n].pos[CWIID_X], ir_data.src[n].pos[CWIID_Y],
+                ir_data.src[n].size);
+      }
+    }
+    wii_event_ir = false;
+  }
 	if (wii_event_connect) {
-		//JSCall_VA("connect", &res, 1, "b", 1);
-		JSCall_NUM("connect", 0, NULL, &res);
+		JSCall("connect", 1, "b", 1);
 		wii_event_connect = false;
 	}
 	if (wii_event_connect_err) {
-		jsval js_data[] = { CWIID_ERROR_COMM };
-		JSCall_NUM("error", 1, js_data, &res);
+    JSCall("error", 1, "u", CWIID_ERROR_COMM);
 		wii_event_connect_err = false;
 	}
 
 	if( (nx ^ x) || (ny ^ y) || (nz ^ z) ) {
 		x = nx; y = ny; z = nz;
 		if (jsobj) {
-			jsval js_data[] = { x, y, z };
-			JSCall_NUM("acceleration", 3, js_data, &res);
+      JSCall("acceleration", 3, "uuu", x, y, z);
 		}
 	}
 // button(<int> button, <int> state, <int> mask, <int> old_mask)
@@ -406,16 +435,16 @@ int WiiController::dispatch() {
 	if (butt_diff) {
 		for (uint16_t k = 1 << 15; k != 0; k = k >> 1 ) {
 			if (k & butt_diff) {
-				jsval js_data[] = { k, (k & newbutt) > 0, newbutt, oldbutt };
-				JSCall_NUM("button", 4, js_data, &res);
+				JSCall("button", 4, "ubuu",
+                  k, ((k & newbutt) > 0), newbutt, oldbutt);
 			}
 		}
 		oldbutt = newbutt;
 	}
-	if (!res) {
-		error("deactivating %s [%s]", name, filename);
-		activate(false);
-	}
+//	if (!res) {
+//		error("deactivating %s [%s]", name, filename);
+//		activate(false);
+//	}
 	return 1;
 }
 
@@ -495,6 +524,12 @@ int WiiController::print_state() {
 		       state.ext.classic.r_stick[CWIID_X],
 		       state.ext.classic.r_stick[CWIID_Y],
 		       state.ext.classic.l, state.ext.classic.r);
+		break;
+	case CWIID_EXT_BALANCE:
+    act("Balance: --");
+		break;
+	case CWIID_EXT_MOTIONPLUS:
+    act("Motionplus: --");
 		break;
 	}
 	return 1;
