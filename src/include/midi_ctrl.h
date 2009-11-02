@@ -36,7 +36,7 @@ class Context;
 class MidiController: public SdlController {
 	public:
 		MidiController();
-		~MidiController();
+		virtual ~MidiController();
 
         bool init(Context*);
         int poll();

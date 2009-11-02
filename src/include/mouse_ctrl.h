@@ -26,7 +26,7 @@ class MouseController : public SdlController {
   
  public:
   MouseController();
-  ~MouseController();
+  virtual ~MouseController();
   
   int  poll();
   virtual int dispatch();

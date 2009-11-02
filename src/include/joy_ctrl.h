@@ -28,7 +28,7 @@ class JoyController : public SdlController {
 
  public:
   JoyController();
-  ~JoyController();
+  virtual ~JoyController();
   
   bool init(Context *freej);
   int  poll();

@@ -28,7 +28,7 @@ class KbdController: public SdlController {
 
  public:
   KbdController();
-  ~KbdController();
+  virtual ~KbdController();
 
   bool init(Context *freej);
   int  poll();
