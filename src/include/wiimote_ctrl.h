@@ -32,12 +32,19 @@ extern "C" {
 #include <cwiid.h>
 }
 
-
 class WiiController: public Controller , public JSyncThread {
 
  public:
+
+   // see cwiid_error
+   enum WiiError {
+     ERROR_NONE,
+     ERROR_DISCONNECT,
+     ERROR_COMM,
+   };
+
   WiiController();
-  ~WiiController();
+  virtual ~WiiController();
 
   int dispatch();
   int poll();
@@ -48,7 +55,7 @@ class WiiController: public Controller , public JSyncThread {
   bool close();
 
   virtual void connect_event();
-  virtual void error_event(cwiid_error err);
+  virtual void error_event(WiiError err);
 
   virtual void accel_event(unsigned int x, unsigned int y, unsigned int z);
   bool get_accel_report();

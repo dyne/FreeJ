@@ -196,8 +196,8 @@ freej_entry_typemap_in(Encoder);
 //%feature("director") OscController;
 //%include "osc_ctrl.h"
 
-//%feature("director") WiiController;
-//%include "wiimote_ctrl.h"
+%feature("director") WiiController;
+%include "wiimote_ctrl.h"
 
 %feature("director") VimoController;
 %include "vimo_ctrl.h"

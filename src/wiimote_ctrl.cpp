@@ -263,7 +263,7 @@ void cwiid_callback(cwiid_wiimote_t *wiimote, int mesg_count,
         wii->update_button(msg.btn_mesg.buttons);
         break;
       case CWIID_MESG_ERROR:
-        wii->error_event(msg.error_mesg.error);
+        wii->error_event((WiiController::WiiError)msg.error_mesg.error);
         break;
       default:
         error("%s unhandled message type %i", __PRETTY_FUNCTION__, msg.type);
@@ -305,7 +305,7 @@ int WiiController::dispatch() {
     _wii_event_connect = false;
   }
   if (_wii_event_connect_err) {
-    error_event(CWIID_ERROR_COMM);
+    error_event(ERROR_COMM);
     _wii_event_connect_err = false;
   }
 
@@ -386,7 +386,7 @@ void WiiController::connect_event() {
   JSCall("connect", 1, "b", 1);
 }
 
-void WiiController::error_event(cwiid_error err) {
+void WiiController::error_event(WiiError err) {
   JSCall("error", 1, "u", err);
 }
 
