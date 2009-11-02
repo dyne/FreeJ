@@ -294,41 +294,37 @@ int WiiController::dispatch() {
   if (_wii_event_ir) {
     for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
       if (_ir_data.src[n].valid) {
-        JSCall("ir", 4, "iuui",
-                n, _ir_data.src[n].pos[CWIID_X], _ir_data.src[n].pos[CWIID_Y],
-                _ir_data.src[n].size);
+        ir_event(n, _ir_data.src[n].pos[CWIID_X], _ir_data.src[n].pos[CWIID_Y],
+           _ir_data.src[n].size);
       }
     }
     _wii_event_ir = false;
   }
-	if (_wii_event_connect) {
-		JSCall("connect", 1, "b", 1);
-		_wii_event_connect = false;
-	}
-	if (_wii_event_connect_err) {
-    JSCall("error", 1, "u", CWIID_ERROR_COMM);
-		_wii_event_connect_err = false;
-	}
+  if (_wii_event_connect) {
+    connect_event();
+    _wii_event_connect = false;
+  }
+  if (_wii_event_connect_err) {
+    error_event(CWIID_ERROR_COMM);
+    _wii_event_connect_err = false;
+  }
 
-	if( (_nx ^ _x) || (_ny ^ _y) || (_nz ^ _z) ) {
-		_x = _nx; _y = _ny; _z = _nz;
-		if (jsobj) {
-      JSCall("acceleration", 3, "uuu", _x, _y, _z);
-		}
-	}
-// button(<int> button, <int> state, <int> mask, <int> old_mask)
-    uint16_t butt_diff = _newbutt ^ _oldbutt;
-	if (butt_diff) {
-		for (uint16_t k = 1 << 15; k != 0; k = k >> 1 ) {
-			if (k & butt_diff) {
-				JSCall("button", 4, "ubuu",
-                  k, ((k & _newbutt) > 0), _newbutt, _oldbutt);
-			}
-		}
-		_oldbutt = _newbutt;
-	}
+  if( (_nx ^ _x) || (_ny ^ _y) || (_nz ^ _z) ) {
+    _x = _nx; _y = _ny; _z = _nz;
+    accel_event(_x, _y, _z);
+  }
+  // button(<int> button, <int> state, <int> mask, <int> old_mask)
+  uint16_t butt_diff = _newbutt ^ _oldbutt;
+  if (butt_diff) {
+    for (uint16_t k = 1 << 15; k != 0; k = k >> 1 ) {
+      if (k & butt_diff) {
+        button_event(k, ((k & _newbutt) > 0), _newbutt, _oldbutt);
+      }
+    }
+    _oldbutt = _newbutt;
+  }
 
-	return 1;
+  return 1;
 }
 
 int WiiController::poll() {
@@ -386,6 +382,20 @@ bool WiiController::close() {
 	return true;
 }
 
+void WiiController::connect_event() {
+  JSCall("connect", 1, "b", 1);
+}
+
+void WiiController::error_event(cwiid_error err) {
+  JSCall("error", 1, "u", err);
+}
+
+
+void WiiController::accel_event(unsigned int x, unsigned int y,
+                                unsigned int z) {
+  JSCall("acceleration", 3, "uuu", x, y, z);
+}
+
 bool WiiController::get_accel_report() {
 	if (!initialized) {
     error("%s controller not initialized", __PRETTY_FUNCTION__);
@@ -418,6 +428,11 @@ void WiiController::update_accel(uint8_t wx, uint8_t wy, uint8_t wz) {
 	_nx = wx;
 	_ny = wy;
 	_nz = wz;
+}
+
+void WiiController::ir_event(unsigned int source, unsigned int x,
+                             unsigned int y, unsigned int size) {
+  JSCall("ir", 4, "iuui", source, x, y, size);
 }
 
 bool WiiController::get_ir_report() {
@@ -453,6 +468,11 @@ void WiiController::update_ir(cwiid_ir_mesg* msg) {
 	_wii_event_ir = true;
 }
 
+void WiiController::button_event(unsigned int button, bool state,
+                                 unsigned int mask, unsigned int old_mask) {
+  JSCall("button", 4, "ubuu", button, state, mask, old_mask);
+}
+
 bool WiiController::get_button_report() {
 	if (!initialized) {
     error("%s controller not initialized", __PRETTY_FUNCTION__);
@@ -483,14 +503,6 @@ bool WiiController::set_button_report(bool state) {
 
 void WiiController::update_button(uint16_t buttons) {
 	_newbutt = buttons;
-}
-
-void WiiController::error_event(cwiid_error err) {
-  func("%s : %i", __PRETTY_FUNCTION__, err);
-
-  initialized = false;
-  cwiid_close(_wiimote);
-  JSCall("error", 1, "u", err);
 }
 
 bool WiiController::activate(bool state) {
