@@ -47,17 +47,17 @@ class WiiController: public Controller , public JSyncThread {
   bool open(const char *hwaddr);
   bool close();
 
-  void accel(uint8_t nx, uint8_t ny, uint8_t nz);
   bool get_accel_report();
   bool set_accel_report(bool state);
+  void update_accel(uint8_t nx, uint8_t ny, uint8_t nz);
 
-  void ir(cwiid_ir_mesg*);
   bool get_ir_report();
   bool set_ir_report(bool state);
+  void update_ir(cwiid_ir_mesg*);
 
-  void button(uint16_t buttons);
   bool get_button_report();
   bool set_button_report(bool state);
+  void update_button(uint16_t buttons);
 
   void error_event(cwiid_error err);
 

@@ -243,30 +243,32 @@ JSFunctionSpec js_wii_ctrl_methods[] = {
   {0}
 };
 
-void cwiid_callback(cwiid_wiimote_t *wii, int mesg_count,
+void cwiid_callback(cwiid_wiimote_t *wiimote, int mesg_count,
                     union cwiid_mesg mesg[], struct timespec *timestamp) {
-	WiiController* Wii = static_cast<WiiController *>((void*)(cwiid_get_data(wii)));
+  WiiController* wii = (WiiController *)cwiid_get_data(wiimote);
 
-	for (int i=0; i < mesg_count; i++) {
-		cwiid_mesg msg = mesg[i];
-		if(mesg[i].type == CWIID_MESG_ACC) {
-			Wii->accel(
-				mesg[i].acc_mesg.acc[CWIID_X],
-				mesg[i].acc_mesg.acc[CWIID_Y],
-				mesg[i].acc_mesg.acc[CWIID_Z]
-			);
-		} else
-		if(msg.type == CWIID_MESG_IR) {
-			Wii->ir(&msg.ir_mesg);
-		} else
-		if(mesg[i].type == CWIID_MESG_BTN)
-			Wii->button( mesg[i].btn_mesg.buttons );
-		else
-		if(mesg[i].type == CWIID_MESG_ERROR)
-			Wii->error_event(mesg[i].error_mesg.error);
-		else
-			error("WII unh. message %i", mesg[i].type);
-	}
+  for (int i=0; i < mesg_count; i++) {
+    cwiid_mesg msg = mesg[i];
+
+    switch(msg.type) {
+      case CWIID_MESG_ACC:
+        wii->update_accel(msg.acc_mesg.acc[CWIID_X],
+                          msg.acc_mesg.acc[CWIID_Y],
+                          msg.acc_mesg.acc[CWIID_Z]);
+        break;
+      case CWIID_MESG_IR:
+        wii->update_ir(&msg.ir_mesg);
+        break;
+      case CWIID_MESG_BTN:
+        wii->update_button(msg.btn_mesg.buttons);
+        break;
+      case CWIID_MESG_ERROR:
+        wii->error_event(msg.error_mesg.error);
+        break;
+      default:
+        error("%s unhandled message type %i", __PRETTY_FUNCTION__, msg.type);
+    }
+  }
 
 }
 
@@ -325,10 +327,7 @@ int WiiController::dispatch() {
 		}
 		_oldbutt = _newbutt;
 	}
-//	if (!res) {
-//		error("deactivating %s [%s]", name, filename);
-//		activate(false);
-//	}
+
 	return 1;
 }
 
@@ -387,12 +386,6 @@ bool WiiController::close() {
 	return true;
 }
 
-void WiiController::accel(uint8_t wx, uint8_t wy, uint8_t wz) {
-	_nx = wx;
-	_ny = wy;
-	_nz = wz;
-}
-
 bool WiiController::get_accel_report() {
 	if (!initialized) {
     error("%s controller not initialized", __PRETTY_FUNCTION__);
@@ -421,9 +414,10 @@ bool WiiController::set_accel_report(bool state) {
   return oldstate;
 }
 
-void WiiController::ir(cwiid_ir_mesg* msg) {
-	_ir_data = *msg;
-	_wii_event_ir = true;
+void WiiController::update_accel(uint8_t wx, uint8_t wy, uint8_t wz) {
+	_nx = wx;
+	_ny = wy;
+	_nz = wz;
 }
 
 bool WiiController::get_ir_report() {
@@ -454,8 +448,9 @@ bool WiiController::set_ir_report(bool state) {
   return oldstate;
 }
 
-void WiiController::button(uint16_t buttons) {
-	_newbutt = buttons;
+void WiiController::update_ir(cwiid_ir_mesg* msg) {
+	_ir_data = *msg;
+	_wii_event_ir = true;
 }
 
 bool WiiController::get_button_report() {
@@ -484,6 +479,10 @@ bool WiiController::set_button_report(bool state) {
     cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode & ~CWIID_RPT_BTN);
   }
   return oldstate;
+}
+
+void WiiController::update_button(uint16_t buttons) {
+	_newbutt = buttons;
 }
 
 void WiiController::error_event(cwiid_error err) {
