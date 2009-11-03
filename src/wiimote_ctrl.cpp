@@ -272,7 +272,9 @@ void cwiid_callback(cwiid_wiimote_t *wiimote, int mesg_count,
 
 }
 
-WiiController::WiiController() :Controller() {
+WiiController::WiiController() {
+
+  _opener = new ThreadedClosureQueue();
 
 	_wii_event_connect = false;
 	_wii_event_ir = false;
@@ -286,10 +288,11 @@ WiiController::WiiController() :Controller() {
 
 WiiController::~WiiController() {
 	close();
+  delete _opener;
 }
 
 int WiiController::dispatch() {
-  if (is_running()) return 0; // connecting thread is running
+  if (!_connected) return 0;
 
   if (_wii_event_ir) {
     for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
@@ -331,10 +334,12 @@ int WiiController::poll() {
 	return dispatch();
 }
 
-void WiiController::run() {
+void WiiController::_open_device(const char *hwaddr) {
   
   notice("Detecting WiiMote (press 1+2 on it to handshake)");
   
+  str2ba(hwaddr,&_bdaddr);
+
   _wiimote = cwiid_open(&_bdaddr, WII_FLAGS);
   if(!_wiimote) {
     error("unable to connect to WiiMote");
@@ -360,12 +365,7 @@ bool WiiController::open(const char *hwaddr) {
     error("%s controller already connected", __PRETTY_FUNCTION__);
     return false;
   }
-  if (is_running()) {
-    error("%s another connection in progress", __PRETTY_FUNCTION__);
-    return false;
-  }
-  str2ba(hwaddr,&_bdaddr);
-  start();
+  _opener->add_job(NewClosure(this, &WiiController::_open_device, hwaddr));
   return true;
 }
 
@@ -376,7 +376,6 @@ bool WiiController::open() {
 }
 
 bool WiiController::close() {
-	//stop(); TODO: cancel thread
 	if (_connected) {
 		cwiid_close(_wiimote);
 	}

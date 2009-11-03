@@ -26,13 +26,13 @@
 #ifdef WITH_CWIID
 
 #include <controller.h>
-#include <jsync.h>
+#include <closure.h>
 
 extern "C" {
 #include <cwiid.h>
 }
 
-class WiiController: public Controller , public JSyncThread {
+class WiiController: public Controller {
 
  public:
 
@@ -48,7 +48,6 @@ class WiiController: public Controller , public JSyncThread {
 
   int dispatch();
   int poll();
-  void run();
 
   bool open();
   bool open(const char *hwaddr);
@@ -93,6 +92,9 @@ class WiiController: public Controller , public JSyncThread {
  private:
 
   bool _connected; // a wiimote is connected
+  ThreadedClosureQueue *_opener; // queue blocking open connections
+
+  void _open_device(const char *hwaddr); // blocking open
 
   int _nx, _ny, _nz;
   int  _x,  _y,  _z;
