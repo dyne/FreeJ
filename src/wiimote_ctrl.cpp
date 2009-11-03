@@ -338,11 +338,13 @@ int WiiController::poll() {
 
 void WiiController::_open_device(const char *hwaddr) {
   
+  bdaddr_t bdaddr;
+
   notice("Detecting WiiMote (press 1+2 on it to handshake)");
   
-  str2ba(hwaddr,&_bdaddr);
+  str2ba(hwaddr,&bdaddr);
 
-  _wiimote = cwiid_open(&_bdaddr, WII_FLAGS);
+  _wiimote = cwiid_open(&bdaddr, WII_FLAGS);
   if(!_wiimote) {
     error("unable to connect to WiiMote");
     _wii_event_connect_err = true;

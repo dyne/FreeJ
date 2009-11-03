@@ -107,7 +107,6 @@ class WiiController: public Controller {
 
   // todo nunchuk_state and classic_state extensions
 
-  bdaddr_t _bdaddr;
   cwiid_wiimote_t  *_wiimote;
 
 
