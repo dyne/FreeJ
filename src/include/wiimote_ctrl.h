@@ -86,7 +86,6 @@ class WiiController: public Controller {
   double y() { return (double)_y;}
   double z() { return (double)_z;}
 
-  int update_state(); // debug
   int dump(); // debug
 
  private:
@@ -110,7 +109,6 @@ class WiiController: public Controller {
 
   bdaddr_t _bdaddr;
   cwiid_wiimote_t  *_wiimote;
-  cwiid_state _state;
 
 
 };

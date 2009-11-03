@@ -294,6 +294,8 @@ WiiController::~WiiController() {
 int WiiController::dispatch() {
   if (!_connected) return 0;
 
+  // TODO(shammash): consider having a closure queue consumed here and populated
+  // by methods called from the cwiid_callback()
   if (_wii_event_ir) {
     for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
       if (_ir_data.src[n].valid) {
@@ -417,7 +419,6 @@ bool WiiController::get_accel_report() {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   return (wiistate.rpt_mode & CWIID_RPT_ACC);
@@ -428,7 +429,6 @@ bool WiiController::set_accel_report(bool state) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   bool oldstate = (wiistate.rpt_mode & CWIID_RPT_ACC);
@@ -456,7 +456,6 @@ bool WiiController::get_ir_report() {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   return (wiistate.rpt_mode & CWIID_RPT_IR);
@@ -467,7 +466,6 @@ bool WiiController::set_ir_report(bool state) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   bool oldstate = (wiistate.rpt_mode & CWIID_RPT_IR);
@@ -494,7 +492,6 @@ bool WiiController::get_button_report() {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   return (wiistate.rpt_mode & CWIID_RPT_BTN);
@@ -505,7 +502,6 @@ bool WiiController::set_button_report(bool state) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   bool oldstate = (wiistate.rpt_mode & CWIID_RPT_BTN);
@@ -526,7 +522,6 @@ bool WiiController::get_rumble() {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   return wiistate.rumble;
@@ -537,7 +532,6 @@ bool WiiController::set_rumble(bool state) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   bool oldstate = wiistate.rumble;
@@ -550,7 +544,6 @@ bool WiiController::get_led(unsigned int led) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   switch(led) {
@@ -573,7 +566,6 @@ bool WiiController::set_led(unsigned int led, bool state) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
-  update_state();
   cwiid_state wiistate;
   cwiid_get_state(_wiimote, &wiistate);
   uint16_t new_led = wiistate.led;
@@ -611,14 +603,10 @@ double WiiController::battery() {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return 0.0;
   } else {
-    update_state();
-    return (double)(100.0 * _state.battery / CWIID_BATTERY_MAX);
+    cwiid_state wiistate;
+    cwiid_get_state(_wiimote, &wiistate);
+    return (double)(100.0 * wiistate.battery / CWIID_BATTERY_MAX);
   }
-}
-
-int WiiController::update_state() {
-	cwiid_get_state(_wiimote, &_state);
-	return 0;
 }
 
 int WiiController::dump() {
@@ -630,45 +618,46 @@ int WiiController::dump() {
 		return 0;
 	}
 
-	update_state();
+  cwiid_state wiistate;
+  cwiid_get_state(_wiimote, &wiistate);
 
 	act("Report Mode:");
-	if (_state.rpt_mode & CWIID_RPT_STATUS) act(" STATUS");
-	if (_state.rpt_mode & CWIID_RPT_BTN) act(" BTN");
-	if (_state.rpt_mode & CWIID_RPT_ACC) act(" ACC");
-	if (_state.rpt_mode & CWIID_RPT_IR) act(" IR");
-	if (_state.rpt_mode & CWIID_RPT_NUNCHUK) act(" NUNCHUK");
-	if (_state.rpt_mode & CWIID_RPT_CLASSIC) act(" CLASSIC");
+	if (wiistate.rpt_mode & CWIID_RPT_STATUS) act(" STATUS");
+	if (wiistate.rpt_mode & CWIID_RPT_BTN) act(" BTN");
+	if (wiistate.rpt_mode & CWIID_RPT_ACC) act(" ACC");
+	if (wiistate.rpt_mode & CWIID_RPT_IR) act(" IR");
+	if (wiistate.rpt_mode & CWIID_RPT_NUNCHUK) act(" NUNCHUK");
+	if (wiistate.rpt_mode & CWIID_RPT_CLASSIC) act(" CLASSIC");
 	
 	act("Active LEDs:");
-	if (_state.led & CWIID_LED1_ON) act(" 1");
-	if (_state.led & CWIID_LED2_ON) act(" 2");
-	if (_state.led & CWIID_LED3_ON) act(" 3");
-	if (_state.led & CWIID_LED4_ON) act(" 4");
+	if (wiistate.led & CWIID_LED1_ON) act(" 1");
+	if (wiistate.led & CWIID_LED2_ON) act(" 2");
+	if (wiistate.led & CWIID_LED3_ON) act(" 3");
+	if (wiistate.led & CWIID_LED4_ON) act(" 4");
 
-	act("Rumble: %s", _state.rumble ? "On" : "Off");
+	act("Rumble: %s", wiistate.rumble ? "On" : "Off");
 
 	act("Battery: %d%%",
-	       (int)(100.0 * _state.battery / CWIID_BATTERY_MAX));
+	       (int)(100.0 * wiistate.battery / CWIID_BATTERY_MAX));
 
-	act("Buttons: %X", _state.buttons);
+	act("Buttons: %X", wiistate.buttons);
 
-	act("Acc: x=%d y=%d z=%d", _state.acc[CWIID_X], _state.acc[CWIID_Y],
-	       _state.acc[CWIID_Z]);
+	act("Acc: x=%d y=%d z=%d", wiistate.acc[CWIID_X], wiistate.acc[CWIID_Y],
+	       wiistate.acc[CWIID_Z]);
 
 	act("IR: ");
 	for (i = 0; i < CWIID_IR_SRC_COUNT; i++) {
-		if (_state.ir_src[i].valid) {
+		if (wiistate.ir_src[i].valid) {
 			valid_source = 1;
-			act("(%d,%d) ", _state.ir_src[i].pos[CWIID_X],
-			                   _state.ir_src[i].pos[CWIID_Y]);
+			act("(%d,%d) ", wiistate.ir_src[i].pos[CWIID_X],
+			                   wiistate.ir_src[i].pos[CWIID_Y]);
 		}
 	}
 	if (!valid_source) {
 		act("no sources detected");
 	}
 
-	switch (_state.ext_type) {
+	switch (wiistate.ext_type) {
 	case CWIID_EXT_NONE:
 		act("No extension");
 		break;
@@ -677,21 +666,21 @@ int WiiController::dump() {
 		break;
 	case CWIID_EXT_NUNCHUK:
 		act("Nunchuk: btns=%.2X stick=(%d,%d) acc.x=%d acc.y=%d "
-		       "acc.z=%d", _state.ext.nunchuk.buttons,
-		       _state.ext.nunchuk.stick[CWIID_X],
-		       _state.ext.nunchuk.stick[CWIID_Y],
-		       _state.ext.nunchuk.acc[CWIID_X],
-		       _state.ext.nunchuk.acc[CWIID_Y],
-		       _state.ext.nunchuk.acc[CWIID_Z]);
+		       "acc.z=%d", wiistate.ext.nunchuk.buttons,
+		       wiistate.ext.nunchuk.stick[CWIID_X],
+		       wiistate.ext.nunchuk.stick[CWIID_Y],
+		       wiistate.ext.nunchuk.acc[CWIID_X],
+		       wiistate.ext.nunchuk.acc[CWIID_Y],
+		       wiistate.ext.nunchuk.acc[CWIID_Z]);
 		break;
 	case CWIID_EXT_CLASSIC:
 		act("Classic: btns=%.4X l_stick=(%d,%d) r_stick=(%d,%d) "
-		       "l=%d r=%d", _state.ext.classic.buttons,
-		       _state.ext.classic.l_stick[CWIID_X],
-		       _state.ext.classic.l_stick[CWIID_Y],
-		       _state.ext.classic.r_stick[CWIID_X],
-		       _state.ext.classic.r_stick[CWIID_Y],
-		       _state.ext.classic.l, _state.ext.classic.r);
+		       "l=%d r=%d", wiistate.ext.classic.buttons,
+		       wiistate.ext.classic.l_stick[CWIID_X],
+		       wiistate.ext.classic.l_stick[CWIID_Y],
+		       wiistate.ext.classic.r_stick[CWIID_X],
+		       wiistate.ext.classic.r_stick[CWIID_Y],
+		       wiistate.ext.classic.l, wiistate.ext.classic.r);
 		break;
 	case CWIID_EXT_BALANCE:
     act("Balance: --");
