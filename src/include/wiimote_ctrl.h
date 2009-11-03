@@ -54,6 +54,8 @@ class WiiController: public Controller , public JSyncThread {
   bool open(const char *hwaddr);
   bool close();
 
+  bool activate(bool state);
+
   virtual void connect_event();
   virtual void error_event(WiiError err);
 
@@ -74,8 +76,6 @@ class WiiController: public Controller , public JSyncThread {
   bool set_button_report(bool state);
   void update_button(uint16_t buttons);
 
-  bool activate(bool state);
-
   bool get_rumble();
   bool set_rumble(bool state);
 
@@ -91,6 +91,8 @@ class WiiController: public Controller , public JSyncThread {
   int dump(); // debug
 
  private:
+
+  bool _connected; // a wiimote is connected
 
   int _nx, _ny, _nz;
   int  _x,  _y,  _z;

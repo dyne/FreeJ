@@ -277,7 +277,7 @@ WiiController::WiiController() :Controller() {
 	_wii_event_connect = false;
 	_wii_event_ir = false;
 	_wii_event_connect_err = false;
-	initialized = false;
+	_connected = false;
 	_newbutt = _oldbutt = 0;
   _x = _y = _z = 0;
 
@@ -333,12 +333,12 @@ int WiiController::poll() {
 
 void WiiController::run() {
   
-  notice("Detecting WiiMote (press A+B on it to handshake)");
+  notice("Detecting WiiMote (press 1+2 on it to handshake)");
   
   _wiimote = cwiid_open(&_bdaddr, WII_FLAGS);
   if(!_wiimote) {
     error("unable to connect to WiiMote");
-	_wii_event_connect_err = true;
+    _wii_event_connect_err = true;
     return;
   } else
     act("WiiMote connected");
@@ -347,24 +347,26 @@ void WiiController::run() {
   if (cwiid_set_mesg_callback(_wiimote, cwiid_callback)) {
     error("unable to set wiimote message callback");
     cwiid_close(_wiimote);
-	_wii_event_connect_err = true;
+    _wii_event_connect_err = true;
     return;
   }
 
   _wii_event_connect = true;
-  initialized = true;
-  activate(true);
+  _connected = true;
 }
 
 bool WiiController::open(const char *hwaddr) {
-  if (initialized) {
-    close();
+  if (_connected) {
+    error("%s controller already connected", __PRETTY_FUNCTION__);
+    return false;
   }
-  if (!is_running()) {
-    str2ba(hwaddr,&_bdaddr);
-		start();
+  if (is_running()) {
+    error("%s another connection in progress", __PRETTY_FUNCTION__);
+    return false;
   }
-  return 1;
+  str2ba(hwaddr,&_bdaddr);
+  start();
+  return true;
 }
 
 bool WiiController::open() {
@@ -375,11 +377,26 @@ bool WiiController::open() {
 
 bool WiiController::close() {
 	//stop(); TODO: cancel thread
-	if (initialized) {
+	if (_connected) {
 		cwiid_close(_wiimote);
 	}
-	initialized = false;
+	_connected = false;
 	return true;
+}
+
+bool WiiController::activate(bool state) {
+
+	if (! _connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
+    return false;
+  }
+
+  if (state) {
+    return (cwiid_enable(_wiimote, WII_FLAGS) == 0);
+  } else {
+    return (cwiid_disable(_wiimote, WII_FLAGS) == 0);
+  }
+
 }
 
 void WiiController::connect_event() {
@@ -397,8 +414,8 @@ void WiiController::accel_event(unsigned int x, unsigned int y,
 }
 
 bool WiiController::get_accel_report() {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -408,8 +425,8 @@ bool WiiController::get_accel_report() {
 }
 
 bool WiiController::set_accel_report(bool state) {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -436,8 +453,8 @@ void WiiController::ir_event(unsigned int source, unsigned int x,
 }
 
 bool WiiController::get_ir_report() {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -447,8 +464,8 @@ bool WiiController::get_ir_report() {
 }
 
 bool WiiController::set_ir_report(bool state) {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -474,8 +491,8 @@ void WiiController::button_event(unsigned int button, bool state,
 }
 
 bool WiiController::get_button_report() {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -485,8 +502,8 @@ bool WiiController::get_button_report() {
 }
 
 bool WiiController::set_button_report(bool state) {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -505,23 +522,9 @@ void WiiController::update_button(uint16_t buttons) {
 	_newbutt = buttons;
 }
 
-bool WiiController::activate(bool state) {
-	bool old = active;
-	active = state;
-
-	if (initialized) {
-		if (active)
-			cwiid_enable(_wiimote, WII_FLAGS);
-		else
-			cwiid_disable(_wiimote, WII_FLAGS);
-	}
-
-	return old;
-}
-
 bool WiiController::get_rumble() {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -531,8 +534,8 @@ bool WiiController::get_rumble() {
 }
 
 bool WiiController::set_rumble(bool state) {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -544,8 +547,8 @@ bool WiiController::set_rumble(bool state) {
 }
 
 bool WiiController::get_led(unsigned int led) {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -567,8 +570,8 @@ bool WiiController::get_led(unsigned int led) {
 }
 
 bool WiiController::set_led(unsigned int led, bool state) {
-	if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   update_state();
@@ -605,8 +608,8 @@ bool WiiController::set_led(unsigned int led, bool state) {
 }
 
 double WiiController::battery() {
-  if (!initialized) {
-    error("%s controller not initialized", __PRETTY_FUNCTION__);
+  if (!_connected) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
     return 0.0;
   } else {
     update_state();
@@ -623,7 +626,7 @@ int WiiController::dump() {
 	int i;
 	int valid_source = 0;
 
-	if (!initialized) {
+	if (!_connected) {
 		error("WII: not connected, no data to dump");
 		return 0;
 	}
