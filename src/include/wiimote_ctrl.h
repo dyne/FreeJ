@@ -93,7 +93,7 @@ class WiiController: public Controller {
   bool _connected; // a wiimote is connected
   ThreadedClosureQueue *_opener; // queue blocking open connections
 
-  void _open_device(const char *hwaddr); // blocking open
+  void _open_device(char *hwaddr); // blocking open
 
   int _nx, _ny, _nz;
   int  _x,  _y,  _z;
@@ -108,7 +108,6 @@ class WiiController: public Controller {
   // todo nunchuk_state and classic_state extensions
 
   cwiid_wiimote_t  *_wiimote;
-
 
 };
 

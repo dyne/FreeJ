@@ -336,13 +336,14 @@ int WiiController::poll() {
 	return dispatch();
 }
 
-void WiiController::_open_device(const char *hwaddr) {
+void WiiController::_open_device(char *hwaddr) {
   
   bdaddr_t bdaddr;
 
   notice("Detecting WiiMote (press 1+2 on it to handshake)");
   
   str2ba(hwaddr,&bdaddr);
+  free(hwaddr);
 
   _wiimote = cwiid_open(&bdaddr, WII_FLAGS);
   if(!_wiimote) {
@@ -369,7 +370,8 @@ bool WiiController::open(const char *hwaddr) {
     error("%s controller already connected", __PRETTY_FUNCTION__);
     return false;
   }
-  _opener->add_job(NewClosure(this, &WiiController::_open_device, hwaddr));
+  char *tmp_hwaddr = strndup(hwaddr, 17); // len(hwaddr) = 17
+  _opener->add_job(NewClosure(this, &WiiController::_open_device, tmp_hwaddr));
   return true;
 }
 
