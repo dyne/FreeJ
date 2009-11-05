@@ -25,7 +25,7 @@
 
 #ifdef WITH_FFMPEG
 
-#include<samplerate.h>
+#include <samplerate.h>
 
 #include <math.h>
 
@@ -61,6 +61,7 @@ VideoLayer::VideoLayer()
   play_speed=1;
   play_speed_control=1;
   seekable=true;
+  to_seek = -1;
 
   audio_resampled_buf_len=0;
   audio_float_buf = NULL;
@@ -354,19 +355,26 @@ void *VideoLayer::feed() {
   int ret=0;
   bool got_it=false;
 
+  double now = get_master_clock();
+
+
+  if(paused)
+    return rgba_picture->data[0];
+
   /**
    * follow user video loop
    */
   if(mark_in!=NO_MARK && mark_out!=NO_MARK && seekable) {
-    if (get_master_clock()>=mark_out)
-      seek((int64_t)mark_in * AV_TIME_BASE/*D ART*/);
+    if (now >= mark_out)
+      seek((int64_t)mark_in * AV_TIME_BASE);
   }
   
-  if(paused)
-    return rgba_picture->data[0];
-  
-  
-  
+  // operate seek if was requested
+  if(to_seek>=0) {
+    seek(to_seek);
+    to_seek = -1;
+  }
+    
   got_it=false;
   
   while (!got_it) {
@@ -660,8 +668,8 @@ int VideoLayer::decode_video_packet(int *got_picture) {
 			ftype = 'I';
 		else
 			ftype = 'P';
-		//		func("frame_type=%c clock=%0.3f pts=%0.3f",
-		//				ftype, get_master_clock(), pts1);
+		func("frame_type=%c clock=%0.3f pts=%0.3f",
+		     ftype, get_master_clock(), pts1);
 	}
 	return lien;
 }

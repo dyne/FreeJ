@@ -33,9 +33,9 @@ DECLARE_CLASS_GC("MovieLayer",video_layer_class,video_layer_constructor,js_layer
 JSFunctionSpec video_layer_methods[] = {
 //  LAYER_METHODS  ,
   ENTRY_METHODS  ,
-//  {	"seek",		video_layer_seek, 		0},
-  {	"mark-in",	video_layer_mark_in, 		0},
-  {	"mark-out",	video_layer_mark_out, 		0},
+  {	"seek",		video_layer_seek, 		1},
+  {	"mark-in",	video_layer_mark_in, 		1},
+  {	"mark-out",	video_layer_mark_out, 		1},
   {	"pause",	video_layer_pause, 		0}, 
   {0}
 };
@@ -44,9 +44,11 @@ JS_CONSTRUCTOR("MovieLayer",video_layer_constructor,VideoLayer);
 
 
 
-/*
+
 JS(video_layer_seek) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  uint32_t pos;
 
   GET_LAYER(VideoLayer);
 
@@ -54,12 +56,13 @@ JS(video_layer_seek) {
       return JS_FALSE;
   }
   else {
-      double *seconds = JSVAL_TO_DOUBLE(argv[0]);
-      lay->relative_seek(*seconds);
+    JS_ValueToECMAUint32(cx, argv[0], &pos);
+    lay->to_seek = pos;
+    func("to seek: %d",lay->to_seek);
   }
   return JS_TRUE;
 }
-*/
+
 
 JS(video_layer_mark_in) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);

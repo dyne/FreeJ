@@ -424,6 +424,7 @@ JS(unicap_layer_open);
 #ifdef WITH_FFMPEG
 ////////////////////////////////
 // Video Layer methods
+JS(video_layer_seek);
 JS(video_layer_forward);
 JS(video_layer_rewind);
 JS(video_layer_mark_in);

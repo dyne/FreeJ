@@ -70,6 +70,8 @@ class VideoLayer: public Layer {
 	void *feed();
 	void close();
 
+	int64_t to_seek;
+
 	bool relative_seek(double increment);
 
 	bool set_mark_in();
@@ -165,11 +167,11 @@ class VideoLayer: public Layer {
 	FILE *fp;
 
 	/** private methods */
+	int seek(int64_t timestamp);
 	int decode_video_packet( int *got_picture);
 	int decode_audio_packet( int *data_size);
 	int decode_audio_packet();
 
-	int seek(int64_t timestamp);
 	void set_speed(int speed);
 	double get_master_clock();
 	void deinterlace(AVPicture *picture);
