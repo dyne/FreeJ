@@ -68,7 +68,7 @@ bool SlwReadline::feed(int key) {
   switch(parser) {
   case COMMANDLINE:
     
-    parser_commandline(key);
+    res = parser_commandline(key);
     break;
 
   case MOVELAYER:
