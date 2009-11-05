@@ -36,8 +36,7 @@
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 
-#define WII_FLAGS CWIID_FLAG_MESG_IFC
-// | CWIID_FLAG_NONBLOCK
+#define WII_FLAGS CWIID_FLAG_MESG_IFC | CWIID_FLAG_NONBLOCK
 
 /////// Javascript WiiController
 JS(js_wii_ctrl_constructor) {
@@ -243,90 +242,90 @@ JSFunctionSpec js_wii_ctrl_methods[] = {
   {0}
 };
 
-void cwiid_callback(cwiid_wiimote_t *wiimote, int mesg_count,
-                    union cwiid_mesg mesg[], struct timespec *timestamp) {
-  WiiController* wii = (WiiController *)cwiid_get_data(wiimote);
-
-  for (int i=0; i < mesg_count; i++) {
-    cwiid_mesg msg = mesg[i];
-
-    switch(msg.type) {
-      case CWIID_MESG_ACC:
-        wii->update_accel(msg.acc_mesg.acc[CWIID_X],
-                          msg.acc_mesg.acc[CWIID_Y],
-                          msg.acc_mesg.acc[CWIID_Z]);
-        break;
-      case CWIID_MESG_IR:
-        wii->update_ir(&msg.ir_mesg);
-        break;
-      case CWIID_MESG_BTN:
-        wii->update_button(msg.btn_mesg.buttons);
-        break;
-      case CWIID_MESG_ERROR:
-        wii->error_event((WiiController::WiiError)msg.error_mesg.error);
-        break;
-      default:
-        error("%s unhandled message type %i", __PRETTY_FUNCTION__, msg.type);
-    }
-  }
-
-}
-
 WiiController::WiiController() {
 
   _opener = new ThreadedClosureQueue();
+  _events_queue = new ClosureQueue();
 
-	_wii_event_connect = false;
-	_wii_event_ir = false;
-	_wii_event_connect_err = false;
-	_connected = false;
-	_newbutt = _oldbutt = 0;
+  _wiimote = NULL;
+
+  _buttons = 0;
   _x = _y = _z = 0;
 
-	set_name("WiiCtrl");
+  set_name("WiiCtrl");
 }
 
 WiiController::~WiiController() {
 	close();
   delete _opener;
+  delete _events_queue;
 }
 
 int WiiController::dispatch() {
-  if (!_connected) return 0;
 
-  // TODO(shammash): consider having a closure queue consumed here and populated
-  // by methods called from the cwiid_callback()
-  if (_wii_event_ir) {
-    for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
-      if (_ir_data.src[n].valid) {
-        ir_event(n, _ir_data.src[n].pos[CWIID_X], _ir_data.src[n].pos[CWIID_Y],
-           _ir_data.src[n].size);
-      }
-    }
-    _wii_event_ir = false;
-  }
-  if (_wii_event_connect) {
-    connect_event();
-    _wii_event_connect = false;
-  }
-  if (_wii_event_connect_err) {
-    error_event(ERROR_COMM);
-    _wii_event_connect_err = false;
-  }
+  int count;
+  union cwiid_mesg *msgs;
+  struct timespec timestamp;
+  int new_x, new_y, new_z;
+  struct cwiid_ir_mesg ir_data;
+  uint16_t new_buttons, butt_diff;
 
-  if( (_nx ^ _x) || (_ny ^ _y) || (_nz ^ _z) ) {
-    _x = _nx; _y = _ny; _z = _nz;
-    accel_event(_x, _y, _z);
+  _events_queue->do_jobs();
+
+  if (!_wiimote) return 0;
+
+  if (cwiid_get_mesg(_wiimote, &count, &msgs, &timestamp)) {
+    error("%s, cannot get messages from Wii, closing", __PRETTY_FUNCTION__);
+    close();
+    return 0;
   }
-  // button(<int> button, <int> state, <int> mask, <int> old_mask)
-  uint16_t butt_diff = _newbutt ^ _oldbutt;
-  if (butt_diff) {
-    for (uint16_t k = 1 << 15; k != 0; k = k >> 1 ) {
-      if (k & butt_diff) {
-        button_event(k, ((k & _newbutt) > 0), _newbutt, _oldbutt);
-      }
+  for (int i=0; i < count; i++) {
+    cwiid_mesg msg = msgs[i];
+
+    switch(msg.type) {
+      case CWIID_MESG_ACC:
+        new_x = msg.acc_mesg.acc[CWIID_X];
+        new_y = msg.acc_mesg.acc[CWIID_Y];
+        new_z = msg.acc_mesg.acc[CWIID_Z];
+        if( (new_x ^ _x) || (new_y ^ _y) || (new_z ^ _z) ) {
+          _x = new_x; _y = new_y; _z = new_z;
+          accel_event(_x, _y, _z);
+        } else {
+          func("%s not updating accel: %d %d %d",
+               __PRETTY_FUNCTION__, _x, _y, _z);
+        }
+        break;
+      case CWIID_MESG_IR:
+        ir_data = msg.ir_mesg;
+        for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
+          if (ir_data.src[n].valid) {
+            ir_event(n, ir_data.src[n].pos[CWIID_X],
+                     ir_data.src[n].pos[CWIID_Y],
+                     ir_data.src[n].size);
+          }
+        }
+        break;
+      case CWIID_MESG_BTN:
+        new_buttons = msg.btn_mesg.buttons;
+        butt_diff = new_buttons ^ _buttons;
+        if (butt_diff) {
+          for (uint16_t k = 1 << 15; k != 0; k = k >> 1 ) {
+            if (k & butt_diff) {
+              button_event(k, ((k & new_buttons) > 0), new_buttons, _buttons);
+            }
+          }
+          _buttons = new_buttons;
+        } else {
+          func("%s not updating buttons: %x", __PRETTY_FUNCTION__, _buttons);
+        }
+        break;
+      case CWIID_MESG_ERROR:
+        error_event((WiiController::WiiError)msg.error_mesg.error);
+        break;
+      default:
+        error("%s unhandled message type %i", __PRETTY_FUNCTION__, msg.type);
     }
-    _oldbutt = _newbutt;
+
   }
 
   return 1;
@@ -336,40 +335,37 @@ int WiiController::poll() {
 	return dispatch();
 }
 
+void WiiController::_set_device(cwiid_wiimote_t *dev) {
+  if (_wiimote) close();
+  _wiimote = dev;
+}
+
 void WiiController::_open_device(char *hwaddr) {
   
   bdaddr_t bdaddr;
+  cwiid_wiimote_t *dev;
 
-  notice("Detecting WiiMote (press 1+2 on it to handshake)");
-  
   str2ba(hwaddr,&bdaddr);
   free(hwaddr);
 
-  _wiimote = cwiid_open(&bdaddr, WII_FLAGS);
-  if(!_wiimote) {
+  notice("Detecting WiiMote (press 1+2 on it to handshake)");
+
+  dev = cwiid_open(&bdaddr, WII_FLAGS);
+  if(!dev) {
     error("unable to connect to WiiMote");
-    _wii_event_connect_err = true;
+    _events_queue->add_job(NewClosure(this, &WiiController::error_event,
+                                      ERROR_COMM));
     return;
-  } else
+  } else {
     act("WiiMote connected");
-  
-  cwiid_set_data(_wiimote, (void*)this);
-  if (cwiid_set_mesg_callback(_wiimote, cwiid_callback)) {
-    error("unable to set wiimote message callback");
-    cwiid_close(_wiimote);
-    _wii_event_connect_err = true;
-    return;
   }
 
-  _wii_event_connect = true;
-  _connected = true;
+  // XXX: is it better to use a single event for these two?
+  _events_queue->add_job(NewClosure(this, &WiiController::_set_device, dev));
+  _events_queue->add_job(NewClosure(this, &WiiController::connect_event));
 }
 
 bool WiiController::open(const char *hwaddr) {
-  if (_connected) {
-    error("%s controller already connected", __PRETTY_FUNCTION__);
-    return false;
-  }
   char *tmp_hwaddr = strndup(hwaddr, 17); // len(hwaddr) = 17
   _opener->add_job(NewClosure(this, &WiiController::_open_device, tmp_hwaddr));
   return true;
@@ -382,16 +378,19 @@ bool WiiController::open() {
 }
 
 bool WiiController::close() {
-	if (_connected) {
-		cwiid_close(_wiimote);
-	}
-	_connected = false;
-	return true;
+  if (_wiimote) {
+    cwiid_close(_wiimote);
+    _wiimote = NULL;
+    return true;
+  } else {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
+    return false;
+  }
 }
 
 bool WiiController::activate(bool state) {
 
-	if (! _connected) {
+	if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -412,14 +411,13 @@ void WiiController::error_event(WiiError err) {
   JSCall("error", 1, "u", err);
 }
 
-
 void WiiController::accel_event(unsigned int x, unsigned int y,
                                 unsigned int z) {
   JSCall("acceleration", 3, "uuu", x, y, z);
 }
 
 bool WiiController::get_accel_report() {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -429,7 +427,7 @@ bool WiiController::get_accel_report() {
 }
 
 bool WiiController::set_accel_report(bool state) {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -444,19 +442,13 @@ bool WiiController::set_accel_report(bool state) {
   return oldstate;
 }
 
-void WiiController::update_accel(uint8_t wx, uint8_t wy, uint8_t wz) {
-	_nx = wx;
-	_ny = wy;
-	_nz = wz;
-}
-
 void WiiController::ir_event(unsigned int source, unsigned int x,
                              unsigned int y, unsigned int size) {
   JSCall("ir", 4, "iuui", source, x, y, size);
 }
 
 bool WiiController::get_ir_report() {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -466,7 +458,7 @@ bool WiiController::get_ir_report() {
 }
 
 bool WiiController::set_ir_report(bool state) {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -481,18 +473,13 @@ bool WiiController::set_ir_report(bool state) {
   return oldstate;
 }
 
-void WiiController::update_ir(cwiid_ir_mesg* msg) {
-	_ir_data = *msg;
-	_wii_event_ir = true;
-}
-
 void WiiController::button_event(unsigned int button, bool state,
                                  unsigned int mask, unsigned int old_mask) {
   JSCall("button", 4, "ubuu", button, state, mask, old_mask);
 }
 
 bool WiiController::get_button_report() {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -502,7 +489,7 @@ bool WiiController::get_button_report() {
 }
 
 bool WiiController::set_button_report(bool state) {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -517,12 +504,8 @@ bool WiiController::set_button_report(bool state) {
   return oldstate;
 }
 
-void WiiController::update_button(uint16_t buttons) {
-	_newbutt = buttons;
-}
-
 bool WiiController::get_rumble() {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -532,7 +515,7 @@ bool WiiController::get_rumble() {
 }
 
 bool WiiController::set_rumble(bool state) {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -544,7 +527,7 @@ bool WiiController::set_rumble(bool state) {
 }
 
 bool WiiController::get_led(unsigned int led) {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -566,7 +549,7 @@ bool WiiController::get_led(unsigned int led) {
 }
 
 bool WiiController::set_led(unsigned int led, bool state) {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
@@ -603,7 +586,7 @@ bool WiiController::set_led(unsigned int led, bool state) {
 }
 
 double WiiController::battery() {
-  if (!_connected) {
+  if (!_wiimote) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return 0.0;
   } else {
@@ -617,7 +600,7 @@ int WiiController::dump() {
 	int i;
 	int valid_source = 0;
 
-	if (!_connected) {
+	if (!_wiimote) {
 		error("WII: not connected, no data to dump");
 		return 0;
 	}

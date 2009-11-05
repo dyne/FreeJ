@@ -61,19 +61,16 @@ class WiiController: public Controller {
   virtual void accel_event(unsigned int x, unsigned int y, unsigned int z);
   bool get_accel_report();
   bool set_accel_report(bool state);
-  void update_accel(uint8_t nx, uint8_t ny, uint8_t nz);
 
   virtual void ir_event(unsigned int source, unsigned int x, unsigned int y,
                   unsigned int size);
   bool get_ir_report();
   bool set_ir_report(bool state);
-  void update_ir(cwiid_ir_mesg*);
 
   virtual void button_event(unsigned int button, bool state, unsigned int mask,
                       unsigned int old_mask);
   bool get_button_report();
   bool set_button_report(bool state);
-  void update_button(uint16_t buttons);
 
   bool get_rumble();
   bool set_rumble(bool state);
@@ -90,20 +87,15 @@ class WiiController: public Controller {
 
  private:
 
-  bool _connected; // a wiimote is connected
   ThreadedClosureQueue *_opener; // queue blocking open connections
+  ClosureQueue *_events_queue; // events handled at dispatch() time
 
+  void _set_device(cwiid_wiimote_t *dev); // synchronously set a device
   void _open_device(char *hwaddr); // blocking open
 
-  int _nx, _ny, _nz;
   int  _x,  _y,  _z;
-  struct cwiid_ir_mesg _ir_data;
-  bool _wii_event_ir;
-  bool _wii_event_connect;
-  bool _wii_event_connect_err;
 
-  uint16_t _newbutt;
-  uint16_t _oldbutt;
+  uint16_t _buttons;
 
   // todo nunchuk_state and classic_state extensions
 
