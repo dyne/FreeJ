@@ -559,7 +559,6 @@ Layer *Context::open(char *file, int w, int h) {
 
   /* ==== Unified caputure API (V4L & V4L2) */
   if( strncasecmp ( file_ptr,"/dev/video",10)==0) {
-#ifdef WITH_UNICAP || WITH_OPENCV
     unsigned int uw, uh;
     while(end_file_ptr!=file_ptr) {
       if(*end_file_ptr!='%') {
@@ -577,7 +576,10 @@ Layer *Context::open(char *file, int w, int h) {
       }
     }
     nlayer = Factory<Layer>::get_instance("CamLayer");
-
+    if(!nlayer) {
+      error("cannot open camera on %s",file_ptr);
+      error("no implementation found for CamLayer in this FreeJ binary");
+      return NULL; }
     if(! nlayer->init( uw, uh, 32 ) ){
       error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
       delete nlayer; return NULL;
@@ -590,10 +592,6 @@ Layer *Context::open(char *file, int w, int h) {
       error("create_layer : V4L open failed");
       delete nlayer; nlayer = NULL;
     }
-#else
-    error("Video4Linux layer support not compiled");
-    act("can't load %s",file_ptr);
-#endif
 
   } else /* VIDEO LAYER */
 
