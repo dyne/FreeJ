@@ -51,6 +51,11 @@ class Parameter : public Entry {
   ~Parameter();
 
   bool set(void *val);
+
+  void *get();
+  ///< calling  function should  do correct type-casting
+  ///< according to the parameter type
+  
   bool parse(char *p);
 
   Type type;
@@ -67,9 +72,6 @@ class Parameter : public Entry {
 
   bool changed; ///< can be used externally by application caller
   float multiplier; ///< multiplier to adjust the value on set (none if 1.0)
-
- private:
-  double d1, d2, d3; // temp values
   
 };
 

@@ -67,22 +67,22 @@ Parameter::~Parameter() {
   free(value);
 }
 
+
 bool Parameter::set(void *val) {
   ////////////////////////////////////////
   if(type == Parameter::NUMBER) {
     double v = *(double*)val;
-    float f;
-    func("%s NUMBER %g",__PRETTY_FUNCTION__, v);
+    func("%s NUMBER %g (mult %g)",__PRETTY_FUNCTION__, v, multiplier);
     // range check (input is always 0.0 - 1.0)
     if((v<0.0) || (v>1.0)) {
       error("%s parameter: value %.2f out of range", name, v);
       return(false);
     }
     // apply multiplier for internal value storage
-    if(multiplier!= 1.0) f = v * multiplier;
-    func("parameter %s set to %.2f", name, f);
+    if(multiplier!= 1.0) v = v * multiplier;
+    func("parameter %s set to %.2f", name, v);
     // store value
-    *(float*)value = f;
+    *(float*)value = v;
     
     //////////////////////////////////////
   } else if(type == Parameter::BOOL) {
@@ -117,6 +117,18 @@ bool Parameter::set(void *val) {
   return true;
 }
 
+void *Parameter::get() {
+  // convert back using multplier if necessary
+  // float num;
+  // if( (multiplier != 1.0)
+  //     && (type == Parameter::NUMBER) ) {
+  //   num = (*(float*)value) / multiplier;
+  //   return (void*)&num;
+  // }
+   
+  return value;
+}
+
 // TODO VERIFY ALL TYPES
 bool Parameter::parse(char *p) {
   // parse the strings into value
@@ -124,18 +136,18 @@ bool Parameter::parse(char *p) {
 
     //////////////////////////////////////
   if(type == Parameter::NUMBER) {
-    
+    double val;
     func("parsing number parameter");
-    if( sscanf(p, "%le", &d1) < 1 ) {
+    if( sscanf(p, "%le", &val) < 1 ) {
       error("error parsing value [%s] for parameter %s", p, name);
       return false;
     }
-    func("parameter %s parsed to %g", p, d1);
-    set(&d1);
+    func("parameter %s parsed to %g", p, val);
+    set(&val);
     
     //////////////////////////////////////
   } else if(type == Parameter::BOOL) {
-
+    bool val;
     func("parsing bool parameter");
     char *pp;
     for( pp=p; (*pp!='1') & (*pp!='0') ; pp++) {
@@ -144,36 +156,35 @@ bool Parameter::parse(char *p) {
 	return false;
       }
     }
-    if(*pp=='1') *(bool*)value = true;
-    if(*pp=='0') *(bool*)value = false;
-    func("parameter %s parsed to %s",p, ( *(bool*)value == true ) ? "true" : "false" );
- 
+    if(*pp=='1') val = true;
+    if(*pp=='0') val = false;
+    func("parameter %s parsed to %s",
+	 p, (val) ? "true" : "false" );
+    set(&val);
 
     //////////////////////////////////////    
   } else if(type == Parameter::POSITION) {
 
-    double *val;
+    double val[2];
     
-    val = (double*)value;
     if( sscanf(p, "%le %le", &val[0], &val[1]) < 1 ) {
       error("error parsing position [%s] for parameter %s", p, name);
       return false;
     }
     func("parameter %s parsed to %g %g",p, val[0], val[1]);
-
+    set(&val);
 
     //////////////////////////////////////
   } else if(type == Parameter::COLOR) {
     
-    double *val;
+    double val[3];
 
-    val = (double*)value;
     if( sscanf(p, "%le %le %le", &val[0], &val[1], &val[2]) < 1 ) {
       error("error parsing position [%s] for parameter %s", p, name);
       return false;
     }
     func("parameter %s parsed to %le %le %le",p, val[0], val[1], val[2]);
-
+    set(&val);
 
     //////////////////////////////////////
   } else {

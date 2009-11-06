@@ -152,20 +152,20 @@ int console_param_selection(Context *env, char *cmd) {
     switch(p->type) {
     case Parameter::BOOL:
       ::act("(bool) %s = %s ::  %s", p->name,
-	    (*(bool*)p->value == true) ? "true" : "false",
+	    (*(bool*)p->get() == true) ? "true" : "false",
 	    p->description);
       break;
     case Parameter::NUMBER:
       ::act("(number) %s = %.2f :: %s", p->name,
-	    *(float*)p->value,
+	    *(float*)p->get(),
 	    p->description);
       break;
     case Parameter::STRING:
-      ::act("%s (string) %s", p->name, p->description);
+      ::act("(string) %s = %s :: %s", p->name, (char*)p->get(), p->description);
       break;
     case Parameter::POSITION:
       {
-	float *val = (float*)p->value;
+	float *val = (float*)p->get();
 	::act("(position) %s = %.2f x %.2f :: %s", p->name,
 	      val[0], val[1],
 	      p->description);
@@ -338,20 +338,20 @@ int console_blit_param_completion(Context *env, char *cmd) {
     switch(p->type) {
     case Parameter::BOOL:
       ::act("(bool) %s = %s ::  %s", p->name,
-	    (*(bool*)p->value == true) ? "true" : "false",
+	    (*(bool*)p->get() == true) ? "true" : "false",
 	    p->description);
       break;
     case Parameter::NUMBER:
       ::act("(number) %s = %.2f :: %s", p->name,
-	    *(float*)p->value,
+	    *(float*)p->get(),
 	    p->description);
       break;
     case Parameter::STRING:
-      ::act("%s (string) %s", p->name, p->description);
+      ::act("(string) %s = %s :: %s", p->name, (char*)p->get(), p->description);
       break;
     case Parameter::POSITION:
       {
-	float *val = (float*)p->value;
+	float *val = (float*)p->get();
 	::act("(position) %s = %.2f x %.2f :: %s", p->name,
 	      val[0], val[1],
 	      p->description);

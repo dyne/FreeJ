@@ -91,7 +91,9 @@ bool SlwReadline::refresh() {
   case DEFAULT:
   case MOVELAYER:
     color = TITLE_COLOR+20;
-    putnch(" use arrows to move selection, press ctrl-h for help with hotkeys",0,0,0);
+    putnch((char*)
+	   " use arrows to move selection, press ctrl-h for help with hotkeys"
+	   ,0,0,0);
     break;
     
   case COMMANDLINE:
