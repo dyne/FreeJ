@@ -220,12 +220,14 @@ int get_debug() {
   // In the old logging there was no proper scale,
   // let's do something as compatible as possible..
   switch(GlobalLogger::get_loglevel()) {
-    case DEBUG:   return 2;
-    case INFO:
-    case NOTICE:
-    case WARNING:
-    case ERROR:   return 1;
-    default:      return 0;
+    
+  case DEBUG:   return 3;
+  case WARNING:
+  case INFO:
+  case NOTICE:
+  case ERROR:   return 1;
+  case QUIET:   return 0;
+  default:      return 1;
   }
 }
 
@@ -234,6 +236,10 @@ void set_console(ConsoleController *c) {
 }
 
 void error(const char *format, ...) {
+
+  // avoid processing (faster when not debugging)
+  if(GlobalLogger::get_loglevel() < ERROR) return;
+
   va_list arg;
   va_start(arg, format);
   GlobalLogger::vprintlog(ERROR, format, arg);
@@ -241,6 +247,10 @@ void error(const char *format, ...) {
 }
 
 void warning(const char *format, ...) {
+
+  // avoid processing (faster when not debugging)
+  if(GlobalLogger::get_loglevel() < WARNING) return;
+
   va_list arg;
   va_start(arg, format);
   GlobalLogger::vprintlog(WARNING, format, arg);
@@ -248,6 +258,10 @@ void warning(const char *format, ...) {
 }
 
 void notice(const char *format, ...) {
+
+  // avoid processing (faster when quiet)
+  if(GlobalLogger::get_loglevel() < NOTICE) return;
+
   va_list arg;
   va_start(arg, format);
   GlobalLogger::vprintlog(NOTICE, format, arg);
@@ -255,6 +269,10 @@ void notice(const char *format, ...) {
 }
 
 void act(const char *format, ...) {
+
+  // avoid processing (faster when quiet)
+  if(GlobalLogger::get_loglevel() < INFO) return;
+
   va_list arg;
   va_start(arg, format);
   GlobalLogger::vprintlog(INFO, format, arg);
@@ -262,6 +280,10 @@ void act(const char *format, ...) {
 }
 
 void func(const char *format, ...) {
+
+  // avoid processing (faster when quiet)
+  if(GlobalLogger::get_loglevel() < DEBUG) return;
+
   va_list arg;
   va_start(arg, format);
   GlobalLogger::vprintlog(DEBUG, format, arg);

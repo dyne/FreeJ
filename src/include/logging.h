@@ -46,10 +46,11 @@
 #define MAX_LOG_MSG 1024
 
 enum LogLevel { // ordered by increasing verbosity
+  QUIET,
   ERROR,
-  WARNING,
   NOTICE,
   INFO,
+  WARNING,
   DEBUG
 };
 
