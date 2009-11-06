@@ -600,7 +600,7 @@ dnl ==============================================================
 
 AC_MSG_NOTICE([checking if mozilla-js is ok])
 PKG_CHECK_MODULES([MOZJS_JS],
-                  [mozilla-js >= 1.9.0],
+                  [mozilla-js >= 1.9],
                   [have_mozjs_js=yes], [have_mozjs_js=no])
 if test x$have_mozjs_js = xyes; then
   FREEJ_SAVE_FLAGS
@@ -625,7 +625,7 @@ if test x$have_mozjs = xno; then
   AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-stable are ok])
   # test if https://bugzilla.mozilla.org/show_bug.cgi?id=500645 has been closed
   PKG_CHECK_MODULES([MOZJS_STABLE],
-                    [mozilla-js >= 1.9.0 libxul-embedding-stable >= 1.9.0],
+                    [mozilla-js >= 1.9 libxul-embedding-stable >= 1.9],
                     [have_mozjs_stable=yes], [have_mozjs_stable=no])
   if test x$have_mozjs_stable = xyes; then
     FREEJ_SAVE_FLAGS
@@ -651,7 +651,7 @@ if test x$have_mozjs = xno; then
   # test if adding unstable is enough
   AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-unstable are ok])
   PKG_CHECK_MODULES([MOZJS_UNSTABLE],
-                    [mozilla-js >= 1.9.0 libxul-embedding-unstable >= 1.9.0],
+                    [mozilla-js >= 1.9 libxul-embedding-unstable >= 1.9],
                     [have_mozjs_unstable=yes], [have_mozjs_unstable=no])
   if test x$have_mozjs_unstable = xyes; then
     FREEJ_SAVE_FLAGS
