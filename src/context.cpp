@@ -125,6 +125,7 @@ Context::Context() {
   Factory<Controller>::set_default_classtype("KeyboardController", "sdl");
   Factory<ViewPort>::set_default_classtype("Screen", "sdl");
   Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
+  Factory<Layer>::set_default_classtype("GeneratorLayer","ff_f0r");
 #ifdef WITH_UNICAP
   Factory<Layer>::set_default_classtype("CamLayer", "unicap");
 #endif
@@ -208,7 +209,10 @@ bool Context::init() {
     error ("Couldn't install SIGPIPE handler"); 
     //   exit (0); lets not be so drastical...
   }
-  
+
+  // refresh the list of available plugins
+  plugger.refresh(this);
+
   return true;
 }
 

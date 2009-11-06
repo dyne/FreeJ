@@ -56,6 +56,7 @@ JS(layer_constructor);
 //void js_layer_gc (JSContext *cx, JSObject *obj);
 JS(vscroll_layer_constructor);
 JS(geometry_layer_constructor);
+JS(generator_layer_constructor);
 JS(image_layer_constructor);
 JS(flash_layer_constructor);
 JS(movie_layer_constructor);
@@ -165,6 +166,10 @@ extern JSFunctionSpec js_wii_ctrl_methods[];
 // GeometryLayer
 extern JSClass geometry_layer_class;
 extern JSFunctionSpec geometry_layer_methods[];
+
+// GeneratorLayer
+extern JSClass generator_layer_class;
+extern JSFunctionSpec generator_layer_methods[];
 
 // VScrollLayer
 extern JSClass vscroll_layer_class;

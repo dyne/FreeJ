@@ -95,7 +95,7 @@ class Layer: public Entry, public JSyncThread {
   enum Type {
 	  UNKNOWN,
 	  TEXT,
-	  F0R_GENERATOR,
+	  GENERATOR,
 #if defined HAVE_DARWIN && defined WITH_COCOA
 	  GL_COCOA
 #endif

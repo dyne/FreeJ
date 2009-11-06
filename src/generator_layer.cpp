@@ -18,6 +18,9 @@
  */
 
 #include <stdlib.h>
+
+#include <config.h>
+
 #include <generator_layer.h>
 #include <frei0r_freej.h>
 #include <freeframe_freej.h>
@@ -25,17 +28,18 @@
 
 #include <jutils.h>
 #include <context.h>
-#include <config.h>
-//#include <jsparser_data.h>
+
+// our objects are allowed to be created trough the factory engine
 
 
 GeneratorLayer::GeneratorLayer()
   :Layer() {
 
   generator = NULL;
+  generators = NULL;
 
-  type = Layer::F0R_GENERATOR;
-  set_name("F0R");
+  type = Layer::GENERATOR;
+  set_name("GEN");
   //jsclass = &gen0r_layer_class;
   //  set_filename("/particle generator");
   swap_buffer = NULL;
@@ -57,33 +61,34 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
   GeneratorLayer *layer = (GeneratorLayer*)lay;
 
   Freior *f = layer->generator->proto->freior;
-  bool *val = (bool*)param->value;
+  void *val = param->value;
 
   switch(f->param_infos[idx-1].type) {
     
     // idx-1 because frei0r's index starts from 0
   case F0R_PARAM_BOOL:
     (*f->f0r_set_param_value)
-      (layer->generator->core, new f0r_param_bool(val[0]), idx-1);
+      (layer->generator->core, new f0r_param_bool(*(bool*)val), idx-1);
     break;
     
   case F0R_PARAM_DOUBLE:
-    (*f->f0r_set_param_value)(layer->generator->core, new f0r_param_double(val[0]), idx-1);
+    (*f->f0r_set_param_value)(layer->generator->core,
+			      new f0r_param_double(*(double*)val), idx-1);
     break;
 
   case F0R_PARAM_COLOR:
     { f0r_param_color *color = new f0r_param_color;
-      color->r = val[0];
-      color->g = val[1];
-      color->b = val[2];
+      color->r = ((double*)val)[0];
+      color->g = ((double*)val)[1];
+      color->b = ((double*)val)[2];
       (*f->f0r_set_param_value)(layer->generator->core, color, idx-1);
       // QUAAA: should we delete the new allocated object? -jrml
     } break;
 
   case F0R_PARAM_POSITION:
     { f0r_param_position *position = new f0r_param_position;
-      position->x = val[0];
-      position->y = val[1];
+      position->x = ((double*)val)[0];
+      position->y = ((double*)val)[1];
       (*f->f0r_set_param_value)(layer->generator->core, position, idx-1);
       // QUAAA: should we delete the new allocated object? -jrml
     } break;
@@ -98,12 +103,17 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
 
 void GeneratorLayer::register_generators(Linklist<Filter> *gens) {
   generators = gens;
-  act("%u registered generators found", gens->len());
+  act("%u generators available", gens->len());
 }
 
 bool GeneratorLayer::open(const char *file) {
+  func("%s - %s",__PRETTY_FUNCTION__, file);
   int idx;
   Filter *proto;
+
+  if(!generators) {
+    error("No generators registered");
+    return false;  }
 
   proto = (Filter*) generators->search(file, &idx);
   if(!proto) {

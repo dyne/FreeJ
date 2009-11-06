@@ -62,6 +62,7 @@ class JsParser {
 	JSObject *Screen;
 	JSObject *Layer;
 	JSObject *GeometryLayer;
+	JSObject *GeneratorLayer;
 	JSObject *ImageLayer;
 	JSObject *FlashLayer;
 	JSObject *GoomLayer;

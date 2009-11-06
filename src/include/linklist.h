@@ -345,6 +345,7 @@ template <class T> T *Linklist<T>::pick(int pos) {
 /* search the linklist for the entry matching *name
    returns the Entry* on success, NULL on failure */
 template <class T> T *Linklist<T>::search(const char *name, int *idx) {
+  if(!first) return NULL;
   int c = 1;
   T *ptr = (T*)first;
   while(ptr) {

@@ -59,6 +59,7 @@ JS_SOURCES = 	context_js.cpp  \
 		image_layer_js.cpp \
 		text_layer_js.cpp \
 		geo_layer_js.cpp \
+		generator_layer_js.cpp \
 		flash_layer_js.cpp \
 		goom_layer_js.cpp \
 		audio_collector_js.cpp \

@@ -41,6 +41,7 @@ class GeneratorLayer: public Layer {
 
   Linklist<Filter> *generators; ///< linked list of registered generators
 
+
 };
 
 #endif

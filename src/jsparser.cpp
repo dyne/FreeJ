@@ -149,11 +149,18 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	object_proto = Layer; // following registrations inherit from parent class Layer
 
 	REGISTER_CLASS("GeometryLayer",
-		geometry_layer_class,
-		geometry_layer_constructor,
-		geometry_layer_methods,
-	        object_proto);
+		       geometry_layer_class,
+		       geometry_layer_constructor,
+		       geometry_layer_methods,
+		       object_proto);
 	GeometryLayer = layer_object;
+	
+	REGISTER_CLASS("GeneratorLayer",
+		       generator_layer_class,
+		       generator_layer_constructor,
+		       generator_layer_methods,
+		       object_proto);
+	GeneratorLayer = layer_object;
 
 // 	REGISTER_CLASS("VScrollLayer",
 // 		vscroll_layer_class,

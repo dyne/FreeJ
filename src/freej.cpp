@@ -329,9 +329,6 @@ int main (int argc, char **argv) {
     }
   }
 
-  // refresh the list of available plugins
-  freej->plugger.refresh(freej);
-
   // load default settings
   freej->config_check("keyboard.js");
 
