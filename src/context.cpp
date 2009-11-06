@@ -125,7 +125,13 @@ Context::Context() {
   Factory<Controller>::set_default_classtype("KeyboardController", "sdl");
   Factory<ViewPort>::set_default_classtype("Screen", "sdl");
   Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
-  
+#ifdef WITH_UNICAP
+  Factory<Layer>::set_default_classtype("CamLayer", "unicap");
+#endif
+#ifdef WITH_OPENCV
+  Factory<Layer>::set_default_classtype("CamLayer", "opencv");
+#endif
+
   assert( init() );
 
 }
@@ -553,7 +559,7 @@ Layer *Context::open(char *file, int w, int h) {
 
   /* ==== Unified caputure API (V4L & V4L2) */
   if( strncasecmp ( file_ptr,"/dev/video",10)==0) {
-#ifdef WITH_UNICAP
+#ifdef WITH_UNICAP || WITH_OPENCV
     unsigned int uw, uh;
     while(end_file_ptr!=file_ptr) {
       if(*end_file_ptr!='%') {
@@ -570,7 +576,8 @@ Layer *Context::open(char *file, int w, int h) {
 
       }
     }
-    nlayer = new UnicapLayer();
+    nlayer = Factory<Layer>::get_instance("CamLayer");
+
     if(! nlayer->init( uw, uh, 32 ) ){
       error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
       delete nlayer; return NULL;
@@ -594,7 +601,7 @@ Layer *Context::open(char *file, int w, int h) {
       func("is a movie layer");
 
 #ifdef WITH_FFMPEG
-       nlayer = new VideoLayer();
+       nlayer = Factory<Layer>::get_instance("MovieLayer");
        if(!nlayer->init()) {
  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
  	delete nlayer; return NULL;

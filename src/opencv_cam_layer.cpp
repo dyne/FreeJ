@@ -29,6 +29,8 @@
 
 #include <jutils.h>
 
+FACTORY_REGISTER_INSTANTIATOR(Layer, OpenCVCamLayer, CamLayer, opencv);
+
 OpenCVCamLayer::OpenCVCamLayer()
   :Layer() {
 
@@ -49,24 +51,27 @@ OpenCVCamLayer::~OpenCVCamLayer() {
 }
 
 bool OpenCVCamLayer::open(const char *devfile) {
-  opened = true;
-  return(true);
-}
-
-bool OpenCVCamLayer::_init() {
   func("%s",__PRETTY_FUNCTION__);
 
-  // set size doesn't work, why?
+  // examine the last cypher of the device, should be a number
+  int len = strlen(devfile);
+  int dev = atoi(&devfile[len-1]);
+
+  act("opening camera device %i (%s)",dev,devfile);
+
+  capture = cvCaptureFromCAM( dev );
+  if( !capture ) {
+    error("OpenCV cannot open device %i (%s)", dev, devfile);
+    return(false);
+  }
+
+  // set size
   cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH, geo.w);
   cvSetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT, geo.h);
 
-  capture = cvCaptureFromCAM( CV_CAP_ANY );
-  if( !capture ) {
-    error("OpenCV capture is NULL");
-    return(false);
-  }
   
   frame = cvQueryFrame( capture );
+  func("first cvQueryFrame returns %p",frame);
 
   int w = (int)cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_WIDTH);
   int h = (int)cvGetCaptureProperty( capture, CV_CAP_PROP_FRAME_HEIGHT);
@@ -74,14 +79,17 @@ bool OpenCVCamLayer::_init() {
   cvsize = cvSize(w, h);
   geo.init(w, h, 32);
 
-  act("Camera capture initialized: %u chans, %u depth, fourcc %s (seq %s)",
-      frame->nChannels, frame->depth, frame->colorModel, frame->channelSeq);
+  act("Camera capture initialized: %ux%u %u chans, %u depth, fourcc %s (seq %s)",
+      w,h, frame->nChannels, frame->depth, frame->colorModel, frame->channelSeq);
 
   rgba = malloc(geo.bytesize);
 
   opened = true;
   return(true);
+}
 
+bool OpenCVCamLayer::_init() {
+  return(true);
 }
 
 void *OpenCVCamLayer::feed() {

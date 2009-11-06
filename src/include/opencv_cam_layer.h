@@ -48,6 +48,8 @@ class OpenCVCamLayer: public Layer {
 
   CvSize cvsize;
 
+  // allow to use Factory on this class
+  FACTORY_ALLOWED
 };
 
 #endif // WITH_OPENCV

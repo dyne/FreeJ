@@ -153,17 +153,17 @@ class Factory
         if (!category || !id) // safety belts
             return NULL;
 
-        func("(new_instance) Looking for %s::%s \n", category, id);
+        func("(new_instance) Looking for %s::%s", category, id);
 
         if (strlen(category)+strlen(id)+3 > sizeof(tag)) { // check the size of the requested id
             error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", category, id);
             return NULL;
         }
         snprintf(tag, sizeof(tag), "%s::%s", category, id);
-        func("Looking for %s in instantiators_map (%d)\n", tag, instantiators_map->size());
+        func("Looking for %s in instantiators_map (%d)", tag, instantiators_map->size());
         FInstantiatorsMap::iterator instantiators_pair = instantiators_map->find(tag);
         if (instantiators_pair != instantiators_map->end()) { // check if we have a match
-            func("id %s found\n", id);
+            func("id %s found", id);
             Instantiator create_instance = instantiators_pair->second;
             if (create_instance)
                 return (T*)create_instance();
@@ -187,7 +187,7 @@ class Factory
         if (!category || !id) // safety belts
             return NULL;
         
-        func("(get_instance) Looking for %s::%s \n", category, id);
+        func("(get_instance) Looking for %s::%s", category, id);
         
         if (strlen(category)+strlen(id)+3 > sizeof(tag)) { // check the size of the requested id
             error("Factory::new_instance : requested ID (%s::%s) exceedes maximum size", category, id);
@@ -195,7 +195,7 @@ class Factory
         }
         snprintf(tag, sizeof(tag), "%s::%s", category, id);
         if (instances_map) {
-            func("Looking for %s in instantiators_map (%d)\n", tag, instances_map->size());
+            func("Looking for %s in instantiators_map (%d)", tag, instances_map->size());
             FInstancesMap::iterator instance_pair = instances_map->find(tag);
             if (instance_pair != instances_map->end()) {
                 void *instance = instance_pair->second;

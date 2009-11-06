@@ -375,7 +375,7 @@ int main (int argc, char **argv) {
 
       lay = freej->open(pp); // hey, this already init and open the layer !!
       if(lay)  { 
-        if( freej->add_layer(lay) ) {
+        if( screen->add_layer(lay) ) {
 	  lay->start();
 	  lay->fps.set(fps);
 	}
