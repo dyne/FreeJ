@@ -2,7 +2,7 @@ allsources = FreejScripting.js Layer.js GeometryLayer.js Controller.js \
 	VideoEncoder.js AudioCollector.js GoomLayer.js footer.html
 
 # where to build docs
-htmlbuild = $(builddir)/html
+htmlbuild = ./html
 # final install dir
 installdest = $(DESTDIR)$(docdir)/jsdoc
 
