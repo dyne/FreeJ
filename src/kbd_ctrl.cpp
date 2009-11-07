@@ -180,4 +180,3 @@ int KbdController::dispatch() {
   }
   return key_event(state, shift, ctrl, alt, num, keyname);
 }
-

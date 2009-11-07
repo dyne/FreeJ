@@ -322,7 +322,11 @@ JS(controller_activate);
 JS(js_mouse_grab);
 JS(js_vimo_open);
 JS(js_vimo_close);
-
+#ifdef HAVE_LINUX
+// joystick rumble is supported only under linux so far...
+JS(js_joy_init_rumble);
+JS(js_joy_rumble);
+#endif
 ////////////////////////////////
 // parent Layer methods
 

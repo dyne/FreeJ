@@ -24,6 +24,20 @@
 
 #include <SDL.h>
 
+#include <config.h>
+
+#ifdef HAVE_LINUX
+  // joystick rumble
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/ioctl.h>
+#include <linux/input.h>
+#endif
+
 class JoyController : public SdlController {
 
  public:
@@ -40,6 +54,17 @@ class JoyController : public SdlController {
   virtual int button_down(int device, int button);
   virtual int button_up(int device, int button);
 
+#ifdef HAVE_LINUX
+  // joystick rumble
+
+#define N_EFFECTS 6
+  bool init_rumble(char *devpath);
+  bool rumble(int intensity);
+  int rumble_fd;
+  struct ff_effect effects[N_EFFECTS];
+  struct input_event play, stop;
+#endif
+
  private:
   SDL_Joystick *joy[4];
   int num;
@@ -47,6 +72,7 @@ class JoyController : public SdlController {
   int buttons;
   int balls;
   int hats;
+
 
 };
 
