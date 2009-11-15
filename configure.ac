@@ -2,15 +2,14 @@ dnl ==============================================================
 dnl Process this file with autoconf to produce a configure script.
 dnl ==============================================================
 
+dnl backwards compatibility for autoconf >= 2.64
+dnl PACKAGE_URL should be the fifth argument of AC_INIT
+m4_define([AC_PACKAGE_URL], [http://freej.dyne.org])
+AC_DEFINE(PACKAGE_URL, AC_PACKAGE_URL)
+AC_SUBST(PACKAGE_URL, AC_PACKAGE_URL)
+
 AC_INIT([FreeJ],[0.11.0],[freej@lists.dyne.org],[freej])
 AC_CONFIG_MACRO_DIR([m4])
-
-dnl backwards compatibility for autoconf > 2.64, should be in AC_INIT
-m4_ifndef([AC_PACKAGE_URL],
-          [AC_DEFINE(PACKAGE_URL, ["http://freej.dyne.org"],
-                     [Define to the home page for this package])
-           AC_SUBST(PACKAGE_URL, ["http://freej.dyne.org"])],
-          AC_PACKAGE_URL(["http://freej.dyne.org"]))
 
 AC_CANONICAL_HOST
 
@@ -90,7 +89,7 @@ dnl ==============================================================
 dnl Setup for automake
 dnl ==============================================================
 
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([dist-bzip2 subdir-objects])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_CONFIG_SRCDIR([src/freej.cpp])
@@ -145,7 +144,7 @@ AC_FUNC_MALLOC
 AC_FUNC_MMAP
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([bzero floor gettimeofday memmove memset munmap rint select \
-		setenv strcasecmp strdup strerror strncasecmp strrchr strstr])
+  setenv strcasecmp strdup strerror strncasecmp strrchr strstr])
 
 # lib/javascript
 #AC_FUNC_MKTIME
@@ -153,10 +152,10 @@ AC_CHECK_FUNCS([bzero floor gettimeofday memmove memset munmap rint select \
 
 # compatibility with older libtool
 m4_ifdef([LT_INIT],
-	[LT_INIT([disable-static dlopen])],
-	[AC_LIBTOOL_DLOPEN
-	 AC_DISABLE_STATIC
-	 AC_PROG_LIBTOOL])
+  [LT_INIT([disable-static dlopen])],
+  [AC_LIBTOOL_DLOPEN
+   AC_DISABLE_STATIC
+   AC_PROG_LIBTOOL])
 
 dnl versioning info for libtool
 FREEJ_CURRENT=0
