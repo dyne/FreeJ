@@ -1,0 +1,62 @@
+VPATH = @srcdir@
+INSTALL = @INSTALL@
+abs_builddir = @abs_builddir@
+abs_srcdir = @abs_srcdir@
+abs_top_builddir = @abs_top_builddir@
+abs_top_srcdir = @abs_top_srcdir@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+builddir = @builddir@
+top_builddir = @top_builddir@
+
+# otherwise linking static libmozjs.a with dynamic libfreej.so won't work
+CFLAGS += -fPIC
+
+js_makefile = $(builddir)/Makefile
+
+
+.PHONY: dvi pdf ps info html installcheck check install uninstall
+dvi pdf ps info html installcheck check:
+
+
+install:
+
+uninstall:
+
+# roll our own distdir :(
+# this is the standard autotools target, it uses a file listing all the files
+# found in the original distribution of spidermonkey so we need to copy only
+# those files plus our own
+js_distfiles = .js-distfiles
+our_distfiles = GNUmakefile.in $(js_distfiles)
+
+distdir:
+	test -d "$(distdir)" || exit 0
+	test -f "$(srcdir)/$(js_distfiles)" || \
+		{ echo "$(srcdir)/$(js_distfiles) missing, run"; \
+	    echo "cd lib/javascript && make distfiles"; exit 1; }
+
+	for f in $(our_distfiles) `cat $(srcdir)/$(js_distfiles)`; do \
+		test -e $(distdir)/$$f || $(INSTALL) -D $(srcdir)/$$f $(distdir)/$$f; \
+	done
+
+# XXX use .js-distfiles?
+distclean:
+	$(MAKE) -f $(js_makefile) $(AM_MAKEFLAGS) distclean
+	-rm -rf config.status config.log config.cache Makefile
+	-rm -rf js-config js-config.h mozilla-config.h unallmakefiles
+	-rm -rf dist/
+	-rm -rf config/myconfig.mk config/myrules.mk config/Makefile config/mkdepend/Makefile config/autoconf.mk
+	-rm -rf $(our_distfiles)
+
+
+# build a list of files to copy into $distdir, JAVASCRIPT_SRCDIR must point to a
+# js/src directory as found in mozilla distribution
+distfiles:
+	test -e $(JAVASCRIPT_SRCDIR)/jsconfig.mk || \
+		{ echo "set JAVASCRIPT_SRCDIR to a directory containing jsconfig.mk"; exit 1; }
+	find $(JAVASCRIPT_SRCDIR) -type f -printf '%P\n' > $(srcdir)/$(js_distfiles)
+
+all export js-config clean libs tools:
+	$(MAKE) -f $(js_makefile) $(AM_MAKEFLAGS) $@

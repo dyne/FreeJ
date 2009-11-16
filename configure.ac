@@ -674,10 +674,25 @@ fi
 
 if test x$have_mozjs = xno; then
   AC_MSG_NOTICE([fallback to static mozjs])
-  MOZJS_CFLAGS=" -I\$(top_srcdir)/lib/javascript  -I\$(top_srcdir)/lib/javascript/obj "
+  MOZJS_CFLAGS="-I\$(top_srcdir)/lib/javascript -I\$(top_builddir)/lib/javascript"
   # libs in top_srcdir instead of top_builddir because js is not under autotools
-  MOZJS_LIBS="\$(top_srcdir)/lib/javascript/obj/libjs.a"
+  MOZJS_LIBS="\$(top_builddir)/lib/javascript/libmozjs.a"
   AC_MSG_NOTICE([Using freej version of MOZJS])
+
+  dnl run lib/javascript/configure after freej's configure, building it static
+  dnl XXX config.cache can be shared between the two configures? is it safe?
+  AC_CONFIG_COMMANDS([lib/javascript/.xulrunner-subdir],
+                     [(
+    cd lib/javascript &&
+    if test -e config.status &&
+       test config.status -nt $ac_srcdir/configure; then
+      ./config.status
+    else
+      CXXFLAGS="$GLOBAL_CFLAGS $CXXFLAGS -fPIC" \
+      CFLAGS="$GLOBAL_CFLAGS $CFLAGS -fPIC" \
+      $ac_srcdir/configure --enable-static --enable-js-static-build
+    fi
+  )])
 fi
 
 if test x$enable_debug = xyes ; then
@@ -963,6 +978,7 @@ lib/sdl_gfx/Makefile
 lib/sdl_image/Makefile
 lib/sdl_ttf/Makefile
 lib/slw/Makefile
+lib/javascript/GNUmakefile
 scripts/Makefile
 src/Makefile
 src/include/Makefile
