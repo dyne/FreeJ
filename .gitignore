@@ -15,7 +15,6 @@ missing
 src/freej
 stamp-h1
 tags
-lib/javascript/obj
 doc/scripting/html
 *.[oa]
 *.so
@@ -52,3 +51,27 @@ xcode/build
 xcode/freej.xcodeproj/*.mode1v3
 xcode/freej.xcodeproj/*.pbxuser
 xcode/freej.xcodeproj/config.h-e
+
+# makefile.in comes from original distribution of spidermonkey
+!lib/javascript/Makefile.in
+lib/javascript/GNUmakefile
+lib/javascript/config.cache
+lib/javascript/config/autoconf.mk
+lib/javascript/config/myconfig.mk
+lib/javascript/config/myrules.mk
+lib/javascript/config/nfspwd
+lib/javascript/config/nsinstall
+lib/javascript/config/revdepth
+lib/javascript/config/system_wrappers_js/
+lib/javascript/dist/
+lib/javascript/host_jskwgen
+lib/javascript/host_jsoplengen
+lib/javascript/js
+lib/javascript/js-config
+lib/javascript/js-config.h
+lib/javascript/jsautocfg.h
+lib/javascript/jsautokw.h
+lib/javascript/jsautooplen.h
+lib/javascript/jscpucfg
+lib/javascript/mozilla-config.h
+lib/javascript/unallmakefiles
