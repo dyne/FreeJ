@@ -672,7 +672,12 @@ if test x$have_mozjs = xno; then
   fi
 fi
 
-if test x$have_mozjs = xno; then
+dnl XXX this is temporary and for testing only
+AC_ARG_ENABLE(static-mozjs,
+    AS_HELP_STRING([--enable-static-mozjs],[force use of shipped mozjs]),
+    [static_mozjs=$enableval],
+    [static_mozjs=no])
+if test x$have_mozjs = xno || test x$static_mozjs = xyes; then
   AC_MSG_NOTICE([fallback to static mozjs])
   MOZJS_CFLAGS="-I\$(top_srcdir)/lib/javascript -I\$(top_builddir)/lib/javascript"
   # libs in top_srcdir instead of top_builddir because js is not under autotools
