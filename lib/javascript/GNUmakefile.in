@@ -23,13 +23,14 @@ CFLAGS += -fPIC
 # the makefile to proxy targets to
 js_makefile = $(builddir)/Makefile
 
+# proxy these targets to the real makefile
+all export js-config clean libs tools:
+	$(MAKE) -f $(js_makefile) $(AM_MAKEFLAGS) $@
+
 # targets required by autotools but which we don't need at all
 .PHONY: dvi pdf ps info html installcheck check install uninstall
 dvi pdf ps info html installcheck check install uninstall:
 
-# proxy these targets to the real makefile
-all export js-config clean libs tools:
-	$(MAKE) -f $(js_makefile) $(AM_MAKEFLAGS) $@
 
 # roll our own distdir target :(
 # this is the standard autotools target, it uses a file listing all the files
