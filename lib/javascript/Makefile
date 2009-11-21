@@ -283,19 +283,6 @@ LIB_CFILES  = $(JS_CFILES)
 LIB_ASFILES := $(wildcard *_$(OS_ARCH).s)
 PROG_CFILES = js.c
 
-ifdef USE_MSVC
-LIBRARY = $(OBJDIR)/js32.lib
-SHARED_LIBRARY = $(OBJDIR)/js32.dll
-PROGRAM = $(OBJDIR)/js.exe
-else
-LIBRARY = $(OBJDIR)/libjs.a
-SHARED_LIBRARY = $(OBJDIR)/libjs.$(SO_SUFFIX)
-PROGRAM = $(OBJDIR)/js
-ifdef JS_PERLCONNECT
-PROG_LIBS += $(PERLLDFLAGS)
-endif
-endif
-
 include rules.mk
 
 MOZ_DEPTH = ../..
