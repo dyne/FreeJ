@@ -25,6 +25,7 @@
 #include "opencv_cam_layer.h"
 #include "xscreensaver_layer.h"
 
+#include "sdl_controller.h"
 #include "kbd_ctrl.h"
 #include "trigger_ctrl.h"
 #include "midi_ctrl.h"
@@ -170,6 +171,10 @@ freej_entry_typemap_in(Encoder);
 %include "controller.h"
 %template(ControllerLinkList) Linklist<Controller>;
 // extends virtual methods of the Controllers to be overloadable (as callbacks)
+
+// this is needed because glues Controller class (expected by context) with some
+// controller classes below
+%include "sdl_controller.h"
 
 %feature("director") KbdController;
 %include "kbd_ctrl.h"
