@@ -11,9 +11,6 @@ FreeJ installation instructions
  libswscale-dev, libunicap2-dev, libbluetooth-dev, fftw3-dev, libjack-dev,
  libasound-dev, libhtml-template-perl, python-dev, swig
 
-!!! PLEASE NOTE: automake 1.9 is REQUIRED - it doesn't work with a
-    different version.
-
 - A working GNU/Linux system with X or framebuffer video
 
 - SDL libraries http://www.libsdl.org
@@ -59,7 +56,7 @@ for your CPU.
 the following commands are then necessary to set your build environment,
 from inside the freej source directory do:
 
-sudo apt-get install autoconf automake1.9
+sudo apt-get install autoconf automake
 sudo apt-get build-dep freej
 dpkg-buildpackage -rfakeroot
 
@@ -81,14 +78,7 @@ differences), with all tools needed and all developers lib installed
 After this, you will have a "freej" dir. Enter in it, and do 
 
 - ./autogen.sh
-  that create all the necessary configuration files (It may ask you
-  to install some missing libraries or to install the required 
-  automake version 1.9). This also run the "configure" script.
-
-- If you need to enable/disable something, relaunch "configure" with
-  your favourite options.
-
-  When you're satisfied:
+- Run "./configure" with your favourite options.
 - make && sudo make install 
 
 That's all!
