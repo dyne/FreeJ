@@ -469,16 +469,16 @@ if test x$enable_cpuflags = xyes; then
   fi
 fi
 
-AC_ARG_ENABLE(lubrify,
-    AS_HELP_STRING([--enable-lubrify],[compile using processor lubrifications (yes)]),
-    [enable_lubrifications=$enableval],
-    [enable_lubrifications=yes])
+AC_ARG_ENABLE(lubrication,
+    AS_HELP_STRING([--enable-lubrication],[compile using processor lubricants (yes)]),
+    [enable_lubrication=$enableval],
+    [enable_lubrication=yes])
 
 # XXX(godog) integrate with AX_GCC_ARCHFLAG
-if test x$enable_lubrifications = xyes; then
+if test x$enable_lubrication = xyes; then
   if test x$enable_profiling = xyes || test x$enable_debug = xyes; then
-    AC_MSG_WARN([cannot lubrify code if debug or profiling are enabled])
-    enable_lubrifications=no
+    AC_MSG_WARN([cannot lubricate code if debug or profiling are enabled])
+    enable_lubrication=no
   else
     if test x$have_darwin = xyes; then
       if test x$have_ppc = xyes; then
@@ -1191,8 +1191,8 @@ else
    echo "no"
 fi
 
-echo -n "= Building machine specific lubrificated binary : "
-if test x$enable_lubrifications = xyes; then
+echo -n "= Building machine specific lubricated binary : "
+if test x$enable_lubrication = xyes; then
 echo "yes"
 else
 echo "no"
