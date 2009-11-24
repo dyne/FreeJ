@@ -1153,6 +1153,13 @@ else
    echo "no"
 fi
 
+echo -n "= OpenCV cam layer : "
+if test x$have_opencv = xyes; then
+   echo "yes"
+else
+   echo "no"
+fi
+
 
 #### controllers
 
