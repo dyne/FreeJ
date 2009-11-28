@@ -56,21 +56,28 @@ class WiiController: public Controller {
   bool activate(bool state);
 
   virtual void connect_event();
+  virtual void disconnect_event();
   virtual void error_event(WiiError err);
 
-  virtual void accel_event(unsigned int x, unsigned int y, unsigned int z);
-  bool get_accel_report();
-  bool set_accel_report(bool state);
+  virtual void accel_event(double x, double y, double z);
+  bool get_accel_report() { return _get_report(CWIID_RPT_ACC); }
+  bool set_accel_report(bool state) {
+    return _set_report(state, CWIID_RPT_ACC);
+  }
 
   virtual void ir_event(unsigned int source, unsigned int x, unsigned int y,
-                  unsigned int size);
-  bool get_ir_report();
-  bool set_ir_report(bool state);
+                        unsigned int size);
+  bool get_ir_report() { return _get_report(CWIID_RPT_IR); }
+  bool set_ir_report(bool state) {
+    return _set_report(state, CWIID_RPT_IR);
+  }
 
-  virtual void button_event(unsigned int button, bool state, unsigned int mask,
-                      unsigned int old_mask);
-  bool get_button_report();
-  bool set_button_report(bool state);
+  virtual void button_event(unsigned int button, bool state,
+                            unsigned int mask, unsigned int old_mask);
+  bool get_button_report() { return _get_report(CWIID_RPT_BTN); }
+  bool set_button_report(bool state) {
+    return _set_report(state, CWIID_RPT_BTN);
+  }
 
   bool get_rumble();
   bool set_rumble(bool state);
@@ -79,9 +86,9 @@ class WiiController: public Controller {
   bool set_led(unsigned int led, bool state);
 
   double battery();
-  double x() { return (double)_x;}
-  double y() { return (double)_y;}
-  double z() { return (double)_z;}
+  double x() { return _x;}
+  double y() { return _y;}
+  double z() { return _z;}
 
   int dump(); // debug
 
@@ -90,16 +97,21 @@ class WiiController: public Controller {
   ThreadedClosureQueue *_opener; // queue blocking open connections
   ClosureQueue *_events_queue; // events handled at dispatch() time
 
-  void _set_device(cwiid_wiimote_t *dev); // synchronously set a device
   void _open_device(char *hwaddr); // blocking open
+  void _post_open_device(cwiid_wiimote_t *dev); // synchronous setup,
+                                                // after blocking open
 
-  int  _x,  _y,  _z;
+  bool _set_report(bool state, unsigned int type);
+  bool _get_report(unsigned int type);
+
+  double  _x,  _y,  _z;
 
   uint16_t _buttons;
 
-  // todo nunchuk_state and classic_state extensions
+  // TODO: nunchuk_state and classic_state extensions
 
-  cwiid_wiimote_t  *_wiimote;
+  cwiid_wiimote_t  *_device;
+  struct acc_cal _calib;
 
 };
 

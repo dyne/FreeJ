@@ -247,7 +247,7 @@ WiiController::WiiController() {
   _opener = new ThreadedClosureQueue();
   _events_queue = new ClosureQueue();
 
-  _wiimote = NULL;
+  _device = NULL;
 
   _buttons = 0;
   _x = _y = _z = 0;
@@ -266,17 +266,20 @@ int WiiController::dispatch() {
   int count;
   union cwiid_mesg *msgs;
   struct timespec timestamp;
-  int new_x, new_y, new_z;
+  double new_x, new_y, new_z;
   struct cwiid_ir_mesg ir_data;
   uint16_t new_buttons, butt_diff;
 
   _events_queue->do_jobs();
 
-  if (!_wiimote) return 0;
+  if (!_device) return 0;
 
-  if (cwiid_get_mesg(_wiimote, &count, &msgs, &timestamp)) {
-    error("%s, cannot get messages from Wii, closing", __PRETTY_FUNCTION__);
-    close();
+  if (cwiid_get_mesg(_device, &count, &msgs, &timestamp)) {
+    if (errno != EAGAIN) {
+      error("%s, cannot get messages from Wii: %s (closing device)",
+            __PRETTY_FUNCTION__, strerror(errno));
+      close();
+    }
     return 0;
   }
   for (int i=0; i < count; i++) {
@@ -284,15 +287,19 @@ int WiiController::dispatch() {
 
     switch(msg.type) {
       case CWIID_MESG_ACC:
-        new_x = msg.acc_mesg.acc[CWIID_X];
-        new_y = msg.acc_mesg.acc[CWIID_Y];
-        new_z = msg.acc_mesg.acc[CWIID_Z];
-        if( (new_x ^ _x) || (new_y ^ _y) || (new_z ^ _z) ) {
+        // TODO(shammash):
+        //  - add rotation support: roll, pitch, yaw
+        //    (wminput/plugins/acc/acc.c:process_acc())
+        //  - consider using thresholds
+        new_x = ((double)msg.acc_mesg.acc[CWIID_X] - _calib.zero[CWIID_X]) /
+                (_calib.one[CWIID_X] - _calib.zero[CWIID_X]);
+        new_y = ((double)msg.acc_mesg.acc[CWIID_Y] - _calib.zero[CWIID_Y]) /
+                (_calib.one[CWIID_Y] - _calib.zero[CWIID_Y]);
+        new_z = ((double)msg.acc_mesg.acc[CWIID_Z] - _calib.zero[CWIID_Z]) /
+                (_calib.one[CWIID_Z] - _calib.zero[CWIID_Z]);
+        if( (new_x != _x) || (new_y != _y) || (new_z != _z) ) {
           _x = new_x; _y = new_y; _z = new_z;
           accel_event(_x, _y, _z);
-        } else {
-          func("%s not updating accel: %d %d %d",
-               __PRETTY_FUNCTION__, _x, _y, _z);
         }
         break;
       case CWIID_MESG_IR:
@@ -315,12 +322,14 @@ int WiiController::dispatch() {
             }
           }
           _buttons = new_buttons;
-        } else {
-          func("%s not updating buttons: %x", __PRETTY_FUNCTION__, _buttons);
         }
         break;
       case CWIID_MESG_ERROR:
-        error_event((WiiController::WiiError)msg.error_mesg.error);
+        if (msg.error_mesg.error == CWIID_ERROR_DISCONNECT) {
+          disconnect_event();
+        } else {
+          error_event((WiiController::WiiError)msg.error_mesg.error);
+        }
         break;
       default:
         error("%s unhandled message type %i", __PRETTY_FUNCTION__, msg.type);
@@ -335,9 +344,45 @@ int WiiController::poll() {
 	return dispatch();
 }
 
-void WiiController::_set_device(cwiid_wiimote_t *dev) {
-  if (_wiimote) close();
-  _wiimote = dev;
+bool WiiController::_get_report(unsigned int type) {
+  if (!_device) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
+    return false;
+  }
+  cwiid_state wiistate;
+  cwiid_get_state(_device, &wiistate);
+  return (wiistate.rpt_mode & type);
+}
+
+bool WiiController::_set_report(bool state, unsigned int type) {
+  if (!_device) {
+    error("%s controller not connected", __PRETTY_FUNCTION__);
+    return false;
+  }
+  cwiid_state wiistate;
+  cwiid_get_state(_device, &wiistate);
+  bool oldstate = (wiistate.rpt_mode & type);
+  if (state) {
+    cwiid_set_rpt_mode(_device, wiistate.rpt_mode | type);
+  } else {
+    cwiid_set_rpt_mode(_device, wiistate.rpt_mode & ~type);
+  }
+  return oldstate;
+}
+
+void WiiController::_post_open_device(cwiid_wiimote_t *dev) {
+  // set device
+  if (_device) close();
+  _device = dev;
+
+  // calibration
+  if (cwiid_get_acc_cal(_device, CWIID_EXT_NONE, &_calib)) {
+    error("unable to get calibration data");
+    close();
+    return;
+  }
+
+  connect_event();
 }
 
 void WiiController::_open_device(char *hwaddr) {
@@ -360,9 +405,8 @@ void WiiController::_open_device(char *hwaddr) {
     act("WiiMote connected");
   }
 
-  // XXX: is it better to use a single event for these two?
-  _events_queue->add_job(NewClosure(this, &WiiController::_set_device, dev));
-  _events_queue->add_job(NewClosure(this, &WiiController::connect_event));
+  _events_queue->add_job(NewClosure(this, &WiiController::_post_open_device,
+                                    dev));
 }
 
 bool WiiController::open(const char *hwaddr) {
@@ -378,9 +422,9 @@ bool WiiController::open() {
 }
 
 bool WiiController::close() {
-  if (_wiimote) {
-    cwiid_close(_wiimote);
-    _wiimote = NULL;
+  if (_device) {
+    cwiid_close(_device);
+    _device = NULL;
     return true;
   } else {
     error("%s controller not connected", __PRETTY_FUNCTION__);
@@ -390,15 +434,15 @@ bool WiiController::close() {
 
 bool WiiController::activate(bool state) {
 
-	if (!_wiimote) {
+	if (!_device) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
 
   if (state) {
-    return (cwiid_enable(_wiimote, WII_FLAGS) == 0);
+    return (cwiid_enable(_device, WII_FLAGS) == 0);
   } else {
-    return (cwiid_disable(_wiimote, WII_FLAGS) == 0);
+    return (cwiid_disable(_device, WII_FLAGS) == 0);
   }
 
 }
@@ -407,39 +451,16 @@ void WiiController::connect_event() {
   JSCall("connect", 1, "b", 1);
 }
 
+void WiiController::disconnect_event() {
+  JSCall("disconnect", 1, "b", 1);
+}
+
 void WiiController::error_event(WiiError err) {
   JSCall("error", 1, "u", err);
 }
 
-void WiiController::accel_event(unsigned int x, unsigned int y,
-                                unsigned int z) {
-  JSCall("acceleration", 3, "uuu", x, y, z);
-}
-
-bool WiiController::get_accel_report() {
-  if (!_wiimote) {
-    error("%s controller not connected", __PRETTY_FUNCTION__);
-    return false;
-  }
-  cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
-  return (wiistate.rpt_mode & CWIID_RPT_ACC);
-}
-
-bool WiiController::set_accel_report(bool state) {
-  if (!_wiimote) {
-    error("%s controller not connected", __PRETTY_FUNCTION__);
-    return false;
-  }
-  cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
-  bool oldstate = (wiistate.rpt_mode & CWIID_RPT_ACC);
-  if (state) {
-    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode | CWIID_RPT_ACC);
-  } else {
-    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode & ~CWIID_RPT_ACC);
-  }
-  return oldstate;
+void WiiController::accel_event(double x, double y, double z) {
+  JSCall("acceleration", 3, "ddd", x, y, z);
 }
 
 void WiiController::ir_event(unsigned int source, unsigned int x,
@@ -447,92 +468,40 @@ void WiiController::ir_event(unsigned int source, unsigned int x,
   JSCall("ir", 4, "iuui", source, x, y, size);
 }
 
-bool WiiController::get_ir_report() {
-  if (!_wiimote) {
-    error("%s controller not connected", __PRETTY_FUNCTION__);
-    return false;
-  }
-  cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
-  return (wiistate.rpt_mode & CWIID_RPT_IR);
-}
-
-bool WiiController::set_ir_report(bool state) {
-  if (!_wiimote) {
-    error("%s controller not connected", __PRETTY_FUNCTION__);
-    return false;
-  }
-  cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
-  bool oldstate = (wiistate.rpt_mode & CWIID_RPT_IR);
-  if (state) {
-    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode | CWIID_RPT_IR);
-  } else {
-    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode & ~CWIID_RPT_IR);
-  }
-  return oldstate;
-}
-
 void WiiController::button_event(unsigned int button, bool state,
                                  unsigned int mask, unsigned int old_mask) {
   JSCall("button", 4, "ubuu", button, state, mask, old_mask);
 }
 
-bool WiiController::get_button_report() {
-  if (!_wiimote) {
-    error("%s controller not connected", __PRETTY_FUNCTION__);
-    return false;
-  }
-  cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
-  return (wiistate.rpt_mode & CWIID_RPT_BTN);
-}
-
-bool WiiController::set_button_report(bool state) {
-  if (!_wiimote) {
-    error("%s controller not connected", __PRETTY_FUNCTION__);
-    return false;
-  }
-  cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
-  bool oldstate = (wiistate.rpt_mode & CWIID_RPT_BTN);
-  if (state) {
-    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode | CWIID_RPT_BTN);
-  } else {
-    cwiid_set_rpt_mode(_wiimote, wiistate.rpt_mode & ~CWIID_RPT_BTN);
-  }
-  return oldstate;
-}
-
 bool WiiController::get_rumble() {
-  if (!_wiimote) {
+  if (!_device) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
+  cwiid_get_state(_device, &wiistate);
   return wiistate.rumble;
 }
 
 bool WiiController::set_rumble(bool state) {
-  if (!_wiimote) {
+  if (!_device) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
+  cwiid_get_state(_device, &wiistate);
   bool oldstate = wiistate.rumble;
-  cwiid_set_rumble(_wiimote, state);
+  cwiid_set_rumble(_device, state);
   return oldstate;
 }
 
 bool WiiController::get_led(unsigned int led) {
-  if (!_wiimote) {
+  if (!_device) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
+  cwiid_get_state(_device, &wiistate);
   switch(led) {
     case 1:
       return (wiistate.led & CWIID_LED1_ON);
@@ -549,12 +518,12 @@ bool WiiController::get_led(unsigned int led) {
 }
 
 bool WiiController::set_led(unsigned int led, bool state) {
-  if (!_wiimote) {
+  if (!_device) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return false;
   }
   cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
+  cwiid_get_state(_device, &wiistate);
   uint16_t new_led = wiistate.led;
   bool old_state = false;
   switch(led) {
@@ -581,17 +550,17 @@ bool WiiController::set_led(unsigned int led, bool state) {
     default:
       error("%s led %d outside range (1-4)", __PRETTY_FUNCTION__, led);
   }
-  cwiid_set_led(_wiimote, new_led);
+  cwiid_set_led(_device, new_led);
   return old_state;
 }
 
 double WiiController::battery() {
-  if (!_wiimote) {
+  if (!_device) {
     error("%s controller not connected", __PRETTY_FUNCTION__);
     return 0.0;
   } else {
     cwiid_state wiistate;
-    cwiid_get_state(_wiimote, &wiistate);
+    cwiid_get_state(_device, &wiistate);
     return (double)(100.0 * wiistate.battery / CWIID_BATTERY_MAX);
   }
 }
@@ -600,13 +569,13 @@ int WiiController::dump() {
 	int i;
 	int valid_source = 0;
 
-	if (!_wiimote) {
+	if (!_device) {
 		error("WII: not connected, no data to dump");
 		return 0;
 	}
 
   cwiid_state wiistate;
-  cwiid_get_state(_wiimote, &wiistate);
+  cwiid_get_state(_device, &wiistate);
 
 	act("Report Mode:");
 	if (wiistate.rpt_mode & CWIID_RPT_STATUS) act(" STATUS");
