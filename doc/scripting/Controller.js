@@ -545,120 +545,155 @@ ViMoController.prototype.close = function ();
 // Wii Controller
 
 /** Nintendo Wii remote control.
-	<p>The WiiController constructor creates a controller which holds the callbacks.
-	There's an example script "wiimote.js".</p>
-	@class
-	<p>The WiiController connects via bluetooth to a Nintendo wii remote controller.</p>
-	<img src="images/wii_ctrl.jpg">
-	<p>For more information on this device see <a href="http://abstrakraft.org/cwiid/">http://abstrakraft.org/cwiid/</a></p>
-	<p>
-	</p>
-	@author jaromil, chris
-	@constructor
-	@base Controller
-	@returns a new WiiController
-	@param{string} outdevice IDEA/TODO(?) select bluetooth host device, e.g. 'hci0', 'hci1'
-	@type WiiController
+  <p>The WiiController constructor creates a controller which holds the
+  callbacks. There's an example script "wiimote.js".</p>
+  @class
+  <p>The WiiController connects via bluetooth to a Nintendo wii remote
+  controller.</p>
+  <img src="images/wii_ctrl.jpg">
+  <p>For more information on this device see <a
+  href="http://abstrakraft.org/cwiid/">http://abstrakraft.org/cwiid/</a></p>
+  <p>
+  </p>
+  @author jaromil, chris, shammash
+  @constructor
+  @base Controller
+  @returns a new WiiController
+  @type WiiController
 */
 function WiiController(outdevice) { };
 WiiController.prototype = new WiiController();
 
-/** Callback on accelleration changes
-	@type bool callback
-	@return return true, when event was handled, false to requeue event
-	@param{int} x current x-axis value
-	@param{int} y current y-axis value
-	@param{int} z current z-axis value
-*/
-WiiController.prototype.acceleration = function (x, y, z);
-
 /** Connect to wii. Press A+B buttons on the remote.
-	This call returns immediatly. On success, we call {@link #connect connect()} otherwise {@link #error error()}
-	@type void
-	@param{string} bdaddr (optional) wii remote device address, e.g. "00:19:1D:66:91:D3"
-	Leave empty to scan and connect to any wii. The bdaddr will be stored in {@link #filename filename}.
-	@see #error
-	@see #connect
-	@see #close
+  This call returns immediatly. On success, we call {@link #connect connect()}
+  otherwise {@link #error error()}
+  @type void
+  @param{string} bdaddr (optional) wii remote device address (e.g.:
+  "00:19:1D:66:91:D3"). Leave empty to scan and connect to any wii.
+  @see #error
+  @see #connect
+  @see #close
 */
 WiiController.prototype.open = function (bdaddr);
 
 /** Disconnect the wii
-	@type void
+  @type void
 */
 WiiController.prototype.close = function ();
 
+/** Callback on sucessful connect
+  @type void callback
+*/
+WiiController.prototype.connect = function ();
+
+/** Callback on disconnect.
+  Press and hold down the power button of the wii to disconnect.
+  @type void callback
+*/
+WiiController.prototype.disconnect = function ();
+
+/** Callback on errors.
+  @type bool callback
+  @param{int} status error code :
+  <ol>
+  <li>ERROR_NONE
+  <li>ERROR_COMM
+  </ol>
+*/
+WiiController.prototype.error = function (status);
+
 /** toggle acceleration data on/off
-	@type bool
-	@return old/current state
-	@param{bool} state (optional) switch acceleration datastream. off by default.
+  @type bool
+  @return old/current state
+  @param{bool} state (optional) switch acceleration datastream, if not specified
+  current state is returned.
 */
 WiiController.prototype.toggle_accel = function (state);
 
+/** Callback on accelleration changes
+  @type void callback
+  @param{double} x current x-axis value
+  @param{double} y current y-axis value
+  @param{double} z current z-axis value
+*/
+WiiController.prototype.acceleration = function (x, y, z);
+
 /** toggle button data on/off
-	@type bool
-	@return old/current state
-	@param{bool} state (optional) switch button datastream. on by default.
+  @type bool
+  @return old/current state
+  @param{bool} state (optional) switch button datastream, if not specified
+  current state is returned.
 */
 WiiController.prototype.toggle_buttons = function (state);
 
+/** Callback on button changes
+  @type void callback
+  @param{int} button wii button number
+  @param{bool} state True if button is pressed, False if button is released
+  @param{int} mask current button mask
+  @param{int} old_mask old button mask
+*/
+WiiController.prototype.button = function (button, state, mask, old_mask);
+
+/** toggle infrared data on/off
+  @type bool
+  @return old/current state
+  @param{bool} state (optional) switch infrared datastream, if not specified
+  current state is returned.
+*/
+WiiController.prototype.toggle_ir = function (state);
+
+/** Callback on infrared changes
+  @type void callback
+  @param{int} source number of ir source
+  @param{int} x current x value
+  @param{int} y current y value
+  @param{int} size current ir size
+*/
+WiiController.prototype.ir = function (source, x, y, size);
+
 /** toggle rumble on/off
-	@type bool
-	@return old/current state
-	@param{bool} state (optional) switch rumble
+  @type bool
+  @return old/current state
+  @param{bool} state (optional) switch rumble, if not specified current state is
+  returned.
 */
 WiiController.prototype.toggle_rumble = function (state);
 
 /** toggle led on/off
-	@type bool
-	@return old/current state
-	@param{int} state (optional) bitmask state
+  @type bool
+  @return old/current state
+  @param{int} led number of the led (1-4).
+  @param{bool} state (optional), if not specified current state is returned.
 */
-WiiController.prototype.toggle_led = function (state);
-
-/** Callback on sucessful connect
-
-	@type void callback
-*/
-WiiController.prototype.connect = function ();
-
-/** Callback on errors and disconnect.
-	Press and hold down the power button of the wii to disconnect.
-	@type bool callback
-	@param{int} status code :
-	<ol>
-	<li>CWIID_ERROR_NONE
-	<li>CWIID_ERROR_DISCONNECT
-	<li>CWIID_ERROR_COMM
-	</ol>
-*/
-WiiController.prototype.error = function (status);
-
-/** Dumps out some information to the console.
-	@type void
-*/
-WiiController.prototype.dump = function ();
+WiiController.prototype.toggle_led = function (led, state);
 
 /** Battery status
-	@type int
-	@returns battery level in percent
+  @type double
+  @returns battery level in percent
 */
-WiiController.prototype.battery = value;
+WiiController.prototype.battery = function ();
 
-/** last x accel state
-	@type int
-	@returns last accel axis state
+/** Last x accel state
+  @type int
+  @returns last accel axis state
 */
-WiiController.prototype.x = value;
-/** last y accel state
-	@type int
-	@returns last accel axis state
-*/
-WiiController.prototype.y = value;
-/** last z accel state
-	@type int
-	@returns last accel axis state
-*/
-WiiController.prototype.z = value;
+WiiController.prototype.x = function ();
 
+/** Last y accel state
+  @type int
+  @returns last accel axis state
+*/
+WiiController.prototype.y = function ();
+
+/** Last z accel state
+  @type int
+  @returns last accel axis state
+*/
+WiiController.prototype.z = function ();
+
+/** Dumps out some information about WiiController state to the console.
+  @type void
+*/
+WiiController.prototype.dump = function ();
 
