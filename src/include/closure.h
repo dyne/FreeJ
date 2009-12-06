@@ -332,6 +332,109 @@ namespace closures {
       Arg2 arg2_;
   };
 
+
+  template <typename Arg1, typename Arg2, typename Arg3>
+  class FunctionClosure3 : public Closure {
+    public:
+      typedef void (*FunctionType)(Arg1 arg1, Arg2 arg2, Arg3 arg3);
+
+      FunctionClosure3(FunctionType function, bool synchronized,
+          Arg1 arg1, Arg2 arg2, Arg3 arg3)
+        : Closure(synchronized),
+        function_(function),
+        arg1_(arg1), arg2_(arg2), arg3_(arg3) {}
+      ~FunctionClosure3() {}
+
+      void run_() {
+        function_(arg1_, arg2_, arg3_);
+      }
+
+    private:
+      FunctionType function_;
+      Arg1 arg1_;
+      Arg2 arg2_;
+      Arg3 arg3_;
+  };
+
+
+  template <typename Class, typename Arg1, typename Arg2, typename Arg3>
+  class MethodClosure3 : public Closure {
+    public:
+      typedef void (Class::*MethodType)(Arg1 arg1, Arg2 arg2, Arg3 arg3);
+
+      MethodClosure3(Class* object, MethodType method, bool synchronized,
+          Arg1 arg1, Arg2 arg2, Arg3 arg3)
+        : Closure(synchronized),
+        object_(object), method_(method),
+        arg1_(arg1), arg2_(arg2), arg3_(arg3) {}
+      ~MethodClosure3() {}
+
+      void run_() {
+        (object_->*method_)(arg1_, arg2_, arg3_);
+      }
+
+    private:
+      Class* object_;
+      MethodType method_;
+      Arg1 arg1_;
+      Arg2 arg2_;
+      Arg3 arg3_;
+  };
+
+
+  template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+  class FunctionClosure4 : public Closure {
+    public:
+      typedef void (*FunctionType)(Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4);
+
+      FunctionClosure4(FunctionType function, bool synchronized,
+          Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4)
+        : Closure(synchronized),
+        function_(function),
+        arg1_(arg1), arg2_(arg2), arg3_(arg3), arg4_(arg4) {}
+      ~FunctionClosure4() {}
+
+      void run_() {
+        function_(arg1_, arg2_, arg3_, arg4_);
+      }
+
+    private:
+      FunctionType function_;
+      Arg1 arg1_;
+      Arg2 arg2_;
+      Arg3 arg3_;
+      Arg4 arg4_;
+  };
+
+
+  template <typename Class, typename Arg1, typename Arg2, typename Arg3,
+            typename Arg4>
+  class MethodClosure4 : public Closure {
+    public:
+      typedef void (Class::*MethodType)(Arg1 arg1, Arg2 arg2, Arg3 arg3,
+                                        Arg4 arg4);
+
+      MethodClosure4(Class* object, MethodType method, bool synchronized,
+          Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4)
+        : Closure(synchronized),
+        object_(object), method_(method),
+        arg1_(arg1), arg2_(arg2), arg3_(arg3), arg4_(arg4) {}
+      ~MethodClosure4() {}
+
+      void run_() {
+        (object_->*method_)(arg1_, arg2_, arg3_, arg4_);
+      }
+
+    private:
+      Class* object_;
+      MethodType method_;
+      Arg1 arg1_;
+      Arg2 arg2_;
+      Arg3 arg3_;
+      Arg4 arg4_;
+  };
+
+
 }
 
 
@@ -404,6 +507,68 @@ inline Closure* NewSyncClosure(
     Arg1 arg1, Arg2 arg2) {
   return new closures::MethodClosure2<Class, Arg1, Arg2>(
     object, method, true, arg1, arg2);
+}
+
+template <typename Arg1, typename Arg2, typename Arg3>
+inline Closure* NewClosure(void (*function)(Arg1, Arg2, Arg3),
+                           Arg1 arg1, Arg2 arg2, Arg3 arg3) {
+  return new closures::FunctionClosure3<Arg1, Arg2, Arg3>(
+    function, false, arg1, arg2, arg3);
+}
+
+template <typename Arg1, typename Arg2, typename Arg3>
+inline Closure* NewSyncClosure(void (*function)(Arg1, Arg2, Arg3),
+                               Arg1 arg1, Arg2 arg2, Arg3 arg3) {
+  return new closures::FunctionClosure3<Arg1, Arg2, Arg3>(
+    function, true, arg1, arg2, arg3);
+}
+
+template <typename Class, typename Arg1, typename Arg2, typename Arg3>
+inline Closure* NewClosure(Class* object,
+                           void (Class::*method)(Arg1, Arg2, Arg3),
+                           Arg1 arg1, Arg2 arg2, Arg3 arg3) {
+  return new closures::MethodClosure3<Class, Arg1, Arg2, Arg3>(
+    object, method, false, arg1, arg2, arg3);
+}
+
+template <typename Class, typename Arg1, typename Arg2, typename Arg3>
+inline Closure* NewSyncClosure(Class* object,
+                               void (Class::*method)(Arg1, Arg2, Arg3),
+                               Arg1 arg1, Arg2 arg2, Arg3 arg3) {
+  return new closures::MethodClosure3<Class, Arg1, Arg2, Arg3>(
+    object, method, true, arg1, arg2, arg3);
+}
+
+template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+inline Closure* NewClosure(void (*function)(Arg1, Arg2, Arg3, Arg4),
+                           Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4) {
+  return new closures::FunctionClosure4<Arg1, Arg2, Arg3, Arg4>(
+    function, false, arg1, arg2, arg3, arg4);
+}
+
+template <typename Arg1, typename Arg2, typename Arg3, typename Arg4>
+inline Closure* NewSyncClosure(void (*function)(Arg1, Arg2, Arg3, Arg4),
+                               Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4) {
+  return new closures::FunctionClosure4<Arg1, Arg2, Arg3, Arg4>(
+    function, true, arg1, arg2, arg3, arg4);
+}
+
+template <typename Class, typename Arg1, typename Arg2, typename Arg3,
+          typename Arg4>
+inline Closure* NewClosure(Class* object,
+                           void (Class::*method)(Arg1, Arg2, Arg3, Arg4),
+                           Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4) {
+  return new closures::MethodClosure4<Class, Arg1, Arg2, Arg3, Arg4>(
+    object, method, false, arg1, arg2, arg3, arg4);
+}
+
+template <typename Class, typename Arg1, typename Arg2, typename Arg3,
+          typename Arg4>
+inline Closure* NewSyncClosure(Class* object,
+                               void (Class::*method)(Arg1, Arg2, Arg3, Arg4),
+                               Arg1 arg1, Arg2 arg2, Arg3 arg3, Arg4 arg4) {
+  return new closures::MethodClosure4<Class, Arg1, Arg2, Arg3, Arg4>(
+    object, method, true, arg1, arg2, arg3, arg4);
 }
 
 #endif
