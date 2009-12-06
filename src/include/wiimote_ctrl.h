@@ -90,6 +90,13 @@ class WiiController: public Controller {
   double y() { return _y;}
   double z() { return _z;}
 
+  // used by cwiid callback to update controller state:
+  void cwiid_update_acc(double x, double y, double z);
+  void cwiid_update_ir(unsigned int source, unsigned int x, unsigned int y,
+                       unsigned int size);
+  void cwiid_update_btn(uint16_t buttons);
+  void cwiid_update_err(WiiError err);
+
   int dump(); // debug
 
  private:
@@ -100,6 +107,13 @@ class WiiController: public Controller {
   void _open_device(char *hwaddr); // blocking open
   void _post_open_device(cwiid_wiimote_t *dev); // synchronous setup,
                                                 // after blocking open
+
+  // these process and update the status in a synchronized way:
+  void _cwiid_sync_update_acc(double x, double y, double z);
+  void _cwiid_sync_update_ir(unsigned int source, unsigned int x,
+                             unsigned int y, unsigned int size);
+  void _cwiid_sync_update_btn(uint16_t buttons);
+  void _cwiid_sync_update_err(WiiError err);
 
   bool _set_report(bool state, unsigned int type);
   bool _get_report(unsigned int type);

@@ -36,7 +36,8 @@
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 
-#define WII_FLAGS CWIID_FLAG_MESG_IFC | CWIID_FLAG_NONBLOCK
+#define WII_FLAGS CWIID_FLAG_MESG_IFC
+//| CWIID_FLAG_NONBLOCK
 
 /////// Javascript WiiController
 JS(js_wii_ctrl_constructor) {
@@ -242,6 +243,41 @@ JSFunctionSpec js_wii_ctrl_methods[] = {
   {0}
 };
 
+void wiicontroller_cwiid_callback(cwiid_wiimote_t *dev, int count,
+                                  union cwiid_mesg msgs[],
+                                  struct timespec *timestamp) {
+  WiiController* wii = (WiiController *)cwiid_get_data(dev);
+
+  for (int i=0; i < count; i++) {
+    cwiid_mesg msg = msgs[i];
+
+    switch(msg.type) {
+      case CWIID_MESG_ACC:
+        wii->cwiid_update_acc((double)msg.acc_mesg.acc[CWIID_X],
+                              (double)msg.acc_mesg.acc[CWIID_Y],
+                              (double)msg.acc_mesg.acc[CWIID_Z]);
+        break;
+      case CWIID_MESG_IR:
+        for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
+          if (msg.ir_mesg.src[n].valid) {
+            wii->cwiid_update_ir(n, msg.ir_mesg.src[n].pos[CWIID_X],
+                                 msg.ir_mesg.src[n].pos[CWIID_Y],
+                                 msg.ir_mesg.src[n].size);
+          }
+        }
+        break;
+      case CWIID_MESG_BTN:
+        wii->cwiid_update_btn(msg.btn_mesg.buttons);
+        break;
+      case CWIID_MESG_ERROR:
+        wii->cwiid_update_err((WiiController::WiiError)msg.error_mesg.error);
+        break;
+      default:
+        error("%s unhandled message type %i", __PRETTY_FUNCTION__, msg.type);
+    }
+  }
+}
+
 WiiController::WiiController() {
 
   _opener = new ThreadedClosureQueue();
@@ -262,81 +298,7 @@ WiiController::~WiiController() {
 }
 
 int WiiController::dispatch() {
-
-  int count;
-  union cwiid_mesg *msgs;
-  struct timespec timestamp;
-  double new_x, new_y, new_z;
-  struct cwiid_ir_mesg ir_data;
-  uint16_t new_buttons, butt_diff;
-
   _events_queue->do_jobs();
-
-  if (!_device) return 0;
-
-  if (cwiid_get_mesg(_device, &count, &msgs, &timestamp)) {
-    if (errno != EAGAIN) {
-      error("%s, cannot get messages from Wii: %s (closing device)",
-            __PRETTY_FUNCTION__, strerror(errno));
-      close();
-    }
-    return 0;
-  }
-  for (int i=0; i < count; i++) {
-    cwiid_mesg msg = msgs[i];
-
-    switch(msg.type) {
-      case CWIID_MESG_ACC:
-        // TODO(shammash):
-        //  - add rotation support: roll, pitch, yaw
-        //    (wminput/plugins/acc/acc.c:process_acc())
-        //  - consider using thresholds
-        new_x = ((double)msg.acc_mesg.acc[CWIID_X] - _calib.zero[CWIID_X]) /
-                (_calib.one[CWIID_X] - _calib.zero[CWIID_X]);
-        new_y = ((double)msg.acc_mesg.acc[CWIID_Y] - _calib.zero[CWIID_Y]) /
-                (_calib.one[CWIID_Y] - _calib.zero[CWIID_Y]);
-        new_z = ((double)msg.acc_mesg.acc[CWIID_Z] - _calib.zero[CWIID_Z]) /
-                (_calib.one[CWIID_Z] - _calib.zero[CWIID_Z]);
-        if( (new_x != _x) || (new_y != _y) || (new_z != _z) ) {
-          _x = new_x; _y = new_y; _z = new_z;
-          accel_event(_x, _y, _z);
-        }
-        break;
-      case CWIID_MESG_IR:
-        ir_data = msg.ir_mesg;
-        for (int n = 0; n < CWIID_IR_SRC_COUNT; n++) {
-          if (ir_data.src[n].valid) {
-            ir_event(n, ir_data.src[n].pos[CWIID_X],
-                     ir_data.src[n].pos[CWIID_Y],
-                     ir_data.src[n].size);
-          }
-        }
-        break;
-      case CWIID_MESG_BTN:
-        new_buttons = msg.btn_mesg.buttons;
-        butt_diff = new_buttons ^ _buttons;
-        if (butt_diff) {
-          for (uint16_t k = 1 << 15; k != 0; k = k >> 1 ) {
-            if (k & butt_diff) {
-              button_event(k, ((k & new_buttons) > 0), new_buttons, _buttons);
-            }
-          }
-          _buttons = new_buttons;
-        }
-        break;
-      case CWIID_MESG_ERROR:
-        if (msg.error_mesg.error == CWIID_ERROR_DISCONNECT) {
-          disconnect_event();
-        } else {
-          error_event((WiiController::WiiError)msg.error_mesg.error);
-        }
-        break;
-      default:
-        error("%s unhandled message type %i", __PRETTY_FUNCTION__, msg.type);
-    }
-
-  }
-
   return 1;
 }
 
@@ -377,12 +339,27 @@ void WiiController::_post_open_device(cwiid_wiimote_t *dev) {
 
   // calibration
   if (cwiid_get_acc_cal(_device, CWIID_EXT_NONE, &_calib)) {
-    error("unable to get calibration data");
-    close();
-    return;
+    error("unable to get WiiMote calibration data");
+    goto error_state;
   }
 
+  // callback settings
+  if (cwiid_set_data(dev, (void*)this)) {
+    error("unable to set WiiMote private data");
+    goto error_state;
+  }
+  if (cwiid_set_mesg_callback(dev, wiicontroller_cwiid_callback)) {
+    error("unable to set WiiMote message callback");
+    goto error_state;
+  }
+
+  act("WiiMote connected");
   connect_event();
+  return;
+
+error_state:
+  close();
+  error_event(ERROR_COMM);
 }
 
 void WiiController::_open_device(char *hwaddr) {
@@ -401,8 +378,6 @@ void WiiController::_open_device(char *hwaddr) {
     _events_queue->add_job(NewClosure(this, &WiiController::error_event,
                                       ERROR_COMM));
     return;
-  } else {
-    act("WiiMote connected");
   }
 
   _events_queue->add_job(NewClosure(this, &WiiController::_post_open_device,
@@ -562,6 +537,76 @@ double WiiController::battery() {
     cwiid_state wiistate;
     cwiid_get_state(_device, &wiistate);
     return (double)(100.0 * wiistate.battery / CWIID_BATTERY_MAX);
+  }
+}
+
+void WiiController::cwiid_update_acc(double x, double y, double z) {
+  _events_queue->add_job(NewClosure(this,
+                                    &WiiController::_cwiid_sync_update_acc,
+                                    x, y, z));
+}
+
+void WiiController::_cwiid_sync_update_acc(double x, double y, double z) {
+  double new_x, new_y, new_z;
+
+  // TODO(shammash):
+  //  - add rotation support: roll, pitch, yaw
+  //    (wminput/plugins/acc/acc.c:process_acc())
+  //  - consider using thresholds
+  new_x = (x - _calib.zero[CWIID_X]) /
+          (_calib.one[CWIID_X] - _calib.zero[CWIID_X]);
+  new_y = (y - _calib.zero[CWIID_Y]) /
+          (_calib.one[CWIID_Y] - _calib.zero[CWIID_Y]);
+  new_z = (z - _calib.zero[CWIID_Z]) /
+          (_calib.one[CWIID_Z] - _calib.zero[CWIID_Z]);
+  if( (new_x != _x) || (new_y != _y) || (new_z != _z) ) {
+    _x = new_x; _y = new_y; _z = new_z;
+    accel_event(_x, _y, _z);
+  }
+}
+
+void WiiController::cwiid_update_ir(unsigned int source, unsigned int x,
+                                    unsigned int y, unsigned int size) {
+  _events_queue->add_job(NewClosure(this,
+                                    &WiiController::_cwiid_sync_update_ir,
+                                    source, x, y, size));
+}
+
+void WiiController::_cwiid_sync_update_ir(unsigned int source, unsigned int x,
+                                     unsigned int y, unsigned int size) {
+  // TODO(shammash): consider using IR to calc yaw
+  ir_event(source, x, y, size);
+}
+
+void WiiController::cwiid_update_btn(uint16_t buttons) {
+  _events_queue->add_job(NewClosure(this,
+                                    &WiiController::_cwiid_sync_update_btn,
+                                    buttons));
+}
+
+void WiiController::_cwiid_sync_update_btn(uint16_t buttons) {
+  uint16_t butt_diff = buttons ^ _buttons;
+  if (butt_diff) {
+    for (uint16_t k = 1 << 15; k != 0; k = k >> 1 ) {
+      if (k & butt_diff) {
+        button_event(k, ((k & buttons) > 0), buttons, _buttons);
+      }
+    }
+    _buttons = buttons;
+  }
+}
+
+void WiiController::cwiid_update_err(WiiError err) {
+  _events_queue->add_job(NewClosure(this,
+                                    &WiiController::_cwiid_sync_update_err,
+                                    err));
+}
+
+void WiiController::_cwiid_sync_update_err(WiiError err) {
+  if (err == ERROR_DISCONNECT) {
+    disconnect_event();
+  } else {
+    error_event(err);
   }
 }
 
