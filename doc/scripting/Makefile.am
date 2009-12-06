@@ -19,7 +19,7 @@ $(htmlbuild)/index.html: $(allsources)
 		--logo "$(srcdir)/../ipernav-small.png" \
 		--page-footer "`cat $(srcdir)/footer.html`" \
 		$(srcdir)
-	$(LN_S) $(srcdir)/images $(htmlbuild)/
+	$(LN_S) -f $(srcdir)/../images $(htmlbuild)/
 
 
 install-data-local:
