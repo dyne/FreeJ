@@ -266,24 +266,29 @@ bool SlwReadline::parser_default(int key) {
   case KEY_CTRL_H:
   case KEY_CTRL_H_APPLE:
   case '?':
-    notice("Hotkeys available in FreeJ console:");
-    act("ctrl+o  = Open a Layer (will prompt for path to file)");
-    act("Arrow keys browse selection thru layers and effects");
-    act("SPACE to de/activate layers and filters selected");
-    act("ENTER to start/stop layers selected");
-    act("+ and - move filters and effects thru chains");
-    act(" @ = Switch on/off screen cleanup after every frame");
-    act("ctrl+e  = Add a Filter to a Layer");
-    act("ctrl+b  = Change the Blit for a Layer");
-    act("ctrl+v  = Fade the Blit Value for a Layer");
-    act("ctrl+a  = Move Rotate and Zoom a Layer"); 
-    act("ctrl+p  = Set Parameters for a Layer or Filter");
-    act("ctrl+t  = Add a new Text layer (will prompt for text)");
-    act("ctrl+x  = execute a javascript command");
-    act("ctrl+j  = load and execute a script file");
-    act("ctrl+l  = Cleanup and redraw the console");
-    act("ctrl+f  = Go to Fullscreen");
-    act("ctrl+c  = Quit FreeJ");
+    notice("Below are listed the Hotkeys available in FreeJ console");
+
+  act("pressing [Tab] in most situations lists choices and completes commands");
+  act("Arrow keys browse across Layers and Filters");
+  act("Space de/activates Layers and Filters selected");
+  act("+ and - move Layers and Effects up and down the chains");
+  act(" @ = Switch on/off screen cleanup (blank frame at every tick)");
+
+  act("ctrl+o  = Open a File (will prompt for path to file)");
+  act("ctrl+g  = Create a Generator (tab to list available)");
+  act("ctrl+t  = Add a Text layer (will prompt for text)");
+
+  act("ctrl+a  = Move Rotate and Zoom a Layer");   
+  act("ctrl+e  = Add a Filter to a Layer");
+  act("ctrl+p  = Set Parameters for a Layer or Filter");
+  act("ctrl+b  = Select the Blit for a Layer (tab completed)");
+  act("ctrl+v  = Set Parameters for of a Layer's Blit");
+  
+  act("ctrl+x  = Execute a javascript command");
+  act("ctrl+j  = Load and execute a javascript file");
+  act("ctrl+f  = Switch Fullscreen on/off");
+
+  act("ctrl+c  = Quit FreeJ");
     break;
     /*    
   case '!':
