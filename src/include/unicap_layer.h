@@ -64,6 +64,10 @@ class UnicapLayer: public Layer {
 
   unicap_property_t m_property;
   unicap_property_t m_property_spec;
+
+  // allow to use Factory on this class
+  FACTORY_ALLOWED
+
 };
 
 #endif

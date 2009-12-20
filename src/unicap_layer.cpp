@@ -27,6 +27,8 @@
 
 #include <jutils.h>
 
+FACTORY_REGISTER_INSTANTIATOR(Layer, UnicapLayer, CamLayer, unicap);
+
 
 UnicapLayer::UnicapLayer()
   :Layer() {
