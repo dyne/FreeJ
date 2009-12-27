@@ -371,7 +371,10 @@ bool SlwReadline::parser_movelayer(int key) {
   }
 
   switch(key) {
-    
+  // XXX(shammash): set zoom/rotate/position are closures so they don't get
+  // executed immediately. zoom_x, zoom_y, rotate and so on might not contain a
+  // value up-to-date
+
     // zoom
   case KEY_PLUS:  layer->set_zoom( layer->zoom_x + 0.01,
 				   layer->zoom_y + 0.01); break;

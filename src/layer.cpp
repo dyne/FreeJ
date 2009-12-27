@@ -1,23 +1,23 @@
-/*  FreeJ
- *  (c) Copyright 2001-2002 Denis Rojo aka jaromil <jaromil@dyne.org>
- *
- * This source code is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
- * or (at your option) any later version.
- *
- * This source code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * Please refer to the GNU Public License for more details.
- *
- * You should have received a copy of the GNU Public License along with
- * this source code; if not, write to:
- * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
- *
- * "$Id$"
- *
- */
+  /*  FreeJ
+   *  (c) Copyright 2001-2002 Denis Rojo aka jaromil <jaromil@dyne.org>
+   *
+   * This source code is free software; you can redistribute it and/or
+   * modify it under the terms of the GNU Public License as published 
+   * by the Free Software Foundation; either version 2 of the License,
+   * or (at your option) any later version.
+   *
+   * This source code is distributed in the hope that it will be useful,
+   * but WITHOUT ANY WARRANTY; without even the implied warranty of
+   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+   * Please refer to the GNU Public License for more details.
+   *
+   * You should have received a copy of the GNU Public License along with
+   * this source code; if not, write to:
+   * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+   *
+   * "$Id$"
+   *
+   */
 
 #include <string.h>
 
@@ -309,55 +309,56 @@ void Layer::set_filename(const char *f) {
   strncpy(filename,p+1,256);
 }
 
-void Layer::set_position(int x, int y) {
-  lock();
+
+void Layer::_set_position(int x, int y) {
   geo.x = x;
   geo.y = y;
   need_crop = true;
-  unlock();
+}
+
+void Layer::set_position(int x, int y) {
+  Closure *job = NewClosure(this, &Layer::_set_position, x, y);
+  deferred_calls->add_job(job);
 }
 
 
-
-bool Layer::set_zoom(double x, double y) {
-
+void Layer::_set_zoom(double x, double y) {
   if ((x == 1) && (y == 1)) {
-
     zooming = false;
     zoom_x = zoom_y = 1.0;
     act("%s layer %s zoom deactivated", name, filename);
-
   } else {
-
     zoom_x = x;
     zoom_y = y;
     zooming = true;
-    func("%s layer %s zoom set to x%.2f y%.2f",	name, filename, zoom_x, zoom_y);
-
+    func("%s layer %s zoom set to x%.2f y%.2f",
+         name, filename, zoom_x, zoom_y);
   }
-
   need_crop = true;
-  return zooming;
 }
 
-bool Layer::set_rotate(double angle) {
+void Layer::set_zoom(double x, double y) {
+  Closure *job = NewClosure(this, &Layer::_set_zoom, x, y);
+  deferred_calls->add_job(job);
+}
 
+
+void Layer::_set_rotate(double angle) {
   if(!angle) {
-
     rotating = false;
     rotate = 0;
     act("%s layer %s rotation deactivated", name, filename);
-
   } else {
-
     rotate = angle;
     rotating = true;
     func("%s layer %s rotation set to %.2f", name, filename, rotate);
-
   }
-
   need_crop = true;
-  return rotating;
+}
+
+void Layer::set_rotate(double angle) {
+  Closure *job = NewClosure(this, &Layer::_set_rotate, angle);
+  deferred_calls->add_job(job);
 }
 
 
@@ -365,7 +366,10 @@ void Layer::_fit(bool maintain_aspect_ratio){
   double width_zoom, height_zoom;
   int new_x = 0;
   int new_y = 0;
-  lock();
+  if (this->screen == NULL) {
+    error("Cannot fit layer without a screen, add layer to a screen first");
+    return;
+  }
   width_zoom = (double)screen->geo.w / geo.w;
   height_zoom = (double)screen->geo.h / geo.h;
   if (maintain_aspect_ratio){
@@ -374,25 +378,22 @@ void Layer::_fit(bool maintain_aspect_ratio){
     if(width_zoom > height_zoom) {
       //if we're using the height zoom then there is going to be space
       //in x [width] that is unfilled, so center it in the x
-      set_zoom(height_zoom, height_zoom);
+      _set_zoom(height_zoom, height_zoom);
       new_x = ((double)(screen->geo.w - height_zoom * geo.w) / 2.0);
     } else {
       //if we're using the width zoom then there is going to be space
       //in y [height] that is unfilled, so center it in the y
-      set_zoom(width_zoom, width_zoom);
+      _set_zoom(width_zoom, width_zoom);
       new_y = ((double)(screen->geo.h - width_zoom * geo.h) / 2.0);
     }
-  } else
-    set_zoom(width_zoom, height_zoom);
-  unlock();
-  //set_position locks, so we unlock before it
-  set_position(new_x, new_y);
+  } else {
+    _set_zoom(width_zoom, height_zoom);
+  }
+  _set_position(new_x, new_y);
 }
 
 void Layer::fit(bool maintain_aspect_ratio) {
-	// the rest is not yet ready for closures so keep it as before
-	Closure *job = NewClosure(this, &Layer::_fit, maintain_aspect_ratio);
-	deferred_calls->add_job(job);
-	//this->_fit(maintain_aspect_ratio);
+  Closure *job = NewClosure(this, &Layer::_fit, maintain_aspect_ratio);
+  deferred_calls->add_job(job);
 }
 

@@ -147,12 +147,12 @@ class Layer: public Entry, public JSyncThread {
      @param x horizontal zoom float coefficient (default 1.0)
      @param y vertical zoom float coefficient (default 1.0)
   */
-  bool set_zoom(double x, double y); ///< Zoom (resize) a Layer
+  void set_zoom(double x, double y); ///< Zoom (resize) a Layer
   /**
      Degrees of rotation
      @param angle from 0 to 360 degrees rotation
    */
-  bool set_rotate(double angle); ///< Rotate a Layer
+  void set_rotate(double angle); ///< Rotate a Layer
 
   bool antialias;
   bool zooming;
@@ -237,6 +237,9 @@ class Layer: public Entry, public JSyncThread {
 
  private:
 
+  void _set_position(int x, int y);
+  void _set_zoom(double x, double y);
+  void _set_rotate(double angle);
   void _fit(bool maintain_aspect_ratio);
 
   char alphastr[5];
