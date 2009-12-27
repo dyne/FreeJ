@@ -683,12 +683,8 @@ int WiiController::dump() {
 		       wiistate.ext.classic.r_stick[CWIID_Y],
 		       wiistate.ext.classic.l, wiistate.ext.classic.r);
 		break;
-	case CWIID_EXT_BALANCE:
-    act("Balance: --");
-		break;
-	case CWIID_EXT_MOTIONPLUS:
-    act("Motionplus: --");
-		break;
+  default:
+    act("Unhandled exension %d", wiistate.ext_type);
 	}
 	return 1;
 }
