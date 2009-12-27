@@ -72,6 +72,8 @@ class JsParser {
 	JSObject *MovieLayer;
 	JSObject *TextLayer;
 	JSObject *XGrabLayer;
+	JSObject *VectorLayer;
+
 	JSObject *Filter;
 	JSObject *Controller;
 	JSObject *KeyboardController;

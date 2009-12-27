@@ -824,6 +824,15 @@ dnl ==============================================================
 #fi
 AC_DEFINE(WITH_FREI0R,1,[Define as using frei0r plugins])
 
+dnl ==============================================================
+dnl Check Cairo 2d vector graphics library for VectorLayer
+dnl ==============================================================
+PKG_CHECK_MODULES(CAIRO, cairo, have_cairo=yes, have_cairo=no)
+if test x$have_cairo = xyes; then
+   AC_DEFINE(WITH_CAIRO,1,[define if using cairo vector library])
+fi
+
+
 
 dnl ==============================================================
 dnl link with memory debugging library dmalloc
@@ -888,6 +897,7 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(SHOUT_CFLAGS)    \
     \$(SLANG_CFLAGS)    \
     \$(UNICAP_CFLAGS)   \
+    \$(CAIRO_CFLAGS)    \
     \$(XIPH_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
 
@@ -921,6 +931,7 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(UNICAP_LIBS)     \
     \$(X11_LIBS)        \
     \$(X11_LIBS)        \
+    \$(CAIRO_LIBS)	\
     \$(XIPH_LIBS)"
 AC_SUBST(FREEJ_LIBS)
 

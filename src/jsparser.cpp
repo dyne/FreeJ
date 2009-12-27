@@ -247,6 +247,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		object_proto);
 	TextLayer = layer_object;
 #endif
+
 #ifdef WITH_XGRAB
 	REGISTER_CLASS("XGrabLayer",
 		js_xgrab_class,
@@ -255,6 +256,16 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		object_proto);
 	XGrabLayer = layer_object;
 #endif	
+
+#ifdef WITH_CAIRO
+	REGISTER_CLASS("VectorLayer",
+		       vector_layer_class,
+		       vector_layer_constructor,
+		       vector_layer_methods,
+		       object_proto);
+	VectorLayer = layer_object;
+#endif		       
+
 	REGISTER_CLASS("Filter",
 		filter_class,
 		filter_constructor,

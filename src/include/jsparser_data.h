@@ -80,7 +80,9 @@ JS(movie_layer_constructor);
 #if defined WITH_TEXTLAYER
 JS(txt_layer_constructor);
 #endif
-
+#ifdef WITH_CAIRO
+JS(vector_layer_constructor);
+#endif
 
 // controller constructors
 JS(js_kbd_ctrl_constructor);
@@ -208,6 +210,12 @@ extern JSFunctionSpec unicap_layer_methods[];
 #if defined WITH_TEXTLAYER
 extern JSClass txt_layer_class;
 extern JSFunctionSpec txt_layer_methods[];
+#endif
+
+// VectorLayer
+#if defined WITH_CAIRO
+extern JSClass vector_layer_class;
+extern JSFunctionSpec vector_layer_methods[];
 #endif
 
 // MovieLayer
@@ -390,6 +398,24 @@ JS(geometry_layer_trigon_fill);
 //JS(geometry_layer_polygon_fill);
 //JS(geometry_layer_bezier);
 
+////////////////////////////////
+// Vector layer methods
+#ifdef WITH_CAIRO
+JS(vector_layer_translate);
+JS(vector_layer_scale);
+JS(vector_layer_rotate);
+JS(vector_layer_save);
+JS(vector_layer_restore);
+JS(vector_layer_lineto);
+JS(vector_layer_beginpath);
+JS(vector_layer_closepath);
+JS(vector_layer_moveto);
+JS(vector_layer_quadcurveto);
+JS(vector_layer_beziercurveto);
+JS(vector_layer_arc);
+JS(vector_layer_fill);
+JS(vector_layer_stroke);
+#endif
 
 ////////////////////////////////
 // VScroll Layer methods

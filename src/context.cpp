@@ -132,6 +132,9 @@ Context::Context() {
 #ifdef WITH_OPENCV
   Factory<Layer>::set_default_classtype("CamLayer", "opencv");
 #endif
+#ifdef WITH_CAIRO
+  Factory<Layer>::set_default_classtype("VectorLayer", "cairo");
+#endif
 
   assert( init() );
 

@@ -63,7 +63,7 @@
     
   };
  
-  addEventListener( 'DOMContentLoaded', function(){ init(); }, false );
+  //  addEventListener( 'DOMContentLoaded', function(){ init(); }, false );
  
   // Parse Processing (Java-like) syntax to JavaScript syntax with Regex
   var parse = Processing.parse = function parse( aCode, p ){

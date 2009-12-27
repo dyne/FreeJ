@@ -151,6 +151,7 @@ JS(constructor_func) {                                                        \
   char excp_msg[MAX_ERR_MSG + 1];                                             \
   layer = (constructor_class *)Factory<Layer>::new_instance( constructor_name ); \
   if(!layer) {                                                                \
+    error("cannot create %s", constructor_name);                              \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,                   \
                          JSSMSG_FJ_CANT_CREATE, __func__,                     \
                       "cannot create constructor_class");                     \
