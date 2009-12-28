@@ -39,13 +39,13 @@ case "$host_os" in
     if test x$have_ppc = xyes; then
         AC_DEFINE(ARCH_PPC,1,[define if compiling for Linux/PPC])
         AC_DEFINE(ARCH_POWERPC,1,[define if compiling for Linux/PPC])
-        # TODO(godog) what about ppc64?
+        dnl TODO(godog) what about ppc64?
         AC_DEFINE(POWERPC_MODE_32BITS,1,[define if compiling for PPC])
         AC_DEFINE(HAVE_ALTIVEC,1,[define if cpu supports Altivec instruction set])
         AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
         AC_DEFINE(WORDS_BIGENDIAN,1,[define if compiling for Big Endian CPU])
         AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
-#        AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
+dnl        AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
     fi
 
     if test x$have_x86_64 = xyes; then
@@ -56,7 +56,7 @@ case "$host_os" in
     if test x$have_x86_32 = xyes; then
         AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
         AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
-#        AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
+dnl        AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
     fi
   ;;
 
@@ -95,10 +95,10 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_SRCDIR([src/freej.cpp])
 AC_CONFIG_HEADERS([config.h])
 
-# never run autotools and configure automatically
+dnl never run autotools and configure automatically
 AM_MAINTAINER_MODE
 
-# Checks for programs.
+dnl Checks for programs.
 AC_PROG_CXX
 AC_PROG_AWK
 AC_PROG_CC
@@ -107,20 +107,16 @@ AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AM_PROG_AS
-# compatibility with older libtool
+dnl compatibility with older libtool
 m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
 
 
-# Checks for header files.
+dnl Checks for header files.
 AC_PATH_X
 AC_CHECK_HEADERS([fcntl.h inttypes.h limits.h memory.h stdint.h stdlib.h \
-	string.h strings.h sys/file.h sys/ioctl.h sys/time.h termios.h \
-	unistd.h])
+  string.h strings.h sys/file.h sys/ioctl.h sys/time.h termios.h unistd.h])
 
-# from lib/javascript
-#AC_CHECK_HEADERS([sgtty.h termio.h locale.h sys/timeb.h])
-
-# Checks for typedefs, structures, and compiler characteristics.
+dnl Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
 AC_C_INLINE
 AC_TYPE_INT16_T
@@ -133,11 +129,7 @@ AC_TYPE_UINT32_T
 AC_TYPE_UINT64_T
 AC_TYPE_UINT8_T
 
-# from lib/javascript
-#AC_CHECK_TYPES([ptrdiff_t])
-#AC_STRUCT_TIMEZONE
-
-# Checks for library functions.
+dnl Checks for library functions.
 AC_FUNC_ERROR_AT_LINE
 AC_FUNC_FORK
 AC_FUNC_MALLOC
@@ -146,11 +138,7 @@ AC_FUNC_REALLOC
 AC_CHECK_FUNCS([bzero floor gettimeofday memmove memset munmap rint select \
   setenv strcasecmp strdup strerror strncasecmp strrchr strstr])
 
-# lib/javascript
-#AC_FUNC_MKTIME
-#AC_CHECK_FUNCS([putenv getcwd localeconv ftime localtime_r])
-
-# compatibility with older libtool
+dnl compatibility with older libtool
 m4_ifdef([LT_INIT],
   [LT_INIT([disable-static dlopen])],
   [AC_LIBTOOL_DLOPEN
@@ -162,7 +150,8 @@ FREEJ_CURRENT=0
 FREEJ_REVISION=0
 FREEJ_AGE=0
 FREEJ_VERSION_INFO="$FREEJ_CURRENT:$FREEJ_REVISION:$FREEJ_AGE"
-dnl Note this is the ABI version which is not the same as our actual library version
+dnl Note this is the ABI version which is not the same as our actual
+dnl library version
 AC_SUBST(FREEJ_VERSION_INFO)
 
 
@@ -200,7 +189,7 @@ AM_CONDITIONAL([BUILD_SWIG_RUBY], [test x$enable_ruby = xyes])
 AM_CONDITIONAL([BUILD_SWIG_JAVA], [test x$enable_java = xyes])
 AM_CONDITIONAL([BUILD_SWIG_PERL], [test x$enable_perl = xyes])
 
-# swig not found but bindings requested is fatal
+dnl swig not found but bindings requested is fatal
 if test x$have_swig = xno && {
       test x$enable_python = xyes ||
       test x$enable_java = xyes   ||
@@ -220,10 +209,10 @@ fi
 dnl ==============================================================
 dnl Add the local include path and some flags
 dnl ==============================================================
-#-freg-struct-return is to compile an host compatible with freeframe dso
+dnl -freg-struct-return is to compile an host compatible with freeframe dso
 GLOBAL_CFLAGS="$GLOBAL_CFLAGS -pipe -D_REENTRANT -freg-struct-return -fPIC"
 if test x$have_darwin = xyes; then
-  # add the fink default path to find headers
+  dnl add the fink default path to find headers
   GLOBAL_CFLAGS="$GLOBAL_CFLAGS -I/sw/include"
 fi
 
@@ -250,26 +239,26 @@ dnl ==============================================================
 dnl Check for SDL
 dnl ==============================================================
 PKG_CHECK_MODULES(SDL, sdl > 1.2, :,
-	AC_MSG_ERROR([*** SDL development files not found!]))
+  AC_MSG_ERROR([*** SDL development files not found!]))
 
 
 dnl ==============================================================
 dnl Check OGG VORBIS THEORA
 dnl ==============================================================
 PKG_CHECK_MODULES(OGG, ogg >= 1.1, :,
-	AC_MSG_ERROR([*** Ogg >=1.1 development files not found!]))
+  AC_MSG_ERROR([*** Ogg >=1.1 development files not found!]))
 PKG_CHECK_MODULES(VORBIS, vorbis, :,
-	AC_MSG_ERROR([*** Vorbis development files not found!]))
+  AC_MSG_ERROR([*** Vorbis development files not found!]))
 PKG_CHECK_MODULES(VORBISENC, vorbisenc, :,
-	AC_MSG_ERROR([*** Vorbisenc development files not found!]))
+  AC_MSG_ERROR([*** Vorbisenc development files not found!]))
 PKG_CHECK_MODULES(THEORA, theora, :,
-	AC_MSG_ERROR([*** Theora development files not found!]))
+  AC_MSG_ERROR([*** Theora development files not found!]))
 XIPH_CFLAGS="$OGG_CFLAGS $VORBIS_CFLAGS $VORBISENC_CFLAGS $THEORA_CFLAGS"
 XIPH_LIBS="$OGG_LIBS $VORBIS_LIBS $VORBISENC_LIBS $THEORA_LIBS"
 AC_SUBST([XIPH_CFLAGS])
 AC_SUBST([XIPH_LIBS])
 
-# TODO(shammash): heritage from conditional build, still used somewhere.
+dnl TODO(shammash): heritage from conditional build, still used somewhere.
 AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
 
 
@@ -277,19 +266,19 @@ dnl ==============================================================
 dnl FFMPEG DYNAMIC
 dnl ==============================================================
 PKG_CHECK_MODULES(AVCODEC, libavcodec, :,
-	AC_MSG_ERROR([*** Libavcodec development files not found!]))
+  AC_MSG_ERROR([*** Libavcodec development files not found!]))
 PKG_CHECK_MODULES(AVFORMAT, libavformat, :,
-	AC_MSG_ERROR([*** Libavformat development files not found!]))
+  AC_MSG_ERROR([*** Libavformat development files not found!]))
 PKG_CHECK_MODULES(AVUTIL, libavutil, :,
-	AC_MSG_ERROR([*** Libavutil development files not found!]))
+  AC_MSG_ERROR([*** Libavutil development files not found!]))
 PKG_CHECK_MODULES(SWSCALE, libswscale, :,
-	AC_MSG_ERROR([*** Libswscale development files not found!]))
+  AC_MSG_ERROR([*** Libswscale development files not found!]))
 FFMPEG_CFLAGS="$AVCODEC_CFLAGS $AVFORMAT_CFLAGS $AVUTIL_CFLAGS $SWSCALE_CFLAGS"
 FFMPEG_LIBS="$AVCODEC_LIBS $AVFORMAT_LIBS $AVUTIL_LIBS $SWSCALE_LIBS"
 AC_SUBST([FFMPEG_CFLAGS])
 AC_SUBST([FFMPEG_LIBS])
 
-# FFmpeg changed include path policy, let's check which one is in use.
+dnl FFmpeg changed include path policy, let's check which one is in use.
 FREEJ_SAVE_FLAGS
 CPPFLAGS="$CPPFLAGS $FFMPEG_CFLAGS"
 CFLAGS="$CFLAGS $FFMPEG_CFLAGS"
@@ -298,16 +287,16 @@ AC_CHECK_HEADERS(libavformat/avformat.h ffmpeg/avformat.h)
 AC_CHECK_HEADERS(libavutil/avutil.h ffmpeg/avutil.h)
 AC_CHECK_HEADERS(libswscale/swscale.h ffmpeg/swscale.h)
 FREEJ_RESTORE_FLAGS
-# Then in sources we have to include in the following way:
-#    #ifdef HAVE_LIBAVCODEC_AVCODEC_H
-#    #   include <libavcodec/avcodec.h>
-#    #elif defined(HAVE_FFMPEG_AVCODEC_H)
-#    #   include <ffmpeg/avcodec.h>
-#    #else
-#    #   include <avcodec.h>
-#    #endif
+dnl Then in sources we have to include in the following way:
+dnl    #ifdef HAVE_LIBAVCODEC_AVCODEC_H
+dnl    #   include <libavcodec/avcodec.h>
+dnl    #elif defined(HAVE_FFMPEG_AVCODEC_H)
+dnl    #   include <ffmpeg/avcodec.h>
+dnl    #else
+dnl    #   include <avcodec.h>
+dnl    #endif
 
-# TODO(shammash): heritage from conditional build, still used somewhere.
+dnl TODO(shammash): heritage from conditional build, still used somewhere.
 AC_DEFINE(WITH_FFMPEG,1, [define if compiling movie layer linking to ffmpeg libavcodec])
 AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
 
@@ -316,14 +305,14 @@ dnl ==============================================================
 dnl LIBLO
 dnl ==============================================================
 PKG_CHECK_MODULES([LIBLO], [liblo], [:],
-	AC_MSG_ERROR([*** Liblo development files not found!]))
+  AC_MSG_ERROR([*** Liblo development files not found!]))
 
 
 dnl ==============================================================
 dnl shout lib
 dnl ==============================================================
 PKG_CHECK_MODULES([SHOUT], [shout], [:],
-	AC_MSG_ERROR([*** Libshout development files not found!]))
+  AC_MSG_ERROR([*** Libshout development files not found!]))
 
 
 dnl ==============================================================
@@ -337,7 +326,7 @@ if test x$have_freetype2 = xyes && test x$have_fontconfig = xyes; then
    have_textlayer=yes
    AC_DEFINE(WITH_TEXTLAYER,1,[define if having fontconfig and freetype])
 fi
-   
+
 
 dnl ==============================================================
 dnl Check X11 for xgrab
@@ -461,7 +450,7 @@ if test x$enable_cpuflags = xyes; then
   fi
   if test x$have_freebsd = xyes; then
      if sysctl -n hw.instruction_sse; then
-         # XXX(godog) is this MMX or SSE?
+         dnl XXX(godog) is this MMX or SSE?
          have_mmx=yes
          AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
      fi
@@ -473,7 +462,7 @@ AC_ARG_ENABLE(lubrication,
     [enable_lubrication=$enableval],
     [enable_lubrication=yes])
 
-# XXX(godog) integrate with AX_GCC_ARCHFLAG
+dnl XXX(godog) integrate with AX_GCC_ARCHFLAG
 if test x$enable_lubrication = xyes; then
   if test x$enable_profiling = xyes || test x$enable_debug = xyes; then
     AC_MSG_WARN([cannot lubricate code if debug or profiling are enabled])
@@ -481,26 +470,26 @@ if test x$enable_lubrication = xyes; then
   else
     if test x$have_darwin = xyes; then
       if test x$have_ppc = xyes; then
-        # use optimization flags for darwin
+        dnl use optimization flags for darwin
         GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mabi=altivec -maltivec -mpowerpc-gfxopt"
       else
         GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=pentium4"
       fi
-    # adding these provoke 'illegal instruction' errors in some
-    # ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
+    dnl adding these provoke 'illegal instruction' errors in some
+    dnl ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
     elif test x$have_ppc = xyes; then
       GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
     elif test x$have_x86_64 = xyes; then
-      # should complete this with all 64bit CPUs (AMD too)
+      dnl should complete this with all 64bit CPUs (AMD too)
       if test x$have_ssse3 = xyes; then
-        # multiple core cpu
+        dnl multiple core cpu
         GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=core2"
       else
-        # single core 64bit cpu
+        dnl single core 64bit cpu
         GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=nocona"
       fi
     else
-      # any other platform optimizations
+      dnl any other platform optimizations
       AC_MSG_WARN([no special optimisation flags found for your cpu])
       AC_MSG_WARN([please suggest some on our mailinglist if you know better!])
       GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
@@ -536,7 +525,7 @@ AC_ARG_ENABLE(opengl,
     [enable_opengl=no])
 
 if test x$enable_opengl = xyes; then
-   # note: checking for GLU only, this brings in also GL
+   dnl note: checking for GLU only, this brings in also GL
    PKG_CHECK_MODULES(GLU, glu,
                      :,
                      [GLU_LIBS="-lGLU -lGL"; GLU_CFLAGS=""])
@@ -553,16 +542,16 @@ PKG_CHECK_MODULES(ALSA, alsa,
     have_midi=yes,
     have_midi=no)
 
-# TODO(shammash): before this refactoring we were enabling jack
-# only if alsa was present, check inconsistencies in the code.
+dnl TODO(shammash): before this refactoring we were enabling jack
+dnl only if alsa was present, check inconsistencies in the code.
 PKG_CHECK_MODULES(JACK, jack, :,
-	AC_MSG_ERROR([*** Jack development files not found!]))
+  AC_MSG_ERROR([*** Jack development files not found!]))
 
 PKG_CHECK_MODULES(FFTW, fftw3, :,
-	AC_MSG_ERROR([*** Fftw3 development files not found!]))
+  AC_MSG_ERROR([*** Fftw3 development files not found!]))
 
 PKG_CHECK_MODULES(SAMPLERATE, samplerate, :,
-	AC_MSG_ERROR([*** Samplerate development files not found!]))
+  AC_MSG_ERROR([*** Samplerate development files not found!]))
 
 AC_DEFINE(WITH_AUDIO,1,[define if compiling audio system])
 
@@ -622,7 +611,7 @@ fi
 
 if test x$have_mozjs = xno; then
   AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-stable are ok])
-  # test if https://bugzilla.mozilla.org/show_bug.cgi?id=500645 has been closed
+  dnl test if https://bugzilla.mozilla.org/show_bug.cgi?id=500645 has been closed
   PKG_CHECK_MODULES([MOZJS_STABLE],
                     [mozilla-js >= 1.9 libxul-embedding-stable >= 1.9],
                     [have_mozjs_stable=yes], [have_mozjs_stable=no])
@@ -647,7 +636,7 @@ if test x$have_mozjs = xno; then
 fi
 
 if test x$have_mozjs = xno; then
-  # test if adding unstable is enough
+  dnl test if adding unstable is enough
   AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-unstable are ok])
   PKG_CHECK_MODULES([MOZJS_UNSTABLE],
                     [mozilla-js >= 1.9 libxul-embedding-unstable >= 1.9],
@@ -682,7 +671,7 @@ AC_ARG_ENABLE(static-mozjs,
 if test x$have_mozjs = xno || test x$static_mozjs = xyes; then
   AC_MSG_NOTICE([fallback to static mozjs])
   MOZJS_CFLAGS="-I\$(top_srcdir)/lib/javascript -I\$(top_builddir)/lib/javascript"
-  # libs in top_srcdir instead of top_builddir because js is not under autotools
+  dnl libs in top_srcdir instead of top_builddir because js is not under autotools
   MOZJS_LIBS="\$(top_builddir)/lib/javascript/libmozjs.a"
   AC_MSG_NOTICE([Using freej version of MOZJS])
 
@@ -795,7 +784,9 @@ AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
 dnl ==============================================================
 dnl SDL_image
 dnl ==============================================================
-PKG_CHECK_MODULES([SDLIMAGE], [SDL_image], [have_sdlimage=yes], [have_sdlimage=no])
+PKG_CHECK_MODULES([SDLIMAGE], [SDL_image],
+                  [have_sdlimage=yes],
+                  [have_sdlimage=no])
 if test x$have_sdlimage = xno; then
    SDLIMAGE_CFLAGS="$SDL_CFLAGS"
    SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image -ljpeg"
@@ -828,7 +819,7 @@ AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlgfx = xno])
 dnl ==============================================================
 dnl frei0r plugins
 dnl ==============================================================
-# 
+#
 # frei0r should be supported in any case:
 # plugins will be detected runtime
 # frei0r.h header is redistributed (see LiViDO/frei0r spec.)
@@ -871,10 +862,10 @@ if test x$with_dmalloc = xyes; then
 fi
 
 AC_PROG_PERL_MODULES([HTML::Template],
-		 AM_CONDITIONAL(BUILD_JSAPIDOC, true),
-		 AM_CONDITIONAL(BUILD_JSAPIDOC, false))
+  AM_CONDITIONAL(BUILD_JSAPIDOC, true),
+  AM_CONDITIONAL(BUILD_JSAPIDOC, false))
 
-# select CCVT CONVERSION TYPE
+dnl select CCVT CONVERSION TYPE
 CCVT_CONV="ccvt_c2.c"
 AC_SUBST(CCVT_CONV)
 
@@ -948,8 +939,7 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(SLANG_LIBS)      \
     \$(UNICAP_LIBS)     \
     \$(X11_LIBS)        \
-    \$(X11_LIBS)        \
-    \$(CAIRO_LIBS)	\
+    \$(CAIRO_LIBS)      \
     \$(XIPH_LIBS)"
 AC_SUBST(FREEJ_LIBS)
 
@@ -963,7 +953,7 @@ AC_SUBST(PACKAGE_LIB_DIR)
 PACKAGE_DATA_DIR='${prefix}/share/freej'
 AC_SUBST(PACKAGE_DATA_DIR)
 
-# alphabetic order on dir/subdir, but Makefile sorts before everything
+dnl alphabetic order on dir/subdir, but Makefile sorts before everything
 AC_CONFIG_FILES([
 Makefile
 freej.pc
@@ -990,8 +980,8 @@ tests/Makefile
 ])
 AC_OUTPUT
 
-# function to print verbose configure options only if V=1 is passed to
-# configure
+dnl function to print verbose configure options only if V=1 is passed to
+dnl configure
 AC_DEFUN([VRB],
          AS_IF([test x"$V" == x1], INFO([$1])))
 
@@ -1015,7 +1005,7 @@ echo
 INFO([Compile $PACKAGE $VERSION for ${host}])
 echo "configuration summary, pass V=1 to configure for verbose output"
 
-# mandatory libs, outputted only if verbose
+dnl mandatory libs, outputted only if verbose
 VRB([= SDL])
 VRB([  LIBS   : $SDL_LIBS])
 VRB([  CFLAGS : $SDL_CFLAGS])
@@ -1048,7 +1038,7 @@ VRB([= Shout library])
 VRB([  LIBS  : $SHOUT_LIBS])
 VRB([  CFLAGS: $SHOUT_CFLAGS])
 
-#### bindings
+dnl #### bindings
 
 enabled_bindings=""
 disabled_bindings=""
@@ -1093,7 +1083,7 @@ INFO([= Enabled language bindings  : $enabled_bindings])
 INFO([= Disabled language bindings : $disabled_bindings])
 
 
-#### shipped libraries, can be static or dynamic
+dnl #### shipped libraries, can be static or dynamic
 
 if test x$have_mozjs = xyes; then
 INFO([= javascript interpreter (dynamic)])
@@ -1128,7 +1118,7 @@ VRB([  LIBS  : $SDLIMAGE_LIBS])
 VRB([  CFLAGS: $SDLIMAGE_CFLAGS])
 
 
-#### optional stuff
+dnl #### optional stuff
 INFO_N([= AAlib  : ])
 if test x$have_aa = xyes; then
    INFO(yes)
@@ -1156,7 +1146,7 @@ else
 fi
 
 
-#### layers
+dnl #### layers
 
 INFO_N([= text layer : ])
 if test x$have_textlayer = xyes; then
@@ -1174,7 +1164,6 @@ fi
 INFO_N([= xgrab layer : ])
 if test x$have_xgrab = xyes; then
    INFO(yes)
-#echo "  LIBS  : $X11_LIBS"
 else
    INFO(no)
 fi
@@ -1202,7 +1191,7 @@ else
 fi
 
 
-#### controllers
+dnl #### controllers
 
 INFO_N([= ALSA / MidiController : ])
 if test x$have_midi = xyes; then
@@ -1223,7 +1212,7 @@ else
 fi
 
 
-#### misc stuff
+dnl #### misc stuff
 
 INFO_N([= Building binary with support for machine specific advanced instructions : ])
 if test x$enable_cpuflags = xyes; then
