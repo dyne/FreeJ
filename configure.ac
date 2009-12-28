@@ -672,7 +672,9 @@ if test x$have_mozjs = xno; then
   fi
 fi
 
-dnl XXX this is temporary and for testing only
+dnl this flag is supposed to be for users having problem with xulrunner
+dnl installed on the system and want to force a static linking with our shipped
+dnl xulrunner
 AC_ARG_ENABLE(static-mozjs,
     AS_HELP_STRING([--enable-static-mozjs],[force use of shipped mozjs]),
     [static_mozjs=$enableval],
