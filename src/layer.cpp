@@ -376,19 +376,18 @@ void Layer::_fit(bool maintain_aspect_ratio){
     //to maintain the aspect ratio we simply zoom to the smaller of the
     //two zoom values
     if(width_zoom > height_zoom) {
-      //if we're using the height zoom then there is going to be space
-      //in x [width] that is unfilled, so center it in the x
-      _set_zoom(height_zoom, height_zoom);
-      new_x = ((double)(screen->geo.w - height_zoom * geo.w) / 2.0);
+      width_zoom = height_zoom;
     } else {
-      //if we're using the width zoom then there is going to be space
-      //in y [height] that is unfilled, so center it in the y
-      _set_zoom(width_zoom, width_zoom);
-      new_y = ((double)(screen->geo.h - width_zoom * geo.h) / 2.0);
+      height_zoom = width_zoom;
     }
-  } else {
-    _set_zoom(width_zoom, height_zoom);
   }
+  _set_zoom(width_zoom, height_zoom);
+  // reposition layer upper corner
+  new_x = ((double)(width_zoom * geo.w - geo.w) / 2.0);
+  new_y = ((double)(height_zoom * geo.h - geo.h) / 2.0);
+  // center layer
+  new_x += ((double)(screen->geo.w - width_zoom * geo.w) / 2.0);
+  new_y += ((double)(screen->geo.h - height_zoom * geo.h) / 2.0);
   _set_position(new_x, new_y);
 }
 
