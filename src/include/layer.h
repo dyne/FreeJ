@@ -206,7 +206,6 @@ class Layer: public Entry, public JSyncThread {
 
   /** physical buffers */
   void *buffer; ///< RGBA pixel buffer returned by the layer
-  void *offset; ///< pointer to pixel plane
 
 
   JSClass *jsclass; ///< pointer to the javascript class

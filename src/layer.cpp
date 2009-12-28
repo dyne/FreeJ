@@ -51,7 +51,6 @@ Layer::Layer()
   set_name("???");
   filename[0] = 0;
   buffer = NULL;
-  offset = NULL;
   screen = NULL;
   is_native_sdl_surface = false;
   jsclass = &layer_class;
@@ -216,7 +215,6 @@ void Layer::blit() {
     null_feeds = 0;
 
     lock();
-    //    offset = buffer;
     screen->blit(this);
     unlock();
   }
