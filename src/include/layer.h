@@ -61,7 +61,7 @@ class JSObject;
    - Layer::init
    - Layer::open
    - Layer::close
-   
+
    Miscellaneus operations made available for the Layer:
    - Layer::set_position
    - Layer::set_zoom
@@ -81,7 +81,7 @@ class JSObject;
 
    Geometrical informations about the layer:
    - Layer::geo
-   
+
    @brief Layer parent abstract class
 */
 class Layer: public Entry, public JSyncThread {
@@ -93,11 +93,11 @@ class Layer: public Entry, public JSyncThread {
  public:
 
   enum Type {
-	  UNKNOWN,
-	  TEXT,
-	  GENERATOR,
+    UNKNOWN,
+    TEXT,
+    GENERATOR,
 #if defined HAVE_DARWIN && defined WITH_COCOA
-	  GL_COCOA
+    GL_COCOA
 #endif
   };
 
@@ -160,7 +160,7 @@ class Layer: public Entry, public JSyncThread {
   double zoom_x;
   double zoom_y;
   double rotate;
-  
+
   void fit(bool maintain_aspect_ratio = true);
 
 
@@ -179,7 +179,7 @@ class Layer: public Entry, public JSyncThread {
   Linklist<Iterator> iterators;
   ///< Iterator list of value modifiers
   int do_iterators(); ///< process all registered iterators
-  
+
 
   bool active; // is active? (read-only)
   bool hidden; // is hidden (read-only by the blit)
@@ -212,7 +212,7 @@ class Layer: public Entry, public JSyncThread {
   JSObject *jsobj; ///< pointer to the javascript instantiated object
 
   void *js_constructor(Context *env, JSContext *cx,
-		       JSObject *obj, int argc, void *aargv, char *err_msg);
+                       JSObject *obj, int argc, void *aargv, char *err_msg);
   ///< javascript layer constructor
   //  void layer_gc(JSContext *cx, JSObject *obj);
 
