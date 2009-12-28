@@ -204,11 +204,12 @@ void TextLayer::_display_text(SDL_Surface *newsurf) {
 
   geo.init( newsurf->w, newsurf->h, 32);
 
+  // we're going to free the memory pointed by Layer::buffer,
+  // NULLify first..
+  buffer = NULL;
+
   if (surf) SDL_FreeSurface(surf);
   surf = newsurf;
-
-  if(buffer) free(buffer);
-  buffer = malloc(geo.bytesize);
 
 }
 
