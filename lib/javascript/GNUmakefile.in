@@ -3,7 +3,7 @@
 # However only this file (GNUmakefile.in) and .js-distfiles (a list of files to
 # include in distribution of lib/javascript) are needed and can be dropped in
 # whenever a new version of spidermonkey is put into lib/javascript, with some
-# luck it won't break too badly.
+# luck it won't break too badly. See distfiles target in this file.
 
 # standard autoconf substitutions
 VPATH = @srcdir@
@@ -51,15 +51,19 @@ distdir:
 			$(INSTALL) -D $(srcdir)/$$f $(distdir)/$$f 2>/dev/null; \
 	done
 
-# this probably can break if spidermonkey generates new files which won't be
-# cleaned up by its own distclean afterwards: make distcheck will signal the
-# situation and the list of files to be removed should be updated
+# distclean probably can break if spidermonkey generates new files which won't
+# be cleaned up by its own distclean afterwards: make distcheck will signal the
+# situation and the list of files to be removed below should be updated
+
+# note: errors are not fatal here because javascript is configured only when
+# not found on the system and/or --enable-static-mozjs is specified but make
+# will always recurse into this directory
 distclean:
-	$(MAKE) -f $(js_makefile) $(AM_MAKEFLAGS) distclean
-	rm -f config.status config.log config.cache Makefile
-	rm -f js-config js-config.h mozilla-config.h unallmakefiles
-	rm -rf dist/
-	rm -f config/myconfig.mk config/myrules.mk config/Makefile \
+	-$(MAKE) -f $(js_makefile) $(AM_MAKEFLAGS) distclean
+	-rm -f config.status config.log config.cache Makefile
+	-rm -f js-config js-config.h mozilla-config.h unallmakefiles
+	-rm -rf dist/
+	-rm -f config/myconfig.mk config/myrules.mk config/Makefile \
 		config/mkdepend/Makefile config/autoconf.mk
 
 # this target is used to build a list of files to copy into $distdir,
