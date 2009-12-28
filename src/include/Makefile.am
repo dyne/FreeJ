@@ -17,6 +17,6 @@ noinst_HEADERS = asm-linkage.h audio_collector.h audio_input.h audio_jack.h \
 	trigger_ctrl.h tvfreq.h unicap_layer.h v4l_layer.h video_encoder.h \
 	video_layer.h vimo_ctrl.h vroot.h wiimote_ctrl.h xgrab_layer.h xscreensaver_layer.h \
 	yuv_screeen.h opencv_cam_layer.h exceptions.h logging.h aa_screen.h factory.h \
-	sdl_controller.h audio_layer.h slang_console_ctrl.h
+	sdl_controller.h audio_layer.h slang_console_ctrl.h cairo_layer.h
 
 EXTRA_DIST = jsfreej.msg
