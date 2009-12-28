@@ -115,7 +115,7 @@ void GlScreen::blit(Layer *layer) {
   //glColor3f (0., 0., 0.);
   //glRasterPos2i (0,0);
   layer->lock();
-  glDrawPixels (layer->geo.w, layer->geo.h, GL_BGRA, GL_UNSIGNED_BYTE, layer->offset);
+  glDrawPixels (layer->geo.w, layer->geo.h, GL_BGRA, GL_UNSIGNED_BYTE, layer->buffer);
   layer->unlock();
 }
 
