@@ -2,16 +2,16 @@ dnl ==============================================================
 dnl Process this file with autoconf to produce a configure script.
 dnl ==============================================================
 
-dnl backwards compatibility for autoconf >= 2.64
-dnl PACKAGE_URL should be the fifth argument of AC_INIT
-m4_define([AC_PACKAGE_URL], [http://freej.dyne.org])
-AC_DEFINE(PACKAGE_URL, AC_PACKAGE_URL)
-AC_SUBST(PACKAGE_URL, AC_PACKAGE_URL)
-
 AC_INIT([FreeJ],[0.11.0],[freej@lists.dyne.org],[freej])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
+
+dnl backwards compatibility for autoconf >= 2.64
+dnl PACKAGE_URL should be the fifth argument of AC_INIT
+m4_define([AC_PACKAGE_URL], [http://freej.dyne.org])
+AC_DEFINE(PACKAGE_URL, "AC_PACKAGE_URL", [Package URL])
+AC_SUBST(PACKAGE_URL, AC_PACKAGE_URL)
 
 dnl ==============================================================
 dnl Get the operating system and version number...
