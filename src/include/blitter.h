@@ -23,7 +23,7 @@
 #define __BLITTER_H__
 
 #include <SDL.h>
-#include <freej.h>
+#include <geometry.h>
 
 #include <screen.h>
 #include <linklist.h>

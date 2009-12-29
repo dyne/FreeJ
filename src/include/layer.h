@@ -26,7 +26,7 @@
 #define __LAYER_H__
 
 #include <inttypes.h>
-#include <freej.h>
+#include <geometry.h>
 #include <filter.h>
 #include <screen.h>
 #include <jsync.h>

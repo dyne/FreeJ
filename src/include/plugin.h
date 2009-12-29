@@ -19,7 +19,7 @@
 #ifndef __DSO_PLUGIN_H__
 #define __DSO_PLUGIN_H__
 
-#include <freej.h>
+#include <geometry.h>
 #include <linklist.h>
 #include <jutils.h>
 

@@ -16,12 +16,26 @@
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
-/**
-   @file freej.h
-   @brief FreeJ public header
-*/
+#include <geometry.h>
 
-#ifndef __FREEJ_H__
-#define __FREEJ_H__
+Geometry::Geometry() {
+  x = 0;
+  y = 0;
+  w = 0;
+  h = 0;
+  bpp = 0;
+  pixelsize = 0;
+  bytesize = 0;
+  bytewidth = 0;
+}
 
-#endif
+Geometry::~Geometry() {
+}
+
+void Geometry::init(int nw, int nh, int nbpp) {
+  w = nw; h = nh; bpp = nbpp;
+  pixelsize = w * h;
+  bytesize  = w * h * (bpp / 8);
+  bytewidth = w * (bpp / 8);
+}
+
