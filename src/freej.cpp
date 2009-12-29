@@ -294,8 +294,8 @@ int main (int argc, char **argv) {
   set_debug(debug_level);
 
   // create SDL screen by default at selected size
-  screen = Factory<ViewPort>::new_instance( "Screen", screen_name );
-
+  screen = Factory<ViewPort>::get_instance( "Screen", screen_name );
+  //  screen = new SdlScreen();
   if(!screen) {
     error("no screen can be opened");
     delete freej;
