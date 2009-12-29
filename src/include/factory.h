@@ -232,9 +232,9 @@ class Factory
             }
             instantiators_map->insert(FInstantiatorPair(tag, func));
             // check if we already have a default_map
-            if (!defaults_map) {
+            if (!defaults_map)
                 defaults_map = new FDefaultClassesMap();
-            }
+
             FTagMap::iterator pair = defaults_map->find(category);
             if (pair != defaults_map->end())
                 set_default_classtype(category, id);
