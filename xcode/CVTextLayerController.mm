@@ -37,7 +37,7 @@
     if (needsNewFrame) {
         if (currentFrame)
             CVPixelBufferRelease(currentFrame);
-        NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:
+            NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:
                            [NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, 
                            [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, 
                            [NSNumber numberWithBool:YES], kCVPixelBufferOpenGLCompatibilityKey,
@@ -46,11 +46,7 @@
         // create pixel buffer
         CVPixelBufferCreate(kCFAllocatorDefault, ctx->screen->geo.w, ctx->screen->geo.h, k32ARGBPixelFormat, (CFDictionaryRef)d, &currentFrame);
 
-        NSMutableDictionary *stanStringAttrib = [[NSMutableDictionary dictionary] retain];
-        if (layerView) {
-            [stanStringAttrib setObject:[(CVTextLayerView *)layerView font] forKey:NSFontAttributeName];
-            [stanStringAttrib setObject:[(CVTextLayerView *)layerView textColor] forKey:NSForegroundColorAttributeName];
-            [stanStringAttrib setObject:[(CVTextLayerView *)layerView backgroundColor] forKey:NSBackgroundColorAttributeName];
+        if (stanStringAttrib) {
             [theString initWithString:text withAttributes:stanStringAttrib];
 
         } else {
@@ -76,11 +72,12 @@
     return 0;
 }
 
-- (IBAction)setText:(NSString *)theText
+- (IBAction)setText:(NSString *)theText withAttributes:(NSDictionary *)attributes
 {
     if (!layer)
         [self start];
     text = theText;
+    stanStringAttrib = attributes;
     //NSLog(@"%@\n",theText);
     needsNewFrame = YES;
 }

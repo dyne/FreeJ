@@ -11,25 +11,54 @@
 
 @implementation CVTextLayerView
 
+- (id)init {
+    attributes = [[NSMutableDictionary dictionary] retain];
+    [attributes
+     setObject:[textView font]
+     forKey:NSFontAttributeName
+    ];
+    [attributes
+     setObject:[textView textColor]
+     forKey:NSForegroundColorAttributeName
+    ];
+    [attributes
+     setObject:[textView backgroundColor]
+     forKey:NSBackgroundColorAttributeName
+    ];
+    return [super init];
+}
+
+- (void)changeDocumentBackgroundColor:(id)sender
+{
+    [attributes setObject:[sender color] forKey:NSBackgroundColorAttributeName];
+}
+
+- (void)changeAttributes:(id)sender
+{
+    NSDictionary *oldAttributes = attributes;
+    attributes = (NSMutableDictionary *)[sender convertAttributes: oldAttributes];
+}
+
+- (void)changeFont:(id)sender {
+    NSFont *oldFont = [attributes objectForKey:NSFontAttributeName];
+    NSFont *newFont = [sender convertFont:oldFont];
+    [attributes setObject:newFont forKey:NSFontAttributeName];
+
+}
+
+- (IBAction)showFontMenu:(id)sender {
+    NSFontManager *fontManager = [NSFontManager sharedFontManager];
+    [fontManager setDelegate:self];
+    [fontManager setTarget:self];
+    NSFontPanel *fontPanel = [fontManager fontPanel:YES];
+    [fontPanel setNextResponder:self];
+    [fontPanel orderFront:self];
+}
+
 - (IBAction)startText:(id)sender
 {
     NSString *text = [textView string];
-    [(CVTextLayerController *)layerController setText:text];
-}
-
-- (NSFont *)font
-{
-    return [textView font];
-}
-
-- (NSColor *)textColor
-{
-    return [textView textColor];
-}
-
-- (NSColor *)backgroundColor
-{
-    return [textView backgroundColor];
+    [(CVTextLayerController *)layerController setText:text withAttributes:attributes];
 }
 
 @end

@@ -25,6 +25,7 @@
     GLString *theString;
     NSString *text;
     bool needsNewFrame;
+    NSDictionary *stanStringAttrib;
 }
-- (IBAction)setText:(NSString *)theText;
+- (IBAction)setText:(NSString *)theText withAttributes:(NSDictionary *)attributes;
 @end
