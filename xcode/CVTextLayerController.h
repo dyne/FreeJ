@@ -19,15 +19,7 @@
 
 #import <CVLayer.h>
 #import <GLString.h>
-
-@interface CVTextLayerView : CVLayerView {
-    IBOutlet NSTextView *textView;
-}
-
-- (IBAction)startText:(id)sender;
-
-
-@end
+#import <CVTextLayerView.h>
 
 @interface CVTextLayerController : CVLayerController {
     GLString *theString;

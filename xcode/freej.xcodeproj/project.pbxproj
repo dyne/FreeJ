@@ -19,7 +19,7 @@
 		AA3B0DA3104B131100A27B2E /* generator_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0DA2104B131100A27B2E /* generator_layer.cpp */; };
 		AA5844880FE114970059D860 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5844870FE114970059D860 /* Carbon.framework */; };
 		AA5846530FE1626E0059D860 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = AA5846520FE1626E0059D860 /* GLString.m */; };
-		AA5846560FE162C60059D860 /* CVTextLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA5846550FE162C60059D860 /* CVTextLayer.mm */; };
+		AA5846560FE162C60059D860 /* CVTextLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA5846550FE162C60059D860 /* CVTextLayerController.mm */; };
 		AA63CF8E102DAED400FDA024 /* QTExporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA63CF8D102DAED400FDA024 /* QTExporter.mm */; };
 		AA71AE030FE58838002FFD23 /* CVInternalLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */; };
 		AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04B80F4ED02700723DAC /* OpenGL.framework */; };
@@ -134,6 +134,7 @@
 		AAB270980F406ACE0068E5F5 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270970F406ACE0068E5F5 /* CoreVideo.framework */; };
 		AAB47C6910E8C19000B0E8D2 /* generator_layer_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAB47C6810E8C19000B0E8D2 /* generator_layer_js.cpp */; };
 		AAB47C8A10EAA15F00B0E8D2 /* geometry.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAB47C8910EAA15F00B0E8D2 /* geometry.cpp */; };
+		AAB47CA010EB44AF00B0E8D2 /* CVTextLayerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAB47C9F10EB44AF00B0E8D2 /* CVTextLayerView.mm */; };
 		AAC0A358105AF6AC003E11CC /* logging.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAC0A357105AF6AC003E11CC /* logging.cpp */; };
 		AAC9DB37103D2C7F00A0111E /* PreferencesPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */; };
 		AACBE4830F641605001B610F /* FrameRate.m in Sources */ = {isa = PBXBuildFile; fileRef = AACBE4820F641605001B610F /* FrameRate.m */; };
@@ -326,8 +327,8 @@
 		AA5844870FE114970059D860 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		AA5846510FE1626E0059D860 /* GLString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLString.h; sourceTree = "<group>"; };
 		AA5846520FE1626E0059D860 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
-		AA5846540FE162C60059D860 /* CVTextLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVTextLayer.h; sourceTree = "<group>"; };
-		AA5846550FE162C60059D860 /* CVTextLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVTextLayer.mm; sourceTree = "<group>"; };
+		AA5846540FE162C60059D860 /* CVTextLayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVTextLayerController.h; sourceTree = "<group>"; };
+		AA5846550FE162C60059D860 /* CVTextLayerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVTextLayerController.mm; sourceTree = "<group>"; };
 		AA63CF8C102DAED400FDA024 /* QTExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTExporter.h; sourceTree = "<group>"; };
 		AA63CF8D102DAED400FDA024 /* QTExporter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTExporter.mm; sourceTree = "<group>"; };
 		AA71AE010FE58838002FFD23 /* CVInternalLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVInternalLayer.h; sourceTree = "<group>"; };
@@ -399,6 +400,8 @@
 		AAB47C6810E8C19000B0E8D2 /* generator_layer_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = generator_layer_js.cpp; sourceTree = "<group>"; };
 		AAB47C8910EAA15F00B0E8D2 /* geometry.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = geometry.cpp; sourceTree = "<group>"; };
 		AAB47C8B10EAA18800B0E8D2 /* geometry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geometry.h; path = include/geometry.h; sourceTree = "<group>"; };
+		AAB47C9E10EB44AF00B0E8D2 /* CVTextLayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVTextLayerView.h; sourceTree = "<group>"; };
+		AAB47C9F10EB44AF00B0E8D2 /* CVTextLayerView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVTextLayerView.mm; sourceTree = "<group>"; };
 		AAB843AA0F3EEEAF00AD479D /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		AAB844300F3EFA9500AD479D /* libSDLmain.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDLmain.a; path = /opt/local/lib/libSDLmain.a; sourceTree = "<absolute>"; };
 		AAB844470F3EFB3400AD479D /* ccvt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccvt.h; sourceTree = "<group>"; };
@@ -522,8 +525,8 @@
 				AA0E39810FBECC1E00123D3F /* CVPreview.mm */,
 				AA0E3E740FBF3C0100123D3F /* CVTexture.h */,
 				AA0E3E750FBF3C0100123D3F /* CVTexture.m */,
-				AA5846540FE162C60059D860 /* CVTextLayer.h */,
-				AA5846550FE162C60059D860 /* CVTextLayer.mm */,
+				AA5846540FE162C60059D860 /* CVTextLayerController.h */,
+				AA5846550FE162C60059D860 /* CVTextLayerController.mm */,
 				AA5846510FE1626E0059D860 /* GLString.h */,
 				AA5846520FE1626E0059D860 /* GLString.m */,
 				AA71AE010FE58838002FFD23 /* CVInternalLayer.h */,
@@ -534,6 +537,8 @@
 				AA134ABF1047B6D500BA39EB /* CKbdController.mm */,
 				AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */,
 				AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */,
+				AAB47C9E10EB44AF00B0E8D2 /* CVTextLayerView.h */,
+				AAB47C9F10EB44AF00B0E8D2 /* CVTextLayerView.mm */,
 			);
 			name = Cocoa;
 			sourceTree = "<group>";
@@ -1062,7 +1067,7 @@
 				AA9145080F4A1590001426A5 /* CVFileInputController.mm in Sources */,
 				AA819B80104E4C7B00FD1991 /* CVGrabberView.mm in Sources */,
 				AAB26D2E0F4051F60068E5F5 /* CVGrabber.mm in Sources */,
-				AA5846560FE162C60059D860 /* CVTextLayer.mm in Sources */,
+				AA5846560FE162C60059D860 /* CVTextLayerController.mm in Sources */,
 				AA3B0B0A104A6DAC00A27B2E /* CVLayerView.mm in Sources */,
 				AA819B26104CFC0500FD1991 /* CVLayerController.mm in Sources */,
 				AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */,
@@ -1081,6 +1086,7 @@
 				AAC0A358105AF6AC003E11CC /* logging.cpp in Sources */,
 				AAB47C6910E8C19000B0E8D2 /* generator_layer_js.cpp in Sources */,
 				AAB47C8A10EAA15F00B0E8D2 /* geometry.cpp in Sources */,
+				AAB47CA010EB44AF00B0E8D2 /* CVTextLayerView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

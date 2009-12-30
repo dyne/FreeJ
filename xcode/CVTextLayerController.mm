@@ -17,32 +17,7 @@
  *
  */
 
-#import <CVTextLayer.h>
-
-@implementation CVTextLayerView
-
-- (IBAction)startText:(id)sender
-{
-    NSString *text = [textView string];
-    [(CVTextLayerController *)layerController setText:text];
-}
-
-- (NSFont *)font
-{
-    return [textView font];
-}
-
-- (NSColor *)textColor
-{
-    return [textView textColor];
-}
-
-- (NSColor *)backgroundColor
-{
-    return [textView backgroundColor];
-}
-
-@end
+#import <CVTextLayerController.h>
 
 @implementation CVTextLayerController
 
