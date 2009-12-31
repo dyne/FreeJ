@@ -661,6 +661,32 @@ if test x$have_mozjs = xno; then
   fi
 fi
 
+if test x$have_mozjs = xyes; then
+  AC_MSG_CHECKING([if libmozjs is in linker search path])
+
+  FREEJ_SAVE_FLAGS
+  CFLAGS="$MOZJS_CFLAGS"
+  CPPFLAGS="$MOZJS_CFLAGS"
+  dnl strip -L<arg> from MOZJS_LIBS
+  LDFLAGS=`echo $MOZJS_LIBS | sed 's/-L \?[^ ]*//g'`
+  AC_RUN_IFELSE([
+#include <jsapi.h>
+int main() {
+ JSRuntime *jsr = JS_NewRuntime(8L * 1024L * 1024L);
+return 0;
+}],
+  [have_mozjs_linkable=yes], [have_mozjs_linkable=no],
+  [have_mozjs_linkable=no]) dnl action if cross-compiling
+  FREEJ_RESTORE_FLAGS
+
+  if test x$have_mozjs_linkable = xno; then
+    AC_MSG_RESULT([no, compiling static version])
+    have_mozjs=no
+  else
+    AC_MSG_RESULT([yes])
+  fi
+fi
+
 dnl this flag is supposed to be for users having problem with xulrunner
 dnl installed on the system and want to force a static linking with our shipped
 dnl xulrunner
@@ -673,7 +699,6 @@ if test x$have_mozjs = xno || test x$static_mozjs = xyes; then
   MOZJS_CFLAGS="-I\$(top_srcdir)/lib/javascript -I\$(top_builddir)/lib/javascript"
   dnl libs in top_srcdir instead of top_builddir because js is not under autotools
   MOZJS_LIBS="\$(top_builddir)/lib/javascript/libmozjs.a"
-  AC_MSG_NOTICE([Using freej version of MOZJS])
 
   dnl run lib/javascript/configure after freej's configure, building it static
   dnl XXX config.cache can be shared between the two configures? is it safe?
