@@ -95,21 +95,17 @@
 #pragma mark Initializers
 
 // designated initializer
-- (id) initWithAttributedString:(NSAttributedString *)attributedString withTextColor:(NSColor *)text withBoxColor:(NSColor *)box withBorderColor:(NSColor *)border
+- (id) initWithAttributedString:(NSAttributedString *)attributedString
 {
 	[super init];
 	cgl_ctx = NULL;
 	texName = 0;
 	texSize.width = 0.0f;
 	texSize.height = 0.0f;
-	[attributedString retain];
-	string = attributedString;
-	[text retain];
-	[box retain];
-	[border retain];
-	textColor = text;
-	boxColor = box;
-	borderColor = border;
+    if (string)
+        [string release];
+	string = [attributedString retain];
+
 	staticFrame = NO;
 	antialias = YES;
 	marginSize.width = 4.0f; // standard margins
@@ -120,20 +116,28 @@
 	return self;
 }
 
-- (id) initWithString:(NSString *)aString withAttributes:(NSDictionary *)attribs withTextColor:(NSColor *)text withBoxColor:(NSColor *)box withBorderColor:(NSColor *)border
+- (id) initWithString:(NSString *)aString withFont:font withTextColor:(NSColor *)text BoxColor:(NSColor *)box BorderColor:(NSColor *)border
 {
-	return [self initWithAttributedString:[[[NSAttributedString alloc] initWithString:aString attributes:attribs] autorelease] withTextColor:text withBoxColor:box withBorderColor:border];
-}
-
-// basic methods that pick up defaults
-- (id) initWithAttributedString:(NSAttributedString *)attributedString;
-{
-	return [self initWithAttributedString:attributedString withTextColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:1.0f] withBoxColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:0.0f] withBorderColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:0.0f]];
+    NSMutableDictionary *attribs = [NSMutableDictionary dictionary];
+    [attribs
+     setObject:font
+     forKey:NSFontAttributeName
+     ];
+    [attribs
+     setObject:text
+     forKey:NSForegroundColorAttributeName
+     ];
+    [attribs
+     setObject:box
+     forKey:NSBackgroundColorAttributeName
+    ];
+    // XXX - how to use bordercolor now? 
+	return [self initWithAttributedString:[[[NSAttributedString alloc] initWithString:aString attributes:attribs] autorelease]];
 }
 
 - (id) initWithString:(NSString *)aString withAttributes:(NSDictionary *)attribs
 {
-	return [self initWithAttributedString:[[[NSAttributedString alloc] initWithString:aString attributes:attribs] autorelease] withTextColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:1.0f] withBoxColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:0.0f] withBorderColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:0.0f]];
+	return [self initWithAttributedString:[[[NSAttributedString alloc] initWithString:aString attributes:attribs] autorelease]];
 }
 
 - (void) genImage
@@ -152,7 +156,6 @@
 	
 	[image lockFocus];
 	[[NSGraphicsContext currentContext] setShouldAntialias:antialias];
-	
 	if ([boxColor alphaComponent]) { // this should be == 0.0f but need to make sure
 		[boxColor set]; 
 		NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:NSInsetRect(NSMakeRect (0.0f, 0.0f, frameSize.width, frameSize.height) , 0.5, 0.5)
@@ -172,67 +175,6 @@
 	[string drawAtPoint:NSMakePoint (marginSize.width, marginSize.height)]; // draw at offset position
 	bitmap = [[NSBitmapImageRep alloc] initWithFocusedViewRect:NSMakeRect (0.0f, 0.0f, frameSize.width, frameSize.height)];
 	[image unlockFocus];
-}
-
-- (void) genTexture; // generates the texture without drawing texture to current context
-{
-	NSSize previousSize = texSize;
-    
-    [self genImage];
-	texSize.width = [bitmap pixelsWide];
-	texSize.height = [bitmap pixelsHigh];
-	
-	if (cgl_ctx = CGLGetCurrentContext ()) { // if we successfully retrieve a current context (required)
-		glPushAttrib(GL_TEXTURE_BIT);
-		if (0 == texName) glGenTextures (1, &texName);
-		glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
-		if (NSEqualSizes(previousSize, texSize)) {
-			glTexSubImage2D(GL_TEXTURE_RECTANGLE_EXT,0,0,0,texSize.width,texSize.height,[bitmap hasAlpha] ? GL_RGBA : GL_RGB,GL_UNSIGNED_BYTE,[bitmap bitmapData]);
-		} else {
-			glTexParameteri(GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_RECTANGLE_EXT, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexImage2D(GL_TEXTURE_RECTANGLE_EXT, 0, GL_RGBA, texSize.width, texSize.height, 0, [bitmap hasAlpha] ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE, [bitmap bitmapData]);
-		}
-		glPopAttrib();
-	} else
-		NSLog (@"StringTexture -genTexture: Failure to get current OpenGL context\n");
-	
-	requiresUpdate = NO;
-}
-
-// generates the texture (requires a current opengl context)
-- (CVPixelBufferRef) drawOnBuffer:(CVPixelBufferRef)pixelBuffer
-{
- 
-    [self genImage];
-
-    int pxWidth = CVPixelBufferGetWidth(pixelBuffer);
-    int pxHeight = CVPixelBufferGetHeight(pixelBuffer);
-    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    void *rasterData = CVPixelBufferGetBaseAddress(pixelBuffer);
-    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
-    
-    // context to draw in, set to pixel buffer's address
-    size_t bitsPerComponent = 8; // *not* CGImageGetBitsPerComponent(image);
-    CGColorSpaceRef cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-    CGContextRef ctxt = CGBitmapContextCreate(rasterData, pxWidth, pxHeight, bitsPerComponent, bytesPerRow, cs, kCGImageAlphaNoneSkipFirst);
-    if(ctxt == NULL){
-        NSLog(@"could not create context");
-        return NULL;
-    }
-    
-    // draw at the center of the provided pixel buffer
-    NSGraphicsContext *nsctxt = [NSGraphicsContext graphicsContextWithGraphicsPort:ctxt flipped:NO];
-    [NSGraphicsContext saveGraphicsState];
-    [NSGraphicsContext setCurrentContext:nsctxt];
-    [image compositeToPoint:NSMakePoint((pxWidth-frameSize.width)/2, (pxHeight-frameSize.height)/2) operation:NSCompositeCopy];
-    [NSGraphicsContext restoreGraphicsState];
-    
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-    CFRelease(ctxt);
-    CFRelease(cs);
-
-    return pixelBuffer;
 }
 
 #pragma mark -
@@ -380,44 +322,39 @@
 
 #pragma mark -
 #pragma mark Drawing
-
-- (void) drawWithBounds:(NSRect)bounds
+// generates the texture (requires a current opengl context)
+- (CVPixelBufferRef) drawOnBuffer:(CVPixelBufferRef)pixelBuffer
 {
-	if (requiresUpdate)
-		[self genTexture];
-	if (texName) {
-		glPushAttrib(GL_ENABLE_BIT | GL_TEXTURE_BIT | GL_COLOR_BUFFER_BIT); // GL_COLOR_BUFFER_BIT for glBlendFunc, GL_ENABLE_BIT for glEnable / glDisable
-		
-		glDisable (GL_DEPTH_TEST); // ensure text is not remove by depth buffer test.
-		glEnable (GL_BLEND); // for text fading
-		glBlendFunc (GL_ONE, GL_ONE_MINUS_SRC_ALPHA); // ditto
-		glEnable (GL_TEXTURE_RECTANGLE_EXT);	
-		
-		glBindTexture (GL_TEXTURE_RECTANGLE_EXT, texName);
-		glBegin (GL_QUADS);
-        glTexCoord2f (0.0f, 0.0f); // draw upper left in world coordinates
-        glVertex2f (bounds.origin.x, bounds.origin.y);
-
-        glTexCoord2f (0.0f, texSize.height); // draw lower left in world coordinates
-        glVertex2f (bounds.origin.x, bounds.origin.y + bounds.size.height);
-
-        glTexCoord2f (texSize.width, texSize.height); // draw upper right in world coordinates
-        glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y + bounds.size.height);
-
-        glTexCoord2f (texSize.width, 0.0f); // draw lower right in world coordinates
-        glVertex2f (bounds.origin.x + bounds.size.width, bounds.origin.y);
-		glEnd ();
-		
-		glPopAttrib();
-	}
-}
-
-- (void) drawAtPoint:(NSPoint)point
-{
-	if (requiresUpdate)
-		[self genTexture]; // ensure size is calculated for bounds
-	if (texName) // if successful
-		[self drawWithBounds:NSMakeRect (point.x, point.y, texSize.width, texSize.height)];
+    
+    [self genImage];
+    
+    int pxWidth = CVPixelBufferGetWidth(pixelBuffer);
+    int pxHeight = CVPixelBufferGetHeight(pixelBuffer);
+    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+    void *rasterData = CVPixelBufferGetBaseAddress(pixelBuffer);
+    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
+    
+    // context to draw in, set to pixel buffer's address
+    size_t bitsPerComponent = 8; // *not* CGImageGetBitsPerComponent(image);
+    CGColorSpaceRef cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    CGContextRef ctxt = CGBitmapContextCreate(rasterData, pxWidth, pxHeight, bitsPerComponent, bytesPerRow, cs, kCGImageAlphaNoneSkipFirst);
+    if(ctxt == NULL){
+        NSLog(@"could not create context");
+        return NULL;
+    }
+    
+    // draw at the center of the provided pixel buffer
+    NSGraphicsContext *nsctxt = [NSGraphicsContext graphicsContextWithGraphicsPort:ctxt flipped:NO];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:nsctxt];
+    [image compositeToPoint:NSMakePoint((pxWidth-frameSize.width)/2, (pxHeight-frameSize.height)/2) operation:NSCompositeCopy];
+    [NSGraphicsContext restoreGraphicsState];
+    
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+    CFRelease(ctxt);
+    CFRelease(cs);
+    
+    return pixelBuffer;
 }
 
 @end

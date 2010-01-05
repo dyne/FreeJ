@@ -22,7 +22,7 @@
      forKey:NSForegroundColorAttributeName
     ];
     [attributes
-     setObject:[textView backgroundColor]
+     setObject:[[textView backgroundColor] colorWithAlphaComponent:0.0]
      forKey:NSBackgroundColorAttributeName
     ];
     return [super init];

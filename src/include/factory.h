@@ -46,7 +46,7 @@
  * the tag (<category>::<id>) associated to MyClass will be GeometryLayer::MyImplementation
  * and new instances can be obtained using:
  *
- *  >  Factory<Layer>::new_instance('GeometryLayer', 'MyImplementation);
+ *  >  Factory<Layer>::new_instance("GeometryLayer", "MyImplementation");
  *
  * You can also set 'defaults' anywhere in the code. For example you could put somewhere
  * in the initialization logic (or even at runtime)
@@ -169,8 +169,6 @@ class Factory
         return NULL;
     };
 
-    // TODO - remove duplicated code across get_instance() and new_instance
-    //        (move common code in a private method used by both (get|new)_instance()
     static inline T*get_instance(const char *category)
     {
         FTagMap::iterator pair = defaults_map->find(category);
@@ -178,7 +176,9 @@ class Factory
             return get_instance(category, pair->second);
         return NULL;        
     }
-    
+
+    // TODO - remove duplicated code across get_instance() and new_instance
+    //        (move common code in a private method used by both (get|new)_instance()
     static inline T *get_instance(const char *category, const char *id)
     {
         char tag[FACTORY_ID_MAXLEN];

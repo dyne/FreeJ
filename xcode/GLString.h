@@ -60,13 +60,10 @@
 // the same context should be current for all method calls for a particular object instance
 
 // designated initializer
-- (id) initWithAttributedString:(NSAttributedString *)attributedString withTextColor:(NSColor *)color withBoxColor:(NSColor *)color withBorderColor:(NSColor *)color;
-
-- (id) initWithString:(NSString *)aString withAttributes:(NSDictionary *)attribs withTextColor:(NSColor *)color withBoxColor:(NSColor *)color withBorderColor:(NSColor *)color;
-
-// basic methods that pick up defaults
-- (id) initWithString:(NSString *)aString withAttributes:(NSDictionary *)attribs;
 - (id) initWithAttributedString:(NSAttributedString *)attributedString;
+
+- (id) initWithString:(NSString *)aString withFont:font withTextColor:(NSColor *)text BoxColor:(NSColor *)box BorderColor:(NSColor *)border;
+- (id) initWithString:(NSString *)aString withAttributes:(NSDictionary *)attribs;
 
 - (void) dealloc;
 
@@ -82,11 +79,6 @@
 
 - (NSSize) marginSize; // current margins for text offset and pads for dynamic frame
 
-- (void) genTexture; // generates the texture without drawing texture to current context
-- (void) drawWithBounds:(NSRect)bounds; // will update the texture if required due to change in settings (note context should be setup to be orthographic scaled to per pixel scale)
-- (void) drawAtPoint:(NSPoint)point;
-- (CVPixelBufferRef) drawOnBuffer:(CVPixelBufferRef)pixelBuffer;
-
 // these will force the texture to be regenerated at the next draw
 - (void) setMargins:(NSSize)size; // set offset size and size to fit with offset
 - (void) useStaticFrame:(NSSize)size; // set static frame size and size to frame
@@ -101,6 +93,8 @@
 
 - (BOOL) antialias;
 - (void) setAntialias:(bool)request;
+
+- (CVPixelBufferRef) drawOnBuffer:(CVPixelBufferRef)pixelBuffer;
 
 @end
 

@@ -527,6 +527,8 @@
 				AA0E3E750FBF3C0100123D3F /* CVTexture.m */,
 				AA5846540FE162C60059D860 /* CVTextLayerController.h */,
 				AA5846550FE162C60059D860 /* CVTextLayerController.mm */,
+				AAB47C9E10EB44AF00B0E8D2 /* CVTextLayerView.h */,
+				AAB47C9F10EB44AF00B0E8D2 /* CVTextLayerView.mm */,
 				AA5846510FE1626E0059D860 /* GLString.h */,
 				AA5846520FE1626E0059D860 /* GLString.m */,
 				AA71AE010FE58838002FFD23 /* CVInternalLayer.h */,
@@ -537,8 +539,6 @@
 				AA134ABF1047B6D500BA39EB /* CKbdController.mm */,
 				AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */,
 				AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */,
-				AAB47C9E10EB44AF00B0E8D2 /* CVTextLayerView.h */,
-				AAB47C9F10EB44AF00B0E8D2 /* CVTextLayerView.mm */,
 			);
 			name = Cocoa;
 			sourceTree = "<group>";

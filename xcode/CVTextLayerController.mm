@@ -46,18 +46,11 @@
         // create pixel buffer
         CVPixelBufferCreate(kCFAllocatorDefault, ctx->screen->geo.w, ctx->screen->geo.h, k32ARGBPixelFormat, (CFDictionaryRef)d, &currentFrame);
 
-        if (stanStringAttrib) {
-            [theString initWithString:text withAttributes:stanStringAttrib];
+     
+        // TODO - Implement properly
+        //NSFont * font =[NSFont fontWithName:@"Helvetica" size:32.0];
+        [theString initWithString:text withAttributes:stanStringAttrib];
 
-        } else {
-            // TODO - Implement properly
-            //NSFont * font =[NSFont fontWithName:@"Helvetica" size:32.0];
-            [theString initWithString:text withAttributes:stanStringAttrib 
-                withTextColor:[NSColor colorWithDeviceRed:1.0f green:1.0f blue:1.0f alpha:1.0f] 
-                withBoxColor:[NSColor colorWithDeviceRed:0.5f green:0.5f blue:0.0f alpha:0.5f] 
-                withBorderColor:[NSColor colorWithDeviceRed:0.3f green:0.8f blue:0.3f alpha:0.8f]];
-            //[font release];
-        }
         CGLLockContext(glContext);
         CGLSetCurrentContext(glContext);
         [theString drawOnBuffer:currentFrame];
