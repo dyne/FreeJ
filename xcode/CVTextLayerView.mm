@@ -61,4 +61,21 @@
     [(CVTextLayerController *)layerController setText:text withAttributes:attributes];
 }
 
+- (IBAction)doLive:(id)sender
+{
+    bool newValue = [sender intValue];
+    if (live != newValue) {
+        if (!live)
+            [self startText:self];
+        live = [sender intValue];
+    }
+}
+
+- (void)textDidChange:(NSNotification *)aNotification
+{
+    if (live)
+        [self startText:self];
+        
+}
+
 @end

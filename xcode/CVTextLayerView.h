@@ -14,9 +14,10 @@
 @interface CVTextLayerView : CVLayerView {
     IBOutlet NSTextView *textView;
     NSMutableDictionary *attributes;
+    bool live;
 }
 
 - (IBAction)startText:(id)sender;
 - (IBAction)showFontMenu:(id)sender;
-
+- (IBAction)doLive:(id)sender;
 @end
