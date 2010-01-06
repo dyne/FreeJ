@@ -94,9 +94,8 @@ void *
 CVLayer::feed()
 {
     lock();
-    if (active || [input needPreview]) {
+    if ([input isVisible] || [input needPreview])
         [input renderFrame];
-    }
     unlock();
     return (void *)vbuffer;
 }
