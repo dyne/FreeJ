@@ -221,11 +221,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     return kCVReturnError;
 }
 
-/* TODO - document me */
-- (void)task
-{
-}
-
 - (IBAction)toggleFilters:(id)sender
 {
     doFilters = doFilters?false:true;
@@ -249,7 +244,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     if (lay) {
         layer = lay;
-        layer->fps.set(25);
+        layer->fps.set(30);
     } 
 }
 
@@ -492,8 +487,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [lastFrame release];
         lastFrame = [texture retain];
         [lock unlock];
-        
-        [self task]; // notify we have a new frame and the qtvisualcontext can be tasked
     } else { 
         texture = [lastFrame retain];
     }
@@ -504,7 +497,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (bool)needPreview
 {
-    return doPreview;
+    // we wannt preview only if there is a panel attacched to the view (to show it)
+    // if someone else (not the native osx GUI) wants to build a preview, renderFrame/getTexture 
+    // can be used to obtain the actual texture
+    return doPreview?(layerView && [layerView getPreviewTarget]):NO;
 }
 
 - (void)startPreview
@@ -560,7 +556,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (bool)isVisible
 {
     if (layer)
-        return [freej isVisible:layer];
+        return layer->screen?YES:NO;
     return NO;
 }
 
