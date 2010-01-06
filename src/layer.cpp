@@ -126,7 +126,7 @@ bool Layer::init(int wdt, int hgt, int bpp) {
 void Layer::thread_setup() {
   func("ok, layer %s in rolling loop",get_name());
  
-  while(!feed()) fps.calc();
+  //while(!feed()) fps.calc();
 
   func(" layer %s entering loop",get_name());
 }
