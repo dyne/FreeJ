@@ -33,7 +33,6 @@
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     Context *ctx = [freej getContext];
     [lock lock];
-
     if (needsNewFrame) {
         if (currentFrame)
             CVPixelBufferRelease(currentFrame);
@@ -55,7 +54,7 @@
         CGLSetCurrentContext(glContext);
         [theString drawOnBuffer:currentFrame];
         CGLUnlockContext(glContext);
-        layer->buffer = currentFrame;
+        layer->vbuffer = currentFrame;
         needsNewFrame = NO;
     }
     newFrame = YES;
@@ -71,7 +70,6 @@
         [self start];
     text = theText;
     stanStringAttrib = attributes;
-    //NSLog(@"%@\n",theText);
     needsNewFrame = YES;
 }
 

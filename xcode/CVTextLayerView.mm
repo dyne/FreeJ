@@ -61,6 +61,7 @@
     [(CVTextLayerController *)layerController setText:text withAttributes:attributes];
 }
 
+// show the text while typing
 - (IBAction)doLive:(id)sender
 {
     bool newValue = [sender intValue];
@@ -71,6 +72,7 @@
     }
 }
 
+// if we are running in live mode... let's update the text when it changes
 - (void)textDidChange:(NSNotification *)aNotification
 {
     if (live)
