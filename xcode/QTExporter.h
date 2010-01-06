@@ -17,9 +17,11 @@
  *
  */
 
+#ifndef __QTEXPORTER_H__
+#define __QTEXPORTER_H__
+
 #import <Cocoa/Cocoa.h>
 #import <QTKit/QTKit.h>
-
 @class CVScreenView;
 
 #define DEFAULT_OUTPUT_FILE "/tmp/freej_export.mov"
@@ -28,18 +30,19 @@
     NSString *outputFile;
     QTMovie *mMovie;
     DataHandler mDataHandlerRef;
+    CVScreenView *screen;
     NSMutableDictionary *savedMovieAttributes;
-    NSMutableArray *images;
     NSDictionary *encodingProperties;
     NSRecursiveLock *lock;
-    NSData  *lastTimestamp;
+    CVTimeStamp  lastTimestamp;
     NSImage *lastImage;
 }
-
+- (id)initWithScreen:(CVScreenView *)cvscreen;
 - (BOOL)setOutputFile:(NSString *)path;
-- (void)addImage:(CIImage *)image atTime:(CVTimeStamp *)timestamp;
-- (void)flushImages;
+- (void)addImage:(CIImage *)image;
 - (BOOL)startExport;
 - (void)stopExport;
 - (BOOL)isRunning;
 @end
+
+#endif

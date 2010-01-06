@@ -27,12 +27,13 @@
 @interface FrameRate : NSObject
 {
   int _count;
-  double _frequency;
-  double rate;
-  uint64_t _stamps[NumStamps + 1];
+  int32_t _scale;
+  double _rate;
+  int64_t _stamps[NumStamps + 1];
   NSRecursiveLock *lock;
 
 }
--(void)tick:(uint64_t)timestamp;
+-(id)initWithTimeScale:(int32_t)scale;
+-(void)tick:(int64_t)timestamp;
 -(double)rate;
 @end

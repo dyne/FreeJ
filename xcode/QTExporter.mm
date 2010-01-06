@@ -17,6 +17,7 @@
  *
  */
 
+#import <CVScreenView.h>
 #import <QTExporter.h>
 #include <fps.h>
 
@@ -29,11 +30,12 @@
 //
 //
 
-- (id)init
+- (id)initWithScreen:(CVScreenView *)cvscreen
 {
     mDataHandlerRef = nil;
     mMovie = nil;
     outputFile = nil;
+    screen = cvscreen;
     savedMovieAttributes = [NSDictionary 
         dictionaryWithObjects:
             [NSArray arrayWithObjects:
@@ -54,8 +56,7 @@
                            nil] retain];
     
     lock = [[NSRecursiveLock alloc] init];
-    images = [[NSMutableArray arrayWithCapacity:100] retain];
-    lastTimestamp = 0;
+    memset(&lastTimestamp, 0, sizeof(lastTimestamp));
     lastImage = nil;
     return [super init];
 }
@@ -154,39 +155,17 @@ cantcreatemovstorage:
     return success;
 }
 
-- (void)addImage:(CIImage *)image atTime:(CVTimeStamp *)timestamp
+//
+// addImage
+//
+// given an array a CIImage pointer, convert it to NSImage * 
+// and add the resulting image to the movie as a new MPEG4 frame
+//
+
+- (void)addImage:(CIImage *)image
 {
     NSImage *nsImage = [[NSImage alloc] initWithSize:NSMakeSize([image extent].size.width, [image extent].size.height)];
     [nsImage addRepresentation:[NSCIImageRep imageRepWithCIImage:image]];
-
-    [lock lock];
-    NSMutableDictionary *entry = [[NSMutableDictionary dictionaryWithCapacity:2] retain];
-    [entry setValue:nsImage forKey:@"image"];
-    [entry setValue:[NSData dataWithBytes:(void *)timestamp length:sizeof(CVTimeStamp)] forKey:@"timestamp"];
-    free(timestamp);
-    [images addObject:entry];
-    [lock unlock];
-    //MoviesTask([mMovie quickTimeMovie], 0);
-
-}
-
-//
-// addImages
-//
-// given an array of image file paths (NSString objects), add each
-// image to the movie as a new MPEG4 movie frame
-//
-// Inputs
-//		imageFilesArray - an array of image file paths (NSString objects)
-//
-// Outputs
-//		images specified in imageFilesArray are added to movie
-//      as new movie frames
-//
-
-- (void)flushImages
-{    
-    
     // create a QTTime value to be used as a duration when adding 
     // the image to the movie
 	//long timeScale      = [[mMovie attributeForKey:@"QTMovieTimeScaleAttribute"] longValue];
@@ -195,23 +174,14 @@ cantcreatemovstorage:
 	// iterate over all the images in the array and add
 	// them to our movie one-by-one
     //NSLog(@"%d\n", [images count]);
-    [lock lock];
-    while ([images count]) {
-        NSMutableDictionary *entry = [images objectAtIndex:0];
-        [images removeObjectAtIndex:0];
-        NSImage *anImage = [entry valueForKey:@"image"];
-        CVTimeStamp *timestamp = (CVTimeStamp *)[[entry valueForKey:@"timestamp"] bytes];
-        [lock unlock];
-
-        if (lastImage && timestamp) {
-            uint64_t timedelta = lastTimestamp?timestamp->videoTime-((CVTimeStamp *)[lastTimestamp bytes])->videoTime:timestamp->videoTimeScale/25;            
-            duration = QTMakeTime(timedelta, timestamp->videoTimeScale);
-
-            if (lastTimestamp) {
-                [lastTimestamp release];
-            }
-            lastTimestamp = [[entry valueForKey:@"timestamp"] retain];
-
+    CVTimeStamp now;
+    memset(&now, 0 , sizeof(now));
+    if (CVDisplayLinkGetCurrentTime((CVDisplayLinkRef)[screen getDisplayLink], &now) == kCVReturnSuccess) {
+        if (lastImage) {
+            int64_t timedelta = lastTimestamp.videoTime?now.videoTime-lastTimestamp.videoTime:now.videoTimeScale/25;            
+            duration = QTMakeTime(timedelta, now.videoTimeScale);
+            memcpy(&lastTimestamp, &now, sizeof(lastTimestamp));
+            
             [QTMovie enterQTKitOnThread];   
             
             // Adds an image for the specified duration to the QTMovie
@@ -220,22 +190,23 @@ cantcreatemovstorage:
               withAttributes:encodingProperties];
             
             // free up our image object
-            [lastImage release];
             if ([self isRunning])
                 [self writeSafelyToURL:[NSURL fileURLWithPath:outputFile]];
             [QTMovie exitQTKitOnThread];
             
         }
-        lastImage = anImage;
-        [entry removeAllObjects];
-        [entry release];
-        [lock lock];
+        if (lastImage)
+            [lastImage release];
+        lastImage = nsImage;
+        
+    } else {
+        /* TODO - Error Messages */
     }
-    [lock unlock];
+    
 bail:
 	return;
+  
 }
-
 
 - (BOOL)openOutputMovie
 {
@@ -315,12 +286,12 @@ bail:
 {
     NSAutoreleasePool *pool;
     FPS fps;
-    fps.init(25);
+    fps.init(60); // XXX 
 	if (!encodingProperties)
         ;// TODO - Handle error condition
     while ([self isRunning]) {
         pool = [[NSAutoreleasePool alloc] init];
-        [self flushImages];
+        [self addImage:[screen exportSurface]];
         fps.calc();
         fps.delay();
         [pool release];
@@ -363,7 +334,6 @@ bail:
         CFRelease(mDataHandlerRef);
         mDataHandlerRef = nil;
     }
-    [images removeAllObjects];
     [lock unlock];
 }
 
