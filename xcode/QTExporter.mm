@@ -23,13 +23,6 @@
 
 @implementation QTExporter
 
-//
-// quicktimeMovieFromTempFile
-//
-// Creates a QuickTime movie file from a temporary file
-//
-//
-
 - (id)initWithScreen:(CVScreenView *)cvscreen
 {
     mDataHandlerRef = nil;
@@ -246,8 +239,23 @@ bail:
     // Check first if the new QuickTime 7.2.1 initToWritableFile: method is available
     if ([[[[QTMovie alloc] init] autorelease] respondsToSelector:@selector(initToWritableFile:error:)] == YES)
     {
+        NSError *error;
+        NSFileHandle *ofile;
+        ofile =  [NSFileHandle fileHandleForUpdatingAtPath:outputFile];
+        if (ofile) {
+            unsigned long ticks;
+            [ofile truncateFileAtOffset:0];
+            [ofile synchronizeFile];
+            [ofile closeFile];
+            // let the os really sync the filesystem before trying to reopen the file
+            Delay(5, &ticks);
+        }
         // Create a QTMovie with a writable data reference
-        mMovie = [[QTMovie alloc] initToWritableFile:outputFile error:NULL];
+        mMovie = [[QTMovie alloc] initToWritableFile:outputFile error:&error];
+        if (!mMovie) {
+            NSLog(@"Can't open output file: %@ : %@", outputFile, [error localizedFailureReason]);
+            return NO;
+        }
     }
     else    
     {    
@@ -309,11 +317,13 @@ bail:
 {
     if (!outputFile)
         outputFile = [[NSString stringWithCString:DEFAULT_OUTPUT_FILE  encoding:NSUTF8StringEncoding] retain];
-    [self openOutputMovie];
+    if ([self openOutputMovie]) {
+        [NSThread detachNewThreadSelector:@selector(exporterThread:) 
+                                 toTarget:self withObject:nil];
+        return YES;
 
-    [NSThread detachNewThreadSelector:@selector(exporterThread:) 
-                             toTarget:self withObject:nil];
-    return YES;
+    }
+    return NO;
 }
 
 - (BOOL)setOutputFile:(NSString *)path
