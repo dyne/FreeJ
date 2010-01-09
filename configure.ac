@@ -531,8 +531,6 @@ if test x$enable_opengl = xyes; then
    if test x$have_glu = xno; then
       AC_MSG_ERROR([*** opengl requested but not found!])
    else
-      GLU_LIBS="-lGLU -lGL"
-      GLU_CFLAGS=""
       AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
    fi
 fi
