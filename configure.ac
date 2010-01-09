@@ -527,10 +527,14 @@ AC_ARG_ENABLE(opengl,
 if test x$enable_opengl = xyes; then
    dnl note: checking for GLU only, this brings in also GL
    PKG_CHECK_MODULES(GLU, glu,
-                     :,
-                     [GLU_LIBS="-lGLU -lGL"; GLU_CFLAGS=""])
-
-   AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
+                     have_glu=yes, have_glu=no)
+   if test x$have_glu = xno; then
+      AC_MSG_ERROR([*** opengl requested but not found!])
+   else
+      GLU_LIBS="-lGLU -lGL"
+      GLU_CFLAGS=""
+      AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
+   fi
 fi
 
 
