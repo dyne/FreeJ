@@ -230,24 +230,24 @@ int console_blit_completion(Context *env, char *cmd) {
 
     b = (Blit*)blits[c];
     if(!b) break;
-    snprintf(tmp,256,"%s", b->name);
+    snprintf(tmp,255,"%s", b->name);
 
     b = (Blit*)blits[c+1];
     if(b) {
-      strncat(tmp, "\t", 256);
-      strncat(tmp, b->name, 256);
+      strncat(tmp, "\t", 255);
+      strncat(tmp, b->name, 255);
     }
 
     b = (Blit*)blits[c+2];
     if(b) {
-      strncat(tmp, "\t", 256);
-      strncat(tmp, b->name, 256);
+      strncat(tmp, "\t", 255);
+      strncat(tmp, b->name, 255);
     }
     
     b = (Blit*)blits[c+3];
     if(b) {
-      strncat(tmp, "\t", 256);
-      strncat(tmp, b->name, 256);
+      strncat(tmp, "\t", 255);
+      strncat(tmp, b->name, 255);
     }
 
     ::act("%s",tmp);
@@ -417,24 +417,24 @@ int console_filter_completion(Context *env, char *cmd) {
 
       filt = res[c];
       if(!filt) break;
-      snprintf(tmp,256,"%s", filt->name);
+      snprintf(tmp,255,"%s", filt->name);
 
       filt = res[c+1];
       if(filt) {
-	strncat(tmp, "\t", 256);
-	strncat(tmp, filt->name, 256);
+	strncat(tmp, "\t", 255);
+	strncat(tmp, filt->name, 255);
       }
 
       filt = res[c+2];
       if(filt) {
-	strncat(tmp, "\t", 256);
-	strncat(tmp, filt->name, 256);
+	strncat(tmp, "\t", 255);
+	strncat(tmp, filt->name, 255);
       }
 
       filt = res[c+3];
       if(filt) {
-	strncat(tmp, "\t", 256);
-	strncat(tmp, filt->name, 256);
+	strncat(tmp, "\t", 255);
+	strncat(tmp, filt->name, 255);
       }
 
       //      ::act("%s :: %s",filt->name,filt->description());
@@ -721,24 +721,24 @@ int console_generator_completion(Context *env, char *cmd) {
       
       filt = res[c];
       if(!filt) break;
-      snprintf(tmp,256,"%s", filt->name);
+      snprintf(tmp,255,"%s", filt->name);
       
       filt = res[c+1];
       if(filt) {
-	strncat(tmp, "\t", 256);
-	strncat(tmp, filt->name, 256);
+	strncat(tmp, "\t", 255);
+	strncat(tmp, filt->name, 255);
       }
       
       filt = res[c+2];
       if(filt) {
-	strncat(tmp, "\t", 256);
-	strncat(tmp, filt->name, 256);
+	strncat(tmp, "\t", 255);
+	strncat(tmp, filt->name, 255);
       }
       
       filt = res[c+3];
       if(filt) {
-	strncat(tmp, "\t", 256);
-	strncat(tmp, filt->name, 256);
+	strncat(tmp, "\t", 255);
+	strncat(tmp, filt->name, 255);
       }
       
       //      ::act("%s :: %s",filt->name,filt->description());
