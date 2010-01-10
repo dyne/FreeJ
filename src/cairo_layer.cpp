@@ -66,8 +66,9 @@ bool CairoLayer::_init() {
   // cairo_surface_destroy()  on it if  you don't  need to  maintain a
   // separate reference to it.
 
-  cairo_set_line_width(cairo, 3.0 );   
-  cairo_set_source_rgb(cairo, 1.0, 1.0, 1.0); 
+  // test
+  cairo_set_line_width(cairo, 0.1 );   
+  cairo_set_source_rgb(cairo, 1.0, 1.0, 0.0); 
 
   opened = true;
   return(true);
@@ -87,5 +88,47 @@ void CairoLayer::close() {
   /* neither this */
   return;
 }
+
+///////////////////////////////////////////////
+// public methods exported to language bindings
+
+// Cairo API
+void CairoLayer::save() { cairo_save(cairo); }
+void CairoLayer::restore() { cairo_restore(cairo); }
+void CairoLayer::new_path() { cairo_new_path(cairo); }
+void CairoLayer::close_path() { cairo_close_path(cairo); }
+void CairoLayer::scale(double xx, double yy) { cairo_scale(cairo, xx, yy); }
+void CairoLayer::rotate(double angle) { cairo_rotate(cairo, angle); }
+void CairoLayer::translate(double xx, double yy) { cairo_translate(cairo, xx, yy); }
+void CairoLayer::move_to(double xx, double yy) { cairo_move_to(cairo, xx, yy); }
+void CairoLayer::line_to(double xx, double yy) { cairo_line_to(cairo, xx, yy); }
+void CairoLayer::curve_to(double x1, double y1, double x2, double y2, double x3, double y3) {
+    cairo_curve_to(cairo, x1, y1, x2, y2, x3, y3); }
+void CairoLayer::arc(double xc, double yc, double radius, double angle1, double angle2) {
+  cairo_arc(cairo, xc, yc, radius, angle1, angle2); }
+void CairoLayer::fill() { cairo_fill(cairo); }
+void CairoLayer::stroke() { cairo_stroke(cairo); }
+void CairoLayer::set_line_width(double wid) { cairo_set_line_width(cairo, wid); }
+double CairoLayer::get_line_width() { return cairo_get_line_width(cairo); }
+
+// Mozilla's GFX compatibility API
+void CairoLayer::quad_curve_to(double x1, double y1, double x2, double y2) {
+  double xc, yc;
+  cairo_get_current_point(cairo, &xc, &yc);
+  cairo_curve_to(cairo,
+		 (xc + x1 * 2.0) / 3.0,
+		 (yc + y1 * 2.0) / 3.0,
+		 (x1 * 2.0 + x2) / 3.0,
+		 (y1 * 2.0 + y2) / 3.0,
+		 x2, y2);
+}
+
+void CairoLayer::fill_rect(double x1, double y1, double x2, double y2) {
+  cairo_save(cairo);
+  cairo_rectangle(cairo, x1, y1, x2, y2);
+  cairo_fill(cairo);
+  cairo_restore(cairo);
+}
+
 
 #endif

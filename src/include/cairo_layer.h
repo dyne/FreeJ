@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2009-2010 Denis Roio <jaromil@dyne.org>
  *
  * This source code  is free software; you can  redistribute it and/or
  * modify it under the terms of the GNU Public License as published by
@@ -36,6 +36,31 @@ class CairoLayer: public Layer {
   void close();
 
   cairo_t *cairo;
+
+  ///////////////////////////////////////////////
+  // public methods exported to language bindings
+
+  // Cairo API
+  void save();
+  void restore();
+  void new_path();
+  void close_path();
+  void fill();
+  void stroke();
+  void scale(double xx, double yy);
+  void rotate(double angle);
+  void translate(double xx, double yy);
+  void line_to(double xx, double yy);
+  void move_to(double xx, double yy);
+  void curve_to(double x1, double y1, double x2, double y2, double x3, double y3);
+  void arc(double xc, double yc, double radius, double angle1, double angle2);
+  void set_line_width(double wid);
+  double get_line_width();
+
+  // Mozilla's GFX compatibility API
+  void quad_curve_to(double x1, double y1, double x2, double y2);
+  void fill_rect(double x1, double y1, double x2, double y2);
+  
 
  protected:
   bool _init();

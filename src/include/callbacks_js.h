@@ -71,7 +71,10 @@ const JSErrorFormatString * JSFreej_GetErrorMessage(void *userRef, const char *l
 // exception stuff end
 
 #define JS(fun) \
-JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+  JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
+
+#define JSP(fun) \
+  JSBool fun(JSContext *cx, JSObject *obj, jsval idval, jsval *vp)
 
 #define JS_CHECK_ARGC(num) \
   if(argc<num) { \
@@ -95,6 +98,20 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     return JS_FALSE; \
   }
 
+#define JS_PROP_NUMBER(variable, vp) \
+  double variable = 0x0; \
+  if(JSVAL_IS_DOUBLE(vp)) {		  \
+    variable = *JSVAL_TO_DOUBLE(vp);	  \
+  } else if(JSVAL_IS_INT(vp)) {		  \
+    variable = (double)JSVAL_TO_INT(vp); \
+  } else if(JSVAL_IS_BOOLEAN(vp)) {	     \
+    variable = (double)JSVAL_TO_BOOLEAN(vp); \
+  } else { \
+    JS_ReportError(cx,"%s: property value is not a number",__FUNCTION__); \
+    ::error("%s: property value is not a number",__FUNCTION__);	\
+  }
+
+
 #define JS_ARG_STRING(variable,argnum) \
   if(JSVAL_IS_STRING(argv[argnum])) \
     variable = JS_GetStringBytes \
@@ -104,6 +121,16 @@ JSBool fun(JSContext *cx, JSObject *obj, uintN argc, jsval *argv, jsval *rval)
     ::error("%s: argument %u is not a string",__FUNCTION__,argnum);	\
     return JS_FALSE; \
   }
+
+#define JS_PROP_STRING(variable) \
+  if(JSVAL_IS_STRING(*vp)) \
+    variable = JS_GetStringBytes \
+      ( JS_ValueToString(cx, *vp) ); \
+  else { \
+    JS_ReportError(cx,"%s: property value is not a string",__FUNCTION__); \
+    ::error("%s: property value is not a string",__FUNCTION__);	\
+  }
+  
 
 // set the return value as a string
 #define JS_RETURN_STRING(cb_msg) \
@@ -135,10 +162,10 @@ JSClass class_struct = { \
  // s/JS_FinalizeStub/gc_callback/ to activate GC in JS (not working currently)
 //static JSClass *jsclass_s = &class_struct;
 
-#define REGISTER_CLASS(class_name, class_struct, class_constructor, class_methods, parent_class) \
+#define REGISTER_CLASS(class_name, class_struct, class_constructor, class_properties, class_methods, parent_class) \
     layer_object = JS_InitClass(cx, obj, parent_class, \
 				&class_struct, class_constructor, 0, \
-				0, class_methods, 0, 0); \
+				class_properties, class_methods, 0, 0); \
     if(!layer_object) { \
       ::error("JsParser::init() can't instantiate %s class",class_name); \
     } 

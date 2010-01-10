@@ -136,21 +136,24 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	REGISTER_CLASS("Screen",
 		       screen_class,
 		       screen_constructor,
+		       NULL,
 		       screen_methods,
 		       NULL);
 	Screen = layer_object;
 
 	REGISTER_CLASS("Layer",
-		layer_class,
-		layer_constructor,
-		layer_methods,
-		NULL);
+		       layer_class,
+		       layer_constructor,
+		       NULL,
+		       layer_methods,
+		       NULL);
 	Layer = layer_object; // last created object
 	object_proto = Layer; // following registrations inherit from parent class Layer
 
 	REGISTER_CLASS("GeometryLayer",
 		       geometry_layer_class,
 		       geometry_layer_constructor,
+		       NULL,
 		       geometry_layer_methods,
 		       object_proto);
 	GeometryLayer = layer_object;
@@ -158,6 +161,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	REGISTER_CLASS("GeneratorLayer",
 		       generator_layer_class,
 		       generator_layer_constructor,
+		       NULL,
 		       generator_layer_methods,
 		       object_proto);
 	GeneratorLayer = layer_object;
@@ -169,27 +173,30 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 // 		object_proto);
 
 	REGISTER_CLASS("ImageLayer",
-		image_layer_class,
-		image_layer_constructor,
-		image_layer_methods,
-		object_proto);
+		       image_layer_class,
+		       image_layer_constructor,
+		       NULL,
+		       image_layer_methods,
+		       object_proto);
 	ImageLayer = layer_object;
 
 #ifdef WITH_FLASH
 	REGISTER_CLASS("FlashLayer",
-		flash_layer_class,
-		flash_layer_constructor,
-		flash_layer_methods,
-		object_proto);
+		       flash_layer_class,
+		       flash_layer_constructor,
+		       NULL,
+		       flash_layer_methods,
+		       object_proto);
 	FlashLayer = layer_object;
 #endif
 
 #ifdef WITH_GOOM
 	REGISTER_CLASS("GoomLayer",
-		goom_layer_class,
-		goom_layer_constructor,
-		goom_layer_methods,
-		object_proto);
+		       goom_layer_class,
+		       goom_layer_constructor,
+		       NULL, // properties
+		       goom_layer_methods,
+		       object_proto);
 	GoomLayer = layer_object;
 #endif
 
@@ -197,6 +204,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	REGISTER_CLASS("AudioJack",
 		       js_audio_jack_class,
 		       js_audio_jack_constructor,
+		       NULL, // properties
 		       js_audio_jack_methods,
 		       object_proto);
 	AudioJack = layer_object;
@@ -204,10 +212,11 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 
 #ifdef WITH_V4L
 	REGISTER_CLASS("CamLayer",
-		v4l_layer_class,
-		v4l_layer_constructor,
-		v4l_layer_methods,
-		object_proto);
+		       v4l_layer_class,
+		       v4l_layer_constructor,
+		       NULL, // properties
+		       v4l_layer_methods,
+		       object_proto);
 	CamLayer = layer_object;
 #endif
 
@@ -215,6 +224,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	REGISTER_CLASS("UnicapLayer",
 		       unicap_layer_class,
 		       unicap_layer_constructor,
+		       NULL, // properties
 		       unicap_layer_methods,
 		       object_proto);
 	UnicapLayer = layer_object;
@@ -222,38 +232,42 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 
 #ifdef WITH_FFMPEG
 	REGISTER_CLASS("MovieLayer",
-		video_layer_class,
-		video_layer_constructor,
-		video_layer_methods,
-		object_proto);
+		       video_layer_class,
+		       video_layer_constructor,
+		       NULL, // properties
+		       video_layer_methods,
+		       object_proto);
 	MovieLayer = layer_object;
 #endif
 
 #ifdef WITH_AVIFILE
    REGISTER_CLASS("MovieLayer",
-		avi_layer_class,
-		avi_layer_constructor,
-		avi_layer_methods,
-		object_proto);
+		  avi_layer_class,
+		  avi_layer_constructor,
+		  NULL, // properties
+		  avi_layer_methods,
+		  object_proto);
    MovieLayer = layer_object;
 
 #endif
 
 #if defined WITH_TEXTLAYER
 	REGISTER_CLASS("TextLayer",
-		txt_layer_class,
-		txt_layer_constructor,
-		txt_layer_methods,
-		object_proto);
+		       txt_layer_class,
+		       txt_layer_constructor,
+		       NULL, // properties
+		       txt_layer_methods,
+		       object_proto);
 	TextLayer = layer_object;
 #endif
 
 #ifdef WITH_XGRAB
 	REGISTER_CLASS("XGrabLayer",
-		js_xgrab_class,
-		js_xgrab_constructor,
-		js_xgrab_methods,
-		object_proto);
+		       js_xgrab_class,
+		       js_xgrab_constructor,
+		       NULL, // properties
+		       js_xgrab_methods,
+		       object_proto);
 	XGrabLayer = layer_object;
 #endif	
 
@@ -261,74 +275,84 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	REGISTER_CLASS("VectorLayer",
 		       vector_layer_class,
 		       vector_layer_constructor,
+		       vector_layer_properties,
 		       vector_layer_methods,
 		       object_proto);
 	VectorLayer = layer_object;
 #endif		       
 
 	REGISTER_CLASS("Filter",
-		filter_class,
-		filter_constructor,
-		filter_methods,
-		NULL);
+		       filter_class,
+		       filter_constructor,
+		       NULL, // properties
+		       filter_methods,
+		       NULL);
 	Filter = layer_object;
 
 	// controller classes
 	REGISTER_CLASS("Controller",
-		js_ctrl_class,
-		NULL,
-		js_ctrl_methods,
-		NULL);
+		       js_ctrl_class,
+		       NULL,
+		       NULL, // properties
+		       js_ctrl_methods,
+		       NULL);
 	Controller = layer_object;
 	object_proto = Controller;
 
 	REGISTER_CLASS("KeyboardController",
-		js_kbd_ctrl_class,
-		js_kbd_ctrl_constructor,
-		js_kbd_ctrl_methods,
-		object_proto);
+		       js_kbd_ctrl_class,
+		       js_kbd_ctrl_constructor,
+		       NULL, // properties
+		       js_kbd_ctrl_methods,
+		       object_proto);
 	KeyboardController = layer_object;
 
 	REGISTER_CLASS("MouseController",
-		js_mouse_ctrl_class,
-		js_mouse_ctrl_constructor,
-		js_mouse_ctrl_methods,
-		object_proto);
+		       js_mouse_ctrl_class,
+		       js_mouse_ctrl_constructor,
+		       NULL, // properties
+		       js_mouse_ctrl_methods,
+		       object_proto);
 	MouseController = layer_object;
 
 	REGISTER_CLASS("JoystickController",
-		js_joy_ctrl_class,
-		js_joy_ctrl_constructor,
-		js_joy_ctrl_methods,
-		object_proto);
+		       js_joy_ctrl_class,
+		       js_joy_ctrl_constructor,
+		       NULL, // properties
+		       js_joy_ctrl_methods,
+		       object_proto);
 	JoystickController = layer_object;
 
 	REGISTER_CLASS("TriggerController",
-		js_trigger_ctrl_class,
-		js_trigger_ctrl_constructor,
-		js_trigger_ctrl_methods,
-		object_proto);
+		       js_trigger_ctrl_class,
+		       js_trigger_ctrl_constructor,
+		       NULL, // properties
+		       js_trigger_ctrl_methods,
+		       object_proto);
 	TriggerController = layer_object;
 
 	REGISTER_CLASS("ViMoController",
-		js_vimo_ctrl_class,
-		js_vimo_ctrl_constructor,
-		js_vimo_ctrl_methods,
-		object_proto);
+		       js_vimo_ctrl_class,
+		       js_vimo_ctrl_constructor,
+		       NULL, // properties
+		       js_vimo_ctrl_methods,
+		       object_proto);
 	ViMoController = layer_object;
 
 #ifdef WITH_MIDI
 	REGISTER_CLASS("MidiController",
-		js_midi_ctrl_class,
-		js_midi_ctrl_constructor,
-		js_midi_ctrl_methods,
-		object_proto);
+		       js_midi_ctrl_class,
+		       js_midi_ctrl_constructor,
+		       NULL, // properties
+		       js_midi_ctrl_methods,
+		       object_proto);
 	MidiController = layer_object;
 #endif
 
     REGISTER_CLASS("OscController",
 		   js_osc_ctrl_class,
 		   js_osc_ctrl_constructor,
+		   NULL, // properties
 		   js_osc_ctrl_methods,
 		   object_proto);
     OscController = layer_object;
@@ -337,6 +361,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
     REGISTER_CLASS("WiiController",
 		   js_wii_ctrl_class,
 		   js_wii_ctrl_constructor,
+		   NULL, // properties
 		   js_wii_ctrl_methods,
 		   object_proto);
     WiiController = layer_object;
@@ -344,12 +369,13 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 
 #ifdef WITH_OGGTHEORA
 	// encoder class
-	REGISTER_CLASS("VideoEncoder",
-		js_vid_enc_class,
-		js_vid_enc_constructor,
-		js_vid_enc_methods,
-		NULL);
-	VideoEncoder = layer_object;
+    REGISTER_CLASS("VideoEncoder",
+		   js_vid_enc_class,
+		   js_vid_enc_constructor,
+		   NULL, // properties
+		   js_vid_enc_methods,
+		   NULL);
+    VideoEncoder = layer_object;
 #endif
 
 //	  JS_DefineProperties(global_context, layer_object, layer_properties);

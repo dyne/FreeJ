@@ -216,6 +216,7 @@ extern JSFunctionSpec txt_layer_methods[];
 #if defined WITH_CAIRO
 extern JSClass vector_layer_class;
 extern JSFunctionSpec vector_layer_methods[];
+extern JSPropertySpec vector_layer_properties[];
 #endif
 
 // MovieLayer
@@ -413,8 +414,18 @@ JS(vector_layer_moveto);
 JS(vector_layer_quadcurveto);
 JS(vector_layer_beziercurveto);
 JS(vector_layer_arc);
+JS(vector_layer_fillrect);
 JS(vector_layer_fill);
 JS(vector_layer_stroke);
+// Vector layer properties
+JSP(vector_layer_fillstyle_g);
+JSP(vector_layer_fillstyle_s);
+JSP(vector_layer_strokestyle_g);
+JSP(vector_layer_strokestyle_s);
+JSP(vector_layer_linecap_g);
+JSP(vector_layer_linecap_s);
+JSP(vector_layer_linewidth_g);
+JSP(vector_layer_linewidth_s);
 #endif
 
 ////////////////////////////////
