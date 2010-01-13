@@ -658,6 +658,7 @@ JS(entry_select) {
 JS(include_javascript_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 	char *jscript;
+	char *debian_path = "share/doc/freej/scripts/javascript/lib";
 	char temp[512];
 	FILE *fd;
 	
@@ -668,12 +669,12 @@ JS(include_javascript_file) {
 	snprintf(temp,512,"%s",jscript);
 	fd = fopen(temp,"r");
 	if(!fd) {
-	  warning("included file %s not found in current directory",jscript);
-
-	  snprintf(temp,255,"%s/%s",PACKAGE_DATA_DIR,jscript);
+	  snprintf(temp,511,"%s/%s/%s",PREFIX,debian_path,jscript);
 	  fd = fopen(temp,"r");
 	  if(!fd) {
-	    error("included file %s not found in %s", jscript, PACKAGE_DATA_DIR);
+	    error("included file %s not found", jscript);
+	    error("locations checked: current and %s/%s",
+		  PREFIX,debian_path);
 	    error("javascript include('%s') failed", jscript);
 
 	    return JS_FALSE;
