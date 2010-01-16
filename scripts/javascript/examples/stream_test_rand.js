@@ -77,6 +77,7 @@ set_fps(10);
 
 geo = new GeometryLayer(400,300);
 geo.activate(true);
+geo.start();
 add_layer(geo);
 
 try {
