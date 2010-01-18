@@ -1175,6 +1175,17 @@ fi
 
 dnl #### layers
 
+INFO_N([= vector layer : ])
+if test x$have_cairo = xyes; then
+   INFO(yes)
+VRB([= cairo])
+VRB([  LIBS  : $CAIRO_LIBS])
+VRB([  CFLAGS: $CAIRO_CFLAGS])
+else
+   INFO(no)
+fi
+
+
 INFO_N([= text layer : ])
 if test x$have_textlayer = xyes; then
    INFO(yes)
