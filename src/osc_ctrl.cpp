@@ -336,14 +336,14 @@ JS(js_osc_ctrl_send) {
     switch(type[c]) {
     case 'i':
       {
-	JS_ARG_NUMBER(i,c);
-	func("OSC add message arg %u with value %u",c,i);
-	lo_message_add_int32(osc->outmsg,(int32_t)i);
+	JS_ARG_INT(i,c);
+	func("OSC add message arg %i with value %i",c,i);
+	lo_message_add_int32(osc->outmsg,i);
       }
       break;
     case 'f':
       {
-	JS_ARG_NUMBER(f,c);
+	JS_ARG_DOUBLE(f,c);
 	func("OSC add message arg %u with value %.2f",c,f);
 	lo_message_add_float(osc->outmsg,(float)f);
       }

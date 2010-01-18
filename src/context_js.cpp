@@ -63,6 +63,7 @@ JSFunctionSpec global_functions[] = {
     {"strstr",          freej_strstr,           2},
     //    {"stream_start",    stream_start,           0},
     //    {"stream_stop",     stream_stop,            0},
+    {"read_file", read_file, 1},
     {"file_to_strings", file_to_strings,        1},
     {"register_controller", register_controller, 1},
     {"rem_controller",  rem_controller, 1},
@@ -297,17 +298,17 @@ JS(unset_clear_all) {
 JS(set_fps) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  JS_ARG_NUMBER(fps, 0);
+  JS_ARG_INT(fps, 0);
 
-  global_environment->fps.set((int)fps);
+  global_environment->fps.set(fps);
   return JS_TRUE;
 }
 
 JS(js_set_debug) {
     JSBool ret = JS_NewNumberValue(cx, get_debug(), rval);
     if(argc==1) {
-            JS_ARG_NUMBER(level, 0);
-            set_debug((int)level);
+            JS_ARG_INT(level, 0);
+            set_debug(level);
     }
     return ret;
 }
@@ -426,6 +427,50 @@ JS(freej_strstr) {
   return JS_NewNumberValue(cx, intval, rval);
 }
   
+JS(read_file) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  
+  JS_CHECK_ARGC(1);
+
+  JSString *str;
+  jsval val;
+
+  FILE *fd;
+
+  int len;
+  char *buf;
+
+  char *file;
+  JS_ARG_STRING(file,0);
+
+  // try to open the file
+  fd = ::fopen(file,"r");
+  if(!fd) {
+    error("read_file failed for %s: %s",file, strerror(errno) );
+    *rval = JSVAL_NULL;
+    return JS_TRUE;
+  }
+
+  // read it all in *buf
+  fseek(fd,0,SEEK_END);
+  len = ftell(fd);
+  rewind(fd);
+  buf = (char*)calloc(len,sizeof(char));
+  fread(buf,len,1,fd);
+  fclose(fd);
+  // file is now read in memory
+  
+  // create the new string
+  str = JS_NewStringCopyN(cx, buf, len);
+  // cast it into a js return value
+  *rval = STRING_TO_JSVAL(str);
+
+  act("file loaded: %s",file);
+
+  return JS_TRUE;
+}
+
+
 
 JS(file_to_strings) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -545,8 +590,8 @@ JS(srand) {
   if(argc<1)
     seed = time(NULL);
   else {
-    JS_ARG_NUMBER(r,0);
-    seed = (int)r;
+    JS_ARG_INT(r,0);
+    seed = r;
   }
   randval = seed;
 

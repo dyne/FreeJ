@@ -32,12 +32,17 @@
 // our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(Layer, CairoLayer, VectorLayer, cairo);
 
+CairoColor::CairoColor(cairo_t *cai) :Color() { cairo = cai; }
+CairoColor::~CairoColor() { }
+void CairoColor::set() { cairo_set_source_rgba(cairo, r, g, b, a); };
+
 CairoLayer::CairoLayer()
   :Layer() {
 
 
   surf = NULL;
   cairo = NULL;
+  color = NULL;
   pixels = NULL;
 
   set_name("VEC");
@@ -50,7 +55,7 @@ CairoLayer::~CairoLayer() {
   if(cairo)  cairo_destroy(cairo);
   if(surf)   cairo_surface_destroy(surf);
   if(pixels) free(pixels);
-
+  if(color) free(color);
 }
 
 bool CairoLayer::_init() {
@@ -65,6 +70,8 @@ bool CairoLayer::_init() {
   // This  function references  target,  so you  can immediately  call
   // cairo_surface_destroy()  on it if  you don't  need to  maintain a
   // separate reference to it.
+
+  color = new CairoColor( cairo );
 
   // test
   cairo_set_line_width(cairo, 0.1 );   
@@ -99,17 +106,17 @@ void CairoLayer::new_path() { cairo_new_path(cairo); }
 void CairoLayer::close_path() { cairo_close_path(cairo); }
 void CairoLayer::scale(double xx, double yy) { cairo_scale(cairo, xx, yy); }
 void CairoLayer::rotate(double angle) { cairo_rotate(cairo, angle); }
-void CairoLayer::translate(double xx, double yy) { cairo_translate(cairo, xx, yy); }
+void CairoLayer::translate(int xx, int yy) { cairo_translate(cairo, xx, yy); }
 void CairoLayer::move_to(double xx, double yy) { cairo_move_to(cairo, xx, yy); }
 void CairoLayer::line_to(double xx, double yy) { cairo_line_to(cairo, xx, yy); }
-void CairoLayer::curve_to(double x1, double y1, double x2, double y2, double x3, double y3) {
+void CairoLayer::curve_to(int x1, int y1, int x2, int y2, int x3, int y3) {
     cairo_curve_to(cairo, x1, y1, x2, y2, x3, y3); }
 void CairoLayer::arc(double xc, double yc, double radius, double angle1, double angle2) {
   cairo_arc(cairo, xc, yc, radius, angle1, angle2); }
 void CairoLayer::fill() { cairo_fill(cairo); }
 void CairoLayer::stroke() { cairo_stroke(cairo); }
 void CairoLayer::set_line_width(double wid) { cairo_set_line_width(cairo, wid); }
-double CairoLayer::get_line_width() { return cairo_get_line_width(cairo); }
+int CairoLayer::get_line_width() { return cairo_get_line_width(cairo); }
 
 // Mozilla's GFX compatibility API
 void CairoLayer::quad_curve_to(double x1, double y1, double x2, double y2) {

@@ -97,8 +97,8 @@ JS(geometry_layer_color) {
 
   if(argc == 1) {
 
-    JS_ARG_NUMBER(hex,0);
-    lay->set_color((uint32_t)hex);
+    JS_ARG_INT(hex,0);
+    lay->set_color(hex);
     
   } else {
       JS_ValueToUint16(cx, argv[0], &r);

@@ -54,7 +54,7 @@ JS(goom_layer_mode) {
 
   GET_LAYER(GoomLayer);
 
-  JS_ARG_NUMBER(mod,0);
+  JS_ARG_INT(mod,0);
   if(mod>9) mod = 9;
   if(mod<0) mod = 0;
 
@@ -71,7 +71,7 @@ JS(goom_layer_speed) {
 
   GET_LAYER(GoomLayer);
 
-  JS_ARG_NUMBER(spd,0);
+  JS_ARG_INT(spd,0);
   if(spd>256) spd = 256;
   if(spd<0)   spd = 0;
 
@@ -88,8 +88,8 @@ JS(goom_layer_middle) {
 
   GET_LAYER(GoomLayer);
 
-  JS_ARG_NUMBER(x,0);
-  JS_ARG_NUMBER(y,1);
+  JS_ARG_INT(x,0);
+  JS_ARG_INT(y,1);
 
   lay->goom->update.zoomFilterData.middleX = x;
   lay->goom->update.zoomFilterData.middleY = y;
@@ -105,8 +105,8 @@ JS(goom_layer_plane) {
 
   GET_LAYER(GoomLayer);
 
-  JS_ARG_NUMBER(h,0);
-  JS_ARG_NUMBER(v,1);
+  JS_ARG_INT(h,0);
+  JS_ARG_INT(v,1);
 
   lay->goom->update.zoomFilterData.hPlaneEffect = h;
   lay->goom->update.zoomFilterData.vPlaneEffect = v;
@@ -122,7 +122,7 @@ JS(goom_layer_reverse) {
 
   GET_LAYER(GoomLayer);
 
-  JS_ARG_NUMBER(rev,0);
+  JS_ARG_INT(rev,0);
 
   lay->goom->update.zoomFilterData.reverse = (char)rev;
 
@@ -136,7 +136,7 @@ JS(goom_layer_noise) {
 
   GET_LAYER(GoomLayer);
 
-  JS_ARG_NUMBER(noi,0);
+  JS_ARG_INT(noi,0);
 
   lay->goom->update.zoomFilterData.noisify = (char)noi;
 
@@ -150,7 +150,7 @@ JS(goom_layer_hypercos) {
 
   GET_LAYER(GoomLayer);
 
-  JS_ARG_NUMBER(hyp,0);
+  JS_ARG_DOUBLE(hyp,0);
 
   lay->goom->update.zoomFilterData.hypercosEffect = hyp;
   // TODO
@@ -164,7 +164,7 @@ JS(goom_layer_wave) {
 
   GET_LAYER(GoomLayer);
 
-  JS_ARG_NUMBER(wav,0);
+  JS_ARG_DOUBLE(wav,0);
 
   lay->goom->update.zoomFilterData.waveEffect = wav;
   // TODO

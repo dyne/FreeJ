@@ -276,6 +276,7 @@ JS(freej_scandir);
 JS(freej_echo);
 JS(freej_echo_func);
 JS(freej_strstr);
+JS(read_file);
 JS(file_to_strings);
 JS(register_controller);
 JS(rem_controller);
@@ -402,6 +403,7 @@ JS(geometry_layer_trigon_fill);
 ////////////////////////////////
 // Vector layer methods
 #ifdef WITH_CAIRO
+JS(vector_layer_color);
 JS(vector_layer_translate);
 JS(vector_layer_scale);
 JS(vector_layer_rotate);

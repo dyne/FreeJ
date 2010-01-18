@@ -22,8 +22,23 @@
 #include <config.h>
 #ifdef WITH_CAIRO
 
+#include <color.h>
+
 #include <cairo.h>
 
+class CairoColor: public Color {
+
+ public:
+  CairoColor(cairo_t *cai);
+  ~CairoColor();
+
+ protected:
+  void set();
+
+ private:
+  cairo_t *cairo;
+
+};
 
 class CairoLayer: public Layer {
 
@@ -37,6 +52,9 @@ class CairoLayer: public Layer {
 
   cairo_t *cairo;
 
+  Color *color;
+  JSBool set_color(JSContext *cx, uintN argc, jsval *argv, int idx);
+
   ///////////////////////////////////////////////
   // public methods exported to language bindings
 
@@ -49,13 +67,13 @@ class CairoLayer: public Layer {
   void stroke();
   void scale(double xx, double yy);
   void rotate(double angle);
-  void translate(double xx, double yy);
+  void translate(int xx, int yy);
   void line_to(double xx, double yy);
   void move_to(double xx, double yy);
-  void curve_to(double x1, double y1, double x2, double y2, double x3, double y3);
+  void curve_to(int x1, int y1, int x2, int y2, int x3, int y3);
   void arc(double xc, double yc, double radius, double angle1, double angle2);
   void set_line_width(double wid);
-  double get_line_width();
+  int get_line_width();
 
   // Mozilla's GFX compatibility API
   void quad_curve_to(double x1, double y1, double x2, double y2);

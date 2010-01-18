@@ -17,7 +17,7 @@ SOURCES = \
 	filter.cpp		parameter.cpp   \
 	jutils.cpp		fastmemcpy.cpp  \
 	ringbuffer.cpp  	convertvid.cpp  \
-        logging.cpp geometry.cpp \
+        logging.cpp geometry.cpp color.cpp \
 \
 	v4l_layer.cpp tvfreq.c	unicap_layer.cpp \
 	video_layer.cpp		image_layer.cpp \

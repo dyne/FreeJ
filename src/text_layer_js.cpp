@@ -97,9 +97,9 @@ JS(txt_layer_size) {
 
   GET_LAYER(TextLayer);
 
-  JS_ARG_NUMBER(size,0);
+  JS_ARG_INT(size,0);
 
-  lay->set_fontsize((int)size);
+  lay->set_fontsize(size);
 
   return JS_TRUE;
 }

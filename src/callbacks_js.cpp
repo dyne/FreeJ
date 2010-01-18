@@ -26,10 +26,14 @@
 #include <config.h>
 #include <jutils.h>
 #include <errno.h>
+#include <math.h>
+
 #include <jsapi.h> // spidermonkey header
 
 // include exception messags
 #include <callbacks_js.h>
+
+#include <jsparser.h>
 
 JSErrorFormatString jsFreej_ErrorFormatString[JSFreejErr_Limit] = {
 #if JS_HAS_DFLT_MSG_STRINGS
@@ -74,6 +78,109 @@ JSBool js_static_branch_callback(JSContext* Context)
 	return JS_FALSE;
     }
     return JS_TRUE;
+}
+
+jsint js_get_int(jsval *val) {
+  jsint res = 0;
+
+  int tag = JSVAL_TAG(*val);
+  switch(tag) {
+  case 0x0:
+    error("argument %p is a JS Object, should be integer", val);
+    break;
+
+  case 0x1:
+    res =  JSVAL_TO_INT(*val);
+    func("argument %p is %i",val, res);
+    break;
+
+  case 0x2:
+    res = (int)floor( *JSVAL_TO_DOUBLE(*val) );
+    warning("argument %p is a double, but should be int, got value %i",val, res);
+    break;
+    
+  case 0x4:
+    error("argument %p is a string, should be integer", val);
+    break;
+
+  case 0x6:
+    error("argument %p is a boolean, shoul be integer", val);
+    break;
+
+  default:
+    if(!val) {
+      warning("argument is NULL");
+      break;
+    }
+    double *tmp = JSVAL_TO_DOUBLE(*val);
+    if(!tmp) {
+      warning("argument %p is of unknown type, got null",val);
+    }
+    // else {
+    //   res = (int)floor( *tmp );
+    //   warning("argument %p is of unknown type, but should be int, got value %i",val, res);
+    // }
+
+    // JS_ReportErrorNumber( env->js->global_context, JSFreej_GetErrorMessage, NULL,
+    // 			 JSSMSG_FJ_WICKED,__FUNCTION__, "invalid value");
+
+    //    res = *JSVAL_TO_DOUBLE(*val);
+    //    func("argument %p is %.4f",val, res);
+    break;
+  }
+
+  return res;
+}
+
+jsdouble js_get_double(jsval *val) {
+  jsdouble res = 0.0;
+
+  int tag = JSVAL_TAG(*val);
+  switch(tag) {
+  case 0x0:
+    error("argument %p is a JS Object, should be double", val);
+    break;
+
+  case 0x1:
+    res = (double)JSVAL_TO_INT(*val);
+    warning("argument %p is an integer, but should be double, got value %.4f",val, res);
+    break;
+
+  case 0x2:
+    res = *JSVAL_TO_DOUBLE(*val);
+    func("argument %p is %.4f",val, res);
+    break;
+    
+  case 0x4:
+    error("argument %p is a string, should be double", val);
+    break;
+
+  case 0x6:
+    error("argument %p is a boolean, shoul be double", val);
+    break;
+
+  default:
+    if(!val) {
+      warning("argument is NULL");
+      break;
+    }
+    double *tmp = JSVAL_TO_DOUBLE(*val);
+    if(!tmp) {
+      warning("argument %p is of unknown type, got null",val);
+    }
+    // else {
+    //   res = *tmp;
+    //   warning("argument %p is of unknown type, but should be int, got value %.4f",val, res);
+    // }
+    // JS_ReportErrorNumber( env->js->global_context, JSFreej_GetErrorMessage, NULL,
+    // 			 JSSMSG_FJ_WICKED,__FUNCTION__, "invalid value");
+
+    //    res = *JSVAL_TO_DOUBLE(*val);
+    //    func("argument %p is %.4f",val, res);
+    break;
+  }
+
+  return res;
 }
 
 void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *Report) {

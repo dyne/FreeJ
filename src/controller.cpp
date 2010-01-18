@@ -73,7 +73,7 @@ JS(controller_activate) {
   
   *rval = BOOLEAN_TO_JSVAL(ctrl->active);
   if (argc == 1) {
-	  JS_ARG_NUMBER(var,0);
+	  JS_ARG_INT(var,0);
 	  ctrl->active = var;
   }
   return JS_TRUE;

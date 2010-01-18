@@ -54,15 +54,14 @@ JS(js_audio_jack_constructor) {
 
   char excp_msg[MAX_ERR_MSG + 1];
   char *port;
-
+  
   JS_CHECK_ARGC(3);
 
-
   JS_ARG_STRING(port,0);
-  JS_ARG_NUMBER(sample,1);
-  JS_ARG_NUMBER(rate,2);
+  JS_ARG_INT(sample,1);
+  JS_ARG_INT(rate,2);
   
-  AudioCollector *audio = new AudioCollector(port, (int)sample, (int)rate);
+  AudioCollector *audio = new AudioCollector(port, sample, rate);
 
   if( ! JS_SetPrivate(cx, obj, (void*)audio) ) {
     sprintf(excp_msg, "failed assigning audio jack to javascript");
@@ -121,7 +120,7 @@ JS(js_audio_jack_get_harmonic) {
 
   JS_CHECK_ARGC(1);
   
-  JS_ARG_NUMBER(hc,0);
+  JS_ARG_INT(hc,0);
   
   AudioCollector *audio = (AudioCollector*)JS_GetPrivate(cx, obj);
   if(!audio) {
@@ -129,7 +128,7 @@ JS(js_audio_jack_get_harmonic) {
     goto error;
   }
 
-  harmonic = audio->GetHarmonic((int)hc);
+  harmonic = audio->GetHarmonic(hc);
 
   return JS_NewNumberValue(cx, (double)harmonic, rval);
   

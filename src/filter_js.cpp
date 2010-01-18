@@ -74,7 +74,7 @@ JS(filter_activate) {
   
   *rval = BOOLEAN_TO_JSVAL(duo->instance->active);
   if (argc == 1) {
-    JS_ARG_NUMBER(var,0);
+    JS_ARG_INT(var,0);
     duo->instance->active = (bool)var;
   }
 

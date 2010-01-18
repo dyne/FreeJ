@@ -76,6 +76,14 @@ const JSErrorFormatString * JSFreej_GetErrorMessage(void *userRef, const char *l
 #define JSP(fun) \
   JSBool fun(JSContext *cx, JSObject *obj, jsval idval, jsval *vp)
 
+#define JS_ERROR(str) { \
+    ::error(str);					  \
+    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,	\
+			 JSSMSG_FJ_WICKED,			\
+			 __FUNCTION__,str);			\
+    return JS_FALSE;						\
+  }
+
 #define JS_CHECK_ARGC(num) \
   if(argc<num) { \
     error("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__); \
@@ -83,33 +91,26 @@ const JSErrorFormatString * JSFreej_GetErrorMessage(void *userRef, const char *l
     return(JS_FALSE); \
   }
 
-// cast a numerical value in a double variable
-#define JS_ARG_NUMBER(variable,argnum) \
-  double variable; \
-  if(JSVAL_IS_DOUBLE(argv[argnum])) { \
-    variable = *JSVAL_TO_DOUBLE(argv[argnum]); \
-  } else if(JSVAL_IS_INT(argv[argnum])) { \
-    variable = (double)JSVAL_TO_INT(argv[argnum]); \
-  } else if(JSVAL_IS_BOOLEAN(argv[argnum])) { \
-    variable = (double)JSVAL_TO_BOOLEAN(argv[argnum]); \
-  } else { \
-    JS_ReportError(cx,"%s: argument %u is not a number",__FUNCTION__,argnum); \
-    ::error("%s: argument %u is not a number",__FUNCTION__,argnum);	\
-    return JS_FALSE; \
-  }
+jsdouble js_get_double(jsval *val);
+jsint js_get_int(jsval *val);
 
-#define JS_PROP_NUMBER(variable, vp) \
-  double variable = 0x0; \
-  if(JSVAL_IS_DOUBLE(vp)) {		  \
-    variable = *JSVAL_TO_DOUBLE(vp);	  \
-  } else if(JSVAL_IS_INT(vp)) {		  \
-    variable = (double)JSVAL_TO_INT(vp); \
-  } else if(JSVAL_IS_BOOLEAN(vp)) {	     \
-    variable = (double)JSVAL_TO_BOOLEAN(vp); \
-  } else { \
-    JS_ReportError(cx,"%s: property value is not a number",__FUNCTION__); \
-    ::error("%s: property value is not a number",__FUNCTION__);	\
-  }
+
+// cast a numerical value in a double variable
+#define JS_ARG_DOUBLE(variable,argnum) \
+  jsdouble variable; \
+  variable = js_get_double(&argv[argnum]);
+
+#define JS_ARG_INT(variable,argnum) \
+  jsint variable; \
+  variable = js_get_int(&argv[argnum]);
+
+#define JS_PROP_DOUBLE(variable, vp) \
+  jsdouble variable; \
+  variable = js_get_double(vp);
+
+#define JS_PROP_INT(variable, vp) \
+  jsint variable; \
+  variable = js_get_int(vp);
 
 
 #define JS_ARG_STRING(variable,argnum) \
@@ -205,18 +206,14 @@ JS(constructor_func) {                                                        \
 #define GET_LAYER(layer_class) \
 layer_class *lay = (layer_class *) JS_GetPrivate(cx,obj); \
 if(!lay) { \
-  error("%u:%s:%s :: Layer core data is NULL", \
-	__LINE__,__FILE__,__FUNCTION__); \
-  return JS_FALSE; \
+  error("%s:%u:%s :: Layer core data is NULL", \
+	__FILE__,__LINE__,__FUNCTION__);				\
+  JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,		\
+		       JSSMSG_FJ_CANT_CREATE, __func__,			\
+		       "class instance is not usable");		\
+  return JS_TRUE; \
 }
 
-#define JS_ERROR(str) { \
-    ::error(str);					  \
-    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,	\
-			 JSSMSG_FJ_WICKED,			\
-			 __FUNCTION__,str);			\
-    return JS_FALSE;						\
-  }
 
 extern Context *global_environment;
 extern bool stop_script;

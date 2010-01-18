@@ -166,7 +166,7 @@ JS(layer_set_fps) {
 	int fps_old = lay->fps.get();
 
 	if(argc==1) {
-		JS_ARG_NUMBER(fps, 0);
+		JS_ARG_INT(fps, 0);
 		fps_old = lay->fps.set(fps);
 	}
 
@@ -382,10 +382,10 @@ JS(layer_set_position) {
     
     GET_LAYER(Layer);
 
-    JS_ARG_NUMBER(x,0);
-    JS_ARG_NUMBER(y,1);
+    JS_ARG_INT(x,0);
+    JS_ARG_INT(y,1);
 
-    lay->set_position((int)x, (int)y);
+    lay->set_position(x, y);
 
     return JS_TRUE;
 }
@@ -423,7 +423,7 @@ JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     if(argc<1) JS_ERROR("missing argument");
-    JS_ARG_NUMBER(value,0);
+    JS_ARG_DOUBLE(value,0);
 
     GET_LAYER(Layer);
 
@@ -448,8 +448,8 @@ JS(layer_fade_blit_value) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   
   if(argc<2) JS_ERROR("missing argument");
-  JS_ARG_NUMBER(value,0);
-  JS_ARG_NUMBER(step,1);
+  JS_ARG_DOUBLE(value,0);
+  JS_ARG_DOUBLE(step,1);
 
   GET_LAYER(Layer);
 
@@ -544,7 +544,7 @@ JS(layer_rotate) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   if(argc<1) JS_ERROR("missing argument");
-  JS_ARG_NUMBER(degrees,0);
+  JS_ARG_DOUBLE(degrees,0);
 
   GET_LAYER(Layer);
 
@@ -557,8 +557,8 @@ JS(layer_zoom) {
 
   if(argc<1) JS_ERROR("missing argument");
   // take ymang=xmagn on .zoom(val)
-  JS_ARG_NUMBER(xmagn,0);
-  JS_ARG_NUMBER(ymagn,argc == 1 ? 0 : 1);
+  JS_ARG_DOUBLE(xmagn,0);
+  JS_ARG_DOUBLE(ymagn,argc == 1 ? 0 : 1);
   
   GET_LAYER(Layer);
 

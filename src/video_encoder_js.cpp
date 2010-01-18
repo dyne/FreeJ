@@ -244,9 +244,9 @@ JS(stream_port) {
     return JS_FALSE;
   }
 
-  JS_ARG_NUMBER(port, 0);
+  JS_ARG_INT(port, 0);
 
-  if(shout_set_port(enc->ice, (short unsigned int)port))
+  if(shout_set_port(enc->ice, port))
     error("shout_set_port: %s", shout_get_error(enc->ice));
 
   return JS_TRUE;

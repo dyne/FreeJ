@@ -62,8 +62,8 @@ public:
 
   void get_audio(void *buffer);
 
-  unsigned int samplerate;
-  unsigned int buffersize;
+  int samplerate;
+  int buffersize;
   bool attached;
 
   JackClient *Jack;

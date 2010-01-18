@@ -370,8 +370,8 @@ JS(js_xgrab_constructor) {
 		delete xg; return JS_FALSE;
 	}
 	if (argc == 1) {
-		JS_ARG_NUMBER(winid, 0);
-		if(!JS_NewNumberValue(cx, xg->open((uint32_t)winid), rval)) {
+		JS_ARG_INT(winid, 0);
+		if(!JS_NewNumberValue(cx, xg->open(winid), rval)) {
 			error("failed initializing xgrab controller");
 			delete xg; return JS_FALSE;
 		}
@@ -394,8 +394,8 @@ JS(js_xgrab_open) {
 	}
 
 	if (argc == 1) {
-		JS_ARG_NUMBER(winid, 0);
-		return JS_NewNumberValue(cx, lay->open((uint32_t)winid), rval);
+		JS_ARG_INT(winid, 0);
+		return JS_NewNumberValue(cx, lay->open(winid), rval);
 	}
 	JS_ERROR("Wrong number of arguments");
 }

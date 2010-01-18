@@ -77,11 +77,10 @@ JS(screen_constructor) {
 JS(screen_init) {
   func("%s",__PRETTY_FUNCTION__);
   
-  JS_CHECK_ARGC(2)
-
-  uint16_t w,h;
-  JS_ValueToUint16(cx, argv[0], &w);
-  JS_ValueToUint16(cx, argv[1], &h);
+  JS_CHECK_ARGC(2);
+  
+  JS_ARG_INT(w, 0);
+  JS_ARG_INT(h, 1);
     
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   if(!screen) {
