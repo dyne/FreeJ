@@ -31,16 +31,16 @@ class Color {
   Color();
   virtual ~Color();
 
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-  uint8_t a;
+  double r;
+  double g;
+  double b;
+  double a;
 
-  void set_rgb(int nr, int ng, int nb);
-  void set_rgba(int nr, int ng, int nb, int na);
+  void set_rgb(double nr, double ng, double nb);
+  void set_rgba(double nr, double ng, double nb, double na);
 
   void set_gray(double g);
-  void set_gray_alpha(double g, int a);
+  void set_gray_alpha(double g, double a);
 
   /* void set_hsb(double h, double s, double b); */
 

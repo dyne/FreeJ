@@ -33,14 +33,14 @@ Color::Color() {
 Color::~Color() { }
 
 
-void Color::set_rgb(int nr, int ng, int nb) {
+void Color::set_rgb(double nr, double ng, double nb) {
   r = nr;
   g = ng;
   b = nb;
   set();
 }
 
-void Color::set_rgba(int nr, int ng, int nb, int na) {
+void Color::set_rgba(double nr, double ng, double nb, double na) {
   r = nr;
   g = ng;
   b = nb;
@@ -49,4 +49,4 @@ void Color::set_rgba(int nr, int ng, int nb, int na) {
 }
 
 void Color::set_gray(double g) { set_rgb(g, g, g); }
-void Color::set_gray_alpha(double g, int a) { set_rgba(g, g, g, a); }
+void Color::set_gray_alpha(double g, double a) { set_rgba(g, g, g, a); }

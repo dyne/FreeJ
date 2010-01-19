@@ -34,7 +34,14 @@ FACTORY_REGISTER_INSTANTIATOR(Layer, CairoLayer, VectorLayer, cairo);
 
 CairoColor::CairoColor(cairo_t *cai) :Color() { cairo = cai; }
 CairoColor::~CairoColor() { }
-void CairoColor::set() { cairo_set_source_rgba(cairo, r, g, b, a); };
+void CairoColor::set() {
+  double sr = r / 256.;
+  double sg = g / 256.;
+  double sb = b / 256.;
+  double sa = a / 256.;
+  func("Color::set r[%.2f] g[%.2f] b[%.2f] a[%.2f]",sr,sg,sb,sa);
+  cairo_set_source_rgba(cairo, sr, sg, sb, sa);
+};
 
 CairoLayer::CairoLayer()
   :Layer() {
@@ -75,7 +82,7 @@ bool CairoLayer::_init() {
 
   // test
   cairo_set_line_width(cairo, 0.1 );   
-  cairo_set_source_rgb(cairo, 1.0, 1.0, 0.0); 
+  cairo_set_source_rgb(cairo, 1.0, 1.0, 1.0); 
 
   opened = true;
   return(true);
@@ -104,11 +111,22 @@ void CairoLayer::save() { cairo_save(cairo); }
 void CairoLayer::restore() { cairo_restore(cairo); }
 void CairoLayer::new_path() { cairo_new_path(cairo); }
 void CairoLayer::close_path() { cairo_close_path(cairo); }
-void CairoLayer::scale(double xx, double yy) { cairo_scale(cairo, xx, yy); }
+void CairoLayer::scale(double xx, double yy) {
+  func("%s :: x[%.2f] y[%.2f]", __FUNCTION__, xx, yy);
+  cairo_scale(cairo, xx, yy); }
 void CairoLayer::rotate(double angle) { cairo_rotate(cairo, angle); }
-void CairoLayer::translate(int xx, int yy) { cairo_translate(cairo, xx, yy); }
-void CairoLayer::move_to(double xx, double yy) { cairo_move_to(cairo, xx, yy); }
-void CairoLayer::line_to(double xx, double yy) { cairo_line_to(cairo, xx, yy); }
+void CairoLayer::translate(int xx, int yy) {
+  func("%s :: x[%.2f] y[%.2f]", __FUNCTION__, xx, yy);
+  cairo_translate(cairo, xx, yy);
+}
+void CairoLayer::move_to(double xx, double yy) { 
+  func("%s :: x[%.2f] y[%.2f]", __FUNCTION__, xx, yy);
+  cairo_move_to(cairo, xx, yy);
+}
+void CairoLayer::line_to(double xx, double yy) {
+  func("%s :: x[%.2f] y[%.2f]", __FUNCTION__, xx, yy);
+  cairo_line_to(cairo, xx, yy);
+}
 void CairoLayer::curve_to(int x1, int y1, int x2, int y2, int x3, int y3) {
     cairo_curve_to(cairo, x1, y1, x2, y2, x3, y3); }
 void CairoLayer::arc(double xc, double yc, double radius, double angle1, double angle2) {

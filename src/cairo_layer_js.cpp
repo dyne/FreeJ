@@ -155,8 +155,8 @@ JSBool CairoLayer::set_color(JSContext *cx, uintN argc, jsval *argv, int idx) {
 
   } else if(argc==2) {
 
-    JS_ARG_INT(g, idx);
-    JS_ARG_INT(a, idx+1);
+    JS_ARG_DOUBLE(g, idx);
+    JS_ARG_DOUBLE(a, idx+1);
 
     // g is a double
     // a is a signed integer
@@ -168,9 +168,9 @@ JSBool CairoLayer::set_color(JSContext *cx, uintN argc, jsval *argv, int idx) {
     return JS_TRUE;
 
   } else if(argc==3) {
-    JS_ARG_INT(r, idx);
-    JS_ARG_INT(g, idx+1);
-    JS_ARG_INT(b, idx+2);
+    JS_ARG_DOUBLE(r, idx);
+    JS_ARG_DOUBLE(g, idx+1);
+    JS_ARG_DOUBLE(b, idx+2);
 
     func("%s r[%i] g[%i] b[%i]", __FUNCTION__, r, g, b);
     //    js_debug_property(cx, &argv[idx]);
@@ -182,10 +182,10 @@ JSBool CairoLayer::set_color(JSContext *cx, uintN argc, jsval *argv, int idx) {
 
   } else if(argc==4) {
 
-    JS_ARG_INT(r, idx);
-    JS_ARG_INT(g, idx+1);
-    JS_ARG_INT(b, idx+2);
-    JS_ARG_INT(a, idx+3);
+    JS_ARG_DOUBLE(r, idx);
+    JS_ARG_DOUBLE(g, idx+1);
+    JS_ARG_DOUBLE(b, idx+2);
+    JS_ARG_DOUBLE(a, idx+3);
 
     func("%s r[%i] g[%i] b[%i] a[%i]", __FUNCTION__, r, g, b, a);
     // js_debug_property(cx, &argv[idx]);
@@ -275,10 +275,10 @@ JS(vector_layer_lineto) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_DOUBLE(x, 0);
-  JS_ARG_DOUBLE(y, 1);
+  JS_ARG_INT(x, 0);
+  JS_ARG_INT(y, 1);
 
-  func("%s x[%.4f] y[%.4f]", __FUNCTION__ , x, y );
+  func("%s x[%i] y[%i]", __FUNCTION__ , x, y );
 
   lay->line_to(x, y);
 
@@ -302,10 +302,10 @@ JS(vector_layer_moveto) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_DOUBLE(x, 0);
-  JS_ARG_DOUBLE(y, 1);
+  JS_ARG_INT(x, 0);
+  JS_ARG_INT(y, 1);
 
-  func("%s x[%.4f] y[%.4f]", __FUNCTION__, x, y  );
+  func("%s x[%i] y[%i]", __FUNCTION__, x, y  );
 
   lay->move_to(x, y);
 
@@ -357,15 +357,15 @@ JS(vector_layer_arc) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_DOUBLE(xc, 0);
-  JS_ARG_DOUBLE(yc, 1);
+  JS_ARG_INT(xc, 0);
+  JS_ARG_INT(yc, 1);
 
   JS_ARG_DOUBLE(radius, 2);
 
   JS_ARG_DOUBLE(angle1, 3);
   JS_ARG_DOUBLE(angle2, 4);
 
-  func("Vector arc :: x[%.2f] y[%.2f] rad[%.2f] angle1[%.2f] angle2[%.2f]",
+  func("Vector arc :: x[%i] y[%i] rad[%.2f] angle1[%.2f] angle2[%.2f]",
        xc, yc, radius, angle1, angle2 );
   
   lay->arc(xc, yc, radius, angle1, angle2);
@@ -379,11 +379,14 @@ JS(vector_layer_fillrect) {
 
   GET_LAYER(CairoLayer);  
 
-  JS_ARG_DOUBLE(x1, 0);
-  JS_ARG_DOUBLE(y1, 1);
+  JS_ARG_INT(x1, 0);
+  JS_ARG_INT(y1, 1);
 
-  JS_ARG_DOUBLE(x2, 2);
-  JS_ARG_DOUBLE(y2, 3);
+  JS_ARG_INT(x2, 2);
+  JS_ARG_INT(y2, 3);
+
+  func("Vector fill_rect :: x1[%i] y1[%i] x2[%i] y2[%i]",
+       x1, y1, x2, y2);
 
   lay->fill_rect(x1, y1, x2, y2);
 
