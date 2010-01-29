@@ -705,13 +705,13 @@ if test x$have_mozjs = xno || test x$static_mozjs = xyes; then
   dnl run lib/javascript/configure after freej's configure, building it static
   dnl XXX config.cache can be shared between the two configures? is it safe?
   AC_CONFIG_COMMANDS([lib/javascript/.xulrunner-subdir],
-                     [(
-    cd lib/javascript &&
+                     [
+    (cd lib/javascript &&
       CXXFLAGS="$GLOBAL_CFLAGS $CXXFLAGS -fPIC" \
       CFLAGS="$GLOBAL_CFLAGS $CFLAGS -fPIC" \
       $ac_srcdir/configure --enable-static \
-        --enable-js-static-build --disable-jit
-  )])
+        --enable-js-static-build --disable-jit) || exit $?
+  ])
   have_mozjs=no
 fi
 
