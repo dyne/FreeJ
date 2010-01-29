@@ -528,6 +528,17 @@ if test x$enable_opengl = xyes; then
    dnl note: checking for GLU only, this brings in also GL
    PKG_CHECK_MODULES(GLU, glu,
                      have_glu=yes, have_glu=no)
+
+   dnl pkg-config failed, try headers
+   if test x$have_glu = xno; then
+      FREEJ_CHECK_LIB_HEADER([GLU], [gluNewQuadric], [GL/glu.h],
+                             [have_glu=yes], [have_glu=no])
+      if test x$have_glu = xyes; then
+         GLU_LIBS="-lGL -lGLU"
+         GLU_CFLAGS=""
+      fi
+   fi
+
    if test x$have_glu = xno; then
       AC_MSG_ERROR([*** opengl requested but not found!])
    else
