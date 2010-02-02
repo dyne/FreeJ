@@ -2,6 +2,9 @@ dnl ==============================================================
 dnl Process this file with autoconf to produce a configure script.
 dnl ==============================================================
 
+dnl require autoconf 2.62 (AS_ECHO/AS_ECHO_N)
+AC_PREREQ([2.62])
+
 AC_INIT([FreeJ],[0.11.0],[freej@lists.dyne.org],[freej])
 AC_CONFIG_MACRO_DIR([m4])
 
