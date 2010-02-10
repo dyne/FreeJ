@@ -133,9 +133,7 @@ JS(vid_enc_start_filesave) {
   
   JS_CHECK_ARGC(1);
 
-  char *file;
-
-  JS_ARG_STRING(file, 0);
+  char *file = js_get_string(argv[0]);
 
   if(!enc->is_running()) enc->start();
 
@@ -225,8 +223,7 @@ JS(stream_host) {
     return JS_FALSE;
   }
 
-  char *hostname;
-  JS_ARG_STRING(hostname, 0);
+  char *hostname = js_get_string(argv[0]);
 
   if(shout_set_host(enc->ice, hostname))
     error("shout_set_host: %s",shout_get_error(enc->ice));
@@ -244,7 +241,7 @@ JS(stream_port) {
     return JS_FALSE;
   }
 
-  JS_ARG_INT(port, 0);
+  jsint port = js_get_int(argv[0]);
 
   if(shout_set_port(enc->ice, port))
     error("shout_set_port: %s", shout_get_error(enc->ice));
@@ -263,8 +260,7 @@ JS(stream_mount) {
     return JS_FALSE;
   }
 
-  char *mount;
-  JS_ARG_STRING(mount, 0);
+  char *mount = js_get_string(argv[0]);
 
   if(shout_set_mount(enc->ice, mount))
     error("shout_set_mount: %s",shout_get_error(enc->ice));
@@ -284,8 +280,7 @@ JS(stream_title) {
   }
 
 
-  char *title;
-  JS_ARG_STRING(title, 0);
+  char *title = js_get_string(argv[0]);
 
   if(shout_set_name(enc->ice, title))
     error("shout_set_title: %s",shout_get_error(enc->ice));
@@ -305,8 +300,7 @@ JS(stream_username) {
   }
 
 
-  char *user;
-  JS_ARG_STRING(user, 0);
+  char *user = js_get_string(argv[0]);
 
   if(shout_set_user(enc->ice, user))
     error("shout_set_user: %s",shout_get_error(enc->ice));
@@ -325,8 +319,7 @@ JS(stream_password) {
     return JS_FALSE;
   }
 
-  char *pass;
-  JS_ARG_STRING(pass, 0);
+  char *pass = js_get_string(argv[0]);
 
   if(shout_set_password(enc->ice, pass))
     error("shout_set_pass: %s",shout_get_error(enc->ice));
@@ -345,8 +338,7 @@ JS(stream_homepage) {
     return JS_FALSE;
   }
 
-  char *url;
-  JS_ARG_STRING(url, 0);
+  char *url = js_get_string(argv[0]);
 
   if(shout_set_url(enc->ice, url))
     error("shout_set_url: %s",shout_get_error(enc->ice));
@@ -365,8 +357,7 @@ JS(stream_description) {
     return JS_FALSE;
   }
 
-  char *desc;
-  JS_ARG_STRING(desc, 0);
+  char *desc = js_get_string(argv[0]);
 
   if(shout_set_description(enc->ice, desc))
     error("shout_set_descrition: %s",shout_get_error(enc->ice));

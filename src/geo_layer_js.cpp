@@ -97,7 +97,7 @@ JS(geometry_layer_color) {
 
   if(argc == 1) {
 
-    JS_ARG_INT(hex,0);
+    jsint hex = js_get_int(argv[0]);
     lay->set_color(hex);
     
   } else {

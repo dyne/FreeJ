@@ -29,6 +29,9 @@
 #include <jutils.h>
 #include <jsparser_data.h>
 
+// our objects are allowed to be created trough the factory engine
+FACTORY_REGISTER_INSTANTIATOR(Layer, TextLayer, TextLayer, truetype);
+
 TextLayer::TextLayer()
   :Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
@@ -50,7 +53,7 @@ TextLayer::TextLayer()
   bgcolor.b = 0x00;
 
   type = Layer::TEXT;
-  set_name("TTF");
+  set_name("TXT");
   surf = NULL;
   jsclass = &txt_layer_class;
 

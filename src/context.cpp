@@ -135,7 +135,9 @@ Context::Context() {
 #ifdef WITH_CAIRO
   Factory<Layer>::set_default_classtype("VectorLayer", "cairo");
 #endif
-
+#ifdef WITH_TEXTLAYER
+  Factory<Layer>::set_default_classtype("TextLayer", "truetype");
+#endif
   assert( init() );
 
 }

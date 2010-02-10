@@ -56,11 +56,24 @@ JSFreej_GetErrorMessage(void *userRef, const char *locale, const uintN errorNumb
 	    return NULL;
 }
 
+#define CHECK_JSENV() \
+  if(!global_environment) { \
+    error("%s : can't find freej context", __FUNCTION__); \
+    return 0; \
+  } \
+  if(!global_environment->js) { \
+    error("%s : freej context without a javascript parser", __FUNCTION__); \
+    return 0; \
+  } \
+  if(!global_environment->js->global_context) { \
+    error("%s : called on a NULL javascript context", __FUNCTION__); \
+    return 0; \
+  }
 
 /* we declare the Context pointer static here
    in order to have it accessed from callback functions
    which are not class methods */
-Context *env;
+//Context *env;
 bool stop_script;
 
 void js_sigint_handler(int sig) {
@@ -80,31 +93,46 @@ JSBool js_static_branch_callback(JSContext* Context)
     return JS_TRUE;
 }
 
-jsint js_get_int(jsval *val) {
-  jsint res = 0;
+char *js_get_string(jsval val) {
+  char *res = NULL;
+  if(JSVAL_IS_STRING(val))
+    res = JS_GetStringBytes( JS_ValueToString(global_environment->js->global_context, val) );
+  else {
+    JS_ReportError(global_environment->js->global_context,"argument is not a string");
+    ::error("argument is not a string");
+  }
+  return res;
+}
 
-  int tag = JSVAL_TAG(*val);
+
+jsint js_get_int(jsval val) {
+
+  CHECK_JSENV();
+
+  int32 res = 0;
+
+  int tag = JSVAL_TAG(val);
   switch(tag) {
   case 0x0:
-    error("argument %p is a JS Object, should be integer", val);
+    error("argument is a JS Object, should be integer");
     break;
 
   case 0x1:
-    res =  JSVAL_TO_INT(*val);
-    func("argument %p is %i",val, res);
+    JS_ValueToInt32(global_environment->js->global_context, val, &res);
+    func("argument is %i", res);
     break;
 
   case 0x2:
-    res = (int)floor( *JSVAL_TO_DOUBLE(*val) );
-    warning("argument %p is a double, but should be int, got value %i",val, res);
+    JS_ValueToInt32(global_environment->js->global_context, val, &res);
+    warning("argument is a double, but should be int, got value %i", res);
     break;
     
   case 0x4:
-    error("argument %p is a string, should be integer", val);
+    error("argument is a string, should be integer");
     break;
 
   case 0x6:
-    error("argument %p is a boolean, shoul be integer", val);
+    error("argument is a boolean, shoul be integer");
     break;
 
   default:
@@ -112,16 +140,18 @@ jsint js_get_int(jsval *val) {
       warning("argument is NULL");
       break;
     }
-    double *tmp = JSVAL_TO_DOUBLE(*val);
-    if(!tmp) {
-      warning("argument %p is of unknown type, got null",val);
+    {
+      jsdouble tmp;
+      if( !JS_ValueToNumber(global_environment->js->global_context, val, &tmp) ) {
+	error("argument is of unknown type, cannot interpret");
+      } else res = (int32)tmp;
     }
-    // else {
+      // else {
     //   res = (int)floor( *tmp );
     //   warning("argument %p is of unknown type, but should be int, got value %i",val, res);
     // }
 
-    // JS_ReportErrorNumber( env->js->global_context, JSFreej_GetErrorMessage, NULL,
+    // JS_ReportErrorNumber( global_environment->js->global_context, JSFreej_GetErrorMessage, NULL,
     // 			 JSSMSG_FJ_WICKED,__FUNCTION__, "invalid value");
 
     //    res = *JSVAL_TO_DOUBLE(*val);
@@ -132,31 +162,34 @@ jsint js_get_int(jsval *val) {
   return res;
 }
 
-jsdouble js_get_double(jsval *val) {
+jsdouble js_get_double(jsval val) {
+
+  CHECK_JSENV();
+
   jsdouble res = 0.0;
 
-  int tag = JSVAL_TAG(*val);
+  int tag = JSVAL_TAG(val);
   switch(tag) {
   case 0x0:
-    error("argument %p is a JS Object, should be double", val);
+    error("argument is a JS Object, should be double");
     break;
 
   case 0x1:
-    res = (double)JSVAL_TO_INT(*val);
-    warning("argument %p is an integer, but should be double, got value %.4f",val, res);
+    JS_ValueToNumber(global_environment->js->global_context, val, &res);
+    warning("argument is an integer, but should be double, got value %.4f", res);
     break;
 
   case 0x2:
-    res = *JSVAL_TO_DOUBLE(*val);
-    func("argument %p is %.4f",val, res);
+    JS_ValueToNumber(global_environment->js->global_context, val, &res);
+    func("argument is %.4f", res);
     break;
     
   case 0x4:
-    error("argument %p is a string, should be double", val);
+    error("argument is a string, should be double");
     break;
 
   case 0x6:
-    error("argument %p is a boolean, shoul be double", val);
+    error("argument is a boolean, shoul be double");
     break;
 
   default:
@@ -164,15 +197,23 @@ jsdouble js_get_double(jsval *val) {
       warning("argument is NULL");
       break;
     }
-    double *tmp = JSVAL_TO_DOUBLE(*val);
-    if(!tmp) {
-      warning("argument %p is of unknown type, got null",val);
+    {
+      jsdouble tmp;
+      if( ! JS_ValueToNumber(global_environment->js->global_context, val, &tmp) ) {
+	error("argument is of unknown type, cannot interpret");
+      } else res = tmp;
     }
+
+    // jsdouble tmp;
+    // JS_ValueToNumber(global_environment->js->global_context, *val, &tmp);
+    // if(!tmp) {
+    //   warning("argument %p is of unknown type, got null",val);
+    // }
     // else {
     //   res = *tmp;
     //   warning("argument %p is of unknown type, but should be int, got value %.4f",val, res);
     // }
-    // JS_ReportErrorNumber( env->js->global_context, JSFreej_GetErrorMessage, NULL,
+    // JS_ReportErrorNumber( global_environment->js->global_context, JSFreej_GetErrorMessage, NULL,
     // 			 JSSMSG_FJ_WICKED,__FUNCTION__, "invalid value");
 
     //    res = *JSVAL_TO_DOUBLE(*val);

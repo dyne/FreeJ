@@ -19,6 +19,7 @@
  *
  */
 
+#include <jsparser.h>
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 #include <layer.h>
@@ -78,7 +79,7 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
       return NULL;    }
 
   } else if(argc==1) {
-    JS_ARG_STRING(filename,0);
+    filename = js_get_string(argv[0]);
     if(!init()) {
       sprintf(err_msg, "Layer constructor failed initialization");
       return NULL;    }
@@ -100,7 +101,7 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
   } else if(argc==3) {
     JS_ValueToUint16(cx, argv[0], &width);
     JS_ValueToUint16(cx, argv[1], &height);
-    JS_ARG_STRING(filename,2);
+    filename = js_get_string(argv[2]);
     if(!init(width, height,32)) {
       snprintf(err_msg, MAX_ERR_MSG,
 	       "Layer constructor failed initializaztion w[%u] h[%u]", width, height);
@@ -141,7 +142,7 @@ JS(layer_constructor) {
   if(argc < 1) JS_ERROR("missing argument");
 
   // recognize the extension and open the file given in argument
-  JS_ARG_STRING(filename,0);
+  filename = js_get_string(argv[0]);
 
   layer = global_environment->open( filename );
   if(!layer) {
@@ -162,15 +163,15 @@ JS(layer_constructor) {
 }
 
 JS(layer_set_fps) {
-	GET_LAYER(Layer);
-	int fps_old = lay->fps.get();
-
-	if(argc==1) {
-		JS_ARG_INT(fps, 0);
-		fps_old = lay->fps.set(fps);
-	}
-
-	return JS_NewNumberValue(cx, fps_old, rval);
+  GET_LAYER(Layer);
+  int fps_old = lay->fps.get();
+  
+  if(argc==1) {
+    jsint fps = js_get_int(argv[0]);
+    fps_old = lay->fps.set(fps);
+  }
+  
+  return JS_NewNumberValue(cx, fps_old, rval);
 }
 
 JS(layer_get_fps) {
@@ -334,7 +335,7 @@ JS(layer_set_blit) {
 
   GET_LAYER(Layer);
 
-  JS_ARG_STRING(blit_name, 0);
+  blit_name = js_get_string(argv[0]);
 
   lay->set_blit( blit_name );
 
@@ -379,12 +380,12 @@ JS(layer_set_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     if(argc<2) JS_ERROR("missing argument");
-    
     GET_LAYER(Layer);
 
-    JS_ARG_INT(x,0);
-    JS_ARG_INT(y,1);
-
+    int32 x, y;
+    x = js_get_int(argv[0]);
+    y = js_get_int(argv[1]);
+    func("set position x:%i y:%u", x, y);
     lay->set_position(x, y);
 
     return JS_TRUE;
@@ -423,7 +424,7 @@ JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
     if(argc<1) JS_ERROR("missing argument");
-    JS_ARG_DOUBLE(value,0);
+    jsint value = js_get_double(argv[0]);
 
     GET_LAYER(Layer);
 
@@ -448,8 +449,8 @@ JS(layer_fade_blit_value) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   
   if(argc<2) JS_ERROR("missing argument");
-  JS_ARG_DOUBLE(value,0);
-  JS_ARG_DOUBLE(step,1);
+  jsint value = js_get_double(argv[0]);
+  jsint step = js_get_double(argv[1]);
 
   GET_LAYER(Layer);
 
@@ -544,7 +545,11 @@ JS(layer_rotate) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   if(argc<1) JS_ERROR("missing argument");
-  JS_ARG_DOUBLE(degrees,0);
+
+  js_debug_argument(cx, argv[0]);
+
+  jsdouble degrees = js_get_double(argv[0]);
+
 
   GET_LAYER(Layer);
 
@@ -557,8 +562,10 @@ JS(layer_zoom) {
 
   if(argc<1) JS_ERROR("missing argument");
   // take ymang=xmagn on .zoom(val)
-  JS_ARG_DOUBLE(xmagn,0);
-  JS_ARG_DOUBLE(ymagn,argc == 1 ? 0 : 1);
+  jsdouble xmagn, ymagn;
+  xmagn = js_get_double(argv[0]);
+  if(argc>1) ymagn = js_get_double(argv[1]);
+  else ymagn = xmagn;
   
   GET_LAYER(Layer);
 

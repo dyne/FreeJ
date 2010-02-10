@@ -67,6 +67,8 @@ class TextLayer: public Layer {
   void _display_text(SDL_Surface *newsurf);
   char *_get_fontfile(const char *name);
 
+   // allow to use Factory on this class
+  FACTORY_ALLOWED
 };
 
 #endif

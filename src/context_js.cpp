@@ -297,8 +297,8 @@ JS(unset_clear_all) {
 
 JS(set_fps) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-  JS_ARG_INT(fps, 0);
+  
+  jsint fps = js_get_int(argv[0]);
 
   global_environment->fps.set(fps);
   return JS_TRUE;
@@ -307,8 +307,8 @@ JS(set_fps) {
 JS(js_set_debug) {
     JSBool ret = JS_NewNumberValue(cx, get_debug(), rval);
     if(argc==1) {
-            JS_ARG_INT(level, 0);
-            set_debug(level);
+      jsint level = js_get_int(argv[0]);
+      set_debug(level);
     }
     return ret;
 }
@@ -370,9 +370,8 @@ JS(freej_scandir) {
 #endif
   int found;
   int c = 0;
-  char *dir;
-  
-  JS_ARG_STRING(dir,0);
+
+  char *dir = js_get_string(argv[0]);
   
   found = scandir(dir,&filelist,dir_selector,alphasort);
   if(found<0) {
@@ -400,26 +399,24 @@ JS(freej_scandir) {
 }
 
 JS(freej_echo) {
-  char *msg;
-  JS_ARG_STRING(msg,0);
+  char *msg = js_get_string(argv[0]);
   notice("%s", msg);
   return JS_TRUE;
 }
 
 JS(freej_echo_func) {
-  char *msg;
-  JS_ARG_STRING(msg,0);
+  char *msg = js_get_string(argv[0]);
   func("%s", msg);
   return JS_TRUE;
 }
 
 JS(freej_strstr) {
-  char *haystack;
-  char *needle;
   char *res;
   int intval;
-  JS_ARG_STRING(haystack,0);
-  JS_ARG_STRING(needle,1);
+
+  char *haystack = js_get_string(argv[0]);
+  char *needle = js_get_string(argv[1]);
+
   res = strstr(haystack, needle);
   if(res == NULL)
     intval = 0;
@@ -433,15 +430,13 @@ JS(read_file) {
   JS_CHECK_ARGC(1);
 
   JSString *str;
-  jsval val;
 
   FILE *fd;
 
   int len;
   char *buf;
 
-  char *file;
-  JS_ARG_STRING(file,0);
+  char *file = js_get_string(argv[0]);
 
   // try to open the file
   fd = ::fopen(file,"r");
@@ -489,8 +484,7 @@ JS(file_to_strings) {
   int len;
   int c;
 
-  char *file;
-  JS_ARG_STRING(file,0);
+  char *file = js_get_string(argv[0]);
 
   // try to open the file and read it in memory
   fd = ::fopen(file,"r");
@@ -552,9 +546,7 @@ JS(file_to_strings) {
 // debugging commodity
 // run freej with -D3 to see this
 JS(debug) {
-  char *msg;
-  
-  JS_ARG_STRING(msg,0);
+  char *msg = js_get_string(argv[0]);
  
   func("%s", msg);
 
@@ -587,10 +579,11 @@ JS(srand) {
   // u get unpredictably sloow
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   int seed;
+  jsint r;
   if(argc<1)
     seed = time(NULL);
   else {
-    JS_ARG_INT(r,0);
+    r = js_get_int(argv[0]);
     seed = r;
   }
   randval = seed;
@@ -703,12 +696,12 @@ JS(entry_select) {
 JS(include_javascript_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 	char *jscript;
-	char *debian_path = "share/doc/freej/scripts/javascript/lib";
+	const char *debian_path = "share/doc/freej/scripts/javascript/lib";
 	char temp[512];
 	FILE *fd;
 	
 	if(argc<1) JS_ERROR("missing argument");
-	JS_ARG_STRING(jscript,0);
+	jscript = js_get_string(argv[0]);
 	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 
 	snprintf(temp,512,"%s",jscript);
@@ -752,7 +745,7 @@ JS(execute_javascript_command) {
 	jsval use;
 
 	if(argc<1) JS_ERROR("missing argument");
-	JS_ARG_STRING(jscript,0);
+	jscript = js_get_string(argv[0]);
 	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 
 	use = js->use(cx, obj, jscript);
@@ -774,7 +767,7 @@ JS(system_exec) {
   char **args;
 
   // get the executable program
-  JS_ARG_STRING(prog, 0);
+  prog = js_get_string(argv[0]);
 
   // get the arguments in a NULL terminated array
   args = (char**)calloc(argc +1, sizeof(char*));

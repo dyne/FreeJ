@@ -83,8 +83,7 @@ JS(txt_layer_print) {
 
   GET_LAYER(TextLayer);
 
-  char *str;
-  JS_ARG_STRING(str, 0);
+  char *str = js_get_string(argv[0]);
 
   lay->write(str);
 
@@ -97,7 +96,7 @@ JS(txt_layer_size) {
 
   GET_LAYER(TextLayer);
 
-  JS_ARG_INT(size,0);
+  jsint size = js_get_int(argv[0]);
 
   lay->set_fontsize(size);
 
@@ -110,8 +109,7 @@ JS(txt_layer_font) {
 
   GET_LAYER(TextLayer);
 
-  const char *font;
-  JS_ARG_STRING(font,0);
+  const char *font = js_get_string(argv[0]);
 
   // try full path to .ttf file
   if (lay->set_font(font))
@@ -135,7 +133,7 @@ JS(txt_layer_calculate_size) {
   jsdouble num;
   jsval val;
 
-  JS_ARG_STRING(text,0);
+  text = js_get_string(argv[0]);
   
   lay->calculate_string_size(text, &w, &h);
 

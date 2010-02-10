@@ -17,6 +17,7 @@
  *
  */
 
+#include <jsparser.h>
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 #include <jsnum.h>
@@ -72,91 +73,23 @@ JSPropertySpec vector_layer_properties[] = {
 JS_CONSTRUCTOR("VectorLayer", vector_layer_constructor, CairoLayer);
 
 
-static inline void js_debug_property(JSContext *cx, jsval *vp) {
-  func(" vp mem address %p", vp);
-  int tag = JSVAL_TAG(*vp);
-  func(" type tag is %i: %s",tag,
-       (tag==0x0)?"object":
-       (tag==0x1)?"integer":
-       (tag==0x2)?"double":
-       (tag==0x4)?"string":
-       (tag==0x6)?"boolean":
-       "unknown");
-
-  switch(tag) {
-  case 0x0:
-    {
-      JSObject *obj = JSVAL_TO_OBJECT(*vp);
-      jsval val;
-      if( JS_IsArrayObject(cx, obj) ) {
-	jsuint len; JS_GetArrayLength(cx, obj, &len);
-	func(" object is an array of %u elements", len);
-	for(jsuint c = 0; c<len; c++) {
-	  func(" dumping element %u:",c);
-	  JS_GetElement(cx, obj, c, &val);
-	  if(val == JSVAL_VOID)
-	    func(" content is VOID");
-	  else
-	    js_debug_property(cx, &val);
-	}
-      } else {
-	func(" object type is unknown to us (not an array?)");
-      }
-    }
-    break;
-  case 0x1:
-    {
-      JS_PROP_INT(num, vp);
-      func("  Sint[ %i ] Uint[ %u ]",
-	   num, num);
-    }
-    break;
-
-  case 0x2:
-    {
-      JS_PROP_DOUBLE(num, vp);
-      func("  double is %.4f",num);
-    }
-    break;
-    
-  case 0x4:
-    {
-      char *cap = NULL;
-      JS_PROP_STRING(cap);
-      func("  string is \"%s\"",cap);
-    }
-    break;
-
-  case 0x6:
-    {
-      bool b = false;
-      b = JSVAL_TO_BOOLEAN(*vp);
-      func("  boolean is %i",b);
-    }
-    break;
-
-  default:
-    func(" tag %u is unhandled, probably double");
-    JS_PROP_DOUBLE(num, vp);
-    func("  Double [ %.4f ] - Sint[ %i ] - Uint[ %u ]",
-	 num, num, num);
-  }
-}
 
 JSBool CairoLayer::set_color(JSContext *cx, uintN argc, jsval *argv, int idx) {
 
+  jsdouble r,g,b,a;
+
   if(argc==1) {
 
-    JS_ARG_DOUBLE(g, idx);
+    g = js_get_double(argv[idx]);
     func("%s gray [%.2f]", __FUNCTION__, g);
-    js_debug_property(cx, &argv[idx]);
+    js_debug_property(cx, argv[idx]);
     color->set_gray(g);
     return JS_TRUE;
 
   } else if(argc==2) {
 
-    JS_ARG_DOUBLE(g, idx);
-    JS_ARG_DOUBLE(a, idx+1);
+    g = js_get_double(argv[idx]);
+    a = js_get_double(argv[idx+1]);
 
     // g is a double
     // a is a signed integer
@@ -168,11 +101,11 @@ JSBool CairoLayer::set_color(JSContext *cx, uintN argc, jsval *argv, int idx) {
     return JS_TRUE;
 
   } else if(argc==3) {
-    JS_ARG_DOUBLE(r, idx);
-    JS_ARG_DOUBLE(g, idx+1);
-    JS_ARG_DOUBLE(b, idx+2);
+    r = js_get_double(argv[idx]);
+    g = js_get_double(argv[idx+1]);
+    b = js_get_double(argv[idx+2]);
 
-    func("%s r[%i] g[%i] b[%i]", __FUNCTION__, r, g, b);
+    func("%s r[%.2f] g[%.2f] b[%.2f]", __FUNCTION__, r, g, b);
     //    js_debug_property(cx, &argv[idx]);
     //    js_debug_property(cx, &argv[idx+1]);
     //    js_debug_property(cx, &argv[idx+2]);
@@ -182,12 +115,12 @@ JSBool CairoLayer::set_color(JSContext *cx, uintN argc, jsval *argv, int idx) {
 
   } else if(argc==4) {
 
-    JS_ARG_DOUBLE(r, idx);
-    JS_ARG_DOUBLE(g, idx+1);
-    JS_ARG_DOUBLE(b, idx+2);
-    JS_ARG_DOUBLE(a, idx+3);
+    r = js_get_double(argv[idx]);
+    g = js_get_double(argv[idx+1]);
+    b = js_get_double(argv[idx+2]);
+    a = js_get_double(argv[idx+3]);
 
-    func("%s r[%i] g[%i] b[%i] a[%i]", __FUNCTION__, r, g, b, a);
+    func("%s r[%.2f] g[%.2f] b[%.2f] a[%.2f]", __FUNCTION__, r, g, b, a);
     // js_debug_property(cx, &argv[idx]);
     // js_debug_property(cx, &argv[idx+1]);
     // js_debug_property(cx, &argv[idx+2]);
@@ -217,8 +150,10 @@ JS(vector_layer_translate) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_INT(tx, 0);
-  JS_ARG_INT(ty, 1);
+  jsint tx, ty;
+  
+  tx = js_get_int(argv[0]);
+  ty = js_get_int(argv[1]);
 
   func("%s x[%i] y[%i]", __FUNCTION__, tx, ty);
 
@@ -232,8 +167,9 @@ JS(vector_layer_scale) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_DOUBLE(sx, 0);
-  JS_ARG_DOUBLE(sy, 1);
+  jsdouble sx, sy;
+  sx = js_get_double(argv[0]);
+  sy = js_get_double(argv[1]);
 
   func("%s x[%.2f] y[%.2f]", __FUNCTION__, sx, sy );
 
@@ -248,7 +184,7 @@ JS(vector_layer_rotate) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_DOUBLE(angle, 0);
+  jsdouble angle = js_get_double(argv[0]);
 
   func("%s angle[%.2f]", __FUNCTION__, angle);
 
@@ -275,8 +211,9 @@ JS(vector_layer_lineto) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_INT(x, 0);
-  JS_ARG_INT(y, 1);
+  jsint x, y;
+  x = js_get_int(argv[0]);
+  y = js_get_int(argv[1]);
 
   func("%s x[%i] y[%i]", __FUNCTION__ , x, y );
 
@@ -302,8 +239,9 @@ JS(vector_layer_moveto) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_INT(x, 0);
-  JS_ARG_INT(y, 1);
+  jsint x, y;
+  x = js_get_int(argv[0]);
+  y = js_get_int(argv[1]);
 
   func("%s x[%i] y[%i]", __FUNCTION__, x, y  );
 
@@ -317,11 +255,14 @@ JS(vector_layer_quadcurveto) {
   JS_CHECK_ARGC(4);
   GET_LAYER(CairoLayer);
 
-  JS_ARG_INT(x1, 0);
-  JS_ARG_INT(y1, 1);
-  
-  JS_ARG_INT(x2, 2);
-  JS_ARG_INT(y2, 3);
+  jsint x1, y1;
+  x1 = js_get_int(argv[0]);
+  y1 = js_get_int(argv[1]);
+
+  jsint x2, y2;
+  x2 = js_get_int(argv[2]);
+  y2 = js_get_int(argv[3]);
+
   
   lay->quad_curve_to( x1, y1, x2, y2) ;
 
@@ -334,14 +275,17 @@ JS(vector_layer_beziercurveto) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_DOUBLE(x1, 0);
-  JS_ARG_DOUBLE(y1, 1);
+  jsint x1, y1;
+  x1 = js_get_int(argv[0]);
+  y1 = js_get_int(argv[1]);
 
-  JS_ARG_DOUBLE(x2, 2);
-  JS_ARG_DOUBLE(y2, 3);
+  jsint x2, y2;
+  x2 = js_get_int(argv[2]);
+  y2 = js_get_int(argv[3]);
 
-  JS_ARG_DOUBLE(x3, 4);
-  JS_ARG_DOUBLE(y3, 5);
+  jsint x3, y3;
+  x3 = js_get_int(argv[4]);
+  y3 = js_get_int(argv[5]);
   
   func("Vector bezier curve :: x1[%.2f] y1[%.2f] x2[%.2f] y2[%.2f] x3[%.2f] y3[%.2f]",
        x1, y1, x2, y2, x3, y3 );
@@ -357,13 +301,14 @@ JS(vector_layer_arc) {
 
   GET_LAYER(CairoLayer);
 
-  JS_ARG_INT(xc, 0);
-  JS_ARG_INT(yc, 1);
+  jsint xc, yc;
+  xc = js_get_int(argv[0]);
+  yc = js_get_int(argv[1]);
 
-  JS_ARG_DOUBLE(radius, 2);
-
-  JS_ARG_DOUBLE(angle1, 3);
-  JS_ARG_DOUBLE(angle2, 4);
+  jsdouble radius, angle1, angle2;
+  radius = js_get_double(argv[2]);
+  angle1 = js_get_double(argv[3]);
+  angle2 = js_get_double(argv[4]);
 
   func("Vector arc :: x[%i] y[%i] rad[%.2f] angle1[%.2f] angle2[%.2f]",
        xc, yc, radius, angle1, angle2 );
@@ -379,11 +324,13 @@ JS(vector_layer_fillrect) {
 
   GET_LAYER(CairoLayer);  
 
-  JS_ARG_INT(x1, 0);
-  JS_ARG_INT(y1, 1);
+  jsint x1, y1;
+  x1 = js_get_int(argv[0]);
+  y1 = js_get_int(argv[1]);
 
-  JS_ARG_INT(x2, 2);
-  JS_ARG_INT(y2, 3);
+  jsint x2, y2;
+  x2 = js_get_int(argv[2]);
+  y2 = js_get_int(argv[3]);
 
   func("Vector fill_rect :: x1[%i] y1[%i] x2[%i] y2[%i]",
        x1, y1, x2, y2);
@@ -481,7 +428,12 @@ JSP(vector_layer_linecap_s)     {
   GET_LAYER(CairoLayer);  
 
   char *cap = NULL;
-  JS_PROP_STRING(cap);
+  if(JSVAL_IS_STRING(*vp))
+    cap = JS_GetStringBytes( JS_ValueToString(cx, *vp) );
+  else {
+    JS_ReportError(cx,"%s: property value is not a string",__FUNCTION__);
+    ::error("%s: property value is not a string",__FUNCTION__);
+  }
 
   func("Vector linecap set :: %s",cap);
   if(!cap) return JS_TRUE; // we don't stop the flow
@@ -521,7 +473,7 @@ JSP(vector_layer_linewidth_s)   {
 
   GET_LAYER(CairoLayer);  
 
-  JS_PROP_DOUBLE(wid, vp);
+  JS_PROP_DOUBLE(wid, *vp);
 
   lay->set_line_width(wid);
 

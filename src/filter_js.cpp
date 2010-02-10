@@ -42,7 +42,7 @@ JS(filter_constructor) {
   
   if(argc < 1) JS_ERROR("missing argument");
 
-  JS_ARG_STRING(name,0);
+  name = js_get_string(argv[0]);
 
   FilterDuo *duo = new FilterDuo();
   
@@ -74,7 +74,7 @@ JS(filter_activate) {
   
   *rval = BOOLEAN_TO_JSVAL(duo->instance->active);
   if (argc == 1) {
-    JS_ARG_INT(var,0);
+    jsint var = js_get_int(argv[0]);
     duo->instance->active = (bool)var;
   }
 
@@ -106,7 +106,7 @@ JS(filter_set_parameter) {
     
   } else { // get it by the param name
     
-    JS_ARG_STRING(name,0);
+    name = js_get_string(argv[0]);
     param = (Parameter*) duo->proto->parameters.search(name, &idx);
     
   }

@@ -43,7 +43,7 @@ static int toInt(const char* b) {
     ((((int) b[0]) & 0xff) << 24) ;
 }
 //#else
-*/
+
 static int toInt(const char *b)
 {
   return
@@ -53,7 +53,7 @@ static int toInt(const char *b)
     ((((int) b[3]) & 0xff) << 24) ;
 }
 //#endif
-
+*/
 
 void osc_error_handler(int num, const char *msg, const char *path) {
   error("OSC server error %d in path %s: %s\n", num, path, msg);
@@ -192,6 +192,7 @@ JSFunctionSpec js_osc_ctrl_methods[] = {
 JS(js_osc_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   char excp_msg[MAX_ERR_MSG + 1];
+  char *port;
 
   OscController *osc = new OscController();
   // assign instance into javascript object
@@ -211,8 +212,7 @@ JS(js_osc_ctrl_constructor) {
 
   osc->javascript = true;
 
-  char *port;
-  JS_ARG_STRING(port,0);
+  port = js_get_string(argv[0]);
   strncpy(osc->port, port, 64);
 
   osc->srv = lo_server_thread_new(osc->port, osc_error_handler);
@@ -266,12 +266,12 @@ JS(js_osc_ctrl_add_method) {
     OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
     if(!osc) JS_ERROR("OSC core data is NULL");
 
-    char *osc_cmd;
-    JS_ARG_STRING(osc_cmd,0);
-    char *proto_cmd;
-    JS_ARG_STRING(proto_cmd,1);
-    char *js_cmd;
-    JS_ARG_STRING(js_cmd,2);
+    char *osc_cmd = js_get_string(argv[0]);
+
+    char *proto_cmd = js_get_string(argv[1]);
+
+    char *js_cmd = js_get_string(argv[2]);
+
 
     // queue metods in commands_handled linklist
     OscCommand *cmd = new OscCommand();
@@ -289,15 +289,15 @@ JS(js_osc_ctrl_add_method) {
 JS(js_osc_ctrl_send_to) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
 
+    warning("%s TODO",__PRETTY_FUNCTION__);
+
     JS_CHECK_ARGC(2);
 
     OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
     if(!osc) JS_ERROR("OSC core data is NULL");
 
-    char *host;
-    JS_ARG_STRING(host,1);
-    char *port;
-    JS_ARG_STRING(port,2);
+    char *host = js_get_string(argv[0]);
+    char *port = js_get_string(argv[1]);
     
     if(osc->sendto) lo_address_free(osc->sendto);
     osc->sendto = lo_address_new(host,port);
@@ -317,10 +317,8 @@ JS(js_osc_ctrl_send) {
   if(!osc) JS_ERROR("OSC core data is NULL");
   
   // minimum arguments: path and type
-  char *path;
-  JS_ARG_STRING(path,1);
-  char *type;
-  JS_ARG_STRING(path,2);
+  char *path = js_get_string(argv[0]);
+  char *type = js_get_string(argv[1]);
 
   func("generating OSC message path %s type %s",path,type);
   // we use the internal functions:
@@ -330,28 +328,27 @@ JS(js_osc_ctrl_send) {
   osc->outmsg = lo_message_new();
     
   // put values into a jsval array
-  int c;
+  unsigned int c;
   for(c=2;c<argc;c++) {
 
     switch(type[c]) {
     case 'i':
       {
-	JS_ARG_INT(i,c);
+	jsint i = js_get_int(argv[c]);
 	func("OSC add message arg %i with value %i",c,i);
 	lo_message_add_int32(osc->outmsg,i);
       }
       break;
     case 'f':
       {
-	JS_ARG_DOUBLE(f,c);
+	jsdouble f = js_get_double(argv[c]);
 	func("OSC add message arg %u with value %.2f",c,f);
 	lo_message_add_float(osc->outmsg,(float)f);
       }
       break;
     case 's':
       {
-	char *s;
-	JS_ARG_STRING(s,c+1);
+	char *s = js_get_string(argv[c+1]);
 	func("OSC add message arg %u with value %s",c,s);
 	lo_message_add_string(osc->outmsg,s);
       }

@@ -390,12 +390,12 @@ JS(js_xgrab_open) {
 	GET_LAYER(XGrabLayer);
 
 	if (argc == 0) {
-		return JS_NewNumberValue(cx, lay->open(), rval);
+	  return JS_NewNumberValue(cx, lay->open(), rval);
 	}
 
 	if (argc == 1) {
-		JS_ARG_INT(winid, 0);
-		return JS_NewNumberValue(cx, lay->open(winid), rval);
+	  jsint winid = js_get_int(argv[0]);
+	  return JS_NewNumberValue(cx, lay->open(winid), rval);
 	}
 	JS_ERROR("Wrong number of arguments");
 }

@@ -63,7 +63,8 @@ JSFunctionSpec js_mouse_ctrl_methods[] = {
 
 JS(js_mouse_grab) {
 	JS_CHECK_ARGC(1);
-	JS_ARG_INT(state,0);
+
+	jsint state = js_get_int(argv[0]);
 
 	MouseController *mouse = (MouseController *) JS_GetPrivate(cx,obj);
 	if(!mouse) {

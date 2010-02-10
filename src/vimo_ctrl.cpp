@@ -352,9 +352,8 @@ JS(js_vimo_open) {
 		return JS_NewNumberValue(cx, vmc->open(), rval);
 	}
 	if (argc == 1) {
-		char *filename;
-		JS_ARG_STRING(filename, 0);
-		return JS_NewNumberValue(cx, vmc->open(filename), rval);
+	  char *filename = js_get_string(argv[0]);
+	  return JS_NewNumberValue(cx, vmc->open(filename), rval);
 	}
 	JS_ERROR("Wrong number of arguments");
 }
@@ -380,12 +379,11 @@ JS(js_vimo_ctrl_constructor) {
 		delete vimo; return JS_FALSE;
 	}
 	if (argc == 1) {
-		char *filename;
-		JS_ARG_STRING(filename, 0);
-		if(!vimo->open(filename)) {
-			error("failed initializing ViMo controller");
-			delete vimo; return JS_FALSE;
-		}
+	  char *filename = js_get_string(argv[0]);	       
+	  if(!vimo->open(filename)) {
+	    error("failed initializing ViMo controller");
+	    delete vimo; return JS_FALSE;
+	  }
 	}
 
 	// assign instance into javascript object

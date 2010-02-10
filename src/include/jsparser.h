@@ -40,6 +40,9 @@
 
 extern Context *global_environment;
 
+void js_debug_property(JSContext *cx, jsval val);
+void js_debug_argument(JSContext *cx, jsval val);
+
 class JsParser {
     public:
 	JsParser(Context *_env);

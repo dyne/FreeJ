@@ -97,9 +97,10 @@ JS(midi_connect_from) {
 	}
 
 	// int snd_seq_connect_to(snd_seq_t * seq, int myport, int dest_client, int dest_port)
-	JS_ARG_INT(myport, 0);
-	JS_ARG_INT(dest_client, 1);
-	JS_ARG_INT(dest_port, 2);
+	jsint myport = js_get_int(argv[0]);
+	jsint dest_client = js_get_int(argv[1]);
+	jsint dest_port = js_get_int(argv[2]);
+
 	res = midi->connect_from(int(myport), int(dest_client), int(dest_port));
 
 	return JS_NewNumberValue(cx, res, rval);

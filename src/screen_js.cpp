@@ -44,7 +44,7 @@ JS(screen_constructor) {
   
   if(argc >= 1) {  
     // a specific screen type has been requested
-    JS_ARG_STRING(type,0);
+    char *type = js_get_string(argv[0]);
     screen = Factory<ViewPort>::get_instance( "Screen", type );
   } else {
     // no screen type has been specified, return the default one
@@ -79,8 +79,8 @@ JS(screen_init) {
   
   JS_CHECK_ARGC(2);
   
-  JS_ARG_INT(w, 0);
-  JS_ARG_INT(h, 1);
+  jsint w = js_get_int(argv[0]);
+  jsint h = js_get_int(argv[1]);
     
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   if(!screen) {

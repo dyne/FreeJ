@@ -57,9 +57,10 @@ JS(js_audio_jack_constructor) {
   
   JS_CHECK_ARGC(3);
 
-  JS_ARG_STRING(port,0);
-  JS_ARG_INT(sample,1);
-  JS_ARG_INT(rate,2);
+  port = js_get_string(argv[0]);
+  jsint sample, rate;
+  sample = js_get_int(argv[1]);
+  rate = js_get_int(argv[2]);
   
   AudioCollector *audio = new AudioCollector(port, sample, rate);
 
@@ -120,7 +121,7 @@ JS(js_audio_jack_get_harmonic) {
 
   JS_CHECK_ARGC(1);
   
-  JS_ARG_INT(hc,0);
+  jsint hc = js_get_int(argv[0]);
   
   AudioCollector *audio = (AudioCollector*)JS_GetPrivate(cx, obj);
   if(!audio) {

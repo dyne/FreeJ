@@ -591,3 +591,149 @@ int JsParser::reset() {
 	return 0;
 }
 
+void js_debug_property(JSContext *cx, jsval vp) {
+  func(" vp mem address %p", &vp);
+  int tag = JSVAL_TAG(vp);
+  func(" type tag is %i: %s",tag,
+       (tag==0x0)?"object":
+       (tag==0x1)?"integer":
+       (tag==0x2)?"double":
+       (tag==0x4)?"string":
+       (tag==0x6)?"boolean":
+       "unknown");
+
+  switch(tag) {
+  case 0x0:
+    {
+      JSObject *obj = JSVAL_TO_OBJECT(vp);
+      jsval val;
+      if( JS_IsArrayObject(cx, obj) ) {
+	jsuint len; JS_GetArrayLength(cx, obj, &len);
+	func(" object is an array of %u elements", len);
+	for(jsuint c = 0; c<len; c++) {
+	  func(" dumping element %u:",c);
+	  JS_GetElement(cx, obj, c, &val);
+	  if(val == JSVAL_VOID)
+	    func(" content is VOID");
+	  else
+	    js_debug_property(cx, val);
+	}
+      } else {
+	func(" object type is unknown to us (not an array?)");
+      }
+    }
+    break;
+  case 0x1:
+    {
+      JS_PROP_INT(num, vp);
+      func("  Sint[ %i ] Uint[ %u ]",
+	   num, num);
+    }
+    break;
+
+  case 0x2:
+    {
+      JS_PROP_DOUBLE(num, vp);
+      func("  double is %.4f",num);
+    }
+    break;
+    
+  case 0x4:
+    {
+      char *cap = NULL;
+      JS_PROP_STRING(cap);
+      func("  string is \"%s\"",cap);
+    }
+    break;
+
+  case 0x6:
+    {
+      bool b = false;
+      b = JSVAL_TO_BOOLEAN(vp);
+      func("  boolean is %i",b);
+    }
+    break;
+
+  default:
+    func(" tag %u is unhandled, probably double");
+    JS_PROP_DOUBLE(num, vp);
+    func("  Double [ %.4f ] - Sint[ %i ] - Uint[ %u ]",
+	 num, num, num);
+  }
+}
+
+void js_debug_argument(JSContext *cx, jsval vp) {
+  func(" arg mem address %p", &vp);
+  int tag = JSVAL_TAG(vp);
+
+  func(" type tag is %i: %s",tag,
+       (tag==0x0)?"object":
+       (tag==0x1)?"integer":
+       (tag==0x2)?"double":
+       (tag==0x4)?"string":
+       (tag==0x6)?"boolean":
+       "unknown");
+
+  switch(tag) {
+  case 0x0:
+    {
+      JSObject *obj = JSVAL_TO_OBJECT(vp);
+      jsval val;
+      if( JS_IsArrayObject(cx, obj) ) {
+	jsuint len; JS_GetArrayLength(cx, obj, &len);
+	func(" object is an array of %u elements", len);
+	for(jsuint c = 0; c<len; c++) {
+	  func(" dumping element %u:",c);
+	  JS_GetElement(cx, obj, c, &val);
+	  if(val == JSVAL_VOID)
+	    func(" content is VOID");
+	  else
+	    js_debug_argument(cx, val);
+	}
+      } else {
+	func(" object type is unknown to us (not an array?)");
+      }
+    }
+    break;
+  case 0x1:
+    {
+      jsint num = js_get_int(vp);
+      func("  Sint[ %i ] Uint[ %u ]", num, num);
+    }
+    break;
+
+  case 0x2:
+    {
+      jsint num = js_get_double(vp);
+      func("  double is %.4f", num);
+    }
+    break;
+    
+  case 0x4:
+    {
+      char *cap;
+      if(JSVAL_IS_STRING(vp)) {
+	cap = JS_GetStringBytes( JS_ValueToString(cx, vp) );
+	func("  string is \"%s\"",cap);
+      } else {
+	JS_ReportError(cx,"%s: argument value is not a string",__FUNCTION__);
+	::error("%s: argument value is not a string",__FUNCTION__);
+      }
+    }
+    break;
+    
+  case 0x6:
+    {
+      bool b = false;
+      b = JSVAL_TO_BOOLEAN(vp);
+      func("  boolean is %i",b);
+    }
+    break;
+
+  default:
+    func(" arg %u is unhandled, probably double");
+    jsint num = js_get_double(vp);
+    func("  Double [ %.4f ] - Sint[ %i ] - Uint[ %u ]",
+	 num, num, num);
+  }
+}

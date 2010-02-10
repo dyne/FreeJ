@@ -186,7 +186,7 @@ int JoyController::dispatch() {
 #define test_bit(bit, array)    ((array[LONG(bit)] >> OFF(bit)) & 1)
 
 
-static char* effect_names[] = {
+static const char* effect_names[] = {
   (const char*)"Sine vibration",
   (const char*)"Constant Force",
   (const char*)"Spring Condition",
@@ -198,7 +198,6 @@ static char* effect_names[] = {
 bool JoyController::init_rumble(char *devfile) {
   unsigned long features[4];
   int n_effects;    /* Number of effects the device can play at the same time */
-  int i;
   
   /* Open device */
   rumble_fd = open(devfile, O_RDWR);
@@ -408,8 +407,7 @@ JS(js_joy_init_rumble) {
   
   JS_CHECK_ARGC(1);
 
-  char *devfile;
-  JS_ARG_STRING(devfile,0);
+  char *devfile = js_get_string(argv[0]);
 
   if( joy->init_rumble(devfile) )
   act("Joystick controller opened rumble device %s", devfile);
