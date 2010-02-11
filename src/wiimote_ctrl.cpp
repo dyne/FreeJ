@@ -79,8 +79,7 @@ JS(js_wii_ctrl_open) {
     if(!wii) JS_ERROR("Wii core data is NULL");
 
     if(argc>0) {
-      char *addr;
-      JS_ARG_STRING(addr,0);
+      char *addr = js_get_string(argv[0]);
       wii->open(addr);
     } else {
       wii->open();

@@ -92,29 +92,11 @@ const JSErrorFormatString * JSFreej_GetErrorMessage(void *userRef, const char *l
   }
 
 // our auxiliary functions to fetch jsvals
+jsint js_get_int(jsval val);
 char *js_get_string(jsval val);
 jsdouble js_get_double(jsval val);
-jsint js_get_int(jsval val);
 
 
-// cast a numerical value in a double variable
-/* #define JS_ARG_DOUBLE(variable,argnum) \ */
-/*   jsdouble variable; \ */
-/*   variable = js_get_double(argv[argnum]); */
-
-/* #define JS_ARG_INT(variable,argnum) \ */
-/*   jsint variable; \ */
-/*   variable = js_get_int(argv[argnum]); */
-
-/* #define JS_ARG_STRING(variable,argnum) \ */
-/*   if(JSVAL_IS_STRING(argv[argnum])) \ */
-/*     variable = JS_GetStringBytes \ */
-/*       ( JS_ValueToString(cx, argv[argnum]) ); \ */
-/*   else { \ */
-/*     JS_ReportError(cx,"%s: argument %u is not a string",__FUNCTION__,argnum); \ */
-/*     ::error("%s: argument %u is not a string",__FUNCTION__,argnum);	\ */
-/*     return JS_FALSE; \ */
-/*   } */
 
 #define JS_PROP_DOUBLE(variable, vp) \
   jsdouble variable; \

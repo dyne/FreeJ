@@ -565,6 +565,7 @@ JS(rand) {
 
   if(argc<1) *rval = 1+(int)(r/(RAND_MAX+1.0));
   else {
+  jsdouble max = js_get_double(argv[0]);
     JS_ARG_NUMBER(max, 0);
     func("randomizing with max %f",max);
     r = 1+(int)(max*r/(RAND_MAX+1.0));
@@ -816,7 +817,7 @@ JS(reset_js) {
 	//	js->reset();
 
 // 	if(argc == 1) {
-// 		JS_ARG_STRING(jscript,0);
+//	char *jscript = js_get_string(argv[0]);
 // 		if (js->open(jscript) == 0) {
 // 			error("JS reset('%s') failed", jscript);
 // 			*rval = JSVAL_FALSE;
