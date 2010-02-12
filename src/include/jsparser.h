@@ -47,9 +47,11 @@ class JsParser {
     public:
 	JsParser(Context *_env);
 	~JsParser();
+	int include(const char* jscript); ///< include javascript libraries from known path (current or PREFIX)
 	int open(const char* script_file);
 	int open(JSContext *cx, JSObject *obj, const char* script_file);
 	int use(JSContext *cx, JSObject *obj, const char* script_file);
+
 	int parse(const char *command);
 	void stop();
 	void gc();

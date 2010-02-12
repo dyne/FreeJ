@@ -70,10 +70,11 @@ static const char *help =
 " .   -g   experimental opengl engine! (better pow(2) res as 256x256)\n"
 #endif
 " .   -j   <javascript.js>  execute a javascript file\n"
+" .   -p   <processing.pde> execute a processing script (experimental)\n"
 " .\n";
 
 // we use only getopt, no _long
-static const char *short_options = "-hvD:gas:S:nj:cgf:F";
+static const char *short_options = "-hvD:gas:S:nj:p:cgf:F";
 
 /* this is the global FreeJ context */
 Context *freej = NULL;
@@ -89,6 +90,7 @@ int   width = 400;
 int   height = 300;
 int   magn = 0;
 char  javascript[512]; // script filename
+char  processing[512]; // script filename
 
 int fps = 25;
 
@@ -102,10 +104,12 @@ bool opengl = false;
 
 void cmdline(int argc, char **argv) {
   int res, optlen;
+  FILE *fd; // tmp fd for checks
 
   /* initializing defaults */
   char *p                  = layer_files;
   javascript[0]            = 0;
+  processing[0]            = 0;
 
   debug_level              = 0;
 
@@ -185,7 +189,6 @@ void cmdline(int argc, char **argv) {
       break;
 
    case 'j':
-      FILE *fd;
       fd = fopen(optarg,"r");
       if(!fd) {
 	error("can't open JS file '%s': %s", optarg, strerror(errno));
@@ -194,6 +197,16 @@ void cmdline(int argc, char **argv) {
       }
       else {
 	snprintf(javascript,512,"%s",optarg);
+	fclose(fd);
+      }
+      break;
+
+   case 'p':
+      fd = fopen(optarg,"r");
+      if(!fd) {
+	error("processing script file not found '%s': %s", optarg, strerror(errno));
+      } else {
+	snprintf(processing,512,"%s",optarg);
 	fclose(fd);
       }
       break;
@@ -345,6 +358,21 @@ int main (int argc, char **argv) {
     } else freej->interactive = true;
   }
 
+  /* execute processing */
+  if( processing[0] ) {
+    freej->interactive = false;
+
+    if( freej->js->include("processing.js") ) {
+      // correctly included our extra library
+
+      char tmp[1024];
+      snprintf(tmp,1023,"script = read_file(\"%s\");Processing(script);", processing);
+      freej->js->parse(tmp);
+    }
+
+    if(freej->quit) exit(1);
+    else freej->interactive = true;
+  }
 
 
 

@@ -696,45 +696,21 @@ JS(entry_select) {
 
 JS(include_javascript_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-	char *jscript;
-	const char *debian_path = "share/doc/freej/scripts/javascript/lib";
-	char temp[512];
-	FILE *fd;
 	
 	if(argc<1) JS_ERROR("missing argument");
+
+	char *jscript;
 	jscript = js_get_string(argv[0]);
+
 	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 
-	snprintf(temp,512,"%s",jscript);
-	fd = fopen(temp,"r");
-	if(!fd) {
-	  snprintf(temp,511,"%s/%s/%s",PREFIX,debian_path,jscript);
-	  fd = fopen(temp,"r");
-	  if(!fd) {
-	    error("included file %s not found", jscript);
-	    error("locations checked: current and %s/%s",
-		  PREFIX,debian_path);
-	    error("javascript include('%s') failed", jscript);
-
-	    return JS_FALSE;
-	  }
-	}
-	  
-	fclose(fd);
-	    
-	if (js->open(cx, obj, temp) == 0) {
-		// all errors already reported,
-		// js->open talks too much
-		error("JS include('%s') failed", jscript);
-		return JS_FALSE;
-	}
-
-	func("JS: included %s", jscript);
-
+	if( ! js->include(jscript) )
+	  error("javascript include not found: \"%s\"",jscript);
+	
 	// if its the first script loaded, save it as main one
 	// this is then used in reset to return at beginning stage
-	if(global_environment->main_javascript[0] == 0x0)
-	  memcpy(global_environment->main_javascript, temp, 512);
+	//	if(global_environment->main_javascript[0] == 0x0)
+	//	  memcpy(global_environment->main_javascript, temp, 512);
 
 	return JS_TRUE;
 }

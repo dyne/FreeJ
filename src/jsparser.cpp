@@ -384,6 +384,43 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
    return;
 }
 
+int JsParser::include(const char* jscript) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  const char *debian_path = "share/doc/freej/scripts/javascript/lib";
+  int res = 0;
+  char temp[512];
+  FILE *fd;
+
+  snprintf(temp,512,"%s",jscript);
+  fd = fopen(temp,"r");
+  if(!fd) {
+    snprintf(temp,511,"%s/%s/%s",PREFIX,debian_path,jscript);
+    fd = fopen(temp,"r");
+    if(!fd) {
+      error("included file %s not found", jscript);
+      error("locations checked: current and %s/%s",
+	    PREFIX,debian_path);
+      error("javascript include('%s') failed", jscript);
+      
+      return res;
+    }
+  }
+  
+  fclose(fd);
+  
+  res = this->open(temp); 
+  if (!res) {
+    // all errors already reported,
+    // js->open talks a lot
+    error("JS include('%s') failed", jscript);
+    return res;
+  }
+  
+  func("JS: included %s", jscript);
+  return res;
+}
+
 /* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
 	return open(global_context, global_object, script_file);

@@ -10,7 +10,7 @@ float dx;                 // Value for incrementing X, to be calculated as a fun
 float[] yvalues;          // Using an array to store height values for the wave (not entirely necessary)
 
 void setup() {
-  size(200,200);
+  size(400,300);
   frameRate(30);
   colorMode(RGB,255,255,255,100);
   smooth();
