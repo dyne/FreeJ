@@ -105,6 +105,7 @@ JS(screen_initialized) {
   return JS_TRUE;
 }
 
+#ifdef WITH_GD
 JS(screen_save_frame) {
   func("%s",__PRETTY_FUNCTION__);
   JS_CHECK_ARGC(1);
@@ -121,6 +122,7 @@ JS(screen_save_frame) {
 
   return JS_TRUE;
 }
+#endif
 
 JS(screen_list_layers) {
   func("%s",__PRETTY_FUNCTION__);
