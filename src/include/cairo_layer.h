@@ -53,6 +53,8 @@ class CairoLayer: public Layer {
   cairo_t *cairo;
 
   Color *color;
+  Color *saved_color;
+
   JSBool set_color(JSContext *cx, uintN argc, jsval *argv, int idx);
 
   ///////////////////////////////////////////////
@@ -71,6 +73,7 @@ class CairoLayer: public Layer {
   void line_to(double xx, double yy);
   void move_to(double xx, double yy);
   void curve_to(int x1, int y1, int x2, int y2, int x3, int y3);
+  void rect(double x1, double y1, double x2, double y2);
   void arc(double xc, double yc, double radius, double angle1, double angle2);
   void set_line_width(double wid);
   int get_line_width();
@@ -78,7 +81,10 @@ class CairoLayer: public Layer {
   // Mozilla's GFX compatibility API
   void quad_curve_to(double x1, double y1, double x2, double y2);
   void fill_rect(double x1, double y1, double x2, double y2);
-  
+
+  // Color facilities
+  void push_color();
+  void pop_color();
 
  protected:
   bool _init();

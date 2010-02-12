@@ -119,7 +119,7 @@ jsint js_get_int(jsval val) {
 
   case 0x1:
     JS_ValueToInt32(global_environment->js->global_context, val, &res);
-    func("argument is %i", res);
+    //    func("argument is an integer as expected");
     break;
 
   case 0x2:
@@ -181,7 +181,7 @@ jsdouble js_get_double(jsval val) {
 
   case 0x2:
     JS_ValueToNumber(global_environment->js->global_context, val, &res);
-    func("argument is %.4f", res);
+    //    func("argument is a double as expected");
     break;
     
   case 0x4:

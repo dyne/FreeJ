@@ -32,13 +32,19 @@
 // our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(Layer, CairoLayer, VectorLayer, cairo);
 
-CairoColor::CairoColor(cairo_t *cai) :Color() { cairo = cai; }
+CairoColor::CairoColor(cairo_t *cai) :Color() {
+  r = 0.;
+  g = 0.;
+  b = 0.;
+  a = 255.;
+  cairo = cai;
+}
 CairoColor::~CairoColor() { }
 void CairoColor::set() {
-  double sr = r / 256.;
-  double sg = g / 256.;
-  double sb = b / 256.;
-  double sa = a / 256.;
+  double sr = r / 255.;
+  double sg = g / 255.;
+  double sb = b / 255.;
+  double sa = a / 255.;
   func("Color::set r[%.2f] g[%.2f] b[%.2f] a[%.2f]",sr,sg,sb,sa);
   cairo_set_source_rgba(cairo, sr, sg, sb, sa);
 };
@@ -49,8 +55,9 @@ CairoLayer::CairoLayer()
 
   surf = NULL;
   cairo = NULL;
-  color = NULL;
   pixels = NULL;
+  color = NULL;
+  saved_color = NULL;
 
   set_name("VEC");
   set_filename("/vector layer");
@@ -79,10 +86,6 @@ bool CairoLayer::_init() {
   // separate reference to it.
 
   color = new CairoColor( cairo );
-
-  // test
-  cairo_set_line_width(cairo, 0.1 );   
-  cairo_set_source_rgb(cairo, 1.0, 1.0, 1.0); 
 
   opened = true;
   return(true);
@@ -131,6 +134,9 @@ void CairoLayer::curve_to(int x1, int y1, int x2, int y2, int x3, int y3) {
     cairo_curve_to(cairo, x1, y1, x2, y2, x3, y3); }
 void CairoLayer::arc(double xc, double yc, double radius, double angle1, double angle2) {
   cairo_arc(cairo, xc, yc, radius, angle1, angle2); }
+void CairoLayer::rect(double x1, double y1, double x2, double y2) {
+  cairo_rectangle(cairo, x1, y1, x2, y2);
+}
 void CairoLayer::fill() { cairo_fill(cairo); }
 void CairoLayer::stroke() { cairo_stroke(cairo); }
 void CairoLayer::set_line_width(double wid) { cairo_set_line_width(cairo, wid); }
@@ -155,5 +161,26 @@ void CairoLayer::fill_rect(double x1, double y1, double x2, double y2) {
   cairo_restore(cairo);
 }
 
+// Color facilities
+
+void CairoLayer::push_color() {
+  if(saved_color) {
+    warning("previously saved color lost");
+    delete saved_color;
+  }
+  saved_color = color;
+  color = new CairoColor(cairo);
+}
+void CairoLayer::pop_color() {
+  if(!saved_color) {
+    warning("no previourly saved color found");
+    return;
+  } 
+  delete color;
+  color = saved_color;
+  saved_color = NULL;
+  func("popped back color: r[%.2f] g[%.2f] b[%.2f] a[%.2f]",
+       color->r, color->g, color->b, color->a);
+}
 
 #endif

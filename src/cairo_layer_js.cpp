@@ -47,10 +47,13 @@ JSFunctionSpec vector_layer_methods[] = {
   { "quadraticCurveTo", vector_layer_quadcurveto,      4 },
   { "bezierCurveTo",    vector_layer_beziercurveto,    6 },
   { "arc",              vector_layer_arc,              5 },
+  { "rect",             vector_layer_rect,             4 },
   { "closePath",        vector_layer_closepath,        0 },
   { "fill",             vector_layer_fill,             4 },
   { "fillRect",         vector_layer_fillrect,         4 },
   { "stroke",           vector_layer_stroke,           4 },
+  { "push_color",       vector_layer_push_color,       0 },
+  { "pop_color",        vector_layer_pop_color,        0 },
   {0}
 };
 
@@ -82,7 +85,7 @@ JSBool CairoLayer::set_color(JSContext *cx, uintN argc, jsval *argv, int idx) {
 
     g = js_get_double(argv[idx]);
     func("%s gray [%.2f]", __FUNCTION__, g);
-    js_debug_property(cx, argv[idx]);
+    js_debug_argument(cx, argv[idx]);
     color->set_gray(g);
     return JS_TRUE;
 
@@ -93,9 +96,9 @@ JSBool CairoLayer::set_color(JSContext *cx, uintN argc, jsval *argv, int idx) {
 
     // g is a double
     // a is a signed integer
-    func("%s gray [%i] alpha [%i]", __FUNCTION__, g, a);
-    //    js_debug_property(cx, &argv[idx]);
-    //    js_debug_property(cx, &argv[idx+1]);
+    func("%s gray [%.2f] alpha [%.2f]", __FUNCTION__, g, a);
+    js_debug_property(cx, argv[idx]);
+    js_debug_property(cx, argv[idx+1]);
 
     color->set_gray_alpha(g,a);
     return JS_TRUE;
@@ -287,12 +290,31 @@ JS(vector_layer_beziercurveto) {
   x3 = js_get_int(argv[4]);
   y3 = js_get_int(argv[5]);
   
-  func("Vector bezier curve :: x1[%.2f] y1[%.2f] x2[%.2f] y2[%.2f] x3[%.2f] y3[%.2f]",
+  func("Vector bezier curve :: x1[%i] y1[%i] x2[%i] y2[%i] x3[%i] y3[%i]",
        x1, y1, x2, y2, x3, y3 );
   
   lay->curve_to(x1, y1, x2, y2, x3, y3);
 
   return JS_TRUE;
+}
+
+JS(vector_layer_rect) {
+  JS_CHECK_ARGC(4);
+
+  GET_LAYER(CairoLayer);
+
+  jsdouble x1, y1, x2, y2;
+  x1 = js_get_double(argv[0]);
+  y1 = js_get_double(argv[1]);
+  x2 = js_get_double(argv[2]);
+  y2 = js_get_double(argv[3]);
+
+  func("Vector rect :: x[%i] y[%i] to x[%i] y[%i]",x1, y1, x2, y2);
+
+  lay->rect(x1, y1, x2, y2);
+
+  return JS_TRUE;
+
 }
 
 JS(vector_layer_arc) {
@@ -362,6 +384,18 @@ JS(vector_layer_stroke) {
   return JS_TRUE;
 }
 
+JS(vector_layer_push_color) {
+  func("%s",__FUNCTION__);
+  GET_LAYER(CairoLayer);  
+  lay->push_color();
+  return JS_TRUE;
+}
+JS(vector_layer_pop_color) {
+  func("%s",__FUNCTION__);
+  GET_LAYER(CairoLayer);  
+  lay->pop_color();
+  return JS_TRUE;
+}
 
 JSP(vector_layer_fillstyle_g) {
   func("%s",__FUNCTION__);

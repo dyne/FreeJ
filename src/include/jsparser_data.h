@@ -416,9 +416,12 @@ JS(vector_layer_moveto);
 JS(vector_layer_quadcurveto);
 JS(vector_layer_beziercurveto);
 JS(vector_layer_arc);
+JS(vector_layer_rect);
 JS(vector_layer_fillrect);
 JS(vector_layer_fill);
 JS(vector_layer_stroke);
+JS(vector_layer_push_color);
+JS(vector_layer_pop_color);
 // Vector layer properties
 JSP(vector_layer_fillstyle_g);
 JSP(vector_layer_fillstyle_s);

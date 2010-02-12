@@ -735,14 +735,14 @@ void js_debug_argument(JSContext *cx, jsval vp) {
   case 0x1:
     {
       jsint num = js_get_int(vp);
-      func("  Sint[ %i ] Uint[ %u ]", num, num);
+      func("  Sint[ %i ] Uint[ %u ] Double [ %.2f ]", num, num, num);
     }
     break;
 
   case 0x2:
     {
-      jsint num = js_get_double(vp);
-      func("  double is %.4f", num);
+      jsdouble num = js_get_double(vp);
+      func("  Double [ %.2f ]", num);
     }
     break;
     

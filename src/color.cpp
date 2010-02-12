@@ -22,12 +22,12 @@
 #include <color.h>
 
 Color::Color() {
-  // defaults to black
-  r = 0;
-  g = 0;
-  b = 0;
-  a = 0;
-  //  set();
+  // defaults to white
+  r = 256.;
+  g = 256.;
+  b = 256.;
+  a = 256.;
+  //set();
 }
 
 Color::~Color() { }
@@ -37,6 +37,7 @@ void Color::set_rgb(double nr, double ng, double nb) {
   r = nr;
   g = ng;
   b = nb;
+  a = 256.;
   set();
 }
 

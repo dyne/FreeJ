@@ -1,19 +1,19 @@
 /*
 
-  P R O C E S S I N G - 0 . 0 . J S
-  a port of the Processing visualization language
-  
-  License       : MIT 
-  Developer     : John Resig: http://ejohn.org
-  Web Site      : http://processingjs.org  
-  Java Version  : http://processing.org
-  Github Repo.  : http://github.com/jeresig/processing-js
-  Bug Tracking  : http://processing-js.lighthouseapp.com
-  Mozilla POW!  : http://wiki.Mozilla.org/Education/Projects/ProcessingForTheWeb
-  Maintained by : Seneca: http://zenit.senecac.on.ca/wiki/index.php/Processing.js
-                  Hyper-Metrix: http://hyper-metrix.com/#Processing
+    P R O C E S S I N G - 0 . 4 . J S
+    a port of the Processing visualization language
+    
+    License       : MIT 
+    Developer     : John Resig: http://ejohn.org
+    Web Site      : http://processingjs.org  
+    Java Version  : http://processing.org
+    Github Repo.  : http://github.com/jeresig/processing-js
+    Bug Tracking  : http://processing-js.lighthouseapp.com
+    Mozilla POW!  : http://wiki.Mozilla.org/Education/Projects/ProcessingForTheWeb
+    Maintained by : Seneca: http://zenit.senecac.on.ca/wiki/index.php/Processing.js
+                    Hyper-Metrix: http://hyper-metrix.com/#Processing
 
-*/  
+  */
 
 
 (function(){
@@ -38,218 +38,218 @@
   var parse = Processing.parse = function parse( aCode, p ){
 
     // Remove end-of-line comments
-    aCode = aCode.replace( /\/\/ .*\n/g, "\n" );
+    aCode = aCode.replace(/\/\/ .*\n/g, "\n");
 
     // Weird parsing errors with %
-    aCode = aCode.replace( /([^\s])%([^\s])/g, "$1 % $2" );
-   
+    aCode = aCode.replace(/([^\s])%([^\s])/g, "$1 % $2");
+
+    // Since frameRate() and frameRate are different things,
+    // we need to differentiate them somehow. So when we parse
+    // the Processing.js source, replace frameRate so it isn't
+    // confused with frameRate().
+    aCode = aCode.replace(/(\s*=\s*|\(*\s*)frameRate(\s*\)+?|\s*;)/, "$1p.FRAME_RATE$2");
+
     // Simple convert a function-like thing to function
-    aCode = aCode.replace( /(?:static )?(\w+ )(\w+)\s*(\([^\)]*\)\s*{)/g, function( all, type, name, args ){
-      if ( name == "if" || name == "for" || name == "while" ) {
+    aCode = aCode.replace(/(?:static )?(\w+(?:\[\])* )(\w+)\s*(\([^\)]*\)\s*\{)/g, function (all, type, name, args) {
+      if (name === "if" || name === "for" || name === "while") {
         return all;
       } else {
         return "Processing." + name + " = function " + name + args;
       }
     });
-      
+
     // Attach import() to p{} bypassing JS command, allowing for extrernal library loading
-    aCode = aCode.replace( /import \(|import\(/g, "p.Import(" );
-    
+    aCode = aCode.replace(/import \(|import\(/g, "p.Import(");
+
     // Force .length() to be .length
-    aCode = aCode.replace( /\.length\(\)/g, ".length" );
+    aCode = aCode.replace(/\.length\(\)/g, ".length");
 
     // foo( int foo, float bar )
-    aCode = aCode.replace( /([\(,]\s*)(\w+)((?:\[\])+| )\s*(\w+\s*[\),])/g, "$1$4" );
-    aCode = aCode.replace( /([\(,]\s*)(\w+)((?:\[\])+| )\s*(\w+\s*[\),])/g, "$1$4" );
+    aCode = aCode.replace(/([\(,]\s*)(\w+)((?:\[\])+| )\s*(\w+\s*[\),])/g, "$1$4");
+    aCode = aCode.replace(/([\(,]\s*)(\w+)((?:\[\])+| )\s*(\w+\s*[\),])/g, "$1$4");
 
     // float[] foo = new float[5];
-    aCode = aCode.replace( /new (\w+)((?:\[([^\]]*)\])+)/g, function( all, name, args ){
-      return "new ArrayList(" + args.slice(1,-1).split("][").join(", ") + ")";
+    aCode = aCode.replace(/new (\w+)((?:\[([^\]]*)\])+)/g, function (all, name, args) {
+      return "new ArrayList(" + args.replace(/\[\]/g, "[0]").slice(1, -1).split("][").join(", ") + ")";
+      //return "new ArrayList(" + args.slice(1, -1).split("][").join(", ") + ")";
     });
-    
-    // What does this do?
-    aCode = aCode.replace( /(?:static )?\w+\[\]\s*(\w+)\[?\]?\s*=\s*{.*?};/g, function( all ){
-      return all.replace( /{/g, "[").replace(/}/g, "]" );
+
+    // What does this do? This does the same thing as "Fix Array[] foo = {...} to [...]" below
+    aCode = aCode.replace(/(?:static )?\w+\[\]\s*(\w+)\[?\]?\s*=\s*\{.*?\};/g, function (all) {
+      return all.replace(/\{/g, "[").replace(/\}/g, "]");
     });
 
     // int|float foo;
-    var intFloat = /(\n\s*(?:int|float)(?:\[\])?(?:\s*|[^\(]*?,\s*))([a-z]\w*)(;|,)/i;
-    while( intFloat.test(aCode) ){
-      aCode = aCode.replace( new RegExp( intFloat ), function( all, type, name, sep ){
+    var intFloat = /(\n\s*(?:int|float)(?!\[\])*(?:\s*|[^\(;]*?,\s*))([a-zA-Z]\w*)\s*(,|;)/i;
+    while (intFloat.test(aCode)) {
+      aCode = aCode.replace(new RegExp(intFloat), function (all, type, name, sep) {
         return type + " " + name + " = 0" + sep;
       });
     }
 
     // float foo = 5;
-    aCode = aCode.replace( /(?:static )?(\w+)((?:\[\])+| ) *(\w+)\[?\]?(\s*[=,;])/g, function( all, type, arr, name, sep ){
-      if ( type == "return" )
+    aCode = aCode.replace(/(?:static\s+)?(?:final\s+)?(\w+)((?:\[\])+| ) *(\w+)\[?\]?(\s*[=,;])/g, function (all, type, arr, name, sep) {
+      if (type === "return") {
         return all;
-      else
+      } else {
         return "var " + name + sep;
+      }
     });
 
     // Fix Array[] foo = {...} to [...]
-    aCode = aCode.replace( /=\s*{((.|\s)*?)};/g, function(all,data){
-      return "= [" + data.replace(/{/g, "[").replace(/}/g, "]") + "]";
+    aCode = aCode.replace(/\=\s*\{((.|\s)*?)\};/g, function (all, data) {
+      return "= [" + data.replace(/\{/g, "[").replace(/\}/g, "]") + "]";
     });
-    
+
     // super() is a reserved word
-    aCode = aCode.replace( /super\(/g, "superMethod(" );
+    aCode = aCode.replace(/super\(/g, "superMethod(");
 
-    var classes = [ "int", "float", "boolean", "string" ];
+    var classes = ["int", "float", "boolean", "String", "byte", "double", "long"];
 
-    function ClassReplace( all, name, extend, vars, last ){
-      
-      classes.push( name );
+    var classReplace = function (all, name, extend, vars, last) {
+      classes.push(name);
 
-      var static = "";
+      var staticVar = "";
 
-      vars = vars.replace( /final\s+var\s+(\w+\s*=\s*.*?;)/g, function( all, set ){
-        static += " " + name + "." + set;
+      vars = vars.replace(/final\s+var\s+(\w+\s*=\s*.*?;)/g, function (all, set) {
+        staticVar += " " + name + "." + set;
         return "";
       });
 
+
       // Move arguments up from constructor and wrap contents with
       // a with(this), and unwrap constructor
-      return "function " + name + "() {with(this){\n  " +
-        ( extend ? "var __self=this;function superMethod(){extendClass(__self,arguments," + extend + ");}\n" : "" ) +
-        // Replace var foo = 0; with this.foo = 0;
-        // and force var foo; to become this.foo = null;
-        vars
-          .replace( /,\s?/g, ";\n  this." )
-          .replace( /\b(var |final |public )+\s*/g, "this." )
-          .replace( /\b(var |final |public )+\s*/g, "this." )
-          .replace( /this.(\w+);/g, "this.$1 = null;" ) + 
-          ( extend ? "extendClass(this, " + extend + ");\n" : "" ) +
-          "<CLASS " + name + " " + static + ">" + ( typeof last == "string" ? last : name + "(" );
-      }
+      return "function " + name + "() {with(this){\n " + (extend ? "var __self=this;function superMethod(){extendClass(__self,arguments," + extend + ");}\n" : "") +
+      // Replace var foo = 0; with this.foo = 0;
+      // and force var foo; to become this.foo = null;
+      vars.replace(/\s*,\s*/g, ";\n  this.").replace(/\b(var |final |public )+\s*/g, "this.").replace(/\b(var |final |public )+\s*/g, "this.").replace(/this\.(\w+);/g, "this.$1 = null;") + (extend ? "extendClass(this, " + extend + ");\n" : "") + "<CLASS " + name + " " + staticVar + ">" + (typeof last === "string" ? last : name + "(");
 
-      var matchClasses = /(?:public |abstract |static )*class (\w+)\s*(?:extends\s*(\w+)\s*)?{\s*((?:.|\n)*?)\b\1\s*\(/g;
-      var matchNoCon = /(?:public |abstract |static )*class (\w+)\s*(?:extends\s*(\w+)\s*)?{\s*((?:.|\n)*?)(Processing)/g;
-      
-      aCode = aCode.replace( matchClasses, ClassReplace );
-      aCode = aCode.replace( matchNoCon, ClassReplace );
+    };
 
-      var matchClass = /<CLASS (\w+) (.*?)>/, m;
-      
-      while ( ( m = aCode.match( matchClass ) ) ){
-        
-        var left        = RegExp.leftContext,
-            allRest     = RegExp.rightContext,
-            rest        = nextBrace( allRest ),
-            className   = m[ 1 ],
-            staticVars  = m[ 2 ] || "";
-          
-        allRest = allRest.slice( rest.length + 1 );
+    var nextBrace = function (right) {
+      var rest = right,
+        position = 0,
+        leftCount = 1,
+        rightCount = 0;
 
-        rest = rest.replace( new RegExp("\\b" + className + "\\(([^\\)]*?)\\)\\s*{", "g"), function( all, args ){
-          args = args.split( /,\s*?/ );
-          
-          if( args[ 0 ].match( /^\s*$/ ) ){
-            args.shift();
-          }
-          
-          var fn = "if ( arguments.length == " + args.length + " ) {\n";
-            
-          for ( var i = 0; i < args.length; i++ ) {
-            fn += "    var " + args[ i ] + " = arguments["+ i +"];\n";
-          }
-            
-          return fn;
-        });
-        
-        // Fix class method names
-        // this.collide = function() { ... }
-        // and add closing } for with(this) ...
-        rest = rest.replace( /(?:public )?Processing.\w+ = function (\w+)\((.*?)\)/g, function( all, name, args ){
-          return "ADDMETHOD(this, '" + name + "', function(" + args + ")";
-        });
-        
-        var matchMethod = /ADDMETHOD([\s\S]*?{)/, mc;
-        var methods = "";
-        
-        while ( ( mc = rest.match( matchMethod ) ) ){
-          var prev    = RegExp.leftContext,
-              allNext = RegExp.rightContext,
-              next    = nextBrace(allNext);
+      while (leftCount !== rightCount) {
+        var nextLeft = rest.indexOf("{"),
+          nextRight = rest.indexOf("}");
 
-          methods += "addMethod" + mc[ 1 ] + next + "});";
-          
-          rest = prev + allNext.slice( next.length + 1 );
-        }
-
-        rest = methods + rest;
-        
-        aCode = left + rest + "\n}}" + staticVars + allRest;
-      }
-
-      // Do some tidying up, where necessary
-      aCode = aCode.replace( /Processing.\w+ = function addMethod/g, "addMethod" );
-      
-      function nextBrace( right ) {
-
-        var rest      = right,
-            position  = 0,
-            leftCount = 1,
-            rightCount = 0;
-        
-        while( leftCount != rightCount ) {
-        
-        var nextLeft  = rest.indexOf( "{" ),
-            nextRight = rest.indexOf( "}" );
-        
-        if( nextLeft < nextRight && nextLeft != - 1 ) {
-
+        if (nextLeft < nextRight && nextLeft !== -1) {
           leftCount++;
-          rest = rest.slice( nextLeft + 1 );
+          rest = rest.slice(nextLeft + 1);
           position += nextLeft + 1;
-
-        }else{
-
+        } else {
           rightCount++;
-          rest = rest.slice( nextRight + 1 );
+          rest = rest.slice(nextRight + 1);
           position += nextRight + 1;
-
         }
-        
       }
-        
-      return right.slice( 0, position - 1 );
+
+      return right.slice(0, position - 1);
+    };
+
+    var matchClasses = /(?:public |abstract |static )*class (\w+)\s*(?:extends\s*(\w+)\s*)?\{\s*((?:.|\n)*?)\b\1\s*\(/g;
+    var matchNoCon = /(?:public |abstract |static )*class (\w+)\s*(?:extends\s*(\w+)\s*)?\{\s*((?:.|\n)*?)(Processing)/g;
+
+    aCode = aCode.replace(matchClasses, classReplace);
+    aCode = aCode.replace(matchNoCon, classReplace);
+
+    var matchClass = /<CLASS (\w+) (.*?)>/,
+      m;
+
+    while ((m = aCode.match(matchClass))) {
+      var left = RegExp.leftContext,
+        allRest = RegExp.rightContext,
+        rest = nextBrace(allRest),
+        className = m[1],
+        staticVars = m[2] || "";
+
+      allRest = allRest.slice(rest.length + 1);
+
+      rest = rest.replace(new RegExp("\\b" + className + "\\(([^\\)]*?)\\)\\s*{", "g"), function (all, args) {
+        args = args.split(/,\s*?/);
+
+        if (args[0].match(/^\s*$/)) {
+          args.shift();
+        }
+
+        var fn = "if ( arguments.length === " + args.length + " ) {\n";
+
+        for (var i = 0; i < args.length; i++) {
+          fn += " var " + args[i] + " = arguments[" + i + "];\n";
+        }
+
+        return fn;
+      });
+
+      // Fix class method names
+      // this.collide = function() { ... }
+      // and add closing } for with(this) ...
+      rest = rest.replace(/(?:public )?Processing.\w+ = function (\w+)\((.*?)\)/g, function (all, name, args) {
+        return "ADDMETHOD(this, '" + name + "', function(" + args + ")";
+      });
+
+      var matchMethod = /ADDMETHOD([\s\S]*?\{)/,
+        mc;
+      var methods = "";
+
+      while ((mc = rest.match(matchMethod))) {
+        var prev = RegExp.leftContext,
+          allNext = RegExp.rightContext,
+          next = nextBrace(allNext);
+
+        methods += "addMethod" + mc[1] + next + "});";
+
+        rest = prev + allNext.slice(next.length + 1);
+      }
+
+      rest = methods + rest;
+
+      aCode = left + rest + "\n}}" + staticVars + allRest;
+    }
+
+    // Do some tidying up, where necessary
+    aCode = aCode.replace(/Processing.\w+ = function addMethod/g, "addMethod");
+
+
+    // Check if 3D context is invoked -- this is not the best way to do this.
+    if (aCode.match(/size\((?:.+),(?:.+),\s*OPENGL\);/)) {
+      p.use3DContext = true;
     }
 
     // Handle (int) Casting
-    aCode = aCode.replace( /\(int\)/g, "0|" );
+    aCode = aCode.replace(/\(int\)/g, "0|");
 
     // Remove Casting
-    aCode = aCode.replace( new RegExp("\\((" + classes.join("|") + ")(\\[\\])?\\)", "g"), "" );
-    
-    // Convert 3.0f to just 3.0
-    aCode = aCode.replace( /(\d+)f[^a-zA-Z0-9]/g, "$1" );
+    aCode = aCode.replace(new RegExp("\\((" + classes.join("|") + ")(\\[\\])*\\)", "g"), "");
 
     // Force numbers to exist //
     //aCode = aCode.replace(/([^.])(\w+)\s*\+=/g, "$1$2 = ($2||0) +");
-
-//!  // Force characters-as-bytes to work --> Ping: Andor
+    //! // Force characters-as-bytes to work --> Ping: Andor
     aCode = aCode.replace(/('[a-zA-Z0-9]')/g, "$1.charCodeAt(0)");
 
+    var toNumbers = function (str) {
+      var ret = [];
+
+      str.replace(/(..)/g, function (str) {
+        ret.push(parseInt(str, 16));
+      });
+
+      return ret;
+    };
+
     // Convert #aaaaaa into color
-    aCode = aCode.replace(/#([a-f0-9]{6})/ig, function(m, hex){
+    aCode = aCode.replace(/#([a-f0-9]{6})/ig, function (m, hex) {
       var num = toNumbers(hex);
       return "DefaultColor(" + num[0] + "," + num[1] + "," + num[2] + ")";
     });
 
-    function toNumbers( str ){
-      var ret = [];
-      
-      str.replace( /(..)/g, function( str ){
-        ret.push( parseInt( str, 16 ) );
-      });
-      
-      return ret;
-    }
+    // Convert 3.0f to just 3.0
+    aCode = aCode.replace(/(\d+)f/g, "$1");
 
     return aCode;
-
   };
 
 
@@ -296,52 +296,53 @@
 
 
     // "Private" variables used to maintain state
-    var online          = true,
-        doFill          = true,
-        doStroke        = true,
-	doStrokeArgs    = 0,
-        loopStarted     = false,
-        hasBackground   = false,
-        doLoop          = true,
-        looping         = 0,
-        curRectMode     = p.CORNER,
-        curEllipseMode  = p.CENTER,
-        inSetup         = false,
-        inDraw          = false,
-        curBackground   = "rgba( 204, 204, 204, 1 )",
-        curFrameRate    = 1000,
-        curMsPerFrame   = 1,
-        curShape        = p.POLYGON,
-        curShapeCount   = 0,
-        curvePoints     = [],
-        curTightness    = 0,
-        opacityRange    = 255,
-        redRange        = 255,
-        greenRange      = 255,
-        blueRange       = 255,
-        pathOpen        = false,
-        mousePressed    = false,
-        keyPressed      = false,
-        curColorMode    = p.RGB;
-        curTint         = - 1,
-        curTextSize     = 12,
-        curTextFont     = "Arial",
-        getLoaded       = false,
-        start           = ( new Date ).getTime();
+    var online = true,
+      doFill = true,
+      doStroke = true,
+      loopStarted = false,
+      hasBackground = false,
+      doLoop = true,
+      looping = 0,
+      curRectMode = p.CORNER,
+      curEllipseMode = p.CENTER,
+      inSetup = false,
+      inDraw = false,
+      curBackground = "rgba( 204, 204, 204, 1 )",
+      curFrameRate = 1000,
+      curCursor = p.ARROW,
+	//      oldCursor = document.body.style.cursor,
+      curMsPerFrame = 1,
+      curShape = p.POLYGON,
+      curShapeCount = 0,
+      curvePoints = [],
+      curTightness = 0,
+      opacityRange = 255,
+      redRange = 255,
+      greenRange = 255,
+      blueRange = 255,
+      pathOpen = false,
+      mousePressed = false,
+      keyPressed = false,
+      curColorMode = p.RGB,
+      curTint = -1,
+      curTextSize = 12,
+      curTextFont = "Arial",
+      getLoaded = false,
+      start = new Date().getTime(),
+      timeSinceLastFPS = start,
+      framesSinceLastFPS = 0;
 
-    var firstX,
-        firstY,
-        secondX,
-        secondY,
-        prevX,
-        prevY;
-    
+    var firstX, firstY, secondX, secondY, prevX, prevY;
+
+    // Stores states for pushStyle() and popStyle().
+    var styleArray = new Array(0);
+
     // Store a line for println(), print() handline
     p.ln = "";
-    
+
     // Glyph path storage for textFonts
     p.glyphTable = {};
-    
+
     // Global vars for tracking mouse position
     p.pmouseX     = 0;
     p.pmouseY     = 0;
@@ -375,144 +376,146 @@
     ////////////////////////////////////////////////////////////////////////////
     // Array handling
     ////////////////////////////////////////////////////////////////////////////    
-    
-    p.splitTokens = function( str, tokens ){
+    p.split = function (str, delim) {
+      return str.split(delim);
+    };
 
-      if( arguments.length == 1 ){
+    p.splitTokens = function (str, tokens) {
+      if (arguments.length === 1) {
         tokens = "\n\t\r\f ";
       }
 
       tokens = "[" + tokens + "]";
 
-      var ary = new Array();
+      var ary = new Array(0);
       var index = 0;
-      var pos = str.search( tokens );
+      var pos = str.search(tokens);
 
-      while( pos >= 0 ){
-        if (pos == 0){
-           str = str.substring( 1 );
-        }else{
-          ary[ index ] = str.substring( 0, pos );
+      while (pos >= 0) {
+        if (pos === 0) {
+          str = str.substring(1);
+        } else {
+          ary[index] = str.substring(0, pos);
           index++;
-          str = str.substring( pos );
+          str = str.substring(pos);
         }
-        pos = str.search( tokens );
+        pos = str.search(tokens);
       }
 
-      if( str.length > 0 ){
-         ary[ index ] = str;
+      if (str.length > 0) {
+        ary[index] = str;
       }
 
-      if( ary.length == 0 ){
-          ary = undefined;
+      if (ary.length === 0) {
+        ary = undefined;
       }
 
       return ary;
-    }
+    };
 
-  
-    
-    p.append = function( array, element ){
-      array[ array.length ] = element;
+    p.append = function (array, element) {
+      array[array.length] = element;
       return array;
-    }
-    
-    p.concat = function concat( array1, array2 ){
-      return array1.concat( array2 );
-    }
+    };
 
-    p.splice = function( array, value, index ){
+    p.concat = function concat(array1, array2) {
+      return array1.concat(array2);
+    };
 
-      if(array.length == 0 && value.length == 0){
+    p.splice = function (array, value, index) {
+      if (array.length === 0 && value.length === 0) {
         return array;
-      };
+      }
 
-      if( value instanceof Array ){
-        for( var i = 0, j = index; i < value.length; j++, i++ ){
-         array.splice( j, 0, value[ i ] );
+      if (value instanceof Array) {
+        for (var i = 0, j = index; i < value.length; j++, i++) {
+          array.splice(j, 0, value[i]);
         }
-      }else{
-        array.splice( index, 0, value );
-      };
-      
-      return array;
-      
-    }; 
+      } else {
+        array.splice(index, 0, value);
+      }
 
-    p.subset = function( array, offset, length ){
-      if(arguments.length == 2){
-        return p.subset( array, offset, array.length - offset );
-      }else if( arguments.length == 3 ){
-        return array.slice( offset, offset + length );
+      return array;
+    };
+
+    p.subset = function (array, offset, length) {
+      if (arguments.length === 2) {
+        return p.subset(array, offset, array.length - offset);
+      } else if (arguments.length === 3) {
+        return array.slice(offset, offset + length);
       }
     };
 
-    p.concat = function concat( array1, array2 ){ return array1.concat( array2 ) };
-    
-    p.join = function join( array, seperator ){ return array.join( seperator ) };
-    
-    p.shorten = function( ary ){
-    
-      var newary = new Array();
+    p.join = function join(array, seperator) {
+      return array.join(seperator);
+    };
+
+    p.shorten = function (ary) {
+
+      var newary = new Array(0);
 
       // copy array into new array
-      var len = ary.length;     
-      for( var i = 0; i < len; i++ ){
-        newary[ i ] = ary[ i ];
+      var len = ary.length;
+      for (var i = 0; i < len; i++) {
+        newary[i] = ary[i];
       }
 
       newary.pop();
 
       return newary;
-    }
+    };
 
-  
-    p.expand = function( ary, newSize ){
 
-      var newary = new Array();
-      
-      var len = ary.length
-      for( var i = 0; i < len; i++ ){
-          newary[ i ] = ary[ i ];
+    p.expand = function (ary, newSize) {
+
+      var newary = new Array(0);
+
+      var len = ary.length;
+      for (var i = 0; i < len; i++) {
+        newary[i] = ary[i];
       }
-      
-      if( arguments.length == 1 ){
-        
+
+      if (arguments.length === 1) {
+
         // double size of array
         newary.length *= 2;
-        
-      }else if( arguments.length == 2 ){
-        
+
+      } else if (arguments.length === 2) {
+
         // size is newSize
         newary.length = newSize;
-        
+
       }
-      
+
       return newary;
-    }
+    };
 
 
 
-    p.ArrayList = function ArrayList( size, size2, size3 ){
-    
-      var array = new Array( 0 | size );
-      
-      if( size2 ){
-        
-        for( var i = 0; i < size; i++ ){
-          
-          array[ i ] = [];
+    p.ArrayList = function ArrayList(size, size2, size3) {
 
-          for( var j = 0; j < size2; j++ ){
-            var a = array[ i ][ j ] = size3 ? new Array( size3 ) : 0 ;  
-            for( var k = 0; k < size3; k++ ){ a[ k ] = 0; }
+      var array = new Array(0 | size);
+
+      if (size2) {
+
+        for (var i = 0; i < size; i++) {
+
+          array[i] = [];
+
+          for (var j = 0; j < size2; j++) {
+            var a = array[i][j] = size3 ? new Array(size3) : 0;
+            for (var k = 0; k < size3; k++) {
+              a[k] = 0;
+            }
           }
-          
+
         }
-        
-      }else{
-        
-        for( var i = 0; i < size; i++ ){ array[ i ] = 0; }        
+
+      } else {
+
+        for (var l = 0; l < size; l++) {
+          array[l] = 0;
+        }
       }
       
       array.get     = function( i    ){ return this[ i ];           };
@@ -532,11 +535,220 @@
       return array;
     };
 
+    p.reverse = function (array) {
+      return array.reverse();
+    };
+
 
 
     ////////////////////////////////////////////////////////////////////////////
     // Color functions
     ////////////////////////////////////////////////////////////////////////////
+    // convert rgba color strings to integer
+    p.rgbaToInt = function (color) {
+      var rgbaAry = /\(([^\)]+)\)/.exec(color).slice(1, 2)[0].split(',');
+      return ((rgbaAry[3] * 255) << 24) | (rgbaAry[0] << 16) | (rgbaAry[1] << 8) | (rgbaAry[2]);
+    };
+
+    // helper functions for internal blending modes
+    p.mix = function (a, b, f) {
+      return a + (((b - a) * f) >> 8);
+    };
+
+    p.peg = function (n) {
+      return (n < 0) ? 0 : ((n > 255) ? 255 : n);
+    };
+
+    // blending modes
+    p.modes = {
+      replace: function (a, b) {
+        return p.rgbaToInt(b);
+      },
+      blend: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | p.mix(c1 & p.RED_MASK, c2 & p.RED_MASK, f) & p.RED_MASK | p.mix(c1 & p.GREEN_MASK, c2 & p.GREEN_MASK, f) & p.GREEN_MASK | p.mix(c1 & p.BLUE_MASK, c2 & p.BLUE_MASK, f));
+      },
+      add: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | Math.min(((c1 & p.RED_MASK) + ((c2 & p.RED_MASK) >> 8) * f), p.RED_MASK) & p.RED_MASK | Math.min(((c1 & p.GREEN_MASK) + ((c2 & p.GREEN_MASK) >> 8) * f), p.GREEN_MASK) & p.GREEN_MASK | Math.min((c1 & p.BLUE_MASK) + (((c2 & p.BLUE_MASK) * f) >> 8), p.BLUE_MASK));
+      },
+      subtract: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | Math.max(((c1 & p.RED_MASK) - ((c2 & p.RED_MASK) >> 8) * f), p.GREEN_MASK) & p.RED_MASK | Math.max(((c1 & p.GREEN_MASK) - ((c2 & p.GREEN_MASK) >> 8) * f), p.BLUE_MASK) & p.GREEN_MASK | Math.max((c1 & p.BLUE_MASK) - (((c2 & p.BLUE_MASK) * f) >> 8), 0));
+      },
+      lightest: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | Math.max(c1 & p.RED_MASK, ((c2 & p.RED_MASK) >> 8) * f) & p.RED_MASK | Math.max(c1 & p.GREEN_MASK, ((c2 & p.GREEN_MASK) >> 8) * f) & p.GREEN_MASK | Math.max(c1 & p.BLUE_MASK, ((c2 & p.BLUE_MASK) * f) >> 8));
+      },
+      darkest: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | p.mix(c1 & p.RED_MASK, Math.min(c1 & p.RED_MASK, ((c2 & p.RED_MASK) >> 8) * f), f) & p.RED_MASK | p.mix(c1 & p.GREEN_MASK, Math.min(c1 & p.GREEN_MASK, ((c2 & p.GREEN_MASK) >> 8) * f), f) & p.GREEN_MASK | p.mix(c1 & p.BLUE_MASK, Math.min(c1 & p.BLUE_MASK, ((c2 & p.BLUE_MASK) * f) >> 8), f));
+
+      },
+      difference: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        var ar = (c1 & p.RED_MASK) >> 16;
+        var ag = (c1 & p.GREEN_MASK) >> 8;
+        var ab = (c1 & p.BLUE_MASK);
+        var br = (c2 & p.RED_MASK) >> 16;
+        var bg = (c2 & p.GREEN_MASK) >> 8;
+        var bb = (c2 & p.BLUE_MASK);
+        // formula:
+        var cr = (ar > br) ? (ar - br) : (br - ar);
+        var cg = (ag > bg) ? (ag - bg) : (bg - ag);
+        var cb = (ab > bb) ? (ab - bb) : (bb - ab);
+        // alpha blend (this portion will always be the same)
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | (p.peg(ar + (((cr - ar) * f) >> 8)) << 16) | (p.peg(ag + (((cg - ag) * f) >> 8)) << 8) | (p.peg(ab + (((cb - ab) * f) >> 8))));
+      },
+      exclusion: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        var ar = (c1 & p.RED_MASK) >> 16;
+        var ag = (c1 & p.GREEN_MASK) >> 8;
+        var ab = (c1 & p.BLUE_MASK);
+        var br = (c2 & p.RED_MASK) >> 16;
+        var bg = (c2 & p.GREEN_MASK) >> 8;
+        var bb = (c2 & p.BLUE_MASK);
+        // formula:
+        var cr = ar + br - ((ar * br) >> 7);
+        var cg = ag + bg - ((ag * bg) >> 7);
+        var cb = ab + bb - ((ab * bb) >> 7);
+        // alpha blend (this portion will always be the same)
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | (p.peg(ar + (((cr - ar) * f) >> 8)) << 16) | (p.peg(ag + (((cg - ag) * f) >> 8)) << 8) | (p.peg(ab + (((cb - ab) * f) >> 8))));
+      },
+      multiply: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        var ar = (c1 & p.RED_MASK) >> 16;
+        var ag = (c1 & p.GREEN_MASK) >> 8;
+        var ab = (c1 & p.BLUE_MASK);
+        var br = (c2 & p.RED_MASK) >> 16;
+        var bg = (c2 & p.GREEN_MASK) >> 8;
+        var bb = (c2 & p.BLUE_MASK);
+        // formula:
+        var cr = (ar * br) >> 8;
+        var cg = (ag * bg) >> 8;
+        var cb = (ab * bb) >> 8;
+        // alpha blend (this portion will always be the same)
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | (p.peg(ar + (((cr - ar) * f) >> 8)) << 16) | (p.peg(ag + (((cg - ag) * f) >> 8)) << 8) | (p.peg(ab + (((cb - ab) * f) >> 8))));
+      },
+      screen: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        var ar = (c1 & p.RED_MASK) >> 16;
+        var ag = (c1 & p.GREEN_MASK) >> 8;
+        var ab = (c1 & p.BLUE_MASK);
+        var br = (c2 & p.RED_MASK) >> 16;
+        var bg = (c2 & p.GREEN_MASK) >> 8;
+        var bb = (c2 & p.BLUE_MASK);
+        // formula:
+        var cr = 255 - (((255 - ar) * (255 - br)) >> 8);
+        var cg = 255 - (((255 - ag) * (255 - bg)) >> 8);
+        var cb = 255 - (((255 - ab) * (255 - bb)) >> 8);
+        // alpha blend (this portion will always be the same)
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | (p.peg(ar + (((cr - ar) * f) >> 8)) << 16) | (p.peg(ag + (((cg - ag) * f) >> 8)) << 8) | (p.peg(ab + (((cb - ab) * f) >> 8))));
+      },
+      hard_light: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        var ar = (c1 & p.RED_MASK) >> 16;
+        var ag = (c1 & p.GREEN_MASK) >> 8;
+        var ab = (c1 & p.BLUE_MASK);
+        var br = (c2 & p.RED_MASK) >> 16;
+        var bg = (c2 & p.GREEN_MASK) >> 8;
+        var bb = (c2 & p.BLUE_MASK);
+        // formula:
+        var cr = (br < 128) ? ((ar * br) >> 7) : (255 - (((255 - ar) * (255 - br)) >> 7));
+        var cg = (bg < 128) ? ((ag * bg) >> 7) : (255 - (((255 - ag) * (255 - bg)) >> 7));
+        var cb = (bb < 128) ? ((ab * bb) >> 7) : (255 - (((255 - ab) * (255 - bb)) >> 7));
+        // alpha blend (this portion will always be the same)
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | (p.peg(ar + (((cr - ar) * f) >> 8)) << 16) | (p.peg(ag + (((cg - ag) * f) >> 8)) << 8) | (p.peg(ab + (((cb - ab) * f) >> 8))));
+      },
+      soft_light: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        var ar = (c1 & p.RED_MASK) >> 16;
+        var ag = (c1 & p.GREEN_MASK) >> 8;
+        var ab = (c1 & p.BLUE_MASK);
+        var br = (c2 & p.RED_MASK) >> 16;
+        var bg = (c2 & p.GREEN_MASK) >> 8;
+        var bb = (c2 & p.BLUE_MASK);
+        // formula:
+        var cr = ((ar * br) >> 7) + ((ar * ar) >> 8) - ((ar * ar * br) >> 15);
+        var cg = ((ag * bg) >> 7) + ((ag * ag) >> 8) - ((ag * ag * bg) >> 15);
+        var cb = ((ab * bb) >> 7) + ((ab * ab) >> 8) - ((ab * ab * bb) >> 15);
+        // alpha blend (this portion will always be the same)
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | (p.peg(ar + (((cr - ar) * f) >> 8)) << 16) | (p.peg(ag + (((cg - ag) * f) >> 8)) << 8) | (p.peg(ab + (((cb - ab) * f) >> 8))));
+      },
+      overlay: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        var ar = (c1 & p.RED_MASK) >> 16;
+        var ag = (c1 & p.GREEN_MASK) >> 8;
+        var ab = (c1 & p.BLUE_MASK);
+        var br = (c2 & p.RED_MASK) >> 16;
+        var bg = (c2 & p.GREEN_MASK) >> 8;
+        var bb = (c2 & p.BLUE_MASK);
+        // formula:
+        var cr = (ar < 128) ? ((ar * br) >> 7) : (255 - (((255 - ar) * (255 - br)) >> 7));
+        var cg = (ag < 128) ? ((ag * bg) >> 7) : (255 - (((255 - ag) * (255 - bg)) >> 7));
+        var cb = (ab < 128) ? ((ab * bb) >> 7) : (255 - (((255 - ab) * (255 - bb)) >> 7));
+        // alpha blend (this portion will always be the same)
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | (p.peg(ar + (((cr - ar) * f) >> 8)) << 16) | (p.peg(ag + (((cg - ag) * f) >> 8)) << 8) | (p.peg(ab + (((cb - ab) * f) >> 8))));
+      },
+      dodge: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        var ar = (c1 & p.RED_MASK) >> 16;
+        var ag = (c1 & p.GREEN_MASK) >> 8;
+        var ab = (c1 & p.BLUE_MASK);
+        var br = (c2 & p.RED_MASK) >> 16;
+        var bg = (c2 & p.GREEN_MASK) >> 8;
+        var bb = (c2 & p.BLUE_MASK);
+        // formula:
+        var cr = (br === 255) ? 255 : p.peg((ar << 8) / (255 - br)); // division requires pre-peg()-ing
+        var cg = (bg === 255) ? 255 : p.peg((ag << 8) / (255 - bg)); // "
+        var cb = (bb === 255) ? 255 : p.peg((ab << 8) / (255 - bb)); // "
+        // alpha blend (this portion will always be the same)
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | (p.peg(ar + (((cr - ar) * f) >> 8)) << 16) | (p.peg(ag + (((cg - ag) * f) >> 8)) << 8) | (p.peg(ab + (((cb - ab) * f) >> 8))));
+      },
+      burn: function (a, b) {
+        var c1 = p.rgbaToInt(a);
+        var c2 = p.rgbaToInt(b);
+        var f = (c2 & p.ALPHA_MASK) >>> 24;
+        var ar = (c1 & p.RED_MASK) >> 16;
+        var ag = (c1 & p.GREEN_MASK) >> 8;
+        var ab = (c1 & p.BLUE_MASK);
+        var br = (c2 & p.RED_MASK) >> 16;
+        var bg = (c2 & p.GREEN_MASK) >> 8;
+        var bb = (c2 & p.BLUE_MASK);
+        // formula:
+        var cr = (br === 0) ? 0 : 255 - p.peg(((255 - ar) << 8) / br); // division requires pre-peg()-ing
+        var cg = (bg === 0) ? 0 : 255 - p.peg(((255 - ag) << 8) / bg); // "
+        var cb = (bb === 0) ? 0 : 255 - p.peg(((255 - ab) << 8) / bb); // "
+        // alpha blend (this portion will always be the same)
+        return (Math.min(((c1 & p.ALPHA_MASK) >>> 24) + f, 0xff) << 24 | (p.peg(ar + (((cr - ar) * f) >> 8)) << 16) | (p.peg(ag + (((cg - ag) * f) >> 8)) << 8) | (p.peg(ab + (((cb - ab) * f) >> 8))));
+      }
+    };
 
     // our own freej color function -jrml
     p.color = function() { p.context.set_color.apply(p.context, arguments); }
@@ -719,7 +931,6 @@
     p.ortho       = function ortho(){};
 
 
-    
     ////////////////////////////////////////////////////////////////////////////
     //Time based functions
     ////////////////////////////////////////////////////////////////////////////
@@ -789,195 +1000,207 @@
     ////////////////////////////////////////////////////////////////////////////
     // Binary Functions
     ////////////////////////////////////////////////////////////////////////////
+    p.unbinary = function unbinary(binaryString) {
+      var binaryPattern = new RegExp("^[0|1]{8}$");
+      var addUp = 0;
 
-    p.unbinary = function unbinary( binaryString ){
-	    var binaryPattern = new RegExp("^[0|1]{8}$");
-	    var addUp = 0;
-
-	    if( isNaN( binaryString ) ){
-		    throw "NaN_Err";
-	    }else{
-		    if( arguments.length == 1 || binaryString.length == 8 ){
-			    if( binaryPattern.test( binaryString ) ){
-				    for( i = 0; i < 8; i++ ){
-					    addUp += ( Math.pow( 2, i ) * parseInt( binaryString.charAt( 7 - i ) ) );
-				    }
-				    return addUp + "";
-			    }else{
-				    throw "notBinary: the value passed into unbinary was not an 8 bit binary number";
-			    };
-		    }else{
-			    throw "longErr";
-		    };
-
-	    };
-	    
-	    return addUp;
-    }
-
-    p.nfs = function( num, left, right){
-      var str;
-      // array handling
-      if (typeof num == "object"){
-        str = new Array();
-        len = num.length;
-        for(var i=0; i < len; i++){
-          str[i] = p.nfs(num[i], left, right);
+      if (isNaN(binaryString)) {
+        throw "NaN_Err";
+      } else {
+        if (arguments.length === 1 || binaryString.length === 8) {
+          if (binaryPattern.test(binaryString)) {
+            for (i = 0; i < 8; i++) {
+              addUp += (Math.pow(2, i) * parseInt(binaryString.charAt(7 - i), 10));
+            }
+            return addUp + "";
+          } else {
+            throw "notBinary: the value passed into unbinary was not an 8 bit binary number";
+          }
+        } else {
+          throw "longErr";
         }
       }
-      else if (arguments.length == 3){
+      return addUp;
+    };
+
+    p.nfs = function (num, left, right) {
+      var str, len;
+      // array handling
+      if (typeof num === "object") {
+        str = new Array(0);
+        len = num.length;
+        for (var i = 0; i < len; i++) {
+          str[i] = p.nfs(num[i], left, right);
+        }
+      } else if (arguments.length === 3) {
         var negative = false;
-        if (num < 0)
+        if (num < 0) {
           negative = true;
-          
+        }
+
         str = "" + Math.abs(num);
         var digits = ("" + Math.floor(Math.abs(num))).length;
         var count = left - digits;
-        while (count > 0){
+        while (count > 0) {
           str = "0" + str;
           count--;
         }
         // get the number of decimal places, if none will be -1
         var decimals = ("" + Math.abs(num)).length - digits - 1;
-        if (decimals == -1 && right > 0)
+        if (decimals === -1 && right > 0) {
           str = str + ".";
-        if (decimals != -1)
-          count = right - decimals;
-        else if (decimals == -1 && right > 0){
-          count = right;
         }
-        else
+
+        if (decimals !== -1) {
+          count = right - decimals;
+        } else if (decimals === -1 && right > 0) {
+          count = right;
+        } else {
           count = 0;
-        while (count > 0){
+        }
+        while (count > 0) {
           str = str + "0";
           count--;
         }
         str = (negative ? "-" : " ") + str;
-      }
-      else if (arguments.length == 2){
+      } else if (arguments.length === 2) {
         str = p.nfs(num, left, 0);
       }
       return str;
-    }
-    
-    //function i use to convert RGB to hex values
-    p.RGB2HTML = function RGB2HTML(red, green, blue) {
-	    var char = "0123456789ABCDEF";
-	    rgb_div = Math.floor(rgb / 16);
-	    return String( char.charAt(rgb_div) ) + String(char.charAt(rgb - (rgb_div * 16)));
-    }
+    };
+
+    p.nfc = function (num, right) {
+      var str;
+      var decimals = right >= 0 ? right : 0;
+      if (typeof num === "object") {
+        str = new Array(0);
+        for (var i = 0; i < num.length; i++) {
+          str[i] = p.nfc(num[i], decimals);
+        }
+      } else if (arguments.length === 2) {
+        var rawStr = p.nfs(num, 0, decimals);
+        var ary = new Array(0);
+        ary = rawStr.split('.');
+        // ary[0] contains left of decimal, ary[1] contains decimal places if they exist
+        // insert commas now, then append ary[1] if it exists
+        var leftStr = ary[0];
+        var rightStr = ary.length > 1 ? '.' + ary[1] : '';
+        var commas = /(\d+)(\d{3})/;
+        while (commas.test(leftStr)) {
+          leftStr = leftStr.replace(commas, '$1' + ',' + '$2');
+        }
+        str = leftStr + rightStr;
+      } else if (arguments.length === 1) {
+        str = p.nfc(num, 0);
+      }
+      return str;
+    };
 
     //function i use to convert decimals to a padded hex value
     p.decimalToHex = function decimalToHex(d, padding) {
-	    //if there is no padding value added, default padding to 8  else  go into while statement.
-	    padding = typeof (padding) === "undefined" || padding === null ? padding = 8 : padding;
-	    var hex = Number(d).toString(16);
+      //if there is no padding value added, default padding to 8  else  go into while statement.
+      padding = typeof(padding) === "undefined" || padding === null ? padding = 8 : padding;
+      var hex = Number(d).toString(16);
 
-	    while (hex.length < padding) {
-		    hex = "0" + hex;
-	    }
-	    return hex;
-    }
+      while (hex.length < padding) {
+        hex = "0" + hex;
+      }
+      return hex;
+    };
 
     //regExp i made to pattern match rgba and extract it's values
     p.colorRGB = function colorRGB(col) {
-	    patt = /^rgba?\((\d{1,3}),(\d{1,3}),(\d{1,3}),?(\d{0,3})\)$/i;  //grouped \d{1,3} with ( ) so they can be referenced w\ $1-$4
-	    var str2 = col.replace(patt, "#$4,$1,$2,$3");
+      var patt = /^rgba?\((\d{1,3}),(\d{1,3}),(\d{1,3}),?(\d{0,3})\)$/i; //grouped \d{1,3} with ( ) so they can be referenced w\ $1-$4
+      // What's up with the crazy variable names? -F1LT3R
+      var al = col.replace(patt, "$4");
+      var reD = col.replace(patt, "$1");
+      var gree = col.replace(patt, "$2");
+      var blu = col.replace(patt, "$3");
 
-	    al = col.replace(patt, "$4");
-	    reD = col.replace(patt, "$1");
-	    gree = col.replace(patt, "$2");
-	    blu = col.replace(patt, "$3");
-
-	    return ("" + Number(al).toString(16) + Number(reD).toString(16) + Number(gree).toString(16) + Number(blu).toString(16)).toUpperCase();
-    }
+      return ("" + Number(al).toString(16) + Number(reD).toString(16) + Number(gree).toString(16) + Number(blu).toString(16)).toUpperCase();
+    };
 
     p.hex = function hex(decimal, len) {
-	    var hexadecimal = "";
+      var hexadecimal = "";
 
-	    var patternRGBa = /^rgba?\((\d{1,3}),(\d{1,3}),(\d{1,3}),?(\d{0,3})\)$/i;  //match rgba(20,20,20,0) or rgba(20,20,20)
-	    var patternDigits = /^\d+$/;
-	    //**************************   dealing with 2 parameters   *************************************************
-	    if (arguments.length == 2) {
-		    if (patternDigits.test(decimal)) {
-			    hexadecimal = p.decimalToHex(decimal, len);
-		    }
-		    else if (patternRGBa.test(decimal)) //check to see if it's an rgba color
-		    {
-			    hexadecimal = p.colorRGB(decimal);
-			    hexadecimal = hexadecimal.substring(hexadecimal.length - len, hexadecimal.length);
-		    }
-	    }
-	    else if (arguments.length == 1) //****************   dealing with 1 parameter  ********************************
-	    {
-		    if (patternDigits.test(decimal)) {      //check to see if it's a decimal
-			    hexadecimal = p.decimalToHex(decimal);
-		    }
-		    else if (patternRGBa.test(decimal)) //check to see if it's an rgba color
-		    {
-			    hexadecimal = p.colorRGB(decimal);
-		    }
-		    else if (decimal.indexOf("#") == 0) //check to see if it's hex color in format #ffffff
-		    {
-			    if (decimal.length < 7) {
-				    throw "Not Hex format: the value passed into hex was not in the format #FFFFFF";
-			    }
-			    else {
-				    decimal = (decimal.slice(1)).toUpperCase();
-				    while (decimal.length < 8) {
-					    decimal = "FF" + decimal;
-				    }
-				    hexadecimal = decimal;
-			    }
-		    }
-	    }
-	    return hexadecimal;
-    }
-    
-    p.unhex = function( str ){
-        var value = 0,
-            multiplier = 1,
-            num = 0;
-        
-        var len = str.length - 1;
-        for (var i = len ; i >= 0; i--){
-            try{
-                switch(str[i]){
-                    case "0": num = 0; break;
-                    case "1": num = 1; break;
-                    case "2": num = 2; break;
-                    case "3": num = 3; break;
-                    case "4": num = 4; break;
-                    case "5": num = 5; break;
-                    case "6": num = 6; break;
-                    case "7": num = 7; break;
-                    case "8": num = 8; break;
-                    case "9": num = 9; break;
-                    case "A":
-                    case "a": num = 10; break;
-                    case "B":
-                    case "b": num = 11; break;
-                    case "C": 
-                    case "c": num = 12; break;
-                    case "D":
-                    case "d": num = 13; break;
-                    case "E":
-                    case "e": num = 14; break;
-                    case "F":
-                    case "f": num = 15; break;
-                    default:return 0; break;
-                }
-                value += num * multiplier;
-                multiplier *= 16;
-            }catch(e){;}
-            // correct for int overflow java expectation
-            if (value > 2147483647)
-            {
-                value -= 4294967296;
-            }  
+      var patternRGBa = /^rgba?\((\d{1,3}),(\d{1,3}),(\d{1,3}),?(\d{0,3})\)$/i; //match rgba(20,20,20,0) or rgba(20,20,20)
+      var patternDigits = /^\d+$/;
+      //**************************   dealing with 2 parameters   *************************************************
+      if (arguments.length === 2) {
+        if (patternDigits.test(decimal)) {
+          hexadecimal = p.decimalToHex(decimal, len);
+        } else if (patternRGBa.test(decimal)) //check to see if it's an rgba color
+        {
+          hexadecimal = p.colorRGB(decimal);
+          hexadecimal = hexadecimal.substring(hexadecimal.length - len, hexadecimal.length);
         }
-        return value;
+      } else if (arguments.length === 1) //****************   dealing with 1 parameter  ********************************
+      {
+        if (patternDigits.test(decimal)) { //check to see if it's a decimal
+          hexadecimal = p.decimalToHex(decimal);
+        } else if (patternRGBa.test(decimal)) //check to see if it's an rgba color
+        {
+          hexadecimal = p.colorRGB(decimal);
+        }
+        else if (decimal.indexOf("#") === 0) //check to see if it's hex color in format #ffffff
+        {
+          if (decimal.length < 7) {
+            throw "Not Hex format: the value passed into hex was not in the format #FFFFFF";
+          } else {
+            decimal = (decimal.slice(1)).toUpperCase();
+            while (decimal.length < 8) {
+              decimal = "FF" + decimal;
+            }
+            hexadecimal = decimal;
+          }
+        }
       }
+      return hexadecimal;
+    };
+
+    p.unhex = function (str) {
+      var value = 0,
+      multiplier = 1,
+      num = 0;
+      
+      var len = str.length - 1;
+      for (var i = len ; i >= 0; i--){
+	  switch(str[i]){
+	  case "0": num = 0; break;
+	  case "1": num = 1; break;
+	  case "2": num = 2; break;
+	  case "3": num = 3; break;
+	  case "4": num = 4; break;
+	  case "5": num = 5; break;
+	  case "6": num = 6; break;
+	  case "7": num = 7; break;
+	  case "8": num = 8; break;
+	  case "9": num = 9; break;
+	  case "A":
+	  case "a": num = 10; break;
+	  case "B":
+	  case "b": num = 11; break;
+	  case "C": 
+	  case "c": num = 12; break;
+	  case "D":
+	  case "d": num = 13; break;
+	  case "E":
+	  case "e": num = 14; break;
+	  case "F":
+	  case "f": num = 15; break;
+	  default:return 0; break;
+	  }
+	  value += num * multiplier;
+	  multiplier *= 16;
+	  // correct for int overflow java expectation
+	  if (value > 2147483647)
+	      {
+		  value -= 4294967296;
+	      }  
+      }
+
+    return value;
+    };
 
 
     // Load a file or URL into strings     
@@ -985,247 +1208,362 @@
       return p.ajax( url ).split( "\n" );              
     };
 
-    p.nf = function( num, pad ){
+    // nf() should return an array when being called on an array, at the moment it only returns strings. -F1LT3R
+    // This breaks the join() ref-test. The Processing.org documentation says String or String[].
+    p.nf = function (num, pad) {
       var str = "" + num;
-      while ( pad - str.length ){
+      for (var i = pad - str.length; i > 0; i--) {
         str = "0" + str;
       }
       return str;
     };
 
-    p.nfp = function nfp(Value, pad, right){
-	    var str = String(Value);
+    p.nfp = function nfp(Value, pad, right) {
+      var str = String(Value);
 
-	    if (arguments.length < 3){	//check if it's 2 arguments
-		    if (Value > 0) {
-			    while (str.length < pad)					
-				    str = "0" + str;
-		
-			    str = "+" + str;
-			    return str;
-		    }
-		    else {
-			    str = str.slice(1);  //used to remove the '-' infront of the original number.
-			    while (str.length < pad)					
-				    str = "0" + str;
-		
-			    str = "-" + str;
-			    return str;
-		    }
-	    }
-	    else if (arguments.length == 3) {  //check if it's 3 arguments 
-		    var decimalPos = str.indexOf('.');
-		    if (Value > 0) {                    
-			    var strL = str.slice(0,decimalPos);   //store #'s to left of decimal into strL
-			    var strR = str.slice(decimalPos+1,str.length);  //store #'s to right of decimal into strR
-		
-			    while (strL.length < pad)   //pad to left of decimal on positive #'s
-				    strL = "0" + strL;
-			
-			    strL = "+" + strL;
-		
-			    while (strR.length < right)  //pad to right of decimal on positive #'s
-				    strR = strR + "0";
-		
-			    return strL+"."+strR;
-		    }
-		    else {
-			    var strL = str.slice(1,decimalPos);   //store #'s to left of decimal into strL
-			    var strR = str.slice(decimalPos+1,str.length);  //store #'s to right of decimal into strR
-		
-			    while (strL.length < pad)  //pad to left of decimal on negative #'s
-				    strL = "0" + strL;
-			
-			    strL = "-" + strL;
-		
-			    while (strR.length < right)  //pad to right of decimal on negative #'s
-				    strR = strR + "0";
-		
-			    return strL+"."+strR;
-		    }
-	    }
-    }
+      if (arguments.length < 3) { //check if it's 2 arguments
+        if (Value > 0) {
+          while (str.length < pad) {
+            str = "0" + str;
+          }
+          str = "+" + str;
+          return str;
+        } else {
+          str = str.slice(1); //used to remove the '-' infront of the original number.
+          while (str.length < pad) {
+            str = "0" + str;
+          }
+          str = "-" + str;
+          return str;
+        }
+      } else if (arguments.length === 3) { //check if it's 3 arguments 
+        var decimalPos = str.indexOf('.'),
+          strL, strR;
+        if (Value > 0) {
+          strL = str.slice(0, decimalPos); //store #'s to left of decimal into strL
+          strR = str.slice(decimalPos + 1, str.length); //store #'s to right of decimal into strR
+          while (strL.length < pad) { //pad to left of decimal on positive #'s
+            strL = "0" + strL;
+          }
+          strL = "+" + strL;
+
+          while (strR.length < right) { //pad to right of decimal on positive #'s
+            strR = strR + "0";
+          }
+          return strL + "." + strR;
+        } else {
+          strL = str.slice(1, decimalPos); //store #'s to left of decimal into strL
+          strR = str.slice(decimalPos + 1, str.length); //store #'s to right of decimal into strR
+          while (strL.length < pad) { //pad to left of decimal on negative #'s
+            strL = "0" + strL;
+          }
+          strL = "-" + strL;
+
+          while (strR.length < right) { //pad to right of decimal on negative #'s
+            strR = strR + "0";
+          }
+          return strL + "." + strR;
+        }
+      }
+    };
 
     ////////////////////////////////////////////////////////////////////////////
     // String Functions
     ////////////////////////////////////////////////////////////////////////////
-
-    String.prototype.replaceAll = function( re, replace ){
-      return this.replace( new RegExp( re, "g" ), replace );
+    // I have updated this to lint, we should check it still performs faster than the other option -F1LT3R
+    p.matchAll = function matchAll(aString, aRegExp) {
+      var i = 0,
+        results = [],
+        latest, regexp = new RegExp(aRegExp, "g");
+      latest = results[i] = regexp.exec(aString);
+      while (latest) {
+        i++;
+        latest = results[i] = regexp.exec(aString);
+      }
+      return results.slice(0, i);
     };
 
-    p.match = function( str, regexp ){
-      return str.match( regexp );
-    }  
-        
+    String.prototype.replaceAll = function (re, replace) {
+      return this.replace(new RegExp(re, "g"), replace);
+    };
+
+    p.match = function (str, regexp) {
+      return str.match(regexp);
+    };
+
     // Returns a line to lnPrinted() for user handling 
-    p.lnPrinted = function lnPrinted(){};
-    p.printed   = function printed()  {};  
-    
+    p.lnPrinted = function lnPrinted() {};
+    p.printed = function printed() {};
+
     // Event to send output to user control function print()/println()
-    p.println = function println(){
-      
+    p.println = function println() {
       // Not working on Safari :( find work around!
-      if( arguments.callee.caller ){
-      
+      if (arguments.callee.caller) {
         var Caller = arguments.callee.caller.name.toString();
-        
-        if( arguments.length > 1 ){
-
-          Caller != "print"        ?
-            p.ln  = arguments      :
-            p.ln  = arguments[ 0 ] ;
-
-        }else{
-
-            p.ln  = arguments[ 0 ] ;
+        if (arguments.length > 1) {
+          p.ln = Caller !== "print" ? arguments : arguments[0];
+        } else {
+          p.ln = arguments[0];
         }
-        
         //Returns a line to lnPrinted() for user error handling/debugging
-        Caller == "print"          ?        
-          p.printed( arguments )   :
-          p.lnPrinted()            ;
-        
+        if (Caller === "print") {
+          p.printed(arguments);
+        } else {
+          p.lnPrinted();
+        }
       }
-      
-    };    
 
-    // Converts a number to a string
-    p.str = function str( aNumber ){ return aNumber+''; }   
-    
-    p.print = function print(){ p.println(arguments[ 0 ] ) };
-    
-    p.char = function char( key ){ return key; };
-    
-    
-    
+    };
+
+    p.str = function str(aNumber) {
+      return aNumber + '';
+    };
+
+    p.print = function print() {
+      p.println(arguments[0]);
+    };
+
+    p.char = function (key) {
+      return key;
+    };
+
+
+
     ////////////////////////////////////////////////////////////////////////////
     // Math functions
     ////////////////////////////////////////////////////////////////////////////
-    
-    p.sq      = function sq     ( aNumber             ){ return aNumber * aNumber;     };
-    p.sqrt    = function sqrt   ( aNumber             ){ return Math.sqrt( aNumber );  };
-    p.int     = function int    ( aNumber             ){ return Math.floor( aNumber ); };
-    p.min     = function min    ( aNumber, aNumber2   ){ return Math.min( aNumber, aNumber2 ); };
-    p.max     = function max    ( aNumber, aNumber2   ){ return Math.max( aNumber, aNumber2 ); };
-    p.floor   = function floor  ( aNumber             ){ return Math.floor( aNumber ); };
-    p.float   = function float  ( aNumber             ){ return parseFloat( aNumber ); };
-    p.ceil    = function ceil   ( aNumber             ){ return Math.ceil( aNumber );  };    
-    p.round   = function round  ( aNumber             ){ return Math.round( aNumber ); };
-    p.lerp    = function lerp   ( value1, value2, amt ){
-	return ( ( value2 - value1 ) * amt ) + value1;  };
-    p.abs    = function abs     ( aNumber             ){ return Math.abs( aNumber );   };
-    p.cos     = function cos    ( aNumber             ){ return Math.cos( aNumber );   };
-    p.sin     = function sin    ( aNumber             ){ return Math.sin( aNumber );   };
-    p.pow     = function pow    ( aNumber, aExponent  ){ return Math.pow( aNumber, aExponent );};
-    p.sqrt    = function sqrt   ( aNumber             ){ return Math.sqrt( aNumber );  };
-    p.atan2   = function atan2  ( aNumber, aNumber2  ){ return Math.atan2( aNumber, aNumber2 );};
-    p.radians = function radians( aAngle             ){ return ( aAngle / 180 ) * p.PI; };
-
-    p.dist = function dist( x1, y1, x2, y2 ){
-      return Math.sqrt( Math.pow( x2 - x1, 2 ) + Math.pow( y2 - y1, 2 ) );
+    p.sq = function sq(aNumber) {
+      return aNumber * aNumber;
+    };
+    p.sqrt = function sqrt(aNumber) {
+      return Math.sqrt(aNumber);
     };
 
-    p.map = function map( value, istart, istop, ostart, ostop ){
-      return ostart + ( ostop - ostart ) * ( ( value - istart ) / ( istop - istart ) );
-    };
-    
-    p.mag = function( a, b, c ){
-      if( arguments.length == 2 ){
-        return Math.sqrt( a*a + b*b );
-      }else if( arguments.length == 3 ){
-        return Math.sqrt( a*a + b*b + c*c );
-      };
+    p.int = function (aNumber) {
+      return Math.floor(aNumber);
     };
 
-    p.Random = function(){
+    p.min = function min(aNumber, aNumber2) {
+      return Math.min(aNumber, aNumber2);
+    };
+    p.max = function max(aNumber, aNumber2) {
+      return Math.max(aNumber, aNumber2);
+    };
+    p.floor = function floor(aNumber) {
+      return Math.floor(aNumber);
+    };
+
+    p.float = function (aNumber) {
+      return parseFloat(aNumber);
+    };
+
+    p.ceil = function ceil(aNumber) {
+      return Math.ceil(aNumber);
+    };
+    p.round = function round(aNumber) {
+      return Math.round(aNumber);
+    };
+    p.lerp = function lerp(value1, value2, amt) {
+      return ((value2 - value1) * amt) + value1;
+    };
+    p.abs = function abs(aNumber) {
+      return Math.abs(aNumber);
+    };
+    p.cos = function cos(aNumber) {
+      return Math.cos(aNumber);
+    };
+    p.sin = function sin(aNumber) {
+      return Math.sin(aNumber);
+    };
+    p.pow = function pow(aNumber, aExponent) {
+      return Math.pow(aNumber, aExponent);
+    };
+    p.sqrt = function sqrt(aNumber) {
+      return Math.sqrt(aNumber);
+    };
+    p.tan = function tan(aNumber) {
+      return Math.tan(aNumber);
+    };
+    p.atan = function atan(aNumber) {
+      return Math.atan(aNumber);
+    };
+    p.atan2 = function atan2(aNumber, aNumber2) {
+      return Math.atan2(aNumber, aNumber2);
+    };
+    p.radians = function radians(aAngle) {
+      return (aAngle / 180) * p.PI;
+    };
+    p.log = function log(aNumber) {
+      return Math.log(aNumber);
+    };
+    p.exp = function exp(aNumber) {
+      return Math.exp(aNumber);
+    };
+    p.asin = function asin(aNumber) {
+      return Math.asin(aNumber);
+    };
+    p.acos = function acos(aNumber) {
+      return Math.acos(aNumber);
+    };
+
+    p.boolean = function (val) {
+      var ret = false;
+
+      if (val && typeof val === 'number' && val !== 0) {
+        ret = true;
+      } else if (val && typeof val === 'boolean' && val === true) {
+        ret = true;
+      } else if (val && typeof val === 'string' && val.toLowerCase() === 'true') {
+        ret = true;
+      } else if (val && typeof val === 'object' && val.constructor === Array) {
+        ret = new Array(val.length);
+
+        for (var i = 0; i < val.length; i++) {
+          ret[i] = p.boolean(val[i]);
+        }
+      }
+
+      return ret;
+    };
+
+    p.dist = function dist(x1, y1, x2, y2) {
+      return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    };
+
+    p.map = function map(value, istart, istop, ostart, ostop) {
+      return ostart + (ostop - ostart) * ((value - istart) / (istop - istart));
+    };
+
+    p.mag = function (a, b, c) {
+      if (arguments.length === 2) {
+        return Math.sqrt(a * a + b * b);
+      } else if (arguments.length === 3) {
+        return Math.sqrt(a * a + b * b + c * c);
+      }
+    };
+
+    p.Random = function () {
 
       var haveNextNextGaussian = false,
-          nextNextGaussian;
+        nextNextGaussian;
 
-      this.nextGaussian = function(){
-        
-        if( haveNextNextGaussian ){
-        
+      this.nextGaussian = function () {
+
+        if (haveNextNextGaussian) {
+
           haveNextNextGaussian = false;
           return nextNextGaussian;
-        
-        }else{
-          
+
+        } else {
+
           var v1, v2, s;
-          do{ 
-              v1 = 2 * p.random( 1 ) - 1;   // between -1.0 and 1.0
-              v2 = 2 * p.random( 1 ) - 1;   // between -1.0 and 1.0
-              s = v1 * v1 + v2 * v2;
+          do {
+            v1 = 2 * p.random(1) - 1; // between -1.0 and 1.0
+            v2 = 2 * p.random(1) - 1; // between -1.0 and 1.0
+            s = v1 * v1 + v2 * v2;
           }
-          while( s >= 1 || s == 0 );
-          
-          var multiplier = Math.sqrt( - 2 * Math.log( s ) / s );
+          while (s >= 1 || s === 0);
+
+          var multiplier = Math.sqrt(-2 * Math.log(s) / s);
           nextNextGaussian = v2 * multiplier;
           haveNextNextGaussian = true;
 
           return v1 * multiplier;
-        
+
         }
-        
+
       };
-      
+
     };
 
-//! This can't be right... right?
-    p.byte     = function byte( aNumber               ){ return aNumber || 0;                           };
-
-    p.norm     = function norm( aNumber, low, high   ){
-      var range = high-low;
-      return ( ( 1 / range ) * aNumber ) - ( ( 1 / range ) * low );
-    };        
-    
-    p.random = function random( aMin, aMax ) {
-      return arguments.length == 2                   ?
-        aMin + ( Math.random() * ( aMax - aMin ) )  :
-        Math.random() * aMin                        ;
+    //! This can't be right... right?
+    p.byte = function (aNumber) {
+      return aNumber || 0;
     };
 
-    // From: http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
-    p.noise = function( x, y, z ){
-      return arguments.length >= 2  ?
-        PerlinNoise_2D( x, y, z )    :
-        PerlinNoise_3D( x, x, z )    ;
+    p.norm = function norm(aNumber, low, high) {
+      var range = high - low;
+      return ((1 / range) * aNumber) - ((1 / range) * low);
     };
 
-    function Noise( x, y ){
+    p.random = function random(aMin, aMax) {
+      return arguments.length === 2 ? aMin + (Math.random() * (aMax - aMin)) : Math.random() * aMin;
+    };
+
+    var noiseGen = function noiseGen(x, y) {
       var n = x + y * 57;
-      n = ( n << 13 ) ^ n;
-      return Math.abs( 1.0 - ( ( ( n * ( ( n * n * 15731 ) + 789221 ) + 1376312589 ) & 0x7fffffff ) / 1073741824.0 ) );
+      n = (n << 13) ^ n;
+      return Math.abs(1.0 - (((n * ((n * n * 15731) + 789221) + 1376312589) & 0x7fffffff) / 1073741824.0));
     };
 
-    function SmoothedNoise( x, y ){
-      var corners = ( Noise( x - 1, y - 1 ) + Noise( x + 1, y - 1 ) + Noise( x - 1, y + 1 ) + Noise( x + 1, y + 1 ) ) / 16,
-          sides   = ( Noise( x - 1, y ) + Noise( x + 1, y ) + Noise( x, y - 1 ) + Noise( x, y + 1 ) ) / 8,
-          center  = Noise( x, y ) / 4;
+    var smoothedNoise = function smoothedNoise(x, y) {
+      var corners = (noiseGen(x - 1, y - 1) + noiseGen(x + 1, y - 1) + noiseGen(x - 1, y + 1) + noiseGen(x + 1, y + 1)) / 16,
+        sides = (noiseGen(x - 1, y) + noiseGen(x + 1, y) + noiseGen(x, y - 1) + noiseGen(x, y + 1)) / 8,
+        center = noiseGen(x, y) / 4;
       return corners + sides + center;
     };
 
-    function InterpolatedNoise( x, y ){
+    var interpolate = function interpolate(a, b, x) {
+      var ft = x * p.PI;
+      var f = (1 - Math.cos(ft)) * 0.5;
+      return a * (1 - f) + b * f;
+    };
 
-      var integer_X    = Math.floor( x );
+    var interpolatedNoise = function interpolatedNoise(x, y) {
+      var integer_X = Math.floor(x);
       var fractional_X = x - integer_X;
-
-      var integer_Y    = Math.floor( y );
+      var integer_Y = Math.floor(y);
       var fractional_Y = y - integer_Y;
+      var v1 = smoothedNoise(integer_X, integer_Y),
+        v2 = smoothedNoise(integer_X + 1, integer_Y),
+        v3 = smoothedNoise(integer_X, integer_Y + 1),
+        v4 = smoothedNoise(integer_X + 1, integer_Y + 1);
+      var i1 = interpolate(v1, v2, fractional_X),
+        i2 = interpolate(v3, v4, fractional_X);
+      return interpolate(i1, i2, fractional_Y);
+    };
 
-      var v1 = SmoothedNoise( integer_X,     integer_Y     ),
-          v2 = SmoothedNoise( integer_X + 1, integer_Y     ),
-          v3 = SmoothedNoise( integer_X,     integer_Y + 1 ),
-          v4 = SmoothedNoise( integer_X + 1, integer_Y + 1 );
+    var perlinNoise_2D = function perlinNoise_2D(x, y) {
+      var total = 0,
+        p = 0.25,
+        n = 3;
+      for (var i = 0; i <= n; i++) {
+        var frequency = Math.pow(2, i);
+        var amplitude = Math.pow(p, i);
+        total += interpolatedNoise(x * frequency, y * frequency) * amplitude;
+      }
 
-      var i1 = Interpolate( v1, v2, fractional_X ),
-          i2 = Interpolate( v3, v4, fractional_X );
+      return total;
+    };
 
-      return Interpolate( i1, i2, fractional_Y );
-      
-    }
+    // Add Thomas Saunders 3D noiseGen code here....
+    var perlinNoise_3D = function perlinNoise_3D() {
+      return 0;
+    };
 
+    // From: http://freespace.virgin.net/hugo.elias/models/m_perlin.htm
+    p.noise = function (x, y, z) {
+      switch (arguments.length) {
+      case 2:
+        return perlinNoise_2D(x, y);
+      case 3:
+        return perlinNoise_3D(x, y, z);
+      case 1:
+        return perlinNoise_2D(x, x);
+      }
+    };
+
+    p.constrain = function constrain(aNumber, aMin, aMax) {
+      return Math.min(Math.max(aNumber, aMin), aMax);
+    };
+
+    p.degrees = function degrees(aAngle) {
+      aAngle = (aAngle * 180) / p.PI;
+      if (aAngle < 0) {
+        aAngle = 360 + aAngle;
+      }
+      return aAngle;
+    };
 
     function PerlinNoise_2D( x, y ){
 
@@ -1262,6 +1600,10 @@
     p.size = function size( aWidth, aHeight ){
 
 	p.context = new VectorLayer(aWidth, aHeight);
+
+	// default white on black
+	p.background(0,0,0,0);
+	p.context.set_color(255);
 
 	p.context.start();
 	
@@ -1475,20 +1817,13 @@
     p.noSmooth   = function noSmooth()  {};        
     
     p.fill = function(){
-	if(arguments.length)
-	    p.context.set_color.apply(p.context, arguments);    
-	// p.context.fillStyle = p.context.set_color.apply( this, arguments );    
 	doFill = true;
-	p.endShape();
+	p.context.set_color.apply(p.context, arguments);    
     };
     
     p.stroke = function() {
-	if(arguments.length) {
-	    p.context.set_color.apply(p.context, arguments);
-	}
-	// p.context.strokeStyle = p.context.set_color.apply( this, arguments );
 	doStroke = true;
-	p.endShape();
+	p.context.set_color.apply(p.context, arguments);
     }
 
     // 	echo ("STROKE args: " +  arguments);
@@ -1998,6 +2333,7 @@
 	    if( img.data && img.data.img ){
 		curBackground = img.data;
 	    }else{
+		p.context.push_color();
 		p.context.set_color.apply(p.context, arguments);
 		//		curBackground = p.color.apply( this, arguments );
 	    }
@@ -2012,9 +2348,10 @@
 	    
 	    //	    var oldFill = p.context.fillStyle;
 	    //	    p.context.fillStyle = curBackground + "";
-	    p.context.set_color(0);
+	    //	    p.context.set_color(0);
+	    //	    echo("background fill");
 	    p.context.fillRect( 0, 0, p.width, p.height );
-	    //	    p.context.fillStyle = oldFill;
+	    p.context.pop_color();
 	    
 	}
 	
@@ -2685,7 +3022,7 @@
     
     p.init = function init(code){
 
-	//      p.stroke( 0 );
+	//	p.stroke( 255 );
 	//      p.fill( 255 );
     
       // Canvas has trouble rendering single pixel stuff on whole-pixel

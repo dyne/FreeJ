@@ -1,5 +1,3 @@
-
-
 int W = 400;
 int H = 300;
 int cycle = 0;

@@ -3,6 +3,7 @@
 void setup() 
 {
   size(200, 200);
+  background(0);
   noStroke();
   smooth();
   drawCircle(100, 100, 80, 8);
