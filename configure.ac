@@ -238,6 +238,16 @@ if test x$have_slang = xno; then
    AC_MSG_ERROR([*** SLANG development files not found!])
 fi
 
+dnl Check for GD
+GD_LIBS=""
+FREEJ_CHECK_LIB_HEADER([gd], [gdImageCreateTrueColor], [gd.h],
+                       [have_gd=yes], [have_gd=no])
+if test x$have_gd = xyes; then
+   GD_LIBS="-lgd"
+   AC_DEFINE(WITH_GD,1,[define if compiling with GD to support screenshot taking])
+   AC_SUBST([GD_LIBS])
+fi
+
 dnl ==============================================================
 dnl Check for SDL
 dnl ==============================================================
@@ -981,7 +991,8 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(UNICAP_LIBS)     \
     \$(X11_LIBS)        \
     \$(CAIRO_LIBS)      \
-    \$(XIPH_LIBS)"
+    \$(XIPH_LIBS)       \
+    \$(GD_LIBS)"
 AC_SUBST(FREEJ_LIBS)
 
 dnl ###########################################################################
@@ -1158,6 +1169,10 @@ fi
 VRB([  LIBS  : $SDLIMAGE_LIBS])
 VRB([  CFLAGS: $SDLIMAGE_CFLAGS])
 
+if test x$have_gd = xyes; then
+INFO([= libGD (dynamic)])
+VRB([  LIBS  : $GD_LIBS])
+fi
 
 dnl #### optional stuff
 INFO_N([= AAlib  : ])

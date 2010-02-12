@@ -31,6 +31,10 @@
 
 #include <video_layer.h>
 
+#ifdef WITH_GD
+#include <gd.h>
+#endif
+
 ViewPort::ViewPort()
   : Entry() {
 
@@ -181,6 +185,28 @@ bool ViewPort::add_encoder(VideoEncoder *enc) {
   act("encoder %s added to screen %s", enc->name, name);
   return true;
 }
+
+#ifdef WITH_GD
+void ViewPort::save_frame(char *file) {
+  FILE *fp;
+  gdImagePtr im;
+  int *src;
+  int x,y;
+
+  im = gdImageCreateTrueColor(geo.w, geo.h);
+  src = (int*)coords(0,0);
+  for(y=0; y < geo.h; y++) {
+    for (x=0; x < geo.w; x++) {
+      gdImageSetPixel(im, x, y, src[x] & 0x00FFFFFF);
+      //im->tpixels[y][x] = src[x] & 0x00FFFFFF;
+    }
+    src += geo.w;
+  }
+  fp = fopen(file, "wb");
+  gdImagePng(im,fp);
+  fclose(fp);
+}
+#endif
 
 
 void ViewPort::blit_layers() {

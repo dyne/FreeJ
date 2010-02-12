@@ -313,6 +313,7 @@ JS(screen_initialized);
 JS(screen_add_layer);
 JS(screen_rem_layer);
 JS(screen_list_layers);
+JS(screen_save_frame);
 
 
 ////////////////////////////////

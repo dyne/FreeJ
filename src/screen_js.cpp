@@ -34,6 +34,7 @@ JSFunctionSpec screen_methods[] = {
   {"rem_layer",         screen_rem_layer,       1},
   {"list_layers",       screen_list_layers,     0},
   {"is_initialized",    screen_initialized,     0}, 
+  {"save_frame",        screen_save_frame,      1},
   {0}
 };
 
@@ -101,6 +102,23 @@ JS(screen_initialized) {
     return JS_FALSE;
   }
   *rval = BOOLEAN_TO_JSVAL(screen->initialized?JS_TRUE:JS_FALSE);
+  return JS_TRUE;
+}
+
+JS(screen_save_frame) {
+  func("%s",__PRETTY_FUNCTION__);
+  JS_CHECK_ARGC(1);
+
+  ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  if(!screen) {
+    JS_ERROR("Screen core data is NULL");
+    return JS_FALSE;
+  }
+
+  char *file = js_get_string(argv[0]);
+
+  screen->save_frame(file);
+
   return JS_TRUE;
 }
 

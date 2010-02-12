@@ -117,6 +117,8 @@ class ViewPort : public Entry {
 
   Linklist<VideoEncoder> encoders; ///< linked list of registered encoders
 
+  void save_frame(char *file); ///< save a screenshot of the current frame into file
+
   void handle_resize();
 
   virtual void set_magnification(int algo) { };
