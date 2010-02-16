@@ -314,9 +314,8 @@ JS(screen_initialized);
 JS(screen_add_layer);
 JS(screen_rem_layer);
 JS(screen_list_layers);
-#ifdef WITH_GD
 JS(screen_save_frame);
-#endif
+
 
 ////////////////////////////////
 // Filter methods

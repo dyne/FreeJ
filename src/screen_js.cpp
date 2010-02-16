@@ -105,9 +105,12 @@ JS(screen_initialized) {
   return JS_TRUE;
 }
 
-#ifdef WITH_GD
 JS(screen_save_frame) {
   func("%s",__PRETTY_FUNCTION__);
+
+#ifndef WITH_GD
+  error("libGD support not compiled, cannot save frame screenshot");
+#else  
   JS_CHECK_ARGC(1);
 
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
@@ -119,10 +122,11 @@ JS(screen_save_frame) {
   char *file = js_get_string(argv[0]);
 
   screen->save_frame(file);
+#endif
 
   return JS_TRUE;
 }
-#endif
+
 
 JS(screen_list_layers) {
   func("%s",__PRETTY_FUNCTION__);
