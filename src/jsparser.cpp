@@ -144,7 +144,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	REGISTER_CLASS("Layer",
 		       layer_class,
 		       layer_constructor,
-		       NULL,
+		       layer_properties,
 		       layer_methods,
 		       NULL);
 	Layer = layer_object; // last created object

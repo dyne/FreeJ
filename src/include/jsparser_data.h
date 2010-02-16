@@ -126,6 +126,7 @@ extern JSFunctionSpec filter_methods[];
 // Layer
 extern JSClass layer_class;
 extern JSFunctionSpec layer_methods[];
+extern JSPropertySpec layer_properties[];
 
 // Controller
 extern JSClass js_ctrl_class;
@@ -312,8 +313,8 @@ JS(screen_init);
 JS(screen_initialized);
 JS(screen_add_layer);
 JS(screen_rem_layer);
-JS(screen_list_layers)
-#ifdef WITH_GD;
+JS(screen_list_layers);
+#ifdef WITH_GD
 JS(screen_save_frame);
 #endif
 
@@ -366,6 +367,24 @@ JS(layer_list_filters);
 JS(layer_list_parameters);
 JS(layer_set_fps);
 JS(layer_get_fps);
+/// layer properties
+JSP(layer_get_x);
+JSP(layer_set_x);
+JSP(layer_get_y);
+JSP(layer_set_y);
+JSP(layer_get_width);
+JSP(layer_set_width);
+JSP(layer_get_height);
+JSP(layer_set_height);
+JSP(layer_get_filename);
+JSP(layer_set_name);
+JSP(layer_get_name);
+JSP(layer_set_fps);
+JSP(layer_get_fps);
+JSP(layer_list_filters);
+JSP(layer_list_parameters);
+
+
 
 ////////////////////////////////
 // Image Layer methods

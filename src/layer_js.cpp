@@ -36,8 +36,6 @@ JSFunctionSpec layer_methods[] = {
     {"deactivate",	layer_deactivate,	0},
     {"start",		layer_start,		0},
     {"stop",		layer_stop,		0},
-    {"get_name",	layer_get_name,	        0},
-    {"get_filename",	layer_get_filename,	0},
     {"set_blit",	layer_set_blit,	        1},
     {"get_blit",	layer_get_blit,	        0},
     {"set_blit_value",	layer_set_blit_value,	1},
@@ -46,23 +44,28 @@ JSFunctionSpec layer_methods[] = {
     {"set_position",	layer_set_position,	2},
     {"set_fps",		layer_set_fps,		0},
     {"get_fps",		layer_get_fps,   	0},
-    {"get_x_position",	layer_get_x_position,	0},
-    {"x",               layer_get_x_position,   0},
-    {"get_y_position",	layer_get_y_position,	0},
-    {"y",               layer_get_y_position,   0},
-    {"get_width",       layer_get_width,        0},
-    {"w",               layer_get_width,        0},
-    {"get_height",      layer_get_height,       0},
-    {"h",               layer_get_height,       0},
     {"add_filter",      layer_add_filter,	1},
     {"rem_filter",	layer_rem_filter,	1},
     {"rotate",          layer_rotate,           1},
     {"zoom",            layer_zoom,             2},
-    {"list_filters",    layer_list_filters,     0},
-    {"list_parameters", layer_list_parameters,  0},
     {0}
 };
 
+JSPropertySpec layer_properties[] = {
+  // r/w
+  { "x",    0, JSPROP_ENUMERATE | JSPROP_PERMANENT, layer_get_x, layer_set_x },
+  { "y",    1, JSPROP_ENUMERATE | JSPROP_PERMANENT, layer_get_y, layer_set_y },
+  { "fps",  2, JSPROP_ENUMERATE | JSPROP_PERMANENT, layer_get_fps, layer_set_fps },
+  { "name", 3, JSPROP_ENUMERATE | JSPROP_PERMANENT, layer_get_name, layer_set_name },
+  // ro
+  { "filename",   4, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, layer_get_filename, NULL },
+  { "w",          5, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, layer_get_width, NULL },
+  { "h" ,         6, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, layer_get_height, NULL },
+  { "filters",    7, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, layer_list_filters, NULL },
+  { "parameters", 8, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, layer_list_parameters, NULL },
+  {0}
+};
+  
 void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
 			    int argc, void *aargv, char *err_msg) {
 
@@ -216,51 +219,6 @@ JS(selected_layer) {
   return JS_TRUE;
 }
   
-JS(layer_list_filters) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  JSObject *arr;
-  JSObject *objtmp;
-
-  FilterDuo *duo;
-
-  jsval val;
-  int c = 0;
-
-  GET_LAYER(Layer);
-
-  // no effects
-  if(lay->filters.len() == 0) {
-    *rval = JSVAL_FALSE;
-    return JS_TRUE;
-  }
-
-  arr = JS_NewArrayObject(cx, 0, NULL); // create void array
-  if(!arr) return JS_FALSE;
-
-  duo = new FilterDuo();
-
-  duo->instance = (FilterInstance*)lay->filters.begin();
-
-  while(duo->instance) {
-
-    duo->proto = duo->instance->proto;
-  
-    objtmp = JS_NewObject(cx, &filter_class, NULL, obj);
-    
-    JS_SetPrivate(cx, objtmp, (void*) duo);
-
-    val = OBJECT_TO_JSVAL(objtmp);
-
-    JS_SetElement(cx, arr, c, &val );
-    
-    c++;
-
-    duo->instance = (FilterInstance*)duo->instance->next;
-  }
-
-  *rval = OBJECT_TO_JSVAL( arr );
-  return JS_TRUE;
-}  
 
 JS(layer_list_blits) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -293,35 +251,6 @@ JS(layer_list_blits) {
   return JS_TRUE;
 }
 
-JS(layer_list_parameters) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  JSObject *arr;
-  JSString *str;
-  jsval val;
-
-
-  GET_LAYER(Layer);
-  if(!lay->parameters) {
-    *rval = JSVAL_FALSE;
-    return JS_TRUE;
-  }
-
-  arr = JS_NewArrayObject(cx, 0, NULL); //create void array
-  if(!arr) return JS_FALSE;
-
-  Parameter *parm = (Parameter*)lay->parameters->begin();
-  int c = 0;
-  while(parm) {
-    str = JS_NewStringCopyZ(cx, parm->name);
-    val = STRING_TO_JSVAL(str);
-    JS_SetElement(cx, arr, c, &val);
-    c++;
-    parm = (Parameter*)parm->next;
-  }
-
-  *rval = OBJECT_TO_JSVAL( arr );
-  return JS_TRUE;
-}
 
 
 
@@ -353,28 +282,6 @@ JS(layer_get_blit) {
 
     return JS_TRUE;
 }
-JS(layer_get_name) { 
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-    GET_LAYER(Layer);
-
-    char *layer_name = lay->get_name();
-    JSString *str = JS_NewStringCopyZ(cx, layer_name); 
-    *rval = STRING_TO_JSVAL(str);
-
-    return JS_TRUE;
-}
-JS(layer_get_filename) {
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-    GET_LAYER(Layer);
-
-    char *layer_filename = lay->get_filename();
-    JSString *str = JS_NewStringCopyZ(cx, layer_filename); 
-    *rval = STRING_TO_JSVAL(str);
-
-    return JS_TRUE;
-}
 
 JS(layer_set_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -391,35 +298,6 @@ JS(layer_set_position) {
     return JS_TRUE;
 }
 
-JS(layer_get_x_position) {
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-    GET_LAYER(Layer);
-
-    return JS_NewNumberValue(cx, (double)lay->geo.x, rval);
-
-}
-JS(layer_get_y_position) {
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-    GET_LAYER(Layer);
-
-    return JS_NewNumberValue(cx, (double)lay->geo.y, rval);
-}
-JS(layer_get_width) {
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-    GET_LAYER(Layer);
-
-	return JS_NewNumberValue(cx, lay->geo.w, rval);
-}
-JS(layer_get_height) {
-    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
-    GET_LAYER(Layer);
-
-	return JS_NewNumberValue(cx, lay->geo.h, rval);
-}
 JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
@@ -606,5 +484,153 @@ JS(layer_stop) {
   lay->active = false;
   lay->stop();
 
+  return JS_TRUE;
+}
+
+
+/////////////////////////////////////////
+//// Layer Properties
+
+JSP(layer_set_x) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    jsint nx = js_get_int(*vp);
+    lay->set_position(nx, lay->geo.y);
+    return JS_TRUE;
+    //    return JS_NewNumberValue(cx, (double)lay->geo.x, rval);
+}
+JSP(layer_get_x) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    return JS_NewNumberValue(cx, (jsint)lay->geo.x, vp);    
+}
+JSP(layer_set_y) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    jsint ny = js_get_int(*vp);
+    lay->set_position(lay->geo.x, ny);
+    return JS_TRUE;
+}
+JSP(layer_get_y) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    return JS_NewNumberValue(cx, (jsint)lay->geo.y, vp);    
+}
+JSP(layer_get_width) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    return JS_NewNumberValue(cx, (jsint)lay->geo.w, vp);
+}
+JSP(layer_get_height) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    return JS_NewNumberValue(cx, (jsint)lay->geo.h, vp);
+}
+JSP(layer_get_filename) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    JSString *str = JS_NewStringCopyZ(cx, lay->get_filename());
+    *vp = STRING_TO_JSVAL(str);
+    return JS_TRUE;
+}
+JSP(layer_set_name) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    char *nn = js_get_string(*vp);
+    lay->set_name(nn);
+    return JS_TRUE;
+}  
+JSP(layer_get_name) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    JSString *nn = JS_NewStringCopyZ(cx, lay->get_name());
+    *vp = STRING_TO_JSVAL(nn);
+    return JS_TRUE;
+}  
+JSP(layer_set_fps) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    jsint nf = js_get_int(*vp);
+    lay->fps.set(nf);
+    return JS_TRUE;
+}
+JSP(layer_get_fps) {
+    func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+    GET_LAYER(Layer);
+    return JS_NewNumberValue(cx, (jsint)lay->fps.get(), vp);    
+}
+
+JSP(layer_list_filters) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  JSObject *arr;
+  JSObject *objtmp;
+
+  FilterDuo *duo;
+
+  jsval val;
+  int c = 0;
+
+  GET_LAYER(Layer);
+
+  // no effects
+  if(lay->filters.len() == 0) {
+    *vp = JSVAL_FALSE;
+    return JS_TRUE;
+  }
+
+  arr = JS_NewArrayObject(cx, 0, NULL); // create void array
+  if(!arr) return JS_FALSE;
+
+  duo = new FilterDuo();
+
+  duo->instance = (FilterInstance*)lay->filters.begin();
+
+  while(duo->instance) {
+
+    duo->proto = duo->instance->proto;
+  
+    objtmp = JS_NewObject(cx, &filter_class, NULL, obj);
+    
+    JS_SetPrivate(cx, objtmp, (void*) duo);
+
+    val = OBJECT_TO_JSVAL(objtmp);
+
+    JS_SetElement(cx, arr, c, &val );
+    
+    c++;
+
+    duo->instance = (FilterInstance*)duo->instance->next;
+  }
+
+  *vp = OBJECT_TO_JSVAL( arr );
+  return JS_TRUE;
+}  
+
+JSP(layer_list_parameters) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  JSObject *arr;
+  JSString *str;
+  jsval val;
+
+  GET_LAYER(Layer);
+  if(!lay->parameters) {
+    *vp = JSVAL_FALSE;
+    return JS_TRUE;
+  }
+
+  arr = JS_NewArrayObject(cx, 0, NULL); //create void array
+  if(!arr) return JS_FALSE;
+
+  Parameter *parm = (Parameter*)lay->parameters->begin();
+  int c = 0;
+  while(parm) {
+    str = JS_NewStringCopyZ(cx, parm->name);
+    val = STRING_TO_JSVAL(str);
+    JS_SetElement(cx, arr, c, &val);
+    c++;
+    parm = (Parameter*)parm->next;
+  }
+
+  *vp = OBJECT_TO_JSVAL( arr );
   return JS_TRUE;
 }
