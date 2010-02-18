@@ -1,0 +1,330 @@
+#+TITLE:     Freej - free vision mixer
+#+AUTHOR:    RASTASOFT
+#+EMAIL:     http://freej.dyne.org
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t
+#+OPTIONS:   TeX:t LaTeX:t skip:t d:nil tags:not-in-toc
+
+#+INFOJS_OPT: path:org-info.js
+#+INFOJS_OPT: toc:nil localtoc:nil view:content sdepth:2 mouse:underline buttons:nil
+#+INFOJS_OPT: home:http://frei0r.dyne.org
+
+
+
+* Introduction
+
+#+HTML: <div id="logo"><img src="http://freej.dyne.org/pics/ipernav.png"></div>
+
+FreeJ  is   a  *vision  mixer*:  an  instrument   for  realtime  video
+manipulation used  in the fields of dance  teather, veejaying, medical
+visualisation and  TV. Its development  started in 2001  and continued
+[[ftp://ftp.dyne.org/perform/freej_git_activity.ogm][actively for many years]].
+
+** What we need to do
+
+We  need to  interact with  *multiple  layers* of  video, filtered  by
+*effect chains* and then *mixed together*.
+
+We want to  write scripts to control video  mixes with keyboards, midi
+signals,   OSC  messages,   wiimotes,  video   mouse   and  joysticks;
+manipulating images,  movies, live cameras,  particle generators, text
+scrollers, flash animations and more.
+
+FreeJ  is a  multi-threaded  engine that  runs  efficiently on  modern
+multi-core computers,  where 
+
+We  show the  resulting video  mix on  *multiple and  remote screens*,
+*encode it into a movie* and *stream it live* to the internet.
+
+We *control the vision mixer  locally or remotely*, also from multiple
+places  at the  same time;  all functionalities  are  *designed ad-hoc
+using javascript*.
+
+** How FreeJ does it
+
+FreeJ  is   a  commandline  application  on   GNU/Linux,  a  graphical
+application  on  Apple/OSX,  a  C++  library offering  an  API  for  a
+multimedia framework that relies  on different native functions on the
+operating systems  it is  ported and, at  last, bindings  to languages
+like Python and Ruby (using Swig, more can be implemented as needed.
+
+The code is  fairly documented and usable in  C++, with full *bindings
+to  python*, while  parsing scripts  is done  using  Spidermonkey, the
+Mozilla  interpreter (there are  plans to  use also  Google V8  in the
+future).
+
+** Features
+
+With FreeJ we can overlay,  mask, transform and filter multiple layers
+on the screen.  There is no limit  to the number of layers that can be
+mixed.  Each layer can be  video taken from different sources: *movie*
+files,  *webcams*,  *tv  cards*,  *images*,  *rendered  text*,  *flash
+animations* and more: even  particle generators are there, and effects
+from the [[http://frei0r.dyne.org][frei0r]] plugin collection.
+
+** Stream online video
+
+FreeJ can produce an Ogg/Theora/Vorbis stream for broadcast on [[http://www.icecast.org][Icecast]]
+servers,   mixing  all  the   video  and   grabbing  the   audio  from
+soundcard. The resulting video can be played on any computer connected
+via internet ([[http://en.wikipedia.org/wiki/Theora#List_of_Theora_video_players][list of compatible players]]).
+
+*long live pirate TV! scream your video to the masses! ;)*
+
+Instructions on how to [[http://lab.dyne.org/FreejStreaming][stream with FreeJ]].
+
+Here  are the  recordings of  a streaming  veejay session  by Kysucix,
+screened  live  at the  [[http://lac.zkm.de][Linux  Audio  Developer  Conference]], all  done
+employing  100%  free software:  mixer,  encoder,  codec and  players!
+download     the     free      footage     for     a     demo     here
+[[ftp://ftp.dyne.org/performance/freej-lad2005/][ftp.dyne.org/performance/freej-lad2005]]
+
+ 
+** VeeJay over Ethernet
+
+The console interface of FreeJ can be remotely operated using [[http://en.wikipedia.org/wiki/Ssh][ssh]] with
+very good  responsiveness even  on an internet  connection. It  can be
+left running and  reconnected later and, last but  not least, operated
+from multiple places at the same time - all using [[http://en.wikipedia.org/wiki/GNU_screen][screen]].
+
+*Use all the power and speed of a text console in your video!*
+
+This  way  FreeJ unleashes  the  power  of  some GNU/Linux  old-school
+utilities to reach a unique grade of flexibility:
+
+:  [ascii-box] $ ssh freej-box
+:    (authenticate)
+:  [freej-box] $ export DISPLAY=localhost:0
+:  [freej-box] $ freej
+
+the freej-box should already be running X on the :0 display, then this
+will launch  a freej  running on the  remote machine connected  to the
+projector: no more long expensive VGA coaxial cable hassle ;)
+
+Then if you hook up a running freej with a *screen -x* you can control
+it from multiple connections at the same time!
+
+** Procedural Video Scripting
+
+FreeJ is  an asynchronous video  rendering engine, it can  be scripted
+using  javascript syntax  in an  object oriented  way, to  control its
+operations thru a procedural list of commands and actions.
+
+
+We can start  talking about *procedural video* as  an evolution of the
+current  non/linear paradigm  widely spread  in video  production.  In
+fact, *algorithmical approach to  video* has been widespread since the
+early ages of the demoscene ;)
+
+A [[/docs/scripting][FreeJ scripting API reference]] is available.
+ 
+** More features in brief...
+
+ * 100% FREE GNU GPL Software
+ * live compositing  of multiple  webcams, TV  signals,  movie files, images, TXT files, particle generators and more..
+ * can be remotely controlled (<b>VJoE</b>)
+ * can be scripted in procedural object oriented language
+ * can playback flash vectorial animations
+ * no frame drop when looping movie clips
+ * Emacs/Vi style console with hotkeys (*S-Lang*)
+ * can accept asynchronous controllers at the same time (Midi, joystick and more coming..)
+ * very efficient video engine with multithreaded layers
+ * modular C/C++ code and flexible API
+ 
+** Requirements
+ 
+ * a GNU/Linux or Apple/OSX workstation (see [[ftp://ftp.dyne.org/freej/README.OSX][README.OSX]])
+ * [[http://www.libsdl.org][Simple Directmedia Layer]] library
+ * [[http://www.s-lang.org][S-Lang]] console library
+ 
+** Internals
+
+FreeJ  is written  with efficiency  in  mind, benefits  of a  realtime
+object  oriented  and  multithreaded  architecture  where  layers  and
+controllers all run independently,  to take advantage of multiple CPUs
+and clustered systems.
+
+The  language  employed  in  development  is  C/C++  respecting  POSIX
+compliance and avoiding the computational bloat of some 'advanced' C++
+functions, which  makes it highly  portable. The FreeJ  Debian package
+for  instance  is  also  distributed  in binaries  for  ARM  and  MIPS
+processors.
+
+Its C++ programming  API is fairly understandable, here  you'll find a
+[[ftp://ftp.dyne.org/freej/API][brief introduction]] to it.
+
+** Developers
+
+The FreeJ team at Piksel 2005 in Norway, from left to right: Kysucix, Mr.Goil and Jaromil
+[/pics/freej_at_piksel2005.jpg]
+
+
+The FreeJ team together  with developers from Engagemedia, Giss.tv and
+Mal de Ojos at Wintercamp 2009 in Amsterdam
+[/pics/dyne_at_wintercamp.jpg]
+ 
+The  FreeJ source  code is  mostly  written by  Denis "Jaromil"  Roio,
+Silvano "Kysucix" Galliani, Christoph "Mr.Goil" Rudorff, Andrea "Xant"
+Guzzo, Luca  "Shammash" Bigliardi  and Filippo "Godog"  Giunchedi with
+contributions  by  Pablo "Caedes"  Martines,  Lluis  Gomez I  Bigorda,
+Ramiro  Cosentino, Tatiana  de la  O  and Andy  Nicholson.  Check  the
+[[ftp://ftp.dyne.org/freej/AUTHORS][AUTHORS]] documentation for complete references.
+  
+
+Parts  of libraries are  written by  Andreas Schiffler  (sdl_gfx), Jan
+(theorautils),  Dave Griffiths (audio  bus), Nemosoft  (ccvt), Charles
+Yates   (yuv2rgb),  Steve  Harris   (liblo),  Sam   Lantinga  (sdl_*),
+Jean-Christophe Hoelt (goom), L.   Donnie Smith (cwiid), Olivier Debon
+(flash).
+
+Documentation, testing and user  case studies have bee contributed by:
+Anne-Marie Skriver, Marloes de  Valk, Robert de Geus, Piotr Sobolewski
+and Alejo Duque.
+
+* Get FreeJ
+
+This software  is free and open  source, you are free  to download it,
+use  it, study,  modify it  and redistribute  it, even  for commercial
+purposes, as long as you release your creations the same way, granting
+your "users" the same rights we grant to you. Share the Freedom! :)
+
+For more information see the [[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]].
+
+Below a list of formats you can download this application: ready to be
+run with some of the interfaces developed, as a library you can use to
+build your own application and as source code you can study.
+
+
+** Debian GNU/Linux
+
+Here  is an  [[http://packages.debian.org/search?searchon=names&keywords=freej][overview of  packages]] and  [[http://packages.qa.debian.org/freej][quality assurance]]  provided by
+Debian. Using Synaptic, simply install freej (or *apt-get install freej* of course)
+
+packages in Debian are updated  frequently, to compile from source use
+the following dependencies:
+
+: sudo apt-get install c++-compiler   libtool   flex  bison   libsdl-dev \
+: libpng-dev  libfreetype6-dev libfontconfig-dev  dpatch libogg-dev \
+: libvorbis-dev      libjpeg-dev     libslang2-dev     libtheora-dev \
+: libavcodec-dev    libavformat-dev    libbluetooth2-dev   fftw3-dev \
+: libjack-dev libasound-dev
+
+** Apple Darwin/OSX 10.5 Leopard
+
+[[http://www.xant.net/freej.dmg][Download and  install]] FreeJ with support for  quicktime, [[http://www.troikatronix.com/freeframe.html][freeframe]] and
+frei0r  effect plugins  here:  this version  includes an  experimental
+graphical interface (Carbon/Cocoa)  that shows functionalities. We are
+looking  for designers  to help  make  it look  better! meanwhile  the
+sourcecode in the *osx/* directory is good starting point to build GNU
+free applications on this platform.
+
+BLAG GNU/Linux
+RPM packages available to install
+direct download urls for i386 and 64bit
+
+ 
+** Ubuntu GNU/Linux
+
+Here is  an [[http://packages.ubuntu.com/search?keywords=freej&searchon=names&suite=all&section=all][overview  of packages]] hosted  by Ubuntu.   Using Synaptic,
+simply  install freej  (or  *apt-get install  freej*  of course).
+
+If you like, you can also download our packages:
+ * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_i386.deb][i386 binary (PC x86)
+]] * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_amd64.deb][Amd-64 binary (PC 64bit)]]
+
+or add  "*deb http://ppa.launchpad.net/jaromil/ubuntu hardy  main*" to
+your /etc/apt/sources
+
+** Winslows 
+
+If you are looking for a winslows version, boot [[http://dynebolic.org][dyne:bolic GNU/Linux]]!
+
+** Source code
+
+Latest stable release is 0.10 (30  May 2008) more about it in the [[http://ftp.dyne.org/freej/NEWS][NEWS]]
+and [[http://ftp.dyne.org/freej/ChangeLog][ChangeLog]] source signed (.asc) by [[http://rastasoft.org][Jaromil]] using [[http://www.gnupg.org][GnuPG]].
+
+On [[ftp://ftp.dyne.org/freej][ftp.dyne.org/freej]]  you find all  present and past  FreeJ releases,
+source  code  for extra  plugins  (filters  and  generators) and  more
+binaries that we occasionally build for various architectures.
+
+A mirror is kindly made available by the [[http://www.ljudmila.org/~jaromil/mirror/freej/][Ljudmila medialab]].
+
+* Documentation
+
+** User's Manual
+
+Existing graphical interfaces can  introduce you quickly to its usage.
+The [[http://freej.dyne.org/docs/freej-manual-EN.pdf][FreeJ Manual (PDF)]] helps you getting started with installation and
+proceeds introducing you  to the power-use of FreeJ  via scripting. Of
+course  an "Hello  World" example  is there.  Here you  find  also the
+[[http://freej.dyne.org/docs/scripting][scripting API reference]].
+
+Along  with  the  sourcecode,   the  following  text  files  are  also
+distributed: [[http://ftp.dyne.org/freej/README][README]],  [[http://ftp.dyne.org/freej/][INSTALL]], [[http://ftp.dyne.org/freej/][AUTHORS]], [[http://ftp.dyne.org/freej/][ChangeLog]],  [[http://ftp.dyne.org/freej/][USAGE]], [[http://ftp.dyne.org/freej/][TODO]], [[http://ftp.dyne.org/freej/][NEWS]],
+[[http://ftp.dyne.org/freej/][COPYING]].
+
+
+** Console tutorial
+
+This online [[http://lab.dyne.org/FreejTutorialPiotr_01][FreeJ tutorial by  Piotr]] explores the usage of the console
+controller and shows you how to  load in images and videos, blend them
+together and put effects on  them: it is complete with screenshots and
+all it needs to start using FreeJ in your liveset!
+
+** Keyboard shortcuts
+
+Since the latest 0.10  release FreeJ became programmable in javascript
+to  be controlled  by keyboard,  mouse, midi,  OSC, wiimote  and video
+joggers.  Have  a look  at  the  [[ftp://ftp.dyne.org/freej/scripts][example  scripts]] and  more  scripting
+documentation below on how to do that.
+
+[http://freej.dyne.org/pics/keyz_flat2.jpg]
+ 
+
+** Streaming online video
+
+You can stream  online your video: FreeJ encodes  using the [[http://theora.org/][Ogg/Theora]]
+codec and broadcasts to an [[http://icecast.org][Icecast]] server.
+
+And while  streaming, is  also possible  to save a  local copy  of the
+video, all realtime.
+
+You'll find instructions how  to do it on [[http://lab.dyne.org/FreejStreaming][lab.dyne.org/FreeJStreaming]],
+please feel  free to contribute  more documentation to that  wiki page
+about your experiments!
+
+** Procedural Video Scripting
+
+It is  possible to  script actions in  FreeJ using an  Object Oriented
+interface with *Javascript* procedural syntax. This approach discloses
+a new range of possibilities  for manipulating video, while offering a
+familiar syntax for web developers.
+
+Besides the  User's Manual  linked above, here  below some  sources of
+documentation:
+
+ * [[ftp://ftp.dyne.org/freej/freej_scripting.txt][overview of scripting API]]
+ * [[http://lab.dyne.org/FreejScripting][wiki notes on scripting]]
+ * [[http://freej.dyne.org/docs/javascript-1.5-core-documentation.tar.gz][Javascript 1.5 core documentation]]
+
+** Video manipulation theory
+
+Some interesting links to online publications about video manipulation
+techniques:
+
+ * [[http://www.gamedev.net/reference/articles/article2007.asp][Introduction to digital image processing]]
+ * [[http://homepages.inf.ed.ac.uk/rbf/HIPR2/][Image Processing Learning Resources]]
+ * [[http://www.engineering.uiowa.edu/~dip/LECTURE/lecture.html][Iowa engineering univ. lectures]]
+ * [[http://yov408.free.fr/][YOV 408 technologies]]
+
+** API for C++ programmers
+
+FreeJ  is  a library  that  can  be linked  shared  and  used by  your
+application.   It is  fairly  easy to  be  approached by  programmers,
+documented  in this  [[ftp://ftp.dyne.org/freej/API][simple text  file]] as  well in  this  [[http://freej.dyne.org/codedoc][doxygen code
+documentation]].
+
+
+* Communication
+
