@@ -2,12 +2,12 @@
 #+AUTHOR:    RASTASOFT
 #+EMAIL:     http://freej.dyne.org
 #+LANGUAGE:  en
-#+OPTIONS:   H:3 num:nil toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t
+#+OPTIONS:   H:2 num:nil toc:t \n:nil @:t ::t |:t ^:t -:t f:t *:t
 #+OPTIONS:   TeX:t LaTeX:t skip:t d:nil tags:not-in-toc
 
 #+INFOJS_OPT: path:org-info.js
-#+INFOJS_OPT: toc:nil localtoc:nil view:content sdepth:2 mouse:underline buttons:nil
-#+INFOJS_OPT: home:http://frei0r.dyne.org
+#+INFOJS_OPT: toc:nil localtoc:nil view:content sdepth:1 mouse:underline buttons:nil
+#+INFOJS_OPT: home:http://freej.dyne.org
 
 
 
@@ -52,6 +52,8 @@ The code is  fairly documented and usable in  C++, with full *bindings
 to  python*, while  parsing scripts  is done  using  Spidermonkey, the
 Mozilla  interpreter (there are  plans to  use also  Google V8  in the
 future).
+
+[[file:http://freej.org/pics/mask_sospesa_psico.jpg]]
 
 ** Features
 
@@ -155,13 +157,13 @@ Its C++ programming  API is fairly understandable, here  you'll find a
 
 ** Developers
 
-The FreeJ team at Piksel 2005 in Norway, from left to right: Kysucix, Mr.Goil and Jaromil
-[/pics/freej_at_piksel2005.jpg]
+
+[[file:http://freej.dyne.org/pics/freej_at_piksel2005.jpg][The FreeJ team at Piksel 2005 in Norway, from left to right: Kysucix, Mr.Goil and Jaromil]]
 
 
 The FreeJ team together  with developers from Engagemedia, Giss.tv and
 Mal de Ojos at Wintercamp 2009 in Amsterdam
-[/pics/dyne_at_wintercamp.jpg]
+[[file:http://freej.dyne.org/pics/dyne_at_wintercamp.jpg]]
  
 The  FreeJ source  code is  mostly  written by  Denis "Jaromil"  Roio,
 Silvano "Kysucix" Galliani, Christoph "Mr.Goil" Rudorff, Andrea "Xant"
@@ -229,6 +231,7 @@ Here is  an [[http://packages.ubuntu.com/search?keywords=freej&searchon=names&su
 simply  install freej  (or  *apt-get install  freej*  of course).
 
 If you like, you can also download our packages:
+
  * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_i386.deb][i386 binary (PC x86)
 ]] * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_amd64.deb][Amd-64 binary (PC 64bit)]]
 
@@ -279,7 +282,7 @@ to  be controlled  by keyboard,  mouse, midi,  OSC, wiimote  and video
 joggers.  Have  a look  at  the  [[ftp://ftp.dyne.org/freej/scripts][example  scripts]] and  more  scripting
 documentation below on how to do that.
 
-[http://freej.dyne.org/pics/keyz_flat2.jpg]
+[[file:http://freej.dyne.org/pics/keyz_flat2.jpg]]
  
 
 ** Streaming online video
