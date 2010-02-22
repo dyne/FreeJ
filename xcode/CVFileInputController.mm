@@ -235,7 +235,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (CVTexture *)getTexture
 {
-    return [super getTexture];
+    CVTexture *ret;
+    bool gotNewFrame = newFrame;
+    ret = [super getTexture];
+    if (gotNewFrame) // task the qtvisualcontext if we got a new frame
+        [(CVFileInputController *)self task];
+    return ret;
 }
 
 - (BOOL)getFrameForTime:(const CVTimeStamp *)timeStamp
