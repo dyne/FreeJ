@@ -9,11 +9,22 @@
 #+INFOJS_OPT: toc:nil localtoc:nil view:content sdepth:1 mouse:underline buttons:nil
 #+INFOJS_OPT: home:http://freej.dyne.org
 
+#+LATEX_HEADER: \documentclass[final,a4paper,10pt,onecolumn,twoside]{memoir}
+#+LATEX_HEADER: \usepackage[english]{babel}
+#+LATEX_HEADER: \usepackage{amsfonts, amsmath, amssymb}
+#+LATEX_HEADER: \usepackage{ucs}
+#+LATEX_HEADER: \usepackage[utf8x]{inputenc}
+#+LATEX_HEADER: \usepackage[T1]{fontenc}
+#+LATEX_HEADER: \usepackage{hyperref}
+#+LATEX_HEADER: \usepackage[pdftex]{graphicx}
+#+LATEX_HEADER: \usepackage{fullpage}
+#+LATEX_HEADER: \usepackage{lmodern}
+
 
 
 * Introduction
 
-#+HTML: <div id="logo"><img src="http://freej.dyne.org/pics/ipernav.png"></div>
+#+HTML: <div id="logo"><img src="images/ipernav-trans.png"></div>
 
 FreeJ  is   a  *vision  mixer*:  an  instrument   for  realtime  video
 manipulation used  in the fields of dance  teather, veejaying, medical
@@ -50,7 +61,7 @@ to  python*, while  parsing scripts  is done  using  Spidermonkey, the
 Mozilla  interpreter (there are  plans to  use also  Google V8  in the
 future).
 
-file:http://freej.org/pics/mask_sospesa_psico.jpg
+file:images/mask_sospesa_psico.jpg
 
 FreeJ has started  being developed on a dual-core  CPU already in 2001
 and has grown  with emphasis on multi-threading to  run efficiently on
@@ -92,6 +103,12 @@ from multiple places at the same time - all using [[http://en.wikipedia.org/wiki
 
 *Use all the power and speed of a text console in your video!*
 
+This  [[http://lab.dyne.org/FreejTutorial][FreeJ  console  tutorial]]  explores  the  usage  of  the  console
+controller (mostly based on the older *0.8 version*) and shows you how
+to load in  images and videos, blend them together  and put effects on
+them: it is complete with screenshots  and all it needs to start using
+FreeJ from a console.
+
 This  way  FreeJ unleashes  the  power  of  some GNU/Linux  old-school
 utilities to reach a unique grade of flexibility:
 
@@ -99,6 +116,7 @@ utilities to reach a unique grade of flexibility:
 :    (authenticate)
 :  [freej-box] $ export DISPLAY=localhost:0
 :  [freej-box] $ freej
+
 
 the freej-box should already be running X on the :0 display, then this
 will launch  a freej  running on the  remote machine connected  to the
@@ -160,11 +178,13 @@ Its C++ programming  API is fairly understandable, here  you'll find a
 
 The FreeJ team at Piksel 2005  in Norway, from left to right: Kysucix,
 Mr.Goil and Jaromil
-file:http://freej.dyne.org/pics/freej_at_piksel2005.jpg
+
+file:images/freej_at_piksel2005.jpg
 
 The FreeJ team together  with developers from Engagemedia, Giss.tv and
 Mal de Ojos at Wintercamp 2009 in Amsterdam
-file:http://freej.dyne.org/pics/dyne_at_wintercamp.jpg
+
+file:images/dyne_at_wintercamp.jpg
  
 The  FreeJ source  code is  mostly  written by  Denis "Jaromil"  Roio,
 Silvano "Kysucix" Galliani, Christoph "Mr.Goil" Rudorff, Andrea "Xant"
@@ -181,8 +201,21 @@ Jean-Christophe Hoelt (goom), L.   Donnie Smith (cwiid), Olivier Debon
 (flash).
 
 Documentation, testing and user  case studies have bee contributed by:
-Anne-Marie Skriver, Marloes de  Valk, Robert de Geus, Piotr Sobolewski
-and Alejo Duque.
+Anne-Marie Skriver, Marloes de Valk, Robert de Geus, Piotr Sobolewski,
+Alejo Duque, Vladimir Flores Garcia and Gabriele Zaverio.
+
+Besides the  passionate commitment of its  creators, FreeJ development
+is  made possible  also thanks  to modest  funding  and infrastructure
+support by European institutions, organisations and individuals: among
+them and most importantly are  [[http://nimk.nl/eng/research/freej-vision-mixer][NIMk]], [[http://www.digitalepioniers.nl/projecten/Freej-Vision-Mixer/146][Digitale Pioniers]] and [[http://osalliance.com/netculture/project/beTV/bericht/][Open Source
+Alliance]].
+
+| file:images/NIMK.NL-Logo.jpg | file:images/digitalepioniers.png | file:images/osalliance.png |
+
+Please do  not hesitate  to contact us  if you  can help to  make this
+software  better:   code  contributions,  financial   support,  ad-hoc
+streaming TV  setups, festivals  and project collaborations  are among
+the most welcome proposals.
 
 * Get FreeJ
 
@@ -197,6 +230,17 @@ Below a list of formats you can download this application: ready to be
 run with some of the interfaces developed, as a library you can use to
 build your own application and as source code you can study.
 
+
+** Source code
+
+Latest stable release is 0.10 (30  May 2008) more about it in the [[http://ftp.dyne.org/freej/NEWS][NEWS]]
+and [[http://ftp.dyne.org/freej/ChangeLog][ChangeLog]] source signed (.asc) by [[http://rastasoft.org][Jaromil]] using [[http://www.gnupg.org][GnuPG]].
+
+On [[ftp://ftp.dyne.org/freej][ftp.dyne.org/freej]]  you find all  present and past  FreeJ releases,
+source  code  for extra  plugins  (filters  and  generators) and  more
+binaries that we occasionally build for various architectures.
+
+A mirror is kindly made available by the [[http://www.ljudmila.org/~jaromil/mirror/freej/][Ljudmila medialab]].
 
 ** Debian GNU/Linux
 
@@ -228,8 +272,9 @@ simply  install freej  (or  *apt-get install  freej*  of course).
 
 If you like, you can also download our packages:
 
- * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_i386.deb][i386 binary (PC x86)
-]] * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_amd64.deb][Amd-64 binary (PC 64bit)]]
+ * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_i386.deb][i386 binary (PC x86)]]
+
+ * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_amd64.deb][Amd-64 binary (PC 64bit)]]
 
 or add  "deb http://ppa.launchpad.net/jaromil/ubuntu hardy  main" to
 your /etc/apt/sources
@@ -238,16 +283,6 @@ your /etc/apt/sources
 
 If you are looking for a winslows version, boot [[http://dynebolic.org][dyne:bolic GNU/Linux]]!
 
-** Source code
-
-Latest stable release is 0.10 (30  May 2008) more about it in the [[http://ftp.dyne.org/freej/NEWS][NEWS]]
-and [[http://ftp.dyne.org/freej/ChangeLog][ChangeLog]] source signed (.asc) by [[http://rastasoft.org][Jaromil]] using [[http://www.gnupg.org][GnuPG]].
-
-On [[ftp://ftp.dyne.org/freej][ftp.dyne.org/freej]]  you find all  present and past  FreeJ releases,
-source  code  for extra  plugins  (filters  and  generators) and  more
-binaries that we occasionally build for various architectures.
-
-A mirror is kindly made available by the [[http://www.ljudmila.org/~jaromil/mirror/freej/][Ljudmila medialab]].
 
 * Documentation
 
@@ -271,35 +306,50 @@ Along  with  the  sourcecode,   the  following  text  files  are  also
 distributed: [[http://ftp.dyne.org/freej/README][README]],  [[http://ftp.dyne.org/freej/][INSTALL]], [[http://ftp.dyne.org/freej/][AUTHORS]], [[http://ftp.dyne.org/freej/][ChangeLog]],  [[http://ftp.dyne.org/freej/][USAGE]], [[http://ftp.dyne.org/freej/][TODO]], [[http://ftp.dyne.org/freej/][NEWS]],
 [[http://ftp.dyne.org/freej/][COPYING]].
 
-
-** Console tutorial
-
-This online [[http://lab.dyne.org/FreejTutorialPiotr_01][FreeJ tutorial by  Piotr]] explores the usage of the console
-controller and shows you how to  load in images and videos, blend them
-together and put effects on  them: it is complete with screenshots and
-all it needs to start using FreeJ in your liveset!
-
-** Keyboard shortcuts
-
-Since the latest 0.10  release FreeJ became programmable in javascript
-to  be controlled  by keyboard,  mouse, midi,  OSC, wiimote  and video
-joggers.  Have  a look  at  the  [[ftp://ftp.dyne.org/freej/scripts][example  scripts]] and  more  scripting
-documentation below on how to do that.
-
-file:http://freej.dyne.org/pics/keyz_flat2.jpg
- 
-
 ** Streaming online video
 
 You can stream  online your video: FreeJ encodes  using the [[http://theora.org/][Ogg/Theora]]
 codec and broadcasts to an [[http://icecast.org][Icecast]] server.
 
 And while  streaming, is  also possible  to save a  local copy  of the
-video, all realtime.
+video, all realtime. Here below a script example:
 
-You'll find instructions how  to do it on [[http://lab.dyne.org/FreejStreaming][lab.dyne.org/FreeJStreaming]],
-please feel  free to contribute  more documentation to that  wiki page
-about your experiments!
+#+BEGIN_SRC java
+
+// Audio input is taken via Jack from other applications running
+
+//                    port name     buffer size  samlerate
+audio = new AudioJack("alsaplayer", 2048,        44100);
+// tweak the values below accordingly, see Jack documentation
+
+// Create a Video Encoder object
+//    values 1-100         video quality  video bitrate  audio quality  audio_bitrate
+encoder = new VideoEncoder(10,             64000,        0,             24000);
+
+// Add the audio channel in the video encoded
+encoder.add_audio(audio);
+
+// Configure the encoder to stream over an Icecast server
+encoder.stream_host("giss.tv");
+encoder.stream_port(8000);
+encoder.stream_title("testing new freej");
+encoder.stream_username("source");
+encoder.stream_password("2t645");
+encoder.stream_mountpoint("freej-test.ogg");
+
+// Register the encoder on the running FreeJ engine
+register_encoder(encoder);
+
+// Start a network stream
+encoder.start_stream();
+
+// Record the stream into a local file
+encoder.start_filesave('Video/freej-test.ogg');
+#+END_SRC
+
+You'll   find   more   complete    instructions   on   our   wiki   on
+[[http://lab.dyne.org/FreejStreaming][lab.dyne.org/FreeJStreaming]],  please  feel  free  to  contribute  more
+documentation to that wiki page.
 
 ** Procedural Video Scripting
 
