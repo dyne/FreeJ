@@ -513,6 +513,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         layer = new CVLayer(self);
         layer->init();
         layer->activate();
+        // TODO Geometry should expose a proper API
+        Context *ctx = [freej getContext];
+        layer->geo.w = ctx->screen->geo.w;
+        layer->geo.h = ctx->screen->geo.h;
     }
 }
 
