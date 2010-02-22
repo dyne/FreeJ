@@ -30,9 +30,6 @@ signals,   OSC  messages,   wiimotes,  video   mouse   and  joysticks;
 manipulating images,  movies, live cameras,  particle generators, text
 scrollers, flash animations and more.
 
-FreeJ  is a  multi-threaded  engine that  runs  efficiently on  modern
-multi-core computers,  where 
-
 We  show the  resulting video  mix on  *multiple and  remote screens*,
 *encode it into a movie* and *stream it live* to the internet.
 
@@ -53,7 +50,11 @@ to  python*, while  parsing scripts  is done  using  Spidermonkey, the
 Mozilla  interpreter (there are  plans to  use also  Google V8  in the
 future).
 
-[[file:http://freej.org/pics/mask_sospesa_psico.jpg]]
+file:http://freej.org/pics/mask_sospesa_psico.jpg
+
+FreeJ has started  being developed on a dual-core  CPU already in 2001
+and has grown  with emphasis on multi-threading to  run efficiently on
+modern multi-core computers.
 
 ** Features
 
@@ -157,13 +158,13 @@ Its C++ programming  API is fairly understandable, here  you'll find a
 
 ** Developers
 
-
-[[file:http://freej.dyne.org/pics/freej_at_piksel2005.jpg][The FreeJ team at Piksel 2005 in Norway, from left to right: Kysucix, Mr.Goil and Jaromil]]
-
+The FreeJ team at Piksel 2005  in Norway, from left to right: Kysucix,
+Mr.Goil and Jaromil
+file:http://freej.dyne.org/pics/freej_at_piksel2005.jpg
 
 The FreeJ team together  with developers from Engagemedia, Giss.tv and
 Mal de Ojos at Wintercamp 2009 in Amsterdam
-[[file:http://freej.dyne.org/pics/dyne_at_wintercamp.jpg]]
+file:http://freej.dyne.org/pics/dyne_at_wintercamp.jpg
  
 The  FreeJ source  code is  mostly  written by  Denis "Jaromil"  Roio,
 Silvano "Kysucix" Galliani, Christoph "Mr.Goil" Rudorff, Andrea "Xant"
@@ -215,16 +216,11 @@ the following dependencies:
 
 [[http://www.xant.net/freej.dmg][Download and  install]] FreeJ with support for  quicktime, [[http://www.troikatronix.com/freeframe.html][freeframe]] and
 frei0r  effect plugins  here:  this version  includes an  experimental
-graphical interface (Carbon/Cocoa)  that shows functionalities. We are
-looking  for designers  to help  make  it look  better! meanwhile  the
-sourcecode in the *osx/* directory is good starting point to build GNU
-free applications on this platform.
+graphical interface (Carbon/Cocoa)  that shows functionalities.
 
-BLAG GNU/Linux
-RPM packages available to install
-direct download urls for i386 and 64bit
+We  are looking  for designers  to help  make it  look  better! please
+contact one if you like to be the one ;)
 
- 
 ** Ubuntu GNU/Linux
 
 Here is  an [[http://packages.ubuntu.com/search?keywords=freej&searchon=names&suite=all&section=all][overview  of packages]] hosted  by Ubuntu.   Using Synaptic,
@@ -235,7 +231,7 @@ If you like, you can also download our packages:
  * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_i386.deb][i386 binary (PC x86)
 ]] * [[ftp://ftp.dyne.org/freej/binary/freej_0.10-ppa9~ubuntu8.10_amd64.deb][Amd-64 binary (PC 64bit)]]
 
-or add  "*deb http://ppa.launchpad.net/jaromil/ubuntu hardy  main*" to
+or add  "deb http://ppa.launchpad.net/jaromil/ubuntu hardy  main" to
 your /etc/apt/sources
 
 ** Winslows 
@@ -260,8 +256,16 @@ A mirror is kindly made available by the [[http://www.ljudmila.org/~jaromil/mirr
 Existing graphical interfaces can  introduce you quickly to its usage.
 The [[http://freej.dyne.org/docs/freej-manual-EN.pdf][FreeJ Manual (PDF)]] helps you getting started with installation and
 proceeds introducing you  to the power-use of FreeJ  via scripting. Of
-course  an "Hello  World" example  is there.  Here you  find  also the
-[[http://freej.dyne.org/docs/scripting][scripting API reference]].
+course  an "Hello  World" example  is here
+
+#+BEGIN_SRC java
+text = new TxtLayer();
+text.print("Hello world!");
+text.start();
+add_layer(text);
+#+END_SRC
+
+Here you  find  the full [[http://freej.dyne.org/docs/scripting][scripting API reference]].
 
 Along  with  the  sourcecode,   the  following  text  files  are  also
 distributed: [[http://ftp.dyne.org/freej/README][README]],  [[http://ftp.dyne.org/freej/][INSTALL]], [[http://ftp.dyne.org/freej/][AUTHORS]], [[http://ftp.dyne.org/freej/][ChangeLog]],  [[http://ftp.dyne.org/freej/][USAGE]], [[http://ftp.dyne.org/freej/][TODO]], [[http://ftp.dyne.org/freej/][NEWS]],
@@ -282,7 +286,7 @@ to  be controlled  by keyboard,  mouse, midi,  OSC, wiimote  and video
 joggers.  Have  a look  at  the  [[ftp://ftp.dyne.org/freej/scripts][example  scripts]] and  more  scripting
 documentation below on how to do that.
 
-[[file:http://freej.dyne.org/pics/keyz_flat2.jpg]]
+file:http://freej.dyne.org/pics/keyz_flat2.jpg
  
 
 ** Streaming online video
