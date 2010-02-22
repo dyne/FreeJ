@@ -202,8 +202,6 @@ error:
     
     exportedFrame = nil;
     currentFrame = nil;
-    NSLog(@"MADONNA!!! \n");
-
     return [super init];
 }
 
