@@ -22,6 +22,10 @@
  *
  */
 
+#ifndef PREFIX
+#define PREFIX "/usr"
+#endif
+
 #include <string.h>
 
 
