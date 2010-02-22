@@ -327,6 +327,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 100:
+		{
             NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
             //NSLog(filterName);
             [effectFilter release];
@@ -378,6 +379,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                 cView = slider;
             }
             break;
+		}
         case 101:
             paramName = [sender toolTip];
             if ([paramName isEqual:@"CenterX"]) {

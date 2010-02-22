@@ -1180,7 +1180,6 @@
 				GCC_MODEL_TUNING = "";
 				GCC_UNROLL_LOOPS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					../lib,
 					/usr/local/include/js,
@@ -1213,15 +1212,17 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
+					"-m32",
+					"-g",
 				);
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PREBINDING = YES;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				STRIP_INSTALLED_PRODUCT = NO;
-				STRIP_STYLE = all;
 				VALID_ARCHS = i386;
 			};
 			name = Debug;
@@ -1229,10 +1230,7 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = i386;
 				GCC_ALTIVEC_EXTENSIONS = YES;
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_CW_ASM_SYNTAX = NO;
@@ -1246,7 +1244,6 @@
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_UNROLL_LOOPS = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					../lib,
 					/usr/local/include/js,
@@ -1279,6 +1276,7 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",

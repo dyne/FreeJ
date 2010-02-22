@@ -22,6 +22,8 @@
  *
  */
 
+#define PREFIX "/usr"
+
 #include <string.h>
 
 

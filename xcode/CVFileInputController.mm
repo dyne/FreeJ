@@ -182,6 +182,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             layer = new CVLayer(self);
             layer->init();
         }
+#if 0		
         NSArray* videoTracks = [qtMovie tracksOfMediaType:QTMediaTypeVideo];
         QTTrack* firstVideoTrack = [videoTracks objectAtIndex:0];
         QTMedia* media = [firstVideoTrack media];
@@ -192,6 +193,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         NSLog(@"duration: %@ sampleCount: %lld timeScale: %lld", QTStringFromTime(qtTimeDuration) , sampleCount, timeScale);
         NSLog(@"frames: %d\n", (qtTimeDuration.timeValue/timeScale)/sampleCount);
        // layer->fps.set([rate floatValue]);
+		
+#endif
     }
 
     [lock unlock];
@@ -233,6 +236,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     return isPlaying;
 }
 
+#if 0
 - (CVTexture *)getTexture
 {
     CVTexture *ret;
@@ -242,6 +246,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         [(CVFileInputController *)self task];
     return ret;
 }
+#endif
 
 - (BOOL)getFrameForTime:(const CVTimeStamp *)timeStamp
 {
@@ -255,6 +260,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
     if (!qtMovie)
         return NO;
+#if 0 // new broken implemenation
     uint64_t ts = CVGetCurrentHostTime();
     QTTime now = [qtMovie currentTime];
    
@@ -283,10 +289,40 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         newFrame = YES;
         MoviesTask([qtMovie quickTimeMovie], 0);
     } 
+#else
+	QTTime now = [qtMovie currentTime];
+    // TODO - check against real hosttime to skip frames instead of
+    // slowing down playback
+    now.timeValue+=(now.timeScale/layer->fps.fps);
+    QTTime duration = [qtMovie duration];
+    if (QTTimeCompare(now, duration) == NSOrderedAscending)
+        [qtMovie setCurrentTime:now];
+    else
+        [qtMovie gotoBeginning];
+    if(qtVisualContext)
+    {   
+        QTVisualContextCopyImageForTime(qtVisualContext,
+										NULL,
+										NULL,
+										&newPixelBuffer);
+		
+        // rendering (aka: applying filters) is now done in getTexture()
+        // implemented in CVLayerView (our parent)
+		
+        rv = YES;
+        if (currentFrame)
+            CVOpenGLTextureRelease(currentFrame);
+        currentFrame = newPixelBuffer;
+        newFrame = YES;
+		
+    }		
+#endif
     
     [lock unlock];
-    [QTMovie exitQTKitOnThread];   
+    [QTMovie exitQTKitOnThread];
+#if 0 // new broken implementation
     lastPTS = ts;
+#endif
     [pool release];
     return rv;
 }
