@@ -499,7 +499,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (bool)needPreview
 {
+#if 1
     return doPreview;
+#else
+    // we wannt preview only if there is a panel attacched to the view (to show it)
+    // if someone else (not the native osx GUI) wants to build a preview, renderFrame/getTexture 
+    // can be used to obtain the actual texture
+    return doPreview?(layerView && [layerView getPreviewTarget]):NO;
+#endif
 }
 
 - (void)startPreview
