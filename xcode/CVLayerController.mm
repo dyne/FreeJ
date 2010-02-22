@@ -551,7 +551,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (bool)isVisible
 {
     if (layer)
-        return [freej isVisible:layer];
+        return layer->screen?YES:NO;
     return NO;
 }
 
