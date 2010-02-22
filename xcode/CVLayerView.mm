@@ -171,12 +171,7 @@
 
 - (IBAction)toggleVisibility:(id)sender
 {
-    // XXX - sender is assumed to be a button (or checkbox)
-    if (layerController)
-        if ([sender state] == NSOnState)
-            [layerController activate];
-        else
-            [layerController deactivate];
+    [layerController toggleVisibility];
 }
 
 - (IBAction)togglePreview:(id)sender

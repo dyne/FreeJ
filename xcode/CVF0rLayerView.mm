@@ -48,6 +48,7 @@
         [selectButton addItemWithTitle:[NSString stringWithCString:gen->name]];
         gen = (Filter *)gen->next;
     }
+    return [super prepareOpenGL];
 }
 
 - (void)drawRect:(NSRect)theRect

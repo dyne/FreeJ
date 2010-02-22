@@ -87,6 +87,7 @@
     /* Hack - using ma resolution seems to lower cpu consuption for some reason */
     int h = (height < CV_GRABBER_HEIGHT_MAX)?height:CV_GRABBER_HEIGHT_MAX;
     int w = (width < CV_GRABBER_WIDTH_MAX)?width:CV_GRABBER_WIDTH_MAX;
+	bool ret = false;
  
     device = [QTCaptureDevice defaultInputDeviceWithMediaType: QTMediaTypeVideo];
     if( !device )
@@ -123,7 +124,7 @@
 
     session = [[QTCaptureSession alloc] init];
 
-    bool ret = [session addInput:input error: &o_returnedError];
+	ret = [session addInput:input error: &o_returnedError];
     if( !ret )
     {
         error( "default video capture device could not be added to capture session (%i)", [o_returnedError code] );
@@ -202,6 +203,8 @@ error:
     
     exportedFrame = nil;
     currentFrame = nil;
+    NSLog(@"MADONNA!!! \n");
+
     return [super init];
 }
 

@@ -35,7 +35,7 @@ class CVLayer: public Layer
     protected:
         int height, width;
         Context *freej;
-        int bufsize;
+        int bufsize;    
         virtual bool _init();
     public:
         CVLayerController *input;

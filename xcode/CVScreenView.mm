@@ -35,7 +35,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                CVOptionFlags *flagsOut, 
                                void *displayLinkContext)
 {    
-    CVReturn ret = [(CVScreenView*)displayLinkContext outputFrame:inNow->videoTime];
+    CVReturn ret = [(CVScreenView*)displayLinkContext outputFrame:inNow->hostTime];
     return ret;
 }
 
@@ -56,20 +56,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)start
 {
-    if (initialized)
-        return;
-    initialized = YES;
+    
     Context *ctx = [freej getContext];
     CVScreen *screen = (CVScreen *)ctx->screen;
     screen->set_view(self);
     CVDisplayLinkStart(displayLink);
-    if (!rateCalc) {
-        CVTimeStamp now;
-        memset(&now, 0, sizeof(now));
-        CVDisplayLinkGetCurrentTime(displayLink, &now);
-        rateCalc = [[FrameRate alloc] initWithTimeScale:now.videoTimeScale];
-        [rateCalc retain];
-    }
     [layerList setDataSource:(id)self];
     [layerList registerForDraggedTypes:[NSArray arrayWithObject:@"CVLayer"]];
 }
@@ -116,7 +107,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                              options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
     CGColorSpaceRelease( colorSpace );
-    exporter = [[[QTExporter alloc] initWithScreen:self] retain];
+    exporter = [[[QTExporter alloc] init] retain];
     return self;
 }
 
@@ -124,8 +115,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     CVPixelBufferUnlockBaseAddress(pixelBuffer, NULL);
     CVOpenGLTextureRelease(pixelBuffer);
-    if (rateCalc)
-        [rateCalc release];
     [ciContext release];
     [currentContext release];
     if (outFrame)
@@ -173,6 +162,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     
     //[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(windowChangedSize:) name:NSWindowDidResizeNotification object:nil];
+    
+    rateCalc = [[FrameRate alloc] init];
+    [rateCalc retain];
     
     GLint params[] = { 1 };
     CGLSetParameter( CGLGetCurrentContext(), kCGLCPSwapInterval, params );
@@ -304,27 +296,28 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     //CVTexture *textureToRelease = nil;
     NSRect        bounds = [self bounds];
-    [lock lock];
+    //[lock lock];
     Context *ctx = (Context *)[freej getContext];
     
     ctx->cafudda(0.0);
-    CVTimeStamp now;
-    memset(&now, 0 , sizeof(now));
-    if (CVDisplayLinkGetCurrentTime(displayLink, &now) == kCVReturnSuccess) {
-   //     if (exporter && [exporter isRunning])
-     //       [exporter addImage:[self exportSurface] atTime:&now];
-        
-        if (rateCalc) {
-            [rateCalc tick:now.videoTime];
-            NSString *toRelease = nil;
-            if (fpsString)
-                toRelease = fpsString;
-            fpsString = [[NSString alloc] initWithFormat:@"%0.1lf", [rateCalc rate]];
-            [showFps setStringValue:fpsString];
-            if (toRelease)
-                [toRelease release];
-        } 
+    
+    if (exporter && [exporter isRunning]) {
+        CVTimeStamp *exportTimestamp = (CVTimeStamp *)malloc(sizeof(CVTimeStamp));
+        CVDisplayLinkGetCurrentTime(displayLink, exportTimestamp);
+        [exporter addImage:[self exportSurface] atTime:exportTimestamp];
     }
+    
+    if (rateCalc) {
+        [rateCalc tick:timestamp];
+        NSString *toRelease = nil;
+        if (fpsString)
+            toRelease = fpsString;
+        fpsString = [[NSString alloc] initWithFormat:@"%0.1lf", [rateCalc rate]];
+        [showFps setStringValue:fpsString];
+        if (toRelease)
+            [toRelease release];
+    } 
+    
     if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
         return kCVReturnError;
     
@@ -351,7 +344,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread
     [self drawRect:NSZeroRect]; // this directly render the frame out in this thread
     
-    [lock unlock];
+    //[lock unlock];
     [pool release];
     return kCVReturnSuccess;
 }
@@ -629,11 +622,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (NSWindow *)getWindow
 {
     return window;
-}
-
-- (CVDisplayLinkRef)getDisplayLink
-{
-    return displayLink;
 }
 
 @synthesize fullScreen;

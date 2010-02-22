@@ -34,7 +34,7 @@
 {
     NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
     char buf[1024];
-    struct timeval timeout;
+    struct timeval timeout = { 1, 0 };
     fd_set rfds;
     
     fcntl(stdout_pipe[0], F_SETFL, O_NONBLOCK);
@@ -42,8 +42,6 @@
 
     buf[1024] = 0;
     for (;;) {
-        timeout.tv_sec = 1;
-        timeout.tv_usec = 0;
         memset(buf, 0, sizeof(buf));
         if ([outputPanel isEditable])
             [outputPanel setEditable:NO];
@@ -220,7 +218,7 @@
 {
     freej->reset();
     // give the engine some time to stop all layers
-    Delay(20, NULL); 
+    Delay(5, NULL); 
 
     [screenView reset];
 }
