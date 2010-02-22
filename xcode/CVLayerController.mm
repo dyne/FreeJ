@@ -499,7 +499,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (bool)needPreview
 {
-#if 1
+#ifndef NEWOSX
     return doPreview;
 #else
     // we wannt preview only if there is a panel attacched to the view (to show it)

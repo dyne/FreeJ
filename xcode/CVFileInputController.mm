@@ -44,6 +44,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (id)init
 {
     isPlaying = NO;
+    lastPTS = 0;
         qtVisualContext = nil;
     return [super init];
 }
@@ -258,14 +259,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     uint64_t ts = CVGetCurrentHostTime();
     QTTime now = [qtMovie currentTime];
 
-#if 1
-    // TODO - check against real hosttime to skip frames instead of
-    // slowing down playback
-    now.timeValue+=(now.timeScale/layer->fps.fps);
-#else
     now.timeValue +=(((lastPTS?ts-lastPTS:0) * 600)/1000000000);
     now.timeScale = 600;
-#endif
+
     QTTime duration = [qtMovie duration];
     if (QTTimeCompare(now, duration) == NSOrderedAscending)
         [qtMovie setCurrentTime:now];
@@ -286,19 +282,17 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             CVOpenGLTextureRelease(currentFrame);
         currentFrame = newPixelBuffer;
         newFrame = YES;
-#if 1
-#else
+#ifdef NEWOSX
 	MoviesTask([qtMovie quickTimeMovie], 0);
 #endif
     } 
     
     [lock unlock];
     [QTMovie exitQTKitOnThread];   
-#if 1
+#ifndef NEWOSX
     MoviesTask([qtMovie quickTimeMovie], 0);
-#else
-    lastPTS = ts;
 #endif
+    lastPTS = ts;
     [pool release];
     return rv;
 }
