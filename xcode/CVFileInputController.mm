@@ -182,6 +182,16 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             layer = new CVLayer(self);
             layer->init();
         }
+        NSArray* videoTracks = [qtMovie tracksOfMediaType:QTMediaTypeVideo];
+        QTTrack* firstVideoTrack = [videoTracks objectAtIndex:0];
+        QTMedia* media = [firstVideoTrack media];
+        QTTime qtTimeDuration = [[media attributeForKey:QTMediaDurationAttribute] QTTimeValue];
+        long sampleCount = [[media attributeForKey:QTMediaSampleCountAttribute] longValue];
+        long timeScale = [[media attributeForKey:QTMediaTimeScaleAttribute] longValue];
+        NSLog(@"timeScale: %lld timeValue: %lld", qtTimeDuration.timeScale, qtTimeDuration.timeValue);
+        NSLog(@"duration: %@ sampleCount: %lld timeScale: %lld", QTStringFromTime(qtTimeDuration) , sampleCount, timeScale);
+        NSLog(@"frames: %d\n", (qtTimeDuration.timeValue/timeScale)/sampleCount);
+       // layer->fps.set([rate floatValue]);
     }
 
     [lock unlock];
