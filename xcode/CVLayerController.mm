@@ -221,11 +221,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     return kCVReturnError;
 }
 
-/* TODO - document me */
-- (void)task
-{
-}
-
 - (IBAction)toggleFilters:(id)sender
 {
     doFilters = doFilters?false:true;
@@ -249,7 +244,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     if (lay) {
         layer = lay;
-        layer->fps.set(25);
+        layer->fps.set(30);
     } 
 }
 
@@ -494,8 +489,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [lastFrame release];
         lastFrame = [texture retain];
         [lock unlock];
-        
-        [self task]; // notify we have a new frame and the qtvisualcontext can be tasked
     } else { 
         texture = [lastFrame retain];
     }
@@ -520,6 +513,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         layer = new CVLayer(self);
         layer->init();
         layer->activate();
+        // TODO Geometry should expose a proper API
+        Context *ctx = [freej getContext];
+        layer->geo.w = ctx->screen->geo.w;
+        layer->geo.h = ctx->screen->geo.h;
     }
 }
 
