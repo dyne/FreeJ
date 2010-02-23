@@ -70,7 +70,9 @@
 #define HAVE_MMAP 1
 
 /* define if enabling MMX acceleration */
+#ifndef __ppc__
 #define HAVE_MMX 1
+#endif
 
 /* Define to 1 if you have the `select' function. */
 #define HAVE_SELECT 1
@@ -215,7 +217,7 @@
 
 #define WITH_FREI0R 1
 
-#define BUILD_NUMBER 185
+#define BUILD_NUMBER 189
 
 #define OSX_VERSION 0.99
 
