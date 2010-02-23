@@ -162,6 +162,8 @@
 		AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */; };
 		AAEE68940FC8906B007FB46B /* webcam.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE68930FC8906B007FB46B /* webcam.png */; };
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
+		B5BD93471133ED770063C358 /* encoder_example.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93451133ED770063C358 /* encoder_example.c */; };
+		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -443,6 +445,10 @@
 		AAE2C2B7103FE2AE00D62E4F /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = factory.h; path = include/factory.h; sourceTree = "<group>"; };
 		AAEE68930FC8906B007FB46B /* webcam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = webcam.png; sourceTree = "<group>"; };
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
+		B5BD93451133ED770063C358 /* encoder_example.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = encoder_example.c; sourceTree = SOURCE_ROOT; };
+		B5BD93461133ED770063C358 /* encoder_example.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encoder_example.h; sourceTree = SOURCE_ROOT; };
+		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = SOURCE_ROOT; };
+		B5BD93491133ED890063C358 /* QTStreamer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTStreamer.mm; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -651,6 +657,8 @@
 				AAAAC1720F533ADF00461C96 /* sdl_blits.cpp */,
 				AA8F9F700F510272006A9E2F /* soft_screen.cpp */,
 				AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */,
+				B5BD93481133ED890063C358 /* QTStreamer.h */,
+				B5BD93491133ED890063C358 /* QTStreamer.mm */,
 				AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */,
 				AA3C445C0F3EEBE0007C7E8B /* audio_jack.cpp */,
 				AA3C44600F3EEBE0007C7E8B /* blitter.cpp */,
@@ -751,6 +759,8 @@
 				AA8F9F720F510281006A9E2F /* soft_screen.h */,
 				AA3C44990F3EEBE0007C7E8B /* asm-linkage.h */,
 				AA3C449A0F3EEBE0007C7E8B /* audio_collector.h */,
+				B5BD93451133ED770063C358 /* encoder_example.c */,
+				B5BD93461133ED770063C358 /* encoder_example.h */,
 				AA3C449B0F3EEBE0007C7E8B /* audio_input.h */,
 				AA3C449C0F3EEBE0007C7E8B /* audio_jack.h */,
 				AA3C449E0F3EEBE0007C7E8B /* blitter.h */,
@@ -1087,6 +1097,8 @@
 				AAB47C6910E8C19000B0E8D2 /* generator_layer_js.cpp in Sources */,
 				AAB47C8A10EAA15F00B0E8D2 /* geometry.cpp in Sources */,
 				AAB47CA010EB44AF00B0E8D2 /* CVTextLayerView.mm in Sources */,
+				B5BD93471133ED770063C358 /* encoder_example.c in Sources */,
+				B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

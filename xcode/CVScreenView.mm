@@ -118,8 +118,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CGColorSpaceRelease( colorSpace );
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
 
-    streamerKeys = [[NSMutableArray arrayWithObjects:@"key1", @"key2", @"key3", nil] retain];
-    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"value1", @"value2", @"value3", nil];
+    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", nil] retain];
+    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", nil];
     streamerDict = [[NSMutableDictionary dictionaryWithObjects:objects forKeys:streamerKeys] retain];
 
     NSArray *columnArray = [streamerSettings tableColumns];
@@ -147,6 +147,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [lock release];
     [exportContext release];
     CGContextRelease( exportCGContextRef );
+    // TODO: free streamer Keys&Array
     [super dealloc];
 }
 
