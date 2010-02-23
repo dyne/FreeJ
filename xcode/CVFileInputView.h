@@ -28,6 +28,7 @@
 
 - (IBAction)setMovieTime:(id)sender;
 - (IBAction)openFile:(id)sender;
+- (IBAction)openStream:(id)sender;
 - (IBAction)togglePlay:(id)sender;
 
 @end

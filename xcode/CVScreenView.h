@@ -55,6 +55,7 @@ class CVScreen;
 	IBOutlet CFreej		*freej;
 	IBOutlet NSTextField *showFps;
     IBOutlet NSTableView *layerList;
+    IBOutlet NSTableView *streamerSettings;
     IBOutlet NSWindow   *window;
 }
 @property (readonly) bool fullScreen;
@@ -80,6 +81,7 @@ class CVScreen;
 - (IBAction)startExport:(id)sender;
 - (IBAction)stopExport:(id)sender;
 - (IBAction)setExportFile:(id)sender;
+- (IBAction)toggleStreamer:(id)sender;
 @end
 
 #endif

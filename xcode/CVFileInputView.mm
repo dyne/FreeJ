@@ -71,6 +71,11 @@
     [fileSelectionPanel setCanChooseFiles:YES];
 } // end openFile
 
+- (IBAction)openStream:(id)sender 
+{
+    NSLog(@"ImplementMe()");
+}
+
 - (void) drawRect:(NSRect)theRect
 {
     [super drawRect:theRect];

@@ -117,6 +117,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
     CGColorSpaceRelease( colorSpace );
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
+#if 0
+    streamerSettings 
+#endif
     return self;
 }
 
@@ -538,6 +541,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
      modalDelegate:self 
      didEndSelector:@selector(setExportFileDidEnd: returnCode: contextInfo:) 
      contextInfo:sender];        
+}
+
+- (IBAction)toggleStreamer:(id)sender
+{
+     NSLog(@"Streamer toggle!");
 }
 
 - (bool)isOpaque
