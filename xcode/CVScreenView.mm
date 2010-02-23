@@ -119,8 +119,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
     streamer = [[[QTStreamer alloc] initWithScreen:self] retain];
 
-    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", nil] retain];
-    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", nil];
+    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", nil] retain];
+    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", @"theartcollider.net", @"8002", @"inoutsource", nil];
     streamerDict = [[NSMutableDictionary dictionaryWithObjects:objects forKeys:streamerKeys] retain];
 
     NSArray *columnArray = [streamerSettings tableColumns];
@@ -557,11 +557,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (IBAction)toggleStreamer:(id)sender
 {
     if (streamer) {
-	NSLog(@"Streamer toggle!");
-        if ([streamer isRunning])
+        if ([streamer isRunning]) {
 	    [streamer stopStream];
-	else
+            [sender setTitle:@"Start"];
+	} else {
+	    [streamer setParams: streamerDict];
 	    [streamer startStream];
+            [sender setTitle:@"Stop"];
+	}
     }
 }
 

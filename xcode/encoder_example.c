@@ -86,7 +86,7 @@ int yuv_copy__422_to_420(void *b_2vuy, SInt32 b_2vuy_stride, size_t width, size_
 	
     return 1;
 }
-*/
+
 int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
 {
     UInt8 *base = b_rgb;
@@ -117,8 +117,8 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
     }
     return 1;
 }
+*/
 
-/*
 int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
 {
 	// TODO: offset ! & strides
@@ -138,7 +138,7 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
 		if (Y<0) dst->y[i]=0;
 		else if (Y>255) dst->y[i]=255;
 		else dst->y[i]=(uint8_t) floor(Y+.5);
-#if 1
+#if 0
 		if (i%2==0 && ((i/width)%2)==0) { 
             double V =  (0.500 * _CRX) - (0.419 * _CGX) - (0.081 * _CBX) + 128;
             double U = -(0.169 * _CRX) - (0.331 * _CGX) + (0.500 * _CBX) + 128;
@@ -153,12 +153,10 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
             c++;
 		}
 #endif
-		
-		
     }
     return 1;
 }
-*/
+
 
 
 int fetch_and_process_video(CVPixelBufferRef theBuffer,ogg_page *videopage,

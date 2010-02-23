@@ -45,7 +45,7 @@ extern "C" {
     firstTime =0;
     iceConnected =0;
     screen = cvscreen;
-    encodingProperties = [[NSDictionary dictionaryWithObjectsAndKeys:@"mp4v",
+    streamerProperties = [[NSDictionary dictionaryWithObjectsAndKeys:@"mp4v",
                            QTAddImageCodecType,
                            [NSNumber numberWithLong:codecNormalQuality],
                            QTAddImageCodecQuality,
@@ -59,7 +59,7 @@ extern "C" {
 
 - (void)dealloc
 {
-    [encodingProperties release];
+    [streamerProperties release];
     [lock release];
     [super dealloc];
 }
@@ -93,7 +93,6 @@ CVPixelBufferLockBaseAddress(buffer, 0);
 void *rasterData = CVPixelBufferGetBaseAddress(buffer);
 
 size_t bytesPerRow = CVPixelBufferGetBytesPerRow(buffer);
-
  
 
 // context to draw in, set to pixel buffer's address
@@ -122,13 +121,11 @@ NSGraphicsContext *nsctxt = [NSGraphicsContext graphicsContextWithGraphicsPort:c
 
 [NSGraphicsContext restoreGraphicsState];
 
- 
 
 CVPixelBufferUnlockBaseAddress(buffer, 0);
 
 CFRelease(ctxt);
 
- 
 
 return buffer;
 
@@ -204,8 +201,18 @@ bail:
                              toTarget:self withObject:nil];
     active =1;
     firstTime =0;
-  //iceConnected = myOggfwd_init(icIP, icPort, icMount, icDesc, icGenre, icTitle, icURL);
-    iceConnected = myOggfwd_init("theartcollider.net", 8002, "inoutsource", "/test.ogg", "desc", "tags", "title", "me");
+    NSString * mount = [NSString stringWithFormat:@"%@.ogg", [streamerProperties objectForKey:@"Title" ]];
+    NSString * author = [NSString stringWithFormat:@"http://wiki.citu.fr/users/%@", [streamerProperties objectForKey:@"Author" ]];
+    iceConnected = myOggfwd_init(
+	[[streamerProperties objectForKey:@"Server" ] UTF8String],
+	[[streamerProperties objectForKey:@"Port" ] intValue],
+	[[streamerProperties objectForKey:@"Password" ] UTF8String],
+	[mount UTF8String],
+	[[streamerProperties objectForKey:@"Description" ] UTF8String],
+	[[streamerProperties objectForKey:@"Tags" ] UTF8String],
+	[[streamerProperties objectForKey:@"Title" ] UTF8String],
+	[author UTF8String]);
+    //iceConnected = myOggfwd_init("theartcollider.net", 8002, "inoutsource", "/test.ogg", "desc", "tags", "title", "me");
     firstTime=0;
     return YES;
 }
@@ -220,9 +227,18 @@ bail:
     [lock unlock];
 }
 
-- (void)setParams
+- (void)setParams:(NSDictionary *) params
 {
     if (active) return;
+    [streamerProperties release];
+#if 0
+    [[streamerProperties initWithDictionary:params copyItems:true] retain];
+#else
+    streamerProperties= (NSMutableDictionary*) CFPropertyListCreateDeepCopy (
+	kCFAllocatorDefault, params, kCFPropertyListMutableContainersAndLeaves
+    );
+#endif
+    NSLog(@"TXX: %@", [streamerProperties objectForKey:@"Title" ] );
 }
 
 - (BOOL)isRunning

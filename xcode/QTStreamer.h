@@ -31,9 +31,7 @@
     int firstTime;
     int iceConnected;
     CVScreenView *screen;
-    NSMutableDictionary *savedMovieAttributes;
-    NSDictionary *encodingProperties;
-    NSDictionary *streamerProperties;
+    NSMutableDictionary *streamerProperties;
     NSRecursiveLock *lock;
     CVTimeStamp  lastTimestamp;
     NSImage *lastImage;
@@ -43,6 +41,7 @@
 - (BOOL)startStream;
 - (void)stopStream;
 - (BOOL)isRunning;
+- (void)setParams:(NSDictionary *) params;
 @end
 
 #endif
