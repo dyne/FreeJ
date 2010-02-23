@@ -217,9 +217,9 @@
 
 #define WITH_FREI0R 1
 
-#define BUILD_NUMBER 189
+#define BUILD_NUMBER 1
 
-#define OSX_VERSION 0.99
+#define OSX_VERSION 0.10
 
 #define PACKAGE_URL "http://freej.dyne.org"
 

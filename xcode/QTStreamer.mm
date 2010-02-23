@@ -201,7 +201,7 @@ bail:
                              toTarget:self withObject:nil];
     active =1;
     firstTime =0;
-    NSString * mount = [NSString stringWithFormat:@"%@.ogg", [streamerProperties objectForKey:@"Title" ]];
+    NSString * mount = [[NSString stringWithFormat:@"%@.ogg", [streamerProperties objectForKey:@"Title" ]] stringByReplacingOccurancesOfString:@" " withString:@"_"];
     NSString * author = [NSString stringWithFormat:@"http://wiki.citu.fr/users/%@", [streamerProperties objectForKey:@"Author" ]];
     iceConnected = myOggfwd_init(
 	[[streamerProperties objectForKey:@"Server" ] UTF8String],

@@ -311,7 +311,7 @@ int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outPassword
 	
 	unsigned short	port = outIcePort ;
 	
-	if ((myShout = shout_new()) == NULL) printf("oggfwd - Error - allocate pb%s\n") ;
+	if ((myShout = shout_new()) == NULL) printf("oggfwd - Error - allocate shouter\n") ;
 	if (shout_set_host(myShout, outIceIp) != SHOUTERR_SUCCESS) printf("oggfwd - Error - set host pb...%s\n",shout_get_error(myShout)) ;
 	if (shout_set_port(myShout, port) != SHOUTERR_SUCCESS) printf("oggfwd - Error - look at the code to know...\n") ;
 	if (shout_set_password(myShout, outPassword) != SHOUTERR_SUCCESS) printf("oggfwd - Error - look at the code to know...\n") ;

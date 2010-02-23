@@ -14,7 +14,7 @@
 			<bool key="EncodedWithXMLCoder">YES</bool>
 			<integer value="2738"/>
 			<integer value="2212"/>
-			<integer value="2922"/>
+			<integer value="2924"/>
 			<integer value="1576"/>
 			<integer value="1887"/>
 			<integer value="57"/>
@@ -2211,7 +2211,10 @@
 																							<reference key="NSSupport" ref="639457763"/>
 																							<reference key="NSControlView" ref="702250873"/>
 																							<reference key="NSBackgroundColor" ref="756405512"/>
-																							<reference key="NSTextColor" ref="382279749"/>
+																							<object class="NSColor" key="NSTextColor">
+																								<int key="NSColorSpace">1</int>
+																								<bytes key="NSRGB">MC4zODA0MzQ3ODI2IDAuMzgwNDM0NzgyNiAwLjM4MDQzNDc4MjYAA</bytes>
+																							</object>
 																						</object>
 																						<int key="NSResizingMask">3</int>
 																						<bool key="NSIsResizeable">YES</bool>
@@ -8468,6 +8471,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>2921.IBPluginDependency</string>
 					<string>2922.IBPluginDependency</string>
 					<string>2924.IBPluginDependency</string>
+					<string>2924.object.labelIdentifier</string>
 					<string>2925.IBPluginDependency</string>
 					<string>2926.IBPluginDependency</string>
 					<string>2927.IBPluginDependency</string>
@@ -9135,6 +9139,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
+					<string>IBBuiltInLabel-Red</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
