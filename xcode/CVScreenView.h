@@ -55,8 +55,10 @@ class CVScreen;
 	IBOutlet CFreej		*freej;
 	IBOutlet NSTextField *showFps;
     IBOutlet NSTableView *layerList;
-    IBOutlet NSTableView *streamerSettings;
     IBOutlet NSWindow   *window;
+    IBOutlet NSTableView *streamerSettings;
+    NSMutableArray *streamerKeys;
+    NSMutableDictionary *streamerDict;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;

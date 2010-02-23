@@ -117,9 +117,18 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
     CGColorSpaceRelease( colorSpace );
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
-#if 0
-    streamerSettings 
-#endif
+
+    streamerKeys = [[NSMutableArray arrayWithObjects:@"key1", @"key2", @"key3", nil] retain];
+    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"value1", @"value2", @"value3", nil];
+    streamerDict = [[NSMutableDictionary dictionaryWithObjects:objects forKeys:streamerKeys] retain];
+
+    NSArray *columnArray = [streamerSettings tableColumns];
+    [[columnArray objectAtIndex:0] setIdentifier:[NSNumber numberWithInt:0]];
+    [[columnArray objectAtIndex:1] setIdentifier:[NSNumber numberWithInt:1]];
+
+    [streamerSettings setDataSource:self];
+    [streamerSettings reloadData];
+
     return self;
 }
 
@@ -568,24 +577,50 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-    return fjScreen->layers.length;
+    if (aTableView == layerList) {
+      return fjScreen->layers.length;
+    } 
+    if (aTableView == streamerSettings) {
+      return [streamerDict count];
+    }
+    return 0;
 }
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-    Layer *lay = fjScreen->layers.pick(rowIndex+1);
-    if (lay)
-        return [NSString stringWithUTF8String:lay->name];
+    if (aTableView == layerList) {
+	Layer *lay = fjScreen->layers.pick(rowIndex+1);
+	if (lay)
+	    return [NSString stringWithUTF8String:lay->name];
+    }
+    if (aTableView == streamerSettings) {
+        if ([aTableColumn identifier] == [NSNumber numberWithInt:0]) {
+	    return [NSString stringWithString:[streamerKeys objectAtIndex:rowIndex]];
+        } else {
+	    return [NSString stringWithString:[streamerDict objectForKey:[streamerKeys objectAtIndex:rowIndex]]];
+        }
+    }
     return nil;
+}
+
+- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+{
+    if (aTableView == streamerSettings && [aTableColumn identifier] == [NSNumber numberWithInt:1]) {
+	NSLog(@"changed: %d %@", rowIndex, anObject);
+	[streamerDict setValue:anObject forKey:[streamerKeys objectAtIndex:rowIndex]];
+    }
 }
 
 - (NSArray *)tableView:(NSTableView *)aTableView namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination forDraggedRowsWithIndexes:(NSIndexSet *)indexSet
 {
+    if (aTableView != layerList) return nil;
     return [NSArray arrayWithObjects:@"CVLayer", @"CVLayerIndex", nil];
 }
 
 - (BOOL)tableView:(NSTableView *)aTableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
 {
+    if (aTableView != layerList) return NO;
+
     NSUInteger row = [rowIndexes firstIndex];
     Layer *lay = fjScreen->layers.pick(row+1);
     if (lay) {
@@ -611,6 +646,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (BOOL)tableView:(NSTableView *)aTableView acceptDrop:(id < NSDraggingInfo >)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation
 {
+    if (aTableView != layerList) return NO;
+
     Layer *lay = NULL;
     NSUInteger srcRow;
     
