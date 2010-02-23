@@ -117,6 +117,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
     CGColorSpaceRelease( colorSpace );
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
+    streamer = [[[QTStreamer alloc] initWithScreen:self] retain];
 
     streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", nil] retain];
     NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", nil];
@@ -555,7 +556,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)toggleStreamer:(id)sender
 {
-     NSLog(@"Streamer toggle!");
+    if (streamer) {
+	NSLog(@"Streamer toggle!");
+        if ([streamer isRunning])
+	    [streamer stopStream];
+	else
+	    [streamer startStream];
+    }
 }
 
 - (bool)isOpaque

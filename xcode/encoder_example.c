@@ -52,7 +52,7 @@ int noise_sensitivity=1;
 int sharpness=0;
 int keyframe_frequency=1;
 
-//// InOut conversion (from theoraEncoder (xiph))
+/*
 int yuv_copy__422_to_420(void *b_2vuy, SInt32 b_2vuy_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
 {
     UInt8 *base = b_2vuy;
@@ -86,7 +86,7 @@ int yuv_copy__422_to_420(void *b_2vuy, SInt32 b_2vuy_stride, size_t width, size_
 	
     return 1;
 }
-
+*/
 int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
 {
     UInt8 *base = b_rgb;
@@ -117,6 +117,49 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
     }
     return 1;
 }
+
+/*
+int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
+{
+	// TODO: offset ! & strides
+	
+#define _CR ((bptr[(4*i)+1])&0xff)
+#define _CG ((bptr[(4*i)+2])&0xff)
+#define _CB ((bptr[(4*i)+3])&0xff)
+	
+#define _CRX ( ( ((bptr[(4*i)+1])&0xff) + ((bptr[(4*(i+1))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) )>>2)
+#define _CGX ( ( ((bptr[(4*i)+2])&0xff) + ((bptr[(4*(i+1))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) )>>2)
+#define _CBX ( ( ((bptr[(4*i)+3])&0xff) + ((bptr[(4*(i+1))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) )>>2)
+	
+	uint8_t *bptr = (uint8_t*) b_rgb;
+	int i; int c=0;
+	for (i=0;i<width*height;i++) {
+		double Y  = (0.299 * _CR) + (0.587 * _CG) + (0.114 * _CB);
+		if (Y<0) dst->y[i]=0;
+		else if (Y>255) dst->y[i]=255;
+		else dst->y[i]=(uint8_t) floor(Y+.5);
+#if 1
+		if (i%2==0 && ((i/width)%2)==0) { 
+            double V =  (0.500 * _CRX) - (0.419 * _CGX) - (0.081 * _CBX) + 128;
+            double U = -(0.169 * _CRX) - (0.331 * _CGX) + (0.500 * _CBX) + 128;
+			
+            if (U<0) dst->u[c]=0;
+            else if (U>255) dst->u[c]=255;
+            else dst->u[c]=(uint8_t) floor(U+.5);
+			
+            if (V<0) dst->v[c]=0;
+            else if (V>255) dst->v[c]=255;
+            else dst->v[c]=(uint8_t) floor(V+.5);
+            c++;
+		}
+#endif
+		
+		
+    }
+    return 1;
+}
+*/
+
 
 int fetch_and_process_video(CVPixelBufferRef theBuffer,ogg_page *videopage,
                             ogg_stream_state *to,
@@ -263,7 +306,7 @@ int fetch_and_process_video(CVPixelBufferRef theBuffer,ogg_page *videopage,
 
 shout_t     *myShout;
 //FILE		*outTestFile ;
-int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outIceMount,
+int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outPassword, const char* outIceMount,
 	           const char *description, const char *genre, const char *name, const char *url ) {
 	
 	int res = 0 ;
@@ -273,7 +316,7 @@ int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outIceMount
 	if ((myShout = shout_new()) == NULL) printf("oggfwd - Error - allocate pb%s\n") ;
 	if (shout_set_host(myShout, outIceIp) != SHOUTERR_SUCCESS) printf("oggfwd - Error - set host pb...%s\n",shout_get_error(myShout)) ;
 	if (shout_set_port(myShout, port) != SHOUTERR_SUCCESS) printf("oggfwd - Error - look at the code to know...\n") ;
-	if (shout_set_password(myShout, "inoutsource") != SHOUTERR_SUCCESS) printf("oggfwd - Error - look at the code to know...\n") ;
+	if (shout_set_password(myShout, outPassword) != SHOUTERR_SUCCESS) printf("oggfwd - Error - look at the code to know...\n") ;
 	if (shout_set_mount(myShout, outIceMount) != SHOUTERR_SUCCESS) printf("oggfwd - Error - look at the code to know...\n") ;
 	shout_set_format(myShout, SHOUT_FORMAT_VORBIS);
 	shout_set_public(myShout, 1);

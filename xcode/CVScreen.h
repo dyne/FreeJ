@@ -27,6 +27,7 @@
 #import  <CFreej.h>
 #import  <FrameRate.h>
 #import  <QTExporter.h>
+#import  <QTStreamer.h>
 #import  <CVScreenView.h>
 #import  <QuartzCore/QuartzCore.h>
 #import  <Foundation/NSArray.h>

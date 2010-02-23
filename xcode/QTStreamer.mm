@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
+ *  (c) Copyright 2010 Robin Gareus <robin@gareus.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -21,9 +21,15 @@
 #import <QTStreamer.h>
 #include <fps.h>
 
+
+/*
+ * quick & dirty hack
+ * -> debug,fix and then use freeJ's internal video-encoder & shouter
+ */
+
 #include "encoder_example.h"
 extern "C" {
-        int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outIceMount,
+        int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outPassword, const char* outIceMount,
                            const char *description, const char *genre, const char *name, const char *url );
         void myOggfwd_close() ;
         void encoder_example_init(int inW, int inH, int inFramerate, int in_video_r, int in_video_q) ;
@@ -39,19 +45,6 @@ extern "C" {
     firstTime =0;
     iceConnected =0;
     screen = cvscreen;
-    savedMovieAttributes = [NSDictionary 
-        dictionaryWithObjects:
-            [NSArray arrayWithObjects:
-                [NSNumber numberWithBool:YES],
-                [NSNumber numberWithBool:YES],
-                [NSNumber numberWithLong:'mpg4'],  // TODO - allow to select the codec
-                nil]
-        forKeys:
-            [NSArray arrayWithObjects:
-                QTMovieFlatten, QTMovieExport, QTMovieExportType, nil]];
-    
-    // when adding images we must provide a dictionary
-	// specifying the codec attributes
     encodingProperties = [[NSDictionary dictionaryWithObjectsAndKeys:@"mp4v",
                            QTAddImageCodecType,
                            [NSNumber numberWithLong:codecNormalQuality],
@@ -66,7 +59,6 @@ extern "C" {
 
 - (void)dealloc
 {
-    [savedMovieAttributes release];
     [encodingProperties release];
     [lock release];
     [super dealloc];
@@ -91,7 +83,6 @@ CGBitmapInfo bi = kCGImageAlphaNoneSkipFirst; // *not* CGImageGetBitmapInfo(imag
 
 NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, nil];
 
- 
 
 // create pixel buffer
 
@@ -162,21 +153,13 @@ return buffer;
         if (lastImage) {
             int64_t timedelta = lastTimestamp.videoTime?now.videoTime-lastTimestamp.videoTime:now.videoTimeScale/25;            
             memcpy(&lastTimestamp, &now, sizeof(lastTimestamp));
-#if 0            
-            [QTMovie enterQTKitOnThread];   
-            
-            // Adds an image for the specified duration to the QTMovie
-            [mMovie addImage:lastImage 
-                 forDuration:duration
-              withAttributes:encodingProperties];
-#endif        
 
 	    if (firstTime==0 && iceConnected) {
 		firstTime=1;
 		int vidW = lastImage.size.width;
 		int vidH = lastImage.size.height;
 		int outQuality = 32;
-		int outFramerate = 12;
+		int outFramerate = 25;
 		int outBitrate = 20000;
 		encoder_example_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
 		firstTime=2;
@@ -186,13 +169,6 @@ return buffer;
 	      CVPixelBufferRef givenBuff = [self fastImageFromNSImage:lastImage];
 	      int res = encoder_example_loop( givenBuff ) ;
             }
-
-            // free up our image object
-#if 0
-            if ([self isRunning])
-                [self writeSafelyToURL:[NSURL fileURLWithPath:outputFile]];
-            [QTMovie exitQTKitOnThread];
-#endif            
         }
         if (lastImage)
             [lastImage release];
@@ -229,7 +205,7 @@ bail:
     active =1;
     firstTime =0;
   //iceConnected = myOggfwd_init(icIP, icPort, icMount, icDesc, icGenre, icTitle, icURL);
-    iceConnected = myOggfwd_init("theartcollider.net", 8002, "/test.ogg", "desc", "tags", "title", "me");
+    iceConnected = myOggfwd_init("theartcollider.net", 8002, "inoutsource", "/test.ogg", "desc", "tags", "title", "me");
     firstTime=0;
     return YES;
 }
@@ -240,7 +216,13 @@ bail:
     if (!active) return;
     myOggfwd_close() ;
     encoder_example_end() ;
+    active=0;
     [lock unlock];
+}
+
+- (void)setParams
+{
+    if (active) return;
 }
 
 - (BOOL)isRunning

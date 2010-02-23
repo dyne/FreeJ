@@ -51,6 +51,7 @@ class CVScreen;
     CIContext           *exportContext;
     void                *exportBuffer;
     QTExporter          *exporter;
+    QTStreamer          *streamer;
     bool                initialized;
 	IBOutlet CFreej		*freej;
 	IBOutlet NSTextField *showFps;
