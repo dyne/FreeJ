@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
+ *  (c) Copyright 2010 Robin Gareus <robin@gareus.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -17,19 +17,21 @@
  *
  */
 
-#ifndef __CVFILEINPUTVIEW_H__
-#define __CVFILEINPUTVIEW_H__
+#ifndef __FFINPUTCONTROLLER_H__
+#define __FFINPUTCONTROLLER_H__
 
-#import <CVLayerView.h>
-#import <CVFileInputController.h>
+#include <CVLayer.h>
+#import <CVLayerController.h>
 
-@interface CVFileInputView : CVLayerView {
+#include <context.h>
+#include <CVFilterPanel.h>
+#import  "CFreej.h";
+
+@interface FFInputController : CVLayerController
+{
+    id                    delegate;
+    CVPixelBufferRef exportedFrame;
 }
-
-- (IBAction)setMovieTime:(id)sender;
-- (IBAction)openFile:(id)sender;
-- (IBAction)openStream:(id)sender; // XXX remove once FFInputView.h is in place
-- (IBAction)togglePlay:(id)sender;
 
 @end
 

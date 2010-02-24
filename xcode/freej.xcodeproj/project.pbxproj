@@ -164,6 +164,8 @@
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
 		B5BD93471133ED770063C358 /* encoder_example.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93451133ED770063C358 /* encoder_example.c */; };
 		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
+		B5BD95551134C2000063C358 /* FFInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* FFInputController.mm */; };
+		B5BD95561134C2000063C358 /* FFInputView.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95541134C2000063C358 /* FFInputView.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -449,6 +451,10 @@
 		B5BD93461133ED770063C358 /* encoder_example.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encoder_example.h; sourceTree = SOURCE_ROOT; };
 		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = SOURCE_ROOT; };
 		B5BD93491133ED890063C358 /* QTStreamer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTStreamer.mm; sourceTree = SOURCE_ROOT; };
+		B5BD95511134C2000063C358 /* FFInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputController.h; sourceTree = SOURCE_ROOT; };
+		B5BD95521134C2000063C358 /* FFInputController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputController.mm; sourceTree = SOURCE_ROOT; };
+		B5BD95531134C2000063C358 /* FFInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputView.h; sourceTree = SOURCE_ROOT; };
+		B5BD95541134C2000063C358 /* FFInputView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputView.mm; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -643,6 +649,10 @@
 		AA3C44100F3EEBE0007C7E8B /* C++ */ = {
 			isa = PBXGroup;
 			children = (
+				B5BD95511134C2000063C358 /* FFInputController.h */,
+				B5BD95521134C2000063C358 /* FFInputController.mm */,
+				B5BD95531134C2000063C358 /* FFInputView.h */,
+				B5BD95541134C2000063C358 /* FFInputView.mm */,
 				AA9337EF0FD7FDEB002B760B /* include */,
 				AAB843990F3EEDE400AD479D /* javascript */,
 				AA8C41AB0F90FF4F00B39710 /* console_calls_ctrl.cpp */,
@@ -1099,6 +1109,8 @@
 				AAB47CA010EB44AF00B0E8D2 /* CVTextLayerView.mm in Sources */,
 				B5BD93471133ED770063C358 /* encoder_example.c in Sources */,
 				B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */,
+				B5BD95551134C2000063C358 /* FFInputController.mm in Sources */,
+				B5BD95561134C2000063C358 /* FFInputView.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
