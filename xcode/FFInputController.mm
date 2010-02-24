@@ -45,14 +45,29 @@
 - (CVTexture *)getTexture
 {
     CVTexture *ret;
+    fprintf(stderr,"getTexture\n");
     ret = [super getTexture];
     return ret;
 }
 
+- (CVReturn)setStream
+{
+    [lock lock];
+        if (layerView)
+       //   [layerView setPosterImage:poster];
+       
+        // register the layer within the freej context
+        if (!layer) {
+            layer = new CVLayer(self);
+            layer->init();
+        }
+    [lock unlock];
+}
 
 - (CVReturn)renderFrame
 {
-    return kCVReturnError;
+    //return kCVReturnError;
+    fprintf(stderr,"render\n");
 
     [lock lock];
     [self renderPreview];
@@ -64,6 +79,7 @@
 
 - (BOOL)togglePlay
 {
+    fprintf(stderr,"toggleplay\n");
     return NO;
 }
 

@@ -25,6 +25,7 @@
 - (IBAction)openStream:(id)sender 
 {
     NSLog(@"ImplementMe()");
+    [(FFInputController *)layerController setStream];
 }
 
 - (void) drawRect:(NSRect)theRect
