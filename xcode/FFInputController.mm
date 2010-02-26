@@ -25,10 +25,15 @@
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
 
+extern "C" {
+#include "ffdec.h"
+}
+
 @implementation FFInputController : CVLayerController
 
 - (id)init
 {
+    ff = NULL;
     exportedFrame = nil;
     currentFrame = nil;
     return [super init];
@@ -45,35 +50,86 @@
 - (CVTexture *)getTexture
 {
     CVTexture *ret;
-    fprintf(stderr,"getTexture\n");
+    //fprintf(stderr,"getTexture\n");
+    //QTVisualContextTask(qtVisualContext);
     ret = [super getTexture];
     return ret;
 }
 
 - (CVReturn)setStream
 {
+    char *movie = "/Users/rgareus/Movies/tac-ogg/Celluloidremix-EenDoordeweekseDag19325min50397.ogg";
+  //char *movie = "http://theartcollider.org:8002/example1.ogv";
+
     [lock lock];
-        if (layerView)
-       //   [layerView setPosterImage:poster];
+    if (ff) {
+	fprintf(stderr,"FFdec: DEBUG: close stream");
+        close_movie(ff);
+        free_moviebuffer(ff);
+        free_ff(&ff);
+        ff=NULL;
+    }
+    if (open_ffmpeg(&ff, movie)) {
+	fprintf(stderr,"FFdec: open failed");
+    }
+
+/*
+    if (layerView)
+       [layerView setPosterImage:poster];
+*/
        
-        // register the layer within the freej context
-        if (!layer) {
-            layer = new CVLayer(self);
-            layer->init();
-        }
+    // register the layer within the freej context
+    if (!layer) {
+	layer = new CVLayer(self);
+	layer->init();
+    }
     [lock unlock];
 }
 
 - (CVReturn)renderFrame
 {
-    //return kCVReturnError;
-    fprintf(stderr,"render\n");
+    Context *ctx = [freej getContext];
+
+    if (!currentFrame) {
+	// http://developer.apple.com/mac/library/DOCUMENTATION/GraphicsImaging/Reference/CoreVideoRef/Reference/reference.html#//apple_ref/c/func/CVOpenGLBufferCreate
+#if 0 
+	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, nil];
+
+#else 
+	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferOpenGLCompatibilityKey, nil];
+#endif
+        
+        CVPixelBufferCreate(
+		kCFAllocatorDefault,
+		ctx->screen->geo.w,
+		ctx->screen->geo.h,
+		k32ARGBPixelFormat,
+		(CFDictionaryRef)d, 
+		&currentFrame);
+    }
+
+    if (1) { // decode nextFrame to currentFrame
+   //   CGLLockContext(glContext);
+   //   CGLSetCurrentContext(glContext);
+	CVPixelBufferLockBaseAddress(currentFrame, 0);
+	//int w=CVPixelBufferGetBytesPerRow(currentFrame);
+	uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(currentFrame);
+	//fprintf(stderr," buf-size:%d - %dx%d", sizeof(buf), ctx->screen->geo.w, ctx->screen->geo.h);
+#if 1
+	int i;
+	for (i=0; i< 4*ctx->screen->geo.w*ctx->screen->geo.h; i++)
+		buf[i] = i%255;	
+#endif
+	CVPixelBufferUnlockBaseAddress(currentFrame, 0);
+    //  CGLUnlockContext(glContext);
+    }
 
     [lock lock];
-    [self renderPreview];
+    newFrame = YES;
     if (layer)
         layer->vbuffer = currentFrame;
     [lock unlock];
+    [self renderPreview];
     return kCVReturnSuccess;
 }
 

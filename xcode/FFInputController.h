@@ -29,8 +29,9 @@
 
 @interface FFInputController : CVLayerController
 {
-    id                    delegate;
+  //id                    delegate;
     CVPixelBufferRef exportedFrame;
+    void *ff;
 }
 
 @end
