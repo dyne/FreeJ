@@ -2,19 +2,17 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include "xmalloc.h"
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
 
-#include "libavdevice/avdevice.h"
+//#include <libavdevice/avdevice.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 
-extern int want_quiet;
-extern int want_verbose;
+int want_quiet =0;
 
 struct ffdec {
   int               videoStream;
@@ -44,7 +42,7 @@ void init_ffmpeg() {
   av_register_all();
   avcodec_init();
   avcodec_register_all();
-  avdevice_register_all();
+//avdevice_register_all();
   if(want_quiet) av_log_set_level(AV_LOG_QUIET);
 }
 
@@ -98,7 +96,7 @@ void init_moviebuffer(void *ffp, int width, int height, int render_fmt) {
     fprintf(stderr, "scaling %dx%d -> %dx%d\n", ff->pCodecCtx->width, ff->pCodecCtx->height, width, height);
 
   numBytes=avpicture_get_size(render_fmt, width, height);
-  ff->buffer=(uint8_t *) xmalloc(numBytes);
+  ff->buffer=(uint8_t *) malloc(numBytes);
 
   avpicture_fill((AVPicture *)ff->pFrameFMT, ff->buffer, render_fmt, width, height);
   ff->pSWSCtx = sws_getContext(ff->pCodecCtx->width, ff->pCodecCtx->height, ff->pCodecCtx->pix_fmt, width, height, render_fmt, SWS_BICUBIC, NULL, NULL, NULL);
@@ -475,7 +473,7 @@ int ffdec_thread(void **ffpx, char *movie_url, int w, int h, int render_fmt) {
   }
 
   if (!*ffp && movie_url) {
-    struct fftarg *args = xmalloc(sizeof(struct fftarg));
+    struct fftarg *args = malloc(sizeof(struct fftarg));
     args->ffpx=ffpx;
     args->movie_url=movie_url;
     args->w=w; args->h=h;
