@@ -434,8 +434,11 @@ void *ffdec_open_thread(void *arg) {
   } else {
     struct ffdec *ff   = (struct ffdec *) *ffp;
     int xw,xh;
-
+#if 0
     calc_letterbox(get_width(ff),get_height(ff),a->w,a->h,&xw,&xh);  // XXX
+#else
+    xw=a->w; xh=a->h;
+#endif
     printf("letterbox: %dx%d\n",xw,xh);
     init_moviebuffer(ff, xw, xh, a->render_fmt);
     fprintf(stderr,"movie opened: %s!\n",a->movie_url);

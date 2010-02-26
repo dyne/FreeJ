@@ -65,35 +65,18 @@ extern "C" {
     [lock lock];
     if (ff) {
 	fprintf(stderr,"FFdec: DEBUG: close stream");
-        close_movie(ff);
-        free_moviebuffer(ff);
-        free_ff(&ff);
+	close_and_free_ff(ff);
         ff=NULL;
     }
-#if 0
-    if (open_ffmpeg(&ff, movie)) {
-	fprintf(stderr,"FFdec: open failed");
-    }
-#else
-    ffdec_thread(&ff, movie, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB); 
-#endif
 
-/*
-    if (layerView)
-       [layerView setPosterImage:poster];
-*/
-       
+    ffdec_thread(&ff, movie, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB); 
+
     // register the layer within the freej context
     if (!layer) {
 	layer = new CVLayer(self);
 	layer->init();
     }
     [lock unlock];
-}
-
-- (CVReturn)renderFrame
-{
-    Context *ctx = [freej getContext];
 
     if (!currentFrame) {
 	// http://developer.apple.com/mac/library/DOCUMENTATION/GraphicsImaging/Reference/CoreVideoRef/Reference/reference.html#//apple_ref/c/func/CVOpenGLBufferCreate
@@ -112,48 +95,49 @@ extern "C" {
 		(CFDictionaryRef)d, 
 		&currentFrame);
     }
+}
 
-    if (1) { // decode nextFrame to currentFrame
-   //   CGLLockContext(glContext);
-   //   CGLSetCurrentContext(glContext);
-	CVPixelBufferLockBaseAddress(currentFrame, 0);
-	//int w=CVPixelBufferGetBytesPerRow(currentFrame);
-	uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(currentFrame);
-	//fprintf(stderr," buf-size:%d - %dx%d", sizeof(buf), ctx->screen->geo.w, ctx->screen->geo.h);
-#if 0
-	int i;
-	for (i=0; i< 4*ctx->screen->geo.w*ctx->screen->geo.h; i++)
-		buf[i] = i%255;	
-#else
-	if (ff && (get_pt_status(ff)&3) ==1) {
-/*
-	    printf("%dx%d -> %dx%d\n", get_scaled_width(ff), get_scaled_height(ff),
-	                               ctx->screen->geo.w, ctx->screen->geo.h);
-*/
-	    //memcpy(buf, get_bufptr(ff), 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
-	    memcpy(buf, get_bufptr(ff), 4 * get_scaled_width(ff)* get_scaled_height(ff) *sizeof(uint8_t));
-	}
-#endif
-	CVPixelBufferUnlockBaseAddress(currentFrame, 0);
-    //  CGLUnlockContext(glContext);
-    }
-    if (!ffdec_thread(&ff, NULL, 0, 0, 0) && ff) {
-    ; // ifpsc[i]+=get_fps(ff);
+- (CVReturn)renderFrame
+{
+    Context *ctx = [freej getContext];
+    if (!currentFrame) {
+	return kCVReturnError;
     }
 
     [lock lock];
-    newFrame = YES; // XXX
+    if (ff && (get_pt_status(ff)&3) ==1) {
+        CGLLockContext(glContext);
+        CGLSetCurrentContext(glContext);
+
+	CVPixelBufferLockBaseAddress(currentFrame, 0);
+	uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(currentFrame);
+/*
+	printf("%dx%d -> %dx%d\n", get_scaled_width(ff), get_scaled_height(ff),
+				   ctx->screen->geo.w, ctx->screen->geo.h);
+*/
+	if (get_scaled_width(ff) == ctx->screen->geo.w && get_scaled_height(ff) == get_scaled_height(ff))
+	    memcpy(buf, get_bufptr(ff), 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
+	    //memcpy(buf, get_bufptr(ff), 4 * get_scaled_width(ff)* get_scaled_height(ff) *sizeof(uint8_t));
+	else {
+	    printf("WARNING: scaled video and screen size mismatch!\n"); // TODO print only once..
+	}
+	CVPixelBufferUnlockBaseAddress(currentFrame, 0);
+        CGLUnlockContext(glContext);
+
+	newFrame = YES;
+    }
+
     if (layer)
         layer->vbuffer = currentFrame;
     [lock unlock];
+
+    if (1) // TODO: iFPScount > oFPScount 
+    if (!ffdec_thread(&ff, NULL, 0, 0, 0) && ff) {
+    ; // ifpsc+=get_fps(ff);
+    }
+
     [self renderPreview];
     return kCVReturnSuccess;
-}
-
-- (BOOL)togglePlay
-{
-    fprintf(stderr,"toggleplay\n");
-    return NO;
 }
 
 @end
