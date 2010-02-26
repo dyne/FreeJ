@@ -496,7 +496,7 @@ int ffdec_thread(void **ffpx, char *movie_url, int w, int h, int render_fmt) {
       pthread_attr_destroy(&thread_att);
       return 0;
     }
-    printf("DEBUG0 %i %i\n", ff->pt_status, render_fmt); 
+    //printf("DEBUG0 %i %i\n", ff->pt_status, render_fmt); 
   }
  return 1;
 }

@@ -24,6 +24,7 @@
 #include <jutils.h>
 #include <OpenGL/OpenGL.h>
 #include <OpenGL/gl.h>
+#include <libavutil/pixfmt.h>
 
 extern "C" {
 #include "ffdec.h"
@@ -50,14 +51,14 @@ extern "C" {
 - (CVTexture *)getTexture
 {
     CVTexture *ret;
-    //fprintf(stderr,"getTexture\n");
-    //QTVisualContextTask(qtVisualContext);
     ret = [super getTexture];
     return ret;
 }
 
 - (CVReturn)setStream
 {
+    Context *ctx = [freej getContext];
+
     char *movie = "/Users/rgareus/Movies/tac-ogg/Celluloidremix-EenDoordeweekseDag19325min50397.ogg";
   //char *movie = "http://theartcollider.org:8002/example1.ogv";
 
@@ -69,9 +70,13 @@ extern "C" {
         free_ff(&ff);
         ff=NULL;
     }
+#if 0
     if (open_ffmpeg(&ff, movie)) {
 	fprintf(stderr,"FFdec: open failed");
     }
+#else
+    ffdec_thread(&ff, movie, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB); 
+#endif
 
 /*
     if (layerView)
@@ -115,17 +120,29 @@ extern "C" {
 	//int w=CVPixelBufferGetBytesPerRow(currentFrame);
 	uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(currentFrame);
 	//fprintf(stderr," buf-size:%d - %dx%d", sizeof(buf), ctx->screen->geo.w, ctx->screen->geo.h);
-#if 1
+#if 0
 	int i;
 	for (i=0; i< 4*ctx->screen->geo.w*ctx->screen->geo.h; i++)
 		buf[i] = i%255;	
+#else
+	if (ff && (get_pt_status(ff)&3) ==1) {
+/*
+	    printf("%dx%d -> %dx%d\n", get_scaled_width(ff), get_scaled_height(ff),
+	                               ctx->screen->geo.w, ctx->screen->geo.h);
+*/
+	    //memcpy(buf, get_bufptr(ff), 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
+	    memcpy(buf, get_bufptr(ff), 4 * get_scaled_width(ff)* get_scaled_height(ff) *sizeof(uint8_t));
+	}
 #endif
 	CVPixelBufferUnlockBaseAddress(currentFrame, 0);
     //  CGLUnlockContext(glContext);
     }
+    if (!ffdec_thread(&ff, NULL, 0, 0, 0) && ff) {
+    ; // ifpsc[i]+=get_fps(ff);
+    }
 
     [lock lock];
-    newFrame = YES;
+    newFrame = YES; // XXX
     if (layer)
         layer->vbuffer = currentFrame;
     [lock unlock];

@@ -166,6 +166,7 @@
 		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
 		B5BD95551134C2000063C358 /* FFInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* FFInputController.mm */; };
 		B5BD95561134C2000063C358 /* FFInputView.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95541134C2000063C358 /* FFInputView.mm */; };
+		B5BD95B6113581AD0063C358 /* ffdec.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95B4113581AD0063C358 /* ffdec.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -455,6 +456,8 @@
 		B5BD95521134C2000063C358 /* FFInputController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputController.mm; sourceTree = SOURCE_ROOT; };
 		B5BD95531134C2000063C358 /* FFInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputView.h; sourceTree = SOURCE_ROOT; };
 		B5BD95541134C2000063C358 /* FFInputView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputView.mm; sourceTree = SOURCE_ROOT; };
+		B5BD95B4113581AD0063C358 /* ffdec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffdec.c; sourceTree = SOURCE_ROOT; };
+		B5BD95B5113581AD0063C358 /* ffdec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffdec.h; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -649,6 +652,8 @@
 		AA3C44100F3EEBE0007C7E8B /* C++ */ = {
 			isa = PBXGroup;
 			children = (
+				B5BD95B4113581AD0063C358 /* ffdec.c */,
+				B5BD95B5113581AD0063C358 /* ffdec.h */,
 				B5BD95511134C2000063C358 /* FFInputController.h */,
 				B5BD95521134C2000063C358 /* FFInputController.mm */,
 				B5BD95531134C2000063C358 /* FFInputView.h */,
@@ -1111,6 +1116,7 @@
 				B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */,
 				B5BD95551134C2000063C358 /* FFInputController.mm in Sources */,
 				B5BD95561134C2000063C358 /* FFInputView.mm in Sources */,
+				B5BD95B6113581AD0063C358 /* ffdec.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1303,7 +1309,7 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
