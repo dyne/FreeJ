@@ -12,13 +12,13 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="57"/>
-			<integer value="2737"/>
-			<integer value="3019"/>
-			<integer value="2875"/>
+			<integer value="2592"/>
+			<integer value="1576"/>
 			<integer value="1887"/>
 			<integer value="2212"/>
-			<integer value="1576"/>
+			<integer value="57"/>
+			<integer value="3020"/>
+			<integer value="2737"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -4301,7 +4301,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 													</object>
 													<object class="NSTextFieldCell" key="NSDataCell" id="915333874">
 														<int key="NSCellFlags">69336641</int>
-														<int key="NSCellFlags2">2112</int>
+														<int key="NSCellFlags2">6208</int>
 														<string key="NSContents">Text Cell</string>
 														<reference key="NSSupport" ref="639457763"/>
 														<reference key="NSControlView" ref="244466503"/>
@@ -4310,7 +4310,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 													</object>
 													<int key="NSResizingMask">3</int>
 													<bool key="NSIsResizeable">YES</bool>
-													<bool key="NSIsEditable">YES</bool>
 													<reference key="NSTableView" ref="244466503"/>
 												</object>
 											</object>
@@ -5822,14 +5821,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">streamList</string>
-						<reference key="source" ref="721273796"/>
-						<reference key="destination" ref="244466503"/>
-					</object>
-					<int key="connectionID">3031</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">streamURL</string>
 						<reference key="source" ref="721273796"/>
 						<reference key="destination" ref="860647215"/>
@@ -5859,6 +5850,14 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<reference key="destination" ref="784309476"/>
 					</object>
 					<int key="connectionID">3037</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">streamList</string>
+						<reference key="source" ref="721273796"/>
+						<reference key="destination" ref="244466503"/>
+					</object>
+					<int key="connectionID">3038</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -8388,8 +8387,8 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<reference ref="129332158"/>
 							<reference ref="337590123"/>
 							<reference ref="860647215"/>
-							<reference ref="608645183"/>
 							<reference ref="541303733"/>
+							<reference ref="608645183"/>
 						</object>
 						<reference key="parent" ref="721273796"/>
 					</object>
@@ -9780,7 +9779,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">3037</int>
+			<int key="maxID">3038</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -10209,9 +10208,11 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string>btnCancel:</string>
 							<string>btnLoad:</string>
 							<string>btnQuery:</string>
+							<string>myDoubleClickAction:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>

@@ -68,8 +68,8 @@ extern "C" {
 - (void)setStream:(NSString*)url
 {
     Context *ctx = [freej getContext];
-
     char *movie = (char *)[url UTF8String];
+    printf("setStream: %s\n",movie);
 
     [lock lock];
     if (ff) {

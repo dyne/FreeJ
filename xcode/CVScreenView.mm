@@ -605,6 +605,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	    return [NSString stringWithUTF8String:lay->name];
     }
     if (aTableView == streamerSettings) {
+      //if ([[pTableColumn identifier] isEqualToString:@"Col_ID3"]) // XX
         if ([aTableColumn identifier] == [NSNumber numberWithInt:0]) {
 	    return [NSString stringWithString:[streamerKeys objectAtIndex:rowIndex]];
         } else {
