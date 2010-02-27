@@ -35,7 +35,7 @@
 
 - (IBAction)openStream:(id)sender 
 {
-    NSLog(@"open Stream select window..");
+    //NSLog(@"open Stream select window..");
    
     [ffInputPanel myReset]; 
     [[NSApplication sharedApplication] beginSheet:ffInputPanel 

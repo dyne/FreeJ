@@ -12,7 +12,7 @@
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 
-int want_quiet =0;
+int want_quiet =1;
 
 struct ffdec {
   int               videoStream;
@@ -439,7 +439,8 @@ void *ffdec_open_thread(void *arg) {
 #else
     xw=a->w; xh=a->h;
 #endif
-    printf("letterbox: %dx%d\n",xw,xh);
+    if (!want_quiet)
+	    printf("letterbox: %dx%d\n",xw,xh);
     init_moviebuffer(ff, xw, xh, a->render_fmt);
 //  fprintf(stderr,"movie opened: %s!\n",a->movie_url);
     ff->pt_status|=1;

@@ -34,26 +34,43 @@ extern "C" {
 
 - (id)init
 {
-    static char *suffix = "/Contents/Resources/frei0r.png";
+    static char *suffix0 = "/Contents/Resources/live_w.png";
+    static char *suffix1 = "/Contents/Resources/live_r.png";
     char iconFile[1024];
     ProcessSerialNumber psn;
     GetProcessForPID(getpid(), &psn);
     FSRef location;
     GetProcessBundleLocation(&psn, &location);
-    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix)-1);
-    strcat(iconFile, suffix);
-    icon = [[NSImage alloc] initWithContentsOfURL:
-            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
+    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix0)-1);
+    strcat(iconFile, suffix0);
+    icon0 = [[[NSImage alloc] initWithContentsOfURL:
+            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]] retain];
+    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix1)-1);
+    strcat(iconFile, suffix1);
+    icon1 = [[[NSImage alloc] initWithContentsOfURL:
+            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]] retain];
 
     ff = NULL;
+    movie=NULL;
+    timeout=1;
     currentFrame = nil;
+#if 0 
+	bufDict = [[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, nil] retain];
+
+#else 
+	bufDict = [[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferOpenGLCompatibilityKey, nil] retain];
+#endif
     return [super init];
 }
 
 - (void)dealloc
 {
-    if (currentFrame)
+    if (currentFrame) {
         CVPixelBufferRelease(currentFrame);
+    }
+    [bufDict release];
+    [icon0 release];
+    [icon1 release];
     [super dealloc];
 }
 
@@ -65,15 +82,23 @@ extern "C" {
     return ret;
 }
 
-- (void)setStream:(NSString*)url
+- (void)freeFrame
+{
+    if (currentFrame) {
+	CVPixelBufferRelease(currentFrame);
+	currentFrame = nil;	
+    }
+}
+
+- (void)reOpen
 {
     Context *ctx = [freej getContext];
-    char *movie = (char *)[url UTF8String];
-    printf("setStream: %s\n",movie);
+    if(!movie) return;
+    fprintf(stdout, "reOpen: %s\n",movie);
 
     [lock lock];
     if (ff) {
-	fprintf(stderr,"FFdec: DEBUG: close stream");
+	//fprintf(stderr,"FFdec: DEBUG: close stream");
         while ((get_pt_status(ff)&2)) { usleep(5000);}
 	close_and_free_ff(&ff);
         ff=NULL;
@@ -81,9 +106,9 @@ extern "C" {
 
     ffdec_thread(&ff, movie, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB); 
 
-#if 1
+#if 0
     if (layerView)
-	[layerView setPosterImage:icon];
+	[layerView setPosterImage:icon0];
 #endif
 
     // register the layer within the freej context
@@ -95,19 +120,13 @@ extern "C" {
 
     if (!currentFrame) {
 	// http://developer.apple.com/mac/library/DOCUMENTATION/GraphicsImaging/Reference/CoreVideoRef/Reference/reference.html#//apple_ref/c/func/CVOpenGLBufferCreate
-#if 0 
-	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, nil];
-
-#else 
-	NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferOpenGLCompatibilityKey, nil];
-#endif
-        
+       
         CVPixelBufferCreate(
 		kCFAllocatorDefault,
 		ctx->screen->geo.w,
 		ctx->screen->geo.h,
 		k32ARGBPixelFormat,
-		(CFDictionaryRef)d, 
+		(CFDictionaryRef)bufDict, 
 		&currentFrame);
     }
 }
@@ -118,9 +137,43 @@ extern "C" {
     if (!currentFrame) {
 	return kCVReturnError;
     }
+    if (!ff && movie) {
+        if (timeout == 1) {
+	    printf("FFDEC: TIMEOUT!\n");
+#if 0
+	    if (layerView)
+		[layerView setPosterImage:icon1];
+#endif
+        }
+        if (timeout > 50) { 
+		NSLog(@"Stream disconnected.");
+		free(movie);
+		movie=NULL;
+		//[layerView setPosterImage:nil];
+#if 0
+		[self freeFrame];
+#endif
+        }
+        else if (timeout%8 == 0) [self reOpen];
+
+        timeout++;
+	return kCVReturnError;
+    }
+
+    if (!movie) {
+	return kCVReturnError;
+    }
 
     [lock lock];
     if (ff && (get_pt_status(ff)&3) ==1) {
+    if (timeout>0 && layerView) {
+	printf("FFDEC: stream OK.\n");
+#if 0
+	[layerView setPosterImage:icon0];
+#endif
+    }
+    timeout=0;
+
         CGLLockContext(glContext);
         CGLSetCurrentContext(glContext);
 
@@ -147,12 +200,22 @@ extern "C" {
     [lock unlock];
 
     if (1) // TODO: iFPScount > oFPScount 
-    if (!ffdec_thread(&ff, NULL, 0, 0, 0) && ff) {
+    if (ff && !ffdec_thread(&ff, NULL, 0, 0, 0) && ff) {
     ; // ifpsc+=get_fps(ff);
     }
 
     [self renderPreview];
     return kCVReturnSuccess;
 }
+
+- (void)setStream:(NSString*)url
+{
+    if(movie) free(movie);
+    movie = strdup((char *)[url UTF8String]);
+    printf("setStream: %s\n",movie);
+    timeout=1;
+    [self reOpen];
+}
+
 
 @end

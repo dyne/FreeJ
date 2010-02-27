@@ -148,15 +148,17 @@ return buffer;
     memset(&now, 0 , sizeof(now));
     if (CVDisplayLinkGetCurrentTime((CVDisplayLinkRef)[screen getDisplayLink], &now) == kCVReturnSuccess) {
         if (lastImage) {
+#if 0
             int64_t timedelta = lastTimestamp.videoTime?now.videoTime-lastTimestamp.videoTime:now.videoTimeScale/25;            
             memcpy(&lastTimestamp, &now, sizeof(lastTimestamp));
+#endif
 
 	    if (firstTime==0 && iceConnected) {
 		firstTime=1;
 		int vidW = lastImage.size.width;
 		int vidH = lastImage.size.height;
-		int outQuality = 32;
-		int outFramerate = 25;
+		int outQuality = 24;
+		int outFramerate = 12; 
 		int outBitrate = 20000;
 		encoder_example_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
 		firstTime=2;
@@ -184,7 +186,7 @@ bail:
 {
     NSAutoreleasePool *pool;
     FPS fps;
-    fps.init(60); // XXX 
+    fps.init(2*12); // XXX 
     while ([self isRunning]) {
         pool = [[NSAutoreleasePool alloc] init];
         [self addImage:[screen exportSurface]];

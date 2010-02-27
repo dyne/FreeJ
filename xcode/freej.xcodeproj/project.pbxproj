@@ -162,6 +162,8 @@
 		AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */; };
 		AAEE68940FC8906B007FB46B /* webcam.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE68930FC8906B007FB46B /* webcam.png */; };
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
+		B52891A21139ABA80053A203 /* live_r.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A01139ABA80053A203 /* live_r.png */; };
+		B52891A31139ABA80053A203 /* live_w.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A11139ABA80053A203 /* live_w.png */; };
 		B5BD93471133ED770063C358 /* encoder_example.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93451133ED770063C358 /* encoder_example.c */; };
 		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
 		B5BD95551134C2000063C358 /* FFInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* FFInputController.mm */; };
@@ -449,6 +451,8 @@
 		AAE2C2B7103FE2AE00D62E4F /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = factory.h; path = include/factory.h; sourceTree = "<group>"; };
 		AAEE68930FC8906B007FB46B /* webcam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = webcam.png; sourceTree = "<group>"; };
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
+		B52891A01139ABA80053A203 /* live_r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_r.png; sourceTree = "<group>"; };
+		B52891A11139ABA80053A203 /* live_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_w.png; sourceTree = "<group>"; };
 		B5BD93451133ED770063C358 /* encoder_example.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = encoder_example.c; sourceTree = SOURCE_ROOT; };
 		B5BD93461133ED770063C358 /* encoder_example.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encoder_example.h; sourceTree = SOURCE_ROOT; };
 		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = SOURCE_ROOT; };
@@ -632,6 +636,8 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B52891A01139ABA80053A203 /* live_r.png */,
+				B52891A11139ABA80053A203 /* live_w.png */,
 				AADF79FF0FD7F84500167F57 /* ipernav.icns */,
 				AAEE689E0FC893BC007FB46B /* frei0r.png */,
 				AAEE68930FC8906B007FB46B /* webcam.png */,
@@ -956,6 +962,8 @@
 				AAEE68940FC8906B007FB46B /* webcam.png in Resources */,
 				AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */,
 				AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */,
+				B52891A21139ABA80053A203 /* live_r.png in Resources */,
+				B52891A31139ABA80053A203 /* live_w.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

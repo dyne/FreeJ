@@ -123,13 +123,13 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
 {
 	// TODO: offset ! & strides
 	
-#define _CR ((bptr[(4*i)+1])&0xff)
-#define _CG ((bptr[(4*i)+2])&0xff)
-#define _CB ((bptr[(4*i)+3])&0xff)
+#define _CR ((float)((bptr[(4*i)+1])&0xff))
+#define _CG ((float)((bptr[(4*i)+2])&0xff))
+#define _CB ((float)((bptr[(4*i)+3])&0xff))
 	
-#define _CRX ( ( ((bptr[(4*i)+1])&0xff) + ((bptr[(4*(i+1))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) )>>2)
-#define _CGX ( ( ((bptr[(4*i)+2])&0xff) + ((bptr[(4*(i+1))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) )>>2)
-#define _CBX ( ( ((bptr[(4*i)+3])&0xff) + ((bptr[(4*(i+1))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) )>>2)
+#define _CRX ((float)( ( ((bptr[(4*i)+1])&0xff) + ((bptr[(4*(i+1))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) )>>2))
+#define _CGX ((float)( ( ((bptr[(4*i)+2])&0xff) + ((bptr[(4*(i+1))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) )>>2))
+#define _CBX ((float)( ( ((bptr[(4*i)+3])&0xff) + ((bptr[(4*(i+1))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) )>>2))
 	
 	uint8_t *bptr = (uint8_t*) b_rgb;
 	int i; int c=0;
@@ -138,8 +138,8 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
 		if (Y<0) dst->y[i]=0;
 		else if (Y>255) dst->y[i]=255;
 		else dst->y[i]=(uint8_t) floor(Y+.5);
-#if 0
-		if (i%2==0 && ((i/width)%2)==0) { 
+#if 1
+		if (i%2==0 && ((i/width)%2)==0 && i < (width-1)*height) { 
             double V =  (0.500 * _CRX) - (0.419 * _CGX) - (0.081 * _CBX) + 128;
             double U = -(0.169 * _CRX) - (0.331 * _CGX) + (0.500 * _CBX) + 128;
 			

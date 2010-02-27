@@ -29,12 +29,16 @@
 
 @interface FFInputController : CVLayerController
 {
-  //id                    delegate;
     void *ff;
-    NSImage *icon;
+    NSImage *icon0;
+    NSImage *icon1;
+    NSDictionary *bufDict;
+    char *movie;
+    int timeout;
 }
 
 - (void)setStream:(NSString*)url;
+- (void)reOpen;
 @end
 
 #endif

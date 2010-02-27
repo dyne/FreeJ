@@ -60,9 +60,7 @@
 
 - (IBAction)btnLoad:(id)sender
 {
-    NSLog(@"btnLoad: %@",[streamURL stringValue]);
     [URL setString:[streamURL stringValue]];
-    NSLog(@"after assign..");
     [[NSApplication sharedApplication] endSheet:self returnCode:NSOKButton];
 }
 
