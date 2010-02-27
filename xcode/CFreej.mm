@@ -32,6 +32,7 @@
 // bridge stdout and stderr with the NSTextView outlet (if any)
 - (void) consoleOutput:(id)object
 {
+    [outputlock lock];
     NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
     char buf[1024];
     struct timeval timeout;
@@ -82,6 +83,7 @@
             }
         }
     }
+    [outputlock unlock];
     [p release];
 }
  
@@ -89,6 +91,7 @@
 -(void)awakeFromNib
 {
     lock = [[NSRecursiveLock alloc] init];
+    outputlock = [[NSLock alloc] init];
 }
 
 -(id)init
