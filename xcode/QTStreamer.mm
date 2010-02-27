@@ -27,7 +27,9 @@
  * -> debug,fix and then use freeJ's internal video-encoder & shouter
  */
 
-#include "encoder_example.h"
+//#include "encoder_example.h"
+#import <Carbon/Carbon.h>
+#import <QuickTime/QuickTime.h>
 extern "C" {
         int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outPassword, const char* outIceMount,
                            const char *description, const char *genre, const char *name, const char *url );
