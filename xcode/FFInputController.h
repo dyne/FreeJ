@@ -30,10 +30,11 @@
 @interface FFInputController : CVLayerController
 {
   //id                    delegate;
-    CVPixelBufferRef exportedFrame;
     void *ff;
+    NSImage *icon;
 }
 
+- (void)setStream:(NSString*)url;
 @end
 
 #endif

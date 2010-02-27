@@ -441,7 +441,7 @@ void *ffdec_open_thread(void *arg) {
 #endif
     printf("letterbox: %dx%d\n",xw,xh);
     init_moviebuffer(ff, xw, xh, a->render_fmt);
-    fprintf(stderr,"movie opened: %s!\n",a->movie_url);
+//  fprintf(stderr,"movie opened: %s!\n",a->movie_url);
     ff->pt_status|=1;
   }
   free(a);

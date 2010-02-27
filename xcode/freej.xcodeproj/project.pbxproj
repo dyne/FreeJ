@@ -167,6 +167,7 @@
 		B5BD95551134C2000063C358 /* FFInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* FFInputController.mm */; };
 		B5BD95561134C2000063C358 /* FFInputView.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95541134C2000063C358 /* FFInputView.mm */; };
 		B5BD95B6113581AD0063C358 /* ffdec.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95B4113581AD0063C358 /* ffdec.c */; };
+		B5BD96A711386CFC0063C358 /* FFInputPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD96A611386CFC0063C358 /* FFInputPanel.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -458,6 +459,8 @@
 		B5BD95541134C2000063C358 /* FFInputView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputView.mm; sourceTree = SOURCE_ROOT; };
 		B5BD95B4113581AD0063C358 /* ffdec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffdec.c; sourceTree = SOURCE_ROOT; };
 		B5BD95B5113581AD0063C358 /* ffdec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffdec.h; sourceTree = SOURCE_ROOT; };
+		B5BD96A511386CFC0063C358 /* FFInputPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputPanel.h; sourceTree = SOURCE_ROOT; };
+		B5BD96A611386CFC0063C358 /* FFInputPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputPanel.mm; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -777,6 +780,8 @@
 				B5BD93451133ED770063C358 /* encoder_example.c */,
 				B5BD93461133ED770063C358 /* encoder_example.h */,
 				AA3C449B0F3EEBE0007C7E8B /* audio_input.h */,
+				B5BD96A511386CFC0063C358 /* FFInputPanel.h */,
+				B5BD96A611386CFC0063C358 /* FFInputPanel.mm */,
 				AA3C449C0F3EEBE0007C7E8B /* audio_jack.h */,
 				AA3C449E0F3EEBE0007C7E8B /* blitter.h */,
 				AA3C449F0F3EEBE0007C7E8B /* callbacks_js.h */,
@@ -1117,6 +1122,7 @@
 				B5BD95551134C2000063C358 /* FFInputController.mm in Sources */,
 				B5BD95561134C2000063C358 /* FFInputView.mm in Sources */,
 				B5BD95B6113581AD0063C358 /* ffdec.c in Sources */,
+				B5BD96A711386CFC0063C358 /* FFInputPanel.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -24,6 +24,7 @@
 #import <FFInputController.h>
 
 @interface FFInputView : CVLayerView {
+    IBOutlet NSWindow *ffInputPanel;
 }
 
 - (IBAction)openStream:(id)sender;

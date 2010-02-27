@@ -34,8 +34,18 @@ extern "C" {
 
 - (id)init
 {
+    static char *suffix = "/Contents/Resources/frei0r.png";
+    char iconFile[1024];
+    ProcessSerialNumber psn;
+    GetProcessForPID(getpid(), &psn);
+    FSRef location;
+    GetProcessBundleLocation(&psn, &location);
+    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix)-1);
+    strcat(iconFile, suffix);
+    icon = [[NSImage alloc] initWithContentsOfURL:
+            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
+
     ff = NULL;
-    exportedFrame = nil;
     currentFrame = nil;
     return [super init];
 }
@@ -55,21 +65,26 @@ extern "C" {
     return ret;
 }
 
-- (CVReturn)setStream
+- (void)setStream:(NSString*)url
 {
     Context *ctx = [freej getContext];
 
-    char *movie = "/Users/rgareus/Movies/tac-ogg/Celluloidremix-EenDoordeweekseDag19325min50397.ogg";
-  //char *movie = "http://theartcollider.org:8002/example1.ogv";
+    char *movie = (char *)[url UTF8String];
 
     [lock lock];
     if (ff) {
 	fprintf(stderr,"FFdec: DEBUG: close stream");
-	close_and_free_ff(ff);
+        while ((get_pt_status(ff)&2)) { usleep(5000);}
+	close_and_free_ff(&ff);
         ff=NULL;
     }
 
     ffdec_thread(&ff, movie, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB); 
+
+#if 1
+    if (layerView)
+	[layerView setPosterImage:icon];
+#endif
 
     // register the layer within the freej context
     if (!layer) {

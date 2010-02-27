@@ -19,13 +19,32 @@
 
 #import <CVLayerController.h>
 #import <FFInputView.h>
+#import <FFInputPanel.h>
 
 @implementation FFInputView
 
+- (void)openStreamPanelDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+    [sheet orderOut:self];
+    if (returnCode == NSOKButton) {
+        NSLog(@"didEnd: %@",[((FFInputPanel*)ffInputPanel) getURL]);
+      //[(FFInputController *)layerController setStream:@"/Users/rgareus/Movies/tac-ogg/Celluloidremix-EenDoordeweekseDag19325min50397.ogg"];
+      //[(FFInputController *)layerController setStream:@"http://theartcollider.org:8002/example1.ogv"];
+	[(FFInputController *)layerController setStream:[((FFInputPanel*)ffInputPanel) getURL]];
+    }
+    [[NSApplication sharedApplication] endSheet:ffInputPanel];
+}
+
 - (IBAction)openStream:(id)sender 
 {
-    NSLog(@"ImplementMe()");
-    [(FFInputController *)layerController setStream];
+    NSLog(@"open Stream select window..");
+   
+    [ffInputPanel reset]; 
+    [[NSApplication sharedApplication] beginSheet:ffInputPanel 
+	modalForWindow:[sender window]
+	modalDelegate:self 
+	didEndSelector:@selector(openStreamPanelDidEnd:returnCode:contextInfo:) 
+	contextInfo:self];    
 }
 
 - (void) drawRect:(NSRect)theRect
