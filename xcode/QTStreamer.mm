@@ -180,7 +180,7 @@ bail:
   
 }
 
-- (void) exporterThread:(id)arg
+- (void) streamerThread:(id)arg
 {
     NSAutoreleasePool *pool;
     FPS fps;
@@ -197,12 +197,18 @@ bail:
 - (BOOL)startStream
 {
     if (active) return NO;
-    [NSThread detachNewThreadSelector:@selector(exporterThread:) 
-                             toTarget:self withObject:nil];
     active =1;
     firstTime =0;
-    NSString * mount = [[NSString stringWithFormat:@"%@.ogg", [streamerProperties objectForKey:@"Title" ]] stringByReplacingOccurancesOfString:@" " withString:@"_"];
+
+    [NSThread detachNewThreadSelector:@selector(streamerThread:) 
+                             toTarget:self withObject:nil];
+#if 0
+    NSString * mount =  [NSString stringWithFormat:@"%@.ogg", [[streamerProperties objectForKey:@"Title" ] stringByReplacingOccurancesOfString:@" " withString:@"_"]];
+#else
+    NSString * mount =  [NSString stringWithFormat:@"%@.ogg", [streamerProperties objectForKey:@"Title" ]];
+#endif
     NSString * author = [NSString stringWithFormat:@"http://wiki.citu.fr/users/%@", [streamerProperties objectForKey:@"Author" ]];
+  //iceConnected = myOggfwd_init("theartcollider.net", 8002, "inoutsource", "/test.ogg", "desc", "tags", "title", "me");
     iceConnected = myOggfwd_init(
 	[[streamerProperties objectForKey:@"Server" ] UTF8String],
 	[[streamerProperties objectForKey:@"Port" ] intValue],
@@ -212,9 +218,10 @@ bail:
 	[[streamerProperties objectForKey:@"Tags" ] UTF8String],
 	[[streamerProperties objectForKey:@"Title" ] UTF8String],
 	[author UTF8String]);
-    //iceConnected = myOggfwd_init("theartcollider.net", 8002, "inoutsource", "/test.ogg", "desc", "tags", "title", "me");
-    firstTime=0;
-    return YES;
+    if (iceConnected)
+	return YES;
+    active=0;
+    return NO;
 }
 
 - (void)stopStream
@@ -224,6 +231,7 @@ bail:
     myOggfwd_close() ;
     encoder_example_end() ;
     active=0;
+    iceConnected = 0;
     [lock unlock];
 }
 

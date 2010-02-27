@@ -562,8 +562,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             [sender setTitle:@"Start"];
 	} else {
 	    [streamer setParams: streamerDict];
-	    [streamer startStream];
-            [sender setTitle:@"Stop"];
+	    if ([streamer startStream])
+		    [sender setTitle:@"Stop"];
 	}
     }
 }
