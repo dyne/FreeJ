@@ -217,7 +217,7 @@
 
 #define WITH_FREI0R 1
 
-#define BUILD_NUMBER 40
+#define BUILD_NUMBER 52
 
 #define OSX_VERSION 0.10
 

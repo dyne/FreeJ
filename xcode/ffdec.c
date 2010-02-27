@@ -123,7 +123,7 @@ int open_movie(void ** ffpx, char* movie_url) {
   ff->fFirstTime=1;
   
   if(av_open_input_file(&ff->pFormatCtx, movie_url, NULL, 0, NULL)!=0) {
-    fprintf( stderr, "Cannot open video file %s\n", movie_url);
+    fprintf( stderr, "Cannot open video file: '%s'\n", movie_url);
     return -1;
   }
 
@@ -429,7 +429,7 @@ void *ffdec_open_thread(void *arg) {
 
   if (open_movie((void **) ffp, a->movie_url)) {
     struct ffdec *ff   = (struct ffdec *) *ffp;
-    fprintf(stderr,"movie open failed!\n");
+    //fprintf(stderr,"movie open failed!\n");
     ff->pt_status|=4;
   } else {
     struct ffdec *ff   = (struct ffdec *) *ffp;

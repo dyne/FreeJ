@@ -36,6 +36,7 @@
     //[self setNeedsDisplay:NO];
     //layer = NULL;
     //layerController = NULL;
+    posterImage = nil;
     return self;
 }
 
@@ -307,6 +308,16 @@
 
 - (void)setPosterImage:(NSImage *)image
 {
+    NSAutoreleasePool *pool;
+    pool = [[NSAutoreleasePool alloc] init];
+
+    if (!image) {
+	if (posterImage) [posterImage release];
+    	posterImage = nil;
+	[self setNeedsDisplay:YES];
+	[pool release];
+	return;
+    }
     NSRect bounds = [self bounds];
     NSRect frame = [self frame];
     NSData  * tiffData = [image TIFFRepresentation];
@@ -321,7 +332,13 @@
     [scaleFilter setValue:[[CIImage alloc] initWithBitmapImageRep:bitmap] forKey:@"inputImage"];
     
     posterImage = [[scaleFilter valueForKey:@"outputImage"] retain];
+#if 0
+    [scaleTransform release];
+    [bitmap release];
+    [tiffData release];
+#endif
     [self setNeedsDisplay:YES];
+    [pool release];
 }
 
 - (CVFilterPanel *)filterPanel

@@ -94,7 +94,7 @@ extern "C" {
 {
     Context *ctx = [freej getContext];
     if(!movie) return;
-    fprintf(stdout, "reOpen: %s\n",movie);
+    //fprintf(stdout, "reOpen: %s\n",movie);
 
     [lock lock];
     if (ff) {
@@ -104,12 +104,10 @@ extern "C" {
         ff=NULL;
     }
 
+    [layerView setPosterImage:icon1];
+
     ffdec_thread(&ff, movie, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB); 
 
-#if 0
-    if (layerView)
-	[layerView setPosterImage:icon0];
-#endif
 
     // register the layer within the freej context
     if (!layer) {
@@ -139,17 +137,20 @@ extern "C" {
     }
     if (!ff && movie) {
         if (timeout == 1) {
-	    printf("FFDEC: TIMEOUT!\n");
-#if 0
-	    if (layerView)
+	    //printf("FFDEC: TIMEOUT!\n");
+	    if (layerView) {
 		[layerView setPosterImage:icon1];
-#endif
+	    }
         }
         if (timeout > 50) { 
 		NSLog(@"Stream disconnected.");
 		free(movie);
 		movie=NULL;
-		//[layerView setPosterImage:nil];
+#if 1
+	    if (layerView) {
+		[layerView setPosterImage:nil];
+	    }
+#endif
 #if 0
 		[self freeFrame];
 #endif
@@ -167,10 +168,8 @@ extern "C" {
     [lock lock];
     if (ff && (get_pt_status(ff)&3) ==1) {
     if (timeout>0 && layerView) {
-	printf("FFDEC: stream OK.\n");
-#if 0
+	//printf("FFDEC: stream OK.\n");
 	[layerView setPosterImage:icon0];
-#endif
     }
     timeout=0;
 
