@@ -61,7 +61,7 @@ to  python*, while  parsing scripts  is done  using  Spidermonkey, the
 Mozilla  interpreter (there are  plans to  use also  Google V8  in the
 future).
 
-file:images/mask_sospesa_psico.jpg
+file:images/mask-sospesa-psico.jpg
 
 FreeJ has started  being developed on a dual-core  CPU already in 2001
 and has grown  with emphasis on multi-threading to  run efficiently on
@@ -179,12 +179,12 @@ Its C++ programming  API is fairly understandable, here  you'll find a
 The FreeJ team at Piksel 2005  in Norway, from left to right: Kysucix,
 Mr.Goil and Jaromil
 
-file:images/freej_at_piksel2005.jpg
+file:images/freej-at-piksel2005.jpg
 
 The FreeJ team together  with developers from Engagemedia, Giss.tv and
 Mal de Ojos at Wintercamp 2009 in Amsterdam
 
-file:images/dyne_at_wintercamp.jpg
+file:images/dyne-at-wintercamp.jpg
  
 The  FreeJ source  code is  mostly  written by  Denis "Jaromil"  Roio,
 Silvano "Kysucix" Galliani, Christoph "Mr.Goil" Rudorff, Andrea "Xant"
@@ -279,6 +279,14 @@ If you like, you can also download our packages:
 or add  "deb http://ppa.launchpad.net/jaromil/ubuntu hardy  main" to
 your /etc/apt/sources
 
+** Arch GNU/Linux
+
+FreeJ is  packaged in Arch since  long time and has  been just updated
+recently, you  can [[http://aur.archlinux.org/packages.php?ID=34964][see the  FreeJ package on  AUR]] and install  it from
+*yaourt* of just download the PKGBUILD
+
+: yaourt freej-git
+
 ** Winslows 
 
 If you are looking for a winslows version, boot [[http://dynebolic.org][dyne:bolic GNU/Linux]]!
@@ -300,7 +308,13 @@ text.start();
 add_layer(text);
 #+END_SRC
 
-Here you  find  the full [[http://freej.dyne.org/docs/scripting][scripting API reference]].
+You can  paste the code  above into a  file "hello.js" and  execute it
+from commandline or using the "Load script" button from Apple/OSX.
+
+: freej -j hello_world.js
+
+Here  you  find  the  full  [[http://freej.dyne.org/docs/scripting][scripting API  reference]]  and  the  online
+collection of [[http://git.dyne.org/index.cgi?url=freej/tree/scripts/javascript/examples][example scripts]].
 
 Along  with  the  sourcecode,   the  following  text  files  are  also
 distributed: [[http://ftp.dyne.org/freej/README][README]],  [[http://ftp.dyne.org/freej/][INSTALL]], [[http://ftp.dyne.org/freej/][AUTHORS]], [[http://ftp.dyne.org/freej/][ChangeLog]],  [[http://ftp.dyne.org/freej/][USAGE]], [[http://ftp.dyne.org/freej/][TODO]], [[http://ftp.dyne.org/freej/][NEWS]],
@@ -323,8 +337,8 @@ audio = new AudioJack("alsaplayer", 2048,        44100);
 // tweak the values below accordingly, see Jack documentation
 
 // Create a Video Encoder object
-//    values 1-100         video quality  video bitrate  audio quality  audio_bitrate
-encoder = new VideoEncoder(10,             64000,        0,             24000);
+// V=video A=audio         V quality  V bitrate  A quality  A bitrate
+encoder = new VideoEncoder(10,        64000,     0,         24000);
 
 // Add the audio channel in the video encoded
 encoder.add_audio(audio);

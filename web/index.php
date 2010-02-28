@@ -51,12 +51,14 @@ $smarty->assign("page_title",  "free vision mixer");
 
 $smarty->display("header.tpl");
 
-// sidebar
-$smarty->display("software/doctypes.tpl");
+// floating sidebar
+echo("\n<div id=\"menu\">\n");
 showfile("toc.html");
+$smarty->display("software/doctypes.tpl");
+echo("\n</div>");
 
 // page content
-showfile("body.html");
+showfile("./body.html");
 
 $smarty->display("footer.tpl");
 

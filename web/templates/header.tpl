@@ -3,9 +3,9 @@
 <head>
   <title> :: d y n e . o r g :: {$page_title}</title>
 
-  <link rel="stylesheet" type="text/css" href="http://new.dyne.org/stylesheets/dyne5.css" media="all" title="Dyne" />
-  <link rel="stylesheet" type="text/css" href="http://new.dyne.org/stylesheets/org-mode.css" />
-  <link rel="stylesheet" type="text/css" href="http://new.dyne.org/stylesheets/org-htmlize-src.css" />
+  <link rel="stylesheet" type="text/css" href="stylesheets/dyne5.css" media="all" title="Dyne" />
+  <link rel="stylesheet" type="text/css" href="stylesheets/org-mode.css" />
+  <link rel="stylesheet" type="text/css" href="stylesheets/org-htmlize-src.css" />
 
   <link rel="icon"       type="image/png" href="{$moebius_png}" />
   <link rel="alternate"  type="application/rss+xml" title="RSS 2.0" href="http://feeds.dyne.org/planet_dyne" />

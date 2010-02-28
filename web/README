@@ -12,11 +12,13 @@ latest stable version of Org-mode from orgmode.org
 from inside orgmode, do:
 
  make
+ sudo make install
  sudo cp -ra contrib/lisp/* /usr/local/share/emacs/site-lisp/
 
 this will install the latest version in /usr/local/share
 
-then run generate.sh and follow its instructions
+then run make in this directory to generate the site
+and then follow instructions to activate the apache.conf
 
 happy hacking ;^)
 
