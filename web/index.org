@@ -234,13 +234,20 @@ build your own application and as source code you can study.
 ** Source code
 
 Latest stable release is 0.10 (30  May 2008) more about it in the [[http://ftp.dyne.org/freej/NEWS][NEWS]]
-and [[http://ftp.dyne.org/freej/ChangeLog][ChangeLog]] source signed (.asc) by [[http://rastasoft.org][Jaromil]] using [[http://www.gnupg.org][GnuPG]].
+and [[http://ftp.dyne.org/freej/ChangeLog][ChangeLog]].
+
+Source releases are checked and signed by [[http://rastasoft.org][Jaromil]] using [[http://www.gnupg.org][GnuPG]].
 
 On [[ftp://ftp.dyne.org/freej][ftp.dyne.org/freej]]  you find all  present and past  FreeJ releases,
-source  code  for extra  plugins  (filters  and  generators) and  more
-binaries that we occasionally build for various architectures.
+source code for  extra plugins and more binaries  that we occasionally
+build for various architectures.
 
 A mirror is kindly made available by the [[http://www.ljudmila.org/~jaromil/mirror/freej/][Ljudmila medialab]].
+
+The bleeding edge version is developed on our [[http://git.dyne.org][code repository]] using *git*,
+you can clone the repository free and anonymously
+: git clone git://code.dyne.org/freej.git
+please use this version when [[http://bugs.dyne.org][reporting bugs]] and getting in contact with us.
 
 ** Debian GNU/Linux
 
@@ -254,7 +261,7 @@ the following dependencies:
 : libpng-dev  libfreetype6-dev libfontconfig-dev  dpatch libogg-dev \
 : libvorbis-dev      libjpeg-dev     libslang2-dev     libtheora-dev \
 : libavcodec-dev    libavformat-dev    libbluetooth2-dev   fftw3-dev \
-: libjack-dev libasound-dev
+: libjack-dev libasound-dev liblo0-dev swig python-dev
 
 ** Apple Darwin/OSX 10.5 Leopard
 
@@ -399,3 +406,61 @@ documentation]].
 
 * Communication
 
+If you  are new to mailinglists,  please take your time  to read those
+[[http://www.rfc-editor.org/rfc/rfc1855.txt][Netiquette  Guidelines]] (RFC1855)  and  in particular  the chapter  3.0
+about One-to-Many Communication.
+
+The mailinglists we use for discussion are *completely free*, they are
+published  on the  web  and  can be  searched  in *publicly  available
+archives*.    Posting  to   them   is  limited   to  subscribers   and
+*subscription is free*.
+
+*Please do  not send bugreports  on any mailinglist*, use  instead our
+[[http://bugs.dyne.org][bugtracker]] which helps  tracking down the reports and  keeping them in
+order.
+
+*Your email  details will be  never disclosed*: neither in  the public
+mail  archives,  neither will  be  sold  to  anyone. This  service  is
+provided "as is", in the hope  it will be useful but without any other
+warranty.
+
+Anyone posting is the sole responsible for any information shared.
+
+Get in contact with us via our *freej at lists.dyne.org* mailinglist.
+
+#+BEGIN_HTML
+<table align="center" width="100%"><tr>
+
+<td>
+<font size="+1">
+<a href="http://lists.dyne.org/lurker/list/freej.en.html">
+<img src="http://lists.dyne.org/img/userlist-32.png" alt="archive" align="middle" border="0">browse the archive</a>
+</font>
+</td>
+
+<td>
+<form method="POST" action="http://lists.dyne.org/subscribe.php">
+join: <input type="text" size="12" name="addr" value="">
+<input type="hidden" name="ml" value="freej">
+<input type="submit" name="submit" value="&gt;&gt;">
+</form>
+&nbsp;&nbsp;insert your email<br>
+</td>
+
+<td>
+post to <b>freej@lists.dyne.org</b><br>
+(only for subscribers)<br>
+go <a href="http://mailinglists.dyne.org/mailman/options/freej">here to unsubscribe</a>
+<!-- <br>need help?<br>
+ask: <b>freej-help@dyne.org</b></p>-->
+</td>
+
+<td>
+<a href="http://lists.dyne.org/stats/freej.html">
+<img src="images/globe.png" border="0" align="left" alt="world">
+subscribers<br>
+statistics</a>
+</td>
+
+</tr></table>
+#+END_HTML

@@ -1,13 +1,22 @@
   <footer>
     <hr />
-    <section id="credits">
-      <h2>Credits</h2>
-      <p>Dyne hosting is kindly provided by
-      <a href="http://nimk.nl/">nimk.nl</a> 
-      and
-      <a href="http://servus.at/">servus.at</a>.</p>
-      <p id="clustrMaps"></p>
+
+    {if DYNE_DEBUG_RENDERING_TIME}
+    <section id="dyne_debug">
+      <p>Page Rendering Time: {$timer->stop()}ms.</p>
     </section>
+    {/if}
+
+    <section id="disclaimer">
+      <h2>dyne.org</h2>
+      <p>
+        Copyleft 2000 - 2010 dyne.org foundation and respective authors. 
+	Verbatim copying and distribution is permitted in any medium, 
+	provided this notice is preserved.
+	<p><a href="contact">Send your enquiries &amp; questions to dyne's hackers</a>.</p>
+      </p>
+    </section>
+
     <section id="recognition">
       <h2>Recognition</h2>
       <ul>
@@ -16,6 +25,7 @@
             src="http://dyne.org/images/badges/listed-by-unesco_76x36.png" alt="Dyne and Freaknet are listed on the Unesco Archives portal since 2002"/></a></li>
       </ul>
     </section>
+
     <section id="badges">
       <h2>Internet Campains</h2>
       <ul>
@@ -26,21 +36,17 @@
         <li><a href="http://code.dyne.org/"><img src="http://dyne.org/images/badges/dyne-software_80x15.png" alt="dyne.org software badge"/></a></li>
       </ul>
     </section>
-    <section id="dyne">
-      <h2>dyne.org</h2>
-      <p id="copy-it-right">
-        Copyleft 2000 - 2010 dyne.org foundation and respective authors. 
-	Verbatim copying and distribution is permitted in any medium, 
-	provided this notice is preserved. 
-	<a href="contact">Send your enquiries &amp; questions to dyne's hackers</a>.
-      </p>
+
+    <section id="credits">
+      <h2>Credits</h2>
       <p><a href="http://dyne.org/" target="_top"><img src="http://dyne.org/dyne-sm.png" alt="dyne.org stamp" /></a></p>
+      <p>Dyne hosting is kindly provided by
+      <a href="http://nimk.nl/">nimk.nl</a> 
+      and
+      <a href="http://servus.at/">servus.at</a></p>
+      <p id="clustrMaps"></p>
     </section>
-    {if DYNE_DEBUG_RENDERING_TIME}
-    <section id="dyne_debug">
-      <p>Page Rendering Time: {$timer->stop()}ms.</p>
-    </section>
-    {/if}
+
   </footer>
   <script type="text/javascript" src="http://www.google.com/jsapi"></script>
   <script type="text/javascript">google.load("jquery", "1.4.0");</script>

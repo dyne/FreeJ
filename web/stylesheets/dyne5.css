@@ -134,13 +134,9 @@ html.contact #foundation { width: 35%; padding:0 1em}
 
 footer {
   clear: both;
-  display: block;
+  display: compact;
   font-size: smaller;
   height: 25em;
-  opacity: 0.25;
-}
-footer:hover, footer:focus {
-  opacity: 1;
 }
 footer hr {
   background-color: #f0e0d0;
@@ -153,26 +149,27 @@ footer ul {
   padding: 0;
 }
 footer section {
-  width: 25%;
-  float: left
+  width: 8em;
+  float: right;
 }
 footer section h2 {
   text-align: center;
-}
+  display: none; }
 #cluster_maps {
-  text-align: center;
-}
-#copy-it-right {
+  text-align: center; }
+#disclaimer {
+  font-size: smaller;
   text-align: justify;
-}
-#dyne {
+  width: 20em; }
+#credits {
   text-align: right;
-}
-#recognition,
-#badges {
-  text-align: center;
-}
-
+  width: 17em; }
+#recognition { 
+  margin-top: 1em;
+  text-align: center; }
+#badges { 
+  margin-top: 2em;
+  text-align: center; }
 /**
  * Google Search 
 **/
