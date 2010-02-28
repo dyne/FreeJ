@@ -68,69 +68,52 @@ extern "C" {
 
 - (CVPixelBufferRef)fastImageFromNSImage:(NSImage *)image
 {
+    CVPixelBufferRef buffer = NULL;
 
-CVPixelBufferRef buffer = NULL;
+    size_t width = [image size].width;
+    size_t height = [image size].height;
+    size_t bitsPerComponent = 8; // *not* CGImageGetBitsPerComponent(image);
 
-// config
+    CGColorSpaceRef cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+  //CGBitmapInfo bi    = CGImageGetBitmapInfo(image);
+    CGBitmapInfo bi    = kCGImageAlphaNoneSkipFirst;
+  //CGBitmapInfo bi    = kCGImageAlphaNoneSkipLast; 
+  //CGBitmapInfo bi    = kCGImageAlphaPremultipliedFirst; 
+  //CGBitmapInfo bi    = kCGImageAlphaPremultipliedLast; 
 
-size_t width = [image size].width;
+    NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, nil];
+    CVPixelBufferCreate(kCFAllocatorDefault, width, height, k32ARGBPixelFormat, (CFDictionaryRef)d, &buffer);
 
-size_t height = [image size].height;
+    CVPixelBufferLockBaseAddress(buffer, 0);
 
-size_t bitsPerComponent = 8; // *not* CGImageGetBitsPerComponent(image);
+    void *rasterData = CVPixelBufferGetBaseAddress(buffer);
+    size_t bytesPerRow = CVPixelBufferGetBytesPerRow(buffer);
 
-CGColorSpaceRef cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    CGContextRef ctxt = CGBitmapContextCreate(rasterData, width, height, bitsPerComponent, bytesPerRow, cs, bi);
 
-CGBitmapInfo bi = kCGImageAlphaNoneSkipFirst; // *not* CGImageGetBitmapInfo(image);
+    if(ctxt == NULL){
+	NSLog(@"could not create context");
+	return NULL;
+    }
 
-NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, nil];
+    NSGraphicsContext *nsctxt = [NSGraphicsContext graphicsContextWithGraphicsPort:ctxt flipped:NO];
+    [NSGraphicsContext saveGraphicsState];
+    [NSGraphicsContext setCurrentContext:nsctxt];
+#if 0
+    NSRect bounds;
+    bounds.origin.x=0; bounds.origin.y=0;
+    bounds.size.width=width; bounds.size.height=height;
 
+    NSEraseRect(bounds);
+    [image compositeToPoint:NSMakePoint(0.0, 0.0) operation:NSCompositeSourceOver];
+#else
+    [image compositeToPoint:NSMakePoint(0.0, 0.0) operation:NSCompositeCopy];
+#endif
+    [NSGraphicsContext restoreGraphicsState];
+    CVPixelBufferUnlockBaseAddress(buffer, 0);
 
-// create pixel buffer
-
-CVPixelBufferCreate(kCFAllocatorDefault, width, height, k32ARGBPixelFormat, (CFDictionaryRef)d, &buffer);
-
-CVPixelBufferLockBaseAddress(buffer, 0);
-
-void *rasterData = CVPixelBufferGetBaseAddress(buffer);
-
-size_t bytesPerRow = CVPixelBufferGetBytesPerRow(buffer);
- 
-
-// context to draw in, set to pixel buffer's address
-
-CGContextRef ctxt = CGBitmapContextCreate(rasterData, width, height, bitsPerComponent, bytesPerRow, cs, bi);
-
-if(ctxt == NULL){
-
-NSLog(@"could not create context");
-
-return NULL;
-
-}
-
- 
-
-// draw
-
-NSGraphicsContext *nsctxt = [NSGraphicsContext graphicsContextWithGraphicsPort:ctxt flipped:NO];
-
-[NSGraphicsContext saveGraphicsState];
-
-[NSGraphicsContext setCurrentContext:nsctxt];
-
-[image compositeToPoint:NSMakePoint(0.0, 0.0) operation:NSCompositeCopy];
-
-[NSGraphicsContext restoreGraphicsState];
-
-
-CVPixelBufferUnlockBaseAddress(buffer, 0);
-
-CFRelease(ctxt);
-
-
-return buffer;
-
+    CFRelease(ctxt);
+    return buffer;
 }
 
 
@@ -169,6 +152,7 @@ return buffer;
 	    if (firstTime==2 && iceConnected) {
 	      CVPixelBufferRef givenBuff = [self fastImageFromNSImage:lastImage];
 	      int res = encoder_example_loop( givenBuff ) ;
+	      [givenBuff release];
             }
         }
         if (lastImage)

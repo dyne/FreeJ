@@ -122,7 +122,7 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
 int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
 {
 	// TODO: offset ! & strides
-	
+
 #define _CR ((float)((bptr[(4*i)+1])&0xff))
 #define _CG ((float)((bptr[(4*i)+2])&0xff))
 #define _CB ((float)((bptr[(4*i)+3])&0xff))
@@ -135,20 +135,20 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
 	int i; int c=0;
 	for (i=0;i<width*height;i++) {
 		double Y  = (0.299 * _CR) + (0.587 * _CG) + (0.114 * _CB);
-		if (Y<0) dst->y[i]=0;
-		else if (Y>255) dst->y[i]=255;
+		if (Y<1) dst->y[i]=(uint8_t)0;
+		else if (Y>254) dst->y[i]=(uint8_t)255;
 		else dst->y[i]=(uint8_t) floor(Y+.5);
 #if 1
 		if (i%2==0 && ((i/width)%2)==0 && i < (width-1)*height) { 
             double V =  (0.500 * _CRX) - (0.419 * _CGX) - (0.081 * _CBX) + 128;
             double U = -(0.169 * _CRX) - (0.331 * _CGX) + (0.500 * _CBX) + 128;
 			
-            if (U<0) dst->u[c]=0;
-            else if (U>255) dst->u[c]=255;
+            if (U<1) dst->u[c]=(uint8_t)0;
+            else if (U>254) dst->u[c]=(uint8_t)255;
             else dst->u[c]=(uint8_t) floor(U+.5);
 			
-            if (V<0) dst->v[c]=0;
-            else if (V>255) dst->v[c]=255;
+            if (V<1) dst->v[c]=(uint8_t)0;
+            else if (V>254) dst->v[c]=(uint8_t)255;
             else dst->v[c]=(uint8_t) floor(V+.5);
             c++;
 		}
@@ -412,16 +412,18 @@ void encoder_example_init(int inW, int inH, int inFramerate, int in_video_r, int
 	myGlob_ti.aspect_numerator= 1 ; //video_an;
 	myGlob_ti.aspect_denominator= 1 ; //video_ad;
 	myGlob_ti.colorspace=OC_CS_UNSPECIFIED;
+//      myGlob_ti.colorspace=OC_CS_ITU_REC_470BG; /// new
 	myGlob_ti.pixelformat=OC_PF_420;
 	myGlob_ti.target_bitrate= in_video_r ;
 	myGlob_ti.quality= in_video_q ;
 	
 	myGlob_ti.dropframes_p=0;
-	myGlob_ti.quick_p=1;
+ 	myGlob_ti.quick_p=1;
 	myGlob_ti.keyframe_auto_p=1;
 	myGlob_ti.keyframe_frequency=keyframe_frequency;
 	myGlob_ti.keyframe_frequency_force=keyframe_frequency;
 	myGlob_ti.keyframe_data_target_bitrate= myGlob_ti.target_bitrate *1.5;
+	myGlob_ti.keyframe_data_target_bitrate= myGlob_ti.target_bitrate *4; /// new
 	myGlob_ti.keyframe_auto_threshold=80;
 	myGlob_ti.keyframe_mindistance=8;
 	myGlob_ti.noise_sensitivity= noise_sensitivity ;
@@ -499,7 +501,7 @@ void encoder_example_init(int inW, int inH, int inFramerate, int in_video_r, int
 		
 	}
 	
-	fprintf(stderr,"INOUT - ENCODER_EXAMPLE_INIT done ! (framerate=%d,bitrate=%d,quality=%d)\n",inFramerate,in_video_r,in_video_q);
+	fprintf(stderr,"INOUT (framerate=%d,bitrate=%d,quality=%d)\n",inFramerate,in_video_r,in_video_q);
 	
 	/* setup complete.  Raw processing loop */
 	//InOut done outside from mycontroller...
