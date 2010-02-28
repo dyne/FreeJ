@@ -3,7 +3,7 @@ VERSION=0.10
 DMGFILE=/tmp/flowmixer-$VERSION.dmg
 echo $DMGFILE
 
-BUILD=build/Release/freej.app
+BUILD=build/Release/flowmixer.app
 
 cd xcode
 

@@ -164,6 +164,7 @@
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
 		B52891A21139ABA80053A203 /* live_r.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A01139ABA80053A203 /* live_r.png */; };
 		B52891A31139ABA80053A203 /* live_w.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A11139ABA80053A203 /* live_w.png */; };
+		B56DCB85113AEF2900EF3F10 /* flowmixer-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */; };
 		B5BD93471133ED770063C358 /* encoder_example.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93451133ED770063C358 /* encoder_example.c */; };
 		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
 		B5BD95551134C2000063C358 /* FFInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* FFInputController.mm */; };
@@ -389,8 +390,7 @@
 		AAA38FB60F542DE80069BF91 /* CIAlphaFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CIAlphaFade.m; sourceTree = "<group>"; };
 		AAA3902D0F5448820069BF91 /* CIAlphaFade.cikernel */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CIAlphaFade.cikernel; sourceTree = "<group>"; };
 		AAA7B62B0F40485F00056C44 /* CFreej.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CFreej.mm; sourceTree = "<group>"; };
-		AAA7B6530F40494400056C44 /* freej-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "freej-Info.plist"; sourceTree = "<group>"; };
-		AAA7B6F30F404B4C00056C44 /* freej.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = freej.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAA7B6F30F404B4C00056C44 /* flowmixer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = flowmixer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsamplerate.dylib; path = /opt/local/lib/libsamplerate.dylib; sourceTree = "<absolute>"; };
 		AAAABEE30F521A6000461C96 /* fps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fps.cpp; sourceTree = "<group>"; };
 		AAAABEE50F521A6C00461C96 /* fps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fps.h; path = include/fps.h; sourceTree = "<group>"; };
@@ -453,6 +453,7 @@
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
 		B52891A01139ABA80053A203 /* live_r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_r.png; sourceTree = "<group>"; };
 		B52891A11139ABA80053A203 /* live_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_w.png; sourceTree = "<group>"; };
+		B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "flowmixer-Info.plist"; sourceTree = "<group>"; };
 		B5BD93451133ED770063C358 /* encoder_example.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = encoder_example.c; sourceTree = SOURCE_ROOT; };
 		B5BD93461133ED770063C358 /* encoder_example.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encoder_example.h; sourceTree = SOURCE_ROOT; };
 		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = SOURCE_ROOT; };
@@ -636,13 +637,13 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */,
 				B52891A01139ABA80053A203 /* live_r.png */,
 				B52891A11139ABA80053A203 /* live_w.png */,
 				AADF79FF0FD7F84500167F57 /* ipernav.icns */,
 				AAEE689E0FC893BC007FB46B /* frei0r.png */,
 				AAEE68930FC8906B007FB46B /* webcam.png */,
-				AAA7B6530F40494400056C44 /* freej-Info.plist */,
-				AAA7B6F30F404B4C00056C44 /* freej.app */,
+				AAA7B6F30F404B4C00056C44 /* flowmixer.app */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
 			);
@@ -915,9 +916,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AAA7B6F20F404B4C00056C44 /* freej */ = {
+		AAA7B6F20F404B4C00056C44 /* flowmixer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "freej" */;
+			buildConfigurationList = AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "flowmixer" */;
 			buildPhases = (
 				AA4077DC105D471100401BB3 /* PreBuildScript */,
 				AAA7B6EF0F404B4C00056C44 /* Resources */,
@@ -929,9 +930,9 @@
 			);
 			dependencies = (
 			);
-			name = freej;
+			name = flowmixer;
 			productName = freej;
-			productReference = AAA7B6F30F404B4C00056C44 /* freej.app */;
+			productReference = AAA7B6F30F404B4C00056C44 /* flowmixer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -946,7 +947,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AAA7B6F20F404B4C00056C44 /* freej */,
+				AAA7B6F20F404B4C00056C44 /* flowmixer */,
 			);
 		};
 /* End PBXProject section */
@@ -964,6 +965,7 @@
 				AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */,
 				B52891A21139ABA80053A203 /* live_r.png in Resources */,
 				B52891A31139ABA80053A203 /* live_w.png in Resources */,
+				B56DCB85113AEF2900EF3F10 /* flowmixer-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1188,14 +1190,6 @@
 		AAA7B6F60F404B4D00056C44 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = "";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
-				INFOPLIST_FILE = "freej-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/opt/local/lib,
@@ -1207,7 +1201,7 @@
 					AppKit,
 				);
 				PREBINDING = NO;
-				PRODUCT_NAME = freej;
+				PRODUCT_NAME = flowmixer;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};
@@ -1318,12 +1312,12 @@
 					../src/include,
 					../lib/shout,
 				);
+				INFOPLIST_FILE = "flowmixer-Info.plist";
 				LD_OPENMP_FLAGS = "-fopenmp -headerpad_max_install_names";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					/opt/local/lib,
 				);
-				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
@@ -1331,8 +1325,6 @@
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
-				STRIP_INSTALLED_PRODUCT = NO;
-				STRIP_STYLE = debugging;
 				VALID_ARCHS = "i386 ppc";
 			};
 			name = Release;
@@ -1340,7 +1332,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "freej" */ = {
+		AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "flowmixer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AAA7B6F50F404B4D00056C44 /* Debug */,

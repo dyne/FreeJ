@@ -120,7 +120,7 @@
 #define PACKAGE_LOCALE_DIR "/usr/local/share/locale"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "FreeJ - vision mixer"
+#define PACKAGE_NAME "Flowmixer"
 
 /* Prefix */
 #define PACKAGE_PREFIX "/usr/local"
@@ -217,7 +217,7 @@
 
 #define WITH_FREI0R 1
 
-#define BUILD_NUMBER 14
+#define BUILD_NUMBER 23
 
 #define OSX_VERSION 0.10
 

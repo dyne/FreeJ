@@ -12,13 +12,13 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="2592"/>
-			<integer value="1576"/>
-			<integer value="1887"/>
-			<integer value="2212"/>
-			<integer value="57"/>
-			<integer value="3020"/>
 			<integer value="2737"/>
+			<integer value="379"/>
+			<integer value="2212"/>
+			<integer value="3020"/>
+			<integer value="57"/>
+			<integer value="1887"/>
+			<integer value="1576"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -50,7 +50,7 @@
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<object class="NSMenuItem" id="694149608">
 						<reference key="NSMenu" ref="649796088"/>
-						<string key="NSTitle">FreeJ</string>
+						<string key="NSTitle">Flowmixer</string>
 						<string key="NSKeyEquiv"/>
 						<int key="NSKeyEquivModMask">1048576</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -64,12 +64,12 @@
 						</object>
 						<string key="NSAction">submenuAction:</string>
 						<object class="NSMenu" key="NSSubmenu" id="110575045">
-							<string key="NSTitle">FreeJ</string>
+							<string key="NSTitle">Flowmixer</string>
 							<object class="NSMutableArray" key="NSMenuItems">
 								<bool key="EncodedWithXMLCoder">YES</bool>
 								<object class="NSMenuItem" id="238522557">
 									<reference key="NSMenu" ref="110575045"/>
-									<string key="NSTitle">About FreeJ</string>
+									<string key="NSTitle">About</string>
 									<string key="NSKeyEquiv"/>
 									<int key="NSMnemonicLoc">2147483647</int>
 									<reference key="NSOnImage" ref="388701497"/>
@@ -809,7 +809,7 @@
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{608, 30}, {645, 730}}</string>
 				<int key="NSWTFlags">611844096</int>
-				<string key="NSWindowTitle">Freej</string>
+				<string key="NSWindowTitle">Flowmixer</string>
 				<string key="NSWindowClass">NSWindow</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{1.79769e+308, 1.79769e+308}</string>
@@ -3603,7 +3603,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{196, 310}, {370, 200}}</string>
 				<int key="NSWTFlags">-469762048</int>
-				<string key="NSWindowTitle">FreeJ Preferences</string>
+				<string key="NSWindowTitle">Flowmixer Preferences</string>
 				<string key="NSWindowClass">PreferencesPanel</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{1.79769e+308, 1.79769e+308}</string>
@@ -9545,9 +9545,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{570, 609}, {370, 200}}</string>
+					<string>{{569, 609}, {370, 200}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{570, 609}, {370, 200}}</string>
+					<string>{{569, 609}, {370, 200}}</string>
 					<boolean value="NO"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -9619,7 +9619,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{0, 817}, {401, 20}}</string>
+					<string>{{0, 817}, {439, 20}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 					<string>{74, 862}</string>
