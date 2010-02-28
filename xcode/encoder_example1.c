@@ -86,38 +86,13 @@ int yuv_copy__422_to_420(void *b_2vuy, SInt32 b_2vuy_stride, size_t width, size_
 	
     return 1;
 }
-
-int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
-{
-    UInt8 *base = b_rgb;
-
-    UInt8 *y_base = dst->y;
-    UInt8 *cb_base = dst->u;
-    UInt8 *cr_base = dst->v;
-    size_t x, y;
-	
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-	    int yoff  =(x+dst->y_stride*y);
-	    int rgboff=b_rgb_stride*y + (x<<2); // x*4;
-
-	    register int R = base[rgboff+1];
-	    register int G = base[rgboff+2];
-	    register int B = base[rgboff+3];
-
-	   // TODO: clamp values to [0..255]
-	    y_base[yoff]   = (0.299 * R) + (0.587 * G) + (0.114 * B);
-	    if((x%2) ==0 && (y%2)==0) {
-  		// TODO: average 2x2 pixels  RGB.
-            	int uvoff =((x>>1)+dst->uv_stride*(y>>1));
-		cb_base[uvoff] = -(0.169 * R) - (0.331 * G) + (0.500 * B) + 128;
-		cr_base[uvoff] =  (0.500 * R) - (0.419 * G) - (0.081 * B) + 128;
-            }
-        }
-    }
-    return 1;
-}
 */
+
+debug_dump(const char *fn, uint8_t *data, size_t len) {
+    FILE *F = fopen(fn,"w");
+    fwrite(data,sizeof(uint8_t), len, F);
+    fclose(F); 
+}
 
 int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
 {
@@ -252,14 +227,17 @@ int fetch_and_process_video(CVPixelBufferRef theBuffer,ogg_page *videopage,
 		
 		CVPixelBufferLockBaseAddress(theBuffer, 0);
 		
+//		debug_dump("/tmp/test.rgb", CVPixelBufferGetBaseAddress(theBuffer), pxwidth*pxheight*4*sizeof(uint8_t));
+
 //		printf("going to yuv CONVERT %ix%i+%i+%i (%i)\n", pxwidth, pxheight,myGlob_ti.offset_x,myGlob_ti.offset_y, CVPixelBufferGetBytesPerRow(theBuffer)) ;
-						
+
 		// Transfer the source frame into glob->currentFrame, converting it from chunky YUV422 to planar YUV420.
 		int err = yuv_copy__argb_to_420(CVPixelBufferGetBaseAddress(theBuffer),
 									   CVPixelBufferGetBytesPerRow(theBuffer),
 									   pxwidth, pxheight,
 									   myGlob_ti.offset_x,myGlob_ti.offset_y,
 									   &myGlob_yuv);
+//		debug_dump("/tmp/test.yuv", myGlob_yuv.y, pxwidth*pxheight*sizeof(uint8_t)*3/2);
 		
 //		printf("yuv convert done\n") ;
 		
