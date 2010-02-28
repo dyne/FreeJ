@@ -584,7 +584,7 @@ Layer *Context::open(char *file, int w, int h) {
 
       }
     }
-    nlayer = Factory<Layer>::get_instance("CamLayer");
+    nlayer = Factory<Layer>::new_instance("CamLayer");
     if(!nlayer) {
       error("cannot open camera on %s",file_ptr);
       error("no implementation found for CamLayer in this FreeJ binary");
@@ -608,7 +608,7 @@ Layer *Context::open(char *file, int w, int h) {
       func("is a movie layer");
 
 #ifdef WITH_FFMPEG
-       nlayer = Factory<Layer>::get_instance("MovieLayer");
+       nlayer = Factory<Layer>::new_instance("MovieLayer");
        if(!nlayer->init()) {
  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
  	delete nlayer; return NULL;
