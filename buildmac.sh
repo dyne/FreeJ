@@ -1,15 +1,18 @@
 #!/bin/sh
-VERSION=0.10
-DMGFILE=/tmp/flowmixer-$VERSION.dmg
-echo $DMGFILE
-
-BUILD=build/Release/flowmixer.app
 
 cd xcode
 
 #xcodebuild clean && \
 xcodebuild \
 ||exit
+
+echo "--------------------------------------"
+
+BUILD=build/Release/flowmixer.app
+BUILD_NUMBER=`grep BUILD_NUMBER xcode/config.h | awk '{print $3}'`
+VERSION=0.10.$BUILD_NUMBER
+DMGFILE=/tmp/flowmixer-$VERSION.dmg
+echo $DMGFILE
 
 #roll a DMG
 TMPFILE=/tmp/freejtmp.dmg
