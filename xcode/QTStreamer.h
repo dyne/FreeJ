@@ -38,6 +38,7 @@
 }
 - (id)initWithScreen:(CVScreenView *)cvscreen;
 - (void)addImage:(CIImage *)image;
+- (void)addPixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (BOOL)startStream;
 - (void)stopStream;
 - (BOOL)isRunning;

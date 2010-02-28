@@ -67,6 +67,7 @@ class CVScreen;
 - (void)prepareOpenGL;
 - (void *)getSurface;
 - (CIImage *)exportSurface;
+- (CVPixelBufferRef)exportPixelBuffer;
 - (void)drawLayer:(Layer *)layer;
 - (void)setSizeWidth:(int)w Height:(int)h;
 - (bool)isOpaque;

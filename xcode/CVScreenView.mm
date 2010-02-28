@@ -263,6 +263,30 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [pool release];
 }
 
+- (CVPixelBufferRef)exportPixelBuffer
+{
+    void *surface = [self getSurface];
+    if (!surface) return nil;
+    CVPixelBufferRef pixelBufferOut;
+    CVReturn cvRet = CVPixelBufferCreateWithBytes (
+						   NULL,
+						   fjScreen->geo.w,
+						   fjScreen->geo.h,
+						   k32ARGBPixelFormat,
+						   surface,
+						   fjScreen->geo.w*4,
+						   NULL,
+						   NULL,
+						   NULL,
+						   &pixelBufferOut
+						   );
+    if (cvRet != noErr) {
+	// TODO - Error Messages
+    }
+    //CVPixelBufferRelease(pixelBufferOut);
+    return pixelBufferOut;
+}
+
 - (CIImage *)exportSurface
 {
     CIImage *exportedSurface = nil;

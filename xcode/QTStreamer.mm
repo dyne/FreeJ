@@ -116,8 +116,6 @@ extern "C" {
     return buffer;
 }
 
-
-//
 // addImage
 //
 // given an array a CIImage pointer, convert it to NSImage * 
@@ -168,6 +166,31 @@ bail:
   
 }
 
+//
+// addImage - alternative
+//
+- (void)addPixelBuffer:(CVPixelBufferRef)pixelBuffer
+{
+    if (!pixelBuffer) return;
+
+    if (firstTime==0 && iceConnected) {
+	firstTime=1;
+	int vidW = CVPixelBufferGetWidth(pixelBuffer);
+	int vidH = CVPixelBufferGetHeight(pixelBuffer);
+	int outQuality = 24;
+	int outFramerate = 12; 
+	int outBitrate = 20000;
+	encoder_example_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
+	firstTime=2;
+    }
+
+    if (firstTime==2 && iceConnected) {
+      int res = encoder_example_loop( pixelBuffer ) ;
+    }
+    CVPixelBufferRelease(pixelBuffer);
+}
+
+
 - (void) streamerThread:(id)arg
 {
     NSAutoreleasePool *pool;
@@ -175,7 +198,11 @@ bail:
     fps.init(2*12); // XXX 
     while ([self isRunning]) {
         pool = [[NSAutoreleasePool alloc] init];
+#if 0
         [self addImage:[screen exportSurface]];
+#else
+        [self addPixelBuffer:[screen exportPixelBuffer]];
+#endif
         fps.calc();
         fps.delay();
         [pool release];
