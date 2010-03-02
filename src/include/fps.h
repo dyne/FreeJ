@@ -35,6 +35,7 @@ class FPS {
   int set(int rate);
   void calc();
   void delay();
+  void select_sleep(long usec);
 
   float fps, fps_old;
   struct timespec wake_ts;  
