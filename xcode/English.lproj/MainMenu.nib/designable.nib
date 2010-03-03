@@ -12,13 +12,13 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="2737"/>
-			<integer value="379"/>
 			<integer value="2212"/>
-			<integer value="3020"/>
 			<integer value="57"/>
-			<integer value="1887"/>
 			<integer value="1576"/>
+			<integer value="2737"/>
+			<integer value="2878"/>
+			<integer value="1887"/>
+			<integer value="3020"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -5859,6 +5859,14 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					</object>
 					<int key="connectionID">3038</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">streamerButton</string>
+						<reference key="source" ref="575023888"/>
+						<reference key="destination" ref="412275430"/>
+					</object>
+					<int key="connectionID">3039</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -9779,7 +9787,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">3038</int>
+			<int key="maxID">3039</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -10138,6 +10146,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string>freej</string>
 							<string>layerList</string>
 							<string>showFps</string>
+							<string>streamerButton</string>
 							<string>streamerSettings</string>
 							<string>window</string>
 						</object>
@@ -10146,6 +10155,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string>CFreej</string>
 							<string>NSTableView</string>
 							<string>NSTextField</string>
+							<string>NSButton</string>
 							<string>NSTableView</string>
 							<string>NSWindow</string>
 						</object>

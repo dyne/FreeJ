@@ -65,7 +65,7 @@ int myOggfwd_process(ogg_page inputVideoPage) {
   return 0;
 }
 
-#define OGGERR(error) { fprintf(stderr, MNL "OGGFWD - Error - %s (%s)\n", error, shout_get_error(myShout)); return -1;}
+#define OGGERR(error,param) { fprintf(stderr, MNL "OGGFWD - Error - %s [%s] (%s)\n", error, param, shout_get_error(myShout)); return -1;}
 int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outIcePass, const char* outIceMount, 
 	           const char *description, const char *genre, const char *name, const char *url ) {
 	
@@ -75,10 +75,10 @@ int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outIcePass,
     printf(MNL "OGGFWD - Error - allocate failed.\n") ;
     return 0;
   }
-  if (shout_set_host(myShout, outIceIp) != SHOUTERR_SUCCESS) OGGERR("set host pb");
-  if (shout_set_port(myShout, port) != SHOUTERR_SUCCESS) OGGERR("invalid portnumber");
-  if (shout_set_password(myShout, outIcePass) != SHOUTERR_SUCCESS) OGGERR("invalid password");
-  if (shout_set_mount(myShout, outIceMount) != SHOUTERR_SUCCESS) OGGERR("invalid mountpoint");
+  if (shout_set_host(myShout, outIceIp) != SHOUTERR_SUCCESS) OGGERR("invalid hostname", outIceIp);
+  if (shout_set_port(myShout, port) != SHOUTERR_SUCCESS) OGGERR("invalid portnumber", "");
+  if (shout_set_password(myShout, outIcePass) != SHOUTERR_SUCCESS) OGGERR("invalid password", "");
+  if (shout_set_mount(myShout, outIceMount) != SHOUTERR_SUCCESS) OGGERR("invalid mountpoint", outIceMount);
 
   shout_set_format(myShout, SHOUT_FORMAT_OGG);
   shout_set_public(myShout, 1);
@@ -144,7 +144,7 @@ void encoder_init(int inW, int inH, int inFramerate, int in_video_r, int in_vide
   myGlob_ti.quality= in_video_q ;
   
   myGlob_ti.dropframes_p=0;
-//myGlob_ti.quick_p=1;
+  myGlob_ti.quick_p=1;
   myGlob_ti.keyframe_auto_p=1;
   myGlob_ti.keyframe_frequency=30;
   myGlob_ti.keyframe_frequency_force=myGlob_ti.keyframe_frequency;
@@ -166,7 +166,7 @@ void encoder_init(int inW, int inH, int inFramerate, int in_video_r, int in_vide
 
   if(ogg_stream_pageout(&myGlob_to, &myGlob_og)!=1){
     fprintf(stderr, "Internal Ogg library error.\n");
-    exit(1); // XXX
+    return; // XXX FATAL
   }
   
   /* send header to icecas t*/
@@ -192,7 +192,7 @@ void encoder_init(int inW, int inH, int inFramerate, int in_video_r, int in_vide
     int result = ogg_stream_flush(&myGlob_to, &myGlob_og);
     if(result<0){
       fprintf(stderr, MNL "THEORA - OGG stream flush error.\n");
-      exit(1);
+      return; // XXX FATAL.
     }
     if(result==0) break ;
     myOggfwd_process(myGlob_og) ;
@@ -250,28 +250,28 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
 #define _CG ((float)((bptr[(4*i)+2])&0xff))
 #define _CB ((float)((bptr[(4*i)+3])&0xff))
 	
-#define _CRX ((float)( ( ((bptr[(4*i)+1])&0xff) + ((bptr[(4*(i+1))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) )>>2))
-#define _CGX ((float)( ( ((bptr[(4*i)+2])&0xff) + ((bptr[(4*(i+1))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) )>>2))
-#define _CBX ((float)( ( ((bptr[(4*i)+3])&0xff) + ((bptr[(4*(i+1))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) )>>2))
+#define _XCR ((float)( ( ((bptr[(4*i)+1])&0xff) + ((bptr[(4*(i+1))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) + ((bptr[(4*(i+1+width))+1])&0xff) )>>2))
+#define _XCG ((float)( ( ((bptr[(4*i)+2])&0xff) + ((bptr[(4*(i+1))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) + ((bptr[(4*(i+1+width))+2])&0xff) )>>2))
+#define _XCB ((float)( ( ((bptr[(4*i)+3])&0xff) + ((bptr[(4*(i+1))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) + ((bptr[(4*(i+1+width))+3])&0xff) )>>2))
 	
 	uint8_t *bptr = (uint8_t*) b_rgb;
 	int i; int c=0;
 	for (i=0;i<width*height;i++) {
 		double Y  = (0.299 * _CR) + (0.587 * _CG) + (0.114 * _CB);
-		if (Y<0) dst->y[i]=0;
+		if (Y<1) dst->y[i]=0;
 		else if (Y>255) dst->y[i]=255;
 		else dst->y[i]=(uint8_t) floor(Y+.5);
 #if 1
 		if (i%2==0 && ((i/width)%2)==0 && i < (width-1)*height) { 
-            double V =  (0.500 * _CRX) - (0.419 * _CGX) - (0.081 * _CBX) + 128;
-            double U = -(0.169 * _CRX) - (0.331 * _CGX) + (0.500 * _CBX) + 128;
+            double V =  (0.500 * _XCR) - (0.419 * _XCG) - (0.081 * _XCB) + 128;
+            double U = -(0.169 * _XCR) - (0.331 * _XCG) + (0.500 * _XCB) + 128;
 			
-            if (U<0) dst->u[c]=0;
-            else if (U>255) dst->u[c]=255;
+            if (U<1) dst->u[c]=0;
+            else if (U>254) dst->u[c]=255;
             else dst->u[c]=(uint8_t) floor(U+.5);
 			
-            if (V<0) dst->v[c]=0;
-            else if (V>255) dst->v[c]=255;
+            if (V<1) dst->v[c]=0;
+            else if (V>254) dst->v[c]=255;
             else dst->v[c]=(uint8_t) floor(V+.5);
             c++;
 		}
@@ -299,12 +299,13 @@ int encoder_example_loop( CVPixelBufferRef theBuffer ) {
 	&myGlob_yuv);
 
     CVPixelBufferUnlockBaseAddress( theBuffer, 0 );
-    encoder_loop(myGlob_yuv.y);
+    return encoder_loop(myGlob_yuv.y)?0:1;
 }
 
 int encoder_example_end() {
     encoder_close();
     if (myGlob_yuv.y) free(myGlob_yuv.y);
+    return 0;
 }
 #endif
 

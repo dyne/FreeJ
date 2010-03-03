@@ -258,9 +258,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         return NO;
     uint64_t ts = CVGetCurrentHostTime();
     QTTime now = [qtMovie currentTime];
-
+#ifdef __BIG_ENDIAN__ // 10.5 || PPC ?! Q&D
+    now.timeValue+=(now.timeScale/layer->fps.fps);
+#else // NEW good implementation
     now.timeValue +=(((lastPTS?ts-lastPTS:0) * 600)/1000000000);
     now.timeScale = 600;
+#endif
 
     QTTime duration = [qtMovie duration];
     if (QTTimeCompare(now, duration) == NSOrderedAscending)

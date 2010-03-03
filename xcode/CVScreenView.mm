@@ -1,3 +1,4 @@
+#define MYCGL
 /*  FreeJ
  *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
  *
@@ -80,6 +81,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     outFrame = NULL;
     lastFrame = NULL;
     exportedFrame = NULL;
+    streamerStatus = NO;
     lock = [[NSRecursiveLock alloc] init];
     [lock retain];
     [self setNeedsDisplay:NO];
@@ -102,6 +104,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
     exportBuffer = CVPixelBufferGetBaseAddress(pixelBuffer);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+#ifdef MYCGL
     exportCGContextRef = CGBitmapContextCreate (NULL,
                                                 ctx->screen->geo.w,
                                                 ctx->screen->geo.h,
@@ -109,19 +112,42 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                 ctx->screen->geo.w*4,
                                                 colorSpace,
                                                 kCGImageAlphaPremultipliedLast);
-    
+#else
+    CGLPixelFormatObj pFormat;
+    GLint npix;
+    const int attrs[2] = { kCGLPFADoubleBuffer, NULL};
+    CGLError err = CGLChoosePixelFormat (
+        (CGLPixelFormatAttribute *)attrs,
+        &pFormat,
+        &npix
+    );
+    CGLCreateContext (pFormat, NULL, exportCGContextRef);
+#endif    
     if (exportCGContextRef == NULL)
         NSLog(@"Context not created!");
+
+#ifdef MYCGL
     exportContext = [[CIContext contextWithCGContext:exportCGContextRef 
                                              options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
+#else
+
+  //exportContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
+    exportContext = [[CIContext contextWithCGContext:exportCGContextRef 
+                                 //       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+                                          options:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                   (id)colorSpace,kCIContextOutputColorSpace,
+                                                   (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+#endif
     CGColorSpaceRelease( colorSpace );
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
     streamer = [[[QTStreamer alloc] initWithScreen:self] retain];
 
-    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", nil] retain];
-    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", @"theartcollider.net", @"8002", @"inoutsource", nil];
+    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", @"Framerate", @"Bitrate", @"Quality", nil] retain];
+    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", @"theartcollider.net", @"8002", @"inoutsource", @"15", @"128000", @"24", nil];
     streamerDict = [[NSMutableDictionary dictionaryWithObjects:objects forKeys:streamerKeys] retain];
+
+    [streamerDict setValue:[NSString stringWithFormat:@"MyTitle-%02d",rand()%99] forKey:[streamerKeys objectAtIndex:0]];
 
     NSArray *columnArray = [streamerSettings tableColumns];
     [[columnArray objectAtIndex:0] setIdentifier:[NSNumber numberWithInt:0]];
@@ -147,7 +173,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [lastFrame release];
     [lock release];
     [exportContext release];
+#ifdef MYCGL
     CGContextRelease( exportCGContextRef );
+#else
+    CGLContextRelease( exportCGContextRef );
+#endif
     // TODO: free streamer Keys&Array
     [super dealloc];
 }
@@ -351,7 +381,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (CVDisplayLinkGetCurrentTime(displayLink, &now) == kCVReturnSuccess) {
    //     if (exporter && [exporter isRunning])
      //       [exporter addImage:[self exportSurface] atTime:&now];
-        
+        if (streamer && streamerStatus != [streamer isRunning]) {
+		streamerStatus=[streamer isRunning];
+		[streamerButton setTitle:@"Start"];
+	}
         if (rateCalc) {
             [rateCalc tick:now.videoTime];
             NSString *toRelease = nil;
@@ -578,16 +611,28 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
      contextInfo:sender];        
 }
 
+#if 0 // TODO
+extern "C" {
+    void tac_tell(int del, char *me, char *src);
+}
+- (IBAction)announceStreamer:(id)sender
+{
+    ;// [streamer setParams: streamerDict];
+}
+#endif
+
 - (IBAction)toggleStreamer:(id)sender
 {
     if (streamer) {
         if ([streamer isRunning]) {
 	    [streamer stopStream];
             [sender setTitle:@"Start"];
+	    streamerStatus=[streamer isRunning];
 	} else {
 	    [streamer setParams: streamerDict];
 	    if ([streamer startStream])
 		    [sender setTitle:@"Stop"];
+	    streamerStatus=[streamer isRunning];
 	}
     }
 }
@@ -642,7 +687,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
     if (aTableView == streamerSettings && [aTableColumn identifier] == [NSNumber numberWithInt:1]) {
-	NSLog(@"changed: %d %@", rowIndex, anObject);
 	[streamerDict setValue:anObject forKey:[streamerKeys objectAtIndex:rowIndex]];
     }
 }

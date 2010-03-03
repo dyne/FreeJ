@@ -52,12 +52,14 @@ class CVScreen;
     void                *exportBuffer;
     QTExporter          *exporter;
     QTStreamer          *streamer;
+    bool                streamerStatus;
     bool                initialized;
 	IBOutlet CFreej		*freej;
 	IBOutlet NSTextField *showFps;
     IBOutlet NSTableView *layerList;
     IBOutlet NSWindow   *window;
     IBOutlet NSTableView *streamerSettings;
+    IBOutlet NSButton    *streamerButton;
     NSMutableArray *streamerKeys;
     NSMutableDictionary *streamerDict;
 }

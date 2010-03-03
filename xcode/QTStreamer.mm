@@ -140,9 +140,6 @@ extern "C" {
 		firstTime=1;
 		int vidW = lastImage.size.width;
 		int vidH = lastImage.size.height;
-		int outQuality = 24;
-		int outFramerate = 12; 
-		int outBitrate = 20000;
 		encoder_example_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
 		firstTime=2;
 	    }
@@ -151,6 +148,11 @@ extern "C" {
 	      CVPixelBufferRef givenBuff = [self fastImageFromNSImage:lastImage];
 	      int res = encoder_example_loop( givenBuff ) ;
 	      [givenBuff release];
+	      if (!res) { 
+		if (lastImage)
+		    [lastImage release];
+		[self stopStream];
+	      }
             }
         }
         if (lastImage)
@@ -171,22 +173,48 @@ bail:
 //
 - (void)addPixelBuffer:(CVPixelBufferRef)pixelBuffer
 {
+    timeval done, now_tv;
     if (!pixelBuffer) return;
 
     if (firstTime==0 && iceConnected) {
 	firstTime=1;
 	int vidW = CVPixelBufferGetWidth(pixelBuffer);
 	int vidH = CVPixelBufferGetHeight(pixelBuffer);
-	int outQuality = 24;
-	int outFramerate = 12; 
-	int outBitrate = 20000;
 	encoder_example_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
 	firstTime=2;
+        gettimeofday(&calc_tv, NULL);
+        gettimeofday(&prev_tv, NULL);
     }
 
-    if (firstTime==2 && iceConnected) {
-      int res = encoder_example_loop( pixelBuffer ) ;
+    gettimeofday(&now_tv, NULL);
+    timersub(&now_tv, &calc_tv, &done);
+    int rate = 1000000 / (outFramerate);
+    if ( (done.tv_sec > 0) || (done.tv_usec >= rate) ) {
+	if (firstTime==2 && iceConnected) {
+	  int res = encoder_example_loop( pixelBuffer ) ;
+	  if (!res) [self stopStream];
+
+#ifdef STREAMSTATS // statistics
+	  timeval stats;
+	  timersub(&now_tv, &prev_tv, &stats);
+	  double curr_fps = 1000000.0 /  stats.tv_usec;
+	  fps_sum = fps_sum - fps_data[fps_i] + curr_fps;
+	  fps_data[fps_i] = curr_fps;
+	  if (++fps_i >= MAX_FPS_STATISTICS) { fps_i = 0;
+	    printf("stream fps: %.1f\n", fps_sum/((double)MAX_FPS_STATISTICS));
+	  }
+#endif
+	}
+
+	calc_tv.tv_sec  = now_tv.tv_sec  - done.tv_sec;
+	calc_tv.tv_usec = now_tv.tv_usec - done.tv_usec + rate;
+
+#ifdef STREAMSTATS // statistics
+	prev_tv.tv_sec  = now_tv.tv_sec;
+	prev_tv.tv_usec = now_tv.tv_usec;
+#endif
     }
+
     CVPixelBufferRelease(pixelBuffer);
 }
 
@@ -195,7 +223,7 @@ bail:
 {
     NSAutoreleasePool *pool;
     FPS fps;
-    fps.init(2*12); // XXX 
+    fps.init(2*outFramerate); // XXX 
     while ([self isRunning]) {
         pool = [[NSAutoreleasePool alloc] init];
 #if 0
@@ -211,9 +239,24 @@ bail:
 
 - (BOOL)startStream
 {
-    if (active) return NO;
+    [lock lock];
+    if (active) { 
+      [lock unlock];
+      return NO;
+    }
     active =1;
     firstTime =0;
+    outFramerate = [[streamerProperties objectForKey:@"Framerate" ] intValue];
+    outBitrate =   [[streamerProperties objectForKey:@"Bitrate" ] intValue];
+    outQuality =   [[streamerProperties objectForKey:@"Quality" ] intValue];
+    if (outFramerate < 1  || outFramerate > 30)   outFramerate=12;
+    if (outQuality < 2    || outQuality > 32)     outQuality=16;
+    if (outBitrate < 8000 || outBitrate > 1048576) outBitrate=128000;
+
+#ifdef STREAMSTATS // statistics
+    for (int i=0; i<MAX_FPS_STATISTICS; i++) { fps_data[i] = 0; }
+    fps_sum=0; fps_i=0;
+#endif
 
     [NSThread detachNewThreadSelector:@selector(streamerThread:) 
                              toTarget:self withObject:nil];
@@ -222,6 +265,7 @@ bail:
 #else
     NSString * mount =  [NSString stringWithFormat:@"%@.ogg", [streamerProperties objectForKey:@"Title" ]];
 #endif
+
     NSString * author = [NSString stringWithFormat:@"http://wiki.citu.fr/users/%@", [streamerProperties objectForKey:@"Author" ]];
   //iceConnected = myOggfwd_init("theartcollider.net", 8002, "inoutsource", "/test.ogg", "desc", "tags", "title", "me");
     iceConnected = myOggfwd_init(
@@ -233,6 +277,8 @@ bail:
 	[[streamerProperties objectForKey:@"Tags" ] UTF8String],
 	[[streamerProperties objectForKey:@"Title" ] UTF8String],
 	[author UTF8String]);
+
+    [lock unlock];
     if (iceConnected)
 	return YES;
     active=0;
@@ -242,26 +288,31 @@ bail:
 - (void)stopStream
 {
     [lock lock];
-    if (!active) return;
-    myOggfwd_close() ;
-    encoder_example_end() ;
-    active=0;
+    if (!active) {
+      [lock unlock];
+      return;
+    }
     iceConnected = 0;
+    struct timespec delay = { 0, 1000000000/outFramerate };
+    nanosleep(&delay,NULL); // wait for current encoder.
+    encoder_example_end() ;
+    myOggfwd_close() ;
+    active=0;
     [lock unlock];
 }
 
 - (void)setParams:(NSDictionary *) params
 {
-    if (active) return;
+    [lock lock];
+    if (active) {
+      [lock unlock];
+      return;
+    }
     [streamerProperties release];
-#if 0
-    [[streamerProperties initWithDictionary:params copyItems:true] retain];
-#else
     streamerProperties= (NSMutableDictionary*) CFPropertyListCreateDeepCopy (
 	kCFAllocatorDefault, params, kCFPropertyListMutableContainersAndLeaves
     );
-#endif
-    NSLog(@"TXX: %@", [streamerProperties objectForKey:@"Title" ] );
+    [lock unlock];
 }
 
 - (BOOL)isRunning

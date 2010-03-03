@@ -20,6 +20,8 @@
 #ifndef __QTSTREAMER_H__
 #define __QTSTREAMER_H__
 
+#define STREAMSTATS // print fps statistics
+
 #import <Cocoa/Cocoa.h>
 #import <QTKit/QTKit.h>
 @class CVScreenView;
@@ -29,12 +31,22 @@
 @interface QTStreamer : NSObject {
     int active;
     int firstTime;
+    int outQuality;
+    int outBitrate;
+    int outFramerate;
     int iceConnected;
     CVScreenView *screen;
     NSMutableDictionary *streamerProperties;
     NSRecursiveLock *lock;
     CVTimeStamp  lastTimestamp;
     NSImage *lastImage;
+    timeval calc_tv, prev_tv;
+#ifdef STREAMSTATS // statistics
+#define MAX_FPS_STATISTICS (50)
+    double fps_sum;
+    double fps_data[MAX_FPS_STATISTICS];
+    int fps_i;
+#endif
 }
 - (id)initWithScreen:(CVScreenView *)cvscreen;
 - (void)addImage:(CIImage *)image;

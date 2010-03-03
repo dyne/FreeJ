@@ -141,7 +141,6 @@
 		AAD0A4CC0FDEC08100968886 /* libavcodec.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C00FDEC08100968886 /* libavcodec.dylib */; };
 		AAD0A4CD0FDEC08100968886 /* libavformat.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C10FDEC08100968886 /* libavformat.dylib */; };
 		AAD0A4CE0FDEC08100968886 /* libfftw3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C20FDEC08100968886 /* libfftw3.dylib */; };
-		AAD0A4CF0FDEC08100968886 /* libjs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C30FDEC08100968886 /* libjs.dylib */; };
 		AAD0A4D00FDEC08100968886 /* libogg.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C40FDEC08100968886 /* libogg.dylib */; };
 		AAD0A4D10FDEC08100968886 /* libSDL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C50FDEC08100968886 /* libSDL.dylib */; };
 		AAD0A4D20FDEC08100968886 /* libSDL_ttf.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */; };
@@ -164,7 +163,9 @@
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
 		B52891A21139ABA80053A203 /* live_r.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A01139ABA80053A203 /* live_r.png */; };
 		B52891A31139ABA80053A203 /* live_w.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A11139ABA80053A203 /* live_w.png */; };
+		B56D8F4E113BD3760092D922 /* libjs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B56D8F4D113BD3760092D922 /* libjs.dylib */; };
 		B56DCB85113AEF2900EF3F10 /* flowmixer-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */; };
+		B5792A63113E5B6A00CC49B0 /* tactell.c in Sources */ = {isa = PBXBuildFile; fileRef = B5792A62113E5B6A00CC49B0 /* tactell.c */; };
 		B5BD93471133ED770063C358 /* encoder_example.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93451133ED770063C358 /* encoder_example.c */; };
 		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
 		B5BD95551134C2000063C358 /* FFInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* FFInputController.mm */; };
@@ -428,7 +429,6 @@
 		AAD0A4C00FDEC08100968886 /* libavcodec.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.dylib; path = /opt/local/lib/libavcodec.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C10FDEC08100968886 /* libavformat.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavformat.dylib; path = /opt/local/lib/libavformat.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C20FDEC08100968886 /* libfftw3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfftw3.dylib; path = /opt/local/lib/libfftw3.dylib; sourceTree = "<absolute>"; };
-		AAD0A4C30FDEC08100968886 /* libjs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjs.dylib; path = /opt/local/lib/libjs.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C40FDEC08100968886 /* libogg.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libogg.dylib; path = /opt/local/lib/libogg.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C50FDEC08100968886 /* libSDL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL.dylib; path = /opt/local/lib/libSDL.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_ttf.dylib; path = /opt/local/lib/libSDL_ttf.dylib; sourceTree = "<absolute>"; };
@@ -453,7 +453,9 @@
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
 		B52891A01139ABA80053A203 /* live_r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_r.png; sourceTree = "<group>"; };
 		B52891A11139ABA80053A203 /* live_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_w.png; sourceTree = "<group>"; };
+		B56D8F4D113BD3760092D922 /* libjs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjs.dylib; path = /usr/local/lib/libjs.dylib; sourceTree = "<absolute>"; };
 		B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "flowmixer-Info.plist"; sourceTree = "<group>"; };
+		B5792A62113E5B6A00CC49B0 /* tactell.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tactell.c; sourceTree = SOURCE_ROOT; };
 		B5BD93451133ED770063C358 /* encoder_example.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = encoder_example.c; sourceTree = SOURCE_ROOT; };
 		B5BD93461133ED770063C358 /* encoder_example.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encoder_example.h; sourceTree = SOURCE_ROOT; };
 		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = SOURCE_ROOT; };
@@ -484,7 +486,6 @@
 				AAD0A4CC0FDEC08100968886 /* libavcodec.dylib in Frameworks */,
 				AAD0A4CD0FDEC08100968886 /* libavformat.dylib in Frameworks */,
 				AAD0A4CE0FDEC08100968886 /* libfftw3.dylib in Frameworks */,
-				AAD0A4CF0FDEC08100968886 /* libjs.dylib in Frameworks */,
 				AAD0A4D00FDEC08100968886 /* libogg.dylib in Frameworks */,
 				AAD0A4D10FDEC08100968886 /* libSDL.dylib in Frameworks */,
 				AAD0A4D20FDEC08100968886 /* libSDL_ttf.dylib in Frameworks */,
@@ -502,6 +503,7 @@
 				AAA7DA9A101A4F79009B32FD /* libsamplerate.dylib in Frameworks */,
 				AAD181D3104964FB0053F8A6 /* liblo.dylib in Frameworks */,
 				AAD181D5104965120053F8A6 /* libshout.dylib in Frameworks */,
+				B56D8F4E113BD3760092D922 /* libjs.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -569,6 +571,7 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B56D8F4D113BD3760092D922 /* libjs.dylib */,
 				AAD181D4104965120053F8A6 /* libshout.dylib */,
 				AAD181D2104964FB0053F8A6 /* liblo.dylib */,
 				AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */,
@@ -581,7 +584,6 @@
 				AAD0A4C00FDEC08100968886 /* libavcodec.dylib */,
 				AAD0A4C10FDEC08100968886 /* libavformat.dylib */,
 				AAD0A4C20FDEC08100968886 /* libfftw3.dylib */,
-				AAD0A4C30FDEC08100968886 /* libjs.dylib */,
 				AAD0A4C40FDEC08100968886 /* libogg.dylib */,
 				AAD0A4C50FDEC08100968886 /* libSDL.dylib */,
 				AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */,
@@ -662,6 +664,7 @@
 		AA3C44100F3EEBE0007C7E8B /* C++ */ = {
 			isa = PBXGroup;
 			children = (
+				B5792A62113E5B6A00CC49B0 /* tactell.c */,
 				B5BD95B4113581AD0063C358 /* ffdec.c */,
 				B5BD95B5113581AD0063C358 /* ffdec.h */,
 				B5BD95511134C2000063C358 /* FFInputController.h */,
@@ -1133,6 +1136,7 @@
 				B5BD95561134C2000063C358 /* FFInputView.mm in Sources */,
 				B5BD95B6113581AD0063C358 /* ffdec.c in Sources */,
 				B5BD96A711386CFC0063C358 /* FFInputPanel.mm in Sources */,
+				B5792A63113E5B6A00CC49B0 /* tactell.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1318,7 +1322,7 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
