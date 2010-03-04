@@ -57,7 +57,7 @@
     [super drawRect:theRect];
 }
 
-- (bool)isOpaque
+- (BOOL)isOpaque
 {
     return NO;
 }

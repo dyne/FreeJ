@@ -1,8 +1,51 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "xmalloc.h"
-#include "playlist.h"
+#include <curl/curl.h>
+
+
+#define USER_AGENT "theartcollider-agent/0.1.0"
+
+struct MemoryStruct {
+  char *data;
+  size_t size; //< bytes remaining (r), bytes accumulated (w)
+};
+
+static size_t
+WriteMemoryCallback(void *ptr, size_t size, size_t nmemb, void *data) {
+  size_t realsize = size * nmemb;
+  struct MemoryStruct *mem = (struct MemoryStruct *)data;
+
+  mem->data = (char *)realloc(mem->data, mem->size + realsize + 1);
+  if (mem->data) {
+    memcpy(&(mem->data[mem->size]), ptr, realsize);
+    mem->size += realsize;
+    mem->data[mem->size] = 0;
+  }
+  return realsize;
+}
+
+char *curl_get (const char *url) {
+  CURL *curl;
+  CURLcode res;
+  struct MemoryStruct chunk;
+  chunk.data=NULL;
+  chunk.size = 0;
+
+  curl = curl_easy_init();
+  if(!curl) return NULL;
+  curl_easy_setopt(curl, CURLOPT_URL, url);
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&chunk);
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
+  curl_easy_setopt(curl, CURLOPT_USERAGENT, USER_AGENT);
+  res = curl_easy_perform(curl);
+  if (res) return NULL;
+
+  curl_easy_cleanup(curl);
+  return (chunk.data);
+}
+
+
 
 
 /**
@@ -25,7 +68,7 @@ char *my_url_escape(const char *string) {
   alloc = strlen(string)+1;
   newlen = alloc;
 
-  ns = (char*) xmalloc(alloc);
+  ns = (char*) malloc(alloc);
 
   length = alloc-1;
   while(length--) {
@@ -51,7 +94,7 @@ char *my_url_escape(const char *string) {
       newlen += 2; /* this'll become a %XX */
       if(newlen > alloc) {
         alloc *= 2;
-        testing_ptr = (char*) xrealloc(ns, alloc);
+        testing_ptr = (char*) realloc(ns, alloc);
         ns = testing_ptr;
       }
       snprintf(&ns[strindex], 4, "%%%02X", in);
@@ -117,7 +160,7 @@ void tac_tell(int del, char *me, char *src){
     fprintf(stderr,"TAC-tell process is already active. skipped request\n");
     return;
   }
-  struct ttargs *args = xmalloc(sizeof(struct ttargs));
+  struct ttargs *args = malloc(sizeof(struct ttargs));
   args->del=del;
   args->me =me;
   args->src=src;

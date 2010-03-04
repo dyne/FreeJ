@@ -216,7 +216,7 @@
     [super mouseDown:theEvent];
 }
 
-- (bool)isOpaque
+- (BOOL)isOpaque
 {
     return YES;
 }

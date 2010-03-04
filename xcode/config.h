@@ -217,10 +217,16 @@
 
 #define WITH_FREI0R 1
 
-#define BUILD_NUMBER 37
+#define BUILD_NUMBER 44
 
 #define OSX_VERSION 0.10
 
 #define PACKAGE_URL "http://freej.dyne.org"
+
+#define ICECASTSERVER "theartcollider.org"
+
+#define ICECASTPASSWORD "inoutsource"
+
+#define ICECASTPORT "8002"
 
 #endif
