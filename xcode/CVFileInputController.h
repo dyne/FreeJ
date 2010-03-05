@@ -27,6 +27,10 @@
 #import  <QTKit/QTKit.h>
 #import  "CFreej.h";
 
+#ifdef __x86_64
+#define QTVisualContextRef void*
+#endif
+
 @interface CVFileInputController : CVLayerController {
     id                    delegate;
     QTMovie               *qtMovie; 

@@ -23,8 +23,9 @@
 // ObjC includes to use pixelBuffers
 #import <Carbon/Carbon.h>
 #import <QuickTime/QuickTime.h>
+#import <QuartzCore/QuartzCore.h>
 
-CVPixelBufferRef sourcePixelBuffer ;
+//CVPixelBufferRef sourcePixelBuffer ;
 #endif
 
 extern int want_quiet;

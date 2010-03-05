@@ -1286,6 +1286,7 @@
 			buildSettings = {
 				ARCHS = (
 					ppc,
+					x86_64,
 					i386,
 				);
 				GCC_ALTIVEC_EXTENSIONS = YES;
@@ -1334,7 +1335,7 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
@@ -1342,7 +1343,7 @@
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
-				VALID_ARCHS = "i386 ppc";
+				VALID_ARCHS = "x86_64 i386 ppc";
 			};
 			name = Release;
 		};

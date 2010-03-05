@@ -26,6 +26,10 @@
 
 #define DEFAULT_OUTPUT_FILE "/tmp/freej_export.mov"
 
+#ifdef __x86_64
+#define DataHandler ComponentInstance
+#endif
+
 @interface QTExporter : NSObject {
     NSString *outputFile;
     QTMovie *mMovie;

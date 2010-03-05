@@ -21,8 +21,10 @@
 #ifndef __CV_SCREENVIEW_H__
 #define __CV_SCREENVIEW_H__
 
+
 #import <CVScreen.h>
 #import <CVTexture.h>
+#import <Carbon/Carbon.h>
 
 class CVScreen;
 @class CFreej;

@@ -41,6 +41,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 @implementation CVFileInputController : CVLayerController
 
+#ifdef __x86_64
+
+- (BOOL)setQTMovie:(QTMovie *)movie {return NO;}
+- (void)setTime:(QTTime)inTime {}
+- (BOOL)togglePlay {return NO;}
+- (void)task {}
+#else 
+
 - (id)init
 {
     isPlaying = NO;
@@ -343,4 +351,5 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 //@synthesize qtMovie;
 
+#endif // no __x86_64
 @end

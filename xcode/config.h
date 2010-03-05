@@ -37,7 +37,11 @@
 #define CONFIG_OGGVORBIS_ENCODER 1
 
 /* define if host has 64 bit */
-/* #undef HAVE_64BIT */
+#ifdef __x86_64
+#define HAVE_64BIT 1
+#else
+#undef HAVE_64BIT
+#endif
 
 /* define if cpu supports Altivec instruction set */
 /* #undef HAVE_ALTIVEC */
@@ -71,13 +75,17 @@
 
 /* define if enabling MMX acceleration */
 #ifndef __ppc__
-#define HAVE_MMX 1
+#  define HAVE_MMX 1
 #endif
 
 /* Define to 1 if you have the `select' function. */
 #define HAVE_SELECT 1
 
 /* define if enabling SSE acceleration */
+#ifndef __ppc__
+#define HAVE_SSE
+#define HAVE_SSE2
+#endif
 /* #undef HAVE_SSE */
 
 /* define if enabling SSE2 acceleration */
@@ -217,7 +225,7 @@
 
 #define WITH_FREI0R 1
 
-#define BUILD_NUMBER 44
+#define BUILD_NUMBER 45
 
 #define OSX_VERSION 0.10
 
