@@ -21,7 +21,6 @@
 
 #ifdef OBJC
 // ObjC includes to use pixelBuffers
-#import <Carbon/Carbon.h>
 #import <QuickTime/QuickTime.h>
 #import <QuartzCore/QuartzCore.h>
 

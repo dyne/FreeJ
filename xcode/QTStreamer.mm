@@ -28,7 +28,6 @@
  */
 
 //#include "encoder_example.h"
-#import <Carbon/Carbon.h>
 #import <QuickTime/QuickTime.h>
 extern "C" {
         int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outPassword, const char* outIceMount,
