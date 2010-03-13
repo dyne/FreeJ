@@ -49,17 +49,15 @@ $smarty->assign("page_class",  "software org-mode");
 $smarty->assign("page_hgroup", "<h1>FreeJ</h1>");
 $smarty->assign("page_title",  "free vision mixer");
 
-$smarty->display("header.tpl");
+$smarty->display("_header.tpl");
 
-// floating sidebar
-echo("\n<div id=\"menu\">\n");
-showfile("toc.html");
+// sidebar
 $smarty->display("software/doctypes.tpl");
-echo("\n</div>");
+showfile("index-toc.html");
 
 // page content
-showfile("./body.html");
+showfile("index-body.html");
 
-$smarty->display("footer.tpl");
+$smarty->display("_footer.tpl");
 
 ?>
