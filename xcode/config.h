@@ -224,17 +224,21 @@
 #define THREADSAFE 1
 
 #define WITH_FREI0R 1
+//#undef WITH_FREI0R
 
-#define BUILD_NUMBER 45
+//#define WITH_FREEFRAME 1
+#undef WITH_FREEFRAME
+
+#define BUILD_NUMBER 52
 
 #define OSX_VERSION 0.10
 
 #define PACKAGE_URL "http://freej.dyne.org"
 
-#define ICECASTSERVER "theartcollider.org"
+#define ICECASTSERVER "av.theartcollider.org"
 
 #define ICECASTPASSWORD "inoutsource"
 
-#define ICECASTPORT "8002"
+#define ICECASTPORT "8000"
 
 #endif
