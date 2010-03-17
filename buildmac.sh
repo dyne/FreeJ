@@ -77,7 +77,7 @@ echo '
 	   set current view of container window to icon view
 	   set toolbar visible of container window to false
 	   set statusbar visible of container window to false
-	   set the bounds of container window to {400, 200, 800, 425}
+	   set the bounds of container window to {400, 200, 800, 440}
 	   set theViewOptions to the icon view options of container window
 	   set arrangement of theViewOptions to not arranged
 	   set icon size of theViewOptions to 64
@@ -88,7 +88,7 @@ echo '
 	   close
 	   open
 	   update without registering applications
-	   delay 3
+	   delay 5
 	   eject
      end tell
    end tell
