@@ -458,8 +458,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIImage     *renderedImage = nil;
     
+    [lock lock];
     if (newFrame) {       
-        [lock lock];
         inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
         newFrame = NO;
         if (doFilters) {    
@@ -488,11 +488,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         if (lastFrame)
             [lastFrame release];
         lastFrame = [texture retain];
-        [lock unlock];
     } else { 
         texture = [lastFrame retain];
     }
     [pool release];
+    [lock unlock];
     return texture;
 }
 
