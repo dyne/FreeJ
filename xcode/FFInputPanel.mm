@@ -145,6 +145,7 @@
         }
     }
     [streamList reloadData];
+    [str release];
 }
 
 @end
