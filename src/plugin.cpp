@@ -40,6 +40,13 @@ bool Plugin::open(const char *path) {
   getch *getstr = NULL;
   getint *getver = NULL;
 
+  dlerror(); //clear up previous errors 
+#if 0
+  if (!dlopen_preflight(path)) {
+    warning("plugin '%s' failed: %s", path, dlerror());
+    return false;
+  }
+#endif
   _handle = dlopen(path,RTLD_LAZY);
   if(!_handle) {
     warning("can't open plugin: %s",dlerror());
