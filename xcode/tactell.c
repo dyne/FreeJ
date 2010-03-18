@@ -132,8 +132,10 @@ void *tac_tell_thread(void *arg){
   mee=my_url_escape(a->me); if (!mee) { free(see); return(0);}
   snprintf(uri, BUFSIZ, "http://theartcollider.net/yp/tell/php?name=%s&srcurl=%s%s",mee, see, a->del?"&mode=del":"");
   free(see); free(mee);
-  fprintf(stderr,"TAC-TELL URL; %s\n", uri);
+  //fprintf(stderr,"TAC-TELL URL; %s\n", uri);
   d=curl_get(uri);
+  char *tmp; while (d && (tmp=strchr(d,'\n')))
+    *tmp='.';
   if (d) { fprintf(stderr, "TAC-TELL reply: '%s'\n",d); free(d); }
 #ifdef THREADED
   free(a);
