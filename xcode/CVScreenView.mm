@@ -88,7 +88,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [freej start];
     Context *ctx = (Context *)[freej getContext];
     fjScreen = (CVScreen *)ctx->screen;
-    
+
+    ctx->metadata = (void*) calloc(1,sizeof(FlowMixerMetaData));
+
     CVReturn err = CVPixelBufferCreate (
                                         NULL,
                                         fjScreen->geo.w,
@@ -141,7 +143,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 #endif
     CGColorSpaceRelease( colorSpace );
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
-    streamer = [[[QTStreamer alloc] initWithScreen:self] retain];
+    streamer = [[[QTStreamer alloc] initWithScreen:self meta:ctx->metadata] retain];
 
     streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", @"Framerate", @"Bitrate", @"Quality", nil] retain];
     NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", @ICECASTSERVER, @ICECASTPORT, @ICECASTPASSWORD, @"15", @"128000", @"24", nil];
@@ -161,6 +163,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)dealloc
 {
+    Context *ctx = (Context *)[freej getContext];
+    if(ctx->metadata) {
+        FlowMixerMetaData *m= (FlowMixerMetaData*)ctx->metadata;
+        if (m->streamurl1) free(m->streamurl1);
+        if (m->streamurl2) free(m->streamurl2);
+        if (m->streamdel1) free(m->streamdel1);
+        if (m->streamdel2) free(m->streamdel2);
+        free(ctx->metadata);
+    }
+
     CVPixelBufferUnlockBaseAddress(pixelBuffer, NULL);
     CVOpenGLTextureRelease(pixelBuffer);
     if (rateCalc)
@@ -610,16 +622,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
      didEndSelector:@selector(setExportFileDidEnd: returnCode: contextInfo:) 
      contextInfo:sender];        
 }
-
-#if 0 // TODO
-extern "C" {
-    void tac_tell(int del, char *me, char *src);
-}
-- (IBAction)announceStreamer:(id)sender
-{
-    ;// [streamer setParams: streamerDict];
-}
-#endif
 
 - (IBAction)toggleStreamer:(id)sender
 {
