@@ -17,6 +17,7 @@
  *
  */
 
+#import <CVScreenView.h>
 #import <FFInputController.h>
 #import <CFreej.h>
 #import <CIAlphaFade.h>
@@ -34,8 +35,8 @@ extern "C" {
 
 - (id)init
 {
-    static char *suffix0 = "/Contents/Resources/live_w.png";
-    static char *suffix1 = "/Contents/Resources/live_r.png";
+    static char *suffix0 = (char*)"/Contents/Resources/live_w.png";
+    static char *suffix1 = (char*)"/Contents/Resources/live_r.png";
     char iconFile[1024];
     ProcessSerialNumber psn;
     GetProcessForPID(getpid(), &psn);
@@ -44,11 +45,11 @@ extern "C" {
     FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix0)-1);
     strcat(iconFile, suffix0);
     icon0 = [[[NSImage alloc] initWithContentsOfURL:
-            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]] retain];
+            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile encoding:NSASCIIStringEncoding]]] retain];
     FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix1)-1);
     strcat(iconFile, suffix1);
     icon1 = [[[NSImage alloc] initWithContentsOfURL:
-            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]] retain];
+            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile encoding:NSASCIIStringEncoding]]] retain];
 
     ff = NULL;
     movie=NULL;
@@ -144,6 +145,7 @@ extern "C" {
         }
         if (timeout > 50) { 
 		NSLog(@"Stream disconnected.");
+        [self tactelldel:movie];
 		free(movie);
 		movie=NULL;
 #if 1
@@ -209,12 +211,52 @@ extern "C" {
 
 - (void)setStream:(NSString*)url
 {
-    if(movie) free(movie);
+    if(movie) { 
+        [self tactelldel:movie];
+        free(movie);
+    }
     movie = strdup((char *)[url UTF8String]);
     printf("setStream: %s\n",movie);
     timeout=1;
+    [self tactelladd:movie];
     [self reOpen];
 }
 
+// TODO: use Xcode-properties to get ID of current controller
+// addLayer knows our "name" ..
+
+- (void)tactelldel:(const char *)mv
+{
+    Context *ctx = (Context *)[freej getContext];
+    if(!ctx->metadata) return;
+
+    FlowMixerMetaData *m= (FlowMixerMetaData*)ctx->metadata;
+    if (m->streamurl1 && mv && !strcmp(m->streamurl1,mv)) {
+        if (m->streamdel1) free(m->streamurl1);
+        m->streamdel1=m->streamurl1;
+        m->timeout=0;
+        m->streamurl1=NULL;
+    }
+    if (m->streamurl2 && mv && !strcmp(m->streamurl2,mv)) {
+        if (m->streamdel2) free(m->streamurl2);
+        m->streamdel2=m->streamurl2;
+        m->timeout=0;
+        m->streamurl2=NULL;
+    }
+}
+
+- (void)tactelladd:(const char *)mv 
+{
+    Context *ctx = (Context *)[freej getContext];
+    if(!ctx->metadata) return;
+
+    FlowMixerMetaData *m= (FlowMixerMetaData*)ctx->metadata;
+    if (!m->streamurl1) m->streamurl1 = strdup(mv);
+    else if (!m->streamurl2) m->streamurl2 = strdup(mv);
+    else {
+     fprintf(stderr,"TAC-notification failed to schedule '%s'\n",mv);
+    }
+    m->timeout=0;
+}
 
 @end

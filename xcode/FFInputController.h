@@ -39,6 +39,9 @@
 
 - (void)setStream:(NSString*)url;
 - (void)reOpen;
+
+- (void)tactelladd:(const char *)movie;
+- (void)tactelldel:(const char *)movie;
 @end
 
 #endif
