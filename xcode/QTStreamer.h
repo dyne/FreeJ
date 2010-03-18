@@ -20,7 +20,7 @@
 #ifndef __QTSTREAMER_H__
 #define __QTSTREAMER_H__
 
-#define STREAMSTATS // print fps statistics
+//#define STREAMSTATS // print fps statistics
 
 #import <Cocoa/Cocoa.h>
 #import <QTKit/QTKit.h>
@@ -35,6 +35,7 @@
     int outBitrate;
     int outFramerate;
     int iceConnected;
+    void *metadata;
     CVScreenView *screen;
     NSMutableDictionary *streamerProperties;
     NSRecursiveLock *lock;
@@ -48,13 +49,14 @@
     int fps_i;
 #endif
 }
-- (id)initWithScreen:(CVScreenView *)cvscreen;
-- (void)addImage:(CIImage *)image;
+- (id)initWithScreen:(CVScreenView *)cvscreen meta:(void*)m;
+//- (void)addImage:(CIImage *)image;
 - (void)addPixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (BOOL)startStream;
 - (void)stopStream;
 - (BOOL)isRunning;
 - (void)setParams:(NSDictionary *) params;
+- (void)announceStreamer;
 @end
 
 #endif

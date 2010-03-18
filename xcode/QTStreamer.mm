@@ -40,11 +40,12 @@ extern "C" {
 
 @implementation QTStreamer
 
-- (id)initWithScreen:(CVScreenView *)cvscreen
+- (id)initWithScreen:(CVScreenView *)cvscreen meta:(void*)m
 {
     active = 0;
     firstTime =0;
     iceConnected =0;
+    metadata = m;
     screen = cvscreen;
     streamerProperties = [[NSDictionary dictionaryWithObjectsAndKeys:@"mp4v",
                            QTAddImageCodecType,
@@ -120,7 +121,7 @@ extern "C" {
 // given an array a CIImage pointer, convert it to NSImage * 
 // and add the resulting image to the movie as a new MPEG4 frame
 //
-
+#if 0
 - (void)addImage:(CIImage *)image
 {
     NSImage *nsImage = [[NSImage alloc] initWithSize:NSMakeSize([image extent].size.width, [image extent].size.height)];
@@ -166,7 +167,7 @@ bail:
 	return;
   
 }
-
+#endif
 //
 // addImage - alternative
 //
@@ -230,6 +231,7 @@ bail:
 #else
         [self addPixelBuffer:[screen exportPixelBuffer]];
 #endif
+	[self announceStreamer];
         fps.calc();
         fps.delay();
         [pool release];
@@ -318,5 +320,46 @@ bail:
 {
     return active?YES:NO;
 }
+
+
+#if 1 // TODO
+extern "C" {
+    void tac_tell(int del, char *me, char *src);
+}
+
+- (void)announceStreamer
+{
+    //if (![[streamerProperties objectForKey:@"Announce" ] intValue]) return;
+
+    FlowMixerMetaData *m= (FlowMixerMetaData*)metadata;
+    if (m->timeout-- >0) return;
+    m->timeout = outFramerate * 30;
+
+    NSString * mount = [streamerProperties objectForKey:@"Title"];
+
+   if (m->streamdel1) {
+     tac_tell(1, (char*) [mount UTF8String], m->streamdel1);
+     free(m->streamdel1); m->streamdel1=NULL;
+   }
+   if (m->streamdel2) {
+     tac_tell(1, (char*) [mount UTF8String], m->streamdel2);
+     free(m->streamdel2); m->streamdel2=NULL;
+   }
+   if (m->streamurl1) {
+     tac_tell(0, (char*) [mount UTF8String], m->streamurl1);
+   }
+   if (m->streamurl2) {
+     tac_tell(0, (char*) [mount UTF8String], m->streamurl2);
+   }
+
+   /* 
+    int i;
+    for (i=0; i<fjScreen->layers.length;i++) {
+        Layer *lay = fjScreen->layers.pick(i+1);
+    }
+    */
+}
+#endif
+
 
 @end
