@@ -49,17 +49,17 @@ Shouter::Shouter()
   
   /* setup defaults */
   // host("dyne.org");
-  host("localhost");
+  host((char*)"localhost");
   // ip("127.0.0.1");
   port(8000);
   // port(9000);
-  user("source");
-  pass("hackme");
-  mount("freej.ogg");
+  user((char*)"source");
+  pass((char*)"hackme");
+  mount((char*)"freej.ogg");
   login(SHOUT_PROTOCOL_HTTP); // defaults to icecast 2 login now
-  name("Streaming with FreeJ");
-  url(PACKAGE_URL);
-  desc("Free the veejay in you");
+  name((char*)"Streaming with FreeJ");
+  url((char*)PACKAGE_URL);
+  desc((char*)"Free the veejay in you");
   //  bps("24000");
   //  freq("22050");
   //  channels("1");
@@ -81,7 +81,7 @@ bool Shouter::start() {
   int res;
   char srv[64];
   apply_profile();
-  pass("hackme");
+  pass((char*)"hackme");
   switch(login()) {
   case SHOUT_PROTOCOL_HTTP: sprintf(srv,"icecast2"); break;
   case SHOUT_PROTOCOL_ICY: sprintf(srv,"shoutcast"); break;

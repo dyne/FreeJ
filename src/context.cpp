@@ -87,6 +87,8 @@ Context::Context() {
   js = NULL;
   main_javascript[0] = 0x0;
 
+  metadata = NULL;
+
   layers_description = (char*)
 " .  - ImageLayer for image files (png, jpeg etc.)\n"
 " .  - GeometryLayer for scripted vectorial primitives\n"

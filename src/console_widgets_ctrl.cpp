@@ -57,9 +57,9 @@ bool SlwTitle::refresh() {
   color = TITLE_COLOR+20;
   putnch(title, 0, 0, titlelen);
    /* this is RASTA SOFTWARE! */
-  color = 32;  putnch("RAS", titlelen, 0, 3);
-  color = 34;  putnch("TAS", titlelen+3, 0, 3);
-  color = 33;  putnch("OFT", titlelen+6, 0, 3);
+  color = 32;  putnch((char*)"RAS", titlelen, 0, 3);
+  color = 34;  putnch((char*)"TAS", titlelen+3, 0, 3);
+  color = 33;  putnch((char*)"OFT", titlelen+6, 0, 3);
   color = PLAIN_COLOR;
 
   return(true);
@@ -262,7 +262,7 @@ bool SlwSelector::refresh() {
       //      SLsmg_set_color(LAYERS_COLOR);
       //      SLsmg_write_string((char *)" -> ");
       color = LAYERS_COLOR;
-      putnch(" ->", layercol, 2, 3);
+      putnch((char*)" ->", layercol, 2, 3);
 
       if( l == layer && !filter) color+=20;
       if(l->fade | l->active) color+=10;      

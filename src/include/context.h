@@ -175,7 +175,8 @@ class Context {
   char *screens_description; ///< string describing available screen types
 
   Layer *open(char *file, int w = 0, int h = 0); ///< creates a layer from a filename, detecting its type
-  
+ 
+  void *metadata;  ///< additional meta-data for OSX FlowMixer.
 };
 
 #endif
