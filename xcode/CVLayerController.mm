@@ -629,7 +629,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (char *)name {
     if (layerView)
         return (char *)[[layerView toolTip] UTF8String];
-    return "CVLayer";
+    return (char*)"CVLayer";
 }
 
 @synthesize layer;
