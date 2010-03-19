@@ -134,9 +134,11 @@ void *tac_tell_thread(void *arg){
   free(see); free(mee);
   //fprintf(stderr,"TAC-TELL URL; %s\n", uri);
   d=curl_get(uri);
+#if 0
   char *tmp; while (d && (tmp=strchr(d,'\n')))
     *tmp='.';
   if (d) { fprintf(stderr, "TAC-TELL reply: '%s'\n",d); free(d); }
+#endif
 #ifdef THREADED
   free(a);
   thread_status_tt = 0;

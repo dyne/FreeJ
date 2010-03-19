@@ -148,11 +148,12 @@ extern "C" {
 	      CVPixelBufferRef givenBuff = [self fastImageFromNSImage:lastImage];
 	      int res = encoder_example_loop( givenBuff ) ;
 	      [givenBuff release];
-	      if (!res) { 
+	      if (res<0) { 
 		if (lastImage)
 		    [lastImage release];
 		[self stopStream];
-	      }
+	      } else 
+		sent_packages+=res;
             }
         }
         if (lastImage)
@@ -192,7 +193,8 @@ bail:
     if ( (done.tv_sec > 0) || (done.tv_usec >= rate) ) {
 	if (firstTime==2 && iceConnected) {
 	  int res = encoder_example_loop( pixelBuffer ) ;
-	  if (!res) [self stopStream];
+	  if (res<0) [self stopStream];
+	  else sent_packages+=res;
 
 #ifdef STREAMSTATS // statistics
 	  timeval stats;
@@ -201,7 +203,10 @@ bail:
 	  fps_sum = fps_sum - fps_data[fps_i] + curr_fps;
 	  fps_data[fps_i] = curr_fps;
 	  if (++fps_i >= MAX_FPS_STATISTICS) { fps_i = 0;
-	    printf("stream fps: %.1f\n", fps_sum/((double)MAX_FPS_STATISTICS));
+	    stream_fps = fps_sum/((double)MAX_FPS_STATISTICS);
+#ifdef PRINTSTREAMSTATS
+	    printf("stream fps: %.1f\n", stream_fps);
+#endif
 	  }
 #endif
 	}
@@ -256,7 +261,8 @@ bail:
 
 #ifdef STREAMSTATS // statistics
     for (int i=0; i<MAX_FPS_STATISTICS; i++) { fps_data[i] = 0; }
-    fps_sum=0; fps_i=0;
+    fps_sum=0.0; fps_i=0; stream_fps=0.0;
+    sent_packages=0;
 #endif
 
     [NSThread detachNewThreadSelector:@selector(streamerThread:) 
@@ -299,6 +305,8 @@ bail:
     encoder_example_end() ;
     myOggfwd_close() ;
     active=0;
+    stream_fps =0.0;
+    sent_packages=0;
     [lock unlock];
 }
 
@@ -316,6 +324,16 @@ bail:
     [lock unlock];
 }
 
+- (int)sentPkgs
+{
+    return sent_packages;
+}
+
+- (double)currentFPS
+{
+    return stream_fps;
+}
+
 - (BOOL)isRunning
 {
     return active?YES:NO;
@@ -329,7 +347,7 @@ extern "C" {
 
 - (void)announceStreamer
 {
-    //if (![[streamerProperties objectForKey:@"Announce" ] intValue]) return;
+    if (![[streamerProperties objectForKey:@"Announcements" ] intValue]) return;
 
     FlowMixerMetaData *m= (FlowMixerMetaData*)metadata;
     if (m->timeout-- >0) return;

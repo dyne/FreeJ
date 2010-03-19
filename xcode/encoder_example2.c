@@ -59,7 +59,7 @@ int myOggfwd_process(ogg_page inputVideoPage) {
     return -1;
   }
 
-  if(shout_queuelen(myShout) > 0) fprintf(stderr, MNL "OGGFWD - queue length: %d\n", shout_queuelen(myShout));
+  if(shout_queuelen(myShout) > 0) fprintf(stderr, MNL "OGGFWD - queue length: %lu\n", (unsigned long) shout_queuelen(myShout));
 
   shout_sync(myShout); // Sleep until the server will be ready for more data.
   return 0;
@@ -216,13 +216,16 @@ void encode_video(uint8_t *theBuffer, int eos) {
 
 
 int encoder_loop(uint8_t *imBuffRef) {
+  int pkg_sent =0;
   encode_video(imBuffRef, 0);
 
   while(ogg_stream_pageout(&myGlob_to, &myGlob_og)>0) {
     theora_granule_time(&myGlob_td, ogg_page_granulepos(&myGlob_og));
     if (myOggfwd_process(myGlob_og)<0) return -1;
+    pkg_sent++;
   }
-  return 0;
+  return pkg_sent;
+
 }
 
 void myOggfwd_close() {
@@ -299,7 +302,7 @@ int encoder_example_loop( CVPixelBufferRef theBuffer ) {
 	&myGlob_yuv);
 
     CVPixelBufferUnlockBaseAddress( theBuffer, 0 );
-    return encoder_loop(myGlob_yuv.y)?0:1;
+    return encoder_loop(myGlob_yuv.y);
 }
 
 int encoder_example_end() {

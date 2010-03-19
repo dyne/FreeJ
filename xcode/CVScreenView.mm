@@ -145,8 +145,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
     streamer = [[[QTStreamer alloc] initWithScreen:self meta:ctx->metadata] retain];
 
-    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", @"Framerate", @"Bitrate", @"Quality", nil] retain];
-    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", @ICECASTSERVER, @ICECASTPORT, @ICECASTPASSWORD, @"15", @"128000", @"24", nil];
+    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", @"Framerate", @"Bitrate", @"Quality", @"Announcements", nil] retain];
+    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", @ICECASTSERVER, @ICECASTPORT, @ICECASTPASSWORD, @"15", @"128000", @"24", @"1", nil];
     streamerDict = [[NSMutableDictionary dictionaryWithObjects:objects forKeys:streamerKeys] retain];
 
     [streamerDict setValue:[NSString stringWithFormat:@"MyTitle-%02d",rand()%99] forKey:[streamerKeys objectAtIndex:0]];
@@ -393,10 +393,23 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (CVDisplayLinkGetCurrentTime(displayLink, &now) == kCVReturnSuccess) {
    //     if (exporter && [exporter isRunning])
      //       [exporter addImage:[self exportSurface] atTime:&now];
+
         if (streamer && streamerStatus != [streamer isRunning]) {
 		streamerStatus=[streamer isRunning];
 		[streamerButton setTitle:@"Start"];
-	}
+        // TODO reset stream_fps info
+         NSString *tfps = [NSString stringWithString:@"FPS: -"];
+         NSString *tpkg = [NSString stringWithString:@"tx: -"];
+        [streamerFPS setStringValue:tfps];
+        [streamerPkg setStringValue:tpkg];
+	    }
+        if (streamer && [streamer isRunning]) {
+            NSString *tfps = [NSString stringWithFormat:@"FPS: %1f", [streamer currentFPS]];
+            NSString *tpkg = [NSString stringWithFormat:@"tx: %d", [streamer sentPkgs]];
+            [streamerFPS setStringValue:tfps];
+            [streamerPkg setStringValue:tpkg];
+        }
+
         if (rateCalc) {
             [rateCalc tick:now.videoTime];
             NSString *toRelease = nil;

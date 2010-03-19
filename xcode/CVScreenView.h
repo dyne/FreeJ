@@ -62,6 +62,8 @@ class CVScreen;
     IBOutlet NSWindow   *window;
     IBOutlet NSTableView *streamerSettings;
     IBOutlet NSButton    *streamerButton;
+    IBOutlet NSTextField *streamerFPS;
+    IBOutlet NSTextField *streamerPkg;
     NSMutableArray *streamerKeys;
     NSMutableDictionary *streamerDict;
 }

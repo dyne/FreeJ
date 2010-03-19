@@ -20,7 +20,8 @@
 #ifndef __QTSTREAMER_H__
 #define __QTSTREAMER_H__
 
-//#define STREAMSTATS // print fps statistics
+#define STREAMSTATS // print fps statistics
+//#define PRINTSTREAMSTATS // print fps statistics
 
 #import <Cocoa/Cocoa.h>
 #import <QTKit/QTKit.h>
@@ -42,8 +43,10 @@
     CVTimeStamp  lastTimestamp;
     NSImage *lastImage;
     timeval calc_tv, prev_tv;
+    int sent_packages;
 #ifdef STREAMSTATS // statistics
-#define MAX_FPS_STATISTICS (50)
+#define MAX_FPS_STATISTICS (30)
+    double stream_fps;
     double fps_sum;
     double fps_data[MAX_FPS_STATISTICS];
     int fps_i;
@@ -55,6 +58,8 @@
 - (BOOL)startStream;
 - (void)stopStream;
 - (BOOL)isRunning;
+- (double)currentFPS;
+- (int)sentPkgs;
 - (void)setParams:(NSDictionary *) params;
 - (void)announceStreamer;
 @end
