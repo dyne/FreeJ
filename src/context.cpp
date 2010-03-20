@@ -126,6 +126,7 @@ Context::Context() {
   Factory<ViewPort>::set_default_classtype("Screen", "sdl");
   Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
   Factory<Layer>::set_default_classtype("GeneratorLayer","ff_f0r");
+  Factory<Layer>::set_default_classtype("ImageLayer","sdl");
 #ifdef WITH_UNICAP
   Factory<Layer>::set_default_classtype("CamLayer", "unicap");
 #endif

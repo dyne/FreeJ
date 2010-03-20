@@ -32,6 +32,10 @@
 #include <config.h>
 
 #include <jsparser_data.h>
+#include <factory.h>
+
+// our objects are allowed to be created trough the factory engine
+FACTORY_REGISTER_INSTANTIATOR(Layer, ImageLayer, ImageLayer, sdl);
 
 ImageLayer::ImageLayer()
   :Layer() {

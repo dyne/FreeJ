@@ -49,6 +49,9 @@ class ImageLayer: public Layer {
 
 	void *black_image;
 
+   // allow to use Factory on this class
+  FACTORY_ALLOWED
+
 };
 
 #endif
