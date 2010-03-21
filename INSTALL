@@ -9,7 +9,7 @@ FreeJ installation instructions
  libpng-dev, libfreetype6-dev, libfontconfig-dev, libogg-dev, libvorbis-dev,
  libjpeg-dev, libslang2-dev, libtheora-dev, libavcodec-dev, libavformat-dev,
  libswscale-dev, libunicap2-dev, libbluetooth-dev, fftw3-dev, libjack-dev,
- libasound-dev, libhtml-template-perl, python-dev, swig
+ liblo0-dev, libasound-dev, libhtml-template-perl, python-dev, swig
 
 - A working GNU/Linux system with X or framebuffer video
 

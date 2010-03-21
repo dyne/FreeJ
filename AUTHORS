@@ -1,29 +1,35 @@
-Filippo "GodoG" Giunchedi <godog\\dyne.org>
+The FreeJ development team, in order of apparition:
+
+Filippo "GodoG" Giunchedi http://esaurito.net
  = Auto-tools, binary packaging, build daemon
  = Debian GNU/Linux package mantainer
 
 Pablo "Caedes" Martines <caedes\\sindominio.net>
- = Core developer: swig bindings, opengl, python
+ = Swig bindings, OpenGL, Python
  = Interoperability in 3D Worlds
 
-Luca "Shammash" Bigliardi <shammash\\dyne.org>
- = Core developer: closures, python, internals
+Luca "Shammash" Bigliardi http://artha.org
+ = Closures, Python, various fixes
  = Debian GNU/Linux package co-mantainer
 
-Andrea "Xant" Guzzo http://www.xant.org
- = Core developer: Cocoa GUI, factory, internals
+Robin Gareus http://gareus.org
+ = Audio handling, FFMpeg, various fixes
+ = OSX Flowmixer branch
+
+Andrea "Xant" Guzzo http://www.xant.net
+ = Cocoa GUI, Factory, various fixes
  = OSX port maintainer
 
 Christoph "Mr.Goil" Rudorff <goil\\dyne.org> 
- = midi, joystick controllers, scripts, profiling
+ = Midi, Joystick controllers, scripts, profiling
  = Big-Endian port, usability
 
-Silvano "Kysucix" Galliani - http://kysucix.nexlab.it
- = Core developer: encoding, streaming, javascript
+Silvano "Kysucix" Galliani - <kysucix\\dyne.org>
+ = Javascript interpreter, Video encoding
  = On hold since approx 2006
 
 Denis "Jaromil" Roio - http://rastasoft.org
- = Core developer: architecture, language, progress
+ = C++ OO Architecture, Language API
  = Project initiator and current mantainer
 
 
@@ -84,19 +90,16 @@ Fukuchi Kentarou http://effectv.sf.net
 
 
 
-*** DEVELOPMENT OF FREEJ HAS BEEN SUPPORTED BY ::
+*** DEVELOPMENT OF FREEJ SUPPORTED BY ::
 
 Digitale Pioniers - Kennisland.nl
  .... < http://www.digitalepioniers.nl >
 
-Nederlands Instituut voor Mediakunst - Montevideo/Time Based Arts
- .... < http://www.montevideo.nl >
+Nederlands Instituut voor Mediakunst
+ .... < http://www.nimk.nl >
 
 Netculture Lab Austria - osAlliance
  .... < http://www.netculture.at >     
-
-Digitale Pioneers
- .... < www.digitalepioniers.nl >
 
 *** DOCUMENTATION AND TESTING
 
@@ -105,8 +108,8 @@ Digitale Pioneers
  Robert de Geuss
  Piotr Sobolewski
  Alejo Duque
- Gabriele "asbesto molesto" Zaverio
-
+ Gabriele Zaverio
+ Vladimir Flores Garcia
 
 *** THANKS TO ::
 
@@ -119,7 +122,6 @@ Ljudmila Medialab ............. <http://www.ljudmila.org>
 LOA hacklab Milano ............ <http://ecn.org/loa>
 Servus.at ..................... <http://www.servus.at>
 Sonar Festival ................ <http://www.sonar.es>
-
 Roberto Paci Dalo' ............ <http://giardini.sm>
 Erich Berger .................. <http://randomseed.org>
 Isabella Bordoni .............. <http://ib-arts.dyne.org>
