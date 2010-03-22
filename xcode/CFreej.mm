@@ -62,9 +62,17 @@
                     NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
                     @synchronized (outputPanel)
                     {
+#if 0
+	/* NSTextView reference says on 'insertText':
+This method is the entry point for inserting text typed by the user and is generally not suitable for other purposes. Programmatic modification of the text is best done by operating on the text storage directly.
+        */
                         [outputPanel setEditable:YES];
                         [outputPanel insertText:msg];
                         [outputPanel setEditable:NO];
+#else
+			[[outputPanel textStorage] appendAttributedString:[[NSAttributedString alloc] initWithString:msg]];
+			[outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
+#endif
                     }
                     [msg release];
                 }
@@ -74,9 +82,14 @@
                     NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
                     @synchronized (outputPanel)
                     {
+#if 0
                         [outputPanel setEditable:YES];
                         [outputPanel insertText:msg];
                         [outputPanel setEditable:NO];
+#else
+			[[outputPanel textStorage] appendAttributedString:[[NSAttributedString alloc] initWithString:msg]];
+			[outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
+#endif
                     }
                     [msg release];
                 }
