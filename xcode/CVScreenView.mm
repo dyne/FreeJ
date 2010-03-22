@@ -643,6 +643,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	    [streamer stopStream];
             [sender setTitle:@"Start"];
 	    streamerStatus=[streamer isRunning];
+        NSString *tfps = [NSString stringWithString:@"FPS: -"];
+        NSString *tpkg = [NSString stringWithString:@"tx: -"];
+        [streamerFPS setStringValue:tfps];
+        [streamerPkg setStringValue:tpkg];
 	} else {
 	    [streamer setParams: streamerDict];
 	    if ([streamer startStream])
