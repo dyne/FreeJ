@@ -169,7 +169,7 @@
 		B5792A8E113EBAA200CC49B0 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792A8D113EBAA200CC49B0 /* libcurl.dylib */; };
 		B5792ABB113FCE9700CC49B0 /* libmp3lame.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792ABA113FCE9700CC49B0 /* libmp3lame.0.dylib */; };
 		B5792AC7113FD12800CC49B0 /* libjack.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792AC6113FD12800CC49B0 /* libjack.dylib */; };
-		B5BD93471133ED770063C358 /* encoder_example.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93451133ED770063C358 /* encoder_example.c */; };
+		B59354E311580B1700BF8C8E /* oggenc.c in Sources */ = {isa = PBXBuildFile; fileRef = B59354E111580B1700BF8C8E /* oggenc.c */; };
 		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
 		B5BD95551134C2000063C358 /* FFInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* FFInputController.mm */; };
 		B5BD95561134C2000063C358 /* FFInputView.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95541134C2000063C358 /* FFInputView.mm */; };
@@ -462,8 +462,8 @@
 		B5792A8D113EBAA200CC49B0 /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = /usr/lib/libcurl.dylib; sourceTree = "<absolute>"; };
 		B5792ABA113FCE9700CC49B0 /* libmp3lame.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmp3lame.0.dylib; path = /usr/local/lib/libmp3lame.0.dylib; sourceTree = "<absolute>"; };
 		B5792AC6113FD12800CC49B0 /* libjack.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjack.dylib; path = /usr/local/lib/libjack.dylib; sourceTree = "<absolute>"; };
-		B5BD93451133ED770063C358 /* encoder_example.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = encoder_example.c; sourceTree = SOURCE_ROOT; };
-		B5BD93461133ED770063C358 /* encoder_example.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = encoder_example.h; sourceTree = SOURCE_ROOT; };
+		B59354E111580B1700BF8C8E /* oggenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = oggenc.c; sourceTree = SOURCE_ROOT; };
+		B59354E211580B1700BF8C8E /* oggenc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oggenc.h; sourceTree = SOURCE_ROOT; };
 		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = SOURCE_ROOT; };
 		B5BD93491133ED890063C358 /* QTStreamer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTStreamer.mm; sourceTree = SOURCE_ROOT; };
 		B5BD95511134C2000063C358 /* FFInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputController.h; sourceTree = SOURCE_ROOT; };
@@ -676,6 +676,8 @@
 		AA3C44100F3EEBE0007C7E8B /* C++ */ = {
 			isa = PBXGroup;
 			children = (
+				B59354E111580B1700BF8C8E /* oggenc.c */,
+				B59354E211580B1700BF8C8E /* oggenc.h */,
 				B5792A62113E5B6A00CC49B0 /* tactell.c */,
 				B5BD95B4113581AD0063C358 /* ffdec.c */,
 				B5BD95B5113581AD0063C358 /* ffdec.h */,
@@ -799,8 +801,6 @@
 				AA8F9F720F510281006A9E2F /* soft_screen.h */,
 				AA3C44990F3EEBE0007C7E8B /* asm-linkage.h */,
 				AA3C449A0F3EEBE0007C7E8B /* audio_collector.h */,
-				B5BD93451133ED770063C358 /* encoder_example.c */,
-				B5BD93461133ED770063C358 /* encoder_example.h */,
 				AA3C449B0F3EEBE0007C7E8B /* audio_input.h */,
 				B5BD96A511386CFC0063C358 /* FFInputPanel.h */,
 				B5BD96A611386CFC0063C358 /* FFInputPanel.mm */,
@@ -1142,13 +1142,13 @@
 				AAB47C6910E8C19000B0E8D2 /* generator_layer_js.cpp in Sources */,
 				AAB47C8A10EAA15F00B0E8D2 /* geometry.cpp in Sources */,
 				AAB47CA010EB44AF00B0E8D2 /* CVTextLayerView.mm in Sources */,
-				B5BD93471133ED770063C358 /* encoder_example.c in Sources */,
 				B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */,
 				B5BD95551134C2000063C358 /* FFInputController.mm in Sources */,
 				B5BD95561134C2000063C358 /* FFInputView.mm in Sources */,
 				B5BD95B6113581AD0063C358 /* ffdec.c in Sources */,
 				B5BD96A711386CFC0063C358 /* FFInputPanel.mm in Sources */,
 				B5792A63113E5B6A00CC49B0 /* tactell.c in Sources */,
+				B59354E311580B1700BF8C8E /* oggenc.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
