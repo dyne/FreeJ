@@ -38,16 +38,20 @@
 
 /* define if host has 64 bit */
 #ifdef __x86_64
-#define HAVE_64BIT 1
+# define HAVE_64BIT 1
 #else
-#undef HAVE_64BIT
+# undef HAVE_64BIT
 #endif
 
+#ifdef __ppc__
+#define HAVE_ALTIVEC 1
+#define HAVE_ALTIVEC_H 1
+#else
 /* define if cpu supports Altivec instruction set */
-/* #undef HAVE_ALTIVEC */
-
+#undef HAVE_ALTIVEC
 /* define if cpu supports Altivec instruction set */
-/* #undef HAVE_ALTIVEC_H */
+#undef HAVE_ALTIVEC_H
+#endif
 
 /* define if compiling for Apple Darwin OSX */
 #define HAVE_DARWIN 1
@@ -224,12 +228,15 @@
 #define THREADSAFE 1
 
 #define WITH_FREI0R 1
-//#undef WITH_FREI0R
 
+/* Note: Freeframe causes problems w/ multiple architectures.
+   since there are not that many freeframe "generator" plugins
+   out there anyway, I choose to disable them..
+*/
 //#define WITH_FREEFRAME 1
 #undef WITH_FREEFRAME
 
-#define BUILD_NUMBER 53
+#define BUILD_NUMBER 56
 
 #define OSX_VERSION 0.10
 
