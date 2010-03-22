@@ -283,7 +283,7 @@ int decode_frame(void *ffp) {
   } while (!frameFinished);
 
   if(frameFinished) {
-    sws_scale(ff->pSWSCtx, ff->pFrame->data, ff->pFrame->linesize, 0, ff->pCodecCtx->height, ff->pFrameFMT->data, ff->pFrameFMT->linesize);
+    sws_scale(ff->pSWSCtx, (const uint8_t**) ff->pFrame->data, ff->pFrame->linesize, 0, ff->pCodecCtx->height, ff->pFrameFMT->data, ff->pFrameFMT->linesize);
   }
   return frameFinished;
 }

@@ -27,6 +27,8 @@
 //CVPixelBufferRef sourcePixelBuffer ;
 #endif
 
+#include "oggenc.h"
+
 extern int want_quiet;
 
 
@@ -283,14 +285,14 @@ int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t
     return 1;
 }
 
-void encoder_example_init(int inW, int inH, int inFramerate, int in_video_r, int in_video_q) {
+void theora_enc_init(int inW, int inH, int inFramerate, int in_video_r, int in_video_q) {
     encoder_init(inW, inH, inFramerate, in_video_r, in_video_q);
     myGlob_yuv.y= (uint8_t*) malloc(inW*inH*sizeof(uint8_t)*3/2);
     myGlob_yuv.u= myGlob_yuv.y + video_x*video_y;
     myGlob_yuv.v= myGlob_yuv.u + video_x*video_y/4;
 }
 
-int encoder_example_loop( CVPixelBufferRef theBuffer ) {
+int theora_enc_loop( CVPixelBufferRef theBuffer ) {
     size_t pxwidth = CVPixelBufferGetWidth(theBuffer) ;
     size_t pxheight = CVPixelBufferGetHeight(theBuffer) ;
     CVPixelBufferLockBaseAddress(theBuffer, 0);
@@ -305,7 +307,7 @@ int encoder_example_loop( CVPixelBufferRef theBuffer ) {
     return encoder_loop(myGlob_yuv.y);
 }
 
-int encoder_example_end() {
+int theora_enc_end() {
     encoder_close();
     if (myGlob_yuv.y) free(myGlob_yuv.y);
     return 0;

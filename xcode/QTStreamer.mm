@@ -27,15 +27,9 @@
  * -> debug,fix and then use freeJ's internal video-encoder & shouter
  */
 
-//#include "encoder_example.h"
 #import <QuickTime/QuickTime.h>
 extern "C" {
-        int myOggfwd_init( const char* outIceIp, int outIcePort, const char* outPassword, const char* outIceMount,
-                           const char *description, const char *genre, const char *name, const char *url );
-        void myOggfwd_close() ;
-        void encoder_example_init(int inW, int inH, int inFramerate, int in_video_r, int in_video_q) ;
-        int encoder_example_loop( CVPixelBufferRef imBuffRef ) ;
-        int encoder_example_end() ;
+#include "oggenc.h"
 };
 
 @implementation QTStreamer
@@ -140,13 +134,13 @@ extern "C" {
 		firstTime=1;
 		int vidW = lastImage.size.width;
 		int vidH = lastImage.size.height;
-		encoder_example_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
+		theora_enc_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
 		firstTime=2;
 	    }
 
 	    if (firstTime==2 && iceConnected) {
 	      CVPixelBufferRef givenBuff = [self fastImageFromNSImage:lastImage];
-	      int res = encoder_example_loop( givenBuff ) ;
+	      int res = theora_enc_loop( givenBuff ) ;
 	      [givenBuff release];
 	      if (res<0) { 
 		if (lastImage)
@@ -181,7 +175,7 @@ bail:
 	firstTime=1;
 	int vidW = CVPixelBufferGetWidth(pixelBuffer);
 	int vidH = CVPixelBufferGetHeight(pixelBuffer);
-	encoder_example_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
+	theora_enc_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
 	firstTime=2;
         gettimeofday(&calc_tv, NULL);
         gettimeofday(&prev_tv, NULL);
@@ -192,7 +186,7 @@ bail:
     int rate = 1000000 / (outFramerate);
     if ( (done.tv_sec > 0) || (done.tv_usec >= rate) ) {
 	if (firstTime==2 && iceConnected) {
-	  int res = encoder_example_loop( pixelBuffer ) ;
+	  int res = theora_enc_loop( pixelBuffer ) ;
 	  if (res<0) [self stopStream];
 	  else sent_packages+=res;
 
@@ -302,7 +296,7 @@ bail:
     iceConnected = 0;
     struct timespec delay = { 0, 1000000000/outFramerate };
     nanosleep(&delay,NULL); // wait for current encoder.
-    encoder_example_end() ;
+    theora_enc_end() ;
     myOggfwd_close() ;
     active=0;
     stream_fps =0.0;
