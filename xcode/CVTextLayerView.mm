@@ -22,7 +22,7 @@
      forKey:NSForegroundColorAttributeName
     ];
     [attributes
-     setObject:[[textView backgroundColor] colorWithAlphaComponent:0.0]
+     setObject:[[[textView backgroundColor] colorWithAlphaComponent:0.0] retain]
      forKey:NSBackgroundColorAttributeName
     ];
     return [super init];
@@ -30,19 +30,23 @@
 
 - (void)changeDocumentBackgroundColor:(id)sender
 {
-    [attributes setObject:[sender color] forKey:NSBackgroundColorAttributeName];
+    NSColor *oldColor = [attributes objectForKey:NSBackgroundColorAttributeName];
+    [attributes setObject:[[sender color]retain] forKey:NSBackgroundColorAttributeName];
+    [oldColor release];
 }
 
 - (void)changeAttributes:(id)sender
 {
     NSDictionary *oldAttributes = attributes;
-    attributes = (NSMutableDictionary *)[sender convertAttributes: oldAttributes];
+    attributes = (NSMutableDictionary *)[[sender convertAttributes: oldAttributes] retain];
+    [oldAttributes release];
 }
 
 - (void)changeFont:(id)sender {
     NSFont *oldFont = [attributes objectForKey:NSFontAttributeName];
-    NSFont *newFont = [sender convertFont:oldFont];
+    NSFont *newFont = [[sender convertFont:oldFont]retain];
     [attributes setObject:newFont forKey:NSFontAttributeName];
+    [oldFont release];
 
 }
 
@@ -57,7 +61,7 @@
 
 - (IBAction)startText:(id)sender
 {
-    NSString *text = [textView string];
+    NSString *text = [[textView string] retain];
     [(CVTextLayerController *)layerController setText:text withAttributes:attributes];
 }
 
