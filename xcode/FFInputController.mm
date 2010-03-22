@@ -53,6 +53,8 @@ extern "C" {
 
     ff = NULL;
     movie=NULL;
+    preview=0;
+	previewImage=NULL;
     timeout=1;
     currentFrame = nil;
 #if 0 
@@ -72,9 +74,17 @@ extern "C" {
     [bufDict release];
     [icon0 release];
     [icon1 release];
+	[self clearPreview];
     [super dealloc];
 }
 
+- (void)clearPreview
+{
+	if (preview && previewImage) {
+		[previewImage release];
+	}
+	preview=0;
+}
 
 - (CVTexture *)getTexture
 {
@@ -100,12 +110,12 @@ extern "C" {
     [lock lock];
     if (ff) {
 	//fprintf(stderr,"FFdec: DEBUG: close stream");
-        while ((get_pt_status(ff)&2)) { usleep(5000);}
 	close_and_free_ff(&ff);
         ff=NULL;
     }
 
     [layerView setPosterImage:icon1];
+	[self clearPreview];
 
     ffdec_thread(&ff, movie, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB); 
 
@@ -138,11 +148,12 @@ extern "C" {
     }
     if (!ff && movie) {
         if (timeout == 1) {
-	    //printf("FFDEC: TIMEOUT!\n");
-	    if (layerView) {
-		[layerView setPosterImage:icon1];
-	    }
-        }
+			//printf("FFDEC: TIMEOUT!\n");
+			if (layerView) {
+				[layerView setPosterImage:icon1];
+				[self clearPreview];
+			}
+		}
         if (timeout > 50) { 
 		NSLog(@"Stream disconnected.");
         [self tactelldel:movie];
@@ -150,7 +161,8 @@ extern "C" {
 		movie=NULL;
 #if 1
 	    if (layerView) {
-		[layerView setPosterImage:nil];
+			[layerView setPosterImage:nil];
+			[self clearPreview];
 	    }
 #endif
 #if 0
@@ -160,40 +172,73 @@ extern "C" {
         else if (timeout%8 == 0) [self reOpen];
 
         timeout++;
-	return kCVReturnError;
+		return kCVReturnError;
     }
 
     if (!movie) {
-	return kCVReturnError;
+		return kCVReturnError;
     }
 
     [lock lock];
     if (ff && (get_pt_status(ff)&3) ==1) {
-    if (timeout>0 && layerView) {
-	//printf("FFDEC: stream OK.\n");
-	[layerView setPosterImage:icon0];
-    }
-    timeout=0;
+		if (timeout>0 && layerView) {
+			[layerView setPosterImage:icon0];
+			[self clearPreview];
+		}
+		timeout=0;
 
         CGLLockContext(glContext);
         CGLSetCurrentContext(glContext);
 
-	CVPixelBufferLockBaseAddress(currentFrame, 0);
-	uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(currentFrame);
+		CVPixelBufferLockBaseAddress(currentFrame, 0);
+		uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(currentFrame);
 /*
 	printf("%dx%d -> %dx%d\n", get_scaled_width(ff), get_scaled_height(ff),
 				   ctx->screen->geo.w, ctx->screen->geo.h);
 */
-	if (get_scaled_width(ff) == ctx->screen->geo.w && get_scaled_height(ff) == get_scaled_height(ff))
-	    memcpy(buf, get_bufptr(ff), 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
-	    //memcpy(buf, get_bufptr(ff), 4 * get_scaled_width(ff)* get_scaled_height(ff) *sizeof(uint8_t));
-	else {
-	    printf("WARNING: scaled video and screen size mismatch!\n"); // TODO print only once..
-	}
-	CVPixelBufferUnlockBaseAddress(currentFrame, 0);
-        CGLUnlockContext(glContext);
+		if (get_scaled_width(ff) == ctx->screen->geo.w && get_scaled_height(ff) == get_scaled_height(ff)) {
+			uint8_t *ffbuf = get_bufptr(ff);
+			memcpy(buf, ffbuf, 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
 
-	newFrame = YES;
+			long blackness=(ctx->screen->geo.w * ctx->screen->geo.h);
+#if 1 // histogram
+			blackness=0;
+			if (!preview) {
+				int i;
+				for (i=0; i< 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t);i+=4) {
+					blackness+=((buf[i+1]>>2) || (buf[i+2]>>2) || (buf[i+3]>>2))?1:0;
+				}
+			}
+#endif
+			if (!preview && blackness >= (ctx->screen->geo.w * ctx->screen->geo.h)>>4) {
+				NSAutoreleasePool *pool;
+				pool = [[NSAutoreleasePool alloc] init];
+				NSBitmapImageRep *imr = [[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(unsigned char**)&buf 
+																  pixelsWide:ctx->screen->geo.w
+																  pixelsHigh:ctx->screen->geo.h
+																  bitsPerSample:8
+																  samplesPerPixel:4
+																  hasAlpha:YES
+																  isPlanar:NO
+																  colorSpaceName:NSCalibratedRGBColorSpace
+																  bitmapFormat:NSAlphaFirstBitmapFormat
+																  bytesPerRow:(4*ctx->screen->geo.w)
+																  bitsPerPixel:32] retain];
+				previewImage = [[[NSImage alloc] initWithSize:NSZeroSize] retain];
+				[previewImage addRepresentation:imr];
+				[layerView setPosterImage:previewImage];
+				preview=1;	
+				[imr release];
+				[pool release];
+			}
+		} else {
+			printf("WARNING: scaled video and screen size mismatch!\n"); 
+			[self reOpen];
+		}
+		CVPixelBufferUnlockBaseAddress(currentFrame, 0);
+			CGLUnlockContext(glContext);
+
+		newFrame = YES;
     }
 
     if (layer)
@@ -229,6 +274,7 @@ extern "C" {
 {
     Context *ctx = (Context *)[freej getContext];
     if(!ctx->metadata) return;
+	if (strncasecmp(mv,"http://",7)) return;
 
     FlowMixerMetaData *m= (FlowMixerMetaData*)ctx->metadata;
     if (m->streamurl1 && mv && !strcmp(m->streamurl1,mv)) {
@@ -249,6 +295,7 @@ extern "C" {
 {
     Context *ctx = (Context *)[freej getContext];
     if(!ctx->metadata) return;
+	if (strncasecmp(mv,"http://",7)) return;
 
     FlowMixerMetaData *m= (FlowMixerMetaData*)ctx->metadata;
     if (!m->streamurl1) m->streamurl1 = strdup(mv);

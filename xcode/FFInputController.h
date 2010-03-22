@@ -32,13 +32,16 @@
     void *ff;
     NSImage *icon0;
     NSImage *icon1;
+    NSImage *previewImage;
     NSDictionary *bufDict;
     char *movie;
     int timeout;
+    int preview;
 }
 
 - (void)setStream:(NSString*)url;
 - (void)reOpen;
+- (void)clearPreview;
 
 - (void)tactelladd:(const char *)movie;
 - (void)tactelldel:(const char *)movie;

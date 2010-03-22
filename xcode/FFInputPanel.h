@@ -33,6 +33,7 @@
 
 - (IBAction)btnLoad:(id)sender;
 - (IBAction)btnQuery:(id)sender;
+- (IBAction)btnFile:(id)sender;
 - (IBAction)btnCancel:(id)sender;
 - (IBAction) myDoubleClickAction:(id)sender;
 - (NSString*)getURL;

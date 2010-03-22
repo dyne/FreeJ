@@ -74,11 +74,52 @@
     return URL;
 }
 
+
+- (void)openFilePanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void  *)contextInfo
+{
+    if(returnCode == NSOKButton){
+        func("openFilePanel: OK");    
+    } else if(returnCode == NSCancelButton) {
+        func("openFilePanel: Cancel");
+        return;
+    } else {
+        error("openFilePanel: Error %3d",returnCode);
+        return;
+    } // end if     
+
+    NSString * tvarFilename = [panel filename];
+    func("openFile filename = %@",tvarFilename);
+    
+    if (tvarFilename) {
+	    [streamURL setStringValue:[NSString stringWithString:tvarFilename]];
+    }
+}
+
+
+- (IBAction)btnFile:(id)sender
+{
+    NSOpenPanel *fileSelectionPanel    = [NSOpenPanel openPanel];
+    NSArray *types = [NSArray arrayWithObjects:
+                      @"avi", @"mov", @"mpg", @"asf", @"jpg", 
+                      @"ogg", @"ogv", @"flv", @"wmv", @"mkv", 
+                      @"png", @"tif", @"bmp", @"gif", @"pdf", nil];
+    
+    [fileSelectionPanel 
+     beginSheetForDirectory:nil 
+     file:nil
+     types:types 
+     modalForWindow:[sender window]
+     modalDelegate:self 
+     didEndSelector:@selector(openFilePanelDidEnd: returnCode: contextInfo:) 
+     contextInfo:nil];    
+    [fileSelectionPanel setCanChooseFiles:YES];
+}
+
 - (IBAction)btnQuery:(id)sender
 {
    [streamUrls removeAllObjects];
     NSURLRequest *request =
-	[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://theartcollider.org/yp/feed?type=m3u"]];
+	[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://theartcollider.org/yp/feed?type=m3u"]]; // TODO: config
     [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
     [streamList reloadData];
 }
