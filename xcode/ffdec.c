@@ -118,17 +118,19 @@ int open_movie(void ** ffpx, char* movie_url) {
   if (! *ffp) *ffp   = (struct ffdec *) calloc(1,sizeof (struct ffdec));
   struct ffdec *ff   = (struct ffdec *) *ffp;
 
+  ff->pt_status=8;
   ff->videoStream=-1;
-  ff->pt_status=0;
   ff->fFirstTime=1;
   
   if(av_open_input_file(&ff->pFormatCtx, movie_url, NULL, 0, NULL)!=0) {
     fprintf( stderr, "Cannot open video file: '%s'\n", movie_url);
+    ff->pt_status=0;
     return -1;
   }
 
   if(av_find_stream_info(ff->pFormatCtx)<0) {
     fprintf( stderr, "Cannot find stream information in file %s\n", movie_url);
+    ff->pt_status=0;
     return -1;
   }
 
@@ -143,6 +145,7 @@ int open_movie(void ** ffpx, char* movie_url) {
 
   if(ff->videoStream==-1) {
     fprintf( stderr, "Cannot find a video stream in file %s\n", movie_url);
+    ff->pt_status=0;
     return -1;
   }
 
@@ -167,14 +170,17 @@ int open_movie(void ** ffpx, char* movie_url) {
   pCodec=avcodec_find_decoder(ff->pCodecCtx->codec_id);
   if(pCodec==NULL) {
     fprintf( stderr, "Cannot find a codec for %s\n", movie_url);
+    ff->pt_status=0;
     return -1;
   }
   if(avcodec_open(ff->pCodecCtx, pCodec)<0) {
     fprintf( stderr, "Cannot open the codec for file %s\n", movie_url);
+    ff->pt_status=0;
     return -1;
   }
   
   ff->pFrame=avcodec_alloc_frame();
+  ff->pt_status=0;
   return 0;
 }
 
@@ -302,6 +308,8 @@ void free_ff(void *ffpx) {
 void close_and_free_ff(void *ffpx) {
   struct ffdec **ffp = (struct ffdec **) ffpx;
   struct ffdec *ff   = (struct ffdec *) *ffp;
+  int timeout=250;
+  while (--timeout && ff->pt_status&10) usleep(20000);// do not free while thread is active
   close_movie(ff);
   free_moviebuffer(ff);
   free_ff(ffpx);
@@ -423,6 +431,8 @@ struct fftarg {
   int w,h,render_fmt;
 };
 
+void *ffdec_decode_thread(void *ffpx);
+
 void *ffdec_open_thread(void *arg) {
   struct fftarg *a = (struct fftarg*) arg;
   struct ffdec **ffp = (struct ffdec **) a->ffpx;
@@ -444,6 +454,10 @@ void *ffdec_open_thread(void *arg) {
     init_moviebuffer(ff, xw, xh, a->render_fmt);
 //  fprintf(stderr,"movie opened: %s!\n",a->movie_url);
     ff->pt_status|=1;
+#if 1
+    ff->pt_status |= 2;
+    ffdec_decode_thread(ffp);
+#endif
   }
   free(a);
   return(0);
