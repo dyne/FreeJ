@@ -76,7 +76,7 @@ void FPS::calc() {
 
   gettimeofday(&now_tv, NULL);
 
-  if(now_tv.tv_usec == start_tv.tv_usec) {
+  if(now_tv.tv_usec == start_tv.tv_usec && now_tv.tv_sec == start_tv.tv_sec) {
     // tight loop, take a minimum breath
     wake_ts.tv_sec  = 0;
     wake_ts.tv_nsec = 1000000; // set the delay
@@ -90,17 +90,20 @@ void FPS::calc() {
        || (done.tv_usec >= rate) ) {
 	 start_tv.tv_sec = now_tv.tv_sec;
 	 start_tv.tv_usec = now_tv.tv_usec;
+
+	 // FIXME: statistics here, too ?!
 	 return;
   }
 
   wake_ts.tv_sec  = 0;
   wake_ts.tv_nsec = (rate - done.tv_usec)*1000; // set the delay
+
+  // statistic only
   if (done.tv_usec)
       curr_fps = 1000000 /  done.tv_usec;
   else
       curr_fps = 0;
 
-  // statistic only
   fpsd.sum = fpsd.sum - fpsd.data[fpsd.i] + curr_fps;
   fpsd.data[fpsd.i] = curr_fps;
   if (++fpsd.i >= fpsd.n) fpsd.i = 0;
@@ -126,7 +129,7 @@ int FPS::set(int rate) {
   return fps_old;
 }
 
-
+#if 0 // use nanosleep (otherwise select_sleep)
 void FPS::delay() {
   struct timespec remaining = { 0, 0 };
 
@@ -148,4 +151,19 @@ void FPS::delay() {
   // update lo start time
   gettimeofday(&start_tv,NULL);
   
+}
+#else 
+
+void FPS::delay() {
+  select_sleep(wake_ts.tv_sec * 1000000 + wake_ts.tv_nsec/1000);
+}
+#endif
+
+void FPS::select_sleep (long usec) {
+       fd_set fd;
+       int max_fd=0;
+       struct timeval tv;
+       FD_ZERO(&fd);
+       tv.tv_sec = 0; tv.tv_usec = usec;
+       select(max_fd, &fd, NULL, NULL, &tv);
 }

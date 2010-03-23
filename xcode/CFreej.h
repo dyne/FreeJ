@@ -38,6 +38,7 @@ class CVScreen;
 	int stderr_pipe[2];
     CVScreen *screen;
 	NSRecursiveLock *lock;
+	NSLock *outputlock;
     IBOutlet NSPopUpButton *layerSelect;
 	IBOutlet NSTextField *scriptPath;
 	IBOutlet NSTextView *outputPanel;

@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
+ *  (c) Copyright 2010 Robin Gareus <robin@gareus.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -17,15 +17,34 @@
  *
  */
 
-#import <CVLayer.h>
-#import <GLString.h>
-#import <CVTextLayerView.h>
+#ifndef __FFINPUTCONTROLLER_H__
+#define __FFINPUTCONTROLLER_H__
 
-@interface CVTextLayerController : CVLayerController {
-    GLString *theString;
-    NSString *text;
-    bool needsNewFrame;
-    NSDictionary *stanStringAttrib;
+#include <CVLayer.h>
+#import <CVLayerController.h>
+
+#include <context.h>
+#include <CVFilterPanel.h>
+#import  "CFreej.h";
+
+@interface FFInputController : CVLayerController
+{
+    void *ff;
+    NSImage *icon0;
+    NSImage *icon1;
+    NSImage *previewImage;
+    NSDictionary *bufDict;
+    char *movie;
+    int timeout;
+    int preview;
 }
-- (IBAction)setText:(NSString *)theText withAttributes:(NSDictionary *)attributes;
+
+- (void)setStream:(NSString*)url;
+- (void)reOpen;
+- (void)clearPreview;
+
+- (void)tactelladd:(const char *)movie;
+- (void)tactelldel:(const char *)movie;
 @end
+
+#endif

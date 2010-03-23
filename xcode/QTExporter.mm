@@ -23,6 +23,23 @@
 
 @implementation QTExporter
 
+
+#ifdef __x86_64
+- (id)initWithScreen:(CVScreenView *)cvscreen { return [super init];}
+- (BOOL)setOutputFile:(NSString *)path {
+    fprintf(stderr, "Export not possible: Quicktime is only available on 32bit platforms.\n");
+    return NO;
+}
+- (void)addImage:(CIImage *)image {}
+- (BOOL)startExport {
+    fprintf(stderr, "Export not possible: Quicktime is only available on 32bit platforms.\n");
+    return NO;
+}
+- (void)stopExport {}
+- (BOOL)isRunning {return NO;}
+#else
+
+
 - (id)initWithScreen:(CVScreenView *)cvscreen
 {
     mDataHandlerRef = nil;
@@ -351,5 +368,5 @@ bail:
 {
     return mMovie?YES:NO;
 }
-
+#endif // no __x86_64
 @end

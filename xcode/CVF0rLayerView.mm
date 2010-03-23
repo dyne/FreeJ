@@ -24,7 +24,7 @@
 
 - (id)init
 {
-    static char *suffix = "/Contents/Resources/frei0r.png";
+    static char *suffix = (char*)"/Contents/Resources/frei0r.png";
     char iconFile[1024];
     ProcessSerialNumber psn;
     GetProcessForPID(getpid(), &psn);
@@ -33,7 +33,7 @@
     FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix)-1);
     strcat(iconFile, suffix);
     icon = [[NSImage alloc] initWithContentsOfURL:
-            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
+            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile encoding:NSASCIIStringEncoding]]];
     //posterImage = [[CIImage imageWithContentsOfURL:
     //                [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]] retain];    
     return [super init];
@@ -45,7 +45,7 @@
     Context *ctx = [freej getContext];
     Filter *gen = ctx->generators.begin();
     while (gen) {
-        [selectButton addItemWithTitle:[NSString stringWithCString:gen->name]];
+        [selectButton addItemWithTitle:[NSString stringWithCString:gen->name encoding:NSASCIIStringEncoding]];
         gen = (Filter *)gen->next;
     }
 }
@@ -57,7 +57,7 @@
     [super drawRect:theRect];
 }
 
-- (bool)isOpaque
+- (BOOL)isOpaque
 {
     return NO;
 }

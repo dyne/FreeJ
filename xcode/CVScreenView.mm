@@ -1,3 +1,4 @@
+#define MYCGL
 /*  FreeJ
  *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
  *
@@ -80,13 +81,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     outFrame = NULL;
     lastFrame = NULL;
     exportedFrame = NULL;
+    streamerStatus = NO;
     lock = [[NSRecursiveLock alloc] init];
     [lock retain];
     [self setNeedsDisplay:NO];
     [freej start];
     Context *ctx = (Context *)[freej getContext];
     fjScreen = (CVScreen *)ctx->screen;
-    
+
+    ctx->metadata = (void*) calloc(1,sizeof(FlowMixerMetaData));
+
     CVReturn err = CVPixelBufferCreate (
                                         NULL,
                                         fjScreen->geo.w,
@@ -102,6 +106,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
     exportBuffer = CVPixelBufferGetBaseAddress(pixelBuffer);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+#ifdef MYCGL
     exportCGContextRef = CGBitmapContextCreate (NULL,
                                                 ctx->screen->geo.w,
                                                 ctx->screen->geo.h,
@@ -109,19 +114,65 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                 ctx->screen->geo.w*4,
                                                 colorSpace,
                                                 kCGImageAlphaPremultipliedLast);
-    
+#else
+    CGLPixelFormatObj pFormat;
+    GLint npix;
+    const int attrs[2] = { kCGLPFADoubleBuffer, NULL};
+    CGLError err = CGLChoosePixelFormat (
+        (CGLPixelFormatAttribute *)attrs,
+        &pFormat,
+        &npix
+    );
+    CGLCreateContext (pFormat, NULL, exportCGContextRef);
+#endif    
     if (exportCGContextRef == NULL)
         NSLog(@"Context not created!");
+
+#ifdef MYCGL
     exportContext = [[CIContext contextWithCGContext:exportCGContextRef 
                                              options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
+#else
+
+  //exportContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
+    exportContext = [[CIContext contextWithCGContext:exportCGContextRef 
+                                 //       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+                                          options:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                   (id)colorSpace,kCIContextOutputColorSpace,
+                                                   (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+#endif
     CGColorSpaceRelease( colorSpace );
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
+    streamer = [[[QTStreamer alloc] initWithScreen:self meta:ctx->metadata] retain];
+
+    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", @"Framerate", @"Bitrate", @"Quality", @"Announcements", nil] retain];
+    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", @ICECASTSERVER, @ICECASTPORT, @ICECASTPASSWORD, @"15", @"128000", @"24", @"1", nil];
+    streamerDict = [[NSMutableDictionary dictionaryWithObjects:objects forKeys:streamerKeys] retain];
+
+    [streamerDict setValue:[NSString stringWithFormat:@"MyTitle-%02d",rand()%99] forKey:[streamerKeys objectAtIndex:0]];
+
+    NSArray *columnArray = [streamerSettings tableColumns];
+    [[columnArray objectAtIndex:0] setIdentifier:[NSNumber numberWithInt:0]];
+    [[columnArray objectAtIndex:1] setIdentifier:[NSNumber numberWithInt:1]];
+
+    [streamerSettings setDataSource:self];
+    [streamerSettings reloadData];
+
     return self;
 }
 
 - (void)dealloc
 {
+    Context *ctx = (Context *)[freej getContext];
+    if(ctx->metadata) {
+        FlowMixerMetaData *m= (FlowMixerMetaData*)ctx->metadata;
+        if (m->streamurl1) free(m->streamurl1);
+        if (m->streamurl2) free(m->streamurl2);
+        if (m->streamdel1) free(m->streamdel1);
+        if (m->streamdel2) free(m->streamdel2);
+        free(ctx->metadata);
+    }
+
     CVPixelBufferUnlockBaseAddress(pixelBuffer, NULL);
     CVOpenGLTextureRelease(pixelBuffer);
     if (rateCalc)
@@ -134,7 +185,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [lastFrame release];
     [lock release];
     [exportContext release];
+#ifdef MYCGL
     CGContextRelease( exportCGContextRef );
+#else
+    CGLContextRelease( exportCGContextRef );
+#endif
+    // TODO: free streamer Keys&Array
     [super dealloc];
 }
 
@@ -249,6 +305,30 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [pool release];
 }
 
+- (CVPixelBufferRef)exportPixelBuffer
+{
+    void *surface = [self getSurface];
+    if (!surface) return nil;
+    CVPixelBufferRef pixelBufferOut;
+    CVReturn cvRet = CVPixelBufferCreateWithBytes (
+						   NULL,
+						   fjScreen->geo.w,
+						   fjScreen->geo.h,
+						   k32ARGBPixelFormat,
+						   surface,
+						   fjScreen->geo.w*4,
+						   NULL,
+						   NULL,
+						   NULL,
+						   &pixelBufferOut
+						   );
+    if (cvRet != noErr) {
+	// TODO - Error Messages
+    }
+    //CVPixelBufferRelease(pixelBufferOut);
+    return pixelBufferOut;
+}
+
 - (CIImage *)exportSurface
 {
     CIImage *exportedSurface = nil;
@@ -313,7 +393,23 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (CVDisplayLinkGetCurrentTime(displayLink, &now) == kCVReturnSuccess) {
    //     if (exporter && [exporter isRunning])
      //       [exporter addImage:[self exportSurface] atTime:&now];
-        
+
+        if (streamer && streamerStatus != [streamer isRunning]) {
+		streamerStatus=[streamer isRunning];
+		[streamerButton setTitle:@"Start"];
+        // TODO reset stream_fps info
+         NSString *tfps = [NSString stringWithString:@"FPS: -"];
+         NSString *tpkg = [NSString stringWithString:@"tx: -"];
+        [streamerFPS setStringValue:tfps];
+        [streamerPkg setStringValue:tpkg];
+	    }
+        if (streamer && [streamer isRunning]) {
+            NSString *tfps = [NSString stringWithFormat:@"FPS: %1f", [streamer currentFPS]];
+            NSString *tpkg = [NSString stringWithFormat:@"tx: %d", [streamer sentPkgs]];
+            [streamerFPS setStringValue:tfps];
+            [streamerPkg setStringValue:tpkg];
+        }
+
         if (rateCalc) {
             [rateCalc tick:now.videoTime];
             NSString *toRelease = nil;
@@ -540,6 +636,26 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
      contextInfo:sender];        
 }
 
+- (IBAction)toggleStreamer:(id)sender
+{
+    if (streamer) {
+        if ([streamer isRunning]) {
+	    [streamer stopStream];
+            [sender setTitle:@"Start"];
+	    streamerStatus=[streamer isRunning];
+        NSString *tfps = [NSString stringWithString:@"FPS: -"];
+        NSString *tpkg = [NSString stringWithString:@"tx: -"];
+        [streamerFPS setStringValue:tfps];
+        [streamerPkg setStringValue:tpkg];
+	} else {
+	    [streamer setParams: streamerDict];
+	    if ([streamer startStream])
+		    [sender setTitle:@"Stop"];
+	    streamerStatus=[streamer isRunning];
+	}
+    }
+}
+
 - (bool)isOpaque
 {
     return YES;
@@ -560,24 +676,50 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
-    return fjScreen->layers.length;
+    if (aTableView == layerList) {
+      return fjScreen->layers.length;
+    } 
+    if (aTableView == streamerSettings) {
+      return [streamerDict count];
+    }
+    return 0;
 }
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-    Layer *lay = fjScreen->layers.pick(rowIndex+1);
-    if (lay)
-        return [NSString stringWithUTF8String:lay->name];
+    if (aTableView == layerList) {
+	Layer *lay = fjScreen->layers.pick(rowIndex+1);
+	if (lay)
+	    return [NSString stringWithUTF8String:lay->name];
+    }
+    if (aTableView == streamerSettings) {
+      //if ([[pTableColumn identifier] isEqualToString:@"Col_ID3"]) // XX
+        if ([aTableColumn identifier] == [NSNumber numberWithInt:0]) {
+	    return [NSString stringWithString:[streamerKeys objectAtIndex:rowIndex]];
+        } else {
+	    return [NSString stringWithString:[streamerDict objectForKey:[streamerKeys objectAtIndex:rowIndex]]];
+        }
+    }
     return nil;
+}
+
+- (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
+{
+    if (aTableView == streamerSettings && [aTableColumn identifier] == [NSNumber numberWithInt:1]) {
+	[streamerDict setValue:anObject forKey:[streamerKeys objectAtIndex:rowIndex]];
+    }
 }
 
 - (NSArray *)tableView:(NSTableView *)aTableView namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination forDraggedRowsWithIndexes:(NSIndexSet *)indexSet
 {
+    if (aTableView != layerList) return nil;
     return [NSArray arrayWithObjects:@"CVLayer", @"CVLayerIndex", nil];
 }
 
 - (BOOL)tableView:(NSTableView *)aTableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
 {
+    if (aTableView != layerList) return NO;
+
     NSUInteger row = [rowIndexes firstIndex];
     Layer *lay = fjScreen->layers.pick(row+1);
     if (lay) {
@@ -603,6 +745,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (BOOL)tableView:(NSTableView *)aTableView acceptDrop:(id < NSDraggingInfo >)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation
 {
+    if (aTableView != layerList) return NO;
+
     Layer *lay = NULL;
     NSUInteger srcRow;
     

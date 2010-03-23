@@ -172,7 +172,7 @@ int Plugger::refresh(Context *env) {
 	  }
 	}
 #endif
-
+#ifdef WITH_FREEFRAME
 	{
 	  Freeframe *fr = new Freeframe();
 	  if( ! fr->open(temp) ) {
@@ -200,6 +200,7 @@ int Plugger::refresh(Context *env) {
 	    }
 	  }
 	}
+#endif
 
 	if(found<0) break;
       }

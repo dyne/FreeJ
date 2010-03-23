@@ -24,7 +24,7 @@
 
 - (id)init
 {
-    static char *suffix = "/Contents/Resources/webcam.png";
+    static char *suffix = (char*)"/Contents/Resources/webcam.png";
     char iconFile[1024];
     ProcessSerialNumber psn;
     GetProcessForPID(getpid(), &psn);
@@ -33,7 +33,7 @@
     FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix)-1);
     strcat(iconFile, suffix);
     icon = [[NSImage alloc] initWithContentsOfURL:
-            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]];
+            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile encoding:NSASCIIStringEncoding]]];
     //posterImage = [[CIImage imageWithContentsOfURL:
     //                [NSURL fileURLWithPath:[NSString stringWithCString:iconFile]]] retain];    
     return [super init];

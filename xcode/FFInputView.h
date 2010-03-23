@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
+ *  (c) Copyright 2010 Robin Gareus <robin@gareus.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -17,15 +17,18 @@
  *
  */
 
-#import <CVLayer.h>
-#import <GLString.h>
-#import <CVTextLayerView.h>
+#ifndef __FFINPUTVIEW_H__
+#define __FFINPUTVIEW_H__
 
-@interface CVTextLayerController : CVLayerController {
-    GLString *theString;
-    NSString *text;
-    bool needsNewFrame;
-    NSDictionary *stanStringAttrib;
+#import <CVLayerView.h>
+#import <FFInputController.h>
+
+@interface FFInputView : CVLayerView {
+    IBOutlet NSWindow *ffInputPanel;
 }
-- (IBAction)setText:(NSString *)theText withAttributes:(NSDictionary *)attributes;
+
+- (IBAction)openStream:(id)sender;
+
 @end
+
+#endif

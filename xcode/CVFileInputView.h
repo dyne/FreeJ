@@ -28,6 +28,7 @@
 
 - (IBAction)setMovieTime:(id)sender;
 - (IBAction)openFile:(id)sender;
+- (IBAction)openStream:(id)sender; // XXX remove once FFInputView.h is in place
 - (IBAction)togglePlay:(id)sender;
 
 @end

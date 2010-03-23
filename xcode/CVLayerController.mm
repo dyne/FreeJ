@@ -327,6 +327,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 100:
+		{
             NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
             //NSLog(filterName);
             [effectFilter release];
@@ -378,6 +379,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                 cView = slider;
             }
             break;
+		}
         case 101:
             paramName = [sender toolTip];
             if ([paramName isEqual:@"CenterX"]) {
@@ -456,8 +458,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIImage     *renderedImage = nil;
     
+    [lock lock];
     if (newFrame) {       
-        [lock lock];
         inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
         newFrame = NO;
         if (doFilters) {    
@@ -486,21 +488,25 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         if (lastFrame)
             [lastFrame release];
         lastFrame = [texture retain];
-        [lock unlock];
     } else { 
         texture = [lastFrame retain];
     }
     [pool release];
+    [lock unlock];
     return texture;
 }
 
 
 - (bool)needPreview
 {
+#ifndef NEWOSX
+    return doPreview;
+#else
     // we wannt preview only if there is a panel attacched to the view (to show it)
     // if someone else (not the native osx GUI) wants to build a preview, renderFrame/getTexture 
     // can be used to obtain the actual texture
     return doPreview?(layerView && [layerView getPreviewTarget]):NO;
+#endif
 }
 
 - (void)startPreview
@@ -623,7 +629,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (char *)name {
     if (layerView)
         return (char *)[[layerView toolTip] UTF8String];
-    return "CVLayer";
+    return (char*)"CVLayer";
 }
 
 @synthesize layer;

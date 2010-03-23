@@ -22,26 +22,26 @@
 #define FILTERS_MAX 18
 static FilterParams fParams[FILTERS_MAX] =
 {
-    { 1, { { "inputAmount", 0.0, 50.0 } } },  // ZoomBlur
-    { 1, { { "inputRadius", 1.0, 100.0 } } },  // BoxBlur
+    { 1, { { (char*)"inputAmount", 0.0, 50.0 } } },  // ZoomBlur
+    { 1, { { (char*)"inputRadius", 1.0, 100.0 } } },  // BoxBlur
     //{ 2, { { "inputRadius", 0.0, 50.0 }, { "inputAngle", -3.14, 3.14 } } }, // MotionBlur
-    { 1, { { "inputRadius", 0.0, 50.0 } } }, // DiscBlur
-    { 1, { { "inputRadius", 0.0, 100.0 } } }, // GaussianBlur
-    { 1, { { "inputLevels", 2.0, 30.0 } } }, // ColorPosterize
+    { 1, { { (char*)"inputRadius", 0.0, 50.0 } } }, // DiscBlur
+    { 1, { { (char*)"inputRadius", 0.0, 100.0 } } }, // GaussianBlur
+    { 1, { { (char*)"inputLevels", 2.0, 30.0 } } }, // ColorPosterize
     { 0, { { NULL, 0.0, 0.0  } } }, // ColorInvert
     { 0, { { NULL, 0.0, 0.0 } } }, // ComicEffect
-    { 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 1.0, 100.0 } } }, // Crystalize
-    { 1, { { "inputIntensity", 0.0, 10.0 } } }, // Edges
-    { 1, { { "inputRadius", 0.0, 20.0 } } }, // EdgeWork
-    { 1, { { "inputAngle", -3.14, 3.14 } } }, // HueAdjust
-    { 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputScale", 1.0, 100.0 } } }, // HexagonalPixellate
-    { 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.01, 1000.0 } } }, // HoleDistortion
+    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 1.0, 100.0 } } }, // Crystalize
+    { 1, { { (char*)"inputIntensity", 0.0, 10.0 } } }, // Edges
+    { 1, { { (char*)"inputRadius", 0.0, 20.0 } } }, // EdgeWork
+    { 1, { { (char*)"inputAngle", -3.14, 3.14 } } }, // HueAdjust
+    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputScale", 1.0, 100.0 } } }, // HexagonalPixellate
+    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.01, 1000.0 } } }, // HoleDistortion
     //{ 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 600.0 }, { "inputScale", -1.0, 1.0 } } }, // BumpDistortion
-    { 3, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 1000.0 } } }, // CircleSplashDistortion
-    { 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 600 }, { "inputAngle", -3.14, 3.14 } } }, // CircularWrap
-    { 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 1000.0 }, { "inputScale", 0.0, 1.0 } } }, // PinchDistortion
-    { 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 500 }, { "inputAngle", -12.57, 12.57 } } }, // TwirlDistortion
-    { 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 800 }, { "inputAngle", -94.25, 94.25 } } }, // VortexDistortion
+    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 1000.0 } } }, // CircleSplashDistortion
+    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 600 }, { (char*)"inputAngle", -3.14, 3.14 } } }, // CircularWrap
+    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 1000.0 }, { (char*)"inputScale", 0.0, 1.0 } } }, // PinchDistortion
+    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 500 }, { (char*)"inputAngle", -12.57, 12.57 } } }, // TwirlDistortion
+    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 800 }, { (char*)"inputAngle", -94.25, 94.25 } } }, // VortexDistortion
 };
 
 @implementation CVFilterPanel

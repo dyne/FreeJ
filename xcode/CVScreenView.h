@@ -21,8 +21,10 @@
 #ifndef __CV_SCREENVIEW_H__
 #define __CV_SCREENVIEW_H__
 
+
 #import <CVScreen.h>
 #import <CVTexture.h>
+#import <Carbon/Carbon.h>
 
 class CVScreen;
 @class CFreej;
@@ -51,11 +53,19 @@ class CVScreen;
     CIContext           *exportContext;
     void                *exportBuffer;
     QTExporter          *exporter;
+    QTStreamer          *streamer;
+    bool                streamerStatus;
     bool                initialized;
 	IBOutlet CFreej		*freej;
 	IBOutlet NSTextField *showFps;
     IBOutlet NSTableView *layerList;
     IBOutlet NSWindow   *window;
+    IBOutlet NSTableView *streamerSettings;
+    IBOutlet NSButton    *streamerButton;
+    IBOutlet NSTextField *streamerFPS;
+    IBOutlet NSTextField *streamerPkg;
+    NSMutableArray *streamerKeys;
+    NSMutableDictionary *streamerDict;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;
@@ -63,6 +73,7 @@ class CVScreen;
 - (void)prepareOpenGL;
 - (void *)getSurface;
 - (CIImage *)exportSurface;
+- (CVPixelBufferRef)exportPixelBuffer;
 - (void)drawLayer:(Layer *)layer;
 - (void)setSizeWidth:(int)w Height:(int)h;
 - (bool)isOpaque;
@@ -80,6 +91,13 @@ class CVScreen;
 - (IBAction)startExport:(id)sender;
 - (IBAction)stopExport:(id)sender;
 - (IBAction)setExportFile:(id)sender;
+- (IBAction)toggleStreamer:(id)sender;
 @end
+
+typedef struct _fmmetadata {
+  int timeout;
+  char *streamurl1, *streamdel1; 
+  char *streamurl2, *streamdel2; 
+} FlowMixerMetaData;
 
 #endif

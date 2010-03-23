@@ -79,6 +79,13 @@ int Freeframe::open(char *file) {
       CFRelease(filepath);
 #endif
   } else {
+      dlerror(); //clear up previous errors 
+#if 0
+      if (!dlopen_preflight(file)) {
+        warning("plugin '%s' failed: %s", file, dlerror());
+        return 0;
+      }
+#endif
       handle = dlopen(file, RTLD_NOW);
       if(!handle) {
         warning("can't dlopen plugin: %s", file);

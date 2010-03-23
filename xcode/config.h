@@ -37,13 +37,21 @@
 #define CONFIG_OGGVORBIS_ENCODER 1
 
 /* define if host has 64 bit */
-/* #undef HAVE_64BIT */
+#ifdef __x86_64
+# define HAVE_64BIT 1
+#else
+# undef HAVE_64BIT
+#endif
 
+#ifdef __ppc__
+#define HAVE_ALTIVEC 1
+#define HAVE_ALTIVEC_H 1
+#else
 /* define if cpu supports Altivec instruction set */
-/* #undef HAVE_ALTIVEC */
-
+#undef HAVE_ALTIVEC
 /* define if cpu supports Altivec instruction set */
-/* #undef HAVE_ALTIVEC_H */
+#undef HAVE_ALTIVEC_H
+#endif
 
 /* define if compiling for Apple Darwin OSX */
 #define HAVE_DARWIN 1
@@ -70,12 +78,18 @@
 #define HAVE_MMAP 1
 
 /* define if enabling MMX acceleration */
-#define HAVE_MMX 1
+#ifndef __ppc__
+#  define HAVE_MMX 1
+#endif
 
 /* Define to 1 if you have the `select' function. */
 #define HAVE_SELECT 1
 
 /* define if enabling SSE acceleration */
+#ifndef __ppc__
+#define HAVE_SSE
+#define HAVE_SSE2
+#endif
 /* #undef HAVE_SSE */
 
 /* define if enabling SSE2 acceleration */
@@ -118,7 +132,7 @@
 #define PACKAGE_LOCALE_DIR "/usr/local/share/locale"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "FreeJ - vision mixer"
+#define PACKAGE_NAME "Flowmixer"
 
 /* Prefix */
 #define PACKAGE_PREFIX "/usr/local"
@@ -215,10 +229,23 @@
 
 #define WITH_FREI0R 1
 
-#define BUILD_NUMBER 10
+/* Note: Freeframe causes problems w/ multiple architectures.
+   since there are not that many freeframe "generator" plugins
+   out there anyway, I choose to disable them..
+*/
+//#define WITH_FREEFRAME 1
+#undef WITH_FREEFRAME
 
-#define OSX_VERSION 0.99
+#define BUILD_NUMBER 56
+
+#define OSX_VERSION 0.10
 
 #define PACKAGE_URL "http://freej.dyne.org"
+
+#define ICECASTSERVER "av.theartcollider.org"
+
+#define ICECASTPASSWORD "inoutsource"
+
+#define ICECASTPORT "8000"
 
 #endif

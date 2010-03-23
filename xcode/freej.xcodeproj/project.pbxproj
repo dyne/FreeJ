@@ -141,7 +141,6 @@
 		AAD0A4CC0FDEC08100968886 /* libavcodec.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C00FDEC08100968886 /* libavcodec.dylib */; };
 		AAD0A4CD0FDEC08100968886 /* libavformat.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C10FDEC08100968886 /* libavformat.dylib */; };
 		AAD0A4CE0FDEC08100968886 /* libfftw3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C20FDEC08100968886 /* libfftw3.dylib */; };
-		AAD0A4CF0FDEC08100968886 /* libjs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C30FDEC08100968886 /* libjs.dylib */; };
 		AAD0A4D00FDEC08100968886 /* libogg.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C40FDEC08100968886 /* libogg.dylib */; };
 		AAD0A4D10FDEC08100968886 /* libSDL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C50FDEC08100968886 /* libSDL.dylib */; };
 		AAD0A4D20FDEC08100968886 /* libSDL_ttf.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */; };
@@ -162,6 +161,20 @@
 		AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */; };
 		AAEE68940FC8906B007FB46B /* webcam.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE68930FC8906B007FB46B /* webcam.png */; };
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
+		B52891A21139ABA80053A203 /* live_r.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A01139ABA80053A203 /* live_r.png */; };
+		B52891A31139ABA80053A203 /* live_w.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A11139ABA80053A203 /* live_w.png */; };
+		B56D8F4E113BD3760092D922 /* libjs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B56D8F4D113BD3760092D922 /* libjs.dylib */; };
+		B56DCB85113AEF2900EF3F10 /* flowmixer-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */; };
+		B5792A63113E5B6A00CC49B0 /* tactell.c in Sources */ = {isa = PBXBuildFile; fileRef = B5792A62113E5B6A00CC49B0 /* tactell.c */; };
+		B5792A8E113EBAA200CC49B0 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792A8D113EBAA200CC49B0 /* libcurl.dylib */; };
+		B5792ABB113FCE9700CC49B0 /* libmp3lame.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792ABA113FCE9700CC49B0 /* libmp3lame.0.dylib */; };
+		B5792AC7113FD12800CC49B0 /* libjack.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792AC6113FD12800CC49B0 /* libjack.dylib */; };
+		B59354E311580B1700BF8C8E /* oggenc.c in Sources */ = {isa = PBXBuildFile; fileRef = B59354E111580B1700BF8C8E /* oggenc.c */; };
+		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
+		B5BD95551134C2000063C358 /* FFInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* FFInputController.mm */; };
+		B5BD95561134C2000063C358 /* FFInputView.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95541134C2000063C358 /* FFInputView.mm */; };
+		B5BD95B6113581AD0063C358 /* ffdec.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95B4113581AD0063C358 /* ffdec.c */; };
+		B5BD96A711386CFC0063C358 /* FFInputPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD96A611386CFC0063C358 /* FFInputPanel.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -381,8 +394,7 @@
 		AAA38FB60F542DE80069BF91 /* CIAlphaFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CIAlphaFade.m; sourceTree = "<group>"; };
 		AAA3902D0F5448820069BF91 /* CIAlphaFade.cikernel */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CIAlphaFade.cikernel; sourceTree = "<group>"; };
 		AAA7B62B0F40485F00056C44 /* CFreej.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CFreej.mm; sourceTree = "<group>"; };
-		AAA7B6530F40494400056C44 /* freej-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "freej-Info.plist"; sourceTree = "<group>"; };
-		AAA7B6F30F404B4C00056C44 /* freej.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = freej.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAA7B6F30F404B4C00056C44 /* flowmixer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = flowmixer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsamplerate.dylib; path = /opt/local/lib/libsamplerate.dylib; sourceTree = "<absolute>"; };
 		AAAABEE30F521A6000461C96 /* fps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fps.cpp; sourceTree = "<group>"; };
 		AAAABEE50F521A6C00461C96 /* fps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fps.h; path = include/fps.h; sourceTree = "<group>"; };
@@ -420,7 +432,6 @@
 		AAD0A4C00FDEC08100968886 /* libavcodec.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavcodec.dylib; path = /opt/local/lib/libavcodec.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C10FDEC08100968886 /* libavformat.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavformat.dylib; path = /opt/local/lib/libavformat.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C20FDEC08100968886 /* libfftw3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfftw3.dylib; path = /opt/local/lib/libfftw3.dylib; sourceTree = "<absolute>"; };
-		AAD0A4C30FDEC08100968886 /* libjs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjs.dylib; path = /opt/local/lib/libjs.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C40FDEC08100968886 /* libogg.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libogg.dylib; path = /opt/local/lib/libogg.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C50FDEC08100968886 /* libSDL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL.dylib; path = /opt/local/lib/libSDL.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_ttf.dylib; path = /opt/local/lib/libSDL_ttf.dylib; sourceTree = "<absolute>"; };
@@ -443,6 +454,26 @@
 		AAE2C2B7103FE2AE00D62E4F /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = factory.h; path = include/factory.h; sourceTree = "<group>"; };
 		AAEE68930FC8906B007FB46B /* webcam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = webcam.png; sourceTree = "<group>"; };
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
+		B52891A01139ABA80053A203 /* live_r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_r.png; sourceTree = "<group>"; };
+		B52891A11139ABA80053A203 /* live_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_w.png; sourceTree = "<group>"; };
+		B56D8F4D113BD3760092D922 /* libjs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjs.dylib; path = /usr/local/lib/libjs.dylib; sourceTree = "<absolute>"; };
+		B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "flowmixer-Info.plist"; sourceTree = "<group>"; };
+		B5792A62113E5B6A00CC49B0 /* tactell.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tactell.c; sourceTree = SOURCE_ROOT; };
+		B5792A8D113EBAA200CC49B0 /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = /usr/lib/libcurl.dylib; sourceTree = "<absolute>"; };
+		B5792ABA113FCE9700CC49B0 /* libmp3lame.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmp3lame.0.dylib; path = /usr/local/lib/libmp3lame.0.dylib; sourceTree = "<absolute>"; };
+		B5792AC6113FD12800CC49B0 /* libjack.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjack.dylib; path = /usr/local/lib/libjack.dylib; sourceTree = "<absolute>"; };
+		B59354E111580B1700BF8C8E /* oggenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = oggenc.c; sourceTree = SOURCE_ROOT; };
+		B59354E211580B1700BF8C8E /* oggenc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oggenc.h; sourceTree = SOURCE_ROOT; };
+		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = SOURCE_ROOT; };
+		B5BD93491133ED890063C358 /* QTStreamer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTStreamer.mm; sourceTree = SOURCE_ROOT; };
+		B5BD95511134C2000063C358 /* FFInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputController.h; sourceTree = SOURCE_ROOT; };
+		B5BD95521134C2000063C358 /* FFInputController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputController.mm; sourceTree = SOURCE_ROOT; };
+		B5BD95531134C2000063C358 /* FFInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputView.h; sourceTree = SOURCE_ROOT; };
+		B5BD95541134C2000063C358 /* FFInputView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputView.mm; sourceTree = SOURCE_ROOT; };
+		B5BD95B4113581AD0063C358 /* ffdec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffdec.c; sourceTree = SOURCE_ROOT; };
+		B5BD95B5113581AD0063C358 /* ffdec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffdec.h; sourceTree = SOURCE_ROOT; };
+		B5BD96A511386CFC0063C358 /* FFInputPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputPanel.h; sourceTree = SOURCE_ROOT; };
+		B5BD96A611386CFC0063C358 /* FFInputPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputPanel.mm; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -461,7 +492,6 @@
 				AAD0A4CC0FDEC08100968886 /* libavcodec.dylib in Frameworks */,
 				AAD0A4CD0FDEC08100968886 /* libavformat.dylib in Frameworks */,
 				AAD0A4CE0FDEC08100968886 /* libfftw3.dylib in Frameworks */,
-				AAD0A4CF0FDEC08100968886 /* libjs.dylib in Frameworks */,
 				AAD0A4D00FDEC08100968886 /* libogg.dylib in Frameworks */,
 				AAD0A4D10FDEC08100968886 /* libSDL.dylib in Frameworks */,
 				AAD0A4D20FDEC08100968886 /* libSDL_ttf.dylib in Frameworks */,
@@ -479,6 +509,10 @@
 				AAA7DA9A101A4F79009B32FD /* libsamplerate.dylib in Frameworks */,
 				AAD181D3104964FB0053F8A6 /* liblo.dylib in Frameworks */,
 				AAD181D5104965120053F8A6 /* libshout.dylib in Frameworks */,
+				B56D8F4E113BD3760092D922 /* libjs.dylib in Frameworks */,
+				B5792A8E113EBAA200CC49B0 /* libcurl.dylib in Frameworks */,
+				B5792ABB113FCE9700CC49B0 /* libmp3lame.0.dylib in Frameworks */,
+				B5792AC7113FD12800CC49B0 /* libjack.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -546,6 +580,10 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B5792AC6113FD12800CC49B0 /* libjack.dylib */,
+				B5792ABA113FCE9700CC49B0 /* libmp3lame.0.dylib */,
+				B5792A8D113EBAA200CC49B0 /* libcurl.dylib */,
+				B56D8F4D113BD3760092D922 /* libjs.dylib */,
 				AAD181D4104965120053F8A6 /* libshout.dylib */,
 				AAD181D2104964FB0053F8A6 /* liblo.dylib */,
 				AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */,
@@ -558,7 +596,6 @@
 				AAD0A4C00FDEC08100968886 /* libavcodec.dylib */,
 				AAD0A4C10FDEC08100968886 /* libavformat.dylib */,
 				AAD0A4C20FDEC08100968886 /* libfftw3.dylib */,
-				AAD0A4C30FDEC08100968886 /* libjs.dylib */,
 				AAD0A4C40FDEC08100968886 /* libogg.dylib */,
 				AAD0A4C50FDEC08100968886 /* libSDL.dylib */,
 				AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */,
@@ -614,11 +651,13 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */,
+				B52891A01139ABA80053A203 /* live_r.png */,
+				B52891A11139ABA80053A203 /* live_w.png */,
 				AADF79FF0FD7F84500167F57 /* ipernav.icns */,
 				AAEE689E0FC893BC007FB46B /* frei0r.png */,
 				AAEE68930FC8906B007FB46B /* webcam.png */,
-				AAA7B6530F40494400056C44 /* freej-Info.plist */,
-				AAA7B6F30F404B4C00056C44 /* freej.app */,
+				AAA7B6F30F404B4C00056C44 /* flowmixer.app */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
 			);
@@ -637,6 +676,15 @@
 		AA3C44100F3EEBE0007C7E8B /* C++ */ = {
 			isa = PBXGroup;
 			children = (
+				B59354E111580B1700BF8C8E /* oggenc.c */,
+				B59354E211580B1700BF8C8E /* oggenc.h */,
+				B5792A62113E5B6A00CC49B0 /* tactell.c */,
+				B5BD95B4113581AD0063C358 /* ffdec.c */,
+				B5BD95B5113581AD0063C358 /* ffdec.h */,
+				B5BD95511134C2000063C358 /* FFInputController.h */,
+				B5BD95521134C2000063C358 /* FFInputController.mm */,
+				B5BD95531134C2000063C358 /* FFInputView.h */,
+				B5BD95541134C2000063C358 /* FFInputView.mm */,
 				AA9337EF0FD7FDEB002B760B /* include */,
 				AAB843990F3EEDE400AD479D /* javascript */,
 				AA8C41AB0F90FF4F00B39710 /* console_calls_ctrl.cpp */,
@@ -651,6 +699,8 @@
 				AAAAC1720F533ADF00461C96 /* sdl_blits.cpp */,
 				AA8F9F700F510272006A9E2F /* soft_screen.cpp */,
 				AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */,
+				B5BD93481133ED890063C358 /* QTStreamer.h */,
+				B5BD93491133ED890063C358 /* QTStreamer.mm */,
 				AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */,
 				AA3C445C0F3EEBE0007C7E8B /* audio_jack.cpp */,
 				AA3C44600F3EEBE0007C7E8B /* blitter.cpp */,
@@ -752,6 +802,8 @@
 				AA3C44990F3EEBE0007C7E8B /* asm-linkage.h */,
 				AA3C449A0F3EEBE0007C7E8B /* audio_collector.h */,
 				AA3C449B0F3EEBE0007C7E8B /* audio_input.h */,
+				B5BD96A511386CFC0063C358 /* FFInputPanel.h */,
+				B5BD96A611386CFC0063C358 /* FFInputPanel.mm */,
 				AA3C449C0F3EEBE0007C7E8B /* audio_jack.h */,
 				AA3C449E0F3EEBE0007C7E8B /* blitter.h */,
 				AA3C449F0F3EEBE0007C7E8B /* callbacks_js.h */,
@@ -879,9 +931,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AAA7B6F20F404B4C00056C44 /* freej */ = {
+		AAA7B6F20F404B4C00056C44 /* flowmixer */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "freej" */;
+			buildConfigurationList = AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "flowmixer" */;
 			buildPhases = (
 				AA4077DC105D471100401BB3 /* PreBuildScript */,
 				AAA7B6EF0F404B4C00056C44 /* Resources */,
@@ -893,9 +945,9 @@
 			);
 			dependencies = (
 			);
-			name = freej;
+			name = flowmixer;
 			productName = freej;
-			productReference = AAA7B6F30F404B4C00056C44 /* freej.app */;
+			productReference = AAA7B6F30F404B4C00056C44 /* flowmixer.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -910,7 +962,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AAA7B6F20F404B4C00056C44 /* freej */,
+				AAA7B6F20F404B4C00056C44 /* flowmixer */,
 			);
 		};
 /* End PBXProject section */
@@ -926,6 +978,9 @@
 				AAEE68940FC8906B007FB46B /* webcam.png in Resources */,
 				AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */,
 				AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */,
+				B52891A21139ABA80053A203 /* live_r.png in Resources */,
+				B52891A31139ABA80053A203 /* live_w.png in Resources */,
+				B56DCB85113AEF2900EF3F10 /* flowmixer-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -944,7 +999,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export INSTALLED=\"\"\nexport LIBS_PATH=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\nmkdir -p $LIBS_PATH\nexport TARGET=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\"\n\nfollow_dependencies () {\n\tlibname=$1\n\tcd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\n\tdependencies=`otool -L \"$libname\"  | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $dependencies; do\n\t\tdepname=`basename $l`\n\t\tdeppath=`dirname $l`\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$depname\" ]; then\n\t\t\tdeploy_lib $depname \"$deppath\"\n\t\tfi\n\tdone\n}\n\nupdate_links () {\n\tlibname=$1\n\tlibpath=$2\n\tfor n in `ls $LIBS_PATH/*`; do\n\t\tinstall_name_tool \\\n\t\t\t-change \"$libpath/$libname\" \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$n\"\n\tdone\n}\n\ndeploy_lib () {\n\tlibname=$1\n\tlibpath=$2\n\tcheck=`echo $INSTALLED | grep $libname`\n\tif [ \"X$check\" = \"X\" ]; then\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\" ]; then\n\t\t\tcp -f \"$libpath/$libname\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tinstall_name_tool \\\n\t\t\t\t-id @executable_path/../Frameworks/$libname \\\n\t\t\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tfollow_dependencies $libname\n\t\tfi\n\t\texport INSTALLED=\"$INSTALLED $libname\"\n\tfi\n\tupdate_links $libname $libpath\n}\n\nupdate_executable() {\n\tLIBS=`otool -L \"$TARGET\" | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $LIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib $libname $libpath\n\t\techo \"install_name_tool -change $libpath/$libname @executable_path/../Frameworks/$libname \\\"$TARGET\\\"\"\n\t\tinstall_name_tool \\\n\t\t\t-change $libpath/$libname \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$TARGET\"\n\tdone\n}\n\nupdate_executable\ncd $LIBS_PATH && MORELIBS=`otool -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\nwhile [ \"X$MORELIBS\" != \"X\" ]; do\n\tfor l in $MORELIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib \"$libname\" \"$libpath\"\n\tdone\n\tcd $LIBS_PATH && MORELIBS=`otool -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\ndone\nupdate_executable\n\nif [ -d \"$TARGET_BUILD_DIR/Plugins\" ]; then\n\tcp -r \"$TARGET_BUILD_DIR/Plugins\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\"\nfi\n\nif [ -d \"/opt/local/lib/frei0r-1/\" ]; then\n\tcp -r \"/opt/local/lib/frei0r-1\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Plugins\"\nfi\n\n# Update the Info.plist file with correct version and build numbers\nBUILD_NUMBER=`grep BUILD_NUMBER $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nOSX_VERSION=`grep OSX_VERSION $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nsed -i .bck -e \"s#%BUILD_NUMBER%#$BUILD_NUMBER#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"\nsed -i .bck -e \"s#%OSX_VERSION%#$OSX_VERSION#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"\nrm \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist.bck\"";
+			shellScript = "export INSTALLED=\"\"\nexport LIBS_PATH=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\nmkdir -p $LIBS_PATH\nexport TARGET=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\"\n\nfollow_dependencies () {\n\tlibname=$1\n\tcd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\n\tdependencies=`otool -arch all -L \"$libname\"  | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $dependencies; do\n\t\tdepname=`basename $l`\n\t\tdeppath=`dirname $l`\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$depname\" ]; then\n\t\t\tdeploy_lib $depname \"$deppath\"\n\t\tfi\n\tdone\n}\n\nupdate_links () {\n\tlibname=$1\n\tlibpath=$2\n\tfor n in `ls $LIBS_PATH/*`; do\n\t\tinstall_name_tool \\\n\t\t\t-change \"$libpath/$libname\" \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$n\"\n\tdone\n}\n\ndeploy_lib () {\n\tlibname=$1\n\tlibpath=$2\n\tcheck=`echo $INSTALLED | grep $libname`\n\tif [ \"X$check\" = \"X\" ]; then\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\" ]; then\n\t\t\tcp -f \"$libpath/$libname\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tinstall_name_tool \\\n\t\t\t\t-id @executable_path/../Frameworks/$libname \\\n\t\t\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tfollow_dependencies $libname\n\t\tfi\n\t\texport INSTALLED=\"$INSTALLED $libname\"\n\tfi\n\tupdate_links $libname $libpath\n}\n\nupdate_executable() {\n\tLIBS=`otool -arch all -L \"$TARGET\" | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $LIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib $libname $libpath\n\t\t#echo \"install_name_tool -change $libpath/$libname @executable_path/../Frameworks/$libname \\\"$TARGET\\\"\"\n\t\tinstall_name_tool \\\n\t\t\t-change $libpath/$libname \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$TARGET\"\n\tdone\n}\n\nupdate_executable\ncd $LIBS_PATH && MORELIBS=`otool -arch all -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\nwhile [ \"X$MORELIBS\" != \"X\" ]; do\n\tfor l in $MORELIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib \"$libname\" \"$libpath\"\n\tdone\n\tcd $LIBS_PATH && MORELIBS=`otool -arch all -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\ndone\nupdate_executable\n\nif [ -d \"$TARGET_BUILD_DIR/Plugins\" ]; then\n\tcp -r \"$TARGET_BUILD_DIR/Plugins\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\"\nfi\n\nif [ -d \"/opt/local/lib/frei0r-1/\" ]; then\n\tcp -r \"/opt/local/lib/frei0r-1\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Plugins\"\nfi\n\n# Update the Info.plist file with correct version and build numbers\nBUILD_NUMBER=`grep BUILD_NUMBER $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nOSX_VERSION=`grep OSX_VERSION $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nsed -i .bck -e \"s#%BUILD_NUMBER%#$BUILD_NUMBER#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"\nsed -i .bck -e \"s#%OSX_VERSION%#$OSX_VERSION#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"\nrm \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist.bck\"";
 		};
 		AA4077DC105D471100401BB3 /* PreBuildScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1087,6 +1142,13 @@
 				AAB47C6910E8C19000B0E8D2 /* generator_layer_js.cpp in Sources */,
 				AAB47C8A10EAA15F00B0E8D2 /* geometry.cpp in Sources */,
 				AAB47CA010EB44AF00B0E8D2 /* CVTextLayerView.mm in Sources */,
+				B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */,
+				B5BD95551134C2000063C358 /* FFInputController.mm in Sources */,
+				B5BD95561134C2000063C358 /* FFInputView.mm in Sources */,
+				B5BD95B6113581AD0063C358 /* ffdec.c in Sources */,
+				B5BD96A711386CFC0063C358 /* FFInputPanel.mm in Sources */,
+				B5792A63113E5B6A00CC49B0 /* tactell.c in Sources */,
+				B59354E311580B1700BF8C8E /* oggenc.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1144,26 +1206,18 @@
 		AAA7B6F60F404B4D00056C44 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_MODEL_TUNING = "";
-				GCC_PRECOMPILE_PREFIX_HEADER = NO;
-				GCC_PREFIX_HEADER = "";
-				INFOPLIST_FILE = "freej-Info.plist";
-				INSTALL_PATH = "$(HOME)/Applications";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/opt/local/lib,
 				);
 				OTHER_LDFLAGS = (
+					"-headerpad_max_install_names",
 					"-framework",
 					Foundation,
 					"-framework",
 					AppKit,
 				);
-				PREBINDING = NO;
-				PRODUCT_NAME = freej;
+				PRODUCT_NAME = flowmixer;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};
@@ -1180,7 +1234,6 @@
 				GCC_MODEL_TUNING = "";
 				GCC_UNROLL_LOOPS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					../lib,
 					/usr/local/include/js,
@@ -1213,15 +1266,17 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
+					"-m32",
+					"-g",
 				);
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PREBINDING = YES;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				STRIP_INSTALLED_PRODUCT = NO;
-				STRIP_STYLE = all;
 				VALID_ARCHS = i386;
 			};
 			name = Debug;
@@ -1241,12 +1296,9 @@
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SUPPLEMENTAL_SSE3_INSTRUCTIONS = YES;
 				GCC_ENABLE_SYMBOL_SEPARATION = NO;
-				GCC_FAST_MATH = NO;
 				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 3;
 				GCC_UNROLL_LOOPS = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
 					../lib,
 					/usr/local/include/js,
@@ -1274,11 +1326,13 @@
 					../src/include,
 					../lib/shout,
 				);
+				INFOPLIST_FILE = "flowmixer-Info.plist";
 				LD_OPENMP_FLAGS = "-fopenmp -headerpad_max_install_names";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					/opt/local/lib,
 				);
+				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
@@ -1286,16 +1340,14 @@
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
-				STRIP_INSTALLED_PRODUCT = YES;
-				STRIP_STYLE = debugging;
-				VALID_ARCHS = i386;
+				VALID_ARCHS = "x86_64 i386 ppc";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "freej" */ = {
+		AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "flowmixer" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AAA7B6F50F404B4D00056C44 /* Debug */,

@@ -374,7 +374,7 @@ void oggmux_init (oggmux_info *info){
 
         /* create the remaining theora headers */
         /* theora_comment_init (&info->tc); is called in main() prior to parsing options */
-        theora_comment_add_tag (&info->tc, "ENCODER",PACKAGE_STRING);
+        theora_comment_add_tag (&info->tc, (char*)"ENCODER",(char*)PACKAGE_STRING);
         theora_encode_comment (&info->tc, &op);
         ogg_stream_packetin (&info->to, &op);
         _ogg_free (op.packet);

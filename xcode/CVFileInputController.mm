@@ -41,9 +41,18 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 @implementation CVFileInputController : CVLayerController
 
+#ifdef __x86_64
+
+- (BOOL)setQTMovie:(QTMovie *)movie {return NO;}
+- (void)setTime:(QTTime)inTime {}
+- (BOOL)togglePlay {return NO;}
+- (void)task {}
+#else 
+
 - (id)init
 {
     isPlaying = NO;
+    lastPTS = 0;
         qtVisualContext = nil;
     return [super init];
 }
@@ -257,9 +266,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         return NO;
     uint64_t ts = CVGetCurrentHostTime();
     QTTime now = [qtMovie currentTime];
-   
+#ifdef __BIG_ENDIAN__ // 10.5 || PPC ?! Q&D
+    now.timeValue+=(now.timeScale/layer->fps.fps);
+#else // NEW good implementation
     now.timeValue +=(((lastPTS?ts-lastPTS:0) * 600)/1000000000);
     now.timeScale = 600;
+#endif
 
     QTTime duration = [qtMovie duration];
     if (QTTimeCompare(now, duration) == NSOrderedAscending)
@@ -281,11 +293,16 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             CVOpenGLTextureRelease(currentFrame);
         currentFrame = newPixelBuffer;
         newFrame = YES;
-        MoviesTask([qtMovie quickTimeMovie], 0);
+#ifdef NEWOSX
+	MoviesTask([qtMovie quickTimeMovie], 0);
+#endif
     } 
     
     [lock unlock];
     [QTMovie exitQTKitOnThread];   
+#ifndef NEWOSX
+    MoviesTask([qtMovie quickTimeMovie], 0);
+#endif
     lastPTS = ts;
     [pool release];
     return rv;
@@ -334,4 +351,5 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 //@synthesize qtMovie;
 
+#endif // no __x86_64
 @end

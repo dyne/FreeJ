@@ -28,7 +28,7 @@ static void get_freeframe_layer_parameter(Layer *lay, Parameter *param, int idx)
 static void get_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) { }
 static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
     CVF0rLayer *layer = (CVF0rLayer*)lay;
-    
+#ifdef WITH_FREI0R    
     Freior *f = layer->generator->proto->freior;
     bool *val = (bool*)param->value;
     
@@ -66,6 +66,7 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
             error("Unrecognized parameter type %u for set_parameter_value",
                   f->param_infos[idx].type);
     }
+#endif
 }
 
 CVF0rLayer::CVF0rLayer(CVLayerController *controller, Context *_freej)

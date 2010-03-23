@@ -64,6 +64,12 @@ int Freior::open(char *file) {
   // clear up the errors if there were any
   dlerror();
 
+#if 0
+  if (!dlopen_preflight(file)) {
+    warning("plugin '%s' failed: %s", file, dlerror());
+    return 0;
+  }
+#endif
   // Create dynamic handle to the library file.
   handle = dlopen(file, RTLD_LAZY);
   if(!handle) {
