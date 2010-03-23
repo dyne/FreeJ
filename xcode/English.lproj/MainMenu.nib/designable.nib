@@ -12,13 +12,13 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="57"/>
-			<integer value="380"/>
-			<integer value="3015"/>
-			<integer value="2737"/>
-			<integer value="1576"/>
 			<integer value="1887"/>
 			<integer value="2212"/>
+			<integer value="3015"/>
+			<integer value="1606"/>
+			<integer value="2737"/>
+			<integer value="1576"/>
+			<integer value="57"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -50,7 +50,7 @@
 					<bool key="EncodedWithXMLCoder">YES</bool>
 					<object class="NSMenuItem" id="694149608">
 						<reference key="NSMenu" ref="649796088"/>
-						<string key="NSTitle">Flowmixer</string>
+						<string key="NSTitle">FreeJ</string>
 						<string key="NSKeyEquiv"/>
 						<int key="NSKeyEquivModMask">1048576</int>
 						<int key="NSMnemonicLoc">2147483647</int>
@@ -64,7 +64,7 @@
 						</object>
 						<string key="NSAction">submenuAction:</string>
 						<object class="NSMenu" key="NSSubmenu" id="110575045">
-							<string key="NSTitle">Flowmixer</string>
+							<string key="NSTitle">FreeJ</string>
 							<object class="NSMutableArray" key="NSMenuItems">
 								<bool key="EncodedWithXMLCoder">YES</bool>
 								<object class="NSMenuItem" id="238522557">
@@ -809,7 +809,7 @@
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{608, 30}, {645, 730}}</string>
 				<int key="NSWTFlags">611844096</int>
-				<string key="NSWindowTitle">Flowmixer</string>
+				<string key="NSWindowTitle">FreeJ</string>
 				<string key="NSWindowClass">NSWindow</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{1.79769e+308, 1.79769e+308}</string>
@@ -3635,7 +3635,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<int key="NSWindowBacking">2</int>
 				<string key="NSWindowRect">{{196, 310}, {370, 200}}</string>
 				<int key="NSWTFlags">-469762048</int>
-				<string key="NSWindowTitle">Flowmixer Preferences</string>
+				<string key="NSWindowTitle">FreeJ Preferences</string>
 				<string key="NSWindowClass">PreferencesPanel</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{1.79769e+308, 1.79769e+308}</string>
@@ -9857,9 +9857,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<object class="NSAttributedString">
 						<string key="NSString"/>
 					</object>
-					<string>{{418, 92}, {645, 730}}</string>
+					<string>{{375, 92}, {645, 730}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{418, 92}, {645, 730}}</string>
+					<string>{{375, 92}, {645, 730}}</string>
 					<integer value="1"/>
 					<string>{{437, 135}, {451, 576}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -10418,6 +10418,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>setExportCodec:</string>
 							<string>setExportQuality:</string>
 							<string>setJScriptsPath:</string>
 							<string>setPluginsPath:</string>
@@ -10429,17 +10430,20 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
+							<string>id</string>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>exporter</string>
 							<string>freej</string>
 							<string>mainScreen</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>QTExporter</string>
 							<string>CFreej</string>
 							<string>CVScreenView</string>
 						</object>
@@ -10447,6 +10451,18 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">PreferencesPanel.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">QTExporter</string>
+					<string key="superclassName">NSObject</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">screen</string>
+						<string key="NS.object.0">CVScreenView</string>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">QTExporter.h</string>
 					</object>
 				</object>
 			</object>

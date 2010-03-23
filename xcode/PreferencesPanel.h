@@ -26,9 +26,11 @@
 @interface PreferencesPanel : NSWindow {
     IBOutlet CFreej *freej;
     IBOutlet CVScreenView *mainScreen;
+    IBOutlet QTExporter *exporter;
 }
 
 - (IBAction)setScreenSize:(id)sender;
+- (IBAction)setExportCodec:(id)sender;
 - (IBAction)setExportQuality:(id)sender;
 - (IBAction)setPluginsPath:(id)sender;
 - (IBAction)setJScriptsPath:(id)sender;

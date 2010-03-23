@@ -94,10 +94,10 @@ class CVScreen;
 - (IBAction)toggleStreamer:(id)sender;
 @end
 
-typedef struct _fmmetadata {
+typedef struct _fjmetadata {
   int timeout;
   char *streamurl1, *streamdel1; 
   char *streamurl2, *streamdel2; 
-} FlowMixerMetaData;
+} FreejMetaData;
 
 #endif

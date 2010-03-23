@@ -128,6 +128,7 @@
 		AAAAC1730F533ADF00461C96 /* closure.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAAC16F0F533ADF00461C96 /* closure.cpp */; };
 		AAAAC1740F533ADF00461C96 /* linear_blits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAAC1700F533ADF00461C96 /* linear_blits.cpp */; };
 		AAAAC1760F533ADF00461C96 /* sdl_blits.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAAC1720F533ADF00461C96 /* sdl_blits.cpp */; };
+		AAB1FC761158D958000368A9 /* libjs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB1FC751158D958000368A9 /* libjs.dylib */; };
 		AAB26D2E0F4051F60068E5F5 /* CVGrabber.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */; };
 		AAB26E510F4058330068E5F5 /* QuickTime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB26E4A0F4058330068E5F5 /* QuickTime.framework */; };
 		AAB270620F4065220068E5F5 /* QTKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB270610F4065220068E5F5 /* QTKit.framework */; };
@@ -163,12 +164,10 @@
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
 		B52891A21139ABA80053A203 /* live_r.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A01139ABA80053A203 /* live_r.png */; };
 		B52891A31139ABA80053A203 /* live_w.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A11139ABA80053A203 /* live_w.png */; };
-		B56D8F4E113BD3760092D922 /* libjs.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B56D8F4D113BD3760092D922 /* libjs.dylib */; };
-		B56DCB85113AEF2900EF3F10 /* flowmixer-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */; };
+		B56D8F4E113BD3760092D922 /* libmp3lame.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B56D8F4D113BD3760092D922 /* libmp3lame.dylib */; };
+		B56DCB85113AEF2900EF3F10 /* freej-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B56DCB84113AEF2900EF3F10 /* freej-Info.plist */; };
 		B5792A63113E5B6A00CC49B0 /* tactell.c in Sources */ = {isa = PBXBuildFile; fileRef = B5792A62113E5B6A00CC49B0 /* tactell.c */; };
 		B5792A8E113EBAA200CC49B0 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792A8D113EBAA200CC49B0 /* libcurl.dylib */; };
-		B5792ABB113FCE9700CC49B0 /* libmp3lame.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792ABA113FCE9700CC49B0 /* libmp3lame.0.dylib */; };
-		B5792AC7113FD12800CC49B0 /* libjack.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792AC6113FD12800CC49B0 /* libjack.dylib */; };
 		B59354E311580B1700BF8C8E /* oggenc.c in Sources */ = {isa = PBXBuildFile; fileRef = B59354E111580B1700BF8C8E /* oggenc.c */; };
 		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
 		B5BD95551134C2000063C358 /* FFInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* FFInputController.mm */; };
@@ -394,7 +393,7 @@
 		AAA38FB60F542DE80069BF91 /* CIAlphaFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CIAlphaFade.m; sourceTree = "<group>"; };
 		AAA3902D0F5448820069BF91 /* CIAlphaFade.cikernel */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CIAlphaFade.cikernel; sourceTree = "<group>"; };
 		AAA7B62B0F40485F00056C44 /* CFreej.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CFreej.mm; sourceTree = "<group>"; };
-		AAA7B6F30F404B4C00056C44 /* flowmixer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = flowmixer.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AAA7B6F30F404B4C00056C44 /* freej.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = freej.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsamplerate.dylib; path = /opt/local/lib/libsamplerate.dylib; sourceTree = "<absolute>"; };
 		AAAABEE30F521A6000461C96 /* fps.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fps.cpp; sourceTree = "<group>"; };
 		AAAABEE50F521A6C00461C96 /* fps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fps.h; path = include/fps.h; sourceTree = "<group>"; };
@@ -404,6 +403,7 @@
 		AAAAC1700F533ADF00461C96 /* linear_blits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = linear_blits.cpp; sourceTree = "<group>"; };
 		AAAAC1720F533ADF00461C96 /* sdl_blits.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sdl_blits.cpp; sourceTree = "<group>"; };
 		AAAAC1770F533AF900461C96 /* closure.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = closure.h; path = include/closure.h; sourceTree = "<group>"; };
+		AAB1FC751158D958000368A9 /* libjs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjs.dylib; path = /opt/local/lib/libjs.dylib; sourceTree = "<absolute>"; };
 		AAB26D2C0F4051F60068E5F5 /* CVGrabber.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVGrabber.h; sourceTree = "<group>"; };
 		AAB26D2D0F4051F60068E5F5 /* CVGrabber.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVGrabber.mm; sourceTree = "<group>"; };
 		AAB26E4A0F4058330068E5F5 /* QuickTime.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuickTime.framework; path = /System/Library/Frameworks/QuickTime.framework; sourceTree = "<absolute>"; };
@@ -456,22 +456,20 @@
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
 		B52891A01139ABA80053A203 /* live_r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_r.png; sourceTree = "<group>"; };
 		B52891A11139ABA80053A203 /* live_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_w.png; sourceTree = "<group>"; };
-		B56D8F4D113BD3760092D922 /* libjs.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjs.dylib; path = /usr/local/lib/libjs.dylib; sourceTree = "<absolute>"; };
-		B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "flowmixer-Info.plist"; sourceTree = "<group>"; };
+		B56D8F4D113BD3760092D922 /* libmp3lame.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmp3lame.dylib; path = /opt/local/lib/libmp3lame.dylib; sourceTree = "<absolute>"; };
+		B56DCB84113AEF2900EF3F10 /* freej-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "freej-Info.plist"; sourceTree = "<group>"; };
 		B5792A62113E5B6A00CC49B0 /* tactell.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tactell.c; sourceTree = SOURCE_ROOT; };
 		B5792A8D113EBAA200CC49B0 /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = /usr/lib/libcurl.dylib; sourceTree = "<absolute>"; };
-		B5792ABA113FCE9700CC49B0 /* libmp3lame.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmp3lame.0.dylib; path = /usr/local/lib/libmp3lame.0.dylib; sourceTree = "<absolute>"; };
-		B5792AC6113FD12800CC49B0 /* libjack.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libjack.dylib; path = /usr/local/lib/libjack.dylib; sourceTree = "<absolute>"; };
-		B59354E111580B1700BF8C8E /* oggenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = oggenc.c; sourceTree = SOURCE_ROOT; };
-		B59354E211580B1700BF8C8E /* oggenc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oggenc.h; sourceTree = SOURCE_ROOT; };
-		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = SOURCE_ROOT; };
-		B5BD93491133ED890063C358 /* QTStreamer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTStreamer.mm; sourceTree = SOURCE_ROOT; };
-		B5BD95511134C2000063C358 /* FFInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputController.h; sourceTree = SOURCE_ROOT; };
-		B5BD95521134C2000063C358 /* FFInputController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputController.mm; sourceTree = SOURCE_ROOT; };
-		B5BD95531134C2000063C358 /* FFInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputView.h; sourceTree = SOURCE_ROOT; };
-		B5BD95541134C2000063C358 /* FFInputView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputView.mm; sourceTree = SOURCE_ROOT; };
-		B5BD95B4113581AD0063C358 /* ffdec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffdec.c; sourceTree = SOURCE_ROOT; };
-		B5BD95B5113581AD0063C358 /* ffdec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ffdec.h; sourceTree = SOURCE_ROOT; };
+		B59354E111580B1700BF8C8E /* oggenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = oggenc.c; sourceTree = "<group>"; };
+		B59354E211580B1700BF8C8E /* oggenc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = oggenc.h; path = include/oggenc.h; sourceTree = "<group>"; };
+		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = "<group>"; };
+		B5BD93491133ED890063C358 /* QTStreamer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTStreamer.mm; sourceTree = "<group>"; };
+		B5BD95511134C2000063C358 /* FFInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputController.h; sourceTree = "<group>"; };
+		B5BD95521134C2000063C358 /* FFInputController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputController.mm; sourceTree = "<group>"; };
+		B5BD95531134C2000063C358 /* FFInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputView.h; sourceTree = "<group>"; };
+		B5BD95541134C2000063C358 /* FFInputView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputView.mm; sourceTree = "<group>"; };
+		B5BD95B4113581AD0063C358 /* ffdec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffdec.c; sourceTree = "<group>"; };
+		B5BD95B5113581AD0063C358 /* ffdec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ffdec.h; path = include/ffdec.h; sourceTree = "<group>"; };
 		B5BD96A511386CFC0063C358 /* FFInputPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FFInputPanel.h; sourceTree = SOURCE_ROOT; };
 		B5BD96A611386CFC0063C358 /* FFInputPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFInputPanel.mm; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
@@ -509,10 +507,9 @@
 				AAA7DA9A101A4F79009B32FD /* libsamplerate.dylib in Frameworks */,
 				AAD181D3104964FB0053F8A6 /* liblo.dylib in Frameworks */,
 				AAD181D5104965120053F8A6 /* libshout.dylib in Frameworks */,
-				B56D8F4E113BD3760092D922 /* libjs.dylib in Frameworks */,
+				B56D8F4E113BD3760092D922 /* libmp3lame.dylib in Frameworks */,
 				B5792A8E113EBAA200CC49B0 /* libcurl.dylib in Frameworks */,
-				B5792ABB113FCE9700CC49B0 /* libmp3lame.0.dylib in Frameworks */,
-				B5792AC7113FD12800CC49B0 /* libjack.dylib in Frameworks */,
+				AAB1FC761158D958000368A9 /* libjs.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,6 +546,10 @@
 				AA3B0B77104A728600A27B2E /* CVF0rLayerView.mm */,
 				AA88592B0F633A7500778C03 /* CVF0rLayer.h */,
 				AA88592C0F633A7500778C03 /* CVF0rLayer.mm */,
+				B5BD95511134C2000063C358 /* FFInputController.h */,
+				B5BD95521134C2000063C358 /* FFInputController.mm */,
+				B5BD95531134C2000063C358 /* FFInputView.h */,
+				B5BD95541134C2000063C358 /* FFInputView.mm */,
 				AA1EB9010F56969E006610D8 /* CVFilterPanel.h */,
 				AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */,
 				AA88587F0F631E3C00778C03 /* CVGenerator.h */,
@@ -569,6 +570,8 @@
 				AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */,
 				AA63CF8C102DAED400FDA024 /* QTExporter.h */,
 				AA63CF8D102DAED400FDA024 /* QTExporter.mm */,
+				B5BD93481133ED890063C358 /* QTStreamer.h */,
+				B5BD93491133ED890063C358 /* QTStreamer.mm */,
 				AA134ABE1047B6D500BA39EB /* CKbdController.h */,
 				AA134ABF1047B6D500BA39EB /* CKbdController.mm */,
 				AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */,
@@ -580,10 +583,9 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B5792AC6113FD12800CC49B0 /* libjack.dylib */,
-				B5792ABA113FCE9700CC49B0 /* libmp3lame.0.dylib */,
+				AAB1FC751158D958000368A9 /* libjs.dylib */,
 				B5792A8D113EBAA200CC49B0 /* libcurl.dylib */,
-				B56D8F4D113BD3760092D922 /* libjs.dylib */,
+				B56D8F4D113BD3760092D922 /* libmp3lame.dylib */,
 				AAD181D4104965120053F8A6 /* libshout.dylib */,
 				AAD181D2104964FB0053F8A6 /* liblo.dylib */,
 				AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */,
@@ -651,13 +653,13 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				B56DCB84113AEF2900EF3F10 /* flowmixer-Info.plist */,
+				B56DCB84113AEF2900EF3F10 /* freej-Info.plist */,
 				B52891A01139ABA80053A203 /* live_r.png */,
 				B52891A11139ABA80053A203 /* live_w.png */,
 				AADF79FF0FD7F84500167F57 /* ipernav.icns */,
 				AAEE689E0FC893BC007FB46B /* frei0r.png */,
 				AAEE68930FC8906B007FB46B /* webcam.png */,
-				AAA7B6F30F404B4C00056C44 /* flowmixer.app */,
+				AAA7B6F30F404B4C00056C44 /* freej.app */,
 				089C165CFE840E0CC02AAC07 /* InfoPlist.strings */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
 			);
@@ -676,17 +678,12 @@
 		AA3C44100F3EEBE0007C7E8B /* C++ */ = {
 			isa = PBXGroup;
 			children = (
-				B59354E111580B1700BF8C8E /* oggenc.c */,
-				B59354E211580B1700BF8C8E /* oggenc.h */,
-				B5792A62113E5B6A00CC49B0 /* tactell.c */,
-				B5BD95B4113581AD0063C358 /* ffdec.c */,
-				B5BD95B5113581AD0063C358 /* ffdec.h */,
-				B5BD95511134C2000063C358 /* FFInputController.h */,
-				B5BD95521134C2000063C358 /* FFInputController.mm */,
-				B5BD95531134C2000063C358 /* FFInputView.h */,
-				B5BD95541134C2000063C358 /* FFInputView.mm */,
 				AA9337EF0FD7FDEB002B760B /* include */,
 				AAB843990F3EEDE400AD479D /* javascript */,
+				B59354E111580B1700BF8C8E /* oggenc.c */,
+				B5792A62113E5B6A00CC49B0 /* tactell.c */,
+				B5BD95B4113581AD0063C358 /* ffdec.c */,
+				AAB47C8910EAA15F00B0E8D2 /* geometry.cpp */,
 				AA8C41AB0F90FF4F00B39710 /* console_calls_ctrl.cpp */,
 				AA3B0DA2104B131100A27B2E /* generator_layer.cpp */,
 				AA8C41AC0F90FF4F00B39710 /* console_ctrl.cpp */,
@@ -699,8 +696,6 @@
 				AAAAC1720F533ADF00461C96 /* sdl_blits.cpp */,
 				AA8F9F700F510272006A9E2F /* soft_screen.cpp */,
 				AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */,
-				B5BD93481133ED890063C358 /* QTStreamer.h */,
-				B5BD93491133ED890063C358 /* QTStreamer.mm */,
 				AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */,
 				AA3C445C0F3EEBE0007C7E8B /* audio_jack.cpp */,
 				AA3C44600F3EEBE0007C7E8B /* blitter.cpp */,
@@ -784,8 +779,9 @@
 		AA9337EF0FD7FDEB002B760B /* include */ = {
 			isa = PBXGroup;
 			children = (
+				B59354E211580B1700BF8C8E /* oggenc.h */,
+				B5BD95B5113581AD0063C358 /* ffdec.h */,
 				AAB47C8B10EAA18800B0E8D2 /* geometry.h */,
-				AAB47C8910EAA15F00B0E8D2 /* geometry.cpp */,
 				AAC0A359105AF6C2003E11CC /* logging.h */,
 				AA3B0DA6104B133600A27B2E /* frei0r.h */,
 				AA3B0DA7104B133600A27B2E /* generator_layer.h */,
@@ -931,9 +927,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		AAA7B6F20F404B4C00056C44 /* flowmixer */ = {
+		AAA7B6F20F404B4C00056C44 /* freej */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "flowmixer" */;
+			buildConfigurationList = AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "freej" */;
 			buildPhases = (
 				AA4077DC105D471100401BB3 /* PreBuildScript */,
 				AAA7B6EF0F404B4C00056C44 /* Resources */,
@@ -945,9 +941,9 @@
 			);
 			dependencies = (
 			);
-			name = flowmixer;
+			name = freej;
 			productName = freej;
-			productReference = AAA7B6F30F404B4C00056C44 /* flowmixer.app */;
+			productReference = AAA7B6F30F404B4C00056C44 /* freej.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -962,7 +958,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				AAA7B6F20F404B4C00056C44 /* flowmixer */,
+				AAA7B6F20F404B4C00056C44 /* freej */,
 			);
 		};
 /* End PBXProject section */
@@ -980,7 +976,7 @@
 				AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */,
 				B52891A21139ABA80053A203 /* live_r.png in Resources */,
 				B52891A31139ABA80053A203 /* live_w.png in Resources */,
-				B56DCB85113AEF2900EF3F10 /* flowmixer-Info.plist in Resources */,
+				B56DCB85113AEF2900EF3F10 /* freej-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1217,7 +1213,7 @@
 					"-framework",
 					AppKit,
 				);
-				PRODUCT_NAME = flowmixer;
+				PRODUCT_NAME = freej;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};
@@ -1226,6 +1222,7 @@
 		C01FCF4F08A954540054247B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_CW_ASM_SYNTAX = NO;
@@ -1266,7 +1263,7 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
-				ONLY_ACTIVE_ARCH = YES;
+				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
@@ -1277,17 +1274,14 @@
 				PREBINDING = YES;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				STRIP_INSTALLED_PRODUCT = NO;
-				VALID_ARCHS = i386;
+				VALID_ARCHS = "x86_64 i386 ppc";
 			};
 			name = Debug;
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
 				GCC_ALTIVEC_EXTENSIONS = YES;
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_CW_ASM_SYNTAX = NO;
@@ -1326,13 +1320,13 @@
 					../src/include,
 					../lib/shout,
 				);
-				INFOPLIST_FILE = "flowmixer-Info.plist";
+				INFOPLIST_FILE = "freej-Info.plist";
 				LD_OPENMP_FLAGS = "-fopenmp -headerpad_max_install_names";
 				LIBRARY_SEARCH_PATHS = (
 					/usr/local/lib,
 					/opt/local/lib,
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
@@ -1347,7 +1341,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "flowmixer" */ = {
+		AAA7B6F70F404B6B00056C44 /* Build configuration list for PBXNativeTarget "freej" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				AAA7B6F50F404B4D00056C44 /* Debug */,

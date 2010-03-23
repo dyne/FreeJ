@@ -35,8 +35,6 @@
     id                    delegate;
     QTMovie               *qtMovie; 
     QTTime                movieDuration;        // cached duration of the movie - just for convenience
-    CGLContextObj         qtOpenGLContext;
-    QTVisualContextRef    qtVisualContext;        // the context the movie is playing in
     uint64_t              lastPTS;
     bool                  isPlaying;
 }

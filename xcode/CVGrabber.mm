@@ -79,15 +79,19 @@
 - (IBAction)startCapture:(id)sender
 {
     notice( "QTCapture opened" );
-
+    bool ret = false;
+    
     NSError *o_returnedError;
     Context *ctx = [freej getContext];
     width = ctx->screen->geo.w;
     height = ctx->screen->geo.h;
-    /* Hack - using ma resolution seems to lower cpu consuption for some reason */
-    int h = (height < CV_GRABBER_HEIGHT_MAX)?height:CV_GRABBER_HEIGHT_MAX;
-    int w = (width < CV_GRABBER_WIDTH_MAX)?width:CV_GRABBER_WIDTH_MAX;
-    bool ret = false;
+    /* Hack - using max resolution seems to lower cpu consuption for some reason */
+    int h = (height < CV_GRABBER_HEIGHT_MAX)
+          ? height
+          : CV_GRABBER_HEIGHT_MAX;
+    int w = (width < CV_GRABBER_WIDTH_MAX)
+          ? width
+          : CV_GRABBER_WIDTH_MAX;
     device = [QTCaptureDevice defaultInputDeviceWithMediaType: QTMediaTypeVideo];
     if( !device )
     {

@@ -276,7 +276,7 @@ extern "C" {
     if(!ctx->metadata) return;
 	if (strncasecmp(mv,"http://",7)) return;
 
-    FlowMixerMetaData *m= (FlowMixerMetaData*)ctx->metadata;
+    FreejMetaData *m= (FreejMetaData*)ctx->metadata;
     if (m->streamurl1 && mv && !strcmp(m->streamurl1,mv)) {
         if (m->streamdel1) free(m->streamurl1);
         m->streamdel1=m->streamurl1;
@@ -297,7 +297,7 @@ extern "C" {
     if(!ctx->metadata) return;
 	if (strncasecmp(mv,"http://",7)) return;
 
-    FlowMixerMetaData *m= (FlowMixerMetaData*)ctx->metadata;
+    FreejMetaData *m= (FreejMetaData*)ctx->metadata;
     if (!m->streamurl1) m->streamurl1 = strdup(mv);
     else if (!m->streamurl2) m->streamurl2 = strdup(mv);
     else {

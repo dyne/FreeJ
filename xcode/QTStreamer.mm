@@ -343,7 +343,7 @@ extern "C" {
 {
     if (![[streamerProperties objectForKey:@"Announcements" ] intValue]) return;
 
-    FlowMixerMetaData *m= (FlowMixerMetaData*)metadata;
+    FreejMetaData *m= (FreejMetaData*)metadata;
     if (m->timeout-- >0) return;
     m->timeout = outFramerate * 30;
 

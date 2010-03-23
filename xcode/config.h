@@ -36,12 +36,14 @@
 /* define if compiling FFMpeg with oggvorbis encoder */
 #define CONFIG_OGGVORBIS_ENCODER 1
 
-/* define if host has 64 bit */
-#ifdef __x86_64
-# define HAVE_64BIT 1
+#ifdef __x86_64__
+#define HAVE_64BIT 1
 #else
-# undef HAVE_64BIT
+#undef HAVE_64BIT
 #endif
+
+/* define if host has 64 bit */
+/* #undef HAVE_64BIT */
 
 #ifdef __ppc__
 #define HAVE_ALTIVEC 1
@@ -132,7 +134,7 @@
 #define PACKAGE_LOCALE_DIR "/usr/local/share/locale"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "Flowmixer"
+#define PACKAGE_NAME "FreeJ - vision mixer"
 
 /* Prefix */
 #define PACKAGE_PREFIX "/usr/local"

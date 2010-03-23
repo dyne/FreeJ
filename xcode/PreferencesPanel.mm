@@ -48,8 +48,26 @@ static struct {
 {
 }
 
+- (IBAction) setExportCodec:(id)sender
+{
+    if (exporter) {
+        NSString *format = [sender title];
+        if ([format isEqualToString:@"MPG4"]) {
+            [exporter setOutputFormat:[NSNumber numberWithLong:'mpg4'] Codec:@"mp4v"];
+        } else if ([format isEqualToString:@"MJPG"]) {
+            [exporter setOutputFormat:[NSNumber numberWithLong:'MJPG'] Codec:@"jpeg"];
+        } else if ([format isEqualToString:@"H264"]) {
+            [exporter setOutputFormat:[NSNumber numberWithLong:'H264'] Codec:@"avc1"];
+        } else {
+            NSLog(@"Unknown encoding format %@", format); 
+        }
+    }
+}
+
 - (IBAction) setExportQuality:(id)sender
 {
+    if (exporter)
+        [exporter setOutputQuality:[sender indexOfSelectedItem]];
 }
 
 @end

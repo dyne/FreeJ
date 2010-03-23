@@ -1,4 +1,3 @@
-#define MYCGL
 /*  FreeJ
  *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
  *
@@ -89,7 +88,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     Context *ctx = (Context *)[freej getContext];
     fjScreen = (CVScreen *)ctx->screen;
 
-    ctx->metadata = (void*) calloc(1,sizeof(FlowMixerMetaData));
+    ctx->metadata = (void*) calloc(1,sizeof(FreejMetaData));
 
     CVReturn err = CVPixelBufferCreate (
                                         NULL,
@@ -106,7 +105,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
     exportBuffer = CVPixelBufferGetBaseAddress(pixelBuffer);
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
-#ifdef MYCGL
     exportCGContextRef = CGBitmapContextCreate (NULL,
                                                 ctx->screen->geo.w,
                                                 ctx->screen->geo.h,
@@ -114,39 +112,18 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                 ctx->screen->geo.w*4,
                                                 colorSpace,
                                                 kCGImageAlphaPremultipliedLast);
-#else
-    CGLPixelFormatObj pFormat;
-    GLint npix;
-    const int attrs[2] = { kCGLPFADoubleBuffer, NULL};
-    CGLError err = CGLChoosePixelFormat (
-        (CGLPixelFormatAttribute *)attrs,
-        &pFormat,
-        &npix
-    );
-    CGLCreateContext (pFormat, NULL, exportCGContextRef);
-#endif    
+    
     if (exportCGContextRef == NULL)
         NSLog(@"Context not created!");
-
-#ifdef MYCGL
     exportContext = [[CIContext contextWithCGContext:exportCGContextRef 
                                              options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
-#else
-
-  //exportContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
-    exportContext = [[CIContext contextWithCGContext:exportCGContextRef 
-                                 //       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
-                                          options:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                   (id)colorSpace,kCIContextOutputColorSpace,
-                                                   (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
-#endif
     CGColorSpaceRelease( colorSpace );
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
     streamer = [[[QTStreamer alloc] initWithScreen:self meta:ctx->metadata] retain];
 
     streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", @"Framerate", @"Bitrate", @"Quality", @"Announcements", nil] retain];
-    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with the flowmixer", @ICECASTSERVER, @ICECASTPORT, @ICECASTPASSWORD, @"15", @"128000", @"24", @"1", nil];
+    NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with Freej-OSX", @ICECASTSERVER, @ICECASTPORT, @ICECASTPASSWORD, @"15", @"128000", @"24", @"1", nil];
     streamerDict = [[NSMutableDictionary dictionaryWithObjects:objects forKeys:streamerKeys] retain];
 
     [streamerDict setValue:[NSString stringWithFormat:@"MyTitle-%02d",rand()%99] forKey:[streamerKeys objectAtIndex:0]];
@@ -165,7 +142,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     Context *ctx = (Context *)[freej getContext];
     if(ctx->metadata) {
-        FlowMixerMetaData *m= (FlowMixerMetaData*)ctx->metadata;
+        FreejMetaData *m= (FreejMetaData*)ctx->metadata;
         if (m->streamurl1) free(m->streamurl1);
         if (m->streamurl2) free(m->streamurl2);
         if (m->streamdel1) free(m->streamdel1);
@@ -185,12 +162,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         [lastFrame release];
     [lock release];
     [exportContext release];
-#ifdef MYCGL
     CGContextRelease( exportCGContextRef );
-#else
-    CGLContextRelease( exportCGContextRef );
-#endif
-    // TODO: free streamer Keys&Array
     [super dealloc];
 }
 
@@ -335,7 +307,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     void *surface = [self getSurface];
     if (surface) {
         CVPixelBufferRef pixelBufferOut;
-        //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
+        // make a copy
         CVReturn cvRet = CVPixelBufferCreateWithBytes (
                                                        NULL,
                                                        fjScreen->geo.w,
@@ -536,8 +508,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (IBAction)toggleFullScreen:(id)sender
 {    
     CGDirectDisplayID currentDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  
-    
+    CGError err;
     if (fullScreen) {
+        /*
+        CGDisplayConfigRef config;
+        CGBeginDisplayConfiguration(config)
+        err = CGConfigureDisplayMode(config, currentDisplayID, <#CFDictionaryRef mode#>)
+        */
+        /* TODO - CGDisplaySWitchMode is deprecated but it's not yet clear which is the 
+         *        correct API to use on snow leopard 
+         */
         CGDisplaySwitchToMode(currentDisplayID, savedMode);
         SetSystemUIMode(kUIModeNormal, kUIOptionAutoShowMenuBar);
         [self retain];

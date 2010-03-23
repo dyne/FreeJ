@@ -131,9 +131,9 @@
 {
     NSRect        frame = [self frame];
     NSRect        bounds = [self bounds];
-    float       scaleFactor;
+    float         scaleFactor;
     //CVTexture   *textureToRelease = nil;
-    Context     *ctx = (Context *)[freej getContext];
+    Context       *ctx = (Context *)[freej getContext];
     
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     

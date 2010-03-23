@@ -42,7 +42,7 @@
 
 - (id)initWithScreen:(CVScreenView *)cvscreen
 {
-    mDataHandlerRef = nil;
+    //mDataHandlerRef = nil;
     mMovie = nil;
     outputFile = nil;
     screen = cvscreen;
@@ -79,13 +79,15 @@
     [super dealloc];
 }
 
+/* XXX - deprecated on snow leopard (old versions of the QT frameworks (<= 7.2.1) are not supported anymore */
+/*
 - (Movie)quicktimeMovieFromTempFile:(DataHandler *)outDataHandler error:(OSErr *)outErr
 {
 	*outErr = -1;
 	
 	// generate a name for our movie file
 	NSString *tempName = [NSString stringWithCString:tmpnam(nil) 
-                                            encoding:[NSString defaultCStringEncoding]];
+                                   encoding:[NSString defaultCStringEncoding]];
 	if (!tempName) 
         return nil;
 	
@@ -121,6 +123,7 @@ cantcreatemovstorage:
     
 	return nil;
 }
+*/
 
 - (BOOL)pathExists:(NSString *)aFilePath
 {
@@ -174,16 +177,25 @@ cantcreatemovstorage:
 
 - (void)addImage:(CIImage *)image
 {
+    /*
+    NSAffineTransform *scaleTransform = [NSAffineTransform transform];
+    float scaleFactor = 144/[image extent].size.height;
+    [scaleTransform scaleBy:scaleFactor];
+    CIFilter    *scaleFilter = [CIFilter filterWithName:@"CIAffineTransform"];
+    [scaleFilter setDefaults];    // set the filter to its default values
+    
+    [scaleFilter setValue:scaleTransform forKey:@"inputTransform"];
+    [scaleFilter setValue:image forKey:@"inputImage"];
+    
+    CIImage *scaledImage = [scaleFilter valueForKey:@"outputImage"];
+    NSImage *nsImage = [[NSImage alloc] initWithSize:NSMakeSize([scaledImage extent].size.width, [scaledImage extent].size.height)];
+    [nsImage addRepresentation:[NSCIImageRep imageRepWithCIImage:scaledImage]];
+    */
     NSImage *nsImage = [[NSImage alloc] initWithSize:NSMakeSize([image extent].size.width, [image extent].size.height)];
     [nsImage addRepresentation:[NSCIImageRep imageRepWithCIImage:image]];
     // create a QTTime value to be used as a duration when adding 
     // the image to the movie
-	//long timeScale      = [[mMovie attributeForKey:@"QTMovieTimeScaleAttribute"] longValue];
-    //long long timeValue = timeScale/25;
-	QTTime duration;//     = QTMakeTime(timeValue, timeScale);
-	// iterate over all the images in the array and add
-	// them to our movie one-by-one
-    //NSLog(@"%d\n", [images count]);
+    QTTime duration;
     CVTimeStamp now;
     memset(&now, 0 , sizeof(now));
     if (CVDisplayLinkGetCurrentTime((CVDisplayLinkRef)[screen getDisplayLink], &now) == kCVReturnSuccess) {
@@ -274,6 +286,7 @@ bail:
             return NO;
         }
     }
+    /*
     else    
     {    
         // The QuickTime 7.2.1 initToWritableFile: method is not available, so use the native 
@@ -295,7 +308,7 @@ bail:
             return NO;
         }
     }
-    
+    */
     
 	// mark the movie as editable
 	[mMovie setAttribute:[NSNumber numberWithBool:YES] forKey:QTMovieEditableAttribute];
@@ -311,14 +324,16 @@ bail:
 {
     NSAutoreleasePool *pool;
     FPS fps;
-    fps.init(60); // XXX 
+    fps.init(25); // XXX 
 	if (!encodingProperties)
         ;// TODO - Handle error condition
     while ([self isRunning]) {
         pool = [[NSAutoreleasePool alloc] init];
         [self addImage:[screen exportSurface]];
+        /*
         fps.calc();
         fps.delay();
+        */
         [pool release];
     }
 }
@@ -351,16 +366,49 @@ bail:
     return YES;
 }
 
+- (void)setOutputQuality:(int)quality
+{
+    switch (quality) {
+        case 0:
+            [encodingProperties setObject:[NSNumber numberWithLong:codecLowQuality] forKey:QTAddImageCodecQuality];
+            break;
+        case 1:
+            [encodingProperties setObject:[NSNumber numberWithLong:codecNormalQuality] forKey:QTAddImageCodecQuality];
+            break;
+        default:
+            [encodingProperties setObject:[NSNumber numberWithLong:codecHighQuality] forKey:QTAddImageCodecQuality];
+    }
+}
+
+- (void)setOutputFormat:(NSNumber *)format Codec:(NSString *)codec
+{
+    if (savedMovieAttributes)
+        [savedMovieAttributes release];
+    savedMovieAttributes = [[NSDictionary 
+                             dictionaryWithObjects:
+                             [NSArray arrayWithObjects:
+                              [NSNumber numberWithBool:YES],
+                              [NSNumber numberWithBool:YES],
+                              format,
+                              nil]
+                             forKeys:
+                             [NSArray arrayWithObjects:
+                              QTMovieFlatten, QTMovieExport, QTMovieExportType, nil]] retain];
+    [encodingProperties setObject:codec forKey:QTAddImageCodecType];
+}
+
 - (void)stopExport
 {
     [lock lock];
     if (mMovie)
         [mMovie release];
     mMovie = nil;
+    /*
     if (mDataHandlerRef) {
         CFRelease(mDataHandlerRef);
         mDataHandlerRef = nil;
     }
+     */
     [lock unlock];
 }
 

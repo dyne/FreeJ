@@ -33,20 +33,22 @@
 @interface QTExporter : NSObject {
     NSString *outputFile;
     QTMovie *mMovie;
-    DataHandler mDataHandlerRef;
-    CVScreenView *screen;
-    NSMutableDictionary *savedMovieAttributes;
-    NSDictionary *encodingProperties;
+    //DataHandler mDataHandlerRef;
+    NSDictionary *savedMovieAttributes;
+    NSMutableDictionary *encodingProperties;
     NSRecursiveLock *lock;
     CVTimeStamp  lastTimestamp;
     NSImage *lastImage;
+    IBOutlet CVScreenView *screen;
 }
 - (id)initWithScreen:(CVScreenView *)cvscreen;
-- (BOOL)setOutputFile:(NSString *)path;
 - (void)addImage:(CIImage *)image;
 - (BOOL)startExport;
 - (void)stopExport;
 - (BOOL)isRunning;
+- (BOOL)setOutputFile:(NSString *)path;
+- (void)setOutputQuality:(int)quality;
+- (void)setOutputFormat:(NSNumber *)format Codec:(NSString *)codec;
 @end
 
 #endif

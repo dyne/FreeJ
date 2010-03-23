@@ -35,7 +35,7 @@ class CVLayer;
         NSRecursiveLock       *lock;
         
         bool                   newFrame;
-        CVPixelBufferRef       currentFrame;    // the current frame from the movie
+        CVImageBufferRef       currentFrame;    // the current frame from the movie
         CVTexture              *lastFrame;
         CIImage                *posterImage;
         bool                   doPreview;
