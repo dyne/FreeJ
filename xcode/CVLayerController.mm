@@ -271,11 +271,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     float y = 0;
     NSAffineTransform    *rotateTransform;
     NSAffineTransform    *rototranslateTransform;
-    NSString *paramName = nil;
-    NSString *filterName = nil;
-    NSView *cView = nil;
-
-    FilterParams *pdescr;
+    NSString *paramName = NULL;
     pool = [[NSAutoreleasePool alloc] init];
     
     // TODO - optimize the logic in this routine ... it's becoming huge!!
@@ -331,14 +327,15 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 100:
-            filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
+		{
+            NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
             //NSLog(filterName);
             [effectFilter release];
             effectFilter = [[CIFilter filterWithName:filterName] retain]; 
             [effectFilter setName:[[sender selectedItem] title]]; 
-            pdescr = [[layerView filterPanel] getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
+            FilterParams *pdescr = [[layerView filterPanel] getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
             [effectFilter setDefaults];
-            cView = (NSView *)sender;
+            NSView *cView = (NSView *)sender;
             for (int i = 0; i < 4; i++) {
                 NSTextField *label = (NSTextField *)[cView nextKeyView];
                 NSSlider *slider = (NSSlider *)[label nextKeyView];
@@ -382,6 +379,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                 cView = slider;
             }
             break;
+		}
         case 101:
             paramName = [sender toolTip];
             if ([paramName isEqual:@"CenterX"]) {
@@ -501,10 +499,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (bool)needPreview
 {
-    // we wannt preview only if there is a panel attacched to the view (to show it)
-    // if someone else (not the native osx GUI) wants to build a preview, renderFrame/getTexture 
-    // can be used to obtain the actual texture
-    return doPreview?(layerView && [layerView getPreviewTarget]):NO;
+    return doPreview;
 }
 
 - (void)startPreview
