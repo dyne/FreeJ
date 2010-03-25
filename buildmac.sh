@@ -24,8 +24,8 @@ done
 VERSION=0.10
 
 XCODEDIR=./xcode
-VOLNAME=FlowMixer
-BUILD=build/Release/flowmixer.app
+VOLNAME=freej
+BUILD=build/Release/freej.app
 BGPIC=../dmgbg.png
 
 TMPFILE=/tmp/freejtmp.dmg
