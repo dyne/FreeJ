@@ -98,9 +98,10 @@
 {
     NSOpenPanel *fileSelectionPanel    = [NSOpenPanel openPanel];
     NSArray *types = [NSArray arrayWithObjects:
-                      @"avi", @"mov", @"mpg", @"asf", @"jpg", 
+                      @"avi", @"mov", @"mpg", @"asf", @"mp4", 
                       @"ogg", @"ogv", @"flv", @"wmv", @"mkv", 
-                      @"png", @"tif", @"bmp", @"gif", @"pdf", nil];
+                      @"vob", @"mpeg", @"dv", @"mxf",
+                      @"jpg", @"png", @"tif", @"bmp", @"gif", @"pdf", nil];
     
     [fileSelectionPanel 
      beginSheetForDirectory:nil 
@@ -150,7 +151,7 @@
 
 - (void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error
 {
-    NSLog(@"HTTP: error.");
+    //NSLog(@"HTTP: error.");
     [[NSAlert alertWithError:error] runModal]; // XXX
 }
 
