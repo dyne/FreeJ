@@ -30,9 +30,11 @@
 
 - (void)changeDocumentBackgroundColor:(id)sender
 {
-    NSColor *oldColor = [attributes objectForKey:NSBackgroundColorAttributeName];
-    [attributes setObject:[[sender color]retain] forKey:NSBackgroundColorAttributeName];
-    [oldColor release];
+    // XXX - setObject should retain the object itself ... and will be autorelease 
+    // when another object will be set. from apple documentation for setObject method:
+    // * If aKey already exists in the receiver, the receiver’s previous value object 
+    //   for that key is sent a release message and anObject takes its place. *    
+    [attributes setObject:[[sender color] retain] forKey:NSBackgroundColorAttributeName];
 }
 
 - (void)changeAttributes:(id)sender
@@ -43,11 +45,9 @@
 }
 
 - (void)changeFont:(id)sender {
-    NSFont *oldFont = [attributes objectForKey:NSFontAttributeName];
-    NSFont *newFont = [[sender convertFont:oldFont]retain];
+    // same as above
+    NSFont *newFont = [sender convertFont:[attributes objectForKey:NSFontAttributeName]];
     [attributes setObject:newFont forKey:NSFontAttributeName];
-    [oldFont release];
-
 }
 
 - (IBAction)showFontMenu:(id)sender {
@@ -61,8 +61,7 @@
 
 - (IBAction)startText:(id)sender
 {
-    NSString *text = [[textView string] retain];
-    [(CVTextLayerController *)layerController setText:text withAttributes:attributes];
+    [(CVTextLayerController *)layerController setText:[textView string] withAttributes:attributes];
 }
 
 // show the text while typing

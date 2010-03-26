@@ -24,6 +24,7 @@
 - (id)init
 {
     theString = [GLString alloc];
+    text = nil;
     // init fonts for use with strings
     return [super init];
 }
@@ -43,17 +44,18 @@
                            nil];
         
         // create pixel buffer
-        CVPixelBufferCreate(kCFAllocatorDefault, ctx->screen->geo.w, ctx->screen->geo.h, k32ARGBPixelFormat, (CFDictionaryRef)d, &currentFrame);
+        CVPixelBufferCreate(kCFAllocatorDefault,
+                            ctx->screen->geo.w,
+                            ctx->screen->geo.h,
+                            k32ARGBPixelFormat,
+                            (CFDictionaryRef)d,
+                            &currentFrame);
 
      
         // TODO - Implement properly
         //NSFont * font =[NSFont fontWithName:@"Helvetica" size:32.0];
         [theString initWithString:text withAttributes:stanStringAttrib];
-
-        CGLLockContext(glContext);
-        CGLSetCurrentContext(glContext);
         [theString drawOnBuffer:currentFrame];
-        CGLUnlockContext(glContext);
         layer->vbuffer = currentFrame;
         needsNewFrame = NO;
     }
@@ -68,7 +70,9 @@
 {
     if (!layer)
         [self start];
-    text = theText;
+    if (text)
+        [text release];
+    text = [theText retain];
     stanStringAttrib = attributes;
     needsNewFrame = YES;
 }

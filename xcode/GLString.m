@@ -333,7 +333,11 @@
     CVPixelBufferLockBaseAddress(pixelBuffer, 0);
     void *rasterData = CVPixelBufferGetBaseAddress(pixelBuffer);
     size_t bytesPerRow = CVPixelBufferGetBytesPerRow(pixelBuffer);
-    
+    // note that we are most likely going to write on a small area of the pixelbuffer
+    // and memory could have been reused so we need to ensure emptying the entire frame
+    // before actually drawing on it.
+    // XXX - there could be a proper apple api to do this
+    memset(rasterData, 0, bytesPerRow*pxHeight); 
     // context to draw in, set to pixel buffer's address
     size_t bitsPerComponent = 8; // *not* CGImageGetBitsPerComponent(image);
     CGColorSpaceRef cs = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
@@ -347,7 +351,9 @@
     NSGraphicsContext *nsctxt = [NSGraphicsContext graphicsContextWithGraphicsPort:ctxt flipped:NO];
     [NSGraphicsContext saveGraphicsState];
     [NSGraphicsContext setCurrentContext:nsctxt];
-    [image compositeToPoint:NSMakePoint((pxWidth-frameSize.width)/2, (pxHeight-frameSize.height)/2) operation:NSCompositeCopy];
+    [image compositeToPoint:NSMakePoint(round((pxWidth-frameSize.width)/2),
+                                        round((pxHeight-frameSize.height)/2)) 
+                  operation:NSCompositeCopy];
     [NSGraphicsContext restoreGraphicsState];
     
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
