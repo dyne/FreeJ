@@ -37,7 +37,7 @@
 {
     //NSLog(@"open Stream select window..");
    
-    [ffInputPanel myReset]; 
+    [ffInputPanel reset]; 
     [[NSApplication sharedApplication] beginSheet:ffInputPanel 
 	modalForWindow:[sender window]
 	modalDelegate:self 
