@@ -34,12 +34,11 @@ extern "C" {
 
 @implementation QTStreamer
 
-- (id)initWithScreen:(CVScreenView *)cvscreen meta:(void*)m
+- (id)initWithScreen:(CVScreenView *)cvscreen
 {
     active = 0;
     firstTime =0;
     iceConnected =0;
-    metadata = m;
     screen = cvscreen;
     streamerProperties = [[NSDictionary dictionaryWithObjectsAndKeys:@"mp4v",
                            QTAddImageCodecType,
@@ -230,7 +229,6 @@ bail:
 #else
         [self addPixelBuffer:[screen exportPixelBuffer]];
 #endif
-	[self announceStreamer];
         fps.calc();
         fps.delay();
         [pool release];
@@ -254,21 +252,23 @@ bail:
     if (outBitrate < 8000 || outBitrate > 1048576) outBitrate=128000;
 
 #ifdef STREAMSTATS // statistics
-    for (int i=0; i<MAX_FPS_STATISTICS; i++) { fps_data[i] = 0; }
-    fps_sum=0.0; fps_i=0; stream_fps=0.0;
+    
+    for (int i=0; i<MAX_FPS_STATISTICS; i++)
+        fps_data[i] = 0;
+    
+    fps_sum=0.0;
+    fps_i=0;
+    stream_fps=0.0;
     sent_packages=0;
+    
 #endif
 
     [NSThread detachNewThreadSelector:@selector(streamerThread:) 
                              toTarget:self withObject:nil];
-#if 0
-    NSString * mount =  [NSString stringWithFormat:@"%@.ogg", [[streamerProperties objectForKey:@"Title" ] stringByReplacingOccurancesOfString:@" " withString:@"_"]];
-#else
-    NSString * mount =  [NSString stringWithFormat:@"%@.ogg", [streamerProperties objectForKey:@"Title" ]];
-#endif
 
-    NSString * author = [NSString stringWithFormat:@"http://wiki.citu.fr/users/%@", [streamerProperties objectForKey:@"Author" ]];
-  //iceConnected = myOggfwd_init("theartcollider.net", 8002, "inoutsource", "/test.ogg", "desc", "tags", "title", "me");
+    NSString * mount =  [NSString stringWithFormat:@"%@.ogg", [streamerProperties objectForKey:@"Title" ]];
+    NSString * author = [NSString stringWithFormat:@"%s", [streamerProperties objectForKey:@"Author" ]];
+    
     iceConnected = myOggfwd_init(
 	[[streamerProperties objectForKey:@"Server" ] UTF8String],
 	[[streamerProperties objectForKey:@"Port" ] intValue],
@@ -312,9 +312,12 @@ bail:
       return;
     }
     [streamerProperties release];
-    streamerProperties= (NSMutableDictionary*) CFPropertyListCreateDeepCopy (
+    streamerProperties = [NSMutableDictionary dictionaryWithDictionary:params];
+    /*
+    (NSMutableDictionary*)CFPropertyListCreateDeepCopy(
 	kCFAllocatorDefault, params, kCFPropertyListMutableContainersAndLeaves
     );
+    */
     [lock unlock];
 }
 
@@ -332,46 +335,6 @@ bail:
 {
     return active?YES:NO;
 }
-
-
-#if 1 // TODO
-extern "C" {
-    void tac_tell(int del, char *me, char *src);
-}
-
-- (void)announceStreamer
-{
-    if (![[streamerProperties objectForKey:@"Announcements" ] intValue]) return;
-
-    FreejMetaData *m= (FreejMetaData*)metadata;
-    if (m->timeout-- >0) return;
-    m->timeout = outFramerate * 30;
-
-    NSString * mount = [streamerProperties objectForKey:@"Title"];
-
-   if (m->streamdel1) {
-     tac_tell(1, (char*) [mount UTF8String], m->streamdel1);
-     free(m->streamdel1); m->streamdel1=NULL;
-   }
-   if (m->streamdel2) {
-     tac_tell(1, (char*) [mount UTF8String], m->streamdel2);
-     free(m->streamdel2); m->streamdel2=NULL;
-   }
-   if (m->streamurl1) {
-     tac_tell(0, (char*) [mount UTF8String], m->streamurl1);
-   }
-   if (m->streamurl2) {
-     tac_tell(0, (char*) [mount UTF8String], m->streamurl2);
-   }
-
-   /* 
-    int i;
-    for (i=0; i<fjScreen->layers.length;i++) {
-        Layer *lay = fjScreen->layers.pick(i+1);
-    }
-    */
-}
-#endif
 
 
 @end

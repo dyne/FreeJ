@@ -52,7 +52,7 @@
     int fps_i;
 #endif
 }
-- (id)initWithScreen:(CVScreenView *)cvscreen meta:(void*)m;
+- (id)initWithScreen:(CVScreenView *)cvscreen;
 //- (void)addImage:(CIImage *)image;
 - (void)addPixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (BOOL)startStream;
@@ -61,7 +61,6 @@
 - (double)currentFPS;
 - (int)sentPkgs;
 - (void)setParams:(NSDictionary *) params;
-- (void)announceStreamer;
 @end
 
 #endif

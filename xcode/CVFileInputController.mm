@@ -114,16 +114,17 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     qtMovie = NULL;
 
     [layerView clear];
-    /* TODO - try a way to safely reset currentFrame and lastFrame 
-     * (note that other threads can be trying to access them) 
-     
+    /* If other threads are still referencing the pixelbuffer 
+       without retaining it they will crash. They should retain
+       the pixelbuffer while using it since it's reference-counted,
+       so better to spot them ASAP. Anyway all this is going to change
+       once we will have our internal videobufferpool
+     */
     if (lastFrame)
         [lastFrame release];
     lastFrame = NULL;
     if (currentFrame)
         CVPixelBufferRelease(currentFrame);
-    
-     */
 
     [lock unlock];
 }
@@ -267,9 +268,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     uint64_t ts = CVGetCurrentHostTime();
     QTTime now = [qtMovie currentTime];
 #ifdef __BIG_ENDIAN__ // 10.5 || PPC ?! Q&D
-    now.timeValue+=(now.timeScale/layer->fps.fps);
+    now.timeValue += (now.timeScale/layer->fps.fps);
 #else // NEW good implementation
-    now.timeValue +=(((lastPTS?ts-lastPTS:0) * 600)/1000000000);
+    now.timeValue += (((lastPTS?ts-lastPTS:0) * 600)/1000000000);
     now.timeScale = 600;
 #endif
 

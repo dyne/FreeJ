@@ -238,15 +238,17 @@
 //#define WITH_FREEFRAME 1
 #undef WITH_FREEFRAME
 
-#define BUILD_NUMBER 57
+#define BUILD_NUMBER 58
 
 #define OSX_VERSION 0.10
 
 #define PACKAGE_URL "http://freej.dyne.org"
 
-#define ICECASTSERVER "av.theartcollider.org"
+#define ICECASTSERVER "dyne.org"
 
-#define ICECASTPASSWORD "inoutsource"
+#define ICECASTUSER "source"
+
+#define ICECASTPASSWORD "revolution"
 
 #define ICECASTPORT "8000"
 

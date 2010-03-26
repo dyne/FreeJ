@@ -32,12 +32,11 @@
 }
 
 - (IBAction)btnLoad:(id)sender;
-- (IBAction)btnQuery:(id)sender;
 - (IBAction)btnFile:(id)sender;
 - (IBAction)btnCancel:(id)sender;
 - (IBAction) myDoubleClickAction:(id)sender;
 - (NSString*)getURL;
-- (void)myReset;
+- (void)reset;
 - (NSString *)contentString;
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;

@@ -107,6 +107,6 @@ hdiutil convert -format UDZO "${TMPFILE}" -imagekey zlib-level=9 -o "${DMGFILE}"
 rm $TMPFILE
 rmdir $MNTPATH
 
-if [ -n "$UPLOAD" ];then
-  scp $DMGFILE rg42.org:/var/sites/inout/docroot/software/
-fi
+#if [ -n "$UPLOAD" ];then
+#  scp $DMGFILE rg42.org:/var/sites/inout/docroot/software/
+#fi

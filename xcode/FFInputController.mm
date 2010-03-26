@@ -105,12 +105,10 @@ extern "C" {
 {
     Context *ctx = [freej getContext];
     if(!movie) return;
-    //fprintf(stdout, "reOpen: %s\n",movie);
 
     [lock lock];
     if (ff) {
-	//fprintf(stderr,"FFdec: DEBUG: close stream");
-	close_and_free_ff(&ff);
+        close_and_free_ff(&ff);
         ff=NULL;
     }
 
@@ -119,17 +117,14 @@ extern "C" {
 
     ffdec_thread(&ff, movie, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB); 
 
-
     // register the layer within the freej context
     if (!layer) {
-	layer = new CVLayer(self);
-	layer->init();
+        layer = new CVLayer(self);
+        layer->init();
     }
     [lock unlock];
 
     if (!currentFrame) {
-	// http://developer.apple.com/mac/library/DOCUMENTATION/GraphicsImaging/Reference/CoreVideoRef/Reference/reference.html#//apple_ref/c/func/CVOpenGLBufferCreate
-       
         CVPixelBufferCreate(
 		kCFAllocatorDefault,
 		ctx->screen->geo.w,
@@ -155,19 +150,13 @@ extern "C" {
 			}
 		}
         if (timeout > 50) { 
-		NSLog(@"Stream disconnected.");
-        [self tactelldel:movie];
-		free(movie);
-		movie=NULL;
-#if 1
-	    if (layerView) {
-			[layerView setPosterImage:nil];
-			[self clearPreview];
-	    }
-#endif
-#if 0
-		[self freeFrame];
-#endif
+            NSLog(@"Stream disconnected.");
+            free(movie);
+            movie=NULL;
+            if (layerView) {
+                [layerView setPosterImage:nil];
+                [self clearPreview];
+            }
         }
         else if (timeout%8 == 0) [self reOpen];
 
@@ -192,10 +181,10 @@ extern "C" {
 
 		CVPixelBufferLockBaseAddress(currentFrame, 0);
 		uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(currentFrame);
-/*
-	printf("%dx%d -> %dx%d\n", get_scaled_width(ff), get_scaled_height(ff),
-				   ctx->screen->geo.w, ctx->screen->geo.h);
-*/
+        /*
+        printf("%dx%d -> %dx%d\n", get_scaled_width(ff), get_scaled_height(ff),
+                       ctx->screen->geo.w, ctx->screen->geo.h);
+        */
 		if (get_scaled_width(ff) == ctx->screen->geo.w && get_scaled_height(ff) == get_scaled_height(ff)) {
 			uint8_t *ffbuf = get_bufptr(ff);
 			memcpy(buf, ffbuf, 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
@@ -244,12 +233,12 @@ extern "C" {
     if (layer)
         layer->vbuffer = currentFrame;
     [lock unlock];
-
+/*
     if (1) // TODO: iFPScount > oFPScount 
     if (ff && !ffdec_thread(&ff, NULL, 0, 0, 0) && ff) {
     ; // ifpsc+=get_fps(ff);
     }
-
+*/
     [self renderPreview];
     return kCVReturnSuccess;
 }
@@ -257,53 +246,12 @@ extern "C" {
 - (void)setStream:(NSString*)url
 {
     if(movie) { 
-        [self tactelldel:movie];
         free(movie);
     }
     movie = strdup((char *)[url UTF8String]);
     printf("setStream: %s\n",movie);
     timeout=1;
-    [self tactelladd:movie];
     [self reOpen];
-}
-
-// TODO: use Xcode-properties to get ID of current controller
-// addLayer knows our "name" ..
-
-- (void)tactelldel:(const char *)mv
-{
-    Context *ctx = (Context *)[freej getContext];
-    if(!ctx->metadata) return;
-	if (strncasecmp(mv,"http://",7)) return;
-
-    FreejMetaData *m= (FreejMetaData*)ctx->metadata;
-    if (m->streamurl1 && mv && !strcmp(m->streamurl1,mv)) {
-        if (m->streamdel1) free(m->streamurl1);
-        m->streamdel1=m->streamurl1;
-        m->timeout=0;
-        m->streamurl1=NULL;
-    }
-    if (m->streamurl2 && mv && !strcmp(m->streamurl2,mv)) {
-        if (m->streamdel2) free(m->streamurl2);
-        m->streamdel2=m->streamurl2;
-        m->timeout=0;
-        m->streamurl2=NULL;
-    }
-}
-
-- (void)tactelladd:(const char *)mv 
-{
-    Context *ctx = (Context *)[freej getContext];
-    if(!ctx->metadata) return;
-	if (strncasecmp(mv,"http://",7)) return;
-
-    FreejMetaData *m= (FreejMetaData*)ctx->metadata;
-    if (!m->streamurl1) m->streamurl1 = strdup(mv);
-    else if (!m->streamurl2) m->streamurl2 = strdup(mv);
-    else {
-     fprintf(stderr,"TAC-notification failed to schedule '%s'\n",mv);
-    }
-    m->timeout=0;
 }
 
 @end

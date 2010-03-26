@@ -33,9 +33,7 @@
 {
     myHTTPResponse = [[NSMutableData data] retain];
     URL=[[NSMutableString stringWithCapacity:0] retain];
-    streamUrls = [[NSMutableArray arrayWithCapacity:0] retain];
-  //streamUrls = [[NSMutableArray arrayWithObjects:nil] retain];
-  //[streamList setDoubleAction:@selector(myDoubleClickAction:)]; 
+    streamUrls = [[NSMutableArray arrayWithCapacity:0] retain]; 
     [streamList setAction:@selector(myDoubleClickAction:)]; 
     [streamList setDataSource:(id)self];
     [streamList reloadData];
@@ -50,7 +48,7 @@
     [super dealloc];
 }
 
-- (void)myReset
+- (void)reset
 {
     [self makeFirstResponder:streamURL];
     [streamURL setStringValue:@""];
@@ -115,15 +113,6 @@
     [fileSelectionPanel setCanChooseFiles:YES];
 }
 
-- (IBAction)btnQuery:(id)sender
-{
-   [streamUrls removeAllObjects];
-    NSURLRequest *request =
-	[NSURLRequest requestWithURL:[NSURL URLWithString:@"http://theartcollider.org/yp/feed?type=m3u"]]; // TODO: config
-    [[[NSURLConnection alloc] initWithRequest:request delegate:self] autorelease];
-    [streamList reloadData];
-}
-
 /* Table interface */
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
@@ -180,10 +169,9 @@
     NSArray * myUrls = [str componentsSeparatedByString:@"\n"];
     NSUInteger i;
     for (i=0; i <  [myUrls count]; i++) {
-//	NSLog(@"HTTP: %@", [myUrls objectAtIndex:i]);
-	if ([[myUrls objectAtIndex:i] hasPrefix:@"http://"]) {
-	    [streamUrls addObject:[myUrls objectAtIndex:i]];
-        }
+        //NSLog(@"HTTP: %@", [myUrls objectAtIndex:i]);
+        if ([[myUrls objectAtIndex:i] hasPrefix:@"http://"])
+            [streamUrls addObject:[myUrls objectAtIndex:i]];
     }
     [streamList reloadData];
     [str release];

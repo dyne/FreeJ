@@ -88,8 +88,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     Context *ctx = (Context *)[freej getContext];
     fjScreen = (CVScreen *)ctx->screen;
 
-    ctx->metadata = (void*) calloc(1,sizeof(FreejMetaData));
-
     CVReturn err = CVPixelBufferCreate (
                                         NULL,
                                         fjScreen->geo.w,
@@ -120,7 +118,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
     CGColorSpaceRelease( colorSpace );
     exporter = [[[QTExporter alloc] initWithScreen:self] retain];
-    streamer = [[[QTStreamer alloc] initWithScreen:self meta:ctx->metadata] retain];
+    streamer = [[[QTStreamer alloc] initWithScreen:self] retain];
 
     streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", @"Framerate", @"Bitrate", @"Quality", @"Announcements", nil] retain];
     NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with Freej-OSX", @ICECASTSERVER, @ICECASTPORT, @ICECASTPASSWORD, @"15", @"128000", @"24", @"1", nil];
@@ -141,14 +139,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (void)dealloc
 {
     Context *ctx = (Context *)[freej getContext];
-    if(ctx->metadata) {
-        FreejMetaData *m= (FreejMetaData*)ctx->metadata;
-        if (m->streamurl1) free(m->streamurl1);
-        if (m->streamurl2) free(m->streamurl2);
-        if (m->streamdel1) free(m->streamdel1);
-        if (m->streamdel2) free(m->streamdel2);
-        free(ctx->metadata);
-    }
 
     CVPixelBufferUnlockBaseAddress(pixelBuffer, NULL);
     CVOpenGLTextureRelease(pixelBuffer);

@@ -23,8 +23,10 @@
 #import <CVLayerView.h>
 #import <FFInputController.h>
 
+@class FFInputPanel;
+
 @interface FFInputView : CVLayerView {
-    IBOutlet NSWindow *ffInputPanel;
+    IBOutlet FFInputPanel *ffInputPanel;
 }
 
 - (IBAction)openStream:(id)sender;
