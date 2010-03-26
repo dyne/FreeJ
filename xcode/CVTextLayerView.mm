@@ -69,10 +69,15 @@
 {
     bool newValue = [sender intValue];
     if (live != newValue) {
-        if (!live)
+        if (!live) {
             [self startText:self];
+            [self activate];
+        } else {
+            [self deactivate];
+        }
         live = [sender intValue];
     }
+
 }
 
 // if we are running in live mode... let's update the text when it changes
