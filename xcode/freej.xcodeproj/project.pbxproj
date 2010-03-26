@@ -162,6 +162,7 @@
 		AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */; };
 		AAEE68940FC8906B007FB46B /* webcam.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE68930FC8906B007FB46B /* webcam.png */; };
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
+		AAF3B5F2115D7C5700F0C2AB /* textlayer.png in Resources */ = {isa = PBXBuildFile; fileRef = AAF3B5F1115D7C5700F0C2AB /* textlayer.png */; };
 		B52891A21139ABA80053A203 /* live_r.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A01139ABA80053A203 /* live_r.png */; };
 		B52891A31139ABA80053A203 /* live_w.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A11139ABA80053A203 /* live_w.png */; };
 		B56D8F4E113BD3760092D922 /* libmp3lame.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B56D8F4D113BD3760092D922 /* libmp3lame.dylib */; };
@@ -452,6 +453,7 @@
 		AAE2C2B7103FE2AE00D62E4F /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = factory.h; path = include/factory.h; sourceTree = "<group>"; };
 		AAEE68930FC8906B007FB46B /* webcam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = webcam.png; sourceTree = "<group>"; };
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
+		AAF3B5F1115D7C5700F0C2AB /* textlayer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = textlayer.png; sourceTree = "<group>"; };
 		B52891A01139ABA80053A203 /* live_r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_r.png; sourceTree = "<group>"; };
 		B52891A11139ABA80053A203 /* live_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_w.png; sourceTree = "<group>"; };
 		B56D8F4D113BD3760092D922 /* libmp3lame.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmp3lame.dylib; path = /opt/local/lib/libmp3lame.dylib; sourceTree = "<absolute>"; };
@@ -652,6 +654,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				AAF3B5F1115D7C5700F0C2AB /* textlayer.png */,
 				B56DCB84113AEF2900EF3F10 /* freej-Info.plist */,
 				B52891A01139ABA80053A203 /* live_r.png */,
 				B52891A11139ABA80053A203 /* live_w.png */,
@@ -972,6 +975,7 @@
 				AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */,
 				B52891A21139ABA80053A203 /* live_r.png in Resources */,
 				B52891A31139ABA80053A203 /* live_w.png in Resources */,
+				AAF3B5F2115D7C5700F0C2AB /* textlayer.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

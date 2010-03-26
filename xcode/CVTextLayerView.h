@@ -12,6 +12,7 @@
 
 
 @interface CVTextLayerView : CVLayerView {
+    NSImage *icon;
     IBOutlet NSTextView *textView;
     NSMutableDictionary *attributes;
     bool live;

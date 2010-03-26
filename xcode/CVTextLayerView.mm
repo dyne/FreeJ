@@ -11,21 +11,46 @@
 
 @implementation CVTextLayerView
 
-- (id)init {
+- (id)init
+{
+    static char *suffix = (char*)"/Contents/Resources/textlayer.png";
+    char iconFile[1024];
+    ProcessSerialNumber psn;
+    GetProcessForPID(getpid(), &psn);
+    FSRef location;
+    GetProcessBundleLocation(&psn, &location);
+    FSRefMakePath(&location, (UInt8 *)iconFile, sizeof(iconFile)-strlen(suffix)-1);
+    strcat(iconFile, suffix);
+    icon = [[NSImage alloc] initWithContentsOfURL:
+            [NSURL fileURLWithPath:[NSString stringWithCString:iconFile encoding:NSASCIIStringEncoding]]];
+    
     attributes = [[NSMutableDictionary dictionary] retain];
     [attributes
      setObject:[textView font]
      forKey:NSFontAttributeName
-    ];
+     ];
     [attributes
      setObject:[textView textColor]
      forKey:NSForegroundColorAttributeName
-    ];
+     ];
     [attributes
      setObject:[[[textView backgroundColor] colorWithAlphaComponent:0.0] retain]
      forKey:NSBackgroundColorAttributeName
-    ];
+     ];
+    
     return [super init];
+}
+
+- (void)drawRect:(NSRect)theRect
+{
+    if (!posterImage)
+        [self setPosterImage:icon];
+    [super drawRect:theRect];
+}
+
+- (BOOL)isOpaque
+{
+    return NO;
 }
 
 - (void)changeDocumentBackgroundColor:(id)sender
