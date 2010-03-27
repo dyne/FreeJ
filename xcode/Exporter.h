@@ -25,6 +25,8 @@
 
 @protocol Exporter 
 - (BOOL)startExport;
+- (BOOL)setOutputFile:(NSString *)path;
+- (BOOL)startExport:(int)fps width:(int)w height:(int)h;
 - (void)stopExport;
 - (BOOL)isRunning;
 @end
