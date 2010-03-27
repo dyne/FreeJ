@@ -266,8 +266,8 @@ int decode_frame(void *ffp) {
     if(!frameFinished) {
       if(ff->packet.data) av_free_packet(&ff->packet);
       if(av_read_frame(ff->pFormatCtx, &ff->packet)<0) {
-	fprintf(stderr,"End of file reached.\n");
-	break; // End of movie -> return(0);
+        fprintf(stderr,"End of file reached.\n");
+        return 0;
       }
       if (av_dup_packet(&ff->packet) < 0) {
 	fprintf(stderr,"Can not allocate packet!\n");
@@ -308,12 +308,18 @@ void free_ff(void *ffpx) {
 void close_and_free_ff(void *ffpx) {
   struct ffdec **ffp = (struct ffdec **) ffpx;
   struct ffdec *ff   = (struct ffdec *) *ffp;
+#if 0
   int timeout=250;
   while (--timeout && ff->pt_status&10) usleep(20000);// do not free while thread is active
-  close_movie(ff);
-  free_moviebuffer(ff);
-  free_ff(ffpx);
-  ffpx = NULL;
+#endif
+  if (ff) {
+    close_movie(ff);
+    free_moviebuffer(ff);
+  }
+  if (ffpx) {
+    free_ff(ffpx);
+    ffpx = NULL;
+  }
 }
 
 void limit_size(void *ffp) {
@@ -457,7 +463,7 @@ void *ffdec_open_thread(void *arg) {
     ff->pt_status|=1;
 #if 1
     ff->pt_status |= 2;
-    ffdec_decode_thread(ffp);
+    //ffdec_decode_thread(ffp);
 #endif
   }
   free(a);

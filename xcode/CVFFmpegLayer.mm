@@ -18,7 +18,7 @@ extern "C"
 CVFFmpegLayer::CVFFmpegLayer(CVLayerController *controller) : CVLayer(controller)
 {
     ff = NULL;
-
+    pixelBuffer = NULL;
 }
 
 CVFFmpegLayer::~CVFFmpegLayer()
@@ -61,8 +61,11 @@ void *CVFFmpegLayer::feed()
                                                      ); 
         if (err == kCVReturnSuccess) {
             [input feedFrame:pixelBuffer];
-            if (!ffdec_thread((void **)&ff, NULL, 0, 0, 0) && (void *)ff)
+            if (!decode_frame((void *)ff)) {
                 buffer = NULL;
+                close_and_free_ff((void **)&ff);
+                [input deactivate];
+            }
         } else {
             // TODO - Error messages
         }
