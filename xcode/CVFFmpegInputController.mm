@@ -154,49 +154,50 @@
         */
 		if (lay->scaledWidth() == ctx->screen->geo.w && lay->scaledHeight() == ctx->screen->geo.h) {
 			uint8_t *ffbuf = (uint8_t *)lay->buffer;
-			memcpy(buf, ffbuf, 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
+            if (lay->buffer) {
+                memcpy(buf, ffbuf, 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
 
-			long blackness=(ctx->screen->geo.w * ctx->screen->geo.h);
-#if 1 // histogram
-			blackness=0;
-			if (!preview) {
-				int i;
-				for (i=0; i< 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t);i+=4) {
-					blackness+=((buf[i+1]>>2) || (buf[i+2]>>2) || (buf[i+3]>>2))?1:0;
-				}
-			}
-#endif
-			if (!preview && blackness >= (ctx->screen->geo.w * ctx->screen->geo.h)>>4) {
-				NSAutoreleasePool *pool;
-				pool = [[NSAutoreleasePool alloc] init];
-				NSBitmapImageRep *imr = [[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(unsigned char**)&buf 
-																  pixelsWide:ctx->screen->geo.w
-																  pixelsHigh:ctx->screen->geo.h
-																  bitsPerSample:8
-																  samplesPerPixel:4
-																  hasAlpha:YES
-																  isPlanar:NO
-																  colorSpaceName:NSCalibratedRGBColorSpace
-																  bitmapFormat:NSAlphaFirstBitmapFormat
-																  bytesPerRow:(4*ctx->screen->geo.w)
-																  bitsPerPixel:32] retain];
-				previewImage = [[[NSImage alloc] initWithSize:NSZeroSize] retain];
-				[previewImage addRepresentation:imr];
-				[layerView setPosterImage:previewImage];
-				preview=1;	
-				[imr release];
-				[pool release];
-			}
+                long blackness=(ctx->screen->geo.w * ctx->screen->geo.h);
+    #if 1 // histogram
+                blackness=0;
+                if (!preview) {
+                    int i;
+                    for (i=0; i< 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t);i+=4) {
+                        blackness+=((buf[i+1]>>2) || (buf[i+2]>>2) || (buf[i+3]>>2))?1:0;
+                    }
+                }
+    #endif
+                if (!preview && blackness >= (ctx->screen->geo.w * ctx->screen->geo.h)>>4) {
+                    NSAutoreleasePool *pool;
+                    pool = [[NSAutoreleasePool alloc] init];
+                    NSBitmapImageRep *imr = [[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(unsigned char**)&buf 
+                                                                      pixelsWide:ctx->screen->geo.w
+                                                                      pixelsHigh:ctx->screen->geo.h
+                                                                      bitsPerSample:8
+                                                                      samplesPerPixel:4
+                                                                      hasAlpha:YES
+                                                                      isPlanar:NO
+                                                                      colorSpaceName:NSCalibratedRGBColorSpace
+                                                                      bitmapFormat:NSAlphaFirstBitmapFormat
+                                                                      bytesPerRow:(4*ctx->screen->geo.w)
+                                                                      bitsPerPixel:32] retain];
+                    previewImage = [[[NSImage alloc] initWithSize:NSZeroSize] retain];
+                    [previewImage addRepresentation:imr];
+                    [layerView setPosterImage:previewImage];
+                    preview=1;	
+                    [imr release];
+                    [pool release];
+                }
+                layer->vbuffer = currentFrame;
+                newFrame = YES;
+            }
 		} else {
 			printf("WARNING: scaled video and screen size mismatch!\n"); 
 			[self reOpen];
 		}
 		CVPixelBufferUnlockBaseAddress(currentFrame, 0);
 			CGLUnlockContext(glContext);
-
-		newFrame = YES;
-        if (layer)
-            layer->vbuffer = currentFrame;
+            
     } else if (!lay->hasFF()) {
         if (timeout == 1) {
 			//printf("FFDEC: TIMEOUT!\n");
@@ -214,9 +215,14 @@
                 [self clearPreview];
             }
         }
-        else if (timeout%8 == 0) [self reOpen];
+        //else if (timeout%8 == 0)
+          //  [self reOpen];
         
         timeout++;
+        CVPixelBufferRelease(currentFrame);
+        currentFrame = NULL;
+        lay->stop();
+        [self deactivate];
         [lock unlock];
 		return kCVReturnError;        
     }

@@ -3,7 +3,7 @@
 //  freej
 //
 //  Created by xant on 3/27/10.
-//  Copyright 2010 __MyCompanyName__. All rights reserved.
+//  Copyright 2010 dyne.org. All rights reserved.
 //
 
 #import "CVFFmpegLayer.h"
@@ -38,13 +38,38 @@ bool CVFFmpegLayer::open(const char *movie)
 void *CVFFmpegLayer::feed()
 {
     if (ff) {
-        CVLayer::feed();
-        if (!ffdec_thread((void **)&ff, NULL, 0, 0, 0) && (void *)ff)
-            ; // ifpsc+=get_fps(ff);
-        if (ff)
-            buffer = get_bufptr(ff);
+        uint8_t *ffbuffer = get_bufptr(ff);
+        if (!ffbuffer)
+            return NULL;
+        // TODO - handle geometry changes and ensure using the same size of ffmpeg buffer
+        if (!currentFrame)
+            currentFrame = malloc(geo.bytesize);
+        memcpy(currentFrame, ffbuffer, geo.bytesize);
+        if (pixelBuffer)
+            CVPixelBufferRelease(pixelBuffer);
+        CVReturn err = CVPixelBufferCreateWithBytes (
+                                                     NULL,
+                                                     geo.w,
+                                                     geo.h,
+                                                     k32ARGBPixelFormat,
+                                                     currentFrame,
+                                                     geo.w*4,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL,
+                                                     &pixelBuffer
+                                                     ); 
+        if (err == kCVReturnSuccess) {
+            [input feedFrame:pixelBuffer];
+            if (!ffdec_thread((void **)&ff, NULL, 0, 0, 0) && (void *)ff)
+                buffer = NULL;
+        } else {
+            // TODO - Error messages
+        }
+    } else {
+        currentFrame = NULL;
     }
-    return buffer;
+    return currentFrame;
 }
 
 bool CVFFmpegLayer::isDecoding()

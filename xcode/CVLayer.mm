@@ -72,8 +72,10 @@ CVLayer::activate()
 void
 CVLayer::deactivate()
 {
-    if (screen)
+    if (screen) {
         screen->rem_layer(this);
+        screen = NULL;
+    }
     active = false;
 }
 

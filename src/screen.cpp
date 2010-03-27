@@ -153,6 +153,7 @@ bool ViewPort::add_audio(JackClient *jcl) {
 
 void ViewPort::rem_layer(Layer *lay)
 {
+    lay->screen = NULL; // symmetry
     lay->rem();
     notice("removed layer %s (but still present as an instance)", lay->name);
 }

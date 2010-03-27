@@ -313,6 +313,7 @@ void close_and_free_ff(void *ffpx) {
   close_movie(ff);
   free_moviebuffer(ff);
   free_ff(ffpx);
+  ffpx = NULL;
 }
 
 void limit_size(void *ffp) {
@@ -487,6 +488,7 @@ int ffdec_thread(void **ffpx, char *movie_url, int w, int h, int render_fmt) {
     struct ffdec *ff   = (struct ffdec *) *ffp;
     if ((ff->pt_status & 4 )) {
       close_and_free_ff(ffpx);
+      return(-1);
     }
   }
 
