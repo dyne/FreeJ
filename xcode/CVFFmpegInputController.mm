@@ -162,7 +162,7 @@
     */
                     NSAutoreleasePool *pool;
                     pool = [[NSAutoreleasePool alloc] init];
-                    NSBitmapImageRep *imr = [[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(unsigned char**)&buf 
+                    NSBitmapImageRep *imr = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(unsigned char**)&buf 
                                                                                      pixelsWide:ctx->screen->geo.w
                                                                                      pixelsHigh:ctx->screen->geo.h
                                                                                   bitsPerSample:8
@@ -172,8 +172,8 @@
                                                                                  colorSpaceName:NSCalibratedRGBColorSpace
                                                                                    bitmapFormat:NSAlphaFirstBitmapFormat
                                                                                     bytesPerRow:(4*ctx->screen->geo.w)
-                                                                                   bitsPerPixel:32] retain];
-                    previewImage = [[[NSImage alloc] initWithSize:NSZeroSize] retain];
+                                                                                   bitsPerPixel:32];
+                    previewImage = [[NSImage alloc] initWithSize:NSZeroSize];
                     [previewImage addRepresentation:imr];
                     [layerView setPosterImage:previewImage];
                     [imr release];
@@ -224,14 +224,14 @@
                 long blackness=(ctx->screen->geo.w * ctx->screen->geo.h);
     #if 1 // histogram
                 blackness=0;
-                if (!preview) {
+                if (!previewImage) {
                     int i;
                     for (i=0; i< 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t);i+=4) {
                         blackness+=((buf[i+1]>>2) || (buf[i+2]>>2) || (buf[i+3]>>2))?1:0;
                     }
                 }
     #endif
-                if (!preview && blackness >= (ctx->screen->geo.w * ctx->screen->geo.h)>>4) {
+                if (!previewImagae && blackness >= (ctx->screen->geo.w * ctx->screen->geo.h)>>4) {
                     NSAutoreleasePool *pool;
                     pool = [[NSAutoreleasePool alloc] init];
                     NSBitmapImageRep *imr = [[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(unsigned char**)&buf 
@@ -245,7 +245,7 @@
                                                                       bitmapFormat:NSAlphaFirstBitmapFormat
                                                                       bytesPerRow:(4*ctx->screen->geo.w)
                                                                       bitsPerPixel:32] retain];
-                    previewImage = [[[NSImage alloc] initWithSize:NSZeroSize] retain];
+                    previewImage = [[NSImage alloc] initWithSize:NSZeroSize];
                     [previewImage addRepresentation:imr];
                     [layerView setPosterImage:previewImage];
                     [imr release];
@@ -282,8 +282,8 @@
           //  [self reOpen];
         
         timeout++;
-        CVPixelBufferRelease(currentFrame);
-        currentFrame = NULL;
+        //CVPixelBufferRelease(currentFrame);
+        //currentFrame = NULL;
         /*
         lay->stop();
         [self deactivate];

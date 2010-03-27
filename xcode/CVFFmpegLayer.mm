@@ -20,6 +20,7 @@ CVFFmpegLayer::CVFFmpegLayer(CVLayerController *controller) : CVLayer(controller
 {
     ff = NULL;
     pixelBuffer = NULL;
+    currentFrame = NULL;
 }
 
 CVFFmpegLayer::~CVFFmpegLayer()
@@ -43,11 +44,13 @@ bool CVFFmpegLayer::open(const char *movie)
 
 void *CVFFmpegLayer::feed()
 {
-    currentFrame = NULL;
     if (!ff) 
     {
-        if (strlen(filename)) { // XXX - (argh!, find a better way)
+        if (currentFrame) {
+            free(currentFrame);
             currentFrame = NULL;
+        }
+        if (strlen(filename)) { // XXX - (argh!, find a better way)
             if (open_movie((void **)&ff, filename) == 0) {
                 init_moviebuffer(ff, geo.w, geo.h, PIX_FMT_ARGB);
                 decode_frame((void *)ff);
@@ -76,7 +79,7 @@ void *CVFFmpegLayer::feed()
                                                      NULL,
                                                      NULL,
                                                      &pixelBuffer
-                                                     ); 
+                                                    ); 
         if (err == kCVReturnSuccess) {
             [input feedFrame:pixelBuffer];
             if (!decode_frame((void *)ff)) {
