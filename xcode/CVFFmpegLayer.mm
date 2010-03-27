@@ -41,7 +41,8 @@ void *CVFFmpegLayer::feed()
         CVLayer::feed();
         if (!ffdec_thread((void **)&ff, NULL, 0, 0, 0) && (void *)ff)
             ; // ifpsc+=get_fps(ff);
-        buffer = get_bufptr(ff);
+        if (ff)
+            buffer = get_bufptr(ff);
     }
     return buffer;
 }
