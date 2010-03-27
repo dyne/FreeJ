@@ -57,12 +57,25 @@ extern "C" { // prototypes in ffenc.c
 
 - (void)addPixelBuffer:(CVPixelBufferRef)pixelBuffer
 {
-    //timeval done, now_tv;
-    //gettimeofday(&now_tv, NULL);
+    timeval done, now_tv;
     if (!pixelBuffer) return;
-    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    encode_buffer((uint8_t*) CVPixelBufferGetBaseAddress(pixelBuffer));
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0 );
+    if (firstTime==0) {
+        gettimeofday(&calc_tv, NULL);
+	firstTime=1;
+    }
+    gettimeofday(&now_tv, NULL);
+    timersub(&now_tv, &calc_tv, &done);
+
+    int rate = 1000000 / (outFramerate);
+    while ( (done.tv_sec > 0) || (done.tv_usec >= rate) ) {
+
+	CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+	encode_buffer((uint8_t*) CVPixelBufferGetBaseAddress(pixelBuffer));
+	CVPixelBufferUnlockBaseAddress(pixelBuffer, 0 );
+	calc_tv.tv_sec  = now_tv.tv_sec  - done.tv_sec;
+	calc_tv.tv_usec = now_tv.tv_usec - done.tv_usec + rate;
+	timersub(&now_tv, &calc_tv, &done);
+    }
 
     CVPixelBufferRelease(pixelBuffer);
 }
@@ -71,7 +84,7 @@ extern "C" { // prototypes in ffenc.c
 {
     NSAutoreleasePool *pool;
     FPS fps;
-    fps.init(60); // XXX 
+    fps.init(2*outFramerate); 
     while ([self isRunning]) {
         pool = [[NSAutoreleasePool alloc] init];
 	[lock lock];
@@ -83,12 +96,13 @@ extern "C" { // prototypes in ffenc.c
     }
 }
 
-- (BOOL)startExport
+- (BOOL)startExport:(int)fps width:(int)w height:(int)h
 {
-    NSLog(@"FFEXPORTER start");
     if (!outputFile)
         outputFile = [[NSString stringWithCString:DEFAULT_FFOUTPUT_FILE  encoding:NSUTF8StringEncoding] retain];
-    if (!open_output_file([outputFile UTF8String], 352, 288, 25)) { // XXX
+    if (!open_output_file([outputFile UTF8String], w, h, fps)) {
+        outFramerate = fps;
+        firstTime = 0;
         running = YES;
         [NSThread detachNewThreadSelector:@selector(exporterThread:) 
                                  toTarget:self withObject:nil];

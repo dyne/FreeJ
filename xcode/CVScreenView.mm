@@ -117,8 +117,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                              options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
     CGColorSpaceRelease( colorSpace );
-    exporterQT = [[[QTExporter alloc] initWithScreen:self] retain];
-    exporterFF = [[[FFExporter alloc] initWithScreen:self] retain];
+    exporterQT = [[QTExporter alloc] initWithScreen:self];
+    exporterFF = [[FFExporter alloc] initWithScreen:self];
 
     exporter = (id<Exporter>)exporterQT;
     streamer = [[QTStreamer alloc] initWithScreen:self];
@@ -164,7 +164,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [lock release];
     [exportContext release];
     CGContextRelease( exportCGContextRef );
-    //CGLContextRelease( exportCGContextRef );
     // TODO: free streamer Keys&Array
     [streamer release]; // stop it first
     //[exporterQT release]; // ??
@@ -287,7 +286,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     void *surface = [self getSurface];
     if (!surface) return nil;
-    CVPixelBufferRef pixelBufferOut;
+    CVPixelBufferRef pixelBufferOut = nil;
     CVReturn cvRet = CVPixelBufferCreateWithBytes (
 						   NULL,
 						   fjScreen->geo.w,
@@ -302,33 +301,18 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 						   );
     if (cvRet != noErr) {
 	// TODO - Error Messages
+	if (pixelBufferOut)
+            CVPixelBufferRelease(pixelBufferOut);
+	return nil;
     }
-    //CVPixelBufferRelease(pixelBufferOut);
     return pixelBufferOut;
 }
 
 - (CIImage *)exportSurface
 {
     CIImage *exportedSurface = nil;
-    void *surface = [self getSurface];
-    if (surface) {
-        CVPixelBufferRef pixelBufferOut;
-        // make a copy
-        CVReturn cvRet = CVPixelBufferCreateWithBytes (
-                                                       NULL,
-                                                       fjScreen->geo.w,
-                                                       fjScreen->geo.h,
-                                                       k32ARGBPixelFormat,
-                                                       surface,
-                                                       fjScreen->geo.w*4,
-                                                       NULL,
-                                                       NULL,
-                                                       NULL,
-                                                       &pixelBufferOut
-                                                       );
-        if (cvRet != noErr) {
-            // TODO - Error Messages
-        }
+    CVPixelBufferRef pixelBufferOut = [self exportPixelBuffer];
+    if (pixelBufferOut) {
         exportedSurface = [CIImage imageWithCVImageBuffer:pixelBufferOut];
         CVPixelBufferRelease(pixelBufferOut);
     }
@@ -485,19 +469,85 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     }
 }
 
+#define MYCGL
+- (void)allocPixelBuffer
+{
+    NSLog(@"pixel buffer: %ix%i", fjScreen->geo.w, fjScreen->geo.h);
+#if 0
+    CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->geo.w, fjScreen->geo.h, NULL, &pixelBuffer);
+#else
+    CVReturn err = CVPixelBufferCreate (
+					NULL,
+					fjScreen->geo.w,
+					fjScreen->geo.h,
+					k32ARGBPixelFormat,
+					NULL,
+					&pixelBuffer
+					);
+#endif
+    if (err) {
+	// TODO - Error messages
+    }
+    CVPixelBufferRetain(pixelBuffer);
+    CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
+    exportBuffer = CVPixelBufferGetBaseAddress(pixelBuffer);
+    //CVPixelBufferUnlockBaseAddress(pixelBuffer, 0 );
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+
+#ifdef MYCGL
+    exportCGContextRef = CGBitmapContextCreate (NULL,
+						fjScreen->geo.w,
+						fjScreen->geo.h,
+						8,      // bits per component
+						fjScreen->geo.w*4,
+						colorSpace,
+						kCGImageAlphaPremultipliedLast);
+
+    if (exportCGContextRef == NULL)
+        NSLog(@"WARNING: Export-context not created!");
+
+    exportContext = [[CIContext contextWithCGContext:exportCGContextRef 
+                                             options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
+                                                                                 forKey:  kCIContextOutputColorSpace]] retain];
+#else
+    CGLPixelFormatObj pFormat;
+    GLint npix;
+    const int attrs[2] = { kCGLPFADoubleBuffer, NULL};
+    CGLError err = CGLChoosePixelFormat (
+	(CGLPixelFormatAttribute *)attrs,
+	&pFormat,
+	&npix
+    );
+    CGLCreateContext (pFormat, NULL, exportCGContextRef);
+
+    if (exportCGContextRef == NULL)
+        NSLog(@"WARNING: Export-context not created!");
+
+  //exportContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
+    exportContext = [[CIContext contextWithCGContext:exportCGContextRef 
+                                 //       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+                                          options:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                   (id)colorSpace,kCIContextOutputColorSpace,
+                                                   (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+#endif
+
+    CGColorSpaceRelease( colorSpace );
+
+    if (lastFrame)
+        [lastFrame release];
+    lastFrame = NULL;
+}
+
 - (void)setSizeWidth:(int)w Height:(int)h
 {
     [lock lock];
     if (w != fjScreen->geo.w || h != fjScreen->geo.h) {
         CVPixelBufferRelease(pixelBuffer);
-        CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->geo.w, fjScreen->geo.h, NULL, &pixelBuffer);
-        if (err != noErr) {
-            // TODO - Error Messages
-        }
-        CVPixelBufferRetain(pixelBuffer);
-        //pixelBuffer = realloc(pixelBuffer, w*h*4);
+
         fjScreen->geo.w = w;
         fjScreen->geo.h = h;
+
+	[self allocPixelBuffer];
         needsReshape = YES;
         NSRect frame = [window frame];
         frame.size.width = w;
@@ -566,13 +616,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)startExport:(id)sender
 {
+    Context *ctx = [freej getContext];
     [self setExporter];
     if (exporter) 
-        if ([exporter startExport]) {
+        if ([exporter startExport:25 width:ctx->screen->geo.w height:ctx->screen->geo.h]) {
+	    NSLog(@"started file exporter: %ix%i @%ifps", ctx->screen->geo.w, ctx->screen->geo.h, 25);
             [sender setTitle:@"Stop"];
 	    [exportButtonQT setEnabled:false];
 	    [exportButtonFF setEnabled:false];
 	    [exportButtonOG setEnabled:false];
+	    [exportFilename setEnabled:false];
         }
 }
 
@@ -582,6 +635,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (exporter)
         [exporter stopExport];
     [sender setTitle:@"Start"];
+    [exportFilename setEnabled:YES];
     [exportButtonFF setEnabled:YES];
     [exportButtonOG setEnabled:NO]; // XXX Ogg exporter: not yet implemented
 #ifdef __x86_64
@@ -591,9 +645,23 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 #endif
 }
 
+- (void)setExportOutputFile:(NSString *)filename
+{
+#if 0
+    [exporterQT setOutputFile:filename];
+    [exporterFF setOutputFile:filename];
+    //[exporterOG setOutputFile:filename];
+#else
+    [exporter setOutputFile:filename];
+#endif
+}
+
+
+
 - (IBAction)toggleExport:(id)sender
 {
     [self setExporter];
+    [self setExportOutputFile:[exportFilename stringValue]];
     if (exporter) {
         if ([exporter isRunning])
             [self stopExport:sender];
@@ -601,14 +669,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             [self startExport:sender];
     }
 }
-
-- (void)setExportOutputFile:(NSString *)filename
-{
-    [exporterQT setOutputFile:filename];
-    [exporterFF setOutputFile:filename];
-    //[exporterOG setOutputFile:filename];
-}
-
 
 - (void)setExportFileDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void  *)contextInfo
 {
@@ -624,13 +684,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSString * tvarDirectory = [panel directory];
     func("openFile directory = %@",tvarDirectory);
     
-    NSString * tvarFilename = [panel filename];
+    NSString * tvarFilename = [[panel filename]retain];
     func("openFile filename = %@",tvarFilename);
     
     if (tvarFilename) {
-        [(NSTextField *)[(id)contextInfo nextKeyView] setStringValue:tvarFilename]; 
-	    //setExportOutputFile(tvarFilename);
+        [exportFilename setStringValue:tvarFilename];
     }
+    [tvarFilename release];
 }
 
 - (IBAction)setExportFile:(id)sender

@@ -12,12 +12,12 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="57"/>
-			<integer value="3015"/>
-			<integer value="2878"/>
-			<integer value="2737"/>
 			<integer value="1576"/>
 			<integer value="1887"/>
+			<integer value="3015"/>
+			<integer value="57"/>
+			<integer value="2737"/>
+			<integer value="2879"/>
 			<integer value="2212"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
@@ -1970,7 +1970,7 @@
 												<object class="NSTabViewItem" id="114701446">
 													<string key="NSIdentifier">1</string>
 													<object class="NSView" key="NSView" id="215150622">
-														<nil key="NSNextResponder"/>
+														<reference key="NSNextResponder" ref="809202636"/>
 														<int key="NSvFlags">256</int>
 														<object class="NSMutableArray" key="NSSubviews">
 															<bool key="EncodedWithXMLCoder">YES</bool>
@@ -2038,6 +2038,7 @@
 															</object>
 														</object>
 														<string key="NSFrame">{{10, 33}, {387, 120}}</string>
+														<reference key="NSSuperview" ref="809202636"/>
 													</object>
 													<string key="NSLabel">Export</string>
 													<reference key="NSColor" ref="285277074"/>
@@ -2046,7 +2047,7 @@
 												<object class="NSTabViewItem" id="909308152">
 													<string key="NSIdentifier">2</string>
 													<object class="NSView" key="NSView" id="1058362060">
-														<reference key="NSNextResponder" ref="809202636"/>
+														<nil key="NSNextResponder"/>
 														<int key="NSvFlags">256</int>
 														<object class="NSMutableArray" key="NSSubviews">
 															<bool key="EncodedWithXMLCoder">YES</bool>
@@ -2236,21 +2237,20 @@
 															</object>
 														</object>
 														<string key="NSFrame">{{10, 33}, {387, 120}}</string>
-														<reference key="NSSuperview" ref="809202636"/>
 													</object>
 													<string key="NSLabel">Stream</string>
 													<reference key="NSColor" ref="285277074"/>
 													<reference key="NSTabView" ref="809202636"/>
 												</object>
 											</object>
-											<reference key="NSSelectedTabViewItem" ref="909308152"/>
+											<reference key="NSSelectedTabViewItem" ref="114701446"/>
 											<reference key="NSFont" ref="639457763"/>
 											<int key="NSTvFlags">0</int>
 											<bool key="NSAllowTruncatedLabels">YES</bool>
 											<bool key="NSDrawsBackground">YES</bool>
 											<object class="NSMutableArray" key="NSSubviews">
 												<bool key="EncodedWithXMLCoder">YES</bool>
-												<reference ref="1058362060"/>
+												<reference ref="215150622"/>
 											</object>
 										</object>
 										<object class="NSBox" id="802582552">
@@ -5887,6 +5887,14 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					</object>
 					<int key="connectionID">3055</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">exportFilename</string>
+						<reference key="source" ref="575023888"/>
+						<reference key="destination" ref="828199379"/>
+					</object>
+					<int key="connectionID">3056</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -9166,9 +9174,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
-					<string>{{223, 495}, {352, 288}}</string>
+					<string>{{805, 568}, {352, 288}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{223, 495}, {352, 288}}</string>
+					<string>{{805, 568}, {352, 288}}</string>
 					<integer value="1"/>
 					<string>{{169, 165}, {507, 404}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -9826,7 +9834,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">3055</int>
+			<int key="maxID">3056</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -10225,6 +10233,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>presetsStreamer:</string>
 							<string>setExportFile:</string>
 							<string>startExport:</string>
 							<string>stopExport:</string>
@@ -10240,13 +10249,20 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
+							<string>id</string>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>exportButtonFF</string>
+							<string>exportButtonOG</string>
+							<string>exportButtonQT</string>
+							<string>exportFilename</string>
+							<string>exporter</string>
 							<string>freej</string>
+							<string>icPresetPanel</string>
 							<string>layerList</string>
 							<string>showFps</string>
 							<string>streamerButton</string>
@@ -10257,7 +10273,13 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>NSButtonCell</string>
+							<string>NSButtonCell</string>
+							<string>NSButtonCell</string>
+							<string>NSTextField</string>
+							<string>id</string>
 							<string>CFreej</string>
+							<string>NSWindow</string>
 							<string>NSTableView</string>
 							<string>NSTextField</string>
 							<string>NSButton</string>

@@ -43,7 +43,7 @@
 }
 - (id)initWithScreen:(CVScreenView *)cvscreen;
 - (void)addImage:(CIImage *)image;
-- (BOOL)startExport;
+- (BOOL)startExport:(int)fps width:(int)w height:(int)h;
 - (void)stopExport;
 - (BOOL)isRunning;
 - (BOOL)setOutputFile:(NSString *)path;

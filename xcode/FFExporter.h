@@ -32,11 +32,14 @@
     CVTimeStamp  lastTimestamp;
     NSImage *lastImage;
     BOOL running;
+    int firstTime;
+    timeval calc_tv;
+    int outFramerate;
 }
 - (id)initWithScreen:(CVScreenView *)cvscreen;
 - (BOOL)setOutputFile:(NSString *)path;
 - (void)addPixelBuffer:(CVPixelBufferRef)pixelBuffer;
-- (BOOL)startExport;
+- (BOOL)startExport:(int)fps width:(int)w height:(int)h;
 - (void)stopExport;
 - (BOOL)isRunning;
 @end

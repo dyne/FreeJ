@@ -345,8 +345,11 @@ bail:
 //
 //
 
-- (BOOL)startExport
+- (BOOL)startExport:(int)fps width:(int)w height:(int)h
 {
+#pragma unused (fps)
+#pragma unused (w)
+#pragma unused (h)
     if (!outputFile)
         outputFile = [[NSString stringWithCString:DEFAULT_OUTPUT_FILE  encoding:NSUTF8StringEncoding] retain];
     if ([self openOutputMovie]) {

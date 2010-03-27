@@ -35,7 +35,11 @@ class CVScreen;
     NSWindow            *myWindow;
     CVDisplayLinkRef	displayLink; // the displayLink that runs the show
     CGDirectDisplayID	viewDisplayID;
+#if 0
 	CVPixelBufferRef	pixelBuffer;
+#else
+	CVOpenGLBufferRef	pixelBuffer;
+#endif
     //void                *pixelBuffer;
 	CVScreen			*fjScreen;
 	CIContext			*ciContext;
@@ -70,6 +74,7 @@ class CVScreen;
     NSMutableDictionary *streamerDict;
     IBOutlet NSWindow *icPresetPanel;
 
+    IBOutlet NSTextField  *exportFilename;
     IBOutlet NSButtonCell *exportButtonQT;
     IBOutlet NSButtonCell *exportButtonOG;
     IBOutlet NSButtonCell *exportButtonFF;
@@ -100,6 +105,7 @@ class CVScreen;
 - (IBAction)setExportFile:(id)sender;
 - (IBAction)toggleStreamer:(id)sender;
 - (IBAction)presetsStreamer:(id)sender;
+- (void)allocPixelBuffer;
 @end
 
 /*
