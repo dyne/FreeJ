@@ -233,12 +233,12 @@ extern "C" {
     if (layer)
         layer->vbuffer = currentFrame;
     [lock unlock];
-/*
+
     if (1) // TODO: iFPScount > oFPScount 
     if (ff && !ffdec_thread(&ff, NULL, 0, 0, 0) && ff) {
     ; // ifpsc+=get_fps(ff);
     }
-*/
+
     [self renderPreview];
     return kCVReturnSuccess;
 }
