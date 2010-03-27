@@ -17,28 +17,31 @@
  *
  */
 
-#import <CVLayer.h>
-#import <Cocoa/Cocoa.h>
+#ifndef __FFINPUTCONTROLLER_H__
+#define __FFINPUTCONTROLLER_H__
 
-@class CFreej;
+#include <CVLayer.h>
+#import <CVLayerController.h>
 
-@interface CVFFmpegInputPanel : NSWindow {
-    IBOutlet CFreej *freej;
-    IBOutlet NSTableView *streamList;
-    IBOutlet NSTextField *streamURL;
-    NSMutableString *URL;
-    NSMutableArray *streamUrls;
-    NSMutableData *myHTTPResponse;
+#include <context.h>
+#include <CVFilterPanel.h>
+#import  "CFreej.h";
+
+struct ffdec;
+
+@interface CVFFmpegLayerController : CVLayerController
+{
+    NSImage *icon0;
+    NSImage *icon1;
+    NSImage *previewImage;
+    NSDictionary *bufDict;
+    char *movie;
+    int timeout;
 }
 
-- (IBAction)btnLoad:(id)sender;
-- (IBAction)btnFile:(id)sender;
-- (IBAction)btnCancel:(id)sender;
-- (IBAction) myDoubleClickAction:(id)sender;
-- (NSString*)getURL;
-- (void)reset;
-- (NSString *)contentString;
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
-- (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;
-
+- (void)setStream:(NSString*)url;
+- (void)reOpen;
+- (void)clearPreview;
 @end
+
+#endif

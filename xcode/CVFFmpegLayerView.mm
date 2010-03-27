@@ -18,16 +18,16 @@
  */
 
 #import <CVLayerController.h>
-#import <CVFFmpegInputView.h>
-#import <CVFFmpegInputPanel.h>
+#import <CVFFmpegLayerView.h>
+#import <CVFFmpegLayerPanel.h>
 
-@implementation CVFFmpegInputView
+@implementation CVFFmpegLayerView
 
 - (void)openStreamPanelDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
 {
     if (returnCode == NSOKButton) {
         //NSLog(@"didEnd: %@",[((FFInputPanel*)ffInputPanel) getURL]);
-	[(CVFFmpegInputController *)layerController setStream:[ffInputPanel getURL]];
+	[(CVFFmpegLayerController *)layerController setStream:[ffInputPanel getURL]];
     }
     [sheet orderOut:self];
     [[NSApplication sharedApplication] endSheet:ffInputPanel];

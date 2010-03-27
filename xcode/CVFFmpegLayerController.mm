@@ -18,7 +18,7 @@
  */
 
 #import <CVScreenView.h>
-#import <CVFFmpegInputView.h>
+#import <CVFFmpegLayerView.h>
 #import <CFreej.h>
 #import <CIAlphaFade.h>
 
@@ -27,7 +27,7 @@
 #include <OpenGL/gl.h>
 #include <CVFFmpegLayer.h>
 
-@implementation CVFFmpegInputController : CVLayerController
+@implementation CVFFmpegLayerController : CVLayerController
 
 - (id)init
 {

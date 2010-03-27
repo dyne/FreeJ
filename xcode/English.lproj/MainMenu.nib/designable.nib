@@ -12,13 +12,13 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="2737"/>
 			<integer value="57"/>
 			<integer value="3015"/>
-			<integer value="2212"/>
+			<integer value="2878"/>
+			<integer value="2737"/>
 			<integer value="1576"/>
 			<integer value="1887"/>
-			<integer value="2957"/>
+			<integer value="2212"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -4197,10 +4197,10 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 			</object>
 			<object class="NSCustomObject" id="896469827">
-				<string key="NSClassName">CVFFmpegInputController</string>
+				<string key="NSClassName">CVFFmpegLayerController</string>
 			</object>
 			<object class="NSCustomObject" id="2302">
-				<string key="NSClassName">CVFFmpegInputController</string>
+				<string key="NSClassName">CVFFmpegLayerController</string>
 			</object>
 			<object class="NSWindowTemplate" id="721273796">
 				<int key="NSWindowStyleMask">1</int>
@@ -4208,7 +4208,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<string key="NSWindowRect">{{157, 191}, {463, 270}}</string>
 				<int key="NSWTFlags">603979776</int>
 				<string key="NSWindowTitle">Stream Input Source</string>
-				<string key="NSWindowClass">CVFFmpegInputPanel</string>
+				<string key="NSWindowClass">CVFFmpegLayerPanel</string>
 				<nil key="NSViewClass"/>
 				<string key="NSWindowContentMaxSize">{1.79769e+308, 1.79769e+308}</string>
 				<object class="NSView" key="NSWindowView" id="104653162">
@@ -9166,9 +9166,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
-					<string>{{329, 495}, {352, 288}}</string>
+					<string>{{223, 495}, {352, 288}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{329, 495}, {352, 288}}</string>
+					<string>{{223, 495}, {352, 288}}</string>
 					<integer value="1"/>
 					<string>{{169, 165}, {507, 404}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -9590,9 +9590,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{569, 609}, {370, 200}}</string>
+					<string>{{205, 609}, {370, 200}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{569, 609}, {370, 200}}</string>
+					<string>{{205, 609}, {370, 200}}</string>
 					<boolean value="NO"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -9694,7 +9694,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>CVFFmpegInputView</string>
+					<string>CVFFmpegLayerView</string>
 					<object class="NSMutableDictionary">
 						<string key="NS.key.0">ToolTip</string>
 						<object class="IBToolTipAttribute" key="NS.object.0">
@@ -9707,7 +9707,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>CVFFmpegInputView</string>
+					<string>CVFFmpegLayerView</string>
 					<object class="NSMutableDictionary">
 						<string key="NS.key.0">ToolTip</string>
 						<object class="IBToolTipAttribute" key="NS.object.0">
@@ -9720,9 +9720,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>{{240, 693}, {176, 43}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>{{606, 455}, {176, 43}}</string>
-					<string>{{269, 539}, {463, 270}}</string>
+					<string>{{112, 539}, {463, 270}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{269, 539}, {463, 270}}</string>
+					<string>{{112, 539}, {463, 270}}</string>
 					<boolean value="NO"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -9763,9 +9763,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<object class="NSAttributedString">
 						<string key="NSString"/>
 					</object>
-					<string>{{375, 92}, {645, 730}}</string>
+					<string>{{58, 92}, {645, 730}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{375, 92}, {645, 730}}</string>
+					<string>{{58, 92}, {645, 730}}</string>
 					<integer value="1"/>
 					<string>{{437, 135}, {451, 576}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -9928,15 +9928,15 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">CVFFmpegInputController</string>
+					<string key="className">CVFFmpegLayerController</string>
 					<string key="superclassName">CVLayerController</string>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">CVFFmpegInputController.h</string>
+						<string key="minorKey">CVFFmpegLayerController.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">CVFFmpegInputPanel</string>
+					<string key="className">CVFFmpegLayerPanel</string>
 					<string key="superclassName">NSWindow</string>
 					<object class="NSMutableDictionary" key="actions">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -9972,11 +9972,11 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">CVFFmpegInputPanel.h</string>
+						<string key="minorKey">CVFFmpegLayerPanel.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">CVFFmpegInputView</string>
+					<string key="className">CVFFmpegLayerView</string>
 					<string key="superclassName">CVLayerView</string>
 					<object class="NSMutableDictionary" key="actions">
 						<string key="NS.key.0">openStream:</string>
@@ -9984,11 +9984,11 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
 						<string key="NS.key.0">ffInputPanel</string>
-						<string key="NS.object.0">CVFFmpegInputPanel</string>
+						<string key="NS.object.0">CVFFmpegLayerPanel</string>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">CVFFmpegInputView.h</string>
+						<string key="minorKey">CVFFmpegLayerView.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">

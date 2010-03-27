@@ -170,10 +170,10 @@
 		B5792A8E113EBAA200CC49B0 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792A8D113EBAA200CC49B0 /* libcurl.dylib */; };
 		B59354E311580B1700BF8C8E /* oggenc.c in Sources */ = {isa = PBXBuildFile; fileRef = B59354E111580B1700BF8C8E /* oggenc.c */; };
 		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
-		B5BD95551134C2000063C358 /* CVFFmpegInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* CVFFmpegInputController.mm */; };
-		B5BD95561134C2000063C358 /* CVFFmpegInputView.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95541134C2000063C358 /* CVFFmpegInputView.mm */; };
+		B5BD95551134C2000063C358 /* CVFFmpegLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* CVFFmpegLayerController.mm */; };
+		B5BD95561134C2000063C358 /* CVFFmpegLayerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95541134C2000063C358 /* CVFFmpegLayerView.mm */; };
 		B5BD95B6113581AD0063C358 /* ffdec.c in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95B4113581AD0063C358 /* ffdec.c */; };
-		B5BD96A711386CFC0063C358 /* CVFFmpegInputPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD96A611386CFC0063C358 /* CVFFmpegInputPanel.mm */; };
+		B5BD96A711386CFC0063C358 /* CVFFmpegLayerPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD96A611386CFC0063C358 /* CVFFmpegLayerPanel.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -466,14 +466,14 @@
 		B59354E211580B1700BF8C8E /* oggenc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = oggenc.h; path = include/oggenc.h; sourceTree = "<group>"; };
 		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = "<group>"; };
 		B5BD93491133ED890063C358 /* QTStreamer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTStreamer.mm; sourceTree = "<group>"; };
-		B5BD95511134C2000063C358 /* CVFFmpegInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFFmpegInputController.h; sourceTree = "<group>"; };
-		B5BD95521134C2000063C358 /* CVFFmpegInputController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFFmpegInputController.mm; sourceTree = "<group>"; };
-		B5BD95531134C2000063C358 /* CVFFmpegInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFFmpegInputView.h; sourceTree = "<group>"; };
-		B5BD95541134C2000063C358 /* CVFFmpegInputView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFFmpegInputView.mm; sourceTree = "<group>"; };
+		B5BD95511134C2000063C358 /* CVFFmpegLayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFFmpegLayerController.h; sourceTree = "<group>"; };
+		B5BD95521134C2000063C358 /* CVFFmpegLayerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFFmpegLayerController.mm; sourceTree = "<group>"; };
+		B5BD95531134C2000063C358 /* CVFFmpegLayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFFmpegLayerView.h; sourceTree = "<group>"; };
+		B5BD95541134C2000063C358 /* CVFFmpegLayerView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFFmpegLayerView.mm; sourceTree = "<group>"; };
 		B5BD95B4113581AD0063C358 /* ffdec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffdec.c; sourceTree = "<group>"; };
 		B5BD95B5113581AD0063C358 /* ffdec.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ffdec.h; path = include/ffdec.h; sourceTree = "<group>"; };
-		B5BD96A511386CFC0063C358 /* CVFFmpegInputPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFFmpegInputPanel.h; sourceTree = "<group>"; };
-		B5BD96A611386CFC0063C358 /* CVFFmpegInputPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFFmpegInputPanel.mm; sourceTree = "<group>"; };
+		B5BD96A511386CFC0063C358 /* CVFFmpegLayerPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFFmpegLayerPanel.h; sourceTree = "<group>"; };
+		B5BD96A611386CFC0063C358 /* CVFFmpegLayerPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFFmpegLayerPanel.mm; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -548,12 +548,12 @@
 				AA3B0B77104A728600A27B2E /* CVF0rLayerView.mm */,
 				AA88592B0F633A7500778C03 /* CVF0rLayer.h */,
 				AA88592C0F633A7500778C03 /* CVF0rLayer.mm */,
-				B5BD95511134C2000063C358 /* CVFFmpegInputController.h */,
-				B5BD95521134C2000063C358 /* CVFFmpegInputController.mm */,
-				B5BD95531134C2000063C358 /* CVFFmpegInputView.h */,
-				B5BD95541134C2000063C358 /* CVFFmpegInputView.mm */,
-				B5BD96A511386CFC0063C358 /* CVFFmpegInputPanel.h */,
-				B5BD96A611386CFC0063C358 /* CVFFmpegInputPanel.mm */,
+				B5BD95511134C2000063C358 /* CVFFmpegLayerController.h */,
+				B5BD95521134C2000063C358 /* CVFFmpegLayerController.mm */,
+				B5BD95531134C2000063C358 /* CVFFmpegLayerView.h */,
+				B5BD95541134C2000063C358 /* CVFFmpegLayerView.mm */,
+				B5BD96A511386CFC0063C358 /* CVFFmpegLayerPanel.h */,
+				B5BD96A611386CFC0063C358 /* CVFFmpegLayerPanel.mm */,
 				AAF3B6FA115E082D00F0C2AB /* CVFFmpegLayer.h */,
 				AAF3B6FB115E082D00F0C2AB /* CVFFmpegLayer.mm */,
 				AA1EB9010F56969E006610D8 /* CVFilterPanel.h */,
@@ -1143,10 +1143,10 @@
 				AAB47C8A10EAA15F00B0E8D2 /* geometry.cpp in Sources */,
 				AAB47CA010EB44AF00B0E8D2 /* CVTextLayerView.mm in Sources */,
 				B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */,
-				B5BD95551134C2000063C358 /* CVFFmpegInputController.mm in Sources */,
-				B5BD95561134C2000063C358 /* CVFFmpegInputView.mm in Sources */,
+				B5BD95551134C2000063C358 /* CVFFmpegLayerController.mm in Sources */,
+				B5BD95561134C2000063C358 /* CVFFmpegLayerView.mm in Sources */,
 				B5BD95B6113581AD0063C358 /* ffdec.c in Sources */,
-				B5BD96A711386CFC0063C358 /* CVFFmpegInputPanel.mm in Sources */,
+				B5BD96A711386CFC0063C358 /* CVFFmpegLayerPanel.mm in Sources */,
 				B59354E311580B1700BF8C8E /* oggenc.c in Sources */,
 				AAF3B6FC115E082D00F0C2AB /* CVFFmpegLayer.mm in Sources */,
 			);

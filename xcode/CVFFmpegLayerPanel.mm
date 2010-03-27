@@ -17,10 +17,10 @@
  *
  */
 
-#import <CVFFmpegInputPanel.h>
+#import <CVFFmpegLayerPanel.h>
 #import <CVScreenView.h>
 
-@implementation CVFFmpegInputPanel
+@implementation CVFFmpegLayerPanel
 
 
 - (void)awakeFromNib

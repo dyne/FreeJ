@@ -17,31 +17,20 @@
  *
  */
 
-#ifndef __FFINPUTCONTROLLER_H__
-#define __FFINPUTCONTROLLER_H__
+#ifndef __FFINPUTVIEW_H__
+#define __FFINPUTVIEW_H__
 
-#include <CVLayer.h>
-#import <CVLayerController.h>
+#import <CVLayerView.h>
+#import <CVFFmpegLayerController.h>
 
-#include <context.h>
-#include <CVFilterPanel.h>
-#import  "CFreej.h";
+@class CVFFmpegLayerPanel;
 
-struct ffdec;
-
-@interface CVFFmpegInputController : CVLayerController
-{
-    NSImage *icon0;
-    NSImage *icon1;
-    NSImage *previewImage;
-    NSDictionary *bufDict;
-    char *movie;
-    int timeout;
+@interface CVFFmpegLayerView : CVLayerView {
+    IBOutlet CVFFmpegLayerPanel *ffInputPanel;
 }
 
-- (void)setStream:(NSString*)url;
-- (void)reOpen;
-- (void)clearPreview;
+- (IBAction)openStream:(id)sender;
+
 @end
 
 #endif

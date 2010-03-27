@@ -7,7 +7,7 @@
 //
 
 #import "CVFFmpegLayer.h"
-#import "CVFFMpegInputController.h"
+#import "CVFFmpegLayerController.h"
 #include "CVLayer.h"
 #include <libavutil/pixfmt.h>
 
@@ -88,7 +88,7 @@ void *CVFFmpegLayer::feed()
                 // XXX - find a cleaner way instead of blindly resetting the filename
                 // TODO - allow looping on a stream by reopening it
                 memset(filename, 0, sizeof(filename));
-                [(CVFFmpegInputController *)input clearPreview];
+                [(CVFFmpegLayerController *)input clearPreview];
             }
         } else {
             // TODO - Error messages
