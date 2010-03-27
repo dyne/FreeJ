@@ -52,7 +52,9 @@ class CVScreen;
     CGContextRef        exportCGContextRef;
     CIContext           *exportContext;
     void                *exportBuffer;
-    QTExporter          *exporter;
+    id<Exporter>	exporter;
+    QTExporter          *exporterQT;
+    FFExporter          *exporterFF;
     QTStreamer          *streamer;
     bool                streamerStatus;
     bool                initialized;
@@ -66,6 +68,11 @@ class CVScreen;
     IBOutlet NSTextField *streamerPkg;
     NSMutableArray *streamerKeys;
     NSMutableDictionary *streamerDict;
+    IBOutlet NSWindow *icPresetPanel;
+
+    IBOutlet NSButtonCell *exportButtonQT;
+    IBOutlet NSButtonCell *exportButtonOG;
+    IBOutlet NSButtonCell *exportButtonFF;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;
@@ -92,6 +99,7 @@ class CVScreen;
 - (IBAction)stopExport:(id)sender;
 - (IBAction)setExportFile:(id)sender;
 - (IBAction)toggleStreamer:(id)sender;
+- (IBAction)presetsStreamer:(id)sender;
 @end
 
 /*

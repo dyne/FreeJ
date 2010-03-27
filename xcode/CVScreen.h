@@ -26,7 +26,9 @@
 
 #import  <CFreej.h>
 #import  <FrameRate.h>
+#import  <Exporter.h>
 #import  <QTExporter.h>
+#import  <FFExporter.h>
 #import  <QTStreamer.h>
 #import  <CVScreenView.h>
 #import  <QuartzCore/QuartzCore.h>

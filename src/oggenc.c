@@ -247,7 +247,7 @@ int encoder_close() {
 // WRAPPER OSX 
 
 #ifdef OBJC
-int yuv_copy__argb_to_420(void *b_rgb, SInt32 b_rgb_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
+int yuv_copy__argb_to_420(void *b_rgb, size_t b_rgb_stride, size_t width, size_t height, size_t offset_x, size_t offset_y, yuv_buffer *dst)
 {
 	// TODO: offset ! & strides
 	

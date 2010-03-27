@@ -28,9 +28,11 @@ static CIKernel *alphaFadeKernel = nil;
     {
         NSBundle    *bundle = [NSBundle bundleForClass: [self class]];
 		
-        NSString    *code = [NSString stringWithContentsOfFile: [bundle
-                                pathForResource: @"CIAlphaFade"
-                                ofType: @"cikernel"]];
+        NSString    *code = [NSString stringWithContentsOfFile:
+                             [bundle pathForResource: @"CIAlphaFade"
+                                            ofType: @"cikernel"]
+                              encoding:NSASCIIStringEncoding
+                              error:NULL];
         NSArray     *kernels = [CIKernel kernelsWithString: code];
  
         alphaFadeKernel = [[kernels objectAtIndex:0] retain];

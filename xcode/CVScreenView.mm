@@ -117,8 +117,19 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                                              options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
                                                                                  forKey:  kCIContextOutputColorSpace]] retain];
     CGColorSpaceRelease( colorSpace );
-    exporter = [[[QTExporter alloc] initWithScreen:self] retain];
-    streamer = [[[QTStreamer alloc] initWithScreen:self] retain];
+    exporterQT = [[[QTExporter alloc] initWithScreen:self] retain];
+    exporterFF = [[[FFExporter alloc] initWithScreen:self] retain];
+
+    exporter = (id<Exporter>)exporterQT;
+    streamer = [[QTStreamer alloc] initWithScreen:self];
+
+    [exportButtonOG setEnabled:NO]; // OGG exporter not implemented
+
+#ifdef __x86_64
+    [exportButtonQT setEnabled:NO];
+    [exportButtonFF setState:NSOnState];
+    exporter = (id<Exporter>)exporterFF;
+#endif
 
     streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", @"Framerate", @"Bitrate", @"Quality", @"Announcements", nil] retain];
     NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with Freej-OSX", @ICECASTSERVER, @ICECASTPORT, @ICECASTPASSWORD, @"15", @"128000", @"24", @"1", nil];
@@ -153,6 +164,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [lock release];
     [exportContext release];
     CGContextRelease( exportCGContextRef );
+    //CGLContextRelease( exportCGContextRef );
+    // TODO: free streamer Keys&Array
+    [streamer release]; // stop it first
+    //[exporterQT release]; // ??
+    [exporterFF release];
     [super dealloc];
 }
 
@@ -353,8 +369,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CVTimeStamp now;
     memset(&now, 0 , sizeof(now));
     if (CVDisplayLinkGetCurrentTime(displayLink, &now) == kCVReturnSuccess) {
-   //     if (exporter && [exporter isRunning])
-     //       [exporter addImage:[self exportSurface] atTime:&now];
 
         if (streamer && streamerStatus != [streamer isRunning]) {
 		streamerStatus=[streamer isRunning];
@@ -498,16 +512,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (IBAction)toggleFullScreen:(id)sender
 {    
     CGDirectDisplayID currentDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  
-    CGError err;
+    
     if (fullScreen) {
-        /*
-        CGDisplayConfigRef config;
-        CGBeginDisplayConfiguration(config)
-        err = CGConfigureDisplayMode(config, currentDisplayID, <#CFDictionaryRef mode#>)
-        */
-        /* TODO - CGDisplaySWitchMode is deprecated but it's not yet clear which is the 
-         *        correct API to use on snow leopard 
-         */
         CGDisplaySwitchToMode(currentDisplayID, savedMode);
         SetSystemUIMode(kUIModeNormal, kUIOptionAutoShowMenuBar);
         [self retain];
@@ -546,22 +552,48 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [self drawRect:NSZeroRect];
 }
 
+- (void)setExporter
+{
+    if ([exportButtonFF state])
+	exporter = (id<Exporter>)exporterFF;
+/*
+    else if ([exportButtonOG state])
+	exporter = (id<Exporter>)exporterOG;
+*/
+    else
+	exporter = (id<Exporter>)exporterQT;
+}
+
 - (IBAction)startExport:(id)sender
 {
+    [self setExporter];
     if (exporter) 
-        if ([exporter startExport])
+        if ([exporter startExport]) {
             [sender setTitle:@"Stop"];
+	    [exportButtonQT setEnabled:false];
+	    [exportButtonFF setEnabled:false];
+	    [exportButtonOG setEnabled:false];
+        }
 }
 
 - (IBAction)stopExport:(id)sender
 {
+    [self setExporter];
     if (exporter)
         [exporter stopExport];
     [sender setTitle:@"Start"];
+    [exportButtonFF setEnabled:YES];
+    [exportButtonOG setEnabled:NO]; // XXX Ogg exporter: not yet implemented
+#ifdef __x86_64
+    [exportButtonQT setEnabled:NO];
+#else
+    [exportButtonQT setEnabled:YES];
+#endif
 }
 
 - (IBAction)toggleExport:(id)sender
 {
+    [self setExporter];
     if (exporter) {
         if ([exporter isRunning])
             [self stopExport:sender];
@@ -569,6 +601,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             [self startExport:sender];
     }
 }
+
+- (void)setExportOutputFile:(NSString *)filename
+{
+    [exporterQT setOutputFile:filename];
+    [exporterFF setOutputFile:filename];
+    //[exporterOG setOutputFile:filename];
+}
+
 
 - (void)setExportFileDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void  *)contextInfo
 {
@@ -588,8 +628,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     func("openFile filename = %@",tvarFilename);
     
     if (tvarFilename) {
-        [exporter setOutputFile:tvarFilename];
         [(NSTextField *)[(id)contextInfo nextKeyView] setStringValue:tvarFilename]; 
+	    //setExportOutputFile(tvarFilename);
     }
 }
 
@@ -624,6 +664,32 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 	    streamerStatus=[streamer isRunning];
 	}
     }
+}
+
+- (void)openStreamPresetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo
+{
+    /*
+    if (returnCode == NSOKButton) {
+		[streamerDict release];
+		streamerDict = [[((ICPresetPanel*)icPresetPanel) getDict] mutableCopy];
+        // TODO check if all 'streamerKeys' are present in streamerDict.
+    	[streamerSettings reloadData];
+    }
+    */
+    [sheet orderOut:self];
+    [[NSApplication sharedApplication] endSheet:icPresetPanel];
+}
+
+- (IBAction)presetsStreamer:(id)sender
+{
+    /*
+    [(ICPresetPanel*)icPresetPanel myReset:streamerDict]; 
+    [[NSApplication sharedApplication] beginSheet:icPresetPanel 
+		modalForWindow:[sender window]
+		modalDelegate:self 
+		didEndSelector:@selector(openStreamPresetDidEnd:returnCode:contextInfo:) 
+		contextInfo:self]; 
+     */
 }
 
 - (bool)isOpaque
