@@ -30,7 +30,7 @@ class CVF0rLayer : public CVLayer
         CVPixelBufferRef pixelBuffer;
 
 	public:
-		CVF0rLayer(CVLayerController *controller, Context *freej);
+		CVF0rLayer(CVLayerController *controller);
         ~CVF0rLayer();
         void register_generators(Linklist<Filter> *gens);
         bool open(const char *file);

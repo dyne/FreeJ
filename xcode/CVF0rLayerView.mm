@@ -77,7 +77,7 @@
     CVF0rLayer *newLayer = NULL;
     [lock lock];
     char *name = (char *)[[[selectButton selectedItem] title] UTF8String];
-    newLayer = new CVF0rLayer(layerController, [freej getContext]);
+    newLayer = new CVF0rLayer(layerController);
     Context *ctx = [freej getContext];
     newLayer->init(ctx->screen->geo.w, ctx->screen->geo.h, ctx->screen->geo.bpp); // XXX 
     newLayer->register_generators(&ctx->generators);

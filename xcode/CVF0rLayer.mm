@@ -69,11 +69,10 @@ static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
 #endif
 }
 
-CVF0rLayer::CVF0rLayer(CVLayerController *controller, Context *_freej)
+CVF0rLayer::CVF0rLayer(CVLayerController *controller)
     : CVLayer()
 {
     input = controller;
-    freej = _freej;
     generator = NULL;
     type = Layer::GL_COCOA;   
     set_name([input name]);

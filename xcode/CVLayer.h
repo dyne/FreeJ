@@ -65,7 +65,7 @@ class CVLayer: public Layer
         
         virtual CVTexture *gl_texture();
     
-    private:
+    protected:
         virtual void *feed();
 };
 

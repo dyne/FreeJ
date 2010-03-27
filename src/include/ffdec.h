@@ -1,6 +1,8 @@
 #include <stdint.h>  
 /* prototypes of fn in ffdec.c */
 
+struct ffdec;
+
 void init_ffmpeg();
 void init_moviebuffer(void *ffp, int width, int height, int render_fmt);
 void limit_size(void *ffp);
