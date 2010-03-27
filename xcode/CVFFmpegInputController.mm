@@ -106,16 +106,6 @@
     [layerView setPosterImage:icon1];
 	[self clearPreview];
 
-//    ffdec_thread((void **)&ff, movie, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB); 
-/*
-    if (open_movie((void **) &ff, movie) != 0)
-    {   
-        // TODO - Error messages
-    }
-    init_moviebuffer(ff, ctx->screen->geo.w, ctx->screen->geo.h, PIX_FMT_ARGB);
-    decode_frame(ff);
- */
-
     // register the layer within the freej context
     if (!layer) {
         layer = new CVFFmpegLayer(self);
@@ -232,13 +222,6 @@
     }
     [lock unlock];
 
-
-    //decode_frame(ff);
-/*
-    if (1) // TODO: iFPScount > oFPScount 
-    if (ff && !ffdec_thread((void **)&ff, NULL, 0, 0, 0) && (void *)ff) {
-    ; // ifpsc+=get_fps(ff);
-    }*/
     [self renderPreview];
     return kCVReturnSuccess;
 }
