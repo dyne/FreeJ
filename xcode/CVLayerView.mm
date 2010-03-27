@@ -312,11 +312,11 @@
     pool = [[NSAutoreleasePool alloc] init];
 
     if (!image) {
-	if (posterImage) [posterImage release];
-    	posterImage = nil;
-	[self setNeedsDisplay:YES];
-	[pool release];
-	return;
+        if (posterImage) [posterImage release];
+            posterImage = nil;
+        [self setNeedsDisplay:YES];
+        [pool release];
+        return;
     }
     NSRect bounds = [self bounds];
     NSRect frame = [self frame];

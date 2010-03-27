@@ -7,6 +7,7 @@
 //
 
 #import "CVFFmpegLayer.h"
+#import "CVFFMpegInputController.h"
 #include "CVLayer.h"
 #include <libavutil/pixfmt.h>
 
@@ -31,13 +32,30 @@ bool CVFFmpegLayer::open(const char *movie)
         close_and_free_ff(&ff);
         ff=NULL;
     }
-    ffdec_thread((void **)&ff, (char *)movie, geo.w, geo.h, PIX_FMT_ARGB);
+    strncpy(filename, movie, sizeof(filename)-1);
+    /*
+    ff->pt_status |=1;
+    ff->pt_status |= 2;
+    */
+    //ffdec_thread((void **)&ff, (char *)movie, geo.w, geo.h, PIX_FMT_ARGB);
     return true;
 }
 
 void *CVFFmpegLayer::feed()
 {
-    if (ff) {
+    currentFrame = NULL;
+    if (!ff) 
+    {
+        if (strlen(filename)) { // XXX - (argh!, find a better way)
+            currentFrame = NULL;
+            if (open_movie((void **)&ff, filename) == 0) {
+                init_moviebuffer(ff, geo.w, geo.h, PIX_FMT_ARGB);
+                decode_frame((void *)ff);
+            } else {
+                close_and_free_ff((void *)ff);
+            }
+        }
+    } else {
         uint8_t *ffbuffer = get_bufptr(ff);
         if (!ffbuffer)
             return NULL;
@@ -64,13 +82,14 @@ void *CVFFmpegLayer::feed()
             if (!decode_frame((void *)ff)) {
                 buffer = NULL;
                 close_and_free_ff((void **)&ff);
-                [input deactivate];
+                // XXX - find a cleaner way instead of blindly resetting the filename
+                // TODO - allow looping on a stream by reopening it
+                memset(filename, 0, sizeof(filename));
+                [(CVFFmpegInputController *)input clearPreview];
             }
         } else {
             // TODO - Error messages
         }
-    } else {
-        currentFrame = NULL;
     }
     return currentFrame;
 }

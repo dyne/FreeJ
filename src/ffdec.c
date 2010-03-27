@@ -102,6 +102,8 @@ void init_moviebuffer(void *ffp, int width, int height, int render_fmt) {
   ff->pSWSCtx = sws_getContext(ff->pCodecCtx->width, ff->pCodecCtx->height, ff->pCodecCtx->pix_fmt, width, height, render_fmt, SWS_BICUBIC, NULL, NULL, NULL);
   ff->sc_width  = width;
   ff->sc_height = height;
+  ff->pt_status |= 1;
+  ff->pt_status |= 2;
 }
 
 void free_moviebuffer(void *ffp) {
