@@ -23,10 +23,10 @@ done
 
 VERSION=0.10
 
-XCODEDIR=./xcode
+XCODEDIR=./
 VOLNAME=freej
 BUILD=build/Release/freej.app
-BGPIC=../dmgbg.png
+BGPIC=./dmgbg.png
 
 TMPFILE=/tmp/freejtmp.dmg
 MNTPATH=/tmp/mnt/
