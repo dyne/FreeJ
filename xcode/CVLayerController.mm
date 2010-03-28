@@ -491,8 +491,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     } else { 
         texture = [lastFrame retain];
     }
-    [pool release];
     [lock unlock];
+    [pool release];
     return texture;
 }
 
