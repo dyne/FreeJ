@@ -162,6 +162,7 @@ bail:
   
 }
 #endif
+
 //
 // addImage - alternative
 //
@@ -170,12 +171,12 @@ bail:
     timeval done, now_tv;
     if (!pixelBuffer) return;
 
-    if (firstTime==0 && iceConnected) {
-	firstTime=1;
-	int vidW = CVPixelBufferGetWidth(pixelBuffer);
-	int vidH = CVPixelBufferGetHeight(pixelBuffer);
-	theora_enc_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
-	firstTime=2;
+    if (firstTime == 0 && iceConnected) {
+        firstTime = 1;
+        int vidW = CVPixelBufferGetWidth(pixelBuffer);
+        int vidH = CVPixelBufferGetHeight(pixelBuffer);
+        theora_enc_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
+        firstTime = 2;
         gettimeofday(&calc_tv, NULL);
         gettimeofday(&prev_tv, NULL);
     }
@@ -184,32 +185,35 @@ bail:
     timersub(&now_tv, &calc_tv, &done);
     int rate = 1000000 / (outFramerate);
     if ( (done.tv_sec > 0) || (done.tv_usec >= rate) ) {
-	if (firstTime==2 && iceConnected) {
-	  int res = theora_enc_loop( pixelBuffer ) ;
-	  if (res<0) [self stopStream];
-	  else sent_packages+=res;
+        if (firstTime == 2 && iceConnected) {
+          int res = theora_enc_loop( pixelBuffer ) ;
+          if (res<0)
+              [self stopStream];
+          else
+              sent_packages+=res;
 
 #ifdef STREAMSTATS // statistics
-	  timeval stats;
-	  timersub(&now_tv, &prev_tv, &stats);
-	  double curr_fps = 1000000.0 /  stats.tv_usec;
-	  fps_sum = fps_sum - fps_data[fps_i] + curr_fps;
-	  fps_data[fps_i] = curr_fps;
-	  if (++fps_i >= MAX_FPS_STATISTICS) { fps_i = 0;
-	    stream_fps = fps_sum/((double)MAX_FPS_STATISTICS);
+          timeval stats;
+          timersub(&now_tv, &prev_tv, &stats);
+          double curr_fps = 1000000.0 /  stats.tv_usec;
+          fps_sum = fps_sum - fps_data[fps_i] + curr_fps;
+          fps_data[fps_i] = curr_fps;
+          if (++fps_i >= MAX_FPS_STATISTICS) { 
+            fps_i = 0;
+            stream_fps = fps_sum/((double)MAX_FPS_STATISTICS);
 #ifdef PRINTSTREAMSTATS
-	    printf("stream fps: %.1f\n", stream_fps);
+            printf("stream fps: %.1f\n", stream_fps);
 #endif
-	  }
+          }
 #endif
-	}
+        }
 
-	calc_tv.tv_sec  = now_tv.tv_sec  - done.tv_sec;
-	calc_tv.tv_usec = now_tv.tv_usec - done.tv_usec + rate;
+        calc_tv.tv_sec  = now_tv.tv_sec  - done.tv_sec;
+        calc_tv.tv_usec = now_tv.tv_usec - done.tv_usec + rate;
 
 #ifdef STREAMSTATS // statistics
-	prev_tv.tv_sec  = now_tv.tv_sec;
-	prev_tv.tv_usec = now_tv.tv_usec;
+        prev_tv.tv_sec  = now_tv.tv_sec;
+        prev_tv.tv_usec = now_tv.tv_usec;
 #endif
     }
 

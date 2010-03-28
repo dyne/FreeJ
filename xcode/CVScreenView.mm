@@ -300,10 +300,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 						   &pixelBufferOut
 						   );
     if (cvRet != noErr) {
-	// TODO - Error Messages
-	if (pixelBufferOut)
+        // TODO - Error Messages
+        if (pixelBufferOut)
             CVPixelBufferRelease(pixelBufferOut);
-	return nil;
+        return nil;
     }
     return pixelBufferOut;
 }
