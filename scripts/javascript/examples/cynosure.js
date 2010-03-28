@@ -41,7 +41,7 @@ colors = new Array(0xa03000ff, 0x006000ff, 0x336000ff, 0x00ff00ff, 0xc20000ff, 0
 
 width=get_width(); height=get_height();
 
-scr = new Screen("sdl");
+scr = new Screen();
 scr.init(width, height);
 add_screen(scr);
 
