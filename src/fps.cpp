@@ -129,7 +129,7 @@ int FPS::set(int rate) {
   return fps_old;
 }
 
-#if 0 // use nanosleep (otherwise select_sleep)
+#if 1 // use nanosleep (otherwise select_sleep)
 void FPS::delay() {
   struct timespec remaining = { 0, 0 };
 
