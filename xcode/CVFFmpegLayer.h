@@ -22,6 +22,8 @@
 
 #include <CVLayer.h>
 
+struct ffdec;
+
 class CVFFmpegLayer : public CVLayer
 {
     

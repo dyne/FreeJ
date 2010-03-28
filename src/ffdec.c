@@ -11,6 +11,7 @@
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#include <ffdec.h>
 
 int want_quiet =1;
 
@@ -46,43 +47,43 @@ void init_ffmpeg() {
   if(want_quiet) av_log_set_level(AV_LOG_QUIET);
 }
 
-int get_width(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+int get_width(ffdec_t *ffp) {
+  ffdec_t *ff = (ffdec_t *) ffp;
   return ff->ff_width;
 }
 
-int get_height(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+int get_height(ffdec_t *ffp) {
+  ffdec_t *ff = (ffdec_t *) ffp;
   return ff->ff_height;
 }
 
-int get_scaled_width(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+int get_scaled_width(ffdec_t *ffp) {
+  ffdec_t *ff = (ffdec_t *) ffp;
   return ff->sc_width;
 }
 
-int get_scaled_height(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+int get_scaled_height(ffdec_t *ffp) {
+  ffdec_t *ff = (ffdec_t *) ffp;
   return ff->sc_height;
 }
 
-double get_fps(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+double get_fps(ffdec_t *ffp) {
+  ffdec_t *ff = (ffdec_t *) ffp;
   return ff->ff_fps;
 }
 
-uint8_t *get_bufptr(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+uint8_t *get_bufptr(ffdec_t *ffp) {
+  ffdec_t *ff = (ffdec_t *) ffp;
   return ff->buffer;
 }
 
-int get_pt_status(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+int get_pt_status(ffdec_t *ffp) {
+  ffdec_t *ff = (ffdec_t *) ffp;
   return ff->pt_status;
 }
 
-void init_moviebuffer(void *ffp, int width, int height, int render_fmt) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+void init_moviebuffer(ffdec_t *ffp, int width, int height, int render_fmt) {
+  ffdec_t *ff = (ffdec_t *) ffp;
   int     numBytes;
 
   ff->pFrameFMT=avcodec_alloc_frame();
@@ -106,19 +107,19 @@ void init_moviebuffer(void *ffp, int width, int height, int render_fmt) {
   ff->pt_status |= 2;
 }
 
-void free_moviebuffer(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+void free_moviebuffer(ffdec_t *ffp) {
+  ffdec_t *ff = (ffdec_t *) ffp;
   if (ff->buffer) free(ff->buffer);
 }
 
-int open_movie(void ** ffpx, char* movie_url) {
+int open_movie(ffdec_t ** ffpx, char* movie_url) {
   int      i;
   AVCodec *pCodec;
   double   duration;
   long     frames;
-  struct ffdec **ffp = (struct ffdec **) ffpx;
-  if (! *ffp) *ffp   = (struct ffdec *) calloc(1,sizeof (struct ffdec));
-  struct ffdec *ff   = (struct ffdec *) *ffp;
+  ffdec_t **ffp = (ffdec_t **) ffpx;
+  if (! *ffp) *ffp   = (ffdec_t *) calloc(1,sizeof (ffdec_t));
+  ffdec_t *ff   = (ffdec_t *) *ffp;
 
   ff->pt_status=8;
   ff->videoStream=-1;
@@ -186,10 +187,10 @@ int open_movie(void ** ffpx, char* movie_url) {
   return 0;
 }
 
-int open_camera(void ** ffpx, char* device) {
-  struct ffdec **ffp = (struct ffdec **) ffpx;
-  if (! *ffp) *ffp   = (struct ffdec *) calloc(1,sizeof (struct ffdec));
-  struct ffdec *ff   = (struct ffdec *) *ffp;
+int open_camera(ffdec_t ** ffpx, char* device) {
+  ffdec_t **ffp = (ffdec_t **) ffpx;
+  if (! *ffp) *ffp   = (ffdec_t *) calloc(1,sizeof (ffdec_t));
+  ffdec_t *ff   = (ffdec_t *) *ffp;
   ff->videoStream=-1;
   ff->pt_status=0;
   ff->fFirstTime=1;
@@ -248,15 +249,15 @@ int open_camera(void ** ffpx, char* device) {
   return 0;
 }
 
-int open_ffmpeg(void ** ffpx, char* file) {
+int open_ffmpeg(ffdec_t ** ffpx, char* file) {
   if(!strncmp(file, "/dev/", 5)) 
     return open_camera(ffpx, file);
   return open_movie(ffpx, file);
 }
 
-int decode_frame(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
-  int             frameFinished=0;
+int decode_frame(ffdec_t *ffp) {
+  ffdec_t *ff = ffp;
+  int frameFinished=0;
  
   if(ff->fFirstTime) {
     ff->fFirstTime=0;
@@ -290,8 +291,8 @@ int decode_frame(void *ffp) {
   return frameFinished;
 }
   
-void close_movie(void *ffp) {
-  struct ffdec *ff = (struct ffdec *) ffp;
+void close_movie(ffdec_t *ffp) {
+  ffdec_t *ff = ffp;
 
   if (ff->pSWSCtx) sws_freeContext(ff->pSWSCtx);
   if (ff->pFrameFMT) av_free(ff->pFrameFMT);
@@ -300,16 +301,14 @@ void close_movie(void *ffp) {
   if (ff->pFormatCtx) av_close_input_file(ff->pFormatCtx);
 }
 
-void free_ff(void *ffpx) {
-  struct ffdec **ffp = (struct ffdec **) ffpx;
-  struct ffdec *ff   = (struct ffdec *) *ffp;
+void free_ff(ffdec_t **ffpx) {
+  ffdec_t *ff = *ffpx;
   free(ff);
-  *ffp=NULL;
+  *ffpx = NULL;
 }
 
-void close_and_free_ff(void *ffpx) {
-  struct ffdec **ffp = (struct ffdec **) ffpx;
-  struct ffdec *ff   = (struct ffdec *) *ffp;
+void close_and_free_ff(ffdec_t **ffpx) {
+  ffdec_t *ff = *ffpx;
 #if 0
   int timeout=250;
   while (--timeout && ff->pt_status&10) usleep(20000);// do not free while thread is active
@@ -324,13 +323,13 @@ void close_and_free_ff(void *ffpx) {
   }
 }
 
-void limit_size(void *ffp) {
+void limit_size(ffdec_t *ffp) {
 #ifdef FIX_AMOEBA_SIZE
   ff_width=384; ff_height=288;
 #else
 #define MAX_X (1024)
 #define MAX_Y (300)
-  struct ffdec *ff = (struct ffdec *) ffp;
+  ffdec_t *ff = (ffdec_t *) ffp;
   while(ff->ff_width > MAX_X || ff->ff_height > MAX_Y)  {
     if (ff->ff_width > MAX_X)  {
       ff->ff_height = ff->ff_height * MAX_X/ff->ff_width;
@@ -440,18 +439,17 @@ struct fftarg {
   int w,h,render_fmt;
 };
 
-void *ffdec_decode_thread(void *ffpx);
+void *ffdec_decode_thread(ffdec_t *ffpx);
 
 void *ffdec_open_thread(void *arg) {
   struct fftarg *a = (struct fftarg*) arg;
-  struct ffdec **ffp = (struct ffdec **) a->ffpx;
-
-  if (open_movie((void **) ffp, a->movie_url)) {
-    struct ffdec *ff   = (struct ffdec *) *ffp;
+  ffdec_t **ffpx = (ffdec_t **) a->ffpx;
+  ffdec_t *ff = *ffpx;
+    
+  if (open_movie(ffpx, a->movie_url)) {
     //fprintf(stderr,"movie open failed!\n");
     ff->pt_status|=4;
   } else {
-    struct ffdec *ff   = (struct ffdec *) *ffp;
     int xw,xh;
 #if 0
     calc_letterbox(get_width(ff),get_height(ff),a->w,a->h,&xw,&xh);  // XXX
@@ -472,9 +470,9 @@ void *ffdec_open_thread(void *arg) {
   return(0);
 }
 
-void *ffdec_decode_thread(void *ffpx) {
-  struct ffdec **ffp = (struct ffdec **) ffpx;
-  struct ffdec *ff = (struct ffdec *) *ffp;
+void *ffdec_decode_thread(ffdec_t *ffpx) {
+  ffdec_t **ffp = (ffdec_t **) ffpx;
+  ffdec_t *ff = (ffdec_t *) *ffp;
 
   if (!decode_frame(ff)) {
     fprintf(stderr,"decoding failed. closing!\n");
@@ -485,15 +483,15 @@ void *ffdec_decode_thread(void *ffpx) {
   return(0);
 }
 
-int ffdec_thread(void **ffpx, char *movie_url, int w, int h, int render_fmt) {
-  struct ffdec **ffp = (struct ffdec **) ffpx;
+int ffdec_thread(ffdec_t **ffpx, char *movie_url, int w, int h, int render_fmt) {
+  ffdec_t **ffp = (ffdec_t **) ffpx;
   pthread_t thread_id_tt;
   pthread_attr_t thread_att;
   pthread_attr_init(&thread_att);
   pthread_attr_setdetachstate(&thread_att,PTHREAD_CREATE_DETACHED);
 
   if (*ffp) {
-    struct ffdec *ff   = (struct ffdec *) *ffp;
+    ffdec_t *ff   = (ffdec_t *) *ffp;
     if ((ff->pt_status & 4 )) {
       close_and_free_ff(ffpx);
       return(-1);
@@ -514,7 +512,7 @@ int ffdec_thread(void **ffpx, char *movie_url, int w, int h, int render_fmt) {
   }
 
   if (*ffp) {
-    struct ffdec *ff   = (struct ffdec *) *ffp;
+    ffdec_t *ff   = (ffdec_t *) *ffp;
     if ((ff->pt_status & 7 ) == 1) {
       ff->pt_status |= 2;
       if (pthread_create(&thread_id_tt, &thread_att, ffdec_decode_thread, ffp)) {
