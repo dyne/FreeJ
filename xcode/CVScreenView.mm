@@ -783,32 +783,31 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
 {
-    if (aTableView == layerList) {
-	Layer *lay = fjScreen->layers.pick(rowIndex+1);
-	if (lay)
-	    return [NSString stringWithUTF8String:lay->name];
+    if (aTableView == layerList) { // list of active layers
+        Layer *lay = fjScreen->layers.pick(rowIndex+1);
+        if (lay)
+            return [NSString stringWithUTF8String:lay->name];
     }
-    if (aTableView == streamerSettings) {
+    if (aTableView == streamerSettings) { // table with streamer settings. TODO - get it out of here
       //if ([[pTableColumn identifier] isEqualToString:@"Col_ID3"]) // XX
-        if ([aTableColumn identifier] == [NSNumber numberWithInt:0]) {
-	    return [NSString stringWithString:[streamerKeys objectAtIndex:rowIndex]];
-        } else {
-	    return [NSString stringWithString:[streamerDict objectForKey:[streamerKeys objectAtIndex:rowIndex]]];
-        }
+        if ([aTableColumn identifier] == [NSNumber numberWithInt:0])
+            return [NSString stringWithString:[streamerKeys objectAtIndex:rowIndex]];
+        else
+            return [NSString stringWithString:[streamerDict objectForKey:[streamerKeys objectAtIndex:rowIndex]]];
     }
     return nil;
 }
 
 - (void)tableView:(NSTableView *)aTableView setObjectValue:(id)anObject forTableColumn:(NSTableColumn *)aTableColumn row:(int)rowIndex
 {
-    if (aTableView == streamerSettings && [aTableColumn identifier] == [NSNumber numberWithInt:1]) {
-	[streamerDict setValue:anObject forKey:[streamerKeys objectAtIndex:rowIndex]];
-    }
+    if (aTableView == streamerSettings && [aTableColumn identifier] == [NSNumber numberWithInt:1])
+        [streamerDict setValue:anObject forKey:[streamerKeys objectAtIndex:rowIndex]];
 }
 
 - (NSArray *)tableView:(NSTableView *)aTableView namesOfPromisedFilesDroppedAtDestination:(NSURL *)dropDestination forDraggedRowsWithIndexes:(NSIndexSet *)indexSet
 {
-    if (aTableView != layerList) return nil;
+    if (aTableView != layerList)
+        return nil;
     return [NSArray arrayWithObjects:@"CVLayer", @"CVLayerIndex", nil];
 }
 
@@ -841,7 +840,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (BOOL)tableView:(NSTableView *)aTableView acceptDrop:(id < NSDraggingInfo >)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation
 {
-    if (aTableView != layerList) return NO;
+    if (aTableView != layerList)
+        return NO;
 
     Layer *lay = NULL;
     NSUInteger srcRow;

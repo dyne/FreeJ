@@ -30,18 +30,6 @@
 		AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8858800F631E3C00778C03 /* CVGenerator.m */; };
 		AA88592D0F633A7500778C03 /* CVF0rLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA88592C0F633A7500778C03 /* CVF0rLayer.mm */; };
 		AA8A1BDA1056391B007D067B /* CVF0rLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819D15104EF69800FD1991 /* CVF0rLayerController.mm */; };
-		AA8C41B00F90FF4F00B39710 /* console_calls_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41AB0F90FF4F00B39710 /* console_calls_ctrl.cpp */; };
-		AA8C41B10F90FF4F00B39710 /* console_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41AC0F90FF4F00B39710 /* console_ctrl.cpp */; };
-		AA8C41B20F90FF4F00B39710 /* console_keys_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41AD0F90FF4F00B39710 /* console_keys_ctrl.cpp */; };
-		AA8C41B30F90FF4F00B39710 /* console_readline_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41AE0F90FF4F00B39710 /* console_readline_ctrl.cpp */; };
-		AA8C41B40F90FF4F00B39710 /* console_widgets_ctrl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41AF0F90FF4F00B39710 /* console_widgets_ctrl.cpp */; };
-		AA8C41E00F91000C00B39710 /* abs_text_console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41CC0F91000C00B39710 /* abs_text_console.cpp */; };
-		AA8C41E40F91000C00B39710 /* slw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41D20F91000C00B39710 /* slw.cpp */; };
-		AA8C41E50F91000C00B39710 /* slw_console.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41D40F91000C00B39710 /* slw_console.cpp */; };
-		AA8C41E60F91000C00B39710 /* slw_log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41D60F91000C00B39710 /* slw_log.cpp */; };
-		AA8C41E70F91000C00B39710 /* slw_popup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41D80F91000C00B39710 /* slw_popup.cpp */; };
-		AA8C41E80F91000C00B39710 /* slw_prompt.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41DA0F91000C00B39710 /* slw_prompt.cpp */; };
-		AA8C41E90F91000C00B39710 /* slw_text.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8C41DC0F91000C00B39710 /* slw_text.cpp */; };
 		AA8F9F710F510273006A9E2F /* soft_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8F9F700F510272006A9E2F /* soft_screen.cpp */; };
 		AA9145080F4A1590001426A5 /* CVFileInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA9145070F4A1590001426A5 /* CVFileInputController.mm */; };
 		AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA99CF0C0F535B5F00022106 /* CVLayer.mm */; };
@@ -53,7 +41,6 @@
 		AAA7B6FC0F404B7F00056C44 /* audio_collector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */; };
 		AAA7B6FD0F404B7F00056C44 /* audio_collector_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44590F3EEBE0007C7E8B /* audio_collector_js.cpp */; };
 		AAA7B6FE0F404B7F00056C44 /* audio_input.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */; };
-		AAA7B6FF0F404B7F00056C44 /* audio_jack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C445C0F3EEBE0007C7E8B /* audio_jack.cpp */; };
 		AAA7B7000F404B7F00056C44 /* blitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44600F3EEBE0007C7E8B /* blitter.cpp */; };
 		AAA7B7010F404B7F00056C44 /* callbacks_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44620F3EEBE0007C7E8B /* callbacks_js.cpp */; };
 		AAA7B7030F404B7F00056C44 /* context.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3C44660F3EEBE0007C7E8B /* context.cpp */; };
@@ -145,7 +132,6 @@
 		AAD0A4D00FDEC08100968886 /* libogg.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C40FDEC08100968886 /* libogg.dylib */; };
 		AAD0A4D10FDEC08100968886 /* libSDL.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C50FDEC08100968886 /* libSDL.dylib */; };
 		AAD0A4D20FDEC08100968886 /* libSDL_ttf.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */; };
-		AAD0A4D30FDEC08100968886 /* libslang.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C70FDEC08100968886 /* libslang.2.dylib */; };
 		AAD0A4D40FDEC08100968886 /* libswscale.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C80FDEC08100968886 /* libswscale.dylib */; };
 		AAD0A4D50FDEC08100968886 /* libtheora.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4C90FDEC08100968886 /* libtheora.dylib */; };
 		AAD0A4D60FDEC08100968886 /* libvorbis.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4CA0FDEC08100968886 /* libvorbis.dylib */; };
@@ -169,7 +155,6 @@
 		B52891A21139ABA80053A203 /* live_r.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A01139ABA80053A203 /* live_r.png */; };
 		B52891A31139ABA80053A203 /* live_w.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A11139ABA80053A203 /* live_w.png */; };
 		B56D8F4E113BD3760092D922 /* libmp3lame.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B56D8F4D113BD3760092D922 /* libmp3lame.dylib */; };
-		B5792A8E113EBAA200CC49B0 /* libcurl.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B5792A8D113EBAA200CC49B0 /* libcurl.dylib */; };
 		B59354E311580B1700BF8C8E /* oggenc.c in Sources */ = {isa = PBXBuildFile; fileRef = B59354E111580B1700BF8C8E /* oggenc.c */; };
 		B5BD934A1133ED890063C358 /* QTStreamer.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD93491133ED890063C358 /* QTStreamer.mm */; };
 		B5BD95551134C2000063C358 /* CVFFmpegLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = B5BD95521134C2000063C358 /* CVFFmpegLayerController.mm */; };
@@ -210,7 +195,6 @@
 		AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector.cpp; sourceTree = "<group>"; };
 		AA3C44590F3EEBE0007C7E8B /* audio_collector_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_collector_js.cpp; sourceTree = "<group>"; };
 		AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_input.cpp; sourceTree = "<group>"; };
-		AA3C445C0F3EEBE0007C7E8B /* audio_jack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = audio_jack.cpp; sourceTree = "<group>"; };
 		AA3C44600F3EEBE0007C7E8B /* blitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = blitter.cpp; sourceTree = "<group>"; };
 		AA3C44620F3EEBE0007C7E8B /* callbacks_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = callbacks_js.cpp; sourceTree = "<group>"; };
 		AA3C44660F3EEBE0007C7E8B /* context.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = context.cpp; sourceTree = "<group>"; };
@@ -238,7 +222,6 @@
 		AA3C44990F3EEBE0007C7E8B /* asm-linkage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "asm-linkage.h"; path = "include/asm-linkage.h"; sourceTree = "<group>"; };
 		AA3C449A0F3EEBE0007C7E8B /* audio_collector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audio_collector.h; path = include/audio_collector.h; sourceTree = "<group>"; };
 		AA3C449B0F3EEBE0007C7E8B /* audio_input.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audio_input.h; path = include/audio_input.h; sourceTree = "<group>"; };
-		AA3C449C0F3EEBE0007C7E8B /* audio_jack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = audio_jack.h; path = include/audio_jack.h; sourceTree = "<group>"; };
 		AA3C449E0F3EEBE0007C7E8B /* blitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = blitter.h; path = include/blitter.h; sourceTree = "<group>"; };
 		AA3C449F0F3EEBE0007C7E8B /* callbacks_js.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = callbacks_js.h; path = include/callbacks_js.h; sourceTree = "<group>"; };
 		AA3C44A10F3EEBE0007C7E8B /* context.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = context.h; path = include/context.h; sourceTree = "<group>"; };
@@ -361,30 +344,6 @@
 		AA8858800F631E3C00778C03 /* CVGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVGenerator.m; sourceTree = "<group>"; };
 		AA88592B0F633A7500778C03 /* CVF0rLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVF0rLayer.h; sourceTree = "<group>"; };
 		AA88592C0F633A7500778C03 /* CVF0rLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVF0rLayer.mm; sourceTree = "<group>"; };
-		AA8C41AB0F90FF4F00B39710 /* console_calls_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = console_calls_ctrl.cpp; sourceTree = "<group>"; };
-		AA8C41AC0F90FF4F00B39710 /* console_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = console_ctrl.cpp; sourceTree = "<group>"; };
-		AA8C41AD0F90FF4F00B39710 /* console_keys_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = console_keys_ctrl.cpp; sourceTree = "<group>"; };
-		AA8C41AE0F90FF4F00B39710 /* console_readline_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = console_readline_ctrl.cpp; sourceTree = "<group>"; };
-		AA8C41AF0F90FF4F00B39710 /* console_widgets_ctrl.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = console_widgets_ctrl.cpp; sourceTree = "<group>"; };
-		AA8C41B50F90FF8800B39710 /* console_calls_ctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = console_calls_ctrl.h; path = include/console_calls_ctrl.h; sourceTree = "<group>"; };
-		AA8C41B60F90FF8800B39710 /* console_ctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = console_ctrl.h; path = include/console_ctrl.h; sourceTree = "<group>"; };
-		AA8C41B70F90FF8800B39710 /* console_readline_ctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = console_readline_ctrl.h; path = include/console_readline_ctrl.h; sourceTree = "<group>"; };
-		AA8C41B80F90FF8800B39710 /* console_widgets_ctrl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = console_widgets_ctrl.h; path = include/console_widgets_ctrl.h; sourceTree = "<group>"; };
-		AA8C41CC0F91000C00B39710 /* abs_text_console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = abs_text_console.cpp; sourceTree = "<group>"; };
-		AA8C41CD0F91000C00B39710 /* abs_text_console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = abs_text_console.h; sourceTree = "<group>"; };
-		AA8C41CF0F91000C00B39710 /* keycodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = keycodes.h; sourceTree = "<group>"; };
-		AA8C41D20F91000C00B39710 /* slw.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = slw.cpp; sourceTree = "<group>"; };
-		AA8C41D30F91000C00B39710 /* slw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slw.h; sourceTree = "<group>"; };
-		AA8C41D40F91000C00B39710 /* slw_console.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = slw_console.cpp; sourceTree = "<group>"; };
-		AA8C41D50F91000C00B39710 /* slw_console.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slw_console.h; sourceTree = "<group>"; };
-		AA8C41D60F91000C00B39710 /* slw_log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = slw_log.cpp; sourceTree = "<group>"; };
-		AA8C41D70F91000C00B39710 /* slw_log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slw_log.h; sourceTree = "<group>"; };
-		AA8C41D80F91000C00B39710 /* slw_popup.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = slw_popup.cpp; sourceTree = "<group>"; };
-		AA8C41D90F91000C00B39710 /* slw_popup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slw_popup.h; sourceTree = "<group>"; };
-		AA8C41DA0F91000C00B39710 /* slw_prompt.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = slw_prompt.cpp; sourceTree = "<group>"; };
-		AA8C41DB0F91000C00B39710 /* slw_prompt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slw_prompt.h; sourceTree = "<group>"; };
-		AA8C41DC0F91000C00B39710 /* slw_text.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = slw_text.cpp; sourceTree = "<group>"; };
-		AA8C41DD0F91000C00B39710 /* slw_text.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slw_text.h; sourceTree = "<group>"; };
 		AA8F9F700F510272006A9E2F /* soft_screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = soft_screen.cpp; sourceTree = "<group>"; };
 		AA8F9F720F510281006A9E2F /* soft_screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = soft_screen.h; path = include/soft_screen.h; sourceTree = "<group>"; };
 		AA9145060F4A1590001426A5 /* CVFileInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFileInputController.h; sourceTree = "<group>"; };
@@ -437,7 +396,6 @@
 		AAD0A4C40FDEC08100968886 /* libogg.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libogg.dylib; path = /opt/local/lib/libogg.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C50FDEC08100968886 /* libSDL.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL.dylib; path = /opt/local/lib/libSDL.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_ttf.dylib; path = /opt/local/lib/libSDL_ttf.dylib; sourceTree = "<absolute>"; };
-		AAD0A4C70FDEC08100968886 /* libslang.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libslang.2.dylib; path = /opt/local/lib/libslang.2.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C80FDEC08100968886 /* libswscale.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libswscale.dylib; path = /opt/local/lib/libswscale.dylib; sourceTree = "<absolute>"; };
 		AAD0A4C90FDEC08100968886 /* libtheora.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtheora.dylib; path = /opt/local/lib/libtheora.dylib; sourceTree = "<absolute>"; };
 		AAD0A4CA0FDEC08100968886 /* libvorbis.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvorbis.dylib; path = /opt/local/lib/libvorbis.dylib; sourceTree = "<absolute>"; };
@@ -467,7 +425,6 @@
 		B52891A11139ABA80053A203 /* live_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_w.png; sourceTree = "<group>"; };
 		B56D8F4D113BD3760092D922 /* libmp3lame.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmp3lame.dylib; path = /opt/local/lib/libmp3lame.dylib; sourceTree = "<absolute>"; };
 		B56DCB84113AEF2900EF3F10 /* freej-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "freej-Info.plist"; sourceTree = "<group>"; };
-		B5792A8D113EBAA200CC49B0 /* libcurl.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcurl.dylib; path = /usr/lib/libcurl.dylib; sourceTree = "<absolute>"; };
 		B59354E111580B1700BF8C8E /* oggenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = oggenc.c; sourceTree = "<group>"; };
 		B59354E211580B1700BF8C8E /* oggenc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = oggenc.h; path = include/oggenc.h; sourceTree = "<group>"; };
 		B5BD93481133ED890063C358 /* QTStreamer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTStreamer.h; sourceTree = "<group>"; };
@@ -501,7 +458,6 @@
 				AAD0A4D00FDEC08100968886 /* libogg.dylib in Frameworks */,
 				AAD0A4D10FDEC08100968886 /* libSDL.dylib in Frameworks */,
 				AAD0A4D20FDEC08100968886 /* libSDL_ttf.dylib in Frameworks */,
-				AAD0A4D30FDEC08100968886 /* libslang.2.dylib in Frameworks */,
 				AAD0A4D40FDEC08100968886 /* libswscale.dylib in Frameworks */,
 				AAD0A4D50FDEC08100968886 /* libtheora.dylib in Frameworks */,
 				AAD0A4D60FDEC08100968886 /* libvorbis.dylib in Frameworks */,
@@ -516,7 +472,6 @@
 				AAD181D3104964FB0053F8A6 /* liblo.dylib in Frameworks */,
 				AAD181D5104965120053F8A6 /* libshout.dylib in Frameworks */,
 				B56D8F4E113BD3760092D922 /* libmp3lame.dylib in Frameworks */,
-				B5792A8E113EBAA200CC49B0 /* libcurl.dylib in Frameworks */,
 				AAB1FC761158D958000368A9 /* libjs.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -599,7 +554,6 @@
 			isa = PBXGroup;
 			children = (
 				AAB1FC751158D958000368A9 /* libjs.dylib */,
-				B5792A8D113EBAA200CC49B0 /* libcurl.dylib */,
 				B56D8F4D113BD3760092D922 /* libmp3lame.dylib */,
 				AAD181D4104965120053F8A6 /* libshout.dylib */,
 				AAD181D2104964FB0053F8A6 /* liblo.dylib */,
@@ -616,7 +570,6 @@
 				AAD0A4C40FDEC08100968886 /* libogg.dylib */,
 				AAD0A4C50FDEC08100968886 /* libSDL.dylib */,
 				AAD0A4C60FDEC08100968886 /* libSDL_ttf.dylib */,
-				AAD0A4C70FDEC08100968886 /* libslang.2.dylib */,
 				AAD0A4C80FDEC08100968886 /* libswscale.dylib */,
 				AAD0A4C90FDEC08100968886 /* libtheora.dylib */,
 				AAD0A4CA0FDEC08100968886 /* libvorbis.dylib */,
@@ -700,12 +653,7 @@
 				B59354E111580B1700BF8C8E /* oggenc.c */,
 				B5BD95B4113581AD0063C358 /* ffdec.c */,
 				AAB47C8910EAA15F00B0E8D2 /* geometry.cpp */,
-				AA8C41AB0F90FF4F00B39710 /* console_calls_ctrl.cpp */,
 				AA3B0DA2104B131100A27B2E /* generator_layer.cpp */,
-				AA8C41AC0F90FF4F00B39710 /* console_ctrl.cpp */,
-				AA8C41AD0F90FF4F00B39710 /* console_keys_ctrl.cpp */,
-				AA8C41AE0F90FF4F00B39710 /* console_readline_ctrl.cpp */,
-				AA8C41AF0F90FF4F00B39710 /* console_widgets_ctrl.cpp */,
 				AA00100C0F77FD9200719D5B /* callback.cpp */,
 				AAAAC16F0F533ADF00461C96 /* closure.cpp */,
 				AAAAC1700F533ADF00461C96 /* linear_blits.cpp */,
@@ -713,7 +661,6 @@
 				AA8F9F700F510272006A9E2F /* soft_screen.cpp */,
 				AA3C44570F3EEBE0007C7E8B /* audio_collector.cpp */,
 				AA3C445B0F3EEBE0007C7E8B /* audio_input.cpp */,
-				AA3C445C0F3EEBE0007C7E8B /* audio_jack.cpp */,
 				AA3C44600F3EEBE0007C7E8B /* blitter.cpp */,
 				AA3C44660F3EEBE0007C7E8B /* context.cpp */,
 				AA3C446A0F3EEBE0007C7E8B /* controller.cpp */,
@@ -770,28 +717,6 @@
 			path = ../src;
 			sourceTree = SOURCE_ROOT;
 		};
-		AA8C41CB0F91000C00B39710 /* slw */ = {
-			isa = PBXGroup;
-			children = (
-				AA8C41CC0F91000C00B39710 /* abs_text_console.cpp */,
-				AA8C41CD0F91000C00B39710 /* abs_text_console.h */,
-				AA8C41CF0F91000C00B39710 /* keycodes.h */,
-				AA8C41D20F91000C00B39710 /* slw.cpp */,
-				AA8C41D30F91000C00B39710 /* slw.h */,
-				AA8C41D40F91000C00B39710 /* slw_console.cpp */,
-				AA8C41D50F91000C00B39710 /* slw_console.h */,
-				AA8C41D60F91000C00B39710 /* slw_log.cpp */,
-				AA8C41D70F91000C00B39710 /* slw_log.h */,
-				AA8C41D80F91000C00B39710 /* slw_popup.cpp */,
-				AA8C41D90F91000C00B39710 /* slw_popup.h */,
-				AA8C41DA0F91000C00B39710 /* slw_prompt.cpp */,
-				AA8C41DB0F91000C00B39710 /* slw_prompt.h */,
-				AA8C41DC0F91000C00B39710 /* slw_text.cpp */,
-				AA8C41DD0F91000C00B39710 /* slw_text.h */,
-			);
-			path = slw;
-			sourceTree = "<group>";
-		};
 		AA9337EF0FD7FDEB002B760B /* include */ = {
 			isa = PBXGroup;
 			children = (
@@ -804,17 +729,12 @@
 				AA3B0DA8104B133600A27B2E /* impl_screens.h */,
 				AAD9EF6C10487BDD00A3E51A /* sdl_controller.h */,
 				AAE2C2B7103FE2AE00D62E4F /* factory.h */,
-				AA8C41B50F90FF8800B39710 /* console_calls_ctrl.h */,
-				AA8C41B60F90FF8800B39710 /* console_ctrl.h */,
-				AA8C41B70F90FF8800B39710 /* console_readline_ctrl.h */,
-				AA8C41B80F90FF8800B39710 /* console_widgets_ctrl.h */,
 				AA00100E0F77FDA000719D5B /* callback.h */,
 				AAAAC1770F533AF900461C96 /* closure.h */,
 				AA8F9F720F510281006A9E2F /* soft_screen.h */,
 				AA3C44990F3EEBE0007C7E8B /* asm-linkage.h */,
 				AA3C449A0F3EEBE0007C7E8B /* audio_collector.h */,
 				AA3C449B0F3EEBE0007C7E8B /* audio_input.h */,
-				AA3C449C0F3EEBE0007C7E8B /* audio_jack.h */,
 				AA3C449E0F3EEBE0007C7E8B /* blitter.h */,
 				AA3C449F0F3EEBE0007C7E8B /* callbacks_js.h */,
 				AA3C44A10F3EEBE0007C7E8B /* context.h */,
@@ -919,7 +839,6 @@
 		AAB844400F3EFB3300AD479D /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				AA8C41CB0F91000C00B39710 /* slw */,
 				AAB844410F3EFB3300AD479D /* ccvt */,
 			);
 			name = lib;
@@ -1009,7 +928,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "export INSTALLED=\"\"\nexport LIBS_PATH=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\nmkdir -p $LIBS_PATH\nexport TARGET=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\"\n\nfollow_dependencies () {\n\tlibname=$1\n\tcd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\n\tdependencies=`otool -arch all -L \"$libname\"  | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $dependencies; do\n\t\tdepname=`basename $l`\n\t\tdeppath=`dirname $l`\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$depname\" ]; then\n\t\t\tdeploy_lib $depname \"$deppath\"\n\t\tfi\n\tdone\n}\n\nupdate_links () {\n\tlibname=$1\n\tlibpath=$2\n\tfor n in `ls $LIBS_PATH/*`; do\n\t\tinstall_name_tool \\\n\t\t\t-change \"$libpath/$libname\" \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$n\"\n\tdone\n}\n\ndeploy_lib () {\n\tlibname=$1\n\tlibpath=$2\n\tcheck=`echo $INSTALLED | grep $libname`\n\tif [ \"X$check\" = \"X\" ]; then\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\" ]; then\n\t\t\tcp -f \"$libpath/$libname\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tinstall_name_tool \\\n\t\t\t\t-id @executable_path/../Frameworks/$libname \\\n\t\t\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tfollow_dependencies $libname\n\t\tfi\n\t\texport INSTALLED=\"$INSTALLED $libname\"\n\tfi\n\tupdate_links $libname $libpath\n}\n\nupdate_executable() {\n\tLIBS=`otool -arch all -L \"$TARGET\" | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $LIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib $libname $libpath\n\t\t#echo \"install_name_tool -change $libpath/$libname @executable_path/../Frameworks/$libname \\\"$TARGET\\\"\"\n\t\tinstall_name_tool \\\n\t\t\t-change $libpath/$libname \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$TARGET\"\n\tdone\n}\n\nupdate_executable\ncd $LIBS_PATH && MORELIBS=`otool -arch all -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\nwhile [ \"X$MORELIBS\" != \"X\" ]; do\n\tfor l in $MORELIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib \"$libname\" \"$libpath\"\n\tdone\n\tcd $LIBS_PATH && MORELIBS=`otool -arch all -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\ndone\nupdate_executable\n\nif [ -d \"$TARGET_BUILD_DIR/Plugins\" ]; then\n\tcp -r \"$TARGET_BUILD_DIR/Plugins\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\"\nfi\n\nif [ -d \"/opt/local/lib/frei0r-1/\" ]; then\n\tcp -r \"/opt/local/lib/frei0r-1\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Plugins\"\nfi\n\n# Update the Info.plist file with correct version and build numbers\nBUILD_NUMBER=`grep BUILD_NUMBER $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nOSX_VERSION=`grep OSX_VERSION $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nsed -i .bck -e \"s#%BUILD_NUMBER%#$BUILD_NUMBER#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"\nsed -i .bck -e \"s#%OSX_VERSION%#$OSX_VERSION#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"\nrm \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist.bck\"";
+			shellScript = "";
 		};
 		AA4077DC105D471100401BB3 /* PreBuildScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1036,7 +955,6 @@
 				AAA7B6FC0F404B7F00056C44 /* audio_collector.cpp in Sources */,
 				AAA7B6FD0F404B7F00056C44 /* audio_collector_js.cpp in Sources */,
 				AAA7B6FE0F404B7F00056C44 /* audio_input.cpp in Sources */,
-				AAA7B6FF0F404B7F00056C44 /* audio_jack.cpp in Sources */,
 				AAA7B7000F404B7F00056C44 /* blitter.cpp in Sources */,
 				AAA7B7010F404B7F00056C44 /* callbacks_js.cpp in Sources */,
 				AAA7B7030F404B7F00056C44 /* context.cpp in Sources */,
@@ -1108,18 +1026,6 @@
 				AAAAC1740F533ADF00461C96 /* linear_blits.cpp in Sources */,
 				AAAAC1760F533ADF00461C96 /* sdl_blits.cpp in Sources */,
 				AA00100D0F77FD9200719D5B /* callback.cpp in Sources */,
-				AA8C41B00F90FF4F00B39710 /* console_calls_ctrl.cpp in Sources */,
-				AA8C41B10F90FF4F00B39710 /* console_ctrl.cpp in Sources */,
-				AA8C41B20F90FF4F00B39710 /* console_keys_ctrl.cpp in Sources */,
-				AA8C41B30F90FF4F00B39710 /* console_readline_ctrl.cpp in Sources */,
-				AA8C41B40F90FF4F00B39710 /* console_widgets_ctrl.cpp in Sources */,
-				AA8C41E00F91000C00B39710 /* abs_text_console.cpp in Sources */,
-				AA8C41E40F91000C00B39710 /* slw.cpp in Sources */,
-				AA8C41E50F91000C00B39710 /* slw_console.cpp in Sources */,
-				AA8C41E60F91000C00B39710 /* slw_log.cpp in Sources */,
-				AA8C41E70F91000C00B39710 /* slw_popup.cpp in Sources */,
-				AA8C41E80F91000C00B39710 /* slw_prompt.cpp in Sources */,
-				AA8C41E90F91000C00B39710 /* slw_text.cpp in Sources */,
 				AAC9DB37103D2C7F00A0111E /* PreferencesPanel.mm in Sources */,
 				AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */,
 				AAD9EF6B10487BC400A3E51A /* sdl_controller.cpp in Sources */,
