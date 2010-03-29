@@ -12,12 +12,12 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="2737"/>
+			<integer value="3015"/>
 			<integer value="1576"/>
 			<integer value="57"/>
-			<integer value="3015"/>
+			<integer value="1606"/>
 			<integer value="1887"/>
-			<integer value="966"/>
-			<integer value="2737"/>
 			<integer value="2242"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
@@ -4055,16 +4055,16 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<string key="NSMaxSize">{1.79769e+308, 1.79769e+308}</string>
 			</object>
 			<object class="NSCustomObject" id="1025460730">
-				<string key="NSClassName">CVFileInputController</string>
+				<string key="NSClassName">CVQtLayerController</string>
 			</object>
 			<object class="NSCustomObject" id="738627195">
-				<string key="NSClassName">CVFileInputController</string>
+				<string key="NSClassName">CVQtLayerController</string>
 			</object>
 			<object class="NSCustomObject" id="717894793">
-				<string key="NSClassName">CVFileInputController</string>
+				<string key="NSClassName">CVQtLayerController</string>
 			</object>
 			<object class="NSCustomObject" id="436140856">
-				<string key="NSClassName">CVFileInputController</string>
+				<string key="NSClassName">CVQtController</string>
 			</object>
 			<object class="NSCustomObject" id="823826285">
 				<string key="NSClassName">CVGrabberController</string>
@@ -7975,25 +7975,25 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<int key="objectID">2820</int>
 						<reference key="object" ref="1025460730"/>
 						<reference key="parent" ref="0"/>
-						<string key="objectName">CVFileInput1</string>
+						<string key="objectName">Quicktime1</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">2821</int>
 						<reference key="object" ref="738627195"/>
 						<reference key="parent" ref="0"/>
-						<string key="objectName">CVFileInput2</string>
+						<string key="objectName">Qicktime2</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">2822</int>
 						<reference key="object" ref="717894793"/>
 						<reference key="parent" ref="0"/>
-						<string key="objectName">CVFileInput3</string>
+						<string key="objectName">Quicktime3</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">2823</int>
 						<reference key="object" ref="436140856"/>
 						<reference key="parent" ref="0"/>
-						<string key="objectName">CVFileInput4</string>
+						<string key="objectName">Quicktime4</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">2824</int>
@@ -9304,7 +9304,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>CVFileInputView</string>
+					<string>CVQtLayerView</string>
 					<object class="NSMutableDictionary">
 						<string key="NS.key.0">ToolTip</string>
 						<object class="IBToolTipAttribute" key="NS.object.0">
@@ -9364,7 +9364,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>CVFileInputView</string>
+					<string>CVQtLayerView</string>
 					<object class="NSMutableDictionary">
 						<string key="NS.key.0">ToolTip</string>
 						<object class="IBToolTipAttribute" key="NS.object.0">
@@ -9376,7 +9376,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>CVFileInputView</string>
+					<string>CVQtLayerView</string>
 					<object class="NSMutableDictionary">
 						<string key="NS.key.0">ToolTip</string>
 						<object class="IBToolTipAttribute" key="NS.object.0">
@@ -9973,9 +9973,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<object class="NSAttributedString">
 						<string key="NSString"/>
 					</object>
-					<string>{{761, 78}, {647, 764}}</string>
+					<string>{{454, 78}, {647, 764}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{761, 78}, {647, 764}}</string>
+					<string>{{454, 78}, {647, 764}}</string>
 					<integer value="1"/>
 					<string>{{437, 135}, {451, 576}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -10202,43 +10202,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
-					<string key="className">CVFileInputController</string>
-					<string key="superclassName">CVLayerController</string>
-					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">delegate</string>
-						<string key="NS.object.0">id</string>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">CVFileInputController.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
-					<string key="className">CVFileInputView</string>
-					<string key="superclassName">CVLayerView</string>
-					<object class="NSMutableDictionary" key="actions">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>openFile:</string>
-							<string>openStream:</string>
-							<string>setMovieTime:</string>
-							<string>togglePlay:</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-							<string>id</string>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier">
-						<string key="majorKey">IBProjectSource</string>
-						<string key="minorKey">CVFileInputView.h</string>
-					</object>
-				</object>
-				<object class="IBPartialClassDescription">
 					<string key="className">CVFilterBox</string>
 					<string key="superclassName">NSView</string>
 					<object class="NSMutableDictionary" key="outlets">
@@ -10426,6 +10389,43 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">CVPreview.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">CVQtLayerController</string>
+					<string key="superclassName">CVLayerController</string>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">delegate</string>
+						<string key="NS.object.0">id</string>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">CVQtLayerController.h</string>
+					</object>
+				</object>
+				<object class="IBPartialClassDescription">
+					<string key="className">CVQtLayerView</string>
+					<string key="superclassName">CVLayerView</string>
+					<object class="NSMutableDictionary" key="actions">
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>openFile:</string>
+							<string>openStream:</string>
+							<string>setMovieTime:</string>
+							<string>togglePlay:</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+							<string>id</string>
+						</object>
+					</object>
+					<object class="IBClassDescriptionSource" key="sourceIdentifier">
+						<string key="majorKey">IBProjectSource</string>
+						<string key="minorKey">CVQtLayerView.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">

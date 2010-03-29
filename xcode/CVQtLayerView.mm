@@ -18,10 +18,10 @@
  */
 
 #import <CVLayerController.h>
-#import <CVFileInputView.h>
+#import <CVQtLayerView.h>
 
 
-@implementation CVFileInputView
+@implementation CVQtLayerView
 
 - (void)openFilePanelDidEnd:(NSOpenPanel *)panel returnCode:(int)returnCode  contextInfo:(void  *)contextInfo
 {
@@ -48,7 +48,7 @@
                                          nil];
         QTMovie *movie = [[QTMovie alloc] initWithAttributes:movieAttributes error:nil];
         [movie setIdling:NO];
-        if (![(CVFileInputController *)layerController setQTMovie:movie])
+        if (![(CVQtLayerController *)layerController setQTMovie:movie])
             warning("Can't open file: %s", [tvarFilename UTF8String]);
     }
 }

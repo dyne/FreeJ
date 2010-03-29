@@ -17,8 +17,8 @@
  *
  */
 
-#ifndef __CV_FILEINPUT_H__
-#define __CV_FILEINPUT_H__
+#ifndef __CV_QTLAYERCONTROLLER_H__
+#define __CV_QTLAYERCONTROLLER_H__
 
 #include <CVLayer.h>
 #include <context.h>
@@ -27,7 +27,7 @@
 #import  <QTKit/QTKit.h>
 #import  "CFreej.h";
 
-@interface CVFileInputController : CVLayerController {
+@interface CVQtLayerController : CVLayerController {
     id                    delegate;
     QTMovie               *qtMovie; 
     QTTime                movieDuration;        // cached duration of the movie - just for convenience

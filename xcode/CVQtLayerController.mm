@@ -17,7 +17,7 @@
  *
  */
 
-#import <CVFileInputController.h>
+#import <CVQtLayerController.h>
 #import <CIAlphaFade.h>
 #include <math.h>
 
@@ -39,7 +39,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     return noErr;
 }
 
-@implementation CVFileInputController : CVLayerController
+@implementation CVQtLayerController : CVLayerController
 
 - (id)init
 {
@@ -256,7 +256,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     bool gotNewFrame = newFrame;
     ret = [super getTexture];
     if (gotNewFrame) // task the qtvisualcontext if we got a new frame
-        [(CVFileInputController *)self task];
+        [(CVQtLayerController *)self task];
     return ret;
 }
 
@@ -288,8 +288,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 #ifdef __x86_64
     // Why this works on 32bit but crashes on 64 ? ... and why frameImageAtTime is so damn slow? :/
+    NSSize size = NSMakeSize(ctx->screen->geo.w, ctx->screen->geo.h);
     /*
-    newPixelBuffer = (CVOpenGLTextureRef)[qtMovie frameImageAtTime:now
+    newPixelBuffer = (CVOpenGLTextureRef)[qtMovie frameImageAtTime:[qtMovie currentTime]
                                                   withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
                                                     (id)QTMovieFrameImageTypeCVOpenGLTextureRef,
                                                     QTMovieFrameImageType,
@@ -297,20 +298,23 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                                                     QTMovieFrameImageOpenGLContext,
                                                     (id)[NSValue valueWithPointer:(void *)CGLGetPixelFormat(glContext)],
                                                     QTMovieFrameImagePixelFormat,
-                                                    //(id)[NSValue valueWithSize:imageSize],
-                                                    //QTMovieFrameImageSize,
+                                                    (id)[NSValue valueWithSize:sizef],
+                                                    QTMovieFrameImageSize,
                                                     nil]
                                                   error:nil];
+    
     */
-    NSSize size = NSMakeSize(ctx->screen->geo.w, ctx->screen->geo.h);
     newPixelBuffer = (CVPixelBufferRef)[qtMovie frameImageAtTime:now
                                                     withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
                                                                     (id)QTMovieFrameImageTypeCVPixelBufferRef,
                                                                     QTMovieFrameImageType,
                                                                     (id)[NSValue valueWithSize:size],
                                                                     QTMovieFrameImageSize,
+                                                                    (id)[NSNumber numberWithBool:TRUE],
+                                                                    QTMovieFrameImageSessionMode,
                                                                     nil]
                                                              error:nil];
+     
     // rendering (aka: applying filters) is now done in getTexture()
     // implemented in CVLayerView (our parent)
     CVPixelBufferRetain(newPixelBuffer);

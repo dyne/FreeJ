@@ -17,13 +17,13 @@
  *
  */
 
-#ifndef __CVFILEINPUTVIEW_H__
-#define __CVFILEINPUTVIEW_H__
+#ifndef __CVQTLAYERVIEW_H__
+#define __CVQTLAYERVIEW_H__
 
 #import <CVLayerView.h>
-#import <CVFileInputController.h>
+#import <CVQtLayerController.h>
 
-@interface CVFileInputView : CVLayerView {
+@interface CVQtLayerView : CVLayerView {
 }
 
 - (IBAction)setMovieTime:(id)sender;
