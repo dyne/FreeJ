@@ -27,16 +27,14 @@
 #import  <QTKit/QTKit.h>
 #import  "CFreej.h";
 
-#ifdef __x86_64
-#define QTVisualContextRef void*
-#endif
-
 @interface CVFileInputController : CVLayerController {
     id                    delegate;
     QTMovie               *qtMovie; 
     QTTime                movieDuration;        // cached duration of the movie - just for convenience
     CGLContextObj         qtOpenGLContext;
+#ifndef __x86_64
     QTVisualContextRef    qtVisualContext;        // the context the movie is playing in
+#endif
     uint64_t              lastPTS;
     bool                  isPlaying;
 }

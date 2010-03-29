@@ -41,19 +41,13 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 @implementation CVFileInputController : CVLayerController
 
-#ifdef __x86_64
-
-- (BOOL)setQTMovie:(QTMovie *)movie {return NO;}
-- (void)setTime:(QTTime)inTime {}
-- (BOOL)togglePlay {return NO;}
-- (void)task {}
-#else 
-
 - (id)init
 {
     isPlaying = NO;
     lastPTS = 0;
-        qtVisualContext = nil;
+#ifndef __x86_64
+    qtVisualContext = nil;
+#endif
     return [super init];
 }
 
@@ -61,11 +55,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     if (qtMovie)
         [qtMovie release];
+#ifndef __x86_64
     if(qtVisualContext)
         QTVisualContextRelease(qtVisualContext);
+#endif
     [super dealloc];
 }
 
+#ifndef __x86_64
 - (void)setupPixelBuffer
 {
     OSStatus err;
@@ -97,22 +94,29 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                          kQTVisualContextPixelBufferAttributesKey,
                          pixelBufferOptions);
     CFRelease(pixelBufferOptions);
-        err = QTOpenGLTextureContextCreate(kCFAllocatorDefault, glContext,
-                    CGLGetPixelFormat(glContext), visualContextOptions, &qtVisualContext);
+    
+    err = QTOpenGLTextureContextCreate(kCFAllocatorDefault, glContext,
+                CGLGetPixelFormat(glContext), visualContextOptions, &qtVisualContext);
+    
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CFRelease(visualContextOptions);
     CGColorSpaceRelease(colorSpace);    
 }
+#endif
 
 - (void)unloadMovie
 {
     [lock lock];
-
+#ifndef __x86_64
     QTVisualContextTask(qtVisualContext);
+#endif
+    if (layer) {
+        delete layer;
+        layer = NULL;
+    }
     [qtMovie stop];
     [qtMovie release];
     qtMovie = NULL;
-
     [layerView clear];
     /* If other threads are still referencing the pixelbuffer 
        without retaining it they will crash. They should retain
@@ -125,7 +129,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     lastFrame = NULL;
     if (currentFrame)
         CVPixelBufferRelease(currentFrame);
-
+    currentFrame = NULL;
     [lock unlock];
 }
 
@@ -143,19 +147,18 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         [self unloadMovie];
 
     [lock lock];
+    [QTMovie enterQTKitOnThread];
 
-    qtMovie = inMovie;
+    qtMovie = inMovie; // the provided movie must have been alloc'd, so no retain is necessary
 
     if(qtMovie) { // ok the movie is here ... let's start the underlying QTMovie object
         OSStatus error;
-
+#ifndef __x86_64
         [self setupPixelBuffer];
-
-        [qtMovie retain]; // we are going to need this for a while
-
         error = SetMovieVisualContext([qtMovie quickTimeMovie], qtVisualContext);
+#endif        
+        [qtMovie setMuted:YES]; // still no audio?
         [qtMovie gotoBeginning];
-        //[qtMovie setMuted:YES]; // still no audio?
         
         NSArray *tracks = [qtMovie tracks];
         bool hasVideo = NO;
@@ -164,7 +167,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             NSString *type = [track attributeForKey:QTTrackMediaTypeAttribute];
             if (![type isEqualToString:QTMediaTypeVideo]) {
                 [track setEnabled:NO];
+#ifndef __x86_64
                 DisposeMovieTrack([track quickTimeTrack]);
+#endif
             } else {
                 hasVideo = YES;
             }
@@ -205,6 +210,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     }
 
     [lock unlock];
+    [QTMovie exitQTKitOnThread];
+
     [pool release];
     return YES;
 }
@@ -255,6 +262,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (BOOL)getFrameForTime:(const CVTimeStamp *)timeStamp
 {
+    Context *ctx = [freej getContext];
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CVOpenGLBufferRef newPixelBuffer;
     BOOL rv = NO;
@@ -267,18 +275,51 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         return NO;
     uint64_t ts = CVGetCurrentHostTime();
     QTTime now = [qtMovie currentTime];
-#ifdef __BIG_ENDIAN__ // 10.5 || PPC ?! Q&D
-    now.timeValue += (now.timeScale/layer->fps.fps);
-#else // NEW good implementation
+
     now.timeValue += (((lastPTS?ts-lastPTS:0) * 600)/1000000000);
     now.timeScale = 600;
-#endif
 
     QTTime duration = [qtMovie duration];
+   
     if (QTTimeCompare(now, duration) == NSOrderedAscending)
         [qtMovie setCurrentTime:now];
     else 
         [qtMovie gotoBeginning];
+
+#ifdef __x86_64
+    // Why this works on 32bit but crashes on 64 ? ... and why frameImageAtTime is so damn slow? :/
+    /*
+    newPixelBuffer = (CVOpenGLTextureRef)[qtMovie frameImageAtTime:now
+                                                  withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                    (id)QTMovieFrameImageTypeCVOpenGLTextureRef,
+                                                    QTMovieFrameImageType,
+                                                    (id)[NSValue valueWithPointer:(void *)glContext],
+                                                    QTMovieFrameImageOpenGLContext,
+                                                    (id)[NSValue valueWithPointer:(void *)CGLGetPixelFormat(glContext)],
+                                                    QTMovieFrameImagePixelFormat,
+                                                    //(id)[NSValue valueWithSize:imageSize],
+                                                    //QTMovieFrameImageSize,
+                                                    nil]
+                                                  error:nil];
+    */
+    NSSize size = NSMakeSize(ctx->screen->geo.w, ctx->screen->geo.h);
+    newPixelBuffer = (CVPixelBufferRef)[qtMovie frameImageAtTime:now
+                                                    withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                                    (id)QTMovieFrameImageTypeCVPixelBufferRef,
+                                                                    QTMovieFrameImageType,
+                                                                    (id)[NSValue valueWithSize:size],
+                                                                    QTMovieFrameImageSize,
+                                                                    nil]
+                                                             error:nil];
+    // rendering (aka: applying filters) is now done in getTexture()
+    // implemented in CVLayerView (our parent)
+    CVPixelBufferRetain(newPixelBuffer);
+    rv = YES;
+    if (currentFrame)
+        CVPixelBufferRelease(currentFrame);
+    currentFrame = newPixelBuffer;
+    newFrame = YES;
+#else
     if(qtVisualContext)
     {        
         QTVisualContextCopyImageForTime(qtVisualContext,
@@ -295,10 +336,12 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         currentFrame = newPixelBuffer;
         newFrame = YES;
     } 
-    
+#endif
     [lock unlock];
-    [QTMovie exitQTKitOnThread];   
+    [QTMovie exitQTKitOnThread];
+#ifndef __x86_64
     MoviesTask([qtMovie quickTimeMovie], 0);
+#endif
     lastPTS = ts;
     [pool release];
     return rv;
@@ -330,7 +373,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (void)task
 {
-    QTVisualContextTask(qtVisualContext);
+    //QTVisualContextTask(qtVisualContext);
 }
 
 - (bool)stepBackward
@@ -347,5 +390,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 //@synthesize qtMovie;
 
-#endif // no __x86_64
+//#endif // no __x86_64
+
 @end
