@@ -26,12 +26,12 @@
 		AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */; };
 		AA819B26104CFC0500FD1991 /* CVLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819B25104CFC0500FD1991 /* CVLayerController.mm */; };
 		AA819B80104E4C7B00FD1991 /* CVGrabberView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819B7F104E4C7B00FD1991 /* CVGrabberView.mm */; };
-		AA819B88104E4D2700FD1991 /* CVFileInputView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819B87104E4D2700FD1991 /* CVFileInputView.mm */; };
+		AA819B88104E4D2700FD1991 /* CVQtLayerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819B87104E4D2700FD1991 /* CVQtLayerView.mm */; };
 		AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8858800F631E3C00778C03 /* CVGenerator.m */; };
 		AA88592D0F633A7500778C03 /* CVF0rLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA88592C0F633A7500778C03 /* CVF0rLayer.mm */; };
 		AA8A1BDA1056391B007D067B /* CVF0rLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819D15104EF69800FD1991 /* CVF0rLayerController.mm */; };
 		AA8F9F710F510273006A9E2F /* soft_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8F9F700F510272006A9E2F /* soft_screen.cpp */; };
-		AA9145080F4A1590001426A5 /* CVFileInputController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA9145070F4A1590001426A5 /* CVFileInputController.mm */; };
+		AA9145080F4A1590001426A5 /* CVQtLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA9145070F4A1590001426A5 /* CVQtLayerController.mm */; };
 		AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA99CF0C0F535B5F00022106 /* CVLayer.mm */; };
 		AAA38FB70F542DE80069BF91 /* CIAlphaFade.m in Sources */ = {isa = PBXBuildFile; fileRef = AAA38FB60F542DE80069BF91 /* CIAlphaFade.m */; };
 		AAA3904D0F5449810069BF91 /* CIAlphaFade.cikernel in Resources */ = {isa = PBXBuildFile; fileRef = AAA3902D0F5448820069BF91 /* CIAlphaFade.cikernel */; };
@@ -107,8 +107,6 @@
 		AAA7B7470F404B7F00056C44 /* ccvt_rgb2yuv.S in Sources */ = {isa = PBXBuildFile; fileRef = AAB844510F3EFB3400AD479D /* ccvt_rgb2yuv.S */; };
 		AAA7B75D0F404B7F00056C44 /* CFreej.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAA7B62B0F40485F00056C44 /* CFreej.mm */; };
 		AAA7B75E0F404B8C00056C44 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
-		AAA7B7630F404B8C00056C44 /* libSDLmain.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB844300F3EFA9500AD479D /* libSDLmain.a */; };
-		AAA7B76B0F404B8C00056C44 /* libSDL_gfx.a in Frameworks */ = {isa = PBXBuildFile; fileRef = AAB84E890F3F063400AD479D /* libSDL_gfx.a */; };
 		AAA7DA9A101A4F79009B32FD /* libsamplerate.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */; };
 		AAAABEE40F521A6000461C96 /* fps.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAAABEE30F521A6000461C96 /* fps.cpp */; };
 		AAAABF470F5226A700461C96 /* CVScreen.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAAABF460F5226A700461C96 /* CVScreen.mm */; };
@@ -139,7 +137,6 @@
 		AAD0A4D90FDEC0E300968886 /* libSDL_image.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4D80FDEC0E300968886 /* libSDL_image.dylib */; };
 		AAD0A4DB0FDEC0FF00968886 /* libavutil.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4DA0FDEC0FF00968886 /* libavutil.dylib */; };
 		AAD0A4DF0FDEC15A00968886 /* libvorbisfile.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4DE0FDEC15A00968886 /* libvorbisfile.dylib */; };
-		AAD0A4E10FDEC20100968886 /* libSDL_gfx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */; };
 		AAD0A4E30FDEC2A200968886 /* libsndfile.1.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */; };
 		AAD181D3104964FB0053F8A6 /* liblo.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD181D2104964FB0053F8A6 /* liblo.dylib */; };
 		AAD181D5104965120053F8A6 /* libshout.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAD181D4104965120053F8A6 /* libshout.dylib */; };
@@ -152,6 +149,7 @@
 		AAF3B6FC115E082D00F0C2AB /* CVFFmpegLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAF3B6FB115E082D00F0C2AB /* CVFFmpegLayer.mm */; };
 		AAF3BEF5115EB1AA00F0C2AB /* FFExporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAF3BEF4115EB1AA00F0C2AB /* FFExporter.mm */; };
 		AAF3BF7D115EB54C00F0C2AB /* ffenc.c in Sources */ = {isa = PBXBuildFile; fileRef = AAF3BF7C115EB54C00F0C2AB /* ffenc.c */; };
+		AAF3C339115FF9B700F0C2AB /* libSDL_gfx.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AAF3C338115FF9B700F0C2AB /* libSDL_gfx.dylib */; };
 		B52891A21139ABA80053A203 /* live_r.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A01139ABA80053A203 /* live_r.png */; };
 		B52891A31139ABA80053A203 /* live_w.png in Resources */ = {isa = PBXBuildFile; fileRef = B52891A11139ABA80053A203 /* live_w.png */; };
 		B56D8F4E113BD3760092D922 /* libmp3lame.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = B56D8F4D113BD3760092D922 /* libmp3lame.dylib */; };
@@ -336,8 +334,8 @@
 		AA819B25104CFC0500FD1991 /* CVLayerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVLayerController.mm; sourceTree = "<group>"; };
 		AA819B7E104E4C7B00FD1991 /* CVGrabberView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVGrabberView.h; sourceTree = "<group>"; };
 		AA819B7F104E4C7B00FD1991 /* CVGrabberView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVGrabberView.mm; sourceTree = "<group>"; };
-		AA819B86104E4D2700FD1991 /* CVFileInputView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFileInputView.h; sourceTree = "<group>"; };
-		AA819B87104E4D2700FD1991 /* CVFileInputView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFileInputView.mm; sourceTree = "<group>"; };
+		AA819B86104E4D2700FD1991 /* CVQtLayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVQtLayerView.h; sourceTree = "<group>"; };
+		AA819B87104E4D2700FD1991 /* CVQtLayerView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVQtLayerView.mm; sourceTree = "<group>"; };
 		AA819D14104EF69800FD1991 /* CVF0rLayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVF0rLayerController.h; sourceTree = "<group>"; };
 		AA819D15104EF69800FD1991 /* CVF0rLayerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVF0rLayerController.mm; sourceTree = "<group>"; };
 		AA88587F0F631E3C00778C03 /* CVGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVGenerator.h; sourceTree = "<group>"; };
@@ -346,8 +344,8 @@
 		AA88592C0F633A7500778C03 /* CVF0rLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVF0rLayer.mm; sourceTree = "<group>"; };
 		AA8F9F700F510272006A9E2F /* soft_screen.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = soft_screen.cpp; sourceTree = "<group>"; };
 		AA8F9F720F510281006A9E2F /* soft_screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = soft_screen.h; path = include/soft_screen.h; sourceTree = "<group>"; };
-		AA9145060F4A1590001426A5 /* CVFileInputController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFileInputController.h; sourceTree = "<group>"; };
-		AA9145070F4A1590001426A5 /* CVFileInputController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFileInputController.mm; sourceTree = "<group>"; };
+		AA9145060F4A1590001426A5 /* CVQtLayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVQtLayerController.h; sourceTree = "<group>"; };
+		AA9145070F4A1590001426A5 /* CVQtLayerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVQtLayerController.mm; sourceTree = "<group>"; };
 		AA99CF0B0F535B5F00022106 /* CVLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVLayer.h; sourceTree = "<group>"; };
 		AA99CF0C0F535B5F00022106 /* CVLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVLayer.mm; sourceTree = "<group>"; };
 		AAA38FB50F542DE80069BF91 /* CIAlphaFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CIAlphaFade.h; sourceTree = "<group>"; };
@@ -376,13 +374,11 @@
 		AAB47C9E10EB44AF00B0E8D2 /* CVTextLayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVTextLayerView.h; sourceTree = "<group>"; };
 		AAB47C9F10EB44AF00B0E8D2 /* CVTextLayerView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVTextLayerView.mm; sourceTree = "<group>"; };
 		AAB843AA0F3EEEAF00AD479D /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
-		AAB844300F3EFA9500AD479D /* libSDLmain.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDLmain.a; path = /opt/local/lib/libSDLmain.a; sourceTree = "<absolute>"; };
 		AAB844470F3EFB3400AD479D /* ccvt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccvt.h; sourceTree = "<group>"; };
 		AAB8444A0F3EFB3400AD479D /* ccvt_c2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ccvt_c2.c; sourceTree = "<group>"; };
 		AAB8444C0F3EFB3400AD479D /* ccvt_misc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ccvt_misc.c; sourceTree = "<group>"; };
 		AAB844510F3EFB3400AD479D /* ccvt_rgb2yuv.S */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.asm; path = ccvt_rgb2yuv.S; sourceTree = "<group>"; };
 		AAB844520F3EFB3400AD479D /* ccvt_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ccvt_types.h; sourceTree = "<group>"; };
-		AAB84E890F3F063400AD479D /* libSDL_gfx.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDL_gfx.a; path = /opt/local/lib/libSDL_gfx.a; sourceTree = "<absolute>"; };
 		AAB84F850F3F1EB300AD479D /* CFreej.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFreej.h; sourceTree = "<group>"; };
 		AAC0A357105AF6AC003E11CC /* logging.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = logging.cpp; sourceTree = "<group>"; };
 		AAC0A359105AF6C2003E11CC /* logging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = logging.h; path = include/logging.h; sourceTree = "<group>"; };
@@ -403,7 +399,6 @@
 		AAD0A4D80FDEC0E300968886 /* libSDL_image.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_image.dylib; path = /opt/local/lib/libSDL_image.dylib; sourceTree = "<absolute>"; };
 		AAD0A4DA0FDEC0FF00968886 /* libavutil.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libavutil.dylib; path = /opt/local/lib/libavutil.dylib; sourceTree = "<absolute>"; };
 		AAD0A4DE0FDEC15A00968886 /* libvorbisfile.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libvorbisfile.dylib; path = /opt/local/lib/libvorbisfile.dylib; sourceTree = "<absolute>"; };
-		AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_gfx.dylib; path = /opt/local/lib/libSDL_gfx.dylib; sourceTree = "<absolute>"; };
 		AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libsndfile.1.dylib; path = /opt/local/lib/libsndfile.1.dylib; sourceTree = "<absolute>"; };
 		AAD181D2104964FB0053F8A6 /* liblo.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = liblo.dylib; path = /opt/local/lib/liblo.dylib; sourceTree = "<absolute>"; };
 		AAD181D4104965120053F8A6 /* libshout.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libshout.dylib; path = /opt/local/lib/libshout.dylib; sourceTree = "<absolute>"; };
@@ -421,6 +416,7 @@
 		AAF3BEF4115EB1AA00F0C2AB /* FFExporter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = FFExporter.mm; sourceTree = "<group>"; };
 		AAF3BF67115EB38800F0C2AB /* Exporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Exporter.h; sourceTree = "<group>"; };
 		AAF3BF7C115EB54C00F0C2AB /* ffenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ffenc.c; sourceTree = "<group>"; };
+		AAF3C338115FF9B700F0C2AB /* libSDL_gfx.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libSDL_gfx.dylib; path = /opt/local/lib/libSDL_gfx.dylib; sourceTree = "<absolute>"; };
 		B52891A01139ABA80053A203 /* live_r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_r.png; sourceTree = "<group>"; };
 		B52891A11139ABA80053A203 /* live_w.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = live_w.png; sourceTree = "<group>"; };
 		B56D8F4D113BD3760092D922 /* libmp3lame.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libmp3lame.dylib; path = /opt/local/lib/libmp3lame.dylib; sourceTree = "<absolute>"; };
@@ -445,8 +441,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				AAA7B75E0F404B8C00056C44 /* Cocoa.framework in Frameworks */,
-				AAA7B7630F404B8C00056C44 /* libSDLmain.a in Frameworks */,
-				AAA7B76B0F404B8C00056C44 /* libSDL_gfx.a in Frameworks */,
 				AAB26E510F4058330068E5F5 /* QuickTime.framework in Frameworks */,
 				AAB270620F4065220068E5F5 /* QTKit.framework in Frameworks */,
 				AAB270980F406ACE0068E5F5 /* CoreVideo.framework in Frameworks */,
@@ -465,7 +459,6 @@
 				AAD0A4D90FDEC0E300968886 /* libSDL_image.dylib in Frameworks */,
 				AAD0A4DB0FDEC0FF00968886 /* libavutil.dylib in Frameworks */,
 				AAD0A4DF0FDEC15A00968886 /* libvorbisfile.dylib in Frameworks */,
-				AAD0A4E10FDEC20100968886 /* libSDL_gfx.dylib in Frameworks */,
 				AAD0A4E30FDEC2A200968886 /* libsndfile.1.dylib in Frameworks */,
 				AA5844880FE114970059D860 /* Carbon.framework in Frameworks */,
 				AAA7DA9A101A4F79009B32FD /* libsamplerate.dylib in Frameworks */,
@@ -473,6 +466,7 @@
 				AAD181D5104965120053F8A6 /* libshout.dylib in Frameworks */,
 				B56D8F4E113BD3760092D922 /* libmp3lame.dylib in Frameworks */,
 				AAB1FC761158D958000368A9 /* libjs.dylib in Frameworks */,
+				AAF3C339115FF9B700F0C2AB /* libSDL_gfx.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -495,10 +489,10 @@
 				AA3B0B09104A6DAC00A27B2E /* CVLayerView.mm */,
 				AA819B24104CFC0500FD1991 /* CVLayerController.h */,
 				AA819B25104CFC0500FD1991 /* CVLayerController.mm */,
-				AA819B86104E4D2700FD1991 /* CVFileInputView.h */,
-				AA819B87104E4D2700FD1991 /* CVFileInputView.mm */,
-				AA9145060F4A1590001426A5 /* CVFileInputController.h */,
-				AA9145070F4A1590001426A5 /* CVFileInputController.mm */,
+				AA819B86104E4D2700FD1991 /* CVQtLayerView.h */,
+				AA819B87104E4D2700FD1991 /* CVQtLayerView.mm */,
+				AA9145060F4A1590001426A5 /* CVQtLayerController.h */,
+				AA9145070F4A1590001426A5 /* CVQtLayerController.mm */,
 				AA819B7E104E4C7B00FD1991 /* CVGrabberView.h */,
 				AA819B7F104E4C7B00FD1991 /* CVGrabberView.mm */,
 				AAB26D2C0F4051F60068E5F5 /* CVGrabber.h */,
@@ -553,6 +547,7 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AAF3C338115FF9B700F0C2AB /* libSDL_gfx.dylib */,
 				AAB1FC751158D958000368A9 /* libjs.dylib */,
 				B56D8F4D113BD3760092D922 /* libmp3lame.dylib */,
 				AAD181D4104965120053F8A6 /* libshout.dylib */,
@@ -560,7 +555,6 @@
 				AAA7DA99101A4F79009B32FD /* libsamplerate.dylib */,
 				AA5844870FE114970059D860 /* Carbon.framework */,
 				AAD0A4E20FDEC2A200968886 /* libsndfile.1.dylib */,
-				AAD0A4E00FDEC20100968886 /* libSDL_gfx.dylib */,
 				AAD0A4DE0FDEC15A00968886 /* libvorbisfile.dylib */,
 				AAD0A4DA0FDEC0FF00968886 /* libavutil.dylib */,
 				AAD0A4D80FDEC0E300968886 /* libSDL_image.dylib */,
@@ -579,8 +573,6 @@
 				AAB270970F406ACE0068E5F5 /* CoreVideo.framework */,
 				AAB270610F4065220068E5F5 /* QTKit.framework */,
 				AAB26E4A0F4058330068E5F5 /* QuickTime.framework */,
-				AAB84E890F3F063400AD479D /* libSDL_gfx.a */,
-				AAB844300F3EFA9500AD479D /* libSDLmain.a */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -648,10 +640,10 @@
 			isa = PBXGroup;
 			children = (
 				AA9337EF0FD7FDEB002B760B /* include */,
-				AAF3BF7C115EB54C00F0C2AB /* ffenc.c */,
 				AAB843990F3EEDE400AD479D /* javascript */,
 				B59354E111580B1700BF8C8E /* oggenc.c */,
 				B5BD95B4113581AD0063C358 /* ffdec.c */,
+				AAF3BF7C115EB54C00F0C2AB /* ffenc.c */,
 				AAB47C8910EAA15F00B0E8D2 /* geometry.cpp */,
 				AA3B0DA2104B131100A27B2E /* generator_layer.cpp */,
 				AA00100C0F77FD9200719D5B /* callback.cpp */,
@@ -868,7 +860,7 @@
 				AAA7B6EF0F404B4C00056C44 /* Resources */,
 				AAA7B6F00F404B4C00056C44 /* Sources */,
 				AAA7B6F10F404B4C00056C44 /* Frameworks */,
-				AA155AFF0F5E0A7A00234C8F /* PostBuildScript */,
+				AAF3C42B115FFB1700F0C2AB /* PostBuildScript */,
 			);
 			buildRules = (
 			);
@@ -916,20 +908,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		AA155AFF0F5E0A7A00234C8F /* PostBuildScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = PostBuildScript;
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "";
-		};
 		AA4077DC105D471100401BB3 /* PreBuildScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -943,6 +921,20 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "if [ \"X$CONFIGURATION\" = \"XRelease\" ]; then\n\texport BUILD_NUMBER=`grep BUILD_NUMBER $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\n\tOLD_BUILD_NUMBER=$BUILD_NUMBER\n\t((BUILD_NUMBER++))\n\tsed -i .bck -e \"s#BUILD_NUMBER $OLD_BUILD_NUMBER#BUILD_NUMBER $BUILD_NUMBER#\" $TARGET_BUILD_DIR/../../config.h\n\trm $TARGET_BUILD_DIR/../../config.h.bck\nfi";
+		};
+		AAF3C42B115FFB1700F0C2AB /* PostBuildScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = PostBuildScript;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "export INSTALLED=\"\"\nexport LIBS_PATH=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\nmkdir -p $LIBS_PATH\nexport TARGET=\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/MacOS/$PRODUCT_NAME\"\n\nfollow_dependencies () {\n\tlibname=$1\n\tcd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks\"\n\tdependencies=`otool -arch all -L \"$libname\"  | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $dependencies; do\n\t\tdepname=`basename $l`\n\t\tdeppath=`dirname $l`\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$depname\" ]; then\n\t\t\tdeploy_lib $depname \"$deppath\"\n\t\tfi\n\tdone\n}\n\nupdate_links () {\n\tlibname=$1\n\tlibpath=$2\n\tfor n in `ls $LIBS_PATH/*`; do\n\t\tinstall_name_tool \\\n\t\t\t-change \"$libpath/$libname\" \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$n\"\n\tdone\n}\n\ndeploy_lib () {\n\tlibname=$1\n\tlibpath=$2\n\tcheck=`echo $INSTALLED | grep $libname`\n\tif [ \"X$check\" = \"X\" ]; then\n\t\tif [ ! -f \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\" ]; then\n\t\t\tcp -f \"$libpath/$libname\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tinstall_name_tool \\\n\t\t\t\t-id @executable_path/../Frameworks/$libname \\\n\t\t\t\t\"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Frameworks/$libname\"\n\t\t\tfollow_dependencies $libname\n\t\tfi\n\t\texport INSTALLED=\"$INSTALLED $libname\"\n\tfi\n\tupdate_links $libname $libpath\n}\n\nupdate_executable() {\n\tLIBS=`otool -arch all -L \"$TARGET\" | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'`\n\tfor l in $LIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib $libname $libpath\n\t\t#echo \"install_name_tool -change $libpath/$libname @executable_path/../Frameworks/$libname \\\"$TARGET\\\"\"\n\t\tinstall_name_tool \\\n\t\t\t-change $libpath/$libname \\\n\t\t\t@executable_path/../Frameworks/$libname \\\n\t\t\t\"$TARGET\"\n\tdone\n}\n\nupdate_executable\ncd $LIBS_PATH && MORELIBS=`otool -arch all -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\nwhile [ \"X$MORELIBS\" != \"X\" ]; do\n\tfor l in $MORELIBS; do\n\t\tlibname=`basename $l`\n\t\tlibpath=`dirname $l`\n\t\tdeploy_lib \"$libname\" \"$libpath\"\n\tdone\n\tcd $LIBS_PATH && MORELIBS=`otool -arch all -L * | egrep '\\/(opt|usr)\\/local\\/lib' | awk '{print $1}'` && cd -\ndone\nupdate_executable\n\nif [ -d \"$TARGET_BUILD_DIR/Plugins\" ]; then\n\tcp -r \"$TARGET_BUILD_DIR/Plugins\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/\"\nfi\n\nif [ -d \"/opt/local/lib/frei0r-1/\" ]; then\n\tcp -r \"/opt/local/lib/frei0r-1\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Plugins\"\nfi\n\n# Update the Info.plist file with correct version and build numbers\nBUILD_NUMBER=`grep BUILD_NUMBER $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nOSX_VERSION=`grep OSX_VERSION $TARGET_BUILD_DIR/../../config.h | awk '{print $3}'`\nsed -i .bck -e \"s#%BUILD_NUMBER%#$BUILD_NUMBER#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"\nsed -i .bck -e \"s#%OSX_VERSION%#$OSX_VERSION#g\" \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist\"\nrm \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/Contents/Info.plist.bck\"";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1034,8 +1026,8 @@
 				AA8A1BDA1056391B007D067B /* CVF0rLayerController.mm in Sources */,
 				AA3B0B78104A728600A27B2E /* CVF0rLayerView.mm in Sources */,
 				AA88592D0F633A7500778C03 /* CVF0rLayer.mm in Sources */,
-				AA819B88104E4D2700FD1991 /* CVFileInputView.mm in Sources */,
-				AA9145080F4A1590001426A5 /* CVFileInputController.mm in Sources */,
+				AA819B88104E4D2700FD1991 /* CVQtLayerView.mm in Sources */,
+				AA9145080F4A1590001426A5 /* CVQtLayerController.mm in Sources */,
 				AA819B80104E4C7B00FD1991 /* CVGrabberView.mm in Sources */,
 				AAB26D2E0F4051F60068E5F5 /* CVGrabber.mm in Sources */,
 				AA5846560FE162C60059D860 /* CVTextLayerController.mm in Sources */,
@@ -1259,7 +1251,7 @@
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
-				VALID_ARCHS = "x86_64 i386 ppc";
+				VALID_ARCHS = "i386 ppc";
 			};
 			name = Release;
 		};
