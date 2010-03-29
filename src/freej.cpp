@@ -31,7 +31,7 @@
 #include <context.h>
 
 // #include <osd.h>
-#include <slang_console_ctrl.h>
+//#include <slang_console_ctrl.h>
 #include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
@@ -420,6 +420,7 @@ int main (int argc, char **argv) {
 
   /* MAIN loop */
   while( !freej->quit )
+  {
     /* CAFUDDARE in sicilian means to add a lot of 
        stuff into something; for example, to do the
        bread or the pasta for the pizza you have to
@@ -428,11 +429,11 @@ int main (int argc, char **argv) {
        arms, mixing wheat flour, ingredients, and so
        processing materia */
     freej->cafudda(1.0);
-  /* also layers have the cafudda() function
+    /* also layers have the cafudda() function
      which is called by the Context class (freej instance here)
      so it's a tree of cafudda calls originating from here
      all synched to the environment, yea, feels good */
-
+  }
 
 
 
