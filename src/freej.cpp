@@ -31,7 +31,9 @@
 #include <context.h>
 
 // #include <osd.h>
-//#include <slang_console_ctrl.h>
+#ifndef WITH_COCOA
+#include <slang_console_ctrl.h>
+#endif
 #include <video_encoder.h>
 #include <plugger.h>
 #include <jutils.h>
