@@ -2,13 +2,19 @@
 
 ;; local emacs extensions
 (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/")
+(add-to-list 'load-path ".")
 
 ;;; ORG mode
 (require 'org-install)
 (require 'org-exp-blocks)
+
+(require 'color-theme)
+(color-theme-initialize)
+(color-theme-twilight)
+
 (require 'htmlize)
-
-
+'(htmlize-ignore-face-size (quote absolute))
+'(htmlize-output-type (quote inline-css))
 ;; org mode customisations
 (setq org-export-htmlize-output-type 'css)
 
