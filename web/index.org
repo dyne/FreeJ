@@ -263,9 +263,9 @@ the following dependencies:
 : libavcodec-dev    libavformat-dev    libbluetooth2-dev   fftw3-dev \
 : libjack-dev libasound-dev liblo0-dev swig python-dev
 
-** Apple Darwin/OSX 10.5 Leopard
+** Apple Darwin/OSX 10.5 / 10.6
 
-[[http://www.xant.net/freej.dmg][Download and  install]] FreeJ with support for  quicktime, [[http://www.troikatronix.com/freeframe.html][freeframe]] and
+Download either the [[http://www.xant.net/freej.dmg][i386/PPC]] or the [[http://www.xant.net/freej64.dmg][x86_64 (snow leopard only)]] FreeJ with support for  quicktime, [[http://www.troikatronix.com/freeframe.html][freeframe]] and
 frei0r  effect plugins  here:  this version  includes an  experimental
 graphical interface (Carbon/Cocoa)  that shows functionalities.
 
