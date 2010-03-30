@@ -7,6 +7,7 @@
    
    THIS PHP FILE CONTAINS NO RELEVANT CONTENT */
 
+require_once("helpers.inc.php");
 
 define("DYNE_DEBUG_RENDERING_TIME", false);
 if (DYNE_DEBUG_RENDERING_TIME) {
@@ -21,16 +22,6 @@ if (!is_dir(constant("SMARTY_DIR")) || !require_once("smarty/Smarty.class.php"))
     echo "SMARTY is supposed to be installed in " . constant("SMARTY_DIR") . " but is not.";
     echo "Install it or edit SMARTY_DIR in " . __FILE__;
     exit;
-}
-
-function showfile($f) {
-  $fd = fopen("$f","r");
-  if(!$fd) { $text = "<h1>ERROR: $f not found</h1>";
- } else {	 
-    $st = fstat($fd);
-    $text = fread($fd,$st[size]); fclose($fd);
-  }
-  echo($text);
 }
 
 global $smarty;
@@ -49,11 +40,16 @@ $smarty->assign("page_class",  "software org-mode");
 $smarty->assign("page_hgroup", "<h1>FreeJ</h1>");
 $smarty->assign("page_title",  "free vision mixer");
 
+
+$smarty->assign("pagename","software");
 $smarty->display("_header.tpl");
 
+
 // sidebar
+div("menu");
 $smarty->display("software/doctypes.tpl");
 showfile("index-toc.html");
+echo("</div>");
 
 // page content
 showfile("index-body.html");

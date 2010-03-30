@@ -210,7 +210,7 @@ support by European institutions, organisations and individuals: among
 them and most importantly are  [[http://nimk.nl/eng/research/freej-vision-mixer][NIMk]], [[http://www.digitalepioniers.nl/projecten/Freej-Vision-Mixer/146][Digitale Pioniers]] and [[http://osalliance.com/netculture/project/beTV/bericht/][Open Source
 Alliance]].
 
-| file:images/NIMK.NL-Logo.jpg | file:images/digitalepioniers.png | file:images/osalliance.png |
+| file:images/NIMK.NL-Logo.png | file:images/digitalepioniers.png | file:images/osalliance.png |
 
 Please do  not hesitate  to contact us  if you  can help to  make this
 software  better:   code  contributions,  financial   support,  ad-hoc
@@ -233,8 +233,8 @@ build your own application and as source code you can study.
 
 ** Source code
 
-Latest stable release is 0.10 (30  May 2008) more about it in the [[http://ftp.dyne.org/freej/NEWS][NEWS]]
-and [[http://ftp.dyne.org/freej/ChangeLog][ChangeLog]].
+Latest stable release is 0.10 (30  May 2008) more about it in the [[ftp://ftp.dyne.org/freej/NEWS][NEWS]]
+and [[ftp://ftp.dyne.org/freej/ChangeLog][ChangeLog]].
 
 Source releases are checked and signed by [[http://rastasoft.org][Jaromil]] using [[http://www.gnupg.org][GnuPG]].
 
@@ -294,6 +294,12 @@ recently, you  can [[http://aur.archlinux.org/packages.php?ID=34964][see the  Fr
 
 : yaourt freej-git
 
+** OpenSuse
+
+RPM Packages  are available  for all architectures  for the  Open Suse
+distribution,  here  the [[http://packman.links2linux.org/package/freej][package  information]]  including  the [[http://packman.links2linux.org/install/freej][1  click
+install]].
+
 ** Winslows 
 
 If you are looking for a winslows version, boot [[http://dynebolic.org][dyne:bolic GNU/Linux]]!
@@ -324,8 +330,8 @@ Here  you  find  the  full  [[http://freej.dyne.org/docs/scripting][scripting AP
 collection of [[http://git.dyne.org/index.cgi?url=freej/tree/scripts/javascript/examples][example scripts]].
 
 Along  with  the  sourcecode,   the  following  text  files  are  also
-distributed: [[http://ftp.dyne.org/freej/README][README]],  [[http://ftp.dyne.org/freej/][INSTALL]], [[http://ftp.dyne.org/freej/][AUTHORS]], [[http://ftp.dyne.org/freej/][ChangeLog]],  [[http://ftp.dyne.org/freej/][USAGE]], [[http://ftp.dyne.org/freej/][TODO]], [[http://ftp.dyne.org/freej/][NEWS]],
-[[http://ftp.dyne.org/freej/][COPYING]].
+distributed: [[ftp://ftp.dyne.org/freej/README][README]],  [[ftp://ftp.dyne.org/freej/][INSTALL]], [[ftp://ftp.dyne.org/freej/][AUTHORS]], [[ftp://ftp.dyne.org/freej/][ChangeLog]],  [[ftp://ftp.dyne.org/freej/][USAGE]], [[ftp://ftp.dyne.org/freej/][TODO]], [[ftp://ftp.dyne.org/freej/][NEWS]],
+[[ftp://ftp.dyne.org/freej/][COPYING]]
 
 ** Streaming online video
 
