@@ -39,6 +39,7 @@ public:
     CVFFmpegLayer(CVLayerController *controller);
     ~CVFFmpegLayer();
     bool open(const char *movie);
+    void close();
     void *feed();
     bool isDecoding();
     bool hasFF();

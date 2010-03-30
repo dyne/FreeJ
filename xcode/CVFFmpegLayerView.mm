@@ -45,6 +45,11 @@
 	contextInfo:self];    
 }
 
+- (IBAction)close:(id)sender
+{
+    [(CVFFmpegLayerController *)layerController setStream:nil];
+}
+
 - (void) drawRect:(NSRect)theRect
 {
     [super drawRect:theRect];

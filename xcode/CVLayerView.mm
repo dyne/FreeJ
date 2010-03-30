@@ -119,9 +119,12 @@
     if ([self needsDisplay]) {
         if (posterImage) {
             CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+            CGPoint origin;
+            origin.x = (frame.size.width-[posterImage extent].size.width)/2;
+            origin.y = (frame.size.height-[posterImage extent].size.height)/2;
             [[self openGLContext] makeCurrentContext];
             [ciContext drawImage: posterImage
-                         atPoint: imageRect.origin
+                         atPoint: origin
                         fromRect: imageRect];
             [[self openGLContext] flushBuffer];
             CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
@@ -325,8 +328,9 @@
     bitmap = [NSBitmapImageRep imageRepWithData:tiffData];
     // scale the frame to fit the preview
     NSAffineTransform *scaleTransform = [NSAffineTransform transform];
-    float scaleFactor = frame.size.height/[image size].height;
-    [scaleTransform scaleBy:scaleFactor];
+    float xScaleFactor = frame.size.width/[image size].width;
+    float yScaleFactor = frame.size.height/[image size].height;
+    [scaleTransform scaleBy:(xScaleFactor < yScaleFactor)?xScaleFactor:yScaleFactor];
     
     [scaleFilter setValue:scaleTransform forKey:@"inputTransform"];
     [scaleFilter setValue:[[CIImage alloc] initWithBitmapImageRep:bitmap] forKey:@"inputImage"];

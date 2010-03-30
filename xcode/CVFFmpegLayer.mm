@@ -21,6 +21,7 @@ CVFFmpegLayer::CVFFmpegLayer(CVLayerController *controller) : CVLayer(controller
     ff = NULL;
     pixelBuffer = NULL;
     currentFrame = NULL;
+    repeat = NO;
 }
 
 CVFFmpegLayer::~CVFFmpegLayer()
@@ -49,6 +50,8 @@ void *CVFFmpegLayer::feed()
                 decode_frame(ff);
             } else {
                 close_and_free_ff(&ff);
+                if (!repeat)
+                    memset(filename, 0, sizeof(filename)); // XXX
             }
         }
     } else {
@@ -76,13 +79,16 @@ void *CVFFmpegLayer::feed()
         if (err == kCVReturnSuccess) {
             [input feedFrame:pixelBuffer];
             if (!decode_frame(ff)) {
-                buffer = NULL;
                 close_and_free_ff(&ff);
+                //buffer = NULL;
                 // XXX - find a cleaner way instead of blindly resetting the filename
                 // TODO - allow looping on a stream by reopening it
                 if (!repeat) {
                     memset(filename, 0, sizeof(filename));
-                    [(CVFFmpegLayerController *)input clearPreview];
+                    if (input) {
+                        [(CVFFmpegLayerController *)input deactivate];
+                        [(CVFFmpegLayerController *)input clearPreview];
+                    }
                 }
             }
         } else {
@@ -113,3 +119,18 @@ bool CVFFmpegLayer::hasFF()
 {
     return ff ? true : false;
 }
+
+void
+CVFFmpegLayer::close()
+{
+    lock();
+    close_and_free_ff(&ff);
+    //buffer = NULL;
+    memset(filename, 0, sizeof(filename));
+    if (input) {
+        [(CVFFmpegLayerController *)input deactivate];
+        [(CVFFmpegLayerController *)input clearPreview];
+    }
+    unlock();
+}
+

@@ -37,6 +37,7 @@ struct ffdec;
     NSDictionary *bufDict;
     char *movie;
     int timeout;
+    int skipCount;
 }
 
 - (void)setStream:(NSString*)url;

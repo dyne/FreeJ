@@ -47,16 +47,13 @@
     icon1 = [[[NSImage alloc] initWithContentsOfURL:
             [NSURL fileURLWithPath:[NSString stringWithCString:iconFile encoding:NSASCIIStringEncoding]]] retain];
 
+    skipCount = 0;
     movie = NULL;
 	previewImage = nil;
     timeout=1;
     currentFrame = nil;
-#if 0 
-	bufDict = [[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, nil] retain];
-
-#else 
 	bufDict = [[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferOpenGLCompatibilityKey, nil] retain];
-#endif
+
     return [super init];
 }
 
@@ -108,7 +105,7 @@
     if(!movie) return;
 
     [lock lock];
-
+    skipCount = 0;
     [layerView setPosterImage:icon1];
 	[self clearPreview];
 
@@ -150,7 +147,7 @@
             uint8_t *ffbuf = (uint8_t *)lay->buffer;
             if (lay->buffer) {
                 memcpy(buf, ffbuf, 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
-    /*          
+                /*
                 long blackness=(ctx->screen->geo.w * ctx->screen->geo.h);
                 // histogram
                 blackness=0;
@@ -158,8 +155,10 @@
                 for (i=0; i< 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t);i+=4) {
                     blackness+=((buf[i+1]>>2) || (buf[i+2]>>2) || (buf[i+3]>>2))?1:0;
                 }
-                if (blackness <= (ctx->screen->geo.w * ctx->screen->geo.h)>>4) {
-    */
+                */
+                //if (blackness >= (ctx->screen->geo.w * ctx->screen->geo.h)>>4) {
+                if (skipCount > 50) { // TODO - implement properly
+    
                     NSAutoreleasePool *pool;
                     pool = [[NSAutoreleasePool alloc] init];
                     NSBitmapImageRep *imr = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(unsigned char**)&buf 
@@ -173,141 +172,41 @@
                                                                                    bitmapFormat:NSAlphaFirstBitmapFormat
                                                                                     bytesPerRow:(4*ctx->screen->geo.w)
                                                                                    bitsPerPixel:32];
+                    [lock lock];
                     previewImage = [[NSImage alloc] initWithSize:NSZeroSize];
                     [previewImage addRepresentation:imr];
                     [layerView setPosterImage:previewImage];
+                    //[previewImage release]; // XXX - this will be released by clearPreview
+                    [lock unlock];
                     [imr release];
                     [pool release];
+                } else {
+                    skipCount++;
                 }
                 layer->vbuffer = currentFrame;
                 newFrame = YES;
             }
-        //}
+        }
         CVPixelBufferUnlockBaseAddress(currentFrame, 0);
         CGLUnlockContext(glContext);
     }
 }
 
-#if 0
-- (CVReturn)renderFrame
-{
-    Context *ctx = [freej getContext];
-    if (!currentFrame)
-        return kCVReturnError;
-
-    if (!movie)
-		return kCVReturnError;
-
-    CVFFmpegLayer *lay = (CVFFmpegLayer *)layer;
-    [lock lock];
-    if (lay->isDecoding()) {
-		if (timeout>0 && layerView) {
-			[layerView setPosterImage:icon0];
-			[self clearPreview];
-		}
-		timeout=0;
-
-        CGLLockContext(glContext);
-        CGLSetCurrentContext(glContext);
-
-		CVPixelBufferLockBaseAddress(currentFrame, 0);
-		uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(currentFrame);
-        /*
-        printf("%dx%d -> %dx%d\n", get_scaled_width(ff), get_scaled_height(ff),
-                       ctx->screen->geo.w, ctx->screen->geo.h);
-        */
-		if (lay->scaledWidth() == ctx->screen->geo.w && lay->scaledHeight() == ctx->screen->geo.h) {
-			uint8_t *ffbuf = (uint8_t *)lay->buffer;
-            if (lay->buffer) {
-                memcpy(buf, ffbuf, 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
-
-                long blackness=(ctx->screen->geo.w * ctx->screen->geo.h);
-    #if 1 // histogram
-                blackness=0;
-                if (!previewImage) {
-                    int i;
-                    for (i=0; i< 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t);i+=4) {
-                        blackness+=((buf[i+1]>>2) || (buf[i+2]>>2) || (buf[i+3]>>2))?1:0;
-                    }
-                }
-    #endif
-                if (!previewImagae && blackness >= (ctx->screen->geo.w * ctx->screen->geo.h)>>4) {
-                    NSAutoreleasePool *pool;
-                    pool = [[NSAutoreleasePool alloc] init];
-                    NSBitmapImageRep *imr = [[[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(unsigned char**)&buf 
-                                                                      pixelsWide:ctx->screen->geo.w
-                                                                      pixelsHigh:ctx->screen->geo.h
-                                                                      bitsPerSample:8
-                                                                      samplesPerPixel:4
-                                                                      hasAlpha:YES
-                                                                      isPlanar:NO
-                                                                      colorSpaceName:NSCalibratedRGBColorSpace
-                                                                      bitmapFormat:NSAlphaFirstBitmapFormat
-                                                                      bytesPerRow:(4*ctx->screen->geo.w)
-                                                                      bitsPerPixel:32] retain];
-                    previewImage = [[NSImage alloc] initWithSize:NSZeroSize];
-                    [previewImage addRepresentation:imr];
-                    [layerView setPosterImage:previewImage];
-                    [imr release];
-                    [pool release];
-                }
-                layer->vbuffer = currentFrame;
-                newFrame = YES;
-            }
-		} else {
-			printf("WARNING: scaled video and screen size mismatch!\n"); 
-			[self reOpen];
-		}
-		CVPixelBufferUnlockBaseAddress(currentFrame, 0);
-			CGLUnlockContext(glContext);
-            
-    } else if (!lay->hasFF()) {
-        if (timeout == 1) {
-			//printf("FFDEC: TIMEOUT!\n");
-			if (layerView) {
-				//[layerView setPosterImage:icon1];
-				[self clearPreview];
-			}
-		}
-        if (timeout > 50) { 
-            NSLog(@"Stream disconnected.");
-            free(movie);
-            movie=NULL;
-            if (layerView) {
-                //[layerView setPosterImage:nil];
-                [self clearPreview];
-            }
-        }
-        //else if (timeout%8 == 0)
-          //  [self reOpen];
-        
-        timeout++;
-        //CVPixelBufferRelease(currentFrame);
-        //currentFrame = NULL;
-        /*
-        lay->stop();
-        [self deactivate];
-         */
-        [lock unlock];
-		return kCVReturnError;        
-    }
-    [lock unlock];
-
-    [self renderPreview];
-    return kCVReturnSuccess;
-}
-
-#endif
-
 - (void)setStream:(NSString*)url
 {
     if(movie) { 
         free(movie);
+        movie = NULL;
     }
-    movie = strdup((char *)[url UTF8String]);
-    printf("setStream: %s\n",movie);
-    timeout=1;
-    [self reOpen];
+    if (url) {
+        movie = strdup((char *)[url UTF8String]);
+        printf("setStream: %s\n",movie);
+        timeout=1;
+        [self reOpen];
+    } else {
+        if (layer)
+            layer->close();
+    }
 }
 
 - (void)setRepeat:(BOOL)repeat
