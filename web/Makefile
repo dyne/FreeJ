@@ -13,26 +13,26 @@ cache:
 	chmod a+rwx templates_c cache
 
 index.html: index.org
-	$(EMACS) -no-site-file -batch -l $(SCRIPTS)/batch.el \
+	$(EMACS) -no-site-file -batch -l $(SCRIPTS)/elisp/org-batch.el \
 	 --visit $(INDEX) -f org-export-as-html
 
 index.txt: index.org
-	$(EMACS) -no-site-file  q -batch -l $(SCRIPTS)/batch.el \
+	$(EMACS) -no-site-file  q -batch -l $(SCRIPTS)/elisp/org-batch.el \
 	 --visit $(INDEX) -f org-export-as-ascii
 
 index.pdf: index.org
-	$(EMACS) -no-site-file -q -batch -l $(SCRIPTS)/batch.el \
+	$(EMACS) -no-site-file -q -batch -l $(SCRIPTS)/elisp/org-batch.el \
 	 --visit $(INDEX) -f org-export-as-pdf
 
 ascii: index.txt
 
 html: index.html
-	 $(SCRIPTS)/org-split-body-toc.sh index.html
+	 $(SCRIPTS)/bin/org-split-body-toc.sh index.html
 
 pdf: index.pdf
 
 apache.conf:
-	./generate-apache-conf.sh
+	./bin/generate-apache-conf.sh
 
 clean:
 	rm -f *~ *.pdf *.tex *.html *.xml *.txt *.conf
