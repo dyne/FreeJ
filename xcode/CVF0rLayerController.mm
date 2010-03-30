@@ -25,8 +25,9 @@
 {
     CVLayer *toDelete;
     if (layer) {
+        [self deactivate];
         [lock lock];
-        toDelete->stop();
+        //toDelete->stop();
         if (currentFrame) {
             CVPixelBufferRelease(currentFrame);
             currentFrame = NULL;

@@ -22,6 +22,8 @@
 		AA5846560FE162C60059D860 /* CVTextLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA5846550FE162C60059D860 /* CVTextLayerController.mm */; };
 		AA63CF8E102DAED400FDA024 /* QTExporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA63CF8D102DAED400FDA024 /* QTExporter.mm */; };
 		AA71AE030FE58838002FFD23 /* CVInternalLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */; };
+		AA776CF41162884E00FBB252 /* Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = AA776CF21162884E00FBB252 /* Keyboard.png */; };
+		AA776CF51162884E00FBB252 /* restart.png in Resources */ = {isa = PBXBuildFile; fileRef = AA776CF31162884E00FBB252 /* restart.png */; };
 		AA7C04B90F4ED02700723DAC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04B80F4ED02700723DAC /* OpenGL.framework */; };
 		AA7C04BB0F4ED02C00723DAC /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */; };
 		AA819B26104CFC0500FD1991 /* CVLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819B25104CFC0500FD1991 /* CVLayerController.mm */; };
@@ -335,6 +337,8 @@
 		AA63CF8D102DAED400FDA024 /* QTExporter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTExporter.mm; sourceTree = "<group>"; };
 		AA71AE010FE58838002FFD23 /* CVInternalLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVInternalLayer.h; sourceTree = "<group>"; };
 		AA71AE020FE58838002FFD23 /* CVInternalLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVInternalLayer.mm; sourceTree = "<group>"; };
+		AA776CF21162884E00FBB252 /* Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Keyboard.png; sourceTree = "<group>"; };
+		AA776CF31162884E00FBB252 /* restart.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = restart.png; sourceTree = "<group>"; };
 		AA7C04B80F4ED02700723DAC /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		AA7C04BA0F4ED02C00723DAC /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = /System/Library/Frameworks/QuartzCore.framework; sourceTree = "<absolute>"; };
 		AA819B24104CFC0500FD1991 /* CVLayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVLayerController.h; sourceTree = "<group>"; };
@@ -627,6 +631,8 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				AA776CF21162884E00FBB252 /* Keyboard.png */,
+				AA776CF31162884E00FBB252 /* restart.png */,
 				AA84586E11620D7E00E19CBE /* fonts.png */,
 				AA84586F11620D7E00E19CBE /* rightarrow.png */,
 				AA84587011620D7E00E19CBE /* texteffect.png */,
@@ -930,6 +936,8 @@
 				AA84587111620D7E00E19CBE /* fonts.png in Resources */,
 				AA84587211620D7E00E19CBE /* rightarrow.png in Resources */,
 				AA84587311620D7E00E19CBE /* texteffect.png in Resources */,
+				AA776CF41162884E00FBB252 /* Keyboard.png in Resources */,
+				AA776CF51162884E00FBB252 /* restart.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
