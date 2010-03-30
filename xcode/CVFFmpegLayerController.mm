@@ -310,4 +310,11 @@
     [self reOpen];
 }
 
+- (void)setRepeat:(BOOL)repeat
+{
+    CVFFmpegLayer *lay = (CVFFmpegLayer *)layer;
+    if (layer)
+        lay->repeat = repeat;
+}
+
 @end

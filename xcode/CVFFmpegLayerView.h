@@ -27,10 +27,11 @@
 
 @interface CVFFmpegLayerView : CVLayerView {
     IBOutlet CVFFmpegLayerPanel *ffInputPanel;
+    IBOutlet NSButton *repeatButton;
 }
 
-- (IBAction)openStream:(id)sender;
-
+- (IBAction)open:(id)sender;
+- (IBAction)close:(id)sender;
 @end
 
 #endif

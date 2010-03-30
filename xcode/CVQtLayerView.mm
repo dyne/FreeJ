@@ -53,7 +53,7 @@
     }
 }
 
-- (IBAction)openFile:(id)sender 
+- (IBAction)open:(id)sender 
 {    
     NSOpenPanel *fileSelectionPanel    = [NSOpenPanel openPanel];
     NSArray *types = [NSArray arrayWithObjects:
@@ -71,9 +71,10 @@
     [fileSelectionPanel setCanChooseFiles:YES];
 } // end openFile
 
-- (IBAction)openStream:(id)sender 
+- (IBAction)close:(id)sender
 {
-    NSLog(@"ImplementMe()");
+    [(CVQtLayerController *)layerController unloadMovie];
+    [self setPosterImage:nil];
 }
 
 - (void) drawRect:(NSRect)theRect
@@ -93,5 +94,10 @@
     NSLog(@"ImplementMe()");
 }
 
+- (IBAction)toggleRepeat:(id)sender
+{
+    [(CVQtLayerController *)layerController setRepeat:
+     ([repeatButton state] == NSOnState)?YES:NO];
+}
 
 @end

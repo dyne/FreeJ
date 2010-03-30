@@ -107,6 +107,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (void)unloadMovie
 {
     [lock lock];
+    [QTMovie enterQTKitOnThread];
+
 #ifndef __x86_64
     QTVisualContextTask(qtVisualContext);
 #endif
@@ -130,6 +132,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     if (currentFrame)
         CVPixelBufferRelease(currentFrame);
     currentFrame = NULL;
+    lastPTS = 0;
+    [QTMovie exitQTKitOnThread];
     [lock unlock];
 }
 
@@ -271,8 +275,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
     [lock lock];
 
-    if (!qtMovie)
+    if (!qtMovie) {
+        [lock unlock];
+        [QTMovie exitQTKitOnThread];
         return NO;
+    }
     uint64_t ts = CVGetCurrentHostTime();
     QTTime now = [qtMovie currentTime];
 
@@ -281,11 +288,19 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
     QTTime duration = [qtMovie duration];
    
-    if (QTTimeCompare(now, duration) == NSOrderedAscending)
+    if (QTTimeCompare(now, duration) == NSOrderedAscending) {
         [qtMovie setCurrentTime:now];
-    else 
-        [qtMovie gotoBeginning];
-
+    } else {
+        if (wantsRepeat) {
+            [qtMovie gotoBeginning];
+        } else {
+            [self deactivate];
+            [layerView setPosterImage:nil];
+            [lock unlock];
+            [QTMovie exitQTKitOnThread];
+            return NO;
+        }
+    }
 #ifdef __x86_64
     // Why this works on 32bit but crashes on 64 ? ... and why frameImageAtTime is so damn slow? :/
     NSSize size = NSMakeSize(ctx->screen->geo.w, ctx->screen->geo.h);
@@ -390,6 +405,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     [qtMovie stepForward];
     return true;
+}
+
+- (void)setRepeat:(BOOL)repeat
+{
+    wantsRepeat = repeat;
 }
 
 //@synthesize qtMovie;

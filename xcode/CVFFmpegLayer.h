@@ -34,6 +34,8 @@ protected:
     CVPixelBufferRef pixelBuffer;
     
 public:
+    BOOL repeat;
+
     CVFFmpegLayer(CVLayerController *controller);
     ~CVFFmpegLayer();
     bool open(const char *movie);

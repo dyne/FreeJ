@@ -80,8 +80,10 @@ void *CVFFmpegLayer::feed()
                 close_and_free_ff(&ff);
                 // XXX - find a cleaner way instead of blindly resetting the filename
                 // TODO - allow looping on a stream by reopening it
-                memset(filename, 0, sizeof(filename));
-                [(CVFFmpegLayerController *)input clearPreview];
+                if (!repeat) {
+                    memset(filename, 0, sizeof(filename));
+                    [(CVFFmpegLayerController *)input clearPreview];
+                }
             }
         } else {
             // TODO - Error messages

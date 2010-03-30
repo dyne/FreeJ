@@ -24,13 +24,14 @@
 #import <CVQtLayerController.h>
 
 @interface CVQtLayerView : CVLayerView {
+    IBOutlet NSButton *repeatButton;
 }
 
 - (IBAction)setMovieTime:(id)sender;
-- (IBAction)openFile:(id)sender;
-- (IBAction)openStream:(id)sender; // XXX remove once FFInputView.h is in place
+- (IBAction)open:(id)sender;
+- (IBAction)close:(id)sender;
 - (IBAction)togglePlay:(id)sender;
-
+- (IBAction)toggleRepeat:(id)sender;
 @end
 
 #endif

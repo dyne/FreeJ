@@ -33,7 +33,7 @@
     [[NSApplication sharedApplication] endSheet:ffInputPanel];
 }
 
-- (IBAction)openStream:(id)sender 
+- (IBAction)open:(id)sender 
 {
     //NSLog(@"open Stream select window..");
    
