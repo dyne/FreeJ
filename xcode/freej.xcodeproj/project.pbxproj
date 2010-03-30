@@ -31,6 +31,9 @@
 		AA8457B91161D91C00E19CBE /* mix_record.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8457B51161D91C00E19CBE /* mix_record.png */; };
 		AA8457BA1161D91C00E19CBE /* reload.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8457B61161D91C00E19CBE /* reload.png */; };
 		AA8457BB1161D91C00E19CBE /* stop.png in Resources */ = {isa = PBXBuildFile; fileRef = AA8457B71161D91C00E19CBE /* stop.png */; };
+		AA84587111620D7E00E19CBE /* fonts.png in Resources */ = {isa = PBXBuildFile; fileRef = AA84586E11620D7E00E19CBE /* fonts.png */; };
+		AA84587211620D7E00E19CBE /* rightarrow.png in Resources */ = {isa = PBXBuildFile; fileRef = AA84586F11620D7E00E19CBE /* rightarrow.png */; };
+		AA84587311620D7E00E19CBE /* texteffect.png in Resources */ = {isa = PBXBuildFile; fileRef = AA84587011620D7E00E19CBE /* texteffect.png */; };
 		AA8858810F631E3C00778C03 /* CVGenerator.m in Sources */ = {isa = PBXBuildFile; fileRef = AA8858800F631E3C00778C03 /* CVGenerator.m */; };
 		AA88592D0F633A7500778C03 /* CVF0rLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA88592C0F633A7500778C03 /* CVF0rLayer.mm */; };
 		AA8A1BDA1056391B007D067B /* CVF0rLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA819D15104EF69800FD1991 /* CVF0rLayerController.mm */; };
@@ -346,6 +349,9 @@
 		AA8457B51161D91C00E19CBE /* mix_record.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = mix_record.png; sourceTree = "<group>"; };
 		AA8457B61161D91C00E19CBE /* reload.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = reload.png; sourceTree = "<group>"; };
 		AA8457B71161D91C00E19CBE /* stop.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stop.png; sourceTree = "<group>"; };
+		AA84586E11620D7E00E19CBE /* fonts.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fonts.png; sourceTree = "<group>"; };
+		AA84586F11620D7E00E19CBE /* rightarrow.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = rightarrow.png; sourceTree = "<group>"; };
+		AA84587011620D7E00E19CBE /* texteffect.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = texteffect.png; sourceTree = "<group>"; };
 		AA88587F0F631E3C00778C03 /* CVGenerator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVGenerator.h; sourceTree = "<group>"; };
 		AA8858800F631E3C00778C03 /* CVGenerator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CVGenerator.m; sourceTree = "<group>"; };
 		AA88592B0F633A7500778C03 /* CVF0rLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVF0rLayer.h; sourceTree = "<group>"; };
@@ -621,6 +627,9 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				AA84586E11620D7E00E19CBE /* fonts.png */,
+				AA84586F11620D7E00E19CBE /* rightarrow.png */,
+				AA84587011620D7E00E19CBE /* texteffect.png */,
 				AA8457B41161D91C00E19CBE /* folder.png */,
 				AA8457B51161D91C00E19CBE /* mix_record.png */,
 				AA8457B61161D91C00E19CBE /* reload.png */,
@@ -918,6 +927,9 @@
 				AA8457B91161D91C00E19CBE /* mix_record.png in Resources */,
 				AA8457BA1161D91C00E19CBE /* reload.png in Resources */,
 				AA8457BB1161D91C00E19CBE /* stop.png in Resources */,
+				AA84587111620D7E00E19CBE /* fonts.png in Resources */,
+				AA84587211620D7E00E19CBE /* rightarrow.png in Resources */,
+				AA84587311620D7E00E19CBE /* texteffect.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1204,17 +1216,15 @@
 				PREBINDING = YES;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
 				STRIP_INSTALLED_PRODUCT = NO;
-				VALID_ARCHS = "x86_64 i386 ppc";
+				VALID_ARCHS = "x86_64 i386 ppc7400";
 			};
 			name = Debug;
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = (
-					ppc,
-					i386,
-				);
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				GCC_ALTIVEC_EXTENSIONS = YES;
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_CW_ASM_SYNTAX = NO;
@@ -1267,7 +1277,7 @@
 				OTHER_LDFLAGS = "-headerpad_max_install_names";
 				PREBINDING = NO;
 				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.5.sdk";
-				VALID_ARCHS = "i386 ppc";
+				VALID_ARCHS = "i386 ppc7400";
 			};
 			name = Release;
 		};

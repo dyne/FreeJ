@@ -13,12 +13,12 @@
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
 			<integer value="1576"/>
-			<integer value="1619"/>
-			<integer value="3015"/>
 			<integer value="1888"/>
-			<integer value="2212"/>
 			<integer value="57"/>
+			<integer value="2788"/>
 			<integer value="2737"/>
+			<integer value="3015"/>
+			<integer value="2212"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1522,8 +1522,12 @@
 																<string key="NSContents"/>
 																<reference key="NSSupport" ref="22"/>
 																<reference key="NSControlView" ref="148043674"/>
-																<int key="NSButtonFlags">-1232846593</int>
+																<int key="NSButtonFlags">-1228652289</int>
 																<int key="NSButtonFlags2">163</int>
+																<object class="NSCustomResource" key="NSNormalImage" id="259353765">
+																	<string key="NSClassName">NSImage</string>
+																	<string key="NSResourceName">rightarrow</string>
+																</object>
 																<string key="NSAlternateContents"/>
 																<string key="NSKeyEquivalent"/>
 																<int key="NSPeriodicDelay">400</int>
@@ -1588,8 +1592,9 @@
 																<string key="NSContents"/>
 																<reference key="NSSupport" ref="22"/>
 																<reference key="NSControlView" ref="453740212"/>
-																<int key="NSButtonFlags">-1232846593</int>
+																<int key="NSButtonFlags">-1228652289</int>
 																<int key="NSButtonFlags2">163</int>
+																<reference key="NSNormalImage" ref="259353765"/>
 																<string key="NSAlternateContents"/>
 																<string key="NSKeyEquivalent"/>
 																<int key="NSPeriodicDelay">400</int>
@@ -1654,8 +1659,9 @@
 																<string key="NSContents"/>
 																<reference key="NSSupport" ref="22"/>
 																<reference key="NSControlView" ref="279457170"/>
-																<int key="NSButtonFlags">-1232846593</int>
+																<int key="NSButtonFlags">-1228652289</int>
 																<int key="NSButtonFlags2">163</int>
+																<reference key="NSNormalImage" ref="259353765"/>
 																<string key="NSAlternateContents"/>
 																<string key="NSKeyEquivalent"/>
 																<int key="NSPeriodicDelay">400</int>
@@ -1873,7 +1879,7 @@
 															<reference key="NSNextResponder" ref="481137635"/>
 															<int key="NSvFlags">1292</int>
 															<object class="NSPSMatrix" key="NSDrawMatrix"/>
-															<string key="NSFrame">{{170, 13}, {22, 18}}</string>
+															<string key="NSFrame">{{168, 10}, {29, 24}}</string>
 															<reference key="NSSuperview" ref="481137635"/>
 															<object class="NSOpenGLPixelFormat" key="NSPixelFormat">
 																<object class="NSMutableData" key="NSPixelAttributes">
@@ -10923,8 +10929,17 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						</object>
 					</object>
 					<object class="NSMutableDictionary" key="outlets">
-						<string key="NS.key.0">ffInputPanel</string>
-						<string key="NS.object.0">CVFFmpegLayerPanel</string>
+						<bool key="EncodedWithXMLCoder">YES</bool>
+						<object class="NSArray" key="dict.sortedKeys">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>ffInputPanel</string>
+							<string>repeatButton</string>
+						</object>
+						<object class="NSMutableArray" key="dict.values">
+							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>CVFFmpegLayerPanel</string>
+							<string>NSButton</string>
+						</object>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>
@@ -11144,6 +11159,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string>open:</string>
 							<string>setMovieTime:</string>
 							<string>togglePlay:</string>
+							<string>toggleRepeat:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -11151,7 +11167,12 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
+							<string>id</string>
 						</object>
+					</object>
+					<object class="NSMutableDictionary" key="outlets">
+						<string key="NS.key.0">repeatButton</string>
+						<string key="NS.object.0">NSButton</string>
 					</object>
 					<object class="IBClassDescriptionSource" key="sourceIdentifier">
 						<string key="majorKey">IBProjectSource</string>

@@ -293,7 +293,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     } else {
         if (wantsRepeat) {
             [qtMovie gotoBeginning];
-        } else {
+        } else if (lastPTS) {
             [self deactivate];
             [layerView setPosterImage:nil];
             [lock unlock];
@@ -319,14 +319,17 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                                                   error:nil];
     
     */
+
     newPixelBuffer = (CVPixelBufferRef)[qtMovie frameImageAtTime:now
                                                     withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
                                                                     (id)QTMovieFrameImageTypeCVPixelBufferRef,
                                                                     QTMovieFrameImageType,
                                                                     (id)[NSValue valueWithSize:size],
                                                                     QTMovieFrameImageSize,
+#if MAC_OS_X_VERSION_10_6
                                                                     (id)[NSNumber numberWithBool:TRUE],
                                                                     QTMovieFrameImageSessionMode,
+#endif
                                                                     nil]
                                                              error:nil];
      

@@ -26,6 +26,7 @@
     CVLayer *toDelete;
     if (layer) {
         [lock lock];
+        toDelete->stop();
         if (currentFrame) {
             CVPixelBufferRelease(currentFrame);
             currentFrame = NULL;
@@ -33,7 +34,6 @@
         toDelete = (CVLayer *)layer;
         layer = NULL;
         [lock unlock];
-        toDelete->stop();
         delete toDelete;
     }
 }

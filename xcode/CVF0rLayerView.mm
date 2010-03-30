@@ -66,7 +66,7 @@
 {
     [(CVF0rLayerController *)layerController reset];
     [lock lock];
-    [sender setTitle:@"Start"];
+    //[sender setTitle:@"Start"];
     [sender setAction:@selector(start:)];
     [selectButton setEnabled:YES];
     [lock unlock];
@@ -84,7 +84,7 @@
     newLayer->open(name);
     if(newLayer) { 
         //[self setLayer:(CVLayer *)newLayer];
-        [sender setTitle:@"Stop"];
+        //[sender setTitle:@"Stop"];
         [sender setAction:@selector(stop:)];
         [selectButton setEnabled:NO];
         newLayer->start();

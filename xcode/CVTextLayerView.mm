@@ -13,7 +13,7 @@
 
 - (id)init
 {
-    static char *suffix = (char*)"/Contents/Resources/textlayer.png";
+    static char *suffix = (char*)"/Contents/Resources/texteffect.png";
     char iconFile[1024];
     ProcessSerialNumber psn;
     GetProcessForPID(getpid(), &psn);
