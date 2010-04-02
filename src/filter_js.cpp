@@ -29,8 +29,15 @@ $Id: $
 DECLARE_CLASS("Filter",filter_class,filter_constructor);
 
 JSFunctionSpec filter_methods[] = {
-  FILTER_METHODS  ,
+  {"set_parameter",           filter_set_parameter,             4},
+  {"activate",                filter_activate,                  1},
   ENTRY_METHODS   ,
+  {0}
+};
+
+JSPropertySpec filter_properties[] = {
+  // ro
+  { "parameters", 0,  JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, filter_list_parameters, NULL },
   {0}
 };
 
@@ -53,11 +60,15 @@ JS(filter_constructor) {
     delete duo;
     *rval = JSVAL_FALSE;
     return JS_TRUE;
+  } else // fill with class description
+    duo->proto->jsclass = &filter_class;
+
+  if(!JS_SetPrivate(cx, obj, (void*)duo)) {
+    JS_ERROR("internal error setting private value");
+  } else {
+    duo->proto->jsobj = obj;
   }
 
-  if(!JS_SetPrivate(cx, obj, (void*)duo))
-    JS_ERROR("internal error setting private value");
-  
   *rval = OBJECT_TO_JSVAL(obj);
   return JS_TRUE;
 }
@@ -162,9 +173,9 @@ JS(filter_set_parameter) {
 
 }
 
-JS(filter_list_parameters) {
+JSP(filter_list_parameters) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  JSObject *arr;
+  JSObject *arr, *otmp;
   JSString *str;
   jsval val;
 
@@ -178,17 +189,21 @@ JS(filter_list_parameters) {
     return JS_FALSE;
   }
 
+  // take the prototype (descriptive) and create an array
   Parameter *parm = (Parameter*)duo->proto->parameters.begin();
   int c = 0;
   while(parm) {
-    str = JS_NewStringCopyZ(cx, parm->name);
-    val = STRING_TO_JSVAL(str);
+    otmp = JS_NewObject(cx, &parameter_class, NULL, obj);
+    JS_SetPrivate(cx,otmp, (void*)parm);
+    parm->jsclass = &parameter_class;
+    parm->jsobj = otmp;
+    val = OBJECT_TO_JSVAL(otmp);
     JS_SetElement(cx, arr, c, &val);
     c++;
     parm = (Parameter*)parm->next;
   }
 
-  *rval = OBJECT_TO_JSVAL( arr );
+  *vp = OBJECT_TO_JSVAL( arr );
   return JS_TRUE;
 }
   

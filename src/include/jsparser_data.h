@@ -52,6 +52,7 @@
 JS(screen_constructor);
 //void js_screen_gc (JSContext *cx, JSObject *obj);
 JS(filter_constructor);
+JS(parameter_constructor);
 JS(layer_constructor);
 //void js_layer_gc (JSContext *cx, JSObject *obj);
 JS(vscroll_layer_constructor);
@@ -119,9 +120,15 @@ extern JSFunctionSpec global_functions[];
 extern JSClass screen_class;
 extern JSFunctionSpec screen_methods[];
 
-// Effect
+// Parameter
+extern JSClass parameter_class;
+extern JSFunctionSpec parameter_methods[];
+extern JSPropertySpec parameter_properties[];
+
+// Filter
 extern JSClass filter_class;
 extern JSFunctionSpec filter_methods[];
+extern JSPropertySpec filter_properties[];
 
 // Layer
 extern JSClass layer_class;
@@ -316,17 +323,19 @@ JS(screen_rem_layer);
 JS(screen_list_layers);
 JS(screen_save_frame);
 
+////////////////////////////////
+// Parameter methods
+JSP(parameter_get_name);
+JSP(parameter_get_desc);
+JSP(parameter_get_type);
 
 ////////////////////////////////
 // Filter methods
-JS(filter_apply);
+//JS(filter_apply);
 JS(filter_set_parameter);
-JS(filter_list_parameters);
 JS(filter_activate);
-#define FILTER_METHODS \
-  {"set_parameter",           filter_set_parameter,             4}, \
-  {"list_parameters",         filter_list_parameters,           0}, \
-  {"activate",                filter_activate,                  1}
+JSP(filter_list_parameters);
+
 
 ////////////////////////////////
 // Controller methods

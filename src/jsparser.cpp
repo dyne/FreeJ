@@ -145,6 +145,14 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 		       NULL);
 	Screen = layer_object;
 
+	REGISTER_CLASS("Parameter",
+		       parameter_class,
+		       parameter_constructor,
+		       parameter_properties,
+		       parameter_methods,
+		       NULL);
+	Parameter = layer_object;
+
 	REGISTER_CLASS("Layer",
 		       layer_class,
 		       layer_constructor,
@@ -288,7 +296,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	REGISTER_CLASS("Filter",
 		       filter_class,
 		       filter_constructor,
-		       NULL, // properties
+		       filter_properties,
 		       filter_methods,
 		       NULL);
 	Filter = layer_object;

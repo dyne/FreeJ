@@ -48,6 +48,7 @@ SOURCES = \
 	impl_video_encoders.cpp
 
 JS_SOURCES = 	context_js.cpp  \
+		parameter_js.cpp \
 		layer_js.cpp    \
 		filter_js.cpp   \
 		jsparser.cpp	\

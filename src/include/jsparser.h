@@ -65,6 +65,7 @@ class JsParser {
 
 	// list of classes made available by FreeJ
 	JSObject *Screen;
+	JSObject *Parameter;
 	JSObject *Layer;
 	JSObject *GeometryLayer;
 	JSObject *GeneratorLayer;
