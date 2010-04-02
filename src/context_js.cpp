@@ -400,7 +400,7 @@ JS(freej_scandir) {
 
 JS(freej_echo) {
   char *msg = js_get_string(argv[0]);
-  notice("%s", msg);
+  fprintf(stdout,"%s\n", msg);
   return JS_TRUE;
 }
 
