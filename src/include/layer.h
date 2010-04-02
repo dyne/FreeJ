@@ -40,9 +40,7 @@ class Blit;
 class ViewPort;
 
 
-class JSClass;
 class JSContext;
-class JSObject;
 
 
 /* function for type detection of implemented layers */
@@ -207,9 +205,6 @@ class Layer: public Entry, public JSyncThread {
   /** physical buffers */
   void *buffer; ///< RGBA pixel buffer returned by the layer
 
-
-  JSClass *jsclass; ///< pointer to the javascript class
-  JSObject *jsobj; ///< pointer to the javascript instantiated object
 
   void *js_constructor(Context *env, JSContext *cx,
                        JSObject *obj, int argc, void *aargv, char *err_msg);

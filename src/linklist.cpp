@@ -39,6 +39,8 @@ Entry::Entry() {
   prev = NULL;
   list = NULL;
   data = NULL;
+  jsclass = NULL;
+  jsobj = NULL;
   select = false;
   name = (char*)calloc(256, sizeof(char));
 }

@@ -37,6 +37,12 @@ void func(const char *format, ...);
 // maximum number of members returned by the completion
 #define MAX_COMPLETION 512
 
+
+// javascript class
+class JSClass;
+// and object
+class JSObject;
+
 class Entry;
 
 class BaseLinklist {
@@ -141,6 +147,10 @@ class Entry {
   // generic data pointer, so far only used in console
   // and now also as JSObject -> jsval
   void *data; 
+
+  JSClass *jsclass; ///< pointer to the javascript class
+  JSObject *jsobj; ///< pointer to the javascript instantiated object
+
 };
 
 
