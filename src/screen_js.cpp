@@ -32,9 +32,16 @@ JSFunctionSpec screen_methods[] = {
   {"init",              screen_init,            2},
   {"add_layer",         screen_add_layer,       1},
   {"rem_layer",         screen_rem_layer,       1},
-  {"list_layers",       screen_list_layers,     0},
-  {"is_initialized",    screen_initialized,     0}, 
   {"save_frame",        screen_save_frame,      1},
+  {0}
+};
+
+JSPropertySpec screen_properties[] = {
+  // ro
+  { "w",           0, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, screen_get_width, NULL },
+  { "h",           1, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, screen_get_height, NULL },
+  { "layers",      2, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, screen_list_layers, NULL },
+  { "initialized", 3, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, screen_initialized, NULL },
   {0}
 };
 
@@ -94,16 +101,6 @@ JS(screen_init) {
   return JS_TRUE;
 }
 
-JS(screen_initialized) {
-  func("%s",__PRETTY_FUNCTION__);
-  ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
-  if(!screen) {
-    JS_ERROR("Screen core data is NULL");
-    return JS_FALSE;
-  }
-  *rval = BOOLEAN_TO_JSVAL(screen->initialized?JS_TRUE:JS_FALSE);
-  return JS_TRUE;
-}
 
 JS(screen_save_frame) {
   func("%s",__PRETTY_FUNCTION__);
@@ -127,54 +124,6 @@ JS(screen_save_frame) {
   return JS_TRUE;
 }
 
-
-JS(screen_list_layers) {
-  func("%s",__PRETTY_FUNCTION__);
-  JSObject *arr;
-  JSObject *objtmp;
-  
-  Layer *lay;
-  
-  jsval val;
-  int c = 0;
-  
-  ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
-  if(!screen) {
-    JS_ERROR("Screen core data is NULL");
-    return JS_TRUE;
-  }
-
-  arr = JS_NewArrayObject(cx, 0, NULL); // create void array
-  if(!arr) return JS_FALSE;
-
-  // XXX check this carefully
-  // caedes reports some weird problems after calling list_layers
-  // looks like here might be the hairy point
-  lay = screen->layers.begin();
-  while(lay) {
-    if (lay->data) {
-      func("reusing %p", lay->data);
-      val = (jsval)lay->data;
-    } else {
-      func("new JS Object");
-      objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
-      
-      JS_SetPrivate(cx,objtmp,(void*) lay);
-      
-      val = OBJECT_TO_JSVAL(objtmp);
-      
-      lay->data = (void*)val;
-    }
-    
-    JS_SetElement(cx, arr, c, &val );
-    
-    c++;
-    lay = (Layer*)lay->next;
-  }
-  
-  *rval = OBJECT_TO_JSVAL( arr );
-  return JS_TRUE;
-}
 
 JS(screen_add_layer) {
   func("%s",__PRETTY_FUNCTION__);
@@ -222,6 +171,81 @@ JS(screen_rem_layer) {
 
   screen->rem_layer(lay);
 
+  return JS_TRUE;
+}
+
+
+////////////////////////////////////////////////
+/////// Properties
+
+JSP(screen_get_width) {
+  ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  if(!screen) { JS_ERROR("Screen core data is NULL"); }
+  else JS_NewNumberValue(cx, (jsint)screen->geo.w, vp);  
+  return JS_TRUE;
+}
+
+JSP(screen_get_height) {
+  ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  if(!screen) { JS_ERROR("Screen core data is NULL"); }
+  else JS_NewNumberValue(cx, (jsint)screen->geo.h, vp);  
+  return JS_TRUE;
+}
+
+JSP(screen_initialized) {
+  func("%s",__PRETTY_FUNCTION__);
+  ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  if(!screen) {
+    JS_ERROR("Screen core data is NULL");
+    return JS_FALSE;
+  }
+  *vp = BOOLEAN_TO_JSVAL(screen->initialized?JS_TRUE:JS_FALSE);
+  return JS_TRUE;
+}
+
+
+JSP(screen_list_layers) {
+  func("%s",__PRETTY_FUNCTION__);
+  JSObject *arr;
+  JSObject *objtmp;
+  
+  Layer *lay;
+  
+  jsval val;
+  int c = 0;
+  
+  ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  if(!screen) {
+    JS_ERROR("Screen core data is NULL");
+    return JS_TRUE;
+  }
+
+  arr = JS_NewArrayObject(cx, 0, NULL); // create void array
+  if(!arr) return JS_FALSE;
+
+  // XXX check this carefully
+  // caedes reports some weird problems after calling list_layers
+  // looks like here might be the hairy point
+  lay = screen->layers.begin();
+  while(lay) {
+    if (lay->jsobj) {
+      func("TESTING: reusing layer jsobj %p", lay->jsobj);
+      objtmp = lay->jsobj;
+    } else {
+      func("TESTING: creating a jsobj for layer %s", lay->name);
+      objtmp = JS_NewObject(cx, lay->jsclass, NULL, obj);
+      JS_SetPrivate(cx,objtmp,(void*) lay);
+    }
+    
+    val = OBJECT_TO_JSVAL(objtmp);
+      
+    JS_SetElement(cx, arr, c, &val );
+    
+    c++;
+    lay = (Layer*)lay->next;
+  }
+  
+  *vp = OBJECT_TO_JSVAL( arr );
   return JS_TRUE;
 }
 

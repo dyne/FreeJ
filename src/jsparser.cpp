@@ -140,7 +140,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	REGISTER_CLASS("Screen",
 		       screen_class,
 		       screen_constructor,
-		       NULL,
+		       screen_properties,
 		       screen_methods,
 		       NULL);
 	Screen = layer_object;

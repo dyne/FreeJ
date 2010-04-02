@@ -14,7 +14,7 @@ c = PI * 2;
 o = -PI / 2;
 
 scr = new Screen();
-if (!scr.is_initialized()) {
+if (!scr.initialized) {
     // screen hasn't been initialized yet, let's do it now
     scr.init(400,300);
     add_screen(scr);

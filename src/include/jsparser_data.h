@@ -119,6 +119,7 @@ extern JSFunctionSpec global_functions[];
 // Screen
 extern JSClass screen_class;
 extern JSFunctionSpec screen_methods[];
+extern JSPropertySpec screen_properties[];
 
 // Parameter
 extern JSClass parameter_class;
@@ -317,11 +318,13 @@ JS(entry_select);
 ////////////////////////////////
 // Screen methods
 JS(screen_init);
-JS(screen_initialized);
 JS(screen_add_layer);
 JS(screen_rem_layer);
-JS(screen_list_layers);
 JS(screen_save_frame);
+JSP(screen_get_width);
+JSP(screen_get_height);
+JSP(screen_initialized);
+JSP(screen_list_layers);
 
 ////////////////////////////////
 // Parameter methods
