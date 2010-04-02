@@ -42,12 +42,11 @@ JSFunctionSpec layer_methods[] = {
     {"get_blit_value",	layer_get_blit_value,	0},
     {"fade_blit_value", layer_fade_blit_value,  2},
     {"set_position",	layer_set_position,	2},
-    {"set_fps",		layer_set_fps,		0},
-    {"get_fps",		layer_get_fps,   	0},
     {"add_filter",      layer_add_filter,	1},
     {"rem_filter",	layer_rem_filter,	1},
     {"rotate",          layer_rotate,           1},
     {"zoom",            layer_zoom,             2},
+    {"fit",             layer_fit,              0},
     {0}
 };
 
@@ -65,6 +64,26 @@ JSPropertySpec layer_properties[] = {
   { "parameters", 8, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, layer_list_parameters, NULL },
   {0}
 };
+
+
+void js_layer_gc (JSContext *cx, JSObject *obj) {
+	func("%s",__PRETTY_FUNCTION__);
+	Layer* l;
+	if (!obj) {
+		error("%n called with NULL object", __PRETTY_FUNCTION__);
+		return;
+	}
+	// This callback is declared in Layer Class only,
+	// we can skip the typecheck of obj, can't we?
+	l = (Layer *) JS_GetPrivate(cx, obj);
+
+	if(l) {
+	  func("js gc deleting layer %s", l->name);
+	  //	l->data = NULL; // Entry~ calls free(data)
+	  delete l;
+	}
+
+}
   
 void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
 			    int argc, void *aargv, char *err_msg) {
@@ -164,25 +183,6 @@ JS(layer_constructor) {
   *rval = OBJECT_TO_JSVAL(thisobj);
   return JS_TRUE;
 }
-
-JS(layer_set_fps) {
-  GET_LAYER(Layer);
-  int fps_old = lay->fps.get();
-  
-  if(argc==1) {
-    jsint fps = js_get_int(argv[0]);
-    fps_old = lay->fps.set(fps);
-  }
-  
-  return JS_NewNumberValue(cx, fps_old, rval);
-}
-
-JS(layer_get_fps) {
-	GET_LAYER(Layer);
-	double fps = double(lay->fps.get());
-	return JS_NewNumberValue(cx, fps, rval);
-}
-
 
 JS(selected_layer) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -452,25 +452,6 @@ JS(layer_zoom) {
   return JS_TRUE;
 }
 
-void js_layer_gc (JSContext *cx, JSObject *obj) {
-	func("%s",__PRETTY_FUNCTION__);
-	Layer* l;
-	if (!obj) {
-		error("%n called with NULL object", __PRETTY_FUNCTION__);
-		return;
-	}
-	// This callback is declared in Layer Class only,
-	// we can skip the typecheck of obj, can't we?
-	l = (Layer *) JS_GetPrivate(cx, obj);
-
-	if(l) {
-	  func("js gc deleting layer %s", l->name);
-	  //	l->data = NULL; // Entry~ calls free(data)
-	  delete l;
-	}
-
-}
-
 JS(layer_start) {
   GET_LAYER(Layer);
   lay->active = true;
@@ -484,6 +465,12 @@ JS(layer_stop) {
   lay->active = false;
   lay->stop();
 
+  return JS_TRUE;
+}
+
+JS(layer_fit) {
+  GET_LAYER(Layer);
+  lay->fit();
   return JS_TRUE;
 }
 
