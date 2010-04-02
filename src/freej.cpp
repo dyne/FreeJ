@@ -225,6 +225,13 @@ void cmdline(int argc, char **argv) {
       break;
 
     case 1:
+      // if it's a script, load it as such
+      // this lets shell bangs work
+      if(strstr(optarg,".js")) {
+	sprintf(javascript,"%s",optarg);
+	continue;
+      }
+
       optlen = strlen(optarg);
       if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
 	sprintf(p,"%s#",optarg);
@@ -241,6 +248,12 @@ void cmdline(int argc, char **argv) {
 
 #ifdef HAVE_DARWIN
   for(;optind<argc;optind++) {
+
+    if(strstr(argv[optind],".js")) {
+      sprintf(javascript,"%s",argv[optind]);
+      continue;
+    }
+
     optlen = strlen(argv[optind]);
     if( (cli_chars+optlen) < MAX_CLI_CHARS ) {
       sprintf(p,"%s#",argv[optind]);
