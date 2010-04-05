@@ -99,7 +99,7 @@ AC_CONFIG_SRCDIR([src/freej.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 dnl never run autotools and configure automatically
-AM_MAINTAINER_MODE
+dnl AM_MAINTAINER_MODE
 
 dnl Checks for programs.
 AC_PROG_CXX
