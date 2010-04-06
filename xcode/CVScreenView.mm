@@ -123,11 +123,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     exporter = (id<Exporter>)exporterQT;
     streamer = [[QTStreamer alloc] initWithScreen:self];
 
-    [exportButtonOG setEnabled:NO]; // OGG exporter not implemented
-
 #ifdef __x86_64
-    [exportButtonQT setEnabled:NO];
-    [exportButtonFF setState:NSOnState];
+    [exportEngine removeItemWithTitle:@"QuickTime"]; // XXX - fix quicktime export for 64bit
     exporter = (id<Exporter>)exporterFF;
 #endif
 
@@ -604,14 +601,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)setExporter
 {
+    /*
     if ([exportButtonFF state])
-	exporter = (id<Exporter>)exporterFF;
-/*
+        exporter = (id<Exporter>)exporterFF;
     else if ([exportButtonOG state])
-	exporter = (id<Exporter>)exporterOG;
-*/
+        exporter = (id<Exporter>)exporterOG;
     else
-	exporter = (id<Exporter>)exporterQT;
+        exporter = (id<Exporter>)exporterQT;
+    */
 }
 
 - (IBAction)startExport:(id)sender
@@ -620,12 +617,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [self setExporter];
     if (exporter) 
         if ([exporter startExport:25 width:ctx->screen->geo.w height:ctx->screen->geo.h]) {
-	    NSLog(@"started file exporter: %ix%i @%ifps", ctx->screen->geo.w, ctx->screen->geo.h, 25);
+            NSLog(@"started file exporter: %ix%i @%ifps", ctx->screen->geo.w, ctx->screen->geo.h, 25);
             [sender setTitle:@"Stop"];
-	    [exportButtonQT setEnabled:false];
-	    [exportButtonFF setEnabled:false];
-	    [exportButtonOG setEnabled:false];
-	    [exportFilename setEnabled:false];
+            /*
+                [exportButtonQT setEnabled:false];
+                [exportButtonFF setEnabled:false];
+                [exportButtonOG setEnabled:false];
+                [exportFilename setEnabled:false];
+             */
         }
 }
 
@@ -635,7 +634,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (exporter)
         [exporter stopExport];
     [sender setTitle:@"Start"];
-    [exportFilename setEnabled:YES];
+    [exportButton setEnabled:YES];
+    /*
     [exportButtonFF setEnabled:YES];
     [exportButtonOG setEnabled:NO]; // XXX Ogg exporter: not yet implemented
 #ifdef __x86_64
@@ -643,6 +643,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 #else
     [exportButtonQT setEnabled:YES];
 #endif
+     */
 }
 
 - (void)setExportOutputFile:(NSString *)filename
@@ -748,8 +749,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		modalForWindow:[sender window]
 		modalDelegate:self 
 		didEndSelector:@selector(openStreamPresetDidEnd:returnCode:contextInfo:) 
-		contextInfo:self]; 
-     */
+		contextInfo:self];
+    */
 }
 
 - (bool)isOpaque
@@ -837,6 +838,18 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     return dragOp;
 }
+
+- (IBAction)updateExporterSettings:(id)sender
+{
+    NSString *selectedEngine = [[exportEngine selectedItem] title];
+    if ([selectedEngine localizedCaseInsensitiveCompare:@"quicktime"] == NSOrderedSame)
+        exporter = (id<Exporter>)exporterQT;
+    else if ([selectedEngine localizedCaseInsensitiveCompare:@"ffmpeg"] == NSOrderedSame)
+        exporter = (id<Exporter>)exporterFF;
+    
+    
+}
+
 
 - (BOOL)tableView:(NSTableView *)aTableView acceptDrop:(id < NSDraggingInfo >)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation
 {

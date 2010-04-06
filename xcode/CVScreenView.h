@@ -41,43 +41,44 @@ class CVScreen;
 	CVOpenGLBufferRef	pixelBuffer;
 #endif
     //void                *pixelBuffer;
-	CVScreen			*fjScreen;
-	CIContext			*ciContext;
-	NSOpenGLContext		*currentContext;
-	CIImage				*outFrame;
-    CIImage             *exportedFrame;
-    NSBitmapImageRep    *exportedFrameBuffer;  
-    CIImage             *lastFrame;
-	NSTimer				*renderTimer;
-	bool				fullScreen;
-	CFDictionaryRef		savedMode;
-	bool				needsReshape;
-	FrameRate			*rateCalc;
-    CGContextRef        exportCGContextRef;
-    CIContext           *exportContext;
-    void                *exportBuffer;
-    id<Exporter>	exporter;
-    QTExporter          *exporterQT;
-    FFExporter          *exporterFF;
-    QTStreamer          *streamer;
-    bool                streamerStatus;
-    bool                initialized;
-	IBOutlet CFreej		*freej;
-	IBOutlet NSTextField *showFps;
-    IBOutlet NSTableView *layerList;
-    IBOutlet NSWindow   *window;
-    IBOutlet NSTableView *streamerSettings;
-    IBOutlet NSButton    *streamerButton;
-    IBOutlet NSTextField *streamerFPS;
-    IBOutlet NSTextField *streamerPkg;
-    NSMutableArray *streamerKeys;
-    NSMutableDictionary *streamerDict;
-    IBOutlet NSWindow *icPresetPanel;
-
-    IBOutlet NSTextField  *exportFilename;
-    IBOutlet NSButtonCell *exportButtonQT;
-    IBOutlet NSButtonCell *exportButtonOG;
-    IBOutlet NSButtonCell *exportButtonFF;
+	CVScreen			 *fjScreen;
+	CIContext			 *ciContext;
+	NSOpenGLContext		 *currentContext;
+	CIImage				 *outFrame;
+    CIImage              *exportedFrame;
+    NSBitmapImageRep     *exportedFrameBuffer;  
+    CIImage              *lastFrame;
+	NSTimer				 *renderTimer;
+	bool				 fullScreen;
+	CFDictionaryRef		 savedMode;
+	bool				 needsReshape;
+	FrameRate			 *rateCalc;
+    CGContextRef         exportCGContextRef;
+    CIContext            *exportContext;
+    void                 *exportBuffer;
+    id<Exporter>	     exporter;
+    QTExporter           *exporterQT;
+    FFExporter           *exporterFF;
+    QTStreamer           *streamer;
+    bool                 streamerStatus;
+    bool                 initialized;
+    NSMutableArray       *streamerKeys;
+    NSMutableDictionary  *streamerDict;
+    
+	IBOutlet CFreej		   *freej;
+	IBOutlet NSTextField   *showFps;
+    IBOutlet NSTableView   *layerList;
+    IBOutlet NSWindow      *window;
+    IBOutlet NSTableView   *streamerSettings;
+    IBOutlet NSButton      *streamerButton;
+    IBOutlet NSTextField   *streamerFPS;
+    IBOutlet NSTextField   *streamerPkg;
+    IBOutlet NSWindow      *icPresetPanel;
+    IBOutlet NSTextField   *exportFilename;
+    IBOutlet NSPopUpButton *exportEngine; // Quicktime || FFMpeg || Ogg
+    IBOutlet NSPopUpButton *exportCodec; // MPG4 || H264
+    IBOutlet NSPopUpButton *exportQuality; // Low || Normal || High
+    IBOutlet NSButton      *exportButton;
 }
 @property (readonly) bool fullScreen;
 - (void)awakeFromNib;
@@ -105,6 +106,7 @@ class CVScreen;
 - (IBAction)setExportFile:(id)sender;
 - (IBAction)toggleStreamer:(id)sender;
 - (IBAction)presetsStreamer:(id)sender;
+- (IBAction)updateExporterSettings:(id)sender;
 - (void)allocPixelBuffer;
 @end
 

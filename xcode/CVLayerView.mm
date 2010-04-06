@@ -333,14 +333,10 @@
     [scaleTransform scaleBy:(xScaleFactor < yScaleFactor)?xScaleFactor:yScaleFactor];
     
     [scaleFilter setValue:scaleTransform forKey:@"inputTransform"];
-    [scaleFilter setValue:[[CIImage alloc] initWithBitmapImageRep:bitmap] forKey:@"inputImage"];
-    
+    CIImage *inputImage = [[CIImage alloc] initWithBitmapImageRep:bitmap];
+    [scaleFilter setValue:inputImage forKey:@"inputImage"];
     posterImage = [[scaleFilter valueForKey:@"outputImage"] retain];
-#if 0
-    [scaleTransform release];
-    [bitmap release];
-    [tiffData release];
-#endif
+    [inputImage release];
     [self setNeedsDisplay:YES];
     [pool release];
 }

@@ -58,23 +58,24 @@ extern "C" { // prototypes in ffenc.c
 - (void)addPixelBuffer:(CVPixelBufferRef)pixelBuffer
 {
     timeval done, now_tv;
-    if (!pixelBuffer) return;
+    
+    if (!pixelBuffer)
+        return;
     if (firstTime==0) {
         gettimeofday(&calc_tv, NULL);
-	firstTime=1;
+        firstTime=1;
     }
     gettimeofday(&now_tv, NULL);
     timersub(&now_tv, &calc_tv, &done);
 
     int rate = 1000000 / (outFramerate);
     while ( (done.tv_sec > 0) || (done.tv_usec >= rate) ) {
-
-	CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-	encode_buffer((uint8_t*) CVPixelBufferGetBaseAddress(pixelBuffer));
-	CVPixelBufferUnlockBaseAddress(pixelBuffer, 0 );
-	calc_tv.tv_sec  = now_tv.tv_sec  - done.tv_sec;
-	calc_tv.tv_usec = now_tv.tv_usec - done.tv_usec + rate;
-	timersub(&now_tv, &calc_tv, &done);
+        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        encode_buffer((uint8_t*) CVPixelBufferGetBaseAddress(pixelBuffer));
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0 );
+        calc_tv.tv_sec  = now_tv.tv_sec  - done.tv_sec;
+        calc_tv.tv_usec = now_tv.tv_usec - done.tv_usec + rate;
+        timersub(&now_tv, &calc_tv, &done);
     }
 
     CVPixelBufferRelease(pixelBuffer);
@@ -87,9 +88,9 @@ extern "C" { // prototypes in ffenc.c
     fps.init(2*outFramerate); 
     while ([self isRunning]) {
         pool = [[NSAutoreleasePool alloc] init];
-	[lock lock];
+        [lock lock];
         [self addPixelBuffer:[screen exportPixelBuffer]];
-	[lock unlock];
+        [lock unlock];
         fps.calc();
         fps.delay();
         [pool release];

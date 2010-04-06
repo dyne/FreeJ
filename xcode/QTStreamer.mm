@@ -130,29 +130,28 @@ extern "C" {
 #endif
 
 	    if (firstTime==0 && iceConnected) {
-		firstTime=1;
-		int vidW = lastImage.size.width;
-		int vidH = lastImage.size.height;
-		theora_enc_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
-		firstTime=2;
+            firstTime=1;
+            int vidW = lastImage.size.width;
+            int vidH = lastImage.size.height;
+            theora_enc_init(vidW, vidH, outFramerate, outBitrate, outQuality) ;
+            firstTime=2;
 	    }
 
 	    if (firstTime==2 && iceConnected) {
-	      CVPixelBufferRef givenBuff = [self fastImageFromNSImage:lastImage];
-	      int res = theora_enc_loop( givenBuff ) ;
-	      [givenBuff release];
-	      if (res<0) { 
-		if (lastImage)
-		    [lastImage release];
-		[self stopStream];
-	      } else 
-		sent_packages+=res;
+            CVPixelBufferRef givenBuff = [self fastImageFromNSImage:lastImage];
+            int res = theora_enc_loop( givenBuff ) ;
+            [givenBuff release];
+            if (res<0) { 
+                if (lastImage)
+                    [lastImage release];
+                [self stopStream];
+            } else 
+                sent_packages+=res;
             }
         }
         if (lastImage)
             [lastImage release];
         lastImage = nsImage;
-        
     } else {
         /* TODO - Error Messages */
     }

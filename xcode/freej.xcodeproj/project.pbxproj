@@ -12,6 +12,7 @@
 		AA0E3E760FBF3C0100123D3F /* CVTexture.m in Sources */ = {isa = PBXBuildFile; fileRef = AA0E3E750FBF3C0100123D3F /* CVTexture.m */; };
 		AA134AC01047B6D500BA39EB /* CKbdController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA134ABF1047B6D500BA39EB /* CKbdController.mm */; };
 		AA1EB9030F56969E006610D8 /* CVFilterPanel.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */; };
+		AA3698C0116BDC020073A0EB /* parameter_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA3698BF116BDC020073A0EB /* parameter_js.cpp */; };
 		AA3B0AF4104A6C3B00A27B2E /* CVScreenView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0AF3104A6C3B00A27B2E /* CVScreenView.mm */; };
 		AA3B0B0A104A6DAC00A27B2E /* CVLayerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0B09104A6DAC00A27B2E /* CVLayerView.mm */; };
 		AA3B0B78104A728600A27B2E /* CVF0rLayerView.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA3B0B77104A728600A27B2E /* CVF0rLayerView.mm */; };
@@ -188,6 +189,7 @@
 		AA134ABF1047B6D500BA39EB /* CKbdController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CKbdController.mm; sourceTree = "<group>"; };
 		AA1EB9010F56969E006610D8 /* CVFilterPanel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFilterPanel.h; sourceTree = "<group>"; };
 		AA1EB9020F56969E006610D8 /* CVFilterPanel.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFilterPanel.mm; sourceTree = "<group>"; };
+		AA3698BF116BDC020073A0EB /* parameter_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = parameter_js.cpp; sourceTree = "<group>"; };
 		AA3B0AF2104A6C3B00A27B2E /* CVScreenView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVScreenView.h; sourceTree = "<group>"; };
 		AA3B0AF3104A6C3B00A27B2E /* CVScreenView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVScreenView.mm; sourceTree = "<group>"; };
 		AA3B0B08104A6DAC00A27B2E /* CVLayerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVLayerView.h; sourceTree = "<group>"; };
@@ -666,6 +668,7 @@
 		AA3C44100F3EEBE0007C7E8B /* C++ */ = {
 			isa = PBXGroup;
 			children = (
+				AA3698BF116BDC020073A0EB /* parameter_js.cpp */,
 				AA9337EF0FD7FDEB002B760B /* include */,
 				AAB843990F3EEDE400AD479D /* javascript */,
 				B59354E111580B1700BF8C8E /* oggenc.c */,
@@ -1095,6 +1098,7 @@
 				AAF3B6FC115E082D00F0C2AB /* CVFFmpegLayer.mm in Sources */,
 				AAF3BEF5115EB1AA00F0C2AB /* FFExporter.mm in Sources */,
 				AAF3BF7D115EB54C00F0C2AB /* ffenc.c in Sources */,
+				AA3698C0116BDC020073A0EB /* parameter_js.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1231,8 +1235,7 @@
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
+				ARCHS = "$(ONLY_ACTIVE_ARCH_PRE_XCODE_3_1)";
 				GCC_ALTIVEC_EXTENSIONS = YES;
 				GCC_AUTO_VECTORIZATION = YES;
 				GCC_CW_ASM_SYNTAX = NO;
@@ -1277,7 +1280,7 @@
 					/usr/local/lib,
 					/opt/local/lib,
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
 				OTHER_CFLAGS = (
 					"-fexceptions",
 					"-headerpad_max_install_names",
