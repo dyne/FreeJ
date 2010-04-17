@@ -25,8 +25,8 @@
 #include <video_encoder.h>
 #ifdef WITH_AUDIO
 #include <audio_jack.h>
-#include <ringbuffer.h>
 #endif
+#include <ringbuffer.h>
 #include <scale2x.h>
 #include <scale3x.h>
 
