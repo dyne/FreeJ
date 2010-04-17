@@ -63,17 +63,18 @@
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
     // Create CIContext 
-#if 1
+#if MAC_OS_X_VERSION_10_6
+	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
+                                      pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+									   colorSpace:colorSpace
+										  options:nil] retain];
+#else
 	// DEPRECATED in 10.6
     ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[[self openGLContext] retain] CGLContextObj]
                                       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
                                           options:[NSDictionary dictionaryWithObjectsAndKeys:
                                                    (id)colorSpace,kCIContextOutputColorSpace,
                                                    (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
-#else
-	ciContext = [[CIContext contextWithCGContext:(CGContextRef)[[NSGraphicsContext currentContext] graphicsPort] options:[NSDictionary dictionaryWithObjectsAndKeys:
-																													  (id)colorSpace,kCIContextOutputColorSpace,
-																													  (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
 #endif
 	CGColorSpaceRelease(colorSpace);
     [lock lock];
