@@ -201,7 +201,7 @@ typedef plugMainUnion plugMainType(DWORD, LPVOID, DWORD);
  *
  */
 
-#ifdef WIN32
+#if defined(WIN32)
 
 BOOL APIENTRY DllMain(HANDLE hModule, DWORD ul_reason_for_call, DWORD lpReserved );
 
@@ -209,12 +209,12 @@ __declspec(dllexport) LPVOID __stdcall plugMain(DWORD functionCode, LPVOID pPara
 
 typedef __declspec(dllimport) LPVOID (__stdcall *FF_Main_FuncPtr)(DWORD, LPVOID, DWORD);
 
-#elif LINUX
+#elif defined(LINUX)
 
 plugMainUnion plugMain(DWORD functionCode, LPVOID pParam, DWORD reserved);
 
 
-#elif MACOS
+#elif defined(MACOS)
 
 typedef LPVOID (*FF_Main_FuncPtr)(DWORD, LPVOID, DWORD);
 
