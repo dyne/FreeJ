@@ -50,7 +50,7 @@ class CVScreen;
     CIImage              *lastFrame;
 	NSTimer				 *renderTimer;
 	bool				 fullScreen;
-	CFDictionaryRef		 savedMode;
+	CGDisplayModeRef	 savedMode;
 	bool				 needsReshape;
 	FrameRate			 *rateCalc;
     CGContextRef         exportCGContextRef;

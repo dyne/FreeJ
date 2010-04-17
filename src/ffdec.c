@@ -286,7 +286,7 @@ int decode_frame(ffdec_t *ffp) {
   } while (!frameFinished);
 
   if(frameFinished) {
-    sws_scale(ff->pSWSCtx, (const uint8_t**) ff->pFrame->data, ff->pFrame->linesize, 0, ff->pCodecCtx->height, ff->pFrameFMT->data, ff->pFrameFMT->linesize);
+    sws_scale(ff->pSWSCtx, (uint8_t**) ff->pFrame->data, ff->pFrame->linesize, 0, ff->pCodecCtx->height, ff->pFrameFMT->data, ff->pFrameFMT->linesize);
   }
   return frameFinished;
 }
@@ -439,7 +439,18 @@ struct fftarg {
   int w,h,render_fmt;
 };
 
-void *ffdec_decode_thread(ffdec_t *ffpx);
+void *ffdec_decode_thread(void *ffpx) {
+	ffdec_t **ffp = (ffdec_t **) ffpx;
+	ffdec_t *ff = (ffdec_t *) *ffp;
+	
+	if (!decode_frame(ff)) {
+		fprintf(stderr,"decoding failed. closing!\n");
+		ff->pt_status|=4;
+	}
+	
+	ff->pt_status&=~2;
+	return(0);
+}
 
 void *ffdec_open_thread(void *arg) {
   struct fftarg *a = (struct fftarg*) arg;
@@ -470,19 +481,6 @@ void *ffdec_open_thread(void *arg) {
   return(0);
 }
 
-void *ffdec_decode_thread(ffdec_t *ffpx) {
-  ffdec_t **ffp = (ffdec_t **) ffpx;
-  ffdec_t *ff = (ffdec_t *) *ffp;
-
-  if (!decode_frame(ff)) {
-    fprintf(stderr,"decoding failed. closing!\n");
-    ff->pt_status|=4;
-  }
-
-  ff->pt_status&=~2;
-  return(0);
-}
-
 int ffdec_thread(ffdec_t **ffpx, char *movie_url, int w, int h, int render_fmt) {
   ffdec_t **ffp = (ffdec_t **) ffpx;
   pthread_t thread_id_tt;
@@ -500,7 +498,7 @@ int ffdec_thread(ffdec_t **ffpx, char *movie_url, int w, int h, int render_fmt) 
 
   if (!*ffp && movie_url) {
     struct fftarg *args = malloc(sizeof(struct fftarg));
-    args->ffpx=ffpx;
+    args->ffpx=(void *)ffpx;
     args->movie_url=movie_url;
     args->w=w; args->h=h;
     args->render_fmt = render_fmt;

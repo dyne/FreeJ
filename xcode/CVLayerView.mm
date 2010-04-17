@@ -63,7 +63,7 @@
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
     // Create CIContext 
-#if 0
+#if 1
 	// DEPRECATED in 10.6
     ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[[self openGLContext] retain] CGLContextObj]
                                       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]

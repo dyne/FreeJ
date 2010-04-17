@@ -116,7 +116,15 @@
     pool = [[NSAutoreleasePool alloc] init];
     // Create CGColorSpaceRef 
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-        
+#if 1
+	// Create CIContext 
+	// Create CIContext 
+	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
+									  pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+										  options:[NSDictionary dictionaryWithObjectsAndKeys:
+												   (id)colorSpace,kCIContextOutputColorSpace,
+												   (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+#else
     // Create CIContext
 	ciContext = [[CIContext contextWithCGContext:(CGContextRef)[[NSGraphicsContext currentContext] graphicsPort]
 										 options:[NSDictionary dictionaryWithObjectsAndKeys:
@@ -124,7 +132,7 @@
 												  (id)colorSpace,kCIContextWorkingColorSpace,nil]
 				 ] retain
 				];
-	
+#endif
     CGColorSpaceRelease(colorSpace);
     [pool release];
 }

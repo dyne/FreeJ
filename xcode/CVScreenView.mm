@@ -193,14 +193,21 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
     // Create CIContext 
-    
+#if 1
+	// deprecated in 10.6
+	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
+									  pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+										  options:[NSDictionary dictionaryWithObjectsAndKeys:
+										           (id)colorSpace,kCIContextOutputColorSpace,
+										           (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+#else	
 	ciContext = [[CIContext contextWithCGContext:(CGContextRef)[[NSGraphicsContext currentContext] graphicsPort]
 										 options:[NSDictionary dictionaryWithObjectsAndKeys:
 												  (id)colorSpace,kCIContextOutputColorSpace,
 												  (id)colorSpace,kCIContextWorkingColorSpace,nil]
 				  ] retain
 				 ];
-
+#endif
     CGColorSpaceRelease(colorSpace);
     
     
@@ -561,9 +568,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (IBAction)toggleFullScreen:(id)sender
 {    
     CGDirectDisplayID currentDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  
-    
+    CGDisplayErr err;
     if (fullScreen) {
-        CGDisplaySwitchToMode(currentDisplayID, savedMode);
+		//CGDisplaySwitchToMode(currentDisplayId savedMode);
+		err = CGDisplaySetDisplayMode(currentDisplayID, savedMode, NULL);
+		if ( err != CGDisplayNoErr ) {
+			// TODO -e rror messages
+		}
         SetSystemUIMode(kUIModeNormal, kUIOptionAutoShowMenuBar);
         [self retain];
         NSWindow *fullScreenWindow = [self window];
@@ -575,14 +586,63 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         fullScreen = NO;
         needsReshape = YES;
     } else {
-        CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
+		//CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
+		CGDisplayModeRef newMode;
+		bool exactMatch;
+		// Loop through all display modes to determine the closest match.
+		// CGDisplayBestModeForParameters is deprecated on 10.6 so we will emulate it's behavior
+		// Try to find a mode with the requested depth and equal or greater dimensions first.
+		// If no match is found, try to find a mode with greater depth and same or greater dimensions.
+		// If still no match is found, just use the current mode.
+		CFArrayRef allModes = CGDisplayCopyAllDisplayModes(kCGDirectMainDisplay, NULL);
+		for(int i = 0; i < CFArrayGetCount(allModes); i++)	{
+			CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
+			CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(mode);
+			if(CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) != kCFCompareEqualTo)
+				continue;
+			
+			if((CGDisplayModeGetWidth(mode) >= fjScreen->geo.w) && (CGDisplayModeGetHeight(mode) >= fjScreen->geo.h))
+			{
+				newMode = mode;
+				exactMatch = true;
+				break;
+			}
+		}
+		
+		// No depth match was found
+		if(!exactMatch)
+		{
+			for(int i = 0; i < CFArrayGetCount(allModes); i++)
+			{
+				CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
+				CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(mode);
+				if(CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) != kCFCompareEqualTo)
+					continue;
+				
+				if((CGDisplayModeGetWidth(mode) >= fjScreen->geo.w) && (CGDisplayModeGetHeight(mode) >= fjScreen->geo.h))
+				{
+					newMode = mode;
+					break;
+				}
+			}
+		}
+        //CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
         NSAssert(newMode, @"Couldn't find display mode");
         myWindow = [[self window] retain];
-        savedMode = CGDisplayCurrentMode(currentDisplayID);
+/*
+		savedMode = CGDisplayCurrentMode(currentDisplayID);
+        SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
+		
+        CGDisplaySwitchToMode(currentDisplayID, newMode);
+*/		
+        savedMode = CGDisplayCopyDisplayMode(currentDisplayID);
         SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
 
-        CGDisplaySwitchToMode(currentDisplayID, newMode);
-        
+        //CGDisplaySwitchToMode(currentDisplayID, newMode);
+		err = CGDisplaySetDisplayMode(currentDisplayID, newMode, NULL);
+		if ( err != CGDisplayNoErr ) {
+			// TODO -e rror messages
+		}
         NSScreen *screen = [[self window] screen];
         NSWindow *newWindow = [[NSWindow alloc] initWithContentRect:[screen frame]
                                                           styleMask:NSBorderlessWindowMask

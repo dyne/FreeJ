@@ -399,7 +399,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 int JsParser::include(const char* jscript) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  const char *debian_path = "share/doc/freej/scripts/javascript/lib";
+  const char *debian_path = "share/doc/freej/scripts/javascript/lib"; // WTF!!!
   int res = 0;
   char temp[512];
   FILE *fd;
@@ -437,6 +437,7 @@ int JsParser::include(const char* jscript) {
 int JsParser::open(const char* script_file) {
 	return open(global_context, global_object, script_file);
 }
+
 int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 	jsval res;

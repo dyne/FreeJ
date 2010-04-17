@@ -32,9 +32,8 @@
 #include <jsapi.h> // spidermonkey header
 
 #include <linklist.h>
-
+#include <jscntxt.h>
 class Context;
-class JSContext;
 class JSObject;
 
 

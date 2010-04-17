@@ -310,7 +310,8 @@ void Context::handle_controllers() {
   if(ctrl) {
     controllers.lock();
     while(ctrl) {
-      if(ctrl->active) ctrl->poll();
+      if(ctrl->active)
+          ctrl->poll();
       ctrl = (Controller*)ctrl->next;
     }
     controllers.unlock();
