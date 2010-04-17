@@ -34,10 +34,10 @@
 #include <screen.h>
 #include <context.h>
 #include <jutils.h>
-
+#ifdef WITH_AUDIO
 #include <ringbuffer.h>
 #include <jack/jack.h>
-
+#endif
 #include <video_layer.h>
 
 #include <jsparser_data.h>

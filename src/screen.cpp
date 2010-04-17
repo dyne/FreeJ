@@ -23,9 +23,10 @@
 #include <screen.h>
 #include <layer.h>
 #include <video_encoder.h>
+#ifdef WITH_AUDIO
 #include <audio_jack.h>
 #include <ringbuffer.h>
-
+#endif
 #include <scale2x.h>
 #include <scale3x.h>
 
