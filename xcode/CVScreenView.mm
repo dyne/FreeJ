@@ -138,7 +138,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [[columnArray objectAtIndex:0] setIdentifier:[NSNumber numberWithInt:0]];
     [[columnArray objectAtIndex:1] setIdentifier:[NSNumber numberWithInt:1]];
 
-    [streamerSettings setDataSource:self];
+    //[streamerSettings setDataSource:self];
     [streamerSettings reloadData];
 
     return self;
@@ -194,11 +194,13 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     // Create CIContext 
     
-    ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
-                                      pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
-                                          options:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                   (id)colorSpace,kCIContextOutputColorSpace,
-                                                   (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+	ciContext = [[CIContext contextWithCGContext:(CGContextRef)[[NSGraphicsContext currentContext] graphicsPort]
+										 options:[NSDictionary dictionaryWithObjectsAndKeys:
+												  (id)colorSpace,kCIContextOutputColorSpace,
+												  (id)colorSpace,kCIContextWorkingColorSpace,nil]
+				  ] retain
+				 ];
+
     CGColorSpaceRelease(colorSpace);
     
     

@@ -57,10 +57,14 @@
 	// Create CGColorSpaceRef 
 	CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 		
-	// Create CIContext 
-	ciContext = [[CIContext contextWithCGLContext:[[self openGLContext] CGLContextObj]
-			    pixelFormat:[[self pixelFormat] CGLPixelFormatObj]
-			    options:nil] retain];
+	// Create CIContext
+	ciContext = [[CIContext contextWithCGContext:(CGContextRef)[[NSGraphicsContext currentContext] graphicsPort]
+										 options:[NSDictionary dictionaryWithObjectsAndKeys:
+												  (id)colorSpace,kCIContextOutputColorSpace,
+												  (id)colorSpace,kCIContextWorkingColorSpace,nil]
+				  ] retain
+				 ];
+
 	CGColorSpaceRelease(colorSpace);
 	renderTimer = [[NSTimer timerWithTimeInterval:0.001   //a 1ms time interval
                                 target:self
