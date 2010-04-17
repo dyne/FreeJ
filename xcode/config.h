@@ -169,6 +169,8 @@
 /* Version number of package */
 #define VERSION "0.10"
 
+#undef WITH_AUDIO
+
 /* define if compiling bluetooth cwiid controller */
 #undef WITH_BLUEZ
 
