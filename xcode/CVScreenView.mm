@@ -568,8 +568,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CGDirectDisplayID currentDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  
     CGDisplayErr err;
     if (fullScreen) {
-		//CGDisplaySwitchToMode(currentDisplayId savedMode);
+#if MAC_OS_X_VERSION_10_6
 		err = CGDisplaySetDisplayMode(currentDisplayID, savedMode, NULL);
+#else
+		CGDisplaySwitchToMode(currentDisplayID, savedMode);
+#endif
 		if ( err != CGDisplayNoErr ) {
 			// TODO -e rror messages
 		}
@@ -584,7 +587,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         fullScreen = NO;
         needsReshape = YES;
     } else {
-		//CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
+#if MAC_OS_X_VERSION_10_6
 		CGDisplayModeRef newMode;
 		bool exactMatch;
 		// Loop through all display modes to determine the closest match.
@@ -624,20 +627,29 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 				}
 			}
 		}
-        //CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
-        NSAssert(newMode, @"Couldn't find display mode");
-        myWindow = [[self window] retain];
-/*
+#else
+        CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
+
 		savedMode = CGDisplayCurrentMode(currentDisplayID);
         SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
 		
         CGDisplaySwitchToMode(currentDisplayID, newMode);
-*/		
+#endif
+		NSAssert(newMode, @"Couldn't find display mode");
+        myWindow = [[self window] retain];
+
+#if MAC_OS_X_VERSION_10_6	
         savedMode = CGDisplayCopyDisplayMode(currentDisplayID);
+#else
+		savedMode = CGDisplayCurrentMode(currentDisplayID);
+#endif
         SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
 
-        //CGDisplaySwitchToMode(currentDisplayID, newMode);
+#if MAC_OS_X_VERSION_10_6	
 		err = CGDisplaySetDisplayMode(currentDisplayID, newMode, NULL);
+#else
+		CGDisplaySwitchToMode(currentDisplayID, newMode);
+#endif
 		if ( err != CGDisplayNoErr ) {
 			// TODO -e rror messages
 		}

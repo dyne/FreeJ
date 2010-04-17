@@ -65,7 +65,7 @@
 										  options:nil] retain];
 #else
 	// deprecated in 10.6
-	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
+	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
 									  pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
 										  options:[NSDictionary dictionaryWithObjectsAndKeys:
 										           (id)colorSpace,kCIContextOutputColorSpace,
