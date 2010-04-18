@@ -582,7 +582,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 }
 
 - (IBAction)toggleFullScreen:(id)sender
-{    
+{
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CGDirectDisplayID currentDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  
     CGDisplayErr err;
     if (fullScreen) {
@@ -679,6 +680,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         fullScreen = YES;
     }
     [self drawRect:NSZeroRect];
+	[pool release];
 }
 
 - (void)setExporter

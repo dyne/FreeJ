@@ -259,8 +259,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     CVTexture *ret;
     bool gotNewFrame = newFrame;
     ret = [super getTexture];
+	/*
     if (gotNewFrame) // task the qtvisualcontext if we got a new frame
         [(CVQtLayerController *)self task];
+	 */
     return ret;
 }
 
@@ -302,24 +304,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         }
     }
 #ifdef __x86_64
-    // Why this works on 32bit but crashes on 64 ? ... and why frameImageAtTime is so damn slow? :/
     NSSize size = NSMakeSize(ctx->screen->geo.w, ctx->screen->geo.h);
-    /*
-    newPixelBuffer = (CVOpenGLTextureRef)[qtMovie frameImageAtTime:[qtMovie currentTime]
-                                                  withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                    (id)QTMovieFrameImageTypeCVOpenGLTextureRef,
-                                                    QTMovieFrameImageType,
-                                                    (id)[NSValue valueWithPointer:(void *)glContext],
-                                                    QTMovieFrameImageOpenGLContext,
-                                                    (id)[NSValue valueWithPointer:(void *)CGLGetPixelFormat(glContext)],
-                                                    QTMovieFrameImagePixelFormat,
-                                                    (id)[NSValue valueWithSize:sizef],
-                                                    QTMovieFrameImageSize,
-                                                    nil]
-                                                  error:nil];
-    
-    */
-
     newPixelBuffer = (CVPixelBufferRef)[qtMovie frameImageAtTime:now
                                                     withAttributes:[NSDictionary dictionaryWithObjectsAndKeys:
                                                                     (id)QTMovieFrameImageTypeCVPixelBufferRef,
@@ -376,8 +361,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     
     CVReturn rv = kCVReturnError;
 
-    pool =[[NSAutoreleasePool alloc] init];
-
+    pool = [[NSAutoreleasePool alloc] init];
     if(qtMovie && [self getFrameForTime:nil])
     {
        
