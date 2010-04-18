@@ -389,10 +389,28 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         return kCVReturnError;
     
     if (outFrame) {
-        CGRect  cg = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-                                NSWidth(bounds), NSHeight(bounds));
-        [ciContext drawImage: outFrame
-                     atPoint: cg.origin  fromRect: cg];
+		CGFloat scaledWidth, scaledHeight;
+		CGFloat width = NSWidth(bounds);
+		CGFloat height = NSHeight(bounds);
+		if (width > height) {
+			scaledHeight = height;
+			scaledWidth = (scaledHeight*fjScreen->geo.w)/fjScreen->geo.h;
+		} else {
+			scaledWidth = width;
+			scaledHeight = (scaledWidth*fjScreen->geo.h)/fjScreen->geo.w;
+		}
+		CGRect  toRect = CGRectMake(NSMinX(bounds)+(width-scaledWidth)/8.0,
+									NSMinY(bounds)+(height-scaledHeight)/8.0,
+									scaledWidth, scaledHeight);
+        CGRect  fromRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+									  width, height);
+
+		CIImage *black = [CIImage imageWithColor:[CIColor colorWithRed:0.0 green:0.0 blue:0.0]];
+		// XXX - perhaps I could avoid drawing black on the entire frame, we can draw only 
+		// on the uncovered area (if any, because of scaling to maintain proportions)
+		[ciContext drawImage:black atPoint:fromRect.origin fromRect:fromRect]; 
+		[ciContext drawImage:outFrame inRect:toRect fromRect:fromRect];
+
         if (lastFrame)
             [lastFrame autorelease];
         lastFrame = outFrame;
@@ -568,15 +586,15 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CGDirectDisplayID currentDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  
     CGDisplayErr err;
     if (fullScreen) {
+		SetSystemUIMode(kUIModeNormal, kUIOptionAutoShowMenuBar);
 #if MAC_OS_X_VERSION_10_6
 		err = CGDisplaySetDisplayMode(currentDisplayID, savedMode, NULL);
-#else
-		CGDisplaySwitchToMode(currentDisplayID, savedMode);
-#endif
 		if ( err != CGDisplayNoErr ) {
 			// TODO -e rror messages
 		}
-        SetSystemUIMode(kUIModeNormal, kUIOptionAutoShowMenuBar);
+#else
+		CGDisplaySwitchToMode(currentDisplayID, savedMode);
+#endif
         [self retain];
         NSWindow *fullScreenWindow = [self window];
         [self removeFromSuperview];
@@ -629,11 +647,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 		}
 #else
         CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
-
-		savedMode = CGDisplayCurrentMode(currentDisplayID);
-        SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
-		
-        CGDisplaySwitchToMode(currentDisplayID, newMode);
 #endif
 		NSAssert(newMode, @"Couldn't find display mode");
         myWindow = [[self window] retain];
@@ -650,9 +663,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 #else
 		CGDisplaySwitchToMode(currentDisplayID, newMode);
 #endif
-		if ( err != CGDisplayNoErr ) {
-			// TODO -e rror messages
-		}
         NSScreen *screen = [[self window] screen];
         NSWindow *newWindow = [[NSWindow alloc] initWithContentRect:[screen frame]
                                                           styleMask:NSBorderlessWindowMask
