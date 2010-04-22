@@ -40,6 +40,7 @@
 #include <jsparser_data.h> // private data header
 
 #include <impl_layers.h>
+#include <jsscript.h>
 
 Context *global_environment;
 
@@ -59,7 +60,15 @@ JsParser::~JsParser() {
 }
 
 void JsParser::gc() {
-    JS_GC(global_context);
+    JSContext *cx;
+    JSContext *iterp = NULL;
+    int i = 0;
+    
+    while ((cx = JS_ContextIterator(js_runtime, &iterp)) != NULL) {
+        JS_BeginRequest(cx);
+        JS_MaybeGC(cx);
+        JS_EndRequest(cx);
+    }
 }
 
 void JsParser::init() {
@@ -71,8 +80,8 @@ void JsParser::init() {
     /* Create a new runtime environment. */
     js_runtime = JS_NewRuntime(8L * 1024L * 1024L);
     if (!js_runtime) {
-	error("JsParser :: error creating runtime");
-	return ; /* XXX should return int or ptr! */
+		error("JsParser :: error creating runtime");
+		return ; /* XXX should return int or ptr! */
     }
 
     /* Create a new context. */
@@ -83,8 +92,8 @@ void JsParser::init() {
 
     /* if global_context does not have a value, end the program here */
     if (global_context == NULL) {
-	error("JsParser :: error creating context");
-	return ;
+		error("JsParser :: error creating context");
+		return ;
     }
 
     /* Set a more strict error checking */
@@ -119,10 +128,11 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	/* Initialize the built-in JS objects and the global object 
 	* As a side effect, JS_InitStandardClasses establishes obj as
 	* the global object for cx, if one is not already established. */
+    JS_BeginRequest(cx);
 	JS_InitStandardClasses(cx, obj);
-
 	/* Declare shell functions */
 	if (!JS_DefineFunctions(cx, obj, global_functions)) {
+        JS_EndRequest(cx);
 		error("JsParser :: error defining global functions");
 		return ;
 	}
@@ -392,6 +402,7 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 
 //	  JS_DefineProperties(global_context, layer_object, layer_properties);
 
+    JS_EndRequest(cx);
 
    return;
 }
@@ -435,7 +446,16 @@ int JsParser::include(const char* jscript) {
 
 /* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
-	return open(global_context, global_object, script_file);
+	
+	//JsScript *newScript = new JsScript(this, script_file);
+	JSContext *cx = JS_NewContext(js_runtime, STACK_CHUNK_SIZE);
+    JSObject *obj = JS_NewObject(cx, &global_class, NULL, NULL);
+	//JS_LockGCThing(global_context, obj);
+	init_class(cx, obj);
+	int ret = open(cx, obj, script_file);
+	//int ret = open(global_context, global_object, script_file);
+	//JS_UnlockGCThing(global_context, obj);
+	return ret;
 }
 
 int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
@@ -445,7 +465,7 @@ int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	FILE *fd;
 	char *buf = NULL;
 	int len;
-
+#if 1
 	fd = fopen(script_file,"r");
 	if(!fd) {
 		//error("%s: %s : %s",__func__,script_file,strerror(errno));
@@ -468,11 +488,22 @@ int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 
 	res = JSVAL_VOID;
 	func("%s eval: %p", __PRETTY_FUNCTION__, obj);
+    JS_BeginRequest(cx);
 	eval_res = JS_EvaluateScript(cx, obj,
 		buf, len, script_file, 0, &res);
+    JS_EndRequest(cx);
 	// if anything more was wrong, our ErrorReporter was called!
 	free(buf);
 	func("%s evalres: %i", __func__, eval_res);
+#else
+	JSScript *script = JS_CompileFile(cx, obj, script_file);
+	JSObject *scrobj = JS_NewScriptObject(cx, script);
+	JS_AddNamedRoot(cx, &scrobj, "scrobj");
+	jsval exec_res;
+	JS_ExecuteScript(cx, obj, script, &exec_res);
+    JS_EndRequest(cx);
+	//JS_GC();
+#endif
 	//	gc();
 	return eval_res;
 }
@@ -635,9 +666,20 @@ char* JsParser::readFile(FILE *file, int *len){
 }
 
 int JsParser::reset() {
-	JS_ClearScope(global_context, global_object);
+    JSContext *cx;
+    JSContext *iterp = NULL;
+    int i = 0;
+    
+    while ((cx = JS_ContextIterator(js_runtime, &iterp)) != NULL) {
+        if (cx == global_context) // skip the global context
+            continue;
+        //JS_BeginRequest(cx);
+        JS_DestroyContext(cx);
+        //JS_GC(cx);
+        //JS_EndRequest(cx);
+    }
+    JS_ClearScope(global_context, global_object);
 	init_class(global_context, global_object);
-	gc();
 	return 0;
 }
 

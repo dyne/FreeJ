@@ -21,8 +21,22 @@
 #define __TRIGGER_CTRL_H__
 
 #include <controller.h>
-
+#include <factory.h>
+#include <linklist.h>
 #include <SDL.h>
+
+class TriggerListener : public Entry
+{
+  public:
+    TriggerListener(JSContext *cx, JSObject *obj);
+    ~TriggerListener();
+    bool frame();
+  private:
+    JSContext *jsContext;
+    JSObject *jsObject;
+    jsval frameFunc;
+
+};
 
 class TriggerController : public Controller {
 
@@ -30,11 +44,14 @@ class TriggerController : public Controller {
   TriggerController();
   ~TriggerController();
 
+  bool add_listener(JSContext *cx, JSObject *obj);
   int  poll();
   virtual int dispatch();
-
+	
  private:
-  jsval frame_func;
+  Linklist<TriggerListener> listeners;
+
+  FACTORY_ALLOWED
 };
 
 #endif

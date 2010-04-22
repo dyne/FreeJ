@@ -43,11 +43,14 @@ bool Controller::init(Context *freej) {
   env = freej;
 
   if(freej->js) {
-    jsenv = freej->js->global_context;
+	  jsenv = JS_NewContext(freej->js->js_runtime, STACK_CHUNK_SIZE);//freej->js->global_context;
     
-    // the object is set to global, but should be overwritten
-    // in every specific object constructor with the "obj" from JS
-    jsobj = freej->js->global_object;
+      // the object is set to global, but should be overwritten
+      // in every specific object constructor with the "obj" from JS
+      // XXX - set initial value to NULL instead of creating a fake useless object
+      jsobj = JS_NewObject(jsenv, &global_class, NULL, freej->js->global_object);
+	  //init_class(jsenv, obj);
+
   }
   
   initialized = true;
@@ -163,23 +166,25 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...) 
 /* less bloat but this only works with 4 byte argv values
  */
 int Controller::JSCall(const char *funcname, int argc, jsval *argv) {
-  JSObject *objp = NULL;
   jsval fval = JSVAL_VOID;
   jsval ret = JSVAL_VOID;
   JSBool res;
 
   func("calling js %s.%s()", name, funcname);
-  res = JS_GetMethod(jsenv, jsobj, funcname, &objp, &fval);
+  JS_BeginRequest(jsenv);
+  res = JS_GetProperty(jsenv, jsobj, funcname, &fval);
   if(!res || JSVAL_IS_VOID(fval)) {
     // using func() instead of error() because this is not a real error condition.
     // controller could ask for unregistered functions ...
     // for instance in the case of a keyboardcontroller which propagates keystrokes 
     // for unregistered keys 
     func("method %s not found in %s controller", funcname, name);
+    JS_EndRequest(jsenv);
     return(0);
   }
 
   res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
+  JS_EndRequest(jsenv);
   if(res == JS_FALSE) {
     error("%s : failed call", __PRETTY_FUNCTION__);
     return(0);

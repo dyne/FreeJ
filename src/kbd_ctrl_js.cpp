@@ -45,7 +45,6 @@ JS(js_kbd_ctrl_constructor) {
     }
     
     // assign the real js object
-    kbd->jsobj = obj;
     kbd->javascript = true;
     
     // assign instance into javascript object

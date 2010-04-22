@@ -125,6 +125,7 @@ Context::Context() {
     
   Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
   Factory<Controller>::set_default_classtype("KeyboardController", "sdl");
+  Factory<Controller>::set_default_classtype("TriggerController", "core");
   Factory<ViewPort>::set_default_classtype("Screen", "sdl");
   Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
   Factory<Layer>::set_default_classtype("GeneratorLayer","ff_f0r");
@@ -248,6 +249,7 @@ void Context::cafudda(double secs) {
   //// process controllers
   if(poll_events)
     handle_controllers();
+	 
   ///////////////////////////////
   
   /////////////////////////////
@@ -270,11 +272,13 @@ void Context::cafudda(double secs) {
 
   }
   /////////////////////////////
-
+  // TODO - try to garbage collect only if we have been faster
+  //        than fps
+  if (js)
+    js->gc();
   /// FPS calculation
   fps.calc();
   fps.delay();
-  
 }
 
 #define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)

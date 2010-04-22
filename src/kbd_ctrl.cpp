@@ -42,7 +42,6 @@ KbdController::KbdController()
 }
 
 KbdController::~KbdController() {
-
 }
 
 bool KbdController::init(Context *freej) {

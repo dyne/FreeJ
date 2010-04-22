@@ -254,4 +254,6 @@
 
 #define ICECASTPORT "8000"
 
+#define JS_THREADSAFE 
+
 #endif

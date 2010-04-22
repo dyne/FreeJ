@@ -668,9 +668,9 @@
 		AA3C44100F3EEBE0007C7E8B /* C++ */ = {
 			isa = PBXGroup;
 			children = (
-				AA3698BF116BDC020073A0EB /* parameter_js.cpp */,
 				AA9337EF0FD7FDEB002B760B /* include */,
 				AAB843990F3EEDE400AD479D /* javascript */,
+				AA3698BF116BDC020073A0EB /* parameter_js.cpp */,
 				B59354E111580B1700BF8C8E /* oggenc.c */,
 				B5BD95B4113581AD0063C358 /* ffdec.c */,
 				AAF3BF7C115EB54C00F0C2AB /* ffenc.c */,
@@ -1180,12 +1180,14 @@
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_CW_ASM_SYNTAX = NO;
+				GCC_ENABLE_OBJC_GC = unsupported;
 				GCC_ENABLE_SSE3_EXTENSIONS = YES;
 				GCC_ENABLE_SYMBOL_SEPARATION = NO;
 				GCC_MODEL_TUNING = "";
 				GCC_UNROLL_LOOPS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				HEADER_SEARCH_PATHS = (
+					/opt/local/include/nspr,
 					../lib,
 					/usr/local/include/js,
 					/opt/local/include/js,

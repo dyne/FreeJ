@@ -239,6 +239,8 @@ void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *R
 }
 
 JSBool _js_is_instanceOf(JSContext* cx, JSClass* clasp, jsval v, const char* caller) {
+	JSBool ret = JS_FALSE;
+	JS_BeginRequest(cx);
     if (!v || !JSVAL_IS_OBJECT(v)) {
         JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
            JSSMSG_FJ_WICKED , caller, "argument is not an object"
@@ -246,18 +248,14 @@ JSBool _js_is_instanceOf(JSContext* cx, JSClass* clasp, jsval v, const char* cal
         JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
            JSSMSG_FJ_WICKED , caller, "argument is not an object"
         );
+		JS_EndRequest(cx);
         return JS_FALSE;
     }
-    JSObject *obj = JSVAL_TO_OBJECT(v);
-    while ((obj = OBJ_GET_PROTO(cx, obj)) != NULL) {
-       if (OBJ_GET_CLASS(cx, obj) == clasp)
-           return JS_TRUE;
-    }
-    JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
-       JSSMSG_FJ_WRONGTYPE, caller,
-       OBJ_GET_CLASS(cx, JSVAL_TO_OBJECT(v))->name,
-       clasp->name
-    );
-    return JS_FALSE;
+	JSObject *obj = JSVAL_TO_OBJECT(v);
+
+	ret = JS_InstanceOf(cx, obj, clasp, NULL);
+
+	JS_EndRequest(cx);
+    return ret;
 }
 

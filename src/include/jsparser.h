@@ -91,11 +91,12 @@ class JsParser {
 	JSObject *OscController;
 	JSObject *WiiController;
 	JSObject *VideoEncoder;
+	JSRuntime *js_runtime;
 
     private:
-	JSRuntime *js_runtime;
 	void init();
 	void init_class(JSContext *cx, JSObject *obj);
+	JSScript *running_scripts;
 };
 #endif
 
