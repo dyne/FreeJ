@@ -49,7 +49,6 @@ class JsParser {
 	~JsParser();
 	int include(const char* jscript); ///< include javascript libraries from known path (current or PREFIX)
 	int open(const char* script_file);
-	int open(JSContext *cx, JSObject *obj, const char* script_file);
 	int use(JSContext *cx, JSObject *obj, const char* script_file);
 
 	int parse(const char *command);
@@ -96,6 +95,7 @@ class JsParser {
     private:
 	void init();
 	void init_class(JSContext *cx, JSObject *obj);
+    int open(JSContext *cx, JSObject *obj, const char* script_file);
 	JSScript *running_scripts;
 };
 #endif

@@ -225,7 +225,7 @@
 {
     freej->reset();
     // give the engine some time to stop all layers
-    Delay(20, NULL); 
+    Delay(50, NULL); 
 
     [screenView reset];
 }

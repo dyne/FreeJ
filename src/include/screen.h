@@ -125,12 +125,14 @@ class ViewPort : public Entry {
   virtual bool lock() { return(true); };
   virtual bool unlock() { return(true); };
 
-  ringbuffer_t *audio; ///< FIFO ringbuffer for audio
-
   void scale2x(uint32_t *osrc, uint32_t *odst);
   void scale3x(uint32_t *osrc, uint32_t *odst);
 
+  void reset();
+
   Geometry geo;
+
+  ringbuffer_t *audio; ///< FIFO ringbuffer for audio
 
   int magnification;
 
@@ -145,7 +147,7 @@ class ViewPort : public Entry {
   bool opengl;
 
   bool deleted;
-
+  bool indestructible;
  protected:
   virtual bool _init() = 0; ///< implemented initialization
 

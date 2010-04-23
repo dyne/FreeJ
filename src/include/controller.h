@@ -33,9 +33,27 @@
 
 #include <linklist.h>
 #include <jscntxt.h>
+
 class Context;
 class JSObject;
 
+class ControllerListener : public Entry
+{
+public:
+    ControllerListener(JSContext *cx, JSObject *obj);
+    ~ControllerListener();
+    bool frame();
+    // TODO: eliminate runtime resolution -> C++ overhead alert!
+    bool call(const char *funcname, int argc, jsval *argv);
+    bool call(const char *funcname, int argc, const char *format, ...);
+    JSContext *context();
+    JSObject  *object();
+private:
+    JSContext *jsContext;
+    JSObject *jsObject;
+    jsval frameFunc;
+    
+};
 
 class Controller: public Entry {
   friend class Context;
@@ -63,14 +81,19 @@ class Controller: public Entry {
 
   bool javascript; ///< was this controller created by javascript?
 
+  bool add_listener(JSContext *cx, JSObject *obj);
+
+  void reset();
+  // XXX - all the following properties must be private 
   Context *env; ///< pointer to the Context
 
   JSContext *jsenv; ///< javascript environment
   JSObject  *jsobj; ///< this javascript object
-
   // TODO: eliminate runtime resolution -> C++ overhead alert!
   int JSCall(const char *funcname, int argc, jsval *argv);
   int JSCall(const char *funcname, int argc, const char *format, ...);
+  Linklist<ControllerListener> listeners;
+
 };
 
 #endif

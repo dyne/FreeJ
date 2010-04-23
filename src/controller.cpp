@@ -82,27 +82,93 @@ JS(controller_activate) {
   return JS_TRUE;
 }
 
-// Garbage collector callback for Controller classes
-void js_ctrl_gc (JSContext *cx, JSObject *obj) {
-	func("%s",__PRETTY_FUNCTION__);
-	if (!obj) {
-		error("%n called with NULL object", __PRETTY_FUNCTION__);
-		return;
-	}
-	warning("controller garbage collector called (TODO)");
-	// This callback is declared a Controller Class only,
-	// we can skip the typecheck of obj, can't we?
-// 	ctrl = (Controller *) JS_GetPrivate(cx, obj);
+bool Controller::add_listener(JSContext *cx, JSObject *obj)
+{
+    ControllerListener *listener = new ControllerListener(cx, obj);
+    listeners.append(listener);
+    return true;
+}
 
-// 	if (ctrl) {
-// 	  //	  jc = JS_GET_CLASS(cx,obj);
-// 	  func("JSvalcmp(%s): %p / %p ctrl: %p", jc->name, OBJECT_TO_JSVAL(obj), ctrl->jsobj, ctrl);
-// 	  notice("JSgc: deleting %s Controller %s", jc->name, ctrl->name);
-// 	  delete ctrl;
-// 	} else {
-// 	  func("Mh, object(%s) has no private data", jc->name);
-// 	}
-	
+void Controller::reset()
+{
+    JSBool res;
+    ControllerListener *listener = listeners.begin();
+    while (listener) {
+        delete listener;
+        listener = listeners.begin();
+    }
+}
+
+int Controller::JSCall(const char *funcname, int argc, jsval *argv)
+{
+    JSBool res;
+    ControllerListener *listener = listeners.begin();
+    while (listener) {
+        // TODO - unregister listener if returns false
+        listener->call(funcname, argc, argv);
+        listener = (ControllerListener *)listener->next;
+    }
+    return 1;
+}
+
+int Controller::JSCall(const char *funcname, int argc, const char *format, ...)
+{
+    JSBool res;
+    jsval *argv;
+    va_list args;
+    ControllerListener *listener = listeners.begin();
+    va_start(args, format);
+    va_end(args);
+    while (listener) {
+        void *markp;
+        argv = JS_PushArgumentsVA(listener->context(), &markp, format, args);
+        // TODO - unregister listener if returns false
+        listener->call(funcname, argc, argv);
+        listener = (ControllerListener *)listener->next;
+    }
+    return 1;
+}
+
+// ControllerListener
+
+ControllerListener::ControllerListener(JSContext *cx, JSObject *obj)
+{
+    jsContext = cx;
+    jsObject = obj;
+    frameFunc = NULL;
+}
+
+ControllerListener::~ControllerListener()
+{
+    
+}
+
+bool ControllerListener::frame()
+{
+    jsval ret = JSVAL_VOID;
+    JSBool res;
+    
+    JS_SetContextThread(jsContext);
+    JS_BeginRequest(jsContext);
+    
+    if (!frameFunc) {
+        res = JS_GetProperty(jsContext, jsObject, "frame", &frameFunc);
+        if(!res || JSVAL_IS_VOID(frameFunc)) {
+            error("method frame not found in TriggerController"); 
+            return false;
+        }
+    }
+    res = JS_CallFunctionValue(jsContext, jsObject, frameFunc, 0, NULL, &ret);
+    
+    JS_EndRequest(jsContext);
+    JS_ClearContextThread(jsContext);
+
+    if (res == JS_FALSE) {
+        error("trigger call frame() failed, deactivate ctrl");
+        //active = false;
+        return false;
+    }
+    return true;
 }
 
 /* JSCall function by name, cvalues will be converted
@@ -126,69 +192,87 @@ void js_ctrl_gc (JSContext *cx, JSObject *obj) {
  *       fun ? OBJECT_TO_JSVAL(fun->object) : JSVAL_NULL;
  * case 'v': va_arg(ap, jsval);
  */
-int Controller::JSCall(const char *funcname, int argc, const char *format, ...) {
+bool ControllerListener::call(const char *funcname, int argc, const char *format, ...) {
 	va_list ap;
 	jsval fval = JSVAL_VOID;
 	jsval ret = JSVAL_VOID;
-
+    
 	func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
-	int res = JS_GetProperty(jsenv, jsobj, funcname, &fval);
-
+    JS_SetContextThread(jsContext);
+    JS_BeginRequest(jsContext);
+	int res = JS_GetProperty(jsContext, jsObject, funcname, &fval);
+    
 	if(JSVAL_IS_VOID(fval)) {
-	  warning("method unresolved by JS_GetProperty");
+        warning("method unresolved by JS_GetProperty");
 	} else {
 		jsval *argv;
 		void *markp;
-
+        
 		va_start(ap, format);
-		argv = JS_PushArgumentsVA(jsenv, &markp, format, ap);
+		argv = JS_PushArgumentsVA(jsContext, &markp, format, ap);
 		va_end(ap);
-
-		res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
-		JS_PopArguments(jsenv, &markp);
-
+        
+		res = JS_CallFunctionValue(jsContext, jsObject, fval, argc, argv, &ret);
+		JS_PopArguments(jsContext, &markp);
+        
 		if (res) {
 			if(!JSVAL_IS_VOID(ret)) {
 				JSBool ok;
-				JS_ValueToBoolean(jsenv, ret, &ok);
+				JS_ValueToBoolean(jsContext, ret, &ok);
 				if (ok) // JSfunc returned 'true', so event is done
-					return 1;
-			}
-		} else { // script error
-			error("%s.%s() call failed, deactivating ctrl", name, funcname);
-			active = false;
+                {
+                    JS_EndRequest(jsContext);
+                    JS_ClearContextThread(jsContext);
+					return true;
+                }
+            }
 		}
-		return 0; // requeue event for next controller
 	}
-	return 0; // no callback, redo on next controller
+    JS_EndRequest(jsContext);
+    JS_ClearContextThread(jsContext);
+	return false; // no callback, redo on next controller
 }
 
 /* less bloat but this only works with 4 byte argv values
  */
-int Controller::JSCall(const char *funcname, int argc, jsval *argv) {
-  jsval fval = JSVAL_VOID;
-  jsval ret = JSVAL_VOID;
-  JSBool res;
+bool ControllerListener::call(const char *funcname, int argc, jsval *argv) {
+    jsval fval = JSVAL_VOID;
+    jsval ret = JSVAL_VOID;
+    JSBool res;
+    
+    func("calling js %s.%s()", name, funcname);
+    JS_SetContextThread(jsContext);
+    JS_BeginRequest(jsContext);
+    res = JS_GetProperty(jsContext, jsObject, funcname, &fval);
+    if(!res || JSVAL_IS_VOID(fval)) {
+        // using func() instead of error() because this is not a real error condition.
+        // controller could ask for unregistered functions ...
+        // for instance in the case of a keyboardcontroller which propagates keystrokes 
+        // for unregistered keys 
+        func("method %s not found in %s controller", funcname, name);
+        JS_EndRequest(jsContext);
+        JS_ClearContextThread(jsContext);
+        return(false);
+    }
+    
+    res = JS_CallFunctionValue(jsContext, jsObject, fval, argc, argv, &ret);
+    JS_EndRequest(jsContext);
+    JS_ClearContextThread(jsContext);
 
-  func("calling js %s.%s()", name, funcname);
-  JS_BeginRequest(jsenv);
-  res = JS_GetProperty(jsenv, jsobj, funcname, &fval);
-  if(!res || JSVAL_IS_VOID(fval)) {
-    // using func() instead of error() because this is not a real error condition.
-    // controller could ask for unregistered functions ...
-    // for instance in the case of a keyboardcontroller which propagates keystrokes 
-    // for unregistered keys 
-    func("method %s not found in %s controller", funcname, name);
-    JS_EndRequest(jsenv);
-    return(0);
-  }
+    if(res == JS_FALSE) {
+        error("%s : failed call", __PRETTY_FUNCTION__);
+        return(false);
+    }
+    
+    return(true);
+}
 
-  res = JS_CallFunctionValue(jsenv, jsobj, fval, argc, argv, &ret);
-  JS_EndRequest(jsenv);
-  if(res == JS_FALSE) {
-    error("%s : failed call", __PRETTY_FUNCTION__);
-    return(0);
-  }
-  
-  return(1);
+JSContext *ControllerListener::context()
+{
+    return jsContext;
+}
+
+JSObject *ControllerListener::object()
+{
+    return jsObject;
 }

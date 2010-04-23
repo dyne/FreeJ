@@ -25,33 +25,19 @@
 #include <linklist.h>
 #include <SDL.h>
 
-class TriggerListener : public Entry
-{
-  public:
-    TriggerListener(JSContext *cx, JSObject *obj);
-    ~TriggerListener();
-    bool frame();
-  private:
-    JSContext *jsContext;
-    JSObject *jsObject;
-    jsval frameFunc;
-
-};
-
 class TriggerController : public Controller {
 
  public:
   TriggerController();
   ~TriggerController();
 
-  bool add_listener(JSContext *cx, JSObject *obj);
   int  poll();
   virtual int dispatch();
 	
  private:
-  Linklist<TriggerListener> listeners;
 
   FACTORY_ALLOWED
+
 };
 
 #endif

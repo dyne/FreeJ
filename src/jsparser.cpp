@@ -65,6 +65,8 @@ void JsParser::gc() {
     int i = 0;
     
     while ((cx = JS_ContextIterator(js_runtime, &iterp)) != NULL) {
+        if (JS_IsConstructing(cx))
+            continue;
         JS_BeginRequest(cx);
         JS_MaybeGC(cx);
         JS_EndRequest(cx);
@@ -78,7 +80,7 @@ void JsParser::init() {
   notice("Initializing %s", JS_GetImplementationVersion());
 
     /* Create a new runtime environment. */
-    js_runtime = JS_NewRuntime(8L * 1024L * 1024L);
+    js_runtime = JS_NewRuntime(1024L * 1024L * 1024L);
     if (!js_runtime) {
 		error("JsParser :: error creating runtime");
 		return ; /* XXX should return int or ptr! */
@@ -112,10 +114,10 @@ void JsParser::init() {
     /* Create the global object here */
     //    JS_SetGlobalObject(global_context, global_object);
     //    this is done in init_class / JS_InitStandardClasses.
-
+    JS_BeginRequest(global_context);
 	global_object = JS_NewObject(global_context, &global_class, NULL, NULL);
 	init_class(global_context, global_object);
-
+    JS_EndRequest(global_context);
    /** register SIGINT signal */
 	//   signal(SIGINT, js_sigint_handler);
 
@@ -128,8 +130,8 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 	/* Initialize the built-in JS objects and the global object 
 	* As a side effect, JS_InitStandardClasses establishes obj as
 	* the global object for cx, if one is not already established. */
-    JS_BeginRequest(cx);
 	JS_InitStandardClasses(cx, obj);
+    
 	/* Declare shell functions */
 	if (!JS_DefineFunctions(cx, obj, global_functions)) {
         JS_EndRequest(cx);
@@ -402,8 +404,6 @@ void JsParser::init_class(JSContext *cx, JSObject *obj) {
 
 //	  JS_DefineProperties(global_context, layer_object, layer_properties);
 
-    JS_EndRequest(cx);
-
    return;
 }
 
@@ -449,10 +449,14 @@ int JsParser::open(const char* script_file) {
 	
 	//JsScript *newScript = new JsScript(this, script_file);
 	JSContext *cx = JS_NewContext(js_runtime, STACK_CHUNK_SIZE);
+    JS_SetContextThread(cx);
+    JS_BeginRequest(cx);
     JSObject *obj = JS_NewObject(cx, &global_class, NULL, NULL);
 	//JS_LockGCThing(global_context, obj);
 	init_class(cx, obj);
 	int ret = open(cx, obj, script_file);
+    JS_EndRequest(cx);
+    JS_ClearContextThread(cx);
 	//int ret = open(global_context, global_object, script_file);
 	//JS_UnlockGCThing(global_context, obj);
 	return ret;
@@ -488,10 +492,8 @@ int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 
 	res = JSVAL_VOID;
 	func("%s eval: %p", __PRETTY_FUNCTION__, obj);
-    JS_BeginRequest(cx);
 	eval_res = JS_EvaluateScript(cx, obj,
 		buf, len, script_file, 0, &res);
-    JS_EndRequest(cx);
 	// if anything more was wrong, our ErrorReporter was called!
 	free(buf);
 	func("%s evalres: %i", __func__, eval_res);
@@ -542,7 +544,7 @@ int JsParser::use(JSContext *cx, JSObject *obj, const char* script_file) {
 		);
 		return 0;
 	}
-
+    JS_BeginRequest(cx);
 	// use a clean obj and put freej inside
 	scriptObject = JS_NewObject(cx, &UseScriptClass, NULL, NULL);
 	init_class(cx, scriptObject);
@@ -564,10 +566,12 @@ int JsParser::use(JSContext *cx, JSObject *obj, const char* script_file) {
 
 	/* save script as private data for the object */
 	if(!JS_SetPrivate(cx, scriptObject, (void*)script)){
+        JS_EndRequest(cx);
 		return JS_FALSE;
 	}
 
 	JS_DefineFunction(cx, scriptObject, "exec", ExecScript, 0, 0);
+    JS_EndRequest(cx);
 	return OBJECT_TO_JSVAL(scriptObject);
 }
 
@@ -666,20 +670,27 @@ char* JsParser::readFile(FILE *file, int *len){
 }
 
 int JsParser::reset() {
-    JSContext *cx;
+    JSContext *cx = NULL;
     JSContext *iterp = NULL;
     int i = 0;
     
     while ((cx = JS_ContextIterator(js_runtime, &iterp)) != NULL) {
         if (cx == global_context) // skip the global context
             continue;
-        //JS_BeginRequest(cx);
-        JS_DestroyContext(cx);
-        //JS_GC(cx);
-        //JS_EndRequest(cx);
+
+        JS_SetContextThread(cx);
+        JS_BeginRequest(cx);
+        JSObject *obj = JS_GetGlobalObject(cx);
+        if (obj)
+            JS_ClearScope(cx, obj);
+        JS_EndRequest(cx);
+        JS_ClearContextThread(cx);
+
     }
+    JS_BeginRequest(global_context);
     JS_ClearScope(global_context, global_object);
 	init_class(global_context, global_object);
+    JS_EndRequest(global_context);
 	return 0;
 }
 

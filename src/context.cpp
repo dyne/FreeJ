@@ -434,30 +434,36 @@ int Context::reset() {
   func("%s",__PRETTY_FUNCTION__);
 
   notice("FreeJ engine reset");
-  
+
   func("deleting %u controllers", controllers.len() );
   Controller *ctrl = controllers.begin();
   while(ctrl) {
-    if( ! ctrl->indestructible ) {
-
+    if(ctrl->indestructible ) {
+      ctrl->reset();
+      ctrl = (Controller *)ctrl->next;
+    } else {
       ctrl->rem();
       delete(ctrl);
-      
+      ctrl = controllers.begin();
     }
-    ctrl = controllers.begin();
   }
 
   func("deleting %u screens", screens.len() );
   ViewPort *scr = screens.begin();
   while(scr) {
-
-    scr->rem();
-    delete(scr);
-    scr = screens.begin();
-    
+    if (scr->indestructible) {
+      scr->reset();
+      scr = (ViewPort *)scr->next;
+    } else {
+      scr->rem();
+      delete(scr);
+      scr = screens.begin();
+    }
   }
-
-  //does anyone care about rese() return address?
+    
+  if (js)
+    js->reset();
+  //does anyone care about reset() return value?
   return 1; 
 }
 

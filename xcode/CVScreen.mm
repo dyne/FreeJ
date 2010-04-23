@@ -27,9 +27,10 @@
 FACTORY_REGISTER_INSTANTIATOR(ViewPort, CVScreen, Screen, cocoa);
 
 CVScreen::CVScreen()
-  : ViewPort() {
-
+  : ViewPort()
+{
   view = NULL;
+  indestructible = true;
 }
 
 CVScreen::~CVScreen() {

@@ -50,6 +50,7 @@ ViewPort::ViewPort()
 
   audio = NULL;
   m_SampleRate=NULL;
+  indestructible = false;
 #ifdef WITH_AUDIO
   // if compiled with audio initialize the audio data pipe
   audio = ringbuffer_create(1024 * 512);
@@ -70,6 +71,10 @@ ViewPort::~ViewPort() {
     lay->rem();
     // deleting layers crashes
     //    delete(lay);
+    // XXX - you don't create layers... so you don't have to delete them as well!!!
+    //       symmetry is of primary importance and we should care about that.
+    //       layers should be freed by who created them. Perhaps we could extend 
+    //       the Layer api to allow notifications when a layer is removed from a screen
     lay = layers.begin();
   }
 
@@ -157,6 +162,18 @@ void ViewPort::rem_layer(Layer *lay)
     lay->screen = NULL; // symmetry
     lay->rem();
     notice("removed layer %s (but still present as an instance)", lay->name);
+}
+
+void ViewPort::reset()
+{
+    Layer *lay;
+    lay = layers.begin();
+    while(lay) {
+        // TODO - notify the layer that it has been removed from the screen
+        lay->rem();
+        lay = layers.begin();
+    }
+    
 }
 
 bool ViewPort::add_encoder(VideoEncoder *enc) {

@@ -29,7 +29,7 @@
 
 // global environment class
 JSClass global_class = {
-  "Freej", JSCLASS_NEW_RESOLVE,
+  "Freej", JSCLASS_NEW_RESOLVE | JSCLASS_GLOBAL_FLAGS | JSCLASS_GLOBAL_FLAGS,
   JS_PropertyStub,  JS_PropertyStub,
   JS_PropertyStub,  JS_PropertyStub,
   JS_EnumerateStub, JS_ResolveStub,
