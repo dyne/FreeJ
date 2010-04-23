@@ -8,7 +8,7 @@
 W = 400;
 H = 300;
 
-scr = new Screen("sdl");
+scr = new Screen();
 scr.init(W,H);
 add_screen(scr);
 
