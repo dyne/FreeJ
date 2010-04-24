@@ -305,8 +305,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [rotateTransform rotateByDegrees:[sender floatValue]];
             deg = ([sender floatValue]*M_PI)/180.0;
             if (deg) {
-                x = ((layer->geo.w)-((layer->geo.w)*cos(deg)-(layer->geo.h)*sin(deg)))/2;
-                y = ((layer->geo.h)-((layer->geo.w)*sin(deg)+(layer->geo.h)*cos(deg)))/2;
+                if (layer) {
+                    x = ((layer->geo.w)-((layer->geo.w)*cos(deg)-(layer->geo.h)*sin(deg)))/2;
+                    y = ((layer->geo.h)-((layer->geo.w)*sin(deg)+(layer->geo.h)*cos(deg)))/2;
+                }
             }
             rototranslateTransform = [NSAffineTransform transform];
             [rototranslateTransform translateXBy:x yBy:y];
@@ -359,12 +361,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                     
                     // handle the case it refers to a "center" coordinate
                     if (strcmp(pdescr->params[i].label, "CenterY") == 0) {
-                        [slider setMaxValue:layer->geo.h];
+                        if (layer)
+                            [slider setMaxValue:layer->geo.h];
                         NSSlider *x = (NSSlider *)[[slider previousKeyView] previousKeyView];
                         [effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[slider floatValue]]
                                         forKey:@"inputCenter"];
                     } else if (strcmp(pdescr->params[i].label, "CenterX") == 0) {
-                        [slider setMaxValue:layer->geo.w];
+                        if (layer)
+                            [slider setMaxValue:layer->geo.w];
                         NSSlider *y = (NSSlider *)[[slider nextKeyView] nextKeyView];
                         [effectFilter setValue:[CIVector vectorWithX:[slider floatValue] Y:[y floatValue]]
                                         forKey:@"inputCenter"];

@@ -198,8 +198,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
        
         // register the layer within the freej context
         if (!layer) {
+            Context *ctx = [freej getContext];
             layer = new CVLayer(self);
             layer->init();
+            layer->geo.w = ctx->screen->geo.w;
+            layer->geo.h = ctx->screen->geo.h;
         }
         NSArray* videoTracks = [qtMovie tracksOfMediaType:QTMediaTypeVideo];
         QTTrack* firstVideoTrack = [videoTracks objectAtIndex:0];
