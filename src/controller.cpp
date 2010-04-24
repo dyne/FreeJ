@@ -26,12 +26,12 @@
 #include <callbacks_js.h>
 
 Controller::Controller() {
-	func("%s this=%p",__PRETTY_FUNCTION__, this);
-	initialized = active = false;
-	indestructible = false;
-	javascript = false;
-	jsenv = NULL;
-	jsobj = NULL;
+    func("%s this=%p",__PRETTY_FUNCTION__, this);
+    initialized = active = false;
+    indestructible = false;
+    javascript = false;
+    jsenv = NULL;
+    jsobj = NULL;
 }
 
 Controller::~Controller() {
@@ -43,13 +43,13 @@ bool Controller::init(Context *freej) {
   env = freej;
 
   if(freej->js) {
-	  jsenv = JS_NewContext(freej->js->js_runtime, STACK_CHUNK_SIZE);//freej->js->global_context;
+      jsenv = JS_NewContext(freej->js->js_runtime, STACK_CHUNK_SIZE);//freej->js->global_context;
     
       // the object is set to global, but should be overwritten
       // in every specific object constructor with the "obj" from JS
       // XXX - set initial value to NULL instead of creating a fake useless object
       jsobj = JS_NewObject(jsenv, &global_class, NULL, freej->js->global_object);
-	  //init_class(jsenv, obj);
+      //init_class(jsenv, obj);
 
   }
   
@@ -69,9 +69,9 @@ JSFunctionSpec js_ctrl_methods[] = {
 JS(controller_activate) {
   Controller *ctrl = (Controller *) JS_GetPrivate(cx, obj);
   if(!ctrl) {
-    error("%u:%s:%s :: Controller core data is NULL",	\
-	  __LINE__,__FILE__,__FUNCTION__);		\
-    return JS_FALSE;					\
+    error("%u:%s:%s :: Controller core data is NULL",    \
+      __LINE__,__FILE__,__FUNCTION__);        \
+    return JS_FALSE;                    \
   }
   
   *rval = BOOLEAN_TO_JSVAL(ctrl->active);
@@ -121,7 +121,11 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...)
     va_end(args);
     while (listener) {
         void *markp = NULL;
+        JS_SetContextThread(listener->context());
+        JS_BeginRequest(listener->context());
         argv = JS_PushArgumentsVA(listener->context(), &markp, format, args);
+        JS_EndRequest(listener->context());
+        JS_ClearContextThread(listener->context());
         // TODO - unregister listener if returns false
         listener->call(funcname, argc, argv);
         listener = (ControllerListener *)listener->next;
@@ -193,44 +197,44 @@ bool ControllerListener::frame()
  * case 'v': va_arg(ap, jsval);
  */
 bool ControllerListener::call(const char *funcname, int argc, const char *format, ...) {
-	va_list ap;
-	jsval fval = JSVAL_VOID;
-	jsval ret = JSVAL_VOID;
+    va_list ap;
+    jsval fval = JSVAL_VOID;
+    jsval ret = JSVAL_VOID;
     
-	func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
+    func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
     JS_SetContextThread(jsContext);
     JS_BeginRequest(jsContext);
-	int res = JS_GetProperty(jsContext, jsObject, funcname, &fval);
+    int res = JS_GetProperty(jsContext, jsObject, funcname, &fval);
     
-	if(JSVAL_IS_VOID(fval)) {
+    if(JSVAL_IS_VOID(fval)) {
         warning("method unresolved by JS_GetProperty");
-	} else {
-		jsval *argv;
-		void *markp;
+    } else {
+        jsval *argv;
+        void *markp;
         
-		va_start(ap, format);
-		argv = JS_PushArgumentsVA(jsContext, &markp, format, ap);
-		va_end(ap);
+        va_start(ap, format);
+        argv = JS_PushArgumentsVA(jsContext, &markp, format, ap);
+        va_end(ap);
         
-		res = JS_CallFunctionValue(jsContext, jsObject, fval, argc, argv, &ret);
-		JS_PopArguments(jsContext, &markp);
+        res = JS_CallFunctionValue(jsContext, jsObject, fval, argc, argv, &ret);
+        JS_PopArguments(jsContext, &markp);
         
-		if (res) {
-			if(!JSVAL_IS_VOID(ret)) {
-				JSBool ok;
-				JS_ValueToBoolean(jsContext, ret, &ok);
-				if (ok) // JSfunc returned 'true', so event is done
+        if (res) {
+            if(!JSVAL_IS_VOID(ret)) {
+                JSBool ok;
+                JS_ValueToBoolean(jsContext, ret, &ok);
+                if (ok) // JSfunc returned 'true', so event is done
                 {
                     JS_EndRequest(jsContext);
                     JS_ClearContextThread(jsContext);
-					return true;
+                    return true;
                 }
             }
-		}
-	}
+        }
+    }
     JS_EndRequest(jsContext);
     JS_ClearContextThread(jsContext);
-	return false; // no callback, redo on next controller
+    return false; // no callback, redo on next controller
 }
 
 /* less bloat but this only works with 4 byte argv values
