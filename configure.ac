@@ -688,6 +688,7 @@ if test x$have_mozjs = xno; then
 fi
 
 if test x$have_mozjs = xyes; then
+  AC_DEFINE(JS_THREADSAFE,1,[define if compiling with threadsafe libjs])
   AC_MSG_CHECKING([if libmozjs is in linker search path])
 
   FREEJ_SAVE_FLAGS
