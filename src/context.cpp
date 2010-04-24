@@ -54,17 +54,33 @@
 void fsigpipe (int Sig);
 int got_sigpipe;
 
+bool Context::factory_initialized = false;
+
+static void init_factory() {
+    Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
+    Factory<Controller>::set_default_classtype("KeyboardController", "sdl");
+    Factory<Controller>::set_default_classtype("TriggerController", "core");
+    Factory<ViewPort>::set_default_classtype("Screen", "sdl");
+    Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
+    Factory<Layer>::set_default_classtype("GeneratorLayer","ff_f0r");
+    Factory<Layer>::set_default_classtype("ImageLayer","sdl");
+#ifdef WITH_UNICAP
+    Factory<Layer>::set_default_classtype("CamLayer", "unicap");
+#endif
+#ifdef WITH_OPENCV
+    Factory<Layer>::set_default_classtype("CamLayer", "opencv");
+#endif
+#ifdef WITH_CAIRO
+    Factory<Layer>::set_default_classtype("VectorLayer", "cairo");
+#endif
+#ifdef WITH_TEXTLAYER
+    Factory<Layer>::set_default_classtype("TextLayer", "truetype");
+#endif    
+}
+
 void * run_context(void * data){
 	Context * context = (Context *)data;
 	context->start();
-	/*
-	context->quit = false;
-	while(!context->quit) {
-		context->cafudda(0.0);
-		pthread_yield();
-		SDL_framerateDelay(&FPS); // synced with desired fps here
-	}
-	*/
 	pthread_exit(NULL);
 }
 
@@ -122,26 +138,9 @@ Context::Context() {
 #endif
 "\n";
 
-    
-  Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
-  Factory<Controller>::set_default_classtype("KeyboardController", "sdl");
-  Factory<Controller>::set_default_classtype("TriggerController", "core");
-  Factory<ViewPort>::set_default_classtype("Screen", "sdl");
-  Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
-  Factory<Layer>::set_default_classtype("GeneratorLayer","ff_f0r");
-  Factory<Layer>::set_default_classtype("ImageLayer","sdl");
-#ifdef WITH_UNICAP
-  Factory<Layer>::set_default_classtype("CamLayer", "unicap");
-#endif
-#ifdef WITH_OPENCV
-  Factory<Layer>::set_default_classtype("CamLayer", "opencv");
-#endif
-#ifdef WITH_CAIRO
-  Factory<Layer>::set_default_classtype("VectorLayer", "cairo");
-#endif
-#ifdef WITH_TEXTLAYER
-  Factory<Layer>::set_default_classtype("TextLayer", "truetype");
-#endif
+  if (!factory_initialized)
+      init_factory();
+  
   assert( init() );
 
 }

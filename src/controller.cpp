@@ -36,6 +36,11 @@ Controller::Controller() {
 
 Controller::~Controller() {
   func("%s %s (%p)",__PRETTY_FUNCTION__, name, this);
+  ControllerListener *listener = listeners.begin();
+  while (listener) {
+    delete listener;
+    listener = listeners.begin();
+  }
 }
 
 bool Controller::init(Context *freej) {
@@ -43,14 +48,11 @@ bool Controller::init(Context *freej) {
   env = freej;
 
   if(freej->js) {
-      jsenv = JS_NewContext(freej->js->js_runtime, STACK_CHUNK_SIZE);//freej->js->global_context;
-    
       // the object is set to global, but should be overwritten
       // in every specific object constructor with the "obj" from JS
       // XXX - set initial value to NULL instead of creating a fake useless object
-      jsobj = JS_NewObject(jsenv, &global_class, NULL, freej->js->global_object);
-      //init_class(jsenv, obj);
-
+      jsenv = freej->js->global_context;
+      jsobj = freej->js->global_object;
   }
   
   initialized = true;
@@ -91,7 +93,7 @@ bool Controller::add_listener(JSContext *cx, JSObject *obj)
 
 void Controller::reset()
 {
-    JSBool res;
+    active = false;
     ControllerListener *listener = listeners.begin();
     while (listener) {
         delete listener;
@@ -101,7 +103,6 @@ void Controller::reset()
 
 int Controller::JSCall(const char *funcname, int argc, jsval *argv)
 {
-    JSBool res;
     ControllerListener *listener = listeners.begin();
     while (listener) {
         // TODO - unregister listener if returns false

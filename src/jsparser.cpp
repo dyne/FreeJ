@@ -45,22 +45,6 @@
 
 Context *global_environment;
 
-/* TODO - move in a specific file */
-class JsExecutionContext : public Entry {
-    friend class JsParser;
-  public:
-    JsExecutionContext(JsParser *jsParser);
-    ~JsExecutionContext();
-  private:
-    void init_class();
-    
-    
-    JsParser  *parser;
-    JSContext *cx;
-    JSRuntime *rt;
-    JSObject  *obj; // the global object
-};
-
 JsExecutionContext::JsExecutionContext(JsParser *jsParser)
 {
     parser = jsParser;
@@ -105,6 +89,17 @@ JsExecutionContext::JsExecutionContext(JsParser *jsParser)
     /** register SIGINT signal */
 	//   signal(SIGINT, js_sigint_handler);
     
+}
+
+JsExecutionContext::~JsExecutionContext()
+{
+    JS_SetContextThread(cx);
+    JS_BeginRequest(cx);
+    JS_ClearScope(cx, obj);
+    JS_EndRequest(cx);
+    //JS_ClearContextThread(cx);
+    JS_DestroyContext(cx);
+    JS_DestroyRuntime(rt);
 }
 
 void JsExecutionContext::init_class() {
@@ -360,12 +355,6 @@ void JsExecutionContext::init_class() {
     return;
 }
 
-JsExecutionContext::~JsExecutionContext()
-{
-    JS_DestroyContext(cx);
-    JS_DestroyRuntime(rt);
-}
-
 JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
       global_environment=_env;
@@ -470,6 +459,11 @@ int JsParser::open(const char* script_file) {
     int ret = open(new_script->cx, new_script->obj, script_file);
     JS_EndRequest(new_script->cx);
     JS_ClearContextThread(new_script->cx);
+    if (ret)
+        runtimes.append(new_script);
+    else
+        delete new_script;
+
 	return ret;
 }
 
@@ -686,24 +680,13 @@ int JsParser::reset() {
     JSContext *iterp = NULL;
     int i = 0;
     
-    while ((cx = JS_ContextIterator(js_runtime, &iterp)) != NULL) {
-        if (cx == global_context) // skip the global context
-            continue;
-
-        JS_SetContextThread(cx);
-        JS_BeginRequest(cx);
-        JSObject *obj = JS_GetGlobalObject(cx);
-        if (obj)
-            JS_ClearScope(cx, obj);
-        JS_EndRequest(cx);
-        JS_ClearContextThread(cx);
-
+    JsExecutionContext *ecx = runtimes.begin();
+    while (ecx) {
+        delete ecx;
+        ecx = runtimes.begin();
+        i++;
     }
-    JS_BeginRequest(global_context);
-    JS_ClearScope(global_context, global_object);
-	//init_class(global_context, global_object);
-    JS_EndRequest(global_context);
-	return 0;
+	return i;
 }
 
 void js_debug_property(JSContext *cx, jsval vp) {

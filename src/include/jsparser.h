@@ -34,18 +34,32 @@
  * malloc overhead/fragmentation for deep or highly-variable stacks. */
 #define STACK_CHUNK_SIZE    8192
 
-//#include <context.h>
-//#include <layer.h>
+#include <linklist.h>
 #include <jsapi.h> // spidermonkey header
 
 extern Context *global_environment;
 
 void js_debug_property(JSContext *cx, jsval val);
 void js_debug_argument(JSContext *cx, jsval val);
-class JsExecutionContext;
+
+// This class represents the execution context for a single script,
+// holding its context, runtime and global object.
+class JsExecutionContext : public Entry {
+    friend class JsParser;
+public:
+    JsExecutionContext(JsParser *jsParser);
+    ~JsExecutionContext();
+private:
+    void init_class();
+    
+    
+    JsParser  *parser;
+    JSContext *cx;
+    JSRuntime *rt;
+    JSObject  *obj; // the global object
+};
 
 class JsParser {
-    friend class JsExecutionContext;
     public:
 	JsParser(Context *_env);
 	~JsParser();
@@ -61,17 +75,19 @@ class JsParser {
 
 	JSBool branch_callback(JSContext* Context, JSScript* Script);
 
+    /* DEPRECATED!! here for retrocompatibility */
 	JSContext *global_context;
 	JSObject *global_object;
-    JsExecutionContext *global_runtime;
-
 	JSRuntime *js_runtime;
-
+    /** **/
+    
+    JsExecutionContext *global_runtime;
+    Linklist<JsExecutionContext> runtimes;
+    
     private:
 	void init();
 	void init_class(JSContext *cx, JSObject *obj);
     int open(JSContext *cx, JSObject *obj, const char* script_file);
-	JSScript *running_scripts;
 };
 #endif
 

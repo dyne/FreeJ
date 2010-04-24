@@ -736,6 +736,7 @@ JS(execute_javascript_command) {
 	return JS_TRUE;
 }
 
+// XXX - are we sure that we really want to expose such a function? :/
 JS(system_exec) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 

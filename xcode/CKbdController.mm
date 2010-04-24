@@ -25,6 +25,7 @@ CKbdController::CKbdController()
     : Controller()
 {
     windowController = NULL;
+    indestructible = true; // we are going to be used as a singleton
 }
 
 CKbdController::~CKbdController()
