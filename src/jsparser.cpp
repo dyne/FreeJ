@@ -41,8 +41,330 @@
 
 #include <impl_layers.h>
 #include <jsscript.h>
+#include <linklist.h>
 
 Context *global_environment;
+
+/* TODO - move in a specific file */
+class JsExecutionContext : public Entry {
+    friend class JsParser;
+  public:
+    JsExecutionContext(JsParser *jsParser);
+    ~JsExecutionContext();
+  private:
+    void init_class();
+    
+    
+    JsParser  *parser;
+    JSContext *cx;
+    JSRuntime *rt;
+    JSObject  *obj; // the global object
+};
+
+JsExecutionContext::JsExecutionContext(JsParser *jsParser)
+{
+    parser = jsParser;
+    /* Create a new runtime environment. */
+    rt = JS_NewRuntime(8L * 1024L * 1024L);
+    if (!rt) {
+		error("JsParser :: error creating runtime");
+		return ; /* XXX should return int or ptr! */
+    }
+    
+    /* Create a new context. */
+    cx = JS_NewContext(rt, STACK_CHUNK_SIZE);
+    JS_BeginRequest(cx);
+    // Store a reference to ourselves in the context ...
+    JS_SetContextPrivate(cx, parser);
+    
+    /* if global_context does not have a value, end the program here */
+    if (cx == NULL) {
+		error("JsParser :: error creating context");
+		return ;
+    }
+    
+    /* Set a more strict error checking */
+    JS_SetOptions(cx, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
+    
+    /* Set the branch callback */
+#if defined JSOPTION_NATIVE_BRANCH_CALLBACK
+    JS_SetBranchCallback(cx, js_static_branch_callback);
+#else
+    JS_SetOperationCallback(cx, js_static_branch_callback);
+#endif
+    
+    /* Set the error reporter */
+    JS_SetErrorReporter(cx, js_error_reporter);
+    
+    /* Create the global object here */
+    //    JS_SetGlobalObject(global_context, global_object);
+    //    this is done in init_class / JS_InitStandardClasses.
+	obj = JS_NewObject(cx, &global_class, NULL, NULL);
+    init_class();
+    JS_EndRequest(cx);
+    /** register SIGINT signal */
+	//   signal(SIGINT, js_sigint_handler);
+    
+}
+
+void JsExecutionContext::init_class() {
+    
+	/* Initialize the built-in JS objects and the global object 
+     * As a side effect, JS_InitStandardClasses establishes obj as
+     * the global object for cx, if one is not already established. */
+	JS_InitStandardClasses(cx, obj);
+    
+	/* Declare shell functions */
+	if (!JS_DefineFunctions(cx, obj, global_functions)) {
+        JS_EndRequest(cx);
+		error("JsParser :: error defining global functions");
+		return ;
+	}
+    
+	///////////////////////////////////////////////////////////
+	// Initialize classes
+    
+	JSObject *object_proto; // reminder for inher.
+	JSObject *layer_object; // used in REGISTER_CLASS macro
+    
+	// Screen (in C++ ViewPort) has only one class type
+	// all implementations are masked behind the factory
+	REGISTER_CLASS("Screen",
+                   screen_class,
+                   screen_constructor,
+                   screen_properties,
+                   screen_methods,
+                   NULL);
+    
+	REGISTER_CLASS("Parameter",
+                   parameter_class,
+                   parameter_constructor,
+                   parameter_properties,
+                   parameter_methods,
+                   NULL);
+    
+	REGISTER_CLASS("Layer",
+                   layer_class,
+                   layer_constructor,
+                   layer_properties,
+                   layer_methods,
+                   NULL);
+	object_proto = layer_object; // following registrations inherit from parent class Layer
+    
+	REGISTER_CLASS("GeometryLayer",
+                   geometry_layer_class,
+                   geometry_layer_constructor,
+                   NULL,
+                   geometry_layer_methods,
+                   object_proto);
+	
+	REGISTER_CLASS("GeneratorLayer",
+                   generator_layer_class,
+                   generator_layer_constructor,
+                   NULL,
+                   generator_layer_methods,
+                   object_proto);
+    
+    // 	REGISTER_CLASS("VScrollLayer",
+    // 		vscroll_layer_class,
+    // 		vscroll_layer_constructor,
+    // 		vscroll_layer_methods,
+    // 		object_proto);
+    
+	REGISTER_CLASS("ImageLayer",
+                   image_layer_class,
+                   image_layer_constructor,
+                   NULL,
+                   image_layer_methods,
+                   object_proto);
+    
+#ifdef WITH_FLASH
+	REGISTER_CLASS("FlashLayer",
+                   flash_layer_class,
+                   flash_layer_constructor,
+                   NULL,
+                   flash_layer_methods,
+                   object_proto);
+#endif
+    
+#ifdef WITH_GOOM
+	REGISTER_CLASS("GoomLayer",
+                   goom_layer_class,
+                   goom_layer_constructor,
+                   NULL, // properties
+                   goom_layer_methods,
+                   object_proto);
+#endif
+    
+#ifdef WITH_AUDIO
+	REGISTER_CLASS("AudioJack",
+                   js_audio_jack_class,
+                   js_audio_jack_constructor,
+                   NULL, // properties
+                   js_audio_jack_methods,
+                   object_proto);
+#endif
+    
+#ifdef WITH_V4L
+	REGISTER_CLASS("CamLayer",
+                   v4l_layer_class,
+                   v4l_layer_constructor,
+                   NULL, // properties
+                   v4l_layer_methods,
+                   object_proto);
+#endif
+    
+#ifdef WITH_UNICAP
+	REGISTER_CLASS("UnicapLayer",
+                   unicap_layer_class,
+                   unicap_layer_constructor,
+                   NULL, // properties
+                   unicap_layer_methods,
+                   object_proto);
+#endif
+    
+#ifdef WITH_FFMPEG
+	REGISTER_CLASS("MovieLayer",
+                   video_layer_class,
+                   video_layer_constructor,
+                   NULL, // properties
+                   video_layer_methods,
+                   object_proto);
+#endif
+    
+#ifdef WITH_AVIFILE
+    REGISTER_CLASS("MovieLayer",
+                   avi_layer_class,
+                   avi_layer_constructor,
+                   NULL, // properties
+                   avi_layer_methods,
+                   object_proto);
+    
+#endif
+    
+#if defined WITH_TEXTLAYER
+	REGISTER_CLASS("TextLayer",
+                   txt_layer_class,
+                   txt_layer_constructor,
+                   NULL, // properties
+                   txt_layer_methods,
+                   object_proto);
+#endif
+    
+#ifdef WITH_XGRAB
+	REGISTER_CLASS("XGrabLayer",
+                   js_xgrab_class,
+                   js_xgrab_constructor,
+                   NULL, // properties
+                   js_xgrab_methods,
+                   object_proto);
+#endif	
+    
+#ifdef WITH_CAIRO
+	REGISTER_CLASS("VectorLayer",
+                   vector_layer_class,
+                   vector_layer_constructor,
+                   vector_layer_properties,
+                   vector_layer_methods,
+                   object_proto);
+#endif		       
+    
+	REGISTER_CLASS("Filter",
+                   filter_class,
+                   filter_constructor,
+                   filter_properties,
+                   filter_methods,
+                   NULL);
+    
+	// controller classes
+	REGISTER_CLASS("Controller",
+                   js_ctrl_class,
+                   NULL,
+                   NULL, // properties
+                   js_ctrl_methods,
+                   NULL);
+	object_proto = layer_object;
+    
+	REGISTER_CLASS("KeyboardController",
+                   js_kbd_ctrl_class,
+                   js_kbd_ctrl_constructor,
+                   NULL, // properties
+                   js_kbd_ctrl_methods,
+                   object_proto);
+    
+	REGISTER_CLASS("MouseController",
+                   js_mouse_ctrl_class,
+                   js_mouse_ctrl_constructor,
+                   NULL, // properties
+                   js_mouse_ctrl_methods,
+                   object_proto);
+    
+	REGISTER_CLASS("JoystickController",
+                   js_joy_ctrl_class,
+                   js_joy_ctrl_constructor,
+                   NULL, // properties
+                   js_joy_ctrl_methods,
+                   object_proto);
+    
+	REGISTER_CLASS("TriggerController",
+                   js_trigger_ctrl_class,
+                   js_trigger_ctrl_constructor,
+                   NULL, // properties
+                   js_trigger_ctrl_methods,
+                   object_proto);
+    
+	REGISTER_CLASS("ViMoController",
+                   js_vimo_ctrl_class,
+                   js_vimo_ctrl_constructor,
+                   NULL, // properties
+                   js_vimo_ctrl_methods,
+                   object_proto);
+    
+#ifdef WITH_MIDI
+	REGISTER_CLASS("MidiController",
+                   js_midi_ctrl_class,
+                   js_midi_ctrl_constructor,
+                   NULL, // properties
+                   js_midi_ctrl_methods,
+                   object_proto);
+#endif
+    
+    REGISTER_CLASS("OscController",
+                   js_osc_ctrl_class,
+                   js_osc_ctrl_constructor,
+                   NULL, // properties
+                   js_osc_ctrl_methods,
+                   object_proto);
+    
+#ifdef WITH_CWIID
+    REGISTER_CLASS("WiiController",
+                   js_wii_ctrl_class,
+                   js_wii_ctrl_constructor,
+                   NULL, // properties
+                   js_wii_ctrl_methods,
+                   object_proto);
+#endif
+    
+#ifdef WITH_OGGTHEORA
+	// encoder class
+    REGISTER_CLASS("VideoEncoder",
+                   js_vid_enc_class,
+                   js_vid_enc_constructor,
+                   NULL, // properties
+                   js_vid_enc_methods,
+                   NULL);
+#endif
+    
+    //JS_DefineProperties(global_context, layer_object, layer_properties);
+    
+    return;
+}
+
+JsExecutionContext::~JsExecutionContext()
+{
+    JS_DestroyContext(cx);
+    JS_DestroyRuntime(rt);
+}
 
 JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
@@ -79,332 +401,27 @@ void JsParser::init() {
   
   notice("Initializing %s", JS_GetImplementationVersion());
 
-    /* Create a new runtime environment. */
-    js_runtime = JS_NewRuntime(1024L * 1024L * 1024L);
-    if (!js_runtime) {
-		error("JsParser :: error creating runtime");
-		return ; /* XXX should return int or ptr! */
-    }
-
-    /* Create a new context. */
-    global_context = JS_NewContext(js_runtime, STACK_CHUNK_SIZE);
-
-    // Store a reference to ourselves in the context ...
-    JS_SetContextPrivate(global_context, this);
-
-    /* if global_context does not have a value, end the program here */
-    if (global_context == NULL) {
-		error("JsParser :: error creating context");
-		return ;
-    }
-
-    /* Set a more strict error checking */
-    JS_SetOptions(global_context, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
-
-    /* Set the branch callback */
-#if defined JSOPTION_NATIVE_BRANCH_CALLBACK
-    JS_SetBranchCallback(global_context, js_static_branch_callback);
-#else
-    JS_SetOperationCallback(global_context, js_static_branch_callback);
-#endif
-
-    /* Set the error reporter */
-    JS_SetErrorReporter(global_context, js_error_reporter);
-
-    /* Create the global object here */
-    //    JS_SetGlobalObject(global_context, global_object);
-    //    this is done in init_class / JS_InitStandardClasses.
-    JS_BeginRequest(global_context);
-	global_object = JS_NewObject(global_context, &global_class, NULL, NULL);
-	init_class(global_context, global_object);
-    JS_EndRequest(global_context);
-   /** register SIGINT signal */
-	//   signal(SIGINT, js_sigint_handler);
-
-
-   return;
-}
-
-void JsParser::init_class(JSContext *cx, JSObject *obj) {
-   
-	/* Initialize the built-in JS objects and the global object 
-	* As a side effect, JS_InitStandardClasses establishes obj as
-	* the global object for cx, if one is not already established. */
-	JS_InitStandardClasses(cx, obj);
+  // create a global execution context (used to evaluate commands on the fly
+  // and for other internal operations
+  global_runtime = new JsExecutionContext(this);
     
-	/* Declare shell functions */
-	if (!JS_DefineFunctions(cx, obj, global_functions)) {
-        JS_EndRequest(cx);
-		error("JsParser :: error defining global functions");
-		return ;
-	}
-
-	///////////////////////////////////////////////////////////
-	// Initialize classes
-
-
-	JSObject *object_proto; // reminder for inher.
-	JSObject *layer_object; // used in REGISTER_CLASS macro
-
-
-	// Screen (in C++ ViewPort) has only one class type
-	// all implementations are masked behind the factory
-	REGISTER_CLASS("Screen",
-		       screen_class,
-		       screen_constructor,
-		       screen_properties,
-		       screen_methods,
-		       NULL);
-	Screen = layer_object;
-
-	REGISTER_CLASS("Parameter",
-		       parameter_class,
-		       parameter_constructor,
-		       parameter_properties,
-		       parameter_methods,
-		       NULL);
-	Parameter = layer_object;
-
-	REGISTER_CLASS("Layer",
-		       layer_class,
-		       layer_constructor,
-		       layer_properties,
-		       layer_methods,
-		       NULL);
-	Layer = layer_object; // last created object
-	object_proto = Layer; // following registrations inherit from parent class Layer
-
-	REGISTER_CLASS("GeometryLayer",
-		       geometry_layer_class,
-		       geometry_layer_constructor,
-		       NULL,
-		       geometry_layer_methods,
-		       object_proto);
-	GeometryLayer = layer_object;
-	
-	REGISTER_CLASS("GeneratorLayer",
-		       generator_layer_class,
-		       generator_layer_constructor,
-		       NULL,
-		       generator_layer_methods,
-		       object_proto);
-	GeneratorLayer = layer_object;
-
-// 	REGISTER_CLASS("VScrollLayer",
-// 		vscroll_layer_class,
-// 		vscroll_layer_constructor,
-// 		vscroll_layer_methods,
-// 		object_proto);
-
-	REGISTER_CLASS("ImageLayer",
-		       image_layer_class,
-		       image_layer_constructor,
-		       NULL,
-		       image_layer_methods,
-		       object_proto);
-	ImageLayer = layer_object;
-
-#ifdef WITH_FLASH
-	REGISTER_CLASS("FlashLayer",
-		       flash_layer_class,
-		       flash_layer_constructor,
-		       NULL,
-		       flash_layer_methods,
-		       object_proto);
-	FlashLayer = layer_object;
-#endif
-
-#ifdef WITH_GOOM
-	REGISTER_CLASS("GoomLayer",
-		       goom_layer_class,
-		       goom_layer_constructor,
-		       NULL, // properties
-		       goom_layer_methods,
-		       object_proto);
-	GoomLayer = layer_object;
-#endif
-
-#ifdef WITH_AUDIO
-	REGISTER_CLASS("AudioJack",
-		       js_audio_jack_class,
-		       js_audio_jack_constructor,
-		       NULL, // properties
-		       js_audio_jack_methods,
-		       object_proto);
-	AudioJack = layer_object;
-#endif
-
-#ifdef WITH_V4L
-	REGISTER_CLASS("CamLayer",
-		       v4l_layer_class,
-		       v4l_layer_constructor,
-		       NULL, // properties
-		       v4l_layer_methods,
-		       object_proto);
-	CamLayer = layer_object;
-#endif
-
-#ifdef WITH_UNICAP
-	REGISTER_CLASS("UnicapLayer",
-		       unicap_layer_class,
-		       unicap_layer_constructor,
-		       NULL, // properties
-		       unicap_layer_methods,
-		       object_proto);
-	UnicapLayer = layer_object;
-#endif
-
-#ifdef WITH_FFMPEG
-	REGISTER_CLASS("MovieLayer",
-		       video_layer_class,
-		       video_layer_constructor,
-		       NULL, // properties
-		       video_layer_methods,
-		       object_proto);
-	MovieLayer = layer_object;
-#endif
-
-#ifdef WITH_AVIFILE
-   REGISTER_CLASS("MovieLayer",
-		  avi_layer_class,
-		  avi_layer_constructor,
-		  NULL, // properties
-		  avi_layer_methods,
-		  object_proto);
-   MovieLayer = layer_object;
-
-#endif
-
-#if defined WITH_TEXTLAYER
-	REGISTER_CLASS("TextLayer",
-		       txt_layer_class,
-		       txt_layer_constructor,
-		       NULL, // properties
-		       txt_layer_methods,
-		       object_proto);
-	TextLayer = layer_object;
-#endif
-
-#ifdef WITH_XGRAB
-	REGISTER_CLASS("XGrabLayer",
-		       js_xgrab_class,
-		       js_xgrab_constructor,
-		       NULL, // properties
-		       js_xgrab_methods,
-		       object_proto);
-	XGrabLayer = layer_object;
-#endif	
-
-#ifdef WITH_CAIRO
-	REGISTER_CLASS("VectorLayer",
-		       vector_layer_class,
-		       vector_layer_constructor,
-		       vector_layer_properties,
-		       vector_layer_methods,
-		       object_proto);
-	VectorLayer = layer_object;
-#endif		       
-
-	REGISTER_CLASS("Filter",
-		       filter_class,
-		       filter_constructor,
-		       filter_properties,
-		       filter_methods,
-		       NULL);
-	Filter = layer_object;
-
-	// controller classes
-	REGISTER_CLASS("Controller",
-		       js_ctrl_class,
-		       NULL,
-		       NULL, // properties
-		       js_ctrl_methods,
-		       NULL);
-	Controller = layer_object;
-	object_proto = Controller;
-
-	REGISTER_CLASS("KeyboardController",
-		       js_kbd_ctrl_class,
-		       js_kbd_ctrl_constructor,
-		       NULL, // properties
-		       js_kbd_ctrl_methods,
-		       object_proto);
-	KeyboardController = layer_object;
-
-	REGISTER_CLASS("MouseController",
-		       js_mouse_ctrl_class,
-		       js_mouse_ctrl_constructor,
-		       NULL, // properties
-		       js_mouse_ctrl_methods,
-		       object_proto);
-	MouseController = layer_object;
-
-	REGISTER_CLASS("JoystickController",
-		       js_joy_ctrl_class,
-		       js_joy_ctrl_constructor,
-		       NULL, // properties
-		       js_joy_ctrl_methods,
-		       object_proto);
-	JoystickController = layer_object;
-
-	REGISTER_CLASS("TriggerController",
-		       js_trigger_ctrl_class,
-		       js_trigger_ctrl_constructor,
-		       NULL, // properties
-		       js_trigger_ctrl_methods,
-		       object_proto);
-	TriggerController = layer_object;
-
-	REGISTER_CLASS("ViMoController",
-		       js_vimo_ctrl_class,
-		       js_vimo_ctrl_constructor,
-		       NULL, // properties
-		       js_vimo_ctrl_methods,
-		       object_proto);
-	ViMoController = layer_object;
-
-#ifdef WITH_MIDI
-	REGISTER_CLASS("MidiController",
-		       js_midi_ctrl_class,
-		       js_midi_ctrl_constructor,
-		       NULL, // properties
-		       js_midi_ctrl_methods,
-		       object_proto);
-	MidiController = layer_object;
-#endif
-
-    REGISTER_CLASS("OscController",
-		   js_osc_ctrl_class,
-		   js_osc_ctrl_constructor,
-		   NULL, // properties
-		   js_osc_ctrl_methods,
-		   object_proto);
-    OscController = layer_object;
-
-#ifdef WITH_CWIID
-    REGISTER_CLASS("WiiController",
-		   js_wii_ctrl_class,
-		   js_wii_ctrl_constructor,
-		   NULL, // properties
-		   js_wii_ctrl_methods,
-		   object_proto);
-    WiiController = layer_object;
-#endif
-
-#ifdef WITH_OGGTHEORA
-	// encoder class
-    REGISTER_CLASS("VideoEncoder",
-		   js_vid_enc_class,
-		   js_vid_enc_constructor,
-		   NULL, // properties
-		   js_vid_enc_methods,
-		   NULL);
-    VideoEncoder = layer_object;
-#endif
-
-//	  JS_DefineProperties(global_context, layer_object, layer_properties);
-
-   return;
+  /* Create a new runtime environment. */
+  js_runtime = global_runtime->rt; // XXX - for retrocompatibilty
+  if (!js_runtime) {
+    return ; /* XXX should return int or ptr! */
+  }
+    
+  /* Create a new context. */
+  global_context = global_runtime->cx; // XXX - for retrocompatibilty
+  
+  /* if global_context does not have a value, end the program here */
+  if (global_context == NULL) {
+    return ;
+  }
+    
+  global_object = global_runtime->obj;
+  /** register SIGINT signal */
+  //   signal(SIGINT, js_sigint_handler);
 }
 
 int JsParser::include(const char* jscript) {
@@ -447,18 +464,12 @@ int JsParser::include(const char* jscript) {
 /* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
 	
-	//JsScript *newScript = new JsScript(this, script_file);
-	JSContext *cx = JS_NewContext(js_runtime, STACK_CHUNK_SIZE);
-    JS_SetContextThread(cx);
-    JS_BeginRequest(cx);
-    JSObject *obj = JS_NewObject(cx, &global_class, NULL, NULL);
-	//JS_LockGCThing(global_context, obj);
-	init_class(cx, obj);
-	int ret = open(cx, obj, script_file);
-    JS_EndRequest(cx);
-    JS_ClearContextThread(cx);
-	//int ret = open(global_context, global_object, script_file);
-	//JS_UnlockGCThing(global_context, obj);
+	JsExecutionContext *new_script = new JsExecutionContext(this);
+    JS_SetContextThread(new_script->cx);
+    JS_BeginRequest(new_script->cx);
+    int ret = open(new_script->cx, new_script->obj, script_file);
+    JS_EndRequest(new_script->cx);
+    JS_ClearContextThread(new_script->cx);
 	return ret;
 }
 
@@ -503,7 +514,6 @@ int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	JS_AddNamedRoot(cx, &scrobj, "scrobj");
 	jsval exec_res;
 	JS_ExecuteScript(cx, obj, script, &exec_res);
-    JS_EndRequest(cx);
 	//JS_GC();
 #endif
 	//	gc();
@@ -545,10 +555,12 @@ int JsParser::use(JSContext *cx, JSObject *obj, const char* script_file) {
 		return 0;
 	}
     JS_BeginRequest(cx);
-	// use a clean obj and put freej inside
+	
+    /* TODO -- FIX
+    // use a clean obj and put freej inside
 	scriptObject = JS_NewObject(cx, &UseScriptClass, NULL, NULL);
 	init_class(cx, scriptObject);
-
+    */
 	notice("%s from: %p new: %p glob: %p", __PRETTY_FUNCTION__, obj, scriptObject, global_object);
 	if(!scriptObject){
 		JS_ReportError(cx, "Can't create script");
@@ -689,7 +701,7 @@ int JsParser::reset() {
     }
     JS_BeginRequest(global_context);
     JS_ClearScope(global_context, global_object);
-	init_class(global_context, global_object);
+	//init_class(global_context, global_object);
     JS_EndRequest(global_context);
 	return 0;
 }

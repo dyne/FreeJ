@@ -269,9 +269,9 @@ JS(geometry_layer_circle) {
   JS_ValueToUint16(cx, argv[2], &r);
 
   OPTIONAL_COLOR_ARG(3);
+  JS_EndRequest(cx);
 
   lay->circle(x, y, r, color);
-  JS_EndRequest(cx);
   return JS_TRUE;
 }
 JS(geometry_layer_aacircle) {
@@ -289,8 +289,9 @@ JS(geometry_layer_aacircle) {
 
   OPTIONAL_COLOR_ARG(3);
 
-  lay->aacircle(x, y, r, color);
   JS_EndRequest(cx);
+
+  lay->aacircle(x, y, r, color);
 
   return JS_TRUE;
 }
@@ -308,9 +309,8 @@ JS(geometry_layer_circle_fill) {
   JS_ValueToUint16(cx, argv[2], &r);
 
   OPTIONAL_COLOR_ARG(3);
-
-  lay->circle_fill(x, y, r, color);
   JS_EndRequest(cx);
+  lay->circle_fill(x, y, r, color);
 
   return JS_TRUE;
 }
@@ -329,9 +329,8 @@ JS(geometry_layer_ellipse) {
   JS_ValueToUint16(cx, argv[3], &ry);
 
   OPTIONAL_COLOR_ARG(4);
-
-  lay->ellipse(x, y, rx, ry, color);
   JS_EndRequest(cx);
+  lay->ellipse(x, y, rx, ry, color);
   return JS_TRUE;
 }
 JS(geometry_layer_aaellipse) {
@@ -349,9 +348,8 @@ JS(geometry_layer_aaellipse) {
   JS_ValueToUint16(cx, argv[3], &ry);
 
   OPTIONAL_COLOR_ARG(4);
-
-  lay->aaellipse(x, y, rx, ry, color);
   JS_EndRequest(cx);
+  lay->aaellipse(x, y, rx, ry, color);
   return JS_TRUE;
 }
 JS(geometry_layer_ellipse_fill) {
@@ -369,9 +367,8 @@ JS(geometry_layer_ellipse_fill) {
   JS_ValueToUint16(cx, argv[3], &ry);
 
   OPTIONAL_COLOR_ARG(4);
-
-  lay->ellipse_fill(x, y, rx, ry, color);
   JS_EndRequest(cx);
+  lay->ellipse_fill(x, y, rx, ry, color);
 
   return JS_TRUE;
 }
@@ -391,9 +388,8 @@ JS(geometry_layer_pie) {
   JS_ValueToUint16(cx, argv[4], &end);
 
   OPTIONAL_COLOR_ARG(5);
-
-  lay->pie(x, y, rad, start, end, color);
   JS_EndRequest(cx);
+  lay->pie(x, y, rad, start, end, color);
 
   return JS_TRUE;
 }
@@ -413,9 +409,8 @@ JS(geometry_layer_pie_fill) {
   JS_ValueToUint16(cx, argv[4], &end);
 
   OPTIONAL_COLOR_ARG(5);
-
-  lay->pie_fill(x, y, rad, start, end, color);
   JS_EndRequest(cx);
+  lay->pie_fill(x, y, rad, start, end, color);
 
   return JS_TRUE;
 }
@@ -436,9 +431,8 @@ JS(geometry_layer_trigon) {
   JS_ValueToUint16(cx, argv[5], &y3);
 
   OPTIONAL_COLOR_ARG(6);
-
-  lay->trigon(x1, y1, x2, y2, x3, y3, color);
   JS_EndRequest(cx);
+  lay->trigon(x1, y1, x2, y2, x3, y3, color);
 
   return JS_TRUE;
 }
@@ -459,9 +453,8 @@ JS(geometry_layer_aatrigon) {
   JS_ValueToUint16(cx, argv[5], &y3);
 
   OPTIONAL_COLOR_ARG(6);
-
-  lay->aatrigon(x1, y1, x2, y2, x3, y3, color);
   JS_EndRequest(cx);
+  lay->aatrigon(x1, y1, x2, y2, x3, y3, color);
 
   return JS_TRUE;
 }
@@ -482,9 +475,8 @@ JS(geometry_layer_trigon_fill) {
   JS_ValueToUint16(cx, argv[5], &y3);
 
   OPTIONAL_COLOR_ARG(6);
-
-  lay->trigon_fill(x1, y1, x2, y2, x3, y3, color);
   JS_EndRequest(cx);
+  lay->trigon_fill(x1, y1, x2, y2, x3, y3, color);
 
   return JS_TRUE;
 }

@@ -66,18 +66,9 @@ JS(screen_constructor) {
 			 strerror(errno));
     return JS_FALSE;
   }
+  if (!JS_SetPrivate(cx, obj, (void *) screen))
+      JS_ERROR("internal error setting private value");
 
-  // if already existing, return the singleton
-  if(screen->jsobj) {
-    obj = screen->jsobj;
-  } else {
-    if (!JS_SetPrivate(cx, obj, (void *) screen))
-        JS_ERROR("internal error setting private value");
-
-    // assign the real js object
-    screen->jsclass = &screen_class;
-    screen->jsobj = obj;
-  }
   *rval = OBJECT_TO_JSVAL(obj);
   return JS_TRUE;
 }

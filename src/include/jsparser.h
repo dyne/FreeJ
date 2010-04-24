@@ -42,8 +42,10 @@ extern Context *global_environment;
 
 void js_debug_property(JSContext *cx, jsval val);
 void js_debug_argument(JSContext *cx, jsval val);
+class JsExecutionContext;
 
 class JsParser {
+    friend class JsExecutionContext;
     public:
 	JsParser(Context *_env);
 	~JsParser();
@@ -61,35 +63,8 @@ class JsParser {
 
 	JSContext *global_context;
 	JSObject *global_object;
+    JsExecutionContext *global_runtime;
 
-	// list of classes made available by FreeJ
-	JSObject *Screen;
-	JSObject *Parameter;
-	JSObject *Layer;
-	JSObject *GeometryLayer;
-	JSObject *GeneratorLayer;
-	JSObject *ImageLayer;
-	JSObject *FlashLayer;
-	JSObject *GoomLayer;
-	JSObject *AudioJack;
-	JSObject *CamLayer;
-	JSObject *UnicapLayer;
-	JSObject *MovieLayer;
-	JSObject *TextLayer;
-	JSObject *XGrabLayer;
-	JSObject *VectorLayer;
-
-	JSObject *Filter;
-	JSObject *Controller;
-	JSObject *KeyboardController;
-	JSObject *MouseController;
-	JSObject *JoystickController;
-	JSObject *TriggerController;
-	JSObject *ViMoController;
-	JSObject *MidiController;
-	JSObject *OscController;
-	JSObject *WiiController;
-	JSObject *VideoEncoder;
 	JSRuntime *js_runtime;
 
     private:

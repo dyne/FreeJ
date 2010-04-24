@@ -120,7 +120,7 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...)
     va_start(args, format);
     va_end(args);
     while (listener) {
-        void *markp;
+        void *markp = NULL;
         argv = JS_PushArgumentsVA(listener->context(), &markp, format, args);
         // TODO - unregister listener if returns false
         listener->call(funcname, argc, argv);

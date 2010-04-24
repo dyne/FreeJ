@@ -670,7 +670,6 @@
 			children = (
 				AA9337EF0FD7FDEB002B760B /* include */,
 				AAB843990F3EEDE400AD479D /* javascript */,
-				AA3698BF116BDC020073A0EB /* parameter_js.cpp */,
 				B59354E111580B1700BF8C8E /* oggenc.c */,
 				B5BD95B4113581AD0063C358 /* ffdec.c */,
 				AAF3BF7C115EB54C00F0C2AB /* ffenc.c */,
@@ -848,6 +847,7 @@
 				AA3C448D0F3EEBE0007C7E8B /* goom_layer_js.cpp */,
 				AA3C44920F3EEBE0007C7E8B /* image_layer_js.cpp */,
 				AA3C44FA0F3EEBE0007C7E8B /* layer_js.cpp */,
+				AA3698BF116BDC020073A0EB /* parameter_js.cpp */,
 				AA3C45210F3EEBE0007C7E8B /* text_layer_js.cpp */,
 				AA3C452B0F3EEBE0007C7E8B /* unicap_layer_js.cpp */,
 				AA3C452E0F3EEBE0007C7E8B /* v4l_layer_js.cpp */,
