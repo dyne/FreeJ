@@ -133,12 +133,14 @@ JS(rem_screen) {
     JSObject *tmp_jsobj;
     ViewPort *scr;
 
-    if(argc<1) JS_ERROR("missing argument");
+    if(argc<1)
+        JS_ERROR("missing argument");
     //    js_is_instanceOf(&layer_class, argv[0]);
 
     tmp_jsobj = JSVAL_TO_OBJECT(argv[0]);
     scr = (ViewPort *) JS_GetPrivate(cx, tmp_jsobj);
-    if(!scr) JS_ERROR("Screen core data is NULL");
+    if(!scr)
+        JS_ERROR("Screen core data is NULL");
 
     //    global_environment->rem_screen(scr);
     warning("Context::rem_screen TODO");
@@ -151,12 +153,14 @@ JS(add_screen) {
     JSObject *tmp_jsobj;
     *rval=JSVAL_FALSE;
 
-    if(argc<1) JS_ERROR("missing argument");
+    if(argc<1)
+        JS_ERROR("missing argument");
     //    _js_is_instanceOf(global_environment->js->global_context, &layer_class, argv[0], "Context");
 
     tmp_jsobj = JSVAL_TO_OBJECT(argv[0]);
     scr = (ViewPort *) JS_GetPrivate(cx, tmp_jsobj);
-    if(!scr) JS_ERROR("Screen core data is NULL");
+    if(!scr)
+        JS_ERROR("Screen core data is NULL");
 
     /** really add screen */
     if( global_environment->add_screen(scr) ) {
@@ -174,12 +178,14 @@ JS(ctx_add_layer) {
     JSObject *jslayer = NULL;
   Layer *lay;
 
-  if(argc<1) JS_ERROR("missing argument");
+  if(argc<1)
+      JS_ERROR("missing argument");
   //  js_is_instanceOf(&layer_class, argv[0]);
 
   jslayer = JSVAL_TO_OBJECT(argv[0]);
   lay = (Layer*) JS_GetPrivate(cx, jslayer);
-  if(!lay) JS_ERROR("Layer is NULL");
+  if(!lay)
+      JS_ERROR("Layer is NULL");
 
   if( global_environment->add_layer(lay) ) {
     *rval=JSVAL_TRUE;
@@ -219,12 +225,14 @@ JS(register_controller) {
     JSObject *jsctrl;
     *rval=JSVAL_FALSE;
 
-    if(argc<1) JS_ERROR("missing argument");
+    if(argc<1)
+        JS_ERROR("missing argument");
     //    _js_is_instanceOf(global_environment->js->global_context, &js_ctrl_class, argv[0], "Context");
 
     jsctrl = JSVAL_TO_OBJECT(argv[0]);
     ctrl = (Controller *)JS_GetPrivate(cx, jsctrl);
-    if(!ctrl) JS_ERROR("Controller core data is NULL");
+    if(!ctrl)
+        JS_ERROR("Controller core data is NULL");
 
     /// really add controller
     global_environment->register_controller( ctrl );
@@ -239,12 +247,14 @@ JS(rem_controller) {
     JSObject *jsctrl;
     Controller *ctrl;
 
-    if(argc<1) JS_ERROR("missing argument");
+    if(argc<1)
+        JS_ERROR("missing argument");
     //    js_is_instanceOf(&js_ctrl_class, argv[0]);
 
     jsctrl = JSVAL_TO_OBJECT(argv[0]);
     ctrl = (Controller *) JS_GetPrivate(cx, jsctrl);
-    if(!ctrl) JS_ERROR("Layer core data is NULL");
+    if(!ctrl)
+        JS_ERROR("Layer core data is NULL");
 
 func("JSvalcmp: %p / %p", argv[0], ctrl->data);
     global_environment->rem_controller(ctrl);
@@ -258,12 +268,14 @@ JS(register_encoder) {
     JSObject *jsenc;
     *rval=JSVAL_FALSE;
 
-    if(argc<1) JS_ERROR("missing argument");
+    if(argc<1)
+        JS_ERROR("missing argument");
     //    js_is_instanceOf(&js_vid_enc_class, argv[0]);
 
     jsenc = JSVAL_TO_OBJECT(argv[0]);
     enc = (VideoEncoder *)JS_GetPrivate(cx, jsenc);
-    if(!enc) JS_ERROR("VideoEncoder core data is NULL");
+    if(!enc)
+        JS_ERROR("VideoEncoder core data is NULL");
 
     //    enc->start();
 
@@ -697,7 +709,8 @@ JS(entry_select) {
 JS(include_javascript_file) {
 	func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 	
-	if(argc<1) JS_ERROR("missing argument");
+	if(argc<1)
+        JS_ERROR("missing argument");
 
 	char *jscript;
 	jscript = js_get_string(argv[0]);
@@ -721,7 +734,8 @@ JS(execute_javascript_command) {
 	char *jscript;
 	jsval use;
 
-	if(argc<1) JS_ERROR("missing argument");
+	if(argc<1)
+        JS_ERROR("missing argument");
 	jscript = js_get_string(argv[0]);
 	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 

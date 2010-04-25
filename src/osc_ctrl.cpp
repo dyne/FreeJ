@@ -15,7 +15,7 @@
  * this source code; if not, write to:
  * Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  *
- * "$Id: $"
+ * "$Id:$"
  *
  */
 
@@ -31,6 +31,8 @@
 #include <jutils.h>
 
 #include <callbacks_js.h>
+
+FACTORY_REGISTER_INSTANTIATOR(Controller, OscController, OscController, core);
 
 /* convert a big endian 32 bit string to an int for internal use */
 //#ifdef ARCH_X86
@@ -84,15 +86,7 @@ int osc_command_handler(const char *path, const char *types,
     return -1;
   }
 
-  /*
-//   JS_CallFunctionValue(JSContext *cx, JSObject *obj, jsval fval, uintN argc,
-//                      jsval *argv, jsval *rval);
 
-  if(JSVAL_IS_VOID(fval)) {
-    error("OSC path %s has method but no javascript function", cmd->js_cmd);
-    return -1;
-  }
-  */
   func("OSC call to %s with argc %u",cmd->js_cmd, argc);
 
       // TODO: arguments are not supported
@@ -140,6 +134,31 @@ int osc_command_handler(const char *path, const char *types,
   return 1;
 }
 
+
+OscController::OscController()
+:Controller() {
+    
+    srv = NULL;
+    sendto = NULL;
+    
+    set_name("OscCtrl");
+}
+
+OscController::~OscController() {
+    
+    if(srv)
+        lo_server_thread_free(srv);
+    
+}
+
+int OscController::poll() {
+    // check if there are pending commands
+    if(commands_pending.len() > 0)
+        return dispatch();
+    else
+        return 0;
+}
+
 int OscController::dispatch() {
   int res;
   int c = 0;
@@ -151,7 +170,7 @@ int OscController::dispatch() {
     //      (jsenv, jsobj, jscmd->function, jscmd->argc, jscmd->argv, &ret);
 
     func("OSC controller dispatching %s(%s)", jscmd->name, jscmd->format);
-    res = Controller::JSCall(jscmd->name, jscmd->argc, jscmd->argv);
+    res = JSCall(jscmd->name, jscmd->argc, jscmd->argv);
     if (res) func("OSC dispatched call to %s", jscmd->name);
     else error("OSC failed JSCall to %s", jscmd->name);
 
@@ -194,7 +213,9 @@ JS(js_osc_ctrl_constructor) {
   char excp_msg[MAX_ERR_MSG + 1];
   char *port;
 
-  OscController *osc = new OscController();
+  OscController *osc = (OscController *)Factory<Controller>::new_instance( "OscController" );
+  JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   // assign instance into javascript object
   if( ! JS_SetPrivate(cx, obj, (void*)osc) ) {
     sprintf(excp_msg, "failed assigning OSC controller to javascript");
@@ -206,9 +227,10 @@ JS(js_osc_ctrl_constructor) {
     goto error;
   }
 
-
-  // assign the real js object
+  // assign the real js object (DEPRECATED)
+  // TODO - use listeners
   osc->jsobj = obj;
+  osc->jsenv = cx;
 
   osc->javascript = true;
 
@@ -225,20 +247,30 @@ JS(js_osc_ctrl_constructor) {
   notice("OSC controller created: %s",lo_server_thread_get_url(osc->srv));
 
   *rval = OBJECT_TO_JSVAL(obj);
+  JS_EndRequest(cx);
+  JS_ClearContextThread(cx);
   return JS_TRUE;
 
  error:
+
   JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
 		       JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);
   //  cx->newborn[GCX_OBJECT] = NULL;
-  delete osc; return JS_FALSE;
+  JS_EndRequest(cx);
+  JS_ClearContextThread(cx);
+  delete osc;
+  return JS_FALSE;
 }
 
 JS(js_osc_ctrl_start) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+    JS_SetContextThread(cx);
+    JS_BeginRequest(cx);
     OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
-    if(!osc) JS_ERROR("OSC core data is NULL");
-
+    if(!osc)
+        JS_ERROR("OSC core data is NULL");
+    JS_EndRequest(cx);
+    JS_ClearContextThread(cx);
     lo_server_thread_start(osc->srv);
 
     act("OSC controller listening on port %s",osc->port);
@@ -248,9 +280,13 @@ JS(js_osc_ctrl_start) {
 
 JS(js_osc_ctrl_stop) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
+    JS_SetContextThread(cx);
+    JS_BeginRequest(cx);
     OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
-    if(!osc) JS_ERROR("OSC core data is NULL");
-
+    if(!osc) 
+        JS_ERROR("OSC core data is NULL");
+    JS_EndRequest(cx);
+    JS_ClearContextThread(cx);
     lo_server_thread_stop(osc->srv);
 
     act("OSC controller stopped");
@@ -261,17 +297,19 @@ JS(js_osc_ctrl_stop) {
 JS(js_osc_ctrl_add_method) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
 
+    JS_SetContextThread(cx);
+    JS_BeginRequest(cx);
     JS_CHECK_ARGC(3);
 
     OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
     if(!osc) JS_ERROR("OSC core data is NULL");
-
+    JS_EndRequest(cx);
+    JS_ClearContextThread(cx);
     char *osc_cmd = js_get_string(argv[0]);
 
     char *proto_cmd = js_get_string(argv[1]);
 
     char *js_cmd = js_get_string(argv[2]);
-
 
     // queue metods in commands_handled linklist
     OscCommand *cmd = new OscCommand();
@@ -290,12 +328,16 @@ JS(js_osc_ctrl_send_to) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
 
     warning("%s TODO",__PRETTY_FUNCTION__);
-
+    JS_SetContextThread(cx);
+    JS_BeginRequest(cx);
     JS_CHECK_ARGC(2);
 
     OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
-    if(!osc) JS_ERROR("OSC core data is NULL");
+    if(!osc)
+        JS_ERROR("OSC core data is NULL");
 
+    JS_EndRequest(cx);
+    JS_ClearContextThread(cx);
     char *host = js_get_string(argv[0]);
     char *port = js_get_string(argv[1]);
     
@@ -310,12 +352,16 @@ JS(js_osc_ctrl_send_to) {
 
 JS(js_osc_ctrl_send) {
   func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
-  
+  JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
+
   JS_CHECK_ARGC(2);
   
   OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
-  if(!osc) JS_ERROR("OSC core data is NULL");
-  
+  if(!osc)
+      JS_ERROR("OSC core data is NULL");
+  JS_EndRequest(cx);
+  JS_ClearContextThread(cx);
   // minimum arguments: path and type
   char *path = js_get_string(argv[0]);
   char *type = js_get_string(argv[1]);
@@ -372,28 +418,4 @@ JS(js_osc_ctrl_send) {
 
 //}
 
-
-OscController::OscController()
-  :Controller() {
-
-  srv = NULL;
-  sendto = NULL;
-
-  set_name("OscCtrl");
-}
-
-OscController::~OscController() {
-
-  if(srv)
-    lo_server_thread_free(srv);
-  
-}
-
-int OscController::poll() {
-  // check if there are pending commands
-  if(commands_pending.len() > 0)
-    return dispatch();
-  else
-    return 0;
-}
 

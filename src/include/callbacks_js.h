@@ -76,13 +76,13 @@ const JSErrorFormatString * JSFreej_GetErrorMessage(void *userRef, const char *l
 #define JSP(fun) \
   JSBool fun(JSContext *cx, JSObject *obj, jsval idval, jsval *vp)
 
-#define JS_ERROR(str) { \
+#define JS_ERROR(str) do { \
     ::error(str);					  \
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,	\
 			 JSSMSG_FJ_WICKED,			\
 			 __FUNCTION__,str);			\
     return JS_FALSE;						\
-  }
+  } while(0)
 
 #define JS_CHECK_ARGC(num) \
   if(argc<num) { \

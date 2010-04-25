@@ -58,12 +58,17 @@ JS(screen_constructor) {
     // no screen type has been specified, return the default one
     screen = Factory<ViewPort>::get_instance( "Screen" );
   }
+    
+  JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
 
   if(!screen) {
     error("%s: cannot obtain current Screen",__FUNCTION__);
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
 			 JSSMSG_FJ_CANT_CREATE, type,
 			 strerror(errno));
+    JS_EndRequest(cx);
+    JS_ClearContextThread(cx);
     return JS_FALSE;
   }
   if (!JS_SetPrivate(cx, obj, (void *) screen))
@@ -75,13 +80,17 @@ JS(screen_constructor) {
 
 JS(screen_init) {
   func("%s",__PRETTY_FUNCTION__);
-  
+    
+  JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   JS_CHECK_ARGC(2);
   
   jsint w = js_get_int(argv[0]);
   jsint h = js_get_int(argv[1]);
     
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  JS_EndRequest(cx);
+  JS_ClearContextThread(cx);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
     return JS_FALSE;
@@ -98,10 +107,14 @@ JS(screen_save_frame) {
 
 #ifndef WITH_GD
   error("libGD support not compiled, cannot save frame screenshot");
-#else  
+#else
+  JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   JS_CHECK_ARGC(1);
 
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  JS_EndRequest(cx);
+  JS_ClearContextThread(cx);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
     return JS_FALSE;
@@ -121,15 +134,20 @@ JS(screen_add_layer) {
 
   JSObject *jslayer = NULL;
   Layer *lay;
-
-  if(argc<1) JS_ERROR("missing argument");
+  JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
+  if(argc<1)
+      JS_ERROR("missing argument");
   //  js_is_instanceOf(&layer_class, argv[0]);
 
   jslayer = JSVAL_TO_OBJECT(argv[0]);
-  lay = (Layer*) JS_GetPrivate(cx, jslayer);
-  if(!lay) JS_ERROR("Layer is NULL");
+  lay = (Layer *)JS_GetPrivate(cx, jslayer);
+  if(!lay)
+      JS_ERROR("Layer is NULL");
 
-  ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  ViewPort *screen = (ViewPort *)JS_GetPrivate(cx,obj);
+  JS_EndRequest(cx);
+  JS_ClearContextThread(cx);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
     return JS_TRUE;
@@ -146,15 +164,19 @@ JS(screen_rem_layer) {
 
   JSObject *jslayer = NULL;
   Layer *lay;
+  JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
+  if(argc<1)
+      JS_ERROR("missing argument");
 
-  if(argc<1) JS_ERROR("missing argument");
-  //  js_is_instanceOf(&layer_class, argv[0]);
-
-  jslayer = JSVAL_TO_OBJECT(argv[0]);
-  lay = (Layer*) JS_GetPrivate(cx, jslayer);
+  jslayer =
+    JSVAL_TO_OBJECT(argv[0]);
+  lay = (Layer *)JS_GetPrivate(cx, jslayer);
   if(!lay) JS_ERROR("Layer is NULL");
 
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
+  JS_EndRequest(cx);
+  JS_ClearContextThread(cx);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
     return JS_TRUE;
@@ -171,15 +193,19 @@ JS(screen_rem_layer) {
 
 JSP(screen_get_width) {
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
-  if(!screen) { JS_ERROR("Screen core data is NULL"); }
-  else JS_NewNumberValue(cx, (jsint)screen->geo.w, vp);  
+  if(!screen)
+      JS_ERROR("Screen core data is NULL");
+  else
+      JS_NewNumberValue(cx, (jsint)screen->geo.w, vp);  
   return JS_TRUE;
 }
 
 JSP(screen_get_height) {
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
-  if(!screen) { JS_ERROR("Screen core data is NULL"); }
-  else JS_NewNumberValue(cx, (jsint)screen->geo.h, vp);  
+  if(!screen)
+      JS_ERROR("Screen core data is NULL");
+  else
+      JS_NewNumberValue(cx, (jsint)screen->geo.h, vp);  
   return JS_TRUE;
 }
 

@@ -47,7 +47,8 @@ JS(filter_constructor) {
   int idx;
   char *name;
   
-  if(argc < 1) JS_ERROR("missing argument");
+  if(argc < 1)
+      JS_ERROR("missing argument");
 
   name = js_get_string(argv[0]);
 
@@ -63,11 +64,10 @@ JS(filter_constructor) {
   } else // fill with class description
     duo->proto->jsclass = &filter_class;
 
-  if(!JS_SetPrivate(cx, obj, (void*)duo)) {
+  if(!JS_SetPrivate(cx, obj, (void*)duo))
     JS_ERROR("internal error setting private value");
-  } else {
+  else
     duo->proto->jsobj = obj;
-  }
 
   *rval = OBJECT_TO_JSVAL(obj);
   return JS_TRUE;
@@ -100,7 +100,8 @@ JS(filter_set_parameter) {
   Parameter *param;
   jsdouble val[3];
 
-  if(argc < 2) JS_ERROR("missing arguments: name, values");
+  if(argc < 2)
+      JS_ERROR("missing arguments: name, values");
 
 
   FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);

@@ -57,10 +57,13 @@ int got_sigpipe;
 bool Context::factory_initialized = false;
 
 static void init_factory() {
+    Factory<Controller>::set_default_classtype("KeyboardController", "sdl"); // singleton
+    Factory<Controller>::set_default_classtype("TriggerController", "core"); // singleton
+    Factory<Controller>::set_default_classtype("OscController", "core");
+
+    Factory<ViewPort>::set_default_classtype("Screen", "sdl"); // singleton
+    
     Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
-    Factory<Controller>::set_default_classtype("KeyboardController", "sdl");
-    Factory<Controller>::set_default_classtype("TriggerController", "core");
-    Factory<ViewPort>::set_default_classtype("Screen", "sdl");
     Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
     Factory<Layer>::set_default_classtype("GeneratorLayer","ff_f0r");
     Factory<Layer>::set_default_classtype("ImageLayer","sdl");

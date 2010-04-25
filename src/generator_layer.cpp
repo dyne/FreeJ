@@ -1,5 +1,5 @@
 /*  FreeJ
- *  Frei0r particle generator layer
+ *  Frei0r/FreeFrame genereator layer
  *  (c) Copyright 2007 - 2009 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
@@ -30,7 +30,7 @@
 #include <context.h>
 
 // our objects are allowed to be created trough the factory engine
-
+FACTORY_REGISTER_INSTANTIATOR(Layer, GeneratorLayer, GeneratorLayer, ff_f0r);
 
 GeneratorLayer::GeneratorLayer()
   :Layer() {

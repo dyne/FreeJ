@@ -21,6 +21,7 @@
 #define __GENERATOR_LAYER_H__
 
 #include <layer.h>
+#include <factory.h>
 
 class GeneratorLayer: public Layer {
  public:
@@ -41,7 +42,7 @@ class GeneratorLayer: public Layer {
 
   Linklist<Filter> *generators; ///< linked list of registered generators
 
-
+  FACTORY_ALLOWED
 };
 
 #endif

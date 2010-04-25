@@ -54,8 +54,7 @@ JS(video_layer_seek) {
 
   if(argc<1) {
       return JS_FALSE;
-  }
-  else {
+  } else {
     JS_ValueToECMAUint32(cx, argv[0], &pos);
     lay->to_seek = pos;
     func("to seek: %d",lay->to_seek);

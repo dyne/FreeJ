@@ -22,12 +22,10 @@
 #ifndef __OSC_CTRL_H__
 #define __OSC_CTRL_H__
 
-#include <controller.h>
-
 #include <lo/lo.h>
-
 #include <stdlib.h>
-
+#include <controller.h>
+#include <factory.h>
 
 class Context;
 
@@ -73,6 +71,7 @@ class OscController: public Controller {
   Linklist<Entry> commands_handled;
   Linklist<Entry> commands_pending;
 
+  FACTORY_ALLOWED;
 };
 
 #endif

@@ -84,72 +84,6 @@ void js_layer_gc (JSContext *cx, JSObject *obj) {
 	}
 
 }
-  
-void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
-			    int argc, void *aargv, char *err_msg) {
-
-  char *filename;
-
-  uint16_t width  = geo.w;
-  uint16_t height = geo.h;
-
-  jsval *argv = (jsval*)aargv;
-
-  if(argc==0) {
-    if(!init()) {
-      sprintf(err_msg, "Layer constructor failed initialization");
-      return NULL;    }
-
-  } else if(argc==1) {
-    filename = js_get_string(argv[0]);
-    if(!init()) {
-      sprintf(err_msg, "Layer constructor failed initialization");
-      return NULL;    }
-
-    if(!open(filename)) {
-      snprintf(err_msg, MAX_ERR_MSG, "Layer constructor failed open(%s): %s",
-	       filename, strerror(errno));
-      return NULL;    }
-    
-  } else if(argc==2) {
-    JS_ValueToUint16(cx, argv[0], &width);
-    JS_ValueToUint16(cx, argv[1], &height);
-    if(!init(width, height, 32)) {
-      snprintf(err_msg, MAX_ERR_MSG,
-	       "Layer constructor failed initialization w[%u] h[%u]", width, height);
-      return NULL;
-    }
-    
-  } else if(argc==3) {
-    JS_ValueToUint16(cx, argv[0], &width);
-    JS_ValueToUint16(cx, argv[1], &height);
-    filename = js_get_string(argv[2]);
-    if(!init(width, height,32)) {
-      snprintf(err_msg, MAX_ERR_MSG,
-	       "Layer constructor failed initializaztion w[%u] h[%u]", width, height);
-      return NULL;
-    }
-    if(!open(filename)) {
-      snprintf(err_msg, MAX_ERR_MSG,
-	       "Layer constructor failed initialization (%s): %s", filename, strerror(errno));
-      return NULL;
-    }
-    
-  } else {
-    sprintf(err_msg,
-	    "Wrong numbers of arguments\n use (\"filename\") or (width, height, \"filename\") or ()");
-    return NULL;
-  }
-  if(!JS_SetPrivate(cx,obj,(void*)this)) {
-    sprintf(err_msg, "%s", "JS_SetPrivate failed");
-    return NULL;
-  }
-
-  jsobj = obj; // save the JS instance object into the C++ instance object
-
-  return (void*)OBJECT_TO_JSVAL(obj);
-
-}
 
 JS(layer_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
@@ -161,7 +95,8 @@ JS(layer_constructor) {
     JS_ERROR("Sorry, this gimmik is not supported.");
     } */
 
-  if(argc < 1) JS_ERROR("missing argument");
+  if(argc < 1)
+      JS_ERROR("missing argument");
 
   // recognize the extension and open the file given in argument
   filename = js_get_string(argv[0]);
@@ -286,7 +221,8 @@ JS(layer_get_blit) {
 JS(layer_set_position) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-    if(argc<2) JS_ERROR("missing argument");
+    if(argc<2)
+        JS_ERROR("missing argument");
     GET_LAYER(Layer);
 
     int32 x, y;
@@ -301,7 +237,8 @@ JS(layer_set_position) {
 JS(layer_set_blit_value) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-    if(argc<1) JS_ERROR("missing argument");
+    if(argc<1)
+        JS_ERROR("missing argument");
     jsint value = js_get_double(argv[0]);
 
     GET_LAYER(Layer);
@@ -326,7 +263,8 @@ JS(layer_set_blit_value) {
 JS(layer_fade_blit_value) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   
-  if(argc<2) JS_ERROR("missing argument");
+  if(argc<2)
+      JS_ERROR("missing argument");
   jsint value = js_get_double(argv[0]);
   jsint step = js_get_double(argv[1]);
 
@@ -374,7 +312,8 @@ JS(layer_add_filter) {
   JSObject *jsfilter=NULL;
   FilterDuo *duo;
 
-  if(argc<1) JS_ERROR("missing argument");
+  if(argc<1)
+      JS_ERROR("missing argument");
   //  js_is_instanceOf(&filter_class, argv[0]);
 
   jsfilter = JSVAL_TO_OBJECT(argv[0]);
@@ -382,7 +321,8 @@ JS(layer_add_filter) {
    * Extract filter and layer pointers from js objects
    */
   duo = (FilterDuo *) JS_GetPrivate(cx, jsfilter);
-  if(!duo) JS_ERROR("Effect is NULL");
+  if(!duo)
+      JS_ERROR("Effect is NULL");
 
   if(duo->instance) {
     error("filter %s is already in use", duo->proto->name);
@@ -401,15 +341,18 @@ JS(layer_rem_filter) {
     JSObject *jsfilter=NULL;
     FilterDuo *duo;
 
-    if(argc<1) JS_ERROR("missing argument");
+    if(argc<1)
+        JS_ERROR("missing argument");
     //    js_is_instanceOf(&filter_class, argv[0]);
 
     /** TODO overload with filter name and position */
     jsfilter = JSVAL_TO_OBJECT(argv[0]);
-    if(!jsfilter) JS_ERROR("missing argument");
+    if(!jsfilter)
+        JS_ERROR("missing argument");
 
     duo = (FilterDuo *) JS_GetPrivate(cx, jsfilter);
-    if(!duo) JS_ERROR("Effect data is NULL");
+    if(!duo)
+        JS_ERROR("Effect data is NULL");
 
     duo->instance->rem();
     delete duo->instance;
@@ -422,7 +365,8 @@ JS(layer_rem_filter) {
 JS(layer_rotate) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  if(argc<1) JS_ERROR("missing argument");
+  if(argc<1)
+      JS_ERROR("missing argument");
 
   js_debug_argument(cx, argv[0]);
 
@@ -438,7 +382,8 @@ JS(layer_rotate) {
 JS(layer_zoom) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  if(argc<1) JS_ERROR("missing argument");
+  if(argc<1)
+      JS_ERROR("missing argument");
   // take ymang=xmagn on .zoom(val)
   jsdouble xmagn, ymagn;
   xmagn = js_get_double(argv[0]);

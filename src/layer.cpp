@@ -360,7 +360,7 @@ void Layer::set_rotate(double angle) {
 }
 
 
-void Layer::_fit(bool maintain_aspect_ratio){
+void Layer::_fit(bool maintain_aspect_ratio) {
   double width_zoom, height_zoom;
   int new_x = 0;
   int new_y = 0;
@@ -394,3 +394,72 @@ void Layer::fit(bool maintain_aspect_ratio) {
   deferred_calls->add_job(job);
 }
 
+#ifdef WITH_JAVASCRIPT
+void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
+                            int argc, void *aargv, char *err_msg) {
+    
+    char *filename;
+    void *ret = NULL;
+    uint16_t width  = geo.w;
+    uint16_t height = geo.h;
+    
+    jsval *argv = (jsval*)aargv;
+    JS_SetContextThread(cx);
+    JS_BeginRequest(cx);
+    if(argc==0) {
+        if(!init()) {
+            sprintf(err_msg, "Layer constructor failed initialization");
+            return NULL;    }
+        
+    } else if(argc==1) {
+        filename = js_get_string(argv[0]);
+        if(!init()) {
+            sprintf(err_msg, "Layer constructor failed initialization");
+            return NULL;    }
+        
+        if(!open(filename)) {
+            snprintf(err_msg, MAX_ERR_MSG, "Layer constructor failed open(%s): %s",
+                     filename, strerror(errno));
+            return NULL;    }
+        
+    } else if(argc==2) {
+        JS_ValueToUint16(cx, argv[0], &width);
+        JS_ValueToUint16(cx, argv[1], &height);
+        if(!init(width, height, 32)) {
+            snprintf(err_msg, MAX_ERR_MSG,
+                     "Layer constructor failed initialization w[%u] h[%u]", width, height);
+            return NULL;
+        }
+        
+    } else if(argc==3) {
+        JS_ValueToUint16(cx, argv[0], &width);
+        JS_ValueToUint16(cx, argv[1], &height);
+        filename = js_get_string(argv[2]);
+        if(!init(width, height,32)) {
+            snprintf(err_msg, MAX_ERR_MSG,
+                     "Layer constructor failed initializaztion w[%u] h[%u]", width, height);
+            return NULL;
+        }
+        if(!open(filename)) {
+            snprintf(err_msg, MAX_ERR_MSG,
+                     "Layer constructor failed initialization (%s): %s", filename, strerror(errno));
+            return NULL;
+        }
+        
+    } else {
+        sprintf(err_msg,
+                "Wrong numbers of arguments\n use (\"filename\") or (width, height, \"filename\") or ()");
+        return NULL;
+    }
+    if(JS_SetPrivate(cx,obj,(void*)this)) {
+        jsobj = obj; // save the JS instance object into the C++ instance object
+    } else {
+        sprintf(err_msg, "%s", "JS_SetPrivate failed");
+        ret = (void*)OBJECT_TO_JSVAL(obj);
+    }
+    JS_EndRequest(cx);
+    JS_ClearContextThread(cx);
+    return ret;
+    
+}
+#endif

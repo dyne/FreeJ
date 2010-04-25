@@ -40,7 +40,7 @@ JS(generator_layer_constructor) {
   func("%s",__PRETTY_FUNCTION__);
   GeneratorLayer *layer = NULL;
   char excp_msg[MAX_ERR_MSG + 1];                                           
-  layer = new GeneratorLayer();
+  layer = (GeneratorLayer *)Factory<Layer>::new_instance( "GeneratorLayer" );
   if(!layer) {
     JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
                          JSSMSG_FJ_CANT_CREATE, __func__,

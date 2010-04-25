@@ -50,8 +50,9 @@ JSP(parameter_get_name) {
   Parameter *param = (Parameter*)JS_GetPrivate(cx, obj);
   JSString *str;
 
-  if(!param) { JS_ERROR("Parameter used has no internal data"); }
-  else {
+  if(!param) {
+      JS_ERROR("Parameter used has no internal data");
+  } else {
     str  = JS_NewStringCopyZ(cx, param->name);
     *vp = STRING_TO_JSVAL(str);
   }
@@ -62,8 +63,9 @@ JSP(parameter_get_desc) {
   Parameter *param = (Parameter*)JS_GetPrivate(cx, obj);
   JSString *str;
 
-  if(!param) { JS_ERROR("Parameter used has no internal data"); }
-  else {
+  if(!param) { 
+      JS_ERROR("Parameter used has no internal data");
+  } else {
     str  = JS_NewStringCopyZ(cx, param->description);
     *vp = STRING_TO_JSVAL(str);
   }
@@ -74,8 +76,9 @@ JSP(parameter_get_type) {
   Parameter *param = (Parameter*)JS_GetPrivate(cx, obj);
   JSString *str;
 
-  if(!param) { JS_ERROR("Parameter used has no internal data"); }
-  else {
+  if(!param) { 
+      JS_ERROR("Parameter used has no internal data");
+  } else {
     switch(param->type) {
     case Parameter::BOOL:
       str  = JS_NewStringCopyZ(cx,"Boolean");
