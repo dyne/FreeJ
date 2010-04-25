@@ -43,7 +43,8 @@ JS_CONSTRUCTOR("V4lLayer", v4l_layer_constructor, V4lGrabber);
 JS(v4l_layer_chan) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   
-  if(argc<1) return JS_FALSE;
+  if(argc<1)
+    return JS_FALSE;
 
   GET_LAYER(V4lGrabber);
 
@@ -55,7 +56,8 @@ JS(v4l_layer_chan) {
 JS(v4l_layer_freq) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  if(argc<1) return JS_FALSE;
+  if(argc<1)
+    return JS_FALSE;
 
   GET_LAYER(V4lGrabber);
 
@@ -67,7 +69,8 @@ JS(v4l_layer_freq) {
 JS(v4l_layer_band) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  if(argc<1) return JS_FALSE;
+  if(argc<1)
+    return JS_FALSE;
 
   GET_LAYER(V4lGrabber);
 

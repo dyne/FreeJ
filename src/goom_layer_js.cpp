@@ -55,8 +55,10 @@ JS(goom_layer_mode) {
   GET_LAYER(GoomLayer);
 
   jsint mod = js_get_int(argv[0]);
-  if(mod>9) mod = 9;
-  if(mod<0) mod = 0;
+  if(mod>9)
+    mod = 9;
+  else if(mod<0)
+    mod = 0;
 
   lay->goom->update.zoomFilterData.mode = mod;
 
@@ -73,8 +75,10 @@ JS(goom_layer_speed) {
 
   jsint spd = js_get_int(argv[0]);
 
-  if(spd>256) spd = 256;
-  if(spd<0)   spd = 0;
+  if(spd>256)
+    spd = 256;
+  else if(spd<0)
+    spd = 0;
 
   lay->goom->update.zoomFilterData.vitesse = spd;
 

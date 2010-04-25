@@ -836,9 +836,9 @@
 		AAB843990F3EEDE400AD479D /* javascript */ = {
 			isa = PBXGroup;
 			children = (
-				AAB47C6810E8C19000B0E8D2 /* generator_layer_js.cpp */,
 				AA3B0D0F104B05F600A27B2E /* screen_js.cpp */,
 				AA3C44590F3EEBE0007C7E8B /* audio_collector_js.cpp */,
+				AAB47C6810E8C19000B0E8D2 /* generator_layer_js.cpp */,
 				AA3C44620F3EEBE0007C7E8B /* callbacks_js.cpp */,
 				AA3C44680F3EEBE0007C7E8B /* context_js.cpp */,
 				AA3C44760F3EEBE0007C7E8B /* filter_js.cpp */,

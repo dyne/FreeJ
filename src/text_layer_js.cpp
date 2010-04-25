@@ -48,6 +48,8 @@ JS_CONSTRUCTOR("TextLayer",txt_layer_constructor,TextLayer);
 JS(txt_layer_color) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   JS_CHECK_ARGC(1);
 
   GET_LAYER(TextLayer);
@@ -72,19 +74,22 @@ JS(txt_layer_color) {
     
     //    lay->color = 0x0|(r<<8)|(g<<16)|(b<<24);
   }
-  
+  JS_EndRequest(cx);
+  //JS_ClearContextThread(cx);
   return JS_TRUE;
 }
 
 JS(txt_layer_print) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   JS_CHECK_ARGC(1);
 
   GET_LAYER(TextLayer);
 
   char *str = js_get_string(argv[0]);
-
+  JS_EndRequest(cx);
+  //JS_ClearContextThread(cx);
   lay->write(str);
 
   return JS_TRUE;
@@ -92,10 +97,13 @@ JS(txt_layer_print) {
 JS(txt_layer_size) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  if(argc<1) return JS_FALSE;
-
+  if(argc<1)
+    return JS_FALSE;
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   GET_LAYER(TextLayer);
-
+  JS_EndRequest(cx);
+  //JS_ClearContextThread(cx);
   jsint size = js_get_int(argv[0]);
 
   lay->set_fontsize(size);
@@ -105,12 +113,15 @@ JS(txt_layer_size) {
 JS(txt_layer_font) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  if(argc<1) return JS_FALSE;
-
+  if(argc<1) 
+    return JS_FALSE;
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   GET_LAYER(TextLayer);
 
   const char *font = js_get_string(argv[0]);
-
+  JS_EndRequest(cx);
+  //JS_ClearContextThread(cx);
   // try full path to .ttf file
   if (lay->set_font(font))
     *rval = JSVAL_TRUE;
@@ -123,8 +134,10 @@ JS(txt_layer_font) {
 JS(txt_layer_calculate_size) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-  if(argc<1) return JS_FALSE;
-
+  if(argc<1)
+    return JS_FALSE;
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   GET_LAYER(TextLayer);
 
   int w, h;
@@ -147,6 +160,8 @@ JS(txt_layer_calculate_size) {
   JS_SetElement(cx, arr, 1, &val);
     
   *rval = OBJECT_TO_JSVAL( arr);
+  JS_EndRequest(cx);
+  //JS_ClearContextThread(cx);
   return JS_TRUE;
 }
 

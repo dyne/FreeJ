@@ -194,31 +194,43 @@ JS(screen_rem_layer) {
 /////// Properties
 
 JSP(screen_get_width) {
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   if(!screen)
       JS_ERROR("Screen core data is NULL");
   else
-      JS_NewNumberValue(cx, (jsint)screen->geo.w, vp);  
+      JS_NewNumberValue(cx, (jsint)screen->geo.w, vp);
+  JS_EndRequest(cx);
+  //JS_ClearContextThread(cx);
   return JS_TRUE;
 }
 
 JSP(screen_get_height) {
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   if(!screen)
       JS_ERROR("Screen core data is NULL");
   else
-      JS_NewNumberValue(cx, (jsint)screen->geo.h, vp);  
+      JS_NewNumberValue(cx, (jsint)screen->geo.h, vp);
+  JS_EndRequest(cx);
+  //JS_ClearContextThread(cx);
   return JS_TRUE;
 }
 
 JSP(screen_initialized) {
   func("%s",__PRETTY_FUNCTION__);
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
     return JS_FALSE;
   }
   *vp = BOOLEAN_TO_JSVAL(screen->initialized?JS_TRUE:JS_FALSE);
+  JS_EndRequest(cx);
+  ///JS_ClearContextThread(cx);
   return JS_TRUE;
 }
 
@@ -232,15 +244,22 @@ JSP(screen_list_layers) {
   
   jsval val;
   int c = 0;
-  
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
+    JS_EndRequest(cx);
+    //JS_ClearContextThread(cx);
     return JS_TRUE;
   }
 
   arr = JS_NewArrayObject(cx, 0, NULL); // create void array
-  if(!arr) return JS_FALSE;
+  if(!arr) {
+    JS_EndRequest(cx);
+    //JS_ClearContextThread(cx);
+    return JS_FALSE;
+  }
 
   // XXX check this carefully
   // caedes reports some weird problems after calling list_layers
@@ -265,6 +284,8 @@ JSP(screen_list_layers) {
   }
   
   *vp = OBJECT_TO_JSVAL( arr );
+  JS_EndRequest(cx);
+  //JS_ClearContextThread(cx);
   return JS_TRUE;
 }
 

@@ -42,11 +42,16 @@ JS_CONSTRUCTOR("FlashLayer", flash_layer_constructor, FlashLayer);
 JS(flash_layer_open) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   
-  if(argc<1) return JS_FALSE;
-  
+  if(argc<1)
+    return JS_FALSE;
+    
+  //JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   GET_LAYER(FlashLayer);
     
   char *file = JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
+  //JS_ClearContextThread(cx);
+  JS_EndRequest(cx);
   if(!file) {
     error("JsParser :: invalid string in FlashLayer::open");
     return JS_FALSE;

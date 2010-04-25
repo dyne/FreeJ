@@ -45,7 +45,8 @@ JS_CONSTRUCTOR("UnicapLayer", unicap_layer_constructor, UnicapLayer);
 JS(unicap_layer_open) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   
-  if(argc<1) return JS_FALSE;
+  if(argc<1)
+    return JS_FALSE;
 
   GET_LAYER(UnicapLayer);
 
