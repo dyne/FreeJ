@@ -54,7 +54,6 @@ bool KbdController::init(Context *freej) {
 
 
   env = freej;
-  jsenv = freej->js->global_context;
   
   initialized = true;
   

@@ -103,18 +103,20 @@ void Controller::reset()
 
 int Controller::JSCall(const char *funcname, int argc, jsval *argv)
 {
+    int res = 0;
     ControllerListener *listener = listeners.begin();
     while (listener) {
         // TODO - unregister listener if returns false
-        listener->call(funcname, argc, argv);
+        if (listener->call(funcname, argc, argv))
+            res++;
         listener = (ControllerListener *)listener->next;
     }
-    return 1;
+    return res;
 }
 
 int Controller::JSCall(const char *funcname, int argc, const char *format, ...)
 {
-    JSBool res;
+    int res;
     jsval *argv;
     va_list args;
     ControllerListener *listener = listeners.begin();
@@ -128,10 +130,11 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...)
         JS_EndRequest(listener->context());
         JS_ClearContextThread(listener->context());
         // TODO - unregister listener if returns false
-        listener->call(funcname, argc, argv);
+        if (listener->call(funcname, argc, argv))
+            res++;
         listener = (ControllerListener *)listener->next;
     }
-    return 1;
+    return res;
 }
 
 // ControllerListener
