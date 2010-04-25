@@ -214,7 +214,7 @@ JS(js_osc_ctrl_constructor) {
   char *port;
 
   OscController *osc = (OscController *)Factory<Controller>::new_instance( "OscController" );
-  JS_SetContextThread(cx);
+  //JS_SetContextThread(cx);
   JS_BeginRequest(cx);
   // assign instance into javascript object
   if( ! JS_SetPrivate(cx, obj, (void*)osc) ) {
@@ -248,7 +248,7 @@ JS(js_osc_ctrl_constructor) {
 
   *rval = OBJECT_TO_JSVAL(obj);
   JS_EndRequest(cx);
-  JS_ClearContextThread(cx);
+  //JS_ClearContextThread(cx);
   return JS_TRUE;
 
  error:
@@ -257,20 +257,20 @@ JS(js_osc_ctrl_constructor) {
 		       JSSMSG_FJ_CANT_CREATE, __func__, excp_msg);
   //  cx->newborn[GCX_OBJECT] = NULL;
   JS_EndRequest(cx);
-  JS_ClearContextThread(cx);
+  //JS_ClearContextThread(cx);
   delete osc;
   return JS_FALSE;
 }
 
 JS(js_osc_ctrl_start) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
-    JS_SetContextThread(cx);
+    //JS_SetContextThread(cx);
     JS_BeginRequest(cx);
     OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
     if(!osc)
         JS_ERROR("OSC core data is NULL");
     JS_EndRequest(cx);
-    JS_ClearContextThread(cx);
+    //JS_ClearContextThread(cx);
     lo_server_thread_start(osc->srv);
 
     act("OSC controller listening on port %s",osc->port);
@@ -280,13 +280,13 @@ JS(js_osc_ctrl_start) {
 
 JS(js_osc_ctrl_stop) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
-    JS_SetContextThread(cx);
+    //JS_SetContextThread(cx);
     JS_BeginRequest(cx);
     OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
     if(!osc) 
         JS_ERROR("OSC core data is NULL");
     JS_EndRequest(cx);
-    JS_ClearContextThread(cx);
+    //JS_ClearContextThread(cx);
     lo_server_thread_stop(osc->srv);
 
     act("OSC controller stopped");
@@ -297,14 +297,14 @@ JS(js_osc_ctrl_stop) {
 JS(js_osc_ctrl_add_method) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
 
-    JS_SetContextThread(cx);
+    //JS_SetContextThread(cx);
     JS_BeginRequest(cx);
     JS_CHECK_ARGC(3);
 
     OscController *osc = (OscController *)JS_GetPrivate(cx, obj);
     if(!osc) JS_ERROR("OSC core data is NULL");
     JS_EndRequest(cx);
-    JS_ClearContextThread(cx);
+    //JS_ClearContextThread(cx);
     char *osc_cmd = js_get_string(argv[0]);
 
     char *proto_cmd = js_get_string(argv[1]);
@@ -328,7 +328,7 @@ JS(js_osc_ctrl_send_to) {
     func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
 
     warning("%s TODO",__PRETTY_FUNCTION__);
-    JS_SetContextThread(cx);
+    //JS_SetContextThread(cx);
     JS_BeginRequest(cx);
     JS_CHECK_ARGC(2);
 
@@ -337,7 +337,7 @@ JS(js_osc_ctrl_send_to) {
         JS_ERROR("OSC core data is NULL");
 
     JS_EndRequest(cx);
-    JS_ClearContextThread(cx);
+    //JS_ClearContextThread(cx);
     char *host = js_get_string(argv[0]);
     char *port = js_get_string(argv[1]);
     
@@ -352,7 +352,7 @@ JS(js_osc_ctrl_send_to) {
 
 JS(js_osc_ctrl_send) {
   func("%u:%s:%s argc: %u",__LINE__,__FILE__,__FUNCTION__, argc);
-  JS_SetContextThread(cx);
+  //JS_SetContextThread(cx);
   JS_BeginRequest(cx);
 
   JS_CHECK_ARGC(2);
@@ -361,7 +361,7 @@ JS(js_osc_ctrl_send) {
   if(!osc)
       JS_ERROR("OSC core data is NULL");
   JS_EndRequest(cx);
-  JS_ClearContextThread(cx);
+  //JS_ClearContextThread(cx);
   // minimum arguments: path and type
   char *path = js_get_string(argv[0]);
   char *type = js_get_string(argv[1]);

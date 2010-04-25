@@ -404,8 +404,8 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     uint16_t height = geo.h;
     
     jsval *argv = (jsval*)aargv;
-    JS_SetContextThread(cx);
-    JS_BeginRequest(cx);
+    //JS_SetContextThread(cx);
+    //JS_BeginRequest(cx);
     if(argc==0) {
         if(!init()) {
             sprintf(err_msg, "Layer constructor failed initialization");
@@ -453,12 +453,12 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     }
     if(JS_SetPrivate(cx,obj,(void*)this)) {
         jsobj = obj; // save the JS instance object into the C++ instance object
+        ret = (void*)OBJECT_TO_JSVAL(obj);
     } else {
         sprintf(err_msg, "%s", "JS_SetPrivate failed");
-        ret = (void*)OBJECT_TO_JSVAL(obj);
     }
-    JS_EndRequest(cx);
-    JS_ClearContextThread(cx);
+    //JS_EndRequest(cx);
+    //JS_ClearContextThread(cx);
     return ret;
     
 }

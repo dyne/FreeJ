@@ -121,7 +121,6 @@ void JsExecutionContext::init_class() {
     
 	JSObject *object_proto; // reminder for inher.
 	JSObject *layer_object; // used in REGISTER_CLASS macro
-    
 	// Screen (in C++ ViewPort) has only one class type
 	// all implementations are masked behind the factory
 	REGISTER_CLASS("Screen",
@@ -130,14 +129,14 @@ void JsExecutionContext::init_class() {
                    screen_properties,
                    screen_methods,
                    NULL);
-    
+
 	REGISTER_CLASS("Parameter",
                    parameter_class,
                    parameter_constructor,
                    parameter_properties,
                    parameter_methods,
                    NULL);
-    
+
 	REGISTER_CLASS("Layer",
                    layer_class,
                    layer_constructor,
@@ -145,14 +144,14 @@ void JsExecutionContext::init_class() {
                    layer_methods,
                    NULL);
 	object_proto = layer_object; // following registrations inherit from parent class Layer
-    
+
 	REGISTER_CLASS("GeometryLayer",
                    geometry_layer_class,
                    geometry_layer_constructor,
                    NULL,
                    geometry_layer_methods,
                    object_proto);
-	
+     
 	REGISTER_CLASS("GeneratorLayer",
                    generator_layer_class,
                    generator_layer_constructor,
@@ -165,7 +164,7 @@ void JsExecutionContext::init_class() {
     // 		vscroll_layer_constructor,
     // 		vscroll_layer_methods,
     // 		object_proto);
-    
+
 	REGISTER_CLASS("ImageLayer",
                    image_layer_class,
                    image_layer_constructor,
@@ -279,14 +278,14 @@ void JsExecutionContext::init_class() {
                    js_ctrl_methods,
                    NULL);
 	object_proto = layer_object;
-    
+
 	REGISTER_CLASS("KeyboardController",
                    js_kbd_ctrl_class,
                    js_kbd_ctrl_constructor,
                    NULL, // properties
                    js_kbd_ctrl_methods,
                    object_proto);
-    
+
 	REGISTER_CLASS("MouseController",
                    js_mouse_ctrl_class,
                    js_mouse_ctrl_constructor,
@@ -351,7 +350,6 @@ void JsExecutionContext::init_class() {
 #endif
     
     //JS_DefineProperties(global_context, layer_object, layer_properties);
-    
     return;
 }
 

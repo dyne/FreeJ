@@ -59,7 +59,7 @@ JS(screen_constructor) {
     screen = Factory<ViewPort>::get_instance( "Screen" );
   }
     
-  JS_SetContextThread(cx);
+  //JS_SetContextThread(cx);
   JS_BeginRequest(cx);
 
   if(!screen) {
@@ -68,20 +68,22 @@ JS(screen_constructor) {
 			 JSSMSG_FJ_CANT_CREATE, type,
 			 strerror(errno));
     JS_EndRequest(cx);
-    JS_ClearContextThread(cx);
+    //JS_ClearContextThread(cx);
     return JS_FALSE;
   }
   if (!JS_SetPrivate(cx, obj, (void *) screen))
       JS_ERROR("internal error setting private value");
 
   *rval = OBJECT_TO_JSVAL(obj);
+  JS_EndRequest(cx);
+  //JS_ClearContextThread(cx);
   return JS_TRUE;
 }
 
 JS(screen_init) {
   func("%s",__PRETTY_FUNCTION__);
     
-  JS_SetContextThread(cx);
+  //JS_SetContextThread(cx);
   JS_BeginRequest(cx);
   JS_CHECK_ARGC(2);
   
@@ -90,7 +92,7 @@ JS(screen_init) {
     
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   JS_EndRequest(cx);
-  JS_ClearContextThread(cx);
+  //JS_ClearContextThread(cx);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
     return JS_FALSE;
@@ -108,13 +110,13 @@ JS(screen_save_frame) {
 #ifndef WITH_GD
   error("libGD support not compiled, cannot save frame screenshot");
 #else
-  JS_SetContextThread(cx);
+  //JS_SetContextThread(cx);
   JS_BeginRequest(cx);
   JS_CHECK_ARGC(1);
 
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   JS_EndRequest(cx);
-  JS_ClearContextThread(cx);
+  //JS_ClearContextThread(cx);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
     return JS_FALSE;
@@ -134,7 +136,7 @@ JS(screen_add_layer) {
 
   JSObject *jslayer = NULL;
   Layer *lay;
-  JS_SetContextThread(cx);
+  //JS_SetContextThread(cx);
   JS_BeginRequest(cx);
   if(argc<1)
       JS_ERROR("missing argument");
@@ -147,7 +149,7 @@ JS(screen_add_layer) {
 
   ViewPort *screen = (ViewPort *)JS_GetPrivate(cx,obj);
   JS_EndRequest(cx);
-  JS_ClearContextThread(cx);
+  //JS_ClearContextThread(cx);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
     return JS_TRUE;
