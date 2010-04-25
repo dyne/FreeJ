@@ -53,8 +53,10 @@ JSP(parameter_get_name) {
   if(!param) {
       JS_ERROR("Parameter used has no internal data");
   } else {
+    JS_BeginRequest(cx);
     str  = JS_NewStringCopyZ(cx, param->name);
     *vp = STRING_TO_JSVAL(str);
+    JS_EndRequest(cx);
   }
   return JS_TRUE;
 }
@@ -66,8 +68,10 @@ JSP(parameter_get_desc) {
   if(!param) { 
       JS_ERROR("Parameter used has no internal data");
   } else {
+    JS_BeginRequest(cx);
     str  = JS_NewStringCopyZ(cx, param->description);
     *vp = STRING_TO_JSVAL(str);
+    JS_EndRequest(cx);
   }
   return JS_TRUE;
 }
@@ -75,7 +79,7 @@ JSP(parameter_get_desc) {
 JSP(parameter_get_type) { 
   Parameter *param = (Parameter*)JS_GetPrivate(cx, obj);
   JSString *str;
-
+  JS_BeginRequest(cx);
   if(!param) { 
       JS_ERROR("Parameter used has no internal data");
   } else {
@@ -101,5 +105,6 @@ JSP(parameter_get_type) {
     }
     *vp = STRING_TO_JSVAL(str);
   }
+  JS_EndRequest(cx);
   return JS_TRUE;
 }

@@ -48,14 +48,17 @@ JS(unicap_layer_open) {
   if(argc<1)
     return JS_FALSE;
 
-  GET_LAYER(UnicapLayer);
+  JS_BeginRequest(cx);
 
+  GET_LAYER(UnicapLayer);
   char *file = JS_GetStringBytes(JS_ValueToString(cx,argv[0]));
   if(!file) {
     error("JsParser :: invalid string in UnicapLayer::open");
     return JS_FALSE;
   }
 
+  JS_EndRequest(cx);
+  
   lay->open(file);
 
   return JS_TRUE;

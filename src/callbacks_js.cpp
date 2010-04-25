@@ -86,27 +86,29 @@ JSBool js_static_branch_callback(JSContext* Context, JSScript* Script)
 JSBool js_static_branch_callback(JSContext* Context)
 #endif
 {
-    if(stop_script) {
+  if(stop_script) {
 	stop_script=false;
 	return JS_FALSE;
-    }
-    return JS_TRUE;
+  }
+  return JS_TRUE;
 }
 
 char *js_get_string(jsval val) {
   char *res = NULL;
+  JS_BeginRequest(cx);
   if(JSVAL_IS_STRING(val))
     res = JS_GetStringBytes( JS_ValueToString(global_environment->js->global_context, val) );
   else {
     JS_ReportError(global_environment->js->global_context,"argument is not a string");
     ::error("argument is not a string");
   }
+  JS_EndRequest(cx);
   return res;
 }
 
 
 jsint js_get_int(jsval val) {
-
+  JS_BeginRequest(cx);
   CHECK_JSENV();
 
   int32 res = 0;
@@ -158,12 +160,13 @@ jsint js_get_int(jsval val) {
     //    func("argument %p is %.4f",val, res);
     break;
   }
-
+  JS_EndRequest(cx);
   return res;
 }
 
 jsdouble js_get_double(jsval val) {
 
+  JS_BeginRequest(cx);
   CHECK_JSENV();
 
   jsdouble res = 0.0;
@@ -220,7 +223,7 @@ jsdouble js_get_double(jsval val) {
     //    func("argument %p is %.4f",val, res);
     break;
   }
-
+  JS_EndRequest(cx);
   return res;
 }
 
