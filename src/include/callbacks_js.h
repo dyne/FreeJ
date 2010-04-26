@@ -30,11 +30,6 @@
 #include <context.h>
 #include <jsapi.h> // spidermonkey header
 #include <jsnum.h>
-#ifdef HAVE_FREEBSD
-#include <jsobj.h>
-#else
-#include <jscntxt.h>
-#endif
 
 /* // stuff for exception handling "try{} catch(e) {}" */
 /* typedef enum JSExnType { */
