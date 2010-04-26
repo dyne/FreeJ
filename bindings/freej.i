@@ -102,7 +102,6 @@ freej_entry_typemap_in(Encoder);
 
 /* This dont compile... */
 %ignore Layer::layer_gc;
-%ignore Controller::JSCall;
 %ignore JSyncThread;
 
 /* Now the freej headers.. */
@@ -170,6 +169,7 @@ freej_entry_typemap_in(Encoder);
 // controllers
 %feature("director") Controller;
 %include "controller.h"
+%ignore ControllerListener
 %template(ControllerLinkList) Linklist<Controller>;
 // extends virtual methods of the Controllers to be overloadable (as callbacks)
 
