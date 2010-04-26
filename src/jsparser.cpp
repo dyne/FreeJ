@@ -40,7 +40,6 @@
 #include <jsparser_data.h> // private data header
 
 #include <impl_layers.h>
-#include <jsscript.h>
 #include <linklist.h>
 
 Context *global_environment;
