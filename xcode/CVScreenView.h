@@ -48,6 +48,7 @@ class CVScreen;
     CIImage              *exportedFrame;
     NSBitmapImageRep     *exportedFrameBuffer;  
     CIImage              *lastFrame;
+    NSMutableArray       *lastTextures;
 	NSTimer				 *renderTimer;
 	bool				 fullScreen;
 #if MAC_OS_X_VERSION_10_6

@@ -17,20 +17,30 @@
  *
  */
 
-#import <CVCocoaLayer.h>
-#import <CVTexture.h>
+#ifndef __CVGEOLAYER_H__
+#define __CVGEOLAYER_H__
 
-@class CFreej;
+#include <CVLayer.h>
+#include <geo_layer.h>
 
-@interface CVPreview : NSOpenGLView {
-    CIContext              *ciContext;
-    bool                   needsReshape;
-    NSRecursiveLock        *lock;  
-    CVTexture              *texture;
-    IBOutlet CFreej        *freej;
-}
+class CVGeoLayer: public GeoLayer, public CVCocoaLayer
+{
 
-- (void)renderFrame:(CVTexture *)texture;
-- (void)clear;
+public:
+    CVGeoLayer();
+    CVGeoLayer(CVLayerController *vin);
+    
+    ~CVGeoLayer();
+    int start();
+    CVTexture *gl_texture();
+protected:
+    void *currentFrame;
+    int currentIndex;
+    CVPixelBufferRef pixelBuffer;
+    void *feed();
 
-@end
+private:
+    FACTORY_ALLOWED
+};
+
+#endif

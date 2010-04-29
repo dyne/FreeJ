@@ -17,21 +17,45 @@
  *
  */
 
-#import <CVLayer.h>
+#ifndef __CVCOCOALAYER_H__
+#define __CVCOCOALAYER_H__
 
-@interface CVInternalLayerView : CVLayerController {
-}
-- (void)feedFrame:(void *)frame;
-@end
+#import <CFreej.h>
+#import <CVLayerController.h>
+#import <CVTexture.h>
+#include <geometry.h>
 
-class CVInternalLayer: public CVLayer
+@class CVLayerView;
+@class CVLayerController;
+
+class Layer;
+
+class CVCocoaLayer 
 {
-    public:
+    protected:
         Layer *layer;
-        CVInternalLayer(CVInternalLayerView *view, Layer *lay);
-        ~CVInternalLayer();
-        bool init(Context *ctx);
-        bool init(Context *ctx, int w, int h);
-        void attach(Layer *lay);
-        void *feed();
+        int height, width;
+        Context *freej;
+        int bufsize;
+
+        void set_controller(CVLayerController *vin);
+
+    public:
+        CVLayerController *input;
+        NSString *blendMode;
+        void *vbuffer;
+
+        CVCocoaLayer(Layer *lay, CVLayerController *vin = NULL);
+
+        ~CVCocoaLayer();
+        void activate();
+        void deactivate();
+        bool is_active();
+        bool is_visible();
+        Layer *fj_layer();
+    
+        Context *context() { return freej; }; 
+        virtual CVTexture *gl_texture();
 };
+
+#endif

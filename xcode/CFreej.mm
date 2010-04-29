@@ -185,11 +185,10 @@
     if (!freej) {
         //freej = new CVContext(self);
         freej = new Context();
-        
         // override factory defaults
         Factory<Controller>::set_default_classtype("KeyboardController", "cocoa");
         Factory<ViewPort>::set_default_classtype("Screen", "cocoa");
-        
+        Factory<Layer>::set_default_classtype("GeometryLayer", "cocoa");
         freej->quit = false;
         NSRect frame = [screenView frame];
         screen = (CVScreen *)Factory<ViewPort>::get_instance("Screen");

@@ -71,6 +71,8 @@ Layer::Layer()
 
   parameters = NULL;
 
+  priv_data = NULL;
+      
   fps.set(25);
 
 }
@@ -100,6 +102,13 @@ Layer::~Layer() {
   if(blitter) delete blitter;
 }
 
+void *Layer::get_data() {
+    return priv_data;
+}
+
+void Layer::set_data(void *data) {
+    priv_data = data;   
+}
 bool Layer::init(int wdt, int hgt, int bpp) {
   
   geo.init(wdt, hgt, bpp);

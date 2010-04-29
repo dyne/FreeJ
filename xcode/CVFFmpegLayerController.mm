@@ -111,10 +111,11 @@
 
     // register the layer within the freej context
     if (!layer) {
-        layer = new CVFFmpegLayer(self);
-        layer->init(ctx->screen->geo.w, ctx->screen->geo.h, ctx->screen->geo.bpp);
+        CVFFmpegLayer *ffLayer = new CVFFmpegLayer(self);
+        ffLayer->init(ctx->screen->geo.w, ctx->screen->geo.h, ctx->screen->geo.bpp);
+        layer = ffLayer;
     }
-    layer->open(movie);
+    ((CVFFmpegLayer *)layer)->open(movie);
     [lock unlock];
 
     if (!currentFrame) {
@@ -205,7 +206,7 @@
         [self reOpen];
     } else {
         if (layer)
-            layer->close();
+            ((CVFFmpegLayer *)layer)->close();
     }
 }
 

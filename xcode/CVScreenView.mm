@@ -19,7 +19,7 @@
 
 #import <CVScreenView.h>
 
-#include <CVLayer.h>
+#include <CVCocoaLayer.h>
 
 #define _BGRA2ARGB(__buf, __size) \
 {\
@@ -81,6 +81,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     lastFrame = NULL;
     exportedFrame = NULL;
     streamerStatus = NO;
+    lastTextures = [[NSMutableArray array] retain];
     lock = [[NSRecursiveLock alloc] init];
     [lock retain];
     [self setNeedsDisplay:NO];
@@ -405,16 +406,24 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         CGRect  fromRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
 									  width, height);
 
-		CIImage *black = [CIImage imageWithColor:[CIColor colorWithRed:0.0 green:0.0 blue:0.0]];
 		// XXX - perhaps I could avoid drawing black on the entire frame, we can draw only 
 		// on the uncovered area (if any, because of scaling to maintain proportions)
-		[ciContext drawImage:black atPoint:fromRect.origin fromRect:fromRect]; 
+		if (fullScreen) {
+            CIImage *black = [CIImage imageWithColor:[CIColor colorWithRed:0.0 green:0.0 blue:0.0]];
+            [ciContext drawImage:black atPoint:fromRect.origin fromRect:fromRect];
+        }
 		[ciContext drawImage:outFrame inRect:toRect fromRect:fromRect];
 
         if (lastFrame)
             [lastFrame autorelease];
         lastFrame = outFrame;
         outFrame = NULL;
+        // release all textures
+        while ([lastTextures count]) {
+            CVTexture *texture = [lastTextures objectAtIndex:0];
+            [lastTextures removeObjectAtIndex:0];
+            [texture release];
+        }
     } else {
         needsReshape = YES;
     }
@@ -439,13 +448,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIFilter *blendFilter = nil;
     CVTexture *texture = nil;
-    
-    if (layer->type == Layer::GL_COCOA) {
-        
-        CVLayer *cvLayer = (CVLayer *)layer;
+    if (layer->type == Layer::GL_COCOA) {        
+        CVCocoaLayer *cvLayer = (CVCocoaLayer *)layer->get_data();
         texture = cvLayer->gl_texture();
-        
-        NSString *blendMode = ((CVLayer *)layer)->blendMode;
+        NSString *blendMode = cvLayer->blendMode;
         if (blendMode)
             blendFilter = [CIFilter filterWithName:[[NSString alloc] initWithFormat:@"CI%@BlendMode", blendMode]];
         else
@@ -477,18 +483,20 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"];
     }
     [blendFilter setDefaults];
+    [lock lock];
     if (texture) {
         if (!outFrame) {
             outFrame = [[texture image] retain];
         } else {
-            [blendFilter setValue:outFrame forKey:@"inputBackgroundImage"];
-            [blendFilter setValue:[texture image] forKey:@"inputImage"];
+            [blendFilter setValue:outFrame forKey:@"inputImage"];
+            [blendFilter setValue:[texture image] forKey:@"inputBackgroundImage"];
             CIImage *temp = [blendFilter valueForKey:@"outputImage"];
             [outFrame release];
             outFrame = [temp retain];
         }
-        [texture release];
+        [lastTextures addObject:texture];
     }
+    [lock unlock];
 }
 
 #define MYCGL

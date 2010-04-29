@@ -136,9 +136,9 @@ class GeoLayer: public Layer {
 
  protected:
   bool _init();
+  SDL_Surface *surf;
 
  private:
-  SDL_Surface *surf;
   uint32_t *fsurf[2];
   int doublebuf;
 

@@ -208,6 +208,7 @@ JS(geometry_layer_rectangle) {
 
   return JS_TRUE;
 }
+
 JS(geometry_layer_rectangle_fill) {
   //  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   //JS_SetContextThread(cx);

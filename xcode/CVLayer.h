@@ -26,29 +26,19 @@
 #import <CFreej.h>
 #import <CVLayerController.h>
 #import <CVTexture.h>
+#import <CVCocoaLayer.h>
 
-@class CVLayerView;
-@class CVLayerController;
 
-class CVLayer: public Layer 
+class CVLayer: public Layer, public CVCocoaLayer
 {
-    protected:
-        int height, width;
-        Context *freej;
-        int bufsize;
+    private:
         virtual bool _init();
+        virtual void *feed();
     public:
-        CVLayerController *input;
-        NSString *blendMode;
-        void *vbuffer;
-
         CVLayer();
         CVLayer(CVLayerController *vin);
 
         ~CVLayer();
-        void activate();
-        void deactivate();
-        Context *context() { return freej; }; 
         virtual bool open(const char *path);
         virtual void close();
         //void run();
@@ -62,11 +52,6 @@ class CVLayer: public Layer
         virtual bool set_mark_out();
         
         virtual void pause();
-        
-        virtual CVTexture *gl_texture();
-    
-    protected:
-        virtual void *feed();
 };
 
 #endif

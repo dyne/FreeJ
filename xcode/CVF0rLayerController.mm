@@ -39,7 +39,7 @@
     }
 }
 
-- (void)setLayer:(CVLayer *)lay
+- (void)setLayer:(CVCocoaLayer *)lay
 {
     if (layer) // ensure to remove/stop old genf0rlayer if we are setting a new one
         [self reset];

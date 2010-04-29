@@ -19,21 +19,15 @@
 
 #include <CVLayer.h>
 
-CVLayer::CVLayer() : Layer()
+CVLayer::CVLayer() : CVCocoaLayer(this), Layer()
 {
-    bufsize = 0;
-    blendMode = NULL;
     type = Layer::GL_COCOA;
-    data = (void *)this;
+    buffer = NULL;
 }
 
-CVLayer::CVLayer(CVLayerController *vin) : Layer()
+CVLayer::CVLayer(CVLayerController *vin) : Layer(), CVCocoaLayer(this, vin)
 {
-    input = vin;
-    bufsize = 0;
-    blendMode = NULL;
     type = Layer::GL_COCOA;
-    data = (void *)this;
     buffer = NULL;
     [input setLayer:this];
     set_name([input name]);
@@ -43,9 +37,6 @@ CVLayer::~CVLayer()
 {
     stop();
     close();
-    deactivate();
-    //[input togglePlay:nil];
-    [input setLayer:nil];
 }
 
 /*
@@ -57,27 +48,6 @@ CVLayer::run()
 }
 */
 
-void
-CVLayer::activate()
-{
-    if (!active) {
-        opened = true;
-        //freej->add_layer(this);
-        active = true;
-        notice("Activating %s", name);
-        start();
-    }
-}
-
-void
-CVLayer::deactivate()
-{
-    if (screen) {
-        screen->rem_layer(this);
-        screen = NULL;
-    }
-    active = false;
-}
 
 bool
 CVLayer::open(const char *path)
@@ -90,16 +60,6 @@ bool
 CVLayer::_init()
 {
     return start();
-}
-
-void *
-CVLayer::feed()
-{
-    lock();
-    if ([input isVisible] || [input needPreview])
-        [input renderFrame];
-    unlock();
-    return (void *)vbuffer;
 }
 
 void
@@ -155,9 +115,12 @@ CVLayer::relative_seek(double increment)
     return false;
 }
 
-// accessor to get a texture from the CVLayerView cocoa class
-CVTexture * 
-CVLayer::gl_texture()
+void *
+CVLayer::feed()
 {
-    return [input getTexture];
+    lock();
+    if ([input isVisible] || [input needPreview])
+        [input renderFrame];
+    unlock();
+    return (void *)vbuffer;
 }

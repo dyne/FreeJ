@@ -156,7 +156,8 @@ JS(screen_add_layer) {
   }
 
   screen->add_layer(lay);
-  lay->start();
+  if (!lay->is_running())
+      lay->start();
 
   return JS_TRUE;
 }

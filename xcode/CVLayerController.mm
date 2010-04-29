@@ -48,6 +48,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     //[self init];
 }
 
+- (id)init
+{
+    return [self initWithContext:nil];
+}
+
 - (id)initWithContext:(CFreej *)ctx
 {
     CGLPixelFormatObj pFormat;
@@ -105,7 +110,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [CIAlphaFade class];    
     alphaFilter = [[CIFilter filterWithName:@"CIAlphaFade"] retain]; // AlphaFade filter
     [alphaFilter setDefaults]; // XXX - setDefaults doesn't work properly
+#if MAC_OS_X_VERSION_10_6
+    [alphaFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"outputOpacity"]; // set default value
+#else
     [alphaFilter setValue:[NSNumber numberWithFloat:0.5] forKey:@"outputOpacity"]; // set default value
+#endif
     return self;
 }
 
@@ -229,7 +238,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (IBAction)toggleVisibility:(id)sender
 {
     if (layer)
-        if (layer->active)
+        if (layer->is_active())
             layer->deactivate();
         else
             layer->activate();
@@ -240,11 +249,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     doPreview = doPreview?NO:YES;
 }
 
-- (void) setLayer:(CVLayer *)lay
+- (void) setLayer:(CVCocoaLayer *)lay
 {
     if (lay) {
         layer = lay;
-        layer->fps.set(30);
+        //layer->fps.set(30);
     } 
 }
 
@@ -265,6 +274,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (IBAction)setFilterParameter:(id)sender
 {
+    Layer *fjLayer = NULL;
     NSAutoreleasePool *pool;
     float deg = 0;
     float x = 0;
@@ -273,7 +283,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     NSAffineTransform    *rototranslateTransform;
     NSString *paramName = NULL;
     pool = [[NSAutoreleasePool alloc] init];
-    
+    if (layer)
+        fjLayer = layer->fj_layer();
+
     // TODO - optimize the logic in this routine ... it's becoming huge!!
     // to prevent its run() method to try rendering
     // a frame while we change filter parameters
@@ -304,11 +316,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             rotateTransform = [NSAffineTransform transform];
             [rotateTransform rotateByDegrees:[sender floatValue]];
             deg = ([sender floatValue]*M_PI)/180.0;
-            if (deg) {
-                if (layer) {
-                    x = ((layer->geo.w)-((layer->geo.w)*cos(deg)-(layer->geo.h)*sin(deg)))/2;
-                    y = ((layer->geo.h)-((layer->geo.w)*sin(deg)+(layer->geo.h)*cos(deg)))/2;
-                }
+            if (deg && fjLayer) {
+                x = ((fjLayer->geo.w)-((fjLayer->geo.w)*cos(deg)-(fjLayer->geo.h)*sin(deg)))/2;
+                y = ((fjLayer->geo.h)-((fjLayer->geo.w)*sin(deg)+(fjLayer->geo.h)*cos(deg)))/2;
             }
             rototranslateTransform = [NSAffineTransform transform];
             [rototranslateTransform translateXBy:x yBy:y];
@@ -319,13 +329,13 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 6: // traslate X
-            if (layer) 
-                layer->geo.x = [sender floatValue];
+            if (fjLayer) 
+                fjLayer->geo.x = [sender floatValue];
             [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 7: // traslate Y
-            if (layer)
-                layer->geo.y = [sender floatValue];
+            if (fjLayer)
+                fjLayer->geo.y = [sender floatValue];
             [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 100:
@@ -361,14 +371,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                     
                     // handle the case it refers to a "center" coordinate
                     if (strcmp(pdescr->params[i].label, "CenterY") == 0) {
-                        if (layer)
-                            [slider setMaxValue:layer->geo.h];
+                        if (fjLayer)
+                            [slider setMaxValue:fjLayer->geo.h];
                         NSSlider *x = (NSSlider *)[[slider previousKeyView] previousKeyView];
                         [effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[slider floatValue]]
                                         forKey:@"inputCenter"];
                     } else if (strcmp(pdescr->params[i].label, "CenterX") == 0) {
-                        if (layer)
-                            [slider setMaxValue:layer->geo.w];
+                        if (fjLayer)
+                            [slider setMaxValue:fjLayer->geo.w];
                         NSSlider *y = (NSSlider *)[[slider nextKeyView] nextKeyView];
                         [effectFilter setValue:[CIVector vectorWithX:[slider floatValue] Y:[y floatValue]]
                                         forKey:@"inputCenter"];
@@ -461,6 +471,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     CVTexture   *texture = nil;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIImage     *renderedImage = nil;
+    Layer       *fjLayer = NULL;
+    
+    if (layer)
+        fjLayer = layer->fj_layer();
     
     [lock lock];
     if (newFrame) {       
@@ -474,9 +488,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
                             forKey:@"inputImage"];
             [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-            if (layer->geo.x || layer->geo.y) {
+            if (fjLayer && (fjLayer->geo.x || fjLayer->geo.y)) {
                 NSAffineTransform   *translateTransform = [NSAffineTransform transform];
-                [translateTransform translateXBy:layer->geo.x yBy:layer->geo.y];
+                [translateTransform translateXBy:fjLayer->geo.x yBy:fjLayer->geo.y];
                 [translateFilter setValue:translateTransform forKey:@"inputTransform"];
                 
                 [translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
@@ -514,13 +528,18 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (void)start
 {
     if (!layer) {
-        layer = new CVLayer(self);
-        layer->init();
-        layer->activate();
-        // TODO Geometry should expose a proper API
-        Context *ctx = [freej getContext];
-        layer->geo.w = ctx->screen->geo.w;
-        layer->geo.h = ctx->screen->geo.h;
+        /* TODO - avoid creating a CVLayer directly,
+                  we should only know about CVCocoaLayer here */
+        CVLayer *cvLayer = new CVLayer(self);
+        cvLayer->init();
+        cvLayer->activate();
+        if (freej) {
+            // TODO Geometry should expose a proper API
+            Context *ctx = [freej getContext];
+            cvLayer->geo.w = ctx->screen->geo.w;
+            cvLayer->geo.h = ctx->screen->geo.h;
+        }
+        layer = cvLayer;
     }
 }
 
@@ -559,16 +578,21 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (bool)isVisible
 {
     if (layer)
-        return layer->screen?YES:NO;
+        return layer->is_visible();
     return NO;
 }
 
 - (void)activate
 {
     if (layer) {
-        Context *ctx = [freej getContext];
         layer->activate();
-        ctx->screen->add_layer(layer);
+        if (freej) {
+            Layer *fjLayer = layer->fj_layer();
+            if (!fjLayer->screen) {
+                Context *ctx = [freej getContext];
+                ctx->screen->add_layer(layer->fj_layer());
+            }
+        }
     }
 }
 
@@ -594,8 +618,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (void)translateXby:(float)x Yby:(float)y
 {
     if (layer) {
-        layer->geo.x = x;
-        layer->geo.y = y;
+        Layer *fjLayer = layer->fj_layer();
+        if (fjLayer) {
+            fjLayer->geo.x = x;
+            fjLayer->geo.y = y;
+        }
     }
 }
 
@@ -607,7 +634,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (void)toggleVisibility
 {
     if (layer)
-        if (layer->active)
+        if (layer->is_active())
             layer->deactivate();
         else
             layer->activate();

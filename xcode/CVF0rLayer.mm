@@ -99,25 +99,25 @@ CVF0rLayer::feed()
         res = generator->process(fps.get(), NULL);
 
     // TODO - handle geometry changes
-    if (!currentFrame)
+    if (!currentFrame) {
         currentFrame = malloc(geo.bytesize);
+        CVReturn err = CVPixelBufferCreateWithBytes (
+                                                     NULL,
+                                                     geo.w,
+                                                     geo.h,
+                                                     k32ARGBPixelFormat,
+                                                     currentFrame,
+                                                     geo.w*4,
+                                                     NULL,
+                                                     NULL,
+                                                     NULL,
+                                                     &pixelBuffer
+                                                     ); 
+    }
+    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
     memcpy(currentFrame, res, geo.bytesize);
-    if (pixelBuffer)
-        CVPixelBufferRelease(pixelBuffer);
-    CVReturn err = CVPixelBufferCreateWithBytes (
-             NULL,
-             geo.w,
-             geo.h,
-             k32ARGBPixelFormat,
-             currentFrame,
-             geo.w*4,
-             NULL,
-             NULL,
-             NULL,
-             &pixelBuffer
-    ); 
-    if (err == kCVReturnSuccess)
-        [(CVF0rLayerController *)input feedFrame:pixelBuffer];
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+    [(CVF0rLayerController *)input feedFrame:pixelBuffer];
     return currentFrame;
 }
 

@@ -20,7 +20,7 @@
 #ifndef __CVLAYERCONTROLLER_H__
 #define __CVLAYERCONTROLLER_H__
 
-#include <CVLayer.h>
+#include <CVCocoaLayer.h>
 
 #import <CFreej.h>
 #import <CVPreview.h>
@@ -28,7 +28,7 @@
 #import <CVLayerView.h>
 
 @class CVLayerView;
-class CVLayer;
+class CVCocoaLayer;
 
 @interface CVLayerController : NSObject {
         CFreej                *freej;
@@ -40,7 +40,7 @@ class CVLayer;
         CIImage                *posterImage;
         bool                   doPreview;
         CVTexture              *currentPreviewTexture;
-        CGLContextObj         glContext;
+        CGLContextObj          glContext;
 
         // display link
         CVDisplayLinkRef       displayLink;            // the displayLink that runs the show
@@ -59,12 +59,12 @@ class CVLayer;
         NSMutableDictionary    *filterParams;
         
         uint64_t               lastRenderedTime;
-        CVLayer                *layer;
+        CVCocoaLayer           *layer;
         IBOutlet CVLayerView   *layerView;
         bool                   doFilters;
     }
     
-    @property (readwrite) CVLayer *layer;
+    @property (readwrite) CVCocoaLayer *layer;
     @property (readonly) CVPixelBufferRef currentFrame;
     // subclass implementation should override this method and update 
     // the currentFrame pointer only within the renderFrame implementation
@@ -93,7 +93,7 @@ class CVLayer;
     - (void)rotateBy:(float)deg;
     - (void)start;
     - (void)stop;
-    - (void)setLayer:(CVLayer *)lay;
+    - (void)setLayer:(CVCocoaLayer *)lay;
     - (void)toggleFilters;
     - (void)toggleVisibility;
     - (void)togglePreview;

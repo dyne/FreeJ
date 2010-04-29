@@ -107,7 +107,7 @@ class Layer: public Entry, public JSyncThread {
   /**
      Start the layer thread
   */
-  int start() { return JSyncThread::start(); }
+  virtual int start() { return JSyncThread::start(); }
 
   Type type; ///< type of the layer
 
@@ -119,12 +119,13 @@ class Layer: public Entry, public JSyncThread {
   */
   virtual bool open(const char *file) =0; ///< open the file (first called)
 
-  bool init(int w = 0, int h = 0, int bpp = 0);
+  
+  virtual bool init(int w = 0, int h = 0, int bpp = 0);
   ///< initializes the layer (this will call also the layer implementation's init)
 
   virtual void close() =0; ///< close the layer (ready to open a new one)
 
-  bool set_parameter(int idx); ///< activate the setting on parameter pointed by idx index number
+  virtual bool set_parameter(int idx); ///< activate the setting on parameter pointed by idx index number
 
   char *get_name() { return name; };
   char *get_filename() { return filename; };
@@ -136,7 +137,7 @@ class Layer: public Entry, public JSyncThread {
      @param x horizontal coordinate
      @param y vertical coordinate
   */
-  void set_position(int x, int y);
+  virtual void set_position(int x, int y);
   ///< Set Layer's position on screen
 
   /**
@@ -145,12 +146,12 @@ class Layer: public Entry, public JSyncThread {
      @param x horizontal zoom float coefficient (default 1.0)
      @param y vertical zoom float coefficient (default 1.0)
   */
-  void set_zoom(double x, double y); ///< Zoom (resize) a Layer
+  virtual void set_zoom(double x, double y); ///< Zoom (resize) a Layer
   /**
      Degrees of rotation
      @param angle from 0 to 360 degrees rotation
    */
-  void set_rotate(double angle); ///< Rotate a Layer
+  virtual void set_rotate(double angle); ///< Rotate a Layer
 
   bool antialias;
   bool zooming;
@@ -159,7 +160,7 @@ class Layer: public Entry, public JSyncThread {
   double zoom_y;
   double rotate;
 
-  void fit(bool maintain_aspect_ratio = true);
+  virtual void fit(bool maintain_aspect_ratio = true);
 
 
   Linklist<Parameter> *parameters;
@@ -167,7 +168,7 @@ class Layer: public Entry, public JSyncThread {
 
   Linklist<FilterInstance> filters;
   ///< Filter list of effects applied on the Layer
-  void *do_filters(void *tmp_buf); ///< process all filters on a buffer
+  virtual void *do_filters(void *tmp_buf); ///< process all filters on a buffer
 
   Geometry geo;
   ///< Geometrical information about the Layer
@@ -192,10 +193,13 @@ class Layer: public Entry, public JSyncThread {
   //////////////////////// BLIT operations
   Blitter *blitter; ///< Blitter interface for this Layer
   Blit *current_blit; ///< currently set Blit on this Layer
-  char *get_blit(); ///< return the name of the currently seleted Blit
-  bool set_blit(const char *bname); ///< select a Blit by name
+  virtual char *get_blit(); ///< return the name of the currently seleted Blit
+  virtual bool set_blit(const char *bname); ///< select a Blit by name
 
-  void blit(); // operates the current blit
+  virtual void blit(); // operates the current blit
+    
+  void *get_data(); // returns private data associated to this layer
+  void set_data(void *data);
 
   ViewPort *screen;  ///< ViewPort on which the Layer is blitted
 
@@ -228,6 +232,7 @@ class Layer: public Entry, public JSyncThread {
 
 
   bool is_native_sdl_surface;
+  void *priv_data; // pointer to private data eventually associated to this layer
 
  private:
 

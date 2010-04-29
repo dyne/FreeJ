@@ -106,8 +106,6 @@ Context::Context() {
   js = NULL;
   main_javascript[0] = 0x0;
 
-  metadata = NULL;
-
   layers_description = (char*)
 " .  - ImageLayer for image files (png, jpeg etc.)\n"
 " .  - GeometryLayer for scripted vectorial primitives\n"
@@ -438,6 +436,7 @@ int Context::reset() {
   notice("FreeJ engine reset");
 
   func("deleting %u controllers", controllers.len() );
+  controllers.lock();
   Controller *ctrl = controllers.begin();
   while(ctrl) {
     if(ctrl->indestructible ) {
@@ -449,7 +448,7 @@ int Context::reset() {
       ctrl = controllers.begin();
     }
   }
-
+  controllers.unlock();
   func("deleting %u screens", screens.len() );
   ViewPort *scr = screens.begin();
   while(scr) {
