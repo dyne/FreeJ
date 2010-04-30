@@ -1,12 +1,12 @@
 /*  FreeJ
  *
- *  Copyright (C) 2004-2006
- *  Silvano Galliani aka kysucix <kysucix@dyne.org>
- *  Denis Rojo aka jaromil <jaromil@dyne.org>
+ *  Copyright (C) 2004-2010 Denis Roio       <jaromil@dyne.org>
+ *  Copyright (C) 2004-2006 Silvano Galliani <kysucix@dyne.org>
+ *  Copyright (C) 2010      Andrea Guzzo     <xant@xant.net>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -410,7 +410,7 @@ void JsParser::init() {
   //   signal(SIGINT, js_sigint_handler);
 }
 
-int JsParser::include(const char* jscript) {
+int JsParser::include(JSContext *cx, const char* jscript) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
   const char *debian_path = "share/doc/freej/scripts/javascript/lib"; // WTF!!!
@@ -430,12 +430,25 @@ int JsParser::include(const char* jscript) {
       error("javascript include('%s') failed", jscript);
       
       return res;
-    }
+    } else
+      func("included file %s",temp);
+
   }
   
   fclose(fd);
-  
-  res = this->open(temp); 
+
+  JS_BeginRequest(cx);
+  JSObject *gobj = JS_GetGlobalObject(cx);
+  if(!gobj) {
+    error("JSParser missing global object in context %p",cx);
+    JS_EndRequest(cx);
+    return false;
+  }
+
+  res = this->open(cx, gobj, temp); 
+
+  JS_EndRequest(cx);
+    
   if (!res) {
     // all errors already reported,
     // js->open talks a lot
@@ -456,12 +469,13 @@ int JsParser::open(const char* script_file) {
     int ret = open(new_script->cx, new_script->obj, script_file);
     JS_EndRequest(new_script->cx);
     JS_ClearContextThread(new_script->cx);
-    if (ret)
-        runtimes.append(new_script);
-    else
+    if (ret) {
+      new_script->set_name(script_file);
+      runtimes.append(new_script);
+    } else {
         delete new_script;
-
-	return ret;
+    }
+    return ret;
 }
 
 int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
@@ -471,7 +485,7 @@ int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	FILE *fd;
 	char *buf = NULL;
 	int len;
-#if 1
+
 	fd = fopen(script_file,"r");
 	if(!fd) {
 		//error("%s: %s : %s",__func__,script_file,strerror(errno));
@@ -483,32 +497,28 @@ int JsParser::open(JSContext *cx, JSObject *obj, const char* script_file) {
 	}
 	buf = readFile(fd, &len);
 	fclose(fd);
-
 	if (!buf) {
 		JS_ReportErrorNumber(
 			cx, JSFreej_GetErrorMessage, NULL,
 			JSSMSG_FJ_WICKED, script_file, "No buffer for file .... out of memory?"
 		);
 		return 0;
+
 	}
 
-	res = JSVAL_VOID;
-	func("%s eval: %p", __PRETTY_FUNCTION__, obj);
-	eval_res = JS_EvaluateScript(cx, obj,
-		buf, len, script_file, 0, &res);
-	// if anything more was wrong, our ErrorReporter was called!
-	free(buf);
-	func("%s evalres: %i", __func__, eval_res);
-#else
+	return evaluate(cx, obj, script_file, buf, len);
+
+
+#if 0
 	JSScript *script = JS_CompileFile(cx, obj, script_file);
 	JSObject *scrobj = JS_NewScriptObject(cx, script);
 	JS_AddNamedRoot(cx, &scrobj, "scrobj");
 	jsval exec_res;
 	JS_ExecuteScript(cx, obj, script, &exec_res);
-	//JS_GC();
+	JS_GC();
+		gc();
 #endif
-	//	gc();
-	return eval_res;
+
 }
 
 void js_usescript_gc(JSContext *cx, JSObject *obj);
@@ -612,7 +622,7 @@ void js_usescript_gc(JSContext *cx, JSObject *obj) {
 
 int JsParser::parse(const char *command) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-  JSBool eval_res = JS_TRUE;
+  int eval_res;
   jsval res;
   JSString *str;
 
@@ -621,23 +631,21 @@ int JsParser::parse(const char *command) {
     return 0;
   }
 
-  func("JsParser::parse : %s obj: %p",command, global_object);
+  func("JS parse: %s", command);
 
-  res = JSVAL_VOID;
-  eval_res = JS_EvaluateScript(global_context, global_object,
-		      command, strlen(command), "console", 0, &res);
-  // return the result (to console)
-  if(!JSVAL_IS_VOID(res)){
-      str=JS_ValueToString(global_context, res);
-      if(str){
-          act("JS parse res: %s", JS_GetStringBytes(str));
-      } else {
-          JS_ReportError(global_context, "Can't convert result to string");
-      }
-  } // else
-    // if anything more was wrong, our ErrorReporter was called!
-  gc();
-  func("%s evalres: %i", __func__, eval_res);
+  JsExecutionContext *new_script = new JsExecutionContext(this);
+  JS_SetContextThread(new_script->cx);
+  JS_BeginRequest(new_script->cx);
+  eval_res = evaluate(new_script->cx, new_script->obj, 
+		      (const char*)"parsed command", command, strlen(command));
+  JS_EndRequest(new_script->cx);
+  JS_ClearContextThread(new_script->cx);
+  if (eval_res)
+    runtimes.append(new_script);
+  else
+    delete new_script;
+
+  func("JS parse result: %i", eval_res);
   return eval_res;
 }
 
@@ -684,6 +692,20 @@ int JsParser::reset() {
         i++;
     }
 	return i;
+}
+
+int JsParser::evaluate(JSContext *cx, JSObject *obj, 
+		       const char *name, const char *buf, unsigned int len) {
+  jsval res;
+  unsigned int lineno;
+  JSBool eval_res = JS_TRUE;
+
+  func("JS evaluating script on object %p", __PRETTY_FUNCTION__, obj);
+  eval_res = JS_EvaluateScript(cx, obj, buf, len, name, lineno, &res);
+  // if anything more was wrong, our ErrorReporter was called!
+  func("evaluation result: %i", eval_res);
+  return(eval_res);
+  // TODO: error message in script evaluation, with line number report
 }
 
 void js_debug_property(JSContext *cx, jsval vp) {

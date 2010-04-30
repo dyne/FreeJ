@@ -717,7 +717,7 @@ JS(include_javascript_file) {
 
 	JsParser *js = (JsParser *)JS_GetContextPrivate(cx);
 
-	if( ! js->include(jscript) )
+	if( ! js->include(cx, jscript) )
 	  error("javascript include not found: \"%s\"",jscript);
 	
 	// if its the first script loaded, save it as main one

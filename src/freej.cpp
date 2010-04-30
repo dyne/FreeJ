@@ -376,19 +376,16 @@ int main (int argc, char **argv) {
   /* execute processing */
   if( processing[0] ) {
     freej->interactive = false;
+    char tmp[1024];
 
-    if( freej->js->include("processing.js") ) {
-      // correctly included our extra library
-
-      char tmp[1024];
-      snprintf(tmp,1023,"script = read_file(\"%s\");Processing(script);", processing);
-      freej->js->parse(tmp);
-    }
-
+    // parse includes our extra processing.js library
+    snprintf(tmp,1023,"include(\"processing.js\");script = read_file(\"%s\");Processing(script);", processing);
+    freej->js->parse(tmp);
+    
     if(freej->quit) exit(1);
     else freej->interactive = true;
   }
-
+  
 
 
   /* initialize the On Screen Display */

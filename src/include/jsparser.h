@@ -63,7 +63,8 @@ class JsParser {
     public:
 	JsParser(Context *_env);
 	~JsParser();
-	int include(const char* jscript); ///< include javascript libraries from known path (current or PREFIX)
+	int include(JSContext *cx, const char* jscript);
+	///< include javascript libraries from known path (current or PREFIX)
 	int open(const char* script_file);
 	int use(JSContext *cx, JSObject *obj, const char* script_file);
 
@@ -84,10 +85,12 @@ class JsParser {
     JsExecutionContext *global_runtime;
     Linklist<JsExecutionContext> runtimes;
     
-    private:
-	void init();
-	void init_class(JSContext *cx, JSObject *obj);
+ private:
+    void init();
+    void init_class(JSContext *cx, JSObject *obj);
     int open(JSContext *cx, JSObject *obj, const char* script_file);
+    int evaluate(JSContext *cx, JSObject *obj, const char *name, const char *buf, unsigned int len);
+    
 };
 #endif
 
