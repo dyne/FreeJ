@@ -75,52 +75,13 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     currentPreviewTexture = NULL;
     doPreview = YES;
     filterParams = [[NSMutableDictionary dictionary] retain];
-    // Create CGColorSpaceRef 
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     
-    CGColorSpaceRelease(colorSpace);
-    
-    // Create CIFilters used for both preview and main frame
-    colorCorrectionFilter = [[CIFilter filterWithName:@"CIColorControls"] retain];        // Color filter    
-    [colorCorrectionFilter setDefaults];                            // set the filter to its default values
-    exposureAdjustFilter = [[CIFilter filterWithName:@"CIExposureAdjust"] retain];
-    [exposureAdjustFilter setDefaults];
-    // adjust exposure
-    [exposureAdjustFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputEV"];
-    
-    // rotate
-    NSAffineTransform *rotateTransform = [NSAffineTransform transform];
-    [rotateTransform rotateByDegrees:0.0];
-    rotateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-    translateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    NSAffineTransform   *translateTransform = [NSAffineTransform transform];
-    [translateTransform translateXBy:0.0 yBy:0.0];
-    [translateFilter setValue:translateTransform forKey:@"inputTransform"];
-    scaleFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    //CIFilter *scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
-    [scaleFilter setDefaults];    // set the filter to its default values
-    //[scaleFilter setValue:[NSNumber numberWithFloat:scaleFactor] forKey:@"inputScale"];
-    
-    effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];            // Effect filter   
-    [effectFilter setName:@"ZoomBlur"];
-    [effectFilter setDefaults];                                // set the filter to its default values
-    [effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
-    compositeFilter = [[CIFilter filterWithName:@"CISourceOverCompositing"] retain];    // Composite filter
-    [CIAlphaFade class];    
-    alphaFilter = [[CIFilter filterWithName:@"CIAlphaFade"] retain]; // AlphaFade filter
-    [alphaFilter setDefaults]; // XXX - setDefaults doesn't work properly
-#if MAC_OS_X_VERSION_10_6
-    [alphaFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"outputOpacity"]; // set default value
-#else
-    [alphaFilter setValue:[NSNumber numberWithFloat:0.5] forKey:@"outputOpacity"]; // set default value
-#endif
     return self;
 }
 
-- (id) initWithOpenGLContext:(CGLContextObj)context pixelFormat:(CGLPixelFormatObj)pixelFormat Context:(CFreej *)ctx
+- (void)setContext:(CFreej *)ctx
 {
-    return [self initWithContext:ctx];
+    freej = ctx;
 }
 
 - (void)dealloc
@@ -149,44 +110,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     GLint   displayMask;
     NSAutoreleasePool *pool;
     pool = [[NSAutoreleasePool alloc] init];
-    
-    
-    // Create CGColorSpaceRef 
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
-    
-    CGColorSpaceRelease(colorSpace);
-    
-    // Create CIFilters used for both preview and main frame
-    colorCorrectionFilter = [[CIFilter filterWithName:@"CIColorControls"] retain];        // Color filter    
-    [colorCorrectionFilter setDefaults];                            // set the filter to its default values
-    exposureAdjustFilter = [[CIFilter filterWithName:@"CIExposureAdjust"] retain];
-    [exposureAdjustFilter setDefaults];
-    // adjust exposure
-    [exposureAdjustFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputEV"];
-    
-    // rotate
-    NSAffineTransform *rotateTransform = [NSAffineTransform transform];
-    [rotateTransform rotateByDegrees:0.0];
-    rotateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-    translateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    NSAffineTransform   *translateTransform = [NSAffineTransform transform];
-    [translateTransform translateXBy:0.0 yBy:0.0];
-    [translateFilter setValue:translateTransform forKey:@"inputTransform"];
-    scaleFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
-    //CIFilter *scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
-    [scaleFilter setDefaults];    // set the filter to its default values
-    //[scaleFilter setValue:[NSNumber numberWithFloat:scaleFactor] forKey:@"inputScale"];
-    
-    effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];            // Effect filter   
-    [effectFilter setName:@"ZoomBlur"];
-    [effectFilter setDefaults];                                // set the filter to its default values
-    [effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
-    compositeFilter = [[CIFilter filterWithName:@"CISourceOverCompositing"] retain];    // Composite filter
-    [CIAlphaFade class];    
-    alphaFilter = [[CIFilter filterWithName:@"CIAlphaFade"] retain]; // AlphaFade filter
-    [alphaFilter setDefaults]; // XXX - setDefaults doesn't work properly
-    [alphaFilter setValue:[NSNumber numberWithFloat:0.5] forKey:@"outputOpacity"]; // set default value
     
     // Create display link 
     if (layerView) {
@@ -343,10 +266,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
             //NSLog(filterName);
             [effectFilter release];
-            effectFilter = [[CIFilter filterWithName:filterName] retain]; 
+            effectFilter = [[CIFilter filterWithName:filterName] retain];
+            [effectFilter setDefaults];
             [effectFilter setName:[[sender selectedItem] title]]; 
             FilterParams *pdescr = [[layerView filterPanel] getFilterParamsDescriptorAtIndex:[sender indexOfSelectedItem]];
-            [effectFilter setDefaults];
             NSView *cView = (NSView *)sender;
             for (int i = 0; i < 4; i++) {
                 NSTextField *label = (NSTextField *)[cView nextKeyView];
@@ -464,6 +387,61 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [pool release];
 }
 
+- (void)initFilters {
+    // Create CIFilters used for both preview and main frame
+    if (!colorCorrectionFilter) {
+        colorCorrectionFilter = [[CIFilter filterWithName:@"CIColorControls"] retain];        // Color filter  
+        [colorCorrectionFilter setDefaults]; // set the filter to its default values
+    }
+    if (!exposureAdjustFilter) {
+        exposureAdjustFilter = [[CIFilter filterWithName:@"CIExposureAdjust"] retain];
+        [exposureAdjustFilter setDefaults];
+        // adjust exposure
+        [exposureAdjustFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputEV"];
+    }
+    
+    // rotate
+    if (!rotateFilter) {
+        NSAffineTransform *rotateTransform = [NSAffineTransform transform];
+        rotateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+        [rotateTransform rotateByDegrees:0.0];
+        [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
+    }
+    
+    if (!translateFilter) {
+        translateFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+        NSAffineTransform   *translateTransform = [NSAffineTransform transform];
+        [translateTransform translateXBy:0.0 yBy:0.0];
+        [translateFilter setValue:translateTransform forKey:@"inputTransform"];
+    }
+    if (!scaleFilter) {
+        scaleFilter = [[CIFilter filterWithName:@"CIAffineTransform"] retain];
+        //CIFilter *scaleFilter = [CIFilter filterWithName:@"CILanczosScaleTransform"];
+        [scaleFilter setDefaults];    // set the filter to its default values
+    }
+    //[scaleFilter setValue:[NSNumber numberWithFloat:scaleFactor] forKey:@"inputScale"];
+    if (!effectFilter) {
+        effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];            // Effect filter  
+        [effectFilter setDefaults];                                // set the filter to its default values
+        [effectFilter setName:@"ZoomBlur"];
+        [effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
+    }
+    if (!compositeFilter) {
+        compositeFilter = [[CIFilter filterWithName:@"CISourceOverCompositing"] retain];    // Composite filter
+        [compositeFilter setDefaults];
+    }
+    //[CIAlphaFade class];
+    if (!alphaFilter) {
+        alphaFilter = [[CIFilter filterWithName:@"CIAlphaFade"] retain]; // AlphaFade filter
+        [alphaFilter setDefaults]; // XXX - setDefaults doesn't work properly
+#if MAC_OS_X_VERSION_10_6
+        [alphaFilter setValue:[NSNumber numberWithFloat:1.0] forKey:@"outputOpacity"]; // set default value
+#else
+        [alphaFilter setValue:[NSNumber numberWithFloat:0.5] forKey:@"outputOpacity"]; // set default value
+#endif
+    }
+    filtersInitialized = true;
+}
 
 - (CVTexture *)getTexture
 {
@@ -476,6 +454,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     if (layer)
         fjLayer = layer->fj_layer();
     
+    if (!filtersInitialized)
+        [self initFilters];
     [lock lock];
     if (newFrame) {       
         inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
@@ -583,8 +563,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 }
 
 - (void)activate
-{
-    if (layer) {
+{    if (layer) {
         layer->activate();
         if (freej) {
             Layer *fjLayer = layer->fj_layer();

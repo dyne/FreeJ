@@ -78,8 +78,7 @@
 #endif
 	CGColorSpaceRelease(colorSpace);
     [lock lock];
-    [layerController initWithOpenGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj] 
-                               pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj] Context:freej];
+    [layerController setContext:freej];
     [lock unlock];
     GLint params[] = { 1 };
     CGLSetParameter( CGLGetCurrentContext(), kCGLCPSwapInterval, params );

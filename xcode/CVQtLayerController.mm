@@ -191,10 +191,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         QTTime posterTime = [qtMovie duration];
         posterTime.timeValue /= 2;
         NSImage *poster = [qtMovie frameImageAtTime:posterTime];
-
         if (layerView)
             [layerView setPosterImage:poster];
-        //[lock unlock];
        
         // register the layer within the freej context
         if (!layer) {

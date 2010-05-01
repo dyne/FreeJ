@@ -62,6 +62,7 @@ class CVCocoaLayer;
         CVCocoaLayer           *layer;
         IBOutlet CVLayerView   *layerView;
         bool                   doFilters;
+        bool                   filtersInitialized;
     }
     
     @property (readwrite) CVCocoaLayer *layer;
@@ -71,7 +72,6 @@ class CVCocoaLayer;
     - (char *)name;
     - (void)feedFrame:(CVPixelBufferRef)frame;
     - (CVReturn)renderFrame;
-    - (id)initWithOpenGLContext:(CGLContextObj)context pixelFormat:(CGLPixelFormatObj)pixelFormat Context:(CFreej *)ctx;
     - (id)initWithContext:(CFreej *)context;
     - (void)startPreview; // enable preview rendering
     - (void)stopPreview; // disable preview rendering
@@ -86,6 +86,7 @@ class CVCocoaLayer;
     - (bool)needPreview;
     - (NSString *)filterName;
     - (NSDictionary *)filterParams;
+    - (void)setContext:(CFreej *)ctx;
     - (void)setPreviewTarget:(CVPreview *)targetView;
     - (void)lock; /// accessor to the internal mutex
     - (void)unlock; /// accessor to the internal mutex
@@ -100,6 +101,7 @@ class CVCocoaLayer;
     - (bool)doPreview;
     - (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
     - (void)setBlendMode:(NSString *)mode;
+    - (void)initFilters;
 @end
 
 #endif

@@ -23,7 +23,7 @@
 
 - (void)reset
 {
-    CVLayer *toDelete;
+    CVCocoaLayer *toDelete;
     if (layer) {
         [self deactivate];
         [lock lock];
@@ -32,7 +32,7 @@
             CVPixelBufferRelease(currentFrame);
             currentFrame = NULL;
         }
-        toDelete = (CVLayer *)layer;
+        toDelete = (CVCocoaLayer *)layer;
         layer = NULL;
         [lock unlock];
         delete toDelete;
