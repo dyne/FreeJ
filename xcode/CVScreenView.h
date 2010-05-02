@@ -28,40 +28,41 @@
 
 class CVScreen;
 @class CFreej;
+@class CVFilterPanel;
 
 @interface CVScreenView : NSOpenGLView {
-	NSRecursiveLock		*lock;
-	NSString			*fpsString;
+    NSRecursiveLock        *lock;
+    NSString            *fpsString;
     NSWindow            *myWindow;
-    CVDisplayLinkRef	displayLink; // the displayLink that runs the show
-    CGDirectDisplayID	viewDisplayID;
+    CVDisplayLinkRef    displayLink; // the displayLink that runs the show
+    CGDirectDisplayID   viewDisplayID;
 #if 0
-	CVPixelBufferRef	pixelBuffer;
+    CVPixelBufferRef    pixelBuffer;
 #else
-	CVOpenGLBufferRef	pixelBuffer;
+    CVOpenGLBufferRef    pixelBuffer;
 #endif
     //void                *pixelBuffer;
-	CVScreen			 *fjScreen;
-	CIContext			 *ciContext;
-	NSOpenGLContext		 *currentContext;
-	CIImage				 *outFrame;
+    CVScreen             *fjScreen;
+    CIContext            *ciContext;
+    NSOpenGLContext      *currentContext;
+    CIImage              *outFrame;
     CIImage              *exportedFrame;
     NSBitmapImageRep     *exportedFrameBuffer;  
     CIImage              *lastFrame;
     NSMutableArray       *lastTextures;
-	NSTimer				 *renderTimer;
-	bool				 fullScreen;
+    NSTimer              *renderTimer;
+    bool                 fullScreen;
 #if MAC_OS_X_VERSION_10_6
-	CGDisplayModeRef     savedMode;
+    CGDisplayModeRef     savedMode;
 #else
-	CFDictionaryRef		 savedMode;
+    CFDictionaryRef      savedMode;
 #endif
-	bool				 needsReshape;
-	FrameRate			 *rateCalc;
+    bool                 needsReshape;
+    FrameRate            *rateCalc;
     CGContextRef         exportCGContextRef;
     CIContext            *exportContext;
     void                 *exportBuffer;
-    id<Exporter>	     exporter;
+    id<Exporter>         exporter;
     QTExporter           *exporterQT;
     FFExporter           *exporterFF;
     QTStreamer           *streamer;
@@ -70,8 +71,9 @@ class CVScreen;
     NSMutableArray       *streamerKeys;
     NSMutableDictionary  *streamerDict;
     
-	IBOutlet CFreej		   *freej;
-	IBOutlet NSTextField   *showFps;
+    IBOutlet CFreej        *freej;
+    IBOutlet CVFilterPanel *filterPanel;
+    IBOutlet NSTextField   *showFps;
     IBOutlet NSTableView   *layerList;
     IBOutlet NSWindow      *window;
     IBOutlet NSTableView   *streamerSettings;
@@ -98,7 +100,6 @@ class CVScreen;
 - (double)rate;
 - (CVReturn)outputFrame:(uint64_t)timestamp;
 - (void)reset;
-- (id)tableView:(NSTableView *)aTableView objectValueForTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex;
 - (void)addLayer:(Layer *)lay;
 - (void)remLayer:(Layer *)lay;
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView;

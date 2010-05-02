@@ -20,6 +20,7 @@
 #import <CVScreenView.h>
 
 #include <CVCocoaLayer.h>
+#include <CVFilterPanel.h>
 
 #define _BGRA2ARGB(__buf, __size) \
 {\
@@ -70,8 +71,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         rateCalc = [[FrameRate alloc] initWithTimeScale:now.videoTimeScale];
         [rateCalc retain];
     }
-    [layerList setDataSource:(id)self];
-    [layerList registerForDraggedTypes:[NSArray arrayWithObject:@"CVLayer"]];
+    // delegate and datasource for layerList are now set directly in the nib file
+    //[layerList setDataSource:(id)self];
+    //[layerList setDelegate:(id)self];
+    [layerList registerForDraggedTypes:[NSArray arrayWithObject:@"CVCocoaLayer"]];
 }
 
 - (id)init
@@ -129,7 +132,19 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     exporter = (id<Exporter>)exporterFF;
 #endif
 
-    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title", @"Tags", @"Author", @"Description", @"Server", @"Port", @"Password", @"Framerate", @"Bitrate", @"Quality", @"Announcements", nil] retain];
+    streamerKeys = [[NSMutableArray arrayWithObjects:@"Title",
+                                                     @"Tags",
+                                                     @"Author",
+                                                     @"Description",
+                                                     @"Server",
+                                                     @"Port",
+                                                     @"Password",
+                                                     @"Framerate",
+                                                     @"Bitrate",
+                                                     @"Quality",
+                                                     @"Announcements",
+                                                     nil
+                     ] retain];
     NSMutableArray *objects = [NSMutableArray arrayWithObjects:@"MyTitle", @"Remix,Video", @"me", @"playing with Freej-OSX", @ICECASTSERVER, @ICECASTPORT, @ICECASTPASSWORD, @"15", @"128000", @"24", @"1", nil];
     streamerDict = [[NSMutableDictionary dictionaryWithObjects:objects forKeys:streamerKeys] retain];
 
@@ -195,17 +210,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     // Create CIContext 
 #if MAC_OS_X_VERSION_10_6
-	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
+    ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
                                       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
-									   colorSpace:colorSpace
-										  options:nil] retain];
+                                       colorSpace:colorSpace
+                                          options:nil] retain];
 #else
-	// deprecated in 10.6
-	ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
-									  pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
-										  options:[NSDictionary dictionaryWithObjectsAndKeys:
-										           (id)colorSpace,kCIContextOutputColorSpace,
-										           (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
+    // deprecated in 10.6
+    ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[currentContext CGLContextObj]
+                                      pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
+                                          options:[NSDictionary dictionaryWithObjectsAndKeys:
+                                                   (id)colorSpace,kCIContextOutputColorSpace,
+                                                   (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
 #endif
     CGColorSpaceRelease(colorSpace);
     
@@ -293,17 +308,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (!surface) return nil;
     CVPixelBufferRef pixelBufferOut = nil;
     CVReturn cvRet = CVPixelBufferCreateWithBytes (
-						   NULL,
-						   fjScreen->geo.w,
-						   fjScreen->geo.h,
-						   k32ARGBPixelFormat,
-						   surface,
-						   fjScreen->geo.w*4,
-						   NULL,
-						   NULL,
-						   NULL,
-						   &pixelBufferOut
-						   );
+                           NULL,
+                           fjScreen->geo.w,
+                           fjScreen->geo.h,
+                           k32ARGBPixelFormat,
+                           surface,
+                           fjScreen->geo.w*4,
+                           NULL,
+                           NULL,
+                           NULL,
+                           &pixelBufferOut
+                           );
     if (cvRet != noErr) {
         // TODO - Error Messages
         if (pixelBufferOut)
@@ -360,14 +375,14 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (CVDisplayLinkGetCurrentTime(displayLink, &now) == kCVReturnSuccess) {
 
         if (streamer && streamerStatus != [streamer isRunning]) {
-		streamerStatus=[streamer isRunning];
-		[streamerButton setTitle:@"Start"];
+        streamerStatus=[streamer isRunning];
+        [streamerButton setTitle:@"Start"];
         // TODO reset stream_fps info
          NSString *tfps = [NSString stringWithString:@"FPS: -"];
          NSString *tpkg = [NSString stringWithString:@"tx: -"];
         [streamerFPS setStringValue:tfps];
         [streamerPkg setStringValue:tpkg];
-	    }
+        }
         if (streamer && [streamer isRunning]) {
             NSString *tfps = [NSString stringWithFormat:@"FPS: %1f", [streamer currentFPS]];
             NSString *tpkg = [NSString stringWithFormat:@"tx: %d", [streamer sentPkgs]];
@@ -390,29 +405,29 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         return kCVReturnError;
     
     if (outFrame) {
-		CGFloat scaledWidth, scaledHeight;
-		CGFloat width = NSWidth(bounds);
-		CGFloat height = NSHeight(bounds);
-		if (width > height) {
-			scaledHeight = height;
-			scaledWidth = (scaledHeight*fjScreen->geo.w)/fjScreen->geo.h;
-		} else {
-			scaledWidth = width;
-			scaledHeight = (scaledWidth*fjScreen->geo.h)/fjScreen->geo.w;
-		}
-		CGRect  toRect = CGRectMake(NSMinX(bounds)+(width-scaledWidth)/8.0,
-									NSMinY(bounds)+(height-scaledHeight)/8.0,
-									scaledWidth, scaledHeight);
+        CGFloat scaledWidth, scaledHeight;
+        CGFloat width = NSWidth(bounds);
+        CGFloat height = NSHeight(bounds);
+        if (width > height) {
+            scaledHeight = height;
+            scaledWidth = (scaledHeight*fjScreen->geo.w)/fjScreen->geo.h;
+        } else {
+            scaledWidth = width;
+            scaledHeight = (scaledWidth*fjScreen->geo.h)/fjScreen->geo.w;
+        }
+        CGRect  toRect = CGRectMake(NSMinX(bounds)+(width-scaledWidth)/8.0,
+                                    NSMinY(bounds)+(height-scaledHeight)/8.0,
+                                    scaledWidth, scaledHeight);
         CGRect  fromRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-									  width, height);
+                                      width, height);
 
-		// XXX - perhaps I could avoid drawing black on the entire frame, we can draw only 
-		// on the uncovered area (if any, because of scaling to maintain proportions)
-		if (fullScreen) {
+        // XXX - perhaps I could avoid drawing black on the entire frame, we can draw only 
+        // on the uncovered area (if any, because of scaling to maintain proportions)
+        if (fullScreen) {
             CIImage *black = [CIImage imageWithColor:[CIColor colorWithRed:0.0 green:0.0 blue:0.0]];
             [ciContext drawImage:black atPoint:fromRect.origin fromRect:fromRect];
         }
-		[ciContext drawImage:outFrame inRect:toRect fromRect:fromRect];
+        [ciContext drawImage:outFrame inRect:toRect fromRect:fromRect];
 
         if (lastFrame)
             [lastFrame autorelease];
@@ -507,16 +522,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->geo.w, fjScreen->geo.h, NULL, &pixelBuffer);
 #else
     CVReturn err = CVPixelBufferCreate (
-					NULL,
-					fjScreen->geo.w,
-					fjScreen->geo.h,
-					k32ARGBPixelFormat,
-					NULL,
-					&pixelBuffer
-					);
+                    NULL,
+                    fjScreen->geo.w,
+                    fjScreen->geo.h,
+                    k32ARGBPixelFormat,
+                    NULL,
+                    &pixelBuffer
+                    );
 #endif
     if (err) {
-	// TODO - Error messages
+    // TODO - Error messages
     }
     CVPixelBufferRetain(pixelBuffer);
     CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
@@ -526,12 +541,12 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 #ifdef MYCGL
     exportCGContextRef = CGBitmapContextCreate (NULL,
-						fjScreen->geo.w,
-						fjScreen->geo.h,
-						8,      // bits per component
-						fjScreen->geo.w*4,
-						colorSpace,
-						kCGImageAlphaPremultipliedLast);
+                        fjScreen->geo.w,
+                        fjScreen->geo.h,
+                        8,      // bits per component
+                        fjScreen->geo.w*4,
+                        colorSpace,
+                        kCGImageAlphaPremultipliedLast);
 
     if (exportCGContextRef == NULL)
         NSLog(@"WARNING: Export-context not created!");
@@ -544,9 +559,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     GLint npix;
     const int attrs[2] = { kCGLPFADoubleBuffer, NULL};
     CGLError err = CGLChoosePixelFormat (
-	(CGLPixelFormatAttribute *)attrs,
-	&pFormat,
-	&npix
+    (CGLPixelFormatAttribute *)attrs,
+    &pFormat,
+    &npix
     );
     CGLCreateContext (pFormat, NULL, exportCGContextRef);
 
@@ -577,7 +592,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         fjScreen->geo.w = w;
         fjScreen->geo.h = h;
 
-	[self allocPixelBuffer];
+    [self allocPixelBuffer];
         needsReshape = YES;
         NSRect frame = [window frame];
         frame.size.width = w;
@@ -591,18 +606,18 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (IBAction)toggleFullScreen:(id)sender
 {
-	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CGDirectDisplayID currentDisplayID = (CGDirectDisplayID)[[[[[self window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  
     CGDisplayErr err;
     if (fullScreen) {
-		SetSystemUIMode(kUIModeNormal, kUIOptionAutoShowMenuBar);
+        SetSystemUIMode(kUIModeNormal, kUIOptionAutoShowMenuBar);
 #if MAC_OS_X_VERSION_10_6
-		err = CGDisplaySetDisplayMode(currentDisplayID, savedMode, NULL);
-		if ( err != CGDisplayNoErr ) {
-			// TODO -e rror messages
-		}
+        err = CGDisplaySetDisplayMode(currentDisplayID, savedMode, NULL);
+        if ( err != CGDisplayNoErr ) {
+            // TODO -e rror messages
+        }
 #else
-		CGDisplaySwitchToMode(currentDisplayID, savedMode);
+        CGDisplaySwitchToMode(currentDisplayID, savedMode);
 #endif
         [self retain];
         NSWindow *fullScreenWindow = [self window];
@@ -615,62 +630,62 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         needsReshape = YES;
     } else {
 #if MAC_OS_X_VERSION_10_6
-		CGDisplayModeRef newMode;
-		bool exactMatch;
-		// Loop through all display modes to determine the closest match.
-		// CGDisplayBestModeForParameters is deprecated on 10.6 so we will emulate it's behavior
-		// Try to find a mode with the requested depth and equal or greater dimensions first.
-		// If no match is found, try to find a mode with greater depth and same or greater dimensions.
-		// If still no match is found, just use the current mode.
-		CFArrayRef allModes = CGDisplayCopyAllDisplayModes(kCGDirectMainDisplay, NULL);
-		for(int i = 0; i < CFArrayGetCount(allModes); i++)	{
-			CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
-			CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(mode);
-			if(CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) != kCFCompareEqualTo)
-				continue;
-			
-			if((CGDisplayModeGetWidth(mode) >= fjScreen->geo.w) && (CGDisplayModeGetHeight(mode) >= fjScreen->geo.h))
-			{
-				newMode = mode;
-				exactMatch = true;
-				break;
-			}
-		}
-		
-		// No depth match was found
-		if(!exactMatch)
-		{
-			for(int i = 0; i < CFArrayGetCount(allModes); i++)
-			{
-				CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
-				CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(mode);
-				if(CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) != kCFCompareEqualTo)
-					continue;
-				
-				if((CGDisplayModeGetWidth(mode) >= fjScreen->geo.w) && (CGDisplayModeGetHeight(mode) >= fjScreen->geo.h))
-				{
-					newMode = mode;
-					break;
-				}
-			}
-		}
+        CGDisplayModeRef newMode;
+        bool exactMatch;
+        // Loop through all display modes to determine the closest match.
+        // CGDisplayBestModeForParameters is deprecated on 10.6 so we will emulate it's behavior
+        // Try to find a mode with the requested depth and equal or greater dimensions first.
+        // If no match is found, try to find a mode with greater depth and same or greater dimensions.
+        // If still no match is found, just use the current mode.
+        CFArrayRef allModes = CGDisplayCopyAllDisplayModes(kCGDirectMainDisplay, NULL);
+        for(int i = 0; i < CFArrayGetCount(allModes); i++)    {
+            CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
+            CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(mode);
+            if(CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) != kCFCompareEqualTo)
+                continue;
+            
+            if((CGDisplayModeGetWidth(mode) >= fjScreen->geo.w) && (CGDisplayModeGetHeight(mode) >= fjScreen->geo.h))
+            {
+                newMode = mode;
+                exactMatch = true;
+                break;
+            }
+        }
+        
+        // No depth match was found
+        if(!exactMatch)
+        {
+            for(int i = 0; i < CFArrayGetCount(allModes); i++)
+            {
+                CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
+                CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(mode);
+                if(CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) != kCFCompareEqualTo)
+                    continue;
+                
+                if((CGDisplayModeGetWidth(mode) >= fjScreen->geo.w) && (CGDisplayModeGetHeight(mode) >= fjScreen->geo.h))
+                {
+                    newMode = mode;
+                    break;
+                }
+            }
+        }
 #else
         CFDictionaryRef newMode = CGDisplayBestModeForParameters(currentDisplayID, 32, fjScreen->geo.w, fjScreen->geo.h, 0);
 #endif
-		NSAssert(newMode, @"Couldn't find display mode");
+        NSAssert(newMode, @"Couldn't find display mode");
         myWindow = [[self window] retain];
 
-#if MAC_OS_X_VERSION_10_6	
+#if MAC_OS_X_VERSION_10_6    
         savedMode = CGDisplayCopyDisplayMode(currentDisplayID);
 #else
-		savedMode = CGDisplayCurrentMode(currentDisplayID);
+        savedMode = CGDisplayCurrentMode(currentDisplayID);
 #endif
         SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
 
-#if MAC_OS_X_VERSION_10_6	
-		err = CGDisplaySetDisplayMode(currentDisplayID, newMode, NULL);
+#if MAC_OS_X_VERSION_10_6    
+        err = CGDisplaySetDisplayMode(currentDisplayID, newMode, NULL);
 #else
-		CGDisplaySwitchToMode(currentDisplayID, newMode);
+        CGDisplaySwitchToMode(currentDisplayID, newMode);
 #endif
         NSScreen *screen = [[self window] screen];
         NSWindow *newWindow = [[NSWindow alloc] initWithContentRect:[screen frame]
@@ -688,7 +703,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         fullScreen = YES;
     }
     [self drawRect:NSZeroRect];
-	[pool release];
+    [pool release];
 }
 
 - (void)setExporter
@@ -803,19 +818,19 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     if (streamer) {
         if ([streamer isRunning]) {
-	    [streamer stopStream];
+        [streamer stopStream];
             [sender setTitle:@"Start"];
-	    streamerStatus=[streamer isRunning];
+        streamerStatus=[streamer isRunning];
         NSString *tfps = [NSString stringWithString:@"FPS: -"];
         NSString *tpkg = [NSString stringWithString:@"tx: -"];
         [streamerFPS setStringValue:tfps];
         [streamerPkg setStringValue:tpkg];
-	} else {
-	    [streamer setParams: streamerDict];
-	    if ([streamer startStream])
-		    [sender setTitle:@"Stop"];
-	    streamerStatus=[streamer isRunning];
-	}
+    } else {
+        [streamer setParams: streamerDict];
+        if ([streamer startStream])
+            [sender setTitle:@"Stop"];
+        streamerStatus=[streamer isRunning];
+    }
     }
 }
 
@@ -823,10 +838,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     /*
     if (returnCode == NSOKButton) {
-		[streamerDict release];
-		streamerDict = [[((ICPresetPanel*)icPresetPanel) getDict] mutableCopy];
+        [streamerDict release];
+        streamerDict = [[((ICPresetPanel*)icPresetPanel) getDict] mutableCopy];
         // TODO check if all 'streamerKeys' are present in streamerDict.
-    	[streamerSettings reloadData];
+        [streamerSettings reloadData];
     }
     */
     [sheet orderOut:self];
@@ -838,10 +853,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     /*
     [(ICPresetPanel*)icPresetPanel myReset:streamerDict]; 
     [[NSApplication sharedApplication] beginSheet:icPresetPanel 
-		modalForWindow:[sender window]
-		modalDelegate:self 
-		didEndSelector:@selector(openStreamPresetDidEnd:returnCode:contextInfo:) 
-		contextInfo:self];
+        modalForWindow:[sender window]
+        modalDelegate:self 
+        didEndSelector:@selector(openStreamPresetDidEnd:returnCode:contextInfo:) 
+        contextInfo:self];
     */
 }
 
@@ -906,7 +921,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (BOOL)tableView:(NSTableView *)aTableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
 {
-    if (aTableView != layerList) return NO;
+    if (aTableView != layerList)
+        return NO;
 
     NSUInteger row = [rowIndexes firstIndex];
     Layer *lay = fjScreen->layers.pick(row+1);
@@ -942,7 +958,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
 }
 
-
 - (BOOL)tableView:(NSTableView *)aTableView acceptDrop:(id < NSDraggingInfo >)info row:(NSInteger)row dropOperation:(NSTableViewDropOperation)operation
 {
     if (aTableView != layerList)
@@ -959,6 +974,19 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         return YES;
     }
     return NO;
+}
+
+- (BOOL)tableView:(NSTableView *)aTableView shouldEditTableColumn:(NSTableColumn *)aTableColumn row:(NSInteger)rowIndex
+{
+    if (aTableView == layerList) {
+        Layer *lay = fjScreen->layers.pick(rowIndex+1);
+        CVCocoaLayer *cvLayer = (CVCocoaLayer *)lay->get_data();
+        if (cvLayer) {
+            [filterPanel setLayer:cvLayer->input];
+            [filterPanel show];
+        }
+    }
+    return false;
 }
 
 - (void)addLayer:(Layer *)lay

@@ -208,19 +208,13 @@
 
 - (void)renderPreview
 {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    if ([layerController doPreview] && previewTarget) { 
-        // scale the frame to fit the preview
-        if (![previewTarget isHiddenOrHasHiddenAncestor])
-            [previewTarget renderFrame:[layerController getTexture]];
-        
-    }
-    [pool release];
+    if (layerController)
+        [layerController renderPreview];
 }
 
 
 - (void)mouseDown:(NSEvent *)theEvent {
-    [filterPanel setLayer:self];
+    [filterPanel setLayer:layerController];
     [filterPanel show];
     [super mouseDown:theEvent];
 }
@@ -238,20 +232,6 @@
 - (void)startPreview
 {  
     [layerController startPreview];
-}
-
-
-- (void)setPreviewTarget:(CVPreview *)targetView
-{
-    [lock lock];
-    previewTarget = targetView;
-    [lock unlock];
-    
-}
-
-- (CVPreview *)getPreviewTarget
-{
-    return previewTarget;
 }
 
 - (void)stopPreview

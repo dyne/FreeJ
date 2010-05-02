@@ -92,10 +92,3 @@ CVGeoLayer::feed()
     return surf->pixels;
 }
 
-CVTexture * 
-CVGeoLayer::gl_texture()
-{
-    if (input)
-        return [input getTexture];
-    return NULL;
-}

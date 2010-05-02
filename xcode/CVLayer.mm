@@ -29,8 +29,8 @@ CVLayer::CVLayer(CVLayerController *vin) : Layer(), CVCocoaLayer(this, vin)
 {
     type = Layer::GL_COCOA;
     buffer = NULL;
-    [input setLayer:this];
     set_name([input name]);
+    [input setLayer:this];
 }
 
 CVLayer::~CVLayer()

@@ -2,23 +2,23 @@
 <archive type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="7.10">
 	<data>
 		<int key="IBDocument.SystemTarget">1050</int>
-		<string key="IBDocument.SystemVersion">10C540</string>
+		<string key="IBDocument.SystemVersion">10D573</string>
 		<string key="IBDocument.InterfaceBuilderVersion">740</string>
-		<string key="IBDocument.AppKitVersion">1038.25</string>
-		<string key="IBDocument.HIToolboxVersion">458.00</string>
+		<string key="IBDocument.AppKitVersion">1038.29</string>
+		<string key="IBDocument.HIToolboxVersion">460.00</string>
 		<object class="NSMutableDictionary" key="IBDocument.PluginVersions">
 			<string key="NS.key.0">com.apple.InterfaceBuilder.CocoaPlugin</string>
 			<string key="NS.object.0">740</string>
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
-			<integer value="1576"/>
-			<integer value="1887"/>
-			<integer value="967"/>
+			<integer value="1575"/>
 			<integer value="3015"/>
+			<integer value="2589"/>
+			<integer value="57"/>
+			<integer value="1887"/>
 			<integer value="2738"/>
 			<integer value="2212"/>
-			<integer value="57"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -2437,6 +2437,7 @@
 																		<string key="NSKeyEquiv"/>
 																		<int key="NSKeyEquivModMask">1048576</int>
 																		<int key="NSMnemonicLoc">2147483647</int>
+																		<int key="NSState">1</int>
 																		<reference key="NSOnImage" ref="388701497"/>
 																		<reference key="NSMixedImage" ref="71867127"/>
 																		<string key="NSAction">_popUpItemAction:</string>
@@ -6584,6 +6585,30 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<reference key="destination" ref="556487094"/>
 					</object>
 					<int key="connectionID">3188</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">delegate</string>
+						<reference key="source" ref="814480451"/>
+						<reference key="destination" ref="575023888"/>
+					</object>
+					<int key="connectionID">3223</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">dataSource</string>
+						<reference key="source" ref="814480451"/>
+						<reference key="destination" ref="575023888"/>
+					</object>
+					<int key="connectionID">3224</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">filterPanel</string>
+						<reference key="source" ref="575023888"/>
+						<reference key="destination" ref="567669164"/>
+					</object>
+					<int key="connectionID">3225</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -11242,7 +11267,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">3217</int>
+			<int key="maxID">3225</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -11672,9 +11697,11 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string>toggleExport:</string>
 							<string>toggleFullScreen:</string>
 							<string>toggleStreamer:</string>
+							<string>updateExporterSettings:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 							<string>id</string>
@@ -11688,11 +11715,13 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<bool key="EncodedWithXMLCoder">YES</bool>
 						<object class="NSArray" key="dict.sortedKeys">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>exportButtonFF</string>
-							<string>exportButtonOG</string>
-							<string>exportButtonQT</string>
+							<string>exportButton</string>
+							<string>exportCodec</string>
+							<string>exportEngine</string>
 							<string>exportFilename</string>
+							<string>exportQuality</string>
 							<string>exporter</string>
+							<string>filterPanel</string>
 							<string>freej</string>
 							<string>icPresetPanel</string>
 							<string>layerList</string>
@@ -11705,11 +11734,13 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSButtonCell</string>
-							<string>NSButtonCell</string>
-							<string>NSButtonCell</string>
+							<string>NSButton</string>
+							<string>NSPopUpButton</string>
+							<string>NSPopUpButton</string>
 							<string>NSTextField</string>
+							<string>NSPopUpButton</string>
 							<string>id</string>
+							<string>CVFilterPanel</string>
 							<string>CFreej</string>
 							<string>NSWindow</string>
 							<string>NSTableView</string>

@@ -53,6 +53,7 @@ class CVCocoaLayer
         bool is_active();
         bool is_visible();
         Layer *fj_layer();
+        char *fj_name();
     
         Context *context() { return freej; }; 
         virtual CVTexture *gl_texture();

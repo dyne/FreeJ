@@ -38,7 +38,6 @@ class CVLayer;
 
     CIFilter               *scaleFilter;
 
-    CVPreview              *previewTarget;
     CIContext              *ciContext;
     CIImage                *posterImage;
     IBOutlet CFreej        *freej;
@@ -51,7 +50,6 @@ class CVLayer;
 
 - (void)clear;
 - (CVFilterPanel *)filterPanel;
-- (CVPreview *)getPreviewTarget;
 - (NSString *)filterName;
 - (NSDictionary *)filterParams;
 - (void)setPosterImage:(NSImage *)image;

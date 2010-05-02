@@ -32,7 +32,6 @@ public:
     
     ~CVGeoLayer();
     int start();
-    CVTexture *gl_texture();
 protected:
     void *currentFrame;
     int currentIndex;

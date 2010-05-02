@@ -60,12 +60,14 @@ class CVCocoaLayer;
         
         uint64_t               lastRenderedTime;
         CVCocoaLayer           *layer;
+        CVPreview              *previewTarget;
         IBOutlet CVLayerView   *layerView;
         bool                   doFilters;
         bool                   filtersInitialized;
     }
     
     @property (readwrite) CVCocoaLayer *layer;
+    @property (readonly) CVLayerView *layerView;
     @property (readonly) CVPixelBufferRef currentFrame;
     // subclass implementation should override this method and update 
     // the currentFrame pointer only within the renderFrame implementation
@@ -88,6 +90,7 @@ class CVCocoaLayer;
     - (NSDictionary *)filterParams;
     - (void)setContext:(CFreej *)ctx;
     - (void)setPreviewTarget:(CVPreview *)targetView;
+    - (CVPreview *)getPreviewTarget;
     - (void)lock; /// accessor to the internal mutex
     - (void)unlock; /// accessor to the internal mutex
     - (void)translateXby:(float)x Yby:(float)y;

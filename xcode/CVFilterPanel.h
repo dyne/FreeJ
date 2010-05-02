@@ -47,7 +47,7 @@ typedef struct __FilterParams {
 @end
 
 @interface CVFilterPanel : NSWindowController {
-    CVLayerView *layer;
+    CVLayerController *layer;
     NSRecursiveLock         *lock;
     NSRect initialWindowFrame;
     NSRect initialFrame;
@@ -64,8 +64,7 @@ typedef struct __FilterParams {
 }
 - (void)show;
 - (id)init;
-- (void)setLayer:(CVLayerView *)lay;
-- (FilterParams *)getFilterParamsDescriptorAtIndex:(int)index;
+- (void)setLayer:(CVLayerController *)lay;
 - (IBAction)setFilterParameter:(id)sender;
 - (IBAction)togglePreview:(id)sender;
 - (IBAction)toggleVisibility:(id)sender;

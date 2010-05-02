@@ -78,9 +78,13 @@ CVCocoaLayer::deactivate()
 CVTexture * 
 CVCocoaLayer::gl_texture()
 {
-    if (input)
-        return [input getTexture];
-    return NULL;
+    CVTexture *texture = NULL;
+    if (input) {
+        texture = [input getTexture];
+        if (texture)
+            [input renderPreview];
+    }
+    return texture;
 }
 
 bool CVCocoaLayer::is_active()
@@ -109,3 +113,11 @@ void CVCocoaLayer::set_controller(CVLayerController *vin)
         [input setLayer:this];
     }
 }
+
+char *CVCocoaLayer::fj_name()
+{
+    if (layer)
+        return layer->name;
+    return (char *)"CVCocoaLayer";
+}
+
