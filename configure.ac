@@ -865,7 +865,7 @@ if test x$have_sdlimage = xno; then
    SDLIMAGE_LIBS="-lpng -ljpeg \$(top_builddir)/lib/sdl_image/libsdl_image.la"
 fi
 
-AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlgfx = xno])
+AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlimage = xno])
 
 
 dnl ==============================================================
