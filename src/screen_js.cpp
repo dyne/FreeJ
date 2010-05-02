@@ -175,7 +175,8 @@ JS(screen_rem_layer) {
   jslayer =
     JSVAL_TO_OBJECT(argv[0]);
   lay = (Layer *)JS_GetPrivate(cx, jslayer);
-  if(!lay) JS_ERROR("Layer is NULL");
+  if(!lay)
+    JS_ERROR("Layer is NULL");
 
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   JS_EndRequest(cx);
@@ -227,6 +228,7 @@ JSP(screen_initialized) {
   ViewPort *screen = (ViewPort*)JS_GetPrivate(cx,obj);
   if(!screen) {
     JS_ERROR("Screen core data is NULL");
+    JS_EndRequest(cx);
     return JS_FALSE;
   }
   *vp = BOOLEAN_TO_JSVAL(screen->initialized?JS_TRUE:JS_FALSE);
@@ -289,28 +291,3 @@ JSP(screen_list_layers) {
   //JS_ClearContextThread(cx);
   return JS_TRUE;
 }
-
-/*
-void js_screen_gc (JSContext *cx, JSObject *obj) {
-  func("%s",__PRETTY_FUNCTION__);
-  return; // XXXX check js GC TODO
-  ViewPort* view;
-  if (!obj) {
-    error("garbage collector called with NULL object: %s", __PRETTY_FUNCTION__);
-    return;
-  }
-  // This callback is declared in Screen class only,
-  // we can skip the typecheck of obj, can't we?
-  view = (ViewPort *) JS_GetPrivate(cx, obj);
-  if(view) {
-    if(!view->deleted) {
-      func("Javascript garbage collector deleting Screen %s", view->name);
-      delete view;
-    } else {
-      func("Javascript object for Screen %s has been already deleted", view->name);
-    }
-  }
-}
-
-
-*/
