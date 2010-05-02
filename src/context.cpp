@@ -274,8 +274,10 @@ void Context::cafudda(double secs) {
   /////////////////////////////
   // TODO - try to garbage collect only if we have been faster
   //        than fps
-  if (js)
-    js->gc();
+  // XXX - temporarily disabling explicit garbage-collection
+  //       because it still triggers deadlocks somewhere
+  //if (js)
+  //  js->gc();
   /// FPS calculation
   fps.calc();
   fps.delay();

@@ -93,6 +93,7 @@ JsExecutionContext::~JsExecutionContext()
 {
     JS_SetContextThread(cx);
     JS_BeginRequest(cx);
+    JS_GC(cx);
     JS_ClearScope(cx, obj);
     JS_EndRequest(cx);
     JS_ClearContextThread(cx);
@@ -353,7 +354,9 @@ void JsExecutionContext::init_class() {
 
 void JsExecutionContext::gc()
 {
+    JS_BeginRequest(cx);
     JS_MaybeGC(cx);
+    JS_EndRequest(cx);
 }
 
 JsParser::JsParser(Context *_env) {
@@ -372,7 +375,6 @@ JsParser::~JsParser() {
 }
 
 void JsParser::gc() {
-    JSContext *cx;
     JsExecutionContext *ecx = runtimes.begin();
     while (ecx) {
         ecx->gc();

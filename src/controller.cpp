@@ -124,11 +124,11 @@ int Controller::JSCall(const char *funcname, int argc, const char *format, ...)
     va_end(args);
     while (listener) {
         void *markp = NULL;
-        JS_SetContextThread(listener->context());
-        JS_BeginRequest(listener->context());
+        //JS_SetContextThread(listener->context());
+        //JS_BeginRequest(listener->context());
         argv = JS_PushArgumentsVA(listener->context(), &markp, format, args);
-        JS_EndRequest(listener->context());
-        JS_ClearContextThread(listener->context());
+        //JS_EndRequest(listener->context());
+        //JS_ClearContextThread(listener->context());
         // TODO - unregister listener if returns false
         if (listener->call(funcname, argc, argv))
             res++;
@@ -168,10 +168,8 @@ bool ControllerListener::frame()
             return false;
         }
     }
-    
-    //JS_EndRequest(jsContext);
-   
     res = JS_CallFunctionValue(jsContext, jsObject, frameFunc, 0, NULL, &ret);
+    //JS_EndRequest(jsContext);
     JS_ClearContextThread(jsContext);
     if (res == JS_FALSE) {
         error("trigger call frame() failed, deactivate ctrl");
@@ -209,7 +207,7 @@ bool ControllerListener::call(const char *funcname, int argc, const char *format
     
     func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
     JS_SetContextThread(jsContext);
-    JS_BeginRequest(jsContext);
+    //JS_BeginRequest(jsContext);
     int res = JS_GetProperty(jsContext, jsObject, funcname, &fval);
     
     if(JSVAL_IS_VOID(fval)) {
@@ -231,14 +229,14 @@ bool ControllerListener::call(const char *funcname, int argc, const char *format
                 JS_ValueToBoolean(jsContext, ret, &ok);
                 if (ok) // JSfunc returned 'true', so event is done
                 {
-                    JS_EndRequest(jsContext);
+                    //JS_EndRequest(jsContext);
                     JS_ClearContextThread(jsContext);
                     return true;
                 }
             }
         }
     }
-    JS_EndRequest(jsContext);
+    //JS_EndRequest(jsContext);
     JS_ClearContextThread(jsContext);
     return false; // no callback, redo on next controller
 }
