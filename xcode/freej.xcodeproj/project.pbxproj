@@ -44,6 +44,10 @@
 		AA8F9F710F510273006A9E2F /* soft_screen.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA8F9F700F510272006A9E2F /* soft_screen.cpp */; };
 		AA9145080F4A1590001426A5 /* CVQtLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA9145070F4A1590001426A5 /* CVQtLayerController.mm */; };
 		AA99CF0D0F535B5F00022106 /* CVLayer.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA99CF0C0F535B5F00022106 /* CVLayer.mm */; };
+		AA9D8A7D118D6E7E00B227B0 /* cairo_layer_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA9D8A7B118D6E7E00B227B0 /* cairo_layer_js.cpp */; };
+		AA9D8A7E118D6E7E00B227B0 /* cairo_layer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA9D8A7C118D6E7E00B227B0 /* cairo_layer.cpp */; };
+		AA9D8A9B118D75D700B227B0 /* libcairo.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AA9D8A9A118D75D700B227B0 /* libcairo.dylib */; };
+		AA9D8ACE118D7AED00B227B0 /* color.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA9D8ACD118D7AED00B227B0 /* color.cpp */; };
 		AAA38FB70F542DE80069BF91 /* CIAlphaFade.m in Sources */ = {isa = PBXBuildFile; fileRef = AAA38FB60F542DE80069BF91 /* CIAlphaFade.m */; };
 		AAA3904D0F5449810069BF91 /* CIAlphaFade.cikernel in Resources */ = {isa = PBXBuildFile; fileRef = AAA3902D0F5448820069BF91 /* CIAlphaFade.cikernel */; };
 		AAA7B6F80F404B6C00056C44 /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
@@ -371,6 +375,12 @@
 		AA9145070F4A1590001426A5 /* CVQtLayerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVQtLayerController.mm; sourceTree = "<group>"; };
 		AA99CF0B0F535B5F00022106 /* CVLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVLayer.h; sourceTree = "<group>"; };
 		AA99CF0C0F535B5F00022106 /* CVLayer.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVLayer.mm; sourceTree = "<group>"; };
+		AA9D8A7B118D6E7E00B227B0 /* cairo_layer_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cairo_layer_js.cpp; sourceTree = "<group>"; };
+		AA9D8A7C118D6E7E00B227B0 /* cairo_layer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = cairo_layer.cpp; sourceTree = "<group>"; };
+		AA9D8A7F118D6E9900B227B0 /* cairo_layer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = cairo_layer.h; path = include/cairo_layer.h; sourceTree = "<group>"; };
+		AA9D8A9A118D75D700B227B0 /* libcairo.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libcairo.dylib; path = /opt/local/lib/libcairo.dylib; sourceTree = "<absolute>"; };
+		AA9D8ACD118D7AED00B227B0 /* color.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = color.cpp; sourceTree = "<group>"; };
+		AA9D8ACF118D7AFB00B227B0 /* color.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = color.h; path = include/color.h; sourceTree = "<group>"; };
 		AAA38FB50F542DE80069BF91 /* CIAlphaFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CIAlphaFade.h; sourceTree = "<group>"; };
 		AAA38FB60F542DE80069BF91 /* CIAlphaFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CIAlphaFade.m; sourceTree = "<group>"; };
 		AAA3902D0F5448820069BF91 /* CIAlphaFade.cikernel */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CIAlphaFade.cikernel; sourceTree = "<group>"; };
@@ -490,6 +500,7 @@
 				B56D8F4E113BD3760092D922 /* libmp3lame.dylib in Frameworks */,
 				AAB1FC761158D958000368A9 /* libjs.dylib in Frameworks */,
 				AAF3C339115FF9B700F0C2AB /* libSDL_gfx.dylib in Frameworks */,
+				AA9D8A9B118D75D700B227B0 /* libcairo.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -572,6 +583,7 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AA9D8A9A118D75D700B227B0 /* libcairo.dylib */,
 				AAF3C338115FF9B700F0C2AB /* libSDL_gfx.dylib */,
 				AAB1FC751158D958000368A9 /* libjs.dylib */,
 				B56D8F4D113BD3760092D922 /* libmp3lame.dylib */,
@@ -680,6 +692,9 @@
 				AAF3BF7C115EB54C00F0C2AB /* ffenc.c */,
 				AAB47C8910EAA15F00B0E8D2 /* geometry.cpp */,
 				AA3B0DA2104B131100A27B2E /* generator_layer.cpp */,
+				AA9D8A7B118D6E7E00B227B0 /* cairo_layer_js.cpp */,
+				AA9D8ACD118D7AED00B227B0 /* color.cpp */,
+				AA9D8A7C118D6E7E00B227B0 /* cairo_layer.cpp */,
 				AA00100C0F77FD9200719D5B /* callback.cpp */,
 				AAAAC16F0F533ADF00461C96 /* closure.cpp */,
 				AAAAC1700F533ADF00461C96 /* linear_blits.cpp */,
@@ -746,6 +761,8 @@
 		AA9337EF0FD7FDEB002B760B /* include */ = {
 			isa = PBXGroup;
 			children = (
+				AA9D8ACF118D7AFB00B227B0 /* color.h */,
+				AA9D8A7F118D6E9900B227B0 /* cairo_layer.h */,
 				B59354E211580B1700BF8C8E /* oggenc.h */,
 				B5BD95B5113581AD0063C358 /* ffdec.h */,
 				AAB47C8B10EAA18800B0E8D2 /* geometry.h */,
@@ -1105,6 +1122,9 @@
 				AA3698C0116BDC020073A0EB /* parameter_js.cpp in Sources */,
 				AA183B651186C3BC00E82D70 /* CVGeoLayer.mm in Sources */,
 				AA1840D91188365700E82D70 /* CVCocoaLayer.mm in Sources */,
+				AA9D8A7D118D6E7E00B227B0 /* cairo_layer_js.cpp in Sources */,
+				AA9D8A7E118D6E7E00B227B0 /* cairo_layer.cpp in Sources */,
+				AA9D8ACE118D7AED00B227B0 /* color.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1194,8 +1214,9 @@
 				GCC_UNROLL_LOOPS = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				HEADER_SEARCH_PATHS = (
-					/opt/local/include/nspr,
 					../lib,
+					/usr/local/include/cairo,
+					/opt/local/include/cairo,
 					/usr/local/include/js,
 					/opt/local/include/js,
 					/usr/local/include/libswscale,
@@ -1223,8 +1244,8 @@
 				);
 				LD_OPENMP_FLAGS = "-fopenmp -headerpad_max_install_names";
 				LIBRARY_SEARCH_PATHS = (
-					/usr/local/lib,
-					/opt/local/lib,
+					"/usr/local/lib/**",
+					"/opt/local/lib/**",
 				);
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
 				OTHER_CFLAGS = (
@@ -1259,6 +1280,8 @@
 				GCC_UNROLL_LOOPS = YES;
 				HEADER_SEARCH_PATHS = (
 					../lib,
+					/usr/local/include/cairo,
+					/opt/local/include/cairo,
 					/usr/local/include/js,
 					/opt/local/include/js,
 					/usr/local/include/libswscale,

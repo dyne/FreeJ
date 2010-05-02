@@ -233,6 +233,8 @@
 
 #define WITH_FREI0R 1
 
+#define WITH_CAIRO 1
+
 /* Note: Freeframe causes problems w/ multiple architectures.
    since there are not that many freeframe "generator" plugins
    out there anyway, I choose to disable them..
@@ -240,7 +242,7 @@
 //#define WITH_FREEFRAME 1
 #undef WITH_FREEFRAME
 
-#define BUILD_NUMBER 139
+#define BUILD_NUMBER 143
 
 #define OSX_VERSION 0.10
 
