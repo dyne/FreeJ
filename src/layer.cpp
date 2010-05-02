@@ -409,12 +409,15 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     
     char *filename;
     void *ret = NULL;
+    int check_thread;
     uint16_t width  = geo.w;
     uint16_t height = geo.h;
     
     jsval *argv = (jsval*)aargv;
-    //JS_SetContextThread(cx);
-    //JS_BeginRequest(cx);
+    check_thread = JS_GetContextThread(cx);
+    if (!check_thread) // set the context thread only if none is already set
+        JS_SetContextThread(cx);
+    JS_BeginRequest(cx);
     if(argc==0) {
         if(!init()) {
             sprintf(err_msg, "Layer constructor failed initialization");
@@ -466,8 +469,9 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     } else {
         sprintf(err_msg, "%s", "JS_SetPrivate failed");
     }
-    //JS_EndRequest(cx);
-    //JS_ClearContextThread(cx);
+    JS_EndRequest(cx);
+    if (!check_thread)
+        JS_ClearContextThread(cx);
     return ret;
     
 }

@@ -78,7 +78,7 @@ JSFunctionSpec global_functions[] = {
 };
 
 JS(js_gc) {
-	JS_GC(cx);
+	//JS_GC(cx);
 	return JS_TRUE;
     //    env->js->gc();
 }

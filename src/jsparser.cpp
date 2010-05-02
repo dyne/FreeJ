@@ -85,6 +85,10 @@ JsExecutionContext::JsExecutionContext(JsParser *jsParser)
     obj = JS_NewObject(cx, &global_class, NULL, NULL);
     init_class();
     JS_EndRequest(cx);
+    // deassociate this context from the creating thread
+    // so that it can be used in other threads 
+    // https://developer.mozilla.org/en/SpiderMonkey/JSAPI_Reference/JS_NewContext    
+    JS_ClearContextThread(cx); 
     /** register SIGINT signal */
     //   signal(SIGINT, js_sigint_handler);
 }
@@ -92,8 +96,8 @@ JsExecutionContext::JsExecutionContext(JsParser *jsParser)
 JsExecutionContext::~JsExecutionContext()
 {
     JS_SetContextThread(cx);
-    JS_BeginRequest(cx);
     JS_GC(cx);
+    JS_BeginRequest(cx);
     JS_ClearScope(cx, obj);
     JS_EndRequest(cx);
     JS_ClearContextThread(cx);
@@ -354,9 +358,9 @@ void JsExecutionContext::init_class() {
 
 void JsExecutionContext::gc()
 {
-    JS_BeginRequest(cx);
+    JS_SetContextThread(cx);
     JS_MaybeGC(cx);
-    JS_EndRequest(cx);
+    JS_ClearContextThread(cx);
 }
 
 JsParser::JsParser(Context *_env) {
@@ -603,7 +607,6 @@ JS(ExecScript) {
 		*rval = JSVAL_TRUE;
 	}
 	//JS_SetPrivate(cx, obj, NULL);
-    JS_GC(cx);
 	return JS_TRUE;
 }
 

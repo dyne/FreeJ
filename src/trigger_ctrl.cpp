@@ -89,16 +89,23 @@ int TriggerController::dispatch() {
 
 JS(js_trigger_ctrl_constructor) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
-
+  int check_thread;
+    
   TriggerController *trigger = (TriggerController *)Factory<Controller>::get_instance( "TriggerController" );
   if (!trigger)
     return JS_FALSE;
-  //JS_BeginRequest(cx);
+  
+  check_thread = JS_GetContextThread(cx);
+  if (!check_thread)
+      JS_SetContextThread(cx);
+  JS_BeginRequest(cx);
   // initialize with javascript context
   if (!trigger->initialized) {
       if(! trigger->init(global_environment) ) {
           error("failed initializing keyboard controller");
-		  //JS_EndRequest(cx);
+          JS_EndRequest(cx);
+          if (!check_thread)
+              JS_ClearContextThread(cx);
           return JS_FALSE;
       }
       // mark that this controller was initialized by javascript
@@ -108,12 +115,16 @@ JS(js_trigger_ctrl_constructor) {
   // assign instance into javascript object
   if( !JS_SetPrivate(cx, obj, (void*)trigger) ) {
     error("failed assigning trigger controller to javascript");
-    //JS_EndRequest(cx);  
+    JS_EndRequest(cx);
+    if (!check_thread)
+        JS_ClearContextThread(cx);
     return JS_FALSE;
   }
 
   *rval = OBJECT_TO_JSVAL(obj);
   trigger->add_listener(cx, obj);
-  //JS_EndRequest(cx);  
+  JS_EndRequest(cx);
+  if (!check_thread)
+      JS_ClearContextThread(cx); 
   return JS_TRUE;
 }
