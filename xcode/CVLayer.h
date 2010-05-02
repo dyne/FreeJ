@@ -38,7 +38,7 @@ class CVLayer: public Layer, public CVCocoaLayer
         CVLayer();
         CVLayer(CVLayerController *vin);
 
-        ~CVLayer();
+        virtual ~CVLayer();
         virtual bool open(const char *path);
         virtual void close();
         //void run();

@@ -47,7 +47,7 @@ class CVCocoaLayer
 
         CVCocoaLayer(Layer *lay, CVLayerController *vin = NULL);
 
-        ~CVCocoaLayer();
+        virtual ~CVCocoaLayer();
         void activate();
         void deactivate();
         bool is_active();

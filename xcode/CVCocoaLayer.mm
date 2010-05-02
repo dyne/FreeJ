@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2009 Andrea Guzzo <xant@dyne.org>
+ *  (c) Copyright 2010 Andrea Guzzo <xant@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -37,18 +37,9 @@ CVCocoaLayer::CVCocoaLayer(Layer *lay, CVLayerController *vin)
 CVCocoaLayer::~CVCocoaLayer()
 {
     deactivate();
-    //[input togglePlay:nil];
-    [input setLayer:nil];
+    if (input)
+        [input setLayer:nil];
 }
-
-/*
-void 
-CVLayer::run()
-{
-    feed();
-    [input renderPreview];
-}
-*/
 
 void
 CVCocoaLayer::activate()
@@ -74,7 +65,7 @@ CVCocoaLayer::deactivate()
     }
 }
 
-// accessor to get a texture from the CVLayerView cocoa class
+// accessor to get a texture from the CVLayerController class
 CVTexture * 
 CVCocoaLayer::gl_texture()
 {

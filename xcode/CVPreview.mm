@@ -150,6 +150,7 @@
     texture = image;
     @synchronized(self) {
     NSAffineTransform *scaleTransform = [NSAffineTransform transform];
+
     scaleFactor = frame.size.height/ctx->screen->geo.h;
     [scaleTransform scaleBy:scaleFactor];
     CIFilter    *scaleFilter = [CIFilter filterWithName:@"CIAffineTransform"];

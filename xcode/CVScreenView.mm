@@ -415,11 +415,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             scaledWidth = width;
             scaledHeight = (scaledWidth*fjScreen->geo.h)/fjScreen->geo.w;
         }
-        CGRect  toRect = CGRectMake(NSMinX(bounds)+(width-scaledWidth)/8.0,
-                                    NSMinY(bounds)+(height-scaledHeight)/8.0,
+        
+        CGRect  toRect = CGRectMake(NSMinX(bounds),NSMinY(bounds),
                                     scaledWidth, scaledHeight);
         CGRect  fromRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
                                       width, height);
+
+        if (fullScreen)
+        {   
+            fromRect.origin.x = NSMinX(bounds)-((width-scaledWidth)/6.0F);
+            fromRect.origin.y = NSMinY(bounds)-((height-scaledHeight)/6.0F);
+        }
 
         // XXX - perhaps I could avoid drawing black on the entire frame, we can draw only 
         // on the uncovered area (if any, because of scaling to maintain proportions)
@@ -984,6 +990,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         if (cvLayer) {
             [filterPanel setLayer:cvLayer->input];
             [filterPanel show];
+        } else {
+            error("No CVCocoaLayer found in %s", lay->name);
         }
     }
     return false;

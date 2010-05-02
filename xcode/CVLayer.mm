@@ -39,20 +39,10 @@ CVLayer::~CVLayer()
     close();
 }
 
-/*
-void 
-CVLayer::run()
-{
-    feed();
-    [input renderPreview];
-}
-*/
-
-
 bool
 CVLayer::open(const char *path)
 {
-    //[input openFile: path];
+    // must be overridden if providing open() to upper layers
     return false;
 }
 
