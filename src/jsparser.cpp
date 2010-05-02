@@ -50,21 +50,21 @@ JsExecutionContext::JsExecutionContext(JsParser *jsParser)
     /* Create a new runtime environment. */
     rt = JS_NewRuntime(8L * 1024L * 1024L);
     if (!rt) {
-		error("JsParser :: error creating runtime");
-		return ; /* XXX should return int or ptr! */
+        error("JsParser :: error creating runtime");
+        return; /* XXX should return int or ptr! */
     }
     
     /* Create a new context. */
     cx = JS_NewContext(rt, STACK_CHUNK_SIZE);
+    /* if global_context does not have a value, end the program here */
+    if (cx == NULL) {
+        error("JsParser :: error creating context");
+        return;
+    }
+    
     JS_BeginRequest(cx);
     // Store a reference to ourselves in the context ...
     JS_SetContextPrivate(cx, parser);
-    
-    /* if global_context does not have a value, end the program here */
-    if (cx == NULL) {
-		error("JsParser :: error creating context");
-		return ;
-    }
     
     /* Set a more strict error checking */
     JS_SetOptions(cx, JSOPTION_VAROBJFIX); // | JSOPTION_STRICT);
@@ -82,12 +82,11 @@ JsExecutionContext::JsExecutionContext(JsParser *jsParser)
     /* Create the global object here */
     //    JS_SetGlobalObject(global_context, global_object);
     //    this is done in init_class / JS_InitStandardClasses.
-	obj = JS_NewObject(cx, &global_class, NULL, NULL);
+    obj = JS_NewObject(cx, &global_class, NULL, NULL);
     init_class();
     JS_EndRequest(cx);
     /** register SIGINT signal */
-	//   signal(SIGINT, js_sigint_handler);
-    
+    //   signal(SIGINT, js_sigint_handler);
 }
 
 JsExecutionContext::~JsExecutionContext()
@@ -96,7 +95,7 @@ JsExecutionContext::~JsExecutionContext()
     JS_BeginRequest(cx);
     JS_ClearScope(cx, obj);
     JS_EndRequest(cx);
-    //JS_ClearContextThread(cx);
+    JS_ClearContextThread(cx);
     JS_DestroyContext(cx);
     JS_DestroyRuntime(rt);
 }
@@ -352,6 +351,11 @@ void JsExecutionContext::init_class() {
     return;
 }
 
+void JsExecutionContext::gc()
+{
+    JS_MaybeGC(cx);
+}
+
 JsParser::JsParser(Context *_env) {
     if(_env!=NULL)
       global_environment=_env;
@@ -369,15 +373,10 @@ JsParser::~JsParser() {
 
 void JsParser::gc() {
     JSContext *cx;
-    JSContext *iterp = NULL;
-    int i = 0;
-    
-    while ((cx = JS_ContextIterator(js_runtime, &iterp)) != NULL) {
-        if (JS_IsConstructing(cx))
-            continue;
-        JS_BeginRequest(cx);
-        JS_MaybeGC(cx);
-        JS_EndRequest(cx);
+    JsExecutionContext *ecx = runtimes.begin();
+    while (ecx) {
+        ecx->gc();
+        ecx = (JsExecutionContext *)ecx->next;
     }
 }
 
@@ -463,7 +462,7 @@ int JsParser::include(JSContext *cx, const char* jscript) {
 /* return lines read, or 0 on error */
 int JsParser::open(const char* script_file) {
 	
-	JsExecutionContext *new_script = new JsExecutionContext(this);
+    JsExecutionContext *new_script = new JsExecutionContext(this);
     JS_SetContextThread(new_script->cx);
     JS_BeginRequest(new_script->cx);
     int ret = open(new_script->cx, new_script->obj, script_file);
@@ -682,7 +681,6 @@ char* JsParser::readFile(FILE *file, int *len){
 
 int JsParser::reset() {
     JSContext *cx = NULL;
-    JSContext *iterp = NULL;
     int i = 0;
     
     JsExecutionContext *ecx = runtimes.begin();
@@ -691,7 +689,7 @@ int JsParser::reset() {
         ecx = runtimes.begin();
         i++;
     }
-	return i;
+    return i;
 }
 
 int JsParser::evaluate(JSContext *cx, JSObject *obj, 

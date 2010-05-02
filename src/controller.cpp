@@ -157,20 +157,22 @@ bool ControllerListener::frame()
     JSBool res;
     
     JS_SetContextThread(jsContext);
-    JS_BeginRequest(jsContext);
+    //JS_BeginRequest(jsContext);
     
     if (!frameFunc) {
         res = JS_GetProperty(jsContext, jsObject, "frame", &frameFunc);
         if(!res || JSVAL_IS_VOID(frameFunc)) {
-            error("method frame not found in TriggerController"); 
+            error("method frame not found in TriggerController");
+            JS_ClearContextThread(jsContext);
+            //JS_EndRequest(jsContext);
             return false;
         }
     }
-    res = JS_CallFunctionValue(jsContext, jsObject, frameFunc, 0, NULL, &ret);
     
-    JS_EndRequest(jsContext);
+    //JS_EndRequest(jsContext);
+   
+    res = JS_CallFunctionValue(jsContext, jsObject, frameFunc, 0, NULL, &ret);
     JS_ClearContextThread(jsContext);
-
     if (res == JS_FALSE) {
         error("trigger call frame() failed, deactivate ctrl");
         //active = false;
@@ -250,7 +252,7 @@ bool ControllerListener::call(const char *funcname, int argc, jsval *argv) {
     
     func("calling js %s.%s()", name, funcname);
     JS_SetContextThread(jsContext);
-    JS_BeginRequest(jsContext);
+    //JS_BeginRequest(jsContext);
     res = JS_GetProperty(jsContext, jsObject, funcname, &fval);
     if(!res || JSVAL_IS_VOID(fval)) {
         // using func() instead of error() because this is not a real error condition.
@@ -258,13 +260,13 @@ bool ControllerListener::call(const char *funcname, int argc, jsval *argv) {
         // for instance in the case of a keyboardcontroller which propagates keystrokes 
         // for unregistered keys 
         func("method %s not found in %s controller", funcname, name);
-        JS_EndRequest(jsContext);
+        //JS_EndRequest(jsContext);
         JS_ClearContextThread(jsContext);
         return(false);
     }
     
     res = JS_CallFunctionValue(jsContext, jsObject, fval, argc, argv, &ret);
-    JS_EndRequest(jsContext);
+    //JS_EndRequest(jsContext);
     JS_ClearContextThread(jsContext);
 
     if(res == JS_FALSE) {

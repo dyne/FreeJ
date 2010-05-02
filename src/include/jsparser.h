@@ -51,7 +51,7 @@ public:
     ~JsExecutionContext();
 private:
     void init_class();
-    
+    void gc();
     
     JsParser  *parser;
     JSContext *cx;

@@ -322,7 +322,8 @@ void Context::handle_controllers() {
   }
 
   // flushes all events that are leftover
-  while( SDL_PeepEvents(&event,1,SDL_GETEVENT, SDL_ALLEVENTS) > 0 ) continue;
+  while( SDL_PeepEvents(&event,1,SDL_GETEVENT, SDL_ALLEVENTS) > 0 )
+      continue;
   memset(&event, 0x0, sizeof(SDL_Event));
 
 }
