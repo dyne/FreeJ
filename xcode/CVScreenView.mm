@@ -423,16 +423,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
         if (fullScreen)
         {   
-            fromRect.origin.x = NSMinX(bounds)-((width-scaledWidth)/6.0F);
-            fromRect.origin.y = NSMinY(bounds)-((height-scaledHeight)/6.0F);
+            fromRect.origin.x = NSMinX(bounds) - ((width-scaledWidth)/6.0F);
+            fromRect.origin.y = NSMinY(bounds) - ((height-scaledHeight)/6.0F);
         }
-
-        // XXX - perhaps I could avoid drawing black on the entire frame, we can draw only 
-        // on the uncovered area (if any, because of scaling to maintain proportions)
-        if (fullScreen) {
-            CIImage *black = [CIImage imageWithColor:[CIColor colorWithRed:0.0 green:0.0 blue:0.0]];
-            [ciContext drawImage:black atPoint:fromRect.origin fromRect:fromRect];
-        }
+        
         [ciContext drawImage:outFrame inRect:toRect fromRect:fromRect];
 
         if (lastFrame)
