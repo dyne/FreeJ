@@ -338,7 +338,8 @@ JSP(parameter_get_type);
 JS(filter_set_parameter);
 JS(filter_activate);
 JSP(filter_list_parameters);
-
+JSP(filter_get_description);
+JSP(filter_get_author);
 
 ////////////////////////////////
 // Controller methods

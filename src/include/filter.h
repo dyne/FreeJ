@@ -48,6 +48,7 @@ class Filter : public Entry {
   FilterInstance *apply(Layer *lay);
   
   const char *description();
+  const char *author();
 
   int get_parameter_type(int i);
 

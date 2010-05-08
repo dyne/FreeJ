@@ -1,9 +1,10 @@
 /*  FreeJ - New Freior based Filter class
- *  (c) Copyright 2007 Denis Rojo <jaromil@dyne.org>
+ *
+ *  (c) Copyright 2007-2010 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -38,6 +39,8 @@ JSFunctionSpec filter_methods[] = {
 JSPropertySpec filter_properties[] = {
   // ro
   { "parameters", 0,  JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, filter_list_parameters, NULL },
+  { "description", 0,  JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, filter_get_description, NULL },
+  { "author", 0,  JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, filter_get_author, NULL },
   {0}
 };
 
@@ -205,7 +208,7 @@ JSP(filter_list_parameters) {
 
   FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);
   if(!duo) {
-    error("%u:%s:%s :: Layer core data is NULL",
+    error("%u:%s:%s :: Filter core data is NULL",
 	  __LINE__,__FILE__,__FUNCTION__);
     JS_EndRequest(cx);
     //JS_ClearContextThread(cx);
@@ -231,7 +234,50 @@ JSP(filter_list_parameters) {
   //JS_ClearContextThread(cx);
   return JS_TRUE;
 }
+
+JSP(filter_get_description) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  JSString *str;
+
+  JS_BeginRequest(cx);
+
+  FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);
+  if(!duo) { error("%u:%s:%s :: Filter core data is NULL",
+		   __LINE__,__FILE__,__FUNCTION__);
+    JS_EndRequest(cx);
+    //JS_ClearContextThread(cx);
+    return JS_FALSE;
+  }
+
+  str = JS_NewStringCopyZ(cx, duo->proto->description());
+  *vp = STRING_TO_JSVAL(str);
   
+  JS_EndRequest(cx);
+  return JS_TRUE;
+}
+
+JSP(filter_get_author) {
+  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+
+  JSString *str;
+
+  JS_BeginRequest(cx);
+
+  FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);
+  if(!duo) { error("%u:%s:%s :: Filter core data is NULL",
+		   __LINE__,__FILE__,__FUNCTION__);
+    JS_EndRequest(cx);
+    //JS_ClearContextThread(cx);
+    return JS_FALSE;
+  }
+
+  str = JS_NewStringCopyZ(cx, duo->proto->author());
+  *vp = STRING_TO_JSVAL(str);
+  
+  JS_EndRequest(cx);
+  return JS_TRUE;
+}
 
 ////////////////////////////////////
 /// TODO:

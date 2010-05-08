@@ -265,6 +265,20 @@ const char *Filter::description() {
   return ret;
 
 }
+const char *Filter::author() {
+  const char *ret;
+#ifdef WITH_FREI0R
+  if(backend==FREIOR) {
+    ret = freior->info.author;
+  }
+#endif
+  if(backend==FREEFRAME) {
+    // TODO freeframe has no extentedinfostruct returned!?
+    ret = "freeframe authors";
+  }
+  return ret;
+}
+
 
 int Filter::get_parameter_type(int i) {
   int ret;
