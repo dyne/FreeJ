@@ -124,9 +124,6 @@ class ViewPort : public Entry {
   virtual bool lock() { return(true); };
   virtual bool unlock() { return(true); };
 
-  void scale2x(uint32_t *osrc, uint32_t *odst);
-  void scale3x(uint32_t *osrc, uint32_t *odst);
-
   void reset();
 
   Geometry geo;

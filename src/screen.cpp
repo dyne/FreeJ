@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 - 2009 Denis Roio <jaromil@dyne.org>
+ *  (c) Copyright 2001 - 2010 Denis Roio <jaromil@dyne.org>
  *
  * This source code  is free software; you can  redistribute it and/or
  * modify it under the terms of the GNU Public License as published by
@@ -27,8 +27,6 @@
 #include <audio_jack.h>
 #endif
 #include <ringbuffer.h>
-#include <scale2x.h>
-#include <scale3x.h>
 
 #include <video_layer.h>
 
@@ -272,71 +270,4 @@ void ViewPort::handle_resize() {
     lay -> unlock ();
     lay = (Layer*) lay -> next;
   } 
-}
-
-void ViewPort::scale2x(uint32_t *osrc, uint32_t *odst) {
-
-      /* apply scale2x to screen */
-    int c;
-    uint32_t *src, *dst, dw;
-    src = osrc;
-    dst = odst;
-    dw = geo.w*2;
-
-#if defined(__GNUC__) && defined(__i386__)
-    scale2x_32_mmx(dst,dst+dw,
-		   src,src,src+geo.w,geo.w);
-#else
-    scale2x_32_def(dst,dst+dw,
-		   src,src,src+geo.w,geo.w);
-#endif
-    dst += dw<<1;
-    src += geo.w;
-    for(c=0;c<geo.h-2;c++) {
-#if defined(__GNUC__) && defined(__i386__)      
-      scale2x_32_mmx(dst,dst+dw,
-		     src-geo.w,src,src+geo.w,geo.w);
-#else
-      scale2x_32_def(dst,dst+dw,
-		     src-geo.w,src,src+geo.w,geo.w);
-#endif
-      dst += dw<<1;
-      src += geo.w;
-    }
-#if defined(__GNUC__) && defined(__i386__)
-    scale2x_32_mmx(dst,dst+dw,
-		   src-geo.w,src,src,geo.w);
-    scale2x_mmx_emms();
-#else
-    scale2x_32_def(dst,dst+dw,
-		   src-geo.w,src,src,geo.w);
-#endif
-
-}
-
-void ViewPort::scale3x(uint32_t *osrc, uint32_t *odst) {
-
-  /* apply scale3x to screen */
-  int c;
-  uint32_t *src, *dst, tw;
-  src = osrc;
-  dst = odst;
-  tw = geo.w*3;
-  
-  scale3x_32_def(dst,dst+tw,dst+tw+tw,
-		 src,src,src+geo.w,geo.w);
-  dst += tw*3;
-  src += geo.w;
-  for(c=0;c<geo.h-2;c++) {
-    
-    scale3x_32_def(dst,dst+tw,dst+tw+tw,
-		   src-geo.w,src,src+geo.w,geo.w);
-    
-    dst += tw*3;
-    src += geo.w;
-  }
-  
-  scale3x_32_def(dst,dst+tw,dst+tw+tw,
-		 src-geo.w,src,src,geo.w);
-
 }
