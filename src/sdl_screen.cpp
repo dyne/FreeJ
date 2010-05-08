@@ -53,7 +53,6 @@ SdlScreen::SdlScreen()
 	  //| SDL_DOUBLEBUF | SDL_HWACCEL | SDL_RESIZABLE);
   // add above | SDL_FULLSCREEN to go fullscreen from the start
 
-  magnification = 0;
   switch_fullscreen = false;
 
   set_name("SDL");
@@ -236,20 +235,6 @@ void *SdlScreen::coords(int x, int y) {
 
 void SdlScreen::show() {
 
-  if(magnification==1) {
-    lock();
-    scale2x
-	((uint32_t*)sdl_screen->pixels,
-	 (uint32_t*)SDL_GetVideoSurface()->pixels);
-    unlock();
-  } else if(magnification==2) {
-    lock();
-    scale3x
-	((uint32_t*)sdl_screen->pixels,
-	 (uint32_t*)SDL_GetVideoSurface()->pixels);
-    unlock();
-  }
-
   if(switch_fullscreen) { 
 #ifdef HAVE_DARWIN
 #ifndef WITH_COCOA
@@ -327,46 +312,5 @@ int SdlScreen::setres(int wx, int hx) {
  
 
   return res;
-}
-
-void SdlScreen::set_magnification(int algo) {
-
-  if(magnification == algo) return;
-
-
-  if(algo==0) {
-    notice("screen magnification off");
-    setres(geo.w,geo.h);
-    if(magnification) SDL_FreeSurface(sdl_screen);
-    sdl_screen = SDL_GetVideoSurface();
-
-  } else if(algo==1) {
-
-    notice("screen magnification scale2x");
-    setres(geo.w*2,geo.h*2);
-
-  } else if(algo==2) {
-
-    notice("screen magnification scale3x");
-    setres(geo.w*3,geo.h*3);
-
-  } else {
-
-    error("magnification algorithm %i not supported",algo);
-    algo = magnification;
-
-  }
-
-
-  if(!magnification && algo) {
-    func("create surface for magnification");
-    sdl_screen = SDL_CreateRGBSurface
-      (sdl_flags,geo.w,geo.h,geo.bpp,red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
-      //(sdl_flags,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
-      //      (SDL_HWSURFACE,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
-  }
-
-  magnification = algo;
-  
 }
     

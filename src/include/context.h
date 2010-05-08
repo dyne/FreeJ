@@ -128,8 +128,6 @@ class Context {
 
   bool config_check(const char *filename);
 
-  void magnify(int algo);
-
   void resize(int w, int h);
 
   bool quit;

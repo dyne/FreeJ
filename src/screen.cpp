@@ -41,7 +41,6 @@ ViewPort::ViewPort()
 
   opengl = false;
 
-  magnification   = 0;
   changeres       = false;
   deleted = false;
 
@@ -259,10 +258,6 @@ void ViewPort::blit_layers() {
 
 void ViewPort::handle_resize() {
   lock ();
-  if (magnification) {
-    set_magnification (magnification);
-    magnification = 0;
-  }
   if(resizing) {
     resize (resize_w, resize_h);
     resizing = false;

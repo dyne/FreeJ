@@ -531,13 +531,6 @@ void Context::resize(int w, int h) {
   scr->changeres = true;
 }
 
-void Context::magnify(int algo) {
-  ViewPort *scr = screens.selected();  
-  if(scr->magnification == algo) return;
-  scr->magnification = algo;
-  scr->changeres = true;
-}
-
 void *Context::coords(int x, int y) {
   ViewPort *scr = screens.selected();
   return( scr->coords(x,y) );

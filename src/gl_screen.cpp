@@ -69,8 +69,6 @@ GlScreen::GlScreen()
   g_quadVertices[3].z = 0.0f;
   
   // add above | SDL_FULLSCREEN to go fullscreen from the start
-    
-  magnification = 0;
 
 }
 

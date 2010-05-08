@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 - 2009 Denis Roio <jaromil@dyne.org>
+ *  (c) Copyright 2001 - 2010 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -116,7 +116,6 @@ class ViewPort : public Entry {
 
   void handle_resize();
 
-  virtual void set_magnification(int algo) { };
   virtual void resize(int resize_w, int resize_h) { };
   virtual void show() { };
   virtual void clear() { };
@@ -133,8 +132,6 @@ class ViewPort : public Entry {
   Geometry geo;
 
   ringbuffer_t *audio; ///< FIFO ringbuffer for audio
-
-  int magnification;
 
   bool changeres;
   bool resizing;

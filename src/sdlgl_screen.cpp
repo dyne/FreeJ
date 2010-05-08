@@ -75,9 +75,6 @@ SdlGlScreen::SdlGlScreen()
 
   // add above | SDL_FULLSCREEN to go fullscreen from the start
     
-  magnification = 0;
-
-
   set_name("SDLGL");
 }
 
@@ -295,46 +292,6 @@ int SdlGlScreen::setres(int wx, int hx) {
  
 
   return res;
-}
-
-void SdlGlScreen::set_magnification(int algo) {
-
-  if(magnification == algo) return;
-
-
-  if(algo==0) {
-    notice("screen magnification off");
-    setres(geo.w,geo.h);
-    if(magnification) SDL_FreeSurface(surface);
-    surface = SDL_GetVideoSurface();
-
-  } else if(algo==1) {
-
-    notice("screen magnification scale2x");
-    setres(geo.w*2,geo.h*2);
-
-  } else if(algo==2) {
-
-    notice("screen magnification scale3x");
-    setres(geo.w*3,geo.h*3);
-
-  } else {
-
-    error("magnification algorithm %i not supported",algo);
-    algo = magnification;
-
-  }
-
-
-  if(!magnification && algo) {
-    func("create surface for magnification");
-    screen = SDL_CreateRGBSurface(sdl_flags, geo.w, geo.h, geo.bpp,
-                 blue_bitmask, green_bitmask, red_bitmask, alpha_bitmask);
-      //      (SDL_HWSURFACE,w,h,bpp,blue_bitmask,green_bitmask,red_bitmask,alpha_bitmask);
-  }
-
-  magnification = algo;
-  
 }
     
 #endif

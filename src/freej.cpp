@@ -63,7 +63,6 @@ static const char *help =
 " .   -s   size of screen - default 400x300\n"
 " .   -S   screen type - default 'sdl'\n"
 " .   -a   initialize audio (using jack)\n"
-//" .   -m   software magnification: 2x,3x\n"
 " .   -n   start with deactivated layers\n"
 " .   -c   no interactive text console\n"
 " .   -f   <frame_per_second>  select global fps for freej\n"
@@ -423,12 +422,6 @@ int main (int argc, char **argv) {
       pp = l;
     }
   }
-
-
-  /* apply screen magnification */
-  //  freej->magnify(magn);
-  // deactivated for now
-
 
   /* MAIN loop */
   while( !freej->quit )

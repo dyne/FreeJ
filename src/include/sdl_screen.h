@@ -33,7 +33,6 @@ class SdlScreen : public ViewPort {
   ~SdlScreen();
 
 
-  void set_magnification(int algo);
   void resize(int resize_w, int resize_h);
   void setup_blits(Layer *lay);
   void blit(Layer *src);

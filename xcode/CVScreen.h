@@ -66,7 +66,6 @@ class CVScreen : public ViewPort {
         void rem_layer(Layer *lay);
         fourcc get_pixel_format() { return ARGB32; };
         void resize(int w, int h);
-        void set_magnification(int algo) { }; // TODO - implement
         void fullscreen() { }; // TODO - implement
         FACTORY_ALLOWED
 };

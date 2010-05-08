@@ -34,7 +34,6 @@ class NullScreen : public ViewPort {
   ~NullScreen();
 
   bool init(int width, int height);
-  void set_magnification(int algo);
   void resize(int resize_w, int resize_h);
   void show();
   void clear();
