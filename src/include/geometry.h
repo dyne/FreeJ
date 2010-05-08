@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001-2009 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2010 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published
@@ -22,10 +22,11 @@
 #include <inttypes.h>
 
 /**
-   This  class is  made to  hold  informations about  the geometry  of
-   Layers in FreeJ, describing their format and image bounds.
+   This class is made to hold informations about the geometry of
+   various video components in FreeJ, describing their format and
+   image bounds.
 
-   @brief geometrical specifications of layers
+   @brief Collects geometrical information about Layer, Screen and other components
 */
 class Geometry {
 

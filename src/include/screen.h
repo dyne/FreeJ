@@ -17,6 +17,11 @@
  *
  */
 
+/**
+   @file screen.h
+   @brief FreeJ generic Screen interface
+*/
+
 #ifndef __SCREEN_H__
 #define __SCREEN_H__
 
@@ -75,6 +80,14 @@ class JackClient;
 class Layer;
 class Geometry;
 class VideoEncoder;
+
+/**
+   This class provides a generic interface common to all different
+   output screens present in FreeJ: its methods and properties are
+   affecting the visualization of mixed results in output.
+
+   @brief Output screen where results are visualized
+*/
 
 class ViewPort : public Entry {
   friend class Layer;

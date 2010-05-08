@@ -1,9 +1,9 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2010 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
- * by the Free Software Foundation; either version 2 of the License,
+ * by the Free Software Foundation; either version 3 of the License,
  * or (at your option) any later version.
  *
  * This source code is distributed in the hope that it will be useful,
@@ -39,6 +39,8 @@ class Context;
    It reads thru paths ($(prefix)/lib/freej and ~/.freej) looking for
    valid plugins and creates instances of them which are ready to be
    returned upon request to the host application of FreeJ controllers.
+
+   @brief Collects DLO plugins that can be used as Effect or Layer
 */
 class Plugger {
  public:

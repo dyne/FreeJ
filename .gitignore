@@ -43,7 +43,6 @@ bindings/ruby/freej_ruby.h
 *.*.swp
 core
 core.*
-doc/freej.dox
 doc/html
 doc/pydocstrings.i
 doc/xml

@@ -1,5 +1,5 @@
 /*  FreeJ
- *  (c) Copyright 2001 Denis Roio aka jaromil <jaromil@dyne.org>
+ *  (c) Copyright 2001-2010 Denis Roio <jaromil@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -43,10 +43,6 @@ class ViewPort;
 class JSContext;
 
 
-/* function for type detection of implemented layers */
-//extern const char *layers_description;
-///< list of implemented layers to print in help
-
 /**
    This class describes methods and properties common to all Layers in
    FreeJ: it is the main interface for functionalities like blit
@@ -80,7 +76,7 @@ class JSContext;
    Geometrical informations about the layer:
    - Layer::geo
 
-   @brief Layer parent abstract class
+   @brief Provides input to the Context
 */
 class Layer: public Entry, public JSyncThread {
   friend class Blitter;
