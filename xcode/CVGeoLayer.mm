@@ -23,7 +23,8 @@
 
 FACTORY_REGISTER_INSTANTIATOR(Layer, CVGeoLayer, GeometryLayer, cocoa);
 
-CVGeoLayer::CVGeoLayer() : GeoLayer(), CVCocoaLayer(this)
+CVGeoLayer::CVGeoLayer()
+    : GeoLayer(), CVCocoaLayer(this)
 {
     type = Layer::GL_COCOA;
     pixelBuffer = NULL;

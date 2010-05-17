@@ -136,26 +136,20 @@ int Plugger::refresh(Context *env) {
 
 #ifdef WITH_FREI0R
 	{
-	  Freior *fr = new Freior();
-	  
-	  if( ! fr->open(temp) ) {
+          Freior *fr = (Freior *)Factory<Filter>::new_instance("Filter", "frei0r");
+	  if( !fr || !fr->open(temp) ) {
 	    delete fr;
 	  } else { // freior effect found
 	    // check what kind of plugin is and place it
 	    if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
+              env->filters.append(fr);
 	      
-	      Filter *filt = new Filter(Filter::FREIOR,fr);
-	      env->filters.append(filt);
-	      
-	      func("found frei0r filter: %s (%p)", filt->name, fr);
+	      func("found frei0r filter: %s (%p)", fr->name, fr);
 	      continue;
 
-	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {
-	      
-	      Filter *filt = new Filter(Filter::FREIOR,fr);
-	      env->generators.append(filt);
-	      
-	      func("found frei0r generator: %s (%p)", filt->name, fr);
+	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {	      
+	      env->generators.append(fr);
+	      func("found frei0r generator: %s (%p)", fr->name, fr);
 	      continue;
 
 	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_MIXER2) {
@@ -174,15 +168,14 @@ int Plugger::refresh(Context *env) {
 #endif
 #ifdef WITH_FREEFRAME
 	{
-	  Freeframe *fr = new Freeframe();
+          Freeframe *fr = Factory<Filter>::new_instance("Filter", "freeframe");
 	  if( ! fr->open(temp) ) {
 	    delete fr;
 	  } else { // freeframe effect found
 	    // check what kind of plugin is and place it
 	    if(fr->info->pluginType == FF_EFFECT) {
 	      
-	      Filter *filt = new Filter(Filter::FREEFRAME, fr);
-	      env->filters.append(filt);
+	      env->filters.append(fr);
 	      
 	      func("found freeframe filter: %s (%p)",
 		   fr->info->pluginName, fr);
@@ -190,8 +183,7 @@ int Plugger::refresh(Context *env) {
 
 	    } else if(fr->info->pluginType == FF_SOURCE) {
 	      
-	      Filter *filt = new Filter(Filter::FREEFRAME, fr);
-	      env->generators.append(filt);
+	      env->generators.append(fr);
 	      
 	      func("found freeframe generator: %s (%p)",
 		   fr->info->pluginName, fr);

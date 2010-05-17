@@ -309,8 +309,8 @@ JS(layer_deactivate) {
 JS(layer_add_filter) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   
-  JSObject *jsfilter=NULL;
-  FilterDuo *duo;
+  JSObject *jsfilter = NULL;
+  FilterInstance *filter_instance = NULL;
 
   if(argc<1)
       JS_ERROR("missing argument");
@@ -320,17 +320,17 @@ JS(layer_add_filter) {
   /**
    * Extract filter and layer pointers from js objects
    */
-  duo = (FilterDuo *) JS_GetPrivate(cx, jsfilter);
-  if(!duo)
+  filter_instance = (FilterInstance *) JS_GetPrivate(cx, jsfilter);
+  if(!filter_instance)
       JS_ERROR("Effect is NULL");
 
-  if(duo->instance) {
-    error("filter %s is already in use", duo->proto->name);
+  if(filter_instance->inuse) {
+    error("filter %s is already in use", filter_instance->proto->name);
     return JS_TRUE;
   }
   GET_LAYER(Layer);
   
-  duo->instance = duo->proto->apply(lay);
+  filter_instance->apply(lay);
   
   return JS_TRUE;
 }
@@ -338,8 +338,8 @@ JS(layer_add_filter) {
 JS(layer_rem_filter) {
     func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
 
-    JSObject *jsfilter=NULL;
-    FilterDuo *duo;
+    JSObject *jsfilter = NULL;
+    FilterInstance *filter_instance = NULL;
 
     if(argc<1)
         JS_ERROR("missing argument");
@@ -350,13 +350,13 @@ JS(layer_rem_filter) {
     if(!jsfilter)
         JS_ERROR("missing argument");
 
-    duo = (FilterDuo *) JS_GetPrivate(cx, jsfilter);
-    if(!duo)
+    filter_instance = (FilterInstance *) JS_GetPrivate(cx, jsfilter);
+    if(!filter_instance)
         JS_ERROR("Effect data is NULL");
 
-    duo->instance->rem();
-    delete duo->instance;
-    duo->instance = NULL;
+    filter_instance->rem();
+    //delete filter_instance;
+    //duo->instance = NULL;
 
     return JS_TRUE;
 }
@@ -497,7 +497,7 @@ JSP(layer_list_filters) {
   JSObject *arr;
   JSObject *objtmp;
 
-  FilterDuo *duo;
+  FilterInstance *filter_instance;
 
   jsval val;
   int c = 0;
@@ -511,19 +511,17 @@ JSP(layer_list_filters) {
   }
 
   arr = JS_NewArrayObject(cx, 0, NULL); // create void array
-  if(!arr) return JS_FALSE;
+  if(!arr)
+    return JS_FALSE;
 
-  duo = new FilterDuo();
 
-  duo->instance = (FilterInstance*)lay->filters.begin();
+  filter_instance = (FilterInstance*)lay->filters.begin();
 
-  while(duo->instance) {
-
-    duo->proto = duo->instance->proto;
+  while(filter_instance) {
   
     objtmp = JS_NewObject(cx, &filter_class, NULL, obj);
     
-    JS_SetPrivate(cx, objtmp, (void*) duo);
+    JS_SetPrivate(cx, objtmp, (void*) filter_instance);
 
     val = OBJECT_TO_JSVAL(objtmp);
 
@@ -531,7 +529,7 @@ JSP(layer_list_filters) {
     
     c++;
 
-    duo->instance = (FilterInstance*)duo->instance->next;
+    filter_instance = (FilterInstance*)filter_instance->next;
   }
 
   *vp = OBJECT_TO_JSVAL( arr );

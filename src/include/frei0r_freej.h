@@ -27,12 +27,13 @@
 
 #include <linklist.h>
 #include <frei0r.h>
+#include <filter.h>
+#include <factory.h>
 
 class Filter;
 
 
-class Freior: public Entry {
-  friend class Filter;
+class Freior: public Filter {
   friend class GenF0rLayer;
 #ifdef WITH_COCOA
   friend class CVF0rLayer;
@@ -43,8 +44,11 @@ class Freior: public Entry {
   virtual ~Freior();
 
   int open(char *file);
-
+  bool apply(Layer *lay, FilterInstance *instance);
+  const char *description();
   void print_info();
+  int  get_parameter_type(int i);
+  char *get_parameter_description(int i);
 
   f0r_plugin_info_t info;
 
@@ -57,15 +61,9 @@ class Freior: public Entry {
 
   f0r_instance_t (*f0r_construct)(unsigned int width, unsigned int height);
 
- private:
-
-  // dlopen handle
-  void *handle;
-  // full .so file path
-  char filename[512];
-
-
  protected:
+  void destruct(FilterInstance *inst);
+  void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
   // Interface function pointers.
   int (*f0r_init)();
   void (*f0r_get_plugin_info)(f0r_plugin_info_t* pluginInfo);
@@ -77,7 +75,16 @@ class Freior: public Entry {
   void (*f0r_update2)(f0r_instance_t instance, double time,
                       const uint32_t* inframe1, const uint32_t* inframe2,
 		      const uint32_t* inframe3, uint32_t* outframe);
-
+    
+    
+  private:
+    
+    // dlopen handle
+    void *handle;
+    // full .so file path
+    char filename[512];
+    
+    FACTORY_ALLOWED
 };
 
 #endif // WITH_FREI0R

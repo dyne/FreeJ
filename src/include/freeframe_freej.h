@@ -22,12 +22,13 @@
 
 #include <linklist.h>
 #include <freeframe.h>
+#include <filter.h>
+#include <factory.h>
 
 class Filter;
 
 
-class Freeframe: public Entry {
-  friend class Filter;
+class Freeframe: public Filter {
   friend class GeneratorLayer;
 #ifdef WITH_COCOA
   friend class CVF0rLayer;
@@ -39,7 +40,13 @@ class Freeframe: public Entry {
 
   int open(char *file);
 
+  const char *description();
+    
   void print_info();
+  int  get_parameter_type(int i);
+  char *get_parameter_description(int i);
+
+  bool apply(Layer *lay, FilterInstance *instance);
 
   PlugInfoStruct *info;
 
@@ -47,19 +54,19 @@ class Freeframe: public Entry {
 
   bool opened;
 
-
- private:
-
-  // dlopen handle
-  void *handle;
-  // full .so file path
-  char filename[512];
-
-
  protected:
+  void destruct(FilterInstance *inst);
+  void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
+  
   // Interface function pointers.
-  plugMainType *main;
+  plugMainType *plugmain;
 
+  private:
+    // dlopen handle
+    void *handle;
+    // full .so file path
+    char filename[512];
+    FACTORY_ALLOWED
 };
 
 

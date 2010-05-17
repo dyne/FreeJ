@@ -60,7 +60,7 @@ static void get_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) { 
 static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
   GeneratorLayer *layer = (GeneratorLayer*)lay;
 
-  Freior *f = layer->generator->proto->freior;
+  Freior *f = (Freior *)layer->generator->proto;
   void *val = param->value;
 
   switch(f->param_infos[idx-1].type) {
@@ -126,8 +126,8 @@ bool GeneratorLayer::open(const char *file) {
   generator = new FilterInstance((Filter*)proto);
   
 #ifdef WITH_FREI0R
-  if(proto->freior) {
-    generator->core = (void*)(*proto->freior->f0r_construct)(geo.w, geo.h);
+  if(proto->type() == Filter::FREIOR) {
+    generator->core = (void*)(*((Freior *)proto)->f0r_construct)(geo.w, geo.h);
     if(!generator->core) {
       error("freior constructor returned NULL instantiating generator %s",file);
       delete generator;
@@ -145,13 +145,13 @@ bool GeneratorLayer::open(const char *file) {
   }
 #endif
 
-  if(proto->freeframe) {
+  if(proto->type() == Filter::FREEFRAME) {
     VideoInfoStruct vidinfo;
     vidinfo.frameWidth = geo.w;
     vidinfo.frameHeight = geo.h;
     vidinfo.orientation = 1;
     vidinfo.bitDepth = FF_CAP_32BITVIDEO;
-    generator->intcore = proto->freeframe->main(FF_INSTANTIATE, &vidinfo, 0).ivalue;
+    generator->intcore = ((Freeframe *)proto)->plugmain(FF_INSTANTIATE, &vidinfo, 0).ivalue;
     if(generator->intcore == FF_FAIL) {
       error("Freeframe generator %s cannot be instantiated", name);
       delete generator;

@@ -51,4 +51,3 @@ bang.frame = function() {
 
 register_controller(bang);
 
-gc();

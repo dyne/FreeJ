@@ -46,7 +46,7 @@ JS(filter_constructor) {
 
   int idx;
   char *name;
-  
+  FilterInstance *filter_instance = NULL;
   if(argc < 1)
       JS_ERROR("missing argument");
 
@@ -54,22 +54,22 @@ JS(filter_constructor) {
   JS_BeginRequest(cx);
   name = js_get_string(argv[0]);
 
-  FilterDuo *duo = new FilterDuo();
+  Filter *filter = (Filter*) global_environment->filters.search(name, &idx);
   
-  duo->proto = (Filter*) global_environment->filters.search(name, &idx);
-
-  if(!duo->proto) {
+  if(!filter) {
     error("filter not found: %s",name);
-    delete duo;
     *rval = JSVAL_FALSE;
     return JS_TRUE;
-  } else // fill with class description
-    duo->proto->jsclass = &filter_class;
+  } else {
+    filter_instance = filter->new_instance();
+    // fill with class description
+    filter_instance->jsclass = &filter_class;
+  }
 
-  if(!JS_SetPrivate(cx, obj, (void*)duo))
+  if(!JS_SetPrivate(cx, obj, (void*)filter_instance))
     JS_ERROR("internal error setting private value");
   else
-    duo->proto->jsobj = obj;
+    filter_instance->jsobj = obj;
 
   *rval = OBJECT_TO_JSVAL(obj);
   JS_EndRequest(cx);
@@ -82,18 +82,18 @@ JS(filter_activate) {
 
   //JS_SetContextThread(cx);
   JS_BeginRequest(cx);
-  FilterDuo *duo = (FilterDuo *) JS_GetPrivate(cx, obj);
-  if(!duo) {
+  FilterInstance *filter_instance = (FilterInstance *) JS_GetPrivate(cx, obj);
+  if(!filter_instance) {
     error("%u:%s:%s :: Filter core data is NULL",
 	  __LINE__,__FILE__,__FUNCTION__);
     JS_EndRequest(cx);
     //JS_ClearContextThread(cx);
     return JS_FALSE;
   }
-  *rval = BOOLEAN_TO_JSVAL(duo->instance->active);
+  *rval = BOOLEAN_TO_JSVAL(filter_instance->active);
   if (argc == 1) {
     jsint var = js_get_int(argv[0]);
-    duo->instance->active = (bool)var;
+    filter_instance->active = (bool)var;
   }
   JS_EndRequest(cx);
   //JS_ClearContextThread(cx);
@@ -115,8 +115,8 @@ JS(filter_set_parameter) {
     JS_ERROR("missing arguments: name, values");
 
 
-  FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);
-  if(!duo) {
+  FilterInstance *filter_instance = (FilterInstance*)JS_GetPrivate(cx, obj);
+  if(!filter_instance) {
     error("%u:%s:%s :: Filter core data is NULL",
 	  __LINE__,__FILE__,__FUNCTION__);
     return JS_FALSE;
@@ -125,19 +125,19 @@ JS(filter_set_parameter) {
   if(JSVAL_IS_DOUBLE(argv[0])) {
     
     double *argidx = JSVAL_TO_DOUBLE(argv[0]);
-    param = (Parameter*) duo->proto->parameters.pick((int)*argidx);
+    param = (Parameter*) filter_instance->proto->parameters.pick((int)*argidx);
     
   } else { // get it by the param name
     
     name = js_get_string(argv[0]);
-    param = (Parameter*) duo->proto->parameters.search(name, &idx);
+    param = (Parameter*) filter_instance->proto->parameters.search(name, &idx);
     
   }
   
   if(!param) { 
     JS_EndRequest(cx);
     //JS_ClearContextThread(cx);
-    error("parameter %s not found in filter %s", name, duo->proto->name);
+    error("parameter %s not found in filter %s", name, filter_instance->proto->name);
     return JS_TRUE;
   }
   
@@ -148,38 +148,38 @@ JS(filter_set_parameter) {
     {
       if(!JS_ValueToNumber(cx, argv[1], &val[0])) {
         error("set parameter called with an invalid value for filter %s",
-	      duo->proto->name);
+	      filter_instance->proto->name);
         break;
       }
       func("javascript %s->%s to [%.5f]",
-	   duo->proto->name, param->name, val[0]);
-      //  duo->proto->set_parameter_value( duo->instance, &val, it->second );
+	   filter_instance->proto->name, param->name, val[0]);
+      //  filter_instance->proto->set_parameter_value( filter_instance->instance, &val, it->second );
       
       param->set(&val);
-      duo->instance->set_parameter(idx);
+      filter_instance->set_parameter(idx);
       break; 
     }
   case Parameter::POSITION:
     if(!JS_ValueToNumber(cx, argv[1], &val[0])) {
       error("set parameter called with an invalid value for filter %s",
-	    duo->proto->name);
+	    filter_instance->proto->name);
       break;
     }
     if(!JS_ValueToNumber(cx, argv[2], &val[1])) {
       error("set parameter called with an invalid value for filter %s",
-	    duo->proto->name);
+	    filter_instance->proto->name);
       break;
     }
     func("javascript %s->%s to x[%.1f] y[%.1f]",
-	 duo->proto->name, param->name, val[0], val[1]);
-    //  duo->proto->set_parameter_value( duo->instance, &val, it->second );
+	 filter_instance->proto->name, param->name, val[0], val[1]);
+    //  filter_instance->proto->set_parameter_value( filter_instance->instance, &val, it->second );
     
     param->set(&val[0]);
-    duo->instance->set_parameter(idx);
+    filter_instance->set_parameter(idx);
     break; 
     
   default:
-    error("parameter of unknown type: %s->%s", duo->proto->name, param->name);
+    error("parameter of unknown type: %s->%s", filter_instance->proto->name, param->name);
     break;
   }
   JS_EndRequest(cx);
@@ -203,8 +203,8 @@ JSP(filter_list_parameters) {
     return JS_FALSE;
   }
 
-  FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);
-  if(!duo) {
+  FilterInstance *filter_instance = (FilterInstance*)JS_GetPrivate(cx, obj);
+  if(!filter_instance) {
     error("%u:%s:%s :: Layer core data is NULL",
 	  __LINE__,__FILE__,__FUNCTION__);
     JS_EndRequest(cx);
@@ -213,7 +213,7 @@ JSP(filter_list_parameters) {
   }
 
   // take the prototype (descriptive) and create an array
-  Parameter *parm = (Parameter*)duo->proto->parameters.begin();
+  Parameter *parm = (Parameter*)filter_instance->proto->parameters.begin();
   int c = 0;
   while(parm) {
     otmp = JS_NewObject(cx, &parameter_class, NULL, obj);
