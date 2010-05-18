@@ -44,6 +44,8 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+FACTORY_REGISTER_INSTANTIATOR(Filter, Freeframe, FreeframeFilter, freeframe);
+
 Freeframe::Freeframe() 
   : Filter(FREEFRAME) 
 { 

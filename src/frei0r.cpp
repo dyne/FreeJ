@@ -34,6 +34,8 @@
 #include <layer.h>
 #include <jutils.h>
 
+FACTORY_REGISTER_INSTANTIATOR(Filter, Freior, Frei0rFilter, frei0r);
+
 /// frei0r parameter callbacks
 static void get_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx) {
     Freior *f = (Freior *)filt->proto;

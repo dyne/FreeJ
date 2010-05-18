@@ -136,7 +136,7 @@ int Plugger::refresh(Context *env) {
 
 #ifdef WITH_FREI0R
 	{
-          Freior *fr = (Freior *)Factory<Filter>::new_instance("Filter", "frei0r");
+          Freior *fr = (Freior *)Factory<Filter>::new_instance("Frei0rFilter");
 	  if( !fr || !fr->open(temp) ) {
 	    delete fr;
 	  } else { // freior effect found
@@ -168,7 +168,7 @@ int Plugger::refresh(Context *env) {
 #endif
 #ifdef WITH_FREEFRAME
 	{
-          Freeframe *fr = Factory<Filter>::new_instance("Filter", "freeframe");
+          Freeframe *fr = (Freeframe *)Factory<Filter>::new_instance("FreeframeFilter");
 	  if( ! fr->open(temp) ) {
 	    delete fr;
 	  } else { // freeframe effect found

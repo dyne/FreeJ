@@ -23,6 +23,7 @@
 
 #include <parameter.h>
 #include <linklist.h>
+#include <stdint.h>
 
 class Filter;
 
