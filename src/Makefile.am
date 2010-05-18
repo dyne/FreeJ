@@ -8,16 +8,17 @@ SUBDIRS = include
 SOURCES = \
 	context.cpp		layer.cpp	\
 	fps.cpp			blitter.cpp	\
-	sdl_blits.cpp   	linear_blits.cpp \
+	sdl_blits.cpp		linear_blits.cpp \
 	iterator.cpp		linklist.cpp	\
-	jsync.cpp		closure.cpp     \
-	callback.cpp    	cpu_accel.cpp	\
+	jsync.cpp		closure.cpp	\
+	callback.cpp		cpu_accel.cpp	\
 	plugin.cpp		plugger.cpp	\
 	frei0r.cpp		freeframe.cpp   \
 	filter.cpp		parameter.cpp   \
+	filter_instance.cpp \
 	jutils.cpp		fastmemcpy.cpp  \
 	ringbuffer.cpp  	convertvid.cpp  \
-        logging.cpp geometry.cpp color.cpp \
+	logging.cpp geometry.cpp color.cpp \
 \
 	v4l_layer.cpp tvfreq.c	unicap_layer.cpp \
 	video_layer.cpp		image_layer.cpp \
@@ -29,7 +30,7 @@ SOURCES = \
 \
 	screen.cpp		screen_js.cpp      \
 	sdl_screen.cpp 		sdlgl_screen.cpp   \
-	gl_screen.cpp   	soft_screen.cpp    \
+	gl_screen.cpp		soft_screen.cpp    \
 	aa_screen.cpp \
 \
 	controller.cpp  	console_ctrl.cpp  \
