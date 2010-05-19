@@ -235,7 +235,7 @@ int Freior::open(char *file) {
       
       Parameter *param = new Parameter((Parameter::Type)param_infos[i].type);
       strncpy(param->name, param_infos[i].name, 255);
-      notice("adding parameter %s for filter %s\n", param->name, info.name);
+      func("registering parameter %s for filter %s\n", param->name, info.name);
       
       strcpy(param->description, param_infos[i].explanation);
       param->filter_set_f = set_frei0r_parameter;
