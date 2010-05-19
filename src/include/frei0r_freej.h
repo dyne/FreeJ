@@ -30,9 +30,6 @@
 #include <filter.h>
 #include <factory.h>
 
-class Filter;
-
-
 class Freior: public Filter {
   friend class GenF0rLayer;
 #ifdef WITH_COCOA
@@ -43,6 +40,7 @@ class Freior: public Filter {
   Freior();
   virtual ~Freior();
 
+  int type();
   int open(char *file);
   bool apply(Layer *lay, FilterInstance *instance);
   const char *description();

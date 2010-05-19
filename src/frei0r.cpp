@@ -34,7 +34,7 @@
 #include <layer.h>
 #include <jutils.h>
 
-FACTORY_REGISTER_INSTANTIATOR(Filter, Freior, Frei0rFilter, frei0r);
+FACTORY_REGISTER_INSTANTIATOR(Filter, Freior, Frei0rFilter, core);
 
 /// frei0r parameter callbacks
 static void get_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx) {
@@ -127,34 +127,15 @@ static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx
     }
     
 }
+// end of parameter callbacks
 
 Freior::Freior() 
-  : Filter(FREIOR) 
+  : Filter() 
 { 
   handle = NULL;
   opened = false;
-  f0r_init();
-  
-  // Get the list of params.
-  param_infos.resize(info.num_params);
-  for (int i = 0; i < info.num_params; ++i) {
-      
-      (f0r_get_param_info)(&param_infos[i], i);
-      
-      Parameter *param = new Parameter((Parameter::Type)param_infos[i].type);
-      strncpy(param->name, param_infos[i].name, 255);
-      
-      strcpy(param->description, param_infos[i].explanation);
-      param->filter_set_f = set_frei0r_parameter;
-      param->filter_get_f = get_frei0r_parameter;
-      parameters.append(param);
-  }
-  
-  if(get_debug()>2)
-      print_info();
-  
-  set_name((char*)info.name);
-            
+           
+  set_name((char *)"Unknown");
 }
 
 Freior::~Freior() {
@@ -239,10 +220,31 @@ int Freior::open(char *file) {
   // get the info on the plugin
   (*f0r_get_plugin_info)(&info);
 
-
   opened = true;
   snprintf(filename,255,"%s",file);
 
+  f0r_init();
+  
+  // Get the list of params.
+  param_infos.resize(info.num_params);
+  for (int i = 0; i < info.num_params; ++i) {
+      
+      (f0r_get_param_info)(&param_infos[i], i);
+      
+      Parameter *param = new Parameter((Parameter::Type)param_infos[i].type);
+      strncpy(param->name, param_infos[i].name, 255);
+      
+      strcpy(param->description, param_infos[i].explanation);
+      param->filter_set_f = set_frei0r_parameter;
+      param->filter_get_f = get_frei0r_parameter;
+      parameters.append(param);
+  }
+  
+  if(get_debug()>2)
+      print_info();
+  
+  set_name((char*)info.name);
+ 
   return 1;
 
 }
@@ -306,6 +308,11 @@ int Freior::get_parameter_type(int i)
 char *Freior::get_parameter_description(int i)
 {
     return (char*)param_infos[i].explanation;
+}
+
+int Freior::type()
+{
+    return Filter::FREIOR;
 }
 
 #endif // WITH_FREI0R

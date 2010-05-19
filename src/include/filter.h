@@ -48,7 +48,7 @@ class Filter : public Entry {
 #endif
     FREEFRAME=2
   };
-  Filter(Type type);
+  Filter();
   virtual ~Filter();
     
   virtual FilterInstance *new_instance();
@@ -62,7 +62,7 @@ class Filter : public Entry {
 
   virtual char *get_parameter_description(int i);
 
-  int type();
+  virtual int type()=0;
     
   bool initialized;
   bool active;
@@ -84,7 +84,6 @@ class Filter : public Entry {
   virtual void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
 
   int bytesize;
-  int backend;
 
 };
 

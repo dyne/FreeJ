@@ -38,6 +38,8 @@ class Freeframe: public Filter {
   Freeframe();
   virtual ~Freeframe();
 
+  int type();
+
   int open(char *file);
 
   const char *description();

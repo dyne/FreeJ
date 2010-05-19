@@ -44,10 +44,10 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-FACTORY_REGISTER_INSTANTIATOR(Filter, Freeframe, FreeframeFilter, freeframe);
+FACTORY_REGISTER_INSTANTIATOR(Filter, Freeframe, FreeframeFilter, core);
 
 Freeframe::Freeframe() 
-  : Filter(FREEFRAME) 
+  : Filter() 
 { 
 
   handle = NULL;
@@ -205,4 +205,9 @@ char *Freeframe::get_parameter_description(int i)
 {
     // TODO
     return (char *)"Unknown";
+}
+
+int Freeframe::type()
+{
+    return Filter::FREEFRAME;
 }

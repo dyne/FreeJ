@@ -29,7 +29,7 @@ $Id: $
 
 #include <jutils.h>
 
-Filter::Filter(Type type) 
+Filter::Filter() 
   : Entry()
 {
   int i;
@@ -40,27 +40,6 @@ Filter::Filter(Type type)
 
   bytesize = 0;
     
-  switch(type) {
-
-#ifdef WITH_FREI0R
-  case FREIOR:
-    break;
-#endif
-  case FREEFRAME:
-    break;
-
-#ifdef WITH_COCOA
-  case COREIMAGE:
-    
-    break;
-#endif
-  default:
-    error("filter type %u not supported",type);
-    return;
-  }
-
-  backend = type;
-
 }
 
 static const char *KnownFilters[] =
@@ -137,9 +116,3 @@ void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32
 
 }
 
-int Filter::type()
-{
-    return backend;
-}
-
-    
