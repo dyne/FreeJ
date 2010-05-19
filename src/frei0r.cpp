@@ -225,6 +225,8 @@ int Freior::open(char *file) {
 
   f0r_init();
   
+  set_name((char*)info.name);
+ 
   // Get the list of params.
   param_infos.resize(info.num_params);
   for (int i = 0; i < info.num_params; ++i) {
@@ -233,6 +235,7 @@ int Freior::open(char *file) {
       
       Parameter *param = new Parameter((Parameter::Type)param_infos[i].type);
       strncpy(param->name, param_infos[i].name, 255);
+      notice("adding parameter %s for filter %s\n", param->name, info.name);
       
       strcpy(param->description, param_infos[i].explanation);
       param->filter_set_f = set_frei0r_parameter;
@@ -243,8 +246,6 @@ int Freior::open(char *file) {
   if(get_debug()>2)
       print_info();
   
-  set_name((char*)info.name);
- 
   return 1;
 
 }
@@ -277,7 +278,7 @@ void Freior::print_info() {
 
 bool Freior::apply(Layer *lay, FilterInstance *instance) 
 {
-    instance->core = (void*)f0r_construct(lay->geo.w, lay->geo.h);
+    instance->core = (*f0r_construct)(lay->geo.w, lay->geo.h);
     if (!instance->core)
         return false;
     return Filter::apply(lay, instance);
