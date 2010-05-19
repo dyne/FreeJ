@@ -312,11 +312,19 @@ JS(layer_add_filter) {
   JSObject *jsfilter = NULL;
   FilterInstance *filter_instance = NULL;
 
+  JS_BeginRequest(cx);
+
   if(argc<1)
       JS_ERROR("missing argument");
   //  js_is_instanceOf(&filter_class, argv[0]);
 
   jsfilter = JSVAL_TO_OBJECT(argv[0]);
+  if (!jsfilter) {
+      error("Filter %s nt found", JSVAL_TO_STRING(argv[0]));
+      JS_EndRequest(cx);
+      JS_ClearContextThread(cx);
+      return JS_FALSE;
+  }
   /**
    * Extract filter and layer pointers from js objects
    */
@@ -324,11 +332,13 @@ JS(layer_add_filter) {
   if(!filter_instance)
       JS_ERROR("Effect is NULL");
 
+  GET_LAYER(Layer);
+  JS_EndRequest(cx);
+
   if(filter_instance->inuse) {
     error("filter %s is already in use", filter_instance->proto->name);
     return JS_TRUE;
   }
-  GET_LAYER(Layer);
   
   filter_instance->apply(lay);
   
