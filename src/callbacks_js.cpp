@@ -52,8 +52,8 @@ JSFreej_GetErrorMessage(void *userRef, const char *locale, const uintN errorNumb
 {
     if ((errorNumber > 0) && (errorNumber < JSFreejErr_Limit))
         return &jsFreej_ErrorFormatString[errorNumber];
-	else
-	    return NULL;
+    else
+        return NULL;
 }
 
 #define CHECK_JSENV() \
@@ -87,29 +87,33 @@ JSBool js_static_branch_callback(JSContext* Context)
 #endif
 {
   if(stop_script) {
-	stop_script=false;
-	return JS_FALSE;
+    stop_script=false;
+    return JS_FALSE;
   }
   return JS_TRUE;
 }
 
 char *js_get_string(jsval val) {
   char *res = NULL;
+  CHECK_JSENV();
+  JS_SetContextThread(global_environment->js->global_context);
   JS_BeginRequest(global_environment->js->global_context);
-  if(JSVAL_IS_STRING(val))
+  if(JSVAL_IS_STRING(val)) {
     res = JS_GetStringBytes( JS_ValueToString(global_environment->js->global_context, val) );
-  else {
+  } else {
     JS_ReportError(global_environment->js->global_context,"argument is not a string");
     ::error("argument is not a string");
   }
   JS_EndRequest(global_environment->js->global_context);
+  JS_ClearContextThread(global_environment->js->global_context);
   return res;
 }
 
 
 jsint js_get_int(jsval val) {
-  JS_BeginRequest(global_environment->js->global_context);
   CHECK_JSENV();
+  JS_SetContextThread(global_environment->js->global_context);
+  JS_BeginRequest(global_environment->js->global_context);
 
   int32 res = 0;
 
@@ -145,7 +149,7 @@ jsint js_get_int(jsval val) {
     {
       jsdouble tmp;
       if( !JS_ValueToNumber(global_environment->js->global_context, val, &tmp) ) {
-	error("argument is of unknown type, cannot interpret");
+        error("argument is of unknown type, cannot interpret");
       } else res = (int32)tmp;
     }
       // else {
@@ -154,20 +158,22 @@ jsint js_get_int(jsval val) {
     // }
 
     // JS_ReportErrorNumber( global_environment->js->global_context, JSFreej_GetErrorMessage, NULL,
-    // 			 JSSMSG_FJ_WICKED,__FUNCTION__, "invalid value");
+    //                       JSSMSG_FJ_WICKED,__FUNCTION__, "invalid value");
 
     //    res = *JSVAL_TO_DOUBLE(*val);
     //    func("argument %p is %.4f",val, res);
     break;
   }
   JS_EndRequest(global_environment->js->global_context);
+  JS_ClearContextThread(global_environment->js->global_context);
   return res;
 }
 
 jsdouble js_get_double(jsval val) {
 
-  JS_BeginRequest(global_environment->js->global_context);
   CHECK_JSENV();
+  JS_SetContextThread(global_environment->js->global_context);
+  JS_BeginRequest(global_environment->js->global_context);
 
   jsdouble res = 0.0;
 
@@ -203,7 +209,7 @@ jsdouble js_get_double(jsval val) {
     {
       jsdouble tmp;
       if( ! JS_ValueToNumber(global_environment->js->global_context, val, &tmp) ) {
-	error("argument is of unknown type, cannot interpret");
+        error("argument is of unknown type, cannot interpret");
       } else res = tmp;
     }
 
@@ -217,13 +223,14 @@ jsdouble js_get_double(jsval val) {
     //   warning("argument %p is of unknown type, but should be int, got value %.4f",val, res);
     // }
     // JS_ReportErrorNumber( global_environment->js->global_context, JSFreej_GetErrorMessage, NULL,
-    // 			 JSSMSG_FJ_WICKED,__FUNCTION__, "invalid value");
+    //                       JSSMSG_FJ_WICKED,__FUNCTION__, "invalid value");
 
     //    res = *JSVAL_TO_DOUBLE(*val);
     //    func("argument %p is %.4f",val, res);
     break;
   }
   JS_EndRequest(global_environment->js->global_context);
+  JS_ClearContextThread(global_environment->js->global_context);
   return res;
 }
 
@@ -242,8 +249,9 @@ void js_error_reporter(JSContext* Context, const char *Message, JSErrorReport *R
 }
 
 JSBool _js_is_instanceOf(JSContext* cx, JSClass* clasp, jsval v, const char* caller) {
-	JSBool ret = JS_FALSE;
-	JS_BeginRequest(cx);
+    JSBool ret = JS_FALSE;
+    JS_SetContextThread(global_environment->js->global_context);
+    JS_BeginRequest(cx);
     if (!v || !JSVAL_IS_OBJECT(v)) {
         JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
            JSSMSG_FJ_WICKED , caller, "argument is not an object"
@@ -251,14 +259,16 @@ JSBool _js_is_instanceOf(JSContext* cx, JSClass* clasp, jsval v, const char* cal
         JS_ReportErrorNumber(cx, JSFreej_GetErrorMessage, NULL,
            JSSMSG_FJ_WICKED , caller, "argument is not an object"
         );
-		JS_EndRequest(cx);
+        JS_EndRequest(cx);
+        JS_ClearContextThread(global_environment->js->global_context);
         return JS_FALSE;
     }
-	JSObject *obj = JSVAL_TO_OBJECT(v);
+    JSObject *obj = JSVAL_TO_OBJECT(v);
 
-	ret = JS_InstanceOf(cx, obj, clasp, NULL);
+    ret = JS_InstanceOf(cx, obj, clasp, NULL);
 
-	JS_EndRequest(cx);
+    JS_EndRequest(cx);
+    JS_ClearContextThread(global_environment->js->global_context);
     return ret;
 }
 
