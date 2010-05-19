@@ -79,10 +79,11 @@ bool Parameter::set(void *val) {
       return(false);
     }
     // apply multiplier for internal value storage
-    if(multiplier!= 1.0) v = v * multiplier;
+    if(multiplier!= 1.0)
+      v = v * multiplier;
     func("parameter %s set to %.2f", name, v);
     // store value
-    *(float*)value = v;
+    *(double*)value = v;
     
     //////////////////////////////////////
   } else if(type == Parameter::BOOL) {
