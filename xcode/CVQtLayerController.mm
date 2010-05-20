@@ -98,9 +98,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     err = QTOpenGLTextureContextCreate(kCFAllocatorDefault, glContext,
                 CGLGetPixelFormat(glContext), visualContextOptions, &qtVisualContext);
     
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CFRelease(visualContextOptions);
-    CGColorSpaceRelease(colorSpace);    
 }
 #endif
 
