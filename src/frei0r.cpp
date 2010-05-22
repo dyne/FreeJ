@@ -301,6 +301,11 @@ const char *Freior::description()
     return info.explanation;
 }
 
+const char *Freior::author()
+{
+    return info.author;
+}
+
 int Freior::get_parameter_type(int i)
 {
     return param_infos[i].type;

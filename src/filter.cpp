@@ -97,18 +97,9 @@ FilterInstance *Filter::apply(Layer *lay) {
 const char *Filter::description() {
     return "Unknown"; // TODO - use a more meaningful default
 }
-const char *Filter::author() {
-  const char *ret;
-#ifdef WITH_FREI0R
-  if(backend==FREIOR) {
-    ret = freior->info.author;
-  }
-#endif
-  if(backend==FREEFRAME) {
-    // TODO freeframe has no extentedinfostruct returned!?
-    ret = "freeframe authors";
-  }
-  return ret;
+
+const char *Filter::author()  {
+    return "Unknown";
 }
 
 

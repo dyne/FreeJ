@@ -55,11 +55,9 @@ class Filter : public Entry {
     
   virtual FilterInstance *apply(Layer *lay);
   virtual bool apply(Layer *lay, FilterInstance *instance);
-
-  FilterInstance *apply(Layer *lay);
   
-  const char *description();
-  const char *author();
+  virtual const char *description();
+  virtual const char *author();
 
   virtual int get_parameter_type(int i);
 

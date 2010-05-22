@@ -43,7 +43,8 @@ class Freeframe: public Filter {
   int open(char *file);
 
   const char *description();
-    
+  const char *author();
+
   void print_info();
   int  get_parameter_type(int i);
   char *get_parameter_description(int i);

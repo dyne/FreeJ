@@ -195,6 +195,12 @@ const char *Freeframe::description()
     return "freeframe VFX";
 }
 
+const char *Freeframe::author()
+{
+    // TODO freeframe has no extentedinfostruct returned!?
+    return "freeframe authors";
+}
+
 int Freeframe::get_parameter_type(int i)
 {
     // TODO

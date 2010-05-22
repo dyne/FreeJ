@@ -285,8 +285,6 @@
 		AA3C44D30F3EEBE0007C7E8B /* plugger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = plugger.h; path = include/plugger.h; sourceTree = "<group>"; };
 		AA3C44D40F3EEBE0007C7E8B /* plugin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = plugin.h; path = include/plugin.h; sourceTree = "<group>"; };
 		AA3C44D50F3EEBE0007C7E8B /* ringbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ringbuffer.h; path = include/ringbuffer.h; sourceTree = "<group>"; };
-		AA3C44D60F3EEBE0007C7E8B /* scale2x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scale2x.h; path = include/scale2x.h; sourceTree = "<group>"; };
-		AA3C44D70F3EEBE0007C7E8B /* scale3x.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scale3x.h; path = include/scale3x.h; sourceTree = "<group>"; };
 		AA3C44D80F3EEBE0007C7E8B /* screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = screen.h; path = include/screen.h; sourceTree = "<group>"; };
 		AA3C44DA0F3EEBE0007C7E8B /* sdl_screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sdl_screen.h; path = include/sdl_screen.h; sourceTree = "<group>"; };
 		AA3C44DB0F3EEBE0007C7E8B /* sdlgl_screen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sdlgl_screen.h; path = include/sdlgl_screen.h; sourceTree = "<group>"; };
@@ -833,8 +831,6 @@
 				AA3C44D30F3EEBE0007C7E8B /* plugger.h */,
 				AA3C44D40F3EEBE0007C7E8B /* plugin.h */,
 				AA3C44D50F3EEBE0007C7E8B /* ringbuffer.h */,
-				AA3C44D60F3EEBE0007C7E8B /* scale2x.h */,
-				AA3C44D70F3EEBE0007C7E8B /* scale3x.h */,
 				AA3C44D80F3EEBE0007C7E8B /* screen.h */,
 				AA3C44DA0F3EEBE0007C7E8B /* sdl_screen.h */,
 				AA3C44DB0F3EEBE0007C7E8B /* sdlgl_screen.h */,

@@ -216,7 +216,7 @@ JSP(filter_list_parameters) {
   }
 
   // take the prototype (descriptive) and create an array
-  Parameter *parm = (Parameter*)filter_instance->proto->parameters.begin();
+  Parameter *parm = (Parameter *)filter_instance->proto->parameters.begin();
   int c = 0;
   while(parm) {
     otmp = JS_NewObject(cx, &parameter_class, NULL, obj);
@@ -242,15 +242,15 @@ JSP(filter_get_description) {
 
   JS_BeginRequest(cx);
 
-  FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);
-  if(!duo) { error("%u:%s:%s :: Filter core data is NULL",
-		   __LINE__,__FILE__,__FUNCTION__);
+  FilterInstance *instance = (FilterInstance *)JS_GetPrivate(cx, obj);
+  if(!instance) {
+    error("%u:%s:%s :: Filter core data is NULL", __LINE__, __FILE__, __FUNCTION__);
     JS_EndRequest(cx);
     //JS_ClearContextThread(cx);
     return JS_FALSE;
   }
 
-  str = JS_NewStringCopyZ(cx, duo->proto->description());
+  str = JS_NewStringCopyZ(cx, instance->proto->description());
   *vp = STRING_TO_JSVAL(str);
   
   JS_EndRequest(cx);
@@ -258,21 +258,21 @@ JSP(filter_get_description) {
 }
 
 JSP(filter_get_author) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+  func("%u:%s:%s", __LINE__, __FILE__, __FUNCTION__);
 
   JSString *str;
 
   JS_BeginRequest(cx);
 
-  FilterDuo *duo = (FilterDuo*)JS_GetPrivate(cx, obj);
-  if(!duo) { error("%u:%s:%s :: Filter core data is NULL",
-		   __LINE__,__FILE__,__FUNCTION__);
+  FilterInstance *instance = (FilterInstance *)JS_GetPrivate(cx, obj);
+  if(!instance) {
+    error("%u:%s:%s :: Filter core data is NULL", __LINE__, __FILE__, __FUNCTION__);
     JS_EndRequest(cx);
     //JS_ClearContextThread(cx);
     return JS_FALSE;
   }
 
-  str = JS_NewStringCopyZ(cx, duo->proto->author());
+  str = JS_NewStringCopyZ(cx, instance->proto->author());
   *vp = STRING_TO_JSVAL(str);
   
   JS_EndRequest(cx);
