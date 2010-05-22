@@ -447,11 +447,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     
     CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);    
     
-    // XXX - we force rendering at this stage instead of delaying it setting the needsDisplay flag
+    // XXX - we force rendering at this stage, instead of delaying it by setting the needsDisplay flag,
     // to avoid stopping displaying new frames on the output screen while system animations are in progress
-    // (for example, when opening a fileselction panel the CVScreen rendering would stop while the animation is in progress
-    // because both the actions would happen in the main application thread. Forcing rendering now makes it happen in the 
-    // CVScreen thread
+    // (for instance: when opening a fileselction panel the CVScreen rendering would stop while the animation is in progress
+    // because both the actions would happen in the main application/gui thread.
+    // Forcing rendering at this stace makes it happen in the CVScreen thread instead
     //[self setNeedsDisplay:YES]; // this will delay rendering to be done  the application main thread
     [self drawRect:NSZeroRect]; // this directly render the frame out in this thread
     

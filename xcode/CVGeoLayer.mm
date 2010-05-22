@@ -31,8 +31,8 @@ CVGeoLayer::CVGeoLayer()
     currentFrame = NULL;
     bufsize = 0;
     blendMode = [[NSString stringWithFormat:@"Overlay"] retain];
-    input = [[CVLayerController alloc] init];
-    set_name("CVGeoLayer");
+    input = [[CVLayerController alloc] init]; // create a new layer-controller
+    set_name("CVGeoLayer"); // and set our name
     if (input)
         set_controller(input);
 }

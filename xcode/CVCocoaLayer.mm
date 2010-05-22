@@ -89,8 +89,8 @@ bool CVCocoaLayer::is_active()
 
 bool CVCocoaLayer::is_visible()
 {
-    if (layer)
-        return layer->screen?true:false;
+    if (layer && layer->screen)
+        return true;
     return false;
 }
 
@@ -102,9 +102,8 @@ Layer *CVCocoaLayer::fj_layer()
 void CVCocoaLayer::set_controller(CVLayerController *vin)
 {
     input = vin;
-    if (input) {
+    if (input)
         [input setLayer:this];
-    }
 }
 
 char *CVCocoaLayer::fj_name()
