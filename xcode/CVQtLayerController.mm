@@ -98,9 +98,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     err = QTOpenGLTextureContextCreate(kCFAllocatorDefault, glContext,
                 CGLGetPixelFormat(glContext), visualContextOptions, &qtVisualContext);
     
-    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     CFRelease(visualContextOptions);
-    CGColorSpaceRelease(colorSpace);    
 }
 #endif
 
@@ -256,18 +254,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     return isPlaying;
 }
 
-- (CVTexture *)getTexture
-{
-    CVTexture *ret;
-    bool gotNewFrame = newFrame;
-    ret = [super getTexture];
-	/*
-    if (gotNewFrame) // task the qtvisualcontext if we got a new frame
-        [(CVQtLayerController *)self task];
-	 */
-    return ret;
-}
-
 - (BOOL)getFrameForTime:(const CVTimeStamp *)timeStamp
 {
     Context *ctx = [freej getContext];
@@ -373,10 +359,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     } else {
         rv = kCVReturnError;
     }
-    if (layer) 
-        layer->vbuffer = currentFrame;
     [pool release];
-    return rv;
+    return [super renderFrame];
 }
 
 - (void)task

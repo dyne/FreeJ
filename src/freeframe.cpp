@@ -38,27 +38,44 @@
 #include <freeframe_freej.h>
 
 #include <jutils.h>
+#include <layer.h>
 
 #ifdef HAVE_DARWIN
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+FACTORY_REGISTER_INSTANTIATOR(Filter, Freeframe, FreeframeFilter, core);
+
 Freeframe::Freeframe() 
-  : Entry() { 
+  : Filter() 
+{ 
 
   handle = NULL;
   opened = false;
+
+
+  set_name((char*)info->pluginName);
+
+  // init freeframe filter
+  if(plugmain(FF_INITIALISE, NULL, 0).ivalue == FF_FAIL)
+    error("cannot initialise freeframe plugin %s",name);
+
+  // TODO freeframe parameters
+
+  if(get_debug()>2)
+    print_info();
 
 }
 
 Freeframe::~Freeframe() {
 
-  if(handle) dlclose(handle);
+  if(handle)
+      dlclose(handle);
 
 }
 
 int Freeframe::open(char *file) {
-  plugMainType *plugmain;
+  plugMainType *plgMain;
 
   if(opened) {
     error("Freeframe object %p has already opened file %s",this, filename);
@@ -74,7 +91,7 @@ int Freeframe::open(char *file) {
       CFStringRef filestring = CFStringCreateWithCString(NULL, file, kCFStringEncodingUTF8);
       CFURLRef filepath = CFURLCreateWithFileSystemPath(NULL, filestring, kCFURLPOSIXPathStyle, 1);;
       CFBundleRef bundle = CFBundleCreate(NULL, filepath);
-      plugmain = (plugMainUnion (*)(DWORD, void*, DWORD))CFBundleGetFunctionPointerForName(bundle, CFSTR("plugMain"));
+      plgMain = (plugMainUnion (*)(DWORD, void*, DWORD))CFBundleGetFunctionPointerForName(bundle, CFSTR("plugMain"));
       CFRelease(filestring);
       CFRelease(filepath);
 #endif
@@ -93,8 +110,8 @@ int Freeframe::open(char *file) {
       }
 
       // try the freeframe symbol
-      plugmain = (plugMainType *) dlsym(handle, "plugMain");
-      if(!plugmain) {
+      plgMain = (plugMainType *) dlsym(handle, "plugMain");
+      if(!plgMain) {
         func("%s not a valid freeframe plugin: %s", file, dlerror());
         // don't forget to close
         dlclose(handle);
@@ -106,11 +123,11 @@ int Freeframe::open(char *file) {
   
   /// WARNING:  if  compiled  without  -freg-struct-return  this  will
   /// return an invalid address ...
-  PlugInfoStruct *pis = (plugmain(FF_GETINFO,NULL, 0)).PISvalue;
+  PlugInfoStruct *pis = (plgMain(FF_GETINFO,NULL, 0)).PISvalue;
 
   //  func("freeframe plugin: %s",pis->pluginName);
   // ... and here will segfault
-  if ((plugmain(FF_GETPLUGINCAPS,
+  if ((plgMain(FF_GETPLUGINCAPS,
 		(LPVOID) FF_CAP_32BITVIDEO, 0)).ivalue != FF_TRUE) {
     func("plugin %s: no 32 bit support", file);
     dlclose(handle);
@@ -126,12 +143,11 @@ int Freeframe::open(char *file) {
   }
 
   // init is called by Filter class
-  //   (plugmain(FF_INITIALISE, NULL, 0)).ivalue {
+  //   (plgMain(FF_INITIALISE, NULL, 0)).ivalue {
 
-  main = plugmain;
   info = pis;
-  //  extinfo = plugmain(FF_GETEXTENDEDINFO, NULL, 0)
-
+  //  extinfo = plgMain(FF_GETEXTENDEDINFO, NULL, 0)
+  plugmain = plgMain;
   opened = true;
   snprintf(filename,255,"%s",file);
 
@@ -146,6 +162,52 @@ void Freeframe::print_info() {
   case FF_SOURCE: act("Type             : Source"); break;
   default: error("Unrecognized plugin type");
   }
-  act("Parameters [%i total]", main(FF_GETNUMPARAMETERS, NULL, 0).ivalue);
+  act("Parameters [%i total]", plugmain(FF_GETNUMPARAMETERS, NULL, 0).ivalue);
 }
 
+bool Freeframe::apply(Layer *lay, FilterInstance *instance) 
+{
+    VideoInfoStruct vidinfo;
+    vidinfo.frameWidth = lay->geo.w;
+    vidinfo.frameHeight = lay->geo.h;
+    vidinfo.orientation = 1;
+    vidinfo.bitDepth = FF_CAP_32BITVIDEO;
+    instance->intcore = plugmain(FF_INSTANTIATE, &vidinfo, 0).ivalue;
+    if(instance->intcore == FF_FAIL) {
+        error("Filter %s cannot be instantiated", name);
+        return false;
+    }
+    return Filter::apply(lay, instance);
+}
+
+void Freeframe::destruct(FilterInstance *inst) {
+    plugmain(FF_DEINSTANTIATE, NULL, inst->intcore);
+}
+
+void Freeframe::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
+    jmemcpy(outframe,inframe,bytesize);
+    plugmain(FF_PROCESSFRAME, (void*)outframe, inst->intcore);
+}
+
+const char *Freeframe::description()
+{
+    // TODO freeframe has no extentedinfostruct returned!?
+    return "freeframe VFX";
+}
+
+int Freeframe::get_parameter_type(int i)
+{
+    // TODO
+    return -1;
+}
+
+char *Freeframe::get_parameter_description(int i)
+{
+    // TODO
+    return (char *)"Unknown";
+}
+
+int Freeframe::type()
+{
+    return Filter::FREEFRAME;
+}

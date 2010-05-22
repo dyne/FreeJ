@@ -158,6 +158,8 @@
 		AAD9EF6B10487BC400A3E51A /* sdl_controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAD9EF6A10487BC400A3E51A /* sdl_controller.cpp */; };
 		AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */ = {isa = PBXBuildFile; fileRef = AADF79FF0FD7F84500167F57 /* ipernav.icns */; };
 		AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */; };
+		AAEB37261190019500EE9961 /* CVFilter.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAEB37251190019500EE9961 /* CVFilter.mm */; };
+		AAEB376D11929F0000EE9961 /* filter_instance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAEB376C11929F0000EE9961 /* filter_instance.cpp */; };
 		AAEE68940FC8906B007FB46B /* webcam.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE68930FC8906B007FB46B /* webcam.png */; };
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
 		AAF3B5F2115D7C5700F0C2AB /* textlayer.png in Resources */ = {isa = PBXBuildFile; fileRef = AAF3B5F1115D7C5700F0C2AB /* textlayer.png */; };
@@ -440,6 +442,10 @@
 		AADF79FF0FD7F84500167F57 /* ipernav.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = ipernav.icns; sourceTree = "<group>"; };
 		AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kbd_ctrl_js.cpp; sourceTree = "<group>"; };
 		AAE2C2B7103FE2AE00D62E4F /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = factory.h; path = include/factory.h; sourceTree = "<group>"; };
+		AAEB37241190019500EE9961 /* CVFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFilter.h; sourceTree = "<group>"; };
+		AAEB37251190019500EE9961 /* CVFilter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFilter.mm; sourceTree = "<group>"; };
+		AAEB376C11929F0000EE9961 /* filter_instance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_instance.cpp; sourceTree = "<group>"; };
+		AAEB376E11929F0E00EE9961 /* filter_instance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filter_instance.h; path = include/filter_instance.h; sourceTree = "<group>"; };
 		AAEE68930FC8906B007FB46B /* webcam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = webcam.png; sourceTree = "<group>"; };
 		AAEE689E0FC893BC007FB46B /* frei0r.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = frei0r.png; sourceTree = "<group>"; };
 		AAF3B5F1115D7C5700F0C2AB /* textlayer.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = textlayer.png; sourceTree = "<group>"; };
@@ -576,6 +582,8 @@
 				AA134ABF1047B6D500BA39EB /* CKbdController.mm */,
 				AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */,
 				AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */,
+				AAEB37241190019500EE9961 /* CVFilter.h */,
+				AAEB37251190019500EE9961 /* CVFilter.mm */,
 			);
 			name = Cocoa;
 			sourceTree = "<group>";
@@ -692,11 +700,6 @@
 				AAF3BF7C115EB54C00F0C2AB /* ffenc.c */,
 				AAB47C8910EAA15F00B0E8D2 /* geometry.cpp */,
 				AA3B0DA2104B131100A27B2E /* generator_layer.cpp */,
-				AA9D8A7B118D6E7E00B227B0 /* cairo_layer_js.cpp */,
-				AA9D8ACD118D7AED00B227B0 /* color.cpp */,
-				AA9D8A7C118D6E7E00B227B0 /* cairo_layer.cpp */,
-				AA00100C0F77FD9200719D5B /* callback.cpp */,
-				AAAAC16F0F533ADF00461C96 /* closure.cpp */,
 				AAAAC1700F533ADF00461C96 /* linear_blits.cpp */,
 				AAAAC1720F533ADF00461C96 /* sdl_blits.cpp */,
 				AA8F9F700F510272006A9E2F /* soft_screen.cpp */,
@@ -706,10 +709,16 @@
 				AA3C44660F3EEBE0007C7E8B /* context.cpp */,
 				AA3C446A0F3EEBE0007C7E8B /* controller.cpp */,
 				AA3C446C0F3EEBE0007C7E8B /* convertvid.cpp */,
+				AA9D8A7B118D6E7E00B227B0 /* cairo_layer_js.cpp */,
+				AA9D8ACD118D7AED00B227B0 /* color.cpp */,
+				AA9D8A7C118D6E7E00B227B0 /* cairo_layer.cpp */,
+				AA00100C0F77FD9200719D5B /* callback.cpp */,
+				AAAAC16F0F533ADF00461C96 /* closure.cpp */,
 				AA3C446E0F3EEBE0007C7E8B /* cpu_accel.cpp */,
 				AA3C44700F3EEBE0007C7E8B /* fastmemcpy.cpp */,
 				AA3C44720F3EEBE0007C7E8B /* ffmpeg_encoder.cpp */,
 				AA3C44740F3EEBE0007C7E8B /* filter.cpp */,
+				AAEB376C11929F0000EE9961 /* filter_instance.cpp */,
 				AA3C447C0F3EEBE0007C7E8B /* freeframe.cpp */,
 				AA3C447F0F3EEBE0007C7E8B /* freej.cpp */,
 				AA3C44810F3EEBE0007C7E8B /* frei0r.cpp */,
@@ -761,6 +770,8 @@
 		AA9337EF0FD7FDEB002B760B /* include */ = {
 			isa = PBXGroup;
 			children = (
+				AA00100E0F77FDA000719D5B /* callback.h */,
+				AAAAC1770F533AF900461C96 /* closure.h */,
 				AA9D8ACF118D7AFB00B227B0 /* color.h */,
 				AA9D8A7F118D6E9900B227B0 /* cairo_layer.h */,
 				B59354E211580B1700BF8C8E /* oggenc.h */,
@@ -772,8 +783,6 @@
 				AA3B0DA8104B133600A27B2E /* impl_screens.h */,
 				AAD9EF6C10487BDD00A3E51A /* sdl_controller.h */,
 				AAE2C2B7103FE2AE00D62E4F /* factory.h */,
-				AA00100E0F77FDA000719D5B /* callback.h */,
-				AAAAC1770F533AF900461C96 /* closure.h */,
 				AA8F9F720F510281006A9E2F /* soft_screen.h */,
 				AA3C44990F3EEBE0007C7E8B /* asm-linkage.h */,
 				AA3C449A0F3EEBE0007C7E8B /* audio_collector.h */,
@@ -788,12 +797,13 @@
 				AA3C44A60F3EEBE0007C7E8B /* fastmemcpy.h */,
 				AA3C44A70F3EEBE0007C7E8B /* ffmpeg_encoder.h */,
 				AA3C44A80F3EEBE0007C7E8B /* filter.h */,
+				AAEB376E11929F0E00EE9961 /* filter_instance.h */,
+				AA3C44AE0F3EEBE0007C7E8B /* freeframe_freej.h */,
+				AA3C44B20F3EEBE0007C7E8B /* frei0r_freej.h */,
 				AA3C44A90F3EEBE0007C7E8B /* flash_layer.h */,
 				AA3C44AD0F3EEBE0007C7E8B /* freeframe.h */,
-				AA3C44AE0F3EEBE0007C7E8B /* freeframe_freej.h */,
 				AA3C44AF0F3EEBE0007C7E8B /* freej.h */,
 				AA3C44B00F3EEBE0007C7E8B /* freej_plugin.h */,
-				AA3C44B20F3EEBE0007C7E8B /* frei0r_freej.h */,
 				AAAABEE50F521A6C00461C96 /* fps.h */,
 				AA3C44B40F3EEBE0007C7E8B /* gen_layer.h */,
 				AA3C44B50F3EEBE0007C7E8B /* geo_layer.h */,
@@ -1125,6 +1135,8 @@
 				AA9D8A7D118D6E7E00B227B0 /* cairo_layer_js.cpp in Sources */,
 				AA9D8A7E118D6E7E00B227B0 /* cairo_layer.cpp in Sources */,
 				AA9D8ACE118D7AED00B227B0 /* color.cpp in Sources */,
+				AAEB37261190019500EE9961 /* CVFilter.mm in Sources */,
+				AAEB376D11929F0000EE9961 /* filter_instance.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

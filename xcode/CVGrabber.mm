@@ -216,15 +216,5 @@ error:
     [super dealloc];
 }
 
-- (CVReturn)renderFrame
-{
-    [lock lock];
-    [self renderPreview];
-    if (layer)
-        layer->vbuffer = currentFrame;
-    [lock unlock];
-    return kCVReturnSuccess;
-}
-
 @end
 

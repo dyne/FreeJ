@@ -885,6 +885,20 @@ dnl ==============================================================
 #fi
 AC_DEFINE(WITH_FREI0R,1,[Define as using frei0r plugins])
 
+
+dnl ==============================================================
+dnl freeframe plugins
+dnl ==============================================================
+#
+# freeframe should be supported in any case:
+# plugins will be detected runtime
+# freeframe.h header is redistributed 
+# this is a normal behaviour for plugins
+# support should be compiled in even if plugins aren't present.
+# -xnt
+#
+AC_DEFINE(WITH_FREEFRAME,1,[Define as using freeframe plugins])
+
 dnl ==============================================================
 dnl Check Cairo 2d vector graphics library for VectorLayer
 dnl ==============================================================

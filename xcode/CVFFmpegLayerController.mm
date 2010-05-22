@@ -84,13 +84,6 @@
     [super deactivate];
 }
 
-- (CVTexture *)getTexture
-{
-    CVTexture *ret;
-    ret = [super getTexture];
-    return ret;
-}
-
 - (void)freeFrame
 {
     if (currentFrame) {
@@ -184,7 +177,6 @@
                 } else {
                     skipCount++;
                 }
-                layer->vbuffer = currentFrame;
                 newFrame = YES;
             }
         }

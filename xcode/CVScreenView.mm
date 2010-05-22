@@ -437,7 +437,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         while ([lastTextures count]) {
             CVTexture *texture = [lastTextures objectAtIndex:0];
             [lastTextures removeObjectAtIndex:0];
-            [texture release];
+            // removing the texture from the array makes its refcnt reach 0 
+            // so it will be automagically released
+            //[texture release];
         }
     } else {
         needsReshape = YES;
@@ -460,7 +462,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
 - (void)drawLayer:(Layer *)layer
 {
-    //NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIFilter *blendFilter = nil;
     CVTexture *texture = nil;
     if (layer->type == Layer::GL_COCOA) {        
@@ -491,7 +493,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             // TODO - Error Messages
         } 
         CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
-        texture = [[CVTexture alloc] initWithCIImage:inputImage pixelBuffer:pixelBufferOut];
+        texture = [CVTexture textureWithCIImage:inputImage pixelBuffer:pixelBufferOut];
         // we can release our reference to the pixelBuffer now. 
         // The CVTexture will retain it as long as it is needed
         CVPixelBufferRelease(pixelBufferOut);
@@ -509,9 +511,11 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             [outFrame release];
             outFrame = [temp retain];
         }
-        [lastTextures addObject:texture];
+        [lastTextures addObject:texture]; // Note: we use this to keep the texture refcnt'd until necessary
+                                          //       once removed from the array it will be free'd
     }
     [lock unlock];
+    [pool release];
 }
 
 #define MYCGL
@@ -916,7 +920,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     if (aTableView != layerList)
         return nil;
-    return [NSArray arrayWithObjects:@"CVLayer", @"CVLayerIndex", nil];
+    return [NSArray arrayWithObjects:@"CVCocoaLayer", @"CVLayerIndex", nil];
 }
 
 - (BOOL)tableView:(NSTableView *)aTableView writeRowsWithIndexes:(NSIndexSet *)rowIndexes toPasteboard:(NSPasteboard *)pboard
@@ -927,8 +931,8 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSUInteger row = [rowIndexes firstIndex];
     Layer *lay = fjScreen->layers.pick(row+1);
     if (lay) {
-        [pboard addTypes:[NSArray arrayWithObjects:@"CVLayer", @"CVLayerIndex", nil] owner:(id)self];
-        [pboard setData:[NSData dataWithBytes:(void *)&lay length:sizeof(Layer *)] forType:@"CVLayer"];
+        [pboard addTypes:[NSArray arrayWithObjects:@"CVCocoaLayer", @"CVLayerIndex", nil] owner:(id)self];
+        [pboard setData:[NSData dataWithBytes:(void *)&lay length:sizeof(CVCocoaLayer *)] forType:@"CVCocoaLayer"];
         [pboard setData:[NSData dataWithBytes:(void *)&row length:sizeof(NSUInteger)] forType:@"CVLayerIndex"];
         return YES;
     }
@@ -967,7 +971,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSUInteger srcRow;
     
     [[[info draggingPasteboard] dataForType:@"CVLayerIndex"] getBytes:&srcRow length:sizeof(NSUInteger)];  
-    [[[info draggingPasteboard] dataForType:@"CVLayer"] getBytes:&lay length:sizeof(Layer *)];
+    [[[info draggingPasteboard] dataForType:@"CVCocoaLayer"] getBytes:&lay length:sizeof(CVCocoaLayer *)];
     if (lay) {
         lay->move((srcRow > row)?(row+1):row);
         [layerList reloadData];

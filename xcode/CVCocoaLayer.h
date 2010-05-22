@@ -37,13 +37,13 @@ class CVCocoaLayer
         int height, width;
         Context *freej;
         int bufsize;
+        CVPixelBufferRef pixelBuffer;
 
         void set_controller(CVLayerController *vin);
 
     public:
         CVLayerController *input;
         NSString *blendMode;
-        void *vbuffer;
 
         CVCocoaLayer(Layer *lay, CVLayerController *vin = NULL);
 

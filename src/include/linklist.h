@@ -148,9 +148,14 @@ class Entry {
   // and now also as JSObject -> jsval
   void *data; 
 
+// XXX - should be defined only if built with javascript support
+//       but there is still some code which blindly references
+//       these members.
+//#ifdef WITH_JAVASCRIPT
   JSClass *jsclass; ///< pointer to the javascript class
   JSObject *jsobj; ///< pointer to the javascript instantiated object
-
+//#endif
+    
 };
 
 

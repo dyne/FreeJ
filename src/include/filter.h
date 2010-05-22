@@ -22,14 +22,17 @@
 #include <config.h>
 
 #include <parameter.h>
-
+#include <filter_instance.h>
 
 class Layer;
 #ifdef WITH_FREI0R
 class Freior;
 #endif
+#ifdef WITH_COCOA
+class CVFilter;
+#endif
 class Freeframe;
-class FilterInstance;
+
 template <class T> class Linklist;
 
 class Filter : public Entry {
@@ -38,79 +41,53 @@ class Filter : public Entry {
   // supported filter types
   enum Type {
 #ifdef WITH_FREI0R
-	  FREIOR = 1,
+    FREIOR=0,
 #endif
-	  FREEFRAME = 2
+#ifdef WITH_COCOA
+    COREIMAGE=1,
+#endif
+    FREEFRAME=2
   };
-  Filter(Type type, void *filt);
-  ~Filter();
+  Filter();
+  virtual ~Filter();
+    
+  virtual FilterInstance *new_instance();
+    
+  virtual FilterInstance *apply(Layer *lay);
+  virtual bool apply(Layer *lay, FilterInstance *instance);
 
   FilterInstance *apply(Layer *lay);
   
   const char *description();
   const char *author();
 
-  int get_parameter_type(int i);
+  virtual int get_parameter_type(int i);
 
-  char *get_parameter_description(int i);
+  virtual char *get_parameter_description(int i);
 
+  virtual int type()=0;
+    
   bool initialized;
   bool active;
   bool inuse;
 
-  int backend;
+    /*
 #ifdef WITH_FREI0R
   Freior *freior;
 #endif
+#ifdef WITH_COCOA
+  CVFilter *cvfilter;
+#endif
   Freeframe *freeframe;
-  
+  */
   Linklist<Parameter> parameters;
 
  protected:
-  void destruct(FilterInstance *inst);
-  void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
+  virtual void destruct(FilterInstance *inst);
+  virtual void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
+
   int bytesize;
 
-};
-
-
-class FilterInstance : public Entry {
-  friend class Filter;
-
- public:
-  FilterInstance(Filter *fr);
-  ~FilterInstance();
-
-  uint32_t *process(float fps, uint32_t *inframe);
-
-  bool set_parameter(int idx); ///< apply the parameter value
-  bool get_parameter(int idx); ///< get the parameter value
-  
-  uint32_t *outframe;
-
-  Filter *proto;
-
-  bool active;
-  bool inuse;
-
-  unsigned intcore;
-  void *core;
-
-};
-
-// tuple of filter proto/instance
-// to be saved in every javascript Filter class
-class FilterDuo {
-public:
-  FilterDuo() {
-    proto = NULL;
-    instance = NULL;
-  }
-  ~FilterDuo() {
-    if(instance) delete instance;
-  }
-  Filter *proto;
-  FilterInstance *instance;
 };
 
 #endif

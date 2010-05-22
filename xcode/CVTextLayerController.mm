@@ -56,14 +56,13 @@
         //NSFont * font =[NSFont fontWithName:@"Helvetica" size:32.0];
         [theString initWithString:text withAttributes:stanStringAttrib];
         [theString drawOnBuffer:currentFrame];
-        layer->vbuffer = currentFrame;
         needsNewFrame = NO;
     }
     newFrame = YES;
     [lock unlock];
-    [self renderPreview];
+    //[self renderPreview];
     [pool release];
-    return 0;
+    return [super renderFrame];
 }
 
 - (IBAction)setText:(NSString *)theText withAttributes:(NSDictionary *)attributes

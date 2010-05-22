@@ -29,7 +29,7 @@
 
 + (id)textureWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer
 {
-    id obj = [super alloc];
+    id obj = [self alloc];
     [obj autorelease];
     return [obj initWithCIImage:image pixelBuffer:pixelBuffer];
 }
@@ -54,6 +54,11 @@
 - (CIImage *)image
 {
     return _image;
+}
+
+- (CVPixelBufferRef)pixelBuffer
+{
+    return _pixelBuffer;
 }
 
 @end

@@ -79,6 +79,12 @@ static void init_factory() {
 #ifdef WITH_TEXTLAYER
     Factory<Layer>::set_default_classtype("TextLayer", "truetype");
 #endif    
+#ifdef WITH_FREI0R
+    Factory<Filter>::set_default_classtype("Frei0rFilter", "core");
+#endif
+#ifdef WITH_FREEFRAME
+    Factory<Filter>::set_default_classtype("FreeframeFilter", "core");
+#endif
 }
 
 void * run_context(void * data){
