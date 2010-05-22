@@ -158,7 +158,7 @@
 		AAD9EF6B10487BC400A3E51A /* sdl_controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAD9EF6A10487BC400A3E51A /* sdl_controller.cpp */; };
 		AADF7A000FD7F84500167F57 /* ipernav.icns in Resources */ = {isa = PBXBuildFile; fileRef = AADF79FF0FD7F84500167F57 /* ipernav.icns */; };
 		AAE2C270103FDCDC00D62E4F /* kbd_ctrl_js.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */; };
-		AAEB37261190019500EE9961 /* CVFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAEB37251190019500EE9961 /* CVFilter.cpp */; };
+		AAEB37261190019500EE9961 /* CVFilter.mm in Sources */ = {isa = PBXBuildFile; fileRef = AAEB37251190019500EE9961 /* CVFilter.mm */; };
 		AAEB376D11929F0000EE9961 /* filter_instance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AAEB376C11929F0000EE9961 /* filter_instance.cpp */; };
 		AAEE68940FC8906B007FB46B /* webcam.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE68930FC8906B007FB46B /* webcam.png */; };
 		AAEE689F0FC893BC007FB46B /* frei0r.png in Resources */ = {isa = PBXBuildFile; fileRef = AAEE689E0FC893BC007FB46B /* frei0r.png */; };
@@ -443,7 +443,7 @@
 		AAE2C26F103FDCDC00D62E4F /* kbd_ctrl_js.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = kbd_ctrl_js.cpp; sourceTree = "<group>"; };
 		AAE2C2B7103FE2AE00D62E4F /* factory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = factory.h; path = include/factory.h; sourceTree = "<group>"; };
 		AAEB37241190019500EE9961 /* CVFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVFilter.h; sourceTree = "<group>"; };
-		AAEB37251190019500EE9961 /* CVFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CVFilter.cpp; sourceTree = "<group>"; };
+		AAEB37251190019500EE9961 /* CVFilter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVFilter.mm; sourceTree = "<group>"; };
 		AAEB376C11929F0000EE9961 /* filter_instance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = filter_instance.cpp; sourceTree = "<group>"; };
 		AAEB376E11929F0E00EE9961 /* filter_instance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = filter_instance.h; path = include/filter_instance.h; sourceTree = "<group>"; };
 		AAEE68930FC8906B007FB46B /* webcam.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = webcam.png; sourceTree = "<group>"; };
@@ -583,7 +583,7 @@
 				AAC9DB35103D2C7F00A0111E /* PreferencesPanel.h */,
 				AAC9DB36103D2C7F00A0111E /* PreferencesPanel.mm */,
 				AAEB37241190019500EE9961 /* CVFilter.h */,
-				AAEB37251190019500EE9961 /* CVFilter.cpp */,
+				AAEB37251190019500EE9961 /* CVFilter.mm */,
 			);
 			name = Cocoa;
 			sourceTree = "<group>";
@@ -1135,7 +1135,7 @@
 				AA9D8A7D118D6E7E00B227B0 /* cairo_layer_js.cpp in Sources */,
 				AA9D8A7E118D6E7E00B227B0 /* cairo_layer.cpp in Sources */,
 				AA9D8ACE118D7AED00B227B0 /* color.cpp in Sources */,
-				AAEB37261190019500EE9961 /* CVFilter.cpp in Sources */,
+				AAEB37261190019500EE9961 /* CVFilter.mm in Sources */,
 				AAEB376D11929F0000EE9961 /* filter_instance.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -29,7 +29,7 @@ class CVF0rLayer : public CVLayer
         void *currentFrame;
         CVPixelBufferRef pixelBuffer;
 
-	public:
+    public:
 		CVF0rLayer(CVLayerController *controller);
         ~CVF0rLayer();
         void register_generators(Linklist<Filter> *gens);

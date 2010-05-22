@@ -42,10 +42,10 @@ static FilterParams fParams[FILTERS_MAX] =
     { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.01, 1000.0 } } }, // HoleDistortion
     //{ 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 600.0 }, { "inputScale", -1.0, 1.0 } } }, // BumpDistortion
     { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 1000.0 } } }, // CircleSplashDistortion
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 600 }, { (char*)"inputAngle", -3.14, 3.14 } } }, // CircularWrap
+    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 600.0 }, { (char*)"inputAngle", -3.14, 3.14 } } }, // CircularWrap
     { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 1000.0 }, { (char*)"inputScale", 0.0, 1.0 } } }, // PinchDistortion
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 500 }, { (char*)"inputAngle", -12.57, 12.57 } } }, // TwirlDistortion
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 800 }, { (char*)"inputAngle", -94.25, 94.25 } } }, // VortexDistortion
+    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 500.0 }, { (char*)"inputAngle", -12.57, 12.57 } } }, // TwirlDistortion
+    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 800.0 }, { (char*)"inputAngle", -94.25, 94.25 } } }, // VortexDistortion
 };
 
 /* Utility to set a SInt32 value in a CFDictionary
@@ -169,12 +169,58 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     currentFrame = CVPixelBufferRetain(frame);
     newFrame = YES;
     [lock unlock];
+    [self renderFrame];
 }
 
 - (CVReturn)renderFrame
 {
-    NSLog(@"renderFrame MUST be overridden");
-    return kCVReturnError;
+    CIImage     *inputImage = nil;
+    CIImage     *renderedImage = nil;
+    Layer       *fjLayer = NULL;
+    
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+    if (layer)
+        fjLayer = layer->fj_layer();
+    else
+        return kCVReturnError;
+    
+    if (!filtersInitialized)
+        [self initFilters]; // initialize on first use
+    
+    if (newFrame) {
+        [lock lock];
+        inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
+        if (doFilters) {    
+            [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
+            [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+            [effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
+                            forKey:@"inputImage"];
+            [alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
+                            forKey:@"inputImage"];
+            [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+            if (fjLayer && (fjLayer->geo.x || fjLayer->geo.y)) {
+                NSAffineTransform   *translateTransform = [NSAffineTransform transform];
+                [translateTransform translateXBy:fjLayer->geo.x yBy:fjLayer->geo.y];
+                [translateFilter setValue:translateTransform forKey:@"inputTransform"];
+                
+                [translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+                renderedImage = [translateFilter valueForKey:@"outputImage"];
+            } else {
+                renderedImage = [rotateFilter valueForKey:@"outputImage"];
+            }
+        } else {
+            renderedImage = inputImage;
+        }
+        if (lastFrame)
+            [lastFrame release];
+        lastFrame = [[CVTexture alloc] initWithCIImage:renderedImage pixelBuffer:currentFrame];
+        newFrame = NO;
+        [lock unlock];
+        [self renderPreview];
+    }
+    [pool release];
+    return kCVReturnSuccess;
 }
 
 - (IBAction)toggleFilters:(id)sender
@@ -232,6 +278,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     pool = [[NSAutoreleasePool alloc] init];
     if (layer)
         fjLayer = layer->fj_layer();
+    else
+        return;
 
     // TODO - optimize the logic in this routine ... it's becoming huge!!
     // to prevent its run() method to try rendering
@@ -469,54 +517,13 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 }
 
 - (CVTexture *)getTexture
-{
-    CIImage     *inputImage = nil;
+{    
     CVTexture   *texture = nil;
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    CIImage     *renderedImage = nil;
-    Layer       *fjLayer = NULL;
-    
-    if (layer)
-        fjLayer = layer->fj_layer();
-    
-    if (!filtersInitialized)
-        [self initFilters];
     [lock lock];
-    if (newFrame) {       
-        inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
-        newFrame = NO;
-        if (doFilters) {    
-            [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
-            [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-            [effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
-                            forKey:@"inputImage"];
-            [alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
-                            forKey:@"inputImage"];
-            [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-            if (fjLayer && (fjLayer->geo.x || fjLayer->geo.y)) {
-                NSAffineTransform   *translateTransform = [NSAffineTransform transform];
-                [translateTransform translateXBy:fjLayer->geo.x yBy:fjLayer->geo.y];
-                [translateFilter setValue:translateTransform forKey:@"inputTransform"];
-                
-                [translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-                renderedImage = [translateFilter valueForKey:@"outputImage"];
-            } else {
-                renderedImage = [rotateFilter valueForKey:@"outputImage"];
-            }
-        } else {
-            renderedImage = inputImage;
-        }
-        texture = [[CVTexture alloc] initWithCIImage:renderedImage pixelBuffer:currentFrame];
-        
-        if (lastFrame)
-            [lastFrame release];
-        lastFrame = [texture retain];
-    } else { 
-        texture = [lastFrame retain];
-    }
+    texture = [lastFrame retain];
     [lock unlock];
-    [pool release];
-    return texture;
+
+    return [texture autorelease];
 }
 
 

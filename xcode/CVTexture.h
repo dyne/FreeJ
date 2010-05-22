@@ -29,5 +29,6 @@
 + (id)textureWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (id)initWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (CIImage *)image;
+- (CVPixelBufferRef)pixelBuffer;
 - (void)dealloc;
 @end

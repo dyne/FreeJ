@@ -108,9 +108,19 @@ CVLayer::relative_seek(double increment)
 void *
 CVLayer::feed()
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     lock();
-    if ([input isVisible] || [input needPreview])
-        [input renderFrame];
+    //if ([input isVisible] || [input needPreview])
+    [input renderFrame];    
+    CVTexture *texture = [input getTexture];
+    if (pixelBuffer)
+        CVPixelBufferRelease(pixelBuffer);
+    pixelBuffer = CVPixelBufferRetain([texture pixelBuffer]);
+    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+    void *buf = CVPixelBufferGetBaseAddress(pixelBuffer);
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
     unlock();
-    return (void *)vbuffer;
+
+    [pool release];
+    return buf;
 }

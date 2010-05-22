@@ -24,7 +24,9 @@ CVCocoaLayer::CVCocoaLayer(Layer *lay, CVLayerController *vin)
 {
     input = vin;
     bufsize = 0;
-    blendMode = NULL;
+    blendMode = nil;
+    pixelBuffer = nil;
+
     layer = lay;
     if (input)
         [input setLayer:this];
@@ -39,6 +41,8 @@ CVCocoaLayer::~CVCocoaLayer()
     deactivate();
     if (input)
         [input setLayer:nil];
+    if (pixelBuffer)
+        CVPixelBufferRelease(pixelBuffer);
 }
 
 void
@@ -70,11 +74,9 @@ CVTexture *
 CVCocoaLayer::gl_texture()
 {
     CVTexture *texture = NULL;
-    if (input) {
+    if (input)
         texture = [input getTexture];
-        if (texture)
-            [input renderPreview];
-    }
+
     return texture;
 }
 

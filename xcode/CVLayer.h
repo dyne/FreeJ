@@ -31,27 +31,28 @@
 
 class CVLayer: public Layer, public CVCocoaLayer
 {
-    private:
-        virtual bool _init();
-        virtual void *feed();
-    public:
-        CVLayer();
-        CVLayer(CVLayerController *vin);
+public:
+    CVLayer();
+    CVLayer(CVLayerController *vin);
+    
+    virtual ~CVLayer();
+    virtual bool open(const char *path);
+    virtual void close();
+    virtual bool forward();
+    virtual bool backward();
+    virtual bool backward_one_keyframe();
+    
+    virtual bool relative_seek(double increment);
+    
+    virtual bool set_mark_in();
+    virtual bool set_mark_out();
+    
+    virtual void pause();
 
-        virtual ~CVLayer();
-        virtual bool open(const char *path);
-        virtual void close();
-        //void run();
-        virtual bool forward();
-        virtual bool backward();
-        virtual bool backward_one_keyframe();
-        
-        virtual bool relative_seek(double increment);
-        
-        virtual bool set_mark_in();
-        virtual bool set_mark_out();
-        
-        virtual void pause();
+private:
+    virtual bool _init();
+    virtual void *feed();
+
 };
 
 #endif

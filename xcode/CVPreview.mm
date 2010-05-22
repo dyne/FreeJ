@@ -182,7 +182,6 @@
     //if (textureToRelease)
     //    [textureToRelease release];
     }
-    [texture release];
 
     [pool release];
 }
