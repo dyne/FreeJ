@@ -36,14 +36,14 @@ class FilterInstance : public Entry {
  public:
   FilterInstance();
   FilterInstance(Filter *fr);
-  ~FilterInstance();
+  virtual ~FilterInstance();
 
-  void init(Filter *fr);
-  uint32_t *process(float fps, uint32_t *inframe);
+  virtual void init(Filter *fr);
+  virtual uint32_t *process(float fps, uint32_t *inframe);
 
-  bool set_parameter(int idx); ///< apply the parameter value
-  bool get_parameter(int idx); ///< get the parameter value
-  bool apply(Layer *lay);
+  virtual bool set_parameter(int idx); ///< apply the parameter value
+  virtual bool get_parameter(int idx); ///< get the parameter value
+  virtual bool apply(Layer *lay);
 
   uint32_t *outframe;
 
