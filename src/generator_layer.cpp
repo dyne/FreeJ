@@ -123,7 +123,9 @@ bool GeneratorLayer::open(const char *file) {
 
   close();
 
-  generator = new FilterInstance((Filter*)proto);
+  generator = Factory<FilterInstance>::new_instance("FilterInstance");
+  if (generator)
+    generator->init(proto);
   
 #ifdef WITH_FREI0R
   if(proto->type() == Filter::FREIOR) {

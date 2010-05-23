@@ -80,26 +80,6 @@
 #define FACTORY_ALLOWED \
     static int isRegistered;
 
-#if 0
-
-#define FACTORY_REGISTER_CLASS_INSTANTIATOR(__class_name, __id) \
-FACTORY_REGISTER_BASE_INSTANTIATOR(__class_name, __class_name, __class_name, __id)
-
-#define FACTORY_REGISTER_CATEGORY_INSTANTIATOR(__class_name, __category, __id) \
-FACTORY_REGISTER_BASE_INSTANTIATOR(__class_name, __class_name, __category, __id)
-
-#define FACTORY_REGISTER_BASE_INSTANTIATOR(__base_class, __class_name, __category, __id) \
-static __class_name * get##__class_name() \
-{ \
-func("Creating %s -- %s", #__base_class, #__class_name);\
-return new __class_name(); \
-} \
-int __class_name::isRegistered = Factory<__base_class>::register_instantiator( \
-#__category, #__id, (Instantiator)get##__class_name \
-);
-
-#else
-
 #define FACTORY_REGISTER_INSTANTIATOR(__base_class, __class_name, __category, __id) \
     static __class_name * get##__class_name() \
     { \
@@ -109,8 +89,6 @@ int __class_name::isRegistered = Factory<__base_class>::register_instantiator( \
     int __class_name::isRegistered = Factory<__base_class>::register_instantiator( \
         #__category, #__id, (Instantiator)get##__class_name \
     );
-
-#endif
 
 typedef void *(*Instantiator)();
 typedef std::map<std::string, Instantiator> FInstantiatorsMap;

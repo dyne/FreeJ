@@ -1,6 +1,6 @@
 /*  FreeJ - New Freior based Filter class
- *  (c) Copyright 2007 Denis Rojo <jaromil@dyne.org>
- *
+ *  Copyright (C) 2001-2010 Denis Roio <jaromil@dyne.org>
+ *  Copyright (C) 2010    Andrea Guzzo <xant@dyne.org>
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
  * by the Free Software Foundation; either version 2 of the License,
@@ -58,7 +58,10 @@ Filter::~Filter() {
 }
 
 FilterInstance *Filter::new_instance() {
-  return new FilterInstance(this);
+    FilterInstance *instance = Factory<FilterInstance>::new_instance("FilterInstance");
+    if (instance)
+        instance->init(this);
+    return instance;
 }
 
 bool Filter::apply(Layer *lay, FilterInstance *instance)

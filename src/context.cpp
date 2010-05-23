@@ -85,6 +85,7 @@ static void init_factory() {
 #ifdef WITH_FREEFRAME
     Factory<Filter>::set_default_classtype("FreeframeFilter", "core");
 #endif
+    Factory<FilterInstance>::set_default_classtype("FilterInstance", "core");
 }
 
 void * run_context(void * data){

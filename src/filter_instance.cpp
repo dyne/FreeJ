@@ -1,5 +1,7 @@
 /*  FreeJ - FilterInstance base class
- *  (c) Copyright 2007 Denis Rojo <jaromil@dyne.org>
+ *
+ *  Copyright (C) 2001-2010 Denis Roio <jaromil@dyne.org>
+ *  Copyright (C) 2010    Andrea Guzzo <xant@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -26,20 +28,25 @@ $Id:$
 
 #include <jutils.h>
 
-FilterInstance::FilterInstance(Filter *fr)
-  : Entry() 
+FACTORY_REGISTER_INSTANTIATOR(FilterInstance, FilterInstance, FilterInstance, core);
+
+
+FilterInstance::FilterInstance()
+ : Entry() 
 {
+    core = NULL;
+    intcore = 0;
+    outframe = NULL;
+    inuse = false;
+    active = false;
+}
+
+FilterInstance::FilterInstance(Filter *fr)
+{
+  FilterInstance();
   func("creating instance for filter %s",fr->name);
 
-  proto = fr;
-  
-  core = NULL;
-  intcore = 0;
-  outframe = NULL;
-  inuse = false;
-  active = true;
-
-  set_name(proto->name);
+  init(fr);
 }
 
 FilterInstance::~FilterInstance() {
@@ -51,6 +58,13 @@ FilterInstance::~FilterInstance() {
   if(outframe)
     free(outframe);
 
+}
+
+void FilterInstance::init(Filter *fr)
+{
+  proto = fr;
+  set_name(proto->name);
+  active = true;
 }
 
 uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
