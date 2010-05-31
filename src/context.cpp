@@ -58,6 +58,7 @@ bool Context::factory_initialized = false;
 
 static void init_factory() {
     Factory<Controller>::set_default_classtype("KeyboardController", "sdl"); // singleton
+    Factory<Controller>::set_default_classtype("MouseController", "sdl"); // singleton
     Factory<Controller>::set_default_classtype("TriggerController", "core"); // singleton
     Factory<Controller>::set_default_classtype("OscController", "core");
 

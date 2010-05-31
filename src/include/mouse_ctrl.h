@@ -21,6 +21,7 @@
 #define __MOUSE_CTRL_H__
 
 #include <sdl_controller.h>
+#include <factory.h>
 
 class MouseController : public SdlController {
   
@@ -38,11 +39,7 @@ class MouseController : public SdlController {
 
  private:
 
-  JSObject *objp;
-  JSBool res;
-  
-  jsval motion_f;
-  jsval button_f;
+  FACTORY_ALLOWED;
 };
 
 #endif
