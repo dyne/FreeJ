@@ -48,6 +48,8 @@ public:
     virtual bool set_mark_out();
     
     virtual void pause();
+    
+    virtual void *do_filters(void *buf);
 
 private:
     virtual bool _init();

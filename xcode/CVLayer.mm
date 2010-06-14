@@ -124,3 +124,21 @@ CVLayer::feed()
     [pool release];
     return buf;
 }
+
+void *CVLayer::do_filters(void *buf) {
+    int cnt = 0;
+    bool no_opt = false;
+    
+    if( filters.len() ) {
+        FilterInstance *filt;
+        filters.lock();
+        filt = (FilterInstance *)filters.begin();
+        while(filt) {
+            if(filt->active)
+                [input filterFrame:filt];
+            filt = (FilterInstance *)filt->next;
+        }
+        filters.unlock();
+    }
+    return buf;
+}

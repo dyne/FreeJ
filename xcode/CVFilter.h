@@ -46,38 +46,44 @@
 #define __CVFILTER_H__
 
 #include <config.h>
-#ifdef WITH_COCOA
-#import <QuartzCore/CIFilter.h>
+//#ifdef WITH_COCOA
 #include <filter.h>
 #include <factory.h>
+#include <linklist.h>
+
+#define FILTERS_MAX 18
+
+typedef struct __FilterParams {
+    int nParams;
+    struct __ParamDescr {
+        char *label;
+        double min;
+        double max;
+    } params[4];
+} FilterParams;
 
 class CVFilter: public Filter {
 
 public:
-    
+    static void listFilters(Linklist<Filter> &outputList);
+
     CVFilter();
     virtual ~CVFilter();
-    
     int type();
     int open(char *name);
     bool apply(Layer *lay, FilterInstance *instance);
     const char *description();
     void print_info();
     char *get_parameter_description(int i);
-
     bool opened;
-
 protected:
     void destruct(FilterInstance *inst);
     void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
- 
 private:
-    CIFilter *ciFilter;
-    NSString *filterName;
-    NSString *filterDescr;
+    
     FACTORY_ALLOWED
 };
 
-#endif // WITH_COCOA
+//#endif // WITH_COCOA
 
 #endif

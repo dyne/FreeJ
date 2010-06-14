@@ -22,9 +22,11 @@
 
 #include <context.h>
 
-#define _UINT64
-#import <Cocoa/Cocoa.h>
 #import <CVScreen.h>
+#ifndef _UINT64
+#define _UINT64 uint64_t // XXX - dirty workaround
+#endif
+#import <Cocoa/Cocoa.h>
 
 @class CVideoFileInput;
 @class CVScreenView;
@@ -33,15 +35,14 @@ class CVScreen;
 
 #define CFREEJ_VINPUTS_MAX 8
 @interface CFreej : NSObject {
-	Context *freej;
-	int stdout_pipe[2];
-	int stderr_pipe[2];
+    Context *freej;
+    int stdout_pipe[2];
+    int stderr_pipe[2];
     CVScreen *screen;
-	NSRecursiveLock *lock;
-	NSLock *outputlock;
+    NSRecursiveLock *lock;
     IBOutlet NSPopUpButton *layerSelect;
-	IBOutlet NSTextField *scriptPath;
-	IBOutlet NSTextView *outputPanel;
+    IBOutlet NSTextField *scriptPath;
+    IBOutlet NSTextView *outputPanel;
     IBOutlet CVScreenView *screenView;
 }
 - (id)init;

@@ -22,17 +22,9 @@
 
 #import <CVLayer.h>
 #import <Cocoa/Cocoa.h>
+#include <linklist.h>
 
 @class CVFilterPanel;
-
-typedef struct __FilterParams {
-    int nParams;
-    struct __ParamDescr {
-        char *label;
-        double min;
-        double max;
-    } params[4];
-} FilterParams;
 
 @interface CVFilterBox : NSView
 {
@@ -47,7 +39,7 @@ typedef struct __FilterParams {
 @end
 
 @interface CVFilterPanel : NSWindowController {
-    CVLayerController *layer;
+    CVLayerController       *layer;
     NSRecursiveLock         *lock;
     NSRect initialWindowFrame;
     NSRect initialFrame;
@@ -61,11 +53,14 @@ typedef struct __FilterParams {
     /* TODO - use mainView to access each slider ...  this outlets should be removed asap */
     IBOutlet NSSlider       *firstImageParam; /// first "image-parameters' slider
     IBOutlet NSSlider       *lastImageParam;  /// last "image-parameters' slider
+    IBOutlet NSTabView      *activeFilters;
 }
 - (void)show;
 - (id)init;
 - (void)setLayer:(CVLayerController *)lay;
+- (void)updateActiveFilters;
 - (IBAction)setFilterParameter:(id)sender;
+- (IBAction)addFilter:(id)sender;
 - (IBAction)togglePreview:(id)sender;
 - (IBAction)toggleVisibility:(id)sender;
 - (IBAction)setBlendMode:(id)sender;

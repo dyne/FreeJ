@@ -53,7 +53,7 @@ class CVLayer;
 - (NSString *)filterName;
 - (NSDictionary *)filterParams;
 - (void)setPosterImage:(NSImage *)image;
-- (void)setPreviewTarget:(CVPreview *)targetView;
+//- (void)setPreviewTarget:(CVPreview *)targetView;
 - (bool)needPreview; // true if we need to provide a preview, else otherwise
 - (void)startPreview; // enable preview rendering
 - (void)stopPreview; // disable preview rendering

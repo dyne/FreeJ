@@ -88,7 +88,8 @@
         [blendModeButton selectItem:blendMode];
     else
         [blendModeButton selectItemAtIndex:0];
-    
+    [self updateActiveFilters];
+#if 0
     /* check if the layer has an already configured filter */
     NSString *filter = [layer filterName];
     if (filter) {
@@ -97,18 +98,18 @@
         filter = [filterButton itemTitleAtIndex:0];
     }
     [self setFilterParameter:filterButton]; // configure default filter
-
+#endif
     /* TODO - move this logic out of the FilterPanel. This should really be done in the 
        CVLayerView implementation perhaps in setFilterParameter , but it would be better 
        to do this in a sort of notification callback executed when the filterpanel attaches
        the CVLayer */
-    NSDictionary *filterParams = [layer filterParams];
+    NSDictionary *imageParams = [layer imageParams];
     /* restore filter selection and parameters for this specific layer */
-    if (filterParams) {
+    if (imageParams) {
         /* restore image parameters (brightness, contrast, exposure and such) */
         NSSlider *imageParam = firstImageParam;
         while ([imageParam tag] <= [lastImageParam tag]) {
-            NSNumber *value = [filterParams valueForKey:[imageParam toolTip]];
+            NSNumber *value = [imageParams valueForKey:[imageParam toolTip]];
             if (value) {
                 [imageParam setDoubleValue:[value floatValue]];
             } else {
@@ -120,10 +121,87 @@
     [lock unlock];
 }
 
+- (void)updateActiveFilters
+{
+    NSArray *actualTabs = [activeFilters tabViewItems];
+    for (int i = 0; i < [actualTabs count]; i++) {
+        [activeFilters removeTabViewItem:[actualTabs objectAtIndex:i]];
+    }
+
+    if (layer) {
+        CVCocoaLayer *cLayer = layer.layer;
+        if (cLayer) {
+            Layer *fjLayer = cLayer->fj_layer();
+            FilterInstance *filt = fjLayer->filters.begin();
+            while (filt) {
+                NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:(id)filt];
+                [newItem setLabel:[NSString stringWithUTF8String:filt->name]];
+                if (newItem)
+                    [activeFilters addTabViewItem:newItem];
+                filt = (FilterInstance *)filt->next;
+            }
+        }
+    }
+}
+
 - (IBAction)setFilterParameter:(id)sender
 {
     if(layer) // propagate the event if we have a controlling layer
         [layer setFilterParameter:sender];
+}
+
+- (IBAction)addFilter:(id)sender
+{
+/*
+    if ([activeFilters numberOfTabViewItems] == 4) {
+        NSLog(@"4-filters limit reached for layer %s", [layer name]);
+        return;
+    }
+    NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:self];
+    [newItem setLabel:@""];
+    if (newItem)
+        [activeFilters addTabViewItem:newItem];
+    NSRect frame = NSMakeRect(0, 0, 100, 20);
+    NSView *container = [[NSView alloc] initWithFrame:[activeFilters frame]];
+    NSSlider *newSlider = [[NSSlider alloc] initWithFrame:frame];
+    [newSlider setMinValue:0.0];
+    [newSlider setMaxValue:100.0];
+    frame.origin.x = 50;
+    NSTextField *newText = [[NSTextField alloc] initWithFrame:frame];
+    [newText setStringValue:@"BLAH"];
+
+    NSRect frame2 = NSMakeRect(0, 50, 100, 20);
+
+    NSSlider *newSlider2 = [[NSSlider alloc] initWithFrame:frame2];
+    [[newSlider cell] setControlSize:NSMiniControlSize];
+    [container addSubview:newSlider];
+    //[newSlider sizeToFit];
+    [container addSubview:newText];
+    [newText sizeToFit];
+    [container addSubview:newSlider2];
+    [newSlider2 sizeToFit];
+
+    [newItem setView:container];
+    NSLog(@"%d", [activeFilters numberOfTabViewItems]);
+*/
+    if (layer) {        
+        NSString *filterName = [[filterButton selectedItem] title];
+
+        CFreej *cFreej = layer.freej;
+        Context *ctx = [cFreej getContext];
+        Filter *filt = ctx->filters.search([filterName UTF8String]);
+        CVCocoaLayer *cLay = layer.layer;
+        Layer *lay = cLay->fj_layer();
+        
+        Linklist<FilterInstance> *filters = [layer activeFilters];
+        if (filters->len() >= 4) {
+            NSLog(@"4-filters limit reached for layer %s", [layer name]);
+            return;
+        }
+        filt->apply(lay);
+       // NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
+        
+    }
 }
 
 - (IBAction)togglePreview:(id)sender

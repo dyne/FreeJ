@@ -518,13 +518,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [pool release];
 }
 
-#define MYCGL
 - (void)allocPixelBuffer
 {
     NSLog(@"pixel buffer: %ix%i", fjScreen->geo.w, fjScreen->geo.h);
-#if 0
-    CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->geo.w, fjScreen->geo.h, NULL, &pixelBuffer);
-#else
+
     CVReturn err = CVPixelBufferCreate (
                     NULL,
                     fjScreen->geo.w,
@@ -532,10 +529,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                     k32ARGBPixelFormat,
                     NULL,
                     &pixelBuffer
-                    );
-#endif
+                   );
+
     if (err) {
-    // TODO - Error messages
+        // TODO - Error messages
     }
     CVPixelBufferRetain(pixelBuffer);
     CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
@@ -543,7 +540,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     //CVPixelBufferUnlockBaseAddress(pixelBuffer, 0 );
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
 
-#ifdef MYCGL
+#if 1
     exportCGContextRef = CGBitmapContextCreate (NULL,
                         fjScreen->geo.w,
                         fjScreen->geo.h,
@@ -885,7 +882,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
     if (aTableView == layerList) {
-      return fjScreen->layers.length;
+      return fjScreen->layers.len();
     } 
     if (aTableView == streamerSettings) {
       return [streamerDict count];

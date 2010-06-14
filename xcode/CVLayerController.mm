@@ -22,8 +22,19 @@
 #import <CIAlphaFade.h>
 #import <CVFilterPanel.h>
 #import <QTKit/QTMovie.h>
+#import <CVFilterInstance.h>
+
 
 #define FILTERS_MAX 18
+typedef struct __FilterParams {
+    int nParams;
+    struct __ParamDescr {
+        char *label;
+        double min;
+        double max;
+    } params[4];
+} FilterParams;
+
 static FilterParams fParams[FILTERS_MAX] =
 {
     { 1, { { (char*)"inputAmount", 0.0, 50.0 } } },  // ZoomBlur
@@ -99,20 +110,25 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     posterImage = NULL;
     currentPreviewTexture = NULL;
     doPreview = YES;
-    filterParams = [[NSMutableDictionary dictionary] retain];
+    imageParams = [[NSMutableDictionary dictionary] retain];
     
     return self;
 }
 
+
+/*
 - (void)setContext:(CFreej *)ctx
 {
     freej = ctx;
 }
+*/
 
 - (void)dealloc
 {
     [colorCorrectionFilter release];
+#if 0
     [effectFilter release];
+#endif
     [compositeFilter release];
     [alphaFilter release];
     [exposureAdjustFilter release];
@@ -121,8 +137,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [translateFilter release];
     ///[timeCodeOverlay release];
     CVOpenGLTextureRelease(currentFrame);
-    if (filterParams)
-        [filterParams release];
+    if (imageParams)
+        [imageParams release];
     [lock release];
     [super dealloc];
 }
@@ -172,6 +188,21 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [self renderFrame];
 }
 
+- (void)filterFrame:(FilterInstance *)filter
+{
+    [lock lock];
+    if (lastFrame) {
+        if (filter->proto->type() == Filter::COREIMAGE) {
+            CVFilterInstance *cvFilter = (CVFilterInstance *)filter;
+            [lastFrame applyFilter:cvFilter->get_filter()];
+        } else {
+            // TODO - Implement
+            //buf = (void*) filt->process(fps.fps, (uint32_t*)buf);
+        }
+    }
+    [lock unlock];
+}
+
 - (CVReturn)renderFrame
 {
     CIImage     *inputImage = nil;
@@ -194,10 +225,15 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         if (doFilters) {    
             [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
             [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+#if 0
             [effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
                             forKey:@"inputImage"];
             [alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
                             forKey:@"inputImage"];
+#else
+            [alphaFilter  setValue:[exposureAdjustFilter valueForKey:@"outputImage"]
+                            forKey:@"inputImage"];
+#endif
             [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
             if (fjLayer && (fjLayer->geo.x || fjLayer->geo.y)) {
                 NSAffineTransform   *translateTransform = [NSAffineTransform transform];
@@ -254,15 +290,17 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     NSString *filter = nil;
     [lock lock];
+#if 0
     if (effectFilter)
         filter = [effectFilter name];
+#endif
     [lock unlock];
     return filter;
 }
 
-- (NSDictionary *)filterParams
+- (NSDictionary *)imageParams
 {
-    return filterParams;
+    return imageParams;
 }
 
 - (IBAction)setFilterParameter:(id)sender
@@ -289,23 +327,23 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     {
         case 0:  // opacity (AlphaFade)
             [alphaFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"outputOpacity"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 1: //brightness (ColorCorrection)
             [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 2: // saturation (ColorCorrection)
             [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 3: // contrast (ColorCorrection)
             [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 4: // exposure (ExposureAdjust)
             [exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 5: // rotate 
             rotateTransform = [NSAffineTransform transform];
@@ -321,18 +359,19 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [rotateTransform concat];
             [rototranslateTransform concat];
             [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 6: // traslate X
             if (fjLayer) 
                 fjLayer->geo.x = [sender floatValue];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 7: // traslate Y
             if (fjLayer)
                 fjLayer->geo.y = [sender floatValue];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
+#if 0
         case 100:
 		{
             NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
@@ -341,7 +380,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             effectFilter = [[CIFilter filterWithName:filterName] retain];
             [effectFilter setDefaults];
             [effectFilter setName:[[sender selectedItem] title]]; 
-            FilterParams *pdescr = &fParams[[sender indexOfSelectedItem]];
+            imageParams *pdescr = &fParams[[sender indexOfSelectedItem]];
             NSView *cView = (NSView *)sender;
             for (int i = 0; i < 4; i++) {
                 NSTextField *label = (NSTextField *)[cView nextKeyView];
@@ -356,13 +395,13 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                     [slider setHidden:NO];
                     [slider setMinValue:pdescr->params[i].min];
                     [slider setMaxValue:pdescr->params[i].max];
-                    NSNumber *value = [filterParams valueForKey:[label stringValue]];
+                    NSNumber *value = [imageParams valueForKey:[label stringValue]];
                     if (value) 
                         [slider setDoubleValue:[value floatValue]];
                     else
                         [slider setDoubleValue:pdescr->params[i].min];
-                    // than update the current value for this specific layer (saved in filterParams)
-                    [filterParams setValue:[NSNumber numberWithFloat:[slider doubleValue]]  forKey:[label stringValue]];
+                    // than update the current value for this specific layer (saved in imageParams)
+                    [imageParams setValue:[NSNumber numberWithFloat:[slider doubleValue]]  forKey:[label stringValue]];
                     
                     // handle the case it refers to a "center" coordinate
                     if (strcmp(pdescr->params[i].label, "CenterY") == 0) {
@@ -398,7 +437,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             } else { 
                 [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
             }
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
             break;
         case 102:
             paramName = [sender toolTip];
@@ -409,18 +448,19 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             } else { 
                 [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
             }
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
             break;
         case 103:
             paramName = [sender toolTip];
             [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
             break;
         case 104:
             paramName = [sender toolTip];
             [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            [filterParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
+#endif
         default:
             break;
     }
@@ -441,8 +481,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     //[lock lock];
     
     centerVector = [CIVector vectorWithX:where.x Y:where.y];
+#if 0
     [effectFilter setValue:centerVector forKey:@"inputCenter"];
-    
+#endif
     //[lock unlock];
 }
 
@@ -493,12 +534,14 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         [scaleFilter setDefaults];    // set the filter to its default values
     }
     //[scaleFilter setValue:[NSNumber numberWithFloat:scaleFactor] forKey:@"inputScale"];
+#if 0
     if (!effectFilter) {
         effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];            // Effect filter  
         [effectFilter setDefaults];                                // set the filter to its default values
         [effectFilter setName:@"ZoomBlur"];
         [effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
     }
+#endif
     if (!compositeFilter) {
         compositeFilter = [[CIFilter filterWithName:@"CISourceOverCompositing"] retain];    // Composite filter
         [compositeFilter setDefaults];
@@ -672,6 +715,19 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     return (char*)"CVCocoaLayer";
 }
 
+- (Linklist<FilterInstance> *)activeFilters
+{
+    NSMutableArray *result = nil;
+    if (layer) {
+        Layer *fjLayer = layer->fj_layer();
+        if (fjLayer) {
+           return &fjLayer->filters;
+        }
+    }
+    return NULL;
+}
+
+@synthesize freej;
 @synthesize layer;
 @synthesize layerView;
 @synthesize currentFrame;

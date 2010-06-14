@@ -17,12 +17,15 @@
  *
  */
 
-#include <factory.h>
 #include <controller.h>
-#include <CFreej.h>
-#include <CVScreen.h>
+#include <factory.h>
+
+#define _UINT64 // ARGH!! (the damn jsapi redefines uint64)
+#include <Cocoa/Cocoa.h>
+
 
 class CKbdController;
+@class CVScreenController;
 
 @interface CVScreenController : NSWindowController {
     CKbdController *_kbdController;

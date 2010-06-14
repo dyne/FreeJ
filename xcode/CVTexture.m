@@ -61,4 +61,12 @@
     return _pixelBuffer;
 }
 
+- (void)applyFilter:(CIFilter *)filter
+{
+    [filter setValue:_image forKey:@"inputImage"];
+    CIImage *outputImage = [filter valueForKey:@"outputImage"];
+    [_image release];
+    _image = [outputImage retain];
+}
+
 @end

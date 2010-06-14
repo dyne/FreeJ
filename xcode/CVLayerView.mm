@@ -78,7 +78,7 @@
 #endif
 	CGColorSpaceRelease(colorSpace);
     [lock lock];
-    [layerController setContext:freej];
+    [layerController setFreej:freej];
     [lock unlock];
     GLint params[] = { 1 };
     CGLSetParameter( CGLGetCurrentContext(), kCGLCPSwapInterval, params );
