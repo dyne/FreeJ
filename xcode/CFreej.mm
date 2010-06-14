@@ -30,6 +30,15 @@
 
 
 // bridge stdout and stderr with the NSTextView outlet (if any)
+- (void)updateOutput:(NSString*)msg
+{
+    NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:msg];
+    [[outputPanel textStorage] appendAttributedString:attrString];
+    [outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
+    [attrString release];
+    [msg release];
+}
+
 - (void) consoleOutput:(id)object
 {
     NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
@@ -59,6 +68,7 @@
             if (FD_ISSET(stdout_pipe[0], &rfds)) {
                 while (read(stdout_pipe[0], buf, sizeof(buf)-1) > 0) {
                     NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
+                    // ensure updating the view in the main thread (or this could blow up in our face)
                     [self performSelectorOnMainThread:@selector(updateOutput:)
                                            withObject:msg waitUntilDone:NO];
                 }
@@ -66,6 +76,7 @@
             if (FD_ISSET(stderr_pipe[0], &rfds)) {
                 while (read(stderr_pipe[0], buf, sizeof(buf)-1) > 0) {
                     NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
+                    // same as above... we really need to avoid updating the textview in a different thread
                     [self performSelectorOnMainThread:@selector(updateOutput:)
                                            withObject:msg waitUntilDone:NO];
                 }
@@ -73,15 +84,6 @@
         }
     }
     [p release];
-}
- 
-- (void)updateOutput:(NSString*)msg
-{
-    NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:msg];
-    [[outputPanel textStorage] appendAttributedString:attrString];
-    [outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
-    [attrString release];
-    [msg release];
 }
 
 -(void)awakeFromNib
@@ -182,6 +184,8 @@
         Factory<Controller>::set_default_classtype("KeyboardController", "cocoa");
         Factory<ViewPort>::set_default_classtype("Screen", "cocoa");
         Factory<Layer>::set_default_classtype("GeometryLayer", "cocoa");
+        Factory<FilterInstance>::set_default_classtype("FilterInstance", "cocoa");
+
         freej->quit = false;
         NSRect frame = [screenView frame];
         screen = (CVScreen *)Factory<ViewPort>::get_instance("Screen");

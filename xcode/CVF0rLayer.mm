@@ -97,27 +97,28 @@ CVF0rLayer::feed()
 
     if (generator) 
         res = generator->process(fps.get(), NULL);
-
-    // TODO - handle geometry changes
-    if (!currentFrame) {
-        currentFrame = malloc(geo.bytesize);
-        CVReturn err = CVPixelBufferCreateWithBytes (
-                                                     NULL,
-                                                     geo.w,
-                                                     geo.h,
-                                                     k32ARGBPixelFormat,
-                                                     currentFrame,
-                                                     geo.w*4,
-                                                     NULL,
-                                                     NULL,
-                                                     NULL,
-                                                     &pixelBuffer
-                                                     ); 
+    if (res) {
+        // TODO - handle geometry changes
+        if (!currentFrame) {
+            currentFrame = malloc(geo.bytesize);
+            CVReturn err = CVPixelBufferCreateWithBytes (
+                                                         NULL,
+                                                         geo.w,
+                                                         geo.h,
+                                                         k32ARGBPixelFormat,
+                                                         currentFrame,
+                                                         geo.w*4,
+                                                         NULL,
+                                                         NULL,
+                                                         NULL,
+                                                         &pixelBuffer
+                                                         ); 
+        }
+        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        memcpy(currentFrame, res, geo.bytesize);
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+        [(CVF0rLayerController *)input feedFrame:pixelBuffer];
     }
-    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    memcpy(currentFrame, res, geo.bytesize);
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-    [(CVF0rLayerController *)input feedFrame:pixelBuffer];
     return currentFrame;
 }
 
