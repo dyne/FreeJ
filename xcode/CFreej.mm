@@ -20,7 +20,7 @@
 #import <CFreej.h>
 #include <CVLayer.h>
 #include <CVScreen.h>
-#include <jsparser.h>
+//#include <jsparser.h>
 
 #define DEFAULT_FREEJ_WIDTH 352
 #define DEFAULT_FREEJ_HEIGHT 288
@@ -32,7 +32,6 @@
 // bridge stdout and stderr with the NSTextView outlet (if any)
 - (void) consoleOutput:(id)object
 {
-    [outputlock lock];
     NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
     char buf[1024];
     struct timeval timeout;
@@ -85,7 +84,6 @@
             }
         }
     }
-    [outputlock unlock];
     [p release];
 }
  
@@ -93,7 +91,6 @@
 -(void)awakeFromNib
 {
     lock = [[NSRecursiveLock alloc] init];
-    outputlock = [[NSLock alloc] init];
 }
 
 -(id)init
@@ -195,6 +192,7 @@
         screen->init(frame.size.width, frame.size.height, 32);
         freej->add_screen(screen);
         freej->plugger.refresh(freej);
+        
         //freej->config_check("keyboard.js");
         [[NSNotificationCenter defaultCenter] addObserver:self
             selector:@selector(updateLayerList:)
