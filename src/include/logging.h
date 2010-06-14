@@ -41,7 +41,6 @@
 #define __LOGGING_H__
 
 #include <exceptions.h>
-#include <console_ctrl.h>
 
 #define MAX_LOG_MSG 1024
 
@@ -53,6 +52,8 @@ enum LogLevel { // ordered by increasing verbosity
   WARNING,
   DEBUG
 };
+
+class ConsoleController;
 
 // Base class to implement for providing a logging service
 class Logger {

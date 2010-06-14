@@ -82,7 +82,7 @@ bool Filter::apply(Layer *lay, FilterInstance *instance)
     
     act("initialized filter %s on layer %s", name, lay->name);
     
-    // here maybe keep a list of layers that possess instantiantions of this filter?
+    instance->set_layer(lay);
     
     return true;    
 }

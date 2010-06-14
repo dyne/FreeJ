@@ -46,6 +46,7 @@ class JSObject;
 class Entry;
 
 class BaseLinklist {
+ friend class Entry;
  public:
   BaseLinklist() {
 #ifdef THREADSAFE
@@ -61,11 +62,6 @@ class BaseLinklist {
 #endif
   };
 
-  /* don't touch these from outside
-   use begin() and end() and len() methods */
-  Entry *first;
-  Entry *last;
-  int length;
   Entry *selection;
   virtual Entry *_pick(int pos) =0;
 
@@ -77,7 +73,12 @@ class BaseLinklist {
   pthread_mutex_t mutex;
   pthread_mutexattr_t mattr;
 #endif
-
+ protected:
+  /* don't touch these from outside
+  use begin() and end() and len() methods */
+  Entry *first;
+  Entry *last;
+  int length;
 };
 
 template <class T>
@@ -103,7 +104,7 @@ class Linklist : public BaseLinklist {
   Entry *_pick(int pos);
 
   T *pick(int pos);  
-  T *search(const char *name, int *idx);
+  T *search(const char *name, int *idx=NULL);
   T **completion(char *needle);
 
   T *selected();

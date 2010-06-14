@@ -1,5 +1,7 @@
 /*  FreeJ - Frei0r wrapper
- *  (c) Copyright 2007 Denis Rojo <jaromil@dyne.org>
+ *
+ *  Copyright (C) 2007-2010 Denis Roio <jaromil@dyne.org>
+ *  Copyright (C) 2010    Andrea Guzzo   <xant@xant.net>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 

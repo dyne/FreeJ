@@ -20,7 +20,6 @@
  */
 
 #include <config.h>
-
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,9 +37,12 @@
 #include <freeframe_freej.h>
 
 #ifdef HAVE_DARWIN
-#define _UINT64
 #include <Carbon/Carbon.h>
 #endif
+
+//#ifdef WITH_COCOA
+#include <CVFilter.h>
+//#endif
 
 Plugger::Plugger() {
   char temp[256];
@@ -193,12 +195,16 @@ int Plugger::refresh(Context *env) {
 	  }
 	}
 #endif
-
-	if(found<0) break;
+	if(found<0)
+          break;
       }
 
      free(filelist);
   } while((dir = strtok(NULL,":")));
+
+#ifdef WITH_COCOA
+    CVFilter::listFilters(env->filters);
+#endif
 
   act("filters found: %u", env->filters.len());
   act("generators found: %u", env->generators.len());

@@ -335,7 +335,7 @@ JS(layer_add_filter) {
   GET_LAYER(Layer);
   JS_EndRequest(cx);
 
-  if(filter_instance->inuse) {
+  if(filter_instance->inuse()) {
     error("filter %s is already in use", filter_instance->proto->name);
     return JS_TRUE;
   }

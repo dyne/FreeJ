@@ -37,8 +37,8 @@ FilterInstance::FilterInstance()
     core = NULL;
     intcore = 0;
     outframe = NULL;
-    inuse = false;
     active = false;
+    layer = NULL;
 }
 
 FilterInstance::FilterInstance(Filter *fr)
@@ -124,10 +124,24 @@ bool FilterInstance::get_parameter(int idx) {
 bool FilterInstance::apply(Layer *lay)
 {
     bool ret = false;
-    if (!inuse && proto)
+    if (!layer && proto)
         ret = proto->apply(lay, this);
-    if (ret)
-        inuse = true;
     return ret;
 }
-    
+ 
+void FilterInstance::set_layer(Layer *lay)
+{
+    layer = lay;
+}
+
+Layer *FilterInstance::get_layer()
+{
+    return layer;
+}
+
+bool FilterInstance::inuse()
+{
+    if (layer)
+        return true;
+    return false;
+}

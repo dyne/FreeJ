@@ -250,10 +250,8 @@ void *Layer::do_filters(void *tmp_buf) {
     filters.lock();
     filt = (FilterInstance *)filters.begin();
     while(filt) {
-      if(filt->active) {
-	/// QUAAA fps should be passed XXX TODO
-	tmp_buf = (void*) filt->process(25.0, (uint32_t*)tmp_buf);
-      }
+      if(filt->active)
+	tmp_buf = (void*) filt->process(fps.fps, (uint32_t*)tmp_buf);
       filt = (FilterInstance *)filt->next;
     }
     filters.unlock();

@@ -1,6 +1,7 @@
 /*  FreeJ - FreeFrame videoFX wrapper
  *
- *  (c) Copyright 2008 Denis Roio <jaromil@dyne.org>
+ *  Copyright (C) 2008-2010 Denis Roio <jaromil@dyne.org>
+ *  Copyright (C) 2010    Andrea Guzzo <xant@dyne.org>
  *
  *  studied on a  Pure Data Packet module
  *    by Tom Schouten <pdp@zzz.kotnet.org>
