@@ -63,10 +63,12 @@
 
 - (void)applyFilter:(CIFilter *)filter
 {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     [filter setValue:_image forKey:@"inputImage"];
     CIImage *outputImage = [filter valueForKey:@"outputImage"];
     [_image release];
     _image = [outputImage retain];
+    [pool release];
 }
 
 @end

@@ -33,11 +33,25 @@
 #define FILTERS_MAX 18
 
 static char *fNames[FILTERS_MAX] = {
-    "ZoomBlur", "BoxBlur", "DiscBlur", "GaussianBlur", "ColorPosterize",
-    "ColorInvert", "ComicEffect", "Crystalize", "Edges", "EdgeWork",
-    "HueAdjust", "HexagonalPixellate", "HoleDistorsion", //"BumpDistorsion",
-    "CircleSplashDistortion", "CircularWrap", "PinchDistortion", "TwirlDistortion",
-    "VortexDistortion"
+    (char *)"ZoomBlur",
+    (char *)"BoxBlur",
+    (char *)"DiscBlur",
+    (char *)"GaussianBlur",
+    (char *)"ColorPosterize",
+    (char *)"ColorInvert",
+    (char *)"ComicEffect",
+    (char *)"Crystalize",
+    (char *)"Edges",
+    (char *)"EdgeWork",
+    (char *)"HueAdjust",
+    (char *)"HexagonalPixellate",
+    (char *)"HoleDistorsion",
+    //(char *)"BumpDistorsion",
+    (char *)"CircleSplashDistortion",
+    (char *)"CircularWrap",
+    (char *)"PinchDistortion",
+    (char *)"TwirlDistortion",
+    (char *)"VortexDistortion"
 };
 
 static FilterParams fParams[FILTERS_MAX] =
@@ -90,6 +104,7 @@ CVFilter::~CVFilter()
 
 int CVFilter::type()
 {
+    return Filter::COREIMAGE;
 }
 
 int CVFilter::open(char *name)
@@ -100,9 +115,15 @@ int CVFilter::open(char *name)
     }
     //filterName = [[NSString stringWithFormat:@"CI%s", name] retain];
     set_name(name);
+    for (int i = 0; i < FILTERS_MAX; i++) {
+        if (strcmp(fNames[i], name) == 0) {
+            desc = &fParams[i];
+            opened = true;
+            return 1;
+        }
+    }
     //[ciFilter setName:[[sender selectedItem] title]];
-    opened = true;
-    return 1;
+    return 0;
 }
 
 bool CVFilter::apply(Layer *lay, FilterInstance *instance)
@@ -137,6 +158,9 @@ void CVFilter::print_info()
 
 char *CVFilter::get_parameter_description(int i)
 {
+    if (i >= desc->nParams)
+        return NULL;
+    return desc->params[i].label;
 }
 
 void CVFilter::destruct(FilterInstance *inst)
@@ -144,12 +168,12 @@ void CVFilter::destruct(FilterInstance *inst)
 }
 
 void CVFilter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CVFilterInstance *cvInst = (CVFilterInstance *)inst; // XXX - highly unsafe ... find a proper solution
     // first wrap the input buffer in a CVPixelBuffer
     CVPixelBufferRef pixelBufferIn;
     Layer *layer = inst->get_layer();
     if (layer) {
-        //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
         CVReturn cvRet = CVPixelBufferCreateWithBytes (
                                                        NULL,
                                                        layer->geo.w,
@@ -185,6 +209,7 @@ void CVFilter::update(FilterInstance *inst, double time, uint32_t *inframe, uint
         CGColorSpaceRelease(colorSpace);
         CVPixelBufferRelease(pixelBufferIn);
     }
+    [pool release];
 }
 
 

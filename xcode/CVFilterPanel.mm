@@ -134,7 +134,7 @@
             Layer *fjLayer = cLayer->fj_layer();
             FilterInstance *filt = fjLayer->filters.begin();
             while (filt) {
-                NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:(id)filt];
+                NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:self];
                 [newItem setLabel:[NSString stringWithUTF8String:filt->name]];
                 if (newItem)
                     [activeFilters addTabViewItem:newItem];
@@ -157,10 +157,7 @@
         NSLog(@"4-filters limit reached for layer %s", [layer name]);
         return;
     }
-    NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:self];
-    [newItem setLabel:@""];
-    if (newItem)
-        [activeFilters addTabViewItem:newItem];
+
     NSRect frame = NSMakeRect(0, 0, 100, 20);
     NSView *container = [[NSView alloc] initWithFrame:[activeFilters frame]];
     NSSlider *newSlider = [[NSSlider alloc] initWithFrame:frame];
@@ -199,7 +196,11 @@
             return;
         }
         filt->apply(lay);
-       // NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
+        NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:self];
+        [newItem setLabel:filterName];
+        if (newItem)
+            [activeFilters addTabViewItem:newItem];
+        [newItem release];
         
     }
 }

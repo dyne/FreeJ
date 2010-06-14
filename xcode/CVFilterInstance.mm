@@ -30,6 +30,8 @@
 #include <Foundation/NSString.h>
 #ifdef WITH_COCOA
 
+FACTORY_REGISTER_INSTANTIATOR(FilterInstance, CVFilterInstance, FilterInstance, cocoa);
+
 CVFilterInstance::CVFilterInstance()
     : FilterInstance()
 {
@@ -48,7 +50,8 @@ CVFilterInstance::CVFilterInstance(Filter *fr)
 void CVFilterInstance::init(Filter *fr)
 {
     ciFilter = [[CIFilter filterWithName:[NSString stringWithFormat:@"CI%s", fr->name]] retain];
-    [ciFilter setDefaults]; 
+    [ciFilter setDefaults];
+    FilterInstance::init(fr);
 }
 
 void CVFilterInstance::set_layer(Layer *lay)
