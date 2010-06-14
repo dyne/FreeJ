@@ -59,27 +59,15 @@
             if (FD_ISSET(stdout_pipe[0], &rfds)) {
                 while (read(stdout_pipe[0], buf, sizeof(buf)-1) > 0) {
                     NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
-                    @synchronized (outputPanel)
-                    {
-                        NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:msg];
-                        [[outputPanel textStorage] appendAttributedString:attrString];
-                        [outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
-                         [attrString release];
-                    }
-                    [msg release];
+                    [self performSelectorOnMainThread:@selector(updateOutput:)
+                                           withObject:msg waitUntilDone:NO];
                 }
             }
             if (FD_ISSET(stderr_pipe[0], &rfds)) {
                 while (read(stderr_pipe[0], buf, sizeof(buf)-1) > 0) {
                     NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
-                    @synchronized (outputPanel)
-                    {
-                        NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:msg];
-                        [[outputPanel textStorage] appendAttributedString:attrString];
-                        [outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
-                        [attrString release];
-                    }
-                    [msg release];
+                    [self performSelectorOnMainThread:@selector(updateOutput:)
+                                           withObject:msg waitUntilDone:NO];
                 }
             }
         }
@@ -87,6 +75,14 @@
     [p release];
 }
  
+- (void)updateOutput:(NSString*)msg
+{
+    NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:msg];
+    [[outputPanel textStorage] appendAttributedString:attrString];
+    [outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
+    [attrString release];
+    [msg release];
+}
 
 -(void)awakeFromNib
 {
