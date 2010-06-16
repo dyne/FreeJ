@@ -12,13 +12,13 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="3015"/>
 			<integer value="3082"/>
+			<integer value="2210"/>
+			<integer value="2738"/>
+			<integer value="57"/>
 			<integer value="1575"/>
 			<integer value="1887"/>
-			<integer value="57"/>
-			<integer value="2212"/>
-			<integer value="3015"/>
-			<integer value="2738"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -3163,9 +3163,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 										<string key="NSKeyEquivalent"/>
 										<int key="NSPeriodicDelay">400</int>
 										<int key="NSPeriodicInterval">75</int>
-										<object class="NSMenuItem" key="NSMenuItem" id="811249813">
+										<object class="NSMenuItem" key="NSMenuItem" id="295819821">
 											<reference key="NSMenu" ref="373727405"/>
-											<string key="NSTitle">GaussianBlur</string>
+											<string key="NSTitle">ZoomBlur</string>
 											<string key="NSKeyEquiv"/>
 											<int key="NSKeyEquivModMask">1048576</int>
 											<int key="NSMnemonicLoc">2147483647</int>
@@ -3180,17 +3180,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 											<string key="NSTitle">OtherViews</string>
 											<object class="NSMutableArray" key="NSMenuItems">
 												<bool key="EncodedWithXMLCoder">YES</bool>
-												<object class="NSMenuItem" id="295819821">
-													<reference key="NSMenu" ref="373727405"/>
-													<string key="NSTitle">ZoomBlur</string>
-													<string key="NSKeyEquiv"/>
-													<int key="NSKeyEquivModMask">1048576</int>
-													<int key="NSMnemonicLoc">2147483647</int>
-													<reference key="NSOnImage" ref="388701497"/>
-													<reference key="NSMixedImage" ref="71867127"/>
-													<string key="NSAction">_popUpItemAction:</string>
-													<reference key="NSTarget" ref="834827695"/>
-												</object>
+												<reference ref="295819821"/>
 												<object class="NSMenuItem" id="722726957">
 													<reference key="NSMenu" ref="373727405"/>
 													<string key="NSTitle">BoxBlur</string>
@@ -3213,7 +3203,17 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 													<string key="NSAction">_popUpItemAction:</string>
 													<reference key="NSTarget" ref="834827695"/>
 												</object>
-												<reference ref="811249813"/>
+												<object class="NSMenuItem" id="811249813">
+													<reference key="NSMenu" ref="373727405"/>
+													<string key="NSTitle">GaussianBlur</string>
+													<string key="NSKeyEquiv"/>
+													<int key="NSKeyEquivModMask">1048576</int>
+													<int key="NSMnemonicLoc">2147483647</int>
+													<reference key="NSOnImage" ref="388701497"/>
+													<reference key="NSMixedImage" ref="71867127"/>
+													<string key="NSAction">_popUpItemAction:</string>
+													<reference key="NSTarget" ref="834827695"/>
+												</object>
 												<object class="NSMenuItem" id="672591973">
 													<reference key="NSMenu" ref="373727405"/>
 													<string key="NSTitle">ColorPosterize</string>
@@ -3370,7 +3370,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 												</object>
 											</object>
 										</object>
-										<int key="NSSelectedIndex">3</int>
 										<int key="NSPreferredEdge">1</int>
 										<bool key="NSUsesItemFromMenu">YES</bool>
 										<bool key="NSAltersState">YES</bool>
@@ -4834,11 +4833,9 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<string key="NSMaxSize">{1.79769e+308, 1.79769e+308}</string>
 			</object>
 			<object class="NSSlider" id="1045006764">
-				<reference key="NSNextResponder"/>
+				<nil key="NSNextResponder"/>
 				<int key="NSvFlags">-2147483392</int>
 				<string key="NSFrameSize">{430, 307}</string>
-				<reference key="NSSuperview"/>
-				<reference key="NSWindow"/>
 				<int key="NSViewLayerContentsRedrawPolicy">2</int>
 				<int key="NSTag">103</int>
 				<bool key="NSEnabled">YES</bool>
@@ -6441,6 +6438,14 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					</object>
 					<int key="connectionID">3296</int>
 				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBOutletConnection" key="connection">
+						<string key="label">cFreej</string>
+						<reference key="source" ref="567669164"/>
+						<reference key="destination" ref="42434134"/>
+					</object>
+					<int key="connectionID">3297</int>
+				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
 				<object class="NSArray" key="orderedObjects">
@@ -7355,8 +7360,8 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<reference ref="148934884"/>
 							<reference ref="264557692"/>
 							<reference ref="34475387"/>
-							<reference ref="204706612"/>
 							<reference ref="847797644"/>
+							<reference ref="204706612"/>
 						</object>
 						<reference key="parent" ref="150416448"/>
 					</object>
@@ -10330,7 +10335,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<integer value="1"/>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{635, 200}, {178, 309}}</string>
+					<string>{{633, 200}, {178, 309}}</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<integer value="1"/>
 					<string>{{494, -52}, {220, 363}}</string>
@@ -10994,7 +10999,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">3296</int>
+			<int key="maxID">3297</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -11217,6 +11222,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>activeFilters</string>
 							<string>blendModeButton</string>
+							<string>cFreej</string>
 							<string>filterButton</string>
 							<string>firstImageParam</string>
 							<string>lastImageParam</string>
@@ -11229,6 +11235,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>NSTabView</string>
 							<string>NSPopUpButton</string>
+							<string>CFreej</string>
 							<string>NSPopUpButton</string>
 							<string>NSSlider</string>
 							<string>NSSlider</string>

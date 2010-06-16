@@ -51,6 +51,7 @@ void CVFilterInstance::init(Filter *fr)
 {
     ciFilter = [[CIFilter filterWithName:[NSString stringWithFormat:@"CI%s", fr->name]] retain];
     [ciFilter setDefaults];
+    [ciFilter setValue:[NSNumber numberWithFloat:10.0] forKey:@"inputAmount"];
     FilterInstance::init(fr);
 }
 

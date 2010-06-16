@@ -140,5 +140,8 @@ void *CVLayer::do_filters(void *buf) {
         }
         filters.unlock();
     }
+    // now that we have applied filters (if any)
+    // we can render the preview (if needed)
+    [input renderPreview];
     return buf;
 }

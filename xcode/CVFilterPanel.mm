@@ -41,6 +41,7 @@
     initialWindowFrame = [[self window] frame];
     initialFrame = [mainView frame];
     initialBounds = [mainView bounds];
+    [activeFilters setDelegate:self];
 }
 
 - (void)show
@@ -150,6 +151,42 @@
         [layer setFilterParameter:sender];
 }
 
+- (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
+{
+    if (layer) {        
+        NSString *filterName = [tabViewItem label];
+        Context *ctx = [cFreej getContext];
+        Filter *filt = ctx->filters.search([filterName UTF8String]);
+        NSView *container = [[NSView alloc] initWithFrame:[activeFilters frame]];
+        Parameter *param = filt->parameters.begin();
+        NSRect frame = NSMakeRect(0, 0, 0, 20);
+        while (param) {
+            frame.origin.x = 0;
+            frame.size.width = [container frame].size.width / 2 - 10; // XXX
+            NSTextView *newText = [[NSTextView alloc] initWithFrame:frame];
+            [newText setDrawsBackground:NO];
+            [newText setTextColor:[NSColor colorWithDeviceRed:1.0 green:1.0 blue:1.0 alpha:1.0]];
+            [newText insertText:[NSString stringWithUTF8String:param->name]];
+            [newText sizeToFit];
+            [newText setEditable:NO];
+            [container addSubview:newText];
+            NSRect labelSize = [newText frame];
+            frame.origin.x = labelSize.size.width;
+            frame.origin.y = labelSize.origin.y + (labelSize.size.height/4)-1; // XXX
+            frame.size.width = [container frame].size.width - frame.origin.x - 25;
+            NSSlider *newSlider = [[NSSlider alloc] initWithFrame:frame];
+            [newSlider setMinValue:0.0];
+            [newSlider setMaxValue:100.0];
+            [[newSlider cell] setControlSize:NSMiniControlSize];
+            [container addSubview:newSlider];
+            //[newSlider sizeToFit];
+            frame.origin.y = labelSize.origin.y + 50;
+            param = (Parameter *)param->next;
+        }
+        [tabViewItem setView:container];
+    } 
+}
+
 - (IBAction)addFilter:(id)sender
 {
 /*
@@ -184,10 +221,13 @@
     if (layer) {        
         NSString *filterName = [[filterButton selectedItem] title];
 
-        CFreej *cFreej = layer.freej;
         Context *ctx = [cFreej getContext];
         Filter *filt = ctx->filters.search([filterName UTF8String]);
         CVCocoaLayer *cLay = layer.layer;
+        if (!cLay) {
+            NSLog(@"Can't add filter: No CVCocoaLayer found on %s.", [layer name]);
+            return;
+        }
         Layer *lay = cLay->fj_layer();
         
         Linklist<FilterInstance> *filters = [layer activeFilters];

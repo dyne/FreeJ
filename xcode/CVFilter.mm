@@ -78,6 +78,22 @@ static FilterParams fParams[FILTERS_MAX] =
     { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 800.0 }, { (char*)"inputAngle", -94.25, 94.25 } } }, // VortexDistortion
 };
 
+static void getParameter(FilterInstance *filt, Parameter *param, int idx) {
+    CVFilter *filter = (CVFilter *)filt->proto;
+    CVFilterInstance *instance = (CVFilterInstance *)filt;
+    CIFilter * ciFilter = instance->get_filter();
+    NSNumber *value = [ciFilter valueForKey:[NSString stringWithUTF8String:param->name]];
+    *(double *)param->value = [value doubleValue];
+}
+
+static void setParameter(FilterInstance *filt, Parameter *param, int idx) {
+    CVFilter *filter = (CVFilter *)filt->proto;
+    CVFilterInstance *instance = (CVFilterInstance *)filt;
+    CIFilter * ciFilter = instance->get_filter();
+    [ciFilter setValue:[NSNumber numberWithDouble:*(double *)param->value]
+                forKey:[NSString stringWithUTF8String:param->name]];
+}
+
 void CVFilter::listFilters(Linklist<Filter> &outputList) {
     for (int i = 0; i < FILTERS_MAX; i++) {
         CVFilter *filt = new CVFilter();
@@ -109,18 +125,33 @@ int CVFilter::type()
 
 int CVFilter::open(char *name)
 {
+    int i;
+    
     if (opened) {
         // TODO - Error messages
         return 0;
     }
     //filterName = [[NSString stringWithFormat:@"CI%s", name] retain];
     set_name(name);
-    for (int i = 0; i < FILTERS_MAX; i++) {
+    for (i = 0; i < FILTERS_MAX; i++) {
         if (strcmp(fNames[i], name) == 0) {
             desc = &fParams[i];
             opened = true;
-            return 1;
         }
+    }
+    if (opened && desc) {
+        // Get the list of params.
+        for (i = 0; i < desc->nParams; i++) {
+            Parameter *param = new Parameter(Parameter::NUMBER);
+            snprintf(param->name, 255, "%s", desc->params[i].label);
+            func("registering parameter %s for filter %s\n", param->name, name);
+            
+            snprintf(param->description, 512, "%s", desc->params[i].label);
+            param->filter_set_f = setParameter;
+            param->filter_get_f = getParameter;
+            parameters.append(param);
+        }
+        return 1;
     }
     //[ciFilter setName:[[sender selectedItem] title]];
     return 0;

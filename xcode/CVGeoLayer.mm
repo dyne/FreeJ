@@ -93,3 +93,23 @@ CVGeoLayer::feed()
     return surf->pixels;
 }
 
+void *CVGeoLayer::do_filters(void *buf) {
+    int cnt = 0;
+    bool no_opt = false;
+    
+    if( filters.len() ) {
+        FilterInstance *filt;
+        filters.lock();
+        filt = (FilterInstance *)filters.begin();
+        while(filt) {
+            if(filt->active)
+                [input filterFrame:filt];
+            filt = (FilterInstance *)filt->next;
+        }
+        filters.unlock();
+    }
+    // now that we have applied filters (if any)
+    // we can render the preview (if needed)
+    [input renderPreview];
+    return buf;
+}

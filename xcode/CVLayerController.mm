@@ -253,7 +253,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         lastFrame = [[CVTexture alloc] initWithCIImage:renderedImage pixelBuffer:currentFrame];
         newFrame = NO;
         [lock unlock];
-        [self renderPreview];
+        //[self renderPreview];
     }
     [pool release];
     return kCVReturnSuccess;

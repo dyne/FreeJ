@@ -38,12 +38,13 @@
 */
 @end
 
-@interface CVFilterPanel : NSWindowController {
+@interface CVFilterPanel : NSWindowController <NSTabViewDelegate> {
     CVLayerController       *layer;
     NSRecursiveLock         *lock;
     NSRect initialWindowFrame;
     NSRect initialFrame;
     NSRect initialBounds;
+    IBOutlet CFreej         *cFreej;
     IBOutlet CVFilterBox    *mainView; /// our container
     IBOutlet NSPopUpButton  *blendModeButton;
     IBOutlet NSPopUpButton  *filterButton; /// filters-selection button
