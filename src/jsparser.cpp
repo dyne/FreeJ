@@ -203,23 +203,12 @@ void JsExecutionContext::init_class() {
     object_proto);
 #endif
 
-#ifdef WITH_V4L
   REGISTER_CLASS("CamLayer",
-    v4l_layer_class,
-    v4l_layer_constructor,
-    NULL, // properties
-    v4l_layer_methods,
+    cam_layer_class,
+    cam_layer_constructor,
+    cam_layer_properties,
+    cam_layer_methods,
     object_proto);
-#endif
-
-#ifdef WITH_UNICAP
-  REGISTER_CLASS("UnicapLayer",
-    unicap_layer_class,
-    unicap_layer_constructor,
-    NULL, // properties
-    unicap_layer_methods,
-    object_proto);
-#endif
 
 #ifdef WITH_FFMPEG
   REGISTER_CLASS("MovieLayer",

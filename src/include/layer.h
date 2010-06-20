@@ -113,7 +113,7 @@ class Layer: public Entry, public JSyncThread {
      Open a file or resource for the layer
      @param file string describing the path to the file, can be also an url
   */
-  virtual bool open(const char *file) =0; ///< open the file (first called)
+  virtual bool open(const char *file) =0; ///< open the file - called BEFORE Layer::_init
 
   
   virtual bool init(int w = 0, int h = 0, int bpp = 0);
@@ -221,7 +221,7 @@ class Layer: public Entry, public JSyncThread {
      Initialize the layer implementation
      @param freej freej context where the layer will be used
    */
-  virtual bool _init() = 0; ///< implementation specific _init() to be present in all layers
+  virtual bool _init() = 0; ///< implementation specific _init() in layers - called AFTER open()
 
   void set_filename(const char *f);
   char filename[256];

@@ -74,6 +74,9 @@ static void init_factory() {
 #ifdef WITH_OPENCV
     Factory<Layer>::set_default_classtype("CamLayer", "opencv");
 #endif
+    // QUAAA do check
+    Factory<Layer>::set_default_classtype("CamLayer", "v4l2");
+
 #ifdef WITH_CAIRO
     Factory<Layer>::set_default_classtype("VectorLayer", "cairo");
 #endif
