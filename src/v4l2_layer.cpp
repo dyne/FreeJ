@@ -34,7 +34,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include <linux/videodev2.h>
+// #include <linux/videodev2.h>
 
 #include <ccvt.h>
 

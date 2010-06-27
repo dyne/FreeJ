@@ -24,6 +24,8 @@
 
 #include <context.h>
 
+#include <linux/videodev2.h>
+
 class V4L2CamLayer: public Layer {
  public:
   V4L2CamLayer();

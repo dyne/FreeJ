@@ -14,7 +14,7 @@ noinst_HEADERS = asm-linkage.h audio_collector.h audio_input.h audio_jack.h \
 	oggtheora_encoder.h osc_ctrl.h parameter.h plugger.h plugin.h ringbuffer.h \
 	screen.h sdlgl_screen.h sdl_screen.h sdlxv_screen.h \
 	shouter.h soft_screen.h text_layer.h theora11_encoder.h theorautils.h \
-	trigger_ctrl.h tvfreq.h unicap_layer.h v4l_layer.h v4l2_layer.h video_encoder.h \
+	trigger_ctrl.h tvfreq.h unicap_layer.h v4l2_layer.h video_encoder.h \
 	video_layer.h vimo_ctrl.h vroot.h wiimote_ctrl.h xgrab_layer.h xscreensaver_layer.h \
 	yuv_screeen.h opencv_cam_layer.h exceptions.h logging.h aa_screen.h factory.h \
 	sdl_controller.h audio_layer.h slang_console_ctrl.h cairo_layer.h geometry.h \
