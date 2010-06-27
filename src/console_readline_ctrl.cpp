@@ -130,7 +130,6 @@ void SlwReadline::set_parser(parser_t pars) {
     ::notice("move layer with arrows, press enter when done");
     ::act("use arrow keys to move, or keypad numbers");
     ::act("+ and - zoom, < and > rotate");
-    ::act("w and s spin zoom, a and d spin rotate");
     ::act(", stop rotation . stop zoom and <space> to center");
     ::act("press <enter> when you are done");
     parser = MOVELAYER;

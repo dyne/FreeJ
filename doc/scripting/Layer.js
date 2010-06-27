@@ -5,7 +5,7 @@
     nor is it intended to fulfill any specific purpose apart from generating documentation
 
     @author Jaromil
-    @version 0.8
+    @version 0.11
 */
 
 
@@ -129,8 +129,8 @@ Layer.prototype.get_height	= get_height;
 /** Add a frei0r effect filter to the layer
     it will append the filter to the chain applied to the layer
     the filter is specified by its name
-    @param {string} filter_name (in doublequotes) */
-function add_filter(filter_name) { };
+    @param {Filter} filter_obj */
+function add_filter(filter_obj) { };
 Layer.prototype.add_filter	= add_filter;
 
 /** Remove a filter from the layer
