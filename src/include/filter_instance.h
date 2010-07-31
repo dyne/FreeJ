@@ -49,14 +49,16 @@ class FilterInstance : public Entry {
 
   Layer *get_layer();
 
-  uint32_t *outframe;
-
+  // XXX - most of this stuff should be private or protected
   Filter *proto;
 
   bool active;
 
   unsigned intcore;
   void *core;
+    
+  uint32_t *outframe;
+
     
  protected:
   void set_layer(Layer *lay);

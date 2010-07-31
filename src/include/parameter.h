@@ -60,9 +60,15 @@ class Parameter : public Entry {
 
   Type type;
 
+  // TODO - following properties should be made private 
+  //        and we should expose accessors to deal with
+  //        the actual data, possibly doing conversions 
+  //        and typecasts for the caller (hiding complexity)
   char description[512];
-
   void *value;
+  void *min_value;
+  void *max_value;
+  size_t value_size;
 
   layer_param_f *layer_get_f;
   layer_param_f *layer_set_f;

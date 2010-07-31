@@ -295,6 +295,7 @@ void Freior::destruct(FilterInstance *inst)
 }
 
 void Freior::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
+    Filter::update(inst, time, inframe, outframe);
     f0r_update((f0r_instance_t*)inst->core, time, inframe, outframe);
 }
 

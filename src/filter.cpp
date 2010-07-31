@@ -120,7 +120,21 @@ void Filter::destruct(FilterInstance *inst) {
 }
 
 void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
-
-
+    apply_parameters(inst);
 }
 
+void Filter::apply_parameters(FilterInstance *inst)
+{
+    int idx = 1; // linklist starts from 1
+    parameters.lock();
+    Parameter *param = parameters.begin();
+    while (param) {
+        if (param->changed) {
+            inst->set_parameter(idx);
+            param->changed = false; // XXX
+        }
+        param = (Parameter *)param->next;
+        idx++;
+    }
+    parameters.unlock();
+}

@@ -250,6 +250,7 @@ void *Layer::do_filters(void *tmp_buf) {
     filters.lock();
     filt = (FilterInstance *)filters.begin();
     while(filt) {
+        printf("CIAO \n");
       if(filt->active)
 	tmp_buf = (void*) filt->process(fps.fps, (uint32_t*)tmp_buf);
       filt = (FilterInstance *)filt->next;
@@ -474,3 +475,9 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     
 }
 #endif
+
+bool Layer::_init()
+{
+    // Don't do anything in base implementation
+    return true;
+}

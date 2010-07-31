@@ -221,7 +221,7 @@ class Layer: public Entry, public JSyncThread {
      Initialize the layer implementation
      @param freej freej context where the layer will be used
    */
-  virtual bool _init() = 0; ///< implementation specific _init() to be present in all layers
+  virtual bool _init(); ///< implementation specific _init() to be present in Layer subclassess (if needed)
 
   void set_filename(const char *f);
   char filename[256];

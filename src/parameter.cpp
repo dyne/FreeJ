@@ -28,27 +28,33 @@
 #include <jutils.h>
 
 Parameter::Parameter(Parameter::Type param_type)
-  : Entry() {
+  : Entry()
+{
+  value_size = 0;
   switch(param_type) {
-  case Parameter::BOOL:
-    value = calloc(1, sizeof(bool));
-    break;
-  case Parameter::NUMBER:
-    value = calloc(1, sizeof(double));
-    break;
-  case Parameter::COLOR:
-    value = calloc(3, sizeof(double));
-    break;
-  case Parameter::POSITION:
-    value = calloc(2, sizeof(double));
-    break;
-  case Parameter::STRING:
-    value = calloc(512, sizeof(char));
-    break;
-  default:
-    error("parameter initialized with unknown type: %u", param_type);
+    case Parameter::BOOL:
+      value_size = sizeof(bool);
+      break;
+    case Parameter::NUMBER:
+      value_size = sizeof(double);
+      break;
+    case Parameter::COLOR:
+      value_size = sizeof(double) * 3;
+      break;
+    case Parameter::POSITION:
+      value_size = sizeof(double) * 2;
+      break;
+    case Parameter::STRING:
+      value_size = sizeof(char) * 512;
+      break;
+    default:
+      error("parameter initialized with unknown type: %u", param_type);
   }
-
+  if (value_size) {
+      value = calloc(1, value_size);
+      min_value = calloc(1, value_size);
+      max_value = calloc(1, value_size);
+  }
   changed = false;
   multiplier = 1.0;
 
@@ -65,6 +71,8 @@ Parameter::Parameter(Parameter::Type param_type)
 
 Parameter::~Parameter() {
   free(value);
+  free(min_value);
+  free(max_value);
 }
 
 
