@@ -185,16 +185,17 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     currentFrame = CVPixelBufferRetain(frame);
     newFrame = YES;
     [lock unlock];
-    [self renderFrame];
+    //[self renderFrame];
 }
 
+#if 0
 - (void)filterFrame:(FilterInstance *)filter
 {
     [lock lock];
     if (lastFrame) {
         if (filter->proto->type() == Filter::COREIMAGE) {
             CVFilterInstance *cvFilter = (CVFilterInstance *)filter;
-            [lastFrame applyFilter:cvFilter->get_filter()];
+            [lastFrame applyFilter:cvFilter];
         } else {
             // TODO - Implement
             //buf = (void*) filt->process(fps.fps, (uint32_t*)buf);
@@ -202,6 +203,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     }
     [lock unlock];
 }
+#endif
 
 - (CVReturn)renderFrame
 {
@@ -493,8 +495,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     if ([self doPreview] && previewTarget) { 
         // scale the frame to fit the preview
         if (![previewTarget isHiddenOrHasHiddenAncestor]) {
-            CVTexture *texture = [self getTexture];
-            [previewTarget renderFrame:texture];
+            Layer *fjLayer = layer->fj_layer();
+            // XXX - it's too dangerous to access layer->buffer directly
+            if (fjLayer && fjLayer->buffer)
+                [previewTarget renderFrame:fjLayer];
         }
         
     }

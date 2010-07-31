@@ -110,7 +110,7 @@ class CVCocoaLayer;
     - (void)setBlendMode:(NSString *)mode;
     - (void)initFilters;
     //- (void)filterFrame:(CIFilter *)filter;
-    - (void)filterFrame:(FilterInstance *)filter;
+    //- (void)filterFrame:(FilterInstance *)filter;
     - (Linklist<FilterInstance> *)activeFilters;
 @end
 

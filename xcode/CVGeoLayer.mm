@@ -27,9 +27,6 @@ CVGeoLayer::CVGeoLayer()
     : GeoLayer(), CVCocoaLayer(this)
 {
     type = Layer::GL_COCOA;
-    pixelBuffer = NULL;
-    currentFrame = NULL;
-    bufsize = 0;
     blendMode = [[NSString stringWithFormat:@"Overlay"] retain];
     input = [[CVLayerController alloc] init]; // create a new layer-controller
     set_name("CVGeoLayer"); // and set our name
@@ -40,9 +37,6 @@ CVGeoLayer::CVGeoLayer()
 CVGeoLayer::CVGeoLayer(CVLayerController *vin) : CVCocoaLayer(this, vin), GeoLayer()
 {
     type = Layer::GL_COCOA;
-    pixelBuffer = NULL;
-    currentFrame = NULL;
-    bufsize = 0;
     blendMode = [[NSString stringWithFormat:@"Overlay"] retain];
     input = [vin retain];
     set_name("CVGeoLayer");
@@ -54,8 +48,6 @@ CVGeoLayer::~CVGeoLayer()
 {
     if (input)
         [input release];
-    if (pixelBuffer)
-        CVPixelBufferRelease(pixelBuffer);
 }
 
 // ensure calling the start method from our CVLayer ancestor
@@ -68,27 +60,23 @@ int CVGeoLayer::start()
 void *
 CVGeoLayer::feed()
 {    
-    if (surf) {
+    if (surf && input) {
+        CVPixelBufferRef pixelBuffer;
         // TODO - handle geometry changes
-        if (!pixelBuffer || currentFrame != surf->pixels) {
-            currentFrame = surf->pixels;
-            if (pixelBuffer)
-                CVPixelBufferRelease(pixelBuffer);
-            CVPixelBufferCreateWithBytes (NULL,
-                                          geo.w,
-                                          geo.h,
-                                          k32ARGBPixelFormat,
-                                          surf->pixels,
-                                          geo.w*4,
-                                          NULL,
-                                          NULL,
-                                          NULL,
-                                          &pixelBuffer
-                                         );
-        }
+        CVPixelBufferCreateWithBytes (NULL,
+                                      geo.w,
+                                      geo.h,
+                                      k32ARGBPixelFormat,
+                                      surf->pixels,
+                                      geo.w*4,
+                                      NULL,
+                                      NULL,
+                                      NULL,
+                                      &pixelBuffer
+                                     );
 
-        if (input)
-            [input feedFrame:pixelBuffer];
+        [input feedFrame:pixelBuffer];
+        CVPixelBufferRelease(pixelBuffer);
     }
     return surf->pixels;
 }
@@ -102,8 +90,9 @@ void *CVGeoLayer::do_filters(void *buf) {
         filters.lock();
         filt = (FilterInstance *)filters.begin();
         while(filt) {
-            if(filt->active)
-                [input filterFrame:filt];
+            if(filt->active) {
+                buf = filt->process(fps.fps, (uint32_t *)buf);
+            }
             filt = (FilterInstance *)filt->next;
         }
         filters.unlock();

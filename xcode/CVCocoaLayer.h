@@ -51,10 +51,7 @@ public:
 
 protected:
     Layer *layer;
-    int height, width;
     Context *freej;
-    int bufsize;
-    CVPixelBufferRef pixelBuffer;
     
     void set_controller(CVLayerController *vin);
     

@@ -23,6 +23,7 @@
 #import <CVLayer.h>
 #import <Cocoa/Cocoa.h>
 #include <linklist.h>
+#import <AppKit/AppKit.h>
 
 @class CVFilterPanel;
 

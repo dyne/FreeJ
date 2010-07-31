@@ -181,6 +181,7 @@ bool CVF0rLayer::open(const char *file) {
         }
     }
     
+    // XXX - are we allocating memory for someone else? ... this is crap !!!
     generator->outframe = (uint32_t*) calloc(geo.bytesize, 1);
     
     

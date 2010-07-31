@@ -61,14 +61,21 @@
     return _pixelBuffer;
 }
 
-- (void)applyFilter:(CIFilter *)filter
+#if 0
+- (void)applyFilter:(FilterInstance *)filter
 {
+    CVPixelBufferLockBaseAddress(_pixelBuffer, 0);
+    void *inframe = CVPixelBufferGetBaseAddress(_pixelBuffer);
+    filter->process(filter->layer.fps.fps, (uint32_t *)inframe);
+    //filter->update(FilterInstance *inst, <#double time#>, <#uint32_t *inframe#>, <#uint32_t *outframe#>);
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
     [filter setValue:_image forKey:@"inputImage"];
     CIImage *outputImage = [filter valueForKey:@"outputImage"];
     [_image release];
     _image = [outputImage retain];
     [pool release];
 }
+#endif
 
 @end

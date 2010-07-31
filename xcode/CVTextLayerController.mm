@@ -37,21 +37,23 @@
     if (needsNewFrame) {
         if (currentFrame)
             CVPixelBufferRelease(currentFrame);
-            NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:
-                           [NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, 
-                           [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, 
-                           [NSNumber numberWithBool:YES], kCVPixelBufferOpenGLCompatibilityKey,
-                           nil];
+        NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:
+                       [NSNumber numberWithInt:ctx->screen->geo.w], kCVPixelBufferWidthKey,
+                       [NSNumber numberWithInt:ctx->screen->geo.h], kCVPixelBufferHeightKey,
+                       [NSNumber numberWithInt:ctx->screen->geo.w*4],kCVPixelBufferBytesPerRowAlignmentKey,
+                       [NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, 
+                       [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, 
+                       [NSNumber numberWithBool:YES], kCVPixelBufferOpenGLCompatibilityKey,
+                       nil];
         
         // create pixel buffer
-        CVPixelBufferCreate(kCFAllocatorDefault,
-                            ctx->screen->geo.w,
-                            ctx->screen->geo.h,
-                            k32ARGBPixelFormat,
-                            (CFDictionaryRef)d,
-                            &currentFrame);
+        CVReturn ret = CVPixelBufferCreate(kCFAllocatorDefault,
+                                            ctx->screen->geo.w,
+                                            ctx->screen->geo.h,
+                                            k32ARGBPixelFormat,
+                                            (CFDictionaryRef)d,
+                                            &currentFrame);
 
-     
         // TODO - Implement properly
         //NSFont * font =[NSFont fontWithName:@"Helvetica" size:32.0];
         [theString initWithString:text withAttributes:stanStringAttrib];

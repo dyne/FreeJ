@@ -37,6 +37,7 @@ class Filter;
 
 class CVFilterInstance : public FilterInstance {
     friend class Filter;
+    friend class CVFilter;
     
 public:
     CVFilterInstance();

@@ -52,9 +52,10 @@ public:
     virtual void *do_filters(void *buf);
 
 private:
-    virtual bool _init();
     virtual void *feed();
-
+    CVTexture *texture[2]; // double buffer
+    void *frame;
+    unsigned int num;
 };
 
 #endif

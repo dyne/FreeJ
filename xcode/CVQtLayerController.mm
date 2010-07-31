@@ -196,9 +196,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         if (!layer) {
             CVLayer *cvLayer = new CVLayer(self);
             Context *ctx = [freej getContext];
-            cvLayer->init();
-            cvLayer->geo.w = ctx->screen->geo.w;
-            cvLayer->geo.h = ctx->screen->geo.h;
+            cvLayer->init(ctx->screen->geo.w, ctx->screen->geo.h, ctx->screen->geo.bpp);
             cvLayer = cvLayer;
         }
         NSArray* videoTracks = [qtMovie tracksOfMediaType:QTMediaTypeVideo];
@@ -307,12 +305,11 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                                                              error:nil];
      
     // rendering (aka: applying filters) is now done in getTexture()
-    // implemented in CVLayerView (our parent)
-    CVPixelBufferRetain(newPixelBuffer);
+    // implemented in CVLayerController (our parent)
     rv = YES;
     if (currentFrame)
         CVPixelBufferRelease(currentFrame);
-    currentFrame = newPixelBuffer;
+    currentFrame = CVPixelBufferRetain(newPixelBuffer);
     newFrame = YES;
 #else
     if(qtVisualContext)
@@ -351,14 +348,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
     pool = [[NSAutoreleasePool alloc] init];
     if(qtMovie && [self getFrameForTime:nil])
-    {
-       
-        // render preview if necessary
-        [self renderPreview];
         rv = kCVReturnSuccess;
-    } else {
+     else
         rv = kCVReturnError;
-    }
     [pool release];
     return [super renderFrame];
 }

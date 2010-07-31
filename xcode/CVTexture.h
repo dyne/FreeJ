@@ -30,6 +30,5 @@
 - (id)initWithCIImage:(CIImage *)image pixelBuffer:(CVPixelBufferRef)pixelBuffer;
 - (CIImage *)image;
 - (CVPixelBufferRef)pixelBuffer;
-- (void)applyFilter:(CIFilter *)filter;
 - (void)dealloc;
 @end

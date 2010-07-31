@@ -18,6 +18,7 @@
  */
 
 #import <CVFilterPanel.h>
+#include <CVFilterInstance.h>
 
 @implementation CVFilterPanel
 - (id) init
@@ -124,22 +125,30 @@
 
 - (void)updateActiveFilters
 {
-    NSArray *actualTabs = [activeFilters tabViewItems];
-    for (int i = 0; i < [actualTabs count]; i++) {
-        [activeFilters removeTabViewItem:[actualTabs objectAtIndex:i]];
-    }
+    @synchronized(self) {
+        // cleanup the tabview
+        while ([activeFilters numberOfTabViewItems]) {
+            NSTabViewItem *filterTab = [activeFilters tabViewItemAtIndex:0];
+            [activeFilters removeTabViewItem:filterTab];
+        }
 
-    if (layer) {
-        CVCocoaLayer *cLayer = layer.layer;
-        if (cLayer) {
-            Layer *fjLayer = cLayer->fj_layer();
-            FilterInstance *filt = fjLayer->filters.begin();
-            while (filt) {
-                NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:self];
-                [newItem setLabel:[NSString stringWithUTF8String:filt->name]];
-                if (newItem)
-                    [activeFilters addTabViewItem:newItem];
-                filt = (FilterInstance *)filt->next;
+        if (layer) {
+            CVCocoaLayer *cLayer = layer.layer;
+            if (cLayer) {
+                Layer *fjLayer = cLayer->fj_layer();
+                fjLayer->filters.lock();
+                FilterInstance *filt = fjLayer->filters.begin();
+                while (filt) {
+                    NSData *pointer = [NSData dataWithBytesNoCopy:filt length:sizeof(CVFilterInstance *)];
+                    NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:pointer];
+                    [newItem setLabel:[NSString stringWithUTF8String:filt->name]];
+                    if (newItem) {
+                        [activeFilters addTabViewItem:newItem];
+                        //[newItem autorelease];
+                    }
+                    filt = (FilterInstance *)filt->next;
+                }
+                fjLayer->filters.unlock();
             }
         }
     }
@@ -147,77 +156,79 @@
 
 - (IBAction)setFilterParameter:(id)sender
 {
-    if(layer) // propagate the event if we have a controlling layer
-        [layer setFilterParameter:sender];
+    NSData *data = [[activeFilters selectedTabViewItem] identifier];
+    CVFilterInstance *currentFilter = (CVFilterInstance *)[data bytes];
+
+    Parameter *param = currentFilter->proto->parameters.pick([sender tag]);
+    double value = [sender doubleValue]/100.0;
+    param->multiplier = 100.0;
+    param->set(&value);
 }
 
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
-    if (layer) {        
-        NSString *filterName = [tabViewItem label];
-        Context *ctx = [cFreej getContext];
-        Filter *filt = ctx->filters.search([filterName UTF8String]);
-        NSView *container = [[NSView alloc] initWithFrame:[activeFilters frame]];
-        Parameter *param = filt->parameters.begin();
-        NSRect frame = NSMakeRect(0, 0, 0, 20);
-        while (param) {
-            frame.origin.x = 0;
-            frame.size.width = [container frame].size.width / 2 - 10; // XXX
-            NSTextView *newText = [[NSTextView alloc] initWithFrame:frame];
-            [newText setDrawsBackground:NO];
-            [newText setTextColor:[NSColor colorWithDeviceRed:1.0 green:1.0 blue:1.0 alpha:1.0]];
-            [newText insertText:[NSString stringWithUTF8String:param->name]];
-            [newText sizeToFit];
-            [newText setEditable:NO];
-            [container addSubview:newText];
-            NSRect labelSize = [newText frame];
-            frame.origin.x = labelSize.size.width;
-            frame.origin.y = labelSize.origin.y + (labelSize.size.height/4)-1; // XXX
-            frame.size.width = [container frame].size.width - frame.origin.x - 25;
-            NSSlider *newSlider = [[NSSlider alloc] initWithFrame:frame];
-            [newSlider setMinValue:0.0];
-            [newSlider setMaxValue:100.0];
-            [[newSlider cell] setControlSize:NSMiniControlSize];
-            [container addSubview:newSlider];
-            //[newSlider sizeToFit];
-            frame.origin.y = labelSize.origin.y + 50;
-            param = (Parameter *)param->next;
+    if (layer) {
+        int idx = 1;
+        @synchronized(self) {
+            NSString *filterName = [tabViewItem label];
+            Context *ctx = [cFreej getContext];
+            ctx->filters.lock();
+            Filter *filt = ctx->filters.search([filterName UTF8String]);
+            NSView *container = [tabViewItem view];
+            if (!container) {
+                container = [[NSView alloc] initWithFrame:[activeFilters frame]];
+                [tabViewItem setView:container];
+                [container autorelease];
+            } else {
+                NSArray *subViews = [container subviews];
+                for (int i = 0; i < [subViews count]; i++) {
+                    NSView *subView = [subViews objectAtIndex:i];
+                    [subView removeFromSuperview];
+                }
+            }
+            filt->parameters.lock();
+            Parameter *param = filt->parameters.begin();
+            NSRect frame = NSMakeRect(0, [container frame].size.height - 55, 0, 20); // XXX
+            while (param) {
+                frame.origin.x = 0;
+                frame.size.width = [container frame].size.width / 2 - 10; // XXX
+                NSTextView *newText = [[NSTextView alloc] initWithFrame:frame];
+                [newText setDrawsBackground:NO];
+                [newText setTextColor:[NSColor colorWithDeviceRed:1.0 green:1.0 blue:1.0 alpha:1.0]];
+                [newText insertText:[NSString stringWithUTF8String:param->name]];
+                [newText sizeToFit];
+                [newText setEditable:NO];
+                [container addSubview:newText];
+                NSRect labelSize = [newText frame];
+                frame.origin.x = labelSize.size.width;
+                frame.origin.y = labelSize.origin.y + (labelSize.size.height/4)-1; // XXX
+                frame.size.width = [container frame].size.width - frame.origin.x - 25;
+                NSSlider *newSlider = [[NSSlider alloc] initWithFrame:frame];
+                [newSlider setMinValue:0.0];
+                [newSlider setMaxValue:100.0];
+                [newSlider setDoubleValue:*(double *)param->value]; // XXX - assumes number-only parameters
+                [[newSlider cell] setControlSize:NSMiniControlSize];
+                [newSlider setTarget:self];
+                [newSlider setAction:@selector(setFilterParameter:)];
+                [newSlider setTag:idx];
+                [container addSubview:newSlider];
+                //[newSlider 
+                //[newSlider sizeToFit];
+                frame.origin.y = labelSize.origin.y - 20;
+                // everything should be properly retained at this point
+                [newText release];
+                [newSlider release];
+                param = (Parameter *)param->next;
+                idx++;
+            }
+            filt->parameters.unlock();
+            ctx->filters.unlock();
         }
-        [tabViewItem setView:container];
     } 
 }
 
 - (IBAction)addFilter:(id)sender
 {
-/*
-    if ([activeFilters numberOfTabViewItems] == 4) {
-        NSLog(@"4-filters limit reached for layer %s", [layer name]);
-        return;
-    }
-
-    NSRect frame = NSMakeRect(0, 0, 100, 20);
-    NSView *container = [[NSView alloc] initWithFrame:[activeFilters frame]];
-    NSSlider *newSlider = [[NSSlider alloc] initWithFrame:frame];
-    [newSlider setMinValue:0.0];
-    [newSlider setMaxValue:100.0];
-    frame.origin.x = 50;
-    NSTextField *newText = [[NSTextField alloc] initWithFrame:frame];
-    [newText setStringValue:@"BLAH"];
-
-    NSRect frame2 = NSMakeRect(0, 50, 100, 20);
-
-    NSSlider *newSlider2 = [[NSSlider alloc] initWithFrame:frame2];
-    [[newSlider cell] setControlSize:NSMiniControlSize];
-    [container addSubview:newSlider];
-    //[newSlider sizeToFit];
-    [container addSubview:newText];
-    [newText sizeToFit];
-    [container addSubview:newSlider2];
-    [newSlider2 sizeToFit];
-
-    [newItem setView:container];
-    NSLog(@"%d", [activeFilters numberOfTabViewItems]);
-*/
     if (layer) {        
         NSString *filterName = [[filterButton selectedItem] title];
 
@@ -235,13 +246,15 @@
             NSLog(@"4-filters limit reached for layer %s", [layer name]);
             return;
         }
-        filt->apply(lay);
-        NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:self];
-        [newItem setLabel:filterName];
-        if (newItem)
+        CVFilterInstance *inst = new CVFilterInstance(filt);
+        filt->apply(lay, inst);
+        NSData *pointer = [NSData dataWithBytesNoCopy:inst length:sizeof(CVFilterInstance *)];
+        NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:pointer];
+        if (newItem) {
+            [newItem setLabel:filterName];
             [activeFilters addTabViewItem:newItem];
-        [newItem release];
-        
+            //[newItem autorelease];
+        }        
     }
 }
 

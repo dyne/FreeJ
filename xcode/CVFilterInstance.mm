@@ -24,10 +24,11 @@
  */
 
 #include "CVFilterInstance.h"
-#include <filter.h>
+#include "CVFilter.h"
 #include <layer.h>
 #include <Foundation/NSDictionary.h>
 #include <Foundation/NSString.h>
+#import <QuartzCore/CIFilter.h>
 #ifdef WITH_COCOA
 
 FACTORY_REGISTER_INSTANTIATOR(FilterInstance, CVFilterInstance, FilterInstance, cocoa);
@@ -38,26 +39,37 @@ CVFilterInstance::CVFilterInstance()
     cgContextRef = nil;
     ciContext = nil;
     ciFilter = nil;
+    image = nil;
 }
 
 CVFilterInstance::CVFilterInstance(Filter *fr)
 {
-    CVFilterInstance();
+    cgContextRef = nil;
+    ciContext = nil;
+    ciFilter = nil;
+    image = nil;
     func("creating instance for filter %s",fr->name);
     init(fr);
 }
 
 void CVFilterInstance::init(Filter *fr)
 {
+    FilterInstance::init(fr);
     ciFilter = [[CIFilter filterWithName:[NSString stringWithFormat:@"CI%s", fr->name]] retain];
     [ciFilter setDefaults];
-    [ciFilter setValue:[NSNumber numberWithFloat:10.0] forKey:@"inputAmount"];
-    FilterInstance::init(fr);
+    if (fr->type() == Filter::COREIMAGE) {
+        Parameter *param = fr->parameters.begin();
+        while (param) {
+            param->set(param->min_value);
+            param = (Parameter *)param->next;
+        }
+    }    
 }
 
 void CVFilterInstance::set_layer(Layer *lay)
 {
     FilterInstance::set_layer(lay);
+    /*
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
     cgContextRef = CGBitmapContextCreate (NULL,
                                           lay->geo.w,
@@ -68,23 +80,20 @@ void CVFilterInstance::set_layer(Layer *lay)
                                           kCGImageAlphaPremultipliedLast);
     CGColorSpaceRelease(colorSpace);
     if (cgContextRef == NULL)
-        NSLog(@"WARNING: Export-context not created!");
-    
-    ciContext = [[CIContext contextWithCGContext:cgContextRef 
-                                         options:[NSDictionary dictionaryWithObject: (NSString*) kCGColorSpaceGenericRGB 
-                                                                             forKey:  kCIContextOutputColorSpace]
-                  ] retain];
-    
+        NSLog(@"WARNING: filter-CI-context not created!");
+    */
 }
 
 CVFilterInstance::~CVFilterInstance()
 {
     if (image)
         [image release];
+    /*
     if (ciContext)
         [ciContext release];
     if (cgContextRef)
         CGContextRelease(cgContextRef);
+     */
 }
 
 CIFilter *CVFilterInstance::get_filter()

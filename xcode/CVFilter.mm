@@ -27,6 +27,7 @@
 #include "CVFilterInstance.h"
 #include <linklist.h>
 #include <layer.h>
+#import "CVTexture.h"
 
 #ifdef WITH_COCOA
 
@@ -90,8 +91,11 @@ static void setParameter(FilterInstance *filt, Parameter *param, int idx) {
     CVFilter *filter = (CVFilter *)filt->proto;
     CVFilterInstance *instance = (CVFilterInstance *)filt;
     CIFilter * ciFilter = instance->get_filter();
+    printf("DIOCAKEN %s -- %lld\n", param->name, *(double *)param->value);
+   /* 
     [ciFilter setValue:[NSNumber numberWithDouble:*(double *)param->value]
                 forKey:[NSString stringWithUTF8String:param->name]];
+    */
 }
 
 void CVFilter::listFilters(Linklist<Filter> &outputList) {
@@ -149,6 +153,8 @@ int CVFilter::open(char *name)
             snprintf(param->description, 512, "%s", desc->params[i].label);
             param->filter_set_f = setParameter;
             param->filter_get_f = getParameter;
+            *(double *)param->min_value = desc->params[i].min;
+            *(double *)param->max_value = desc->params[i].max;
             parameters.append(param);
         }
         return 1;
@@ -157,12 +163,38 @@ int CVFilter::open(char *name)
     return 0;
 }
 
-bool CVFilter::apply(Layer *lay, FilterInstance *instance)
+bool CVFilter::apply(Layer *layer, FilterInstance *instance)
 {
-    if (lay->type == Layer::GL_COCOA) {
-    } else {
+    if (Filter::apply(layer, instance)) {
+        if (layer->type == Layer::GL_COCOA) {
+            CVFilterInstance *cvInst = (CVFilterInstance *)instance;            
+            CGRect bounds = CGRectMake(0, 0, layer->geo.w, layer->geo.h);
+            CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+            
+            CGContextRef context = CGBitmapContextCreateWithData(
+                                                                 instance->outframe,
+                                                                 layer->geo.w,
+                                                                 layer->geo.h,
+                                                                 8,
+                                                                 layer->geo.w*4,
+                                                                 colorSpace,
+                                                                 kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Little,
+                                                                 NULL,
+                                                                 NULL
+                                                                 );
+            if (!context) {
+                // todo - error messages
+                return false;
+            }
+            NSDictionary *ciContextOptions = [NSDictionary dictionaryWithObject:(NSString*)kCGColorSpaceGenericRGB 
+                                                                         forKey: kCIContextOutputColorSpace];
+            cvInst->ciContext = [[CIContext contextWithCGContext:context options:ciContextOptions] retain];
+            CGContextRelease(context);
+        } else {
+        }
+        return true;
     }
-    return Filter::apply(lay, instance);
+    return false;
 }
 
 const char *CVFilter::description()
@@ -173,10 +205,10 @@ const char *CVFilter::description()
 
 void CVFilter::print_info()
 {
-    /*
-    notice("Name             : %s", [name UTF8String]);
-    act("%s",[description UTF8String];);
+    notice("Name             : %s", name);
+    act("%s",description());
     act("Type             : CoreImage Filter");
+    /*
     NSArray *paramNames = [cifilter inputKeys];
     act("Parameters [%i total]", [paramNames count]);
     for (int i = 1; i <= [paramNames count]; ++i) {
@@ -196,10 +228,15 @@ char *CVFilter::get_parameter_description(int i)
 
 void CVFilter::destruct(FilterInstance *inst)
 {
+    CVFilterInstance *cvInst = (CVFilterInstance *)inst;
+    if (cvInst->ciContext)
+        [cvInst->ciContext release];
+    return Filter::destruct(inst);
 }
 
 void CVFilter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    Filter::update(inst, time, inframe, outframe);
     CVFilterInstance *cvInst = (CVFilterInstance *)inst; // XXX - highly unsafe ... find a proper solution
     // first wrap the input buffer in a CVPixelBuffer
     CVPixelBufferRef pixelBufferIn;
@@ -222,22 +259,24 @@ void CVFilter::update(FilterInstance *inst, double time, uint32_t *inframe, uint
         } 
         // than create a CIImage to use as input-image
         CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferIn];
-
-        // TODO - CVFilterInstance should expose an accessor to access the CIFilter instance
+        
         CIFilter *ciFilter = cvInst->get_filter();
         // apply the filter
         [ciFilter setValue:inputImage forKey:@"inputImage"];
         CIImage *outputImage = [ciFilter valueForKey:@"outputImage"];
+        
         // draw the result image in the given output buffer
-        CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
         CGRect bounds = CGRectMake(0, 0, layer->geo.w, layer->geo.h);
-        [cvInst->get_context() render:outputImage 
-                       toBitmap:outframe
-                       rowBytes:layer->geo.w*4
-                         bounds:bounds
-                         format:kCIFormatARGB8 
-                     colorSpace:colorSpace];
-        CGColorSpaceRelease(colorSpace);
+          
+        CIContext *ctx = cvInst->get_context();
+
+        [ctx render:outputImage 
+           toBitmap:outframe
+           rowBytes:layer->geo.w*4
+             bounds:bounds
+             format:kCIFormatARGB8 
+         colorSpace:nil];
+
         CVPixelBufferRelease(pixelBufferIn);
     }
     [pool release];

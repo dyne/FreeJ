@@ -465,18 +465,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIFilter *blendFilter = nil;
     CVTexture *texture = nil;
-    if (layer->type == Layer::GL_COCOA) {        
+
+    CVPixelBufferRef pixelBufferOut = NULL;
+    //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
+    /*
+    if (layer->type == Layer::GL_COCOA) {
         CVCocoaLayer *cvLayer = (CVCocoaLayer *)layer->get_data();
         texture = cvLayer->gl_texture();
-        NSString *blendMode = cvLayer->blendMode;
-        if (blendMode)
-            blendFilter = [CIFilter filterWithName:[NSString stringWithFormat:@"CI%@BlendMode", blendMode]];
-        else
-            blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"]; 
-    } else { // freej 'not-cocoa' layer type
-        
-        CVPixelBufferRef pixelBufferOut;
-        //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
+        if (texture)
+            pixelBufferOut = CVPixelBufferRetain([texture pixelBuffer]);
+    } else {
+     */
         CVReturn cvRet = CVPixelBufferCreateWithBytes (
                                                        NULL,
                                                        layer->geo.w,
@@ -492,11 +491,24 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         if (cvRet != noErr) {
             // TODO - Error Messages
         } 
-        CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
-        texture = [CVTexture textureWithCIImage:inputImage pixelBuffer:pixelBufferOut];
-        // we can release our reference to the pixelBuffer now. 
-        // The CVTexture will retain it as long as it is needed
-        CVPixelBufferRelease(pixelBufferOut);
+   // }
+    if (!pixelBufferOut) // return if we don't have anything to draw
+        return;
+    CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
+    texture = [CVTexture textureWithCIImage:inputImage pixelBuffer:pixelBufferOut];
+    // we can release our reference to the pixelBuffer now. 
+    // The CVTexture will retain it as long as it is needed
+    CVPixelBufferRelease(pixelBufferOut);
+
+    if (layer->type == Layer::GL_COCOA) {  
+        CVCocoaLayer *cvLayer = (CVCocoaLayer *)layer->get_data();
+        NSString *blendMode = cvLayer->blendMode;
+        if (blendMode)
+            blendFilter = [CIFilter filterWithName:[NSString stringWithFormat:@"CI%@BlendMode", blendMode]];
+        else
+            blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"]; 
+    } else { // freej 'not-cocoa' layer type
+        // TODO - query the configured blitter for foreign layers so to choose a proper blendfilter here
         blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"];
     }
     [blendFilter setDefaults];
