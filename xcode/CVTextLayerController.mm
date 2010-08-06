@@ -35,8 +35,7 @@
     Context *ctx = [freej getContext];
     [lock lock];
     if (needsNewFrame) {
-        if (currentFrame)
-            CVPixelBufferRelease(currentFrame);
+        CVPixelBufferRef textFrame;
         NSDictionary *d = [NSDictionary dictionaryWithObjectsAndKeys:
                        [NSNumber numberWithInt:ctx->screen->geo.w], kCVPixelBufferWidthKey,
                        [NSNumber numberWithInt:ctx->screen->geo.h], kCVPixelBufferHeightKey,
@@ -52,15 +51,16 @@
                                             ctx->screen->geo.h,
                                             k32ARGBPixelFormat,
                                             (CFDictionaryRef)d,
-                                            &currentFrame);
+                                            &textFrame);
 
         // TODO - Implement properly
         //NSFont * font =[NSFont fontWithName:@"Helvetica" size:32.0];
         [theString initWithString:text withAttributes:stanStringAttrib];
-        [theString drawOnBuffer:currentFrame];
+        [theString drawOnBuffer:textFrame];
+        [self feedFrame:textFrame];
+        CVPixelBufferRelease(textFrame);
         needsNewFrame = NO;
     }
-    newFrame = YES;
     [lock unlock];
     //[self renderPreview];
     [pool release];
@@ -75,6 +75,12 @@
         [text release];
     text = [theText retain];
     stanStringAttrib = attributes;
+    needsNewFrame = YES;
+}
+
+- (IBAction)setImageParameter:(id)sender
+{
+    [super setImageParameter:sender];
     needsNewFrame = YES;
 }
 

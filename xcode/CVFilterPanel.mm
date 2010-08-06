@@ -109,16 +109,27 @@
     /* restore filter selection and parameters for this specific layer */
     if (imageParams) {
         /* restore image parameters (brightness, contrast, exposure and such) */
-        NSSlider *imageParam = firstImageParam;
-        while ([imageParam tag] <= [lastImageParam tag]) {
-            NSNumber *value = [imageParams valueForKey:[imageParam toolTip]];
-            if (value) {
-                [imageParam setDoubleValue:[value floatValue]];
-            } else {
-                [imageParam setDoubleValue:([imageParam minValue]+[imageParam maxValue])/2];
+        NSSlider *slider = firstImageParam;
+        /*
+        while (slider && [slider label]) {
+            const char *label = [[slider label] UTF8String];
+            char filterName[256];
+            char *paramName = strchr(label, ':');
+            if (paramName) {
+                snprintf(filterName, paramName-label, "%s", label);
+                paramName++;
             }
-            imageParam = (NSSlider *)[[imageParam nextKeyView] nextKeyView];
+            if (paramName) {
+                NSNumber *value = [imageParams valueForKey:[slider label]];
+                if (value) {
+                    [slider setDoubleValue:[value floatValue]];
+                } else {
+                    [slider setDoubleValue:([slider minValue]+[slider maxValue])/2];
+                }
+            }
+            slider = (NSSlider *)[[slider nextKeyView] nextKeyView];
         }
+         */
     }
     [lock unlock];
 }
@@ -152,6 +163,12 @@
             }
         }
     }
+}
+
+- (IBAction)setImageParameter:(id)sender
+{
+    if (layer)
+        [layer setImageParameter:sender];
 }
 
 - (IBAction)setFilterParameter:(id)sender
@@ -234,9 +251,13 @@
 
         Context *ctx = [cFreej getContext];
         Filter *filt = ctx->filters.search([filterName UTF8String]);
+        if (!filt) {
+            NSLog(@"Can't find filter: %@\n", filterName);
+            return;
+        }
         CVCocoaLayer *cLay = layer.layer;
         if (!cLay) {
-            NSLog(@"Can't add filter: No CVCocoaLayer found on %s.", [layer name]);
+            NSLog(@"Can't add filter: No CVCocoaLayer found on %s.\n", [layer name]);
             return;
         }
         Layer *lay = cLay->fj_layer();

@@ -121,7 +121,6 @@ void *
 CVLayer::feed()
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    //if ([input isVisible] || [input needPreview])
     [input renderFrame];
 
     CVTexture *tx = [input getTexture];

@@ -37,7 +37,7 @@ class CVCocoaLayer;
         
         bool                   newFrame;
         CVPixelBufferRef       currentFrame;    // the current frame from the movie
-        CVTexture              *lastFrame;
+        CVTexture              *cvTexture;
         CIImage                *posterImage;
         bool                   doPreview;
         CVTexture              *currentPreviewTexture;
@@ -53,9 +53,6 @@ class CVCocoaLayer;
         CIFilter               *exposureAdjustFilter;
         CIFilter               *rotateFilter;
         CIFilter               *translateFilter;
-#if 0
-        CIFilter               *effectFilter;
-#endif
         CIFilter               *scaleFilter;
         NSMutableArray         *paramNames;
         NSMutableArray         *paramValues;
@@ -72,7 +69,6 @@ class CVCocoaLayer;
     @property (readwrite, assign) CFreej *freej;
     @property (readwrite) CVCocoaLayer *layer;
     @property (readonly) CVLayerView *layerView;
-    @property (readonly) CVPixelBufferRef currentFrame;
     // subclass implementation should override this method and update 
     // the currentFrame pointer only within the renderFrame implementation
     - (char *)name;
@@ -106,7 +102,8 @@ class CVCocoaLayer;
     - (void)toggleVisibility;
     - (void)togglePreview;
     - (bool)doPreview;
-    - (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
+    - (IBAction)setImageParameter:(id)sender; /// tags from 0 to 10
+- (IBAction)setValue:(NSNumber *)value forImageParameter:(NSString *)parameter;
     - (void)setBlendMode:(NSString *)mode;
     - (void)initFilters;
     //- (void)filterFrame:(CIFilter *)filter;

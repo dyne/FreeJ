@@ -26,7 +26,6 @@
     NSString *text;
     bool needsNewFrame;
     NSDictionary *stanStringAttrib;
-    void *frame;
 }
 - (IBAction)setText:(NSString *)theText withAttributes:(NSDictionary *)attributes;
 @end

@@ -110,3 +110,8 @@ char *CVCocoaLayer::fj_name()
     return (char *)"CVCocoaLayer";
 }
 
+NSDictionary *CVCocoaLayer::imageParams() {
+    if (input)
+        return [input imageParams];
+    return NULL;
+}

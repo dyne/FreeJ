@@ -25,40 +25,6 @@
 #import <CVFilterInstance.h>
 
 
-#define FILTERS_MAX 18
-typedef struct __FilterParams {
-    int nParams;
-    struct __ParamDescr {
-        char *label;
-        double min;
-        double max;
-    } params[4];
-} FilterParams;
-
-static FilterParams fParams[FILTERS_MAX] =
-{
-    { 1, { { (char*)"inputAmount", 0.0, 50.0 } } },  // ZoomBlur
-    { 1, { { (char*)"inputRadius", 1.0, 100.0 } } },  // BoxBlur
-    //{ 2, { { "inputRadius", 0.0, 50.0 }, { "inputAngle", -3.14, 3.14 } } }, // MotionBlur
-    { 1, { { (char*)"inputRadius", 0.0, 50.0 } } }, // DiscBlur
-    { 1, { { (char*)"inputRadius", 0.0, 100.0 } } }, // GaussianBlur
-    { 1, { { (char*)"inputLevels", 2.0, 30.0 } } }, // ColorPosterize
-    { 0, { { NULL, 0.0, 0.0  } } }, // ColorInvert
-    { 0, { { NULL, 0.0, 0.0 } } }, // ComicEffect
-    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 1.0, 100.0 } } }, // Crystalize
-    { 1, { { (char*)"inputIntensity", 0.0, 10.0 } } }, // Edges
-    { 1, { { (char*)"inputRadius", 0.0, 20.0 } } }, // EdgeWork
-    { 1, { { (char*)"inputAngle", -3.14, 3.14 } } }, // HueAdjust
-    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputScale", 1.0, 100.0 } } }, // HexagonalPixellate
-    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.01, 1000.0 } } }, // HoleDistortion
-    //{ 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 600.0 }, { "inputScale", -1.0, 1.0 } } }, // BumpDistortion
-    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 1000.0 } } }, // CircleSplashDistortion
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 600.0 }, { (char*)"inputAngle", -3.14, 3.14 } } }, // CircularWrap
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 1000.0 }, { (char*)"inputScale", 0.0, 1.0 } } }, // PinchDistortion
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 500.0 }, { (char*)"inputAngle", -12.57, 12.57 } } }, // TwirlDistortion
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 800.0 }, { (char*)"inputAngle", -94.25, 94.25 } } }, // VortexDistortion
-};
-
 /* Utility to set a SInt32 value in a CFDictionary
  */
 static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
@@ -106,7 +72,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     layer = NULL;
     doFilters = true;
     currentFrame = NULL;
-    lastFrame = NULL;
+    cvTexture = NULL;
     posterImage = NULL;
     currentPreviewTexture = NULL;
     doPreview = YES;
@@ -126,9 +92,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (void)dealloc
 {
     [colorCorrectionFilter release];
-#if 0
-    [effectFilter release];
-#endif
     [compositeFilter release];
     [alphaFilter release];
     [exposureAdjustFilter release];
@@ -179,31 +142,83 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (void)feedFrame:(CVPixelBufferRef)frame
 {
+    CIImage     *renderedImage = nil;
+    Layer       *fjLayer = NULL;
+    
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
+    if (layer)
+        fjLayer = layer->fj_layer();
+    else
+        return;
     [lock lock];
-    if (currentFrame)
-        CVPixelBufferRelease(currentFrame);
-    currentFrame = CVPixelBufferRetain(frame);
+    if (!currentFrame) {        
+        CVReturn err = CVPixelBufferCreate (
+                                            NULL,
+                                            fjLayer->geo.w,
+                                            fjLayer->geo.h,
+                                            k32ARGBPixelFormat,
+                                            NULL,
+                                            &currentFrame
+                                            );
+    }
+    //currentFrame = CVPixelBufferRetain(frame);
+    // TODO - check error code
+    CIImage *inputImage = [CIImage imageWithCVImageBuffer:frame];
+
+    CGRect bounds = CGRectMake(0, 0, fjLayer->geo.w, fjLayer->geo.h);
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+    CVPixelBufferLockBaseAddress(currentFrame, 0);
+    // ensure to start drawing on a black background
+    memset(CVPixelBufferGetBaseAddress(currentFrame), 0, CVPixelBufferGetDataSize(currentFrame));
+    
+    CGContextRef context = CGBitmapContextCreateWithData(
+                                                         CVPixelBufferGetBaseAddress(currentFrame),
+                                                         fjLayer->geo.w,
+                                                         fjLayer->geo.h,
+                                                         8,
+                                                         fjLayer->geo.w*4,
+                                                         colorSpace,
+                                                         kCGImageAlphaPremultipliedFirst | kCGBitmapByteOrder32Big,
+                                                         NULL,
+                                                         NULL
+                                                         );
+    CVPixelBufferUnlockBaseAddress(currentFrame, 0);
+    if (!context) {
+        // todo - error messages
+        return;
+    }
+    NSDictionary *ciContextOptions = [NSDictionary dictionaryWithObject:(NSString*)kCGColorSpaceGenericRGB 
+                                                                 forKey: kCIContextOutputColorSpace];
+    CIContext *ciCtx = [CIContext contextWithCGContext:context options:ciContextOptions];
+    //CGContextRelease(context);
+    
+//    if (doFilters) {
+        [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
+        [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+        [alphaFilter  setValue:[exposureAdjustFilter valueForKey:@"outputImage"]
+                        forKey:@"inputImage"];
+        [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+        if (fjLayer && (fjLayer->geo.x || fjLayer->geo.y)) {
+            NSAffineTransform   *translateTransform = [NSAffineTransform transform];
+            [translateTransform translateXBy:fjLayer->geo.x yBy:fjLayer->geo.y];
+            [translateFilter setValue:translateTransform forKey:@"inputTransform"];
+            
+            [translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
+            renderedImage = [translateFilter valueForKey:@"outputImage"];
+        } else {
+            renderedImage = [rotateFilter valueForKey:@"outputImage"];
+        }
+//    } else {
+//        renderedImage = inputImage;
+//    }
+    
+    [ciCtx drawImage:renderedImage inRect:bounds fromRect:bounds];
     newFrame = YES;
     [lock unlock];
+    [pool release];
     //[self renderFrame];
 }
-
-#if 0
-- (void)filterFrame:(FilterInstance *)filter
-{
-    [lock lock];
-    if (lastFrame) {
-        if (filter->proto->type() == Filter::COREIMAGE) {
-            CVFilterInstance *cvFilter = (CVFilterInstance *)filter;
-            [lastFrame applyFilter:cvFilter];
-        } else {
-            // TODO - Implement
-            //buf = (void*) filt->process(fps.fps, (uint32_t*)buf);
-        }
-    }
-    [lock unlock];
-}
-#endif
 
 - (CVReturn)renderFrame
 {
@@ -223,36 +238,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     
     if (newFrame) {
         [lock lock];
-        inputImage = [CIImage imageWithCVImageBuffer:currentFrame];
-        if (doFilters) {    
-            [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
-            [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-#if 0
-            [effectFilter setValue:[exposureAdjustFilter valueForKey:@"outputImage"] 
-                            forKey:@"inputImage"];
-            [alphaFilter  setValue:[effectFilter valueForKey:@"outputImage"]
-                            forKey:@"inputImage"];
-#else
-            [alphaFilter  setValue:[exposureAdjustFilter valueForKey:@"outputImage"]
-                            forKey:@"inputImage"];
-#endif
-            [rotateFilter setValue:[alphaFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-            if (fjLayer && (fjLayer->geo.x || fjLayer->geo.y)) {
-                NSAffineTransform   *translateTransform = [NSAffineTransform transform];
-                [translateTransform translateXBy:fjLayer->geo.x yBy:fjLayer->geo.y];
-                [translateFilter setValue:translateTransform forKey:@"inputTransform"];
-                
-                [translateFilter setValue:[rotateFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
-                renderedImage = [translateFilter valueForKey:@"outputImage"];
-            } else {
-                renderedImage = [rotateFilter valueForKey:@"outputImage"];
-            }
-        } else {
-            renderedImage = inputImage;
-        }
-        if (lastFrame)
-            [lastFrame release];
-        lastFrame = [[CVTexture alloc] initWithCIImage:renderedImage pixelBuffer:currentFrame];
+        if (cvTexture)
+            [cvTexture release];
+        cvTexture = [[CVTexture alloc] initWithCIImage:inputImage pixelBuffer:currentFrame];
         newFrame = NO;
         [lock unlock];
         //[self renderPreview];
@@ -288,24 +276,89 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     } 
 }
 
-- (NSString *)filterName
-{
-    NSString *filter = nil;
-    [lock lock];
-#if 0
-    if (effectFilter)
-        filter = [effectFilter name];
-#endif
-    [lock unlock];
-    return filter;
-}
-
 - (NSDictionary *)imageParams
 {
     return imageParams;
 }
 
-- (IBAction)setFilterParameter:(id)sender
+- (IBAction)setValue:(NSNumber *)value forImageParameter:(NSString *)parameter
+{
+    Layer *fjLayer = NULL;
+    NSAutoreleasePool *pool;
+    float deg = 0;
+    float x = 0;
+    float y = 0;
+    NSAffineTransform    *rotateTransform;
+    NSAffineTransform    *rototranslateTransform;
+    NSString *paramName = NULL;
+    pool = [[NSAutoreleasePool alloc] init];
+    if (layer)
+        fjLayer = layer->fj_layer();
+    else
+        return;
+    
+    // TODO - optimize the logic in this routine ... it's becoming huge!!
+    // to prevent its run() method to try rendering
+    // a frame while we change filter parameters
+    [lock lock];
+#if 0
+    switch([sender tag])
+    {
+        case 0:  // opacity (AlphaFade)
+            [alphaFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"outputOpacity"];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            break;
+        case 1: //brightness (ColorCorrection)
+            [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            break;
+        case 2: // saturation (ColorCorrection)
+            [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            break;
+        case 3: // contrast (ColorCorrection)
+            [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            break;
+        case 4: // exposure (ExposureAdjust)
+            [exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            break;
+        case 5: // rotate 
+            rotateTransform = [NSAffineTransform transform];
+            [rotateTransform rotateByDegrees:[sender floatValue]];
+            deg = ([sender floatValue]*M_PI)/180.0;
+            if (deg && fjLayer) {
+                x = ((fjLayer->geo.w)-((fjLayer->geo.w)*cos(deg)-(fjLayer->geo.h)*sin(deg)))/2;
+                y = ((fjLayer->geo.h)-((fjLayer->geo.w)*sin(deg)+(fjLayer->geo.h)*cos(deg)))/2;
+            }
+            rototranslateTransform = [NSAffineTransform transform];
+            [rototranslateTransform translateXBy:x yBy:y];
+            [rotateTransform appendTransform:rototranslateTransform];
+            [rotateTransform concat];
+            [rototranslateTransform concat];
+            [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            break;
+        case 6: // traslate X
+            if (fjLayer) 
+                fjLayer->geo.x = [sender floatValue];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            break;
+        case 7: // traslate Y
+            if (fjLayer)
+                fjLayer->geo.y = [sender floatValue];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            break;
+        default:
+            break;
+    }
+#endif
+    [lock unlock];
+    [pool release];
+}
+
+- (IBAction)setImageParameter:(id)sender
 {
     Layer *fjLayer = NULL;
     NSAutoreleasePool *pool;
@@ -329,23 +382,23 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     {
         case 0:  // opacity (AlphaFade)
             [alphaFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"outputOpacity"];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
             break;
         case 1: //brightness (ColorCorrection)
             [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
             break;
         case 2: // saturation (ColorCorrection)
             [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
             break;
         case 3: // contrast (ColorCorrection)
             [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
             break;
         case 4: // exposure (ExposureAdjust)
             [exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
             break;
         case 5: // rotate 
             rotateTransform = [NSAffineTransform transform];
@@ -361,108 +414,18 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [rotateTransform concat];
             [rototranslateTransform concat];
             [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
             break;
         case 6: // traslate X
             if (fjLayer) 
                 fjLayer->geo.x = [sender floatValue];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 7: // traslate Y
             if (fjLayer)
                 fjLayer->geo.y = [sender floatValue];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
-#if 0
-        case 100:
-		{
-            NSString *filterName = [NSString stringWithFormat:@"CI%@", [[sender selectedItem] title]];
-            //NSLog(filterName);
-            [effectFilter release];
-            effectFilter = [[CIFilter filterWithName:filterName] retain];
-            [effectFilter setDefaults];
-            [effectFilter setName:[[sender selectedItem] title]]; 
-            imageParams *pdescr = &fParams[[sender indexOfSelectedItem]];
-            NSView *cView = (NSView *)sender;
-            for (int i = 0; i < 4; i++) {
-                NSTextField *label = (NSTextField *)[cView nextKeyView];
-                NSSlider *slider = (NSSlider *)[label nextKeyView];
-                
-                if (i < pdescr->nParams) {
-                    [label setHidden:NO];
-                    [label setTitleWithMnemonic:[NSString stringWithUTF8String:pdescr->params[i].label]];
-                    
-                    // first update sliders' min and max values
-                    [slider setToolTip:[label stringValue]];
-                    [slider setHidden:NO];
-                    [slider setMinValue:pdescr->params[i].min];
-                    [slider setMaxValue:pdescr->params[i].max];
-                    NSNumber *value = [imageParams valueForKey:[label stringValue]];
-                    if (value) 
-                        [slider setDoubleValue:[value floatValue]];
-                    else
-                        [slider setDoubleValue:pdescr->params[i].min];
-                    // than update the current value for this specific layer (saved in imageParams)
-                    [imageParams setValue:[NSNumber numberWithFloat:[slider doubleValue]]  forKey:[label stringValue]];
-                    
-                    // handle the case it refers to a "center" coordinate
-                    if (strcmp(pdescr->params[i].label, "CenterY") == 0) {
-                        if (fjLayer)
-                            [slider setMaxValue:fjLayer->geo.h];
-                        NSSlider *x = (NSSlider *)[[slider previousKeyView] previousKeyView];
-                        [effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[slider floatValue]]
-                                        forKey:@"inputCenter"];
-                    } else if (strcmp(pdescr->params[i].label, "CenterX") == 0) {
-                        if (fjLayer)
-                            [slider setMaxValue:fjLayer->geo.w];
-                        NSSlider *y = (NSSlider *)[[slider nextKeyView] nextKeyView];
-                        [effectFilter setValue:[CIVector vectorWithX:[slider floatValue] Y:[y floatValue]]
-                                        forKey:@"inputCenter"];
-                    } else {
-                        [effectFilter setValue:[NSNumber numberWithFloat:[slider doubleValue]] forKey:[label stringValue]];
-                    }
-                } else {
-                    // hide unused sliders
-                    [label setHidden:YES];
-                    [slider setHidden:YES];
-                }
-                cView = slider;
-            }
-            break;
-		}
-        case 101:
-            paramName = [sender toolTip];
-            if ([paramName isEqual:@"CenterX"]) {
-                NSSlider *y = (NSSlider *)[[sender nextKeyView] nextKeyView];
-                [effectFilter setValue:[CIVector vectorWithX:[sender floatValue] Y:[y floatValue]]
-                                forKey:@"inputCenter"];
-            } else { 
-                [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            }
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            break;
-        case 102:
-            paramName = [sender toolTip];
-            if ([paramName isEqual:@"CenterY"]) {
-                NSSlider *x = (NSSlider *)[[sender previousKeyView] previousKeyView];
-                [effectFilter setValue:[CIVector vectorWithX:[x floatValue] Y:[sender floatValue]]
-                                forKey:@"inputCenter"];
-            } else { 
-                [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            }
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            break;
-        case 103:
-            paramName = [sender toolTip];
-            [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            break;
-        case 104:
-            paramName = [sender toolTip];
-            [effectFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:paramName];
-            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
-            break;
-#endif
         default:
             break;
     }
@@ -538,14 +501,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         [scaleFilter setDefaults];    // set the filter to its default values
     }
     //[scaleFilter setValue:[NSNumber numberWithFloat:scaleFactor] forKey:@"inputScale"];
-#if 0
-    if (!effectFilter) {
-        effectFilter = [[CIFilter filterWithName:@"CIZoomBlur"] retain];            // Effect filter  
-        [effectFilter setDefaults];                                // set the filter to its default values
-        [effectFilter setName:@"ZoomBlur"];
-        [effectFilter setValue:[NSNumber numberWithFloat:0.0] forKey:@"inputAmount"]; // don't apply effects at startup
-    }
-#endif
+
     if (!compositeFilter) {
         compositeFilter = [[CIFilter filterWithName:@"CISourceOverCompositing"] retain];    // Composite filter
         [compositeFilter setDefaults];
@@ -567,7 +523,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {    
     CVTexture   *texture = nil;
     [lock lock];
-    texture = [lastFrame retain];
+    texture = [cvTexture retain];
     [lock unlock];
 
     return [texture autorelease];
@@ -590,15 +546,17 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         /* TODO - avoid creating a CVLayer directly,
                   we should only know about CVCocoaLayer here */
         CVLayer *cvLayer = new CVLayer(self);
-        cvLayer->init();
-        cvLayer->activate();
         if (freej) {
             // TODO Geometry should expose a proper API
             Context *ctx = [freej getContext];
             cvLayer->geo.w = ctx->screen->geo.w;
             cvLayer->geo.h = ctx->screen->geo.h;
+            cvLayer->init(ctx->screen->geo.w, ctx->screen->geo.h, 32);
+        } else {
+            cvLayer->init();
         }
-        layer = cvLayer;
+        cvLayer->activate();
+        layer = (CVCocoaLayer *)cvLayer;
     }
 }
 
@@ -646,6 +604,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (void)activate
 {    if (layer) {
+        // ensure activating the underlying layer ... 
+        // this won't do anything if the layer is already active
         layer->activate();
         if (freej) {
             Layer *fjLayer = layer->fj_layer();
@@ -734,6 +694,5 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 @synthesize freej;
 @synthesize layer;
 @synthesize layerView;
-@synthesize currentFrame;
 
 @end

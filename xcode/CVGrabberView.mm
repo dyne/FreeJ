@@ -17,6 +17,7 @@
  *
  */
 
+#import <AppKit/NSTabView.h>
 #import <CVGrabberView.h>
 
 

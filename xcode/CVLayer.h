@@ -50,9 +50,10 @@ public:
     virtual void pause();
     
     virtual void *do_filters(void *buf);
+protected:
+    virtual void *feed();
 
 private:
-    virtual void *feed();
     CVTexture *texture[2]; // double buffer
     void *frame;
     unsigned int num;

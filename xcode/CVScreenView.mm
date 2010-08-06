@@ -502,6 +502,9 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 
     if (layer->type == Layer::GL_COCOA) {  
         CVCocoaLayer *cvLayer = (CVCocoaLayer *)layer->get_data();
+        // first apply image parameters
+        NSDictionary *imageParams = cvLayer->imageParams();
+        
         NSString *blendMode = cvLayer->blendMode;
         if (blendMode)
             blendFilter = [CIFilter filterWithName:[NSString stringWithFormat:@"CI%@BlendMode", blendMode]];

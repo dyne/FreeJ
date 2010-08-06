@@ -48,6 +48,8 @@ public:
 
     Context *context() { return freej; }; 
     virtual CVTexture *gl_texture();
+    NSDictionary *imageParams();
+
 
 protected:
     Layer *layer;

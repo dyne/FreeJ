@@ -91,11 +91,35 @@ static void setParameter(FilterInstance *filt, Parameter *param, int idx) {
     CVFilter *filter = (CVFilter *)filt->proto;
     CVFilterInstance *instance = (CVFilterInstance *)filt;
     CIFilter * ciFilter = instance->get_filter();
-    printf("DIOCAKEN %s -- %lld\n", param->name, *(double *)param->value);
-   /* 
-    [ciFilter setValue:[NSNumber numberWithDouble:*(double *)param->value]
-                forKey:[NSString stringWithUTF8String:param->name]];
-    */
+    if (strcmp(param->name, "CenterX") == 0) {
+        filter->parameters.lock();
+        Parameter *centerY = filter->parameters.begin();
+        while (centerY && strcmp(centerY->name, "CenterY") != 0) {
+            centerY = (Parameter *)centerY->next;
+        }
+        if (centerY) {
+            [ciFilter setValue:[CIVector vectorWithX:[[NSNumber numberWithDouble:*(double *)param->value] floatValue]
+                                                   Y:[[NSNumber numberWithDouble:*(double *)centerY->value] floatValue]]
+                        forKey:@"inputCenter"];
+        } else {
+            error("Can't find 'CenterY' param for filter %s\n", filter->name);
+        }
+    } else if (strcmp(param->name, "CenterY") == 0) {
+        filter->parameters.lock();
+        Parameter *centerX = filter->parameters.begin();
+        while (centerX && strcmp(centerX->name, "CenterX") != 0) {
+            centerX = (Parameter *)centerX->next;
+        }
+        if (centerX) {
+            [ciFilter setValue:[CIVector vectorWithX:[[NSNumber numberWithDouble:*(double *)centerX->value] floatValue]
+                                                   Y:[[NSNumber numberWithDouble:*(double *)param->value] floatValue]]
+                        forKey:@"inputCenter"];
+        } else {
+            error("Can't find 'CenterY' param for filter %s\n", filter->name);
+        }    } else {
+        [ciFilter setValue:[NSNumber numberWithDouble:*(double *)param->value]
+                    forKey:[NSString stringWithUTF8String:param->name]];        
+    }
 }
 
 void CVFilter::listFilters(Linklist<Filter> &outputList) {

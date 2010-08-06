@@ -20,7 +20,6 @@ CVFFmpegLayer::CVFFmpegLayer(CVLayerController *controller) : CVLayer(controller
 {
     ff = NULL;
     pixelBuffer = NULL;
-    currentFrame = NULL;
     repeat = NO;
 }
 
@@ -40,10 +39,6 @@ void *CVFFmpegLayer::feed()
 {
     if (!ff) 
     {
-        if (currentFrame) {
-            free(currentFrame);
-            currentFrame = NULL;
-        }
         if (strlen(filename)) { // XXX - (argh!, find a better way)
             if (open_movie(&ff, filename) == 0) {
                 init_moviebuffer(ff, geo.w, geo.h, PIX_FMT_ARGB);
@@ -58,18 +53,12 @@ void *CVFFmpegLayer::feed()
         uint8_t *ffbuffer = get_bufptr(ff);
         if (!ffbuffer)
             return NULL;
-        // TODO - handle geometry changes and ensure using the same size of ffmpeg buffer
-        if (!currentFrame)
-            currentFrame = malloc(geo.bytesize);
-        memcpy(currentFrame, ffbuffer, geo.bytesize);
-        if (pixelBuffer)
-            CVPixelBufferRelease(pixelBuffer);
         CVReturn err = CVPixelBufferCreateWithBytes (
                                                      NULL,
                                                      geo.w,
                                                      geo.h,
                                                      k32ARGBPixelFormat,
-                                                     currentFrame,
+                                                     ffbuffer,
                                                      geo.w*4,
                                                      NULL,
                                                      NULL,
@@ -77,7 +66,7 @@ void *CVFFmpegLayer::feed()
                                                      &pixelBuffer
                                                     ); 
         if (err == kCVReturnSuccess) {
-            [input feedFrame:pixelBuffer];
+            // first decode the frame
             if (!decode_frame(ff)) {
                 close_and_free_ff(&ff);
                 //buffer = NULL;
@@ -91,11 +80,15 @@ void *CVFFmpegLayer::feed()
                     }
                 }
             }
+            // and than provide it to our controller
+            [input feedFrame:pixelBuffer];
+            CVPixelBufferRelease(pixelBuffer);
+
         } else {
             // TODO - Error messages
         }
     }
-    return currentFrame;
+    return CVLayer::feed();
 }
 
 bool CVFFmpegLayer::isDecoding()
