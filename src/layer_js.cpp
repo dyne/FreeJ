@@ -62,6 +62,7 @@ JSPropertySpec layer_properties[] = {
   { "h" ,         6, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, layer_get_height, NULL },
   { "filters",    7, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, layer_list_filters, NULL },
   { "parameters", 8, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY, layer_list_parameters, NULL },
+  // TODO: blits - list_blits
   {0}
 };
 

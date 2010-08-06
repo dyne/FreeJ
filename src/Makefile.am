@@ -20,7 +20,8 @@ SOURCES = \
 	ringbuffer.cpp  	convertvid.cpp  \
 	logging.cpp geometry.cpp color.cpp \
 \
-	v4l_layer.cpp tvfreq.c	unicap_layer.cpp \
+        tvfreq.c		unicap_layer.cpp \
+	v4l2_layer.cpp \
 	video_layer.cpp		image_layer.cpp \
 	text_layer.cpp 		generator_layer.cpp \
 	geo_layer.cpp		flash_layer.cpp \
@@ -55,8 +56,7 @@ JS_SOURCES = 	context_js.cpp  \
 		jsparser.cpp	\
 		callbacks_js.cpp \
 		video_encoder_js.cpp \
-		v4l_layer_js.cpp \
-		unicap_layer_js.cpp \
+		cam_layer_js.cpp \
 		video_layer_js.cpp \
 		image_layer_js.cpp \
 		text_layer_js.cpp \

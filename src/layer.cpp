@@ -481,3 +481,15 @@ bool Layer::_init()
     // Don't do anything in base implementation
     return true;
 }
+
+bool Layer::open(const char *file) {
+    // do nothing , our subclass shoud override this method if they implement an open
+    func("base Layer::open(%s) called passing", file);
+    return false;
+}
+
+void Layer::close() {
+    // do nothing , our subclass shoud override this method if they implement an open
+    func("base Layer::close() called passing");
+    return false;
+}

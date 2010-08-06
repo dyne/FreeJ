@@ -113,13 +113,13 @@ class Layer: public Entry, public JSyncThread {
      Open a file or resource for the layer
      @param file string describing the path to the file, can be also an url
   */
-  virtual bool open(const char *file) =0; ///< open the file (first called)
+  virtual bool open(const char *file); ///< open the file - called BEFORE Layer::_init (not all layers 'open' files - xnt)
 
   
   virtual bool init(int w = 0, int h = 0, int bpp = 0);
   ///< initializes the layer (this will call also the layer implementation's init)
 
-  virtual void close() =0; ///< close the layer (ready to open a new one)
+  virtual void close(); ///< close the layer (ready to open a new one)
 
   virtual bool set_parameter(int idx); ///< activate the setting on parameter pointed by idx index number
 

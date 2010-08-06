@@ -46,7 +46,6 @@ V4lGrabber::V4lGrabber()
   buffer = NULL;
   have_tuner=false;
   set_name("V4L");
-  jsclass = &v4l_layer_class;
 }
 
 V4lGrabber::~V4lGrabber() {
