@@ -329,10 +329,5 @@
     return filterPanel;
 }
 
-- (NSString *)filterName {
-    if (layerController)
-        return [layerController filterName];
-    return nil;
-}
 
 @end

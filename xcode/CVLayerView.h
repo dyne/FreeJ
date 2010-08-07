@@ -50,7 +50,6 @@ class CVLayer;
 
 - (void)clear;
 - (CVFilterPanel *)filterPanel;
-- (NSString *)filterName;
 - (void)setPosterImage:(NSImage *)image;
 //- (void)setPreviewTarget:(CVPreview *)targetView;
 - (bool)needPreview; // true if we need to provide a preview, else otherwise
