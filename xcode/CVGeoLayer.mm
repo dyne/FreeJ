@@ -78,7 +78,7 @@ CVGeoLayer::feed()
         [input feedFrame:pixelBuffer];
         CVPixelBufferRelease(pixelBuffer);
     }
-    return surf->pixels;
+    return CVLayer::feed();
 }
 
 void *CVGeoLayer::do_filters(void *buf) {
