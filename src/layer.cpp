@@ -491,5 +491,5 @@ bool Layer::open(const char *file) {
 void Layer::close() {
     // do nothing , our subclass shoud override this method if they implement an open
     func("base Layer::close() called passing");
-    return false;
+    return;
 }
