@@ -32,7 +32,9 @@
 #include <flash_layer.h> // statically included flash layer
 #include <goom_layer.h>
 
+#ifdef WITH_V4L
 #include <v4l2_layer.h>
+#endif
 
 #ifdef WITH_AVIFILE
 #include <avi_layer.h>
