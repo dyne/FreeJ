@@ -86,7 +86,6 @@ class CVCocoaLayer;
     - (CVTexture *)getTexture;
     // query the layer to check if it needs to display a preview or not (used by CVPreview)
     - (bool)needPreview;
-    - (NSString *)filterName;
     - (NSDictionary *)imageParams;
     //- (void)setContext:(CFreej *)ctx;
     - (void)setPreviewTarget:(CVPreview *)targetView;
