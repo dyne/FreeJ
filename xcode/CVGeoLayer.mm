@@ -26,6 +26,7 @@ FACTORY_REGISTER_INSTANTIATOR(Layer, CVGeoLayer, GeometryLayer, cocoa);
 CVGeoLayer::CVGeoLayer()
     : GeoLayer(), CVCocoaLayer(this)
 {
+    frame = NULL;
     type = Layer::GL_COCOA;
     blendMode = [[NSString stringWithFormat:@"Overlay"] retain];
     input = [[CVLayerController alloc] init]; // create a new layer-controller
@@ -36,6 +37,7 @@ CVGeoLayer::CVGeoLayer()
 
 CVGeoLayer::CVGeoLayer(CVLayerController *vin) : CVCocoaLayer(this, vin), GeoLayer()
 {
+    frame = NULL;
     type = Layer::GL_COCOA;
     blendMode = [[NSString stringWithFormat:@"Overlay"] retain];
     input = [vin retain];
@@ -78,7 +80,28 @@ CVGeoLayer::feed()
         [input feedFrame:pixelBuffer];
         CVPixelBufferRelease(pixelBuffer);
     }
-    return CVLayer::feed();
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    [input renderFrame];
+    
+    CVTexture *tx = [input getTexture];
+    if (tx) {
+        // ensure providing the pixelbuffer to upper cocoa-related layers
+        CVPixelBufferRef pixelBuffer = [tx pixelBuffer];
+        
+        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        
+        //void *frame = CVPixelBufferGetBaseAddress(pixelBuffer);
+        if (!frame)
+            frame = malloc(CVPixelBufferGetDataSize(pixelBuffer));
+        // TODO - try to avoid this copy!!
+        memcpy(frame, CVPixelBufferGetBaseAddress(pixelBuffer), CVPixelBufferGetDataSize(pixelBuffer));
+        
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+        
+        //unlock();
+    }
+    [pool release];
+    return frame;
 }
 
 void *CVGeoLayer::do_filters(void *buf) {

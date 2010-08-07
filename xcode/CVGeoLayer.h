@@ -36,8 +36,9 @@ public:
 protected:
     int currentIndex;
     void *feed();
-
 private:
+    void *frame;
+
     FACTORY_ALLOWED
 };
 
