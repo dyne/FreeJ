@@ -40,9 +40,9 @@
 #include <Carbon/Carbon.h>
 #endif
 
-//#ifdef WITH_COCOA
+#ifdef WITH_COCOA
 #include <CVFilter.h>
-//#endif
+#endif
 
 Plugger::Plugger() {
   char temp[256];

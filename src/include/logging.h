@@ -41,6 +41,7 @@
 #define __LOGGING_H__
 
 #include <exceptions.h>
+#include <stdarg.h>
 
 #define MAX_LOG_MSG 1024
 
