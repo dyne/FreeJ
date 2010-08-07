@@ -110,26 +110,15 @@
     if (imageParams) {
         /* restore image parameters (brightness, contrast, exposure and such) */
         NSSlider *slider = firstImageParam;
-        /*
-        while (slider && [slider label]) {
-            const char *label = [[slider label] UTF8String];
-            char filterName[256];
-            char *paramName = strchr(label, ':');
-            if (paramName) {
-                snprintf(filterName, paramName-label, "%s", label);
-                paramName++;
-            }
-            if (paramName) {
-                NSNumber *value = [imageParams valueForKey:[slider label]];
-                if (value) {
-                    [slider setDoubleValue:[value floatValue]];
-                } else {
-                    [slider setDoubleValue:([slider minValue]+[slider maxValue])/2];
-                }
+        while (slider && [slider toolTip]) {
+            NSNumber *value = [imageParams valueForKey:[slider toolTip]];
+            if (value) {
+                [slider setDoubleValue:[value floatValue]];
+            } else {
+                [slider setDoubleValue:([slider minValue]+[slider maxValue])/2];
             }
             slider = (NSSlider *)[[slider nextKeyView] nextKeyView];
         }
-         */
     }
     [lock unlock];
 }

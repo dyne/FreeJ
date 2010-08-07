@@ -382,23 +382,23 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     {
         case 0:  // opacity (AlphaFade)
             [alphaFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"outputOpacity"];
-            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 1: //brightness (ColorCorrection)
             [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputBrightness"];
-            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 2: // saturation (ColorCorrection)
             [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputSaturation"];
-            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 3: // contrast (ColorCorrection)
             [colorCorrectionFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputContrast"];
-            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 4: // exposure (ExposureAdjust)
             [exposureAdjustFilter setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:@"inputEV"];
-            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 5: // rotate 
             rotateTransform = [NSAffineTransform transform];
@@ -414,17 +414,17 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
             [rotateTransform concat];
             [rototranslateTransform concat];
             [rotateFilter setValue:rotateTransform forKey:@"inputTransform"];
-            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender label]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 6: // traslate X
             if (fjLayer) 
                 fjLayer->geo.x = [sender floatValue];
-            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         case 7: // traslate Y
             if (fjLayer)
                 fjLayer->geo.y = [sender floatValue];
-            //[imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
+            [imageParams setValue:[NSNumber numberWithFloat:[sender floatValue]] forKey:[sender toolTip]];
             break;
         default:
             break;

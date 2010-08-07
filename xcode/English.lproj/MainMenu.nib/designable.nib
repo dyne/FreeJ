@@ -798,7 +798,7 @@
 				<string key="NSWindowClass">NSWindow</string>
 				<nil key="NSViewClass"/>
 				<object class="NSView" key="NSWindowView" id="359121319">
-					<reference key="NSNextResponder"/>
+					<nil key="NSNextResponder"/>
 					<int key="NSvFlags">256</int>
 					<object class="NSMutableArray" key="NSSubviews">
 						<bool key="EncodedWithXMLCoder">YES</bool>
@@ -1747,7 +1747,7 @@
 															<int key="NSvFlags">256</int>
 															<string key="NSFrameSize">{175, 217}</string>
 															<reference key="NSSuperview" ref="748900005"/>
-															<reference key="NSNextKeyView" ref="933108498"/>
+															<reference key="NSNextKeyView" ref="639675985"/>
 															<bool key="NSEnabled">YES</bool>
 															<object class="NSTableHeaderView" key="NSHeaderView" id="151080196">
 																<reference key="NSNextResponder" ref="639675985"/>
@@ -1884,13 +1884,12 @@
 											</object>
 											<string key="NSFrame">{{408, 176}, {192, 250}}</string>
 											<reference key="NSSuperview" ref="994082813"/>
-											<reference key="NSNextKeyView" ref="639675985"/>
+											<reference key="NSNextKeyView" ref="748900005"/>
 											<int key="NSsFlags">50</int>
 											<reference key="NSVScroller" ref="933108498"/>
 											<reference key="NSHScroller" ref="882357259"/>
 											<reference key="NSContentView" ref="748900005"/>
 											<reference key="NSHeaderClipView" ref="639675985"/>
-											<reference key="NSCornerView" ref="174756608"/>
 											<bytes key="NSScrollAmts">QSAAAEEgAABBmAAAQZgAAA</bytes>
 										</object>
 										<object class="NSBox" id="291928603">
@@ -1931,7 +1930,7 @@
 																			<int key="NSvFlags">2322</int>
 																			<string key="NSFrameSize">{157, 14}</string>
 																			<reference key="NSSuperview" ref="129755419"/>
-																			<reference key="NSNextKeyView" ref="142016284"/>
+																			<reference key="NSNextKeyView" ref="218010290"/>
 																			<object class="NSTextContainer" key="NSTextContainer" id="59777078">
 																				<object class="NSLayoutManager" key="NSLayoutManager">
 																					<object class="NSTextStorage" key="NSTextStorage">
@@ -2071,7 +2070,7 @@
 															</object>
 															<string key="NSFrame">{{18, 40}, {174, 92}}</string>
 															<reference key="NSSuperview" ref="481137635"/>
-															<reference key="NSNextKeyView" ref="218010290"/>
+															<reference key="NSNextKeyView" ref="129755419"/>
 															<int key="NSsFlags">18</int>
 															<reference key="NSVScroller" ref="142016284"/>
 															<reference key="NSHScroller" ref="218010290"/>
@@ -2999,7 +2998,6 @@
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{108, 19}, {80, 18}}</string>
 							<reference key="NSSuperview" ref="359121319"/>
-							<reference key="NSNextKeyView"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSButtonCell" key="NSCell" id="755626167">
 								<int key="NSCellFlags">-2080244224</int>
@@ -3039,7 +3037,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						</object>
 					</object>
 					<string key="NSFrame">{{7, 11}, {654, 686}}</string>
-					<reference key="NSSuperview"/>
 					<reference key="NSNextKeyView" ref="455931578"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
@@ -3094,6 +3091,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{100, 97}, {39, 17}}</string>
 							<reference key="NSSuperview" ref="627582647"/>
+							<reference key="NSNextKeyView"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="931550645">
 								<int key="NSCellFlags">67239488</int>
@@ -3117,6 +3115,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<int key="NSvFlags">268</int>
 							<string key="NSFrame">{{17, 98}, {73, 17}}</string>
 							<reference key="NSSuperview" ref="627582647"/>
+							<reference key="NSNextKeyView" ref="439443653"/>
 							<bool key="NSEnabled">YES</bool>
 							<object class="NSTextFieldCell" key="NSCell" id="891513490">
 								<int key="NSCellFlags">67239488</int>
@@ -3131,6 +3130,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					</object>
 					<string key="NSFrame">{{7, 11}, {156, 135}}</string>
 					<reference key="NSSuperview"/>
+					<reference key="NSNextKeyView" ref="1006951770"/>
 				</object>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{1e+13, 1e+13}</string>
@@ -10324,7 +10324,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<object class="IBToolTipAttribute" key="NS.object.0">
 							<string key="name">ToolTip</string>
 							<reference key="object" ref="961288004"/>
-							<string key="toolTip">Rotate</string>
+							<string key="toolTip">rotateFilter:inputTransform</string>
 						</object>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -10334,7 +10334,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<object class="IBToolTipAttribute" key="NS.object.0">
 							<string key="name">ToolTip</string>
 							<reference key="object" ref="638719908"/>
-							<string key="toolTip">Exposure</string>
+							<string key="toolTip">exposureAdjustFilter:inputEV</string>
 						</object>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -10348,7 +10348,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<object class="IBToolTipAttribute" key="NS.object.0">
 							<string key="name">ToolTip</string>
 							<reference key="object" ref="116114006"/>
-							<string key="toolTip">Opacity</string>
+							<string key="toolTip">alphaFilter:outputOpacity</string>
 						</object>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -10360,7 +10360,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<object class="IBToolTipAttribute" key="NS.object.0">
 							<string key="name">ToolTip</string>
 							<reference key="object" ref="450359124"/>
-							<string key="toolTip">Brightness</string>
+							<string key="toolTip">colorCorrectionFilter:inputBrightness</string>
 						</object>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -10372,7 +10372,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<object class="IBToolTipAttribute" key="NS.object.0">
 							<string key="name">ToolTip</string>
 							<reference key="object" ref="995158060"/>
-							<string key="toolTip">Saturation</string>
+							<string key="toolTip">colorCorrectionFilter:inputSaturation</string>
 						</object>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -10384,7 +10384,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<object class="IBToolTipAttribute" key="NS.object.0">
 							<string key="name">ToolTip</string>
 							<reference key="object" ref="357640837"/>
-							<string key="toolTip">Contrast</string>
+							<string key="toolTip">colorCorrectionFilter:inputContrast</string>
 						</object>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -10529,7 +10529,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<object class="IBToolTipAttribute" key="NS.object.0">
 							<string key="name">ToolTip</string>
 							<reference key="object" ref="148934884"/>
-							<string key="toolTip">Translate X</string>
+							<string key="toolTip">TranslateX</string>
 						</object>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -10543,7 +10543,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<object class="IBToolTipAttribute" key="NS.object.0">
 							<string key="name">ToolTip</string>
 							<reference key="object" ref="34475387"/>
-							<string key="toolTip">Translate Y</string>
+							<string key="toolTip">TranslateY</string>
 						</object>
 					</object>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
