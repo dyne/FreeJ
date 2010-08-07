@@ -119,7 +119,7 @@ CVF0rLayer::feed()
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
         [(CVF0rLayerController *)input feedFrame:pixelBuffer];
     }
-    return currentFrame;
+    return CVLayer::feed();
 }
 
 bool CVF0rLayer::open(const char *file) {
