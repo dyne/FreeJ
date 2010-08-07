@@ -51,7 +51,6 @@ class CVLayer;
 - (void)clear;
 - (CVFilterPanel *)filterPanel;
 - (NSString *)filterName;
-- (NSDictionary *)filterParams;
 - (void)setPosterImage:(NSImage *)image;
 //- (void)setPreviewTarget:(CVPreview *)targetView;
 - (bool)needPreview; // true if we need to provide a preview, else otherwise
@@ -63,7 +62,6 @@ class CVLayer;
 - (void)deactivate; /// deactivate the underlying CVLayer
 - (NSString *)blendMode;
 // Interface Builder API 
-- (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
 - (IBAction)setBlendMode:(id)sender; /// tag -1
 - (IBAction)toggleFilters:(id)sender; /// toggle CIImage filters
 - (IBAction)togglePreview:(id)sender; /// toggle preview rendering

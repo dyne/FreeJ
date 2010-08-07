@@ -197,11 +197,6 @@
 }
 
 
-- (IBAction)setFilterParameter:(id)sender
-{
-    [layerController setFilterParameter:sender];
-}
-
 - (IBAction)setBlendMode:(id)sender
 {
     [layerController setBlendMode:sender];
@@ -338,13 +333,6 @@
     if (layerController)
         return [layerController filterName];
     return nil;
-}
-
-- (NSDictionary *)filterParams {
-    if (layerController)
-        return [layerController filterParams];
-    return nil;
-
 }
 
 @end
