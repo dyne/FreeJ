@@ -38,8 +38,11 @@
 - (void)mouseDown:(NSEvent *)theEvent;
 */
 @end
-
+#if MAC_OS_X_VERSION_10_6
 @interface CVFilterPanel : NSWindowController <NSTabViewDelegate> {
+#else
+@interface CVFilterPanel : NSWindowController {
+#endif
     CVLayerController       *layer;
     NSRecursiveLock         *lock;
     NSRect initialWindowFrame;
