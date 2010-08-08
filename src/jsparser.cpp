@@ -1,8 +1,8 @@
 /*  FreeJ
  *
- *  Copyright (C) 2004-2010 Denis Roio     <jaromil@dyne.org>
+ *  Copyright (C) 2004-2010 Denis Roio       <jaromil@dyne.org>
  *  Copyright (C) 2004-2006 Silvano Galliani <kysucix@dyne.org>
- *  Copyright (C) 2010    Andrea Guzzo   <xant@xant.net>
+ *  Copyright (C) 2010      Andrea Guzzo     <xant@dyne.org>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 

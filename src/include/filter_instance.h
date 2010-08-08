@@ -45,15 +45,27 @@ class FilterInstance : public Entry {
   virtual bool get_parameter(int idx); ///< get the parameter value
   virtual bool apply(Layer *lay);
 
-  uint32_t *outframe;
+  virtual bool inuse();
 
+  Layer *get_layer();
+
+  // XXX - most of this stuff should be private or protected
   Filter *proto;
 
   bool active;
-  bool inuse;
 
   unsigned intcore;
   void *core;
+    
+  uint32_t *outframe;
+
+    
+ protected:
+  void set_layer(Layer *lay);
+
+ private:
+  Layer *layer;
+
   FACTORY_ALLOWED
 };
 

@@ -18,6 +18,7 @@
  */
 
 #import <CVFilterPanel.h>
+#include <CVFilterInstance.h>
 
 @implementation CVFilterPanel
 - (id) init
@@ -41,6 +42,7 @@
     initialWindowFrame = [[self window] frame];
     initialFrame = [mainView frame];
     initialBounds = [mainView bounds];
+    [activeFilters setDelegate:self];
 }
 
 - (void)show
@@ -88,7 +90,8 @@
         [blendModeButton selectItem:blendMode];
     else
         [blendModeButton selectItemAtIndex:0];
-    
+    [self updateActiveFilters];
+#if 0
     /* check if the layer has an already configured filter */
     NSString *filter = [layer filterName];
     if (filter) {
@@ -97,33 +100,172 @@
         filter = [filterButton itemTitleAtIndex:0];
     }
     [self setFilterParameter:filterButton]; // configure default filter
-
+#endif
     /* TODO - move this logic out of the FilterPanel. This should really be done in the 
        CVLayerView implementation perhaps in setFilterParameter , but it would be better 
        to do this in a sort of notification callback executed when the filterpanel attaches
        the CVLayer */
-    NSDictionary *filterParams = [layer filterParams];
+    NSDictionary *imageParams = [layer imageParams];
     /* restore filter selection and parameters for this specific layer */
-    if (filterParams) {
+    if (imageParams) {
         /* restore image parameters (brightness, contrast, exposure and such) */
-        NSSlider *imageParam = firstImageParam;
-        while ([imageParam tag] <= [lastImageParam tag]) {
-            NSNumber *value = [filterParams valueForKey:[imageParam toolTip]];
+        NSSlider *slider = firstImageParam;
+        while (slider && [slider toolTip]) {
+            NSNumber *value = [imageParams valueForKey:[slider toolTip]];
             if (value) {
-                [imageParam setDoubleValue:[value floatValue]];
+                [slider setDoubleValue:[value floatValue]];
             } else {
-                [imageParam setDoubleValue:([imageParam minValue]+[imageParam maxValue])/2];
+                [slider setDoubleValue:([slider minValue]+[slider maxValue])/2];
             }
-            imageParam = (NSSlider *)[[imageParam nextKeyView] nextKeyView];
+            slider = (NSSlider *)[[slider nextKeyView] nextKeyView];
         }
     }
     [lock unlock];
 }
 
+- (void)updateActiveFilters
+{
+    @synchronized(self) {
+        // cleanup the tabview
+        while ([activeFilters numberOfTabViewItems]) {
+            NSTabViewItem *filterTab = [activeFilters tabViewItemAtIndex:0];
+            [activeFilters removeTabViewItem:filterTab];
+        }
+
+        if (layer) {
+            CVCocoaLayer *cLayer = layer.layer;
+            if (cLayer) {
+                Layer *fjLayer = cLayer->fj_layer();
+                fjLayer->filters.lock();
+                FilterInstance *filt = fjLayer->filters.begin();
+                while (filt) {
+                    NSData *pointer = [NSData dataWithBytesNoCopy:filt length:sizeof(CVFilterInstance *)];
+                    NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:pointer];
+                    [newItem setLabel:[NSString stringWithUTF8String:filt->name]];
+                    if (newItem) {
+                        [activeFilters addTabViewItem:newItem];
+                        //[newItem autorelease];
+                    }
+                    filt = (FilterInstance *)filt->next;
+                }
+                fjLayer->filters.unlock();
+            }
+        }
+    }
+}
+
+- (IBAction)setImageParameter:(id)sender
+{
+    if (layer)
+        [layer setImageParameter:sender];
+}
+
 - (IBAction)setFilterParameter:(id)sender
 {
-    if(layer) // propagate the event if we have a controlling layer
-        [layer setFilterParameter:sender];
+    NSData *data = [[activeFilters selectedTabViewItem] identifier];
+    CVFilterInstance *currentFilter = (CVFilterInstance *)[data bytes];
+
+    Parameter *param = currentFilter->proto->parameters.pick([sender tag]);
+    double value = [sender doubleValue]/100.0;
+    param->multiplier = 100.0;
+    param->set(&value);
+}
+
+- (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
+{
+    if (layer) {
+        int idx = 1;
+        @synchronized(self) {
+            NSString *filterName = [tabViewItem label];
+            Context *ctx = [cFreej getContext];
+            ctx->filters.lock();
+            Filter *filt = ctx->filters.search([filterName UTF8String]);
+            NSView *container = [tabViewItem view];
+            if (!container) {
+                container = [[NSView alloc] initWithFrame:[activeFilters frame]];
+                [tabViewItem setView:container];
+                [container autorelease];
+            } else {
+                NSArray *subViews = [container subviews];
+                for (int i = 0; i < [subViews count]; i++) {
+                    NSView *subView = [subViews objectAtIndex:i];
+                    [subView removeFromSuperview];
+                }
+            }
+            filt->parameters.lock();
+            Parameter *param = filt->parameters.begin();
+            NSRect frame = NSMakeRect(0, [container frame].size.height - 55, 0, 20); // XXX
+            while (param) {
+                frame.origin.x = 0;
+                frame.size.width = [container frame].size.width / 2 - 10; // XXX
+                NSTextView *newText = [[NSTextView alloc] initWithFrame:frame];
+                [newText setDrawsBackground:NO];
+                [newText setTextColor:[NSColor colorWithDeviceRed:1.0 green:1.0 blue:1.0 alpha:1.0]];
+                [newText insertText:[NSString stringWithUTF8String:param->name]];
+                [newText sizeToFit];
+                [newText setEditable:NO];
+                [container addSubview:newText];
+                NSRect labelSize = [newText frame];
+                frame.origin.x = labelSize.size.width;
+                frame.origin.y = labelSize.origin.y + (labelSize.size.height/4)-1; // XXX
+                frame.size.width = [container frame].size.width - frame.origin.x - 25;
+                NSSlider *newSlider = [[NSSlider alloc] initWithFrame:frame];
+                [newSlider setMinValue:0.0];
+                [newSlider setMaxValue:100.0];
+                [newSlider setDoubleValue:*(double *)param->value]; // XXX - assumes number-only parameters
+                [[newSlider cell] setControlSize:NSMiniControlSize];
+                [newSlider setTarget:self];
+                [newSlider setAction:@selector(setFilterParameter:)];
+                [newSlider setTag:idx];
+                [container addSubview:newSlider];
+                //[newSlider 
+                //[newSlider sizeToFit];
+                frame.origin.y = labelSize.origin.y - 20;
+                // everything should be properly retained at this point
+                [newText release];
+                [newSlider release];
+                param = (Parameter *)param->next;
+                idx++;
+            }
+            filt->parameters.unlock();
+            ctx->filters.unlock();
+        }
+    } 
+}
+
+- (IBAction)addFilter:(id)sender
+{
+    if (layer) {        
+        NSString *filterName = [[filterButton selectedItem] title];
+
+        Context *ctx = [cFreej getContext];
+        Filter *filt = ctx->filters.search([filterName UTF8String]);
+        if (!filt) {
+            NSLog(@"Can't find filter: %@\n", filterName);
+            return;
+        }
+        CVCocoaLayer *cLay = layer.layer;
+        if (!cLay) {
+            NSLog(@"Can't add filter: No CVCocoaLayer found on %s.\n", [layer name]);
+            return;
+        }
+        Layer *lay = cLay->fj_layer();
+        
+        Linklist<FilterInstance> *filters = [layer activeFilters];
+        if (filters->len() >= 4) {
+            NSLog(@"4-filters limit reached for layer %s", [layer name]);
+            return;
+        }
+        CVFilterInstance *inst = new CVFilterInstance(filt);
+        filt->apply(lay, inst);
+        NSData *pointer = [NSData dataWithBytesNoCopy:inst length:sizeof(CVFilterInstance *)];
+        NSTabViewItem *newItem = [[NSTabViewItem alloc] initWithIdentifier:pointer];
+        if (newItem) {
+            [newItem setLabel:filterName];
+            [activeFilters addTabViewItem:newItem];
+            //[newItem autorelease];
+        }        
+    }
 }
 
 - (IBAction)togglePreview:(id)sender

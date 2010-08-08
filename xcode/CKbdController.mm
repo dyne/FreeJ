@@ -18,6 +18,8 @@
  */
 
 #include <CKbdController.h>
+#include <CVScreen.h>
+//#include <CFreej.h>
 
 FACTORY_REGISTER_INSTANTIATOR(Controller, CKbdController, KeyboardController, cocoa);
 

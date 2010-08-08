@@ -26,10 +26,8 @@ FACTORY_REGISTER_INSTANTIATOR(Layer, CVGeoLayer, GeometryLayer, cocoa);
 CVGeoLayer::CVGeoLayer()
     : GeoLayer(), CVCocoaLayer(this)
 {
+    frame = NULL;
     type = Layer::GL_COCOA;
-    pixelBuffer = NULL;
-    currentFrame = NULL;
-    bufsize = 0;
     blendMode = [[NSString stringWithFormat:@"Overlay"] retain];
     input = [[CVLayerController alloc] init]; // create a new layer-controller
     set_name("CVGeoLayer"); // and set our name
@@ -39,10 +37,8 @@ CVGeoLayer::CVGeoLayer()
 
 CVGeoLayer::CVGeoLayer(CVLayerController *vin) : CVCocoaLayer(this, vin), GeoLayer()
 {
+    frame = NULL;
     type = Layer::GL_COCOA;
-    pixelBuffer = NULL;
-    currentFrame = NULL;
-    bufsize = 0;
     blendMode = [[NSString stringWithFormat:@"Overlay"] retain];
     input = [vin retain];
     set_name("CVGeoLayer");
@@ -54,8 +50,6 @@ CVGeoLayer::~CVGeoLayer()
 {
     if (input)
         [input release];
-    if (pixelBuffer)
-        CVPixelBufferRelease(pixelBuffer);
 }
 
 // ensure calling the start method from our CVLayer ancestor
@@ -68,28 +62,66 @@ int CVGeoLayer::start()
 void *
 CVGeoLayer::feed()
 {    
-    if (surf) {
+    if (surf && input) {
+        CVPixelBufferRef pixelBuffer;
         // TODO - handle geometry changes
-        if (!pixelBuffer || currentFrame != surf->pixels) {
-            currentFrame = surf->pixels;
-            if (pixelBuffer)
-                CVPixelBufferRelease(pixelBuffer);
-            CVPixelBufferCreateWithBytes (NULL,
-                                          geo.w,
-                                          geo.h,
-                                          k32ARGBPixelFormat,
-                                          surf->pixels,
-                                          geo.w*4,
-                                          NULL,
-                                          NULL,
-                                          NULL,
-                                          &pixelBuffer
-                                         );
-        }
+        CVPixelBufferCreateWithBytes (NULL,
+                                      geo.w,
+                                      geo.h,
+                                      k32ARGBPixelFormat,
+                                      surf->pixels,
+                                      geo.w*4,
+                                      NULL,
+                                      NULL,
+                                      NULL,
+                                      &pixelBuffer
+                                     );
 
-        if (input)
-            [input feedFrame:pixelBuffer];
+        [input feedFrame:pixelBuffer];
+        CVPixelBufferRelease(pixelBuffer);
     }
-    return surf->pixels;
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    [input renderFrame];
+    
+    CVTexture *tx = [input getTexture];
+    if (tx) {
+        // ensure providing the pixelbuffer to upper cocoa-related layers
+        CVPixelBufferRef pixelBuffer = [tx pixelBuffer];
+        
+        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        
+        //void *frame = CVPixelBufferGetBaseAddress(pixelBuffer);
+        if (!frame)
+            frame = malloc(CVPixelBufferGetDataSize(pixelBuffer));
+        // TODO - try to avoid this copy!!
+        memcpy(frame, CVPixelBufferGetBaseAddress(pixelBuffer), CVPixelBufferGetDataSize(pixelBuffer));
+        
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+        
+        //unlock();
+    }
+    [pool release];
+    return frame;
 }
 
+void *CVGeoLayer::do_filters(void *buf) {
+    int cnt = 0;
+    bool no_opt = false;
+    
+    if( filters.len() ) {
+        FilterInstance *filt;
+        filters.lock();
+        filt = (FilterInstance *)filters.begin();
+        while(filt) {
+            if(filt->active) {
+                buf = filt->process(fps.fps, (uint32_t *)buf);
+            }
+            filt = (FilterInstance *)filt->next;
+        }
+        filters.unlock();
+    }
+    // now that we have applied filters (if any)
+    // we can render the preview (if needed)
+    [input renderPreview];
+    return buf;
+}

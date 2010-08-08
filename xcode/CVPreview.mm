@@ -135,52 +135,70 @@
     [pool release];
 }
 
-- (void)renderFrame:(CVTexture *)image
+- (void)renderFrame:(Layer *)layer
 {
     NSRect        frame = [self frame];
     NSRect        bounds = [self bounds];
     float         scaleFactor;
     //CVTexture   *textureToRelease = nil;
     Context       *ctx = (Context *)[freej getContext];
-    
+    CVPixelBufferRef pixelBufferIn;
+    CIImage       *ciImage;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
-   // if (texture)
-   //     textureToRelease = texture;
-    texture = image;
+
     @synchronized(self) {
-    NSAffineTransform *scaleTransform = [NSAffineTransform transform];
+        layer->lock();
+        CVReturn cvRet = CVPixelBufferCreateWithBytes (
+                                                       NULL,
+                                                       layer->geo.w,
+                                                       layer->geo.h,
+                                                       k32ARGBPixelFormat,
+                                                       layer->buffer,
+                                                       layer->geo.w*4,
+                                                       NULL,
+                                                       NULL,
+                                                       NULL,
+                                                       &pixelBufferIn
+                                                       );
+        if (cvRet == kCVReturnSuccess) {
+            CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferIn];
 
-    scaleFactor = frame.size.height/ctx->screen->geo.h;
-    [scaleTransform scaleBy:scaleFactor];
-    CIFilter    *scaleFilter = [CIFilter filterWithName:@"CIAffineTransform"];
-    [scaleFilter setDefaults];    // set the filter to its default values
+            NSAffineTransform *scaleTransform = [NSAffineTransform transform];
 
-    [scaleFilter setValue:scaleTransform forKey:@"inputTransform"];
-    [scaleFilter setValue:[texture image] forKey:@"inputImage"];
+            scaleFactor = frame.size.height/ctx->screen->geo.h;
+            [scaleTransform scaleBy:scaleFactor];
+            CIFilter    *scaleFilter = [CIFilter filterWithName:@"CIAffineTransform"];
+            [scaleFilter setDefaults];    // set the filter to its default values
 
-    CIImage *previewImage = [scaleFilter valueForKey:@"outputImage"];
-    // output the downscaled frame in the preview window
-    // XXX - I'm not sure we really need locking here
+            [scaleFilter setValue:scaleTransform forKey:@"inputTransform"];
+            [scaleFilter setValue:inputImage forKey:@"inputImage"];
 
-    CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-                NSWidth(bounds), NSHeight(bounds));
-    if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
-        return;
+            CIImage *previewImage = [scaleFilter valueForKey:@"outputImage"];
+            // output the downscaled frame in the preview window
+            // XXX - I'm not sure we really need locking here
 
-    CGPoint origin;
+            CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+                        NSWidth(bounds), NSHeight(bounds));
+            if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+                return;
 
-    origin.x = (frame.size.width-(ctx->screen->geo.w * scaleFactor))/2;
-    origin.y = (frame.size.height-(ctx->screen->geo.h * scaleFactor))/2;
-    [ciContext drawImage:previewImage
-            atPoint: origin
-            fromRect: imageRect];
-    //[self drawRect:NSZeroRect]; 
-    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);    
+            CGPoint origin;
 
-    [self setNeedsDisplay:YES];
-    //if (textureToRelease)
-    //    [textureToRelease release];
+            origin.x = (frame.size.width-(ctx->screen->geo.w * scaleFactor))/2;
+            origin.y = (frame.size.height-(ctx->screen->geo.h * scaleFactor))/2;
+            [ciContext drawImage:previewImage
+                    atPoint: origin
+                    fromRect: imageRect];
+            //[self drawRect:NSZeroRect]; 
+            CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);    
+
+            [self setNeedsDisplay:YES];
+            //if (textureToRelease)
+            //    [textureToRelease release];
+            CVPixelBufferRelease(pixelBufferIn);
+        }
+        layer->unlock();
     }
 
     [pool release];

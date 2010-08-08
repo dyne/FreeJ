@@ -48,11 +48,15 @@ public:
     virtual bool set_mark_out();
     
     virtual void pause();
-
-private:
-    virtual bool _init();
+    
+    virtual void *do_filters(void *buf);
+protected:
     virtual void *feed();
 
+private:
+    CVTexture *texture[2]; // double buffer
+    void *frame;
+    unsigned int num;
 };
 
 #endif

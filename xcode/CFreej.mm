@@ -20,7 +20,7 @@
 #import <CFreej.h>
 #include <CVLayer.h>
 #include <CVScreen.h>
-#include <jsparser.h>
+//#include <jsparser.h>
 
 #define DEFAULT_FREEJ_WIDTH 352
 #define DEFAULT_FREEJ_HEIGHT 288
@@ -30,9 +30,17 @@
 
 
 // bridge stdout and stderr with the NSTextView outlet (if any)
+- (void)updateOutput:(NSString*)msg
+{
+    NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:msg];
+    [[outputPanel textStorage] appendAttributedString:attrString];
+    [outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
+    [attrString release];
+    [msg release];
+}
+
 - (void) consoleOutput:(id)object
 {
-    [outputlock lock];
     NSAutoreleasePool * p = [[NSAutoreleasePool alloc] init];
     char buf[1024];
     struct timeval timeout;
@@ -60,40 +68,27 @@
             if (FD_ISSET(stdout_pipe[0], &rfds)) {
                 while (read(stdout_pipe[0], buf, sizeof(buf)-1) > 0) {
                     NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
-                    @synchronized (outputPanel)
-                    {
-                        NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:msg];
-                        [[outputPanel textStorage] appendAttributedString:attrString];
-                        [outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
-                         [attrString release];
-                    }
-                    [msg release];
+                    // ensure updating the view in the main thread (or this could blow up in our face)
+                    [self performSelectorOnMainThread:@selector(updateOutput:)
+                                           withObject:msg waitUntilDone:NO];
                 }
             }
             if (FD_ISSET(stderr_pipe[0], &rfds)) {
                 while (read(stderr_pipe[0], buf, sizeof(buf)-1) > 0) {
                     NSString *msg = [[NSString alloc] initWithCString:buf encoding:NSASCIIStringEncoding];
-                    @synchronized (outputPanel)
-                    {
-                        NSAttributedString *attrString = [[NSAttributedString alloc] initWithString:msg];
-                        [[outputPanel textStorage] appendAttributedString:attrString];
-                        [outputPanel scrollRangeToVisible:NSMakeRange([[[outputPanel textStorage] characters] count], 0)];
-                        [attrString release];
-                    }
-                    [msg release];
+                    // same as above... we really need to avoid updating the textview in a different thread
+                    [self performSelectorOnMainThread:@selector(updateOutput:)
+                                           withObject:msg waitUntilDone:NO];
                 }
             }
         }
     }
-    [outputlock unlock];
     [p release];
 }
- 
 
 -(void)awakeFromNib
 {
     lock = [[NSRecursiveLock alloc] init];
-    outputlock = [[NSLock alloc] init];
 }
 
 -(id)init
@@ -189,12 +184,15 @@
         Factory<Controller>::set_default_classtype("KeyboardController", "cocoa");
         Factory<ViewPort>::set_default_classtype("Screen", "cocoa");
         Factory<Layer>::set_default_classtype("GeometryLayer", "cocoa");
+        Factory<FilterInstance>::set_default_classtype("FilterInstance", "cocoa");
+
         freej->quit = false;
         NSRect frame = [screenView frame];
         screen = (CVScreen *)Factory<ViewPort>::get_instance("Screen");
         screen->init(frame.size.width, frame.size.height, 32);
         freej->add_screen(screen);
         freej->plugger.refresh(freej);
+        
         //freej->config_check("keyboard.js");
         [[NSNotificationCenter defaultCenter] addObserver:self
             selector:@selector(updateLayerList:)

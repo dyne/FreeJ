@@ -30,9 +30,10 @@ class CVFFmpegLayer : public CVLayer
 private:
     struct ffdec *ff;
 protected:
-    void *currentFrame;
     CVPixelBufferRef pixelBuffer;
     
+    void *feed();
+
 public:
     BOOL repeat;
 
@@ -40,7 +41,6 @@ public:
     ~CVFFmpegLayer();
     bool open(const char *movie);
     void close();
-    void *feed();
     bool isDecoding();
     bool hasFF();
     int scaledWidth();

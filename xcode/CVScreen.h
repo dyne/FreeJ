@@ -24,7 +24,6 @@
 #include <screen.h>
 #include <factory.h>
 
-#import  <CFreej.h>
 #import  <FrameRate.h>
 #import  <Exporter.h>
 #import  <QTExporter.h>

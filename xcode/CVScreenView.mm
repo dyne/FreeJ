@@ -465,18 +465,17 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIFilter *blendFilter = nil;
     CVTexture *texture = nil;
-    if (layer->type == Layer::GL_COCOA) {        
+
+    CVPixelBufferRef pixelBufferOut = NULL;
+    //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
+    /*
+    if (layer->type == Layer::GL_COCOA) {
         CVCocoaLayer *cvLayer = (CVCocoaLayer *)layer->get_data();
         texture = cvLayer->gl_texture();
-        NSString *blendMode = cvLayer->blendMode;
-        if (blendMode)
-            blendFilter = [CIFilter filterWithName:[NSString stringWithFormat:@"CI%@BlendMode", blendMode]];
-        else
-            blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"]; 
-    } else { // freej 'not-cocoa' layer type
-        
-        CVPixelBufferRef pixelBufferOut;
-        //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
+        if (texture)
+            pixelBufferOut = CVPixelBufferRetain([texture pixelBuffer]);
+    } else {
+     */
         CVReturn cvRet = CVPixelBufferCreateWithBytes (
                                                        NULL,
                                                        layer->geo.w,
@@ -492,11 +491,27 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
         if (cvRet != noErr) {
             // TODO - Error Messages
         } 
-        CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
-        texture = [CVTexture textureWithCIImage:inputImage pixelBuffer:pixelBufferOut];
-        // we can release our reference to the pixelBuffer now. 
-        // The CVTexture will retain it as long as it is needed
-        CVPixelBufferRelease(pixelBufferOut);
+   // }
+    if (!pixelBufferOut) // return if we don't have anything to draw
+        return;
+    CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
+    texture = [CVTexture textureWithCIImage:inputImage pixelBuffer:pixelBufferOut];
+    // we can release our reference to the pixelBuffer now. 
+    // The CVTexture will retain it as long as it is needed
+    CVPixelBufferRelease(pixelBufferOut);
+
+    if (layer->type == Layer::GL_COCOA) {  
+        CVCocoaLayer *cvLayer = (CVCocoaLayer *)layer->get_data();
+        // first apply image parameters
+        NSDictionary *imageParams = cvLayer->imageParams();
+        
+        NSString *blendMode = cvLayer->blendMode;
+        if (blendMode)
+            blendFilter = [CIFilter filterWithName:[NSString stringWithFormat:@"CI%@BlendMode", blendMode]];
+        else
+            blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"]; 
+    } else { // freej 'not-cocoa' layer type
+        // TODO - query the configured blitter for foreign layers so to choose a proper blendfilter here
         blendFilter = [CIFilter filterWithName:@"CIOverlayBlendMode"];
     }
     [blendFilter setDefaults];
@@ -518,13 +533,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     [pool release];
 }
 
-#define MYCGL
 - (void)allocPixelBuffer
 {
     NSLog(@"pixel buffer: %ix%i", fjScreen->geo.w, fjScreen->geo.h);
-#if 0
-    CVReturn err = CVOpenGLBufferCreate (NULL, fjScreen->geo.w, fjScreen->geo.h, NULL, &pixelBuffer);
-#else
+
     CVReturn err = CVPixelBufferCreate (
                     NULL,
                     fjScreen->geo.w,
@@ -532,10 +544,10 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
                     k32ARGBPixelFormat,
                     NULL,
                     &pixelBuffer
-                    );
-#endif
+                   );
+
     if (err) {
-    // TODO - Error messages
+        // TODO - Error messages
     }
     CVPixelBufferRetain(pixelBuffer);
     CVPixelBufferLockBaseAddress(pixelBuffer, NULL);
@@ -543,7 +555,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     //CVPixelBufferUnlockBaseAddress(pixelBuffer, 0 );
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
 
-#ifdef MYCGL
+#if 1
     exportCGContextRef = CGBitmapContextCreate (NULL,
                         fjScreen->geo.w,
                         fjScreen->geo.h,
@@ -885,7 +897,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 - (NSInteger)numberOfRowsInTableView:(NSTableView *)aTableView
 {
     if (aTableView == layerList) {
-      return fjScreen->layers.length;
+      return fjScreen->layers.len();
     } 
     if (aTableView == streamerSettings) {
       return [streamerDict count];

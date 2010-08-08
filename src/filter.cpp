@@ -82,7 +82,7 @@ bool Filter::apply(Layer *lay, FilterInstance *instance)
     
     act("initialized filter %s on layer %s", name, lay->name);
     
-    // here maybe keep a list of layers that possess instantiantions of this filter?
+    instance->set_layer(lay);
     
     return true;    
 }
@@ -120,7 +120,21 @@ void Filter::destruct(FilterInstance *inst) {
 }
 
 void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
-
-
+    apply_parameters(inst);
 }
 
+void Filter::apply_parameters(FilterInstance *inst)
+{
+    int idx = 1; // linklist starts from 1
+    parameters.lock();
+    Parameter *param = parameters.begin();
+    while (param) {
+        if (param->changed) {
+            inst->set_parameter(idx);
+            param->changed = false; // XXX
+        }
+        param = (Parameter *)param->next;
+        idx++;
+    }
+    parameters.unlock();
+}

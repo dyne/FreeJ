@@ -20,7 +20,6 @@
  */
 
 #include <config.h>
-
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,8 +37,11 @@
 #include <freeframe_freej.h>
 
 #ifdef HAVE_DARWIN
-#define _UINT64
 #include <Carbon/Carbon.h>
+#endif
+
+#ifdef WITH_COCOA
+#include <CVFilter.h>
 #endif
 
 Plugger::Plugger() {
@@ -112,95 +114,100 @@ int Plugger::refresh(Context *env) {
   int found;
   char *path = _getsearchpath();
 
-   
-  if(!path) { warning("can't find any valid plugger directory"); return(-1); }
+#ifdef WITH_COCOA
+    CVFilter::listFilters(env->filters);
+#endif
+  if(path) {
 
-  notice("serching available plugins in %s", path);
+      notice("serching available plugins in %s", path);
 
-  dir = strtok(path,":");
+      dir = strtok(path,":");
 
-  // scan for all available effects
-  do {
-    func("scanning %s",dir);
+      // scan for all available effects
+      do {
+        func("scanning %s",dir);
 
-      found = scandir(dir,&filelist,selector,alphasort);
-      if(found<0) { error("Plugger::scandir"); return(-1); };
-      /* .so files found, check if they are plugins */
-      
-      
-      while(found--) {
-	
-	char temp[256];
-	
-	snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
-	free(filelist[found]);
+          found = scandir(dir,&filelist,selector,alphasort);
+          if(found<0) { error("Plugger::scandir"); return(-1); };
+          /* .so files found, check if they are plugins */
+          
+          
+          while(found--) {
+        
+        char temp[256];
+        
+        snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
+        free(filelist[found]);
 
 #ifdef WITH_FREI0R
-	{
-          Freior *fr = (Freior *)Factory<Filter>::new_instance("Frei0rFilter");
-	  if( !fr || !fr->open(temp) ) {
-	    delete fr;
-	  } else { // freior effect found
-	    // check what kind of plugin is and place it
-	    if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
-              env->filters.append(fr);
-	      
-	      func("found frei0r filter: %s (%p)", fr->name, fr);
-	      continue;
+        {
+              Freior *fr = (Freior *)Factory<Filter>::new_instance("Frei0rFilter");
+          if( !fr || !fr->open(temp) ) {
+            delete fr;
+          } else { // freior effect found
+            // check what kind of plugin is and place it
+            if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
+                  env->filters.append(fr);
+              
+              func("found frei0r filter: %s (%p)", fr->name, fr);
+              continue;
 
-	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {	      
-	      env->generators.append(fr);
-	      func("found frei0r generator: %s (%p)", fr->name, fr);
-	      continue;
+            } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_SOURCE) {	      
+              env->generators.append(fr);
+              func("found frei0r generator: %s (%p)", fr->name, fr);
+              continue;
 
-	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_MIXER2) {
-	      func("frei0r plugin of type MIXER2 not supported (yet)",
-		   fr->info.plugin_type);
-	      delete fr;
-	      continue;
-	    } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_MIXER3) {
-	      func("frei0r plugin of type MIXER3 not supported (yet)",
-		   fr->info.plugin_type);
-	      delete fr;
-	      continue;
-	    }
-	  }
-	}
+            } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_MIXER2) {
+              func("frei0r plugin of type MIXER2 not supported (yet)",
+               fr->info.plugin_type);
+              delete fr;
+              continue;
+            } else if(fr->info.plugin_type == F0R_PLUGIN_TYPE_MIXER3) {
+              func("frei0r plugin of type MIXER3 not supported (yet)",
+               fr->info.plugin_type);
+              delete fr;
+              continue;
+            }
+          }
+        }
 #endif
 #ifdef WITH_FREEFRAME
-	{
-          Freeframe *fr = (Freeframe *)Factory<Filter>::new_instance("FreeframeFilter");
-	  if( ! fr->open(temp) ) {
-	    delete fr;
-	  } else { // freeframe effect found
-	    // check what kind of plugin is and place it
-	    if(fr->info->pluginType == FF_EFFECT) {
-	      
-	      env->filters.append(fr);
-	      
-	      func("found freeframe filter: %s (%p)",
-		   fr->info->pluginName, fr);
-	      continue;
+        {
+              Freeframe *fr = (Freeframe *)Factory<Filter>::new_instance("FreeframeFilter");
+          if( ! fr->open(temp) ) {
+            delete fr;
+          } else { // freeframe effect found
+            // check what kind of plugin is and place it
+            if(fr->info->pluginType == FF_EFFECT) {
+              
+              env->filters.append(fr);
+              
+              func("found freeframe filter: %s (%p)",
+               fr->info->pluginName, fr);
+              continue;
 
-	    } else if(fr->info->pluginType == FF_SOURCE) {
-	      
-	      env->generators.append(fr);
-	      
-	      func("found freeframe generator: %s (%p)",
-		   fr->info->pluginName, fr);
-	      continue;
+            } else if(fr->info->pluginType == FF_SOURCE) {
+              
+              env->generators.append(fr);
+              
+              func("found freeframe generator: %s (%p)",
+               fr->info->pluginName, fr);
+              continue;
 
-	    }
-	  }
-	}
+            }
+          }
+        }
 #endif
+        if(found<0)
+              break;
+          }
 
-	if(found<0) break;
-      }
-
-     free(filelist);
-  } while((dir = strtok(NULL,":")));
-
+         free(filelist);
+      } while((dir = strtok(NULL,":")));
+  } else {
+      warning("can't find any valid plugger directory");
+      return(-1);
+  }
   act("filters found: %u", env->filters.len());
   act("generators found: %u", env->generators.len());
 
@@ -210,10 +217,13 @@ int Plugger::refresh(Context *env) {
 
 void Plugger::addsearchdir(const char *dir) {
   char temp[1024];
-  if(!dircheck(dir)) return;
+  if(!dircheck(dir))
+      return;
   if(_searchpath) {
     snprintf(temp,1024,"%s:%s",_searchpath,dir);
     free(_searchpath);
     _searchpath = strdup(temp);
-  } else _searchpath = strdup(dir);
+  } else {
+      _searchpath = strdup(dir);
+  }
 }

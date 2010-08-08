@@ -20,6 +20,8 @@
 #include <stdlib.h>
 
 #include <logging.h>
+#include <console_ctrl.h>
+
 
 int Logger::printlog(LogLevel level, const char *format, ...) {
   va_list arg;

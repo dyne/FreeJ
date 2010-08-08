@@ -30,7 +30,7 @@
     IBOutlet CFreej        *freej;
 }
 
-- (void)renderFrame:(CVTexture *)texture;
+- (void)renderFrame:(Layer *)layer;
 - (void)clear;
 
 @end

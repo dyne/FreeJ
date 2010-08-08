@@ -110,7 +110,7 @@
     }
     ((CVFFmpegLayer *)layer)->open(movie);
     [lock unlock];
-
+/*
     if (!currentFrame) {
         CVPixelBufferCreate(
 		kCFAllocatorDefault,
@@ -120,6 +120,7 @@
 		(CFDictionaryRef)bufDict, 
 		&currentFrame);
     }
+ */
 }
 
 - (void)feedFrame:(CVPixelBufferRef)frame
@@ -131,8 +132,8 @@
         CGLLockContext(glContext);
         CGLSetCurrentContext(glContext);
         
-        CVPixelBufferLockBaseAddress(currentFrame, 0);
-        uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(currentFrame);
+        CVPixelBufferLockBaseAddress(frame, 0);
+        uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(frame);
         /*
          printf("%dx%d -> %dx%d\n", get_scaled_width(ff), get_scaled_height(ff),
          ctx->screen->geo.w, ctx->screen->geo.h);
@@ -180,7 +181,7 @@
                 newFrame = YES;
             }
         }
-        CVPixelBufferUnlockBaseAddress(currentFrame, 0);
+        CVPixelBufferUnlockBaseAddress(frame, 0);
         CGLUnlockContext(glContext);
     }
 }

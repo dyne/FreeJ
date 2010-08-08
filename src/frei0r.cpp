@@ -1,5 +1,7 @@
 /*  FreeJ - Frei0r wrapper
- *  (c) Copyright 2007 Denis Rojo <jaromil@dyne.org>
+ *
+ *  Copyright (C) 2007-2010 Denis Roio <jaromil@dyne.org>
+ *  Copyright (C) 2010    Andrea Guzzo   <xant@xant.net>
  *
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published 
@@ -234,10 +236,10 @@ int Freior::open(char *file) {
       (f0r_get_param_info)(&param_infos[i], i);
       
       Parameter *param = new Parameter((Parameter::Type)param_infos[i].type);
-      strncpy(param->name, param_infos[i].name, 255);
+      snprintf(param->name, 255, "%s", param_infos[i].name);
       func("registering parameter %s for filter %s\n", param->name, info.name);
       
-      strcpy(param->description, param_infos[i].explanation);
+      snprintf(param->description, 512, "%s", param_infos[i].explanation);
       param->filter_set_f = set_frei0r_parameter;
       param->filter_get_f = get_frei0r_parameter;
       parameters.append(param);
@@ -293,6 +295,7 @@ void Freior::destruct(FilterInstance *inst)
 }
 
 void Freior::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
+    Filter::update(inst, time, inframe, outframe);
     f0r_update((f0r_instance_t*)inst->core, time, inframe, outframe);
 }
 

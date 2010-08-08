@@ -37,8 +37,8 @@ FilterInstance::FilterInstance()
     core = NULL;
     intcore = 0;
     outframe = NULL;
-    inuse = false;
     active = false;
+    layer = NULL;
 }
 
 FilterInstance::FilterInstance(Filter *fr)
@@ -72,7 +72,6 @@ uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
     error("void filter instance was called for process: %p", this);
     return inframe;
   }
-
   proto->update(this, fps, inframe, outframe);
   return outframe;
 }
@@ -82,7 +81,7 @@ bool FilterInstance::set_parameter(int idx) {
   param = (Parameter*)proto->parameters[idx];
 
   if( ! param) {
-    error("parameter [%u]%s not found in filter %s", idx, param->name, proto->name );
+    error("parameter [%u] not found in filter %s", idx, proto->name );
     return false;
   } else {
     func("parameter %s found in filter %s at position %u",
@@ -124,10 +123,24 @@ bool FilterInstance::get_parameter(int idx) {
 bool FilterInstance::apply(Layer *lay)
 {
     bool ret = false;
-    if (!inuse && proto)
+    if (!layer && proto)
         ret = proto->apply(lay, this);
-    if (ret)
-        inuse = true;
     return ret;
 }
-    
+ 
+void FilterInstance::set_layer(Layer *lay)
+{
+    layer = lay;
+}
+
+Layer *FilterInstance::get_layer()
+{
+    return layer;
+}
+
+bool FilterInstance::inuse()
+{
+    if (layer)
+        return true;
+    return false;
+}

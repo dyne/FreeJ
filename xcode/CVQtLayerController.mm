@@ -118,18 +118,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [qtMovie release];
     qtMovie = NULL;
     [layerView clear];
-    /* If other threads are still referencing the pixelbuffer 
-       without retaining it they will crash. They should retain
-       the pixelbuffer while using it since it's reference-counted,
-       so better to spot them ASAP. Anyway all this is going to change
-       once we will have our internal videobufferpool
-     */
-    if (lastFrame)
-        [lastFrame release];
-    lastFrame = NULL;
-    if (currentFrame)
-        CVPixelBufferRelease(currentFrame);
-    currentFrame = NULL;
     lastPTS = 0;
     [QTMovie exitQTKitOnThread];
     [lock unlock];
@@ -191,16 +179,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         NSImage *poster = [qtMovie frameImageAtTime:posterTime];
         if (layerView)
             [layerView setPosterImage:poster];
-       
-        // register the layer within the freej context
-        if (!layer) {
-            CVLayer *cvLayer = new CVLayer(self);
-            Context *ctx = [freej getContext];
-            cvLayer->init();
-            cvLayer->geo.w = ctx->screen->geo.w;
-            cvLayer->geo.h = ctx->screen->geo.h;
-            cvLayer = cvLayer;
-        }
+
+        [self start]; // start the layer
+
         NSArray* videoTracks = [qtMovie tracksOfMediaType:QTMediaTypeVideo];
         QTTrack* firstVideoTrack = [videoTracks objectAtIndex:0];
         QTMedia* media = [firstVideoTrack media];
@@ -307,13 +288,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                                                              error:nil];
      
     // rendering (aka: applying filters) is now done in getTexture()
-    // implemented in CVLayerView (our parent)
-    CVPixelBufferRetain(newPixelBuffer);
+    // implemented in CVLayerController (our parent)
+    [self feedFrame:newPixelBuffer];
     rv = YES;
-    if (currentFrame)
-        CVPixelBufferRelease(currentFrame);
-    currentFrame = newPixelBuffer;
-    newFrame = YES;
 #else
     if(qtVisualContext)
     {        
@@ -325,11 +302,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         // rendering (aka: applying filters) is now done in getTexture()
         // implemented in CVLayerView (our parent)
         
+        [self feedFrame:newPixelBuffer];
         rv = YES;
-        if (currentFrame) 
-            CVOpenGLTextureRelease(currentFrame);
-        currentFrame = newPixelBuffer;
-        newFrame = YES;
     } 
 #endif
     [lock unlock];
@@ -351,14 +325,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
     pool = [[NSAutoreleasePool alloc] init];
     if(qtMovie && [self getFrameForTime:nil])
-    {
-       
-        // render preview if necessary
-        [self renderPreview];
         rv = kCVReturnSuccess;
-    } else {
+     else
         rv = kCVReturnError;
-    }
     [pool release];
     return [super renderFrame];
 }

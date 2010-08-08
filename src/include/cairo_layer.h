@@ -25,6 +25,7 @@
 #include <color.h>
 
 #include <cairo.h>
+#include <jsapi.h>
 
 class CairoColor: public Color {
 

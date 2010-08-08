@@ -113,13 +113,13 @@ class Layer: public Entry, public JSyncThread {
      Open a file or resource for the layer
      @param file string describing the path to the file, can be also an url
   */
-  virtual bool open(const char *file) =0; ///< open the file - called BEFORE Layer::_init
+  virtual bool open(const char *file); ///< open the file - called BEFORE Layer::_init (not all layers 'open' files - xnt)
 
   
   virtual bool init(int w = 0, int h = 0, int bpp = 0);
   ///< initializes the layer (this will call also the layer implementation's init)
 
-  virtual void close() =0; ///< close the layer (ready to open a new one)
+  virtual void close(); ///< close the layer (ready to open a new one)
 
   virtual bool set_parameter(int idx); ///< activate the setting on parameter pointed by idx index number
 
@@ -221,7 +221,7 @@ class Layer: public Entry, public JSyncThread {
      Initialize the layer implementation
      @param freej freej context where the layer will be used
    */
-  virtual bool _init() = 0; ///< implementation specific _init() in layers - called AFTER open()
+  virtual bool _init(); ///< implementation specific _init() to be present in Layer subclassess (if needed)
 
   void set_filename(const char *f);
   char filename[256];

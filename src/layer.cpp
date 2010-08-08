@@ -250,10 +250,8 @@ void *Layer::do_filters(void *tmp_buf) {
     filters.lock();
     filt = (FilterInstance *)filters.begin();
     while(filt) {
-      if(filt->active) {
-	/// QUAAA fps should be passed XXX TODO
-	tmp_buf = (void*) filt->process(25.0, (uint32_t*)tmp_buf);
-      }
+      if(filt->active)
+	tmp_buf = (void*) filt->process(fps.fps, (uint32_t*)tmp_buf);
       filt = (FilterInstance *)filt->next;
     }
     filters.unlock();
@@ -476,3 +474,21 @@ void *Layer::js_constructor(Context *env, JSContext *cx, JSObject *obj,
     
 }
 #endif
+
+bool Layer::_init()
+{
+    // Don't do anything in base implementation
+    return true;
+}
+
+bool Layer::open(const char *file) {
+    // do nothing , our subclass shoud override this method if they implement an open
+    func("base Layer::open(%s) called passing", file);
+    return false;
+}
+
+void Layer::close() {
+    // do nothing , our subclass shoud override this method if they implement an open
+    func("base Layer::close() called passing");
+    return;
+}

@@ -22,17 +22,10 @@
 
 #import <CVLayer.h>
 #import <Cocoa/Cocoa.h>
+#include <linklist.h>
+#import <AppKit/AppKit.h>
 
 @class CVFilterPanel;
-
-typedef struct __FilterParams {
-    int nParams;
-    struct __ParamDescr {
-        char *label;
-        double min;
-        double max;
-    } params[4];
-} FilterParams;
 
 @interface CVFilterBox : NSView
 {
@@ -45,13 +38,17 @@ typedef struct __FilterParams {
 - (void)mouseDown:(NSEvent *)theEvent;
 */
 @end
-
+#if MAC_OS_X_VERSION_10_6
+@interface CVFilterPanel : NSWindowController <NSTabViewDelegate> {
+#else
 @interface CVFilterPanel : NSWindowController {
-    CVLayerController *layer;
+#endif
+    CVLayerController       *layer;
     NSRecursiveLock         *lock;
     NSRect initialWindowFrame;
     NSRect initialFrame;
     NSRect initialBounds;
+    IBOutlet CFreej         *cFreej;
     IBOutlet CVFilterBox    *mainView; /// our container
     IBOutlet NSPopUpButton  *blendModeButton;
     IBOutlet NSPopUpButton  *filterButton; /// filters-selection button
@@ -61,11 +58,14 @@ typedef struct __FilterParams {
     /* TODO - use mainView to access each slider ...  this outlets should be removed asap */
     IBOutlet NSSlider       *firstImageParam; /// first "image-parameters' slider
     IBOutlet NSSlider       *lastImageParam;  /// last "image-parameters' slider
+    IBOutlet NSTabView      *activeFilters;
 }
 - (void)show;
 - (id)init;
 - (void)setLayer:(CVLayerController *)lay;
+- (void)updateActiveFilters;
 - (IBAction)setFilterParameter:(id)sender;
+- (IBAction)addFilter:(id)sender;
 - (IBAction)togglePreview:(id)sender;
 - (IBAction)toggleVisibility:(id)sender;
 - (IBAction)setBlendMode:(id)sender;

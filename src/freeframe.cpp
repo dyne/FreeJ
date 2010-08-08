@@ -1,6 +1,7 @@
 /*  FreeJ - FreeFrame videoFX wrapper
  *
- *  (c) Copyright 2008 Denis Roio <jaromil@dyne.org>
+ *  Copyright (C) 2008-2010 Denis Roio <jaromil@dyne.org>
+ *  Copyright (C) 2010    Andrea Guzzo <xant@dyne.org>
  *
  *  studied on a  Pure Data Packet module
  *    by Tom Schouten <pdp@zzz.kotnet.org>
@@ -185,6 +186,7 @@ void Freeframe::destruct(FilterInstance *inst) {
 }
 
 void Freeframe::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
+    Filter::update(inst, time, inframe, outframe);
     jmemcpy(outframe,inframe,bytesize);
     plugmain(FF_PROCESSFRAME, (void*)outframe, inst->intcore);
 }

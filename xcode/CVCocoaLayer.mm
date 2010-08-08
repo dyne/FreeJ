@@ -23,9 +23,7 @@
 CVCocoaLayer::CVCocoaLayer(Layer *lay, CVLayerController *vin)
 {
     input = vin;
-    bufsize = 0;
     blendMode = nil;
-    pixelBuffer = nil;
 
     layer = lay;
     if (input)
@@ -41,8 +39,7 @@ CVCocoaLayer::~CVCocoaLayer()
     deactivate();
     if (input)
         [input setLayer:nil];
-    if (pixelBuffer)
-        CVPixelBufferRelease(pixelBuffer);
+
 }
 
 void
@@ -113,3 +110,8 @@ char *CVCocoaLayer::fj_name()
     return (char *)"CVCocoaLayer";
 }
 
+NSDictionary *CVCocoaLayer::imageParams() {
+    if (input)
+        return [input imageParams];
+    return NULL;
+}

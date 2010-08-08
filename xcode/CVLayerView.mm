@@ -70,15 +70,17 @@
 										  options:nil] retain];
 #else
 	// DEPRECATED in 10.6
-    ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[[self openGLContext] retain] CGLContextObj]
+    ciContext = [[CIContext contextWithCGLContext:(CGLContextObj)[[self openGLContext] CGLContextObj]
                                       pixelFormat:(CGLPixelFormatObj)[[self pixelFormat] CGLPixelFormatObj]
                                           options:[NSDictionary dictionaryWithObjectsAndKeys:
                                                    (id)colorSpace,kCIContextOutputColorSpace,
                                                    (id)colorSpace,kCIContextWorkingColorSpace,nil]] retain];
 #endif
-	CGColorSpaceRelease(colorSpace);
+    CGColorSpaceRelease(colorSpace);
+
+    
     [lock lock];
-    [layerController setContext:freej];
+    [layerController setFreej:freej];
     [lock unlock];
     GLint params[] = { 1 };
     CGLSetParameter( CGLGetCurrentContext(), kCGLCPSwapInterval, params );
@@ -194,11 +196,6 @@
     [layerController togglePreview];
 }
 
-
-- (IBAction)setFilterParameter:(id)sender
-{
-    [layerController setFilterParameter:sender];
-}
 
 - (IBAction)setBlendMode:(id)sender
 {
@@ -332,17 +329,5 @@
     return filterPanel;
 }
 
-- (NSString *)filterName {
-    if (layerController)
-        return [layerController filterName];
-    return nil;
-}
-
-- (NSDictionary *)filterParams {
-    if (layerController)
-        return [layerController filterParams];
-    return nil;
-
-}
 
 @end

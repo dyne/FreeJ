@@ -73,6 +73,7 @@
  */
 #include <map>      // std::map
 #include <string>   // std::string
+#include <stdio.h>
 #include <jutils.h> // func() and error()
 
 #define FACTORY_ID_MAXLEN 64

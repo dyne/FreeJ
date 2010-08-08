@@ -32,13 +32,13 @@ public:
     
     ~CVGeoLayer();
     int start();
+    void *do_filters(void *buf);
 protected:
-    void *currentFrame;
     int currentIndex;
-    CVPixelBufferRef pixelBuffer;
     void *feed();
-
 private:
+    void *frame;
+
     FACTORY_ALLOWED
 };
 

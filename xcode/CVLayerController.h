@@ -26,6 +26,7 @@
 #import <CVPreview.h>
 #import <Cocoa/Cocoa.h>
 #import <CVLayerView.h>
+#include <linklist.h>
 
 @class CVLayerView;
 class CVCocoaLayer;
@@ -36,7 +37,7 @@ class CVCocoaLayer;
         
         bool                   newFrame;
         CVPixelBufferRef       currentFrame;    // the current frame from the movie
-        CVTexture              *lastFrame;
+        CVTexture              *cvTexture;
         CIImage                *posterImage;
         bool                   doPreview;
         CVTexture              *currentPreviewTexture;
@@ -52,11 +53,10 @@ class CVCocoaLayer;
         CIFilter               *exposureAdjustFilter;
         CIFilter               *rotateFilter;
         CIFilter               *translateFilter;
-        CIFilter               *effectFilter;
         CIFilter               *scaleFilter;
         NSMutableArray         *paramNames;
         NSMutableArray         *paramValues;
-        NSMutableDictionary    *filterParams;
+        NSMutableDictionary    *imageParams;
         
         uint64_t               lastRenderedTime;
         CVCocoaLayer           *layer;
@@ -66,9 +66,9 @@ class CVCocoaLayer;
         bool                   filtersInitialized;
     }
     
+    @property (readwrite, assign) CFreej *freej;
     @property (readwrite) CVCocoaLayer *layer;
     @property (readonly) CVLayerView *layerView;
-    @property (readonly) CVPixelBufferRef currentFrame;
     // subclass implementation should override this method and update 
     // the currentFrame pointer only within the renderFrame implementation
     - (char *)name;
@@ -86,9 +86,8 @@ class CVCocoaLayer;
     - (CVTexture *)getTexture;
     // query the layer to check if it needs to display a preview or not (used by CVPreview)
     - (bool)needPreview;
-    - (NSString *)filterName;
-    - (NSDictionary *)filterParams;
-    - (void)setContext:(CFreej *)ctx;
+    - (NSDictionary *)imageParams;
+    //- (void)setContext:(CFreej *)ctx;
     - (void)setPreviewTarget:(CVPreview *)targetView;
     - (CVPreview *)getPreviewTarget;
     - (void)lock; /// accessor to the internal mutex
@@ -102,9 +101,13 @@ class CVCocoaLayer;
     - (void)toggleVisibility;
     - (void)togglePreview;
     - (bool)doPreview;
-    - (IBAction)setFilterParameter:(id)sender; /// tags from 0 to 10
+    - (IBAction)setImageParameter:(id)sender; /// tags from 0 to 10
+- (IBAction)setValue:(NSNumber *)value forImageParameter:(NSString *)parameter;
     - (void)setBlendMode:(NSString *)mode;
     - (void)initFilters;
+    //- (void)filterFrame:(CIFilter *)filter;
+    //- (void)filterFrame:(FilterInstance *)filter;
+    - (Linklist<FilterInstance> *)activeFilters;
 @end
 
 #endif

@@ -32,31 +32,31 @@ class Layer;
 
 class CVCocoaLayer 
 {
-    protected:
-        Layer *layer;
-        int height, width;
-        Context *freej;
-        int bufsize;
-        CVPixelBufferRef pixelBuffer;
+public:
+    CVLayerController *input;
+    NSString *blendMode;
 
-        void set_controller(CVLayerController *vin);
+    CVCocoaLayer(Layer *lay, CVLayerController *vin = NULL);
 
-    public:
-        CVLayerController *input;
-        NSString *blendMode;
+    virtual ~CVCocoaLayer();
+    void activate();
+    void deactivate();
+    bool is_active();
+    bool is_visible();
+    Layer *fj_layer();
+    char *fj_name();
 
-        CVCocoaLayer(Layer *lay, CVLayerController *vin = NULL);
+    Context *context() { return freej; }; 
+    virtual CVTexture *gl_texture();
+    NSDictionary *imageParams();
 
-        virtual ~CVCocoaLayer();
-        void activate();
-        void deactivate();
-        bool is_active();
-        bool is_visible();
-        Layer *fj_layer();
-        char *fj_name();
+
+protected:
+    Layer *layer;
+    Context *freej;
     
-        Context *context() { return freej; }; 
-        virtual CVTexture *gl_texture();
+    void set_controller(CVLayerController *vin);
+    
 };
 
 #endif
