@@ -165,9 +165,15 @@ error:
 
 - (id)init
 {
-	self = [super init];
 	grabber = [[CVGrabber alloc] init];
-	return self;
+	return [super init];
+}
+
+- (void)dealloc
+{
+	if (grabber)
+		[grabber release];
+	[super dealloc];
 }
 
 - (void)captureOutput:(QTCaptureOutput *)captureOutput 
