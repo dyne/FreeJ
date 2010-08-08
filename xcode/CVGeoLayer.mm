@@ -50,6 +50,8 @@ CVGeoLayer::~CVGeoLayer()
 {
     if (input)
         [input release];
+    if (frame)
+        free(frame);
 }
 
 // ensure calling the start method from our CVLayer ancestor
