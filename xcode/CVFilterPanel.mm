@@ -180,18 +180,10 @@
             Context *ctx = [cFreej getContext];
             ctx->filters.lock();
             Filter *filt = ctx->filters.search([filterName UTF8String]);
-            NSView *container = [tabViewItem view];
-            if (!container) {
-                container = [[NSView alloc] initWithFrame:[activeFilters frame]];
-                [tabViewItem setView:container];
-                [container autorelease];
-            } else {
-                NSArray *subViews = [container subviews];
-                for (int i = 0; i < [subViews count]; i++) {
-                    NSView *subView = [subViews objectAtIndex:i];
-                    [subView removeFromSuperview];
-                }
-            }
+            NSView *container;
+            container = [[NSView alloc] initWithFrame:[activeFilters frame]];
+            [tabViewItem setView:container];
+            [container autorelease];
             filt->parameters.lock();
             Parameter *param = filt->parameters.begin();
             NSRect frame = NSMakeRect(0, [container frame].size.height - 55, 0, 20); // XXX
