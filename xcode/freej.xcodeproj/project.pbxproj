@@ -24,7 +24,6 @@
 		AA5844880FE114970059D860 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA5844870FE114970059D860 /* Carbon.framework */; };
 		AA5846530FE1626E0059D860 /* GLString.m in Sources */ = {isa = PBXBuildFile; fileRef = AA5846520FE1626E0059D860 /* GLString.m */; };
 		AA5846560FE162C60059D860 /* CVTextLayerController.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA5846550FE162C60059D860 /* CVTextLayerController.mm */; };
-		AA5DB07811B9497100804C6E /* untitled.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AA5DB07711B9497100804C6E /* untitled.cpp */; };
 		AA63CF8E102DAED400FDA024 /* QTExporter.mm in Sources */ = {isa = PBXBuildFile; fileRef = AA63CF8D102DAED400FDA024 /* QTExporter.mm */; };
 		AA776CF41162884E00FBB252 /* Keyboard.png in Resources */ = {isa = PBXBuildFile; fileRef = AA776CF21162884E00FBB252 /* Keyboard.png */; };
 		AA776CF51162884E00FBB252 /* restart.png in Resources */ = {isa = PBXBuildFile; fileRef = AA776CF31162884E00FBB252 /* restart.png */; };
@@ -341,8 +340,6 @@
 		AA5846520FE1626E0059D860 /* GLString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLString.m; sourceTree = "<group>"; };
 		AA5846540FE162C60059D860 /* CVTextLayerController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CVTextLayerController.h; sourceTree = "<group>"; };
 		AA5846550FE162C60059D860 /* CVTextLayerController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CVTextLayerController.mm; sourceTree = "<group>"; };
-		AA5DB07611B9497100804C6E /* untitled.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = untitled.h; sourceTree = "<group>"; };
-		AA5DB07711B9497100804C6E /* untitled.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = untitled.cpp; sourceTree = "<group>"; };
 		AA63CF8C102DAED400FDA024 /* QTExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QTExporter.h; sourceTree = "<group>"; };
 		AA63CF8D102DAED400FDA024 /* QTExporter.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = QTExporter.mm; sourceTree = "<group>"; };
 		AA776CF21162884E00FBB252 /* Keyboard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Keyboard.png; sourceTree = "<group>"; };
@@ -515,8 +512,6 @@
 		080E96DDFE201D6D7F000001 /* Cocoa */ = {
 			isa = PBXGroup;
 			children = (
-				AA5DB07611B9497100804C6E /* untitled.h */,
-				AA5DB07711B9497100804C6E /* untitled.cpp */,
 				AAA38FB40F542DBF0069BF91 /* CIFilters */,
 				AAA5B8AA11B8E0D800A78D08 /* CVFilter.h */,
 				AAA5B8AB11B8E0D800A78D08 /* CVFilter.mm */,
@@ -1137,7 +1132,6 @@
 				AAEB376D11929F0000EE9961 /* filter_instance.cpp in Sources */,
 				AAB7115911A95DB00053C428 /* CVFilterInstance.mm in Sources */,
 				AAA5B8AC11B8E0D800A78D08 /* CVFilter.mm in Sources */,
-				AA5DB07811B9497100804C6E /* untitled.cpp in Sources */,
 				AA1009DC120D49C0004389B5 /* cam_layer_js.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
