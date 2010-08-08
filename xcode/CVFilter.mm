@@ -41,7 +41,7 @@ static char *fNames[FILTERS_MAX] = {
     (char *)"ColorPosterize",
     (char *)"ColorInvert",
     (char *)"ComicEffect",
-    (char *)"Crystalize",
+    (char *)"Crystallize",
     (char *)"Edges",
     (char *)"EdgeWork",
     (char *)"HueAdjust",
@@ -65,18 +65,18 @@ static FilterParams fParams[FILTERS_MAX] =
     { 1, { { (char*)"inputLevels", 2.0, 30.0 } } }, // ColorPosterize
     { 0, { { NULL, 0.0, 0.0  } } }, // ColorInvert
     { 0, { { NULL, 0.0, 0.0 } } }, // ComicEffect
-    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 1.0, 100.0 } } }, // Crystalize
+    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 1.0, 100.0 } } }, // Crystallize
     { 1, { { (char*)"inputIntensity", 0.0, 10.0 } } }, // Edges
     { 1, { { (char*)"inputRadius", 0.0, 20.0 } } }, // EdgeWork
     { 1, { { (char*)"inputAngle", -3.14, 3.14 } } }, // HueAdjust
-    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputScale", 1.0, 100.0 } } }, // HexagonalPixellate
-    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.01, 1000.0 } } }, // HoleDistortion
+    { 3, { { (char*)"CenterX", 0.0, 800.0 }, { (char*)"CenterY", 0.0, 600.0 }, { (char*)"inputScale", 1.0, 100.0 } } }, // HexagonalPixellate
+    { 3, { { (char*)"CenterX", 0.0, 800.0 }, { (char*)"CenterY", 0.0, 600.0 }, { (char*)"inputRadius", 0.01, 1000.0 } } }, // HoleDistortion
     //{ 4, { { "CenterX", 0.0, 100.0 }, { "CenterY", 0.0, 100.0 }, { "inputRadius", 0.00, 600.0 }, { "inputScale", -1.0, 1.0 } } }, // BumpDistortion
-    { 3, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 1000.0 } } }, // CircleSplashDistortion
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 600.0 }, { (char*)"inputAngle", -3.14, 3.14 } } }, // CircularWrap
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 1000.0 }, { (char*)"inputScale", 0.0, 1.0 } } }, // PinchDistortion
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 500.0 }, { (char*)"inputAngle", -12.57, 12.57 } } }, // TwirlDistortion
-    { 4, { { (char*)"CenterX", 0.0, 100.0 }, { (char*)"CenterY", 0.0, 100.0 }, { (char*)"inputRadius", 0.00, 800.0 }, { (char*)"inputAngle", -94.25, 94.25 } } }, // VortexDistortion
+    { 3, { { (char*)"CenterX", 0.0, 800.0 }, { (char*)"CenterY", 0.0, 600.0 }, { (char*)"inputRadius", 0.00, 1000.0 } } }, // CircleSplashDistortion
+    { 4, { { (char*)"CenterX", 0.0, 800.0 }, { (char*)"CenterY", 0.0, 600.0 }, { (char*)"inputRadius", 0.00, 600.0 }, { (char*)"inputAngle", -3.14, 3.14 } } }, // CircularWrap
+    { 4, { { (char*)"CenterX", 0.0, 800.0 }, { (char*)"CenterY", 0.0, 600.0 }, { (char*)"inputRadius", 0.00, 1000.0 }, { (char*)"inputScale", 0.0, 1.0 } } }, // PinchDistortion
+    { 4, { { (char*)"CenterX", 0.0, 800.0 }, { (char*)"CenterY", 0.0, 600.0 }, { (char*)"inputRadius", 0.00, 500.0 }, { (char*)"inputAngle", -12.57, 12.57 } } }, // TwirlDistortion
+    { 4, { { (char*)"CenterX", 0.0, 800.0 }, { (char*)"CenterY", 0.0, 600.0 }, { (char*)"inputRadius", 0.00, 800.0 }, { (char*)"inputAngle", -94.25, 94.25 } } }, // VortexDistortion
 };
 
 static void getParameter(FilterInstance *filt, Parameter *param, int idx) {

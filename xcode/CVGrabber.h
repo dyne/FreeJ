@@ -35,8 +35,8 @@
 @interface CVGrabberController : CVLayerController
 {
     CVPixelBufferRef exportedFrame;
+	CVGrabber *grabber;
 }
-
 @end
 
 
@@ -51,26 +51,19 @@
     CVImageBufferRef             lastFrame;
     CIImage                      *renderedImage;
     CIImage                      *outputImage;
-
     time_t                       currentPts;
     time_t                       previousPts;
-    IBOutlet CVGrabberController *grabberController;
-    IBOutlet NSPopUpButton       *captureSize;
-    IBOutlet CFreej              *freej;
-    QTCaptureDeviceInput         * input;
+    QTCaptureDeviceInput         *input;
     QTCaptureMovieFileOutput     *captureOutput;
     QTCaptureSession             *session;
     QTCaptureDevice              *device;
     int                          width;
     int                          height;
-    bool                         running;
-    CVLayer                      *layer;
 }
 
 - (id)init;
-- (IBAction)startCapture:(id)sender;
-- (IBAction)stopCapture:(id)sender;
-- (IBAction)toggleCapture:(id)sender;
+- (void)startCapture:(CVGrabberController *)controller;
+- (void)stopCapture;
 @end
  
 #endif

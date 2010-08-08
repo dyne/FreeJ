@@ -53,4 +53,24 @@
     [super drawRect:theRect];
 }
 
+- (IBAction)toggleCapture:(id)sender
+{
+    if ([sender state] == NSOffState)
+        [self stopCapture:self];
+    else if ([sender state] == NSOnState)
+        [self startCapture:self];
+}
+
+- (IBAction)startCapture:(id)sender
+{
+	if (layerController)
+		[layerController start];
+}
+
+- (IBAction)stopCapture:(id)sender
+{
+	if (layerController)
+		[layerController stop];
+}
+
 @end

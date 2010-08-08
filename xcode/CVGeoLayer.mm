@@ -32,7 +32,7 @@ CVGeoLayer::CVGeoLayer()
     input = [[CVLayerController alloc] init]; // create a new layer-controller
     set_name("CVGeoLayer"); // and set our name
     if (input)
-        set_controller(input);
+        setController(input);
 }
 
 CVGeoLayer::CVGeoLayer(CVLayerController *vin) : CVCocoaLayer(this, vin), GeoLayer()
@@ -43,7 +43,7 @@ CVGeoLayer::CVGeoLayer(CVLayerController *vin) : CVCocoaLayer(this, vin), GeoLay
     input = [vin retain];
     set_name("CVGeoLayer");
     if (input)
-        set_controller(input);
+        setController(input);
 }
 
 CVGeoLayer::~CVGeoLayer()

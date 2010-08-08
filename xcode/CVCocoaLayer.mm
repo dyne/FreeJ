@@ -68,7 +68,7 @@ CVCocoaLayer::deactivate()
 
 // accessor to get a texture from the CVLayerController class
 CVTexture * 
-CVCocoaLayer::gl_texture()
+CVCocoaLayer::glTexture()
 {
     CVTexture *texture = NULL;
     if (input)
@@ -77,37 +77,59 @@ CVCocoaLayer::gl_texture()
     return texture;
 }
 
-bool CVCocoaLayer::is_active()
+bool CVCocoaLayer::isActive()
 {
     if (layer)
         return layer->active;
     return false;
 }
 
-bool CVCocoaLayer::is_visible()
+bool CVCocoaLayer::isVisible()
 {
     if (layer && layer->screen)
         return true;
     return false;
 }
 
-Layer *CVCocoaLayer::fj_layer()
+Layer *CVCocoaLayer::fjLayer()
 {
     return layer;
 }
 
-void CVCocoaLayer::set_controller(CVLayerController *vin)
+void CVCocoaLayer::setController(CVLayerController *vin)
 {
     input = vin;
     if (input)
         [input setLayer:this];
 }
 
-char *CVCocoaLayer::fj_name()
+char *CVCocoaLayer::fjName()
 {
     if (layer)
         return layer->name;
     return (char *)"CVCocoaLayer";
+}
+
+int CVCocoaLayer::width()
+{
+	if (layer)
+		return layer->geo.w;
+	return 0;
+}
+
+int CVCocoaLayer::height()
+{
+	if (layer)
+		return layer->geo.h;
+	return 0;
+}
+
+void CVCocoaLayer::setOrigin(int x, int y)
+{
+	if (layer) {
+		layer->geo.x = x;
+		layer->geo.y = y;
+	}
 }
 
 NSDictionary *CVCocoaLayer::imageParams() {

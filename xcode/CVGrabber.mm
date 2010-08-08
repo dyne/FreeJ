@@ -34,57 +34,30 @@
 - (id)init
 {
     if( self = [super init] ) {
-        currentFrame = nil;
         currentPts = 0;
         previousPts = 0;
         width = 352;
         height = 288;
-        lock = [[NSRecursiveLock alloc] init];
     }
     return self;
 }
 
 - (void)dealloc
 {
-    [self stopCapture:self];
-    CVBufferRelease(currentFrame);
+    [self stopCapture];
 
-    [lock release];
     [super dealloc];
 }
 
-- (void)outputVideoFrame:(CVImageBufferRef)videoFrame withSampleBuffer:(QTSampleBuffer *)sampleBuffer fromConnection:(QTCaptureConnection *)connection
-{
-    // Store the latest frame
-    // This must be done in a @synchronized block because this delegate method is not called on the main thread
-    CVImageBufferRef imageBufferToRelease;
-    CVBufferRetain(videoFrame);
 
-    imageBufferToRelease = currentFrame;
-    currentFrame = videoFrame;
-    currentPts = (time_t)(1000000L / [sampleBuffer presentationTime].timeScale * [sampleBuffer presentationTime].timeValue);
-    
-    /* Try to use hosttime of the sample if available, because iSight Pts seems broken */
-    //NSNumber *hosttime = (NSNumber *)[sampleBuffer attributeForKey:QTSampleBufferHostTimeAttribute];
-    //if( hosttime ) currentPts = (time_t)AudioConvertHostTimeToNanos([hosttime unsignedLongLongValue])/1000;
-    
-    [grabberController feedFrame:currentFrame];
-
-    if (imageBufferToRelease)
-        CVBufferRelease(imageBufferToRelease);
-
-}
-
-
-- (IBAction)startCapture:(id)sender
+- (void)startCapture:(CVGrabberController *)controller
 {
     notice( "QTCapture opened" );
     bool ret = false;
     
     NSError *o_returnedError;
-    Context *ctx = [freej getContext];
-    width = ctx->screen->geo.w;
-    height = ctx->screen->geo.h;
+    width = [controller width];
+    height = [controller height];
     /* Hack - using max resolution seems to lower cpu consuption for some reason */
     int h = (height < CV_GRABBER_HEIGHT_MAX)
           ? height
@@ -144,9 +117,7 @@
     [session startRunning]; // start the capture session
     notice( "Video device ready!" );
 
-    running = true;
-    [self setDelegate:grabberController];
-    [grabberController start];
+    [self setDelegate:controller];
     return;
 error:
     //[= exitQTKitOnThread];
@@ -154,11 +125,9 @@ error:
 
 }
 
-- (IBAction)stopCapture:(id)sender
+- (void)stopCapture
 {
     [lock lock];
-    running = false;
-    [grabberController stop];
     if (session) {
         [session stopRunning];
         if (input) {
@@ -185,13 +154,6 @@ error:
     [lock unlock];
 }
 
-- (IBAction)toggleCapture:(id)sender
-{
-    if (running)
-        [self stopCapture:self];
-    else
-        [self startCapture:self];
-}
 
 @end
 
@@ -203,17 +165,29 @@ error:
 
 - (id)init
 {
-    
-    exportedFrame = nil;
-    currentFrame = nil;
-    return [super init];
+	self = [super init];
+	grabber = [[CVGrabber alloc] init];
+	return self;
 }
 
-- (void)dealloc
+- (void)captureOutput:(QTCaptureOutput *)captureOutput 
+  didOutputVideoFrame:(CVImageBufferRef)videoFrame 
+	 withSampleBuffer:(QTSampleBuffer *)sampleBuffer 
+	   fromConnection:(QTCaptureConnection *)connection
 {
-    if (currentFrame)
-        CVPixelBufferRelease(currentFrame);
-    [super dealloc];
+	[self feedFrame:videoFrame];
+}
+
+- (void)start
+{
+	[super start];
+	[grabber startCapture:self];
+}
+
+- (void)stop
+{
+	[super stop];
+	[grabber stopCapture];
 }
 
 @end

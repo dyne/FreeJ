@@ -101,13 +101,15 @@ class CVCocoaLayer;
     - (void)toggleVisibility;
     - (void)togglePreview;
     - (bool)doPreview;
-    - (IBAction)setImageParameter:(id)sender; /// tags from 0 to 10
-- (IBAction)setValue:(NSNumber *)value forImageParameter:(NSString *)parameter;
     - (void)setBlendMode:(NSString *)mode;
     - (void)initFilters;
+    - (int)width;
+    - (int)height;
     //- (void)filterFrame:(CIFilter *)filter;
     //- (void)filterFrame:(FilterInstance *)filter;
     - (Linklist<FilterInstance> *)activeFilters;
+    - (IBAction)setImageParameter:(id)sender; /// tags from 0 to 10
+    - (IBAction)setValue:(NSNumber *)value forImageParameter:(NSString *)parameter;
 @end
 
 #endif

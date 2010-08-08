@@ -41,21 +41,24 @@ public:
     virtual ~CVCocoaLayer();
     void activate();
     void deactivate();
-    bool is_active();
-    bool is_visible();
-    Layer *fj_layer();
-    char *fj_name();
+    bool isActive();
+    bool isVisible();
+    Layer *fjLayer();
+    char *fjName();
 
     Context *context() { return freej; }; 
-    virtual CVTexture *gl_texture();
+    virtual CVTexture *glTexture();
     NSDictionary *imageParams();
+	int width();
+	int height();
+	void setOrigin(int x, int y);
 
 
 protected:
     Layer *layer;
     Context *freej;
     
-    void set_controller(CVLayerController *vin);
+    void setController(CVLayerController *vin);
     
 };
 

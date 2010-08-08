@@ -135,7 +135,7 @@
         if (layer) {
             CVCocoaLayer *cLayer = layer.layer;
             if (cLayer) {
-                Layer *fjLayer = cLayer->fj_layer();
+                Layer *fjLayer = cLayer->fjLayer();
                 fjLayer->filters.lock();
                 FilterInstance *filt = fjLayer->filters.begin();
                 while (filt) {
@@ -166,23 +166,30 @@
     CVFilterInstance *currentFilter = (CVFilterInstance *)[data bytes];
 
     Parameter *param = currentFilter->proto->parameters.pick([sender tag]);
-    double value = [sender doubleValue]/100.0;
-    param->multiplier = 100.0;
+    double value = [sender doubleValue]/1000.0;
+    param->multiplier = 1000.0;
     param->set(&value);
 }
 
 - (IBAction)removeFilter:(id)sender
 {
-    NSData *data = [[activeFilters selectedTabViewItem] identifier];
-    CVFilterInstance *currentFilter = (CVFilterInstance *)[data bytes];
-    delete currentFilter;
-    [self updateActiveFilters];
+    if (layer) {
+        Layer *lay = layer.layer->fjLayer(); // XXX - cleanup this stuff
+        lay->filters.lock();
+        NSData *data = [[activeFilters selectedTabViewItem] identifier];
+        CVFilterInstance *currentFilter = (CVFilterInstance *)[data bytes];
+        delete currentFilter;
+        lay->filters.unlock();
+        [self updateActiveFilters];
+    }
 }
 
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
     if (layer) {
         int idx = 1;
+        Layer *lay = layer.layer->fjLayer(); // XXX - cleanup this stuff
+        
         @synchronized(self) {
             NSString *filterName = [tabViewItem label];
             Context *ctx = [cFreej getContext];
@@ -194,7 +201,7 @@
             [container autorelease];
             filt->parameters.lock();
             Parameter *param = filt->parameters.begin();
-            NSRect frame = NSMakeRect(0, [container frame].size.height - 55, 0, 20); // XXX
+            NSRect frame = NSMakeRect(0, [container frame].size.height - 25, 0, 20); // XXX
             while (param) {
                 frame.origin.x = 0;
                 frame.size.width = [container frame].size.width / 2 - 10; // XXX
@@ -212,7 +219,20 @@
                 frame.size.width = [container frame].size.width - frame.origin.x - 25;
                 NSSlider *newSlider = [[NSSlider alloc] initWithFrame:frame];
                 [newSlider setMinValue:0.0];
-                [newSlider setMaxValue:100.0];
+                // if the parameter express a center coordinate or an input radius, 
+                // let's use the actual layer size to compute the maximum value
+                // TODO - the same should be done for prameters expressing a radius size
+                if (strcmp(param->name, "inputRadius") == 0) {
+                    [newSlider setMaxValue:sqrt(exp2(lay->geo.w)+exp2(lay->geo.h))/2];
+                }
+                if (strcmp(param->name, "CenterX") == 0) {                    
+                    [newSlider setMaxValue:lay->geo.w];
+                } else if (strcmp(param->name, "CenterY") == 0) {
+                    [newSlider setMaxValue:lay->geo.h];
+                } else {
+                    // otherwise let's use the max_size reported by the parameter itself
+                    [newSlider setMaxValue:*(double *)param->max_value];
+                }
                 [newSlider setDoubleValue:*(double *)param->value]; // XXX - assumes number-only parameters
                 [[newSlider cell] setControlSize:NSMiniControlSize];
                 [newSlider setTarget:self];
@@ -260,7 +280,7 @@
             NSLog(@"Can't add filter: No CVCocoaLayer found on %s.\n", [layer name]);
             return;
         }
-        Layer *lay = cLay->fj_layer();
+        Layer *lay = cLay->fjLayer();
         
         Linklist<FilterInstance> *filters = [layer activeFilters];
         if (filters->len() >= 4) {

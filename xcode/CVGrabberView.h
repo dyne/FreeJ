@@ -30,6 +30,9 @@
 
 - (void)drawRect:(NSRect)theRect;
 - (bool)isOpaque;
+- (IBAction)startCapture:(id)sender;
+- (IBAction)stopCapture:(id)sender;
+- (IBAction)toggleCapture:(id)sender;
 
 @end
 

@@ -148,7 +148,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
     if (layer)
-        fjLayer = layer->fj_layer();
+        fjLayer = layer->fjLayer();
     else
         return;
     [lock lock];
@@ -229,7 +229,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 
     if (layer)
-        fjLayer = layer->fj_layer();
+        fjLayer = layer->fjLayer();
     else
         return kCVReturnError;
     
@@ -257,7 +257,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (IBAction)toggleVisibility:(id)sender
 {
     if (layer)
-        if (layer->is_active())
+        if (layer->isActive())
             layer->deactivate();
         else
             layer->activate();
@@ -293,7 +293,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     NSString *paramName = NULL;
     pool = [[NSAutoreleasePool alloc] init];
     if (layer)
-        fjLayer = layer->fj_layer();
+        fjLayer = layer->fjLayer();
     else
         return;
     
@@ -370,7 +370,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     NSString *paramName = NULL;
     pool = [[NSAutoreleasePool alloc] init];
     if (layer)
-        fjLayer = layer->fj_layer();
+        fjLayer = layer->fjLayer();
     else
         return;
 
@@ -458,7 +458,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     if ([self doPreview] && previewTarget) { 
         // scale the frame to fit the preview
         if (![previewTarget isHiddenOrHasHiddenAncestor]) {
-            Layer *fjLayer = layer->fj_layer();
+            Layer *fjLayer = layer->fjLayer();
             // XXX - it's too dangerous to access layer->buffer directly
             if (fjLayer && fjLayer->buffer)
                 [previewTarget renderFrame:fjLayer];
@@ -549,8 +549,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         if (freej) {
             // TODO Geometry should expose a proper API
             Context *ctx = [freej getContext];
+			/*
             cvLayer->geo.w = ctx->screen->geo.w;
             cvLayer->geo.h = ctx->screen->geo.h;
+			 */
             cvLayer->init(ctx->screen->geo.w, ctx->screen->geo.h, 32);
         } else {
             cvLayer->init();
@@ -564,6 +566,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     if (layer) {
         layer->deactivate();
+		delete layer;
+		layer = NULL;
     }
     
 }
@@ -598,7 +602,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (bool)isVisible
 {
     if (layer)
-        return layer->is_visible();
+        return layer->isVisible();
     return NO;
 }
 
@@ -608,10 +612,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         // this won't do anything if the layer is already active
         layer->activate();
         if (freej) {
-            Layer *fjLayer = layer->fj_layer();
+            Layer *fjLayer = layer->fjLayer();
             if (!fjLayer->screen) {
                 Context *ctx = [freej getContext];
-                ctx->screen->add_layer(layer->fj_layer());
+                ctx->screen->add_layer(layer->fjLayer());
             }
         }
     }
@@ -638,13 +642,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (void)translateXby:(float)x Yby:(float)y
 {
-    if (layer) {
-        Layer *fjLayer = layer->fj_layer();
-        if (fjLayer) {
-            fjLayer->geo.x = x;
-            fjLayer->geo.y = y;
-        }
-    }
+    if (layer)
+		layer->setOrigin(x, y);
 }
 
 - (void)toggleFilters
@@ -655,7 +654,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 - (void)toggleVisibility
 {
     if (layer)
-        if (layer->is_active())
+        if (layer->isActive())
             layer->deactivate();
         else
             layer->activate();
@@ -683,12 +682,34 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     NSMutableArray *result = nil;
     if (layer) {
-        Layer *fjLayer = layer->fj_layer();
+        Layer *fjLayer = layer->fjLayer();
         if (fjLayer) {
            return &fjLayer->filters;
         }
     }
     return NULL;
+}
+
+- (int)width
+{
+	if (layer) {
+		return layer->width();
+	} else if (freej) {
+		Context *ctx = [freej getContext];
+		return ctx->screen->geo.w;
+	}
+	return 0;
+}
+
+- (int)height
+{
+	if (layer) {
+		return layer->height();
+	} else if (freej) {
+		Context *ctx = [freej getContext];
+		return ctx->screen->geo.h;
+	}
+	return 0;
 }
 
 @synthesize freej;
