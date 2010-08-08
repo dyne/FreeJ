@@ -31,7 +31,6 @@ public:
     CVGeoLayer(CVLayerController *vin);
     
     ~CVGeoLayer();
-    int start();
     void *do_filters(void *buf);
 protected:
     int currentIndex;

@@ -55,4 +55,12 @@
     [super drawRect:theRect];
 }
 
+- (IBAction)toggleRepeat:(id)sender
+{
+	if ([sender state] == NSOnState)
+		[(CVFFmpegLayerController *)layerController setRepeat:YES];
+	else
+		[(CVFFmpegLayerController *)layerController setRepeat:NO];
+}
+
 @end

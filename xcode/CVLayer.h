@@ -54,8 +54,7 @@ protected:
     virtual void *feed();
 
 private:
-    CVTexture *texture[2]; // double buffer
-    void *frame;
+    void *frame[2]; // double buffer
     unsigned int num;
 };
 

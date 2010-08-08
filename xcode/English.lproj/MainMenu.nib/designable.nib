@@ -12,8 +12,8 @@
 		</object>
 		<object class="NSMutableArray" key="IBDocument.EditedObjectIDs">
 			<bool key="EncodedWithXMLCoder">YES</bool>
+			<integer value="3082"/>
 			<integer value="2737"/>
-			<integer value="967"/>
 		</object>
 		<object class="NSArray" key="IBDocument.PluginDependencies">
 			<bool key="EncodedWithXMLCoder">YES</bool>
@@ -4930,48 +4930,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<string key="NSScreenRect">{{0, 0}, {1440, 878}}</string>
 				<string key="NSMaxSize">{1.79769e+308, 1.79769e+308}</string>
 			</object>
-			<object class="NSSlider" id="1045006764">
-				<nil key="NSNextResponder"/>
-				<int key="NSvFlags">-2147483392</int>
-				<string key="NSFrameSize">{430, 307}</string>
-				<int key="NSViewLayerContentsRedrawPolicy">2</int>
-				<int key="NSTag">103</int>
-				<bool key="NSEnabled">YES</bool>
-				<object class="NSSliderCell" key="NSCell" id="936697706">
-					<int key="NSCellFlags">-2079981824</int>
-					<int key="NSCellFlags2">131072</int>
-					<object class="NSMutableString" key="NSContents">
-						<characters key="NS.bytes"/>
-					</object>
-					<reference key="NSSupport" ref="471700364"/>
-					<reference key="NSControlView" ref="1045006764"/>
-					<int key="NSTag">3</int>
-					<double key="NSMaxValue">50</double>
-					<double key="NSMinValue">0.0</double>
-					<double key="NSValue">0.0</double>
-					<double key="NSAltIncValue">0.0</double>
-					<int key="NSNumberOfTickMarks">0</int>
-					<int key="NSTickMarkPosition">1</int>
-					<bool key="NSAllowsTickMarkValuesOnly">NO</bool>
-					<bool key="NSVertical">NO</bool>
-				</object>
-			</object>
-			<object class="NSTextField" id="964982557">
-				<nil key="NSNextResponder"/>
-				<int key="NSvFlags">-2147483392</int>
-				<string key="NSFrameSize">{60, 18}</string>
-				<int key="NSViewLayerContentsRedrawPolicy">2</int>
-				<bool key="NSEnabled">YES</bool>
-				<object class="NSTextFieldCell" key="NSCell" id="341576982">
-					<int key="NSCellFlags">67239424</int>
-					<int key="NSCellFlags2">4194304</int>
-					<string key="NSContents">Param4</string>
-					<reference key="NSSupport" ref="570356381"/>
-					<reference key="NSControlView" ref="964982557"/>
-					<reference key="NSBackgroundColor" ref="285277074"/>
-					<reference key="NSTextColor" ref="877010662"/>
-				</object>
-			</object>
 		</object>
 		<object class="IBObjectContainer" key="IBDocument.Objects">
 			<object class="NSMutableArray" key="connectionRecords">
@@ -6410,22 +6368,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 				<object class="IBConnectionRecord">
 					<object class="IBOutletConnection" key="connection">
-						<string key="label">nextKeyView</string>
-						<reference key="source" ref="1045006764"/>
-						<reference key="destination" ref="964982557"/>
-					</object>
-					<int key="connectionID">3287</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBActionConnection" key="connection">
-						<string key="label">setFilterParameter:</string>
-						<reference key="source" ref="567669164"/>
-						<reference key="destination" ref="1045006764"/>
-					</object>
-					<int key="connectionID">3291</int>
-				</object>
-				<object class="IBConnectionRecord">
-					<object class="IBOutletConnection" key="connection">
 						<string key="label">activeFilters</string>
 						<reference key="source" ref="567669164"/>
 						<reference key="destination" ref="204706612"/>
@@ -6511,6 +6453,54 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<reference key="destination" ref="781420010"/>
 					</object>
 					<int key="connectionID">3307</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleRepeat:</string>
+						<reference key="source" ref="1009168175"/>
+						<reference key="destination" ref="111217843"/>
+					</object>
+					<int key="connectionID">3308</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleRepeat:</string>
+						<reference key="source" ref="592456995"/>
+						<reference key="destination" ref="603066175"/>
+					</object>
+					<int key="connectionID">3309</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleRepeat:</string>
+						<reference key="source" ref="562618855"/>
+						<reference key="destination" ref="698138662"/>
+					</object>
+					<int key="connectionID">3310</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleRepeat:</string>
+						<reference key="source" ref="128813733"/>
+						<reference key="destination" ref="581510460"/>
+					</object>
+					<int key="connectionID">3311</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleRepeat:</string>
+						<reference key="source" ref="17727717"/>
+						<reference key="destination" ref="209409051"/>
+					</object>
+					<int key="connectionID">3312</int>
+				</object>
+				<object class="IBConnectionRecord">
+					<object class="IBActionConnection" key="connection">
+						<string key="label">toggleRepeat:</string>
+						<reference key="source" ref="63165657"/>
+						<reference key="destination" ref="804852438"/>
+					</object>
+					<int key="connectionID">3313</int>
 				</object>
 			</object>
 			<object class="IBMutableOrderedSet" key="objectRecords">
@@ -8360,7 +8350,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<int key="objectID">2824</int>
 						<reference key="object" ref="823826285"/>
 						<reference key="parent" ref="0"/>
-						<string key="objectName">Grabber Controller</string>
+						<string key="objectName">Grabber</string>
 					</object>
 					<object class="IBObjectRecord">
 						<int key="objectID">2825</int>
@@ -9451,34 +9441,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 						<reference key="object" ref="83379193"/>
 						<reference key="parent" ref="847797644"/>
 					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">3269</int>
-						<reference key="object" ref="1045006764"/>
-						<object class="NSMutableArray" key="children">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="936697706"/>
-						</object>
-						<reference key="parent" ref="0"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">3280</int>
-						<reference key="object" ref="936697706"/>
-						<reference key="parent" ref="1045006764"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">3267</int>
-						<reference key="object" ref="964982557"/>
-						<object class="NSMutableArray" key="children">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<reference ref="341576982"/>
-						</object>
-						<reference key="parent" ref="0"/>
-					</object>
-					<object class="IBObjectRecord">
-						<int key="objectID">3282</int>
-						<reference key="object" ref="341576982"/>
-						<reference key="parent" ref="964982557"/>
-					</object>
 				</object>
 			</object>
 			<object class="NSMutableDictionary" key="flattenedProperties">
@@ -10042,14 +10004,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>3231.IBPluginDependency</string>
 					<string>3264.IBPluginDependency</string>
 					<string>3265.IBPluginDependency</string>
-					<string>3267.IBEditorWindowLastContentRect</string>
-					<string>3267.IBPluginDependency</string>
-					<string>3267.ImportedFromIB2</string>
-					<string>3269.IBEditorWindowLastContentRect</string>
-					<string>3269.IBPluginDependency</string>
-					<string>3269.ImportedFromIB2</string>
-					<string>3280.IBPluginDependency</string>
-					<string>3282.IBPluginDependency</string>
 					<string>344.IBPluginDependency</string>
 					<string>345.IBPluginDependency</string>
 					<string>346.IBPluginDependency</string>
@@ -10976,14 +10930,6 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>{{42, 781}, {60, 18}}</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<integer value="1"/>
-					<string>{{63, 469}, {430, 307}}</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<integer value="1"/>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
-					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
 					<string>com.apple.InterfaceBuilder.CocoaPlugin</string>
@@ -11065,7 +11011,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 			</object>
 			<nil key="sourceID"/>
-			<int key="maxID">3307</int>
+			<int key="maxID">3313</int>
 		</object>
 		<object class="IBClassDescriber" key="IBDocument.Classes">
 			<object class="NSMutableArray" key="referencedPartialClassDescriptions">
@@ -11346,9 +11292,11 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>close:</string>
 							<string>open:</string>
+							<string>toggleRepeat:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
+							<string>id</string>
 							<string>id</string>
 							<string>id</string>
 						</object>
@@ -11359,6 +11307,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<bool key="EncodedWithXMLCoder">YES</bool>
 							<string>close:</string>
 							<string>open:</string>
+							<string>toggleRepeat:</string>
 						</object>
 						<object class="NSMutableArray" key="dict.values">
 							<bool key="EncodedWithXMLCoder">YES</bool>
@@ -11368,6 +11317,10 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							</object>
 							<object class="IBActionInfo">
 								<string key="name">open:</string>
+								<string key="candidateClassName">id</string>
+							</object>
+							<object class="IBActionInfo">
+								<string key="name">toggleRepeat:</string>
 								<string key="candidateClassName">id</string>
 							</object>
 						</object>
@@ -11423,7 +11376,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							<string key="candidateClassName">CVFilterPanel</string>
 						</object>
 					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="860635088">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="453600927">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">CVFilterPanel.h</string>
 					</object>
@@ -11519,51 +11472,12 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							</object>
 						</object>
 					</object>
-					<reference key="sourceIdentifier" ref="860635088"/>
+					<reference key="sourceIdentifier" ref="453600927"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">CVGrabber</string>
 					<string key="superclassName">QTCaptureDecompressedVideoOutput</string>
-					<object class="NSMutableDictionary" key="outlets">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>captureSize</string>
-							<string>freej</string>
-							<string>grabberController</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>NSPopUpButton</string>
-							<string>CFreej</string>
-							<string>CVGrabberController</string>
-						</object>
-					</object>
-					<object class="NSMutableDictionary" key="toOneOutletInfosByName">
-						<bool key="EncodedWithXMLCoder">YES</bool>
-						<object class="NSArray" key="dict.sortedKeys">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<string>captureSize</string>
-							<string>freej</string>
-							<string>grabberController</string>
-						</object>
-						<object class="NSMutableArray" key="dict.values">
-							<bool key="EncodedWithXMLCoder">YES</bool>
-							<object class="IBToOneOutletInfo">
-								<string key="name">captureSize</string>
-								<string key="candidateClassName">NSPopUpButton</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">freej</string>
-								<string key="candidateClassName">CFreej</string>
-							</object>
-							<object class="IBToOneOutletInfo">
-								<string key="name">grabberController</string>
-								<string key="candidateClassName">CVGrabberController</string>
-							</object>
-						</object>
-					</object>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="160214915">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="1016339510">
 						<string key="majorKey">IBProjectSource</string>
 						<string key="minorKey">CVGrabber.h</string>
 					</object>
@@ -11571,7 +11485,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">CVGrabberController</string>
 					<string key="superclassName">CVLayerController</string>
-					<reference key="sourceIdentifier" ref="160214915"/>
+					<reference key="sourceIdentifier" ref="1016339510"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">CVGrabberView</string>
@@ -12296,21 +12210,21 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSApplication</string>
 					<string key="superclassName">NSResponder</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="740336899">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="485023577">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">AppKit.framework/Headers/NSApplication.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSApplication</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="903830942">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="822337866">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">AppKit.framework/Headers/NSApplicationScripting.h</string>
 					</object>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSApplication</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="962455847">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="497152234">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">AppKit.framework/Headers/NSColorPanel.h</string>
 					</object>
@@ -12379,7 +12293,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSControl</string>
 					<string key="superclassName">NSView</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="711948890">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="1004694700">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">AppKit.framework/Headers/NSControl.h</string>
 					</object>
@@ -12532,7 +12446,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSMenu</string>
 					<string key="superclassName">NSObject</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="786915308">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="841520179">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">AppKit.framework/Headers/NSMenu.h</string>
 					</object>
@@ -12540,7 +12454,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSMenuItem</string>
 					<string key="superclassName">NSObject</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="94602702">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="791585965">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">AppKit.framework/Headers/NSMenuItem.h</string>
 					</object>
@@ -12570,19 +12484,19 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<reference key="sourceIdentifier" ref="740336899"/>
+					<reference key="sourceIdentifier" ref="485023577"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<reference key="sourceIdentifier" ref="903830942"/>
+					<reference key="sourceIdentifier" ref="822337866"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<reference key="sourceIdentifier" ref="962455847"/>
+					<reference key="sourceIdentifier" ref="497152234"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<reference key="sourceIdentifier" ref="711948890"/>
+					<reference key="sourceIdentifier" ref="1004694700"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
@@ -12621,7 +12535,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<reference key="sourceIdentifier" ref="786915308"/>
+					<reference key="sourceIdentifier" ref="841520179"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
@@ -12653,7 +12567,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="807374565">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="980009589">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">AppKit.framework/Headers/NSTableView.h</string>
 					</object>
@@ -12667,7 +12581,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="47989481">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="1001734095">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">AppKit.framework/Headers/NSView.h</string>
 					</object>
@@ -12814,7 +12728,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="614557634">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="646602665">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">QTKit.framework/Headers/QTCaptureDecompressedVideoOutput.h</string>
 					</object>
@@ -12849,7 +12763,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSObject</string>
-					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="607666346">
+					<object class="IBClassDescriptionSource" key="sourceIdentifier" id="621673085">
 						<string key="majorKey">IBFrameworkSource</string>
 						<string key="minorKey">QTKit.framework/Headers/QTMovieView.h</string>
 					</object>
@@ -13005,7 +12919,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSTableView</string>
 					<string key="superclassName">NSControl</string>
-					<reference key="sourceIdentifier" ref="807374565"/>
+					<reference key="sourceIdentifier" ref="980009589"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSText</string>
@@ -13048,7 +12962,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSView</string>
-					<reference key="sourceIdentifier" ref="94602702"/>
+					<reference key="sourceIdentifier" ref="791585965"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSView</string>
@@ -13060,7 +12974,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSView</string>
 					<string key="superclassName">NSResponder</string>
-					<reference key="sourceIdentifier" ref="47989481"/>
+					<reference key="sourceIdentifier" ref="1001734095"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">NSWindow</string>
@@ -13106,7 +13020,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 				<object class="IBPartialClassDescription">
 					<string key="className">QTCaptureDecompressedVideoOutput</string>
 					<string key="superclassName">QTCaptureOutput</string>
-					<reference key="sourceIdentifier" ref="614557634"/>
+					<reference key="sourceIdentifier" ref="646602665"/>
 				</object>
 				<object class="IBPartialClassDescription">
 					<string key="className">QTCaptureOutput</string>
@@ -13270,7 +13184,7 @@ ARcABAAAAAEAAAACARwAAwAAAAEAAQAAAVIAAwAAAAEAAQAAAVMAAwAAAAIAAQABAAAAAA</bytes>
 							</object>
 						</object>
 					</object>
-					<reference key="sourceIdentifier" ref="607666346"/>
+					<reference key="sourceIdentifier" ref="621673085"/>
 				</object>
 			</object>
 		</object>

@@ -29,7 +29,7 @@
     return [super init];
 }
 
-- (CVReturn)renderFrame
+- (CVPixelBufferRef)currentFrame
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     Context *ctx = [freej getContext];
@@ -62,9 +62,8 @@
         needsNewFrame = NO;
     }
     [lock unlock];
-    //[self renderPreview];
     [pool release];
-    return [super renderFrame];
+    return [super currentFrame];
 }
 
 - (IBAction)setText:(NSString *)theText withAttributes:(NSDictionary *)attributes

@@ -52,6 +52,7 @@
 	previewImage = nil;
     timeout=1;
     currentFrame = nil;
+	wantsRepeat = NO;
 	bufDict = [[NSDictionary dictionaryWithObjectsAndKeys:[NSNumber numberWithBool:YES], kCVPixelBufferCGImageCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferCGBitmapContextCompatibilityKey, [NSNumber numberWithBool:YES], kCVPixelBufferOpenGLCompatibilityKey, nil] retain];
 
     return [super init];
@@ -109,18 +110,8 @@
         layer = ffLayer;
     }
     ((CVFFmpegLayer *)layer)->open(movie);
+	layer->activate();
     [lock unlock];
-/*
-    if (!currentFrame) {
-        CVPixelBufferCreate(
-		kCFAllocatorDefault,
-		ctx->screen->geo.w,
-		ctx->screen->geo.h,
-		k32ARGBPixelFormat,
-		(CFDictionaryRef)bufDict, 
-		&currentFrame);
-    }
- */
 }
 
 - (void)feedFrame:(CVPixelBufferRef)frame
@@ -134,26 +125,11 @@
         
         CVPixelBufferLockBaseAddress(frame, 0);
         uint8_t* buf= (uint8_t*) CVPixelBufferGetBaseAddress(frame);
-        /*
-         printf("%dx%d -> %dx%d\n", get_scaled_width(ff), get_scaled_height(ff),
-         ctx->screen->geo.w, ctx->screen->geo.h);
-         */
         if (lay->scaledWidth() == ctx->screen->geo.w && lay->scaledHeight() == ctx->screen->geo.h) {
             uint8_t *ffbuf = (uint8_t *)lay->buffer;
             if (lay->buffer) {
                 memcpy(buf, ffbuf, 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t));
-                /*
-                long blackness=(ctx->screen->geo.w * ctx->screen->geo.h);
-                // histogram
-                blackness=0;
-                int i;
-                for (i=0; i< 4 * ctx->screen->geo.w * ctx->screen->geo.h *sizeof(uint8_t);i+=4) {
-                    blackness+=((buf[i+1]>>2) || (buf[i+2]>>2) || (buf[i+3]>>2))?1:0;
-                }
-                */
-                //if (blackness >= (ctx->screen->geo.w * ctx->screen->geo.h)>>4) {
                 if (skipCount > 50) { // TODO - implement properly
-    
                     NSAutoreleasePool *pool;
                     pool = [[NSAutoreleasePool alloc] init];
                     NSBitmapImageRep *imr = [[NSBitmapImageRep alloc] initWithBitmapDataPlanes:(unsigned char**)&buf 
@@ -171,14 +147,12 @@
                     previewImage = [[NSImage alloc] initWithSize:NSZeroSize];
                     [previewImage addRepresentation:imr];
                     [layerView setPosterImage:previewImage];
-                    //[previewImage release]; // XXX - this will be released by clearPreview
                     [lock unlock];
                     [imr release];
                     [pool release];
                 } else {
                     skipCount++;
                 }
-                newFrame = YES;
             }
         }
         CVPixelBufferUnlockBaseAddress(frame, 0);
@@ -201,13 +175,6 @@
         if (layer)
             ((CVFFmpegLayer *)layer)->close();
     }
-}
-
-- (void)setRepeat:(BOOL)repeat
-{
-    CVFFmpegLayer *lay = (CVFFmpegLayer *)layer;
-    if (layer)
-        lay->repeat = repeat;
 }
 
 @end

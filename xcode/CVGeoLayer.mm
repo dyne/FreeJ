@@ -54,13 +54,6 @@ CVGeoLayer::~CVGeoLayer()
         free(frame);
 }
 
-// ensure calling the start method from our CVLayer ancestor
-// (and not from the GeoLayer one
-int CVGeoLayer::start()
-{
-    return GeoLayer::start();
-}
-
 void *
 CVGeoLayer::feed()
 {    
@@ -83,25 +76,21 @@ CVGeoLayer::feed()
         CVPixelBufferRelease(pixelBuffer);
     }
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [input renderFrame];
     
-    CVTexture *tx = [input getTexture];
-    if (tx) {
-        // ensure providing the pixelbuffer to upper cocoa-related layers
-        CVPixelBufferRef pixelBuffer = [tx pixelBuffer];
-        
+    CVPixelBufferRef pixelBuffer = [input currentFrame];
+    if (pixelBuffer) {
         CVPixelBufferLockBaseAddress(pixelBuffer, 0);
         
         //void *frame = CVPixelBufferGetBaseAddress(pixelBuffer);
         if (!frame)
             frame = malloc(CVPixelBufferGetDataSize(pixelBuffer));
         // TODO - try to avoid this copy!!
+		//lock();
         memcpy(frame, CVPixelBufferGetBaseAddress(pixelBuffer), CVPixelBufferGetDataSize(pixelBuffer));
-        
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-        
         //unlock();
-    }
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+		CVPixelBufferRelease(pixelBuffer);
+	}
     [pool release];
     return frame;
 }
@@ -123,7 +112,7 @@ void *CVGeoLayer::do_filters(void *buf) {
         filters.unlock();
     }
     // now that we have applied filters (if any)
-    // we can render the preview (if needed)
-    [input renderPreview];
+	if ([input respondsToSelector:@selector(frameFiltered:)])
+		[input frameFiltered:(void *)buf];
     return buf;
 }

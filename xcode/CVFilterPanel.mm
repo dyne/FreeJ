@@ -55,7 +55,7 @@
     if(layer) {
         [layer setPreviewTarget:previewBox];
         [showButton setState:[layer isVisible]?NSOnState:NSOffState];
-        if ([layer needPreview]) {
+        if ([layer doPreview]) {
             [previewButton setState:NSOnState];
         } else {
            [previewButton setState:NSOffState];
@@ -204,7 +204,7 @@
             NSRect frame = NSMakeRect(0, [container frame].size.height - 25, 0, 20); // XXX
             while (param) {
                 frame.origin.x = 0;
-                frame.size.width = [container frame].size.width / 2 - 10; // XXX
+                frame.size.width = [container frame].size.width / 2 - 5; // XXX
                 NSTextView *newText = [[NSTextView alloc] initWithFrame:frame];
                 [newText setDrawsBackground:NO];
                 [newText setTextColor:[NSColor colorWithDeviceRed:1.0 green:1.0 blue:1.0 alpha:1.0]];

@@ -41,7 +41,6 @@ struct ffdec;
 }
 
 - (void)setStream:(NSString*)url;
-- (void)setRepeat:(BOOL)repeat;
 - (void)reOpen;
 - (void)clearPreview;
 @end

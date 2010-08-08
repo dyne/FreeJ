@@ -30,7 +30,7 @@
     IBOutlet CFreej        *freej;
 }
 
-- (void)renderFrame:(Layer *)layer;
+- (void)renderFrame:(CVPixelBufferRef)pixelBufferIn;
 - (void)clear;
 
 @end

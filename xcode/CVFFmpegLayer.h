@@ -35,8 +35,6 @@ protected:
     void *feed();
 
 public:
-    BOOL repeat;
-
     CVFFmpegLayer(CVLayerController *controller);
     ~CVFFmpegLayer();
     bool open(const char *movie);

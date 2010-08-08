@@ -23,20 +23,16 @@ CVLayer::CVLayer() : CVCocoaLayer(this), Layer()
 {
     type = Layer::GL_COCOA;
     buffer = NULL;
-    memset(texture, 0, sizeof(CVTexture *) * 2);
-    //texture = NULL;
+	memset(frame, 0, sizeof(void *) * 2);
     num = 0;
-    frame = NULL;
 }
 
 CVLayer::CVLayer(CVLayerController *vin) : Layer(), CVCocoaLayer(this, vin)
 {
     type = Layer::GL_COCOA;
     buffer = NULL;
-    frame = NULL;
-    memset(texture, 0, sizeof(CVTexture *) * 2);
+    memset(frame, 0, sizeof(void *) * 2);
     num = 0;
-    //texture = (CVTexture **)calloc(1, sizeof(CVTexture *) * 2);
     set_name([input name]);
     [input setLayer:this];
 }
@@ -45,14 +41,10 @@ CVLayer::~CVLayer()
 {
     stop();
     close();
-    if (frame)
-        free(frame);
     // release the double buffer if present
     for (int i = 0; i < 2; i++) {
-        if (texture[i]) {
-            [texture[i] release];
-            texture[i] = NULL;
-        }
+		if (frame[i])
+			free(frame[i]);
     }
 }
 
@@ -120,34 +112,32 @@ CVLayer::relative_seek(double increment)
 void *
 CVLayer::feed()
 {
+	void *output = NULL;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [input renderFrame];
-
-    CVTexture *tx = [input getTexture];
-    if (tx) {
+	
+	CVPixelBufferRef pixelBuffer = [input currentFrame];
+    if (pixelBuffer) {
         num++;
+		int idx = num % 2;
         //lock();
-        if (texture[num%2])
-            [(CVTexture *)texture[num%2] release];
-
-        texture[num%2] = [tx retain];
         // ensure providing the pixelbuffer to upper cocoa-related layers
-        CVPixelBufferRef pixelBuffer = [texture[num%2] pixelBuffer];
 
         CVPixelBufferLockBaseAddress(pixelBuffer, 0);
 
         //void *frame = CVPixelBufferGetBaseAddress(pixelBuffer);
-        if (!frame)
-            frame = malloc(CVPixelBufferGetDataSize(pixelBuffer));
+        if (!frame[idx])
+            frame[idx] = malloc(CVPixelBufferGetDataSize(pixelBuffer));
         // TODO - try to avoid this copy!!
-        memcpy(frame, CVPixelBufferGetBaseAddress(pixelBuffer), CVPixelBufferGetDataSize(pixelBuffer));
-        
+		//lock();
+        memcpy(frame[idx], CVPixelBufferGetBaseAddress(pixelBuffer), CVPixelBufferGetDataSize(pixelBuffer));
+		//unlock();
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-
+		output = frame[idx];
+		CVPixelBufferRelease(pixelBuffer);
         //unlock();
     }
     [pool release];
-    return frame;
+    return output;
 }
 
 void *CVLayer::do_filters(void *buf) {
@@ -165,8 +155,8 @@ void *CVLayer::do_filters(void *buf) {
         }
         filters.unlock();
     }
-    // now that we have applied filters (if any)
-    // we can render the preview (if needed)
-    [input renderPreview];
+	if ([input respondsToSelector:@selector(frameFiltered:)])
+		[input frameFiltered:(void *)buf];
+
     return buf;
 }

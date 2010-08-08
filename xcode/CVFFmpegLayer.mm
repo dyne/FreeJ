@@ -20,7 +20,6 @@ CVFFmpegLayer::CVFFmpegLayer(CVLayerController *controller) : CVLayer(controller
 {
     ff = NULL;
     pixelBuffer = NULL;
-    repeat = NO;
 }
 
 CVFFmpegLayer::~CVFFmpegLayer()
@@ -40,54 +39,60 @@ void *CVFFmpegLayer::feed()
     if (!ff) 
     {
         if (strlen(filename)) { // XXX - (argh!, find a better way)
+
             if (open_movie(&ff, filename) == 0) {
                 init_moviebuffer(ff, geo.w, geo.h, PIX_FMT_ARGB);
                 decode_frame(ff);
             } else {
                 close_and_free_ff(&ff);
-                if (!repeat)
+                if (![(CVFFmpegLayerController *)input wantsRepeat]) {
                     memset(filename, 0, sizeof(filename)); // XXX
+					[input stop];
+					return NULL;
+				}
             }
-        }
-    } else {
-        uint8_t *ffbuffer = get_bufptr(ff);
-        if (!ffbuffer)
-            return NULL;
-        CVReturn err = CVPixelBufferCreateWithBytes (
-                                                     NULL,
-                                                     geo.w,
-                                                     geo.h,
-                                                     k32ARGBPixelFormat,
-                                                     ffbuffer,
-                                                     geo.w*4,
-                                                     NULL,
-                                                     NULL,
-                                                     NULL,
-                                                     &pixelBuffer
-                                                    ); 
-        if (err == kCVReturnSuccess) {
-            // first decode the frame
-            if (!decode_frame(ff)) {
-                close_and_free_ff(&ff);
-                //buffer = NULL;
-                // XXX - find a cleaner way instead of blindly resetting the filename
-                // TODO - allow looping on a stream by reopening it
-                if (!repeat) {
-                    memset(filename, 0, sizeof(filename));
-                    if (input) {
-                        [(CVFFmpegLayerController *)input deactivate];
-                        [(CVFFmpegLayerController *)input clearPreview];
-                    }
-                }
-            }
-            // and than provide it to our controller
-            [input feedFrame:pixelBuffer];
-            CVPixelBufferRelease(pixelBuffer);
-
         } else {
-            // TODO - Error messages
-        }
-    }
+			[input stop];
+			return NULL;
+		}
+    } 
+	uint8_t *ffbuffer = get_bufptr(ff);
+	if (!ffbuffer)
+		return NULL;
+	CVReturn err = CVPixelBufferCreateWithBytes (
+												 NULL,
+												 geo.w,
+												 geo.h,
+												 k32ARGBPixelFormat,
+												 ffbuffer,
+												 geo.w*4,
+												 NULL,
+												 NULL,
+												 NULL,
+												 &pixelBuffer
+												); 
+	if (err == kCVReturnSuccess) {
+		// first decode the frame
+		if (!decode_frame(ff)) {
+			close_and_free_ff(&ff);
+			//buffer = NULL;
+			// XXX - find a cleaner way instead of blindly resetting the filename
+			// TODO - allow looping on a stream by reopening it
+			if (![input wantsRepeat]) {
+				memset(filename, 0, sizeof(filename));
+				if (input) {
+					[(CVFFmpegLayerController *)input deactivate];
+					[(CVFFmpegLayerController *)input clearPreview];
+				}
+			}
+		}
+		// and than provide it to our controller
+		[input feedFrame:pixelBuffer];
+		CVPixelBufferRelease(pixelBuffer);
+
+	} else {
+		// TODO - Error messages
+	}
     return CVLayer::feed();
 }
 
@@ -100,12 +105,16 @@ bool CVFFmpegLayer::isDecoding()
 
 int CVFFmpegLayer::scaledWidth()
 {
-    return get_scaled_width(ff);
+	if (ff)
+		return get_scaled_width(ff);
+	return 0;
 }
 
 int CVFFmpegLayer::scaledHeight()
 {
-    return get_scaled_height(ff);
+	if (ff)
+		return get_scaled_height(ff);
+	return 0;
 }
 
 bool CVFFmpegLayer::hasFF()

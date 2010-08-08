@@ -43,18 +43,18 @@ CVFilterInstance::CVFilterInstance()
 }
 
 CVFilterInstance::CVFilterInstance(Filter *fr)
+	: FilterInstance()
 {
     cgContextRef = nil;
     ciContext = nil;
     ciFilter = nil;
     image = nil;
-    func("creating instance for filter %s",fr->name);
     init(fr);
 }
 
 void CVFilterInstance::init(Filter *fr)
 {
-    FilterInstance::init(fr);
+	FilterInstance::init(fr);
     ciFilter = [[CIFilter filterWithName:[NSString stringWithFormat:@"CI%s", fr->name]] retain];
     [ciFilter setDefaults];
     if (fr->type() == Filter::COREIMAGE) {

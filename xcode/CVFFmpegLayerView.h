@@ -32,6 +32,7 @@
 
 - (IBAction)open:(id)sender;
 - (IBAction)close:(id)sender;
+- (IBAction)toggleRepeat:(id)sender;
 @end
 
 #endif

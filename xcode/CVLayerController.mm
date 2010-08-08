@@ -99,7 +99,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     [scaleFilter release];
     [translateFilter release];
     ///[timeCodeOverlay release];
-    CVOpenGLTextureRelease(currentFrame);
+	if (currentFrame)
+		CVOpenGLTextureRelease(currentFrame);
     if (imageParams)
         [imageParams release];
     [lock release];
@@ -109,23 +110,9 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 
 - (void)prepareOpenGL
 {
-    CGOpenGLDisplayMask    totalDisplayMask = 0;
-    int     virtualScreen;
-    GLint   displayMask;
     NSAutoreleasePool *pool;
     pool = [[NSAutoreleasePool alloc] init];
     
-    // Create display link 
-    if (layerView) {
-        NSOpenGLPixelFormat    *openGLPixelFormat = [layerView pixelFormat];
-        viewDisplayID = (CGDirectDisplayID)[[[[[layerView window] screen] deviceDescription] objectForKey:@"NSScreenNumber"] intValue];  // we start with our view on the main display
-        // build up list of displays from OpenGL's pixel format
-        for (virtualScreen = 0; virtualScreen < [openGLPixelFormat  numberOfVirtualScreens]; virtualScreen++)
-        {
-            [openGLPixelFormat getValues:&displayMask forAttribute:NSOpenGLPFAScreenMask forVirtualScreen:virtualScreen];
-            totalDisplayMask |= displayMask;
-        }
-    }
     // Setup the timecode overlay
     /*
      NSDictionary *fontAttributes = [[NSDictionary alloc] initWithObjectsAndKeys:[NSFont labelFontOfSize:24.0f], NSFontAttributeName,
@@ -146,24 +133,28 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     Layer       *fjLayer = NULL;
     
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    
+	if (!filtersInitialized)
+        [self initFilters]; // initialize on first use
+	
     if (layer)
         fjLayer = layer->fjLayer();
     else
         return;
     [lock lock];
-    if (!currentFrame) {        
-        CVReturn err = CVPixelBufferCreate (
-                                            NULL,
-                                            fjLayer->geo.w,
-                                            fjLayer->geo.h,
-                                            k32ARGBPixelFormat,
-                                            NULL,
-                                            &currentFrame
-                                            );
-    }
+    if (currentFrame) 
+		CVPixelBufferRelease(currentFrame);
+	
+	CVReturn err = CVPixelBufferCreate (
+										NULL,
+										fjLayer->geo.w,
+										fjLayer->geo.h,
+										k32ARGBPixelFormat,
+										NULL,
+										&currentFrame
+										);
     //currentFrame = CVPixelBufferRetain(frame);
     // TODO - check error code
+	//fjLayer->lock();
     CIImage *inputImage = [CIImage imageWithCVImageBuffer:frame];
 
     CGRect bounds = CGRectMake(0, 0, fjLayer->geo.w, fjLayer->geo.h);
@@ -185,15 +176,16 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
                                                          );
     CVPixelBufferUnlockBaseAddress(currentFrame, 0);
     if (!context) {
+		//fjLayer->unlock();
         // todo - error messages
         return;
     }
     NSDictionary *ciContextOptions = [NSDictionary dictionaryWithObject:(NSString*)kCGColorSpaceGenericRGB 
                                                                  forKey: kCIContextOutputColorSpace];
     CIContext *ciCtx = [CIContext contextWithCGContext:context options:ciContextOptions];
-    //CGContextRelease(context);
+    CGContextRelease(context);
     
-//    if (doFilters) {
+    if (doFilters) {
         [colorCorrectionFilter setValue:inputImage forKey:@"inputImage"];
         [exposureAdjustFilter setValue:[colorCorrectionFilter valueForKey:@"outputImage"] forKey:@"inputImage"];
         [alphaFilter  setValue:[exposureAdjustFilter valueForKey:@"outputImage"]
@@ -209,46 +201,15 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
         } else {
             renderedImage = [rotateFilter valueForKey:@"outputImage"];
         }
-//    } else {
-//        renderedImage = inputImage;
-//    }
+    } else {
+        renderedImage = inputImage;
+    }
     
     [ciCtx drawImage:renderedImage inRect:bounds fromRect:bounds];
-    newFrame = YES;
     [lock unlock];
     [pool release];
-    //[self renderFrame];
 }
-
-- (CVReturn)renderFrame
-{
-    CIImage     *inputImage = nil;
-    CIImage     *renderedImage = nil;
-    Layer       *fjLayer = NULL;
-    
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
-    if (layer)
-        fjLayer = layer->fjLayer();
-    else
-        return kCVReturnError;
-    
-    if (!filtersInitialized)
-        [self initFilters]; // initialize on first use
-    
-    if (newFrame) {
-        [lock lock];
-        if (cvTexture)
-            [cvTexture release];
-        cvTexture = [[CVTexture alloc] initWithCIImage:inputImage pixelBuffer:currentFrame];
-        newFrame = NO;
-        [lock unlock];
-        //[self renderPreview];
-    }
-    [pool release];
-    return kCVReturnSuccess;
-}
-
+ 
 - (IBAction)toggleFilters:(id)sender
 {
     doFilters = doFilters?false:true;
@@ -452,18 +413,13 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     //[lock unlock];
 }
 
-- (void)renderPreview
+- (void)renderPreview:(CVPixelBufferRef)frame
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     if ([self doPreview] && previewTarget) { 
         // scale the frame to fit the preview
-        if (![previewTarget isHiddenOrHasHiddenAncestor]) {
-            Layer *fjLayer = layer->fjLayer();
-            // XXX - it's too dangerous to access layer->buffer directly
-            if (fjLayer && fjLayer->buffer)
-                [previewTarget renderFrame:fjLayer];
-        }
-        
+        if (![previewTarget isHiddenOrHasHiddenAncestor])
+			[previewTarget renderFrame:frame];
     }
     [pool release];
 }
@@ -519,20 +475,42 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     filtersInitialized = true;
 }
 
-- (CVTexture *)getTexture
+- (CVPixelBufferRef)currentFrame
 {    
-    CVTexture   *texture = nil;
+	CVPixelBufferRef frame;
     [lock lock];
-    texture = [cvTexture retain];
+	frame = CVPixelBufferRetain(currentFrame);
     [lock unlock];
-
-    return [texture autorelease];
+ 
+    return frame;
 }
 
-
-- (bool)needPreview
+- (void)frameFiltered:(void *)buffer
 {
-    return doPreview;
+	// we have been notified that the frame has been filtered
+	// and 'buffer' holds the data for the filtered image
+	// (it will still have the some pixelformat and dimensions of original image)
+	// XXX - actually we don't store the filtered image, but we use it just for preview
+	if (layer && doPreview) {
+		CVPixelBufferRef pixelBufferFiltered;
+		CVReturn cvRet = CVPixelBufferCreateWithBytes (
+													   NULL,
+													   layer->width(),
+													   layer->height(),
+													   k32ARGBPixelFormat,
+													   buffer,
+													   layer->width()*4,
+													   NULL,
+													   NULL,
+													   NULL,
+													   &pixelBufferFiltered
+													   );
+		// TODO - Error Messages
+		if (cvRet == noErr) {
+			[self renderPreview:pixelBufferFiltered];
+			CVPixelBufferRelease(pixelBufferFiltered);
+		} 
+	}
 }
 
 - (void)startPreview
@@ -665,7 +643,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     doPreview = doPreview?NO:YES;
 }
 
-- (bool)doPreview
+- (BOOL)doPreview
 {
     return doPreview;
 }
@@ -712,8 +690,22 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 	return 0;
 }
 
+
+- (void)setRepeat:(BOOL)repeat
+{
+	wantsRepeat = repeat;
+}
+
+- (BOOL)wantsRepeat
+{
+	return wantsRepeat;
+}
+
 @synthesize freej;
 @synthesize layer;
 @synthesize layerView;
+@synthesize wantsRepeat;
+@synthesize doPreview;
+@synthesize doFilters;
 
 @end

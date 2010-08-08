@@ -37,7 +37,6 @@
 #endif
     uint64_t              lastPTS;
     bool                  isPlaying;
-    bool                  wantsRepeat;
 }
 - (BOOL)setQTMovie:(QTMovie *)movie;
 - (void)unloadMovie;
@@ -46,7 +45,6 @@
 - (void)setTime:(QTTime)inTime;
 - (BOOL)togglePlay;
 - (void)task;
-- (void)setRepeat:(BOOL)repeat;
 @end
 
 #endif

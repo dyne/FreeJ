@@ -37,8 +37,8 @@ CVCocoaLayer::CVCocoaLayer(Layer *lay, CVLayerController *vin)
 CVCocoaLayer::~CVCocoaLayer()
 {
     deactivate();
-    if (input)
-        [input setLayer:nil];
+    //if (input)
+        //[input setLayer:nil];
 
 }
 
@@ -67,14 +67,12 @@ CVCocoaLayer::deactivate()
 }
 
 // accessor to get a texture from the CVLayerController class
-CVTexture * 
-CVCocoaLayer::glTexture()
+CVPixelBufferRef
+CVCocoaLayer::currentFrame()
 {
-    CVTexture *texture = NULL;
     if (input)
-        texture = [input getTexture];
-
-    return texture;
+        return [input currentFrame];
+    return NULL;
 }
 
 bool CVCocoaLayer::isActive()

@@ -135,72 +135,50 @@
     [pool release];
 }
 
-- (void)renderFrame:(Layer *)layer
+- (void)renderFrame:(CVPixelBufferRef)pixelBufferIn
 {
     NSRect        frame = [self frame];
     NSRect        bounds = [self bounds];
     float         scaleFactor;
     //CVTexture   *textureToRelease = nil;
     Context       *ctx = (Context *)[freej getContext];
-    CVPixelBufferRef pixelBufferIn;
     CIImage       *ciImage;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     
 
     @synchronized(self) {
-        layer->lock();
-        CVReturn cvRet = CVPixelBufferCreateWithBytes (
-                                                       NULL,
-                                                       layer->geo.w,
-                                                       layer->geo.h,
-                                                       k32ARGBPixelFormat,
-                                                       layer->buffer,
-                                                       layer->geo.w*4,
-                                                       NULL,
-                                                       NULL,
-                                                       NULL,
-                                                       &pixelBufferIn
-                                                       );
-        if (cvRet == kCVReturnSuccess) {
-            CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferIn];
+		CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferIn];
 
-            NSAffineTransform *scaleTransform = [NSAffineTransform transform];
+		NSAffineTransform *scaleTransform = [NSAffineTransform transform];
 
-            scaleFactor = frame.size.height/ctx->screen->geo.h;
-            [scaleTransform scaleBy:scaleFactor];
-            CIFilter    *scaleFilter = [CIFilter filterWithName:@"CIAffineTransform"];
-            [scaleFilter setDefaults];    // set the filter to its default values
+		scaleFactor = frame.size.height/ctx->screen->geo.h;
+		[scaleTransform scaleBy:scaleFactor];
+		CIFilter    *scaleFilter = [CIFilter filterWithName:@"CIAffineTransform"];
+		[scaleFilter setDefaults];    // set the filter to its default values
 
-            [scaleFilter setValue:scaleTransform forKey:@"inputTransform"];
-            [scaleFilter setValue:inputImage forKey:@"inputImage"];
+		[scaleFilter setValue:scaleTransform forKey:@"inputTransform"];
+		[scaleFilter setValue:inputImage forKey:@"inputImage"];
 
-            CIImage *previewImage = [scaleFilter valueForKey:@"outputImage"];
-            // output the downscaled frame in the preview window
-            // XXX - I'm not sure we really need locking here
+		CIImage *previewImage = [scaleFilter valueForKey:@"outputImage"];
+		// output the downscaled frame in the preview window
+		// XXX - I'm not sure we really need locking here
 
-            CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
-                        NSWidth(bounds), NSHeight(bounds));
-            if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
-                return;
+		CGRect  imageRect = CGRectMake(NSMinX(bounds), NSMinY(bounds),
+					NSWidth(bounds), NSHeight(bounds));
+		if( kCGLNoError != CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]) )
+			return;
 
-            CGPoint origin;
+		CGPoint origin;
 
-            origin.x = (frame.size.width-(ctx->screen->geo.w * scaleFactor))/2;
-            origin.y = (frame.size.height-(ctx->screen->geo.h * scaleFactor))/2;
-            [ciContext drawImage:previewImage
-                    atPoint: origin
-                    fromRect: imageRect];
-            //[self drawRect:NSZeroRect]; 
-            CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);    
-
-            [self setNeedsDisplay:YES];
-            //if (textureToRelease)
-            //    [textureToRelease release];
-            CVPixelBufferRelease(pixelBufferIn);
-        }
-        layer->unlock();
+		origin.x = (frame.size.width-(ctx->screen->geo.w * scaleFactor))/2;
+		origin.y = (frame.size.height-(ctx->screen->geo.h * scaleFactor))/2;
+		[ciContext drawImage:previewImage
+				atPoint: origin
+				fromRect: imageRect];
+		//[self drawRect:NSZeroRect]; 
+		CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+		[self setNeedsDisplay:YES];
     }
-
     [pool release];
 }
 

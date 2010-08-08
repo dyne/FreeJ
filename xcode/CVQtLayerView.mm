@@ -96,8 +96,10 @@
 
 - (IBAction)toggleRepeat:(id)sender
 {
-    [(CVQtLayerController *)layerController setRepeat:
-     ([repeatButton state] == NSOnState)?YES:NO];
+	if ([sender state] == NSOnState)
+		[(CVQtLayerController *)layerController setRepeat:YES];
+	else
+		[(CVQtLayerController *)layerController setRepeat:NO];
 }
 
 @end

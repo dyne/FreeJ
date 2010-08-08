@@ -35,17 +35,11 @@ class CVCocoaLayer;
         CFreej                *freej;
         NSRecursiveLock       *lock;
         
-        bool                   newFrame;
         CVPixelBufferRef       currentFrame;    // the current frame from the movie
         CVTexture              *cvTexture;
         CIImage                *posterImage;
-        bool                   doPreview;
         CVTexture              *currentPreviewTexture;
         CGLContextObj          glContext;
-
-        // display link
-        CVDisplayLinkRef       displayLink;            // the displayLink that runs the show
-        CGDirectDisplayID      viewDisplayID;
         // filters for CI rendering
         CIFilter               *colorCorrectionFilter;        // hue saturation brightness control through one CI filter
         CIFilter               *compositeFilter;        // composites the timecode over the video
@@ -62,32 +56,43 @@ class CVCocoaLayer;
         CVCocoaLayer           *layer;
         CVPreview              *previewTarget;
         IBOutlet CVLayerView   *layerView;
-        bool                   doFilters;
-        bool                   filtersInitialized;
+		BOOL                   doPreview;
+        BOOL                   doFilters;
+		BOOL				   wantsRepeat;
+        BOOL                   filtersInitialized;
     }
     
     @property (readwrite, assign) CFreej *freej;
     @property (readwrite) CVCocoaLayer *layer;
     @property (readonly) CVLayerView *layerView;
-    // subclass implementation should override this method and update 
-    // the currentFrame pointer only within the renderFrame implementation
+	@property (readwrite) BOOL doPreview;
+	@property (readwrite) BOOL doFilters;
+	@property (readwrite) BOOL wantsRepeat;
+
+	// Subclasses can override this method to feed the current frame before returning it
+	// To provide the frame [self feedFrame:] must be called.
+	// The returned CVPixelBufferRef is retained and MUST be released by the caller.
+	// NOTE : usually this is called from the C++ layer implementation , within the feed() method. 
+	//        But some Cocoa-layers could lack a specific C++ class since the frame is created 
+	//		  directly in the cocoa implementation. 
+	//        In such cases (for instance QTLayerController and CVTextLayerController) 'currentFrame' 
+	//		  is overridden to provide the new pixel buffer before calling [super currentFrame]
+	- (CVPixelBufferRef)currentFrame;
     - (char *)name;
+	// applies image parameters (brightness, contrast, exposure, etc) and stores the new frame as 'current' on
+	// (to be later returned by [self currentFrame]
     - (void)feedFrame:(CVPixelBufferRef)frame;
-    - (CVReturn)renderFrame;
+	- (void)frameFiltered:(void *)buffer;
     - (id)initWithContext:(CFreej *)context;
     - (void)startPreview; // enable preview rendering
     - (void)stopPreview; // disable preview rendering
-    - (void)renderPreview; // render the preview frame
+	- (void)renderPreview:(CVPixelBufferRef)frame; // render the preview frame
     - (bool)isVisible; // query the layer to check if it's being sent to the Screen or not
     - (NSString *)blendMode;
     - (void)activate; /// activate the underlying CVLayer
     - (void)deactivate; /// deactivate the underlying CVLayer
-    // Retain currentFrame, apply filters and return a CVTexture
-    - (CVTexture *)getTexture;
     // query the layer to check if it needs to display a preview or not (used by CVPreview)
-    - (bool)needPreview;
     - (NSDictionary *)imageParams;
-    //- (void)setContext:(CFreej *)ctx;
     - (void)setPreviewTarget:(CVPreview *)targetView;
     - (CVPreview *)getPreviewTarget;
     - (void)lock; /// accessor to the internal mutex
@@ -100,13 +105,13 @@ class CVCocoaLayer;
     - (void)toggleFilters;
     - (void)toggleVisibility;
     - (void)togglePreview;
-    - (bool)doPreview;
+    - (BOOL)doPreview;
+	- (BOOL)wantsRepeat;
+	- (void)setRepeat:(BOOL)repeat;
     - (void)setBlendMode:(NSString *)mode;
     - (void)initFilters;
     - (int)width;
     - (int)height;
-    //- (void)filterFrame:(CIFilter *)filter;
-    //- (void)filterFrame:(FilterInstance *)filter;
     - (Linklist<FilterInstance> *)activeFilters;
     - (IBAction)setImageParameter:(id)sender; /// tags from 0 to 10
     - (IBAction)setValue:(NSNumber *)value forImageParameter:(NSString *)parameter;

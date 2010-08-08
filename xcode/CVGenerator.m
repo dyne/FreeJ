@@ -48,7 +48,7 @@
 	[lock unlock];
 	return freejImage; 
 }
-
+ 
 - (void)prepareOpenGL
 {
 	NSAutoreleasePool *pool;

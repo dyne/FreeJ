@@ -203,13 +203,6 @@
 }
 
 
-- (void)renderPreview
-{
-    if (layerController)
-        [layerController renderPreview];
-}
-
-
 - (void)mouseDown:(NSEvent *)theEvent {
     [filterPanel setLayer:layerController];
     [filterPanel show];

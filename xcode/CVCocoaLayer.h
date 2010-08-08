@@ -47,7 +47,7 @@ public:
     char *fjName();
 
     Context *context() { return freej; }; 
-    virtual CVTexture *glTexture();
+    virtual CVPixelBufferRef currentFrame();
     NSDictionary *imageParams();
 	int width();
 	int height();

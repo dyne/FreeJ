@@ -25,24 +25,18 @@
 {
     CVCocoaLayer *toDelete;
     if (layer) {
-        [self deactivate];
-        [lock lock];
-        //toDelete->stop();
+        [self stop];
         if (currentFrame) {
             CVPixelBufferRelease(currentFrame);
             currentFrame = NULL;
         }
-        toDelete = (CVCocoaLayer *)layer;
-        layer = NULL;
-        [lock unlock];
-        delete toDelete;
     }
 }
 
 - (void)setLayer:(CVCocoaLayer *)lay
 {
     if (layer) // ensure to remove/stop old genf0rlayer if we are setting a new one
-        [self reset];
+        [self stop];
     [super setLayer:lay];
 }
 

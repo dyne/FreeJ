@@ -55,7 +55,6 @@ class CVLayer;
 - (bool)needPreview; // true if we need to provide a preview, else otherwise
 - (void)startPreview; // enable preview rendering
 - (void)stopPreview; // disable preview rendering
-- (void)renderPreview; // render the preview frame
 - (bool)isVisible; // query the layer to check if it's being sent to the Screen or not
 - (void)activate; /// activate the underlying CVLayer
 - (void)deactivate; /// deactivate the underlying CVLayer

@@ -286,9 +286,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 #endif
                                                                     nil]
                                                              error:nil];
-     
-    // rendering (aka: applying filters) is now done in getTexture()
-    // implemented in CVLayerController (our parent)
+	// provide the frame to lower layers
     [self feedFrame:newPixelBuffer];
     rv = YES;
 #else
@@ -301,9 +299,10 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
       
         // rendering (aka: applying filters) is now done in getTexture()
         // implemented in CVLayerView (our parent)
-        
-        [self feedFrame:newPixelBuffer];
-        rv = YES;
+        if (newPixelBuffeR) {
+			[self feedFrame:newPixelBuffer];
+			rv = YES;
+		}
     } 
 #endif
     [lock unlock];
@@ -316,8 +315,8 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     return rv;
 }
 
-
-- (CVReturn)renderFrame
+// we fetch the image from QTKit just when asked from upper layers
+- (CVPixelBufferRef)currentFrame
 {
     NSAutoreleasePool *pool = nil;
     
@@ -329,7 +328,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
      else
         rv = kCVReturnError;
     [pool release];
-    return [super renderFrame];
+    return [super currentFrame];
 }
 
 - (void)task
@@ -347,11 +346,6 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
 {
     [qtMovie stepForward];
     return true;
-}
-
-- (void)setRepeat:(BOOL)repeat
-{
-    wantsRepeat = repeat;
 }
 
 //@synthesize qtMovie;
