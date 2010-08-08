@@ -42,19 +42,15 @@ Entry::Entry() {
   jsclass = NULL;
   jsobj = NULL;
   select = false;
-  name = (char*)calloc(256, sizeof(char));
+  memset(name, 0, sizeof(name));
 }
 
 Entry::~Entry() {
   rem();
-  // freeing data in entry provokes crashes in ~Layer
-  // esp. when freeing Filter instances
-  //  if(data) free(data);
-  free(name);
 }
 
 void Entry::set_name(const char *nn) {
-  strncpy(name,nn,255);
+  strncpy(name,nn,sizeof(name)-1);
 }
 
 bool Entry::up() {
@@ -306,7 +302,8 @@ void Entry::rem() {
 }
 
 void Entry::sel(bool on) {
-  if(!list) return;
+  if(!list)
+      return;
   select = on;
   if(select)
     list->selection = this;

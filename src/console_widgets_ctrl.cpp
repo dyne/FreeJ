@@ -189,7 +189,7 @@ bool SlwSelector::feed(int key) {
     case SL_KEY_DELETE:
     case KEY_CTRL_D:
       if(fe) {
-	fe->rem();
+	//fe->rem(); // XXX - Entry destructor already calls rem()
 	delete fe;
       } else {
 	//	le->rem();

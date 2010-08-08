@@ -125,7 +125,7 @@ class Entry {
 
  public:
   Entry();
-  ~Entry();
+  virtual ~Entry();
 
   void set_name(const char *nn);
   
@@ -143,7 +143,7 @@ class Entry {
   
   bool select;
 
-  char *name;
+  char name[256];
 
   // generic data pointer, so far only used in console
   // and now also as JSObject -> jsval
