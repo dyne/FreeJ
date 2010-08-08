@@ -171,6 +171,14 @@
     param->set(&value);
 }
 
+- (IBAction)removeFilter:(id)sender
+{
+    NSData *data = [[activeFilters selectedTabViewItem] identifier];
+    CVFilterInstance *currentFilter = (CVFilterInstance *)[data bytes];
+    delete currentFilter;
+    [self updateActiveFilters];
+}
+
 - (void)tabView:(NSTabView *)tabView didSelectTabViewItem:(NSTabViewItem *)tabViewItem
 {
     if (layer) {
@@ -194,6 +202,7 @@
                 [newText setDrawsBackground:NO];
                 [newText setTextColor:[NSColor colorWithDeviceRed:1.0 green:1.0 blue:1.0 alpha:1.0]];
                 [newText insertText:[NSString stringWithUTF8String:param->name]];
+                [newText setFont:[NSFont labelFontOfSize:10.0]];
                 [newText sizeToFit];
                 [newText setEditable:NO];
                 [container addSubview:newText];
@@ -210,8 +219,6 @@
                 [newSlider setAction:@selector(setFilterParameter:)];
                 [newSlider setTag:idx];
                 [container addSubview:newSlider];
-                //[newSlider 
-                //[newSlider sizeToFit];
                 frame.origin.y = labelSize.origin.y - 20;
                 // everything should be properly retained at this point
                 [newText release];
@@ -219,6 +226,18 @@
                 param = (Parameter *)param->next;
                 idx++;
             }
+            frame.origin.x = 0;
+            frame.origin.y = 0;
+            NSButton *removeButton = [[NSButton alloc] initWithFrame:frame];
+            [removeButton setTitle:@"Remove"];
+            [[removeButton cell] setControlSize:NSMiniControlSize];
+            [removeButton setButtonType:NSMomentaryPushInButton];
+            [removeButton setImagePosition:NSNoImage];
+            [removeButton setBezelStyle:NSRoundedBezelStyle];
+            [removeButton setFont:[NSFont labelFontOfSize:9.0]];
+            [removeButton sizeToFit];
+            [removeButton setAction:@selector(removeFilter:)];
+            [container addSubview:removeButton];
             filt->parameters.unlock();
             ctx->filters.unlock();
         }

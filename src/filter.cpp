@@ -116,7 +116,6 @@ char *Filter::get_parameter_description(int i) {
 
 void Filter::destruct(FilterInstance *inst) {
 
-
 }
 
 void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
