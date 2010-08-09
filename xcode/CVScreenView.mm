@@ -84,7 +84,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     lastFrame = NULL;
     exportedFrame = NULL;
     streamerStatus = NO;
-    lastTextures = [[NSMutableArray array] retain];
     lock = [[NSRecursiveLock alloc] init];
     [lock retain];
     [self setNeedsDisplay:NO];
@@ -433,14 +432,7 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
             [lastFrame autorelease];
         lastFrame = outFrame;
         outFrame = NULL;
-        // release all textures
-        while ([lastTextures count]) {
-            CVTexture *texture = [lastTextures objectAtIndex:0];
-            [lastTextures removeObjectAtIndex:0];
-            // removing the texture from the array makes its refcnt reach 0 
-            // so it will be automagically released
-            //[texture release];
-        }
+
     } else {
         needsReshape = YES;
     }
@@ -464,7 +456,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     CIFilter *blendFilter = nil;
-    CVTexture *texture = nil;
 
     CVPixelBufferRef pixelBufferOut = NULL;
     //_BGRA2ARGB(layer->buffer, layer->geo.w*layer->geo.h); // XXX - expensive conversion
@@ -495,7 +486,6 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     if (!pixelBufferOut) // return if we don't have anything to draw
         return;
     CIImage *inputImage = [CIImage imageWithCVImageBuffer:pixelBufferOut];
-    texture = [CVTexture textureWithCIImage:inputImage pixelBuffer:pixelBufferOut];
     // we can release our reference to the pixelBuffer now. 
     // The CVTexture will retain it as long as it is needed
     CVPixelBufferRelease(pixelBufferOut);
@@ -516,18 +506,16 @@ static CVReturn renderCallback(CVDisplayLinkRef displayLink,
     }
     [blendFilter setDefaults];
     [lock lock];
-    if (texture) {
+    if (inputImage) {
         if (!outFrame) {
-            outFrame = [[texture image] retain];
+            outFrame = [inputImage retain];
         } else {
             [blendFilter setValue:outFrame forKey:@"inputImage"];
-            [blendFilter setValue:[texture image] forKey:@"inputBackgroundImage"];
+            [blendFilter setValue:inputImage forKey:@"inputBackgroundImage"];
             CIImage *temp = [blendFilter valueForKey:@"outputImage"];
             [outFrame release];
             outFrame = [temp retain];
         }
-        [lastTextures addObject:texture]; // Note: we use this to keep the texture refcnt'd until necessary
-                                          //       once removed from the array it will be free'd
     }
     [lock unlock];
     [pool release];

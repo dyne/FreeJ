@@ -76,48 +76,39 @@ CVF0rLayer::CVF0rLayer(CVLayerController *controller)
     generator = NULL;
     type = Layer::GL_COCOA;   
     set_name([input name]);
-    currentFrame = NULL;
-    pixelBuffer = NULL;
     [input setLayer:this];
 }
 
 CVF0rLayer::~CVF0rLayer()
 {
     close();
-    if (pixelBuffer)
-        CVPixelBufferRelease(pixelBuffer);
-    if (currentFrame)
-        free(currentFrame);
 }
 
 void *
 CVF0rLayer::feed()
 {
     void *res;
-
+	CVPixelBufferRef pixelBuffer;
     if (generator) 
         res = generator->process(fps.get(), NULL);
     if (res) {
         // TODO - handle geometry changes
-        if (!currentFrame) {
-            currentFrame = malloc(geo.bytesize);
-            CVReturn err = CVPixelBufferCreateWithBytes (
-                                                         NULL,
-                                                         geo.w,
-                                                         geo.h,
-                                                         k32ARGBPixelFormat,
-                                                         currentFrame,
-                                                         geo.w*4,
-                                                         NULL,
-                                                         NULL,
-                                                         NULL,
-                                                         &pixelBuffer
-                                                         ); 
-        }
-        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-        memcpy(currentFrame, res, geo.bytesize);
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-        [(CVF0rLayerController *)input feedFrame:pixelBuffer];
+	    CVReturn err = CVPixelBufferCreateWithBytes (
+													 NULL,
+													 geo.w,
+													 geo.h,
+													 k32ARGBPixelFormat,
+													 res,
+													 geo.w*4,
+													 NULL,
+													 NULL,
+													 NULL,
+													 &pixelBuffer
+													 );
+		if (err == noErr) {
+			[(CVF0rLayerController *)input feedFrame:pixelBuffer];
+			CVPixelBufferRelease(pixelBuffer);
+		}
     }
     return CVLayer::feed();
 }

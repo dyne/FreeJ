@@ -23,17 +23,15 @@ CVLayer::CVLayer() : CVCocoaLayer(this), Layer()
 {
     type = Layer::GL_COCOA;
     buffer = NULL;
-	memset(frame, 0, sizeof(void *) * 2);
-    num = 0;
+	frame = NULL;	
 }
 
 CVLayer::CVLayer(CVLayerController *vin) : Layer(), CVCocoaLayer(this, vin)
 {
     type = Layer::GL_COCOA;
     buffer = NULL;
-    memset(frame, 0, sizeof(void *) * 2);
-    num = 0;
-    set_name([input name]);
+	frame = NULL;	
+	set_name([input name]);
     [input setLayer:this];
 }
 
@@ -41,11 +39,8 @@ CVLayer::~CVLayer()
 {
     stop();
     close();
-    // release the double buffer if present
-    for (int i = 0; i < 2; i++) {
-		if (frame[i])
-			free(frame[i]);
-    }
+    if (frame)
+		free(frame);
 }
 
 bool
@@ -115,27 +110,16 @@ CVLayer::feed()
 	void *output = NULL;
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	
-	CVPixelBufferRef pixelBuffer = [input currentFrame];
-    if (pixelBuffer) {
-        num++;
-		int idx = num % 2;
-        //lock();
-        // ensure providing the pixelbuffer to upper cocoa-related layers
+	CVPixelBufferRef newPixelBuffer = [input currentFrame];
+	if (newPixelBuffer) {
+		if (pixelBuffer)
+			CVPixelBufferRelease(pixelBuffer);
+		pixelBuffer = newPixelBuffer;
+		CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+		output = CVPixelBufferGetBaseAddress(pixelBuffer);
+		CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+	}
 
-        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-
-        //void *frame = CVPixelBufferGetBaseAddress(pixelBuffer);
-        if (!frame[idx])
-            frame[idx] = malloc(CVPixelBufferGetDataSize(pixelBuffer));
-        // TODO - try to avoid this copy!!
-		//lock();
-        memcpy(frame[idx], CVPixelBufferGetBaseAddress(pixelBuffer), CVPixelBufferGetDataSize(pixelBuffer));
-		//unlock();
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-		output = frame[idx];
-		CVPixelBufferRelease(pixelBuffer);
-        //unlock();
-    }
     [pool release];
     return output;
 }
@@ -144,6 +128,8 @@ void *CVLayer::do_filters(void *buf) {
     bool no_opt = false;
     
     if( filters.len() ) {
+		// If we have filters to apply , we don't need to copy the frame
+		// since we will get a different buffer out of the filter chain
         FilterInstance *filt;
         filters.lock();
         filt = (FilterInstance *)filters.begin();
@@ -154,7 +140,17 @@ void *CVLayer::do_filters(void *buf) {
             filt = (FilterInstance *)filt->next;
         }
         filters.unlock();
-    }
+    } else {
+		// We are now at the end of video pipeline for a layer
+		// if there is no filter to apply we are still referencing 
+		// the storage from the underlying CVLayerController.
+		// Note that the controller could reuse the buffer to render
+		// next frame and we need to make a copy here.
+		if (!frame)
+			frame = malloc(geo.bytesize);
+		memcpy(frame, buf, geo.bytesize);
+		buf = frame;
+	}
 	if ([input respondsToSelector:@selector(frameFiltered:)])
 		[input frameFiltered:(void *)buf];
 

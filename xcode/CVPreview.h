@@ -18,7 +18,6 @@
  */
 
 #import <CVCocoaLayer.h>
-#import <CVTexture.h>
 
 @class CFreej;
 
@@ -26,7 +25,6 @@
     CIContext              *ciContext;
     bool                   needsReshape;
     NSRecursiveLock        *lock;  
-    CVTexture              *texture;
     IBOutlet CFreej        *freej;
 }
 

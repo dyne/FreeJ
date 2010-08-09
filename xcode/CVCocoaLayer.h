@@ -22,7 +22,6 @@
 
 #import <CFreej.h>
 #import <CVLayerController.h>
-#import <CVTexture.h>
 #include <geometry.h>
 
 @class CVLayerView;

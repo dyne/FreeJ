@@ -25,7 +25,6 @@
 
 #import <CFreej.h>
 #import <CVLayerController.h>
-#import <CVTexture.h>
 #import <CVCocoaLayer.h>
 
 
@@ -52,9 +51,10 @@ public:
     virtual void *do_filters(void *buf);
 protected:
     virtual void *feed();
-
+	
+	CVPixelBufferRef pixelBuffer;
 private:
-    void *frame[2]; // double buffer
+    void *frame;
     unsigned int num;
 };
 

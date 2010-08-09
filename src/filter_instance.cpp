@@ -34,18 +34,21 @@ FACTORY_REGISTER_INSTANTIATOR(FilterInstance, FilterInstance, FilterInstance, co
 FilterInstance::FilterInstance()
  : Entry() 
 {
-    core = NULL;
-    intcore = 0;
-    outframe = NULL;
-    active = false;
-    layer = NULL;
+  core = NULL;
+  intcore = 0;
+  outframe = NULL;
+  active = false;
+  layer = NULL;
 }
 
 FilterInstance::FilterInstance(Filter *fr)
+	: Entry()
 {
-  FilterInstance();
-  func("creating instance for filter %s",fr->name);
-
+  core = NULL;
+  intcore = 0;
+  outframe = NULL;
+  active = false;
+  layer = NULL;
   init(fr);
 }
 
@@ -62,6 +65,7 @@ FilterInstance::~FilterInstance() {
 
 void FilterInstance::init(Filter *fr)
 {
+  func("initializing instance for filter %s",fr->name);
   proto = fr;
   set_name(proto->name);
   active = true;

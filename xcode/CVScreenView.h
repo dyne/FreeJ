@@ -23,7 +23,6 @@
 
 
 #import <CVScreen.h>
-#import <CVTexture.h>
 #import <Carbon/Carbon.h>
 
 class CVScreen;

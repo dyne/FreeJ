@@ -72,9 +72,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
     layer = NULL;
     doFilters = true;
     currentFrame = NULL;
-    cvTexture = NULL;
     posterImage = NULL;
-    currentPreviewTexture = NULL;
     doPreview = YES;
     imageParams = [[NSMutableDictionary dictionary] retain];
     

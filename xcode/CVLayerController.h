@@ -36,9 +36,7 @@ class CVCocoaLayer;
         NSRecursiveLock       *lock;
         
         CVPixelBufferRef       currentFrame;    // the current frame from the movie
-        CVTexture              *cvTexture;
         CIImage                *posterImage;
-        CVTexture              *currentPreviewTexture;
         CGLContextObj          glContext;
         // filters for CI rendering
         CIFilter               *colorCorrectionFilter;        // hue saturation brightness control through one CI filter

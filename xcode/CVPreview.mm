@@ -29,7 +29,6 @@
     // Initialization code here.
     lock = [[NSRecursiveLock alloc] init];
     needsReshape = YES;
-    texture = nil;
     [lock retain];
     return self;
 }

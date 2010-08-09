@@ -26,8 +26,6 @@ class CVF0rLayer : public CVLayer
 {
     protected:
         bool _init();
-        void *currentFrame;
-        CVPixelBufferRef pixelBuffer;
 
     public:
 		CVF0rLayer(CVLayerController *controller);

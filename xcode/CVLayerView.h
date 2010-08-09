@@ -21,7 +21,6 @@
 #define __CVLAYERVIEW_H__
 
 #import  <CVLayerController.h>
-#import  <CVtexture.h>
 #import  <CFreeJ.h>
 #include <QuartzCore/QuartzCore.h>
 
