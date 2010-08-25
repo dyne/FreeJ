@@ -125,8 +125,8 @@ void Filter::update(FilterInstance *inst, double time, uint32_t *inframe, uint32
 void Filter::apply_parameters(FilterInstance *inst)
 {
     int idx = 1; // linklist starts from 1
-    parameters.lock();
-    Parameter *param = parameters.begin();
+    inst->parameters.lock();
+    Parameter *param = inst->parameters.begin();
     while (param) {
         if (param->changed) {
             inst->set_parameter(idx);
@@ -135,5 +135,5 @@ void Filter::apply_parameters(FilterInstance *inst)
         param = (Parameter *)param->next;
         idx++;
     }
-    parameters.unlock();
+    inst->parameters.unlock();
 }

@@ -165,7 +165,7 @@
     NSData *data = [[activeFilters selectedTabViewItem] identifier];
     CVFilterInstance *currentFilter = (CVFilterInstance *)[data bytes];
 
-    Parameter *param = currentFilter->proto->parameters.pick([sender tag]);
+    Parameter *param = currentFilter->parameters.pick([sender tag]);
     double value = [sender doubleValue]/1000.0;
     param->multiplier = 1000.0;
     param->set(&value);
@@ -194,7 +194,7 @@
             NSString *filterName = [tabViewItem label];
             Context *ctx = [cFreej getContext];
             ctx->filters.lock();
-            Filter *filt = ctx->filters.search([filterName UTF8String]);
+            FilterInstance *filt = lay->filters.search([filterName UTF8String]);
             NSView *container;
             container = [[NSView alloc] initWithFrame:[activeFilters frame]];
             [tabViewItem setView:container];

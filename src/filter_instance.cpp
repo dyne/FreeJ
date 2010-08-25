@@ -68,6 +68,7 @@ void FilterInstance::init(Filter *fr)
   func("initializing instance for filter %s",fr->name);
   proto = fr;
   set_name(proto->name);
+  fr->init_parameters(parameters);
   active = true;
 }
 
@@ -82,7 +83,7 @@ uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
 
 bool FilterInstance::set_parameter(int idx) {
   Parameter *param;
-  param = (Parameter*)proto->parameters[idx];
+  param = (Parameter*)parameters[idx];
 
   if( ! param) {
     error("parameter [%u] not found in filter %s", idx, proto->name );
@@ -104,7 +105,7 @@ bool FilterInstance::set_parameter(int idx) {
 
 bool FilterInstance::get_parameter(int idx) {
   Parameter *param;
-  param = (Parameter*)proto->parameters[idx];
+  param = (Parameter*)parameters[idx];
 
   if( ! param) {
     error("parameter %s not found in filter %s", param->name, proto->name );

@@ -60,7 +60,7 @@ class Freeframe: public Filter {
  protected:
   void destruct(FilterInstance *inst);
   void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
-  
+  void init_parameters(Linklist<Parameter> &parameters);
   // Interface function pointers.
   plugMainType *plugmain;
 

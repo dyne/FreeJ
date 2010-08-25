@@ -228,28 +228,30 @@ int Freior::open(char *file) {
   f0r_init();
   
   set_name((char*)info.name);
- 
-  // Get the list of params.
-  param_infos.resize(info.num_params);
-  for (int i = 0; i < info.num_params; ++i) {
-      
-      (f0r_get_param_info)(&param_infos[i], i);
-      
-      Parameter *param = new Parameter((Parameter::Type)param_infos[i].type);
-      snprintf(param->name, 255, "%s", param_infos[i].name);
-      func("registering parameter %s for filter %s\n", param->name, info.name);
-      
-      snprintf(param->description, 512, "%s", param_infos[i].explanation);
-      param->filter_set_f = set_frei0r_parameter;
-      param->filter_get_f = get_frei0r_parameter;
-      parameters.append(param);
-  }
   
   if(get_debug()>2)
       print_info();
   
   return 1;
 
+}
+
+void Freior::init_parameters(Linklist<Parameter> &parameters) {
+	// Get the list of params.
+	param_infos.resize(info.num_params);
+	for (int i = 0; i < info.num_params; ++i) {
+		
+		(f0r_get_param_info)(&param_infos[i], i);
+		
+		Parameter *param = new Parameter((Parameter::Type)param_infos[i].type);
+		snprintf(param->name, 255, "%s", param_infos[i].name);
+		func("registering parameter %s for filter %s\n", param->name, info.name);
+		
+		snprintf(param->description, 512, "%s", param_infos[i].explanation);
+		param->filter_set_f = set_frei0r_parameter;
+		param->filter_get_f = get_frei0r_parameter;
+		parameters.append(param);
+	}
 }
 
 void Freior::print_info() {

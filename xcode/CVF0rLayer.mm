@@ -138,7 +138,7 @@ bool CVF0rLayer::open(const char *file) {
             generator = NULL;
             return false;
         }
-        parameters = &proto->parameters;
+        parameters = &generator->parameters;
         
         Parameter *p = (Parameter*)parameters->begin();
         while(p) {
@@ -163,7 +163,7 @@ bool CVF0rLayer::open(const char *file) {
             return false;
         }
         // todo: parameters in freeframe
-        parameters = &proto->parameters;
+        parameters = &generator->parameters;
         Parameter *p = (Parameter*)parameters->begin();
         while(p) {
             p->layer_set_f = set_freeframe_layer_parameter;

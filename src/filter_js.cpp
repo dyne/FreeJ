@@ -129,12 +129,12 @@ JS(filter_set_parameter) {
   if(JSVAL_IS_DOUBLE(argv[0])) {
     
     double *argidx = JSVAL_TO_DOUBLE(argv[0]);
-    param = (Parameter*) filter_instance->proto->parameters.pick((int)*argidx);
+    param = (Parameter*) filter_instance->parameters.pick((int)*argidx);
     
   } else { // get it by the param name
     
     name = js_get_string(argv[0]);
-    param = (Parameter*) filter_instance->proto->parameters.search(name, &idx);
+    param = (Parameter*) filter_instance->parameters.search(name, &idx);
     
   }
   
@@ -217,7 +217,7 @@ JSP(filter_list_parameters) {
   }
 
   // take the prototype (descriptive) and create an array
-  Parameter *parm = (Parameter *)filter_instance->proto->parameters.begin();
+  Parameter *parm = (Parameter *)filter_instance->parameters.begin();
   int c = 0;
   while(parm) {
     otmp = JS_NewObject(cx, &parameter_class, NULL, obj);

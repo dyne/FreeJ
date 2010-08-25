@@ -27,7 +27,6 @@
 #include "CVFilterInstance.h"
 #include <linklist.h>
 #include <layer.h>
-#import "CVTexture.h"
 
 #ifdef WITH_COCOA
 
@@ -91,9 +90,9 @@ static void setParameter(FilterInstance *filt, Parameter *param, int idx) {
     CVFilter *filter = (CVFilter *)filt->proto;
     CVFilterInstance *instance = (CVFilterInstance *)filt;
     CIFilter * ciFilter = instance->get_filter();
-    filter->parameters.lock();
+    filt->parameters.lock();
     if (strcmp(param->name, "CenterX") == 0) {
-        Parameter *centerY = filter->parameters.begin();
+        Parameter *centerY = filt->parameters.begin();
         while (centerY && strcmp(centerY->name, "CenterY") != 0) {
             centerY = (Parameter *)centerY->next;
         }
@@ -105,7 +104,7 @@ static void setParameter(FilterInstance *filt, Parameter *param, int idx) {
             error("Can't find 'CenterY' param for filter %s\n", filter->name);
         }
     } else if (strcmp(param->name, "CenterY") == 0) {
-        Parameter *centerX = filter->parameters.begin();
+        Parameter *centerX = filt->parameters.begin();
         while (centerX && strcmp(centerX->name, "CenterX") != 0) {
             centerX = (Parameter *)centerX->next;
         }
@@ -119,7 +118,7 @@ static void setParameter(FilterInstance *filt, Parameter *param, int idx) {
         [ciFilter setValue:[NSNumber numberWithDouble:*(double *)param->value]
                     forKey:[NSString stringWithUTF8String:param->name]];        
     }
-    filter->parameters.unlock();
+    filt->parameters.unlock();
 }
 
 void CVFilter::listFilters(Linklist<Filter> &outputList) {
@@ -167,9 +166,17 @@ int CVFilter::open(char *name)
             opened = true;
         }
     }
-    if (opened && desc) {
-        // Get the list of params.
-        for (i = 0; i < desc->nParams; i++) {
+    if (opened && desc)
+        return 1;
+    //[ciFilter setName:[[sender selectedItem] title]];
+    return 0;
+}
+
+void CVFilter::init_parameters(Linklist<Parameter> &parameters)
+{
+	if (opened && desc) {
+		// Get the list of params.
+        for (int i = 0; i < desc->nParams; i++) {
             Parameter *param = new Parameter(Parameter::NUMBER);
             snprintf(param->name, 255, "%s", desc->params[i].label);
             func("registering parameter %s for filter %s\n", param->name, name);
@@ -180,11 +187,8 @@ int CVFilter::open(char *name)
             *(double *)param->min_value = desc->params[i].min;
             *(double *)param->max_value = desc->params[i].max;
             parameters.append(param);
-        }
-        return 1;
-    }
-    //[ciFilter setName:[[sender selectedItem] title]];
-    return 0;
+        }		
+	}
 }
 
 bool CVFilter::apply(Layer *layer, FilterInstance *instance)

@@ -23,14 +23,16 @@ CVLayer::CVLayer() : CVCocoaLayer(this), Layer()
 {
     type = Layer::GL_COCOA;
     buffer = NULL;
-	frame = NULL;	
+	frame = NULL;
+	pixelBuffer = NULL;
 }
 
 CVLayer::CVLayer(CVLayerController *vin) : Layer(), CVCocoaLayer(this, vin)
 {
     type = Layer::GL_COCOA;
     buffer = NULL;
-	frame = NULL;	
+	frame = NULL;
+	pixelBuffer = NULL;
 	set_name([input name]);
     [input setLayer:this];
 }
@@ -146,8 +148,11 @@ void *CVLayer::do_filters(void *buf) {
 		// the storage from the underlying CVLayerController.
 		// Note that the controller could reuse the buffer to render
 		// next frame and we need to make a copy here.
+		// TODO - we really need an internal buffer pool to keep track
+		//        of referenced video-buffers provided by the layers
 		if (!frame)
 			frame = malloc(geo.bytesize);
+		// XXX - remove this copy as soon as we have a proper video-buffer pool
 		memcpy(frame, buf, geo.bytesize);
 		buf = frame;
 	}

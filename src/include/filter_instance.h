@@ -59,7 +59,8 @@ class FilterInstance : public Entry {
     
   uint32_t *outframe;
 
-    
+  Linklist<Parameter> parameters;
+
  protected:
   void set_layer(Layer *lay);
 

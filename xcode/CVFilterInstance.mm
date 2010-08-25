@@ -58,7 +58,7 @@ void CVFilterInstance::init(Filter *fr)
     ciFilter = [[CIFilter filterWithName:[NSString stringWithFormat:@"CI%s", fr->name]] retain];
     [ciFilter setDefaults];
     if (fr->type() == Filter::COREIMAGE) {
-        Parameter *param = fr->parameters.begin();
+        Parameter *param = parameters.begin();
         while (param) {
             param->set(param->min_value);
             param = (Parameter *)param->next;

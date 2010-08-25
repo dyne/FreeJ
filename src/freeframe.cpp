@@ -61,8 +61,6 @@ Freeframe::Freeframe()
   if(plugmain(FF_INITIALISE, NULL, 0).ivalue == FF_FAIL)
     error("cannot initialise freeframe plugin %s",name);
 
-  // TODO freeframe parameters
-
   if(get_debug()>2)
     print_info();
 
@@ -72,6 +70,11 @@ Freeframe::~Freeframe() {
 
   if(handle)
       dlclose(handle);
+
+}
+
+void Freeframe::init_parameters(Linklist<Parameter> &parameters) {
+	// TODO freeframe parameters
 
 }
 

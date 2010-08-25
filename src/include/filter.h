@@ -70,21 +70,11 @@ class Filter : public Entry {
   bool active;
   bool inuse;
 
-    /*
-#ifdef WITH_FREI0R
-  Freior *freior;
-#endif
-#ifdef WITH_COCOA
-  CVFilter *cvfilter;
-#endif
-  Freeframe *freeframe;
-  */
-  Linklist<Parameter> parameters;
-
  protected:
   virtual void destruct(FilterInstance *inst);
   virtual void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
   virtual void apply_parameters(FilterInstance *inst);
+  virtual void init_parameters(Linklist<Parameter> &parameters)=0;
   int bytesize;
 
 };

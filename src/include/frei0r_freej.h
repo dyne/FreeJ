@@ -74,8 +74,8 @@ class Freior: public Filter {
   void (*f0r_update2)(f0r_instance_t instance, double time,
                       const uint32_t* inframe1, const uint32_t* inframe2,
 		      const uint32_t* inframe3, uint32_t* outframe);
-    
-    
+  
+  void init_parameters(Linklist<Parameter> &parameters);  
   private:
     
     // dlopen handle
