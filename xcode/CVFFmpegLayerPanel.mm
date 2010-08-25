@@ -58,8 +58,10 @@
 
 - (IBAction)btnLoad:(id)sender
 {
-    [URL setString:[streamURL stringValue]];
-    [[NSApplication sharedApplication] endSheet:self returnCode:NSOKButton];
+	if (streamURL && [[streamURL stringValue] length]) {
+		[URL setString:[streamURL stringValue]];
+		[[NSApplication sharedApplication] endSheet:self returnCode:NSOKButton];
+	}
 }
 
 - (IBAction)btnCancel:(id)sender
@@ -85,10 +87,9 @@
         return;
     } // end if     
 
-    NSString * tvarFilename = [panel filename];
-    func("openFile filename = %@",tvarFilename);
-    
-    if (tvarFilename) {
+    NSString *tvarFilename = [panel filename];    
+    if (tvarFilename && [tvarFilename length]) {
+		func("openFile filename = %@",tvarFilename);
 	    [streamURL setStringValue:[NSString stringWithString:tvarFilename]];
     }
 }
