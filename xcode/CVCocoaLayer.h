@@ -46,7 +46,6 @@ public:
     char *fjName();
 
     Context *context() { return freej; }; 
-    virtual CVPixelBufferRef currentFrame();
     NSDictionary *imageParams();
 	int width();
 	int height();

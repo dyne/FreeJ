@@ -66,15 +66,6 @@ CVCocoaLayer::deactivate()
     }
 }
 
-// accessor to get a texture from the CVLayerController class
-CVPixelBufferRef
-CVCocoaLayer::currentFrame()
-{
-    if (input)
-        return [input currentFrame];
-    return NULL;
-}
-
 bool CVCocoaLayer::isActive()
 {
     if (layer)
