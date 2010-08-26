@@ -69,7 +69,7 @@ int console_param_selection(Context *env, char *cmd) {
   if(filt) { ///////////////////////// parameters for filter
 
     // find the parameter
-    param = (Parameter*)filt->proto->parameters.search(cmd, &idx);
+    param = (Parameter*)filt->parameters.search(cmd, &idx);
     if( ! param) {
       error("parameter %s not found in filter %s", cmd, filt->proto->name);
       return 0;
@@ -125,7 +125,7 @@ int console_param_selection(Context *env, char *cmd) {
     (FilterInstance*)lay->filters.selected();
 
   Linklist<Parameter> *parameters;
-  if(filt) parameters = &filt->proto->parameters;
+  if(filt) parameters = &filt->parameters;
   else     parameters = lay->parameters;
 
   if(!parameters) return 0;
