@@ -26,7 +26,6 @@ audio = new AudioJack("alsaplayer", 2048, 44100);
 geo = new GeometryLayer();
 geo.activate(true);
 geo.start();
-geo.set_fps();
 add_layer(geo);
 
 kbd = new KeyboardController();

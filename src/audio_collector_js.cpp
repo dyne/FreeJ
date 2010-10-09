@@ -115,7 +115,7 @@ JS(js_audio_jack_add_output) {
 }
 
 JS(js_audio_jack_get_harmonic) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+//  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   char excp_msg[MAX_ERR_MSG + 1];
   float harmonic;
 
@@ -175,7 +175,7 @@ JS(js_audio_jack_add_layer) {
 }
 
 JS(js_audio_jack_fft) {
-  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
+//  func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   char excp_msg[MAX_ERR_MSG + 1];
 
   AudioCollector *audio = (AudioCollector*)JS_GetPrivate(cx, obj);

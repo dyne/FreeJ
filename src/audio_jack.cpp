@@ -62,11 +62,21 @@ bool JackClient::Attach(const std::string &ClientName)
 {
 	if (m_Attached) return true;
 
-	if (!(m_Client = jack_client_new(ClientName.c_str())))
-	{
-	  error("jack server not running?");
-	  return false;
-	}
+/* jack_client_new is now deprecated (Oct 2010)
+   m_Client = jack_client_new(ClientName.c_str());
+   
+   if (!m_Client)
+   {
+   error("jack server not running? client_new returns %p", m_Client);
+   return false;
+   } */
+        m_Client = 
+            jack_client_open(ClientName.c_str(),
+                             (jack_options_t) (JackNullOption | JackNoStartServer), NULL);
+        if (!m_Client) {
+            error("jack server not running?", m_Client);
+            return false;
+        }
 
 	jack_set_process_callback(m_Client, JackClient::Process, this);
 	jack_set_sample_rate_callback (m_Client, JackClient::OnSRateChange, 0);
