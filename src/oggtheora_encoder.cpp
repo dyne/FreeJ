@@ -191,7 +191,6 @@ int OggTheoraEncoder::encode_video( int end_of_stream) {
   yuv_buffer          yuv;
   
   /* take picture and convert it to yuv420 */
-  if (!env) warning("OggTheoraEncoder::encode_video called with NULL environment");
 
   // picture was feeded in the right format by feed_video
   

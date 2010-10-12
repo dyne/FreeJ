@@ -106,8 +106,6 @@ class VideoEncoder: public Entry, public JSyncThread {
 
   ringbuffer_t *ringbuffer; ///< FIFO ringbuffer pipe from Jack
 
-  Context *env;
-
   FPS *fps;
 
   shout_t *ice;

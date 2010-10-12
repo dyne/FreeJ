@@ -50,6 +50,7 @@ JSyncThread::~JSyncThread() {
 int JSyncThread::start() {
   if (_running)
   	return EBUSY;
+  else _running = true;
   return pthread_create(&_thread, &_attr, &JSyncThread::_run, this);
 }
 

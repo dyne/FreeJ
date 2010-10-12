@@ -40,7 +40,6 @@ ViewPort::ViewPort()
   opengl = false;
 
   changeres       = false;
-  deleted = false;
 
   jsclass = NULL;
   jsobj = NULL;
@@ -56,23 +55,20 @@ ViewPort::ViewPort()
 
 ViewPort::~ViewPort() {
 
-  if(deleted) {
-    warning("double deletion of Screen %s", name);
-    return;
-  }
-
   func("screen %s deleting %u layers", name, layers.len() );
   Layer *lay;
   lay = layers.begin();
   while(lay) {
-    lay->rem();
-    // deleting layers crashes
-    //    delete(lay);
-    // XXX - you don't create layers... so you don't have to delete them as well!!!
-    //       symmetry is of primary importance and we should care about that.
-    //       layers should be freed by who created them. Perhaps we could extend 
-    //       the Layer api to allow notifications when a layer is removed from a screen
-    lay = layers.begin();
+      lay->stop();
+      lay->lock();
+      lay->rem();
+      // deleting layers crashes
+      //    delete(lay);
+      // XXX - you don't create layers... so you don't have to delete them as well!!!
+      //       symmetry is of primary importance and we should care about that.
+      //       layers should be freed by who created them. Perhaps we could extend 
+      //       the Layer api to allow notifications when a layer is removed from a screen
+      lay = layers.begin();
   }
 
   if(audio) ringbuffer_free(audio);
@@ -87,7 +83,6 @@ ViewPort::~ViewPort() {
     enc = encoders.begin();
   }
 
-  deleted = false;
 }
 
 bool ViewPort::init(int w, int h, int bpp) {

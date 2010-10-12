@@ -467,14 +467,16 @@ int Context::reset() {
   func("deleting %u screens", screens.len() );
   ViewPort *scr = screens.begin();
   while(scr) {
-    if (scr->indestructible) {
-      scr->reset();
-      scr = (ViewPort *)scr->next;
-    } else {
-      scr->rem();
-      delete(scr);
-      scr = screens.begin();
-    }
+      scr->lock();
+      if (scr->indestructible) {
+          scr->reset();
+          scr->unlock();
+          scr = (ViewPort *)scr->next;
+      } else {
+          scr->rem();
+          delete(scr);
+          scr = screens.begin();
+      }
   }
     
   if (js)

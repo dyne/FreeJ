@@ -668,8 +668,8 @@ int VideoLayer::decode_video_packet(int *got_picture) {
 			ftype = 'I';
 		else
 			ftype = 'P';
-		func("frame_type=%c clock=%0.3f pts=%0.3f",
-		     ftype, get_master_clock(), pts1);
+/*		func("frame_type=%c clock=%0.3f pts=%0.3f",
+                ftype, get_master_clock(), pts1); */
 	}
 	return lien;
 }

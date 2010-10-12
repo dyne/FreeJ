@@ -153,7 +153,6 @@ class ViewPort : public Entry {
   // opengl special blit
   bool opengl;
 
-  bool deleted;
   bool indestructible;
  protected:
   virtual bool _init() = 0; ///< implemented initialization

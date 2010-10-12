@@ -77,8 +77,6 @@ inline void ccvt_yuyv_420p(int width, int height,
 VideoEncoder::VideoEncoder()
   : Entry(), JSyncThread() {
 
-  env = NULL;	
-
   initialized = false;
 
   use_audio = false;
