@@ -20,7 +20,9 @@
 #define __avcodec_h__
 
 #include <config.h>
+#include <inttypes.h>
 
+#define UINT64_C uint64_t
 extern "C" {
 #ifdef HAVE_LIBAVCODEC_AVCODEC_H
 #   include <libavcodec/avcodec.h>
