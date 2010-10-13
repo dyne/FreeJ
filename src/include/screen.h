@@ -125,7 +125,9 @@ class ViewPort : public Entry {
 
   Linklist<VideoEncoder> encoders; ///< linked list of registered encoders
 
+#ifdef WITH_GD
   void save_frame(char *file); ///< save a screenshot of the current frame into file
+#endif
 
   void handle_resize();
 
