@@ -769,19 +769,26 @@ AM_CONDITIONAL([BUILD_JAVASCRIPT], [test x$have_mozjs = xno])
 dnl ==============================================================
 dnl unicap lib
 dnl ==============================================================
-PKG_CHECK_MODULES(UNICAP, libunicap, have_unicap=yes, have_unicap=no)
-if test x$have_unicap = xyes; then
-   AC_DEFINE(WITH_UNICAP,1,[Define if to link libunicap for camera capture])
-fi
+AC_ARG_ENABLE(unicap,
+    AS_HELP_STRING([--enable-unicap],[enable use of unicap library for video capture]),
+ [
+    PKG_CHECK_MODULES(UNICAP, libunicap, have_unicap=yes, have_unicap=no)
+    if test x$have_unicap = xyes; then
+    AC_DEFINE(WITH_UNICAP,1,[Define if to link libunicap for camera capture])
+    fi
+ ])
 
 dnl ==============================================================
 dnl opencv lib
 dnl ==============================================================
-PKG_CHECK_MODULES(OPENCV, opencv, have_opencv=yes, have_opencv=no)
-if test x$have_opencv = xyes; then
-   AC_DEFINE(WITH_OPENCV,1,[Define if to link opencv framework])
-fi
-
+AC_ARG_ENABLE(opencv,
+    AS_HELP_STRING([--enable-opencv],[enable use of opencv library for video capture]),
+ [
+    PKG_CHECK_MODULES(OPENCV, opencv, have_opencv=yes, have_opencv=no)
+    if test x$have_opencv = xyes; then
+    AC_DEFINE(WITH_OPENCV,1,[Define if to link opencv framework])
+    fi
+ ])
 
 dnl ==============================================================
 dnl SDL_gfx
