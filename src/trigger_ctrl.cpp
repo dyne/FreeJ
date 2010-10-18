@@ -69,7 +69,7 @@ int TriggerController::poll() {
       listener = (ControllerListener *)listener->next;
     }
   }
-  return 1;
+  return dispatch();
 }
 
 int TriggerController::dispatch() {
