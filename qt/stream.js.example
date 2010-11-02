@@ -1,0 +1,29 @@
+// Audio input is taken via Jack from other applications running
+
+//                    port name     buffer size  samlerate
+//audio = new AudioJack("alsaplayer", 2048,        44100);
+// tweak the values below accordingly, see Jack documentation
+
+// Create a Video Encoder object
+// V=video A=audio         V quality  V bitrate  A quality  A bitrate
+encoder = new VideoEncoder(3,        240000,     0,         10000);
+
+// Add the audio channel in the video encoded
+//encoder.add_audio(audio);
+
+// Configure the encoder to stream over an Icecast server
+encoder.stream_host("yoursite.com");
+encoder.stream_port(8000);
+encoder.stream_title("testing new freej");
+encoder.stream_username("username");
+encoder.stream_password("password");
+encoder.stream_mountpoint("filename.ogg");
+
+// Register the encoder on the running FreeJ engine
+register_encoder(encoder);
+
+// Start a network stream
+encoder.start_stream();
+
+// Record the stream into a local file
+//encoder.start_filesave('Video/filename.ogg');
