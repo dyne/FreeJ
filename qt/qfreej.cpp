@@ -62,7 +62,7 @@ void Qfreej::init()
     connect(myTabBar, SIGNAL(tabMoved(int, int)), tabWidget, SLOT(moveLayer(int, int)));
 
     startstate = true;
-    fps = 25;                   //fps par défaut
+    fps = 25;                   //fps par dÃ©faut
     screen = Factory<ViewPort>::get_instance( "Screen", "sdl" );
     screen->init(640, 480, 32);
     freej->add_screen(screen);
@@ -150,14 +150,14 @@ void Qfreej::addTextLayer()
         }
         else
         {
-            QMessageBox::information(this, "Layers", "Impossible de créer la TextLayer\n");
+            QMessageBox::information(this, "Layers", "Impossible de crÃ©er la TextLayer\n");
             if (!startstate)
               textLayer->active = false;
         }
     }
     else
     {
-        QMessageBox::information(this, "Layers", "Impossible de créer la TextLayer\n");
+        QMessageBox::information(this, "Layers", "Impossible de crÃ©er la TextLayer\n");
     }
 }
 

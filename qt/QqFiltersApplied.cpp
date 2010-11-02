@@ -167,7 +167,7 @@ void QqFiltersListApplied::dropEvent(QDropEvent * event)
         }
         else
         {
-            cout << "pas de filtre à déplacer ?????" << endl;
+            cout << "pas de filtre Ã  dÃ©placer ?????" << endl;
             draggItemFilter = NULL;
             return;
         }

@@ -20,7 +20,7 @@ public:
 
 public slots:
     void addFilter(QString);
-    void chgParam(double);   // à finir
+    void chgParam(double);   // Ã  finir
 
 private :
     bool isTextLayer;
