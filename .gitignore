@@ -74,3 +74,4 @@ lib/javascript/jsautooplen.h
 lib/javascript/jscpucfg
 lib/javascript/mozilla-config.h
 lib/javascript/unallmakefiles
+m4/*
