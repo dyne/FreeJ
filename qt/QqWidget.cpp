@@ -9,6 +9,7 @@
 #include <QqComboFilter.h>
 #include <QDebug>
 #include <QGridLayout>
+#include <specialeventget.h>
 
 
 using namespace std;
@@ -21,16 +22,18 @@ QqTabWidget::QqTabWidget() : QTabWidget()
 
 QqTabWidget::~QqTabWidget()
 {
-    int idx = this->count();
+    /*
+int idx = this->count();
     while (idx)
     {
         if (QqWidget *widg = qobject_cast<QqWidget *>(this->widget(idx)))
         {
-            qDebug() << "del : " << widg->qLayer->name;
+            qDebug() << "del layer";
             delete (widg->qLayer);
         }
         --idx;
     }
+*/
 }
 
 QTabBar *QqTabWidget::getTabBar()
@@ -52,14 +55,41 @@ void QqTabWidget::closeTab(int idx)
 {
     if (QqWidget *widg = qobject_cast<QqWidget *>(this->widget(idx)))
     {
-        delete (widg->qLayer);
+        widg->close();
     }
     removeTab(idx);
+  }
+
+FakeWindow::FakeWindow(Context *context, Layer *layer, Geometry *geo, QWidget *parent) : QWidget()
+{
+    setParent(parent);
+    qContext = context;
+    qLayer = layer;
+    qTextLayer = NULL;
+    winGeo = new QRect(geo->x, geo->y, (int)geo->w/2, (int)geo->h/2);
+    setGeometry(*winGeo);
+    qDebug() << winGeo->x() << ":" << winGeo->y() << " " << winGeo->width() << ":" << winGeo->height();
+}
+
+FakeWindow::FakeWindow(Context *context, TextLayer *textlayer, Geometry *geo, QWidget *parent) : QWidget()
+{
+    setParent(parent);
+    qContext = context;
+    qTextLayer = textlayer;
+    qLayer = NULL;
+    winGeo = new QRect(geo->x, geo->y, (int)geo->w/2, (int)geo->h/2);
+    setGeometry(*winGeo);
+}
+
+FakeWindow::~FakeWindow()
+{
 }
 
 //Layer
 QqWidget::QqWidget(Context *freej, Layer *lay) : QWidget()
 {
+    ctx = freej;
+    setAttribute(Qt::WA_DeleteOnClose);
     isTextLayer = false;
     layerSet = false;
     newIdx = 0;
@@ -80,16 +110,25 @@ QqWidget::QqWidget(Context *freej, Layer *lay) : QWidget()
     layoutH->addWidget(filter);
 
     layoutH->addWidget(slowButton);
+
+    QPushButton *resizeButton = new QPushButton("resize");              //for tests
+    connect (resizeButton, SIGNAL(clicked()), this, SLOT(chgSize()));   //
+    layoutH->addWidget(resizeButton);
     layoutV->addLayout(layoutH);
 
-    QGridLayout *grid = new QGridLayout();
-    QPushButton *viewPortWindow = new QPushButton("ViewPort");
-    grid->addWidget(viewPortWindow);
-    QPushButton *sizeWindow = new QPushButton(lay->get_filename());
-    sizeWindow->setFixedSize(300, 200);
-    viewPortWindow->setFixedSize(400, 300);
-    grid->addWidget(sizeWindow);
-    layoutV->addLayout(grid);
+    QWidget *bg = new QWidget();
+    bg->setMinimumWidth(640);
+    bg->setMinimumHeight(480);
+    bg->setStyleSheet("QWidget { background-color: black; }");
+    layoutV->addWidget(bg);
+//    SpecialEventGet* eventGet = new SpecialEventGet();    en attente
+//    bg->installEventFilter(eventGet);                     en attente
+
+    FakeWindow *fakeView = new FakeWindow(freej, lay, &freej->screen->geo, bg);   //(freej, lay, &freej->screen->geo);
+    fakeView->setStyleSheet("QWidget { background-color: blue; }");
+    fakeView->raise();
+
+
 
     setLayout(layoutV);
 }
@@ -97,6 +136,8 @@ QqWidget::QqWidget(Context *freej, Layer *lay) : QWidget()
 // TextLayer
 QqWidget::QqWidget(Context *freej, QTextEdit *texto, TextLayer *textLay) : QWidget()
 {
+    ctx = freej;
+    setAttribute(Qt::WA_DeleteOnClose);
     text = texto;
     isTextLayer = false;
     layerSet = false;
@@ -136,6 +177,29 @@ QqWidget::QqWidget(Context *freej, QTextEdit *texto, TextLayer *textLay) : QWidg
 
 QqWidget::~QqWidget()
 {
+    if (isTextLayer && qTextLayer)
+        delete qTextLayer;
+    else if (!isTextLayer && qLayer)
+        delete qLayer;
+}
+
+void QqWidget::chgSize()
+{
+    if (ctx && qLayer)
+    {
+        Geometry geo = qLayer->geo;
+        qDebug() << "X:" << geo.x << " Y:" << geo.y << " W:" << geo.w << " H:" << geo.h << "zx:" << qLayer->zoom_x << " zy:" << qLayer->zoom_y;
+        qLayer->set_zoom(0.5, 0.5);
+        double x, y;
+        x = (double)geo.w * 0.5;
+        y = (double)geo.h * 0.5;
+        double dec_x = -x / 2;
+        double dec_y = -y / 2;
+        qLayer->set_position((int)dec_x, (int)dec_y);
+        ctx->cafudda(0.0);
+        geo = qLayer->geo;
+        qDebug() << "X:" << geo.x << " Y:" << geo.y << " W:" << geo.w << " H:" << geo.h << "zx:" << qLayer->zoom_x << " zy:" << qLayer->zoom_y;
+    }
 }
 
 void QqWidget::changeFontSize(int sizeIdx)

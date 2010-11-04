@@ -8,6 +8,20 @@
 #include <QPushButton>
 #include <context.h>
 
+class FakeWindow : public QWidget
+{
+    Q_OBJECT
+public:
+    FakeWindow(Context *, Layer*, Geometry*, QWidget*);
+    FakeWindow(Context *, TextLayer*, Geometry*, QWidget*);
+    ~FakeWindow();
+private:
+    Context *qContext;
+    Layer *qLayer;
+    TextLayer *qTextLayer;
+    QRect *winGeo;
+};
+
 class QqTabWidget : public QTabWidget
 {
     Q_OBJECT
@@ -43,6 +57,7 @@ public slots:
     void slowDown();
     void modTextLayer();
     void changeFontSize(int);
+    void chgSize();
 
 private:
     int newIdx;
@@ -53,5 +68,6 @@ private:
     QPushButton *textButton;
     QPushButton *slowButton;
     QComboBox *fontSizeBox;
+    Context *ctx;
 };
 #endif // QQWIDGET_H

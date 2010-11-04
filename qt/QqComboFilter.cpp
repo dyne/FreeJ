@@ -39,7 +39,7 @@ QqComboFilter::QqComboFilter(Context *freejQ, Layer *lay) : QWidget()
           delete fr;
         } else { // freior effect found
             // check what kind of plugin is and place it
-            if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
+            if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER && filt.at(i).baseName() != "3dflippo") {
                 filterStrlist << filt.at(i).baseName();
 //                cout << "ajout d'un filtre : " << filt.at(i).baseName().toStdString() << endl;
                 delete fr;
@@ -96,7 +96,7 @@ QqComboFilter::QqComboFilter(Context *freejQ, TextLayer *lay) : QWidget()
           delete fr;
         } else { // freior effect found
             // check what kind of plugin is and place it
-            if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER) {
+            if(fr->info.plugin_type == F0R_PLUGIN_TYPE_FILTER && filt.at(i).baseName() != "3dflippo") {
                 filterStrlist << filt.at(i).baseName();
 //                cout << "ajout d'un filtre : " << filt.at(i).baseName().toStdString() << endl;
                 delete fr;
@@ -164,17 +164,10 @@ void QqComboFilter::addFilter(QString flt)
     FilterInstance *filterI;
     if (isTextLayer)
     {
-        filterI = filt->apply(qLayer);
+        filterI = filt->apply(qTextLayer);
         if( !filterI ) {
             cout << "error applying filter " << flt.toStdString() << " on layer " << qTextLayer->name << endl;
             return;
-        }
-        if (filterI->parameters.len())
-        {
-            for (int i=1; i <= filterI->parameters.len(); ++i)
-            {
-                qDebug() << filterI->parameters[i]->name << " desc : " << filterI->parameters[i]->description;
-            }
         }
     }
     else
@@ -183,30 +176,6 @@ void QqComboFilter::addFilter(QString flt)
         if( !filterI) {
             cout << "error applying filter " << flt.toStdString() << " on layer " << qLayer->name << endl;
             return;
-        }
-        if (filterI->parameters.len())
-        {
-            for (int i=1; i <= filterI->parameters.len(); ++i)
-            {
-                if (filterI->parameters[i]->type == 1)
-                {
-                    qDebug() << "1min : " << *(double *)filterI->parameters[i]->min_value \
-                        << " max : " << *(double *)filterI->parameters[i]->max_value \
-                        << " val : " << *(double *)filterI->parameters[i]->value;
-                }
-                else if (filterI->parameters[i]->type == 2)
-                {
-                    qDebug() << "2min : " << *(int *)filterI->parameters[i]->min_value \
-                        << " max : " << *(int *)filterI->parameters[i]->max_value \
-                        << " val : " << *(int *)filterI->parameters[i]->value;
-                }
-                else if (filterI->parameters[i]->type == 3)
-                {
-                    qDebug() << "3min : " << *(int *)filterI->parameters[i]->min_value \
-                        << " max : " << *(int *)filterI->parameters[i]->max_value \
-                        << " val : " << *(int *)filterI->parameters[i]->value;
-                }
-            }
         }
     }
     QqFilter *filter = new QqFilter(filterI);

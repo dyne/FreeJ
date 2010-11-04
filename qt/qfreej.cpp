@@ -7,23 +7,27 @@
 #include <iostream>
 #include <QList>
 #include <QqWidget.h>
-//#include <plugger.h>
-
 #include <QTimer>
-
+#include <QDebug>
 
 using namespace std;
 
 Qfreej::Qfreej(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::Qfreej)
+    //QMainWindow(parent),//old
+        QWidget(parent)
+    //ui(new Ui::Qfreej)
 {
 
-    ui->setupUi(this);
+    //ui->setupUi(this);
 
     _isPlaying = true;
 
-    QMenu *menuFichier = menuBar()->addMenu("&Fichier");
+    grid = new QGridLayout(this);//new
+
+    QMenuBar *menuBar = new QMenuBar(this);
+    grid->addWidget(menuBar, 0, 0);//new
+    //QMenu *menuFichier = menuBar()->addMenu("&Fichier");//old
+    QMenu *menuFichier = menuBar->addMenu("&Fichier");//new
 
     QAction *actionPen = menuFichier->addAction("&Open");
     poller = new QTimer (this);
@@ -31,7 +35,9 @@ Qfreej::Qfreej(QWidget *parent) :
     connect(actionPen, SIGNAL(triggered()), this, SLOT(addLayer()));
 
     connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
-    connect(ui->streamButton, SIGNAL(clicked()), this, SLOT(startStreaming()));
+
+
+//    connect(ui->streamButton, SIGNAL(clicked()), this, SLOT(startStreaming()));//old
 
     poller->start(10); //start timer to trigger every 10 ms the updateInterface slot
 
@@ -43,7 +49,6 @@ Qfreej::Qfreej(QWidget *parent) :
 
 Qfreej::~Qfreej()
 {
-    delete textLayer;
     delete freej;
 
     poller->stop();
@@ -51,7 +56,15 @@ Qfreej::~Qfreej()
 
 void Qfreej::init()
 {
+    QHBoxLayout *layoutH = new QHBoxLayout();//new
+    grid->addLayout(layoutH, 1, 0);//new
+    QPushButton *streamButton = new QPushButton("stream", this);//new
+    layoutH->addWidget(streamButton);//new
+    connect(streamButton, SIGNAL(clicked()), this, SLOT(startStreaming()));//new
+
     tabWidget = new QqTabWidget;
+    grid->addWidget(tabWidget, 2, 0);//new
+    setLayout(grid);//new
     tabWidget->setMovable(true);
     tabWidget->setAttribute(Qt::WA_DeleteOnClose);
     tabWidget->setTabsClosable(true);
@@ -94,7 +107,7 @@ void Qfreej::addLayer()
     strcpy (temp,fich.data());
 
     Layer *lay = NULL;
-    lay = freej->open(temp); // hey, this already init and open the layer !!
+    lay = freej->open(temp, 0, 0); // hey, this already init and open the layer !!
 
     if(lay)  {
         if( screen->add_layer(lay) ) {
@@ -132,7 +145,7 @@ void Qfreej::addLayer()
 
 void Qfreej::addTextLayer()
 {
-    textLayer = (TextLayer *)freej->open((char *)"textouille.txt");
+    textLayer = (TextLayer *)freej->open((char *)"textouille.txt", 0, 0);
     if (textLayer)
     {
         textLayer->init(640, 100, 32);
@@ -146,7 +159,7 @@ void Qfreej::addTextLayer()
             QTextEdit *texto = new QTextEdit;
             QqWidget *aWidget = new QqWidget(freej, texto, textLayer);
             tabWidget->addTab(aWidget, "text zone");
-            ui->mdiArea->addSubWindow(tabWidget);
+           // ui->mdiArea->addSubWindow(tabWidget);//old
         }
         else
         {
@@ -176,6 +189,7 @@ Context *Qfreej::getContext()
     return (freej);
 }
 
+/*old
 void Qfreej::changeEvent(QEvent *e)
 {
     QMainWindow::changeEvent(e);
@@ -187,3 +201,4 @@ void Qfreej::changeEvent(QEvent *e)
         break;
     }
 }
+*/

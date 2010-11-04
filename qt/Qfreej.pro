@@ -12,12 +12,14 @@ SOURCES += main.cpp \
     QqComboBlit.cpp \
     QqWidget.cpp \
     QqComboFilter.cpp \
-    QqFiltersApplied.cpp
+    QqFiltersApplied.cpp \
+    specialeventget.cpp
     HEADERS += qfreej.h \
     QqComboBlit.h \
     QqWidget.h \
     QqComboFilter.h \
-    QqFiltersApplied.h
+    QqFiltersApplied.h \
+    specialeventget.h
 FORMS += qfreej.ui
 LIBS += -lfreej
 INCLUDEPATH += ../src/include \

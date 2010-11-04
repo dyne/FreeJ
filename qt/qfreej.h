@@ -8,6 +8,7 @@
 #include <linklist.h>
 #include <QMdiArea>
 #include <QqWidget.h>
+#include <QLayout>
 
 class QTimer;
 
@@ -15,7 +16,7 @@ namespace Ui {
     class Qfreej;
 }
 
-class Qfreej : public QMainWindow {
+class Qfreej : public QWidget/*QMainWindow*/ {
     Q_OBJECT
 public:
     Qfreej(QWidget *parent = 0);
@@ -35,10 +36,10 @@ public slots:
 
 
 protected:
-    void changeEvent(QEvent *e);
+    //void changeEvent(QEvent *e);//old
 
 private:
-    Ui::Qfreej *ui;
+    //Ui::Qfreej *ui;//old
     void init();
     Context *freej;
     ViewPort *screen;
@@ -48,6 +49,7 @@ private:
     QTabBar *myTabBar;
     int number;
     TextLayer *textLayer;
+    QGridLayout *grid;//new
 };
 
 

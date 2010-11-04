@@ -52,7 +52,7 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
     {
         setWindowTitle(filterI->name);
         layoutH = new QHBoxLayout;
-        if (filterI->parameters[i]->type == 1)
+        if (filterI->parameters[i]->type == Parameter::NUMBER)
         {
             name = new QLabel(filterI->parameters[i]->name);
             layoutH->addWidget(name);

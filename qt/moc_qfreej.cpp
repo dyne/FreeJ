@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'qfreej.h'
 **
-** Created: Tue Nov 2 14:22:56 2010
+** Created: Thu Nov 4 23:18:11 2010
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -45,7 +45,7 @@ static const char qt_meta_stringdata_Qfreej[] = {
 };
 
 const QMetaObject Qfreej::staticMetaObject = {
-    { &QMainWindow::staticMetaObject, qt_meta_stringdata_Qfreej,
+    { &QWidget::staticMetaObject, qt_meta_stringdata_Qfreej,
       qt_meta_data_Qfreej, 0 }
 };
 
@@ -63,12 +63,12 @@ void *Qfreej::qt_metacast(const char *_clname)
     if (!_clname) return 0;
     if (!strcmp(_clname, qt_meta_stringdata_Qfreej))
         return static_cast<void*>(const_cast< Qfreej*>(this));
-    return QMainWindow::qt_metacast(_clname);
+    return QWidget::qt_metacast(_clname);
 }
 
 int Qfreej::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
-    _id = QMainWindow::qt_metacall(_c, _id, _a);
+    _id = QWidget::qt_metacall(_c, _id, _a);
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
