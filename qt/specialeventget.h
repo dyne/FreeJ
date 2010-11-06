@@ -3,14 +3,18 @@
 
 #include <QObject>
 #include <QPoint>
+#include <QSize>
 
 class SpecialEventGet : public QObject
 {
+public:
+    SpecialEventGet();
 protected:
     bool eventFilter(QObject*, QEvent*);
+private:
     Qt::MouseButton btn;
-    QPoint offset;
-
+    QPoint offset, shift;
+    QSize m_OldSize;
 };
 
 #endif // SPECIALEVENTGET_H

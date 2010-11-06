@@ -10,16 +10,20 @@
 
 class FakeWindow : public QWidget
 {
-    Q_OBJECT
 public:
     FakeWindow(Context *, Layer*, Geometry*, QWidget*);
     FakeWindow(Context *, TextLayer*, Geometry*, QWidget*);
     ~FakeWindow();
+    Context *getContext();
+    Layer *getLayer();
+    TextLayer *getTextLayer();
+    QRect* getWinGeo();
+
 private:
-    Context *qContext;
-    Layer *qLayer;
     TextLayer *qTextLayer;
     QRect *winGeo;
+    Context *qContext;
+    Layer *qLayer;
 };
 
 class QqTabWidget : public QTabWidget
@@ -41,11 +45,11 @@ class QqWidget : public QWidget
     Q_OBJECT
 public:
     QqWidget();
-    QqWidget(Context *, QTextEdit *, TextLayer *);
+    QqWidget(Context *, TextLayer *);
     QqWidget(Context *, Layer *);
     ~QqWidget();
     void addLayer(Layer *);
-    void addTextLayer(TextLayer *);
+    void addLayer(TextLayer *);
 
     int slowFps;
     int normalFps;
@@ -57,7 +61,6 @@ public slots:
     void slowDown();
     void modTextLayer();
     void changeFontSize(int);
-    void chgSize();
 
 private:
     int newIdx;

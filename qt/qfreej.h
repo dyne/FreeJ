@@ -16,7 +16,7 @@ namespace Ui {
     class Qfreej;
 }
 
-class Qfreej : public QWidget/*QMainWindow*/ {
+class Qfreej : public QWidget {
     Q_OBJECT
 public:
     Qfreej(QWidget *parent = 0);
@@ -32,14 +32,8 @@ public slots:
     void addTextLayer();
     void startStreaming();
 
-//    friend class QqLayer; non necessaire semble-t-il
-
-
-protected:
-    //void changeEvent(QEvent *e);//old
 
 private:
-    //Ui::Qfreej *ui;//old
     void init();
     Context *freej;
     ViewPort *screen;
@@ -49,7 +43,7 @@ private:
     QTabBar *myTabBar;
     int number;
     TextLayer *textLayer;
-    QGridLayout *grid;//new
+    QGridLayout *grid;
 };
 
 

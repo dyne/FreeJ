@@ -13,21 +13,16 @@
 using namespace std;
 
 Qfreej::Qfreej(QWidget *parent) :
-    //QMainWindow(parent),//old
         QWidget(parent)
-    //ui(new Ui::Qfreej)
 {
-
-    //ui->setupUi(this);
 
     _isPlaying = true;
 
-    grid = new QGridLayout(this);//new
+    grid = new QGridLayout(this);
 
     QMenuBar *menuBar = new QMenuBar(this);
-    grid->addWidget(menuBar, 0, 0);//new
-    //QMenu *menuFichier = menuBar()->addMenu("&Fichier");//old
-    QMenu *menuFichier = menuBar->addMenu("&Fichier");//new
+    grid->addWidget(menuBar, 0, 0);
+    QMenu *menuFichier = menuBar->addMenu("&Fichier");
 
     QAction *actionPen = menuFichier->addAction("&Open");
     poller = new QTimer (this);
@@ -35,9 +30,6 @@ Qfreej::Qfreej(QWidget *parent) :
     connect(actionPen, SIGNAL(triggered()), this, SLOT(addLayer()));
 
     connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
-
-
-//    connect(ui->streamButton, SIGNAL(clicked()), this, SLOT(startStreaming()));//old
 
     poller->start(10); //start timer to trigger every 10 ms the updateInterface slot
 
@@ -156,10 +148,8 @@ void Qfreej::addTextLayer()
             textLayer->start();
             textLayer->fps.set(fps);
 
-            QTextEdit *texto = new QTextEdit;
-            QqWidget *aWidget = new QqWidget(freej, texto, textLayer);
+            QqWidget *aWidget = new QqWidget(freej, textLayer);
             tabWidget->addTab(aWidget, "text zone");
-           // ui->mdiArea->addSubWindow(tabWidget);//old
         }
         else
         {

@@ -35,6 +35,7 @@ QqFilter::QqFilter(FilterInstance *filterI) : QListWidgetItem()
     setText(filterI->name);
     filterIn = filterI;
     filterParam = new QqFilterParam(filterI);
+    //voir à ajouter le nom du fichier au titre de la fenêtre
 }
 
 QqFilter::~QqFilter()

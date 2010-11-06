@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'QqFiltersApplied.h'
 **
-** Created: Tue Nov 2 14:23:00 2010
+** Created: Sat Nov 6 00:03:59 2010
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
 **
 ** WARNING! All changes made in this file will be lost!
