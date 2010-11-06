@@ -6,6 +6,7 @@
 #include <QAction>
 #include <QLabel>
 #include <QDebug>
+#include <QString>
 
 using namespace std;
 
@@ -49,9 +50,23 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
     QVBoxLayout *layoutV = new QVBoxLayout;
     QHBoxLayout *layoutH;
     QLabel *name;
+    Layer* lay = filterI->get_layer();
+    QString layS = lay->get_filename();
+    QString title;
+    title = filterI->name;
+    title.append(" ");
+    if (layS.count() > 1)
+    {
+        title.append(lay->get_filename());
+    }
+    else
+    {
+        title.append("text");
+    }
+    setWindowTitle(title);
+
     for (int i=1; i <= filterI->parameters.len(); ++i)
     {
-        setWindowTitle(filterI->name);
         layoutH = new QHBoxLayout;
         if (filterI->parameters[i]->type == Parameter::NUMBER)
         {

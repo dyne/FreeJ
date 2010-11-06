@@ -205,12 +205,8 @@ QqWidget::QqWidget(Context *freej, TextLayer *textLay) : QWidget()
 
 QqWidget::~QqWidget()
 {
-// voir à enlever tout ça
-
-    if (isTextLayer && qTextLayer)
-        delete qTextLayer;
-    else if (!isTextLayer && qLayer)
-        delete qLayer;
+    if (qTextLayer)
+        qTextLayer->close();
 }
 
 void QqWidget::changeFontSize(int sizeIdx)
