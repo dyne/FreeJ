@@ -137,11 +137,20 @@ void Qfreej::addLayer()
 
 void Qfreej::addTextLayer()
 {
+    QString filename = "textouille.txt";
+    QFile file( filename );
+    if (file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+    }
+    else
+        qDebug() << "Not possible to open or create textouille.txt";
+
     textLayer = (TextLayer *)freej->open((char *)"textouille.txt", 0, 0);
     if (textLayer)
     {
-        textLayer->init(640, 100, 32);
-        textLayer->set_position(0, 380);
+        textLayer->init(440, 50, 32);
+        textLayer->set_position(100, 380);
         textLayer->set_font("sans");
         if( screen->add_layer(textLayer) )
         {
@@ -153,7 +162,7 @@ void Qfreej::addTextLayer()
         }
         else
         {
-            QMessageBox::information(this, "Layers", "Impossible de créer la TextLayer\n");
+            QMessageBox::information(this, "Layers", "Can't create TextLayer\n");
             if (!startstate)
               textLayer->active = false;
         }
