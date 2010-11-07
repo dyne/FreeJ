@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'QqComboBlit.h'
 **
-** Created: Sat Nov 6 00:03:56 2010
+** Created: Sun Nov 7 00:27:45 2010
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
 **
 ** WARNING! All changes made in this file will be lost!

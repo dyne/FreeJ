@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QqWidget.h>
 
+extern QSize viewSize;
+
 SpecialEventGet::SpecialEventGet() : QObject()
 {
     shift.setX(0);
@@ -79,6 +81,8 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             int sizeW = fake->size().width() + evt->pos().x() - offset.x();
             int sizeH = fake->size().height() + evt->pos().y() - offset.y();
             fake->resize(sizeW, sizeH);
+            viewSize.setWidth(sizeW);
+            viewSize.setHeight(sizeH);
             context->screen->resize(sizeW, sizeH);
             offset = evt->pos();
         }
@@ -89,3 +93,5 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
     }
     return true;
 }
+
+

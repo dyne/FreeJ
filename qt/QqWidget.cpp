@@ -12,12 +12,15 @@
 #include <specialeventget.h>
 
 
+extern QSize viewSize;
+
 using namespace std;
 
 QqTabWidget::QqTabWidget() : QTabWidget()
 {
     setToolTip("you can change Layers order by sliding tabs");
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(setSize(int)));
 }
 
 QqTabWidget::~QqTabWidget()
@@ -47,6 +50,14 @@ void QqTabWidget::closeTab(int idx)
     }
     removeTab(idx);
   }
+
+//keeps all fake viewport the same size.
+void QqTabWidget::setSize(int idx)
+{
+    QqWidget* widg = (QqWidget *)widget(idx);
+    FakeWindow* fake = widg->getFake();
+    fake->resize(viewSize);
+}
 
 FakeWindow::FakeWindow(Context *context, Layer *layer, Geometry *geo, QWidget* parent) : QWidget(parent)
 {
@@ -128,11 +139,12 @@ QqWidget::QqWidget(Context *freej, Layer *lay) : QWidget()
     layoutV->addWidget(bg);
 
 
-    FakeWindow *fakeView = new FakeWindow(freej, (Layer *)NULL, &freej->screen->geo, bg);
+    fakeView = new FakeWindow(freej, (Layer *)NULL, &freej->screen->geo, bg);
     fakeView->setStyleSheet("QWidget { background-color: blue; }");
     SpecialEventGet* eventGet = new SpecialEventGet();
     fakeView->installEventFilter(eventGet);
     fakeView->setToolTip("Drag Left button to move Viewport, Drag center to resize");
+
 
     FakeWindow *fakeLay = new FakeWindow(freej, lay, &lay->geo, fakeView);
     fakeLay->setStyleSheet("QWidget { background-color: red; }");
@@ -189,7 +201,7 @@ QqWidget::QqWidget(Context *freej, TextLayer *textLay) : QWidget()
     layoutV->addWidget(bg);
 
 
-    FakeWindow *fakeView = new FakeWindow(freej, (Layer *)NULL, &freej->screen->geo, bg);
+    fakeView = new FakeWindow(freej, (Layer *)NULL, &freej->screen->geo, bg);
     fakeView->setStyleSheet("QWidget { background-color: blue; }");
     SpecialEventGet* eventGet = new SpecialEventGet();
     fakeView->installEventFilter(eventGet);
@@ -207,6 +219,11 @@ QqWidget::~QqWidget()
 {
     if (qTextLayer)
         qTextLayer->close();
+}
+
+FakeWindow* QqWidget::getFake()
+{
+    return(fakeView);
 }
 
 void QqWidget::changeFontSize(int sizeIdx)

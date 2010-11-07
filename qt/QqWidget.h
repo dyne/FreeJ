@@ -24,6 +24,7 @@ private:
     QRect *winGeo;
     Context *qContext;
     Layer *qLayer;
+    FakeWindow* fakeView;
 };
 
 class QqTabWidget : public QTabWidget
@@ -37,6 +38,7 @@ public:
 public slots:
     void moveLayer (int, int);
     void closeTab (int);
+    void setSize(int);
 };
 
 
@@ -50,6 +52,7 @@ public:
     ~QqWidget();
     void addLayer(Layer *);
     void addLayer(TextLayer *);
+    FakeWindow* getFake();
 
     int slowFps;
     int normalFps;
@@ -72,5 +75,6 @@ private:
     QPushButton *slowButton;
     QComboBox *fontSizeBox;
     Context *ctx;
+    FakeWindow* fakeView;
 };
 #endif // QQWIDGET_H
