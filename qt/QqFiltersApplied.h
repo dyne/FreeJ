@@ -5,6 +5,7 @@
 #include <filter.h>
 #include <text_layer.h>
 #include <QKeyEvent>
+#include <QCheckBox>
 
 class QqSlider : public QSlider
 {
@@ -20,6 +21,37 @@ private:
     int paramNumber;
     FilterInstance *filterI;
 };
+
+class QqCheck : public QCheckBox
+{
+    Q_OBJECT
+public:
+    QqCheck(int, FilterInstance *, QWidget *);
+
+public slots:
+    void changeValue(int);
+
+private:
+    int m_paramNumber;
+    FilterInstance *m_filterI;
+};
+
+class QqColor : public QWidget
+{
+    Q_OBJECT
+public:
+    QqColor(int, FilterInstance *, QWidget *);
+
+public slots:
+    void changeRed(int);
+    void changeGreen(int);
+    void changeBlue(int);
+
+private:
+    int m_paramNumber;
+    FilterInstance *m_filterI;
+};
+
 
 class QqFilterParam : public QWidget
 {

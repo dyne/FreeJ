@@ -30,6 +30,69 @@ void QqSlider::changeValue(int value)
     qDebug() << "nbr: " << paramNumber << ": " << nbr;
 }
 
+QqCheck::QqCheck(int idx, FilterInstance *filter, QWidget *parent) : QCheckBox(parent)
+{
+    m_paramNumber = idx;
+    m_filterI = filter;
+    connect(this, SIGNAL(stateChanged(int)), this, SLOT(changeValue(int)));
+}
+
+void QqCheck::changeValue(int state)
+{
+    bool bol;
+    if (state)
+    {
+        bol = true;
+        m_filterI->parameters[m_paramNumber]->set((void *)&bol);
+        qDebug() << "bool: " << m_paramNumber << ": true";
+    }
+    else
+    {
+        bol = false;
+        m_filterI->parameters[m_paramNumber]->set((void *)&bol);
+        qDebug() << "bool: " << m_paramNumber << ": false";
+    }
+}
+
+QqColor::QqColor(int idx, FilterInstance *filter, QWidget *parent) : QWidget(parent)
+{
+    m_paramNumber = idx;
+    m_filterI = filter;
+    QHBoxLayout *layoutH = new QHBoxLayout();
+    QVBoxLayout *layoutV = new QVBoxLayout();
+    QLabel *name = new QLabel(filter->parameters[idx]->name);
+    layoutH->addWidget(name);
+    layoutV->addLayout(layoutH);
+
+
+    QSlider *red = new QSlider(this);
+    connect(red, SIGNAL(sliderMoved(int)), this, SLOT(changeRed(int)));
+}
+
+void QqColor::changeRed(int state)
+{
+    /*bool bol;
+    if (state)
+    {
+        bol = true;
+        m_filterI->parameters[m_paramNumber]->set((void *)&bol);
+        qDebug() << "bool: " << m_paramNumber << ": true";
+    }
+    else
+    {
+        bol = false;
+        m_filterI->parameters[m_paramNumber]->set((void *)&bol);
+        qDebug() << "bool: " << m_paramNumber << ": false";
+    }*/
+}
+
+void QqColor::changeGreen(int state)
+{
+}
+
+void QqColor::changeBlue(int state)
+{
+}
 
 QqFilter::QqFilter(FilterInstance *filterI) : QListWidgetItem()
 {
@@ -80,6 +143,29 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
             layoutV->addLayout(layoutH);
             setLayout(layoutV);
             this->show();
+        }
+        else if (filterI->parameters[i]->type == Parameter::BOOL)
+        {
+            name = new QLabel(filterI->parameters[i]->name);
+            layoutH->addWidget(name);
+            QqCheck *check = new QqCheck(i, filterI, this);
+            check->setChecked(false);
+            layoutH->addWidget(check);
+            layoutV->addLayout(layoutH);
+            setLayout(layoutV);
+            this->show();
+        }
+        else if (filterI->parameters[i]->type == Parameter::COLOR)
+        {
+
+        }
+        else if (filterI->parameters[i]->type == Parameter::POSITION)
+        {
+
+        }
+        else if (filterI->parameters[i]->type == Parameter::STRING)
+        {
+
         }
     }
 }

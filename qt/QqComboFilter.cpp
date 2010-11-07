@@ -20,10 +20,12 @@ QqComboFilter::QqComboFilter(Context *freejQ, Layer *lay) : QWidget()
     qTextLayer = NULL;
     QStringList filterStrlist;
     QDir dirFrei0r = QDir("/usr/lib/frei0r-1");
-    cout << "frei0r number filter : " << dirFrei0r.count() << endl;
+    if (!dirFrei0r.exists())
+        dirFrei0r.setPath("/usr/local/lib/frei0r-1");
     QStringList fileFilter;
     fileFilter << "*.so";
     dirFrei0r.setNameFilters(fileFilter);
+    cout << "frei0r number filter : " << dirFrei0r.count() << endl;
     QFileInfoList filt = dirFrei0r.entryInfoList();
     QByteArray fich;
     Freior *fr;
@@ -79,9 +81,12 @@ QqComboFilter::QqComboFilter(Context *freejQ, TextLayer *lay) : QWidget()
     char temp[256];
 
     QDir dirFrei0r = QDir("/usr/lib/frei0r-1");
+    if (!dirFrei0r.exists())
+        dirFrei0r.setPath("/usr/local/lib/frei0r-1");
     QStringList fileFilter;
     fileFilter << "*.so";
     dirFrei0r.setNameFilters(fileFilter);
+    cout << "frei0r number filter : " << dirFrei0r.count() << endl;
     QFileInfoList filt = dirFrei0r.entryInfoList();
 
     QByteArray fich;

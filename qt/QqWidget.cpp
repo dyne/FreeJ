@@ -218,7 +218,9 @@ QqWidget::QqWidget(Context *freej, TextLayer *textLay) : QWidget()
 QqWidget::~QqWidget()
 {
     if (qTextLayer)
-        qTextLayer->close();
+        delete qTextLayer;
+    else if (qLayer)
+        delete qLayer;
 }
 
 FakeWindow* QqWidget::getFake()

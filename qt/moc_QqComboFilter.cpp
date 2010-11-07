@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'QqComboFilter.h'
 **
-** Created: Sun Nov 7 00:27:47 2010
+** Created: Sun Nov 7 15:03:25 2010
 **      by: The Qt Meta Object Compiler version 62 (Qt 4.7.0)
 **
 ** WARNING! All changes made in this file will be lost!
