@@ -7,6 +7,7 @@
 #include <QDir>
 #include <frei0r_freej.h>
 #include <QDebug>
+#include <QMessageBox>
 
 using namespace std;
 
@@ -22,6 +23,16 @@ QqComboFilter::QqComboFilter(Context *freejQ, Layer *lay) : QWidget()
     QDir dirFrei0r = QDir("/usr/lib/frei0r-1");
     if (!dirFrei0r.exists())
         dirFrei0r.setPath("/usr/local/lib/frei0r-1");
+    else if (!dirFrei0r.exists())
+        dirFrei0r.setPath("/usr/lib64/frei0r-1");
+    else if (!dirFrei0r.exists())
+        dirFrei0r.setPath("/opt/local/lib/frei0r-1");
+    else if (!dirFrei0r.exists())
+    {
+        QMessageBox::information(this, "frei0r", "unable to find frei0r lib directory");
+        return;
+    }
+
     QStringList fileFilter;
     fileFilter << "*.so";
     dirFrei0r.setNameFilters(fileFilter);
@@ -83,6 +94,15 @@ QqComboFilter::QqComboFilter(Context *freejQ, TextLayer *lay) : QWidget()
     QDir dirFrei0r = QDir("/usr/lib/frei0r-1");
     if (!dirFrei0r.exists())
         dirFrei0r.setPath("/usr/local/lib/frei0r-1");
+    else if (!dirFrei0r.exists())
+        dirFrei0r.setPath("/usr/lib64/frei0r-1");
+    else if (!dirFrei0r.exists())
+        dirFrei0r.setPath("/opt/local/lib/frei0r-1");
+    else if (!dirFrei0r.exists())
+    {
+        QMessageBox::information(this, "frei0r", "unable to find frei0r lib directory");
+        return;
+    }
     QStringList fileFilter;
     fileFilter << "*.so";
     dirFrei0r.setNameFilters(fileFilter);

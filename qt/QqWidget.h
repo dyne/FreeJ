@@ -53,20 +53,22 @@ public:
     void addLayer(Layer *);
     void addLayer(TextLayer *);
     FakeWindow* getFake();
+    Layer* getLayer();
+    TextLayer* getTextLayer();
 
     int slowFps;
     int normalFps;
     int actualFps;
 
-    Layer *qLayer;
-
 public slots:
     void slowDown();
     void modTextLayer();
     void changeFontSize(int);
+    void clean();
 
 private:
     int newIdx;
+    Layer *qLayer;
     TextLayer *qTextLayer;
     bool isTextLayer;
     bool layerSet;

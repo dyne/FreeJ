@@ -31,7 +31,7 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
         Context* context = fake->getContext();
         Layer* layer = fake->getLayer();
         TextLayer* textlayer = fake->getTextLayer();
-        if (btn==Qt::LeftButton)
+        if (btn==Qt::LeftButton)  //change position
         {
             if (layer)
             {
@@ -46,7 +46,7 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             }
             // todo textlayer dans QqWidget
         }
-        else if (btn==Qt::RightButton && layer)
+        else if (btn==Qt::RightButton && layer) //resize
         {
             int sizeW = fake->size().width() + evt->pos().x() - offset.x();
             int sizeH = fake->size().height() + evt->pos().y() - offset.y();

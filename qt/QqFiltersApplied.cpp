@@ -1,12 +1,12 @@
 #include <QqFiltersApplied.h>
 #include <iostream>
-#include <QBoxLayout>
 #include <QWidget>
 #include <QDragEnterEvent>
 #include <QAction>
 #include <QLabel>
 #include <QDebug>
 #include <QString>
+#include <QByteArray>
 
 using namespace std;
 
@@ -54,44 +54,77 @@ void QqCheck::changeValue(int state)
     }
 }
 
-QqColor::QqColor(int idx, FilterInstance *filter, QWidget *parent) : QWidget(parent)
+QqColor::QqColor(int idx, FilterInstance *filter, QWidget *parent) : QGroupBox(parent)
 {
     m_paramNumber = idx;
     m_filterI = filter;
-    QHBoxLayout *layoutH = new QHBoxLayout();
-    QVBoxLayout *layoutV = new QVBoxLayout();
-    QLabel *name = new QLabel(filter->parameters[idx]->name);
-    layoutH->addWidget(name);
-    layoutV->addLayout(layoutH);
+    QGridLayout *layout = new QGridLayout();
+    this->setTitle(filter->parameters[idx]->name);
 
-
-    QSlider *red = new QSlider(this);
+    QSlider *red = new QSlider();
+    red->setOrientation(Qt::Horizontal);
     connect(red, SIGNAL(sliderMoved(int)), this, SLOT(changeRed(int)));
-}
+    red->setRange(1, 255);
+    red->setSliderDown(true);
+    layout->addWidget(red, 0, 0);
 
-void QqColor::changeRed(int state)
+    QSlider *green = new QSlider();
+    green->setOrientation(Qt::Horizontal);
+    connect(green, SIGNAL(sliderMoved(int)), this, SLOT(changeGreen(int)));
+    green->setSliderDown(true);
+    green->setRange(1, 255);
+    layout->addWidget(green, 1, 0);
+
+    QSlider *blue = new QSlider();
+    blue->setOrientation(Qt::Horizontal);
+    connect(blue, SIGNAL(sliderMoved(int)), this, SLOT(changeBlue(int)));
+    blue->setSliderDown(true);
+    blue->setRange(1, 255);
+    layout->addWidget(blue, 2, 0);
+    this->setLayout(layout);
+ }
+
+void QqColor::changeRed(int val)
 {
-    /*bool bol;
-    if (state)
+    unsigned char* r = NULL;
+
+    if (m_filterI->parameters[m_paramNumber]->value_size == 24)
     {
-        bol = true;
-        m_filterI->parameters[m_paramNumber]->set((void *)&bol);
-        qDebug() << "bool: " << m_paramNumber << ": true";
+        r = (unsigned char *)m_filterI->parameters[m_paramNumber]->value;
+        *r = val;
+        m_filterI->parameters[m_paramNumber]->set((void *)r);
+        //qDebug() << "r : " << r << ":" << *r;
     }
-    else
+}
+
+void QqColor::changeGreen(int val)
+{
+    unsigned char* r = NULL;
+    unsigned char* g = NULL;
+
+    if (m_filterI->parameters[m_paramNumber]->value_size == 24)
     {
-        bol = false;
-        m_filterI->parameters[m_paramNumber]->set((void *)&bol);
-        qDebug() << "bool: " << m_paramNumber << ": false";
-    }*/
+        r = (unsigned char *)m_filterI->parameters[m_paramNumber]->value;
+        g = r + 2;
+        *g = val;
+        m_filterI->parameters[m_paramNumber]->set((void *)g);
+        //qDebug() << "g : " << g << ":" << *g;
+    }
 }
 
-void QqColor::changeGreen(int state)
+void QqColor::changeBlue(int val)
 {
-}
+    unsigned char* r = NULL;
+    unsigned char* b = NULL;
 
-void QqColor::changeBlue(int state)
-{
+    if (m_filterI->parameters[m_paramNumber]->value_size == 24)
+    {
+        r = (unsigned char *)m_filterI->parameters[m_paramNumber]->value;
+        b = r + 4;
+        *b = val;
+        m_filterI->parameters[m_paramNumber]->set((void *)b);
+        //qDebug() << "r : " << r << " b:" << b;
+    }
 }
 
 QqFilter::QqFilter(FilterInstance *filterI) : QListWidgetItem()
@@ -99,7 +132,6 @@ QqFilter::QqFilter(FilterInstance *filterI) : QListWidgetItem()
     setText(filterI->name);
     filterIn = filterI;
     filterParam = new QqFilterParam(filterI);
-    //voir à ajouter le nom du fichier au titre de la fenêtre
 }
 
 QqFilter::~QqFilter()
@@ -111,7 +143,6 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
 {
     filterI = filter;
     QVBoxLayout *layoutV = new QVBoxLayout;
-    QHBoxLayout *layoutH;
     QLabel *name;
     Layer* lay = filterI->get_layer();
     QString layS = lay->get_filename();
@@ -130,7 +161,7 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
 
     for (int i=1; i <= filterI->parameters.len(); ++i)
     {
-        layoutH = new QHBoxLayout;
+        QHBoxLayout* layoutH = new QHBoxLayout;
         if (filterI->parameters[i]->type == Parameter::NUMBER)
         {
             name = new QLabel(filterI->parameters[i]->name);
@@ -157,7 +188,10 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
         }
         else if (filterI->parameters[i]->type == Parameter::COLOR)
         {
-
+            QqColor *color = new QqColor(i, filterI, this);
+            layoutH->addWidget(color);
+            layoutV->addLayout(layoutH);
+            this->show();
         }
         else if (filterI->parameters[i]->type == Parameter::POSITION)
         {

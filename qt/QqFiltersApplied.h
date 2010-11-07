@@ -6,6 +6,9 @@
 #include <text_layer.h>
 #include <QKeyEvent>
 #include <QCheckBox>
+#include <QBoxLayout>
+#include <QGroupBox>
+
 
 class QqSlider : public QSlider
 {
@@ -36,7 +39,7 @@ private:
     FilterInstance *m_filterI;
 };
 
-class QqColor : public QWidget
+class QqColor : public QGroupBox
 {
     Q_OBJECT
 public:

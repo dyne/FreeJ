@@ -11,6 +11,7 @@
 #include <QDebug>
 
 using namespace std;
+extern QSize viewSize;
 
 Qfreej::Qfreej(QWidget *parent) :
         QWidget(parent)
@@ -75,7 +76,7 @@ void Qfreej::init()
     startstate = true;
     fps = 25;                   //fps par défaut
     screen = Factory<ViewPort>::get_instance( "Screen", "sdl" );
-    screen->init(640, 480, 32);
+    screen->init(viewSize.width(), viewSize.height(), 32);
     freej->add_screen(screen);
     freej->config_check("keyboard.js");
     freej->interactive = false;

@@ -38,7 +38,11 @@ void QqTabWidget::moveLayer(int from, int to)
     {
         int newFrom = from;
         newFrom++;
-        widg->qLayer->move(newFrom);
+
+        if (Layer* lay = widg->getLayer())
+            lay->move(newFrom);
+        else if (TextLayer* textlay = widg->getTextLayer())
+            textlay->move(newFrom);
     }
 }
 
@@ -128,7 +132,9 @@ QqWidget::QqWidget(Context *freej, Layer *lay) : QWidget()
     layoutH->addWidget(filter);                                         // off the layer
 
     layoutH->addWidget(slowButton);
-
+    QPushButton *cleanButton = new QPushButton("Clean");
+    connect (cleanButton, SIGNAL(clicked()), this, SLOT(clean()));
+    layoutH->addWidget(cleanButton);
     layoutV->addLayout(layoutH);
 
 
@@ -221,6 +227,22 @@ QqWidget::~QqWidget()
         delete qTextLayer;
     else if (qLayer)
         delete qLayer;
+}
+
+//clean the view
+void QqWidget::clean()
+{
+    ctx->screen->clear();
+}
+
+Layer* QqWidget::getLayer()
+{
+    return (qLayer);
+}
+
+TextLayer* QqWidget::getTextLayer()
+{
+    return (qTextLayer);
 }
 
 FakeWindow* QqWidget::getFake()
