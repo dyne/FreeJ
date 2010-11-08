@@ -64,7 +64,7 @@ QqColor::QqColor(int idx, FilterInstance *filter, QWidget *parent) : QGroupBox(p
     QSlider *red = new QSlider();
     red->setOrientation(Qt::Horizontal);
     connect(red, SIGNAL(sliderMoved(int)), this, SLOT(changeRed(int)));
-    red->setRange(1, 255);
+    red->setRange(0, 1000);
     red->setSliderDown(true);
     layout->addWidget(red, 0, 0);
 
@@ -86,44 +86,44 @@ QqColor::QqColor(int idx, FilterInstance *filter, QWidget *parent) : QGroupBox(p
 
 void QqColor::changeRed(int val)
 {
-    unsigned char* r = NULL;
+    double* r = NULL;
 
     if (m_filterI->parameters[m_paramNumber]->value_size == 24)
     {
-        r = (unsigned char *)m_filterI->parameters[m_paramNumber]->value;
-        *r = val;
+        r = (double *)m_filterI->parameters[m_paramNumber]->value;
+        *r = val/100.0;
         m_filterI->parameters[m_paramNumber]->set((void *)r);
-        //qDebug() << "r : " << r << ":" << *r;
+        qDebug() << "r : " << *r;
     }
 }
 
 void QqColor::changeGreen(int val)
 {
-    unsigned char* r = NULL;
-    unsigned char* g = NULL;
+    double* r = NULL;
+    double* g = NULL;
 
     if (m_filterI->parameters[m_paramNumber]->value_size == 24)
     {
-        r = (unsigned char *)m_filterI->parameters[m_paramNumber]->value;
-        g = r + 2;
-        *g = val;
+        r = (double*)m_filterI->parameters[m_paramNumber]->value;
+        g = r + 8;
+        *g = val/100.0;
         m_filterI->parameters[m_paramNumber]->set((void *)g);
-        //qDebug() << "g : " << g << ":" << *g;
+        qDebug() << "g : " << *g;
     }
 }
 
 void QqColor::changeBlue(int val)
 {
-    unsigned char* r = NULL;
-    unsigned char* b = NULL;
+    double* r = NULL;
+    double* b = NULL;
 
     if (m_filterI->parameters[m_paramNumber]->value_size == 24)
     {
-        r = (unsigned char *)m_filterI->parameters[m_paramNumber]->value;
-        b = r + 4;
-        *b = val;
+        r = (double*)m_filterI->parameters[m_paramNumber]->value;
+        b = r + 16;
+        *b = val/100.0;
         m_filterI->parameters[m_paramNumber]->set((void *)b);
-        //qDebug() << "r : " << r << " b:" << b;
+        qDebug() << "b : " << *b;
     }
 }
 
@@ -195,11 +195,11 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
         }
         else if (filterI->parameters[i]->type == Parameter::POSITION)
         {
-
+            qDebug() << "size POSITION:" << filterI->parameters[i]->value_size;
         }
         else if (filterI->parameters[i]->type == Parameter::STRING)
         {
-
+            qDebug() << "size STRING:" << filterI->parameters[i]->value_size;
         }
     }
 }

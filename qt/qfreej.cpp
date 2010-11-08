@@ -43,14 +43,15 @@ Qfreej::Qfreej(QWidget *parent) :
 Qfreej::~Qfreej()
 {
     poller->stop();
-
+/*
     while (freej->screen->layers.len() > 0)
     {
         freej->screen->layers[1]->rem();
     }
-    freej->reset();
+*/
+ //   freej->reset();
     freej->quit = true;
-    delete freej;
+    //delete freej;
 }
 
 void Qfreej::init()

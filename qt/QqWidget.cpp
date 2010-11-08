@@ -58,9 +58,15 @@ void QqTabWidget::closeTab(int idx)
 //keeps all fake viewport the same size.
 void QqTabWidget::setSize(int idx)
 {
-    QqWidget* widg = (QqWidget *)widget(idx);
-    FakeWindow* fake = widg->getFake();
-    fake->resize(viewSize);
+    if (idx >= 0)
+    {
+        QqWidget* widg = (QqWidget *)widget(idx);
+        if (widg)
+        {
+            FakeWindow* fake = widg->getFake();
+            fake->resize(viewSize);
+        }
+    }
 }
 
 FakeWindow::FakeWindow(Context *context, Layer *layer, Geometry *geo, QWidget* parent) : QWidget(parent)
@@ -223,10 +229,42 @@ QqWidget::QqWidget(Context *freej, TextLayer *textLay) : QWidget()
 
 QqWidget::~QqWidget()
 {
+    Entry *le, *fe;
+
+    bool res = false;
+
+/*
+    if(ctx->screens.selected()->layers.len() > 0) { // there are layers
+
+        res = true;
+
+        // get the one selected
+        le = ctx->screens.selected()->layers.selected();
+        if(!le) {
+            ctx->screens.selected()->layers.begin();
+            le->sel(true);
+        }
+
+        ctx->rem_layer( (Layer*)le );
+    }
+*/
     if (qTextLayer)
-        delete qTextLayer;
+    {
+        if (qTextLayer->active)
+            ctx->rem_layer(qTextLayer);
+    }
+    else if (qLayer)
+    {
+        if (qLayer->active)
+            ctx->rem_layer(qLayer);
+    }
+/*
+    if (qTextLayer)
+        //delete qTextLayer;
+        qDebug() << "quit";
     else if (qLayer)
         delete qLayer;
+*/
 }
 
 //clean the view
