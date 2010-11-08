@@ -11,6 +11,7 @@
 #include <QLayout>
 
 class QTimer;
+class QqTabWidget;
 
 namespace Ui {
     class Qfreej;
@@ -25,6 +26,7 @@ public:
     bool _isPlaying;
     QTimer *poller;
     Context *getContext();
+    bool getStartState();
 
 public slots:
     void addLayer();

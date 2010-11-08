@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QGridLayout>
 #include <specialeventget.h>
+#include <QFile>
 
 
 extern QSize viewSize;
@@ -58,7 +59,7 @@ void QqTabWidget::closeTab(int idx)
 //keeps all fake viewport the same size.
 void QqTabWidget::setSize(int idx)
 {
-    if (idx >= 0)
+    if (idx > 0)
     {
         QqWidget* widg = (QqWidget *)widget(idx);
         if (widg)
@@ -112,8 +113,48 @@ QRect* FakeWindow::getWinGeo()
 }
 
 //Layer
-QqWidget::QqWidget(Context *freej, Layer *lay) : QWidget()
+QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QString fichier) : QWidget(qfreej)
 {
+    qTextLayer = NULL;
+    qLayer = freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
+
+    if(qLayer)
+    {
+        if( freej->screen->add_layer(qLayer) )
+        {
+            qLayer->start();
+
+            if (qLayer->frame_rate > 50)   //pb de determination de FPS
+            {
+                qLayer->fps.set(qLayer->frame_rate / 10);
+                normalFps = qLayer->frame_rate / 10;
+                actualFps = qLayer->frame_rate / 10;
+            }
+            else
+            {
+                qLayer->fps.set(qLayer->frame_rate);
+                normalFps = qLayer->frame_rate;
+                actualFps = qLayer->frame_rate;
+            }
+            slowFps = normalFps / 2;
+            tabWidget->addTab(this, qLayer->get_filename());
+        }
+        else
+        {
+            if (!qfreej->getStartState())
+                qLayer->active = false;
+            QMessageBox::information(this, "Layers", "Can't create Layer :" + fichier);
+            return;
+        }
+    }
+    else
+    {
+        QMessageBox::information(this, "Layers", "Impossible to create TextLayer :" + fichier);
+        return;
+    }
+
+
+
     ctx = freej;
     setAttribute(Qt::WA_DeleteOnClose);
     isTextLayer = false;
@@ -123,16 +164,16 @@ QqWidget::QqWidget(Context *freej, Layer *lay) : QWidget()
     QVBoxLayout *layoutV = new QVBoxLayout;
     QHBoxLayout *layoutH = new QHBoxLayout;
 
-    addLayer (lay);
+    addLayer (qLayer);
 
     QqComboBlit *blt = new QqComboBlit;
-    blt->addLayer(lay);
+    blt->addLayer(qLayer);
 
     slowButton = new QPushButton("Slow");
     connect (slowButton, SIGNAL(clicked()), this, SLOT(slowDown()));
 
     layoutH->addWidget(blt);
-    QqComboFilter *filter = new QqComboFilter(freej, lay);
+    QqComboFilter *filter = new QqComboFilter(freej, qLayer);
 
     filter->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);  // on the highter widget to fix the maximum hight
     layoutH->addWidget(filter);                                         // off the layer
@@ -158,7 +199,7 @@ QqWidget::QqWidget(Context *freej, Layer *lay) : QWidget()
     fakeView->setToolTip("Drag Left button to move Viewport, Drag center to resize");
 
 
-    FakeWindow *fakeLay = new FakeWindow(freej, lay, &lay->geo, fakeView);
+    FakeWindow *fakeLay = new FakeWindow(freej, qLayer, &qLayer->geo, fakeView);
     fakeLay->setStyleSheet("QWidget { background-color: red; }");
     fakeLay->installEventFilter(eventGet);
     fakeLay->setToolTip("Drag Left button to move Layer, Drag center to resize");
@@ -167,15 +208,55 @@ QqWidget::QqWidget(Context *freej, Layer *lay) : QWidget()
 }
 
 // TextLayer
-QqWidget::QqWidget(Context *freej, TextLayer *textLay) : QWidget()
+QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWidget(qfreej)
 {
+    qLayer = NULL;
+    QString filename = "textouille.txt";
+    QFile file( filename );
+    if (file.open(QIODevice::WriteOnly))
+    {
+        file.close();
+    }
+    else
+    {
+        qDebug() << "Not possible to open or create textouille.txt";
+        return;
+    }
+    qTextLayer = (TextLayer *)freej->open((char *)"textouille.txt", 0, 0);
+    if (qTextLayer)
+    {
+        qTextLayer->init(200, 50, 32);
+        qTextLayer->set_position(50, 200);
+        qTextLayer->set_font("sans");
+        if( freej->screen->add_layer(qTextLayer) )  //essayer sans ça plus tard
+        {
+            qTextLayer->start();
+
+            qTextLayer->fps.set(qTextLayer->frame_rate);
+
+            tabWidget->addTab(this, "text zone");
+        }
+        else
+        {
+            QMessageBox::information(this, "Layers", "Can't create TextLayer\n");
+            if (!qfreej->getStartState())
+                qTextLayer->active = false;
+            return;
+        }
+    }
+    else
+    {
+        QMessageBox::information(this, "Layers", "Impossible de créer la TextLayer\n");
+        return;
+    }
+
     ctx = freej;
     setAttribute(Qt::WA_DeleteOnClose);
     isTextLayer = false;
     layerSet = false;
     newIdx = 0;
 
-    addLayer(textLay);
+    addLayer(qTextLayer);
     QVBoxLayout *layoutV = new QVBoxLayout;
     QHBoxLayout *layoutH = new QHBoxLayout;
 
@@ -197,7 +278,7 @@ QqWidget::QqWidget(Context *freej, TextLayer *textLay) : QWidget()
     blt->addTextLayer(qTextLayer);
 
     layoutH->addWidget(blt);
-    QqComboFilter *filter = new QqComboFilter(freej, textLay);
+    QqComboFilter *filter = new QqComboFilter(freej, qTextLayer);
     layoutH->addWidget(filter);
 
     layoutV->addLayout(layoutH);
@@ -219,7 +300,7 @@ QqWidget::QqWidget(Context *freej, TextLayer *textLay) : QWidget()
     fakeView->installEventFilter(eventGet);
     fakeView->setToolTip("Drag Left button to move Viewport, Drag center to resize");
 
-    FakeWindow *fakeLay = new FakeWindow(freej, textLay, &textLay->geo, fakeView);
+    FakeWindow *fakeLay = new FakeWindow(freej, qTextLayer, &qTextLayer->geo, fakeView);
     fakeLay->setStyleSheet("QWidget { background-color: red; }");
     fakeLay->installEventFilter(eventGet);
     fakeLay->setToolTip("Drag Left button to move Layer, Drag center to resize");

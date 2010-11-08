@@ -98,86 +98,28 @@ void Qfreej::startStreaming()
     std::cout << temp;
 }
 
+bool Qfreej::getStartState()
+{
+    return(startstate);
+}
+
 void Qfreej::addLayer()
 {
     QString fichier = QFileDialog::getOpenFileName(this, "Ouvrir un fichier", QString(), "All (*.*)");
 
-    char temp[256];
-    QByteArray fich = fichier.toAscii();
-    strcpy (temp,fich.data());
-
-    Layer *lay = NULL;
-    lay = freej->open(temp, 0, 0); // hey, this already init and open the layer !!
-
-    if(lay)  {
-        if( screen->add_layer(lay) ) {
-            lay->start();
-            cout << "largeur : " << lay->geo.w << " hauteur : " << lay->geo.h << endl;
-            cout << "ViewPort largeur : " << screen->geo.w << " hauteur : " << screen->geo.h << endl;
-
-            cout << "nom du layer : " << lay->get_filename() << endl;
-
-            QqWidget *aWidget = new QqWidget(freej, lay);
-            if (lay->frame_rate > 50)   //pb de determination de FPS
-            {
-                lay->fps.set(lay->frame_rate / 10);
-                aWidget->normalFps = lay->frame_rate / 10;
-                aWidget->actualFps = lay->frame_rate / 10;
-
-            }
-            else
-            {
-                lay->fps.set(lay->frame_rate);
-                aWidget->normalFps = lay->frame_rate;
-                aWidget->actualFps = lay->frame_rate;
-            }
-            aWidget->slowFps = aWidget->normalFps / 2;
-            tabWidget->addTab(aWidget, lay->get_filename());
-        }
-        else
-        {
-            QMessageBox::information(this, "Layers", "Impossible d'ouvrir : " + fichier + " (layer)\n");
-            if (!startstate)
-                lay->active = false;
-        }
+    QqWidget *aWidget = new QqWidget(freej, tabWidget, this, fichier);
+    if (!aWidget)
+    {
+        QMessageBox::information(this, "Layers", "Can't create TextLayer\n");
     }
 }
 
 void Qfreej::addTextLayer()
 {
-    QString filename = "textouille.txt";
-    QFile file( filename );
-    if (file.open(QIODevice::WriteOnly))
+    QqWidget *aWidget = new QqWidget(freej, tabWidget, this);
+    if (!aWidget)
     {
-        file.close();
-    }
-    else
-        qDebug() << "Not possible to open or create textouille.txt";
-
-    textLayer = (TextLayer *)freej->open((char *)"textouille.txt", 0, 0);
-    if (textLayer)
-    {
-        textLayer->init(440, 50, 32);
-        textLayer->set_position(100, 380);
-        textLayer->set_font("sans");
-        if( screen->add_layer(textLayer) )
-        {
-            textLayer->start();
-            textLayer->fps.set(fps);
-
-            QqWidget *aWidget = new QqWidget(freej, textLayer);
-            tabWidget->addTab(aWidget, "text zone");
-        }
-        else
-        {
-            QMessageBox::information(this, "Layers", "Can't create TextLayer\n");
-            if (!startstate)
-              textLayer->active = false;
-        }
-    }
-    else
-    {
-        QMessageBox::information(this, "Layers", "Impossible de créer la TextLayer\n");
+        QMessageBox::information(this, "Layers", "Can't create TextLayer\n");
     }
 }
 

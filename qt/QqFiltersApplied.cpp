@@ -15,6 +15,9 @@ QqSlider::QqSlider(int idx, FilterInstance *filter, QWidget *parent) : QSlider()
     paramNumber = idx;
     filterI = filter;
     setOrientation(Qt::Horizontal);
+    double* val = (double *) filterI->parameters[paramNumber]->get ();
+    int value = (int)(*val * 100.0);
+    this->setValue(value);
     connect(this, SIGNAL(sliderMoved(int)), this, SLOT(changeValue(int)));
 }
 
@@ -27,13 +30,14 @@ void QqSlider::changeValue(int value)
     double nbr = (double)value / 100.0;
     //to see if it does something ... and it does :)
     filterI->parameters[paramNumber]->set((void *)&nbr);
-    qDebug() << "nbr: " << paramNumber << ": " << nbr;
 }
 
 QqCheck::QqCheck(int idx, FilterInstance *filter, QWidget *parent) : QCheckBox(parent)
 {
     m_paramNumber = idx;
     m_filterI = filter;
+    bool* val = (bool *) m_filterI->parameters[m_paramNumber]->get ();
+    this->setDown(*val);
     connect(this, SIGNAL(stateChanged(int)), this, SLOT(changeValue(int)));
 }
 
@@ -44,13 +48,11 @@ void QqCheck::changeValue(int state)
     {
         bol = true;
         m_filterI->parameters[m_paramNumber]->set((void *)&bol);
-        qDebug() << "bool: " << m_paramNumber << ": true";
     }
     else
     {
         bol = false;
         m_filterI->parameters[m_paramNumber]->set((void *)&bol);
-        qDebug() << "bool: " << m_paramNumber << ": false";
     }
 }
 
@@ -61,10 +63,26 @@ QqColor::QqColor(int idx, FilterInstance *filter, QWidget *parent) : QGroupBox(p
     QGridLayout *layout = new QGridLayout();
     this->setTitle(filter->parameters[idx]->name);
 
+    double rgb[3];
+    double *rgb_init;
+/*
+    it seems that there is no default value, so don't use
+    rgb_init = (double *) m_filterI->parameters[m_paramNumber]->get ();
+    rgb[0] = rgb_init[0];
+    rgb[1] = rgb_init[1];
+    rgb[2] = rgb_init[2];
+*/
+
+    rgb[0] = 0.5;
+    rgb[1] = 0.5;
+    rgb[2] = 0.5;
+
     QSlider *red = new QSlider();
     red->setOrientation(Qt::Horizontal);
     connect(red, SIGNAL(sliderMoved(int)), this, SLOT(changeRed(int)));
-    red->setRange(0, 1000);
+    red->setRange(0, 255);
+    int value = (int)(rgb[0] * 255.0);
+    red->setValue(value);
     red->setSliderDown(true);
     layout->addWidget(red, 0, 0);
 
@@ -72,59 +90,47 @@ QqColor::QqColor(int idx, FilterInstance *filter, QWidget *parent) : QGroupBox(p
     green->setOrientation(Qt::Horizontal);
     connect(green, SIGNAL(sliderMoved(int)), this, SLOT(changeGreen(int)));
     green->setSliderDown(true);
-    green->setRange(1, 255);
+    green->setRange(0, 255);
+    value = (int)(rgb[1] * 255.0);
+    green->setValue(value);
     layout->addWidget(green, 1, 0);
 
     QSlider *blue = new QSlider();
     blue->setOrientation(Qt::Horizontal);
     connect(blue, SIGNAL(sliderMoved(int)), this, SLOT(changeBlue(int)));
     blue->setSliderDown(true);
-    blue->setRange(1, 255);
+    blue->setRange(0, 255);
+    value = (int)(rgb[2] * 255.0);
+    blue->setValue(value);
     layout->addWidget(blue, 2, 0);
     this->setLayout(layout);
  }
 
+void QqColor::changeColor (int val, int idx)
+{
+    double rgb[3];
+    double *rgb_init;
+    rgb_init = (double *) m_filterI->parameters[m_paramNumber]->get ();
+    rgb[0] = rgb_init[0];
+    rgb[1] = rgb_init[1];
+    rgb[2] = rgb_init[2];
+    rgb[idx] = val/255.0;
+    m_filterI->parameters[m_paramNumber]->set((void *)rgb);
+}
+
 void QqColor::changeRed(int val)
 {
-    double* r = NULL;
-
-    if (m_filterI->parameters[m_paramNumber]->value_size == 24)
-    {
-        r = (double *)m_filterI->parameters[m_paramNumber]->value;
-        *r = val/100.0;
-        m_filterI->parameters[m_paramNumber]->set((void *)r);
-        qDebug() << "r : " << *r;
-    }
+    changeColor (val,0);
 }
 
 void QqColor::changeGreen(int val)
 {
-    double* r = NULL;
-    double* g = NULL;
-
-    if (m_filterI->parameters[m_paramNumber]->value_size == 24)
-    {
-        r = (double*)m_filterI->parameters[m_paramNumber]->value;
-        g = r + 8;
-        *g = val/100.0;
-        m_filterI->parameters[m_paramNumber]->set((void *)g);
-        qDebug() << "g : " << *g;
-    }
+    changeColor (val,1);
 }
 
 void QqColor::changeBlue(int val)
 {
-    double* r = NULL;
-    double* b = NULL;
-
-    if (m_filterI->parameters[m_paramNumber]->value_size == 24)
-    {
-        r = (double*)m_filterI->parameters[m_paramNumber]->value;
-        b = r + 16;
-        *b = val/100.0;
-        m_filterI->parameters[m_paramNumber]->set((void *)b);
-        qDebug() << "b : " << *b;
-    }
+    changeColor (val,2);
 }
 
 QqFilter::QqFilter(FilterInstance *filterI) : QListWidgetItem()

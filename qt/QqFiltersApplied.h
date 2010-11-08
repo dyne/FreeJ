@@ -51,6 +51,7 @@ public slots:
     void changeBlue(int);
 
 private:
+    void changeColor(int, int);
     int m_paramNumber;
     FilterInstance *m_filterI;
 };

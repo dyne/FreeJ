@@ -7,6 +7,9 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <context.h>
+#include <qfreej.h>
+
+class Qfreej;
 
 class FakeWindow : public QWidget
 {
@@ -47,8 +50,8 @@ class QqWidget : public QWidget
     Q_OBJECT
 public:
     QqWidget();
-    QqWidget(Context *, TextLayer *);
-    QqWidget(Context *, Layer *);
+    QqWidget(Context *,  QqTabWidget*, Qfreej*, QString);   //Layer
+    QqWidget(Context *, QqTabWidget*, Qfreej*);             //TextLayer
     ~QqWidget();
     void addLayer(Layer *);
     void addLayer(TextLayer *);
@@ -56,9 +59,6 @@ public:
     Layer* getLayer();
     TextLayer* getTextLayer();
 
-    int slowFps;
-    int normalFps;
-    int actualFps;
 
 public slots:
     void slowDown();
@@ -67,6 +67,9 @@ public slots:
     void clean();
 
 private:
+    int slowFps;
+    int normalFps;
+    int actualFps;
     int newIdx;
     Layer *qLayer;
     TextLayer *qTextLayer;
