@@ -181,8 +181,15 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     connect (cleanButton, SIGNAL(clicked()), this, SLOT(clean()));
     layoutH->addWidget(cleanButton);
 
-    QDial* dial = new QDial(this);
-    layoutH->addWidget(dial);
+
+    m_angle = new QDoubleSpinBox(this);
+    connect(m_angle, SIGNAL(valueChanged(double)), this, SLOT(changeAngle(double)));
+    m_angle->setMinimum(0.0);
+    m_angle->setMaximum(360.0);
+    m_angle->setDecimals(0);
+    m_angle->setSingleStep(1.0);
+    m_angle->setToolTip("rotate the layer");
+    layoutH->addWidget(m_angle);
 
     layoutV->addLayout(layoutH);
 
@@ -201,7 +208,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     fakeView->setToolTip("Drag Left button to move Viewport, Drag center to resize");
 
 
-    FakeWindow *fakeLay = new FakeWindow(freej, qLayer, &qLayer->geo, fakeView);
+    fakeLay = new FakeWindow(freej, qLayer, &qLayer->geo, fakeView);
     fakeLay->setStyleSheet("QWidget { background-color: red; }");
     fakeLay->installEventFilter(eventGet);
     fakeLay->setToolTip("Drag Left button to move Layer, Drag center to resize");
@@ -280,6 +287,15 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     QqComboFilter *filter = new QqComboFilter(freej, qTextLayer, this);
     layoutH->addWidget(filter);
 
+    m_angle = new QDoubleSpinBox(this);
+    connect(m_angle, SIGNAL(valueChanged(double)), this, SLOT(changeAngle(double)));
+    m_angle->setMinimum(0.0);
+    m_angle->setMaximum(360.0);
+    m_angle->setDecimals(0);
+    m_angle->setSingleStep(1.0);
+    m_angle->setToolTip("rotate the layer");
+    layoutH->addWidget(m_angle);
+
     layoutV->addLayout(layoutH);
     QTextEdit *texto = new QTextEdit(this);
     text = texto;
@@ -299,7 +315,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     fakeView->installEventFilter(eventGet);
     fakeView->setToolTip("Drag Left button to move Viewport, Drag center to resize");
 
-    FakeWindow *fakeLay = new FakeWindow(freej, qTextLayer, &qTextLayer->geo, fakeView);
+    fakeLay = new FakeWindow(freej, qTextLayer, &qTextLayer->geo, fakeView);
     fakeLay->setStyleSheet("QWidget { background-color: red; }");
     fakeLay->installEventFilter(eventGet);
     fakeLay->setToolTip("Drag Left button to move Layer, Drag center to resize");
@@ -312,25 +328,7 @@ QqWidget::~QqWidget()
     delete layoutH;
     delete layoutV;
     ctx->screen->clear();
-//    Entry *le, *fe;
 
-//    bool res = false;
-
-/*
-    if(ctx->screens.selected()->layers.len() > 0) { // there are layers
-
-        res = true;
-
-        // get the one selected
-        le = ctx->screens.selected()->layers.selected();
-        if(!le) {
-            ctx->screens.selected()->layers.begin();
-            le->sel(true);
-        }
-
-        ctx->rem_layer( (Layer*)le );
-    }
-*/
     if (qTextLayer)
     {
         if (qTextLayer->active)
@@ -341,6 +339,16 @@ QqWidget::~QqWidget()
         if (qLayer->active)
             ctx->rem_layer(qLayer);
     }
+}
+
+//rotate Layer
+void QqWidget::changeAngle(double val)
+{
+    if (qLayer)
+        qLayer->set_rotate(val);
+    else if (qTextLayer)
+        qTextLayer->set_rotate(val);
+    ctx->screen->clear();
 }
 
 //clean the view

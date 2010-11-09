@@ -9,6 +9,7 @@
 #include <context.h>
 #include <qfreej.h>
 #include <QBoxLayout>
+#include <QDoubleSpinBox>
 
 class Qfreej;
 
@@ -59,12 +60,12 @@ public:
     TextLayer* getTextLayer();
     Context* getContext();
 
-
 public slots:
     void slowDown();
     void modTextLayer();
     void changeFontSize(int);
     void clean();
+    void changeAngle(double);
 
 private:
     int slowFps;
@@ -79,7 +80,9 @@ private:
     QComboBox *fontSizeBox;
     Context *ctx;
     FakeWindow* fakeView;
+    FakeWindow* fakeLay;
     QVBoxLayout* layoutV;
     QHBoxLayout* layoutH;
+    QDoubleSpinBox *m_angle;
 };
 #endif // QQWIDGET_H

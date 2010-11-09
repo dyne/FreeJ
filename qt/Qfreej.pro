@@ -1,7 +1,7 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-10-04T17:27:39
 # -------------------------------------------------
-QT += network
+#QT += network
  #   opengl \
  #   phonon \
  #   multimedia
@@ -27,5 +27,3 @@ INCLUDEPATH += ../src/include \
     ../ \
     /usr/include/SDL \
     ../lib/sdl_ttf
-#    /home/fred/system/video/freej-git/src/freej-git-20100223/lib/javascript \
-#    /home/fred/system/video/freej-git/src/freej-git-20100223/lib/flash
