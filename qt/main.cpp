@@ -22,7 +22,7 @@
 QSize viewSize;
 
 //todo
-//work to do with color parameters
+//finish delete track in QqFiltersApplied and specialeventget
 //insert other filters parameters
 //put gpl titles
 //be able to record the viewport, and replay it.

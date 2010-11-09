@@ -214,7 +214,7 @@ QqFilterParam::~QqFilterParam()
 {
 }
 
-QqFiltersListApplied::QqFiltersListApplied(Layer *lay) : QListWidget()
+QqFiltersListApplied::QqFiltersListApplied(Layer *lay, QWidget* parent) : QListWidget(parent)
 {
     setToolTip("Filters applied on the layer. You can change the order by D&D\nalso double click to hide parameters");
     setSelectionMode(QAbstractItemView::SingleSelection);
@@ -235,7 +235,7 @@ QqFiltersListApplied::QqFiltersListApplied(Layer *lay) : QListWidget()
     connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(showParamWindow(QListWidgetItem*)));
 }
 
-QqFiltersListApplied::QqFiltersListApplied(TextLayer *lay) : QListWidget()
+QqFiltersListApplied::QqFiltersListApplied(TextLayer *lay, QWidget *parent) : QListWidget(parent)
 {
     setToolTip("Filters applied on the layer. You can change the order by D&D\nalso double click to hide parameters");
     setSelectionMode(QAbstractItemView::SingleSelection);

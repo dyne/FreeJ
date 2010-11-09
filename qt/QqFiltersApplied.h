@@ -83,8 +83,8 @@ class QqFiltersListApplied : public QListWidget
 {
     Q_OBJECT
 public:
-    QqFiltersListApplied(Layer *);
-    QqFiltersListApplied(TextLayer *);
+    QqFiltersListApplied(Layer *, QWidget*);
+    QqFiltersListApplied(TextLayer *, QWidget*);
     ~QqFiltersListApplied();
 
 public slots:

@@ -5,12 +5,13 @@
 #include <layer.h>
 #include <text_layer.h>
 #include <QDoubleSpinBox>
+#include <QBoxLayout>
 
 class QqComboBlit : public QWidget
 {
     Q_OBJECT
 public:
-    QqComboBlit();
+    QqComboBlit(QWidget*);
     ~QqComboBlit();
 
     void addLayer(Layer *);
@@ -21,12 +22,13 @@ public slots:
     void chgParam(double);   // à finir
 
 private :
-    bool isTextLayer;
-    bool layerSet;
+    //bool isTextLayer;
+    //bool layerSet;
     Layer *qLayer;
     TextLayer *qTextLayer;
     QComboBox *blitBox;
     QDoubleSpinBox *blitParam;
+    QHBoxLayout* layoutH;
 };
 
 #endif // QQCOMBOBLIT_H

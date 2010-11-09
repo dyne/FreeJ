@@ -8,7 +8,7 @@
 class SpecialEventGet : public QObject
 {
 public:
-    SpecialEventGet();
+    SpecialEventGet(QObject*);
 protected:
     bool eventFilter(QObject*, QEvent*);
 private:

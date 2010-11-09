@@ -6,7 +6,7 @@
 
 extern QSize viewSize;
 
-SpecialEventGet::SpecialEventGet() : QObject()
+SpecialEventGet::SpecialEventGet(QObject* parent) : QObject(parent)
 {
     shift.setX(0);
     shift.setY(0);
@@ -37,12 +37,14 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             {
                 fake->move(fake->mapToParent(evt->pos() - offset));
                 layer->set_position ((fake->pos().x() + shift.x()), (fake->pos().y()+shift.y()));
+                context->screen->clear();
                 //qDebug() << "posX:" << fake->pos().x() << "shiftX:" << shift.x();
             }
             else if (textlayer)
             {
                 fake->move(fake->mapToParent(evt->pos() - offset));
                 textlayer->set_position ((fake->pos().x() + shift.x()), (fake->pos().y()+shift.y()));
+                context->screen->clear();
             }
             // todo textlayer dans QqWidget
         }
@@ -59,6 +61,7 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             shift.setX((int)((m_OldSize.width() - layer->geo.w)/2));
             shift.setY((int)((m_OldSize.height() - layer->geo.h)/2));
             layer->set_position ((shift.x()+fake->pos().x()), (shift.y()+fake->pos().y()));
+            context->screen->clear();
             //qDebug() << "zx:" << x1 << "sX:" << shift.x() << "posX:" << fake->pos().x();
         }
         else if (btn==Qt::RightButton && textlayer)
@@ -74,6 +77,7 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             shift.setX((int)((m_OldSize.width() - textlayer->geo.w)/2));
             shift.setY((int)((m_OldSize.height() - textlayer->geo.h)/2));
             textlayer->set_position ((shift.x()+fake->pos().x()), (shift.y()+fake->pos().y()));
+            context->screen->clear();
             //qDebug() << "zx:" << x1 << "sX:" << shift.x() << "posX:" << fake->pos().x();
         }
         else if (btn==Qt::RightButton)
@@ -85,6 +89,7 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             viewSize.setHeight(sizeH);
             context->screen->resize(sizeW, sizeH);
             offset = evt->pos();
+            context->screen->clear();
         }
     }
     else if(event->type() == QEvent::MouseButtonRelease)

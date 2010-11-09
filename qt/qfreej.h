@@ -34,6 +34,8 @@ public slots:
     void addTextLayer();
     void startStreaming();
 
+protected:
+    void closeEvent(QCloseEvent*);
 
 private:
     void init();
@@ -46,6 +48,7 @@ private:
     int number;
     TextLayer *textLayer;
     QGridLayout *grid;
+    QHBoxLayout *layoutH;
 };
 
 

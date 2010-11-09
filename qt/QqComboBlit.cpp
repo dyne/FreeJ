@@ -7,10 +7,10 @@
 using namespace std;
 
 
-QqComboBlit::QqComboBlit() : QWidget()
+QqComboBlit::QqComboBlit(QWidget* parent) : QWidget(parent)
 {
-    isTextLayer = false;
-    layerSet = false;
+    //isTextLayer = false;
+    //layerSet = false;
     qLayer = NULL;
     qTextLayer = NULL;
     QStringList blits;
@@ -18,12 +18,12 @@ QqComboBlit::QqComboBlit() : QWidget()
     blits << "MULTDIV2" << "MULTDIV4" << "AND" << "OR" << "XOR" << "RED" << "GREEN" << "BLUE";
     blits << "REDMASK" << "GREENMASK" << "BLUEMASK" << "NEG" << "ADDB" << "ADDBH" << "SUBB" << "SHL";
     blits << "SHLB" << "SHR" << "MULB" << "BIN" << "SDL" << "ALPHA" << "SRCALPHA";
-    blitBox = new QComboBox;
+    blitBox = new QComboBox(this);
     blitBox->addItems(blits);
     connect(blitBox, SIGNAL(activated(QString)), this, SLOT(addBlit(QString)));
-    QHBoxLayout *layoutH = new QHBoxLayout;
+    layoutH = new QHBoxLayout;
     layoutH->addWidget(blitBox);
-    blitParam = new QDoubleSpinBox;
+    blitParam = new QDoubleSpinBox(this);
     connect(blitParam, SIGNAL(valueChanged(double)), this, SLOT(chgParam(double)));
     blitParam->setDecimals(1);
     blitParam->setMinimum(0);
@@ -36,21 +36,21 @@ QqComboBlit::QqComboBlit() : QWidget()
 
 QqComboBlit::~QqComboBlit()
 {
+    delete layoutH;
 }
 
 void QqComboBlit::chgParam(double prm)
 {
     Blit *blit;
-    if (isTextLayer)
+    if (qTextLayer)
     {
         blit = qTextLayer->current_blit;
     }
-    else
+    else if (qLayer)
     {
         blit = qLayer->current_blit;
     }
     blit->value = blitParam->value();
-    qDebug() << blit->value;
 }
 
 void QqComboBlit::addBlit(QString blt)
@@ -60,26 +60,27 @@ void QqComboBlit::addBlit(QString blt)
 
     strcpy (blitName,bolt.data());
 
-    if (!layerSet)
+/*    if (!layerSet)
     {
         cout << "QqComboBox Layer not set" << endl;
         return;
     }
+*/
     blitParam->setEnabled(false);
 
-    if (isTextLayer)
+    if (qTextLayer)
     {
         Blit *blit = qTextLayer->current_blit;
         qTextLayer->set_blit(blitName);
         blit = qTextLayer->current_blit;
-        cout << "blit : " << blit->desc << endl;    //think about add it in a text zone
+//        cout << "blit : " << blit->desc << endl;    //think about add it in a text zone
 //        cout << "blit name : " << blit->name << " parameters len : " << blit->parameters.len() << endl;
         if (blit->parameters.len())
         {
             blitParam->setEnabled(true);
         }
     }
-    else
+    else if (qLayer)
     {
         Blit *blit = qLayer->current_blit;
         qLayer->set_blit(blitName);
@@ -95,14 +96,11 @@ void QqComboBlit::addBlit(QString blt)
 
 void QqComboBlit::addLayer(Layer *lay)
 {
-    isTextLayer = false;
     qLayer = lay;
-    layerSet = true;
 }
 
 void QqComboBlit::addTextLayer(TextLayer *lay)
 {
-    isTextLayer = true;
     qTextLayer = lay;
-    layerSet = true;
 }
+

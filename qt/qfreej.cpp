@@ -9,6 +9,7 @@
 #include <QqWidget.h>
 #include <QTimer>
 #include <QDebug>
+#include <QCloseEvent>
 
 using namespace std;
 extern QSize viewSize;
@@ -49,24 +50,31 @@ Qfreej::~Qfreej()
         freej->screen->layers[1]->rem();
     }
 */
- //   freej->reset();
-    freej->quit = true;
-    //delete freej;
+//    delete freej;
+    delete layoutH;
+    delete grid;
+}
+
+void Qfreej::closeEvent(QCloseEvent *event)
+{
+    qDebug() << "je sors !!";
+    event->accept();
+    delete freej;
 }
 
 void Qfreej::init()
 {
-    QHBoxLayout *layoutH = new QHBoxLayout();//new
+    layoutH = new QHBoxLayout();//new
     grid->addLayout(layoutH, 1, 0);//new
     QPushButton *streamButton = new QPushButton("stream", this);//new
     layoutH->addWidget(streamButton);//new
     connect(streamButton, SIGNAL(clicked()), this, SLOT(startStreaming()));//new
 
-    tabWidget = new QqTabWidget;
+    tabWidget = new QqTabWidget(this);
     grid->addWidget(tabWidget, 2, 0);//new
     setLayout(grid);//new
     tabWidget->setMovable(true);
-    tabWidget->setAttribute(Qt::WA_DeleteOnClose);
+    //tabWidget->setAttribute(Qt::WA_DeleteOnClose);
     tabWidget->setTabsClosable(true);
 
     myTabBar = tabWidget->getTabBar();
@@ -84,8 +92,6 @@ void Qfreej::init()
     freej->fps.set( fps );
     freej->start_running = startstate;
     addTextLayer();
-
-    cout << "ViewPort largeur : " << screen->geo.w << " hauteur : " << screen->geo.h << endl;
 }
 
 void Qfreej::startStreaming()

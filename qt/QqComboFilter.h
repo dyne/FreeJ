@@ -11,8 +11,8 @@ class QqComboFilter : public QWidget
 {
     Q_OBJECT
 public:
-    QqComboFilter(Context *, Layer *);
-    QqComboFilter(Context *, TextLayer *);
+    QqComboFilter(Context *, Layer *, QWidget*);
+    QqComboFilter(Context *, TextLayer *, QWidget*);
     ~QqComboFilter();
 
     void addLayer(Layer *);
@@ -23,13 +23,12 @@ public slots:
     void chgParam(double);   // à finir
 
 private :
-    bool isTextLayer;
-    bool layerSet;
     Layer *qLayer;
     TextLayer *qTextLayer;
     QComboBox *filterBox;
     QDoubleSpinBox *filterParam;
     QqFiltersListApplied *filtersListApplied;
     Context *freej;
+    QHBoxLayout* layoutH;
 };
 #endif // QQCOMBOFILTER_H

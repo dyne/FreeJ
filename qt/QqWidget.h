@@ -8,6 +8,7 @@
 #include <QPushButton>
 #include <context.h>
 #include <qfreej.h>
+#include <QBoxLayout>
 
 class Qfreej;
 
@@ -34,7 +35,7 @@ class QqTabWidget : public QTabWidget
 {
     Q_OBJECT
 public:
-    QqTabWidget();
+    QqTabWidget(QWidget*);
     ~QqTabWidget();
     QTabBar *getTabBar();
 
@@ -53,11 +54,10 @@ public:
     QqWidget(Context *,  QqTabWidget*, Qfreej*, QString);   //Layer
     QqWidget(Context *, QqTabWidget*, Qfreej*);             //TextLayer
     ~QqWidget();
-    void addLayer(Layer *);
-    void addLayer(TextLayer *);
     FakeWindow* getFake();
     Layer* getLayer();
     TextLayer* getTextLayer();
+    Context* getContext();
 
 
 public slots:
@@ -73,13 +73,13 @@ private:
     int newIdx;
     Layer *qLayer;
     TextLayer *qTextLayer;
-    bool isTextLayer;
-    bool layerSet;
     QTextEdit *text;
     QPushButton *textButton;
     QPushButton *slowButton;
     QComboBox *fontSizeBox;
     Context *ctx;
     FakeWindow* fakeView;
+    QVBoxLayout* layoutV;
+    QHBoxLayout* layoutH;
 };
 #endif // QQWIDGET_H

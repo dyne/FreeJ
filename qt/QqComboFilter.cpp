@@ -12,11 +12,9 @@
 using namespace std;
 
 
-QqComboFilter::QqComboFilter(Context *freejQ, Layer *lay) : QWidget()
+QqComboFilter::QqComboFilter(Context *freejQ, Layer *lay, QWidget* parent) : QWidget(parent)
 {
     freej = freejQ;
-    isTextLayer = false;
-    layerSet = true;
     qLayer = lay;
     qTextLayer = NULL;
     QStringList filterStrlist;
@@ -69,23 +67,21 @@ QqComboFilter::QqComboFilter(Context *freejQ, Layer *lay) : QWidget()
     filterStrlist << "TehRoxx0r" << "Threshold0r" << "Transparency" << "Twolay0r" << "Vectorscope";
     filterStrlist << "Water";
 */
-    filterBox = new QComboBox;
+    filterBox = new QComboBox(this);
     filterBox->view()->dragEnabled();
     filterBox->addItems(filterStrlist);
     connect(filterBox, SIGNAL(activated(QString)), this, SLOT(addFilter(QString)));
-    QHBoxLayout *layoutH = new QHBoxLayout;
+    layoutH = new QHBoxLayout;
     layoutH->addWidget(filterBox);
-    filtersListApplied = new QqFiltersListApplied(lay);
+    filtersListApplied = new QqFiltersListApplied(lay, this);
 
     layoutH->addWidget(filtersListApplied);
     this->setLayout(layoutH);
 }
 
-QqComboFilter::QqComboFilter(Context *freejQ, TextLayer *lay) : QWidget()
+QqComboFilter::QqComboFilter(Context *freejQ, TextLayer *lay, QWidget *parent) : QWidget(parent)
 {
     freej = freejQ;
-    isTextLayer = true;
-    layerSet = true;
     qLayer = NULL;
     qTextLayer = lay;
     QStringList filterStrlist;
@@ -138,14 +134,14 @@ QqComboFilter::QqComboFilter(Context *freejQ, TextLayer *lay) : QWidget()
     filterStrlist << "TehRoxx0r" << "Threshold0r" << "Transparency" << "Twolay0r" << "Vectorscope";
     filterStrlist << "Water";
 */
-    filterBox = new QComboBox;
+    filterBox = new QComboBox(this);
     filterBox->view()->dragEnabled();
     filterBox->addItems(filterStrlist);
     connect(filterBox, SIGNAL(activated(QString)), this, SLOT(addFilter(QString)));
-    QHBoxLayout *layoutH = new QHBoxLayout;
+    layoutH = new QHBoxLayout;
     layoutH->addWidget(filterBox);
 
-    filtersListApplied = new QqFiltersListApplied(lay);
+    filtersListApplied = new QqFiltersListApplied(lay, this);
     layoutH->addWidget(filtersListApplied);
     this->setLayout(layoutH);
 }
@@ -153,16 +149,11 @@ QqComboFilter::QqComboFilter(Context *freejQ, TextLayer *lay) : QWidget()
 
 QqComboFilter::~QqComboFilter()
 {
+    delete layoutH;
 }
 
 void QqComboFilter::chgParam(double prm)
 {
-    if (isTextLayer)
-    {
-    }
-    else
-    {
-    }
 }
 
 void QqComboFilter::addFilter(QString flt)
@@ -174,12 +165,6 @@ void QqComboFilter::addFilter(QString flt)
 
     strcpy (filterName,folt.data());
 
-    if (!layerSet)
-    {
-        cout << "QqComboBox Layer not set" << endl;
-        return;
-    }
-
     filt = (Filter*)freej->filters.search(filterName, &idx);
     if(!filt) {
        cout << "filter not found: " << flt.toStdString() << endl;
@@ -187,7 +172,7 @@ void QqComboFilter::addFilter(QString flt)
     }
 
     FilterInstance *filterI;
-    if (isTextLayer)
+    if (qTextLayer)
     {
         filterI = filt->apply(qTextLayer);
         if( !filterI ) {
@@ -195,7 +180,7 @@ void QqComboFilter::addFilter(QString flt)
             return;
         }
     }
-    else
+    else if (qLayer)
     {
         filterI = filt->apply(qLayer);
         if( !filterI) {
@@ -209,14 +194,10 @@ void QqComboFilter::addFilter(QString flt)
 
 void QqComboFilter::addLayer(Layer *lay)
 {
-    isTextLayer = false;
     qLayer = lay;
-    layerSet = true;
 }
 
 void QqComboFilter::addTextLayer(TextLayer *lay)
 {
-    isTextLayer = true;
     qTextLayer = lay;
-    layerSet = true;
 }

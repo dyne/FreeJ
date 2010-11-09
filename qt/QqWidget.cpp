@@ -4,7 +4,7 @@
 #include <QMessageBox>
 #include <QAction>
 #include "qfreej.h"
-#include <QBoxLayout>
+//#include <QBoxLayout>
 #include <QqComboBlit.h>
 #include <QqComboFilter.h>
 #include <QDebug>
@@ -17,7 +17,7 @@ extern QSize viewSize;
 
 using namespace std;
 
-QqTabWidget::QqTabWidget() : QTabWidget()
+QqTabWidget::QqTabWidget(QWidget* parent) : QTabWidget(parent)
 {
     setToolTip("you can change Layers order by sliding tabs");
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
@@ -37,6 +37,7 @@ void QqTabWidget::moveLayer(int from, int to)
 {
     if (QqWidget *widg = qobject_cast<QqWidget *>(this->widget(from)))
     {
+        Context* ctx = widg->getContext();
         int newFrom = from;
         newFrom++;
 
@@ -44,6 +45,7 @@ void QqTabWidget::moveLayer(int from, int to)
             lay->move(newFrom);
         else if (TextLayer* textlay = widg->getTextLayer())
             textlay->move(newFrom);
+        ctx->screen->clear();
     }
 }
 
@@ -90,6 +92,7 @@ FakeWindow::FakeWindow(Context *context, TextLayer *textlayer, Geometry *geo, QW
 
 FakeWindow::~FakeWindow()
 {
+    delete winGeo;
 }
 
 Context* FakeWindow::getContext()
@@ -157,35 +160,31 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 
     ctx = freej;
     setAttribute(Qt::WA_DeleteOnClose);
-    isTextLayer = false;
-    layerSet = false;
     newIdx = 0;
 
-    QVBoxLayout *layoutV = new QVBoxLayout;
-    QHBoxLayout *layoutH = new QHBoxLayout;
+    layoutV = new QVBoxLayout;
+    layoutH = new QHBoxLayout;
 
-    addLayer (qLayer);
-
-    QqComboBlit *blt = new QqComboBlit;
+    QqComboBlit *blt = new QqComboBlit(this);
     blt->addLayer(qLayer);
 
-    slowButton = new QPushButton("Slow");
+    slowButton = new QPushButton("Slow",this);
     connect (slowButton, SIGNAL(clicked()), this, SLOT(slowDown()));
 
     layoutH->addWidget(blt);
-    QqComboFilter *filter = new QqComboFilter(freej, qLayer);
+    QqComboFilter *filter = new QqComboFilter(freej, qLayer, this);
 
     filter->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);  // on the highter widget to fix the maximum hight
     layoutH->addWidget(filter);                                         // off the layer
 
     layoutH->addWidget(slowButton);
-    QPushButton *cleanButton = new QPushButton("Clean");
+    QPushButton *cleanButton = new QPushButton("Clean", this);
     connect (cleanButton, SIGNAL(clicked()), this, SLOT(clean()));
     layoutH->addWidget(cleanButton);
     layoutV->addLayout(layoutH);
 
 
-    QWidget *bg = new QWidget();
+    QWidget *bg = new QWidget(this);
     bg->setMinimumWidth(640);
     bg->setMinimumHeight(480);
     bg->setStyleSheet("QWidget { background-color: black; }");
@@ -194,7 +193,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 
     fakeView = new FakeWindow(freej, (Layer *)NULL, &freej->screen->geo, bg);
     fakeView->setStyleSheet("QWidget { background-color: blue; }");
-    SpecialEventGet* eventGet = new SpecialEventGet();
+    SpecialEventGet* eventGet = new SpecialEventGet(this);
     fakeView->installEventFilter(eventGet);
     fakeView->setToolTip("Drag Left button to move Viewport, Drag center to resize");
 
@@ -252,19 +251,16 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
 
     ctx = freej;
     setAttribute(Qt::WA_DeleteOnClose);
-    isTextLayer = false;
-    layerSet = false;
     newIdx = 0;
 
-    addLayer(qTextLayer);
-    QVBoxLayout *layoutV = new QVBoxLayout;
-    QHBoxLayout *layoutH = new QHBoxLayout;
+    layoutV = new QVBoxLayout;
+    layoutH = new QHBoxLayout;
 
     textButton = new QPushButton ("Apply");
     connect(textButton, SIGNAL(clicked()), this, SLOT(modTextLayer()));
     layoutH->addWidget(textButton);
 
-    QComboBox *fontSizeBox = new QComboBox;
+    QComboBox *fontSizeBox = new QComboBox(this);
     for (int i=40;i>=5;i--)
     {
         fontSizeBox->insertItem(0, QString::number(i));
@@ -274,20 +270,20 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     connect(fontSizeBox, SIGNAL(currentIndexChanged(int)), this, SLOT(changeFontSize(int)));
 
     layoutH->addWidget(fontSizeBox);
-    QqComboBlit *blt = new QqComboBlit;
+    QqComboBlit *blt = new QqComboBlit(this);
     blt->addTextLayer(qTextLayer);
 
     layoutH->addWidget(blt);
-    QqComboFilter *filter = new QqComboFilter(freej, qTextLayer);
+    QqComboFilter *filter = new QqComboFilter(freej, qTextLayer, this);
     layoutH->addWidget(filter);
 
     layoutV->addLayout(layoutH);
-    QTextEdit *texto = new QTextEdit();
+    QTextEdit *texto = new QTextEdit(this);
     text = texto;
     texto->setMaximumHeight(40);
     layoutV->addWidget(texto);
 
-    QWidget *bg = new QWidget();
+    QWidget *bg = new QWidget(this);
     bg->setMinimumWidth(640);
     bg->setMinimumHeight(480);
     bg->setStyleSheet("QWidget { background-color: black; }");
@@ -296,7 +292,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
 
     fakeView = new FakeWindow(freej, (Layer *)NULL, &freej->screen->geo, bg);
     fakeView->setStyleSheet("QWidget { background-color: blue; }");
-    SpecialEventGet* eventGet = new SpecialEventGet();
+    SpecialEventGet* eventGet = new SpecialEventGet(this);
     fakeView->installEventFilter(eventGet);
     fakeView->setToolTip("Drag Left button to move Viewport, Drag center to resize");
 
@@ -310,9 +306,12 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
 
 QqWidget::~QqWidget()
 {
-    Entry *le, *fe;
+    delete layoutH;
+    delete layoutV;
+    ctx->screen->clear();
+//    Entry *le, *fe;
 
-    bool res = false;
+//    bool res = false;
 
 /*
     if(ctx->screens.selected()->layers.len() > 0) { // there are layers
@@ -339,13 +338,6 @@ QqWidget::~QqWidget()
         if (qLayer->active)
             ctx->rem_layer(qLayer);
     }
-/*
-    if (qTextLayer)
-        //delete qTextLayer;
-        qDebug() << "quit";
-    else if (qLayer)
-        delete qLayer;
-*/
 }
 
 //clean the view
@@ -377,19 +369,15 @@ void QqWidget::changeFontSize(int sizeIdx)
 
 void QqWidget::modTextLayer()
 {
-    char tmp[2048];
-
     QString txt = text->toPlainText();
-    QByteArray fich = txt.toAscii();
-    strcpy (tmp,fich.data());
-    qTextLayer->write(tmp);
-    cout << "text changed\n" << endl;
+    qTextLayer->write(txt.toStdString().c_str());
+    ctx->screen->clear();
 }
 
 void QqWidget::slowDown()
 {
     //normal speed devided by two
-    if (!isTextLayer)
+    if (qLayer)
     {
         if (actualFps != slowFps)
         {
@@ -408,18 +396,7 @@ void QqWidget::slowDown()
     }
 }
 
-void QqWidget::addLayer(Layer *lay)
+Context* QqWidget::getContext()
 {
-    isTextLayer = false;
-    qLayer = lay;
-    qTextLayer = NULL;
-    layerSet = true;
-}
-
-void QqWidget::addLayer(TextLayer *lay)
-{
-    isTextLayer = true;
-    qTextLayer = lay;
-    qLayer = NULL;
-    layerSet = true;
+    return(ctx);
 }
