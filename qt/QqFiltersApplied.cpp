@@ -15,9 +15,11 @@ QqSlider::QqSlider(int idx, FilterInstance *filter, QWidget *parent) : QSlider()
     paramNumber = idx;
     filterI = filter;
     setOrientation(Qt::Horizontal);
-    double* val = (double *) filterI->parameters[paramNumber]->get ();
-    int value = (int)(*val * 100.0);
+//    double* val = (double *) filterI->parameters[paramNumber]->get ();
+    double val = 0.0;
+    int value = (int)(val * 100.0);
     this->setValue(value);
+    //filterI->parameters[paramNumber]->set(&val);
     connect(this, SIGNAL(sliderMoved(int)), this, SLOT(changeValue(int)));
 }
 
@@ -30,6 +32,7 @@ void QqSlider::changeValue(int value)
     double nbr = (double)value / 100.0;
     //to see if it does something ... and it does :)
     filterI->parameters[paramNumber]->set((void *)&nbr);
+    filterI->get_layer()->screen->clear();  //cleans the screen
 }
 
 QqCheck::QqCheck(int idx, FilterInstance *filter, QWidget *parent) : QCheckBox(parent)
@@ -54,6 +57,7 @@ void QqCheck::changeValue(int state)
         bol = false;
         m_filterI->parameters[m_paramNumber]->set((void *)&bol);
     }
+    m_filterI->get_layer()->screen->clear();  //cleans the screen
 }
 
 QqColor::QqColor(int idx, FilterInstance *filter, QWidget *parent) : QGroupBox(parent)
@@ -64,7 +68,7 @@ QqColor::QqColor(int idx, FilterInstance *filter, QWidget *parent) : QGroupBox(p
     this->setTitle(filter->parameters[idx]->name);
 
     double rgb[3];
-    double *rgb_init;
+//    double *rgb_init;
 /*
     it seems that there is no default value, so don't use
     rgb_init = (double *) m_filterI->parameters[m_paramNumber]->get ();
@@ -116,6 +120,7 @@ void QqColor::changeColor (int val, int idx)
     rgb[2] = rgb_init[2];
     rgb[idx] = val/255.0;
     m_filterI->parameters[m_paramNumber]->set((void *)rgb);
+    m_filterI->get_layer()->screen->clear();  //cleans the screen
 }
 
 void QqColor::changeRed(int val)
@@ -131,6 +136,68 @@ void QqColor::changeGreen(int val)
 void QqColor::changeBlue(int val)
 {
     changeColor (val,2);
+}
+
+QqPos::QqPos(int idx, FilterInstance *filter, QWidget *parent) : QGroupBox(parent)
+{
+    m_paramNumber = idx;
+    m_filterI = filter;
+    QGridLayout *layout = new QGridLayout();
+    this->setTitle(filter->parameters[idx]->name);
+
+    double pos[2];
+//    double *pos_init;
+/*
+    it seems that there is no default value, so I don't use
+    pos_init = (double *) m_filterI->parameters[m_paramNumber]->get ();
+    pos[0] = pos_init[0];
+    pos[1] = pos_init[1];
+*/
+    //default values
+    pos[0] = 0.0;
+    pos[1] = 0.0;
+
+    QSlider *x = new QSlider(this);
+    x->setOrientation(Qt::Horizontal);
+    connect(x, SIGNAL(sliderMoved(int)), this, SLOT(changeX(int)));
+    x->setRange(0, 1000);
+    int value = (int)(pos[0] * 1000.0);
+    x->setValue(value);
+    x->setSliderDown(true);
+    layout->addWidget(x, 0, 0);
+
+    QSlider *y = new QSlider(this);
+    y->setOrientation(Qt::Horizontal);
+    connect(y, SIGNAL(sliderMoved(int)), this, SLOT(changeY(int)));
+    y->setSliderDown(true);
+    y->setRange(0, 1000);
+    value = (int)(pos[1] * 1000.0);
+    y->setValue(value);
+    layout->addWidget(y, 1, 0);
+
+    this->setLayout(layout);
+ }
+
+void QqPos::changePos (int val, int idx)
+{
+    double pos[2];
+    double *pos_init;
+    pos_init = (double *) m_filterI->parameters[m_paramNumber]->get ();
+    pos[0] = pos_init[0];
+    pos[1] = pos_init[1];
+    pos[idx] = val/1000.0;
+    m_filterI->parameters[m_paramNumber]->set((void *)pos);
+    m_filterI->get_layer()->screen->clear();  //cleans the screen
+}
+
+void QqPos::changeX(int val)
+{
+    changePos (val,0);
+}
+
+void QqPos::changeY(int val)
+{
+    changePos (val,1);
 }
 
 QqFilter::QqFilter(FilterInstance *filterI) : QListWidgetItem()
@@ -175,11 +242,11 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
             QqSlider *slider = new QqSlider(i, filterI, this);
             slider->setSliderDown(true);
             slider->setRange(0,100);
-            slider->setTickInterval(1);
             layoutH->addWidget(slider);
             layoutV->addLayout(layoutH);
             setLayout(layoutV);
             this->show();
+            qDebug() << "NUMBER";
         }
         else if (filterI->parameters[i]->type == Parameter::BOOL)
         {
@@ -201,6 +268,11 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
         }
         else if (filterI->parameters[i]->type == Parameter::POSITION)
         {
+            QqPos *pos = new QqPos(i, filterI, this);
+            layoutH->addWidget(pos);
+            layoutV->addLayout(layoutH);
+            this->show();
+
             qDebug() << "size POSITION:" << filterI->parameters[i]->value_size;
         }
         else if (filterI->parameters[i]->type == Parameter::STRING)

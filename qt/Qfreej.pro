@@ -21,6 +21,7 @@ SOURCES += main.cpp \
     QqFiltersApplied.h \
     specialeventget.h
 FORMS += qfreej.ui
+CFLAGS += g
 LIBS += -lfreej
 INCLUDEPATH += ../src/include \
     ../ \

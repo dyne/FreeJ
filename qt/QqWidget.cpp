@@ -2,15 +2,14 @@
 #include <iostream>
 #include <QTabWidget>
 #include <QMessageBox>
-#include <QAction>
 #include "qfreej.h"
-//#include <QBoxLayout>
 #include <QqComboBlit.h>
 #include <QqComboFilter.h>
 #include <QDebug>
 #include <QGridLayout>
 #include <specialeventget.h>
 #include <QFile>
+#include <QDial>
 
 
 extern QSize viewSize;
@@ -181,6 +180,10 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     QPushButton *cleanButton = new QPushButton("Clean", this);
     connect (cleanButton, SIGNAL(clicked()), this, SLOT(clean()));
     layoutH->addWidget(cleanButton);
+
+    QDial* dial = new QDial(this);
+    layoutH->addWidget(dial);
+
     layoutV->addLayout(layoutH);
 
 

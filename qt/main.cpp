@@ -22,13 +22,13 @@
 QSize viewSize;
 
 //todo
-//finish delete track in QqFiltersApplied and specialeventget
-//insert other filters parameters
+//be able to rotate the layers
 //put gpl titles
 //be able to record the viewport, and replay it.
 //replace slow button by a slider
-//find a place where to the zoom x and y ratio of the layer
+//find a place where the layer zoom x and y ratio can be displayed.
 //devide the fake size window by two .... not sure :)
+//insert STRING filters parameters
 
 int main(int argc, char *argv[])
 {

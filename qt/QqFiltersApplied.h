@@ -56,6 +56,22 @@ private:
     FilterInstance *m_filterI;
 };
 
+class QqPos : public QGroupBox
+{
+    Q_OBJECT
+public:
+    QqPos(int, FilterInstance *, QWidget *);
+
+public slots:
+    void changeX(int);
+    void changeY(int);
+
+private:
+    void changePos(int, int);
+    int m_paramNumber;
+    FilterInstance *m_filterI;
+};
+
 
 class QqFilterParam : public QWidget
 {
