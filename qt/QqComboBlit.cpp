@@ -19,11 +19,13 @@ QqComboBlit::QqComboBlit(QWidget* parent) : QWidget(parent)
     blits << "REDMASK" << "GREENMASK" << "BLUEMASK" << "NEG" << "ADDB" << "ADDBH" << "SUBB" << "SHL";
     blits << "SHLB" << "SHR" << "MULB" << "BIN" << "SDL" << "ALPHA" << "SRCALPHA";
     blitBox = new QComboBox(this);
+    blitBox->setToolTip("BLIT applied to the layer");
     blitBox->addItems(blits);
     connect(blitBox, SIGNAL(activated(QString)), this, SLOT(addBlit(QString)));
     layoutH = new QHBoxLayout;
     layoutH->addWidget(blitBox);
     blitParam = new QDoubleSpinBox(this);
+    blitParam->setToolTip("BLIT parameter value");
     connect(blitParam, SIGNAL(valueChanged(double)), this, SLOT(chgParam(double)));
     blitParam->setDecimals(1);
     blitParam->setMinimum(0);

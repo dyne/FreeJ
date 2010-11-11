@@ -22,7 +22,7 @@
 QSize viewSize;
 
 //todo
-//be able to rotate the layers ... work in progress (use of QPainter)
+//dispach classes in several files
 //put gpl titles
 //be able to record the viewport, and replay it.
 //replace slow button by a slider

@@ -18,7 +18,7 @@ using namespace std;
 
 QqTabWidget::QqTabWidget(QWidget* parent) : QTabWidget(parent)
 {
-    setToolTip("you can change Layers order by sliding tabs");
+    parent->setToolTip("you can change Layers order by sliding tabs");
     connect(this, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
     connect(this, SIGNAL(currentChanged(int)), this, SLOT(setSize(int)));
 }
@@ -60,19 +60,23 @@ void QqTabWidget::closeTab(int idx)
 //keeps all fake viewport the same size.
 void QqTabWidget::setSize(int idx)
 {
-    if (idx > 0)
+    if (idx >= 0)
     {
-        QqWidget* widg = (QqWidget *)widget(idx);
+        QqWidget* widg = qobject_cast<QqWidget *>(this->widget(idx));
         if (widg)
         {
             FakeWindow* fake = widg->getFake();
-            fake->resize(viewSize);
+            if (fake)
+                fake->resize(viewSize);
         }
     }
 }
 
+//layer
 FakeWindow::FakeWindow(Context *context, Layer *layer, Geometry *geo, QWidget* parent) : QWidget(parent)
 {
+    m_angle=0;
+    m_painter = new QPainter(this);
     qContext = context;
     qLayer = layer;
     qTextLayer = NULL;
@@ -80,8 +84,11 @@ FakeWindow::FakeWindow(Context *context, Layer *layer, Geometry *geo, QWidget* p
     setGeometry(*winGeo);
 }
 
+//textlayer
 FakeWindow::FakeWindow(Context *context, TextLayer *textlayer, Geometry *geo, QWidget *parent) : QWidget(parent)
 {
+    m_angle=0;
+    m_painter = new QPainter(this);
     qContext = context;
     qTextLayer = textlayer;
     qLayer = NULL;
@@ -91,6 +98,7 @@ FakeWindow::FakeWindow(Context *context, TextLayer *textlayer, Geometry *geo, QW
 
 FakeWindow::~FakeWindow()
 {
+    delete m_painter;
     delete winGeo;
 }
 
@@ -114,10 +122,27 @@ QRect* FakeWindow::getWinGeo()
     return(winGeo);
 }
 
+void FakeWindow::setAngle(int angle)
+{
+    m_angle = angle;
+}
+
+int FakeWindow::getAngle()
+{
+    return(m_angle);
+}
+
+QPainter* FakeWindow::getPainter()
+{
+    return(m_painter);
+}
+
 //Layer
 QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QString fichier) : QWidget(qfreej)
 {
     qTextLayer = NULL;
+    fakeView = NULL;
+    fakeLay = NULL;
     qLayer = freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
 
     if(qLayer)
@@ -169,27 +194,30 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 
     slowButton = new QPushButton("Slow",this);
     connect (slowButton, SIGNAL(clicked()), this, SLOT(slowDown()));
-
+    slowButton->setToolTip("slow down FPS by 50%\nor return to normal speed");
     layoutH->addWidget(blt);
     QqComboFilter *filter = new QqComboFilter(freej, qLayer, this);
+    filter->setToolTip("filters to be applied");
 
     filter->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);  // on the highter widget to fix the maximum hight
     layoutH->addWidget(filter);                                         // off the layer
 
     layoutH->addWidget(slowButton);
     QPushButton *cleanButton = new QPushButton("Clean", this);
+    cleanButton->setToolTip("cleans the screen");
     connect (cleanButton, SIGNAL(clicked()), this, SLOT(clean()));
     layoutH->addWidget(cleanButton);
 
 
-    m_angle = new QDoubleSpinBox(this);
-    connect(m_angle, SIGNAL(valueChanged(double)), this, SLOT(changeAngle(double)));
-    m_angle->setMinimum(0.0);
-    m_angle->setMaximum(360.0);
-    m_angle->setDecimals(0);
-    m_angle->setSingleStep(1.0);
-    m_angle->setToolTip("rotate the layer");
-    layoutH->addWidget(m_angle);
+    m_angleBox = new QDoubleSpinBox(this);
+    connect(m_angleBox, SIGNAL(valueChanged(double)), this, SLOT(changeAngle(double)));
+    connect(m_angleBox, SIGNAL(editingFinished()), this, SLOT(redrawFake()));
+    m_angleBox->setMinimum(-360.0);
+    m_angleBox->setMaximum(360.0);
+    m_angleBox->setDecimals(0);
+    m_angleBox->setSingleStep(1.0);
+    m_angleBox->setToolTip("rotate the layer\npress ENTER to update fake");
+    layoutH->addWidget(m_angleBox);
 
     layoutV->addLayout(layoutH);
 
@@ -205,13 +233,12 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     fakeView->setStyleSheet("QWidget { background-color: blue; }");
     SpecialEventGet* eventGet = new SpecialEventGet(this);
     fakeView->installEventFilter(eventGet);
-    fakeView->setToolTip("Drag Left button to move Viewport, Drag center to resize");
+    fakeView->setToolTip("Drag right button to resize screen");
 
 
     fakeLay = new FakeWindow(freej, qLayer, &qLayer->geo, fakeView);
-    fakeLay->setStyleSheet("QWidget { background-color: red; }");
     fakeLay->installEventFilter(eventGet);
-    fakeLay->setToolTip("Drag Left button to move Layer, Drag center to resize");
+    fakeLay->setToolTip("Drag Left button to move Layer, Drag right to resize");
 
     setLayout(layoutV);
 }
@@ -220,6 +247,8 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWidget(qfreej)
 {
     qLayer = NULL;
+    fakeView = NULL;
+    fakeLay = NULL;
     QString filename = "textouille.txt";
     QFile file( filename );
     if (file.open(QIODevice::WriteOnly))
@@ -267,10 +296,12 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     layoutH = new QHBoxLayout;
 
     textButton = new QPushButton ("Apply");
+    textButton->setToolTip("apply text on the textlayer");
     connect(textButton, SIGNAL(clicked()), this, SLOT(modTextLayer()));
     layoutH->addWidget(textButton);
 
     QComboBox *fontSizeBox = new QComboBox(this);
+    fontSizeBox->setToolTip("set Font size");
     for (int i=40;i>=5;i--)
     {
         fontSizeBox->insertItem(0, QString::number(i));
@@ -285,19 +316,22 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
 
     layoutH->addWidget(blt);
     QqComboFilter *filter = new QqComboFilter(freej, qTextLayer, this);
+    filter->setToolTip("filters to be applied");
     layoutH->addWidget(filter);
 
-    m_angle = new QDoubleSpinBox(this);
-    connect(m_angle, SIGNAL(valueChanged(double)), this, SLOT(changeAngle(double)));
-    m_angle->setMinimum(0.0);
-    m_angle->setMaximum(360.0);
-    m_angle->setDecimals(0);
-    m_angle->setSingleStep(1.0);
-    m_angle->setToolTip("rotate the layer");
-    layoutH->addWidget(m_angle);
+    m_angleBox = new QDoubleSpinBox(this);
+    connect(m_angleBox, SIGNAL(valueChanged(double)), this, SLOT(changeAngle(double)));
+    connect(m_angleBox, SIGNAL(editingFinished()), this, SLOT(redrawFake()));
+    m_angleBox->setMinimum(-360.0);
+    m_angleBox->setMaximum(360.0);
+    m_angleBox->setDecimals(0);
+    m_angleBox->setSingleStep(1.0);
+    m_angleBox->setToolTip("rotate the layer\npress ENTER to update fake");
+    layoutH->addWidget(m_angleBox);
 
     layoutV->addLayout(layoutH);
     QTextEdit *texto = new QTextEdit(this);
+    texto->setToolTip("text to be applied on the textlayer");
     text = texto;
     texto->setMaximumHeight(40);
     layoutV->addWidget(texto);
@@ -313,12 +347,11 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     fakeView->setStyleSheet("QWidget { background-color: blue; }");
     SpecialEventGet* eventGet = new SpecialEventGet(this);
     fakeView->installEventFilter(eventGet);
-    fakeView->setToolTip("Drag Left button to move Viewport, Drag center to resize");
+    fakeView->setToolTip("Drag right button to resize screen");
 
     fakeLay = new FakeWindow(freej, qTextLayer, &qTextLayer->geo, fakeView);
-    fakeLay->setStyleSheet("QWidget { background-color: red; }");
     fakeLay->installEventFilter(eventGet);
-    fakeLay->setToolTip("Drag Left button to move Layer, Drag center to resize");
+    fakeLay->setToolTip("Drag Left button to move TextLayer, Drag center to resize");
 
     setLayout(layoutV);
 }
@@ -341,14 +374,50 @@ QqWidget::~QqWidget()
     }
 }
 
+//slot called when m_angleBox edit finished
+void QqWidget::redrawFake()
+{
+    if (fakeLay)
+    {
+        double val = m_angleBox->value();
+        fakeLay->setAngle((int)val);
+        if (qLayer)
+        {
+            qLayer->set_rotate(-val);
+        }
+        else if (qTextLayer)
+        {
+            qTextLayer->set_rotate(-val);
+        }
+        fakeLay->repaint();
+    }
+}
+
 //rotate Layer
 void QqWidget::changeAngle(double val)
 {
     if (qLayer)
-        qLayer->set_rotate(val);
+        qLayer->set_rotate(-val);
     else if (qTextLayer)
-        qTextLayer->set_rotate(val);
+        qTextLayer->set_rotate(-val);
     ctx->screen->clear();
+    m_angle = val;
+    if (fakeLay)
+    {
+        fakeLay->setAngle((int)val);
+  //      fakeLay->repaint();
+    }
+}
+
+void QqWidget::setAngle(double val)
+{
+    m_angle = val;
+    m_angleBox->setValue(val);
+}
+
+double QqWidget::getAngle()
+{
+    return(m_angle);
 }
 
 //clean the view
@@ -369,7 +438,10 @@ TextLayer* QqWidget::getTextLayer()
 
 FakeWindow* QqWidget::getFake()
 {
-    return(fakeView);
+    if (fakeView)
+        return(fakeView);
+    else
+        return (NULL);
 }
 
 void QqWidget::changeFontSize(int sizeIdx)

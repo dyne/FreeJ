@@ -10,6 +10,7 @@
 #include <qfreej.h>
 #include <QBoxLayout>
 #include <QDoubleSpinBox>
+#include <QPainter>
 
 class Qfreej;
 
@@ -23,6 +24,9 @@ public:
     Layer *getLayer();
     TextLayer *getTextLayer();
     QRect* getWinGeo();
+    int getAngle();
+    void setAngle(int);
+    QPainter *getPainter();
 
 private:
     TextLayer *qTextLayer;
@@ -30,6 +34,8 @@ private:
     Context *qContext;
     Layer *qLayer;
     FakeWindow* fakeView;
+    int m_angle;
+    QPainter* m_painter;
 };
 
 class QqTabWidget : public QTabWidget
@@ -59,6 +65,8 @@ public:
     Layer* getLayer();
     TextLayer* getTextLayer();
     Context* getContext();
+    void setAngle(double);
+    double getAngle();
 
 public slots:
     void slowDown();
@@ -66,6 +74,7 @@ public slots:
     void changeFontSize(int);
     void clean();
     void changeAngle(double);
+    void redrawFake();
 
 private:
     int slowFps;
@@ -83,6 +92,7 @@ private:
     FakeWindow* fakeLay;
     QVBoxLayout* layoutV;
     QHBoxLayout* layoutH;
-    QDoubleSpinBox *m_angle;
+    QDoubleSpinBox *m_angleBox;
+    double m_angle;
 };
 #endif // QQWIDGET_H

@@ -10,6 +10,8 @@ SpecialEventGet::SpecialEventGet(QObject* parent) : QObject(parent)
 {
     shift.setX(0);
     shift.setY(0);
+    offset.setX(0);
+    offset.setY(0);
 }
 
 bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
@@ -31,7 +33,7 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
         Context* context = fake->getContext();
         Layer* layer = fake->getLayer();
         TextLayer* textlayer = fake->getTextLayer();
-        if (btn==Qt::LeftButton)  //change position
+        if (btn==Qt::LeftButton)  //change position, only layers
         {
             if (layer)
             {
@@ -91,10 +93,85 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             offset = evt->pos();
             context->screen->clear();
         }
+        else if (btn==Qt::MiddleButton)
+        {
+            if (layer)
+            {
+                if (evt->pos().x() - offset.x() > 0)
+                {
+                    int angle = fake->getAngle() + (evt->pos().x() - offset.x()) / 10 % 360;
+                    if (angle >= 360)
+                        angle = 0;
+                    qDebug() << "angle:" << angle;
+                    fake->setAngle(angle);
+                }
+                else if (evt->pos().x() - offset.x() < 0)
+                {
+                    int angle = fake->getAngle() + (evt->pos().x() - offset.x()) / 10 % 360;
+                    if (angle <= -360)
+                        angle = 0;
+                    qDebug() << "angle:" << angle;
+                    fake->setAngle(angle);
+                }
+                fake->repaint();
+                layer->set_rotate(- fake->getAngle());
+                context->screen->clear();
+            }
+            else if (textlayer)
+            {
+                if (evt->pos().x() - offset.x() > 0)
+                {
+                    int angle = fake->getAngle() + (evt->pos().x() - offset.x()) / 10 % 360;
+                    if (angle >= 360)
+                        angle = 0;
+                    fake->setAngle(angle);
+                }
+                else if (evt->pos().x() - offset.x() < 0)
+                {
+                    int angle = fake->getAngle() + (evt->pos().x() - offset.x()) / 10 % 360;
+                    if (angle <= -360)
+                        angle = 0;
+                    fake->setAngle(angle);
+                }
+                fake->repaint();
+                textlayer->set_rotate(- fake->getAngle());
+                context->screen->clear();
+            }
+        }
     }
     else if(event->type() == QEvent::MouseButtonRelease)
     {
         offset = QPoint();
+    }
+    else if(event->type() == QEvent::Paint)
+    {
+        FakeWindow *fake = static_cast<FakeWindow*>(obj);
+        if (fake->getLayer() || fake->getTextLayer())
+        {
+            QqWidget *widg = qobject_cast<QqWidget *>(this->parent());
+            if (widg)
+            {
+                widg->setAngle((double)fake->getAngle());
+            }
+            QPainter* painter = fake->getPainter();
+            if (painter->begin(fake))
+            {
+                painter->save();
+                QColor color(127, 127, 127, 191);
+                QRect size(fake->geometry());
+                size.setTopLeft(QPoint(0,0));
+                QPoint center = size.center();
+                painter->translate(center.x(), center.y());
+                painter->setPen(Qt::NoPen);
+                painter->setBrush(color);
+                painter->rotate(fake->getAngle());
+                painter->setRenderHint(QPainter::Antialiasing);
+                size = QRect(-center.x(), -center.y(), size.width(), size.height());
+                painter->drawRect(size);
+                painter->restore();
+                painter->end();
+            }
+        }
     }
     return true;
 }
