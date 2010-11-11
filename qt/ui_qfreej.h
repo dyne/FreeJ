@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'qfreej.ui'
 **
-** Created: Sun Nov 7 00:27:35 2010
+** Created: Wed Nov 10 11:54:58 2010
 **      by: Qt User Interface Compiler version 4.7.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -48,7 +48,7 @@ public:
     {
         if (Qfreej->objectName().isEmpty())
             Qfreej->setObjectName(QString::fromUtf8("Qfreej"));
-        Qfreej->resize(566, 366);
+        Qfreej->resize(562, 362);
         actionOpen = new QAction(Qfreej);
         actionOpen->setObjectName(QString::fromUtf8("actionOpen"));
         centralWidget = new QWidget(Qfreej);
@@ -97,7 +97,7 @@ public:
         Qfreej->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(Qfreej);
         menuBar->setObjectName(QString::fromUtf8("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 566, 22));
+        menuBar->setGeometry(QRect(0, 0, 562, 22));
         Qfreej->setMenuBar(menuBar);
         mainToolBar = new QToolBar(Qfreej);
         mainToolBar->setObjectName(QString::fromUtf8("mainToolBar"));
