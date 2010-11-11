@@ -13,13 +13,17 @@ SOURCES += main.cpp \
     QqWidget.cpp \
     QqComboFilter.cpp \
     QqFiltersApplied.cpp \
-    specialeventget.cpp
+    specialeventget.cpp \
+    FakeWindow.cpp \
+    QqTabWidget.cpp
     HEADERS += qfreej.h \
     QqComboBlit.h \
     QqWidget.h \
     QqComboFilter.h \
     QqFiltersApplied.h \
-    specialeventget.h
+    specialeventget.h \
+    FakeWindow.h \
+    QqTabWidget.h
 FORMS += qfreej.ui
 CFLAGS += g
 LIBS += -lfreej

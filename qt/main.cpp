@@ -1,4 +1,5 @@
 /*  Qfreej
+ *  (c) Copyright 2010 fred_99
  * This source code is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Public License as published
  * by the Free Software Foundation; either version 3 of the License,
@@ -22,11 +23,9 @@
 QSize viewSize;
 
 //todo
-//dispach classes in several files
-//put gpl titles
+//find a place where the layer zoom x and y ratio can be displayed.
 //be able to record the viewport, and replay it.
 //replace slow button by a slider
-//find a place where the layer zoom x and y ratio can be displayed.
 //devide the fake size window by two .... not sure :)
 //insert STRING filters parameters
 
