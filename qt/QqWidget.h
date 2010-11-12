@@ -31,6 +31,7 @@ public:
     Context* getContext();
     void setAngle(double);
     double getAngle();
+    QqTabWidget* getTabWidget();
 
 public slots:
     void slowDown();
@@ -39,17 +40,20 @@ public slots:
     void clean();
     void changeAngle(double);
     void redrawFake();
+    void playPause();
 
 private:
-    int slowFps;
-    int normalFps;
-    int actualFps;
     int newIdx;
     Layer *qLayer;
     TextLayer *qTextLayer;
     QTextEdit *text;
     QPushButton *textButton;
     QPushButton *slowButton;
+    int slowFps;
+    int normalFps;
+    int actualFps;
+    QPushButton *playButton;
+    bool isPlaying;
     QComboBox *fontSizeBox;
     Context *ctx;
     FakeWindow* fakeView;
@@ -58,5 +62,6 @@ private:
     QHBoxLayout* layoutH;
     QDoubleSpinBox *m_angleBox;
     double m_angle;
+    QqTabWidget *m_tabWidg;
 };
 #endif // QQWIDGET_H

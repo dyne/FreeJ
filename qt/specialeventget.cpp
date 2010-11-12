@@ -22,6 +22,7 @@
 #include <QDebug>
 #include <QWidget>
 #include <QqWidget.h>
+#include <QString>
 
 extern QSize viewSize;
 
@@ -83,6 +84,14 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             shift.setY((int)((m_OldSize.height() - layer->geo.h)/2));
             layer->set_position ((shift.x()+fake->pos().x()), (shift.y()+fake->pos().y()));
             context->screen->clear();
+            QqWidget *widg = qobject_cast<QqWidget *>(this->parent());
+            if (widg)
+            {
+                QString text;
+                text = text.sprintf ("%s w%4d h%4d", layer->get_filename(), x1, y1);
+                qDebug() << text;
+                widg->getTabWidget()->setTabText(widg->getTabWidget()->currentIndex(), text);
+            }
             //qDebug() << "zx:" << x1 << "sX:" << shift.x() << "posX:" << fake->pos().x();
         }
         else if (btn==Qt::RightButton && textlayer)
@@ -99,6 +108,14 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             shift.setY((int)((m_OldSize.height() - textlayer->geo.h)/2));
             textlayer->set_position ((shift.x()+fake->pos().x()), (shift.y()+fake->pos().y()));
             context->screen->clear();
+            QqWidget *widg = qobject_cast<QqWidget *>(this->parent());
+            if (widg)
+            {
+                QString text;
+                text = text.sprintf ("%s w%4d h%4d", textlayer->get_filename(), x1, y1);
+                qDebug() << text;
+                widg->getTabWidget()->setTabText(widg->getTabWidget()->currentIndex(), text);
+            }
             //qDebug() << "zx:" << x1 << "sX:" << shift.x() << "posX:" << fake->pos().x();
         }
         else if (btn==Qt::RightButton)

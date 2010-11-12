@@ -47,12 +47,16 @@ Qfreej::Qfreej(QWidget *parent) :
     QMenu *menuFichier = menuBar->addMenu("&Fichier");
 
     QAction *actionPen = menuFichier->addAction("&Open");
-    poller = new QTimer (this);
-
     connect(actionPen, SIGNAL(triggered()), this, SLOT(addLayer()));
 
-    connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
+    QAction *actionAddTextLayer = menuFichier->addAction("&Add Text layer");
+    connect(actionAddTextLayer, SIGNAL(triggered()), this, SLOT(addTextLayer()));
 
+    QAction *actionStream = menuFichier->addAction("&Stream");
+    connect(actionStream, SIGNAL(triggered()), this, SLOT(startStreaming()));//new
+
+    poller = new QTimer (this);
+    connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
     poller->start(10); //start timer to trigger every 10 ms the updateInterface slot
 
     freej = new Context();
@@ -64,34 +68,27 @@ Qfreej::Qfreej(QWidget *parent) :
 Qfreej::~Qfreej()
 {
     poller->stop();
-/*
-    while (freej->screen->layers.len() > 0)
-    {
-        freej->screen->layers[1]->rem();
-    }
-*/
-//    delete freej;
-    delete layoutH;
+//    delete freej;     //to be investigate :)
+//    delete layoutH;
     delete grid;
 }
 
 void Qfreej::closeEvent(QCloseEvent *event)
 {
-    qDebug() << "je sors !!";
     event->accept();
     delete freej;
 }
 
 void Qfreej::init()
 {
-    layoutH = new QHBoxLayout();//new
-    grid->addLayout(layoutH, 1, 0);//new
-    QPushButton *streamButton = new QPushButton("stream", this);//new
-    layoutH->addWidget(streamButton);//new
-    connect(streamButton, SIGNAL(clicked()), this, SLOT(startStreaming()));//new
+//    layoutH = new QHBoxLayout();
+//    grid->addLayout(layoutH, 1, 0);
+//    QPushButton *streamButton = new QPushButton("stream", this);
+//    layoutH->addWidget(streamButton);
+//    connect(streamButton, SIGNAL(clicked()), this, SLOT(startStreaming()));
 
     tabWidget = new QqTabWidget(this);
-    grid->addWidget(tabWidget, 2, 0);//new
+    grid->addWidget(tabWidget, 1, 0);
     setLayout(grid);//new
     tabWidget->setMovable(true);
     //tabWidget->setAttribute(Qt::WA_DeleteOnClose);
@@ -111,7 +108,7 @@ void Qfreej::init()
     freej->interactive = false;
     freej->fps.set( fps );
     freej->start_running = startstate;
-    addTextLayer();
+//    addTextLayer();
 }
 
 void Qfreej::startStreaming()

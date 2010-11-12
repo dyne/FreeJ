@@ -37,11 +37,11 @@ using namespace std;
 //Layer
 QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QString fichier) : QWidget(qfreej)
 {
+    m_tabWidg = NULL;
     qTextLayer = NULL;
     fakeView = NULL;
     fakeLay = NULL;
     qLayer = freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
-
     if(qLayer)
     {
         if( freej->screen->add_layer(qLayer) )
@@ -62,6 +62,8 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             }
             slowFps = normalFps / 2;
             tabWidget->addTab(this, qLayer->get_filename());
+            qLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
+            m_tabWidg = tabWidget;
         }
         else
         {
@@ -116,6 +118,10 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     m_angleBox->setToolTip("rotate the layer\npress ENTER to update fake");
     layoutH->addWidget(m_angleBox);
 
+    playButton = new QPushButton("PAUSE", this);
+    connect (playButton, SIGNAL(clicked()), this, SLOT(playPause()));
+    layoutH->addWidget(playButton);
+    isPlaying = true;
     layoutV->addLayout(layoutH);
 
 
@@ -170,6 +176,8 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
             qTextLayer->fps.set(qTextLayer->frame_rate);
 
             tabWidget->addTab(this, "text zone");
+            qTextLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
+            m_tabWidg = tabWidget;
         }
         else
         {
@@ -268,6 +276,25 @@ QqWidget::~QqWidget()
     {
         if (qLayer->active)
             ctx->rem_layer(qLayer);
+    }
+}
+
+void QqWidget::playPause()
+{
+    if (qLayer)
+    {
+        if (isPlaying)
+        {
+            qLayer->stop();
+            isPlaying = false;
+            playButton->setText("PLAY");
+        }
+        else
+        {
+            qLayer->start();
+            isPlaying = true;
+            playButton->setText("PAUSE");
+        }
     }
 }
 
@@ -379,4 +406,9 @@ void QqWidget::slowDown()
 Context* QqWidget::getContext()
 {
     return(ctx);
+}
+
+QqTabWidget* QqWidget::getTabWidget()
+{
+    return (m_tabWidg);
 }

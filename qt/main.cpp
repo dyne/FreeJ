@@ -23,11 +23,15 @@
 QSize viewSize;
 
 //todo
-//find a place where the layer zoom x and y ratio can be displayed.
+//fix layer zoom x and y ratio tab name bug.
 //be able to record the viewport, and replay it.
 //replace slow button by a slider
+//unfold text
+//try to open some sound
+//do a streaming interface
 //devide the fake size window by two .... not sure :)
 //insert STRING filters parameters
+
 
 int main(int argc, char *argv[])
 {
