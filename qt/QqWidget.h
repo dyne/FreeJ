@@ -41,6 +41,7 @@ public slots:
     void changeAngle(double);
     void redrawFake();
     void playPause();
+    void resetZoom();
 
 private:
     int newIdx;

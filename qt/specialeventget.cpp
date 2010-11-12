@@ -84,15 +84,14 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             shift.setY((int)((m_OldSize.height() - layer->geo.h)/2));
             layer->set_position ((shift.x()+fake->pos().x()), (shift.y()+fake->pos().y()));
             context->screen->clear();
-            QqWidget *widg = qobject_cast<QqWidget *>(this->parent());
+//to add tab text the layer size
+/*            QqWidget *widg = qobject_cast<QqWidget *>(this->parent());
             if (widg)
             {
                 QString text;
-                text = text.sprintf ("%s w%4d h%4d", layer->get_filename(), x1, y1);
-                qDebug() << text;
+                text = text.sprintf ("%s w%1.03g h%1.03g", layer->get_filename(), x1, y1);
                 widg->getTabWidget()->setTabText(widg->getTabWidget()->currentIndex(), text);
-            }
-            //qDebug() << "zx:" << x1 << "sX:" << shift.x() << "posX:" << fake->pos().x();
+            }*/
         }
         else if (btn==Qt::RightButton && textlayer)
         {
@@ -108,15 +107,14 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             shift.setY((int)((m_OldSize.height() - textlayer->geo.h)/2));
             textlayer->set_position ((shift.x()+fake->pos().x()), (shift.y()+fake->pos().y()));
             context->screen->clear();
-            QqWidget *widg = qobject_cast<QqWidget *>(this->parent());
+//to add tab text the layer size
+/*            QqWidget *widg = qobject_cast<QqWidget *>(this->parent());
             if (widg)
             {
                 QString text;
-                text = text.sprintf ("%s w%4d h%4d", textlayer->get_filename(), x1, y1);
-                qDebug() << text;
+                text = text.sprintf ("text zone w%1.03g h%1.03g", x1, y1);
                 widg->getTabWidget()->setTabText(widg->getTabWidget()->currentIndex(), text);
-            }
-            //qDebug() << "zx:" << x1 << "sX:" << shift.x() << "posX:" << fake->pos().x();
+            }*/
         }
         else if (btn==Qt::RightButton)
         {
@@ -193,6 +191,28 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             if (painter->begin(fake))
             {
                 painter->save();
+
+                QColor textColor(255, 255, 255);
+                painter->setPen(textColor);
+                if (fake->getTextLayer())
+                {
+                    QString text;
+                    text = text.sprintf ("zX %01.03g zY %01.03g %4dx%4d"
+                                         , fake->getTextLayer()->zoom_x, fake->getTextLayer()->zoom_y
+                                         , fake->geometry().width(), fake->geometry().height());
+                    QPoint pos(10, 10);
+                    painter->drawText(pos, text);
+                }
+                else if (fake->getLayer())
+                {
+                    QString text;
+                    text = text.sprintf ("zX %01.03g Zy %01.03g %4dx%4d"
+                                         , fake->getLayer()->zoom_x, fake->getLayer()->zoom_y
+                                         , fake->geometry().width(), fake->geometry().height());
+                    QPoint pos(10, 10);
+                    painter->drawText(pos, text);
+                }
+
                 QColor color(127, 127, 127, 191);
                 QRect size(fake->geometry());
                 size.setTopLeft(QPoint(0,0));
@@ -212,4 +232,9 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
     return true;
 }
 
+void SpecialEventGet::setShift()
+{
+    shift.setX(0);
+    shift.setY(0);
+}
 

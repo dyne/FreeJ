@@ -18,6 +18,7 @@
 
 
 #include <FakeWindow.h>
+#include <QLabel>
 
 
 //layer
@@ -25,9 +26,10 @@ FakeWindow::FakeWindow(Context *context, Layer *layer, Geometry *geo, QWidget* p
 {
     m_angle=0;
     m_painter = new QPainter(this);
-    qContext = context;
+    m_ctx = context;
     qLayer = layer;
     qTextLayer = NULL;
+    m_eventGet = NULL;
     winGeo = new QRect(geo->x, geo->y, (int)geo->w, (int)geo->h);
     setGeometry(*winGeo);
 }
@@ -37,10 +39,12 @@ FakeWindow::FakeWindow(Context *context, TextLayer *textlayer, Geometry *geo, QW
 {
     m_angle=0;
     m_painter = new QPainter(this);
-    qContext = context;
+    m_ctx = context;
     qTextLayer = textlayer;
     qLayer = NULL;
+    m_eventGet = NULL;
     winGeo = new QRect(geo->x, geo->y, (int)geo->w, (int)geo->h);
+    QLabel sizeLabel("size", this);
     setGeometry(*winGeo);
 }
 
@@ -52,7 +56,7 @@ FakeWindow::~FakeWindow()
 
 Context* FakeWindow::getContext()
 {
-    return(qContext);
+    return(m_ctx);
 }
 
 Layer* FakeWindow::getLayer()
@@ -85,4 +89,28 @@ QPainter* FakeWindow::getPainter()
     return(m_painter);
 }
 
+void FakeWindow::resetZoom()
+{
+    if (qLayer)
+    {
+        qLayer->set_zoom(1.0, 1.0);
+        qLayer->set_position (pos().x(), pos().y());
+        m_ctx->cafudda(0.0);
+        resize(qLayer->geo.w, qLayer->geo.h);
+        m_eventGet->setShift();
+    }
+    if (qTextLayer)
+    {
+        qTextLayer->set_zoom(1.0, 1.0);
+        qTextLayer->set_position (pos().x(), pos().y());
+        m_ctx->cafudda(0.0);
+        resize(qTextLayer->geo.w, qTextLayer->geo.h);
+        m_eventGet->setShift();
+    }
+    m_ctx->screen->clear();
+}
 
+void FakeWindow::setEventGet(SpecialEventGet *eventGet)
+{
+    m_eventGet = eventGet;
+}

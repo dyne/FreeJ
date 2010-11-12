@@ -23,7 +23,6 @@
 QSize viewSize;
 
 //todo
-//fix layer zoom x and y ratio tab name bug.
 //be able to record the viewport, and replay it.
 //replace slow button by a slider
 //unfold text

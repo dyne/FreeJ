@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <text_layer.h>
 #include <QPainter>
+#include <context.h>
+#include <specialeventget.h>
 
 class FakeWindow : public QWidget
 {
@@ -18,15 +20,18 @@ public:
     int getAngle();
     void setAngle(int);
     QPainter *getPainter();
+    void resetZoom();
+    void setEventGet(SpecialEventGet*);
 
 private:
-    TextLayer *qTextLayer;
     QRect *winGeo;
-    Context *qContext;
+    Context *m_ctx;
     Layer *qLayer;
+    TextLayer *qTextLayer;
     FakeWindow* fakeView;
     int m_angle;
     QPainter* m_painter;
+    SpecialEventGet* m_eventGet;
 };
 
 #endif // FAKEWINDOW_H

@@ -4,11 +4,14 @@
 #include <QObject>
 #include <QPoint>
 #include <QSize>
+#include <layer.h>
 
 class SpecialEventGet : public QObject
 {
 public:
     SpecialEventGet(QObject*);
+    void setShift();
+
 protected:
     bool eventFilter(QObject*, QEvent*);
 private:

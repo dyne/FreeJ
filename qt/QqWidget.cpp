@@ -27,9 +27,9 @@
 #include <QqComboFilter.h>
 #include <QDebug>
 #include <QGridLayout>
-#include <specialeventget.h>
 #include <QFile>
 #include <QDial>
+#include <specialeventget.h>
 
 using namespace std;
 
@@ -122,12 +122,16 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     connect (playButton, SIGNAL(clicked()), this, SLOT(playPause()));
     layoutH->addWidget(playButton);
     isPlaying = true;
+
+    QPushButton* zoom = new QPushButton("Reset Zoom", this);
+    connect (zoom, SIGNAL(clicked()), this, SLOT(resetZoom()));
+    layoutH->addWidget(zoom);
+
     layoutV->addLayout(layoutH);
 
-
     QWidget *bg = new QWidget(this);
-    bg->setMinimumWidth(640);
-    bg->setMinimumHeight(480);
+    bg->setMinimumWidth(400);
+    bg->setMinimumHeight(300);
     bg->setStyleSheet("QWidget { background-color: black; }");
     layoutV->addWidget(bg);
 
@@ -141,6 +145,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 
     fakeLay = new FakeWindow(freej, qLayer, &qLayer->geo, fakeView);
     fakeLay->installEventFilter(eventGet);
+    fakeLay->setEventGet(eventGet);
     fakeLay->setToolTip("Drag Left button to move Layer, Drag right to resize");
 
     setLayout(layoutV);
@@ -234,6 +239,10 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     m_angleBox->setToolTip("rotate the layer\npress ENTER to update fake");
     layoutH->addWidget(m_angleBox);
 
+    QPushButton* zoom = new QPushButton("Reset Zoom", this);
+    connect (zoom, SIGNAL(clicked()), this, SLOT(resetZoom()));
+    layoutH->addWidget(zoom);
+
     layoutV->addLayout(layoutH);
     QTextEdit *texto = new QTextEdit(this);
     texto->setToolTip("text to be applied on the textlayer");
@@ -242,8 +251,8 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     layoutV->addWidget(texto);
 
     QWidget *bg = new QWidget(this);
-    bg->setMinimumWidth(640);
-    bg->setMinimumHeight(480);
+    bg->setMinimumWidth(400);
+    bg->setMinimumHeight(300);
     bg->setStyleSheet("QWidget { background-color: black; }");
     layoutV->addWidget(bg);
 
@@ -256,6 +265,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
 
     fakeLay = new FakeWindow(freej, qTextLayer, &qTextLayer->geo, fakeView);
     fakeLay->installEventFilter(eventGet);
+    fakeLay->setEventGet(eventGet);
     fakeLay->setToolTip("Drag Left button to move TextLayer, Drag center to resize");
 
     setLayout(layoutV);
@@ -276,6 +286,14 @@ QqWidget::~QqWidget()
     {
         if (qLayer->active)
             ctx->rem_layer(qLayer);
+    }
+}
+
+void QqWidget::resetZoom()
+{
+    if (fakeLay)
+    {
+        fakeLay->resetZoom();
     }
 }
 
