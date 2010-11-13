@@ -52,6 +52,9 @@ void QqSlider::changeValue(int value)
     double nbr = (double)value / 100.0;
     //to see if it does something ... and it does :)
     filterI->parameters[paramNumber]->set((void *)&nbr);
+    Layer *lay = filterI->get_layer();
+    ViewPort *view = lay->screen;
+//    qDebug () << lay->name << view->name;
     filterI->get_layer()->screen->clear();  //cleans the screen
 }
 
@@ -306,6 +309,7 @@ QqFilterParam::~QqFilterParam()
 {
 }
 
+//layer
 QqFiltersListApplied::QqFiltersListApplied(Layer *lay, QWidget* parent) : QListWidget(parent)
 {
     setToolTip("Filters applied on the layer. You can change the order by D&D\nalso double click to hide parameters");
@@ -319,6 +323,7 @@ QqFiltersListApplied::QqFiltersListApplied(Layer *lay, QWidget* parent) : QListW
     draggItemFilter = NULL;
     layer = lay;
     textLayer = NULL;
+    m_geneLayer = NULL;
 
     QAction *remFilter= new QAction("remove filter",this);
     remFilter->setShortcut(Qt::Key_Delete);
@@ -327,6 +332,7 @@ QqFiltersListApplied::QqFiltersListApplied(Layer *lay, QWidget* parent) : QListW
     connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(showParamWindow(QListWidgetItem*)));
 }
 
+//textlayer
 QqFiltersListApplied::QqFiltersListApplied(TextLayer *lay, QWidget *parent) : QListWidget(parent)
 {
     setToolTip("Filters applied on the layer. You can change the order by D&D\nalso double click to hide parameters");
@@ -339,7 +345,31 @@ QqFiltersListApplied::QqFiltersListApplied(TextLayer *lay, QWidget *parent) : QL
     connect(this, SIGNAL(itemPressed(QListWidgetItem *)), this, SLOT(setElement(QListWidgetItem*)));
     draggItemFilter = NULL;
     layer = NULL;
+    m_geneLayer = NULL;
     textLayer = lay;
+
+    QAction *remFilter= new QAction("remove filter",this);
+    remFilter->setShortcut(Qt::Key_Delete);
+    addAction(remFilter);
+    connect(remFilter,SIGNAL(triggered()),this,SLOT(removeFilter()));
+    connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(showParamWindow(QListWidgetItem*)));
+}
+
+//generator layer
+QqFiltersListApplied::QqFiltersListApplied(GeneratorLayer *lay, QWidget *parent) : QListWidget(parent)
+{
+    setToolTip("Filters applied on the layer. You can change the order by D&D\nalso double click to hide parameters");
+    setSelectionMode(QAbstractItemView::SingleSelection);
+    setDragEnabled(true);
+    viewport()->setAcceptDrops(true);
+    setDropIndicatorShown(true);
+    setDragDropMode(QAbstractItemView::InternalMove);
+
+    connect(this, SIGNAL(itemPressed(QListWidgetItem *)), this, SLOT(setElement(QListWidgetItem*)));
+    draggItemFilter = NULL;
+    layer = NULL;
+    textLayer = NULL;
+    m_geneLayer = lay;
 
     QAction *remFilter= new QAction("remove filter",this);
     remFilter->setShortcut(Qt::Key_Delete);
@@ -399,6 +429,19 @@ void QqFiltersListApplied::dropEvent(QDropEvent * event)
                 return;
             }
         }
+        else if (m_geneLayer)
+        {
+            FilterInstance *filter = m_geneLayer->filters.search(temp, &idx);
+            if (currentDropRow >= 1 && currentDropRow <= m_geneLayer->filters.len())
+            {
+                filter->move(currentDropRow);
+            }
+            else
+            {
+                draggItemFilter = NULL;
+                return;
+            }
+        }
         else
         {
             cout << "pas de filtre à déplacer ?????" << endl;
@@ -428,6 +471,12 @@ void QqFiltersListApplied::removeFilter()
         else if (textLayer)
         {
             FilterInstance *filter = textLayer->filters.search(temp, &idx);
+            delete item;
+            filter->rem();
+        }
+        else if (m_geneLayer)
+        {
+            FilterInstance *filter = m_geneLayer->filters.search(temp, &idx);
             delete item;
             filter->rem();
         }

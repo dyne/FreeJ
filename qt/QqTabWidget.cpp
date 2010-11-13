@@ -51,6 +51,8 @@ void QqTabWidget::moveLayer(int from, int to)
             lay->move(newFrom);
         else if (TextLayer* textlay = widg->getTextLayer())
             textlay->move(newFrom);
+        else if (GeneratorLayer* genelay = widg->getGeneLayer())
+            genelay->move(newFrom);
         ctx->screen->clear();
     }
 }

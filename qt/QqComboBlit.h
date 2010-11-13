@@ -6,6 +6,7 @@
 #include <text_layer.h>
 #include <QDoubleSpinBox>
 #include <QBoxLayout>
+#include <generator_layer.h>
 
 class QqComboBlit : public QWidget
 {
@@ -16,6 +17,7 @@ public:
 
     void addLayer(Layer *);
     void addTextLayer(TextLayer *);
+    void addGeneLayer(GeneratorLayer *);
 
 public slots:
     void addBlit(QString);
@@ -26,6 +28,7 @@ private :
     //bool layerSet;
     Layer *qLayer;
     TextLayer *qTextLayer;
+    GeneratorLayer *m_qGeneLayer;
     QComboBox *blitBox;
     QDoubleSpinBox *blitParam;
     QHBoxLayout* layoutH;

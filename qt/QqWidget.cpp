@@ -30,6 +30,7 @@
 #include <QFile>
 #include <QDial>
 #include <specialeventget.h>
+#include <QAction>
 
 using namespace std;
 
@@ -271,11 +272,112 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     setLayout(layoutV);
 }
 
+// GeneratorLayer
+QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej, QAction* action) : QWidget(qfreej)
+{
+    qTextLayer = NULL;
+    qLayer = NULL;
+    fakeView = NULL;
+    fakeLay = NULL;
+
+    m_qGeneLayer = new GeneratorLayer();
+    if(!m_qGeneLayer)
+    {
+        return;
+    }
+    if(!m_qGeneLayer->init(freej->screens.selected()->geo.w,
+                  freej->screens.selected()->geo.h,
+                  freej->screens.selected()->geo.bpp)) {
+      qDebug() << "can't initialize generator layer";
+      delete m_qGeneLayer;
+      return;
+    }
+    // this is something specific to the generator layer
+    // it needs this from the environment..
+    m_qGeneLayer->register_generators( &freej->generators );
+
+    if(!m_qGeneLayer->open(action->text().toStdString().c_str())) {
+      qDebug() << "generator" << action->text() << "is not found";
+      delete m_qGeneLayer;
+      return;
+    }
+
+    m_qGeneLayer->start();
+    //  tmp->set_fps(env->fps_speed);
+
+    if( freej->screen->add_layer(m_qGeneLayer) )  //essayer sans ça plus tard
+    {
+        m_qGeneLayer->active=true;
+
+        tabWidget->addTab(this, action->text());
+        m_qGeneLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
+        m_tabWidg = tabWidget;
+    }
+    else
+    {
+        freej->rem_layer(m_qGeneLayer);
+        delete m_qGeneLayer;
+        return;
+    }
+
+    ctx = freej;
+    setAttribute(Qt::WA_DeleteOnClose);
+    newIdx = 0;
+
+    layoutV = new QVBoxLayout;
+    layoutH = new QHBoxLayout;
+
+    QqComboBlit *blt = new QqComboBlit(this);
+    blt->addGeneLayer(m_qGeneLayer);
+
+    layoutH->addWidget(blt);
+    QqComboFilter *filter = new QqComboFilter(freej, m_qGeneLayer, this);
+    filter->setToolTip("filters to be applied");
+    layoutH->addWidget(filter);
+
+    m_angleBox = new QDoubleSpinBox(this);
+    connect(m_angleBox, SIGNAL(valueChanged(double)), this, SLOT(changeAngle(double)));
+    connect(m_angleBox, SIGNAL(editingFinished()), this, SLOT(redrawFake()));
+    m_angleBox->setMinimum(-360.0);
+    m_angleBox->setMaximum(360.0);
+    m_angleBox->setDecimals(0);
+    m_angleBox->setSingleStep(1.0);
+    m_angleBox->setToolTip("rotate the layer\npress ENTER to update fake");
+    layoutH->addWidget(m_angleBox);
+
+    QPushButton* zoom = new QPushButton("Reset Zoom", this);
+    connect (zoom, SIGNAL(clicked()), this, SLOT(resetZoom()));
+    layoutH->addWidget(zoom);
+
+    layoutV->addLayout(layoutH);
+
+    QWidget *bg = new QWidget(this);
+    bg->setMinimumWidth(400);
+    bg->setMinimumHeight(300);
+    bg->setStyleSheet("QWidget { background-color: black; }");
+    layoutV->addWidget(bg);
+
+
+    fakeView = new FakeWindow(freej, (Layer *)NULL, &freej->screen->geo, bg);
+    fakeView->setStyleSheet("QWidget { background-color: blue; }");
+    SpecialEventGet* eventGet = new SpecialEventGet(this);
+    fakeView->installEventFilter(eventGet);
+    fakeView->setToolTip("Drag right button to resize screen");
+
+    fakeLay = new FakeWindow(freej, m_qGeneLayer, &m_qGeneLayer->geo, fakeView);
+    fakeLay->installEventFilter(eventGet);
+    fakeLay->setEventGet(eventGet);
+    fakeLay->setToolTip("Drag Left button to move GeneratorLayer, Drag center to resize");
+
+    setLayout(layoutV);
+}
+
 QqWidget::~QqWidget()
 {
     delete layoutH;
     delete layoutV;
-    ctx->screen->clear();
+    if (ctx)
+        ctx->screen->clear();
 
     if (qTextLayer)
     {
@@ -286,6 +388,11 @@ QqWidget::~QqWidget()
     {
         if (qLayer->active)
             ctx->rem_layer(qLayer);
+    }
+    else if (m_qGeneLayer)
+    {
+        if (m_qGeneLayer->active)
+            ctx->rem_layer(m_qGeneLayer);
     }
 }
 
@@ -376,6 +483,11 @@ Layer* QqWidget::getLayer()
 TextLayer* QqWidget::getTextLayer()
 {
     return (qTextLayer);
+}
+
+GeneratorLayer* QqWidget::getGeneLayer()
+{
+    return (m_qGeneLayer);
 }
 
 FakeWindow* QqWidget::getFake()

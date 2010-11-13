@@ -16,6 +16,7 @@ SOURCES += main.cpp \
     specialeventget.cpp \
     FakeWindow.cpp \
     QqTabWidget.cpp
+
     HEADERS += qfreej.h \
     QqComboBlit.h \
     QqWidget.h \

@@ -30,6 +30,7 @@
 #include <QTimer>
 #include <QDebug>
 #include <QCloseEvent>
+#include <generator_layer.h>
 
 using namespace std;
 extern QSize viewSize;
@@ -49,12 +50,14 @@ Qfreej::Qfreej(QWidget *parent) :
     QAction *actionPen = menuFichier->addAction("&Open");
     connect(actionPen, SIGNAL(triggered()), this, SLOT(addLayer()));
 
-    QAction *actionAddTextLayer = menuFichier->addAction("&Add Text layer");
+    QAction *actionAddTextLayer = menuFichier->addAction("&Text layer");
     connect(actionAddTextLayer, SIGNAL(triggered()), this, SLOT(addTextLayer()));
 
     QAction *actionStream = menuFichier->addAction("&Stream");
     connect(actionStream, SIGNAL(triggered()), this, SLOT(startStreaming()));//new
-
+//in dev
+    menuGenerator = menuFichier->addMenu("&Generators");
+//
     poller = new QTimer (this);
     connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
     poller->start(10); //start timer to trigger every 10 ms the updateInterface slot
@@ -81,17 +84,10 @@ void Qfreej::closeEvent(QCloseEvent *event)
 
 void Qfreej::init()
 {
-//    layoutH = new QHBoxLayout();
-//    grid->addLayout(layoutH, 1, 0);
-//    QPushButton *streamButton = new QPushButton("stream", this);
-//    layoutH->addWidget(streamButton);
-//    connect(streamButton, SIGNAL(clicked()), this, SLOT(startStreaming()));
-
     tabWidget = new QqTabWidget(this);
     grid->addWidget(tabWidget, 1, 0);
     setLayout(grid);//new
     tabWidget->setMovable(true);
-    //tabWidget->setAttribute(Qt::WA_DeleteOnClose);
     tabWidget->setTabsClosable(true);
 
     myTabBar = tabWidget->getTabBar();
@@ -108,7 +104,8 @@ void Qfreej::init()
     freej->interactive = false;
     freej->fps.set( fps );
     freej->start_running = startstate;
-//    addTextLayer();
+
+    createMenuGenerator();
 }
 
 void Qfreej::startStreaming()
@@ -161,16 +158,31 @@ Context *Qfreej::getContext()
     return (freej);
 }
 
-/*old
-void Qfreej::changeEvent(QEvent *e)
+//fills the generator menu
+void Qfreej::createMenuGenerator()
 {
-    QMainWindow::changeEvent(e);
-    switch (e->type()) {
-    case QEvent::LanguageChange:
-        ui->retranslateUi(this);
-        break;
-    default:
-        break;
+    Filter **res;
+    Filter *filt;
+    int c;
+
+    res = freej->generators.completion("");
+    if(!res[0]) {
+      qDebug() << "no generators found";
+      return;
+    }
+    for(c=0;res[c];c++) {
+        filt = res[c];
+        if(!filt) break;
+        menuGenerator->addAction(filt->name);
+    }
+    connect(menuGenerator, SIGNAL(triggered(QAction*)), this, SLOT(addGenerator(QAction*)));
+}
+
+void Qfreej::addGenerator(QAction* action)
+{
+    QqWidget *aWidget = new QqWidget(freej, tabWidget, this, action);
+    if (!aWidget)
+    {
+        QMessageBox::information(this, "GeneratorLayer", "Can't create the " + action->text() + "generator layer");
     }
 }
-*/

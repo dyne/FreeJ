@@ -32,6 +32,7 @@ QqComboBlit::QqComboBlit(QWidget* parent) : QWidget(parent)
     //layerSet = false;
     qLayer = NULL;
     qTextLayer = NULL;
+    m_qGeneLayer = NULL;
     QStringList blits;
     blits << "RGB" << "ADD" << "SUB" << "MEAN" << "ABSDIFF MULT" << "MULTNOR DIV";
     blits << "MULTDIV2" << "MULTDIV4" << "AND" << "OR" << "XOR" << "RED" << "GREEN" << "BLUE";
@@ -71,6 +72,10 @@ void QqComboBlit::chgParam(double prm)
     {
         blit = qLayer->current_blit;
     }
+    else if (m_qGeneLayer)
+    {
+        blit = m_qGeneLayer->current_blit;
+    }
     blit->value = blitParam->value();
 }
 
@@ -94,8 +99,6 @@ void QqComboBlit::addBlit(QString blt)
         Blit *blit = qTextLayer->current_blit;
         qTextLayer->set_blit(blitName);
         blit = qTextLayer->current_blit;
-//        cout << "blit : " << blit->desc << endl;    //think about add it in a text zone
-//        cout << "blit name : " << blit->name << " parameters len : " << blit->parameters.len() << endl;
         if (blit->parameters.len())
         {
             blitParam->setEnabled(true);
@@ -106,8 +109,16 @@ void QqComboBlit::addBlit(QString blt)
         Blit *blit = qLayer->current_blit;
         qLayer->set_blit(blitName);
         blit = qLayer->current_blit;
-        cout << "blit : " << blit->desc << endl;
-//        cout << "blit name : " << blit->name << " parameters len : " << blit->parameters.len() << endl;
+        if (blit->parameters.len())
+        {
+            blitParam->setEnabled(true);
+        }
+    }
+    else if (m_qGeneLayer)
+    {
+        Blit *blit = m_qGeneLayer->current_blit;
+        m_qGeneLayer->set_blit(blitName);
+        blit = m_qGeneLayer->current_blit;
         if (blit->parameters.len())
         {
             blitParam->setEnabled(true);
@@ -123,5 +134,10 @@ void QqComboBlit::addLayer(Layer *lay)
 void QqComboBlit::addTextLayer(TextLayer *lay)
 {
     qTextLayer = lay;
+}
+
+void QqComboBlit::addGeneLayer(GeneratorLayer *lay)
+{
+    m_qGeneLayer = lay;
 }
 

@@ -44,7 +44,20 @@ FakeWindow::FakeWindow(Context *context, TextLayer *textlayer, Geometry *geo, QW
     qLayer = NULL;
     m_eventGet = NULL;
     winGeo = new QRect(geo->x, geo->y, (int)geo->w, (int)geo->h);
-    QLabel sizeLabel("size", this);
+    setGeometry(*winGeo);
+}
+
+//generatorlayer
+FakeWindow::FakeWindow(Context *context, GeneratorLayer *genelayer, Geometry *geo, QWidget *parent) : QWidget(parent)
+{
+    m_angle=0;
+    m_painter = new QPainter(this);
+    m_ctx = context;
+    m_qGeneLayer = genelayer;
+    qTextLayer = NULL;
+    qLayer = NULL;
+    m_eventGet = NULL;
+    winGeo = new QRect(geo->x, geo->y, (int)geo->w, (int)geo->h);
     setGeometry(*winGeo);
 }
 
@@ -67,6 +80,11 @@ Layer* FakeWindow::getLayer()
 TextLayer* FakeWindow::getTextLayer()
 {
     return(qTextLayer);
+}
+
+GeneratorLayer* FakeWindow::getGeneLayer()
+{
+    return(m_qGeneLayer);
 }
 
 QRect* FakeWindow::getWinGeo()
@@ -99,12 +117,20 @@ void FakeWindow::resetZoom()
         resize(qLayer->geo.w, qLayer->geo.h);
         m_eventGet->setShift();
     }
-    if (qTextLayer)
+    else if (qTextLayer)
     {
         qTextLayer->set_zoom(1.0, 1.0);
         qTextLayer->set_position (pos().x(), pos().y());
         m_ctx->cafudda(0.0);
         resize(qTextLayer->geo.w, qTextLayer->geo.h);
+        m_eventGet->setShift();
+    }
+    else if (m_qGeneLayer)
+    {
+        m_qGeneLayer->set_zoom(1.0, 1.0);
+        m_qGeneLayer->set_position (pos().x(), pos().y());
+        m_ctx->cafudda(0.0);
+        resize(m_qGeneLayer->geo.w, m_qGeneLayer->geo.h);
         m_eventGet->setShift();
     }
     m_ctx->screen->clear();

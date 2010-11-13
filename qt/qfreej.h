@@ -27,12 +27,14 @@ public:
     QTimer *poller;
     Context *getContext();
     bool getStartState();
+    void createMenuGenerator();
 
 public slots:
     void addLayer();
     void updateInterface();
     void addTextLayer();
     void startStreaming();
+    void addGenerator(QAction*);
 
 protected:
     void closeEvent(QCloseEvent*);
@@ -46,9 +48,10 @@ private:
     QqTabWidget *tabWidget;
     QTabBar *myTabBar;
     int number;
-    TextLayer *textLayer;
+    TextLayer *textLayer;   //see to erase this later
     QGridLayout *grid;
     QHBoxLayout *layoutH;
+    QMenu* menuGenerator;
 };
 
 

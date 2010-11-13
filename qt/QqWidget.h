@@ -13,6 +13,7 @@
 #include <QPainter>
 #include <FakeWindow.h>
 #include <QqTabWidget.h>
+#include <generator_layer.h>
 
 class Qfreej;
 
@@ -24,10 +25,12 @@ public:
     QqWidget();
     QqWidget(Context *,  QqTabWidget*, Qfreej*, QString);   //Layer
     QqWidget(Context *, QqTabWidget*, Qfreej*);             //TextLayer
+    QqWidget(Context *, QqTabWidget*, Qfreej*, QAction*);   //Geometry
     ~QqWidget();
     FakeWindow* getFake();
     Layer* getLayer();
     TextLayer* getTextLayer();
+    GeneratorLayer* getGeneLayer();
     Context* getContext();
     void setAngle(double);
     double getAngle();
@@ -47,6 +50,7 @@ private:
     int newIdx;
     Layer *qLayer;
     TextLayer *qTextLayer;
+    GeneratorLayer *m_qGeneLayer;
     QTextEdit *text;
     QPushButton *textButton;
     QPushButton *slowButton;

@@ -8,6 +8,7 @@
 #include <QCheckBox>
 #include <QBoxLayout>
 #include <QGroupBox>
+#include <generator_layer.h>
 
 
 class QqSlider : public QSlider
@@ -101,6 +102,7 @@ class QqFiltersListApplied : public QListWidget
 public:
     QqFiltersListApplied(Layer *, QWidget*);
     QqFiltersListApplied(TextLayer *, QWidget*);
+    QqFiltersListApplied(GeneratorLayer *, QWidget*);
     ~QqFiltersListApplied();
 
 public slots:
@@ -116,6 +118,7 @@ protected:
 private:
     Layer *layer;
     TextLayer *textLayer;
+    GeneratorLayer *m_geneLayer;
     QqFilter *draggItemFilter;
 };
 

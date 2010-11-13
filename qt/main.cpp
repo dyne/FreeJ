@@ -24,10 +24,13 @@ QSize viewSize;
 
 //todo
 //be able to record the viewport, and replay it.
+//refresh layers with add blit, when screen resized. Done manually by
+//        changing blit from add to rgb and go back.
 //replace slow button by a slider
-//unfold text
 //try to open some sound
+//add a button in the textlayer to unfold text
 //do a streaming interface
+//see to use Linklist.completion to add blit, filters and generators
 //devide the fake size window by two .... not sure :)
 //insert STRING filters parameters
 
