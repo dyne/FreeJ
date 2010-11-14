@@ -41,7 +41,7 @@ QqComboBlit::QqComboBlit(QWidget* parent) : QWidget(parent)
     blitBox = new QComboBox(this);
     blitBox->setToolTip("BLIT applied to the layer");
     blitBox->addItems(blits);
-    connect(blitBox, SIGNAL(activated(QString)), this, SLOT(addBlit(QString)));
+    connect(blitBox, SIGNAL(activated(QString)), this, SLOT(changeBlit(QString)));
     layoutH = new QHBoxLayout;
     layoutH->addWidget(blitBox);
     blitParam = new QDoubleSpinBox(this);
@@ -79,25 +79,14 @@ void QqComboBlit::chgParam(double prm)
     blit->value = blitParam->value();
 }
 
-void QqComboBlit::addBlit(QString blt)
+void QqComboBlit::changeBlit(QString blt)
 {
-    char blitName[256];
-    QByteArray bolt = blt.toAscii();
-
-    strcpy (blitName,bolt.data());
-
-/*    if (!layerSet)
-    {
-        cout << "QqComboBox Layer not set" << endl;
-        return;
-    }
-*/
     blitParam->setEnabled(false);
 
     if (qTextLayer)
     {
         Blit *blit = qTextLayer->current_blit;
-        qTextLayer->set_blit(blitName);
+        qTextLayer->set_blit(blt.toStdString().c_str());
         blit = qTextLayer->current_blit;
         if (blit->parameters.len())
         {
@@ -107,7 +96,7 @@ void QqComboBlit::addBlit(QString blt)
     else if (qLayer)
     {
         Blit *blit = qLayer->current_blit;
-        qLayer->set_blit(blitName);
+        qLayer->set_blit(blt.toStdString().c_str());
         blit = qLayer->current_blit;
         if (blit->parameters.len())
         {
@@ -117,7 +106,7 @@ void QqComboBlit::addBlit(QString blt)
     else if (m_qGeneLayer)
     {
         Blit *blit = m_qGeneLayer->current_blit;
-        m_qGeneLayer->set_blit(blitName);
+        m_qGeneLayer->set_blit(blt.toStdString().c_str());
         blit = m_qGeneLayer->current_blit;
         if (blit->parameters.len())
         {

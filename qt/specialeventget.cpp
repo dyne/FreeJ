@@ -70,7 +70,7 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             }
             // todo textlayer dans QqWidget
         }
-        else if (btn==Qt::RightButton && layer) //resize
+        else if (btn==Qt::RightButton && layer) //resize the layer
         {
             int sizeW = fake->size().width() + evt->pos().x() - offset.x();
             int sizeH = fake->size().height() + evt->pos().y() - offset.y();
@@ -84,16 +84,8 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             shift.setY((int)((m_OldSize.height() - layer->geo.h)/2));
             layer->set_position ((shift.x()+fake->pos().x()), (shift.y()+fake->pos().y()));
             context->screen->clear();
-//to add tab text the layer size
-/*            QqWidget *widg = qobject_cast<QqWidget *>(this->parent());
-            if (widg)
-            {
-                QString text;
-                text = text.sprintf ("%s w%1.03g h%1.03g", layer->get_filename(), x1, y1);
-                widg->getTabWidget()->setTabText(widg->getTabWidget()->currentIndex(), text);
-            }*/
         }
-        else if (btn==Qt::RightButton && textlayer)
+        else if (btn==Qt::RightButton && textlayer) //resize textlayer
         {
             int sizeW = fake->size().width() + evt->pos().x() - offset.x();
             int sizeH = fake->size().height() + evt->pos().y() - offset.y();
@@ -107,16 +99,8 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             shift.setY((int)((m_OldSize.height() - textlayer->geo.h)/2));
             textlayer->set_position ((shift.x()+fake->pos().x()), (shift.y()+fake->pos().y()));
             context->screen->clear();
-//to add tab text the layer size
-/*            QqWidget *widg = qobject_cast<QqWidget *>(this->parent());
-            if (widg)
-            {
-                QString text;
-                text = text.sprintf ("text zone w%1.03g h%1.03g", x1, y1);
-                widg->getTabWidget()->setTabText(widg->getTabWidget()->currentIndex(), text);
-            }*/
         }
-        else if (btn==Qt::RightButton)
+        else if (btn==Qt::RightButton)  //resize viewport
         {
             int sizeW = fake->size().width() + evt->pos().x() - offset.x();
             int sizeH = fake->size().height() + evt->pos().y() - offset.y();
@@ -126,6 +110,20 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
             context->screen->resize(sizeW, sizeH);
             offset = evt->pos();
             context->screen->clear();
+
+            //to refresh layer dispay problems
+            int c = context->screen->layers.len();
+            QString blitName;
+            for (;c > 0; c--)
+            {
+                Layer* lay = context->screen->layers[c];
+                blitName = lay->get_blit();
+                if (blitName != "RGB" && blitName != "SDL" && blitName!="SRCALPHA")
+                {
+                    lay->set_blit("SDL");
+                    lay->set_blit(blitName.toStdString().c_str());
+                }
+            }
         }
         else if (btn==Qt::MiddleButton)
         {

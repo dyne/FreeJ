@@ -20,7 +20,7 @@ public:
     void addGeneLayer(GeneratorLayer *);
 
 public slots:
-    void addBlit(QString);
+    void changeBlit(QString);
     void chgParam(double);   // à finir
 
 private :
