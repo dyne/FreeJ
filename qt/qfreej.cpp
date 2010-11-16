@@ -38,7 +38,7 @@ extern QSize viewSize;
 Qfreej::Qfreej(QWidget *parent) :
         QWidget(parent)
 {
-
+    m_snd = NULL;
     _isPlaying = true;
 
     grid = new QGridLayout(this);
@@ -53,11 +53,14 @@ Qfreej::Qfreej(QWidget *parent) :
     QAction *actionAddTextLayer = menuFichier->addAction("&Text layer");
     connect(actionAddTextLayer, SIGNAL(triggered()), this, SLOT(addTextLayer()));
 
-    QAction *actionStream = menuFichier->addAction("&Stream");
+    QAction *actionStream = menuFichier->addAction("&Run js");
     connect(actionStream, SIGNAL(triggered()), this, SLOT(startStreaming()));//new
-//in dev
+
+    QAction *actionJack = menuFichier->addAction("&Stream");
+    connect(actionJack, SIGNAL(triggered()), this, SLOT(openSoundDevice()));//new
+
     menuGenerator = menuFichier->addMenu("&Generators");
-//
+
     poller = new QTimer (this);
     connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
     poller->start(10); //start timer to trigger every 10 ms the updateInterface slot
@@ -70,6 +73,8 @@ Qfreej::Qfreej(QWidget *parent) :
 
 Qfreej::~Qfreej()
 {
+    if (m_snd)
+        delete m_snd;
     poller->stop();
 //    delete freej;     //to be investigate :)
 //    delete layoutH;
@@ -111,11 +116,10 @@ void Qfreej::init()
 void Qfreej::startStreaming()
 {
     QString fichier = QFileDialog::getOpenFileName(this, "Ouvrir un fichier JavaScript", QString(), "All (*.js)");
-    char temp[256];
-    QByteArray fich = fichier.toAscii();
-    strcpy (temp,fich.data());
-    freej->open_script(temp);
-    std::cout << temp;
+    if (fichier != "")
+    {
+        freej->open_script((char *)(fichier.toStdString().c_str()));
+    }
 }
 
 bool Qfreej::getStartState()
@@ -127,11 +131,19 @@ void Qfreej::addLayer()
 {
     QString fichier = QFileDialog::getOpenFileName(this, "Ouvrir un fichier", QString(), "All (*.*)");
 
-    QqWidget *aWidget = new QqWidget(freej, tabWidget, this, fichier);
-    if (!aWidget)
+    if (fichier != "")
     {
-        QMessageBox::information(this, "Layers", "Can't create TextLayer\n");
+        QqWidget *aWidget = new QqWidget(freej, tabWidget, this, fichier);
+        if (!aWidget)
+        {
+            QMessageBox::information(this, "Layers", "Can't create TextLayer\n");
+        }
     }
+}
+
+void Qfreej::openSoundDevice()
+{
+    m_snd = new Sound(freej);
 }
 
 void Qfreej::addTextLayer()

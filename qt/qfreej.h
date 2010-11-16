@@ -9,6 +9,7 @@
 #include <QMdiArea>
 #include <QqWidget.h>
 #include <QLayout>
+#include <Sound.h>
 
 class QTimer;
 class QqTabWidget;
@@ -35,6 +36,7 @@ public slots:
     void addTextLayer();
     void startStreaming();
     void addGenerator(QAction*);
+    void openSoundDevice();
 
 protected:
     void closeEvent(QCloseEvent*);
@@ -52,6 +54,7 @@ private:
     QGridLayout *grid;
     QHBoxLayout *layoutH;
     QMenu* menuGenerator;
+    Sound *m_snd;
 };
 
 

@@ -15,7 +15,9 @@ SOURCES += main.cpp \
     QqFiltersApplied.cpp \
     specialeventget.cpp \
     FakeWindow.cpp \
-    QqTabWidget.cpp
+    QqTabWidget.cpp \
+    Sound.cpp \
+    ../src/oggtheora_encoder.cpp
 
     HEADERS += qfreej.h \
     QqComboBlit.h \
@@ -24,7 +26,8 @@ SOURCES += main.cpp \
     QqFiltersApplied.h \
     specialeventget.h \
     FakeWindow.h \
-    QqTabWidget.h
+    QqTabWidget.h \
+    Sound.h
 FORMS += qfreej.ui
 CFLAGS += g
 LIBS += -lfreej
