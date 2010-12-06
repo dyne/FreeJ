@@ -30,8 +30,7 @@ SOURCES += main.cpp \
 FORMS += qfreej.ui
 CFLAGS += g
 LIBS += -lfreej
-INCLUDEPATH += ../../freej-git/src/freej-git-20100223/src/include \
-    ../ \
+INCLUDEPATH += ../ \
     /usr/include/SDL \
-    ../lib/sdl_ttf
-#    ../src/include
+    ../lib/sdl_ttf \
+    ../src/include
