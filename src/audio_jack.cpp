@@ -132,9 +132,22 @@ void deinterleave(void * _in, jack_default_audio_sample_t *out, int num_channels
 
 } // end extern "C"
 
+/*
+int JackClient::Process (jack_nframes_t nframes, void *arg)
+{
+	jack_port_t* input_port = m_InputPortMap[0]->Port;
+	jack_port_t* output_port = m_OutputPortMap[0]->Port;
+      jack_default_audio_sample_t *out = (jack_default_audio_sample_t *) jack_port_get_buffer (output_port, nframes);
+      jack_default_audio_sample_t *in = (jack_default_audio_sample_t *) jack_port_get_buffer (input_port, nframes);
 
+      memcpy (out, in, sizeof (jack_default_audio_sample_t) * nframes);
+      
+      return 0;      
+}
+*/
 int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
+	//std::cerr << "nframes :" << nframes << std::endl;
 	for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
 		i!=m_InputPortMap.end(); i++)
 	{
@@ -150,11 +163,14 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 
 	if (((JackClient*) self)->m_ringbuffer) 
 	{
+	  //std::cerr << "Jack inbuf avail " << ringbuffer_read_space(((JackClient*) self)->m_ringbuffer)
+	  //<< std::endl;	
 	//  func("Jack inbuf avail %i", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
 	//  fprintf(stderr, "Jack inbuf avail %i\n", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
 
 	  static int firsttime = 1 + ceil(4096/nframes); // XXX pre-buffer  TODO decrease this and compensate latency
-
+	
+	//std::cerr << "firsttime :" << firsttime << " nframes :" << nframes << std::endl;
 	  if (ringbuffer_read_space(((JackClient*) self)->m_ringbuffer) >= 
 			      firsttime * channels * nframes * sizeof(float)) 
 	  {
@@ -162,10 +178,14 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		  size_t rv = ringbuffer_read(((JackClient*) self)->m_ringbuffer, 
 					      ((JackClient*) self)->m_inbuf,
 					      channels*nframes*sizeof(float));
-
+		  std::cerr << "in boucle, rv :" << rv << " nframes :" << nframes
+			<< " channels :" << channels;
   		if (rv >= channels * nframes * sizeof(float))
+		{
   			output_available = true;
-		  
+			std::cerr << "  output_available";
+		}
+		 std::cerr << std::endl; 
 	  }
 #if 0
 	  else if (firsttime==1)
