@@ -299,7 +299,7 @@ static OSStatus SetNumberValue(CFMutableDictionaryRef inDict,
       
         // rendering (aka: applying filters) is now done in getTexture()
         // implemented in CVLayerView (our parent)
-        if (newPixelBuffeR) {
+        if (newPixelBuffer) {
 			[self feedFrame:newPixelBuffer];
 			rv = YES;
 		}
