@@ -37,6 +37,8 @@
 
 #include <shout/shout.h>
 
+#include <iostream>
+
 class Context;
 class AudioCollector;
 class FPS;
