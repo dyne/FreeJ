@@ -5,13 +5,17 @@
 #include <audio_collector.h>
 #include <audio_input.h>
 #include <oggtheora_encoder.h>
-#include <QObject>
+#include <QPushButton>
 
-class Sound
+class Sound : public QWidget
 {
+    Q_OBJECT
 public:
-    Sound(Context *);
+    Sound(Context *, QWidget *parent = 0);
     ~Sound();
+
+public slots:
+    void sound();
 
 private:
     Context *m_freej;

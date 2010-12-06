@@ -24,7 +24,6 @@ public:
     Qfreej(QWidget *parent = 0);
     ~Qfreej();
 
-    bool _isPlaying;
     QTimer *poller;
     Context *getContext();
     bool getStartState();

@@ -23,6 +23,8 @@
 QSize viewSize;
 
 //todo
+//move main window in accordance with the size
+//fix the rotation sense when changing mouse direction.
 //be able to record the viewport, and replay it.
 //replace slow button by a slider
 //try to open some sound

@@ -36,6 +36,8 @@ private:
     int m_angle;
     QPainter* m_painter;
     SpecialEventGet* m_eventGet;
+    bool m_leftRight;   //in witch sens we move, to solve mouse invertion problem
+                        //not implemented yet.
 };
 
 #endif // FAKEWINDOW_H

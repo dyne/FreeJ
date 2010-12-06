@@ -39,7 +39,6 @@ Qfreej::Qfreej(QWidget *parent) :
         QWidget(parent)
 {
     m_snd = NULL;
-    _isPlaying = true;
 
     grid = new QGridLayout(this);
 
@@ -101,13 +100,13 @@ void Qfreej::init()
     connect(myTabBar, SIGNAL(tabMoved(int, int)), tabWidget, SLOT(moveLayer(int, int)));
 
     startstate = true;
-    fps = 25;                   //fps par défaut
+//    fps = 25;                   //fps par défaut
     screen = Factory<ViewPort>::get_instance( "Screen", "sdl" );
     screen->init(viewSize.width(), viewSize.height(), 32);
     freej->add_screen(screen);
     freej->config_check("keyboard.js");
     freej->interactive = false;
-    freej->fps.set( fps );
+//    freej->fps.set( fps );
     freej->start_running = startstate;
 
     createMenuGenerator();
@@ -158,10 +157,8 @@ void Qfreej::addTextLayer()
 
 void Qfreej::updateInterface()
 {
-    if (!_isPlaying)
-        return;
-
-    freej->cafudda(0.0);
+    if (!freej->quit)
+        freej->cafudda(1.0);
 }
 
 

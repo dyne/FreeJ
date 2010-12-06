@@ -16,8 +16,7 @@ SOURCES += main.cpp \
     specialeventget.cpp \
     FakeWindow.cpp \
     QqTabWidget.cpp \
-    Sound.cpp \
-    ../src/oggtheora_encoder.cpp
+    Sound.cpp
 
     HEADERS += qfreej.h \
     QqComboBlit.h \
@@ -31,7 +30,8 @@ SOURCES += main.cpp \
 FORMS += qfreej.ui
 CFLAGS += g
 LIBS += -lfreej
-INCLUDEPATH += ../src/include \
+INCLUDEPATH += ../../freej-git/src/freej-git-20100223/src/include \
     ../ \
     /usr/include/SDL \
     ../lib/sdl_ttf
+#    ../src/include
