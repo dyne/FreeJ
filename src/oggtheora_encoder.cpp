@@ -228,6 +228,12 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
   //		   end_of_stream );
   //  audio->get_audio(audio_buf);
 
+    audio->get_audio(audio_buf);
+    oggmux_add_audio(&oggmux, (int16_t*)audio_buf,
+  		   audio->Jack->m_BufferSize,
+  		   audio->buffersize, //read / oggmux.channels,
+  		   end_of_stream );
+
   // WAS:
 //   oggmux_add_audio_float(&oggmux, audio_buf,
 // 			 audio->BufferLength, end_of_stream);
