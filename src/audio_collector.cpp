@@ -118,18 +118,26 @@ m_ProcessPos(0)
 	
 	Jack = JackClient::Get();
 	Jack->SetCallback(AudioCallback,(void*)this);
+	Jack->ConnectInput(0, port);
 	Jack->Attach("freej");
 	if (Jack->IsAttached())
 	{	
 		int id=Jack->AddInputPort();
 		Jack->SetInputBuf(id,m_JackBuffer);
 		Jack->ConnectInput(id, port);
+		std::cerr<<"Input port ID "<< id << std::endl;
 	}
 	else
 	{
 	  error("Could not attach to jack");
 	}
 	Jack->m_SampleRate = samplerate;
+	int id=Jack->AddOutputPort();
+	Jack->SetOutputBuf(id,m_JackBuffer);
+	Jack->ConnectOutput(id, "system:playback_1");
+	std::cerr << "Output port ID: " << id << std::endl;
+
+
 	Jack->m_BufferSize = buffersize;
 	attached = true;
 	  
