@@ -5,7 +5,7 @@
  #   opengl \
  #   phonon \
  #   multimedia
-TARGET = Qfreej
+TARGET = qfreej_s
 TEMPLATE = app
 SOURCES += main.cpp \
     qfreej.cpp \
