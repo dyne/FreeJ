@@ -26,7 +26,6 @@
 #include <config.h>
 
 #ifdef WITH_OGGTHEORA
-
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
@@ -36,7 +35,9 @@
 #include <audio_collector.h>
 
 #include <oggtheora_encoder.h>
-
+#include <iomanip>
+using namespace std;
+using std::setiosflags;
 
 OggTheoraEncoder::OggTheoraEncoder() 
   : VideoEncoder() {
@@ -51,6 +52,7 @@ OggTheoraEncoder::OggTheoraEncoder()
   use_audio = false;
   audio = NULL;
   audio_buf = NULL;
+  buf_fred = NULL;
 
   init_info(&oggmux);
   theora_comment_init(&oggmux.tc);
@@ -69,8 +71,12 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   //  if(enc_rgb24) free(enc_rgb24);
 
   if(audio_buf) free(audio_buf);
+  if (buf_fred) free(buf_fred);
+  if (!wave.closed) wave.Close();
+  
 }
 
+double written;
 
 bool OggTheoraEncoder::init (ViewPort *scr) {
 
@@ -90,10 +96,17 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
 
     oggmux.video_only = 0;
     oggmux.sample_rate = audio->samplerate;
-    oggmux.channels = 1; // only 1 channel jack support for now
-    oggmux.vorbis_quality = audio_quality / 100;
+    oggmux.channels = 2; // only 1 channel jack support for now
+    oggmux.vorbis_quality = -100;	/*audio_quality / 100;*/
     oggmux.vorbis_bitrate = audio_bitrate;
-    
+
+    if (!wave.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump.wav"))
+      cerr << "can't open dump.wav !!" << endl;
+    wave.SetupFormat(48000, 16, 2);
+    written = 0;
+	
+    buf_fred = (uint8_t *)malloc(2048 * 512 * 4);	//size must be the same as audio_fred declared in JackClient::Attach() 
+   
   } else {
 
     oggmux.video_only = 1;
@@ -160,20 +173,62 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   
   act("initialization succesful");
   initialized = true;
-  
+ 	
   return true;
 }
+
 
 
 int OggTheoraEncoder::encode_frame() {
   
   encode_video ( 0);
+  if (use_audio)
+  {
+	float *ptr = (float *)buf_fred;
+	rv = 0;
+	if (int rf = ringbuffer_read_space (audio->Jack->audio_fred))
+	{
+ 	  double rff = ceil(rf/4);
+ 	  rff = (rff*4) - 4;	//take the bigest number divisible by 4 and lower than rf (ringbuffer available datas)
+	  if (rff > 1023)
+	  {
+	    if ((rv = ringbuffer_read(audio->Jack->audio_fred, (char *)buf_fred, (size_t)rff)) == 0)
+	    {
+	      std::cerr << "------impossible de lire dans le audio_fred ringbuffer !!!"\
+		    << " rf:" << rf << " rff:" << rff << " rv:" << rv << endl;
+	    }
+	    else if (!wave.closed && (rv == rff))
+	    {
+	      int i;
+	      for (i = 0; i < (rv/4); i++, ptr++)
+		if (!wave.WriteSample(*ptr))
+		  cerr << "-----Impossible d'écrire dans le fichier dump.wav !!" << endl;
 
-  if (use_audio) encode_audio ( 0);
+	      written += i;
+	      if (written >= 2880000)	//30 secondes
+	      {
+		written = 0;
+		cerr << "--- WriteHeaderToFile ---" << endl << flush;
+		wave.Close();
+	      }
+	    }
+	    else if (rv != rff)
+	    {
+	      std::cerr << "------pas assez lu dans audio_fred ringbuffer !!!"\
+		    << " rff:" << rff << " rv:" << rv << std::endl << std::flush;
+	    }
+	    encode_audio ( 0);
+	  }
+	}
+  }
   
   oggmux_flush(&oggmux, 0);
 
   bytes_encoded = oggmux.video_bytesout + oggmux.audio_bytesout;
+//   std::cerr << "oggmux.video_bytesout :" << oggmux.video_bytesout \
+//       << " oggmux.audio_bytesout :" << oggmux.audio_bytesout \
+//       << " oggmux.akbps:" << oggmux.akbps << " vkbps :" << oggmux.vkbps \
+//       << std::endl << std::flush;
 
   audio_kbps = oggmux.akbps;
   video_kbps = oggmux.vkbps;
@@ -228,10 +283,14 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
   //		   end_of_stream );
   //  audio->get_audio(audio_buf);
 
-    audio->get_audio(audio_buf);
+/*    audio->get_audio(audio_buf);
     oggmux_add_audio(&oggmux, (int16_t*)audio_buf,
   		   audio->Jack->m_BufferSize,
   		   audio->buffersize, //read / oggmux.channels,
+  		   end_of_stream );*/
+    oggmux_add_audio(&oggmux, (int16_t*)buf_fred,
+  		   rv,
+  		   rv/4, //read / oggmux.channels,
   		   end_of_stream );
 
   // WAS:

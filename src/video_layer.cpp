@@ -20,7 +20,7 @@
  * "$Id$"
  *
  */
-
+#include <iostream>
 #include <config.h>
 
 #ifdef WITH_FFMPEG
@@ -219,6 +219,7 @@ bool VideoLayer::open(const char *file) {
      */
     case CODEC_TYPE_VIDEO:
       //      enc->flags |= CODEC_FLAG_LOOP_FILTER;
+	  std::cout << "CODEC_TYPE_VIDEO i:" << i << std::endl;
       video_index = i;
       video_codec_ctx = enc;
 
@@ -259,6 +260,7 @@ bool VideoLayer::open(const char *file) {
       break; // //////////////// end of video section
 
     case CODEC_TYPE_AUDIO:
+	  std::cout << "CODEC_TYPE_AUDIO i:" << i << std::endl;
       audio_index = i;
       audio_codec_ctx = enc;
       func ("VideoLayer :: audio id=%i", audio_index);
@@ -273,7 +275,7 @@ bool VideoLayer::open(const char *file) {
 	return false;
 	
       } else { // correctly opened
-
+	//AVCODEC_MAX_AUDIO_FRAME_SIZE = 192000
 	audio_buf = (uint8_t*)calloc(AVCODEC_MAX_AUDIO_FRAME_SIZE, sizeof(int16_t));
 	
 	audio_channels = audio_codec_ctx->channels;
@@ -389,19 +391,19 @@ void *VideoLayer::feed() {
 	func("av_read_frame ...");
 #endif
 	ret = av_read_frame(avformat_context, &pkt);
-	
+
 #ifdef DEBUG
 	if(pkt.stream_index == video_index)
-	  func ("video read packet");
+	  std::cout << "video read packet";
 	else if(pkt.stream_index == audio_index)
-	  func ("audio read packet");
-	func ("pkt.data= %p\t",pkt.data);
-	func ("pkt.size= %d\t",pkt.size);
-	func ("pkt.pts/dts= %d/%d\t",pkt.pts, pkt.dts);
-	func ("pkt.duration= %d\n",pkt.duration);
-	func ("avformat_context->start_time= %d\n",avformat_context->start_time);
-	func ("avformat_context->duration= %0.3f\n",avformat_context->duration/AV_TIME_BASE);
-	func ("avformat_context->duration= %d\n",avformat_context->duration);
+	  std::cout << "audio read packet";
+	std::cout << " pkt.data=" << pkt.data;
+	std::cout << " pkt.size=" << pkt.size;
+	std::cout << " pkt.pts/dts=" << pkt.pts << "/" << pkt.dts << std::endl;
+	std::cout << "pkt.duration=" << pkt.duration;
+	std::cout << " avformat_context->start_time=" << avformat_context->start_time;
+	std::cout << " avformat_context->duration=" << avformat_context->duration/AV_TIME_BASE << std::endl;
+	std::cout << "avformat_context->duration=" << avformat_context->duration << std::endl;
 #endif
 	
 	/* TODO(shammash): this may be good for streams but breaks
@@ -416,7 +418,7 @@ void *VideoLayer::feed() {
 	/**
 	 * check eof and loop
 	 */
-	if(ret!= 0) {
+	if(ret!= 0) {	//does not enter if data are available
 	  eos->notify();
 	  //	  eos->dispatcher->do_jobs(); /// XXX hack hack hack
 	  ret = seek(avformat_context->start_time);
@@ -433,6 +435,7 @@ void *VideoLayer::feed() {
     
     
     frame_number++;
+	//std::cout << "frame_number :" << frame_number << std::endl;
     
     /**
      * Decode video
@@ -521,6 +524,8 @@ void *VideoLayer::feed() {
 	  int samples = data_size/sizeof(uint16_t);
 
 	  long unsigned int m_SampleRate = screen->m_SampleRate?*(screen->m_SampleRate):48000;
+	  //std::cout << "screen->m_SampleRate :" << screen->m_SampleRate << " m_SampleRate :" << m_SampleRate \
+	  //<< std::endl;
 	  double m_ResampleRatio = (double)(m_SampleRate)/(double)audio_samplerate; 
 	  long unsigned max_buf = ceil(AVCODEC_MAX_AUDIO_FRAME_SIZE * m_ResampleRatio * audio_channels);
 
@@ -534,6 +539,7 @@ void *VideoLayer::feed() {
 
 	  if (m_ResampleRatio == 1.0) 
 	  {
+	  //std::cout << "m_ResampleRatio == 1.0" << std::endl; pass here
 	    ringbuffer_write(screen->audio, (const char*)audio_float_buf,  samples*sizeof(float));
 	  } 
 	  else 
@@ -587,7 +593,6 @@ int VideoLayer::decode_audio_packet(int *data_size) {
   int datasize, res;
 
   datasize = AVCODEC_MAX_AUDIO_FRAME_SIZE;
-
 #if LIBAVCODEC_VERSION_MAJOR < 53
   res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
 			      &datasize, pkt.data, pkt.size);

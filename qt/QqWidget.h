@@ -2,6 +2,8 @@
 #define QQWIDGET_H
 #include <QWidget>
 #include <text_layer.h>
+#include <video_layer.h>
+//#include <v4l2_layer.h>
 #include <QTabWidget>
 #include <QTextEdit>
 #include <QComboBox>
@@ -48,7 +50,9 @@ public slots:
 
 private:
     int newIdx;
-    Layer *qLayer;
+    //Layer *qLayer;
+    VideoLayer *qLayer;
+    //V4L2CamLayer *qLayer;
     TextLayer *qTextLayer;
     GeneratorLayer *m_qGeneLayer;
     QTextEdit *text;

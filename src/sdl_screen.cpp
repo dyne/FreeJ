@@ -88,7 +88,7 @@ bool SdlScreen::_init() {
   SDL_WM_SetCaption (temp, temp);
 
   /* hide mouse cursor */
-  SDL_ShowCursor(SDL_DISABLE);
+  //SDL_ShowCursor(SDL_DISABLE);
 
   // optimise sdl_gfx blits
   if( SDL_imageFilterMMXdetect () )

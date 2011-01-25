@@ -163,8 +163,8 @@ class VideoLayer: public Layer {
 
 	char *full_filename;
 
-	int video_index;
-	int audio_index;
+	int video_index;	//contains the stream place number
+	int audio_index;	//contains the stream place number
 
 	FILE *fp;
 

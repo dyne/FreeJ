@@ -22,12 +22,13 @@
 #ifndef __OGGTHEORA_ENCODER_h__
 #define __OGGTHEORA_ENCODER_h__
 
-
+#include <math.h>
+#include <wave.h>
 #include <config.h>
 #include <linklist.h>
 #include <video_encoder.h>
 #include <audio_jack.h>
-
+#include <fstream>
 #ifdef WITH_OGGTHEORA
 
 #include <theorautils.h>
@@ -67,8 +68,10 @@ class OggTheoraEncoder: public VideoEncoder {
   bool init(ViewPort *scr);
 
   int encode_frame();
-
- private:
+  WaveFile	wave;
+  size_t	rv;
+  
+private:
 
   oggmux_info oggmux; // theorautils object
 
@@ -87,7 +90,7 @@ class OggTheoraEncoder: public VideoEncoder {
 
   unsigned char *yuvframe[2]; /* yuv 420 */
   
-
+  uint8_t *buf_fred;
 };
 
 #endif

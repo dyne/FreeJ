@@ -1,0 +1,15 @@
+//add transparancy to the main window
+//move main window in accordance with the size
+//resize ViewPort in accordance to the  biggest layer
+//fix the rotation sense when changing mouse direction.
+//be able to record the viewport, and replay it.
+//replace slow button by a slider
+//try to open some sound
+//add a button in the textlayer to unfold text
+//do a streaming interface
+//see to use Linklist.completion to add blit, filters and generators
+//devide the fake size window by two .... not sure :)
+//insert STRING filters parameters
+
+- copier la méthode utilisée dans /home/fred/system/video/snd/dhoerl/avcodec_sample.0.5.0.c
+	qui recupère le FPS, car semble retourner une bonne valeur pour film.mp4 (pas 240)

@@ -62,7 +62,7 @@ Qfreej::Qfreej(QWidget *parent) :
 
     poller = new QTimer (this);
     connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
-    poller->start(10); //start timer to trigger every 10 ms the updateInterface slot
+    poller->start(1); //start timer to trigger every 1 ms the updateInterface slot
 
     freej = new Context();
     init();
@@ -104,12 +104,13 @@ void Qfreej::init()
     screen = Factory<ViewPort>::get_instance( "Screen", "sdl" );
     screen->init(viewSize.width(), viewSize.height(), 32);
     freej->add_screen(screen);
-    freej->config_check("keyboard.js");
+    //freej->config_check("keyboard.js");    
     freej->interactive = false;
 //    freej->fps.set( fps );
     freej->start_running = startstate;
 
     createMenuGenerator();
+	//openSoundDevice();
 }
 
 void Qfreej::startStreaming()
@@ -140,6 +141,7 @@ void Qfreej::addLayer()
     }
 }
 
+//see to rename this in openStream
 void Qfreej::openSoundDevice()
 {
     m_snd = new Sound(freej);

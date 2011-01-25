@@ -42,16 +42,17 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     qTextLayer = NULL;
     fakeView = NULL;
     fakeLay = NULL;
-    qLayer = freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
+    qLayer = (VideoLayer *)freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
     if(qLayer)
     {
         if( freej->screen->add_layer(qLayer) )
         {
-            qLayer->start();
+            qLayer->start();	//launches JSyncThread::start()
 
             if (qLayer->frame_rate > 50)   //pb de determination de FPS
             {
-                qLayer->fps.set(qLayer->frame_rate / 10);
+				std::cout << "--------- qfreej : frame_rate problem : " << qLayer->frame_rate << " FPS" << std::endl;
+                qLayer->fps.set(qLayer->frame_rate / 10); 
                 normalFps = qLayer->frame_rate / 10;
                 actualFps = qLayer->frame_rate / 10;
             }
@@ -65,6 +66,8 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             tabWidget->addTab(this, qLayer->get_filename());
             qLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
             m_tabWidg = tabWidget;
+	    qfreej->openSoundDevice();
+	    //freej->screen->fullscreen();    //figure out how to exit from this state
         }
         else
         {

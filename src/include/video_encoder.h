@@ -122,7 +122,7 @@ class VideoEncoder: public Entry, public JSyncThread {
  private:
   FILE *filedump_fd;
   char encbuf[1024*128];
-
+struct timeval actual_time;
 
 
 };

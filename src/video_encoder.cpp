@@ -19,7 +19,7 @@
  * "$Id$"
  *
  */
-
+#include <iostream>
 
 #include <config.h>
 
@@ -166,7 +166,9 @@ VideoEncoder::~VideoEncoder() {
 void VideoEncoder::thread_setup() {
   func("ok, encoder %s in rolling loop",name);
   func("VideoEncoder::run : begin thread %p",pthread_self());
-}
+std::cout << "-------ok, video_encoder :" << status << ": in rolling loop"\
+	<< std::endl << std::flush;
+ }
 
 void VideoEncoder::thread_loop() {
   int encnum;
@@ -192,8 +194,15 @@ void VideoEncoder::thread_loop() {
     if (!surface) {
         fps->calc();
         fps->delay();
+		//std::cout << "fps->start_tv.tv_sec :" << fps->start_tv.tv_sec << \
+			" tv_usec :" << fps->start_tv.tv_usec << "   \r" << std::endl;
         return;
     }
+    //gettimeofday(&actual_time,NULL);
+    //fps->calc(); 	//without this the thread_loop is called nearly two times more and
+    //fps->delay();	//stream speed is too slow
+	//std::cout << "actual_time.tv_sec :" << actual_time.tv_sec << \
+			" tv_usec :" << actual_time.tv_usec << "   \r" << std::endl;
     screen->lock();
 
     switch(screen->get_pixel_format()) {

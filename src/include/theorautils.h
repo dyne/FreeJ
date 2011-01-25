@@ -32,7 +32,7 @@
 #include <ogg/ogg.h>
 
 #include <ringbuffer.h>
-
+#include <time.h>
 
 //#define OGGMUX_DEBUG 1
 
@@ -61,6 +61,8 @@ typedef struct
     double katetime;
 }
 oggmux_kate_stream;
+
+typedef void TIMER;
 
 typedef struct
 {

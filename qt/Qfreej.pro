@@ -28,7 +28,7 @@ SOURCES += main.cpp \
     QqTabWidget.h \
     Sound.h
 FORMS += qfreej.ui
-CFLAGS += g
+CONFIG += qt debug
 LIBS += -lfreej
 INCLUDEPATH += ../ \
     /usr/include/SDL \

@@ -44,7 +44,8 @@ JackClient::JackClient() :
 m_NextInputID(0),
 m_NextOutputID(0),
 m_inbuf(NULL),
-m_ringbuffer(NULL)
+m_ringbuffer(NULL),
+audio_fred(NULL)
 {
 }
 
@@ -93,7 +94,10 @@ bool JackClient::Attach(const std::string &ClientName)
 	}
 
 	m_Attached=true;
-			
+	
+	
+	audio_fred = ringbuffer_create(2048 * 512 * 4);		//1024 not enought
+	
 	return true;
 }
 
@@ -108,7 +112,7 @@ void JackClient::Detach()
 		m_Client=NULL;
 		m_Attached=false;
 	}
-	
+	if(audio_fred) ringbuffer_free(audio_fred);
 	// tells ssm to go back to non callback mode
 	//if (RunCallback) RunCallback(RunContext, false);
 }
@@ -118,7 +122,8 @@ void JackClient::Detach()
 extern "C" {
 #include <jack/jack.h>
 
-void deinterleave(void * _in, jack_default_audio_sample_t *out, int num_channels, int channel, int num_samples)
+void deinterleave(void * _in, jack_default_audio_sample_t *out
+		, int num_channels, int channel, int num_samples)
 {
   int j;
   float * in;
@@ -147,7 +152,6 @@ int JackClient::Process (jack_nframes_t nframes, void *arg)
 */
 int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
-	//std::cerr << "nframes :" << nframes << std::endl;
 	for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
 		i!=m_InputPortMap.end(); i++)
 	{
@@ -155,22 +159,21 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		{
 			sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
 			memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize);
+			//Buff attribué par SetInputBuf dans le constructeur de AudioCollector
 		}			
 	}
 
 	int channels = ((JackClient*) self)->m_ringbufferchannels;
 	bool output_available = false;
-
+//m_ringbuffer created by ViewPort::add_audio
+//1024*512 rounded up to the next power of two.
 	if (((JackClient*) self)->m_ringbuffer) 
 	{
-	  //std::cerr << "Jack inbuf avail " << ringbuffer_read_space(((JackClient*) self)->m_ringbuffer)
-	  //<< std::endl;	
 	//  func("Jack inbuf avail %i", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
 	//  fprintf(stderr, "Jack inbuf avail %i\n", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
 
 	  static int firsttime = 1 + ceil(4096/nframes); // XXX pre-buffer  TODO decrease this and compensate latency
 	
-	//std::cerr << "firsttime :" << firsttime << " nframes :" << nframes << std::endl;
 	  if (ringbuffer_read_space(((JackClient*) self)->m_ringbuffer) >= 
 			      firsttime * channels * nframes * sizeof(float)) 
 	  {
@@ -178,14 +181,32 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		  size_t rv = ringbuffer_read(((JackClient*) self)->m_ringbuffer, 
 					      ((JackClient*) self)->m_inbuf,
 					      channels*nframes*sizeof(float));
-		  std::cerr << "in boucle, rv :" << rv << " nframes :" << nframes
-			<< " channels :" << channels;
+		  if (ringbuffer_write_space (((JackClient*) self)->audio_fred) >= rv)
+		  {
+		    unsigned char *aPtr = (unsigned char *)((JackClient*) self)->m_inbuf;
+// 		    printf("----:\n");
+// 		    for (int i=0; i < 24; i++, aPtr++)
+// 		    {
+// 		      printf ("%02x ", *aPtr);
+// 		    }
+// 		    printf ("\n----;\n");
+// 		    fflush(stdout);
+		    size_t rf = ringbuffer_write (((JackClient*) self)->audio_fred, ((JackClient*) self)->m_inbuf, rv);
+		    if (rf != rv)
+			std::cerr << "---" << rf << " : au lieu de :" << rv << " octets ecrits dans le ringbuffer !!"\
+									       << std::endl;
+		  }
+		  else
+		  {
+		     std::cerr << "-----------Pas suffisament de place dans audio_fred !!!" << std::endl; 
+		  }
+//reads m_ringbuffer and puts it in m_inbuf
+//m_inbuf created in SetRingbufferPtr called by add_audio
+//4096 * channels * sizeof(float)
   		if (rv >= channels * nframes * sizeof(float))
 		{
   			output_available = true;
-			std::cerr << "  output_available";
 		}
-		 std::cerr << std::endl; 
 	  }
 #if 0
 	  else if (firsttime==1)
@@ -193,7 +214,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 #endif
 	}
 
-	int j=0;	
+	int j=0;
 	for (std::map<int,JackPort*>::iterator i=m_OutputPortMap.begin();
 		i!=m_OutputPortMap.end(); i++)
 	{
@@ -201,13 +222,15 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		{
 			sample_t *out = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
 			memset (out, 0, sizeof (jack_default_audio_sample_t) * nframes);
-			deinterleave(((JackClient*) self)->m_inbuf, out, channels, j, nframes);
-
+			deinterleave(((JackClient*) self)->m_inbuf, out, channels
+						, j, nframes);
+//writes nframes of channels m_inbuf to out
+//two times if stereo (shifted by the channel number)
 #if 0  			// test-noise:
 			int i; for (i=0; i< nframes; i++) out[i]=(float) i/(float)nframes;
 #endif
 		}
-		else // no output availible, clear
+		else // no output availaible, clear
 		{
 			sample_t *out = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
 			memset (out, 0, sizeof (sample_t) * nframes);
@@ -217,11 +240,11 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 	
 	m_BufferSize=nframes;
 			
-	if(RunCallback&&RunContext)
-	{
-		// do the work
-		RunCallback(RunContext, nframes);
-	}
+// 	if(RunCallback&&RunContext)
+// 	{
+// 		// do the work
+// 		RunCallback(RunContext, nframes);
+// 	}
 	
 	return 0;
 }
@@ -231,9 +254,16 @@ int JackClient::SetRingbufferPtr(ringbuffer_t *rb, int rate, int channels) {
 	m_ringbuffer = NULL;
 
 	func ("jack-client ringbuffer set for %i channels", channels);
-
+std::cout << "SetRingbufferPtr, channels :" << channels << std::endl;
 	for (i=m_NextOutputID; i<channels; i++) {
 		AddOutputPort();
+		if (i == 0)	//connects output ports to system input ports (fred_99)
+		{
+			this->ConnectOutput(i, "system:playback_1");
+			this->ConnectOutput(i, "freej:In0");
+		}
+		//else if (i == 1)
+			//this->ConnectOutput(i, "system:playback_2"); //see how to test if there is two system channels
 	}
 
 	if(m_inbuf) free(m_inbuf);
@@ -363,7 +393,8 @@ void JackClient::ConnectInput(int n, const std::string &JackPort)
 void JackClient::ConnectOutput(int n, const std::string &JackPort)
 {
   if (!IsAttached()) return;
-  std::cerr<<"JackClient::ConnectOutput: connecting source ["<<m_OutputPortMap[n]->Name<<"] to dest ["<<JackPort<<"]"<<std::endl;
+  std::cerr<<"JackClient::ConnectOutput: connecting source ["<<m_OutputPortMap[n]->Name<<"] \
+  	to dest ["<<JackPort<<"]"<<std::endl;
   
   if (m_OutputPortMap[n]->ConnectedTo!="")
     {

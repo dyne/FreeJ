@@ -19,6 +19,7 @@
 #include <string>
 #include <iostream>
 #include <jack/jack.h>
+#include <ringbuffer.h>
 
 #include <ringbuffer.h>
 
@@ -56,7 +57,8 @@ public:
 	static long unsigned int  m_BufferSize;
 	static long unsigned int  m_SampleRate;	
 	static bool               m_Attached;
-
+	ringbuffer_t *audio_fred;	//ringbuffer to write raw data in a file
+	
 protected:
 	JackClient();
 	~JackClient();

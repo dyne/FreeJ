@@ -16,7 +16,6 @@
 
 #include <config.h>
 #ifdef WITH_AUDIO
-//toto
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
@@ -118,13 +117,13 @@ m_ProcessPos(0)
 	
 	Jack = JackClient::Get();
 	Jack->SetCallback(AudioCallback,(void*)this);
-	Jack->ConnectInput(0, port);
 	Jack->Attach("freej");
 	if (Jack->IsAttached())
 	{	
 		int id=Jack->AddInputPort();
 		Jack->SetInputBuf(id,m_JackBuffer);
-		Jack->ConnectInput(id, port);
+		Jack->ConnectInput(id, port);		//connects output port name passed in param to constructor
+											//to the new Input port created "freej::In0"
 		std::cerr<<"Input port ID "<< id << std::endl;
 	}
 	else
@@ -132,12 +131,6 @@ m_ProcessPos(0)
 	  error("Could not attach to jack");
 	}
 	Jack->m_SampleRate = samplerate;
-	int id=Jack->AddOutputPort();
-	Jack->SetOutputBuf(id,m_JackBuffer);
-	Jack->ConnectOutput(id, "system:playback_1");
-	std::cerr << "Output port ID: " << id << std::endl;
-
-
 	Jack->m_BufferSize = buffersize;
 	attached = true;
 	  
