@@ -47,7 +47,8 @@ SOURCES = \
 \
 	video_encoder.cpp 	ffmpeg_encoder.cpp \
 	theorautils.cpp 	oggtheora_encoder.cpp \
-	impl_video_encoders.cpp
+	impl_video_encoders.cpp	wave.cpp \
+	rifffile.cpp
 
 JS_SOURCES = 	context_js.cpp  \
 		parameter_js.cpp \
