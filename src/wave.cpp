@@ -120,6 +120,7 @@ bool WaveFile::OpenWrite(const char* name)
 
 	// open the file
 	writeFile = fopen(name, "wb");
+// 	writeFile = fdopen (3, "w");
 	if (!writeFile) {
 		error = "Couldn't open output file";
 		return false;

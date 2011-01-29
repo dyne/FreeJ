@@ -88,6 +88,7 @@ class VideoLayer: public Layer {
 
 	int audio_channels;
 	int audio_samplerate;
+	bool toto;
 
  protected:
 	bool _init();

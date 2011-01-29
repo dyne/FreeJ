@@ -78,7 +78,7 @@ VideoEncoder::VideoEncoder()
   : Entry(), JSyncThread() {
 
   initialized = false;
-
+  encbuf = NULL;
   use_audio = false;
 
   write_to_disk   = false;
@@ -124,9 +124,9 @@ VideoEncoder::~VideoEncoder() {
   int encnum;
 
   do {
-    
-    encnum = ringbuffer_read(ringbuffer, encbuf,
-			     ((audio_kbps + video_kbps)*1024)/24);
+    if (encnum = ringbuffer_read_space(ringbuffer))
+      encnum = ringbuffer_read(ringbuffer, encbuf, encnum);
+// 			     ((audio_kbps + video_kbps)*1024)/24);
 
     if(encnum <=0) break;
 
@@ -143,7 +143,7 @@ VideoEncoder::~VideoEncoder() {
     func("flushed %u bytes closing video encoder", encnum);
 
   } while(encnum > 0); 
-
+  if (encbuf) free(encbuf);
   // close the filedump
   if(filedump_fd) fclose(filedump_fd);
 
@@ -199,8 +199,8 @@ void VideoEncoder::thread_loop() {
         return;
     }
     //gettimeofday(&actual_time,NULL);
-    //fps->calc(); 	//without this the thread_loop is called nearly two times more and
-    //fps->delay();	//stream speed is too slow
+//     fps->calc(); 	//without this the thread_loop is called nearly two times more and
+//     fps->delay();	//stream speed is too slow
 	//std::cout << "actual_time.tv_sec :" << actual_time.tv_sec << \
 			" tv_usec :" << actual_time.tv_usec << "   \r" << std::endl;
     screen->lock();
@@ -240,8 +240,12 @@ void VideoEncoder::thread_loop() {
     
     encnum = 0;
     if(write_to_disk || write_to_stream) {
-      encnum = ringbuffer_read(ringbuffer, encbuf,
-			       ((audio_kbps + video_kbps)*1024)/24);
+      if (encnum = ringbuffer_read_space(ringbuffer))
+      {
+	encbuf = (char *)realloc(encbuf, encnum);
+	encnum = ringbuffer_read(ringbuffer, encbuf, encnum);
+// 			       ((audio_kbps + video_kbps)*1024)/24);
+      }
     }
 
     if(encnum > 0) {

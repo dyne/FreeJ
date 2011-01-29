@@ -163,8 +163,8 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 			sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
 			memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize);
 			//Buff attribué par SetInputBuf dans le constructeur de AudioCollector
-		  if (ringbuffer_write_space (((JackClient*) self)->audio_fred) >= (sizeof (sample_t) * m_BufferSize))
-		  {
+/*		  if (ringbuffer_write_space (((JackClient*) self)->audio_fred) >= (sizeof (sample_t) * m_BufferSize))
+		  {*/
 // 		    unsigned char *aPtr = (unsigned char *)((JackClient*) self)->m_inbuf;
 // 		 	printf("----:\n");
 // 		  	for (int i=0; i < 24; i++, aPtr++)
@@ -173,12 +173,12 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 // 		  	}
 // 		  	printf ("\n----;\n");
 // 		  	fflush(stdout);
-		    size_t rf = ringbuffer_write (((JackClient*) self)->audio_fred, (char *)in, (sizeof (sample_t) * m_BufferSize));
+/*		    size_t rf = ringbuffer_write (((JackClient*) self)->audio_fred, (char *)in, (sizeof (sample_t) * m_BufferSize));
 		  }
 		  else
 		  {
 		    std::cerr << "-----------Pas suffisament de place dans audio_fred !!!" << std::endl; 
-		  }
+		  }*/
 	      }			
 	}
 
@@ -200,9 +200,9 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		  size_t rv = ringbuffer_read(((JackClient*) self)->m_ringbuffer, 
 					      ((JackClient*) self)->m_inbuf,
 					      channels*nframes*sizeof(float));
-/*		  if (ringbuffer_write_space (((JackClient*) self)->audio_fred) >= rv)
+		  if (ringbuffer_write_space (((JackClient*) self)->audio_fred) >= rv)
 		  {
-		    unsigned char *aPtr = (unsigned char *)((JackClient*) self)->m_inbuf;*/
+// 		    unsigned char *aPtr = (unsigned char *)((JackClient*) self)->m_inbuf;
 // 		    printf("----:\n");
 // 		    for (int i=0; i < 24; i++, aPtr++)
 // 		    {
@@ -210,7 +210,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 // 		    }
 // 		    printf ("\n----;\n");
 // 		    fflush(stdout);
-/*		    size_t rf = ringbuffer_write (((JackClient*) self)->audio_fred, ((JackClient*) self)->m_inbuf, rv);
+		    size_t rf = ringbuffer_write (((JackClient*) self)->audio_fred, ((JackClient*) self)->m_inbuf, rv);
 		    if (rf != rv)
 			std::cerr << "---" << rf << " : au lieu de :" << rv << " octets ecrits dans le ringbuffer !!"\
 									       << std::endl;
@@ -218,7 +218,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		  else
 		  {
 		     std::cerr << "-----------Pas suffisament de place dans audio_fred !!!" << std::endl; 
-		  }*/
+		  }
 //reads m_ringbuffer and puts it in m_inbuf
 //m_inbuf created in SetRingbufferPtr called by add_audio
 //4096 * channels * sizeof(float)

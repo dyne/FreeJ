@@ -146,7 +146,7 @@ void init_info(oggmux_info *info);
 extern void oggmux_setup_kate_streams(oggmux_info *info, int n_kate_streams);
 extern void oggmux_init (oggmux_info *info);
 extern void oggmux_add_video (oggmux_info *info, yuv_buffer *yuv, int e_o_s);
-extern void oggmux_add_audio (oggmux_info *info, int16_t * readbuffer, int bytesread, int samplesread,int e_o_s);
+extern void oggmux_add_audio (oggmux_info *info, float * readbuffer, int bytesread, int samplesread,int e_o_s);
 extern void oggmux_add_kate_text (oggmux_info *info, int idx, double t0, double t1, const char *text, size_t len);
 extern void oggmux_add_kate_end_packet (oggmux_info *info, int idx, double t);
 extern void oggmux_flush (oggmux_info *info, int e_o_s);

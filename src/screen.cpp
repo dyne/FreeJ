@@ -49,7 +49,8 @@ ViewPort::ViewPort()
   indestructible = false;
 #ifdef WITH_AUDIO
   // if compiled with audio initialize the audio data pipe
-  audio = ringbuffer_create(1024 * 512);
+//   audio = ringbuffer_create(1024 * 512);
+  audio = ringbuffer_create(4096 * 512 * 8);
 #endif
 }
 
