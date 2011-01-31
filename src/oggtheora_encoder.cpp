@@ -86,7 +86,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   oggmux.ringbuffer = ringbuffer;
   oggmux.bytes_encoded = 0;
 
-  oggmux.audio_only = 1;	//fred_99
+  oggmux.audio_only = 1;
 
   if(use_audio && audio) {
 
@@ -95,14 +95,14 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
 
     oggmux.video_only = 0;
     oggmux.sample_rate = audio->samplerate;
-    oggmux.channels = 2; // only 1 channel jack support for now
+    oggmux.channels = 2; // needs to be replaced by a variable
     oggmux.vorbis_quality = -100;	/*audio_quality / 100;*/
     oggmux.vorbis_bitrate = audio_bitrate;
 
-    if (!wave.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump.wav"))
+/*    if (!wave.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump.wav"))
       cerr << "can't create dump.wav !!" << endl;
     wave.SetupFormat(48000, 16, 2);
-    written = 0;
+    written = 0;*/
 	
     buf_fred = (float *)malloc(4096 * 512 * 4);	//size must be the same as audio_fred declared in JackClient::Attach() 
    
@@ -195,14 +195,14 @@ int OggTheoraEncoder::encode_frame() {
 	    rff = ceil(rf/sizeof(float));
 	    rff = (rff*sizeof(float)) - sizeof(float);	//take the bigest number divisible by 4 and lower than rf (ringbuffer available datas)
 	  }
-	  if (rff > 4095)
+	  if (rff > ((1024 * sizeof(float) * oggmux.channels) - 1))	// > to 1024 frames in stereo
 	  {
 	    if ((rv = ringbuffer_read(audio->Jack->audio_fred, (char *)buf_fred, (size_t)rff)) == 0)
 	    {
 	      std::cerr << "------impossible de lire dans le audio_fred ringbuffer !!!"\
 		    << " rf:" << rf << " rff:" << rff << " rv:" << rv << endl;
 	    }
-	    else if (!wave.closed && (rv == rff))
+/*	    else if (!wave.closed && (rv == rff))
 	    {
 	      int i;
 	      for (i = 0; i < (rv/sizeof(float)); i++, ptr++)
@@ -216,7 +216,7 @@ int OggTheoraEncoder::encode_frame() {
 		cerr << "--- WriteHeaderToFile ---" << endl << flush;
 		wave.Close();
 	      }
-	    }
+	    }*/
 	    else if (rv != rff)
 	    {
 	      std::cerr << "------pas assez lu dans audio_fred ringbuffer !!!"\
@@ -227,7 +227,7 @@ int OggTheoraEncoder::encode_frame() {
 	}
   }
   
-//   oggmux_flush(&oggmux, 0);
+  oggmux_flush(&oggmux, 0);
 
   bytes_encoded = oggmux.video_bytesout + oggmux.audio_bytesout;	//total from the beginning
 //   std::cerr << "oggmux.video_bytesout :" << oggmux.video_bytesout \

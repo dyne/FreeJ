@@ -298,7 +298,7 @@ void oggmux_init (oggmux_info *info){
     if(!info->audio_only){
         ogg_stream_init (&info->to, rand ());    /* oops, add one ot the above */
         theora_encode_init (&info->td, &info->ti);
-std::cerr << "---------- video only !!!!!" << std::endl;
+// std::cerr << "---------- video only !!!!!" << std::endl;
         if(info->speed_level >= 0) {
             int max_speed_level;
             theora_control(&info->td, TH_ENCCTL_GET_SPLEVEL_MAX, &max_speed_level, sizeof(int));
@@ -318,7 +318,7 @@ std::cerr << "---------- video only !!!!!" << std::endl;
 	    return;
 	}
 
- std::cerr << "---------- with audio !!!!! ch:" << info->channels << std::endl;
+//  std::cerr << "---------- with audio !!!!! ch:" << info->channels << std::endl;
        vorbis_info_init (&info->vi);//
 	float quality = 1;
         if(vorbis_encode_setup_vbr(&info->vi, info->channels, 48000, quality)){
@@ -437,7 +437,7 @@ std::cerr << "---------- video only !!!!!" << std::endl;
 
     /* first packet will get its own page automatically */
     if(!info->audio_only){
-std::cerr << "---------- whith video !!!!!" << std::endl;
+// std::cerr << "---------- whith video !!!!!" << std::endl;
         theora_encode_header (&info->td, &op);
         ogg_stream_packetin (&info->to, &op);
         if (ogg_stream_pageout (&info->to, &og) != 1){
@@ -465,9 +465,9 @@ std::cerr << "---------- whith video !!!!!" << std::endl;
         ogg_packet header_comm;
         ogg_packet header_code;
 
-	if (!wave2.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump_t.wav"))
-	  std::cerr << "can't create dump_t.wav !!" << std::endl;
-	wave2.SetupFormat(48000, 16, 2);
+// 	if (!wave2.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump_t.wav"))
+// 	  std::cerr << "can't create dump_t.wav !!" << std::endl;
+// 	wave2.SetupFormat(48000, 16, 2);
 
         if (vorbis_analysis_headerout (&info->vd, &info->vc, &header,
                        &header_comm, &header_code))
@@ -600,7 +600,7 @@ std::cerr << "---------- whith video !!!!!" << std::endl;
      * the actual data in each stream will start
      * on a new page, as per spec. */
     while (1 && !info->audio_only){
-std::cerr << "---------- with video !!!!!" << std::endl;
+// std::cerr << "---------- with video !!!!!" << std::endl;
         int result = ogg_stream_flush (&info->to, &og);	//4 theora
         if (result < 0){
             /* can't get here */
@@ -685,7 +685,6 @@ void oggmux_add_video (oggmux_info *info, yuv_buffer *yuv, int e_o_s){
  */
 void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples, int e_o_s){
     ogg_packet op;
-    ogg_page og;
     float *ptr = buffer;
     int i,j, c, count = 0;
     float **vorbis_buffer;
@@ -721,7 +720,7 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
         vorbis_analysis_wrote (&info->vd, samples);
     }
     //for the moment same as encode.c
-    int ret, len;
+    int ret;
     while((ret = vorbis_analysis_blockout (&info->vd, &info->vb)) == 1){	//idem
         /* analysis, assume we want to use bitrate management */
         vorbis_analysis (&info->vb, NULL);				//idem
@@ -729,32 +728,19 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
 
 	int bet;
         /* weld packets into the bitstream */
-        while (vorbis_bitrate_flushpacket (&info->vd, &op)){
+	while ((bet = vorbis_bitrate_flushpacket (&info->vd, &op)) == 1){
             ogg_stream_packetin (&info->vo, &op);
-//insert the oggmux_flush vorbis content here
 	    info->a_pkg++;
-	    int result = ogg_stream_pageout(&info->vo,&og);
-            if(!result) break;
+        }
+        if (bet && OV_EINVAL)
+          std::cerr << std::endl << "vorbis_analysis_blockout :Invalid parameters." << std::endl << std::flush;
+        else if (bet && OV_EFAULT)
+          std::cerr << std::endl << "vorbis_analysis_blockout :Internal fault; \
+              indicates a bug or memory corruption." << std::endl << std::flush;
+        else if (bet && OV_EIMPL)
+          std::cerr << std::endl << "vorbis_analysis_blockout : Unimplemented; \
+              not supported by this version of the library." << std::endl << std::flush;
 
-	    len = og.header_len + og.body_len;
-	    if(info->audiopage_buffer_length < len) {
-		info->audiopage = (unsigned char*)realloc(info->audiopage, len);
-		info->audiopage_buffer_length = len;
-	    }
-	    info->audiopage_len = len;
-	    memcpy(info->audiopage, og.header, og.header_len);
-	    memcpy(info->audiopage+og.header_len , og.body, og.body_len);
-
-	    info->audiopage_valid = 1;
-	    if(ogg_page_granulepos(&og)>0) {
-	      info->audiotime= vorbis_granule_time (&info->vd,
-                  ogg_page_granulepos(&og));
-	      if (info->audiotime == -1)
-		  std::cerr << "the given vorbis granulepos is invalid" << std::endl << std::flush;
-	    }
-	    write_audio_page(info);
-	    std::cerr << "info->audiotime :" << info->audiotime << std::endl << std::flush;
-	}
     }
     if (ret && OV_EINVAL)
       std::cerr << std::endl << "vorbis_analysis_blockout :Invalid parameters." << std::endl << std::flush;
@@ -995,7 +981,7 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 
           info->videopage_valid = 1;
           if(ogg_page_granulepos(&og)>0) {					//3
-	    std::cerr << "--3--" << std::endl << std::flush;
+// 	    std::cerr << "--3--" << std::endl << std::flush;
             info->videotime = theora_granule_time (&info->td,
                   ogg_page_granulepos(&og));
 	    if (info->videotime == -1)
@@ -1126,11 +1112,11 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
           write_kate_page(info, best);
       }*/
       else if(e_o_s && info->videopage_valid) {
-	  std::cerr << "--write video page--" << std::endl << std::flush;
+// 	  std::cerr << "--write video page--" << std::endl << std::flush;
           write_video_page(info);
       }
       else if(e_o_s && info->audiopage_valid) {
-	  std::cerr << "--write audio page--" << std::endl << std::flush;
+// 	  std::cerr << "--write audio page--" << std::endl << std::flush;
           write_audio_page(info);
       }
       else {
