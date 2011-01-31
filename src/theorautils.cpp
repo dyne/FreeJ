@@ -972,7 +972,7 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
         if(v_next) {
           len = og.header_len + og.body_len;
           if(info->videopage_buffer_length < len) {
-			  info->videopage = (unsigned char*)realloc(info->videopage, len);
+		  info->videopage = (unsigned char*)realloc(info->videopage, len);
             info->videopage_buffer_length = len;
           }
           info->videopage_len = len;
@@ -981,13 +981,13 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 
           info->videopage_valid = 1;
           if(ogg_page_granulepos(&og)>0) {					//3
-// 	    std::cerr << "--3--" << std::endl << std::flush;
             info->videotime = theora_granule_time (&info->td,
                   ogg_page_granulepos(&og));
 	    if (info->videotime == -1)
 	    {
 	      std::cerr << "the given theora granulepos is invalid" << std::endl << std::flush;
 	    }
+ 	    std::cerr << "Theora time :" << info->videotime << std::endl << std::flush;
           }
         }
       }
@@ -1024,6 +1024,7 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 	    if (info->audiotime == -1)
 		std::cerr << "the given vorbis granulepos is invalid" << std::endl << std::flush;
 	  }
+	  std::cerr << "Vorbis time :" << info->audiotime << std::endl << std::flush;
 	}
       }
 
@@ -1095,17 +1096,20 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
        *  a) If we have valid pages for both
        *  b) At EOS, for the remaining stream.
        */
-      else if(info->videopage_valid && info->audiopage_valid) {
+      else if(info->videopage_valid /*&& info->audiopage_valid*/) {
         /* Make sure they're in the right order. */
 // 	std::cerr << "--tv0.5-- info->a_pkg :" << info->a_pkg << " v_pkg :" << info->v_pkg << std::endl << std::flush;
-        if(info->videotime <= info->audiotime) {
+//         if(info->videotime <= info->audiotime) {
           //CHECK_KATE_OUTPUT(video);
           write_video_page(info);
-        }
-        else {
+//         }
+//         else {
           //CHECK_KATE_OUTPUT(audio);
-          write_audio_page(info);
-        }
+//           write_audio_page(info);
+//         }
+      }
+      else if(info->audiopage_valid) {
+	write_audio_page(info);
       }
 /*      else if(e_o_s && best>=0) {
 	  std::cerr << "--write kate page--" << std::endl << std::flush;
