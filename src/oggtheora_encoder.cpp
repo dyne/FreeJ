@@ -295,7 +295,7 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
   		   end_of_stream );*/
     oggmux_add_audio(&oggmux, buf_fred,
   		   rv,
-  		   rv/sizeof(float), //read / oggmux.channels,
+  		   rv/(sizeof(float)*oggmux.channels), //read / oggmux.channels,
   		   end_of_stream );
 
   // WAS:

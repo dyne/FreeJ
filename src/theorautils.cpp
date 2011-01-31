@@ -53,6 +53,7 @@ int ogg_pipe_read(char *name, ringbuffer_t *rb, char *dest, size_t cnt) {
 }
 int ogg_pipe_write(const char *name, ringbuffer_t *rb, char *src, size_t cnt) {
   while( ringbuffer_write_space(rb) < cnt ) {
+    std::cerr << name << " pipe write not ready" << std::endl;
     warning("%s pipe write not ready", name);
     jsleep(0,10);
   }
@@ -690,9 +691,9 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
     float **vorbis_buffer;
 
     //commented out because sounds here is ok
-    if (!wave2.closed)
+/*    if (!wave2.closed)
     {
-      for (i = 0; i < samples; i++, ptr++)
+      for (i = 0; i < (samples * info->channels); i++, ptr++)
 	if (!wave2.WriteSample(*ptr))
 	  std::cerr << "-----Impossible d'écrire dans le fichier dump.wav !!" << std::endl;
 
@@ -702,8 +703,7 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
 	std::cerr << "--- WriteHeaderToFile2 ---" << std::endl << std::flush;
 	wave2.Close();
       }
-    }
-    
+    }*/
     if (bytes <= 0 && samples <= 0){
         /* end of audio stream */
         if(e_o_s)
@@ -744,7 +744,7 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
 	    info->audiopage_len = len;
 	    memcpy(info->audiopage, og.header, og.header_len);
 	    memcpy(info->audiopage+og.header_len , og.body, og.body_len);
-//see if we can avoid this, as in encode.c
+
 	    info->audiopage_valid = 1;
 	    if(ogg_page_granulepos(&og)>0) {
 	      info->audiotime= vorbis_granule_time (&info->vd,
