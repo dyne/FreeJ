@@ -608,30 +608,9 @@ std::cerr << "---------- with video !!!!!" << std::endl;
 	    return;
         }
         if (result == 0) break;
-		ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
-		ogg_pipe_write("write theora body", info->ringbuffer, (char*)og.body, og.body_len);
-		
-//         fwrite (og.header, 1, og.header_len, info->outfile);
-//         fwrite (og.body, 1, og.body_len, info->outfile);
+	ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
+	ogg_pipe_write("write theora body", info->ringbuffer, (char*)og.body, og.body_len);
     }
-    //commented out as not in encode.c
-/*    while (1 && !info->video_only){
-        int result = ogg_stream_flush (&info->vo, &og);	//5 Vorbis
-        if (result < 0){*/
-            /* can't get here */
-/*            error("Internal Ogg library error.");
-			return;
-        }
-        if (result == 0)
-	{
-	  std::cerr << "---- ogg page with vorbis init as been already flushed ????? " << std::endl;
-	  break;
-	}
-	ogg_pipe_write("write vorbis header", info->ringbuffer, (char*)og.header, og.header_len);
-	ogg_pipe_write("write vorbis body", info->ringbuffer, (char*)og.body, og.body_len);*/
-//         fwrite (og.header, 1, og.header_len,info->outfile);
-//         fwrite (og.body, 1, og.body_len, info->outfile);
-//     }
     if (info->with_kate) {
         int n;
         for (n=0; n<info->n_kate_streams; ++n) {
@@ -647,8 +626,6 @@ std::cerr << "---------- with video !!!!!" << std::endl;
 				ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
 				ogg_pipe_write("write theora body", info->ringbuffer, (char*)og.body, og.body_len);
 				
-// 				fwrite (og.header, 1, og.header_len,info->outfile);
-// 				fwrite (og.body, 1, og.body_len, info->outfile);
             }
         }
     }
@@ -741,28 +718,6 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
 	    vorbis_buffer[j][i] = buffer[c+j];
 	  }
 	}
-// 	    memcpy (vorbis_buffer[j], buffer[i+j], samples);
-
-// vitesse divisée par deux
-/*	for (i = 0; i < samples; i++)
-	{
-	  vorbis_buffer [0][i] = buffer[i++];
-	  vorbis_buffer [1][i-1] = buffer[i];
-	}*/
-        /* uninterleave samples */
-//         for (i = 0; i < samples; i++){		//tried commented out .... fred_99
-//             for(j=0;j<info->channels;j++){
-//                 vorbis_buffer[j][i] = buffer[count++] / 32768.f;
-                //vorbis_buffer[j][i] = buffer[count++] * ((1 << (16 - 1)) - 1);
-//                 vorbis_buffer[j][i] = ((buf[i*2*2 + 2*ch_permute[j] + 1]<<8) |
-// 			(buf[i*2*2 + 2*ch_permute[j]] & 0xff))/32768.0f;
-// 	      
-// 	    }
-/*          buffer[j][i] = ((buf[i*2*f->channels + 2*ch_permute[j] + 1]<<8) |   l'originale
-                      (buf[i*2*f->channels + 2*ch_permute[j]] & 0xff))/32768.0f;*/
-
-      
-//     }
         vorbis_analysis_wrote (&info->vd, samples);
     }
     //for the moment same as encode.c
@@ -774,7 +729,7 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
 
 	int bet;
         /* weld packets into the bitstream */
-        while (/*(bet = */vorbis_bitrate_flushpacket (&info->vd, &op)/*) == 1*/){
+        while (vorbis_bitrate_flushpacket (&info->vd, &op)){
             ogg_stream_packetin (&info->vo, &op);
 //insert the oggmux_flush vorbis content here
 	    info->a_pkg++;
@@ -790,23 +745,16 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
 	    memcpy(info->audiopage, og.header, og.header_len);
 	    memcpy(info->audiopage+og.header_len , og.body, og.body_len);
 //see if we can avoid this, as in encode.c
-/*	    info->audiopage_valid = 1;
+	    info->audiopage_valid = 1;
 	    if(ogg_page_granulepos(&og)>0) {
 	      info->audiotime= vorbis_granule_time (&info->vd,
                   ogg_page_granulepos(&og));
 	      if (info->audiotime == -1)
 		  std::cerr << "the given vorbis granulepos is invalid" << std::endl << std::flush;
-	    }*/
+	    }
 	    write_audio_page(info);
+	    std::cerr << "info->audiotime :" << info->audiotime << std::endl << std::flush;
 	}
-/*	if (bet && OV_EINVAL)
-	  std::cerr << std::endl << "vorbis_analysis_blockout :Invalid parameters." << std::endl << std::flush;
-	else if (bet && OV_EFAULT)
-	  std::cerr << std::endl << "vorbis_analysis_blockout :Internal fault; \
-	      indicates a bug or memory corruption." << std::endl << std::flush;
-	else if (bet && OV_EIMPL)
-	  std::cerr << std::endl << "vorbis_analysis_blockout : Unimplemented; \
-	      not supported by this version of the library." << std::endl << std::flush;*/
     }
     if (ret && OV_EINVAL)
       std::cerr << std::endl << "vorbis_analysis_blockout :Invalid parameters." << std::endl << std::flush;
@@ -926,12 +874,12 @@ static void write_audio_page(oggmux_info *info)
 	   info->a_page,ogg_page_packets((ogg_page *)&info->audiopage),info->a_pkg);
 #endif
 
-  std::cerr << "------ audio page written :" << info->a_page++ << std::endl << std::flush;
+//   std::cerr << "------ audio page written :" << info->a_page++ << std::endl << std::flush;
   
   info->akbps = rint (info->audio_bytesout * 8. / info->audiotime * .001);
   if(info->akbps<0)
     info->akbps=0;
-//   print_stats(info, info->audiotime);
+  print_stats(info, info->audiotime);
 }
 
 static void write_video_page(oggmux_info *info)
