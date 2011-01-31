@@ -22,6 +22,7 @@ stream.js
 stream.dump
 atruc.wav
 dump.*
+dump_t.*
 capture_client
 capture_client.*
 aaa.avi

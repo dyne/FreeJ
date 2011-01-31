@@ -159,7 +159,6 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 	{
 		if (jack_port_connected(i->second->Port))
 		{
-			int sz;
 			sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
 			memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize);
 			//Buff attribué par SetInputBuf dans le constructeur de AudioCollector

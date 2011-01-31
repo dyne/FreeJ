@@ -41,6 +41,7 @@
 #include <config.h>
 #include <jutils.h>
 
+static void write_audio_page(oggmux_info *);
 
 int ogg_pipe_read(char *name, ringbuffer_t *rb, char *dest, size_t cnt) {
   // wait until we have enough bytes to read
@@ -91,8 +92,9 @@ void init_info(oggmux_info *info) {
     info->v_pkg=0;
     info->a_pkg=0;
     info->k_pkg=0;
-#ifdef OGGMUX_DEBUG
     info->a_page=0;
+#ifdef OGGMUX_DEBUG
+//     info->a_page=0;
     info->v_page=0;
     info->k_page=0;
 #endif
@@ -276,17 +278,20 @@ void *timer_start(void)
     time(start);
     return (void *)start;
 }
-int boucle;
+
+WaveFile	wave2;
+int written2 = 0;
+
+
 void oggmux_init (oggmux_info *info){
     ogg_page og;
     ogg_packet op;
     TIMER *timer;
-    boucle = 0;
     
     /* yayness.  Set up Ogg output stream */
     srand (time (NULL));
-    if (ogg_stream_init (&info->vo, rand ()) == -1)
-	  std::cerr << "-------- ogg_stream_init -- failed !!" << std::endl;
+/*    if (ogg_stream_init (&info->vo, rand ()) == -1)
+	  std::cerr << "-------- ogg_stream_init -- failed !!" << std::endl;*/
       
 
     if(!info->audio_only){
@@ -306,7 +311,13 @@ std::cerr << "---------- video only !!!!!" << std::endl;
     /* initialize Vorbis too, if we have audio. */
     if(!info->video_only){
         int ret;
- std::cerr << "---------- audio only !!!!! ch:" << info->channels << std::endl;
+	if (ogg_stream_init (&info->vo, rand ()) == -1)
+	{
+	    std::cerr << "-------- ogg_stream_init -- failed !!" << std::endl;
+	    return;
+	}
+
+ std::cerr << "---------- with audio !!!!! ch:" << info->channels << std::endl;
        vorbis_info_init (&info->vi);//
 	float quality = 1;
         if(vorbis_encode_setup_vbr(&info->vi, info->channels, 48000, quality)){
@@ -452,7 +463,10 @@ std::cerr << "---------- whith video !!!!!" << std::endl;
         ogg_packet header;
         ogg_packet header_comm;
         ogg_packet header_code;
-std::cerr << "---------- with audio !!!!!" << std::endl;
+
+	if (!wave2.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump_t.wav"))
+	  std::cerr << "can't create dump_t.wav !!" << std::endl;
+	wave2.SetupFormat(48000, 16, 2);
 
         if (vorbis_analysis_headerout (&info->vd, &info->vc, &header,
                        &header_comm, &header_code))
@@ -468,7 +482,7 @@ std::cerr << "---------- with audio !!!!!" << std::endl;
 	    //return;
 	  }
 	  int result;
-	  while((result = ogg_stream_flush(&info->vo, &og))){
+	  while((result = ogg_stream_flush(&info->vo, &og))){ //1 Vorbis  same as encode.c
             if(!result) break;
 	    int ret = 0;
 	    if (!(ret = ogg_pipe_write("write vorbis header", info->ringbuffer, (char*)og.header, og.header_len)))
@@ -502,7 +516,7 @@ std::cerr << "---------- with audio !!!!!" << std::endl;
 	    std::cerr << "-------- ogg_stream_packetin header failed !!" << std::endl;
 	    //return;
 	  }
-	  while((result = ogg_stream_flush(&info->vo, &og))){
+	  while((result = ogg_stream_flush(&info->vo, &og))){	//2 Vorbis  same as encode.c
             if(!result) break;
 	    int ret = 0;
 	    if (!(ret = ogg_pipe_write("write vorbis header", info->ringbuffer, (char*)og.header, og.header_len)))
@@ -563,7 +577,8 @@ std::cerr << "---------- with audio !!!!!" << std::endl;
     if (info->with_skeleton) {
         add_fisbone_packet (info);
         while (1) {
-            int result = ogg_stream_flush (&info->so, &og);
+	  std::cerr << "------- with_skeleton !!!!" << std::endl;
+            int result = ogg_stream_flush (&info->so, &og);	//3 with_skeleton
 			if (result < 0) {
                 /* can't get here */
                 error("Internal Ogg library error.");
@@ -585,7 +600,7 @@ std::cerr << "---------- with audio !!!!!" << std::endl;
      * on a new page, as per spec. */
     while (1 && !info->audio_only){
 std::cerr << "---------- with video !!!!!" << std::endl;
-        int result = ogg_stream_flush (&info->to, &og);
+        int result = ogg_stream_flush (&info->to, &og);	//4 theora
         if (result < 0){
             /* can't get here */
 	    std::cerr << "--------  Internal Ogg library error !!" << std::endl << std::flush;
@@ -599,16 +614,21 @@ std::cerr << "---------- with video !!!!!" << std::endl;
 //         fwrite (og.header, 1, og.header_len, info->outfile);
 //         fwrite (og.body, 1, og.body_len, info->outfile);
     }
+    //commented out as not in encode.c
 /*    while (1 && !info->video_only){
-        int result = ogg_stream_flush (&info->vo, &og);
+        int result = ogg_stream_flush (&info->vo, &og);	//5 Vorbis
         if (result < 0){*/
             /* can't get here */
 /*            error("Internal Ogg library error.");
 			return;
         }
-        if (result == 0) break;
-		ogg_pipe_write("write theora header", info->ringbuffer, (char*)og.header, og.header_len);
-		ogg_pipe_write("write theora body", info->ringbuffer, (char*)og.body, og.body_len);*/
+        if (result == 0)
+	{
+	  std::cerr << "---- ogg page with vorbis init as been already flushed ????? " << std::endl;
+	  break;
+	}
+	ogg_pipe_write("write vorbis header", info->ringbuffer, (char*)og.header, og.header_len);
+	ogg_pipe_write("write vorbis body", info->ringbuffer, (char*)og.body, og.body_len);*/
 //         fwrite (og.header, 1, og.header_len,info->outfile);
 //         fwrite (og.body, 1, og.body_len, info->outfile);
 //     }
@@ -617,7 +637,7 @@ std::cerr << "---------- with video !!!!!" << std::endl;
         for (n=0; n<info->n_kate_streams; ++n) {
             oggmux_kate_stream *ks=info->kate_streams+n;
             while (1) {
-                int result = ogg_stream_flush (&ks->ko, &og);
+                int result = ogg_stream_flush (&ks->ko, &og);	//6 kate
                 if (result < 0){
                     /* can't get here */
                     error("Internal Ogg library error.");
@@ -644,7 +664,7 @@ std::cerr << "---------- with video !!!!!" << std::endl;
         op.bytes = 0; /* e_o_s packet is an empty packet */
             ogg_stream_packetin (&info->so, &op);
 
-        result = ogg_stream_flush (&info->so, &og);
+        result = ogg_stream_flush (&info->so, &og);	//7 with_skeleton
         if (result < 0){
             /* can't get here */
             error("Internal Ogg library error.");
@@ -687,8 +707,26 @@ void oggmux_add_video (oggmux_info *info, yuv_buffer *yuv, int e_o_s){
  */
 void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples, int e_o_s){
     ogg_packet op;
+    ogg_page og;
+    float *ptr = buffer;
     int i,j, c, count = 0;
     float **vorbis_buffer;
+
+    //commented out because sounds here is ok
+    if (!wave2.closed)
+    {
+      for (i = 0; i < samples; i++, ptr++)
+	if (!wave2.WriteSample(*ptr))
+	  std::cerr << "-----Impossible d'écrire dans le fichier dump.wav !!" << std::endl;
+
+      written2 += i;
+      if (written2 >= 2880000)	//30 secondes
+      {
+	std::cerr << "--- WriteHeaderToFile2 ---" << std::endl << std::flush;
+	wave2.Close();
+      }
+    }
+    
     if (bytes <= 0 && samples <= 0){
         /* end of audio stream */
         if(e_o_s)
@@ -696,7 +734,6 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
     }
     else{
         vorbis_buffer = vorbis_analysis_buffer (&info->vd, samples);	//samples = rv/4
-	if (!boucle++) std::cerr << "-------------- channels :" << info->channels << std::endl;
 	for (j=0; j < info->channels; j++)
 	{
 	  for (i=0, c=0; i < samples; i++, c+=2)
@@ -705,6 +742,8 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
 	  }
 	}
 // 	    memcpy (vorbis_buffer[j], buffer[i+j], samples);
+
+// vitesse divisée par deux
 /*	for (i = 0; i < samples; i++)
 	{
 	  vorbis_buffer [0][i] = buffer[i++];
@@ -726,8 +765,8 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
 //     }
         vorbis_analysis_wrote (&info->vd, samples);
     }
-    
-    int ret;
+    //for the moment same as encode.c
+    int ret, len;
     while((ret = vorbis_analysis_blockout (&info->vd, &info->vb)) == 1){	//idem
         /* analysis, assume we want to use bitrate management */
         vorbis_analysis (&info->vb, NULL);				//idem
@@ -735,18 +774,39 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
 
 	int bet;
         /* weld packets into the bitstream */
-        while ((bet = vorbis_bitrate_flushpacket (&info->vd, &op)) == 1){
+        while (/*(bet = */vorbis_bitrate_flushpacket (&info->vd, &op)/*) == 1*/){
             ogg_stream_packetin (&info->vo, &op);
-            info->a_pkg++;
-        }
-	if (bet && OV_EINVAL)
+//insert the oggmux_flush vorbis content here
+	    info->a_pkg++;
+	    int result = ogg_stream_pageout(&info->vo,&og);
+            if(!result) break;
+
+	    len = og.header_len + og.body_len;
+	    if(info->audiopage_buffer_length < len) {
+		info->audiopage = (unsigned char*)realloc(info->audiopage, len);
+		info->audiopage_buffer_length = len;
+	    }
+	    info->audiopage_len = len;
+	    memcpy(info->audiopage, og.header, og.header_len);
+	    memcpy(info->audiopage+og.header_len , og.body, og.body_len);
+//see if we can avoid this, as in encode.c
+/*	    info->audiopage_valid = 1;
+	    if(ogg_page_granulepos(&og)>0) {
+	      info->audiotime= vorbis_granule_time (&info->vd,
+                  ogg_page_granulepos(&og));
+	      if (info->audiotime == -1)
+		  std::cerr << "the given vorbis granulepos is invalid" << std::endl << std::flush;
+	    }*/
+	    write_audio_page(info);
+	}
+/*	if (bet && OV_EINVAL)
 	  std::cerr << std::endl << "vorbis_analysis_blockout :Invalid parameters." << std::endl << std::flush;
 	else if (bet && OV_EFAULT)
 	  std::cerr << std::endl << "vorbis_analysis_blockout :Internal fault; \
 	      indicates a bug or memory corruption." << std::endl << std::flush;
 	else if (bet && OV_EIMPL)
 	  std::cerr << std::endl << "vorbis_analysis_blockout : Unimplemented; \
-	      not supported by this version of the library." << std::endl << std::flush;
+	      not supported by this version of the library." << std::endl << std::flush;*/
     }
     if (ret && OV_EINVAL)
       std::cerr << std::endl << "vorbis_analysis_blockout :Invalid parameters." << std::endl << std::flush;
@@ -866,10 +926,12 @@ static void write_audio_page(oggmux_info *info)
 	   info->a_page,ogg_page_packets((ogg_page *)&info->audiopage),info->a_pkg);
 #endif
 
+  std::cerr << "------ audio page written :" << info->a_page++ << std::endl << std::flush;
+  
   info->akbps = rint (info->audio_bytesout * 8. / info->audiotime * .001);
   if(info->akbps<0)
     info->akbps=0;
-  print_stats(info, info->audiotime);
+//   print_stats(info, info->audiotime);
 }
 
 static void write_video_page(oggmux_info *info)
@@ -1038,7 +1100,7 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
         if (!ks->katepage_valid) {
           int k_next=0;
           /* always flush kate stream */
-          if (ogg_stream_flush(&ks->ko, &og) > 0) {
+          if (ogg_stream_flush(&ks->ko, &og) > 0) {	//8 kate
             k_next = 1;
           }
           if (k_next) {

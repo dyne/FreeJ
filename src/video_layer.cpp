@@ -523,7 +523,6 @@ void *VideoLayer::feed() {
 	len1 = decode_audio_packet(&data_size);
 	if (len1 > 0)  {
 	  int samples = data_size/sizeof(uint16_t);
-
 	  long unsigned int m_SampleRate = screen->m_SampleRate?*(screen->m_SampleRate):48000;
 	  //std::cout << "screen->m_SampleRate :" << screen->m_SampleRate << " m_SampleRate :" << m_SampleRate \
 	  //<< std::endl;
