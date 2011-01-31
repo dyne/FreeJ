@@ -15,15 +15,15 @@ Sound::Sound(Context *freej, QWidget *parent) : QWidget(parent)
     m_enc = NULL;
 
     // le jack output port que l'on veut enregistrer
-//     m_audio = new AudioCollector("metro:120_bpm", 1024, 48000); //
+    m_audio = new AudioCollector("metro:120_bpm", 1024, 48000); //
     //m_audio = new AudioCollector("", 1024, 48000);
 //    m_audio = new AudioCollector("MPlayer [13728]:out_0", 1024, 48000);
 //    m_audio = new AudioCollector("system:capture_1", 1024, 48000);
 
-//     m_freej->screen->add_audio(m_audio->Jack); //
+    m_freej->screen->add_audio(m_audio->Jack); //
 
-//     if (m_audio) //
-//     { //
+    if (m_audio) //
+    { //
         m_enc = new OggTheoraEncoder();
         if (m_enc)
         {
@@ -32,9 +32,9 @@ Sound::Sound(Context *freej, QWidget *parent) : QWidget(parent)
             m_enc->audio_quality = 1;
             m_enc->audio_bitrate = 48000;
 
-//             m_enc->use_audio = true; //
-            m_enc->use_audio = false;
-//             m_enc->audio = m_audio; //
+            m_enc->use_audio = true; //
+//             m_enc->use_audio = false;
+            m_enc->audio = m_audio; //
 
 
 
@@ -79,7 +79,7 @@ Sound::Sound(Context *freej, QWidget *parent) : QWidget(parent)
 	    m_enc->set_filedump("Video/dump.ogg");
             qDebug() << "fps :" << m_freej->fps.get();
         }
-//     } //
+    } //
 }
 
 Sound::~Sound()
