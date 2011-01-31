@@ -276,11 +276,12 @@ void *timer_start(void)
     time(start);
     return (void *)start;
 }
-
+int boucle;
 void oggmux_init (oggmux_info *info){
     ogg_page og;
     ogg_packet op;
     TIMER *timer;
+    boucle = 0;
     
     /* yayness.  Set up Ogg output stream */
     srand (time (NULL));
@@ -291,7 +292,7 @@ void oggmux_init (oggmux_info *info){
     if(!info->audio_only){
         ogg_stream_init (&info->to, rand ());    /* oops, add one ot the above */
         theora_encode_init (&info->td, &info->ti);
-
+std::cerr << "---------- video only !!!!!" << std::endl;
         if(info->speed_level >= 0) {
             int max_speed_level;
             theora_control(&info->td, TH_ENCCTL_GET_SPLEVEL_MAX, &max_speed_level, sizeof(int));
@@ -305,8 +306,9 @@ void oggmux_init (oggmux_info *info){
     /* initialize Vorbis too, if we have audio. */
     if(!info->video_only){
         int ret;
-        vorbis_info_init (&info->vi);//
-	float quality = 0.1;
+ std::cerr << "---------- audio only !!!!! ch:" << info->channels << std::endl;
+       vorbis_info_init (&info->vi);//
+	float quality = 1;
         if(vorbis_encode_setup_vbr(&info->vi, info->channels, 48000, quality)){
             std::cerr << "Mode initialisation failed: invalid parameters for quality" << std::endl;
             vorbis_info_clear(&info->vi);
@@ -340,7 +342,7 @@ void oggmux_init (oggmux_info *info){
         ai.bitrate_limit_reservoir_bias = .1;
 
             /* And now the ones we actually wanted to set */
-        ai.bitrate_limit_min_kbps=22;
+        ai.bitrate_limit_min_kbps=60;
         ai.bitrate_limit_max_kbps=192;
         ai.management_active=1;
 
@@ -423,6 +425,7 @@ void oggmux_init (oggmux_info *info){
 
     /* first packet will get its own page automatically */
     if(!info->audio_only){
+std::cerr << "---------- whith video !!!!!" << std::endl;
         theora_encode_header (&info->td, &op);
         ogg_stream_packetin (&info->to, &op);
         if (ogg_stream_pageout (&info->to, &og) != 1){
@@ -449,6 +452,7 @@ void oggmux_init (oggmux_info *info){
         ogg_packet header;
         ogg_packet header_comm;
         ogg_packet header_code;
+std::cerr << "---------- with audio !!!!!" << std::endl;
 
         if (vorbis_analysis_headerout (&info->vd, &info->vc, &header,
                        &header_comm, &header_code))
@@ -580,6 +584,7 @@ void oggmux_init (oggmux_info *info){
      * the actual data in each stream will start
      * on a new page, as per spec. */
     while (1 && !info->audio_only){
+std::cerr << "---------- with video !!!!!" << std::endl;
         int result = ogg_stream_flush (&info->to, &og);
         if (result < 0){
             /* can't get here */
@@ -691,6 +696,7 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
     }
     else{
         vorbis_buffer = vorbis_analysis_buffer (&info->vd, samples);	//samples = rv/4
+	if (!boucle++) std::cerr << "-------------- channels :" << info->channels << std::endl;
 	for (j=0; j < info->channels; j++)
 	{
 	  for (i=0, c=0; i < samples; i++, c+=2)

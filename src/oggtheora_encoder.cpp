@@ -86,7 +86,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   oggmux.ringbuffer = ringbuffer;
   oggmux.bytes_encoded = 0;
 
-  oggmux.audio_only = 0;
+  oggmux.audio_only = 1;	//fred_99
 
   if(use_audio && audio) {
 
@@ -180,7 +180,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
 
 int OggTheoraEncoder::encode_frame() {
   
-  encode_video ( 0);
+//   encode_video ( 0);
   if (use_audio)
   {
 	float *ptr = buf_fred;
@@ -222,7 +222,7 @@ int OggTheoraEncoder::encode_frame() {
 	      std::cerr << "------pas assez lu dans audio_fred ringbuffer !!!"\
 		    << " rff:" << rff << " rv:" << rv << std::endl << std::flush;
 	    }
-//  	    encode_audio ( 0);
+ 	    encode_audio ( 0);
 	  }
 	}
   }

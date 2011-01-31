@@ -51,6 +51,7 @@ FACTORY_REGISTER_INSTANTIATOR(Layer, VideoLayer, MovieLayer, ffmpeg);
 VideoLayer::VideoLayer()
   :Layer() {
 
+    toto = false;
   grab_dv=false;
   set_name("VID");
   frame_number=0;
@@ -536,7 +537,6 @@ void *VideoLayer::feed() {
 	  }
 
 	  src_short_to_float_array ((const short*) audio_buf, audio_float_buf, samples);
-
 	  if (m_ResampleRatio == 1.0) 
 	  {
 	  //std::cout << "m_ResampleRatio == 1.0" << std::endl; pass here
@@ -592,7 +592,7 @@ int VideoLayer::decode_audio_packet() {
 int VideoLayer::decode_audio_packet(int *data_size) {
   int datasize, res;
 
-  datasize = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+  datasize = AVCODEC_MAX_AUDIO_FRAME_SIZE; //+ FF_INPUT_BUFFER_PADDING_SIZE;
 #if LIBAVCODEC_VERSION_MAJOR < 53
   res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
 			      &datasize, pkt.data, pkt.size);

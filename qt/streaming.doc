@@ -1,0 +1,9 @@
+streaming 
+
+28/01/2011
+- be sure icecast is launched
+- same for jackd
+- modify config.xml if necessary
+- ./qfreej_s 3>&1 1>&2 | ices-2.0.1/src/ices ices-2.0.1/src/config.xml
+- then launch vlc http://localhost:8000/freejcpp.ogg and ..../ices.ogg
+  to read sound .... in accordance with the icecast server's url
