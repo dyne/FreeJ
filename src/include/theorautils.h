@@ -132,10 +132,8 @@ typedef struct
     int v_pkg;
     int a_pkg;
     int k_pkg;
-
-    int a_page;
 #ifdef OGGMUX_DEBUG
-//     int a_page;
+    int a_page;
     int v_page;
     int k_page;
 #endif

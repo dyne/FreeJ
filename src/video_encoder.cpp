@@ -199,8 +199,8 @@ void VideoEncoder::thread_loop() {
         return;
     }
     //gettimeofday(&actual_time,NULL);
-//     fps->calc(); 	//without this the thread_loop is called nearly two times more and
-//     fps->delay();	//stream speed is too slow
+    fps->calc(); 	//without this the thread_loop is called nearly two times more and
+    fps->delay();	//stream speed is too slow
 	//std::cout << "actual_time.tv_sec :" << actual_time.tv_sec << \
 			" tv_usec :" << actual_time.tv_usec << "   \r" << std::endl;
     screen->lock();

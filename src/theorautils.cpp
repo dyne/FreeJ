@@ -93,9 +93,8 @@ void init_info(oggmux_info *info) {
     info->v_pkg=0;
     info->a_pkg=0;
     info->k_pkg=0;
-    info->a_page=0;
 #ifdef OGGMUX_DEBUG
-//     info->a_page=0;
+    info->a_page=0;
     info->v_page=0;
     info->k_page=0;
 #endif
@@ -438,7 +437,10 @@ void oggmux_init (oggmux_info *info){
     /* first packet will get its own page automatically */
     if(!info->audio_only){
 // std::cerr << "---------- whith video !!!!!" << std::endl;
-        theora_encode_header (&info->td, &op);
+        if (theora_encode_header (&info->td, &op))
+	{
+	  std::cerr << "can't put the theora header in the packet" << std::endl;
+	}
         ogg_stream_packetin (&info->to, &op);
         if (ogg_stream_pageout (&info->to, &og) != 1){
 	    std::cerr << "--------Internal Ogg library error.  !!" << std::endl;
@@ -455,7 +457,7 @@ void oggmux_init (oggmux_info *info){
         theora_comment_add_tag (&info->tc, (char*)"ENCODER",(char*)PACKAGE_STRING);
         theora_encode_comment (&info->tc, &op);
         ogg_stream_packetin (&info->to, &op);
-        _ogg_free (op.packet);
+//         _ogg_free (op.packet);
 
         theora_encode_tables (&info->td, &op);
         ogg_stream_packetin (&info->to, &op);
@@ -592,8 +594,8 @@ void oggmux_init (oggmux_info *info){
         }
     }
 
-    if (!info->audio_only) {
-    theora_info_clear(&info->ti);
+    if (info->audio_only) {
+      theora_info_clear(&info->ti);
     }
 
     /* Flush the rest of our headers. This ensures
