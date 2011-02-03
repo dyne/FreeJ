@@ -253,14 +253,14 @@ void VideoEncoder::thread_loop() {
       if(write_to_disk && filedump_fd) 
         fwrite(encbuf, 1, encnum, filedump_fd);
     
-/*      if(write_to_stream) {
+      if(write_to_stream) {
 	shout_sync(ice);
         if( shout_send(ice, (const unsigned char*)encbuf, encnum)
 	      != SHOUTERR_SUCCESS) {
             error("shout_send: %s", shout_get_error(ice));
         }// else 
             //printf("%d %d\n", encnum, (int)shout_queuelen(ice));
-      }*/
+      }
     } 
   
 }
