@@ -61,19 +61,19 @@ Sound::Sound(Context *freej, QWidget *parent) : QWidget(parent)
 
             m_freej->add_encoder(m_enc);
 
-// 	    if( shout_open(m_enc->ice) == SHOUTERR_SUCCESS ) {
-// 
-// 		qDebug() << "streaming on url: http://" << shout_get_host(m_enc->ice) << ":" \
-// 			 << shout_get_port(m_enc->ice) <<  shout_get_mount(m_enc->ice);
-// 
-// 		m_enc->write_to_stream = true;
-// 	    } else {
-// 
-// 		qDebug() << "error connecting to server " << shout_get_host(m_enc->ice) << ":" \
-// 				<< shout_get_error(m_enc->ice);
-// 
-// 		m_enc->write_to_stream = false;
-// 	    }
+	    if( shout_open(m_enc->ice) == SHOUTERR_SUCCESS ) {
+
+		qDebug() << "streaming on url: http://" << shout_get_host(m_enc->ice) << ":" \
+			 << shout_get_port(m_enc->ice) <<  shout_get_mount(m_enc->ice);
+
+		m_enc->write_to_stream = true;
+	    } else {
+
+		qDebug() << "error connecting to server " << shout_get_host(m_enc->ice) << ":" \
+				<< shout_get_error(m_enc->ice);
+
+		m_enc->write_to_stream = false;
+	    }
 
 
 	    m_enc->set_filedump("Video/dump.ogg");

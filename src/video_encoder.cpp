@@ -243,7 +243,9 @@ void VideoEncoder::thread_loop() {
       if (encnum = ringbuffer_read_space(ringbuffer))
       {
 	encbuf = (char *)realloc(encbuf, encnum);
+// 	encbuf = (char *)realloc(encbuf, (((audio_kbps + video_kbps)*1024)/24)); //doesn't change anything for shifting problem
 	encnum = ringbuffer_read(ringbuffer, encbuf, encnum);
+// 	encnum = ringbuffer_read(ringbuffer, encbuf,
 // 			       ((audio_kbps + video_kbps)*1024)/24);
       }
     }
@@ -254,7 +256,7 @@ void VideoEncoder::thread_loop() {
         fwrite(encbuf, 1, encnum, filedump_fd);
     
       if(write_to_stream) {
-	shout_sync(ice);
+// 	shout_sync(ice);
         if( shout_send(ice, (const unsigned char*)encbuf, encnum)
 	      != SHOUTERR_SUCCESS) {
             error("shout_send: %s", shout_get_error(ice));
