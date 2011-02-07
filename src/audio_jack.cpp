@@ -281,7 +281,7 @@ std::cout << "SetRingbufferPtr, channels :" << channels << std::endl;
 // 			this->ConnectOutput(i, "freej:In0");
 		}
 		//else if (i == 1)
-			//this->ConnectOutput(i, "system:playback_2"); //see how to test if there is two system channels
+			//this->ConnectOutput(i, "system:playback_2"); //see to test if there is two system channels
 	}
 
 	if(m_inbuf) free(m_inbuf);

@@ -123,7 +123,7 @@ m_ProcessPos(0)
 		int id=Jack->AddInputPort();
 		Jack->SetInputBuf(id,m_JackBuffer);
 		Jack->ConnectInput(id, port);		//connects output port name passed in param to constructor
-											//to the new Input port created "freej::In0"
+							//to the new Input port created "freej::In0"
 		std::cerr<<"Input port ID "<< id << std::endl;
 	}
 	else

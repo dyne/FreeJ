@@ -290,14 +290,12 @@ void oggmux_init (oggmux_info *info){
     
     /* yayness.  Set up Ogg output stream */
     srand (time (NULL));
-/*    if (ogg_stream_init (&info->vo, rand ()) == -1)
-	  std::cerr << "-------- ogg_stream_init -- failed !!" << std::endl;*/
+/*    if (ogg_stream_init (&info->vo, rand ()) == -1)*/
       
 
     if(!info->audio_only){
         ogg_stream_init (&info->to, rand ());    /* oops, add one ot the above */
         theora_encode_init (&info->td, &info->ti);
-// std::cerr << "---------- video only !!!!!" << std::endl;
         if(info->speed_level >= 0) {
             int max_speed_level;
             theora_control(&info->td, TH_ENCCTL_GET_SPLEVEL_MAX, &max_speed_level, sizeof(int));
@@ -317,7 +315,6 @@ void oggmux_init (oggmux_info *info){
 	    return;
 	}
 
-//  std::cerr << "---------- with audio !!!!! ch:" << info->channels << std::endl;
        vorbis_info_init (&info->vi);//
 	float quality = 1;
         if(vorbis_encode_setup_vbr(&info->vi, info->channels, 48000, quality)){
@@ -436,7 +433,6 @@ void oggmux_init (oggmux_info *info){
 
     /* first packet will get its own page automatically */
     if(!info->audio_only){
-// std::cerr << "---------- whith video !!!!!" << std::endl;
         if (theora_encode_header (&info->td, &op))
 	{
 	  std::cerr << "can't put the theora header in the packet" << std::endl;
@@ -467,9 +463,6 @@ void oggmux_init (oggmux_info *info){
         ogg_packet header_comm;
         ogg_packet header_code;
 
-// 	if (!wave2.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump_t.wav"))
-// 	  std::cerr << "can't create dump_t.wav !!" << std::endl;
-// 	wave2.SetupFormat(48000, 16, 2);
 
         if (vorbis_analysis_headerout (&info->vd, &info->vc, &header,
                        &header_comm, &header_code))
@@ -602,7 +595,6 @@ void oggmux_init (oggmux_info *info){
      * the actual data in each stream will start
      * on a new page, as per spec. */
     while (1 && !info->audio_only){
-// std::cerr << "---------- with video !!!!!" << std::endl;
         int result = ogg_stream_flush (&info->to, &og);	//4 theora
         if (result < 0){
             /* can't get here */
@@ -656,9 +648,6 @@ void oggmux_init (oggmux_info *info){
 //         fwrite (og.header, 1, og.header_len,info->outfile);
 //         fwrite (og.body, 1, og.body_len, info->outfile);
     }
-
-    std::cerr << "------- init ends --------" << std::endl << std::flush;
-  
 }
 
 /**
@@ -691,30 +680,16 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
     int i,j, c, count = 0;
     float **vorbis_buffer;
 
-    //commented out because sounds here is ok
-/*    if (!wave2.closed)
-    {
-      for (i = 0; i < (samples * info->channels); i++, ptr++)
-	if (!wave2.WriteSample(*ptr))
-	  std::cerr << "-----Impossible d'écrire dans le fichier dump.wav !!" << std::endl;
-
-      written2 += i;
-      if (written2 >= 2880000)	//30 secondes
-      {
-	std::cerr << "--- WriteHeaderToFile2 ---" << std::endl << std::flush;
-	wave2.Close();
-      }
-    }*/
     if (bytes <= 0 && samples <= 0){
         /* end of audio stream */
         if(e_o_s)
             vorbis_analysis_wrote (&info->vd, 0);
     }
     else{
-        vorbis_buffer = vorbis_analysis_buffer (&info->vd, samples);	//samples = rv/4
+        vorbis_buffer = vorbis_analysis_buffer (&info->vd, samples);	//samples = rv/(channels*sizeof(float))
 	for (j=0; j < info->channels; j++)
 	{
-	  for (i=0, c=0; i < samples; i++, c+=2)
+	  for (i=0, c=0; i < samples; i++, c+=info->channels)
 	  {
 	    vorbis_buffer[j][i] = buffer[c+j];
 	  }
@@ -861,8 +836,6 @@ static void write_audio_page(oggmux_info *info)
   func("audio page %d (%d pkgs) | pkg remaining %d",
 	   info->a_page,ogg_page_packets((ogg_page *)&info->audiopage),info->a_pkg);
 #endif
-
-//   std::cerr << "------ audio page written :" << info->a_page++ << std::endl << std::flush;
   
   info->akbps = rint (info->audio_bytesout * 8. / info->audiotime * .001);
   if(info->akbps<0)
@@ -953,7 +926,6 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 //     ogg_page ogv, ogt;
     ogg_page og;
     int best;
-//     std::cerr << "--0--" << std::endl << std::flush;
     
     /* flush out the ogg pages to info->outfile */
     while(1) {
@@ -961,7 +933,6 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
       if(!info->audio_only && !info->videopage_valid) {
         // this way seeking is much better,
         // not sure if 23 packets  is a good value. it works though
-// 	std::cerr << "--0.5--" << std::endl << std::flush;
         int v_next=0;
 /*        if (info->v_pkg>22 && ogg_stream_flush(&info->to, &og) > 0) {
 // 	  std::cerr << "--1--" << std::endl << std::flush;
@@ -969,7 +940,6 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
         }*/
         if(ogg_stream_pageout(&info->to, &og) > 0) {			//2
           v_next=1;
-// 	  std::cerr << "--2--" << std::endl << std::flush;
         }
         if(v_next) {
           len = og.header_len + og.body_len;
@@ -989,18 +959,16 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 	    {
 	      std::cerr << "the given theora granulepos is invalid" << std::endl << std::flush;
 	    }
- 	    std::cerr << "Theora time :" << info->videotime << std::endl << std::flush;
+//  	    std::cerr << "Theora time :" << info->videotime << std::endl << std::flush;
           }
         }
       }
       if(!info->video_only && !info->audiopage_valid) {
         // this way seeking is much better,
         // not sure if 23 packets  is a good value. it works though
-// 	std::cerr << "--v0.5-- info->a_pkg :" << info->a_pkg << std::endl << std::flush;
         int a_next=0;
 // 	if(info->a_pkg>22 && ogg_stream_flush(&info->vo, &og) > 0) {
 	if(ogg_stream_pageout(&info->vo, &og) > 0) {
-// 	    std::cerr << "--v2--" << std::endl << std::flush;
 	    a_next=1;
 	}
 /*	else if(ogg_stream_pageout(&info->vo, &og) > 0) {
@@ -1008,8 +976,6 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 	    a_next=1;
 	}*/
 	if(a_next) {
-// 	    std::cerr << "--v3--" << std::endl << std::flush;
-
 	  len = og.header_len + og.body_len;
 	  if(info->audiopage_buffer_length < len) {
 	      info->audiopage = (unsigned char*)realloc(info->audiopage, len);
@@ -1026,7 +992,7 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 	    if (info->audiotime == -1)
 		std::cerr << "the given vorbis granulepos is invalid" << std::endl << std::flush;
 	  }
-	  std::cerr << "Vorbis time :" << info->audiotime << std::endl << std::flush;
+// 	  std::cerr << "Vorbis time :" << info->audiotime << std::endl << std::flush;
 	}
       }
 
@@ -1074,24 +1040,10 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 
       if(info->video_only && info->videopage_valid) {
 //         CHECK_KATE_OUTPUT(video);
-/*	if (ogt.body_len)
-	  std::cerr << "-- ogt len :" << (ogt.header_len + ogt.body_len) << " head % :" \
-	      << ((ogt.header_len / ogt.body_len) * 100) \
-	      << " th time :" << info->videotime << std::endl << std::flush;
-	else
-	  std::cerr << "-- ogt len :" << (ogt.header_len + ogt.body_len) << " head % :100" \
-	      << " th time :" << info->videotime << std::endl << std::flush;*/
         write_video_page(info);
       }
       else if(info->audio_only && info->audiopage_valid) {
 //         CHECK_KATE_OUTPUT(audio);
-/*	if (ogv.body_len)
-	  std::cerr << "-- ogv len :" << (ogv.header_len + ogv.body_len) << " head % :" \
-	      << ((ogv.header_len / ogv.body_len) * 100) \
-	      << " vb time :" << info->audiotime << std::endl << std::flush;
-	else
-	  std::cerr << "-- ogv len :" << (ogv.header_len + ogv.body_len) << " head % :100" \
-	      << " vb time :" << info->audiotime << std::endl << std::flush;*/
         write_audio_page(info);
       }
       /* We're using both. We can output only:
@@ -1100,7 +1052,6 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
        */
       else if(info->videopage_valid /*&& info->audiopage_valid*/) {
         /* Make sure they're in the right order. */
-// 	std::cerr << "--tv0.5-- info->a_pkg :" << info->a_pkg << " v_pkg :" << info->v_pkg << std::endl << std::flush;
 //         if(info->videotime <= info->audiotime) {
           //CHECK_KATE_OUTPUT(video);
           write_video_page(info);
@@ -1114,19 +1065,15 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 	write_audio_page(info);
       }
 /*      else if(e_o_s && best>=0) {
-	  std::cerr << "--write kate page--" << std::endl << std::flush;
           write_kate_page(info, best);
       }*/
       else if(e_o_s && info->videopage_valid) {
-// 	  std::cerr << "--write video page--" << std::endl << std::flush;
           write_video_page(info);
       }
       else if(e_o_s && info->audiopage_valid) {
-// 	  std::cerr << "--write audio page--" << std::endl << std::flush;
           write_audio_page(info);
       }
       else {
-// 	std::cerr << "-- nothing to write for the moment --" << std::endl << std::flush;
         break; /* Nothing more writable at the moment */
       }
     }
