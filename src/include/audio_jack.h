@@ -52,12 +52,13 @@ public:
 	void   SetOutputBuf(int ID, float* s);
          int 	 AddInputPort();
          int 	 AddOutputPort();
+	 bool	Mux(int channels);
 	
 	int SetRingbufferPtr(ringbuffer_t *rb, int samplerate, int channels); ///< connect a rinbuffer to JACK out
 	static long unsigned int  m_BufferSize;
 	static long unsigned int  m_SampleRate;	
 	static bool               m_Attached;
-	ringbuffer_t *audio_fred;	//ringbuffer to write raw data in a file
+	ringbuffer_t *audio_mix_ring;	//ringbuffer to be streamed
 	
 protected:
 	JackClient();
@@ -81,6 +82,7 @@ private:
 		float*         Buf;
 		jack_port_t*   Port;
 		std::string         ConnectedTo;
+		ringbuffer_t *in_ring;
 	};
 
 	ringbuffer_t*      m_ringbuffer;
@@ -97,6 +99,9 @@ private:
 	
 	static void(*RunCallback)(void*, unsigned int bufsize);
 	static void *RunContext;
+	float	*m_MixBuffer;
+	float	*m_MixBufferOperation;
+	int	m_MixBufferSize;
 };
 
 #endif

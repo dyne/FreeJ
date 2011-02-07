@@ -90,7 +90,7 @@ private:
 
   unsigned char *yuvframe[2]; /* yuv 420 */
   
-  float *buf_fred;
+  float *m_buffStream;
 };
 
 #endif

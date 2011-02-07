@@ -52,7 +52,7 @@ OggTheoraEncoder::OggTheoraEncoder()
   use_audio = false;
   audio = NULL;
   audio_buf = NULL;
-  buf_fred = NULL;
+  m_buffStream = NULL;
 
   init_info(&oggmux);
   theora_comment_init(&oggmux.tc);
@@ -71,7 +71,7 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   //  if(enc_rgb24) free(enc_rgb24);
 
   if(audio_buf) free(audio_buf);
-  if (buf_fred) free(buf_fred);
+  if (m_buffStream) free(m_buffStream);
   if (!wave.closed) wave.Close();
 }
 
@@ -104,7 +104,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
     wave.SetupFormat(48000, 16, 2);
     written = 0;*/
 	
-    buf_fred = (float *)malloc(4096 * 512 * 4);	//size must be the same as audio_fred declared in JackClient::Attach() 
+    m_buffStream = (float *)malloc(4096 * 512 * 4);	//size must be the same as audio_mix_ring declared in JackClient::Attach() 
    
   } else {
 
@@ -183,9 +183,9 @@ int OggTheoraEncoder::encode_frame() {
   encode_video ( 0);
   if (use_audio)
   {
-	float *ptr = buf_fred;
+	float *ptr = m_buffStream;
 	rv = 0;
-	if (int rf = ringbuffer_read_space (audio->Jack->audio_fred))
+	if (int rf = ringbuffer_read_space (audio->Jack->audio_mix_ring))
 	{
 	  double rff = 0;
 	  if (rf > (4096 * 512 * 4))
@@ -197,9 +197,9 @@ int OggTheoraEncoder::encode_frame() {
 	  }
 	  if (rff > ((1024 * sizeof(float) * oggmux.channels) - 1))	// > to 1024 frames in stereo
 	  {
-	    if ((rv = ringbuffer_read(audio->Jack->audio_fred, (char *)buf_fred, (size_t)rff)) == 0)
+	    if ((rv = ringbuffer_read(audio->Jack->audio_mix_ring, (char *)m_buffStream, (size_t)rff)) == 0)
 	    {
-	      std::cerr << "------impossible de lire dans le audio_fred ringbuffer !!!"\
+	      std::cerr << "------impossible de lire dans le audio_mix_ring ringbuffer !!!"\
 		    << " rf:" << rf << " rff:" << rff << " rv:" << rv << endl;
 	    }
 /*	    else if (!wave.closed && (rv == rff))
@@ -219,7 +219,7 @@ int OggTheoraEncoder::encode_frame() {
 	    }*/
 	    else if (rv != rff)
 	    {
-	      std::cerr << "------pas assez lu dans audio_fred ringbuffer !!!"\
+	      std::cerr << "------pas assez lu dans audio_mix_ring ringbuffer !!!"\
 		    << " rff:" << rff << " rv:" << rv << std::endl << std::flush;
 	    }
  	    encode_audio ( 0);
@@ -293,7 +293,7 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
   		   audio->Jack->m_BufferSize,
   		   audio->buffersize, //read / oggmux.channels,
   		   end_of_stream );*/
-    oggmux_add_audio(&oggmux, buf_fred,
+    oggmux_add_audio(&oggmux, m_buffStream,
   		   rv,
   		   rv/(sizeof(float)*oggmux.channels), //read / oggmux.channels,
   		   end_of_stream );
