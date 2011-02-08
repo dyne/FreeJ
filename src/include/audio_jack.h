@@ -52,7 +52,6 @@ public:
 	void   SetOutputBuf(int ID, float* s);
          int 	 AddInputPort();
          int 	 AddOutputPort();
-	 bool	Mux(int channels);
 	
 	int SetRingbufferPtr(ringbuffer_t *rb, int samplerate, int channels); ///< connect a rinbuffer to JACK out
 	static long unsigned int  m_BufferSize;
@@ -102,6 +101,7 @@ private:
 	float	*m_MixBuffer;
 	float	*m_MixBufferOperation;
 	int	m_MixBufferSize;
+	bool	Mux();
 };
 
 #endif
