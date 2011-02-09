@@ -686,15 +686,15 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
             vorbis_analysis_wrote (&info->vd, 0);
     }
     else{
-        vorbis_buffer = vorbis_analysis_buffer (&info->vd, samples);	//samples = rv/(channels*sizeof(float))
-	for (j=0; j < info->channels; j++)
+      vorbis_buffer = vorbis_analysis_buffer (&info->vd, samples);	//samples = rv/(channels*sizeof(float))
+      for (j=0; j < info->channels; j++)
+      {
+	for (i=0, c=0; i < samples; i++, c+=info->channels)
 	{
-	  for (i=0, c=0; i < samples; i++, c+=info->channels)
-	  {
-	    vorbis_buffer[j][i] = buffer[c+j];
-	  }
+	  vorbis_buffer[j][i] = buffer[c+j];
 	}
-        vorbis_analysis_wrote (&info->vd, samples);
+      }
+      vorbis_analysis_wrote (&info->vd, samples);
     }
     //for the moment same as encode.c
     int ret;

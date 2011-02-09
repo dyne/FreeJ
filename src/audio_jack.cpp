@@ -49,7 +49,7 @@ audio_mix_ring(NULL)
 {
   m_MixBufferSize = 4096 * 512 * sizeof(float);
   m_MixBuffer = (float*) malloc(m_MixBufferSize);
-  m_MixBufferOperation = (float*) malloc(m_MixBufferSize);
+  m_MixBufferOperation = (float*) malloc(m_MixBufferSize*2);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -158,39 +158,50 @@ int JackClient::Process (jack_nframes_t nframes, void *arg)
 }
 */
 
-bool JackClient::Mux()
+bool JackClient::Mux(int nfr)
 {
   int size[3] = {0, 0, 0};
   int sizeMax = 0, c = 0;
   float *ringPtr, *mixPtr;
  
   memset (m_MixBuffer, 0, m_MixBufferSize);
-  memset (m_MixBufferOperation, 0, m_MixBufferSize);
+  memset (m_MixBufferOperation, 0, m_MixBufferSize*2);
   
   for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
 	  i!=m_InputPortMap.end(); i++)
   {
-    if (c == 0)
+    if (c == 0 && i->second->connected)
     {
-      if (size[c] = ringbuffer_read_space(i->second->in_ring) == ((sizeof (sample_t) * m_BufferSize)))
+      if (size[c] = ringbuffer_read_space(i->second->in_ring))
       {
-	size_t rv = ringbuffer_read(i->second->in_ring, (char *)m_MixBuffer, size[c]);
-	if (sizeMax < rv)
-	  sizeMax = rv;
-	if (rv != size[c])
+	if (size[c] == ((sizeof (float) * nfr)))
 	{
-	  std::cerr << "----- Problems reading the " << c << " in_ring" << std::endl;
+	  size_t rv = ringbuffer_read(i->second->in_ring, (char *)m_MixBuffer, size[c]);
+	  if (sizeMax < rv)
+	    sizeMax = rv;
+/*	  ringPtr = m_MixBufferOperation;
+	  mixPtr = m_MixBuffer;
+	  for (int j=0; j < rv/sizeof(float); j++, mixPtr++, ringPtr++)	//interleave
+	  {
+	    *mixPtr++ = *ringPtr;
+	  }*/
+	}
+	else
+	{
+	  std::cerr << "----- Problems reading the in_ring size[" \
+	      << c << "] :" << size[c] << std::endl;
 	  return (false);
 	}
-      }
+      }  
       else
       {
-	  std::cerr << "----- space != in the " << c << " in_ring" << std::endl;
+	  std::cerr << "----- space == 0 in the " << c << " in_ring" << std::endl;
 	  return (false);
       }
       c++;
     }
-    else if (c == 1)	//add the first VideoLayer channel to the left
+    else if(c == 0 && !i->second->connected) c++;
+/*    else if (c == 1 && i->second->connected)	//add the first VideoLayer channel to the left
     {
       if (size[c] = ringbuffer_read_space(i->second->in_ring))	//
       {
@@ -210,14 +221,15 @@ bool JackClient::Mux()
 	}
       }
       c++;
-    }
-    else if (c == 2)	//interleaving the second VideoLayer channel
+    }*/
+//     else if(c == 1 && !i->second->connected) c++;
+/*    else if (c == 1 && i->second->connected)	//interleaving the second VideoLayer channel
     {
       if (size[c] = ringbuffer_read_space(i->second->in_ring))	//
       {
 	size_t rv = ringbuffer_read(i->second->in_ring, (char *)m_MixBufferOperation, size[c]);
-	if (sizeMax < rv)
-	  sizeMax = rv;
+	if (rv)
+	  sizeMax += rv;
 	if (rv != size[c])
 	{
 	  std::cerr << "----- Problems reading the " << c << " in_ring" << std::endl;
@@ -232,58 +244,69 @@ bool JackClient::Mux()
 	}
       }
       c++;
-    }
+    }*/
+/*    else if(c == 2 && !i->second->connected) c++;
     else if (c > 2)
     {
       std::cerr << "----- 3 jack audio input ports maximum !!" << std::endl;
-    }
+    }*/
   }
-  if (ringbuffer_write_space (audio_mix_ring) >= sizeMax)
+  if (sizeMax)
   {
-    size_t rv = ringbuffer_write (audio_mix_ring, (char *)m_MixBuffer, sizeMax);
-    if (rv != sizeMax)
+    if (ringbuffer_write_space (audio_mix_ring) >= sizeMax)
     {
-      std::cerr << "---" << rv << " : au lieu de :" << sizeMax \
-	  << " octets ecrits dans le ringbuffer !!" << std::endl;
+      size_t rv = ringbuffer_write (audio_mix_ring, (char *)m_MixBuffer, sizeMax*2);
+      if (rv != sizeMax)
+      {
+	std::cerr << "---" << rv << " : au lieu de :" << sizeMax*2 \
+	    << " octets ecrits dans le ringbuffer !!" << std::endl;
+	return (false);
+      }
+//       std::cerr << "---- wrote :" << sizeMax << std::endl << std::flush;
+    }
+    else
+    {
+      std::cerr << "------ not enough memory in audio_mix_ring buffer !!!" << std::endl;
       return (false);
     }
-  }
-  else
-  {
-    std::cerr << "------ not enough memory in audio_mix_ring buffer !!!" << std::endl;
-    return (false);
   }
   return (true);
 }
 
 int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
+  bool data_in = false;
 	for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
 		i!=m_InputPortMap.end(); i++)
 	{
 		if (jack_port_connected(i->second->Port))
 		{
-			sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
-			memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize); //m_BufferSize -> 2nd AudioCollector parameter
+		  i->second->connected = true;
+		  sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
+// 		  memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize); //m_BufferSize -> 2nd AudioCollector parameter
 			//Buff attribué par SetInputBuf dans le constructeur de AudioCollector
-		  if (ringbuffer_write_space (i->second->in_ring) >= (sizeof (sample_t) * m_BufferSize))
+		  if (ringbuffer_write_space (i->second->in_ring) >= (sizeof (sample_t) * nframes))
 		  {
-		    size_t rf = ringbuffer_write (i->second->in_ring, (char *)in, (sizeof (sample_t) * m_BufferSize));
+		    size_t rf = ringbuffer_write (i->second->in_ring, (char *)in, (sizeof (sample_t) * nframes));
+		    data_in = true;
 		  }
 		  else
 		  {
 		    std::cerr << "-----------Pas suffisament de place dans audio_fred !!!" << std::endl; 
 		  }
-	      }			
+	      }
+	      else
+		i->second->connected = false;
 	}
 
 	int channels = ((JackClient*) self)->m_ringbufferchannels;
 
 // 	bool ret;
 // 	if (!(ret = Mux()))
-// 	  std::cerr << "------ JackClient::Mux problems !!";
-	if (!((JackClient*) self)->Mux())
-	  std::cerr << "----- Muxing problem !!" << std::endl << std::flush;
+// 	  std::cerr << "------ JackAClient::Mux problems !!";
+	if (data_in)
+	  if (!((JackClient*) self)->Mux(nframes))
+	    std::cerr << "----- Muxing problem !!" << std::endl << std::flush;
 	
 	bool output_available = false;
 //m_ringbuffer created by ViewPort::add_audio
@@ -409,6 +432,7 @@ int JackClient::AddInputPort()
 	NewPort->Port = jack_port_register (m_Client, Name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
 	m_InputPortMap[m_NextInputID]=NewPort;
 	NewPort->in_ring = ringbuffer_create(4096 * 512 * 4);		//1024 not enought, must be the same size_t
+	NewPort->connected = false;
 	m_NextInputID++;
 	return m_NextInputID-1;
 }

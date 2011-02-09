@@ -82,6 +82,7 @@ private:
 		jack_port_t*   Port;
 		std::string         ConnectedTo;
 		ringbuffer_t *in_ring;
+		bool	connected;	//setted in ::Process
 	};
 
 	ringbuffer_t*      m_ringbuffer;
@@ -101,7 +102,7 @@ private:
 	float	*m_MixBuffer;
 	float	*m_MixBufferOperation;
 	int	m_MixBufferSize;
-	bool	Mux();
+	bool	Mux(int nframes);
 };
 
 #endif
