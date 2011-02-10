@@ -104,6 +104,8 @@ bool JackClient::Attach(const std::string &ClientName)
 	
 	audio_mix_ring = ringbuffer_create(4096 * 512 * 4);		//1024 not enought, must be the same size_t
 								// as buf_fred set up in OggTheoraEncoder::init
+	first = ringbuffer_create(4096 * 512 * 4);
+	second = ringbuffer_create(4096 * 512 * 4);
 	
 	return true;
 }
@@ -120,6 +122,8 @@ void JackClient::Detach()
 		m_Attached=false;
 	}
 	if(audio_mix_ring) ringbuffer_free(audio_mix_ring);
+	if(first) ringbuffer_free(first);
+	if(second) ringbuffer_free(second);
 	// tells ssm to go back to non callback mode
 	//if (RunCallback) RunCallback(RunContext, false);
 }
@@ -276,8 +280,10 @@ bool JackClient::Mux(int nfr)
 int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
   bool data_in = false;
+  int	j = 0;
+  
 	for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
-		i!=m_InputPortMap.end(); i++)
+		i!=m_InputPortMap.end(); i++, j++)
 	{
 		if (jack_port_connected(i->second->Port))
 		{
@@ -285,14 +291,34 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		  sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
 // 		  memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize); //m_BufferSize -> 2nd AudioCollector parameter
 			//Buff attribué par SetInputBuf dans le constructeur de AudioCollector
-		  if (ringbuffer_write_space (i->second->in_ring) >= (sizeof (sample_t) * nframes))
+/*		  if (ringbuffer_write_space (i->second->in_ring) >= (sizeof (sample_t) * nframes))
 		  {
 		    size_t rf = ringbuffer_write (i->second->in_ring, (char *)in, (sizeof (sample_t) * nframes));
 		    data_in = true;
-		  }
-		  else
+		  }*/
+		  if (j == 0)
 		  {
-		    std::cerr << "-----------Pas suffisament de place dans audio_fred !!!" << std::endl; 
+		    if (ringbuffer_write_space (((JackClient*) self)->first) >= (sizeof (sample_t) * nframes))
+		    {
+		      size_t rf = ringbuffer_write (((JackClient*) self)->first, (char *)in, (sizeof (sample_t) * nframes));
+		      data_in = true;
+		    }
+		    else
+		    {
+		      std::cerr << "-----------Pas suffisament de place dans audio_fred !!!" << std::endl; 
+		    }
+		  }
+		  else if (j == 1)
+		  {
+		    if (ringbuffer_write_space (((JackClient*) self)->second) >= (sizeof (sample_t) * nframes))
+		    {
+		      size_t rf = ringbuffer_write (((JackClient*) self)->second, (char *)in, (sizeof (sample_t) * nframes));
+		      data_in = true;
+		    }
+		    else
+		    {
+		      std::cerr << "-----------Pas suffisament de place dans audio_fred !!!" << std::endl; 
+		    }
 		  }
 	      }
 	      else
@@ -301,21 +327,15 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 
 	int channels = ((JackClient*) self)->m_ringbufferchannels;
 
-// 	bool ret;
-// 	if (!(ret = Mux()))
-// 	  std::cerr << "------ JackAClient::Mux problems !!";
-	if (data_in)
+/*	if (data_in)
 	  if (!((JackClient*) self)->Mux(nframes))
-	    std::cerr << "----- Muxing problem !!" << std::endl << std::flush;
+	    std::cerr << "----- Muxing problem !!" << std::endl << std::flush;*/
 	
 	bool output_available = false;
 //m_ringbuffer created by ViewPort::add_audio
 //1024*512 rounded up to the next power of two.
 	if (((JackClient*) self)->m_ringbuffer) 
 	{
-	//  func("Jack inbuf avail %i", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
-	//  fprintf(stderr, "Jack inbuf avail %i\n", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer));
-
 	  static int firsttime = 1 + ceil(4096/nframes); // XXX pre-buffer  TODO decrease this and compensate latency
 	
 	  if (ringbuffer_read_space(((JackClient*) self)->m_ringbuffer) >= 
@@ -358,7 +378,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 #endif
 	}
 
-	int j=0;
+	j=0;
 	for (std::map<int,JackPort*>::iterator i=m_OutputPortMap.begin();
 		i!=m_OutputPortMap.end(); i++)
 	{
@@ -401,7 +421,7 @@ int JackClient::SetRingbufferPtr(ringbuffer_t *rb, int rate, int channels) {
 std::cout << "SetRingbufferPtr, channels :" << channels << std::endl;
 	for (i=m_NextOutputID; i<channels; i++) {
 		AddOutputPort();
-		AddInputPort();
+// 		AddInputPort(); no input port
 		if (i == 0)	//connects output ports to system input ports (fred_99)
 		{
 // 			this->ConnectOutput(i, "system:playback_1");

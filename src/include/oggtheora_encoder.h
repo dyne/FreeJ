@@ -66,6 +66,8 @@ class OggTheoraEncoder: public VideoEncoder {
   ~OggTheoraEncoder();
   
   bool init(ViewPort *scr);
+  
+  int Mux(int nframes);
 
   int encode_frame();
   WaveFile	wave;
@@ -91,6 +93,9 @@ private:
   unsigned char *yuvframe[2]; /* yuv 420 */
   
   float *m_buffStream;
+  
+  float	*m_MixBuffer;
+  float	*m_MixBufferOperation;
 };
 
 #endif
