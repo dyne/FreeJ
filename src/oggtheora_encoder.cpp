@@ -104,10 +104,10 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
     m_MixBuffer = (float*) malloc(4096 * 1024);
     m_MixBufferOperation = (float*) malloc(4096 * 1024 *2);
     
-/*    if (!wave.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump.wav"))
+    if (!wave.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump.wav"))
       cerr << "can't create dump.wav !!" << endl;
     wave.SetupFormat(48000, 16, 2);
-    written = 0;*/
+    written = 0;
 	
     m_buffStream = (float *)malloc(4096 * 512 * 4);	//size must be the same as audio_mix_ring declared in JackClient::Attach() 
    
@@ -300,6 +300,7 @@ int OggTheoraEncoder::encode_frame() {
 	sizeFilled = Mux(1024);
 	if (int rf = ringbuffer_read_space (audio->Jack->audio_mix_ring))
 	{
+	  std::cerr << "--rf :" << rf << std::endl;
 	  double rff = 0;
 	  if (rf > (4096 * 512 * 4))
 	    rf  = 4096 * 512 * 4;
@@ -308,7 +309,8 @@ int OggTheoraEncoder::encode_frame() {
 	    rff = ceil(rf/sizeof(float));
 	    rff = (rff*sizeof(float)) - sizeof(float);	//take the bigest number divisible by 4 and lower than rf (ringbuffer available datas)
 	  }
-	  if (rff > ((1024 * sizeof(float) * oggmux.channels) - 1))	// > to 1024 frames in stereo
+	  std::cerr << "--rff :" << rff << std::endl;
+	  if (rff > ((512 * sizeof(float) * oggmux.channels) - 1))	// > to 1024 frames in stereo
 	  {
 	    if ((rv = ringbuffer_read(audio->Jack->audio_mix_ring, (char *)m_buffStream, (size_t)rff)) == 0)
 	    {
