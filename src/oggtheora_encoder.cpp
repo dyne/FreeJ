@@ -198,6 +198,7 @@ int OggTheoraEncoder::Mux(int nfr)
 	if (size[i] >= ((sizeof (float) * nfr)))
 	{
 	  size_t rv = ringbuffer_read(audio->Jack->first, (char *)m_MixBuffer, size[i]);
+// 	  std::cerr << "-- Mux first rv:" << rv << std::endl;
 	  if (sizeMax < rv)
 	    sizeMax = rv;
 /*	  ringPtr = m_MixBufferOperation;
@@ -245,6 +246,7 @@ int OggTheoraEncoder::Mux(int nfr)
       if (size[i] = ringbuffer_read_space(audio->Jack->second))	//
       {
 	size_t rv = ringbuffer_read(audio->Jack->second, (char *)m_MixBufferOperation, size[i]);
+// 	std::cerr << "-- Mux second rv:" << rv << std::endl;
 	if (rv)
 	  sizeMax += rv;
 	if (rv != size[i])
@@ -297,27 +299,28 @@ int OggTheoraEncoder::encode_frame() {
 	float *ptr = m_buffStream;
 	int sizeFilled = 0;
 	rv = 0;
-	sizeFilled = Mux(1024);
+// 	sizeFilled = Mux(1024);
+// 	std::cerr << "--sizeFilled :" << sizeFilled << std::endl;
 	if (int rf = ringbuffer_read_space (audio->Jack->audio_mix_ring))
 	{
-	  std::cerr << "--rf :" << rf << std::endl;
+// 	  std::cerr << "--rf :" << rf << std::endl;
 	  double rff = 0;
 	  if (rf > (4096 * 512 * 4))
 	    rf  = 4096 * 512 * 4;
-	  else
+/*	  else
 	  {
 	    rff = ceil(rf/sizeof(float));
 	    rff = (rff*sizeof(float)) - sizeof(float);	//take the bigest number divisible by 4 and lower than rf (ringbuffer available datas)
-	  }
-	  std::cerr << "--rff :" << rff << std::endl;
-	  if (rff > ((512 * sizeof(float) * oggmux.channels) - 1))	// > to 1024 frames in stereo
+	  }*/
+// 	  std::cerr << "--rff :" << rff << std::endl;
+	  if (rf >= (2048 * sizeof(float) * oggmux.channels))	// > to 1024 frames in stereo
 	  {
-	    if ((rv = ringbuffer_read(audio->Jack->audio_mix_ring, (char *)m_buffStream, (size_t)rff)) == 0)
+	    if ((rv = ringbuffer_read(audio->Jack->audio_mix_ring, (char *)m_buffStream, (size_t)rf)) == 0)
 	    {
 	      std::cerr << "------impossible de lire dans le audio_mix_ring ringbuffer !!!"\
-		    << " rf:" << rf << " rff:" << rff << " rv:" << rv << endl;
+		    << " rf:" << rf << " rv:" << rv << endl;
 	    }
-	    else if (!wave.closed && (rv == rff))
+	    else if (!wave.closed && (rv == rf))
 	    {
 	      int i;
 	      for (i = 0; i < (rv/sizeof(float)); i++, ptr++)
@@ -325,17 +328,18 @@ int OggTheoraEncoder::encode_frame() {
 		  cerr << "-----Impossible d'écrire dans le fichier dump.wav !!" << endl;
 
 	      written += i;
-	      if (written >= 2880000)	//30 secondes
+// 	      std::cerr << "--written :" << written << std::endl;
+	      if (written >= 2880000)	//xx secondes
 	      {
 		written = 0;
 		cerr << "--- WriteHeaderToFile ---" << endl << flush;
 		wave.Close();
 	      }
 	    }
-	    else if (rv != rff)
+	    else if (rv != rf)
 	    {
 	      std::cerr << "------pas assez lu dans audio_mix_ring ringbuffer !!!"\
-		    << " rff:" << rff << " rv:" << rv << std::endl << std::flush;
+		    << " rf:" << rf << " rv:" << rv << std::endl << std::flush;
 	    }
  	    encode_audio ( 0);
 	  }
