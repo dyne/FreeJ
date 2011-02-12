@@ -101,10 +101,6 @@ private:
 	
 	static void(*RunCallback)(void*, unsigned int bufsize);
 	static void *RunContext;
-	float	*m_MixBuffer;
-	float	*m_MixBufferOperation;
-	int	m_MixBufferSize;
-	bool	Mux(int nframes);
 };
 
 #endif
