@@ -47,17 +47,17 @@ m_inbuf(NULL),
 m_ringbuffer(NULL),
 audio_mix_ring(NULL)
 {
-  m_MixBufferSize = 4096 * 512 * sizeof(float);
+/*  m_MixBufferSize = 4096 * 512 * sizeof(float);
   m_MixBuffer = (float*) malloc(m_MixBufferSize);
-  m_MixBufferOperation = (float*) malloc(m_MixBufferSize*2);
+  m_MixBufferOperation = (float*) malloc(m_MixBufferSize*2);*/
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 JackClient::~JackClient()	
 {
-  if (m_MixBuffer)free(m_MixBuffer);
-  if (m_MixBufferOperation)free(m_MixBufferOperation);
+/*  if (m_MixBuffer)free(m_MixBuffer);
+  if (m_MixBufferOperation)free(m_MixBufferOperation);*/
 	Detach();
 }
 
@@ -104,8 +104,8 @@ bool JackClient::Attach(const std::string &ClientName)
 	
 	audio_mix_ring = ringbuffer_create(4096 * 512 * 4);		//1024 not enought, must be the same size_t
 								// as buf_fred set up in OggTheoraEncoder::init
-	first = ringbuffer_create(4096 * 512 * 4);
-	second = ringbuffer_create(4096 * 512 * 4);
+/*	first = ringbuffer_create(4096 * 512 * 4);
+	second = ringbuffer_create(4096 * 512 * 4);*/
 	
 	return true;
 }
@@ -122,8 +122,8 @@ void JackClient::Detach()
 		m_Attached=false;
 	}
 	if(audio_mix_ring) ringbuffer_free(audio_mix_ring);
-	if(first) ringbuffer_free(first);
-	if(second) ringbuffer_free(second);
+/*	if(first) ringbuffer_free(first);
+	if(second) ringbuffer_free(second);*/
 	// tells ssm to go back to non callback mode
 	//if (RunCallback) RunCallback(RunContext, false);
 }
@@ -279,8 +279,8 @@ bool JackClient::Mux(int nfr)
 
 int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
-  bool data_in = false;
-  int	j = 0;
+//   bool data_in = false;
+//   int	j = 0;
   
 	for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
 		i!=m_InputPortMap.end(); i++)
@@ -289,7 +289,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		{
 // 		  i->second->connected = true;
 		  sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
-		  memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize); //m_BufferSize -> 2nd AudioCollector parameter
+// 		  memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize); //m_BufferSize -> 2nd AudioCollector parameter
 			//Buff attribué par SetInputBuf dans le constructeur de AudioCollector
 /*		  if (ringbuffer_write_space (i->second->in_ring) >= (sizeof (sample_t) * nframes))
 		  {
@@ -379,7 +379,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 #endif
 	}
 
-	j=0;
+	int j=0;
 	for (std::map<int,JackPort*>::iterator i=m_OutputPortMap.begin();
 		i!=m_OutputPortMap.end(); i++)
 	{
@@ -417,25 +417,25 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 int JackClient::SetRingbufferPtr(ringbuffer_t *rb, int rate, int channels) {
 	int i;
 	m_ringbuffer = NULL;
-	std::string portName;
+// 	std::string portName;
 	
 	func ("jack-client ringbuffer set for %i channels", channels);
 std::cout << "SetRingbufferPtr, channels :" << channels << std::endl;
-	int j = 0;
+// 	int j = 0;
 	for (i=m_NextOutputID; i<channels; i++) {
 		AddOutputPort();
-		AddInputPort();
-/*		if (i == 0)	//connects output ports to system input ports (fred_99)
-		{*/
+// 		AddInputPort();
+		if (i == 0)	//connects output ports to system input ports (fred_99)
+		{
 // 			this->ConnectOutput(i, "system:playback_1");
-			if (!j)
+/*			if (!j)
 			  portName += "freej:In0";
 			else if (j == 1)
 			  portName += "freej:In1";
 			this->ConnectOutput(i, portName);
 			portName.clear();
-			j++;
-// 		}
+			j++;*/
+		}
 		//else if (i == 1)
 			//this->ConnectOutput(i, "system:playback_2"); //see to test if there is two system channels
 	}
@@ -460,8 +460,8 @@ int JackClient::AddInputPort()
 	NewPort->Buf=NULL;		
 	NewPort->Port = jack_port_register (m_Client, Name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
 	m_InputPortMap[m_NextInputID]=NewPort;
-	NewPort->in_ring = ringbuffer_create(4096 * 512 * 4);		//1024 not enought, must be the same size_t
-	NewPort->connected = false;
+// 	NewPort->in_ring = ringbuffer_create(4096 * 512 * 4);		//1024 not enought, must be the same size_t
+// 	NewPort->connected = false;
 	m_NextInputID++;
 	return m_NextInputID-1;
 }

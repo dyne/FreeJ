@@ -71,8 +71,8 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   //  if(enc_rgb24) free(enc_rgb24);
 
   if(audio_buf) free(audio_buf);
-  if(m_MixBuffer) free(m_MixBuffer);
-  if(m_MixBufferOperation) free(m_MixBufferOperation);
+//   if(m_MixBuffer) free(m_MixBuffer);
+//   if(m_MixBufferOperation) free(m_MixBufferOperation);
   if (m_buffStream) free(m_buffStream);
   if (!wave.closed) wave.Close();
 }
@@ -101,8 +101,8 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
     oggmux.vorbis_quality = -100;	/*audio_quality / 100;*/
     oggmux.vorbis_bitrate = audio_bitrate;
     
-    m_MixBuffer = (float*) malloc(4096 * 1024);
-    m_MixBufferOperation = (float*) malloc(4096 * 1024 *2);
+//     m_MixBuffer = (float*) malloc(4096 * 1024);
+//     m_MixBufferOperation = (float*) malloc(4096 * 1024 *2);
     
     if (!wave.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump.wav"))
       cerr << "can't create dump.wav !!" << endl;
@@ -307,20 +307,20 @@ int OggTheoraEncoder::encode_frame() {
 	  double rff = 0;
 	  if (rf > (4096 * 512 * 4))
 	    rf  = 4096 * 512 * 4;
-/*	  else
+	  else
 	  {
 	    rff = ceil(rf/sizeof(float));
 	    rff = (rff*sizeof(float)) - sizeof(float);	//take the bigest number divisible by 4 and lower than rf (ringbuffer available datas)
-	  }*/
+	  }
 // 	  std::cerr << "--rff :" << rff << std::endl;
-	  if (rf >= (2048 * sizeof(float) * oggmux.channels))	// > to 1024 frames in stereo
+	  if (rff >= ((1024 * sizeof(float) * oggmux.channels - 1)))	// > to 1024 frames in stereo
 	  {
-	    if ((rv = ringbuffer_read(audio->Jack->audio_mix_ring, (char *)m_buffStream, (size_t)rf)) == 0)
+	    if ((rv = ringbuffer_read(audio->Jack->audio_mix_ring, (char *)m_buffStream, (size_t)rff)) == 0)
 	    {
 	      std::cerr << "------impossible de lire dans le audio_mix_ring ringbuffer !!!"\
-		    << " rf:" << rf << " rv:" << rv << endl;
+		    << " rff:" << rff << " rv:" << rv << endl;
 	    }
-	    else if (!wave.closed && (rv == rf))
+	    else if (!wave.closed && (rv == rff))
 	    {
 	      int i;
 	      for (i = 0; i < (rv/sizeof(float)); i++, ptr++)
@@ -336,10 +336,10 @@ int OggTheoraEncoder::encode_frame() {
 		wave.Close();
 	      }
 	    }
-	    else if (rv != rf)
+	    else if (rv != rff)
 	    {
 	      std::cerr << "------pas assez lu dans audio_mix_ring ringbuffer !!!"\
-		    << " rf:" << rf << " rv:" << rv << std::endl << std::flush;
+		    << " rff:" << rff << " rv:" << rv << std::endl << std::flush;
 	    }
  	    encode_audio ( 0);
 	  }
@@ -398,7 +398,7 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
 
 #ifdef WITH_AUDIO
   //  num = env->audio->framesperbuffer*env->audio->channels*sizeof(int16_t);
-  func("going to encode %u bytes of audio", audio->buffersize);
+//   func("going to encode %u bytes of audio", audio->buffersize);
   ///// QUAAAA
   //  oggmux_add_audio (oggmux_info *info, int16_t * readbuffer, int bytesread, int samplesread,int e_o_s);
   //  oggmux_add_audio(&oggmux, env->audio->input,
