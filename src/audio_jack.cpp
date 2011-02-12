@@ -99,7 +99,7 @@ bool JackClient::Attach(const std::string &ClientName)
 	
 	audio_mix_ring = ringbuffer_create(4096 * 512 * 4);		//1024 not enought, must be the same size_t
 								// as buf_fred set up in OggTheoraEncoder::init
-	
+	first = ringbuffer_create(4096 * 512 * 4);
 	return true;
 }
 
@@ -156,7 +156,7 @@ int JackClient::Process (jack_nframes_t nframes, void *arg)
 
 int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
-  
+  int j = 0;
 	for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
 		i!=m_InputPortMap.end(); i++)
 	{
@@ -164,7 +164,19 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		{
 		  sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
 // 		  memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize); //m_BufferSize -> 2nd AudioCollector parameter
-			//Buff attribué par SetInputBuf dans le constructeur de AudioCollector
+			//Buff attribué par SetInputBuf dans le construcAteur de AudioCollector
+		  if (!j)	//only streams the 1st Jack Input port
+		  {
+		    if (ringbuffer_write_space (((JackClient*) self)->first) >= (sizeof (sample_t) * nframes))
+		    {	
+		      size_t rf = ringbuffer_write (((JackClient*) self)->first, (char *)in, (sizeof (sample_t) * nframes));
+		    }
+/*		    else
+		    {
+		      std::cerr << "-----------Pas suffisament de place dans audio_fred !!!" << std::endl; 
+		    }*/
+		    j++;
+		  }
 		}
 	}
 
@@ -176,12 +188,12 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 //1024*512 rounded up to the next power of two.
 	if (((JackClient*) self)->m_ringbuffer) 
 	{
-	  static int firsttime = 1 + ceil(4096/nframes); // XXX pre-buffer  TODO decrease this and compensate latency
+// 	  static int firsttime = 1 + ceil(4096/nframes); // XXX pre-buffer  TODO decrease this and compensate latency
 	
 	  if (ringbuffer_read_space(((JackClient*) self)->m_ringbuffer) >= 
-			      firsttime * channels * nframes * sizeof(float)) 
+			      /*firsttime */ channels * nframes * sizeof(float)) 
 	  {
-		  firsttime=1;
+// 		  firsttime=1;
 		  size_t rv = ringbuffer_read(((JackClient*) self)->m_ringbuffer, 
 					      ((JackClient*) self)->m_inbuf,
 					      channels*nframes*sizeof(float));
@@ -211,7 +223,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 #endif
 	}
 
-	int j=0;
+	j=0;
 	for (std::map<int,JackPort*>::iterator i=m_OutputPortMap.begin();
 		i!=m_OutputPortMap.end(); i++)
 	{

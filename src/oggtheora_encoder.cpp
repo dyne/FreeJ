@@ -53,7 +53,8 @@ OggTheoraEncoder::OggTheoraEncoder()
   audio = NULL;
   audio_buf = NULL;
   m_buffStream = NULL;
-
+  m_MixBuffer = NULL;
+  m_MixBufferOperation = NULL;
   init_info(&oggmux);
   theora_comment_init(&oggmux.tc);
 
@@ -71,8 +72,8 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   //  if(enc_rgb24) free(enc_rgb24);
 
   if(audio_buf) free(audio_buf);
-//   if(m_MixBuffer) free(m_MixBuffer);
-//   if(m_MixBufferOperation) free(m_MixBufferOperation);
+  if(m_MixBuffer) free(m_MixBuffer);
+  if(m_MixBufferOperation) free(m_MixBufferOperation);
   if (m_buffStream) free(m_buffStream);
   if (!wave.closed) wave.Close();
 }
@@ -101,8 +102,8 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
     oggmux.vorbis_quality = -100;	/*audio_quality / 100;*/
     oggmux.vorbis_bitrate = audio_bitrate;
     
-//     m_MixBuffer = (float*) malloc(4096 * 1024);
-//     m_MixBufferOperation = (float*) malloc(4096 * 1024 *2);
+    m_MixBuffer = (float*) malloc(4096 * 1024);
+    m_MixBufferOperation = (float*) malloc(4096 * 1024 *2);
     
     if (!wave.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump.wav"))
       cerr << "can't create dump.wav !!" << endl;
@@ -110,7 +111,8 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
     written = 0;
 	
     m_buffStream = (float *)malloc(4096 * 512 * 4);	//size must be the same as audio_mix_ring declared in JackClient::Attach() 
-   
+    m_MixedRing = ringbuffer_create(4096 * 512 * 4);
+  
   } else {
 
     oggmux.video_only = 1;
@@ -183,65 +185,57 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
 
 int OggTheoraEncoder::Mux(int nfr)
 {
-  int size[3] = {0, 0, 0};
-  int sizeMax = 0;
+  int sizeFirst = 0;
+  int sizeVideo = 0;
   float *ringPtr, *mixPtr;
-//   memset (m_MixBuffer, 0, nfr * sizeof(float));
-//   memset (m_MixBufferOperation, 0, nfr * sizeof(float) * 2);
+  memset (m_MixBuffer, 0, 4096 * 1024);
+  memset (m_MixBufferOperation, 0, 4096 * 1024 * 2);
   
-  for (int i=0 ; i<2; i++)
-  {
-    if (i == 0)
+/*  for (int i=0 ; i<2; i++)
+  {*/
+/*    if (i == 0)
     {
       if (size[i] = ringbuffer_read_space(audio->Jack->first))
       {
 	if (size[i] >= ((sizeof (float) * nfr)))
 	{
-	  size_t rv = ringbuffer_read(audio->Jack->first, (char *)m_MixBuffer, size[i]);
+	  size_t rv = ringbuffer_read(audio->Jack->first, (char *)m_MixBuffer, size[i]);*/
 // 	  std::cerr << "-- Mux first rv:" << rv << std::endl;
-	  if (sizeMax < rv)
-	    sizeMax = rv;
+/*	  if (sizeMax < rv)
+	    sizeMax = rv;*/
 /*	  ringPtr = m_MixBufferOperation;
 	  mixPtr = m_MixBuffer;
 	  for (int j=0; j < rv/sizeof(float); j++, mixPtr++, ringPtr++)	//interleave
 	  {
 	    *mixPtr++ = *ringPtr;
 	  }*/
-	}
+// 	}
 /*	else
 	{
 	  std::cerr << "----- Problems reading the in_ring size[" \
 	      << i << "] :" << size[i] << std::endl;
 	  return (false);
 	}*/
-      }  
+//       }  
 /*      else
       {
 	  std::cerr << "----- nothing to read in the " << i << " ring" << std::endl;
 	  return (false);
       }*/
-    }
+//     }
 /*    else if (c == 1 && i->second->connected)	//add the first VideoLayer channel to the left
-    {
-      if (size[c] = ringbuffer_read_space(i->second->in_ring))	//
+    {*/
+      if (sizeFirst = ringbuffer_read_space(audio->Jack->first))	//
       {
-	size_t rv = ringbuffer_read(i->second->in_ring, (char *)m_MixBufferOperation, size[c]);
-	if (sizeMax < rv)
-	  sizeMax = rv;
-	if (rv != size[c])
+	size_t rv = ringbuffer_read(audio->Jack->first, (char *)m_MixBuffer, sizeFirst);
+	if (rv != sizeFirst)
 	{
-	  std::cerr << "----- Problems reading the " << c << " in_ring" << std::endl;
+	  std::cerr << "----- Problems reading the in_ring" << std::endl;
 	  return (false);
 	}
-	ringPtr = m_MixBufferOperation;
-	mixPtr = m_MixBuffer;
-	for (int j=0; j < rv/sizeof(float); j++)
-	{
-	  *mixPtr++ += *ringPtr++; 
-	}
       }
-    }*/
-    else if (i == 1)	//interleaving the second VideoLayer channel
+//     }
+/*    else if (i == 1)	//interleaving the second VideoLayer channel
     {
       if (size[i] = ringbuffer_read_space(audio->Jack->second))	//
       {
@@ -262,21 +256,37 @@ int OggTheoraEncoder::Mux(int nfr)
 	  *mixPtr++ = *ringPtr;
 	}
       }
-    }
+    }*/
 /*    else if(c == 2 && !i->second->connected) c++;
     else if (c > 2)
     {
       std::cerr << "----- 3 jack audio input ports maximum !!" << std::endl;
     }*/
-  }
-  if (sizeMax)
+//   }
+  if (sizeFirst)
   {
-    if (ringbuffer_write_space (audio->Jack->audio_mix_ring) >= sizeMax)
+    size_t rv = 0;
+    if (sizeVideo = ringbuffer_read_space(audio->Jack->audio_mix_ring))	//
     {
-      size_t rv = ringbuffer_write (audio->Jack->audio_mix_ring, (char *)m_MixBuffer, sizeMax);
-      if (rv != sizeMax)
+      rv = ringbuffer_read(audio->Jack->audio_mix_ring, (char *)m_MixBufferOperation, sizeVideo);
+      if (rv != sizeVideo)
       {
-	std::cerr << "---" << rv << " : au lieu de :" << sizeMax*2 \
+	std::cerr << "----- Problems reading the audio_mix_ring" << std::endl;
+	return (false);
+      }
+    }
+    mixPtr = m_MixBufferOperation;
+    ringPtr = m_MixBuffer;
+    for (int j=0; j < rv/sizeof(float); j++, mixPtr++, ringPtr++)
+    {
+      *mixPtr++ = *ringPtr;
+    }
+    if (ringbuffer_write_space (m_MixedRing) >= sizeVideo)
+    {
+      size_t rv = ringbuffer_write (m_MixedRing, (char *)m_MixBufferOperation, sizeVideo);
+      if (rv != sizeVideo)
+      {
+	std::cerr << "---" << rv << " : au lieu de :" << sizeVideo \
 	    << " octets ecrits dans le ringbuffer !!" << std::endl;
 	return (0);
       }
@@ -288,7 +298,29 @@ int OggTheoraEncoder::Mux(int nfr)
       return (0);
     }
   }
-  return (sizeMax);
+  else	//no sound in the first ring buffer
+  {
+    if (sizeVideo = ringbuffer_read_space(audio->Jack->audio_mix_ring))	//
+    {
+      size_t rv = ringbuffer_read(audio->Jack->audio_mix_ring, (char *)m_MixBufferOperation, sizeVideo);
+      if (rv != sizeVideo)
+      {
+	std::cerr << "----- Problems reading the audio_mix_ring" << std::endl;
+	return (false);
+      }
+    }
+    if (ringbuffer_write_space (m_MixedRing) >= sizeVideo)
+    {
+      size_t rv = ringbuffer_write (m_MixedRing, (char *)m_MixBufferOperation, sizeVideo);
+      if (rv != sizeVideo)
+      {
+	std::cerr << "---" << rv << " : au lieu de :" << sizeVideo \
+	    << " octets ecrits dans le ringbuffer !!" << std::endl;
+	return (0);
+      }
+    }
+  }
+  return (sizeVideo);
 }
 
 int OggTheoraEncoder::encode_frame() {
@@ -299,9 +331,9 @@ int OggTheoraEncoder::encode_frame() {
 	float *ptr = m_buffStream;
 	int sizeFilled = 0;
 	rv = 0;
-// 	sizeFilled = Mux(1024);
+	sizeFilled = Mux(1024);
 // 	std::cerr << "--sizeFilled :" << sizeFilled << std::endl;
-	if (int rf = ringbuffer_read_space (audio->Jack->audio_mix_ring))
+	if (int rf = ringbuffer_read_space (m_MixedRing))
 	{
 // 	  std::cerr << "--rf :" << rf << std::endl;
 	  double rff = 0;
@@ -315,7 +347,7 @@ int OggTheoraEncoder::encode_frame() {
 // 	  std::cerr << "--rff :" << rff << std::endl;
 	  if (rff >= ((1024 * sizeof(float) * oggmux.channels - 1)))	// > to 1024 frames in stereo
 	  {
-	    if ((rv = ringbuffer_read(audio->Jack->audio_mix_ring, (char *)m_buffStream, (size_t)rff)) == 0)
+	    if ((rv = ringbuffer_read(m_MixedRing, (char *)m_buffStream, (size_t)rff)) == 0)
 	    {
 	      std::cerr << "------impossible de lire dans le audio_mix_ring ringbuffer !!!"\
 		    << " rff:" << rff << " rv:" << rv << endl;

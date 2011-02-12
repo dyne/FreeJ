@@ -96,6 +96,7 @@ private:
   
   float	*m_MixBuffer;
   float	*m_MixBufferOperation;
+  ringbuffer_t *m_MixedRing;
 };
 
 #endif

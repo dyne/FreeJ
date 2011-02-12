@@ -59,7 +59,6 @@ public:
 	static bool               m_Attached;
 	ringbuffer_t *audio_mix_ring;	//ringbuffer to be streamed
 	ringbuffer_t *first;
-	ringbuffer_t *second;
 	
 protected:
 	JackClient();
