@@ -10,6 +10,7 @@
 //see to use Linklist.completion to add blit, filters and generators
 //devide the fake size window by two .... not sure :)
 //insert STRING filters parameters
+//add a 1:1 ratio button, resizing to the closest width and lenght to obtain this ratio 
 
 - copier la méthode utilisée dans /home/fred/system/video/snd/dhoerl/avcodec_sample.0.5.0.c
 	qui recupère le FPS, car semble retourner une bonne valeur pour film.mp4 (pas 240)

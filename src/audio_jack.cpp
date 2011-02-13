@@ -99,7 +99,7 @@ bool JackClient::Attach(const std::string &ClientName)
 	
 	audio_mix_ring = ringbuffer_create(4096 * 512 * 4);		//1024 not enought, must be the same size_t
 								// as buf_fred set up in OggTheoraEncoder::init
-	first = ringbuffer_create(4096 * 512 * 4);
+	first = ringbuffer_create(4096 * 512 * 4);	//first jack Input ring buffer
 	return true;
 }
 
@@ -115,6 +115,8 @@ void JackClient::Detach()
 		m_Attached=false;
 	}
 	if(audio_mix_ring) ringbuffer_free(audio_mix_ring);
+	if(first) ringbuffer_free(first);
+	
 	// tells ssm to go back to non callback mode
 	//if (RunCallback) RunCallback(RunContext, false);
 }
