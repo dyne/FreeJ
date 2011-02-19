@@ -95,8 +95,6 @@ bool JackClient::Attach(const std::string &ClientName)
 
 	m_Attached=true;
 	
-	std::cerr << "----- sizeof jack_default_audio_sample_t : " << sizeof(jack_default_audio_sample_t) << std::endl;
-	
 	audio_mix_ring = ringbuffer_create(4096 * 512 * 4);		//1024 not enought, must be the same size_t
 								// as buf_fred set up in OggTheoraEncoder::init
 	first = ringbuffer_create(4096 * 512 * 4);	//first jack Input ring buffer

@@ -1,0 +1,2 @@
+- streaming : when image freezes at start, restart icecast server...it helped me
+  when testing in local.

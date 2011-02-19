@@ -256,7 +256,7 @@ void VideoEncoder::thread_loop() {
         fwrite(encbuf, 1, encnum, filedump_fd);
     
       if(write_to_stream) {
-// 	shout_sync(ice);
+// 	shout_sync(ice);	//no sound when commented out !!
         if( shout_send(ice, (const unsigned char*)encbuf, encnum)
 	      != SHOUTERR_SUCCESS) {
             error("shout_send: %s", shout_get_error(ice));

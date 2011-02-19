@@ -27,8 +27,8 @@ Sound::Sound(Context *freej, QWidget *parent) : QWidget(parent)
         m_enc = new OggTheoraEncoder();
         if (m_enc)
         {
-            m_enc->video_quality = 10;
-            m_enc->video_bitrate = 100000;
+            m_enc->video_quality = 15;		//it as to be in concordance with the quality !!
+            m_enc->video_bitrate = 200000;	//q50 b800000 ok
             m_enc->audio_quality = 1;
             m_enc->audio_bitrate = 48000;
 
@@ -76,7 +76,7 @@ Sound::Sound(Context *freej, QWidget *parent) : QWidget(parent)
 	    }
 
 
-	    m_enc->set_filedump("Video/dump.ogg");
+// 	    m_enc->set_filedump("Video/dump.ogg");
             qDebug() << "fps :" << m_freej->fps.get();
         }
     } //

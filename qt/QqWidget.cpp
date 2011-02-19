@@ -42,7 +42,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     qTextLayer = NULL;
     fakeView = NULL;
     fakeLay = NULL;
-    qLayer = (VideoLayer *)freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
+    qLayer = freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
     if(qLayer)
     {
         if( freej->screen->add_layer(qLayer) )

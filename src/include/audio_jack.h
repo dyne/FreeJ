@@ -59,6 +59,7 @@ public:
 	static bool               m_Attached;
 	ringbuffer_t *audio_mix_ring;	//ringbuffer to be streamed
 	ringbuffer_t *first;
+	int 		   m_ringbufferchannels;
 	
 protected:
 	JackClient();
@@ -87,7 +88,7 @@ private:
 	};
 
 	ringbuffer_t*      m_ringbuffer;
-	int 		   m_ringbufferchannels;
+// 	int 		   m_ringbufferchannels;
 	char* 		   m_inbuf;
 	
 

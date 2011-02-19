@@ -50,9 +50,7 @@ public slots:
 
 private:
     int newIdx;
-    //Layer *qLayer;
-    VideoLayer *qLayer;
-    //V4L2CamLayer *qLayer;
+    Layer *qLayer;
     TextLayer *qTextLayer;
     GeneratorLayer *m_qGeneLayer;
     QTextEdit *text;
