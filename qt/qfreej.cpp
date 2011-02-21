@@ -39,12 +39,14 @@ Qfreej::Qfreej(QWidget *parent) :
         QWidget(parent)
 {
     m_snd = NULL;
+    m_Opacity = NULL;
 
     grid = new QGridLayout(this);
 
     QMenuBar *menuBar = new QMenuBar(this);
     grid->addWidget(menuBar, 0, 0);
-    QMenu *menuFichier = menuBar->addMenu("&Fichier");
+    QMenu *menuFichier = menuBar->addMenu("&File");
+    QMenu *menuOpacity = menuBar->addMenu("&Opacity");
 
     QAction *actionPen = menuFichier->addAction("&Open");
     connect(actionPen, SIGNAL(triggered()), this, SLOT(addLayer()));
@@ -58,6 +60,10 @@ Qfreej::Qfreej(QWidget *parent) :
     QAction *actionJack = menuFichier->addAction("&Stream");
     connect(actionJack, SIGNAL(triggered()), this, SLOT(openSoundDevice()));//new
 
+    QAction *actionOpa = menuOpacity->addAction("&Opacity");
+    connect(actionOpa, SIGNAL(triggered()), this, SLOT(changeOpacity()));
+
+    
     menuGenerator = menuFichier->addMenu("&Generators");
 
     poller = new QTimer (this);
@@ -78,6 +84,11 @@ Qfreej::~Qfreej()
 //    delete freej;     //to be investigate :)
 //    delete layoutH;
     delete grid;
+}
+
+void Qfreej::changeOpacity()
+{
+  m_Opacity->show();
 }
 
 void Qfreej::closeEvent(QCloseEvent *event)
@@ -111,6 +122,7 @@ void Qfreej::init()
 
     createMenuGenerator();
 	//openSoundDevice();
+    m_Opacity = new QOpacity((QWidget *)this);
 }
 
 void Qfreej::startStreaming()

@@ -10,9 +10,11 @@
 #include <QqWidget.h>
 #include <QLayout>
 #include <Sound.h>
+#include "qOpacity.h"
 
 class QTimer;
 class QqTabWidget;
+class QOpacity;
 
 namespace Ui {
     class Qfreej;
@@ -36,6 +38,7 @@ public slots:
     void startStreaming();
     void addGenerator(QAction*);
     void openSoundDevice();
+    void changeOpacity();
 
 protected:
     void closeEvent(QCloseEvent*);
@@ -54,6 +57,7 @@ private:
     QHBoxLayout *layoutH;
     QMenu* menuGenerator;
     Sound *m_snd;
+    QOpacity *m_Opacity;
 };
 
 

@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     specialeventget.cpp \
     FakeWindow.cpp \
     QqTabWidget.cpp \
-    Sound.cpp
+    Sound.cpp \
+    qOpacity.cpp
 
     HEADERS += qfreej.h \
     QqComboBlit.h \
@@ -26,7 +27,8 @@ SOURCES += main.cpp \
     specialeventget.h \
     FakeWindow.h \
     QqTabWidget.h \
-    Sound.h
+    Sound.h \
+    qOpacity.h
 FORMS += qfreej.ui
 CONFIG += qt debug
 LIBS += -lfreej

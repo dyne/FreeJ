@@ -1,2 +1,5 @@
 - streaming : when image freezes at start, restart icecast server...it helped me
   when testing in local.
+
+- ordering dumped file frames with oggz sort command does not change anything to
+  my shift between sound and video ... still around 2.5 seconds in 10 minutes.
