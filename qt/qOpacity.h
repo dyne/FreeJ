@@ -9,7 +9,7 @@ class QOpacity : public QWidget
 {
     Q_OBJECT
 public:
-    QOpacity(QWidget *parent = 0);
+    QOpacity(Qfreej*);
     ~QOpacity();
 
 public slots:

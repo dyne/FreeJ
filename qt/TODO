@@ -1,4 +1,3 @@
-//add transparancy to the main window
 //move main window in accordance with the size
 //resize ViewPort in accordance to the  biggest layer
 //fix the rotation sense when changing mouse direction.

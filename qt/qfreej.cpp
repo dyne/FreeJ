@@ -66,6 +66,9 @@ Qfreej::Qfreej(QWidget *parent) :
     
     menuGenerator = menuFichier->addMenu("&Generators");
 
+    m_Opacity = new QOpacity(this);
+    m_Opacity->hide();
+
     poller = new QTimer (this);
     connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
     poller->start(1); //start timer to trigger every 1 ms the updateInterface slot
@@ -122,7 +125,6 @@ void Qfreej::init()
 
     createMenuGenerator();
 	//openSoundDevice();
-    m_Opacity = new QOpacity((QWidget *)this);
 }
 
 void Qfreej::startStreaming()
