@@ -20,7 +20,8 @@ Sound::Sound(Context *freej, QWidget *parent) : QWidget(parent)
 //    m_audio = new AudioCollector("MPlayer [13728]:out_0", 1024, 48000);
 //    m_audio = new AudioCollector("system:capture_1", 1024, 48000);
 
-    m_freej->screen->add_audio(m_audio->Jack); //
+    m_freej->screen->add_audio(m_audio->Jack); 	//creates as many jack output ports 
+						//as there is for the Layer
 
     if (m_audio) //
     { //
@@ -31,7 +32,6 @@ Sound::Sound(Context *freej, QWidget *parent) : QWidget(parent)
             m_enc->video_bitrate = 200000;	//q50 b800000 ok
             m_enc->audio_quality = 1;
             m_enc->audio_bitrate = 48000;
-
             m_enc->use_audio = true; //
 //             m_enc->use_audio = false;
             m_enc->audio = m_audio; //

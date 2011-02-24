@@ -116,12 +116,12 @@ m_ProcessPos(0)
 	pthread_mutex_init(m_Mutex,NULL);
 	
 	Jack = JackClient::Get();
-	Jack->SetCallback(AudioCallback,(void*)this);
+// 	Jack->SetCallback(AudioCallback,(void*)this);
 	Jack->Attach("freej");
 	if (Jack->IsAttached())
 	{	
 		int id=Jack->AddInputPort();
-		Jack->SetInputBuf(id,m_JackBuffer);
+// 		Jack->SetInputBuf(id,m_JackBuffer);
 		Jack->ConnectInput(id, port);		//connects output port name passed in param to constructor
 							//to the new Input port created "freej::In0"
 		std::cerr<<"Input port ID "<< id << std::endl;

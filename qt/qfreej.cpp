@@ -40,6 +40,7 @@ Qfreej::Qfreej(QWidget *parent) :
 {
     m_snd = NULL;
     m_Opacity = NULL;
+    m_Jack = NULL;
 
     grid = new QGridLayout(this);
 
@@ -57,8 +58,8 @@ Qfreej::Qfreej(QWidget *parent) :
     QAction *actionStream = menuFichier->addAction("&Run js");
     connect(actionStream, SIGNAL(triggered()), this, SLOT(startStreaming()));//new
 
-    QAction *actionJack = menuFichier->addAction("&Stream");
-    connect(actionJack, SIGNAL(triggered()), this, SLOT(openSoundDevice()));//new
+    QAction *actionJack = menuFichier->addAction("&Jack Connect");
+    connect(actionJack, SIGNAL(triggered()), this, SLOT(jackConnect()));//new
 
     QAction *actionOpa = menuOpacity->addAction("&Opacity");
     connect(actionOpa, SIGNAL(triggered()), this, SLOT(changeOpacity()));
@@ -81,9 +82,9 @@ Qfreej::Qfreej(QWidget *parent) :
 
 Qfreej::~Qfreej()
 {
-    if (m_snd)
-        delete m_snd;
+    if (m_snd) delete m_snd;
     poller->stop();
+    if (m_Jack) delete m_Jack;
 //    delete freej;     //to be investigate :)
 //    delete layoutH;
     delete grid;
@@ -159,6 +160,11 @@ void Qfreej::addLayer()
 void Qfreej::openSoundDevice()
 {
     m_snd = new Sound(freej);
+}
+
+void Qfreej::jackConnect()
+{
+  m_Jack = new QJackClient(freej);
 }
 
 void Qfreej::addTextLayer()

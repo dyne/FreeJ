@@ -66,7 +66,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             tabWidget->addTab(this, qLayer->get_filename());
             qLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
             m_tabWidg = tabWidget;
-	    qfreej->openSoundDevice();
+// 	    qfreej->openSoundDevice();
 	    //freej->screen->fullscreen();    //figure out how to exit from this state
         }
         else

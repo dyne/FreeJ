@@ -17,6 +17,7 @@ SOURCES += main.cpp \
     FakeWindow.cpp \
     QqTabWidget.cpp \
     Sound.cpp \
+	qJackClient.cpp \
     qOpacity.cpp
 
     HEADERS += qfreej.h \
@@ -28,6 +29,7 @@ SOURCES += main.cpp \
     FakeWindow.h \
     QqTabWidget.h \
     Sound.h \
+	qJackClient.h \
     qOpacity.h
 FORMS += qfreej.ui
 CONFIG += qt debug

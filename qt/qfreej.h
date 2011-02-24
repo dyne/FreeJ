@@ -11,6 +11,7 @@
 #include <QLayout>
 #include <Sound.h>
 #include "qOpacity.h"
+#include "qJackClient.h"
 
 class QTimer;
 class QqTabWidget;
@@ -39,6 +40,7 @@ public slots:
     void addGenerator(QAction*);
     void openSoundDevice();
     void changeOpacity();
+    void jackConnect();
 
 protected:
     void closeEvent(QCloseEvent*);
@@ -58,6 +60,7 @@ private:
     QMenu* menuGenerator;
     Sound *m_snd;
     QOpacity *m_Opacity;
+    QJackClient *m_Jack;
 };
 
 
