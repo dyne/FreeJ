@@ -23,6 +23,7 @@
 // "$Id$"
 
 #include <config.h>
+#ifdef WITH_FLASH
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -210,3 +211,5 @@ void FlashLayer::close() {
 //    return FlashExec(fh,flag,&fe,wakeDate);
 //  return false;
 //}
+
+#endif

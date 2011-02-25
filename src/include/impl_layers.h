@@ -29,8 +29,14 @@
 #include <generator_layer.h>
 #include <geo_layer.h>
 #include <image_layer.h> // statically included sdl_image
-#include <flash_layer.h> // statically included flash layer
+
 #include <goom_layer.h>
+
+#ifdef WITH_FLASH
+#include <flash_layer.h> // statically included flash layer
+// original libflash by Olivier Debon is now extremely old
+// should substitute it with GNASH ASAP
+#endif
 
 #ifdef WITH_V4L
 #include <v4l2_layer.h>
