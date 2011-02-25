@@ -252,7 +252,7 @@ Theora11Encoder::init(Context *_env) {
   // init complete
   // ----
 
-  act("initialization succesful");
+  act("initialization successful");
   initialized = true;
   
   return true;

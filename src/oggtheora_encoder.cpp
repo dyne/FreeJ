@@ -158,7 +158,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   enc_v     = malloc((screen->geo.w * screen->geo.h) /2);
   enc_yuyv   = (uint8_t*)malloc(  screen->geo.bytesize );
   
-  act("initialization succesful");
+  act("initialization successful");
   initialized = true;
   
   return true;

@@ -249,7 +249,7 @@ Layer *create_layer(Context *env, char *file) {
   if(!nlayer)
     error("can't create a layer with %s",file);
   else
-    func("create_layer succesful, returns %p",nlayer);
+    func("create_layer successful, returns %p",nlayer);
   return nlayer;
 }
 

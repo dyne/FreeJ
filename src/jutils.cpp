@@ -184,7 +184,7 @@ int rtc_open() {
     perror("rtc ioctl");
     return 0;
   }
-  notice("realtime clock succesfully initialized");
+  notice("realtime clock successfully initialized");
   return 1;
 }
 /* tick returns 0 if 1 second didn't passed since last tick,
