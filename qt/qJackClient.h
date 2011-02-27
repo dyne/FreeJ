@@ -15,6 +15,7 @@ public:
     ~QJackClient();
     
     bool isOn();
+    JackClient *getJack();
 
 public slots:
   void addInput();
@@ -29,6 +30,7 @@ private:
   QLineEdit *m_SampleRate;
   QLineEdit *m_Samples;
   int	m_Inputs;
+  Context *m_Freej;
 };
 
 #endif // QJACK_H

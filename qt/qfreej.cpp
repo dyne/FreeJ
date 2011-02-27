@@ -40,7 +40,8 @@ Qfreej::Qfreej(QWidget *parent) :
 {
     m_snd = NULL;
     m_Opacity = NULL;
-    m_Jack = NULL;
+    m_QJack = NULL;
+    m_JackIsOn = false;
 
     grid = new QGridLayout(this);
 
@@ -84,7 +85,7 @@ Qfreej::~Qfreej()
 {
     if (m_snd) delete m_snd;
     poller->stop();
-    if (m_Jack) delete m_Jack;
+    if (m_QJack) delete m_QJack;
 //    delete freej;     //to be investigate :)
 //    delete layoutH;
     delete grid;
@@ -162,9 +163,16 @@ void Qfreej::openSoundDevice()
     m_snd = new Sound(freej);
 }
 
+bool Qfreej::IsAudioOn()
+{
+  return (m_JackIsOn);
+}
+
 void Qfreej::jackConnect()
 {
-  m_Jack = new QJackClient(freej);
+  m_QJack = new QJackClient(freej);
+  if (m_QJack->isOn())
+    m_JackIsOn = true;
 }
 
 void Qfreej::addTextLayer()

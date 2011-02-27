@@ -8,6 +8,8 @@ QJackClient::QJackClient(Context *freej) : QWidget()
   m_Samples = NULL;
   m_JackIsOn = false;
   m_Inputs = 0;
+  m_Freej = freej;
+  
   if (init())
   {
     m_JackIsOn = true;
@@ -24,6 +26,11 @@ QJackClient::~QJackClient()
   if (m_JackIsOn && m_Jack) m_Jack->Detach();
 }
 
+JackClient *QJackClient::getJack()
+{
+  return (m_Jack);
+}
+
 bool QJackClient::init()
 {
   QGridLayout *layoutG = new QGridLayout;
@@ -33,7 +40,12 @@ bool QJackClient::init()
   {
     return (false);
   }
-  
+
+//   if (!m_Freej->screen->add_audio(m_Jack))
+//   {
+//     QMessageBox::information(this, "Jack Output port","Can't create the Jack audio output ports");
+//   }
+
   QLabel jackStatusText("Jack's On");
   layoutG->addWidget(&jackStatusText, 0, 0);
   

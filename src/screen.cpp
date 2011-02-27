@@ -146,7 +146,8 @@ bool ViewPort::add_audio(JackClient *jcl) {
 
 	jcl->SetRingbufferPtr(audio, (int) ((VideoLayer*) layers.begin())->audio_samplerate, (int) ((VideoLayer*) layers.begin())->audio_channels);
 	m_SampleRate = &jcl->m_SampleRate;
-	long unsigned int  m_SampleRate;	
+	long unsigned int  m_SampleRate;
+	return (true);
 }
 #endif
 

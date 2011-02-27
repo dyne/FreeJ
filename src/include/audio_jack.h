@@ -60,6 +60,7 @@ public:
 	ringbuffer_t *audio_mix_ring;	//ringbuffer to be streamed
 	ringbuffer_t *first;
 	int 		   m_ringbufferchannels;
+	void	isEncoded(bool isEnc);
 	
 protected:
 	JackClient();
@@ -101,6 +102,7 @@ private:
 	
 	static void(*RunCallback)(void*, unsigned int bufsize);
 	static void *RunContext;
+	bool	m_Encoded;
 };
 
 #endif

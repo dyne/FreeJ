@@ -31,6 +31,8 @@ public:
     Context *getContext();
     bool getStartState();
     void createMenuGenerator();
+    bool IsAudioOn();
+    QJackClient *m_QJack;
 
 public slots:
     void addLayer();
@@ -60,7 +62,7 @@ private:
     QMenu* menuGenerator;
     Sound *m_snd;
     QOpacity *m_Opacity;
-    QJackClient *m_Jack;
+    bool m_JackIsOn;
 };
 
 

@@ -51,7 +51,6 @@ FACTORY_REGISTER_INSTANTIATOR(Layer, VideoLayer, MovieLayer, ffmpeg);
 VideoLayer::VideoLayer()
   :Layer() {
 
-    toto = false;
   grab_dv=false;
   set_name("VID");
   frame_number=0;
@@ -524,8 +523,6 @@ void *VideoLayer::feed() {
 	if (len1 > 0)  {
 	  int samples = data_size/sizeof(uint16_t);
 	  long unsigned int m_SampleRate = screen->m_SampleRate?*(screen->m_SampleRate):48000;
-	  //std::cout << "screen->m_SampleRate :" << screen->m_SampleRate << " m_SampleRate :" << m_SampleRate \
-	  //<< std::endl;
 	  double m_ResampleRatio = (double)(m_SampleRate)/(double)audio_samplerate; 
 	  long unsigned max_buf = ceil(AVCODEC_MAX_AUDIO_FRAME_SIZE * m_ResampleRatio * audio_channels);
 
@@ -538,7 +535,6 @@ void *VideoLayer::feed() {
 	  src_short_to_float_array ((const short*) audio_buf, audio_float_buf, samples);
 	  if (m_ResampleRatio == 1.0) 
 	  {
-	  //std::cout << "m_ResampleRatio == 1.0" << std::endl; pass here
 	    ringbuffer_write(screen->audio, (const char*)audio_float_buf,  samples*sizeof(float));
 	  } 
 	  else 
