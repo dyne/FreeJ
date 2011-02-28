@@ -12,10 +12,12 @@
 #include <Sound.h>
 #include "qOpacity.h"
 #include "qJackClient.h"
+#include "qEncoder.h"
 
 class QTimer;
 class QqTabWidget;
 class QOpacity;
+class QEncoder;
 
 namespace Ui {
     class Qfreej;
@@ -32,7 +34,7 @@ public:
     bool getStartState();
     void createMenuGenerator();
     bool IsAudioOn();
-    QJackClient *m_QJack;
+    QJackClient *getQjack();
 
 public slots:
     void addLayer();
@@ -43,6 +45,7 @@ public slots:
     void openSoundDevice();
     void changeOpacity();
     void jackConnect();
+    void encConnect();
 
 protected:
     void closeEvent(QCloseEvent*);
@@ -63,6 +66,8 @@ private:
     Sound *m_snd;
     QOpacity *m_Opacity;
     bool m_JackIsOn;
+    QEncoder *m_Enc;
+    QJackClient *m_QJack;
 };
 
 

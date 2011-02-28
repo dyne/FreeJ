@@ -271,7 +271,7 @@ void VideoEncoder::thread_teardown() {
   func("VideoEncoder::run : end thread %p", pthread_self() );
 }
 
-bool VideoEncoder::set_filedump(char *filename) {
+bool VideoEncoder::set_filedump(const char *filename) {
   int filename_number=1;
   FILE *fp;
 
@@ -338,4 +338,21 @@ bool VideoEncoder::set_filedump(char *filename) {
 	  //    return true;
 
   return true;
+}
+
+bool VideoEncoder::filedump_close()
+{
+  if (filedump_fd)
+  {
+    if (!fclose (filedump_fd))
+    {
+      write_to_disk = false;
+      return (true);
+    }
+    else
+    {
+      std::cerr << "----- can't close :" << filedump << " " << errno << std::endl;
+      return (false);
+    }
+  }
 }

@@ -68,7 +68,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             m_tabWidg = tabWidget;
 	    if (qfreej->IsAudioOn() && (((VideoLayer*)qLayer)->audio_channels > 0))
 	    {
-	      if (!freej->screen->add_audio(qfreej->m_QJack->getJack()))
+	      if (!freej->screen->add_audio(qfreej->getQjack()->getJack()))
 	      {
 		QMessageBox::information(this, "Jack Output port","Can't create the Jack audio output ports");
 	      }

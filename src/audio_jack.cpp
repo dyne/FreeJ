@@ -202,8 +202,8 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		  size_t rv = ringbuffer_read(((JackClient*) self)->m_ringbuffer, 
 					      ((JackClient*) self)->m_inbuf,
 					      channels*nframes*sizeof(float));
-		  if (((JackClient*) self)->m_Encoded)
-		  {
+/*		  if (((JackClient*) self)->m_Encoded)
+		  {*/
 		    if (ringbuffer_write_space (((JackClient*) self)->audio_mix_ring) >= rv)
 		    {
 // 		    	unsigned char *aPtr = (unsigned char *)((JackClient*) self)->m_inbuf;
@@ -216,7 +216,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		    {
 		      std::cerr << "-----------Not enough room in audio_mix_ring !!!" << std::endl; 
 		    }
-		  }
+// 		  }
 //reads m_ringbuffer and puts it in m_inbuf
 //m_inbuf created in SetRingbufferPtr called by add_audio
 //4096 * channels * sizeof(float)

@@ -76,7 +76,7 @@ Sound::Sound(Context *freej, QWidget *parent) : QWidget(parent)
 	    }
 
 
-// 	    m_enc->set_filedump("Video/dump.ogg");
+	    m_enc->set_filedump("Video/dump.ogg");
             qDebug() << "fps :" << m_freej->fps.get();
         }
     } //

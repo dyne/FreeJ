@@ -91,7 +91,9 @@ m_JackBuffer(NULL),
 m_OSSBuffer(NULL),
 m_OneOverSHRT_MAX(1/(float)SHRT_MAX),
 m_Processing(false),
-m_ProcessPos(0)
+m_ProcessPos(0),
+m_Buffer(NULL),
+m_AudioBuffer(NULL)
 {
   buffersize = n_BufferLength;
   samplerate = n_Samplerate;
@@ -136,13 +138,48 @@ m_ProcessPos(0)
 	  
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+AudioCollector::AudioCollector(int n_BufferLength, unsigned int n_Samplerate, int FFTBuffers) :
+m_Gain(1),
+m_SmoothingBias(1.2),
+m_FFT(n_BufferLength),
+m_FFTBuffers(FFTBuffers),
+m_JackBuffer(NULL),
+m_OSSBuffer(NULL),
+m_OneOverSHRT_MAX(1/(float)SHRT_MAX),
+m_Processing(false),
+m_ProcessPos(0),
+m_Buffer(NULL),
+m_AudioBuffer(NULL)
+{
+  buffersize = n_BufferLength;
+  samplerate = n_Samplerate;
+  m_BufferTime = buffersize/(float)samplerate;
+	
+  m_Buffer = (float*) malloc(buffersize * sizeof(float));
+  memset(m_Buffer,0,buffersize*sizeof(float));
+	
+  m_FFTBuffer = (float*) malloc(buffersize*m_FFTBuffers*sizeof(float));
+  memset(m_FFTBuffer,0,buffersize*sizeof(float));
+	
+  m_JackBuffer = (float*) malloc(buffersize*sizeof(float));
+  memset(m_JackBuffer,0,buffersize*sizeof(float));
+	
+  m_AudioBuffer = (float*) malloc(buffersize*sizeof(float));
+  memset(m_AudioBuffer,0,buffersize*sizeof(float));
+	
+//   attached = true;
+	  
+}
+
 AudioCollector::~AudioCollector()
 {
-	JackClient::Get()->Detach();
-	free(m_Buffer);
-	free(m_FFTBuffer);
-	free(m_JackBuffer);
-	free(m_AudioBuffer);
+	if (attached) JackClient::Get()->Detach();
+	if (m_Buffer) free(m_Buffer);
+	if (m_FFTBuffer) free(m_FFTBuffer);
+	if (m_JackBuffer) free(m_JackBuffer);
+	if (m_AudioBuffer) free(m_AudioBuffer);
 }
 
 bool AudioCollector::IsConnected()

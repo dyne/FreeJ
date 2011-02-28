@@ -1,10 +1,7 @@
 #ifndef QJACK_H
 #define QJACK_H
-#include <audio_layer.h>
 #include <audio_jack.h>
-#include <audio_collector.h>
-#include <audio_input.h>
-#include <oggtheora_encoder.h>
+#include <context.h>
 #include <QtGui>
 
 class QJackClient : public QWidget

@@ -42,6 +42,7 @@ Qfreej::Qfreej(QWidget *parent) :
     m_Opacity = NULL;
     m_QJack = NULL;
     m_JackIsOn = false;
+    m_Enc = NULL;
 
     grid = new QGridLayout(this);
 
@@ -61,6 +62,9 @@ Qfreej::Qfreej(QWidget *parent) :
 
     QAction *actionJack = menuFichier->addAction("&Jack Connect");
     connect(actionJack, SIGNAL(triggered()), this, SLOT(jackConnect()));//new
+
+    QAction *actionEnc = menuFichier->addAction("&Encode");
+    connect(actionEnc, SIGNAL(triggered()), this, SLOT(encConnect()));//new
 
     QAction *actionOpa = menuOpacity->addAction("&Opacity");
     connect(actionOpa, SIGNAL(triggered()), this, SLOT(changeOpacity()));
@@ -86,9 +90,15 @@ Qfreej::~Qfreej()
     if (m_snd) delete m_snd;
     poller->stop();
     if (m_QJack) delete m_QJack;
+    if (m_Enc) delete m_Enc;
 //    delete freej;     //to be investigate :)
 //    delete layoutH;
     delete grid;
+}
+
+QJackClient *Qfreej::getQjack()
+{
+  return (m_QJack);
 }
 
 void Qfreej::changeOpacity()
@@ -173,6 +183,11 @@ void Qfreej::jackConnect()
   m_QJack = new QJackClient(freej);
   if (m_QJack->isOn())
     m_JackIsOn = true;
+}
+
+void Qfreej::encConnect()
+{
+  m_Enc = new QEncoder(this);
 }
 
 void Qfreej::addTextLayer()

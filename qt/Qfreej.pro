@@ -18,7 +18,8 @@ SOURCES += main.cpp \
     QqTabWidget.cpp \
     Sound.cpp \
 	qJackClient.cpp \
-    qOpacity.cpp
+    qOpacity.cpp \
+	qEncoder.cpp
 
     HEADERS += qfreej.h \
     QqComboBlit.h \
@@ -30,7 +31,8 @@ SOURCES += main.cpp \
     QqTabWidget.h \
     Sound.h \
 	qJackClient.h \
-    qOpacity.h
+    qOpacity.h \
+	qEncoder.h
 FORMS += qfreej.ui
 CONFIG += qt debug
 LIBS += -lfreej
