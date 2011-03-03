@@ -48,7 +48,7 @@ public:
 class AudioCollector {
 public:
   AudioCollector(char *port, int BufferLength, unsigned int Samplerate, int FFTBuffers = 1);
-  AudioCollector(int BufferLength, unsigned int Samplerate, int FFTBuffers = 1);
+  AudioCollector(int BufferLength, unsigned int Samplerate, JackClient *, int FFTBuffers = 1);
   ~AudioCollector();
   
   float *GetFFT();

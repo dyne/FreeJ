@@ -92,7 +92,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   oggmux.audio_only = 0;
 
   if(use_audio && audio) {
-
+    audio->Jack->isEncoded(true);	//tells JackClient::Process it can writes in the buffer
     func("allocating encoder audio buffer of %u bytes",audio->buffersize);
     audio_buf = (float*)calloc(audio->buffersize, sizeof(float));
 
@@ -262,7 +262,7 @@ int OggTheoraEncoder::Mux(int nfr)
 	return (0);
       }
     }
-    if (ringbuffer_write_space (m_MixedRing) >= sizeVideo)
+    if ((ringbuffer_write_space (m_MixedRing) >= sizeVideo) && sizeVideo)
     {
       size_t rv = ringbuffer_write (m_MixedRing, (char *)m_MixBufferOperation, sizeVideo);
       if (rv != sizeVideo)

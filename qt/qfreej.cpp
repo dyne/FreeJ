@@ -167,7 +167,11 @@ void Qfreej::addLayer()
     }
 }
 
-//see to rename this in openStream
+Context *Qfreej::getFreej()
+{
+  return (freej);
+}
+
 void Qfreej::openSoundDevice()
 {
     m_snd = new Sound(freej);
@@ -180,14 +184,25 @@ bool Qfreej::IsAudioOn()
 
 void Qfreej::jackConnect()
 {
-  m_QJack = new QJackClient(freej);
-  if (m_QJack->isOn())
-    m_JackIsOn = true;
+  if (!m_QJack)
+  {
+    m_QJack = new QJackClient(freej);
+    if (m_QJack->isOn())
+      m_JackIsOn = true;
+  }
+  else
+    m_QJack->show();
 }
 
 void Qfreej::encConnect()
 {
-  m_Enc = new QEncoder(this);
+  if (!m_Enc)
+  {
+    m_Enc = new QEncoder(this);
+    m_Enc->show();
+  }
+  else
+    m_Enc->show();
 }
 
 void Qfreej::addTextLayer()

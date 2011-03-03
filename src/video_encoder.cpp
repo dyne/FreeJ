@@ -166,14 +166,11 @@ VideoEncoder::~VideoEncoder() {
 void VideoEncoder::thread_setup() {
   func("ok, encoder %s in rolling loop",name);
   func("VideoEncoder::run : begin thread %p",pthread_self());
-std::cout << "-------ok, video_encoder :" << status << ": in rolling loop"\
-	<< std::endl << std::flush;
  }
 
 void VideoEncoder::thread_loop() {
   int encnum;
   int res;
-
   /* Convert picture from rgb to yuv420 planar 
 
      two steps here:

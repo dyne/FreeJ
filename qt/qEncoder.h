@@ -23,6 +23,7 @@ private:
   QLineEdit *m_Vquality;
   QLineEdit *m_Vbitrate;
   QLineEdit *m_FileName;
+  Qfreej *m_Qfreej;
 };
 
 #endif // QENC_H

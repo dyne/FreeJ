@@ -72,6 +72,9 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 	      {
 		QMessageBox::information(this, "Jack Output port","Can't create the Jack audio output ports");
 	      }
+	      else
+		qDebug() << "creates :" << ((VideoLayer*)qLayer)->audio_channels \
+		    << " Jack Output Ports";
 	    }
 // 	    qfreej->openSoundDevice();
 	    //freej->screen->fullscreen();    //figure out how to exit from this state

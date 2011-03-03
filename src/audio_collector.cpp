@@ -140,7 +140,7 @@ m_AudioBuffer(NULL)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-AudioCollector::AudioCollector(int n_BufferLength, unsigned int n_Samplerate, int FFTBuffers) :
+AudioCollector::AudioCollector(int n_BufferLength, unsigned int n_Samplerate, JackClient *jack, int FFTBuffers) :
 m_Gain(1),
 m_SmoothingBias(1.2),
 m_FFT(n_BufferLength),
@@ -168,9 +168,9 @@ m_AudioBuffer(NULL)
 	
   m_AudioBuffer = (float*) malloc(buffersize*sizeof(float));
   memset(m_AudioBuffer,0,buffersize*sizeof(float));
-	
-//   attached = true;
-	  
+  
+  Jack = jack;
+  attached = true;
 }
 
 AudioCollector::~AudioCollector()

@@ -4,16 +4,15 @@
 QEncoder::QEncoder(Qfreej *qfreej) : QWidget(), OggTheoraEncoder()
 {
   audio = NULL;
+  m_Qfreej = qfreej;
   init();
   if (qfreej->IsAudioOn())
   {
-    audio = new AudioCollector(1024, 48000);
-    use_audio = true;
     QJackClient *Qjack = qfreej->getQjack();
-    Qjack->getJack()->isEncoded(true);
-    qDebug() << "--- use_audio true, et audio";
+    audio = new AudioCollector(1024, 48000, Qjack->getJack());
+    use_audio = true;
   }
-  this->show();
+  (qfreej->getFreej())->add_encoder((VideoEncoder *)this);
 }
 
 QEncoder::~QEncoder()

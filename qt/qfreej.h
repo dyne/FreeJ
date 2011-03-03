@@ -35,6 +35,7 @@ public:
     void createMenuGenerator();
     bool IsAudioOn();
     QJackClient *getQjack();
+    Context *getFreej();
 
 public slots:
     void addLayer();
