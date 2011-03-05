@@ -1082,15 +1082,21 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 void oggmux_close (oggmux_info *info){
     int n;
 
-    ogg_stream_clear (&info->vo);
-    vorbis_block_clear (&info->vb);
-    vorbis_dsp_clear (&info->vd);
-    vorbis_comment_clear (&info->vc);
-    vorbis_info_clear (&info->vi);
+    if(!info->video_only)
+    {
+      ogg_stream_clear (&info->vo);	//segfault here !!
+      vorbis_block_clear (&info->vb);
+      vorbis_dsp_clear (&info->vd);
+      vorbis_comment_clear (&info->vc);
+      vorbis_info_clear (&info->vi);
+    }
 
-    ogg_stream_clear (&info->to);
-    theora_comment_clear (&info->tc);
-    theora_clear (&info->td);
+    if (!info->audio_only)
+    {
+      ogg_stream_clear (&info->to);
+      theora_comment_clear (&info->tc);
+      theora_clear (&info->td);
+    }
 
 #ifdef HAVE_KATE
     for (n=0; n<info->n_kate_streams; ++n) {
@@ -1099,13 +1105,14 @@ void oggmux_close (oggmux_info *info){
         kate_info_clear (&info->kate_streams[n].ki);
         kate_clear (&info->kate_streams[n].k);
     }
+    free(info->kate_streams);
 #endif
 
     if (info->with_skeleton)
         ogg_stream_clear (&info->so);
-
-    if (info->outfile && info->outfile != stdout)
-        fclose (info->outfile);
+//outfile doesn't seem to be used
+//     if (info->outfile && info->outfile != stdout)
+//         fclose (info->outfile);
 
     if(info->videopage)
         free(info->videopage);
@@ -1116,5 +1123,4 @@ void oggmux_close (oggmux_info *info){
         if(info->kate_streams[n].katepage)
           free(info->kate_streams[n].katepage);
     }
-    free(info->kate_streams);
 }

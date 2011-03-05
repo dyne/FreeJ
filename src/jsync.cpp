@@ -63,8 +63,7 @@ void JSyncThread::stop() {
 
 void* JSyncThread::_run(void *arg) {
   JSyncThread *me = (JSyncThread *)arg;
-
-  me->_running = true;
+  //me->_running = true;	// _running is set inside and outside the thread (see start & stop)
   /*
    * In addiction to 'looped' invocation below, we execute deferred calls before
    * setting up the thread because the setup phase might take into account some

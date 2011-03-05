@@ -186,9 +186,15 @@ void Qfreej::jackConnect()
 {
   if (!m_QJack)
   {
-    m_QJack = new QJackClient(freej);
+    m_QJack = new QJackClient(this);
     if (m_QJack->isOn())
       m_JackIsOn = true;
+    else
+    {
+      delete (m_QJack);
+      m_QJack = NULL;
+      m_JackIsOn = false;
+    }
   }
   else
     m_QJack->show();
@@ -199,10 +205,22 @@ void Qfreej::encConnect()
   if (!m_Enc)
   {
     m_Enc = new QEncoder(this);
-    m_Enc->show();
   }
   else
     m_Enc->show();
+}
+
+void Qfreej::resetEnc()
+{
+  m_Enc = NULL;
+}
+
+OggTheoraEncoder *Qfreej::getEnc()
+{
+  if (m_Enc)
+    return(m_Enc->getEnc());
+  else
+    return (NULL);
 }
 
 void Qfreej::addTextLayer()

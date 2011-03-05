@@ -66,7 +66,16 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             tabWidget->addTab(this, qLayer->get_filename());
             qLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
             m_tabWidg = tabWidget;
-	    if (qfreej->IsAudioOn() && (((VideoLayer*)qLayer)->audio_channels > 0))
+	    if (QJackClient *qjack = qfreej->getQjack())
+	    {
+	      if (!qjack->howManyOutputs())
+	      {
+		(qjack->getJack())->SetRingbufferPtr(freej->screen->audio, qjack->getSampleRate()
+		    , ((VideoLayer *)qLayer)->audio_channels);
+		qjack->setNoutputs(((VideoLayer *)qLayer)->audio_channels);
+	      }
+	    }
+/*	    if (qfreej->IsAudioOn() && (((VideoLayer*)qLayer)->audio_channels > 0))
 	    {
 	      if (!freej->screen->add_audio(qfreej->getQjack()->getJack()))
 	      {
@@ -75,7 +84,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 	      else
 		qDebug() << "creates :" << ((VideoLayer*)qLayer)->audio_channels \
 		    << " Jack Output Ports";
-	    }
+	    }*/
 // 	    qfreej->openSoundDevice();
 	    //freej->screen->fullscreen();    //figure out how to exit from this state
         }

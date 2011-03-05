@@ -55,6 +55,7 @@ OggTheoraEncoder::OggTheoraEncoder()
   m_buffStream = NULL;
   m_MixBuffer = NULL;
   m_MixBufferOperation = NULL;
+  m_MixedRing = NULL;
   init_info(&oggmux);
   theora_comment_init(&oggmux.tc);
 
@@ -92,7 +93,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   oggmux.audio_only = 0;
 
   if(use_audio && audio) {
-    audio->Jack->isEncoded(true);	//tells JackClient::Process it can writes in the buffer
+//     audio->Jack->isEncoded(true);	//process this where you control stream on/off
     func("allocating encoder audio buffer of %u bytes",audio->buffersize);
     audio_buf = (float*)calloc(audio->buffersize, sizeof(float));
 

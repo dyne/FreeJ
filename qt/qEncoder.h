@@ -3,27 +3,40 @@
 #include <oggtheora_encoder.h>
 #include "qfreej.h"
 #include <QtGui>
+#include <qJackClient.h>
 
-class QEncoder : public QWidget, public OggTheoraEncoder
+class QJackClient;
+
+class QEncoder : public QWidget
 {
     Q_OBJECT
 public:
     QEncoder(Qfreej *);
     ~QEncoder();
-    AudioCollector *getAudio();
+//     AudioCollector *getAudio();
+    OggTheoraEncoder *getEnc ();
+
 
 public slots:
   void chgParam();
+  void stream();
   void chgVquality();
   void chgVbitrate();
-  void dumpSlot();
   
 private:
-  bool init();
+  void init();
   QLineEdit *m_Vquality;
   QLineEdit *m_Vbitrate;
   QLineEdit *m_FileName;
   Qfreej *m_Qfreej;
+  Context *m_freej;
+  bool m_streaming;
+  QRadioButton *m_dumpButton;
+  QPushButton *m_streamButton;
+  QJackClient *m_Qjack;
+  OggTheoraEncoder *m_enc;
+protected:
+  virtual void closeEvent (QCloseEvent *ev);
 };
 
 #endif // QENC_H

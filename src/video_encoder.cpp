@@ -121,29 +121,32 @@ VideoEncoder::VideoEncoder()
 
 VideoEncoder::~VideoEncoder() {
   // flush all the ringbuffer to file and stream
-  int encnum;
+  int encnum = 0;
 
-  do {
-    if (encnum = ringbuffer_read_space(ringbuffer))
-      encnum = ringbuffer_read(ringbuffer, encbuf, encnum);
+  if (encbuf)
+  {
+    do {
+      if (encnum = ringbuffer_read_space(ringbuffer))
+	encnum = ringbuffer_read(ringbuffer, encbuf, encnum);
 // 			     ((audio_kbps + video_kbps)*1024)/24);
 
-    if(encnum <=0) break;
+      if(encnum <=0) break;
 
-    if(write_to_disk && filedump_fd) {
-      size_t nn;
-      nn = fwrite(encbuf, 1, encnum, filedump_fd);
-    }
+      if(write_to_disk && filedump_fd) {
+	size_t nn;
+	nn = fwrite(encbuf, 1, encnum, filedump_fd);
+      }
 
-    if(write_to_stream) {
-      shout_sync(ice);
-      shout_send(ice, (const unsigned char*)encbuf, encnum);
-    }
+      if(write_to_stream) {
+	shout_sync(ice);
+	shout_send(ice, (const unsigned char*)encbuf, encnum);
+      }
 
-    func("flushed %u bytes closing video encoder", encnum);
+      func("flushed %u bytes closing video encoder", encnum);
 
-  } while(encnum > 0); 
-  if (encbuf) free(encbuf);
+    } while(encnum > 0); 
+    free(encbuf);
+  }
   // close the filedump
   if(filedump_fd) fclose(filedump_fd);
 
@@ -188,6 +191,9 @@ void VideoEncoder::thread_loop() {
   */
     
     uint8_t *surface = (uint8_t *)screen->get_surface();
+  time_t *tm = (time_t *)malloc(sizeof(time_t));
+  time (tm);
+//   std::cerr << "-- ENC:" << asctime(localtime(tm));
     if (!surface) {
         fps->calc();
         fps->delay();

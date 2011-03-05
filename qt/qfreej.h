@@ -18,6 +18,7 @@ class QTimer;
 class QqTabWidget;
 class QOpacity;
 class QEncoder;
+class QJackClient;
 
 namespace Ui {
     class Qfreej;
@@ -36,6 +37,8 @@ public:
     bool IsAudioOn();
     QJackClient *getQjack();
     Context *getFreej();
+    OggTheoraEncoder *getEnc();
+    void resetEnc();
 
 public slots:
     void addLayer();

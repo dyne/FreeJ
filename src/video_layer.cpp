@@ -536,6 +536,9 @@ void *VideoLayer::feed() {
 	  if (m_ResampleRatio == 1.0) 
 	  {
 	    ringbuffer_write(screen->audio, (const char*)audio_float_buf,  samples*sizeof(float));
+	    time_t *tm = (time_t *)malloc(sizeof(time_t));
+	    time (tm);
+// 	    std::cerr << "-- VL:" << asctime(localtime(tm));
 	  } 
 	  else 
 	  {
