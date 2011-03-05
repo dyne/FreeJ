@@ -131,11 +131,11 @@ class ViewPort : public Entry {
 
   void handle_resize();
 
-  virtual void resize(int resize_w, int resize_h) { };
-  virtual void show() { };
-  virtual void clear() { };
+  virtual void resize(int resize_w, int resize_h);
+  virtual void show();
+  virtual void clear();
 
-  virtual void fullscreen() { };
+  virtual void fullscreen();
   virtual bool lock() { return(true); };
   virtual bool unlock() { return(true); };
 

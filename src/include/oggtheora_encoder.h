@@ -23,7 +23,6 @@
 #define __OGGTHEORA_ENCODER_h__
 
 #include <math.h>
-#include <wave.h>
 #include <config.h>
 #include <linklist.h>
 #include <video_encoder.h>
@@ -70,7 +69,6 @@ class OggTheoraEncoder: public VideoEncoder {
   int Mux(int nframes);
 
   int encode_frame();
-  WaveFile	wave;
   size_t	rv;
   
 private:

@@ -41,6 +41,9 @@ ViewPort::ViewPort()
 
   changeres       = false;
 
+  resize_w = 0;
+  resize_h = 0;
+
   jsclass = NULL;
   jsobj = NULL;
 
@@ -270,3 +273,13 @@ void ViewPort::handle_resize() {
     lay = (Layer*) lay -> next;
   } 
 }
+
+void ViewPort::resize(int resize_w, int resize_h) {  // nop
+  resize_w = 0; resize_h = 0;
+};
+
+void ViewPort::show() { };
+
+void ViewPort::clear() { };
+
+void ViewPort::fullscreen() { };

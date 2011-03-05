@@ -18,6 +18,7 @@ src/freej
 stamp-h1
 tags
 doc/scripting/html
+qt/qfreej
 *.[oa]
 *.so
 *.la
@@ -27,6 +28,8 @@ doc/scripting/html
 Makefile.in
 Makefile
 freej.pc
+m4/lt*
+m4/libtool.m4
 .deps
 .obj
 .libs

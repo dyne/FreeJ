@@ -125,7 +125,7 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
                 }
             }
         }
-        else if (btn==Qt::MiddleButton)
+        else if (btn==Qt::MidButton) // was MiddleButton
         {
             if (layer)
             {

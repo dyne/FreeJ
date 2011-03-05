@@ -279,8 +279,6 @@ void *timer_start(void)
     return (void *)start;
 }
 
-WaveFile	wave2;
-int written2 = 0;
 
 
 void oggmux_init (oggmux_info *info){

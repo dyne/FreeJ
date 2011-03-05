@@ -111,7 +111,7 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AM_PROG_AS
 dnl compatibility with older libtool
-m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
+dnl m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
 
 
 dnl Checks for header files.

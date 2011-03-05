@@ -33,7 +33,6 @@
 
 #include <ringbuffer.h>
 #include <time.h>
-#include <wave.h>
 
 //#define OGGMUX_DEBUG 1
 

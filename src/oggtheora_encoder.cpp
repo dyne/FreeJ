@@ -76,7 +76,6 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   if(m_MixBuffer) free(m_MixBuffer);
   if(m_MixBufferOperation) free(m_MixBufferOperation);
   if (m_buffStream) free(m_buffStream);
-  if (!wave.closed) wave.Close();
   if (m_MixedRing) ringbuffer_free(m_MixedRing);
 }
 
@@ -106,10 +105,6 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
     m_MixBuffer = (float*) malloc(4096 * 1024);
     m_MixBufferOperation = (float*) malloc(4096 * 1024 *2);
     
-/*    if (!wave.OpenWrite ("/home/fred/system/video/Qfreej.sound/qt/dump.wav"))
-      cerr << "can't create dump.wav !!" << endl;
-    wave.SetupFormat(48000, 16, 2);*/
-	
     m_buffStream = (float *)malloc(4096 * 512 * 4);	//size must be the same as audio_mix_ring declared in JackClient::Attach() 
     m_MixedRing = ringbuffer_create(4096 * 512 * 4);
   
@@ -306,22 +301,6 @@ int OggTheoraEncoder::encode_frame() {
 	      std::cerr << "------impossible de lire dans le audio_mix_ring ringbuffer !!!"\
 		    << " rff:" << rff << " rv:" << rv << endl;
 	    }
-/*	    else if (!wave.closed && (rv == rff))
-	    {
-	      int i;
-	      for (i = 0; i < (rv/sizeof(float)); i++, ptr++)
-		if (!wave.WriteSample(*ptr))
-		  cerr << "-----Impossible d'écrire dans le fichier dump.wav !!" << endl;
-
-	      written += i;
-// 	      std::cerr << "--written :" << written << std::endl;
-	      if (written >= 2880000)	//xx secondes
-	      {
-		written = 0;
-		cerr << "--- WriteHeaderToFile ---" << endl << flush;
-		wave.Close();
-	      }
-	    }*/
 	    else if (rv != rff)
 	    {
 	      std::cerr << "------pas assez lu dans audio_mix_ring ringbuffer !!!"\
