@@ -73,7 +73,7 @@
     bool open(char *file)  called to open MyLayer's source
                            returns false if is not accessible
 
-    bool init(Context *scr)  if the open was succesful, call this and
+    bool init(Context *scr)  if the open was successful, call this and
 			     the Layer will enter the chain
 
     bool feed()   this function is executed by the Context when

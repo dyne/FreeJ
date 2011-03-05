@@ -357,7 +357,7 @@ dnl ==============================================================
 AC_ARG_ENABLE(flash,
     AS_HELP_STRING([--enable-flash],[compile with Flash animation layer (yes)]),
     [have_flash=$enableval],
-    [have_flash=yes])
+    [have_flash=no])
 AC_MSG_CHECKING([flash - v3 animation only - layer])
 if test x$have_flash = xyes; then
     AC_MSG_RESULT(yes)

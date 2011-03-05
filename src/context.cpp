@@ -193,7 +193,7 @@ bool Context::add_screen(ViewPort *scr) {
   screens.sel(0);
   scr->sel(true);
   screen = screens.begin();
-  func("screen %s succesfully added", scr->name);
+  func("screen %s successfully added", scr->name);
   act("screen %s now on top",screen->name);
 
   return(true);
@@ -744,7 +744,7 @@ Layer *Context::open(char *file, int w, int h) {
   if(!nlayer)
     error("can't create a layer with %s",file);
   else
-    func("create_layer succesful, returns %p",nlayer);
+    func("create_layer successful, returns %p",nlayer);
   return nlayer;
 }
 

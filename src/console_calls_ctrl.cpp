@@ -513,7 +513,7 @@ int console_open_layer(Context *env, char *cmd) {
     //    l->fps=env->fps_speed;
 
     len = env->screens.selected()->layers.len();
-    notice("layer succesfully created, now you have %i layers",len);
+    notice("layer successfully created, now you have %i layers",len);
     return len;
   }
   error("layer creation aborted");
@@ -544,7 +544,7 @@ int console_open_text_layer(Context *env, char *cmd) {
   env->screen->add_layer(txt);
   txt->active=true;
   
-  notice("layer succesfully created with text: %s",cmd);
+  notice("layer successfully created with text: %s",cmd);
   return env->screens.selected()->layers.len();
 }
 #endif
@@ -775,6 +775,6 @@ int console_generator_selection(Context *env, char *cmd) {
   env->screen->add_layer(tmp);
   tmp->active=true;
 
-  notice("generator %s succesfully created", tmp->name);
+  notice("generator %s successfully created", tmp->name);
   return 1;
 }

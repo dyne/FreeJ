@@ -54,7 +54,7 @@ bool AudioInput::init() {
 
   if(!audio) return(false);
 
-  act("audio initialization succesful");
+  act("audio initialization successful");
   initialized = true;
 
   return true;
