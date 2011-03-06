@@ -765,6 +765,17 @@ AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascrip
 
 AM_CONDITIONAL([BUILD_JAVASCRIPT], [test x$have_mozjs = xno])
 
+dnl ==============================================================
+dnl QT lib
+dnl ==============================================================
+AC_ARG_ENABLE(qt-gui,
+	AS_HELP_STRING([--enable-qtgui],[build our Qt graphical user interface]),
+[
+	PKG_CHECK_MODULES(QTGUI,QtGui, have_qtgui=yes, have_qtgui=no)
+	if test x$have_qtgui = xyes; then
+		AC_DEFINE(WITH_QTGUI,1,[Define if to link QtGui and build])
+	fi
+])
 
 dnl ==============================================================
 dnl unicap lib
@@ -972,6 +983,7 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(LIBLO_CFLAGS)    \
     \$(MOZJS_CFLAGS)    \
     \$(OPENCV_CFLAGS)   \
+    \$(QTGUI_CFLAGS)	\
     \$(SDL_CFLAGS)      \
     \$(SDLGFX_CFLAGS)   \
     \$(SDLIMAGE_CFLAGS) \
@@ -1003,6 +1015,7 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(LIBLO_LIBS)      \
     \$(MOZJS_LIBS)      \
     \$(OPENCV_LIBS)     \
+    \$(QTGUI_LIBS)	\
     \$(SAMPLERATE_LIBS) \
     \$(SDLGFX_LIBS)     \
     \$(SDLIMAGE_LIBS)   \
@@ -1050,6 +1063,7 @@ lib/javascript/GNUmakefile
 scripts/Makefile
 src/Makefile
 src/include/Makefile
+qt/Makefile
 tests/Makefile
 ])
 AC_OUTPUT
@@ -1213,6 +1227,16 @@ VRB([  GLU CFLAGS : $GLU_CFLAGS])
 else
    INFO(no)
 fi
+
+INFO_N([= Qt GUI : ])
+if test x$have_qtgui = xyes; then
+   INFO(yes)
+VRB([  LIBS  : $QTGUI_LIBS])
+VRB([  CFLAGS: $QTGUI_CFLAGS])
+else
+   INFO(no)
+fi
+
 
 INFO_N([= unicap library : ])
 if test x$have_unicap = xyes; then
