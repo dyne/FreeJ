@@ -3,15 +3,15 @@
 //fix the rotation sense when changing mouse direction.
 //be able to record the viewport, and replay it.
 //replace slow button by a slider
-//try to open some sound
 //add a button in the textlayer to unfold text
-//do a streaming interface
 //see to use Linklist.completion to add blit, filters and generators
 //devide the fake size window by two .... not sure :)
 //insert STRING filters parameters
-//add a 1:1 ratio button, resizing to the closest width and lenght to obtain this ratio 
+//add a x:x ratio button, resizing to the closest width and lenght to obtain this ratio 
 //fix the streaming speed of a mono audio VideoLayer which is double the normal speed
+//fix the streaming paramters change to be taken into account
 //try to fix sound mono VideoLayer issue if it is open at the same time as a stereo one
 //verify how it works with different fps values
+//add the capability to have a config file..... important :)
 - copier la méthode utilisée dans /home/fred/system/video/snd/dhoerl/avcodec_sample.0.5.0.c
 	qui recupère le FPS, car semble retourner une bonne valeur pour film.mp4 (pas 240)

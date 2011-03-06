@@ -35,6 +35,14 @@ private:
   QPushButton *m_streamButton;
   QJackClient *m_Qjack;
   OggTheoraEncoder *m_enc;
+  QLineEdit *m_Host;
+  QLineEdit *m_Port;
+  QLineEdit *m_ShoutName;
+  QLineEdit *m_User;
+  QLineEdit *m_Pass;
+  QLineEdit *m_ShoutFileName;
+  QRadioButton *m_IceButton;
+
 protected:
   virtual void closeEvent (QCloseEvent *ev);
 };

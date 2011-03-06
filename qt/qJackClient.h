@@ -42,6 +42,7 @@ private:
   AudioCollector *m_audio;
 //   bool m_use_audio;
   OggTheoraEncoder *m_Enc;
+  bool first;	//does QJackClient as been launched before QEncoder
 };
 
 #endif // QJACK_H

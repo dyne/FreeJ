@@ -63,7 +63,7 @@ Qfreej::Qfreej(QWidget *parent) :
     QAction *actionJack = menuFichier->addAction("&Jack Connect");
     connect(actionJack, SIGNAL(triggered()), this, SLOT(jackConnect()));//new
 
-    QAction *actionEnc = menuFichier->addAction("&Encode");
+    QAction *actionEnc = menuFichier->addAction("&Stream");
     connect(actionEnc, SIGNAL(triggered()), this, SLOT(encConnect()));//new
 
     QAction *actionOpa = menuOpacity->addAction("&Opacity");
