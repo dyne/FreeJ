@@ -326,7 +326,7 @@ void oggmux_init (oggmux_info *info){
 	ret = vorbis_encode_ctl(&info->vi, OV_ECTL_RATEMANAGE2_GET, &ai);
 	if (ret && OV_EINVAL)
 	{
-            std::cerr << "Invalid argument, or an attempt to modify a setting after calling vorbis_encode_setup_init()" << std::endl;
+            std::cerr << "Invalid argument, or an attempt to modify a setting after calling vorbis_encode_setup_init() 1" << std::endl;
 	    //return;
 	}
 	else if (ret && OV_EIMPL)
@@ -355,7 +355,7 @@ void oggmux_init (oggmux_info *info){
 	ret = vorbis_encode_ctl(&info->vi, OV_ECTL_RATEMANAGE2_SET, &ai);
 	if (ret && OV_EINVAL)
 	{
-            std::cerr << "Invalid argument, or an attempt to modify a setting after calling vorbis_encode_setup_init()" << std::endl;
+            std::cerr << "Invalid argument, or an attempt to modify a setting after calling vorbis_encode_setup_init() 2" << std::endl;
 	}
 	else if (ret && OV_EIMPL)
 	{

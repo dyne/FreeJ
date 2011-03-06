@@ -92,14 +92,13 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   oggmux.audio_only = 0;
 
   if(use_audio && audio) {
-//     audio->Jack->isEncoded(true);	//process this where you control stream on/off
     func("allocating encoder audio buffer of %u bytes",audio->buffersize);
     audio_buf = (float*)calloc(audio->buffersize, sizeof(float));
 
     oggmux.video_only = 0;
     oggmux.sample_rate = audio->samplerate;
-    oggmux.channels = 2; // needs to be replaced by a variable
-    oggmux.vorbis_quality = -100;	/*audio_quality / 100;*/
+    oggmux.channels = audio->Jack->m_ringbufferchannels;
+    oggmux.vorbis_quality = (double)audio_quality/100.0;	/*audio_quality / 100;*/
     oggmux.vorbis_bitrate = audio_bitrate;
     
     m_MixBuffer = (float*) malloc(4096 * 1024);
@@ -314,19 +313,13 @@ int OggTheoraEncoder::encode_frame() {
   oggmux_flush(&oggmux, 0);
 
   bytes_encoded = oggmux.video_bytesout + oggmux.audio_bytesout;	//total from the beginning
-//   std::cerr << "oggmux.video_bytesout :" << oggmux.video_bytesout \
-//       << " oggmux.audio_bytesout :" << oggmux.audio_bytesout \
-//       << " oggmux.akbps:" << oggmux.akbps << " vkbps :" << oggmux.vkbps \
-//       << std::endl << std::flush;
 
   audio_kbps = oggmux.akbps;
   video_kbps = oggmux.vkbps;
 
   // just pass the reference for the status
   status = &oggmux.status[0];
-// std::cerr << "bytes_encoded :" << bytes_encoded << std::endl;
   return bytes_encoded;
-
 }
 
 
@@ -372,21 +365,10 @@ int OggTheoraEncoder::encode_audio( int end_of_stream) {
   //		   end_of_stream );
   //  audio->get_audio(audio_buf);
 
-/*    audio->get_audio(audio_buf);
-    oggmux_add_audio(&oggmux, (int16_t*)audio_buf,
-  		   audio->Jack->m_BufferSize,
-  		   audio->buffersize, //read / oggmux.channels,
-  		   end_of_stream );*/
     oggmux_add_audio(&oggmux, m_buffStream,
   		   rv,
   		   rv/(sizeof(float)*oggmux.channels), //read / oggmux.channels,
   		   end_of_stream );
-
-  // WAS:
-//   oggmux_add_audio_float(&oggmux, audio_buf,
-// 			 audio->BufferLength, end_of_stream);
-
-
 #endif
 
   return 1;
