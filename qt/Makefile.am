@@ -2,7 +2,20 @@ AM_CXXFLAGS = -I$(top_srcdir)/src/include $(SDL_CFLAGS) \
 	 $(QTGUI_CFLAGS) -DQT_GUI_LIB -DQT_CORE_LIB -DQT_SHARED \
 	 -DPREFIX="\"$(prefix)\"" -DDATADIR="\"$(datadir)\""
 
-SOURCES = main.cpp \
+%.h: %.ui
+	uic -o $@ $<
+%.cpp: %.ui
+	uic -o $@ -impl $*.h $<
+# This rule lets GNU make create any moc_*.cpp from the equivalent *.h
+# You have one .h file, it's called myapp.h. Therefore, here I list
+# its mocced name, moc_myapp.cpp.
+moc_%.cpp: %.h
+	moc $< -o $@
+
+qfreej_ui = ui_qfreej.h
+ui_qfreej.h: ui_qfreej.ui
+
+SOURCES = ui_qfreej.h main.cpp \
     qfreej.cpp \
     QqComboBlit.cpp \
     QqWidget.cpp \
