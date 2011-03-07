@@ -13,7 +13,7 @@ moc_%.cpp: %.h
 	moc $< -o $@
 
 ui_qfreej.h:
-	uic -o ui_qfreej.h ui_qfreej.ui
+	uic -o $(top_srcdir)/qt/ui_qfreej.h $(top_srcdir)/qt/ui_qfreej.ui
 
 
 BUILT_SOURCES = ui_qfreej.h \
