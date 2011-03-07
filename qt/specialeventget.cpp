@@ -17,7 +17,7 @@
  */
 
 
-#include "specialeventget.h"
+#include <specialeventget.h>
 #include <QMouseEvent>
 #include <QDebug>
 #include <QWidget>
