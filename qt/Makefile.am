@@ -47,7 +47,7 @@ SOURCES = main.cpp \
 
 bin_PROGRAMS = qfreej
 qfreej_SOURCES = $(SOURCES)
-qfreej_LDADD = -lfreej $(SDL_LIBS) $(QTGUI_LIBS)
+qfreej_LDADD = $(top_builddir)/src/libfreej.la $(SDL_LIBS) $(QTGUI_LIBS)
 
 clean:
 	rm -f qfreej *.o
