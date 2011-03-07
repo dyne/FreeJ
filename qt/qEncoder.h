@@ -13,20 +13,18 @@ class QEncoder : public QWidget
 public:
     QEncoder(Qfreej *);
     ~QEncoder();
-//     AudioCollector *getAudio();
     OggTheoraEncoder *getEnc ();
 
 
 public slots:
-  void chgParam();
   void stream();
-  void chgVquality();
-  void chgVbitrate();
   
 private:
   void init();
   QLineEdit *m_Vquality;
   QLineEdit *m_Vbitrate;
+  QLineEdit *m_Aquality;
+  QLineEdit *m_Abitrate;
   QLineEdit *m_FileName;
   Qfreej *m_Qfreej;
   Context *m_freej;

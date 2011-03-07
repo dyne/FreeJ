@@ -26,7 +26,6 @@ public slots:
   void addOutput();
   void chgSampleRate();
   void chgSamples();
-//     void sound();
 
 private:
   bool init();
@@ -40,9 +39,7 @@ private:
   Qfreej *m_Qfreej;
   QSpinBox *m_nbrChan;
   AudioCollector *m_audio;
-//   bool m_use_audio;
   OggTheoraEncoder *m_Enc;
-  bool first;	//does QJackClient as been launched before QEncoder
 };
 
 #endif // QJACK_H
