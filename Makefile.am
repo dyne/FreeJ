@@ -8,7 +8,7 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-ruby --enable-python
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = freej.pc
 
-SUBDIRS = lib src qt doc bindings scripts tests
+SUBDIRS = lib src doc bindings scripts tests $(EXTRA_DIRS)
 
 ACLOCAL_AMFLAGS = -I m4
 

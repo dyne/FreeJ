@@ -774,8 +774,8 @@ AC_ARG_ENABLE(qt-gui,
 	PKG_CHECK_MODULES(QTGUI,QtGui, have_qtgui=yes, have_qtgui=no)
 	if test x$have_qtgui = xyes; then
 		AC_DEFINE(WITH_QTGUI,1,[Define if to link QtGui and build])
-	fi
-])
+		QTGUI_DIRS=qt
+	fi ])
 
 dnl ==============================================================
 dnl unicap lib
@@ -958,6 +958,9 @@ AC_SUBST(CFLAGS)
 
 CXXFLAGS="$GLOBAL_CFLAGS $CXXFLAGS"
 AC_SUBST(CXXFLAGS)
+
+EXTRA_DIRS="$QTGUI_DIRS"
+AC_SUBST([EXTRA_DIRS])
 
 dnl ==============================================================
 dnl freej specific flags, explanation:
