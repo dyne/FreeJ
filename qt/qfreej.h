@@ -13,6 +13,7 @@
 #include "qOpacity.h"
 #include "qJackClient.h"
 #include "qEncoder.h"
+#include "qLogging.h"
 
 class QTimer;
 class QqTabWidget;
@@ -50,6 +51,8 @@ public slots:
     void changeOpacity();
     void jackConnect();
     void encConnect();
+//     void close();
+    void showLogs();
 
 protected:
     void closeEvent(QCloseEvent*);
@@ -72,6 +75,7 @@ private:
     bool m_JackIsOn;
     QEncoder *m_Enc;
     QJackClient *m_QJack;
+    QLogger *m_Logs;
 };
 
 

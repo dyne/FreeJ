@@ -39,6 +39,7 @@ Qfreej::Qfreej(QWidget *parent) :
         QWidget(parent)
 {
     m_snd = NULL;
+    m_Logs = NULL;
     m_Opacity = NULL;
     m_QJack = NULL;
     m_JackIsOn = false;
@@ -54,7 +55,7 @@ Qfreej::Qfreej(QWidget *parent) :
     QAction *actionPen = menuFichier->addAction("&Open");
     connect(actionPen, SIGNAL(triggered()), this, SLOT(addLayer()));
 
-    QAction *actionAddTextLayer = menuFichier->addAction("&Text layer");
+    QAction *actionAddTextLayer = menuFichier->addAction("&Add Text layer");
     connect(actionAddTextLayer, SIGNAL(triggered()), this, SLOT(addTextLayer()));
 
     QAction *actionStream = menuFichier->addAction("&Run js");
@@ -69,8 +70,13 @@ Qfreej::Qfreej(QWidget *parent) :
     QAction *actionOpa = menuOpacity->addAction("&Opacity");
     connect(actionOpa, SIGNAL(triggered()), this, SLOT(changeOpacity()));
 
-    
     menuGenerator = menuFichier->addMenu("&Generators");
+
+    QAction *actionLog = menuFichier->addAction("&Logs");
+    connect(actionLog, SIGNAL(triggered()), this, SLOT(showLogs()));
+
+    QAction *actionClose = menuFichier->addAction("&Exit");
+    connect(actionClose, SIGNAL(triggered()), this, SLOT(close()));
 
     m_Opacity = new QOpacity(this);
     m_Opacity->hide();
@@ -82,18 +88,22 @@ Qfreej::Qfreej(QWidget *parent) :
     freej = new Context();
     init();
     number = 0;
-    setAttribute(Qt::WA_DeleteOnClose);
+//     setAttribute(Qt::WA_DeleteOnClose);
 }
 
 Qfreej::~Qfreej()
 {
     if (m_snd) delete m_snd;
-    poller->stop();
-    if (m_QJack) delete m_QJack;
     if (m_Enc) delete m_Enc;
-//    delete freej;     //to be investigate :)
-//    delete layoutH;
-    delete grid;
+    if (m_QJack) delete m_QJack;
+    delete freej;     //to be investigate :)
+    poller->stop();
+}
+
+void Qfreej::showLogs()
+{
+  if (m_Logs)
+    m_Logs->show();
 }
 
 QJackClient *Qfreej::getQjack()
@@ -109,11 +119,12 @@ void Qfreej::changeOpacity()
 void Qfreej::closeEvent(QCloseEvent *event)
 {
     event->accept();
-    delete freej;
 }
 
 void Qfreej::init()
 {
+//   m_Logs = new QLogger(this);
+  
     tabWidget = new QqTabWidget(this);
     grid->addWidget(tabWidget, 1, 0);
     setLayout(grid);//new
