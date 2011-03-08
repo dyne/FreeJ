@@ -19,7 +19,8 @@ SOURCES += main.cpp \
     Sound.cpp \
 	qJackClient.cpp \
     qOpacity.cpp \
-	qEncoder.cpp
+	qEncoder.cpp \
+	qLogging.cpp
 
     HEADERS += qfreej.h \
     QqComboBlit.h \
@@ -32,8 +33,9 @@ SOURCES += main.cpp \
     Sound.h \
 	qJackClient.h \
     qOpacity.h \
-	qEncoder.h
-FORMS += qfreej.ui
+	qEncoder.h \
+	qLogging.h
+#FORMS += qfreej.ui
 CONFIG += qt debug
 LIBS += -lfreej
 INCLUDEPATH += ../ \

@@ -40,6 +40,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 {
     m_tabWidg = NULL;
     qTextLayer = NULL;
+    m_qGeneLayer = NULL;
     fakeView = NULL;
     fakeLay = NULL;
     qLayer = freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
@@ -75,18 +76,6 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 		qjack->setNoutputs(((VideoLayer *)qLayer)->audio_channels);
 	      }
 	    }
-/*	    if (qfreej->IsAudioOn() && (((VideoLayer*)qLayer)->audio_channels > 0))
-	    {
-	      if (!freej->screen->add_audio(qfreej->getQjack()->getJack()))
-	      {
-		QMessageBox::information(this, "Jack Output port","Can't create the Jack audio output ports");
-	      }
-	      else
-		qDebug() << "creates :" << ((VideoLayer*)qLayer)->audio_channels \
-		    << " Jack Output Ports";
-	    }*/
-// 	    qfreej->openSoundDevice();
-	    //freej->screen->fullscreen();    //figure out how to exit from this state
         }
         else
         {
@@ -178,6 +167,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWidget(qfreej)
 {
     qLayer = NULL;
+    m_qGeneLayer = NULL;
     fakeView = NULL;
     fakeLay = NULL;
     QString filename = "textouille.txt";
