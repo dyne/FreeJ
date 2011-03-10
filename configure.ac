@@ -769,7 +769,7 @@ dnl ==============================================================
 dnl QT lib
 dnl ==============================================================
 AC_ARG_ENABLE(qt-gui,
-	AS_HELP_STRING([--enable-qtgui],[build our Qt graphical user interface]),
+	AS_HELP_STRING([--enable-qt-gui],[build our Qt graphical user interface]),
 [
 	PKG_CHECK_MODULES(QTGUI,QtGui, have_qtgui=yes, have_qtgui=no)
 	if test x$have_qtgui = xyes; then
