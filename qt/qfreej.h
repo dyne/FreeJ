@@ -9,7 +9,6 @@
 #include <QMdiArea>
 #include <QqWidget.h>
 #include <QLayout>
-#include <Sound.h>
 #include "qOpacity.h"
 #include "qJackClient.h"
 #include "qEncoder.h"
@@ -47,11 +46,9 @@ public slots:
     void addTextLayer();
     void startStreaming();
     void addGenerator(QAction*);
-    void openSoundDevice();
     void changeOpacity();
     void jackConnect();
     void encConnect();
-//     void close();
     void showLogs();
 
 protected:
@@ -70,7 +67,6 @@ private:
     QGridLayout *grid;
     QHBoxLayout *layoutH;
     QMenu* menuGenerator;
-    Sound *m_snd;
     QOpacity *m_Opacity;
     bool m_JackIsOn;
     QEncoder *m_Enc;

@@ -4,6 +4,7 @@
 #include <context.h>
 #include <qEncoder.h>
 #include <QtGui>
+#include <audio_collector.h>
 
 class QEncoder;
 

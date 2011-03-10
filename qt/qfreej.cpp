@@ -38,7 +38,6 @@ extern QSize viewSize;
 Qfreej::Qfreej(QWidget *parent) :
         QWidget(parent)
 {
-    m_snd = NULL;
     m_Logs = NULL;
     m_Opacity = NULL;
     m_QJack = NULL;
@@ -93,7 +92,6 @@ Qfreej::Qfreej(QWidget *parent) :
 
 Qfreej::~Qfreej()
 {
-    if (m_snd) delete m_snd;
     if (m_Enc) delete m_Enc;
     if (m_QJack) delete m_QJack;
     delete freej;     //to be investigate :)
@@ -147,7 +145,6 @@ void Qfreej::init()
     freej->start_running = startstate;
 
     createMenuGenerator();
-	//openSoundDevice();
 }
 
 void Qfreej::startStreaming()
@@ -181,11 +178,6 @@ void Qfreej::addLayer()
 Context *Qfreej::getFreej()
 {
   return (freej);
-}
-
-void Qfreej::openSoundDevice()
-{
-    m_snd = new Sound(freej);
 }
 
 bool Qfreej::IsAudioOn()

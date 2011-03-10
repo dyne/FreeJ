@@ -16,7 +16,6 @@ SOURCES += main.cpp \
     specialeventget.cpp \
     FakeWindow.cpp \
     QqTabWidget.cpp \
-    Sound.cpp \
 	qJackClient.cpp \
     qOpacity.cpp \
 	qEncoder.cpp \
@@ -30,7 +29,6 @@ SOURCES += main.cpp \
     specialeventget.h \
     FakeWindow.h \
     QqTabWidget.h \
-    Sound.h \
 	qJackClient.h \
     qOpacity.h \
 	qEncoder.h \
