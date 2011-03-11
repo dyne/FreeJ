@@ -13,7 +13,7 @@ QJackClient::QJackClient(Qfreej *qfreej) : QWidget()
   m_Outputs = 0;
   m_Freej = qfreej->getFreej();
   m_Qfreej = qfreej;
-  
+  setAttribute(Qt::WA_QuitOnClose, false);
   if (init())
   {
     m_JackIsOn = true;
@@ -27,12 +27,6 @@ QJackClient::QJackClient(Qfreej *qfreej) : QWidget()
 
 QJackClient::~QJackClient()
 {
-  if (m_audio)
-  {
-    m_Enc->audio = NULL;
-    m_Enc->use_audio = false;
-    delete (m_audio);
-  }
   if (m_JackIsOn && m_Jack) m_Jack->Detach();
 }
 

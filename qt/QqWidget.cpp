@@ -43,6 +43,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     m_qGeneLayer = NULL;
     fakeView = NULL;
     fakeLay = NULL;
+    ctx = NULL;
     qLayer = freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
     if(qLayer)
     {
@@ -95,6 +96,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 
     ctx = freej;
     setAttribute(Qt::WA_DeleteOnClose);
+    setAttribute(Qt::WA_QuitOnClose, false);
     newIdx = 0;
 
     layoutV = new QVBoxLayout;
@@ -170,6 +172,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     m_qGeneLayer = NULL;
     fakeView = NULL;
     fakeLay = NULL;
+    ctx = NULL;
     QString filename = "textouille.txt";
     QFile file( filename );
     if (file.open(QIODevice::WriteOnly))
@@ -291,6 +294,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej, QActi
     qLayer = NULL;
     fakeView = NULL;
     fakeLay = NULL;
+    ctx = NULL;
 
     m_qGeneLayer = new GeneratorLayer();
     if(!m_qGeneLayer)
@@ -386,11 +390,6 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej, QActi
 
 QqWidget::~QqWidget()
 {
-    delete layoutH;
-    delete layoutV;
-    if (ctx)
-        ctx->screen->clear();
-
     if (qTextLayer)
     {
         if (qTextLayer->active)
@@ -399,7 +398,11 @@ QqWidget::~QqWidget()
     else if (qLayer)
     {
         if (qLayer->active)
+        {
+            qLayer->stop();
             ctx->rem_layer(qLayer);
+            delete (qLayer);
+        }
     }
     else if (m_qGeneLayer)
     {

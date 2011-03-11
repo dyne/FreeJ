@@ -4,6 +4,7 @@
 QEncoder::QEncoder(Qfreej *qfreej) : QWidget()
 {
   setAttribute(Qt::WA_DeleteOnClose);
+ setAttribute(Qt::WA_QuitOnClose, false);
   m_enc = NULL;
   m_Qjack = NULL;
   m_streaming = false;
@@ -20,6 +21,7 @@ QEncoder::~QEncoder()
     m_enc->stop();
     m_enc->active = false;
     delete m_enc;
+    m_enc = NULL;
   }
   if (m_Qjack)
     (m_Qjack->getJack())->isEncoded(false);

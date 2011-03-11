@@ -237,6 +237,7 @@ QqFilter::~QqFilter()
 
 QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
 {
+  setAttribute(Qt::WA_QuitOnClose, false);
     filterI = filter;
     QVBoxLayout *layoutV = new QVBoxLayout;
     QLabel *name;
