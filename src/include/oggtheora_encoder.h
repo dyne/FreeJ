@@ -69,14 +69,14 @@ class OggTheoraEncoder: public VideoEncoder {
   int Mux(int nframes);
 
   int encode_frame();
-  size_t	rv;
+//   size_t	rv;
   
 private:
 
   oggmux_info oggmux; // theorautils object
 
   int encode_video(int end_of_stream);
-  int encode_audio(int end_of_stream);
+  int encode_audio(int end_of_stream, size_t sizeInBuff);
 
   // void *enc_rgb24;
 
