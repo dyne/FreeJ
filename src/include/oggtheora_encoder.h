@@ -69,6 +69,7 @@ class OggTheoraEncoder: public VideoEncoder {
   int Mux(int nframes);
 
   int encode_frame();
+  double m_MixVal;
 //   size_t	rv;
   
 private:

@@ -95,6 +95,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
     func("allocating encoder audio buffer of %u bytes",audio->buffersize);
     audio_buf = (float*)calloc(audio->buffersize, sizeof(float));
 
+    m_MixVal = 1.0;	//sound mix level coef.
     oggmux.video_only = 0;
     oggmux.sample_rate = audio->samplerate;
     if (audio->Jack->m_ringbufferchannels)
@@ -208,8 +209,9 @@ int OggTheoraEncoder::Mux(int nfr)
       ringPtr = m_MixBuffer;
       for (int j=0; j < rf/sizeof(float); j++, mixPtr++, ringPtr++)
       {
-	*mixPtr++ += *ringPtr * 0.1;	//both channels
-	*mixPtr += *ringPtr * 0.1;		//reduce input level
+	if (oggmux.channels > 1)
+	  *mixPtr++ += *ringPtr * m_MixVal;	//both channels
+	*mixPtr += *ringPtr * m_MixVal;		//reduce input level
       }
       if (ringbuffer_write_space (m_MixedRing) >= sizeVideo)
       {
@@ -234,8 +236,8 @@ int OggTheoraEncoder::Mux(int nfr)
       for (int j=0; j < sizeFirst/sizeof(float); j++, mixPtr++, ringPtr++)
       {
 	if (oggmux.channels > 1)
-	  *mixPtr++ += *ringPtr *0.2;	//both channels
-	*mixPtr += *ringPtr * 0.2;	//reduce audio input level on all channels
+	  *mixPtr++ += *ringPtr * m_MixVal;	//both channels
+	*mixPtr += *ringPtr * m_MixVal;		//reduce audio input level on all channels
       }
       if (ringbuffer_write_space (m_MixedRing) >= sizeFirst)
       {
