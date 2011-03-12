@@ -46,7 +46,7 @@ void QEncoder::init()
   
   m_Vbitrate = new QLineEdit;
   m_Vbitrate->setValidator(new QIntValidator(m_Vbitrate));
-  m_Vbitrate->setText("300000");	//default video bitrate
+  m_Vbitrate->setText("100000");	//default video bitrate
   
   QLabel *vBps = new QLabel("V bitrate");
   layoutG->addWidget(vBps, 2, 0);
@@ -62,7 +62,7 @@ void QEncoder::init()
   
   m_Abitrate = new QLineEdit;
   m_Abitrate->setValidator(new QIntValidator(9000, 320000, m_Abitrate));
-  m_Abitrate->setText("96000");	//default video bitrate
+  m_Abitrate->setText("96000");	//default audio bitrate
   
   QLabel *aBps = new QLabel("A bitrate");
   layoutG->addWidget(aBps, 4, 0);
@@ -104,18 +104,19 @@ void QEncoder::init()
   QLabel *pass = new QLabel("Passwd");
   layoutG->addWidget(pass, 10, 0);
   m_Pass = new QLineEdit;
-  m_Pass->setText("!test");
+  m_Pass->setText("test!");
   layoutG->addWidget(m_Pass, 10, 1);
 
   QLabel *filename = new QLabel("File name");
   layoutG->addWidget(filename, 11, 0);
   m_ShoutFileName = new QLineEdit;
-  m_ShoutFileName->setText("freejcpp.ogg");
+  m_ShoutFileName->setText("freejcpp.ogv");
   layoutG->addWidget(m_ShoutFileName, 11, 1);
   
   m_IceButton = new QRadioButton("IceCast", this);
   m_IceButton->setAutoExclusive(false);
-  layoutG->addWidget(m_IceButton, 11, 2); 
+  layoutG->addWidget(m_IceButton, 11, 2);
+  m_IceButton->setChecked(true);
 
   setLayout(layoutG);
   setWindowTitle("Encoder");
@@ -132,12 +133,16 @@ void QEncoder::stream()
     if (m_Qfreej->IsAudioOn())
     {
       m_Qjack = m_Qfreej->getQjack();
-      m_enc->audio = m_Qjack->getAudio();
-      m_enc->use_audio = true;
-      (m_Qjack->getJack())->isEncoded(false);
-      m_enc->audio_quality = m_Aquality->text().toInt();
-      m_enc->audio_bitrate = m_Abitrate->text().toInt();
+      if (m_enc->audio = m_Qjack->getAudio())
+      {
+	m_enc->use_audio = true;
+	(m_Qjack->getJack())->isEncoded(false);
+	m_enc->audio_quality = m_Aquality->text().toInt();
+	m_enc->audio_bitrate = m_Abitrate->text().toInt();
+      }
     }
+    else
+      m_enc->audio = NULL;
 
     if (m_dumpButton->isChecked())
     {
@@ -174,7 +179,7 @@ void QEncoder::stream()
     }
     m_freej->add_encoder(m_enc);	//also calls the OggTheoraEncoder::init method
     if (m_enc->audio)
-      m_enc->audio->Jack->isEncoded(true);
+      m_enc->audio->Jack->isEncoded(true);	//starts to fill the audio encoder ring buffer
     m_enc->active = true;
     m_streamButton->setText("Close to STOP");
   }

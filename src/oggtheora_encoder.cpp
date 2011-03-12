@@ -97,7 +97,10 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
 
     oggmux.video_only = 0;
     oggmux.sample_rate = audio->samplerate;
-    oggmux.channels = audio->Jack->m_ringbufferchannels;
+    if (audio->Jack->m_ringbufferchannels)
+      oggmux.channels = audio->Jack->m_ringbufferchannels;
+    else
+      oggmux.channels = 1;	//sets to 1 channel if there is no Jack output one
     oggmux.vorbis_quality = (double)audio_quality/100.0;	/*audio_quality / 100;*/
     oggmux.vorbis_bitrate = audio_bitrate;
     

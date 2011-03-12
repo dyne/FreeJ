@@ -35,6 +35,7 @@ private:
   QLineEdit *m_SampleRate;
   QLineEdit *m_Samples;
   int	m_Inputs;
+  QLCDNumber *m_InputNumbers;
   int	m_Outputs;
   Context *m_Freej;
   Qfreej *m_Qfreej;

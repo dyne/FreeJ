@@ -35,6 +35,7 @@ public:
     bool getStartState();
     void createMenuGenerator();
     bool IsAudioOn();
+    void setsAudioVar(bool);
     QJackClient *getQjack();
     Context *getFreej();
     OggTheoraEncoder *getEnc();

@@ -17,6 +17,7 @@ QJackClient::QJackClient(Qfreej *qfreej) : QWidget()
   if (init())
   {
     m_JackIsOn = true;
+    m_Qfreej->setsAudioVar(true);
     this->show();
   }
   else
@@ -49,12 +50,15 @@ bool QJackClient::init()
   m_Jack->isEncoded(false);
   m_Enc = m_Qfreej->getEnc();
 
-  QLabel *jackStatusText = new QLabel("Jack's On");
+  QLabel *jackStatusText = new QLabel("Jack's On, 48000:1024");
   layoutG->addWidget(jackStatusText, 0, 0);
   
   QPushButton *addButton = new QPushButton("Add Input", this);
   connect (addButton, SIGNAL(clicked()), this, SLOT(addInput()));
   layoutG->addWidget(addButton, 1, 0);
+  addButton->setToolTip("Only one input available");
+  m_InputNumbers = new QLCDNumber(this);
+  layoutG->addWidget(m_InputNumbers, 1, 1);
   
   m_SampleRate = new QLineEdit;
   connect (m_SampleRate, SIGNAL(returnPressed()), this, SLOT(chgSampleRate()));
@@ -130,6 +134,7 @@ void QJackClient::addInput()
   {
     m_Jack->AddInputPort();
     m_Inputs++;
+    m_InputNumbers->display(m_Inputs);
   }
 }
 

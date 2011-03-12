@@ -180,6 +180,16 @@ Context *Qfreej::getFreej()
   return (freej);
 }
 
+void Qfreej::setsAudioVar(bool val)
+{
+  m_JackIsOn = val;
+  if (!val)
+  {
+    if (m_QJack) delete m_QJack;
+    m_QJack = NULL;
+  }
+}
+
 bool Qfreej::IsAudioOn()
 {
   return (m_JackIsOn);

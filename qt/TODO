@@ -13,6 +13,7 @@
 //fix the streaming speed of a mono audio VideoLayer which is double the normal speed
 //there is the amount of delay between audio and video if you open a video before creating
 the QJackClient of the time you waited to open the QJackClient .... see if a fix needed.
+//Jack server sample rate and buffer size is hard coded for the moment, provide a way to put is manualy
 //since Qfreej destructor change, see why it blocks while exited by the cross
 //fix the streaming audio parameters changes to be taken into account
 //there is a bug if we first create QEncoder then delete it, creates it again and then dump in a file
