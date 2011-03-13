@@ -4,7 +4,7 @@
 QEncoder::QEncoder(Qfreej *qfreej) : QWidget()
 {
   setAttribute(Qt::WA_DeleteOnClose);
- setAttribute(Qt::WA_QuitOnClose, false);
+  setAttribute(Qt::WA_QuitOnClose, false);
   m_enc = NULL;
   m_Qjack = NULL;
   m_streaming = false;

@@ -40,6 +40,7 @@ public:
     Context *getFreej();
     OggTheoraEncoder *getEnc();
     void resetEnc();
+    void resetQJack();
 
 public slots:
     void addLayer();

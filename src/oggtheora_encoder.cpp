@@ -181,6 +181,11 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   return true;
 }
 
+void OggTheoraEncoder::setMixCoef(float val)
+{
+  m_MixVal = val;
+}
+
 int OggTheoraEncoder::Mux(int nfr)
 {
   int sizeFirst = 0;

@@ -27,6 +27,7 @@ public slots:
   void addOutput();
   void chgSampleRate();
   void chgSamples();
+  void changeMixCoef(int);
 
 private:
   bool init();
@@ -42,6 +43,7 @@ private:
   QSpinBox *m_nbrChan;
   AudioCollector *m_audio;
   OggTheoraEncoder *m_Enc;
+  QSlider *m_Coef;
 };
 
 #endif // QJACK_H

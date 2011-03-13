@@ -14,6 +14,7 @@ QJackClient::QJackClient(Qfreej *qfreej) : QWidget()
   m_Freej = qfreej->getFreej();
   m_Qfreej = qfreej;
   setAttribute(Qt::WA_QuitOnClose, false);
+  setAttribute(Qt::WA_DeleteOnClose);
   if (init())
   {
     m_JackIsOn = true;
@@ -29,6 +30,8 @@ QJackClient::QJackClient(Qfreej *qfreej) : QWidget()
 QJackClient::~QJackClient()
 {
   if (m_JackIsOn && m_Jack) m_Jack->Detach();
+  m_Jack = NULL;
+  m_Qfreej->resetQJack();
 }
 
 JackClient *QJackClient::getJack()
@@ -60,14 +63,23 @@ bool QJackClient::init()
   m_InputNumbers = new QLCDNumber(this);
   layoutG->addWidget(m_InputNumbers, 1, 1);
   
+  m_Coef = new QSlider(this);
+  connect(m_Coef, SIGNAL(sliderMoved(int)), this, SLOT(changeMixCoef(int)));
+  m_Coef->setOrientation(Qt::Horizontal);
+  m_Coef->setRange(0,300);
+  m_Coef->setValue(100);
+  m_Coef->setEnabled(false);
+  layoutG->addWidget(m_Coef, 2, 0, 1, 2);
+  m_Coef->setToolTip("sets the Mix coefficient between Jack Input and Video Layer output");
+  
   m_SampleRate = new QLineEdit;
   connect (m_SampleRate, SIGNAL(returnPressed()), this, SLOT(chgSampleRate()));
   m_SampleRate->setValidator(new QIntValidator(m_SampleRate));
   m_SampleRate->setText("48000");	//default Jackd sample rate
 
   QLabel *vSampleRate = new QLabel("J SampleRate :");
-  layoutG->addWidget(vSampleRate, 2, 0);
-  layoutG->addWidget(m_SampleRate, 2, 1);
+  layoutG->addWidget(vSampleRate, 3, 0);
+  layoutG->addWidget(m_SampleRate, 3, 1);
   
   m_Samples = new QLineEdit;
   connect (m_Samples, SIGNAL(returnPressed()), this, SLOT(chgSamples()));
@@ -75,22 +87,31 @@ bool QJackClient::init()
   m_Samples->setText("1024");		//default value : 1024 samples
 
   QLabel *vSample = new QLabel("J Samples :");
-  layoutG->addWidget(vSample, 3, 0);
-  layoutG->addWidget(m_Samples, 3, 1);
+  layoutG->addWidget(vSample, 4, 0);
+  layoutG->addWidget(m_Samples, 4, 1);
   
   m_Jack->m_SampleRate = 48000;
   m_Jack->m_BufferSize = 1024;
   
   QPushButton *outputButton = new QPushButton("Add Output(s)", this);
   connect (outputButton, SIGNAL(clicked()), this, SLOT(addOutput()));
-  layoutG->addWidget(outputButton, 4, 0);
+  layoutG->addWidget(outputButton, 5, 0);
 
   m_nbrChan = new QSpinBox(0);
-  layoutG->addWidget(m_nbrChan, 4, 1);
+  layoutG->addWidget(m_nbrChan, 5, 1);
 
   this->setLayout(layoutG);
   this->setWindowTitle("Jack bridge");
   return (true);
+}
+
+void QJackClient::changeMixCoef(int val)
+{
+  if ((m_Enc = m_Qfreej->getEnc()))
+  {
+    float value = (float)val / 100.0;
+    m_Enc->setMixCoef(value);
+  }
 }
 
 AudioCollector *QJackClient::getAudio()
@@ -135,6 +156,12 @@ void QJackClient::addInput()
     m_Jack->AddInputPort();
     m_Inputs++;
     m_InputNumbers->display(m_Inputs);
+    m_Coef->setEnabled(true);
+    if ((m_Enc = m_Qfreej->getEnc()))
+    {
+      m_Enc->audio = m_audio;
+      m_Enc->use_audio = true;
+    }
   }
 }
 

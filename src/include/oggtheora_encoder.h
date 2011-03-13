@@ -67,13 +67,12 @@ class OggTheoraEncoder: public VideoEncoder {
   bool init(ViewPort *scr);
   
   int Mux(int nframes);
-
+  void setMixCoef(float val);
   int encode_frame();
-  double m_MixVal;
 //   size_t	rv;
   
 private:
-
+  float m_MixVal;
   oggmux_info oggmux; // theorautils object
 
   int encode_video(int end_of_stream);
