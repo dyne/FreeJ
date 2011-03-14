@@ -1,6 +1,5 @@
 //move main window in accordance with the size
-//resize ViewPort in accordance to the  biggest layer
-//fix the rotation sense when changing mouse direction.
+//resize ViewPort in accordance to the  biggest layer .... (not sure it is good thing)
 //be able to record the viewport, and replay it.
 //replace slow button by a slider
 //add a button in the textlayer to unfold text
@@ -10,12 +9,10 @@
 //add a x:x ratio button, resizing to the closest width and lenght to obtain this ratio 
 //create a console for messages comming from func() warning() notice() act(). see Logger class
 //see to integrate ogg skeleton config on the graphic interface
-//fix the streaming speed of a mono audio VideoLayer which is double the normal speed
 //there is the amount of delay between audio and video if you open a video before creating
-the QJackClient of the time you waited to open the QJackClient .... see if a fix needed.
+the QJackClient of the time you waited to open the QJackClient .... see if a fix possible or needed.
 //Jack server sample rate and buffer size is hard coded for the moment, provide a way to put is manualy
-//since Qfreej destructor change, see why it blocks while exited by the cross
-//fix the streaming audio parameters changes to be taken into account
 //try to fix sound speed issue when opening several VideoLayer with audio
 //verify how it works with different fps values
 //add the capability to have a config file..... important :)
+//fix the SEGFAULT when closing with a TextLayer

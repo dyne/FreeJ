@@ -32,6 +32,7 @@ SpecialEventGet::SpecialEventGet(QObject* parent) : QObject(parent)
     shift.setY(0);
     offset.setX(0);
     offset.setY(0);
+    diff = 0;
 }
 
 bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
@@ -129,42 +130,77 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
         {
             if (layer)
             {
-                if (evt->pos().x() - offset.x() > 0)
+                if ((diff < (evt->pos().x() - offset.x())) &&(evt->pos().x() - offset.x() > 0))
                 {
                     int angle = fake->getAngle() + (evt->pos().x() - offset.x()) / 10 % 360;
                     if (angle >= 360)
                         angle = 0;
-                    qDebug() << "angle:" << angle;
                     fake->setAngle(angle);
+		    diff = evt->pos().x() - offset.x();
                 }
-                else if (evt->pos().x() - offset.x() < 0)
+                else if (evt->pos().x() - offset.x() > 0)
+		{
+                    int angle = fake->getAngle() - (evt->pos().x() - offset.x()) / 10 % 360;
+                    if (angle <= -360)
+                        angle = 0;
+                    fake->setAngle(angle);
+		    diff = evt->pos().x() - offset.x();
+		}
+                else if ((diff > (evt->pos().x() - offset.x())) && (evt->pos().x() - offset.x() < 0))
                 {
                     int angle = fake->getAngle() + (evt->pos().x() - offset.x()) / 10 % 360;
                     if (angle <= -360)
                         angle = 0;
-                    qDebug() << "angle:" << angle;
                     fake->setAngle(angle);
+		    diff = evt->pos().x() - offset.x();
                 }
+                else if (evt->pos().x() - offset.x() < 0)
+		{
+                    int angle = fake->getAngle() - (evt->pos().x() - offset.x()) / 10 % 360;
+                    if (angle >= 360)
+                        angle = 0;
+                    fake->setAngle(angle);
+		    diff = evt->pos().x() - offset.x();
+		}
                 fake->repaint();
                 layer->set_rotate(- fake->getAngle());
                 context->screen->clear();
             }
             else if (textlayer)
             {
-                if (evt->pos().x() - offset.x() > 0)
+                if ((diff < (evt->pos().x() - offset.x())) && (evt->pos().x() - offset.x() > 0))
                 {
                     int angle = fake->getAngle() + (evt->pos().x() - offset.x()) / 10 % 360;
                     if (angle >= 360)
                         angle = 0;
                     fake->setAngle(angle);
+		    diff = evt->pos().x() - offset.x();
                 }
-                else if (evt->pos().x() - offset.x() < 0)
+                else if (evt->pos().x() - offset.x() > 0)
+		{
+                    int angle = fake->getAngle() - (evt->pos().x() - offset.x()) / 10 % 360;
+                    if (angle <= -360)
+                        angle = 0;
+                    fake->setAngle(angle);
+		    diff = evt->pos().x() - offset.x();
+                }
+                else if ((diff > (evt->pos().x() - offset.x())) && (evt->pos().x() - offset.x() < 0))
                 {
                     int angle = fake->getAngle() + (evt->pos().x() - offset.x()) / 10 % 360;
                     if (angle <= -360)
                         angle = 0;
                     fake->setAngle(angle);
+		    diff = evt->pos().x() - offset.x();
                 }
+                else if (evt->pos().x() - offset.x() < 0)
+		{
+                    int angle = fake->getAngle() - (evt->pos().x() - offset.x()) / 10 % 360;
+                    if (angle >= 360)
+                        angle = 0;
+                    fake->setAngle(angle);
+		    diff = evt->pos().x() - offset.x();
+		}
+		  
                 fake->repaint();
                 textlayer->set_rotate(- fake->getAngle());
                 context->screen->clear();
@@ -174,6 +210,7 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
     else if(event->type() == QEvent::MouseButtonRelease)
     {
         offset = QPoint();
+	diff = 0;
     }
     else if(event->type() == QEvent::Paint)
     {

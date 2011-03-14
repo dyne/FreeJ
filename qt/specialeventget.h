@@ -18,6 +18,7 @@ private:
     Qt::MouseButton btn;
     QPoint offset, shift;
     QSize m_OldSize;
+    long diff;		//tracks the mouse x position from starting point
 };
 
 #endif // SPECIALEVENTGET_H
