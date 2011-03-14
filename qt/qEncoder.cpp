@@ -38,7 +38,7 @@ void QEncoder::init()
   
   m_Vquality = new QLineEdit;
   m_Vquality->setValidator(new QIntValidator(1, 100, m_Vquality));
-  m_Vquality->setText("15");		//default video quality
+  m_Vquality->setText("20");		//default video quality
   
   QLabel *vQual = new QLabel("V quality");
   layoutG->addWidget(vQual, 1, 0);
@@ -46,25 +46,26 @@ void QEncoder::init()
   
   m_Vbitrate = new QLineEdit;
   m_Vbitrate->setValidator(new QIntValidator(m_Vbitrate));
-  m_Vbitrate->setText("100000");	//default video bitrate
+  m_Vbitrate->setText("400000");	//default video bitrate
   
   QLabel *vBps = new QLabel("V bitrate");
   layoutG->addWidget(vBps, 2, 0);
   layoutG->addWidget(m_Vbitrate, 2, 1);
   
   m_Aquality = new QLineEdit;
-  m_Aquality->setValidator(new QIntValidator(1, 100, m_Aquality));
+  m_Aquality->setValidator(new QIntValidator(0, 100, m_Aquality));
   m_Aquality->setText("15");		//default audio quality
+  m_Aquality->setToolTip("range from 0 to 100 (low qual. to hi)");
   
-  QLabel *aQual = new QLabel("A quality");
+  QLabel *aQual = new QLabel("Au quality (Kbps)");
   layoutG->addWidget(aQual, 3, 0);
   layoutG->addWidget(m_Aquality, 3, 1);
   
   m_Abitrate = new QLineEdit;
-  m_Abitrate->setValidator(new QIntValidator(9000, 320000, m_Abitrate));
-  m_Abitrate->setText("96000");	//default audio bitrate
+  m_Abitrate->setText("0");	//default audio bitrate
+  m_Abitrate->setEnabled(false);
   
-  QLabel *aBps = new QLabel("A bitrate");
+  QLabel *aBps = new QLabel("Au bitrate");
   layoutG->addWidget(aBps, 4, 0);
   layoutG->addWidget(m_Abitrate, 4, 1);
 
@@ -115,7 +116,7 @@ void QEncoder::init()
   
   m_IceButton = new QRadioButton("IceCast", this);
   m_IceButton->setAutoExclusive(false);
-  layoutG->addWidget(m_IceButton, 11, 2);
+  layoutG->addWidget(m_IceButton, 12, 0);
   m_IceButton->setChecked(true);
 
   setLayout(layoutG);
@@ -179,7 +180,12 @@ void QEncoder::stream()
     }
     m_freej->add_encoder(m_enc);	//also calls the OggTheoraEncoder::init method
     if (m_enc->audio)
+    {
       m_enc->audio->Jack->isEncoded(true);	//starts to fill the audio encoder ring buffer
+      QString val;
+      val.setNum(m_enc->getAvBitRate(), 10);
+      m_Abitrate->setText(val);
+    }
     m_enc->active = true;
     m_streamButton->setText("Close to STOP");
   }

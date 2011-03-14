@@ -76,6 +76,8 @@ bool QJackClient::init()
   connect (m_SampleRate, SIGNAL(returnPressed()), this, SLOT(chgSampleRate()));
   m_SampleRate->setValidator(new QIntValidator(m_SampleRate));
   m_SampleRate->setText("48000");	//default Jackd sample rate
+  m_SampleRate->setEnabled(false);
+//   m_Jack->m_SampleRate = 48000;	//not necessary as it is donne in AudioCollector constructor
 
   QLabel *vSampleRate = new QLabel("J SampleRate :");
   layoutG->addWidget(vSampleRate, 3, 0);
@@ -85,13 +87,12 @@ bool QJackClient::init()
   connect (m_Samples, SIGNAL(returnPressed()), this, SLOT(chgSamples()));
   m_Samples->setValidator(new QIntValidator(m_Samples));
   m_Samples->setText("1024");		//default value : 1024 samples
+  m_Samples->setEnabled(false);
+  m_Jack->m_BufferSize = 1024;
 
   QLabel *vSample = new QLabel("J Samples :");
   layoutG->addWidget(vSample, 4, 0);
   layoutG->addWidget(m_Samples, 4, 1);
-  
-  m_Jack->m_SampleRate = 48000;
-  m_Jack->m_BufferSize = 1024;
   
   QPushButton *outputButton = new QPushButton("Add Output(s)", this);
   connect (outputButton, SIGNAL(clicked()), this, SLOT(addOutput()));

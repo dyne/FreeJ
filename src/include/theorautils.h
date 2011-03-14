@@ -80,7 +80,7 @@ typedef struct
     int channels;
     double vorbis_quality;
     int vorbis_bitrate;
-
+    long aveVorBitRate;	  // average audio bit rate seted by oggmux_init function
 	char status[512]; // status string line
 
     vorbis_info vi;       /* struct that stores all the static vorbis bitstream settings */

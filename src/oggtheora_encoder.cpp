@@ -85,9 +85,9 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   if(initialized) return true;
 
   screen = scr;
-
   oggmux.ringbuffer = ringbuffer;
   oggmux.bytes_encoded = 0;
+  oggmux.aveVorBitRate = 0;
 
   oggmux.audio_only = 0;
 
@@ -102,8 +102,10 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
       oggmux.channels = audio->Jack->m_ringbufferchannels;
     else
       oggmux.channels = 1;	//sets to 1 channel if there is no Jack output one
-    oggmux.vorbis_quality = (double)audio_quality/100.0;	/*audio_quality / 100;*/
-    oggmux.vorbis_bitrate = audio_bitrate;
+    if ((audio_quality >= 0) && (audio_quality <= 100))
+      oggmux.vorbis_quality = (double)audio_quality*0.011-0.1;	/*audio_quality as to become from -0.1 to 1.0 (lo to hi)*/
+
+//     oggmux.vorbis_bitrate = audio_bitrate;	//not used
     
     m_MixBuffer = (float*) malloc(4096 * 1024);
     m_MixBufferOperation = (float*) malloc(4096 * 1024 *2);
@@ -179,6 +181,12 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   initialized = true;
  	
   return true;
+}
+
+//gets the average audio bit rate sets by the oggmux_init function
+long OggTheoraEncoder::getAvBitRate()
+{
+  return (oggmux.aveVorBitRate);
 }
 
 void OggTheoraEncoder::setMixCoef(float val)

@@ -314,8 +314,9 @@ void oggmux_init (oggmux_info *info){
 	}
 
        vorbis_info_init (&info->vi);//
-	float quality = 1;
-        if(vorbis_encode_setup_vbr(&info->vi, info->channels, 48000, quality)){
+       if (!(info->vorbis_quality >= -0.1) || !(info->vorbis_quality <= 1.0))
+	 info->vorbis_quality = 0.5;	//if quality has a wrong value, sets to 0.5
+        if(vorbis_encode_setup_vbr(&info->vi, info->channels, info->sample_rate, info->vorbis_quality)){
             std::cerr << "Mode initialisation failed: invalid parameters for quality" << std::endl;
             vorbis_info_clear(&info->vi);
             return;
@@ -337,21 +338,21 @@ void oggmux_init (oggmux_info *info){
 	{
 	        vorbis_info vi2;
                 vorbis_info_init(&vi2);
-                vorbis_encode_setup_vbr(&vi2, info->channels, 48000, quality);
+                vorbis_encode_setup_vbr(&vi2, info->channels, info->sample_rate, info->vorbis_quality);
                 vorbis_encode_setup_init(&vi2);
                 bitrate = vi2.bitrate_nominal;
                 vorbis_info_clear(&vi2);
 	}	
 	ai.bitrate_average_kbps = bitrate/1000;
+	info->aveVorBitRate = ai.bitrate_average_kbps;
         ai.bitrate_average_damping = 1.5;
         ai.bitrate_limit_reservoir_bits = bitrate * 2;
         ai.bitrate_limit_reservoir_bias = .1;
 
             /* And now the ones we actually wanted to set */
-        ai.bitrate_limit_min_kbps=60;
-        ai.bitrate_limit_max_kbps=192;
+        ai.bitrate_limit_min_kbps=10;
+        ai.bitrate_limit_max_kbps=256;
         ai.management_active=1;
-
 	ret = vorbis_encode_ctl(&info->vi, OV_ECTL_RATEMANAGE2_SET, &ai);
 	if (ret && OV_EINVAL)
 	{
