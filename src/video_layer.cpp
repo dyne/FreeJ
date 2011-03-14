@@ -199,7 +199,6 @@ bool VideoLayer::open(const char *file) {
     return false;
   }
   func("VideoLayer :: stream info found");
-
   /* now we can begin to play (RTSP stream only) */
   av_read_play(avformat_context);
 
@@ -236,8 +235,11 @@ bool VideoLayer::open(const char *file) {
       } else { // correctly opened
 	
 #if LIBAVCODEC_BUILD  >=     4754
-	frame_rate = enc -> time_base.den / 
-	  enc -> time_base.num;
+	if(avformat_stream->r_frame_rate.den && avformat_stream->r_frame_rate.num)
+	  frame_rate = av_q2d(avformat_stream->r_frame_rate);
+	else
+	  frame_rate = enc -> time_base.den / enc -> time_base.num;
+
 	AVRational rational = enc -> time_base;
 	func ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
 	func ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);

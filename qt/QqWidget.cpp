@@ -51,7 +51,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
         {
             qLayer->start();	//launches JSyncThread::start()
 
-            if (qLayer->frame_rate > 50)   //pb de determination de FPS
+/*            if (qLayer->frame_rate > 50)   //pb de determination de FPS
             {
 				std::cout << "--------- qfreej : frame_rate problem : " << qLayer->frame_rate << " FPS" << std::endl;
                 qLayer->fps.set(qLayer->frame_rate / 10); 
@@ -59,11 +59,11 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
                 actualFps = qLayer->frame_rate / 10;
             }
             else
-            {
-                qLayer->fps.set(qLayer->frame_rate);
-                normalFps = qLayer->frame_rate;
-                actualFps = qLayer->frame_rate;
-            }
+            {*/
+            qLayer->fps.set(qLayer->frame_rate);
+            normalFps = qLayer->frame_rate;
+            actualFps = qLayer->frame_rate;
+//             }
             slowFps = normalFps / 2;
             tabWidget->addTab(this, qLayer->get_filename());
             qLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
@@ -400,7 +400,7 @@ QqWidget::~QqWidget()
         if (qLayer->active)
         {
             qLayer->stop();
-            ctx->rem_layer(qLayer);
+//             ctx->rem_layer(qLayer);
             delete (qLayer);
         }
     }

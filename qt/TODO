@@ -16,12 +16,6 @@ the QJackClient of the time you waited to open the QJackClient .... see if a fix
 //Jack server sample rate and buffer size is hard coded for the moment, provide a way to put is manualy
 //since Qfreej destructor change, see why it blocks while exited by the cross
 //fix the streaming audio parameters changes to be taken into account
-//there is a bug if we first create QEncoder then delete it, creates it again and then dump in a file
-//try to fix sound mono VideoLayer issue if it is open at the same time as a stereo one
+//try to fix sound speed issue when opening several VideoLayer with audio
 //verify how it works with different fps values
 //add the capability to have a config file..... important :)
-//fixing the quit SEGFAULT is done almost done. See to delete layers before quit when closing while playing.
-no SEGFAULT if we close all layers before quit.
-//I have to do some tests around WA_DeleteOnClose in QEncoder
-- copier la méthode utilisée dans /home/fred/system/video/snd/dhoerl/avcodec_sample.0.5.0.c
-	qui recupère le FPS, car semble retourner une bonne valeur pour film.mp4 (pas 240)
