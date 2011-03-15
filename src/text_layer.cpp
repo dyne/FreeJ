@@ -71,7 +71,7 @@ TextLayer::TextLayer()
 
 TextLayer::~TextLayer() { 
   func("%s this=%p",__PRETTY_FUNCTION__, this);
-  close();
+//   close();
 }
 
 bool TextLayer::open(const char *file) {

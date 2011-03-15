@@ -15,4 +15,3 @@ the QJackClient of the time you waited to open the QJackClient .... see if a fix
 //try to fix sound speed issue when opening several VideoLayer with audio
 //verify how it works with different fps values
 //add the capability to have a config file..... important :)
-//fix the SEGFAULT when closing with a TextLayer

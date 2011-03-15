@@ -390,25 +390,21 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej, QActi
 
 QqWidget::~QqWidget()
 {
-    if (qTextLayer)
-    {
-        if (qTextLayer->active)
-            ctx->rem_layer(qTextLayer);
-    }
-    else if (qLayer)
-    {
-        if (qLayer->active)
-        {
-            qLayer->stop();
-//             ctx->rem_layer(qLayer);
-            delete (qLayer);
-        }
-    }
-    else if (m_qGeneLayer)
-    {
-        if (m_qGeneLayer->active)
-            ctx->rem_layer(m_qGeneLayer);
-    }
+  if (qTextLayer)
+  {
+    qTextLayer->stop();
+    delete(qTextLayer);
+  }
+  else if (qLayer)
+  {
+    qLayer->stop();
+    delete (qLayer);
+  }
+  else if (m_qGeneLayer)
+  {
+    m_qGeneLayer->stop();
+    delete (m_qGeneLayer);
+  }
 }
 
 void QqWidget::resetZoom()
