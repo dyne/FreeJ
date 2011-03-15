@@ -64,7 +64,6 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             normalFps = qLayer->frame_rate;
             actualFps = qLayer->frame_rate;
 //             }
-            slowFps = normalFps / 2;
             tabWidget->addTab(this, qLayer->get_filename());
             qLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
             m_tabWidg = tabWidget;
@@ -105,9 +104,14 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     QqComboBlit *blt = new QqComboBlit(this);
     blt->addLayer(qLayer);
 
-    slowButton = new QPushButton("Slow",this);
-    connect (slowButton, SIGNAL(clicked()), this, SLOT(slowDown()));
-    slowButton->setToolTip("slow down FPS by 50%\nor return to normal speed");
+    slowFps = new QSlider(this);
+    slowFps->setOrientation(Qt::Vertical);
+    connect(slowFps, SIGNAL(sliderMoved(int)), this, SLOT(changeFps(int)));
+    slowFps->setRange(1, (normalFps*2));
+    slowFps->setToolTip("speed control");
+    slowFps->setValue(normalFps);
+    slowFps->setSliderDown(true);
+
     layoutH->addWidget(blt);
     QqComboFilter *filter = new QqComboFilter(freej, qLayer, this);
     filter->setToolTip("filters to be applied");
@@ -115,7 +119,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     filter->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);  // on the highter widget to fix the maximum hight
     layoutH->addWidget(filter);                                         // off the layer
 
-    layoutH->addWidget(slowButton);
+    layoutH->addWidget(slowFps);
     QPushButton *cleanButton = new QPushButton("Clean", this);
     cleanButton->setToolTip("cleans the screen");
     connect (cleanButton, SIGNAL(clicked()), this, SLOT(clean()));
@@ -522,24 +526,14 @@ void QqWidget::modTextLayer()
     ctx->screen->clear();
 }
 
-void QqWidget::slowDown()
+void QqWidget::changeFps(int val)
 {
-    //normal speed devided by two
     if (qLayer)
     {
-        if (actualFps != slowFps)
+        if (val != actualFps)
         {
-            qLayer->fps.set(slowFps);
-            cout << "slow down to : " << slowFps << " fps" << "actual fps : " << actualFps << endl;
-            actualFps = slowFps;
-            slowButton->setText("Normal");
-        }
-        else
-        {
-            qLayer->fps.set(normalFps);
-            cout << "speed up to : " << normalFps << " fps" << endl;
-            actualFps = normalFps;
-            slowButton->setText("Slow");
+	  qLayer->fps.set(val);
+            cout << "chg FPS to : " << val << " fps" << "actual fps : " << actualFps << endl;
         }
     }
 }

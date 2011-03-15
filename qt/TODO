@@ -1,6 +1,6 @@
 //move main window in accordance with the size
 //resize ViewPort in accordance to the  biggest layer .... (not sure it is good thing)
-//be able to record the viewport, and replay it.
+//be able to record all marked opened layers with the same quality .... a challenge :)
 //replace slow button by a slider
 //add a button in the textlayer to unfold text
 //see to use Linklist.completion to add blit, filters and generators
@@ -15,3 +15,5 @@ the QJackClient of the time you waited to open the QJackClient .... see if a fix
 //try to fix sound speed issue when opening several VideoLayer with audio
 //verify how it works with different fps values
 //add the capability to have a config file..... important :)
+//fix the half high vue of a v4l2 camera
+//if resizing the wiewport when the layer is bigger, you need to just touch the layer size to display it correctly

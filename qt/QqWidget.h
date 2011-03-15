@@ -39,7 +39,7 @@ public:
     QqTabWidget* getTabWidget();
 
 public slots:
-    void slowDown();
+    void changeFps(int);
     void modTextLayer();
     void changeFontSize(int);
     void clean();
@@ -56,7 +56,7 @@ private:
     QTextEdit *text;
     QPushButton *textButton;
     QPushButton *slowButton;
-    int slowFps;
+    QSlider *slowFps;
     int normalFps;
     int actualFps;
     QPushButton *playButton;
