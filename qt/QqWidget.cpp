@@ -34,7 +34,6 @@
 
 using namespace std;
 
-
 //Layer
 QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QString fichier) : QWidget(qfreej)
 {
@@ -108,9 +107,10 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     slowFps->setOrientation(Qt::Vertical);
     connect(slowFps, SIGNAL(sliderMoved(int)), this, SLOT(changeFps(int)));
     slowFps->setRange(1, (normalFps*2));
-    slowFps->setToolTip("speed control");
+    slowFps->setToolTip("speed control (grey: normal speed, red: higher or lower)");
     slowFps->setValue(normalFps);
     slowFps->setSliderDown(true);
+    slowFps->setStyleSheet("background: grey");
 
     layoutH->addWidget(blt);
     QqComboFilter *filter = new QqComboFilter(freej, qLayer, this);
@@ -533,8 +533,10 @@ void QqWidget::changeFps(int val)
         if (val != actualFps)
         {
 	  qLayer->fps.set(val);
-            cout << "chg FPS to : " << val << " fps" << "actual fps : " << actualFps << endl;
+	  slowFps->setStyleSheet("background: red");
         }
+        else
+	  slowFps->setStyleSheet("background: grey");
     }
 }
 
