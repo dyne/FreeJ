@@ -43,6 +43,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     fakeView = NULL;
     fakeLay = NULL;
     ctx = NULL;
+    actualFps = normalFps = 0;
     qLayer = freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
     if(qLayer)
     {
@@ -62,6 +63,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             qLayer->fps.set(qLayer->frame_rate);
             normalFps = qLayer->frame_rate;
             actualFps = qLayer->frame_rate;
+	    qDebug() << "--- actualFps :" << actualFps;
 //             }
             tabWidget->addTab(this, qLayer->get_filename());
             qLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
@@ -103,14 +105,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     QqComboBlit *blt = new QqComboBlit(this);
     blt->addLayer(qLayer);
 
-    slowFps = new QSlider(this);
-    slowFps->setOrientation(Qt::Vertical);
-    connect(slowFps, SIGNAL(sliderMoved(int)), this, SLOT(changeFps(int)));
-    slowFps->setRange(1, (normalFps*2));
-    slowFps->setToolTip("speed control (grey: normal speed, red: higher or lower)");
-    slowFps->setValue(normalFps);
-    slowFps->setSliderDown(true);
-    slowFps->setStyleSheet("background: grey");
+
 
     layoutH->addWidget(blt);
     QqComboFilter *filter = new QqComboFilter(freej, qLayer, this);
@@ -119,7 +114,19 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     filter->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);  // on the highter widget to fix the maximum hight
     layoutH->addWidget(filter);                                         // off the layer
 
-    layoutH->addWidget(slowFps);
+    if (actualFps)
+    {
+      slowFps = new QSlider(this);
+      slowFps->setOrientation(Qt::Vertical);
+      connect(slowFps, SIGNAL(sliderMoved(int)), this, SLOT(changeFps(int)));
+      slowFps->setRange(1, (normalFps*2));
+      slowFps->setToolTip("speed control (grey: normal speed, red: higher or lower)");
+      slowFps->setValue(normalFps);
+      slowFps->setSliderDown(true);
+      slowFps->setStyleSheet("background: grey");
+      layoutH->addWidget(slowFps);
+    }
+
     QPushButton *cleanButton = new QPushButton("Clean", this);
     cleanButton->setToolTip("cleans the screen");
     connect (cleanButton, SIGNAL(clicked()), this, SLOT(clean()));
