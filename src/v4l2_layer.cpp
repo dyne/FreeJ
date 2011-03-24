@@ -33,7 +33,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
+#include <iostream>
 // #include <linux/videodev2.h>
 
 #include <ccvt.h>
@@ -90,8 +90,8 @@ bool V4L2CamLayer::open(const char *devfile) {
 
   // Switch to the first video input (example 1-2)
   int index=0;
-  if(-1 == ioctl(fd, VIDIOC_S_INPUT, &index)) {
-    error("VIDIOC_S_INPUT: %s", strerror(errno));
+  if(-1 == ioctl(fd, VIDIOC_G_INPUT, &index)) {		//gets the current video input
+    error("VIDIOC_G_INPUT: %s", strerror(errno));
     return(false);
   }
 
@@ -112,6 +112,37 @@ bool V4L2CamLayer::open(const char *devfile) {
     standard.index++;
   }
 
+  //displays the format description
+  memset (&fmtdesc, 0, sizeof (fmtdesc));
+  fmtdesc.index = 0;
+  fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  while (0 == ioctl (fd, VIDIOC_ENUM_FMT, &fmtdesc)) {
+    std::cerr << "----- format description :" << fmtdesc.description << std::endl;
+    fmtdesc.index++;
+  }
+
+  memset (&format, 0, sizeof (format));
+  format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+
+  if (-1 == ioctl (fd, VIDIOC_G_FMT, &format)) {
+    perror ("VIDIOC_G_FMT");
+    return (false);
+  }
+
+//   memset(&format, 0, sizeof format);
+  format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  format.fmt.pix.width = 352;
+  format.fmt.pix.height = 288;
+  format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+  format.fmt.pix.field = V4L2_FIELD_ANY;
+  if(0 == ioctl(fd, VIDIOC_TRY_FMT, &format)) {
+    std::cerr << "--- we should be able to setup the resolution :)" << std::endl;
+    if(-1 == ioctl(fd, VIDIOC_S_FMT, &format)) {
+      error("VIDIOC_G_FMT: %s", strerror(errno));
+      return(false);
+    }
+  }
+
   // Need to find out (request?) specific data format (sec 1.10.1)
   memset(&format, 0, sizeof(format));
   format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -129,7 +160,6 @@ bool V4L2CamLayer::open(const char *devfile) {
   geo.init(format.fmt.pix.width, format.fmt.pix.height, 32);
 
   frame = malloc(geo.bytesize);
-
   memset (&reqbuf, 0, sizeof (reqbuf));
   reqbuf.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   reqbuf.memory = V4L2_MEMORY_MMAP;
@@ -144,11 +174,11 @@ bool V4L2CamLayer::open(const char *devfile) {
   act("this cam supports %i buffers", reqbuf.count);
   buffers = (bufs*)calloc (reqbuf.count, sizeof (*buffers));
 
-  if(format.fmt.pix.pixelformat != 0x56595559) { // YUYV
+  if(format.fmt.pix.pixelformat != V4L2_PIX_FMT_YUYV) { // YUYV
     warning("pixel format not recognized, trying anyway as YUYV");
     warning("the system might become instable...");
   }
-
+  
   for (unsigned int i = 0; i < reqbuf.count; i++) {
     
     memset (&buffer, 0, sizeof (buffer));
@@ -160,7 +190,6 @@ bool V4L2CamLayer::open(const char *devfile) {
       error ("VIDIOC_QUERYBUF: %s", strerror(errno));
       return(false);
     }
-    
     buffers[i].length = buffer.length; /* remember for munmap() */
     
     buffers[i].start = mmap (NULL, buffer.length,
@@ -186,6 +215,7 @@ bool V4L2CamLayer::open(const char *devfile) {
     buffer.type = reqbuf.type;
     buffer.memory = V4L2_MEMORY_MMAP;
     buffer.index = i;
+    buffer.length = buffers[i].length;
     
     if (-1 == ioctl (fd, VIDIOC_QBUF, &buffer)) {
       error ("first VIDIOC_QBUF: %s", strerror(errno));
@@ -225,12 +255,16 @@ bool V4L2CamLayer::_init() {
 void *V4L2CamLayer::feed() {
 
   // Can we have a buffer please?
+  memset(&buffer, 0, sizeof buffer);
+  buffer.type = (v4l2_buf_type)buftype;
+  buffer.memory = V4L2_MEMORY_MMAP;
   if (-1 == ioctl (fd, VIDIOC_DQBUF, &buffer)) {
     error ("VIDIOC_DQBUF: %s", strerror(errno));
     //    return NULL;
   }
 
-  ccvt_yuyv_bgr32(geo.w, geo.h, buffers[buffer.index].start, frame);
+  //multiply height by 2 seems to solve the upper half screen crop
+  ccvt_yuyv_bgr32(geo.w, geo.h*2, buffers[buffer.index].start, frame);
 
 
 

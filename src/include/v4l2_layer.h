@@ -48,7 +48,7 @@ class V4L2CamLayer: public Layer {
   void *frame;
 
   struct v4l2_capability capability;
-
+  struct v4l2_fmtdesc fmtdesc;
   struct v4l2_input input; ///< info about current video input
   struct v4l2_standard standard;
   struct v4l2_format format; ///< Need to find out (request?) specific data format (sec 1.10.1)
