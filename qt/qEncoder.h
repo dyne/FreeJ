@@ -18,6 +18,7 @@ public:
 
 public slots:
   void stream();
+  void updateStreamRate();
   
 private:
   void init();
@@ -25,6 +26,7 @@ private:
   QLineEdit *m_Vbitrate;
   QLineEdit *m_Aquality;
   QLineEdit *m_Abitrate;
+  QLineEdit *m_Bitrate;
   QLineEdit *m_FileName;
   Qfreej *m_Qfreej;
   Context *m_freej;
@@ -40,6 +42,8 @@ private:
   QLineEdit *m_Pass;
   QLineEdit *m_ShoutFileName;
   QRadioButton *m_IceButton;
+  QTimer *pollerRate;
+
 
 protected:
   virtual void closeEvent (QCloseEvent *ev);

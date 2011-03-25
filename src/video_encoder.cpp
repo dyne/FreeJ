@@ -90,7 +90,8 @@ VideoEncoder::VideoEncoder()
   audio_kbps = 0;
   video_kbps = 0;
   bytes_encoded = 0;
-
+  m_ElapsedTime = 0;
+  m_Streamed = 0;
   enc_y = enc_u = enc_v = NULL;
 
   fps = new FPS();
@@ -116,7 +117,7 @@ VideoEncoder::VideoEncoder()
     error("shout_set_public: %s", shout_get_error(ice));
 
   func("init picture_yuv for colorspace conversion (avcodec)");  
-
+  gettimeofday(&m_OldTime, NULL);
 }
 
 VideoEncoder::~VideoEncoder() {
@@ -266,8 +267,27 @@ void VideoEncoder::thread_loop() {
         }// else 
             //printf("%d %d\n", encnum, (int)shout_queuelen(ice));
       }
+      gettimeofday(&m_ActualTime, NULL);
+      if (m_ActualTime.tv_sec == m_OldTime.tv_sec)
+	m_ElapsedTime += ((double)(m_ActualTime.tv_usec - m_OldTime.tv_usec))/1000000.0;
+      else
+	m_ElapsedTime += ((double)(m_ActualTime.tv_sec - m_OldTime.tv_sec)) + \
+	  (((double)(m_ActualTime.tv_usec - m_OldTime.tv_usec))/1000000.0);
+      m_OldTime.tv_sec = m_ActualTime.tv_sec;
+      m_OldTime.tv_usec = m_ActualTime.tv_usec;
+      m_Streamed += encnum;
+      if (m_ElapsedTime >= 3.0)		//calculate stream rate every minimum 3 seconds
+      {
+	m_StreamRate = ((double)m_Streamed / m_ElapsedTime) / 1000.0;
+	m_ElapsedTime = 0;
+	m_Streamed = 0;
+      }
     } 
-  
+}
+
+double VideoEncoder::getStreamRate()
+{
+  return (m_StreamRate);
 }
 
 void VideoEncoder::thread_teardown() {

@@ -69,6 +69,7 @@ class VideoEncoder: public Entry, public JSyncThread {
   VideoEncoder ();
   virtual ~VideoEncoder ();
 
+  double getStreamRate();
 
   virtual bool init (ViewPort *scr) = 0;  ///< pure virtual function to implement
   virtual int encode_frame ()       = 0;  ///< pure virtual function to implement
@@ -125,7 +126,10 @@ class VideoEncoder: public Entry, public JSyncThread {
 //   char encbuf[1024*128];
 //   char encbuf[1024*2096];
   char *encbuf;
-struct timeval actual_time;
+  struct timeval m_ActualTime, m_OldTime;
+  double m_StreamRate;
+  int 	 m_Streamed;
+  double m_ElapsedTime;
 
 
 };
