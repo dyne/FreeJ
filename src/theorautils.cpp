@@ -72,7 +72,7 @@ static double rint(double x)
 
 void init_info(oggmux_info *info) {
     info->audio_only = 0;
-    info->with_skeleton = 0; /* skeleton is enabled by default    */ 
+    info->with_skeleton = 1; /* skeleton is enabled by default    */ 
     info->frontend = NULL; /*frontend mode*/
     info->videotime =  0;
     info->audiotime = 0;
@@ -572,7 +572,6 @@ void oggmux_init (oggmux_info *info){
     if (info->with_skeleton) {
         add_fisbone_packet (info);
         while (1) {
-	  std::cerr << "------- with_skeleton !!!!" << std::endl;
             int result = ogg_stream_flush (&info->so, &og);	//3 with_skeleton
 			if (result < 0) {
                 /* can't get here */

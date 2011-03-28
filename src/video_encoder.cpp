@@ -260,6 +260,9 @@ void VideoEncoder::thread_loop() {
         fwrite(encbuf, 1, encnum, filedump_fd);
     
       if(write_to_stream) {
+	int	wait_ms;
+	wait_ms = shout_delay(ice);
+	std::cerr << "---- shout delay :" << wait_ms << std::endl;
 // 	shout_sync(ice);	//no sound when commented out !!
         if( shout_send(ice, (const unsigned char*)encbuf, encnum)
 	      != SHOUTERR_SUCCESS) {
