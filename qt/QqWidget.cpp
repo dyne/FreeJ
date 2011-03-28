@@ -22,7 +22,7 @@
 #include <iostream>
 #include <QTabWidget>
 #include <QMessageBox>
-#include "qfreej.h"
+#include <qfreej.h>
 #include <QqComboBlit.h>
 #include <QqComboFilter.h>
 #include <QDebug>
