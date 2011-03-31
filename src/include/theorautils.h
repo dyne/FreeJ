@@ -21,7 +21,7 @@
 #define _F2T_THEORAUTILS_H_
 
 #include <config.h>
-
+#include <samplerate.h>
 #include <stdint.h>
 #include <theora/theora.h>
 #include <vorbis/codec.h>

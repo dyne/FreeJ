@@ -49,8 +49,7 @@ bool QJackClient::init()
     return (false);
   }
 
-  m_audio = new AudioCollector(1024, 48192, m_Jack);		//48240 seems to be a good value in my config
-//   m_audio = new AudioCollector(1024, 48000, m_Jack);
+  m_audio = new AudioCollector(1024, 48000, m_Jack);
   m_Jack->isEncoded(false);
   m_Enc = m_Qfreej->getEnc();
 

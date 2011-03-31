@@ -15,6 +15,6 @@ the QJackClient of the time you waited to open the QJackClient .... see if a fix
 //if resizing the wiewport when the layer is bigger, you just need to touch the layer size to display it correctly
 //why qfreej doesn't install with the AUR packages
 //see if possible to manage an audio layer
-//be able to change v4l2 resolution from the graphic interface
+//be able to change v4l2 resolution from the graphic interface and to disable it for some bad v4l2 devices
 //see why sound delay increases on video during streaming (sound slower than video ... or video too fast)
 //see why sound coming from the jack input stops after a whyle when streaming .... have to deconnect jack ports and reconnect

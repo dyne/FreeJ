@@ -96,7 +96,6 @@ VideoEncoder::VideoEncoder()
 
   fps = new FPS();
   fps->init(25); // default FPS
-
   // initialize the encoded data pipe
   // TODO: set the size to width * height * 4 * nframes (3-4)
   ringbuffer = ringbuffer_create(1048*2096);
@@ -202,11 +201,9 @@ void VideoEncoder::thread_loop() {
 			" tv_usec :" << fps->start_tv.tv_usec << "   \r" << std::endl;
         return;
     }
-    //gettimeofday(&actual_time,NULL);
     fps->calc(); 	//without this the thread_loop is called nearly two times more and
     fps->delay();	//stream speed is too slow
-	//std::cout << "actual_time.tv_sec :" << actual_time.tv_sec << \
-			" tv_usec :" << actual_time.tv_usec << "   \r" << std::endl;
+
     screen->lock();
 
     switch(screen->get_pixel_format()) {
@@ -260,9 +257,9 @@ void VideoEncoder::thread_loop() {
         fwrite(encbuf, 1, encnum, filedump_fd);
     
       if(write_to_stream) {
-	int	wait_ms;
+/*	int	wait_ms;
 	wait_ms = shout_delay(ice);
-	std::cerr << "---- shout delay :" << wait_ms << std::endl;
+	std::cerr << "---- shout delay :" << wait_ms << std::endl;*/
 // 	shout_sync(ice);	//no sound when commented out !!
         if( shout_send(ice, (const unsigned char*)encbuf, encnum)
 	      != SHOUTERR_SUCCESS) {
