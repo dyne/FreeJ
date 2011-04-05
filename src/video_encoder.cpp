@@ -260,7 +260,7 @@ void VideoEncoder::thread_loop() {
 /*	int	wait_ms;
 	wait_ms = shout_delay(ice);
 	std::cerr << "---- shout delay :" << wait_ms << std::endl;*/
-// 	shout_sync(ice);	//no sound when commented out !!
+	shout_sync(ice);
         if( shout_send(ice, (const unsigned char*)encbuf, encnum)
 	      != SHOUTERR_SUCCESS) {
             error("shout_send: %s", shout_get_error(ice));

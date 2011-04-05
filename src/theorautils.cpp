@@ -282,8 +282,8 @@ void *timer_start(void)
 int	sampleError;
 SRC_STATE *src_state;
 SRC_DATA *src_data;
-double ratio;
-double *sampleOut;
+double ratio, averageR;
+double *sampleOut, samplesA;
 
 void oggmux_init (oggmux_info *info){
     ogg_page og;
@@ -292,6 +292,8 @@ void oggmux_init (oggmux_info *info){
     src_state = NULL;
     src_data = NULL;
     ratio = 1.0;
+    averageR = 1.0;
+    samplesA = 1.0;
     sampleOut = NULL;
 
     /* yayness.  Set up Ogg output stream */
@@ -703,7 +705,7 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
       src_data->input_frames = (long)samples;
       src_data->data_out = sampleOut;
       src_data->output_frames = (long)((double)samples * 1.1);
-      src_data->src_ratio = ratio; //48000.0 / 48500.0;
+      src_data->src_ratio = ratio;
       src_data->end_of_input = 0;
       if (int processError = src_process (src_state, src_data)) {
 	std::cerr << "--- resample error :" << src_strerror (processError) << std::endl;
@@ -1007,11 +1009,20 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 	    if (info->audiotime == -1)
 		std::cerr << "the given vorbis granulepos is invalid" << std::endl << std::flush;
 	    else {
-	      ratio = ((info->videotime - info->audiotime) / 10.0) + 1.0;
-	      if (ratio > 1.05)
-		ratio = 1.05;
-	      else if (ratio <= 0.95)
-		ratio = 0.95;
+	      samplesA++;
+	      ratio = ((info->videotime - info->audiotime) / 60.0 )+ averageR;
+	      averageR = (ratio + (averageR * (samplesA - 1))) / samplesA;
+// 	      std::cerr << "ratio :" << ratio << " averageR :" << averageR;
+	      if (ratio > (averageR * 1.01)) {
+		ratio = averageR * 1.01;
+// 		std::cerr << " resampled at:" << ratio << std::endl;
+	      }
+	      else if (ratio < (averageR * 0.99)) {
+		ratio = averageR * 0.99;
+// 		std::cerr << " resampled at:" << ratio << std::endl;
+	      }
+// 	      else
+// 		std::cerr << " resampled at:" << ratio << std::endl;
 	    }
 	  }
 // 	  std::cerr << "Vorbis time :" << info->audiotime << std::endl << std::flush;
