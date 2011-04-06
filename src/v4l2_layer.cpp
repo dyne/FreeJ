@@ -129,7 +129,7 @@ bool V4L2CamLayer::open(const char *devfile) {
     return (false);
   }
 
-//   memset(&format, 0, sizeof format);
+///////////// does not work with my ricoh and the uvcvideo module .... just comment out if needed
   format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   format.fmt.pix.width = 352;
   format.fmt.pix.height = 288;

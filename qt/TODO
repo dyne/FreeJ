@@ -1,7 +1,6 @@
 //move main window in accordance with the size
 //resize ViewPort in accordance to the  biggest layer .... (not sure it is good thing)
 //be able to record all marked opened layers with the same quality .... a challenge :)
-//see to use Linklist.completion to add blit, filters and generators
 //devide the fake size window by two .... not sure :)
 //insert STRING filters parameters
 //add a x:x ratio button, resizing to the closest width and lenght to obtain this ratio 
@@ -13,8 +12,11 @@ the QJackClient of the time you waited to open the QJackClient .... see if a fix
 //try to fix sound problem issue when opening several VideoLayer with audio
 //add the capability to keep the actual config in a file..... important :)
 //if resizing the wiewport when the layer is bigger, you just need to touch the layer size to display it correctly
-//why qfreej doesn't install with the AUR packages
 //see if possible to manage an audio layer
 //be able to change v4l2 resolution from the graphic interface and to disable it for some bad v4l2 devices
-//see why sound delay increases on video during streaming (sound slower than video ... or video too fast)
-//see why sound coming from the jack input stops after a whyle when streaming .... have to deconnect jack ports and reconnect
+//try to suppress the drift taken when applying an effect
+//streaming a/v, when stopping audio, the stream is corrupted and the client stops (oggmux_flush)
+//needs to launch QJackClient before start streaming when you want audio.
+//needs to re-launch streaming when disconnect and reconnect the jack input port
+//try to see why there is around 100 us more in between each call to the fps class (40100 instead od 40000 for 25fps)
+//merge with mastr branch ..... mainly for qt config modif
