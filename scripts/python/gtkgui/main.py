@@ -79,6 +79,8 @@ class MyConsole(freej.ConsoleController):
     def refresh(self, msg):
         print " X*", msg
 
+    def old_printlog(self, msg):
+        self.advance(self.infoicon, msg)
 
 # -----------------------------------------------------
 

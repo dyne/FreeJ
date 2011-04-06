@@ -1,4 +1,4 @@
-#include "qOpacity.h"
+#include <qOpacity.h>
 
 QOpacity::QOpacity(Qfreej *qfreej) : QWidget()
 {

@@ -18,7 +18,7 @@
 
 
 #include <QtGui/QApplication>
-#include "qfreej.h"
+#include <qfreej.h>
 
 QSize viewSize;
 
