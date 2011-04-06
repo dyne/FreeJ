@@ -23,9 +23,9 @@ BUILT_SOURCES = ui_qfreej.h \
 		moc_QqComboFilter.cpp \
 		moc_QqFiltersApplied.cpp \
 		moc_QqTabWidget.cpp \
-		moc_Sound.cpp \
 		moc_qJackClient.cpp \
 		moc_qOpacity.cpp \
+		moc_qLogging.cpp \
 		moc_qEncoder.cpp
 
 
@@ -38,10 +38,10 @@ SOURCES = main.cpp \
     specialeventget.cpp \
     FakeWindow.cpp \
     QqTabWidget.cpp \
-    Sound.cpp \
     qJackClient.cpp \
     qOpacity.cpp \
     qEncoder.cpp \
+    qLogging.cpp \
     $(BUILT_SOURCES)
 
 
@@ -49,7 +49,7 @@ bin_PROGRAMS = qfreej
 qfreej_SOURCES = $(SOURCES)
 qfreej_LDADD = $(top_builddir)/src/libfreej.la $(SDL_LIBS) $(QTGUI_LIBS)
 
-clean:
-	rm -f qfreej *.o
-	rm -f moc_*.cpp moc_*.h
-	rm -f ui_*.h
+#clean:
+#	rm -f qfreej *.o
+#	rm -f moc_*.cpp moc_*.h
+#	rm -f ui_*.h

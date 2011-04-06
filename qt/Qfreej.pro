@@ -35,7 +35,7 @@ SOURCES += main.cpp \
 	qLogging.h
 #FORMS += qfreej.ui
 CONFIG += qt debug
-LIBS += -L../src/.libs -lfreej
+LIBS += -lfreej
 INCLUDEPATH += ../ \
     /usr/include/SDL \
     ../lib/sdl_ttf \
