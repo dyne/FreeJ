@@ -29,6 +29,7 @@ QJackClient::QJackClient(Qfreej *qfreej) : QWidget()
 
 QJackClient::~QJackClient()
 {
+  if (m_Qfreej->getQEnc()) delete (m_Qfreej->getQEnc());
   if (m_JackIsOn && m_Jack) m_Jack->Detach();
   m_Jack = NULL;
   m_Qfreej->resetQJack();

@@ -39,6 +39,7 @@ public:
     QJackClient *getQjack();
     Context *getFreej();
     OggTheoraEncoder *getEnc();
+    QEncoder *getQEnc();
     void resetEnc();
     void resetQJack();
 
