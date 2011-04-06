@@ -157,7 +157,7 @@ class VideoLayer: public Layer {
 	double mark_out;
 	/** dropping frames variables */
 	int user_play_speed; /** play speed to be visualized to the user */
-	int play_speed; /** real speed */
+	float play_speed; /** real speed */
 	int play_speed_control;
 
 

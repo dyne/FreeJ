@@ -213,7 +213,7 @@ class Layer: public Entry, public JSyncThread {
 
   unsigned int textureID; ///< opengl texture id
 
-  int frame_rate; ///< value set by implemented layer type
+  float frame_rate; ///< value set by implemented layer type
 
  protected:
 

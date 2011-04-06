@@ -699,12 +699,15 @@ void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples
             vorbis_analysis_wrote (&info->vd, 0);
     }
     else{	//resample code
-      sampleOut = (float *)realloc(sampleOut, ((samples * info->channels * sizeof(float)) + 1000));
+      sampleOut = (float *)realloc(sampleOut, ((samples * info->channels * sizeof(float)) \
+	    + (1.2 * ((samples * info->channels * sizeof(float))))));
       memset(src_data, 0, sizeof(SRC_DATA));
       src_data->data_in = buffer;
       src_data->input_frames = (long)samples;
       src_data->data_out = sampleOut;
       src_data->output_frames = (long)((double)samples * 1.1);
+      if (ratio > 1.1 || ratio < 0.9)
+	ratio = 1.0;
       src_data->src_ratio = ratio;
       src_data->end_of_input = 0;
       if (int processError = src_process (src_state, src_data)) {

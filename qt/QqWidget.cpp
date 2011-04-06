@@ -43,7 +43,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     fakeView = NULL;
     fakeLay = NULL;
     ctx = NULL;
-    actualFps = normalFps = 0;
+    actualFps = normalFps = fpsP = 0;
     qLayer = freej->open((char*)fichier.toStdString().c_str(), 0, 0); // hey, this already init and open the layer !!
     if(qLayer)
     {
@@ -63,6 +63,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             qLayer->fps.set(qLayer->frame_rate);
             normalFps = qLayer->frame_rate;
             actualFps = qLayer->frame_rate;
+	    fpsP = 100;
 	    qDebug() << "--- actualFps :" << actualFps;
 //             }
             tabWidget->addTab(this, qLayer->get_filename());
@@ -119,9 +120,9 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
       slowFps = new QSlider(this);
       slowFps->setOrientation(Qt::Vertical);
       connect(slowFps, SIGNAL(sliderMoved(int)), this, SLOT(changeFps(int)));
-      slowFps->setRange(1, (normalFps*2));
+      slowFps->setRange(2, 100);
       slowFps->setToolTip("speed control (grey: normal speed, red: higher or lower)");
-      slowFps->setValue(normalFps);
+      slowFps->setValue(50);
       slowFps->setSliderDown(true);
       slowFps->setStyleSheet("background: grey");
       layoutH->addWidget(slowFps);
@@ -537,9 +538,10 @@ void QqWidget::changeFps(int val)
 {
     if (qLayer)
     {
-        if (val != actualFps)
+        if (val != 50)
         {
-	  qLayer->fps.set(val);
+	  actualFps = ((float)val / 50.0) * normalFps;
+	  qLayer->fps.set(actualFps);
 	  slowFps->setStyleSheet("background: red");
         }
         else

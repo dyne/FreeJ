@@ -252,7 +252,7 @@ bool VideoLayer::open(const char *file) {
 	/* this saves only file without full path! */
 	set_filename (file);
 
-	act ("%s (codec: %s) has resolution %dx%d and framerate %d",
+	act ("%s (codec: %s) has resolution %dx%d and framerate %f",
 	     get_filename(), video_codec->name,
 	     video_codec_ctx->width, video_codec_ctx->height, frame_rate);
 
@@ -317,7 +317,7 @@ bool VideoLayer::open(const char *file) {
 
   geo.init(video_codec_ctx->width, video_codec_ctx->height, 32);
   func("VideoLayer :: w[%u] h[%u] size[%u]", geo.w, geo.h, geo.bytesize);
-  func("VideoLayer :: frame_rate[%d]",frame_rate);
+  func("VideoLayer :: frame_rate[%f]",frame_rate);
 
   // initialize picture
   if( new_picture(rgba_picture) < 0) {

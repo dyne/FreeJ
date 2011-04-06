@@ -29,10 +29,10 @@ class FPS {
   FPS();
   ~FPS();
 
-  void init(int rate);
+  void init(float rate);
 
-  int get();
-  int set(int rate);
+  float get();
+  float set(float rate);
   void calc();
   void delay();
   void select_sleep(long usec);

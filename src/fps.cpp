@@ -58,7 +58,7 @@ FPS::~FPS() {
     error("error destroying POSIX thread feed attribute");
   
 }
-void FPS::init(int rate) {
+void FPS::init(float rate) {
 
 
   this->set(25);
@@ -110,12 +110,12 @@ void FPS::calc() {
   
 }
 
-int FPS::get() {
+float FPS::get() {
   return (_fps ? fpsd.sum / fpsd.n : 0 );
 }
 
-int FPS::set(int rate) {
-  func("FPS set to %u",rate);
+float FPS::set(float rate) {
+  func("FPS set to %f",rate);
   if (rate < 0) // invalid
     return fps_old;
   

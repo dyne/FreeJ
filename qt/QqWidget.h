@@ -57,8 +57,9 @@ private:
     QPushButton *textButton;
     QPushButton *slowButton;
     QSlider *slowFps;
-    int normalFps;
-    int actualFps;
+    float normalFps;
+    float actualFps;
+    int	fpsP;
     QPushButton *playButton;
     bool isPlaying;
     QComboBox *fontSizeBox;
