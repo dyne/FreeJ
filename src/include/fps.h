@@ -53,8 +53,8 @@ class FPS {
   struct timeval start_tv;
 
   /* mutex and conditional for the delay */
-  pthread_mutex_t _mutex;
-  pthread_cond_t _cond;
+//   pthread_mutex_t _mutex;
+//   pthread_cond_t _cond;
 
 };
 

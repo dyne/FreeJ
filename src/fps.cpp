@@ -42,26 +42,26 @@ FPS::FPS() {
 
   wake_ts.tv_sec = wake_ts.tv_nsec = 0;
 
-  if(pthread_mutex_init (&_mutex,NULL) == -1)
-    error("error initializing POSIX thread feed mutex");
-  if(pthread_cond_init (&_cond, NULL) == -1)
-    error("error initializing POSIX thread feed condtition"); 
+//   if(pthread_mutex_init (&_mutex,NULL) == -1)
+//     error("error initializing POSIX thread feed mutex");
+//   if(pthread_cond_init (&_cond, NULL) == -1)
+//     error("error initializing POSIX thread feed condtition"); 
 
 }
 
 FPS::~FPS() {
   free(fpsd.data);
 
-  if(pthread_mutex_destroy(&_mutex) == -1)
+/*  if(pthread_mutex_destroy(&_mutex) == -1)
     error("error destroying POSIX thread feed mutex");
   if(pthread_cond_destroy(&_cond) == -1)
-    error("error destroying POSIX thread feed attribute");
+    error("error destroying POSIX thread feed attribute");*/
   
 }
 void FPS::init(float rate) {
 
 
-  this->set(25);
+  this->set(rate);
 
   for (int i=0; i<30; i++) {
     fpsd.data[i] = 0;
