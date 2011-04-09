@@ -51,21 +51,11 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
         {
             qLayer->start();	//launches JSyncThread::start()
 
-/*            if (qLayer->frame_rate > 50)   //pb de determination de FPS
-            {
-				std::cout << "--------- qfreej : frame_rate problem : " << qLayer->frame_rate << " FPS" << std::endl;
-                qLayer->fps.set(qLayer->frame_rate / 10); 
-                normalFps = qLayer->frame_rate / 10;
-                actualFps = qLayer->frame_rate / 10;
-            }
-            else
-            {*/
-            qLayer->fps.set(qLayer->frame_rate);
+//             qLayer->fps.set(qLayer->frame_rate);
             normalFps = qLayer->frame_rate;
             actualFps = qLayer->frame_rate;
 	    fpsP = 100;
 	    qDebug() << "--- actualFps :" << actualFps;
-//             }
             tabWidget->addTab(this, qLayer->get_filename());
             qLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
             m_tabWidg = tabWidget;
@@ -540,7 +530,7 @@ void QqWidget::changeFps(int val)
     {
         if (val != 50)
         {
-	  actualFps = ((float)val / 50.0) * normalFps;
+	  actualFps = ((double)val / 50.0) * normalFps;
 	  qLayer->fps.set(actualFps);
 	  slowFps->setStyleSheet("background: red");
         }
