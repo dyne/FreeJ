@@ -55,7 +55,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             normalFps = qLayer->frame_rate;
             actualFps = qLayer->frame_rate;
 	    fpsP = 100;
-	    qDebug() << "--- actualFps :" << actualFps;
+// 	    qDebug() << "--- actualFps :" << actualFps;
             tabWidget->addTab(this, qLayer->get_filename());
             qLayer->move(freej->screen->layers.len());      //put the layer at the end of the list
             m_tabWidg = tabWidget;

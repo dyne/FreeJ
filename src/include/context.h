@@ -164,7 +164,7 @@ class Context {
   /* Set the interval (in frames) after
      the fps counter is updated */
   FPS fps;
-  float fps_speed;
+  double fps_speed;
 
   bool clear_all;
   bool start_running;

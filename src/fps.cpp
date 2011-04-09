@@ -19,6 +19,7 @@
  *
  */
 
+#include <iostream>
 #include <stdlib.h>
 #include <errno.h>
 
@@ -33,7 +34,7 @@
 
 FPS::FPS() {
   _fps = 0;
-
+  _period = 0;
   fpsd.sum = 0;
   fpsd.i = 0;
   fpsd.n = 30;  
@@ -58,7 +59,7 @@ FPS::~FPS() {
     error("error destroying POSIX thread feed attribute");*/
   
 }
-void FPS::init(float rate) {
+void FPS::init(double rate) {
 
 
   this->set(rate);
@@ -84,10 +85,12 @@ void FPS::calc() {
   }
 
   timersub(&now_tv, &start_tv, &done);
-  int rate = 1000000 / _fps;
+  _period = 1000000 / _fps;
+//     std::cerr << "++ tv_sec :" << done.tv_sec << " us :" << done.tv_usec \
+// 	<< " _period :" << _period << " _fps :" << _fps << std::endl;
 
   if ( (done.tv_sec > 0)
-       || (done.tv_usec >= rate) ) {
+       || (done.tv_usec >= _period) ) {
 	 start_tv.tv_sec = now_tv.tv_sec;
 	 start_tv.tv_usec = now_tv.tv_usec;
 
@@ -96,17 +99,17 @@ void FPS::calc() {
   }
 
   wake_ts.tv_sec  = 0;
-  wake_ts.tv_nsec = (rate - done.tv_usec)*1000; // set the delay
+  wake_ts.tv_nsec = (_period - done.tv_usec)*1000; // set the delay
 
   // statistic only
-  if (done.tv_usec)
+/*  if (done.tv_usec)
       curr_fps = 1000000 /  done.tv_usec;
   else
       curr_fps = 0;
 
   fpsd.sum = fpsd.sum - fpsd.data[fpsd.i] + curr_fps;
   fpsd.data[fpsd.i] = curr_fps;
-  if (++fpsd.i >= fpsd.n) fpsd.i = 0;
+  if (++fpsd.i >= fpsd.n) fpsd.i = 0;*/
   
 }
 
@@ -114,7 +117,7 @@ float FPS::get() {
   return (_fps ? fpsd.sum / fpsd.n : 0 );
 }
 
-float FPS::set(float rate) {
+double FPS::set(double rate) {
   func("FPS set to %f",rate);
   if (rate < 0) // invalid
     return fps_old;
@@ -132,7 +135,12 @@ float FPS::set(float rate) {
 #if 1 // use nanosleep (otherwise select_sleep)
 void FPS::delay() {
   struct timespec remaining = { 0, 0 };
-
+  long int waitTime = 0;
+  wake_ts.tv_sec  = 0;
+  if(wake_ts.tv_nsec >= 1000000) {
+    wake_ts.tv_nsec = wake_ts.tv_nsec - 1000000; // set the delay
+    waitTime = wake_ts.tv_nsec;
+  }
   do {
     if (nanosleep(&wake_ts, &remaining) == -1) {
       if (errno == EINTR) {
@@ -150,7 +158,33 @@ void FPS::delay() {
   } while (wake_ts.tv_nsec > 0);
   // update lo start time
   gettimeofday(&start_tv,NULL);
-  
+  timeval did;
+  timersub(&start_tv, &m_OldTime, &did);
+  int fineAdjust;
+  if ((_period - did.tv_usec) > 100) {
+    wake_ts.tv_nsec = ((_period - did.tv_usec)-(100 + fineAdjust)) * 1000; // set the delay
+    do {
+      if (nanosleep(&wake_ts, &remaining) == -1) {
+	if (errno == EINTR) {
+        // we've been interrupted use remaining and then reset it
+	  wake_ts.tv_nsec = remaining.tv_nsec;
+	  remaining.tv_sec = remaining.tv_nsec = 0;
+	} else {
+	  error("nanosleep returned an error, not performing delay!");
+	  wake_ts.tv_sec  = wake_ts.tv_nsec = 0;
+	}
+      } else {
+	// nanosleep successful, reset wake_ts
+	wake_ts.tv_sec  = wake_ts.tv_nsec = 0;
+      }
+    } while (wake_ts.tv_nsec > 0);
+    gettimeofday(&start_tv,NULL);
+    timersub(&start_tv, &m_OldTime, &did);
+  }
+  fineAdjust = _period - did.tv_usec;
+//   std::cerr << "++ did in us :" << did.tv_usec << std::endl;
+  m_OldTime.tv_sec = start_tv.tv_sec;
+  m_OldTime.tv_usec = start_tv.tv_usec;
 }
 #else 
 

@@ -1028,7 +1028,8 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
 // 		std::cerr << " resampled at:" << ratio << std::endl;
 	    }
 	  }
-// 	  std::cerr << "Vorbis time :" << info->audiotime << std::endl << std::flush;
+/*	  std::cerr << "--- Vorbis time :" << info->audiotime << " Theora time :" \
+	      << info->videotime << std::endl << std::flush;*/
 	}
       }
 

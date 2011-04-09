@@ -218,7 +218,6 @@ bool VideoLayer::open(const char *file) {
      */
     case CODEC_TYPE_VIDEO:
       //      enc->flags |= CODEC_FLAG_LOOP_FILTER;
-	  std::cout << "CODEC_TYPE_VIDEO i:" << i << std::endl;
       video_index = i;
       video_codec_ctx = enc;
 
@@ -262,7 +261,6 @@ bool VideoLayer::open(const char *file) {
       break; // //////////////// end of video section
 
     case CODEC_TYPE_AUDIO:
-	  std::cout << "CODEC_TYPE_AUDIO i:" << i << std::endl;
       audio_index = i;
       audio_codec_ctx = enc;
       func ("VideoLayer :: audio id=%i", audio_index);
