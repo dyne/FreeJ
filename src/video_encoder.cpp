@@ -206,8 +206,6 @@ void VideoEncoder::thread_loop() {
 			" tv_usec :" << fps->start_tv.tv_usec << "   \r" << std::endl;
         return;
     }
-    fps->calc(); 	//without this the thread_loop is called nearly two times more and
-    fps->delay();	//stream speed is too slow
     //uncomment this to see how long it takes between two frames in us.
 /*    timeval start_t;
     gettimeofday(&start_t,NULL);

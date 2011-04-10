@@ -135,11 +135,8 @@ double FPS::set(double rate) {
 #if 1 // use nanosleep (otherwise select_sleep)
 void FPS::delay() {
   struct timespec remaining = { 0, 0 };
-  long int waitTime = 0;
-  wake_ts.tv_sec  = 0;
   if(wake_ts.tv_nsec >= 1000000) {
     wake_ts.tv_nsec = wake_ts.tv_nsec - 1000000; // set the delay
-    waitTime = wake_ts.tv_nsec;
   }
   do {
     if (nanosleep(&wake_ts, &remaining) == -1) {
