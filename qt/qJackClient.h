@@ -25,7 +25,7 @@ public:
 public slots:
   void addInput();
   void addOutput();
-  void chgSampleRate();
+//   void chgSampleRate();
   void chgSamples();
   void changeMixCoef(int);
 

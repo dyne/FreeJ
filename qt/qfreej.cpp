@@ -241,6 +241,11 @@ OggTheoraEncoder *Qfreej::getEnc()
     return (NULL);
 }
 
+QEncoder *Qfreej::getQEnc()
+{
+  return(m_Enc);
+}
+
 void Qfreej::addTextLayer()
 {
     QqWidget *aWidget = new QqWidget(freej, tabWidget, this);

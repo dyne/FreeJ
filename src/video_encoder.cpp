@@ -96,28 +96,32 @@ VideoEncoder::VideoEncoder()
 
   fps = new FPS();
   fps->init(25); // default FPS
-
   // initialize the encoded data pipe
   // TODO: set the size to width * height * 4 * nframes (3-4)
   ringbuffer = ringbuffer_create(1048*2096);
 
   shout_init();
-  ice = shout_new();
+  if ((ice = shout_new()) != NULL) {
 
-  if( shout_set_protocol(ice,SHOUT_PROTOCOL_HTTP) )
-    error("shout_set_protocol: %s", shout_get_error(ice));
+    if( shout_set_protocol(ice,SHOUT_PROTOCOL_HTTP) )
+      error("shout_set_protocol: %s", shout_get_error(ice));
 
-  if( shout_set_format(ice,SHOUT_FORMAT_OGG) )
-    error("shout_set_format: %s", shout_get_error(ice));
+    if( shout_set_format(ice,SHOUT_FORMAT_OGG) )
+      error("shout_set_format: %s", shout_get_error(ice));
 
-  if( shout_set_agent(ice,"FreeJ - freej.dyne.org") )
-    error("shout_set_agent: %s", shout_get_error(ice));
+    if( shout_set_agent(ice,"FreeJ - freej.dyne.org") )
+      error("shout_set_agent: %s", shout_get_error(ice));
 
-  if( shout_set_public(ice,1) )
-    error("shout_set_public: %s", shout_get_error(ice));
+    if( shout_set_public(ice,1) )
+      error("shout_set_public: %s", shout_get_error(ice));
+  }
 
   func("init picture_yuv for colorspace conversion (avcodec)");  
   gettimeofday(&m_OldTime, NULL);
+  
+  //uncomment this and beyond to see how long it takes between two frames
+/*  m_OldTime.tv_sec = m_lastTime.tv_sec;
+  m_OldTime.tv_usec = m_lastTime.tv_usec;*/
 }
 
 VideoEncoder::~VideoEncoder() {
@@ -138,7 +142,7 @@ VideoEncoder::~VideoEncoder() {
 	nn = fwrite(encbuf, 1, encnum, filedump_fd);
       }
 
-      if(write_to_stream) {
+      if(write_to_stream && ice) {
 	shout_sync(ice);
 	shout_send(ice, (const unsigned char*)encbuf, encnum);
       }
@@ -202,11 +206,14 @@ void VideoEncoder::thread_loop() {
 			" tv_usec :" << fps->start_tv.tv_usec << "   \r" << std::endl;
         return;
     }
-    //gettimeofday(&actual_time,NULL);
-    fps->calc(); 	//without this the thread_loop is called nearly two times more and
-    fps->delay();	//stream speed is too slow
-	//std::cout << "actual_time.tv_sec :" << actual_time.tv_sec << \
-			" tv_usec :" << actual_time.tv_usec << "   \r" << std::endl;
+    //uncomment this to see how long it takes between two frames in us.
+/*    timeval start_t;
+    gettimeofday(&start_t,NULL);
+    timeval did;
+    timersub(&start_t, &m_lastTime, &did);
+    m_lastTime.tv_sec = start_t.tv_sec;
+    m_lastTime.tv_usec = start_t.tv_usec;
+    std::cerr << "diff time :" << did.tv_usec << std::endl;*/
     screen->lock();
 
     switch(screen->get_pixel_format()) {
@@ -259,8 +266,11 @@ void VideoEncoder::thread_loop() {
       if(write_to_disk && filedump_fd) 
         fwrite(encbuf, 1, encnum, filedump_fd);
     
-      if(write_to_stream) {
-// 	shout_sync(ice);	//no sound when commented out !!
+      if(write_to_stream && ice) {
+/*	int	wait_ms;
+	wait_ms = shout_delay(ice);
+	std::cerr << "---- shout delay :" << wait_ms << std::endl;*/
+	shout_sync(ice);
         if( shout_send(ice, (const unsigned char*)encbuf, encnum)
 	      != SHOUTERR_SUCCESS) {
             error("shout_send: %s", shout_get_error(ice));

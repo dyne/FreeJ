@@ -218,7 +218,6 @@ bool VideoLayer::open(const char *file) {
      */
     case CODEC_TYPE_VIDEO:
       //      enc->flags |= CODEC_FLAG_LOOP_FILTER;
-	  std::cout << "CODEC_TYPE_VIDEO i:" << i << std::endl;
       video_index = i;
       video_codec_ctx = enc;
 
@@ -252,7 +251,7 @@ bool VideoLayer::open(const char *file) {
 	/* this saves only file without full path! */
 	set_filename (file);
 
-	act ("%s (codec: %s) has resolution %dx%d and framerate %d",
+	act ("%s (codec: %s) has resolution %dx%d and framerate %f",
 	     get_filename(), video_codec->name,
 	     video_codec_ctx->width, video_codec_ctx->height, frame_rate);
 
@@ -262,7 +261,6 @@ bool VideoLayer::open(const char *file) {
       break; // //////////////// end of video section
 
     case CODEC_TYPE_AUDIO:
-	  std::cout << "CODEC_TYPE_AUDIO i:" << i << std::endl;
       audio_index = i;
       audio_codec_ctx = enc;
       func ("VideoLayer :: audio id=%i", audio_index);
@@ -317,7 +315,7 @@ bool VideoLayer::open(const char *file) {
 
   geo.init(video_codec_ctx->width, video_codec_ctx->height, 32);
   func("VideoLayer :: w[%u] h[%u] size[%u]", geo.w, geo.h, geo.bytesize);
-  func("VideoLayer :: frame_rate[%d]",frame_rate);
+  func("VideoLayer :: frame_rate[%f]",frame_rate);
 
   // initialize picture
   if( new_picture(rgba_picture) < 0) {

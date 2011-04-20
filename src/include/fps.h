@@ -21,7 +21,7 @@
 #ifndef __FPS_H__
 #define __FPS_H__
 
-#include <pthread.h>
+// #include <pthread.h>
 #include <inttypes.h>
 
 class FPS {
@@ -29,16 +29,15 @@ class FPS {
   FPS();
   ~FPS();
 
-  void init(int rate);
+  void init(double rate);
 
-  int get();
-  int set(int rate);
+  float get();
+  double set(double rate);
   void calc();
   void delay();
   void select_sleep(long usec);
 
-  float fps, fps_old;
-  struct timespec wake_ts;  
+  double fps, fps_old;
 
  private:
 
@@ -49,12 +48,13 @@ class FPS {
     float *data;
   } fpsd;
 
-  float _delay, _fps;
-  struct timeval start_tv;
-
+  struct timespec wake_ts;  
+  double _delay, _fps;
+  struct timeval start_tv, m_OldTime;
+  long int _period;
   /* mutex and conditional for the delay */
-  pthread_mutex_t _mutex;
-  pthread_cond_t _cond;
+//  pthread_mutex_t _mutex;
+//  pthread_cond_t _cond;
 
 };
 

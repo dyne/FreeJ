@@ -29,6 +29,7 @@ QJackClient::QJackClient(Qfreej *qfreej) : QWidget()
 
 QJackClient::~QJackClient()
 {
+  if (m_Qfreej->getQEnc()) delete (m_Qfreej->getQEnc());
   if (m_JackIsOn && m_Jack) m_Jack->Detach();
   m_Jack = NULL;
   m_Qfreej->resetQJack();
@@ -71,14 +72,15 @@ bool QJackClient::init()
   m_Coef->setEnabled(false);
   layoutG->addWidget(m_Coef, 2, 0, 1, 2);
   m_Coef->setToolTip("sets the Mix coefficient between Jack Input and Video Layer output");
-  
+
+  //not used
   m_SampleRate = new QLineEdit;
-  connect (m_SampleRate, SIGNAL(returnPressed()), this, SLOT(chgSampleRate()));
+//   connect (m_SampleRate, SIGNAL(returnPressed()), this, SLOT(chgSampleRate()));
   m_SampleRate->setValidator(new QIntValidator(m_SampleRate));
   m_SampleRate->setText("48000");	//default Jackd sample rate
   m_SampleRate->setEnabled(false);
 //   m_Jack->m_SampleRate = 48000;	//not necessary as it is donne in AudioCollector constructor
-
+  //
   QLabel *vSampleRate = new QLabel("J SampleRate :");
   layoutG->addWidget(vSampleRate, 3, 0);
   layoutG->addWidget(m_SampleRate, 3, 1);
@@ -166,10 +168,10 @@ void QJackClient::addInput()
   }
 }
 
-void QJackClient::chgSampleRate()
-{
-  m_Jack->m_SampleRate = m_SampleRate->text().toInt();
-}
+// void QJackClient::chgSampleRate()
+// {
+//   m_Jack->m_SampleRate = m_SampleRate->text().toInt();
+// }
 
 int QJackClient::getSampleRate()
 {
