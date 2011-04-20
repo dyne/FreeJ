@@ -1,4 +1,8 @@
-The FreeJ development team, in order of apparition:
+The FreeJ code development team, in order of apparition:
+
+Fred "fred_99" Cambray
+ = Streaming, A/V Sync, QT GUI
+ = Extensive testing and early library adopter
 
 Filippo "GodoG" Giunchedi http://esaurito.net
  = Auto-tools, binary packaging, build daemon
@@ -24,13 +28,13 @@ Christoph "Mr.Goil" Rudorff <goil\\dyne.org>
  = Midi, Joystick controllers, scripts, profiling
  = Big-Endian port, usability
 
-Silvano "Kysucix" Galliani - <kysucix\\dyne.org>
+Silvano "Kysucix" Galliani - http://dyne.org/~kysucix
  = Javascript interpreter, Video encoding
- = On hold since approx 2006
+ = Juggling video and art experiments
 
 Denis "Jaromil" Roio - http://rastasoft.org
  = C++ OO Architecture, Language API
- = Project initiator and current mantainer
+ = Project initiator and mantainer
 
 
 
@@ -79,8 +83,6 @@ Olie Lho <ollie\\sis.com.tw>
 
 Pete Warden
 	backlight filter
-
-
 
 Fukuchi Kentarou http://effectv.sf.net
 
