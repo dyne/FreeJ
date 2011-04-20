@@ -1,7 +1,7 @@
 dist_docs_DATA = README README.OSX TODO INSTALL API COPYING USAGE AUTHORS NEWS KNOWN-BUGS
 docsdir = ${prefix}/share/doc/${PACKAGE}
 
-DISTCHECK_CONFIGURE_FLAGS = --enable-ruby --enable-python
+DISTCHECK_CONFIGURE_FLAGS = --enable-python --enable-qt-gui
 
 #pkgdatadir = ${prefix}/share/freej
 
