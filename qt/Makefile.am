@@ -26,7 +26,8 @@ BUILT_SOURCES = ui_qfreej.h \
 		moc_qJackClient.cpp \
 		moc_qOpacity.cpp \
 		moc_qLogging.cpp \
-		moc_qEncoder.cpp
+		moc_qEncoder.cpp \
+		moc_qqcombores.cpp
 
 
 SOURCES = main.cpp \
@@ -42,6 +43,7 @@ SOURCES = main.cpp \
     qOpacity.cpp \
     qEncoder.cpp \
     qLogging.cpp \
+	qqcombores.cpp \
     $(BUILT_SOURCES)
 
 

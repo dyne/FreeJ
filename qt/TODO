@@ -1,9 +1,9 @@
 //move main window in accordance with the size
 //resize ViewPort in accordance to the  biggest layer .... (not sure it is good thing)
-//be able to record all marked opened layers with the same quality .... a challenge :)
+//be able to record all marked opened layers with the initial quality.
 //devide the fake size window by two .... not sure :)
 //insert STRING filters parameters
-//add a x:x ratio button, resizing to the closest width and lenght to obtain this ratio 
+//add an x:x ratio button, resizing to the closest width and lenght to obtain this ratio 
 //create a console for messages comming from func() warning() notice() act(). see Logger class
 //see to integrate ogg skeleton config on the graphic interface
 //there is a delay between audio and video if you open a video before creating
@@ -15,8 +15,9 @@ the QJackClient of the time you waited to open the QJackClient .... see if a fix
 //see if possible to manage an audio layer
 //be able to change v4l2 resolution from the graphic interface and to disable it for some bad v4l2 devices
 //try to suppress the drift taken when applying an effect
-//streaming a/v, when stopping audio, the stream is corrupted and the client stops (oggmux_flush)
 //needs to launch QJackClient before start streaming when you want audio.
 //needs to re-launch streaming when disconnect and reconnect the jack input port
-//try to see why there is around 100 us more in between each call to the fps class (40100 instead od 40000 for 25fps)
-//merge with mastr branch ..... mainly for qt config modif
+//have to supress the other mutex
+//[!] nanosleep returned an error, not performing delay! message on the second TextLayer
+//maybe fixed//there is around 1100 normal streaming with fps modified and 200 sec more without ... find why it stops
+//try to improve fullscreen mode.

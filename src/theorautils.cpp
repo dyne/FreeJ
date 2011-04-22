@@ -391,7 +391,7 @@ void oggmux_init (oggmux_info *info){
 
         if (!vorbis_analysis_init (&info->vd, &info->vi))
 	{
-	  std::cerr << "-------- vorbis_analysis_init failed, seems normal !!" << std::endl;
+// 	  std::cerr << "-------- vorbis_analysis_init failed, seems normal !!" << std::endl;
 	}
 
         vorbis_comment_init (&info->vc);

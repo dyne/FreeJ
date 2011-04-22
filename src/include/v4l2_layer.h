@@ -26,6 +26,25 @@
 
 #include <linux/videodev2.h>
 
+class Res {
+public:
+  Res(int sz);
+  ~Res();
+  bool addRes(int, int, int);
+  int getNb();
+  int getX(int);
+  int getY(int);
+  void setsX(int);
+  int getCurIdx();
+  void chgRes(int);
+  
+private:
+  int m_idx, m_curIdx, m_size, m_fd;
+  int (*m_sizes)[2];
+  bool m_dec;
+  struct v4l2_format m_format;
+};
+
 class V4L2CamLayer: public Layer {
  public:
   V4L2CamLayer();
@@ -34,6 +53,8 @@ class V4L2CamLayer: public Layer {
   bool open(const char *devfile);
   void *feed();
   void close();
+  Res *getRes();
+  void chgRes(int, Res *);
 
  protected:
   bool _init();
@@ -47,6 +68,9 @@ class V4L2CamLayer: public Layer {
   int framenum; 
   void *frame;
 
+  int	nb_sizes;
+  Res	*m_res;
+  struct v4l2_frmsizeenum framesize;
   struct v4l2_capability capability;
   struct v4l2_fmtdesc fmtdesc;
   struct v4l2_input input; ///< info about current video input
@@ -58,7 +82,7 @@ class V4L2CamLayer: public Layer {
     void *start;
     size_t length;
   } *buffers;
-
+  char m_devfile[2048];
 
   // allow to use Factory on this class
   FACTORY_ALLOWED;
