@@ -36,7 +36,6 @@ public:
   int getY(int);
   void setsX(int);
   int getCurIdx();
-  void chgRes(int);
   
 private:
   int m_idx, m_curIdx, m_size, m_fd;

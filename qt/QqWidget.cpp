@@ -79,7 +79,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     }
     else
     {
-        QMessageBox::information(this, "Layers", "Impossible to create TextLayer :" + fichier);
+        QMessageBox::information(this, "Layers", "Can't to create Layer :" + fichier);
         return;
     }
 
@@ -98,8 +98,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     blt->addLayer(qLayer);
 
     layV->addWidget(blt);
-    qDebug() << "++ type :" << qLayer->type;
-    if (qLayer->type == 4) {	//V4L2LAYER
+    if (qLayer->type == Layer::V4L2LAYER) {	//V4L2LAYER
         m_comboRes = new QqComboRes ((V4L2CamLayer *)qLayer, this);
         layV->addWidget(m_comboRes);
     }

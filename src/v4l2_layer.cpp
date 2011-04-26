@@ -60,23 +60,13 @@ bool Res::addRes(int x, int y, int type) {
     if (m_idx < (m_size -1)) {
       m_sizes[m_idx][0] = x;
       m_sizes[m_idx][1] = y;
-      std::cerr << "--" << m_sizes[m_idx][0] << "x" << y << std::endl;
+//       notice( "%dx%d", x, y) ;
       m_idx++;
       return (true);
     }
     else
       return (false);
   }
-/*  else {
-    if (m_idx > 0) {
-      m_sizes[m_idx][0] = x;
-      m_sizes[m_idx][1] = y;
-      m_idx--;
-      return (true);
-    }
-    else
-      return (false);
-  }*/
 }
 
 int Res::getNb() {
@@ -110,40 +100,6 @@ void Res::setsX(int x) {
 
 int Res::getCurIdx() {
   return (m_curIdx);
-}
-
-void Res::chgRes(int line) {
-  if (line < m_idx) {
-    // first, turn off streaming
-/*    if(-1 == ioctl(m_fd, VIDIOC_STREAMOFF, &buftype)) {
-      error("VIDIOC_STREAMOFF: %s", errno);
-    }
-  */
-  
-  /* Cleanup. */
-/*  for (unsigned int i = 0; i < reqbuf.count; i++)
-    munmap (buffers[i].start, buffers[i].length);
-    memset (&m_format, 0, sizeof (m_format));
-    m_format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-
-    if (-1 == ioctl (m_fd, VIDIOC_G_FMT, &m_format)) {
-      perror ("VIDIOC_G_FMT");
-      return;
-    }*/
-//     memset (&m_format, 0, sizeof (m_format));
-//     m_format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-/*    m_format.fmt.pix.width = m_sizes[line][0];
-    m_format.fmt.pix.height = m_sizes[line][1];
-    m_format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
-    m_format.fmt.pix.field = V4L2_FIELD_ANY;
-    if(0 == ioctl(m_fd, VIDIOC_TRY_FMT, &m_format)) {
-      std::cerr << "--- we should be able to setup the resolution :)" << std::endl;
-      if(-1 == ioctl(m_fd, VIDIOC_S_FMT, &m_format)) {
-	error("VIDIOC_G_FMT: %s", strerror(errno));
-	return;
-      }
-    }*/
-  }
 }
 
 V4L2CamLayer::V4L2CamLayer() 
@@ -224,7 +180,7 @@ bool V4L2CamLayer::open(const char *devfile) {
   fmtdesc.index = 0;
   fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
   while (0 == ioctl (fd, VIDIOC_ENUM_FMT, &fmtdesc)) {
-    std::cerr << "----- format description :" << fmtdesc.description << std::endl;
+    notice ("format description :%s", fmtdesc.description);
     if (!m_res)
       m_res = new Res (ARRAY_RESOLUTION_SIZE);
     for (int i=0; ;i++){

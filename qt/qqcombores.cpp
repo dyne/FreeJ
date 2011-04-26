@@ -16,11 +16,9 @@ QqComboRes::QqComboRes(V4L2CamLayer *lay, QqWidget *parent) :
   QStringList res;
   
   QString qx, qy, qres;
-  qDebug() << "++ nb:" << m_res->getNb();
   for (int i = 0; i < m_res->getNb(); i++){
     qx.setNum (m_res->getX(i));
     qy.setNum (m_res->getY(i));
-    qDebug() << "++ x:" << m_res->getX(i) << " y:" << m_res->getY(i) << " i:" << i;
     qres.clear();
     qres = qx + "x" + qy;
     res << qres;
