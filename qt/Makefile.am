@@ -51,7 +51,7 @@ noinst_HEADERS = FakeWindow.h qJackClient.h QqComboBlit.h QqLinkList.h	\
 
 bin_PROGRAMS = qfreej
 qfreej_SOURCES = $(SOURCES)
-qfreej_LDADD = $(top_builddir)/src/libfreej.la $(SDL_LIBS) $(QTGUI_LIBS)
+qfreej_LDADD = $(top_builddir)/src/libfreej.la $(SDL_LIBS) $(QTGUI_LIBS) $(SHOUT_LIBS)
 
 #clean:
 #	rm -f qfreej *.o
