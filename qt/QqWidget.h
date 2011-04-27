@@ -16,8 +16,10 @@
 #include <FakeWindow.h>
 #include <QqTabWidget.h>
 #include <generator_layer.h>
+#include <qqcombores.h>
 
 class Qfreej;
+class QqComboRes;
 
 
 class QqWidget : public QWidget
@@ -71,5 +73,6 @@ private:
     QDoubleSpinBox *m_angleBox;
     double m_angle;
     QqTabWidget *m_tabWidg;
+    QqComboRes *m_comboRes;
 };
 #endif // QQWIDGET_H

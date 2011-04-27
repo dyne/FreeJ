@@ -90,6 +90,8 @@ class Layer: public Entry, public JSyncThread {
     UNKNOWN,
     TEXT,
     GENERATOR,
+    VIDEOLAYER,
+    V4L2LAYER,
 #if defined HAVE_DARWIN && defined WITH_COCOA
     GL_COCOA
 #endif

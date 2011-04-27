@@ -53,6 +53,7 @@ public slots:
     void jackConnect();
     void encConnect();
     void showLogs();
+    void setFullScreen();
 
 protected:
     void closeEvent(QCloseEvent*);

@@ -79,7 +79,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     }
     else
     {
-        QMessageBox::information(this, "Layers", "Impossible to create TextLayer :" + fichier);
+        QMessageBox::information(this, "Layers", "Can't to create Layer :" + fichier);
         return;
     }
 
@@ -92,13 +92,18 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
 
     layoutV = new QVBoxLayout;
     layoutH = new QHBoxLayout;
+    QVBoxLayout *layV = new QVBoxLayout;
 
     QqComboBlit *blt = new QqComboBlit(this);
     blt->addLayer(qLayer);
 
+    layV->addWidget(blt);
+    if (qLayer->type == Layer::V4L2LAYER) {	//V4L2LAYER
+        m_comboRes = new QqComboRes ((V4L2CamLayer *)qLayer, this);
+        layV->addWidget(m_comboRes);
+    }
 
-
-    layoutH->addWidget(blt);
+    layoutH->addLayout(layV);
     QqComboFilter *filter = new QqComboFilter(freej, qLayer, this);
     filter->setToolTip("filters to be applied");
 

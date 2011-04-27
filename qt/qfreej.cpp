@@ -69,6 +69,9 @@ Qfreej::Qfreej(QWidget *parent) :
     QAction *actionOpa = menuOpacity->addAction("&Opacity");
     connect(actionOpa, SIGNAL(triggered()), this, SLOT(changeOpacity()));
 
+    QAction *actionFullScreen = menuOpacity->addAction("&Full screen");
+    connect(actionFullScreen, SIGNAL(triggered()), this, SLOT(setFullScreen()));
+
     menuGenerator = menuFichier->addMenu("&Generators");
 
     QAction *actionLog = menuFichier->addAction("&Logs");
@@ -112,6 +115,11 @@ QJackClient *Qfreej::getQjack()
 void Qfreej::changeOpacity()
 {
   m_Opacity->show();
+}
+
+void Qfreej::setFullScreen()
+{
+  screen->fullscreen();
 }
 
 void Qfreej::closeEvent(QCloseEvent *event)

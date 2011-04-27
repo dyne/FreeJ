@@ -348,6 +348,8 @@ bool VideoLayer::open(const char *file) {
 
   opened = true;
 
+  type = VIDEOLAYER;
+  
   return true;
 }
 

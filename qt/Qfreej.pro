@@ -19,7 +19,8 @@ SOURCES += main.cpp \
 	qJackClient.cpp \
     qOpacity.cpp \
 	qEncoder.cpp \
-	qLogging.cpp
+	qLogging.cpp \
+    qqcombores.cpp
 
     HEADERS += qfreej.h \
     QqComboBlit.h \
@@ -32,7 +33,8 @@ SOURCES += main.cpp \
 	qJackClient.h \
     qOpacity.h \
 	qEncoder.h \
-	qLogging.h
+	qLogging.h \
+    qqcombores.h
 #FORMS += qfreej.ui
 CONFIG += qt debug
 LIBS += -lfreej
