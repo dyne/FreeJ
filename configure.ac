@@ -391,7 +391,7 @@ fi
 dnl ==============================================================
 dnl CHECK if there is VIDEO4LINUX
 dnl ==============================================================
-AC_CHECK_HEADERS([linux/videodev.h], [have_videodev=yes], [have_videodev=no])
+AC_CHECK_HEADERS([linux/videodev2.h], [have_videodev=yes], [have_videodev=no])
 AC_ARG_ENABLE(v4l,
     AS_HELP_STRING([--enable-v4l],[compile with Video4Linux Layer (autodetect)]),
     [enable_v4l=$enableval],
