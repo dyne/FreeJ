@@ -229,22 +229,22 @@ bool V4L2CamLayer::open(const char *devfile) {
     return (false);
   }
 
+///////////// does not work with my ricoh and the uvcvideo module .... just comment out if needed
+  format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
+  format.fmt.pix.width = 640;
+  format.fmt.pix.height = 480;
+  format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
+  format.fmt.pix.field = V4L2_FIELD_ANY;
+  if(0 == ioctl(fd, VIDIOC_TRY_FMT, &format)) {
+    if(-1 == ioctl(fd, VIDIOC_S_FMT, &format)) {
+      error("VIDIOC_S_FMT: %s", strerror(errno));
+      return(false);
+    }
+  }
+
   if (m_res) {
     m_res->setsX(format.fmt.pix.width);
   }
-///////////// does not work with my ricoh and the uvcvideo module .... just comment out if needed
-//   format.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
-//   format.fmt.pix.width = 352;
-//   format.fmt.pix.height = 288;
-//   format.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
-//   format.fmt.pix.field = V4L2_FIELD_ANY;
-//   if(0 == ioctl(fd, VIDIOC_TRY_FMT, &format)) {
-//     std::cerr << "--- we should be able to setup the resolution :)" << std::endl;
-//     if(-1 == ioctl(fd, VIDIOC_S_FMT, &format)) {
-//       error("VIDIOC_S_FMT: %s", strerror(errno));
-//       return(false);
-//     }
-//   }
 
   // Need to find out (request?) specific data format (sec 1.10.1)
   memset(&format, 0, sizeof(format));
