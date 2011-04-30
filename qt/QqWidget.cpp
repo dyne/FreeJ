@@ -539,8 +539,10 @@ void QqWidget::changeFps(int val)
 	  qLayer->fps.set(actualFps);
 	  slowFps->setStyleSheet("background: red");
         }
-        else
+        else {
 	  slowFps->setStyleSheet("background: grey");
+	  qLayer->fps.set(normalFps);
+	}
     }
 }
 

@@ -22,6 +22,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <errno.h>
+#include <string.h>
 
 #include <config.h>
 
@@ -37,27 +38,22 @@ FPS::FPS() {
   _period = 0;
   fpsd.sum = 0;
   fpsd.i = 0;
-  fpsd.n = 30;  
+  fpsd.n = 30;
+  _passes = 0.0;
+  _ratio = 1.0;
+  m_OrgSets = false;
   fpsd.data = new float[fpsd.n];
   gettimeofday(&start_tv,NULL);
-
+  m_OldTime.tv_sec = start_tv.tv_sec;
+  m_OldTime.tv_usec = start_tv.tv_usec;
+  
   wake_ts.tv_sec = wake_ts.tv_nsec = 0;
-
-//   if(pthread_mutex_init (&_mutex,NULL) == -1)
-//     error("error initializing POSIX thread feed mutex");
-//   if(pthread_cond_init (&_cond, NULL) == -1)
-//     error("error initializing POSIX thread feed condtition"); 
 
 }
 
 FPS::~FPS() {
   free(fpsd.data);
 
-/*  if(pthread_mutex_destroy(&_mutex) == -1)
-    error("error destroying POSIX thread feed mutex");
-  if(pthread_cond_destroy(&_cond) == -1)
-    error("error destroying POSIX thread feed attribute");*/
-  
 }
 void FPS::init(double rate) {
 
@@ -85,21 +81,22 @@ void FPS::calc() {
   }
 
   timersub(&now_tv, &start_tv, &done);
-  _period = 1000000 / _fps;
-//     std::cerr << "++ tv_sec :" << done.tv_sec << " us :" << done.tv_usec \
-// 	<< " _period :" << _period << " _fps :" << _fps << std::endl;
+  _period = (1000000 / _fps) / _ratio;
 
   if ( (done.tv_sec > 0)
        || (done.tv_usec >= _period) ) {
 	 start_tv.tv_sec = now_tv.tv_sec;
 	 start_tv.tv_usec = now_tv.tv_usec;
-
 	 // FIXME: statistics here, too ?!
 	 return;
   }
 
   wake_ts.tv_sec  = 0;
   wake_ts.tv_nsec = (_period - done.tv_usec)*1000; // set the delay
+  if (wake_ts.tv_nsec >= 1000000000){
+    wake_ts.tv_sec = wake_ts.tv_nsec / 1000000000;
+    wake_ts.tv_nsec = wake_ts.tv_nsec - (wake_ts.tv_sec * 1000000000);
+  }
 
   // statistic only
 /*  if (done.tv_usec)
@@ -124,42 +121,23 @@ double FPS::set(double rate) {
   
   if (rate != _fps)
     fps_old = _fps;
-  
+  _passes = 0.0;
   fps = rate; // public
+  _period = 1000000 / rate;	//_period in us
   _fps = rate;
-  if (_fps > 0)
-    _delay = 1/_fps;
+  _ratio = 1.0;
+  m_OrgSets = false;	//tells to the next delay call to catch the new starting time
+
   return fps_old;
 }
 
 #if 1 // use nanosleep (otherwise select_sleep)
 void FPS::delay() {
   struct timespec remaining = { 0, 0 };
-  if(wake_ts.tv_nsec >= 1000000) {
-    wake_ts.tv_nsec = wake_ts.tv_nsec - 1000000; // set the delay
-  }
-  do {
-    if (nanosleep(&wake_ts, &remaining) == -1) {
-      if (errno == EINTR) {
-        // we've been interrupted use remaining and then reset it
-        wake_ts.tv_nsec = remaining.tv_nsec;
-        remaining.tv_sec = remaining.tv_nsec = 0;
-      } else {
-        error("nanosleep returned an error, not performing delay!");
-        wake_ts.tv_sec  = wake_ts.tv_nsec = 0;
-      }
-    } else {
-      // nanosleep successful, reset wake_ts
-      wake_ts.tv_sec  = wake_ts.tv_nsec = 0;
-    }
-  } while (wake_ts.tv_nsec > 0);
-  // update lo start time
-  gettimeofday(&start_tv,NULL);
   timeval did;
-  timersub(&start_tv, &m_OldTime, &did);
-  int fineAdjust;
-  if ((_period - did.tv_usec) > 100) {
-    wake_ts.tv_nsec = ((_period - did.tv_usec)-(100 + fineAdjust)) * 1000; // set the delay
+    if (wake_ts.tv_nsec > 100000) {	//if > to 100 us
+      wake_ts.tv_nsec = wake_ts.tv_nsec - 100000;	// - 100 us
+    }
     do {
       if (nanosleep(&wake_ts, &remaining) == -1) {
 	if (errno == EINTR) {
@@ -167,7 +145,8 @@ void FPS::delay() {
 	  wake_ts.tv_nsec = remaining.tv_nsec;
 	  remaining.tv_sec = remaining.tv_nsec = 0;
 	} else {
-	  error("nanosleep returned an error, not performing delay!");
+	  error("nanosleep 2 returned an error, not performing delay!, remains :%lds %ldus: %s" \
+	      , remaining.tv_sec, remaining.tv_nsec, strerror (errno));
 	  wake_ts.tv_sec  = wake_ts.tv_nsec = 0;
 	}
       } else {
@@ -176,10 +155,21 @@ void FPS::delay() {
       }
     } while (wake_ts.tv_nsec > 0);
     gettimeofday(&start_tv,NULL);
+    if (!m_OrgSets) {
+      m_OrgSets = true;
+      m_OrgTime.tv_sec = start_tv.tv_sec;
+      m_OrgTime.tv_usec = start_tv.tv_usec;
+    }
+    else {
+      _passes++;
+      _ratio = ((((start_tv.tv_sec - m_OrgTime.tv_sec) * 1000000) + (start_tv.tv_usec - m_OrgTime.tv_usec)) \
+      / _passes) / _period;
+      if (_ratio > 1.02)
+	_ratio = 1.02;
+      else if (_ratio < 0.98)
+	_ratio = 0.98;
+    }
     timersub(&start_tv, &m_OldTime, &did);
-  }
-  fineAdjust = _period - did.tv_usec;
-//   std::cerr << "++ did in us :" << did.tv_usec << std::endl;
   m_OldTime.tv_sec = start_tv.tv_sec;
   m_OldTime.tv_usec = start_tv.tv_usec;
 }

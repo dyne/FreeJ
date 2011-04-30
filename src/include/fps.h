@@ -49,13 +49,10 @@ class FPS {
   } fpsd;
 
   struct timespec wake_ts;  
-  double _delay, _fps;
-  struct timeval start_tv, m_OldTime;
+  double _fps, _passes, _ratio;
+  struct timeval start_tv, m_OldTime, m_OrgTime;
   long int _period;
-  /* mutex and conditional for the delay */
-//  pthread_mutex_t _mutex;
-//  pthread_cond_t _cond;
-
+  bool m_OrgSets;
 };
 
 #endif
