@@ -112,7 +112,7 @@ void QJackClient::changeMixCoef(int val)
 {
   if ((m_Enc = m_Qfreej->getEnc()))
   {
-    float value = (float)val / 100.0;
+    float value = (float)val / 200.0;
     m_Enc->setMixCoef(value);
   }
 }

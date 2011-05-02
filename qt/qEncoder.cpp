@@ -82,6 +82,7 @@ void QEncoder::init()
 
   m_dumpButton = new QRadioButton("Dump", this);
   m_dumpButton->setAutoExclusive(false);
+  m_dumpButton->setToolTip("needs to be streamed too to have a good A/V sync");
   layoutG->addWidget(m_dumpButton, 6, 0);
 
   m_FileName = new QLineEdit;

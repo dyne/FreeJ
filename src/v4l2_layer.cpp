@@ -117,6 +117,7 @@ V4L2CamLayer::V4L2CamLayer()
 }
 
 V4L2CamLayer::~V4L2CamLayer() {
+  this->close();
   if(m_res) delete(m_res);
   if(fd) ::close(fd);
   if(buffers) ::free(buffers);
