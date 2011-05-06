@@ -206,6 +206,8 @@ void VideoEncoder::thread_loop() {
 			" tv_usec :" << fps->start_tv.tv_usec << "   \r" << std::endl;
         return;
     }
+    fps->calc();
+    fps->delay();
     //uncomment this to see how long it takes between two frames in us.
 /*    timeval start_t;
     gettimeofday(&start_t,NULL);
