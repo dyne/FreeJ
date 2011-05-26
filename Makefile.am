@@ -8,8 +8,8 @@ DISTCHECK_CONFIGURE_FLAGS = --enable-python --enable-qt-gui
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = freej.pc
 
-SUBDIRS = lib src doc bindings scripts tests $(EXTRA_DIRS)
+SUBDIRS = lib src qt doc bindings scripts tests
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = autogen.sh freej.spec xcode
+EXTRA_DIST = freej.spec xcode

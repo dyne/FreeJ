@@ -42,13 +42,13 @@ SOURCES = main.cpp \
     qOpacity.cpp \
     qEncoder.cpp \
     qLogging.cpp \
-	qqcombores.cpp \
+    qqcombores.cpp \
     $(BUILT_SOURCES)
 
 noinst_HEADERS = FakeWindow.h qJackClient.h QqComboBlit.h QqLinkList.h	\
 		 specialeventget.h qEncoder.h qLogging.h		\
 		 QqComboFilter.h QqTabWidget.h qfreej.h qOpacity.h	\
-		 QqFiltersApplied.h QqWidget.h
+		 QqFiltersApplied.h QqWidget.h qqcombores.h
 
 
 bin_PROGRAMS = qfreej

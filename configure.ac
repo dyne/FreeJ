@@ -5,7 +5,7 @@ dnl ==============================================================
 dnl require autoconf 2.62 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.62])
 
-AC_INIT([FreeJ],[0.11.0],[freej@lists.dyne.org],[freej])
+AC_INIT([FreeJ],[0.12.0],[freej@lists.dyne.org],[freej])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
@@ -958,9 +958,6 @@ AC_SUBST(CFLAGS)
 
 CXXFLAGS="$GLOBAL_CFLAGS $CXXFLAGS"
 AC_SUBST(CXXFLAGS)
-
-EXTRA_DIRS="$QTGUI_DIRS"
-AC_SUBST([EXTRA_DIRS])
 
 dnl ==============================================================
 dnl freej specific flags, explanation:
