@@ -176,7 +176,21 @@ else
     SWIG_IFACE='$(top_srcdir)/bindings/freej.i'
     AC_SUBST(SWIG_IFACE)
 
-    ENABLE_SWIG_PYTHON
+AC_ARG_ENABLE(python,
+    AS_HELP_STRING([--enable-python],[enable Python bindings (no)]),
+	[enable_python=$enableval],
+	[enable_python=no])
+
+    if test x"$enable_python" = xyes; then
+	AC_PYTHON_DEVEL
+	AM_PATH_PYTHON([$ac_python_version])
+	AC_SUBST([SWIG_PYTHON_OPT],[-python$swig_shadow])
+	AC_SUBST([SWIG_PYTHON_CPPFLAGS],[$PYTHON_CPPFLAGS])
+
+    fi
+
+
+#    ENABLE_SWIG_PYTHON
     ENABLE_SWIG_RUBY
     ENABLE_SWIG_JAVA
     ENABLE_SWIG_PERL
@@ -1133,7 +1147,7 @@ disabled_bindings=""
 
 if test x$enable_python = xyes; then
 AS_VAR_APPEND(enabled_bindings, " python")
-VRB([= Python:])
+INFO([= Python version $ac_python_version])
 VRB([    LIBS   : $PYTHON_LDFLAGS])
 VRB([    CFLAGS : $PYTHON_CPPFLAGS])
 else
@@ -1167,8 +1181,8 @@ else
 AS_VAR_APPEND(disabled_bindings, " perl")
 fi
 
-INFO([= Enabled language bindings  : $enabled_bindings])
-INFO([= Disabled language bindings : $disabled_bindings])
+VRB([= Enabled language bindings  : $enabled_bindings])
+VRB([= Disabled language bindings : $disabled_bindings])
 
 
 dnl #### shipped libraries, can be static or dynamic
