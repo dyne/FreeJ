@@ -164,12 +164,21 @@ void add_fishead_packet (oggmux_info *info) {
     write16le(op.packet+8, SKELETON_VERSION_MAJOR); /* version major */
     write16le(op.packet+10, SKELETON_VERSION_MINOR); /* version minor */
     write64le(op.packet+12, (ogg_int64_t)0); /* presentationtime numerator */
-    write64le(op.packet+20, (ogg_int64_t)1000); /* presentationtime denominator */
+    write64le(op.packet+20, (ogg_int64_t)1000); /* presentationtime denominator (means ms)*/
     write64le(op.packet+28, (ogg_int64_t)0); /* basetime numerator */
-    write64le(op.packet+36, (ogg_int64_t)1000); /* basetime denominator */
+    write64le(op.packet+36, (ogg_int64_t)1000); /* basetime denominator (means ms)*/
     /* both the numerator are zero hence handled by the memset */
-    write32le(op.packet+44, 0); /* UTC time, set to zero for now */
+//     write32le(op.packet+44, 0); /* UTC time, set to zero for now */
+  char  timeStart[21];
+  time_t result;
+  struct tm *tim;
 
+  result = time(NULL);
+  tim = localtime(&result);
+  
+  sprintf ((char *)op.packet+44, "%04d%02d%02dT%02d%02d%02d", tim->tm_year + 1900, tim->tm_mon + 1, tim->tm_mday \
+      , tim->tm_hour, tim->tm_min, tim->tm_sec);
+  
     op.b_o_s = 1; /* its the first packet of the stream */
     op.e_o_s = 0; /* its not the last packet of the stream */
     op.bytes = 64; /* length of the packet in bytes */
@@ -194,7 +203,7 @@ void add_fisbone_packet (oggmux_info *info) {
         memcpy (op.packet, FISBONE_IDENTIFIER, 8); /* identifier */
         write32le(op.packet+8, FISBONE_MESSAGE_HEADER_OFFSET); /* offset of the message header fields */
         write32le(op.packet+12, info->to.serialno); /* serialno of the theora stream */
-        write32le(op.packet+16, 3); /* number of header packets */
+        write32le(op.packet+16, 3); /* number of header packets */ //if theora + vorbis ?
         /* granulerate, temporal resolution of the bitstream in samples/microsecond */
         write64le(op.packet+20, info->ti.fps_numerator); /* granulrate numerator */
         write64le(op.packet+28, info->ti.fps_denominator); /* granulrate denominator */
@@ -282,7 +291,7 @@ void *timer_start(void)
 int	sampleError;
 SRC_STATE *src_state;
 SRC_DATA *src_data;
-double ratio, averageR;
+double ratio, averageR, oldVideoTime;
 double *sampleOut, samplesA;
 
 void oggmux_init (oggmux_info *info){
@@ -295,6 +304,7 @@ void oggmux_init (oggmux_info *info){
     averageR = 1.0;
     samplesA = 1.0;
     sampleOut = NULL;
+    oldVideoTime = 0.0;
 
     /* yayness.  Set up Ogg output stream */
     srand (time (NULL));
@@ -1011,8 +1021,9 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
                   ogg_page_granulepos(&og));
 	    if (info->audiotime == -1)
 		std::cerr << "the given vorbis granulepos is invalid" << std::endl << std::flush;
-	    else {
+	    else if (info->videotime > oldVideoTime){
 	      samplesA++;
+	      oldVideoTime = info->videotime;
 	      ratio = ((info->videotime - info->audiotime) / 60.0 )+ averageR;
 	      averageR = (ratio + (averageR * (samplesA - 1))) / samplesA;
 // 	      std::cerr << "ratio :" << ratio << " averageR :" << averageR;
