@@ -44,6 +44,7 @@
 #define FISBONE_IDENTIFIER "fisbone\0"
 #define FISBONE_SIZE 52
 #define FISBONE_MESSAGE_HEADER_OFFSET 44
+#define INDEX_IDENTIFIER "index\0"
 
 typedef struct
 {

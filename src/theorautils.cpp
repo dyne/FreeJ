@@ -281,6 +281,70 @@ void add_fisbone_packet (oggmux_info *info) {
 #endif
 }
 
+/*
+ * Adds an index packet in the skeleton output stream for vorbis
+ */
+void add_index_packet_vorbis (oggmux_info *info) {
+    ogg_packet op;
+
+    memset (&op, 0, sizeof (op));
+    op.packet = (unsigned char*)_ogg_calloc (80, sizeof(unsigned char));
+    if (op.packet == NULL) return;
+
+    memset (op.packet, 0, 80);
+    /* it will be the fisbone packet for the vorbis audio */
+    memcpy (op.packet, INDEX_IDENTIFIER, 6); /* identifier */
+    write32le(op.packet+6, info->vo.serialno); /* serialno of the vorbis stream */
+    write32le(op.packet+10, 3); /* number of header packet */
+    /* granulerate, temporal resolution of the bitstream in Hz */
+    write64le(op.packet+20, info->sample_rate); /* granulerate numerator */
+    write64le(op.packet+28, (ogg_int64_t)1); /* granulerate denominator */
+    write64le(op.packet+36, 0); /* start granule */
+    write32le(op.packet+44, 2); /* preroll, for vorbis its 2 */
+    *(op.packet+48) = 0; /* granule shift, always 0 for vorbis */
+    memcpy (op.packet+FISBONE_SIZE, "Content-Type: audio/vorbis\r\n", 28);
+    /* Important: Check the case of Content-Type for correctness */
+
+    op.b_o_s = 0;
+    op.e_o_s = 0;
+    op.bytes = 80;
+
+    ogg_stream_packetin (&info->so, &op);
+    _ogg_free (op.packet);
+}
+
+/*
+ * Adds an index packet in the skeleton output stream for theora
+ */
+void add_index_packet_theora (oggmux_info *info) {
+    ogg_packet op;
+
+    memset (&op, 0, sizeof (op));
+    op.packet = (unsigned char*)_ogg_calloc (80, sizeof(unsigned char));
+    if (op.packet == NULL) return;
+
+    memset (op.packet, 0, 80);
+    /* it will be the fisbone packet for the theora video */
+    memcpy (op.packet, INDEX_IDENTIFIER, 6); /* identifier */
+    write32le(op.packet+8, FISBONE_MESSAGE_HEADER_OFFSET); /* offset of the message header fields */
+    write32le(op.packet+12, info->to.serialno); /* serialno of the theora stream */
+    write32le(op.packet+16, 3); /* number of header packets */ //if theora + vorbis ?
+    /* granulerate, temporal resolution of the bitstream in samples/microsecond */
+    write64le(op.packet+20, info->ti.fps_numerator); /* granulrate numerator */
+    write64le(op.packet+28, info->ti.fps_denominator); /* granulrate denominator */
+    write64le(op.packet+36, 0); /* start granule */
+    write32le(op.packet+44, 0); /* preroll, for theora its 0 */
+    *(op.packet+48) = theora_granule_shift (&info->ti); /* granule shift */
+    memcpy(op.packet+FISBONE_SIZE, "Content-Type: video/theora\r\n", 28); /* message header field, Content-Type */
+
+    op.b_o_s = 0;
+    op.e_o_s = 0;
+    op.bytes = 80; /* size of the packet in bytes */
+
+    ogg_stream_packetin (&info->so, &op);
+    _ogg_free (op.packet);
+}
+
 void *timer_start(void)
 {
     time_t *start = (time_t *)malloc(sizeof(time_t));
