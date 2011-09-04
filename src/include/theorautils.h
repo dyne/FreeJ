@@ -38,12 +38,13 @@
 
 
 
-#define SKELETON_VERSION_MAJOR 3
+#define SKELETON_VERSION_MAJOR 4
 #define SKELETON_VERSION_MINOR 0
 #define FISHEAD_IDENTIFIER "fishead\0"
 #define FISBONE_IDENTIFIER "fisbone\0"
 #define FISBONE_SIZE 52
 #define FISBONE_MESSAGE_HEADER_OFFSET 44
+#define INDEX_IDENTIFIER "index\0"
 
 typedef struct
 {

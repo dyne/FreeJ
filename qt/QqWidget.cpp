@@ -272,6 +272,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     text = texto;
     texto->setMaximumHeight(40);
     layoutV->addWidget(texto);
+    connect(texto, SIGNAL(textChanged()), this, SLOT(modTextLayer()));
 
     QWidget *bg = new QWidget(this);
     bg->setMinimumWidth(400);
@@ -526,6 +527,7 @@ void QqWidget::modTextLayer()
 {
     QString txt = text->toPlainText();
     qTextLayer->write(txt.toStdString().c_str());
+    resetZoom();
     ctx->screen->clear();
 }
 
