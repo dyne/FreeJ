@@ -216,7 +216,8 @@ bool VideoLayer::open(const char *file) {
     /**
      * Here we look for a video stream
      */
-    case CODEC_TYPE_VIDEO:
+//    case CODEC_TYPE_VIDEO: // old FFMPEG
+    case AVMEDIA_TYPE_VIDEO:
       //      enc->flags |= CODEC_FLAG_LOOP_FILTER;
       video_index = i;
       video_codec_ctx = enc;
@@ -260,7 +261,7 @@ bool VideoLayer::open(const char *file) {
       
       break; // //////////////// end of video section
 
-    case CODEC_TYPE_AUDIO:
+    case AVMEDIA_TYPE_AUDIO:
       audio_index = i;
       audio_codec_ctx = enc;
       func ("VideoLayer :: audio id=%i", audio_index);
@@ -290,13 +291,13 @@ bool VideoLayer::open(const char *file) {
       break; // /////// end of audio section
 
 
-    case CODEC_TYPE_SUBTITLE:
+    case AVMEDIA_TYPE_SUBTITLE:
       act("stream has also subtitles");
       break;
-    case CODEC_TYPE_ATTACHMENT:
+    case AVMEDIA_TYPE_ATTACHMENT:
       act("stream has also attachment");
       break;
-    case CODEC_TYPE_DATA:
+    case AVMEDIA_TYPE_DATA:
       act("stream has also a data carrier");
       break;
     default:

@@ -277,7 +277,7 @@ void FFmpegEncoder::set_encoding_parameter() {
 
 	acc->codec_id=CODEC_ID_MPEG2VIDEO;
 
-	acc->codec_type = CODEC_TYPE_VIDEO;
+	acc->codec_type = AVMEDIA_TYPE_VIDEO;
 
 	/* sample parameters */
 	acc->bit_rate = 2000000;
