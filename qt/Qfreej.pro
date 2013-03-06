@@ -37,7 +37,9 @@ SOURCES += main.cpp \
     qqcombores.h
 #FORMS += qfreej.ui
 CONFIG += qt debug
-LIBS += -lfreej
+LIBS += ../src/.libs/libfreej.a ../lib/javascript/libmozjs.a \
+ `pkg-config --libs sdl cairo cwiid libavcodec libavformat libavutil libswscale \
+                    shout jack fftw3 samplerate liblo` -lSDL_gfx -lSDL_ttf -lSDL_image
 INCLUDEPATH += ../ \
     /usr/include/SDL \
     ../lib/sdl_ttf \

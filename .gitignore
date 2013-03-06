@@ -5,6 +5,7 @@ autom4te.cache
 config.h
 config.log
 config.status
+config.guess
 config.sub
 configure
 config.h.in
@@ -18,6 +19,7 @@ src/freej
 stamp-h1
 tags
 doc/scripting/html
+doc/freej.dox
 qt/qfreej
 *.[oa]
 *.so

@@ -5,7 +5,7 @@ dnl ==============================================================
 dnl require autoconf 2.62 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.62])
 
-AC_INIT([FreeJ],[0.12.0],[freej@lists.dyne.org],[freej])
+AC_INIT([FreeJ],[1.0],[freej@lists.dyne.org],[freej])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
@@ -143,9 +143,8 @@ AC_CHECK_FUNCS([bzero floor gettimeofday memmove memset munmap rint select \
 
 dnl compatibility with older libtool
 m4_ifdef([LT_INIT],
-  [LT_INIT([disable-static dlopen])],
+  [LT_INIT([dlopen])],
   [AC_LIBTOOL_DLOPEN
-   AC_DISABLE_STATIC
    AC_PROG_LIBTOOL])
 
 dnl versioning info for libtool
@@ -780,18 +779,6 @@ AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascrip
 AM_CONDITIONAL([BUILD_JAVASCRIPT], [test x$have_mozjs = xno])
 
 dnl ==============================================================
-dnl QT lib
-dnl ==============================================================
-AC_ARG_ENABLE(qt-gui,
-	AS_HELP_STRING([--enable-qt-gui],[build our Qt graphical user interface]),
-[
-	PKG_CHECK_MODULES(QTGUI,QtGui, have_qtgui=yes, have_qtgui=no)
-	if test x$have_qtgui = xyes; then
-		AC_DEFINE(WITH_QTGUI,1,[Define if to link QtGui and build])
-		QTGUI_DIRS=qt
-	fi ])
-
-dnl ==============================================================
 dnl unicap lib
 dnl ==============================================================
 AC_ARG_ENABLE(unicap,
@@ -1077,7 +1064,6 @@ lib/javascript/GNUmakefile
 scripts/Makefile
 src/Makefile
 src/include/Makefile
-qt/Makefile
 tests/Makefile
 ])
 AC_OUTPUT
@@ -1241,16 +1227,6 @@ VRB([  GLU CFLAGS : $GLU_CFLAGS])
 else
    INFO(no)
 fi
-
-INFO_N([= Qt GUI : ])
-if test x$have_qtgui = xyes; then
-   INFO(yes)
-VRB([  LIBS  : $QTGUI_LIBS])
-VRB([  CFLAGS: $QTGUI_CFLAGS])
-else
-   INFO(no)
-fi
-
 
 INFO_N([= unicap library : ])
 if test x$have_unicap = xyes; then
