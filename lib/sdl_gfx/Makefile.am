@@ -10,3 +10,10 @@ libsdl_gfx_la_SOURCES = \
 	SDL_rotozoom.c	\
 	SDL_framerate.c \
 	SDL_imageFilter.c
+
+noinst_HEADERS= \
+	SDL_framerate.h \
+	SDL_gfxPrimitives_font.h \
+	SDL_gfxPrimitives.h \
+	SDL_imageFilter.h \
+	SDL_rotozoom.h
