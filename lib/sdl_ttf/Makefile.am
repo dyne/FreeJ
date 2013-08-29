@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)
+INCLUDES = -I$(top_srcdir) -I/usr/include/freetype2
 CFLAGS = @CFLAGS@ @SDL_CFLAGS@ @FT2_CFLAGS@
 
 AUTOMAKE_OPTIONS = foreign
