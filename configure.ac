@@ -594,33 +594,6 @@ PKG_CHECK_MODULES(SAMPLERATE, samplerate, :,
 
 AC_DEFINE(WITH_AUDIO,1,[define if compiling audio system])
 
-## goom removed because gives compilation problems
-## replicated on Niels ubuntu 7.10
-#if test 1 = 0; then
-#  enable_goom=yes
-#   AM_PROG_LEX
-#   AC_PROG_YACC
-#   AC_CHECK_HEADERS([stddef.h libintl.h malloc.h])
-#   AC_FUNC_ALLOCA
-#   AC_CHECK_FUNCS([strtol])
-#
-#  AC_DEFINE(WITH_GOOM,1,[define if goom is enabled])
-#  GOOM_LIBS="\$(top_builddir)/lib/goom/libgoom2.a"
-#  GOOM_CFLAGS="-I\$(top_srcdir)/lib/goom"
-#  if test x$have_ppc = xyes; then
-#    GOOM_PPC_FILES="ppc_zoom_ultimate.s ppc_drawings.s"
-#  fi
-#else
-#  enable_goom=no
-#fi
-#AC_SUBST(GOOM_LIBS)
-#AC_SUBST(GOOM_CFLAGS)
-#AC_SUBST(GOOM_PPC_FILES)
-
-enable_goom=no
-AM_CONDITIONAL([BUILD_GOOM], [test x$enable_goom = xyes])
-
-
 dnl ==============================================================
 dnl compile including the javascript interpreter
 dnl ==============================================================
@@ -970,8 +943,7 @@ dnl ==============================================================
 FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
     -I\$(top_srcdir)/lib/ccvt        \
     -I\$(top_srcdir)/lib/slw         \
-    \$(FLASH_CFLAGS)                 \
-    \$(GOOM_CFLAGS)"
+    \$(FLASH_CFLAGS)"
 AC_SUBST(FREEJ_STATIC_CFLAGS)
 
 FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
@@ -998,8 +970,7 @@ AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(top_builddir)/lib/slw/libslw.la \
-    \$(FLASH_LIBS) \
-    \$(GOOM_LIBS)"
+    \$(FLASH_LIBS)"
 AC_SUBST(FREEJ_STATIC_LIBS)
 
 FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
@@ -1275,13 +1246,6 @@ INFO_N([= Flash layer : ])
 if test x$have_flash = xyes; then
    INFO([yes (v3 animations only)])
 VRB([  LIBS  : $FLASH_LIBS (static)])
-else
-   INFO(no)
-fi
-
-INFO_N([= goom layer : ])
-if test x$enable_goom = xyes; then
-   INFO(yes)
 else
    INFO(no)
 fi

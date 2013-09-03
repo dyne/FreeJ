@@ -25,7 +25,7 @@ SOURCES = \
 	video_layer.cpp		image_layer.cpp \
 	text_layer.cpp 		generator_layer.cpp \
 	geo_layer.cpp		flash_layer.cpp \
-	xscreensaver_layer.cpp  goom_layer.cpp \
+	xscreensaver_layer.cpp   \
 	xgrab_layer.cpp		opencv_cam_layer.cpp \
 	audio_layer.cpp 	cairo_layer.cpp \
 \
@@ -63,7 +63,7 @@ JS_SOURCES = 	context_js.cpp  \
 		geo_layer_js.cpp \
 		generator_layer_js.cpp \
 		flash_layer_js.cpp \
-		goom_layer_js.cpp \
+		 \
 		cairo_layer_js.cpp \
 		audio_collector_js.cpp \
 		kbd_ctrl_js.cpp
