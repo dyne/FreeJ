@@ -884,7 +884,7 @@ dnl ==============================================================
 #
 # freeframe should be supported in any case:
 # plugins will be detected runtime
-# freeframe.h header is redistributed 
+# freeframe.h header is redistributed
 # this is a normal behaviour for plugins
 # support should be compiled in even if plugins aren't present.
 # -xnt

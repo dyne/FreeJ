@@ -2,7 +2,7 @@
  *  (c) Copyright 2001 Silvano Galliani aka kysucix <silvano.galliani@poste.it>
  *
  * This source code is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Public License as published 
+ * modify it under the terms of the GNU Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
  *
@@ -22,7 +22,7 @@
 #include <config.h>
 #include <inttypes.h>
 
-#define UINT64_C uint64_t
+// #define UINT64_C uint64_t
 extern "C" {
 #ifdef HAVE_LIBAVCODEC_AVCODEC_H
 #   include <libavcodec/avcodec.h>
@@ -66,7 +66,7 @@ class VideoLayer: public Layer {
     public:
 	VideoLayer();
 	~VideoLayer();
-	
+
 
 	bool open(const char *file);
 	void *feed();
@@ -92,7 +92,7 @@ class VideoLayer: public Layer {
  protected:
 	bool _init();
 
-    private:	
+    private:
     /**
 	 * av(codec|format) aka ffmpeg related variables
 	 */
@@ -104,7 +104,7 @@ class VideoLayer: public Layer {
 	AVPacket pkt;
 
 
-	AVCodecContext *video_codec_ctx;	
+	AVCodecContext *video_codec_ctx;
 	AVCodec *video_codec;
 
 	AVCodecContext *audio_codec_ctx;
@@ -184,7 +184,7 @@ class VideoLayer: public Layer {
 
 	// quick hack for EOS callback
 	DumbCallback *eos;
-    
+
     // allow to use Factory on this class
     FACTORY_ALLOWED
 };
