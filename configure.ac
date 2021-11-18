@@ -831,7 +831,7 @@ dnl ==============================================================
 PKG_CHECK_MODULES([SDLIMAGE], [SDL_image],
                   [have_sdlimage=yes],
                   [have_sdlimage=no])
-if test x$have_sdlimage = xno; then
+if test x$have_sdlimage = xyes; then
    SDLIMAGE_CFLAGS="$SDL_CFLAGS"
    SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image -ljpeg"
    FREEJ_SAVE_FLAGS
@@ -841,20 +841,6 @@ if test x$have_sdlimage = xno; then
    FREEJ_CHECK_LIB_HEADER([SDL_image], [IMG_Load], [SDL_image.h],
                            [have_sdlimage=yes], [have_sdlimage=no])
    FREEJ_RESTORE_FLAGS
-fi
-if test x$have_sdlimage = xno; then
-   FREEJ_CHECK_LIB_HEADER([jpeg], [jpeg_std_error], [jpeglib.h],
-                           [have_libjpeg=yes], [have_libjpeg=no])
-   if test x$have_libjpeg = xno; then
-      AC_MSG_ERROR([*** Libjpeg development files are required to build static SDL_image])
-   fi
-   PKG_CHECK_MODULES(LIBPNG, libpng, have_libpng=yes, have_libpng=no)
-   if test x$have_libpng = xno; then
-      AC_MSG_ERROR([*** Libpng development files are required to build static SDL_image])
-   fi
-
-   SDLIMAGE_CFLAGS="-I\$(top_srcdir)/lib/sdl_image"
-   SDLIMAGE_LIBS="-lpng -ljpeg \$(top_builddir)/lib/sdl_image/libsdl_image.la"
 fi
 
 AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlimage = xno])
@@ -1028,7 +1014,6 @@ lib/Makefile
 lib/ccvt/Makefile
 lib/flash/Makefile
 lib/sdl_gfx/Makefile
-lib/sdl_image/Makefile
 lib/sdl_ttf/Makefile
 lib/slw/Makefile
 lib/javascript/GNUmakefile
@@ -1170,8 +1155,6 @@ VRB([  CFLAGS: $SDLTTF_CFLAGS])
 
 if test x$have_sdlimage = xyes; then
 INFO([= SDL_image (dynamic)])
-else
-INFO([= SDL_image (static)])
 fi
 VRB([  LIBS  : $SDLIMAGE_LIBS])
 VRB([  CFLAGS: $SDLIMAGE_CFLAGS])

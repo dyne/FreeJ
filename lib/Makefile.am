@@ -14,13 +14,8 @@ if BUILD_SDLTTF
 SDLTTFDIR = sdl_ttf
 endif
 
-if BUILD_SDLIMAGE
-SDLIMAGEDIR = sdl_image
-endif
-
 SUBDIRS = ccvt \
 	slw              \
-	$(SDLIMAGEDIR)   \
 	$(SDLTTFDIR)     \
 	$(SDLGFXDIR)     \
 	$(JAVASCRIPTDIR) \
