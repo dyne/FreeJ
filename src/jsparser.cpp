@@ -169,12 +169,12 @@ void JsExecutionContext::init_class() {
     generator_layer_methods,
     object_proto);
 
-  REGISTER_CLASS("ImageLayer",
-    image_layer_class,
-    image_layer_constructor,
-    NULL,
-    image_layer_methods,
-    object_proto);
+  // REGISTER_CLASS("ImageLayer",
+  //   image_layer_class,
+  //   image_layer_constructor,
+  //   NULL,
+  //   image_layer_methods,
+  //   object_proto);
 
 #ifdef WITH_FLASH
   REGISTER_CLASS("FlashLayer",
