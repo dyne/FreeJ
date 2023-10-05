@@ -768,7 +768,7 @@ PKG_CHECK_MODULES([SDLIMAGE], [SDL_image],
                   [have_sdlimage=yes],
                   [have_sdlimage=no])
 if test x$have_sdlimage = xyes; then
-   SDLIMAGE_CFLAGS="$SDL_CFLAGS"
+   SDLIMAGE_CFLAGS="$SDL_CFLAGS -I/usr/include/SDL"
    SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image -ljpeg"
    FREEJ_SAVE_FLAGS
    CFLAGS="$SDLIMAGE_CFLAGS"

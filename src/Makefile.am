@@ -22,7 +22,6 @@ SOURCES = \
 \
         tvfreq.c		unicap_layer.cpp \
 	v4l2_layer.cpp \
-				image_layer.cpp \
 	text_layer.cpp 		generator_layer.cpp \
 	geo_layer.cpp		flash_layer.cpp \
 	xscreensaver_layer.cpp   \
@@ -49,6 +48,10 @@ SOURCES = \
 	theorautils.cpp 	oggtheora_encoder.cpp \
 	impl_video_encoders.cpp
 
+# 				image_layer.cpp
+
+# 		image_layer_js.cpp
+
 JS_SOURCES = 	context_js.cpp  \
 		parameter_js.cpp \
 		layer_js.cpp    \
@@ -57,7 +60,6 @@ JS_SOURCES = 	context_js.cpp  \
 		callbacks_js.cpp \
 		video_encoder_js.cpp \
 		cam_layer_js.cpp \
-		image_layer_js.cpp \
 		text_layer_js.cpp \
 		geo_layer_js.cpp \
 		generator_layer_js.cpp \
