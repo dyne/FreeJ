@@ -7,13 +7,6 @@ EXTRA_DIST = doxy2swig.py freej.1 ipernav.png ipernav-small.png
 
 man_MANS = freej.1
 
-if BUILD_SWIG_PYTHON
-pydocstrings.i:
-	$(DOXYGEN) freej.dox
-	$(PYTHON) $(srcdir)/doxy2swig.py xml/index.xml $@
-
-noinst_DATA = pydocstrings.i
-endif
 
 clean-local:
 	rm -rf html
