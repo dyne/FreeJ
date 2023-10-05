@@ -3207,49 +3207,6 @@ else
     echo "$ac_t""yes" 1>&6    
 fi
 
-for ac_prog in $PYTHON python
-do
-# Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-echo $ac_n "checking for $ac_word""... $ac_c" 1>&6
-echo "configure:3216: checking for $ac_word" >&5
-if eval "test \"`echo '$''{'ac_cv_path_PYTHON'+set}'`\" = set"; then
-  echo $ac_n "(cached) $ac_c" 1>&6
-else
-  case "$PYTHON" in
-  /*)
-  ac_cv_path_PYTHON="$PYTHON" # Let the user override the test with a path.
-  ;;
-  ?:/*)			 
-  ac_cv_path_PYTHON="$PYTHON" # Let the user override the test with a dos path.
-  ;;
-  *)
-  IFS="${IFS= 	}"; ac_save_ifs="$IFS"; IFS=":"
-  ac_dummy="$PATH"
-  for ac_dir in $ac_dummy; do 
-    test -z "$ac_dir" && ac_dir=.
-    if test -f $ac_dir/$ac_word; then
-      ac_cv_path_PYTHON="$ac_dir/$ac_word"
-      break
-    fi
-  done
-  IFS="$ac_save_ifs"
-  ;;
-esac
-fi
-PYTHON="$ac_cv_path_PYTHON"
-if test -n "$PYTHON"; then
-  echo "$ac_t""$PYTHON" 1>&6
-else
-  echo "$ac_t""no" 1>&6
-fi
-
-test -n "$PYTHON" && break
-done
-
-if test -z "$PYTHON"; then
-    { echo "configure: error: python was not found in \$PATH" 1>&2; exit 1; }
-fi
 
 for ac_prog in nsinstall 
 do
