@@ -28,7 +28,7 @@
 /* software layers which don't need special loaders */
 #include <generator_layer.h>
 #include <geo_layer.h>
-#include <image_layer.h> // statically included sdl_image
+// #include <image_layer.h> // statically included sdl_image
 
 #include <goom_layer.h>
 

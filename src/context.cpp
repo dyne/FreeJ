@@ -646,18 +646,18 @@ Layer *Context::open(char *file, int w, int h) {
       error("VIDEO and AVI layer support not compiled");
       act("can't load %s",file_ptr);
 #endif
-  } else /* IMAGE LAYER */
-      if( (IS_IMAGE_EXTENSION(end_file_ptr))) {
-//		strncasecmp((end_file_ptr-4),".png",4)==0) 
-	      nlayer = new ImageLayer();
-              if(!nlayer->init()) {
-                error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-                delete nlayer; return NULL;
-              }
-	      if(!nlayer->open(file_ptr)) {
-		  error("create_layer : IMG open failed");
-		  delete nlayer; nlayer = NULL;
-	      }
+//   } else /* IMAGE LAYER */
+//       if( (IS_IMAGE_EXTENSION(end_file_ptr))) {
+// //		strncasecmp((end_file_ptr-4),".png",4)==0)
+// 	      nlayer = new ImageLayer();
+//               if(!nlayer->init()) {
+//                 error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
+//                 delete nlayer; return NULL;
+//               }
+// 	      if(!nlayer->open(file_ptr)) {
+// 		  error("create_layer : IMG open failed");
+// 		  delete nlayer; nlayer = NULL;
+// 	      }
   } else /* TXT LAYER */
     if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
 #if defined WITH_TEXTLAYER
