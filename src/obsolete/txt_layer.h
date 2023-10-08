@@ -27,7 +27,7 @@
 #include FT_GLYPH_H /* wtf? */
 
 #include <ctype.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #define MAX_GLYPHS 512
 #define MAX_CHUNK 512
 #define MAX_WORD 256

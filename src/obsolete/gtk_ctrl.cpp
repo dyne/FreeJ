@@ -23,7 +23,7 @@
 #ifdef WITH_GLADE2
 
 #include <stdio.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <pthread.h>
 #include <context.h>
 #include <plugger.h>

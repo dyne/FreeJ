@@ -22,7 +22,7 @@
 #ifndef __GEN_LAYER_H__
 #define __GEN_LAYER_H__
 
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 #include <layer.h>
 
 #define PRIMES 11

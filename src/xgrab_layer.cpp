@@ -29,9 +29,6 @@
 
 #include <callbacks_js.h>
 #include <jsparser_data.h>
-#include <sdl_screen.h>
-#include <SDL.h>
-#include "SDL_rotozoom.h"
 
 XGrabLayer::XGrabLayer()
 	:Layer() {
@@ -203,22 +200,8 @@ DestroyNotify event, serial 26, synthetic NO, window 0x5c00007,
 	/* Display window */
 	XMapWindow(display, win);
 
-	/* create pixel buffer */
-	// XGetWindowAttributes (display, win, &xwa);
-	/*
-	sdlimage = SDL_CreateRGBSurface
-	  (SDL_SWSURFACE, geo.w, geo.h, geo.bpp,
-	  red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
-	pixbuffer = (char*)sdlimage->pixels;
-
-	sdl_rect_src.x = geo.x;
-	sdl_rect_src.y = geo.y;
-	sdl_rect_src.w = geo.w;
-	sdl_rect_src.h = geo.h;
-	*/
 	{ // use main pixbuffer
-		SDL_Surface* src = env->screen->screen;
-		pixbuffer = (char*)src->pixels;
+		pixbuffer = env->screen->pixels;
 		xvimage = XvCreateImage(display, xv_port, xv_format, pixbuffer,
 				  src->w, src->h);
 	}
@@ -320,8 +303,6 @@ exit:
 	XUnlockDisplay(display);
 	return ret;
 }
-
-//SDL_Surface *SDL_ConvertSurface(SDL_Surface *src, SDL_PixelFormat *fmt, Uint32 flags);
 
 // bool XGrabLayer::keypress(int key) {
 // 	bool res = true;

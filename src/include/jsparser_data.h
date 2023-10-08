@@ -60,7 +60,6 @@ JS(geometry_layer_constructor);
 JS(generator_layer_constructor);
 JS(image_layer_constructor);
 JS(flash_layer_constructor);
-JS(movie_layer_constructor);
 
 #ifdef WITH_AUDIO
 JS(goom_layer_constructor);
@@ -70,11 +69,6 @@ JS(js_audio_jack_constructor);
 JS(cam_layer_constructor);
 #ifdef WITH_UNICAP
 JS(unicap_layer_constructor);
-#endif
-#ifdef WITH_FFMPEG
-JS(video_layer_constructor);
-#else
-JS(movie_layer_constructor);
 #endif
 #if defined WITH_TEXTLAYER
 JS(txt_layer_constructor);
@@ -88,9 +82,9 @@ JS(js_kbd_ctrl_constructor);
 JS(js_mouse_ctrl_constructor);
 JS(js_joy_ctrl_constructor);
 JS(js_vimo_ctrl_constructor);
-#ifdef WITH_MIDI
-JS(js_midi_ctrl_constructor);
-#endif
+// #ifdef WITH_MIDI
+// JS(js_midi_ctrl_constructor);
+// #endif
 JS(js_trigger_ctrl_constructor);
 JS(js_osc_ctrl_constructor);
 JS(js_wii_ctrl_constructor);
@@ -138,27 +132,27 @@ extern JSPropertySpec layer_properties[];
 extern JSClass js_ctrl_class;
 extern JSFunctionSpec js_ctrl_methods[];
 
-// KeyboardController
-extern JSClass js_kbd_ctrl_class;
-extern JSFunctionSpec js_kbd_ctrl_methods[];
+// // KeyboardController
+// extern JSClass js_kbd_ctrl_class;
+// extern JSFunctionSpec js_kbd_ctrl_methods[];
 
-// MouseController
-extern JSClass js_mouse_ctrl_class;
-extern JSFunctionSpec js_mouse_ctrl_methods[];
+// // MouseController
+// extern JSClass js_mouse_ctrl_class;
+// extern JSFunctionSpec js_mouse_ctrl_methods[];
 
 // VideoMouseController
 extern JSClass js_vimo_ctrl_class;
 extern JSFunctionSpec js_vimo_ctrl_methods[];
 
-// JoystickController
-extern JSClass js_joy_ctrl_class;
-extern JSFunctionSpec js_joy_ctrl_methods[];
+// // JoystickController
+// extern JSClass js_joy_ctrl_class;
+// extern JSFunctionSpec js_joy_ctrl_methods[];
 
-// MidiController
-#ifdef WITH_MIDI
-extern JSClass js_midi_ctrl_class;
-extern JSFunctionSpec js_midi_ctrl_methods[];
-#endif
+// // MidiController
+// #ifdef WITH_MIDI
+// extern JSClass js_midi_ctrl_class;
+// extern JSFunctionSpec js_midi_ctrl_methods[];
+// #endif
 
 // Trigger Controller
 extern JSClass js_trigger_ctrl_class;
@@ -172,9 +166,9 @@ extern JSFunctionSpec js_osc_ctrl_methods[];
 extern JSClass js_wii_ctrl_class;
 extern JSFunctionSpec js_wii_ctrl_methods[];
 
-// GeometryLayer
-extern JSClass geometry_layer_class;
-extern JSFunctionSpec geometry_layer_methods[];
+// // GeometryLayer
+// extern JSClass geometry_layer_class;
+// extern JSFunctionSpec geometry_layer_methods[];
 
 // GeneratorLayer
 extern JSClass generator_layer_class;
@@ -183,10 +177,6 @@ extern JSFunctionSpec generator_layer_methods[];
 // VScrollLayer
 extern JSClass vscroll_layer_class;
 extern JSFunctionSpec vscroll_layer_methods[];
-
-// ImageLayer
-extern JSClass image_layer_class;
-extern JSFunctionSpec image_layer_methods[];
 
 // FlashLayer
 extern JSClass flash_layer_class;
@@ -206,12 +196,6 @@ extern JSClass cam_layer_class;
 extern JSFunctionSpec cam_layer_methods[];
 extern JSPropertySpec cam_layer_properties[];
 
-// TextLayer
-#if defined WITH_TEXTLAYER
-extern JSClass txt_layer_class;
-extern JSFunctionSpec txt_layer_methods[];
-#endif
-
 // VectorLayer
 #if defined WITH_CAIRO
 extern JSClass vector_layer_class;
@@ -219,11 +203,11 @@ extern JSFunctionSpec vector_layer_methods[];
 extern JSPropertySpec vector_layer_properties[];
 #endif
 
-// MovieLayer
-#ifdef WITH_FFMPEG
-extern JSClass video_layer_class;
-extern JSFunctionSpec video_layer_methods[];
-#endif
+// // MovieLayer
+// #ifdef WITH_FFMPEG
+// extern JSClass video_layer_class;
+// extern JSFunctionSpec video_layer_methods[];
+// #endif
 
 #ifdef WITH_OGGTHEORA
 // VideoEncoder

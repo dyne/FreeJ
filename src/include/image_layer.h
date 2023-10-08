@@ -21,8 +21,8 @@
 #ifndef __img_h__
 #define __img_h__
 
-#include <SDL.h>
-#include <SDL_image.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <layer.h>
 
 class ImageLayer: public Layer {

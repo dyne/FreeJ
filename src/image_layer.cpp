@@ -23,7 +23,7 @@
 */
 
 
-#include <SDL_image.h>
+#include <SDL2/SDL_image.h>
 #include <context.h>
 #include <blitter.h>
 
@@ -73,11 +73,11 @@ bool ImageLayer::open(const char *file) {
    * Convert to display pixel format if the images is not 32 bit per pixel
    */
   if(image->format->BitsPerPixel != 32) {
-    image = SDL_DisplayFormat(image);
+    image = SDL_ConvertSurfaceFormat(image, 32, 0x0);
   }
 
   // allocate the hw accelerated surface
-  surf = SDL_CreateRGBSurface(SDL_HWSURFACE|SDL_SRCALPHA,
+  surf = SDL_CreateRGBSurface(0x0,
 			      image->w, image->h, 32,
 			      red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   if(!surf) {
@@ -107,7 +107,7 @@ bool ImageLayer::open(const char *file) {
 
   // do not apply the mask,
   // copy image+alpha to surf
-  SDL_SetAlpha( image, 0, 0 );
+  SDL_SetSurfaceAlphaMod( image, 0x0 );
 
   //SDL_FillRect(surf, NULL, alpha_bitmask);
   SDL_BlitSurface(image,NULL,surf,NULL);

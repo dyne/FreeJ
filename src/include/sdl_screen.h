@@ -22,7 +22,7 @@
 #ifndef __SDL_SCREEN_H__
 #define __SDL_SCREEN_H__
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <screen.h>
 
 #include <factory.h>

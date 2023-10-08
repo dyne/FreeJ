@@ -23,7 +23,7 @@
 #ifndef __VIDEO_ENCODER_H__
 #define __VIDEO_ENCODER_H__
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <config.h>
 
 #include <jsync.h>

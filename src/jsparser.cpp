@@ -155,25 +155,18 @@ void JsExecutionContext::init_class() {
     NULL);
   object_proto = layer_object; // following registrations inherit from parent class Layer
 
-  REGISTER_CLASS("GeometryLayer",
-    geometry_layer_class,
-    geometry_layer_constructor,
-    NULL,
-    geometry_layer_methods,
-    object_proto);
+  // REGISTER_CLASS("GeometryLayer",
+  //   geometry_layer_class,
+  //   geometry_layer_constructor,
+  //   NULL,
+  //   geometry_layer_methods,
+  //   object_proto);
 
   REGISTER_CLASS("GeneratorLayer",
     generator_layer_class,
     generator_layer_constructor,
     NULL,
     generator_layer_methods,
-    object_proto);
-
-  REGISTER_CLASS("ImageLayer",
-    image_layer_class,
-    image_layer_constructor,
-    NULL,
-    image_layer_methods,
     object_proto);
 
 #ifdef WITH_FLASH
@@ -229,15 +222,6 @@ void JsExecutionContext::init_class() {
 
 #endif
 
-#if defined WITH_TEXTLAYER
-  REGISTER_CLASS("TextLayer",
-    txt_layer_class,
-    txt_layer_constructor,
-    NULL, // properties
-    txt_layer_methods,
-    object_proto);
-#endif
-
 #ifdef WITH_XGRAB
   REGISTER_CLASS("XGrabLayer",
     js_xgrab_class,
@@ -272,26 +256,26 @@ void JsExecutionContext::init_class() {
     NULL);
   object_proto = layer_object;
 
-  REGISTER_CLASS("KeyboardController",
-    js_kbd_ctrl_class,
-    js_kbd_ctrl_constructor,
-    NULL, // properties
-    js_kbd_ctrl_methods,
-    object_proto);
+  // REGISTER_CLASS("KeyboardController",
+  //   js_kbd_ctrl_class,
+  //   js_kbd_ctrl_constructor,
+  //   NULL, // properties
+  //   js_kbd_ctrl_methods,
+  //   object_proto);
 
-  REGISTER_CLASS("MouseController",
-    js_mouse_ctrl_class,
-    js_mouse_ctrl_constructor,
-    NULL, // properties
-    js_mouse_ctrl_methods,
-    object_proto);
+  // REGISTER_CLASS("MouseController",
+  //   js_mouse_ctrl_class,
+  //   js_mouse_ctrl_constructor,
+  //   NULL, // properties
+  //   js_mouse_ctrl_methods,
+  //   object_proto);
 
-  REGISTER_CLASS("JoystickController",
-    js_joy_ctrl_class,
-    js_joy_ctrl_constructor,
-    NULL, // properties
-    js_joy_ctrl_methods,
-    object_proto);
+  // REGISTER_CLASS("JoystickController",
+  //   js_joy_ctrl_class,
+  //   js_joy_ctrl_constructor,
+  //   NULL, // properties
+  //   js_joy_ctrl_methods,
+  //   object_proto);
 
   REGISTER_CLASS("TriggerController",
     js_trigger_ctrl_class,
@@ -307,14 +291,14 @@ void JsExecutionContext::init_class() {
     js_vimo_ctrl_methods,
     object_proto);
 
-#ifdef WITH_MIDI
-  REGISTER_CLASS("MidiController",
-    js_midi_ctrl_class,
-    js_midi_ctrl_constructor,
-    NULL, // properties
-    js_midi_ctrl_methods,
-    object_proto);
-#endif
+// #ifdef WITH_MIDI
+//   REGISTER_CLASS("MidiController",
+//     js_midi_ctrl_class,
+//     js_midi_ctrl_constructor,
+//     NULL, // properties
+//     js_midi_ctrl_methods,
+//     object_proto);
+// #endif
 
   REGISTER_CLASS("OscController",
     js_osc_ctrl_class,

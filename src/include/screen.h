@@ -27,8 +27,6 @@
 
 #include <inttypes.h>
 #include <config.h>
-#include <SDL.h>
-
 
 #include <closure.h>
 #include <linklist.h>

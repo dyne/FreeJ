@@ -23,11 +23,11 @@
 #include <config.h>
 
 // controllers
-#include <kbd_ctrl.h>
+// #include <kbd_ctrl.h>
 
 /* software layers which don't need special loaders */
 #include <generator_layer.h>
-#include <geo_layer.h>
+// #include <geo_layer.h>
 #include <image_layer.h> // statically included sdl_image
 
 #include <goom_layer.h>
@@ -46,13 +46,10 @@
 #include <avi_layer.h>
 #endif
 
-#ifdef WITH_FFMPEG
-#include <video_layer.h>
-#endif
+// #ifdef WITH_FFMPEG
+// #include <video_layer.h>
+// #endif
 
-#if defined WITH_TEXTLAYER
-#include <text_layer.h>
-#endif
 
 #ifdef WITH_XSCREENSAVER
 #include <xscreensaver_layer.h>

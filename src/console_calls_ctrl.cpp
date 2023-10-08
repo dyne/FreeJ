@@ -520,7 +520,7 @@ int console_open_layer(Context *env, char *cmd) {
   return 0;
 }
 
-#if defined WITH_TEXTLAYER
+#if 0 //  defined WITH_TEXTLAYER
 #include <text_layer.h>
 int console_print_text_layer(Context *env, char *cmd) {
 

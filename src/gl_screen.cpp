@@ -19,7 +19,6 @@
  */
 
 #include <config.h>
-#ifdef WITH_OPENGL
 
 #include <stdlib.h>
 #include <string.h>
@@ -68,8 +67,6 @@ GlScreen::GlScreen()
   g_quadVertices[3].y = 1.0f;
   g_quadVertices[3].z = 0.0f;
   
-  // add above | SDL_FULLSCREEN to go fullscreen from the start
-
 }
 
 
@@ -160,4 +157,3 @@ bool GlScreen::glblitX(Layer *layer) {
 
 
     
-#endif

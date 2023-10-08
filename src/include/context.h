@@ -34,7 +34,7 @@
 
 // this header makes freej dependent from SDL
 // it is here because of  SDL_PollEvent done in Context
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 //#include <linklist.h>
 #include <layer.h>

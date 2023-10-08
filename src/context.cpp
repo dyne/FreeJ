@@ -67,23 +67,16 @@ static void init_factory() {
     Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
     Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
     Factory<Layer>::set_default_classtype("GeneratorLayer","ff_f0r");
-    Factory<Layer>::set_default_classtype("ImageLayer","sdl");
+//    Factory<Layer>::set_default_classtype("ImageLayer","sdl");
 #ifdef WITH_UNICAP
     Factory<Layer>::set_default_classtype("CamLayer", "unicap");
 #endif
 #ifdef WITH_OPENCV
     Factory<Layer>::set_default_classtype("CamLayer", "opencv");
 #endif
-#ifdef WITH_V4L
-    Factory<Layer>::set_default_classtype("CamLayer", "v4l2");
-#endif
-
 #ifdef WITH_CAIRO
     Factory<Layer>::set_default_classtype("VectorLayer", "cairo");
 #endif
-#ifdef WITH_TEXTLAYER
-    Factory<Layer>::set_default_classtype("TextLayer", "truetype");
-#endif    
 #ifdef WITH_FREI0R
     Factory<Filter>::set_default_classtype("Frei0rFilter", "core");
 #endif
@@ -119,17 +112,10 @@ Context::Context() {
   main_javascript[0] = 0x0;
 
   layers_description = (char*)
-" .  - ImageLayer for image files (png, jpeg etc.)\n"
 " .  - GeometryLayer for scripted vectorial primitives\n"
 #ifdef WITH_V4L
 " .  - Video4Linux devices as of BTTV cards and webcams\n"
 " .    you can specify the size  /dev/video0%160x120\n"
-#endif
-#ifdef WITH_FFMPEG
-" .  - MovieLayer for movie files, urls and firewire devices\n"
-#endif
-#if defined WITH_TEXTLAYER
-" .  - TextLayer for text rendered with freetype2 library\n"
 #endif
 #ifdef WITH_FLASH
 " .  - FlashLayer for SWF flash v.3 animations\n"
@@ -140,15 +126,8 @@ Context::Context() {
 "\n";
 
   screens_description = (char*)
-" .  - [ sdl   ] screen - Simple Directmedia Layer\n"
 " .  - [ soft  ] screen - internal shared buffer\n"
-#ifdef WITH_OPENGL
-" .  - [ sdlgl ] screen - SDL 3d opengl\n"
 " .  - [ gl    ] screen - 3d opengl surface\n"
-#endif
-#ifdef WITH_AALIB
-" .  - [ aa    ] screen - Ascii (aalib) text output\n"
-#endif
 "\n";
 
   if (!factory_initialized)
@@ -295,35 +274,10 @@ void Context::cafudda(double secs) {
   fps.delay();
 }
 
-#define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
-
 void Context::handle_controllers() {
   int res;
   Controller *ctrl;
 
-  event.type = SDL_NOEVENT;
-
-  SDL_PumpEvents();
-
-  // peep if there are quit or fullscreen events
-  res = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);
-
-  // force quit when SDL does
-  if (event.type == SDL_QUIT) {
-    quit = true;
-    return;
-  }
-  
-  // fullscreen switch (ctrl-f)
-  if(event.type == SDL_KEYDOWN)
-    if(event.key.state == SDL_PRESSED)
-      if(event.key.keysym.mod & KMOD_CTRL)
-	if(event.key.keysym.sym == SDLK_f) {
-	  ViewPort *scr = screens.selected();
-	  scr->fullscreen();
-	  res = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);  
-	}
-  
   ctrl = (Controller *)controllers.begin();
   if(ctrl) {
     controllers.lock();
@@ -334,11 +288,6 @@ void Context::handle_controllers() {
     }
     controllers.unlock();
   }
-
-  // flushes all events that are leftover
-  while( SDL_PeepEvents(&event,1,SDL_GETEVENT, SDL_ALLEVENTS) > 0 )
-      continue;
-  memset(&event, 0x0, sizeof(SDL_Event));
 
 }
 
@@ -646,38 +595,6 @@ Layer *Context::open(char *file, int w, int h) {
       error("VIDEO and AVI layer support not compiled");
       act("can't load %s",file_ptr);
 #endif
-  } else /* IMAGE LAYER */
-      if( (IS_IMAGE_EXTENSION(end_file_ptr))) {
-//		strncasecmp((end_file_ptr-4),".png",4)==0) 
-	      nlayer = new ImageLayer();
-              if(!nlayer->init()) {
-                error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-                delete nlayer; return NULL;
-              }
-	      if(!nlayer->open(file_ptr)) {
-		  error("create_layer : IMG open failed");
-		  delete nlayer; nlayer = NULL;
-	      }
-  } else /* TXT LAYER */
-    if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
-#if defined WITH_TEXTLAYER
-	  nlayer = new TextLayer();
-
-      if(!nlayer->init()) {
-	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-	delete nlayer; return NULL;
-      }
-
-	  if(!nlayer->open(file_ptr)) {
-	    error("create_layer : TXT open failed");
-	    delete nlayer; nlayer = NULL;
-	  }
-#else
-	  error("TXT layer support not compiled");
-	  act("can't load %s",file_ptr);
-	  return(NULL);
-#endif
-
   } else /* XSCREENSAVER LAYER */
     if(strstr(file_ptr,"xscreensaver")) {
 #ifdef WITH_XSCREENSAVER

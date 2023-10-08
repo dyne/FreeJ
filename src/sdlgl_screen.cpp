@@ -23,8 +23,8 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <SDL_syswm.h>
-#include <SDL_opengl.h>
+#include <SDL2/SDL_syswm.h>
+#include <SDL2/SDL_opengl.h>
 
 #include <sdlgl_screen.h>
 #include <jutils.h>

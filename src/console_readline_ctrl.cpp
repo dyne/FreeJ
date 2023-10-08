@@ -237,7 +237,7 @@ bool SlwReadline::parser_default(int key) {
 	       &console_blit_param_selection, &console_blit_param_completion);
       break;
       
-#if defined WITH_TEXTLAYER
+#if 0 // defined WITH_TEXTLAYER
     case KEY_CTRL_Y:
       if(((Layer*)le)->type == Layer::TEXT)
 	readline("print a new word in Text Layer, type your words:",
@@ -342,7 +342,7 @@ bool SlwReadline::parser_default(int key) {
     break;
     
 
-#if defined WITH_TEXTLAYER
+#if 0 // defined WITH_TEXTLAYER
   case KEY_CTRL_T:
     readline("create a new Text Layer, type your words:",
 	     &console_open_text_layer,NULL);

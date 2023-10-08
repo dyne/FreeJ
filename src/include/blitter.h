@@ -22,7 +22,6 @@
 #ifndef __BLITTER_H__
 #define __BLITTER_H__
 
-#include <SDL.h>
 #include <geometry.h>
 
 #include <screen.h>
@@ -33,12 +32,6 @@
 #define BLIT static inline void
 
 typedef void (blit_f)(void *src, void *dst, int len, Linklist<Parameter> *params);
-
-typedef void (blit_sdl_f)(void *src, SDL_Rect *src_rect,
-			  SDL_Surface *dst, SDL_Rect *dst_rect,
-			  Geometry *geo, Linklist<Parameter> *params);
-
-typedef void (blit_past_f)(void *src, void *past, void *dst, int len);
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -70,14 +63,10 @@ class Blit: public Entry {
   Linklist<Parameter> parameters; ///< linklist of blit parameters
 
   blit_f *fun; ///< pointer to linear blit function
-  blit_sdl_f *sdl_fun; ///< pointer to sdl blit function
-  blit_past_f *past_fun; ///< pointer to past blit function
 
   enum BlitType {
 	  NONE = 0,
-	  LINEAR = 1,
-	  SDL = 2,
-	  PAST = 3
+	  LINEAR = 1
   };
 
 //#define LINEAR_BLIT 1
@@ -102,8 +91,6 @@ class Blit: public Entry {
   int32_t lay_stride_up;
   int32_t lay_height;
   uint32_t lay_offset;
-
-  SDL_Rect sdl_rect; // sdl crop rectangle
 
  private:
   // parameters for linear crop

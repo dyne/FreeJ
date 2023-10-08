@@ -55,7 +55,7 @@ BLIT sdl_alpha(void *src, SDL_Rect *src_rect,
     (src, geo->w, geo->h, geo->bpp,
      geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, 0x0);
 
-  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, int_alpha );  
+  SDL_SetSurfaceAlphaMod( sdl_surf, int_alpha );
 
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
   
@@ -74,7 +74,7 @@ BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
     (src, geo->w, geo->h, geo->bpp,
      geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
   
-  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, int_alpha );  
+  SDL_SetSurfaceAlphaMod( sdl_surf, int_alpha );
 
   SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
   
@@ -82,30 +82,30 @@ BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
   
 };
 
-BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
-		   SDL_Surface *dst, SDL_Rect *dst_rect,
-		   Geometry *geo, Linklist<Parameter> *params) {
+// BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
+// 		   SDL_Surface *dst, SDL_Rect *dst_rect,
+// 		   Geometry *geo, Linklist<Parameter> *params) {
 
 
-  // TODO color
+//   // TODO color
 
-  sdl_surf = SDL_CreateRGBSurfaceFrom
-    (src, geo->w, geo->h, geo->bpp,
-     geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
-  
-  // TODO
-  SDL_SetColorKey( sdl_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, NULL);
-  
-  //  SDL_SetAlpha(sdl_surf, SDL_RLEACCEL, 0);
-  
-  SDL_Surface *colorkey_surf = SDL_DisplayFormat(sdl_surf);
-  
-  SDL_BlitSurface( colorkey_surf, src_rect, dst, dst_rect );
-  
-  SDL_FreeSurface( sdl_surf );
-  SDL_FreeSurface( colorkey_surf );
+//   sdl_surf = SDL_CreateRGBSurfaceFrom
+//     (src, geo->w, geo->h, geo->bpp,
+//      geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
 
-}
+//   // TODO
+//   SDL_SetColorKey( sdl_surf, SDL_FALSE, NULL);
+
+//   //  SDL_SetAlpha(sdl_surf, SDL_RLEACCEL, 0);
+
+//   SDL_Surface *colorkey_surf = SDL_ConvertSurfaceFormat(sdl_surf);
+
+//   SDL_BlitSurface( colorkey_surf, src_rect, dst, dst_rect );
+
+//   SDL_FreeSurface( sdl_surf );
+//   SDL_FreeSurface( colorkey_surf );
+
+// }
 
 void setup_sdl_blits(Blitter *blitter) {
   Parameter *p;

@@ -43,8 +43,8 @@ int console_exec_script_command(Context *env, char *cmd);
 int console_generator_selection(Context *env, char *cmd);
 int console_generator_completion(Context *env, char *cmd);
 
-int console_print_text_layer(Context *env, char *cmd);
-int console_open_text_layer(Context *env, char *cmd);
+// int console_print_text_layer(Context *env, char *cmd);
+// int console_open_text_layer(Context *env, char *cmd);
 
 int console_filebrowse_completion(Context *env, char *cmd);
 

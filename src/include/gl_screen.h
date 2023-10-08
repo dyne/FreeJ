@@ -45,9 +45,6 @@ class GlScreen : public ViewPort {
   void *get_surface() {   error("GlScreen::get_surface TODO (refactoring)"); return NULL; };
   void *coords(int x, int y) { return NULL; };
 
-  // whis is the main window surface
-  SDL_Surface *surface;
-
   float x_translation;
   float y_translation;
   float x_rotation;

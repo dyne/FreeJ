@@ -1,5 +1,5 @@
 #include <sdl_controller.h>
-#include <SDL/SDL.h>
+#include <SDL2/SDL.h>
 
 SdlController::SdlController() 
     : Controller()

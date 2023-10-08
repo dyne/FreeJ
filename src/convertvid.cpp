@@ -62,15 +62,15 @@ int mlt_convert_yuv422_to_rgb24a( uint8_t *yuv, uint8_t *rgba, unsigned int tota
 int mlt_convert_rgb24a_to_yuv422( uint8_t *rgba, int width, int height, int stride, uint8_t *yuv, uint8_t *alpha )
 {
 	int ret = 0;
-	register int y0, y1, u0, u1, v0, v1;
-	register int r, g, b;
-	register uint8_t *d = yuv;
-	register int i, j;
+	int y0, y1, u0, u1, v0, v1;
+	int r, g, b;
+	uint8_t *d = yuv;
+	int i, j;
 
 	if ( alpha )
 	for ( i = 0; i < height; i++ )
 	{
-		register uint8_t *s = rgba + ( stride * i );
+		uint8_t *s = rgba + ( stride * i );
 		for ( j = 0; j < ( width / 2 ); j++ )
 		{
 			r = *s++;
@@ -102,7 +102,7 @@ int mlt_convert_rgb24a_to_yuv422( uint8_t *rgba, int width, int height, int stri
 	else
 	for ( i = 0; i < height; i++ )
 	{
-		register uint8_t *s = rgba + ( stride * i );
+		uint8_t *s = rgba + ( stride * i );
 		for ( j = 0; j < ( width / 2 ); j++ )
 		{
 			r = *s++;
@@ -138,14 +138,14 @@ int mlt_convert_rgb24a_to_yuv422( uint8_t *rgba, int width, int height, int stri
 int mlt_convert_rgb24_to_yuv422( uint8_t *rgb, int width, int height, int stride, uint8_t *yuv )
 {
 	int ret = 0;
-	register int y0, y1, u0, u1, v0, v1;
-	register int r, g, b;
-	register uint8_t *d = yuv;
-	register int i, j;
+	int y0, y1, u0, u1, v0, v1;
+	int r, g, b;
+	uint8_t *d = yuv;
+	int i, j;
 
 	for ( i = 0; i < height; i++ )
 	{
-		register uint8_t *s = rgb + ( stride * i );
+		uint8_t *s = rgb + ( stride * i );
 		for ( j = 0; j < ( width / 2 ); j++ )
 		{
 			r = *s++;
@@ -177,15 +177,15 @@ int mlt_convert_rgb24_to_yuv422( uint8_t *rgb, int width, int height, int stride
 int mlt_convert_bgr24a_to_yuv422( uint8_t *rgba, int width, int height, int stride, uint8_t *yuv, uint8_t *alpha )
 {
 	int ret = 0;
-	register int y0, y1, u0, u1, v0, v1;
-	register int r, g, b;
-	register uint8_t *d = yuv;
-	register int i, j;
+	int y0, y1, u0, u1, v0, v1;
+	int r, g, b;
+	uint8_t *d = yuv;
+	int i, j;
 
 	if ( alpha )
 	for ( i = 0; i < height; i++ )
 	{
-		register uint8_t *s = rgba + ( stride * i );
+		uint8_t *s = rgba + ( stride * i );
 		for ( j = 0; j < ( width / 2 ); j++ )
 		{
 			b = *s++;
@@ -217,7 +217,7 @@ int mlt_convert_bgr24a_to_yuv422( uint8_t *rgba, int width, int height, int stri
 	else
 	for ( i = 0; i < height; i++ )
 	{
-		register uint8_t *s = rgba + ( stride * i );
+		uint8_t *s = rgba + ( stride * i );
 		for ( j = 0; j < ( width / 2 ); j++ )
 		{
 			b = *s++;
@@ -252,14 +252,14 @@ int mlt_convert_bgr24a_to_yuv422( uint8_t *rgba, int width, int height, int stri
 int mlt_convert_bgr24_to_yuv422( uint8_t *rgb, int width, int height, int stride, uint8_t *yuv )
 {
 	int ret = 0;
-	register int y0, y1, u0, u1, v0, v1;
-	register int r, g, b;
-	register uint8_t *d = yuv;
-	register int i, j;
+	int y0, y1, u0, u1, v0, v1;
+	int r, g, b;
+	uint8_t *d = yuv;
+	int i, j;
 
 	for ( i = 0; i < height; i++ )
 	{
-		register uint8_t *s = rgb + ( stride * i );
+		uint8_t *s = rgb + ( stride * i );
 		for ( j = 0; j < ( width / 2 ); j++ )
 		{
 			b = *s++;
@@ -291,15 +291,15 @@ int mlt_convert_bgr24_to_yuv422( uint8_t *rgb, int width, int height, int stride
 int mlt_convert_argb_to_yuv422( uint8_t *rgba, int width, int height, int stride, uint8_t *yuv, uint8_t *alpha )
 {
 	int ret = 0;
-	register int y0, y1, u0, u1, v0, v1;
-	register int r, g, b;
-	register uint8_t *d = yuv;
-	register int i, j;
+	int y0, y1, u0, u1, v0, v1;
+	int r, g, b;
+	uint8_t *d = yuv;
+	int i, j;
 
 	if ( alpha )
 	for ( i = 0; i < height; i++ )
 	{
-		register uint8_t *s = rgba + ( stride * i );
+		uint8_t *s = rgba + ( stride * i );
 		for ( j = 0; j < ( width / 2 ); j++ )
 		{
 			*alpha++ = *s++;
@@ -331,7 +331,7 @@ int mlt_convert_argb_to_yuv422( uint8_t *rgba, int width, int height, int stride
 	else
 	for ( i = 0; i < height; i++ )
 	{
-		register uint8_t *s = rgba + ( stride * i );
+		uint8_t *s = rgba + ( stride * i );
 		for ( j = 0; j < ( width / 2 ); j++ )
 		{
 			s++;
@@ -366,7 +366,7 @@ int mlt_convert_argb_to_yuv422( uint8_t *rgba, int width, int height, int stride
 int mlt_convert_yuv420p_to_yuv422( uint8_t *yuv420p, int width, int height, int stride, uint8_t *yuv )
 {
 	int ret = 0;
-	register int i, j;
+	int i, j;
 
 	int half = width >> 1;
 
@@ -374,12 +374,12 @@ int mlt_convert_yuv420p_to_yuv422( uint8_t *yuv420p, int width, int height, int 
 	uint8_t *U = Y + width * height;
 	uint8_t *V = U + width * height / 4;
 
-	register uint8_t *d = yuv;
+	uint8_t *d = yuv;
 
 	for ( i = 0; i < height; i++ )
 	{
-		register uint8_t *u = U + ( i / 2 ) * ( half );
-		register uint8_t *v = V + ( i / 2 ) * ( half );
+		uint8_t *u = U + ( i / 2 ) * ( half );
+		uint8_t *v = V + ( i / 2 ) * ( half );
 
 		for ( j = 0; j < half; j++ )
 		{

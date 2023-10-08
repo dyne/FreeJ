@@ -6,15 +6,14 @@
 #include <jutils.h>
 #include <blitter.h>
 
-#include <SDL_imageFilter.h>
 
 
 
 // Linear transparent blits
 BLIT blit_xor(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
-  register int c;
-  register uint32_t *s = (uint32_t*)src;
-  register uint32_t *d = (uint32_t*)dst;
+  int c;
+  uint32_t *s = (uint32_t*)src;
+  uint32_t *d = (uint32_t*)dst;
 
   for(c=bytes>>2;c>0;c--,s++,d++)
     *d ^= *s;
@@ -26,33 +25,35 @@ BLIT rgb_jmemcpy(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
 }
 
 BLIT red_channel(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
-  register int c;
-  register uint8_t *s = (uint8_t*)src;
-  register uint8_t *d = (uint8_t*)dst;
+  int c;
+  uint8_t *s = (uint8_t*)src;
+  uint8_t *d = (uint8_t*)dst;
   for(c=bytes>>2;c>0;c--,s+=4,d+=4)
     *(d+rchan) = *(s+rchan);
 }
 
 BLIT green_channel(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
-  register int c;
-  register uint8_t *s = (uint8_t*)src;
-  register uint8_t *d = (uint8_t*)dst;
+  int c;
+  uint8_t *s = (uint8_t*)src;
+  uint8_t *d = (uint8_t*)dst;
   for(c=bytes>>2;c>0;c--,s+=4,d+=4)
     *(d+gchan) = *(s+gchan);
 }
 
 BLIT blue_channel(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
-  register int c;
-  register uint8_t *s = (uint8_t*)src;
-  register uint8_t *d = (uint8_t*)dst;
+  int c;
+  uint8_t *s = (uint8_t*)src;
+  uint8_t *d = (uint8_t*)dst;
   for(c=bytes>>2;c>0;c--,s+=4,d+=4)
     *(d+bchan) = *(s+bchan);
 }
 
+#if 0
+
 BLIT red_mask(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
-  register int c;
-  register uint32_t *s = (uint32_t*)src;
-  register uint32_t *d = (uint32_t*)dst;
+  int c;
+  uint32_t *s = (uint32_t*)src;
+  uint32_t *d = (uint32_t*)dst;
 
   for(c=bytes>>2;c>0;c--,s++,d++)
     *d |= *s & red_bitmask;
@@ -64,9 +65,9 @@ BLIT red_mask(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
 }
 
 BLIT green_mask(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
-  register int c;
-  register uint32_t *s = (uint32_t*)src;
-  register uint32_t *d = (uint32_t*)dst;
+  int c;
+  uint32_t *s = (uint32_t*)src;
+  uint32_t *d = (uint32_t*)dst;
 
   for(c=bytes>>2;c>0;c--,s++,d++)
     *d |= *s & green_bitmask;
@@ -78,9 +79,9 @@ BLIT green_mask(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
 }
 
 BLIT blue_mask(void *src, void *dst, int bytes, Linklist<Parameter> *params) {
-  register int c;
-  register uint32_t *s = (uint32_t*)src;
-  register uint32_t *d = (uint32_t*)dst;
+  int c;
+  uint32_t *s = (uint32_t*)src;
+  uint32_t *d = (uint32_t*)dst;
 
   for(c=bytes>>2;c>0;c--,s++,d++)
     *d |= *s & blue_bitmask;
@@ -195,7 +196,7 @@ BLIT schiffler_binarize(void *src, void *dst, int bytes, Linklist<Parameter> *pa
 }
 
 
-
+#endif
 
 void setup_linear_blits(Blitter *blitter) {
   Blit *b;
@@ -208,6 +209,7 @@ void setup_linear_blits(Blitter *blitter) {
 
   blitter->default_blit = b; // default is RGB
 
+#if 0
   b = new Blit(); b->set_name("ADD");
   sprintf(b->desc,"bytewise addition");
   b->type = Blit::LINEAR;
@@ -262,6 +264,7 @@ void setup_linear_blits(Blitter *blitter) {
   sprintf(b->desc,"bitwise or");
   b->type = Blit::LINEAR;
   b->fun = schiffler_or; blitter->blitlist.prepend(b);
+#endif
 
   b = new Blit(); b->set_name("XOR");
   sprintf(b->desc,"bitwise xor");
@@ -282,6 +285,8 @@ void setup_linear_blits(Blitter *blitter) {
   sprintf(b->desc,"blue channel only blit");
   b->type = Blit::LINEAR;
   b->fun = blue_channel; blitter->blitlist.prepend(b);
+
+#if 0
 
   b = new Blit(); b->set_name("REDMASK");
   sprintf(b->desc,"red channel threshold mask");
@@ -431,5 +436,6 @@ void setup_linear_blits(Blitter *blitter) {
   p->multiplier = 255.0;
   b->parameters.append(p);
 
+#endif
 
 }

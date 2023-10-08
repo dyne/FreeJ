@@ -24,8 +24,8 @@
 #ifndef __SDLGL_SCREEN_H__
 #define __SDLGL_SCREEN_H__
 
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_opengl.h>
 #include <gl_screen.h>
 #include <screen.h>
 

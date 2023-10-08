@@ -21,8 +21,6 @@
 
 #include <string.h>
 
-//#include <SDL.h>
-
 #include <layer.h>
 #include <blitter.h>
 #include <filter.h>

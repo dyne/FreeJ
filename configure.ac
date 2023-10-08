@@ -5,14 +5,14 @@ dnl ==============================================================
 dnl require autoconf 2.62 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.62])
 
-AC_INIT([FreeJ],[1.0],[freej@lists.dyne.org],[freej])
+AC_INIT([FreeJ],[1.0],[jaromil@dyne.org],[freej])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
 
 dnl backwards compatibility for autoconf >= 2.64
 dnl PACKAGE_URL should be the fifth argument of AC_INIT
-m4_define([AC_PACKAGE_URL], [http://freej.dyne.org])
+m4_define([AC_PACKAGE_URL], [https://dyne.org/software/freej])
 AC_DEFINE(PACKAGE_URL, "AC_PACKAGE_URL", [Package URL])
 AC_SUBST(PACKAGE_URL, AC_PACKAGE_URL)
 
@@ -48,7 +48,6 @@ case "$host_os" in
         AC_DEFINE(HAVE_ALTIVEC_H,1,[define if cpu supports Altivec instruction set])
         AC_DEFINE(WORDS_BIGENDIAN,1,[define if compiling for Big Endian CPU])
         AC_DEFINE(PA_BIG_ENDIAN,1,[define big endian arch for portaudio])
-dnl        AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SDL])
     fi
 
     if test x$have_x86_64 = xyes; then
@@ -59,7 +58,6 @@ dnl        AC_DEFINE(SDL_BYTEORDER,SDL_BIG_ENDIAN,[define big endian arch for SD
     if test x$have_x86_32 = xyes; then
         AC_DEFINE(ARCH_X86,1,[define if compiling for Linux/x86])
         AC_DEFINE(PA_LITTLE_ENDIAN,1,[define little endian arch for portaudio])
-dnl        AC_DEFINE(SDL_BYTEORDER,SDL_LIL_ENDIAN,[define little endian arch for SDL])
     fi
   ;;
 
@@ -197,12 +195,6 @@ if test x$have_gd = xyes; then
    AC_SUBST([GD_LIBS])
 fi
 
-dnl ==============================================================
-dnl Check for SDL
-dnl ==============================================================
-PKG_CHECK_MODULES(SDL, sdl > 1.2, :,
-  AC_MSG_ERROR([*** SDL development files not found!]))
-
 
 dnl ==============================================================
 dnl Check OGG VORBIS THEORA
@@ -223,44 +215,6 @@ AC_SUBST([XIPH_LIBS])
 dnl TODO(shammash): heritage from conditional build, still used somewhere.
 AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
 
-
-dnl ==============================================================
-dnl FFMPEG DYNAMIC
-dnl ==============================================================
-PKG_CHECK_MODULES(AVCODEC, libavcodec, :,
-  AC_MSG_ERROR([*** Libavcodec development files not found!]))
-PKG_CHECK_MODULES(AVFORMAT, libavformat, :,
-  AC_MSG_ERROR([*** Libavformat development files not found!]))
-PKG_CHECK_MODULES(AVUTIL, libavutil, :,
-  AC_MSG_ERROR([*** Libavutil development files not found!]))
-PKG_CHECK_MODULES(SWSCALE, libswscale, :,
-  AC_MSG_ERROR([*** Libswscale development files not found!]))
-FFMPEG_CFLAGS="$AVCODEC_CFLAGS $AVFORMAT_CFLAGS $AVUTIL_CFLAGS $SWSCALE_CFLAGS"
-FFMPEG_LIBS="$AVCODEC_LIBS $AVFORMAT_LIBS $AVUTIL_LIBS $SWSCALE_LIBS"
-AC_SUBST([FFMPEG_CFLAGS])
-AC_SUBST([FFMPEG_LIBS])
-
-dnl FFmpeg changed include path policy, let's check which one is in use.
-FREEJ_SAVE_FLAGS
-CPPFLAGS="$CPPFLAGS $FFMPEG_CFLAGS"
-CFLAGS="$CFLAGS $FFMPEG_CFLAGS"
-AC_CHECK_HEADERS(libavcodec/avcodec.h ffmpeg/avcodec.h)
-AC_CHECK_HEADERS(libavformat/avformat.h ffmpeg/avformat.h)
-AC_CHECK_HEADERS(libavutil/avutil.h ffmpeg/avutil.h)
-AC_CHECK_HEADERS(libswscale/swscale.h ffmpeg/swscale.h)
-FREEJ_RESTORE_FLAGS
-dnl Then in sources we have to include in the following way:
-dnl    #ifdef HAVE_LIBAVCODEC_AVCODEC_H
-dnl    #   include <libavcodec/avcodec.h>
-dnl    #elif defined(HAVE_FFMPEG_AVCODEC_H)
-dnl    #   include <ffmpeg/avcodec.h>
-dnl    #else
-dnl    #   include <avcodec.h>
-dnl    #endif
-
-dnl TODO(shammash): heritage from conditional build, still used somewhere.
-AC_DEFINE(WITH_FFMPEG,1, [define if compiling movie layer linking to ffmpeg libavcodec])
-AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
 
 
 dnl ==============================================================
@@ -338,26 +292,6 @@ fi
 
 
 dnl ==============================================================
-dnl CHECK if there is VIDEO4LINUX
-dnl ==============================================================
-AC_CHECK_HEADERS([linux/videodev2.h], [have_videodev=yes], [have_videodev=no])
-AC_ARG_ENABLE(v4l,
-    AS_HELP_STRING([--enable-v4l],[compile with Video4Linux Layer (autodetect)]),
-    [enable_v4l=$enableval],
-    [enable_v4l=autodetect])
-
-if test x$have_videodev = xno && test x$enable_v4l = xyes; then
-    AC_MSG_ERROR([*** v4l enabled but header videodev.h not found!])
-fi
-
-if test x$have_videodev = xyes && {
-        test x$enable_v4l = xyes ||
-        test x$enable_v4l = xautodetect
-   }; then
-        AC_DEFINE(WITH_V4L,1,[define if compiling video4linux layer])
-fi
-
-dnl ==============================================================
 dnl compile with full warnings and debugging symbols
 dnl ==============================================================
 AC_ARG_ENABLE(debug,
@@ -383,109 +317,11 @@ if test x$enable_profiling = xyes; then
 fi
 
 
-dnl ==============================================================
-dnl CHECK to use processor specific optimizations to compile
-dnl ==============================================================
-AC_ARG_ENABLE(cpuflags,
-    AS_HELP_STRING([--enable-cpuflags],[compile with advanced cpu instructions (yes)]),
-    [enable_cpuflags=$enableval],
-    [enable_cpuflags=yes])
-
-if test x$enable_cpuflags = xyes; then
-  if test x$have_linux = xyes; then
-     if grep "^flags.* mmx" /proc/cpuinfo > /dev/null; then
-       have_mmx=yes
-       AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
-     fi
-     if grep "^flags.* sse" /proc/cpuinfo > /dev/null; then
-       have_sse=yes
-       AC_DEFINE(HAVE_SSE,1,[define if enabling SSE acceleration])
-     fi
-     if grep "^flags.* sse2" /proc/cpuinfo > /dev/null; then
-       have_sse=yes
-       AC_DEFINE(HAVE_SSE2,1,[define if enabling SSE2 acceleration])
-     fi
-     if grep "^flags.* ssse3" /proc/cpuinfo > /dev/null; then
-       have_ssse3=yes
-       AC_DEFINE(HAVE_SSSE3,1,[define if enabling SSSE3 acceleration])
-     fi
-  fi
-  if test x$have_freebsd = xyes; then
-     if sysctl -n hw.instruction_sse; then
-         dnl XXX(godog) is this MMX or SSE?
-         have_mmx=yes
-         AC_DEFINE(HAVE_MMX,1,[define if enabling MMX acceleration])
-     fi
-  fi
-fi
-
-AC_ARG_ENABLE(lubrication,
-    AS_HELP_STRING([--enable-lubrication],[compile using processor lubricants (yes)]),
-    [enable_lubrication=$enableval],
-    [enable_lubrication=yes])
-
-dnl XXX(godog) integrate with AX_GCC_ARCHFLAG
-if test x$enable_lubrication = xyes; then
-  if test x$enable_profiling = xyes || test x$enable_debug = xyes; then
-    AC_MSG_WARN([cannot lubricate code if debug or profiling are enabled])
-    enable_lubrication=no
-  else
-    if test x$have_darwin = xyes; then
-      if test x$have_ppc = xyes; then
-        dnl use optimization flags for darwin
-        GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mabi=altivec -maltivec -mpowerpc-gfxopt"
-      else
-        GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=pentium4"
-      fi
-    dnl adding these provoke 'illegal instruction' errors in some
-    dnl ppc/gcc combinations: -mpowerpc-gfxopt -faltivec"
-    elif test x$have_ppc = xyes; then
-      GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -fomit-frame-pointer -ffast-math -mabi=altivec -maltivec -mpowerpc-gfxopt"
-    elif test x$have_x86_64 = xyes; then
-      dnl should complete this with all 64bit CPUs (AMD too)
-      if test x$have_ssse3 = xyes; then
-        dnl multiple core cpu
-        GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=core2"
-      else
-        dnl single core 64bit cpu
-        GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2 -mfpmath=sse -mtune=nocona"
-      fi
-    else
-      dnl any other platform optimizations
-      AC_MSG_WARN([no special optimisation flags found for your cpu])
-      AC_MSG_WARN([please suggest some on our mailinglist if you know better!])
-      GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
-    fi
-  fi
-else
-  if test x$enable_profiling = xno && test x$enable_debug = xno; then
-    AC_MSG_NOTICE([enabling generic compiler optimizations])
-    GLOBAL_CFLAGS="$GLOBAL_CFLAGS -O2"
-  fi
-fi
-
-dnl ==============================================================
-dnl CHECK if we have aalib
-dnl ==============================================================
-FREEJ_CHECK_LIB_HEADER([aa], [aa_init], [aalib.h], [have_aa=yes], [have_aa=no])
-if test x$have_aa = xyes; then
-   AC_DEFINE(WITH_AALIB,1,[define if to compile aalib ascii screen])
-   AA_CFLAGS=""
-   AA_LIBS="-laa"
-fi
-AC_SUBST(AA_CFLAGS)
-AC_SUBST(AA_LIBS)
-
-
 
 dnl ==============================================================
 dnl CHECK TO USE OPENGL VIDEO OUTPUT
 dnl ==============================================================
-AC_ARG_ENABLE(opengl,
-    AS_HELP_STRING([--enable-opengl],[experimental opengl rendering (no)]),
-    [enable_opengl=$enableval],
-    [enable_opengl=no])
-
+enable_opengl=yes
 if test x$enable_opengl = xyes; then
    dnl note: checking for GLU only, this brings in also GL
    PKG_CHECK_MODULES(GLU, glu,
@@ -512,12 +348,11 @@ fi
 dnl ==============================================================
 dnl Audio
 dnl ==============================================================
-PKG_CHECK_MODULES(ALSA, alsa,
-    AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
-    have_midi=yes,
-    have_midi=no)
+dnl PKG_CHECK_MODULES(ALSA, alsa,
+dnl     AC_DEFINE(WITH_MIDI,1,[define if compiling midi controller])
+dnl     have_midi=yes,
+dnl     have_midi=no)
 
-dnl TODO(shammash): before this refactoring we were enabling jack
 dnl only if alsa was present, check inconsistencies in the code.
 PKG_CHECK_MODULES(JACK, jack, :,
   AC_MSG_ERROR([*** Jack development files not found!]))
@@ -528,139 +363,25 @@ PKG_CHECK_MODULES(FFTW, fftw3, :,
 PKG_CHECK_MODULES(SAMPLERATE, samplerate, :,
   AC_MSG_ERROR([*** Samplerate development files not found!]))
 
-AC_DEFINE(WITH_AUDIO,1,[define if compiling audio system])
+dnl AC_DEFINE(WITH_AUDIO,1,[define if compiling audio system])
 
-dnl ==============================================================
-dnl compile including the javascript interpreter
-dnl ==============================================================
 
-AC_MSG_NOTICE([checking if mozilla-js is ok])
-PKG_CHECK_MODULES([MOZJS_JS],
-                  [mozilla-js >= 1.9],
-                  [have_mozjs_js=yes], [have_mozjs_js=no])
-if test x$have_mozjs_js = xyes; then
-  FREEJ_SAVE_FLAGS
-  CFLAGS="$MOZJS_JS_CFLAGS"
-  CPPFLAGS="$MOZJS_JS_CFLAGS"
-  LDFLAGS="$MOZJS_JS_LIBS"
-  FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
-                          [have_mozjs_js=yes], [have_mozjs_js=no])
-  FREEJ_RESTORE_FLAGS
-fi
-if test x$have_mozjs_js = xyes; then
-  AC_MSG_NOTICE([using mozilla-js])
-  MOZJS_CFLAGS="$MOZJS_JS_CFLAGS"
-  MOZJS_LIBS="$MOZJS_JS_LIBS"
-  have_mozjs=yes
-else
-  AC_MSG_NOTICE([NOT using mozilla-js])
-  have_mozjs=no
-fi
-
-if test x$have_mozjs = xno; then
-  AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-stable are ok])
-  dnl test if https://bugzilla.mozilla.org/show_bug.cgi?id=500645 has been closed
-  PKG_CHECK_MODULES([MOZJS_STABLE],
-                    [mozilla-js >= 1.9 libxul-embedding-stable >= 1.9],
-                    [have_mozjs_stable=yes], [have_mozjs_stable=no])
-  if test x$have_mozjs_stable = xyes; then
-    FREEJ_SAVE_FLAGS
-    CFLAGS="$MOZJS_STABLE_CFLAGS"
-    CPPFLAGS="$MOZJS_STABLE_CFLAGS"
-    LDFLAGS="$MOZJS_STABLE_LIBS"
-    FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
-                            [have_mozjs_stable=yes], [have_mozjs_stable=no])
-    FREEJ_RESTORE_FLAGS
-  fi
-  if test x$have_mozjs_stable = xyes; then
-    AC_MSG_NOTICE([using mozilla-js && libxul-embedding-stable])
-    MOZJS_CFLAGS="$MOZJS_STABLE_CFLAGS"
-    MOZJS_LIBS="$MOZJS_STABLE_LIBS"
-    have_mozjs=yes
-  else
-    AC_MSG_NOTICE([NOT using mozilla-js && libxul-embedding-stable])
-    have_mozjs=no
-  fi
-fi
-
-if test x$have_mozjs = xno; then
-  dnl test if adding unstable is enough
-  AC_MSG_NOTICE([checking if mozilla-js && libxul-embedding-unstable are ok])
-  PKG_CHECK_MODULES([MOZJS_UNSTABLE],
-                    [mozilla-js >= 1.9 libxul-embedding-unstable >= 1.9],
-                    [have_mozjs_unstable=yes], [have_mozjs_unstable=no])
-  if test x$have_mozjs_unstable = xyes; then
-    FREEJ_SAVE_FLAGS
-    CFLAGS="$MOZJS_UNSTABLE_CFLAGS"
-    CPPFLAGS="$MOZJS_UNSTABLE_CFLAGS"
-    LDFLAGS="$MOZJS_UNSTABLE_LIBS"
-    FREEJ_CHECK_LIB_HEADER([mozjs], [JS_NewContext], [jsapi.h],
-                            [have_mozjs_unstable=yes], [have_mozjs_unstable=no])
-    FREEJ_RESTORE_FLAGS
-  fi
-  if test x$have_mozjs_unstable = xyes; then
-    AC_MSG_NOTICE([using mozilla-js && libxul-embedding-unstable])
-    MOZJS_CFLAGS="$MOZJS_UNSTABLE_CFLAGS"
-    MOZJS_LIBS="$MOZJS_UNSTABLE_LIBS"
-    have_mozjs=yes
-  else
-    AC_MSG_NOTICE([NOT using mozilla-js && libxul-embedding-unstable])
-    have_mozjs=no
-  fi
-fi
-
-if test x$have_mozjs = xyes; then
-  AC_DEFINE(JS_THREADSAFE,1,[define if compiling with threadsafe libjs])
-  AC_MSG_CHECKING([if libmozjs is in linker search path])
-
-  FREEJ_SAVE_FLAGS
-  CFLAGS="$MOZJS_CFLAGS"
-  CPPFLAGS="$MOZJS_CFLAGS"
-  dnl strip -L<arg> from MOZJS_LIBS
-  LDFLAGS=`echo $MOZJS_LIBS | sed 's/-L \?[^ ]*//g'`
-  AC_RUN_IFELSE([
-#include <jsapi.h>
-int main() {
- JSRuntime *jsr = JS_NewRuntime(8L * 1024L * 1024L);
-return 0;
-}],
-  [have_mozjs_linkable=yes], [have_mozjs_linkable=no],
-  [have_mozjs_linkable=no]) dnl action if cross-compiling
-  FREEJ_RESTORE_FLAGS
-
-  if test x$have_mozjs_linkable = xno; then
-    AC_MSG_RESULT([no, compiling static version])
-    have_mozjs=no
-  else
-    AC_MSG_RESULT([yes])
-  fi
-fi
-
-dnl this flag is supposed to be for users having problem with xulrunner
-dnl installed on the system and want to force a static linking with our shipped
-dnl xulrunner
-AC_ARG_ENABLE(static-mozjs,
-    AS_HELP_STRING([--enable-static-mozjs],[force use of shipped mozjs]),
-    [static_mozjs=$enableval],
-    [static_mozjs=no])
-if test x$have_mozjs = xno || test x$static_mozjs = xyes; then
-  AC_MSG_NOTICE([fallback to static mozjs])
-  MOZJS_CFLAGS="-I\$(top_srcdir)/lib/javascript -I\$(top_builddir)/lib/javascript"
+# Javascript XULRUNNER aka Spidermonkey
+MOZJS_CFLAGS="-I\$(top_srcdir)/lib/javascript -I\$(top_builddir)/lib/javascript"
   dnl libs in top_srcdir instead of top_builddir because js is not under autotools
-  MOZJS_LIBS="\$(top_builddir)/lib/javascript/libmozjs.a"
+MOZJS_LIBS="\$(top_builddir)/lib/javascript/libmozjs.a"
 
-  dnl run lib/javascript/configure after freej's configure, building it static
-  dnl XXX config.cache can be shared between the two configures? is it safe?
-  AC_CONFIG_COMMANDS([lib/javascript/.xulrunner-subdir],
-                     [
-    (cd lib/javascript &&
-      CXXFLAGS="$GLOBAL_CFLAGS $CXXFLAGS -fPIC" \
-      CFLAGS="$GLOBAL_CFLAGS $CFLAGS -fPIC" \
-      $ac_srcdir/configure --enable-static \
-        --enable-js-static-build --disable-jit) || exit $?
-  ])
-  have_mozjs=no
-fi
+dnl run lib/javascript/configure after freej's configure, building it static
+dnl XXX config.cache can be shared between the two configures? is it safe?
+AC_CONFIG_COMMANDS([lib/javascript/.xulrunner-subdir],
+[
+(cd lib/javascript &&
+CXXFLAGS="$GLOBAL_CFLAGS $CXXFLAGS -fPIC" \
+CFLAGS="$GLOBAL_CFLAGS $CFLAGS -fPIC" \
+$ac_srcdir/configure --enable-static \
+--enable-js-static-build --disable-jit) || exit $?
+])
+have_mozjs=no
 
 if test x$enable_debug = xyes ; then
    MOZJS_CFLAGS="$MOZJS_CFLAGS -DJS_GCMETER"
@@ -685,19 +406,14 @@ AC_SUBST(MOZJS_LIBS)
 
 AC_DEFINE(WITH_JAVASCRIPT,1,[Define if using libmozjs for spidermonkey javascript])
 
-AM_CONDITIONAL([BUILD_JAVASCRIPT], [test x$have_mozjs = xno])
-
 dnl ==============================================================
 dnl unicap lib
 dnl ==============================================================
-AC_ARG_ENABLE(unicap,
-    AS_HELP_STRING([--enable-unicap],[enable use of unicap library for video capture]),
- [
-    PKG_CHECK_MODULES(UNICAP, libunicap, have_unicap=yes, have_unicap=no)
-    if test x$have_unicap = xyes; then
-    AC_DEFINE(WITH_UNICAP,1,[Define if to link libunicap for camera capture])
-    fi
- ])
+PKG_CHECK_MODULES(UNICAP, libunicap, have_unicap=yes, have_unicap=no)
+if test x$have_unicap = xyes; then
+AC_DEFINE(WITH_UNICAP,1,[Define if to link libunicap for camera capture])
+fi
+
 
 dnl ==============================================================
 dnl opencv lib
@@ -710,76 +426,6 @@ AC_ARG_ENABLE(opencv,
     AC_DEFINE(WITH_OPENCV,1,[Define if to link opencv framework])
     fi
  ])
-
-dnl ==============================================================
-dnl SDL_gfx
-dnl ==============================================================
-PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
-if test x$have_sdlgfx = xno; then
-   SDLGFX_CFLAGS="$SDL_CFLAGS"
-   SDLGFX_LIBS="$SDL_LIBS -lSDL_gfx"
-   FREEJ_SAVE_FLAGS
-   CFLAGS="$SDLGFX_CFLAGS"
-   CPPFLAGS="$SDLGFX_CFLAGS"
-   LDFLAGS="$SDLGFX_LIBS"
-   FREEJ_CHECK_LIB_HEADER([SDL_gfx], [pixelColor], [SDL_gfxPrimitives.h],
-                           [have_sdlgfx=yes], [have_sdlgfx=no])
-   FREEJ_RESTORE_FLAGS
-fi
-if test x$have_sdlgfx = xno; then
-   AC_MSG_NOTICE([Using freej version of SDLGFX])
-
-   AC_CHECK_FUNCS([pow])
-   SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
-   SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
-fi
-
-AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
-
-
-dnl ==============================================================
-dnl SDL_ttf
-dnl ==============================================================
-PKG_CHECK_MODULES([SDLTTF], [SDL_ttf], [have_sdlttf=yes], [have_sdlttf=no])
-if test x$have_sdlttf = xno; then
-   SDLTTF_CFLAGS="$SDL_CFLAGS"
-   SDLTTF_LIBS="$SDL_LIBS -lSDL_ttf"
-   FREEJ_SAVE_FLAGS
-   CFLAGS="$SDLTTF_CFLAGS"
-   CPPFLAGS="$SDLTTF_CFLAGS"
-   LDFLAGS="$SDLTTF_LIBS"
-   FREEJ_CHECK_LIB_HEADER([SDL_ttf], [TTF_Init], [SDL_ttf.h],
-                           [have_sdlttf=yes], [have_sdlttf=no])
-   FREEJ_RESTORE_FLAGS
-fi
-if test x$have_sdlttf = xno; then
-   AC_MSG_NOTICE([Using freej version of SDLTTF])
-   SDLTTF_CFLAGS="-I\$(top_srcdir)/lib/sdl_ttf"
-   SDLTTF_LIBS="\$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la"
-fi
-
-AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
-
-
-dnl ==============================================================
-dnl SDL_image
-dnl ==============================================================
-PKG_CHECK_MODULES([SDLIMAGE], [SDL_image],
-                  [have_sdlimage=yes],
-                  [have_sdlimage=no])
-if test x$have_sdlimage = xyes; then
-   SDLIMAGE_CFLAGS="$SDL_CFLAGS"
-   SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image -ljpeg"
-   FREEJ_SAVE_FLAGS
-   CFLAGS="$SDLIMAGE_CFLAGS"
-   CPPFLAGS="$SDLIMAGE_CFLAGS"
-   LDFLAGS="$SDLIMAGE_LIBS"
-   FREEJ_CHECK_LIB_HEADER([SDL_image], [IMG_Load], [SDL_image.h],
-                           [have_sdlimage=yes], [have_sdlimage=no])
-   FREEJ_RESTORE_FLAGS
-fi
-
-AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlimage = xno])
 
 
 dnl ==============================================================
@@ -799,19 +445,6 @@ dnl ==============================================================
 #fi
 AC_DEFINE(WITH_FREI0R,1,[Define as using frei0r plugins])
 
-
-dnl ==============================================================
-dnl freeframe plugins
-dnl ==============================================================
-#
-# freeframe should be supported in any case:
-# plugins will be detected runtime
-# freeframe.h header is redistributed
-# this is a normal behaviour for plugins
-# support should be compiled in even if plugins aren't present.
-# -xnt
-#
-AC_DEFINE(WITH_FREEFRAME,1,[Define as using freeframe plugins])
 
 dnl ==============================================================
 dnl Check Cairo 2d vector graphics library for VectorLayer
@@ -869,20 +502,14 @@ FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
 AC_SUBST(FREEJ_STATIC_CFLAGS)
 
 FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
-    \$(AA_CFLAGS)       \
     \$(CWIID_CFLAGS)    \
     \$(FC_CFLAGS)       \
-    \$(FFMPEG_CFLAGS)   \
     \$(FT2_CFLAGS)      \
     \$(GLU_CFLAGS)      \
     \$(LIBLO_CFLAGS)    \
     \$(MOZJS_CFLAGS)    \
     \$(OPENCV_CFLAGS)   \
     \$(QTGUI_CFLAGS)	\
-    \$(SDL_CFLAGS)      \
-    \$(SDLGFX_CFLAGS)   \
-    \$(SDLIMAGE_CFLAGS) \
-    \$(SDLTTF_CFLAGS)   \
     \$(SHOUT_CFLAGS)    \
     \$(SLANG_CFLAGS)    \
     \$(UNICAP_CFLAGS)   \
@@ -896,12 +523,10 @@ FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
 AC_SUBST(FREEJ_STATIC_LIBS)
 
 FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
-    \$(AA_LIBS)         \
     \$(ALSA_LIBS)       \
     \$(BLUEZ_LIBS)      \
     \$(CWIID_LIBS)      \
     \$(FC_LIBS)         \
-    \$(FFMPEG_LIBS)     \
     \$(FFTW_LIBS)       \
     \$(FT2_LIBS)        \
     \$(GLU_LIBS)        \
@@ -911,10 +536,6 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(OPENCV_LIBS)     \
     \$(QTGUI_LIBS)	\
     \$(SAMPLERATE_LIBS) \
-    \$(SDLGFX_LIBS)     \
-    \$(SDLIMAGE_LIBS)   \
-    \$(SDL_LIBS)        \
-    \$(SDLTTF_LIBS)     \
     \$(SHOUT_LIBS)      \
     \$(SLANG_LIBS)      \
     \$(UNICAP_LIBS)     \
@@ -981,10 +602,6 @@ INFO([Compile $PACKAGE $VERSION for ${host}])
 echo "configuration summary, pass V=1 to configure for verbose output"
 
 dnl mandatory libs, outputted only if verbose
-VRB([= SDL])
-VRB([  LIBS   : $SDL_LIBS])
-VRB([  CFLAGS : $SDL_CFLAGS])
-
 VRB([= ogg-theora (xiph.org)])
 VRB([  LIBS  : $XIPH_LIBS])
 VRB([  CFLAGS: $XIPH_CFLAGS])
@@ -1025,40 +642,9 @@ fi
 VRB([  LIBS  : $MOZJS_LIBS])
 VRB([  CFLAGS: $MOZJS_CFLAGS])
 
-if test x$have_sdlgfx = xyes; then
-INFO([= SDL_gfx (dynamic)])
-else
-INFO([= SDL_gfx (static)])
-fi
-VRB([  LIBS  : $SDLGFX_LIBS])
-VRB([  CFLAGS: $SDLGFX_CFLAGS])
-
-if test x$have_sdlttf = xyes; then
-INFO([= SDL_ttf (dynamic)])
-else
-INFO([= SDL_ttf (static)])
-fi
-VRB([  LIBS  : $SDLTTF_LIBS])
-VRB([  CFLAGS: $SDLTTF_CFLAGS])
-
-if test x$have_sdlimage = xyes; then
-INFO([= SDL_image (dynamic)])
-fi
-VRB([  LIBS  : $SDLIMAGE_LIBS])
-VRB([  CFLAGS: $SDLIMAGE_CFLAGS])
-
 if test x$have_gd = xyes; then
 INFO([= libGD (dynamic)])
 VRB([  LIBS  : $GD_LIBS])
-fi
-
-dnl #### optional stuff
-INFO_N([= AAlib  : ])
-if test x$have_aa = xyes; then
-   INFO(yes)
-VRB([  AA  LIBS   : $AA_LIBS])
-else
-   INFO(no)
 fi
 
 INFO_N([= OpenGL : ])
@@ -1151,20 +737,6 @@ fi
 
 
 dnl #### misc stuff
-
-INFO_N([= Building binary with support for machine specific advanced instructions : ])
-if test x$enable_cpuflags = xyes; then
-   INFO(yes)
-else
-   INFO(no)
-fi
-
-INFO_N([= Building machine specific lubricated binary : ])
-if test x$enable_lubrication = xyes; then
-   INFO(yes)
-else
-   INFO(no)
-fi
 
 INFO_N([= Compiling with debugging symbols : ])
 if test x$enable_debug = xyes; then

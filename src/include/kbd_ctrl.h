@@ -22,7 +22,7 @@
 #include <sdl_controller.h>
 #include <factory.h>
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 class KbdController: public SdlController {
 

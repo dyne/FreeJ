@@ -233,7 +233,7 @@ void TextLayer::write(const char *str) {
 	return;
   }
   // newsurf will become next this->surf, we don't need to free
-  newsurf = SDL_DisplayFormat(tmp);
+  newsurf = SDL_ConvertSurfaceFormat(tmp, 32, 0x0);
 
   Closure *display = NewClosure(this, &TextLayer::_display_text, newsurf);
   deferred_calls->add_job(display);

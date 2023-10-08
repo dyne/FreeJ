@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <SDL_syswm.h>
+#include <SDL2/SDL_syswm.h>
 
 #include <sdlxv_screen.h>
 #include <ccvt.h>

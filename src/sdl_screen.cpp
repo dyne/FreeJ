@@ -23,16 +23,16 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <SDL_syswm.h>
+#include <SDL2/SDL_syswm.h>
 
 #include <layer.h>
 #include <blitter.h>
 #include <linklist.h>
 #include <sdl_screen.h>
 
-#include <SDL_imageFilter.h>
-#include <SDL_framerate.h>
-#include <SDL_rotozoom.h>
+#include <SDL2_imageFilter.h>
+#include <SDL2_framerate.h>
+#include <SDL2_rotozoom.h>
 
 #include <jutils.h>
 
@@ -49,7 +49,7 @@ SdlScreen::SdlScreen()
   pre_rotozoom = NULL;
 
   dbl = false;
-  sdl_flags = (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL );
+  sdl_flags = 0x0; // (SDL_HWSURFACE | SDL_DOUBLEBUF | SDL_HWACCEL );
 	  //| SDL_DOUBLEBUF | SDL_HWACCEL | SDL_RESIZABLE);
   // add above | SDL_FULLSCREEN to go fullscreen from the start
 
@@ -223,7 +223,7 @@ void SdlScreen::blit(Layer *src) {
 
 void SdlScreen::resize(int resize_w, int resize_h) {
   act("resizing viewport to %u x %u",resize_w, resize_h);
-  sdl_screen = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
+  sdl_screen = SDL_CreateWindow("FreeJ", resize_w,resize_h,32,sdl_flags);
   geo.init( resize_w, resize_h, 32);
 }
 

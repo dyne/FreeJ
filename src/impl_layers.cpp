@@ -146,38 +146,6 @@ Layer *create_layer(Context *env, char *file) {
 // 	  error("create_layer : Audio open failed");
 // 	  delete nlayer; nlayer = NULL;
 //       }
-  } else /* IMAGE LAYER */
-      if( (IS_IMAGE_EXTENSION(end_file_ptr))) {
-//		strncasecmp((end_file_ptr-4),".png",4)==0) 
-	      nlayer = new ImageLayer();
-              if(!nlayer->init( )) {
-                error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-                delete nlayer; return NULL;
-              }
-	      if(!nlayer->open(file_ptr)) {
-		  error("create_layer : IMG open failed");
-		  delete nlayer; nlayer = NULL;
-	      }
-  } else /* TXT LAYER */
-    if(strncasecmp((end_file_ptr-4),".txt",4)==0) {
-#if defined WITH_TEXTLAYER
-	  nlayer = new TextLayer();
-
-      if(!nlayer->init( env )) {
-	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
-	delete nlayer; return NULL;
-      }
-
-	  if(!nlayer->open(file_ptr)) {
-	    error("create_layer : TXT open failed");
-	    delete nlayer; nlayer = NULL;
-	  }
-#else
-	  error("TXT layer support not compiled");
-	  act("can't load %s",file_ptr);
-	  return(NULL);
-#endif
-
   } else /* XSCREENSAVER LAYER */
     if(strstr(file_ptr,"xscreensaver")) {
 #ifdef WITH_XSCREENSAVER

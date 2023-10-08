@@ -22,7 +22,7 @@
 #ifndef __SDLXV_SCREEN_H__
 #define __SDLXV_SCREEN_H__
 
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <screen.h>
 
 class SdlXvScreen : public ViewPort {

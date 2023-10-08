@@ -3,7 +3,7 @@
 
 #include <jutils.h>
 #include <blitter.h>
-#include <SDL_imageFilter.h>
+#include <SDL2_imageFilter.h>
 
 /// Past-frame blits
 

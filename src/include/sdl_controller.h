@@ -2,7 +2,7 @@
 #define __SDL_CONTROLLER_H__
 
 #include <controller.h>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 
 class SdlController: public Controller {
   public:
