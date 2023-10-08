@@ -321,28 +321,15 @@ fi
 dnl ==============================================================
 dnl CHECK TO USE OPENGL VIDEO OUTPUT
 dnl ==============================================================
-enable_opengl=yes
-if test x$enable_opengl = xyes; then
-   dnl note: checking for GLU only, this brings in also GL
-   PKG_CHECK_MODULES(GLU, glu,
-                     have_glu=yes, have_glu=no)
-
-   dnl pkg-config failed, try headers
-   if test x$have_glu = xno; then
-      FREEJ_CHECK_LIB_HEADER([GLU], [gluNewQuadric], [GL/glu.h],
-                             [have_glu=yes], [have_glu=no])
-      if test x$have_glu = xyes; then
-         GLU_LIBS="-lGL -lGLU"
-         GLU_CFLAGS=""
-      fi
-   fi
-
-   if test x$have_glu = xno; then
-      AC_MSG_ERROR([*** opengl requested but not found!])
-   else
-      AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
-   fi
-fi
+dnl note: checking for GLU only, this brings in also GL
+PKG_CHECK_MODULES(GL, gl, have_gl=yes, AC_MSG_ERROR([*** opengl requested but not found!]))
+PKG_CHECK_MODULES(GLU, glu, have_glu=yes, AC_MSG_ERROR([*** openglu requested but not found!]))
+FREEJ_SAVE_FLAGS
+CFLAGS="$GL_CFLAGS $GLU_CFLAGS"
+CPPFLAGS="$GL_CFLAGS $GLU_CFLAGS"
+LDFLAGS="$GL_LIBS $GLU_LIBS"
+FREEJ_RESTORE_FLAGS
+AC_DEFINE(WITH_OPENGL,1,[define if using experimental opengl rendering])
 
 
 dnl ==============================================================
@@ -529,7 +516,8 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(FC_LIBS)         \
     \$(FFTW_LIBS)       \
     \$(FT2_LIBS)        \
-    \$(GLU_LIBS)        \
+    \$(GL_LIBS)         \
+    \$(GLU_LIBS)         \
     \$(JACK_LIBS)       \
     \$(LIBLO_LIBS)      \
     \$(MOZJS_LIBS)      \
@@ -648,10 +636,10 @@ VRB([  LIBS  : $GD_LIBS])
 fi
 
 INFO_N([= OpenGL : ])
-if test x$enable_opengl = xyes; then
+if test x$have_glu = xyes; then
    INFO(yes)
-VRB([  GLU LIBS   : $GLU_LIBS])
-VRB([  GLU CFLAGS : $GLU_CFLAGS])
+VRB([  OpenGL LIBS   : $GL_LIBS $GLU_LIBS])
+VRB([  OpenGL CFLAGS : $GL_CFLAGS $GLU_CFLAGS])
 else
    INFO(no)
 fi

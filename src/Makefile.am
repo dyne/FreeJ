@@ -75,4 +75,4 @@ libfreej_la_LDFLAGS = $(FREEJ_LIBS) -version-info $(FREEJ_VERSION_INFO)
 
 bin_PROGRAMS = freej
 freej_SOURCES = freej.cpp
-freej_LDADD = libfreej.la $(X11_LIBS)
+freej_LDADD = libfreej.la $(X11_LIBS) ${FREEJ_LIBS}
