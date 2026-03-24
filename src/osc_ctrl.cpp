@@ -63,7 +63,7 @@ void osc_error_handler(int num, const char *msg, const char *path) {
 
 int osc_command_handler(const char *path, const char *types,
 			 lo_arg **argv, int argc,
-			 void *data, void *user_data) {
+			 lo_message data, void *user_data) {
 
   OscController *osc = (OscController*)user_data;
   OscCommand *cmd;
@@ -405,7 +405,7 @@ JS(js_osc_ctrl_send) {
     
   } // foreach type in format
 
-  lo_send_message_from((void*)osc->sendto, osc->srv, path, osc->outmsg);
+  lo_send_message_from(osc->sendto, lo_server_thread_get_server(osc->srv), path, osc->outmsg);
   lo_message_free(osc->outmsg);
 
   return(JS_TRUE);
