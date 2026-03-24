@@ -4,7 +4,7 @@
  *
  *
  * This source code is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Public License as published 
+ * modify it under the terms of the GNU Public License as published
  * by the Free Software Foundation; either version 2 of the License,
  * or (at your option) any later version.
  *
@@ -44,6 +44,10 @@
 
 #include <factory.h>
 //#define DEBUG 1
+
+#ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
+#define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
+#endif
 
 // our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(Layer, VideoLayer, MovieLayer, ffmpeg);
@@ -101,89 +105,55 @@ VideoLayer::~VideoLayer() {
 
 bool VideoLayer::_init() {
   func("VideoLayer::init");
-  
-  rgba_picture = (AVPicture *)calloc(1, sizeof(AVPicture));
-  
+
+  rgba_picture = av_frame_alloc();
+
   /* init variables */
   paused=false;
   user_play_speed=1;
   deinterlace_buffer=NULL;
   deinterlaced=false;
-  
+
   mark_in=NO_MARK;
   mark_out=NO_MARK;
   return true;
 }
 
-int VideoLayer::new_picture(AVPicture *picture) {
-	memset(picture,0,sizeof(AVPicture));
-	return avpicture_alloc(picture, PIX_FMT_RGB32,
-			       video_codec_ctx->width,
-			       video_codec_ctx->height);
-
+int VideoLayer::new_picture(AVFrame *picture) {
+	picture->format = AV_PIX_FMT_RGB32;
+	picture->width  = video_codec_ctx->width;
+	picture->height = video_codec_ctx->height;
+	return av_frame_get_buffer(picture, 0);
 }
-void VideoLayer::free_picture(AVPicture *picture) {
+
+void VideoLayer::free_picture(AVFrame *picture) {
 	if(picture != NULL) {
-		if (picture->data[0])
-			avpicture_free(picture);
-		free(picture);
+		av_frame_unref(picture);
+		av_free(picture);
 	}
 	if (audio_float_buf) free (audio_float_buf);
 	if (audio_resampled_buf) free (audio_resampled_buf);
 }
 
 bool VideoLayer::open(const char *file) {
-  AVCodecContext *enc; // tmp
   int err=0;
   video_index=-1;
   func("VideoLayer::open(%s)",file);
 
-
-  AVInputFormat *av_input_format = NULL;
-  AVFormatParameters avp, *av_format_par = NULL;
-  av_format_par = &avp;
-  memset (av_format_par, 0, sizeof (*av_format_par));
-  av_format_par->width=0;
-  av_format_par->width=0;
-  av_format_par->time_base  = (AVRational){1, 25};
-  av_format_par->pix_fmt=PIX_FMT_RGB32;
+  const AVInputFormat *av_input_format = NULL;
 
   /* handle firewire cam */
   if( strncasecmp (file, "/dev/ieee1394/",14) == 0) {
     notice ("VideoLayer::found dv1394 device!\n");
     grab_dv = true;
     av_input_format = av_find_input_format("dv1394");
-
-    /** shit XXX */
-    av_format_par -> width             = 720;
-    av_format_par -> height            = 576;
-#if LIBAVCODEC_BUILD  >=     4754
-    av_format_par -> time_base.num   = 25;
-    av_format_par -> time_base.den   = 1;
-#else
-    av_format_par -> frame_rate      = 25;
-    av_format_par -> frame_rate_base = 1;
-#endif
-    // field removed in recent ffmpeg API (todo: check LIBAVCODEC_BUILD)
-    //    av_format_par -> device          = file;
-    av_format_par -> standard        = "pal";
-    //	av_format_par->channel=0;
     file="";
   }
-
-  /** 
-   * The callback is called in blocking functions to test regulary if
-   * asynchronous interruption is needed. -EINTR is returned in this
-   * case by the interrupted function. 'NULL' means no interrupt
-   * callback is given.  
-   */
-  url_set_interrupt_cb(NULL);
-
 
   /**
    * Open media with libavformat
    */
-  err = av_open_input_file (&avformat_context, file, av_input_format, 0, av_format_par);
+  err = avformat_open_input(&avformat_context, file, av_input_format, NULL);
   if (err < 0) {
     error("VideoLayer :: open(%s) - can't open. Error %d", file, err);
     return false;
@@ -193,7 +163,7 @@ bool VideoLayer::open(const char *file) {
   /**
    * Find info with libavformat
    */
-  err = av_find_stream_info(avformat_context);
+  err = avformat_find_stream_info(avformat_context, NULL);
   if (err < 0) {
     error("VideoLayer :: could not find stream info");
     return false;
@@ -208,45 +178,45 @@ bool VideoLayer::open(const char *file) {
   unsigned int i;
   for(i=0; i < avformat_context -> nb_streams; i++) {
     avformat_stream = avformat_context -> streams[i];
-    enc = avformat_stream->codec;
-    if(enc == NULL) error("%s: AVCodecContext is NULL", __PRETTY_FUNCTION__);
+    AVCodecParameters *codecpar = avformat_stream->codecpar;
+    if(codecpar == NULL) error("%s: AVCodecParameters is NULL", __PRETTY_FUNCTION__);
 
-    switch(enc->codec_type) {
+    switch(codecpar->codec_type) {
 
     /**
      * Here we look for a video stream
      */
-//    case CODEC_TYPE_VIDEO: // old FFMPEG
     case AVMEDIA_TYPE_VIDEO:
-      //      enc->flags |= CODEC_FLAG_LOOP_FILTER;
       video_index = i;
-      video_codec_ctx = enc;
 
-      video_codec = avcodec_find_decoder (video_codec_ctx -> codec_id);
+      video_codec = avcodec_find_decoder(codecpar->codec_id);
       if(video_codec==NULL) {
 	error("VideoLayer :: Could not find a suitable codec");
 	return false;
       }
-      
-      if (avcodec_open(video_codec_ctx, video_codec) < 0) {
-	error("VideoLayer :: Could not open codec");
+
+      video_codec_ctx = avcodec_alloc_context3(video_codec);
+      if(!video_codec_ctx) {
+	error("VideoLayer :: Could not allocate codec context");
 	return false;
-	
+      }
+      avcodec_parameters_to_context(video_codec_ctx, codecpar);
+
+      if (avcodec_open2(video_codec_ctx, video_codec, NULL) < 0) {
+	error("VideoLayer :: Could not open codec");
+	avcodec_free_context(&video_codec_ctx);
+	return false;
+
       } else { // correctly opened
-	
-#if LIBAVCODEC_BUILD  >=     4754
+
 	if(avformat_stream->r_frame_rate.den && avformat_stream->r_frame_rate.num)
 	  frame_rate = av_q2d(avformat_stream->r_frame_rate);
 	else
-	  frame_rate = enc -> time_base.den / enc -> time_base.num;
+	  frame_rate = av_q2d(avformat_stream->time_base);
 
-	AVRational rational = enc -> time_base;
-	func ("VideoLayer :: frame_rate den: %d", enc -> time_base .den);
-	func ("VideoLayer :: frame_rate num: %d", enc -> time_base .num);
-#else
-	frame_rate = video_codec_ctx->frame_rate / 
-	  video_codec_ctx->frame_rate_base;
-#endif
+	func ("VideoLayer :: frame_rate den: %d", avformat_stream->time_base.den);
+	func ("VideoLayer :: frame_rate num: %d", avformat_stream->time_base.num);
+
 	// set the layer fps
 	fps.set(frame_rate);
 	/* this saves only file without full path! */
@@ -258,28 +228,34 @@ bool VideoLayer::open(const char *file) {
 
 	break;
       }
-      
+
       break; // //////////////// end of video section
 
     case AVMEDIA_TYPE_AUDIO:
       audio_index = i;
-      audio_codec_ctx = enc;
-      func ("VideoLayer :: audio id=%i", audio_index);
 
-      audio_codec = avcodec_find_decoder(audio_codec_ctx -> codec_id);
+      audio_codec = avcodec_find_decoder(codecpar->codec_id);
       if(audio_codec==NULL) {
 	error("VideoLayer :: Could not find a suitable codec for audio");
-	return false;
+	break; // non-fatal, continue without audio
       }
-      if (avcodec_open(audio_codec_ctx, audio_codec) < 0) {
+
+      audio_codec_ctx = avcodec_alloc_context3(audio_codec);
+      if(!audio_codec_ctx) {
+	error("VideoLayer :: Could not allocate audio codec context");
+	break;
+      }
+      avcodec_parameters_to_context(audio_codec_ctx, codecpar);
+
+      if (avcodec_open2(audio_codec_ctx, audio_codec, NULL) < 0) {
 	error("VideoLayer :: Could not open codec for audio");
-	return false;
-	
+	avcodec_free_context(&audio_codec_ctx);
+	break;
+
       } else { // correctly opened
-	//AVCODEC_MAX_AUDIO_FRAME_SIZE = 192000
 	audio_buf = (uint8_t*)calloc(AVCODEC_MAX_AUDIO_FRAME_SIZE, sizeof(int16_t));
-	
-	audio_channels = audio_codec_ctx->channels;
+
+	audio_channels = audio_codec_ctx->ch_layout.nb_channels;
 	audio_samplerate = audio_codec_ctx->sample_rate;
 
 	audio_float_buf = (float*) malloc(audio_channels * AVCODEC_MAX_AUDIO_FRAME_SIZE * sizeof(float));
@@ -327,11 +303,11 @@ bool VideoLayer::open(const char *file) {
 #ifdef WITH_SWSCALE
   img_convert_ctx =
     sws_getContext(geo.w, geo.h, video_codec_ctx->pix_fmt, geo.w, geo.h,
-		   PIX_FMT_RGB32, SWS_BICUBIC, 
+		   AV_PIX_FMT_RGB32, SWS_BICUBIC,
 		   NULL, NULL, NULL);
 #endif
 
-  // initialize frame fifo 
+  // initialize frame fifo
   if(  new_fifo() < 0) {
     error("VideoLayer::error allocating fifo");
     return false;
@@ -341,7 +317,6 @@ bool VideoLayer::open(const char *file) {
   // TODO user should be able to select the clock speed
   if (play_speed != 25) {
     play_speed -= (25 / frame_rate);
-    //	play_speed -= play_speed << 1;
     if ( frame_rate ==1)
       play_speed = 0;
   }
@@ -350,7 +325,7 @@ bool VideoLayer::open(const char *file) {
   opened = true;
 
   type = VIDEOLAYER;
-  
+
   return true;
 }
 
@@ -373,18 +348,18 @@ void *VideoLayer::feed() {
     if (now >= mark_out)
       seek((int64_t)mark_in * AV_TIME_BASE);
   }
-  
+
   // operate seek if was requested
   if(to_seek>=0) {
     seek(to_seek);
     to_seek = -1;
   }
-    
+
   got_it=false;
-  
+
   while (!got_it) {
-    
-    
+
+
     if(packet_len<=0) {
       /**
        * Read one packet from the media and put it in pkt
@@ -408,125 +383,101 @@ void *VideoLayer::feed() {
 	std::cout << " avformat_context->duration=" << avformat_context->duration/AV_TIME_BASE << std::endl;
 	std::cout << "avformat_context->duration=" << avformat_context->duration << std::endl;
 #endif
-	
-	/* TODO(shammash): this may be good for streams but breaks
-	 * looping in files, needs fixing. */
-	// 	      if(!pkt.duration) continue;
-	
-	// 	      if(!pkt.size || !pkt.data) {
-	// 		return NULL;
-	// 	      }
-	
-	
+
 	/**
 	 * check eof and loop
 	 */
 	if(ret!= 0) {	//does not enter if data are available
 	  eos->notify();
-	  //	  eos->dispatcher->do_jobs(); /// XXX hack hack hack
 	  ret = seek(avformat_context->start_time);
 	  if (ret < 0) {
 	    error("VideoLayer::could not loop file");
 	    return rgba_picture->data[0];
 	  }
 	  continue;
-	} else if( (pkt.stream_index == video_index) 
+	} else if( (pkt.stream_index == video_index)
 		   || (pkt.stream_index == audio_index) )
 	  break; /* exit loop */
       }
     } // loop break after a known index is found
-    
-    
+
+
     frame_number++;
-	//std::cout << "frame_number :" << frame_number << std::endl;
-    
+
     /**
      * Decode video
      */
     if(pkt.stream_index == video_index) {
-      
+
       len1 = decode_video_packet(&got_picture);
-      
+      /* always reset so we read a new packet next iteration */
+      packet_len = 0;
+
       AVFrame *yuv_picture=&av_frame;
       if(len1<0) {
-	//	  error("VideoLayer::Error while decoding frame");
 	func("one frame only?");
 	return NULL;
       }
       else if (len1 == 0) {
-	packet_len=0;
 	return NULL;
       }
-      
+
       /**
        * We've found a picture
        */
-      ptr += len1;
-      packet_len -= len1;
       if (got_picture!=0) {
 	got_it=true;
 	avformat_stream=avformat_context->streams[video_index];
-	
+
 	/** Deinterlace input if requested */
 	if(deinterlaced)
-	  deinterlace((AVPicture *)yuv_picture);
-	
+	  deinterlace(yuv_picture);
+
 #ifdef WITH_SWSCALE
-	sws_scale(img_convert_ctx, yuv_picture->data, yuv_picture->linesize,
+	sws_scale(img_convert_ctx,
+		  (const uint8_t * const *)yuv_picture->data,
+		  yuv_picture->linesize,
 		  0, video_codec_ctx->height,
-		  rgba_picture->data, rgba_picture->linesize);	  
+		  rgba_picture->data, rgba_picture->linesize);
 #else
 	/**
-	 * yuv2rgb
+	 * yuv2rgb (img_convert removed in modern FFmpeg - use sws_scale)
 	 */
-	img_convert(rgba_picture, PIX_FMT_RGB32, (AVPicture *)yuv_picture,
-		    video_codec_ctx->pix_fmt, 
-		    //avformat_stream.codec->pix_fmt,
-		    video_codec_ctx->width,
-		    video_codec_ctx->height);
 #endif
-	// memcpy(frame_fifo.picture[fifo_position % FIFO_SIZE]->data[0],rgba_picture->data[0],geo.size);
-	/* TODO move */
 	if(fifo_position == FIFO_SIZE)
 	  fifo_position=0;
-	
+
 	/* workaround since sws_scale conversion from YUV
 	   returns an buffer RGBA with alpha set to 0x0  */
 	{
 	  register int bufsize = ( rgba_picture->linesize[0] * video_codec_ctx->height ) /4;
 	  int32_t *pbuf =  (int32_t*)rgba_picture->data[0];
-	  
+
 	  for(; bufsize>0; bufsize--) {
 	    *pbuf = (*pbuf | alpha_bitmask);
 	    pbuf++;
 	  }
-	} 
-	
+	}
+
 	jmemcpy(frame_fifo.picture[fifo_position]->data[0],
 		rgba_picture->data[0],
 		rgba_picture->linesize[0] * video_codec_ctx->height);
-	
-	//			    avpicture_get_size(PIX_FMT_RGBA32, enc->width, enc->height));
+
 	fifo_position++;
       }
     } // end video packet decoding
-    
+
 
     ////////////////////////
     // audio packet decoding
     else if(pkt.stream_index == audio_index) {
-      // XXX(shammash): audio decoding seems to depend on screen properties, so
-      //                we skip decoding audio frames if there's no screen
-      //  long unsigned int m_SampleRate = screen->m_SampleRate?*(screen->m_SampleRate):48000;
-      //  ringbuffer_write(screen->audio, (const char*)audio_float_buf,  samples*sizeof(float));
-      //  ... and so on ...
       if(use_audio && screen) {
 	int data_size;
 	len1 = decode_audio_packet(&data_size);
 	if (len1 > 0)  {
 	  int samples = data_size/sizeof(uint16_t);
 	  long unsigned int m_SampleRate = screen->m_SampleRate?*(screen->m_SampleRate):48000;
-	  double m_ResampleRatio = (double)(m_SampleRate)/(double)audio_samplerate; 
+	  double m_ResampleRatio = (double)(m_SampleRate)/(double)audio_samplerate;
 	  long unsigned max_buf = ceil(AVCODEC_MAX_AUDIO_FRAME_SIZE * m_ResampleRatio * audio_channels);
 
 	  if (audio_resampled_buf_len < max_buf) {
@@ -536,14 +487,13 @@ void *VideoLayer::feed() {
 	  }
 
 	  src_short_to_float_array ((const short*) audio_buf, audio_float_buf, samples);
-	  if (m_ResampleRatio == 1.0) 
+	  if (m_ResampleRatio == 1.0)
 	  {
 	    ringbuffer_write(screen->audio, (const char*)audio_float_buf,  samples*sizeof(float));
 	    time_t *tm = (time_t *)malloc(sizeof(time_t));
 	    time (tm);
-// 	    std::cerr << "-- VL:" << asctime(localtime(tm));
-	  } 
-	  else 
+	  }
+	  else
 	  {
 	    src_short_to_float_array ((const short*) audio_buf, audio_float_buf, samples);
 
@@ -557,7 +507,7 @@ void *VideoLayer::feed() {
 	      src_data.src_ratio     =  m_ResampleRatio;
 	      src_data.input_frames_used = 0;
 	      src_data.output_frames_gen = 0;
-	      src_data.data_in       = audio_float_buf + offset; 
+	      src_data.data_in       = audio_float_buf + offset;
 	      src_data.data_out      = audio_resampled_buf + offset;
 
 	      src_simple (&src_data, SRC_SINC_MEDIUM_QUALITY, audio_channels) ;
@@ -577,11 +527,11 @@ void *VideoLayer::feed() {
 	}
       }
     }
-    
-    av_free_packet(&pkt); /* sun's good. love's bad */
-    
+
+    av_packet_unref(&pkt); /* sun's good. love's bad */
+
   } // end of while(!got_it)
-  
+
   return frame_fifo.picture[fifo_position-1]->data[0];
 }
 
@@ -591,126 +541,93 @@ int VideoLayer::decode_audio_packet() {
 }
 
 int VideoLayer::decode_audio_packet(int *data_size) {
-  int datasize, res;
+  int ret;
 
-  datasize = AVCODEC_MAX_AUDIO_FRAME_SIZE; //+ FF_INPUT_BUFFER_PADDING_SIZE;
-#if LIBAVCODEC_VERSION_MAJOR < 53
-  res = avcodec_decode_audio2(audio_codec_ctx, (int16_t *)audio_buf,
-			      &datasize, pkt.data, pkt.size);
-#else
-  res = avcodec_decode_audio3(audio_codec_ctx, (int16_t *)audio_buf,
-			      &datasize, &pkt);
-#endif
-
-  if (data_size) *data_size = datasize; 
-  
-  if(res < 0) {
-    /* if error, skip frame */
+  ret = avcodec_send_packet(audio_codec_ctx, &pkt);
+  if (ret < 0) {
     pkt.size = 0;
+    if (data_size) *data_size = 0;
     return 0;
   }
-  /* We have data, return it and come back for more later */
-  return res;
+
+  AVFrame *audio_frame = av_frame_alloc();
+  ret = avcodec_receive_frame(audio_codec_ctx, audio_frame);
+  if (ret == 0) {
+    /* Copy audio data - note: assumes packed/interleaved format.
+     * For planar formats (e.g. FLTP from AAC), only first channel is copied. */
+    int nb_channels = audio_codec_ctx->ch_layout.nb_channels;
+    int bytes_per_sample = av_get_bytes_per_sample((enum AVSampleFormat)audio_frame->format);
+    int total_bytes = audio_frame->nb_samples * nb_channels * bytes_per_sample;
+    if (total_bytes > AVCODEC_MAX_AUDIO_FRAME_SIZE * 2)
+      total_bytes = AVCODEC_MAX_AUDIO_FRAME_SIZE * 2;
+    memcpy(audio_buf, audio_frame->data[0], total_bytes);
+    if (data_size) *data_size = total_bytes;
+    av_frame_free(&audio_frame);
+    return pkt.size;
+  }
+
+  av_frame_free(&audio_frame);
+  if (data_size) *data_size = 0;
+  return 0;
 }
-   
+
 int VideoLayer::decode_video_packet(int *got_picture) {
-	double pts1 = 0;
-	/**
-	 * Decode the packet and put i(n)t in(t) av_frame
-	 */
-	if (packet_len <= 0) {
-		packet_len = pkt.size; // packet size is zero if packet contains only one frame
-		ptr        = pkt.data; /* pointer to frame data */
+	*got_picture = 0;
+	int ret;
+
+	ret = avcodec_send_packet(video_codec_ctx, &pkt);
+	if (ret < 0) return ret;
+
+	ret = avcodec_receive_frame(video_codec_ctx, &av_frame);
+	if (ret == 0) {
+		*got_picture = 1;
 	}
-	/**
-	 * In avcodec_get_frame_defaults() avcodec does:
-	 *    memset(pic, 0, sizeof(AVFrame));
-	 *    pic->pts= AV_NOPTS_VALUE;
-	 */
+	/* Update timing info */
+	video_current_pts = (av_frame.pts != AV_NOPTS_VALUE)
+	    ? av_frame.pts * av_q2d(avformat_stream->time_base)
+	    : video_clock;
+	video_current_pts_time = av_gettime();
 
-	avcodec_get_frame_defaults (&av_frame);
-	
-#if LIBAVCODEC_VERSION_MAJOR < 53
-	int lien = avcodec_decode_video(video_codec_ctx, &av_frame,
-					got_picture, ptr,packet_len);
-#else
-	int lien = avcodec_decode_video2(video_codec_ctx, &av_frame,
-					got_picture, &pkt);
-#endif
-	
-	pts1 = packet_pts;
-	if (packet_pts != 0) {
-		/* update video clock with pts, if present */
-		video_clock = packet_pts;
-	} else {
-		packet_pts = video_clock;
-	}
-	video_current_pts=packet_pts;
-
-	video_current_pts_time=av_gettime();
-
-	/* update video clock for next frame */
-	double frame_delay ;
-#if LIBAVCODEC_BUILD  >=     4754
-	frame_delay = av_q2d (avformat_stream -> time_base);
-#else
-	frame_delay = (double)avformat_stream->codec.frame_rate_base /
-		(double)avformat_stream->codec.frame_rate;
-#endif
-
-	/* for MPEG2, the frame can be repeated, so we update the
-	   clock accordingly */
+	double frame_delay = av_q2d(avformat_stream->time_base);
 	if (av_frame.repeat_pict) {
 		frame_delay += av_frame.repeat_pict * (frame_delay * 0.5);
 	}
 	video_clock += frame_delay;
 
-	/* Debug pts code */
-	{
-		int ftype;
-		if (av_frame.pict_type == FF_B_TYPE)
-			ftype = 'B';
-		else if (av_frame.pict_type == FF_I_TYPE)
-			ftype = 'I';
-		else
-			ftype = 'P';
-/*		func("frame_type=%c clock=%0.3f pts=%0.3f",
-                ftype, get_master_clock(), pts1); */
-	}
-	return lien;
+	return pkt.size;
 }
 
 void VideoLayer::close() {
   if(frame_number!=0) {
 	func("free packet");
-    av_free_packet(&pkt);
+    av_packet_unref(&pkt);
   }
 
-  if(video_codec_ctx)
-    if(video_codec_ctx->codec) {
+  if(video_codec_ctx) {
 	func("close video codec");
-      avcodec_close(video_codec_ctx);
+    avcodec_free_context(&video_codec_ctx);
   }
-  
-  if(audio_codec_ctx) 
-    if(audio_codec_ctx->codec) {
+
+  if(audio_codec_ctx) {
 	func("close audio codec");
-      avcodec_close(audio_codec_ctx);
+    avcodec_free_context(&audio_codec_ctx);
     if(audio_buf) {
 	func("free audio buffer");
 	 free(audio_buf);
-	}
+	 audio_buf = NULL;
+    }
   }
 
-#ifdef HAVE_LIB_SWSCALE
-  sws_freeContext(img_convert_ctx);
+#ifdef WITH_SWSCALE
+  if(img_convert_ctx)
+    sws_freeContext(img_convert_ctx);
 #endif
-  
+
   if(avformat_context) {
-    av_close_input_file(avformat_context);
+    avformat_close_input(&avformat_context);
   }
-//  free_fifo();
   if(rgba_picture) free_picture(rgba_picture);
+  rgba_picture = NULL;
   if(deinterlace_buffer) free(deinterlace_buffer);
 }
 
@@ -722,8 +639,8 @@ int VideoLayer::new_fifo() {
 	int ret;
 	// loop throught fifo
 	for ( int s = 0; s < FIFO_SIZE; s++) {
-		frame_fifo.picture[s] = (AVPicture *)malloc(sizeof(AVPicture));
-		AVPicture *tmp_picture = frame_fifo.picture[s];
+		frame_fifo.picture[s] = av_frame_alloc();
+		AVFrame *tmp_picture = frame_fifo.picture[s];
 		ret = new_picture(tmp_picture);
 		if ( ret < 0)
 			return -1;
@@ -735,59 +652,10 @@ int VideoLayer::new_fifo() {
 void VideoLayer::free_fifo() {
 	for ( int s = 0; s < frame_fifo.length; s++) {
 		free_picture(frame_fifo.picture[s]);
+		frame_fifo.picture[s] = NULL;
 	}
 }
-// bool VideoLayer::keypress(int key) {
-// 	switch(key) {
-// 		case 'k':
-// 			forward();
-// 			break;
-// 		case 'j':
-// 			backward();
-// 			break;
-// 		case 'p': /* pause */
-// 			pause();
-// 			break;
-// 		case 'm': /* increase playing speed */
-// 			more_speed();
-// 			break;
-// 		case 'n': /* decrease playing speed */
-// 			less_speed();
-// 			break;
-// 			/*
-// 			   case 'b':
-// 			   if(backward_control) {
-// 			   backward_control=false;
-// 			   notice("backward off");
-// 			   }
-// 			   else {
-// 			   backward_control=true;
-// 			   notice("backward on");
-// 			   }
-// 			//	    backward_one_keyframe();
-// 			break;
-// 			*/
 
-// 		case 'i': /* set mark in */
-// 			set_mark_in();
-// 			break;
-
-// 		case 'o': /* set mark out */
-// 			set_mark_out();
-// 			break;
-
-// 		case 'u': /* Swith deinterlace */
-// 			if(deinterlaced)
-// 				deinterlaced=false;
-// 			else
-// 				deinterlaced=true;
-// 			break;
-
-// 		default:
-// 			break;
-// 	}
-// 	return true;
-// }
 bool VideoLayer::set_mark_in() {
 	if (mark_in == NO_MARK) {
 		mark_in = get_master_clock();
@@ -814,7 +682,6 @@ bool VideoLayer::set_mark_out() {
 bool VideoLayer::relative_seek(double increment) {
 	int ret=0;
 	double current_time=get_master_clock();
-	//    printf("master_clock(): %f\n",current_time);
 	current_time += increment;
 	/**
 	 * Check the seek time is correct!
@@ -831,14 +698,13 @@ bool VideoLayer::relative_seek(double increment) {
 		}
 	}
 
-	//    printf("VideoLayer::seeking to: %f\n",current_time);
 	ret = seek ((int64_t) current_time * AV_TIME_BASE);
 	if (ret < 0) {
 		error ("Can't seek file: %s", get_filename());
 		return false;
 	}
 	else
-		notice("seek to %.1f\%",current_time);
+		notice("seek to %.1f%%",current_time);
 	return true;
 }
 /**
@@ -885,17 +751,9 @@ int VideoLayer::seek(int64_t timestamp) {
     else if ( timestamp > mark_out_av_time_base )
       timestamp=mark_out_av_time_base++;
   }
-  /**
-   * HERE sick
-   */
   func("SEEKING");
-  ret = av_seek_frame(avformat_context, video_index,timestamp
-#if (LIBAVFORMAT_BUILD >= 4618) 
-		      ,AVSEEK_FLAG_BACKWARD
-#endif
-		      );
-  //#else
-  //    ret = av_seek_frame(avformat_context, video_index,timestamp);
+  ret = av_seek_frame(avformat_context, video_index, timestamp,
+		      AVSEEK_FLAG_BACKWARD);
 
   if(ret<0) {
     seekable=false;
@@ -917,10 +775,12 @@ int VideoLayer::seek(int64_t timestamp) {
   }
   return 0;
 }
+
 double VideoLayer::get_master_clock() {
 	double delta = (av_gettime() - video_current_pts_time) / 1000000.0;
 	return (video_current_pts+delta);
 }
+
 void VideoLayer::pause() {
   if(paused)
     paused=false;
@@ -928,40 +788,10 @@ void VideoLayer::pause() {
     paused=true;
   notice("pause : %s",(paused)?"on":"off");
 }
-void VideoLayer::deinterlace(AVPicture *picture) {
-  int size;
-  AVPicture *picture2;
-  AVPicture picture_tmp;
-  
-  /* create temporary picture */
-  size = avpicture_get_size(video_codec_ctx->pix_fmt,
-			    video_codec_ctx->width,
-			    video_codec_ctx->height);
-  
-  /* allocate only first time */
-  if(deinterlace_buffer==NULL)
-    deinterlace_buffer = (uint8_t *)av_malloc(size);
-  if (!deinterlace_buffer)
-    return ;
-  
-  picture2 = &picture_tmp;
-  avpicture_fill(picture2, deinterlace_buffer,
-		 video_codec_ctx->pix_fmt,
-		 video_codec_ctx->width,
-		 video_codec_ctx->height);
-  
-  if(avpicture_deinterlace(picture2, picture,
-			   video_codec_ctx->pix_fmt,
-			   video_codec_ctx->width,
-			   video_codec_ctx->height) < 0) {
-    /* if error, do not deinterlace */
-    //	av_free(deinterlace_buffer);
-    //	deinterlace_buffer = NULL;
-    picture2 = picture;
-  }
-  if (picture != picture2)
-    *picture = *picture2;
-  //    av_free(deinterlace_buffer);
+
+void VideoLayer::deinterlace(AVFrame *picture) {
+  /* avpicture_deinterlace was removed in FFmpeg 4.x - deinterlacing disabled */
+  (void)picture;
   return;
 }
 
