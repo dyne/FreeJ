@@ -10,6 +10,7 @@
 //#include <libavdevice/avdevice.h>
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavutil/imgutils.h>
 #include <libswscale/swscale.h>
 #include <ffdec.h>
 
@@ -40,10 +41,8 @@ struct ffdec {
 //--------------------------------------------
 
 void init_ffmpeg() {
-  av_register_all();
-  avcodec_init();
-  avcodec_register_all();
-//avdevice_register_all();
+  /* av_register_all() and avcodec_register_all() are deprecated/removed in
+   * modern FFmpeg - codecs and formats are registered automatically */
   if(want_quiet) av_log_set_level(AV_LOG_QUIET);
 }
 
@@ -86,21 +85,24 @@ void init_moviebuffer(ffdec_t *ffp, int width, int height, int render_fmt) {
   ffdec_t *ff = (ffdec_t *) ffp;
   int     numBytes;
 
-  ff->pFrameFMT=avcodec_alloc_frame();
+  ff->pFrameFMT = av_frame_alloc();
   if(ff->pFrameFMT==NULL) {
       fprintf( stderr, "Cannot allocate FMT buffer\n");
-      av_free(ff->pFrame);
+      av_frame_free(&ff->pFrame);
       exit( -1 );
   }
 
   if (!want_quiet)
     fprintf(stderr, "scaling %dx%d -> %dx%d\n", ff->pCodecCtx->width, ff->pCodecCtx->height, width, height);
 
-  numBytes=avpicture_get_size(render_fmt, width, height);
+  numBytes = av_image_get_buffer_size((enum AVPixelFormat)render_fmt, width, height, 1);
   ff->buffer=(uint8_t *) malloc(numBytes);
 
-  avpicture_fill((AVPicture *)ff->pFrameFMT, ff->buffer, render_fmt, width, height);
-  ff->pSWSCtx = sws_getContext(ff->pCodecCtx->width, ff->pCodecCtx->height, ff->pCodecCtx->pix_fmt, width, height, render_fmt, SWS_BICUBIC, NULL, NULL, NULL);
+  av_image_fill_arrays(ff->pFrameFMT->data, ff->pFrameFMT->linesize,
+                       ff->buffer, (enum AVPixelFormat)render_fmt, width, height, 1);
+  ff->pSWSCtx = sws_getContext(ff->pCodecCtx->width, ff->pCodecCtx->height, ff->pCodecCtx->pix_fmt,
+                               width, height, (enum AVPixelFormat)render_fmt,
+                               SWS_BICUBIC, NULL, NULL, NULL);
   ff->sc_width  = width;
   ff->sc_height = height;
   ff->pt_status |= 1;
@@ -114,7 +116,7 @@ void free_moviebuffer(ffdec_t *ffp) {
 
 int open_movie(ffdec_t ** ffpx, char* movie_url) {
   int      i;
-  AVCodec *pCodec;
+  const AVCodec *pCodec;
   double   duration;
   long     frames;
   ffdec_t **ffp = (ffdec_t **) ffpx;
@@ -124,23 +126,23 @@ int open_movie(ffdec_t ** ffpx, char* movie_url) {
   ff->pt_status=8;
   ff->videoStream=-1;
   ff->fFirstTime=1;
-  
-  if(av_open_input_file(&ff->pFormatCtx, movie_url, NULL, 0, NULL)!=0) {
+
+  if(avformat_open_input(&ff->pFormatCtx, movie_url, NULL, NULL)!=0) {
     fprintf( stderr, "Cannot open video file: '%s'\n", movie_url);
     ff->pt_status=0;
     return -1;
   }
 
-  if(av_find_stream_info(ff->pFormatCtx)<0) {
+  if(avformat_find_stream_info(ff->pFormatCtx, NULL)<0) {
     fprintf( stderr, "Cannot find stream information in file %s\n", movie_url);
     ff->pt_status=0;
     return -1;
   }
 
-  if (!want_quiet) dump_format(ff->pFormatCtx, 0, movie_url, 0);
+  if (!want_quiet) av_dump_format(ff->pFormatCtx, 0, movie_url, 0);
 
-  for(i=0; i<ff->pFormatCtx->nb_streams; i++) {
-    if(ff->pFormatCtx->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO) {
+  for(i=0; i<(int)ff->pFormatCtx->nb_streams; i++) {
+    if(ff->pFormatCtx->streams[i]->codecpar->codec_type==AVMEDIA_TYPE_VIDEO) {
       ff->videoStream=i;
       break;
     }
@@ -156,33 +158,41 @@ int open_movie(ffdec_t ** ffpx, char* movie_url) {
   ff->ff_fps = (double) av_stream->r_frame_rate.num / av_stream->r_frame_rate.den;
   duration = (double) ( (int64_t) ff->pFormatCtx->duration / (int64_t) AV_TIME_BASE);
   frames = (long) (ff->ff_fps * duration);
-  
+
   if (!want_quiet) {
     fprintf(stdout, "original frame rate: %g\n", ff->ff_fps);
     fprintf(stdout, "length in seconds: %g\n", duration);
     fprintf(stdout, "total frames: %ld\n", frames);
   }
-  
-  ff->pCodecCtx=ff->pFormatCtx->streams[ff->videoStream]->codec;
-  
-  ff->ff_width = ff->pCodecCtx->width;
-  ff->ff_height = ff->pCodecCtx->height;
 
+  AVCodecParameters *codecpar = av_stream->codecpar;
+  ff->ff_width  = codecpar->width;
+  ff->ff_height = codecpar->height;
   ff->sc_width = ff->sc_height = 0;
 
-  pCodec=avcodec_find_decoder(ff->pCodecCtx->codec_id);
+  pCodec = avcodec_find_decoder(codecpar->codec_id);
   if(pCodec==NULL) {
     fprintf( stderr, "Cannot find a codec for %s\n", movie_url);
     ff->pt_status=0;
     return -1;
   }
-  if(avcodec_open(ff->pCodecCtx, pCodec)<0) {
-    fprintf( stderr, "Cannot open the codec for file %s\n", movie_url);
+
+  ff->pCodecCtx = avcodec_alloc_context3(pCodec);
+  if(!ff->pCodecCtx) {
+    fprintf( stderr, "Cannot allocate codec context for %s\n", movie_url);
     ff->pt_status=0;
     return -1;
   }
-  
-  ff->pFrame=avcodec_alloc_frame();
+  avcodec_parameters_to_context(ff->pCodecCtx, codecpar);
+
+  if(avcodec_open2(ff->pCodecCtx, pCodec, NULL)<0) {
+    fprintf( stderr, "Cannot open the codec for file %s\n", movie_url);
+    avcodec_free_context(&ff->pCodecCtx);
+    ff->pt_status=0;
+    return -1;
+  }
+
+  ff->pFrame = av_frame_alloc();
   ff->pt_status=0;
   return 0;
 }
@@ -195,62 +205,64 @@ int open_camera(ffdec_t ** ffpx, char* device) {
   ff->pt_status=0;
   ff->fFirstTime=1;
 
-  AVCodec *pCodec;
-  AVFormatParameters vp1, *vp = &vp1;
-  memset(vp, 0, sizeof(*vp));
-  vp->time_base= ( AVRational ) {1,30};
-//vp->width  = 640;
-//vp->height = 480;
-  vp->width  = 320;
-  vp->height = 240;
-  
+  const AVCodec *pCodec;
   const char *video_grab_format = "video4linux2";
-  AVInputFormat *fmt1;
+  const AVInputFormat *fmt1;
   fmt1 = av_find_input_format(video_grab_format);
-  vp->channel = 0;
-  vp->standard = NULL; 
-  vp->pix_fmt = PIX_FMT_NONE;
-  if (av_open_input_file(&ff->pFormatCtx, device, fmt1, 0, vp) < 0) {
+
+  AVDictionary *opts = NULL;
+  av_dict_set(&opts, "video_size", "320x240", 0);
+  av_dict_set(&opts, "framerate", "30", 0);
+  av_dict_set(&opts, "pixel_format", "none", 0);
+
+  if (avformat_open_input(&ff->pFormatCtx, device, fmt1, &opts) < 0) {
+    av_dict_free(&opts);
     fprintf(stderr, "Could not find video grab device\n");
     return(-1);
   }
+  av_dict_free(&opts);
 
   /* If not enough info to get the stream parameters, we decode the first frames to get it. */
-  if ((ff->pFormatCtx->ctx_flags & AVFMTCTX_NOHEADER) && av_find_stream_info(ff->pFormatCtx) < 0) {
+  if ((ff->pFormatCtx->ctx_flags & AVFMTCTX_NOHEADER) &&
+      avformat_find_stream_info(ff->pFormatCtx, NULL) < 0) {
     fprintf(stderr, "Could not find video grab parameters\n");
     return(-1);
   }
   /* by now video grab has one stream */
   ff->videoStream=0;
-//ff->pFormatCtx->streams[0]->r_frame_rate.num = vp->time_base.den;
-//ff->pFormatCtx->streams[0]->r_frame_rate.den = vp->time_base.num;
-  if (!want_quiet) dump_format(ff->pFormatCtx, 0, device, 0);
 
+  if (!want_quiet) av_dump_format(ff->pFormatCtx, 0, device, 0);
 
-//AVStream *av_stream = ff->pFormatCtx->streams[ff->videoStream];
-//ff->ff_fps = (double) av_stream->r_frame_rate.num / av_stream->r_frame_rate.den;
-
-  ff->pCodecCtx=ff->pFormatCtx->streams[ff->videoStream]->codec;
-  ff->ff_width  = ff->pCodecCtx->width;
-  ff->ff_height = ff->pCodecCtx->height;
+  AVCodecParameters *codecpar = ff->pFormatCtx->streams[ff->videoStream]->codecpar;
+  ff->ff_width  = codecpar->width;
+  ff->ff_height = codecpar->height;
   ff->sc_width = ff->sc_height = 0;
 
-  pCodec=avcodec_find_decoder(ff->pCodecCtx->codec_id);
+  pCodec = avcodec_find_decoder(codecpar->codec_id);
   if(pCodec==NULL) {
     fprintf( stderr, "Cannot find a codec for %s\n", device);
     return -1;
   }
-  if(avcodec_open(ff->pCodecCtx, pCodec)<0) {
-    fprintf( stderr, "Cannot open the codec for file %s\n", device);
+
+  ff->pCodecCtx = avcodec_alloc_context3(pCodec);
+  if(!ff->pCodecCtx) {
+    fprintf(stderr, "Cannot allocate codec context for %s\n", device);
     return -1;
   }
-  
-  ff->pFrame=avcodec_alloc_frame();
+  avcodec_parameters_to_context(ff->pCodecCtx, codecpar);
+
+  if(avcodec_open2(ff->pCodecCtx, pCodec, NULL)<0) {
+    fprintf( stderr, "Cannot open the codec for file %s\n", device);
+    avcodec_free_context(&ff->pCodecCtx);
+    return -1;
+  }
+
+  ff->pFrame = av_frame_alloc();
   return 0;
 }
 
 int open_ffmpeg(ffdec_t ** ffpx, char* file) {
-  if(!strncmp(file, "/dev/", 5)) 
+  if(!strncmp(file, "/dev/", 5))
     return open_camera(ffpx, file);
   return open_movie(ffpx, file);
 }
@@ -258,47 +270,49 @@ int open_ffmpeg(ffdec_t ** ffpx, char* file) {
 int decode_frame(ffdec_t *ffp) {
   ffdec_t *ff = ffp;
   int frameFinished=0;
- 
+
   if(ff->fFirstTime) {
     ff->fFirstTime=0;
     ff->packet.data=NULL;
     avcodec_flush_buffers(ff->pCodecCtx);
   }
 
-  do {  
+  do {
     if(!frameFinished) {
-      if(ff->packet.data) av_free_packet(&ff->packet);
+      if(ff->packet.data) av_packet_unref(&ff->packet);
       if(av_read_frame(ff->pFormatCtx, &ff->packet)<0) {
         fprintf(stderr,"End of file reached.\n");
         return 0;
       }
-      if (av_dup_packet(&ff->packet) < 0) {
-	fprintf(stderr,"Can not allocate packet!\n");
-        continue;
+    }
+    if(ff->packet.stream_index==ff->videoStream) {
+      int ret = avcodec_send_packet(ff->pCodecCtx, &ff->packet);
+      if (ret >= 0) {
+        ret = avcodec_receive_frame(ff->pCodecCtx, ff->pFrame);
+        if (ret == 0)
+          frameFinished = 1;
       }
     }
-    if(ff->packet.stream_index==ff->videoStream)
-#if LIBAVCODEC_VERSION_MAJOR < 52 || ( LIBAVCODEC_VERSION_MAJOR == 52 && LIBAVCODEC_VERSION_MINOR < 21)
-      avcodec_decode_video(ff->pCodecCtx, ff->pFrame, &frameFinished, ff->packet.data, ff->packet.size);
-#else
-      avcodec_decode_video2(ff->pCodecCtx, ff->pFrame, &frameFinished, &ff->packet);
-#endif
   } while (!frameFinished);
 
   if(frameFinished) {
-    sws_scale(ff->pSWSCtx, (uint8_t**) ff->pFrame->data, ff->pFrame->linesize, 0, ff->pCodecCtx->height, ff->pFrameFMT->data, ff->pFrameFMT->linesize);
+    sws_scale(ff->pSWSCtx,
+              (const uint8_t * const *)ff->pFrame->data,
+              ff->pFrame->linesize,
+              0, ff->pCodecCtx->height,
+              ff->pFrameFMT->data, ff->pFrameFMT->linesize);
   }
   return frameFinished;
 }
-  
+
 void close_movie(ffdec_t *ffp) {
   ffdec_t *ff = ffp;
 
   if (ff->pSWSCtx) sws_freeContext(ff->pSWSCtx);
-  if (ff->pFrameFMT) av_free(ff->pFrameFMT);
-  if (ff->pFrame) av_free(ff->pFrame);
-  if (ff->pCodecCtx) avcodec_close(ff->pCodecCtx);
-  if (ff->pFormatCtx) av_close_input_file(ff->pFormatCtx);
+  if (ff->pFrameFMT) av_frame_free(&ff->pFrameFMT);
+  if (ff->pFrame) av_frame_free(&ff->pFrame);
+  if (ff->pCodecCtx) avcodec_free_context(&ff->pCodecCtx);
+  if (ff->pFormatCtx) avformat_close_input(&ff->pFormatCtx);
 }
 
 void free_ff(ffdec_t **ffpx) {
@@ -378,8 +392,6 @@ void yuv_letterbox(void *dst, const void *src, int src_width, int src_height, in
     memcpy(dst, src, src_width*src_height*3/2);
     return;
   }
-  // assert(src_width  <= out_width);
-  // assert(src_height <= out_height);
 
   int xoff=((out_width-src_width)>>1)& ~0x01;
   int yoff=((out_height-src_height)>>1)& ~0x01;
@@ -418,7 +430,7 @@ void select_sleep (int usec) {
   struct timeval tv;
   if (usec<0) return;
   if (usec<1000000) {
-    tv.tv_sec = 0; 
+    tv.tv_sec = 0;
     tv.tv_usec = usec;
   } else {
     tv.tv_sec  = usec/1000000;
@@ -442,12 +454,12 @@ struct fftarg {
 void *ffdec_decode_thread(void *ffpx) {
 	ffdec_t **ffp = (ffdec_t **) ffpx;
 	ffdec_t *ff = (ffdec_t *) *ffp;
-	
+
 	if (!decode_frame(ff)) {
 		fprintf(stderr,"decoding failed. closing!\n");
 		ff->pt_status|=4;
 	}
-	
+
 	ff->pt_status&=~2;
 	return(0);
 }
@@ -456,9 +468,8 @@ void *ffdec_open_thread(void *arg) {
   struct fftarg *a = (struct fftarg*) arg;
   ffdec_t **ffpx = (ffdec_t **) a->ffpx;
   ffdec_t *ff = *ffpx;
-    
+
   if (open_movie(ffpx, a->movie_url)) {
-    //fprintf(stderr,"movie open failed!\n");
     ff->pt_status|=4;
   } else {
     int xw,xh;
@@ -470,11 +481,9 @@ void *ffdec_open_thread(void *arg) {
     if (!want_quiet)
 	    printf("letterbox: %dx%d\n",xw,xh);
     init_moviebuffer(ff, xw, xh, a->render_fmt);
-//  fprintf(stderr,"movie opened: %s!\n",a->movie_url);
     ff->pt_status|=1;
 #if 1
     ff->pt_status |= 2;
-    //ffdec_decode_thread(ffp);
 #endif
   }
   free(a);
@@ -520,7 +529,6 @@ int ffdec_thread(ffdec_t **ffpx, char *movie_url, int w, int h, int render_fmt) 
       pthread_attr_destroy(&thread_att);
       return 0;
     }
-    //printf("DEBUG0 %i %i\n", ff->pt_status, render_fmt); 
   }
  return 1;
 }

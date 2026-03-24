@@ -96,19 +96,19 @@ class VideoLayer: public Layer {
     /**
 	 * av(codec|format) aka ffmpeg related variables
 	 */
-	AVCodec *avcodec;
-	AVInputFormat *fmt;
+	const AVCodec *avcodec;
+	const AVInputFormat *fmt;
 	AVFormatContext *avformat_context;
 	AVStream *avformat_stream;
-	AVPicture *rgba_picture;
+	AVFrame *rgba_picture;
 	AVPacket pkt;
 
 
 	AVCodecContext *video_codec_ctx;
-	AVCodec *video_codec;
+	const AVCodec *video_codec;
 
 	AVCodecContext *audio_codec_ctx;
-	AVCodec *audio_codec;
+	const AVCodec *audio_codec;
 	uint8_t *audio_buf; // buffer used by decode_audio_packet
 	double audio_size;
 
@@ -143,7 +143,7 @@ class VideoLayer: public Layer {
 	 * application variables
 	 */
 	struct frame_fifo_t { // I want it hard, I want it raw
-		AVPicture *picture[FIFO_SIZE];
+		AVFrame *picture[FIFO_SIZE];
 		int picture_type[FIFO_SIZE];
 		int length;
 	} frame_fifo;
@@ -176,11 +176,11 @@ class VideoLayer: public Layer {
 
 	void set_speed(int speed);
 	double get_master_clock();
-	void deinterlace(AVPicture *picture);
+	void deinterlace(AVFrame *picture);
 	int new_fifo();
 	void free_fifo();
-	int new_picture(AVPicture *p);
-	void free_picture(AVPicture *p);
+	int new_picture(AVFrame *p);
+	void free_picture(AVFrame *p);
 
 	// quick hack for EOS callback
 	DumbCallback *eos;
