@@ -247,6 +247,7 @@ void Qfreej::resetEnc()
 void Qfreej::resetQJack()
 {
   m_QJack = NULL;
+  m_JackIsOn = false;
 }
 
 OggTheoraEncoder *Qfreej::getEnc()

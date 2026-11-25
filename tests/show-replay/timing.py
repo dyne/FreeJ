@@ -251,8 +251,16 @@ def capture_run(args, workload, name, analyzed_frames):
         for owner, owner_events in (("engine", rows), ("source", source)):
             metrics[f"{owner}_xrun_notifications"] = sum(
                 presents[0] <= ns <= presents[-1] for ns, _, _ in kind(owner_events, "jack-xrun"))
-        require("timing: nonzero FFT windows 0" in log, "legacy FFT silence was not reproduced")
-        metrics["nonzero_fft_windows"] = 0
+        nonzero, = [int(s.rsplit(" ", 1)[1]) for s in log if s.startswith("timing: nonzero FFT windows ")]
+        require(nonzero == 0 if getattr(args, "expect_legacy_audio", False) else nonzero >= analyzed_frames,
+                f"unexpected count of responsive FFT windows: {nonzero}")
+        metrics["nonzero_fft_windows"] = nonzero
+        callback_times = [detail / 1e6 for ns, _, detail in kind(rows, "process-duration")
+                          if presents[0] <= ns <= presents[-1]]
+        if callback_times or getattr(args, "require_callback_timing", False):
+            require(callback_times and max(callback_times) < period_ms(AUDIO_RATE, AUDIO_FRAMES),
+                    "JACK callback missed its period or was not observed")
+            metrics["callback_worst_ms"] = max(callback_times)
         proc = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v",
                                "-count_frames", "-show_entries", "stream=codec_name,nb_read_frames",
                                "-of", "json", "timing.ogg"], cwd=directory, capture_output=True,
@@ -305,6 +313,8 @@ def main():
                         help="send one burst of 128 packets for the selected OSC workload")
     parser.add_argument("--expect-legacy-osc", action="store_true",
                         help="expect the historical OSC dispatch attempts to produce no JS calls")
+    parser.add_argument("--expect-legacy-audio", action="store_true")
+    parser.add_argument("--require-callback-timing", action="store_true")
     parser.add_argument("--repeats", type=int, default=5)
     parser.add_argument("--seconds", type=int, default=3)
     parser.add_argument("--drift-seconds", type=int, default=60)

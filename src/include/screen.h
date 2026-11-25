@@ -27,6 +27,7 @@
 
 #include <inttypes.h>
 #include <memory>
+#include <atomic>
 #include <mutex>
 #include <config.h>
 #include <SDL.h>
@@ -157,8 +158,8 @@ class ViewPort : public Entry {
   bool resizing;
   int resize_w;
   int resize_h;
+  std::atomic<unsigned long> *m_SampleRate; // bound JACK sample rate
   
-  long unsigned int  *m_SampleRate; // pointer to JACKd's SampleRate (add_audio)
 
   // opengl special blit
   bool opengl;

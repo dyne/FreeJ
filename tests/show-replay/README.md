@@ -35,7 +35,31 @@ using a scratch JACK installation, put its `bin` first on `PATH` and its
 socket directory with a path short enough for a Unix socket. Set it at build
 time with `--with-default-tmpdir` when the packaged default is unavailable.
 
-Run the six checks. Use a fresh evidence directory for each invocation.
+The collector contract has a separate diagnostic replay. Build
+`tests/show-replay/equalizer-observer.cpp` as a shared library with the same
+compiler and header paths as `observe.cpp` above. Use the current pulse client
+and a shared compatibility build of FreeJ. The fixture starts and stops JACK
+dummy servers at 44.1 kHz/2048 and 48 kHz/256.
+
+```sh
+python3 tests/show-replay/equalizer.py --freej "$stage/bin/freej" \
+    --jackd "$jack/bin/jackd" --observer "$scratch/equalizer-observer.so" \
+    --pulse "$scratch/pulse" --output "$scratch/equalizer"
+```
+
+Each script call observes a known JACK input period. The `live` and
+`live-recording` runs consume the production capture handoff. The `injected`
+run withholds the observed period from the live port and submits it on the
+script thread. It holds silence for the first seven 256-frame periods, then
+checks all 16 bands, harmonic wrapping, and the shipped equalizer frame
+handler's `PhaseIncrement` and `ZoomRate` arguments. The recording variant
+decodes the Theora/Vorbis streams and measures the known tone in the PCM.
+The filter receiver records those arguments. The fixture measures neither
+rendering nor callback timing. The device-free `audio-collector-test` in
+`make check` covers both constructors, odd and short FFTs, phased tones, gain,
+and smoothing across successive windows.
+
+Run the six historical replay checks in a fresh evidence directory.
 
 ```sh
 python3 tests/show-replay/replay.py --freej "$stage/bin/freej" \
@@ -71,12 +95,10 @@ at the reordered cue. Audio arguments are needed for `all` and `audio`.
   stop/restart, self-removal, reset and quit. Use `--expect-legacy-osc` with the
   historical binary to reproduce the old dispatch failures.
 - The JACK source sends a mono window with sample zero at 0.5 and all other
-  samples zero. The read-only test observer confirms this input at FreeJ’s
-  actual JACK buffer. The legacy collector still reports 25 silent windows
-  of 16 bands. Its capture callback setup and input copy are commented out
-  in `src/audio_collector.cpp` and `src/audio_jack.cpp`. Use
-  `--case audio --require-working-routes` to reproduce the silence as a
-  failing test. The evidence includes the expected first impulse bands.
+  samples zero. The observer confirms the input at FreeJ’s JACK port. The
+  replay compares the first responsive window with the analytical impulse
+  bands. Use `--expect-legacy-audio` to check the historical build's 25
+  silent windows.
 - The example’s `reset(filename)` takes the engine reset path and returns
   from the call, but it never evaluates the target file. The isolated reset
   fixture checks for the reset log, return marker and absent target marker.

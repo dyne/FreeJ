@@ -355,7 +355,7 @@ def audio(args):
                for start, end in zip(IMPULSE_BINS, IMPULSE_BINS[1:])]
     expected = impulse[1:] + impulse[:1]
     json_file(directory / "bands.json", {"actual": bands, "first_impulse": expected})
-    if args.require_working_routes:
+    if not args.expect_legacy_audio:
         first = next((window for window in bands if any(window)), None)
         require(first is not None, "capture-to-FFT is silent")
         require(all(isclose(actual, target, rel_tol=1e-5, abs_tol=1e-7)
@@ -385,6 +385,8 @@ def main():
                         default="all")
     parser.add_argument("--expect-reversed-order", action="store_true")
     parser.add_argument("--require-working-routes", action="store_true")
+    parser.add_argument("--expect-legacy-audio", action="store_true",
+                        help="reproduce the historical silent collector")
     parser.add_argument("--expect-legacy-osc", action="store_true",
                         help="check the historical build's parsed inbound OSC without JS callbacks")
     args = parser.parse_args()

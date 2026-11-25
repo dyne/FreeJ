@@ -32,6 +32,9 @@
 
 #include <jutils.h>
 
+static_assert(__atomic_always_lock_free(sizeof(size_t), nullptr),
+              "audio ring cursors must be lock-free");
+
 /* Create a new ringbuffer to hold at least `sz' bytes of data. The
    actual buffer size is rounded up to the next power of two.  */
 

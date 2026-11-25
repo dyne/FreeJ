@@ -51,6 +51,7 @@ AudioLayer::AudioLayer()
 }
 
 AudioLayer::~AudioLayer() {
+  JackClient::Get()->ClearCallback(this);
   stop();
   close();
 }

@@ -29,11 +29,34 @@
 #include <jutils.h>
 #include <algorithm>
 #include <cerrno>
+#include <signal.h>
+#include <thread>
+
+namespace {
+// JACK1 can write to a dead server socket during close or unregister. Keep
+// its SIGPIPE local to this control call even in an embedding using SIG_DFL.
+template<typename Request>
+int server_request(Request request)
+{
+  sigset_t pipe, previous, pending;
+  sigemptyset(&pipe);
+  sigaddset(&pipe, SIGPIPE);
+  const bool blocked = pthread_sigmask(SIG_BLOCK, &pipe, &previous) == 0;
+  const bool consume = blocked && !sigismember(&previous, SIGPIPE) &&
+                       !sigpending(&pending) && !sigismember(&pending, SIGPIPE);
+  const int result = request();
+  if (consume && !sigpending(&pending) && sigismember(&pending, SIGPIPE)) {
+    int signal;
+    sigwait(&pipe, &signal);
+  }
+  if (blocked) pthread_sigmask(SIG_SETMASK, &previous, nullptr);
+  return result;
+}
+}
 
 JackClient*       JackClient::m_Singleton  = NULL;
-bool              JackClient::m_Attached   = false;
-long unsigned int JackClient::m_BufferSize = 0;
-long unsigned int JackClient::m_SampleRate = 0;
+std::atomic<bool> JackClient::m_Attached{false};
+std::atomic<unsigned long> JackClient::m_BufferSize{0}, JackClient::m_SampleRate{0};
 void            (*JackClient::RunCallback)(void*, unsigned int BufSize)=NULL;
 void             *JackClient::RunContext   = NULL;	
 jack_client_t    *JackClient::m_Client     = NULL;
@@ -66,8 +89,52 @@ void JackClient::isEncoded(bool enc)
   m_Encoded = enc;
 }
 
+std::shared_ptr<RecordingRings> JackClient::BeginRecording()
+{
+  std::lock_guard<std::mutex> lock(output_mutex_);
+  if (!m_Attached || !recording_ || recording_->rate.load()) return {};
+  // A previous encoder can leave a tail. Only this newly admitted reader
+  // advances the read cursor, independently of the device writer.
+  for (auto *ring : {first, audio_mix_ring})
+    ringbuffer_read_advance(ring, ringbuffer_read_space(ring));
+  recording_->channels.store(std::max(1, m_ringbufferchannels.load()));
+  recording_->rate.store(m_SampleRate.load());
+  return recording_;
+}
+
+void JackClient::SetCallback(void(*run)(void*, unsigned int), void *context)
+{
+  std::lock_guard<std::recursive_mutex> lock(callback_mutex_);
+  RunCallback = run;
+  RunContext = context;
+}
+
+void JackClient::ClearCallback(void *context)
+{
+  std::lock_guard<std::recursive_mutex> lock(callback_mutex_);
+  if (RunContext == context) {
+    RunCallback = nullptr;
+    RunContext = nullptr;
+  }
+}
+
+void JackClient::dispatch_shutdown()
+{
+  if (!shutdown_pending_.exchange(false)) return;
+  std::lock_guard<std::recursive_mutex> lock(callback_mutex_);
+  if (RunCallback) RunCallback(RunContext, 0);
+}
+
+bool JackClient::IsAttached()
+{
+  dispatch_shutdown();
+  return m_Attached.load();
+}
+
 bool JackClient::Attach(const std::string &ClientName)
 {
+  dispatch_shutdown();
+	std::lock_guard<std::mutex> inputs(input_mutex_);
 	std::lock_guard<std::mutex> lock(output_mutex_);
 	if (m_Attached) return true;
 	// A server shutdown can leave an inactive client to retire before reopening.
@@ -97,21 +164,27 @@ bool JackClient::Attach(const std::string &ClientName)
 	m_InputPortMap.clear();
 	m_OutputPortMap.clear();
 	
-	audio_mix_ring = ringbuffer_create(4096 * 512 * 4);
-	first = ringbuffer_create(4096 * 512 * 4);
+	recording_ = std::make_shared<RecordingRings>();
+	audio_mix_ring = recording_->mix.get();
+	first = recording_->input.get();
+	m_SampleRate = jack_get_sample_rate(m_Client);
+	m_BufferSize = jack_get_buffer_size(m_Client);
+	m_Attached = true;
 	if (!audio_mix_ring || !first || jack_activate(m_Client)) {
 	  error("cannot activate JACK client");
 	  detach_locked();
 	  return false;
 	}
-	m_Attached = true;
-	return true;
+	++session_;
+	return m_Attached.load();
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void JackClient::Detach()
 {
+  dispatch_shutdown();
+	std::lock_guard<std::mutex> inputs(input_mutex_);
 	std::lock_guard<std::mutex> lock(output_mutex_);
 	detach_locked();
 }
@@ -121,12 +194,18 @@ void JackClient::detach_locked()
 	if (m_Client)
 	{
 	  act("Detaching from JACK");
-		jack_client_close(m_Client);
+		server_request([] { return jack_client_close(m_Client); });
 		m_Client=NULL;
 		m_Attached=false;
 	}
-	if(audio_mix_ring) ringbuffer_free(audio_mix_ring);
-	if(first) ringbuffer_free(first);
+	for (auto &entry : m_InputPortMap) {
+	  if (entry.second->capture) entry.second->capture->gap();
+	  delete entry.second;
+	}
+	m_InputPortMap.clear();
+	input_lists_[0].count = input_lists_[1].count = 0;
+	recording_.reset();
+	m_Encoded = false;
 	audio_mix_ring = first = nullptr;
 	m_ringbuffer = nullptr;
 	m_ringbufferchannels = 0;
@@ -178,34 +257,34 @@ int JackClient::Process (jack_nframes_t nframes, void *arg)
 
 int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
-  int j = 0;
   auto &client = *static_cast<JackClient *>(self);
-  
-	for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
-		i!=m_InputPortMap.end(); i++)
-	{
-		if (jack_port_connected(i->second->Port))
-		{
-		  sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
-// 		  memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize); //m_BufferSize -> 2nd AudioCollector parameter
-			//Buff attribué par SetInputBuf dans le construcAteur de AudioCollector
-		  if (client.m_Encoded)	//Added this to write in the buffer only if
-		  {			//the encoder is in action
-		    if (!j)	//only streams the 1st Jack Input port
-		    {
-		      if (ringbuffer_write_space (((JackClient*) self)->first) >= (sizeof (sample_t) * nframes))
-		      {	
-			size_t rf = ringbuffer_write (((JackClient*) self)->first, (char *)in, (sizeof (sample_t) * nframes));
-		      }
-/*		    else
-		    {
-		      std::cerr << "-----------Pas suffisament de place dans audio_fred !!!" << std::endl; 
-		    }*/
-		      j++;
-		    }
-		  }
-		}
-	}
+  // The single JACK reader marks the exact interval in which input handles
+  // may be dereferenced. Sequential consistency orders entry against a
+  // control-side list swap and its subsequent observation of this epoch.
+  client.input_epoch_.fetch_add(1);
+  const auto &inputs = client.input_lists_[client.active_inputs_.load()];
+  const auto rate = m_SampleRate.load(std::memory_order_relaxed);
+  const unsigned recording_rate = client.recording_->rate.load(std::memory_order_acquire);
+  const bool recording = recording_rate ? recording_rate == rate : client.m_Encoded.load(std::memory_order_relaxed);
+  const auto frame = jack_last_frame_time(m_Client);
+  bool first_connected = true;
+  for (size_t i = 0; i < inputs.count; ++i) {
+    auto &port = *inputs.ports[i];
+    const float *in = jack_port_connected(port.Port)
+        ? static_cast<const float *>(jack_port_get_buffer(port.Port, nframes)) : nullptr;
+    if (!in) {
+      if (port.capture) port.capture->gap();
+      continue;
+    }
+    if (port.capture) port.capture->write(in, nframes, frame, rate);
+    if (first_connected && recording) {
+      const size_t bytes = nframes * sizeof(float);
+      if (ringbuffer_write_space(client.first) >= bytes)
+        ringbuffer_write(client.first, reinterpret_cast<const char *>(in), bytes);
+    }
+    first_connected = false;
+  }
+  client.input_epoch_.fetch_add(1);
 
 	{
 	  // A control thread may change the route. The callback never waits for it.
@@ -221,7 +300,8 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 	    if (received) {
 	      // The encoder receives complete source samples, including the tail
 	      // of a clip. Playback alone gets zero filling to the JACK period.
-	      if (client.m_Encoded && ringbuffer_write_space(client.audio_mix_ring) >= received)
+	      if (recording && (!recording_rate || client.recording_->channels.load() == static_cast<unsigned>(channels))
+	          && ringbuffer_write_space(client.audio_mix_ring) >= received)
 	        ringbuffer_write(client.audio_mix_ring, samples, received);
 	      memset(samples + received, 0, period_bytes - received);
 	      output_available = true;
@@ -241,14 +321,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 	      memset(output, 0, nframes * sizeof(*output));
 	  }
 	}
-	m_BufferSize=nframes;
-			
-// 	if(RunCallback&&RunContext)
-// 	{
-// 		// do the work
-// 		RunCallback(RunContext, nframes);
-// 	}
-	
+	m_BufferSize.store(nframes, std::memory_order_relaxed);
 	return 0;
 }
 
@@ -286,18 +359,47 @@ void JackClient::ResetRingbuffer(ringbuffer_t *rb, bool disconnect) {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-int JackClient::AddInputPort()
+int JackClient::AddInputPort(std::shared_ptr<AudioCapture> capture)
 {
-	char Name[256];
-	sprintf(Name,"In%d",m_NextInputID);
-	
-	JackPort *NewPort = new JackPort;
-	NewPort->Name=Name;
-	NewPort->Buf=NULL;		
-	NewPort->Port = jack_port_register (m_Client, Name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
-	m_InputPortMap[m_NextInputID]=NewPort;
-	m_NextInputID++;
-	return m_NextInputID-1;
+  std::lock_guard<std::mutex> lock(input_mutex_);
+  if (!m_Attached || m_InputPortMap.size() == MAX_INPUTPORTS) return -1;
+  std::unique_ptr<JackPort> port(new JackPort);
+  const int id = m_NextInputID++;
+  port->Name = "In" + std::to_string(id);
+  port->Port = jack_port_register(m_Client, port->Name.c_str(), JACK_DEFAULT_AUDIO_TYPE, JackPortIsInput, 0);
+  if (!port->Port) return -1;
+  port->capture = std::move(capture);
+  m_InputPortMap[id] = port.release();
+  publish_inputs_locked();
+  return id;
+}
+
+void JackClient::publish_inputs_locked()
+{
+  const unsigned next = 1 - active_inputs_.load();
+  auto &list = input_lists_[next];
+  list.count = 0;
+  for (const auto &entry : m_InputPortMap) list.ports[list.count++] = entry.second;
+  active_inputs_.store(next);
+
+  // Readers starting after the swap cannot acquire the old list. Only
+  // wait for the reader already in flight, never for the next JACK period.
+  const auto epoch = input_epoch_.load();
+  if (epoch & 1u) {
+    while (input_epoch_.load() == epoch) std::this_thread::yield();
+  }
+}
+
+void JackClient::RemoveInputPort(int id)
+{
+  std::lock_guard<std::mutex> lock(input_mutex_);
+  auto it = m_InputPortMap.find(id);
+  if (it == m_InputPortMap.end()) return;
+  std::unique_ptr<JackPort> port(it->second);
+  m_InputPortMap.erase(it);
+  publish_inputs_locked();
+  if (m_Attached && server_request([&] { return jack_port_unregister(m_Client, port->Port); }))
+    error("Could not unregister JACK input %s", port->Name.c_str());
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -333,7 +435,7 @@ int JackClient::add_output_port_locked()
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-int JackClient::OnSRateChange(jack_nframes_t n, void *o)
+int JackClient::OnSRateChange(jack_nframes_t n, void *)
 {
 	m_SampleRate=n;
 	return 0;
@@ -343,52 +445,36 @@ int JackClient::OnSRateChange(jack_nframes_t n, void *o)
 
 void JackClient::OnJackShutdown(void *o)
 {
-  act("Audio Jack Shutdown");
-  m_Attached=false;
-  // tells ssm to go back to non callback mode
-  RunCallback(RunContext, false);
-  return;
+  // JACK's shutdown thread only publishes state. Deliver an optional user
+  // notification from the next control-thread status, close or reopen call.
+  auto &client = *static_cast<JackClient *>(o);
+  m_Attached.store(false);
+  client.shutdown_pending_.store(true);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void JackClient::GetPortNames(std::vector<std::string> &InputNames, std::vector<std::string> &OutputNames)
 {
-	InputNames.clear();
-	OutputNames.clear();
-
-	if (!m_Attached) return;
-
-	//Outputs first
-	const char **PortNameList=jack_get_ports(m_Client,NULL,NULL,JackPortIsOutput);	
-	
-	int n=0;
-	while(PortNameList[n]!=NULL)
-	{		
-		OutputNames.push_back(PortNameList[n]);
-		n++;
-	}	
-	
-	delete PortNameList;
-	
-	//Inputs second
-	PortNameList=jack_get_ports(m_Client,NULL,NULL,JackPortIsInput);
-	
-	n=0;
-	while(PortNameList[n]!=NULL)
-	{		
-		InputNames.push_back(PortNameList[n]);
-		n++;
-	}
-	
-	delete PortNameList;		
+  std::lock_guard<std::mutex> lock(output_mutex_);
+  InputNames.clear();
+  OutputNames.clear();
+  if (!m_Attached) return;
+  for (const auto flag : {JackPortIsInput, JackPortIsOutput}) {
+    const char **names = jack_get_ports(m_Client, nullptr, nullptr, flag);
+    if (!names) continue;
+    auto &result = flag == JackPortIsInput ? InputNames : OutputNames;
+    for (size_t n = 0; names[n]; ++n) result.emplace_back(names[n]);
+    jack_free(names);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // Input means input of SSM, so this connects jack sources to the plugin outputs
 void JackClient::ConnectInput(int n, const std::string &JackPort)
 {
-  if (!IsAttached()) return;
+  std::lock_guard<std::mutex> lock(input_mutex_);
+  if (!m_Attached || !m_InputPortMap.count(n)) return;
   
   //cerr<<"JackClient::ConnectInput: connecting source ["<<JackPort<<"] to dest ["<<m_InputPortMap[n]->Name<<"]"<<endl;
   
@@ -414,7 +500,8 @@ void JackClient::ConnectInput(int n, const std::string &JackPort)
 // Output means output of SSM, so this connects plugin inputs to a jack destination
 void JackClient::ConnectOutput(int n, const std::string &JackPort)
 {
-  if (!IsAttached()) return;
+  std::lock_guard<std::mutex> lock(output_mutex_);
+  if (!m_Attached || !m_OutputPortMap.count(n)) return;
   std::cerr<<"JackClient::ConnectOutput: connecting source ["<<m_OutputPortMap[n]->Name<<"] \
   	to dest ["<<JackPort<<"]"<<std::endl;
   
@@ -437,7 +524,8 @@ void JackClient::ConnectOutput(int n, const std::string &JackPort)
 // Input means input of SSM, so this connects jack sources to the plugin outputs
 void JackClient::DisconnectInput(int n)
 {
-  if (!IsAttached()) return;
+  std::lock_guard<std::mutex> lock(input_mutex_);
+  if (!m_Attached || !m_InputPortMap.count(n)) return;
 	//cerr<<"JackClient::DisconnectInput: Disconnecting input "<<n<<endl;
 
   if (m_InputPortMap[n]->ConnectedTo!="")
@@ -455,7 +543,8 @@ void JackClient::DisconnectInput(int n)
 // Output means output of SSM, so this connects plugin inputs to a jack destination
 void JackClient::DisconnectOutput(int n)
 {
-	if (!IsAttached()) return;
+  std::lock_guard<std::mutex> lock(output_mutex_);
+  if (!m_Attached || !m_OutputPortMap.count(n)) return;
 	//cerr<<"JackClient::DisconnectInput: Disconnecting input "<<n<<endl;
 
 	if (m_OutputPortMap[n]->ConnectedTo!="")
@@ -472,6 +561,7 @@ void JackClient::DisconnectOutput(int n)
 
 void JackClient::SetInputBuf(int ID, float* s)
 {
+  std::lock_guard<std::mutex> lock(input_mutex_);
 	if(m_InputPortMap.find(ID)!=m_InputPortMap.end()) m_InputPortMap[ID]->Buf=s;
 	else std::cerr<<"Could not find port ID "<<ID<<std::endl;
 }
@@ -480,6 +570,7 @@ void JackClient::SetInputBuf(int ID, float* s)
 	
 void JackClient::SetOutputBuf(int ID, float* s)
 {
+  std::lock_guard<std::mutex> lock(output_mutex_);
 	if(m_OutputPortMap.find(ID)!=m_OutputPortMap.end()) m_OutputPortMap[ID]->Buf=s;
 	else error("Could not find port ID %u", ID);
 }

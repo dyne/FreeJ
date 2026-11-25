@@ -10,7 +10,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/include \
 
 noinst_HEADERS = testClosure.h
 
-check_PROGRAMS = cxxtests frame-step-test lifetime-test movie-replay-test jack-output-contention-test
+check_PROGRAMS = cxxtests frame-step-test lifetime-test movie-replay-test jack-output-contention-test audio-collector-test jack-capture-test
 TESTS = $(check_PROGRAMS) show-replay/test_timing.py
 AM_TESTS_ENVIRONMENT = MOVIE_TEST_CLIP="$(abs_srcdir)/show-replay/movie-av.mov"; export MOVIE_TEST_CLIP;
 CLEANFILES = cxxtests.cpp
@@ -30,6 +30,12 @@ jack_output_contention_test_SOURCES = show-replay/jack-output-contention-test.cp
                                      ../src/audio_jack.cpp ../src/ringbuffer.cpp
 jack_output_contention_test_CPPFLAGS = $(AM_CPPFLAGS) $(JACK_CFLAGS)
 jack_output_contention_test_LDFLAGS = -pthread
+audio_collector_test_SOURCES = show-replay/audio-collector-test.cpp ../src/audio_collector.cpp
+audio_collector_test_CPPFLAGS = $(AM_CPPFLAGS) $(JACK_CFLAGS) $(FFTW_CFLAGS)
+audio_collector_test_LDADD = $(FFTW_LIBS) -lpthread -lm
+jack_capture_test_SOURCES = show-replay/jack-capture-test.cpp ../src/audio_jack.cpp ../src/audio_collector.cpp ../src/ringbuffer.cpp
+jack_capture_test_CPPFLAGS = $(audio_collector_test_CPPFLAGS)
+jack_capture_test_LDADD = $(audio_collector_test_LDADD)
 if FREEJ_STATIC_PROFILE
 frame_step_test_LDFLAGS = -static $(FREEJ_STATIC_LOADER_FLAGS)
 frame_step_test_LINK = $(CXX) $(frame_step_test_LDFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
@@ -59,6 +65,8 @@ EXTRA_DIST = cxxtest freej-build-test.sh legacy-linux-sdk.py legacy-linux-sdk.lo
              movie-linux-sdk.sh movie-linux-sdk.lock \
              native-ci-prepare.sh native-ci-run.sh native-ci-coverage.py native-ci.lock \
              native_profile_services.py \
+             show-replay/equalizer-observer.cpp show-replay/equalizer.py \
+             show-replay/audio-response.js show-replay/audio-response.py \
              show-replay/README.md show-replay/replay.py show-replay/observe.cpp \
              show-replay/pulse.cpp show-replay/scene.js show-replay/video.js \
              show-replay/osc.js show-replay/osc-lifecycle.js show-replay/audio.js show-replay/reset.js \

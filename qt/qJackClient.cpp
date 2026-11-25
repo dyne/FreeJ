@@ -30,7 +30,8 @@ QJackClient::QJackClient(Qfreej *qfreej) : QWidget()
 QJackClient::~QJackClient()
 {
   if (m_Qfreej->getQEnc()) delete (m_Qfreej->getQEnc());
-  if (m_JackIsOn && m_Jack) m_Jack->Detach();
+  delete m_audio;
+  if (m_OwnsConnection && m_Jack->Session() == m_Session) m_Jack->Detach();
   m_Jack = NULL;
   m_Qfreej->resetQJack();
 }
@@ -45,16 +46,21 @@ bool QJackClient::init()
   QGridLayout *layoutG = new QGridLayout;
   
   m_Jack = JackClient::Get();
+  const bool wasAttached = m_Jack->IsAttached();
   if (!m_Jack->Attach("qfreej"))
   {
     return (false);
   }
+  m_OwnsConnection = !wasAttached;
+  m_Session = m_Jack->Session();
 
   m_audio = new AudioCollector(1024, 48000, m_Jack);
   m_Jack->isEncoded(false);
   m_Enc = m_Qfreej->getEnc();
 
-  QLabel *jackStatusText = new QLabel("Jack's On, 48000:1024");
+  const auto rate = m_Jack->m_SampleRate.load();
+  const auto period = m_Jack->m_BufferSize.load();
+  QLabel *jackStatusText = new QLabel(QString("JACK %1 Hz, %2 frames").arg(rate).arg(period));
   layoutG->addWidget(jackStatusText, 0, 0);
   
   QPushButton *addButton = new QPushButton("Add Input", this);
@@ -77,7 +83,7 @@ bool QJackClient::init()
   m_SampleRate = new QLineEdit;
 //   connect (m_SampleRate, SIGNAL(returnPressed()), this, SLOT(chgSampleRate()));
   m_SampleRate->setValidator(new QIntValidator(m_SampleRate));
-  m_SampleRate->setText("48000");	//default Jackd sample rate
+  m_SampleRate->setText(QString::number(rate));
   m_SampleRate->setEnabled(false);
 //   m_Jack->m_SampleRate = 48000;	//not necessary as it is donne in AudioCollector constructor
   //
@@ -88,9 +94,8 @@ bool QJackClient::init()
   m_Samples = new QLineEdit;
   connect (m_Samples, SIGNAL(returnPressed()), this, SLOT(chgSamples()));
   m_Samples->setValidator(new QIntValidator(m_Samples));
-  m_Samples->setText("1024");		//default value : 1024 samples
+  m_Samples->setText(QString::number(period));
   m_Samples->setEnabled(false);
-  m_Jack->m_BufferSize = 1024;
 
   QLabel *vSample = new QLabel("J Samples :");
   layoutG->addWidget(vSample, 4, 0);
@@ -155,7 +160,7 @@ void QJackClient::addInput()
 {
   if (!m_Inputs)
   {
-    m_Jack->AddInputPort();
+    if (m_audio->AddAnalysisInput() < 0) return;
     m_Inputs++;
     m_InputNumbers->display(m_Inputs);
     m_Coef->setEnabled(true);
@@ -179,5 +184,5 @@ int QJackClient::getSampleRate()
 
 void QJackClient::chgSamples()
 {
-  m_Jack->m_BufferSize = m_Samples->text().toInt();
+  m_Samples->setText(QString::number(m_Jack->m_BufferSize.load()));
 }

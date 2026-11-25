@@ -131,9 +131,29 @@ the raw capture and the common synchronization marker alongside the
 software trace for at least five warmed runs per workload. Use the
 alternating overlay as an independent visibility check.
 
-The historical OSC receiver reached dispatch with no JS callback. The
-JACK input receives the known sample while the FFT bands stay silent.
-`osc_to_visible_response_ms` and `capture_to_visible_response_ms` therefore
-remain null. The next scheduled presentation is reported separately to
-characterize the functioning software segments. Record the first actual
-pulse-to-display latency once the capture-to-FFT route works again in L8.
+The historical OSC receiver reached dispatch with no JS callback. Its JACK
+input received the known sample while all FFT bands stayed silent. Use
+`--expect-legacy-audio` to replay that outcome. The capture workload still
+measures the next submission and preserves its original comparison limits.
+With the current observer, `--require-callback-timing` also checks the
+longest measured JACK process callback against its period.
+
+For the software response test, supply the same JACK server, Xvfb display,
+current timing observer, plugin and current pulse binary:
+
+```sh
+python3 tests/show-replay/audio-response.py --freej "$stage/bin/freej" \
+    --plugin "$scratch/brightness.so" --observer "$scratch/timing-observer.so" \
+    --pulse "$scratch/pulse" --jack-server freej-replay --output "$scratch/response"
+```
+
+Every twelfth period carries a unit-position pulse of amplitude 0.5. Native
+window sample positions pair the input pulse with the 16th band's response.
+The script shows an overlay while that band exceeds 5. The observer reads
+the on/off pixel at (20,16) before SDL submits the surface. Each matched
+row records source, capture, FFT and first distinct marker onset timestamps.
+The fixture records Theora/Vorbis and dispatches 32 OSC packets in each
+of five short runs and one 60-second run. It reports capture-to-pixel and
+source-to-pixel p50/p95/p99, callback worst time, xruns, clock drift and
+missing periods. These pixels date software submission. Optical measurement
+requires the stage equipment above.

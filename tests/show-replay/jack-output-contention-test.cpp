@@ -23,6 +23,7 @@ std::size_t registered = 0;
 JackProcessCallback process = nullptr;
 void *process_data = nullptr;
 JackShutdownCallback shutdown_client = nullptr;
+void *shutdown_data = nullptr;
 int client_handle;
 std::mutex gate_mutex;
 std::condition_variable gate;
@@ -57,7 +58,13 @@ int jack_set_process_callback(jack_client_t *, JackProcessCallback callback, voi
 }
 
 int jack_set_sample_rate_callback(jack_client_t *, JackSampleRateCallback, void *) { return 0; }
-void jack_on_shutdown(jack_client_t *, JackShutdownCallback callback, void *) { shutdown_client = callback; }
+void jack_on_shutdown(jack_client_t *, JackShutdownCallback callback, void *data) {
+  shutdown_client = callback;
+  shutdown_data = data;
+}
+jack_nframes_t jack_get_sample_rate(jack_client_t *) { return 48000; }
+jack_nframes_t jack_last_frame_time(const jack_client_t *) { return 0; }
+int jack_port_unregister(jack_client_t *, jack_port_t *) { return 0; }
 int jack_activate(jack_client_t *) { return 0; }
 int jack_client_close(jack_client_t *) { registered = 0; return 0; }
 
@@ -86,6 +93,7 @@ jack_nframes_t jack_get_buffer_size(jack_client_t *) {
 const char **jack_get_ports(jack_client_t *, const char *, const char *, unsigned long) {
   return nullptr;
 }
+void jack_free(void *p) { std::free(p); }
 int jack_port_connected(const jack_port_t *) { return 0; }
 const char *jack_port_name(const jack_port_t *) { return "test"; }
 int jack_connect(jack_client_t *, const char *, const char *) { return 0; }
@@ -137,7 +145,7 @@ int main() {
   const bool resumed = control.get() == 0 && play(second.get());
 
   jack->SetCallback([](void *, unsigned) {}, nullptr);
-  shutdown_client(nullptr);
+  shutdown_client(shutdown_data);
   const bool reattached = jack->Attach("reattached") && registered == 0 &&
       jack->SetRingbufferPtr(first.get(), 48000, 2) == 0 &&
       registered == 2 && play(first.get());

@@ -70,7 +70,7 @@ def until(predicate, process):
 
 
 @contextmanager
-def jack_dummy(jackd, work, env):
+def jack_dummy(jackd, work, env, rate=48000, period=2048):
     # The daemon uses its own shared library and driver lookup paths.
     jack = jackd.parent.parent
     server = f"fjstage{os.getpid()}"
@@ -80,7 +80,7 @@ def jack_dummy(jackd, work, env):
                     PATH=f"{jack / 'bin'}{os.pathsep}{env['PATH']}")
     tmpdir = subprocess.check_output([jackd, "-l"], env=jack_env, text=True).strip()
     socket = Path(tmpdir) / f"jack-{os.getuid()}" / server
-    command = [str(jackd), "-r", "-n", server, "-d", "dummy", "-r", "48000", "-p", "2048"]
+    command = [str(jackd), "-r", "-n", server, "-d", "dummy", "-r", str(rate), "-p", str(period)]
     with owned(command, work, jack_env, "jackd") as daemon:
         until(lambda: any(path.is_socket() for path in socket.glob("*")), daemon)
         yield server, tmpdir

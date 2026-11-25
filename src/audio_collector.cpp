@@ -16,290 +16,242 @@
 
 #include <config.h>
 #ifdef WITH_AUDIO
-#include <limits.h>
-#include <string.h>
-#include <stdlib.h>
-#include <iostream>
-//#include <sndfile.h>
+#include <algorithm>
+#include <cstring>
+#include <stdexcept>
 #include <audio_collector.h>
 #include <audio_jack.h>
+#include <logging.h>
 
-#include <jutils.h>
+static const int XRanges[NUM_BARS + 1] = {
+  0, 1, 2, 3, 5, 7, 10, 14, 20, 28, 40, 54, 74, 101, 137, 187, 255
+};
 
-static const int MAX_FFT_LENGTH = 4096;
-static int XRanges[NUM_BARS+1] = {0, 1, 2, 3, 5, 7, 10, 14, 20, 28, 40, 54, 74, 101, 137, 187, 255};
-
-FFT::FFT(int length) :
-m_FFTLength(length),
-#ifndef __FFTWFLOAT__
-m_In(new double[length]),
-#else
-m_In(new float[length]),
-#endif
-
-#ifndef __FFTWFLOAT__
-m_Spectrum(new fftw_complex[length])
+static int checked_length(int length)
 {
-	m_Plan = fftw_plan_dft_r2c_1d(m_FFTLength, m_In, m_Spectrum, FFTW_ESTIMATE);
+  if (length <= 0)
+    throw std::invalid_argument("FFT length must be positive");
+  return length;
 }
-#else
-m_Spectrum(new fftwf_complex[length])
+
+static float window_seconds(int length, unsigned int rate)
 {
-	m_Plan = fftwf_plan_dft_r2c_1d(m_FFTLength, m_In, m_Spectrum, FFTW_ESTIMATE);
+  if (!rate)
+    throw std::invalid_argument("sample rate must be positive");
+  return length / static_cast<float>(rate);
 }
+
+FFT::FFT(int length) : m_FFTLength(checked_length(length)), m_In(length),
+#ifndef __FFTWFLOAT__
+  m_Spectrum(new fftw_complex[bins()]),
+  m_Plan(fftw_plan_dft_r2c_1d(length, m_In.data(), m_Spectrum.get(), FFTW_ESTIMATE))
+#else
+  m_Spectrum(new fftwf_complex[bins()]),
+  m_Plan(fftwf_plan_dft_r2c_1d(length, m_In.data(), m_Spectrum.get(), FFTW_ESTIMATE))
 #endif
+{
+  if (!m_Plan)
+    throw std::bad_alloc();
+}
 
 FFT::~FFT()
 {
-	delete[] m_In;
 #ifndef __FFTWFLOAT__
-	fftw_destroy_plan(m_Plan);
+  fftw_destroy_plan(m_Plan);
 #else
-	fftwf_destroy_plan(m_Plan);
+  fftwf_destroy_plan(m_Plan);
 #endif
 }
 
 void FFT::Impulse2Freq(float *imp, float *out)
 {
-  unsigned int i;
-
-  for (i=0; i<m_FFTLength; i++)
-  {
-    m_In[i] = imp[i];
-  }
-
+  std::copy_n(imp, m_FFTLength, m_In.begin());
 #ifndef __FFTWFLOAT__
   fftw_execute(m_Plan);
 #else
   fftwf_execute(m_Plan);
 #endif
-
-  for (i=0; i<m_FFTLength; i++)
-  {
+  for (int i = 0; i < bins(); ++i)
     out[i] = m_Spectrum[i][0];
+}
+
+AudioCollector::AudioCollector(int length, unsigned int rate, JackClient *jack, int)
+  : samplerate(rate), buffersize(length), attached(jack && jack->IsAttached()), Jack(jack),
+    m_Session(attached ? jack->Session() : 0),
+    m_BufferTime(window_seconds(length, rate)), m_FFT(length),
+    m_Pending(length), m_Buffer(length), m_WorkSamples(length), m_AudioBuffer(length), m_FFTBuffer(m_FFT.bins())
+{
+  m_Capture = std::make_shared<AudioCapture>(length);
+  if (attached && jack->m_SampleRate.load()) {
+    samplerate = jack->m_SampleRate.load();
+    m_BufferTime = window_seconds(length, samplerate);
   }
 }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-AudioCollector::AudioCollector(char *port, int n_BufferLength, unsigned int n_Samplerate, int FFTBuffers) :
-m_Gain(1),
-m_SmoothingBias(1.2),
-m_FFT(n_BufferLength),
-m_FFTBuffers(FFTBuffers),
-m_JackBuffer(NULL),
-m_OSSBuffer(NULL),
-m_OneOverSHRT_MAX(1/(float)SHRT_MAX),
-m_Processing(false),
-m_ProcessPos(0),
-m_Buffer(NULL),
-m_AudioBuffer(NULL)
+AudioCollector::AudioCollector(char *port, int length, unsigned int rate, int fft_buffers)
+  : AudioCollector(length, rate, JackClient::Get(), fft_buffers)
 {
-  buffersize = n_BufferLength;
-  samplerate = n_Samplerate;
-	m_BufferTime = buffersize/(float)samplerate;
-	
-	m_Buffer = (float*) malloc(buffersize * sizeof(float));
-	memset(m_Buffer,0,buffersize*sizeof(float));
-	
-	m_FFTBuffer = (float*) malloc(buffersize*m_FFTBuffers*sizeof(float));
-	memset(m_FFTBuffer,0,buffersize*sizeof(float));
-	
-	m_JackBuffer = (float*) malloc(buffersize*sizeof(float));
-	memset(m_JackBuffer,0,buffersize*sizeof(float));
-	
-	m_AudioBuffer = (float*) malloc(buffersize*sizeof(float));
-	memset(m_AudioBuffer,0,buffersize*sizeof(float));
-	
-	m_FFTOutput = new float[NUM_BARS];
-	for (int n=0; n<NUM_BARS; n++) m_FFTOutput[n]=0;
-	
-	m_Mutex = new pthread_mutex_t;
-	pthread_mutex_init(m_Mutex,NULL);
-	
-	Jack = JackClient::Get();
-// 	Jack->SetCallback(AudioCallback,(void*)this);
-	Jack->Attach("freej");
-	if (Jack->IsAttached())
-	{	
-		int id=Jack->AddInputPort();
-// 		Jack->SetInputBuf(id,m_JackBuffer);
-		Jack->ConnectInput(id, port);		//connects output port name passed in param to constructor
-							//to the new Input port created "freej::In0"
-		std::cerr<<"Input port ID "<< id << std::endl;
-	}
-	else
-	{
-	  error("Could not attach to jack");
-	}
-	Jack->m_SampleRate = samplerate;
-	Jack->m_BufferSize = buffersize;
-	attached = true;
-	  
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-AudioCollector::AudioCollector(int n_BufferLength, unsigned int n_Samplerate, JackClient *jack, int FFTBuffers) :
-m_Gain(1),
-m_SmoothingBias(1.2),
-m_FFT(n_BufferLength),
-m_FFTBuffers(FFTBuffers),
-m_JackBuffer(NULL),
-m_OSSBuffer(NULL),
-m_OneOverSHRT_MAX(1/(float)SHRT_MAX),
-m_Processing(false),
-m_ProcessPos(0),
-m_Buffer(NULL),
-m_AudioBuffer(NULL)
-{
-  buffersize = n_BufferLength;
-  samplerate = n_Samplerate;
-  m_BufferTime = buffersize/(float)samplerate;
-	
-  m_Buffer = (float*) malloc(buffersize * sizeof(float));
-  memset(m_Buffer,0,buffersize*sizeof(float));
-	
-  m_FFTBuffer = (float*) malloc(buffersize*m_FFTBuffers*sizeof(float));
-  memset(m_FFTBuffer,0,buffersize*sizeof(float));
-	
-  m_JackBuffer = (float*) malloc(buffersize*sizeof(float));
-  memset(m_JackBuffer,0,buffersize*sizeof(float));
-	
-  m_AudioBuffer = (float*) malloc(buffersize*sizeof(float));
-  memset(m_AudioBuffer,0,buffersize*sizeof(float));
-  
-  Jack = jack;
-  attached = true;
+  if (!attached) {
+    attached = Jack->Attach("freej");
+    m_OwnsConnection = attached;
+  }
+  if (attached) {
+    m_Session = Jack->Session();
+    if (Jack->m_SampleRate.load()) {
+      samplerate = Jack->m_SampleRate.load();
+      m_BufferTime = window_seconds(length, samplerate);
+    }
+    m_InputPort = AddAnalysisInput();
+    if (m_InputPort >= 0) {
+      Jack->ConnectInput(m_InputPort, port);
+    } else {
+      if (m_OwnsConnection) Jack->Detach();
+      attached = false;
+      error("Could not register JACK analysis input");
+    }
+  } else {
+    error("Could not attach to jack");
+  }
 }
 
 AudioCollector::~AudioCollector()
 {
-	if (attached) JackClient::Get()->Detach();
-	if (m_Buffer) free(m_Buffer);
-	if (m_FFTBuffer) free(m_FFTBuffer);
-	if (m_JackBuffer) free(m_JackBuffer);
-	if (m_AudioBuffer) free(m_AudioBuffer);
+  if (m_Worker.joinable()) {
+    m_Stop = true;
+    m_Capture->wake();
+    m_Worker.join();
+  }
+  if (!attached || !Jack || m_Session != Jack->Session()) return;
+  if (m_OwnsConnection)
+    Jack->Detach();
+  else if (m_InputPort >= 0)
+    Jack->RemoveInputPort(m_InputPort);
 }
 
 bool AudioCollector::IsConnected()
 {
-	return JackClient::Get()->IsAttached();
+  return attached && Jack->IsAttached() && Jack->Session() == m_Session;
+}
+
+int AudioCollector::AddAnalysisInput()
+{
+  if (!IsConnected() || m_InputPort >= 0) return m_InputPort;
+  if (!m_Capture->enable_wakeup()) return -1;
+  try {
+    m_Worker = std::thread(&AudioCollector::analysis_loop, this);
+  } catch (const std::system_error &) {
+    return -1;
+  }
+  m_InputPort = Jack->AddInputPort(m_Capture);
+  if (m_InputPort < 0) {
+    m_Stop = true;
+    m_Capture->wake();
+    m_Worker.join();
+    m_Stop = false;
+  }
+  return m_InputPort;
+}
+
+void AudioCollector::SubmitSamples(const float *samples, size_t count)
+{
+  std::lock_guard<std::mutex> analysis(m_AnalysisMutex);
+  while (count) {
+    const size_t n = std::min(count, m_Pending.size() - m_PendingSize);
+    std::copy_n(samples, n, m_Pending.begin() + m_PendingSize);
+    samples += n;
+    count -= n;
+    m_PendingSize += n;
+    if (m_PendingSize == m_Pending.size()) {
+      Bands power;
+      analyze(m_Pending.data(), power);
+      std::lock_guard<std::mutex> lock(m_Mutex);
+      m_Pending.swap(m_Buffer);
+      m_LatestPower = power;
+      m_LatestPosition.generation = m_Capture->generation();
+      m_LatestLive = false;
+      m_PendingSize = 0;
+    }
+  }
+}
+
+void AudioCollector::analysis_loop()
+{
+  while (m_Capture->wait() && !m_Stop.load()) {
+    AudioCapture::Position position;
+    if (!m_Capture->read(m_WorkSamples.data(), position)) continue;
+    Bands power;
+    {
+      std::lock_guard<std::mutex> analysis(m_AnalysisMutex);
+      analyze(m_WorkSamples.data(), power);
+    }
+    std::lock_guard<std::mutex> lock(m_Mutex);
+    m_WorkSamples.swap(m_Buffer);
+    m_LatestPower = power;
+    m_LatestPosition = position;
+    m_LatestLive = true;
+  }
+}
+
+void AudioCollector::analyze(float *samples, Bands &power)
+{
+  m_FFT.Impulse2Freq(samples, m_FFTBuffer.data());
+  for (int band = 0; band < NUM_BARS; ++band) {
+    float sum = 0;
+    const int end = std::min(XRanges[band + 1], m_FFT.bins());
+    for (int bin = XRanges[band]; bin < end; ++bin) sum += m_FFTBuffer[bin];
+    power[band] = sum * sum;
+  }
 }
 
 float AudioCollector::GetHarmonic(int h)
 {
-	return  m_FFTOutput[h%NUM_BARS];
+  const int index = h % NUM_BARS;
+  return m_FFTOutput[index < 0 ? index + NUM_BARS : index];
 }
 
 float *AudioCollector::GetFFT()
 {
-	if (m_Processing)
-	{
-		if (m_ProcessPos+buffersize<m_ProcessLength)
-		{
-			m_FFT.Impulse2Freq(m_ProcessBuffer+m_ProcessPos,m_FFTBuffer);
-			m_ProcessPos+=buffersize;
-		}
-		else
-		{
-			// finished, so clean up...
-			delete[] m_ProcessBuffer;
-			m_ProcessPos=0;
-			m_Processing=false;
-		}
-	}
-	else
-	{
-		pthread_mutex_lock(m_Mutex);
-		jmemcpy((void*)m_AudioBuffer,(void*)m_Buffer,buffersize*sizeof(float));
-		pthread_mutex_unlock(m_Mutex);
-		
-		m_FFT.Impulse2Freq(m_AudioBuffer,m_FFTBuffer);
-	}
-	
-	
-	for (int n=0; n<NUM_BARS; n++)
-	{
-		float Value = 0;
-	 	for (int i=XRanges[n]; i<XRanges[n+1]; i++)
-	 	{			
-			Value += m_FFTBuffer[i];
-		}
-		Value*=Value;
-		Value*=m_Gain*0.025;
-		m_FFTOutput[n]=((m_FFTOutput[n]*m_SmoothingBias)+Value*(1/m_SmoothingBias))/2.0f;
-	}
-	
-	/*for (int n=1; n<NUM_BARS-1; n++)
-	{
-		m_FFTOutput[n]=(m_FFTOutput[n-1]+m_FFTOutput[n]+m_FFTOutput[n+1])/3.0f;
-	} */
-	
-	return m_FFTOutput;
-}
-/*
-void AudioCollector::Process(const string &filename)
-{
-	if (m_Processing) return;
-	
-	SF_INFO info;
-	info.format=0;
-	
-	SNDFILE* file = sf_open (filename.c_str(), SFM_READ, &info) ;
-	if (!file) {
-	  error("Error opening [%s] : %s", filename, sf_strerror(file));
-	}
-	
-	m_ProcessBuffer = new float[info.frames];
-	memset((void*)m_ProcessBuffer,0,info.frames*sizeof(float));
-	m_ProcessLength=info.frames;
-	
-	// mix down to mono if need be
-	if (info.channels>1)
-	{
-		float *Buffer = new float[info.frames*info.channels];
-		sf_readf_float(file,Buffer,info.frames*info.channels);
-		int from=0;
-		for (int n=0; n<info.frames; n++)
-		{
-			for (int c=0; c<info.channels; c++)
-			{
-				m_ProcessBuffer[n]=(m_ProcessBuffer[n]+Buffer[from++])/2.0f;
-			}
-		}
-	}
-	else
-	{
-		sf_readf_float(file, m_ProcessBuffer, info.frames);	
-	}
-	sf_close(file);
-	
-	m_Processing=true;
-	m_ProcessPos=0;
-}
-*/
-   
-void AudioCollector::get_audio(void *dest) {
-  if (!pthread_mutex_trylock(m_Mutex))
-    {
-      jmemcpy(dest, (void*)m_Buffer, buffersize*sizeof(float));
-      pthread_mutex_unlock(m_Mutex);
+  const bool connected = IsConnected();
+  const auto generation = m_Capture->generation();
+  if (generation != m_Position.generation || (m_HasCapture && !connected)) {
+    std::fill_n(m_FFTOutput, NUM_BARS, 0.f);
+    m_Power.fill(0);
+    std::fill(m_AudioBuffer.begin(), m_AudioBuffer.end(), 0.f);
+    m_HasCapture = false;
+    m_Position.generation = generation;
+  }
+  {
+    std::unique_lock<std::mutex> lock(m_Mutex, std::try_to_lock);
+    if (lock && m_LatestPosition.generation == generation && (!m_LatestLive || connected)) {
+      m_Power = m_LatestPower;
+      m_Position = m_LatestPosition;
+      m_HasCapture = m_LatestLive;
+      std::copy(m_Buffer.begin(), m_Buffer.end(), m_AudioBuffer.begin());
+      if (m_HasCapture) {
+        samplerate = m_Position.rate;
+        m_BufferTime = window_seconds(buffersize, samplerate);
+      }
     }
-}
-     
-void AudioCollector::AudioCallback_i(unsigned int Size)
-{
-	if (Size<=buffersize && !pthread_mutex_trylock(m_Mutex))
-	{
-	  jmemcpy((void*)m_Buffer,(void*)m_JackBuffer,buffersize*sizeof(float));
-	  pthread_mutex_unlock(m_Mutex);
-	}
+  }
+  for (int band = 0; band < NUM_BARS; ++band) {
+    float value = m_Power[band];
+    value *= m_Gain * 0.025;
+    m_FFTOutput[band] = ((m_FFTOutput[band] * m_SmoothingBias) +
+                         value * (1 / m_SmoothingBias)) / 2.0f;
+  }
+  return m_FFTOutput;
 }
 
-void AudioCollector::AudioCallback(void *Context, unsigned int Size)
+void AudioCollector::get_audio(void *dest)
 {
-	((AudioCollector*)Context)->AudioCallback_i(Size);
+  const bool connected = IsConnected();
+  std::unique_lock<std::mutex> lock(m_Mutex, std::try_to_lock);
+  if (lock) {
+    if (m_LatestLive && (!connected || m_LatestPosition.generation != m_Capture->generation()))
+      std::memset(dest, 0, m_Buffer.size() * sizeof(float));
+    else
+      std::memcpy(dest, m_Buffer.data(), m_Buffer.size() * sizeof(float));
+  }
 }
 
 #endif

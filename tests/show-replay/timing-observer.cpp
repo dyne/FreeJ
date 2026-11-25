@@ -1,6 +1,7 @@
 // Linux reference timing observer. It leaves the scheduler and routing intact.
 #include "context.h"
 #include "osc_ctrl.h"
+#include <audio_collector.h>
 
 #include <jack/jack.h>
 #include <dlfcn.h>
@@ -14,6 +15,8 @@ static jack_client_t *jack_client = nullptr;
 static JackProcessCallback process_audio = nullptr;
 static void *audio_argument = nullptr;
 static bool pulse_source = false;
+static bool visible_audio = false;
+static const float *source_output = nullptr;
 
 __attribute__((constructor)) static void open_trace()
 {
@@ -24,6 +27,7 @@ __attribute__((constructor)) static void open_trace()
             std::abort();
     }
     pulse_source = std::getenv("FREEJ_TIMING_PULSE_SOURCE") != nullptr;
+    visible_audio = std::getenv("FREEJ_TIMING_VISIBLE_AUDIO") != nullptr;
 }
 
 template<class Function>
@@ -57,9 +61,19 @@ static void event(const char *kind, long long value, long long detail = 0, long 
 extern "C" int SDL_Flip(SDL_Surface *surface)
 {
     static const auto flip = next_symbol<decltype(&SDL_Flip)>("SDL_Flip");
+    int marker = -1;
+    if (visible_audio) {
+        Uint32 pixel;
+        if (surface->w != 80 || surface->h != 60 || surface->format->BytesPerPixel != 4) std::abort();
+        const auto *row = static_cast<const Uint8 *>(surface->pixels) + 16 * surface->pitch;
+        std::memcpy(&pixel, row + 20 * sizeof(pixel), sizeof(pixel));
+        Uint8 r, g, b;
+        SDL_GetRGB(pixel, surface->format, &r, &g, &b);
+        marker = (r << 16) | (g << 8) | b;
+    }
     const auto submitted = monotonic_ns();
     const int result = flip(surface);
-    event("present", result, 0, submitted);
+    event("present", result, visible_audio ? marker : 0, submitted);
     return result;
 }
 
@@ -93,8 +107,12 @@ static int xrun(void *)
 
 static int jack_process(jack_nframes_t frames, void *)
 {
+    const auto begin = monotonic_ns();
     const int result = process_audio(frames, audio_argument);
-    if (pulse_source && result == 0)
+    const auto end = monotonic_ns();
+    if (!pulse_source)
+        event("process-duration", frames, end - begin, end);
+    if (pulse_source && result == 0 && (!visible_audio || (source_output && source_output[0] == 0.5f)))
         event("pulse-source", jack_last_frame_time(jack_client), frames);
     return result;
 }
@@ -116,10 +134,27 @@ extern "C" void *jack_port_get_buffer(jack_port_t *port, jack_nframes_t frames)
 {
     static const auto get = next_symbol<decltype(&jack_port_get_buffer)>("jack_port_get_buffer");
     void *buffer = get(port, frames);
+    if (visible_audio && pulse_source && (jack_port_flags(port) & JackPortIsOutput))
+        source_output = static_cast<float *>(buffer);
+    if (visible_audio && !pulse_source && jack_client && buffer && (jack_port_flags(port) & JackPortIsInput))
+        event("input-period", jack_last_frame_time(jack_client), frames);
     if (trace >= 0 && jack_client && !pulse_source && frames && buffer &&
         (jack_port_flags(port) & JackPortIsInput) &&
         static_cast<const jack_default_audio_sample_t *>(buffer)[0] == 0.5f) {
         event("pulse-capture", jack_last_frame_time(jack_client), frames);
     }
     return buffer;
+}
+
+float *AudioCollector::GetFFT()
+{
+    using Get = float *(*)(AudioCollector *);
+    static auto get = next_symbol<Get>("_ZN14AudioCollector6GetFFTEv");
+    float *bands = get(this);
+    if (visible_audio) {
+        AudioCapture::Position position;
+        if (CapturePosition(position))
+            event("fft-window", position.first, bands[15] > 5);
+    }
+    return bands;
 }

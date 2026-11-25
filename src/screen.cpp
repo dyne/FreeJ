@@ -49,7 +49,7 @@ ViewPort::ViewPort()
   jsobj = NULL;
 
   audio = NULL;
-  m_SampleRate=NULL;
+  m_SampleRate = nullptr;
   indestructible = false;
 #ifdef WITH_AUDIO
   // if compiled with audio initialize the audio data pipe
@@ -168,7 +168,8 @@ bool ViewPort::bind_audio(JackClient *jcl, const Layer &source, int rate, int ch
   std::lock_guard<std::mutex> lock(audio_mutex_);
   if (!jcl || !jcl->IsAttached() || !audio)
     return false;
-  const int output_rate = jcl->m_SampleRate ? jcl->m_SampleRate : rate;
+  const int device_rate = jcl->m_SampleRate.load();
+  const int output_rate = device_rate ? device_rate : rate;
   if (jcl->SetRingbufferPtr(audio, output_rate, channels) != 0)
     return false;
   audio_source_ = &source;

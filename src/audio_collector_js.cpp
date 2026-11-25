@@ -61,6 +61,8 @@ JS(js_audio_jack_constructor) {
   jsint sample, rate;
   sample = js_get_int(argv[1]);
   rate = js_get_int(argv[2]);
+  if (sample <= 0 || rate <= 0)
+    JS_ERROR("AudioJack needs a positive FFT window and sample rate");
   
   AudioCollector *audio = new AudioCollector(port, sample, rate);
 
@@ -161,7 +163,7 @@ JS(js_audio_jack_add_layer) {
    
    AudioCollector *audio = (AudioCollector*)JS_GetPrivate(cx, obj);
    if(!audio) JS_ERROR("Audio core data is NULL");
-   if(!audio->attached) {
+   if(!audio->IsConnected()) {
      error("audio jack is not attached (jack daemon not running?)");
      *rval = JSVAL_FALSE;
      return JS_TRUE;

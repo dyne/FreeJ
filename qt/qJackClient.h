@@ -36,6 +36,8 @@ private:
   bool init();
   JackClient *m_Jack;
   bool m_JackIsOn;
+  bool m_OwnsConnection = false;
+  unsigned m_Session = 0;
   QLineEdit *m_SampleRate;
   QLineEdit *m_Samples;
   int	m_Inputs;
