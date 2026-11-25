@@ -76,13 +76,18 @@ compatibility_show() (
     "$ccache_bin" "$gcc" -O2 -fPIC -I"$work/frei0r/include" \
         -c "$work/frei0r/src/filter/brightness/brightness.c" -o "$build_work/brightness.o"
     "$gcc" -shared "$build_work/brightness.o" -o "$build_work/brightness.so"
-    replay=(env "LD_LIBRARY_PATH=$stage/lib:$LD_LIBRARY_PATH"
-            python3 tests/show-replay/replay.py --freej "$stage/bin/freej"
-            --observer "$build_work/observe.so" --plugin "$build_work/brightness.so" --case video)
-    "${replay[@]}" --output "$out/replay"
+    "$ccache_bin" "$gxx" -std=c++11 -Wall -Wextra -Werror -pthread \
+        -c tests/show-replay/pulse.cpp -o "$build_work/pulse.o"
+    "$gxx" -pthread "$build_work/pulse.o" -ljack -o "$build_work/pulse"
+    LD_LIBRARY_PATH="$stage/lib:$LD_LIBRARY_PATH" python3 tests/native-ci-coverage.py compatibility \
+        --freej "$stage/bin/freej" --observer "$build_work/observe.so" --plugin "$build_work/brightness.so" \
+        --pulse "$build_work/pulse" --jackd "$jackd" --output "$out"
     python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["canonical"])' \
         "$out/replay/video-a/observations.json" > "$out/canonical-frames.txt"
     if [[ $pass == cold ]]; then
+        replay=(env "LD_LIBRARY_PATH=$stage/lib:$LD_LIBRARY_PATH"
+                python3 tests/show-replay/replay.py --freej "$stage/bin/freej"
+                --observer "$build_work/observe.so" --plugin "$build_work/brightness.so" --case video)
         status=0
         "${replay[@]}" --output "$evidence/reordered" --expect-reversed-order \
             > "$evidence/reordered.log" 2>&1 || status=$?
@@ -109,15 +114,12 @@ static_show() (
         --factory "$build_work/factory"
 )
 
-# The runtime daemon is separate from the static client. Debian's JACK 1
-# executable and dummy driver share the same protocol as the pinned archive.
-if [[ $profile == static ]]; then
-    jackd=${FREEJ_CI_JACKD:-/usr/bin/jackd}
-    if [[ $jackd == /usr/bin/jackd ]]; then
-        export JACK_DRIVER_DIR=${JACK_DRIVER_DIR:-/usr/lib/$multiarch/jack}
-    fi
-    test -x "$jackd"
+# Both runtime suites use an external JACK 1 daemon with its dummy driver.
+jackd=${FREEJ_CI_JACKD:-/usr/bin/jackd}
+if [[ $jackd == /usr/bin/jackd ]]; then
+    export JACK_DRIVER_DIR=${JACK_DRIVER_DIR:-/usr/lib/$multiarch/jack}
 fi
+test -x "$jackd"
 cold_cache=$work/cold-ccache
 mkdir -- "$cold_cache"
 # SDK compilation can use the remote cache. The cold FreeJ build always uses
@@ -169,6 +171,7 @@ for pass in cold warm; do
             fi
         fi
     done
+    echo 'CLI and Qt built, staged and passed link audits.' > "$out/compile-outcome.txt"
     if [[ $profile == static ]]; then
         cp -- "$build_work/build/src/freej.map" "$out/freej.map"
         static_show 2>&1 | tee "$out/show.log"
@@ -176,6 +179,7 @@ for pass in cold warm; do
         compatibility_show 2>&1 | tee "$out/show.log"
     fi
     grep -E '^[0-9]+ executed, 0 failed, 0 skipped$' "$out/show.log" | tee -a "$out/checks.txt"
+    python3 tests/native-ci-coverage.py report "$profile" "$out" | tee "$out/coverage.md"
     ccache --print-stats > "$out/ccache.tsv"
     ccache --show-stats | tee "$out/ccache.txt"
     if [[ $pass == cold ]]; then
@@ -186,6 +190,7 @@ done
 
 cmp "$evidence/cold/capabilities.txt" "$evidence/warm/capabilities.txt"
 cmp "$evidence/cold/checks.txt" "$evidence/warm/checks.txt"
+cmp "$evidence/cold/coverage.md" "$evidence/warm/coverage.md"
 if [[ $profile == compatibility ]]; then
     cmp "$evidence/cold/canonical-frames.txt" "$evidence/warm/canonical-frames.txt"
 fi

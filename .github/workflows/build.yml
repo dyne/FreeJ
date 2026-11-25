@@ -115,6 +115,13 @@ jobs:
             printf '## Linux amd64 %s\n\n' "$PROFILE"
             printf "Checkout \`%s\` · run \`%s\` · attempt \`%s\`\n\n" "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT"
             printf "SDK cache exact hit \`%s\` · local build and runtime gates \`%s\`\n\n" "${CACHE_HIT:-false}" "$GATE_OUTCOME"
+            for trial in cold warm; do
+              if [[ -f "$FREEJ_CI_EVIDENCE/$trial/compile-outcome.txt" ]]; then
+                printf '%s build: ' "$trial"
+                cat "$FREEJ_CI_EVIDENCE/$trial/compile-outcome.txt"
+                printf '\n'
+              fi
+            done
             if [[ -f "$FREEJ_CI_EVIDENCE/cache-comparison.txt" ]]; then
               cat "$FREEJ_CI_EVIDENCE/cache-comparison.txt"
               printf "\nCapabilities: \`%s\`\n\n" "$(cat "$FREEJ_CI_EVIDENCE/warm/capabilities.txt")"
@@ -122,6 +129,14 @@ jobs:
               cat "$FREEJ_CI_EVIDENCE/warm/checks.txt" "$FREEJ_CI_EVIDENCE/warm/binaries.sha256"
               printf "\`\`\`\n\n"
             fi
+            for trial in warm cold; do
+              if [[ -f "$FREEJ_CI_EVIDENCE/$trial/coverage.md" ]]; then
+                printf 'Completed runtime coverage (%s trial)\n\n' "$trial"
+                cat "$FREEJ_CI_EVIDENCE/$trial/coverage.md"
+                printf '\n'
+                break
+              fi
+            done
             if [[ -n "$ARTIFACT_ID" ]]; then
               printf "[Artifact %s](%s), SHA-256 \`%s\`\n" "$ARTIFACT_ID" "$ARTIFACT_URL" "$ARTIFACT_DIGEST"
             fi
