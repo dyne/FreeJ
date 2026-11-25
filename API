@@ -1,6 +1,11 @@
 
 === FreeJ API
 
+For a source-checked map of the current engine, ownership, build dependencies
+and proposed extraction boundaries, see doc/architecture.md. The historical
+overview below is retained; its threading and feed descriptions are not a
+synchronization contract.
+
 In this document i try to summarize the internal organization of FreeJ API
 how things are distributed and which functions are more useful to operate.
 
