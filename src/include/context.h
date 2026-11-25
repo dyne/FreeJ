@@ -66,6 +66,7 @@ template <class T> class Linklist;
 class Context {
  private:
   static bool factory_initialized;
+  bool initialized;
   /* doublesize calculation */
   uint64_t **doubletab;
   Uint8 *doublebuf;

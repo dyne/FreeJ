@@ -5,6 +5,8 @@ This recipe reproduces the assertion-enabled FreeJ 1.0 reference on Debian 13
 from 2013 and is intended for historical comparison.
 See the [capability ledger](capabilities.md) for working paths, runtime
 resources and historical limitations.
+See the [native dependency map](native-dependencies.md) for exact archive
+inputs and individual link checks.
 
 The recorded environment used Autoconf 2.72, Automake 1.17, Libtool 2.5.4,
 binutils 2.44, Make 4.4.1, pkgconf 1.8.1, Python 3.13, Perl 5.40 and glibc 2.41.
@@ -72,7 +74,8 @@ with status 1 when the startup script sets `freej->quit`, as handled in
 0 after confirming that child status, script and effect markers, the
 expected pixels, and 0.85–2.50 seconds of frame pacing without a timeout.
 
-Use assertions for reference shows. With `-DNDEBUG`, the existing
-`Context::Context` assertion removes the call to `Context::init()`, and
-JavaScript startup fails. Test actual JACK, MIDI and capture hardware
-separately from the Xvfb reference.
+Use assertions when reproducing the original reference commit. In that
+revision, `-DNDEBUG` removed the constructor's call to `Context::init()`
+and JavaScript startup failed. The current native profiles exercise startup
+with `-DNDEBUG`. See [native profiles](native-profiles.md) for those checks.
+Test actual JACK, MIDI and capture hardware separately from the Xvfb reference.

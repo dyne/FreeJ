@@ -1,0 +1,27 @@
+# SHA256 and URL for the Linux static stage display and SDK support inputs.
+0710566cfa9d5d3b14f889cd60e02debd92bae2b831144460b1f952b096b7878 https://deb.debian.org/debian/pool/main/q/qtbase-opensource-src/qtbase-opensource-src_5.15.15+dfsg.orig.tar.xz
+d364cded8bf41f3f503014d3fb6473f1a7077ff468da1638dae4a6bec6ef2277 https://deb.debian.org/debian/pool/main/libs/libsdl2/libsdl2_2.32.4+dfsg.orig.tar.gz
+22c83f0579dac10ff4583c31d0997097cfb4bc3ea8682eb75dafe35ae8251aea https://deb.debian.org/debian/pool/main/libs/libsm/libsm-dev_1.2.6-1_amd64.deb
+cd4dceeb1afbb75c00df04be44ff117da8861a4c8e6ab45126baf3a78ebf1a24 https://deb.debian.org/debian/pool/main/libi/libice/libice-dev_1.1.1-1_amd64.deb
+cb7d7db20e5d91193c2c6629a3f4aa917e3bc558c72b7f2db7203bcfa9a3ba1b https://deb.debian.org/debian/pool/main/u/util-linux/uuid-dev_2.41.5-0+deb13u1_amd64.deb
+fe94ed66787241aae303cf3a1d790c309e97eb3a5977d6c6c248db2f25a27f07 https://deb.debian.org/debian/pool/main/libx/libxcb/libxcb-glx0-dev_1.17.0-2+b1_amd64.deb
+e6aa6a5e7b1679502b2820c0e028b2a4ab603913ec0a1692d363bb257f2ca486 https://deb.debian.org/debian/pool/main/x/xcb-util-wm/libxcb-icccm4-dev_0.4.2-1_amd64.deb
+65af67ee9ba98021dabf9c3f02cb9dc2f15f6c298b20d3f5cb3b225ecd352b71 https://deb.debian.org/debian/pool/main/x/xcb-util-image/libxcb-image0-dev_0.4.0-2+b2_amd64.deb
+7d4d4ca5fded9fc8368b4a95dd26897cd295c1216ec3a2c325f43e9650a06a16 https://deb.debian.org/debian/pool/main/x/xcb-util-keysyms/libxcb-keysyms1-dev_0.4.1-1_amd64.deb
+5f2e27d6d79c82689e652f60a09f52022196242292abc15e4e3a0ef55c429b15 https://deb.debian.org/debian/pool/main/libx/libxcb/libxcb-randr0-dev_1.17.0-2+b1_amd64.deb
+f1d6f68be34c193cc6bc730d2501d8def8d4227a5cabd03d9329df8c4708fd6a https://deb.debian.org/debian/pool/main/x/xcb-util-renderutil/libxcb-render-util0-dev_0.3.10-1_amd64.deb
+28e12725fa7fa8905199a21fa227ee068332c1259f1c6e8371dff7d917b8ad96 https://deb.debian.org/debian/pool/main/libx/libxcb/libxcb-shape0-dev_1.17.0-2+b1_amd64.deb
+5ac93aa77d9c39145de0898c0bd19a400efce070f14fab906d506106730c2a3d https://deb.debian.org/debian/pool/main/libx/libxcb/libxcb-sync-dev_1.17.0-2+b1_amd64.deb
+3b6ca65d5ab9c6049d4aae731f93302fefafe8dd3de601b78b9dcfb59a63f2db https://deb.debian.org/debian/pool/main/libx/libxcb/libxcb-xfixes0-dev_1.17.0-2+b1_amd64.deb
+ba228b7b9170b85c8738aca88330dbb5219374ef3fc2f8e4048460faf956d776 https://deb.debian.org/debian/pool/main/libx/libxcb/libxcb-xinerama0-dev_1.17.0-2+b1_amd64.deb
+0567db94ca45a64c7bd0c26376c2b45b2c467272eac58373888d9ec3bc9151fb https://deb.debian.org/debian/pool/main/libx/libxcb/libxcb-xkb-dev_1.17.0-2+b1_amd64.deb
+7acda59e92391f7f8e604d17e72bacf9672cd50d94b386a632a7880f853096c2 https://deb.debian.org/debian/pool/main/libx/libxcb/libxcb-xinput-dev_1.17.0-2+b1_amd64.deb
+3d19fbd16d2e9f28ad6623ca97900ad76cde456c0105301089316c85db758a3e https://deb.debian.org/debian/pool/main/x/xcb-util/libxcb-util-dev_0.4.1-1_amd64.deb
+57f2fc575496edc9f3dd286423494499d231a8b1cdb417bb8401f6b66b584a26 https://deb.debian.org/debian/pool/main/libx/libxcursor/libxcursor-dev_1.2.3-1_amd64.deb
+be3ca6202327858845aa0a8d70374b08dae5c89250ad8997256e02b2833501d3 https://deb.debian.org/debian/pool/main/libx/libxi/libxi-dev_1.8.2-1_amd64.deb
+1070e0721765992c5355a9585f6eae9e0d11437a7d2b4a2c28123e6e5b0c0b2f https://deb.debian.org/debian/pool/main/libx/libxfixes/libxfixes-dev_6.0.0-2+b4_amd64.deb
+e408e4f8c77135725e9055d445635587225839a929d348c04b85adfa84bdefb1 https://deb.debian.org/debian/pool/main/libx/libxrandr/libxrandr-dev_1.5.4-1+b3_amd64.deb
+81d21bf2c9afff27392faba0d52d4b0dec7246f6146eaa05e7c461be620b21cc https://deb.debian.org/debian/pool/main/libx/libxss/libxss-dev_1.2.3-1+b3_amd64.deb
+ce6eb1f7aad18850e32d223a68f54bcbe756d74f138c8ec5460ad9d220f4d335 https://deb.debian.org/debian/pool/main/b/bison/bison_3.8.2+dfsg-1+b2_amd64.deb
+cae290b67cf835350a2cde58ca332256fba475784b3e02a9a8677d73eaf47511 https://deb.debian.org/debian/pool/main/s/strace/strace_6.13+ds-1_amd64.deb
+65782f0a10a4b455af9c6baab7040e2f537520caa2ec2092805cdfd36863b247 https://deb.debian.org/debian/pool/main/libx/libxkbcommon/libxkbcommon_1.7.0.orig.tar.xz

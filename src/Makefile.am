@@ -70,8 +70,32 @@ JS_SOURCES = 	context_js.cpp  \
 lib_LTLIBRARIES = libfreej.la
 libfreej_la_SOURCES = $(SOURCES) $(JS_SOURCES)
 libfreej_la_LIBADD  = $(FREEJ_STATIC_LIBS)
-libfreej_la_LDFLAGS = $(FREEJ_LIBS) -version-info $(FREEJ_VERSION_INFO)
 
 bin_PROGRAMS = freej
 freej_SOURCES = freej.cpp
+
+if FREEJ_STATIC_PROFILE
+libfreej_la_SOURCES += static_loader.cpp
+libfreej_la_LDFLAGS = -static -version-info $(FREEJ_VERSION_INFO)
+freej_LDFLAGS = -static -Wl,-Map,freej.map $(FREEJ_STATIC_LOADER_FLAGS)
+freej_LINK = $(CXX) $(AM_CXXFLAGS) $(CXXFLAGS) $(freej_LDFLAGS) $(LDFLAGS) -o $@
+freej_DEPENDENCIES = libfreej.la $(MOZJS_LIBS) $(FREEJ_STATIC_ARCHIVES)
+freej_LDADD = $(FREEJ_STATIC_CLI_LIBS)
+
+install-data-local:
+	$(MKDIR_P) "$(DESTDIR)$(libdir)/freej-sdk"
+	$(INSTALL_DATA) $(MOZJS_LIBS) "$(DESTDIR)$(libdir)/freej-sdk/libfreej-mozjs.a"
+	for archive in $(FREEJ_STATIC_ARCHIVES); do \
+		$(INSTALL_DATA) "$$archive" "$(DESTDIR)$(libdir)/freej-sdk" || exit $$?; \
+	done
+
+uninstall-local:
+	rm -f "$(DESTDIR)$(libdir)/freej-sdk/libfreej-mozjs.a"
+	for archive in $(FREEJ_STATIC_ARCHIVES); do \
+		rm -f "$(DESTDIR)$(libdir)/freej-sdk/$${archive##*/}" || exit $$?; \
+	done
+else
+libfreej_la_LDFLAGS = $(FREEJ_LIBS) -version-info $(FREEJ_VERSION_INFO)
+freej_LINK = $(CXXLINK)
 freej_LDADD = libfreej.la $(X11_LIBS)
+endif

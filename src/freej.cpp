@@ -27,6 +27,7 @@
 #include <dirent.h>
 #include <assert.h>
 #include <errno.h>
+#include <exception>
 
 #include <context.h>
 
@@ -311,7 +312,12 @@ int main (int argc, char **argv) {
   Layer *lay = NULL;
   ConsoleController *con = NULL;
   
-  freej = new Context();
+  try {
+    freej = new Context();
+  } catch (const std::exception& failure) {
+    error("%s", failure.what());
+    return 1;
+  }
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);
   act("2001-2009 RASTASOFT :: %s", PACKAGE_URL);
