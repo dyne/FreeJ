@@ -1,8 +1,5 @@
 #!/bin/sh
 
-
-autoheader
-aclocal -I m4
-automake -a -c
-libtoolize
-autoconf
+CDPATH='' cd -- "$(dirname -- "$0")" || exit
+# Automake's forced install would replace the project's INSTALL document.
+exec autoreconf -iv

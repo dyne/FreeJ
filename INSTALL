@@ -65,6 +65,9 @@ dpkg-buildpackage -rfakeroot
 :: INSTALL FROM GIT REPOSITORY
    (only for developers, skilled users, full code alchemists)
 
+For the historical Linux amd64 reference with pinned compiler and SDKs, see
+doc/legacy-reference.md.
+
 Assuming you have Debian/Ubuntu (for other distro there can be some
 differences), with all tools needed and all developers lib installed 
 (e.g. build-essential, the libs above etc.:

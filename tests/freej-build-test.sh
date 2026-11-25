@@ -1,62 +1,54 @@
 #!/bin/sh
+set -eu
 
-set -e
-set -x
+# Build a disposable copy of this checkout, including unignored local files.
+repo=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd -P)
+work=$(mktemp -d "${TMPDIR:-/tmp}/freejbuild.XXXXXXXXXX")
+printf 'Build artifacts and logs: %s\n' "$work"
 
-# Freej build-system test example
+source=$work/source
+build=$work/build
+prefix=$work/install
+stage=$work/stage
+dist=$work/dist
+mkdir "$source" "$build" "$prefix" "$stage" "$dist"
+git -C "$repo" archive --format=tar HEAD > "$work/source.tar"
+git -C "$repo" diff --binary HEAD -- > "$work/source.diff"
+git -C "$repo" ls-files --others --exclude-standard -z > "$work/source-untracked"
+tar -xf "$work/source.tar" -C "$source"
+if test -s "$work/source.diff"; then
+    (cd "$source" && git apply "$work/source.diff")
+fi
+if test -s "$work/source-untracked"; then
+    tar -C "$repo" --null -T "$work/source-untracked" -cf "$work/source-untracked.tar"
+    tar -xf "$work/source-untracked.tar" -C "$source"
+fi
 
-REPO=ssh://git@code.dyne.org/freej.git
-# avoid remote cloning
-#REPO=/path/to/local/repo
+"$source/autogen.sh"
+cmp "$repo/INSTALL" "$source/INSTALL"
+cd "$build"
+if "$source/configure" --enable-debug --disable-cpuflags "$@" --prefix="$prefix"; then
+    :
+else
+    status=$?
+    printf 'Configure log: %s\n' "$build/config.log" >&2
+    if test -f "$build/lib/javascript/config.log"; then
+        printf 'SpiderMonkey configure log: %s\n' "$build/lib/javascript/config.log" >&2
+    fi
+    exit "$status"
+fi
 
-CONFIGURE_FLAGS="--enable-debug --disable-cpuflags --enable-python --enable-ruby"
-
-BASE=`mktemp --tmpdir=/tmp -d freejbuild.XXXXXXXXX`
-
-GIT=`mktemp --tmpdir=$BASE -d git.XXXXX`
-BUILD=`mktemp --tmpdir=$BASE -d build.XXXXX`
-INST=`mktemp --tmpdir=$BASE -d inst.XXXXX`
-DIST=`mktemp --tmpdir=$BASE -d dist.XXXXX`
-BUILD_DIST=`mktemp --tmpdir=$BASE -d build_dist.XXXXX`
-INST_DIST=`mktemp --tmpdir=$BASE -d inst_dist.XXXXX`
-DESTDIR=`mktemp --tmpdir=$BASE -d destdir.XXXXX`
-
-# Start from scratch
-git clone $REPO $GIT
-
-# Build in a directory different from sources
-cd $BUILD
-srcdir=$GIT $GIT/autogen.sh
-$GIT/configure $CONFIGURE_FLAGS --prefix=$INST
 make
-
-# Install into an empty directory
+make check
 make install
+make install DESTDIR="$stage"
 
-# Install into an arbitrary directory
-make install DESTDIR=$DESTDIR
-
-# Create distribution tarball and check it
-make dist
-PACKAGE=`grep '^PACKAGE\>' Makefile | cut -d ' ' -f 3`
-VERSION=`grep '^VERSION\>' Makefile | cut -d ' ' -f 3`
-tar xzf ${PACKAGE}-${VERSION}.tar.gz -C $DIST
-
-# XXX(godog): make distcheck
-# XXX(godog): diff -urN $INST $DESTDIR should return nothing!
-
-# XXX(godog) compare file lists, does this have any sense instead of diff -Naur | lsdiff ?
-# tar tzf ${PACKAGE}-${VERSION}.tar.gz | cut -d/ -f2- | sort | uniq | sed 's|/$||' > /tmp/dist.freej
-# make distclean
-# cd $GIT && make distclean && find . -path ./.git -prune -o -print | cut -d/ -f2- | sort | uniq > /tmp/git.freej
-# meld /tmp/dist.freej /tmp/git.freej
-
-cd $BASE
-echo Directories are:
-echo git      = $GIT
-echo build    = $BUILD
-echo inst     = $INST
-echo dist     = $DIST
-echo destdir  = $DESTDIR
-echo
-echo Please check everything has been installed and included in the tarball
+make dist-gzip
+set -- ./*.tar.gz
+test "$#" -eq 1
+test -f "$1"
+tar -xzf "$1" -C "$dist"
+archive=${1#./}
+cmp "$repo/INSTALL" "$dist/${archive%.tar.gz}/INSTALL"
+printf 'Installed prefix: %s\nStaged prefix: %s\nDistribution: %s\n' \
+    "$prefix" "$stage$prefix" "$dist"
