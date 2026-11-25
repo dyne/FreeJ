@@ -6,8 +6,9 @@ existing effect directories for frei0r and FreeFrame.
 
 `--with-native-profile=static` selects the Linux archive build. It links
 the engine, CLI and Qt/XCB frontend with their selected static libraries.
-The early static build starts with an empty effect registry. Built-in effects
-will use the same host when the frei0r integration lands.
+The frei0r bundle registers the built-in effects Brightness, Invert0r, and
+onecol0r at startup. Both profiles use the same frei0r instance host and keep
+the effect names used in shows.
 
 Configure prints the enabled selections and exports them through the installed
 `freej.pc`. The engine reports the same selections at startup. Qfreej uses
@@ -32,6 +33,9 @@ tests/movie-linux-sdk.sh compatibility "$work/movie-compat"
 tests/movie-linux-sdk.sh static "$work/movie-static"
 python3 tests/native-linux-archives.py "$archives" --reference-sdk "$legacy"
 python3 tests/native-static-sdk.py "$native" --archive-sdk "$archives" --reference-sdk "$legacy"
+read -r _ frei0r_url < <(tail -n 1 tests/native-ci.lock)
+curl -fL "$frei0r_url" -o "$work/frei0r.tar.gz"
+tests/frei0r-linux-sdk.sh "$work/frei0r.tar.gz" "$work/effects"
 ```
 
 Both profiles use [FFmpeg 7.1.5](https://ffmpeg.org/releases/ffmpeg-7.1.5.tar.xz)
@@ -58,7 +62,7 @@ The SDK retains source notices, lock inputs and build trees in its working
 directory. Qt's license files are in the Qt source directory.
 
 The static configure step validates the archive paths and verifies a
-static link using SDL, FFmpeg, JACK and samplerate. It refuses the SDL wrapper that
+static link using SDL, FFmpeg, frei0r, JACK and samplerate. It refuses the SDL wrapper that
 loads shared SDL2 and the JACK client that shells out to locate its runtime
 directory. Explicit shared-object loading fails in the static application.
 Supported optional selections such as AAlib and CWiid require their corresponding
@@ -93,7 +97,8 @@ for modules in "$archives"/prefixes/*/lib/pkgconfig; do
 done
 mkdir "$work/no-host-pkgconfig"
 PKG_CONFIG_LIBDIR="$work/no-host-pkgconfig" \
-    tests/freej-build-test.sh --enable-static-mozjs --with-native-profile=static --with-native-sdk="$native"
+    tests/freej-build-test.sh --enable-static-mozjs --with-native-profile=static \
+        --with-native-sdk="$native" --with-frei0r-bundle="$work/effects"
 ```
 
 Set `compat_prefix` and `static_prefix` to the respective installed prefixes.
@@ -130,11 +135,11 @@ effect modules.
 
 Build the factory consumer using the installed package flags. It exercises
 registration from the archive and attaches to a running JACK server. The
-runtime check starts Xvfb and a separate JACK 1 dummy server, observes
-the rendered image and both mapped Qt/SDL windows, and checks that each
-host initializes its engine once. It restricts the static processes to
-the runtime resources, with no library tree or plugin directories. Linux
-Landlock and `strace` provide the file-access check.
+runtime check starts Xvfb and a separate JACK 1 dummy server, observes the
+rendered image and built-in effect frames, and checks that each host initializes
+its engine once. The Qt check drives **File → Run js** through X11 using
+`libXtst.so.6`. Linux Landlock restricts the staged processes to runtime
+resources in an empty effects prefix. `strace` checks their file accesses.
 
 Set `jackd` to a JACK 1 installation with the dummy driver and a writable
 socket directory with a short Unix socket path. Set `tracer` to a `strace`
@@ -160,5 +165,5 @@ alongside the Qt and installed-consumer maps and the runtime driver's
 `readelf` output and file traces. The checks use X11 and JACK software
 endpoints. Physical MIDI, joystick, capture and audio devices need their
 respective rigs. glibc's NSS configuration and any external ALSA or OpenSSL
-providers remain runtime inputs. The static image and GUI fixture covers
-their behavior during the observed startup, image and JACK paths.
+providers remain runtime inputs. The runtime fixture covers their behavior
+during the observed startup, image, effects and JACK paths.

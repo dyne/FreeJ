@@ -44,6 +44,8 @@ def report(args):
     required = {"sdl", "image", "javascript", "jack"}
     if args.profile == "compatibility":
         required.update(("osc", "fft", "frei0r-directory"))
+    else:
+        required.add("frei0r-builtin")
     if missing := sorted(required - capabilities):
         raise ValueError(f"replay capabilities absent: {', '.join(missing)}")
     disabled = [backend for backend in OPTIONAL_BACKENDS if backend not in capabilities]
@@ -59,11 +61,11 @@ def report(args):
         print("- Reset: reset path and return observed. The target script remains unevaluated.")
     else:
         log = (work / "show.log").read_text().splitlines()
-        if [line for line in log if line.startswith("PASS ")] != ["PASS cli", "PASS factory", "PASS qt"]:
+        if [line for line in log if line.startswith("PASS ")] != ["PASS cli", "PASS cli-effects", "PASS factory", "PASS qt"]:
             raise ValueError("unexpected static runtime outcomes")
-        print("- Staged CLI and Qt/XCB: image shown and windows mapped on Xvfb.")
+        print("- Staged CLI and Qt/XCB: built-in effects rendered on Xvfb with zero external effect lookups.")
         print("- Installed factory: JACK dummy connection at 48 kHz / 2,048 frames.")
-        print("- OSC and PCM observer fixtures: compatibility job only. Static built-in effects remain a later gate.")
+        print("- OSC and PCM observer fixtures: compatibility job only.")
     print(f"- Disabled backends: {', '.join(disabled) if disabled else 'none'}.")
     print("- Physical display present-to-photon, display input and fullscreen, audio loopback and A/V sync, "
           "V4L2/camera and DV capture, physical MIDI/joystick/Wii/ViMo controls: rig checks pending.")

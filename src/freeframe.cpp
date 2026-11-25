@@ -47,30 +47,11 @@
 
 FACTORY_REGISTER_INSTANTIATOR(Filter, Freeframe, FreeframeFilter, core);
 
-Freeframe::Freeframe() 
-  : Filter() 
-{ 
-
-  handle = NULL;
-  opened = false;
-
-
-  set_name((char*)info->pluginName);
-
-  // init freeframe filter
-  if(plugmain(FF_INITIALISE, NULL, 0).ivalue == FF_FAIL)
-    error("cannot initialise freeframe plugin %s",name);
-
-  if(get_debug()>2)
-    print_info();
-
-}
+Freeframe::Freeframe() : info(nullptr), opened(false), plugmain(nullptr), handle(nullptr) {}
 
 Freeframe::~Freeframe() {
-
-  if(handle)
-      dlclose(handle);
-
+  if (opened) plugmain(FF_DEINITIALISE, nullptr, 0);
+  if (handle) dlclose(handle);
 }
 
 void Freeframe::init_parameters(Linklist<Parameter> &parameters) {
@@ -79,7 +60,7 @@ void Freeframe::init_parameters(Linklist<Parameter> &parameters) {
 }
 
 int Freeframe::open(char *file) {
-  plugMainType *plgMain;
+  plugMainType *plgMain = nullptr;
 
   if(opened) {
     error("Freeframe object %p has already opened file %s",this, filename);
@@ -90,16 +71,17 @@ int Freeframe::open(char *file) {
   dlerror();
 
   // Create dynamic handle to the library file.
-  if(strstr(file, ".frf")) {
 #ifdef HAVE_DARWIN
+  if(strstr(file, ".frf")) {
       CFStringRef filestring = CFStringCreateWithCString(NULL, file, kCFStringEncodingUTF8);
       CFURLRef filepath = CFURLCreateWithFileSystemPath(NULL, filestring, kCFURLPOSIXPathStyle, 1);;
       CFBundleRef bundle = CFBundleCreate(NULL, filepath);
       plgMain = (plugMainUnion (*)(DWORD, void*, DWORD))CFBundleGetFunctionPointerForName(bundle, CFSTR("plugMain"));
       CFRelease(filestring);
       CFRelease(filepath);
+  } else
 #endif
-  } else {
+  {
       dlerror(); //clear up previous errors 
 #if 0
       if (!dlopen_preflight(file)) {
@@ -125,36 +107,22 @@ int Freeframe::open(char *file) {
 
   }
   
-  /// WARNING:  if  compiled  without  -freg-struct-return  this  will
-  /// return an invalid address ...
-  PlugInfoStruct *pis = (plgMain(FF_GETINFO,NULL, 0)).PISvalue;
-
-  //  func("freeframe plugin: %s",pis->pluginName);
-  // ... and here will segfault
-  if ((plgMain(FF_GETPLUGINCAPS,
-		(LPVOID) FF_CAP_32BITVIDEO, 0)).ivalue != FF_TRUE) {
-    func("plugin %s: no 32 bit support", file);
-    dlclose(handle);
-    handle = NULL;
+  if (!plgMain) return 0;
+  PlugInfoStruct *pis = plgMain(FF_GETINFO, nullptr, 0).PISvalue;
+  if (!pis || pis->APIMajorVersion < 1 ||
+      plgMain(FF_GETPLUGINCAPS, (LPVOID)FF_CAP_32BITVIDEO, 0).ivalue != FF_TRUE ||
+      plgMain(FF_INITIALISE, nullptr, 0).ivalue == FF_FAIL) {
+    if (handle) dlclose(handle);
+    handle = nullptr;
     return 0;
   }
- 
-  if (pis->APIMajorVersion < 1) {
-    error("plugin %s: old api version", file);
-    dlclose(handle);
-    handle = NULL;
-    return 0;
-  }
-
-  // init is called by Filter class
-  //   (plgMain(FF_INITIALISE, NULL, 0)).ivalue {
 
   info = pis;
-  //  extinfo = plgMain(FF_GETEXTENDEDINFO, NULL, 0)
   plugmain = plgMain;
   opened = true;
-  snprintf(filename,255,"%s",file);
-
+  snprintf(filename, sizeof(filename), "%s", file);
+  snprintf(name, sizeof(name), "%.*s", int(sizeof(info->pluginName)), info->pluginName);
+  if (get_debug() > 2) print_info();
   return 1;
 
 }
@@ -181,11 +149,17 @@ bool Freeframe::apply(Layer *lay, FilterInstance *instance)
         error("Filter %s cannot be instantiated", name);
         return false;
     }
-    return Filter::apply(lay, instance);
+    instance->freeframe_active_ = true;
+    if (Filter::apply(lay, instance)) return true;
+    destruct(instance);
+    return false;
 }
 
 void Freeframe::destruct(FilterInstance *inst) {
-    plugmain(FF_DEINSTANTIATE, NULL, inst->intcore);
+    if (inst->freeframe_active_) {
+        plugmain(FF_DEINSTANTIATE, nullptr, inst->intcore);
+        inst->freeframe_active_ = false;
+    }
 }
 
 void Freeframe::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {

@@ -14,8 +14,9 @@ compiler objects under a Debian version, architecture, compiler, profile and
 lock/recipe key. Each job starts a separate empty compiler cache for the FreeJ
 cold build, then repeats the build with that cache populated. Both passes build
 in a clean tree, run `make check`, stage FreeJ and Qfreej, audit the binaries,
-and run the profile's show. The comparison checks capability selection and
-executed checks, plus canonical frame hashes in the compatibility profile.
+and run the profile's show. The comparison checks capability selection,
+executed checks, and frei0r frame bytes. Compatibility also compares the
+canonical replay frames.
 The warm run must record compiler cache hits. The archive and each staged
 binary have individual SHA-256 digests.
 
@@ -27,11 +28,13 @@ FreeJ's JACK input, then checks the historical 25 windows of 16 zero-valued FFT
 bands. JS callbacks still fail and the capture-to-FFT path remains silent.
 These checks leave OSC-to-visible and audio-to-visible response unmeasured.
 
-The static profile checks the installed image show and Qt/XCB startup on Xvfb,
-and connects an installed factory consumer to a separate JACK dummy daemon.
-The preload observer runs in the compatibility profile. The static profile's
-built-in effects arrive with the frei0r integration. Scope and known historical
-limitations are linked in the [capability ledger](capabilities.md).
+The static profile renders an image and a built-in effects show in the installed
+CLI, runs the effects show through the installed Qt/XCB frontend on Xvfb, and
+connects an installed factory consumer to a separate JACK dummy daemon. ELF and
+file-access checks cover the isolated stage. The parity job compares the two
+profiles' digests for the same 24 frames, using the pinned native modules and
+built-in archive. The [capability ledger](capabilities.md) records the historical
+reference.
 
 Each profile uploads its own artifact named with the checkout SHA, run ID and
 attempt. It contains the warm `stage.tar.gz`, SDK build logs, cold and warm
@@ -63,7 +66,9 @@ tests/native-ci-run.sh "$profile" "$scratch/sdk" "$scratch/evidence"
 Both runs need a JACK 1 daemon with a dummy driver, a writable daemon socket
 directory, and Xvfb. The static runtime file audit also needs Linux Landlock
 and ptrace support. `FREEJ_CI_JACKD` can point to a separate JACK installation.
+The static Qt runtime check uses `libXtst.so.6` to drive the File menu on Xvfb.
 The build recipes default to four make jobs. Set `FREEJ_CI_JOBS` to adjust this.
+After both runs, compare their `evidence/warm/frei0r-frames.bin` files with `cmp`.
 
 ## Collect evidence on a trusted Linux rig
 

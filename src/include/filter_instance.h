@@ -26,6 +26,7 @@
 #include <parameter.h>
 #include <linklist.h>
 #include <stdint.h>
+#include <memory>
 #include <factory.h>
 
 class Filter;
@@ -71,6 +72,14 @@ class FilterInstance : public Entry {
   Layer *layer;
   uint16_t frame_width_ = 0;
   uint16_t frame_height_ = 0;
+
+  friend class Freior;
+  friend class GeneratorLayer;
+  friend class CVF0rLayer;
+  bool allocate_output(size_t bytes);
+  bool freeframe_active_ = false;
+  std::shared_ptr<Filter> prototype_owner_;
+  uint32_t *frei0r_input_ = nullptr;
 
   FACTORY_ALLOWED
 };

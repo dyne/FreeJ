@@ -10,8 +10,9 @@ AM_CPPFLAGS = -I$(top_srcdir)/src/include \
 
 noinst_HEADERS = testClosure.h
 
-check_PROGRAMS = cxxtests frame-step-test lifetime-test movie-replay-test jack-output-contention-test audio-collector-test jack-capture-test
-TESTS = $(check_PROGRAMS) show-replay/test_timing.py
+native_test_programs = cxxtests frame-step-test lifetime-test movie-replay-test jack-output-contention-test audio-collector-test jack-capture-test
+check_PROGRAMS = $(native_test_programs)
+TESTS = $(native_test_programs) show-replay/test_timing.py
 AM_TESTS_ENVIRONMENT = MOVIE_TEST_CLIP="$(abs_srcdir)/show-replay/movie-av.mov"; export MOVIE_TEST_CLIP;
 CLEANFILES = cxxtests.cpp
 
@@ -36,7 +37,16 @@ audio_collector_test_LDADD = $(FFTW_LIBS) -lpthread -lm
 jack_capture_test_SOURCES = show-replay/jack-capture-test.cpp ../src/audio_jack.cpp ../src/audio_collector.cpp ../src/ringbuffer.cpp
 jack_capture_test_CPPFLAGS = $(audio_collector_test_CPPFLAGS)
 jack_capture_test_LDADD = $(audio_collector_test_LDADD)
+check_PROGRAMS += frei0r-host-test
+frei0r_host_test_SOURCES = show-replay/frei0r-host-test.cpp
+frei0r_host_test_CPPFLAGS = $(frame_step_test_CPPFLAGS)
 if FREEJ_STATIC_PROFILE
+TESTS += frei0r-host-test
+frei0r_host_test_SOURCES += show-replay/builtin-fixture.c
+frei0r_host_test_LDFLAGS = $(frame_step_test_LDFLAGS)
+frei0r_host_test_LINK = $(frame_step_test_LINK)
+frei0r_host_test_DEPENDENCIES = $(frame_step_test_DEPENDENCIES)
+frei0r_host_test_LDADD = $(frame_step_test_LDADD)
 frame_step_test_LDFLAGS = -static $(FREEJ_STATIC_LOADER_FLAGS)
 frame_step_test_LINK = $(CXX) $(frame_step_test_LDFLAGS) $(CXXFLAGS) $(LDFLAGS) -o $@
 frame_step_test_DEPENDENCIES = $(top_builddir)/src/libfreej.la $(MOZJS_LIBS) $(FREEJ_STATIC_ARCHIVES)
@@ -50,6 +60,11 @@ movie_replay_test_LINK = $(frame_step_test_LINK)
 movie_replay_test_DEPENDENCIES = $(frame_step_test_DEPENDENCIES)
 movie_replay_test_LDADD = $(frame_step_test_LDADD)
 else
+TESTS += show-replay/test-effects.py
+AM_TESTS_ENVIRONMENT += CC='$(CC)'; export CC; \
+                        FREEJ_EFFECT_CLI="$(abs_top_builddir)/src/freej"; export FREEJ_EFFECT_CLI;
+frei0r_host_test_LINK = $(CXXLINK)
+frei0r_host_test_LDADD = $(top_builddir)/src/libfreej.la
 movie_replay_test_LINK = $(CXXLINK)
 movie_replay_test_LDADD = $(top_builddir)/src/libfreej.la
 frame_step_test_LINK = $(CXXLINK)
@@ -58,7 +73,8 @@ lifetime_test_LINK = $(CXXLINK)
 lifetime_test_LDADD = $(frame_step_test_LDADD)
 endif
 
-EXTRA_DIST = cxxtest freej-build-test.sh legacy-linux-sdk.py legacy-linux-sdk.lock \
+EXTRA_DIST = frei0r-linux-sdk.sh show-replay/frei0r-fixture.c show-replay/freeframe-fixture.c show-replay/test-effects.py \
+             cxxtest freej-build-test.sh legacy-linux-sdk.py legacy-linux-sdk.lock \
              native-linux-archives.py native-linux-archives.lock check-native-linux-archives.py \
              native-static-sdk.py native-static-sdk.lock native-static-sdk.patch \
              native-profile-factory.cpp native-profile-sandbox.c native-profile-runtime.py \

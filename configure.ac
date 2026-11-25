@@ -112,6 +112,8 @@ AS_CASE([$FREEJ_NATIVE_PROFILE],
   [AC_MSG_ERROR([unknown native profile: $FREEJ_NATIVE_PROFILE])])
 AC_SUBST([FREEJ_NATIVE_PROFILE])
 AM_CONDITIONAL([FREEJ_STATIC_PROFILE], [test "x$FREEJ_NATIVE_PROFILE" = xstatic])
+AC_ARG_WITH([frei0r-bundle],
+  [AS_HELP_STRING([--with-frei0r-bundle=PREFIX], [pinned frei0r bundle for the static profile])])
 AC_ARG_WITH([native-sdk],
   [AS_HELP_STRING([--with-native-sdk=PREFIX], [select the audited Linux static archive SDK])])
 
@@ -847,7 +849,7 @@ FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
     \$(FLASH_CFLAGS)"
 AC_SUBST(FREEJ_STATIC_CFLAGS)
 
-FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
+FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \$(FREI0R_BUNDLE_CFLAGS) \
     \$(AA_CFLAGS)       \
     \$(ALSA_CFLAGS)     \
     \$(CWIID_CFLAGS)    \
@@ -952,6 +954,7 @@ AS_IF([test "x$FREEJ_NATIVE_PROFILE" = xcompatibility], [
 ], [
   FREEJ_CHECK_STATIC_SDK
   FREEJ_PACKAGE_LIBS='-static -Wl,--whole-archive ${libdir}/libfreej.a -Wl,--no-whole-archive'
+  FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES frei0r-builtin"
   FREEJ_PACKAGE_DEPS="$FREEJ_STATIC_LOADER_FLAGS -Wl,--start-group \${libdir}/freej-sdk/libfreej-mozjs.a $FREEJ_STATIC_STAGE_ARCHIVES $FREEJ_STATIC_SYSTEM_LIBS -Wl,--end-group"
 ])
 AC_SUBST([FREEJ_CAPABILITIES])

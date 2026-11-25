@@ -18,6 +18,7 @@ debian=$legacy/debian/usr
 debian_lib=$debian/lib/$multiarch
 native=$work/native
 archives=$work/archives
+effects=$work/effects
 build_work=$work/trial
 ccache_bin=$(command -v ccache)
 gcc=$legacy/gcc12/usr/bin/gcc-12
@@ -40,7 +41,7 @@ if [[ $profile == static ]]; then
     done
     export PKG_CONFIG_LIBDIR="$work/no-host-pkgconfig"
     mkdir -p -- "$PKG_CONFIG_LIBDIR"
-    configure+=("--with-native-sdk=$native")
+    configure+=("--with-native-sdk=$native" "--with-frei0r-bundle=$effects")
     qmake=$native/qt/bin/qmake
 fi
 
@@ -73,21 +74,18 @@ compatibility_show() (
         -isystem "$build_work/build/lib/javascript" -isystem "$debian/include" \
         -DJS_GCMETER "${sdl_flags[@]}" -c tests/show-replay/observe.cpp -o "$build_work/observe.o"
     "$gxx" -shared "$build_work/observe.o" -o "$build_work/observe.so" -ldl
-    "$ccache_bin" "$gcc" -O2 -fPIC -I"$work/frei0r/include" \
-        -c "$work/frei0r/src/filter/brightness/brightness.c" -o "$build_work/brightness.o"
-    "$gcc" -shared "$build_work/brightness.o" -o "$build_work/brightness.so"
     "$ccache_bin" "$gxx" -std=c++11 -Wall -Wextra -Werror -pthread \
         -c tests/show-replay/pulse.cpp -o "$build_work/pulse.o"
     "$gxx" -pthread "$build_work/pulse.o" -ljack -o "$build_work/pulse"
     LD_LIBRARY_PATH="$stage/lib:$LD_LIBRARY_PATH" python3 tests/native-ci-coverage.py compatibility \
-        --freej "$stage/bin/freej" --observer "$build_work/observe.so" --plugin "$build_work/brightness.so" \
+        --freej "$stage/bin/freej" --observer "$build_work/observe.so" --plugin "$effects/modules/brightness.so" \
         --pulse "$build_work/pulse" --jackd "$jackd" --output "$out"
     python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["canonical"])' \
         "$out/replay/video-a/observations.json" > "$out/canonical-frames.txt"
     if [[ $pass == cold ]]; then
         replay=(env "LD_LIBRARY_PATH=$stage/lib:$LD_LIBRARY_PATH"
                 python3 tests/show-replay/replay.py --freej "$stage/bin/freej"
-                --observer "$build_work/observe.so" --plugin "$build_work/brightness.so" --case video)
+                --observer "$build_work/observe.so" --plugin "$effects/modules/brightness.so" --case video)
         status=0
         "${replay[@]}" --output "$evidence/reordered" --expect-reversed-order \
             > "$evidence/reordered.log" 2>&1 || status=$?
@@ -112,6 +110,18 @@ static_show() (
         --sandbox "$build_work/sandbox" --strace "$native/packages/usr/bin/strace" \
         --jackd "$jackd" --freej "$stage/bin/freej" --qfreej "$stage/bin/qfreej" \
         --factory "$build_work/factory"
+)
+
+effect_parity() (
+    home="$out/effect-home"
+    mkdir -- "$home"
+    if [[ $profile == compatibility ]]; then
+        mkdir -p -- "$home/.freej/plugins"
+        cp -- "$effects"/modules/*.so "$home/.freej/plugins/"
+    fi
+    HOME="$home" SDL_VIDEODRIVER=dummy "$build/tests/frei0r-host-test" --frames "$out/frei0r-frames.bin"
+    test "$(wc -c < "$out/frei0r-frames.bin")" -eq "$((24 * 16 * 8 * 4))"
+    sha256sum "$out/frei0r-frames.bin" | cut -d ' ' -f 1 > "$out/frei0r-frames.sha256"
 )
 
 # Both runtime suites use an external JACK 1 daemon with its dummy driver.
@@ -172,6 +182,7 @@ for pass in cold warm; do
         fi
     done
     echo 'CLI and Qt built, staged and passed link audits.' > "$out/compile-outcome.txt"
+    effect_parity 2>&1 | tee "$out/frei0r-parity.log"
     if [[ $profile == static ]]; then
         cp -- "$build_work/build/src/freej.map" "$out/freej.map"
         static_show 2>&1 | tee "$out/show.log"
@@ -191,6 +202,7 @@ done
 cmp "$evidence/cold/capabilities.txt" "$evidence/warm/capabilities.txt"
 cmp "$evidence/cold/checks.txt" "$evidence/warm/checks.txt"
 cmp "$evidence/cold/coverage.md" "$evidence/warm/coverage.md"
+cmp "$evidence/cold/frei0r-frames.bin" "$evidence/warm/frei0r-frames.bin"
 if [[ $profile == compatibility ]]; then
     cmp "$evidence/cold/canonical-frames.txt" "$evidence/warm/canonical-frames.txt"
 fi

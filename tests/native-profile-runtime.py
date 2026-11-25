@@ -14,8 +14,22 @@ import zlib
 from native_profile_services import jack_dummy, owned, until, x11
 
 
-WIDTH, HEIGHT = 640, 480
 COLOR = 0x2060A0
+EFFECT_COLOR = 0x7F7F7F
+EFFECT_SCRIPT = """
+if (list_filters().sort().join(",") != "Brightness,Invert0r")
+    throw "unexpected built-in filter inventory";
+var source = new GeneratorLayer(64, 48, "onecol0r");
+if (!add_layer(source)) throw "built-in source setup failed";
+var invert = new Filter("Invert0r");
+var brightness = new Filter("Brightness");
+source.add_filter(invert);
+source.add_filter(brightness);
+brightness.set_parameter("Brightness", 0.25);
+source.start();
+set_clear_all();
+echo("built-in effects show loaded");
+"""
 
 
 class WindowAttributes(C.Structure):
@@ -44,6 +58,15 @@ class Display:
             ("XQueryTree", integer, (pointer, ulong, C.POINTER(ulong), C.POINTER(ulong),
                                      C.POINTER(C.POINTER(ulong)), C.POINTER(uint))),
             ("XGetWindowAttributes", integer, (pointer, ulong, C.POINTER(WindowAttributes))),
+            ("XFetchName", integer, (pointer, ulong, C.POINTER(pointer))),
+            ("XInternAtom", ulong, (pointer, C.c_char_p, integer)),
+            ("XGetWindowProperty", integer, (pointer, ulong, ulong, C.c_long, C.c_long, integer, ulong,
+                                              C.POINTER(ulong), C.POINTER(integer), C.POINTER(ulong),
+                                              C.POINTER(ulong), C.POINTER(pointer))),
+            ("XSetInputFocus", integer, (pointer, ulong, integer, ulong)),
+            ("XStringToKeysym", ulong, (C.c_char_p,)),
+            ("XKeysymToKeycode", C.c_ubyte, (pointer, ulong)),
+            ("XSync", integer, (pointer, integer)),
             ("XFree", integer, (pointer,)),
             ("XCloseDisplay", integer, (pointer,)),
         ):
@@ -54,30 +77,94 @@ class Display:
             raise ValueError(f"could not open {display}")
         self.root = self.x.XDefaultRootWindow(self.ptr)
 
-    def windows(self):
+    def windows(self, minimum_width=160):
         root, parent, children, count = C.c_ulong(), C.c_ulong(), C.POINTER(C.c_ulong)(), C.c_uint()
         ok = self.x.XQueryTree(self.ptr, self.root, C.byref(root), C.byref(parent),
                                C.byref(children), C.byref(count))
-        visible = 0
+        visible = []
         try:
             if ok:
                 for window in children[:count.value] if count.value else ():
                     attributes = WindowAttributes()
                     if (self.x.XGetWindowAttributes(self.ptr, window, C.byref(attributes))
-                            and attributes.map_state == 2 and attributes.width >= 160):
-                        visible += 1
+                            and attributes.map_state == 2 and attributes.width >= minimum_width):
+                        visible.append(window)
         finally:
             if children:
                 self.x.XFree(children)
         return visible
 
-    def contains_image(self):
-        image = self.x.XGetImage(self.ptr, self.root, 0, 0, WIDTH, HEIGHT, C.c_ulong(-1).value, 2)
+    def window_title(self, window):
+        title, encoding, field_width = C.c_void_p(), C.c_ulong(), C.c_int()
+        items, remaining = C.c_ulong(), C.c_ulong()
+        utf8_name = self.x.XInternAtom(self.ptr, b"_NET_WM_NAME", 1)
+        if utf8_name and not self.x.XGetWindowProperty(
+                self.ptr, window, utf8_name, 0, 256, 0, 0, C.byref(encoding), C.byref(field_width),
+                C.byref(items), C.byref(remaining), C.byref(title)) and title:
+            try:
+                if field_width.value == 8:
+                    return C.string_at(title, items.value).decode(errors="replace")
+            finally:
+                self.x.XFree(title)
+        if not self.x.XFetchName(self.ptr, window, C.byref(title)):
+            return ""
+        try:
+            return C.string_at(title).decode(errors="replace")
+        finally:
+            self.x.XFree(title)
+
+    def run_qt_script(self, process):
+        fake_key = C.CDLL("libXtst.so.6").XTestFakeKeyEvent
+        fake_key.restype = C.c_int
+        fake_key.argtypes = (C.c_void_p, C.c_uint, C.c_int, C.c_ulong)
+
+        def press(*keys):
+            codes = [self.x.XKeysymToKeycode(self.ptr, self.x.XStringToKeysym(key.encode())) for key in keys]
+            for code, down in [(code, 1) for code in codes] + [(code, 0) for code in reversed(codes)]:
+                if not code or not fake_key(self.ptr, code, down, 0):
+                    raise ValueError(f"could not send Qt shortcut {keys}")
+            self.x.XSync(self.ptr, 0)
+
+        def qt_window():
+            return next((window for window in self.windows() if self.window_title(window) == "qfreej"), None)
+
+        until(qt_window, process)
+        if self.contains_image(EFFECT_COLOR):
+            raise ValueError("Qt viewport already contains the effect sentinel")
+        self.x.XSetInputFocus(self.ptr, qt_window(), 2, 0)
+        open_windows = set(self.windows(1))
+        press("Alt_L", "f")
+        until(lambda: set(self.windows(1)) - open_windows, process)
+        press("r")
+
+        def dialog():
+            return next((window for window in self.windows()
+                         if self.window_title(window) == "Ouvrir un fichier JavaScript"), None)
+
+        until(dialog, process)
+        self.x.XSetInputFocus(self.ptr, dialog(), 2, 0)
+        press("Alt_L", "n")
+        press("Control_L", "a")
+        for key in ("q", "t", "period", "j", "s", "Tab", "Return"):
+            press(key)
+        until(lambda: self.contains_image(EFFECT_COLOR), process)
+
+    def contains_image(self, color=COLOR):
+        viewport = next((window for window in self.windows(1)
+                         if self.window_title(window).startswith("freej ")), None)
+        if viewport is None:
+            return False
+        geometry = WindowAttributes()
+        if not self.x.XGetWindowAttributes(self.ptr, viewport, C.byref(geometry)):
+            return False
+        image = self.x.XGetImage(self.ptr, viewport, 0, 0, geometry.width, geometry.height,
+                                 C.c_ulong(-1).value, 2)
         if not image:
             raise ValueError("could not read X11 pixels")
         try:
-            return sum(self.x.XGetPixel(image, x, y) == COLOR
-                       for y in range(0, HEIGHT, 12) for x in range(0, WIDTH, 12)) >= 4
+            return sum(self.x.XGetPixel(image, x, y) == color
+                       for y in range(0, geometry.height, 12)
+                       for x in range(0, geometry.width, 12)) >= 4
         finally:
             self.x.XDestroyImage(image)
 
@@ -90,7 +177,6 @@ def fixture(work):
     image = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", 64, 48, 8, 2, 0, 0, 0))
     (work / "image.png").write_bytes(image + chunk(b"IDAT", zlib.compress(row * 48)) + chunk(b"IEND", b""))
     (work / "show.js").write_text("""
-if (list_filters().length) throw "unexpected directory effects";
 var image = new ImageLayer();
 image.open("image.png");
 image.start();
@@ -111,16 +197,24 @@ def check_static(program, args, opts, work, env, name, inspect, exit_code):
     home.mkdir()
     if name == "cli":
         fixture(instance)
+    elif name == "cli-effects":
+        (instance / "show.js").write_text(EFFECT_SCRIPT + """
+set_fps(20);
+for (var tick = 0; tick < 24; ++tick) run();
+quit();
+""")
+    elif name == "qt":
+        (instance / "qt.js").write_text(EFFECT_SCRIPT)
     elf = subprocess.check_output(["readelf", "-dW", "-lW", staged], text=True, cwd=instance)
     (instance / "elf.txt").write_text(elf)
     if "(NEEDED)" in elf or re.search(r"^\s*INTERP\b", elf, re.M):
         raise ValueError(f"{name}: dynamic program dependency")
     trace = instance / f"{name}.trace"
-    command = [str(args.strace), "--kill-on-exit", "-f", "-e", "trace=%file",
+    command = [str(args.strace), "--kill-on-exit", "-f", "-s", "4096", "-e", "trace=%file",
                "-o", str(trace), str(args.sandbox), str(instance), str(staged), *opts]
     with owned(command, instance, dict(env, HOME=str(home)), name) as process:
         if inspect is not None:
-            until(inspect, process)
+            inspect(process)
         if exit_code is not None and process.wait(timeout=12) != exit_code:
             raise ValueError(f"{name}: unexpected exit {process.returncode}")
     output = (instance / f"{name}.log").read_text(errors="replace")
@@ -128,10 +222,17 @@ def check_static(program, args, opts, work, env, name, inspect, exit_code):
         raise ValueError(f"{name}: expected one engine initialization")
     if name == "cli" and "static profile presented 24 frames" not in output:
         raise ValueError("static CLI did not complete the image fixture")
+    if name == "cli-effects" and "built-in effects show loaded" not in output:
+        raise ValueError(f"{name}: could not load the built-in effects show")
     if name == "factory" and "Installed JACK client connected at 48000 Hz / 2048 frames" not in output:
         raise ValueError("installed static client did not connect to the JACK endpoint")
-    if re.search(r'"[^"]+\.so(?:\.[^"]*)?"', trace.read_text(errors="replace")):
-        raise ValueError(f"{name}: shared-library lookup in {trace}")
+    accesses = trace.read_text(errors="replace")
+    if name == "qt" and not all(f"initialized filter {effect}" in output for effect in ("Invert0r", "Brightness")):
+        raise ValueError("Qt did not apply the built-in effect chain")
+    effect_path = (r'"[^"]+\.(?:so(?:\.[^"/]*)?|frf|dylib)"|'
+                   r'"(?:[^"]*/)?(?:frei0r-1|FreeFrame|\.freej/plugins)(?:/[^"]*)?"')
+    if re.search(effect_path, accesses):
+        raise ValueError(f"{name}: external library or effect lookup in {trace}")
     print(f"PASS {name}", flush=True)
 
 
@@ -153,13 +254,16 @@ def main():
         env["DISPLAY"] = name
         display = Display(name)
         try:
-            check_static(args.freej, args, ["-c", "-D", "2", "-s", "80x60", "-j", "show.js"],
-                         work, env, "cli", display.contains_image, 1)
+            cli = ["-c", "-D", "2", "-s", "80x60", "-j", "show.js"]
+            check_static(args.freej, args, cli, work, env, "cli",
+                         lambda process: until(display.contains_image, process), 1)
+            check_static(args.freej, args, cli, work, env, "cli-effects",
+                         lambda process: until(lambda: display.contains_image(EFFECT_COLOR), process), 1)
             check_static(args.factory, args, ["--jack"], work, env, "factory", None, 0)
-            check_static(args.qfreej, args, [], work, env, "qt", lambda: display.windows() >= 2, None)
+            check_static(args.qfreej, args, [], work, env, "qt", display.run_qt_script, None)
         finally:
             display.x.XCloseDisplay(display.ptr)
-    print("3 executed, 0 failed, 0 skipped")
+    print("4 executed, 0 failed, 0 skipped")
 
 
 if __name__ == "__main__":

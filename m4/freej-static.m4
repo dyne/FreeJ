@@ -64,6 +64,15 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
       [AC_MSG_ERROR([the OpenGL loader has no verified static SDK closure])])
     AS_IF([test "x$with_dmalloc" = xyes], [freej_require_archives "dmalloc instrumentation" dmallocthcxx])
 
+    AS_IF([test -z "$with_frei0r_bundle" || test ! -f "$with_frei0r_bundle/include/frei0r/bundle.h" ||
+           test ! -f "$with_frei0r_bundle/include/frei0r.h"],
+      [AC_MSG_ERROR([the static profile requires --with-frei0r-bundle=PREFIX from tests/frei0r-linux-sdk.sh])])
+    freej_bundle_dir=`cd "$with_frei0r_bundle" && pwd -P`
+    AS_CASE([$freej_bundle_dir], [*[[!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./-]]*],
+      [AC_MSG_ERROR([the frei0r bundle path must be free of spaces or shell metacharacters])])
+    freej_archive_dir="$freej_bundle_dir/lib"
+    freej_require_archives "built-in frei0r effects" frei0r-bundle-static
+    FREI0R_BUNDLE_CFLAGS="-I$freej_bundle_dir/include"
     FREEJ_STATIC_ARCHIVES=$freej_archives
     FREEJ_STATIC_STAGE_ARCHIVES=$freej_stage_archives
     FREEJ_STATIC_SYSTEM_LIBS="-pthread -lm -ldl -lrt"
@@ -72,28 +81,34 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
     AC_MSG_CHECKING([whether the archive SDK links with a static C++ runtime])
     freej_save_LIBS=$LIBS
     freej_save_LDFLAGS=$LDFLAGS
+    freej_save_CPPFLAGS=$CPPFLAGS
     LIBS="-Wl,--start-group $FREEJ_STATIC_ARCHIVES $FREEJ_STATIC_SYSTEM_LIBS -Wl,--end-group"
     LDFLAGS="$LDFLAGS -static"
+    CPPFLAGS="$CPPFLAGS $FREI0R_BUNDLE_CFLAGS"
     AC_LANG_PUSH([C++])
     AC_LINK_IFELSE([
       AC_LANG_PROGRAM([[
         #include <exception>
+        #include <frei0r/bundle.h>
         extern "C" int SDL_Init(unsigned int);
         extern "C" unsigned avformat_version(void);
         extern "C" void *jack_ringbuffer_create(unsigned long);
         extern "C" const char *src_get_version(void);
       ]], [[
         return SDL_Init(0) || !avformat_version() || !jack_ringbuffer_create(32) || !src_get_version()
-          || !std::exception().what();
+          || !std::exception().what()
+          || !f0r_bundle_plugin_count() || !f0r_bundle_plugin_by_index(0);
       ]])
     ], [AC_MSG_RESULT([yes])], [
-      AC_MSG_FAILURE([the SDL/JACK/resampling archive closure cannot link statically. See config.log])
+      AC_MSG_FAILURE([the SDL/JACK/resampling/frei0r archive closure cannot link statically. See config.log])
     ])
     AC_LANG_POP([C++])
     LIBS=$freej_save_LIBS
     LDFLAGS=$freej_save_LDFLAGS
+    CPPFLAGS=$freej_save_CPPFLAGS
     AC_DEFINE([FREEJ_STRICT_STATIC], [1], [Build the static Linux stage profile])
   ])
+  AC_SUBST([FREI0R_BUNDLE_CFLAGS])
   AC_SUBST([FREEJ_STATIC_ARCHIVES])
   AC_SUBST([FREEJ_STATIC_STAGE_ARCHIVES])
   AC_SUBST([FREEJ_STATIC_SYSTEM_LIBS])

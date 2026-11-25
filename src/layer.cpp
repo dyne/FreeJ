@@ -295,9 +295,9 @@ int Layer::do_iterators() {
 bool Layer::set_parameter(int idx) {
 
   Parameter *param;
-  param = (Parameter*)parameters->pick(idx);
+  param = parameters ? parameters->pick(idx) : nullptr;
   if( ! param) {
-    error("parameter %s not found in layer %s", param->name, name );
+    error("parameter [%d] not found in layer %s", idx, name);
     return false;
   } else 
     func("parameter %s found in layer %s at position %u",

@@ -66,14 +66,10 @@ FilterInstance *Filter::new_instance() {
 
 bool Filter::apply(Layer *lay, FilterInstance *instance)
 {
-    auto *output = static_cast<uint32_t *>(calloc(lay->geo.bytesize, 1));
-    if(!output) {
-        error("calloc outframe failed (%i) applying filter %s",errno, name);
+    if (!instance->allocate_output(lay->geo.bytesize)) {
+        error("outframe allocation failed applying filter %s", name);
         return false;
     }
-
-    free(instance->outframe);
-    instance->outframe = output;
     instance->frame_width_ = lay->geo.w;
     instance->frame_height_ = lay->geo.h;
     bytesize = lay->geo.bytesize;

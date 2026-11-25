@@ -61,16 +61,27 @@ FilterInstance::~FilterInstance() {
   if(proto)
     proto->destruct(this);
 
+  free(frei0r_input_);
   if(outframe)
     free(outframe);
   while (Parameter *parameter = parameters.begin())
     delete parameter;
 }
 
+bool FilterInstance::allocate_output(size_t bytes) {
+  void *aligned = nullptr;
+  if (!bytes || posix_memalign(&aligned, 16, bytes) != 0) return false;
+  memset(aligned, 0, bytes);
+  free(outframe);
+  outframe = static_cast<uint32_t *>(aligned);
+  return true;
+}
+
 void FilterInstance::init(Filter *fr)
 {
   func("initializing instance for filter %s",fr->name);
   proto = fr;
+  prototype_owner_ = fr->registry_owner_.lock();
   set_name(proto->name);
   fr->init_parameters(parameters);
   active = true;
@@ -112,7 +123,7 @@ bool FilterInstance::set_parameter(int idx) {
 bool FilterInstance::set_parameter_value(int idx, void *value) {
   std::lock_guard<Linklist<Parameter>> lock(parameters);
   auto *param = parameters.pick(idx);
-  return param && param->set(value) && set_parameter(idx);
+  return param && param->filter_set_f && value && param->set(value) && set_parameter(idx);
 }
 
 bool FilterInstance::get_parameter(int idx) {
@@ -120,8 +131,8 @@ bool FilterInstance::get_parameter(int idx) {
   Parameter *param;
   param = (Parameter*)parameters[idx];
 
-  if( ! param) {
-    error("parameter %s not found in filter %s", param->name, proto->name );
+  if (!param) {
+    error("parameter [%d] not found in filter %s", idx, proto->name);
     return false;
   } else {
     func("parameter %s found in filter %s at position %u",

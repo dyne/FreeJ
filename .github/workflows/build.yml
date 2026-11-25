@@ -13,6 +13,9 @@ jobs:
     name: Linux amd64 (${{ matrix.profile }})
     runs-on: ubuntu-24.04
     timeout-minutes: 90
+    outputs:
+      compatibility_frames: ${{ steps.effects.outputs.compatibility_frames }}
+      static_frames: ${{ steps.effects.outputs.static_frames }}
     container:
       # Docker Official Image: debian:trixie-20261123-slim, linux/amd64 manifest.
       image: debian@sha256:ab3b3c8c5159eebfca4376430132d53c4d425f869c765ecbe47177a030da575d
@@ -44,7 +47,7 @@ jobs:
             libfftw3-dev libsamplerate0-dev libasound2-dev libfontconfig-dev \
             libfreetype-dev libcairo2-dev libx11-dev libssl-dev libbz2-dev zlib1g-dev \
             libsndio-dev libtiff6 libgd3 libshout3 libtheoradec1 libtheoraenc1 \
-            qtbase5-dev qt5-qmake jackd1 xvfb fonts-dejavu-core
+            qtbase5-dev qt5-qmake jackd1 xvfb libxtst6 fonts-dejavu-core
           mkdir -p /tmp/freej-ci
           dpkg-query -W > /tmp/freej-ci/packages.txt
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -88,6 +91,12 @@ jobs:
       - name: Stage and verify cold and warm builds
         id: gates
         run: tests/native-ci-run.sh "$PROFILE" "$FREEJ_CI_WORK" "$FREEJ_CI_EVIDENCE"
+      - name: Record frei0r frame digest
+        id: effects
+        run: |
+          digest=$(cat "$FREEJ_CI_EVIDENCE/warm/frei0r-frames.sha256")
+          [[ $digest =~ ^[0-9a-f]{64}$ ]]
+          printf '%s_frames=%s\n' "$PROFILE" "$digest" >> "$GITHUB_OUTPUT"
       - name: Upload profile artifacts and logs
         id: upload
         if: ${{ !cancelled() }}
@@ -141,3 +150,16 @@ jobs:
               printf "[Artifact %s](%s), SHA-256 \`%s\`\n" "$ARTIFACT_ID" "$ARTIFACT_URL" "$ARTIFACT_DIGEST"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+  frei0r-parity:
+    name: frei0r directory and built-in parity
+    needs: native
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Compare the 24 rendered frames
+        shell: bash
+        env:
+          DIRECTORY_FRAMES: ${{ needs.native.outputs.compatibility_frames }}
+          BUILTIN_FRAMES: ${{ needs.native.outputs.static_frames }}
+        run: |
+          [[ $DIRECTORY_FRAMES =~ ^[0-9a-f]{64}$ && $DIRECTORY_FRAMES == "$BUILTIN_FRAMES" ]]

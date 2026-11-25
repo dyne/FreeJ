@@ -120,3 +120,29 @@ ffmpeg -hide_banner -loglevel error \
   -itsoffset 0.1 -f lavfi -i 'aevalsrc=0.125*sin(2*PI*400*t)|0.25*sin(2*PI*600*t):s=48000:d=0.5' \
   -c:v mpeg4 -bf 2 -g 4 -flags +bitexact -c:a pcm_s16le -map_metadata -1 movie-av.mov
 ```
+
+### frei0r effect contract
+
+The compatibility host looks up user-facing names in directory order and in reverse alphabetical filename order within each directory. `make check` runs `show-replay/test-effects.py` with instrumented frei0r and FreeFrame modules in a temporary user directory. To include the pinned native effects, run the following from the configured tests build directory with its compiler and library environment:
+
+```sh
+python3 "$src/tests/show-replay/test-effects.py" --driver ./frei0r-host-test --cli ../src/freej \
+    --real "$modules/invert0r.so" "$modules/onecol0r.so"
+```
+
+- FILTER and SOURCE share one parameter adapter. Native parameter indices start at one; frei0r indices start at zero. Boolean, number, color and position values are copied during the callback. The legacy host exposes a string parameter's metadata, but its filter and generator interfaces do not implement string transfer. The test plugin aborts if its string callback is invoked.
+- A frei0r library initializes before metadata access and deinitializes after its last registration and instance are released. Refresh may retire a registration while its instances continue rendering. The CLI fixture also changes 96 parameters through JavaScript and quits with a live source and filter. MIXER2 and MIXER3 are recognized and excluded from the single-input lists. A PACKED32 source has no declared channel order and is rejected.
+- The host supplies tightly packed four-byte pixels and the layer's dimensions to the plugin. It preserves the historical physical byte order, including when a filter declares RGBA and receives a BGRA layer. There is no implicit red/blue swap. Buffers passed to the plugin are 16-byte aligned. Construction failure propagates to the filter or generator caller.
+- The historical software probe set a 64×48 generator layer to 37 fps. Its attached filter received `37.0` and its source received `0.0` for all 29 observed updates. These values come from `fps.fps` and `fps.get()` respectively. The fixture changes a pixel as a function of the supplied time.
+
+The static profile runs the same instance host with callbacks from the pinned
+descriptor bundle. Its registered host test checks malformed descriptors,
+failed initialization and construction, unknown effects, and teardown with
+live instances. The bundle IDs are internal. Shows use the registered names
+`Brightness`, `Invert0r`, and `onecol0r`.
+
+The native CI driver puts the pinned modules in a private compatibility home,
+uses an empty home for the static host, and writes `frei0r-frames.bin` from each
+profile. The file contains 24 full frames from eight automation cues, in BGRA
+order. Each driver checks parameter names, types, and readback. Compare the
+artifacts with `cmp`. Actions checks the SHA-256 digests.
