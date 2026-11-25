@@ -52,8 +52,25 @@ jobs:
           persist-credentials: false
       - name: Verify source identity
         run: |
-          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
-          test -z "$(git status --porcelain --untracked-files=all)"
+          # The runner owns the mounted checkout. Checkout's temporary HOME is gone here.
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0=
+          export GIT_CONFIG_KEY_1=safe.directory GIT_CONFIG_VALUE_1="${GITHUB_WORKSPACE:?}"
+          source_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)
+          source_status=$(git -C "$GITHUB_WORKSPACE" status --porcelain --untracked-files=all)
+          if [[ $source_sha != "$GITHUB_SHA" ]]; then
+            printf 'Expected checkout %s, found %s\n' "$GITHUB_SHA" "$source_sha" >&2
+            exit 1
+          fi
+          if [[ -n $source_status ]]; then
+            printf 'Expected a clean checkout\n' >&2
+            exit 1
+          fi
+          {
+            printf 'GIT_CONFIG_COUNT=%s\n' "$GIT_CONFIG_COUNT"
+            printf 'GIT_CONFIG_KEY_0=%s\nGIT_CONFIG_VALUE_0=%s\n' "$GIT_CONFIG_KEY_0" "$GIT_CONFIG_VALUE_0"
+            printf 'GIT_CONFIG_KEY_1=%s\nGIT_CONFIG_VALUE_1=%s\n' "$GIT_CONFIG_KEY_1" "$GIT_CONFIG_VALUE_1"
+          } >> "$GITHUB_ENV"
           printf 'checkout=%s ref=%s event=%s run=%s attempt=%s\n' \
             "$GITHUB_SHA" "$GITHUB_REF" "$GITHUB_EVENT_NAME" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" \
             | tee /tmp/freej-ci/checkout.txt
