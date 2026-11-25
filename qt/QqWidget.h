@@ -2,7 +2,6 @@
 #define QQWIDGET_H
 #include <QWidget>
 #include <text_layer.h>
-#include <video_layer.h>
 //#include <v4l2_layer.h>
 #include <QTabWidget>
 #include <QTextEdit>

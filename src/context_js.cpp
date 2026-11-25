@@ -279,10 +279,7 @@ JS(register_encoder) {
 
     //    enc->start();
 
-    /// really add controller
-    global_environment->add_encoder( enc );
-    
-    *rval = JSVAL_TRUE;
+    *rval = BOOLEAN_TO_JSVAL(global_environment->add_encoder(enc));
 
     return JS_TRUE;
 }

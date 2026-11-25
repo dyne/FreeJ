@@ -61,12 +61,10 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
             m_tabWidg = tabWidget;
 	    if (QJackClient *qjack = qfreej->getQjack())
 	    {
-	      if (!qjack->howManyOutputs())
-	      {
-		(qjack->getJack())->SetRingbufferPtr(freej->screen->audio, qjack->getSampleRate()
-		    , ((VideoLayer *)qLayer)->audio_channels);
-		qjack->setNoutputs(((VideoLayer *)qLayer)->audio_channels);
-	      }
+              int rate, channels;
+              if (!qjack->howManyOutputs() && qLayer->audio_format(rate, channels) &&
+                  freej->screen->add_audio(qjack->getJack(), *qLayer))
+                qjack->setNoutputs(channels);
 	    }
         }
         else

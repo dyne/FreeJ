@@ -26,6 +26,8 @@
 #define __SCREEN_H__
 
 #include <inttypes.h>
+#include <memory>
+#include <mutex>
 #include <config.h>
 #include <SDL.h>
 
@@ -80,6 +82,7 @@ class JackClient;
 class Layer;
 class Geometry;
 class VideoEncoder;
+namespace freej_engine { class FrameStore; struct FrameAccess; }
 
 /**
    This class provides a generic interface common to all different
@@ -115,7 +118,12 @@ class ViewPort : public Entry {
 
   virtual bool add_layer(Layer *lay); ///< add a new layer to the screen
 #ifdef WITH_AUDIO
-  virtual bool add_audio(JackClient *jcl); ///< connect layer to audio output
+  virtual bool add_audio(JackClient *jcl); ///< connect the sole audio supplier
+  bool add_audio(JackClient *jcl, const Layer &source);
+  int audio_rate(const Layer &source);
+  void write_audio(const Layer &source, const float *samples, std::size_t count,
+                   int channels, int rate);
+  void flush_audio(const Layer &source);
 #endif
   virtual void rem_layer(Layer *lay); ///< remove a layer from the screen
     
@@ -158,6 +166,20 @@ class ViewPort : public Entry {
   bool indestructible;
  protected:
   virtual bool _init() = 0; ///< implemented initialization
+
+ private:
+  friend struct freej_engine::FrameAccess;
+  std::unique_ptr<freej_engine::FrameStore> frames_;
+  bool capture_active_ = false;
+  std::mutex geometry_mutex_;
+  void stop_encoders();
+#ifdef WITH_AUDIO
+  bool bind_audio(JackClient *jcl, const Layer &source, int rate, int channels);
+  std::mutex audio_mutex_;
+  const Layer *audio_source_ = nullptr;
+  int audio_rate_ = 0;
+  int audio_channels_ = 0;
+#endif
 
 };
 

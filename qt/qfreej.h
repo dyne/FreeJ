@@ -61,7 +61,6 @@ protected:
 private:
     void init();
     Context *freej;
-    ViewPort *screen;
     bool startstate;
     int fps;
     QqTabWidget *tabWidget;

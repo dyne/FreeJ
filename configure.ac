@@ -246,41 +246,14 @@ AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
 dnl ==============================================================
 dnl FFMPEG DYNAMIC
 dnl ==============================================================
-PKG_CHECK_MODULES(AVCODEC, libavcodec, :,
-  AC_MSG_ERROR([*** Libavcodec development files not found!]))
-PKG_CHECK_MODULES(AVFORMAT, libavformat, :,
-  AC_MSG_ERROR([*** Libavformat development files not found!]))
-PKG_CHECK_MODULES(AVUTIL, libavutil, :,
-  AC_MSG_ERROR([*** Libavutil development files not found!]))
-PKG_CHECK_MODULES(SWSCALE, libswscale, :,
-  AC_MSG_ERROR([*** Libswscale development files not found!]))
-FFMPEG_CFLAGS="$AVCODEC_CFLAGS $AVFORMAT_CFLAGS $AVUTIL_CFLAGS $SWSCALE_CFLAGS"
-FFMPEG_LIBS="$AVCODEC_LIBS $AVFORMAT_LIBS $AVUTIL_LIBS $SWSCALE_LIBS"
-AC_SUBST([FFMPEG_CFLAGS])
-AC_SUBST([FFMPEG_LIBS])
-
-dnl FFmpeg changed include path policy, let's check which one is in use.
-FREEJ_SAVE_FLAGS
-CPPFLAGS="$CPPFLAGS $FFMPEG_CFLAGS"
-CFLAGS="$CFLAGS $FFMPEG_CFLAGS"
-AC_CHECK_HEADERS(libavcodec/avcodec.h ffmpeg/avcodec.h)
-AC_CHECK_HEADERS(libavformat/avformat.h ffmpeg/avformat.h)
-AC_CHECK_HEADERS(libavutil/avutil.h ffmpeg/avutil.h)
-AC_CHECK_HEADERS(libswscale/swscale.h ffmpeg/swscale.h)
-FREEJ_RESTORE_FLAGS
-dnl Then in sources we have to include in the following way:
-dnl    #ifdef HAVE_LIBAVCODEC_AVCODEC_H
-dnl    #   include <libavcodec/avcodec.h>
-dnl    #elif defined(HAVE_FFMPEG_AVCODEC_H)
-dnl    #   include <ffmpeg/avcodec.h>
-dnl    #else
-dnl    #   include <avcodec.h>
-dnl    #endif
-
-dnl TODO(shammash): heritage from conditional build, still used somewhere.
-AC_DEFINE(WITH_FFMPEG,1, [define if compiling movie layer linking to ffmpeg libavcodec])
-AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
-
+PKG_CHECK_MODULES([FFMPEG], [
+  libavcodec >= 61.19.100
+  libavformat >= 61.7.100
+  libavutil >= 59.39.100
+  libswscale >= 8.3.100
+  libswresample >= 5.3.100
+])
+AC_DEFINE([WITH_FFMPEG], [1], [Build the FFmpeg movie layer])
 
 dnl ==============================================================
 dnl LIBLO
@@ -879,7 +852,6 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(ALSA_CFLAGS)     \
     \$(CWIID_CFLAGS)    \
     \$(FC_CFLAGS)       \
-    \$(FFMPEG_CFLAGS)   \
     \$(FFTW_CFLAGS)     \
     \$(FT2_CFLAGS)      \
     \$(GLU_CFLAGS)      \
@@ -938,7 +910,7 @@ AC_SUBST(FREEJ_LIBS)
 dnl Export the same selections as the library and frontends. Bundled headers
 dnl are installed with the engine headers, so source/build paths stay private.
 FREEJ_PACKAGE_CFLAGS="$CPPFLAGS $AA_CFLAGS $ALSA_CFLAGS $CWIID_CFLAGS $FC_CFLAGS \
-    $FFMPEG_CFLAGS $FFTW_CFLAGS $FT2_CFLAGS $GLU_CFLAGS $JACK_CFLAGS $LIBLO_CFLAGS \
+    $FFTW_CFLAGS $FT2_CFLAGS $GLU_CFLAGS $JACK_CFLAGS $LIBLO_CFLAGS \
     $OPENCV_CFLAGS $SAMPLERATE_CFLAGS $SDL_CFLAGS $SDLIMAGE_CFLAGS $SHOUT_CFLAGS $SLANG_CFLAGS \
     $UNICAP_CFLAGS $CAIRO_CFLAGS $XIPH_CFLAGS $X11_CFLAGS"
 FREEJ_PACKAGE_DEPS="$LDFLAGS -lpthread -lm -lrt $DL_LIBS $AA_LIBS $ALSA_LIBS \

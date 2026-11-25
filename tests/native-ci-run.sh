@@ -27,8 +27,8 @@ jobs=${FREEJ_CI_JOBS:-4}
 export LC_ALL=C
 export CC="$ccache_bin $gcc" CXX="$ccache_bin $gxx" CFLAGS='-O2 -DNDEBUG' CXXFLAGS='-O2 -DNDEBUG'
 export CPPFLAGS="-I$debian/include" LDFLAGS="-L$debian_lib"
-export PKG_CONFIG_PATH="$legacy/ffmpeg/lib/pkgconfig:$debian_lib/pkgconfig"
-export LD_LIBRARY_PATH="$legacy/ffmpeg/lib:$debian_lib"
+export PKG_CONFIG_PATH="$work/movie/sdk/lib/pkgconfig:$debian_lib/pkgconfig"
+export LD_LIBRARY_PATH="$work/movie/sdk/lib:$debian_lib"
 export MAKEFLAGS="-j$jobs" FREEJ_BUILD_WORK="$build_work"
 configure=(--enable-static-mozjs "--with-native-profile=$profile")
 if [[ $profile == static ]]; then

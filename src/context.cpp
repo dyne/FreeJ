@@ -43,13 +43,13 @@
 #include <jsparser_data.h>
 #endif
 
-#ifdef WITH_FFMPEG
-#include <video_layer.h>
-#endif
-
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
 #include <factory.h>
+
+#include "engine/frame_step.h"
+#include "engine/frame_storage.h"
+#include "media/movie_registration.h"
 
 void fsigpipe (int Sig);
 int got_sigpipe;
@@ -65,7 +65,7 @@ static void init_factory() {
     Factory<ViewPort>::set_default_classtype("Screen", "sdl"); // singleton
     
     Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
-    Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
+    freej_media::register_movie_layer();
     Factory<Layer>::set_default_classtype("GeneratorLayer","ff_f0r");
     Factory<Layer>::set_default_classtype("ImageLayer","sdl");
 #ifdef WITH_UNICAP
@@ -99,7 +99,7 @@ void * run_context(void * data){
 	pthread_exit(NULL);
 }
 
-Context::Context() : initialized(false) {
+Context::Context() : initialized(false), running(false) {
 
   //audio           = NULL;
 
@@ -112,6 +112,7 @@ Context::Context() : initialized(false) {
   save_to_file    = false;
   interactive     = true;
   poll_events     = true;
+  screen          = NULL;
 
   fps_speed       = 25;
 
@@ -227,15 +228,6 @@ bool Context::init() {
   }
 #endif
 
-#ifdef WITH_FFMPEG
-  /** init ffmpeg libraries (codecs/formats auto-registered in FFmpeg 4+) */
-  /** make ffmpeg silent */
-  av_log_set_level(AV_LOG_QUIET);
-  //av_log_set_level(AV_LOG_DEBUG);
-  act("FFmpeg initialized all codec and format");
-#endif
-
-
   // register SIGPIPE signal handler (stream error)
   got_sigpipe = false;
   if (signal (SIGPIPE, fsigpipe) == SIG_ERR) {
@@ -265,46 +257,25 @@ void Context::start_threaded(){
 		pthread_create(&cafudda_thread, 0, run_context, this);
 }
 
-/*
- * Main loop called fps_speed times a second
- */
-void Context::cafudda(double secs) {
-  
-  ///////////////////////////////
-  //// process controllers
-  if(poll_events)
-    handle_controllers();
-	 
-  ///////////////////////////////
-  
-  /////////////////////////////
-  // blit layers on screens
-  ViewPort *scr;
-  scr = screens.begin();
-  while(scr) {
-
-    if (clear_all) scr->clear();
-    
-    // Change resolution if needed 
-    if (scr->changeres) scr->handle_resize();
-    
-    scr->blit_layers();
-
-    // show the new painted screen
-    scr->show();
-
-    scr = (ViewPort*)scr->next;
-
+void Context::cafudda(double /*secs*/) {
+  freej_engine::FrameHost host{
+    {},
+    [](ViewPort &screen) {
+      freej_engine::FrameAccess::capture(screen);
+      screen.show();
+    },
+    [] {
+      timeval now;
+      gettimeofday(&now, NULL);
+      return now;
+    }
+  };
+  if (poll_events) {
+    event.type = SDL_NOEVENT;
+    SDL_PumpEvents();
+    host.dispatch_input = [this] { handle_controllers(); };
   }
-  /////////////////////////////
-  // TODO - try to garbage collect only if we have been faster
-  //        than fps
-  // XXX - temporarily disabling explicit garbage-collection
-  //       because it still triggers deadlocks somewhere
-  if (js)
-    js->gc();
-  /// FPS calculation
-  fps.calc();
+  fps.calc_at(freej_engine::step_frame(*this, host));
   fps.delay();
 }
 
@@ -313,10 +284,6 @@ void Context::cafudda(double secs) {
 void Context::handle_controllers() {
   int res;
   Controller *ctrl;
-
-  event.type = SDL_NOEVENT;
-
-  SDL_PumpEvents();
 
   // peep if there are quit or fullscreen events
   res = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);
@@ -480,10 +447,8 @@ int Context::reset() {
   func("deleting %u screens", screens.len() );
   ViewPort *scr = screens.begin();
   while(scr) {
-      scr->lock();
+      scr->reset();
       if (scr->indestructible) {
-          scr->reset();
-          scr->unlock();
           scr = (ViewPort *)scr->next;
       } else {
           scr->rem();
@@ -491,6 +456,7 @@ int Context::reset() {
           scr = screens.begin();
       }
   }
+  screen = screens.begin();
     
   if (js)
     js->reset();
@@ -647,6 +613,8 @@ Layer *Context::open(char *file, int w, int h) {
 
 #ifdef WITH_FFMPEG
        nlayer = Factory<Layer>::new_instance("MovieLayer");
+       if (!nlayer)
+         return nullptr;
        if(!nlayer->init()) {
  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
  	delete nlayer; return NULL;

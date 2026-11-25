@@ -23,6 +23,7 @@ XScreenSaverLayer::XScreenSaverLayer()
 }
 
 XScreenSaverLayer::~XScreenSaverLayer() {
+  stop();
   close();
 }
 

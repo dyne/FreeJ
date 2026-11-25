@@ -22,6 +22,7 @@
 
 #include <config.h>
 
+#include <limits>
 #include <stdlib.h>
 #include <string.h>
 #ifdef USE_MLOCK
@@ -37,19 +38,25 @@
 ringbuffer_t *
 ringbuffer_create (size_t sz)
 {
-  unsigned int power_of_two;
-  ringbuffer_t *rb;
+  const size_t max_size = size_t(1) << (std::numeric_limits<size_t>::digits - 1);
+  if (sz > max_size)
+    return nullptr;
+  size_t capacity = 2;
+  while (capacity < sz)
+    capacity <<= 1;
 
-  rb = (ringbuffer_t*) malloc (sizeof (ringbuffer_t));
-
-  for (power_of_two = 1; 1 << power_of_two < sz; power_of_two++);
-
-  rb->size = 1 << power_of_two;
-  rb->size_mask = rb->size;
-  rb->size_mask -= 1;
+  auto *rb = static_cast<ringbuffer_t *>(malloc(sizeof(ringbuffer_t)));
+  if (!rb)
+    return nullptr;
+  rb->buf = static_cast<char *>(malloc(capacity));
+  if (!rb->buf) {
+    free(rb);
+    return nullptr;
+  }
+  rb->size = capacity;
+  rb->size_mask = capacity - 1;
   rb->write_ptr = 0;
   rb->read_ptr = 0;
-  rb->buf = (char*)malloc (rb->size);
   rb->mlocked = 0;
 
   return rb;
@@ -102,8 +109,8 @@ ringbuffer_read_space (const ringbuffer_t * rb)
 {
   size_t w, r;
 
-  w = rb->write_ptr;
-  r = rb->read_ptr;
+  w = __atomic_load_n(&rb->write_ptr, __ATOMIC_ACQUIRE);
+  r = __atomic_load_n(&rb->read_ptr, __ATOMIC_ACQUIRE);
 
   if (w > r) {
     return w - r;
@@ -121,8 +128,8 @@ ringbuffer_write_space (const ringbuffer_t * rb)
 {
   size_t w, r;
 
-  w = rb->write_ptr;
-  r = rb->read_ptr;
+  w = __atomic_load_n(&rb->write_ptr, __ATOMIC_ACQUIRE);
+  r = __atomic_load_n(&rb->read_ptr, __ATOMIC_ACQUIRE);
 
   if (w > r) {
     return ((r - w + rb->size) & rb->size_mask) - 1;
@@ -139,39 +146,11 @@ ringbuffer_write_space (const ringbuffer_t * rb)
 size_t
 ringbuffer_read (ringbuffer_t * rb, char *dest, size_t cnt)
 {
-  size_t free_cnt;
-  size_t cnt2;
-  size_t to_read;
-  size_t n1, n2;
-
-  if ((free_cnt = ringbuffer_read_space (rb)) == 0) {
-    return 0;
-  }
-
-  to_read = cnt > free_cnt ? free_cnt : cnt;
-
-  cnt2 = rb->read_ptr + to_read;
-
-  if (cnt2 > rb->size) {
-    n1 = rb->size - rb->read_ptr;
-    n2 = cnt2 & rb->size_mask;
-  } else {
-    n1 = to_read;
-    n2 = 0;
-  }
-
-  jmemcpy (dest, &(rb->buf[rb->read_ptr]), n1);
-  rb->read_ptr += n1;
-  rb->read_ptr &= rb->size_mask;
-
-  if (n2) {
-    jmemcpy (dest + n1, &(rb->buf[rb->read_ptr]), n2);
-    rb->read_ptr += n2;
-    rb->read_ptr &= rb->size_mask;
-  }
-
-  return to_read;
+  const size_t received = ringbuffer_peek(rb, dest, cnt);
+  ringbuffer_read_advance(rb, received);
+  return received;
 }
+
 
 /* The copying data reader w/o read pointer advance.  Copy at most 
    `cnt' bytes from `rb' to `dest'.  Returns the actual number of bytes 
@@ -186,7 +165,7 @@ ringbuffer_peek (ringbuffer_t * rb, char *dest, size_t cnt)
   size_t n1, n2;
   size_t tmp_read_ptr;
 
-  tmp_read_ptr = rb->read_ptr;
+  tmp_read_ptr = __atomic_load_n(&rb->read_ptr, __ATOMIC_RELAXED);
 
   if ((free_cnt = ringbuffer_read_space (rb)) == 0) {
     return 0;
@@ -235,25 +214,21 @@ ringbuffer_write (ringbuffer_t * rb, const char *src, size_t cnt)
 
   to_write = cnt > free_cnt ? free_cnt : cnt;
 
-  cnt2 = rb->write_ptr + to_write;
+  const size_t start = __atomic_load_n(&rb->write_ptr, __ATOMIC_RELAXED);
+  cnt2 = start + to_write;
 
   if (cnt2 > rb->size) {
-    n1 = rb->size - rb->write_ptr;
+    n1 = rb->size - start;
     n2 = cnt2 & rb->size_mask;
   } else {
     n1 = to_write;
     n2 = 0;
   }
 
-  jmemcpy (&(rb->buf[rb->write_ptr]), src, n1);
-  rb->write_ptr += n1;
-  rb->write_ptr &= rb->size_mask;
-
-  if (n2) {
-    jmemcpy (&(rb->buf[rb->write_ptr]), src + n1, n2);
-    rb->write_ptr += n2;
-    rb->write_ptr &= rb->size_mask;
-  }
+  jmemcpy(rb->buf + start, src, n1);
+  if (n2)
+    jmemcpy(rb->buf, src + n1, n2);
+  ringbuffer_write_advance(rb, to_write);
 
   return to_write;
 }
@@ -263,8 +238,8 @@ ringbuffer_write (ringbuffer_t * rb, const char *src, size_t cnt)
 void
 ringbuffer_read_advance (ringbuffer_t * rb, size_t cnt)
 {
-  rb->read_ptr += cnt;
-  rb->read_ptr &= rb->size_mask;
+  const size_t start = __atomic_load_n(&rb->read_ptr, __ATOMIC_RELAXED);
+  __atomic_store_n(&rb->read_ptr, (start + cnt) & rb->size_mask, __ATOMIC_RELEASE);
 }
 
 /* Advance the write pointer `cnt' places. */
@@ -272,8 +247,8 @@ ringbuffer_read_advance (ringbuffer_t * rb, size_t cnt)
 void
 ringbuffer_write_advance (ringbuffer_t * rb, size_t cnt)
 {
-  rb->write_ptr += cnt;
-  rb->write_ptr &= rb->size_mask;
+  const size_t start = __atomic_load_n(&rb->write_ptr, __ATOMIC_RELAXED);
+  __atomic_store_n(&rb->write_ptr, (start + cnt) & rb->size_mask, __ATOMIC_RELEASE);
 }
 
 /* The non-copying data reader.  `vec' is an array of two places.  Set
@@ -289,8 +264,8 @@ ringbuffer_get_read_vector (const ringbuffer_t * rb,
   size_t cnt2;
   size_t w, r;
 
-  w = rb->write_ptr;
-  r = rb->read_ptr;
+  w = __atomic_load_n(&rb->write_ptr, __ATOMIC_ACQUIRE);
+  r = __atomic_load_n(&rb->read_ptr, __ATOMIC_ACQUIRE);
 
   if (w > r) {
     free_cnt = w - r;
@@ -333,8 +308,8 @@ ringbuffer_get_write_vector (const ringbuffer_t * rb,
   size_t cnt2;
   size_t w, r;
 
-  w = rb->write_ptr;
-  r = rb->read_ptr;
+  w = __atomic_load_n(&rb->write_ptr, __ATOMIC_ACQUIRE);
+  r = __atomic_load_n(&rb->read_ptr, __ATOMIC_ACQUIRE);
 
   if (w > r) {
     free_cnt = ((r - w + rb->size) & rb->size_mask) - 1;

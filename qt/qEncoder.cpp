@@ -1,6 +1,20 @@
 #include <qEncoder.h>
 #include <QDebug>
 
+namespace {
+class WindowEncoder : public OggTheoraEncoder {
+public:
+  explicit WindowEncoder(OggTheoraEncoder *&attachment) : attachment_(attachment) {}
+  ~WindowEncoder() override {
+    stop();
+    attachment_ = nullptr;
+  }
+
+private:
+  OggTheoraEncoder *&attachment_;
+};
+}
+
 QEncoder::QEncoder(Qfreej *qfreej) : QWidget()
 {
   setAttribute(Qt::WA_DeleteOnClose);
@@ -140,7 +154,7 @@ void QEncoder::stream()
   if (!m_streaming)
   {
     m_streaming = true;
-    m_enc=new OggTheoraEncoder();
+    m_enc = new WindowEncoder(m_enc);
     m_enc->video_quality = m_Vquality->text().toInt();
     m_enc->video_bitrate = m_Vbitrate->text().toInt();
     if (m_Qfreej->IsAudioOn())
@@ -190,7 +204,11 @@ void QEncoder::stream()
 	m_enc->write_to_stream = false;
       }
     }
-    m_freej->add_encoder(m_enc);	//also calls the OggTheoraEncoder::init method
+    if (!m_freej->add_encoder(m_enc)) {
+      delete m_enc;
+      m_streaming = false;
+      return;
+    }
     if (m_enc->audio)
     {
       m_enc->audio->Jack->isEncoded(true);	//starts to fill the audio encoder ring buffer
@@ -205,14 +223,20 @@ void QEncoder::stream()
   else
   {
     m_streaming = false;
-    m_enc->stop();
-    m_enc->active = false;
+    if (m_enc) {
+      m_enc->stop();
+      m_enc->active = false;
+    }
     deleteLater();
   }
 }
 
 void QEncoder::updateStreamRate()
 {
+      if (!m_enc) {
+          pollerRate->stop();
+          return;
+      }
       QString val;
       val.setNum(m_enc->getStreamRate(), 'g', 3);
       m_Bitrate->setText(val);

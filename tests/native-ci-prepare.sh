@@ -16,6 +16,7 @@ jobs=${FREEJ_CI_JOBS:-4}
 export LC_ALL=C
 
 python3 tests/legacy-linux-sdk.py "$work/legacy" --jobs "$jobs" 2>&1 | tee "$work/logs/legacy-sdk.log"
+tests/movie-linux-sdk.sh "$profile" "$work/movie" 2>&1 | tee "$work/logs/movie-sdk.log"
 if [[ $profile == static ]]; then
     python3 tests/native-linux-archives.py "$work/archives" --reference-sdk "$work/legacy" \
         --jobs "$jobs" 2>&1 | tee "$work/logs/archive-sdk.log"

@@ -40,6 +40,8 @@ class SoftScreen : public ViewPort {
 
   void blit(Layer *src);
 
+  // Takes ownership of a malloc-compatible buffer of at least geo.bytesize bytes.
+  // A replacement or destruction frees the installed buffer.
   void set_buffer(void *buf);
   void *coords(int x, int y);
 

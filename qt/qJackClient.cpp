@@ -134,15 +134,14 @@ int QJackClient::howManyOutputs()
 
 void QJackClient::addOutput()
 {
-  if (!m_Outputs && m_audio)
+  if (!m_Outputs && m_audio && m_Freej->screen->add_audio(m_Jack))
   {
-    m_Jack->SetRingbufferPtr(m_Freej->screen->audio, m_SampleRate->text().toInt(), m_nbrChan->value());
     if ((m_Enc = m_Qfreej->getEnc()))
     {
       m_Enc->audio = m_audio;
       m_Enc->use_audio = true;
     }
-    m_Outputs += m_nbrChan->value();	//only one shot for the moment !!
+    m_Outputs = m_Jack->m_ringbufferchannels;
   }
 }
 

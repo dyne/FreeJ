@@ -66,16 +66,16 @@ FilterInstance *Filter::new_instance() {
 
 bool Filter::apply(Layer *lay, FilterInstance *instance)
 {
-    
-    errno=0;
-    instance->outframe = (uint32_t*) calloc(lay->geo.bytesize, 1);
-    if(errno != 0) {
+    auto *output = static_cast<uint32_t *>(calloc(lay->geo.bytesize, 1));
+    if(!output) {
         error("calloc outframe failed (%i) applying filter %s",errno, name);
-        error("Filter %s cannot be instantiated", name);
-        delete instance;
-        return NULL;
+        return false;
     }
-    
+
+    free(instance->outframe);
+    instance->outframe = output;
+    instance->frame_width_ = lay->geo.w;
+    instance->frame_height_ = lay->geo.h;
     bytesize = lay->geo.bytesize;
     
     lay->filters.append(instance);
@@ -88,13 +88,10 @@ bool Filter::apply(Layer *lay, FilterInstance *instance)
 }
 
 FilterInstance *Filter::apply(Layer *lay) {
-
-  FilterInstance *instance = new_instance();
-  
-  if (apply(lay, instance))
-      return instance;
-  delete instance;
-  return NULL;
+  std::unique_ptr<FilterInstance> instance(new_instance());
+  if (instance && instance->apply(lay))
+    return instance.release();
+  return nullptr;
 }
 
 const char *Filter::description() {

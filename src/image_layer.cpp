@@ -53,68 +53,54 @@ ImageLayer::ImageLayer()
 
 ImageLayer::~ImageLayer() {
   func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
-  close();
+  ImageLayer::close();
 }
 
 bool ImageLayer::open(const char *file) {
-
-  if(image) SDL_FreeSurface(image);
-  if(surf) SDL_FreeSurface(surf);
-
-
-  image = IMG_Load(file);
-  if(!image) {
-    error("ImageLayer::open() error: %s", file,IMG_GetError());
+  using Surface = std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)>;
+  Surface input(IMG_Load(file), SDL_FreeSurface);
+  if (!input) {
+    error("ImageLayer::open() error: %s", file, IMG_GetError());
     return false;
   }
-  set_filename(file);
 
-  /**
-   * Convert to display pixel format if the images is not 32 bit per pixel
-   */
-  if(image->format->BitsPerPixel != 32) {
-    image = SDL_DisplayFormat(image);
+  if (input->format->BitsPerPixel != 32)
+    input.reset(SDL_DisplayFormat(input.get()));
+  if (!input) {
+    error("ImageLayer::open() could not convert %s: %s", file, SDL_GetError());
+    return false;
   }
 
-  // allocate the hw accelerated surface
-  surf = SDL_CreateRGBSurface(SDL_HWSURFACE|SDL_SRCALPHA,
-			      image->w, image->h, 32,
-			      red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
-  if(!surf) {
+  Surface converted(SDL_CreateRGBSurface(SDL_HWSURFACE|SDL_SRCALPHA,
+      input->w, input->h, 32, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask),
+      SDL_FreeSurface);
+  if (!converted) {
     error("ImageLayer::open() error creating SDL surface");
     return false;
   }
+  // Copy color and alpha without blending the input over the new surface.
+  SDL_SetAlpha(input.get(), 0, 0);
+  if (SDL_BlitSurface(input.get(), NULL, converted.get(), NULL) < 0)
+    return false;
+  Geometry layout;
+  layout.init(converted->w, converted->h, 32);
+  std::unique_ptr<void, decltype(&free)> black(calloc(1, layout.bytesize), free);
+  if (!black)
+    return false;
 
-  //SDL_FillRect(surf, NULL, 0x0);
-
-
-  geo.init(image->w, image->h, 32);
-
-  
-  notice("ImageLayer opened %s :: w[%u] h[%u] (%u bytes)",
-	 file, geo.w, geo.h, geo.bytesize);
-
-
-  /** allocate memory for the black image */
-  if(black_image) {
-    free(black_image);
-    black_image = NULL;
-  }
-
-  black_image = malloc(geo.bytesize);
-  // paint it black!
-  black_image = memset(black_image,0,geo.bytesize);
-
-  // do not apply the mask,
-  // copy image+alpha to surf
-  SDL_SetAlpha( image, 0, 0 );
-
-  //SDL_FillRect(surf, NULL, alpha_bitmask);
-  SDL_BlitSurface(image,NULL,surf,NULL);
-
+  const bool restart = is_running();
+  close();
+  std::lock_guard<Layer> lock(*this);
+  image = input.release();
+  surf = converted.release();
+  black_image = black.release();
+  geo.init(layout.w, layout.h, 32);
+  need_crop = true;
   opened = true;
-
-  return true;
+  set_filename(file);
+  notice("ImageLayer opened %s :: w[%u] h[%u] (%u bytes)",
+         file, geo.w, geo.h, geo.bytesize);
+  return !restart || start() == 0;
 }
 
 void *ImageLayer::feed() {
@@ -123,8 +109,14 @@ void *ImageLayer::feed() {
 
 void ImageLayer::close() {
   func("ImageLayer::close()");
+  stop();
+  std::lock_guard<Layer> lock(*this);
+  clear_frame();
   SDL_FreeSurface(image);
   SDL_FreeSurface(surf);
   free(black_image);
+  image = surf = nullptr;
+  black_image = nullptr;
+  opened = false;
   tmpImage = NULL;
 }

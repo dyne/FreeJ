@@ -39,8 +39,8 @@
 using namespace std;
 using std::setiosflags;
 
-OggTheoraEncoder::OggTheoraEncoder() 
-  : VideoEncoder() {
+OggTheoraEncoder::OggTheoraEncoder()
+  : VideoEncoder(), oggmux{} {
   func("OggTheoraEncoder object created");
   
   video_quality  = 16;  // it's ok for streaming
@@ -64,13 +64,20 @@ OggTheoraEncoder::OggTheoraEncoder()
 
 }
 
-OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
+OggTheoraEncoder::~OggTheoraEncoder() {
   func("OggTheoraEncoder:::~OggTheoraEncoder");
-  
-  oggmux_flush(&oggmux, 1);
-  oggmux_close(&oggmux);
-  
-  //  if(enc_rgb24) free(enc_rgb24);
+  stop();
+  if (initialized) {
+    if (use_audio) {
+      drain_audio();
+      encode_audio(1, 0);
+    }
+    oggmux_flush(&oggmux, 1);
+    oggmux_close(&oggmux);
+    theora_info_clear(&oggmux.ti);
+  } else {
+    theora_comment_clear(&oggmux.tc);
+  }
 
   if(audio_buf) free(audio_buf);
   if(m_MixBuffer) free(m_MixBuffer);
@@ -79,10 +86,29 @@ OggTheoraEncoder::~OggTheoraEncoder() { // XXX TODO clear the memory !!
   if (m_MixedRing) ringbuffer_free(m_MixedRing);
 }
 
+void OggTheoraEncoder::flush_pending_output() {
+  if (initialized) {
+    if (use_audio)
+      drain_audio();
+    oggmux_flush(&oggmux, 1);
+  }
+}
 
 bool OggTheoraEncoder::init (ViewPort *scr) {
 
   if(initialized) return true;
+  if (!ringbuffer)
+    return false;
+
+  const int w = scr->geo.w;
+  const int h = scr->geo.h;
+  video_x = ((w + 15) >> 4) << 4;
+  video_y = ((h + 15) >> 4) << 4;
+  // Theora's coded size is padded; chroma offsets must be even.
+  frame_x_offset = ((video_x - w) / 2) & ~1;
+  frame_y_offset = ((video_y - h) / 2) & ~1;
+  if (!configure_frame(w, h, video_x, video_y, frame_x_offset, frame_y_offset))
+    return false;
 
   screen = scr;
   oggmux.ringbuffer = ringbuffer;
@@ -124,18 +150,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   /* Set up Theora encoder */
 
   int theora_quality = (int) ( (video_quality * 63) / 100);
-  int w                   = screen->geo.w;
-  int h                   = screen->geo.h;
   func("VideoEncoder: encoding theora to quality %u", theora_quality);
-  /* Theora has a divisible-by-sixteen restriction for the encoded video size */
-  /* scale the frame size up to the nearest /16 and calculate offsets */
-  video_x = ( (w + 15) >> 4) << 4;
-  video_y = ( (h + 15) >> 4) << 4;
-  /* We force the offset to be even.
-     This ensures that the chroma samples align properly with the luma
-     samples. */
-  frame_x_offset = ( (video_x - w ) / 2) &~ 1;
-  frame_y_offset = ( (video_y - h ) / 2) &~ 1;
 
 
   /* video settings here */
@@ -171,11 +186,6 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   oggmux.ti.sharpness                    = 1;
 
   oggmux_init(&oggmux);
-  
-  enc_y     = malloc( screen->geo.w * screen->geo.h);
-  enc_u     = malloc((screen->geo.w * screen->geo.h) /2);
-  enc_v     = malloc((screen->geo.w * screen->geo.h) /2);
-  enc_yuyv   = (uint8_t*)malloc(  screen->geo.bytesize );
   
   act("initialization successful");
   initialized = true;
@@ -290,45 +300,22 @@ int OggTheoraEncoder::Mux(int nfr)
   return (sizeVideo);
 }
 
-int OggTheoraEncoder::encode_frame() {
-  static int written = 0;
-  encode_video ( 0);
-  if (use_audio)
-  {
-	float *ptr = m_buffStream;
-	int sizeFilled = 0;
-	size_t rv = 0;
-	sizeFilled = Mux(1024);
-// 	std::cerr << "--sizeFilled :" << sizeFilled << std::endl;
-	if (int rf = ringbuffer_read_space (m_MixedRing))
-	{
-// 	  std::cerr << "--rf :" << rf << std::endl;
-	  double rff = 0;
-	  if (rf > (4096 * 512 * 4))
-	    rf  = 4096 * 512 * 4;
-	  else
-	  {
-	    rff = ceil(rf/sizeof(float));
-	    rff = (rff*sizeof(float)) - sizeof(float);	//take the bigest number divisible by 4 and lower than rf (ringbuffer available datas)
-	  }
-// 	  std::cerr << "--rff :" << rff << std::endl;
-	  if (rff >= ((1024 * sizeof(float) * oggmux.channels - 1)))	// > to 1024 frames in stereo
-	  {
-	    if ((rv = ringbuffer_read(m_MixedRing, (char *)m_buffStream, (size_t)rff)) == 0)
-	    {
-	      std::cerr << "------impossible de lire dans le audio_mix_ring ringbuffer !!!"\
-		    << " rff:" << rff << " rv:" << rv << endl;
-	    }
-	    else if (rv != rff)
-	    {
-	      std::cerr << "------pas assez lu dans audio_mix_ring ringbuffer !!!"\
-		    << " rff:" << rff << " rv:" << rv << std::endl << std::flush;
-	    }
- 	    encode_audio ( 0, rv);
-	  }
-	}
+void OggTheoraEncoder::drain_audio() {
+  Mux(1024);
+  const std::size_t frame_bytes = oggmux.channels * sizeof(float);
+  const auto available = ringbuffer_read_space(m_MixedRing);
+  const auto complete = available - available % frame_bytes;
+  if (complete) {
+    const auto read = ringbuffer_read(m_MixedRing, reinterpret_cast<char *>(m_buffStream), complete);
+    encode_audio(0, read);
   }
-  
+}
+
+int OggTheoraEncoder::encode_frame() {
+  encode_video(0);
+  if (use_audio)
+    drain_audio();
+
   oggmux_flush(&oggmux, 0);
 
   bytes_encoded = oggmux.video_bytesout + oggmux.audio_bytesout;	//total from the beginning

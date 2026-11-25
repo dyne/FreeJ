@@ -36,7 +36,7 @@ JSFunctionSpec video_layer_methods[] = {
   {	"seek",		video_layer_seek, 		1},
   {	"mark-in",	video_layer_mark_in, 		1},
   {	"mark-out",	video_layer_mark_out, 		1},
-  {	"pause",	video_layer_pause, 		0}, 
+  {	"pause",	video_layer_pause, 		0},
   {0}
 };
 
@@ -52,13 +52,9 @@ JS(video_layer_seek) {
 
   GET_LAYER(VideoLayer);
 
-  if(argc<1) {
-      return JS_FALSE;
-  } else {
-    JS_ValueToECMAUint32(cx, argv[0], &pos);
-    lay->to_seek = pos;
-    func("to seek: %d",lay->to_seek);
-  }
+  if (argc < 1 || !JS_ValueToECMAUint32(cx, argv[0], &pos))
+    return JS_FALSE;
+  lay->to_seek = pos;
   return JS_TRUE;
 }
 

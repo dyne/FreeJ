@@ -65,6 +65,7 @@ CairoLayer::CairoLayer()
 }
 
 CairoLayer::~CairoLayer() {
+  stop();
   
   if(cairo)  cairo_destroy(cairo);
   if(surf)   cairo_surface_destroy(surf);

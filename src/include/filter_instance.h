@@ -32,6 +32,8 @@ class Filter;
 
 class FilterInstance : public Entry {
   friend class Filter;
+  friend class Layer;
+  friend class Freeframe;
 
  public:
   FilterInstance();
@@ -66,6 +68,8 @@ class FilterInstance : public Entry {
 
  private:
   Layer *layer;
+  uint16_t frame_width_ = 0;
+  uint16_t frame_height_ = 0;
 
   FACTORY_ALLOWED
 };

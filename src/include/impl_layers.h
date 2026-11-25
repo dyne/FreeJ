@@ -46,10 +46,6 @@
 #include <avi_layer.h>
 #endif
 
-#ifdef WITH_FFMPEG
-#include <video_layer.h>
-#endif
-
 #if defined WITH_TEXTLAYER
 #include <text_layer.h>
 #endif

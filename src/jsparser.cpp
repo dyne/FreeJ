@@ -217,16 +217,14 @@ bool JsExecutionContext::init_class() {
     cam_layer_methods,
     object_proto);
 
-// #ifdef WITH_FFMPEG
-//   REGISTER_CLASS("MovieLayer",
-//     video_layer_class,
-//     video_layer_constructor,
-//     NULL, // properties
-//     video_layer_methods,
-//     object_proto);
-// #endif
-
-#ifdef WITH_AVIFILE
+#if defined WITH_FFMPEG
+  REGISTER_CLASS("MovieLayer",
+    video_layer_class,
+    video_layer_constructor,
+    NULL, // properties
+    video_layer_methods,
+    object_proto);
+#elif defined WITH_AVIFILE
   REGISTER_CLASS("MovieLayer",
     avi_layer_class,
     avi_layer_constructor,

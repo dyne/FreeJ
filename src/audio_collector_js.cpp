@@ -167,9 +167,7 @@ JS(js_audio_jack_add_layer) {
      return JS_TRUE;
    }
 
-   lay->screen->add_audio( audio->Jack );
-
-   *rval = JSVAL_TRUE;
+   *rval = BOOLEAN_TO_JSVAL(lay->screen->add_audio(audio->Jack, *lay));
 
    return JS_TRUE;
 }

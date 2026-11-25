@@ -27,6 +27,8 @@
 #include <audio_jack.h>
 
 #include <jutils.h>
+#include <algorithm>
+#include <cerrno>
 
 JackClient*       JackClient::m_Singleton  = NULL;
 bool              JackClient::m_Attached   = false;
@@ -41,11 +43,11 @@ std::map<int,JackClient::JackPort*> JackClient::m_OutputPortMap;
 ///////////////////////////////////////////////////////
 
 JackClient::JackClient() :
+audio_mix_ring(nullptr),
+first(nullptr),
+m_ringbufferchannels(0),
+m_ringbuffer(nullptr),
 m_NextInputID(0),
-m_NextOutputID(0),
-m_inbuf(NULL),
-m_ringbuffer(NULL),
-audio_mix_ring(NULL),
 m_Encoded(false)
 {
 }
@@ -66,7 +68,11 @@ void JackClient::isEncoded(bool enc)
 
 bool JackClient::Attach(const std::string &ClientName)
 {
+	std::lock_guard<std::mutex> lock(output_mutex_);
 	if (m_Attached) return true;
+	// A server shutdown can leave an inactive client to retire before reopening.
+	if (m_Client)
+	  detach_locked();
 
 /* jack_client_new is now deprecated (Oct 2010)
    m_Client = jack_client_new(ClientName.c_str());
@@ -91,24 +97,26 @@ bool JackClient::Attach(const std::string &ClientName)
 	m_InputPortMap.clear();
 	m_OutputPortMap.clear();
 	
-    // tell the JACK server that we are ready to roll
-	if (jack_activate (m_Client))
-	{
-	  error("cannot activate client");
-		return false;
+	audio_mix_ring = ringbuffer_create(4096 * 512 * 4);
+	first = ringbuffer_create(4096 * 512 * 4);
+	if (!audio_mix_ring || !first || jack_activate(m_Client)) {
+	  error("cannot activate JACK client");
+	  detach_locked();
+	  return false;
 	}
-
-	m_Attached=true;
-	
-	audio_mix_ring = ringbuffer_create(4096 * 512 * 4);		//1024 not enought, must be the same size_t
-								// as buf_fred set up in OggTheoraEncoder::init
-	first = ringbuffer_create(4096 * 512 * 4);	//first jack Input ring buffer
+	m_Attached = true;
 	return true;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 void JackClient::Detach()
+{
+	std::lock_guard<std::mutex> lock(output_mutex_);
+	detach_locked();
+}
+
+void JackClient::detach_locked()
 {
 	if (m_Client)
 	{
@@ -119,6 +127,15 @@ void JackClient::Detach()
 	}
 	if(audio_mix_ring) ringbuffer_free(audio_mix_ring);
 	if(first) ringbuffer_free(first);
+	audio_mix_ring = first = nullptr;
+	m_ringbuffer = nullptr;
+	m_ringbufferchannels = 0;
+	output_buffer_.clear();
+	for (auto &port : m_OutputPortMap)
+	  delete port.second;
+	m_OutputPortMap.clear();
+	// JACK close has stopped callback execution before retiring the published ports.
+	output_port_count_.store(0, std::memory_order_relaxed);
 	
 	// tells ssm to go back to non callback mode
 	//if (RunCallback) RunCallback(RunContext, false);
@@ -162,7 +179,7 @@ int JackClient::Process (jack_nframes_t nframes, void *arg)
 int JackClient::Process(jack_nframes_t nframes, void *self)
 {	
   int j = 0;
-  bool isEncoded = ((JackClient*) self)->m_Encoded;
+  auto &client = *static_cast<JackClient *>(self);
   
 	for (std::map<int,JackPort*>::iterator i=m_InputPortMap.begin();
 		i!=m_InputPortMap.end(); i++)
@@ -172,7 +189,7 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		  sample_t *in = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
 // 		  memcpy (i->second->Buf, in, sizeof (sample_t) * m_BufferSize); //m_BufferSize -> 2nd AudioCollector parameter
 			//Buff attribué par SetInputBuf dans le construcAteur de AudioCollector
-		  if (isEncoded)	//Added this to write in the buffer only if 
+		  if (client.m_Encoded)	//Added this to write in the buffer only if
 		  {			//the encoder is in action
 		    if (!j)	//only streams the 1st Jack Input port
 		    {
@@ -190,76 +207,40 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 		}
 	}
 
-	int channels = ((JackClient*) self)->m_ringbufferchannels;
-
-	
-	bool output_available = false;
-//m_ringbuffer created by ViewPort::add_audio
-//1024*512 rounded up to the next power of two.
-	if (((JackClient*) self)->m_ringbuffer) 
 	{
-// 	  static int firsttime = 1 + ceil(4096/nframes); // XXX pre-buffer  TODO decrease this and compensate latency
-	
-	  if (ringbuffer_read_space(((JackClient*) self)->m_ringbuffer) >= 
-			      /*firsttime */ channels * nframes * sizeof(float)) 
-	  {
-// 		  firsttime=1;
-		  size_t rv = ringbuffer_read(((JackClient*) self)->m_ringbuffer, 
-					      ((JackClient*) self)->m_inbuf,
-					      channels*nframes*sizeof(float));
-		  if (isEncoded)	//Added this to write in the buffer only if 
-		  {			//the encoder is in action
-		    if (ringbuffer_write_space (((JackClient*) self)->audio_mix_ring) >= rv)
-		    {
-// 		    	unsigned char *aPtr = (unsigned char *)((JackClient*) self)->m_inbuf;
-		      size_t rf = ringbuffer_write (((JackClient*) self)->audio_mix_ring, ((JackClient*) self)->m_inbuf, rv);
-		      if (rf != rv)
-			std::cerr << "---" << rf << " : au lieu de :" << rv << " octets ecrits dans le ringbuffer !!"\
-									       << std::endl;
-		    }
-		    else
-		    {
-		      std::cerr << "-----------Not enough room in audio_mix_ring !!!" << std::endl; 
-		    }
-		  }
-//reads m_ringbuffer and puts it in m_inbuf
-//m_inbuf created in SetRingbufferPtr called by add_audio
-//4096 * channels * sizeof(float)
-  		if (rv >= channels * nframes * sizeof(float))
-		{
-  			output_available = true;
-		}
+	  // A control thread may change the route. The callback never waits for it.
+	  std::unique_lock<std::mutex> lock(client.output_mutex_, std::try_to_lock);
+	  const int channels = lock ? client.m_ringbufferchannels.load(std::memory_order_relaxed) : 0;
+	  const std::size_t frame_bytes = channels * sizeof(float);
+	  const std::size_t period_bytes = nframes * frame_bytes;
+	  bool output_available = false;
+	  if (frame_bytes && client.m_ringbuffer && period_bytes <= client.output_buffer_.size()) {
+	    auto *samples = client.output_buffer_.data();
+	    const auto bytes = std::min(period_bytes, ringbuffer_read_space(client.m_ringbuffer));
+	    const auto received = ringbuffer_read(client.m_ringbuffer, samples, bytes - bytes % frame_bytes);
+	    if (received) {
+	      // The encoder receives complete source samples, including the tail
+	      // of a clip. Playback alone gets zero filling to the JACK period.
+	      if (client.m_Encoded && ringbuffer_write_space(client.audio_mix_ring) >= received)
+	        ringbuffer_write(client.audio_mix_ring, samples, received);
+	      memset(samples + received, 0, period_bytes - received);
+	      output_available = true;
+	    }
 	  }
-#if 0
-	  else if (firsttime==1)
-	  	fprintf(stderr, "AUDIO BUFFER UNDERRUN: %i samples < %i\n", ringbuffer_read_space(((JackClient*) self)->m_ringbuffer) / sizeof(float) / channels, nframes);
-#endif
-	}
 
-	j=0;
-	for (std::map<int,JackPort*>::iterator i=m_OutputPortMap.begin();
-		i!=m_OutputPortMap.end(); i++)
-	{
-		if (output_available && j < channels) 
-		{
-			sample_t *out = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
-			memset (out, 0, sizeof (jack_default_audio_sample_t) * nframes);
-			deinterleave(((JackClient*) self)->m_inbuf, out, channels
-						, j, nframes);
-//writes nframes of channels m_inbuf to out
-//two times if stereo (shifted by the channel number)
-#if 0  			// test-noise:
-			int i; for (i=0; i< nframes; i++) out[i]=(float) i/(float)nframes;
-#endif
-		}
-		else // no output availaible, clear
-		{
-			sample_t *out = (sample_t *) jack_port_get_buffer(i->second->Port, nframes);
-			memset (out, 0, sizeof (sample_t) * nframes);
-		}
-		j++;
+	  // Port slots are append-only while JACK can call Process. An acquired
+	  // count makes their handles visible even when the route lock is held.
+	  const int ports = client.output_port_count_.load(std::memory_order_acquire);
+	  for (int channel = 0; channel < ports; ++channel) {
+	    auto *output = static_cast<sample_t *>(jack_port_get_buffer(client.output_ports_[channel], nframes));
+	    if (!output)
+	      continue;
+	    if (output_available && channel < channels)
+	      deinterleave(client.output_buffer_.data(), output, channels, channel, nframes);
+	    else
+	      memset(output, 0, nframes * sizeof(*output));
+	  }
 	}
-	
 	m_BufferSize=nframes;
 			
 // 	if(RunCallback&&RunContext)
@@ -271,25 +252,35 @@ int JackClient::Process(jack_nframes_t nframes, void *self)
 	return 0;
 }
 
-int JackClient::SetRingbufferPtr(ringbuffer_t *rb, int rate, int channels) {
-	int i;
-	m_ringbuffer = NULL;
-	
-	func ("jack-client ringbuffer set for %i channels", channels);
-std::cout << "SetRingbufferPtr, channels :" << channels << std::endl;
-// 	int j = 0;
-	for (i=m_NextOutputID; i<channels; i++) {
-		AddOutputPort();
-// 		AddInputPort();
-// 			this->ConnectOutput(i, "system:playback_1");
-// 			this->ConnectOutput(i, portName);
+int JackClient::SetRingbufferPtr(ringbuffer_t *rb, int, int channels) {
+	if (!rb || channels <= 0 || channels > MAX_OUTPUTPORTS)
+	  return EINVAL;
+	std::lock_guard<std::mutex> lock(output_mutex_);
+	if (!m_Attached)
+	  return EINVAL;
+	while (output_port_count_.load(std::memory_order_relaxed) < channels) {
+	  if (add_output_port_locked() < 0)
+	    return ENODEV;
 	}
-
-	if(m_inbuf) free(m_inbuf);
-	m_inbuf = (char*) malloc(4096 * channels * sizeof(float));
+	const std::size_t period = std::max(4096u, jack_get_buffer_size(m_Client));
+	output_buffer_.resize(period * channels * sizeof(float));
+	ringbuffer_reset(rb);
 	m_ringbufferchannels = channels;
 	m_ringbuffer = rb;
-	return (0);
+	return 0;
+}
+
+void JackClient::ResetRingbuffer(ringbuffer_t *rb, bool disconnect) {
+	if (auto *client = m_Singleton) {
+	  std::lock_guard<std::mutex> lock(client->output_mutex_);
+	  if (client->m_ringbuffer == rb) {
+	    ringbuffer_reset(rb);
+	    if (disconnect) {
+	      client->m_ringbuffer = nullptr;
+	      // Preserve the recording format until a different supplier binds.
+	    }
+	  }
+	}
 }
 
 
@@ -313,18 +304,32 @@ int JackClient::AddInputPort()
 
 int JackClient::AddOutputPort()
 {
-	char Name[256];
-	sprintf(Name,"Out%d",m_NextOutputID);
-	
-	JackPort *NewPort = new JackPort;
-	NewPort->Name=Name;
-	NewPort->Buf=NULL;		
-	NewPort->Port = jack_port_register (m_Client, Name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
-	m_OutputPortMap[m_NextOutputID]=NewPort;
-	
-	m_NextOutputID++;
-	return m_NextOutputID-1;
+	std::lock_guard<std::mutex> lock(output_mutex_);
+	return add_output_port_locked();
 }
+
+int JackClient::add_output_port_locked()
+{
+	static_assert(ATOMIC_INT_LOCK_FREE == 2, "JACK output publication must be lock-free");
+	const int channel = output_port_count_.load(std::memory_order_relaxed);
+	if (!m_Attached || channel == MAX_OUTPUTPORTS)
+	  return -1;
+
+	char name[32];
+	snprintf(name, sizeof(name), "Out%d", channel);
+	auto *port = new JackPort;
+	port->Name = name;
+	port->Port = jack_port_register(m_Client, name, JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+	if (!port->Port) {
+	  delete port;
+	  return -1;
+	}
+	m_OutputPortMap[channel] = port;
+	output_ports_[channel] = port->Port;
+	output_port_count_.store(channel + 1, std::memory_order_release);
+	return channel;
+}
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 

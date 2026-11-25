@@ -59,8 +59,8 @@ void SoftScreen::setup_blits(Layer *lay) {
 
 bool SoftScreen::_init() {
 
-  screen_buffer = malloc(geo.bytesize);
-  return(true);
+  screen_buffer = calloc(1, geo.bytesize);
+  return screen_buffer != nullptr;
 }
 
 void SoftScreen::blit(Layer *src) {
@@ -103,13 +103,7 @@ void SoftScreen::set_buffer(void *buf) {
 }
 
 void *SoftScreen::coords(int x, int y) {
-//   func("method coords(%i,%i) invoked", x, y);
-// if you are trying to get a cropped part of the layer
-// use the .pixelsize geometric property for a pre-calculated stride
-// that is: number of bytes for one full line
-  return
-    ( x + geo.pixelsize +
-      (uint32_t*)get_surface() );
+  return static_cast<uint32_t *>(get_surface()) + y * geo.w + x;
 }
 
 void *SoftScreen::get_surface() {

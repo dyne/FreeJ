@@ -285,7 +285,10 @@ bool Freior::apply(Layer *lay, FilterInstance *instance)
     instance->core = (*f0r_construct)(lay->geo.w, lay->geo.h);
     if (!instance->core)
         return false;
-    return Filter::apply(lay, instance);
+    if (Filter::apply(lay, instance))
+        return true;
+    destruct(instance);
+    return false;
 }
 
 void Freior::destruct(FilterInstance *inst)

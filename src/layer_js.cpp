@@ -80,7 +80,10 @@ void js_layer_gc (JSContext *cx, JSObject *obj) {
 
 	if(l) {
 	  func("js gc deleting layer %s", l->name);
-	  //	l->data = NULL; // Entry~ calls free(data)
+	  if (l->screen)
+	    l->screen->rem_layer(l);
+	  else
+	    l->stop();
 	  delete l;
 	}
 

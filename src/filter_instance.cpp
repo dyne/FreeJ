@@ -34,6 +34,7 @@ FACTORY_REGISTER_INSTANTIATOR(FilterInstance, FilterInstance, FilterInstance, co
 FilterInstance::FilterInstance()
  : Entry() 
 {
+  proto = NULL;
   core = NULL;
   intcore = 0;
   outframe = NULL;
@@ -44,6 +45,7 @@ FilterInstance::FilterInstance()
 FilterInstance::FilterInstance(Filter *fr)
 	: Entry()
 {
+  proto = NULL;
   core = NULL;
   intcore = 0;
   outframe = NULL;
@@ -55,12 +57,14 @@ FilterInstance::FilterInstance(Filter *fr)
 FilterInstance::~FilterInstance() {
   func("~FilterInstance");
 
+  rem();
   if(proto)
     proto->destruct(this);
 
   if(outframe)
     free(outframe);
-
+  while (Parameter *parameter = parameters.begin())
+    delete parameter;
 }
 
 void FilterInstance::init(Filter *fr)
@@ -73,6 +77,7 @@ void FilterInstance::init(Filter *fr)
 }
 
 uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
+  std::lock_guard<Linklist<Parameter>> lock(parameters);
   if(!proto) {
     error("void filter instance was called for process: %p", this);
     return inframe;
@@ -82,6 +87,7 @@ uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
 }
 
 bool FilterInstance::set_parameter(int idx) {
+  std::lock_guard<Linklist<Parameter>> lock(parameters);
   Parameter *param;
   param = (Parameter*)parameters[idx];
 
@@ -104,6 +110,7 @@ bool FilterInstance::set_parameter(int idx) {
 }
 
 bool FilterInstance::get_parameter(int idx) {
+  std::lock_guard<Linklist<Parameter>> lock(parameters);
   Parameter *param;
   param = (Parameter*)parameters[idx];
 
@@ -127,6 +134,8 @@ bool FilterInstance::get_parameter(int idx) {
 
 bool FilterInstance::apply(Layer *lay)
 {
+    std::lock_guard<Layer> state_lock(*lay);
+    std::lock_guard<Linklist<FilterInstance>> list_lock(lay->filters);
     bool ret = false;
     if (!layer && proto)
         ret = proto->apply(lay, this);

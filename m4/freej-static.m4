@@ -14,12 +14,13 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
 
     freej_archives=""
     freej_stage_archives=""
+    freej_archive_dir="$FREEJ_STATIC_SDK/lib"
     freej_require_archives () {
       freej_capability=$[]1
       shift
       for freej_name
       do
-        freej_archive="$FREEJ_STATIC_SDK/lib/lib$freej_name.a"
+        freej_archive="$freej_archive_dir/lib$freej_name.a"
         AS_IF([test ! -f "$freej_archive" || ! ar t "$freej_archive" >/dev/null 2>&1],
           [AC_MSG_ERROR([$freej_capability requires archive $freej_archive])])
         AS_CASE([" $freej_archives "], [*" $freej_archive "*], [], [
@@ -36,7 +37,14 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
       [AC_MSG_ERROR([the static profile requires the pinned SDL_gfx and SDL_ttf SDK metadata])])
     freej_require_archives "SDL image, geometry and text" SDL_image SDL_gfx SDL_ttf png16 jpeg tiff webp sharpyuv jbig deflate lzma Lerc zstd z freetype bz2 brotlidec brotlicommon
     freej_require_archives "S-Lang console" slang
-    freej_require_archives "historical FFmpeg media" avcodec avformat avutil swscale sndio asound
+    freej_movie_dir=`$PKG_CONFIG --variable=libdir libavformat`
+    AS_CASE([$freej_movie_dir],
+      [""|*[[!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./-]]*],
+      [AC_MSG_ERROR([the FFmpeg SDK requires a libdir path free of spaces or shell metacharacters])])
+    freej_archive_dir="$freej_movie_dir"
+    freej_require_archives "FFmpeg movie decoding" avcodec avformat avutil swscale swresample
+    freej_archive_dir="$FREEJ_STATIC_SDK/lib"
+    freej_require_archives "native audio system" sndio asound
     freej_require_archives "recording and streaming" ogg vorbis vorbisenc theora shout speex ssl crypto cairo pixman-1 fontconfig expat xcb-render xcb-shm
     freej_require_archives "JACK capture and playback" jack db
     AS_IF([! $NM "$FREEJ_STATIC_SDK/lib/libjack.a" | grep -q ' T jack_get_tmpdir$'],
@@ -60,7 +68,7 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
     FREEJ_STATIC_STAGE_ARCHIVES=$freej_stage_archives
     FREEJ_STATIC_SYSTEM_LIBS="-pthread -lm -ldl -lrt"
     FREEJ_STATIC_LOADER_FLAGS="-Wl,--wrap=dlopen -Wl,--wrap=dlmopen"
-    FREEJ_STATIC_CLI_LIBS='-Wl,--whole-archive $(builddir)/.libs/libfreej.a -Wl,--no-whole-archive -Wl,--start-group $(MOZJS_LIBS) $(FREEJ_STATIC_ARCHIVES) $(FREEJ_STATIC_SYSTEM_LIBS) -Wl,--end-group'
+    FREEJ_STATIC_CLI_LIBS='-Wl,--whole-archive $(top_builddir)/src/.libs/libfreej.a -Wl,--no-whole-archive -Wl,--start-group $(MOZJS_LIBS) $(FREEJ_STATIC_ARCHIVES) $(FREEJ_STATIC_SYSTEM_LIBS) -Wl,--end-group'
     AC_MSG_CHECKING([whether the archive SDK links with a static C++ runtime])
     freej_save_LIBS=$LIBS
     freej_save_LDFLAGS=$LDFLAGS
@@ -71,10 +79,11 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
       AC_LANG_PROGRAM([[
         #include <exception>
         extern "C" int SDL_Init(unsigned int);
+        extern "C" unsigned avformat_version(void);
         extern "C" void *jack_ringbuffer_create(unsigned long);
         extern "C" const char *src_get_version(void);
       ]], [[
-        return SDL_Init(0) || !jack_ringbuffer_create(32) || !src_get_version()
+        return SDL_Init(0) || !avformat_version() || !jack_ringbuffer_create(32) || !src_get_version()
           || !std::exception().what();
       ]])
     ], [AC_MSG_RESULT([yes])], [

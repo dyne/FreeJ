@@ -190,7 +190,8 @@ void Freeframe::destruct(FilterInstance *inst) {
 
 void Freeframe::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
     Filter::update(inst, time, inframe, outframe);
-    jmemcpy(outframe,inframe,bytesize);
+    if (inframe)
+        jmemcpy(outframe, inframe, static_cast<size_t>(inst->frame_width_) * inst->frame_height_ * 4);
     plugmain(FF_PROCESSFRAME, (void*)outframe, inst->intcore);
 }
 

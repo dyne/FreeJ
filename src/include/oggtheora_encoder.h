@@ -73,6 +73,8 @@ class OggTheoraEncoder: public VideoEncoder {
 //   size_t	rv;
   
 private:
+  void flush_pending_output() override;
+  void drain_audio();
   float m_MixVal;
   oggmux_info oggmux; // theorautils object
 

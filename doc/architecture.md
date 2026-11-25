@@ -1,5 +1,17 @@
 # Engine boundaries
 
+The Linux movie layer is registered as `MovieLayer/ffmpeg` through
+`src/media/movie_registration.h`. `VideoLayer` owns playback and its
+decoder, and `src/media/movie_decoder.cpp` owns the FFmpeg contexts,
+packet and frames. Only that translation unit uses the FFmpeg include
+flags. The decoder drains both streams before it reports end of stream,
+and the layer handles looping, controls and dispatch to the viewport.
+The viewport binds a specific audio supplier to JACK independently of
+composition order. Detaching that supplier stops the worker before
+disconnecting its audio buffer. The movie replay fixture lives in
+`tests/show-replay`.
+
+
 Source baseline: `2afb631cb3a429fdf312627ef904ec32b51e812d`. This is a
 design and source walk, not a runtime parity claim. Preserve `Context`, `Layer`,
 `ViewPort`, `Controller`, `Filter`, public include paths, factories, scripts,
@@ -7,7 +19,46 @@ OSC routes, filter order and frontends while extracting their internals.
 Paths below are relative to the repository root. Source symbols are the
 navigation keys; line numbers are baseline locators.
 
-## Current objects and ownership
+## Frame and worker ownership
+
+`src/Makefile.am` groups the engine, media sources and outputs, controllers,
+display adapters, and JavaScript bindings. The private frame code lives in
+`src/engine/`. The native scheduler in `Context::cafudda` owns SDL event
+pumping, display submission, and pacing. Layer and screen factories still
+register at their adapters with the existing keys.
+
+- A layer worker owns its feed cycle and the ordered filter traversal. A source
+  or filter may reuse its buffer once the worker has copied the finished frame
+  into the layer's frame store. Filter instances own their output and parameter
+  entries. The prototype and plug-in library must outlive those instances.
+- A frame lease holds one immutable generation. It records width, height,
+  packed row stride in bytes, channel layout, and a publication timestamp in
+  monotonic nanoseconds. The compositor pins the layer generation for a blit.
+  The legacy `Layer::buffer` points to the current pixels during a protected
+  blit. It carries no ownership beyond that operation.
+- When a viewport has a recorder, the native host snapshots its composed
+  surface before submitting it. The encoder pins this snapshot through
+  conversion, and compression uses its own YUV storage. Resize replaces the
+  viewport surface on the host thread. An in-flight conversion can finish from
+  its existing lease. The recorder keeps the dimensions selected at start.
+- The viewport owns attached encoders and borrows attached layers. Detach
+  removes the layer from the render list and closes its command queue before
+  joining the worker. It cancels pending commands, releases the old frame and
+  blitter, and leaves the layer available to its caller. Reattaching restarts
+  a worker that was active at detach. Reset finishes attached recordings before
+  detaching layers and releasing the viewport. Outstanding frame leases
+  release their storage independently.
+- Script object references remain on the JavaScript owner thread. Screen reset
+  detaches layers before clearing script execution contexts. The existing
+  SpiderMonkey class registration uses stub finalizers. The later effect
+  provider work owns registry shutdown after the remaining script instances.
+
+`make check` exercises the bounded frame step in `frame-step-test` and worker
+retry, held generations, active detach and reattach, failed feeds, resize,
+and recording reset in `lifetime-test`. The software replay checks staged
+native dispatch, rendering, and recording.
+
+## Baseline objects and ownership
 
 Arrows here mean references or containment, not thread or build dependencies.
 Labels C1–C6 identify edges in the source-walk table below.
@@ -31,7 +82,7 @@ flowchart LR
 | C5 | `Filter::apply` (`src/filter.cpp:67`) allocates instance output, appends to `lay->filters` and sets the instance's layer. `Layer::do_filters` (`src/layer.cpp:247`) traverses begin→next under the filters-list lock. List order is artistic behavior. |
 | C6 | `FilterInstance::init/process` (`src/filter_instance.cpp:66/75`) stores `proto` and dispatches its update callback. Its destructor invokes descriptor destruct and frees output. `Freior::apply/destruct/update` (`src/frei0r.cpp:283–301`) manages the plugin instance. Descriptor and instance are distinct objects. |
 
-## Current execution and frame handoffs
+## Baseline execution and frame handoffs
 
 Solid arrows are source-visible calls; dotted arrows are intended connections
 whose runtime validity is unproven. These arrows do not assert synchronization.

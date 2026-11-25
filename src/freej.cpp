@@ -28,6 +28,8 @@
 #include <assert.h>
 #include <errno.h>
 #include <exception>
+#include <memory>
+#include <vector>
 
 #include <context.h>
 
@@ -309,7 +311,6 @@ int scripts(char *path) {
 
 #ifndef HAVE_DARWIN
 int main (int argc, char **argv) {
-  Layer *lay = NULL;
   ConsoleController *con = NULL;
   
   try {
@@ -403,6 +404,7 @@ int main (int argc, char **argv) {
   freej->start_running = startstate;
 
   /* create layers requested on commandline */
+  std::vector<std::unique_ptr<Layer>> command_line_layers;
   {
     char *l, *p, *pp = layer_files;
     while(cli_chars>0) {
@@ -415,14 +417,15 @@ int main (int argc, char **argv) {
 
       func("creating layer for file %s",pp);
 
-      lay = freej->open(pp); // hey, this already init and open the layer !!
-      if(lay)  { 
-        if( screen->add_layer(lay) ) {
-	  lay->start();
-	  lay->fps.set(fps);
-	}
-        if (!startstate) 
-	  lay->active = false;
+      std::unique_ptr<Layer> layer(freej->open(pp));
+      if (layer && freej->screen && freej->screen->add_layer(layer.get())) {
+        layer->fps.set(fps);
+        if (!startstate)
+          layer->active = false;
+        if (layer->start() == 0)
+          command_line_layers.push_back(std::move(layer));
+        else
+          freej->screen->rem_layer(layer.get());
       }
 
       pp = l;
@@ -454,6 +457,6 @@ int main (int argc, char **argv) {
   if(con) delete con;
   delete freej;
 
-  exit(1);
+  return 1;
 }
 #endif

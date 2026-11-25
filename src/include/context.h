@@ -106,7 +106,7 @@ class Context {
   bool init(); ///< initialise the engine
 
   //  void close();
-  void cafudda(double secs); ///< run the engine for seconds or one single frame pass
+  void cafudda(double secs); ///< run and pace one frame; secs is retained for compatibility
 
   void start(); ///< start the engine and loop until quit is false
   void start_threaded(); ///< start the engine in a thread, looping until quit is false

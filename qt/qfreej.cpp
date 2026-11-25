@@ -24,6 +24,8 @@
 #include <QTextEdit>
 #include <string>
 #include <iostream>
+#include <memory>
+#include <stdexcept>
 #include <QList>
 #include <QqWidget.h>
 #include <QTimer>
@@ -86,8 +88,10 @@ Qfreej::Qfreej(QWidget *parent) :
     connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
     poller->start(1); //start timer to trigger every 1 ms the updateInterface slot
 
-    freej = new Context();
+    std::unique_ptr<Context> context(new Context);
+    freej = context.get();
     init();
+    context.release();
     number = 0;
 //     setAttribute(Qt::WA_DeleteOnClose);
 }
@@ -118,7 +122,8 @@ void Qfreej::changeOpacity()
 
 void Qfreej::setFullScreen()
 {
-  screen->fullscreen();
+  if (freej->screen)
+    freej->screen->fullscreen();
 }
 
 void Qfreej::closeEvent(QCloseEvent *event)
@@ -143,9 +148,11 @@ void Qfreej::init()
 
     startstate = true;
 //    fps = 25;                   //fps par défaut
-    screen = Factory<ViewPort>::get_instance( "Screen", "sdl" );
-    screen->init(viewSize.width(), viewSize.height(), 32);
-    freej->add_screen(screen);
+    std::unique_ptr<ViewPort> screen(Factory<ViewPort>::new_instance("Screen", "sdl"));
+    if (!screen || !screen->init(viewSize.width(), viewSize.height(), 32) ||
+            !freej->add_screen(screen.get()))
+        throw std::runtime_error("Could not initialize the Qt viewport");
+    screen.release();
     //freej->config_check("keyboard.js");    
     freej->interactive = false;
 //    freej->fps.set( fps );

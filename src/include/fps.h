@@ -23,6 +23,8 @@
 
 // #include <pthread.h>
 #include <inttypes.h>
+#include <sys/time.h>
+#include <time.h>
 
 class FPS {
  public:
@@ -40,6 +42,8 @@ class FPS {
   double fps, fps_old;
 
  private:
+  friend class Context;
+  void calc_at(const timeval &now);
 
   struct fps_data_t {
     int i;

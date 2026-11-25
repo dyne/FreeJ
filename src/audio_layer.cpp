@@ -51,6 +51,7 @@ AudioLayer::AudioLayer()
 }
 
 AudioLayer::~AudioLayer() {
+  stop();
   close();
 }
 

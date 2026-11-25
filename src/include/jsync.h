@@ -22,23 +22,34 @@
 #include <pthread.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <atomic>
+#include <condition_variable>
+#include <mutex>
 #include <queue>
 
 #include <closure.h>
 #include <fps.h>
 
+namespace freej_engine { struct WorkerAccess; }
+
 class JSyncThread {
  private:
+  friend struct freej_engine::WorkerAccess;
+  using CreateWorker = int (*)(pthread_t *, const pthread_attr_t *, void *(*)(void *), void *);
+  int start_with(CreateWorker create);
   
   pthread_t _thread;
-  pthread_attr_t _attr;
 
-  pthread_mutex_t _mutex;
+  std::recursive_mutex _mutex;
   
   static void* _run(void *arg);
 
 
-  bool _running;
+  std::atomic<bool> _running{false};
+  std::mutex _lifecycle;
+  std::condition_variable _stopped;
+  bool _joinable = false;
+  bool _joining = false;
 
  protected:
 
@@ -57,10 +68,10 @@ class JSyncThread {
 
   FPS fps;
 
-  void lock() { pthread_mutex_lock(&_mutex); };
-  void unlock() { pthread_mutex_unlock(&_mutex); };
+  void lock() { _mutex.lock(); };
+  void unlock() { _mutex.unlock(); };
 
-  bool is_running() { return _running; };
+  bool is_running() { return _running.load(); };
 
 };
 

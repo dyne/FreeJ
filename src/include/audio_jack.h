@@ -14,7 +14,10 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
+#include <array>
+#include <atomic>
 #include <map>
+#include <mutex>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -53,13 +56,14 @@ public:
          int 	 AddInputPort();
          int 	 AddOutputPort();
 	
-	int SetRingbufferPtr(ringbuffer_t *rb, int samplerate, int channels); ///< connect a rinbuffer to JACK out
+	int SetRingbufferPtr(ringbuffer_t *rb, int samplerate, int channels);
+	static void ResetRingbuffer(ringbuffer_t *rb, bool disconnect);
 	static long unsigned int  m_BufferSize;
 	static long unsigned int  m_SampleRate;	
 	static bool               m_Attached;
 	ringbuffer_t *audio_mix_ring;	//ringbuffer to be streamed
 	ringbuffer_t *first;
-	int 		   m_ringbufferchannels;
+	std::atomic<int> m_ringbufferchannels;
 	void	isEncoded(bool isEnc);
 	
 protected:
@@ -89,8 +93,8 @@ private:
 	};
 
 	ringbuffer_t*      m_ringbuffer;
-// 	int 		   m_ringbufferchannels;
-	char* 		   m_inbuf;
+	std::mutex output_mutex_;
+	std::vector<char> output_buffer_;
 	
 
 	static JackClient*        m_Singleton;
@@ -98,11 +102,15 @@ private:
 	static std::map<int,JackPort*> m_InputPortMap;
 	static std::map<int,JackPort*> m_OutputPortMap;
 	int m_NextInputID;
-	int m_NextOutputID;
+	// Append under output_mutex_. The callback reads only the published prefix.
+	std::array<jack_port_t *, MAX_OUTPUTPORTS> output_ports_{};
+	std::atomic<int> output_port_count_{0};
+	int add_output_port_locked();
+	void detach_locked();
 	
 	static void(*RunCallback)(void*, unsigned int bufsize);
 	static void *RunContext;
-	bool	m_Encoded;
+	std::atomic<bool> m_Encoded;
 };
 
 #endif

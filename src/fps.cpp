@@ -52,7 +52,7 @@ FPS::FPS() {
 }
 
 FPS::~FPS() {
-  free(fpsd.data);
+  delete[] fpsd.data;
 
 }
 void FPS::init(double rate) {
@@ -67,11 +67,13 @@ void FPS::init(double rate) {
 }
 
 void FPS::calc() {
+  timeval now;
+  gettimeofday(&now, NULL);
+  calc_at(now);
+}
 
-  timeval done, now_tv;
-  float curr_fps;  
-
-  gettimeofday(&now_tv, NULL);
+void FPS::calc_at(const timeval &now_tv) {
+  timeval done;
 
   if(now_tv.tv_usec == start_tv.tv_usec && now_tv.tv_sec == start_tv.tv_sec) {
     // tight loop, take a minimum breath

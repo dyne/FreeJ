@@ -32,13 +32,14 @@
 #include <context.h>
 #include <jutils.h>
 #include <config.h>
+#include "engine/frame_storage.h"
 
 #include <jsparser_data.h>
 
 //#include <fps.h>
 
 Layer::Layer()
-  :Entry(), JSyncThread() {
+  :Entry(), JSyncThread(), frames_(new freej_engine::FrameStore) {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
   active = false;
   hidden = false;
@@ -80,6 +81,10 @@ Layer::Layer()
 Layer::~Layer() {
   func("%s this=%p",__PRETTY_FUNCTION__, this);
 
+  stop();
+  if(screen)
+    screen->rem_layer(this);
+  deferred_calls->close();
   active = false;
   FilterInstance *f = (FilterInstance*)filters.begin();
   while(f) {
@@ -97,6 +102,7 @@ Layer::~Layer() {
       delete par;
       par = parameters->begin();
     }
+    delete parameters;
   }
   
   if(blitter) delete blitter;
@@ -141,29 +147,31 @@ void Layer::thread_setup() {
 }
 
 void Layer::thread_loop() {
-
-  void *tmp_buf;
-
-  // process all registered operations
-  // and signal to the synchronous waiting feed()
-  // includes parameter changes for layer
-
-  tmp_buf = feed();
-
-  // check if feed returned a NULL buffer
-  if(tmp_buf) {
-    // process filters on the feed buffer
-    tmp_buf = do_filters(tmp_buf);
+  void *source = feed();
+  freej_engine::FrameLayout layout{};
+  {
+    std::lock_guard<Layer> lock(*this);
+    if (geo.bpp == 32)
+      layout = {geo.w, geo.h, geo.bytewidth, freej_engine::FrameFormat::rgba32};
   }
 
-  // we add  a memcpy at the end  of the layer pipeline  this is not
-  // that  expensive as leaving  the lock  around the  feed(), which
-  // slows down the whole engine in case the layer is slow. -jrml
-
-  buffer = tmp_buf;
-  //  unlock();
+  std::shared_ptr<freej_engine::Frame> frame;
+  if (source && layout.width && layout.height) {
+    std::lock_guard<Linklist<FilterInstance>> lock(filters);
+    frame = frames_->prepare(do_filters(source), layout);
+  }
+  {
+    std::lock_guard<Layer> lock(*this);
+    buffer = frame ? frame->pixels.data() : nullptr;
+    frames_->publish(std::move(frame));
+  }
   fps.calc();
   fps.delay();
+}
+
+void Layer::clear_frame() {
+  buffer = nullptr;
+  frames_->clear();
 }
 
 void Layer::thread_teardown() {
@@ -180,6 +188,7 @@ char *Layer::get_blit() {
 }
 
 bool Layer::set_blit(const char *bname) {
+  std::lock_guard<Layer> lock(*this);
   Blit *b;
   int idx;
   
@@ -208,6 +217,9 @@ bool Layer::set_blit(const char *bname) {
 }
 
 void Layer::blit() {
+  std::lock_guard<Layer> state_lock(*this);
+  if (!screen)
+    return;
   if(!buffer) {
     // check threshold of tolerated null feeds
     // deactivate the layer when too many
@@ -223,9 +235,8 @@ void Layer::blit() {
 
     null_feeds = 0;
 
-    lock();
+    const auto frame = freej_engine::FrameAccess::layer(*this);
     screen->blit(this);
-    unlock();
   }
 }
 
@@ -245,16 +256,12 @@ bool Layer::cafudda() {
 }
 
 void *Layer::do_filters(void *tmp_buf) {
-  if( filters.len() ) {
-    FilterInstance *filt;
-    filters.lock();
-    filt = (FilterInstance *)filters.begin();
-    while(filt) {
-      if(filt->active)
-	tmp_buf = (void*) filt->process(fps.fps, (uint32_t*)tmp_buf);
-      filt = (FilterInstance *)filt->next;
-    }
-    filters.unlock();
+  std::lock_guard<Linklist<FilterInstance>> lock(filters);
+  for (FilterInstance *filter = filters.begin(); filter;
+       filter = static_cast<FilterInstance *>(filter->next)) {
+    std::lock_guard<Linklist<Parameter>> parameters_lock(filter->parameters);
+    if (filter->active && filter->frame_width_ == geo.w && filter->frame_height_ == geo.h)
+      tmp_buf = filter->process(fps.fps, static_cast<uint32_t *>(tmp_buf));
   }
   return tmp_buf;
 }
@@ -308,14 +315,14 @@ bool Layer::set_parameter(int idx) {
 
 
 void Layer::set_filename(const char *f) {
-  const char *p = f + strlen(f);
-  while(*p!='/' && (p >= f)) 
-      p--;
-  strncpy(filename,p+1,256);
+  const char *slash = strrchr(f, '/');
+  strncpy(filename, slash ? slash + 1 : f, sizeof(filename) - 1);
+  filename[sizeof(filename) - 1] = '\0';
 }
 
 
 void Layer::_set_position(int x, int y) {
+  std::lock_guard<Layer> lock(*this);
   geo.x = x;
   geo.y = y;
   need_crop = true;
@@ -328,6 +335,7 @@ void Layer::set_position(int x, int y) {
 
 
 void Layer::_set_zoom(double x, double y) {
+  std::lock_guard<Layer> lock(*this);
   if ((x == 1) && (y == 1)) {
     zooming = false;
     zoom_x = zoom_y = 1.0;
@@ -349,6 +357,7 @@ void Layer::set_zoom(double x, double y) {
 
 
 void Layer::_set_rotate(double angle) {
+  std::lock_guard<Layer> lock(*this);
   if(!angle) {
     rotating = false;
     rotate = 0;
@@ -368,6 +377,7 @@ void Layer::set_rotate(double angle) {
 
 
 void Layer::_fit(bool maintain_aspect_ratio) {
+  std::lock_guard<Layer> lock(*this);
   double width_zoom, height_zoom;
   int new_x = 0;
   int new_y = 0;
@@ -375,6 +385,7 @@ void Layer::_fit(bool maintain_aspect_ratio) {
     error("Cannot fit layer without a screen, add layer to a screen first");
     return;
   }
+  std::lock_guard<std::mutex> screen_lock(screen->geometry_mutex_);
   width_zoom = (double)screen->geo.w / geo.w;
   height_zoom = (double)screen->geo.h / geo.h;
   if (maintain_aspect_ratio){

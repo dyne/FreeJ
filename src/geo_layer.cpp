@@ -42,6 +42,7 @@ GeoLayer::GeoLayer()
 }
 
 GeoLayer::~GeoLayer() {
+  stop();
   if(surf) SDL_FreeSurface(surf);
   if(fsurf[0]) free(fsurf[0]);
   if(fsurf[1]) free(fsurf[1]);

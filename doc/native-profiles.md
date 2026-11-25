@@ -28,9 +28,17 @@ legacy=$work/reference
 archives=$work/archives
 native=$work/native
 python3 tests/legacy-linux-sdk.py "$legacy"
+tests/movie-linux-sdk.sh compatibility "$work/movie-compat"
+tests/movie-linux-sdk.sh static "$work/movie-static"
 python3 tests/native-linux-archives.py "$archives" --reference-sdk "$legacy"
 python3 tests/native-static-sdk.py "$native" --archive-sdk "$archives" --reference-sdk "$legacy"
 ```
+
+Both profiles use [FFmpeg 7.1.5](https://ffmpeg.org/releases/ffmpeg-7.1.5.tar.xz)
+for movie decoding. The [movie SDK lock](../tests/movie-linux-sdk.lock)
+pins the release source and the recipe builds the decoder and native
+demuxer libraries. The historical FFmpeg 0.8.15 SDK remains available for
+reproducing the reference observations.
 
 The static SDK adds the SDL2, Qt/XCB and keyboard dependencies from
 [`native-static-sdk.lock`](../tests/native-static-sdk.lock).
@@ -50,7 +58,7 @@ The SDK retains source notices, lock inputs and build trees in its working
 directory. Qt's license files are in the Qt source directory.
 
 The static configure step validates the archive paths and verifies a
-static link using SDL, JACK and samplerate. It refuses the SDL wrapper that
+static link using SDL, FFmpeg, JACK and samplerate. It refuses the SDL wrapper that
 loads shared SDL2 and the JACK client that shells out to locate its runtime
 directory. Explicit shared-object loading fails in the static application.
 Supported optional selections such as AAlib and CWiid require their corresponding
@@ -73,13 +81,13 @@ if command -v ccache >/dev/null 2>&1; then
 fi
 export CFLAGS="-O2 -DNDEBUG" CXXFLAGS="-O2 -DNDEBUG"
 export CPPFLAGS="-I$debian/include" LDFLAGS="-L$debian_lib"
-export PKG_CONFIG_PATH="$legacy/ffmpeg/lib/pkgconfig:$debian_lib/pkgconfig"
-export LD_LIBRARY_PATH="$legacy/ffmpeg/lib:$debian_lib"
+export PKG_CONFIG_PATH="$work/movie-compat/sdk/lib/pkgconfig:$debian_lib/pkgconfig"
+export LD_LIBRARY_PATH="$work/movie-compat/sdk/lib:$debian_lib"
 tests/freej-build-test.sh --enable-static-mozjs --with-native-profile=compatibility
 
 archive_usr=$archives/debian/usr
 export CPPFLAGS="$CPPFLAGS -I$archive_usr/include"
-export PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$archive_usr/lib/x86_64-linux-gnu/pkgconfig:$archive_usr/share/pkgconfig"
+export PKG_CONFIG_PATH="$work/movie-static/sdk/lib/pkgconfig:$debian_lib/pkgconfig:$archive_usr/lib/x86_64-linux-gnu/pkgconfig:$archive_usr/share/pkgconfig"
 for modules in "$archives"/prefixes/*/lib/pkgconfig; do
     PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$modules"
 done

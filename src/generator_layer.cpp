@@ -46,6 +46,7 @@ GeneratorLayer::GeneratorLayer()
 }
 
 GeneratorLayer::~GeneratorLayer() {
+  stop();
   close();
   if (swap_buffer)
     free(swap_buffer);
@@ -181,6 +182,7 @@ bool GeneratorLayer::open(const char *file) {
 
 void GeneratorLayer::close() {
   if(generator) {
+    parameters = nullptr; // owned by the generator instance
     delete generator;
     generator = NULL;
   }

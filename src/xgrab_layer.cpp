@@ -158,16 +158,21 @@ void XGrabLayer::resize() {
 	xright = (dw - rx - wa.border_width * 2 - wa.width);
 	ybelow = (dh - ry - wa.border_width * 2 - wa.height);
 
-	uint32_t wn, hn; // new width, height
+	int wn, hn; // new width, height
 	wn = wa.width - (rx<0 ? -rx : 0) - (xright<0 ? -xright :0) - crop.x;
 //if (crop.w > 0)
 	hn = wa.height- (ry<0 ? -ry : 0) - (ybelow<0 ? -ybelow :0) - crop.y;
+	wn = wn < 0 ? 0 : wn;
+	hn = hn < 0 ? 0 : hn;
 	crop.x = (rx<0 ? -rx : 0);
 	crop.y = (ry<0 ? -ry : 0);
 
-	//lock();
-	geo.init( (wn > 0 ? wn : 0) , (hn > 0 ? hn : 0) , 32);
-	//unlock();
+	std::lock_guard<Layer> lock(*this);
+	if (geo.w != wn || geo.h != hn) {
+		clear_frame();
+		geo.init(wn, hn, 32);
+		need_crop = true;
+	}
 }
 #if 0
 resize:
@@ -330,10 +335,11 @@ exit:
 
 void XGrabLayer::close() {
 	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
+	stop();
+	std::lock_guard<Layer> lock(*this);
 	opened = false;
 	active = false;
-	stop();
-	buffer = NULL;
+	clear_frame();
 
 	if (ximage) {
 		XDestroyImage(ximage); // also frees *data

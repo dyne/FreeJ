@@ -133,7 +133,8 @@ void FakeWindow::resetZoom()
         resize(m_qGeneLayer->geo.w, m_qGeneLayer->geo.h);
         m_eventGet->setShift();
     }
-    m_ctx->screen->clear();
+    if (m_ctx->screen)
+        m_ctx->screen->clear();
 }
 
 void FakeWindow::setEventGet(SpecialEventGet *eventGet)

@@ -84,3 +84,14 @@ unsuitable for wall-clock latency measurements.
 
 The [software timing fixture and stage checklist](timing-budget.md) use a
 separate observer for clocked workloads.
+
+`make check` runs `movie-replay-test` on `movie-av.mov`. The synthetic clip
+has 12 MPEG-4 frames at 20 fps, B-frames, and 0.5 seconds of 48 kHz stereo
+PCM starting 100 ms after video. Regenerate it with FFmpeg 7.1.5:
+
+```sh
+ffmpeg -hide_banner -loglevel error \
+  -f lavfi -i 'testsrc2=size=80x64:rate=20:duration=0.6' \
+  -itsoffset 0.1 -f lavfi -i 'aevalsrc=0.125*sin(2*PI*400*t)|0.25*sin(2*PI*600*t):s=48000:d=0.5' \
+  -c:v mpeg4 -bf 2 -g 4 -flags +bitexact -c:a pcm_s16le -map_metadata -1 movie-av.mov
+```
