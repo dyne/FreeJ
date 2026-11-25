@@ -168,6 +168,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget* tabWidget, Qfreej* qfreej, QStri
     fakeLay->setToolTip("Drag Left button to move Layer, Drag right to resize");
 
     setLayout(layoutV);
+    tabWidget->setSize(tabWidget->currentIndex());
 }
 
 // TextLayer
@@ -291,6 +292,7 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej) : QWi
     fakeLay->setToolTip("Drag Left button to move TextLayer, Drag center to resize");
 
     setLayout(layoutV);
+    tabWidget->setSize(tabWidget->currentIndex());
 }
 
 // GeneratorLayer
@@ -392,25 +394,23 @@ QqWidget::QqWidget(Context *freej, QqTabWidget *tabWidget, Qfreej* qfreej, QActi
     fakeLay->setToolTip("Drag Left button to move GeneratorLayer, Drag center to resize");
 
     setLayout(layoutV);
+    tabWidget->setSize(tabWidget->currentIndex());
 }
 
 QqWidget::~QqWidget()
 {
-  if (qTextLayer)
-  {
-    qTextLayer->stop();
-    delete(qTextLayer);
-  }
-  else if (qLayer)
-  {
-    qLayer->stop();
-    delete (qLayer);
-  }
-  else if (m_qGeneLayer)
-  {
-    m_qGeneLayer->stop();
-    delete (m_qGeneLayer);
-  }
+    Layer *layer = qLayer;
+    if (qTextLayer)
+        layer = qTextLayer;
+    else if (m_qGeneLayer)
+        layer = m_qGeneLayer;
+    if (!layer)
+        return;
+    if (layer->screen)
+        layer->screen->rem_layer(layer);
+    else
+        layer->stop();
+    delete layer;
 }
 
 void QqWidget::resetZoom()

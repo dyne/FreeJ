@@ -26,7 +26,7 @@
 
 extern QSize viewSize;
 
-SpecialEventGet::SpecialEventGet(QObject* parent) : QObject(parent)
+SpecialEventGet::SpecialEventGet(QObject* parent) : QObject(parent), btn(Qt::NoButton)
 {
     shift.setX(0);
     shift.setY(0);
@@ -37,9 +37,7 @@ SpecialEventGet::SpecialEventGet(QObject* parent) : QObject(parent)
 
 bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
 {
-    if(event->type() == QEvent::Move) {
-        QMoveEvent* evt = static_cast<QMoveEvent*>(event);
-    } else if(event->type() == QEvent::Resize) {
+    if (event->type() == QEvent::Resize) {
         QResizeEvent* evt = static_cast<QResizeEvent*>(event);
         m_OldSize = QSize(evt->oldSize().width(), evt->oldSize().height());
     } else if(event->type() == QEvent::MouseButtonPress)
@@ -47,11 +45,16 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
         QMouseEvent* evt = static_cast<QMouseEvent*>(event);
         btn= evt->button();
         offset = evt->pos();
+        return true;
     } else if(event->type() == QEvent::MouseMove)
     {
         QMouseEvent* evt = static_cast<QMouseEvent*>(event);
+        if (!evt->buttons().testFlag(btn) || btn == Qt::NoButton)
+            return false;
         FakeWindow *fake = static_cast<FakeWindow*>(obj);
         Context* context = fake->getContext();
+        if (!context->screen)
+            return false;
         Layer* layer = fake->getLayer();
         TextLayer* textlayer = fake->getTextLayer();
         if (btn==Qt::LeftButton)  //change position, only layers
@@ -103,28 +106,12 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
         }
         else if (btn==Qt::RightButton)  //resize viewport
         {
-            int sizeW = fake->size().width() + evt->pos().x() - offset.x();
-            int sizeH = fake->size().height() + evt->pos().y() - offset.y();
+            int sizeW = qMax(1, fake->width() + evt->pos().x() - offset.x());
+            int sizeH = qMax(1, fake->height() + evt->pos().y() - offset.y());
             fake->resize(sizeW, sizeH);
-            viewSize.setWidth(sizeW);
-            viewSize.setHeight(sizeH);
-            context->screen->resize(sizeW, sizeH);
+            viewSize = QSize(sizeW, sizeH);
+            context->resize(sizeW, sizeH);
             offset = evt->pos();
-            context->screen->clear();
-
-            //to refresh layer dispay problems
-            int c = context->screen->layers.len();
-            QString blitName;
-            for (;c > 0; c--)
-            {
-                Layer* lay = context->screen->layers[c];
-                blitName = lay->get_blit();
-                if (blitName != "RGB" && blitName != "SDL" && blitName!="SRCALPHA")
-                {
-                    lay->set_blit("SDL");
-                    lay->set_blit(blitName.toStdString().c_str());
-                }
-            }
         }
         else if (btn==Qt::MidButton) // was MiddleButton
         {
@@ -206,11 +193,14 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
                 context->screen->clear();
             }
         }
+        return true;
     }
     else if(event->type() == QEvent::MouseButtonRelease)
     {
+        btn = Qt::NoButton;
         offset = QPoint();
 	diff = 0;
+        return true;
     }
     else if(event->type() == QEvent::Paint)
     {
@@ -261,10 +251,11 @@ bool SpecialEventGet::eventFilter(QObject *obj, QEvent *event)
                 painter->drawRect(size);
                 painter->restore();
                 painter->end();
+                return true;
             }
         }
     }
-    return true;
+    return QObject::eventFilter(obj, event);
 }
 
 void SpecialEventGet::setShift()

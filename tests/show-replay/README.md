@@ -48,6 +48,8 @@ set, `--video-driver x11` exercises the X11 SDL path. You can select a
 single check family with `--case video|osc|audio|reset`. Use
 `--case video --expect-reversed-order` as a negative control. It must fail
 at the reordered cue. Audio arguments are needed for `all` and `audio`.
+`--case osc-example` invokes the unedited `osc_test.js` example's existing
+`released_m` handler. It needs UDP port 9696, the port used by that example.
 
 ## Expected observations
 
@@ -61,12 +63,13 @@ at the reordered cue. Audio arguments are needed for `all` and `audio`.
   presentation. Reload includes the same script and recreates the layers
   after stopping their predecessors. Startup-script `quit()` returns CLI
   status 1 in this version.
-- OSC sends a ready datagram from the listening port. The peer sends a
-  no-argument packet and then `/test` with integer 123, float 4.5 and string
-  “hello”. The reference logs these parsed arguments and a dispatch failure
-  for each route. A working route must invoke both JS callbacks in order
-  with the original arguments. Use `--case osc --require-working-routes` to
-  reproduce the missing callbacks as a failing test.
+- OSC sends a ready datagram from the listening port. The peer sends empty and
+  mixed-signature messages, including `/test` with integer 123, float 4.5 and
+  string “hello”. It checks callback order, values, case-insensitive paths and
+  diagnostics for unknown paths and wrong signatures. Lifecycle exercises
+  start with 128 admitted packets and check rendering, FIFO drain across
+  stop/restart, self-removal, reset and quit. Use `--expect-legacy-osc` with the
+  historical binary to reproduce the old dispatch failures.
 - The JACK source sends a mono window with sample zero at 0.5 and all other
   samples zero. The read-only test observer confirms this input at FreeJ’s
   actual JACK buffer. The legacy collector still reports 25 silent windows

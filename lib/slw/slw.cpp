@@ -26,8 +26,6 @@
 SLangWidget::SLangWidget()
   : Entry() {
   
-  int c;
-  
   // real name will be set by inheriting widget
   set_name("unknown");
   
@@ -47,23 +45,12 @@ SLangWidget::SLangWidget()
   
   console = 0x0;
   
-  // maximum lenght for a row
-  max_row = 512;
-
   color = 1; // white on black
-  
-  
-  // generate a blank row for line blanking
-  blankrow = (char*)malloc(max_row*sizeof(char));
-  for(c=0; c<max_row; c++) {
-    blankrow[c] = CHAR_BLANK;
-  }
     
 }
 
 SLangWidget::~SLangWidget() {   
   func("de-allocating widget");
-  free(blankrow);
   
   rem();
 }
@@ -124,6 +111,9 @@ int SLangWidget::putnch(CHAR *str, int x, int y, int nchars) {
   
   if( !nchars )
     nchars = strlen(str);
+
+  if (x < 0 || y < 0 || x >= w || y >= h)
+    return 0;
   
   // check validity of coordinates
   if( ! check(x, y) ) {
@@ -178,27 +168,17 @@ int SLangWidget::putnch(CHAR *str, int x, int y, int nchars) {
 }
 
 void SLangWidget::blank_row(int y) {
-  
-  if( ! check(0,y) ) {
-    fprintf(stderr, "blank_row failed: y=%u",y);
+  if (y < 0 || y >= h || w <= 0 || !check(0, y))
     return;
-  }
-
   SLsmg_set_color(color);
-  
-  SLsmg_gotorc( y+orig_y, orig_x );
-  
-  SLsmg_write_nchars( blankrow, w);
-  
+  SLsmg_fill_region(y + orig_y, orig_x, 1, w, ' ');
 }
 
 void SLangWidget::blank() {
-  register int c;
+  if (w <= 0 || h <= 0)
+    return;
   SLsmg_set_color(color);
-  for(c=h;c>=0;c--) {
-    SLsmg_gotorc( c+orig_y,orig_x);
-    SLsmg_write_nchars( blankrow, w);
-  }
+  SLsmg_fill_region(orig_y, orig_x, h, w, ' ');
 }
 
 	
@@ -214,7 +194,7 @@ bool SLangWidget::check(int x, int y) {
     return false;
   }
   
-  if( x>w || y>h ) { // check bounds
+  if (x < 0 || x >= w || y < 0 || y >= h) {
     fprintf(stderr, "position out of bounds (%u,%u) in widget '%s'",
 	    x, y, name);
     return false;

@@ -132,21 +132,23 @@ def prepare_trace(env, observer, path):
     return env
 
 
-def send_bursts(peer, port, trace, warmup):
+def send_bursts(peer, port, trace, warmup, stress=False):
     packet, sender = peer.recvfrom(512)
     require(packet == osc_string("/timing/ready") + osc_string(",") and
             sender == ("127.0.0.1", port), "wrong OSC readiness packet")
     until = time.monotonic() + 6
     while not trace.exists() or len(kind(events(trace), "present")) < warmup + 2:
         require(time.monotonic() < until, "OSC warm-up presentations did not occur")
-        time.sleep(0.02)
+        time.sleep(0.001 if stress else 0.02)
     sent = []
-    for _ in range(8):
-        for id_ in range(4):
+    for _ in range(1 if stress else 8):
+        for i in range(128 if stress else 4):
+            id_ = i % 4
             packet = osc_string(f"/timing/{id_}") + osc_string(",")
             sent.append((time.monotonic_ns(), "osc-send", id_, 0))
             peer.sendto(packet, sender)
-        time.sleep(0.15)  # Workload cadence, after observed warm-up completion.
+        if not stress:
+            time.sleep(0.15)  # Reference cadence, after observed warm-up completion.
     (trace.parent / "sender.trace").write_text(
         "".join(f"{ns} {label} {id_} {detail}\n" for ns, label, id_, detail in sent))
     return sent
@@ -162,6 +164,7 @@ def capture_run(args, workload, name, analyzed_frames):
     started = time.monotonic_ns()
     sent = []
     source_status = None
+    osc_stress = getattr(args, "osc_stress", False)
     if workload == "capture":
         env["JACK_DEFAULT_SERVER"] = args.jack_server
         pulse_env = prepare_trace(env, args.observer, directory / "pulse.trace")
@@ -184,7 +187,7 @@ def capture_run(args, workload, name, analyzed_frames):
             port = reserve_port()
             configure(directory, workload, total_frames, port, peer.getsockname()[1])
             with owned_process(command, directory, env, "freej.log") as app:
-                sent = send_bursts(peer, port, trace, warmup)
+                sent = send_bursts(peer, port, trace, warmup, osc_stress)
                 status = app.wait(timeout=total_frames / FPS + 15)
     else:
         configure(directory, workload, total_frames)
@@ -204,14 +207,36 @@ def capture_run(args, workload, name, analyzed_frames):
         receipt = kind(rows, "osc-receive")
         dispatch = kind(rows, "osc-dispatch")
         sent_events = kind(sent, "osc-send")
-        require(len(sent_events) == 32 and all(presents[0] <= tick <= presents[-1]
-                                              for tick, _, _ in dispatch),
+        expected_packets = 128 if osc_stress else 32
+        require(len(sent_events) == expected_packets and
+                all(presents[0] <= tick <= presents[-1] for tick, _, _ in dispatch),
                 "OSC burst not contained in measured window")
-        require(all(num == 0 for _, _, num in dispatch), "legacy OSC unexpectedly ran a callback")
-        metrics.update({"osc_send_to_receipt_ms": stats(pairs(sent_events, receipt)),
-                        "osc_receipt_to_dispatch_ms": stats(pairs(receipt, dispatch)),
+        expected_callbacks = 0 if getattr(args, "expect_legacy_osc", False) else 1
+        require(all(num == expected_callbacks for _, _, num in dispatch),
+                f"expected {expected_callbacks} JS callbacks per OSC dispatch")
+        transport = pairs(sent_events, receipt)
+        handoff = pairs(receipt, dispatch)
+        submission_indexes = [bisect_left(presents, ns) for ns, _, _ in dispatch]
+        counts = [0] * len(presents)
+        for index in submission_indexes:
+            counts[index] += 1
+        pending = peak_pending = 0
+        for _, label, _, _ in sorted(rows):
+            if label == "osc-receive":
+                pending += 1
+                peak_pending = max(pending, peak_pending)
+            elif label == "osc-dispatch":
+                pending -= 1
+        require(pending == 0, "unpaired OSC queue events")
+        metrics.update({"osc_send_to_receipt_ms": stats(transport),
+                        "osc_receipt_to_dispatch_ms": stats(handoff),
                         "osc_dispatch_to_next_submission_ms":
                             stats(to_next_present([ns for ns, _, _ in dispatch], presents)),
+                        "osc_send_to_next_submission_ms": stats([
+                            ns_ms(presents[index] - sent[0])
+                            for sent, index in zip(sent_events, submission_indexes)]),
+                        "osc_peak_pending_inferred": peak_pending,
+                        "osc_peak_dispatches_per_frame": max(counts),
                         "osc_to_visible_response_ms": None,
                         "osc_callbacks": sum(num for _, _, num in dispatch)})
     if workload == "capture":
@@ -270,16 +295,26 @@ def envelopes(runs):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ("freej", "plugin", "observer", "pulse", "output"):
+    for name in ("freej", "plugin", "observer", "output"):
         parser.add_argument(f"--{name}", required=True, type=lambda value: Path(value).resolve())
-    parser.add_argument("--jack-server", required=True)
+    parser.add_argument("--pulse", type=lambda value: Path(value).resolve())
+    parser.add_argument("--jack-server")
     parser.add_argument("--video-driver", choices=("dummy", "x11"), default="x11")
+    parser.add_argument("--workload", choices=("all", *WORKLOADS), default="all")
+    parser.add_argument("--osc-stress", action="store_true",
+                        help="send one burst of 128 packets for the selected OSC workload")
+    parser.add_argument("--expect-legacy-osc", action="store_true",
+                        help="expect the historical OSC dispatch attempts to produce no JS calls")
     parser.add_argument("--repeats", type=int, default=5)
     parser.add_argument("--seconds", type=int, default=3)
     parser.add_argument("--drift-seconds", type=int, default=60)
     args = parser.parse_args()
     if args.repeats < 5 or args.seconds < 3 or args.drift_seconds < 60:
         parser.error("minimums are five repetitions, three seconds and a 60-second drift run")
+    if args.osc_stress and args.workload != "osc":
+        parser.error("--osc-stress requires --workload osc")
+    if args.workload in ("all", "capture") and not (args.pulse and args.jack_server):
+        parser.error("capture requires --pulse and --jack-server")
     require(time.get_clock_info("monotonic").implementation == "clock_gettime(CLOCK_MONOTONIC)",
             "controller and native observer must share Linux CLOCK_MONOTONIC")
     args.output.mkdir()
@@ -289,18 +324,23 @@ def main():
               "sample_rate": AUDIO_RATE, "samples_per_period": AUDIO_FRAMES,
               "audio_period_ms": period_ms(AUDIO_RATE, AUDIO_FRAMES), "display": args.video_driver,
               "plugin_set": ["Brightness"], "runs_per_workload": args.repeats,
-              "software_envelopes": {}, "physical_measurements": None}
-    for workload in WORKLOADS:
+              "software_envelopes": {}, "physical_measurements": None,
+              "osc_pattern": "128 packet stress burst" if args.osc_stress else "eight bursts of four"}
+    workloads = WORKLOADS if args.workload == "all" else (args.workload,)
+    for workload in workloads:
         runs = []
         for index in range(1, args.repeats + 1):
             name = f"{workload}-{index}"
             runs.append(capture_run(args, workload, name, args.seconds * FPS))
             print(f"PASS {name}", flush=True)
         result["software_envelopes"][workload] = envelopes(runs)
-    result["long_run"] = capture_run(args, "capture", "capture-drift", args.drift_seconds * FPS)
-    print("PASS capture-drift", flush=True)
+    executed = args.repeats * len(workloads)
+    if "capture" in workloads:
+        result["long_run"] = capture_run(args, "capture", "capture-drift", args.drift_seconds * FPS)
+        print("PASS capture-drift", flush=True)
+        executed += 1
     json_file(args.output / "summary.json", result)
-    print(f"{args.repeats * len(WORKLOADS) + 1} executed, 0 failed, 0 skipped", flush=True)
+    print(f"{executed} executed, 0 failed, 0 skipped", flush=True)
 
 
 if __name__ == "__main__":

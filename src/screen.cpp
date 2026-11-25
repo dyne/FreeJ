@@ -329,6 +329,7 @@ void ViewPort::handle_resize() {
       resize(resize_w, resize_h);
       resizing = false;
     }
+    changeres = false;
   }
   
   /* crop all layers to new screen size */

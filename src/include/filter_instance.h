@@ -44,6 +44,7 @@ class FilterInstance : public Entry {
   virtual uint32_t *process(float fps, uint32_t *inframe);
 
   virtual bool set_parameter(int idx); ///< apply the parameter value
+  bool set_parameter_value(int idx, void *value); ///< store and apply a typed parameter
   virtual bool get_parameter(int idx); ///< get the parameter value
   virtual bool apply(Layer *lay);
 

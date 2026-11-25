@@ -30,172 +30,47 @@
 using namespace std;
 
 
-QqComboFilter::QqComboFilter(Context *freejQ, Layer *lay, QWidget* parent) : QWidget(parent)
+QqComboFilter::QqComboFilter(Context *context, Layer *layer, QWidget *parent)
+    : QWidget(parent), layer(layer), freej(context)
 {
-    freej = freejQ;
-    qLayer = lay;
-    qTextLayer = NULL;
-    m_qGeneLayer = NULL;
-    QStringList filterStrlist;
-
-    Filter **res;
-    Filter *filt;
-    int c;
-
-    res = freej->filters.completion((char*)"");
-    if(!res[0]) {
-      qDebug() << "no generators found";
-      return;
-    }
-    for(c=0;res[c];c++) {
-        filt = res[c];
-        if(!filt) break;
-        filterStrlist << filt->name;
-    }
-
-    filterBox = new QComboBox(this);
-    filterBox->view()->dragEnabled();
-    filterBox->addItems(filterStrlist);
+    auto *filterBox = new QComboBox(this);
+    for (auto **available = freej->filters.completion(""); *available; ++available)
+        filterBox->addItem((*available)->name);
+    filterBox->setEnabled(filterBox->count() != 0);
     connect(filterBox, SIGNAL(activated(QString)), this, SLOT(addFilter(QString)));
-    layoutH = new QHBoxLayout;
-    layoutH->addWidget(filterBox);
-    filtersListApplied = new QqFiltersListApplied(lay, this);
 
-    layoutH->addWidget(filtersListApplied);
-    this->setLayout(layoutH);
+    auto *layout = new QHBoxLayout(this);
+    layout->addWidget(filterBox);
+    filtersListApplied = new QqFiltersListApplied(layer, this);
+    layout->addWidget(filtersListApplied);
 }
 
-QqComboFilter::QqComboFilter(Context *freejQ, TextLayer *lay, QWidget *parent) : QWidget(parent)
-{
-    freej = freejQ;
-    qLayer = NULL;
-    m_qGeneLayer = NULL;
-    qTextLayer = lay;
-    QStringList filterStrlist;
-
-    Filter **res;
-    Filter *filt;
-    int c;
-
-    res = freej->filters.completion((char*)"");
-    if(!res[0]) {
-      qDebug() << "no generators found";
-      return;
-    }
-    for(c=0;res[c];c++) {
-        filt = res[c];
-        if(!filt) break;
-        filterStrlist << filt->name;
-    }
-
-    filterBox = new QComboBox(this);
-    filterBox->view()->dragEnabled();
-    filterBox->addItems(filterStrlist);
-    connect(filterBox, SIGNAL(activated(QString)), this, SLOT(addFilter(QString)));
-    layoutH = new QHBoxLayout;
-    layoutH->addWidget(filterBox);
-
-    filtersListApplied = new QqFiltersListApplied(lay, this);
-    layoutH->addWidget(filtersListApplied);
-    this->setLayout(layoutH);
-}
-
-QqComboFilter::QqComboFilter(Context *freejQ, GeneratorLayer *lay, QWidget *parent) : QWidget(parent)
-{
-    freej = freejQ;
-    qLayer = NULL;
-    qTextLayer = NULL;
-    m_qGeneLayer = lay;
-    QStringList filterStrlist;
-
-    Filter **res;
-    Filter *filt;
-    int c;
-
-    res = freej->filters.completion((char*)"");
-    if(!res[0]) {
-      qDebug() << "no generators found";
-      return;
-    }
-    for(c=0;res[c];c++) {
-        filt = res[c];
-        if(!filt) break;
-        filterStrlist << filt->name;
-    }
-
-    filterBox = new QComboBox(this);
-    filterBox->view()->dragEnabled();
-    filterBox->addItems(filterStrlist);
-    connect(filterBox, SIGNAL(activated(QString)), this, SLOT(addFilter(QString)));
-    layoutH = new QHBoxLayout;
-    layoutH->addWidget(filterBox);
-
-    filtersListApplied = new QqFiltersListApplied(lay, this);
-    layoutH->addWidget(filtersListApplied);
-    this->setLayout(layoutH);
-}
-
-
-QqComboFilter::~QqComboFilter()
-{
-    delete layoutH;
-}
-
-void QqComboFilter::chgParam(double prm)
+QqComboFilter::QqComboFilter(Context *context, TextLayer *layer, QWidget *parent)
+    : QqComboFilter(context, static_cast<Layer *>(layer), parent)
 {
 }
 
-void QqComboFilter::addFilter(QString flt)
+QqComboFilter::QqComboFilter(Context *context, GeneratorLayer *layer, QWidget *parent)
+    : QqComboFilter(context, static_cast<Layer *>(layer), parent)
 {
-    char filterName[256];
-    QByteArray folt = flt.toLatin1();
-    Filter *filt;
-    int idx;
-
-    strcpy (filterName,folt.data());
-
-    filt = (Filter*)freej->filters.search(filterName, &idx);
-    if(!filt) {
-       cout << "filter not found: " << flt.toStdString() << endl;
-       return;
-    }
-
-    FilterInstance *filterI;
-    if (qTextLayer)
-    {
-        filterI = filt->apply(qTextLayer);
-        if( !filterI ) {
-            cout << "error applying filter " << flt.toStdString() << " on layer " << qTextLayer->name << endl;
-            return;
-        }
-    }
-    else if (qLayer)
-    {
-        filterI = filt->apply(qLayer);
-        if( !filterI) {
-            cout << "error applying filter " << flt.toStdString() << " on layer " << qLayer->name << endl;
-            return;
-        }
-    }
-    else if (m_qGeneLayer)
-    {
-        filterI = filt->apply(m_qGeneLayer);
-        if( !filterI) {
-            cout << "error applying filter " << flt.toStdString() << " on layer " << m_qGeneLayer->name << endl;
-            return;
-        }
-    }
-    QqFilter *filter = new QqFilter(filterI);
-    filtersListApplied->addItem(filter);
-}
-/*
-void QqComboFilter::addLayer(Layer *lay)
-{
-    qLayer = lay;
 }
 
-void QqComboFilter::addTextLayer(TextLayer *lay)
+void QqComboFilter::chgParam(double)
 {
-    qTextLayer = lay;
 }
-*/
+
+void QqComboFilter::addFilter(QString name)
+{
+    const QByteArray filterName = name.toLatin1();
+    auto *prototype = freej->filters.search(filterName.constData());
+    if (!prototype) {
+        qWarning() << "filter not found:" << name;
+        return;
+    }
+    auto *instance = prototype->apply(layer);
+    if (!instance) {
+        qWarning() << "error applying filter" << name << "on layer" << layer->name;
+        return;
+    }
+    filtersListApplied->addItem(new QqFilter(instance));
+}

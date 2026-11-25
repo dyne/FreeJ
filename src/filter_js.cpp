@@ -162,8 +162,12 @@ JS(filter_set_parameter) {
 	   filter_instance->proto->name, param->name, val[0]);
       //  filter_instance->proto->set_parameter_value( filter_instance->instance, &val, it->second );
       
-      param->set(&val);
-      filter_instance->set_parameter(idx);
+      if (param->type == Parameter::BOOL) {
+        bool enabled = val[0] != 0.0;
+        filter_instance->set_parameter_value(idx, &enabled);
+      } else {
+        filter_instance->set_parameter_value(idx, &val[0]);
+      }
       break; 
     }
   case Parameter::POSITION:
@@ -181,8 +185,7 @@ JS(filter_set_parameter) {
 	 filter_instance->proto->name, param->name, val[0], val[1]);
     //  filter_instance->proto->set_parameter_value( filter_instance->instance, &val, it->second );
     
-    param->set(&val[0]);
-    filter_instance->set_parameter(idx);
+    filter_instance->set_parameter_value(idx, &val[0]);
     break; 
     
   default:

@@ -120,8 +120,6 @@ class SLangWidget : public Entry {
  private:
   bool check(int x, int y);
   ///< check if coordinates are valid for this widget placing
-  char *blankrow; ///< blank buffer
-  int max_row; ///< maximum lenght possible for a row
 };
 
 #endif

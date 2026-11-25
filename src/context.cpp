@@ -23,6 +23,8 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <context.h>
+#include <exception>
+#include <mutex>
 #include <blitter.h>
 #include <controller.h>
 
@@ -282,11 +284,14 @@ void Context::cafudda(double /*secs*/) {
 #define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
 
 void Context::handle_controllers() {
-  int res;
-  Controller *ctrl;
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    if (polling_controllers_ || resetting_ || reset_requested_)
+      return;
+  }
 
   // peep if there are quit or fullscreen events
-  res = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);
+  SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);
 
   // force quit when SDL does
   if (event.type == SDL_QUIT) {
@@ -300,26 +305,63 @@ void Context::handle_controllers() {
       if(event.key.keysym.mod & KMOD_CTRL)
 	if(event.key.keysym.sym == SDLK_f) {
 	  ViewPort *scr = screens.selected();
-	  scr->fullscreen();
-	  res = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);  
+	  if (scr)
+	    scr->fullscreen();
+	  SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);
 	}
-  
-  ctrl = (Controller *)controllers.begin();
-  if(ctrl) {
-    controllers.lock();
-    while(ctrl) {
-      if(ctrl->active)
-          ctrl->poll();
-      ctrl = (Controller*)ctrl->next;
-    }
-    controllers.unlock();
+
+  std::vector<Controller *> frame_controllers;
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    if (polling_controllers_ || resetting_ || reset_requested_)
+      return;
+    for (auto *ctrl = controllers.begin(); ctrl; ctrl = static_cast<Controller *>(ctrl->next))
+      frame_controllers.push_back(ctrl);
+    polling_controllers_ = true;
   }
 
-  // flushes all events that are leftover
-  while( SDL_PeepEvents(&event,1,SDL_GETEVENT, SDL_ALLEVENTS) > 0 )
-      continue;
-  memset(&event, 0x0, sizeof(SDL_Event));
+  // Poll may run user code that unlinks any controller. Detached entries
+  // stay alive until this traversal has released its snapshot.
+  std::exception_ptr failure;
+  try {
+    for (auto *ctrl : frame_controllers)
+      if (can_poll_controller(*ctrl))
+        ctrl->poll();
+  } catch (...) {
+    failure = std::current_exception();
+  }
 
+  bool reset_after_poll;
+  for (;;) {
+    std::vector<Controller *> retired;
+    {
+      std::lock_guard<BaseLinklist> registry(controllers);
+      if (retired_controllers_.empty()) {
+        polling_controllers_ = false;
+        reset_after_poll = reset_requested_;
+        break;
+      }
+      retired.swap(retired_controllers_);
+    }
+    for (auto *ctrl : retired)
+      delete ctrl;
+  }
+  if (reset_after_poll)
+    reset();
+  if (failure)
+    std::rethrow_exception(failure);
+
+  // flushes all events that are leftover
+  while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_ALLEVENTS) > 0)
+    if (event.type == SDL_QUIT)
+      quit = true;
+  memset(&event, 0x0, sizeof(SDL_Event));
+}
+
+bool Context::can_poll_controller(const Controller &ctrl) {
+  std::lock_guard<BaseLinklist> registry(controllers);
+  return !quit && !resetting_ && !reset_requested_ &&
+         ctrl.active && ctrl.list == &controllers;
 }
 
 bool Context::register_controller(Controller *ctrl) {
@@ -330,6 +372,10 @@ bool Context::register_controller(Controller *ctrl) {
     return false;
   }
 
+  std::lock_guard<BaseLinklist> registry(controllers);
+  if (resetting_ || reset_requested_ || ctrl->retiring_)
+    return false;
+
   if(! ctrl->initialized ) {
     func("initialising controller %s (%p)",ctrl->name, ctrl);
 
@@ -338,6 +384,7 @@ bool Context::register_controller(Controller *ctrl) {
   } else if(ctrl->env != this) {
 
     error("controller is already initialised with another context: %x", ctrl->env);
+    return false;
 
   } else 
     warning("controller was already initialised on this context");
@@ -359,13 +406,21 @@ bool Context::rem_controller(Controller *ctrl) {
     return false;
   }
 
-  //  if(js) js->gc(); // ?!
-
-  ctrl->active = false;
-  ctrl->rem();
-  act("removed controller %s", ctrl->name);
-  delete ctrl;
-
+  bool defer;
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    if (ctrl->retiring_ || (ctrl->list && ctrl->list != &controllers))
+      return false;
+    defer = polling_controllers_;
+    if (defer)
+      retired_controllers_.push_back(ctrl);
+    ctrl->retiring_ = true;
+    ctrl->active = false;
+    ctrl->rem();
+    act("removed controller %s", ctrl->name);
+  }
+  if (!defer)
+    delete ctrl;
   return true;
 }
 
@@ -428,22 +483,36 @@ int Context::parse_js_cmd(const char *cmd) {
 int Context::reset() {
   func("%s",__PRETTY_FUNCTION__);
 
-  notice("FreeJ engine reset");
-
-  func("deleting %u controllers", controllers.len() );
-  controllers.lock();
-  Controller *ctrl = controllers.begin();
-  while(ctrl) {
-    if(ctrl->indestructible ) {
-      ctrl->reset();
-      ctrl = (Controller *)ctrl->next;
-    } else {
-      ctrl->rem();
-      delete(ctrl);
-      ctrl = controllers.begin();
+  std::vector<Controller *> removed;
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    if (resetting_)
+      return 1;
+    if (polling_controllers_) {
+      reset_requested_ = true;
+      return 1;
+    }
+    removed.reserve(controllers.len());
+    reset_requested_ = false;
+    resetting_ = true;
+    for (auto *ctrl = controllers.begin(); ctrl;) {
+      auto *next = static_cast<Controller *>(ctrl->next);
+      if (ctrl->indestructible) {
+        ctrl->reset();
+      } else {
+        ctrl->retiring_ = true;
+        ctrl->active = false;
+        ctrl->rem();
+        removed.push_back(ctrl);
+      }
+      ctrl = next;
     }
   }
-  controllers.unlock();
+
+  notice("FreeJ engine reset");
+
+  for (auto *ctrl : removed)
+    delete ctrl;
   func("deleting %u screens", screens.len() );
   ViewPort *scr = screens.begin();
   while(scr) {
@@ -460,6 +529,10 @@ int Context::reset() {
     
   if (js)
     js->reset();
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    resetting_ = false;
+  }
   //does anyone care about reset() return value?
   return 1; 
 }
@@ -518,6 +591,8 @@ bool Context::config_check(const char *filename) {
 	  
 void Context::resize(int w, int h) {
   ViewPort *scr = screens.selected();
+  if (!scr || w <= 0 || h <= 0)
+    return;
   scr->resize_w = w;
   scr->resize_h = h;
   scr->resizing = true;

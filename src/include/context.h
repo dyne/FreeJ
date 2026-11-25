@@ -47,8 +47,10 @@
 #include <factory.h>
 #include <config.h>
 #include <string>
+#include <vector>
 
 class Controller;
+class OscController;
 
 class JsParser;
 class AudioCollector;
@@ -65,6 +67,7 @@ template <class T> class Linklist;
 
 class Context {
  private:
+  friend class OscController;
   static bool factory_initialized;
   bool initialized;
   /* doublesize calculation */
@@ -77,6 +80,11 @@ class Context {
   // parts of the cafudda process
   void handle_resize();
   void handle_controllers();
+  bool can_poll_controller(const Controller &ctrl);
+  bool polling_controllers_ = false;
+  bool reset_requested_ = false;
+  bool resetting_ = false;
+  std::vector<Controller *> retired_controllers_;
 
   pthread_t cafudda_thread;
   bool running;

@@ -23,28 +23,14 @@
 #define __OSC_CTRL_H__
 
 #include <lo/lo.h>
-#include <stdlib.h>
+#include <deque>
+#include <mutex>
+#include <string>
+#include <vector>
 #include <controller.h>
 #include <factory.h>
 
-class Context;
-
-class OscCommand: public Entry {
- public:
-  // osc_cmd is Entry::name
-  char proto_cmd[128];
-  char js_cmd[512];
-};
-
-class JsCommand: public Entry {
- public:
-  // name is function
-  jsval function;
-  char *format;
-  int argc;
-  jsval *argv;
-
-};
+class JsExecutionContext;
 
 class OscController: public Controller {
 
@@ -55,8 +41,12 @@ class OscController: public Controller {
   virtual int dispatch();
   int poll();
 
+  bool open(const char *port);
+  bool start();
   bool start(int port);
   void stop();
+  bool bind_receiver(JSContext *cx, JSObject *object);
+  void add_method(const char *path, const char *signature, const char *callback);
 
   Context *freej;
 
@@ -64,13 +54,41 @@ class OscController: public Controller {
 
   lo_address sendto;
 
-  lo_message outmsg;
-
   char port[64];
 
-  Linklist<Entry> commands_handled;
-  Linklist<Entry> commands_pending;
+ private:
+  friend class JsExecutionContext;
+  friend int osc_command_handler(const char *, const char *, lo_arg **, int,
+                                 lo_message, void *);
 
+  struct Route {
+    std::string path;
+    std::string signature;
+    std::string callback;
+  };
+
+  struct Argument {
+    char type;
+    int32_t integer = 0;
+    float real = 0;
+    std::string text;
+  };
+
+  struct Message {
+    std::string callback;
+    std::vector<Argument> arguments;
+  };
+
+  int receive(const char *path, const char *types, lo_arg **argv, int argc);
+  bool invoke(const Message &message);
+  void unbind_receiver();
+
+  JsExecutionContext *receiver_owner_ = nullptr;
+  std::mutex messages_mutex_;
+  std::vector<Route> routes_;
+  std::deque<Message> pending_;
+
+ public:
   FACTORY_ALLOWED;
 };
 

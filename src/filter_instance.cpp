@@ -109,6 +109,12 @@ bool FilterInstance::set_parameter(int idx) {
   return true;
 }
 
+bool FilterInstance::set_parameter_value(int idx, void *value) {
+  std::lock_guard<Linklist<Parameter>> lock(parameters);
+  auto *param = parameters.pick(idx);
+  return param && param->set(value) && set_parameter(idx);
+}
+
 bool FilterInstance::get_parameter(int idx) {
   std::lock_guard<Linklist<Parameter>> lock(parameters);
   Parameter *param;

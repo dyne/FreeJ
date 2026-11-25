@@ -70,6 +70,7 @@ bool SLW_Log::init() {
 } 
 
 bool SLW_Log::feed(int key) {
+  std::lock_guard<std::recursive_mutex> lock(rows_mutex_);
   bool res = true;
   // interprets a keycode and perform the action (or write a letter)
   if(!key) return(false);
@@ -102,6 +103,23 @@ bool SLW_Log::feed(int key) {
 }
 
 bool SLW_Log::refresh() {
+  std::lock_guard<std::recursive_mutex> lock(rows_mutex_);
+  if (h <= 0 || w <= 0)
+    return false;
+  if (textconsole->h != h || textconsole->w != w) {
+    textconsole->h = h;
+    textconsole->w = w;
+    if (!scrolling) {
+      auto *first = textconsole->cur_row;
+      int visible = 1;
+      while (first->prev && visible < h) {
+        first = static_cast<Row *>(first->prev);
+        ++visible;
+      }
+      textconsole->cur_y = visible - 1;
+      textconsole->vis_row_in = first;
+    }
+  }
   Row *r;
   register int c;
   
@@ -135,6 +153,7 @@ bool SLW_Log::refresh() {
 }
 
 void SLW_Log::append(const char *text) {
+    std::lock_guard<std::recursive_mutex> lock(rows_mutex_);
 	Row *r = new Row();
 	int len = strlen(text);
 	

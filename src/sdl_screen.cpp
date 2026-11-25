@@ -223,7 +223,12 @@ void SdlScreen::blit(Layer *src) {
 
 void SdlScreen::resize(int resize_w, int resize_h) {
   act("resizing viewport to %u x %u",resize_w, resize_h);
-  sdl_screen = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
+  auto *surface = SDL_SetVideoMode(resize_w, resize_h, 32, sdl_flags);
+  if (!surface) {
+    error("unable to resize SDL viewport: %s", SDL_GetError());
+    return;
+  }
+  sdl_screen = surface;
   geo.init( resize_w, resize_h, 32);
 }
 

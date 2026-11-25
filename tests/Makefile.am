@@ -61,7 +61,7 @@ EXTRA_DIST = cxxtest freej-build-test.sh legacy-linux-sdk.py legacy-linux-sdk.lo
              native_profile_services.py \
              show-replay/README.md show-replay/replay.py show-replay/observe.cpp \
              show-replay/pulse.cpp show-replay/scene.js show-replay/video.js \
-             show-replay/osc.js show-replay/audio.js show-replay/reset.js \
+             show-replay/osc.js show-replay/osc-lifecycle.js show-replay/audio.js show-replay/reset.js \
              show-replay/reset-target.js show-replay/timing.js show-replay/timing.py \
              show-replay/timing-observer.cpp show-replay/test_timing.py \
              show-replay/timing-budget.md show-replay/movie-av.mov

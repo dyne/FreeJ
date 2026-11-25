@@ -39,6 +39,7 @@
 #include <callbacks_js.h>
 #include <jsparser.h>
 #include <jsparser_data.h> // private data header
+#include <osc_ctrl.h>
 
 #include <impl_layers.h>
 #include <linklist.h>
@@ -54,6 +55,7 @@ JsExecutionContext::JsExecutionContext(JsParser *jsParser)
     error("JsParser :: error creating runtime");
     return; /* XXX should return int or ptr! */
   }
+  JS_SetRuntimePrivate(rt, this);
 
   /* Create a new context. */
   cx = JS_NewContext(rt, STACK_CHUNK_SIZE);
@@ -98,6 +100,13 @@ JsExecutionContext::JsExecutionContext(JsParser *jsParser)
 JsExecutionContext::~JsExecutionContext()
 {
   if (cx) {
+    // A startup script can fail after starting a server. Retire its native
+    // receivers while their JS context is still valid.
+    while (!osc_receivers_.empty()) {
+      auto *receiver = osc_receivers_.back();
+      receiver->unbind_receiver();
+      receiver->env->rem_controller(receiver);
+    }
     if (obj) {
       JS_SetContextThread(cx);
       JS_GC(cx);
@@ -114,9 +123,12 @@ JsExecutionContext::~JsExecutionContext()
 
 void JsExecutionContext::gc()
 {
-  JS_SetContextThread(cx);
+  const bool attach = JS_GetContextThread(cx) == 0;
+  if (attach)
+    JS_SetContextThread(cx);
   JS_MaybeGC(cx);
-  JS_ClearContextThread(cx);
+  if (attach)
+    JS_ClearContextThread(cx);
 }
 
 bool JsExecutionContext::init_class() {

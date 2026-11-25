@@ -20,6 +20,7 @@ public:
 
 public slots:
     void changeValue(int);
+    void refreshValue();
 
 private:
     int paramNumber;
@@ -91,6 +92,7 @@ public:
     QqFilter(FilterInstance *);
     ~QqFilter();
     QqFilterParam *filterParam;
+    FilterInstance *instance() const { return filterIn; }
 
 private:
     FilterInstance *filterIn;
@@ -117,8 +119,6 @@ protected:
 
 private:
     Layer *layer;
-    TextLayer *textLayer;
-    GeneratorLayer *m_geneLayer;
     QqFilter *draggItemFilter;
 };
 

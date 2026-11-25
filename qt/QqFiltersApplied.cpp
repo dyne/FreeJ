@@ -27,20 +27,19 @@
 #include <QDebug>
 #include <QString>
 #include <QByteArray>
+#include <QSignalBlocker>
+#include <QTimer>
 
 using namespace std;
 
-QqSlider::QqSlider(int idx, FilterInstance *filter, QWidget *parent) : QSlider()
+QqSlider::QqSlider(int idx, FilterInstance *filter, QWidget *parent) : QSlider(parent)
 {
     paramNumber = idx;
     filterI = filter;
     setOrientation(Qt::Horizontal);
-//    double* val = (double *) filterI->parameters[paramNumber]->get ();
-    double val = 0.0;
-    int value = (int)(val * 100.0);
-    this->setValue(value);
-    //filterI->parameters[paramNumber]->set(&val);
-    connect(this, SIGNAL(sliderMoved(int)), this, SLOT(changeValue(int)));
+    setRange(0, 100);
+    refreshValue();
+    connect(this, &QSlider::valueChanged, this, &QqSlider::changeValue);
 }
 
 QqSlider::~QqSlider()
@@ -50,12 +49,22 @@ QqSlider::~QqSlider()
 void QqSlider::changeValue(int value)
 {
     double nbr = (double)value / 100.0;
-    //to see if it does something ... and it does :)
-    filterI->parameters[paramNumber]->set((void *)&nbr);
-    Layer *lay = filterI->get_layer();
-    ViewPort *view = lay->screen;
-//    qDebug () << lay->name << view->name;
-    filterI->get_layer()->screen->clear();  //cleans the screen
+    if (filterI->set_parameter_value(paramNumber, &nbr))
+        if (auto *screen = filterI->get_layer()->screen)
+            screen->clear();
+}
+
+void QqSlider::refreshValue()
+{
+    if (isSliderDown())
+        return;
+    std::lock_guard<Linklist<Parameter>> lock(filterI->parameters);
+    auto *parameter = filterI->parameters.pick(paramNumber);
+    const double stored = *static_cast<double *>(parameter->get());
+    if (parameter->multiplier == 0.0)
+        return;
+    const QSignalBlocker block(this);
+    setValue(qRound(100 * stored / parameter->multiplier));
 }
 
 QqCheck::QqCheck(int idx, FilterInstance *filter, QWidget *parent) : QCheckBox(parent)
@@ -255,6 +264,8 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
         title.append("text");
     }
     setWindowTitle(title);
+    auto *refresh = new QTimer(this);
+    refresh->start(40);
 
     for (int i=1; i <= filterI->parameters.len(); ++i)
     {
@@ -264,8 +275,10 @@ QqFilterParam::QqFilterParam(FilterInstance *filter) : QWidget()
             name = new QLabel(filterI->parameters[i]->name);
             layoutH->addWidget(name);
             QqSlider *slider = new QqSlider(i, filterI, this);
-            slider->setSliderDown(true);
-            slider->setRange(0,100);
+            connect(refresh, &QTimer::timeout, slider, [slider] {
+                if (slider->isVisible())
+                    slider->refreshValue();
+            });
             layoutH->addWidget(slider);
             layoutV->addLayout(layoutH);
             setLayout(layoutV);
@@ -321,10 +334,12 @@ QqFiltersListApplied::QqFiltersListApplied(Layer *lay, QWidget* parent) : QListW
     setDragDropMode(QAbstractItemView::InternalMove);
 
     connect(this, SIGNAL(itemPressed(QListWidgetItem *)), this, SLOT(setElement(QListWidgetItem*)));
+    connect(this, &QListWidget::currentItemChanged, this, [lay](QListWidgetItem *item, QListWidgetItem *) {
+        auto *filter = dynamic_cast<QqFilter *>(item);
+        lay->filters.select_only(filter ? filter->instance() : nullptr);
+    });
     draggItemFilter = NULL;
     layer = lay;
-    textLayer = NULL;
-    m_geneLayer = NULL;
 
     QAction *remFilter= new QAction("remove filter",this);
     remFilter->setShortcut(Qt::Key_Delete);
@@ -333,59 +348,24 @@ QqFiltersListApplied::QqFiltersListApplied(Layer *lay, QWidget* parent) : QListW
     connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(showParamWindow(QListWidgetItem*)));
 }
 
-//textlayer
-QqFiltersListApplied::QqFiltersListApplied(TextLayer *lay, QWidget *parent) : QListWidget(parent)
+QqFiltersListApplied::QqFiltersListApplied(TextLayer *lay, QWidget *parent)
+    : QqFiltersListApplied(static_cast<Layer *>(lay), parent)
 {
-    setToolTip("Filters applied on the layer. You can change the order by D&D\nalso double click to hide parameters");
-    setSelectionMode(QAbstractItemView::SingleSelection);
-    setDragEnabled(true);
-    viewport()->setAcceptDrops(true);
-    setDropIndicatorShown(true);
-    setDragDropMode(QAbstractItemView::InternalMove);
-
-    connect(this, SIGNAL(itemPressed(QListWidgetItem *)), this, SLOT(setElement(QListWidgetItem*)));
-    draggItemFilter = NULL;
-    layer = NULL;
-    m_geneLayer = NULL;
-    textLayer = lay;
-
-    QAction *remFilter= new QAction("remove filter",this);
-    remFilter->setShortcut(Qt::Key_Delete);
-    addAction(remFilter);
-    connect(remFilter,SIGNAL(triggered()),this,SLOT(removeFilter()));
-    connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(showParamWindow(QListWidgetItem*)));
 }
 
-//generator layer
-QqFiltersListApplied::QqFiltersListApplied(GeneratorLayer *lay, QWidget *parent) : QListWidget(parent)
+QqFiltersListApplied::QqFiltersListApplied(GeneratorLayer *lay, QWidget *parent)
+    : QqFiltersListApplied(static_cast<Layer *>(lay), parent)
 {
-    setToolTip("Filters applied on the layer. You can change the order by D&D\nalso double click to hide parameters");
-    setSelectionMode(QAbstractItemView::SingleSelection);
-    setDragEnabled(true);
-    viewport()->setAcceptDrops(true);
-    setDropIndicatorShown(true);
-    setDragDropMode(QAbstractItemView::InternalMove);
-
-    connect(this, SIGNAL(itemPressed(QListWidgetItem *)), this, SLOT(setElement(QListWidgetItem*)));
-    draggItemFilter = NULL;
-    layer = NULL;
-    textLayer = NULL;
-    m_geneLayer = lay;
-
-    QAction *remFilter= new QAction("remove filter",this);
-    remFilter->setShortcut(Qt::Key_Delete);
-    addAction(remFilter);
-    connect(remFilter,SIGNAL(triggered()),this,SLOT(removeFilter()));
-    connect(this, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(showParamWindow(QListWidgetItem*)));
 }
 
 QqFiltersListApplied::~QqFiltersListApplied()
 {
+    disconnect(this, nullptr, this, nullptr);
 }
 
 void QqFiltersListApplied::setElement(QListWidgetItem *item)
 {
-    draggItemFilter = (QqFilter *)item;
+    draggItemFilter = dynamic_cast<QqFilter *>(item);
 }
 
 void QqFiltersListApplied::dragEnterEvent(QDragEnterEvent *event)
@@ -393,105 +373,36 @@ void QqFiltersListApplied::dragEnterEvent(QDragEnterEvent *event)
     event->acceptProposedAction();
 }
 
-void QqFiltersListApplied::dropEvent(QDropEvent * event)
+void QqFiltersListApplied::dropEvent(QDropEvent *event)
 {
-    if (draggItemFilter)
-    {
-        char temp[256];
-        QByteArray fich = draggItemFilter->text().toLatin1();
-        strcpy (temp,fich.data());
-        int idx = 0;
-        int currentDropRow = row(itemAt(event->pos()));
-
-        currentDropRow++;
-        if (layer)
-        {
-            FilterInstance *filter = layer->filters.search(temp, &idx);
-            if (currentDropRow >= 1 && currentDropRow <= layer->filters.len())
-            {
-                filter->move(currentDropRow);
-            }
-            else
-            {
-                draggItemFilter = NULL;
-                return;
-            }
-        }
-        else if (textLayer)
-        {
-            FilterInstance *filter = textLayer->filters.search(temp, &idx);
-            if (currentDropRow >= 1 && currentDropRow <= textLayer->filters.len())
-            {
-                filter->move(currentDropRow);
-            }
-            else
-            {
-                draggItemFilter = NULL;
-                return;
-            }
-        }
-        else if (m_geneLayer)
-        {
-            FilterInstance *filter = m_geneLayer->filters.search(temp, &idx);
-            if (currentDropRow >= 1 && currentDropRow <= m_geneLayer->filters.len())
-            {
-                filter->move(currentDropRow);
-            }
-            else
-            {
-                draggItemFilter = NULL;
-                return;
-            }
-        }
-        else
-        {
-            cout << "pas de filtre à déplacer ?????" << endl;
-            draggItemFilter = NULL;
+    auto *dragged = draggItemFilter;
+    draggItemFilter = nullptr;
+    if (dragged) {
+        const int destination = row(itemAt(event->pos())) + 1;
+        if (destination < 1 || destination > layer->filters.len())
             return;
-        }
+        dragged->instance()->move(destination);
     }
-    draggItemFilter = NULL;
-    QListWidget::dropEvent(event);  // pour ne pas manger le signal
+    QListWidget::dropEvent(event);
 }
 
 void QqFiltersListApplied::removeFilter()
 {
-    if (hasFocus() && count() >= 1 && currentRow() >=0)
-    {
-        int idx;
-        QqFilter *item = (QqFilter *)currentItem();
-        char temp[256];
-        QByteArray fich = item->text().toLatin1();
-        strcpy (temp,fich.data());
-        if (layer)
-        {
-            FilterInstance *filter = layer->filters.search(temp, &idx);
-            delete item;
-            filter->rem();
-        }
-        else if (textLayer)
-        {
-            FilterInstance *filter = textLayer->filters.search(temp, &idx);
-            delete item;
-            filter->rem();
-        }
-        else if (m_geneLayer)
-        {
-            FilterInstance *filter = m_geneLayer->filters.search(temp, &idx);
-            delete item;
-            filter->rem();
-        }
-        else
-        {
-            cout << "Erreur : Impossible de supprimer le filtre : " << item->text().toStdString() << endl;
-            return;
-        }
+    if (!hasFocus())
+        return;
+    if (auto *item = dynamic_cast<QqFilter *>(currentItem())) {
+        item->instance()->rem();
+        if (draggItemFilter == item)
+            draggItemFilter = nullptr;
+        delete item;
     }
 }
 
 void QqFiltersListApplied::showParamWindow(QListWidgetItem *item)
 {
-    QqFilter *filter = (QqFilter *)item;
+    auto *filter = dynamic_cast<QqFilter *>(item);
+    if (!filter)
+        return;
     if (filter->filterParam->isHidden())
     {
         filter->filterParam->setVisible(true);

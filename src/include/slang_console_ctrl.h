@@ -86,6 +86,7 @@ class SlwConsole: public ConsoleController {
 
 
  private:
+  void layout_widgets();
 
   SLangConsole *slw;
   SlwSelector *sel;

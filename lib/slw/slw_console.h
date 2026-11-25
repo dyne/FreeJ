@@ -47,6 +47,7 @@ class SLangConsole {
   void feed(int key); ///< interprets and print the keycode
 
   bool refresh(); ///< run one cycle, return false if quit signal was received
+  bool resize_if_needed();
 
 
 

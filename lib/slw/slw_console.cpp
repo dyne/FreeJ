@@ -30,10 +30,9 @@
 ///////////////////////////////////
 // dirty signals
 
-static bool screen_size_changed;
+static volatile sig_atomic_t screen_size_changed;
 static void sigwinch_handler (int sig) {
   screen_size_changed = true;
-  SLsignal (SIGWINCH, sigwinch_handler);
 }
 
 static bool keyboard_quit;
@@ -195,7 +194,8 @@ bool SLangConsole::place(SLangWidget *wid, int hx, int hy, int lx, int ly) {
 
 
 	// append the new widget in our linklist
-	widgets.append( wid );
+	if (wid->list != &widgets)
+	  widgets.append(wid);
 
 	func("s-lang widget %s sized %ux%u placed at %u,%u",
 			wid->name, wid->w, wid->h,
@@ -226,42 +226,26 @@ bool SLangConsole::place(SLangWidget *wid, int hx, int hy, int lx, int ly) {
 }
 
 
-bool SLangConsole::refresh() {
-
-  /* S-Lang says: 
-   * All well behaved applications should block signals that
-   * may affect the display while performing screen update. */
-  SLsig_block_signals ();
-  
-  if(screen_size_changed && !keyboard_quit) {
-
-    SLtt_get_screen_size ();
-    SLsmg_reinit_smg ();
-
-    this->w = SLtt_Screen_Cols;
-    this->h = SLtt_Screen_Rows;
-
+bool SLangConsole::resize_if_needed() {
+  SLsig_block_signals();
+  const bool changed = screen_size_changed && !keyboard_quit;
+  if (changed) {
     screen_size_changed = false;
-  
-    // refresh all widgets
-    SLangWidget *wid;
-    wid = (SLangWidget*) widgets.begin();
-    while(wid) {
-
-      wid->refresh();
-      wid = (SLangWidget*) wid->next;
-
-    }
+    SLtt_get_screen_size();
+    SLsmg_reinit_smg();
+    w = SLtt_Screen_Cols;
+    h = SLtt_Screen_Rows;
   }
+  SLsig_unblock_signals();
+  return changed;
+}
 
-//   if(focused && !keyboard_quit)
-// 	  if(focused->cursor) {
-// 	    SLtt_set_cursor_visibility(1);
-// 	    focused->gotoxy( focused->cur_x, focused->cur_y);
-//           } else
-// 	    SLtt_set_cursor_visibility(0);
+bool SLangConsole::refresh() {
+  if (resize_if_needed())
+    for (auto *widget = widgets.begin(); widget; widget = static_cast<SLangWidget *>(widget->next))
+      widget->refresh();
 
- 
+  SLsig_block_signals();
   SLsmg_refresh();
   
   SLsig_unblock_signals();

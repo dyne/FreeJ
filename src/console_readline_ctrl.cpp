@@ -19,6 +19,7 @@
  */
 
 #include <config.h>
+#include <algorithm>
 
 
 #include <context.h>
@@ -96,16 +97,21 @@ bool SlwReadline::refresh() {
 	   ,0,0,0);
     break;
     
-  case COMMANDLINE:
+  case COMMANDLINE: {
+    if (w <= 2)
+      break;
     blank_row(0);
     color = PLAIN_COLOR;
     putnch((char*)": ", 0, 0, 2);
-    if(command[0]!=EOL)
-      putnch(command, 2, 0, 0);
-    else
+    if (command[0] == EOL)
       cursor = 0;
-    gotoxy(cursor+2, 0);
+    const int start = std::max(0, cursor - (w - 3));
+    if (command[0] != EOL)
+      putnch(command + start, 2, 0, 0);
+    SLtt_set_cursor_visibility(1);
+    gotoxy(cursor - start + 2, 0);
     break;
+  }
     
   default: break;
   }
@@ -189,13 +195,14 @@ bool SlwReadline::parser_default(int key) {
 
   //  ::func("pressed %u",key);
 
-  if(env->screens.selected()->layers.len() > 0) { // there are layers
+  auto *screen = env->screens.selected();
+  if (screen && screen->layers.len() > 0) {
 
     // get the one selected
-    le = env->screens.selected()->layers.selected();
+    le = screen->layers.selected();
     if(!le) {
-      env->screens.selected()->layers.begin();
-      le->sel(true);
+      le = screen->layers.begin();
+      screen->layers.select_only(static_cast<Layer *>(le));
     }
 
     fe = ((Layer*)le)->filters.selected();
@@ -316,7 +323,8 @@ bool SlwReadline::parser_default(int key) {
     break;
     */
   case KEY_CTRL_F:
-    env->screens.selected()->fullscreen();
+    if (screen)
+      screen->fullscreen();
     break;
     
   case KEY_CTRL_X:
@@ -363,10 +371,11 @@ bool SlwReadline::parser_movelayer(int key) {
   commandline = false; // print statusline
 
   // get the one selected
-  Layer *layer = (Layer*)env->screens.selected()->layers.selected();
-  if(!layer) {
-    env->screens.selected()->layers.begin();
-    layer->sel(true);
+  auto *screen = env->screens.selected();
+  auto *layer = screen ? screen->layers.selected() : nullptr;
+  if (!layer) {
+    set_parser(DEFAULT);
+    return false;
   }
 
   switch(key) {

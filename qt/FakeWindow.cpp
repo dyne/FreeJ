@@ -29,6 +29,7 @@ FakeWindow::FakeWindow(Context *context, Layer *layer, Geometry *geo, QWidget* p
     m_ctx = context;
     qLayer = layer;
     qTextLayer = NULL;
+    m_qGeneLayer = NULL;
     m_eventGet = NULL;
     winGeo = new QRect(geo->x, geo->y, (int)geo->w, (int)geo->h);
     setGeometry(*winGeo);
@@ -42,6 +43,7 @@ FakeWindow::FakeWindow(Context *context, TextLayer *textlayer, Geometry *geo, QW
     m_ctx = context;
     qTextLayer = textlayer;
     qLayer = NULL;
+    m_qGeneLayer = NULL;
     m_eventGet = NULL;
     winGeo = new QRect(geo->x, geo->y, (int)geo->w, (int)geo->h);
     setGeometry(*winGeo);
@@ -109,32 +111,21 @@ QPainter* FakeWindow::getPainter()
 
 void FakeWindow::resetZoom()
 {
-    if (qLayer)
-    {
-        qLayer->set_zoom(1.0, 1.0);
-        qLayer->set_position (pos().x(), pos().y());
-        m_ctx->cafudda(0.0);
-        resize(qLayer->geo.w, qLayer->geo.h);
-        m_eventGet->setShift();
-    }
-    else if (qTextLayer)
-    {
-        qTextLayer->set_zoom(1.0, 1.0);
-        qTextLayer->set_position (pos().x(), pos().y());
-        m_ctx->cafudda(0.0);
-        resize(qTextLayer->geo.w, qTextLayer->geo.h);
-        m_eventGet->setShift();
-    }
+    Layer *layer = qLayer;
+    if (qTextLayer)
+        layer = qTextLayer;
     else if (m_qGeneLayer)
-    {
-        m_qGeneLayer->set_zoom(1.0, 1.0);
-        m_qGeneLayer->set_position (pos().x(), pos().y());
-        m_ctx->cafudda(0.0);
-        resize(m_qGeneLayer->geo.w, m_qGeneLayer->geo.h);
+        layer = m_qGeneLayer;
+    if (!layer)
+        return;
+    layer->set_zoom(1.0, 1.0);
+    layer->set_position(pos().x(), pos().y());
+    resize(layer->geo.w, layer->geo.h);
+    if (m_eventGet)
         m_eventGet->setShift();
-    }
     if (m_ctx->screen)
         m_ctx->screen->clear();
+    update(); // the Qt frame timer will present the queued layer change
 }
 
 void FakeWindow::setEventGet(SpecialEventGet *eventGet)

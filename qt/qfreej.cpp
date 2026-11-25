@@ -86,22 +86,23 @@ Qfreej::Qfreej(QWidget *parent) :
 
     poller = new QTimer (this);
     connect(poller, SIGNAL(timeout()), this, SLOT(updateInterface()));
-    poller->start(1); //start timer to trigger every 1 ms the updateInterface slot
 
     std::unique_ptr<Context> context(new Context);
     freej = context.get();
     init();
     context.release();
+    poller->start(1); // the frame owner is ready before the timer can dispatch
     number = 0;
 //     setAttribute(Qt::WA_DeleteOnClose);
 }
 
 Qfreej::~Qfreej()
 {
+    poller->stop();
     if (m_Enc) delete m_Enc;
     if (m_QJack) delete m_QJack;
-    delete freej;     //to be investigate :)
-    poller->stop();
+    delete tabWidget;
+    delete freej;
 }
 
 void Qfreej::showLogs()
@@ -128,6 +129,7 @@ void Qfreej::setFullScreen()
 
 void Qfreej::closeEvent(QCloseEvent *event)
 {
+    poller->stop();
     event->accept();
 }
 

@@ -186,6 +186,10 @@ def osc_string(value):
     return data + bytes((-len(data)) % 4)
 
 
+def osc_packet(path, signature="", body=b""):
+    return osc_string(path) + osc_string("," + signature) + body
+
+
 def osc(args):
     directory, env = fixture(args, "osc")
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as peer:
@@ -199,13 +203,19 @@ def osc(args):
         script = directory / "osc.js"
         script.write_text(script.read_text().replace("@SERVER@", str(port))
                           .replace("@PEER@", str(peer.getsockname()[1])))
-        wire = [osc_string("/test/noargs") + osc_string(","),
-                osc_string("/test") + osc_string(",ifs") +
-                struct.pack(">if", 123, 4.5) + osc_string("hello")]
+        wire = [osc_packet("/test/noargs"),
+                osc_packet("/test", "ifs", struct.pack(">if", 123, 4.5) + osc_string("hello"))]
+        if not args.expect_legacy_osc:
+            wire += [osc_packet("/test", "i", struct.pack(">i", 999)),
+                     osc_packet("/unknown"),
+                     osc_packet("/REORDERED", "sfi", osc_string("abcde") +
+                                struct.pack(">fi", -1.25, -2147483648)),
+                     osc_packet("/test", "ifs", struct.pack(">if", 2147483647, 0.5) +
+                                osc_string(""))]
 
         def send():
             packet, address = peer.recvfrom(512)
-            require(packet == osc_string("/replay/ready") + osc_string(",") and
+            require(packet == osc_packet("/replay/ready") and
                     address == ("127.0.0.1", port), "OSC readiness datagram differs")
             for data in wire:
                 peer.sendto(data, address)
@@ -217,16 +227,107 @@ def osc(args):
         status, lines = run_freej(args, directory, env, "osc.js", debug=3, after_start=send)
     require(status == 1 and "replay: OSC quit" in lines, "OSC CLI did not reach scripted quit")
     callbacks = lines_at(lines, "replay: OSC callback ")
-    if args.require_working_routes:
-        require(callbacks == ["noargs", EXPECTED_OSC_ARGS],
-                f"OSC callbacks missing or wrong: {callbacks!r}")
-    else:
+    if args.expect_legacy_osc:
         require(not callbacks and all(any(f"OSC failed JSCall to replay_{name}" in line
                                          for line in lines) for name in ("noargs", "typed")),
                 f"changed historical inbound OSC outcome: {callbacks!r}")
         require(all(any(marker in line for line in lines) for marker in
                     ("OSC arg 0 is int: 123", "OSC arg 1 is float: 4.50",
                      "OSC arg 2 is string: hello")), "OSC dispatch did not parse all sent arguments")
+    else:
+        require(callbacks == ["noargs", EXPECTED_OSC_ARGS, "abcde|-1.25|-2147483648",
+                              "2147483647|0.5|"], f"OSC callbacks missing or wrong: {callbacks!r}")
+        for diagnostic in ('OSC path /test called with wrong types: "i" instead of "ifs"',
+                           "OSC path /unknown called, but no method is handling it"):
+            require(sum(diagnostic in line for line in lines) == 1,
+                    f"expected one OSC diagnostic: {diagnostic}")
+        osc_lifecycle(args)
+
+
+def osc_lifecycle(args):
+    for scenario in ("stop-restart", "self-removal", "reset", "quit"):
+        directory, env = fixture(args, f"osc-{scenario}")
+        if scenario != "reset":
+            observe(env, args, "video")
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as peer:
+            peer.settimeout(5)
+            peer.bind(("127.0.0.1", 0))
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as reserve:
+                reserve.bind(("127.0.0.1", 0))
+                port = reserve.getsockname()[1]
+            json_file(directory / "osc-input.json", {"scenario": scenario, "burst": 128,
+                      "server_port": port, "peer_port": peer.getsockname()[1]})
+            (directory / "osc-config.js").write_text(
+                f'var scenario = "{scenario}", server = "{port}", peer = "{peer.getsockname()[1]}";\n')
+
+            def ready(route):
+                packet, address = peer.recvfrom(512)
+                require((packet, address) == (osc_packet(route), ("127.0.0.1", port)),
+                        f"{scenario}: unexpected readiness response")
+                return address
+
+            def exercise():
+                address = ready("/replay/ready")
+                for sequence in range(128):
+                    peer.sendto(osc_packet("/packet", "i", struct.pack(">i", sequence)), address)
+                # Gate the first poll on admissions, so the stop/removal
+                # checks start with known pending work, not a UDP sleep.
+                deadline = time.monotonic() + 3
+                marker = b"OSC queued /packet (i)"
+                while (directory / "freej.log").read_bytes().count(marker) < 128:
+                    require(time.monotonic() < deadline, f"{scenario}: 128 messages were not admitted")
+                    time.sleep(0.005)
+                (directory / "osc-admitted").touch()
+                if scenario != "quit":
+                    route = "/replay/restarted" if scenario == "stop-restart" else "/replay/rebound"
+                    address = ready(route)
+                    peer.sendto(osc_packet("/packet", "i", struct.pack(">i", 128)), address)
+
+            status, lines = run_freej(args, directory, env, "osc-lifecycle.js", debug=3,
+                                       after_start=exercise)
+
+        require(status == 1 and f"replay: OSC {scenario} complete" in lines,
+                f"{scenario}: FreeJ did not complete (exit {status})")
+        sequences = lines_at(lines, "replay: sequence ")
+        expected = list(range(129)) if scenario == "stop-restart" else [0]
+        require(sequences == list(map(str, expected)), f"{scenario}: wrong callback order: {sequences}")
+        require(lines_at(lines, "replay: callback completed ") == [scenario],
+                f"{scenario}: first callback did not finish once")
+        if scenario == "stop-restart":
+            counts = lines_at(lines, "replay: batch ")
+            require(counts == ["32", "64"], f"{scenario}: wrong per-frame or stopped count: {counts}")
+        if scenario in ("self-removal", "reset"):
+            require(lines_at(lines, "replay: replacement ") == ["128"],
+                    f"{scenario}: receiver did not release its port and run again")
+        frames = None
+        if scenario != "reset":
+            frames = len((directory / "presentations.txt").read_text().splitlines())
+            require(frames >= 6, f"{scenario}: rendering did not advance after the first callback")
+        json_file(directory / "osc-check.json", {"scenario": scenario, "first_admitted": 128,
+                  "sequences": expected, "replacement_callbacks": lines_at(lines, "replay: replacement "),
+                  "submissions": frames})
+
+
+def osc_example(args):
+    directory, env = fixture(args, "osc-example")
+    example = HERE.parents[1] / "scripts/javascript/examples/osc_test.js"
+    shutil.copyfile(example, directory / example.name)
+    json_file(directory / "osc-input.json", {"source": str(example),
+              "sha256": sha256(example.read_bytes()).hexdigest(), "port": 9696})
+    (directory / "osc-example.js").write_text(
+        'include("osc_test.js");\n'
+        'kbd.released_m();\n'
+        'for (var frame = 0; frame < 20; ++frame) run(0);\n'
+        'osc.stop();\n'
+        'echo("replay: instrument loopback complete");\n'
+        'quit();\n')
+    status, lines = run_freej(args, directory, env, "osc-example.js", debug=3)
+    require(status == 1 and "replay: instrument loopback complete" in lines,
+            "the unedited instrument example did not complete")
+    expected = ["OSC remote call to my test function", "int argument is: 123",
+                "float argument is: 4.5", "string argument is: hello"]
+    require([line for line in lines if line in expected] == expected,
+            "the unedited instrument example did not deliver one /test ifs callback")
 
 
 def audio(args):
@@ -280,14 +381,19 @@ def main():
     parser.add_argument("--video-driver", default="dummy")
     parser.add_argument("--pulse", type=Path)
     parser.add_argument("--jack-server", help="name of the running private JACK dummy server")
-    parser.add_argument("--case", choices=("all", "video", "osc", "audio", "reset"), default="all")
+    parser.add_argument("--case", choices=("all", "video", "osc", "osc-example", "audio", "reset"),
+                        default="all")
     parser.add_argument("--expect-reversed-order", action="store_true")
     parser.add_argument("--require-working-routes", action="store_true")
+    parser.add_argument("--expect-legacy-osc", action="store_true",
+                        help="check the historical build's parsed inbound OSC without JS callbacks")
     args = parser.parse_args()
     if args.case in ("all", "audio") and not (args.pulse and args.jack_server):
         parser.error("audio requires --pulse and --jack-server")
     if args.expect_reversed_order and args.case != "video":
         parser.error("--expect-reversed-order requires --case video")
+    if args.expect_legacy_osc and args.require_working_routes:
+        parser.error("historical OSC and working-route expectations conflict")
     for field in ("freej", "plugin", "observer", "output", "pulse"):
         value = getattr(args, field)
         if value:
@@ -316,6 +422,8 @@ def main():
     for name, function in (("osc", osc), ("audio", audio), ("reset", reset)):
         if args.case in ("all", name):
             check(name, lambda: function(args))
+    if args.case == "osc-example":
+        check("osc-example", lambda: osc_example(args))
     json_file(args.output / "checks.json", runs)
     failed = sum(run["status"] == "failed" for run in runs)
     print(f"{len(runs)} executed, {failed} failed, 0 skipped", flush=True)

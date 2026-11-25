@@ -36,6 +36,9 @@
 
 #include <linklist.h>
 #include <jsapi.h> // spidermonkey header
+#include <vector>
+
+class OscController;
 
 extern Context *global_environment;
 
@@ -46,6 +49,7 @@ void js_debug_argument(JSContext *cx, jsval val);
 // holding its context, runtime and global object.
 class JsExecutionContext : public Entry {
     friend class JsParser;
+    friend class OscController;
 public:
     JsExecutionContext(JsParser *jsParser);
     ~JsExecutionContext();
@@ -57,6 +61,7 @@ private:
     JSContext *cx;
     JSRuntime *rt;
     JSObject  *obj; // the global object
+    std::vector<OscController *> osc_receivers_;
 };
 
 class JsParser {

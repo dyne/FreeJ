@@ -22,6 +22,19 @@
 
 extern QSize viewSize;
 
+namespace {
+Layer *tabLayer(QWidget *page)
+{
+    auto *widget = qobject_cast<QqWidget *>(page);
+    if (!widget)
+        return nullptr;
+    if (auto *layer = widget->getLayer())
+        return layer;
+    if (auto *layer = widget->getTextLayer())
+        return layer;
+    return widget->getGeneLayer();
+}
+}
 
 QqTabWidget::QqTabWidget(QWidget* parent) : QTabWidget(parent)
 {
@@ -39,21 +52,12 @@ QTabBar *QqTabWidget::getTabBar()
     return (tabBar());
 }
 
-void QqTabWidget::moveLayer(int from, int to)
+void QqTabWidget::moveLayer(int, int to)
 {
-    if (QqWidget *widg = qobject_cast<QqWidget *>(this->widget(from)))
-    {
-        Context* ctx = widg->getContext();
-        int newFrom = from;
-        newFrom++;
-
-        if (Layer* lay = widg->getLayer())
-            lay->move(newFrom);
-        else if (TextLayer* textlay = widg->getTextLayer())
-            textlay->move(newFrom);
-        else if (GeneratorLayer* genelay = widg->getGeneLayer())
-            genelay->move(newFrom);
-        ctx->screen->clear();
+    if (auto *layer = tabLayer(widget(to))) {
+        layer->move(to + 1);
+        if (layer->screen)
+            layer->screen->clear();
     }
 }
 
@@ -71,6 +75,9 @@ void QqTabWidget::setSize(int idx)
 {
     if (idx >= 0)
     {
+        if (auto *layer = tabLayer(widget(idx)))
+            if (layer->screen)
+                layer->screen->layers.select_only(layer);
         QqWidget* widg = qobject_cast<QqWidget *>(this->widget(idx));
         if (widg)
         {

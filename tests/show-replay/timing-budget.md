@@ -37,12 +37,20 @@ The fixture runs each workload five times with one run active at a time:
   period and active Theora recording. `ffprobe` verifies the resulting video.
   A separate 60-second capture and record run measures clock drift.
 
+Use `--workload osc` to run just the OSC workload. The current receiver
+should run one JS callback per packet. Add `--expect-legacy-osc` when measuring
+the historical binary, which attempted dispatch with no callback. Add
+`--osc-stress` for one 128-packet burst per run. The stress workload has a
+different offered load and its measurements use their own observed range.
+
 ## Measurement definitions
 
 All trace timestamps use Linux `CLOCK_MONOTONIC`. The OSC sender, receiver and
 controller events must agree in order. The latter two correspond to entry
 into liblo's FreeJ handler and entry into the JavaScript dispatch call.
 The dispatch record includes the number of callbacks that actually ran.
+The sender-to-submission observation pairs each send with the first software
+submission following its dispatch, including any time queued across frames.
 JACK source and capture events pair by `jack_last_frame_time` with the pulse
 at sample offset zero. The observer records JACK xrun notifications for each
 client and preserves missing sample periods separately. The SDL trace dates
@@ -123,7 +131,7 @@ the raw capture and the common synchronization marker alongside the
 software trace for at least five warmed runs per workload. Use the
 alternating overlay as an independent visibility check.
 
-The current OSC receiver reaches dispatch with no JS callback, and the
+The historical OSC receiver reached dispatch with no JS callback. The
 JACK input receives the known sample while the FFT bands stay silent.
 `osc_to_visible_response_ms` and `capture_to_visible_response_ms` therefore
 remain null. The next scheduled presentation is reported separately to
