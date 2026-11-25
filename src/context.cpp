@@ -22,7 +22,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include <assert.h>
 #include <context.h>
 #include <blitter.h>
 #include <controller.h>
@@ -38,6 +37,7 @@
 
 #include <jutils.h>
 #include <fastmemcpy.h>
+#include <exceptions.h>
 
 #ifdef WITH_JAVASCRIPT
 #include <jsparser_data.h>
@@ -99,7 +99,7 @@ void * run_context(void * data){
 	pthread_exit(NULL);
 }
 
-Context::Context() {
+Context::Context() : initialized(false) {
 
   //audio           = NULL;
 
@@ -151,10 +151,13 @@ Context::Context() {
 #endif
 "\n";
 
-  if (!factory_initialized)
-      init_factory();
-  
-  assert( init() );
+  if (!factory_initialized) {
+    init_factory();
+    factory_initialized = true;
+  }
+
+  if (!init())
+    throw FreejError("Could not initialize the FreeJ engine");
 
 }
 
@@ -200,8 +203,13 @@ bool Context::add_screen(ViewPort *scr) {
 }
 
 bool Context::init() {
+  if (initialized)
+    return true;
 
   notice("Initializing the FreeJ engine");
+#ifdef FREEJ_NATIVE_PROFILE
+  act("Native profile %s selects %s", FREEJ_NATIVE_PROFILE, FREEJ_CAPABILITIES);
+#endif
 
   // a fast benchmark to select the best memcpy to use
   find_best_memcpy ();
@@ -211,7 +219,12 @@ bool Context::init() {
 
 #ifdef WITH_JAVASCRIPT
   // create javascript object
-  js = new JsParser (this);
+  try {
+    js = new JsParser(this);
+  } catch (const FreejError& failure) {
+    error("%s", failure.what());
+    return false;
+  }
 #endif
 
 #ifdef WITH_FFMPEG
@@ -234,6 +247,7 @@ bool Context::init() {
   // refresh the list of available plugins
   plugger.refresh(this);
 
+  initialized = true;
   return true;
 }
 

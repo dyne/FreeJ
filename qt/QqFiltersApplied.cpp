@@ -398,7 +398,7 @@ void QqFiltersListApplied::dropEvent(QDropEvent * event)
     if (draggItemFilter)
     {
         char temp[256];
-        QByteArray fich = draggItemFilter->text().toAscii();
+        QByteArray fich = draggItemFilter->text().toLatin1();
         strcpy (temp,fich.data());
         int idx = 0;
         int currentDropRow = row(itemAt(event->pos()));
@@ -461,7 +461,7 @@ void QqFiltersListApplied::removeFilter()
         int idx;
         QqFilter *item = (QqFilter *)currentItem();
         char temp[256];
-        QByteArray fich = item->text().toAscii();
+        QByteArray fich = item->text().toLatin1();
         strcpy (temp,fich.data());
         if (layer)
         {

@@ -23,6 +23,7 @@
 #include <dlfcn.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <sys/types.h>
 #include <dirent.h>
 
@@ -44,15 +45,13 @@
 #include <CVFilter.h>
 #endif
 
-Plugger::Plugger() {
-  char temp[256];
-
-  _searchpath = NULL;
-
+Plugger::Plugger() : _searchpath(NULL) {
+#ifndef FREEJ_STRICT_STATIC
   addsearchdir(PACKAGE_LIB_DIR);
 
-  sprintf(temp,"%s/.freej/plugins",getenv("HOME"));
-  addsearchdir(temp);
+  const char *home = getenv("HOME");
+  if (home && *home)
+    addsearchdir((std::string(home) + "/.freej/plugins").c_str());
 
   addsearchdir("/usr/lib/FreeFrame");
   addsearchdir("/usr/local/lib/FreeFrame");
@@ -67,6 +66,7 @@ Plugger::Plugger() {
 //   addsearchdir("/usr/local/lib/freej");
 //   addsearchdir("/opt/video/lib/freej");
 #ifdef HAVE_DARWIN
+    char temp[256];
     ProcessSerialNumber psn;
     GetProcessForPID(getpid(), &psn);
     FSRef location;
@@ -75,14 +75,14 @@ Plugger::Plugger() {
     FSRefMakePath(&location, (UInt8 *)temp, 238);
     strcat(temp, "/Contents/Plugins");
     addsearchdir(temp);
-    sprintf(temp, "%s/Library/Application Support/FreeJ", getenv("HOME"));
-    addsearchdir(temp);
-    sprintf(temp, "%s/Library/Application Support/FreeFrame", getenv("HOME"));
-    addsearchdir(temp);
+    if (home && *home) {
+      addsearchdir((std::string(home) + "/Library/Application Support/FreeJ").c_str());
+      addsearchdir((std::string(home) + "/Library/Application Support/FreeFrame").c_str());
+    }
     addsearchdir("/Library/Application Support/FreeJ");
     addsearchdir("/Library/Application Support/FreeFrame");
 #endif
-
+#endif
 }
 
 Plugger::~Plugger() {
@@ -104,6 +104,10 @@ int selector(const struct dirent *dir)
 
 
 int Plugger::refresh(Context *env) {
+#ifdef FREEJ_STRICT_STATIC
+  (void)env;
+  return 0;
+#else
 
   char *dir;
   struct dirent **filelist;
@@ -130,15 +134,13 @@ int Plugger::refresh(Context *env) {
           
           while(found--) {
         
-        char temp[256];
-        
-        snprintf(temp,255,"%s/%s",dir,filelist[found]->d_name);
+        std::string temp = std::string(dir) + "/" + filelist[found]->d_name;
         free(filelist[found]);
 
 #ifdef WITH_FREI0R
         {
               Freior *fr = (Freior *)Factory<Filter>::new_instance("Frei0rFilter");
-          if( !fr || !fr->open(temp) ) {
+          if( !fr || !fr->open(&temp[0]) ) {
             delete fr;
           } else { // freior effect found
             // check what kind of plugin is and place it
@@ -170,7 +172,7 @@ int Plugger::refresh(Context *env) {
 #ifdef WITH_FREEFRAME
         {
               Freeframe *fr = (Freeframe *)Factory<Filter>::new_instance("FreeframeFilter");
-          if( ! fr->open(temp) ) {
+          if( ! fr->open(&temp[0]) ) {
             delete fr;
           } else { // freeframe effect found
             // check what kind of plugin is and place it
@@ -208,18 +210,19 @@ int Plugger::refresh(Context *env) {
   act("generators found: %u", env->generators.len());
 
   return 0;
+#endif
 }
 
 
 void Plugger::addsearchdir(const char *dir) {
-  char temp[1024];
   if(!dircheck(dir))
-      return;
-  if(_searchpath) {
-    snprintf(temp,1024,"%s:%s",_searchpath,dir);
-    free(_searchpath);
-    _searchpath = strdup(temp);
-  } else {
-      _searchpath = strdup(dir);
+    return;
+  const std::string path = _searchpath ? std::string(_searchpath) + ':' + dir : dir;
+  char *updated = strdup(path.c_str());
+  if (!updated) {
+    error("Could not add plugin directory %s", dir);
+    return;
   }
+  free(_searchpath);
+  _searchpath = updated;
 }

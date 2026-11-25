@@ -17,7 +17,8 @@
  */
 
 
-#include <QtGui/QApplication>
+#include <QApplication>
+#include <exception>
 #include <qfreej.h>
 
 QSize viewSize;
@@ -41,8 +42,12 @@ int main(int argc, char *argv[])
     viewSize.setWidth(400);
     viewSize.setHeight(300);
 
-    Qfreej w;
-    w.show();
-
-    return a.exec();
+    try {
+        Qfreej w;
+        w.show();
+        return a.exec();
+    } catch (const std::exception& failure) {
+        qCritical("%s", failure.what());
+        return 1;
+    }
 }

@@ -148,7 +148,7 @@ void QqComboFilter::chgParam(double prm)
 void QqComboFilter::addFilter(QString flt)
 {
     char filterName[256];
-    QByteArray folt = flt.toAscii();
+    QByteArray folt = flt.toLatin1();
     Filter *filt;
     int idx;
 

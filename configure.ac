@@ -98,6 +98,23 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_SRCDIR([src/freej.cpp])
 AC_CONFIG_HEADERS([config.h])
 
+AC_ARG_WITH([native-profile],
+  [AS_HELP_STRING([--with-native-profile=compatibility|static], [select the native application profile])],
+  [FREEJ_NATIVE_PROFILE=$withval], [FREEJ_NATIVE_PROFILE=compatibility])
+AS_CASE([$FREEJ_NATIVE_PROFILE],
+  [compatibility], [],
+  [static], [
+    AS_IF([test "x$have_linux" != xyes], [AC_MSG_ERROR([the static profile requires Linux])])
+    AS_IF([test "x$enable_shared" = xyes], [AC_MSG_ERROR([the static profile rejects --enable-shared])])
+    enable_shared=no
+    enable_static=yes
+  ],
+  [AC_MSG_ERROR([unknown native profile: $FREEJ_NATIVE_PROFILE])])
+AC_SUBST([FREEJ_NATIVE_PROFILE])
+AM_CONDITIONAL([FREEJ_STATIC_PROFILE], [test "x$FREEJ_NATIVE_PROFILE" = xstatic])
+AC_ARG_WITH([native-sdk],
+  [AS_HELP_STRING([--with-native-sdk=PREFIX], [select the audited Linux static archive SDK])])
+
 dnl never run autotools and configure automatically
 dnl AM_MAINTAINER_MODE
 
@@ -202,6 +219,8 @@ dnl Check for SDL
 dnl ==============================================================
 PKG_CHECK_MODULES(SDL, sdl > 1.2, :,
   AC_MSG_ERROR([*** SDL development files not found!]))
+SDL_INCLUDEDIR=`$PKG_CONFIG --variable=includedir sdl`
+AS_IF([test -n "$SDL_INCLUDEDIR"], [SDL_CFLAGS="$SDL_CFLAGS -I$SDL_INCLUDEDIR"])
 
 
 dnl ==============================================================
@@ -857,15 +876,19 @@ AC_SUBST(FREEJ_STATIC_CFLAGS)
 
 FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(AA_CFLAGS)       \
+    \$(ALSA_CFLAGS)     \
     \$(CWIID_CFLAGS)    \
     \$(FC_CFLAGS)       \
     \$(FFMPEG_CFLAGS)   \
+    \$(FFTW_CFLAGS)     \
     \$(FT2_CFLAGS)      \
     \$(GLU_CFLAGS)      \
+    \$(JACK_CFLAGS)     \
     \$(LIBLO_CFLAGS)    \
     \$(MOZJS_CFLAGS)    \
     \$(OPENCV_CFLAGS)   \
     \$(QTGUI_CFLAGS)	\
+    \$(SAMPLERATE_CFLAGS) \
     \$(SDL_CFLAGS)      \
     \$(SDLGFX_CFLAGS)   \
     \$(SDLIMAGE_CFLAGS) \
@@ -874,6 +897,7 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
     \$(SLANG_CFLAGS)    \
     \$(UNICAP_CFLAGS)   \
     \$(CAIRO_CFLAGS)    \
+    \$(X11_CFLAGS)      \
     \$(XIPH_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
 
@@ -910,6 +934,61 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(XIPH_LIBS)       \
     \$(GD_LIBS)"
 AC_SUBST(FREEJ_LIBS)
+
+dnl Export the same selections as the library and frontends. Bundled headers
+dnl are installed with the engine headers, so source/build paths stay private.
+FREEJ_PACKAGE_CFLAGS="$CPPFLAGS $AA_CFLAGS $ALSA_CFLAGS $CWIID_CFLAGS $FC_CFLAGS \
+    $FFMPEG_CFLAGS $FFTW_CFLAGS $FT2_CFLAGS $GLU_CFLAGS $JACK_CFLAGS $LIBLO_CFLAGS \
+    $OPENCV_CFLAGS $SAMPLERATE_CFLAGS $SDL_CFLAGS $SDLIMAGE_CFLAGS $SHOUT_CFLAGS $SLANG_CFLAGS \
+    $UNICAP_CFLAGS $CAIRO_CFLAGS $XIPH_CFLAGS $X11_CFLAGS"
+FREEJ_PACKAGE_DEPS="$LDFLAGS -lpthread -lm -lrt $DL_LIBS $AA_LIBS $ALSA_LIBS \
+    $BLUEZ_LIBS $CWIID_LIBS $FC_LIBS $FFMPEG_LIBS $FFTW_LIBS $FT2_LIBS $GLU_LIBS \
+    $JACK_LIBS $LIBLO_LIBS $OPENCV_LIBS $SAMPLERATE_LIBS $SDLIMAGE_LIBS \
+    $SDL_LIBS $SHOUT_LIBS $SLANG_LIBS $UNICAP_LIBS $X11_LIBS $CAIRO_LIBS $XIPH_LIBS $GD_LIBS"
+FREEJ_PACKAGE_LIBS='-L${libdir} -lfreej'
+AS_IF([test "x$have_mozjs" = xyes], [
+  FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS $MOZJS_CFLAGS"
+  FREEJ_PACKAGE_DEPS="$FREEJ_PACKAGE_DEPS $MOZJS_LIBS"
+], [
+  AS_IF([test "x$enable_debug" = xyes],
+    [FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS -DJS_GCMETER"])
+])
+AS_IF([test "x$have_sdlgfx" = xyes], [
+  FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS $SDLGFX_CFLAGS"
+  FREEJ_PACKAGE_DEPS="$FREEJ_PACKAGE_DEPS $SDLGFX_LIBS"
+])
+AS_IF([test "x$have_sdlttf" = xyes], [
+  FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS $SDLTTF_CFLAGS"
+  FREEJ_PACKAGE_DEPS="$FREEJ_PACKAGE_DEPS $SDLTTF_LIBS"
+])
+
+FREEJ_CAPABILITIES="console sdl image geometry ffmpeg-sdk javascript jack fft resampling osc ogg theora vorbis stream"
+AS_IF([test "x$have_xgrab" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES xgrab xscreensaver"])
+AS_IF([test "x$have_videodev" = xyes && test "x$enable_v4l" != xno], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES v4l2"])
+AS_IF([test "x$have_textlayer" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES text"])
+AS_IF([test "x$have_cairo" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES cairo"])
+AS_IF([test "x$have_gd" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES screenshot"])
+AS_IF([test "x$have_midi" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES alsa-midi"])
+AS_IF([test "x$have_flash" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES flash"])
+AS_IF([test "x$have_aa" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES aalib"])
+AS_IF([test "x$have_cwiid" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES cwiid"])
+AS_IF([test "x$have_unicap" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES unicap"])
+AS_IF([test "x$have_opencv" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES opencv"])
+AS_IF([test "x$enable_opengl" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES opengl"])
+AS_IF([test "x$FREEJ_NATIVE_PROFILE" = xcompatibility], [
+  FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES frei0r-directory freeframe-directory"
+], [
+  FREEJ_CHECK_STATIC_SDK
+  FREEJ_PACKAGE_LIBS='-static -Wl,--whole-archive ${libdir}/libfreej.a -Wl,--no-whole-archive'
+  FREEJ_PACKAGE_DEPS="$FREEJ_STATIC_LOADER_FLAGS -Wl,--start-group \${libdir}/freej-sdk/libfreej-mozjs.a $FREEJ_STATIC_STAGE_ARCHIVES $FREEJ_STATIC_SYSTEM_LIBS -Wl,--end-group"
+])
+AC_SUBST([FREEJ_CAPABILITIES])
+AC_SUBST([FREEJ_PACKAGE_CFLAGS])
+AC_SUBST([FREEJ_PACKAGE_DEPS])
+AC_SUBST([FREEJ_PACKAGE_LIBS])
+AC_DEFINE_UNQUOTED([FREEJ_NATIVE_PROFILE], ["$FREEJ_NATIVE_PROFILE"], [Selected native profile])
+AC_DEFINE_UNQUOTED([FREEJ_CAPABILITIES], ["$FREEJ_CAPABILITIES"], [Selected FreeJ engine capabilities])
+AC_MSG_NOTICE([native profile $FREEJ_NATIVE_PROFILE selects $FREEJ_CAPABILITIES])
 
 dnl ###########################################################################
 dnl ###### now about compile time paths

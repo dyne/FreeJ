@@ -50,7 +50,7 @@ public:
     JsExecutionContext(JsParser *jsParser);
     ~JsExecutionContext();
 private:
-    void init_class();
+    bool init_class();
     void gc();
     
     JsParser  *parser;
@@ -86,7 +86,7 @@ class JsParser {
     Linklist<JsExecutionContext> runtimes;
     
  private:
-    void init();
+    bool init();
     void init_class(JSContext *cx, JSObject *obj);
     int open(JSContext *cx, JSObject *obj, const char* script_file);
     int evaluate(JSContext *cx, JSObject *obj, const char *name, const char *buf, unsigned int len);

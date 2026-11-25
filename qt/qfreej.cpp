@@ -19,7 +19,6 @@
 
 
 #include <qfreej.h>
-#include <ui_qfreej.h>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QTextEdit>

@@ -159,26 +159,26 @@ void QEncoder::stream()
 
     if (m_dumpButton->isChecked())
     {
-      m_enc->set_filedump(m_FileName->text().toAscii());
+      m_enc->set_filedump(m_FileName->text().toLatin1());
     }
     if (m_IceButton->isChecked())
     {
-      if(shout_set_host(m_enc->ice, m_Host->text().toAscii()))
+      if(shout_set_host(m_enc->ice, m_Host->text().toLatin1()))
 	qDebug() << "shout_set_host: " << shout_get_error(m_enc->ice);
 
       if(shout_set_port(m_enc->ice, m_Port->text().toInt()))
 	qDebug() << "shout_set_port: " << shout_get_error(m_enc->ice);
 
-      if(shout_set_name(m_enc->ice, m_ShoutName->text().toAscii()))
+      if(shout_set_name(m_enc->ice, m_ShoutName->text().toLatin1()))
 	qDebug() << "shout_set_title: " << shout_get_error(m_enc->ice);
 
-      if(shout_set_user(m_enc->ice, m_User->text().toAscii()))
+      if(shout_set_user(m_enc->ice, m_User->text().toLatin1()))
 	qDebug() << "shout_set_user: " << shout_get_error(m_enc->ice);
 
-      if(shout_set_password(m_enc->ice, m_Pass->text().toAscii()))
+      if(shout_set_password(m_enc->ice, m_Pass->text().toLatin1()))
 	qDebug() << "shout_set_pass: " << shout_get_error(m_enc->ice);
 
-      if(shout_set_mount(m_enc->ice, m_ShoutFileName->text().toAscii()))
+      if(shout_set_mount(m_enc->ice, m_ShoutFileName->text().toLatin1()))
 	qDebug() << "shout_set_mount: " << shout_get_error(m_enc->ice);
       if(shout_open(m_enc->ice) == SHOUTERR_SUCCESS) {
 	qDebug() << "streaming on url: http://" << shout_get_host(m_enc->ice) << ":" \

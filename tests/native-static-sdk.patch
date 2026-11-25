@@ -1,0 +1,129 @@
+--- a/SDL2-2.32.4/cmake/sdlchecks.cmake
++++ b/SDL2-2.32.4/cmake/sdlchecks.cmake
+@@ -517 +517 @@
+-      set(CMAKE_REQUIRED_LIBRARIES ${X11_LIB} ${X11_LIB})
++      set(CMAKE_REQUIRED_LIBRARIES ${X11_LIB} ${FREEJ_X11_PRIVATE_LIBS})
+--- a/SDL2-2.32.4/src/dynapi/SDL_dynapi.h
++++ b/SDL2-2.32.4/src/dynapi/SDL_dynapi.h
+@@ -46 +46,3 @@
+-#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE /* probably not useful on iOS. */
++#if defined(FREEJ_STATIC_SDL2)
++#define SDL_DYNAMIC_API 0
++#elif defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE /* probably not useful on iOS. */
+--- a/sdl12-compat-release-1.2.68/src/SDL12_compat.c
++++ b/sdl12-compat-release-1.2.68/src/SDL12_compat.c
+@@ -1109 +1109,9 @@
+-#if defined(_WIN32)
++#if defined(FREEJ_STATIC_SDL2)
++    static int Loaded_SDL20 = 0;
++    #define SDL20_REQUIRED_VER SDL_VERSIONNUM(2,0,7)
++    #define LoadSDL20Library() (Loaded_SDL20 = 1)
++    #define CloseSDL20Library() (Loaded_SDL20 = 0)
++    #define SDL20_SYM(rc,fn,params,args,ret) extern rc SDLCALL FreejSDL2_##fn params;
++    #include "SDL20_syms.h"
++    extern int XInitThreads(void);
++#elif defined(_WIN32)
+@@ -1217,0 +1226 @@
++#if !defined(FREEJ_STATIC_SDL2)
+@@ -1231,0 +1241 @@
++#endif
+@@ -1468 +1478 @@
+-        #ifdef __linux__
++        #if defined(__linux__) && !defined(FREEJ_STATIC_SDL2)
+@@ -1487,0 +1498,3 @@
++            #if defined(FREEJ_STATIC_SDL2)
++            #define SDL20_SYM(rc,fn,params,args,ret) SDL20_##fn = FreejSDL2_##fn;
++            #else
+@@ -1488,0 +1502 @@
++            #endif
+@@ -1521,0 +1536,3 @@
++                            #if defined(FREEJ_STATIC_SDL2)
++                            XInitThreads();
++                            #else
+@@ -1529,0 +1547 @@
++                            #endif
+--- a/jack1-0.126.0/libjack/client.c
++++ b/jack1-0.126.0/libjack/client.c
+@@ -148,20 +148,5 @@
+-	static char tmpdir[PATH_MAX + 1] = "";
+-	FILE* in;
+-	size_t len;
+-	char buf[PATH_MAX + 2]; /* allow tmpdir to live anywhere, plus newline, plus null */
+-	char *pathenv;
+-	char *pathcopy;
+-	char *p;
+-
+-	/* return tmpdir if set */
+-	if (tmpdir[0] != '\0') {
+-		return tmpdir;
+-	}
+-
+-	/* some implementations of popen(3) close a security loophole by
+-	   resetting PATH for the exec'd command. since we *want* to
+-	   use the user's PATH setting to locate jackd, we have to
+-	   do it ourselves.
+-	 */
+-
+-	if ((pathenv = getenv ("PATH")) == 0) {
++	const char *directory = getenv("JACK_TMPDIR");
++
++	if (!directory || !directory[0])
++		directory = DEFAULT_TMP_DIR;
++	if (directory[0] != '/' || strlen(directory) >= PATH_MAX)
+@@ -169,55 +154 @@
+-	}
+-
+-	/* don't let strtok(3) mess with the real environment variable */
+-
+-	if ((pathcopy = strdup (pathenv)) == NULL) {
+-		return NULL;
+-	}
+-	p = strtok (pathcopy, ":");
+-
+-	while (p) {
+-		char jackd[PATH_MAX + 1];
+-		char command[PATH_MAX + 4];
+-
+-		snprintf (jackd, sizeof(jackd), "%s/jackd", p);
+-
+-		if (access (jackd, X_OK) == 0) {
+-
+-			snprintf (command, sizeof(command), "%s -l", jackd);
+-
+-			if ((in = popen (command, "r")) != NULL) {
+-				break;
+-			}
+-		}
+-
+-		p = strtok (NULL, ":");
+-	}
+-
+-	if (p == NULL) {
+-		/* no command successfully started */
+-		free (pathcopy);
+-		return NULL;
+-	}
+-
+-	if (fgets (buf, sizeof(buf), in) == NULL) {
+-		pclose (in);
+-		free (pathcopy);
+-		return NULL;
+-	}
+-
+-	len = strlen (buf);
+-
+-	if (buf[len - 1] != '\n') {
+-		/* didn't get a whole line */
+-		pclose (in);
+-		free (pathcopy);
+-		return NULL;
+-	}
+-
+-	memcpy (tmpdir, buf, len - 1);
+-	tmpdir[len - 1] = '\0';
+-
+-	pclose (in);
+-	free (pathcopy);
+-
+-	return tmpdir;
++	return directory;
