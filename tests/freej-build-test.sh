@@ -3,7 +3,13 @@ set -eu
 
 # Build a disposable copy of this checkout, including unignored local files.
 repo=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd -P)
-work=$(mktemp -d "${TMPDIR:-/tmp}/freejbuild.XXXXXXXXXX")
+if test -n "${FREEJ_BUILD_WORK:-}"; then
+    # An explicit, new path lets cache trials use identical build inputs.
+    mkdir -- "$FREEJ_BUILD_WORK"
+    work=$(CDPATH='' cd -- "$FREEJ_BUILD_WORK" && pwd -P)
+else
+    work=$(mktemp -d "${TMPDIR:-/tmp}/freejbuild.XXXXXXXXXX")
+fi
 printf 'Build artifacts and logs: %s\n' "$work"
 
 source=$work/source
