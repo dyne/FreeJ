@@ -210,7 +210,8 @@ def main():
     env = dict(os.environ, LC_ALL="C", SDL_VIDEODRIVER="x11", QT_QPA_PLATFORM="xcb")
     # The server runs separately with its installed shared driver modules.
     jack = args.jackd.parent.parent
-    jack_env = dict(env, LD_LIBRARY_PATH=str(jack / "lib"), JACK_DRIVER_DIR=str(jack / "lib/jack"),
+    jack_env = dict(env, LD_LIBRARY_PATH=str(jack / "lib"),
+                    JACK_DRIVER_DIR=env.get("JACK_DRIVER_DIR", str(jack / "lib/jack")),
                     PATH=f"{jack / 'bin'}{os.pathsep}{env['PATH']}")
     tmpdir = subprocess.check_output([args.jackd, "-l"], env=jack_env, text=True).strip()
     server = f"fjstage{os.getpid()}"

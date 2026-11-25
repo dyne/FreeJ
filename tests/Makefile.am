@@ -24,6 +24,7 @@ EXTRA_DIST = cxxtest freej-build-test.sh legacy-linux-sdk.py legacy-linux-sdk.lo
              native-linux-archives.py native-linux-archives.lock check-native-linux-archives.py \
              native-static-sdk.py native-static-sdk.lock native-static-sdk.patch \
              native-profile-factory.cpp native-profile-sandbox.c native-profile-runtime.py \
+             native-ci-prepare.sh native-ci-run.sh native-ci.lock \
              show-replay/README.md show-replay/replay.py show-replay/observe.cpp \
              show-replay/pulse.cpp show-replay/scene.js show-replay/video.js \
              show-replay/osc.js show-replay/audio.js show-replay/reset.js \
