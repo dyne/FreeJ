@@ -20,4 +20,4 @@ cxxtests_LDADD = $(top_builddir)/src/libfreej.la
 cxxtests.cpp: $(CXXTEST_TESTSUITES)
 	$(CXXTESTGEN) -o $@ $^
 
-EXTRA_DIST = cxxtest
+EXTRA_DIST = cxxtest freej-build-test.sh legacy-linux-sdk.py legacy-linux-sdk.lock

@@ -1,0 +1,24 @@
+# SHA256 and URL for the reference SDK archives.
+d282d53d1c98c3e1319ba87ab26a4b99ad72c6711e5357691ea7133dc8353667 https://ffmpeg.org/releases/ffmpeg-0.8.15.tar.bz2
+6198f5611e97a2f41b80e210a3fb918b8b32d0da07e340a5922de0b691a8edca https://deb.debian.org/debian/pool/main/g/gcc-12/cpp-12_12.4.0-5_amd64.deb
+6132dd2ecd744be40cfbd4aea146cf1ec7284c515158edc18d44e8bc40f4ec94 https://deb.debian.org/debian/pool/main/g/gcc-12/g%2B%2B-12_12.4.0-5_amd64.deb
+c2afd8a55d7d309dba0320c4dea05e41ff291d6f78fa06972d4d2eda4b29774a https://deb.debian.org/debian/pool/main/g/gcc-12/gcc-12_12.4.0-5_amd64.deb
+df84249e59643841cd2ccc7faec7c836da4c567520d76d5b5e380d2a8f7aa30b https://deb.debian.org/debian/pool/main/g/gcc-12/gcc-12-base_12.4.0-5_amd64.deb
+16f3e64f632155eb8187d9ffbd90a66a97830e22fb9d90bef7b89ac76adf77f1 https://deb.debian.org/debian/pool/main/g/gcc-12/libgcc-12-dev_12.4.0-5_amd64.deb
+138164a7edf9076ea298a05af1891e89b231bd34e4bd172b9063d45307f2ce06 https://deb.debian.org/debian/pool/main/g/gcc-12/libstdc%2B%2B-12-dev_12.4.0-5_amd64.deb
+69c508087f72c59d255a69e4a0c97cd22b9604f3ec7c93c4098c0340809dc5f2 https://deb.debian.org/debian/pool/main/libg/libgd2/libgd-dev_2.3.3-14~deb13u1_amd64.deb
+26814d821656ef587e841d186aa8be1e3794214acb7bdd0d938e2a6d172aa0a9 https://deb.debian.org/debian/pool/main/libg/libgd2/libgd3_2.3.3-14~deb13u1_amd64.deb
+7cf4a99128fa1b99b42dc61af4b5a9fd4b0c047e477b78937a59cfe0c1bf3abe https://deb.debian.org/debian/pool/main/libs/libshout/libshout-dev_2.4.6-1%2Bb3_amd64.deb
+088e579661be39beef9d5f250f487500b5b99e322c8a4c1444d8932b980224b2 https://deb.debian.org/debian/pool/main/libs/libshout/libshout3_2.4.6-1%2Bb3_amd64.deb
+d9fc13cfbfc5cd21263519ee65283094fa7e5d01b6beb4c9adadbc8bb7901ca2 https://deb.debian.org/debian/pool/main/libt/libtheora/libtheora-dev_1.2.0~alpha1%2Bdfsg-6_amd64.deb
+a1fe9b1135718f62b5bb22484a8c5af2a0729a548bf29122e37cba236bb43f11 https://deb.debian.org/debian/pool/main/libt/libtheora/libtheora0_1.2.0~alpha1%2Bdfsg-6_amd64.deb
+31c566d16b0a30f2c100d685d09b831d10d756bd043107ec6594c082274c0c74 https://deb.debian.org/debian/pool/main/libt/libtheora/libtheoradec1_1.2.0~alpha1%2Bdfsg-6_amd64.deb
+ce795eba6cdb510a52cd158dee7930a23667ffb4bdf07fbc44d4590edbf6f503 https://deb.debian.org/debian/pool/main/libt/libtheora/libtheoraenc1_1.2.0~alpha1%2Bdfsg-6_amd64.deb
+e8394c5a3ad3c6980e4d871b41c1a8e5234d525cc73ff3cf2281de16c4696635 https://deb.debian.org/debian/pool/main/s/sdl-image1.2/libsdl-image1.2_1.2.12-14_amd64.deb
+80ad50b0ebd4cd9a1d70c8a1709e20700fac975d0e246670de87469d7218a5cf https://deb.debian.org/debian/pool/main/s/sdl-image1.2/libsdl-image1.2-dev_1.2.12-14_amd64.deb
+bf97ed40fd73a98d35fd298972b481e3593be8ad786b902abe7f4ea39946f6c9 https://deb.debian.org/debian/pool/main/s/sdl-ttf2.0/libsdl-ttf2.0-0_2.0.11-6%2Bb2_amd64.deb
+72a5d9aa31f3123d8106a1b7b44a4122b29f6e225c8d64b656453a1ca28a49da https://deb.debian.org/debian/pool/main/s/sdl-ttf2.0/libsdl-ttf2.0-dev_2.0.11-6%2Bb2_amd64.deb
+fc3f8a110d34eda0d5b0c79ff164de57506fbc43551120c9c30dde403b1fa6a3 https://deb.debian.org/debian/pool/main/s/sdlgfx/libsdl-gfx1.2-5_2.0.25-12%2Bb2_amd64.deb
+0a667bd6fcebbca785d2989cab7f0f7188db77f17805a6e9d95a33b2a32c222f https://deb.debian.org/debian/pool/main/s/sdlgfx/libsdl-gfx1.2-dev_2.0.25-12%2Bb2_amd64.deb
+ba31b421ecd009e48d4733571c1e82836dc863d46675f1c718b0ecc87a5f6c10 https://deb.debian.org/debian/pool/main/s/speex/libspeex-dev_1.2.1-3_amd64.deb
+26623d450c2a51f9f6801b19ee5be1303aee4087557d1389020a0df00afa6e77 https://deb.debian.org/debian/pool/main/s/speex/libspeex1_1.2.1-3_amd64.deb

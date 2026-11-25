@@ -67,11 +67,13 @@ ifdef SYSTEM_LIBXUL
   SKIP_COPY_XULRUNNER=1
 endif
 
-# ELOG prints out failed command when building silently (gmake -s).
-ifneq (,$(findstring -s,$(MAKEFLAGS)))
-  ELOG := $(EXEC) sh $(BUILD_TOOLS)/print-failed-commands.sh
-else
-  ELOG :=
+# ELOG can print failed commands in a silent build when the Gecko helper
+# is present. GNU Make's short flags precede long options and variable values.
+ELOG :=
+ifneq (,$(findstring s,$(firstword -$(MAKEFLAGS))))
+  ifneq (,$(wildcard $(BUILD_TOOLS)/print-failed-commands.sh))
+    ELOG := $(EXEC) sh $(BUILD_TOOLS)/print-failed-commands.sh
+  endif
 endif
 
 ifeq (,$(filter-out WINNT WINCE,$(OS_ARCH)))

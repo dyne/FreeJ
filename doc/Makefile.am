@@ -4,6 +4,7 @@ endif
 SUBDIRS = $(SCRIPTINGDIR)
 
 EXTRA_DIST = doxy2swig.py freej.1 ipernav.png ipernav-small.png
+dist_doc_DATA = legacy-reference.md capabilities.md
 
 man_MANS = freej.1
 

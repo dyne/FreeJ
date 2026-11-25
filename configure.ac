@@ -766,20 +766,7 @@ dnl SDL_image
 dnl ==============================================================
 PKG_CHECK_MODULES([SDLIMAGE], [SDL_image],
                   [have_sdlimage=yes],
-                  [have_sdlimage=no])
-if test x$have_sdlimage = xyes; then
-   SDLIMAGE_CFLAGS="$SDL_CFLAGS"
-   SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image -ljpeg"
-   FREEJ_SAVE_FLAGS
-   CFLAGS="$SDLIMAGE_CFLAGS"
-   CPPFLAGS="$SDLIMAGE_CFLAGS"
-   LDFLAGS="$SDLIMAGE_LIBS"
-   FREEJ_CHECK_LIB_HEADER([SDL_image], [IMG_Load], [SDL_image.h],
-                           [have_sdlimage=yes], [have_sdlimage=no])
-   FREEJ_RESTORE_FLAGS
-fi
-
-AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlimage = xno])
+                  [AC_MSG_ERROR([*** SDL_image development files not found!])])
 
 
 dnl ==============================================================
