@@ -19,6 +19,8 @@
  */
 
 
+#include <algorithm>
+
 #include <layer.h>
 #include <blitter.h>
 #include <context.h>
@@ -41,6 +43,7 @@ Blit::Blit() :Entry() {
   value = 0.0;
 
   fun = NULL;
+  sdl_fun = nullptr;
   type = NONE;
   past_frame = NULL;
 
@@ -57,17 +60,7 @@ Blit::~Blit() {
   }
 }
 
-Blitter::Blitter() {
-
-  screen = NULL;
-
-  old_lay_x = 0;
-  old_lay_y = 0;
-  old_lay_w = 0;
-  old_lay_h = 0;
-
-
-}
+Blitter::Blitter() : screen(nullptr), default_blit(nullptr), geo(nullptr) {}
 
 Blitter::~Blitter() {
 
@@ -82,236 +75,33 @@ Blitter::~Blitter() {
 
 
 
-// char *Blitter::get_name() {
-//   return name;
-// }
-		       
-
-
-  // TODO layer 2 layer blit
-// pass src->geo and dst->geo from two layers
-// in case we want to blit one on another
-// then the crop will prepare it's own layer to the other
-
-/* ok, let's draw the crop geometries and be nice commenting ;)
-
-   that's tricky stuff
-
-   here the generic case of a layer on the screen, with variable names:
-   
-
-                                                         screen->w
-  0,0___________________________________________________ -> 
-   '                 ^                                  '
-   | screen          |scr_stride_up                     |
-   |                 |                                  |
-   |       x,y_______V________________ w                |
-   | scr_sx '                         '                 |
-   | stride | layer                   |                 |
-   |<------>|                         |                 |
-   |        |                         |<-------------...|
-   |...---->|                         | scr_stride_dx   |
-   |        '-------------------------'                 |
-   |       h                                            |
-   |                                                    |
-   '----------------------------------------------------'
-   |
-   V screen->h
-
-   we have a couple of cases in which both x and y as well
-   w and h of the layer can be out of the bounds of the screen.
-
-   for instance, if the layer goes out of the left bound (x<0):
-
-            0,0____________________
- (offset)    '                     '
-  x,y________|_________            |  offset is the point of start
-   '         |         '           |  scr_stride is added to screen every line
-   |layer    |         |           |  lay_stride is added to layer every line
-   |         |         | scr_stride|
-   |         |         |<--------->|
-   |         |         |           |
-   '_________|_________'           |
-   <-------->|                     |
-   lay_stride'---------------------'
-
-     so the algorithm of the crop will look like:
-*/
-     
-
-void Blitter::crop(Layer *lay, ViewPort *scr) {
-
-  Blit *b;
-
-  if(!lay || !scr) {
-    warning("crop called with lay[%p] scr[%p]", lay, scr);
+void Blitter::crop(Layer *layer, ViewPort *screen, Geometry *transformed)
+{
+  auto &blit = *layer->current_blit;
+  geo = transformed ? transformed : &layer->geo;
+  const int x = layer->geo.x - (int(geo->w) - layer->geo.w) / 2;
+  const int y = layer->geo.y - (int(geo->h) - layer->geo.h) / 2;
+  const int left = std::max(0, x);
+  const int top = std::max(0, y);
+  const int width = std::max(0, std::min(int(screen->geo.w), x + geo->w) - left);
+  const int height = std::max(0, std::min(int(screen->geo.h), y + geo->h) - top);
+  layer->need_crop = false;
+  layer->hidden = width == 0 || height == 0;
+  blit.lay_height = layer->hidden ? 0 : height;
+  if (layer->hidden)
     return;
+
+  const int src_x = left - x;
+  const int src_y = top - y;
+  if (blit.type == Blit::SDL) {
+    blit.sdl_rect = {src_x, src_y, width, height};
+    blit.sdl_destination = {left, top, width, height};
+  } else {
+    const int source_stride = geo->bytewidth / sizeof(uint32_t);
+    blit.lay_bytepitch = width * sizeof(uint32_t);
+    blit.lay_stride = source_stride;
+    blit.scr_stride = screen->geo.w;
+    blit.lay_offset = src_y * source_stride + src_x;
+    blit.scr_offset = top * screen->geo.w + left;
   }
-
-  if(!lay->current_blit) {
-    warning("no blit selected for layer %s", lay->name);
-    return;
-  }
-
-  b = lay->current_blit;
-
-  func("crop on layer %s x%i y%i w%i h%i for blit %s",
-       lay->name, lay->geo.x, lay->geo.y,
-       lay->geo.w, lay->geo.h, b->name);
-
-  // assign the right pointer to the *geo used in crop
-  // we use the normal geometry if not roto|zoom
-  // otherwise the layer::geo_rotozoom
-  if(lay->rotating | lay->zooming) {
-
-    geo = &lay->geo_rotozoom;
-
-    // shift up/left to center rotation
-    geo->x = lay->geo.x - (geo->w - lay->geo.w)/2;
-    geo->y = lay->geo.y - (geo->h - lay->geo.h)/2;
-
-  } else geo = &lay->geo;
-
-  //////////////////////
-
-
-  
-  // crop for the SDL blit
-  if(b->type == Blit::SDL) {
-
-    b->sdl_rect.x = -(geo->x);
-    b->sdl_rect.y = -(geo->y);
-    b->sdl_rect.w = scr->geo.w;
-    b->sdl_rect.h = scr->geo.h;
-
-    // crop for the linear and past blit
-  } else if(b->type == Blit::LINEAR 
-	    || b->type == Blit::PAST) {
-
-    b->lay_pitch =  geo->w; // how many pixels to copy each row
-    b->lay_height = geo->h; // how many rows we should copy
-    
-    b->scr_stride_up = 0; // rows to jump before starting to blit on screen
-    b->scr_stride_sx = 0; // screen pixels stride on the left of each row
-    b->scr_stride_dx = 0; // screen pixels stride on the right of each row
-    
-    b->lay_stride_up = 0; // rows to jump before starting to blit layer
-    b->lay_stride_sx = 0; // how many pixels stride on the left of each row
-    b->lay_stride_dx = 0; // how many pixels stride on the right of each row
-    
-    // BOTTOM
-    if( geo->y + geo->h > scr->geo.h ) {
-      if( geo->y > scr->geo.h ) { // out of screen
-	geo->y = scr->geo.h+1; // don't go far
-	lay->hidden = true;
-	return;
-      } else { // partially out
-	b->lay_height -= (geo->y + geo->h) - scr->geo.h;
-      }
-    }
-    
-    // LEFT
-    if( geo->x < 0 ) {
-      if( geo->x + geo->w < 0 ) { // out of screen
-	geo->x = -( geo->w + 1 ); // don't go far
-	lay->hidden = true;
-	return;
-      } else { // partially out
-	b->lay_stride_sx += -geo->x;
-	b->lay_pitch -= -geo->x;
-      } 
-    } else { // inside
-      b->scr_stride_sx += geo->x;
-    }
-    
-    // UP
-    if(geo->y < 0) {
-      if( geo->y + geo->h < 0) { // out of screen
-	geo->y = -( geo->h + 1 ); // don't go far
-	lay->hidden = true;
-	return;
-      } else { // partially out
-	b->lay_stride_up += -geo->y;
-	b->lay_height -= -geo->y;
-      }
-    } else { // inside
-      b->scr_stride_up += geo->y;
-    }
-    
-    // RIGHT
-    if( geo->x + geo->w > scr->geo.w ) {
-      if( geo->x > scr->geo.w ) { // out of screen
-	geo->x = scr->geo.w + 1; // don't go far
-	lay->hidden = true;
-	return;
-      } else { // partially out
-	b->lay_pitch -= ( geo->x + geo->w ) - scr->geo.w;
-	b->lay_stride_dx += ( geo->x + geo->w ) - scr->geo.w;
-      } 
-    } else { // inside
-      b->scr_stride_dx += scr->geo.w - (geo->x + geo->w );
-    }
-    
-    lay->hidden = false;
-    
-    b->lay_stride = b->lay_stride_dx + b->lay_stride_sx; // sum strides
-    // precalculate upper left starting offset for layer
-    b->lay_offset = (b->lay_stride_sx +
-		     ( b->lay_stride_up * geo->w ));
-    
-    b->scr_stride = b->scr_stride_dx + b->scr_stride_sx; // sum strides
-    // precalculate upper left starting offset for screen
-    b->scr_offset = (b->scr_stride_sx +
-		     ( b->scr_stride_up * scr->geo.w ));
-  }
-  
-  // calculate bytes per row
-  b->lay_bytepitch = b->lay_pitch * 4;
-
-  lay->need_crop = false;
-}  
-
-
-//////////////////
-
-///////// LEFTOVERS
-
-
-//   /* compare old layer values
-//      crop the layer only if necessary */
-//   if(!force)
-//     if( (lay->geo->x == old_lay_x)
-// 	&& (lay->geo->y == old_lay_y)
-// 	&& (lay->geo->w == old_lay_w)
-// 	&& (lay->geo->h == old_lay_h)
-// 	&& (scr->w == old_scr_w)
-// 	&& (scr->h == old_scr_h)
-// 	)
-//       return;
-
-
-
-
-//   // assign the right pointer to the *geo used in crop
-//   // we use the normal geometry if not roto|zoom
-//   // otherwise the layer::geo_rotozoom
-//   if(rotozoom) {
-
-//     geo = &geo_rotozoom;
-//     // shift up/left to center rotation
-//     geo->x = layer->geo.x - (rotozoom->w - layer->geo.w)/2;
-//     geo->y = layer->geo.y - (rotozoom->h - layer->geo.h)/2;
-
-//     geo->w = rotozoom->w;
-//     geo->h = rotozoom->h;
-//     geo->bpp = 32;
-//     geo->pitch = 4*geo->w;
-
-//   } else geo = &layer->geo;
-
-//   // QUAAA
-
-//   if(layer->slide_x != geo->x) geo->x = (int16_t)layer->slide_x;
-//   if(layer->slide_y != geo->y) geo->y = (int16_t)layer->slide_y;
-
-//   //////////////////////
+}

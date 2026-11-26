@@ -61,14 +61,6 @@ class SdlScreen : public ViewPort {
   SDL_Window *window;
   bool switch_fullscreen;
 
-  SDL_Surface *pre_rotozoom;
-  SDL_Surface *rotozoom; ///< pointer to blittable surface (rotated and zoomed if necessary)
-
-  // small vars used in blits
-  int chan, c, cc;
-  uint32_t *scr, *off, *poff, *pastoff, *ppastoff;
-  uint32_t *pscr, *play, *ppast;  // generic blit buffer pointers
-
   // allow to use Factory on this class
   FACTORY_ALLOWED;
 

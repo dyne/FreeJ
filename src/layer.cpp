@@ -204,7 +204,6 @@ bool Layer::set_blit(const char *bname) {
 
 	  current_blit = b; // start using
 	  need_crop = true;
-	  blitter->crop(this, screen);
 	  blitter->blitlist.sel(0);
 	  b->sel(true);
 	  act("blit %s set for layer %s", current_blit->name, name);

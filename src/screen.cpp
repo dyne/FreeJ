@@ -345,7 +345,7 @@ void ViewPort::handle_resize() {
   Layer *lay = layers.begin ();
   while (lay) {
     lay -> lock ();
-    lay -> blitter->crop(lay, this);
+    lay->need_crop = true;
     lay -> unlock ();
     lay = (Layer*) lay -> next;
   } 

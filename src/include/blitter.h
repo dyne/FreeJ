@@ -23,6 +23,7 @@
 #define __BLITTER_H__
 
 #include <SDL3/SDL.h>
+#include <memory>
 #include <geometry.h>
 
 #include <screen.h>
@@ -88,22 +89,15 @@ class Blit: public Entry {
   //  char *get_name();
 
 
-  int32_t scr_stride_dx;
-  int32_t scr_stride_sx;
-  int32_t scr_stride_up;
-  int32_t scr_stride;
-  uint32_t scr_offset;
+  int32_t scr_stride = 0;
+  uint32_t scr_offset = 0;
+  int32_t lay_bytepitch = 0;
+  int32_t lay_stride = 0;
+  int32_t lay_height = 0;
+  uint32_t lay_offset = 0;
 
-  int32_t lay_pitch;
-  int32_t lay_bytepitch;
-  int32_t lay_stride;
-  int32_t lay_stride_sx;
-  int32_t lay_stride_dx;
-  int32_t lay_stride_up;
-  int32_t lay_height;
-  uint32_t lay_offset;
-
-  SDL_Rect sdl_rect; // sdl crop rectangle
+  SDL_Rect sdl_rect{};
+  SDL_Rect sdl_destination{};
 
  private:
   // parameters for linear crop
@@ -132,9 +126,8 @@ class Blitter {
   Linklist<Blit> blitlist; ///< list of available blits
 
   /* ==== CROP */
-  /** @param force crop even if nothing changed */
-  void crop(Layer *lay, ViewPort *scr);
-  ///< crop to fit in the ViewPort
+  // Intersect the source, optionally transformed, with the viewport.
+  void crop(Layer *layer, ViewPort *screen, Geometry *transformed = nullptr);
   
   ViewPort *screen; ///< the layer on which is applied the blitter
 
@@ -143,16 +136,13 @@ class Blitter {
   Geometry *geo;
   
  private:
-  int16_t old_lay_x;
-  int16_t old_lay_y;
-  uint16_t old_lay_w;
-  uint16_t old_lay_h;
-
-  int16_t old_scr_x;
-  int16_t old_scr_y;
-  uint16_t old_scr_w;
-  uint16_t old_scr_h;
-
+  friend class SdlScreen;
+  struct {
+    std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)> surface{nullptr, SDL_DestroySurface};
+    uint64_t generation = 0;
+    double angle = 0, zoom_x = 0, zoom_y = 0;
+    bool antialias = false;
+  } transform_;
 
 };
 

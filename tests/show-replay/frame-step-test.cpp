@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <atomic>
+#include <chrono>
 #include <array>
 #include <cstdio>
 #include <cstdlib>
@@ -7,17 +9,20 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <thread>
 #include <vector>
 #include <unistd.h>
 
 #include <context.h>
 #include <controller.h>
 #include <image_layer.h>
+#include <geo_layer.h>
 #include <sdl_controller.h>
 #include <sdl_screen.h>
 #include <soft_screen.h>
 
 #include "frame_step.h"
+#include "frame_storage.h"
 #include "frame-probe-fixture.h"
 
 namespace {
@@ -264,6 +269,160 @@ public:
   }
 };
 
+void check_clipping(Context &context, ViewPort &screen, bool native) {
+  const auto red = expected_pixel(240, 20, 10);
+  const auto blue = expected_pixel(10, 30, 210);
+  const auto background = expected_pixel(15, 25, 35);
+  const auto rgb = red_bitmask | green_bitmask | blue_bitmask;
+  GeoLayer layer;
+  require(layer.init(3, 2, 32), "initialize 3x2 drawing");
+  layer.set_color(240, 20, 10);
+  require(layer.clear() == 0 && layer.pixel(1, 1, 0x0a1ed2ff) == 0, "paint the fixture");
+  require(screen.add_layer(&layer), "attach the drawing");
+  layer.buffer = layer.feed();
+  const auto solid = {std::array<int, 2>{1, 1}, {-2, 1}, {4, 1}, {1, -1}, {1, 3},
+                      {-3, 1}, {5, 1}, {1, -2}, {1, 4}, {1, 1}};
+  for (const auto &point : solid) {
+    layer.geo.x = point[0];
+    layer.geo.y = point[1];
+    layer.need_crop = true;
+    const int width = screen.geo.w, height = screen.geo.h;
+    auto *pixels = static_cast<uint32_t *>(screen.get_surface());
+    std::fill_n(pixels, width * height, background);
+    screen.blit_layers();
+    for (int y = 0; y < height; ++y) {
+      for (int x = 0; x < width; ++x) {
+        const int sx = x - point[0], sy = y - point[1];
+        const auto expected = sx >= 0 && sx < 3 && sy >= 0 && sy < 2
+            ? (sx == 1 && sy == 1 ? blue : red) : background;
+        require(screen.coords(x, y) == pixels + y * width + x, "viewport row address");
+        require((pixels[y * width + x] & rgb) == (expected & rgb), "clipped drawing pixel");
+      }
+    }
+  }
+  if (native) {
+    require(!screen.coords(-1, 0) && !screen.coords(0, screen.geo.h), "out-of-range SDL coordinates");
+    require(layer.set_blit("RGB"), "select native linear blit");
+    layer.rotating = true;
+    layer.rotate = 33;
+    layer.geo.x = -9;
+    layer.need_crop = true;
+    context.resize(7, 5);
+    screen.handle_resize();
+    require(screen.geo.w == 7 && screen.geo.h == 5, "resize SDL drawing target");
+    auto *pixels = static_cast<uint32_t *>(screen.get_surface());
+    std::fill_n(pixels, 35, background);
+    screen.blit_layers();
+    require(std::all_of(pixels, pixels + 35, [&](uint32_t p) { return p == background; }),
+            "rotated layer wholly outside resized viewport");
+    layer.geo.x = 0;
+    layer.need_crop = true;
+    screen.blit_layers();
+    require(std::any_of(pixels, pixels + 35, [&](uint32_t p) { return p == red; }),
+            "rotated layer returns into resized viewport");
+
+    // Stop the producer after each publish so two draws reuse one generation.
+    auto publish = [&] {
+      const auto initial = freej_engine::FrameAccess::layer(layer);
+      require(layer.start() == 0, "start the geometry producer");
+      const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+      auto current = freej_engine::FrameAccess::layer(layer);
+      while (current == initial && std::chrono::steady_clock::now() < deadline) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        current = freej_engine::FrameAccess::layer(layer);
+      }
+      layer.stop();
+      require(current && current != initial, "publish a new drawing frame");
+    };
+    publish();
+    std::fill_n(pixels, 35, background);
+    screen.blit_layers();
+    const std::vector<uint32_t> first(pixels, pixels + 35);
+    std::fill_n(pixels, 35, background);
+    screen.blit_layers();
+    require(std::equal(first.begin(), first.end(), pixels), "cached transform retains its pixels");
+    layer.rotate = 90;
+    std::fill_n(pixels, 35, background);
+    screen.blit_layers();
+    require(!std::equal(first.begin(), first.end(), pixels), "transform settings invalidate the cache");
+    layer.set_color(0, 255, 0);
+    require(layer.clear() == 0, "paint a new generation");
+    publish();
+    std::fill_n(pixels, 35, background);
+    screen.blit_layers();
+    const auto green = expected_pixel(0, 255, 0);
+    require(std::any_of(pixels, pixels + 35, [&](uint32_t p) { return p == green; }),
+            "new frame invalidates the cached transform");
+
+    layer.rotating = false;
+    layer.geo.x = layer.geo.y = 0;
+    require(layer.set_blit("SRCALPHA"), "select source alpha");
+    layer.set_color(255, 0, 0, 0);
+    require(layer.clear() == 0 && layer.pixel(1, 1, 0x0a1ed2ff) == 0,
+            "render over transparent clear");
+    layer.buffer = layer.feed();
+    std::fill_n(pixels, 35, background);
+    screen.blit_layers();
+    require((pixels[0] & rgb) == (background & rgb) && (pixels[8] & rgb) == (blue & rgb),
+            "transparent pixels preserve the background and opaque pixels cover it");
+
+    layer.set_color(200, 100, 50, 128);
+    require(layer.clear() == 0, "paint translucent pixels");
+    layer.buffer = layer.feed();
+    std::fill_n(pixels, 35, background);
+    screen.blit_layers();
+    uint8_t r, g, b;
+    auto *surface = static_cast<SdlScreen &>(screen).sdl_screen;
+    require(SDL_ReadSurfacePixel(surface, 0, 0, &r, &g, &b, nullptr) &&
+            std::abs(int(r) - 108) <= 1 && std::abs(int(g) - 63) <= 1 &&
+            std::abs(int(b) - 43) <= 1, "half-alpha drawing blends with the viewport");
+  }
+  screen.rem_layer(&layer);
+}
+
+void drawing_frames() {
+  require(SDL_SetHintWithPriority(SDL_HINT_VIDEO_DRIVER, "dummy", SDL_HINT_OVERRIDE), "select SDL dummy video");
+  for (bool native : {false, true}) {
+    Context context;
+    std::unique_ptr<ViewPort> screen(native ? static_cast<ViewPort *>(new SdlScreen) : new SoftScreen);
+    require(screen->init(5, 4, 32) && context.add_screen(screen.get()), "attach drawing viewport");
+    check_clipping(context, *screen.release(), native);
+  }
+  GeoLayer layer;
+  require(layer.init(96, 64, 32), "initialize the concurrent drawing fixture");
+  const uint32_t red = expected_pixel(255, 0, 0);
+  const uint32_t blue = expected_pixel(0, 0, 255);
+  layer.set_color(255, 0, 0);
+  require(layer.clear() == 0, "paint the canvas red");
+  auto *published = static_cast<uint32_t *>(layer.feed());
+  layer.set_color(0, 0, 255);
+  require(layer.clear() == 0 && published[0] == red &&
+          *static_cast<uint32_t *>(layer.feed()) == blue, "drawing does not modify the worker snapshot");
+  std::atomic<bool> done{false};
+  std::atomic<unsigned> draws{0};
+  std::thread writer([&] {
+    while (!done) {
+      layer.set_color(draws.load() % 2 ? 0xff0000ff : 0x0000ffff);
+      layer.clear();
+      ++draws;
+    }
+  });
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+  while (!draws && std::chrono::steady_clock::now() < deadline)
+    std::this_thread::yield();
+  bool coherent = draws > 0;
+  for (int sample = 0; coherent && sample < 128; ++sample) {
+    const auto *pixels = static_cast<const uint32_t *>(layer.feed());
+    const auto color = pixels[0];
+    coherent &= (color == red || color == blue) &&
+        std::all_of(pixels, pixels + 96 * 64, [&](uint32_t p) { return p == color; });
+    std::this_thread::yield();
+  }
+  done = true;
+  writer.join();
+  require(coherent, "a concurrent clear must publish a complete drawing snapshot");
+}
+
 void native_wrapper() {
   require(SDL_SetHintWithPriority(SDL_HINT_VIDEO_DRIVER, "dummy", SDL_HINT_OVERRIDE), "select SDL dummy video");
   Context context;
@@ -343,6 +502,8 @@ int main(int argc, char **argv) {
     if (argc == 1) {
       native_wrapper();
       std::puts("PASS native wrapper");
+      drawing_frames();
+      std::puts("PASS drawing bounds and snapshots");
     }
   } catch (const std::exception &error) {
     std::fprintf(stderr, "FAIL %s: %s\n", test.c_str(), error.what());
