@@ -10,6 +10,7 @@ import shlex
 import shutil
 import subprocess
 import tarfile
+from urllib.parse import unquote, urlsplit
 
 
 MULTIARCH = "x86_64-linux-gnu"
@@ -29,7 +30,7 @@ def fetch(work, caches):
         if not line or line.startswith("#"):
             continue
         expected, url = line.split()
-        filename = url.rsplit("/", 1)[1]
+        filename = Path(unquote(urlsplit(url).path)).name
         target = downloads / filename
         cached = next((cache / filename for cache in caches if (cache / filename).is_file()), None)
         if cached is None:

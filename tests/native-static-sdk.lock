@@ -1,8 +1,8 @@
 # SHA256 and URL for the Linux static stage display and SDK support inputs.
 fa026f9bb0124f4d6c808f9aef4057aad65e7b35d8ff43951cef0abe06bb9a9a https://xorg.freedesktop.org/archive/individual/lib/libX11-1.8.12.tar.xz
-57f2fc575496edc9f3dd286423494499d231a8b1cdb417bb8401f6b66b584a26 https://deb.debian.org/debian/pool/main/libx/libxcursor/libxcursor-dev_1.2.3-1_amd64.deb
-be3ca6202327858845aa0a8d70374b08dae5c89250ad8997256e02b2833501d3 https://deb.debian.org/debian/pool/main/libx/libxi/libxi-dev_1.8.2-1_amd64.deb
-1070e0721765992c5355a9585f6eae9e0d11437a7d2b4a2c28123e6e5b0c0b2f https://deb.debian.org/debian/pool/main/libx/libxfixes/libxfixes-dev_6.0.0-2+b4_amd64.deb
-e408e4f8c77135725e9055d445635587225839a929d348c04b85adfa84bdefb1 https://deb.debian.org/debian/pool/main/libx/libxrandr/libxrandr-dev_1.5.4-1+b3_amd64.deb
-81d21bf2c9afff27392faba0d52d4b0dec7246f6146eaa05e7c461be620b21cc https://deb.debian.org/debian/pool/main/libx/libxss/libxss-dev_1.2.3-1+b3_amd64.deb
-cae290b67cf835350a2cde58ca332256fba475784b3e02a9a8677d73eaf47511 https://deb.debian.org/debian/pool/main/s/strace/strace_6.13+ds-1_amd64.deb
+57f2fc575496edc9f3dd286423494499d231a8b1cdb417bb8401f6b66b584a26 https://snapshot.debian.org/archive/debian/20250111T204845Z/pool/main/libx/libxcursor/libxcursor-dev_1.2.3-1_amd64.deb
+be3ca6202327858845aa0a8d70374b08dae5c89250ad8997256e02b2833501d3 https://snapshot.debian.org/archive/debian/20240925T143151Z/pool/main/libx/libxi/libxi-dev_1.8.2-1_amd64.deb
+1070e0721765992c5355a9585f6eae9e0d11437a7d2b4a2c28123e6e5b0c0b2f https://snapshot.debian.org/archive/debian/20250123T210549Z/pool/main/libx/libxfixes/libxfixes-dev_6.0.0-2%2Bb4_amd64.deb
+e408e4f8c77135725e9055d445635587225839a929d348c04b85adfa84bdefb1 https://snapshot.debian.org/archive/debian/20250123T210549Z/pool/main/libx/libxrandr/libxrandr-dev_1.5.4-1%2Bb3_amd64.deb
+81d21bf2c9afff27392faba0d52d4b0dec7246f6146eaa05e7c461be620b21cc https://snapshot.debian.org/archive/debian/20250105T040337Z/pool/main/libx/libxss/libxss-dev_1.2.3-1%2Bb3_amd64.deb
+cae290b67cf835350a2cde58ca332256fba475784b3e02a9a8677d73eaf47511 https://snapshot.debian.org/archive/debian/20250210T025228Z/pool/main/s/strace/strace_6.13%2Bds-1_amd64.deb
