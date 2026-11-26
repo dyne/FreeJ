@@ -10,8 +10,9 @@ copy of the show with 2.0 before switching your performance setup.
 
 Choose the Linux amd64 static build for sets that use the built-in frei0r
 effects Brightness, Invert0r, and onecol0r. It loads those effects from its
-own executable and does not scan plugin directories. It still uses fonts,
-display and audio services, and show assets supplied by your system.
+own executable and does not scan plugin directories. It uses fonts, display
+and audio services, and show assets supplied by your system. Launch shows
+from the command line using `freej -j show.js`.
 
 Keep the 1.x installation and runtime libraries in a separate prefix from
 2.0. If a third-party effect or a show fails in 2.0 compatibility, launch
@@ -48,14 +49,13 @@ uses the established system and workspace SDK libraries and searches the
 existing effect directories for frei0r and FreeFrame.
 
 `--with-native-profile=static` selects the Linux archive build. It links
-the engine, CLI and Qt/XCB frontend with their selected static libraries.
+the engine and CLI with their selected static libraries.
 The frei0r bundle registers the built-in effects Brightness, Invert0r, and
 onecol0r at startup. Both profiles use the same frei0r instance host and keep
 the effect names used in shows.
 
 Configure prints the enabled selections and exports them through the installed
-`freej.pc`. The engine reports the same selections at startup. Qfreej uses
-the installed package's flags and prints its selections at configuration time.
+`freej.pc`. The engine reports the same selections at startup.
 These are build selections. The historical movie factory and other runtime
 limitations are recorded in the [capability ledger](capabilities.md).
 
@@ -87,7 +87,7 @@ pins the release source and the recipe builds the decoder and native
 demuxer libraries. The historical FFmpeg 0.8.15 SDK remains available for
 reproducing the reference observations.
 
-The static SDK adds the SDL2, Qt/XCB and keyboard dependencies from
+The static SDK adds SDL2 and the X11 extension libraries from
 [`native-static-sdk.lock`](../tests/native-static-sdk.lock).
 Its patches bind SDL 1.2.68 to archived SDL2 2.32.4, preserve the SDL 1.2
 exports, and give SDL2's symbols a private prefix. SDL2's dynamic API and
@@ -97,12 +97,8 @@ server's socket directory directly. Set `JACK_TMPDIR` to the existing
 server's directory as printed by `jackd -l`. The archived default is
 `/dev/shm`. Run the JACK server separately from FreeJ.
 
-The Qt 5.15.15 SDK selects static XCB and includes the XCB, xkbcommon,
-X session, UUID and font archives. Debian's xcb-image pkg-config metadata
-omits its static dependency on xcb-util, which the recipe adds before
-configuring Qt. Retain source licenses and Debian package copyright files.
-The SDK retains source notices, lock inputs and build trees in its working
-directory. Qt's license files are in the Qt source directory.
+The SDK retains source licenses, Debian package copyright files, lock inputs
+and build trees in its working directory.
 
 The static configure step validates the archive paths and verifies a
 static link using SDL, FFmpeg, frei0r, JACK and samplerate. It refuses the SDL wrapper that
@@ -145,30 +141,6 @@ PKG_CONFIG_LIBDIR="$work/no-host-pkgconfig" \
 ```
 
 Set `compat_prefix` and `static_prefix` to the respective installed prefixes.
-Use the system qmake for compatibility and the native SDK qmake for the static
-profile. Qfreej defaults to its historical debug build. Select
-`CONFIG+=freej_release` to build Qfreej with `NDEBUG` for either profile.
-
-```bash
-source_root=$PWD
-mkdir "$work/gui-compat" "$work/gui-static"
-(
-    cd "$work/gui-compat"
-    export PKG_CONFIG_PATH="$compat_prefix/lib/pkgconfig"
-    qmake "$source_root/qt/Qfreej.pro" "CONFIG+=freej_release"
-    make -j4
-    make install
-)
-(
-    cd "$work/gui-static"
-    export PKG_CONFIG_PATH="$static_prefix/lib/pkgconfig"
-    "$native/qt/bin/qmake" "$source_root/qt/Qfreej.pro" "CONFIG+=freej_release" \
-        "QMAKE_LFLAGS+=-Wl,-Map=$work/qfreej.map"
-    make -j4
-    make install
-)
-```
-
 For compatibility startup, include `$compat_prefix/lib` in
 `LD_LIBRARY_PATH`. Use the external-effect [show replay](../tests/show-replay/README.md)
 on that build. Retain the normal list of directories and its external
@@ -180,8 +152,7 @@ Build the factory consumer using the installed package flags. It exercises
 registration from the archive and attaches to a running JACK server. The
 runtime check starts Xvfb and a separate JACK 1 dummy server, observes the
 rendered image and built-in effect frames, and checks that each host initializes
-its engine once. The Qt check drives **File → Run js** through X11 using
-`libXtst.so.6`. Linux Landlock restricts the staged processes to runtime
+its engine once. Linux Landlock restricts the staged processes to runtime
 resources in an empty effects prefix. `strace` checks their file accesses.
 
 Set `jackd` to a JACK 1 installation with the dummy driver and a writable
@@ -199,12 +170,12 @@ read -r -a engine_libs <<< "$(pkg-config --libs freej)"
 "$legacy/gcc12/usr/bin/gcc-12" -static tests/native-profile-sandbox.c -o "$work/sandbox"
 python3 tests/native-profile-runtime.py "$work/static-runtime" \
     --sandbox "$work/sandbox" --strace "$tracer" --jackd "$jackd" \
-    --freej "$static_prefix/bin/freej" --qfreej "$static_prefix/bin/qfreej" \
+    --freej "$static_prefix/bin/freej" \
     --factory "$work/factory"
 ```
 
 The CLI linker map is `src/freej.map` in the build directory. Review it
-alongside the Qt and installed-consumer maps and the runtime driver's
+alongside the installed-consumer map and the runtime driver's
 `readelf` output and file traces. The checks use X11 and JACK software
 endpoints. Physical MIDI, joystick, capture and audio devices need their
 respective rigs. glibc's NSS configuration and any external ALSA or OpenSSL

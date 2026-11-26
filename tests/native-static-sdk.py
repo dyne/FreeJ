@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the pinned Linux X11/JACK/Qt stage SDK in a fresh directory."""
+"""Build the pinned Linux SDL/X11 and JACK stage SDK in a fresh directory."""
 
 import argparse
 from hashlib import file_digest
@@ -67,10 +67,7 @@ def stage(work, archives, legacy, jobs):
             continue
         source = module.read_text().replace("/usr/", f"{private_usr}/")
         source = source.replace("=/usr\n", f"={private_usr}\n")
-        if module.name == "xcb-image.pc":
-            source += "\nRequires.private: xcb-util\n"
         module.write_text(source)
-    shutil.copytree(main_usr / "include/xcb", private_usr / "include/xcb", dirs_exist_ok=True)
 
     sources = work / "sources"
     for name in ("sdl12-compat-release-1.2.68", "jack1-0.126.0"):
@@ -78,21 +75,10 @@ def stage(work, archives, legacy, jobs):
     run(["patch", "--batch", "--forward", "-p1", "-i", Path(__file__).with_suffix(".patch")], sources)
     alsa = archives / "prefixes/alsa"
     env = dict(os.environ, CC=cc, CXX=str(gxx), LC_ALL="C", SOURCE_DATE_EPOCH="1695750228",
-               BISON_PKGDATADIR=str(private_usr / "share/bison"),
-               PKG_CONFIG_PATH=os.pathsep.join(map(str, pcdirs)),
-               PATH=f"{private_usr / 'bin'}{os.pathsep}{os.environ['PATH']}")
+               PKG_CONFIG_PATH=os.pathsep.join(map(str, pcdirs)))
     for variable in ("CFLAGS", "CXXFLAGS", "CPPFLAGS", "LDFLAGS", "DESTDIR", "CPATH",
                      "LIBRARY_PATH", "PKG_CONFIG", "PKG_CONFIG_LIBDIR", "PKG_CONFIG_SYSROOT_DIR"):
         env.pop(variable, None)
-
-    xkb = work / "xkb"
-    xb = work / "xkb-build"
-    run(["meson", "setup", xb, sources / "libxkbcommon-1.7.0", f"--prefix={xkb}", "--libdir=lib",
-         "--buildtype=release", "--default-library=static", "--wrap-mode=nodownload",
-         "-Dprefer_static=true", "-Denable-docs=false", "-Denable-wayland=false",
-         "-Denable-tools=false", "-Denable-xkbregistry=false", "-Denable-x11=true"], work, env)
-    run(["meson", "compile", "-C", xb, "-j", str(jobs), "xkbcommon", "xkbcommon-x11"], work, env)
-    run(["meson", "install", "-C", xb, "--no-rebuild"], work, env)
 
     sdl2 = work / "sdl2"
     sb = work / "sdl2-build"
@@ -144,24 +130,6 @@ def stage(work, archives, legacy, jobs):
     shutil.copyfile(jb / "libjack/.libs/libjack.a", libraries / "libjack.a")
     shutil.copyfile(wrapper / "libSDL.a", libraries / "libSDL.a")
     run(["objcopy", f"--redefine-syms={mapping}", sdl2_archive, libraries / "libFreejSDL2.a"], work)
-
-    qt = work / "qt"
-    qb = work / "qt-build"
-    qb.mkdir()
-    pkg_static = work / "pkg-config-static"
-    pkg_static.write_text('#!/bin/sh\nexec pkg-config --static "$@"\n')
-    pkg_static.chmod(0o700)
-    qt_env = dict(env, PKG_CONFIG=str(pkg_static),
-                  PKG_CONFIG_PATH=f"{xkb}/lib/pkgconfig:{env['PKG_CONFIG_PATH']}")
-    run([sources / "qtbase-everywhere-src-5.15.15/configure", "-opensource", "-confirm-license",
-         "-static", "-release", "-prefix", qt, "-nomake", "examples", "-nomake", "tests",
-         "-no-compile-examples", "-platform", "linux-g++", "-no-dbus", "-no-icu", "-no-glib",
-         "-no-opengl", "-no-vulkan", "-no-sql-sqlite", "-xcb", "-no-xcb-xlib", "-qpa", "xcb",
-         "-xkbcommon", "-fontconfig", "-qt-zlib", "-qt-libjpeg", "-qt-libpng", "-qt-pcre",
-         "-qt-harfbuzz", "-system-freetype", "-pkg-config", f"QMAKE_CC={gcc}",
-         f"QMAKE_CXX={gxx}", f"QMAKE_LINK={gxx}"], qb, qt_env)
-    run(["make", f"-j{jobs}"], qb, qt_env)
-    run(["make", "install"], qb, qt_env)
 
 
 def main():

@@ -63,10 +63,6 @@ class Display:
             ("XGetWindowProperty", integer, (pointer, ulong, ulong, C.c_long, C.c_long, integer, ulong,
                                               C.POINTER(ulong), C.POINTER(integer), C.POINTER(ulong),
                                               C.POINTER(ulong), C.POINTER(pointer))),
-            ("XSetInputFocus", integer, (pointer, ulong, integer, ulong)),
-            ("XStringToKeysym", ulong, (C.c_char_p,)),
-            ("XKeysymToKeycode", C.c_ubyte, (pointer, ulong)),
-            ("XSync", integer, (pointer, integer)),
             ("XFree", integer, (pointer,)),
             ("XCloseDisplay", integer, (pointer,)),
         ):
@@ -77,7 +73,7 @@ class Display:
             raise ValueError(f"could not open {display}")
         self.root = self.x.XDefaultRootWindow(self.ptr)
 
-    def windows(self, minimum_width=160):
+    def windows(self):
         root, parent, children, count = C.c_ulong(), C.c_ulong(), C.POINTER(C.c_ulong)(), C.c_uint()
         ok = self.x.XQueryTree(self.ptr, self.root, C.byref(root), C.byref(parent),
                                C.byref(children), C.byref(count))
@@ -87,7 +83,7 @@ class Display:
                 for window in children[:count.value] if count.value else ():
                     attributes = WindowAttributes()
                     if (self.x.XGetWindowAttributes(self.ptr, window, C.byref(attributes))
-                            and attributes.map_state == 2 and attributes.width >= minimum_width):
+                            and attributes.map_state == 2):
                         visible.append(window)
         finally:
             if children:
@@ -113,44 +109,8 @@ class Display:
         finally:
             self.x.XFree(title)
 
-    def run_qt_script(self, process):
-        fake_key = C.CDLL("libXtst.so.6").XTestFakeKeyEvent
-        fake_key.restype = C.c_int
-        fake_key.argtypes = (C.c_void_p, C.c_uint, C.c_int, C.c_ulong)
-
-        def press(*keys):
-            codes = [self.x.XKeysymToKeycode(self.ptr, self.x.XStringToKeysym(key.encode())) for key in keys]
-            for code, down in [(code, 1) for code in codes] + [(code, 0) for code in reversed(codes)]:
-                if not code or not fake_key(self.ptr, code, down, 0):
-                    raise ValueError(f"could not send Qt shortcut {keys}")
-            self.x.XSync(self.ptr, 0)
-
-        def qt_window():
-            return next((window for window in self.windows() if self.window_title(window) == "qfreej"), None)
-
-        until(qt_window, process)
-        if self.contains_image(EFFECT_COLOR):
-            raise ValueError("Qt viewport already contains the effect sentinel")
-        self.x.XSetInputFocus(self.ptr, qt_window(), 2, 0)
-        open_windows = set(self.windows(1))
-        press("Alt_L", "f")
-        until(lambda: set(self.windows(1)) - open_windows, process)
-        press("r")
-
-        def dialog():
-            return next((window for window in self.windows()
-                         if self.window_title(window) == "Ouvrir un fichier JavaScript"), None)
-
-        until(dialog, process)
-        self.x.XSetInputFocus(self.ptr, dialog(), 2, 0)
-        press("Alt_L", "n")
-        press("Control_L", "a")
-        for key in ("q", "t", "period", "j", "s", "Tab", "Return"):
-            press(key)
-        until(lambda: self.contains_image(EFFECT_COLOR), process)
-
     def contains_image(self, color=COLOR):
-        viewport = next((window for window in self.windows(1)
+        viewport = next((window for window in self.windows()
                          if self.window_title(window).startswith("freej ")), None)
         if viewport is None:
             return False
@@ -203,8 +163,6 @@ set_fps(20);
 for (var tick = 0; tick < 24; ++tick) run();
 quit();
 """)
-    elif name == "qt":
-        (instance / "qt.js").write_text(EFFECT_SCRIPT)
     elf = subprocess.check_output(["readelf", "-dW", "-lW", staged], text=True, cwd=instance)
     (instance / "elf.txt").write_text(elf)
     if "(NEEDED)" in elf or re.search(r"^\s*INTERP\b", elf, re.M):
@@ -227,8 +185,6 @@ quit();
     if name == "factory" and "Installed JACK client connected at 48000 Hz / 2048 frames" not in output:
         raise ValueError("installed static client did not connect to the JACK endpoint")
     accesses = trace.read_text(errors="replace")
-    if name == "qt" and not all(f"initialized filter {effect}" in output for effect in ("Invert0r", "Brightness")):
-        raise ValueError("Qt did not apply the built-in effect chain")
     effect_path = (r'"[^"]+\.(?:so(?:\.[^"/]*)?|frf|dylib)"|'
                    r'"(?:[^"]*/)?(?:frei0r-1|FreeFrame|\.freej/plugins)(?:/[^"]*)?"')
     if re.search(effect_path, accesses):
@@ -239,17 +195,17 @@ quit();
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
-    for option in ("sandbox", "strace", "freej", "qfreej", "factory", "jackd"):
+    for option in ("sandbox", "strace", "freej", "factory", "jackd"):
         parser.add_argument(f"--{option}", type=Path, required=True)
     args = parser.parse_args()
     for option, path in vars(args).items():
         setattr(args, option, path.resolve())
     work = args.output
     work.mkdir()
-    env = dict(os.environ, LC_ALL="C", SDL_VIDEODRIVER="x11", QT_QPA_PLATFORM="xcb")
+    env = dict(os.environ, LC_ALL="C", SDL_VIDEODRIVER="x11")
     with x11(work, env) as name, jack_dummy(args.jackd, work, env) as (server, tmpdir):
         env.update(JACK_TMPDIR=tmpdir, JACK_DEFAULT_SERVER=server)
-        for variable in ("LD_LIBRARY_PATH", "LD_PRELOAD", "QT_PLUGIN_PATH", "QT_QPA_PLATFORM_PLUGIN_PATH"):
+        for variable in ("LD_LIBRARY_PATH", "LD_PRELOAD"):
             env.pop(variable, None)
         env["DISPLAY"] = name
         display = Display(name)
@@ -260,10 +216,9 @@ def main():
             check_static(args.freej, args, cli, work, env, "cli-effects",
                          lambda process: until(lambda: display.contains_image(EFFECT_COLOR), process), 1)
             check_static(args.factory, args, ["--jack"], work, env, "factory", None, 0)
-            check_static(args.qfreej, args, [], work, env, "qt", display.run_qt_script, None)
         finally:
             display.x.XCloseDisplay(display.ptr)
-    print("4 executed, 0 failed, 0 skipped")
+    print("3 executed, 0 failed, 0 skipped")
 
 
 if __name__ == "__main__":

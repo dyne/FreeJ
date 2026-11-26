@@ -213,7 +213,7 @@ class Factory
     // tag is : <category>::<id>
     // where 'category' could be for instance "VideoLayer"
     //          (when using a Factory<Layer>)
-    //       'id' could be any of 'ffmpeg' or 'qt' or 'opencv' and so on
+    //       'id' could be any of 'ffmpeg' or 'opencv' and so on
     //          (referencing a specific VideoLayer implementation)
     static int register_instantiator(const char *category, const char *id, Instantiator func)
     {

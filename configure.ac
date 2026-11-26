@@ -859,7 +859,6 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \$(FREI0R_BUNDLE_CFLAGS) \
     \$(LIBLO_CFLAGS)    \
     \$(MOZJS_CFLAGS)    \
     \$(OPENCV_CFLAGS)   \
-    \$(QTGUI_CFLAGS)	\
     \$(SAMPLERATE_CFLAGS) \
     \$(SDL_CFLAGS)      \
     \$(SDLGFX_CFLAGS)   \
@@ -892,7 +891,6 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(LIBLO_LIBS)      \
     \$(MOZJS_LIBS)      \
     \$(OPENCV_LIBS)     \
-    \$(QTGUI_LIBS)	\
     \$(SAMPLERATE_LIBS) \
     \$(SDLGFX_LIBS)     \
     \$(SDLIMAGE_LIBS)   \

@@ -129,7 +129,7 @@ int main() {
       check(!jack->IsAttached(), "owner released connection");
     }
   }
-  jack->Attach("Qt");
+  jack->Attach("shared");
   {
     AudioCollector borrowed(1024, 48000, jack);
     response(borrowed, 256);

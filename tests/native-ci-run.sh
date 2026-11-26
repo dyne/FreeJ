@@ -23,7 +23,6 @@ build_work=$work/trial
 ccache_bin=$(command -v ccache)
 gcc=$legacy/gcc12/usr/bin/gcc-12
 gxx=$legacy/gcc12/usr/bin/g++-12
-qmake=qmake
 jobs=${FREEJ_CI_JOBS:-4}
 export LC_ALL=C
 export CC="$ccache_bin $gcc" CXX="$ccache_bin $gxx" CFLAGS='-O2 -DNDEBUG' CXXFLAGS='-O2 -DNDEBUG'
@@ -42,7 +41,6 @@ if [[ $profile == static ]]; then
     export PKG_CONFIG_LIBDIR="$work/no-host-pkgconfig"
     mkdir -p -- "$PKG_CONFIG_LIBDIR"
     configure+=("--with-native-sdk=$native" "--with-frei0r-bundle=$effects")
-    qmake=$native/qt/bin/qmake
 fi
 
 {
@@ -54,18 +52,8 @@ fi
     printf 'configured_prefix=%s\n' "$build_work/install"
     printf 'started_at_utc=%s\n' "$(date -u +%FT%TZ)"
     "$gcc" --version
-    "$qmake" -query QT_VERSION
     uname -sm
 } | tee "$evidence/identity.txt"
-
-build_qt() (
-    cd -- "$build_work/gui"
-    PKG_CONFIG_PATH="$prefix/lib/pkgconfig" "$qmake" "$repo/qt/Qfreej.pro" 'CONFIG+=freej_release' "QMAKE_CC=$CC" \
-        "QMAKE_CXX=$CXX" "QMAKE_LINK=$gxx" "QMAKE_LFLAGS+=-Wl,-Map=$out/qfreej.map"
-    make
-    make install
-    make install INSTALL_ROOT="$build_work/stage"
-)
 
 compatibility_show() (
     read -r -a sdl_flags <<< "$(sdl-config --cflags)"
@@ -108,7 +96,7 @@ static_show() (
     "$gcc" -static tests/native-profile-sandbox.c -o "$build_work/sandbox"
     python3 tests/native-profile-runtime.py "$out/runtime" \
         --sandbox "$build_work/sandbox" --strace "$native/packages/usr/bin/strace" \
-        --jackd "$jackd" --freej "$stage/bin/freej" --qfreej "$stage/bin/qfreej" \
+        --jackd "$jackd" --freej "$stage/bin/freej" \
         --factory "$build_work/factory"
 )
 
@@ -161,27 +149,22 @@ for pass in cold warm; do
     test "$(PKG_CONFIG_PATH=$prefix/lib/pkgconfig pkg-config --variable=profile freej)" = "$profile"
     PKG_CONFIG_PATH=$prefix/lib/pkgconfig pkg-config --variable=capabilities freej | tee "$out/capabilities.txt"
     test -s "$out/capabilities.txt"
-    mkdir -- "$build_work/gui"
-    build_qt 2>&1 | tee "$out/qt.log"
-    test -x "$stage/bin/qfreej"
-    (cd -- "$stage" && sha256sum bin/freej bin/qfreej) | tee "$out/binaries.sha256"
-    for bin in freej qfreej; do
-        readelf -lW -dW "$stage/bin/$bin" > "$out/$bin.elf.txt"
-        if [[ $profile == static ]]; then
-            if grep -Eq '^[[:space:]]+INTERP[[:space:]]|\(NEEDED\)' "$out/$bin.elf.txt"; then
-                printf '%s unexpectedly has dynamic linkage\n' "$bin" >&2
-                exit 1
-            fi
-        else
-            grep -q '(NEEDED)' "$out/$bin.elf.txt"
-            LD_LIBRARY_PATH="$stage/lib:$LD_LIBRARY_PATH" ldd "$stage/bin/$bin" > "$out/$bin.ldd.txt"
-            if grep -Fq 'not found' "$out/$bin.ldd.txt"; then
-                cat -- "$out/$bin.ldd.txt" >&2
-                exit 1
-            fi
+    (cd -- "$stage" && sha256sum bin/freej) | tee "$out/binaries.sha256"
+    readelf -lW -dW "$stage/bin/freej" > "$out/freej.elf.txt"
+    if [[ $profile == static ]]; then
+        if grep -Eq '^[[:space:]]+INTERP[[:space:]]|\(NEEDED\)' "$out/freej.elf.txt"; then
+            echo 'freej unexpectedly has dynamic linkage' >&2
+            exit 1
         fi
-    done
-    echo 'CLI and Qt built, staged and passed link audits.' > "$out/compile-outcome.txt"
+    else
+        grep -q '(NEEDED)' "$out/freej.elf.txt"
+        LD_LIBRARY_PATH="$stage/lib:$LD_LIBRARY_PATH" ldd "$stage/bin/freej" > "$out/freej.ldd.txt"
+        if grep -Fq 'not found' "$out/freej.ldd.txt"; then
+            cat -- "$out/freej.ldd.txt" >&2
+            exit 1
+        fi
+    fi
+    echo 'CLI built, staged and passed link audits.' > "$out/compile-outcome.txt"
     effect_parity 2>&1 | tee "$out/frei0r-parity.log"
     if [[ $profile == static ]]; then
         cp -- "$build_work/build/src/freej.map" "$out/freej.map"
@@ -217,9 +200,9 @@ awk -F '\t' '
     }
 ' "$evidence/cold/ccache.tsv" "$evidence/warm/ccache.tsv" | tee "$evidence/cache-comparison.txt"
 if cmp -s "$evidence/cold/binaries.sha256" "$evidence/warm/binaries.sha256"; then
-    echo 'Staged CLI and Qt SHA-256 digests match'
+    echo 'Staged CLI SHA-256 digests match'
 else
-    echo 'Staged binaries recorded different SHA-256 digests'
+    echo 'Staged CLI recorded different SHA-256 digests'
 fi | tee -a "$evidence/cache-comparison.txt"
 echo 'PASS cold/warm capabilities and test outcomes match' | tee -a "$evidence/cache-comparison.txt"
 

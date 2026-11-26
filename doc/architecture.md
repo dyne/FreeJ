@@ -13,7 +13,8 @@ disconnecting its audio buffer. The movie replay fixture lives in
 
 
 Source baseline: `2afb631cb3a429fdf312627ef904ec32b51e812d`. This is a
-design and source walk, not a runtime parity claim. Preserve `Context`, `Layer`,
+design and source walk. The baseline diagrams include the retired Qt frontend.
+Preserve `Context`, `Layer`,
 `ViewPort`, `Controller`, `Filter`, public include paths, factories, scripts,
 OSC routes, filter order and frontends while extracting their internals.
 Paths below are relative to the repository root. Source symbols are the
@@ -168,7 +169,7 @@ it. A consumer lock does not cover producer writes. The future removal operation
 must join/quiesce and wait for outstanding reads before destruction, while
 preserving the old facade's distinction between removal and deletion.
 
-## Current build and link graph
+## Baseline build and link graph
 
 These arrows mean compile/link dependencies. They are separate from object
 ownership and runtime calls.
@@ -222,7 +223,7 @@ yet.
 
 ```mermaid
 flowchart TB
-  CLI[Native / Qt application assembly] -->|P1 compose selected adapters| Adapters[media / display / controls / bindings / effects providers]
+  CLI[Native CLI assembly] -->|P1 compose selected adapters| Adapters[media / display / controls / bindings / effects providers]
   CLI -->|P2 invoke one frame step| Core[show state / ordered composition / frame and timing contracts]
   Adapters -->|P3 implement or call consumer-owned contracts| Core
   Capture[JACK capture adapter] -->|P4 timestamped bounded sample blocks| Analysis[FFT windows / immutable bands]
@@ -234,8 +235,8 @@ flowchart TB
 | Edge | Owner, acceptance and dependency movement |
 | --- | --- |
 | P1 | Application assembly owns factory/provider selection and native scheduling. Retain native compatibility directory loading and existing frontends; the static profile selects built-ins. Runtime JACK/display servers, assets and fonts are resources rather than link libraries. |
-| P2 | Engine/composition owns show state, ordered layers/filters, parameter values and a one-tick step that returns control. SDL events, presentation and pacing leave the step; retain `Context::cafudda` as a compatibility wrapper with current caller behavior until parity is proved. Qt and JS calls must be included in that proof. |
-| P3 | Media owns decode/capture/conversion/encode/backpressure and frame lifetime. Controls/bindings own protocol parsing and script-object lifetimes. Display owns SDL/Qt surfaces. Effects own validation, shared instance/parameter processing and provider lifetime. Inject implementations at assembly; core headers include none of SDL/Qt/JS/liblo/JACK/FFmpeg/dlopen. |
+| P2 | Engine/composition owns show state, ordered layers/filters, parameter values and a one-tick step that returns control. SDL events, presentation and pacing leave the step; retain `Context::cafudda` as a compatibility wrapper with current caller behavior until parity is proved. Include CLI and JS calls in that proof. |
+| P3 | Media owns decode/capture/conversion/encode/backpressure and frame lifetime. Controls/bindings own protocol parsing and script-object lifetimes. Display owns SDL surfaces. Effects own validation, shared instance/parameter processing and provider lifetime. Inject implementations at assembly; core headers include none of SDL/Qt/JS/liblo/JACK/FFmpeg/dlopen. |
 | P4 | Audio analysis owns the existing FFT algorithm, windows, gain/smoothing and output snapshots. Move FFT into its own translation unit before claiming its test is independent of JACK. JACK only supplies timestamped sample blocks with sample rate/channel layout and explicit overflow behavior; callbacks do bounded handoffs, not FFT/JS work. Tests can supply identical blocks. T9 needs a regression fixture first. |
 | P5 | Bindings translate immutable bands into the same engine operations used by other inputs; copying liblo values precedes returning from the producer callback, and JS conversion/execution stays on the runtime owner thread. Hardware-free operation tests and transport-specific loopback tests establish different contracts. |
 | P6 | Effect instances die before their provider. Compositor and encoding consumers retain frame validity independently; slow encoding/backpressure must be measurable without moving the render deadline. Keep the existing format/time behavior under fixtures before changing semantics. |
@@ -273,7 +274,7 @@ storage, its target source list, and its clip fixture. Hide AVPacket/AVFrame and
 codec headers in an adapter-owned implementation; keep the old VideoLayer facade
 callable. Its engine-facing result is the same explicit frame lease/format/time
 contract consumed by the compositor, plus frame/not-ready/end/error status.
-Core composition, OSC, Qt and FFT algorithms do not gain FFmpeg includes.
+Core composition, OSC and FFT algorithms do not gain FFmpeg includes.
 
 ```diff
 - feed assumes decode_video_packet returns consumed bytes and at most one picture
@@ -298,7 +299,7 @@ alter the engine's existing filter-time interpretation incidentally.
 bytes from the working reference, with dimensions, stride, channel order,
 timestamp sequence/timebase and file hashes. Include delayed/B-frame output,
 EOF drain, seek-to-start/loop, no-video and corrupt/truncated input. The decoder
-fixture runs without SDL display, JACK, Qt or JS; it still links the selected
+fixture runs without SDL display, JACK or JS; it still links the selected
 FFmpeg SDK. Replay its recorded frames separately through the memory compositor
 to distinguish decoding from composition failures. Exact frame bytes are the
 default comparison; any version-dependent tolerance needs an explicit recorded
@@ -315,27 +316,24 @@ that migration if the legacy clip cannot be reproduced first.
 ### R2 — Route an existing position control through another frontend
 
 **Entry point and owner.** Reuse the existing `Layer::set_position(x,y)`
-operation. The JS binding (`src/layer_js.cpp:222–235`) converts two integers;
-Qt dragging (`qt/specialeventget.cpp:62`) calls the same method with its
-coordinate translation. The method queues `_set_position` on the layer worker
+operation. The JS binding (`src/layer_js.cpp:222–235`) converts two integers.
+The method queues `_set_position` on the layer worker
 (`src/layer.cpp:318–327`), which updates integer pixel coordinates and marks
 crop dirty. Controls/bindings own routing and conversion; the layer owns the
-position mutation. Do not move Qt widget coordinates into Layer.
+position mutation.
 
 **Smallest edit set and reusable type.** A show could opt into an OSC
 `/layer/position` route with an `ii` payload bound to its selected layer. This
 is a proposed show-local route for the rehearsal; the repository's existing OSC
 example only registers `/test` with `ifs`. Keep that example/route and all
-existing callbacks intact. Modify the opt-in script/OSC adapter and its fixture,
-not the compositor or Qt drag behavior. Both OSC/JS and Qt eventually call
-the same `set_position`; integer pixel values and a lifetime-safe layer handle
+existing callbacks intact. Modify the opt-in script/OSC adapter and its fixture.
+The route calls `set_position`. Integer pixel values and a lifetime-safe layer handle
 are sufficient. A new transport does not justify another show model or a bus.
 
 ```diff
 - hypothetical OSC callback writes layer.geo.x/y from liblo's server thread
 + server callback copies validated scalar payload into an owned pending command
 + owner-thread dispatch resolves the live layer and invokes its set_position(x,y)
-  Qt continues translating drag coordinates before invoking set_position(x,y)
 ```
 
 **Ownership and failed-sketch correction.** Direct writes bypass the deferred
@@ -350,21 +348,18 @@ reject retired handles and fence/drain already-admitted work during removal.
 This thread repair belongs to the control migration, not this design change.
 
 **Fixture and link impact.** Feed equivalent `(12,34)` and negative/cropped
-positions through the shared operation and translated Qt input in a memory
+positions through the shared operation in a memory
 show; advance the controlled worker until its deferred job is observed, then
 compare position/crop state and pixels. No display or JACK server is needed.
 Separately exercise the OSC path with a loopback `ii` packet, wrong type/arity,
 copied payload after callback return, ordered rapid updates and a removed-layer
-case. This loopback fixture needs liblo and the binding runtime, but no hardware;
-it cannot be replaced by directly invoking a handler. An offscreen Qt adapter
-fixture needs Qt; the portable operation fixture needs neither SDK. These tests
-are proposed, not evidence that current OSC arguments succeed. Link liblo/JS
-only to the control adapter, Qt only to its frontend; the core target stays
-unchanged.
+case. This loopback fixture needs liblo and the binding runtime. Run it with
+a real loopback packet. The portable operation fixture needs neither SDK.
+Link liblo and JS only to the control adapter.
 
 **Rollback.** Remove the opt-in route/adapter slice and restore its captured
-behavior without changing `Layer::set_position`, existing scripts or Qt drag
-translation. If the memory operation passes but loopback fails, keep the
+behavior without changing `Layer::set_position` or existing scripts.
+If the memory operation passes but loopback fails, keep the
 operation and diagnose transport/lifetime handling separately.
 
 ### R3 — Discover an existing frei0r effect from a static registry
@@ -415,7 +410,7 @@ pixels and create/reset/destroy order. Test `onecol0r` separately as a source
 with color parameters to cover shared conversion and source classification;
 do not pretend it is a filter. Add fake malformed descriptors, absent callbacks,
 unsupported kinds, duplicate names/IDs, failed construction and provider release
-with a live instance. These can run in a memory host without display, JACK, Qt,
+with a live instance. These can run in a memory host without display, JACK,
 liblo or JS. The current sibling `test/bundle-native-consumer.c` checks descriptor
 availability, not FreeJ rendering or lifecycle parity; it cannot replace that
 host fixture. The built-in profile must omit dlopen dependency from its provider;
@@ -484,8 +479,8 @@ needed; device callback adapters get separate rig checks later.
 
 **S3 — Acceptance and rollback.** Gate the slice on the pinned reference replay,
 equivalent old-facade and direct-step output, the deterministic removal schedule,
-and a core-only compile with no SDL/Qt/JS/liblo/JACK/codec/dlopen headers or
-libraries. Retain old CLI/Qt/binding call-site checks and the full applicable
+and a core-only compile with no SDL/JS/liblo/JACK/codec/dlopen headers or
+libraries. Retain old CLI and binding call-site checks and the full applicable
 suite. Check the unchanged native compatibility build independently of the
 portable target; a passing memory fixture is not native runtime parity. Reverse
 the facade delegation/source-list slice if pixels, ordering, lifetime or caller

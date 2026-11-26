@@ -10,4 +10,4 @@ SUBDIRS = lib src doc scripts tests
 
 ACLOCAL_AMFLAGS = -I m4
 
-EXTRA_DIST = freej.spec xcode qt
+EXTRA_DIST = freej.spec xcode

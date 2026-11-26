@@ -9,7 +9,7 @@ and then the desktop SDK requirements.
 
 ## What runs today
 
-The CLI and `Qfreej::updateInterface` call `Context::cafudda`, which pumps SDL
+The CLI calls `Context::cafudda`, which pumps SDL
 events when enabled, passes a `FrameHost` to `freej_engine::step_frame`, then
 updates and delays the native scheduler. `src/engine/frame_tick.cpp` owns the
 tick order. It dispatches input, then clears, resizes, blits and presents each
@@ -51,7 +51,7 @@ its own filter, so this run gives no per-effect pixel result for the bundle.
 | Embedded JS, `jsparser.cpp` and `lib/javascript` | Legacy interpreter and bindings outside the probe. The native adapter calls `JsParser::gc`, which invokes `JS_GC` on the frame owner. `Context::init` creates the runtime with native bindings when configured. | The test host's cleanup operation is a no-op. The common tick keeps its position after presentation. |
 | Clocks and pacing, `context.cpp`, `fps.cpp`, `FrameStore`, `Layer` | Host clock and scheduler. The wrappers use `gettimeofday` and `nanosleep`. `FrameStore::publish` separately uses `steady_clock`; the filter chain currently passes the worker's `fps.fps` into `FilterInstance::process`. The existing `FrameHost::now` is a completion sample. | Supply a deterministic monotonic time at the test boundary and use an explicit unit for any effect time. Advance one step and return. Keep acquisition time, completion sample and pacing as distinct operations. |
 | JACK and audio analysis, `audio_jack.cpp`, `audio_collector.cpp`, FFTW | JACK is native. `jack_client_open` requires a reachable daemon, and the callback writes sample position, rate and PCM into the capture handoff. The existing `AudioCollector::SubmitSamples` supports synchronous injected float PCM; the same translation unit also contains the worker path and FFTW calls. | Give the host a bounded PCM block with count, sample rate and start-frame position. For this video fixture pass zero audio blocks. A future audio probe would use synchronous analysis behind its own dependency boundary. |
-| SDL, Qt, other devices and media, `sdl_screen.cpp`, `qt/qfreej.cpp`, `qt/Qfreej.pro`, `MEDIA_SOURCES` | Native adapters. Qt's `QTimer` reaches the native wrapper via `updateInterface`; Qt is a separate application target. SDL headers, window/event calls, image decoding, capture, FFmpeg, fonts and recording stay in the existing profile assembly. | Use a memory sink and an in-memory source. Leave frontend input/presentation, devices and codecs with their existing owners. |
+| SDL, other devices and media, `sdl_screen.cpp`, `MEDIA_SOURCES` | Native adapters. SDL headers, window/event calls, image decoding, capture, FFmpeg, fonts and recording stay in the existing profile assembly. | Use a memory sink and an in-memory source. Leave frontend input/presentation, devices and codecs with their existing owners. |
 
 The host owns the tick time, admitted control queue and sample blocks. For an
 asynchronous host, finish reading borrowed inputs or copy them before returning

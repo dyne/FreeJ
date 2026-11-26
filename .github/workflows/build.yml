@@ -47,7 +47,7 @@ jobs:
             libfftw3-dev libsamplerate0-dev libasound2-dev libfontconfig-dev \
             libfreetype-dev libcairo2-dev libx11-dev libssl-dev libbz2-dev zlib1g-dev \
             libsndio-dev libtiff6 libgd3 libshout3 libtheoradec1 libtheoraenc1 \
-            qtbase5-dev qt5-qmake jackd1 xvfb libxtst6 fonts-dejavu-core
+            jackd1 xvfb
           mkdir -p /tmp/freej-ci
           dpkg-query -W > /tmp/freej-ci/packages.txt
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0

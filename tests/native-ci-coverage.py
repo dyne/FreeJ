@@ -61,9 +61,9 @@ def report(args):
         print("- Reset: reset path and return observed. The target script remains unevaluated.")
     else:
         log = (work / "show.log").read_text().splitlines()
-        if [line for line in log if line.startswith("PASS ")] != ["PASS cli", "PASS cli-effects", "PASS factory", "PASS qt"]:
+        if [line for line in log if line.startswith("PASS ")] != ["PASS cli", "PASS cli-effects", "PASS factory"]:
             raise ValueError("unexpected static runtime outcomes")
-        print("- Staged CLI and Qt/XCB: built-in effects rendered on Xvfb with zero external effect lookups.")
+        print("- Staged CLI: built-in effects rendered on Xvfb with zero external effect lookups.")
         print("- Installed factory: JACK dummy connection at 48 kHz / 2,048 frames.")
         print("- OSC and PCM observer fixtures: compatibility job only.")
     print(f"- Disabled backends: {', '.join(disabled) if disabled else 'none'}.")

@@ -7,10 +7,9 @@ Maintaining the Linux native build
 Use Debian 13 amd64 and a scratch path without spaces outside the checkout. Choose
 the compatibility profile for directory plugins, including third-party
 frei0r and FreeFrame. Choose the static profile for the fully archived
-Linux CLI and Qt frontend with the built-in frei0r bundle. Set up the
+Linux CLI with the built-in frei0r bundle. Set up the
 pinned compiler, SDKs and Bash environment from doc/native-profiles.md.
-That guide includes the static SDK and Qt prerequisites. The installed
-freej.pc records the profile and selected capabilities.
+The installed freej.pc records the profile and selected capabilities.
 
 For a decoder edit, use the compatibility environment from that guide.
 From the checkout root, run the following in Bash. The build script
@@ -66,8 +65,8 @@ against the restored lock before it extracts or builds any source.
     FREEJ_BUILD_WORK="$scratch/rollback-check" \
         tests/freej-build-test.sh --enable-static-mozjs --with-native-profile=compatibility
 
-Use doc/native-ci.md for the full two-profile gate, including the Qt
-frontend, installed package, software replays and effect-frame comparison.
+Use doc/native-ci.md for the full two-profile gate, including the installed
+package, software replays and effect-frame comparison.
 For a pin change, rerun both profiles in fresh paths before accepting it.
 API maps the layer, controller and effect sources to their focused tests.
 

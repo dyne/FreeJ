@@ -5,8 +5,8 @@
 
 src/Makefile.am groups the engine, media, controllers, displays and JS
 bindings. Context::cafudda in src/context.cpp drives the frame step in
-src/engine/. The CLI in src/freej.cpp and Qt in qt/qfreej.cpp assemble
-the native frontends. Start a JS entry-point search in src/jsparser.cpp.
+src/engine/. The native CLI is assembled in src/freej.cpp. Start a JS
+entry-point search in src/jsparser.cpp.
 See INSTALL for the profile build, adapter rebuild and installed client.
 
 * Movie layer. The Context constructor calls init_factory, which calls
