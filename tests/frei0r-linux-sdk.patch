@@ -1,0 +1,12 @@
+--- a/src/filter/CMakeLists.txt
++++ b/src/filter/CMakeLists.txt
+@@ -94,9 +94,6 @@
+ add_subdirectory (scanline0r)
+ add_subdirectory (select0r)
+ add_subdirectory (sharpness)
+-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+-  add_subdirectory (shadert0y)
+-endif ()
+ add_subdirectory (sigmoidaltransfer)
+ add_subdirectory (slitscan0r)
+ add_subdirectory (sobel)

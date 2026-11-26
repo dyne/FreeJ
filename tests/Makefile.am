@@ -73,7 +73,7 @@ lifetime_test_LINK = $(CXXLINK)
 lifetime_test_LDADD = $(frame_step_test_LDADD)
 endif
 
-EXTRA_DIST = frei0r-linux-sdk.sh wasm-frame-probe.sh wasm-frame-audit.mjs wasm-emsdk.lock \
+EXTRA_DIST = frei0r-linux-sdk.sh frei0r-linux-sdk.patch wasm-frame-probe.sh wasm-frame-audit.mjs wasm-emsdk.lock \
              show-replay/wasm-frame-probe.cpp \
              show-replay/frei0r-fixture.c show-replay/freeframe-fixture.c show-replay/test-effects.py \
              cxxtest freej-build-test.sh legacy-linux-sdk.py legacy-linux-sdk.lock \

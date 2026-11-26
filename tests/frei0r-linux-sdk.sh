@@ -13,6 +13,8 @@ printf '%s  %s\n' "$checksum" "$archive" | sha256sum -c -
 mkdir "$prefix"
 mkdir "$prefix/source" "$prefix/lib" "$prefix/modules" -p "$prefix/include/frei0r"
 tar xzf "$archive" --strip-components=1 -C "$prefix/source"
+# The selected CPU effects do not require the OpenGL shader plugin.
+patch --batch --forward --fuzz=0 -d "$prefix/source" -p1 -i "$repo/tests/frei0r-linux-sdk.patch"
 cache=()
 if command -v ccache >/dev/null; then
     cache=(-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache)

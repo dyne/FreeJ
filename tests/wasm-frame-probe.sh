@@ -25,6 +25,8 @@ read -r effects_checksum _ < <(tail -n 1 "$repo/tests/native-ci.lock")
 printf '%s  %s\n' "$effects_checksum" "$archive" | sha256sum -c -
 mkdir -- effects-source
 tar -xzf "$archive" --strip-components=1 -C effects-source
+# The native comparison build uses the same CPU effects as the WASM build.
+patch --batch --forward --fuzz=0 -d effects-source -p1 -i "$repo/tests/frei0r-linux-sdk.patch"
 
 # Verify the SDK tool source, release mapping and downloaded binaries before use.
 read -r sdk_version sdk_commit sdk_release node_version < "$repo/tests/wasm-emsdk.lock"
