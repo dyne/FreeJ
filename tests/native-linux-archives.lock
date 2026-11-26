@@ -13,7 +13,7 @@ e687e3c8b24a3aa74974928b8e0b07f6df2442187492d85cbcea7dacd91e3aba https://deb.deb
 cac680fe731eb850575dbb29ecfc8a5d30faaec5979df939fee5f314dbaa5130 https://deb.debian.org/debian/pool/main/libw/libwebp/libwebp-dev_1.5.0-0.1_amd64.deb
 058620479f5c2d6cab7f052264c42a6f6bd3f6806fc0bad37aa757738955861a https://deb.debian.org/debian/pool/main/j/jbigkit/libjbig-dev_2.1-6.1+b2_amd64.deb
 839ad493dd3b100022bd85970db72de93a1e363182c99cd21c95dbbe5825159b https://deb.debian.org/debian/pool/main/libd/libdeflate/libdeflate-dev_1.23-2_amd64.deb
-adb39ccf80b0a4347e303920a0b2c4e4f9bbca318f68e8c768dfec8029013c7a https://deb.debian.org/debian/pool/main/x/xz-utils/liblzma-dev_5.8.1-1+deb13u1_amd64.deb
+adb39ccf80b0a4347e303920a0b2c4e4f9bbca318f68e8c768dfec8029013c7a https://snapshot.debian.org/archive/debian/20260704T145040Z/pool/main/x/xz-utils/liblzma-dev_5.8.1-1%2Bdeb13u1_amd64.deb
 101ee2049de8e3931242bc4230da28053acc9c82d6f397b8fda11bcb957929ab https://deb.debian.org/debian/pool/main/l/lerc/liblerc-dev_4.0.0+ds-5_amd64.deb
 4462f1e4e746e6117296d077c121d18977e719443e169f0547bb4bed203fe0d3 https://deb.debian.org/debian/pool/main/libw/libwebp/libsharpyuv-dev_1.5.0-0.1_amd64.deb
 de5f8aabcf4cb5cd1b441495ea4c24838e88ecbb30ae22c032a1b3b68a9d6f1e https://deb.debian.org/debian/pool/main/libz/libzstd/libzstd-dev_1.5.7+dfsg-1_amd64.deb
