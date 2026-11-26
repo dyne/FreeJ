@@ -1,5 +1,48 @@
 # Native profiles
 
+## Moving from FreeJ 1.x to 2.0
+
+Choose the Linux amd64 compatibility build if a set uses external frei0r
+or FreeFrame modules. It searches the configured library directory,
+`~/.freej/plugins`, and the system effect directories.
+Keep your existing show scripts, assets, and modules together, and replay a
+copy of the show with 2.0 before switching your performance setup.
+
+Choose the Linux amd64 static build for sets that use the built-in frei0r
+effects Brightness, Invert0r, and onecol0r. It loads those effects from its
+own executable and does not scan plugin directories. It still uses fonts,
+display and audio services, and show assets supplied by your system.
+
+Keep the 1.x installation and runtime libraries in a separate prefix from
+2.0. If a third-party effect or a show fails in 2.0 compatibility, launch
+the saved 1.x executable by its full path, restore its original library and
+plugin environment, and open the saved 1.x copy of the show. Keep the 2.0
+prefix separate while investigating the difference.
+
+### Check a staged package
+
+Build and stage each profile using the [Linux CI recipes](native-ci.md).
+The Autotools source archive is `freej-2.0.0.tar.gz`. Label the two native
+stage archives `freej-2.0.0-linux-amd64-compatibility.tar.gz` and
+`freej-2.0.0-linux-amd64-static.tar.gz`.
+
+In the corresponding build environment, set `stage` to the staged prefix.
+For compatibility, retain the loader path for the build recipe's runtime
+libraries. Confirm the version and selected profile before running a set:
+
+```bash
+LD_LIBRARY_PATH="$stage/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}" "$stage/bin/freej" -v
+PKG_CONFIG_PATH= PKG_CONFIG_LIBDIR="$stage/lib/pkgconfig" pkg-config --modversion freej
+PKG_CONFIG_PATH= PKG_CONFIG_LIBDIR="$stage/lib/pkgconfig" pkg-config --variable=profile freej
+```
+
+The CLI in both profiles reports `freej version 2.0.0`, and pkg-config reports
+`2.0.0` and `compatibility` or `static`. Use the external-effect show
+replay for compatibility and the installed static stage check below for
+the built-in effects.
+
+## Build selections
+
 Configure defaults to `--with-native-profile=compatibility`. This profile
 uses the established system and workspace SDK libraries and searches the
 existing effect directories for frei0r and FreeFrame.

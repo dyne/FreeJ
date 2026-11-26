@@ -7,6 +7,42 @@ before building. Pull request runs normally check the synthetic merge revision.
 Use a topic-branch push run when the check must identify the topic commit itself.
 Manual dispatch becomes available after the workflow reaches the default branch.
 
+## Calculate the release version
+
+The [version workflow](../.github/workflows/version.yml) runs on pushes to
+`freej-revamp` and supports manual dispatch on branches once the workflow is
+available on the default branch. Its read-only job checks out the event SHA,
+reads full history and tags, and reports `current`, `nextStrict`, and `bump`.
+Pull requests run the native build workflow independently.
+
+Before the first authorized release-branch push, a maintainer with explicit
+tag authority must provision `v1.0.0` in the release repository, pointing at
+`2afb631cb3a429fdf312627ef904ec32b51e812d`. That commit declares package
+version `1.0` in `configure.ac` and must be an ancestor of the checkout. Treat
+published release tags as immutable. A missing or misplaced baseline fails
+the version job. Later runs select the highest stable `vMAJOR.MINOR.PATCH` tag
+reachable from the checkout and descended from the approved baseline.
+Historical Debian packaging tags and prerelease tags do not enter this range.
+
+The pinned action compares the selected tag to the event SHA. An empty range
+or a range without a version-changing commit reports the current version as
+`nextStrict` and `none` as the job's bump. The job calculates package SemVer.
+The libtool `FREEJ_VERSION_INFO` triplet in `configure.ac` tracks the library
+interface separately.
+
+The local regression fixture runs the pinned Node 24 bundle against a private
+Git history and local GitHub API responses. With Node 24 and Python 3 with
+PyYAML available, run from the FreeJ checkout:
+
+```bash
+scratch=$(mktemp -d)
+git clone --no-checkout https://github.com/ietf-tools/semver-action.git "$scratch/semver-action"
+git -C "$scratch/semver-action" checkout --detach 46feaa27e7375da0e3d602721e9fb9573598b880
+python3 tests/version-workflow.py "$scratch/semver-action"
+```
+
+## Native build jobs
+
 The job installs Debian build tools and runtime packages, records the exact
 package versions, and builds the SDKs using the same checksummed source inputs
 listed in [Native profiles](native-profiles.md). The hosted cache stores SDK
