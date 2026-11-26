@@ -19,9 +19,13 @@ patch --directory source -p1 < "$recipe/pipewire-static-sdk.patch"
 
 # The daemon and the compatibility SDK use upstream shared libraries. The
 # static client embeds only the native transport, client-node, and SPA support.
+# Upstream enables D-Bus and Flatpak integration by default, including on
+# minimal builders. The test daemon and direct Unix socket client need neither.
 meson setup build source --prefix="$work/sdk" --libdir=lib --buildtype=release --wrap-mode=nodownload \
     -Dauto_features=disabled -Dspa-plugins=enabled -Dsupport=enabled \
-    -Dpipewire-jack=disabled -Djack=disabled -Dexamples=disabled -Dtests=disabled \
+    -Ddbus=disabled -Dflatpak=disabled -Dsystemd-user-service=disabled \
+    -Dpipewire-jack=disabled -Djack=disabled -Dpipewire-v4l2=disabled \
+    -Dexamples=disabled -Dtests=disabled \
     -Dsession-managers=
 meson compile -C build -j "${FREEJ_CI_JOBS:-4}"
 meson install -C build --no-rebuild
