@@ -1,6 +1,79 @@
 FreeJ installation instructions
 ===================================
 
+Maintaining the Linux native build
+-----------------------------------
+
+Use Debian 13 amd64 and a scratch path without spaces outside the checkout. Choose
+the compatibility profile for directory plugins, including third-party
+frei0r and FreeFrame. Choose the static profile for the fully archived
+Linux CLI and Qt frontend with the built-in frei0r bundle. Set up the
+pinned compiler, SDKs and Bash environment from doc/native-profiles.md.
+That guide includes the static SDK and Qt prerequisites. The installed
+freej.pc records the profile and selected capabilities.
+
+For a decoder edit, use the compatibility environment from that guide.
+From the checkout root, run the following in Bash. The build script
+exports the checkout to a new directory and prints its build and stage
+locations. The touch schedules a decoder rebuild for a rehearsal with
+unchanged source. An actual edit to that file in the build's source copy
+also schedules the rebuild.
+
+    repo=$PWD
+    scratch=$(mktemp -d)
+    export FREEJ_BUILD_WORK="$scratch/compatibility"
+    tests/freej-build-test.sh --enable-static-mozjs --with-native-profile=compatibility
+    build="$FREEJ_BUILD_WORK/build"
+    prefix="$FREEJ_BUILD_WORK/install"
+    stage="$FREEJ_BUILD_WORK/stage$prefix"
+    touch "$FREEJ_BUILD_WORK/source/src/media/movie_decoder.cpp"
+    make -C "$build/src" libmovie_decoder.la libfreej.la
+    make -C "$build/tests" check TESTS=movie-replay-test
+    make -C "$build" install DESTDIR="$FREEJ_BUILD_WORK/stage"
+
+Build the consumer against only the staged FreeJ package and use the SDK
+library paths you set for the compatibility build. The pkg-config
+override points the development flags at the DESTDIR copy.
+
+    export PKG_CONFIG_PATH="$stage/lib/pkgconfig"
+    pkg-config --variable=profile freej
+    pkg-config --variable=capabilities freej
+    read -r -a engine_cflags <<< "$(pkg-config --define-variable="prefix=$stage" --cflags freej)"
+    read -r -a engine_libs <<< "$(pkg-config --define-variable="prefix=$stage" --libs freej)"
+    $CXX -DNDEBUG "${engine_cflags[@]}" -c "$repo/tests/native-profile-factory.cpp" -o "$scratch/factory.o"
+    "$legacy/gcc12/usr/bin/g++-12" "$scratch/factory.o" "${engine_libs[@]}" -o "$scratch/factory"
+    LD_LIBRARY_PATH="$stage/lib:$LD_LIBRARY_PATH" SDL_VIDEODRIVER=dummy "$scratch/factory"
+
+Update one dependency family at a time in the lock files listed in
+doc/native-profiles.md and doc/native-dependencies.md. Save the accepted
+revision and SDK. For the movie SDK, change the URL and SHA-256 in
+tests/movie-linux-sdk.lock in an expendable checkout. Verify the upstream
+release and its signature before recording its digest. In the same Bash
+environment, run tests/movie-linux-sdk.sh compatibility
+"$scratch/movie-candidate". Compare the changed SDK to the accepted one
+using the same movie fixture and profile options.
+
+Restore the accepted pin in the expendable checkout. For this example
+accepted is the full commit ID recorded before changing the pin. If you
+have the accepted tarball locally, point FREEJ_MOVIE_SDK_TARBALL at its
+absolute path before running the recipe. The recipe verifies the tarball
+against the restored lock before it extracts or builds any source.
+
+    git restore --source="$accepted" -- tests/movie-linux-sdk.lock
+    tests/movie-linux-sdk.sh compatibility "$scratch/movie-restored"
+    export PKG_CONFIG_PATH="$scratch/movie-restored/sdk/lib/pkgconfig:$debian_lib/pkgconfig"
+    export LD_LIBRARY_PATH="$scratch/movie-restored/sdk/lib:$debian_lib"
+    FREEJ_BUILD_WORK="$scratch/rollback-check" \
+        tests/freej-build-test.sh --enable-static-mozjs --with-native-profile=compatibility
+
+Use doc/native-ci.md for the full two-profile gate, including the Qt
+frontend, installed package, software replays and effect-frame comparison.
+For a pin change, rerun both profiles in fresh paths before accepting it.
+API maps the layer, controller and effect sources to their focused tests.
+
+Historical installation notes
+-----------------------------
+
 *** x86 PC (for Darwin/OSX see README.OSX)
 
 

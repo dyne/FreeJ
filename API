@@ -1,6 +1,50 @@
 
 === FreeJ API
 
+=== Current native source map
+
+src/Makefile.am groups the engine, media, controllers, displays and JS
+bindings. Context::cafudda in src/context.cpp drives the frame step in
+src/engine/. The CLI in src/freej.cpp and Qt in qt/qfreej.cpp assemble
+the native frontends. Start a JS entry-point search in src/jsparser.cpp.
+See INSTALL for the profile build, adapter rebuild and installed client.
+
+* Movie layer. The Context constructor calls init_factory, which calls
+  freej_media::register_movie_layer in src/video_layer.cpp for
+  MovieLayer/ffmpeg. src/video_layer_js.cpp is the
+  JS binding. Start decoder changes in src/media/movie_decoder.cpp, the
+  only member of the private libmovie_decoder target that uses FFmpeg
+  headers. The layer worker calls VideoLayer::feed and borrows its playback
+  pixels until the next feed or close. The worker copies the finished
+  frame into the layer store, and the compositor holds a frame lease
+  while blitting. Open and close stop the worker before replacing decoder
+  storage. The explicit registration call keeps the adapter reachable
+  when linking archives. movie-replay-test checks decoding, end-of-stream
+  drain, seek, reopen and resampling against tests/show-replay/movie-av.mov.
+
+* OSC controller. src/osc_ctrl.cpp registers OscController/core with
+  FACTORY_REGISTER_INSTANTIATOR. The JS class is registered in
+  src/jsparser.cpp. The liblo receiver copies its borrowed route and
+  arguments before returning. OscController::poll drains the owned queue
+  on the engine thread that owns JS. Keep JS values and calls on that
+  thread. The static package retains the factory initializer with
+  --whole-archive. tests/show-replay/replay.py --case osc uses loopback
+  callbacks, stop/restart, self-removal and reset fixtures.
+
+* Brightness effect. Context::init calls Plugger::refresh in src/plugger.cpp.
+  Compatibility discovers the module in plugin directories. Static uses
+  the built-in descriptor in the pinned frei0r archive. Both create the
+  Freior factory in src/frei0r.cpp, which owns parameter and instance
+  callbacks. The layer worker processes its ordered effects. The plugin
+  borrows the input and the instance-owned output during each call.
+  The prototype and module stay alive until the last instance is released.
+  The static link retains the factory initializer and resolves the bundle
+  descriptor registry through the SDK archive group. The compatibility
+  test-effects.py and static frei0r-host-test exercise this host.
+  tests/native-ci-run.sh records the shared 24-frame fixture in each profile.
+
+=== Historical overview
+
 For a source-checked map of the current engine, ownership, build dependencies
 and proposed extraction boundaries, see doc/architecture.md. The historical
 overview below is retained; its threading and feed descriptions are not a

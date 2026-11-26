@@ -121,13 +121,11 @@ dnl never run autotools and configure automatically
 dnl AM_MAINTAINER_MODE
 
 dnl Checks for programs.
+dnl AM_INIT_AUTOMAKE already checks for awk, install and make's MAKE variable.
 AC_PROG_CXX
-AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CPP
-AC_PROG_INSTALL
 AC_PROG_LN_S
-AC_PROG_MAKE_SET
 AM_PROG_AS
 dnl compatibility with older libtool
 dnl m4_ifndef([LT_INIT], [AC_PROG_RANLIB])

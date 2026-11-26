@@ -133,3 +133,24 @@ and verifies every byte against the current lock before extraction. A second
 consumer run can limit execution to one family with `--only`.
 The recipe uses SDL 1.2.68's release timestamp for `SOURCE_DATE_EPOCH` so
 its embedded build banner is repeatable.
+
+## Maintenance audit
+
+The Linux baseline for this audit is FreeJ commit
+`ae56e52a53d2984bce9e6f2ed620395912a090e9`. Use the
+[native profiles](native-profiles.md) and the
+[CI runner](native-ci.md) to compare the generated build inputs and
+staged consumers. The historical [capability ledger](capabilities.md)
+records the context for features and examples that predate these profiles.
+
+| Candidate and provenance | Consumers and disposition |
+| --- | --- |
+| Top-level Autoconf program probes dating to `95e8599d` | `AM_INIT_AUTOMAKE` requires `AC_PROG_AWK`, `AC_PROG_INSTALL` and `AC_PROG_MAKE_SET`. Its results feed the generated Makefiles, including the test and install rules. `configure.ac` now relies on these existing checks. The deleted awk and make calls only repeated earlier checks, and Autoconf already expanded the install check once. The bundled JS subconfigure keeps its own checks. To roll back this change, restore the three calls in the top-level `configure.ac` and regenerate with `./autogen.sh`. |
+| Historical source under `src/obsolete/`, moved out of the native source list before the baseline | Keep Avifile, GOOM, GTK, old OSD, scrolling/text, V4L1, fonts and scaling sources at their existing paths. Xcode still names the old GOOM implementation and `src/include/goom_layer.h`. The project entries and application guards outlasted the move of the Linux source files. `scripts/javascript/examples/goom.js`, its scripting docs and the old Avifile and OSD instructions in `USAGE` give these sources historical context. `src/osd.cpp` also exists at the old path. The Linux native build cannot establish external or Xcode usage. |
+| Shipped libraries under `lib/` and the source pins above | Keep the SDL_gfx and SDL_ttf fallbacks in the generated `BUILD_SDLGFX` and `BUILD_SDLTTF` branches. Geometry, text and screen callers depend on these interfaces. Xcode links separately to the MacPorts libraries and `freej.spec` declares SDL development inputs. Keep the conditional Flash and SpiderMonkey sources, and the CCVT and slw sources used by the two native builds. |
+| Repeated dependency names in `configure.ac`, `m4/freej-static.m4`, `freej.pc.in`, the Xcode project, `freej.spec` and `autopackage/default.apspec` | Keep these lists. They control different consumers and include platform conditions, archive selection, link ordering and packaging. Qt uses the installed `freej.pc` through `qt/Qfreej.pro`. The compatibility package exports a dynamic link interface, while static consumers need the whole archive, the staged archive group and retained factory initializers. |
+| Scripting bindings and parameter conversions in `src/parameter*.cpp`, `src/frei0r.cpp`, `src/freeframe.cpp` and `scripts/javascript/lib/param.js` | Keep each conversion at its caller's ABI. The native frei0r loader and built-in descriptor registry already share the host conversion path from `ae56e52a`. FreeFrame has its own command and value ABI. The JS wrappers pass values to the engine and expose script-facing names and ranges. The SWIG build directory was removed in `3fb0744b`. Its remaining macro and documentation inputs and the Python and Ruby samples stay at their existing paths for historical consumers. |
+
+The retained candidates require no rollback. To investigate one, first
+check the native and alternate build manifests, then follow its run-time
+registration or script consumer.
