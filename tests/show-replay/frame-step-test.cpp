@@ -2,6 +2,7 @@
 #include <array>
 #include <cstdio>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <memory>
 #include <stdexcept>
@@ -16,6 +17,7 @@
 #include <soft_screen.h>
 
 #include "frame_step.h"
+#include "frame-probe-fixture.h"
 
 namespace {
 
@@ -41,21 +43,14 @@ public:
   std::string path;
 };
 
-// Colors vary with both row and column, so a crop from the wrong source origin
-// cannot accidentally reproduce the expected output.
-const std::array<uint8_t, 24> image_pixels{{
-  0x10, 0x20, 0x30, 0xff, 0x11, 0x21, 0x31, 0xff, 0x12, 0x22, 0x32, 0xff,
-  0x40, 0x50, 0x60, 0xff, 0x41, 0x51, 0x61, 0xff, 0x42, 0x52, 0x62, 0xff
-}};
-
-void write_image(const std::string &path) {
+void write_image(const std::string &path, char width, char height, const void *pixels) {
   // Uncompressed 32-bit TGA with alpha and the origin at the top left.
-  const char header[18] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 2, 0, 32, 0x28};
+  const char header[18] = {0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, width, 0, height, 0, 32, 0x28};
   std::ofstream image(path, std::ios::binary);
   image.write(header, sizeof(header));
-  image.write(reinterpret_cast<const char *>(image_pixels.data()), image_pixels.size());
+  image.write(static_cast<const char *>(pixels), width * height * 4);
   image.close();
-  require(bool(image), "write 3x2 fixture image");
+  require(bool(image), "write fixture image");
 }
 
 class FlipGreenFilter : public Filter {
@@ -78,8 +73,8 @@ uint32_t expected_pixel(uint8_t red, uint8_t green, uint8_t blue) {
 }
 
 void memory_frames(const FixtureDirectory &fixture) {
-  constexpr int width = 5, height = 3;
-  constexpr uint32_t background = 0x12345678;
+  using namespace frame_probe_fixture;
+  constexpr int width = screen_width, height = screen_height;
   const uint32_t a = expected_pixel(0x30, 0xdf, 0x10);
   const uint32_t b = expected_pixel(0x31, 0xde, 0x11);
   const uint32_t c = expected_pixel(0x32, 0xdd, 0x12);
@@ -114,7 +109,7 @@ void memory_frames(const FixtureDirectory &fixture) {
   viewport.release();  // Context will destroy the screen and its buffer.
 
   const std::string source = fixture.path + "/rows.tga";
-  write_image(source);
+  write_image(source, image_width, image_height, image_pixels.data());
   require(image->open(source.c_str()), "load the 3x2 image through ImageLayer");
   require(image->geo.w == 3 && image->geo.h == 2, "decoded image size");
   require(screen->add_layer(image), "attach the image to the memory screen");
@@ -129,14 +124,14 @@ void memory_frames(const FixtureDirectory &fixture) {
   auto *const surface = static_cast<uint32_t *>(screen->get_surface());
   std::vector<std::string> trace;
   std::vector<long> completion_times;
-  const std::array<long, 4> requested_times{{40000, 80000, 205000, 245000}};
+  const auto &requested_times = times_us;
   int tick = 0;
   int presentations = 0;
   const freej_engine::FrameHost host{
     [&] {
       trace.push_back("input");
-      image->geo.x = tick < 2 ? 1 : -1;
-      image->geo.y = tick < 2 ? 1 : -1;
+      image->geo.x = positions.at(tick);
+      image->geo.y = positions.at(tick);
       image->need_crop = true;
       std::fill_n(surface, width * height, background);
     },
@@ -177,6 +172,57 @@ void memory_frames(const FixtureDirectory &fixture) {
             "controller, presentation or clock order changed");
   screen->rem_layer(image);
 }
+
+#ifdef FREEJ_STRICT_STATIC
+void bundle_reference(const FixtureDirectory &fixture) {
+  using namespace frame_probe_fixture;
+  Context context;
+  ImageLayer image;
+  std::unique_ptr<SoftScreen> screen(new SoftScreen);
+  require(screen->init(screen_width, screen_height, 32), "initialize memory screen");
+  require(context.add_screen(screen.get()), "attach memory screen");
+  auto *viewport = screen.release(); // Context owns the screen and its buffer.
+  const std::string source = fixture.path + "/rows.tga";
+  const auto source_pixels = bundle_image_pixels();
+  write_image(source, bundle_width, bundle_height, source_pixels.data());
+  require(image.open(source.c_str()), "open bundle reference image");
+  require(viewport->add_layer(&image), "attach bundle reference image");
+
+  auto *invert = context.filters.search("Invert0r");
+  require(invert != nullptr, "discover built-in Invert0r");
+  std::unique_ptr<FilterInstance> instance(invert->apply(&image));
+  require(instance != nullptr, "construct built-in Invert0r");
+  void *decoded = image.feed();
+  require(decoded && std::memcmp(decoded, source_pixels.data(), sizeof(source_pixels)) == 0,
+          "native source bytes match the portable source");
+
+  auto *surface = static_cast<uint32_t *>(viewport->get_surface());
+  int tick = 0;
+  const freej_engine::FrameHost host{
+    [&] {
+      report_input(tick);
+      image.geo.x = image.geo.y = positions.at(tick);
+      image.need_crop = true;
+      image.fps.fps = effect_time(tick);
+      std::fill_n(surface, screen_width * screen_height, background);
+      image.buffer = image.do_filters(decoded);
+      require(image.buffer != nullptr && image.buffer != decoded, "publish Invert0r frame");
+    },
+    [&](ViewPort &presented) {
+      require(&presented == viewport, "unexpected presented screen");
+      report_present(tick, surface);
+    },
+    [&] {
+      report_time(tick, times_us.at(tick));
+      return timeval{100, times_us.at(tick)};
+    }
+  };
+  for (; tick < static_cast<int>(times_us.size()); ++tick)
+    require(freej_engine::step_frame(context, host).tv_usec == times_us.at(tick),
+            "unexpected frame completion time");
+  viewport->rem_layer(&image);
+}
+#endif
 
 class CountedScreen : public SdlScreen {
 public:
@@ -240,12 +286,24 @@ void native_wrapper() {
 }  // namespace
 
 int main(int argc, char **argv) {
-  if (argc > 2 || (argc == 2 && std::string(argv[1]) != "--memory-only"))
+  const std::string mode = argc == 2 ? argv[1] : "";
+  if (argc > 2 ||
+      (argc == 2 && mode != "--memory-only"
+#ifdef FREEJ_STRICT_STATIC
+       && mode != "--bundle-reference"
+#endif
+      ))
     return 2;
-  const std::string test = argc == 2 ? "memory frames" : "memory frames and native wrapper";
+  const std::string test = argc == 2 ? mode : "memory frames and native wrapper";
   try {
     const FixtureDirectory fixture;
     require(setenv("HOME", fixture.path.c_str(), 1) == 0, "isolate fixture home");
+#ifdef FREEJ_STRICT_STATIC
+    if (mode == "--bundle-reference") {
+      bundle_reference(fixture);
+      return 0;
+    }
+#endif
     memory_frames(fixture);
     std::puts("PASS memory frames");
     if (argc == 1) {

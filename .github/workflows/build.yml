@@ -163,3 +163,20 @@ jobs:
           BUILTIN_FRAMES: ${{ needs.native.outputs.static_frames }}
         run: |
           [[ $DIRECTORY_FRAMES =~ ^[0-9a-f]{64}$ && $DIRECTORY_FRAMES == "$BUILTIN_FRAMES" ]]
+
+  wasm-frame-probe:
+    name: Scalar FreeJ frame on WebAssembly
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Build and compare the native and WASM frames
+        shell: bash
+        run: |
+          read -r checksum url < <(tail -n 1 tests/native-ci.lock)
+          archive="$RUNNER_TEMP/freej-frei0r.tar.gz"
+          curl --fail --silent --show-error --location --retry 2 --retry-max-time 150 --max-time 90 "$url" -o "$archive"
+          printf '%s  %s\n' "$checksum" "$archive" | sha256sum -c -
+          bash tests/wasm-frame-probe.sh "$archive" "$RUNNER_TEMP/freej-wasm-frame"

@@ -10,6 +10,7 @@ SUBDIRS = include
 ENGINE_SOURCES = \
 	context.cpp layer.cpp screen.cpp geometry.cpp \
 	engine/frame_step.cpp engine/frame_step.h \
+	engine/frame_tick.cpp engine/frame_tick.h \
 	engine/frame_storage.cpp engine/frame_storage.h engine/surface_lock.h \
 	fps.cpp blitter.cpp linear_blits.cpp iterator.cpp linklist.cpp \
 	jsync.cpp closure.cpp callback.cpp \

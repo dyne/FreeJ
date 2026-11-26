@@ -22,7 +22,7 @@ cxxtests_LDADD = $(top_builddir)/src/libfreej.la
 cxxtests.cpp: $(CXXTEST_TESTSUITES)
 	$(CXXTESTGEN) -o $@ $^
 
-frame_step_test_SOURCES = show-replay/frame-step-test.cpp
+frame_step_test_SOURCES = show-replay/frame-step-test.cpp show-replay/frame-probe-fixture.h
 frame_step_test_CPPFLAGS = $(AM_CPPFLAGS) -I$(top_srcdir)/src/engine $(FREEJ_CFLAGS)
 lifetime_test_SOURCES = show-replay/lifetime-test.cpp
 lifetime_test_CPPFLAGS = $(frame_step_test_CPPFLAGS)
@@ -73,7 +73,9 @@ lifetime_test_LINK = $(CXXLINK)
 lifetime_test_LDADD = $(frame_step_test_LDADD)
 endif
 
-EXTRA_DIST = frei0r-linux-sdk.sh show-replay/frei0r-fixture.c show-replay/freeframe-fixture.c show-replay/test-effects.py \
+EXTRA_DIST = frei0r-linux-sdk.sh wasm-frame-probe.sh wasm-frame-audit.mjs wasm-emsdk.lock \
+             show-replay/wasm-frame-probe.cpp \
+             show-replay/frei0r-fixture.c show-replay/freeframe-fixture.c show-replay/test-effects.py \
              cxxtest freej-build-test.sh legacy-linux-sdk.py legacy-linux-sdk.lock \
              native-linux-archives.py native-linux-archives.lock check-native-linux-archives.py \
              native-static-sdk.py native-static-sdk.lock native-static-sdk.patch \
