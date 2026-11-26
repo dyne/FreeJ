@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Check installed static artifacts with external X11 and JACK services."""
+"""Check installed static artifacts with external X11 and PipeWire services."""
 
 import argparse
 import ctypes as C
@@ -11,7 +11,7 @@ import struct
 import subprocess
 import zlib
 
-from native_profile_services import jack_dummy, owned, until, x11
+from native_profile_services import pipewire_dummy, owned, until, x11
 
 
 COLOR = 0x2060A0
@@ -182,8 +182,8 @@ quit();
         raise ValueError("static CLI did not complete the image fixture")
     if name == "cli-effects" and "built-in effects show loaded" not in output:
         raise ValueError(f"{name}: could not load the built-in effects show")
-    if name == "factory" and "Installed JACK client connected at 48000 Hz / 2048 frames" not in output:
-        raise ValueError("installed static client did not connect to the JACK endpoint")
+    if name == "factory" and "Installed PipeWire client captured at 48000 Hz / 2048 frames" not in output:
+        raise ValueError("installed static client did not connect to the PipeWire endpoint")
     accesses = trace.read_text(errors="replace")
     effect_path = (r'"[^"]+\.(?:so(?:\.[^"/]*)?|frf|dylib)"|'
                    r'"(?:[^"]*/)?(?:frei0r-1|FreeFrame|\.freej/plugins)(?:/[^"]*)?"')
@@ -195,7 +195,7 @@ quit();
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("output", type=Path)
-    for option in ("sandbox", "strace", "freej", "factory", "jackd"):
+    for option in ("sandbox", "strace", "freej", "factory", "pipewire", "pulse"):
         parser.add_argument(f"--{option}", type=Path, required=True)
     args = parser.parse_args()
     for option, path in vars(args).items():
@@ -203,8 +203,9 @@ def main():
     work = args.output
     work.mkdir()
     env = dict(os.environ, LC_ALL="C", SDL_VIDEODRIVER="x11")
-    with x11(work, env) as name, jack_dummy(args.jackd, work, env) as (server, tmpdir):
-        env.update(JACK_TMPDIR=tmpdir, JACK_DEFAULT_SERVER=server)
+    with x11(work, env) as name, pipewire_dummy(args.pipewire, work, env) as env, \
+            owned([args.pulse], work, env, "pulse") as pulse:
+        until(lambda: "replay_pcm:pulse" in (work / "pulse.log").read_text(), pulse)
         for variable in ("LD_LIBRARY_PATH", "LD_PRELOAD"):
             env.pop(variable, None)
         env["DISPLAY"] = name
@@ -215,7 +216,7 @@ def main():
                          lambda process: until(display.contains_image, process), 1)
             check_static(args.freej, args, cli, work, env, "cli-effects",
                          lambda process: until(lambda: display.contains_image(EFFECT_COLOR), process), 1)
-            check_static(args.factory, args, ["--jack"], work, env, "factory", None, 0)
+            check_static(args.factory, args, ["--pipewire"], work, env, "factory", None, 0)
         finally:
             display.x.XCloseDisplay(display.ptr)
     print("3 executed, 0 failed, 0 skipped")

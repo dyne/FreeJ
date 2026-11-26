@@ -1,13 +1,11 @@
 # SHA256 and URL for additive archive sources and development packages (Debian 13 amd64).
 # The historical compiler, FFmpeg, libgd, Xiph, shout and SDL adjuncts remain in legacy-linux-sdk.lock.
-7b290e9dc7b9262ac328d41eef80c1053c97013efacbefa30477cb9b2a5445ea https://snapshot.debian.org/archive/debian/20220614T031637Z/pool/main/j/jack-audio-connection-kit/jack-audio-connection-kit_0.126.0.orig.tar.gz
 63c6e4dcc1154299e6f363c872900be7f3dcb3e42b9f8f57e05442ec3d89d02d https://snapshot.debian.org/archive/debian/20230927T030735Z/pool/main/s/sdl12-compat/sdl12-compat_1.2.68.orig.tar.gz
 16e881487f184250deb4fcb60432d7556ab12cb58caea71ef23960aec6c0405a https://snapshot.debian.org/archive/debian/20210923T145517Z/pool/main/libs/libsamplerate/libsamplerate_0.2.2.orig.tar.gz
 be9c88a0b3604367dd74167a2b754a35e142f670292ae47a2fdef27a2ee97a32 https://snapshot.debian.org/archive/debian/20250414T210755Z/pool/main/a/alsa-lib/alsa-lib_1.2.14.orig.tar.bz2
 445ed8208a6e4823de1226a74ca319d3600e83f6369f99b14265006599c32ccb https://snapshot.debian.org/archive/debian/20250313T210003Z/pool/main/c/cairo/cairo_1.18.4.orig.tar.xz
 89a4c1e1e45e0b23dffe708202cb2eaffde0fe3727d7692b2e1739fec78a7dac https://snapshot.debian.org/archive/debian/20241107T203257Z/pool/main/p/pixman/pixman_0.44.0.orig.tar.gz
 bebd3bfd01c50c9376cf3e7814b9379bed9e17d0393b5113b7eb7a3d0d038c54 https://snapshot.debian.org/archive/debian/20240807T153510Z/pool/main/s/sndio/sndio_1.10.0.orig.tar.gz
-b2370e88c99c8d2244aca02ae69e1da8ad329769a7d44b44a2cc0621af27b748 https://snapshot.debian.org/archive/debian/20241015T144446Z/pool/main/d/db5.3/libdb5.3-dev_5.3.28%2Bdfsg2-9_amd64.deb
 e687e3c8b24a3aa74974928b8e0b07f6df2442187492d85cbcea7dacd91e3aba https://snapshot.debian.org/archive/debian/20250503T205936Z/pool/main/libj/libjpeg-turbo/libjpeg62-turbo-dev_2.1.5-4_amd64.deb
 06b5847f751423fa8dfe1a05dca9bdf1e6deb51fee254c5d2407ed4e32bb0a17 https://snapshot.debian.org/archive/debian/20260722T203807Z/pool/main/t/tiff/libtiff-dev_4.7.0-3%2Bdeb13u3_amd64.deb
 cac680fe731eb850575dbb29ecfc8a5d30faaec5979df939fee5f314dbaa5130 https://snapshot.debian.org/archive/debian/20250110T023814Z/pool/main/libw/libwebp/libwebp-dev_1.5.0-0.1_amd64.deb

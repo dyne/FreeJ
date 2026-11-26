@@ -8,7 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 
-from native_profile_services import jack_dummy, x11
+from native_profile_services import pipewire_dummy, x11
 
 
 REPLAY = Path(__file__).resolve().with_name("show-replay") / "replay.py"
@@ -23,9 +23,9 @@ def compatibility(args):
     env = dict(os.environ, LC_ALL="C")
     command = [sys.executable, REPLAY, "--freej", args.freej.resolve(),
                "--observer", args.observer.resolve(), "--plugin", args.plugin.resolve()]
-    with jack_dummy(args.jackd.resolve(), work, env) as (server, _):
-        subprocess.run([*command, "--pulse", args.pulse.resolve(), "--jack-server", server,
-                        "--output", work / "replay"], cwd=work, env=env, check=True)
+    with pipewire_dummy(args.pipewire.resolve(), work, env) as client_env:
+        subprocess.run([*command, "--pulse", args.pulse.resolve(),
+                        "--output", work / "replay"], cwd=work, env=client_env, check=True)
     with x11(work, env) as display:
         subprocess.run([*command, "--case", "video", "--video-driver", "x11",
                         "--output", work / "offscreen"], cwd=work, env=dict(env, DISPLAY=display), check=True)
@@ -41,7 +41,7 @@ def passed_cases(path):
 def report(args):
     work = args.output
     capabilities = set((work / "capabilities.txt").read_text().split())
-    required = {"sdl", "image", "javascript", "jack"}
+    required = {"sdl", "image", "javascript", "pipewire"}
     if args.profile == "compatibility":
         required.update(("osc", "fft", "frei0r-directory"))
     else:
@@ -57,14 +57,14 @@ def report(args):
             raise ValueError(f"unexpected compatibility case outcomes: {checks!r}, {offscreen!r}")
         print("- Staged CLI: SDL dummy and Xvfb/X11 replay passed (six frame cues per startup).")
         print("- Loopback OSC: readiness, typed argument parsing and dispatch reached. JS callbacks still fail.")
-        print("- Synthetic PCM: input observer captured the JACK impulse. All 25 × 16 FFT bands remain zero.")
+        print("- Synthetic PCM: native PipeWire impulse reached the input, then produced the expected FFT bands.")
         print("- Reset: reset path and return observed. The target script remains unevaluated.")
     else:
         log = (work / "show.log").read_text().splitlines()
         if [line for line in log if line.startswith("PASS ")] != ["PASS cli", "PASS cli-effects", "PASS factory"]:
             raise ValueError("unexpected static runtime outcomes")
         print("- Staged CLI: built-in effects rendered on Xvfb with zero external effect lookups.")
-        print("- Installed factory: JACK dummy connection at 48 kHz / 2,048 frames.")
+        print("- Installed factory: native PipeWire capture at 48 kHz / 2,048 frames.")
         print("- OSC and PCM observer fixtures: compatibility job only.")
     print(f"- Disabled backends: {', '.join(disabled) if disabled else 'none'}.")
     print("- Physical display present-to-photon, display input and fullscreen, audio loopback and A/V sync, "
@@ -76,7 +76,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     modes = parser.add_subparsers(required=True)
     replay = modes.add_parser("compatibility")
-    for name in ("freej", "observer", "plugin", "pulse", "jackd", "output"):
+    for name in ("freej", "observer", "plugin", "pulse", "pipewire", "output"):
         replay.add_argument(f"--{name}", required=True, type=Path)
     replay.set_defaults(run=compatibility)
     summary = modes.add_parser("report")

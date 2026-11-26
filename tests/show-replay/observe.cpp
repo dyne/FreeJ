@@ -1,7 +1,7 @@
 #include "context.h"
 
 #include <dlfcn.h>
-#include <jack/jack.h>
+#include "pipewire-observer.h"
 #include <cstdio>
 #include <cstring>
 #include <vector>
@@ -37,8 +37,6 @@ extern "C" bool SDLCALL SDL_UpdateWindowSurface(SDL_Window *window)
     if (result) {
         static auto *frames = std::fopen("frames.rgb", "wb");
         static auto *states = std::fopen("presentations.txt", "w");
-        // JACK 1 invokes jackd via a child shell which also inherits this
-        // preload. Resolve FreeJ state only when the FreeJ presentation runs.
         static auto **context = static_cast<Context **>(dlsym(RTLD_DEFAULT, "global_environment"));
         if (!context || !*context)
             std::abort();
@@ -52,26 +50,26 @@ extern "C" bool SDLCALL SDL_UpdateWindowSurface(SDL_Window *window)
     return result;
 }
 
-extern "C" void *jack_port_get_buffer(jack_port_t *port, jack_nframes_t frames)
+extern "C" void *pw_filter_get_dsp_buffer(void *port, uint32_t frames)
 {
-    using GetBuffer = void *(*)(jack_port_t *, jack_nframes_t);
+    using GetBuffer = decltype(&pw_filter_get_dsp_buffer);
     static const auto get_buffer =
-        reinterpret_cast<GetBuffer>(dlsym(RTLD_NEXT, "jack_port_get_buffer"));
+        reinterpret_cast<GetBuffer>(dlsym(RTLD_NEXT, "pw_filter_get_dsp_buffer"));
     if (!get_buffer)
         std::abort();
     void *buffer = get_buffer(port, frames);
     static bool seen = false;
     if (!seen && observing("audio") && buffer && frames == 2048 &&
-        (jack_port_flags(port) & JackPortIsInput)) {
-        const auto *samples = static_cast<const jack_default_audio_sample_t *>(buffer);
+        port == observed_input.load(std::memory_order_acquire)) {
+        const auto *samples = static_cast<const float *>(buffer);
         if (samples[0] == 0.5f) {
-            jack_nframes_t nonzero = 1;
-            for (jack_nframes_t i = 1; i < frames; ++i)
+            uint32_t nonzero = 1;
+            for (uint32_t i = 1; i < frames; ++i)
                 nonzero += (samples[i] != 0);
             // Record one real capture block. This observer is used only for
             // the historical reproducer, outside any timing measurement.
             if (auto *capture = std::fopen("capture.txt", "w")) {
-                std::fprintf(capture, "%s %u %.3f %u\n", jack_port_name(port),
+                std::fprintf(capture, "freej:input %u %.3f %u\n",
                              frames, samples[0], nonzero);
                 std::fclose(capture);
             }

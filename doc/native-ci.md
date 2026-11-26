@@ -60,13 +60,12 @@ Compatibility replays the pinned Brightness show through SDL dummy and through
 X11 on Xvfb. The deliberately reversed fixture must exit 1 with the reordered
 cue's RGB mismatch. The OSC fixture observes packets on loopback through argument
 parsing and dispatch. The synthetic PCM fixture observes the known impulse at
-FreeJ's JACK input, then checks the historical 25 windows of 16 zero-valued FFT
-bands. JS callbacks still fail and the capture-to-FFT path remains silent.
-These checks leave OSC-to-visible and audio-to-visible response unmeasured.
+FreeJ’s native PipeWire input and compares the first responsive FFT window to
+the expected impulse spectrum. These checks leave OSC-to-visible and audio-to-visible response unmeasured.
 
 The installed static CLI renders an image and a built-in effects show on Xvfb.
-An installed factory consumer connects to a separate JACK dummy daemon. ELF and
-file-access checks cover the isolated stage. The parity job compares the two
+An installed factory consumer captures a known impulse from a private
+PipeWire daemon. ELF and file-access checks cover the isolated stage. The parity job compares the two
 profiles' digests for the same 24 frames, using the pinned native modules and
 built-in archive. The [capability ledger](capabilities.md) records the historical
 reference.
@@ -98,9 +97,9 @@ tests/native-ci-prepare.sh "$profile" "$scratch/sdk"
 tests/native-ci-run.sh "$profile" "$scratch/sdk" "$scratch/evidence"
 ```
 
-Both runs need a JACK 1 daemon with a dummy driver, a writable daemon socket
-directory, and Xvfb. The static runtime file audit also needs Linux Landlock
-and ptrace support. `FREEJ_CI_JACKD` can point to a separate JACK installation.
+Both runs start the pinned PipeWire daemon with a dummy driver and a private
+Unix socket, and use Xvfb. The static runtime file audit needs Linux Landlock
+and ptrace support.
 The build recipes default to four make jobs. Set `FREEJ_CI_JOBS` to adjust this.
 After both runs, compare their `evidence/warm/frei0r-frames.bin` files with `cmp`.
 
@@ -109,14 +108,14 @@ After both runs, compare their `evidence/warm/frei0r-frames.bin` files with `cmp
 Use a checkout you have reviewed and a workstation with the intended display,
 audio interface and controllers. Run the same software recipes locally first.
 Save their evidence directories alongside the rig data and keep the device
-checks on the workstation. The hosted job runs with Xvfb and a dummy JACK
-server and needs only software fixtures.
+checks on the workstation. The hosted job runs with Xvfb and a dummy PipeWire
+graph and needs only software fixtures.
 
 Record the exact checkout, staged executable hash and runtime setup in the rig
 log. Record the display mode and refresh rate, audio interface, sample rate
 and buffer size, camera or sensor rate, device nodes and controller mappings.
 Run the established show from a clean directory with the staged executable.
-Check fullscreen and SDL input, physical JACK loopback and recording sync,
+Check fullscreen and SDL input, physical PipeWire loopback and recording sync,
 V4L2 camera and DV capture, and any ALSA MIDI, joystick, Wii or ViMo devices
 used by the show. Give each check a pass, failure or specific reason it could
 not run. The [capability ledger](capabilities.md) identifies the entry points

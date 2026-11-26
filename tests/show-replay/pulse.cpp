@@ -1,39 +1,48 @@
-#include <jack/jack.h>
+#include <pipewire/pipewire.h>
+#include <pipewire/filter.h>
 #include <pthread.h>
 #include <signal.h>
 #include <cstdio>
 #include <cstring>
 #include <cmath>
 #include <cstdlib>
+#include <unistd.h>
 
-static bool equalizer_tone = false;
-static bool sparse = false;
-static unsigned period_index = 0;
+struct Source {
+    void *port = nullptr;
+    bool tone = false, sparse = false;
+    unsigned period_index = 0, rate = 48000, period = 2048;
+};
 
-static int send_pulse(jack_nframes_t frames, void *output)
+static void send_pulse(void *data, spa_io_position *position)
 {
-    auto *samples = static_cast<jack_default_audio_sample_t *>(
-        jack_port_get_buffer(static_cast<jack_port_t *>(output), frames));
-    if (equalizer_tone) {
-        // Bin 24 completes three cycles per 256 samples, so the known phase
-        // also repeats every 2048 samples on the second server configuration.
-        for (jack_nframes_t i = 0; i < frames; ++i)
+    auto &source = *static_cast<Source *>(data);
+    const unsigned frames = position->clock.duration;
+    auto *samples = static_cast<float *>(pw_filter_get_dsp_buffer(source.port, frames));
+    if (!samples)
+        return;
+    if (position->clock.rate.denom != source.rate * position->clock.rate.num || frames != source.period)
+        std::abort();
+    if (source.tone) {
+        for (unsigned i = 0; i < frames; ++i)
             samples[i] = 0.25 + 0.25 * std::cos(2 * std::acos(-1.) * 3 * i / 256);
     } else {
         std::memset(samples, 0, frames * sizeof(*samples));
-        if (!sparse || period_index++ % 12 == 0) samples[0] = 0.5f;
+        if (!source.sparse || source.period_index++ % 12 == 0) samples[0] = 0.5f;
     }
-    return 0;
 }
 
 int main(int argc, char **argv)
 {
-    sparse = argc == 2 && std::strcmp(argv[1], "--sparse") == 0;
-    if (argc != 1 && !sparse && (argc != 4 || std::strcmp(argv[1], "--equalizer") != 0))
+    Source source;
+    source.sparse = argc == 2 && std::strcmp(argv[1], "--sparse") == 0;
+    source.tone = argc == 4 && std::strcmp(argv[1], "--equalizer") == 0;
+    if (argc != 1 && !source.sparse && !source.tone)
         return 1;
-    equalizer_tone = argc == 4;
-    const unsigned rate = equalizer_tone ? std::strtoul(argv[2], nullptr, 10) : 48000;
-    const unsigned period = equalizer_tone ? std::strtoul(argv[3], nullptr, 10) : 2048;
+    if (source.tone) {
+        source.rate = std::strtoul(argv[2], nullptr, 10);
+        source.period = std::strtoul(argv[3], nullptr, 10);
+    }
     sigset_t signals;
     sigemptyset(&signals);
     sigaddset(&signals, SIGTERM);
@@ -41,20 +50,47 @@ int main(int argc, char **argv)
     if (pthread_sigmask(SIG_BLOCK, &signals, nullptr))
         return 1;
 
-    auto *client = jack_client_open("replay_pcm", JackNoStartServer, nullptr);
-    if (!client)
+    pw_init(nullptr, nullptr);
+    auto *loop = pw_thread_loop_new("replay-pcm", nullptr);
+    if (!loop) return 1;
+    auto *context = pw_context_new(pw_thread_loop_get_loop(loop), nullptr, 0);
+    if (!context) return 1;
+    auto *core = pw_context_connect(context, nullptr, 0);
+    if (!core) return 1;
+    auto *filter = pw_filter_new(core, "replay_pcm",
+        pw_properties_new(PW_KEY_NODE_NAME, "replay_pcm", PW_KEY_MEDIA_TYPE, "Audio", nullptr));
+    if (!filter) return 1;
+    source.port = pw_filter_add_port(filter, PW_DIRECTION_OUTPUT, PW_FILTER_PORT_FLAG_MAP_BUFFERS,
+        1, pw_properties_new(PW_KEY_PORT_NAME, "pulse", PW_KEY_FORMAT_DSP,
+                             "32 bit float mono audio", nullptr), nullptr, 0);
+    if (!source.port) return 1;
+    pw_filter_events events{};
+    events.version = PW_VERSION_FILTER_EVENTS;
+    events.process = send_pulse;
+    spa_hook hook{};
+    pw_filter_add_listener(filter, &hook, &events, &source);
+    if (pw_filter_connect(filter, PW_FILTER_FLAG_RT_PROCESS, nullptr, 0) < 0 ||
+        pw_thread_loop_start(loop) < 0)
         return 1;
-    auto *output = jack_port_register(client, "pulse", JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
-    if (!output || jack_get_sample_rate(client) != rate || jack_get_buffer_size(client) != period ||
-        jack_set_process_callback(client, send_pulse, output) || jack_activate(client)) {
-        jack_client_close(client);
-        return 1;
+    bool ready = false;
+    for (int attempt = 0; attempt < 100 && !ready; ++attempt) {
+        pw_thread_loop_lock(loop);
+        ready = pw_filter_get_node_id(filter) != SPA_ID_INVALID;
+        pw_thread_loop_unlock(loop);
+        if (!ready) usleep(20000);
     }
 
-    std::puts(jack_port_name(output));
-    std::fflush(stdout);
-    int signal;
-    const int result = sigwait(&signals, &signal);
-    jack_client_close(client);
+    int result = 1;
+    if (ready) {
+        std::puts("replay_pcm:pulse");
+        std::fflush(stdout);
+        int signal;
+        result = sigwait(&signals, &signal);
+    }
+    pw_thread_loop_stop(loop);
+    pw_filter_destroy(filter);
+    pw_core_disconnect(core);
+    pw_context_destroy(context);
+    pw_thread_loop_destroy(loop);
     return result ? 1 : 0;
 }

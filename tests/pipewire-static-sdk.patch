@@ -1,0 +1,251 @@
+--- a/src/pipewire/pipewire.c
++++ b/src/pipewire/pipewire.c
+@@ -92,6 +92,10 @@
+ 	return NULL;
+ }
+ 
++#ifdef FREEJ_PIPEWIRE_STATIC
++extern int spa_handle_factory_enum(const struct spa_handle_factory **, uint32_t *);
++#endif
++
+ static struct plugin *
+ open_plugin(struct registry *registry,
+ 	    const char *path, size_t len, const char *lib)
+@@ -110,6 +114,14 @@
+ 		return plugin;
+ 	}
+ 
++#ifdef FREEJ_PIPEWIRE_STATIC
++        if (!spa_streq(lib, "support/libspa-support")) {
++                res = -ENOENT;
++                goto error_out;
++        }
++        hnd = NULL;
++        enum_func = spa_handle_factory_enum;
++#else
+         if ((hnd = dlopen(filename, RTLD_NOW)) == NULL) {
+ 		res = -ENOENT;
+ 		pw_log_debug("can't load %s: %s", filename, dlerror());
+@@ -120,6 +132,7 @@
+ 		pw_log_debug("can't find enum function: %s", dlerror());
+ 		goto error_dlclose;
+         }
++#endif
+ 
+ 	if ((plugin = calloc(1, sizeof(struct plugin))) == NULL) {
+ 		res = -errno;
+@@ -131,7 +144,7 @@
+ 	plugin->filename = strdup(filename);
+ 	plugin->hnd = hnd;
+ 	plugin->enum_func = enum_func;
+-	plugin->log_topic_enum = dlsym(hnd, SPA_LOG_TOPIC_ENUM_NAME);
++	plugin->log_topic_enum = hnd ? dlsym(hnd, SPA_LOG_TOPIC_ENUM_NAME) : NULL;
+ 
+ 	spa_list_append(&registry->plugins, &plugin->link);
+ 
+@@ -140,7 +153,8 @@
+ 	return plugin;
+ 
+ error_dlclose:
+-	dlclose(hnd);
++	if (hnd)
++		dlclose(hnd);
+ error_out:
+ 	errno = -res;
+ 	return NULL;
+@@ -153,7 +167,7 @@
+ 		spa_list_remove(&plugin->link);
+ 		pw_log_topic_unregister_enum(plugin->log_topic_enum);
+ 		pw_log_debug("unloaded plugin:'%s'", plugin->filename);
+-		if (pw_should_dlclose())
++		if (plugin->hnd && pw_should_dlclose())
+ 			dlclose(plugin->hnd);
+ 		free(plugin->filename);
+ 		free(plugin);
+--- a/src/pipewire/impl-module.c
++++ b/src/pipewire/impl-module.c
+@@ -35,6 +35,7 @@
+ 
+ /** \endcond */
+ 
++#ifndef FREEJ_PIPEWIRE_STATIC
+ static char *find_module(const char *path, const char *name, int level)
+ {
+ 	char *filename;
+@@ -84,6 +85,11 @@
+ 
+ 	return NULL;
+ }
++#else
++extern int freej_protocol_native_init(struct pw_impl_module *, const char *);
++extern int freej_client_node_init(struct pw_impl_module *, const char *);
++#endif
++
+ 
+ static int
+ global_bind(void *object, struct pw_impl_client *client, uint32_t permissions,
+@@ -141,14 +147,10 @@
+ {
+ 	struct pw_impl_module *this;
+ 	struct impl *impl;
+-	void *hnd;
++	void *hnd = NULL;
+ 	char *filename = NULL;
+-	const char *module_dir;
+ 	int res;
+ 	pw_impl_module_init_func_t init_func;
+-	const char *state = NULL, *p;
+-	size_t len;
+-	char path_part[PATH_MAX];
+ 	static const char * const keys[] = {
+ 		PW_KEY_MODULE_NAME,
+ 		NULL
+@@ -156,6 +158,20 @@
+ 
+ 	pw_log_info("%p: name:%s args:%s", context, name, args);
+ 
++#ifdef FREEJ_PIPEWIRE_STATIC
++        if (spa_streq(name, "libpipewire-module-protocol-native"))
++                init_func = freej_protocol_native_init;
++        else if (spa_streq(name, "libpipewire-module-client-node"))
++                init_func = freej_client_node_init;
++        else
++                goto error_not_found;
++        filename = strdup(name);
++        if (filename == NULL)
++                goto error_no_mem;
++#else
++        const char *module_dir, *state = NULL, *p;
++        size_t len;
++        char path_part[PATH_MAX];
+ 	module_dir = getenv("PIPEWIRE_MODULE_DIR");
+ 	if (module_dir == NULL) {
+ 		module_dir = MODULEDIR;
+@@ -189,6 +205,7 @@
+ 
+ 	if ((init_func = dlsym(hnd, PIPEWIRE_SYMBOL_MODULE_INIT)) == NULL)
+ 		goto error_no_pw_module;
++#endif
+ 
+ 	if (properties == NULL)
+ 		properties = pw_properties_new(NULL, NULL);
+@@ -257,6 +274,7 @@
+ 	res = -ENOENT;
+ 	pw_log_info("No module \"%s\" was found", name);
+ 	goto error_cleanup;
++#ifndef FREEJ_PIPEWIRE_STATIC
+ error_open_failed:
+ 	res = -EIO;
+ 	pw_log_error("Failed to open module: \"%s\" %s", filename, dlerror());
+@@ -265,6 +283,7 @@
+ 	res = -ENOSYS;
+ 	pw_log_error("\"%s\": is not a pipewire module", filename);
+ 	goto error_close;
++#endif
+ error_no_mem:
+ 	res = -errno;
+ 	pw_log_error("can't allocate module: %m");
+@@ -282,7 +301,9 @@
+ error_close:
+ 	if (hnd)
+ 		dlclose(hnd);
++#ifndef FREEJ_PIPEWIRE_STATIC
+ error_free_filename:
++#endif
+ 	if (filename)
+ 		free(filename);
+ error_cleanup:
+@@ -323,7 +344,7 @@
+ 		pw_work_queue_cancel(pw_context_get_work_queue(module->context),
+ 				     module, SPA_ID_INVALID);
+ 
+-	if (pw_should_dlclose() && dlclose(impl->hnd) != 0)
++	if (impl->hnd && pw_should_dlclose() && dlclose(impl->hnd) != 0)
+ 		pw_log_warn("%p: dlclose failed: %s", module, dlerror());
+ 	free(impl);
+ }
+--- a/src/modules/meson.build
++++ b/src/modules/meson.build
+@@ -284,15 +284,17 @@
+   pipewire_module_protocol_deps += selinux_dep
+ endif
+
+-pipewire_module_protocol_native = shared_library('pipewire-module-protocol-native',
+-  [ 'module-protocol-native.c',
++pipewire_protocol_native_sources = [ 'module-protocol-native.c',
+     'module-protocol-native/local-socket.c',
+     'module-protocol-native/portal-screencast.c',
+     'module-protocol-native/protocol-native.c',
+     'module-protocol-native/v0/protocol-native.c',
+     'module-protocol-native/protocol-footer.c',
+     'module-protocol-native/security-context.c',
+-    'module-protocol-native/connection.c' ],
++    'module-protocol-native/connection.c' ]
++
++pipewire_module_protocol_native = shared_library('pipewire-module-protocol-native',
++  pipewire_protocol_native_sources,
+   include_directories : [configinc],
+   install : true,
+   install_dir : modules_install_dir,
+@@ -471,15 +473,17 @@
+   dependencies : [spa_dep, mathlib, dl_lib, pipewire_dep],
+ )
+
+-pipewire_module_client_node = shared_library('pipewire-module-client-node',
+-  [ 'module-client-node.c',
++pipewire_client_node_sources = [ 'module-client-node.c',
+     'module-client-node/remote-node.c',
+     'module-client-node/client-node.c',
+     'module-client-node/protocol-native.c',
+     'module-client-node/v0/client-node.c',
+     'module-client-node/v0/transport.c',
+     'module-client-node/v0/protocol-native.c',
+-    'spa/spa-node.c', ],
++    'spa/spa-node.c', ]
++
++pipewire_module_client_node = shared_library('pipewire-module-client-node',
++  pipewire_client_node_sources,
+   include_directories : [configinc],
+   link_with : pipewire_module_protocol_native,
+   install : true,
+@@ -757,3 +761,27 @@
+   )
+ endif
+ summary({'avb': build_module_avb}, bool_yn: true, section: 'Optional Modules')
++
++# These two modules are the complete native client transport. Keep their
++# entry points and log topics distinct inside the combined static archive.
++freej_native = static_library('freej-pipewire-native',
++  pipewire_protocol_native_sources,
++  c_args : ['-Dpipewire__module_init=freej_protocol_native_init', '-Dmod_topic=freej_protocol_native_topic'],
++  include_directories : [configinc],
++  dependencies : pipewire_module_protocol_deps,
++)
++freej_client_node = static_library('freej-pipewire-client-node',
++  pipewire_client_node_sources,
++  c_args : ['-Dpipewire__module_init=freej_client_node_init', '-Dmod_topic=freej_client_node_topic'],
++  include_directories : [configinc],
++  dependencies : [spa_dep, mathlib, dl_lib, pipewire_dep],
++)
++static_library(pipewire_name,
++  objects : [
++    freej_pipewire_core.extract_all_objects(recursive : false),
++    freej_native.extract_all_objects(recursive : false),
++    freej_client_node.extract_all_objects(recursive : false),
++    spa_support_lib.extract_all_objects(recursive : false),
++  ],
++  install : true,
++)
+--- a/src/pipewire/meson.build
++++ b/src/pipewire/meson.build
+@@ -136,3 +136,10 @@
+ meson.override_dependency('lib@0@'.format(pipewire_name), pipewire_dep)
+
+ subdir('extensions')
++
++freej_pipewire_core = static_library('freej-pipewire-core',
++  pipewire_sources,
++  c_args : libpipewire_c_args + ['-DFREEJ_PIPEWIRE_STATIC'],
++  include_directories : [pipewire_inc, configinc, includes_inc],
++  dependencies : [spa_dep, dl_lib, mathlib, pthread_lib, libintl_dep, atomic_dep],
++)

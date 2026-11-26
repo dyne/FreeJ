@@ -39,3 +39,5 @@ if [[ $profile == static ]]; then
 fi
 CC="$gcc" CXX="$gxx" tests/sdl-linux-sdk.sh "$profile" "$work/sdl" "${sdl_args[@]}" \
     2>&1 | tee "$work/logs/sdl-sdk.log"
+CC="$gcc" CXX="$gxx" tests/pipewire-linux-sdk.sh "$work/pipewire" \
+    2>&1 | tee "$work/logs/pipewire-sdk.log"

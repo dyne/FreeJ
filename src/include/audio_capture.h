@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include <vector>
 
-// One JACK producer and one analysis consumer. Front and back are private to
+// One device producer and one analysis consumer. Front and back are private to
 // their respective threads. An exchange gives exclusive ownership of the middle
 // slot to its caller. A slow reader skips obsolete complete windows.
 class AudioCapture {
@@ -60,7 +60,7 @@ public:
     if (active_ && (first != next_ || rate != rate_ || frames != period_))
       gap();
     active_ = true;
-    next_ = first + frames; // JACK frame time rolls over modulo 2^32.
+    next_ = first + frames; // Frame time rolls over modulo 2^32.
     rate_ = rate;
     period_ = frames;
     for (size_t offset = 0; offset < frames;) {
@@ -85,7 +85,7 @@ public:
   }
 
   // Only the device producer calls gap while active. The owner also calls it
-  // after jack_client_close has stopped the producer.
+  // after the device has stopped the producer.
   void gap() {
     if (active_) generation_.fetch_add(1, std::memory_order_release);
     active_ = false;

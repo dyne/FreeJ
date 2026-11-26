@@ -117,7 +117,7 @@ def run_freej(args, directory, env, script, debug=1, after_start=None):
             "seconds": time.monotonic() - start,
             "environment": {k: env[k] for k in
                             ("HOME", "SDL_VIDEODRIVER", "DISPLAY", "LD_LIBRARY_PATH",
-                             "LD_PRELOAD", "JACK_DEFAULT_SERVER", "FREEJ_REPLAY_PROBE") if k in env},
+                             "LD_PRELOAD", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE", "FREEJ_REPLAY_PROBE") if k in env},
         })
     return process.returncode, (directory / "freej.log").read_text(errors="replace").splitlines()
 
@@ -332,16 +332,15 @@ def osc_example(args):
 
 def audio(args):
     directory, env = fixture(args, "audio")
-    env["JACK_DEFAULT_SERVER"] = args.jack_server
     with owned_process([str(args.pulse)], directory, env, "pulse.log",
                        stdout=subprocess.PIPE) as source:
         require(select.select([source.stdout], [], [], 5)[0] and
                 source.stdout.readline().strip() == b"replay_pcm:pulse",
-                "JACK pulse sender did not activate at 48000 Hz / 2048 frames")
+                "PipeWire pulse sender did not activate at 48000 Hz / 2048 frames")
         observe(env, args, "audio")
         status, lines = run_freej(args, directory, env, "audio.js")
-        require(source.poll() is None, "JACK pulse sender exited early")
-    require(source.returncode == 0, f"JACK pulse sender cleanup exit {source.returncode}")
+        require(source.poll() is None, "PipeWire pulse sender exited early")
+    require(source.returncode == 0, f"PipeWire pulse sender cleanup exit {source.returncode}")
     require(status == 1 and "replay: audio quit" in lines, "audio CLI did not reach scripted quit")
     capture = (directory / "capture.txt").read_text().split()
     require(len(capture) == 4 and capture[0].startswith("freej:") and
@@ -380,7 +379,6 @@ def main():
         parser.add_argument(f"--{option}", type=Path, required=True)
     parser.add_argument("--video-driver", default="dummy")
     parser.add_argument("--pulse", type=Path)
-    parser.add_argument("--jack-server", help="name of the running private JACK dummy server")
     parser.add_argument("--case", choices=("all", "video", "osc", "osc-example", "audio", "reset"),
                         default="all")
     parser.add_argument("--expect-reversed-order", action="store_true")
@@ -390,8 +388,8 @@ def main():
     parser.add_argument("--expect-legacy-osc", action="store_true",
                         help="check the historical build's parsed inbound OSC without JS callbacks")
     args = parser.parse_args()
-    if args.case in ("all", "audio") and not (args.pulse and args.jack_server):
-        parser.error("audio requires --pulse and --jack-server")
+    if args.case in ("all", "audio") and not args.pulse:
+        parser.error("audio requires --pulse and a running PipeWire daemon")
     if args.expect_reversed_order and args.case != "video":
         parser.error("--expect-reversed-order requires --case video")
     if args.expect_legacy_osc and args.require_working_routes:

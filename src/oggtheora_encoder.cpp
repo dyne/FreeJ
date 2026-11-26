@@ -110,7 +110,7 @@ bool OggTheoraEncoder::init (ViewPort *scr) {
   oggmux.audio_only = 0;
 
   if(use_audio && audio) {
-    recording_ = audio->IsConnected() ? audio->Jack->BeginRecording() : nullptr;
+    recording_ = audio->IsConnected() ? audio->Device->BeginRecording() : nullptr;
     if (!recording_) return false;
 
     m_MixVal = 1.0;	//sound mix level coef.

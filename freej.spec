@@ -16,12 +16,12 @@ License:	GPLv3
 Group:		Applications/Multimedia
 BuildRoot:	%(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 Requires:	SDL SDL_ttf freetype slang
-Requires:	fftw jack-audio-connection-kit
+Requires:	fftw pipewire
 Requires:	unicap
 Requires:       ruby(abi) = 1.8
 BuildRequires:	libtheora-devel SDL-devel libpng-devel libjpeg-devel
 BuildRequires:	SDL_ttf-devel freetype-devel  libvorbis-devel slang-devel
-BuildRequires:	fftw-devel jack-audio-connection-kit-devel unicap-devel
+BuildRequires:	fftw-devel pipewire-devel unicap-devel
 BuildRequires:	bluez-libs-devel nasm gcc-c++ byacc flex bison
 BuildRequires:	ffmpeg-devel python-devel swig python
 BuildRequires:  ruby ruby-devel

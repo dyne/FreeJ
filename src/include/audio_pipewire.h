@@ -14,8 +14,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-#ifndef JACK_CLIENT
-#define JACK_CLIENT
+#ifndef FREEJ_AUDIO_PIPEWIRE_H
+#define FREEJ_AUDIO_PIPEWIRE_H
 
 #include <array>
 #include <atomic>
@@ -25,11 +25,11 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include <jack/jack.h>
+struct spa_io_position;
 #include <ringbuffer.h>
 #include <audio_capture.h>
 
-typedef jack_default_audio_sample_t sample_t;
+typedef float sample_t;
 
 const int MAX_INPUTPORTS = 256;
 const int MAX_OUTPUTPORTS = 256;
@@ -42,12 +42,12 @@ struct RecordingRings {
 	std::atomic<unsigned> channels{1};
 };
 
-class JackClient
+class PipeWireClient
 {
 public:
-	static JackClient *Get()      { if(!m_Singleton) m_Singleton=new JackClient; return m_Singleton; }
+	static PipeWireClient *Get()      { if(!m_Singleton) m_Singleton=new PipeWireClient; return m_Singleton; }
 	static void PackUpAndGoHome() { if(m_Singleton)  { delete m_Singleton; m_Singleton=NULL; } }
-	
+
 	bool   Attach(const std::string &ClientName);
 	void   Detach();
 	bool   IsAttached();
@@ -55,8 +55,8 @@ public:
 	void   SetCallback(void(*run)(void*, unsigned int), void *context);
 	void   ClearCallback(void *context);
 	void   GetPortNames(std::vector<std::string> &InputNames,std::vector<std::string> &OutputNames);
-	void   ConnectInput(int n, const std::string &JackPort);
-	void   ConnectOutput(int n, const std::string &JackPort);
+	void   ConnectInput(int n, const std::string &AudioPort);
+	void   ConnectOutput(int n, const std::string &AudioPort);
 	void   DisconnectInput(int n);
 	void   DisconnectOutput(int n);
 	std::string GetInputName(int id) {
@@ -74,9 +74,9 @@ public:
 	int AddInputPort(std::shared_ptr<AudioCapture> capture = {});
 	void RemoveInputPort(int id);
          int 	 AddOutputPort();
-	
+
 	int SetRingbufferPtr(ringbuffer_t *rb, int samplerate, int channels);
-	static void ResetRingbuffer(ringbuffer_t *rb, bool disconnect);
+	static void ResetRingbuffer(ringbuffer_t *rb, bool disconnect, unsigned rate = 0);
 	static std::atomic<unsigned long> m_BufferSize, m_SampleRate;
 	static std::atomic<bool> m_Attached;
 	ringbuffer_t *audio_mix_ring;	//ringbuffer to be streamed
@@ -84,50 +84,50 @@ public:
 	std::atomic<int> m_ringbufferchannels;
 	void	isEncoded(bool isEnc);
 	std::shared_ptr<RecordingRings> BeginRecording();
-	
-protected:
-	JackClient();
-	~JackClient();
 
-	static int  Process(jack_nframes_t nframes, void *o);
-	static int  OnSRateChange(jack_nframes_t n, void *o);
-	static void OnJackShutdown(void *o);
+protected:
+	PipeWireClient();
+	~PipeWireClient();
+
+	static void Process(void *, spa_io_position *);
 
 private:
+	struct Graph;
+	std::unique_ptr<Graph> graph_;
 
 
-	class JackPort
-	{		
+	class AudioPort
+	{
 		public:
-		JackPort() :
-			Connected(false),Buf(NULL),Port(NULL) {}
-		
+		AudioPort() :
+			Buf(nullptr),Port(nullptr) {}
+
 		std::string         Name;
-		bool           Connected;
+		std::atomic<bool> linked{false};
 		float*         Buf;
-		jack_port_t*   Port;
-		std::string         ConnectedTo;
+		void*          Port;
+
 		std::shared_ptr<AudioCapture> capture;
 	};
 
 	ringbuffer_t*      m_ringbuffer;
 	std::mutex output_mutex_;
 	std::vector<char> output_buffer_;
-	
+	unsigned output_rate_ = 0;
 
-	static JackClient*        m_Singleton;
-	static jack_client_t*     m_Client;
-	static std::map<int,JackPort*> m_InputPortMap;
-	static std::map<int,JackPort*> m_OutputPortMap;
+
+	static PipeWireClient*        m_Singleton;
+	static std::map<int,AudioPort*> m_InputPortMap;
+	static std::map<int,AudioPort*> m_OutputPortMap;
 	int m_NextInputID;
 	// Append under output_mutex_. The callback reads only the published prefix.
-	std::array<jack_port_t *, MAX_OUTPUTPORTS> output_ports_{};
+	std::array<void *, MAX_OUTPUTPORTS> output_ports_{};
 	std::atomic<int> output_port_count_{0};
 	struct InputPorts {
-		std::array<JackPort *, MAX_INPUTPORTS> ports{};
+		std::array<AudioPort *, MAX_INPUTPORTS> ports{};
 		size_t count = 0;
 	};
-	// Only the control thread changes the inactive list. The JACK process
+	// Only the control thread changes the inactive list. The PipeWire process
 	// callback reads one immutable, registration-ordered list per cycle.
 	std::mutex input_mutex_;
 	std::array<InputPorts, 2> input_lists_;
@@ -140,7 +140,7 @@ private:
 	void dispatch_shutdown();
 	int add_output_port_locked();
 	void detach_locked();
-	
+
 	static void(*RunCallback)(void*, unsigned int bufsize);
 	static void *RunContext;
 	std::atomic<bool> m_Encoded;

@@ -93,13 +93,13 @@ def frame_metrics(presents, fps):
 
 def audio_metrics(sources, captures, first, last):
     captured = [(ns, sample, n) for ns, sample, n in captures if first <= ns <= last]
-    require(len(captured) >= 2, "missing captured JACK pulses")
+    require(len(captured) >= 2, "missing captured PipeWire pulses")
     positions = sorted(sample for _, sample, _ in captured)
     source_at = {sample: (ns, sample, n) for ns, sample, n in sources}
-    require(all(sample in source_at for sample in positions), "captured JACK pulse has no source")
-    require(all(n == AUDIO_FRAMES for _, _, n in sources + captured), "wrong JACK period")
+    require(all(sample in source_at for sample in positions), "captured PipeWire pulse has no source")
+    require(all(n == AUDIO_FRAMES for _, _, n in sources + captured), "wrong PipeWire period")
     require(positions == [sample for _, sample, _ in captured] and len(set(positions)) == len(positions),
-            "captured JACK sample positions are repeated or unordered")
+            "captured PipeWire sample positions are repeated or unordered")
     clocks = pairs([source_at[sample] for _, sample, _ in captured], captured)
     reference = period_ms(AUDIO_RATE, positions[-1] - positions[0])
     return {
@@ -166,20 +166,19 @@ def capture_run(args, workload, name, analyzed_frames):
     source_status = None
     osc_stress = getattr(args, "osc_stress", False)
     if workload == "capture":
-        env["JACK_DEFAULT_SERVER"] = args.jack_server
         pulse_env = prepare_trace(env, args.observer, directory / "pulse.trace")
         pulse_env["FREEJ_TIMING_PULSE_SOURCE"] = "1"
         with owned_process([str(args.pulse)], directory, pulse_env, "pulse.log",
                            stdout=subprocess.PIPE) as source:
             require(select.select([source.stdout], [], [], 5)[0] and
                     source.stdout.readline().strip() == b"replay_pcm:pulse",
-                    "JACK 48 kHz / 2048-frame pulse startup failed")
+                    "PipeWire 48 kHz / 2048-frame pulse startup failed")
             configure(directory, workload, total_frames)
             with owned_process(command, directory, env, "freej.log") as app:
                 status = app.wait(timeout=total_frames / FPS + 15)
-            require(source.poll() is None, "JACK pulse sender exited early")
+            require(source.poll() is None, "PipeWire pulse sender exited early")
         source_status = source.returncode
-        require(source_status == 0, "JACK pulse sender cleanup failed")
+        require(source_status == 0, "PipeWire pulse sender cleanup failed")
     elif workload == "osc":
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as peer:
             peer.settimeout(6)
@@ -243,14 +242,14 @@ def capture_run(args, workload, name, analyzed_frames):
         source = events(directory / "pulse.trace")
         xrun_registrations = [status for _, status, _ in kind(rows, "xrun-registration") +
                               kind(source, "xrun-registration")]
-        require(xrun_registrations == [0, 0], "missing JACK xrun monitoring")
+        require(xrun_registrations == [0, 0], "missing PipeWire xrun monitoring")
         audio, capture_times = audio_metrics(kind(source, "pulse-source"), kind(rows, "pulse-capture"),
                                              presents[0], presents[-1])
         metrics.update(audio)
         metrics["capture_to_next_submission_ms"] = stats(to_next_present(capture_times, presents))
         for owner, owner_events in (("engine", rows), ("source", source)):
             metrics[f"{owner}_xrun_notifications"] = sum(
-                presents[0] <= ns <= presents[-1] for ns, _, _ in kind(owner_events, "jack-xrun"))
+                presents[0] <= ns <= presents[-1] for ns, _, _ in kind(owner_events, "pipewire-xrun"))
         nonzero, = [int(s.rsplit(" ", 1)[1]) for s in log if s.startswith("timing: nonzero FFT windows ")]
         require(nonzero == 0 if getattr(args, "expect_legacy_audio", False) else nonzero >= analyzed_frames,
                 f"unexpected count of responsive FFT windows: {nonzero}")
@@ -259,7 +258,7 @@ def capture_run(args, workload, name, analyzed_frames):
                           if presents[0] <= ns <= presents[-1]]
         if callback_times or getattr(args, "require_callback_timing", False):
             require(callback_times and max(callback_times) < period_ms(AUDIO_RATE, AUDIO_FRAMES),
-                    "JACK callback missed its period or was not observed")
+                    "PipeWire callback missed its period or was not observed")
             metrics["callback_worst_ms"] = max(callback_times)
         proc = subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v",
                                "-count_frames", "-show_entries", "stream=codec_name,nb_read_frames",
@@ -274,7 +273,7 @@ def capture_run(args, workload, name, analyzed_frames):
                "pulse_exit": source_status, "started_ns": started, "ended_ns": ended,
                "warmup_frames": warmup, "metrics": metrics,
                "environment": {k: env[k] for k in ("SDL_VIDEODRIVER", "DISPLAY", "LD_LIBRARY_PATH",
-                                                   "LD_PRELOAD", "JACK_DEFAULT_SERVER") if k in env}}
+                                                   "LD_PRELOAD", "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE") if k in env}}
     json_file(directory / "timing.json", summary)
     return metrics
 
@@ -306,7 +305,6 @@ def main():
     for name in ("freej", "plugin", "observer", "output"):
         parser.add_argument(f"--{name}", required=True, type=lambda value: Path(value).resolve())
     parser.add_argument("--pulse", type=lambda value: Path(value).resolve())
-    parser.add_argument("--jack-server")
     parser.add_argument("--video-driver", choices=("dummy", "x11"), default="x11")
     parser.add_argument("--workload", choices=("all", *WORKLOADS), default="all")
     parser.add_argument("--osc-stress", action="store_true",
@@ -323,8 +321,8 @@ def main():
         parser.error("minimums are five repetitions, three seconds and a 60-second drift run")
     if args.osc_stress and args.workload != "osc":
         parser.error("--osc-stress requires --workload osc")
-    if args.workload in ("all", "capture") and not (args.pulse and args.jack_server):
-        parser.error("capture requires --pulse and --jack-server")
+    if args.workload in ("all", "capture") and not args.pulse:
+        parser.error("capture requires --pulse and a running PipeWire daemon")
     require(time.get_clock_info("monotonic").implementation == "clock_gettime(CLOCK_MONOTONIC)",
             "controller and native observer must share Linux CLOCK_MONOTONIC")
     args.output.mkdir()

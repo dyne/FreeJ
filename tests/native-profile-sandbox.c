@@ -67,8 +67,8 @@ int main(int argc, char **argv)
         if (allow(ruleset, devices[i], read_data | LANDLOCK_ACCESS_FS_WRITE_FILE, 0) < 0)
             goto fail;
     }
-    const char *jack = getenv("JACK_TMPDIR");
-    if (jack && allow(ruleset, jack, read_data, 1) < 0)
+    const char *runtime = getenv("PIPEWIRE_RUNTIME_DIR");
+    if (runtime && allow(ruleset, runtime, read_data, 1) < 0)
         goto fail;
     if (prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0) < 0 ||
         syscall(SYS_landlock_restrict_self, ruleset, 0) < 0)

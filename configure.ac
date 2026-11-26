@@ -507,10 +507,8 @@ PKG_CHECK_MODULES(ALSA, alsa,
     have_midi=yes,
     have_midi=no)
 
-dnl TODO(shammash): before this refactoring we were enabling jack
-dnl only if alsa was present, check inconsistencies in the code.
-PKG_CHECK_MODULES(JACK, jack, :,
-  AC_MSG_ERROR([*** Jack development files not found!]))
+PKG_CHECK_MODULES(PIPEWIRE, [libpipewire-0.3 >= 0.3.65], :,
+  AC_MSG_ERROR([*** PipeWire development files not found!]))
 
 PKG_CHECK_MODULES(FFTW, fftw3, :,
   AC_MSG_ERROR([*** Fftw3 development files not found!]))
@@ -801,7 +799,7 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \$(FREI0R_BUNDLE_CFLAGS) \
     \$(FFTW_CFLAGS)     \
     \$(FT2_CFLAGS)      \
     \$(GLU_CFLAGS)      \
-    \$(JACK_CFLAGS)     \
+    \$(PIPEWIRE_CFLAGS)     \
     \$(LIBLO_CFLAGS)    \
     \$(MOZJS_CFLAGS)    \
     \$(OPENCV_CFLAGS)   \
@@ -833,7 +831,7 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(FFTW_LIBS)       \
     \$(FT2_LIBS)        \
     \$(GLU_LIBS)        \
-    \$(JACK_LIBS)       \
+    \$(PIPEWIRE_LIBS)       \
     \$(LIBLO_LIBS)      \
     \$(MOZJS_LIBS)      \
     \$(OPENCV_LIBS)     \
@@ -853,12 +851,12 @@ AC_SUBST(FREEJ_LIBS)
 dnl Export the same selections as the library and frontends. Bundled headers
 dnl are installed with the engine headers, so source/build paths stay private.
 FREEJ_PACKAGE_CFLAGS="$CPPFLAGS $AA_CFLAGS $ALSA_CFLAGS $CWIID_CFLAGS $FC_CFLAGS \
-    $FFTW_CFLAGS $FT2_CFLAGS $GLU_CFLAGS $JACK_CFLAGS $LIBLO_CFLAGS \
+    $FFTW_CFLAGS $FT2_CFLAGS $GLU_CFLAGS $PIPEWIRE_CFLAGS $LIBLO_CFLAGS \
     $OPENCV_CFLAGS $SAMPLERATE_CFLAGS $SDL_CFLAGS $SDLIMAGE_CFLAGS $SDLTTF_CFLAGS $SHOUT_CFLAGS $SLANG_CFLAGS \
     $UNICAP_CFLAGS $CAIRO_CFLAGS $XIPH_CFLAGS $X11_CFLAGS"
 FREEJ_PACKAGE_DEPS="$LDFLAGS -lpthread -lm -lrt $DL_LIBS $AA_LIBS $ALSA_LIBS \
     $BLUEZ_LIBS $CWIID_LIBS $FC_LIBS $FFMPEG_LIBS $FFTW_LIBS $FT2_LIBS $GLU_LIBS \
-    $JACK_LIBS $LIBLO_LIBS $OPENCV_LIBS $SAMPLERATE_LIBS $SDLIMAGE_LIBS \
+    $PIPEWIRE_LIBS $LIBLO_LIBS $OPENCV_LIBS $SAMPLERATE_LIBS $SDLIMAGE_LIBS \
     $SDL_LIBS $SDLTTF_LIBS $SHOUT_LIBS $SLANG_LIBS $UNICAP_LIBS $X11_LIBS $CAIRO_LIBS $XIPH_LIBS $GD_LIBS"
 FREEJ_PACKAGE_LIBS='-L${libdir} -lfreej'
 AS_IF([test "x$have_mozjs" = xyes], [
@@ -869,7 +867,7 @@ AS_IF([test "x$have_mozjs" = xyes], [
     [FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS -DJS_GCMETER"])
 ])
 
-FREEJ_CAPABILITIES="console sdl image geometry ffmpeg-sdk javascript jack fft resampling osc ogg theora vorbis stream"
+FREEJ_CAPABILITIES="console sdl image geometry ffmpeg-sdk javascript pipewire fft resampling osc ogg theora vorbis stream"
 AS_IF([test "x$have_xgrab" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES xgrab xscreensaver"])
 AS_IF([test "x$have_videodev" = xyes && test "x$enable_v4l" != xno], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES v4l2"])
 AS_IF([test "x$have_textlayer" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES text"])
@@ -962,9 +960,9 @@ VRB([= ogg-theora (xiph.org)])
 VRB([  LIBS  : $XIPH_LIBS])
 VRB([  CFLAGS: $XIPH_CFLAGS])
 
-VRB([= Jack])
-VRB([  LIBS  : $JACK_LIBS])
-VRB([  CFLAGS: $JACK_CFLAGS])
+VRB([= PipeWire])
+VRB([  LIBS  : $PIPEWIRE_LIBS])
+VRB([  CFLAGS: $PIPEWIRE_CFLAGS])
 
 VRB([= Fftw / harmonics analysis])
 VRB([  LIBS  : $FFTW_LIBS])

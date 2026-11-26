@@ -49,11 +49,14 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
     freej_archive_dir="$FREEJ_STATIC_SDK/lib"
     freej_require_archives "native audio system" sndio asound
     freej_require_archives "recording and streaming" ogg vorbis vorbisenc theora shout speex ssl crypto cairo pixman-1 fontconfig expat xcb-render xcb-shm
-    freej_require_archives "JACK capture and playback" jack db
-    AS_IF([! $NM "$FREEJ_STATIC_SDK/lib/libjack.a" | grep -q ' T jack_get_tmpdir$'],
-      [AC_MSG_ERROR([JACK capture and playback requires the archived JACK client])])
-    AS_IF([$NM -u "$FREEJ_STATIC_SDK/lib/libjack.a" | grep -q ' U popen$'],
-      [AC_MSG_ERROR([JACK capture and playback requires the direct runtime directory client])])
+    freej_archive_dir=`$PKG_CONFIG --variable=libdir libpipewire-0.3`
+    AS_CASE([$freej_archive_dir],
+      [""|*[[!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./-]]*],
+      [AC_MSG_ERROR([the PipeWire SDK requires a libdir path free of spaces or shell metacharacters])])
+    freej_require_archives "native PipeWire capture and playback" pipewire-0.3
+    AS_IF([! $NM "$freej_archive_dir/libpipewire-0.3.a" | grep -q ' T freej_protocol_native_init$'],
+      [AC_MSG_ERROR([the static profile requires the built-in PipeWire modules from tests/pipewire-linux-sdk.sh])])
+    freej_archive_dir="$FREEJ_STATIC_SDK/lib"
     freej_require_archives "audio FFT and resampling" fftw3 samplerate
     freej_require_archives "OSC transport" lo
     AS_IF([test "x$have_gd" = xyes], [freej_require_archives "PNG screenshots" gd])
@@ -87,7 +90,7 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
     freej_save_CPPFLAGS=$CPPFLAGS
     LIBS="-Wl,--start-group $FREEJ_STATIC_ARCHIVES $FREEJ_STATIC_SYSTEM_LIBS -Wl,--end-group"
     LDFLAGS="$LDFLAGS -static"
-    CPPFLAGS="$CPPFLAGS $FREI0R_BUNDLE_CFLAGS $SDL_CFLAGS $SDLIMAGE_CFLAGS $SDLTTF_CFLAGS"
+    CPPFLAGS="$CPPFLAGS $FREI0R_BUNDLE_CFLAGS $SDL_CFLAGS $SDLIMAGE_CFLAGS $SDLTTF_CFLAGS $PIPEWIRE_CFLAGS"
     AC_LANG_PUSH([C++])
     AC_LINK_IFELSE([
       AC_LANG_PROGRAM([[
@@ -97,16 +100,18 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
         #include <SDL3_image/SDL_image.h>
         #include <SDL3_ttf/SDL_ttf.h>
         extern "C" unsigned avformat_version(void);
-        extern "C" void *jack_ringbuffer_create(unsigned long);
+        #include <pipewire/pipewire.h>
+
         extern "C" const char *src_get_version(void);
       ]], [[
+        pw_init(nullptr, nullptr);
         return !SDL_Init(0) || !IMG_Version() || !TTF_Version()
-          || !avformat_version() || !jack_ringbuffer_create(32) || !src_get_version()
+          || !avformat_version() || !pw_get_library_version() || !src_get_version()
           || !std::exception().what()
           || !f0r_bundle_plugin_count() || !f0r_bundle_plugin_by_index(0);
       ]])
     ], [AC_MSG_RESULT([yes])], [
-      AC_MSG_FAILURE([the SDL/JACK/resampling/frei0r archive closure cannot link statically. See config.log])
+      AC_MSG_FAILURE([the SDL/PipeWire/resampling/frei0r archive closure cannot link statically. See config.log])
     ])
     AC_LANG_POP([C++])
     LIBS=$freej_save_LIBS

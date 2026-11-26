@@ -1,4 +1,4 @@
-# Legacy show replay
+# Native show replay
 
 The fixture uses the assertion-enabled Linux [reference build](../../doc/legacy-reference.md).
 It uses an 80×60 SDL viewport, two generated opaque PNGs and the Brightness
@@ -18,36 +18,34 @@ and ccache from the reference recipe. Remove the ccache prefix if unavailable.
 ccache "$sdk/gcc12/usr/bin/g++-12" -std=c++11 -Wall -Wextra -Werror -fPIC -shared \
     -isystem src/include -isystem "$build" -isystem lib/javascript \
     -isystem "$build/lib/javascript" -isystem "$sdk/debian/usr/include" \
-    -DJS_GCMETER $(pkg-config --cflags sdl3) tests/show-replay/observe.cpp \
+    -DJS_GCMETER $(pkg-config --cflags sdl3 libpipewire-0.3) tests/show-replay/observe.cpp \
     -o "$scratch/observe.so" -ldl
 ccache "$sdk/gcc12/usr/bin/gcc-12" -O2 -shared -fPIC -I"$effects/include" \
     "$effects/src/filter/brightness/brightness.c" -o "$scratch/brightness.so"
 ccache "$sdk/gcc12/usr/bin/g++-12" -std=c++11 -Wall -Wextra -Werror -pthread \
-    tests/show-replay/pulse.cpp -o "$scratch/pulse" -ljack
-export LD_LIBRARY_PATH="$stage/lib:$sdk/ffmpeg/lib:$sdk/debian/usr/lib/x86_64-linux-gnu"
+    tests/show-replay/pulse.cpp -o "$scratch/pulse" $(pkg-config --cflags --libs libpipewire-0.3)
+export LD_LIBRARY_PATH="$pipewire/lib:$stage/lib:$sdk/ffmpeg/lib:$sdk/debian/usr/lib/x86_64-linux-gnu"
 ```
 
-Start a private JACK dummy server at 48 kHz with 2048 frames per period.
-For JACK 1, use `jackd -r -n freej-replay -d dummy -r 48000 -p 2048`. If
-using a scratch JACK installation, put its `bin` first on `PATH` and its
-`lib` first on `LD_LIBRARY_PATH` for the server, pulse client and FreeJ. Set
-`JACK_DRIVER_DIR` to its driver directory. JACK 1 needs an existing writable
-socket directory with a path short enough for a Unix socket. Set it at build
-time with `--with-default-tmpdir` when the packaged default is unavailable.
+Set `pipewire` to the pinned SDK prefix from `tests/pipewire-linux-sdk.sh`.
+The native CI coverage runner starts a private PipeWire graph at 48 kHz with
+2,048 frames per cycle. To run the replay directly, set `PIPEWIRE_RUNTIME_DIR`
+and `PIPEWIRE_REMOTE` to the private daemon’s socket directory and name.
+The daemon and source must use the selected rate and quantum.
 
 The collector contract has a separate diagnostic replay. Build
 `tests/show-replay/equalizer-observer.cpp` as a shared library with the same
 compiler and header paths as `observe.cpp` above. Use the current pulse client
-and a shared compatibility build of FreeJ. The fixture starts and stops JACK
+and a shared compatibility build of FreeJ. The fixture starts and stops PipeWire
 dummy servers at 44.1 kHz/2048 and 48 kHz/256.
 
 ```sh
 python3 tests/show-replay/equalizer.py --freej "$stage/bin/freej" \
-    --jackd "$jack/bin/jackd" --observer "$scratch/equalizer-observer.so" \
+    --pipewire "$pipewire/bin/pipewire" --observer "$scratch/equalizer-observer.so" \
     --pulse "$scratch/pulse" --output "$scratch/equalizer"
 ```
 
-Each script call observes a known JACK input period. The `live` and
+Each script call observes a known PipeWire input period. The `live` and
 `live-recording` runs consume the production capture handoff. The `injected`
 run withholds the observed period from the live port and submits it on the
 script thread. It holds silence for the first seven 256-frame periods, then
@@ -64,7 +62,7 @@ Run the six historical replay checks in a fresh evidence directory.
 ```sh
 python3 tests/show-replay/replay.py --freej "$stage/bin/freej" \
     --observer "$scratch/observe.so" --plugin "$scratch/brightness.so" \
-    --pulse "$scratch/pulse" --jack-server freej-replay --output "$scratch/show"
+    --pulse "$scratch/pulse" --output "$scratch/show"
 ```
 
 The SDL dummy driver is the default. With a running Xvfb and its `DISPLAY`
@@ -94,17 +92,16 @@ at the reordered cue. Audio arguments are needed for `all` and `audio`.
   start with 128 admitted packets and check rendering, FIFO drain across
   stop/restart, self-removal, reset and quit. Use `--expect-legacy-osc` with the
   historical binary to reproduce the old dispatch failures.
-- The JACK source sends a mono window with sample zero at 0.5 and all other
-  samples zero. The observer confirms the input at FreeJ’s JACK port. The
+- The PipeWire source sends a mono window with sample zero at 0.5 and all other
+  samples zero. The observer confirms the input at FreeJ’s PipeWire port. The
   replay compares the first responsive window with the analytical impulse
-  bands. Use `--expect-legacy-audio` to check the historical build's 25
-  silent windows.
+  bands.
 - The example’s `reset(filename)` takes the engine reset path and returns
   from the call, but it never evaluates the target file. The isolated reset
   fixture checks for the reset log, return marker and absent target marker.
 
-The preload observes RGB at SDL submission and one real JACK input block.
-Its file I/O and arbitrary SDL or JACK scheduling make these captures
+The preload observes RGB at SDL submission and one real PipeWire input block.
+Its file I/O and arbitrary SDL or PipeWire scheduling make these captures
 unsuitable for wall-clock latency measurements.
 
 The [software timing fixture and stage checklist](timing-budget.md) use a

@@ -1,5 +1,6 @@
 #include <audio_collector.h>
-#include <audio_jack.h>
+#include <audio_pipewire.h>
+#include "audio-graph-fixture.h"
 #include <algorithm>
 #include <array>
 #include <chrono>
@@ -13,14 +14,10 @@
 #include <thread>
 
 namespace {
-struct Port { std::array<float, 256> pcm{}; bool connected = true, registered = false; };
-std::array<Port, 4> ports;
-unsigned count, frame = UINT32_MAX - 15, rate = 48000;
-int server;
-JackProcessCallback process;
-JackSampleRateCallback change_rate;
-JackShutdownCallback shutdown_event;
-void *engine, *rate_context, *shutdown_context;
+using Fixture = AudioGraphFixture;
+auto &ports = Fixture::ports;
+auto &count = Fixture::count;
+unsigned frame = UINT32_MAX - 15, rate = 48000;
 int checks;
 std::atomic<bool> hold_input{false}, inside_input{false}, hold_unregister{false}, inside_unregister{false};
 bool wait_for(const std::atomic<bool> &flag) {
@@ -37,7 +34,7 @@ void check(bool ok, const char *name) {
 }
 void period(unsigned n, float value) {
   ports[0].pcm.fill(value);
-  check(process(n, engine) == 0, "device callback");
+  check(Fixture::cycle(n, frame, rate) == 0, "device callback");
   frame += n;
 }
 bool wait_window(AudioCollector &audio, uint32_t first, AudioCapture::Position &p) {
@@ -66,68 +63,21 @@ void *(*jmemcpy)(void *, const void *, size_t) = std::memcpy;
 void act(const char *, ...) {}
 void error(const char *, ...) {}
 void func(const char *, ...) {}
-extern "C" {
-jack_client_t *jack_client_open(const char *, jack_options_t, jack_status_t *, ...) {
-  return reinterpret_cast<jack_client_t *>(&server);
-}
-int jack_set_process_callback(jack_client_t *, JackProcessCallback fn, void *p) {
-  process = fn; engine = p; return 0;
-}
-int jack_set_sample_rate_callback(jack_client_t *, JackSampleRateCallback fn, void *p) {
-  change_rate = fn; rate_context = p; return 0;
-}
-void jack_on_shutdown(jack_client_t *, JackShutdownCallback fn, void *p) {
-  shutdown_event = fn; shutdown_context = p;
-}
-int jack_activate(jack_client_t *) { return 0; }
-int jack_client_close(jack_client_t *) {
-  count = 0;
-  for (auto &port : ports) port.registered = false;
-  return 0;
-}
-jack_port_t *jack_port_register(jack_client_t *, const char *, const char *, unsigned long, unsigned long) {
-  for (auto &port : ports) {
-    if (port.registered) continue;
-    port = {};
-    port.registered = true;
-    ++count;
-    return reinterpret_cast<jack_port_t *>(&port);
-  }
-  return nullptr;
-}
-int jack_port_unregister(jack_client_t *, jack_port_t *handle) {
-  auto &port = *reinterpret_cast<Port *>(handle);
-  if (!port.registered) return -1;
-  if (hold_unregister.load()) {
-    inside_unregister = true;
-    while (hold_unregister.load()) std::this_thread::yield();
-  }
-  port.registered = false;
-  --count;
-  return 0;
-}
-void *jack_port_get_buffer(jack_port_t *p, jack_nframes_t) {
-  auto *port = reinterpret_cast<Port *>(p);
-  if (port == &ports[1] && hold_input.load()) {
-    inside_input = true;
-    while (hold_input.load()) std::this_thread::yield();
-  }
-  return port->pcm.data();
-}
-jack_nframes_t jack_get_buffer_size(jack_client_t *) { return 4; }
-jack_nframes_t jack_get_sample_rate(jack_client_t *) { return rate; }
-jack_nframes_t jack_last_frame_time(const jack_client_t *) { return frame; }
-const char **jack_get_ports(jack_client_t *, const char *, const char *, unsigned long) { return nullptr; }
-void jack_free(void *p) { std::free(p); }
-int jack_port_connected(const jack_port_t *p) { return reinterpret_cast<const Port *>(p)->connected; }
-const char *jack_port_name(const jack_port_t *) { return "fixture"; }
-int jack_connect(jack_client_t *, const char *, const char *) { return 0; }
-int jack_disconnect(jack_client_t *, const char *, const char *) { return 0; }
-}
-
 int main() {
+  Fixture::reading = [](Fixture::Port *port) {
+    if (port == &ports[1] && hold_input.load()) {
+      inside_input = true;
+      while (hold_input.load()) std::this_thread::yield();
+    }
+  };
+  Fixture::removing = [] {
+    if (hold_unregister.load()) {
+      inside_unregister = true;
+      while (hold_unregister.load()) std::this_thread::yield();
+    }
+  };
   char source[] = "stage:input";
-  auto *jack = JackClient::Get();
+  auto *jack = PipeWireClient::Get();
   auto original = std::unique_ptr<AudioCollector>(new AudioCollector(source, 16, 44100));
   AudioCapture::Position p;
   const auto first = frame;
@@ -151,20 +101,20 @@ int main() {
   for (size_t i = 0; i < saved.size(); ++i) check(saved[i] == i / 16, "recorded samples preserved");
   period(4, 1);
   check(original->GetFFT()[0] == 0 && !original->CapturePosition(p), "period change clears stale output");
-  rate = 44100; change_rate(rate, rate_context);
+  rate = 44100;
   for (int i = 0; i < 4; ++i) period(4, 2);
   check(wait_window(*original, frame - 16, p) && p.rate == rate, "new-rate complete window");
   frame += 4;
   period(4, 1);
   check(original->GetFFT()[0] == 0 && !original->CapturePosition(p), "missing samples clear partial history");
-  ports[0].connected = false;
+  *ports[0].linked = false;
   period(4, 1);
-  ports[0].connected = true;
+  *ports[0].linked = true;
   for (int i = 0; i < 3; ++i) period(4, 3);
   check(original->GetFFT()[0] == 0, "disconnected samples never join a new window");
   period(4, 3);
   check(wait_window(*original, frame - 16, p) && original->GetAudioBuffer()[0] == 3, "reconnected source");
-  shutdown_event(shutdown_context);
+  Fixture::shutdown(Fixture::graph);
   check(!original->IsConnected() && original->GetFFT()[0] == 0, "shutdown without user callback");
   {
     AudioCollector reopened(source, 16, 44100);
@@ -174,10 +124,11 @@ int main() {
     check(wait_window(reopened, frame-16, p) && reopened.GetHarmonic(0) > 0, "new session publishes independently");
     bool notified = false;
     jack->SetCallback([](void *p, unsigned n) { *static_cast<bool *>(p) = n == 0; }, &notified);
-    shutdown_event(shutdown_context);
+    Fixture::shutdown(Fixture::graph);
     check(!notified && !reopened.IsConnected() && notified, "shutdown notification on control thread");
     jack->ClearCallback(&notified);
   }
+  rate = 48000;
   check(jack->Attach("external"), "external owner available across repeated borrowed opens");
   const int permanent = jack->AddInputPort();
   auto continuous = jack->BeginRecording();
@@ -209,7 +160,7 @@ int main() {
   auto borrowed = std::unique_ptr<AudioCollector>(new AudioCollector(source, 16, 44100));
   check(count == 2, "borrowed script constructor registered the second port");
   hold_input = hold_unregister = true;
-  std::thread first_period([&] { process(16, engine); });
+  std::thread first_period([&] { Fixture::cycle(16, frame, rate); });
   const bool entered = wait_for(inside_input);
   std::atomic<bool> retiring{false};
   std::thread retire([&] { retiring = true; borrowed.reset(); });
@@ -220,10 +171,10 @@ int main() {
   hold_input = false;
   first_period.join();
   const bool unregistering = wait_for(inside_unregister);
-  // Unregistration can block on the JACK server. The unrelated recording
+  // Unregistration can block on the graph control loop. The unrelated recording
   // input must keep running even while that control operation is held.
   std::atomic<bool> finished{false};
-  std::thread next_period([&] { process(16, engine); finished = true; });
+  std::thread next_period([&] { Fixture::cycle(16, frame, rate); finished = true; });
   const bool continued = wait_for(finished);
   hold_unregister = false;
   next_period.join();
@@ -232,7 +183,7 @@ int main() {
         "retirement waits for a reader using the old port; further callbacks run during unregister");
   check(ringbuffer_read_space(continuous->input.get()) == (MAX_INPUTPORTS + 4)*16*sizeof(float),
         "all unrelated recording samples retained through concurrent retirement");
-  JackClient::PackUpAndGoHome();
+  PipeWireClient::PackUpAndGoHome();
   check(recording->rate.load() == 48000, "recording storage survives device retirement");
 
   AudioCapture handoff(128);

@@ -79,7 +79,7 @@ template <class T> class Linklist;
 #endif
 #endif
 
-class JackClient;
+class PipeWireClient;
 class Layer;
 class Geometry;
 class VideoEncoder;
@@ -119,8 +119,8 @@ class ViewPort : public Entry {
 
   virtual bool add_layer(Layer *lay); ///< add a new layer to the screen
 #ifdef WITH_AUDIO
-  virtual bool add_audio(JackClient *jcl); ///< connect the sole audio supplier
-  bool add_audio(JackClient *jcl, const Layer &source);
+  virtual bool add_audio(PipeWireClient *jcl); ///< connect the sole audio supplier
+  bool add_audio(PipeWireClient *jcl, const Layer &source);
   int audio_rate(const Layer &source);
   void write_audio(const Layer &source, const float *samples, std::size_t count,
                    int channels, int rate);
@@ -158,7 +158,7 @@ class ViewPort : public Entry {
   bool resizing;
   int resize_w;
   int resize_h;
-  std::atomic<unsigned long> *m_SampleRate; // bound JACK sample rate
+  std::atomic<unsigned long> *m_SampleRate; // bound PipeWire sample rate
   
 
   // opengl special blit
@@ -175,7 +175,7 @@ class ViewPort : public Entry {
   std::mutex geometry_mutex_;
   void stop_encoders();
 #ifdef WITH_AUDIO
-  bool bind_audio(JackClient *jcl, const Layer &source, int rate, int channels);
+  bool bind_audio(PipeWireClient *jcl, const Layer &source, int rate, int channels);
   std::mutex audio_mutex_;
   const Layer *audio_source_ = nullptr;
   int audio_rate_ = 0;

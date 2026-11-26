@@ -1,7 +1,7 @@
-// Diagnostic preload only. Copy one actual JACK input period per script FFT
+// Diagnostic preload only. Copy one actual PipeWire input period per script FFT
 // call. Its synchronization and copying are deliberately outside timing runs.
 #include <audio_collector.h>
-#include <jack/jack.h>
+#include "pipewire-observer.h"
 #include <dlfcn.h>
 #include <chrono>
 #include <condition_variable>
@@ -14,38 +14,44 @@ std::mutex gate;
 std::condition_variable received;
 bool requested = false;
 std::vector<float> period;
-JackProcessCallback process;
+pw_filter_events events;
+void (*process)(void *, spa_io_position *);
 void *process_context;
 bool copied = false;
 bool injected() {
   const char *route = std::getenv("FREEJ_EQUALIZER_ROUTE");
   return route && std::strcmp(route, "injected") == 0;
 }
-int observe_process(jack_nframes_t frames, void *) {
+void observe_process(void *, spa_io_position *position) {
   copied = false;
-  const int result = process(frames, process_context);
+  process(process_context, position);
   if (copied) {
     std::lock_guard<std::mutex> lock(gate);
     requested = false;
     received.notify_one();
   }
-  return result;
 }
 }
 
-extern "C" int jack_set_process_callback(jack_client_t *client, JackProcessCallback call, void *context) {
-  static auto set = reinterpret_cast<decltype(&jack_set_process_callback)>(
-      dlsym(RTLD_NEXT, "jack_set_process_callback"));
-  process = call;
-  process_context = context;
-  return set(client, observe_process, nullptr);
+extern "C" void pw_filter_add_listener(pw_filter *filter, spa_hook *hook,
+                                      const pw_filter_events *original, void *data) {
+  static auto add = reinterpret_cast<decltype(&pw_filter_add_listener)>(
+      dlsym(RTLD_NEXT, "pw_filter_add_listener"));
+  if (original && original->process) {
+    process = original->process;
+    process_context = data;
+    events = *original;
+    events.process = observe_process;
+    original = &events;
+  }
+  add(filter, hook, original, data);
 }
 
-extern "C" void *jack_port_get_buffer(jack_port_t *port, jack_nframes_t frames) {
-  using Get = void *(*)(jack_port_t *, jack_nframes_t);
-  static auto get = reinterpret_cast<Get>(dlsym(RTLD_NEXT, "jack_port_get_buffer"));
+extern "C" void *pw_filter_get_dsp_buffer(void *port, uint32_t frames) {
+  static auto get = reinterpret_cast<decltype(&pw_filter_get_dsp_buffer)>(
+      dlsym(RTLD_NEXT, "pw_filter_get_dsp_buffer"));
   auto *samples = static_cast<float *>(get(port, frames));
-  if (samples && (jack_port_flags(port) & JackPortIsInput)) {
+  if (samples && port == observed_input.load(std::memory_order_acquire)) {
     std::lock_guard<std::mutex> lock(gate);
     if (requested && samples[0] == 0.5f) {
       period.assign(samples, samples + frames);
@@ -64,7 +70,7 @@ float *AudioCollector::GetFFT() {
   std::unique_lock<std::mutex> lock(gate);
   requested = true;
   if (!received.wait_for(lock, std::chrono::seconds(3), [] { return !requested; })) {
-    std::fputs("no known JACK input period\n", stderr);
+    std::fputs("no known PipeWire input period\n", stderr);
     std::_Exit(2);
   }
   if (injected())

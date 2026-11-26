@@ -14,7 +14,7 @@ from replay import lines_at, owned_process, require, run_freej
 
 here = Path(__file__).resolve().parent
 sys.path.insert(0, str(here.parent))
-from native_profile_services import jack_dummy
+from native_profile_services import pipewire_dummy
 
 
 def script(rate, calls, recording):
@@ -64,7 +64,7 @@ def measure(args, output, env, rate, period, route):
     require(len(captures) == ticks and all(
         int(n) == period and float(first) == 0.5 and
         math.isclose(float(second), 0.25 + 0.25 * math.cos(6 * math.pi / 256), abs_tol=1e-6)
-        for n, first, second in captures), "missing or unexpected known input at JACK port")
+        for n, first, second in captures), "missing or unexpected known input at PipeWire port")
     rows = [list(map(float, row.split(","))) for row in lines_at(lines, "equalizer: values ")]
     windows = [list(map(int, s.split())) for s in lines_at(lines, "equalizer: window ")]
     require(len(windows) == ticks, "missing native window positions")
@@ -88,7 +88,7 @@ def measure(args, output, env, rate, period, route):
         previous = bands
     if recording:
         verify_recording(output, rate)
-    print(f"PASS {rate}/{period} {route}: {len(rows)} JACK periods, {len(rows) * 20} values")
+    print(f"PASS {rate}/{period} {route}: {len(rows)} PipeWire periods, {len(rows) * 20} values")
 
 
 def verify_recording(output, rate):
@@ -116,19 +116,15 @@ def verify_recording(output, rate):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ("freej", "jackd", "observer", "pulse", "output"):
+    for name in ("freej", "pipewire", "observer", "pulse", "output"):
         parser.add_argument("--" + name, required=True, type=lambda p: Path(p).resolve())
     args = parser.parse_args()
     args.output.mkdir()
-    jack = args.jackd.parent.parent
-    env = dict(os.environ, LC_ALL="C", SDL_VIDEODRIVER="dummy",
-               LD_LIBRARY_PATH=f"{jack}/lib:{os.environ.get('LD_LIBRARY_PATH', '')}",
-               PATH=f"{jack}/bin:{os.environ['PATH']}", JACK_DRIVER_DIR=str(jack / "lib/jack"))
+    env = dict(os.environ, LC_ALL="C", SDL_VIDEODRIVER="dummy")
     for rate, period in ((44100, 2048), (48000, 256)):
         directory = args.output / f"{rate}-{period}"
         directory.mkdir()
-        with jack_dummy(args.jackd, directory, env, rate, period) as (server, _):
-            run_env = dict(env, JACK_DEFAULT_SERVER=server)
+        with pipewire_dummy(args.pipewire, directory, env, rate, period) as run_env:
             with owned_process([args.pulse, "--equalizer", str(rate), str(period)], directory,
                                run_env, "pulse.log", stdout=subprocess.PIPE) as source:
                 require(select.select([source.stdout], [], [], 5)[0] and

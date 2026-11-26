@@ -155,24 +155,6 @@ CONSUMERS = (
              int status = shout_set_host(stream, "127.0.0.1");
              shout_free(stream);
              return status != SHOUTERR_SUCCESS;""", private_modules=("cairo",)),
-    probe("jack", "JACK capture and playback", "jack",
-          "jack/jack.h jack/ringbuffer.h stdio.h unistd.h",
-          """jack_ringbuffer_t *ring = jack_ringbuffer_create(32);
-             if (!ring) return 1;
-             size_t written = jack_ringbuffer_write(ring, "ok", 2);
-             jack_ringbuffer_free(ring);
-             char server[64];
-             snprintf(server, sizeof(server), "freej-archive-probe-%ld", (long)getpid());
-             jack_status_t status = 0;
-             jack_client_t *client = jack_client_open("freej-archive-probe",
-                 JackNoStartServer | JackServerName, &status, server);
-             printf("JACK client status: 0x%x\\n", (unsigned)status);
-             if (client) {
-                 jack_client_close(client);
-                 return 2;
-             }
-             return written != 2 || !(status & JackFailure);""",
-          ("-ldb", "-lm", "-ldl")),
     probe("fftw", "audio spectrum FFT", "fftw3", "fftw3.h",
           """double input[8] = { 1 };
              fftw_complex output[5];
@@ -247,7 +229,7 @@ CONSUMERS = (
 
 
 TOOLCHAIN_LIBS = ("-ldl", "-lm", "-lpthread", "-lrt", "-lstdc++")
-MISSING_CONTROL = {"sdl": "SDL", "jack": "jack", "samplerate": "samplerate"}
+MISSING_CONTROL = {"sdl": "SDL", "samplerate": "samplerate"}
 
 
 def utc():

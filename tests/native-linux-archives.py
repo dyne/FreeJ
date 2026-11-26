@@ -122,14 +122,6 @@ def main():
             module.write_text(contents.replace("/usr/", f"{debian}/")
                                .replace("=/usr\n", f"={debian}\n"))
 
-    jack_env = dict(env, CPPFLAGS=f"-I{debian / 'include'}", LDFLAGS=f"-L{debian_lib}")
-    jack_build = build / "jack"
-    configure(source / "jack1-0.126.0", jack_build, prefixes / "jack", jack_env,
-              "--enable-static", "--disable-shared", "--enable-force-install",
-              "--bindir=/usr/bin")
-    run(["make", "-C", "libjack", f"-j{args.jobs}", "V=1", "libjack.la"], jack_build, jack_env)
-    run(["make", "-C", "libjack", "install-libLTLIBRARIES"], jack_build, jack_env)
-    run(["make", "install-libjackincludeHEADERS", "install-pkgconfigDATA"], jack_build, jack_env)
     if not args.skip_sdl12:
         cmake_archive(source / "sdl12-compat-release-1.2.68", build / "sdl", prefixes / "sdl",
                       gcc, ccache, env, args.jobs, "-DSTATICDEVEL=ON", "-DSDL12TESTS=OFF",

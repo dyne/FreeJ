@@ -20,7 +20,7 @@
 #include <cstring>
 #include <stdexcept>
 #include <audio_collector.h>
-#include <audio_jack.h>
+#include <audio_pipewire.h>
 #include <logging.h>
 
 static const int XRanges[NUM_BARS + 1] = {
@@ -75,42 +75,42 @@ void FFT::Impulse2Freq(float *imp, float *out)
     out[i] = m_Spectrum[i][0];
 }
 
-AudioCollector::AudioCollector(int length, unsigned int rate, JackClient *jack, int)
-  : samplerate(rate), buffersize(length), attached(jack && jack->IsAttached()), Jack(jack),
-    m_Session(attached ? jack->Session() : 0),
+AudioCollector::AudioCollector(int length, unsigned int rate, PipeWireClient *device, int)
+  : samplerate(rate), buffersize(length), attached(device && device->IsAttached()), Device(device),
+    m_Session(attached ? device->Session() : 0),
     m_BufferTime(window_seconds(length, rate)), m_FFT(length),
     m_Pending(length), m_Buffer(length), m_WorkSamples(length), m_AudioBuffer(length), m_FFTBuffer(m_FFT.bins())
 {
   m_Capture = std::make_shared<AudioCapture>(length);
-  if (attached && jack->m_SampleRate.load()) {
-    samplerate = jack->m_SampleRate.load();
+  if (attached && device->m_SampleRate.load()) {
+    samplerate = device->m_SampleRate.load();
     m_BufferTime = window_seconds(length, samplerate);
   }
 }
 
 AudioCollector::AudioCollector(char *port, int length, unsigned int rate, int fft_buffers)
-  : AudioCollector(length, rate, JackClient::Get(), fft_buffers)
+  : AudioCollector(length, rate, PipeWireClient::Get(), fft_buffers)
 {
   if (!attached) {
-    attached = Jack->Attach("freej");
+    attached = Device->Attach("freej");
     m_OwnsConnection = attached;
   }
   if (attached) {
-    m_Session = Jack->Session();
-    if (Jack->m_SampleRate.load()) {
-      samplerate = Jack->m_SampleRate.load();
+    m_Session = Device->Session();
+    if (Device->m_SampleRate.load()) {
+      samplerate = Device->m_SampleRate.load();
       m_BufferTime = window_seconds(length, samplerate);
     }
     m_InputPort = AddAnalysisInput();
     if (m_InputPort >= 0) {
-      Jack->ConnectInput(m_InputPort, port);
+      Device->ConnectInput(m_InputPort, port);
     } else {
-      if (m_OwnsConnection) Jack->Detach();
+      if (m_OwnsConnection) Device->Detach();
       attached = false;
-      error("Could not register JACK analysis input");
+      error("Could not register PipeWire analysis input");
     }
   } else {
-    error("Could not attach to jack");
+    error("Could not attach to PipeWire");
   }
 }
 
@@ -121,16 +121,16 @@ AudioCollector::~AudioCollector()
     m_Capture->wake();
     m_Worker.join();
   }
-  if (!attached || !Jack || m_Session != Jack->Session()) return;
+  if (!attached || !Device || m_Session != Device->Session()) return;
   if (m_OwnsConnection)
-    Jack->Detach();
+    Device->Detach();
   else if (m_InputPort >= 0)
-    Jack->RemoveInputPort(m_InputPort);
+    Device->RemoveInputPort(m_InputPort);
 }
 
 bool AudioCollector::IsConnected()
 {
-  return attached && Jack->IsAttached() && Jack->Session() == m_Session;
+  return attached && Device->IsAttached() && Device->Session() == m_Session;
 }
 
 int AudioCollector::AddAnalysisInput()
@@ -142,7 +142,7 @@ int AudioCollector::AddAnalysisInput()
   } catch (const std::system_error &) {
     return -1;
   }
-  m_InputPort = Jack->AddInputPort(m_Capture);
+  m_InputPort = Device->AddInputPort(m_Capture);
   if (m_InputPort < 0) {
     m_Stop = true;
     m_Capture->wake();

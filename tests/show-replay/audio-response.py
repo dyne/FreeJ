@@ -41,8 +41,10 @@ def match_responses(source, capture, fft, presents, begin, end):
     for observed, frame, _ in capture:
         if not begin <= observed <= end - 80_000_000:
             continue
-        require(frame in sources and frame in windows, f"pulse {frame} has no source or responsive FFT")
-        origin, analyzed = sources[frame], windows[frame]
+        # CapturePosition exposes the low 32 bits of the native graph clock.
+        window = frame & 0xffffffff
+        require(frame in sources and window in windows, f"pulse {frame} has no source or responsive FFT")
+        origin, analyzed = sources[frame], windows[window]
         index = bisect_left(edges, analyzed)
         require(index < len(edges) and index not in used and origin <= observed <= analyzed
                 and edges[index] - observed < 400_000_000, f"pulse {frame} has no distinct marker onset")
@@ -56,7 +58,7 @@ def match_responses(source, capture, fft, presents, begin, end):
 def run(args, name, frames):
     directory, env = fixture(args, name)
     trace = directory / "engine.trace"
-    env = dict(prepare_trace(env, args.observer, trace), JACK_DEFAULT_SERVER=args.jack_server,
+    env = dict(prepare_trace(env, args.observer, trace),
                FREEJ_TIMING_VISIBLE_AUDIO="1")
     pulse_env = dict(prepare_trace(env, args.observer, directory / "pulse.trace"),
                      FREEJ_TIMING_PULSE_SOURCE="1", LD_PRELOAD=str(args.observer))
@@ -104,7 +106,7 @@ def run(args, name, frames):
     drift = ns_ms(positions[-1][0]-positions[0][0]) - ((positions[-1][1]-positions[0][1]) & 0xffffffff)/48
     require([s for _,s,_ in kind(rows, "xrun-registration") + kind(source_rows, "xrun-registration")] == [0,0],
             "xrun counters unavailable")
-    xruns = sum(begin <= ns <= end for ns,_,_ in kind(rows, "jack-xrun") + kind(source_rows, "jack-xrun"))
+    xruns = sum(begin <= ns <= end for ns,_,_ in kind(rows, "pipewire-xrun") + kind(source_rows, "pipewire-xrun"))
     worst = max(ns_ms(duration) for ns,_,duration in kind(rows, "process-duration") if begin <= ns <= end)
     result = dict(frame_metrics(stamps, FPS), responses=len(matches), osc_callbacks=len(dispatch),
         xruns=xruns, missing_periods=missing, audio_drift_ms=drift, callback_worst_ms=worst,
@@ -120,7 +122,6 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for option in ("freej","pulse","observer","plugin","output"):
         parser.add_argument("--"+option, type=lambda p:Path(p).resolve(), required=True)
-    parser.add_argument("--jack-server",required=True)
     parser.add_argument("--video-driver",default="x11")
     args = parser.parse_args()
     args.output.mkdir()

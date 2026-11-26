@@ -1,5 +1,8 @@
 #include <context.h>
-#include <jack/jack.h>
+#include <audio_collector.h>
+#include <audio_pipewire.h>
+#include <chrono>
+#include <thread>
 #include <cstdio>
 #include <cstring>
 #include <memory>
@@ -16,16 +19,23 @@ int main(int argc, char **argv)
         return 2;
 
     std::puts("Installed factory created Screen/soft and ImageLayer/sdl");
-    if (argc == 2 && std::strcmp(argv[1], "--jack") == 0) {
-        jack_client_t *client = jack_client_open("freej_profile_probe", JackNoStartServer, NULL);
-        if (!client)
+    if (argc == 2 && std::strcmp(argv[1], "--pipewire") == 0) {
+        char source[] = "replay_pcm:pulse";
+        AudioCollector audio(source, 2048, 48000);
+        if (!audio.IsConnected())
             return 3;
-        const bool expected = jack_get_sample_rate(client) == 48000
-            && jack_get_buffer_size(client) == 2048;
-        jack_client_close(client);
-        if (!expected)
-            return 4;
-        std::puts("Installed JACK client connected at 48000 Hz / 2048 frames");
+        const auto stop = std::chrono::steady_clock::now() + std::chrono::seconds(4);
+        while (std::chrono::steady_clock::now() < stop) {
+            audio.GetFFT();
+            AudioCapture::Position position;
+            if (audio.CapturePosition(position) && position.rate == 48000 &&
+                position.period == 2048 && audio.GetAudioBuffer()[0] == 0.5f) {
+                std::puts("Installed PipeWire client captured at 48000 Hz / 2048 frames");
+                return 0;
+            }
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        return 4;
     }
     return 0;
 }

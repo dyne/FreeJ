@@ -28,8 +28,8 @@ jobs=${FREEJ_CI_JOBS:-4}
 export LC_ALL=C
 export CC="$ccache_bin $gcc" CXX="$ccache_bin $gxx" CFLAGS='-O2 -DNDEBUG' CXXFLAGS='-O2 -DNDEBUG'
 export CPPFLAGS="-I$debian/include" LDFLAGS="-L$debian_lib"
-export PKG_CONFIG_PATH="$work/sdl/sdk/lib/pkgconfig:$work/movie/sdk/lib/pkgconfig:$debian_lib/pkgconfig"
-export LD_LIBRARY_PATH="$work/sdl/sdk/lib:$work/movie/sdk/lib:$debian_lib"
+export PKG_CONFIG_PATH="$work/sdl/sdk/lib/pkgconfig:$work/movie/sdk/lib/pkgconfig:$work/pipewire/sdk/lib/pkgconfig:$debian_lib/pkgconfig"
+export LD_LIBRARY_PATH="$work/sdl/sdk/lib:$work/movie/sdk/lib:$work/pipewire/sdk/lib:$debian_lib"
 export MAKEFLAGS="-j$jobs" FREEJ_BUILD_WORK="$build_work"
 configure=(--enable-static-mozjs "--with-native-profile=$profile")
 if [[ $profile == static ]]; then
@@ -59,18 +59,16 @@ fi
 } | tee "$evidence/identity.txt"
 
 compatibility_show() (
+    read -r -a pipewire_flags <<< "$(pkg-config --cflags libpipewire-0.3)"
     read -r -a sdl_flags <<< "$(pkg-config --cflags sdl3)"
     "$ccache_bin" "$gxx" -std=c++11 -Wall -Wextra -Werror -fPIC -isystem src/include \
         -isystem "$build_work/build" -isystem lib/javascript \
         -isystem "$build_work/build/lib/javascript" -isystem "$debian/include" \
-        -DJS_GCMETER "${sdl_flags[@]}" -c tests/show-replay/observe.cpp -o "$build_work/observe.o"
+        -DJS_GCMETER "${sdl_flags[@]}" "${pipewire_flags[@]}" -c tests/show-replay/observe.cpp -o "$build_work/observe.o"
     "$gxx" -shared "$build_work/observe.o" -o "$build_work/observe.so" -ldl
-    "$ccache_bin" "$gxx" -std=c++11 -Wall -Wextra -Werror -pthread \
-        -c tests/show-replay/pulse.cpp -o "$build_work/pulse.o"
-    "$gxx" -pthread "$build_work/pulse.o" -ljack -o "$build_work/pulse"
     LD_LIBRARY_PATH="$stage/lib:$LD_LIBRARY_PATH" python3 tests/native-ci-coverage.py compatibility \
         --freej "$stage/bin/freej" --observer "$build_work/observe.so" --plugin "$effects/modules/brightness.so" \
-        --pulse "$build_work/pulse" --jackd "$jackd" --output "$out"
+        --pulse "$build_work/pulse" --pipewire "$pipewire" --output "$out"
     python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["canonical"])' \
         "$out/replay/video-a/observations.json" > "$out/canonical-frames.txt"
     if [[ $pass == cold ]]; then
@@ -99,8 +97,8 @@ static_show() (
     "$gcc" -static tests/native-profile-sandbox.c -o "$build_work/sandbox"
     python3 tests/native-profile-runtime.py "$out/runtime" \
         --sandbox "$build_work/sandbox" --strace "$native/packages/usr/bin/strace" \
-        --jackd "$jackd" --freej "$stage/bin/freej" \
-        --factory "$build_work/factory"
+        --pipewire "$pipewire" --freej "$stage/bin/freej" \
+        --factory "$build_work/factory" --pulse "$build_work/pulse"
 )
 
 effect_parity() (
@@ -115,12 +113,9 @@ effect_parity() (
     sha256sum "$out/frei0r-frames.bin" | cut -d ' ' -f 1 > "$out/frei0r-frames.sha256"
 )
 
-# Both runtime suites use an external JACK 1 daemon with its dummy driver.
-jackd=${FREEJ_CI_JACKD:-/usr/bin/jackd}
-if [[ $jackd == /usr/bin/jackd ]]; then
-    export JACK_DRIVER_DIR=${JACK_DRIVER_DIR:-/usr/lib/$multiarch/jack}
-fi
-test -x "$jackd"
+# The fixtures start an isolated daemon using the same pinned PipeWire SDK.
+pipewire=$work/pipewire/sdk/bin/pipewire
+test -x "$pipewire"
 cold_cache=$work/cold-ccache
 mkdir -- "$cold_cache"
 # SDK compilation can use the remote cache. The cold FreeJ build always uses
@@ -162,15 +157,25 @@ for pass in cold warm; do
     else
         grep -q '(NEEDED)' "$out/freej.elf.txt"
         LD_LIBRARY_PATH="$stage/lib:$LD_LIBRARY_PATH" ldd "$stage/bin/freej" > "$out/freej.ldd.txt"
-        if grep -Fq 'not found' "$out/freej.ldd.txt"; then
+        grep -Eq '^libpipewire-0\.3\.so\.0[[:space:]]' \
+            < <(sed 's/^[[:space:]]*//' "$out/freej.ldd.txt")
+        if grep -Eq 'not found|libjack[[:alnum:]_-]*\.so' "$out/freej.ldd.txt"; then
             cat -- "$out/freej.ldd.txt" >&2
             exit 1
         fi
     fi
     echo 'CLI built, staged and passed link audits.' > "$out/compile-outcome.txt"
+    read -r -a pipewire_flags <<< "$(pkg-config --cflags --libs libpipewire-0.3)"
+    "$ccache_bin" "$gxx" -std=c++11 -Wall -Wextra -Werror -pthread \
+        tests/show-replay/pulse.cpp "${pipewire_flags[@]}" -o "$build_work/pulse"
     effect_parity 2>&1 | tee "$out/frei0r-parity.log"
     if [[ $profile == static ]]; then
         cp -- "$build_work/build/src/freej.map" "$out/freej.map"
+        grep -Fq 'libpipewire-0.3.a' "$out/freej.map"
+        if grep -Eq 'libjack[[:alnum:]_-]*\.a' "$out/freej.map"; then
+            echo 'freej unexpectedly links a JACK archive' >&2
+            exit 1
+        fi
         static_show 2>&1 | tee "$out/show.log"
     else
         compatibility_show 2>&1 | tee "$out/show.log"

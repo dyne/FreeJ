@@ -8,11 +8,11 @@ against the same out-of-tree build:
 ccache "$sdk/gcc12/usr/bin/g++-12" -std=c++11 -O2 -Wall -Wextra -Werror -fPIC -shared \
     -isystem src/include -isystem "$build" -isystem lib/javascript \
     -isystem "$build/lib/javascript" -isystem "$sdk/debian/usr/include" \
-    -DJS_GCMETER $(pkg-config --cflags sdl3) tests/show-replay/timing-observer.cpp \
+    -DJS_GCMETER $(pkg-config --cflags sdl3 libpipewire-0.3) tests/show-replay/timing-observer.cpp \
     -o "$scratch/timing-observer.so" -ldl
 ```
 
-Start the private 48 kHz / 2048-frame JACK dummy server from the replay recipe.
+Start the private 48 kHz / 2048-frame PipeWire dummy graph from the replay recipe.
 Use a fresh Xvfb server with `-screen 0 160x120x24 -nolisten tcp` and set
 `DISPLAY` to its reported display. Run the software reference from the source
 root with a new output directory:
@@ -20,7 +20,7 @@ root with a new output directory:
 ```sh
 python3 tests/show-replay/timing.py --freej "$stage/bin/freej" \
     --plugin "$scratch/brightness.so" --observer "$scratch/timing-observer.so" \
-    --pulse "$scratch/pulse" --jack-server freej-replay --output "$scratch/timing"
+    --pulse "$scratch/pulse" --output "$scratch/timing"
 ```
 
 This run uses an 80×60 SDL viewport at 25 FPS. A frame is 40 ms and a
@@ -33,7 +33,7 @@ The fixture runs each workload five times with one run active at a time:
   Brightness setting.
 - OSC runs the same filtered show and sends eight bursts of four loopback
   packets after warm-up.
-- Capture and record runs the filtered show with a JACK PCM pulse in every
+- Capture and record runs the filtered show with a PipeWire PCM pulse in every
   period and active Theora recording. `ffprobe` verifies the resulting video.
   A separate 60-second capture and record run measures clock drift.
 
@@ -51,8 +51,8 @@ into liblo's FreeJ handler and entry into the JavaScript dispatch call.
 The dispatch record includes the number of callbacks that actually ran.
 The sender-to-submission observation pairs each send with the first software
 submission following its dispatch, including any time queued across frames.
-JACK source and capture events pair by `jack_last_frame_time` with the pulse
-at sample offset zero. The observer records JACK xrun notifications for each
+PipeWire source and capture events pair by graph-clock sample position, with
+the pulse at sample offset zero. The observer records graph-clock xrun changes for each
 client and preserves missing sample periods separately. The SDL trace dates
 each successful `SDL_UpdateWindowSurface` call at entry, without using `FPS::get()`.
 
@@ -63,14 +63,14 @@ frame). Rounded frame intervals estimate missed software slots. Physical
 dropped frames require observation of display output. Frame drift compares
 elapsed submission time with the nominal span for the same count. Audio
 clock drift compares the elapsed monotonic time between first and last input
-pulses with the 48 kHz span of their JACK sample positions.
+pulses with the 48 kHz span of their graph-clock sample positions.
 
 The fixed software limits use the worst observed run plus twice the
 run-to-run range, with a minimum 2 ms margin on time metrics. Limits round up
 to whole milliseconds or counts. Five replicates characterize observed
 variance on this reference and do not establish a population confidence bound.
 Apply the limits only to repeated runs with the same configuration.
-`make check` exercises event order and clock calculations without SDL, JACK
+`make check` exercises event order and clock calculations without SDL, PipeWire
 or wall-clock thresholds.
 
 ## Recorded software reference
@@ -136,15 +136,15 @@ input received the known sample while all FFT bands stayed silent. Use
 `--expect-legacy-audio` to replay that outcome. The capture workload still
 measures the next submission and preserves its original comparison limits.
 With the current observer, `--require-callback-timing` also checks the
-longest measured JACK process callback against its period.
+longest measured audio process callback against its period.
 
-For the software response test, supply the same JACK server, Xvfb display,
+For the software response test, supply the same PipeWire server, Xvfb display,
 current timing observer, plugin and current pulse binary:
 
 ```sh
 python3 tests/show-replay/audio-response.py --freej "$stage/bin/freej" \
     --plugin "$scratch/brightness.so" --observer "$scratch/timing-observer.so" \
-    --pulse "$scratch/pulse" --jack-server freej-replay --output "$scratch/response"
+    --pulse "$scratch/pulse" --output "$scratch/response"
 ```
 
 Every twelfth period carries a unit-position pulse of amplitude 0.5. Native

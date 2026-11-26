@@ -28,7 +28,7 @@
 #include <jsparser_data.h>
 
 #include <audio_collector.h>
-#include <audio_jack.h>
+#include <audio_pipewire.h>
 
 /// Javascript audio collector
 JS(js_audio_jack_constructor);
@@ -67,7 +67,7 @@ JS(js_audio_jack_constructor) {
   AudioCollector *audio = new AudioCollector(port, sample, rate);
 
   if( ! JS_SetPrivate(cx, obj, (void*)audio) ) {
-    sprintf(excp_msg, "failed assigning audio jack to javascript");
+    sprintf(excp_msg, "failed assigning audio collector to javascript");
     goto error;
   }
  
@@ -164,12 +164,12 @@ JS(js_audio_jack_add_layer) {
    AudioCollector *audio = (AudioCollector*)JS_GetPrivate(cx, obj);
    if(!audio) JS_ERROR("Audio core data is NULL");
    if(!audio->IsConnected()) {
-     error("audio jack is not attached (jack daemon not running?)");
+     error("audio input is not attached to PipeWire");
      *rval = JSVAL_FALSE;
      return JS_TRUE;
    }
 
-   *rval = BOOLEAN_TO_JSVAL(lay->screen->add_audio(audio->Jack, *lay));
+   *rval = BOOLEAN_TO_JSVAL(lay->screen->add_audio(audio->Device, *lay));
 
    return JS_TRUE;
 }

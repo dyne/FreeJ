@@ -24,7 +24,7 @@
 #include <layer.h>
 #include <video_encoder.h>
 #ifdef WITH_AUDIO
-#include <audio_jack.h>
+#include <audio_pipewire.h>
 #endif
 #include <ringbuffer.h>
 #include "engine/frame_storage.h"
@@ -62,7 +62,7 @@ ViewPort::~ViewPort() {
   reset();
   if (audio) {
 #ifdef WITH_AUDIO
-    JackClient::ResetRingbuffer(audio, true);
+    PipeWireClient::ResetRingbuffer(audio, true);
 #endif
     ringbuffer_free(audio);
   }
@@ -139,7 +139,7 @@ bool ViewPort::add_layer(Layer *lay) {
 }
 
 #ifdef WITH_AUDIO
-bool ViewPort::add_audio(JackClient *jcl) {
+bool ViewPort::add_audio(PipeWireClient *jcl) {
   std::lock_guard<Linklist<Layer>> list_lock(layers);
   const Layer *source = nullptr;
   int rate = 0;
@@ -157,14 +157,14 @@ bool ViewPort::add_audio(JackClient *jcl) {
   return source && bind_audio(jcl, *source, rate, channels);
 }
 
-bool ViewPort::add_audio(JackClient *jcl, const Layer &source) {
+bool ViewPort::add_audio(PipeWireClient *jcl, const Layer &source) {
   std::lock_guard<Linklist<Layer>> list_lock(layers);
   int rate, channels;
   return source.list == &layers && source.audio_format(rate, channels)
       && bind_audio(jcl, source, rate, channels);
 }
 
-bool ViewPort::bind_audio(JackClient *jcl, const Layer &source, int rate, int channels) {
+bool ViewPort::bind_audio(PipeWireClient *jcl, const Layer &source, int rate, int channels) {
   std::lock_guard<std::mutex> lock(audio_mutex_);
   if (!jcl || !jcl->IsAttached() || !audio)
     return false;
@@ -181,7 +181,14 @@ bool ViewPort::bind_audio(JackClient *jcl, const Layer &source, int rate, int ch
 
 int ViewPort::audio_rate(const Layer &source) {
   std::lock_guard<std::mutex> lock(audio_mutex_);
-  return audio_source_ == &source ? audio_rate_ : 0;
+  if (audio_source_ != &source)
+    return 0;
+  const int rate = *m_SampleRate;
+  if (rate && rate != audio_rate_) {
+    PipeWireClient::ResetRingbuffer(audio, false, rate);
+    audio_rate_ = rate;
+  }
+  return audio_rate_;
 }
 
 void ViewPort::write_audio(const Layer &source, const float *samples, std::size_t count,
@@ -197,7 +204,7 @@ void ViewPort::write_audio(const Layer &source, const float *samples, std::size_
 void ViewPort::flush_audio(const Layer &source) {
   std::lock_guard<std::mutex> lock(audio_mutex_);
   if (audio_source_ == &source)
-    JackClient::ResetRingbuffer(audio, false);
+    PipeWireClient::ResetRingbuffer(audio, false);
 }
 #endif
 
@@ -220,7 +227,7 @@ void ViewPort::rem_layer(Layer *lay) {
   {
     std::lock_guard<std::mutex> lock(audio_mutex_);
     if (audio_source_ == lay) {
-      JackClient::ResetRingbuffer(audio, true);
+      PipeWireClient::ResetRingbuffer(audio, true);
       audio_source_ = nullptr;
       m_SampleRate = nullptr;
     }

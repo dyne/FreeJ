@@ -65,7 +65,7 @@ static const char *help =
 " .   -D   debug verbosity level - default 1\n"
 " .   -s   size of screen - default 400x300\n"
 " .   -S   screen type - default 'sdl'\n"
-" .   -a   initialize audio (using jack)\n"
+" .   -a   initialize audio (using native PipeWire)\n"
 " .   -n   start with deactivated layers\n"
 " .   -c   no interactive text console\n"
 " .   -f   <frame_per_second>  select global fps for freej\n"

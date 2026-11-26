@@ -1,5 +1,5 @@
 #include <audio_collector.h>
-#include <audio_jack.h>
+#include <audio_pipewire.h>
 #include <algorithm>
 #include <array>
 #include <climits>
@@ -7,21 +7,22 @@
 #include <cstdio>
 #include <cstdlib>
 
-// Supply the JACK control boundary so both public constructors and disconnect
+// Supply the audio device control boundary so both public constructors and disconnect
 // can be exercised without a device. PCM enters on the analysis thread.
-JackClient *JackClient::m_Singleton = nullptr;
-std::atomic<bool> JackClient::m_Attached{false};
-std::atomic<unsigned long> JackClient::m_SampleRate{48000}, JackClient::m_BufferSize{256};
+PipeWireClient *PipeWireClient::m_Singleton = nullptr;
+std::atomic<bool> PipeWireClient::m_Attached{false};
+std::atomic<unsigned long> PipeWireClient::m_SampleRate{48000}, PipeWireClient::m_BufferSize{256};
 static bool server_available = false;
 static int ports = 0, removed = 0;
-JackClient::JackClient() {}
-JackClient::~JackClient() {}
-bool JackClient::IsAttached() { return m_Attached.load(); }
-bool JackClient::Attach(const std::string &) { return m_Attached = server_available; }
-void JackClient::Detach() { m_Attached = false; }
-int JackClient::AddInputPort(std::shared_ptr<AudioCapture>) { return ports++; }
-void JackClient::ConnectInput(int, const std::string &) {}
-void JackClient::RemoveInputPort(int) { ++removed; }
+struct PipeWireClient::Graph {};
+PipeWireClient::PipeWireClient() {}
+PipeWireClient::~PipeWireClient() {}
+bool PipeWireClient::IsAttached() { return m_Attached.load(); }
+bool PipeWireClient::Attach(const std::string &) { return m_Attached = server_available; }
+void PipeWireClient::Detach() { m_Attached = false; }
+int PipeWireClient::AddInputPort(std::shared_ptr<AudioCapture>) { return ports++; }
+void PipeWireClient::ConnectInput(int, const std::string &) {}
+void PipeWireClient::RemoveInputPort(int) { ++removed; }
 void error(const char *, ...) {}
 
 namespace {
@@ -101,7 +102,7 @@ int main() {
     for (int b = 0; b < n / 2 + 1; ++b)
       check(std::abs(bins[b] - 1) <= 1e-6, "unit impulse");
   }
-  auto *jack = JackClient::Get();
+  auto *jack = PipeWireClient::Get();
   char port[] = "test:pulse";
   {
     AudioCollector offline(port, 127, 48000);
@@ -136,6 +137,6 @@ int main() {
     jack->Detach();
     check(!borrowed.IsConnected(), "borrower observes external disconnect");
   }
-  JackClient::PackUpAndGoHome();
+  PipeWireClient::PackUpAndGoHome();
   std::printf("PASS %d collector checks\n", checks);
 }

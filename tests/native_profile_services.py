@@ -1,4 +1,4 @@
-"""Own the local Xvfb and JACK processes for native profile fixtures."""
+"""Own the local Xvfb and PipeWire processes for native profile fixtures."""
 
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -8,6 +8,7 @@ from pathlib import Path
 import select
 import subprocess
 import time
+from tempfile import TemporaryDirectory
 
 
 def utc():
@@ -33,8 +34,9 @@ def owned(command, work, env, name, **kwargs):
                 "command": list(map(str, command)), "cwd": str(work), "exit": process.returncode,
                 "startedAt": start, "observedAt": utc(), "environment": {
                     name: env[name] for name in ("DISPLAY", "SDL_VIDEODRIVER", "HOME", "PATH",
-                                                 "JACK_TMPDIR", "JACK_DEFAULT_SERVER",
-                                                 "JACK_DRIVER_DIR", "LD_LIBRARY_PATH")
+                                                 "PIPEWIRE_RUNTIME_DIR", "PIPEWIRE_REMOTE",
+                                                 "PIPEWIRE_MODULE_DIR", "SPA_PLUGIN_DIR",
+                                                 "LD_LIBRARY_PATH")
                     if name in env},
             }, indent=2) + "\n")
 
@@ -70,19 +72,44 @@ def until(predicate, process):
 
 
 @contextmanager
-def jack_dummy(jackd, work, env, rate=48000, period=2048):
-    # The daemon uses its own shared library and driver lookup paths.
-    jack = jackd.parent.parent
-    server = f"fjstage{os.getpid()}"
-    # JACK 1 metadata uses the default server name even with an explicit -n.
-    jack_env = dict(env, LD_LIBRARY_PATH=str(jack / "lib"), JACK_DEFAULT_SERVER=server,
-                    JACK_DRIVER_DIR=env.get("JACK_DRIVER_DIR", str(jack / "lib/jack")),
-                    PATH=f"{jack / 'bin'}{os.pathsep}{env['PATH']}")
-    tmpdir = subprocess.check_output([jackd, "-l"], env=jack_env, text=True).strip()
-    socket = Path(tmpdir) / f"jack-{os.getuid()}" / server
-    command = [str(jackd), "-r", "-n", server, "-d", "dummy", "-r", str(rate), "-p", str(period)]
-    with owned(command, work, jack_env, "jackd") as daemon:
-        until(lambda: any(path.is_socket() for path in socket.glob("*")), daemon)
-        yield server, tmpdir
-        if daemon.poll() is not None:
-            raise ValueError(f"JACK dummy exited during the fixture: {daemon.returncode}")
+def pipewire_dummy(daemon, work, env, rate=48000, period=2048):
+    sdk = daemon.parent.parent
+    config = work / "dummy.conf"
+    config.write_text(f"""
+context.properties = {{
+    core.daemon = true
+    core.name = pipewire-0
+    support.dbus = false
+    default.clock.rate = {rate}
+    default.clock.quantum = {period}
+    default.clock.min-quantum = {period}
+    default.clock.max-quantum = {period}
+}}
+context.spa-libs = {{ support.* = support/libspa-support }}
+context.modules = [
+    {{ name = libpipewire-module-protocol-native }}
+    {{ name = libpipewire-module-access }}
+    {{ name = libpipewire-module-spa-node-factory }}
+    {{ name = libpipewire-module-client-node }}
+    {{ name = libpipewire-module-link-factory }}
+]
+context.objects = [
+    {{ factory = spa-node-factory
+       args = {{ factory.name = support.node.driver node.name = FreeJ-Dummy
+                 node.group = pipewire.dummy node.always-process = true
+                 priority.driver = 20000 }}
+    }}
+]
+""")
+    # Native Unix socket paths have a small length limit, independent of the
+    # worktree and build-prefix lengths.
+    with TemporaryDirectory(prefix="freej-pw-", dir="/tmp") as runtime:
+        client_env = dict(env, PIPEWIRE_RUNTIME_DIR=runtime, PIPEWIRE_REMOTE="pipewire-0")
+        daemon_env = dict(client_env, LD_LIBRARY_PATH=str(sdk / "lib"),
+                          PIPEWIRE_MODULE_DIR=str(sdk / "lib/pipewire-0.3"),
+                          SPA_PLUGIN_DIR=str(sdk / "lib/spa-0.2"))
+        with owned([daemon, "-c", config], work, daemon_env, "pipewire") as process:
+            until(lambda: (Path(runtime) / "pipewire-0").is_socket(), process)
+            yield client_env
+            if process.poll() is not None:
+                raise ValueError(f"PipeWire dummy exited during the fixture: {process.returncode}")

@@ -24,7 +24,7 @@
 #include <thread>
 #include <audio_capture.h>
 
-class JackClient;
+class PipeWireClient;
 
 static const int NUM_BARS = 16;
 
@@ -54,7 +54,7 @@ private:
 class AudioCollector {
 public:
   AudioCollector(char *port, int BufferLength, unsigned int Samplerate, int FFTBuffers = 1);
-  AudioCollector(int BufferLength, unsigned int Samplerate, JackClient *, int FFTBuffers = 1);
+  AudioCollector(int BufferLength, unsigned int Samplerate, PipeWireClient *, int FFTBuffers = 1);
   ~AudioCollector();
 
   // Called by an analysis consumer outside the device callback. Only complete
@@ -79,7 +79,7 @@ public:
   int samplerate;
   int buffersize;
   bool attached;
-  JackClient *Jack;
+  PipeWireClient *Device;
 
 private:
   using Bands = std::array<float, NUM_BARS>;

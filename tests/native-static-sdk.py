@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the pinned Linux SDL/X11 and JACK stage SDK in a fresh directory."""
+"""Build the pinned Linux SDL/X11 stage SDK in a fresh directory."""
 
 import argparse
 from hashlib import file_digest
@@ -71,9 +71,6 @@ def stage(work, archives, legacy, jobs):
         module.write_text(source)
 
     sources = work / "sources"
-    jack = "jack1-0.126.0"
-    shutil.copytree(archives / "sources" / jack, sources / jack, symlinks=True)
-    run(["patch", "--batch", "--forward", "-p1", "-i", Path(__file__).with_suffix(".patch")], sources)
     env = dict(os.environ, CC=cc, CXX=str(gxx), LC_ALL="C", SOURCE_DATE_EPOCH="1695750228",
                PKG_CONFIG_PATH=os.pathsep.join(map(str, pcdirs)))
     for variable in ("CFLAGS", "CXXFLAGS", "CPPFLAGS", "LDFLAGS", "DESTDIR", "CPATH",
@@ -88,14 +85,6 @@ def stage(work, archives, legacy, jobs):
          "--disable-loadable-i18n", "--disable-specs", "--disable-devel-docs"], x11_build, env)
     run(["make", f"-j{jobs}"], x11_build, env)
 
-    jb = work / "jack-build"
-    jb.mkdir()
-    jack_env = dict(env, CFLAGS=f"-O2 -fPIC -ffile-prefix-map={work}=/freej-stage",
-                    CPPFLAGS=f"-I{main_usr / 'include'}", LDFLAGS=f"-L{common_lib}")
-    run([sources / "jack1-0.126.0/configure", f"--prefix={work / 'jack'}", "--bindir=/usr/bin",
-         "--enable-static", "--disable-shared", "--enable-force-install"], jb, jack_env)
-    run(["make", "-C", "libjack", f"-j{jobs}", "libjack.la"], jb, jack_env)
-
     libraries = work / "lib"
     libraries.mkdir()
     for directory in (*sorted((archives / "prefixes").glob("*/lib")),
@@ -103,7 +92,6 @@ def stage(work, archives, legacy, jobs):
                       private_lib):
         for archive in directory.glob("lib*.a"):
             shutil.copyfile(archive, libraries / archive.name)
-    shutil.copyfile(jb / "libjack/.libs/libjack.a", libraries / "libjack.a")
     shutil.copyfile(x11_build / "src/.libs/libX11.a", libraries / "libX11.a")
 
 

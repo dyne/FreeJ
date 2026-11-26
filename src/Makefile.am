@@ -22,7 +22,7 @@ MEDIA_SOURCES = \
 	image_layer.cpp generator_layer.cpp geo_layer.cpp text_layer.cpp cairo_layer.cpp \
 	flash_layer.cpp audio_layer.cpp tvfreq.c unicap_layer.cpp v4l2_layer.cpp \
 	xscreensaver_layer.cpp xgrab_layer.cpp opencv_cam_layer.cpp \
-	audio_jack.cpp audio_collector.cpp convertvid.cpp \
+	audio_pipewire.cpp audio_collector.cpp convertvid.cpp \
 	video_encoder.cpp ffmpeg_encoder.cpp theorautils.cpp oggtheora_encoder.cpp video_layer.cpp \
 	impl_video_encoders.cpp
 

@@ -26,7 +26,7 @@
 #include <config.h>
 #include <linklist.h>
 #include <video_encoder.h>
-#include <audio_jack.h>
+#include <audio_pipewire.h>
 #include <fstream>
 #ifdef WITH_OGGTHEORA
 

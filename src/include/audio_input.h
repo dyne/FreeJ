@@ -1,6 +1,6 @@
 /*  FreeJ
  *
- *  jack audio pipe
+ *  native audio input
  *
  *  (c) Copyright 2008 Denis Rojo <jaromil@dyne.org>
  *
@@ -20,12 +20,12 @@
  *
  */
 
-#ifndef __JACK_AUDIO_H__
-#define __JACK_AUDIO_H__
+#ifndef FREEJ_AUDIO_INPUT_H
+#define FREEJ_AUDIO_INPUT_H
 
 #include <inttypes.h>
 
-#include <audio_jack.h>
+#include <audio_pipewire.h>
 #include <ringbuffer.h>
 
 //#define SAMPLERATE 44100

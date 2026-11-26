@@ -3,7 +3,7 @@ freejincludedir = $(includedir)
 freejinclude_HEADERS = freej.h freej_plugin.h
 
 freejenginedir = $(includedir)/freej
-freejengine_HEADERS = asm-linkage.h audio_capture.h audio_collector.h audio_input.h audio_jack.h \
+freejengine_HEADERS = asm-linkage.h audio_capture.h audio_collector.h audio_input.h audio_pipewire.h \
 	blitter.h callback.h callbacks_js.h closure.h console_calls_ctrl.h \
 	console_ctrl.h console_readline_ctrl.h console_widgets_ctrl.h context.h \
 	controller.h convertvid.h cpu_accel.h fastmemcpy.h ffmpeg_encoder.h filter.h \
