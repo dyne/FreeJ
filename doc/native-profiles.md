@@ -71,11 +71,18 @@ work=$(mktemp -d)
 legacy=$work/reference
 archives=$work/archives
 native=$work/native
-python3 tests/legacy-linux-sdk.py "$legacy"
+python3 tests/legacy-linux-sdk.py "$legacy" --skip-historical-media
 tests/movie-linux-sdk.sh compatibility "$work/movie-compat"
 tests/movie-linux-sdk.sh static "$work/movie-static"
-python3 tests/native-linux-archives.py "$archives" --reference-sdk "$legacy"
+python3 tests/native-linux-archives.py "$archives" --reference-sdk "$legacy" --skip-sdl12
 python3 tests/native-static-sdk.py "$native" --archive-sdk "$archives" --reference-sdk "$legacy"
+gcc="$legacy/gcc12/usr/bin/gcc-12"
+gxx="$legacy/gcc12/usr/bin/g++-12"
+CC="$gcc" CXX="$gxx" tests/sdl-linux-sdk.sh compatibility "$work/sdl-compat"
+archive_usr="$archives/debian/usr"
+extensions_usr="$native/packages/usr"
+PKG_CONFIG_PATH="$archive_usr/lib/x86_64-linux-gnu/pkgconfig:$extensions_usr/lib/x86_64-linux-gnu/pkgconfig" \
+    CC="$gcc" CXX="$gxx" tests/sdl-linux-sdk.sh static "$work/sdl-static" "$archive_usr" "$extensions_usr"
 read -r _ frei0r_url < <(tail -n 1 tests/native-ci.lock)
 curl -fL "$frei0r_url" -o "$work/frei0r.tar.gz"
 tests/frei0r-linux-sdk.sh "$work/frei0r.tar.gz" "$work/effects"
@@ -87,12 +94,14 @@ pins the release source and the recipe builds the decoder and native
 demuxer libraries. The historical FFmpeg 0.8.15 SDK remains available for
 reproducing the reference observations.
 
-The static SDK adds SDL2 and the X11 extension libraries from
-[`native-static-sdk.lock`](../tests/native-static-sdk.lock).
-Its patches bind SDL 1.2.68 to archived SDL2 2.32.4, preserve the SDL 1.2
-exports, and give SDL2's symbols a private prefix. SDL2's dynamic API and
-shared platform loaders are disabled in this build. It uses X11, dummy
-video, ALSA and Linux joystick support. FreeJ's JACK client uses the
+Both Linux profiles use SDL 3.4.20, SDL3_image 3.4.8 and SDL3_ttf 3.2.2
+from the [SDL SDK lock](../tests/sdl-linux-sdk.lock). The compatibility
+profile uses shared SDL3 libraries. The static profile links the SDL3
+archives and the X11 extensions from the
+[static SDK lock](../tests/native-static-sdk.lock). The static SDL3 build
+disables the dynamic API and shared X11 loading. The archived Xlib also
+builds with loadable cursor and locale modules disabled. FreeJ uses X11 or the
+dummy display driver and polls SDL3 for input. FreeJ's JACK client uses the
 server's socket directory directly. Set `JACK_TMPDIR` to the existing
 server's directory as printed by `jackd -l`. The archived default is
 `/dev/shm`. Run the JACK server separately from FreeJ.
@@ -101,8 +110,8 @@ The SDK retains source licenses, Debian package copyright files, lock inputs
 and build trees in its working directory.
 
 The static configure step validates the archive paths and verifies a
-static link using SDL, FFmpeg, frei0r, JACK and samplerate. It refuses the SDL wrapper that
-loads shared SDL2 and the JACK client that shells out to locate its runtime
+static link using SDL3, SDL3_image, SDL3_ttf, FFmpeg, frei0r, JACK and
+samplerate. It rejects a JACK client that shells out to locate its runtime
 directory. Explicit shared-object loading fails in the static application.
 Supported optional selections such as AAlib and CWiid require their corresponding
 archives. OpenGL, libunicap and OpenCV still have compatibility paths and
@@ -124,13 +133,13 @@ if command -v ccache >/dev/null 2>&1; then
 fi
 export CFLAGS="-O2 -DNDEBUG" CXXFLAGS="-O2 -DNDEBUG"
 export CPPFLAGS="-I$debian/include" LDFLAGS="-L$debian_lib"
-export PKG_CONFIG_PATH="$work/movie-compat/sdk/lib/pkgconfig:$debian_lib/pkgconfig"
-export LD_LIBRARY_PATH="$work/movie-compat/sdk/lib:$debian_lib"
+export PKG_CONFIG_PATH="$work/sdl-compat/sdk/lib/pkgconfig:$work/movie-compat/sdk/lib/pkgconfig:$debian_lib/pkgconfig"
+export LD_LIBRARY_PATH="$work/sdl-compat/sdk/lib:$work/movie-compat/sdk/lib:$debian_lib"
 tests/freej-build-test.sh --enable-static-mozjs --with-native-profile=compatibility
 
 archive_usr=$archives/debian/usr
 export CPPFLAGS="$CPPFLAGS -I$archive_usr/include"
-export PKG_CONFIG_PATH="$work/movie-static/sdk/lib/pkgconfig:$debian_lib/pkgconfig:$archive_usr/lib/x86_64-linux-gnu/pkgconfig:$archive_usr/share/pkgconfig"
+export PKG_CONFIG_PATH="$work/sdl-static/sdk/lib/pkgconfig:$work/movie-static/sdk/lib/pkgconfig:$debian_lib/pkgconfig:$archive_usr/lib/x86_64-linux-gnu/pkgconfig:$archive_usr/share/pkgconfig:$extensions_usr/lib/x86_64-linux-gnu/pkgconfig"
 for modules in "$archives"/prefixes/*/lib/pkgconfig; do
     PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$modules"
 done

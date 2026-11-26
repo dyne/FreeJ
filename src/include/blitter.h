@@ -22,7 +22,7 @@
 #ifndef __BLITTER_H__
 #define __BLITTER_H__
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <geometry.h>
 
 #include <screen.h>

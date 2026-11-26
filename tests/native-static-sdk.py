@@ -70,47 +70,22 @@ def stage(work, archives, legacy, jobs):
         module.write_text(source)
 
     sources = work / "sources"
-    for name in ("sdl12-compat-release-1.2.68", "jack1-0.126.0"):
-        shutil.copytree(archives / "sources" / name, sources / name, symlinks=True)
+    jack = "jack1-0.126.0"
+    shutil.copytree(archives / "sources" / jack, sources / jack, symlinks=True)
     run(["patch", "--batch", "--forward", "-p1", "-i", Path(__file__).with_suffix(".patch")], sources)
-    alsa = archives / "prefixes/alsa"
     env = dict(os.environ, CC=cc, CXX=str(gxx), LC_ALL="C", SOURCE_DATE_EPOCH="1695750228",
                PKG_CONFIG_PATH=os.pathsep.join(map(str, pcdirs)))
     for variable in ("CFLAGS", "CXXFLAGS", "CPPFLAGS", "LDFLAGS", "DESTDIR", "CPATH",
                      "LIBRARY_PATH", "PKG_CONFIG", "PKG_CONFIG_LIBDIR", "PKG_CONFIG_SYSROOT_DIR"):
         env.pop(variable, None)
 
-    sdl2 = work / "sdl2"
-    sb = work / "sdl2-build"
-    x11_private = ";".join(str(common_lib / f"lib{name}.a") for name in ("xcb", "Xau", "Xdmcp"))
-    sdl_env = dict(env, PKG_CONFIG_PATH=f"{alsa}/lib/pkgconfig:{env['PKG_CONFIG_PATH']}")
-    sdl_flags = [f"-DCMAKE_C_COMPILER={gcc}", f"-DCMAKE_C_COMPILER_LAUNCHER={ccache or ''}",
-                 "-DCMAKE_BUILD_TYPE=Release", "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
-                 "-DCMAKE_C_FLAGS=-DFREEJ_STATIC_SDL2"]
-    run(["cmake", "-S", sources / "SDL2-2.32.4", "-B", sb,
-         f"-DCMAKE_INSTALL_PREFIX={sdl2}", "-DCMAKE_INSTALL_LIBDIR=lib", *sdl_flags,
-         f"-DFREEJ_X11_PRIVATE_LIBS={x11_private}", f"-DCMAKE_PREFIX_PATH={alsa};{main_usr};{private_usr}",
-         "-DSDL_SHARED=OFF", "-DSDL_STATIC=ON", "-DSDL_TESTS=OFF", "-DSDL_TEST_LIBRARY=OFF",
-         "-DSDL_LOADSO=OFF", "-DSDL_ALSA=ON", "-DSDL_ALSA_SHARED=OFF", "-DSDL_JACK=OFF",
-         "-DSDL_PULSEAUDIO=OFF", "-DSDL_PIPEWIRE=OFF", "-DSDL_SNDIO=OFF",
-         "-DSDL_X11=ON", "-DSDL_X11_SHARED=OFF", "-DSDL_WAYLAND=OFF", "-DSDL_KMSDRM=OFF",
-         "-DSDL_RPI=OFF", "-DSDL_VULKAN=OFF", "-DSDL_OPENGL=OFF", "-DSDL_OPENGLES=OFF",
-         "-DSDL_LIBUDEV=OFF"], work, sdl_env)
-    run(["cmake", "--build", sb, "--parallel", str(jobs)], work, sdl_env)
-    run(["cmake", "--install", sb], work, sdl_env)
-    sdl2_archive = sdl2 / "lib/libSDL2.a"
-    names = subprocess.check_output(["nm", "-g", "--defined-only", sdl2_archive], text=True)
-    symbols = sorted(set(re.findall(r"^\w+ \w (SDL_\w+)$", names, re.M)))
-    if "SDL_Init" not in symbols:
-        raise ValueError("the SDL2 archive has no SDL_Init")
-    mapping = work / "sdl2.names"
-    mapping.write_text("".join(f"{name} FreejSDL2_{name[4:]}\n" for name in symbols))
-
-    wrapper = work / "sdl12-build"
-    run(["cmake", "-S", sources / "sdl12-compat-release-1.2.68", "-B", wrapper, *sdl_flags,
-         f"-DSDL2_INCLUDE_DIR={sdl2 / 'include/SDL2'}", f"-DSDL2_LIBRARY={sdl2_archive}",
-         "-DSTATICDEVEL=ON", "-DSDL12TESTS=OFF"], work, env)
-    run(["cmake", "--build", wrapper, "--parallel", str(jobs), "--target", "SDL-static"], work, env)
+    x11_build = work / "x11-build"
+    x11_build.mkdir()
+    # SDL3 asks Xlib for the default cursor. Keep that call inside the static closure.
+    run([sources / "libX11-1.8.12/configure", f"--prefix={work / 'x11'}", "--datadir=/usr/share",
+         "--enable-static", "--disable-shared", "--disable-loadable-xcursor",
+         "--disable-loadable-i18n", "--disable-specs", "--disable-devel-docs"], x11_build, env)
+    run(["make", f"-j{jobs}"], x11_build, env)
 
     jb = work / "jack-build"
     jb.mkdir()
@@ -128,8 +103,8 @@ def stage(work, archives, legacy, jobs):
         for archive in directory.glob("lib*.a"):
             shutil.copyfile(archive, libraries / archive.name)
     shutil.copyfile(jb / "libjack/.libs/libjack.a", libraries / "libjack.a")
-    shutil.copyfile(wrapper / "libSDL.a", libraries / "libSDL.a")
-    run(["objcopy", f"--redefine-syms={mapping}", sdl2_archive, libraries / "libFreejSDL2.a"], work)
+    shutil.copyfile(x11_build / "src/.libs/libX11.a", libraries / "libX11.a")
+
 
 
 def main():

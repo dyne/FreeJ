@@ -109,7 +109,7 @@ MouseController::~MouseController() {
 // }
 
 int MouseController::poll() {
-  poll_sdlevents(SDL_MOUSEEVENTMASK); // calls dispatch() foreach SDL_Event
+  poll_sdlevents(SDL_EVENT_MOUSE_MOTION, SDL_EVENT_MOUSE_WHEEL); // calls dispatch() foreach SDL_Event
   return 0;
 }
 
@@ -161,23 +161,31 @@ int MouseController::button(int button, int state, int x, int y) {
 }
 
 int MouseController::dispatch() {
-	if (event.type == SDL_MOUSEMOTION) {
-		SDL_MouseMotionEvent mm = event.motion;
-		return motion(mm.state, mm.x, mm.y, mm.xrel, mm.yrel);
-	} else { // MOUSE_BUTTON
-		SDL_MouseButtonEvent mb = event.button;
-		return button(mb.button, mb.state, mb.x, mb.y);
-	}
+    if (event.type == SDL_EVENT_MOUSE_MOTION) {
+        const auto &motion_event = event.motion;
+        return motion(motion_event.state, motion_event.x, motion_event.y,
+                      motion_event.xrel, motion_event.yrel);
+    }
+    if (event.type == SDL_EVENT_MOUSE_WHEEL) {
+        const auto &wheel = event.wheel;
+        const auto y = wheel.direction == SDL_MOUSEWHEEL_FLIPPED ? -wheel.y : wheel.y;
+        if (y == 0)
+            return 0;
+        const int index = y > 0 ? 4 : 5;
+        const int press = button(index, 1, wheel.mouse_x, wheel.mouse_y);
+        return button(index, 0, wheel.mouse_x, wheel.mouse_y) || press;
+    }
+    const auto &mouse_button = event.button;
+    return button(mouse_button.button, mouse_button.down, mouse_button.x, mouse_button.y);
 }
 
 void MouseController::grab(bool state) {
-    if (state) {
-            SDL_ShowCursor(0);
-            SDL_WM_GrabInput(SDL_GRAB_ON);
-    } else {
-            SDL_ShowCursor(1);
-            SDL_WM_GrabInput(SDL_GRAB_OFF);
-    }
+    if (auto *window = SDL_GetMouseFocus())
+        SDL_SetWindowMouseGrab(window, state);
+    if (state)
+        SDL_HideCursor();
+    else
+        SDL_ShowCursor();
 }
 
 JS(js_mouse_ctrl_constructor) {

@@ -21,7 +21,7 @@
 #define __GEO_LAYER_H__
 
 #include <inttypes.h>
-#include <SDL_gfxPrimitives.h>
+#include <SDL3/SDL.h>
 
 #include <layer.h>
 

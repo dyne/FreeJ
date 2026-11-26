@@ -68,7 +68,7 @@ frei0r_host_test_LDADD = $(top_builddir)/src/libfreej.la
 movie_replay_test_LINK = $(CXXLINK)
 movie_replay_test_LDADD = $(top_builddir)/src/libfreej.la
 frame_step_test_LINK = $(CXXLINK)
-frame_step_test_LDADD = $(top_builddir)/src/libfreej.la
+frame_step_test_LDADD = $(top_builddir)/src/libfreej.la $(SDL_LIBS)
 lifetime_test_LINK = $(CXXLINK)
 lifetime_test_LDADD = $(frame_step_test_LDADD)
 endif
@@ -80,7 +80,7 @@ EXTRA_DIST = frei0r-linux-sdk.sh wasm-frame-probe.sh wasm-frame-audit.mjs wasm-e
              native-linux-archives.py native-linux-archives.lock check-native-linux-archives.py \
              native-static-sdk.py native-static-sdk.lock native-static-sdk.patch \
              native-profile-factory.cpp native-profile-sandbox.c native-profile-runtime.py \
-             movie-linux-sdk.sh movie-linux-sdk.lock \
+             movie-linux-sdk.sh movie-linux-sdk.lock sdl-linux-sdk.sh sdl-linux-sdk.lock \
              native-ci-prepare.sh native-ci-run.sh native-ci-coverage.py native-ci.lock \
              native_profile_services.py \
              show-replay/equalizer-observer.cpp show-replay/equalizer.py \

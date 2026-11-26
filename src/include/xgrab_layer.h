@@ -24,7 +24,7 @@
 #include <config.h>
 #ifdef WITH_XGRAB
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <layer.h>
 
 //#include <screen.h>

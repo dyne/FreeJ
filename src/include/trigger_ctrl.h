@@ -23,7 +23,7 @@
 #include <controller.h>
 #include <factory.h>
 #include <linklist.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 class TriggerController : public Controller {
 

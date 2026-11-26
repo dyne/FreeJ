@@ -28,6 +28,7 @@
 #include <text_layer.h>
 #include <jutils.h>
 #include <jsparser_data.h>
+#include "sdl_pixels.h"
 
 // our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(Layer, TextLayer, TextLayer, truetype);
@@ -47,10 +48,12 @@ TextLayer::TextLayer()
   fgcolor.r = 0xff;
   fgcolor.g = 0xff;
   fgcolor.b = 0xff;
+  fgcolor.a = 0xff;
 
   bgcolor.r = 0x00;
   bgcolor.g = 0x00;
   bgcolor.b = 0x00;
+  bgcolor.a = 0xff;
 
   type = Layer::TEXT;
   set_name("TXT");
@@ -87,8 +90,10 @@ bool TextLayer::_init() {
   // in fact the size is changing at every new print
   // so we'll call the Layer::_init(wdt,hgt) many times
 
-  if( ! TTF_WasInit() )
-    TTF_Init();
+  if (!TTF_WasInit() && !TTF_Init()) {
+    error("Can't initialize SDL_ttf: %s", SDL_GetError());
+    return false;
+  }
 
   set_font("sans"); // just try one..
 
@@ -113,7 +118,7 @@ void TextLayer::close() {
 }
 
 void TextLayer::calculate_string_size(char *text, int *w, int *h) {
-  TTF_SizeText(font, text, w, h);
+  TTF_GetStringSize(font, text, 0, w, h);
 }
 
 void TextLayer::set_fgcolor(int r, int g, int b) {
@@ -221,13 +226,13 @@ void TextLayer::write(const char *str) {
   }
 
   // surf = TTF_RenderText_Blended(font, str, fgcolor);
-  std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)> tmp(
-      TTF_RenderText_Shaded(font, str, fgcolor, bgcolor), SDL_FreeSurface);
+  std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)> tmp(
+      TTF_RenderText_Shaded(font, str, 0, fgcolor, bgcolor), SDL_DestroySurface);
   if(!tmp) {
   	error("Error render text: %s", SDL_GetError());
 	return;
   }
-  std::shared_ptr<SDL_Surface> converted(SDL_DisplayFormat(tmp.get()), SDL_FreeSurface);
+  std::shared_ptr<SDL_Surface> converted(SDL_ConvertSurface(tmp.get(), freej_pixel_format()), SDL_DestroySurface);
   if (converted)
     deferred_calls->add_job(NewClosure(this, &TextLayer::_display_text, converted));
 

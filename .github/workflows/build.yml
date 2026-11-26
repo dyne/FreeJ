@@ -43,9 +43,11 @@ jobs:
           apt-get install -y --no-install-recommends \
             autoconf automake build-essential ca-certificates ccache cmake curl git \
             libtool meson ninja-build pkgconf python3 zip zstd \
-            libslang2-dev libsdl1.2-dev libogg-dev libvorbis-dev liblo-dev libjack-dev \
+            libslang2-dev libogg-dev libvorbis-dev liblo-dev libjack-dev \
             libfftw3-dev libsamplerate0-dev libasound2-dev libfontconfig-dev \
-            libfreetype-dev libcairo2-dev libx11-dev libssl-dev libbz2-dev zlib1g-dev \
+            libfreetype-dev libcairo2-dev libx11-dev libxext-dev libxrandr-dev libxi-dev \
+            libxcursor-dev libxfixes-dev libxss-dev libgl-dev libglu1-mesa-dev \
+            libpng-dev libjpeg-dev libtiff-dev libwebp-dev libssl-dev libbz2-dev zlib1g-dev \
             libsndio-dev libtiff6 libgd3 libshout3 libtheoradec1 libtheoraenc1 \
             jackd1 xvfb
           mkdir -p /tmp/freej-ci

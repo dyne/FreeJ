@@ -17,7 +17,7 @@ extern "C" {
 
 /* --- */
 
-#include "SDL.h"
+#include <SDL3/SDL.h>
 
 /* --------- Definitions */
 

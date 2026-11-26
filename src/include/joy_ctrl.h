@@ -22,7 +22,7 @@
 
 #include <sdl_controller.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 #include <config.h>
 
@@ -66,6 +66,7 @@ class JoyController : public SdlController {
 #endif
 
  private:
+  int dispatch_joystick(SDL_JoystickID id);
   SDL_Joystick *joy[4];
   int num;
   int axes;

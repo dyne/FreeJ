@@ -24,6 +24,8 @@
 #include <jutils.h>
 #include <context.h>
 #include <geo_layer.h>
+#include <SDL_gfxPrimitives.h>
+#include "sdl_pixels.h"
 #include <jsparser_data.h>
 
 // our objects are allowed to be created trough the factory engine
@@ -43,29 +45,19 @@ GeoLayer::GeoLayer()
 
 GeoLayer::~GeoLayer() {
   stop();
-  if(surf) SDL_FreeSurface(surf);
+  if(surf) SDL_DestroySurface(surf);
   if(fsurf[0]) free(fsurf[0]);
   if(fsurf[1]) free(fsurf[1]);
 }
 
 bool GeoLayer::_init() {
 
-  surf = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA,
-			      geo.w,geo.h,geo.bpp,
-			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
+  surf = SDL_CreateSurface(geo.w, geo.h, freej_pixel_format());
   if(!surf) {
     error("can't allocate GeoLayer memory surface");
     return(false);
   }
   
-//   fsurf = SDL_CreateRGBSurface(SDL_HWSURFACE,
-// 			      geo.w,geo.h,32,
-// 			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
-//   if (!fsurf) {
-//     error("can't allocate GeoLayer memory surface");
-//     return(false);
-//   }
-
   fsurf[0] = (uint32_t*)malloc(geo.bytesize);
   fsurf[1] = (uint32_t*)malloc(geo.bytesize);
 
@@ -103,7 +95,7 @@ int GeoLayer::clear() {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = SDL_FillRect(surf,NULL,color);
+  res = SDL_FillSurfaceRect(surf, nullptr, color) ? 0 : -1;
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }

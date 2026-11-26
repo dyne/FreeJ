@@ -22,7 +22,7 @@
 #ifndef __SDL_SCREEN_H__
 #define __SDL_SCREEN_H__
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <screen.h>
 
 #include <factory.h>
@@ -58,14 +58,8 @@ class SdlScreen : public ViewPort {
 
   bool _init();
 
-  int setres(int wx, int hx);
-  SDL_Surface *emuscr;
-
-  bool switch_fullscreen;  
-  bool dbl;
-  uint32_t sdl_flags;
-
-  SDL_Surface *sdl_dest;
+  SDL_Window *window;
+  bool switch_fullscreen;
 
   SDL_Surface *pre_rotozoom;
   SDL_Surface *rotozoom; ///< pointer to blittable surface (rotated and zoomed if necessary)

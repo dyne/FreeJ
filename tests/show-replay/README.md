@@ -18,7 +18,7 @@ and ccache from the reference recipe. Remove the ccache prefix if unavailable.
 ccache "$sdk/gcc12/usr/bin/g++-12" -std=c++11 -Wall -Wextra -Werror -fPIC -shared \
     -isystem src/include -isystem "$build" -isystem lib/javascript \
     -isystem "$build/lib/javascript" -isystem "$sdk/debian/usr/include" \
-    -DJS_GCMETER $(sdl-config --cflags) tests/show-replay/observe.cpp \
+    -DJS_GCMETER $(pkg-config --cflags sdl3) tests/show-replay/observe.cpp \
     -o "$scratch/observe.so" -ldl
 ccache "$sdk/gcc12/usr/bin/gcc-12" -O2 -shared -fPIC -I"$effects/include" \
     "$effects/src/filter/brightness/brightness.c" -o "$scratch/brightness.so"

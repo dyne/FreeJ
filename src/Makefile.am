@@ -33,7 +33,7 @@ CONTROLLER_SOURCES = \
 	sdl_controller.cpp
 
 DISPLAY_SOURCES = \
-	sdl_blits.cpp sdl_screen.cpp sdlgl_screen.cpp gl_screen.cpp soft_screen.cpp aa_screen.cpp
+	sdl_pixels.h sdl_blits.cpp sdl_screen.cpp sdlgl_screen.cpp gl_screen.cpp soft_screen.cpp aa_screen.cpp
 
 JS_SOURCES = \
 	context_js.cpp parameter_js.cpp layer_js.cpp filter_js.cpp screen_js.cpp \

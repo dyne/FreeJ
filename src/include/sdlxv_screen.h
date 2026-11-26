@@ -22,7 +22,7 @@
 #ifndef __SDLXV_SCREEN_H__
 #define __SDLXV_SCREEN_H__
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <screen.h>
 
 class SdlXvScreen : public ViewPort {
@@ -53,7 +53,7 @@ class SdlXvScreen : public ViewPort {
   SDL_Surface *blitter;
   //  uint32_t rmask,gmask,bmask,amask;
   SDL_Rect rect;
-  SDL_Overlay *yuv_overlay;
+  struct SDL_Overlay *yuv_overlay;
 
   
   void *anal;

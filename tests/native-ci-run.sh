@@ -20,6 +20,7 @@ native=$work/native
 archives=$work/archives
 effects=$work/effects
 build_work=$work/trial
+extra_pkg_config_path=${PKG_CONFIG_PATH:-}
 ccache_bin=$(command -v ccache)
 gcc=$legacy/gcc12/usr/bin/gcc-12
 gxx=$legacy/gcc12/usr/bin/g++-12
@@ -27,20 +28,22 @@ jobs=${FREEJ_CI_JOBS:-4}
 export LC_ALL=C
 export CC="$ccache_bin $gcc" CXX="$ccache_bin $gxx" CFLAGS='-O2 -DNDEBUG' CXXFLAGS='-O2 -DNDEBUG'
 export CPPFLAGS="-I$debian/include" LDFLAGS="-L$debian_lib"
-export PKG_CONFIG_PATH="$work/movie/sdk/lib/pkgconfig:$debian_lib/pkgconfig"
-export LD_LIBRARY_PATH="$work/movie/sdk/lib:$debian_lib"
+export PKG_CONFIG_PATH="$work/sdl/sdk/lib/pkgconfig:$work/movie/sdk/lib/pkgconfig:$debian_lib/pkgconfig"
+export LD_LIBRARY_PATH="$work/sdl/sdk/lib:$work/movie/sdk/lib:$debian_lib"
 export MAKEFLAGS="-j$jobs" FREEJ_BUILD_WORK="$build_work"
 configure=(--enable-static-mozjs "--with-native-profile=$profile")
 if [[ $profile == static ]]; then
     archive_usr=$archives/debian/usr
     CPPFLAGS="$CPPFLAGS -I$archive_usr/include"
-    PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$archive_usr/lib/$multiarch/pkgconfig:$archive_usr/share/pkgconfig"
+    PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$archive_usr/lib/$multiarch/pkgconfig:$archive_usr/share/pkgconfig:$native/packages/usr/lib/$multiarch/pkgconfig"
     for modules in "$archives"/prefixes/*/lib/pkgconfig; do
         PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$modules"
     done
     export PKG_CONFIG_LIBDIR="$work/no-host-pkgconfig"
     mkdir -p -- "$PKG_CONFIG_LIBDIR"
     configure+=("--with-native-sdk=$native" "--with-frei0r-bundle=$effects")
+elif [[ -n $extra_pkg_config_path ]]; then
+    PKG_CONFIG_PATH="$PKG_CONFIG_PATH:$extra_pkg_config_path"
 fi
 
 {
@@ -56,7 +59,7 @@ fi
 } | tee "$evidence/identity.txt"
 
 compatibility_show() (
-    read -r -a sdl_flags <<< "$(sdl-config --cflags)"
+    read -r -a sdl_flags <<< "$(pkg-config --cflags sdl3)"
     "$ccache_bin" "$gxx" -std=c++11 -Wall -Wextra -Werror -fPIC -isystem src/include \
         -isystem "$build_work/build" -isystem lib/javascript \
         -isystem "$build_work/build/lib/javascript" -isystem "$debian/include" \

@@ -24,8 +24,8 @@
 #ifndef __SDLGL_SCREEN_H__
 #define __SDLGL_SCREEN_H__
 
-#include <SDL.h>
-#include <SDL_opengl.h>
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_opengl.h>
 #include <gl_screen.h>
 #include <screen.h>
 
@@ -63,7 +63,9 @@ class SdlGlScreen : public ViewPort {
   float zoom;
 
   // whis is the main window surface
-  SDL_Surface *surface;
+  SDL_Window *window;
+  SDL_GLContext gl;
+  bool initialized_sdl;
   void *coords(int x, int y);
   
   Vertex g_quadVertices[4];
@@ -75,14 +77,10 @@ class SdlGlScreen : public ViewPort {
 
   bool _init();
 
-  int setres(int wx, int hx);
-  SDL_Surface *emuscr;
   SDL_Surface *screen;
 
   GLuint textureID;
   
-  bool dbl;
-  uint32_t sdl_flags;
 
   // check gl error and print it
   void check_opengl_error();

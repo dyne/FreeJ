@@ -18,14 +18,14 @@ Staging only rewrites absolute prefixes in Debian pkg-config files.
 
 | Provider and reference pin | FreeJ consumer and ABI | Archive closure and runtime resources | Source notices |
 | --- | --- | --- | --- |
-| SDL 1.2 API via sdl12-compat 1.2.68, Debian SDL2 2.32.4 | `sdl_screen.cpp` and `joy_ctrl.cpp` use SDL 1.2 `SDL_SetVideoMode`, `SDL_Flip` and `SDL_JoystickOpen`. | Upstream CMake `STATICDEVEL=ON` produces `libSDL.a`. The wrapper uses `libdl` to open `libSDL2-2.0.so.0` and load the platform backends. The checks exercise dummy and X11. X11 needs a display server. Joystick input needs the device and permissions. Compatibility uses Debian's shared SDL 1.2 wrapper. | sdl12-compat `LICENSE.txt`, SDL2 package copyright |
-| SDL_image 1.2.12 | `image_layer.cpp` uses `IMG_Load` and SDL 1.2 surfaces. | Debian archive needs SDL, PNG/zlib, JPEG, TIFF and WebP. TIFF adds WebP/SharpYUV, JBIG, libdeflate, xz, Lerc, Zstd, libm and the C++ runtime through Lerc. File input is a show resource. | SDL_image and codec package copyrights |
-| SDL_gfx 2.0.25 | `geo_layer.cpp` uses `pixelColor` and `sdl_screen.cpp` uses `rotozoomSurface`. | Debian archive, SDL 1.2 and libm. Configure can select the bundled 2.0.13 fallback. | SDL_gfx package copyright and bundled source banners |
-| SDL_ttf 2.0.11 | `text_layer.cpp` uses `TTF_OpenFont` and SDL 1.2 surfaces. | Debian archive with SDL 1.2 and FreeType. Configure can select the bundled 2.0.7 fallback. Fonts are runtime files. | SDL_ttf package copyright and bundled LGPL banner |
+| SDL 3.4.20 | Native software viewport, window events, keyboard, mouse and joystick | Compatibility uses shared SDL3. Static uses `libSDL3.a` with archived X11 extensions. X11 and dummy video are exercised. | SDL release `LICENSE.txt` |
+| SDL3_image 3.4.8 | `image_layer.cpp` uses `IMG_Load` and converts the result to the engine's native pixel format. | PNG/zlib, TIFF and WebP plus the TIFF and WebP private libraries. JPEG decoding is enabled. | SDL_image release `LICENSE.txt` and codec package copyrights |
+| Bundled SDL_gfx | `geo_layer.cpp` uses the primitives and `sdl_screen.cpp` uses the rotate/zoom implementation. | FreeJ builds the bundled algorithms against SDL3 surfaces. | Bundled source banners |
+| SDL3_ttf 3.2.2 | `text_layer.cpp` uses TrueType rasterization on SDL3 surfaces. | FreeType and its codec dependencies. Fonts are runtime files. | SDL_ttf release `LICENSE.txt` and FreeType package copyright |
 | S-Lang 2.3.3 and bundled slw | `console_ctrl.cpp` uses `SLangConsole`, whose implementation calls `SLang_init_tty`, `SLkp` and `SLsmg` functions. | Debian S-Lang archive with libdl/libm. The bundled slw archive also uses FreeJ's Entry, Linklist and logging objects plus the C++ runtime and pthreads. The interactive console uses a terminal and terminfo. | S-Lang package copyright and `lib/slw/COPYING` |
 | Bundled CCVT | YUV conversion entry points such as `ccvt_420p_bgr32`, with a portable C path. | The Make graph builds `libccvt.a` for the video, capture and encoding paths. | `lib/ccvt/COPYING` |
 | Bundled SpiderMonkey, JavaScript 1.8 | `jsparser.cpp` uses the older JSAPI `JS_NewRuntime`, `JS_NewContext` and `JS_EvaluateScript`. | `--enable-static-mozjs` builds the PIC archive in the reference with GCC 12. C++ runtime, libm, libdl and pthreads close the consumer link. Configure's system alternatives probe the old `mozilla-js >= 1.9` API and, where needed, its xul embedding metadata. No compatible system variant was selected. | `lib/javascript/README.html` and MPL/GPL/LGPL source banners |
-| FFmpeg 0.8.15 | `video_layer.cpp` and `Context::init` use `AVPicture`, `AVStream::codec`, `av_open_input_file`, `avcodec_decode_video2`, `av_register_all` and swscale. | The historical recipe uses PIC, portable C and both shared/static libraries. Its four `.pc` files describe `avformat`, `avcodec`, `avutil`, `swscale`, plus sndio, JACK, ALSA, SDL, bzip2, zlib and libm. Link maps distinguish libraries named by metadata from archives that supplied objects. Movies are runtime assets. | Source `COPYING.LGPLv2.1`, other `COPYING.*` files and per-file notices |
+| FFmpeg 7.1.5 | `src/media/movie_decoder.cpp` uses libavformat, libavcodec, libavutil, libswscale and libswresample. | The [pinned movie SDK](../tests/movie-linux-sdk.lock) builds shared or static decoder libraries. Movies are runtime assets. | FFmpeg source notices |
 | Ogg 1.3.5, Vorbis/Vorbisenc 1.3.7, Theora 1.2.0alpha1 | `theorautils.cpp` uses `ogg_stream_init`, `vorbis_encode_init` and the legacy `theora_encode_init` API. | Debian archives. Vorbisenc uses Vorbis, Ogg and libm. The legacy Theora wrapper uses Ogg and libm. This build of the Theora decoder includes Cairo telemetry references that are reached through libshout. | Xiph package copyrights |
 | libshout 2.4.6 with Speex 1.2.1 | `shouter.cpp` and encoder paths use `shout_open` and Xiph streams. | The static link uses the Xiph libraries, Speex, OpenSSL, zlib, Zstd, pthreads, libdl and libm. It also needs the Cairo closure for Theora decoder telemetry, which is missing from the `shout.pc` closure. Streaming needs a separately configured Icecast endpoint. | libshout, Xiph, Speex, OpenSSL, zlib and Zstd package copyrights |
 | JACK 1 0.126.0 | `audio_jack.cpp` uses the JACK 1 client API, including `jack_client_open` and the process callback. | Autotools `--enable-static --disable-shared --enable-force-install --bindir=/usr/bin`, direct libjack target. Berkeley DB 5.3.28's `libdb.a`, libm and libdl supplement the pthreads in `jack.pc`. A JACK server with compatible shared memory and socket settings is a runtime service. The server and audio driver are separate from the archived client. | JACK `COPYING`, `COPYING.LGPL` and `COPYING.GPL`, Berkeley DB package copyright |
@@ -39,12 +39,8 @@ Staging only rewrites absolute prefixes in Debian pkg-config files.
 | V4L2 Linux UAPI, `linux-libc-dev` 6.12.116-1 | `cam_layer.cpp` builds with `linux/videodev2.h` and uses the kernel's `VIDIOC_*` ioctls. | The header SHA-256 on this reference host is `81d95175596837bfd89a0645e2970dbddcb31f328cbdca4ebe88b3daecd19504`. The capture path uses the glibc ioctl interface directly. The fixture checks the ioctl ABI with `/dev/null`. Live capture uses a camera and driver. | Linux UAPI header notices and package copyright |
 | frei0r and FreeFrame effects | `frei0r.cpp` accepts typed callbacks from the native directory loader or the descriptor bundle. `freeframe.cpp` resolves the FreeFrame `plugMain` entry point for compatibility. | The [frei0r lock](../tests/native-ci.lock) pins the source for the static archive and the native parity modules. The selected archive contains Brightness, Invert0r and onecol0r and uses the existing C++ runtime and math library. Compatibility takes plugin libraries and directories as runtime resources. | ABI header notices, plugin-specific notices in their sources |
 
-Debian SDL2's static metadata names ALSA, PulseAudio, samplerate, X11/Xext/
-Xcursor/Xi/Xfixes/Xrandr/Xss, DRM/GBM, Wayland EGL/client/cursor, libxkbcommon,
-libdecor and the system math/thread/loader libraries. Those platform libraries
-also appear as ELF dependencies of the Debian SDL2 runtime. The wrapper probe
-resolves `libSDL.a` at link time. Its SDL2 closure comes from the separate
-runtime package and requires its own static backend integration.
+The current SDL3 inputs are pinned in [the SDL SDK lock](../tests/sdl-linux-sdk.lock).
+The historical SDL 1.2 consumer checks below still use their original SDK and checkout.
 
 The bundled source pins are from commit
 `57bdc99c75e16b461ae4d094126ba386c60d99ba`. These SHA-256 values cover
@@ -55,8 +51,8 @@ The bundled source pins are from commit
 | `lib/ccvt` | `a5d7b686256b96c3ef7c726406e6e74ea5ba3b88c7c45da76f69bf1558efe9bb` | No parallel system provider |
 | `lib/slw` | `20b82fc2d5453d9996d9d7940282831ef61fa01c8984b0e7f5f913062c4af93a` | No system slw, uses system S-Lang |
 | `lib/javascript` | `c075ed9fb3f25d2d4be7333da823d17adc6aee35900b7c505c598d01f0fb8a69` | Old JSAPI, with configure's system probes retained |
-| `lib/sdl_gfx` | `dbcb7cad243c59683819cb12d82c94043dd7ffb81dc9d6531a81aa57fbf0d903` | System SDL_gfx 2.0.25 preferred |
-| `lib/sdl_ttf` | `088559b857464d82e5538a0913ec278a1aabdf516f0291361d5f4df41a627276` | System SDL_ttf 2.0.11 preferred |
+| `lib/sdl_gfx` | `dbcb7cad243c59683819cb12d82c94043dd7ffb81dc9d6531a81aa57fbf0d903` | Original system provider was SDL_gfx 2.0.25. |
+| `lib/sdl_ttf` | `088559b857464d82e5538a0913ec278a1aabdf516f0291361d5f4df41a627276` | Historical only. The current build uses SDL3_ttf. |
 | `lib/flash` | `52c8ec0efcbdd68820ca5ee3ed55faa60e88f6272483d929c329f8fb3e707805` | Optional bundled library only |
 
 ## Other frontend and opt-in dependencies
@@ -89,7 +85,7 @@ Perl 5.40, dpkg-deb and curl. Ccache is used when available. Executables link
 target archives
 for the GCC, C++ and glibc 2.41 runtimes and glibc's math, thread, rt and dl
 interfaces. Development headers and pkg-config metadata are build inputs.
-The X server, SDL2 runtime library, JACK server, device drivers, plugins,
+The X server, shared SDL3 runtime libraries, JACK server, device drivers, plugins,
 fonts and show assets are separate.
 
 Run these commands from the checkout with a fresh scratch path that contains
@@ -102,7 +98,7 @@ python3 tests/legacy-linux-sdk.py "$work/reference"
 python3 tests/native-linux-archives.py "$work/archives" --reference-sdk "$work/reference"
 ```
 
-Use the reference recipe's `tests/freej-build-test.sh --enable-static-mozjs`
+On the historical reference checkout, use `tests/freej-build-test.sh --enable-static-mozjs`
 to build, run `make check`, and stage the compatibility binary. Take
 `compat_build` from the printed artifact directory's `build` subdirectory.
 Use the running X11 or Xvfb display for the archive checks.
@@ -146,7 +142,7 @@ records the context for features and examples that predate these profiles.
 | --- | --- |
 | Top-level Autoconf program probes dating to `95e8599d` | `AM_INIT_AUTOMAKE` requires `AC_PROG_AWK`, `AC_PROG_INSTALL` and `AC_PROG_MAKE_SET`. Its results feed the generated Makefiles, including the test and install rules. `configure.ac` now relies on these existing checks. The deleted awk and make calls only repeated earlier checks, and Autoconf already expanded the install check once. The bundled JS subconfigure keeps its own checks. To roll back this change, restore the three calls in the top-level `configure.ac` and regenerate with `./autogen.sh`. |
 | Historical source under `src/obsolete/`, moved out of the native source list before the baseline | Keep Avifile, GOOM, GTK, old OSD, scrolling/text, V4L1, fonts and scaling sources at their existing paths. Xcode still names the old GOOM implementation and `src/include/goom_layer.h`. The project entries and application guards outlasted the move of the Linux source files. `scripts/javascript/examples/goom.js`, its scripting docs and the old Avifile and OSD instructions in `USAGE` give these sources historical context. `src/osd.cpp` also exists at the old path. The Linux native build cannot establish external or Xcode usage. |
-| Shipped libraries under `lib/` and the source pins above | Keep the SDL_gfx and SDL_ttf fallbacks in the generated `BUILD_SDLGFX` and `BUILD_SDLTTF` branches. Geometry, text and screen callers depend on these interfaces. Xcode links separately to the MacPorts libraries and `freej.spec` declares SDL development inputs. Keep the conditional Flash and SpiderMonkey sources, and the CCVT and slw sources used by the two native builds. |
+| Shipped libraries under `lib/` and the source pins above | The native build selects bundled SDL_gfx and the pinned SDL3_ttf SDK. CCVT and slw remain bundled. |
 | Repeated dependency names in `configure.ac`, `m4/freej-static.m4`, `freej.pc.in`, the Xcode project, `freej.spec` and `autopackage/default.apspec` | Keep these lists. They control different consumers and include platform conditions, archive selection, link ordering and packaging. The compatibility package exports a dynamic link interface, while static consumers need the whole archive, the staged archive group and retained factory initializers. |
 | Scripting bindings and parameter conversions in `src/parameter*.cpp`, `src/frei0r.cpp`, `src/freeframe.cpp` and `scripts/javascript/lib/param.js` | Keep each conversion at its caller's ABI. The native frei0r loader and built-in descriptor registry already share the host conversion path from `ae56e52a`. FreeFrame has its own command and value ABI. The JS wrappers pass values to the engine and expose script-facing names and ranges. The SWIG build directory was removed in `3fb0744b`. Its remaining macro and documentation inputs and the Python and Ruby samples stay at their existing paths for historical consumers. |
 

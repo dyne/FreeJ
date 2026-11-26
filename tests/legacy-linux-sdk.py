@@ -36,6 +36,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("directory", type=Path, help="new SDK directory")
     parser.add_argument("--jobs", type=int, default=4, help="parallel FFmpeg build jobs")
+    parser.add_argument("--skip-historical-media", action="store_true",
+                        help="prepare the compiler and common packages for the current native profiles")
     args = parser.parse_args()
     work = args.directory.resolve()
     if not re.fullmatch(r"[a-zA-Z0-9_./-]+", str(work)):
@@ -50,6 +52,8 @@ def main():
         if not line or line.startswith("#"):
             continue
         expected, url = line.split()
+        if args.skip_historical_media and ("libsdl-" in url or "ffmpeg-" in url):
+            continue
         archive = download(url, expected, archives)
         if archive.suffix == ".deb":
             target = work / ("gcc12" if "/gcc-12/" in url else "debian")
@@ -63,6 +67,9 @@ def main():
     for module in (debian_usr / "lib/x86_64-linux-gnu/pkgconfig").glob("*.pc"):
         contents = module.read_text()
         module.write_text(contents.replace("prefix=/usr\n", f"prefix={debian_usr}\n", 1))
+
+    if args.skip_historical_media:
+        return
 
     gcc = work / "gcc12/usr/bin/gcc-12"
     ccache = shutil.which("ccache")

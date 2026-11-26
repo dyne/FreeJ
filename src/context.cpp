@@ -273,15 +273,13 @@ void Context::cafudda(double /*secs*/) {
     }
   };
   if (poll_events) {
-    event.type = SDL_NOEVENT;
+    event.type = SDL_EVENT_FIRST;
     SDL_PumpEvents();
     host.dispatch_input = [this] { handle_controllers(); };
   }
   fps.calc_at(freej_engine::step_frame(*this, host));
   fps.delay();
 }
-
-#define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
 
 void Context::handle_controllers() {
   {
@@ -290,25 +288,18 @@ void Context::handle_controllers() {
       return;
   }
 
-  // peep if there are quit or fullscreen events
-  SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);
-
-  // force quit when SDL does
-  if (event.type == SDL_QUIT) {
+  if (SDL_HasEvent(SDL_EVENT_QUIT)) {
     quit = true;
     return;
   }
-  
-  // fullscreen switch (ctrl-f)
-  if(event.type == SDL_KEYDOWN)
-    if(event.key.state == SDL_PRESSED)
-      if(event.key.keysym.mod & KMOD_CTRL)
-	if(event.key.keysym.sym == SDLK_f) {
-	  ViewPort *scr = screens.selected();
-	  if (scr)
-	    scr->fullscreen();
-	  SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);
-	}
+
+  // Reserve Ctrl-F for the active viewport.
+  if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_DOWN) == 1 &&
+      !event.key.repeat && (event.key.mod & SDL_KMOD_CTRL) && event.key.key == SDLK_F) {
+    if (auto *screen = screens.selected())
+      screen->fullscreen();
+    SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_DOWN);
+  }
 
   std::vector<Controller *> frame_controllers;
   {
@@ -352,8 +343,8 @@ void Context::handle_controllers() {
     std::rethrow_exception(failure);
 
   // flushes all events that are leftover
-  while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_ALLEVENTS) > 0)
-    if (event.type == SDL_QUIT)
+  while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST) > 0)
+    if (event.type == SDL_EVENT_QUIT)
       quit = true;
   memset(&event, 0x0, sizeof(SDL_Event));
 }

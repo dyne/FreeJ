@@ -13,6 +13,7 @@
 #include <context.h>
 #include <controller.h>
 #include <image_layer.h>
+#include <sdl_controller.h>
 #include <sdl_screen.h>
 #include <soft_screen.h>
 
@@ -248,13 +249,46 @@ public:
   int dispatch() override { return 0; }
 };
 
+class KeyboardEvents : public SdlController {
+public:
+  std::vector<Uint32> events;
+
+  int poll() override {
+    poll_sdlevents(SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_UP);
+    return 0;
+  }
+
+  int dispatch() override {
+    events.push_back(event.type);
+    return event.type == SDL_EVENT_KEY_DOWN;
+  }
+};
+
 void native_wrapper() {
-  require(setenv("SDL_VIDEODRIVER", "dummy", 1) == 0, "select SDL dummy video");
+  require(SDL_SetHintWithPriority(SDL_HINT_VIDEO_DRIVER, "dummy", SDL_HINT_OVERRIDE), "select SDL dummy video");
   Context context;
   std::unique_ptr<CountedScreen> screen(new CountedScreen);
   require(screen->init(10, 6, 32), "initialize SDL dummy screen");
   require(context.add_screen(screen.get()), "attach SDL screen");
   auto *presented = screen.release();
+
+  {
+    KeyboardEvents keyboard;
+    SDL_Event key = {};
+    key.type = SDL_EVENT_KEY_DOWN;
+    key.key.key = SDLK_A;
+    require(SDL_PushEvent(&key), "enqueue key down");
+    key.type = SDL_EVENT_KEY_UP;
+    require(SDL_PushEvent(&key), "enqueue key up");
+    keyboard.poll();
+    require(keyboard.events == std::vector<Uint32>{SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_UP},
+            "SDL keyboard events did not dispatch in order");
+    require(!SDL_HasEvent(SDL_EVENT_KEY_DOWN), "handled key event was queued again");
+    require(SDL_PeepEvents(&key, 1, SDL_GETEVENT, SDL_EVENT_KEY_UP, SDL_EVENT_KEY_UP) == 1
+                && key.key.key == SDLK_A,
+            "unhandled key event did not retain its payload");
+  }
+
   std::unique_ptr<StopController> controller(new StopController);
   require(context.register_controller(controller.get()), "register stop controller");
   auto *stop = controller.release();

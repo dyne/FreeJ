@@ -30,12 +30,15 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
       done
     }
 
-    freej_require_archives "SDL video/joystick" SDL FreejSDL2 X11 Xext Xrender Xcursor Xi Xfixes Xrandr Xss xcb Xau Xdmcp
-    AS_IF([! $NM "$FREEJ_STATIC_SDK/lib/libSDL.a" | grep -q ' U FreejSDL2_Init$'],
-      [AC_MSG_ERROR([SDL video/joystick requires the direct SDL2 binding in libSDL.a])])
-    AS_IF([test "x$have_sdlgfx" != xyes || test "x$have_sdlttf" != xyes],
-      [AC_MSG_ERROR([the static profile requires the pinned SDL_gfx and SDL_ttf SDK metadata])])
-    freej_require_archives "SDL image, geometry and text" SDL_image SDL_gfx SDL_ttf png16 jpeg tiff webp sharpyuv jbig deflate lzma Lerc zstd z freetype bz2 brotlidec brotlicommon
+    freej_sdl_dir=`$PKG_CONFIG --variable=libdir sdl3`
+    AS_CASE([$freej_sdl_dir],
+      [""|*[[!abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./-]]*],
+      [AC_MSG_ERROR([the SDL3 SDK requires a libdir path free of spaces or shell metacharacters])])
+    freej_archive_dir="$freej_sdl_dir"
+    freej_require_archives "SDL3 core, image and text" SDL3 SDL3_image SDL3_ttf
+    freej_archive_dir="$FREEJ_STATIC_SDK/lib"
+    freej_require_archives "SDL3 X11 display" X11 Xext Xrender Xcursor Xi Xfixes Xrandr Xss xcb Xau Xdmcp
+    freej_require_archives "SDL3 image and text codecs" png16 jpeg tiff webp webpdemux webpmux sharpyuv jbig deflate lzma Lerc zstd z freetype bz2 brotlidec brotlicommon
     freej_require_archives "S-Lang console" slang
     freej_movie_dir=`$PKG_CONFIG --variable=libdir libavformat`
     AS_CASE([$freej_movie_dir],
@@ -84,18 +87,21 @@ AC_DEFUN([FREEJ_CHECK_STATIC_SDK], [
     freej_save_CPPFLAGS=$CPPFLAGS
     LIBS="-Wl,--start-group $FREEJ_STATIC_ARCHIVES $FREEJ_STATIC_SYSTEM_LIBS -Wl,--end-group"
     LDFLAGS="$LDFLAGS -static"
-    CPPFLAGS="$CPPFLAGS $FREI0R_BUNDLE_CFLAGS"
+    CPPFLAGS="$CPPFLAGS $FREI0R_BUNDLE_CFLAGS $SDL_CFLAGS $SDLIMAGE_CFLAGS $SDLTTF_CFLAGS"
     AC_LANG_PUSH([C++])
     AC_LINK_IFELSE([
       AC_LANG_PROGRAM([[
         #include <exception>
         #include <frei0r/bundle.h>
-        extern "C" int SDL_Init(unsigned int);
+        #include <SDL3/SDL.h>
+        #include <SDL3_image/SDL_image.h>
+        #include <SDL3_ttf/SDL_ttf.h>
         extern "C" unsigned avformat_version(void);
         extern "C" void *jack_ringbuffer_create(unsigned long);
         extern "C" const char *src_get_version(void);
       ]], [[
-        return SDL_Init(0) || !avformat_version() || !jack_ringbuffer_create(32) || !src_get_version()
+        return !SDL_Init(0) || !IMG_Version() || !TTF_Version()
+          || !avformat_version() || !jack_ringbuffer_create(32) || !src_get_version()
           || !std::exception().what()
           || !f0r_bundle_plugin_count() || !f0r_bundle_plugin_by_index(0);
       ]])

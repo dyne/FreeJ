@@ -58,22 +58,21 @@ static void event(const char *kind, long long value, long long detail = 0, long 
         std::abort();
 }
 
-extern "C" int SDL_Flip(SDL_Surface *surface)
+extern "C" bool SDLCALL SDL_UpdateWindowSurface(SDL_Window *window)
 {
-    static const auto flip = next_symbol<decltype(&SDL_Flip)>("SDL_Flip");
+    static const auto update = next_symbol<decltype(&SDL_UpdateWindowSurface)>("SDL_UpdateWindowSurface");
     int marker = -1;
     if (visible_audio) {
-        Uint32 pixel;
-        if (surface->w != 80 || surface->h != 60 || surface->format->BytesPerPixel != 4) std::abort();
-        const auto *row = static_cast<const Uint8 *>(surface->pixels) + 16 * surface->pitch;
-        std::memcpy(&pixel, row + 20 * sizeof(pixel), sizeof(pixel));
+        auto *surface = SDL_GetWindowSurface(window);
         Uint8 r, g, b;
-        SDL_GetRGB(pixel, surface->format, &r, &g, &b);
+        if (!surface || surface->w != 80 || surface->h != 60 ||
+            !SDL_ReadSurfacePixel(surface, 20, 16, &r, &g, &b, nullptr))
+            std::abort();
         marker = (r << 16) | (g << 8) | b;
     }
     const auto submitted = monotonic_ns();
-    const int result = flip(surface);
-    event("present", result, visible_audio ? marker : 0, submitted);
+    const bool result = update(window);
+    event("present", result ? 0 : -1, visible_audio ? marker : 0, submitted);
     return result;
 }
 

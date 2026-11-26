@@ -12,32 +12,29 @@ static bool observing(const char *kind)
     return mode && std::strcmp(mode, kind) == 0;
 }
 
-extern "C" int SDL_Flip(SDL_Surface *surface)
+extern "C" bool SDLCALL SDL_UpdateWindowSurface(SDL_Window *window)
 {
-    using Flip = int (*)(SDL_Surface *);
-    static const auto flip = reinterpret_cast<Flip>(dlsym(RTLD_NEXT, "SDL_Flip"));
-    if (!flip)
+    using Update = decltype(&SDL_UpdateWindowSurface);
+    static const auto update = reinterpret_cast<Update>(dlsym(RTLD_NEXT, "SDL_UpdateWindowSurface"));
+    if (!update)
         std::abort();
     if (!observing("video"))
-        return flip(surface);
+        return update(window);
 
-    // SdlScreen::show already owns the surface lock. SDL may recycle the
-    // backing storage during Flip, so read it before handing it off.
-    if (surface->format->BytesPerPixel != sizeof(Uint32))
+    auto *surface = SDL_GetWindowSurface(window);
+    if (!surface)
         std::abort();
     std::vector<Uint8> rgb(surface->w * surface->h * 3);
     for (int y = 0; y < surface->h; ++y) {
-        const auto *row = static_cast<const Uint8 *>(surface->pixels) + y * surface->pitch;
         for (int x = 0; x < surface->w; ++x) {
-            Uint32 pixel;
-            std::memcpy(&pixel, row + x * sizeof(pixel), sizeof(pixel));
             auto *out = &rgb[(y * surface->w + x) * 3];
-            SDL_GetRGB(pixel, surface->format, out, out + 1, out + 2);
+            if (!SDL_ReadSurfacePixel(surface, x, y, out, out + 1, out + 2, nullptr))
+                std::abort();
         }
     }
 
-    const int result = flip(surface);
-    if (result == 0) {
+    const bool result = update(window);
+    if (result) {
         static auto *frames = std::fopen("frames.rgb", "wb");
         static auto *states = std::fopen("presentations.txt", "w");
         // JACK 1 invokes jackd via a child shell which also inherits this

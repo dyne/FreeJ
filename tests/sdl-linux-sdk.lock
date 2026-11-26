@@ -1,0 +1,4 @@
+# SHA-256 and upstream release assets for the native SDL3 stack.
+f3bb06f55bed9557227a700af2ea62e49497ebdf58037732a731a5fb3ef8581f https://github.com/libsdl-org/SDL/releases/download/release-3.4.20/SDL3-3.4.20.tar.gz
+e8223b424bc7541cf84ffff5cf7e4f24ec3711c60462cb1bd6dc1d7bd7f25477 https://github.com/libsdl-org/SDL_image/releases/download/release-3.4.8/SDL3_image-3.4.8.tar.gz
+63547d58d0185c833213885b635a2c0548201cc8f301e6587c0be1a67e1e045d https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.2.2/SDL3_ttf-3.2.2.tar.gz

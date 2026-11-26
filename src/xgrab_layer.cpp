@@ -30,8 +30,9 @@
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 #include <sdl_screen.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "SDL_rotozoom.h"
+#include "sdl_pixels.h"
 
 XGrabLayer::XGrabLayer()
 	:Layer() {
@@ -211,9 +212,9 @@ DestroyNotify event, serial 26, synthetic NO, window 0x5c00007,
 	/* create pixel buffer */
 	// XGetWindowAttributes (display, win, &xwa);
 	/*
-	sdlimage = SDL_CreateRGBSurface
-	  (SDL_SWSURFACE, geo.w, geo.h, geo.bpp,
-	  red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
+	sdlimage = SDL_CreateSurface(geo.w, geo.h, freej_pixel_format());
+	if (!sdlimage)
+	  return false;
 	pixbuffer = (char*)sdlimage->pixels;
 
 	sdl_rect_src.x = geo.x;

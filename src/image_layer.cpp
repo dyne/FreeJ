@@ -23,7 +23,7 @@
 */
 
 
-#include <SDL_image.h>
+#include <SDL3_image/SDL_image.h>
 #include <context.h>
 #include <blitter.h>
 
@@ -33,6 +33,7 @@
 
 #include <jsparser_data.h>
 #include <factory.h>
+#include "sdl_pixels.h"
 
 // our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(Layer, ImageLayer, ImageLayer, sdl);
@@ -57,31 +58,18 @@ ImageLayer::~ImageLayer() {
 }
 
 bool ImageLayer::open(const char *file) {
-  using Surface = std::unique_ptr<SDL_Surface, decltype(&SDL_FreeSurface)>;
-  Surface input(IMG_Load(file), SDL_FreeSurface);
+  using Surface = std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)>;
+  Surface input(IMG_Load(file), SDL_DestroySurface);
   if (!input) {
-    error("ImageLayer::open() error: %s", file, IMG_GetError());
+    error("ImageLayer::open() error opening %s: %s", file, SDL_GetError());
     return false;
   }
 
-  if (input->format->BitsPerPixel != 32)
-    input.reset(SDL_DisplayFormat(input.get()));
-  if (!input) {
+  Surface converted(SDL_ConvertSurface(input.get(), freej_pixel_format()), SDL_DestroySurface);
+  if (!converted) {
     error("ImageLayer::open() could not convert %s: %s", file, SDL_GetError());
     return false;
   }
-
-  Surface converted(SDL_CreateRGBSurface(SDL_HWSURFACE|SDL_SRCALPHA,
-      input->w, input->h, 32, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask),
-      SDL_FreeSurface);
-  if (!converted) {
-    error("ImageLayer::open() error creating SDL surface");
-    return false;
-  }
-  // Copy color and alpha without blending the input over the new surface.
-  SDL_SetAlpha(input.get(), 0, 0);
-  if (SDL_BlitSurface(input.get(), NULL, converted.get(), NULL) < 0)
-    return false;
   Geometry layout;
   layout.init(converted->w, converted->h, 32);
   std::unique_ptr<void, decltype(&free)> black(calloc(1, layout.bytesize), free);
@@ -112,8 +100,8 @@ void ImageLayer::close() {
   stop();
   std::lock_guard<Layer> lock(*this);
   clear_frame();
-  SDL_FreeSurface(image);
-  SDL_FreeSurface(surf);
+  SDL_DestroySurface(image);
+  SDL_DestroySurface(surf);
   free(black_image);
   image = surf = nullptr;
   black_image = nullptr;

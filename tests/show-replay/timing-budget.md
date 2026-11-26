@@ -8,7 +8,7 @@ against the same out-of-tree build:
 ccache "$sdk/gcc12/usr/bin/g++-12" -std=c++11 -O2 -Wall -Wextra -Werror -fPIC -shared \
     -isystem src/include -isystem "$build" -isystem lib/javascript \
     -isystem "$build/lib/javascript" -isystem "$sdk/debian/usr/include" \
-    -DJS_GCMETER $(sdl-config --cflags) tests/show-replay/timing-observer.cpp \
+    -DJS_GCMETER $(pkg-config --cflags sdl3) tests/show-replay/timing-observer.cpp \
     -o "$scratch/timing-observer.so" -ldl
 ```
 
@@ -54,7 +54,7 @@ submission following its dispatch, including any time queued across frames.
 JACK source and capture events pair by `jack_last_frame_time` with the pulse
 at sample offset zero. The observer records JACK xrun notifications for each
 client and preserves missing sample periods separately. The SDL trace dates
-each successful `SDL_Flip` call at entry, without using `FPS::get()`.
+each successful `SDL_UpdateWindowSurface` call at entry, without using `FPS::get()`.
 
 `summary.json` holds cross-run ranges and upper limits. Each run directory
 keeps its raw trace, settings, log and metrics. Percentiles use nearest rank.

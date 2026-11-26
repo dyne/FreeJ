@@ -217,10 +217,8 @@ fi
 dnl ==============================================================
 dnl Check for SDL
 dnl ==============================================================
-PKG_CHECK_MODULES(SDL, sdl > 1.2, :,
+PKG_CHECK_MODULES(SDL, sdl3 >= 3.4.20, :,
   AC_MSG_ERROR([*** SDL development files not found!]))
-SDL_INCLUDEDIR=`$PKG_CONFIG --variable=includedir sdl`
-AS_IF([test -n "$SDL_INCLUDEDIR"], [SDL_CFLAGS="$SDL_CFLAGS -I$SDL_INCLUDEDIR"])
 
 
 dnl ==============================================================
@@ -704,62 +702,9 @@ AC_ARG_ENABLE(opencv,
  ])
 
 dnl ==============================================================
-dnl SDL_gfx
-dnl ==============================================================
-PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
-if test x$have_sdlgfx = xno; then
-   SDLGFX_CFLAGS="$SDL_CFLAGS"
-   SDLGFX_LIBS="$SDL_LIBS -lSDL_gfx"
-   FREEJ_SAVE_FLAGS
-   CFLAGS="$SDLGFX_CFLAGS"
-   CPPFLAGS="$SDLGFX_CFLAGS"
-   LDFLAGS="$SDLGFX_LIBS"
-   FREEJ_CHECK_LIB_HEADER([SDL_gfx], [pixelColor], [SDL_gfxPrimitives.h],
-                           [have_sdlgfx=yes], [have_sdlgfx=no])
-   FREEJ_RESTORE_FLAGS
-fi
-if test x$have_sdlgfx = xno; then
-   AC_MSG_NOTICE([Using freej version of SDLGFX])
-
-   AC_CHECK_FUNCS([pow])
-   SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
-   SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
-fi
-
-AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
-
-
-dnl ==============================================================
-dnl SDL_ttf
-dnl ==============================================================
-PKG_CHECK_MODULES([SDLTTF], [SDL_ttf], [have_sdlttf=yes], [have_sdlttf=no])
-if test x$have_sdlttf = xno; then
-   SDLTTF_CFLAGS="$SDL_CFLAGS"
-   SDLTTF_LIBS="$SDL_LIBS -lSDL_ttf"
-   FREEJ_SAVE_FLAGS
-   CFLAGS="$SDLTTF_CFLAGS"
-   CPPFLAGS="$SDLTTF_CFLAGS"
-   LDFLAGS="$SDLTTF_LIBS"
-   FREEJ_CHECK_LIB_HEADER([SDL_ttf], [TTF_Init], [SDL_ttf.h],
-                           [have_sdlttf=yes], [have_sdlttf=no])
-   FREEJ_RESTORE_FLAGS
-fi
-if test x$have_sdlttf = xno; then
-   AC_MSG_NOTICE([Using freej version of SDLTTF])
-   SDLTTF_CFLAGS="-I\$(top_srcdir)/lib/sdl_ttf"
-   SDLTTF_LIBS="\$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la"
-fi
-
-AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
-
-
-dnl ==============================================================
-dnl SDL_image
-dnl ==============================================================
-PKG_CHECK_MODULES([SDLIMAGE], [SDL_image],
-                  [have_sdlimage=yes],
-                  [AC_MSG_ERROR([*** SDL_image development files not found!])])
-
+dnl SDL3 image and text add-ons
+PKG_CHECK_MODULES([SDLIMAGE], [sdl3-image >= 3.4.8])
+PKG_CHECK_MODULES([SDLTTF], [sdl3-ttf >= 3.2.2])
 
 dnl ==============================================================
 dnl frei0r plugins
@@ -843,6 +788,7 @@ dnl LIBS          ordinary shared libraries used to link libfreej
 dnl ==============================================================
 FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
     -I\$(top_srcdir)/lib/ccvt        \
+    -I\$(top_srcdir)/lib/sdl_gfx \
     -I\$(top_srcdir)/lib/slw         \
     \$(FLASH_CFLAGS)"
 AC_SUBST(FREEJ_STATIC_CFLAGS)
@@ -861,7 +807,6 @@ FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \$(FREI0R_BUNDLE_CFLAGS) \
     \$(OPENCV_CFLAGS)   \
     \$(SAMPLERATE_CFLAGS) \
     \$(SDL_CFLAGS)      \
-    \$(SDLGFX_CFLAGS)   \
     \$(SDLIMAGE_CFLAGS) \
     \$(SDLTTF_CFLAGS)   \
     \$(SHOUT_CFLAGS)    \
@@ -874,6 +819,7 @@ AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(top_builddir)/lib/slw/libslw.la \
+    \$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la \
     \$(FLASH_LIBS)"
 AC_SUBST(FREEJ_STATIC_LIBS)
 
@@ -892,7 +838,6 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(MOZJS_LIBS)      \
     \$(OPENCV_LIBS)     \
     \$(SAMPLERATE_LIBS) \
-    \$(SDLGFX_LIBS)     \
     \$(SDLIMAGE_LIBS)   \
     \$(SDL_LIBS)        \
     \$(SDLTTF_LIBS)     \
@@ -909,12 +854,12 @@ dnl Export the same selections as the library and frontends. Bundled headers
 dnl are installed with the engine headers, so source/build paths stay private.
 FREEJ_PACKAGE_CFLAGS="$CPPFLAGS $AA_CFLAGS $ALSA_CFLAGS $CWIID_CFLAGS $FC_CFLAGS \
     $FFTW_CFLAGS $FT2_CFLAGS $GLU_CFLAGS $JACK_CFLAGS $LIBLO_CFLAGS \
-    $OPENCV_CFLAGS $SAMPLERATE_CFLAGS $SDL_CFLAGS $SDLIMAGE_CFLAGS $SHOUT_CFLAGS $SLANG_CFLAGS \
+    $OPENCV_CFLAGS $SAMPLERATE_CFLAGS $SDL_CFLAGS $SDLIMAGE_CFLAGS $SDLTTF_CFLAGS $SHOUT_CFLAGS $SLANG_CFLAGS \
     $UNICAP_CFLAGS $CAIRO_CFLAGS $XIPH_CFLAGS $X11_CFLAGS"
 FREEJ_PACKAGE_DEPS="$LDFLAGS -lpthread -lm -lrt $DL_LIBS $AA_LIBS $ALSA_LIBS \
     $BLUEZ_LIBS $CWIID_LIBS $FC_LIBS $FFMPEG_LIBS $FFTW_LIBS $FT2_LIBS $GLU_LIBS \
     $JACK_LIBS $LIBLO_LIBS $OPENCV_LIBS $SAMPLERATE_LIBS $SDLIMAGE_LIBS \
-    $SDL_LIBS $SHOUT_LIBS $SLANG_LIBS $UNICAP_LIBS $X11_LIBS $CAIRO_LIBS $XIPH_LIBS $GD_LIBS"
+    $SDL_LIBS $SDLTTF_LIBS $SHOUT_LIBS $SLANG_LIBS $UNICAP_LIBS $X11_LIBS $CAIRO_LIBS $XIPH_LIBS $GD_LIBS"
 FREEJ_PACKAGE_LIBS='-L${libdir} -lfreej'
 AS_IF([test "x$have_mozjs" = xyes], [
   FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS $MOZJS_CFLAGS"
@@ -922,14 +867,6 @@ AS_IF([test "x$have_mozjs" = xyes], [
 ], [
   AS_IF([test "x$enable_debug" = xyes],
     [FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS -DJS_GCMETER"])
-])
-AS_IF([test "x$have_sdlgfx" = xyes], [
-  FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS $SDLGFX_CFLAGS"
-  FREEJ_PACKAGE_DEPS="$FREEJ_PACKAGE_DEPS $SDLGFX_LIBS"
-])
-AS_IF([test "x$have_sdlttf" = xyes], [
-  FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS $SDLTTF_CFLAGS"
-  FREEJ_PACKAGE_DEPS="$FREEJ_PACKAGE_DEPS $SDLTTF_LIBS"
 ])
 
 FREEJ_CAPABILITIES="console sdl image geometry ffmpeg-sdk javascript jack fft resampling osc ogg theora vorbis stream"
@@ -982,7 +919,6 @@ lib/Makefile
 lib/ccvt/Makefile
 lib/flash/Makefile
 lib/sdl_gfx/Makefile
-lib/sdl_ttf/Makefile
 lib/slw/Makefile
 lib/javascript/GNUmakefile
 scripts/Makefile
@@ -1062,25 +998,11 @@ fi
 VRB([  LIBS  : $MOZJS_LIBS])
 VRB([  CFLAGS: $MOZJS_CFLAGS])
 
-if test x$have_sdlgfx = xyes; then
-INFO([= SDL_gfx (dynamic)])
-else
-INFO([= SDL_gfx (static)])
-fi
-VRB([  LIBS  : $SDLGFX_LIBS])
-VRB([  CFLAGS: $SDLGFX_CFLAGS])
 
-if test x$have_sdlttf = xyes; then
-INFO([= SDL_ttf (dynamic)])
-else
-INFO([= SDL_ttf (static)])
-fi
+VRB([= SDL3_ttf])
 VRB([  LIBS  : $SDLTTF_LIBS])
 VRB([  CFLAGS: $SDLTTF_CFLAGS])
-
-if test x$have_sdlimage = xyes; then
-INFO([= SDL_image (dynamic)])
-fi
+VRB([= SDL3_image])
 VRB([  LIBS  : $SDLIMAGE_LIBS])
 VRB([  CFLAGS: $SDLIMAGE_CFLAGS])
 

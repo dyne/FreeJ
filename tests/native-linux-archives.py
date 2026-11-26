@@ -19,7 +19,7 @@ def run(command, cwd, env=None):
     subprocess.run(command, cwd=cwd, env=env, check=True)
 
 
-def unpack_inputs(work, cache):
+def unpack_inputs(work, cache, skip_sdl12):
     downloads = work / "downloads"
     downloads.mkdir()
     lock = Path(__file__).with_suffix(".lock")
@@ -28,6 +28,8 @@ def unpack_inputs(work, cache):
             continue
         digest, url = line.split()
         name = Path(unquote(urlsplit(url).path)).name
+        if skip_sdl12 and name.startswith(("sdl12-compat_", "libsdl2-dev_")):
+            continue
         archive = downloads / name
         if cache is not None and (cache / name).is_file():
             shutil.copyfile(cache / name, archive)
@@ -78,6 +80,7 @@ def main():
     parser.add_argument("--archive-cache", type=Path,
                         help="directory with cached lockfile inputs, verified as downloads")
     parser.add_argument("--jobs", type=int, default=4)
+    parser.add_argument("--skip-sdl12", action="store_true", help="omit the historical SDL wrapper")
     args = parser.parse_args()
     work = args.directory.resolve()
     if platform.system() != "Linux" or platform.machine() != "x86_64":
@@ -103,7 +106,7 @@ def main():
                      "PKG_CONFIG_LIBDIR", "PKG_CONFIG_SYSROOT_DIR"):
         env.pop(variable, None)
     work.mkdir()
-    unpack_inputs(work, args.archive_cache)
+    unpack_inputs(work, args.archive_cache, args.skip_sdl12)
     source = work / "sources"
     build = work / "build"
     build.mkdir()
@@ -127,12 +130,13 @@ def main():
     run(["make", "-C", "libjack", f"-j{args.jobs}", "V=1", "libjack.la"], jack_build, jack_env)
     run(["make", "-C", "libjack", "install-libLTLIBRARIES"], jack_build, jack_env)
     run(["make", "install-libjackincludeHEADERS", "install-pkgconfigDATA"], jack_build, jack_env)
-    cmake_archive(source / "sdl12-compat-release-1.2.68", build / "sdl", prefixes / "sdl",
-                  gcc, ccache, env, args.jobs, "-DSTATICDEVEL=ON", "-DSDL12TESTS=OFF",
-                  "-DSDL12DEVEL=ON", "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
-                  f"-DSDL2_INCLUDE_DIR={debian / 'include/SDL2'}",
-                  f"-DSDL2_LIBRARY={debian_lib / 'libSDL2.a'}",
-                  f"-DCMAKE_C_FLAGS=-I{debian / 'include/x86_64-linux-gnu'}")
+    if not args.skip_sdl12:
+        cmake_archive(source / "sdl12-compat-release-1.2.68", build / "sdl", prefixes / "sdl",
+                      gcc, ccache, env, args.jobs, "-DSTATICDEVEL=ON", "-DSDL12TESTS=OFF",
+                      "-DSDL12DEVEL=ON", "-DCMAKE_POSITION_INDEPENDENT_CODE=ON",
+                      f"-DSDL2_INCLUDE_DIR={debian / 'include/SDL2'}",
+                      f"-DSDL2_LIBRARY={debian_lib / 'libSDL2.a'}",
+                      f"-DCMAKE_C_FLAGS=-I{debian / 'include/x86_64-linux-gnu'}")
     cmake_archive(source / "libsamplerate-0.2.2", build / "samplerate", prefixes / "samplerate",
                   gcc, ccache, env, args.jobs, "-DBUILD_SHARED_LIBS=OFF",
                   "-DBUILD_TESTING=OFF", "-DLIBSAMPLERATE_EXAMPLES=OFF",

@@ -1,5 +1,5 @@
 # SHA256 and URL for the Linux static stage display and SDK support inputs.
-d364cded8bf41f3f503014d3fb6473f1a7077ff468da1638dae4a6bec6ef2277 https://deb.debian.org/debian/pool/main/libs/libsdl2/libsdl2_2.32.4+dfsg.orig.tar.gz
+fa026f9bb0124f4d6c808f9aef4057aad65e7b35d8ff43951cef0abe06bb9a9a https://xorg.freedesktop.org/archive/individual/lib/libX11-1.8.12.tar.xz
 57f2fc575496edc9f3dd286423494499d231a8b1cdb417bb8401f6b66b584a26 https://deb.debian.org/debian/pool/main/libx/libxcursor/libxcursor-dev_1.2.3-1_amd64.deb
 be3ca6202327858845aa0a8d70374b08dae5c89250ad8997256e02b2833501d3 https://deb.debian.org/debian/pool/main/libx/libxi/libxi-dev_1.8.2-1_amd64.deb
 1070e0721765992c5355a9585f6eae9e0d11437a7d2b4a2c28123e6e5b0c0b2f https://deb.debian.org/debian/pool/main/libx/libxfixes/libxfixes-dev_6.0.0-2+b4_amd64.deb
