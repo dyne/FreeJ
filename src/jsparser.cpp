@@ -32,12 +32,14 @@
 #include <context.h>
 #include <signal.h>
 #include <config.h>
+#include <exceptions.h>
 #include <jutils.h>
 #include <errno.h>
 
 #include <callbacks_js.h>
 #include <jsparser.h>
 #include <jsparser_data.h> // private data header
+#include <osc_ctrl.h>
 
 #include <impl_layers.h>
 #include <linklist.h>
@@ -45,14 +47,15 @@
 Context *global_environment;
 
 JsExecutionContext::JsExecutionContext(JsParser *jsParser)
+  : parser(jsParser), cx(NULL), rt(NULL), obj(NULL)
 {
-  parser = jsParser;
   /* Create a new runtime environment. */
   rt = JS_NewRuntime(8L * 1024L * 1024L);
   if (!rt) {
     error("JsParser :: error creating runtime");
     return; /* XXX should return int or ptr! */
   }
+  JS_SetRuntimePrivate(rt, this);
 
   /* Create a new context. */
   cx = JS_NewContext(rt, STACK_CHUNK_SIZE);
@@ -83,7 +86,8 @@ JsExecutionContext::JsExecutionContext(JsParser *jsParser)
   //  JS_SetGlobalObject(global_context, global_object);
   //  this is done in init_class / JS_InitStandardClasses.
   obj = JS_NewObject(cx, &global_class, NULL, NULL);
-  init_class();
+  if (obj && !init_class())
+    obj = NULL;
   JS_EndRequest(cx);
   // deassociate this context from the creating thread
   // so that it can be used in other threads
@@ -95,35 +99,50 @@ JsExecutionContext::JsExecutionContext(JsParser *jsParser)
 
 JsExecutionContext::~JsExecutionContext()
 {
-  JS_SetContextThread(cx);
-  JS_GC(cx);
-  JS_BeginRequest(cx);
-  JS_ClearScope(cx, obj);
-  JS_EndRequest(cx);
-  JS_ClearContextThread(cx);
-  JS_DestroyContext(cx);
-  JS_DestroyRuntime(rt);
+  if (cx) {
+    // A startup script can fail after starting a server. Retire its native
+    // receivers while their JS context is still valid.
+    while (!osc_receivers_.empty()) {
+      auto *receiver = osc_receivers_.back();
+      receiver->unbind_receiver();
+      receiver->env->rem_controller(receiver);
+    }
+    if (obj) {
+      JS_SetContextThread(cx);
+      JS_GC(cx);
+      JS_BeginRequest(cx);
+      JS_ClearScope(cx, obj);
+      JS_EndRequest(cx);
+      JS_ClearContextThread(cx);
+    }
+    JS_DestroyContext(cx);
+  }
+  if (rt)
+    JS_DestroyRuntime(rt);
 }
 
 void JsExecutionContext::gc()
 {
-  JS_SetContextThread(cx);
+  const bool attach = JS_GetContextThread(cx) == 0;
+  if (attach)
+    JS_SetContextThread(cx);
   JS_MaybeGC(cx);
-  JS_ClearContextThread(cx);
+  if (attach)
+    JS_ClearContextThread(cx);
 }
 
-void JsExecutionContext::init_class() {
+bool JsExecutionContext::init_class() {
 
   /* Initialize the built-in JS objects and the global object
    * As a side effect, JS_InitStandardClasses establishes obj as
    * the global object for cx, if one is not already established. */
-  JS_InitStandardClasses(cx, obj);
+  if (!JS_InitStandardClasses(cx, obj))
+    return false;
 
   /* Declare shell functions */
   if (!JS_DefineFunctions(cx, obj, global_functions)) {
-    JS_EndRequest(cx);
-      error("JsParser :: error defining global functions");
-	return ;
+    error("JsParser :: error defining global functions");
+    return false;
   }
 
   ///////////////////////////////////////////////////////////
@@ -210,16 +229,14 @@ void JsExecutionContext::init_class() {
     cam_layer_methods,
     object_proto);
 
-// #ifdef WITH_FFMPEG
-//   REGISTER_CLASS("MovieLayer",
-//     video_layer_class,
-//     video_layer_constructor,
-//     NULL, // properties
-//     video_layer_methods,
-//     object_proto);
-// #endif
-
-#ifdef WITH_AVIFILE
+#if defined WITH_FFMPEG
+  REGISTER_CLASS("MovieLayer",
+    video_layer_class,
+    video_layer_constructor,
+    NULL, // properties
+    video_layer_methods,
+    object_proto);
+#elif defined WITH_AVIFILE
   REGISTER_CLASS("MovieLayer",
     avi_layer_class,
     avi_layer_constructor,
@@ -343,15 +360,22 @@ void JsExecutionContext::init_class() {
 #endif
 
   //JS_DefineProperties(global_context, layer_object, layer_properties);
-  return;
+  return true;
 }
 
 /////////////// JsParser ////////////////
 
 JsParser::JsParser(Context *_env) {
+  Context *previous = global_environment;
   if(_env!=NULL)
     global_environment=_env;
-  init();
+  try {
+    if (!init())
+      throw FreejError("Could not initialize the JavaScript interpreter");
+  } catch (...) {
+    global_environment = previous;
+    throw;
+  }
   act("javascript parser initialized");
 }
 
@@ -371,7 +395,7 @@ void JsParser::gc() {
   }
 }
 
-void JsParser::init() {
+bool JsParser::init() {
   //JSBool ret;
   stop_script=false;
 
@@ -380,24 +404,22 @@ void JsParser::init() {
   // create a global execution context (used to evaluate commands on the fly
   // and for other internal operations
   global_runtime = new JsExecutionContext(this);
+  if (!global_runtime->obj) {
+    delete global_runtime;
+    global_runtime = NULL;
+    return false;
+  }
 
   /* Create a new runtime environment. */
   js_runtime = global_runtime->rt; // XXX - for retrocompatibilty
-    if (!js_runtime) {
-    return ; /* XXX should return int or ptr! */
-  }
 
   /* Create a new context. */
   global_context = global_runtime->cx; // XXX - for retrocompatibilty
 
-  /* if global_context does not have a value, end the program here */
-    if (global_context == NULL) {
-    return ;
-  }
-
   global_object = global_runtime->obj;
   /** register SIGINT signal */
   //   signal(SIGINT, js_sigint_handler);
+  return true;
 }
 
 int JsParser::include(JSContext *cx, const char* jscript) {
@@ -453,6 +475,10 @@ int JsParser::include(JSContext *cx, const char* jscript) {
 int JsParser::open(const char* script_file) {
 
   JsExecutionContext *new_script = new JsExecutionContext(this);
+  if (!new_script->obj) {
+    delete new_script;
+    return 0;
+  }
   JS_SetContextThread(new_script->cx);
   JS_BeginRequest(new_script->cx);
   int ret = open(new_script->cx, new_script->obj, script_file);
@@ -608,6 +634,10 @@ int JsParser::parse(const char *command) {
   func("JS parse: %s", command);
 
   JsExecutionContext *new_script = new JsExecutionContext(this);
+  if (!new_script->obj) {
+    delete new_script;
+    return 0;
+  }
   JS_SetContextThread(new_script->cx);
   JS_BeginRequest(new_script->cx);
   eval_res = evaluate(new_script->cx, new_script->obj,

@@ -22,7 +22,7 @@
 #include <sdl_controller.h>
 #include <factory.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 class KbdController: public SdlController {
 
@@ -36,7 +36,6 @@ class KbdController: public SdlController {
   virtual int key_event(const char *state, bool shift, bool ctrl, bool alt, bool num, const char *keyname);
 
  private:  
-  SDL_keysym *keysym;
   char keyname[512];
   char funcname[512];
   // allow to use Factory on this class

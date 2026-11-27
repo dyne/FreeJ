@@ -21,44 +21,59 @@
 #include <config.h>
 
 JSyncThread::JSyncThread() {
-
-  if(pthread_mutex_init (&_mutex,NULL) == -1)
-    error("error initializing POSIX thread mutex");
-  if(pthread_attr_init (&_attr) == -1)
-    error("error initializing POSIX thread attribute");
-
-  pthread_attr_setdetachstate(&_attr,PTHREAD_CREATE_JOINABLE);
-
   deferred_calls = new ClosureQueue();
-
-  _running = false;
 }
 
 JSyncThread::~JSyncThread() {
 
   // be sure we stop the thread before destroying
+  deferred_calls->close();
   stop();
 
   delete deferred_calls;
-
-  if(pthread_mutex_destroy(&_mutex) == -1)
-    error("error destroying POSIX thread mutex");
-  if(pthread_attr_destroy(&_attr) == -1)
-    error("error destroying POSIX thread attribute");
 }
 
 int JSyncThread::start() {
-  if (_running)
-  	return EBUSY;
-  else _running = true;
-  return pthread_create(&_thread, &_attr, &JSyncThread::_run, this);
+  return start_with(pthread_create);
+}
+
+int JSyncThread::start_with(CreateWorker create) {
+  std::lock_guard<std::mutex> lifecycle(_lifecycle);
+  if (_joinable)
+    return EBUSY;
+
+  _running.store(true);
+  const int result = create(&_thread, nullptr, &JSyncThread::_run, this);
+  if (result == 0)
+    _joinable = true;
+  else
+    _running.store(false);
+  return result;
 }
 
 void JSyncThread::stop() {
-  if (_running) {
-    _running = false;
-    pthread_join(_thread,NULL);
+  std::unique_lock<std::mutex> lifecycle(_lifecycle);
+  _running.store(false);
+  if (_joinable && pthread_equal(_thread, pthread_self()))
+    return; // The next stop on the owner thread joins this worker.
+  if (_joining) {
+    _stopped.wait(lifecycle, [this] { return !_joining; });
+    return;
   }
+  if (!_joinable)
+    return;
+
+  _joining = true;
+  const pthread_t worker = _thread;
+  lifecycle.unlock();
+  const int result = pthread_join(worker, NULL);
+  lifecycle.lock();
+  _joining = false;
+  if (result == 0)
+    _joinable = false;
+  else
+    error("error joining worker: %s", strerror(result));
+  _stopped.notify_all();
 }
 
 void* JSyncThread::_run(void *arg) {
@@ -72,9 +87,10 @@ void* JSyncThread::_run(void *arg) {
    */
   me->deferred_calls->do_jobs();
   me->thread_setup();
-  while (me->_running) {
+  while (me->_running.load()) {
     me->deferred_calls->do_jobs();
-    me->thread_loop();
+    if (me->_running.load())
+      me->thread_loop();
   }
   me->thread_teardown();
   return NULL;

@@ -6,18 +6,9 @@ if BUILD_JAVASCRIPT
 JAVASCRIPTDIR = javascript
 endif
 
-if BUILD_SDLGFX
-SDLGFXDIR = sdl_gfx
-endif
-
-if BUILD_SDLTTF
-SDLTTFDIR = sdl_ttf
-endif
-
 SUBDIRS = ccvt \
 	slw              \
-	$(SDLTTFDIR)     \
-	$(SDLGFXDIR)     \
+	sdl_gfx     \
 	$(JAVASCRIPTDIR) \
 	$(FLASHDIR)
 

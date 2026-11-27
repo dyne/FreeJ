@@ -177,10 +177,6 @@ your compiler, OS and environment, but try the following pointers:
 where to find X, usually something like <code>g++ -o&nbsp;runner
 -L/usr/X11R6/lib runner.cpp -lX11</code>.
 
-     <li>If you have <a href="http://www.trolltech.com">Qt</a> installed, try running
-<code>cxxtestgen.pl</code> with the option <code>--gui=QtGui</code>.  As
-always, compile and link the the Qt headers and libraries.
-
    </ul>
 
    <p>See <a href="#GUI">Graphical user interface</a> and <a href="#samples">Running the samples</a> for
@@ -738,9 +734,8 @@ under <code>sample/winddk</code>.
 
    <p><a name="GUI"></a>
 
-   <p>There are currently three GUIs implemented: native Win32, native X11 and
-Qt.  To use this feature, just specify <code>--gui=X11Gui</code>,
-<code>--gui=Win32Gui</code> or <code>--gui=QtGui</code> as a parameter for
+   <p>The available GUIs are native Win32 and native X11. To use one, specify
+<code>--gui=X11Gui</code> or <code>--gui=Win32Gui</code> as a parameter for
 <code>cxxtestgen</code> (instead of e.g. <code>--error-printer</code>).  A
 progress bar is displayed, but the results are still written to standard
 output, where they can be processed by your IDE (e.g. Emacs or Visual
@@ -754,7 +749,7 @@ e.g. Visual Studio likes it better if you use
 
 <h4 class="subsection"><a name="TOC35"></a>3.5.1 Starting the GUI minimized</h4>
 
-   <p>If you run the generated Win32 or Qt GUIs with the command line
+   <p>If you run the generated Win32 GUI with the command line
 <code>-minimized</code>, the test window will start minimized (iconified)
 and only pop up if there is an error (the bar turns red). This is useful
 if you find the progress bar distracting and only want to check it if
@@ -773,18 +768,11 @@ you to enjoy:
 
      <ul>
 
-     <li>Using the Qt GUI on Linux (with the WindowMaker window manager):
-<div align="center"><img src="qt.png" alt="qt.png"></div>
-<br><p>
      <li>Using the Win32 GUI on Windows 98:
 <div align="center"><img src="win32.png" alt="win32.png"></div>
 <br><p>
      <li>Using the X11 GUI (with the venerable TWM):
 <div align="center"><img src="x11.png" alt="x11.png"></div>
-<br><p>
-     <li>And of course, no GUI is complete without the ability to mess around with
-its appearance:
-<div align="center"><img src="qt2.png" alt="qt2.png"></div>
 <br><p>
      <p><em>Ahhh.</em> Nothing like a beautiful user interface.
 
@@ -1481,7 +1469,7 @@ to display a graphical user interface.  This option can be combined with
 the <code>--runner</code> option to determine the text-mode output format. 
 The default is the standard error printer.
 
-   <p>There are three different GUIs:
+   <p>There are two different GUIs:
      <dl>
 <dt><code>--gui=Win32Gui</code>
      <dd>A native Win32 GUI.  It has been tested on Windows 98, 2000 and XP and
@@ -1489,9 +1477,6 @@ should work unmodified on other 32-bit versions of Windows.
 
      <br><dt><code>--gui=X11Gui</code>
      <dd>A native XLib GUI.  This GUI is very spartan and should work on any X server.
-
-     <br><dt><code>--gui=QtGui</code>
-     <dd>A GUI that uses the Qt library from Troll.  It has been tested with Qt versiond 2.2.1 and 3.0.1. 
 </dl>
 
 <h3 class="section"><a name="TOC74"></a>A.6 <code>--include</code></h3>

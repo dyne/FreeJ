@@ -22,7 +22,6 @@ stamp-h1
 tags
 doc/scripting/html
 doc/freej.dox
-qt/qfreej
 *.[oa]
 *.so
 *.la

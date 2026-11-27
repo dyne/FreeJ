@@ -25,8 +25,8 @@
 #include <config.h>
 #if defined WITH_TEXTLAYER
 
-#include <SDL.h>
-#include <SDL_ttf.h>
+#include <SDL3/SDL.h>
+#include <SDL3_ttf/SDL_ttf.h>
 #include <layer.h>
 
 
@@ -62,9 +62,9 @@ class TextLayer: public Layer {
   TTF_Font *font;
   char *fontfile;
   char *fontname;
-  SDL_Surface *surf;
+  std::shared_ptr<SDL_Surface> surf;
 
-  void _display_text(SDL_Surface *newsurf);
+  void _display_text(std::shared_ptr<SDL_Surface> newsurf);
   char *_get_fontfile(const char *name);
 
    // allow to use Factory on this class

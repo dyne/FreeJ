@@ -48,7 +48,7 @@ AudioInput::~AudioInput() {
 }
 
 bool AudioInput::init() {
-  notice("Initializing audio input jack");
+  notice("Initializing audio input through PipeWire");
 
   audio = new AudioCollector(name, 2048, 44100);
 

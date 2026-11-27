@@ -21,7 +21,9 @@
 
 #include <pthread.h>
 
+#include <condition_variable>
 #include <cstring>
+#include <mutex>
 #include <queue>
 
 #include <jutils.h>
@@ -53,11 +55,16 @@ class ClosureQueue {
 
     void add_job(Closure *job);
     void do_jobs();
+    void cancel_jobs();
+    void close();
+    void reopen();
 
   private:
+    void dispose_jobs(bool close);
     Closure *get_job_();
     std::queue<Closure *> job_queue_;
-    pthread_mutex_t job_queue_mutex_;
+    std::mutex job_queue_mutex_;
+    bool closed_ = false;
 
 };
 
@@ -146,58 +153,40 @@ class Closure {
           : FreejError(msg, rv) { }
     };
 
-    Closure(bool synchronized) : synchronized_(synchronized) {
-      if (synchronized_) {
-        int r;
-        if ((r=pthread_mutex_init(&cond_mutex_, NULL)) != 0)
-          throw Error("Initializing cond_mutex_", r);
-        if ((r=pthread_cond_init(&cond_, NULL)) != 0)
-          throw Error("Initializing cond_", r);
-        if ((r=pthread_mutex_lock(&cond_mutex_)) != 0)
-          throw Error("Preliminary lock of cond_mutex_", r);
-      }
-    }
-    ~Closure() {
-      if (synchronized_) {
-        int r;
-        if ((r=pthread_mutex_unlock(&cond_mutex_)) != 0)
-          error("In %s , pthread_mutex_unlock(): %s",
-                __PRETTY_FUNCTION__, strerror(r));
-        if ((r=pthread_cond_destroy(&cond_)) != 0)
-          error("In %s , pthread_cond_destroy(): %s",
-                __PRETTY_FUNCTION__, strerror(r));
-        if ((r=pthread_mutex_destroy(&cond_mutex_)) != 0)
-          error("In %s , pthread_mutex_destroy(): %s",
-                __PRETTY_FUNCTION__, strerror(r));
-      }
-    }
+    Closure(bool synchronized) : synchronized_(synchronized) {}
+    virtual ~Closure() = default;
     void run() {
-      run_();
-      if (synchronized_) {
-        int r;
-        if ((r=pthread_mutex_lock(&cond_mutex_)) != 0)
-          throw Error("Pre-signal locking of cond_mutex_", r);
-        if ((r=pthread_cond_broadcast(&cond_)) != 0)
-          throw Error("Signaling cond_", r);
-        if ((r=pthread_mutex_unlock(&cond_mutex_)) != 0)
-          throw Error("Post-signal unlocking of cond_mutex_", r);
+      try {
+        run_();
+      } catch (...) {
+        complete();
+        throw;
       }
+      complete();
     }
     bool is_synchronized() {
       return synchronized_;
     }
     void wait() {
       if (synchronized_) {
-        int r;
-        if ((r=pthread_cond_wait(&cond_, &cond_mutex_)) != 0)
-          throw Error("Waiting cond_", r);
+        std::unique_lock<std::mutex> lock(cond_mutex_);
+        cond_.wait(lock, [this] { return settled_; });
       }
     }
   private:
+    friend class ClosureQueue;
+    void complete() {
+      if (synchronized_) {
+        std::lock_guard<std::mutex> lock(cond_mutex_);
+        settled_ = true;
+        cond_.notify_all();
+      }
+    }
     bool synchronized_;
+    bool settled_ = false;
     virtual void run_() = 0;
-    pthread_mutex_t cond_mutex_;
-    pthread_cond_t cond_;
+    std::mutex cond_mutex_;
+    std::condition_variable cond_;
 };
 
 namespace closures {
@@ -209,7 +198,7 @@ namespace closures {
       FunctionClosure0(FunctionType function, bool synchronized)
         : Closure(synchronized),
         function_(function) {}
-      ~FunctionClosure0();
+      ~FunctionClosure0() override = default;
 
       void run_() {
         function_();

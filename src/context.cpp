@@ -18,12 +18,16 @@
  */
 
 #include <config.h>
+#ifdef WITH_AUDIO
+#include <audio_pipewire.h>
+#endif
 #include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
-#include <assert.h>
 #include <context.h>
+#include <exception>
+#include <mutex>
 #include <blitter.h>
 #include <controller.h>
 
@@ -38,18 +42,19 @@
 
 #include <jutils.h>
 #include <fastmemcpy.h>
+#include <exceptions.h>
 
 #ifdef WITH_JAVASCRIPT
 #include <jsparser_data.h>
 #endif
 
-#ifdef WITH_FFMPEG
-#include <video_layer.h>
-#endif
-
 #include <impl_layers.h>
 #include <impl_video_encoders.h>
 #include <factory.h>
+
+#include "engine/frame_step.h"
+#include "engine/frame_storage.h"
+#include "media/movie_registration.h"
 
 void fsigpipe (int Sig);
 int got_sigpipe;
@@ -65,7 +70,7 @@ static void init_factory() {
     Factory<ViewPort>::set_default_classtype("Screen", "sdl"); // singleton
     
     Factory<Layer>::set_default_classtype("GeometryLayer", "basic");
-    Factory<Layer>::set_default_classtype("MovieLayer", "ffmpeg");
+    freej_media::register_movie_layer();
     Factory<Layer>::set_default_classtype("GeneratorLayer","ff_f0r");
     Factory<Layer>::set_default_classtype("ImageLayer","sdl");
 #ifdef WITH_UNICAP
@@ -99,7 +104,7 @@ void * run_context(void * data){
 	pthread_exit(NULL);
 }
 
-Context::Context() {
+Context::Context() : initialized(false), running(false) {
 
   //audio           = NULL;
 
@@ -112,6 +117,7 @@ Context::Context() {
   save_to_file    = false;
   interactive     = true;
   poll_events     = true;
+  screen          = NULL;
 
   fps_speed       = 25;
 
@@ -151,10 +157,13 @@ Context::Context() {
 #endif
 "\n";
 
-  if (!factory_initialized)
-      init_factory();
-  
-  assert( init() );
+  if (!factory_initialized) {
+    init_factory();
+    factory_initialized = true;
+  }
+
+  if (!init())
+    throw FreejError("Could not initialize the FreeJ engine");
 
 }
 
@@ -200,8 +209,13 @@ bool Context::add_screen(ViewPort *scr) {
 }
 
 bool Context::init() {
+  if (initialized)
+    return true;
 
   notice("Initializing the FreeJ engine");
+#ifdef FREEJ_NATIVE_PROFILE
+  act("Native profile %s selects %s", FREEJ_NATIVE_PROFILE, FREEJ_CAPABILITIES);
+#endif
 
   // a fast benchmark to select the best memcpy to use
   find_best_memcpy ();
@@ -211,17 +225,13 @@ bool Context::init() {
 
 #ifdef WITH_JAVASCRIPT
   // create javascript object
-  js = new JsParser (this);
+  try {
+    js = new JsParser(this);
+  } catch (const FreejError& failure) {
+    error("%s", failure.what());
+    return false;
+  }
 #endif
-
-#ifdef WITH_FFMPEG
-  /** init ffmpeg libraries (codecs/formats auto-registered in FFmpeg 4+) */
-  /** make ffmpeg silent */
-  av_log_set_level(AV_LOG_QUIET);
-  //av_log_set_level(AV_LOG_DEBUG);
-  act("FFmpeg initialized all codec and format");
-#endif
-
 
   // register SIGPIPE signal handler (stream error)
   got_sigpipe = false;
@@ -233,6 +243,7 @@ bool Context::init() {
   // refresh the list of available plugins
   plugger.refresh(this);
 
+  initialized = true;
   return true;
 }
 
@@ -251,94 +262,103 @@ void Context::start_threaded(){
 		pthread_create(&cafudda_thread, 0, run_context, this);
 }
 
-/*
- * Main loop called fps_speed times a second
- */
-void Context::cafudda(double secs) {
-  
-  ///////////////////////////////
-  //// process controllers
-  if(poll_events)
-    handle_controllers();
-	 
-  ///////////////////////////////
-  
-  /////////////////////////////
-  // blit layers on screens
-  ViewPort *scr;
-  scr = screens.begin();
-  while(scr) {
-
-    if (clear_all) scr->clear();
-    
-    // Change resolution if needed 
-    if (scr->changeres) scr->handle_resize();
-    
-    scr->blit_layers();
-
-    // show the new painted screen
-    scr->show();
-
-    scr = (ViewPort*)scr->next;
-
+void Context::cafudda(double /*secs*/) {
+  freej_engine::FrameHost host{
+    {},
+    [](ViewPort &screen) {
+      freej_engine::FrameAccess::capture(screen);
+      screen.show();
+    },
+    [] {
+      timeval now;
+      gettimeofday(&now, NULL);
+      return now;
+    }
+  };
+  if (poll_events) {
+    event.type = SDL_EVENT_FIRST;
+    SDL_PumpEvents();
+    host.dispatch_input = [this] { handle_controllers(); };
   }
-  /////////////////////////////
-  // TODO - try to garbage collect only if we have been faster
-  //        than fps
-  // XXX - temporarily disabling explicit garbage-collection
-  //       because it still triggers deadlocks somewhere
-  if (js)
-    js->gc();
-  /// FPS calculation
-  fps.calc();
+  fps.calc_at(freej_engine::step_frame(*this, host));
+#ifdef WITH_AUDIO
+  PipeWireClient::ReportPlaybackUnderruns();
+#endif
   fps.delay();
 }
 
-#define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
-
 void Context::handle_controllers() {
-  int res;
-  Controller *ctrl;
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    if (polling_controllers_ || resetting_ || reset_requested_)
+      return;
+  }
 
-  event.type = SDL_NOEVENT;
-
-  SDL_PumpEvents();
-
-  // peep if there are quit or fullscreen events
-  res = SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);
-
-  // force quit when SDL does
-  if (event.type == SDL_QUIT) {
+  if (SDL_HasEvent(SDL_EVENT_QUIT)) {
     quit = true;
     return;
   }
-  
-  // fullscreen switch (ctrl-f)
-  if(event.type == SDL_KEYDOWN)
-    if(event.key.state == SDL_PRESSED)
-      if(event.key.keysym.mod & KMOD_CTRL)
-	if(event.key.keysym.sym == SDLK_f) {
-	  ViewPort *scr = screens.selected();
-	  scr->fullscreen();
-	  res = SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_KEYEVENTMASK|SDL_QUITMASK);  
-	}
-  
-  ctrl = (Controller *)controllers.begin();
-  if(ctrl) {
-    controllers.lock();
-    while(ctrl) {
-      if(ctrl->active)
-          ctrl->poll();
-      ctrl = (Controller*)ctrl->next;
-    }
-    controllers.unlock();
+
+  // Reserve Ctrl-F for the active viewport.
+  if (SDL_PeepEvents(&event, 1, SDL_PEEKEVENT, SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_DOWN) == 1 &&
+      !event.key.repeat && (event.key.mod & SDL_KMOD_CTRL) && event.key.key == SDLK_F) {
+    if (auto *screen = screens.selected())
+      screen->fullscreen();
+    SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_DOWN);
   }
 
-  // flushes all events that are leftover
-  while( SDL_PeepEvents(&event,1,SDL_GETEVENT, SDL_ALLEVENTS) > 0 )
-      continue;
-  memset(&event, 0x0, sizeof(SDL_Event));
+  std::vector<Controller *> frame_controllers;
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    if (polling_controllers_ || resetting_ || reset_requested_)
+      return;
+    for (auto *ctrl = controllers.begin(); ctrl; ctrl = static_cast<Controller *>(ctrl->next))
+      frame_controllers.push_back(ctrl);
+    polling_controllers_ = true;
+  }
 
+  // Poll may run user code that unlinks any controller. Detached entries
+  // stay alive until this traversal has released its snapshot.
+  std::exception_ptr failure;
+  try {
+    for (auto *ctrl : frame_controllers)
+      if (can_poll_controller(*ctrl))
+        ctrl->poll();
+  } catch (...) {
+    failure = std::current_exception();
+  }
+
+  bool reset_after_poll;
+  for (;;) {
+    std::vector<Controller *> retired;
+    {
+      std::lock_guard<BaseLinklist> registry(controllers);
+      if (retired_controllers_.empty()) {
+        polling_controllers_ = false;
+        reset_after_poll = reset_requested_;
+        break;
+      }
+      retired.swap(retired_controllers_);
+    }
+    for (auto *ctrl : retired)
+      delete ctrl;
+  }
+  if (reset_after_poll)
+    reset();
+  if (failure)
+    std::rethrow_exception(failure);
+
+  // flushes all events that are leftover
+  while (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_EVENT_FIRST, SDL_EVENT_LAST) > 0)
+    if (event.type == SDL_EVENT_QUIT)
+      quit = true;
+  memset(&event, 0x0, sizeof(SDL_Event));
+}
+
+bool Context::can_poll_controller(const Controller &ctrl) {
+  std::lock_guard<BaseLinklist> registry(controllers);
+  return !quit && !resetting_ && !reset_requested_ &&
+         ctrl.active && ctrl.list == &controllers;
 }
 
 bool Context::register_controller(Controller *ctrl) {
@@ -349,6 +369,10 @@ bool Context::register_controller(Controller *ctrl) {
     return false;
   }
 
+  std::lock_guard<BaseLinklist> registry(controllers);
+  if (resetting_ || reset_requested_ || ctrl->retiring_)
+    return false;
+
   if(! ctrl->initialized ) {
     func("initialising controller %s (%p)",ctrl->name, ctrl);
 
@@ -357,6 +381,7 @@ bool Context::register_controller(Controller *ctrl) {
   } else if(ctrl->env != this) {
 
     error("controller is already initialised with another context: %x", ctrl->env);
+    return false;
 
   } else 
     warning("controller was already initialised on this context");
@@ -378,13 +403,21 @@ bool Context::rem_controller(Controller *ctrl) {
     return false;
   }
 
-  //  if(js) js->gc(); // ?!
-
-  ctrl->active = false;
-  ctrl->rem();
-  act("removed controller %s", ctrl->name);
-  delete ctrl;
-
+  bool defer;
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    if (ctrl->retiring_ || (ctrl->list && ctrl->list != &controllers))
+      return false;
+    defer = polling_controllers_;
+    if (defer)
+      retired_controllers_.push_back(ctrl);
+    ctrl->retiring_ = true;
+    ctrl->active = false;
+    ctrl->rem();
+    act("removed controller %s", ctrl->name);
+  }
+  if (!defer)
+    delete ctrl;
   return true;
 }
 
@@ -447,29 +480,41 @@ int Context::parse_js_cmd(const char *cmd) {
 int Context::reset() {
   func("%s",__PRETTY_FUNCTION__);
 
-  notice("FreeJ engine reset");
-
-  func("deleting %u controllers", controllers.len() );
-  controllers.lock();
-  Controller *ctrl = controllers.begin();
-  while(ctrl) {
-    if(ctrl->indestructible ) {
-      ctrl->reset();
-      ctrl = (Controller *)ctrl->next;
-    } else {
-      ctrl->rem();
-      delete(ctrl);
-      ctrl = controllers.begin();
+  std::vector<Controller *> removed;
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    if (resetting_)
+      return 1;
+    if (polling_controllers_) {
+      reset_requested_ = true;
+      return 1;
+    }
+    removed.reserve(controllers.len());
+    reset_requested_ = false;
+    resetting_ = true;
+    for (auto *ctrl = controllers.begin(); ctrl;) {
+      auto *next = static_cast<Controller *>(ctrl->next);
+      if (ctrl->indestructible) {
+        ctrl->reset();
+      } else {
+        ctrl->retiring_ = true;
+        ctrl->active = false;
+        ctrl->rem();
+        removed.push_back(ctrl);
+      }
+      ctrl = next;
     }
   }
-  controllers.unlock();
+
+  notice("FreeJ engine reset");
+
+  for (auto *ctrl : removed)
+    delete ctrl;
   func("deleting %u screens", screens.len() );
   ViewPort *scr = screens.begin();
   while(scr) {
-      scr->lock();
+      scr->reset();
       if (scr->indestructible) {
-          scr->reset();
-          scr->unlock();
           scr = (ViewPort *)scr->next;
       } else {
           scr->rem();
@@ -477,9 +522,14 @@ int Context::reset() {
           scr = screens.begin();
       }
   }
+  screen = screens.begin();
     
   if (js)
     js->reset();
+  {
+    std::lock_guard<BaseLinklist> registry(controllers);
+    resetting_ = false;
+  }
   //does anyone care about reset() return value?
   return 1; 
 }
@@ -538,6 +588,8 @@ bool Context::config_check(const char *filename) {
 	  
 void Context::resize(int w, int h) {
   ViewPort *scr = screens.selected();
+  if (!scr || w <= 0 || h <= 0)
+    return;
   scr->resize_w = w;
   scr->resize_h = h;
   scr->resizing = true;
@@ -633,6 +685,8 @@ Layer *Context::open(char *file, int w, int h) {
 
 #ifdef WITH_FFMPEG
        nlayer = Factory<Layer>::new_instance("MovieLayer");
+       if (!nlayer)
+         return nullptr;
        if(!nlayer->init()) {
  	error("failed initialization of layer %s for %s", nlayer->name, file_ptr);
  	delete nlayer; return NULL;

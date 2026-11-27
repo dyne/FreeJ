@@ -26,12 +26,15 @@
 #include <parameter.h>
 #include <linklist.h>
 #include <stdint.h>
+#include <memory>
 #include <factory.h>
 
 class Filter;
 
 class FilterInstance : public Entry {
   friend class Filter;
+  friend class Layer;
+  friend class Freeframe;
 
  public:
   FilterInstance();
@@ -42,6 +45,7 @@ class FilterInstance : public Entry {
   virtual uint32_t *process(float fps, uint32_t *inframe);
 
   virtual bool set_parameter(int idx); ///< apply the parameter value
+  bool set_parameter_value(int idx, void *value); ///< store and apply a typed parameter
   virtual bool get_parameter(int idx); ///< get the parameter value
   virtual bool apply(Layer *lay);
 
@@ -66,6 +70,16 @@ class FilterInstance : public Entry {
 
  private:
   Layer *layer;
+  uint16_t frame_width_ = 0;
+  uint16_t frame_height_ = 0;
+
+  friend class Freior;
+  friend class GeneratorLayer;
+  friend class CVF0rLayer;
+  bool allocate_output(size_t bytes);
+  bool freeframe_active_ = false;
+  std::shared_ptr<Filter> prototype_owner_;
+  uint32_t *frei0r_input_ = nullptr;
 
   FACTORY_ALLOWED
 };

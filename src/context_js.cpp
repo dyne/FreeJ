@@ -235,9 +235,7 @@ JS(register_controller) {
         JS_ERROR("Controller core data is NULL");
 
     /// really add controller
-    global_environment->register_controller( ctrl );
-    *rval = JSVAL_TRUE;
-func("JSvalcmp: %p / %p", argv[0], ctrl->data);
+    *rval = BOOLEAN_TO_JSVAL(global_environment->register_controller(ctrl));
 
     return JS_TRUE;
 }
@@ -254,10 +252,9 @@ JS(rem_controller) {
     jsctrl = JSVAL_TO_OBJECT(argv[0]);
     ctrl = (Controller *) JS_GetPrivate(cx, jsctrl);
     if(!ctrl)
-        JS_ERROR("Layer core data is NULL");
+        JS_ERROR("Controller core data is NULL");
 
-func("JSvalcmp: %p / %p", argv[0], ctrl->data);
-    global_environment->rem_controller(ctrl);
+    *rval = BOOLEAN_TO_JSVAL(global_environment->rem_controller(ctrl));
     return JS_TRUE;
 }
 
@@ -279,10 +276,7 @@ JS(register_encoder) {
 
     //    enc->start();
 
-    /// really add controller
-    global_environment->add_encoder( enc );
-    
-    *rval = JSVAL_TRUE;
+    *rval = BOOLEAN_TO_JSVAL(global_environment->add_encoder(enc));
 
     return JS_TRUE;
 }

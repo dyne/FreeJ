@@ -53,39 +53,31 @@ class Freior: public Filter {
 
   bool opened;
 
-  // parameter map
+  // Public compatibility members used by existing native embeddings.
   std::vector<f0r_param_info_t> param_infos;
-  void (*f0r_set_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
-  void (*f0r_get_param_value)(f0r_instance_t instance, f0r_param_t param, int param_index);
+  decltype(&::f0r_set_param_value) f0r_set_param_value = nullptr;
+  decltype(&::f0r_get_param_value) f0r_get_param_value = nullptr;
+  decltype(&::f0r_construct) f0r_construct = nullptr;
 
-  f0r_instance_t (*f0r_construct)(unsigned int width, unsigned int height);
+  bool construct(FilterInstance *instance, unsigned width, unsigned height);
+  static void get_parameter(FilterInstance *, Parameter *, int);
+  static void set_parameter(FilterInstance *, Parameter *, int);
 
  protected:
   void destruct(FilterInstance *inst);
   void update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe);
-  // Interface function pointers.
-  int (*f0r_init)();
-  void (*f0r_get_plugin_info)(f0r_plugin_info_t* pluginInfo);
-  void (*f0r_get_param_info)(f0r_param_info_t* info, int param_index);
-  void (*f0r_destruct)(f0r_instance_t instance);
+  void init_parameters(Linklist<Parameter> &parameters);
 
-  void (*f0r_update)(f0r_instance_t instance, double time,
-		     const uint32_t* inframe, uint32_t* outframe);
-  void (*f0r_update2)(f0r_instance_t instance, double time,
-                      const uint32_t* inframe1, const uint32_t* inframe2,
-		      const uint32_t* inframe3, uint32_t* outframe);
-  
-  void init_parameters(Linklist<Parameter> &parameters);  
-  private:
-    
-    // dlopen handle
-    void *handle;
-    // full .so file path
-    char filename[512];
-    
-    FACTORY_ALLOWED
+ private:
+  friend class Plugger;
+  struct Module;
+  int finish_open(Module *);
+#ifdef FREEJ_STRICT_STATIC
+  bool open_descriptor(const struct f0r_plugin_descriptor *);
+#endif
+  Module *module;
+  FACTORY_ALLOWED
 };
 
 #endif // WITH_FREI0R
-
 #endif

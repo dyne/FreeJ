@@ -70,6 +70,8 @@ typedef struct
     /* the file the mixed ogg stream is written to */
 	ringbuffer_t *ringbuffer;
 	int bytes_encoded;
+    struct SRC_STATE_tag *audio_resampler;
+    double audio_ratio, average_audio_ratio, last_video_time, ratio_samples;
     FILE *outfile;
 
     int audio_only;

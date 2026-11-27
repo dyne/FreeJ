@@ -129,6 +129,7 @@
 
 #include <sys/time.h>
 #include <time.h>
+#include <mutex>
 
 #include <stdlib.h>
 #include <string.h>
@@ -651,9 +652,9 @@ static struct {
 #ifdef ARCH_X86
 static inline unsigned long long int rdtsc()
 {
-     unsigned long long int x;
-     __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
-     return x;
+     unsigned low, high;
+     __asm__ volatile ("rdtsc" : "=a" (low), "=d" (high));
+     return (static_cast<unsigned long long>(high) << 32) | low;
 }
 #else
 static inline unsigned long long int rdtsc()
@@ -670,7 +671,7 @@ static inline unsigned long long int rdtsc()
 
 #define BUFSIZE 1024
 
-void find_best_memcpy()
+static void select_memcpy()
 {
      /* save library size on platforms without special memcpy impl. */
 
@@ -722,5 +723,10 @@ void find_best_memcpy()
 
      free( buf1 );
      free( buf2 );
+}
+
+void find_best_memcpy() {
+     static std::once_flag selected;
+     std::call_once(selected, select_memcpy);
 }
 

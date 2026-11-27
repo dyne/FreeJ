@@ -25,7 +25,7 @@
 
 
 //#include <sndfile.h>
-#include <audio_jack.h>
+#include <audio_pipewire.h>
 //#include <jutils.h>
 
 AudioLayer::AudioLayer()
@@ -35,22 +35,24 @@ AudioLayer::AudioLayer()
   m_Processing(false)
 {
   notice("Audio layer initialized.");
-  JackClient *Jack = JackClient::Get();
-  if (!Jack->IsAttached()) {
-    Jack->SetCallback(AudioCallback,(void*)this);
-    Jack->Attach("freej");
+  PipeWireClient *device = PipeWireClient::Get();
+  if (!device->IsAttached()) {
+    device->SetCallback(AudioCallback,(void*)this);
+    device->Attach("freej");
   }
-  if (Jack->IsAttached()) {	
-    int id=Jack->AddInputPort();
-    Jack->SetOutputBuf(id,m_JackBuffer);
+  if (device->IsAttached()) {
+    int id=device->AddInputPort();
+    device->SetOutputBuf(id,m_JackBuffer);
     //const string &port;
-    //Jack->ConnectOutput(id, port); // XXX
+    //device->ConnectOutput(id, port); // XXX
   } else {
-    error("Could not attach to jack");
+    error("Could not attach to PipeWire");
   }
 }
 
 AudioLayer::~AudioLayer() {
+  PipeWireClient::Get()->ClearCallback(this);
+  stop();
   close();
 }
 

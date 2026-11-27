@@ -60,16 +60,15 @@ class Plugger {
 
  private:
 
-  bool open(Context *env, char *file);
-
-  /* checks if file/directory exist */
+  friend struct PluggerTestAccess;
+#ifdef FREEJ_STRICT_STATIC
+  bool register_builtin(Context *, const struct f0r_plugin_descriptor *);
+#endif
+  Plugger(const Plugger &) = delete;
+  Plugger &operator=(const Plugger &) = delete;
   void addsearchdir(const char *dir);
-  void _setsearchpath(const char *path) {
-    if(_searchpath) free(_searchpath); _searchpath = strdup(path); };
-  char *_getsearchpath() { return(_searchpath); };
-
-  char *_searchpath;
-
-};  
+  struct State;
+  State *state;
+};
 
 #endif

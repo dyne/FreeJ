@@ -2,7 +2,7 @@
 #define __SDL_CONTROLLER_H__
 
 #include <controller.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 
 class SdlController: public Controller {
   public:
@@ -10,9 +10,9 @@ class SdlController: public Controller {
 
     SdlController();
     ~SdlController();
-    void poll_sdlevents(Uint32 eventmask);
+    void poll_sdlevents(Uint32 first, Uint32 last);
     ///< helper function to filter and redispatch unhandled SDL_Events
-    ///< calls dispatch() foreach event in eventmask
+    ///< calls dispatch() foreach event in the selected range
  
 };
 

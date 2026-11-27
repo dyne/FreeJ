@@ -2,10 +2,12 @@ prefix=@prefix@
 exec_prefix=@exec_prefix@
 libdir=@libdir@
 includedir=@includedir@
+profile=@FREEJ_NATIVE_PROFILE@
+capabilities=@FREEJ_CAPABILITIES@
 
 Name: freej
 Description: FreeJ vision mixer library
 Version: @VERSION@
-Libs: -L${libdir} -lfreej
-Cflags: -I${includedir}
+Libs: @FREEJ_PACKAGE_LIBS@ @FREEJ_PACKAGE_DEPS@
+Cflags: -I${includedir} -I${includedir}/freej @FREEJ_PACKAGE_CFLAGS@
 

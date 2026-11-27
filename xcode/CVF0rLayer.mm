@@ -25,49 +25,14 @@
 
 static void set_freeframe_layer_parameter(Layer *lay, Parameter *param, int idx) { }
 static void get_freeframe_layer_parameter(Layer *lay, Parameter *param, int idx) { }
-static void get_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) { }
-static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
-    CVF0rLayer *layer = (CVF0rLayer*)lay;
-#ifdef WITH_FREI0R    
-    Freior *f = (Freior *)layer->generator->proto;
-    bool *val = (bool*)param->value;
-    
-    switch(f->param_infos[idx-1].type) {
-            
-            // idx-1 because frei0r's index starts from 0
-        case F0R_PARAM_BOOL:
-            (*f->f0r_set_param_value)
-            (layer->generator->core, new f0r_param_bool(val[0]), idx-1);
-            break;
-            
-        case F0R_PARAM_DOUBLE:
-            (*f->f0r_set_param_value)(layer->generator->core, new f0r_param_double(val[0]), idx-1);
-            break;
-            
-        case F0R_PARAM_COLOR:
-        { f0r_param_color *color = new f0r_param_color;
-            color->r = val[0];
-            color->g = val[1];
-            color->b = val[2];
-            (*f->f0r_set_param_value)(layer->generator->core, color, idx-1);
-            // QUAAA: should we delete the new allocated object? -jrml
-        } break;
-            
-        case F0R_PARAM_POSITION:
-        { f0r_param_position *position = new f0r_param_position;
-            position->x = val[0];
-            position->y = val[1];
-            (*f->f0r_set_param_value)(layer->generator->core, position, idx-1);
-            // QUAAA: should we delete the new allocated object? -jrml
-        } break;
-            
-        default:
-            
-            error("Unrecognized parameter type %u for set_parameter_value",
-                  f->param_infos[idx].type);
-    }
-#endif
+#ifdef WITH_FREI0R
+static void get_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
+    Freior::get_parameter(static_cast<CVF0rLayer *>(lay)->generator, param, idx);
 }
+static void set_frei0r_layer_parameter(Layer *lay, Parameter *param, int idx) {
+    Freior::set_parameter(static_cast<CVF0rLayer *>(lay)->generator, param, idx);
+}
+#endif
 
 CVF0rLayer::CVF0rLayer(CVLayerController *controller)
     : CVLayer()
@@ -126,13 +91,12 @@ bool CVF0rLayer::open(const char *file) {
     close();
     
     generator = Factory<FilterInstance>::new_instance("FilterInstance");
-    if (generator)
-      generator->init(proto);
+    if (!generator) return false;
+    generator->init(proto);
     
 #ifdef WITH_FREI0R
     if(proto->type() == Filter::FREIOR) {
-        generator->core = (void*)(*((Freior *)proto)->f0r_construct)(geo.w, geo.h);
-        if(!generator->core) {
+        if (!static_cast<Freior *>(proto)->construct(generator, geo.w, geo.h)) {
             error("freior constructor returned NULL instantiating generator %s",file);
             delete generator;
             generator = NULL;
@@ -142,8 +106,8 @@ bool CVF0rLayer::open(const char *file) {
         
         Parameter *p = (Parameter*)parameters->begin();
         while(p) {
-            p->layer_set_f = set_frei0r_layer_parameter;
-            p->layer_get_f = get_frei0r_layer_parameter;
+            p->layer_set_f = p->filter_set_f ? set_frei0r_layer_parameter : nullptr;
+            p->layer_get_f = p->filter_get_f ? get_frei0r_layer_parameter : nullptr;
             p = (Parameter*)p->next;
         }
     }
@@ -163,6 +127,7 @@ bool CVF0rLayer::open(const char *file) {
             return false;
         }
         // todo: parameters in freeframe
+        generator->freeframe_active_ = true;
         parameters = &generator->parameters;
         Parameter *p = (Parameter*)parameters->begin();
         while(p) {
@@ -172,10 +137,10 @@ bool CVF0rLayer::open(const char *file) {
         }
     }
     
-    // XXX - are we allocating memory for someone else? ... this is crap !!!
-    generator->outframe = (uint32_t*) calloc(geo.bytesize, 1);
-    
-    
+    if (!generator->allocate_output(geo.bytesize)) {
+        close();
+        return false;
+    }
     set_filename(file);
     opened = true;
     return true;
@@ -183,6 +148,7 @@ bool CVF0rLayer::open(const char *file) {
 
 void CVF0rLayer::close() {
     if(generator) {
+        parameters = NULL;
         delete generator;
         generator = NULL;
     }

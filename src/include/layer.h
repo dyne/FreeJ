@@ -26,6 +26,7 @@
 #define __LAYER_H__
 
 #include <inttypes.h>
+#include <memory>
 #include <geometry.h>
 #include <filter.h>
 #include <screen.h>
@@ -38,6 +39,7 @@ class Iterator;
 class Blitter;
 class Blit;
 class ViewPort;
+namespace freej_engine { class FrameStore; struct FrameAccess; }
 
 
 class JSContext;
@@ -181,6 +183,7 @@ class Layer: public Entry, public JSyncThread {
   bool active; // is active? (read-only)
   bool hidden; // is hidden (read-only by the blit)
   bool fade; // layer is deactivated at the end of current iterations (read-write internal)
+  virtual bool audio_format(int &, int &) const { return false; }
   bool use_audio; // layer makes use of audio input
   bool opened; // set by the layer (ex: image file has been opened)
   bool need_crop; // tell the screen that the layer need a crop (r/w internal)
@@ -231,8 +234,13 @@ class Layer: public Entry, public JSyncThread {
 
   bool is_native_sdl_surface;
   void *priv_data; // pointer to private data eventually associated to this layer
+  void clear_frame(); ///< release the published generation after quiescing the producer
 
  private:
+
+  friend struct freej_engine::FrameAccess;
+  std::unique_ptr<freej_engine::FrameStore> frames_;
+  bool resume_on_attach_ = false;
 
   void _set_position(int x, int y);
   void _set_zoom(double x, double y);

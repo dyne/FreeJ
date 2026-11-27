@@ -24,22 +24,23 @@
 #include <layer.h>
 #include <video_encoder.h>
 #ifdef WITH_AUDIO
-#include <audio_jack.h>
+#include <audio_pipewire.h>
 #endif
 #include <ringbuffer.h>
-
-#include <video_layer.h>
+#include "engine/frame_storage.h"
+#include "engine/surface_lock.h"
 
 #ifdef WITH_GD
 #include <gd.h>
 #endif
 
 ViewPort::ViewPort()
-  : Entry() {
+  : Entry(), frames_(new freej_engine::FrameStore) {
 
   opengl = false;
 
   changeres       = false;
+  resizing        = false;
 
   resize_w = 0;
   resize_h = 0;
@@ -48,7 +49,7 @@ ViewPort::ViewPort()
   jsobj = NULL;
 
   audio = NULL;
-  m_SampleRate=NULL;
+  m_SampleRate = nullptr;
   indestructible = false;
 #ifdef WITH_AUDIO
   // if compiled with audio initialize the audio data pipe
@@ -58,35 +59,13 @@ ViewPort::ViewPort()
 }
 
 ViewPort::~ViewPort() {
-
-  func("screen %s deleting %u layers", name, layers.len() );
-  Layer *lay;
-  lay = layers.begin();
-  while(lay) {
-      lay->stop();
-      lay->lock();
-      lay->rem();
-      // deleting layers crashes
-      //    delete(lay);
-      // XXX - you don't create layers... so you don't have to delete them as well!!!
-      //       symmetry is of primary importance and we should care about that.
-      //       layers should be freed by who created them. Perhaps we could extend 
-      //       the Layer api to allow notifications when a layer is removed from a screen
-      lay = layers.begin();
+  reset();
+  if (audio) {
+#ifdef WITH_AUDIO
+    PipeWireClient::ResetRingbuffer(audio, true);
+#endif
+    ringbuffer_free(audio);
   }
-
-  if(audio) ringbuffer_free(audio);
-
-  func("screen %s deleting %u encoders", name, encoders.len() );
-  VideoEncoder *enc;
-  enc = encoders.begin();
-  while(enc) {
-    enc->stop();
-    enc->rem();
-    delete(enc);
-    enc = encoders.begin();
-  }
-
 }
 
 bool ViewPort::init(int w, int h, int bpp) {
@@ -100,8 +79,8 @@ bool ViewPort::init(int w, int h, int bpp) {
 
   geo.init(w,h,bpp);
   initialized = _init();
-  act("screen %s initialized with size %ux%u",
-      name, geo.w, geo.h);
+  if (initialized)
+    act("screen %s initialized with size %ux%u", name, geo.w, geo.h);
 
   return initialized;
 
@@ -110,7 +89,9 @@ bool ViewPort::init(int w, int h, int bpp) {
 bool ViewPort::add_layer(Layer *lay) {
   func("%s",__PRETTY_FUNCTION__);
 
-  if(lay->list) {
+  std::lock_guard<Linklist<Layer>> list_lock(layers);
+  std::lock_guard<Layer> layer_lock(*lay);
+  if(lay->list || lay->screen) {
     warning("passing a layer from a screen to another is not (yet) supported");
     return(false);
   }
@@ -139,40 +120,142 @@ bool ViewPort::add_layer(Layer *lay) {
   layers.sel(0);
   lay->sel(true);
   lay->active = true;
+  if (lay->resume_on_attach_) {
+    const int started = lay->start();
+    if (started != 0 && started != EBUSY) {
+      lay->rem();
+      lay->screen = nullptr;
+      lay->active = false;
+      delete lay->blitter;
+      lay->blitter = nullptr;
+      lay->current_blit = nullptr;
+      error("could not restart layer %s: %s", lay->name, strerror(started));
+      return false;
+    }
+    lay->resume_on_attach_ = false;
+  }
   func("layer %s added to screen %s",lay->name, name);
   return(true);
 }
 
 #ifdef WITH_AUDIO
-bool ViewPort::add_audio(JackClient *jcl) {
- 	if (layers.len() == 0 ) return false;	
+bool ViewPort::add_audio(PipeWireClient *jcl) {
+  std::lock_guard<Linklist<Layer>> list_lock(layers);
+  const Layer *source = nullptr;
+  int rate = 0;
+  int channels = 0;
+  for (auto *layer = layers.begin(); layer; layer = static_cast<Layer *>(layer->next)) {
+    int candidate_rate, candidate_channels;
+    if (!layer->audio_format(candidate_rate, candidate_channels))
+      continue;
+    if (source)
+      return false;
+    source = layer;
+    rate = candidate_rate;
+    channels = candidate_channels;
+  }
+  return source && bind_audio(jcl, *source, rate, channels);
+}
 
-	jcl->SetRingbufferPtr(audio, (int) ((VideoLayer*) layers.begin())->audio_samplerate, (int) ((VideoLayer*) layers.begin())->audio_channels);
-std::cerr << "------ audio_samplerate :" << ((VideoLayer*) layers.begin())->audio_samplerate \
-    << " audio_channels :" << ((VideoLayer*) layers.begin())->audio_channels << std::endl;
-	m_SampleRate = &jcl->m_SampleRate;
-	long unsigned int  m_SampleRate;
-	return (true);
+bool ViewPort::add_audio(PipeWireClient *jcl, const Layer &source) {
+  std::lock_guard<Linklist<Layer>> list_lock(layers);
+  int rate, channels;
+  return source.list == &layers && source.audio_format(rate, channels)
+      && bind_audio(jcl, source, rate, channels);
+}
+
+bool ViewPort::bind_audio(PipeWireClient *jcl, const Layer &source, int rate, int channels) {
+  std::lock_guard<std::mutex> lock(audio_mutex_);
+  if (!jcl || !jcl->IsAttached() || !audio)
+    return false;
+  const int device_rate = jcl->m_SampleRate.load();
+  const int output_rate = device_rate ? device_rate : rate;
+  if (jcl->SetRingbufferPtr(audio, output_rate, channels) != 0)
+    return false;
+  audio_source_ = &source;
+  audio_rate_ = output_rate;
+  audio_channels_ = channels;
+  m_SampleRate = &jcl->m_SampleRate;
+  return true;
+}
+
+int ViewPort::audio_rate(const Layer &source) {
+  std::lock_guard<std::mutex> lock(audio_mutex_);
+  if (audio_source_ != &source)
+    return 0;
+  const int rate = *m_SampleRate;
+  if (rate && rate != audio_rate_) {
+    PipeWireClient::ResetRingbuffer(audio, false, rate);
+    audio_rate_ = rate;
+  }
+  return audio_rate_;
+}
+
+void ViewPort::write_audio(const Layer &source, const float *samples, std::size_t count,
+                           int channels, int rate) {
+  std::lock_guard<std::mutex> lock(audio_mutex_);
+  if (audio_source_ != &source || audio_rate_ != rate || audio_channels_ != channels)
+    return;
+  const auto bytes = count * sizeof(*samples);
+  if (ringbuffer_write_space(audio) >= bytes)
+    ringbuffer_write(audio, reinterpret_cast<const char *>(samples), bytes);
+}
+
+void ViewPort::flush_audio(const Layer &source) {
+  std::lock_guard<std::mutex> lock(audio_mutex_);
+  if (audio_source_ == &source)
+    PipeWireClient::ResetRingbuffer(audio, false);
 }
 #endif
 
-void ViewPort::rem_layer(Layer *lay)
-{
-    lay->screen = NULL; // symmetry
+void ViewPort::rem_layer(Layer *lay) {
+  {
+    std::lock_guard<Linklist<Layer>> list_lock(layers);
+    std::lock_guard<Layer> layer_lock(*lay);
+    if (lay->list != &layers || lay->screen != this)
+      return;
+    lay->resume_on_attach_ = lay->is_running();
     lay->rem();
-    notice("removed layer %s (but still present as an instance)", lay->name);
+  }
+
+  // The worker can take the layer lock to publish or run a queued operation.
+  // Unlink first and release both locks before joining it.
+  lay->deferred_calls->close();
+  lay->stop();
+  std::lock_guard<Layer> layer_lock(*lay);
+#ifdef WITH_AUDIO
+  {
+    std::lock_guard<std::mutex> lock(audio_mutex_);
+    if (audio_source_ == lay) {
+      PipeWireClient::ResetRingbuffer(audio, true);
+      audio_source_ = nullptr;
+      m_SampleRate = nullptr;
+    }
+  }
+#endif
+  lay->screen = nullptr;
+  lay->clear_frame();
+  delete lay->blitter;
+  lay->blitter = nullptr;
+  lay->current_blit = nullptr;
+  lay->deferred_calls->reopen();
+  notice("removed layer %s (but still present as an instance)", lay->name);
 }
 
-void ViewPort::reset()
-{
-    Layer *lay;
-    lay = layers.begin();
-    while(lay) {
-        // TODO - notify the layer that it has been removed from the screen
-        lay->rem();
-        lay = layers.begin();
-    }
-    
+void ViewPort::reset() {
+  stop_encoders();
+  while (Layer *layer = layers.begin())
+    rem_layer(layer);
+  frames_->clear();
+  capture_active_ = false;
+}
+
+void ViewPort::stop_encoders() {
+  while (VideoEncoder *encoder = encoders.begin()) {
+    encoder->rem();
+    encoder->stop();
+    delete encoder;
+  }
 }
 
 bool ViewPort::add_encoder(VideoEncoder *enc) {
@@ -190,11 +273,16 @@ bool ViewPort::add_encoder(VideoEncoder *enc) {
   }
   func("initialization done");
 
-  enc->start();
+  encoders.append(enc);
+  freej_engine::FrameAccess::capture(*this);
+  const int started = enc->start();
+  if (started != 0) {
+    enc->rem();
+    error("could not start encoder %s: %s", enc->name, strerror(started));
+    return false;
+  }
 
   enc->active = true;
-
-  encoders.append(enc);
 
   encoders.sel(0);
 
@@ -228,47 +316,36 @@ void ViewPort::save_frame(char *file) {
 
 
 void ViewPort::blit_layers() {
-  Layer *lay;
+  std::lock_guard<Linklist<Layer>> list_lock(layers);
+  for (Layer *layer = layers.end(); layer; layer = static_cast<Layer *>(layer->prev)) {
+    std::lock_guard<Layer> layer_lock(*layer);
+    if (!layer->buffer || !layer->active || !layer->opened)
+      continue;
 
-  lay = layers.end();
-  if (lay) {
-    layers.lock ();
-    while (lay) {
-
-      if(lay->buffer) {
-
-	if (lay->active & lay->opened) {
-
-	  lay->lock();
-	  lock();
-	  blit(lay);
-	  unlock();
-	  lay->unlock();
-	  
-	}
-      }
-      lay = (Layer *)lay->prev;
-    }
-    layers.unlock ();
+    const auto frame = freej_engine::FrameAccess::layer(*layer);
+    const freej_engine::SurfaceLock display(*this);
+    if (display)
+      blit(layer);
   }
-  /////////// finish processing layers
-
 }
 
 
 void ViewPort::handle_resize() {
-  lock ();
-  if(resizing) {
-    resize (resize_w, resize_h);
-    resizing = false;
+  {
+    std::lock_guard<std::mutex> lock(geometry_mutex_);
+    if (resizing) {
+      resize(resize_w, resize_h);
+      resizing = false;
+    }
+    changeres = false;
   }
-  unlock();
   
   /* crop all layers to new screen size */
+  std::lock_guard<Linklist<Layer>> list_lock(layers);
   Layer *lay = layers.begin ();
   while (lay) {
     lay -> lock ();
-    lay -> blitter->crop(lay, this);
+    lay->need_crop = true;
     lay -> unlock ();
     lay = (Layer*) lay -> next;
   } 

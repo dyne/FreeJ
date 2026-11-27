@@ -27,6 +27,7 @@
 #include <string.h>
 #include <sys/time.h>
 #include <iostream>
+#include <vector>
 
 
 #include <theora/theora.h>
@@ -71,6 +72,9 @@ static double rint(double x)
 }
 
 void init_info(oggmux_info *info) {
+    info->audio_resampler = NULL;
+    info->audio_ratio = info->average_audio_ratio = info->ratio_samples = 1.0;
+    info->last_video_time = 0.0;
     info->audio_only = 0;
     info->with_skeleton = 1; /* skeleton is enabled by default    */ 
     info->frontend = NULL; /*frontend mode*/
@@ -352,23 +356,9 @@ void *timer_start(void)
     return (void *)start;
 }
 
-int	sampleError;
-SRC_STATE *src_state;
-SRC_DATA *src_data;
-double ratio, averageR, oldVideoTime;
-double *sampleOut, samplesA;
-
 void oggmux_init (oggmux_info *info){
     ogg_page og;
     ogg_packet op;
-    TIMER *timer;
-    src_state = NULL;
-    src_data = NULL;
-    ratio = 1.0;
-    averageR = 1.0;
-    samplesA = 1.0;
-    sampleOut = NULL;
-    oldVideoTime = 0.0;
 
     /* yayness.  Set up Ogg output stream */
     srand (time (NULL));
@@ -394,11 +384,9 @@ void oggmux_init (oggmux_info *info){
 	    std::cerr << "-------- ogg_stream_init -- failed !!" << std::endl;
 	    return;
 	}
-  if (!(src_state = src_new (0, info->channels, &sampleError))) {
+  int sampleError;
+  if (!(info->audio_resampler = src_new (0, info->channels, &sampleError))) {
     std::cerr << "--- error initialysing the SRC_STATE :" << src_strerror (sampleError) << std::endl;
-  }
-  else {
-    src_data = (SRC_DATA *)malloc(sizeof(SRC_DATA));
   }
        vorbis_info_init (&info->vi);//
        if (!(info->vorbis_quality >= -0.1) || !(info->vorbis_quality <= 1.0))
@@ -762,42 +750,32 @@ void oggmux_add_video (oggmux_info *info, yuv_buffer *yuv, int e_o_s){
  */
 void oggmux_add_audio (oggmux_info *info, float * buffer, int bytes, int samples, int e_o_s){
     ogg_packet op;
-    float *ptr = buffer;
-    float *sampleOut = NULL;
-    int i,j, c, count = 0;
-    float **vorbis_buffer;
-
-    if (bytes <= 0 && samples <= 0){
-        /* end of audio stream */
-        if(e_o_s)
-            vorbis_analysis_wrote (&info->vd, 0);
-    }
-    else{	//resample code
-      sampleOut = (float *)realloc(sampleOut, ((samples * info->channels * sizeof(float)) \
-	    + (1.2 * ((samples * info->channels * sizeof(float))))));
-      memset(src_data, 0, sizeof(SRC_DATA));
-      src_data->data_in = buffer;
-      src_data->input_frames = (long)samples;
-      src_data->data_out = sampleOut;
-      src_data->output_frames = (long)((double)samples * 1.1);
-      if (ratio > 1.1 || ratio < 0.9)
-	ratio = 1.0;
-      src_data->src_ratio = ratio;
-      src_data->end_of_input = 0;
-      if (int processError = src_process (src_state, src_data)) {
-	std::cerr << "--- resample error :" << src_strerror (processError) << std::endl;
+    if (info->audio_resampler && (samples > 0 || e_o_s)) {
+      SRC_DATA data{};
+      data.data_in = buffer;
+      data.input_frames = samples;
+      // Leave room for the filter tail when the source reaches EOS.
+      data.output_frames = static_cast<long>(samples * 1.1) + 512;
+      data.end_of_input = e_o_s;
+      std::vector<float> output(static_cast<size_t>(data.output_frames) * info->channels);
+      data.data_out = output.data();
+      if (info->audio_ratio > 1.1 || info->audio_ratio < 0.9)
+        info->audio_ratio = 1.0;
+      data.src_ratio = info->audio_ratio;
+      if (int process_error = src_process(info->audio_resampler, &data)) {
+        error("cannot resample recording audio: %s", src_strerror(process_error));
+        return;
       }
-      
-      vorbis_buffer = vorbis_analysis_buffer (&info->vd, src_data->output_frames_gen);	//samples = rv/(channels*sizeof(float))
-      for (j=0; j < info->channels; j++)
-      {
-	for (i=0, c=0; i < src_data->output_frames_gen ; i++, c+=info->channels)
-	{
-	  vorbis_buffer[j][i] = sampleOut[c+j];
-	}
+      if (data.output_frames_gen) {
+        float **vorbis_buffer = vorbis_analysis_buffer(&info->vd, data.output_frames_gen);
+        for (int channel = 0; channel < info->channels; ++channel)
+          for (long sample = 0; sample < data.output_frames_gen; ++sample)
+            vorbis_buffer[channel][sample] = output[sample * info->channels + channel];
+        vorbis_analysis_wrote(&info->vd, data.output_frames_gen);
       }
-      vorbis_analysis_wrote (&info->vd, src_data->output_frames_gen);
     }
+    if (e_o_s)
+      vorbis_analysis_wrote(&info->vd, 0);
     int ret;
     while((ret = vorbis_analysis_blockout (&info->vd, &info->vb)) == 1){	//idem
         /* analysis, assume we want to use bitrate management */
@@ -1040,7 +1018,7 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
       /* Get pages for both streams, if not already present, and if available.*/
       if(!info->audio_only && !info->videopage_valid) {
         int v_next=0;
-        if(ogg_stream_pageout(&info->to, &og) > 0) {			//2
+        if ((e_o_s ? ogg_stream_flush(&info->to, &og) : ogg_stream_pageout(&info->to, &og)) > 0) {
           v_next=1;
         }
         if(v_next) {
@@ -1066,7 +1044,7 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
       }
       if(!info->video_only && !info->audiopage_valid) {
         int a_next=0;
-	if(ogg_stream_pageout(&info->vo, &og) > 0) {
+	if ((e_o_s ? ogg_stream_flush(&info->vo, &og) : ogg_stream_pageout(&info->vo, &og)) > 0) {
 	    a_next=1;
 	}
 	if(a_next) {
@@ -1085,23 +1063,17 @@ void oggmux_flush (oggmux_info *info, int e_o_s)
                   ogg_page_granulepos(&og));
 	    if (info->audiotime == -1)
 		std::cerr << "the given vorbis granulepos is invalid" << std::endl << std::flush;
-	    else if (info->videotime > oldVideoTime){
-	      samplesA++;
-	      oldVideoTime = info->videotime;
-	      ratio = ((info->videotime - info->audiotime) / 60.0 )+ averageR;
-	      averageR = (ratio + (averageR * (samplesA - 1))) / samplesA;
-// 	      std::cerr << "ratio :" << ratio << " averageR :" << averageR;
-	      if (ratio > (averageR * 1.01)) {
-		ratio = averageR * 1.01;
-// 		std::cerr << " resampled at:" << ratio << std::endl;
-	      }
-	      else if (ratio < (averageR * 0.99)) {
-		ratio = averageR * 0.99;
-// 		std::cerr << " resampled at:" << ratio << std::endl;
-	      }
-// 	      else
-// 		std::cerr << " resampled at:" << ratio << std::endl;
-	    }
+	    else if (info->videotime > info->last_video_time) {
+              ++info->ratio_samples;
+              info->last_video_time = info->videotime;
+              info->audio_ratio = (info->videotime - info->audiotime) / 60.0 + info->average_audio_ratio;
+              info->average_audio_ratio = (info->audio_ratio +
+                  info->average_audio_ratio * (info->ratio_samples - 1)) / info->ratio_samples;
+              if (info->audio_ratio > info->average_audio_ratio * 1.01)
+                info->audio_ratio = info->average_audio_ratio * 1.01;
+              else if (info->audio_ratio < info->average_audio_ratio * 0.99)
+                info->audio_ratio = info->average_audio_ratio * 0.99;
+            }
 	  }
 /*	  std::cerr << "--- Vorbis time :" << info->audiotime << " Theora time :" \
 	      << info->videotime << std::endl << std::flush;*/
@@ -1196,6 +1168,7 @@ void oggmux_close (oggmux_info *info){
 
     if(!info->video_only)
     {
+      info->audio_resampler = src_delete(info->audio_resampler);
       ogg_stream_clear (&info->vo);	//segfault here !!
       vorbis_block_clear (&info->vb);
       vorbis_dsp_clear (&info->vd);

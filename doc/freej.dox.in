@@ -882,55 +882,6 @@ BINARY_TOC             = NO
 
 TOC_EXPAND             = NO
 
-# If the GENERATE_QHP tag is set to YES and both QHP_NAMESPACE and QHP_VIRTUAL_FOLDER
-# are set, an additional index file will be generated that can be used as input for
-# Qt's qhelpgenerator to generate a Qt Compressed Help (.qch) of the generated
-# HTML documentation.
-
-GENERATE_QHP           = NO
-
-# If the QHG_LOCATION tag is specified, the QCH_FILE tag can
-# be used to specify the file name of the resulting .qch file.
-# The path specified is relative to the HTML output folder.
-
-QCH_FILE               =
-
-# The QHP_NAMESPACE tag specifies the namespace to use when generating
-# Qt Help Project output. For more information please see
-# http://doc.trolltech.com/qthelpproject.html#namespace
-
-QHP_NAMESPACE          =
-
-# The QHP_VIRTUAL_FOLDER tag specifies the namespace to use when generating
-# Qt Help Project output. For more information please see
-# http://doc.trolltech.com/qthelpproject.html#virtual-folders
-
-QHP_VIRTUAL_FOLDER     = doc
-
-# If QHP_CUST_FILTER_NAME is set, it specifies the name of a custom filter to add.
-# For more information please see
-# http://doc.trolltech.com/qthelpproject.html#custom-filters
-
-QHP_CUST_FILTER_NAME   =
-
-# The QHP_CUST_FILT_ATTRS tag specifies the list of the attributes of the custom filter to add.For more information please see
-# <a href="http://doc.trolltech.com/qthelpproject.html#custom-filters">Qt Help Project / Custom Filters</a>.
-
-QHP_CUST_FILTER_ATTRS  =
-
-# The QHP_SECT_FILTER_ATTRS tag specifies the list of the attributes this project's
-# filter section matches.
-# <a href="http://doc.trolltech.com/qthelpproject.html#filter-attributes">Qt Help Project / Filter Attributes</a>.
-
-QHP_SECT_FILTER_ATTRS  =
-
-# If the GENERATE_QHP tag is set to YES, the QHG_LOCATION tag can
-# be used to specify the location of Qt's qhelpgenerator.
-# If non-empty doxygen will try to run qhelpgenerator on the generated
-# .qhp file.
-
-QHG_LOCATION           =
-
 # The DISABLE_INDEX tag can be used to turn on/off the condensed index at
 # top of each HTML page. The value NO (the default) enables the index and
 # the value YES disables it.
@@ -972,7 +923,7 @@ TREEVIEW_WIDTH         = 250
 FORMULA_FONTSIZE       = 10
 
 # When the SEARCHENGINE tag is enable doxygen will generate a search box for the HTML output. The underlying search engine uses javascript
-# and DHTML and should work on any modern browser. Note that when using HTML help (GENERATE_HTMLHELP) or Qt help (GENERATE_QHP)
+# and DHTML and should work on any modern browser. Note that when using HTML help (GENERATE_HTMLHELP)
 # there is already a search function so this one should typically
 # be disabled.
 

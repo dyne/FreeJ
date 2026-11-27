@@ -60,8 +60,6 @@ class SlwSelector : public SLangWidget {
  private:
   Layer *layer;
   FilterInstance *filter;
-  
-  char *tmp;
 
 };
 

@@ -1,0 +1,49 @@
+name: Calculate FreeJ release version
+
+on:
+  push:
+    branches: [freej-revamp]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    if: github.ref_type == 'branch'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      current: ${{ steps.semver.outputs.current }}
+      nextStrict: ${{ steps.semver.outputs.nextStrict }}
+      bump: ${{ steps.semver.outputs.bump || 'none' }}
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Verify the comparison range
+        id: range
+        shell: bash
+        run: bash .github/scripts/version-range.sh "$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+      - name: Calculate SemVer
+        id: semver
+        uses: ietf-tools/semver-action@46feaa27e7375da0e3d602721e9fb9573598b880 # v1.12.0
+        with:
+          token: ${{ github.token }}
+          branch: ${{ steps.range.outputs.head }}
+          fromTag: ${{ steps.range.outputs.tag }}
+          noNewCommitBehavior: current
+          noVersionBumpBehavior: current
+      - name: Summarize the comparison
+        shell: bash
+        env:
+          COMPARE_HEAD: ${{ steps.range.outputs.head }}
+          CURRENT_VERSION: ${{ steps.semver.outputs.current }}
+          NEXT_VERSION: ${{ steps.semver.outputs.nextStrict }}
+          VERSION_BUMP: ${{ steps.semver.outputs.bump || 'none' }}
+        run: |
+          printf "Comparison: \`%s...%s\`\n\nCurrent: \`%s\` · Next: \`%s\` · Bump: \`%s\`\n" \
+            "$CURRENT_VERSION" "$COMPARE_HEAD" "$CURRENT_VERSION" "$NEXT_VERSION" "$VERSION_BUMP" \
+            >> "$GITHUB_STEP_SUMMARY"

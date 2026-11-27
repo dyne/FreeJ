@@ -27,11 +27,6 @@
 #include <jsparser_data.h>
 #include <factory.h>
 
-#define SDL_REPEAT_DELAY	200
-#define SDL_REPEAT_INTERVAL	20
-
-#define SDL_KEYEVENTMASK (SDL_KEYDOWNMASK|SDL_KEYUPMASK)
-
 // our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(Controller, KbdController, KeyboardController, sdl);
 
@@ -49,43 +44,27 @@ KbdController::~KbdController() {
 bool KbdController::init(Context *freej) {
   func("%s",__PRETTY_FUNCTION__);
 
-  /* enable key repeat */
-  SDL_EnableKeyRepeat(SDL_REPEAT_DELAY, SDL_REPEAT_INTERVAL);
-
-
   env = freej;
   
   initialized = true;
-  
-  SDL_EnableUNICODE(1);
   
   return(true);
 }
 
 int KbdController::poll() {
-	poll_sdlevents(SDL_KEYEVENTMASK); // calls dispatch() foreach SDL_Event
+	poll_sdlevents(SDL_EVENT_KEY_DOWN, SDL_EVENT_KEY_UP); // calls dispatch() foreach SDL_Event
 	return 1;
 }
 
 int KbdController::key_event(const char *state, bool shift, bool ctrl, bool alt, bool num, const char *keyname) {
 
-  Uint16 uni[] = {keysym->unicode, 0};
-  //#snprintf(uni, 2, "X %s X", (char*)&keysym->unicode);
-  // universal call
-  if (JSCall("key", 7, "buusWuu",
-  		event.key.state,
-  		keysym->scancode,
-  		keysym->sym,
-  		SDL_GetKeyName(keysym->sym),
-  		uni,
-  		keysym->mod,
-  		event.key.which
-  		) )
-  	return 1; // returned true, we are done!
-  
-  //Uint16 keysym->unicode
-  //char * SDL_GetKeyName(keysym->sym);
-  //func("KB u: %u / ks: %s", keysym->unicode, SDL_GetKeyName(keysym->sym));
+  const auto &key = event.key;
+  const auto translated = key.down ? SDL_GetKeyFromScancode(key.scancode, key.mod, false) : 0;
+  const Uint16 unicode[] = {static_cast<Uint16>(translated <= 0xffff ? translated : 0), 0};
+  if (JSCall("key", 7, "buusWuu", static_cast<int>(key.down),
+             static_cast<unsigned>(key.scancode), key.key, SDL_GetKeyName(key.key),
+             unicode, static_cast<unsigned>(key.mod), key.which))
+    return 1;
 
   // funcname = "state_[shift_][ctrl_][alt_][num_]keyname"
   if(strlen(keyname)) {
@@ -110,41 +89,35 @@ int KbdController::dispatch() {
   const char *state;
   bool shift = false, ctrl = false, alt = false, num = false;
 
-  if(event.key.state == SDL_PRESSED)
-  	state = "pressed";
-  else if(event.key.state == SDL_RELEASED)
-  	state = "released";
-  else
-  	return 0; // no key state change
-
-  keysym = &event.key.keysym;
+  const auto &key = event.key;
+  state = key.down ? "pressed" : "released";
 
   memset(keyname, 0, sizeof(char)<<9);  // *512
   memset(funcname, 0, sizeof(char)<<9); // *512
 
   // check key modifiers
-  if(keysym->mod & KMOD_SHIFT)
+  if(key.mod & SDL_KMOD_SHIFT)
     shift = true;
-  if(keysym->mod & KMOD_CTRL)
+  if(key.mod & SDL_KMOD_CTRL)
     ctrl = true;
-  if(keysym->mod & KMOD_ALT)
+  if(key.mod & SDL_KMOD_ALT)
     alt = true;
   
   // check normal alphabet and letters
-  if( (keysym->sym >= SDLK_0 && keysym->sym <= SDLK_9)
-		  || (keysym->sym >= SDLK_a && keysym->sym <= SDLK_z) ){
-	  tmp[0] = keysym->sym;
+  if( (key.key >= SDLK_0 && key.key <= SDLK_9)
+		  || (key.key >= SDLK_A && key.key <= SDLK_Z) ){
+	  tmp[0] = key.key;
 	  tmp[1] = 0x0;
 	  sprintf(keyname,"%s", tmp);
   }
   // check numeric keypad
-  else if(keysym->sym >= SDLK_KP0 && keysym->sym <= SDLK_KP9) {
-	  tmp[0] = keysym->sym - SDLK_KP0 + 48;
+  else if(key.key == SDLK_KP_0 || (key.key >= SDLK_KP_1 && key.key <= SDLK_KP_9)) {
+	  tmp[0] = key.key == SDLK_KP_0 ? '0' : key.key - SDLK_KP_1 + '1';
 	  tmp[1] = 0x0;
 	  num = true;
 	  sprintf(keyname, "%s", tmp);
   } else {
-	  switch(keysym->sym) {
+	  switch(key.key) {
 		  // check arrows
 		  case SDLK_UP:        sprintf(keyname,        "up"); break;
 		  case SDLK_DOWN:      sprintf(keyname,      "down"); break;

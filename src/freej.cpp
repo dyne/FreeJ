@@ -27,6 +27,9 @@
 #include <dirent.h>
 #include <assert.h>
 #include <errno.h>
+#include <exception>
+#include <memory>
+#include <vector>
 
 #include <context.h>
 
@@ -62,7 +65,7 @@ static const char *help =
 " .   -D   debug verbosity level - default 1\n"
 " .   -s   size of screen - default 400x300\n"
 " .   -S   screen type - default 'sdl'\n"
-" .   -a   initialize audio (using jack)\n"
+" .   -a   initialize audio (using native PipeWire)\n"
 " .   -n   start with deactivated layers\n"
 " .   -c   no interactive text console\n"
 " .   -f   <frame_per_second>  select global fps for freej\n"
@@ -308,10 +311,14 @@ int scripts(char *path) {
 
 #ifndef HAVE_DARWIN
 int main (int argc, char **argv) {
-  Layer *lay = NULL;
   ConsoleController *con = NULL;
   
-  freej = new Context();
+  try {
+    freej = new Context();
+  } catch (const std::exception& failure) {
+    error("%s", failure.what());
+    return 1;
+  }
 
   notice("%s version %s   free the veejay",PACKAGE,VERSION);
   act("2001-2009 RASTASOFT :: %s", PACKAGE_URL);
@@ -320,19 +327,17 @@ int main (int argc, char **argv) {
   cmdline(argc,argv);
   set_debug(debug_level);
 
-  // create SDL screen by default at selected size
-  screen = Factory<ViewPort>::get_instance( "Screen", screen_name );
-  //  screen = new SdlScreen();
-  if(!screen) {
-    error("no screen can be opened");
+  std::unique_ptr<ViewPort> viewport(Factory<ViewPort>::get_instance("Screen", screen_name));
+  if (!viewport) {
+    error("Could not create viewport backend '%s'", screen_name);
     delete freej;
-    exit(1);
+    return 1;
   }
-
-  screen->init(width, height, 32);
-
-  // add the screen to the context
-  freej->add_screen(screen);
+  if (!viewport->init(width, height, 32) || !freej->add_screen(viewport.get())) {
+    delete freej;
+    return 1;
+  }
+  screen = viewport.release();
 
   if(fullscreen) screen->fullscreen();
 
@@ -397,6 +402,7 @@ int main (int argc, char **argv) {
   freej->start_running = startstate;
 
   /* create layers requested on commandline */
+  std::vector<std::unique_ptr<Layer>> command_line_layers;
   {
     char *l, *p, *pp = layer_files;
     while(cli_chars>0) {
@@ -409,14 +415,15 @@ int main (int argc, char **argv) {
 
       func("creating layer for file %s",pp);
 
-      lay = freej->open(pp); // hey, this already init and open the layer !!
-      if(lay)  { 
-        if( screen->add_layer(lay) ) {
-	  lay->start();
-	  lay->fps.set(fps);
-	}
-        if (!startstate) 
-	  lay->active = false;
+      std::unique_ptr<Layer> layer(freej->open(pp));
+      if (layer && freej->screen && freej->screen->add_layer(layer.get())) {
+        layer->fps.set(fps);
+        if (!startstate)
+          layer->active = false;
+        if (layer->start() == 0)
+          command_line_layers.push_back(std::move(layer));
+        else
+          freej->screen->rem_layer(layer.get());
       }
 
       pp = l;
@@ -448,6 +455,6 @@ int main (int argc, char **argv) {
   if(con) delete con;
   delete freej;
 
-  exit(1);
+  return 1;
 }
 #endif

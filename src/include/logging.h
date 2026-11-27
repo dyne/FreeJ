@@ -138,4 +138,15 @@ void notice(const char *format, ...);
 void act(const char *format, ...);
 void func(const char *format, ...);
 
+// One diagnostic per failing spell, with a count when the operation recovers.
+// The caller owns this state on its control or rendering thread.
+class FailureEpisode {
+public:
+  bool first() { return failures_++ == 0; }
+  void recovered(const char *scope, const char *object);
+
+private:
+  unsigned failures_ = 0;
+};
+
 #endif

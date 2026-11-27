@@ -21,7 +21,10 @@
 #define __GEO_LAYER_H__
 
 #include <inttypes.h>
-#include <SDL_gfxPrimitives.h>
+#include <atomic>
+#include <mutex>
+#include <vector>
+#include <SDL3/SDL.h>
 
 #include <layer.h>
 
@@ -40,12 +43,10 @@ class GeoLayer: public Layer {
   void set_color(uint32_t hex) { color = hex; }
   void set_color(uint16_t r, uint16_t g, uint16_t b) { set_color(r, g, b, 0xff); }
   void set_color(uint16_t r, uint16_t g, uint16_t b, uint16_t a) {
-	if(SDL_BYTEORDER == SDL_LIL_ENDIAN)
-		color = a|(b<<8)|(g<<16)|(r<<24);
-	else
-		color = a|(r<<8)|(g<<16)|(b<<24);
+    color = (uint32_t(r & 0xff) << 24) | (uint32_t(g & 0xff) << 16) |
+            (uint32_t(b & 0xff) << 8) | (a & 0xff);
   }
-  uint32_t get_color() { return color; }
+  uint32_t get_color() { return color.load(std::memory_order_relaxed); }
 
   // drawing functions
   int clear();
@@ -139,12 +140,9 @@ class GeoLayer: public Layer {
   SDL_Surface *surf;
 
  private:
-  uint32_t *fsurf[2];
-  int doublebuf;
-
-  int res;
-
-  uint32_t color;
+  std::mutex drawing_mutex_;
+  std::vector<uint32_t> snapshot_;
+  std::atomic<uint32_t> color;
 
   // allow to use Factory on this class
   FACTORY_ALLOWED

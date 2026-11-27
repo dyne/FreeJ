@@ -94,6 +94,7 @@ JS(filter_activate) {
     //JS_ClearContextThread(cx);
     return JS_FALSE;
   }
+  std::lock_guard<Linklist<Parameter>> lock(filter_instance->parameters);
   *rval = BOOLEAN_TO_JSVAL(filter_instance->active);
   if (argc == 1) {
     jsint var = js_get_int(argv[0]);
@@ -108,7 +109,7 @@ JS(filter_activate) {
 JS(filter_set_parameter) {
   func("%u:%s:%s",__LINE__,__FILE__,__FUNCTION__);
   int idx;
-  char *name;
+  const char *name = "(index)";
   Parameter *param;
   jsdouble val[3];
 
@@ -126,10 +127,12 @@ JS(filter_set_parameter) {
     return JS_FALSE;
   }
   
+  std::lock_guard<Linklist<Parameter>> lock(filter_instance->parameters);
   if(JSVAL_IS_DOUBLE(argv[0])) {
     
     double *argidx = JSVAL_TO_DOUBLE(argv[0]);
-    param = (Parameter*) filter_instance->parameters.pick((int)*argidx);
+    idx = static_cast<int>(*argidx);
+    param = filter_instance->parameters.pick(idx);
     
   } else { // get it by the param name
     
@@ -159,8 +162,12 @@ JS(filter_set_parameter) {
 	   filter_instance->proto->name, param->name, val[0]);
       //  filter_instance->proto->set_parameter_value( filter_instance->instance, &val, it->second );
       
-      param->set(&val);
-      filter_instance->set_parameter(idx);
+      if (param->type == Parameter::BOOL) {
+        bool enabled = val[0] != 0.0;
+        filter_instance->set_parameter_value(idx, &enabled);
+      } else {
+        filter_instance->set_parameter_value(idx, &val[0]);
+      }
       break; 
     }
   case Parameter::POSITION:
@@ -178,8 +185,7 @@ JS(filter_set_parameter) {
 	 filter_instance->proto->name, param->name, val[0], val[1]);
     //  filter_instance->proto->set_parameter_value( filter_instance->instance, &val, it->second );
     
-    param->set(&val[0]);
-    filter_instance->set_parameter(idx);
+    filter_instance->set_parameter_value(idx, &val[0]);
     break; 
     
   default:

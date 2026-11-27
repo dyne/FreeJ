@@ -147,7 +147,8 @@ JSClass class_struct = { \
 				class_properties, class_methods, 0, 0); \
     if(!layer_object) { \
       ::error("JsParser::init() can't instantiate %s class",class_name); \
-    } 
+      return false; \
+    }
 
 
 #define JS_CONSTRUCTOR(constructor_name, constructor_func, constructor_class) \

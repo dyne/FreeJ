@@ -25,300 +25,343 @@
 
 #ifdef WITH_FREI0R
 
+#ifndef FREEJ_STRICT_STATIC
 #include <dlfcn.h>
-#include <stdlib.h>
-#include <stdio.h> // for snprintf()
-
+#endif
 #include <cstdlib>
-#include <string>
+#include <cstring>
+#include <map>
+#include <mutex>
+#include <vector>
 
 #include <frei0r_freej.h>
+#ifdef FREEJ_STRICT_STATIC
+#include <frei0r/bundle.h>
+#endif
 #include <layer.h>
 #include <jutils.h>
 
 FACTORY_REGISTER_INSTANTIATOR(Filter, Freior, Frei0rFilter, core);
 
-/// frei0r parameter callbacks
-static void get_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx) {
-    Freior *f = (Freior *)filt->proto;
-    
-    switch(f->param_infos[idx-1].type) {
-            
-            // idx-1 because frei0r's index starts from 0
-        case F0R_PARAM_BOOL:
-            (*f->f0r_get_param_value)(filt->core, (f0r_param_t)param->value, idx-1);
-            func("bool value is %s",(*(bool*)param->value==true) ? "true" : "false");
-            break;
-            
-        case F0R_PARAM_DOUBLE:
-            (*f->f0r_get_param_value)(filt->core, (f0r_param_t)param->value, idx-1);
-            func("number value is %g",*(double*)param->value);
-            break;
-            
-        case F0R_PARAM_COLOR:
-        { f0r_param_color *color = new f0r_param_color;
-            (*f->f0r_get_param_value)(filt->core, (f0r_param_t)color, idx-1);
-            ((double*)param->value)[0] = (double)color->r;
-            ((double*)param->value)[1] = (double)color->g;
-            ((double*)param->value)[2] = (double)color->b;
-            delete color;
-        } break;
-            
-        case F0R_PARAM_POSITION:
-        { f0r_param_position *position = new f0r_param_position;
-            (*f->f0r_get_param_value)(filt->core, (f0r_param_t)position, idx-1);
-            ((double*)param->value)[0] = (double)position->x;
-            ((double*)param->value)[1] = (double)position->y;
-            delete position;
-        } break;
-            
-        default:
-            
-            error("Unrecognized parameter type %u for get_parameter_value",
-                  f->param_infos[idx].type);
-    }  
+namespace {
+struct Frei0rCallbacks {
+  decltype(&::f0r_init) init;
+  decltype(&::f0r_deinit) deinit;
+  decltype(&::f0r_get_plugin_info) info;
+  decltype(&::f0r_get_param_info) parameter;
+  decltype(&::f0r_construct) construct;
+  decltype(&::f0r_destruct) destruct;
+  decltype(&::f0r_set_param_value) set;
+  decltype(&::f0r_get_param_value) get;
+  decltype(&::f0r_update) update;
+  decltype(&::f0r_update2) update2;
+};
+
+#ifndef FREEJ_STRICT_STATIC
+template<class Function>
+Function symbol(void *handle, const char *name) {
+  return reinterpret_cast<Function>(dlsym(handle, name));
 }
 
-static void set_frei0r_parameter(FilterInstance *filt, Parameter *param, int idx) {
-    
-    func("set_frei0r_param callback on %s for parameter %s at pos %u",
-         filt->proto->name, param->name, idx);
-    
-    Freior *f = (Freior *)filt->proto;
-    double *val = (double*)param->value;
-    
-    switch(f->param_infos[idx-1].type) {
-            
-            // idx-1 because frei0r's index starts from 0
-        case F0R_PARAM_BOOL:
-            
-            func("bool value is %s",(*(bool*)param->value==true) ? "true" : "false");
-            
-            (*f->f0r_set_param_value)
-            (filt->core, new f0r_param_bool(*(bool*)param->value), idx-1);
-            
-            break;
-            
-        case F0R_PARAM_DOUBLE:
-            func("number value is %g",*(double*)param->value);
-            (*f->f0r_set_param_value)(filt->core, new f0r_param_double( *(double*)param->value), idx-1);
-            break;
-            
-        case F0R_PARAM_COLOR:
-        { f0r_param_color *color = new f0r_param_color;
-            color->r = val[0];
-            color->g = val[1];
-            color->b = val[2];
-            (*f->f0r_set_param_value)(filt->core, color, idx-1);
-            delete color;
-            // QUAAA: should we delete the new allocated object? -jrml
-        } break;
-            
-        case F0R_PARAM_POSITION:
-        { f0r_param_position *position = new f0r_param_position;
-            position->x = val[0];
-            position->y = val[1];
-            (*f->f0r_set_param_value)(filt->core, position, idx-1);
-        } break;
-            
-        default:
-            
-            error("Unrecognized parameter type %u for set_parameter_value",
-                  f->param_infos[idx].type);
-            
+Frei0rCallbacks directory_callbacks(void *handle) {
+  return {
+    symbol<decltype(&::f0r_init)>(handle, "f0r_init"),
+    symbol<decltype(&::f0r_deinit)>(handle, "f0r_deinit"),
+    symbol<decltype(&::f0r_get_plugin_info)>(handle, "f0r_get_plugin_info"),
+    symbol<decltype(&::f0r_get_param_info)>(handle, "f0r_get_param_info"),
+    symbol<decltype(&::f0r_construct)>(handle, "f0r_construct"),
+    symbol<decltype(&::f0r_destruct)>(handle, "f0r_destruct"),
+    symbol<decltype(&::f0r_set_param_value)>(handle, "f0r_set_param_value"),
+    symbol<decltype(&::f0r_get_param_value)>(handle, "f0r_get_param_value"),
+    symbol<decltype(&::f0r_update)>(handle, "f0r_update"),
+    symbol<decltype(&::f0r_update2)>(handle, "f0r_update2")
+  };
+}
+#endif
+}
+
+// dlopen can return one library to multiple contexts or via multiple paths.
+// Its global init/deinit pair spans all those registrations.
+struct Freior::Module {
+  Frei0rCallbacks abi;
+  const void *identity;
+  unsigned users = 0;
+  bool initialized = false;
+  f0r_plugin_info_t info{};
+  std::vector<f0r_param_info_t> parameters;
+
+  Module(Frei0rCallbacks callbacks, const void *key) : abi(callbacks), identity(key) {}
+  ~Module() {
+    if (initialized) abi.deinit();
+#ifndef FREEJ_STRICT_STATIC
+    dlclose(const_cast<void *>(identity));
+#endif
+  }
+
+  struct Catalog {
+    std::mutex mutex;
+    std::map<const void *, Module *> entries;
+  };
+
+  // CLI scripted quit uses std::exit with live layers. The lookup has process
+  // lifetime; only releasing the last prototype may run plugin teardown.
+  static Catalog &catalog() {
+    static Catalog *const instance = new Catalog;
+    return *instance;
+  }
+
+  bool start() {
+    if (!abi.init || !abi.deinit || !abi.info || !abi.construct || !abi.destruct)
+      return false;
+    if (!abi.init()) return false;
+    initialized = true;
+    abi.info(&info);
+    if (!info.name || !*info.name || info.frei0r_version != FREI0R_MAJOR_VERSION ||
+        info.num_params < 0 || info.plugin_type < F0R_PLUGIN_TYPE_FILTER ||
+        info.plugin_type > F0R_PLUGIN_TYPE_MIXER3 ||
+        info.color_model < F0R_COLOR_MODEL_BGRA8888 || info.color_model > F0R_COLOR_MODEL_PACKED32)
+      return false;
+    bool mixer = info.plugin_type == F0R_PLUGIN_TYPE_MIXER2 || info.plugin_type == F0R_PLUGIN_TYPE_MIXER3;
+    if ((mixer && !abi.update2) || (!mixer && !abi.update)) return false;
+    if (info.plugin_type == F0R_PLUGIN_TYPE_SOURCE && info.color_model == F0R_COLOR_MODEL_PACKED32) {
+      warning("frei0r source %s has no defined channel order (PACKED32)", info.name);
+      return false;
     }
-    
-}
-// end of parameter callbacks
+    if (info.num_params && (!abi.parameter || !abi.set || !abi.get)) return false;
+    parameters.resize(info.num_params);
+    for (int i = 0; i < info.num_params; ++i) {
+      auto &p = parameters[i];
+      abi.parameter(&p, i);
+      if (!p.name || p.type < F0R_PARAM_BOOL || p.type > F0R_PARAM_STRING) return false;
+      if (p.type == F0R_PARAM_STRING)
+        warning("frei0r string parameter unsupported: %s / %s", info.name, p.name);
+    }
+    return true;
+  }
 
-Freior::Freior() 
-  : Filter() 
-{ 
-  handle = NULL;
-  opened = false;
-           
-  set_name((char *)"Unknown");
+  static Module *acquire(Catalog &loaded, const void *key, const Frei0rCallbacks &abi) {
+    auto found = loaded.entries.find(key);
+    if (found != loaded.entries.end()) {
+#ifndef FREEJ_STRICT_STATIC
+      dlclose(const_cast<void *>(key)); // balance this open of an already registered DSO
+#endif
+      ++found->second->users;
+      return found->second;
+    }
+    std::unique_ptr<Module> candidate(new Module(abi, key));
+    if (!candidate->start()) return nullptr;
+    candidate->users = 1;
+    loaded.entries.emplace(key, candidate.get());
+    return candidate.release();
+  }
+#ifndef FREEJ_STRICT_STATIC
+  static Module *open(const char *file) {
+    Catalog &loaded = catalog();
+    std::lock_guard<std::mutex> lock(loaded.mutex);
+    void *handle = dlopen(file, RTLD_LAZY | RTLD_LOCAL);
+    return handle ? acquire(loaded, handle, directory_callbacks(handle)) : nullptr;
+  }
+#else
+  static Module *open(const f0r_plugin_descriptor_t *d) {
+    if (!d->get_param_info || !d->set_param_value || !d->get_param_value) return nullptr;
+    Frei0rCallbacks abi{d->init, d->deinit, d->get_plugin_info, d->get_param_info,
+                        d->construct, d->destruct, d->set_param_value, d->get_param_value,
+                        d->update, d->update2};
+    Catalog &loaded = catalog();
+    std::lock_guard<std::mutex> lock(loaded.mutex);
+    return acquire(loaded, d, abi);
+  }
+#endif
+
+  void release() {
+    Catalog &loaded = catalog();
+    std::lock_guard<std::mutex> lock(loaded.mutex);
+    if (!--users) {
+      loaded.entries.erase(identity);
+      delete this;
+    }
+  }
+};
+
+Freior::Freior() : info{}, opened(false), module(nullptr) {
+  set_name("Unknown");
 }
 
 Freior::~Freior() {
-
-  if(handle)
-    dlclose(handle);
-
+  if (module) module->release();
 }
 
 int Freior::open(char *file) {
-  void *sym;
-#ifdef HAVE_FREEBSD
-  const char *err;
+  if (opened || !file) return 0;
+#ifdef FREEJ_STRICT_STATIC
+  return 0;
 #else
-  char *err;
+  return finish_open(Module::open(file));
 #endif
-
-  if(opened) {
-    error("Freior object %p has already opened file %s",this, filename);
-    return 0;
-  }
-
-  // clear up the errors if there were any
-  dlerror();
-
-#if 0
-  if (!dlopen_preflight(file)) {
-    warning("plugin '%s' failed: %s", file, dlerror());
-    return 0;
-  }
-#endif
-  // Create dynamic handle to the library file.
-  handle = dlopen(file, RTLD_LAZY);
-  if(!handle) {
-    warning("can't dlopen plugin: %s", file);
-    return 0;
-  }
-
-  // try the frei0r symbol
-  sym = dlsym(handle, "f0r_init");
-
-  // return if error
-  if( dlerror() ) {
-    //    func("not a valid frei0r plugin: %s", file);
-    // don't forget to close
-    dlclose(handle);
-    handle = NULL;
-    return 0;
-  }
-
-  // Get interface function pointers
-  *(void**) (&f0r_init) = sym; // dlsym(handle, "f0r_init"); 
-  *(void**) (&f0r_get_plugin_info) = dlsym(handle, "f0r_get_plugin_info");
-  err = dlerror();
-  if (err)
-    warning("%s in frei0r plugin %s", err, file);
-  *(void**) (&f0r_get_param_info) = dlsym(handle, "f0r_get_param_info");
-  err = dlerror();
-  if (err)
-    warning("%s in frei0r plugin %s", err, file);
-  *(void**) (&f0r_construct) = dlsym(handle, "f0r_construct");
-  err = dlerror();
-  if (err)
-    warning("%s in frei0r plugin %s", err, file);
-  *(void**) (&f0r_destruct) = dlsym(handle, "f0r_destruct");
-  err = dlerror();
-  if (err)
-    warning("%s in frei0r plugin %s", err, file);
-  *(void**) (&f0r_set_param_value) = dlsym(handle, "f0r_set_param_value");
-  err = dlerror();
-    if (err)
-      warning("%s in frei0r plugin %s", err, file);
-  *(void**) (&f0r_get_param_value) = dlsym(handle, "f0r_get_param_value");
-  err = dlerror();
-    if (err)
-      warning("%s in frei0r plugin %s", err, file);
-  *(void**) (&f0r_update) = dlsym(handle, "f0r_update");
-  // XXX - don't output an error since f0r_update() is exported only by generators
-  //       and it won't be found when opening filters
-  //err = dlerror(); if (err) warning("%s in frei0r plugin %s", err, file);
-  
-  // get the info on the plugin
-  (*f0r_get_plugin_info)(&info);
-
-  opened = true;
-  snprintf(filename,255,"%s",file);
-
-  f0r_init();
-  
-  set_name((char*)info.name);
-  
-  if(get_debug()>2)
-      print_info();
-  
-  return 1;
-
 }
 
-void Freior::init_parameters(Linklist<Parameter> &parameters) {
-	// Get the list of params.
-	param_infos.resize(info.num_params);
-	for (int i = 0; i < info.num_params; ++i) {
-		
-		(f0r_get_param_info)(&param_infos[i], i);
-		
-		Parameter *param = new Parameter((Parameter::Type)param_infos[i].type);
-		snprintf(param->name, 255, "%s", param_infos[i].name);
-		func("registering parameter %s for filter %s\n", param->name, info.name);
-		
-		snprintf(param->description, 512, "%s", param_infos[i].explanation);
-		param->filter_set_f = set_frei0r_parameter;
-		param->filter_get_f = get_frei0r_parameter;
-		parameters.append(param);
-	}
+#ifdef FREEJ_STRICT_STATIC
+bool Freior::open_descriptor(const f0r_plugin_descriptor_t *descriptor) {
+  return !opened && finish_open(Module::open(descriptor));
+}
+#endif
+
+int Freior::finish_open(Module *candidate) {
+  module = candidate;
+  if (!module) return 0;
+  opened = true;
+  info = module->info;
+  param_infos = module->parameters;
+  f0r_set_param_value = module->abi.set;
+  f0r_get_param_value = module->abi.get;
+  f0r_construct = module->abi.construct;
+  set_name(info.name);
+  if (get_debug() > 2) print_info();
+  return 1;
 }
 
 void Freior::print_info() {
-  notice("Name             : %s", info.name);
-  act("%s",info.explanation);
-  switch(info.plugin_type) {
-  case F0R_PLUGIN_TYPE_FILTER: act("Type             : Filter"); break;
-  case F0R_PLUGIN_TYPE_SOURCE: act("Type             : Source"); break;
-  case F0R_PLUGIN_TYPE_MIXER2: act("Type             : Mixer2"); break;
-  case F0R_PLUGIN_TYPE_MIXER3: act("Type             : Mixer3"); break;
-  default: error("Unrecognized plugin type");
-  }
-  act("Author           : %s", info.author);
-  act("Parameters [%i total]",info.num_params);
-  for (int i=0; i<info.num_params; ++i) {
-    char tmp[256];
-    snprintf(tmp,255,"  [%i] %s ",i, param_infos[i].name);
-    switch (param_infos[i].type) {
-    case F0R_PARAM_BOOL:     act("%s (bool) %s",tmp, param_infos[i].explanation);     break;
-    case F0R_PARAM_DOUBLE:   act("%s (double) %s",tmp, param_infos[i].explanation);    break;
-    case F0R_PARAM_COLOR:    act("%s (color) %s",tmp, param_infos[i].explanation);    break;
-    case F0R_PARAM_POSITION: act("%s (position) %s",tmp, param_infos[i].explanation); break;
-    case F0R_PARAM_STRING:   act("%s (string) %s",tmp, param_infos[i].explanation); break;      
-    default: error("%s Unrecognized info type.",tmp );
+  notice("frei0r %s by %s, type %d, color model %d, %d parameters",
+         info.name, author(), info.plugin_type, info.color_model, info.num_params);
+  for (const auto &p : module->parameters)
+    act("%s (type %d) %s", p.name, p.type, p.explanation ? p.explanation : "");
+}
+
+void Freior::init_parameters(Linklist<Parameter> &parameters) {
+  for (const auto &p : module->parameters) {
+    auto *param = new Parameter(static_cast<Parameter::Type>(p.type));
+    param->set_name(p.name);
+    snprintf(param->description, sizeof(param->description), "%s", p.explanation ? p.explanation : "");
+    if (p.type != F0R_PARAM_STRING) {
+      param->filter_set_f = set_parameter;
+      param->filter_get_f = get_parameter;
     }
+    parameters.append(param);
   }
 }
 
-bool Freior::apply(Layer *lay, FilterInstance *instance) 
-{
-    instance->core = (*f0r_construct)(lay->geo.w, lay->geo.h);
-    if (!instance->core)
-        return false;
-    return Filter::apply(lay, instance);
+void Freior::get_parameter(FilterInstance *instance, Parameter *param, int index) {
+  if (!instance->core) return;
+  const auto get = static_cast<Freior *>(instance->proto)->module->abi.get;
+  const int i = index - 1;
+  switch (param->type) {
+  case Parameter::BOOL: {
+    f0r_param_bool v{};
+    get(instance->core, &v, i);
+    *static_cast<bool *>(param->value) = v >= 0.5;
+    break;
+  }
+  case Parameter::NUMBER:
+    get(instance->core, param->value, i);
+    break;
+  case Parameter::COLOR: {
+    f0r_param_color_t v{};
+    get(instance->core, &v, i);
+    auto *color = static_cast<double *>(param->value);
+    color[0] = v.r; color[1] = v.g; color[2] = v.b;
+    break;
+  }
+  case Parameter::POSITION: {
+    f0r_param_position_t v{};
+    get(instance->core, &v, i);
+    auto *point = static_cast<double *>(param->value);
+    point[0] = v.x; point[1] = v.y;
+    break;
+  }
+  default: break;
+  }
 }
 
-void Freior::destruct(FilterInstance *inst)
-{
-    if(inst->core) {
-        f0r_destruct((f0r_instance_t*)inst->core);
-        inst->core = NULL;
+void Freior::set_parameter(FilterInstance *instance, Parameter *param, int index) {
+  if (!instance->core) return;
+  const auto set = static_cast<Freior *>(instance->proto)->module->abi.set;
+  const int i = index - 1;
+  const auto *values = static_cast<const double *>(param->value);
+  switch (param->type) {
+  case Parameter::BOOL: {
+    f0r_param_bool v = *static_cast<bool *>(param->value) ? 1.0 : 0.0;
+    set(instance->core, &v, i);
+    break;
+  }
+  case Parameter::NUMBER: {
+    f0r_param_double v = values[0];
+    set(instance->core, &v, i);
+    break;
+  }
+  case Parameter::COLOR: {
+    f0r_param_color_t v{static_cast<float>(values[0]), static_cast<float>(values[1]), static_cast<float>(values[2])};
+    set(instance->core, &v, i);
+    break;
+  }
+  case Parameter::POSITION: {
+    f0r_param_position_t v{values[0], values[1]};
+    set(instance->core, &v, i);
+    break;
+  }
+  default: break;
+  }
+}
+
+bool Freior::construct(FilterInstance *inst, unsigned width, unsigned height) {
+  if (!module || !width || !height || inst->core) return false;
+  inst->core = module->abi.construct(width, height);
+  if (!inst->core) return false;
+  free(inst->frei0r_input_);
+  inst->frei0r_input_ = nullptr;
+  inst->frame_width_ = width;
+  inst->frame_height_ = height;
+  return true;
+}
+
+bool Freior::apply(Layer *layer, FilterInstance *instance) {
+  if (info.plugin_type != F0R_PLUGIN_TYPE_FILTER || !construct(instance, layer->geo.w, layer->geo.h))
+    return false;
+  if (Filter::apply(layer, instance)) return true;
+  destruct(instance);
+  return false;
+}
+
+void Freior::destruct(FilterInstance *inst) {
+  if (inst->core) {
+    module->abi.destruct(inst->core);
+    inst->core = nullptr;
+  }
+}
+
+void Freior::update(FilterInstance *inst, double time, uint32_t *in, uint32_t *out) {
+  if (!inst->core || !out) return;
+  Filter::update(inst, time, in, out);
+  if (in && reinterpret_cast<uintptr_t>(in) % 16) {
+    const size_t bytes = size_t(inst->frame_width_) * inst->frame_height_ * sizeof(*in);
+    if (!inst->frei0r_input_) {
+      void *aligned = nullptr;
+      if (posix_memalign(&aligned, 16, bytes) != 0) return;
+      inst->frei0r_input_ = static_cast<uint32_t *>(aligned);
     }
-}
-
-void Freior::update(FilterInstance *inst, double time, uint32_t *inframe, uint32_t *outframe) {
-    Filter::update(inst, time, inframe, outframe);
-    f0r_update((f0r_instance_t*)inst->core, time, inframe, outframe);
+    memcpy(inst->frei0r_input_, in, bytes);
+    in = inst->frei0r_input_;
+  }
+  module->abi.update(inst->core, time, in, out);
 }
 
 const char *Freior::description()
 {
-    return info.explanation;
+    return info.explanation ? info.explanation : "";
 }
 
 const char *Freior::author()
 {
-    return info.author;
+    return info.author ? info.author : "";
 }
 
 int Freior::get_parameter_type(int i)
 {
-    return param_infos[i].type;
+    return module && i >= 0 && i < info.num_params ? module->parameters[i].type : -1;
 }
 
 char *Freior::get_parameter_description(int i)
 {
-    return (char*)param_infos[i].explanation;
+    return module && i >= 0 && i < info.num_params ? const_cast<char *>(module->parameters[i].explanation) : nullptr;
 }
 
 int Freior::type()

@@ -42,6 +42,7 @@ OpenCVCamLayer::OpenCVCamLayer()
 }
 
 OpenCVCamLayer::~OpenCVCamLayer() {
+  stop();
 
   if(rgba) free(rgba);
   if(frame) cvReleaseImage(&frame);

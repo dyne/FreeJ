@@ -48,6 +48,8 @@ class SLW_Log : public SLangWidget {
   		SLW_TextConsole *textconsole;
 		bool scrolling;
 
+private:
+        std::recursive_mutex rows_mutex_;
 };
 
 #endif

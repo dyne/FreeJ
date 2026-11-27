@@ -22,89 +22,44 @@
 
 #include <jutils.h>
 #include <blitter.h>
+#include <memory>
+#include "sdl_pixels.h"
 
 ///////////////////////////////////////////////////////////////////
 // SDL BLITS
 // TODO: more SDL blits playing with color masks
 
-// temporary surface used in SDL blits
-static SDL_Surface *sdl_surf;
+namespace {
+const char *blit_pixels(void *pixels, SDL_Rect *src, SDL_Surface *dst, SDL_Rect *dest,
+                        const Geometry &geometry, bool source_alpha, bool blend, Uint8 alpha) {
+  std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)> surface(
+      SDL_CreateSurfaceFrom(geometry.w, geometry.h, freej_pixel_format(source_alpha),
+                            pixels, geometry.bytewidth), SDL_DestroySurface);
+  if (!surface)
+    return "wrap layer pixels";
+  if (!SDL_SetSurfaceBlendMode(surface.get(), blend ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE))
+    return "set blend mode";
+  if (!SDL_SetSurfaceAlphaMod(surface.get(), alpha))
+    return "set opacity";
+  return SDL_BlitSurface(surface.get(), src, dst, dest) ? nullptr : "blit layer pixels";
+}
+}
 
-BLIT sdl_rgb(void *src, SDL_Rect *src_rect,
-	     SDL_Surface *dst, SDL_Rect *dst_rect,
-	     Geometry *geo, Linklist<Parameter> *param) {
-  
-  sdl_surf = SDL_CreateRGBSurfaceFrom
-    (src, geo->w, geo->h, geo->bpp,
-     geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, 0x0);
-  
-  SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
-  //SDL_UpdateRects(sdl_surf, 1, dst_rect);
-  
-  SDL_FreeSurface( sdl_surf );
-};
+static const char *sdl_rgb(void *src, SDL_Rect *src_rect, SDL_Surface *dst,
+                           SDL_Rect *dst_rect, Geometry *geo, Linklist<Parameter> *) {
+  return blit_pixels(src, src_rect, dst, dst_rect, *geo, false, false, 255);
+}
 
-BLIT sdl_alpha(void *src, SDL_Rect *src_rect,
-	       SDL_Surface *dst, SDL_Rect *dst_rect,
-	       Geometry *geo, Linklist<Parameter> *params) {
+static const char *sdl_alpha(void *src, SDL_Rect *src_rect, SDL_Surface *dst,
+                             SDL_Rect *dst_rect, Geometry *geo, Linklist<Parameter> *params) {
+  const auto alpha = static_cast<Uint8>(*static_cast<float *>(params->begin()->value));
+  return blit_pixels(src, src_rect, dst, dst_rect, *geo, false, true, alpha);
+}
 
-  float alpha = *(float*)(params->begin()->value); // only one value
-  unsigned int int_alpha = (unsigned int) alpha;
-
-  sdl_surf = SDL_CreateRGBSurfaceFrom
-    (src, geo->w, geo->h, geo->bpp,
-     geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, 0x0);
-
-  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, int_alpha );  
-
-  SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
-  
-  SDL_FreeSurface( sdl_surf );
-  
-};
-
-BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect,
-		  SDL_Surface *dst, SDL_Rect *dst_rect,
-		  Geometry *geo, Linklist<Parameter> *params) {
-
-  float alpha = *(float*)(params->begin()->value); // only one value
-  unsigned int int_alpha = (unsigned int) alpha;
-
-  sdl_surf = SDL_CreateRGBSurfaceFrom
-    (src, geo->w, geo->h, geo->bpp,
-     geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
-  
-  SDL_SetAlpha( sdl_surf, SDL_SRCALPHA|SDL_RLEACCEL, int_alpha );  
-
-  SDL_BlitSurface( sdl_surf, src_rect, dst, dst_rect );
-  
-  SDL_FreeSurface( sdl_surf );
-  
-};
-
-BLIT sdl_chromakey(void *src, SDL_Rect *src_rect,
-		   SDL_Surface *dst, SDL_Rect *dst_rect,
-		   Geometry *geo, Linklist<Parameter> *params) {
-
-
-  // TODO color
-
-  sdl_surf = SDL_CreateRGBSurfaceFrom
-    (src, geo->w, geo->h, geo->bpp,
-     geo->bytewidth, red_bitmask, green_bitmask, blue_bitmask, alpha_bitmask);
-  
-  // TODO
-  SDL_SetColorKey( sdl_surf, SDL_SRCCOLORKEY | SDL_RLEACCEL, NULL);
-  
-  //  SDL_SetAlpha(sdl_surf, SDL_RLEACCEL, 0);
-  
-  SDL_Surface *colorkey_surf = SDL_DisplayFormat(sdl_surf);
-  
-  SDL_BlitSurface( colorkey_surf, src_rect, dst, dst_rect );
-  
-  SDL_FreeSurface( sdl_surf );
-  SDL_FreeSurface( colorkey_surf );
-
+static const char *sdl_srcalpha(void *src, SDL_Rect *src_rect, SDL_Surface *dst,
+                                SDL_Rect *dst_rect, Geometry *geo, Linklist<Parameter> *) {
+  // Per-pixel alpha takes precedence over the surface alpha in the show API.
+  return blit_pixels(src, src_rect, dst, dst_rect, *geo, true, true, 255);
 }
 
 void setup_sdl_blits(Blitter *blitter) {
@@ -148,10 +103,4 @@ void setup_sdl_blits(Blitter *blitter) {
   p->multiplier = 255.0;
   b->parameters.append(p);
   
-//   b = new Blit(); b->set_name("CHROMAKEY");
-//   sprintf(b->desc,"chromakey blit (SDL)");
-//   b->type = Blit::SDL; b->has_value = true;
-//   b->sdl_fun = sdl_chromakey;
-//   blitter->blitlist.prepend(b);
-
 }

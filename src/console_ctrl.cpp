@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <errno.h>
+#include <algorithm>
 
 #include <signal.h>
 
@@ -51,18 +52,10 @@
 
 
 
-static bool screen_size_changed;
-static void sigwinch_handler (int sig) {
-  screen_size_changed = true;
-  SLsignal (SIGWINCH, sigwinch_handler);
-}
-
 static bool real_quit;
-static bool keyboard_quit = false;
+static volatile sig_atomic_t keyboard_quit = false;
 static void sigint_handler (int sig) {
-  SLsignal_intr (SIGINT, sigint_handler);
   keyboard_quit = true;
-  func("%s : keyboard quit", __PRETTY_FUNCTION__);
 #if SLANG_VERSION < 20000
   if (SLang_Ignore_User_Abort == 0) 
 	  SLang_Error = USER_BREAK;
@@ -135,11 +128,8 @@ bool SlwConsole::slw_init() {
   slw = new SLangConsole();
   slw->init();
 
-  /** register WINdow CHange signal handler (TODO) */
-  SLsignal (SIGWINCH, sigwinch_handler);
-
   /** register SIGINT signal */
-  signal(SIGINT, sigint_handler);
+  SLsignal_intr(SIGINT, sigint_handler);
   SLang_set_abort_signal(sigint_handler);
 
   SLkp_set_getkey_function(getkey_handler);
@@ -150,23 +140,17 @@ bool SlwConsole::slw_init() {
   tit = new SlwTitle();
   tit->set_name("console title");
   tit->env = env;
-  slw->place(tit, 0, 0, slw->w, 2);
-  tit->init();
   /////////////////////////////////
 
   // layer and filter selector
   sel = new SlwSelector();
   sel->set_name("layer & filter selector");
   sel->env = env;
-  slw->place(sel, 0, 2, slw->w, 8);
-  sel->init();
   ////////////////////////////
 
   // log scroller
   log = new SLW_Log();
   log->set_name("console log messages");
-  slw->place(log, 0, 10, slw->w, slw->h -3);
-  log->init();
   ////////////////////////////
 
 
@@ -174,7 +158,10 @@ bool SlwConsole::slw_init() {
   rdl = new SlwReadline();
   rdl->set_name("console readline");
   rdl->env = env;
-  slw->place(rdl, 0, slw->h-1, slw->w, slw->h);
+  layout_widgets();
+  tit->init();
+  sel->init();
+  log->init();
   rdl->init();
   ////////////////////////////
 
@@ -187,6 +174,14 @@ bool SlwConsole::slw_init() {
   return true;
 }
 
+void SlwConsole::layout_widgets() {
+  const int status_row = slw->h > 0 ? slw->h - 1 : 0;
+  slw->place(tit, 0, 0, slw->w, std::min(2, status_row));
+  slw->place(sel, 0, std::min(2, status_row), slw->w, std::min(10, status_row));
+  slw->place(log, 0, std::min(10, status_row), slw->w,
+             std::max(std::min(10, status_row), slw->h - 3));
+  slw->place(rdl, 0, status_row, slw->w, slw->h);
+}
 
 
 int SlwConsole::dispatch() {
@@ -215,6 +210,9 @@ int SlwConsole::dispatch() {
 }
 
 int SlwConsole::poll() {
+  slw->resize_if_needed();
+  if (rdl->w != slw->w || rdl->orig_y + rdl->h != slw->h)
+    layout_widgets();
   if(keyboard_quit) {
     rdl->readline("do you really want to quit? type yes to confirm:",&quit_proc,NULL);
     keyboard_quit = false;

@@ -38,6 +38,7 @@ class JSObject;
 
 class ControllerListener : public Entry
 {
+    friend class Controller;
 public:
     ControllerListener(JSContext *cx, JSObject *obj);
     ~ControllerListener();
@@ -48,6 +49,7 @@ public:
     JSContext *context();
     JSObject  *object();
 private:
+    bool call_formatted(const char *funcname, int argc, const char *format, va_list args);
     JSContext *jsContext;
     JSObject *jsObject;
     jsval frameFunc;
@@ -56,6 +58,7 @@ private:
 
 class Controller: public Entry {
   friend class Context;
+  bool retiring_ = false;
 
  public:
   Controller();

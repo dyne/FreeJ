@@ -50,6 +50,7 @@ UnicapLayer::UnicapLayer()
 }
 
 UnicapLayer::~UnicapLayer() {
+  stop();
 
   close();
 

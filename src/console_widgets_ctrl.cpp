@@ -74,16 +74,13 @@ SlwSelector::SlwSelector()
   : SLangWidget() {
   
   env = NULL;
-  tmp = NULL;
   
 }
 
 SlwSelector::~SlwSelector() {
-  if(tmp) free(tmp);
 }
 
 bool SlwSelector::init() {
-  tmp = (char*)calloc(w, sizeof(char));
   initialized = true;
     return true;
 }
@@ -93,18 +90,20 @@ bool SlwSelector::feed(int key) {
 
   bool res = false;
 
-  if(env->screens.selected()->layers.len() > 0) { // there are layers
+  auto *screen = env->screens.selected();
+  if (screen && screen->layers.len() > 0) {
 
     res = true;
 
     // get the one selected
-    le = env->screens.selected()->layers.selected();
+    le = screen->layers.selected();
     if(!le) {
-      env->screens.selected()->layers.begin();
-      le->sel(true);
+      le = screen->layers.begin();
+      screen->layers.select_only(static_cast<Layer *>(le));
     }
 
-    fe = ((Layer*)le)->filters.selected();
+    auto &filters = static_cast<Layer *>(le)->filters;
+    fe = filters.selected();
     
     // switch over operations and perform
     switch(key) {
@@ -114,21 +113,19 @@ bool SlwSelector::feed(int key) {
       if(!fe) break; // no filter
       
       fe = fe->prev; // take the upper one
-      ((Layer*)le)->filters.sel(0); // deselect all filters
-      if(fe) fe->sel(true); // select only the current
+      filters.select_only(static_cast<FilterInstance *>(fe));
       
       break;
       
     case SL_KEY_DOWN:
       
       if(!fe) {
-	fe = ((Layer*)le)->filters.begin();
+	fe = filters.begin();
 	if(!fe) break; // no filters
-	else fe->sel(true);
+	else filters.select_only(static_cast<FilterInstance *>(fe));
       } else if(fe->next) {
 	fe = fe->next;
-	((Layer*)le)->filters.sel(0);
-	fe->sel(true);
+	filters.select_only(static_cast<FilterInstance *>(fe));
       }
       break;
       
@@ -138,13 +135,12 @@ bool SlwSelector::feed(int key) {
 	
 	// move to the previous or the other end
 	if(!le->prev)
-	  le = env->screens.selected()->layers.end();
+	  le = screen->layers.end();
 	else
 	  le = le->prev;
 	
 	// select only this layer
-	env->screens.selected()->layers.sel(0);
-	le->sel(true);
+	screen->layers.select_only(static_cast<Layer *>(le));
 	
       } else { // a filter is selected: move across filter parameters
 	
@@ -160,12 +156,11 @@ bool SlwSelector::feed(int key) {
 	
 	// move to the next layer or the other end
 	if(!le->next)
-	  le = env->screens.selected()->layers.begin();
+	  le = screen->layers.begin();
 	else le = le->next;
 	
 	// select only the current
-	env->screens.selected()->layers.sel(0);
-	le->sel(true);
+	screen->layers.select_only(static_cast<Layer *>(le));
 	
       } else { // move across filter parameters
 	
@@ -198,12 +193,14 @@ bool SlwSelector::feed(int key) {
       }
       break;
       
-    case KEY_SPACE:
+    case KEY_SPACE: {
+      std::lock_guard<Layer> lock(*static_cast<Layer *>(le));
       if(fe) ((FilterInstance*)fe)->active =
 	       !((FilterInstance*)fe)->active;
       else  ((Layer*)le)->active =
 	      !((Layer*)le)->active;
-    break;
+      break;
+    }
 
     default:
       res = false;
@@ -214,23 +211,27 @@ bool SlwSelector::feed(int key) {
 }
 
 bool SlwSelector::refresh() {
-  int sellayercol, layercol, pos;
+  int sellayercol = 0;
+  int layercol, pos;
+  char tmp[512];
+  auto *screen = env->screens.selected();
 
   /* print info the selected layer */
   blank();
 
   // also put info from encoders, if active
   // so far supported only one encoder
-  VideoEncoder *enc = env->screens.selected()->encoders.begin();
+  VideoEncoder *enc = screen ? screen->encoders.begin() : nullptr;
   if(enc) {
-    snprintf(tmp, w, "Stream: video %u kb/s : audio %u kb/s : encoded %u kb",
+    snprintf(tmp, sizeof(tmp), "Stream: video %u kb/s : audio %u kb/s : encoded %u kb",
 	     enc->video_kbps, enc->audio_kbps, enc->bytes_encoded / 1024);
     putnch(tmp, 1, 0, 0);
   }
     
-  layer = env->screens.selected()->layers.selected();
+  layer = screen ? screen->layers.selected() : nullptr;
+  filter = layer ? layer->filters.selected() : nullptr;
   if(layer) {
-    snprintf(tmp, w, "Layer: %s blit: %s [%.0f] geometry x%i y%i w%u h%u",
+    snprintf(tmp, sizeof(tmp), "Layer: %s blit: %s [%.0f] geometry x%i y%i w%u h%u",
 	     layer->get_filename(), layer->current_blit->name, layer->current_blit->value,
 	     layer->geo.x, layer->geo.y, layer->geo.w, layer->geo.h);
     //    SLsmg_erase_eol();
@@ -243,8 +244,8 @@ bool SlwSelector::refresh() {
   putnch(tmp, 1, 1, 0);
 
 
-  if(env->screens.selected()->layers.len()) {
-    Layer *l = env->screens.selected()->layers.begin();  
+  if(screen && screen->layers.len()) {
+    Layer *l = screen->layers.begin();
     //    int color;
     int tmpsize = 0;
     layercol = 0;
@@ -268,8 +269,11 @@ bool SlwSelector::refresh() {
       if(l->fade | l->active) color+=10;      
 
       //      snprintf(tmp, w, " -> %s",l->get_name());
-      tmpsize = strlen(l->get_name());
-      putnch(l->get_name(), layercol+4, 2, tmpsize);
+      char *label = l->get_filename();
+      if (!label || !*label)
+        label = l->get_name();
+      tmpsize = strlen(label);
+      putnch(label, layercol+4, 2, tmpsize);
       // save position of selected layer
       if( l == layer) sellayercol = layercol;
       
@@ -289,11 +293,11 @@ bool SlwSelector::refresh() {
 //     SLsmg_set_color(FILTERS_COLOR);
 //     SLsmg_write_string((char *)"Filter: ");
     if(!filter) {
-      snprintf(tmp, w, "No Filter selected");
+      snprintf(tmp, sizeof(tmp), "No Filter selected");
       //      SLsmg_erase_eol();
     } else {
       if(filter->proto)
-	snprintf(tmp, w, "Filter: %s :: %s",
+	snprintf(tmp, sizeof(tmp), "Filter: %s :: %s",
 		 filter->name, filter->proto->description());
 
       //      SLsmg_set_color(FILTERS_COLOR+10);
@@ -325,7 +329,7 @@ bool SlwSelector::refresh() {
 //       SLsmg_erase_eol();
 //     }
     
-  } else snprintf(tmp, w, "No Filter selected");
+  } else snprintf(tmp, sizeof(tmp), "No Filter selected");
 
   color = FILTERS_COLOR;
   putnch(tmp,1,3,0);

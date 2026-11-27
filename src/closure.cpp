@@ -17,57 +17,73 @@
 
 #include <closure.h>
 #include <jutils.h>
+#include <memory>
 
 
-ClosureQueue::ClosureQueue() {
-  int r;
-  if ((r=pthread_mutex_init(&job_queue_mutex_, NULL)) != 0)
-    throw Error("Initializing job_queue_mutex_", r);
-}
+ClosureQueue::ClosureQueue() = default;
 
 ClosureQueue::~ClosureQueue() {
-  int r;
-  do_jobs(); // flush queue
-  if ((r=pthread_mutex_destroy(&job_queue_mutex_)) != 0)
-    error("In %s , pthread_mutex_destroy(): %s",
-          __PRETTY_FUNCTION__, strerror(r));
+  dispose_jobs(true);
 }
 
 void ClosureQueue::add_job(Closure *job) {
-  int r;
-  if ((r=pthread_mutex_lock(&job_queue_mutex_)) != 0)
-    throw Error("Locking job_queue_mutex_ to add job", r);
-  job_queue_.push(job);
-  if ((r=pthread_mutex_unlock(&job_queue_mutex_)) != 0)
-    throw Error("Unlocking job_queue_mutex_ to add job", r);
+  std::unique_ptr<Closure> owned(job->is_synchronized() ? nullptr : job);
+  {
+    std::lock_guard<std::mutex> lock(job_queue_mutex_);
+    if (!closed_) {
+      job_queue_.push(job);
+      owned.release();
+      return;
+    }
+  }
+  job->complete();
 }
 
 Closure *ClosureQueue::get_job_() {
-  Closure *job = NULL;
-  int r;
-  if ((r=pthread_mutex_lock(&job_queue_mutex_)) != 0)
-    throw Error("Locking job_queue_mutex_ to get job", r);
-  if (!job_queue_.empty()) {
-    job = job_queue_.front();
-    job_queue_.pop();
-  }
-  if ((r=pthread_mutex_unlock(&job_queue_mutex_)) != 0)
-    throw Error("Unocking job_queue_mutex_ to get job", r);
+  std::lock_guard<std::mutex> lock(job_queue_mutex_);
+  if (job_queue_.empty())
+    return nullptr;
+  Closure *job = job_queue_.front();
+  job_queue_.pop();
   return job;
 }
 
 void ClosureQueue::do_jobs() {
-  Closure *job;
-  bool to_delete;
-  // TODO(shammash): maybe we'll need a timed condition to exit the loop
-  while ((job = get_job_()) != NULL) {
-    // convention: synchronized jobs are deleted by caller
-    to_delete = !job->is_synchronized();
+  while (Closure *job = get_job_()) {
+    std::unique_ptr<Closure> owned(job->is_synchronized() ? nullptr : job);
     job->run();
-    if (to_delete) delete job;
   }
 }
 
+void ClosureQueue::cancel_jobs() {
+  dispose_jobs(false);
+}
+
+void ClosureQueue::close() {
+  dispose_jobs(true);
+}
+
+void ClosureQueue::reopen() {
+  std::lock_guard<std::mutex> lock(job_queue_mutex_);
+  closed_ = false;
+}
+
+void ClosureQueue::dispose_jobs(bool close) {
+  std::queue<Closure *> pending;
+  {
+    std::lock_guard<std::mutex> lock(job_queue_mutex_);
+    closed_ = closed_ || close;
+    pending.swap(job_queue_);
+  }
+  while (!pending.empty()) {
+    Closure *job = pending.front();
+    pending.pop();
+    if (job->is_synchronized())
+      job->complete();
+    else
+      delete job;
+  }
+}
 
 
 ThreadedClosureQueue::ThreadedClosureQueue() {
@@ -87,11 +103,14 @@ ThreadedClosureQueue::ThreadedClosureQueue() {
 
 ThreadedClosureQueue::~ThreadedClosureQueue() {
   int r;
+  pthread_mutex_lock(&cond_mutex_);
   running_ = false;
-  signal_();
+  pthread_cond_broadcast(&cond_);
+  pthread_mutex_unlock(&cond_mutex_);
   if ((r=pthread_join(thread_, NULL)) != 0)
     error("In %s, pthread_join() : %s",
           __PRETTY_FUNCTION__, strerror(r));
+  do_jobs();
   if ((r=pthread_attr_destroy(&attr_)) != 0)
     error("In %s, pthread_attr_destroy() : %s",
           __PRETTY_FUNCTION__, strerror(r));

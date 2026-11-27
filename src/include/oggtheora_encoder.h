@@ -26,7 +26,7 @@
 #include <config.h>
 #include <linklist.h>
 #include <video_encoder.h>
-#include <audio_jack.h>
+#include <audio_pipewire.h>
 #include <fstream>
 #ifdef WITH_OGGTHEORA
 
@@ -73,7 +73,9 @@ class OggTheoraEncoder: public VideoEncoder {
 //   size_t	rv;
   
 private:
-  float m_MixVal;
+  void flush_pending_output() override;
+  void drain_audio();
+  std::atomic<float> m_MixVal{1};
   oggmux_info oggmux; // theorautils object
 
   int encode_video(int end_of_stream);
@@ -91,11 +93,8 @@ private:
 
   unsigned char *yuvframe[2]; /* yuv 420 */
   
-  float *m_buffStream;
-  
-  float	*m_MixBuffer;
-  float	*m_MixBufferOperation;
-  ringbuffer_t *m_MixedRing;
+  std::shared_ptr<RecordingRings> recording_;
+  std::vector<float> mono_, mixed_;
 };
 
 #endif

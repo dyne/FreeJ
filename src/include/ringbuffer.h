@@ -51,8 +51,10 @@ ringbuffer_data_t ;
 typedef struct
 {
   char		 *buf;
-  volatile size_t write_ptr;
-  volatile size_t read_ptr;
+  /* Published by the SPSC API with release/acquire atomics. Only a stopped
+     ring may have both cursors reset. Keep the C ABI's size and alignment. */
+  size_t write_ptr;
+  size_t read_ptr;
   size_t	  size;
   size_t	  size_mask;
   int		  mlocked;

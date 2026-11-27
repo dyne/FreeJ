@@ -2,7 +2,8 @@ freejincludedir = $(includedir)
 
 freejinclude_HEADERS = freej.h freej_plugin.h
 
-noinst_HEADERS = asm-linkage.h audio_collector.h audio_input.h audio_jack.h \
+freejenginedir = $(includedir)/freej
+freejengine_HEADERS = asm-linkage.h audio_capture.h audio_collector.h audio_input.h audio_pipewire.h \
 	blitter.h callback.h callbacks_js.h closure.h console_calls_ctrl.h \
 	console_ctrl.h console_readline_ctrl.h console_widgets_ctrl.h context.h \
 	controller.h convertvid.h cpu_accel.h fastmemcpy.h ffmpeg_encoder.h filter.h \
@@ -19,5 +20,18 @@ noinst_HEADERS = asm-linkage.h audio_collector.h audio_input.h audio_jack.h \
 	yuv_screeen.h opencv_cam_layer.h exceptions.h logging.h aa_screen.h factory.h \
 	sdl_controller.h audio_layer.h slang_console_ctrl.h cairo_layer.h geometry.h \
 	color.h
+
+nodist_freejengine_HEADERS = $(top_builddir)/config.h
+
+if BUILD_JAVASCRIPT
+freejengine_HEADERS += $(top_srcdir)/lib/javascript/jsapi.h \
+    $(top_srcdir)/lib/javascript/jspubtd.h $(top_srcdir)/lib/javascript/jstypes.h \
+    $(top_srcdir)/lib/javascript/jsotypes.h $(top_srcdir)/lib/javascript/jscompat.h \
+    $(top_srcdir)/lib/javascript/jsproto.tbl $(top_srcdir)/lib/javascript/jsutil.h \
+    $(top_srcdir)/lib/javascript/jscpucfg.h $(top_srcdir)/lib/javascript/jsstdint.h \
+    $(top_srcdir)/lib/javascript/jsversion.h $(top_srcdir)/lib/javascript/jslong.h
+nodist_freejengine_HEADERS += $(top_builddir)/lib/javascript/jsautocfg.h \
+    $(top_builddir)/lib/javascript/js-config.h
+endif
 
 EXTRA_DIST = jsfreej.msg

@@ -228,7 +228,7 @@ void rtc_close() {
 }
 #endif
 
-void *(* jmemcpy)(void *to, const void *from, size_t len);
+void *(* jmemcpy)(void *to, const void *from, size_t len) = memcpy;
 
 
 bool filecheck(const char *file) {

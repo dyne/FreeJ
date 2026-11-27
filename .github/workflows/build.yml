@@ -1,0 +1,184 @@
+name: Linux native builds
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    name: Linux amd64 (${{ matrix.profile }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    outputs:
+      compatibility_frames: ${{ steps.effects.outputs.compatibility_frames }}
+      static_frames: ${{ steps.effects.outputs.static_frames }}
+    container:
+      # Docker Official Image: debian:trixie-20261123-slim, linux/amd64 manifest.
+      image: debian@sha256:ab3b3c8c5159eebfca4376430132d53c4d425f869c765ecbe47177a030da575d
+      options: --shm-size=512m
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [compatibility, static]
+    env:
+      PROFILE: ${{ matrix.profile }}
+      CCACHE_DIR: /tmp/freej-sdk-ccache
+      CCACHE_MAXSIZE: 500M
+      CCACHE_COMPILERCHECK: content
+      FREEJ_CI_WORK: /tmp/freej-ci/sdk
+      FREEJ_CI_EVIDENCE: /tmp/freej-ci/evidence
+      FREEJ_CI_JOBS: '4'
+    steps:
+      - name: Provision Debian build tools and runtime services
+        run: |
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            autoconf automake build-essential ca-certificates ccache cmake curl git \
+            libtool meson ninja-build pkgconf python3 zip zstd \
+            libslang2-dev libogg-dev libvorbis-dev liblo-dev \
+            libfftw3-dev libsamplerate0-dev libasound2-dev libfontconfig-dev \
+            libfreetype-dev libcairo2-dev libx11-dev libxext-dev libxrandr-dev libxi-dev \
+            libxcursor-dev libxfixes-dev libxss-dev libgl-dev libglu1-mesa-dev \
+            libpng-dev libjpeg-dev libtiff-dev libwebp-dev libssl-dev libbz2-dev zlib1g-dev \
+            libsndio-dev libtiff6 libgd3 libshout3 libtheoradec1 libtheoraenc1 \
+            xvfb
+          mkdir -p /tmp/freej-ci
+          dpkg-query -W > /tmp/freej-ci/packages.txt
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Verify source identity
+        run: |
+          # The runner owns the mounted checkout. Checkout's temporary HOME is gone here.
+          export GIT_CONFIG_COUNT=2
+          export GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0=
+          export GIT_CONFIG_KEY_1=safe.directory GIT_CONFIG_VALUE_1="${GITHUB_WORKSPACE:?}"
+          source_sha=$(git -C "$GITHUB_WORKSPACE" rev-parse HEAD)
+          source_status=$(git -C "$GITHUB_WORKSPACE" status --porcelain --untracked-files=all)
+          if [[ $source_sha != "$GITHUB_SHA" ]]; then
+            printf 'Expected checkout %s, found %s\n' "$GITHUB_SHA" "$source_sha" >&2
+            exit 1
+          fi
+          if [[ -n $source_status ]]; then
+            printf 'Expected a clean checkout\n' >&2
+            exit 1
+          fi
+          {
+            printf 'GIT_CONFIG_COUNT=%s\n' "$GIT_CONFIG_COUNT"
+            printf 'GIT_CONFIG_KEY_0=%s\nGIT_CONFIG_VALUE_0=%s\n' "$GIT_CONFIG_KEY_0" "$GIT_CONFIG_VALUE_0"
+            printf 'GIT_CONFIG_KEY_1=%s\nGIT_CONFIG_VALUE_1=%s\n' "$GIT_CONFIG_KEY_1" "$GIT_CONFIG_VALUE_1"
+          } >> "$GITHUB_ENV"
+          printf 'checkout=%s ref=%s event=%s run=%s attempt=%s\n' \
+            "$GITHUB_SHA" "$GITHUB_REF" "$GITHUB_EVENT_NAME" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" \
+            | tee /tmp/freej-ci/checkout.txt
+      - name: Restore SDK compiler cache
+        id: cache
+        uses: actions/cache@cdf6c1fa76f9f475f3d7449005a359c84ca0f306 # v5.0.3
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: freej-debian13-linux-amd64-gcc12.4.0-${{ matrix.profile }}-${{ hashFiles('tests/*.lock', 'tests/*sdk.py', 'tests/*sdk.sh', 'tests/*sdk.patch', 'tests/native-linux-archives.py', 'tests/native-ci-prepare.sh', '.github/workflows/build.yml') }}
+      - name: Prepare pinned SDKs
+        run: |
+          ccache --zero-stats
+          tests/native-ci-prepare.sh "$PROFILE" "$FREEJ_CI_WORK"
+          ccache --show-stats | tee /tmp/freej-ci/sdk-cache.txt
+      - name: Stage and verify cold and warm builds
+        id: gates
+        run: tests/native-ci-run.sh "$PROFILE" "$FREEJ_CI_WORK" "$FREEJ_CI_EVIDENCE"
+      - name: Record frei0r frame digest
+        id: effects
+        run: |
+          digest=$(cat "$FREEJ_CI_EVIDENCE/warm/frei0r-frames.sha256")
+          [[ $digest =~ ^[0-9a-f]{64}$ ]]
+          printf '%s_frames=%s\n' "$PROFILE" "$digest" >> "$GITHUB_OUTPUT"
+      - name: Upload profile artifacts and logs
+        id: upload
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: freej-linux-amd64-${{ matrix.profile }}-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            /tmp/freej-ci/*.txt
+            /tmp/freej-ci/sdk/logs/
+            /tmp/freej-ci/evidence/
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+          compression-level: 1
+      - name: Summarize gates and artifact identity
+        if: ${{ !cancelled() }}
+        env:
+          CACHE_HIT: ${{ steps.cache.outputs.cache-hit }}
+          GATE_OUTCOME: ${{ steps.gates.outcome }}
+          ARTIFACT_ID: ${{ steps.upload.outputs.artifact-id }}
+          ARTIFACT_DIGEST: ${{ steps.upload.outputs.artifact-digest }}
+          ARTIFACT_URL: ${{ steps.upload.outputs.artifact-url }}
+        run: |
+          {
+            printf '## Linux amd64 %s\n\n' "$PROFILE"
+            printf "Checkout \`%s\` · run \`%s\` · attempt \`%s\`\n\n" "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT"
+            printf "SDK cache exact hit \`%s\` · local build and runtime gates \`%s\`\n\n" "${CACHE_HIT:-false}" "$GATE_OUTCOME"
+            for trial in cold warm; do
+              if [[ -f "$FREEJ_CI_EVIDENCE/$trial/compile-outcome.txt" ]]; then
+                printf '%s build: ' "$trial"
+                cat "$FREEJ_CI_EVIDENCE/$trial/compile-outcome.txt"
+                printf '\n'
+              fi
+            done
+            if [[ -f "$FREEJ_CI_EVIDENCE/cache-comparison.txt" ]]; then
+              cat "$FREEJ_CI_EVIDENCE/cache-comparison.txt"
+              printf "\nCapabilities: \`%s\`\n\n" "$(cat "$FREEJ_CI_EVIDENCE/warm/capabilities.txt")"
+              printf "\`\`\`text\n"
+              cat "$FREEJ_CI_EVIDENCE/warm/checks.txt" "$FREEJ_CI_EVIDENCE/warm/binaries.sha256"
+              printf "\`\`\`\n\n"
+            fi
+            for trial in warm cold; do
+              if [[ -f "$FREEJ_CI_EVIDENCE/$trial/coverage.md" ]]; then
+                printf 'Completed runtime coverage (%s trial)\n\n' "$trial"
+                cat "$FREEJ_CI_EVIDENCE/$trial/coverage.md"
+                printf '\n'
+                break
+              fi
+            done
+            if [[ -n "$ARTIFACT_ID" ]]; then
+              printf "[Artifact %s](%s), SHA-256 \`%s\`\n" "$ARTIFACT_ID" "$ARTIFACT_URL" "$ARTIFACT_DIGEST"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  frei0r-parity:
+    name: frei0r directory and built-in parity
+    needs: native
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Compare the 24 rendered frames
+        shell: bash
+        env:
+          DIRECTORY_FRAMES: ${{ needs.native.outputs.compatibility_frames }}
+          BUILTIN_FRAMES: ${{ needs.native.outputs.static_frames }}
+        run: |
+          [[ $DIRECTORY_FRAMES =~ ^[0-9a-f]{64}$ && $DIRECTORY_FRAMES == "$BUILTIN_FRAMES" ]]
+
+  wasm-frame-probe:
+    name: Scalar FreeJ frame on WebAssembly
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - name: Build and compare the native and WASM frames
+        shell: bash
+        run: |
+          read -r checksum url < <(tail -n 1 tests/native-ci.lock)
+          archive="$RUNNER_TEMP/freej-frei0r.tar.gz"
+          curl --fail --silent --show-error --location --retry 2 --retry-max-time 150 --max-time 90 "$url" -o "$archive"
+          printf '%s  %s\n' "$checksum" "$archive" | sha256sum -c -
+          bash tests/wasm-frame-probe.sh "$archive" "$RUNNER_TEMP/freej-wasm-frame"

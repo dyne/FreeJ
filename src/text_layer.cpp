@@ -28,6 +28,7 @@
 #include <text_layer.h>
 #include <jutils.h>
 #include <jsparser_data.h>
+#include "sdl_pixels.h"
 
 // our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(Layer, TextLayer, TextLayer, truetype);
@@ -47,14 +48,15 @@ TextLayer::TextLayer()
   fgcolor.r = 0xff;
   fgcolor.g = 0xff;
   fgcolor.b = 0xff;
+  fgcolor.a = 0xff;
 
   bgcolor.r = 0x00;
   bgcolor.g = 0x00;
   bgcolor.b = 0x00;
+  bgcolor.a = 0xff;
 
   type = Layer::TEXT;
   set_name("TXT");
-  surf = NULL;
   jsclass = &txt_layer_class;
 
   { // setup specific layer parameters
@@ -71,7 +73,7 @@ TextLayer::TextLayer()
 
 TextLayer::~TextLayer() { 
   func("%s this=%p",__PRETTY_FUNCTION__, this);
-//   close();
+  close();
 }
 
 bool TextLayer::open(const char *file) {
@@ -88,8 +90,10 @@ bool TextLayer::_init() {
   // in fact the size is changing at every new print
   // so we'll call the Layer::_init(wdt,hgt) many times
 
-  if( ! TTF_WasInit() )
-    TTF_Init();
+  if (!TTF_WasInit() && !TTF_Init()) {
+    error("Can't initialize SDL_ttf: %s", SDL_GetError());
+    return false;
+  }
 
   set_font("sans"); // just try one..
 
@@ -99,20 +103,22 @@ bool TextLayer::_init() {
 }
 
 void TextLayer::close() {
-  // close up sdl ttf
-  // mh, this call randomly crashes on my machine ...
-  if(font) TTF_CloseFont(font);
-
-  if( TTF_WasInit() ) TTF_Quit();
-  // free sdl font surface
-  if(surf) SDL_FreeSurface(surf);
-  if(fontfile) free(fontfile);
-  if(fontname) free(fontname);
-  FcFini ();
+  stop();
+  deferred_calls->cancel_jobs();
+  std::lock_guard<Layer> lock(*this);
+  clear_frame();
+  surf.reset();
+  if (font)
+    TTF_CloseFont(font);
+  font = nullptr;
+  free(fontfile);
+  free(fontname);
+  fontfile = fontname = nullptr;
+  opened = false;
 }
 
 void TextLayer::calculate_string_size(char *text, int *w, int *h) {
-  TTF_SizeText(font, text, w, h);
+  TTF_GetStringSize(font, text, 0, w, h);
 }
 
 void TextLayer::set_fgcolor(int r, int g, int b) {
@@ -203,22 +209,15 @@ bool TextLayer::set_fontsize(int sz) {
   return rv;
 }
 
-void TextLayer::_display_text(SDL_Surface *newsurf) {
-
-  geo.init( newsurf->w, newsurf->h, 32);
-
-  // we're going to free the memory pointed by Layer::buffer,
-  // NULLify first..
-  buffer = NULL;
-
-  if (surf) SDL_FreeSurface(surf);
-  surf = newsurf;
-
+void TextLayer::_display_text(std::shared_ptr<SDL_Surface> newsurf) {
+  std::lock_guard<Layer> lock(*this);
+  clear_frame();
+  geo.init(newsurf->w, newsurf->h, 32);
+  need_crop = true;
+  surf = std::move(newsurf);
 }
 
 void TextLayer::write(const char *str) {
-  SDL_Surface *tmp, *newsurf;
-  
   // choose first font and initialize ready for printing
   
   if(!font) {
@@ -227,18 +226,15 @@ void TextLayer::write(const char *str) {
   }
 
   // surf = TTF_RenderText_Blended(font, str, fgcolor);
-  tmp = TTF_RenderText_Shaded(font, str, fgcolor, bgcolor);
+  std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)> tmp(
+      TTF_RenderText_Shaded(font, str, 0, fgcolor, bgcolor), SDL_DestroySurface);
   if(!tmp) {
   	error("Error render text: %s", SDL_GetError());
 	return;
   }
-  // newsurf will become next this->surf, we don't need to free
-  newsurf = SDL_DisplayFormat(tmp);
-
-  Closure *display = NewClosure(this, &TextLayer::_display_text, newsurf);
-  deferred_calls->add_job(display);
-
-  SDL_FreeSurface(tmp);
+  std::shared_ptr<SDL_Surface> converted(SDL_ConvertSurface(tmp.get(), freej_pixel_format()), SDL_DestroySurface);
+  if (converted)
+    deferred_calls->add_job(NewClosure(this, &TextLayer::_display_text, converted));
 
 }
 

@@ -24,6 +24,9 @@
 #include <jutils.h>
 #include <context.h>
 #include <geo_layer.h>
+#include <cstring>
+#include <SDL_gfxPrimitives.h>
+#include "sdl_pixels.h"
 #include <jsparser_data.h>
 
 // our objects are allowed to be created trough the factory engine
@@ -32,8 +35,6 @@ FACTORY_REGISTER_INSTANTIATOR(Layer, GeoLayer, GeometryLayer, basic);
 GeoLayer::GeoLayer()
   :Layer() {
   surf = NULL;
-  fsurf[0] = NULL;
-  fsurf[1] = NULL;
   color = 0xffffffff;
   set_name("GEO");
   set_filename("/geometrical layer");
@@ -42,31 +43,20 @@ GeoLayer::GeoLayer()
 }
 
 GeoLayer::~GeoLayer() {
-  if(surf) SDL_FreeSurface(surf);
-  if(fsurf[0]) free(fsurf[0]);
-  if(fsurf[1]) free(fsurf[1]);
+  stop();
+  if(surf) SDL_DestroySurface(surf);
 }
 
 bool GeoLayer::_init() {
 
-  surf = SDL_CreateRGBSurface(SDL_HWSURFACE | SDL_SRCALPHA,
-			      geo.w,geo.h,geo.bpp,
-			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
+  surf = SDL_CreateSurface(geo.w, geo.h, freej_pixel_format());
   if(!surf) {
     error("can't allocate GeoLayer memory surface");
     return(false);
   }
   
-//   fsurf = SDL_CreateRGBSurface(SDL_HWSURFACE,
-// 			      geo.w,geo.h,32,
-// 			      red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
-//   if (!fsurf) {
-//     error("can't allocate GeoLayer memory surface");
-//     return(false);
-//   }
-
-  fsurf[0] = (uint32_t*)malloc(geo.bytesize);
-  fsurf[1] = (uint32_t*)malloc(geo.bytesize);
+  snapshot_.resize(geo.pixelsize);
+  SDL_FillSurfaceRect(surf, nullptr, 0);
 
   func("Geometry surface initialized");
   opened = true;
@@ -85,154 +75,172 @@ void GeoLayer::close() {
 
 
 void *GeoLayer::feed() {
-  /* TODO: check synchronisation here
-     we might want to use a double buffer and do a memcpy here
-     or a locking system
-     or a queue of operations
-   */
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if (!surf)
-  	return NULL;
+    return nullptr;
 
-  return surf->pixels;
-
+  // Draw calls update the canvas. The worker owns this packed snapshot,
+  // including any changes made by filters before publishing the frame.
+  const auto *src = static_cast<const uint8_t *>(surf->pixels);
+  const std::size_t row_bytes = std::size_t(surf->w) * sizeof(uint32_t);
+  for (int row = 0; row < surf->h; ++row)
+    std::memcpy(snapshot_.data() + std::size_t(row) * surf->w,
+                src + std::size_t(row) * surf->pitch, row_bytes);
+  return snapshot_.data();
 }
 
 int GeoLayer::clear() {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = SDL_FillRect(surf,NULL,color);
+  const auto rgba = get_color();
+  const auto pixel = SDL_MapSurfaceRGBA(surf, rgba >> 24, rgba >> 16, rgba >> 8, rgba);
+  const int res = SDL_FillSurfaceRect(surf, nullptr, pixel) ? 0 : -1;
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::pixel(int16_t x, int16_t y, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = pixelColor(surf, x, y, col);
+  const int res = pixelColor(surf, x, y, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::hline(int16_t x1, int16_t x2, int16_t y, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = hlineColor(surf, x1, x2, y, col);
+  const int res = hlineColor(surf, x1, x2, y, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::vline(int16_t x, int16_t y1, int16_t y2, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = vlineColor(surf, x, y1, y2, col);
+  const int res = vlineColor(surf, x, y1, y2, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::rectangle(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = rectangleColor(surf, x1, y1, x2, y2, col);
+  const int res = rectangleColor(surf, x1, y1, x2, y2, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::rectangle_fill(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = boxColor(surf, x1, y1, x2, y2, col);
+  const int res = boxColor(surf, x1, y1, x2, y2, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::line(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = lineColor(surf, x1, y1, x2, y2, col);
+  const int res = lineColor(surf, x1, y1, x2, y2, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::aaline(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = aalineColor(surf, x1, y1, x2, y2, col);
+  const int res = aalineColor(surf, x1, y1, x2, y2, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::circle(int16_t x, int16_t y, int16_t r, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = circleColor(surf, x, y, r, col);
+  const int res = circleColor(surf, x, y, r, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::aacircle(int16_t x, int16_t y, int16_t r, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = aacircleColor(surf, x, y, r, col);
+  const int res = aacircleColor(surf, x, y, r, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::circle_fill(int16_t x, int16_t y, int16_t r, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = filledCircleColor(surf, x, y, r, col);
+  const int res = filledCircleColor(surf, x, y, r, col);
   if(res<0) error("error in %s (%i, %i, %i, %u)",__PRETTY_FUNCTION__,x,y,r,col);
   return(res);
 }
 
 int GeoLayer::ellipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = ellipseColor(surf, x, y, rx, ry, col);
+  const int res = ellipseColor(surf, x, y, rx, ry, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::aaellipse(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = aaellipseColor(surf, x, y, rx, ry, col);
+  const int res = aaellipseColor(surf, x, y, rx, ry, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::ellipse_fill(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = filledEllipseColor(surf, x, y, rx, ry, col);
+  const int res = filledEllipseColor(surf, x, y, rx, ry, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
@@ -241,22 +249,24 @@ int GeoLayer::ellipse_fill(int16_t x, int16_t y, int16_t rx, int16_t ry, uint32_
 
 int GeoLayer::pie(uint16_t x, uint16_t y, uint16_t rad,
 		  uint16_t start, uint16_t end, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = pieColor(surf, x, y, rad, start, end, col);
+  const int res = pieColor(surf, x, y, rad, start, end, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::pie_fill(uint16_t x, uint16_t y, uint16_t rad,
 		       uint16_t start, uint16_t end, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = filledPieColor(surf, x, y, rad, start, end, col);
+  const int res = filledPieColor(surf, x, y, rad, start, end, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
@@ -266,11 +276,12 @@ int GeoLayer::pie_fill(uint16_t x, uint16_t y, uint16_t rad,
 int GeoLayer::trigon(int16_t x1, int16_t y1,
 	   int16_t x2, int16_t y2,
 	   int16_t x3, int16_t y3, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = trigonColor(surf, x1, y1, x2, y2, x3, y3, col);
+  const int res = trigonColor(surf, x1, y1, x2, y2, x3, y3, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
@@ -278,11 +289,12 @@ int GeoLayer::trigon(int16_t x1, int16_t y1,
 int GeoLayer::aatrigon(int16_t x1, int16_t y1,
 	     int16_t x2, int16_t y2,
 	     int16_t x3, int16_t y3, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = aatrigonColor(surf, x1, y1, x2, y2, x3, y3, col);
+  const int res = aatrigonColor(surf, x1, y1, x2, y2, x3, y3, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
@@ -290,11 +302,12 @@ int GeoLayer::aatrigon(int16_t x1, int16_t y1,
 int GeoLayer::trigon_fill(int16_t x1, int16_t y1,
 		int16_t x2, int16_t y2,
 		int16_t x3, int16_t y3, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = filledTrigonColor(surf, x1, y1, x2, y2, x3, y3, col);
+  const int res = filledTrigonColor(surf, x1, y1, x2, y2, x3, y3, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
@@ -302,41 +315,45 @@ int GeoLayer::trigon_fill(int16_t x1, int16_t y1,
 ////
 
 int GeoLayer::polygon(int16_t *vx, int16_t *vy, int num_vertex, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = polygonColor(surf, vx, vy, num_vertex, col);
+  const int res = polygonColor(surf, vx, vy, num_vertex, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::aapolygon(int16_t *vx, int16_t *vy, int num_vertex, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = aapolygonColor(surf, vx, vy, num_vertex, col);
+  const int res = aapolygonColor(surf, vx, vy, num_vertex, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::polygon_fill(int16_t *vx, int16_t *vy, int num_vertex, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = filledPolygonColor(surf, vx, vy, num_vertex, col);
+  const int res = filledPolygonColor(surf, vx, vy, num_vertex, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }
 
 int GeoLayer::bezier(int16_t *vx, int16_t *vy, int num_vertex, int steps, uint32_t col) {
+  std::lock_guard<std::mutex> lock(drawing_mutex_);
   if(!surf) {
     error("%s can't run: layer not initialized", __PRETTY_FUNCTION__);
     return -1;
   }
-  res = bezierColor(surf, vx, vy, num_vertex, steps, col);
+  const int res = bezierColor(surf, vx, vy, num_vertex, steps, col);
   if(res<0) error("error in %s",__PRETTY_FUNCTION__);
   return(res);
 }

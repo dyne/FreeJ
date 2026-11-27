@@ -21,6 +21,7 @@
 #define __linklist_h__
 
 #include <string.h>
+#include <mutex>
 
 /* void warning(const char *format, ...); */
 void func(const char *format, ...);
@@ -97,6 +98,7 @@ class Linklist : public BaseLinklist {
   void insert_after(T *addr, T *pos);  
   void rem(int pos);
   void sel(int pos);
+  bool select_only(T *entry);
   void clear();
   bool moveup(int pos);
   bool movedown(int pos);
@@ -460,6 +462,16 @@ template <class T> void Linklist<T>::sel(int pos) {
 
 /* returns the last one selected
    this is supposed to be used with single selections */
+template <class T> bool Linklist<T>::select_only(T *entry) {
+  std::lock_guard<Linklist<T>> lock(*this);
+  if (entry && entry->list != this)
+    return false;
+  sel(0);
+  if (entry)
+    entry->sel(true);
+  return true;
+}
+
 template <class T> T *Linklist<T>::selected() {
   if(!first) return NULL; // no entries at all
   return (T*)selection;       // now faster <= haha

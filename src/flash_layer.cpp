@@ -97,6 +97,7 @@ FlashLayer::FlashLayer()
 }
 
 FlashLayer::~FlashLayer() {
+  stop();
   close();
 }
 

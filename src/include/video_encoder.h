@@ -23,7 +23,7 @@
 #ifndef __VIDEO_ENCODER_H__
 #define __VIDEO_ENCODER_H__
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include <config.h>
 
 #include <jsync.h>
@@ -38,11 +38,13 @@
 #include <shout/shout.h>
 
 #include <iostream>
+#include <vector>
 
 class Context;
 class AudioCollector;
 class FPS;
 class ViewPort;
+namespace freej_engine { struct Frame; }
 
 /**
  * Abstract class describing the general interface of a VideoEncoder
@@ -100,7 +102,7 @@ class VideoEncoder: public Entry, public JSyncThread {
 
   bool initialized; ///< true if encoder had been initialized
   bool write_to_disk; ///< true if encoder should write to a file
-  bool write_to_stream; ///< true if encoder should write to a stream
+  std::atomic<bool> write_to_stream; ///< true if encoder should write to a stream
   
   bool use_audio; ///< true if the encoded data should include also audio
   AudioCollector *audio; ///< holding the pointer to the @AudioCollector class
@@ -121,12 +123,24 @@ class VideoEncoder: public Entry, public JSyncThread {
   void *enc_v;
   void *enc_yuyv;
 
+ protected:
+  bool configure_frame(unsigned width, unsigned height, unsigned coded_width,
+                       unsigned coded_height, unsigned offset_x, unsigned offset_y);
+  virtual void flush_pending_output() {}
+
  private:
+  bool convert_frame(const freej_engine::Frame &frame);
+  size_t drain_output();
   FILE *filedump_fd;
-//   char encbuf[1024*128];
-//   char encbuf[1024*2096];
-  char *encbuf;
-  struct timeval m_ActualTime, m_OldTime, m_lastTime;
+  std::vector<char> encoded_bytes_;
+  std::vector<uint32_t> padded_pixels_;
+  unsigned width_ = 0;
+  unsigned height_ = 0;
+  unsigned coded_width_ = 0;
+  unsigned coded_height_ = 0;
+  unsigned offset_x_ = 0;
+  unsigned offset_y_ = 0;
+  struct timeval m_ActualTime, m_OldTime;
   double m_StreamRate;
   int 	 m_Streamed;
   double m_ElapsedTime;

@@ -116,25 +116,15 @@ int Controller::JSCall(const char *funcname, int argc, jsval *argv)
 
 int Controller::JSCall(const char *funcname, int argc, const char *format, ...)
 {
-    int res;
-    jsval *argv;
+    int handled = 0;
     va_list args;
-    ControllerListener *listener = listeners.begin();
     va_start(args, format);
+    for (auto *listener = listeners.begin(); listener;
+         listener = static_cast<ControllerListener *>(listener->next))
+        if (listener->call_formatted(funcname, argc, format, args))
+            ++handled;
     va_end(args);
-    while (listener) {
-        void *markp = NULL;
-        JS_SetContextThread(listener->context());
-        JS_BeginRequest(listener->context());
-        argv = JS_PushArgumentsVA(listener->context(), &markp, format, args);
-        JS_EndRequest(listener->context());
-        JS_ClearContextThread(listener->context());
-        // TODO - unregister listener if returns false
-        if (listener->call(funcname, argc, argv))
-            res++;
-        listener = (ControllerListener *)listener->next;
-    }
-    return res;
+    return handled;
 }
 
 // ControllerListener
@@ -201,44 +191,38 @@ bool ControllerListener::frame()
  * case 'v': va_arg(ap, jsval);
  */
 bool ControllerListener::call(const char *funcname, int argc, const char *format, ...) {
-    va_list ap;
-    jsval fval = JSVAL_VOID;
-    jsval ret = JSVAL_VOID;
-    
-    func("%s try calling method %s.%s(argc:%i)", __func__, name, funcname, argc);
-    JS_SetContextThread(jsContext);
+    va_list args;
+    va_start(args, format);
+    const bool handled = call_formatted(funcname, argc, format, args);
+    va_end(args);
+    return handled;
+}
+
+bool ControllerListener::call_formatted(const char *funcname, int argc,
+                                         const char *format, va_list args) {
+    const bool attach = JS_GetContextThread(jsContext) == 0;
+    if (attach && JS_SetContextThread(jsContext) == -1)
+        return false;
     JS_BeginRequest(jsContext);
-    int res = JS_GetProperty(jsContext, jsObject, funcname, &fval);
-    
-    if(JSVAL_IS_VOID(fval)) {
-        warning("method unresolved by JS_GetProperty");
-    } else {
-        jsval *argv;
-        void *markp;
-        
-        va_start(ap, format);
-        argv = JS_PushArgumentsVA(jsContext, &markp, format, ap);
-        va_end(ap);
-        
-        res = JS_CallFunctionValue(jsContext, jsObject, fval, argc, argv, &ret);
-        JS_PopArguments(jsContext, &markp);
-        
-        if (res) {
-            if(!JSVAL_IS_VOID(ret)) {
-                JSBool ok;
-                JS_ValueToBoolean(jsContext, ret, &ok);
-                if (ok) // JSfunc returned 'true', so event is done
-                {
-                    JS_EndRequest(jsContext);
-                    JS_ClearContextThread(jsContext);
-                    return true;
-                }
-            }
+    JSBool handled = JS_FALSE;
+    jsval function = JSVAL_VOID;
+    if (JS_GetProperty(jsContext, jsObject, funcname, &function) && !JSVAL_IS_VOID(function)) {
+        void *mark = nullptr;
+        va_list copy;
+        va_copy(copy, args);
+        jsval *argv = JS_PushArgumentsVA(jsContext, &mark, format, copy);
+        va_end(copy);
+        if (argv) {
+            jsval result = JSVAL_VOID;
+            if (JS_CallFunctionValue(jsContext, jsObject, function, argc, argv, &result))
+                JS_ValueToBoolean(jsContext, result, &handled);
+            JS_PopArguments(jsContext, mark);
         }
     }
     JS_EndRequest(jsContext);
-    JS_ClearContextThread(jsContext);
-    return false; // no callback, redo on next controller
+    if (attach)
+        JS_ClearContextThread(jsContext);
+    return handled;
 }
 
 /* less bloat but this only works with 4 byte argv values
@@ -249,7 +233,9 @@ bool ControllerListener::call(const char *funcname, int argc, jsval *argv) {
     JSBool res;
     
     func("calling js %s.%s()", name, funcname);
-    JS_SetContextThread(jsContext);
+    const bool attach = JS_GetContextThread(jsContext) == 0;
+    if (attach)
+        JS_SetContextThread(jsContext);
     JS_BeginRequest(jsContext);
     res = JS_GetProperty(jsContext, jsObject, funcname, &fval);
     if(!res || JSVAL_IS_VOID(fval)) {
@@ -259,13 +245,15 @@ bool ControllerListener::call(const char *funcname, int argc, jsval *argv) {
         // for unregistered keys 
         func("method %s not found in %s controller", funcname, name);
         JS_EndRequest(jsContext);
-        JS_ClearContextThread(jsContext);
+        if (attach)
+            JS_ClearContextThread(jsContext);
         return(false);
     }
     
     res = JS_CallFunctionValue(jsContext, jsObject, fval, argc, argv, &ret);
     JS_EndRequest(jsContext);
-    JS_ClearContextThread(jsContext);
+    if (attach)
+        JS_ClearContextThread(jsContext);
 
     if(res == JS_FALSE) {
         error("%s : failed call", __PRETTY_FUNCTION__);

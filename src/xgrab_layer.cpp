@@ -30,8 +30,9 @@
 #include <callbacks_js.h>
 #include <jsparser_data.h>
 #include <sdl_screen.h>
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "SDL_rotozoom.h"
+#include "sdl_pixels.h"
 
 XGrabLayer::XGrabLayer()
 	:Layer() {
@@ -158,16 +159,21 @@ void XGrabLayer::resize() {
 	xright = (dw - rx - wa.border_width * 2 - wa.width);
 	ybelow = (dh - ry - wa.border_width * 2 - wa.height);
 
-	uint32_t wn, hn; // new width, height
+	int wn, hn; // new width, height
 	wn = wa.width - (rx<0 ? -rx : 0) - (xright<0 ? -xright :0) - crop.x;
 //if (crop.w > 0)
 	hn = wa.height- (ry<0 ? -ry : 0) - (ybelow<0 ? -ybelow :0) - crop.y;
+	wn = wn < 0 ? 0 : wn;
+	hn = hn < 0 ? 0 : hn;
 	crop.x = (rx<0 ? -rx : 0);
 	crop.y = (ry<0 ? -ry : 0);
 
-	//lock();
-	geo.init( (wn > 0 ? wn : 0) , (hn > 0 ? hn : 0) , 32);
-	//unlock();
+	std::lock_guard<Layer> lock(*this);
+	if (geo.w != wn || geo.h != hn) {
+		clear_frame();
+		geo.init(wn, hn, 32);
+		need_crop = true;
+	}
 }
 #if 0
 resize:
@@ -206,9 +212,9 @@ DestroyNotify event, serial 26, synthetic NO, window 0x5c00007,
 	/* create pixel buffer */
 	// XGetWindowAttributes (display, win, &xwa);
 	/*
-	sdlimage = SDL_CreateRGBSurface
-	  (SDL_SWSURFACE, geo.w, geo.h, geo.bpp,
-	  red_bitmask,green_bitmask,blue_bitmask,alpha_bitmask);
+	sdlimage = SDL_CreateSurface(geo.w, geo.h, freej_pixel_format());
+	if (!sdlimage)
+	  return false;
 	pixbuffer = (char*)sdlimage->pixels;
 
 	sdl_rect_src.x = geo.x;
@@ -330,10 +336,11 @@ exit:
 
 void XGrabLayer::close() {
 	func("%u:%s:%s (%p)",__LINE__,__FILE__,__FUNCTION__, this);
+	stop();
+	std::lock_guard<Layer> lock(*this);
 	opened = false;
 	active = false;
-	stop();
-	buffer = NULL;
+	clear_frame();
 
 	if (ximage) {
 		XDestroyImage(ximage); // also frees *data

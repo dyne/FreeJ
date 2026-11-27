@@ -34,6 +34,7 @@ FACTORY_REGISTER_INSTANTIATOR(FilterInstance, FilterInstance, FilterInstance, co
 FilterInstance::FilterInstance()
  : Entry() 
 {
+  proto = NULL;
   core = NULL;
   intcore = 0;
   outframe = NULL;
@@ -44,6 +45,7 @@ FilterInstance::FilterInstance()
 FilterInstance::FilterInstance(Filter *fr)
 	: Entry()
 {
+  proto = NULL;
   core = NULL;
   intcore = 0;
   outframe = NULL;
@@ -55,24 +57,38 @@ FilterInstance::FilterInstance(Filter *fr)
 FilterInstance::~FilterInstance() {
   func("~FilterInstance");
 
+  rem();
   if(proto)
     proto->destruct(this);
 
+  free(frei0r_input_);
   if(outframe)
     free(outframe);
+  while (Parameter *parameter = parameters.begin())
+    delete parameter;
+}
 
+bool FilterInstance::allocate_output(size_t bytes) {
+  void *aligned = nullptr;
+  if (!bytes || posix_memalign(&aligned, 16, bytes) != 0) return false;
+  memset(aligned, 0, bytes);
+  free(outframe);
+  outframe = static_cast<uint32_t *>(aligned);
+  return true;
 }
 
 void FilterInstance::init(Filter *fr)
 {
   func("initializing instance for filter %s",fr->name);
   proto = fr;
+  prototype_owner_ = fr->registry_owner_.lock();
   set_name(proto->name);
   fr->init_parameters(parameters);
   active = true;
 }
 
 uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
+  std::lock_guard<Linklist<Parameter>> lock(parameters);
   if(!proto) {
     error("void filter instance was called for process: %p", this);
     return inframe;
@@ -82,6 +98,7 @@ uint32_t *FilterInstance::process(float fps, uint32_t *inframe) {
 }
 
 bool FilterInstance::set_parameter(int idx) {
+  std::lock_guard<Linklist<Parameter>> lock(parameters);
   Parameter *param;
   param = (Parameter*)parameters[idx];
 
@@ -103,12 +120,19 @@ bool FilterInstance::set_parameter(int idx) {
   return true;
 }
 
+bool FilterInstance::set_parameter_value(int idx, void *value) {
+  std::lock_guard<Linklist<Parameter>> lock(parameters);
+  auto *param = parameters.pick(idx);
+  return param && param->filter_set_f && value && param->set(value) && set_parameter(idx);
+}
+
 bool FilterInstance::get_parameter(int idx) {
+  std::lock_guard<Linklist<Parameter>> lock(parameters);
   Parameter *param;
   param = (Parameter*)parameters[idx];
 
-  if( ! param) {
-    error("parameter %s not found in filter %s", param->name, proto->name );
+  if (!param) {
+    error("parameter [%d] not found in filter %s", idx, proto->name);
     return false;
   } else {
     func("parameter %s found in filter %s at position %u",
@@ -127,6 +151,8 @@ bool FilterInstance::get_parameter(int idx) {
 
 bool FilterInstance::apply(Layer *lay)
 {
+    std::lock_guard<Layer> state_lock(*lay);
+    std::lock_guard<Linklist<FilterInstance>> list_lock(lay->filters);
     bool ret = false;
     if (!layer && proto)
         ret = proto->apply(lay, this);

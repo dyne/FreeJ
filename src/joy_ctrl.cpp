@@ -60,52 +60,40 @@ JoyController::~JoyController() {
   int c;
 
   for(c=0;c<num;c++)
-    SDL_JoystickClose(joy[c]);
+    SDL_CloseJoystick(joy[c]);
 
 }
 
 bool JoyController::init(Context *freej) {
 
-  //bool JoyController::init(Context *context) {
-  func("JoyController::init()");
- 
-  int found = 0;
-  int c;
-
-  num = SDL_NumJoysticks();
-  if(num>4) num = 4; // we support maximum 4 joysticks
-
-  func("num joysticks %i",num);
-  for(c=0;c<num;c++) {
-    joy[found] = SDL_JoystickOpen(c);
-    if(joy[found]) {
-      if(strstr(SDL_JoystickName(c),"Keyboard")) {
-	/* this is not a joystick! it happens on MacOSX
-	   to have "Apple Extended USB Keyboard" recognized as joystick */
-	SDL_JoystickClose(joy[found]);
-	continue;
-      }
-      notice("Joystick: %s",SDL_JoystickName(c));
-      axes = SDL_JoystickNumAxes(joy[found]);
-      buttons = SDL_JoystickNumButtons(joy[found]);
-      balls = SDL_JoystickNumBalls(joy[found]);
-      hats = SDL_JoystickNumHats(joy[found]);
-      act("%i axes, %i balls, %i hats, %i buttons",
-	  axes, balls, hats, buttons);
-      found++;
-    } else {
-      error("error opening %s",SDL_JoystickName(c));
+  int count = 0;
+  SDL_JoystickID *devices = SDL_GetJoysticks(&count);
+  for (int index = 0; index < count && num < 4; ++index) {
+    SDL_Joystick *device = SDL_OpenJoystick(devices[index]);
+    if (!device) {
+      error("error opening joystick: %s", SDL_GetError());
+      continue;
     }
+    const char *device_name = SDL_GetJoystickName(device);
+    if (device_name && strstr(device_name, "Keyboard")) {
+      SDL_CloseJoystick(device);
+      continue;
+    }
+    notice("Joystick: %s", device_name ? device_name : "(unnamed)");
+    joy[num++] = device;
+    axes = SDL_GetNumJoystickAxes(device);
+    buttons = SDL_GetNumJoystickButtons(device);
+    balls = SDL_GetNumJoystickBalls(device);
+    hats = SDL_GetNumJoystickHats(device);
+    act("%i axes, %i balls, %i hats, %i buttons", axes, balls, hats, buttons);
   }
-  
-  num = found;
-  
-  if(!num) {
+  SDL_free(devices);
+  if (!num) {
     notice("no joystick found");
-    return(false);
-  } else
-    SDL_JoystickEventState(SDL_ENABLE);
-  
+    return false;
+  }
+  SDL_SetJoystickEventsEnabled(true);
+
   func("%s",__PRETTY_FUNCTION__);
   env = freej;
   jsenv = freej->js->global_context;
@@ -117,7 +105,7 @@ bool JoyController::init(Context *freej) {
 }
 
 int JoyController::poll() {
-	poll_sdlevents(SDL_JOYEVENTMASK); // calls dispatch() 
+	poll_sdlevents(SDL_EVENT_JOYSTICK_AXIS_MOTION, SDL_EVENT_JOYSTICK_BUTTON_UP);
 	return 0;
 }
 
@@ -142,30 +130,47 @@ int JoyController::button_up(int device, int button) {
 }
 
 int JoyController::dispatch() {
+	switch (event.type) {
+	case SDL_EVENT_JOYSTICK_AXIS_MOTION: return dispatch_joystick(event.jaxis.which);
+	case SDL_EVENT_JOYSTICK_BALL_MOTION: return dispatch_joystick(event.jball.which);
+	case SDL_EVENT_JOYSTICK_HAT_MOTION: return dispatch_joystick(event.jhat.which);
+	case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
+	case SDL_EVENT_JOYSTICK_BUTTON_UP: return dispatch_joystick(event.jbutton.which);
+	default: return 0;
+	}
+}
+
+int JoyController::dispatch_joystick(SDL_JoystickID id) {
+	int index = 0;
+	while (index < num && SDL_GetJoystickID(joy[index]) != id)
+		++index;
+	if (index == num)
+		return 0;
+
 
 	switch(event.type) {
 		
-	case SDL_JOYAXISMOTION:
-		return axismotion(event.jaxis.which, event.jaxis.axis,
+	case SDL_EVENT_JOYSTICK_AXIS_MOTION:
+		return axismotion(index, event.jaxis.axis,
 				  event.jaxis.value);
 		break;
 
-	case SDL_JOYBALLMOTION:
-		return ballmotion(event.jball.which, event.jball.ball,
+	case SDL_EVENT_JOYSTICK_BALL_MOTION:
+		return ballmotion(index, event.jball.ball,
 				  event.jball.xrel, event.jball.yrel);
 		break;
 
-	case SDL_JOYHATMOTION:
-		return hatmotion(event.jhat.which, event.jhat.hat,
+	case SDL_EVENT_JOYSTICK_HAT_MOTION:
+		return hatmotion(index, event.jhat.hat,
 				 event.jhat.value);
 		break;
 		
-	case SDL_JOYBUTTONDOWN:
-		return button_down(event.jbutton.which, event.jbutton.button);
+	case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
+		return button_down(index, event.jbutton.button);
 		break;
 		
-	case SDL_JOYBUTTONUP:
-		return button_up(event.jbutton.which, event.jbutton.button);
+	case SDL_EVENT_JOYSTICK_BUTTON_UP:
+		return button_up(index, event.jbutton.button);
 		break;
 
 	default: break;

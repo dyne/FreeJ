@@ -5,7 +5,7 @@ dnl ==============================================================
 dnl require autoconf 2.62 (AS_ECHO/AS_ECHO_N)
 AC_PREREQ([2.62])
 
-AC_INIT([FreeJ],[1.0],[freej@lists.dyne.org],[freej])
+AC_INIT([FreeJ],[2.0.0],[freej@lists.dyne.org],[freej])
 AC_CONFIG_MACRO_DIR([m4])
 
 AC_CANONICAL_HOST
@@ -98,17 +98,34 @@ m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 AC_CONFIG_SRCDIR([src/freej.cpp])
 AC_CONFIG_HEADERS([config.h])
 
+AC_ARG_WITH([native-profile],
+  [AS_HELP_STRING([--with-native-profile=compatibility|static], [select the native application profile])],
+  [FREEJ_NATIVE_PROFILE=$withval], [FREEJ_NATIVE_PROFILE=compatibility])
+AS_CASE([$FREEJ_NATIVE_PROFILE],
+  [compatibility], [],
+  [static], [
+    AS_IF([test "x$have_linux" != xyes], [AC_MSG_ERROR([the static profile requires Linux])])
+    AS_IF([test "x$enable_shared" = xyes], [AC_MSG_ERROR([the static profile rejects --enable-shared])])
+    enable_shared=no
+    enable_static=yes
+  ],
+  [AC_MSG_ERROR([unknown native profile: $FREEJ_NATIVE_PROFILE])])
+AC_SUBST([FREEJ_NATIVE_PROFILE])
+AM_CONDITIONAL([FREEJ_STATIC_PROFILE], [test "x$FREEJ_NATIVE_PROFILE" = xstatic])
+AC_ARG_WITH([frei0r-bundle],
+  [AS_HELP_STRING([--with-frei0r-bundle=PREFIX], [pinned frei0r bundle for the static profile])])
+AC_ARG_WITH([native-sdk],
+  [AS_HELP_STRING([--with-native-sdk=PREFIX], [select the audited Linux static archive SDK])])
+
 dnl never run autotools and configure automatically
 dnl AM_MAINTAINER_MODE
 
 dnl Checks for programs.
+dnl AM_INIT_AUTOMAKE already checks for awk, install and make's MAKE variable.
 AC_PROG_CXX
-AC_PROG_AWK
 AC_PROG_CC
 AC_PROG_CPP
-AC_PROG_INSTALL
 AC_PROG_LN_S
-AC_PROG_MAKE_SET
 AM_PROG_AS
 dnl compatibility with older libtool
 dnl m4_ifndef([LT_INIT], [AC_PROG_RANLIB])
@@ -200,7 +217,7 @@ fi
 dnl ==============================================================
 dnl Check for SDL
 dnl ==============================================================
-PKG_CHECK_MODULES(SDL, sdl > 1.2, :,
+PKG_CHECK_MODULES(SDL, sdl3 >= 3.4.20, :,
   AC_MSG_ERROR([*** SDL development files not found!]))
 
 
@@ -227,41 +244,14 @@ AC_DEFINE(WITH_OGGTHEORA,1,[define if compiling with Ogg/Theora encoding])
 dnl ==============================================================
 dnl FFMPEG DYNAMIC
 dnl ==============================================================
-PKG_CHECK_MODULES(AVCODEC, libavcodec, :,
-  AC_MSG_ERROR([*** Libavcodec development files not found!]))
-PKG_CHECK_MODULES(AVFORMAT, libavformat, :,
-  AC_MSG_ERROR([*** Libavformat development files not found!]))
-PKG_CHECK_MODULES(AVUTIL, libavutil, :,
-  AC_MSG_ERROR([*** Libavutil development files not found!]))
-PKG_CHECK_MODULES(SWSCALE, libswscale, :,
-  AC_MSG_ERROR([*** Libswscale development files not found!]))
-FFMPEG_CFLAGS="$AVCODEC_CFLAGS $AVFORMAT_CFLAGS $AVUTIL_CFLAGS $SWSCALE_CFLAGS"
-FFMPEG_LIBS="$AVCODEC_LIBS $AVFORMAT_LIBS $AVUTIL_LIBS $SWSCALE_LIBS"
-AC_SUBST([FFMPEG_CFLAGS])
-AC_SUBST([FFMPEG_LIBS])
-
-dnl FFmpeg changed include path policy, let's check which one is in use.
-FREEJ_SAVE_FLAGS
-CPPFLAGS="$CPPFLAGS $FFMPEG_CFLAGS"
-CFLAGS="$CFLAGS $FFMPEG_CFLAGS"
-AC_CHECK_HEADERS(libavcodec/avcodec.h ffmpeg/avcodec.h)
-AC_CHECK_HEADERS(libavformat/avformat.h ffmpeg/avformat.h)
-AC_CHECK_HEADERS(libavutil/avutil.h ffmpeg/avutil.h)
-AC_CHECK_HEADERS(libswscale/swscale.h ffmpeg/swscale.h)
-FREEJ_RESTORE_FLAGS
-dnl Then in sources we have to include in the following way:
-dnl    #ifdef HAVE_LIBAVCODEC_AVCODEC_H
-dnl    #   include <libavcodec/avcodec.h>
-dnl    #elif defined(HAVE_FFMPEG_AVCODEC_H)
-dnl    #   include <ffmpeg/avcodec.h>
-dnl    #else
-dnl    #   include <avcodec.h>
-dnl    #endif
-
-dnl TODO(shammash): heritage from conditional build, still used somewhere.
-AC_DEFINE(WITH_FFMPEG,1, [define if compiling movie layer linking to ffmpeg libavcodec])
-AC_DEFINE(WITH_SWSCALE,1, [define if using new swscale library from ffmpeg])
-
+PKG_CHECK_MODULES([FFMPEG], [
+  libavcodec >= 61.19.100
+  libavformat >= 61.7.100
+  libavutil >= 59.39.100
+  libswscale >= 8.3.100
+  libswresample >= 5.3.100
+])
+AC_DEFINE([WITH_FFMPEG], [1], [Build the FFmpeg movie layer])
 
 dnl ==============================================================
 dnl LIBLO
@@ -517,10 +507,8 @@ PKG_CHECK_MODULES(ALSA, alsa,
     have_midi=yes,
     have_midi=no)
 
-dnl TODO(shammash): before this refactoring we were enabling jack
-dnl only if alsa was present, check inconsistencies in the code.
-PKG_CHECK_MODULES(JACK, jack, :,
-  AC_MSG_ERROR([*** Jack development files not found!]))
+PKG_CHECK_MODULES(PIPEWIRE, [libpipewire-0.3 >= 0.3.65], :,
+  AC_MSG_ERROR([*** PipeWire development files not found!]))
 
 PKG_CHECK_MODULES(FFTW, fftw3, :,
   AC_MSG_ERROR([*** Fftw3 development files not found!]))
@@ -712,75 +700,9 @@ AC_ARG_ENABLE(opencv,
  ])
 
 dnl ==============================================================
-dnl SDL_gfx
-dnl ==============================================================
-PKG_CHECK_MODULES(SDLGFX, SDL_gfx, have_sdlgfx=yes, have_sdlgfx=no)
-if test x$have_sdlgfx = xno; then
-   SDLGFX_CFLAGS="$SDL_CFLAGS"
-   SDLGFX_LIBS="$SDL_LIBS -lSDL_gfx"
-   FREEJ_SAVE_FLAGS
-   CFLAGS="$SDLGFX_CFLAGS"
-   CPPFLAGS="$SDLGFX_CFLAGS"
-   LDFLAGS="$SDLGFX_LIBS"
-   FREEJ_CHECK_LIB_HEADER([SDL_gfx], [pixelColor], [SDL_gfxPrimitives.h],
-                           [have_sdlgfx=yes], [have_sdlgfx=no])
-   FREEJ_RESTORE_FLAGS
-fi
-if test x$have_sdlgfx = xno; then
-   AC_MSG_NOTICE([Using freej version of SDLGFX])
-
-   AC_CHECK_FUNCS([pow])
-   SDLGFX_LIBS="\$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la"
-   SDLGFX_CFLAGS="-I\$(top_srcdir)/lib/sdl_gfx"
-fi
-
-AM_CONDITIONAL([BUILD_SDLGFX], [test x$have_sdlgfx = xno])
-
-
-dnl ==============================================================
-dnl SDL_ttf
-dnl ==============================================================
-PKG_CHECK_MODULES([SDLTTF], [SDL_ttf], [have_sdlttf=yes], [have_sdlttf=no])
-if test x$have_sdlttf = xno; then
-   SDLTTF_CFLAGS="$SDL_CFLAGS"
-   SDLTTF_LIBS="$SDL_LIBS -lSDL_ttf"
-   FREEJ_SAVE_FLAGS
-   CFLAGS="$SDLTTF_CFLAGS"
-   CPPFLAGS="$SDLTTF_CFLAGS"
-   LDFLAGS="$SDLTTF_LIBS"
-   FREEJ_CHECK_LIB_HEADER([SDL_ttf], [TTF_Init], [SDL_ttf.h],
-                           [have_sdlttf=yes], [have_sdlttf=no])
-   FREEJ_RESTORE_FLAGS
-fi
-if test x$have_sdlttf = xno; then
-   AC_MSG_NOTICE([Using freej version of SDLTTF])
-   SDLTTF_CFLAGS="-I\$(top_srcdir)/lib/sdl_ttf"
-   SDLTTF_LIBS="\$(top_builddir)/lib/sdl_ttf/libsdl_ttf.la"
-fi
-
-AM_CONDITIONAL([BUILD_SDLTTF], [test x$have_sdlttf = xno])
-
-
-dnl ==============================================================
-dnl SDL_image
-dnl ==============================================================
-PKG_CHECK_MODULES([SDLIMAGE], [SDL_image],
-                  [have_sdlimage=yes],
-                  [have_sdlimage=no])
-if test x$have_sdlimage = xyes; then
-   SDLIMAGE_CFLAGS="$SDL_CFLAGS"
-   SDLIMAGE_LIBS="$SDL_LIBS -lSDL_image -ljpeg"
-   FREEJ_SAVE_FLAGS
-   CFLAGS="$SDLIMAGE_CFLAGS"
-   CPPFLAGS="$SDLIMAGE_CFLAGS"
-   LDFLAGS="$SDLIMAGE_LIBS"
-   FREEJ_CHECK_LIB_HEADER([SDL_image], [IMG_Load], [SDL_image.h],
-                           [have_sdlimage=yes], [have_sdlimage=no])
-   FREEJ_RESTORE_FLAGS
-fi
-
-AM_CONDITIONAL([BUILD_SDLIMAGE], [test x$have_sdlimage = xno])
-
+dnl SDL3 image and text add-ons
+PKG_CHECK_MODULES([SDLIMAGE], [sdl3-image >= 3.4.8])
+PKG_CHECK_MODULES([SDLTTF], [sdl3-ttf >= 3.2.2])
 
 dnl ==============================================================
 dnl frei0r plugins
@@ -864,34 +786,38 @@ dnl LIBS          ordinary shared libraries used to link libfreej
 dnl ==============================================================
 FREEJ_STATIC_CFLAGS="-I\$(top_srcdir)/src/include \
     -I\$(top_srcdir)/lib/ccvt        \
+    -I\$(top_srcdir)/lib/sdl_gfx \
     -I\$(top_srcdir)/lib/slw         \
     \$(FLASH_CFLAGS)"
 AC_SUBST(FREEJ_STATIC_CFLAGS)
 
-FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \
+FREEJ_CFLAGS="\$(FREEJ_STATIC_CFLAGS) \$(FREI0R_BUNDLE_CFLAGS) \
     \$(AA_CFLAGS)       \
+    \$(ALSA_CFLAGS)     \
     \$(CWIID_CFLAGS)    \
     \$(FC_CFLAGS)       \
-    \$(FFMPEG_CFLAGS)   \
+    \$(FFTW_CFLAGS)     \
     \$(FT2_CFLAGS)      \
     \$(GLU_CFLAGS)      \
+    \$(PIPEWIRE_CFLAGS)     \
     \$(LIBLO_CFLAGS)    \
     \$(MOZJS_CFLAGS)    \
     \$(OPENCV_CFLAGS)   \
-    \$(QTGUI_CFLAGS)	\
+    \$(SAMPLERATE_CFLAGS) \
     \$(SDL_CFLAGS)      \
-    \$(SDLGFX_CFLAGS)   \
     \$(SDLIMAGE_CFLAGS) \
     \$(SDLTTF_CFLAGS)   \
     \$(SHOUT_CFLAGS)    \
     \$(SLANG_CFLAGS)    \
     \$(UNICAP_CFLAGS)   \
     \$(CAIRO_CFLAGS)    \
+    \$(X11_CFLAGS)      \
     \$(XIPH_CFLAGS)"
 AC_SUBST(FREEJ_CFLAGS)
 
 FREEJ_STATIC_LIBS="\$(top_builddir)/lib/ccvt/libccvt.la \
     \$(top_builddir)/lib/slw/libslw.la \
+    \$(top_builddir)/lib/sdl_gfx/libsdl_gfx.la \
     \$(FLASH_LIBS)"
 AC_SUBST(FREEJ_STATIC_LIBS)
 
@@ -905,13 +831,11 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(FFTW_LIBS)       \
     \$(FT2_LIBS)        \
     \$(GLU_LIBS)        \
-    \$(JACK_LIBS)       \
+    \$(PIPEWIRE_LIBS)       \
     \$(LIBLO_LIBS)      \
     \$(MOZJS_LIBS)      \
     \$(OPENCV_LIBS)     \
-    \$(QTGUI_LIBS)	\
     \$(SAMPLERATE_LIBS) \
-    \$(SDLGFX_LIBS)     \
     \$(SDLIMAGE_LIBS)   \
     \$(SDL_LIBS)        \
     \$(SDLTTF_LIBS)     \
@@ -923,6 +847,54 @@ FREEJ_LIBS="-lpthread -lm -lrt $DL_LIBS \
     \$(XIPH_LIBS)       \
     \$(GD_LIBS)"
 AC_SUBST(FREEJ_LIBS)
+
+dnl Export the same selections as the library and frontends. Bundled headers
+dnl are installed with the engine headers, so source/build paths stay private.
+FREEJ_PACKAGE_CFLAGS="$CPPFLAGS $AA_CFLAGS $ALSA_CFLAGS $CWIID_CFLAGS $FC_CFLAGS \
+    $FFTW_CFLAGS $FT2_CFLAGS $GLU_CFLAGS $PIPEWIRE_CFLAGS $LIBLO_CFLAGS \
+    $OPENCV_CFLAGS $SAMPLERATE_CFLAGS $SDL_CFLAGS $SDLIMAGE_CFLAGS $SDLTTF_CFLAGS $SHOUT_CFLAGS $SLANG_CFLAGS \
+    $UNICAP_CFLAGS $CAIRO_CFLAGS $XIPH_CFLAGS $X11_CFLAGS"
+FREEJ_PACKAGE_DEPS="$LDFLAGS -lpthread -lm -lrt $DL_LIBS $AA_LIBS $ALSA_LIBS \
+    $BLUEZ_LIBS $CWIID_LIBS $FC_LIBS $FFMPEG_LIBS $FFTW_LIBS $FT2_LIBS $GLU_LIBS \
+    $PIPEWIRE_LIBS $LIBLO_LIBS $OPENCV_LIBS $SAMPLERATE_LIBS $SDLIMAGE_LIBS \
+    $SDL_LIBS $SDLTTF_LIBS $SHOUT_LIBS $SLANG_LIBS $UNICAP_LIBS $X11_LIBS $CAIRO_LIBS $XIPH_LIBS $GD_LIBS"
+FREEJ_PACKAGE_LIBS='-L${libdir} -lfreej'
+AS_IF([test "x$have_mozjs" = xyes], [
+  FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS $MOZJS_CFLAGS"
+  FREEJ_PACKAGE_DEPS="$FREEJ_PACKAGE_DEPS $MOZJS_LIBS"
+], [
+  AS_IF([test "x$enable_debug" = xyes],
+    [FREEJ_PACKAGE_CFLAGS="$FREEJ_PACKAGE_CFLAGS -DJS_GCMETER"])
+])
+
+FREEJ_CAPABILITIES="console sdl image geometry ffmpeg-sdk javascript pipewire fft resampling osc ogg theora vorbis stream"
+AS_IF([test "x$have_xgrab" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES xgrab xscreensaver"])
+AS_IF([test "x$have_videodev" = xyes && test "x$enable_v4l" != xno], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES v4l2"])
+AS_IF([test "x$have_textlayer" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES text"])
+AS_IF([test "x$have_cairo" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES cairo"])
+AS_IF([test "x$have_gd" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES screenshot"])
+AS_IF([test "x$have_midi" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES alsa-midi"])
+AS_IF([test "x$have_flash" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES flash"])
+AS_IF([test "x$have_aa" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES aalib"])
+AS_IF([test "x$have_cwiid" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES cwiid"])
+AS_IF([test "x$have_unicap" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES unicap"])
+AS_IF([test "x$have_opencv" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES opencv"])
+AS_IF([test "x$enable_opengl" = xyes], [FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES opengl"])
+AS_IF([test "x$FREEJ_NATIVE_PROFILE" = xcompatibility], [
+  FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES frei0r-directory freeframe-directory"
+], [
+  FREEJ_CHECK_STATIC_SDK
+  FREEJ_PACKAGE_LIBS='-static -Wl,--whole-archive ${libdir}/libfreej.a -Wl,--no-whole-archive'
+  FREEJ_CAPABILITIES="$FREEJ_CAPABILITIES frei0r-builtin"
+  FREEJ_PACKAGE_DEPS="$FREEJ_STATIC_LOADER_FLAGS -Wl,--start-group \${libdir}/freej-sdk/libfreej-mozjs.a $FREEJ_STATIC_STAGE_ARCHIVES $FREEJ_STATIC_SYSTEM_LIBS -Wl,--end-group"
+])
+AC_SUBST([FREEJ_CAPABILITIES])
+AC_SUBST([FREEJ_PACKAGE_CFLAGS])
+AC_SUBST([FREEJ_PACKAGE_DEPS])
+AC_SUBST([FREEJ_PACKAGE_LIBS])
+AC_DEFINE_UNQUOTED([FREEJ_NATIVE_PROFILE], ["$FREEJ_NATIVE_PROFILE"], [Selected native profile])
+AC_DEFINE_UNQUOTED([FREEJ_CAPABILITIES], ["$FREEJ_CAPABILITIES"], [Selected FreeJ engine capabilities])
+AC_MSG_NOTICE([native profile $FREEJ_NATIVE_PROFILE selects $FREEJ_CAPABILITIES])
 
 dnl ###########################################################################
 dnl ###### now about compile time paths
@@ -945,7 +917,6 @@ lib/Makefile
 lib/ccvt/Makefile
 lib/flash/Makefile
 lib/sdl_gfx/Makefile
-lib/sdl_ttf/Makefile
 lib/slw/Makefile
 lib/javascript/GNUmakefile
 scripts/Makefile
@@ -989,9 +960,9 @@ VRB([= ogg-theora (xiph.org)])
 VRB([  LIBS  : $XIPH_LIBS])
 VRB([  CFLAGS: $XIPH_CFLAGS])
 
-VRB([= Jack])
-VRB([  LIBS  : $JACK_LIBS])
-VRB([  CFLAGS: $JACK_CFLAGS])
+VRB([= PipeWire])
+VRB([  LIBS  : $PIPEWIRE_LIBS])
+VRB([  CFLAGS: $PIPEWIRE_CFLAGS])
 
 VRB([= Fftw / harmonics analysis])
 VRB([  LIBS  : $FFTW_LIBS])
@@ -1025,25 +996,11 @@ fi
 VRB([  LIBS  : $MOZJS_LIBS])
 VRB([  CFLAGS: $MOZJS_CFLAGS])
 
-if test x$have_sdlgfx = xyes; then
-INFO([= SDL_gfx (dynamic)])
-else
-INFO([= SDL_gfx (static)])
-fi
-VRB([  LIBS  : $SDLGFX_LIBS])
-VRB([  CFLAGS: $SDLGFX_CFLAGS])
 
-if test x$have_sdlttf = xyes; then
-INFO([= SDL_ttf (dynamic)])
-else
-INFO([= SDL_ttf (static)])
-fi
+VRB([= SDL3_ttf])
 VRB([  LIBS  : $SDLTTF_LIBS])
 VRB([  CFLAGS: $SDLTTF_CFLAGS])
-
-if test x$have_sdlimage = xyes; then
-INFO([= SDL_image (dynamic)])
-fi
+VRB([= SDL3_image])
 VRB([  LIBS  : $SDLIMAGE_LIBS])
 VRB([  CFLAGS: $SDLIMAGE_CFLAGS])
 

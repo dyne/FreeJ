@@ -34,7 +34,7 @@
 
 // this header makes freej dependent from SDL
 // it is here because of  SDL_PollEvent done in Context
-#include <SDL/SDL.h>
+#include <SDL3/SDL.h>
 
 //#include <linklist.h>
 #include <layer.h>
@@ -47,8 +47,10 @@
 #include <factory.h>
 #include <config.h>
 #include <string>
+#include <vector>
 
 class Controller;
+class OscController;
 
 class JsParser;
 class AudioCollector;
@@ -65,7 +67,9 @@ template <class T> class Linklist;
 
 class Context {
  private:
+  friend class OscController;
   static bool factory_initialized;
+  bool initialized;
   /* doublesize calculation */
   uint64_t **doubletab;
   Uint8 *doublebuf;
@@ -76,6 +80,11 @@ class Context {
   // parts of the cafudda process
   void handle_resize();
   void handle_controllers();
+  bool can_poll_controller(const Controller &ctrl);
+  bool polling_controllers_ = false;
+  bool reset_requested_ = false;
+  bool resetting_ = false;
+  std::vector<Controller *> retired_controllers_;
 
   pthread_t cafudda_thread;
   bool running;
@@ -105,7 +114,7 @@ class Context {
   bool init(); ///< initialise the engine
 
   //  void close();
-  void cafudda(double secs); ///< run the engine for seconds or one single frame pass
+  void cafudda(double secs); ///< run and pace one frame; secs is retained for compatibility
 
   void start(); ///< start the engine and loop until quit is false
   void start_threaded(); ///< start the engine in a thread, looping until quit is false

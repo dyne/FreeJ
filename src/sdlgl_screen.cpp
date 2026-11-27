@@ -23,11 +23,11 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <SDL_syswm.h>
-#include <SDL_opengl.h>
+#include <SDL3/SDL_opengl.h>
 
 #include <sdlgl_screen.h>
 #include <jutils.h>
+#include "sdl_pixels.h"
 
 // our objects are allowed to be created trough the factory engine
 FACTORY_REGISTER_INSTANTIATOR(ViewPort, SdlGlScreen, Screen, sdlgl);
@@ -38,9 +38,10 @@ FACTORY_REGISTER_INSTANTIATOR(ViewPort, SdlGlScreen, Screen, sdlgl);
 SdlGlScreen::SdlGlScreen()
   : ViewPort() {
   
-  emuscr = NULL;
-  dbl = false;
-  sdl_flags = (SDL_OPENGL | SDL_GL_DOUBLEBUFFER | SDL_OPENGLBLIT | SDL_RESIZABLE | SDL_HWPALETTE | SDL_HWSURFACE );
+  window = nullptr;
+  gl = nullptr;
+  screen = nullptr;
+  initialized_sdl = false;
   x_translation = 0;
   y_translation = 0;
   x_rotation = 0;
@@ -79,20 +80,20 @@ SdlGlScreen::SdlGlScreen()
 }
 
 SdlGlScreen::~SdlGlScreen() {
-  SDL_Quit();
+  if (gl)
+    SDL_GL_DestroyContext(gl);
+  SDL_DestroyWindow(window);
+  SDL_DestroySurface(screen);
+  if (initialized_sdl)
+    SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
 }
 
 bool SdlGlScreen::_init() {
-	char temp[120];
-
-	/* initialize SDL */
-
-	setenv("SDL_VIDEO_HWACCEL", "1", 1);  
-
-	if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK | SDL_INIT_EVENTTHREAD) < 0 ) {
-		error("Can't initialize SDL: %s",SDL_GetError());
-		return(false);
-	}
+  if (!SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
+    error("Can't initialize SDL: %s", SDL_GetError());
+    return false;
+  }
+  initialized_sdl = true;
 
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 ); // Enable OpenGL Doublebuffering
 	
@@ -101,7 +102,14 @@ bool SdlGlScreen::_init() {
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);		//Use at least 5 bits of Blue
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);	//Use at least 16 bits for the depth buffer
 
-	setres(geo.w, geo.h);
+	window = SDL_CreateWindow(PACKAGE " " VERSION, geo.w, geo.h, SDL_WINDOW_OPENGL);
+  if (window)
+    gl = SDL_GL_CreateContext(window);
+  screen = SDL_CreateSurface(geo.w, geo.h, SDL_PIXELFORMAT_RGBA32);
+  if (!window || !gl || !screen) {
+    error("Can't create SDL OpenGL viewport: %s", SDL_GetError());
+    return false;
+  }
 
 	// init open GL
 	{
@@ -138,21 +146,9 @@ bool SdlGlScreen::_init() {
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 
-	surface = SDL_GetVideoSurface();
-
-	SDL_VideoDriverName(temp,120);
-
-	notice("SDLGL Viewport is %s %ix%i %ibpp",
-			temp,geo.w,geo.h,surface->format->BytesPerPixel<<3);
-
-        screen = SDL_CreateRGBSurface(sdl_flags, geo.w, geo.h, geo.bpp,
-                     blue_bitmask, green_bitmask, red_bitmask, alpha_bitmask);
-	/* be nice with the window manager */
-	sprintf(temp,"%s %s",PACKAGE,VERSION);
-	SDL_WM_SetCaption (temp, temp);
-
-	/* hide mouse cursor */
-	SDL_ShowCursor(SDL_DISABLE);
+  notice("SDLGL Viewport is %s %ix%i %ibpp", SDL_GetCurrentVideoDriver(),
+         geo.w, geo.h, geo.bpp);
+  SDL_HideCursor();
 	return(true);
 }
 
@@ -166,7 +162,14 @@ void SdlGlScreen::setup_blits(Layer *lay) {
 
 
 void SdlGlScreen::resize(int resize_w, int resize_h) {
-  surface = SDL_SetVideoMode(resize_w,resize_h,32,sdl_flags);
+  auto *frame = SDL_CreateSurface(resize_w, resize_h, SDL_PIXELFORMAT_RGBA32);
+  if (!frame || !SDL_SetWindowSize(window, resize_w, resize_h)) {
+    error("Can't resize SDL OpenGL viewport: %s", SDL_GetError());
+    SDL_DestroySurface(frame);
+    return;
+  }
+  SDL_DestroySurface(screen);
+  screen = frame;
   geo.init( resize_w, resize_h, 32);
 }
 
@@ -233,7 +236,7 @@ void SdlGlScreen::blit(Layer *lay) {
 
 void SdlGlScreen::show() {
   //	drawframe();
-	SDL_GL_SwapBuffers();
+	SDL_GL_SwapWindow(window);
 	check_opengl_error();
 }
 
@@ -244,15 +247,15 @@ void *SdlGlScreen::get_surface() {
 
 
 void SdlGlScreen::clear() {
-  SDL_FillRect(screen,NULL,0x0);
+  SDL_FillSurfaceRect(screen,NULL,0x0);
 }
 void SdlGlScreen::fullscreen() {
-  SDL_WM_ToggleFullScreen(surface);
+  SDL_SetWindowFullscreen(window, !(SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN));
 }
 
 bool SdlGlScreen::lock() {
   if (!SDL_MUSTLOCK(screen)) return true;
-  if (SDL_LockSurface(screen) < 0) {
+  if (!SDL_LockSurface(screen)) {
     error("%s", SDL_GetError());
     return false;
   }
@@ -266,32 +269,4 @@ bool SdlGlScreen::unlock() {
   return true;
 }
 
-int SdlGlScreen::setres(int wx, int hx) {
-  /* check and set available videomode */
-  int res;
-  int bpp = 32;
-  res = SDL_VideoModeOK(wx, hx, bpp, sdl_flags);
-  
-  
-  surface = SDL_SetVideoMode(wx, hx, bpp, sdl_flags);
-  //  screen = SDL_SetVideoMode(wx, hx, 0, sdl_flags);
-  if( surface == NULL ) {
-    error("can't set video mode: %s\n", SDL_GetError());
-    return(false);
-  }
-
-
-  if(res!=bpp) {
-    act("your screen does'nt support %ubpp",bpp);
-    act("doing video surface software conversion");
-    
-    emuscr = SDL_GetVideoSurface();
-    act("emulated surface geometry %ux%u %ubpp",
-	emuscr->w,emuscr->h,emuscr->format->BitsPerPixel);
-  } 
- 
-
-  return res;
-}
-    
 #endif

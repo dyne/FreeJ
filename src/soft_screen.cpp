@@ -59,41 +59,30 @@ void SoftScreen::setup_blits(Layer *lay) {
 
 bool SoftScreen::_init() {
 
-  screen_buffer = malloc(geo.bytesize);
-  return(true);
+  screen_buffer = calloc(1, geo.bytesize);
+  return screen_buffer != nullptr;
 }
 
 void SoftScreen::blit(Layer *src) {
-  int16_t c;
-  Blit *b;
-    
   if(src->screen != this) {
     error("%s: blit called on a layer not belonging to screen",
 	  __PRETTY_FUNCTION__);
     return;
   }
 
-  if(src->need_crop)
-    src->blitter->crop( src, this );
+  auto *b = src->current_blit;
+  if (!b || !b->fun)
+    return;
+  if (src->need_crop)
+    src->blitter->crop(src, this);
+  if (!b->lay_height)
+    return;
 
-  b = src->current_blit;
-
-  pscr = (uint32_t*) get_surface() + b->scr_offset;
-  play = (uint32_t*) src->buffer   + b->lay_offset;
-
-  // iterates the blit on each horizontal line
-  for( c = b->lay_height ; c > 0 ; c-- ) {
-
-    (*b->fun)
-      ((void*)play, (void*)pscr,
-       b->lay_bytepitch,// * src->geo.bpp>>3,
-       &b->parameters);
-
-    // strides down to the next line
-    pscr += b->scr_stride + b->lay_pitch;
-    play += b->lay_stride + b->lay_pitch;
-    
-  }
+  auto *out = static_cast<uint32_t *>(get_surface()) + b->scr_offset;
+  auto *in = static_cast<uint32_t *>(src->buffer) + b->lay_offset;
+  for (int row = 0; row < b->lay_height; ++row)
+    b->fun(in + row * b->lay_stride, out + row * b->scr_stride,
+           b->lay_bytepitch, &b->parameters);
 
 }
 
@@ -103,13 +92,7 @@ void SoftScreen::set_buffer(void *buf) {
 }
 
 void *SoftScreen::coords(int x, int y) {
-//   func("method coords(%i,%i) invoked", x, y);
-// if you are trying to get a cropped part of the layer
-// use the .pixelsize geometric property for a pre-calculated stride
-// that is: number of bytes for one full line
-  return
-    ( x + geo.pixelsize +
-      (uint32_t*)get_surface() );
+  return static_cast<uint32_t *>(get_surface()) + y * geo.w + x;
 }
 
 void *SoftScreen::get_surface() {

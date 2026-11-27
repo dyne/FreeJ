@@ -52,6 +52,7 @@ int console_param_selection(Context *env, char *cmd) {
   }
   FilterInstance* filt =
     (FilterInstance*)lay->filters.selected();
+  std::unique_lock<Linklist<Parameter>> parameter_lock;
 
   // find the values after the first blank space
   char *p;
@@ -67,6 +68,7 @@ int console_param_selection(Context *env, char *cmd) {
   if(*p=='\0') return 0; // no value was given
 
   if(filt) { ///////////////////////// parameters for filter
+    parameter_lock = std::unique_lock<Linklist<Parameter>>(filt->parameters);
 
     // find the parameter
     param = (Parameter*)filt->parameters.search(cmd, &idx);
@@ -91,7 +93,8 @@ int console_param_selection(Context *env, char *cmd) {
   }
 
   // parse from the string to the value
-  param->parse(p);
+  if (!param->parse(p))
+    return 0;
   
   if(filt) {
 

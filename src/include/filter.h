@@ -38,6 +38,8 @@ template <class T> class Linklist;
 
 class Filter : public Entry {
   friend class FilterInstance;
+  friend class Plugger;
+  std::weak_ptr<Filter> registry_owner_;
  public:
   // supported filter types
   enum Type {
