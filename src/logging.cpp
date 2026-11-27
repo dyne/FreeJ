@@ -97,7 +97,7 @@ int Loggable::vlog(LogLevel level, const char *format, va_list arg) {
   return rv;
 }
 
-LogLevel GlobalLogger::loglevel_ = INFO;
+LogLevel GlobalLogger::loglevel_ = WARNING;
 Logger *GlobalLogger::logger_ = NULL;
 pthread_mutex_t GlobalLogger::logger_mutex_ = PTHREAD_MUTEX_INITIALIZER;
 ConsoleController *GlobalLogger::console_ = NULL;
@@ -213,7 +213,7 @@ void set_debug(int lev) {
   // In the old logging there was no proper scale,
   // let's do something as compatible as possible..
   if (lev <= 1)
-    GlobalLogger::set_loglevel(INFO);
+    GlobalLogger::set_loglevel(WARNING);
   else
     GlobalLogger::set_loglevel(DEBUG);
 }
@@ -292,3 +292,10 @@ void func(const char *format, ...) {
   va_end(arg);
 }
 
+
+void FailureEpisode::recovered(const char *scope, const char *object) {
+  if (failures_) {
+    notice("%s '%s': recovered after %u failed attempt(s)", scope, object, failures_);
+    failures_ = 0;
+  }
+}

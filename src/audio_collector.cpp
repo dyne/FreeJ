@@ -109,8 +109,6 @@ AudioCollector::AudioCollector(char *port, int length, unsigned int rate, int ff
       attached = false;
       error("Could not register PipeWire analysis input");
     }
-  } else {
-    error("Could not attach to PipeWire");
   }
 }
 

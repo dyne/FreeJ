@@ -34,6 +34,7 @@
 #include <pipewire/filter.h>
 #include <pipewire/impl.h>
 #include <spa/utils/string.h>
+#include <spa/utils/result.h>
 
 PipeWireClient *PipeWireClient::m_Singleton = nullptr;
 std::atomic<bool> PipeWireClient::m_Attached{false};
@@ -47,6 +48,16 @@ std::map<int, PipeWireClient::AudioPort *> PipeWireClient::m_OutputPortMap;
 #define FREEJ_TEST_AUDIO_GRAPH_IMPL
 #include "audio-graph-fixture.h"
 #else
+namespace {
+bool graph_error(const char *operation, int status) {
+  if (status)
+    error("PipeWire: %s failed: %s (%d)", operation, spa_strerror(status), status);
+  else
+    error("PipeWire: %s failed without a native error code", operation);
+  return false;
+}
+}
+
 struct PipeWireClient::Graph {
   struct Lock {
     explicit Lock(pw_thread_loop *loop) : loop(loop) { pw_thread_loop_lock(loop); }
@@ -80,7 +91,11 @@ struct PipeWireClient::Graph {
     std::call_once(initialized, [] { pw_init(nullptr, nullptr); });
 
     loop = pw_thread_loop_new("freej-pipewire", nullptr);
-    if (!loop || pw_thread_loop_start(loop) < 0) return false;
+    if (!loop)
+      return graph_error("create thread loop", -errno);
+    const int started = pw_thread_loop_start(loop);
+    if (started < 0)
+      return graph_error("start thread loop", started);
     running = true;
     Lock lock(loop);
 
@@ -89,18 +104,20 @@ struct PipeWireClient::Graph {
     properties = pw_properties_new(PW_KEY_CONFIG_NAME, "null",
                                    "support.dbus", "false",
                                    "context.modules.allow-empty", "true", nullptr);
-    if (!properties) return false;
+    if (!properties)
+      return graph_error("allocate static context properties", -ENOMEM);
 #endif
     context = pw_context_new(pw_thread_loop_get_loop(loop), properties, 0);
-    if (!context) return false;
+    if (!context) return graph_error("create client context", -errno);
 #ifdef FREEJ_STRICT_STATIC
-    if (!pw_context_load_module(context, "libpipewire-module-protocol-native", nullptr, nullptr) ||
-        !pw_context_load_module(context, "libpipewire-module-client-node", nullptr, nullptr))
-      return false;
+    for (const char *module : {"libpipewire-module-protocol-native", "libpipewire-module-client-node"}) {
+      if (!pw_context_load_module(context, module, nullptr, nullptr))
+        return graph_error(module, -errno);
+    }
 #endif
 
     core = pw_context_connect(context, nullptr, 0);
-    if (!core) return false;
+    if (!core) return graph_error("connect to server", -errno);
     static const pw_core_events core_events = [] {
       pw_core_events events{};
       events.version = PW_VERSION_CORE_EVENTS;
@@ -112,7 +129,7 @@ struct PipeWireClient::Graph {
     pw_core_add_listener(core, &core_hook, &core_events, this);
 
     registry = pw_core_get_registry(core, PW_VERSION_REGISTRY, 0);
-    if (!registry) return false;
+    if (!registry) return graph_error("open graph registry", -errno);
     static const pw_registry_events registry_events = {
       PW_VERSION_REGISTRY_EVENTS, &Graph::global, &Graph::global_remove
     };
@@ -121,9 +138,9 @@ struct PipeWireClient::Graph {
                                    PW_KEY_NODE_ALWAYS_PROCESS, "true",
                                    PW_KEY_MEDIA_TYPE, "Audio",
                                    PW_KEY_MEDIA_CATEGORY, "Filter", nullptr);
-    if (!properties) return false;
+    if (!properties) return graph_error("allocate audio node properties", -ENOMEM);
     filter = pw_filter_new(core, client_name.c_str(), properties);
-    if (!filter) return false;
+    if (!filter) return graph_error("create audio filter", -errno);
     static const pw_filter_events filter_events = [] {
       pw_filter_events events{};
       events.version = PW_VERSION_FILTER_EVENTS;
@@ -134,13 +151,24 @@ struct PipeWireClient::Graph {
     pw_filter_add_listener(filter, &filter_hook, &filter_events, this);
     m_SampleRate = 48000;
     m_BufferSize = 1024;
-    if (pw_filter_connect(filter, PW_FILTER_FLAG_RT_PROCESS, nullptr, 0) < 0 || !sync())
+    const int connected = pw_filter_connect(filter, PW_FILTER_FLAG_RT_PROCESS, nullptr, 0);
+    if (connected < 0)
+      return graph_error("connect audio filter", connected);
+    if (!sync())
       return false;
     timespec deadline{};
-    if (pw_thread_loop_get_time(loop, &deadline, 2000000000) < 0) return false;
-    while (!failed && state == PW_FILTER_STATE_CONNECTING)
-      if (pw_thread_loop_timed_wait_full(loop, &deadline) < 0) return false;
-    if (failed || state < PW_FILTER_STATE_PAUSED) return false;
+    const int time = pw_thread_loop_get_time(loop, &deadline, 2000000000);
+    if (time < 0)
+      return graph_error("get filter activation deadline", time);
+    while (!failed && state == PW_FILTER_STATE_CONNECTING) {
+      const int ready = pw_thread_loop_timed_wait_full(loop, &deadline);
+      if (ready < 0)
+        return graph_error("wait for audio filter activation", ready);
+    }
+    if (failed)
+      return false;
+    if (state < PW_FILTER_STATE_PAUSED)
+      return graph_error("activate audio filter", -ENOTCONN);
     m_Attached = true;
     return true;
   }
@@ -148,11 +176,17 @@ struct PipeWireClient::Graph {
   bool sync() {
     if (failed) return false;
     const int seq = pw_core_sync(core, PW_ID_CORE, 0);
-    if (seq < 0) return false;
+    if (seq < 0)
+      return graph_error("request graph synchronization", seq);
     timespec deadline{};
-    if (pw_thread_loop_get_time(loop, &deadline, 2000000000) < 0) return false;
-    while (!failed && completed != seq)
-      if (pw_thread_loop_timed_wait_full(loop, &deadline) < 0) return false;
+    const int time = pw_thread_loop_get_time(loop, &deadline, 2000000000);
+    if (time < 0)
+      return graph_error("get graph synchronization deadline", time);
+    while (!failed && completed != seq) {
+      const int ready = pw_thread_loop_timed_wait_full(loop, &deadline);
+      if (ready < 0)
+        return graph_error("wait for graph synchronization", ready);
+    }
     return !failed;
   }
 
@@ -162,10 +196,18 @@ struct PipeWireClient::Graph {
     if (failed) return nullptr;
     auto *properties = pw_properties_new(PW_KEY_PORT_NAME, port.Name.c_str(),
                                          PW_KEY_FORMAT_DSP, "32 bit float mono audio", nullptr);
-    if (!properties) return nullptr;
+    if (!properties) {
+      error("PipeWire: cannot allocate properties for port '%s'", port.Name.c_str());
+      return nullptr;
+    }
     auto *handle = pw_filter_add_port(filter, direction, PW_FILTER_PORT_FLAG_MAP_BUFFERS,
                                       1, properties, nullptr, 0);
-    if (handle && direction == PW_DIRECTION_INPUT) local_inputs.emplace(port.Name, &port);
+    if (!handle) {
+      const int status = -errno;
+      error("PipeWire: add port '%s' failed: %s (%d)", port.Name.c_str(), spa_strerror(status), status);
+    } else if (direction == PW_DIRECTION_INPUT) {
+      local_inputs.emplace(port.Name, &port);
+    }
     return handle;
   }
 
@@ -309,14 +351,21 @@ private:
 
   static void core_error(void *data, uint32_t id, int, int result, const char *message) {
     auto &graph = *static_cast<Graph *>(data);
-    error("PipeWire: %s", message);
-    if (id == PW_ID_CORE && (result == -EPIPE || result == -ECONNRESET))
+    const bool disconnected = id == PW_ID_CORE && (result == -EPIPE || result == -ECONNRESET);
+    if (!disconnected || !graph.failed)
+      error("PipeWire: graph object %u: %s (%d)", id, message ? message : spa_strerror(result), result);
+    if (disconnected)
       graph.fail();
   }
 
-  static void state_changed(void *data, pw_filter_state, pw_filter_state state, const char *) {
+  static void state_changed(void *data, pw_filter_state previous, pw_filter_state state,
+                            const char *reason) {
     auto &graph = *static_cast<Graph *>(data);
     graph.state = state;
+    if (!graph.failed && (state == PW_FILTER_STATE_ERROR ||
+        (state == PW_FILTER_STATE_UNCONNECTED && (m_Attached || previous == PW_FILTER_STATE_CONNECTING))))
+      error("PipeWire: audio filter %s: %s", pw_filter_state_as_string(state),
+            reason ? reason : "server disconnected the filter");
     if (state == PW_FILTER_STATE_ERROR || state == PW_FILTER_STATE_UNCONNECTED)
       graph.fail();
     pw_thread_loop_signal(graph.loop, false);
@@ -425,8 +474,9 @@ bool PipeWireClient::Attach(const std::string &ClientName)
   audio_mix_ring = recording_->mix.get();
   first = recording_->input.get();
   graph_ = std::unique_ptr<Graph>(new Graph(*this));
+  if (!audio_mix_ring || !first)
+    error("PipeWire: cannot allocate recording buffers for '%s'", ClientName.c_str());
   if (!audio_mix_ring || !first || !graph_->open(ClientName)) {
-    error("Could not connect to the native PipeWire graph");
     detach_locked();
     return false;
   }
@@ -436,6 +486,32 @@ bool PipeWireClient::Attach(const std::string &ClientName)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
+
+void PipeWireClient::ReportPlaybackUnderruns() {
+  if (m_Singleton)
+    m_Singleton->report_playback_underruns(false);
+}
+
+void PipeWireClient::report_playback_underruns(bool closing) {
+  std::lock_guard<std::mutex> lock(underrun_report_mutex_);
+  const auto count = playback_underruns_.exchange(0, std::memory_order_relaxed);
+  if (!count && !underrun_episode_)
+    return;
+
+  const auto now = std::chrono::steady_clock::now();
+  if (count) {
+    if (!underrun_episode_ && !closing)
+      func("PipeWire: playback queue underrun at %lu Hz / %lu frames",
+           m_SampleRate.load(), m_BufferSize.load());
+    underrun_episode_ += count;
+    last_underrun_ = now;
+  }
+  if (closing || now - last_underrun_ >= std::chrono::seconds(1)) {
+    func("PipeWire: playback queue underrun summary: %u quantum(s) needed silence",
+         underrun_episode_);
+    underrun_episode_ = 0;
+  }
+}
 
 void PipeWireClient::Detach()
 {
@@ -449,6 +525,8 @@ void PipeWireClient::detach_locked()
 {
   m_Attached = false;
   graph_.reset();
+  report_playback_underruns(true);
+  playback_started_ = false;
   m_SampleRate = m_BufferSize = 0;
 	for (auto &entry : m_InputPortMap) {
 	  if (entry.second->capture) entry.second->capture->gap();
@@ -529,10 +607,13 @@ void PipeWireClient::Process(void *self, spa_io_position *position)
 	  const std::size_t frame_bytes = channels * sizeof(float);
 	  const std::size_t period_bytes = nframes * frame_bytes;
 	  bool output_available = false;
+	  bool short_playback = false;
 	  if (frame_bytes && client.m_ringbuffer && client.output_rate_ == rate && period_bytes <= client.output_buffer_.size()) {
 	    auto *samples = client.output_buffer_.data();
 	    const auto bytes = std::min(period_bytes, ringbuffer_read_space(client.m_ringbuffer));
 	    const auto received = ringbuffer_read(client.m_ringbuffer, samples, bytes - bytes % frame_bytes);
+	    short_playback = client.playback_started_ && received < period_bytes;
+	    client.playback_started_ |= received != 0;
 	    if (received) {
 	      // The encoder receives complete source samples, including the tail
 	      // of a clip. Playback alone gets zero filling to the PipeWire quantum.
@@ -547,15 +628,19 @@ void PipeWireClient::Process(void *self, spa_io_position *position)
 	  // Port slots are append-only while PipeWire can call Process. An acquired
 	  // count makes their handles visible even when the route lock is held.
 	  const int ports = client.output_port_count_.load(std::memory_order_acquire);
+	  bool delivered_to_port = false;
 	  for (int channel = 0; channel < ports; ++channel) {
 	    auto *output = Graph::buffer(client.output_ports_[channel], nframes);
 	    if (!output)
 	      continue;
+	    delivered_to_port |= channel < channels;
 	    if (output_available && channel < channels)
 	      deinterleave(client.output_buffer_.data(), output, channels, channel, nframes);
 	    else
 	      memset(output, 0, nframes * sizeof(*output));
 	  }
+	  if (short_playback && delivered_to_port)
+	    client.playback_underruns_.fetch_add(1, std::memory_order_relaxed);
 	}
 }
 
@@ -571,6 +656,7 @@ int PipeWireClient::SetRingbufferPtr(ringbuffer_t *rb, int rate, int channels) {
 	}
 	const std::size_t period = std::max(8192ul, m_BufferSize.load());
 	output_rate_ = rate;
+	playback_started_ = false;
 	output_buffer_.resize(period * channels * sizeof(float));
 	ringbuffer_reset(rb);
 	m_ringbufferchannels = channels;
@@ -583,6 +669,7 @@ void PipeWireClient::ResetRingbuffer(ringbuffer_t *rb, bool disconnect, unsigned
 	  std::lock_guard<std::mutex> lock(client->output_mutex_);
 	  if (client->m_ringbuffer == rb) {
 	    ringbuffer_reset(rb);
+	    client->playback_started_ = false;
 	    if (rate) client->output_rate_ = rate;
 	    if (disconnect) {
 	      client->m_ringbuffer = nullptr;

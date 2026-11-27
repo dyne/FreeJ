@@ -2,6 +2,7 @@
 #include <array>
 #include <chrono>
 #include <condition_variable>
+#include <cstdarg>
 #include <cstring>
 #include <future>
 #include <iostream>
@@ -23,6 +24,7 @@ std::mutex gate_mutex;
 std::condition_variable gate;
 bool hold_route = false;
 bool route_entered = false;
+unsigned underrun_reports = 0, underrun_summary = 0;
 
 bool play(ringbuffer_t *source) {
   const float stereo[] = {1, -1, 2, -2, 3, -3, 4, -4};
@@ -37,7 +39,16 @@ bool play(ringbuffer_t *source) {
 void *(*jmemcpy)(void *, const void *, std::size_t) = std::memcpy;
 void act(const char *, ...) {}
 void error(const char *, ...) {}
-void func(const char *, ...) {}
+void func(const char *format, ...) {
+  if (std::strstr(format, "playback queue underrun at"))
+    ++underrun_reports;
+  if (std::strstr(format, "playback queue underrun summary")) {
+    va_list args;
+    va_start(args, format);
+    underrun_summary += va_arg(args, unsigned);
+    va_end(args);
+  }
+}
 
 int main() {
   using namespace std::chrono;
@@ -94,7 +105,18 @@ int main() {
   const bool reattached = jack->Attach("reattached") && Fixture::count == 0 &&
       jack->SetRingbufferPtr(first.get(), 48000, 2) == 0 &&
       Fixture::count == 2 && play(first.get());
+  for (int i = 0; i < 3; ++i) {
+    Fixture::cycle(period);
+    PipeWireClient::ReportPlaybackUnderruns();
+  }
+  const bool reported_once = underrun_reports == 1 && underrun_summary == 0;
   PipeWireClient::PackUpAndGoHome();
+  if (!reported_once || underrun_summary != 3) {
+    std::cerr << "FAIL playback underrun diagnostics: reports=" << underrun_reports
+              << " total=" << underrun_summary << '\n';
+    return 1;
+  }
+  std::cout << "PASS three PCM underruns reported in one episode with a final count\n";
 
   if (!entered || !settled || !silent || !callback_ok || !resumed || !reattached) {
     std::cerr << "FAIL PipeWire contention: entered=" << entered << " settled_while_locked=" << settled

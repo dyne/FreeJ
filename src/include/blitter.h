@@ -25,6 +25,7 @@
 #include <SDL3/SDL.h>
 #include <memory>
 #include <geometry.h>
+#include <logging.h>
 
 #include <screen.h>
 #include <linklist.h>
@@ -35,7 +36,8 @@
 
 typedef void (blit_f)(void *src, void *dst, int len, Linklist<Parameter> *params);
 
-typedef void (blit_sdl_f)(void *src, SDL_Rect *src_rect,
+// Return the failed SDL operation, or nullptr on success.
+typedef const char *(blit_sdl_f)(void *src, SDL_Rect *src_rect,
 			  SDL_Surface *dst, SDL_Rect *dst_rect,
 			  Geometry *geo, Linklist<Parameter> *params);
 
@@ -137,6 +139,7 @@ class Blitter {
   
  private:
   friend class SdlScreen;
+  FailureEpisode drawing_failure_;
   struct {
     std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)> surface{nullptr, SDL_DestroySurface};
     uint64_t generation = 0;

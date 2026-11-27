@@ -56,7 +56,7 @@ SdlScreen::~SdlScreen() {
 bool SdlScreen::_init() {
   SDL_SetHint(SDL_HINT_FRAMEBUFFER_ACCELERATION, "0");
   if (!SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK)) {
-    error("Can't initialize SDL: %s", SDL_GetError());
+    error("Can't initialize SDL viewport '%s' (%ux%u): %s", name, geo.w, geo.h, SDL_GetError());
     return false;
   }
 
@@ -64,7 +64,7 @@ bool SdlScreen::_init() {
   if (sdl_screen)
     window = SDL_CreateWindow(PACKAGE " " VERSION, geo.w, geo.h, 0);
   if (!window) {
-    error("Can't create SDL viewport: %s", SDL_GetError());
+    error("Can't create SDL viewport '%s' (%ux%u): %s", name, geo.w, geo.h, SDL_GetError());
     SDL_QuitSubSystem(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK);
     return false;
   }
@@ -98,6 +98,15 @@ void SdlScreen::blit(Layer *layer) {
   void *pixels = layer->buffer;
   Geometry *transformed = nullptr;
   auto &cache = layer->blitter->transform_;
+  auto &drawing = layer->blitter->drawing_failure_;
+  const auto report = [&](const char *operation) {
+    if (drawing.first()) {
+      const char *detail = SDL_GetError();
+      error("Layer '%s' (%ux%u, %s) on viewport '%s' (%ux%u): %s failed: %s",
+            layer->name, layer->geo.w, layer->geo.h, blit->name, name, geo.w, geo.h,
+            operation, *detail ? detail : "SDL provided no detail");
+    }
+  };
   if (layer->rotating || layer->zooming) {
     const auto frame = freej_engine::FrameAccess::layer(*layer);
     const auto generation = frame && frame->pixels.data() == pixels ? frame->generation : 0;
@@ -113,13 +122,18 @@ void SdlScreen::blit(Layer *layer) {
       std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)> source(
           SDL_CreateSurfaceFrom(layer->geo.w, layer->geo.h, freej_pixel_format(),
                                 pixels, layer->geo.bytewidth), SDL_DestroySurface);
-      if (!source)
+      if (!source) {
+        report("wrap transform source");
         return;
+      }
+      SDL_ClearError();
       cache.surface.reset(layer->rotating
           ? rotozoomSurface(source.get(), angle, zoom_x, layer->antialias)
           : zoomSurface(source.get(), zoom_x, zoom_y, layer->antialias));
-      if (!cache.surface)
+      if (!cache.surface) {
+        report(layer->rotating ? "rotate layer" : "scale layer");
         return;
+      }
       cache.generation = generation;
       cache.angle = angle;
       cache.zoom_x = zoom_x;
@@ -155,14 +169,20 @@ void SdlScreen::blit(Layer *layer) {
     }
   } else if (blit->type == Blit::SDL && blit->sdl_fun) {
     SDL_Rect src = blit->sdl_rect, dst = blit->sdl_destination;
-    blit->sdl_fun(pixels, &src, sdl_screen, &dst, layer->blitter->geo, &blit->parameters);
+    if (const char *operation =
+            blit->sdl_fun(pixels, &src, sdl_screen, &dst, layer->blitter->geo, &blit->parameters)) {
+      report(operation);
+      return;
+    }
   }
+  drawing.recovered("Drawing layer", layer->name);
 }
 
 void SdlScreen::resize(int resize_w, int resize_h) {
   auto *surface = SDL_CreateSurface(resize_w, resize_h, freej_pixel_format());
   if (!surface || !SDL_SetWindowSize(window, resize_w, resize_h)) {
-    error("unable to resize SDL viewport: %s", SDL_GetError());
+    error("Unable to resize viewport '%s' from %ux%u to %dx%d: %s",
+          name, geo.w, geo.h, resize_w, resize_h, SDL_GetError());
     SDL_DestroySurface(surface);
     return;
   }
@@ -188,29 +208,43 @@ void SdlScreen::show() {
   }
 
   auto *target = SDL_GetWindowSurface(window);
-  if (!target || !SDL_BlitSurfaceScaled(sdl_screen, nullptr, target, nullptr, SDL_SCALEMODE_NEAREST)
-      || !SDL_UpdateWindowSurface(window))
-    error("unable to present SDL viewport: %s", SDL_GetError());
+  if (!target)
+    viewport_error(present_failure_, "get window surface");
+  else if (!SDL_BlitSurfaceScaled(sdl_screen, nullptr, target, nullptr, SDL_SCALEMODE_NEAREST))
+    viewport_error(present_failure_, "copy frame to window");
+  else if (!SDL_UpdateWindowSurface(window))
+    viewport_error(present_failure_, "update window surface");
+  else
+    present_failure_.recovered("Presenting viewport", name);
+}
+
+void SdlScreen::viewport_error(FailureEpisode &episode, const char *operation) {
+  if (episode.first())
+    error("Viewport '%s' (%ux%u): %s failed: %s", name, geo.w, geo.h,
+          operation, SDL_GetError());
 }
 
 void *SdlScreen::get_surface() {
-  return sdl_screen->pixels;
+  return sdl_screen ? sdl_screen->pixels : nullptr;
 }
 
 void SdlScreen::clear() {
-  SDL_FillSurfaceRect(sdl_screen,NULL,0x0);
+  if (!SDL_FillSurfaceRect(sdl_screen, nullptr, 0))
+    viewport_error(clear_failure_, "clear frame");
+  else
+    clear_failure_.recovered("Clearing viewport", name);
 }
 void SdlScreen::fullscreen() {
   switch_fullscreen = true;
 }
 
 bool SdlScreen::lock() {
-  if (!SDL_MUSTLOCK(sdl_screen)) return true;
-  if (!SDL_LockSurface(sdl_screen)) {
-    error("%s", SDL_GetError());
+  if (SDL_MUSTLOCK(sdl_screen) && !SDL_LockSurface(sdl_screen)) {
+    viewport_error(lock_failure_, "lock frame");
     return false;
   }
-  return(true);
+  lock_failure_.recovered("Locking viewport", name);
+  return true;
 }
 
 bool SdlScreen::unlock() {

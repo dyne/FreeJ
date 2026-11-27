@@ -118,6 +118,22 @@ bool inspect(const char *input) {
   return true;
 }
 
+bool diagnostics(const char *input) {
+  MovieDecoder movie;
+  MovieDecoder::Frame frame;
+  if (movie.next(frame) != MovieDecoder::Result::error ||
+      movie.last_error().find("decode unopened input:") != 0)
+    return false;
+  const auto missing = std::string(input) + "/missing";
+  if (movie.open(missing.c_str()) || movie.last_error().find("open input:") != 0 ||
+      movie.last_error().find('(') == std::string::npos)
+    return false;
+  if (!movie.open(input) || !movie.last_error().empty())
+    return false;
+  std::cout << "PASS media diagnostics retain the failed operation and FFmpeg error\n";
+  return true;
+}
+
 }
 
 int main(int argc, char **argv) {
@@ -126,7 +142,7 @@ int main(int argc, char **argv) {
     return movie.open(argv[1]) && dump(movie, argv[2], argv[3]) ? 0 : 1;
   }
   const char *input = argc == 2 ? argv[1] : std::getenv("MOVIE_TEST_CLIP");
-  if (!input || !inspect(input)) {
+  if (!input || !diagnostics(input) || !inspect(input)) {
     std::cerr << "FAIL movie replay\n";
     return 1;
   }

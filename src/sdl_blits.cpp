@@ -22,6 +22,7 @@
 
 #include <jutils.h>
 #include <blitter.h>
+#include <memory>
 #include "sdl_pixels.h"
 
 ///////////////////////////////////////////////////////////////////
@@ -29,34 +30,36 @@
 // TODO: more SDL blits playing with color masks
 
 namespace {
-void blit_pixels(void *pixels, SDL_Rect *src, SDL_Surface *dst, SDL_Rect *dest,
-                 const Geometry &geometry, bool source_alpha, bool blend, Uint8 alpha) {
-  SDL_Surface *surface = SDL_CreateSurfaceFrom(geometry.w, geometry.h,
-      freej_pixel_format(source_alpha), pixels, geometry.bytewidth);
+const char *blit_pixels(void *pixels, SDL_Rect *src, SDL_Surface *dst, SDL_Rect *dest,
+                        const Geometry &geometry, bool source_alpha, bool blend, Uint8 alpha) {
+  std::unique_ptr<SDL_Surface, decltype(&SDL_DestroySurface)> surface(
+      SDL_CreateSurfaceFrom(geometry.w, geometry.h, freej_pixel_format(source_alpha),
+                            pixels, geometry.bytewidth), SDL_DestroySurface);
   if (!surface)
-    return;
-  SDL_SetSurfaceBlendMode(surface, blend ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE);
-  SDL_SetSurfaceAlphaMod(surface, alpha);
-  SDL_BlitSurface(surface, src, dst, dest);
-  SDL_DestroySurface(surface);
+    return "wrap layer pixels";
+  if (!SDL_SetSurfaceBlendMode(surface.get(), blend ? SDL_BLENDMODE_BLEND : SDL_BLENDMODE_NONE))
+    return "set blend mode";
+  if (!SDL_SetSurfaceAlphaMod(surface.get(), alpha))
+    return "set opacity";
+  return SDL_BlitSurface(surface.get(), src, dst, dest) ? nullptr : "blit layer pixels";
 }
 }
 
-BLIT sdl_rgb(void *src, SDL_Rect *src_rect, SDL_Surface *dst, SDL_Rect *dst_rect,
-             Geometry *geo, Linklist<Parameter> *) {
-  blit_pixels(src, src_rect, dst, dst_rect, *geo, false, false, 255);
+static const char *sdl_rgb(void *src, SDL_Rect *src_rect, SDL_Surface *dst,
+                           SDL_Rect *dst_rect, Geometry *geo, Linklist<Parameter> *) {
+  return blit_pixels(src, src_rect, dst, dst_rect, *geo, false, false, 255);
 }
 
-BLIT sdl_alpha(void *src, SDL_Rect *src_rect, SDL_Surface *dst, SDL_Rect *dst_rect,
-               Geometry *geo, Linklist<Parameter> *params) {
+static const char *sdl_alpha(void *src, SDL_Rect *src_rect, SDL_Surface *dst,
+                             SDL_Rect *dst_rect, Geometry *geo, Linklist<Parameter> *params) {
   const auto alpha = static_cast<Uint8>(*static_cast<float *>(params->begin()->value));
-  blit_pixels(src, src_rect, dst, dst_rect, *geo, false, true, alpha);
+  return blit_pixels(src, src_rect, dst, dst_rect, *geo, false, true, alpha);
 }
 
-BLIT sdl_srcalpha(void *src, SDL_Rect *src_rect, SDL_Surface *dst, SDL_Rect *dst_rect,
-                  Geometry *geo, Linklist<Parameter> *) {
+static const char *sdl_srcalpha(void *src, SDL_Rect *src_rect, SDL_Surface *dst,
+                                SDL_Rect *dst_rect, Geometry *geo, Linklist<Parameter> *) {
   // Per-pixel alpha takes precedence over the surface alpha in the show API.
-  blit_pixels(src, src_rect, dst, dst_rect, *geo, true, true, 255);
+  return blit_pixels(src, src_rect, dst, dst_rect, *geo, true, true, 255);
 }
 
 void setup_sdl_blits(Blitter *blitter) {

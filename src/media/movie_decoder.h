@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 #include <vector>
 
 namespace freej_media {
@@ -22,6 +23,7 @@ public:
   bool open(const char *path);
   bool seek(std::int64_t timestamp);
   Result next(Frame &frame);
+  const std::string &last_error() const { return last_error_; }
   int width() const;
   int height() const;
   double frame_rate() const;
@@ -33,6 +35,7 @@ public:
 
 private:
   struct State;
+  std::string last_error_;
   std::unique_ptr<State> state_;
 };
 

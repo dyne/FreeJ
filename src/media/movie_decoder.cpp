@@ -8,6 +8,7 @@
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavutil/error.h>
 #include <libavutil/mathematics.h>
 #include <libswresample/swresample.h>
 #include <libswscale/swscale.h>
@@ -30,6 +31,15 @@ using Scaler = std::unique_ptr<SwsContext, decltype(&sws_freeContext)>;
 
 constexpr AVRational microseconds{1, AV_TIME_BASE};
 
+bool report_error(std::string &error, const char *operation, int code) {
+  char detail[AV_ERROR_MAX_STRING_SIZE];
+  if (av_strerror(code, detail, sizeof(detail)) < 0)
+    error = std::string(operation) + ": FFmpeg status " + std::to_string(code);
+  else
+    error = std::string(operation) + ": " + detail + " (" + std::to_string(code) + ")";
+  return false;
+}
+
 struct Stream {
   AVStream *info = nullptr;
   Codec codec;
@@ -37,18 +47,22 @@ struct Stream {
   bool drain_sent = false;
   bool drained = false;
 
-  bool open(AVFormatContext *input, AVMediaType type) {
+  bool open(AVFormatContext *input, AVMediaType type, std::string &error) {
     const AVCodec *decoder = nullptr;
     const int index = av_find_best_stream(input, type, -1, -1, &decoder, 0);
     if (index < 0)
-      return false;
+      return report_error(error, "find stream", index);
     AVStream *stream = input->streams[index];
     Codec context(avcodec_alloc_context3(decoder));
-    if (!context || avcodec_parameters_to_context(context.get(), stream->codecpar) < 0)
-      return false;
+    if (!context)
+      return report_error(error, "allocate decoder", AVERROR(ENOMEM));
+    const int parameters = avcodec_parameters_to_context(context.get(), stream->codecpar);
+    if (parameters < 0)
+      return report_error(error, "read codec parameters", parameters);
     context->pkt_timebase = stream->time_base;
-    if (avcodec_open2(context.get(), decoder, nullptr) < 0)
-      return false;
+    const int opened = avcodec_open2(context.get(), decoder, nullptr);
+    if (opened < 0)
+      return report_error(error, "open decoder", opened);
     info = stream;
     codec = std::move(context);
     return true;
@@ -65,6 +79,13 @@ struct Stream {
 }
 
 struct MovieDecoder::State {
+  explicit State(std::string &error) : error(error) {}
+  std::string &error;
+
+  Result fail(const char *operation, int code) {
+    report_error(error, operation, code);
+    return Result::error;
+  }
   Input input;
   Stream video;
   Stream audio;
@@ -91,8 +112,12 @@ struct MovieDecoder::State {
     if (timestamp < discard_before)
       return Result::again;
     // A fixed layer geometry is shared with the compositor for the lifetime of an open source.
-    if (source.width != width || source.height != height)
+    if (source.width != width || source.height != height) {
+      error = "decoded frame changed from " + std::to_string(width) + "x" +
+          std::to_string(height) + " to " + std::to_string(source.width) + "x" +
+          std::to_string(source.height);
       return Result::error;
+    }
 #if __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
     constexpr auto output = AV_PIX_FMT_ARGB;
 #else
@@ -101,18 +126,27 @@ struct MovieDecoder::State {
     scale.reset(sws_getCachedContext(scale.release(), width, height,
                                    static_cast<AVPixelFormat>(source.format),
                                    width, height, output, SWS_BICUBIC, nullptr, nullptr, nullptr));
-    if (!scale)
+    if (!scale) {
+      error = "could not configure pixel conversion for format " + std::to_string(source.format);
       return Result::error;
+    }
     if (!converted->data[0]) {
       converted->format = output;
       converted->width = width;
       converted->height = height;
-      if (av_frame_get_buffer(converted.get(), 32) < 0)
-        return Result::error;
+      const int status = av_frame_get_buffer(converted.get(), 32);
+      if (status < 0)
+        return fail("allocate converted video frame", status);
     }
-    if (sws_scale(scale.get(), source.data, source.linesize, 0, height,
-                  converted->data, converted->linesize) != height)
+    const int converted_rows = sws_scale(scale.get(), source.data, source.linesize, 0, height,
+                                         converted->data, converted->linesize);
+    if (converted_rows < 0)
+      return fail("convert video pixels", converted_rows);
+    if (converted_rows != height) {
+      error = "pixel conversion returned " + std::to_string(converted_rows) +
+          " of " + std::to_string(height) + " rows";
       return Result::error;
+    }
     frame.pixels.resize(static_cast<std::size_t>(width) * height);
     for (int y = 0; y < height; ++y) {
       const auto *row = converted->data[0] + y * converted->linesize[0];
@@ -131,14 +165,20 @@ struct MovieDecoder::State {
                     AV_SAMPLE_FMT_FLT, output_rate, &audio.codec->ch_layout,
                     static_cast<AVSampleFormat>(source->format), source->sample_rate, 0, nullptr);
       resample.reset(converter);
-      if (status < 0 || swr_init(resample.get()) < 0)
-        return Result::error;
+      if (status < 0)
+        return fail("allocate audio resampler", status);
+      const int initialized = swr_init(resample.get());
+      if (initialized < 0)
+        return fail("initialize audio resampler", initialized);
     }
 
     const int channels = audio.codec->ch_layout.nb_channels;
     if (source && (source->sample_rate != audio.codec->sample_rate ||
-        source->ch_layout.nb_channels != channels))
+        source->ch_layout.nb_channels != channels)) {
+      error = "decoded audio changed to " + std::to_string(source->sample_rate) +
+          " Hz / " + std::to_string(source->ch_layout.nb_channels) + " channels";
       return Result::error;
+    }
     if (!audio_timed || (source && swr_get_delay(resample.get(), output_rate) == 0 &&
         timestamp != audio.next_timestamp)) {
       audio_timestamp = timestamp;
@@ -152,13 +192,13 @@ struct MovieDecoder::State {
 
     const int capacity = swr_get_out_samples(resample.get(), input_samples);
     if (capacity < 0)
-      return Result::error;
+      return fail("size resampler output", capacity);
     frame.samples.resize(static_cast<std::size_t>(capacity) * channels);
     uint8_t *output[] = {reinterpret_cast<uint8_t *>(frame.samples.data())};
     const int produced = swr_convert(resample.get(), output, capacity,
         source ? const_cast<const uint8_t **>(source->extended_data) : nullptr, input_samples);
     if (produced < 0)
-      return Result::error;
+      return fail("resample audio", produced);
     if (!produced)
       return source ? Result::again : Result::end;
 
@@ -186,28 +226,43 @@ bool MovieDecoder::open(const char *path) {
   static std::once_flag network_init;
   std::call_once(network_init, [] { avformat_network_init(); });
 
-  std::unique_ptr<State> state(new State);
+  last_error_.clear();
+  if (!path || !*path)
+    return report_error(last_error_, "open input", AVERROR(EINVAL));
+  std::unique_ptr<State> state(new State(last_error_));
   AVFormatContext *input = nullptr;
-  if (!path || avformat_open_input(&input, path, nullptr, nullptr) < 0)
-    return false;
+  const int opened = avformat_open_input(&input, path, nullptr, nullptr);
+  if (opened < 0)
+    return report_error(last_error_, "open input", opened);
   state->input.reset(input);
-  if (!state->packet || !state->decoded || !state->converted ||
-      avformat_find_stream_info(input, nullptr) < 0 ||
-      !state->video.open(input, AVMEDIA_TYPE_VIDEO))
+  if (!state->packet || !state->decoded || !state->converted)
+    return report_error(last_error_, "allocate decode buffers", AVERROR(ENOMEM));
+  const int probed = avformat_find_stream_info(input, nullptr);
+  if (probed < 0)
+    return report_error(last_error_, "probe media streams", probed);
+  if (!state->video.open(input, AVMEDIA_TYPE_VIDEO, last_error_)) {
+    last_error_.insert(0, "video: ");
     return false;
+  }
   const auto &video = *state->video.codec;
   if (video.width <= 0 || video.height <= 0 ||
       video.width > std::numeric_limits<uint16_t>::max() / 4 ||
-      video.height > std::numeric_limits<uint16_t>::max())
+      video.height > std::numeric_limits<uint16_t>::max()) {
+    last_error_ = "unsupported video dimensions " + std::to_string(video.width) +
+        "x" + std::to_string(video.height);
     return false;
+  }
 
   state->width = video.width;
   state->height = video.height;
 
-  if (state->audio.open(input, AVMEDIA_TYPE_AUDIO)) {
+  std::string optional_audio_error;
+  if (state->audio.open(input, AVMEDIA_TYPE_AUDIO, optional_audio_error)) {
     if (state->audio.codec->sample_rate <= 0 ||
-        !av_channel_layout_check(&state->audio.codec->ch_layout))
+        !av_channel_layout_check(&state->audio.codec->ch_layout)) {
+      last_error_ = "invalid audio rate or channel layout";
       return false;
+    }
     auto &layout = state->audio.codec->ch_layout;
     if (layout.order == AV_CHANNEL_ORDER_UNSPEC)
       av_channel_layout_default(&layout, layout.nb_channels);
@@ -224,6 +279,9 @@ bool MovieDecoder::open(const char *path) {
 }
 
 bool MovieDecoder::seek(std::int64_t timestamp) {
+  last_error_.clear();
+  if (!state_)
+    return report_error(last_error_, "seek unopened input", AVERROR(EINVAL));
   auto &state = *state_;
   auto *video = state.video.info;
   const auto target = av_sat_add64(state.origin, timestamp);
@@ -245,8 +303,9 @@ bool MovieDecoder::seek(std::int64_t timestamp) {
       decode_start = av_rescale_q(earlier, microseconds, video->time_base);
     }
   }
-  if (av_seek_frame(state.input.get(), video->index, decode_start, AVSEEK_FLAG_BACKWARD) < 0)
-    return false;
+  const int status = av_seek_frame(state.input.get(), video->index, decode_start, AVSEEK_FLAG_BACKWARD);
+  if (status < 0)
+    return report_error(last_error_, "seek input", status);
   av_packet_unref(state.packet.get());
   av_frame_unref(state.decoded.get());
   state.video.seek(timestamp);
@@ -259,9 +318,14 @@ bool MovieDecoder::seek(std::int64_t timestamp) {
 }
 
 MovieDecoder::Result MovieDecoder::next(Frame &frame) {
-  auto &state = *state_;
+  last_error_.clear();
   frame.pixels.clear();
   frame.samples.clear();
+  if (!state_) {
+    report_error(last_error_, "decode unopened input", AVERROR(EINVAL));
+    return Result::error;
+  }
+  auto &state = *state_;
   // Bound calls into the demuxer per tick, including streams with no video packets.
   for (int work = 0; work < 128; ++work) {
     if (Stream *stream = state.receiving) {
@@ -282,7 +346,7 @@ MovieDecoder::Result MovieDecoder::next(Frame &frame) {
       if (status == AVERROR_EOF)
         stream->drained = true;
       else if (status != AVERROR(EAGAIN))
-        return Result::error;
+        return state.fail(stream == &state.video ? "receive video frame" : "receive audio frame", status);
     }
 
     if (!state.input_ended) {
@@ -295,7 +359,7 @@ MovieDecoder::Result MovieDecoder::next(Frame &frame) {
           continue;
         }
         if (status < 0)
-          return Result::error;
+          return state.fail("read input packet", status);
         state.packet_pending = true;
       }
       const int index = state.packet->stream_index;
@@ -304,7 +368,7 @@ MovieDecoder::Result MovieDecoder::next(Frame &frame) {
       if (stream) {
         const int status = avcodec_send_packet(stream->codec.get(), state.packet.get());
         if (status < 0 && status != AVERROR(EAGAIN))
-          return Result::error;
+          return state.fail(stream == &state.video ? "send video packet" : "send audio packet", status);
         state.receiving = stream;
         if (status == AVERROR(EAGAIN))
           continue;
@@ -321,7 +385,7 @@ MovieDecoder::Result MovieDecoder::next(Frame &frame) {
     if (!stream->drain_sent) {
       const int status = avcodec_send_packet(stream->codec.get(), nullptr);
       if (status < 0 && status != AVERROR(EAGAIN) && status != AVERROR_EOF)
-        return Result::error;
+        return state.fail(stream == &state.video ? "drain video decoder" : "drain audio decoder", status);
       stream->drain_sent = status != AVERROR(EAGAIN);
     }
     state.receiving = stream;

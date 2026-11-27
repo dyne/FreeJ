@@ -18,6 +18,9 @@
  */
 
 #include <config.h>
+#ifdef WITH_AUDIO
+#include <audio_pipewire.h>
+#endif
 #include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
@@ -278,6 +281,9 @@ void Context::cafudda(double /*secs*/) {
     host.dispatch_input = [this] { handle_controllers(); };
   }
   fps.calc_at(freej_engine::step_frame(*this, host));
+#ifdef WITH_AUDIO
+  PipeWireClient::ReportPlaybackUnderruns();
+#endif
   fps.delay();
 }
 

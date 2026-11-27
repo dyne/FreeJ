@@ -19,6 +19,7 @@
 
 #include <array>
 #include <atomic>
+#include <chrono>
 #include <map>
 #include <memory>
 #include <mutex>
@@ -51,6 +52,7 @@ public:
 	bool   Attach(const std::string &ClientName);
 	void   Detach();
 	bool   IsAttached();
+	static void ReportPlaybackUnderruns();
 	unsigned Session() const { return session_.load(); }
 	void   SetCallback(void(*run)(void*, unsigned int), void *context);
 	void   ClearCallback(void *context);
@@ -114,6 +116,12 @@ private:
 	std::mutex output_mutex_;
 	std::vector<char> output_buffer_;
 	unsigned output_rate_ = 0;
+  bool playback_started_ = false; // protected by output_mutex_
+  std::atomic<unsigned> playback_underruns_{0};
+  std::mutex underrun_report_mutex_;
+  unsigned underrun_episode_ = 0;
+  std::chrono::steady_clock::time_point last_underrun_;
+  void report_playback_underruns(bool closing);
 
 
 	static PipeWireClient*        m_Singleton;

@@ -327,19 +327,17 @@ int main (int argc, char **argv) {
   cmdline(argc,argv);
   set_debug(debug_level);
 
-  // create SDL screen by default at selected size
-  screen = Factory<ViewPort>::get_instance( "Screen", screen_name );
-  //  screen = new SdlScreen();
-  if(!screen) {
-    error("no screen can be opened");
+  std::unique_ptr<ViewPort> viewport(Factory<ViewPort>::get_instance("Screen", screen_name));
+  if (!viewport) {
+    error("Could not create viewport backend '%s'", screen_name);
     delete freej;
-    exit(1);
+    return 1;
   }
-
-  screen->init(width, height, 32);
-
-  // add the screen to the context
-  freej->add_screen(screen);
+  if (!viewport->init(width, height, 32) || !freej->add_screen(viewport.get())) {
+    delete freej;
+    return 1;
+  }
+  screen = viewport.release();
 
   if(fullscreen) screen->fullscreen();
 

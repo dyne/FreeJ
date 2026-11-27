@@ -16,6 +16,7 @@
 #include <context.h>
 #include <controller.h>
 #include <image_layer.h>
+#include <logging.h>
 #include <geo_layer.h>
 #include <sdl_controller.h>
 #include <sdl_screen.h>
@@ -269,6 +270,60 @@ public:
   }
 };
 
+class CapturedLog : public Logger {
+public:
+  CapturedLog() : previous_(GlobalLogger::get_loglevel()) {
+    require(GlobalLogger::register_logger(this), "capture rendering diagnostics");
+    set_debug(1);
+  }
+
+  ~CapturedLog() {
+    GlobalLogger::unregister_logger(this);
+    GlobalLogger::set_loglevel(previous_);
+  }
+
+  int vprintlog(LogLevel level, const char *format, va_list args) override {
+    char text[1024];
+    const int length = std::vsnprintf(text, sizeof(text), format, args);
+    entries.emplace_back(level, text);
+    return length;
+  }
+
+  unsigned count(LogLevel level, const char *text) const {
+    return std::count_if(entries.begin(), entries.end(), [&](const std::pair<LogLevel, std::string> &entry) {
+      return entry.first == level && entry.second.find(text) != std::string::npos;
+    });
+  }
+
+private:
+  LogLevel previous_;
+  std::vector<std::pair<LogLevel, std::string>> entries;
+};
+
+void check_rendering_diagnostics(SdlScreen &screen, Layer &layer) {
+  CapturedLog log;
+  warning("warning at normal verbosity");
+  func("trace at normal verbosity");
+  require(log.count(WARNING, "warning at normal verbosity") == 1 &&
+          log.count(DEBUG, "trace at normal verbosity") == 0, "normal logging includes warnings");
+
+  auto *surface = screen.sdl_screen;
+  screen.sdl_screen = nullptr;
+  for (int frame = 0; frame < 4; ++frame) {
+    screen.blit(&layer);
+    screen.show();
+  }
+  screen.sdl_screen = surface;
+  screen.blit(&layer);
+  screen.show();
+
+  require(log.count(ERROR, "blit layer pixels failed:") == 1 &&
+          log.count(ERROR, "copy frame to window failed:") == 1,
+          "each rendering operation reports only its first error");
+  require(log.count(NOTICE, "recovered after 4 failed attempt(s)") == 2,
+          "each rendering operation reports recovery and the failed-attempt count");
+}
+
 void check_clipping(Context &context, ViewPort &screen, bool native) {
   const auto red = expected_pixel(240, 20, 10);
   const auto blue = expected_pixel(10, 30, 210);
@@ -376,6 +431,7 @@ void check_clipping(Context &context, ViewPort &screen, bool native) {
     require(SDL_ReadSurfacePixel(surface, 0, 0, &r, &g, &b, nullptr) &&
             std::abs(int(r) - 108) <= 1 && std::abs(int(g) - 63) <= 1 &&
             std::abs(int(b) - 43) <= 1, "half-alpha drawing blends with the viewport");
+    check_rendering_diagnostics(static_cast<SdlScreen &>(screen), layer);
   }
   screen.rem_layer(&layer);
 }

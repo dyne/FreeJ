@@ -86,7 +86,8 @@ bool VideoLayer::_init() { return true; }
 bool VideoLayer::open(const char *file) {
   std::unique_ptr<freej_media::MovieDecoder> decoder(new freej_media::MovieDecoder);
   if (!decoder->open(file)) {
-    error("VideoLayer: cannot open %s", file ? file : "(null)");
+    error("VideoLayer: cannot open '%s': %s", file ? file : "(null)",
+          decoder->last_error().c_str());
     return false;
   }
 
@@ -177,7 +178,8 @@ void *VideoLayer::feed() {
       }
 #endif
     } else {
-      warning("VideoLayer: cannot seek %s", p.path.c_str());
+      warning("VideoLayer: cannot seek '%s' to %lld us: %s", p.path.c_str(),
+              static_cast<long long>(target), p.decoder->last_error().c_str());
     }
     p.rewind = false;
   }
@@ -220,7 +222,8 @@ void *VideoLayer::feed() {
     }
     if (result == Result::error) {
       p.ended = true;
-      warning("VideoLayer: decode failed for %s", p.path.c_str());
+      warning("VideoLayer: decode failed for '%s' at %lld us: %s", p.path.c_str(),
+              static_cast<long long>(p.position), p.decoder->last_error().c_str());
     }
     break;
   }

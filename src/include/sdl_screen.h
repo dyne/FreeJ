@@ -24,6 +24,7 @@
 
 #include <SDL3/SDL.h>
 #include <screen.h>
+#include <logging.h>
 
 #include <factory.h>
 
@@ -60,6 +61,8 @@ class SdlScreen : public ViewPort {
 
   SDL_Window *window;
   bool switch_fullscreen;
+  FailureEpisode present_failure_, clear_failure_, lock_failure_;
+  void viewport_error(FailureEpisode &episode, const char *operation);
 
   // allow to use Factory on this class
   FACTORY_ALLOWED;

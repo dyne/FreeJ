@@ -101,6 +101,19 @@ static_show() (
         --factory "$build_work/factory" --pulse "$build_work/pulse"
 )
 
+viewport_startup_error() (
+    mkdir -- "$out/startup-home"
+    status=0
+    HOME="$out/startup-home" SDL_VIDEODRIVER=freej-invalid-driver \
+        LD_LIBRARY_PATH="$stage/lib:$LD_LIBRARY_PATH" \
+        timeout 8 "$stage/bin/freej" -c -D 1 > "$out/viewport-startup-error.log" 2>&1 || status=$?
+    test "$status" -eq 1
+    test "$(grep -c '^\[!\]' "$out/viewport-startup-error.log")" -eq 1
+    grep -F "Can't initialize SDL viewport 'SDL' (400x300): freej-invalid-driver not available" \
+        "$out/viewport-startup-error.log"
+    ! grep -Eq '^\[F\]|screen SDL initialized' "$out/viewport-startup-error.log"
+)
+
 effect_parity() (
     home="$out/effect-home"
     mkdir -- "$home"
@@ -168,6 +181,7 @@ for pass in cold warm; do
     read -r -a pipewire_flags <<< "$(pkg-config --cflags --libs libpipewire-0.3)"
     "$ccache_bin" "$gxx" -std=c++11 -Wall -Wextra -Werror -pthread \
         tests/show-replay/pulse.cpp "${pipewire_flags[@]}" -o "$build_work/pulse"
+    viewport_startup_error
     effect_parity 2>&1 | tee "$out/frei0r-parity.log"
     if [[ $profile == static ]]; then
         cp -- "$build_work/build/src/freej.map" "$out/freej.map"
